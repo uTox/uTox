@@ -131,10 +131,15 @@ void edit_mousemove(EDIT *edit, int x, int y)
 
     if(edit == sedit && edit_select)
     {
-        int fit;
+        int fit = 0, extent;
         SIZE size;
         SelectObject(hdc, font_small);
-        GetTextExtentExPoint(hdc, (char*)edit->data, edit->length, x - edit->x - 5, &fit, NULL, &size);
+
+        extent = x - edit->x - 5;
+        if(extent > 0)
+        {
+            GetTextExtentExPoint(hdc, (char*)edit->data, edit->length, extent, &fit, NULL, &size);
+        }
 
         edit_sel.p2 = fit;
         if(edit_sel.p2 > edit_sel.p1)
