@@ -1445,7 +1445,15 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             int groupnumber = wParam >> 16, peernumber = wParam & 0xFFFF;
 
             GROUPCHAT *g = &group[groupnumber];
-            g->peers++;
+
+            if(g->peername[peernumber])
+            {
+                free(g->peername[peernumber]);
+            }
+            else
+            {
+                g->peers++;
+            }
 
             g->topic_length = sprintf((char*)g->topic, "%u users in chat", g->peers);
 
@@ -1464,7 +1472,11 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             int groupnumber = wParam >> 16, peernumber = wParam & 0xFFFF;
 
             GROUPCHAT *g = &group[groupnumber];
-            g->peers--;
+
+            if(g->peername[peernumber])
+            {
+                g->peers--;
+            }
 
             free(g->peername[peernumber]);
             g->peername[peernumber] = NULL;
