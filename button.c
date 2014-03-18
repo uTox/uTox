@@ -24,8 +24,6 @@ void button_addfriend_onpress(void)
 
     core_postmessage2(CMSG_ADDFRIEND, edit_addmsg.length, TOX_FRIEND_ADDRESS_SIZE, id, edit_addmsg_data);
 
-    edit_addid.locked = 1;
-
     EDIT *edit = sedit;
     sedit = NULL;
     edit_draw(edit);

@@ -1,13 +1,6 @@
 
 #include "main.h"
 
-enum
-{
-    TRAY_ICON,
-    TRAY_SHOWHIDE,
-    TRAY_EXIT,
-};
-
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 _Bool draw = 0;
@@ -74,13 +67,6 @@ RECT rect_new(RECT r, int left, int top, int right, int bottom)
 
 void drawfriendmain(int x, int y, FRIEND *f)
 {
-    RECT r = {x, y + 46, width - 24, height - 152};
-
-    if(f->online)
-    {
-        FrameRect(hdc, &r, border);
-    }
-
     SetTextColor(hdc, 0x333333);
     SelectObject(hdc, font_big);
     drawtextrange(x + 8, width - 24, y + 2, f->name, f->name_length);
@@ -94,6 +80,13 @@ void drawfriendmain(int x, int y, FRIEND *f)
     FillRect(hdc, &send, red);
 
     draw_messages(x + 1, y + 47, f);
+
+    RECT r = {x, y + 46, width - 24, height - 152};
+
+    if(f->online)
+    {
+        FrameRect(hdc, &r, border);
+    }
 }
 
 void drawgroupmain(int x, int y, GROUPCHAT *g)
@@ -107,14 +100,6 @@ void drawgroupmain(int x, int y, GROUPCHAT *g)
 
     r.left = width - 24 - 100;
     FrameRect(hdc, &r, border);
-
-    /*SetTextColor(hdc, 0x333333);
-    SelectObject(hdc, font_big);
-    drawtext(x + 8, y + 2, f->name, f->name_length);
-
-    SetTextColor(hdc, 0x999999);
-    SelectObject(hdc, font_med);
-    drawtext(x + 8, y + 26, f->status_message, f->status_length);*/
 
     RECT send = {width - 100 , height - 48, width - 24, height - 24};
     FillRect(hdc, &send, red);
@@ -152,19 +137,6 @@ void drawselfmain(int x, int y)
 
     SelectObject(hdc, font_med2);
     drawtextrange(x, edit_name.right, y + 176, tox_address_string, sizeof(tox_address_string));
-
-
-
-    //edit_draw(&edit_name);
-    //edit_draw(&edit_status);
-
-    /*int x2 = (x + 500) < (width - 24) ? x + 500 : width - 24;
-
-    RECT namebox = {x, y + 74, x2, y + 98};
-    FrameRect(hdc, &namebox, gray5);
-
-    RECT statusbox = {x, y + 124, x2, y + 148};
-    FrameRect(hdc, &statusbox, gray5);*/
 }
 
 void drawaddmain(int x, int y)
@@ -175,10 +147,6 @@ void drawaddmain(int x, int y)
 
     SelectObject(hdc, font_big);
     drawstr(x, y + 2, "Add a friend");
-
-    /*SetTextColor(hdc, 0x999999);
-    SelectObject(hdc, font_small);
-    drawstr(x, y + 30, "When you add a friend, they will need to accept your request\n");*/
 
     SetTextColor(hdc, 0x555555);
 
@@ -785,6 +753,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine,
     bm2.bmBits = test;
     bm_corner = CreateBitmapIndirect(&bm2);
 
+    TEXTMETRIC tm;
+    SelectObject(hdc, font_small);
+    GetTextMetrics(hdc, &tm);
+
+    font_small_lineheight = tm.tmHeight + tm.tmExternalLeading;
+
+
     //wait for tox_thread init
     while(!tox_thread_b) {Sleep(1);}
 
@@ -967,6 +942,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                                     i++;
                                 }
 
+                                free(f->message);
+
                                 memset(f, 0, sizeof(FRIEND));//
 
                                 friends--;
@@ -999,6 +976,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                                     i++;
                                 }
 
+                                free(g->message);
+
                                 memset(g, 0, sizeof(GROUP));//
 
                                 list_deletesitem();
@@ -1014,15 +993,21 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             {
                 switch(wParam)
                 {
+                    case 'C':
+                    {
+                        edit_copy();
+                        break;
+                    }
+
                     case 'V':
                     {
-                        if(sedit)
-                        {
-                            OpenClipboard(NULL);
-                            char *str = GetClipboardData(CF_TEXT);
-                            edit_paste(sedit, (uint8_t*)str, strlen(str));
-                            CloseClipboard();
-                        }
+                        edit_paste();
+                        break;
+                    }
+
+                    case 'A':
+                    {
+                        edit_selectall();
                         break;
                     }
                 }
@@ -1033,10 +1018,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
         case WM_CHAR:
         {
-            if(sedit)
-            {
-                edit_char(sedit, wParam);
-            }
+            edit_char(wParam);
 
             return 0;
         }
@@ -1132,6 +1114,18 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             break;
         }
 
+        case WM_RBUTTONDOWN:
+        {
+            int x, y;
+
+            x = GET_X_LPARAM(lParam);
+            y = GET_Y_LPARAM(lParam);
+
+            edit_func(edit_rightclick, x, y);
+
+            break;
+        }
+
         case WM_COMMAND:
         {
             int menu = LOWORD(wParam);//, msg = HIWORD(wParam);
@@ -1147,6 +1141,36 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                 case TRAY_EXIT:
                 {
                     PostQuitMessage(0);
+                    break;
+                }
+
+                case EDIT_CUT:
+                {
+                    edit_cut();
+                    break;
+                }
+
+                case EDIT_COPY:
+                {
+                    edit_copy();
+                    break;
+                }
+
+                case EDIT_PASTE:
+                {
+                    edit_paste();
+                    break;
+                }
+
+                case EDIT_DELETE:
+                {
+                    edit_delete();
+                    break;
+                }
+
+                case EDIT_SELECTALL:
+                {
+                    edit_selectall();
                     break;
                 }
             }
@@ -1225,8 +1249,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         case WM_FADD:
         {
             int r = wParam;
-
-            edit_addid.locked = 0;
+            uint8_t *id = (void*)lParam;
 
             if(r >= 0)
             {
@@ -1240,7 +1263,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
                 f->name_length = TOX_FRIEND_ADDRESS_SIZE * 2;
                 f->name = malloc(TOX_FRIEND_ADDRESS_SIZE * 2);
-                memcpy(f->name, edit_addid_data, TOX_FRIEND_ADDRESS_SIZE * 2);
+                sprint_address(f->name, id);
 
                 list_addfriend(f);
 
@@ -1259,6 +1282,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                     }
                 }
             }
+
+            free(id);
 
             break;
         }
@@ -1290,6 +1315,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         {
             FRIEND *f = &friend[wParam];
 
+            f->message = realloc(f->message, (f->msg + 1) * sizeof(void*));
             f->message[f->msg++] = (void*)lParam;
 
             if(sitem && f == sitem->data)
@@ -1383,8 +1409,9 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         case WM_GMESSAGE:
         case WM_GACTION:
         {
-           GROUPCHAT *g = &group[wParam];
+            GROUPCHAT *g = &group[wParam];
 
+            g->message = realloc(g->message, (g->msg + 1) * sizeof(void*));
             g->message[g->msg++] = (void*)lParam;
 
             if(sitem && g == sitem->data)

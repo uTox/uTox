@@ -7,7 +7,7 @@ typedef struct
     double scroll;
     uint16_t name_length, status_length, typed_length;
     uint8_t *name, *status_message, *typed;
-    uint16_t *message[512]; //
+    void **message;
 }FRIEND;
 
 typedef struct

@@ -55,6 +55,18 @@
 #define WM_GPEERADD     (WM_APP + 16)
 #define WM_GPEERDEL     (WM_APP + 17)
 
+//WM_COMMAND
+enum
+{
+    TRAY_SHOWHIDE,
+    TRAY_EXIT,
+    EDIT_CUT,
+    EDIT_COPY,
+    EDIT_PASTE,
+    EDIT_DELETE,
+    EDIT_SELECTALL,
+};
+
 #define updatefriend(fp) list_draw(); if(sitem && fp == sitem->data) {main_draw();}
 #define updategroup(gp) list_draw(); if(sitem && gp == sitem->data) {main_draw();}
 
@@ -84,12 +96,15 @@
 #define MAIN_X (SCROLL_X + SCROLL_WIDTH + 1)
 #define MAIN_Y 27
 
+#define MESSAGES_Y (MAIN_Y + 47)
+#define MESSAGES_BOTTOM (height - 152)
+
 volatile _Bool tox_thread_b, tox_thread_msg;
 uint8_t tox_address_string[TOX_FRIEND_ADDRESS_SIZE * 2];
 
 //friends and groups
 //note: assumes array size will always be large enough
-FRIEND friend[128];
+FRIEND friend[256];
 GROUPCHAT group[64];
 uint32_t friends, groups;
 
@@ -108,6 +123,7 @@ HBRUSH white, border, black, gray, gray2, gray3, gray5, gray6, blue, red, red2, 
 
 //fonts
 HFONT font_big, font_big2, font_med, font_med2, font_small;
+int font_small_lineheight;
 
 //sysmenu icons
 HBITMAP bm_minimize, bm_restore, bm_maximize, bm_exit;
@@ -125,8 +141,14 @@ uint8_t name[128], statusmsg[1024];
 uint8_t addfriend_status;
 
 //edit boxes
+EDIT *sedit;
+
+struct
+{
+    uint16_t start, length;
+    uint16_t p1, p2;
+}edit_sel;
 _Bool edit_select;
-uint16_t edit_selstart, edit_selend;
 
 uint8_t edit_name_data[128], edit_status_data[128], edit_addid_data[TOX_FRIEND_ADDRESS_SIZE * 2], edit_addmsg_data[1024], edit_msg_data[1024];
 

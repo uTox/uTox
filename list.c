@@ -9,7 +9,7 @@ static double listscroll = 0.0;
 static _Bool scroll_mousedown, sitem_mousedown;
 static uint8_t scroll_mouseover;
 
-int sitem_dy;
+static int sitem_dy;
 
 static void drawitembox(ITEM *i, int x, int y)
 {
@@ -368,14 +368,17 @@ void list_draw(void)
     uint32_t c = itemcount * ITEM_HEIGHT;
     uint32_t h = SCROLL_BOTTOM - SCROLL_Y;
 
-    int y = LIST_Y, my;
+    int y = LIST_Y, my, dy = 0;
 
     if(c > h)
     {
-        y -= (listscroll * (double)(c - h)) + 0.5;
+        dy = (listscroll * (double)(c - h)) + 0.5;
     }
 
     ITEM *i = item, *mi = NULL;
+
+    i += dy / ITEM_HEIGHT;
+    y -= dy % ITEM_HEIGHT;
     while(i != &item[itemcount])
     {
         if(i == sitem && (sitem_dy >= 5 || sitem_dy <= -5))

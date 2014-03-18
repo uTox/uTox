@@ -339,12 +339,16 @@ void core_thread(void *args)
     }
 
     name_length = tox_get_self_name(tox, name, sizeof(name));
-    status_length = tox_get_self_status_message(tox, statusmsg, sizeof(statusmsg));
+    status_length = tox_get_self_status_message(tox, statusmsg, sizeof(statusmsg));//do something if length of status message > sizeof(statusmsg)
+
+    //until tox doesnt require null characters to be included in string length
+    name_length--;
+    status_length--;
 
     memcpy(edit_name_data, name, name_length);
-    edit_name.length = name_length - 1;
+    edit_name.length = name_length;
 
-    int slen = (status_length - 1 > sizeof(edit_status_data)) ? sizeof(edit_status_data) : status_length - 1;
+    int slen = (status_length > sizeof(edit_status_data)) ? sizeof(edit_status_data) : status_length;
     memcpy(edit_status_data, statusmsg, slen);
     edit_status.length = slen;
 
@@ -429,7 +433,10 @@ void core_thread(void *args)
                 case CMSG_ADDFRIEND:
                 {
                     int r = tox_add_friend(tox, msg->data, msg->data + TOX_FRIEND_ADDRESS_SIZE, msg->param + 1);
-                    PostMessage(hwnd, WM_FADD, r, 0);
+                    void *rp = malloc(TOX_FRIEND_ADDRESS_SIZE);
+                    memcpy(rp, msg->data, TOX_FRIEND_ADDRESS_SIZE);
+
+                    PostMessage(hwnd, WM_FADD, r, (LPARAM)rp);
                     break;
                 }
 
