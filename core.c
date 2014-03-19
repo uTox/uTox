@@ -10,7 +10,7 @@ typedef struct
 
 static CMSG core_msg;
 
-static void callback_friend_request(uint8_t *id, uint8_t *msg, uint16_t length, void *userdata)
+static void callback_friend_request(Tox *tox, uint8_t *id, uint8_t *msg, uint16_t length, void *userdata)
 {
     void *data = malloc(2 + TOX_FRIEND_ADDRESS_SIZE + length);
     *(uint16_t*)data = length;
@@ -66,7 +66,7 @@ static void callback_status_message(Tox *tox, int fid, uint8_t *newstatus, uint1
     printf("Friend Status Message (%u): %.*s\n", fid, length, newstatus);
 }
 
-static void callback_user_status(Tox *tox, int fid, TOX_USERSTATUS status, void *userdata)
+static void callback_user_status(Tox *tox, int fid, uint8_t status, void *userdata)
 {
     PostMessage(hwnd, WM_FSTATUS, fid, status);
 
@@ -338,7 +338,7 @@ void core_thread(void *args)
         dobootstrap(tox);
     }
 
-    name_length = tox_get_self_name(tox, name, sizeof(name));
+    name_length = tox_get_self_name(tox, name);
     status_length = tox_get_self_status_message(tox, statusmsg, sizeof(statusmsg));//do something if length of status message > sizeof(statusmsg)
 
     //until tox doesnt require null characters to be included in string length
@@ -360,7 +360,7 @@ void core_thread(void *args)
 
 
 
-    tox_callback_friend_request(tox, callback_friend_request, tox);
+    tox_callback_friend_request(tox, callback_friend_request, NULL);
     tox_callback_friend_message(tox, callback_friend_message, NULL);
     tox_callback_friend_action(tox, callback_friend_action, NULL);
     tox_callback_name_change(tox, callback_name_change, NULL);
