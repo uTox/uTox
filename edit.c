@@ -395,6 +395,8 @@ void edit_delete(void)
     sedit->length -= edit_sel.length;
 
     edit_sel.length = 0;
+
+    edit_draw(sedit);
 }
 
 void edit_selectall(void)
@@ -406,6 +408,8 @@ void edit_selectall(void)
 
     edit_sel.start = 0;
     edit_sel.length = sedit->length;
+
+    edit_draw(sedit);
 }
 
 void edit_clear(void)
@@ -418,4 +422,6 @@ void edit_clear(void)
     sedit->length = 0;
     edit_sel.start = 0;
     edit_sel.length = 0;
+
+    edit_draw(sedit);
 }
