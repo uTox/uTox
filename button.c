@@ -26,8 +26,10 @@ void button_addfriend_onpress(void)
 
     EDIT *edit = sedit;
     sedit = NULL;
-    edit_draw(edit);
-
+    if(edit)
+    {
+        edit_draw(edit);
+    }
 }
 
 void button_newgroup_onpress(void)
