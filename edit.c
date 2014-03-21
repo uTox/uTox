@@ -46,13 +46,13 @@ void edit_msg_onenter(void)
 
         core_postmessage(CMSG_SENDMESSAGE, (f - friend), length, edit_msg_data);
 
-
-        void *msg = malloc(length + 2);
-        *(uint16_t*)msg = length << 2;
-        memcpy(msg + 2, edit_msg_data, length);
+        uint16_t *data = malloc(length + 4);
+        data[0] = 0;
+        data[1] = length;
+        memcpy((void*)data + 4, edit_msg_data, length);
 
         f->message = realloc(f->message, (f->msg + 1) * sizeof(void*));
-        f->message[f->msg++] = msg;
+        f->message[f->msg++] = data;
 
 
     }
@@ -88,7 +88,7 @@ void edit_draw(EDIT *edit)
 
     if(edit->multiline)
     {
-        drawtextrect(edit->x + 5, edit->y + 5, edit->right - 1, edit->bottom - 5, edit->data, edit->length);
+        //drawtextrect(edit->x + 5, edit->y + 5, edit->right - 1, edit->bottom - 5, edit->data, edit->length);
     }
     else
     {
@@ -180,6 +180,14 @@ void edit_mousedown(EDIT *edit, int x, int y)
         edit_select = 1;
 
         edit_draw(edit);
+    }
+    else
+    {
+        if(sedit == edit)
+        {
+            sedit = NULL;
+            edit_draw(edit);
+        }
     }
 }
 

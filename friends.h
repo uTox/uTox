@@ -5,6 +5,7 @@ typedef struct
     uint8_t status;
     uint32_t msg;
     double scroll;
+    MSGSEL sel;
     uint16_t name_length, status_length, typed_length;
     uint8_t *name, *status_message, *typed;
     void **message;

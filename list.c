@@ -279,6 +279,20 @@ static void selectitem(ITEM *i)
         f->typed_length = edit_msg.length;
         f->typed = malloc(edit_msg.length);
         memcpy(f->typed, edit_msg_data, edit_msg.length);
+
+        msg_sel.m = f->sel;
+    }
+
+    if(sitem->item == ITEM_GROUP)
+    {
+        GROUPCHAT *g = i->data;
+
+        free(g->typed);
+        g->typed_length = edit_msg.length;
+        g->typed = malloc(edit_msg.length);
+        memcpy(g->typed, edit_msg_data, edit_msg.length);
+
+        msg_sel.m = g->sel;
     }
 
     if(i->item == ITEM_FRIEND)
@@ -287,6 +301,18 @@ static void selectitem(ITEM *i)
 
         memcpy(edit_msg_data, f->typed, f->typed_length);
         edit_msg.length = f->typed_length;
+
+        msg_sel.m = f->sel;
+    }
+
+    if(i->item == ITEM_GROUP)
+    {
+        GROUPCHAT *g = i->data;
+
+        memcpy(edit_msg_data, g->typed, g->typed_length);
+        edit_msg.length = g->typed_length;
+
+        msg_sel.m = g->sel;
     }
 
     if(i->item == ITEM_FRIENDREQUESTS)
@@ -573,13 +599,6 @@ void list_mousedown(void)
         {
             selectitem(mitem);
             draw = 1;
-        }
-
-        if(sedit)
-        {
-            EDIT *edit = sedit;
-            sedit = NULL;
-            edit_draw(edit);
         }
 
         sitem_mousedown = 1;

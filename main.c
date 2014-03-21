@@ -995,6 +995,19 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                 {
                     case 'C':
                     {
+                        if(!sedit && sitem)
+                        {
+                            if(sitem->item == ITEM_FRIEND)
+                            {
+                                FRIEND *f = sitem->data;
+                                messages_copy(f->message);
+                            }
+                            else if(sitem->item == ITEM_GROUP)
+                            {
+                                GROUPCHAT *g = sitem->data;
+                                messages_copy(g->message);
+                            }
+                        }
                         edit_copy();
                         break;
                     }
@@ -1059,9 +1072,31 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             edit_func(edit_mousemove, x, y);
             button_func(button_mousemove, x, y);
 
-            if(sitem && sitem->item == ITEM_FRIENDREQUESTS)
+            if(sitem)
             {
-                friendreqs_mousemove(x, y);
+                switch(sitem->item)
+                {
+                    case ITEM_FRIENDREQUESTS:
+                    {
+                        friendreqs_mousemove(x, y);
+                        break;
+                    }
+
+                    case ITEM_FRIEND:
+                    {
+                        FRIEND *f = sitem->data;
+                        messages_mousemove(x, y, f->message, f->msg, f->scroll, MESSAGES_WIDTH);
+                        break;
+                    }
+
+                    case ITEM_GROUP:
+                    {
+                        GROUPCHAT *g = sitem->data;
+                        messages_mousemove(x, y, g->message, g->msg, g->scroll, GMESSAGES_WIDTH);
+                        break;
+                    }
+                }
+
             }
 
             if(!mouse_tracked)
@@ -1086,9 +1121,31 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             edit_func(edit_mousedown, x, y);
             button_func(button_mousedown, x, y);
 
-            if(sitem && sitem->item == ITEM_FRIENDREQUESTS)
+            if(sitem)
             {
-                friendreqs_mousedown();
+                switch(sitem->item)
+                {
+                    case ITEM_FRIENDREQUESTS:
+                    {
+                        friendreqs_mousedown();
+                        break;
+                    }
+
+                    case ITEM_FRIEND:
+                    {
+                        FRIEND *f = sitem->data;
+                        messages_mousedown(x, y, f->message, f->msg, f->scroll, MESSAGES_WIDTH);
+                        break;
+                    }
+
+                    case ITEM_GROUP:
+                    {
+                        GROUPCHAT *g = sitem->data;
+                        messages_mousedown(x, y, g->message, g->msg, g->scroll, GMESSAGES_WIDTH);
+                        break;
+                    }
+                }
+
             }
 
             SetCapture(hwnd);
@@ -1104,9 +1161,24 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             edit_func(edit_mouseup);
             button_func(button_mouseup);
 
-            if(sitem && sitem->item == ITEM_FRIENDREQUESTS)
+            if(sitem)
             {
-                friendreqs_mouseup();
+                switch(sitem->item)
+                {
+                    case ITEM_FRIENDREQUESTS:
+                    {
+                        friendreqs_mouseup();
+                        break;
+                    }
+
+                    case ITEM_FRIEND:
+                    case ITEM_GROUP:
+                    {
+                        messages_mouseup();
+                        break;
+                    }
+                }
+
             }
 
             ReleaseCapture();

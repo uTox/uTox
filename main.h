@@ -20,6 +20,12 @@
 
 #include <tox.h>
 
+typedef struct
+{
+    uint32_t mstart, mend;
+    uint16_t start, end;
+}MSGSEL;
+
 #include "core.h"
 #include "draw.h"
 #include "friends.h"
@@ -96,8 +102,17 @@ enum
 #define MAIN_X (SCROLL_X + SCROLL_WIDTH + 1)
 #define MAIN_Y 27
 
+#define MESSAGES_X (MAIN_X + 1)
 #define MESSAGES_Y (MAIN_Y + 47)
+#define MESSAGES_RIGHT (width - 24)
 #define MESSAGES_BOTTOM (height - 152)
+
+#define PEERS_WIDTH 100
+#define NAMES_WIDTH 100
+
+#define GMESSAGES_RIGHT (MESSAGES_RIGHT - PEERS_WIDTH)
+#define MESSAGES_WIDTH (MESSAGES_RIGHT - MESSAGES_X - NAMES_WIDTH)
+#define GMESSAGES_WIDTH (GMESSAGES_RIGHT - MESSAGES_X - NAMES_WIDTH)
 
 volatile _Bool tox_thread_b, tox_thread_msg;
 uint8_t tox_address_string[TOX_FRIEND_ADDRESS_SIZE * 2];
@@ -225,6 +240,21 @@ BUTTON button_copyid = {
     BUTTON_TEXT("add")
     };
 
+//messages
+struct
+{
+    union
+    {
+        MSGSEL m;
+        struct
+        {
+            uint32_t mstart, mend;
+            uint16_t start, end;
+        };
+    };
+    uint32_t mp;
+    uint16_t p;
+}msg_sel;
 
 ///
 _Bool strtoid(uint8_t *w, uint8_t *a)
@@ -285,6 +315,13 @@ int drawtextrect(int x, int y, int right, int bottom, uint8_t *str, uint16_t len
     RECT r = {x, y, right, bottom};
     return DrawText(hdc, (char*)str, length, &r, DT_WORDBREAK);
 }
+
+/*int drawtextrect2(int x, int y, int right, int bottom, uint8_t *str, uint16_t length)
+{
+    RECT r = {x, y, right, bottom};
+    DrawText(hdc, (char*)str, length, &r, DT_WORDBREAK | DT_CALCRECT);
+    return r.right - r.left;
+}*/
 
 void drawrect(int x, int y, int width, int height, uint32_t color)
 {

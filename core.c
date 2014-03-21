@@ -24,9 +24,16 @@ static void callback_friend_request(Tox *tox, uint8_t *id, uint8_t *msg, uint16_
 
 static void callback_friend_message(Tox *tox, int fid, uint8_t *message, uint16_t length, void *userdata)
 {
-    void *data = malloc(length + 2);
-    memcpy(data + 2, message, length);
-    *(uint16_t*)data = (length << 2) | 1;
+    if(message[length - 1] == 0)
+    {
+        printf("nullterm\n");
+        length--;
+    }
+
+    uint16_t *data = malloc(length + 4);
+    data[0] = 1;
+    data[1] = length;
+    memcpy((void*)data + 4, message, length);
 
     PostMessage(hwnd, WM_FMESSAGE, fid, (LPARAM)data);
 
@@ -35,9 +42,15 @@ static void callback_friend_message(Tox *tox, int fid, uint8_t *message, uint16_
 
 static void callback_friend_action(Tox *tox, int fid, uint8_t *action, uint16_t length, void *userdata)
 {
-    void *data = malloc(length + 2);
-    memcpy(data + 2, action, length);
-    *(uint16_t*)data = (length << 2) | 3;
+    if(action[length - 1] == 0)
+    {
+        length--;
+    }
+
+    uint16_t *data = malloc(length + 4);
+    data[0] = 3;
+    data[1] = length;
+    memcpy((void*)data + 4, action, length);
 
     PostMessage(hwnd, WM_FACTION, fid, (LPARAM)data);
 
@@ -108,6 +121,11 @@ static void callback_group_invite(Tox *tox, int friendnumber, uint8_t *group_pub
 
 static void callback_group_message(Tox *tox, int groupnumber, int friendgroupnumber, uint8_t *message, uint16_t length, void *userdata)
 {
+    if(message[length - 1] == 0)
+    {
+        length--;
+    }
+
     uint8_t name[TOX_MAX_NAME_LENGTH];
     int namelen = tox_group_peername(tox, groupnumber, friendgroupnumber, name);
     if(namelen == 0)
@@ -129,6 +147,11 @@ static void callback_group_message(Tox *tox, int groupnumber, int friendgroupnum
 
 static void callback_group_action(Tox *tox, int groupnumber, int friendgroupnumber, uint8_t *action, uint16_t length, void *userdata)
 {
+    if(action[length - 1] == 0)
+    {
+        length--;
+    }
+
     uint8_t name[TOX_MAX_NAME_LENGTH];
     int namelen = tox_group_peername(tox, groupnumber, friendgroupnumber, name);
     if(namelen == 0)
@@ -420,19 +443,19 @@ void core_thread(void *args)
             {
                 case CMSG_SETNAME:
                 {
-                    tox_set_name(tox, msg->data, msg->len + 1);
+                    tox_set_name(tox, msg->data, msg->len);
                     break;
                 }
 
                 case CMSG_SETSTATUSMSG:
                 {
-                    tox_set_status_message(tox, msg->data, msg->len + 1);
+                    tox_set_status_message(tox, msg->data, msg->len);
                     break;
                 }
 
                 case CMSG_ADDFRIEND:
                 {
-                    int r = tox_add_friend(tox, msg->data, msg->data + TOX_FRIEND_ADDRESS_SIZE, msg->param + 1);
+                    int r = tox_add_friend(tox, msg->data, msg->data + TOX_FRIEND_ADDRESS_SIZE, msg->param);
                     void *rp = malloc(TOX_FRIEND_ADDRESS_SIZE);
                     memcpy(rp, msg->data, TOX_FRIEND_ADDRESS_SIZE);
 
@@ -458,13 +481,13 @@ void core_thread(void *args)
 
                 case CMSG_SENDMESSAGE:
                 {
-                    tox_send_message(tox, msg->param, msg->data, msg->len + 1);
+                    tox_send_message(tox, msg->param, msg->data, msg->len);
                     break;
                 }
 
                 case CMSG_SENDMESSAGEGROUP:
                 {
-                    tox_group_message_send(tox, msg->param, msg->data, msg->len + 1);
+                    tox_group_message_send(tox, msg->param, msg->data, msg->len);
                     break;
                 }
 
