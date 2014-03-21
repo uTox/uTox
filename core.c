@@ -86,11 +86,11 @@ static void callback_user_status(Tox *tox, int fid, uint8_t status, void *userda
     printf("Friend Userstatus (%u): %u\n", fid, status);
 }
 
-static void callback_typing_change(Tox *tox, int fid, int is_typing, void *userdata)
+static void callback_typing_change(Tox *tox, int fid, uint8_t is_typing, void *userdata)
 {
     PostMessage(hwnd, WM_FTYPING, fid, is_typing);
 
-    printf("Friend Typing (%u): %u\n", fid, (is_typing != 0));
+    printf("Friend Typing (%u): %u\n", fid, is_typing);
 }
 
 static void callback_read_receipt(Tox *tox, int fid, uint32_t receipt, void *userdata)
