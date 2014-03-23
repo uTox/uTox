@@ -128,7 +128,7 @@ static void callback_group_message(Tox *tox, int groupnumber, int friendgroupnum
 
     uint8_t name[TOX_MAX_NAME_LENGTH];
     int namelen = tox_group_peername(tox, groupnumber, friendgroupnumber, name);
-    if(namelen == 0)
+    if(namelen == 0 || namelen == -1)
     {
         memcpy(name, "<unknown>", 9);
         namelen = 9;
@@ -494,8 +494,11 @@ void core_thread(void *args)
                 case CMSG_NEWGROUP:
                 {
                     int g = tox_add_groupchat(tox);
+                    if(g != -1)
+                    {
+                        PostMessage(hwnd, WM_GADD, g, 0);
+                    }
 
-                    PostMessage(hwnd, WM_GADD, g, 0);
                     break;
                 }
 
