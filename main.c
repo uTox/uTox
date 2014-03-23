@@ -975,7 +975,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
                                 free(g->message);
 
-                                memset(g, 0, sizeof(GROUP));//
+                                memset(g, 0, sizeof(GROUPCHAT));//
 
                                 list_deletesitem();
                             }
