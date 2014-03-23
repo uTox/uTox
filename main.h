@@ -38,6 +38,7 @@ typedef struct
 #include "colors.h"
 #include "icons.h"
 #include "bootstrap.h"
+#include "strings.h"
 
 #define thread(func, args) _beginthread(func, 0, args)
 #define countof(x) (sizeof(x)/sizeof(*(x)))

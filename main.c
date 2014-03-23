@@ -156,10 +156,7 @@ void drawaddmain(int x, int y)
 
     if(addfriend_status)
     {
-        char *message[] = {"Friend request sent", "Invalid ID format", "Error"};
-        uint16_t length[] = {sizeof("Friend request sent") - 1, sizeof("Invalid ID format") - 1, sizeof("Error") - 1};
-
-        drawtext(x, y + 250, message[addfriend_status - 1], length[addfriend_status - 1]);
+        drawtext(x, y + 250, addfriend_status_str[addfriend_status - 1], addfriend_status_length[addfriend_status - 1]);
     }
 }
 
@@ -1344,15 +1341,9 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             }
             else
             {
-                switch(r)
-                {
-                    default:
-                    {
-                        addfriend_status = 3;
-                        main_draw();
-                        break;
-                    }
-                }
+                //assumes r is between -8 and -1
+                addfriend_status = 2 - r;
+                main_draw();
             }
 
             free(id);
