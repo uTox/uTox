@@ -285,7 +285,7 @@ static void selectitem(ITEM *i)
 
     if(sitem->item == ITEM_GROUP)
     {
-        GROUPCHAT *g = i->data;
+        GROUPCHAT *g = sitem->data;
 
         free(g->typed);
         g->typed_length = edit_msg.length;
