@@ -470,22 +470,8 @@ void list_deletesitem(void)
     int size = (&item[itemcount] - sitem) * sizeof(ITEM);
     memcpy(sitem, sitem + 1, size);
 
-    int x = LIST_X, y = LIST_Y + itemcount * ITEM_HEIGHT;
-    RECT r = {x, y, x + ITEM_WIDTH, y + ITEM_HEIGHT};
-    fillrect(&r, WHITE);
-
-    if(!size)
-    {
-        sitem = &item[0];
-        drawitem(&item[0], LIST_X, LIST_Y);
-
-        main_draw();
-    }
-    else
-    {
-        list_draw();
-        main_draw();
-    }
+    list_draw();
+    main_draw();
 }
 
 void list_mousemove(int x, int y, int dy)
