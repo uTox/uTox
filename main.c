@@ -837,33 +837,35 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             w = GET_X_LPARAM(lParam);
             h = GET_Y_LPARAM(lParam);
 
-            width = w;
-            height = h;
-
-            int x2 = (MAIN_X + 32 + 600) < (width - 24) ? MAIN_X + 32 + 600 : width - 24;
-
-            edit_name.right = x2;
-            edit_status.right = x2;
-
-            edit_addid.right = x2;
-            edit_addmsg.right = x2;
-
-            button_addfriend.x = edit_addmsg.right - 50;
-            button_addfriend.y = MAIN_Y + 222;
-
-            edit_msg.y = height - 128;
-            edit_msg.bottom = edit_msg.y + 80;
-            edit_msg.right = width - 24;
-
-            if(hdc_bm)
+            if(w != 0)
             {
-                DeleteObject(hdc_bm);
+                width = w;
+                height = h;
+
+                int x2 = (MAIN_X + 32 + 600) < (width - 24) ? MAIN_X + 32 + 600 : width - 24;
+
+                edit_name.right = x2;
+                edit_status.right = x2;
+
+                edit_addid.right = x2;
+                edit_addmsg.right = x2;
+
+                button_addfriend.x = edit_addmsg.right - 50;
+                button_addfriend.y = MAIN_Y + 222;
+
+                edit_msg.y = height - 128;
+                edit_msg.bottom = edit_msg.y + 80;
+                edit_msg.right = width - 24;
+
+                if(hdc_bm)
+                {
+                    DeleteObject(hdc_bm);
+                }
+
+                hdc_bm = CreateCompatibleBitmap(main_hdc, width, height);
+                SelectObject(hdc, hdc_bm);
+                drawall();
             }
-
-            hdc_bm = CreateCompatibleBitmap(main_hdc, width, height);
-            SelectObject(hdc, hdc_bm);
-
-            drawall();
             //commitdraw(0, 0, width, height);
 
             break;
