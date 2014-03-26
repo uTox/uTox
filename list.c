@@ -327,7 +327,7 @@ static void selectitem(ITEM *i)
     }
 
     sitem = i;
-    sedit = NULL;
+    edit_setfocus(NULL, 0);
 
     addfriend_status = 0;
 

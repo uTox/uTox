@@ -25,6 +25,8 @@ void edit_delete(void);
 void edit_selectall(void);
 void edit_clear(void);
 
+void edit_setfocus(EDIT *edit, _Bool drawold);
+
 void edit_name_onenter(void);
 void edit_status_onenter(void);
 void edit_msg_onenter(void);

@@ -161,16 +161,6 @@ void edit_mousedown(EDIT *edit, int x, int y)
 {
     if(inedit(edit, x, y))
     {
-        if(sedit != edit)
-        {
-            EDIT *old = sedit;
-            sedit = edit;
-            if(old)
-            {
-                edit_draw(old);
-            }
-        }
-
         int fit;
         SIZE size;
         SelectObject(hdc, font_small);
@@ -179,14 +169,13 @@ void edit_mousedown(EDIT *edit, int x, int y)
         edit_sel.length = 0;
         edit_select = 1;
 
-        edit_draw(edit);
+        edit_setfocus(edit, 1);
     }
     else
     {
         if(sedit == edit)
         {
-            sedit = NULL;
-            edit_draw(edit);
+            edit_setfocus(NULL, 1);
         }
     }
 }
@@ -432,4 +421,29 @@ void edit_clear(void)
     edit_sel.length = 0;
 
     edit_draw(sedit);
+}
+
+void edit_setfocus(EDIT *edit, _Bool drawold)
+{
+    EDIT *s = sedit;
+    if(s != edit)
+    {
+        sedit = edit;
+        if(s)
+        {
+            if(s == &edit_name || s == &edit_status)
+            {
+                s->onenter();
+            }
+            if(drawold)
+            {
+                edit_draw(s);
+            }
+        }
+    }
+
+    if(edit)
+    {
+        edit_draw(edit);
+    }
 }
