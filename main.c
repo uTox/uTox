@@ -1035,6 +1035,26 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             return 0;
         }
 
+        case WM_MOUSEWHEEL:
+        {
+            POINT p;
+            float d;
+
+            d = (double)((int16_t)HIWORD(wParam)) / (double)(WHEEL_DELTA);
+
+            p.x = GET_X_LPARAM(lParam);
+            p.y = GET_Y_LPARAM(lParam);
+
+            ScreenToClient(hwnd, &p);
+
+            if(p.x >= 0 && p.x < width && p.y >= 0 && p.y < height)
+            {
+                list_mousewheel(p.x, p.y, d);
+            }
+
+            return 0;
+        }
+
         case WM_MOUSELEAVE:
         {
             sysmenu_mouseleave();

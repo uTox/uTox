@@ -210,6 +210,21 @@ static ITEM* newitem(void)
     return &item[itemcount++];
 }
 
+static _Bool list_hit(int x, int y)
+{
+    if(x < LIST_X || x >= SCROLL_X + SCROLL_WIDTH)
+    {
+        return 0;
+    }
+
+    if(y < LIST_Y || y >= height - 24)
+    {
+        return 0;
+    }
+
+    return 1;
+}
+
 static uint8_t scroll_hit(int x, int y)
 {
     x -= SCROLL_X;
@@ -671,5 +686,33 @@ void list_mouseleave(void)
         mitem = NULL;
 
         list_draw();
+    }
+}
+
+void list_mousewheel(int x, int y, double d)
+{
+    if(list_hit(x, y))
+    {
+        uint32_t c = itemcount * ITEM_HEIGHT;
+        uint32_t h = SCROLL_BOTTOM - SCROLL_Y;
+
+        if(c > h)
+        {
+            uint32_t m = (h * h) / c;
+            double dd = (h - m);
+
+            listscroll -= 16.0 * d / dd;;
+
+            if(listscroll < 0.0)
+            {
+                listscroll = 0.0;
+            }
+            else if(listscroll >= 1.0)
+            {
+                listscroll = 1.0;
+            }
+
+            list_draw();
+        }
     }
 }

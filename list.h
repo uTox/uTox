@@ -29,3 +29,5 @@ void list_mousemove(int x, int y, int dy);
 void list_mousedown(void);
 void list_mouseup(void);
 void list_mouseleave(void);
+
+void list_mousewheel(int x, int y, double d);
