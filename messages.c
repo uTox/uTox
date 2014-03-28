@@ -1,5 +1,6 @@
 
-_Bool msg_select;
+static _Bool msg_select, msgscroll_mousedown;
+static uint8_t msgscroll_mouseover;
 
 int drawmessage(int x, int y, int right, int bottom, uint8_t *str, uint16_t length)
 {
@@ -404,7 +405,7 @@ void draw_messages(int x, int y, FRIEND *f)
     SelectObject(hdc, font_small);
     SetTextColor(hdc, 0x333333);
 
-    int yy = messages_y(f->message, f->msg, 1.0, (width - 24 - 100) - x);
+    int yy = messages_y(f->message, f->msg, 1.0 - f->scroll, (width - 24 - 100) - x);
     uint8_t a = 0xFF;
 
     int i = 0;
@@ -496,7 +497,7 @@ void draw_groupmessages(int x, int y, GROUPCHAT *g)
 
     SelectObject(hdc, font_small);
 
-    int yy = messages_y(g->message, g->msg, 1.0, (width - 24 - 100 - 100) - x);
+    int yy = messages_y(g->message, g->msg, 1.0 - g->scroll, (width - 24 - 100 - 100) - x);
 
     int i = 0;
     while(i != g->msg)
@@ -560,19 +561,50 @@ void messages_mousemove(int x, int y, void **message, uint32_t msg, double scrol
 {
     if(msg_select)
     {
-        somefunc(x, y, message, msg, 1.0, width);
+        somefunc(x, y, message, msg, 1.0 - scroll, width);
     }
 }
 
 void messages_mousedown(int x, int y, void **message, uint32_t msg, double scroll, int width)
 {
-    somefunc(x, y, message, msg, 1.0, width);
+    somefunc(x, y, message, msg, 1.0 - scroll, width);
     msg_select = 1;
 }
 
 void messages_mouseup(void)
 {
     msg_select = 0;
+}
+
+void messages_mousewheel(int x, int y, double d, double *scroll)
+{
+    if(x < MESSAGES_X || x >= MESSAGES_RIGHT || y < MESSAGES_Y || y >= MESSAGES_BOTTOM)
+    {
+        return;
+    }
+
+    //uint32_t c = itemcount * ITEM_HEIGHT;
+    //uint32_t h = MESSAGES_BOTTOM - MESSAGES_Y;
+
+    //if(c > h)
+    {
+        //uint32_t m = (h * h) / c;
+        //double dd = (h - m);
+
+        //*scroll -= 16.0 * d / dd;;
+
+        *scroll += d / 16.0;
+        if(*scroll > 1.0)
+        {
+            *scroll = 1.0;
+        }
+        else if(*scroll < 0.0)
+        {
+            *scroll = 0.0;
+        }
+
+        main_draw();
+    }
 }
 
 void messages_copy(void **message)

@@ -1050,6 +1050,27 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             if(p.x >= 0 && p.x < width && p.y >= 0 && p.y < height)
             {
                 list_mousewheel(p.x, p.y, d);
+
+                if(sitem)
+                {
+                    switch(sitem->item)
+                    {
+                        case ITEM_FRIEND:
+                        {
+                            FRIEND *f = sitem->data;
+                            messages_mousewheel(p.x, p.y, d, &f->scroll);
+                            break;
+                        }
+
+                        case ITEM_GROUP:
+                        {
+                            GROUPCHAT *g = sitem->data;
+                            messages_mousewheel(p.x, p.y, d, &g->scroll);
+                            break;
+                        }
+                    }
+
+                }
             }
 
             return 0;

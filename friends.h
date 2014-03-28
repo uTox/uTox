@@ -3,6 +3,7 @@ typedef struct
 {
     _Bool online, typing;
     uint8_t status;
+    //MESSAGES m;
     uint32_t msg;
     double scroll;
     MSGSEL sel;
