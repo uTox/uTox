@@ -364,10 +364,6 @@ void core_thread(void *args)
     name_length = tox_get_self_name(tox, name);
     status_length = tox_get_self_status_message(tox, statusmsg, sizeof(statusmsg));//do something if length of status message > sizeof(statusmsg)
 
-    //until tox doesnt require null characters to be included in string length
-    name_length--;
-    status_length--;
-
     memcpy(edit_name_data, name, name_length);
     edit_name.length = name_length;
 
