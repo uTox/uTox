@@ -218,7 +218,7 @@ static void dobootstrap(Tox *tox)
             i = 0;
         }
 
-        tox_bootstrap_from_address(tox, d->address, 0, d->port, d->key);
+        tox_bootstrap_from_address(tox, d->address, 0, (uint16_t)(d->port >> 8) | (uint16_t)(d->port << 8), d->key);
 
         k++;
     }
