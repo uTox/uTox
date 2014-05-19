@@ -212,16 +212,13 @@ static void dobootstrap(Tox *tox)
     int k = 0;
     while(k < 1)
     {
-        uint8_t *d = bootstrap_nodes[i++];
+        struct bootstrap_node *d = &bootstrap_nodes[i++];
         if(i >= countof(bootstrap_nodes))
         {
             i = 0;
         }
-        tox_IP4 ip4 = {.c = {d[0], d[1], d[2], d[3]}};
-        tox_IP_Port ip_port = {.ip = {.family = AF_INET}, .port = (d[4] | d[5] << 8)};
-        ip_port.ip.ip4 = ip4;
 
-        tox_bootstrap_from_ip(tox, ip_port, d + 6);
+        tox_bootstrap_from_address(tox, d->address, 0, d->port, d->key);
 
         k++;
     }
