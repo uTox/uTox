@@ -19,7 +19,7 @@ typedef struct
 
 ITEM *sitem;
 
-void list_init(void);
+static void list_init(void);
 void list_addfriend(FRIEND *f);
 void list_draw(void);
 

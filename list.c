@@ -349,7 +349,7 @@ static void selectitem(ITEM *i)
     main_draw();
 }
 
-void list_init(void)
+static void list_init(void)
 {
     ITEM *i = item;
 
