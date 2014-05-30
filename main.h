@@ -16,11 +16,11 @@
 
 #define CLEARTYPE_QUALITY 5
 
+#include <tox/tox.h>
+
 #include <process.h>
 #include <windows.h>
 #include <windowsx.h>
-
-#include <tox/tox.h>
 
 #define IPV6_ENABLED 1
 #define DEFAULT_NAME "NSA"
