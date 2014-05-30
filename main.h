@@ -6,8 +6,14 @@
 #include <stdint.h>
 #include <time.h>
 
+#ifndef _WIN32_WINNT
 #define _WIN32_WINNT 0x500
+#endif
+
+#ifndef WINVER
 #define WINVER 0x410
+#endif
+
 #define CLEARTYPE_QUALITY 5
 
 #include <process.h>
