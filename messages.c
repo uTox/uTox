@@ -1,6 +1,6 @@
+#include "main.h"
 
-static _Bool msg_select, msgscroll_mousedown;
-static uint8_t msgscroll_mouseover;
+static _Bool msg_select;
 
 int drawmessage(int x, int y, int right, int bottom, uint8_t *str, uint16_t length)
 {
@@ -379,7 +379,7 @@ void somefunc(int x, int y, void **message, uint32_t msg, double scroll, int wid
 
             }
 
-            main_draw();
+            ui_drawmain();
 
             return;
         }
@@ -424,7 +424,7 @@ void draw_messages(int x, int y, FRIEND *f)
 
             if(!author)
             {
-                drawtextrange(x, x + 100, y + yy, name, name_length);
+                drawtextrange(x, x + 100, y + yy, self.name, self.name_length);
             }
             else
             {
@@ -603,7 +603,7 @@ void messages_mousewheel(int x, int y, double d, double *scroll)
             *scroll = 0.0;
         }
 
-        main_draw();
+        ui_drawmain();
     }
 }
 

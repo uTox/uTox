@@ -1,4 +1,3 @@
-
 #include "main.h"
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -20,6 +19,187 @@ static TRACKMOUSEEVENT tme = {sizeof(TRACKMOUSEEVENT), TME_LEAVE, 0, 0};
 static _Bool mouse_tracked = 0;
 
 static _Bool hidden;
+
+static void drawall(void);
+
+static HBITMAP h;
+
+void drawbitmap(int bm, int x, int y, int width, int height)
+{
+    if(bitmap[bm] != h)
+    {
+        SelectObject(hdcMem, bitmap[bm]);
+        h = bitmap[bm];
+    }
+
+    BitBlt(hdc, x, y, width, height, hdcMem, 0, 0, SRCCOPY);
+}
+
+void drawbitmaptrans(int bm, int x, int y, int width, int height)
+{
+    if(bitmap[bm] != h)
+    {
+        SelectObject(hdcMem, bitmap[bm]);
+        h = bitmap[bm];
+    }
+
+    MaskBlt(hdc, x, y, width, height, hdcMem, 0, 0, h, 0, 0, MAKEROP4(0x00AA0029, SRCCOPY));
+    //BitBlt(hdc, x, y, width, height, hdcMem, 0, 0, SRCAND);
+    //TransparentBlt(hdc, x, y, width, height, hdcMem, 0, 0, width, height, ~0);
+}
+
+void drawbitmapalpha(int bm, int x, int y, int width, int height)
+{
+    BLENDFUNCTION ftn = {
+                .BlendOp = AC_SRC_OVER,
+                .BlendFlags = 0,
+                .SourceConstantAlpha = 0xFF,
+                .AlphaFormat = AC_SRC_ALPHA
+            };
+
+    if(bitmap[bm] != h)
+    {
+        SelectObject(hdcMem, bitmap[bm]);
+        h = bitmap[bm];
+    }
+
+    AlphaBlend(hdc, x, y, width, height, hdcMem, 0, 0, width, height, ftn);
+}
+
+void drawtextwidth(int x, int width, int y, uint8_t *str, uint16_t length)
+{
+    RECT r = {x, y, x + width, y + 256};
+    DrawText(hdc, (char*)str, length, &r, DT_SINGLELINE | DT_END_ELLIPSIS);
+}
+
+void drawtextrange(int x, int x2, int y, uint8_t *str, uint16_t length)
+{
+    RECT r = {x, y, x2, y + 256};
+    DrawText(hdc, (char*)str, length, &r, DT_SINGLELINE | DT_END_ELLIPSIS);
+}
+
+void drawtextrangecut(int x, int x2, int y, uint8_t *str, uint16_t length)
+{
+    RECT r = {x, y, x2, y + 256};
+    DrawText(hdc, (char*)str, length, &r, DT_SINGLELINE);
+}
+
+int drawtextrect(int x, int y, int right, int bottom, uint8_t *str, uint16_t length)
+{
+    RECT r = {x, y, right, bottom};
+    return DrawText(hdc, (char*)str, length, &r, DT_WORDBREAK);
+}
+
+/*int drawtextrect2(int x, int y, int right, int bottom, uint8_t *str, uint16_t length)
+{
+    RECT r = {x, y, right, bottom};
+    DrawText(hdc, (char*)str, length, &r, DT_WORDBREAK | DT_CALCRECT);
+    return r.right - r.left;
+}*/
+
+void drawrect(int x, int y, int width, int height, uint32_t color)
+{
+    RECT r = {x, y, x + width, y + height};
+    SetDCBrushColor(hdc, color);
+    FillRect(hdc, &r, hdc_brush);
+}
+
+void drawhline(int x, int y, int x2, uint32_t color)
+{
+    RECT r = {x, y, x2, y + 1};
+    SetDCBrushColor(hdc, color);
+    FillRect(hdc, &r, hdc_brush);
+}
+
+void drawvline(int x, int y, int y2, uint32_t color)
+{
+    RECT r = {x, y, x + 1, y2};
+    SetDCBrushColor(hdc, color);
+    FillRect(hdc, &r, hdc_brush);
+}
+
+void fillrect(RECT *r, uint32_t color)
+{
+    SetDCBrushColor(hdc, color);
+    FillRect(hdc, r, hdc_brush);
+}
+
+void framerect(RECT *r, uint32_t color)
+{
+    SetDCBrushColor(hdc, color);
+    FrameRect(hdc, r, hdc_brush);
+}
+
+void setfont(int id)
+{
+    if(id == FONT_TEXT){SelectObject(hdc, font_small);}
+    if(id == FONT_TEXT_LARGE){SelectObject(hdc, font_med2);}
+    if(id == FONT_BUTTON){SelectObject(hdc, font_med2);}
+    if(id == FONT_TITLE){SelectObject(hdc, font_big);}
+    if(id == FONT_SUBTITLE){SelectObject(hdc, font_big2);}
+    //SelectObject(hdc, font[id]);
+}
+
+void setcolor(uint32_t color)
+{
+    SetTextColor(hdc, color);
+}
+
+void setbkcolor(uint32_t color)
+{
+    SetBkColor(hdc, color);
+}
+
+void setbgcolor(uint32_t color)
+{
+    if(color == ~0)
+    {
+        SetBkMode(hdc, TRANSPARENT);
+    }
+    else
+    {
+        SetBkMode(hdc, OPAQUE);
+        SetBkColor(hdc, color);
+    }
+}
+
+void begindraw(int left, int top, int right, int bottom)
+{
+    HRGN rgn = CreateRectRgn(left, top, right, bottom);
+    SelectClipRgn (hdc, rgn);
+    DeleteObject(rgn);
+
+    RECT r = {left, top, right, bottom};
+    SetDCBrushColor(hdc, WHITE);
+    FillRect(hdc, &r, hdc_brush);
+}
+
+void enddraw(void)
+{
+    SelectClipRgn(hdc, NULL);
+}
+
+void commitdraw(int x, int y, int width, int height)
+{
+    BitBlt(main_hdc, x, y, width, height, hdc, x, y, SRCCOPY);
+}
+
+void address_to_clipboard(void)
+{
+    #define size sizeof(self.id)
+
+    HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, size + 1);
+    uint8_t *p = GlobalLock(hMem);
+    memcpy(p, self.id, size + 1);
+    p[size] = 0;
+    GlobalUnlock(hMem);
+    OpenClipboard(0);
+    EmptyClipboard();
+    SetClipboardData(CF_TEXT, hMem);
+    CloseClipboard();
+
+    #undef size
+}
 
 void togglehide(void)
 {
@@ -45,6 +225,15 @@ void ShowContextMenu(void)
 	if(hMenu)
 	{
 	    InsertMenu(hMenu, -1, MF_BYPOSITION, TRAY_SHOWHIDE, hidden ? "Restore" : "Hide");
+
+	    InsertMenu(hMenu, -1, MF_BYPOSITION | MF_SEPARATOR, 0, NULL);
+
+	    InsertMenu(hMenu, -1, MF_BYPOSITION | ((self.status == TOX_USERSTATUS_NONE) ? MF_CHECKED : 0), TRAY_STATUS_AVAILABLE, "Available");
+	    InsertMenu(hMenu, -1, MF_BYPOSITION | ((self.status == TOX_USERSTATUS_AWAY) ? MF_CHECKED : 0), TRAY_STATUS_AWAY, "Away");
+	    InsertMenu(hMenu, -1, MF_BYPOSITION | ((self.status == TOX_USERSTATUS_BUSY) ? MF_CHECKED : 0), TRAY_STATUS_BUSY, "Busy");
+
+	    InsertMenu(hMenu, -1, MF_BYPOSITION | MF_SEPARATOR, 0, NULL);
+
 		InsertMenu(hMenu, -1, MF_BYPOSITION, TRAY_EXIT, "Exit");
 
 		// note:	must set window to the foreground or the
@@ -56,493 +245,17 @@ void ShowContextMenu(void)
 	}
 }
 
-RECT rect_new(RECT r, int left, int top, int right, int bottom)
-{
-    r.left += left;
-    r.top += top;
-    r.right += right;
-    r.bottom += bottom;
-    return r;
-}
-
-void drawfriendmain(int x, int y, FRIEND *f)
-{
-    SetTextColor(hdc, 0x333333);
-    SelectObject(hdc, font_big);
-    drawtextrange(x + 8, width - 24, y + 2, f->name, f->name_length);
-
-    SetTextColor(hdc, 0x999999);
-    SelectObject(hdc, font_med);
-    drawtextrange(x + 8, width - 24, y + 26, f->status_message, f->status_length);
-
-
-    RECT send = {width - 100 , height - 48, width - 24, height - 24};
-    FillRect(hdc, &send, red);
-
-    draw_messages(x + 1, y + 47, f);
-
-    RECT r = {x, y + 46, width - 24, height - 152};
-
-    if(f->online)
-    {
-        FrameRect(hdc, &r, border);
-    }
-}
-
-void drawgroupmain(int x, int y, GROUPCHAT *g)
-{
-    RECT r = {x, height - 128, width - 24, height - 48};
-    //FrameRect(hdc, &r, border);
-
-    r.top = y + 46;
-    r.bottom = height - 152;
-    FrameRect(hdc, &r, border);
-
-    r.left = width - 24 - 100;
-    FrameRect(hdc, &r, border);
-
-    RECT send = {width - 100 , height - 48, width - 24, height - 24};
-    FillRect(hdc, &send, red);
-
-    draw_groupmessages(x + 1, y + 47, g);
-
-    uint8_t **np = g->peername;
-    int i = 0;
-    while(i < g->peers)
-    {
-        uint8_t *n = *np++;
-        if(n)
-        {
-            drawtextrange(width - 122, width - 24, y + 47 + i * 12, n + 1, n[0]);
-            i++;
-        }
-    }
-}
-
-void drawselfmain(int x, int y)
-{
-    x += 32;
-
-    SetTextColor(hdc, 0x333333);
-
-    SelectObject(hdc, font_big);
-    drawstr(x, y + 2, "User settings");
-
-    SetTextColor(hdc, 0x555555);
-
-    SelectObject(hdc, font_big2);
-    drawstr(x, y + 50, "Name");
-    drawstr(x, y + 100, "Status message");
-    drawstr(x, y + 150, "Tox ID");
-
-    SelectObject(hdc, font_med2);
-    drawtextrange(x, edit_name.right, y + 176, tox_address_string, sizeof(tox_address_string));
-}
-
-void drawaddmain(int x, int y)
-{
-    x += 32;
-
-    SetTextColor(hdc, 0x333333);
-
-    SelectObject(hdc, font_big);
-    drawstr(x, y + 2, "Add a friend");
-
-    SetTextColor(hdc, 0x555555);
-
-    SelectObject(hdc, font_big2);
-    drawstr(x, y + 50, "Tox ID");
-    drawstr(x, y + 100, "Message");
-
-    if(addfriend_status)
-    {
-        drawtext(x, y + 250, addfriend_status_str[addfriend_status - 1], addfriend_status_length[addfriend_status - 1]);
-    }
-}
-
-uint8_t scrollfr_mouseover, scrollfr_mousedown;
-_Bool freqaccept_mouseover, freqaccept_mousedown, freqignore_mouseover, freqignore_mousedown;
-
-void friendreqs_mouseleave(void)
-{
-    if(!requests)
-    {
-        return;
-    }
-
-    if(scrollfr_mouseover)
-    {
-        scrollfr_mouseover = 0;
-        main_draw();
-    }
-
-    if(mreq)
-    {
-        mreq = NULL;
-        main_draw();
-    }
-}
-
-void remove_sfreq(void)
-{
-    free(sreq);
-
-    FRIENDREQ **r = sreqq;
-
-    requests--;
-    int l = (void*)(&request[requests]) - (void*)(r);
-
-    //printf("%i %i %u\n", l, r - request, r);
-
-    memcpy(r, r + 1, l);
-
-    mreqq = NULL;
-    mreq = NULL;
-
-    if(l != 0)
-    {
-        sreq = *r;
-    }
-    else
-    {
-        sreq = NULL;
-        sreqq = NULL;
-    }
-
-}
-
-void friendreqs_mouseup(void)
-{
-    if(!requests)
-    {
-        return;
-    }
-
-    if(scrollfr_mousedown)
-    {
-        scrollfr_mousedown = 0;
-        main_draw();
-    }
-
-    if(freqaccept_mousedown)
-    {
-        if(freqaccept_mouseover)
-        {
-            core_postmessage(CMSG_ACCEPTFRIEND, 0, sizeof(sreq->id), sreq->id);
-
-            remove_sfreq();
-        }
-
-        freqaccept_mousedown = 0;
-        main_draw();
-    }
-
-    if(freqignore_mousedown)
-    {
-        if(freqignore_mouseover)
-        {
-            remove_sfreq();
-
-        }
-
-        freqignore_mousedown = 0;
-        main_draw();
-    }
-}
-
-void friendreqs_mousedown(void)
-{
-    if(!requests)
-    {
-        return;
-    }
-
-    if(scrollfr_mouseover)
-    {
-        scrollfr_mousedown = 1;
-        main_draw();
-    }
-
-    if(freqaccept_mouseover)
-    {
-        freqaccept_mousedown = 1;
-    }
-
-    if(freqignore_mouseover)
-    {
-        freqignore_mousedown = 1;
-    }
-
-    if(mreq && mreq != sreq)
-    {
-        sreq = mreq;
-        main_draw();
-    }
-}
-
-_Bool inrect(int x, int y, int rx, int ry, int width, int height)
-{
-    x -= rx;
-    y -= ry;
-
-    return (x >= 0 && x < width && y >= 0 && y < height);
-}
-
-void friendreqs_mousemove(int x, int y)
-{
-    if(!requests)
-    {
-        return;
-    }
-
-    if(inrect(x, y, MAIN_X + 12 + REQ_WIDTH + 36, MAIN_Y + 222, 50, 18))
-    {
-        if(!freqignore_mouseover)
-        {
-            freqignore_mouseover = 1;
-            main_draw();
-        }
-    }
-    else
-    {
-        if(freqignore_mouseover)
-        {
-            freqignore_mouseover = 0;
-            main_draw();
-        }
-    }
-
-    if(inrect(x, y, width - 120, MAIN_Y + 222, 50, 18))
-    {
-        if(!freqaccept_mouseover)
-        {
-            freqaccept_mouseover = 1;
-            main_draw();
-        }
-    }
-    else
-    {
-        if(freqaccept_mouseover)
-        {
-            freqaccept_mouseover = 0;
-            main_draw();
-        }
-    }
-
-    if(x >= MAIN_X + 12 && x < MAIN_X + 12 + REQ_WIDTH)
-    {
-        int i = (y - (MAIN_Y + 40));
-        if(i >= 0)
-        {
-            i /= REQ_HEIGHT;
-            if(i < requests)
-            {
-                FRIENDREQ **m = &request[i];
-                if(m != mreqq)
-                {
-                    mreqq = m;
-                    mreq = *m;
-
-                    main_draw();
-                }
-
-                goto SKIP;
-            }
-        }
-    }
-
-    if(mreq)
-    {
-        mreq = NULL;
-        mreqq = NULL;
-
-        main_draw();
-    }
-
-    SKIP:
-
-
-    x -= MAIN_X + 12 + REQSCROLL_X;
-    if(x >= 0 && x < SCROLL_WIDTH && y >= MAIN_Y + 40 && y < height - 24)
-    {
-        if(!scrollfr_mouseover)
-        {
-            scrollfr_mouseover = 2;
-            main_draw();
-        }
-    }
-    else
-    {
-        if(scrollfr_mouseover)
-        {
-            scrollfr_mouseover = 0;
-            main_draw();
-        }
-    }
-}
-
-void drawrequest(int x, int y, FRIENDREQ *f)
-{
-    RECT rmain = {x, y, x + REQ_WIDTH, y + REQ_HEIGHT - 1};
-    FillRect(hdc, &rmain, (f == sreq) ? blue : ((f == mreq) ? gray : white));
-
-    RECT r = {x, y + REQ_HEIGHT - 1, x + REQ_WIDTH, y + REQ_HEIGHT};
-    FillRect(hdc, &r, gray);
-
-    SetTextColor(hdc, (f == sreq) ? WHITE : 0x333333);
-    SelectObject(hdc, font_med);
-
-
-    uint8_t id[TOX_FRIEND_ADDRESS_SIZE * 2];
-    sprint_address(id, f->id);
-
-    drawtextwidth(x + 6, REQ_WIDTH - 7, y + 8, id, TOX_FRIEND_ADDRESS_SIZE * 2);
-
-    SetTextColor(hdc, (f == sreq) ? 0xFFE6C5 : 0x999999);
-    SelectObject(hdc, font_med2);
-    drawtextwidth(x + 6, REQ_WIDTH - 7, y + 28, f->msg, f->length);
-
-}
-
-void drawacceptmain(int x, int y)
-{
-    x += 12;
-
-    SetTextColor(hdc, 0x333333);
-
-    SelectObject(hdc, font_big);
-    drawstr(x + 20, y + 2, "Accept friends");
-
-    if(requests)
-    {
-        int i = 0;
-        while(i < requests)
-        {
-            drawrequest(x, y + 40 + i * 52, request[i]);
-            i++;
-        }
-
-        RECT scroll = {x + REQSCROLL_X, y + 40, x + REQSCROLL_X + SCROLL_WIDTH, height - 48};
-
-        FillRect(hdc, &scroll, (scrollfr_mouseover == 2) ? gray3 : gray2);
-
-        scroll.top = scroll.bottom - 100;
-        FillRect(hdc, &scroll, (scrollfr_mouseover) ? gray : white);
-
-        uint8_t id[TOX_FRIEND_ADDRESS_SIZE * 2];
-        sprint_address(id, sreq->id);
-
-        SetTextColor(hdc, 0x333333);
-        drawtextrange(x + REQ_WIDTH + 20, width - 24, y + 40, id, TOX_FRIEND_ADDRESS_SIZE * 2);
-
-        SetTextColor(hdc, 0x999999);
-        drawtextrect(x + REQ_WIDTH + 20, y + 60, width - 24, y + 220, sreq->msg, sreq->length);
-
-        SetTextColor(hdc, (freqaccept_mouseover) ? 0x222222 : 0x555555);
-
-        SelectObject(hdcMem, bm_plus2);
-        SetBkColor(hdc, WHITE);
-        BitBlt(hdc, width - 116, y + 225, 16, 11, hdcMem, 0, 0, SRCCOPY);
-
-        SelectObject(hdc, font_med2);
-        drawstr(width - 100, y + 222, "accept");
-
-        SetTextColor(hdc, (freqignore_mouseover) ? 0x222222 : 0x555555);
-
-        drawrect(x + REQ_WIDTH + 40, y + 229, 11, 3, (freqignore_mouseover) ? 0x222222 : 0x555555);
-
-        drawstr(x + REQ_WIDTH + 54, y + 222, "ignore");
-
-
-    }
-    else
-    {
-        SetTextColor(hdc, 0x555555);
-        SelectObject(hdc, font_med);
-        drawstr(x, y + 50, "No new friend requests");
-    }
-}
-
-void main_draw(void)
-{
-    int x = MAIN_X, y = MAIN_Y;
-
-    RECT r = {MAIN_X, MAIN_Y, width - 24, height - 24};
-    //FrameRect(hdc, &r, border);
-
-    //r.left++;
-    //r.top++;
-    //r.right--;
-    //r.bottom--;
-
-    FillRect(hdc, &r, white);
-
-    SetBkMode(hdc, TRANSPARENT);
-
-    switch(sitem->item)
-    {
-        case ITEM_FRIEND:
-        {
-            drawfriendmain(x, y, sitem->data);
-            break;
-        }
-
-        case ITEM_GROUP:
-        {
-            drawgroupmain(x, y, sitem->data);
-            break;
-        }
-
-        case ITEM_SELF:
-        {
-            drawselfmain(x, y);
-            break;
-        }
-
-        case ITEM_ADDFRIEND:
-        {
-            drawaddmain(x, y);
-            break;
-        }
-
-        case ITEM_FRIENDREQUESTS:
-        {
-            drawacceptmain(x, y);
-            break;
-        }
-    }
-
-    edit_func(edit_draw);
-    button_func(button_draw);
-
-    commitdraw(MAIN_X, MAIN_Y, width - MAIN_X, height - MAIN_Y);
-}
-
-void drawbackground(void)
-{
-    RECT r = {1, 1, width - 1, height - 1};
-    RECT window = {0, 0, width, height};
-
-    FrameRect(hdc, &window, border);
-    FillRect(hdc, &r, white);
-
-    SelectObject(hdcMem, bm_corner);
-    BitBlt(hdc, width - 10, height - 10, 8, 8, hdcMem, 0, 0, SRCCOPY);
-
-    commitdraw(0, 0, width, height);
-}
-
-void drawall(void)
+static void drawall(void)
 {
     if(!draw)
     {
         return;
     }
 
-    drawbackground();
+    ui_drawbackground();
     sysmenu_draw();
     list_draw();
-    main_draw();
+    ui_drawmain();
 }
 
 LRESULT nc_hit(int x, int y)
@@ -569,6 +282,11 @@ LRESULT nc_hit(int x, int y)
         }
         else if(col == 1)
         {
+            if(x >= LIST_X && x < LIST_X + ITEM_WIDTH)
+            {
+                return (y >= LIST_Y) ? HTCLIENT : HTCAPTION;
+            }
+
             return sysmenu_hit(x, y) ? HTCLIENT : HTCAPTION;
         }
     }
@@ -642,33 +360,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine,
     };
 
     //start tox thread
-    thread(core_thread, NULL);
+    thread(tox_thread, NULL);
 
     RegisterClass(&wc);
-
-    white = CreateSolidBrush(WHITE);
-    border = CreateSolidBrush(0x999999);
-    black = CreateSolidBrush(BLACK);
-
-    gray = CreateSolidBrush(GRAY);
-    gray2 = CreateSolidBrush(GRAY2);
-    gray3 = CreateSolidBrush(GRAY3);
-    gray5 = CreateSolidBrush(GRAY5);
-    gray6 = CreateSolidBrush(GRAY6);
-
-    blue = CreateSolidBrush(BLUE);
-    red = CreateSolidBrush(RED);
-    red2 = CreateSolidBrush(RED2);
-
-    green = CreateSolidBrush(GREEN);
-
-    //mouseover friend 0xF1F1F1
-    //mouseover top 0xEEEEEE 0x333333
-
-//    INITCOMMONCONTROLSEX iccx;
-//    iccx.dwSize = sizeof(INITCOMMONCONTROLSEX);
-//    iccx.dwICC = ICC_ANIMATE_CLASS;
-//    InitCommonControlsEx(&iccx);
 
     x = (GetSystemMetrics(SM_CXSCREEN) - MAIN_WIDTH) / 2;
     y = (GetSystemMetrics(SM_CYSCREEN) - MAIN_HEIGHT) / 2;
@@ -695,23 +389,25 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine,
     font_small = CreateFontIndirect(&lf);
 
     bm.bmBits = bm_minimize_bits;
-    bm_minimize = CreateBitmapIndirect(&bm);
+    bitmap[BM_MINIMIZE] = CreateBitmapIndirect(&bm);
     bm.bmBits = bm_restore_bits;
-    bm_restore = CreateBitmapIndirect(&bm);
+    bitmap[BM_RESTORE] = CreateBitmapIndirect(&bm);
     bm.bmBits = bm_maximize_bits;
-    bm_maximize = CreateBitmapIndirect(&bm);
+    bitmap[BM_MAXIMIZE] = CreateBitmapIndirect(&bm);
     bm.bmBits = bm_exit_bits;
-    bm_exit = CreateBitmapIndirect(&bm);
+    bitmap[BM_EXIT] = CreateBitmapIndirect(&bm);
 
     bm.bmBits = bm_plus_bits;
     bm.bmHeight = 16;
-    bm_plus = CreateBitmapIndirect(&bm);
-
-    bm.bmBits = bm_plus2_bits;
-    bm.bmHeight = 11;
-    bm_plus2 = CreateBitmapIndirect(&bm);
-
+    bitmap[BM_PLUS] = CreateBitmapIndirect(&bm);
     //153, 182, 224
+
+    bitmap[BM_ONLINE] = CreateBitmap(10, 10, 1, 32, bm_online_bits);
+    bitmap[BM_AWAY] = CreateBitmap(10, 10, 1, 32, bm_away_bits);
+    bitmap[BM_BUSY] = CreateBitmap(10, 10, 1, 32, bm_busy_bits);
+    bitmap[BM_OFFLINE] = CreateBitmap(10, 10, 1, 32, bm_offline_bits);
+    bitmap[BM_CONTACT] = CreateBitmap(48, 48, 1, 32, bm_contact_bits);
+    bitmap[BM_GROUP] = CreateBitmap(48, 48, 1, 32, bm_group_bits);
 
     uint32_t test[64];
     int xx = 0;
@@ -748,7 +444,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine,
     }
 
     bm2.bmBits = test;
-    bm_corner = CreateBitmapIndirect(&bm2);
+    bitmap[BM_CORNER] = CreateBitmapIndirect(&bm2);
 
     TEXTMETRIC tm;
     SelectObject(hdc, font_small);
@@ -758,9 +454,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine,
 
 
     //wait for tox_thread init
-    while(!tox_thread_b) {Sleep(1);}
+    while(!tox_thread_run) {Sleep(1);}
 
-    list_init();
+    list_start();
     draw = 1;
     drawall();
 
@@ -770,7 +466,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine,
         DispatchMessage(&msg);
     }
 
-    tox_thread_b = 0;
+    tox_thread_run = 0;
 
     //cleanup
 
@@ -780,7 +476,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine,
 
 
     //wait for tox_thread cleanup
-    while(!tox_thread_b) {Sleep(1);}
+    while(!tox_thread_run) {Sleep(1);}
 
 
     printf("exit\n");
@@ -842,20 +538,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                 width = w;
                 height = h;
 
-                int x2 = (MAIN_X + 32 + 600) < (width - 24) ? MAIN_X + 32 + 600 : width - 24;
-
-                edit_name.right = x2;
-                edit_status.right = x2;
-
-                edit_addid.right = x2;
-                edit_addmsg.right = x2;
-
-                button_addfriend.x = edit_addmsg.right - 50;
-                button_addfriend.y = MAIN_Y + 222;
-
-                edit_msg.y = height - 128;
-                edit_msg.bottom = edit_msg.y + 80;
-                edit_msg.right = width - 24;
+                ui_updatesize();
 
                 if(hdc_bm)
                 {
@@ -883,7 +566,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             BeginPaint(hwnd, &ps);
 
             RECT r = ps.rcPaint;
-            commitdraw(r.left, r.top, r.right - r.left, r.bottom - r.top);;
+            commitdraw(r.left, r.top, r.right - r.left, r.bottom - r.top);
 
             EndPaint(hwnd, &ps);
             return 0;
@@ -904,86 +587,19 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             {
                 case VK_ESCAPE:
                 {
-                    if(sedit)
-                    {
-                        EDIT *edit = sedit;
-                        sedit = NULL;
-                        edit_draw(edit);
-                    }
-                    else
-                    {
-                        PostQuitMessage(0);
-                    }
+                    edit_setfocus(NULL);
                     return 0;
                 }
 
                 case VK_DELETE:
                 {
-                    if(!sedit)
+                    if(edit_active())
                     {
-                        if(sitem)
-                        {
-
-                            if(sitem->item == ITEM_FRIEND)
-                            {
-                                FRIEND *f = sitem->data;
-
-                                core_postmessage3(CMSG_DELFRIEND, (f - friend));
-
-                                free(f->name);
-                                free(f->status_message);
-                                free(f->typed);
-
-                                int i = 0;
-                                while(i < f->msg)
-                                {
-                                    free(f->message[i]);
-                                    i++;
-                                }
-
-                                free(f->message);
-
-                                memset(f, 0, sizeof(FRIEND));//
-
-                                friends--;
-
-                                list_deletesitem();
-
-                            }
-                            else if(sitem->item == ITEM_GROUP)
-                            {
-                                GROUPCHAT *g = sitem->data;
-
-                                core_postmessage3(CMSG_LEAVEGROUP, (g - group));
-
-                                uint8_t **np = g->peername;
-                                int i = 0;
-                                while(i < g->peers)
-                                {
-                                    uint8_t *n = *np++;
-                                    if(n)
-                                    {
-                                        free(n);
-                                        i++;
-                                    }
-                                }
-
-                                i = 0;
-                                while(i < g->msg)
-                                {
-                                    free(g->message[i]);
-                                    i++;
-                                }
-
-                                free(g->message);
-
-                                memset(g, 0, sizeof(GROUPCHAT));//
-
-                                list_deletesitem();
-                            }
-                        }
+                        edit_delete();
+                        break;
                     }
 
+                    list_deletesitem();
                     return 0;
                 }
             }
@@ -994,7 +610,13 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                 {
                     case 'C':
                     {
-                        if(!sedit && sitem)
+                        if(edit_active())
+                        {
+                            edit_copy();
+                            break;
+                        }
+
+                        if(sitem)
                         {
                             if(sitem->item == ITEM_FRIEND)
                             {
@@ -1007,19 +629,27 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                                 messages_copy(g->message);
                             }
                         }
-                        edit_copy();
+
                         break;
                     }
 
                     case 'V':
                     {
-                        edit_paste();
+                        if(edit_active())
+                        {
+                            edit_paste();
+                            break;
+                        }
                         break;
                     }
 
                     case 'A':
                     {
-                        edit_selectall();
+                        if(edit_active())
+                        {
+                            edit_selectall();
+                            break;
+                        }
                         break;
                     }
                 }
@@ -1030,7 +660,11 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
         case WM_CHAR:
         {
-            edit_char(wParam);
+            if(edit_active())
+            {
+                edit_char(wParam);
+                return 0;
+            }
 
             return 0;
         }
@@ -1049,28 +683,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
             if(p.x >= 0 && p.x < width && p.y >= 0 && p.y < height)
             {
-                list_mousewheel(p.x, p.y, d);
-
-                if(sitem)
-                {
-                    switch(sitem->item)
-                    {
-                        case ITEM_FRIEND:
-                        {
-                            FRIEND *f = sitem->data;
-                            messages_mousewheel(p.x, p.y, d, &f->scroll);
-                            break;
-                        }
-
-                        case ITEM_GROUP:
-                        {
-                            GROUPCHAT *g = sitem->data;
-                            messages_mousewheel(p.x, p.y, d, &g->scroll);
-                            break;
-                        }
-                    }
-
-                }
+                scroll_func(scroll_mousewheel, p.x, p.y, d);
             }
 
             return 0;
@@ -1081,13 +694,9 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             sysmenu_mouseleave();
             list_mouseleave();
 
+            scroll_func(scroll_mouseleave);
             edit_func(edit_mouseleave);
             button_func(button_mouseleave);
-
-            if(sitem && sitem->item == ITEM_FRIENDREQUESTS)
-            {
-                friendreqs_mouseleave();
-            }
 
             mouse_tracked = 0;
             break;
@@ -1095,12 +704,12 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
         case WM_MOUSEMOVE:
         {
-            int x, y, dx, dy;
+            int x, y, dy;
 
             x = GET_X_LPARAM(lParam);
             y = GET_Y_LPARAM(lParam);
 
-            dx = x - mx;
+            //dx = x - mx;
             dy = y - my;
 
             mx = x;
@@ -1109,6 +718,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             sysmenu_mousemove(x, y);
             list_mousemove(x, y, dy);
 
+            scroll_func(scroll_mousemove, x, y, dy);
             edit_func(edit_mousemove, x, y);
             button_func(button_mousemove, x, y);
 
@@ -1116,12 +726,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             {
                 switch(sitem->item)
                 {
-                    case ITEM_FRIENDREQUESTS:
-                    {
-                        friendreqs_mousemove(x, y);
-                        break;
-                    }
-
                     case ITEM_FRIEND:
                     {
                         FRIEND *f = sitem->data;
@@ -1158,6 +762,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             sysmenu_mousedown();
             list_mousedown();
 
+            scroll_func(scroll_mousedown);
             edit_func(edit_mousedown, x, y);
             button_func(button_mousedown, x, y);
 
@@ -1165,12 +770,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             {
                 switch(sitem->item)
                 {
-                    case ITEM_FRIENDREQUESTS:
-                    {
-                        friendreqs_mousedown();
-                        break;
-                    }
-
                     case ITEM_FRIEND:
                     {
                         FRIEND *f = sitem->data;
@@ -1198,6 +797,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             sysmenu_mouseup();
             list_mouseup();
 
+            scroll_func(scroll_mouseup);
             edit_func(edit_mouseup);
             button_func(button_mouseup);
 
@@ -1205,12 +805,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             {
                 switch(sitem->item)
                 {
-                    case ITEM_FRIENDREQUESTS:
-                    {
-                        friendreqs_mouseup();
-                        break;
-                    }
-
                     case ITEM_FRIEND:
                     case ITEM_GROUP:
                     {
@@ -1255,6 +849,28 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                     PostQuitMessage(0);
                     break;
                 }
+
+                #define setstatus(x) if(self.status != x) { \
+                    tox_postmessage(TOX_SETSTATUS, x, 0, NULL); self.status = x; list_draw(); }
+
+                case TRAY_STATUS_AVAILABLE:
+                {
+                    setstatus(TOX_USERSTATUS_NONE);
+                    break;
+                }
+
+                case TRAY_STATUS_AWAY:
+                {
+                    setstatus(TOX_USERSTATUS_AWAY);
+                    break;
+                }
+
+                case TRAY_STATUS_BUSY:
+                {
+                    setstatus(TOX_USERSTATUS_BUSY);
+                    break;
+                }
+
 
                 case EDIT_CUT:
                 {
@@ -1302,7 +918,9 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                 }
 
                 case WM_LBUTTONDOWN:
+                case WM_LBUTTONDBLCLK:
                 {
+                    togglehide();
                     break;
                 }
 
@@ -1323,274 +941,14 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                     break;
                 }
 
-                case WM_LBUTTONDBLCLK:
-                {
-                    togglehide();
-                    break;
-                }
-
 
             }
             break;
         }
 
-        case WM_FREQUEST:
+        case WM_TOX ... WM_TOX + 128:
         {
-            FRIENDREQ **f = newfriendreq((void*)lParam + 2);
-            if(!f)
-            {
-                break;
-            }
-
-            *f = (void*)lParam;
-
-            list_draw();
-
-            if(sitem && sitem->item == ITEM_FRIENDREQUESTS)
-            {
-                if(!sreq)
-                {
-                    sreq = *f;
-                }
-                main_draw();
-            }
-
-            break;
-        }
-
-        case WM_FADD:
-        {
-            int r = wParam;
-            uint8_t *id = (void*)lParam;
-
-            if(r >= 0)
-            {
-                edit_addid.length = 0;
-                edit_addmsg.length = 0;
-                edit_draw(&edit_addid);
-                edit_draw(&edit_addmsg);
-
-                FRIEND *f = &friend[r];
-                friends++;
-
-                f->name_length = TOX_FRIEND_ADDRESS_SIZE * 2;
-                f->name = malloc(TOX_FRIEND_ADDRESS_SIZE * 2);
-                sprint_address(f->name, id);
-
-                list_addfriend(f);
-
-                addfriend_status = 1;
-                main_draw();
-            }
-            else
-            {
-                //assumes r is between -8 and -1
-                addfriend_status = 2 - r;
-                main_draw();
-            }
-
-            free(id);
-
-            break;
-        }
-
-        case WM_FACCEPT:
-        {
-            int r = wParam;
-            if(r != -1)
-            {
-                FRIEND *f = &friend[r];
-                friends++;
-
-                uint8_t *id = (uint8_t*)lParam;
-
-                f->name_length = TOX_FRIEND_ADDRESS_SIZE * 2;
-                f->name = malloc(TOX_FRIEND_ADDRESS_SIZE * 2);
-                sprint_address(f->name, id);
-
-                free(id);
-
-                list_addfriend(f);
-            }
-
-            break;
-        }
-
-        case WM_FMESSAGE:
-        case WM_FACTION:
-        {
-            FRIEND *f = &friend[wParam];
-
-            f->message = realloc(f->message, (f->msg + 1) * sizeof(void*));
-            f->message[f->msg++] = (void*)lParam;
-
-            if(sitem && f == sitem->data)
-            {
-                main_draw();
-            }
-
-            break;
-        }
-
-        case WM_FNAME:
-        case WM_FSTATUSMSG:
-        {
-            uint8_t *str;
-            uint16_t length, fid;
-            FRIEND *f;
-
-            length = wParam;
-            fid = wParam >> 16;
-            str = (uint8_t*)lParam;
-
-            f = &friend[fid];
-
-            if(msg == WM_FNAME)
-            {
-                free(f->name);
-                f->name_length = length;
-                f->name = str;
-            }
-            else
-            {
-                free(f->status_message);
-                f->status_length = length;
-                f->status_message = str;
-            }
-
-            updatefriend(f);
-
-            break;
-        }
-
-        case WM_FSTATUS:
-        {
-            FRIEND *f = &friend[wParam];
-
-            f->status = lParam;
-
-            updatefriend(f);
-
-            break;
-        }
-
-        case WM_FTYPING:
-        {
-            FRIEND *f = &friend[wParam];
-
-            f->typing = lParam;
-
-            updatefriend(f);
-
-            break;
-        }
-
-        case WM_FRECEIPT:
-        {
-            //receipt = lParam
-            break;
-        }
-
-        case WM_FONLINE:
-        {
-            FRIEND *f = &friend[wParam];
-
-            f->online = lParam;
-
-            updatefriend(f);
-
-            break;
-        }
-
-        case WM_GADD:
-        {
-            GROUPCHAT *g = &group[wParam];
-
-            g->name_length = sprintf((char*)g->name, "Groupchat #%u", wParam);
-
-            list_addgroup(g);
-            break;
-        }
-
-        case WM_GMESSAGE:
-        case WM_GACTION:
-        {
-            GROUPCHAT *g = &group[wParam];
-
-            g->message = realloc(g->message, (g->msg + 1) * sizeof(void*));
-            g->message[g->msg++] = (void*)lParam;
-
-            if(sitem && g == sitem->data)
-            {
-                main_draw();
-            }
-
-            break;
-        }
-
-        case WM_GPEERNAME:
-        {
-            int groupnumber = wParam >> 16, peernumber = wParam & 0xFFFF;
-
-            GROUPCHAT *g = &group[groupnumber];
-
-            free(g->peername[peernumber]);
-            g->peername[peernumber] = (uint8_t*)lParam;
-
-            //printf("name: %s\n", lParam);
-
-            if(sitem && g == sitem->data)
-            {
-                main_draw();
-            }
-            break;
-        }
-
-        case WM_GPEERADD:
-        {
-            int groupnumber = wParam >> 16, peernumber = wParam & 0xFFFF;
-
-            GROUPCHAT *g = &group[groupnumber];
-
-            if(g->peername[peernumber])
-            {
-                free(g->peername[peernumber]);
-            }
-            else
-            {
-                g->peers++;
-            }
-
-            g->topic_length = sprintf((char*)g->topic, "%u users in chat", g->peers);
-
-            uint8_t *n = malloc(10);
-            n[0] = 9;
-            memcpy(n + 1, "<unknown>", 9);
-            g->peername[peernumber] = n;
-
-            updategroup(g);
-
-            break;
-        }
-
-        case WM_GPEERDEL:
-        {
-            int groupnumber = wParam >> 16, peernumber = wParam & 0xFFFF;
-
-            GROUPCHAT *g = &group[groupnumber];
-
-            if(g->peername[peernumber])
-            {
-                g->peers--;
-            }
-
-            free(g->peername[peernumber]);
-            g->peername[peernumber] = NULL;
-
-            g->topic_length = sprintf((char*)g->topic, "%u users in chat", g->peers);
-
-            updategroup(g);
-
+            tox_message(msg - WM_TOX, wParam >> 16, wParam, (void*)lParam);
             break;
         }
     }

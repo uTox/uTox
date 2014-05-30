@@ -15,3 +15,14 @@
 #define YELLOW 0x33FFFF
 
 #define GRAY_BORDER 0x999999
+
+#define COLOR_BORDER            0x999999
+#define COLOR_BG                WHITE
+#define COLOR_SYSMENU           0xCCCCCC
+#define COLOR_TEXT              0x333333
+
+#define INNER_BORDER            RGB(167, 215, 249)
+#define TEXT_HIGHLIGHT          WHITE
+#define TEXT_HIGHLIGHT_BG       RGB(51, 153, 255)
+#define BUTTON_AREA             WHITE
+#define BUTTON_AREA_HIGHLIGHT   RGB(51, 153, 255)
