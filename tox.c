@@ -609,6 +609,10 @@ void tox_thread(void *args)
 
         if(get_time() - last_save >= (uint64_t)10 * 1000 * 1000 * 1000) {
             last_save = get_time();
+            
+            if(!tox_connected) {
+                do_bootstrap(tox);
+            }
 
             write_save(tox);
         }
