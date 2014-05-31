@@ -16,7 +16,7 @@ Something like this:
 
 ## Downloads
 
-...
+[https://wiki.tox.im/Binaries](https://wiki.tox.im/Binaries)
 
 ## Info
 
