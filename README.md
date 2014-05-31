@@ -12,7 +12,7 @@ Something like this:
 
 >windres icon.rc -O coff -o icon.res
 
->gcc -o winTox.exe main.c icon.res -lgdi32 -ltoxcore
+>gcc -o winTox.exe *.c icon.res -lgdi32 -lmsimg32 -lopenal32 -ltoxav 
 
 ## Downloads
 
