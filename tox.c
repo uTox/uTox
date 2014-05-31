@@ -622,6 +622,8 @@ void tox_thread(void *args)
         yieldcpu();
     }
 
+    write_save(tox);
+
     toxav_kill(av);
     tox_kill(tox);
 

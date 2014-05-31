@@ -33,7 +33,7 @@ static void edit_status_onenter(void)
     memcpy(self.statusmsg, data, length);
     self.statusmsg_length = length;
 
-    tox_postmessage(TOX_SETNAME, length, 0, self.statusmsg);//!
+    tox_postmessage(TOX_SETSTATUSMSG, length, 0, self.statusmsg);//!
 
     list_draw();
 
