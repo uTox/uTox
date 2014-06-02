@@ -52,6 +52,7 @@ typedef struct
 }GROUPCHAT;
 
 #include "tox.h"
+#include "ui.h"
 #include "friend.h"
 #include "list.h"
 #include "sysmenu.h"
@@ -59,9 +60,7 @@ typedef struct
 #include "edit.h"
 #include "scrollable.h"
 #include "button.h"
-#include "colors.h"
 #include "util.h"
-#include "ui.h"
 
 #define debug(...) printf(__VA_ARGS__)
 #define thread(func, args) _beginthread(func, 0, args)
@@ -87,6 +86,8 @@ enum
     EDIT_PASTE,
     EDIT_DELETE,
     EDIT_SELECTALL,
+    LIST_DELETE,
+    LIST_ACCEPT
 };
 
 #define SAVE_NAME "tox.data"
@@ -97,9 +98,7 @@ enum
 #define MAIN_WIDTH 800
 #define MAIN_HEIGHT 600
 
-#define LIST_X 12
 #define LIST_Y 12
-#define ITEM_WIDTH 200
 #define ITEM_HEIGHT 49
 #define SCROLL_X (LIST_X + ITEM_WIDTH + 1)
 #define SCROLL_Y LIST_Y
@@ -205,6 +204,8 @@ struct
     uint16_t p;
 }msg_sel;
 
+#define inrect(x, y, rx, ry, width, height) ((x) >= (rx) && (y) >= (ry) && (x) < (rx) + (width) && (y) < (ry + height))
+
 
 /* draw functions*/
 void drawbitmap(int bm, int x, int y, int width, int height);
@@ -225,9 +226,11 @@ void setfont(int id);
 void setcolor(uint32_t color);
 void setbkcolor(uint32_t color);
 void setbgcolor(uint32_t color);
-void begindraw(int left, int top, int right, int bottom);
-void enddraw(void);
-void commitdraw(int x, int y, int width, int height);
+void pushclip(int x, int y, int width, int height);
+void popclip(void);
+void enddraw(int x, int y, int width, int height);
 void address_to_clipboard(void);
+void editpopup(void);
+void listpopup(uint8_t item);
 
 #endif

@@ -603,13 +603,14 @@ void tox_thread(void *args)
 
         if(tox_isconnected(tox) != tox_connected) {
             tox_connected = !tox_connected;
+            postmessage(DHT_CONNECTED, 0, 0, NULL);
 
             debug("Connected to DHT: %u\n", tox_connected);
         }
 
         if(get_time() - last_save >= (uint64_t)10 * 1000 * 1000 * 1000) {
             last_save = get_time();
-            
+
             if(!tox_connected) {
                 do_bootstrap(tox);
             }
@@ -764,6 +765,12 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint8_t msg, uint16_t param1
 void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
 {
     switch(msg) {
+    case DHT_CONNECTED:
+    {
+        redraw();
+        break;
+    }
+
     case FRIEND_REQUEST: {
         /* received a friend request */
         list_addfriendreq(data);
@@ -775,13 +782,13 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
         if(param1) {
             /* friend was not added */
             addfriend_status = param2 + 3;
-            ui_drawmain();
+            redraw();//ui_drawmain();
         } else {
             /* friend was added */
             edit_addid.length = 0;
             edit_addmsg.length = 0;
-            edit_draw(&edit_addid);
-            edit_draw(&edit_addmsg);
+            //edit_draw(&edit_addid);
+            //edit_draw(&edit_addmsg);
 
             FRIEND *f = &friend[param2];
             friends++;
@@ -790,10 +797,11 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
 
             friend_setname(f, NULL, 0);
 
-            list_addfriend(f);
+            //list_addfriend(f);
 
             addfriend_status = 1;
-            ui_drawmain();
+            //ui_drawmain();
+            redraw();
         }
 
         free(data);
@@ -824,13 +832,13 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
         f->message[f->msg++] = data;
 
         if(sitem && f == sitem->data) {
-            ui_drawmain();
+            redraw();//ui_drawmain();
         }
         break;
     }
 
-#define updatefriend(fp) list_draw(); if(sitem && fp == sitem->data) {ui_drawmain();}
-#define updategroup(gp) list_draw(); if(sitem && gp == sitem->data) {ui_drawmain();}
+#define updatefriend(fp) redraw();//list_draw(); if(sitem && fp == sitem->data) {ui_drawmain();}
+#define updategroup(gp) redraw();//list_draw(); if(sitem && gp == sitem->data) {ui_drawmain();}
 
     case FRIEND_NAME: {
         FRIEND *f = &friend[param1];
@@ -918,7 +926,7 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
         g->message[g->msg++] = data;
 
         if(sitem && g == sitem->data) {
-            ui_drawmain();
+            redraw();//ui_drawmain();
         }
 
         break;
@@ -962,7 +970,7 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
         g->topic_length = sprintf((char*)g->topic, "%u users in chat", g->peers);
 
         if(sitem && g == sitem->data) {
-            ui_drawmain();
+            redraw();//ui_drawmain();
         }
 
         break;

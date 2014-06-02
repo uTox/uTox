@@ -1,93 +1,59 @@
 #include "main.h"
 
-static _Bool scroll_hit(SCROLLABLE *s, int x, int y)
-{
-    x -= (s->x + s->width);
-    if(x < -SCROLL_WIDTH || x >= 0)
-    {
-        return 0;
-    }
-
-    y -= s->y;
-    if(y < 0 || y >= s->height)
-    {
-        return 0;
-    }
-
-    return 1;
-}
-
-static _Bool scroll_area(SCROLLABLE *s, int x, int y)
-{
-    x -= s->x;
-    if(x < 0 || x >= s->width)
-    {
-        return 0;
-    }
-
-    y -= s->y;
-    if(y < 0 || y >= s->height)
-    {
-        return 0;
-    }
-
-    return 1;
-}
-
-
-void scroll_draw(SCROLLABLE *s)
+void scroll_draw(SCROLLABLE *s, int x, int y, int width, int height)
 {
     uint32_t c = s->content_height;
-    uint32_t h = s->height;
+    uint32_t h = height;
 
     if(h >= c)
     {
         return;
     }
 
-    RECT r = {s->x + s->width - SCROLL_WIDTH, s->y, s->x + s->width, s->y + s->height};
+    RECT r = {x + width - SCROLL_WIDTH, y, x + width, y + height};
 
     fillrect(&r, s->mouseover ? GRAY : WHITE);
 
     uint32_t m = (h * h) / c;
     double d = (h - m);
-    uint32_t y = (s->d * d) + 0.5;
+    uint32_t dy = (s->d * d) + 0.5;
 
-    r.top += y;
+    r.top += dy;
     r.bottom = r.top + m;
 
 
     fillrect(&r, s->mouseover ? GRAY3 : GRAY2);
-
-    commitdraw(r.left, s->y, SCROLL_WIDTH, s->height);
 }
 
-int scroll_gety(SCROLLABLE *s)
+int scroll_gety(SCROLLABLE *s, int height)
 {
     uint32_t c = s->content_height;
-    uint32_t h = s->height;
 
-    if(c > h)
+    if(c > height)
     {
-        return (s->d * (double)(c - h)) + 0.5;
+        return (s->d * (double)(c - height)) + 0.5;
     }
 
     return 0;
 }
 
-void scroll_mousemove(SCROLLABLE *s, int x, int y, int dy)
+_Bool scroll_mmove(SCROLLABLE *s, int x, int y, int dy, int width, int height)
 {
-    _Bool hit = scroll_hit(s, x, y);
+    _Bool draw = 0;
+
+    _Bool hit = inrect(x, y, width - SCROLL_WIDTH, 0, width, height);
     if(s->mouseover != hit)
     {
         s->mouseover = hit;
-        scroll_draw(s);//note: avoid double-draw
+        draw = 1;
     }
+
+    s->mouseover2 = inrect(x, y, 0, 0, width, height);
 
     if(s->mousedown)
     {
         uint32_t c = s->content_height;
-        uint32_t h = s->height;
+        uint32_t h = height;
 
         if(c > h)
         {
@@ -105,44 +71,36 @@ void scroll_mousemove(SCROLLABLE *s, int x, int y, int dy)
                 s->d = 1.0;
             }
 
-            s->onscroll();
+            panel_redraw(s->panel.parent);
+            draw = 0;
         }
     }
+
+    return draw;
 }
 
-void scroll_mousedown(SCROLLABLE *s)
+_Bool scroll_mdown(SCROLLABLE *s)
 {
     if(s->mouseover)
     {
         s->mousedown = 1;
-        scroll_draw(s);
+        return 1;
     }
+
+    return 0;
 }
 
-void scroll_mouseup(SCROLLABLE *s)
+_Bool scroll_mright(SCROLLABLE *s)
 {
-    if(s->mousedown)
-    {
-        s->mousedown = 0;
-        scroll_draw(s);
-    }
+    return 0;
 }
 
-void scroll_mouseleave(SCROLLABLE *s)
+_Bool scroll_mwheel(SCROLLABLE *s, int height, double d)
 {
-    if(s->mouseover)
-    {
-        s->mouseover = 0;
-        scroll_draw(s);
-    }
-}
-
-void scroll_mousewheel(SCROLLABLE *s, int x, int y, double d)
-{
-    if(scroll_area(s, x, y))
+    if(s->mouseover2)
     {
         uint32_t c = s->content_height;
-        uint32_t h = s->height;
+        uint32_t h = height;
 
         if(c > h)
         {
@@ -160,7 +118,31 @@ void scroll_mousewheel(SCROLLABLE *s, int x, int y, double d)
                 s->d = 1.0;
             }
 
-            s->onscroll();
+            panel_redraw(s->panel.parent);
         }
     }
+}
+
+_Bool scroll_mup(SCROLLABLE *s)
+{
+    if(s->mousedown)
+    {
+        s->mousedown = 0;
+        return 1;
+    }
+
+    return 0;
+}
+
+_Bool scroll_mleave(SCROLLABLE *s)
+{
+    if(s->mouseover)
+    {
+        s->mouseover = 0;
+        return 1;
+    }
+
+    s->mouseover2 = 0;
+
+    return 0;
 }

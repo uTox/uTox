@@ -379,7 +379,7 @@ void somefunc(int x, int y, void **message, uint32_t msg, double scroll, int wid
 
             }
 
-            ui_drawmain();
+            //ui_drawmain();
 
             return;
         }
@@ -603,7 +603,7 @@ void messages_mousewheel(int x, int y, double d, double *scroll)
             *scroll = 0.0;
         }
 
-        ui_drawmain();
+       // ui_drawmain();
     }
 }
 

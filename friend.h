@@ -1,3 +1,5 @@
+/*todo: */
+
 typedef struct
 {
     _Bool online, typing;
@@ -11,7 +13,7 @@ typedef struct
     uint16_t name_length, status_length, typed_length;
     uint8_t *name, *status_message, *typed;
     void **message;
-}FRIEND;
+} FRIEND;
 
 void friend_setname(FRIEND *f, uint8_t *name, uint16_t length);
 

@@ -1,48 +1,51 @@
 #include "main.h"
 
-static _Bool inbutton(BUTTON *b, int x, int y)
+void button_draw(BUTTON *b, int x, int y, int width, int height)
 {
-    x -= b->x;
-    y -= b->y;
-    return (x >= 0 && x < b->width && y >= 0 && y < b->height);
-}
-
-void button_draw(BUTTON *b)
-{
-    RECT frame = {b->x, b->y, b->x + b->width, b->y + b->height};
+    RECT frame = {x, y, x + width, y + height};
     framerect(&frame, BLACK);
 
-    RECT area = {b->x + 1, b->y + 1, b->x + b->width - 1, b->y + b->height - 1};
+    RECT area = {x + 1, y + 1, x + width - 1, y + height - 1};
     fillrect(&area, b->mouseover ? BUTTON_AREA_HIGHLIGHT : BUTTON_AREA);
 
     setfont(FONT_BUTTON);
     setcolor(b->mouseover ? 0x222222 : 0x555555);
 
-    drawtext(b->x + 5, b->y, b->text, b->text_length);
-
-    commitdraw(b->x, b->y, b->width, b->height);
+    drawtext(x + 5, y, b->text, b->text_length);
 }
 
-void button_mousemove(BUTTON *b, int x, int y)
+_Bool button_mmove(BUTTON *b, int x, int y, int dy, int width, int height)
 {
-    _Bool mouseover = inbutton(b, x, y);
+    _Bool mouseover = inrect(x, y, 0, 0, width, height);
     if(mouseover != b->mouseover) {
         b->mouseover = mouseover;
-        b->onredraw();
+        return 1;
     }
+
+    return 0;
 }
 
-void button_mousedown(BUTTON *b, int x, int y)
+_Bool button_mdown(BUTTON *b)
 {
-    if(inbutton(b, x, y)) {
-        if(!b->mousedown) {
-            b->mousedown = 1;
-            b->onredraw();
-        }
+    if(!b->mousedown) {
+        b->mousedown = 1;
+        return 1;
     }
+
+    return 0;
 }
 
-void button_mouseup(BUTTON *b)
+_Bool button_mright(BUTTON *b)
+{
+    return 0;
+}
+
+_Bool button_mwheel(BUTTON *b, int height, double d)
+{
+    return 0;
+}
+
+_Bool button_mup(BUTTON *b)
 {
     if(b->mousedown) {
         if(b->mouseover) {
@@ -50,14 +53,18 @@ void button_mouseup(BUTTON *b)
         }
 
         b->mousedown = 0;
-        b->onredraw();
+        return 1;
     }
+
+    return 0;
 }
 
-void button_mouseleave(BUTTON *b)
+_Bool button_mleave(BUTTON *b)
 {
     if(b->mouseover) {
         b->mouseover = 0;
-        b->onredraw();
+        return 1;
     }
+
+    return 0;
 }

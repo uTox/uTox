@@ -1,6 +1,6 @@
 #include "main.h"
 
-static ITEM item[256], *mitem, *nitem;
+static ITEM item[256], *mitem, *nitem, *ritem;
 static uint32_t itemcount;
 
 static _Bool sitem_mousedown;
@@ -140,23 +140,21 @@ static ITEM* newitem(void)
     return i;
 }
 
-static ITEM* item_hit(int x, int y)
+static ITEM* item_hit(int x, int y, int height)
 {
-    x -= LIST_X;
-    if(x < 0 || x >= (scrolls(&scroll_list) ? (ITEM_WIDTH - SCROLL_WIDTH) : ITEM_WIDTH))
+    if(x < 0 || x >= ((scroll_list.content_height > height) ? (ITEM_WIDTH - SCROLL_WIDTH) : ITEM_WIDTH))
     {
         return NULL;
     }
 
     uint32_t h = SCROLL_BOTTOM - SCROLL_Y;
 
-    y -= LIST_Y;
     if(y < 0 || y >= h)
     {
         return NULL;
     }
 
-    y += scroll_gety(&scroll_list);
+    y += scroll_gety(&scroll_list, height);
 
     y /= ITEM_HEIGHT;
     if(y >= itemcount)
@@ -164,21 +162,16 @@ static ITEM* item_hit(int x, int y)
         return NULL;
     }
 
-    ITEM *i = item;
-    int k = 0;
-    while(k != y)
-    {
-        if(i->item) {k++;}
-        i++;
-    }
-
-    while(!i->item){i++;}
+    ITEM *i = &item[y];
 
     return i;
 }
 
 static void selectitem(ITEM *i)
 {
+    panel_item[sitem->item - 1].disabled = 1;
+    panel_item[i->item - 1].disabled = 0;
+
     if(sitem->item == ITEM_FRIEND)
     {
         FRIEND *f = sitem->data;
@@ -224,11 +217,12 @@ static void selectitem(ITEM *i)
     }
 
     sitem = i;
-    edit_setfocus(NULL);
+    //edit_setfocus(NULL);
+    edit_resetfocus();
 
     addfriend_status = 0;
 
-    ui_drawmain();
+    redraw();
 }
 
 void list_start(void)
@@ -263,7 +257,7 @@ void list_addfriend(FRIEND *f)
     i->item = ITEM_FRIEND;
     i->data = f;
 
-    list_draw();
+    redraw();
 }
 
 void list_addfriend2(FRIEND *f, FRIENDREQ *req)
@@ -275,8 +269,6 @@ void list_addfriend2(FRIEND *f, FRIENDREQ *req)
         {
             item[i].item = ITEM_FRIEND;
             item[i].data = f;
-
-            list_draw();
             return;
         }
         i++;
@@ -288,8 +280,6 @@ void list_addgroup(GROUPCHAT *g)
     ITEM *i = newitem();
     i->item = ITEM_GROUP;
     i->data = g;
-
-    list_draw();
 }
 
 void list_addfriendreq(FRIENDREQ *f)
@@ -297,17 +287,13 @@ void list_addfriendreq(FRIENDREQ *f)
     ITEM *i = newitem();
     i->item = ITEM_FRIEND_ADD;
     i->data = f;
-
-    list_draw();
 }
 
-void list_draw(void)
+void list_draw(void *n, int x, int y, int width, int height)
 {
     int left = LIST_X, right = LIST_X + ITEM_WIDTH, top = LIST_Y, bottom = SCROLL_BOTTOM;
 
-    begindraw(left, top, right, bottom);
-
-    int y = LIST_Y, my, dy = scroll_gety(&scroll_list);
+    int my, dy = scroll_gety(&scroll_list, height);
 
     ITEM *i = item, *mi = NULL;
 
@@ -336,11 +322,6 @@ void list_draw(void)
     {
         drawitem(mi, LIST_X, my);
     }
-
-    enddraw();
-    commitdraw(LIST_X, LIST_Y, ITEM_WIDTH, SCROLL_BOTTOM - LIST_Y);
-
-    scroll_draw(&scroll_list);
 }
 
 static void deleteitem(ITEM *i)
@@ -427,14 +408,14 @@ static void deleteitem(ITEM *i)
         {
             sitem--;
         }
-        ui_drawmain();
+        //ui_drawmain();
     }
     else if(sitem > i)
     {
         sitem--;
     }
 
-    list_draw();
+    redraw();//list_draw();
 }
 
 void list_deletesitem(void)
@@ -445,9 +426,17 @@ void list_deletesitem(void)
     }
 }
 
-void list_mousemove(int x, int y, int dy)
+void list_deleteritem(void)
 {
-    ITEM *i = item_hit(x, y);
+    if(ritem)
+    {
+        deleteitem(ritem);
+    }
+}
+
+_Bool list_mmove(void *n, int x, int y, int dy, int width, int height)
+{
+    ITEM *i = item_hit(x, y, height);
 
     _Bool draw = 0;
 
@@ -480,18 +469,13 @@ void list_mousemove(int x, int y, int dy)
             }
         }
 
-        list_draw();
+        draw = 1;
     }
 
-    if(draw)
-    {
-        list_draw();
-    }
-
-
+    return draw;
 }
 
-void list_mousedown(void)
+_Bool list_mdown(void *n)
 {
     _Bool draw = 0;
 
@@ -506,13 +490,26 @@ void list_mousedown(void)
         sitem_mousedown = 1;
     }
 
-    if(draw)
-    {
-        list_draw();
-    }
+    return draw;
 }
 
-void list_mouseup(void)
+_Bool list_mright(void *n)
+{
+    if(mitem)
+    {
+        ritem = mitem;
+        listpopup(mitem->item);
+    }
+
+    return 0;
+}
+
+_Bool list_mwheel(void *n, int height, double d)
+{
+    return 0;
+}
+
+_Bool list_mup(void *n)
 {
     _Bool draw = 0;
     if(sitem_mousedown && abs(sitem_dy) >= 5)
@@ -566,19 +563,17 @@ void list_mouseup(void)
     sitem_mousedown = 0;
     sitem_dy = 0;
 
-    if(draw)
-    {
-        list_draw();
-    }
-
+    return draw;
 }
 
-void list_mouseleave(void)
+_Bool list_mleave(void *n)
 {
     if(mitem)
     {
         mitem = NULL;
 
-        list_draw();
+        return 1;
     }
+
+    return 0;
 }

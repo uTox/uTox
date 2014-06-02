@@ -2,23 +2,18 @@
 
 static EDIT *active_edit;
 
-static _Bool inedit(EDIT *edit, int x, int y)
+void edit_draw(EDIT *edit, int x, int y, int width, int height)
 {
-    return (x >= edit->x && x <= edit->right && y >= edit->y && y <= edit->bottom);
-}
-
-void edit_draw(EDIT *edit)
-{
-    RECT outline = {edit->x, edit->y, edit->right, edit->bottom};
+    RECT outline = {x, y, x + width, y + height};
     framerect(&outline, (edit == active_edit) ? BLUE : (edit->mouseover ? GRAY6 : GRAY5));
 
-    RECT area = {edit->x + 1, edit->y + 1, edit->right - 1, edit->bottom - 1};
+    RECT area = {x + 1, y + 1, x + width - 1, y + height - 1};
     fillrect(&area, WHITE);
 
     setfont(FONT_TEXT);
     setcolor(COLOR_TEXT);
 
-    drawtextrangecut(edit->x + 5, edit->right - 5, edit->y + 5, edit->data, edit->length);
+    drawtextrangecut(x + 5, x + width - 5, y + 5, edit->data, edit->length);
 
     if(edit == active_edit) {
         SIZE size;
@@ -27,46 +22,41 @@ void edit_draw(EDIT *edit)
         setbgcolor(TEXT_HIGHLIGHT_BG);
         setcolor(TEXT_HIGHLIGHT);
 
-        if(edit_sel.length)
-        {
-            drawtextrangecut(edit->x + 5 + size.cx, edit->right - 5, edit->y + 5, edit->data + edit_sel.start, edit_sel.length);
-        }
-        else
-        {
-            drawvline(edit->x + 5 + size.cx, edit->y + 5, edit->y + 19, BLACK);
+        if(edit_sel.length) {
+            drawtextrangecut(x + 5 + size.cx, x + width - 5, y + 5, edit->data + edit_sel.start, edit_sel.length);
+        } else {
+            drawvline(x + 5 + size.cx, y + 5, y + 19, BLACK);
         }
 
         setbgcolor(~0);
     }
-
-    commitdraw(edit->x, edit->y, edit->right - edit->x, edit->bottom - edit->y);
 }
 
-void edit_mousemove(EDIT *edit, int x, int y)
+_Bool edit_mmove(EDIT *edit, int x, int y, int dy, int width, int height)
 {
-    _Bool mouseover = inedit(edit, x, y);
+    _Bool redraw = 0;
+
+    _Bool mouseover = inrect(x, y, 0, 0, width, height);
     if(mouseover != edit->mouseover) {
         edit->mouseover = mouseover;
-        if(edit != active_edit)
-        {
-            edit->onredraw();
+        if(edit != active_edit) {
+            redraw = 1;
         }
     }
 
     if(edit == active_edit && edit_select) {
-        int fit = 0, extent;
+        int fit = 0, extent = x - 5;
         SIZE size;
-        SelectObject(hdc, font_small);
 
-        extent = x - (edit->x + 5);
+        setfont(FONT_TEXT);
+
         if(extent > 0) {
             GetTextExtentExPoint(hdc, (char*)edit->data, edit->length, extent, &fit, NULL, &size);
 
             GetTextExtentPoint32(hdc, (char*)edit->data, fit, &size);
             int sx = size.cx;
             GetTextExtentPoint32(hdc, (char*)edit->data, fit + 1, &size);
-            if(fit != edit->length && size.cx - extent < extent - sx)
-            {
+            if(fit != edit->length && size.cx - extent < extent - sx) {
                 fit += 1;
             }
         }
@@ -80,83 +70,81 @@ void edit_mousemove(EDIT *edit, int x, int y)
             edit_sel.length = edit_sel.p1 - edit_sel.p2;
         }
 
-        edit->onredraw();
-    }
-}
-
-void edit_mousedown(EDIT *edit, int x, int y)
-{
-    if(inedit(edit, x, y)) {
-        int fit, extent = x - (edit->x + 5);
+        redraw = 1;
+    } else if(mouseover) {
+        int fit, extent = x - 5;
         SIZE size;
-        SelectObject(hdc, font_small);
+
+        setfont(FONT_TEXT);
         GetTextExtentExPoint(hdc, (char*)edit->data, edit->length, extent, &fit, NULL, &size);
 
         GetTextExtentPoint32(hdc, (char*)edit->data, fit, &size);
         int sx = size.cx;
         GetTextExtentPoint32(hdc, (char*)edit->data, fit + 1, &size);
-        if(fit != edit->length && size.cx - extent < extent - sx)
-        {
+        if(fit != edit->length && size.cx - extent < extent - sx) {
             fit += 1;
         }
 
-        edit_sel.start = edit_sel.p1 = edit_sel.p2 = fit;
+        edit->mouseover_char = fit;
+    }
+
+    return redraw;
+}
+
+_Bool edit_mdown(EDIT *edit)
+{
+    if(edit->mouseover)
+    {
+        edit_sel.start = edit_sel.p1 = edit_sel.p2 = edit->mouseover_char;
         edit_sel.length = 0;
         edit_select = 1;
 
-        if(active_edit != edit) {
-            edit_setfocus(edit);
-        } else {
-            edit->onredraw();
+        EDIT *active = active_edit;
+        active_edit = edit;
+        if(active != edit) {
+            //panel_redraw(&active->panel);
         }
-    } else if(active_edit == edit) {
-        edit_setfocus(NULL);
+
+        return 1;
     }
 }
 
-void edit_mouseup(EDIT *edit)
+_Bool edit_mright(EDIT *edit)
+{
+    editpopup();
+
+    EDIT *active = active_edit;
+    active_edit = edit;
+    if(active != edit) {
+        //panel_redraw(&active->panel);
+        return 1;
+    }
+
+    return 0;
+}
+
+_Bool edit_mwheel(EDIT *edit, int height, double d)
+{
+    return 0;
+}
+
+_Bool edit_mup(EDIT *edit)
 {
     if(edit_select) {
         edit_select = 0;
     }
 
+    return 0;
 }
 
-void edit_mouseleave(EDIT *edit)
+_Bool edit_mleave(EDIT *edit)
 {
     if(edit->mouseover) {
         edit->mouseover = 0;
-        edit->onredraw();
+        return 1;
     }
-}
 
-void edit_rightclick(EDIT *edit, int x, int y)
-{
-    if(inedit(edit, x, y)) {
-        if(active_edit != edit) {
-            edit_mousedown(edit, x, y);
-        }
-
-        POINT p;
-        GetCursorPos(&p);
-
-        HMENU hMenu = CreatePopupMenu();
-        if(hMenu) {
-            _Bool emptysel = (edit_sel.length == 0);
-
-            InsertMenu(hMenu, -1, MF_BYPOSITION | (emptysel ? MF_GRAYED : 0), EDIT_CUT, "Cut");
-            InsertMenu(hMenu, -1, MF_BYPOSITION | (emptysel ? MF_GRAYED : 0), EDIT_COPY, "Copy");
-            InsertMenu(hMenu, -1, MF_BYPOSITION, EDIT_PASTE, "Paste");
-            InsertMenu(hMenu, -1, MF_BYPOSITION | (emptysel ? MF_GRAYED : 0), EDIT_DELETE, "Delete");
-            InsertMenu(hMenu, -1, MF_BYPOSITION, EDIT_SELECTALL, "Select All");
-
-            SetForegroundWindow(hwnd);
-
-            TrackPopupMenu(hMenu, TPM_TOPALIGN, p.x, p.y, 0, hwnd, NULL);
-            DestroyMenu(hMenu);
-        }
-
-    }
+    return 0;
 }
 
 void edit_char(uint32_t ch)
@@ -181,7 +169,7 @@ void edit_char(uint32_t ch)
             edit_sel.start++;
             edit_sel.length = 0;
 
-            edit->onredraw();;
+            redraw();
         }
     } else {
         switch(ch) {
@@ -197,7 +185,7 @@ void edit_char(uint32_t ch)
                 edit_delete();
             }
 
-            edit->onredraw();
+            redraw();
             break;
         }
 
@@ -272,7 +260,7 @@ void edit_paste(void)
     edit_sel.start = edit_sel.start + length;
     edit_sel.length = 0;
 
-    active_edit->onredraw();
+    redraw();
 }
 
 void edit_delete(void)
@@ -284,7 +272,7 @@ void edit_delete(void)
 
     edit_sel.length = 0;
 
-    active_edit->onredraw();
+    redraw();
 }
 
 void edit_selectall(void)
@@ -293,7 +281,7 @@ void edit_selectall(void)
     edit_sel.length = active_edit->length;
     edit_select = 0;
 
-    active_edit->onredraw();
+    redraw();
 }
 
 void edit_clear(void)
@@ -302,25 +290,12 @@ void edit_clear(void)
     edit_sel.start = 0;
     edit_sel.length = 0;
 
-    active_edit->onredraw();
+    redraw();
 }
 
-void edit_setfocus(EDIT *edit)
+void edit_resetfocus(void)
 {
-    EDIT *s = active_edit;
-    active_edit = edit;
-    if(s) {
-        //onlosefocus()
-        if(s == &edit_name || s == &edit_status) {
-            s->onenter();
-        }
-
-        s->onredraw();
-    }
-
-    if(edit && edit != s) {
-        edit->onredraw();
-    }
+    active_edit = NULL;
 }
 
 _Bool edit_active(void)

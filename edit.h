@@ -1,21 +1,22 @@
 /*todo: replace windows functions, multiline edits, add missing edit functions (ex: double click to select word)*/
 
-typedef struct {
+struct edit {
+    PANEL panel;
+
     _Bool multiline, mouseover;
-    uint16_t flags, length, maxlength;
-    int x, y, bottom, right;
+    uint16_t mouseover_char, length, maxlength;
     uint8_t *data;
     void (*onenter)(void);
-    void (*onredraw)(void);
-} EDIT;
+};
 
-void edit_mousemove(EDIT *edit, int x, int y);
-void edit_mousedown(EDIT *edit, int x, int y);
-void edit_mouseup(EDIT *edit);
-void edit_mouseleave(EDIT *edit);
-void edit_rightclick(EDIT *edit, int x, int y);
+void edit_draw(EDIT *edit, int x, int y, int width, int height);
 
-void edit_draw(EDIT *edit);
+_Bool edit_mmove(EDIT *edit, int x, int y, int dy, int width, int height);
+_Bool edit_mdown(EDIT *edit);
+_Bool edit_mright(EDIT *edit);
+_Bool edit_mwheel(EDIT *edit, int height, double d);
+_Bool edit_mup(EDIT *edit);
+_Bool edit_mleave(EDIT *edit);
 
 void edit_char(uint32_t ch);
 
@@ -28,5 +29,5 @@ void edit_clear(void);
 
 _Bool edit_active(void);
 
-void edit_setfocus(EDIT *edit);
+void edit_resetfocus(void);
 void edit_setstr(EDIT *edit, uint8_t *str, uint16_t length);

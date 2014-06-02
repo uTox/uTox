@@ -22,6 +22,8 @@ enum {
 /* client thread messages
  */
 enum {
+    DHT_CONNECTED,
+
     FRIEND_REQUEST,
     FRIEND_ACCEPT,
     FRIEND_ADD,

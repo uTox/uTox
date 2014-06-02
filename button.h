@@ -1,16 +1,18 @@
 /*todo: draw nice button */
 
 typedef struct {
+    PANEL panel;
+
     _Bool mouseover, mousedown;
     uint16_t text_length;
-    int x, y, width, height;
     uint8_t *text;
     void (*onpress)(void);
-    void (*onredraw)(void);
 } BUTTON;
 
-void button_draw(BUTTON *b);
-void button_mousemove(BUTTON *b, int x, int y);
-void button_mousedown(BUTTON *b, int x, int y);
-void button_mouseup(BUTTON *b);
-void button_mouseleave(BUTTON *b);
+void button_draw(BUTTON *b, int x, int y, int width, int height);
+_Bool button_mmove(BUTTON *b, int x, int y, int dy, int width, int height);
+_Bool button_mdown(BUTTON *b);
+_Bool button_mright(BUTTON *b);
+_Bool button_mwheel(BUTTON *b, int height, double d);
+_Bool button_mup(BUTTON *b);
+_Bool button_mleave(BUTTON *b);

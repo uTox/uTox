@@ -1,36 +1,75 @@
+enum
+{
+    PANEL_NONE,
+    PANEL_MAIN,
+    PANEL_SYSMENU,
+    PANEL_LIST,
+    PANEL_BUTTON,
+    PANEL_EDIT,
+    PANEL_SCROLLABLE,
+};
 
+typedef struct scrollable SCROLLABLE;
+typedef struct edit EDIT;
+typedef struct panel PANEL;
+struct panel
+{
+    uint8_t type;
+    _Bool disabled;
+    int x, y, width, height;
+    SCROLLABLE *content_scroll;
+    PANEL *parent;
+    PANEL **child;
+};
+
+extern PANEL panel_main, panel_item[5];
 extern EDIT edit_name, edit_status, edit_addid, edit_addmsg, edit_msg;
-extern BUTTON button_copyid, button_addfriend, button_newgroup, button_call, button_acceptfriend;
 extern SCROLLABLE scroll_list, scroll_self, scroll_add;
+
+void panel_draw(PANEL *p, int x, int y, int width, int height);
+void panel_redraw(PANEL *p);
+
+void panel_mmove(PANEL *p, int x, int y, int width, int height, int mx, int my, int dy);
+void panel_mdown(PANEL *p);
+void panel_mright(PANEL *p);
+void panel_mwheel(PANEL *p, int x, int y, int width, int height, double d);
+void panel_mup(PANEL *p);
+void panel_mleave(PANEL *p);
 
 extern uint8_t bm_contact_bits[], bm_group_bits[];
 extern uint8_t bm_minimize_bits[], bm_maximize_bits[], bm_restore_bits[], bm_exit_bits[], bm_plus_bits[];
 extern uint32_t bm_online_bits[], bm_away_bits[], bm_busy_bits[], bm_offline_bits[];
 
-#define edit_func(func, ...) \
-    if(sitem){switch(sitem->item){ \
-        case ITEM_SELF:{ func(&edit_name, ##__VA_ARGS__); func(&edit_status, ##__VA_ARGS__); break; } \
-        case ITEM_ADDFRIEND:{func(&edit_addid, ##__VA_ARGS__); func(&edit_addmsg, ##__VA_ARGS__); break;} \
-        case ITEM_FRIEND:{func(&edit_msg, ##__VA_ARGS__); break;} \
-        case ITEM_GROUP:{func(&edit_msg, ##__VA_ARGS__); break;} \
-        }}
+#define redraw() panel_draw(&panel_main, 0, 0, width, height)
 
-#define button_func(func, ...) \
-    if(sitem){switch(sitem->item){ \
-        case ITEM_SELF:{func(&button_copyid, ##__VA_ARGS__); break;} \
-        case ITEM_ADDFRIEND:{func(&button_addfriend, ##__VA_ARGS__); func(&button_newgroup, ##__VA_ARGS__); break;} \
-        case ITEM_FRIEND:{func(&button_call, ##__VA_ARGS__); break;} \
-        case ITEM_FRIEND_ADD:{func(&button_acceptfriend, ##__VA_ARGS__); break;} \
-        }}
+#define LIST_X 12
+#define ITEM_WIDTH 200
+#define SIDE_X (LIST_X + ITEM_WIDTH + 23)
 
-#define scroll_func(func, ...) \
-    func(&scroll_list, ##__VA_ARGS__); \
-    if(sitem){switch(sitem->item){ \
-        case ITEM_SELF:{func(&scroll_self, ##__VA_ARGS__); break;} \
-        case ITEM_ADDFRIEND:{func(&scroll_add, ##__VA_ARGS__); break;} \
-        }}
+#define BLACK 0x000000
+#define WHITE 0xFFFFFF
+#define GRAY 0xEEEEEE
+#define GRAY2 0xCCCCCC
+#define GRAY3 0x818181
+#define GRAY4 0x333333
+#define GRAY5 0xCACACA
+#define GRAY6 0xA9A9A9
+#define BLUE 0xEAA64E
+#define RED 0x4343E0
+#define RED2 0x3D3D99
+#define GREEN 0x4CB122
 
-void ui_drawmain(void);
-void ui_drawbackground(void);
-void ui_updatesize(void);
+#define YELLOW 0x33FFFF
 
+#define GRAY_BORDER 0x999999
+
+#define COLOR_BORDER            0x999999
+#define COLOR_BG                WHITE
+#define COLOR_SYSMENU           0xCCCCCC
+#define COLOR_TEXT              0x333333
+
+#define INNER_BORDER            RGB(167, 215, 249)
+#define TEXT_HIGHLIGHT          WHITE
+#define TEXT_HIGHLIGHT_BG       RGB(51, 153, 255)
+#define BUTTON_AREA             WHITE
+#define BUTTON_AREA_HIGHLIGHT   RGB(51, 153, 255)

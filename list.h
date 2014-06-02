@@ -3,9 +3,9 @@ enum
 {
     ITEM_NONE,
     ITEM_SELF,
+    ITEM_ADDFRIEND,
     ITEM_FRIEND,
     ITEM_GROUP,
-    ITEM_ADDFRIEND,
     ITEM_FRIEND_ADD
 };
 
@@ -24,10 +24,13 @@ void list_addfriend2(FRIEND *f, FRIENDREQ *req);
 void list_addgroup(GROUPCHAT *g);
 void list_addfriendreq(FRIENDREQ *f);
 void list_deletesitem(void);
+void list_deleteritem(void);
 
-void list_draw(void);
+void list_draw(void *n, int x, int y, int width, int height);
 
-void list_mousemove(int x, int y, int dy);
-void list_mousedown(void);
-void list_mouseup(void);
-void list_mouseleave(void);
+_Bool list_mmove(void *n, int x, int y, int dy, int width, int height);
+_Bool list_mdown(void *n);
+_Bool list_mright(void *n);
+_Bool list_mwheel(void *n, int height, double d);
+_Bool list_mup(void *n);
+_Bool list_mleave(void *n);

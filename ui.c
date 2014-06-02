@@ -2,6 +2,7 @@
 
 #include "icons/contact.c"
 #include "icons/group.c"
+#include "icons/misc.c"
 
 /* edits */
 static uint8_t edit_name_data[128], edit_status_data[128], edit_addid_data[TOX_FRIEND_ADDRESS_SIZE * 2], edit_addmsg_data[1024], edit_msg_data[1024];
@@ -16,7 +17,7 @@ static void edit_name_onenter(void)
 
     tox_postmessage(TOX_SETNAME, length, 0, self.name);//!
 
-    list_draw();
+    panel_redraw(NULL);//list
 }
 
 static void edit_status_onenter(void)
@@ -35,7 +36,7 @@ static void edit_status_onenter(void)
 
     tox_postmessage(TOX_SETSTATUSMSG, length, 0, self.statusmsg);//!
 
-    list_draw();
+    panel_redraw(NULL);//list
 
 }
 
@@ -71,11 +72,9 @@ static void edit_msg_onenter(void)
         tox_postmessage(TOX_SENDMESSAGEGROUP, (g - group), length, d);
     }
 
-    ui_drawmain();
-
     edit_clear();
-    edit_draw(&edit_msg);
 
+    redraw();
 }
 
 #define EDIT_NAME_Y (MAIN_Y + 64)
@@ -84,55 +83,72 @@ static void edit_msg_onenter(void)
 #define EDIT_ADDMSG_Y (MAIN_Y + 114)
 
 EDIT edit_name = {
+    .panel = {
+        .type = PANEL_EDIT,
+        .x = 0,
+        .y = 64,
+        .height = 24,
+        .width = 0
+    },
     .multiline = 0,
-    .maxlength = 128,
-    .x = MAIN_X,
-    .y = EDIT_NAME_Y,
-    .bottom = EDIT_NAME_Y + 24,
-    .data = edit_name_data,
-    .onenter = edit_name_onenter,
-    .onredraw = ui_drawmain
-},
+                 .maxlength = 128,
+                              .data = edit_name_data,
+                                      .onenter = edit_name_onenter,
+                                          },
 
 edit_status = {
+    .panel = {
+        .type = PANEL_EDIT,
+        .x = 0,
+        .y = 114,
+        .height = 24,
+        .width = 0
+    },
     .multiline = 0,
-    .maxlength = 128,
-    .x = MAIN_X,
-    .y = EDIT_STATUS_Y,
-    .bottom = EDIT_STATUS_Y + 24,
-    .data = edit_status_data,
-    .onenter = edit_status_onenter,
-    .onredraw = ui_drawmain
-},
+                 .maxlength = 128,
+                              .data = edit_status_data,
+                                      .onenter = edit_status_onenter,
+                                          },
 
 edit_addid = {
+    .panel = {
+        .type = PANEL_EDIT,
+        .x = 0,
+        .y = 64,
+        .height = 24,
+        .width = 0
+    },
     .multiline = 0,
-    .maxlength = sizeof(edit_addid_data),
-    .x = MAIN_X,
-    .y = EDIT_ADDID_Y,
-    .bottom = EDIT_ADDID_Y + 24,
-    .data = edit_addid_data,
-    .onredraw = ui_drawmain
-},
+                 .maxlength = sizeof(edit_addid_data),
+                              .data = edit_addid_data,
+                                  },
 
 edit_addmsg = {
+    .panel = {
+        .type = PANEL_EDIT,
+        .x = 0,
+        .y = 114,
+        .height = 84,
+        .width = 0
+    },
     .multiline = 0,//1,
-    .maxlength = sizeof(edit_addmsg_data),
-    .x = MAIN_X,
-    .y = EDIT_ADDMSG_Y,
-    .bottom = EDIT_ADDMSG_Y + 84,
-    .data = edit_addmsg_data,
-    .onredraw = ui_drawmain
-},
+                 .maxlength = sizeof(edit_addmsg_data),
+                              .data = edit_addmsg_data,
+                                  },
 
 edit_msg = {
+    .panel = {
+        .type = PANEL_EDIT,
+        .x = 0,
+        .y = -84,
+        .height = 84,
+        .width = 0
+    },
     .multiline = 0,//1,
-    .maxlength = sizeof(edit_msg_data),
-    .x = MAIN_X,
-    .data = edit_msg_data,
-    .onenter = edit_msg_onenter,
-    .onredraw = ui_drawmain
-};
+                 .maxlength = sizeof(edit_msg_data),
+                              .data = edit_msg_data,
+                                      .onenter = edit_msg_onenter,
+                                          };
 
 /* buttons */
 
@@ -148,7 +164,7 @@ static void button_addfriend_onpress(void)
     uint8_t id[TOX_FRIEND_ADDRESS_SIZE];
     if(edit_addid.length != TOX_FRIEND_ADDRESS_SIZE * 2 || !string_to_id(id, edit_addid_data)) {
         addfriend_status = 2;
-        ui_drawmain();
+        //ui_drawmain();
         return;
     }
 
@@ -158,7 +174,7 @@ static void button_addfriend_onpress(void)
 
     tox_postmessage(TOX_ADDFRIEND, edit_addmsg.length, 0, data);
 
-    edit_setfocus(NULL);
+    edit_resetfocus();
 }
 
 static void button_newgroup_onpress(void)
@@ -170,35 +186,30 @@ static void button_call_onpress(void)
 {
     FRIEND *f = sitem->data;
 
-    switch(f->calling)
-    {
-        case 0:
-        {
-            tox_postmessage(TOX_CALL, f - friend, 0, NULL);
-            debug("Calling friend: %u\n", f - friend);
-            break;
-        }
+    switch(f->calling) {
+    case 0: {
+        tox_postmessage(TOX_CALL, f - friend, 0, NULL);
+        debug("Calling friend: %u\n", f - friend);
+        break;
+    }
 
-        case 1:
-        {
-            tox_postmessage(TOX_ACCEPTCALL, f->callid, 0, NULL);
-            debug("Accept Call: %u\n", f->callid);
-            break;
-        }
+    case 1: {
+        tox_postmessage(TOX_ACCEPTCALL, f->callid, 0, NULL);
+        debug("Accept Call: %u\n", f->callid);
+        break;
+    }
 
-        case 2:
-        {
-            //tox_postmessage(TOX_CALL, f - friend, 0, NULL);
-            //debug("Calling friend: %u\n", f - friend);
-            break;
-        }
+    case 2: {
+        //tox_postmessage(TOX_CALL, f - friend, 0, NULL);
+        //debug("Calling friend: %u\n", f - friend);
+        break;
+    }
 
-        case 3:
-        {
-            tox_postmessage(TOX_HANGUP, f->callid, 0, NULL);
-            debug("Ending call: %u\n", f->callid);
-            break;
-        }
+    case 3: {
+        tox_postmessage(TOX_HANGUP, f->callid, 0, NULL);
+        debug("Ending call: %u\n", f->callid);
+        break;
+    }
     }
 }
 
@@ -209,73 +220,75 @@ static void button_acceptfriend_onpress(void)
 }
 
 BUTTON button_copyid = {
-    .x = MAIN_X,
-    .y = MAIN_Y + 185,
-    .width = 150,
-    .height = 18,
+    .panel = {
+        .type = PANEL_BUTTON,
+        .x = 0,
+        .y = 185,
+        .width = 150,
+        .height = 18,
+    },
     .onpress = button_copyid_onpress,
-    .onredraw = ui_drawmain,
-    BUTTON_TEXT("copy to clipboard")
-},
+               BUTTON_TEXT("copy to clipboard")
+           },
 
 button_addfriend = {
-    .y = MAIN_Y + 222,
-    .width = 50,
-    .height = 18,
+    .panel = {
+        .type = PANEL_BUTTON,
+        .x = -50,
+        .y = 222,
+        .width = 50,
+        .height = 18,
+    },
     .onpress = button_addfriend_onpress,
-    .onredraw = ui_drawmain,
-    BUTTON_TEXT("add")
-},
+               BUTTON_TEXT("add")
+           },
 
 button_newgroup = {
-    .x = MAIN_X,
-    .y = MAIN_Y + 300,
-    .width = 50,
-    .height = 18,
+    .panel = {
+        .type = PANEL_BUTTON,
+        .x = 0,
+        .y = 300,
+        .width = 50,
+        .height = 18,
+    },
     .onpress = button_newgroup_onpress,
-    .onredraw = ui_drawmain,
-    BUTTON_TEXT("add")
-},
+               BUTTON_TEXT("add")
+           },
 
 button_call = {
-    .y = MAIN_Y,
-    .width = 50,
-    .height = 18,
-    .onredraw = ui_drawmain,
+    .panel = {
+        .type = PANEL_BUTTON,
+        .x = -50,
+        .y = 0,
+        .width = 50,
+        .height = 18,
+    },
     .onpress = button_call_onpress,
-    BUTTON_TEXT("call")
-},
+               BUTTON_TEXT("call")
+           },
 
 button_acceptfriend = {
-    .x = MAIN_X,
-    .y = MAIN_Y + 40,
-    .width = 50,
-    .height = 18,
+    .panel = {
+        .type = PANEL_BUTTON,
+        .x = 0,
+        .y = 40,
+        .width = 50,
+        .height = 18,
+    },
     .onpress = button_acceptfriend_onpress,
-    .onredraw = ui_drawmain,
-    BUTTON_TEXT("add")
-};
+               BUTTON_TEXT("add")
+           };
 
 
 SCROLLABLE scroll_list = {
-    .x = LIST_X,
-    .y = LIST_Y,
-    .width = ITEM_WIDTH,
-    .onscroll = list_draw
 },
 
 scroll_self = {
-    .x = MAIN_X,
-    .y = MAIN_Y + 40,
     .content_height = 610 - (MAIN_Y + 40),
-    .onscroll = ui_drawmain
 },
 
 scroll_add = {
-    .x = MAIN_X,
-    .y = MAIN_Y + 40,
     .content_height = 400,
-    .onscroll = ui_drawmain
 };
 
 #define STRLEN(x) (sizeof(x) - 1)
@@ -306,138 +319,309 @@ static uint16_t addfriend_status_length[] = {
     STRLEN("Error: No memory")
 };
 
-uint8_t
-bm_minimize_bits[] = {
-    0b00000000, 0b00000000,
-    0b00000000, 0b00000000,
-    0b00000000, 0b00000000,
-    0b00000000, 0b00000000,
-    0b00000000, 0b00000000,
-    0b00000000, 0b00000000,
-    0b00000000, 0b00000000,
-    0b00000000, 0b00000000,
-    0b00001111, 0b11110000,
-    0b00001111, 0b11110000,
-},
+static void background_draw(PANEL *p, int x, int y, int width, int height)
+{
+    RECT r = {1, 1, width - 1, height - 1};
+    RECT window = {0, 0, width, height};
 
-bm_maximize_bits[] = {
-    0b00011111, 0b11111000,
-    0b00011111, 0b11111000,
-    0b00011111, 0b11111000,
-    0b00010000, 0b00001000,
-    0b00010000, 0b00001000,
-    0b00010000, 0b00001000,
-    0b00010000, 0b00001000,
-    0b00010000, 0b00001000,
-    0b00010000, 0b00001000,
-    0b00011111, 0b11111000,
-},
+    framerect(&window, COLOR_BORDER);
+    fillrect(&r, COLOR_BG);
 
-bm_restore_bits[] = {
-    0b00000111, 0b11111000,
-    0b00000111, 0b11111000,
-    0b00000100, 0b00001000,
-    0b00011111, 0b11101000,
-    0b00011111, 0b11101000,
-    0b00010000, 0b00101000,
-    0b00010000, 0b00111000,
-    0b00010000, 0b00100000,
-    0b00010000, 0b00100000,
-    0b00011111, 0b11100000,
-},
+    drawbitmap(BM_CORNER, width - 10, height - 10, 8, 8);
 
-bm_exit_bits[] = {
-    0b00001000, 0b00010000,
-    0b00011100, 0b00111000,
-    0b00001110, 0b01110000,
-    0b00000111, 0b11100000,
-    0b00000011, 0b11000000,
-    0b00000011, 0b11000000,
-    0b00000111, 0b11100000,
-    0b00001110, 0b01110000,
-    0b00011100, 0b00111000,
-    0b00001000, 0b00010000,
-},
+    drawhline(LIST_X, SCROLL_BOTTOM + 1, LIST_X + ITEM_WIDTH + 3, INNER_BORDER);
+    drawvline(LIST_X + ITEM_WIDTH + 3, LIST_Y, SCROLL_BOTTOM + 2, INNER_BORDER);
 
-bm_plus_bits[] = {
-    0b11111100, 0b00111111,
-    0b11111100, 0b00111111,
-    0b11111100, 0b00111111,
-    0b11111100, 0b00111111,
-    0b11111100, 0b00111111,
-    0b11111100, 0b00111111,
-    0, 0,
-    0, 0,
-    0, 0,
-    0, 0,
-    0b11111100, 0b00111111,
-    0b11111100, 0b00111111,
-    0b11111100, 0b00111111,
-    0b11111100, 0b00111111,
-    0b11111100, 0b00111111,
-    0b11111100, 0b00111111,
+    drawhline(MAIN_X - 9, SCROLL_BOTTOM + 1, width - 12, INNER_BORDER);
+    drawvline(MAIN_X - 10, MAIN_Y, SCROLL_BOTTOM + 2, INNER_BORDER);
+}
+
+static _Bool background_mmove(PANEL *p, int x, int y, int dy, int width, int height)
+{
+    return 0;
+}
+
+static _Bool background_mdown(PANEL *p)
+{
+    return 0;
+}
+
+static _Bool background_mright(PANEL *p)
+{
+    return 0;
+}
+
+static _Bool background_mwheel(PANEL *p, int height, double d)
+{
+    return 0;
+}
+
+static _Bool background_mup(PANEL *p)
+{
+    return 0;
+}
+
+static _Bool background_mleave(PANEL *p)
+{
+    return 0;
+}
+
+SYSMENU sysmenu = {
+    .panel = {
+        .type = PANEL_SYSMENU,
+        .x = -91,
+        .y = 1,
+        .width = 90,
+        .height = 26,
+    }
 };
 
-#define F(r, g, b, a) (RGB((b * a) / 0xFF, (g * a) / 0xFF, (r * a) / 0xFF) | a << 24)
-#define G(x) F(107, 194, 96, x)
-uint32_t
-bm_online_bits[] = {
-    G(0  ), G(0  ), G(83 ), G(194), G(238), G(238), G(194), G(83 ), G(0  ), G(0  ),
-    G(0  ), G(143), G(255), G(255), G(255), G(255), G(255), G(255), G(143), G(0  ),
-    G(83 ), G(255), G(255), G(255), G(255), G(255), G(255), G(255), G(255), G(83 ),
-    G(194), G(255), G(255), G(255), G(255), G(255), G(255), G(255), G(255), G(194),
-    G(238), G(255), G(255), G(255), G(255), G(255), G(255), G(255), G(255), G(238),
-    G(238), G(255), G(255), G(255), G(255), G(255), G(255), G(255), G(255), G(238),
-    G(194), G(255), G(255), G(255), G(255), G(255), G(255), G(255), G(255), G(194),
-    G(83 ), G(255), G(255), G(255), G(255), G(255), G(255), G(255), G(255), G(83 ),
-    G(0  ), G(143), G(255), G(255), G(255), G(255), G(255), G(255), G(143), G(0  ),
-    G(0  ), G(0  ), G(83 ), G(194), G(238), G(238), G(194), G(83 ), G(0  ), G(0  ),
+PANEL panel_list = {
+    .type = PANEL_LIST,
+    .x = LIST_X,
+    .y = 12,
+    .width = ITEM_WIDTH,
+    .height = -13,
+    .content_scroll = &scroll_list,
+    .child = (PANEL*[]) {
+        (void*)&scroll_list, NULL
+    }
 },
-#undef G
-#define G(x) F(206, 191, 69, x)
-bm_away_bits[] = {
-    G(0  ), G(0  ), G(83 ), G(194), G(238), G(238), G(194), G(83 ), G(0  ), G(0  ),
-    G(0  ), G(143), G(255), G(219), G(153), G(153), G(219), G(255), G(143), G(0  ),
-    G(83 ), G(255), G(154), G(0  ), G(0  ), G(0  ), G(0  ), G(154), G(255), G(83 ),
-    G(194), G(220), G(0  ), G(0  ), G(0  ), G(0  ), G(0  ), G(0  ), G(220), G(194),
-    G(238), G(152), G(0  ), G(0  ), G(0  ), G(0  ), G(0  ), G(0  ), G(152), G(238),
-    G(238), G(255), G(255), G(255), G(255), G(255), G(255), G(255), G(255), G(238),
-    G(194), G(255), G(255), G(255), G(255), G(255), G(255), G(255), G(255), G(194),
-    G(83 ), G(255), G(255), G(255), G(255), G(255), G(255), G(255), G(255), G(83 ),
-    G(0  ), G(143), G(255), G(255), G(255), G(255), G(255), G(255), G(143), G(0  ),
-    G(0  ), G(0  ), G(83 ), G(194), G(238), G(238), G(194), G(83 ), G(0  ), G(0  ),
-},
-#undef G
-#define G(x) F(200, 78, 78, x)
-bm_busy_bits[] = {
-    G(0  ), G(0  ), G(83 ), G(194), G(238), G(238), G(194), G(83 ), G(0  ), G(0  ),
-    G(0  ), G(143), G(255), G(255), G(255), G(255), G(255), G(255), G(143), G(0  ),
-    G(83 ), G(255), G(255), G(255), G(255), G(255), G(255), G(255), G(255), G(83 ),
-    G(194), G(255), G(255), G(255), G(255), G(255), G(255), G(255), G(255), G(194),
-    G(238), G(128), G(0  ), G(0  ), G(0  ), G(0  ), G(0  ), G(0  ), G(128), G(238),
-    G(238), G(128), G(0  ), G(0  ), G(0  ), G(0  ), G(0  ), G(0  ), G(128), G(238),
-    G(194), G(255), G(255), G(255), G(255), G(255), G(255), G(255), G(255), G(194),
-    G(83 ), G(255), G(255), G(255), G(255), G(255), G(255), G(255), G(255), G(83 ),
-    G(0  ), G(143), G(255), G(255), G(255), G(255), G(255), G(255), G(143), G(0  ),
-    G(0  ), G(0  ), G(83 ), G(194), G(238), G(238), G(194), G(83 ), G(0  ), G(0  ),
-},
-#undef G
-#define G(x) F(200, 78, 78, x)
-bm_offline_bits[] = {
-    G(0  ), G(0  ), G(83 ), G(194), G(238), G(238), G(194), G(83 ), G(0  ), G(0  ),
-    G(0  ), G(143), G(255), G(219), G(153), G(153), G(219), G(255), G(143), G(0  ),
-    G(83 ), G(255), G(154), G(0  ), G(0  ), G(0  ), G(0  ), G(154), G(255), G(83 ),
-    G(194), G(219), G(0  ), G(0  ), G(0  ), G(0  ), G(0  ), G(0  ), G(219), G(194),
-    G(238), G(153), G(0  ), G(0  ), G(0  ), G(0  ), G(0  ), G(0  ), G(153), G(238),
-    G(238), G(153), G(0  ), G(0  ), G(0  ), G(0  ), G(0  ), G(0  ), G(153), G(238),
-    G(194), G(219), G(0  ), G(0  ), G(0  ), G(0  ), G(0  ), G(0  ), G(219), G(194),
-    G(83 ), G(255), G(154), G(0  ), G(0  ), G(0  ), G(0  ), G(154), G(255), G(83 ),
-    G(0  ), G(143), G(255), G(219), G(153), G(153), G(219), G(255), G(143), G(0  ),
-    G(0  ), G(0  ), G(83 ), G(194), G(238), G(238), G(194), G(83 ), G(0  ), G(0  ),
-};
-#undef G
 
-static void drawfriendmain(int x, int y, FRIEND *f)
+panel_item[] = {
+    {
+        .type = PANEL_NONE,
+        //.disabled = 1,
+        .content_scroll = &scroll_self,
+        .child = (PANEL*[]) {
+            //(void*)&text_name, (void*)&text_statusmsg, (void*)&text_toxid,
+            (void*)&button_copyid,
+            (void*)&edit_name, (void*)&edit_status,
+            NULL
+        }
+    },
+
+    {
+        .type = PANEL_NONE,
+        .disabled = 1,
+        .content_scroll = &scroll_self,
+        .child = (PANEL*[]) {
+            //(void*)&text_name, (void*)&text_statusmsg, (void*)&text_toxid,
+            (void*)&button_addfriend,
+            (void*)&edit_addid, (void*)&edit_addmsg,
+            NULL
+        }
+    },
+},
+
+panel_side = {
+    .type = PANEL_NONE,
+    .x = SIDE_X,
+    .y = 12,
+    .width = -12 - SIDE_X,
+    .height = -12,
+    .child = (PANEL*[]) {
+        &panel_item[0], &panel_item[1], NULL//&panel_friend, &panel_group, &panel_request, NULL
+    }
+},
+
+panel_main = {
+    .type = PANEL_MAIN,
+    .x = 0,
+    .y = 0,
+    .width = 0,
+    .height = 0,
+    .child = (PANEL*[]) {
+        &panel_list, &panel_side, (void*)&sysmenu, NULL
+    }
+};
+
+#define FUNC(x, ret, ...) static ret (* x##func[])(void *p, ##__VA_ARGS__) = { \
+    (void*)background_##x, \
+    (void*)sysmenu_##x, \
+    (void*)list_##x, \
+    (void*)button_##x, \
+    (void*)edit_##x, \
+    (void*)scroll_##x, \
+};
+
+FUNC(draw, void, int x, int y, int width, int height);
+FUNC(mmove, _Bool, int x, int y, int dy, int width, int height);
+FUNC(mdown, _Bool);
+FUNC(mright, _Bool);
+FUNC(mwheel, _Bool, int height, double d);
+FUNC(mup, _Bool);
+FUNC(mleave, _Bool);
+
+#undef FUNC
+#define FUNC() \
+    x += (p->x < 0) ? width + p->x : p->x; \
+    y += (p->y < 0) ? height + p->y : p->y; \
+    width = (p->width <= 0) ? width + p->width : p->width; \
+    height = (p->height <= 0) ? height + p->height : p->height; \
+
+static void panel_draw_sub(PANEL *p, int x, int y, int width, int height)
+{
+    FUNC();
+
+    //debug("test %u %i %i %i %i\n", p, x, y, width, height);
+
+    if(p->type == PANEL_EDIT) {
+        debug("%i %i %i %i\n", x, y, width, height);
+    }
+
+    pushclip(x, y, width, height);
+
+    if(p->type)drawfunc[p->type - 1](p, x, y, width, height);
+    PANEL **pp = p->child, *subp;
+    if(pp) {
+        while(subp = *pp++) {
+            if(!subp->disabled) {
+                panel_draw_sub(subp, x, y, width, height);
+            }
+        }
+    }
+
+    popclip();
+}
+
+void panel_draw(PANEL *p, int x, int y, int width, int height)
+{
+    FUNC();
+
+    pushclip(x, y, width, height);
+
+    if(p->type)drawfunc[p->type - 1](p, x, y, width, height);
+    PANEL **pp = p->child, *subp;
+    if(pp) {
+        while(subp = *pp++) {
+            if(!subp->disabled) {
+                panel_draw_sub(subp, x, y, width, height);
+            }
+        }
+    }
+
+    popclip();
+
+    enddraw(x, y, width, height);
+}
+
+void panel_redraw(PANEL *p)
+{
+    /* just redraws everything for now */
+    panel_draw(&panel_main, 0, 0, width, height);
+}
+
+void panel_mmove(PANEL *p, int x, int y, int width, int height, int mx, int my, int dy)
+{
+    mx -= (p->x < 0) ? width + p->x : p->x;
+    my -= (p->y < 0) ? height + p->y : p->y;
+    FUNC();
+
+    _Bool draw = p->type ? mmovefunc[p->type - 1](p, mx, my, dy, width, height) : 0;
+    PANEL **pp = p->child, *subp;
+    if(pp) {
+        while(subp = *pp++) {
+            if(!subp->disabled) {
+                panel_mmove(subp, x, y, width, height, mx, my, dy);
+            }
+        }
+    }
+
+    if(draw) {
+        panel_redraw(NULL);
+    }
+}
+
+void panel_mdown(PANEL *p)
+{
+    _Bool draw = p->type ? mdownfunc[p->type - 1](p) : 0;
+    PANEL **pp = p->child, *subp;
+    if(pp) {
+        while(subp = *pp++) {
+            if(!subp->disabled) {
+                panel_mdown(subp);
+            }
+        }
+    }
+
+    if(draw) {
+        panel_redraw(NULL);
+    }
+}
+
+void panel_mright(PANEL *p)
+{
+    _Bool draw = p->type ? mrightfunc[p->type - 1](p) : 0;
+    PANEL **pp = p->child, *subp;
+    if(pp) {
+        while(subp = *pp++) {
+            if(!subp->disabled) {
+                panel_mright(subp);
+            }
+        }
+    }
+
+
+    if(draw) {
+        panel_redraw(NULL);
+    }
+}
+
+void panel_mwheel(PANEL *p, int x, int y, int width, int height, double d)
+{
+    FUNC();
+
+    _Bool draw = p->type ? mwheelfunc[p->type - 1](p, height, d) : 0;
+    PANEL **pp = p->child, *subp;
+    if(pp) {
+        while(subp = *pp++) {
+            if(!subp->disabled) {
+                panel_mwheel(subp, x, y, width, height, d);
+            }
+        }
+    }
+
+    if(draw) {
+        panel_redraw(NULL);
+    }
+}
+
+void panel_mup(PANEL *p)
+{
+    _Bool draw = p->type ? mupfunc[p->type - 1](p) : 0;
+    PANEL **pp = p->child, *subp;
+    if(pp) {
+        while(subp = *pp++) {
+            if(!subp->disabled) {
+                panel_mup(subp);
+            }
+        }
+    }
+
+    if(draw) {
+        panel_redraw(NULL);
+    }
+}
+
+void panel_mleave(PANEL *p)
+{
+    _Bool draw = p->type ? mleavefunc[p->type - 1](p) : 0;
+    PANEL **pp = p->child, *subp;
+    if(pp) {
+        while(subp = *pp++) {
+            if(!subp->disabled) {
+                panel_mleave(subp);
+            }
+        }
+    }
+
+    if(draw) {
+        panel_redraw(NULL);
+    }
+}
+
+/*static void drawfriendmain(int x, int y, FRIEND *f)
 {
     SetTextColor(hdc, 0x333333);
     SelectObject(hdc, font_big);
@@ -459,35 +643,30 @@ static void drawfriendmain(int x, int y, FRIEND *f)
         //FrameRect(hdc, &r, border);
     }
 
-    switch(f->calling)
-    {
-        case 0:
-        {
-            button_call.text = "call";
-            button_call.text_length = sizeof("call") - 1;
-            break;
-        }
+    switch(f->calling) {
+    case 0: {
+        button_call.text = "call";
+        button_call.text_length = sizeof("call") - 1;
+        break;
+    }
 
-        case 1:
-        {
-            button_call.text = "accept call";
-            button_call.text_length = sizeof("accept call") - 1;
-            break;
-        }
+    case 1: {
+        button_call.text = "accept call";
+        button_call.text_length = sizeof("accept call") - 1;
+        break;
+    }
 
-        case 2:
-        {
-            button_call.text = "ringing..";
-            button_call.text_length = sizeof("ringing..") - 1;
-            break;
-        }
+    case 2: {
+        button_call.text = "ringing..";
+        button_call.text_length = sizeof("ringing..") - 1;
+        break;
+    }
 
-        case 3:
-        {
-            button_call.text = "cancel call";
-            button_call.text_length = sizeof("cancel call") - 1;
-            break;
-        }
+    case 3: {
+        button_call.text = "cancel call";
+        button_call.text_length = sizeof("cancel call") - 1;
+        break;
+    }
     }
 
     button_draw(&button_call);
@@ -517,58 +696,6 @@ static void drawgroupmain(int x, int y, GROUPCHAT *g)
     }
 
     edit_draw(&edit_msg);
-}
-
-static void drawselfmain(int x, int y)
-{
-    setcolor(0x333333);
-    setfont(FONT_TITLE);
-
-    drawstr(x, y + 2, "User settings");
-
-    drawhline(x, y + 29, x + 200, INNER_BORDER);
-
-    setcolor(0x555555);
-    setfont(FONT_SUBTITLE);
-
-    begindraw(x, y + 40, width - 12, height - 12);
-
-    int dy = scroll_gety(&scroll_self);
-
-    edit_name.y = EDIT_NAME_Y - dy;
-    edit_name.bottom = edit_name.y + 24;
-
-    edit_status.y = EDIT_STATUS_Y - dy;
-    edit_status.bottom = edit_status.y + 24;
-
-    button_copyid.y = MAIN_Y + 185 - dy;
-
-    y -= dy;
-
-    drawstr(x, y + 40, "Name");
-    drawstr(x, y + 90, "Status message");
-    drawstr(x, y + 140, "Tox ID");
-
-    drawstr(x, y + 210, "Audio input device");
-    drawstr(x, y + 260, "Audio output device");
-    drawstr(x, y + 310, "Video input device");
-    drawstr(x, y + 360, "Some other fun setting");
-    drawstr(x, y + 410, "Most fun setting");
-    drawstr(x, y + 460, "Even more fun setting");
-    drawstr(x, y + 510, "Just enough so that it scrolls...");
-    drawstr(x, y + 560, "on the default height");
-
-    setfont(FONT_TEXT_LARGE);
-    drawtextrange(x, width - 24, y + 165, self.id, sizeof(self.id));
-
-    edit_draw(&edit_name);
-    edit_draw(&edit_status);
-
-    button_draw(&button_copyid);
-
-    scroll_draw(&scroll_self);
-
-    enddraw();
 }
 
 static void drawaddmain(int x, int y)
@@ -651,8 +778,7 @@ void ui_drawmain(void)
         break;
     }
 
-    case ITEM_FRIEND_ADD:
-    {
+    case ITEM_FRIEND_ADD: {
         drawfreqmain(x, y, sitem->data);
         break;
     }
@@ -663,28 +789,9 @@ void ui_drawmain(void)
     //button_func(button_draw);
 
     commitdraw(MAIN_X, MAIN_Y, width - 12 - MAIN_X, height - 12 - MAIN_Y);
-}
+}*/
 
-void ui_drawbackground(void)
-{
-    RECT r = {1, 1, width - 1, height - 1};
-    RECT window = {0, 0, width, height};
-
-    framerect(&window, COLOR_BORDER);
-    fillrect(&r, COLOR_BG);
-
-    drawbitmap(BM_CORNER, width - 10, height - 10, 8, 8);
-
-    drawhline(LIST_X, SCROLL_BOTTOM + 1, LIST_X + ITEM_WIDTH + 3, INNER_BORDER);
-    drawvline(LIST_X + ITEM_WIDTH + 3, LIST_Y, SCROLL_BOTTOM + 2, INNER_BORDER);
-
-    drawhline(MAIN_X - 9, SCROLL_BOTTOM + 1, width - 12, INNER_BORDER);
-    drawvline(MAIN_X - 10, MAIN_Y, SCROLL_BOTTOM + 2, INNER_BORDER);
-
-    commitdraw(0, 0, width, height);
-}
-
-void ui_updatesize(void)
+/*void ui_updatesize(void)
 {
     int x2 = (MAIN_X + 600) < (width - 24) ? MAIN_X + 600 : width - 24;
 
@@ -709,5 +816,5 @@ void ui_updatesize(void)
     scroll_add.height = (height - 12) - (MAIN_Y + 40);
 
     button_call.x = width - 12 - 50;
-}
+}*/
 
