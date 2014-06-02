@@ -10,9 +10,9 @@ Lightweight [Tox](https://github.com/irungentoo/ProjectTox-Core) client for Wind
 
 Something like this:
 
->windres icon.rc -O coff -o icon.res
+>windres icons/icon.rc -O coff -o icon.res
 
->gcc -o winTox.exe *.c icon.res -lgdi32 -lmsimg32 -lopenal32 -ltoxav 
+>gcc -o winTox.exe *.c win32/main.c icon.res -lgdi32 -lmsimg32 -lopenal32 -ltoxav 
 
 ## Downloads
 
