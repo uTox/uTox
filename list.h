@@ -25,6 +25,7 @@ void list_addgroup(GROUPCHAT *g);
 void list_addfriendreq(FRIENDREQ *f);
 void list_deletesitem(void);
 void list_deleteritem(void);
+void list_selectaddfriend(void);
 
 void list_draw(void *n, int x, int y, int width, int height);
 

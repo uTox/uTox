@@ -72,7 +72,7 @@ _Bool edit_mmove(EDIT *edit, int x, int y, int dy, int width, int height)
 
         redraw = 1;
     } else if(mouseover) {
-        int fit, extent = x - 5;
+        int fit = 0, extent = x - 5;
         SIZE size;
 
         setfont(FONT_TEXT);
@@ -80,6 +80,7 @@ _Bool edit_mmove(EDIT *edit, int x, int y, int dy, int width, int height)
 
         GetTextExtentPoint32(hdc, (char*)edit->data, fit, &size);
         int sx = size.cx;
+
         GetTextExtentPoint32(hdc, (char*)edit->data, fit + 1, &size);
         if(fit != edit->length && size.cx - extent < extent - sx) {
             fit += 1;
@@ -93,31 +94,30 @@ _Bool edit_mmove(EDIT *edit, int x, int y, int dy, int width, int height)
 
 _Bool edit_mdown(EDIT *edit)
 {
-    if(edit->mouseover)
-    {
+    if(edit->mouseover) {
         edit_sel.start = edit_sel.p1 = edit_sel.p2 = edit->mouseover_char;
         edit_sel.length = 0;
         edit_select = 1;
 
-        EDIT *active = active_edit;
         active_edit = edit;
-        if(active != edit) {
-            //panel_redraw(&active->panel);
-        }
-
         return 1;
     }
 }
 
 _Bool edit_mright(EDIT *edit)
 {
-    editpopup();
+    if(edit->mouseover) {
+        EDIT *active = active_edit;
+        active_edit = edit;
 
-    EDIT *active = active_edit;
-    active_edit = edit;
-    if(active != edit) {
-        //panel_redraw(&active->panel);
-        return 1;
+
+
+        editpopup();
+
+        if(active != edit) {
+            return 1;
+        }
+
     }
 
     return 0;
@@ -295,6 +295,13 @@ void edit_clear(void)
 
 void edit_resetfocus(void)
 {
+    edit_select = 0;
+    active_edit = NULL;
+}
+
+void edit_setfocus(EDIT *edit)
+{
+    edit_select = 0;
     active_edit = NULL;
 }
 

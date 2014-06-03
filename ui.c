@@ -12,6 +12,10 @@ static void edit_name_onenter(void)
     uint8_t *data = edit_name_data;
     uint16_t length = edit_name.length;
 
+    if(!length) {
+        return;
+    }
+
     memcpy(self.name, data, length);
     self.name_length = length;
 
@@ -24,6 +28,10 @@ static void edit_status_onenter(void)
 {
     uint8_t *data = edit_status_data;
     uint16_t length = edit_status.length;
+
+    if(!length) {
+        return;
+    }
 
     void *p = realloc(self.statusmsg, length);
     if(!p) {
@@ -90,11 +98,12 @@ EDIT edit_name = {
         .height = 24,
         .width = 0
     },
+
     .multiline = 0,
-                 .maxlength = 128,
-                              .data = edit_name_data,
-                                      .onenter = edit_name_onenter,
-                                          },
+    .maxlength = 128,
+    .data = edit_name_data,
+    .onenter = edit_name_onenter,
+},
 
 edit_status = {
     .panel = {
@@ -105,10 +114,10 @@ edit_status = {
         .width = 0
     },
     .multiline = 0,
-                 .maxlength = 128,
-                              .data = edit_status_data,
-                                      .onenter = edit_status_onenter,
-                                          },
+    .maxlength = 128,
+    .data = edit_status_data,
+    .onenter = edit_status_onenter,
+},
 
 edit_addid = {
     .panel = {
@@ -119,9 +128,9 @@ edit_addid = {
         .width = 0
     },
     .multiline = 0,
-                 .maxlength = sizeof(edit_addid_data),
-                              .data = edit_addid_data,
-                                  },
+    .maxlength = sizeof(edit_addid_data),
+    .data = edit_addid_data,
+},
 
 edit_addmsg = {
     .panel = {
@@ -132,9 +141,9 @@ edit_addmsg = {
         .width = 0
     },
     .multiline = 0,//1,
-                 .maxlength = sizeof(edit_addmsg_data),
-                              .data = edit_addmsg_data,
-                                  },
+    .maxlength = sizeof(edit_addmsg_data),
+    .data = edit_addmsg_data,
+},
 
 edit_msg = {
     .panel = {
@@ -145,10 +154,10 @@ edit_msg = {
         .width = 0
     },
     .multiline = 0,//1,
-                 .maxlength = sizeof(edit_msg_data),
-                              .data = edit_msg_data,
-                                      .onenter = edit_msg_onenter,
-                                          };
+    .maxlength = sizeof(edit_msg_data),
+    .data = edit_msg_data,
+    .onenter = edit_msg_onenter,
+};
 
 /* buttons */
 
@@ -161,19 +170,7 @@ static void button_copyid_onpress(void)
 
 static void button_addfriend_onpress(void)
 {
-    uint8_t id[TOX_FRIEND_ADDRESS_SIZE];
-    if(edit_addid.length != TOX_FRIEND_ADDRESS_SIZE * 2 || !string_to_id(id, edit_addid_data)) {
-        addfriend_status = 2;
-        //ui_drawmain();
-        return;
-    }
-
-    void *data = malloc(sizeof(id) + edit_addmsg.length);
-    memcpy(data, id, sizeof(id));
-    memcpy(data + sizeof(id), edit_addmsg.data, edit_addmsg.length);
-
-    tox_postmessage(TOX_ADDFRIEND, edit_addmsg.length, 0, data);
-
+    friend_add(edit_addid_data, edit_addid.length, edit_addmsg.data, edit_addmsg.length);
     edit_resetfocus();
 }
 
@@ -295,7 +292,8 @@ scroll_add = {
 
 static char *addfriend_status_str[] = {
     "Friend request sent",
-    "Error: Invalid ID format",
+    "Attempting to resolve name...",
+    "Error: Invalid Tox ID",
     "Error: Message too long",
     "Error: Empty message",
     "Error: ID is self",
@@ -308,7 +306,8 @@ static char *addfriend_status_str[] = {
 
 static uint16_t addfriend_status_length[] = {
     STRLEN("Friend request sent"),
-    STRLEN("Error: Invalid ID format"),
+    STRLEN("Attempting to resolve name..."),
+    STRLEN("Error: Invalid Tox ID"),
     STRLEN("Error: Message too long"),
     STRLEN("Error: Empty message"),
     STRLEN("Error: ID is self"),
@@ -366,6 +365,66 @@ static _Bool background_mleave(PANEL *p)
     return 0;
 }
 
+static void drawadd(int x, int y, int width, int height)
+{
+    setcolor(0x333333);
+    setfont(FONT_TITLE);
+
+    drawstr(x, y + 2, "Add friends and groups");
+
+    drawhline(x, y + 29, x + 300, INNER_BORDER);
+
+    setcolor(0x555555);
+    setfont(FONT_SUBTITLE);
+
+    drawstr(x, y + 40, "Tox ID");
+    drawstr(x, y + 90, "Message");
+
+    setfont(FONT_TEXT_LARGE);
+
+    if(addfriend_status) {
+        drawtext(x, y + 200, addfriend_status_str[addfriend_status - 1], addfriend_status_length[addfriend_status - 1]);
+    }
+
+    /*begindraw(x, y + 40, width - 12, height - 12);
+
+    int dy = scroll_gety(&scroll_add);
+
+    edit_addid.y = EDIT_ADDID_Y - dy;
+    edit_addid.bottom = edit_addid.y + 24;
+
+    edit_addmsg.y = EDIT_ADDMSG_Y - dy;
+    edit_addmsg.bottom = edit_addmsg.y + 84;
+
+    button_addfriend.y = MAIN_Y + 222 - dy;
+    button_newgroup.y = MAIN_Y + 300 - dy;
+
+    y -= dy;
+
+    drawstr(x, y + 40, "Tox ID");
+    drawstr(x, y + 90, "Message");
+
+    setfont(FONT_TEXT_LARGE);
+
+    if(addfriend_status) {
+        drawtext(x, y + 200, addfriend_status_str[addfriend_status - 1], addfriend_status_length[addfriend_status - 1]);
+    }
+
+    setfont(FONT_SUBTITLE);
+    drawstr(x, y + 280, "Create Group");
+
+    edit_draw(&edit_addid);
+    edit_draw(&edit_addmsg);
+
+    button_draw(&button_addfriend);
+    button_draw(&button_newgroup);
+
+    scroll_draw(&scroll_add);
+
+    enddraw();*/
+}
+
+
 SYSMENU sysmenu = {
     .panel = {
         .type = PANEL_SYSMENU,
@@ -404,7 +463,8 @@ panel_item[] = {
     {
         .type = PANEL_NONE,
         .disabled = 1,
-        .content_scroll = &scroll_self,
+        .content_scroll = &scroll_add,
+        .drawfunc = drawadd,
         .child = (PANEL*[]) {
             //(void*)&text_name, (void*)&text_statusmsg, (void*)&text_toxid,
             (void*)&button_addfriend,
@@ -432,7 +492,7 @@ panel_item[] = {
 panel_side = {
     .type = PANEL_NONE,
     .x = SIDE_X,
-    .y = 12,
+    .y = SIDE_Y,
     .width = -12 - SIDE_X,
     .height = -12,
     .child = (PANEL*[]) {
@@ -482,12 +542,19 @@ static void panel_draw_sub(PANEL *p, int x, int y, int width, int height)
     //debug("test %u %i %i %i %i\n", p, x, y, width, height);
 
     if(p->type == PANEL_EDIT) {
-        debug("%i %i %i %i\n", x, y, width, height);
+        //debug("%i %i %i %i\n", x, y, width, height);
     }
 
     pushclip(x, y, width, height);
 
-    if(p->type)drawfunc[p->type - 1](p, x, y, width, height);
+    if(p->type) {
+        drawfunc[p->type - 1](p, x, y, width, height);
+    } else {
+        if(p->drawfunc) {
+            p->drawfunc(x, y, width, height);
+        }
+    }
+
     PANEL **pp = p->child, *subp;
     if(pp) {
         while(subp = *pp++) {
@@ -506,7 +573,14 @@ void panel_draw(PANEL *p, int x, int y, int width, int height)
 
     pushclip(x, y, width, height);
 
-    if(p->type)drawfunc[p->type - 1](p, x, y, width, height);
+    if(p->type) {
+        drawfunc[p->type - 1](p, x, y, width, height);
+    } else {
+        if(p->drawfunc) {
+            p->drawfunc(x, y, width, height);
+        }
+    }
+
     PANEL **pp = p->child, *subp;
     if(pp) {
         while(subp = *pp++) {

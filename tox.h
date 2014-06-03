@@ -1,8 +1,12 @@
-/* todo: proper system for posting messages to the toxcore thread, comments, better names (?) */
+/* todo: proper system for posting messages to the toxcore thread, comments, better names (?), proper cleanup of a/v and a/v thread*/
 
-/* toxcore thread messages
+/* details about messages and their (param1, param2, data) values are in the message handlers in tox.c*/
+
+/* toxcore thread messages (send from the client thread)
  */
 enum {
+    TOX_KILL,
+
     TOX_SETNAME,
     TOX_SETSTATUSMSG,
     TOX_SETSTATUS,
@@ -21,11 +25,15 @@ enum {
     TOX_SENDFILE,
 };
 
-/* client thread messages
+/* client thread messages (recieved by the client thread)
  */
 enum {
+    /* general messages */
+    TOX_DONE,
     DHT_CONNECTED,
+    DNS_RESULT,
 
+    /* friend related */
     FRIEND_REQUEST,
     FRIEND_ACCEPT,
     FRIEND_ADD,
@@ -36,20 +44,22 @@ enum {
     FRIEND_TYPING,
     FRIEND_ONLINE,
 
+    /* friend a/v */
     FRIEND_CALL_INVITE,
     FRIEND_CALL_START,
     FRIEND_CALL_RING,
     FRIEND_CALL_END,
 
+    /* group */
     GROUP_ADD,
     GROUP_MESSAGE,
     GROUP_PEER_ADD,
     GROUP_PEER_DEL,
     GROUP_PEER_NAME,
 
+    /* file */
     FILE_BEGIN_RECV,
     FILE_BEGIN_SEND
-
 };
 
 /* toxcore thread

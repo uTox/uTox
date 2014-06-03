@@ -52,6 +52,7 @@ typedef struct
 }GROUPCHAT;
 
 #include "tox.h"
+#include "dns.h"
 #include "ui.h"
 #include "friend.h"
 #include "list.h"
@@ -91,8 +92,6 @@ enum
     LIST_ACCEPT
 };
 
-#define SAVE_NAME "tox.data"
-
 #define BORDER 1
 #define CAPTION 26
 
@@ -121,7 +120,8 @@ enum
 #define MESSAGES_WIDTH (MESSAGES_RIGHT - MESSAGES_X - NAMES_WIDTH)
 #define GMESSAGES_WIDTH (GMESSAGES_RIGHT - MESSAGES_X - NAMES_WIDTH)
 
-volatile _Bool tox_thread_run, tox_connected;
+volatile _Bool tox_thread_init;
+_Bool tox_connected;
 
 //friends and groups
 //note: assumes array size will always be large enough

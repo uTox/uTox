@@ -217,7 +217,7 @@ static void selectitem(ITEM *i)
     }
 
     sitem = i;
-    //edit_setfocus(NULL);
+
     edit_resetfocus();
 
     addfriend_status = 0;
@@ -256,8 +256,6 @@ void list_addfriend(FRIEND *f)
     ITEM *i = newitem();
     i->item = ITEM_FRIEND;
     i->data = f;
-
-    redraw();
 }
 
 void list_addfriend2(FRIEND *f, FRIENDREQ *req)
@@ -432,6 +430,11 @@ void list_deleteritem(void)
     {
         deleteitem(ritem);
     }
+}
+
+void list_selectaddfriend(void)
+{
+    selectitem(&item[1]);
 }
 
 _Bool list_mmove(void *n, int x, int y, int dy, int width, int height)

@@ -18,8 +18,17 @@ struct panel
     _Bool disabled;
     int x, y, width, height;
     SCROLLABLE *content_scroll;
-    PANEL *parent;
+    void (*drawfunc)(int, int, int, int);
     PANEL **child;
+};
+
+enum
+{
+    ADDF_NONE,
+    ADDF_SENT,
+    ADDF_DISCOVER,
+    ADDF_BADNAME,
+    ADDF_TOOLONG
 };
 
 extern PANEL panel_main, panel_item[5];
@@ -45,6 +54,7 @@ extern uint32_t bm_online_bits[], bm_away_bits[], bm_busy_bits[], bm_offline_bit
 #define LIST_X 12
 #define ITEM_WIDTH 200
 #define SIDE_X (LIST_X + ITEM_WIDTH + 23)
+#define SIDE_Y 27
 
 #define BLACK 0x000000
 #define WHITE 0xFFFFFF

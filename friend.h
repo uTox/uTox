@@ -26,8 +26,7 @@ typedef struct {
     uint8_t name[256];
 } FILE_T;
 
-typedef struct
-{
+typedef struct {
     _Bool online, typing;
     uint8_t calling, status;
     //MESSAGES m;
@@ -48,3 +47,6 @@ typedef struct
 void friend_setname(FRIEND *f, uint8_t *name, uint16_t length);
 FILE_T* friend_newincoming(FRIEND *f, uint8_t filenumber);
 FILE_T* friend_newoutgoing(FRIEND *f, uint8_t filenumber);
+
+void friend_addid(uint8_t *id, uint8_t *msg, uint16_t msg_length);
+void friend_add(uint8_t *name, uint16_t length, uint8_t *msg, uint16_t msg_length);

@@ -27,7 +27,7 @@ static ALCdevice *device_out, *device_in;
 static ALCcontext *context;
 static ALuint source[MAX_CALLS];
 
-static volatile _Bool av_thread_done = 0;
+static volatile _Bool av_thread_run;
 
 static FILE_T *file_t[256], **file_tend = file_t;
 
@@ -81,8 +81,7 @@ static void callback_file_control(Tox *tox, int32_t fid, uint8_t receive_send, u
 
     switch(control) {
     case TOX_FILECONTROL_ACCEPT: {
-        if(receive_send)
-        {
+        if(receive_send) {
             ft->status = FT_SEND;
             debug("FileAccepted\n");
         }
@@ -104,8 +103,7 @@ static void callback_file_control(Tox *tox, int32_t fid, uint8_t receive_send, u
     }
 
     case TOX_FILECONTROL_FINISHED: {
-        if(!receive_send)
-        {
+        if(!receive_send) {
             ft->status = FT_FINISHED;
             fclose(ft->data);
             debug("finsih!\n");
@@ -320,7 +318,9 @@ static void av_thread(void *args)
     int perframe = (av_DefaultSettings.audio_frame_duration * av_DefaultSettings.audio_sample_rate) / 1000;
     uint8_t buf[perframe * 2], dest[perframe * 2];
 
-    while(tox_thread_run) {
+    av_thread_run = 1;
+
+    while(av_thread_run) {
         if(record) {
             ALint samples;
             alcGetIntegerv(device_in, ALC_CAPTURE_SAMPLES, sizeof(samples), &samples);
@@ -388,7 +388,7 @@ static void av_thread(void *args)
     alcMakeContextCurrent(NULL);
     alcDestroyContext(context);
 
-    av_thread_done = 1;
+    av_thread_run = 1;
 }
 
 void tox_thread(void *args)
@@ -421,24 +421,25 @@ void tox_thread(void *args)
 
     av = toxav_new(tox, MAX_CALLS);
 
-    tox_thread_run = 1;
+    tox_thread_init = 1;
     thread(av_thread, av);
 
+    _Bool connected = 0;
     uint64_t last_save = get_time();
-    while(tox_thread_run) {
+    while(1) {
         tox_do(tox);
 
-        if(tox_isconnected(tox) != tox_connected) {
-            tox_connected = !tox_connected;
-            postmessage(DHT_CONNECTED, 0, 0, NULL);
+        if(tox_isconnected(tox) != connected) {
+            connected = !connected;
+            postmessage(DHT_CONNECTED, connected, 0, NULL);
 
-            debug("Connected to DHT: %u\n", tox_connected);
+            debug("Connected to DHT: %u\n", connected);
         }
 
         if(get_time() - last_save >= (uint64_t)10 * 1000 * 1000 * 1000) {
             last_save = get_time();
 
-            if(!tox_connected) {
+            if(!connected) {
                 do_bootstrap(tox);
             }
 
@@ -447,6 +448,9 @@ void tox_thread(void *args)
 
         if(tox_thread_msg) {
             TOX_MSG *msg = &tox_msg;
+            if(!msg->msg) {
+                break;
+            }
             tox_thread_message(tox, av, msg->msg, msg->param1, msg->param2, msg->data);
             tox_thread_msg = 0;
         }
@@ -478,16 +482,17 @@ void tox_thread(void *args)
         yieldcpu();
     }
 
+    av_thread_run = 0;
     write_save(tox);
 
-    toxav_kill(av);
+    //toxav_kill(av);
     tox_kill(tox);
 
-    while(!av_thread_done) {
+    /*while(!av_thread_run) {
         yieldcpu();
-    }
+    }*/
 
-    tox_thread_run = 1;
+    postmessage(TOX_DONE, 0, 0, NULL);
 }
 
 static void tox_thread_message(Tox *tox, ToxAv *av, uint8_t msg, uint16_t param1, uint16_t param2, void *data)
@@ -650,12 +655,30 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
 {
     switch(msg) {
     case DHT_CONNECTED: {
+        /* param1: connection status (1 = connected, 0 = disconnected)
+         */
+        tox_connected = param1;
         redraw();
         break;
     }
 
+    case DNS_RESULT: {
+        /* param1: result (0 = failure, 1 = success)
+         * data: resolved tox id (if successful)
+         */
+        if(param1) {
+            friend_addid(data, edit_addmsg.data, edit_addmsg.length);
+        } else
+        {
+            addfriend_status = ADDF_BADNAME;
+        }
+        free(data);
+        break;
+    }
+
     case FRIEND_REQUEST: {
-        /* received a friend request */
+        /* data: pointer to FRIENDREQ structure
+         */
         list_addfriendreq(data);
         break;
     }
@@ -664,14 +687,11 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
         /* confirmation that friend has been added to friend list (add) */
         if(param1) {
             /* friend was not added */
-            addfriend_status = param2 + 3;
-            redraw();//ui_drawmain();
+            addfriend_status = param2 + ADDF_TOOLONG;
         } else {
             /* friend was added */
             edit_addid.length = 0;
             edit_addmsg.length = 0;
-            //edit_draw(&edit_addid);
-            //edit_draw(&edit_addmsg);
 
             FRIEND *f = &friend[param2];
             friends++;
@@ -680,14 +700,14 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
 
             friend_setname(f, NULL, 0);
 
-            //list_addfriend(f);
+            list_addfriend(f);
 
-            addfriend_status = 1;
-            //ui_drawmain();
-            redraw();
+            addfriend_status = ADDF_SENT;
+
         }
 
         free(data);
+        redraw();
         break;
     }
 

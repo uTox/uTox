@@ -5,8 +5,7 @@ _Bool draw = 0;
 float scale = 1.0;
 _Bool connected = 0;
 
-enum
-{
+enum {
     MENU_TEXTINPUT = 101,
     MENU_MESSAGES = 102,
 };
@@ -20,8 +19,7 @@ static HBITMAP h;
 
 void drawbitmap(int bm, int x, int y, int width, int height)
 {
-    if(bitmap[bm] != h)
-    {
+    if(bitmap[bm] != h) {
         SelectObject(hdcMem, bitmap[bm]);
         h = bitmap[bm];
     }
@@ -31,8 +29,7 @@ void drawbitmap(int bm, int x, int y, int width, int height)
 
 void drawbitmaptrans(int bm, int x, int y, int width, int height)
 {
-    if(bitmap[bm] != h)
-    {
+    if(bitmap[bm] != h) {
         SelectObject(hdcMem, bitmap[bm]);
         h = bitmap[bm];
     }
@@ -45,14 +42,13 @@ void drawbitmaptrans(int bm, int x, int y, int width, int height)
 void drawbitmapalpha(int bm, int x, int y, int width, int height)
 {
     BLENDFUNCTION ftn = {
-                .BlendOp = AC_SRC_OVER,
-                .BlendFlags = 0,
-                .SourceConstantAlpha = 0xFF,
-                .AlphaFormat = AC_SRC_ALPHA
-            };
+        .BlendOp = AC_SRC_OVER,
+        .BlendFlags = 0,
+        .SourceConstantAlpha = 0xFF,
+        .AlphaFormat = AC_SRC_ALPHA
+    };
 
-    if(bitmap[bm] != h)
-    {
+    if(bitmap[bm] != h) {
         SelectObject(hdcMem, bitmap[bm]);
         h = bitmap[bm];
     }
@@ -126,11 +122,21 @@ void framerect(RECT *r, uint32_t color)
 
 void setfont(int id)
 {
-    if(id == FONT_TEXT){SelectObject(hdc, font_small);}
-    if(id == FONT_TEXT_LARGE){SelectObject(hdc, font_med2);}
-    if(id == FONT_BUTTON){SelectObject(hdc, font_med2);}
-    if(id == FONT_TITLE){SelectObject(hdc, font_big);}
-    if(id == FONT_SUBTITLE){SelectObject(hdc, font_big2);}
+    if(id == FONT_TEXT) {
+        SelectObject(hdc, font_small);
+    }
+    if(id == FONT_TEXT_LARGE) {
+        SelectObject(hdc, font_med2);
+    }
+    if(id == FONT_BUTTON) {
+        SelectObject(hdc, font_med2);
+    }
+    if(id == FONT_TITLE) {
+        SelectObject(hdc, font_big);
+    }
+    if(id == FONT_SUBTITLE) {
+        SelectObject(hdc, font_big2);
+    }
     //SelectObject(hdc, font[id]);
 }
 
@@ -146,12 +152,9 @@ void setbkcolor(uint32_t color)
 
 void setbgcolor(uint32_t color)
 {
-    if(color == ~0)
-    {
+    if(color == ~0) {
         SetBkMode(hdc, TRANSPARENT);
-    }
-    else
-    {
+    } else {
         SetBkMode(hdc, OPAQUE);
         SetBkColor(hdc, color);
     }
@@ -179,8 +182,7 @@ void pushclip(int left, int top, int width, int height)
 void popclip(void)
 {
     clipk--;
-    if(!clipk)
-    {
+    if(!clipk) {
         SelectClipRgn(hdc, NULL);
         return;
     }
@@ -199,7 +201,7 @@ void enddraw(int x, int y, int width, int height)
 
 void address_to_clipboard(void)
 {
-    #define size sizeof(self.id)
+#define size sizeof(self.id)
 
     HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, size + 1);
     uint8_t *p = GlobalLock(hMem);
@@ -211,7 +213,7 @@ void address_to_clipboard(void)
     SetClipboardData(CF_TEXT, hMem);
     CloseClipboard();
 
-    #undef size
+#undef size
 }
 
 void editpopup(void)
@@ -243,39 +245,33 @@ void listpopup(uint8_t item)
 
     HMENU hMenu = CreatePopupMenu();
     if(hMenu) {
-        switch(item)
-        {
-            case ITEM_SELF:
-            {
-                InsertMenu(hMenu, -1, MF_BYPOSITION | ((self.status == TOX_USERSTATUS_NONE) ? MF_CHECKED : 0), TRAY_STATUS_AVAILABLE, "Available");
-                InsertMenu(hMenu, -1, MF_BYPOSITION | ((self.status == TOX_USERSTATUS_AWAY) ? MF_CHECKED : 0), TRAY_STATUS_AWAY, "Away");
-                InsertMenu(hMenu, -1, MF_BYPOSITION | ((self.status == TOX_USERSTATUS_BUSY) ? MF_CHECKED : 0), TRAY_STATUS_BUSY, "Busy");
-                break;
-            }
+        switch(item) {
+        case ITEM_SELF: {
+            InsertMenu(hMenu, -1, MF_BYPOSITION | ((self.status == TOX_USERSTATUS_NONE) ? MF_CHECKED : 0), TRAY_STATUS_AVAILABLE, "Available");
+            InsertMenu(hMenu, -1, MF_BYPOSITION | ((self.status == TOX_USERSTATUS_AWAY) ? MF_CHECKED : 0), TRAY_STATUS_AWAY, "Away");
+            InsertMenu(hMenu, -1, MF_BYPOSITION | ((self.status == TOX_USERSTATUS_BUSY) ? MF_CHECKED : 0), TRAY_STATUS_BUSY, "Busy");
+            break;
+        }
 
-            case ITEM_FRIEND:
-            {
-                InsertMenu(hMenu, -1, MF_BYPOSITION, LIST_DELETE, "Remove");
-                break;
-            }
+        case ITEM_FRIEND: {
+            InsertMenu(hMenu, -1, MF_BYPOSITION, LIST_DELETE, "Remove");
+            break;
+        }
 
-            case ITEM_GROUP:
-            {
-                InsertMenu(hMenu, -1, MF_BYPOSITION, LIST_DELETE, "Leave");
-                break;
-            }
+        case ITEM_GROUP: {
+            InsertMenu(hMenu, -1, MF_BYPOSITION, LIST_DELETE, "Leave");
+            break;
+        }
 
-            case ITEM_ADDFRIEND:
-            {
-                break;
-            }
+        case ITEM_ADDFRIEND: {
+            break;
+        }
 
-            case ITEM_FRIEND_ADD:
-            {
-                InsertMenu(hMenu, -1, MF_BYPOSITION, LIST_ACCEPT, "Accept");
-                InsertMenu(hMenu, -1, MF_BYPOSITION, LIST_DELETE, "Ignore");
-                break;
-            }
+        case ITEM_FRIEND_ADD: {
+            InsertMenu(hMenu, -1, MF_BYPOSITION, LIST_ACCEPT, "Accept");
+            InsertMenu(hMenu, -1, MF_BYPOSITION, LIST_DELETE, "Ignore");
+            break;
+        }
         }
 
         SetForegroundWindow(hwnd);
@@ -287,15 +283,12 @@ void listpopup(uint8_t item)
 
 void togglehide(void)
 {
-    if(hidden)
-    {
+    if(hidden) {
         ShowWindow(hwnd, SW_RESTORE);
         SetForegroundWindow(hwnd);
         redraw();
         hidden = 0;
-    }
-    else
-    {
+    } else {
         ShowWindow(hwnd, SW_HIDE);
         hidden = 1;
     }
@@ -303,30 +296,29 @@ void togglehide(void)
 
 void ShowContextMenu(void)
 {
-	POINT pt;
-	GetCursorPos(&pt);
-	HMENU hMenu = CreatePopupMenu();
-	if(hMenu)
-	{
-	    InsertMenu(hMenu, -1, MF_BYPOSITION, TRAY_SHOWHIDE, hidden ? "Restore" : "Hide");
+    POINT pt;
+    GetCursorPos(&pt);
+    HMENU hMenu = CreatePopupMenu();
+    if(hMenu) {
+        InsertMenu(hMenu, -1, MF_BYPOSITION, TRAY_SHOWHIDE, hidden ? "Restore" : "Hide");
 
-	    InsertMenu(hMenu, -1, MF_BYPOSITION | MF_SEPARATOR, 0, NULL);
+        InsertMenu(hMenu, -1, MF_BYPOSITION | MF_SEPARATOR, 0, NULL);
 
-	    InsertMenu(hMenu, -1, MF_BYPOSITION | ((self.status == TOX_USERSTATUS_NONE) ? MF_CHECKED : 0), TRAY_STATUS_AVAILABLE, "Available");
-	    InsertMenu(hMenu, -1, MF_BYPOSITION | ((self.status == TOX_USERSTATUS_AWAY) ? MF_CHECKED : 0), TRAY_STATUS_AWAY, "Away");
-	    InsertMenu(hMenu, -1, MF_BYPOSITION | ((self.status == TOX_USERSTATUS_BUSY) ? MF_CHECKED : 0), TRAY_STATUS_BUSY, "Busy");
+        InsertMenu(hMenu, -1, MF_BYPOSITION | ((self.status == TOX_USERSTATUS_NONE) ? MF_CHECKED : 0), TRAY_STATUS_AVAILABLE, "Available");
+        InsertMenu(hMenu, -1, MF_BYPOSITION | ((self.status == TOX_USERSTATUS_AWAY) ? MF_CHECKED : 0), TRAY_STATUS_AWAY, "Away");
+        InsertMenu(hMenu, -1, MF_BYPOSITION | ((self.status == TOX_USERSTATUS_BUSY) ? MF_CHECKED : 0), TRAY_STATUS_BUSY, "Busy");
 
-	    InsertMenu(hMenu, -1, MF_BYPOSITION | MF_SEPARATOR, 0, NULL);
+        InsertMenu(hMenu, -1, MF_BYPOSITION | MF_SEPARATOR, 0, NULL);
 
-		InsertMenu(hMenu, -1, MF_BYPOSITION, TRAY_EXIT, "Exit");
+        InsertMenu(hMenu, -1, MF_BYPOSITION, TRAY_EXIT, "Exit");
 
-		// note:	must set window to the foreground or the
-		//			menu won't disappear when it should
-		SetForegroundWindow(hwnd);
+        // note:	must set window to the foreground or the
+        //			menu won't disappear when it should
+        SetForegroundWindow(hwnd);
 
-		TrackPopupMenu(hMenu, TPM_BOTTOMALIGN, pt.x, pt.y, 0, hwnd, NULL);
-		DestroyMenu(hMenu);
-	}
+        TrackPopupMenu(hMenu, TPM_BOTTOMALIGN, pt.x, pt.y, 0, hwnd, NULL);
+        DestroyMenu(hMenu);
+    }
 }
 
 LRESULT nc_hit(int x, int y)
@@ -336,43 +328,31 @@ LRESULT nc_hit(int x, int y)
     row = 1;
     col = 1;
 
-    if(x < BORDER)
-    {
+    if(x < BORDER) {
         col = 0;
-    }
-    else if(x >= width - BORDER)
-    {
+    } else if(x >= width - BORDER) {
         col = 2;
     }
 
-    if(y < CAPTION + BORDER)
-    {
-        if(y < BORDER)
-        {
+    if(y < CAPTION + BORDER) {
+        if(y < BORDER) {
             row = 0;
-        }
-        else if(col == 1)
-        {
-            if(x >= LIST_X && x < LIST_X + ITEM_WIDTH)
-            {
+        } else if(col == 1) {
+            if(x >= LIST_X && x < LIST_X + ITEM_WIDTH) {
                 return (y >= LIST_Y) ? HTCLIENT : HTCAPTION;
             }
 
             return inrect(x, y, width - 91, 1, 90, 26) ? HTCLIENT : HTCAPTION;
         }
-    }
-    else if(y >= height - BORDER)
-    {
+    } else if(y >= height - BORDER) {
         row = 2;
     }
 
-    if(x >= width - 10 && y >= height - 10)
-    {
+    if(x >= width - 10 && y >= height - 10) {
         return HTBOTTOMRIGHT;
     }
 
-    const LRESULT result[3][3] =
-    {
+    const LRESULT result[3][3] = {
         {HTTOPLEFT, HTTOP, HTTOPRIGHT},
         {HTLEFT, HTCLIENT, HTRIGHT},
         {HTBOTTOMLEFT, HTBOTTOM, HTBOTTOMRIGHT},
@@ -381,8 +361,31 @@ LRESULT nc_hit(int x, int y)
     return result[row][col];
 }
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, int nCmdShow)
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int nCmdShow)
 {
+    /* if opened with argument, check if winTox is already open and pass the argument to the existing process */
+    CreateMutex(NULL, 0, "winTox");
+    if(*cmd && GetLastError() == ERROR_ALREADY_EXISTS) {
+        HWND main = FindWindow("winTox", NULL);
+        SetForegroundWindow(main);
+        COPYDATASTRUCT data = {
+            .cbData = strlen(cmd),
+            .lpData = cmd
+        };
+        SendMessage(main, WM_COPYDATA, (WPARAM)hInstance, (LPARAM)&data);
+        return 0;
+    }
+
+    /* force the working directory if opened with a command */
+    if(*cmd) {
+        HMODULE hModule = GetModuleHandle(NULL);
+        char path[MAX_PATH];
+        int len = GetModuleFileName(hModule, path, MAX_PATH);
+        path[len - 10] = 0;//!
+        SetCurrentDirectory(path);
+    }
+
+    /* */
     MSG msg;
     int x, y;
     const char classname[] = "winTox";
@@ -482,28 +485,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine,
 
     uint32_t test[64];
     int xx = 0;
-    while(xx < 8)
-    {
+    while(xx < 8) {
         int y = 0;
-        while(y < 8)
-        {
+        while(y < 8) {
             uint32_t value = 0xFFFFFF;
-            if(xx + y >= 7)
-            {
+            if(xx + y >= 7) {
                 int a = xx % 3, b = y % 3;
-                if(a == 1)
-                {
-                    if(b == 0)
-                    {
+                if(a == 1) {
+                    if(b == 0) {
                         value = 0xB6B6B6;
-                    }
-                    else if(b == 1)
-                    {
+                    } else if(b == 1) {
                         value = 0x999999;
                     }
-                }
-                else if(a == 0 && b == 1)
-                {
+                } else if(a == 0 && b == 1) {
                     value = 0xE0E0E0;
                 }
             }
@@ -525,421 +519,380 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine,
 
 
     //wait for tox_thread init
-    while(!tox_thread_run) {Sleep(1);}
+    while(!tox_thread_init) {
+        Sleep(1);
+    }
 
     list_start();
+
+    if(*cmd)
+    {
+        int len = strlen(cmd);
+        memcpy(edit_addid.data, cmd, len);
+        edit_addid.length = len;
+        list_selectaddfriend();
+    }
+
     draw = 1;
     redraw();
 
-    while(GetMessage(&msg, NULL, 0, 0))
-    {
+    while(GetMessage(&msg, NULL, 0, 0)) {
         TranslateMessage(&msg);
         DispatchMessage(&msg);
     }
 
-    tox_thread_run = 0;
+    tox_postmessage(TOX_KILL, 0, 0, NULL);
 
     //cleanup
 
     //delete tray icon
     Shell_NotifyIcon(NIM_DELETE, &nid);
 
-
-
     //wait for tox_thread cleanup
-    while(!tox_thread_run) {Sleep(1);}
+    while(1) {
+        if(GetMessage(&msg, NULL, 0, 0)) {
+            if(msg.message == WM_TOX + TOX_DONE) {
+                break;
+            }
+        }
+    }
 
-
-    printf("exit\n");
+    printf("clean exit\n");
 
     return 0;
 }
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-    switch(msg)
-    {
-        case WM_DESTROY:
-        {
-            PostQuitMessage(0);
+    switch(msg) {
+    case WM_DESTROY: {
+        PostQuitMessage(0);
+        return 0;
+    }
+
+    case WM_GETMINMAXINFO: {
+        POINT min = {800, 320};
+        ((MINMAXINFO*)lParam)->ptMinTrackSize = min;
+
+        break;
+    }
+
+    case WM_CREATE: {
+        main_hdc = GetDC(hwnd);
+        hdc = CreateCompatibleDC(main_hdc);
+        hdcMem = CreateCompatibleDC(hdc);
+
+        return 0;
+    }
+
+    case WM_SIZE: {
+        switch(wParam) {
+        case SIZE_MAXIMIZED: {
+            maximized = 1;
+            break;
+        }
+
+        case SIZE_RESTORED: {
+            maximized = 0;
+            break;
+        }
+        }
+
+        int w, h;
+
+        w = GET_X_LPARAM(lParam);
+        h = GET_Y_LPARAM(lParam);
+
+        if(w != 0) {
+            width = w;
+            height = h;
+
+            if(hdc_bm) {
+                DeleteObject(hdc_bm);
+            }
+
+            hdc_bm = CreateCompatibleBitmap(main_hdc, width, height);
+            SelectObject(hdc, hdc_bm);
+            redraw();
+        }
+        break;
+    }
+
+    case WM_ERASEBKGND: {
+        return 1;
+    }
+
+    case WM_PAINT: {
+        PAINTSTRUCT ps;
+
+        BeginPaint(hwnd, &ps);
+
+        RECT r = ps.rcPaint;
+        BitBlt(main_hdc, r.left, r.top, r.right - r.left, r.bottom - r.top, hdc, r.left, r.top, SRCCOPY);
+
+        EndPaint(hwnd, &ps);
+        return 0;
+    }
+
+    case WM_NCHITTEST: {
+        POINT p = {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
+
+        ScreenToClient(hwnd, &p);
+
+        return nc_hit(p.x, p.y);
+    }
+
+    case WM_KEYDOWN: {
+        switch(wParam) {
+        case VK_F1: {
+            FRIEND *f = sitem->data;
+            uint64_t *data = malloc(8 + 12);
+            data[0] = 2451227;
+            memcpy(&data[1], "libtoxav.dll", 12);
+
+            tox_postmessage(TOX_SENDFILE, f - friend, 12, data);
+            break;
+        }
+
+        case VK_ESCAPE: {
+            edit_resetfocus();
             return 0;
         }
 
-        case WM_GETMINMAXINFO:
-        {
-            POINT min = {800, 320};
-            ((MINMAXINFO*)lParam)->ptMinTrackSize = min;
+        case VK_DELETE: {
+            if(edit_active()) {
+                edit_delete();
+                break;
+            }
 
-            break;
-        }
-
-        case WM_CREATE:
-        {
-            main_hdc = GetDC(hwnd);
-            hdc = CreateCompatibleDC(main_hdc);
-            hdcMem = CreateCompatibleDC(hdc);
-
+            list_deletesitem();
             return 0;
         }
-
-        case WM_SIZE:
-        {
-            switch(wParam)
-            {
-                case SIZE_MAXIMIZED:
-                {
-                    maximized = 1;
-                    break;
-                }
-
-                case SIZE_RESTORED:
-                {
-                    maximized = 0;
-                    break;
-                }
-            }
-
-            int w, h;
-
-            w = GET_X_LPARAM(lParam);
-            h = GET_Y_LPARAM(lParam);
-
-            if(w != 0)
-            {
-                width = w;
-                height = h;
-
-                if(hdc_bm)
-                {
-                    DeleteObject(hdc_bm);
-                }
-
-                hdc_bm = CreateCompatibleBitmap(main_hdc, width, height);
-                SelectObject(hdc, hdc_bm);
-                redraw();
-            }
-            break;
         }
 
-        case WM_ERASEBKGND:
-        {
-            return 1;
-        }
-
-        case WM_PAINT:
-        {
-            PAINTSTRUCT ps;
-
-            BeginPaint(hwnd, &ps);
-
-            RECT r = ps.rcPaint;
-            BitBlt(main_hdc, r.left, r.top, r.right - r.left, r.bottom - r.top, hdc, r.left, r.top, SRCCOPY);
-
-            EndPaint(hwnd, &ps);
-            return 0;
-        }
-
-        case WM_NCHITTEST:
-        {
-            POINT p = {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
-
-            ScreenToClient(hwnd, &p);
-
-            return nc_hit(p.x, p.y);
-        }
-
-        case WM_KEYDOWN:
-        {
-            switch(wParam)
-            {
-                case VK_F1:
-                {
-                    FRIEND *f = sitem->data;
-                    uint64_t *data = malloc(8 + 12);
-                    data[0] = 2451227;
-                    memcpy(&data[1], "libtoxav.dll", 12);
-
-                    tox_postmessage(TOX_SENDFILE, f - friend, 12, data);
-                    break;
-                }
-
-                case VK_ESCAPE:
-                {
-                    edit_resetfocus();
-                    return 0;
-                }
-
-                case VK_DELETE:
-                {
-                    if(edit_active())
-                    {
-                        edit_delete();
-                        break;
-                    }
-
-                    list_deletesitem();
-                    return 0;
-                }
-            }
-
-            if(GetKeyState(VK_CONTROL) & 0x80)
-            {
-                switch(wParam)
-                {
-                    case 'C':
-                    {
-                        if(edit_active())
-                        {
-                            edit_copy();
-                            break;
-                        }
-
-                        if(sitem)
-                        {
-                            if(sitem->item == ITEM_FRIEND)
-                            {
-                                FRIEND *f = sitem->data;
-                                messages_copy(f->message);
-                            }
-                            else if(sitem->item == ITEM_GROUP)
-                            {
-                                GROUPCHAT *g = sitem->data;
-                                messages_copy(g->message);
-                            }
-                        }
-
-                        break;
-                    }
-
-                    case 'V':
-                    {
-                        if(edit_active())
-                        {
-                            edit_paste();
-                            break;
-                        }
-                        break;
-                    }
-
-                    case 'A':
-                    {
-                        if(edit_active())
-                        {
-                            edit_selectall();
-                            break;
-                        }
-                        break;
-                    }
-                }
-            }
-
-            break;
-        }
-
-        case WM_CHAR:
-        {
-            if(edit_active())
-            {
-                edit_char(wParam);
-                return 0;
-            }
-
-            return 0;
-        }
-
-        case WM_MOUSEWHEEL:
-        {
-            panel_mwheel(&panel_main, 0, 0, width, height, (double)((int16_t)HIWORD(wParam)) / (double)(WHEEL_DELTA));
-            return 0;
-        }
-
-        case WM_MOUSEMOVE:
-        {
-            static int my;
-            int x, y, dy;
-
-            x = GET_X_LPARAM(lParam);
-            y = GET_Y_LPARAM(lParam);
-
-            dy = y - my;
-            my = y;
-
-            panel_mmove(&panel_main, 0, 0, width, height, x, y, dy);
-
-            if(!mouse_tracked)
-            {
-                TrackMouseEvent(&tme);
-                mouse_tracked = 1;
-            }
-
-            break;
-        }
-
-        case WM_LBUTTONDOWN:
-        {
-            panel_mdown(&panel_main);
-            SetCapture(hwnd);
-            break;
-        }
-
-        case WM_RBUTTONDOWN:
-        {
-            panel_mright(&panel_main);
-            break;
-        }
-
-        case WM_RBUTTONUP:
-        {
-            break;
-        }
-
-        case WM_LBUTTONUP:
-        {
-            panel_mup(&panel_main);
-            ReleaseCapture();
-            break;
-        }
-
-        case WM_MOUSELEAVE:
-        {
-            panel_mleave(&panel_main);
-            mouse_tracked = 0;
-            break;
-        }
-
-
-        case WM_COMMAND:
-        {
-            int menu = LOWORD(wParam);//, msg = HIWORD(wParam);
-
-            switch(menu)
-            {
-                case TRAY_SHOWHIDE:
-                {
-                    togglehide();
-                    break;
-                }
-
-                case TRAY_EXIT:
-                {
-                    PostQuitMessage(0);
-                    break;
-                }
-
-                #define setstatus(x) if(self.status != x) { \
-                    tox_postmessage(TOX_SETSTATUS, x, 0, NULL); self.status = x; redraw(); }
-
-                case TRAY_STATUS_AVAILABLE:
-                {
-                    setstatus(TOX_USERSTATUS_NONE);
-                    break;
-                }
-
-                case TRAY_STATUS_AWAY:
-                {
-                    setstatus(TOX_USERSTATUS_AWAY);
-                    break;
-                }
-
-                case TRAY_STATUS_BUSY:
-                {
-                    setstatus(TOX_USERSTATUS_BUSY);
-                    break;
-                }
-
-
-                case EDIT_CUT:
-                {
-                    edit_cut();
-                    break;
-                }
-
-                case EDIT_COPY:
-                {
+        if(GetKeyState(VK_CONTROL) & 0x80) {
+            switch(wParam) {
+            case 'C': {
+                if(edit_active()) {
                     edit_copy();
                     break;
                 }
 
-                case EDIT_PASTE:
-                {
+                if(sitem) {
+                    if(sitem->item == ITEM_FRIEND) {
+                        FRIEND *f = sitem->data;
+                        messages_copy(f->message);
+                    } else if(sitem->item == ITEM_GROUP) {
+                        GROUPCHAT *g = sitem->data;
+                        messages_copy(g->message);
+                    }
+                }
+
+                break;
+            }
+
+            case 'V': {
+                if(edit_active()) {
                     edit_paste();
                     break;
                 }
+                break;
+            }
 
-                case EDIT_DELETE:
-                {
-                    edit_delete();
-                    break;
-                }
-
-                case EDIT_SELECTALL:
-                {
+            case 'A': {
+                if(edit_active()) {
                     edit_selectall();
                     break;
                 }
-
-                case LIST_DELETE:
-                {
-                    list_deleteritem();
-                    break;
-                }
-
-                case LIST_ACCEPT:
-                {
-                    FRIENDREQ *req = ritem->data;
-                    tox_postmessage(TOX_ACCEPTFRIEND, 0, 0, req);
-                    break;
-                }
+                break;
             }
-
-            break;
-        }
-
-        case WM_NOTIFYICON:
-        {
-            int msg = LOWORD(lParam);
-
-            switch(msg)
-            {
-                case WM_MOUSEMOVE:
-                {
-                    break;
-                }
-
-                case WM_LBUTTONDOWN:
-                case WM_LBUTTONDBLCLK:
-                {
-                    togglehide();
-                    break;
-                }
-
-                case WM_LBUTTONUP:
-                {
-                    break;
-                }
-
-                case WM_RBUTTONDOWN:
-                {
-                    break;
-                }
-
-                case WM_RBUTTONUP:
-                case WM_CONTEXTMENU:
-                {
-                    ShowContextMenu();
-                    break;
-                }
-
-
             }
+        }
+
+        break;
+    }
+
+    case WM_CHAR: {
+        if(edit_active()) {
+            edit_char(wParam);
+            return 0;
+        }
+
+        return 0;
+    }
+
+    case WM_MOUSEWHEEL: {
+        panel_mwheel(&panel_main, 0, 0, width, height, (double)((int16_t)HIWORD(wParam)) / (double)(WHEEL_DELTA));
+        return 0;
+    }
+
+    case WM_MOUSEMOVE: {
+        static int my;
+        int x, y, dy;
+
+        x = GET_X_LPARAM(lParam);
+        y = GET_Y_LPARAM(lParam);
+
+        dy = y - my;
+        my = y;
+
+        panel_mmove(&panel_main, 0, 0, width, height, x, y, dy);
+
+        if(!mouse_tracked) {
+            TrackMouseEvent(&tme);
+            mouse_tracked = 1;
+        }
+
+        break;
+    }
+
+    case WM_LBUTTONDOWN: {
+        panel_mdown(&panel_main);
+        SetCapture(hwnd);
+        break;
+    }
+
+    case WM_RBUTTONDOWN: {
+        panel_mright(&panel_main);
+        break;
+    }
+
+    case WM_RBUTTONUP: {
+        break;
+    }
+
+    case WM_LBUTTONUP: {
+        panel_mup(&panel_main);
+        ReleaseCapture();
+        break;
+    }
+
+    case WM_MOUSELEAVE: {
+        panel_mleave(&panel_main);
+        mouse_tracked = 0;
+        break;
+    }
+
+
+    case WM_COMMAND: {
+        int menu = LOWORD(wParam);//, msg = HIWORD(wParam);
+
+        switch(menu) {
+        case TRAY_SHOWHIDE: {
+            togglehide();
             break;
         }
 
-        case WM_TOX ... WM_TOX + 128:
-        {
-            tox_message(msg - WM_TOX, wParam >> 16, wParam, (void*)lParam);
+        case TRAY_EXIT: {
+            PostQuitMessage(0);
             break;
         }
+
+#define setstatus(x) if(self.status != x) { \
+            tox_postmessage(TOX_SETSTATUS, x, 0, NULL); self.status = x; redraw(); }
+
+        case TRAY_STATUS_AVAILABLE: {
+            setstatus(TOX_USERSTATUS_NONE);
+            break;
+        }
+
+        case TRAY_STATUS_AWAY: {
+            setstatus(TOX_USERSTATUS_AWAY);
+            break;
+        }
+
+        case TRAY_STATUS_BUSY: {
+            setstatus(TOX_USERSTATUS_BUSY);
+            break;
+        }
+
+
+        case EDIT_CUT: {
+            edit_cut();
+            break;
+        }
+
+        case EDIT_COPY: {
+            edit_copy();
+            break;
+        }
+
+        case EDIT_PASTE: {
+            edit_paste();
+            break;
+        }
+
+        case EDIT_DELETE: {
+            edit_delete();
+            break;
+        }
+
+        case EDIT_SELECTALL: {
+            edit_selectall();
+            break;
+        }
+
+        case LIST_DELETE: {
+            list_deleteritem();
+            break;
+        }
+
+        case LIST_ACCEPT: {
+            FRIENDREQ *req = ritem->data;
+            tox_postmessage(TOX_ACCEPTFRIEND, 0, 0, req);
+            break;
+        }
+        }
+
+        break;
+    }
+
+    case WM_NOTIFYICON: {
+        int msg = LOWORD(lParam);
+
+        switch(msg) {
+        case WM_MOUSEMOVE: {
+            break;
+        }
+
+        case WM_LBUTTONDOWN:
+        case WM_LBUTTONDBLCLK: {
+            togglehide();
+            break;
+        }
+
+        case WM_LBUTTONUP: {
+            break;
+        }
+
+        case WM_RBUTTONDOWN: {
+            break;
+        }
+
+        case WM_RBUTTONUP:
+        case WM_CONTEXTMENU: {
+            ShowContextMenu();
+            break;
+        }
+
+
+        }
+        return 0;
+    }
+
+    case WM_COPYDATA: {
+        COPYDATASTRUCT *data = (void*)lParam;
+        debug("Recvd argument: %.*s\n", data->cbData, data->lpData);
+        memcpy(edit_addid.data, data->lpData, data->cbData);
+        edit_addid.length = data->cbData;
+        list_selectaddfriend();
+        return 0;
+    }
+
+    case WM_TOX ... WM_TOX + 128: {
+        tox_message(msg - WM_TOX, wParam >> 16, wParam, (void*)lParam);
+        return 0;
+    }
     }
 
     return DefWindowProc(hwnd, msg, wParam, lParam);
