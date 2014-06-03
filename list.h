@@ -16,7 +16,7 @@ typedef struct
     void *data;
 }ITEM;
 
-ITEM *sitem;
+ITEM *sitem, *ritem;
 
 void list_start(void);
 void list_addfriend(FRIEND *f);

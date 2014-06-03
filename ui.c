@@ -412,6 +412,21 @@ panel_item[] = {
             NULL
         }
     },
+
+    {
+        .type = PANEL_NONE,
+        .disabled = 1,
+    },
+
+    {
+        .type = PANEL_NONE,
+        .disabled = 1,
+    },
+
+    {
+        .type = PANEL_NONE,
+        .disabled = 1,
+    },
 },
 
 panel_side = {

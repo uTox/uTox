@@ -17,6 +17,8 @@ enum {
     TOX_NEWGROUP,
     TOX_LEAVEGROUP,
     TOX_GROUPINVITE,
+
+    TOX_SENDFILE,
 };
 
 /* client thread messages
@@ -43,7 +45,10 @@ enum {
     GROUP_MESSAGE,
     GROUP_PEER_ADD,
     GROUP_PEER_DEL,
-    GROUP_PEER_NAME
+    GROUP_PEER_NAME,
+
+    FILE_BEGIN_RECV,
+    FILE_BEGIN_SEND
 
 };
 

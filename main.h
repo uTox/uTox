@@ -65,6 +65,7 @@ typedef struct
 #define debug(...) printf(__VA_ARGS__)
 #define thread(func, args) _beginthread(func, 0, args)
 #define countof(x) (sizeof(x)/sizeof(*(x)))
+#define volatile(x) (*((volatile typeof(x)*)&x))
 
 #define WM_NOTIFYICON   (WM_APP + 0)
 #define WM_TOX          (WM_APP + 1)

@@ -6,11 +6,13 @@
 
 #include <tox/toxav.h>
 
-#define MAX_CALLS 8
+#define MAX_CALLS 64
 
 static struct {
     _Bool active;
 } call[MAX_CALLS];
+
+#define BUF_SIZE (1024 * 1024)
 
 typedef struct {
     uint8_t msg;
@@ -20,6 +22,27 @@ typedef struct {
 
 static TOX_MSG tox_msg;
 static volatile _Bool tox_thread_msg;
+
+static ALCdevice *device_out, *device_in;
+static ALCcontext *context;
+static ALuint source[MAX_CALLS];
+
+static volatile _Bool av_thread_done = 0;
+
+static FILE_T *file_t[256], **file_tend = file_t;
+
+static uint32_t addfile_t(FILE_T *ft)
+{
+    uint32_t id = (file_tend - file_t);
+    *file_tend++ = ft;
+    return id;
+}
+
+static void fillbuffer(FILE_T *ft)
+{
+    ft->buffer_bytes = fread(ft->buffer, 1, ft->sendsize, ft->data);
+    ft->finish = (feof((FILE*)ft->data) != 0);
+}
 
 static void tox_thread_message(Tox *tox, ToxAv *av, uint8_t msg, uint16_t param1, uint16_t param2, void *data);
 
@@ -37,266 +60,71 @@ void tox_postmessage(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
     tox_thread_msg = 1;
 }
 
-static void* copy_message(uint8_t *message, uint16_t length, uint16_t flags)
-{
-    uint16_t *data = malloc(length + 4);
-    data[0] = flags;
-    data[1] = length;
-    memcpy((void*)data + 4, message, length);
+#include "tox_callbacks.h"
 
-    return data;
+static void callback_file_send_request(Tox *tox, int32_t fid, uint8_t filenumber, uint64_t filesize, uint8_t *filename, uint16_t filename_length, void *userdata)
+{
+    tox_file_send_control(tox, fid, 1, filenumber, TOX_FILECONTROL_ACCEPT, NULL, 0);
+
+    FILE_T *ft = friend_newincoming(&friend[fid], filenumber);
+    ft->total = filesize;
+    memcpy(ft->name, filename, filename_length);
+    ft->name[filename_length] = 0;
+    debug("File Request\n");
+
+    ft->data = fopen(ft->name, "wb");
 }
 
-static void* copy_groupmessage(Tox *tox, uint8_t *message, uint16_t length, uint16_t flags, int gid, int pid)
+static void callback_file_control(Tox *tox, int32_t fid, uint8_t receive_send, uint8_t filenumber, uint8_t control, uint8_t *data, uint16_t length, void *userdata)
 {
-    uint8_t name[TOX_MAX_NAME_LENGTH];
-    int namelen = tox_group_peername(tox, gid, pid, name);
-    if(namelen == 0 || namelen == -1) {
-        memcpy(name, "<unknown>", 9);
-        namelen = 9;
-    }
+    FILE_T *ft = (receive_send) ? &friend[fid].outgoing[filenumber] : &friend[fid].incoming[filenumber];
 
-    uint16_t *data = malloc(namelen + length + 6);
-    data[0] = (pid << 9) | namelen;
-    //data[1] = namelen | (flags << 8);
-    data[1] = length;
-    //memcpy((void*)data + 4, name, namelen);
-    //memcpy((void*)data + 4 + namelen, message, length);
-
-    memcpy((void*)data + 4, message, length);
-    memcpy((void*)data + 4 + length, name, namelen);
-
-    return data;
-}
-
-static void callback_friend_request(Tox *tox, uint8_t *id, uint8_t *msg, uint16_t length, void *userdata)
-{
-    FRIENDREQ *req = malloc(sizeof(FRIENDREQ) - 1 + length);
-
-    req->length = length;
-    memcpy(req->id, id, sizeof(req->id));
-    memcpy(req->msg, msg, length);
-
-    postmessage(FRIEND_REQUEST, 0, 0, req);
-
-    /*int r = tox_add_friend_norequest(tox, id);
-    void *data = malloc(TOX_FRIEND_ADDRESS_SIZE);
-    memcpy(data, id, TOX_FRIEND_ADDRESS_SIZE);
-
-    postmessage(FRIEND_ACCEPT, (r < 0), (r < 0) ? 0 : r, data);*/
-}
-
-static void callback_friend_message(Tox *tox, int fid, uint8_t *message, uint16_t length, void *userdata)
-{
-    postmessage(FRIEND_MESSAGE, fid, 0, copy_message(message, length, 1));
-
-    debug("Friend Message (%u): %.*s\n", fid, length, message);
-}
-
-static void callback_friend_action(Tox *tox, int fid, uint8_t *action, uint16_t length, void *userdata)
-{
-    postmessage(FRIEND_MESSAGE, fid, 0, copy_message(action, length, 3));
-
-    debug("Friend Action (%u): %.*s\n", fid, length, action);
-}
-
-static void callback_name_change(Tox *tox, int fid, uint8_t *newname, uint16_t length, void *userdata)
-{
-    void *data = malloc(length);
-    memcpy(data, newname, length);
-
-    postmessage(FRIEND_NAME, fid, length, data);
-
-    debug("Friend Name (%u): %.*s\n", fid, length, newname);
-}
-
-static void callback_status_message(Tox *tox, int fid, uint8_t *newstatus, uint16_t length, void *userdata)
-{
-    void *data = malloc(length);
-    memcpy(data, newstatus, length);
-
-    postmessage(FRIEND_STATUS_MESSAGE, fid, length, data);
-
-    debug("Friend Status Message (%u): %.*s\n", fid, length, newstatus);
-}
-
-static void callback_user_status(Tox *tox, int fid, uint8_t status, void *userdata)
-{
-    postmessage(FRIEND_STATUS, fid, status, NULL);
-
-    debug("Friend Userstatus (%u): %u\n", fid, status);
-}
-
-static void callback_typing_change(Tox *tox, int fid, uint8_t is_typing, void *userdata)
-{
-    postmessage(FRIEND_TYPING, fid, is_typing, NULL);
-
-    debug("Friend Typing (%u): %u\n", fid, is_typing);
-}
-
-static void callback_read_receipt(Tox *tox, int fid, uint32_t receipt, void *userdata)
-{
-    //postmessage(FRIEND_RECEIPT, fid, receipt);
-
-    debug("Friend Receipt (%u): %u\n", fid, receipt);
-}
-
-static void callback_connection_status(Tox *tox, int fid, uint8_t status, void *userdata)
-{
-    postmessage(FRIEND_ONLINE, fid, status, NULL);
-
-    debug("Friend Online/Offline (%u): %u\n", fid, status);
-}
-
-static void callback_group_invite(Tox *tox, int fid, uint8_t *group_public_key, void *userdata)
-{
-    int gid = tox_join_groupchat(tox, fid, group_public_key);
-    if(gid != -1) {
-        postmessage(GROUP_ADD, gid, 0, NULL);
-    }
-
-    debug("Group Invite (%i,f:%i)\n", gid, fid);
-}
-
-static void callback_group_message(Tox *tox, int gid, int pid, uint8_t *message, uint16_t length, void *userdata)
-{
-    postmessage(GROUP_MESSAGE, gid, 0, copy_groupmessage(tox, message, length, 0, gid, pid));
-
-    debug("Group Message (%u, %u): %.*s\n", gid, pid, length, message);
-}
-
-static void callback_group_action(Tox *tox, int gid, int pid, uint8_t *action, uint16_t length, void *userdata)
-{
-    postmessage(GROUP_MESSAGE, gid, 0, copy_groupmessage(tox, action, length, 1, gid, pid));
-
-    debug("Group Action (%u, %u): %.*s\n", gid, pid, length, action);
-}
-
-static void callback_group_namelist_change(Tox *tox, int gid, int pid, uint8_t change, void *userdata)
-{
-    switch(change) {
-    case TOX_CHAT_CHANGE_PEER_ADD: {
-        postmessage(GROUP_PEER_ADD, gid, pid, NULL);
+    switch(control) {
+    case TOX_FILECONTROL_ACCEPT: {
+        if(receive_send)
+        {
+            ft->status = FT_SEND;
+            debug("FileAccepted\n");
+        }
         break;
     }
 
-    case TOX_CHAT_CHANGE_PEER_DEL: {
-        postmessage(GROUP_PEER_DEL, gid, pid, NULL);
+    case TOX_FILECONTROL_KILL: {
+        ft->status = FT_KILL;
         break;
     }
 
-    case TOX_CHAT_CHANGE_PEER_NAME: {
-        uint8_t name[TOX_MAX_NAME_LENGTH];
-        int len = tox_group_peername(tox, gid, pid, name);
+    case TOX_FILECONTROL_PAUSE: {
+        if(ft->status == FT_RECV) {
+            ft->status = FT_RECV_PAUSED;
+        } else if(ft->status == FT_SEND) {
+            ft->status = FT_SEND_PAUSED;
+        }
+        break;
+    }
 
-        void *data = malloc(len + 1);
-        *(uint8_t*)data = len;
-        memcpy(data + 1, name, len);
-
-        postmessage(GROUP_PEER_NAME, gid, pid, data);
+    case TOX_FILECONTROL_FINISHED: {
+        if(!receive_send)
+        {
+            ft->status = FT_FINISHED;
+            fclose(ft->data);
+            debug("finsih!\n");
+        }
         break;
     }
     }
-    debug("Group Namelist Change (%u, %u): %u\n", gid, pid, change);
+    debug("File Control\n");
 }
 
-static void callback_av_invite(int32_t call_index, void *arg)
+static void callback_file_data(Tox *tox, int32_t fid, uint8_t filenumber, uint8_t *data, uint16_t length, void *userdata)
 {
-    int fid = toxav_get_peer_id(arg, call_index, 0);
-    postmessage(FRIEND_CALL_INVITE, fid, call_index, NULL);
+    debug("data: %u\n", length);
 
-    debug("A/V Invite (%i)\n", call_index);
+    FILE_T *ft = &friend[fid].incoming[filenumber];
+    fwrite(data, 1, length, ft->data);
 }
 
-static void callback_av_start(int32_t call_index, void *arg)
-{
-    toxav_prepare_transmission(arg, call_index, (ToxAvCodecSettings*)&av_DefaultSettings, 0);
-    call[call_index].active = 1;
-
-    int fid = toxav_get_peer_id(arg, call_index, 0);
-    postmessage(FRIEND_CALL_START, fid, call_index, NULL);
-
-    debug("A/V Start (%i)\n", call_index);
-}
-
-static void callback_av_cancel(int32_t call_index, void *arg)
-{
-    call[call_index].active = 0;
-
-    int fid = toxav_get_peer_id(arg, call_index, 0);
-    postmessage(FRIEND_CALL_END, fid, call_index, NULL);
-
-    debug("A/V Cancel (%i)\n", call_index);
-}
-
-static void callback_av_reject(int32_t call_index, void *arg)
-{
-    debug("A/V Reject (%i)\n", call_index);
-}
-
-static void callback_av_end(int32_t call_index, void *arg)
-{
-    call[call_index].active = 0;
-
-    int fid = toxav_get_peer_id(arg, call_index, 0);
-    postmessage(FRIEND_CALL_END, fid, call_index, NULL);
-
-    debug("A/V End (%i)\n", call_index);
-}
-
-static void callback_av_ringing(int32_t call_index, void *arg)
-{
-    debug("A/V Ringing (%i)\n", call_index);
-}
-
-static void callback_av_starting(int32_t call_index, void *arg)
-{
-    toxav_prepare_transmission(arg, call_index, (ToxAvCodecSettings*)&av_DefaultSettings, 0);
-    call[call_index].active = 1;
-
-    int fid = toxav_get_peer_id(arg, call_index, 0);
-    postmessage(FRIEND_CALL_START, fid, call_index, NULL);
-
-    debug("A/V Starting (%i)\n", call_index);
-}
-
-static void callback_av_ending(int32_t call_index, void *arg)
-{
-    call[call_index].active = 0;
-
-    int fid = toxav_get_peer_id(arg, call_index, 0);
-    postmessage(FRIEND_CALL_END, fid, call_index, NULL);
-
-    debug("A/V Ending (%i)\n", call_index);
-}
-
-static void callback_av_error(int32_t call_index, void *arg)
-{
-    call[call_index].active = 0;
-
-    int fid = toxav_get_peer_id(arg, call_index, 0);
-    postmessage(FRIEND_CALL_END, fid, call_index, NULL);
-
-    debug("A/V Error (%i)\n", call_index);
-}
-
-static void callback_av_requesttimeout(int32_t call_index, void *arg)
-{
-    int fid = toxav_get_peer_id(arg, call_index, 0);
-    postmessage(FRIEND_CALL_END, fid, call_index, NULL);
-
-    debug("A/V ReqTimeout (%i)\n", call_index);
-}
-
-static void callback_av_peertimeout(int32_t call_index, void *arg)
-{
-    call[call_index].active = 0;
-
-    int fid = toxav_get_peer_id(arg, call_index, 0);
-    postmessage(FRIEND_CALL_END, fid, call_index, NULL);
-
-    debug("A/V PeerTimeout (%i)\n", call_index);
-}
+#include "tox_av.h"
 
 /* bootstrap to dht with bootstrap_nodes */
 static void do_bootstrap(Tox *tox)
@@ -319,10 +147,15 @@ static void set_callbacks(Tox *tox)
     tox_callback_typing_change(tox, callback_typing_change, NULL);
     tox_callback_read_receipt(tox, callback_read_receipt, NULL);
     tox_callback_connection_status(tox, callback_connection_status, NULL);
+
     tox_callback_group_invite(tox, callback_group_invite, NULL);
     tox_callback_group_message(tox, callback_group_message, NULL);
     tox_callback_group_action(tox, callback_group_action, NULL);
     tox_callback_group_namelist_change(tox, callback_group_namelist_change, NULL);
+
+    tox_callback_file_send_request(tox, callback_file_send_request, NULL);
+    tox_callback_file_control(tox, callback_file_control, NULL);
+    tox_callback_file_data(tox, callback_file_data, NULL);
 }
 
 static void set_av_callbacks(ToxAv *av)
@@ -419,12 +252,6 @@ static void write_save(Tox *tox)
 
     free(data);
 }
-
-static ALCdevice *device_out, *device_in;
-static ALCcontext *context;
-static ALuint source[MAX_CALLS];
-
-static volatile _Bool av_thread_done = 0;
 
 static void av_thread(void *args)
 {
@@ -624,6 +451,30 @@ void tox_thread(void *args)
             tox_thread_msg = 0;
         }
 
+        FILE_T **p = file_t;
+        while(p != file_tend) {
+            FILE_T *ft = *p;
+            switch(ft->status) {
+            case FT_SEND: {
+                if(ft->status == FT_SEND) {
+                    while(tox_file_send_data(tox, ft->fid, ft->filenumber, ft->buffer, ft->buffer_bytes) != -1) {
+                        if(ft->finish) {
+                            tox_file_send_control(tox, ft->fid, 0, ft->filenumber, TOX_FILECONTROL_FINISHED, NULL, 0);
+                            free(ft->buffer);
+                            fclose(ft->data);
+                            ft->status = FT_FINISHED;
+                            break;
+                        }
+
+                        fillbuffer(ft);
+                    }
+                }
+                break;
+            }
+            }
+            p++;
+        }
+
         yieldcpu();
     }
 
@@ -759,14 +610,46 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint8_t msg, uint16_t param1
         tox_invite_friend(tox, param2, param1);
         break;
     }
+
+    case TOX_SENDFILE: {
+        /* param1: friend #
+         * param2: file namelength
+         * data: length (8 bytes) + name
+         */
+        uint64_t size = *(uint64_t*)data;
+        int filenumber = tox_new_file_sender(tox, param1, size, data + 8, param2);
+        if(filenumber != -1) {
+            FILE_T *ft = friend_newoutgoing(&friend[param1], filenumber);
+            if(ft) {
+                uint32_t id = addfile_t(ft);
+
+                ft->fid = param1;
+                ft->filenumber = filenumber;
+
+                ft->status = FT_SEND_PENDING;
+                ft->sendsize = tox_file_data_size(tox, param1);
+
+                memcpy(ft->name, data + 8, param2);
+                memset(ft->name + param2, 0, 1);
+                ft->total = size;
+
+                ft->data = fopen(ft->name, "rb");
+                ft->buffer = malloc(ft->sendsize);
+                fillbuffer(ft);
+            }
+        }
+
+        free(data);
+
+        break;
+    }
     }
 }
 
 void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
 {
     switch(msg) {
-    case DHT_CONNECTED:
-    {
+    case DHT_CONNECTED: {
         redraw();
         break;
     }
@@ -889,8 +772,7 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
         break;
     }
 
-    case FRIEND_CALL_RING:
-    {
+    case FRIEND_CALL_RING: {
         FRIEND *f = &friend[param1];
         f->calling = 2;
         f->callid = param2;
@@ -976,5 +858,14 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
         break;
     }
 
+    case FILE_BEGIN_RECV: {
+        //ft->file =
+        break;
+    }
+
+    case FILE_BEGIN_SEND: {
+        //FILE_T *ft = data;
+        break;
+    }
     }
 }

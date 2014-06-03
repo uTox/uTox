@@ -1,6 +1,6 @@
 #include "main.h"
 
-static ITEM item[256], *mitem, *nitem, *ritem;
+static ITEM item[256], *mitem, *nitem;
 static uint32_t itemcount;
 
 static _Bool sitem_mousedown;

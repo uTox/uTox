@@ -1,5 +1,3 @@
-#include "../main.h"
-
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 _Bool draw = 0;
@@ -525,6 +523,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine,
 
     font_small_lineheight = tm.tmHeight + tm.tmExternalLeading;
 
+
     //wait for tox_thread init
     while(!tox_thread_run) {Sleep(1);}
 
@@ -653,6 +652,17 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         {
             switch(wParam)
             {
+                case VK_F1:
+                {
+                    FRIEND *f = sitem->data;
+                    uint64_t *data = malloc(8 + 12);
+                    data[0] = 2451227;
+                    memcpy(&data[1], "libtoxav.dll", 12);
+
+                    tox_postmessage(TOX_SENDFILE, f - friend, 12, data);
+                    break;
+                }
+
                 case VK_ESCAPE:
                 {
                     edit_resetfocus();
@@ -876,7 +886,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
                 case LIST_ACCEPT:
                 {
-                    FRIENDREQ *req = sitem->data;
+                    FRIENDREQ *req = ritem->data;
                     tox_postmessage(TOX_ACCEPTFRIEND, 0, 0, req);
                     break;
                 }
