@@ -22,7 +22,7 @@ enum {
     TOX_LEAVEGROUP,
     TOX_GROUPINVITE,
 
-    TOX_SENDFILE,
+    TOX_SENDFILES,
 };
 
 /* client thread messages (recieved by the client thread)

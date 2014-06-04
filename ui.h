@@ -28,22 +28,22 @@ enum
     ADDF_SENT,
     ADDF_DISCOVER,
     ADDF_BADNAME,
+    ADDF_NONAME,
     ADDF_TOOLONG
 };
 
 extern PANEL panel_main, panel_item[5];
 extern EDIT edit_name, edit_status, edit_addid, edit_addmsg, edit_msg;
-extern SCROLLABLE scroll_list, scroll_self, scroll_add;
+extern SCROLLABLE scroll_list;
 
 void panel_draw(PANEL *p, int x, int y, int width, int height);
-void panel_redraw(PANEL *p);
 
-void panel_mmove(PANEL *p, int x, int y, int width, int height, int mx, int my, int dy);
-void panel_mdown(PANEL *p);
-void panel_mright(PANEL *p);
-void panel_mwheel(PANEL *p, int x, int y, int width, int height, double d);
-void panel_mup(PANEL *p);
-void panel_mleave(PANEL *p);
+_Bool panel_mmove(PANEL *p, int x, int y, int width, int height, int mx, int my, int dy);
+_Bool panel_mdown(PANEL *p);
+_Bool panel_mright(PANEL *p);
+_Bool panel_mwheel(PANEL *p, int x, int y, int width, int height, double d);
+_Bool panel_mup(PANEL *p);
+_Bool panel_mleave(PANEL *p);
 
 extern uint8_t bm_contact_bits[], bm_group_bits[];
 extern uint8_t bm_minimize_bits[], bm_maximize_bits[], bm_restore_bits[], bm_exit_bits[], bm_plus_bits[];

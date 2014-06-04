@@ -148,7 +148,8 @@ enum
     FONT_TEXT_LARGE,
     FONT_BUTTON,
     FONT_TITLE,
-    FONT_SUBTITLE
+    FONT_SUBTITLE,
+    FONT_MED,
 };
 
 //sysmenu icons

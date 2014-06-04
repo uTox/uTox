@@ -102,6 +102,8 @@ _Bool edit_mdown(EDIT *edit)
         active_edit = edit;
         return 1;
     }
+
+    return 0;
 }
 
 _Bool edit_mright(EDIT *edit)
@@ -109,8 +111,6 @@ _Bool edit_mright(EDIT *edit)
     if(edit->mouseover) {
         EDIT *active = active_edit;
         active_edit = edit;
-
-
 
         editpopup();
 

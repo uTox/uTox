@@ -38,10 +38,62 @@ static uint32_t addfile_t(FILE_T *ft)
     return id;
 }
 
+static void endfile_t(FILE_T **p)
+{
+    if(p + 1 == file_tend) {
+        while(p != file_t) {
+            p--;
+            if(*p != NULL) {
+                file_tend = p + 1;
+                break;
+            }
+        }
+    } else {
+        *p = NULL;
+    }
+}
+
 static void fillbuffer(FILE_T *ft)
 {
     ft->buffer_bytes = fread(ft->buffer, 1, ft->sendsize, ft->data);
+    ft->bytes += ft->buffer_bytes;
     ft->finish = (feof((FILE*)ft->data) != 0);
+}
+
+static void sendfile(Tox *tox, uint32_t fid, uint8_t *path, uint8_t *name, uint16_t name_length)
+{
+    debug("Sending: %s\n", path);
+
+    FILE *file = fopen((char*)path, "rb");
+    if(!file) {
+        return;
+    }
+
+    uint64_t size;
+    fseek(file, 0, SEEK_END);
+    size = ftell(file);
+    fseek(file, 0, SEEK_SET);
+
+    int filenumber = tox_new_file_sender(tox, fid, size, name, name_length);
+    if(filenumber != -1) {
+        FILE_T *ft = &friend[fid].outgoing[filenumber];
+
+        addfile_t(ft); //uint32_t id =
+
+        ft->fid = fid;
+        ft->filenumber = filenumber;
+
+        ft->status = FT_SEND_PENDING;
+        ft->sendsize = tox_file_data_size(tox, fid);
+
+        memcpy(ft->name, name, name_length);
+        memset(ft->name + name_length, 0, 1);
+        ft->total = size;
+
+        ft->data = file;
+        ft->buffer = malloc(ft->sendsize);
+        fillbuffer(ft);
+    }
 }
 
 static void tox_thread_message(Tox *tox, ToxAv *av, uint8_t msg, uint16_t param1, uint16_t param2, void *data);
@@ -66,13 +118,13 @@ static void callback_file_send_request(Tox *tox, int32_t fid, uint8_t filenumber
 {
     tox_file_send_control(tox, fid, 1, filenumber, TOX_FILECONTROL_ACCEPT, NULL, 0);
 
-    FILE_T *ft = friend_newincoming(&friend[fid], filenumber);
+    FILE_T *ft = &friend[fid].incoming[filenumber];
     ft->total = filesize;
     memcpy(ft->name, filename, filename_length);
     ft->name[filename_length] = 0;
-    debug("File Request\n");
+    debug("File Request %.*s\n", filename_length, filename);
 
-    ft->data = fopen(ft->name, "wb");
+    ft->data = fopen((char*)ft->name, "wb");
 }
 
 static void callback_file_control(Tox *tox, int32_t fid, uint8_t receive_send, uint8_t filenumber, uint8_t control, uint8_t *data, uint16_t length, void *userdata)
@@ -83,7 +135,7 @@ static void callback_file_control(Tox *tox, int32_t fid, uint8_t receive_send, u
     case TOX_FILECONTROL_ACCEPT: {
         if(receive_send) {
             ft->status = FT_SEND;
-            debug("FileAccepted\n");
+            debug("FileAccepted %u\n", filenumber);
         }
         break;
     }
@@ -106,7 +158,7 @@ static void callback_file_control(Tox *tox, int32_t fid, uint8_t receive_send, u
         if(!receive_send) {
             ft->status = FT_FINISHED;
             fclose(ft->data);
-            debug("finsih!\n");
+            debug("finished!\n");
         }
         break;
     }
@@ -116,7 +168,7 @@ static void callback_file_control(Tox *tox, int32_t fid, uint8_t receive_send, u
 
 static void callback_file_data(Tox *tox, int32_t fid, uint8_t filenumber, uint8_t *data, uint16_t length, void *userdata)
 {
-    debug("data: %u\n", length);
+    //debug("data: %u\n", length);
 
     FILE_T *ft = &friend[fid].incoming[filenumber];
     fwrite(data, 1, length, ft->data);
@@ -455,28 +507,40 @@ void tox_thread(void *args)
             tox_thread_msg = 0;
         }
 
-        FILE_T **p = file_t;
-        while(p != file_tend) {
+        FILE_T **p;
+        for(p = file_t; p < file_tend; p++) {
             FILE_T *ft = *p;
+            if(!ft)
+            {
+                continue;
+            }
+            //debug("%u\n", ft->filenumber);
             switch(ft->status) {
             case FT_SEND: {
-                if(ft->status == FT_SEND) {
-                    while(tox_file_send_data(tox, ft->fid, ft->filenumber, ft->buffer, ft->buffer_bytes) != -1) {
-                        if(ft->finish) {
-                            tox_file_send_control(tox, ft->fid, 0, ft->filenumber, TOX_FILECONTROL_FINISHED, NULL, 0);
-                            free(ft->buffer);
-                            fclose(ft->data);
-                            ft->status = FT_FINISHED;
-                            break;
-                        }
-
-                        fillbuffer(ft);
+                while(tox_file_send_data(tox, ft->fid, ft->filenumber, ft->buffer, ft->buffer_bytes) != -1) {
+                    if(ft->finish) {
+                        tox_file_send_control(tox, ft->fid, 0, ft->filenumber, TOX_FILECONTROL_FINISHED, NULL, 0);
+                        free(ft->buffer);
+                        fclose(ft->data);
+                        //endfile_t(p);
+                        ft->status = FT_FINISHED;
+                        break;
                     }
+
+                    fillbuffer(ft);
                 }
                 break;
             }
+
+            case FT_SEND_PENDING: {
+                break;
             }
-            p++;
+
+            default: {
+                //debug("%u\n", ft);
+                //endfile_t(p);
+            }
+            }
         }
 
         yieldcpu();
@@ -616,31 +680,26 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint8_t msg, uint16_t param1
         break;
     }
 
-    case TOX_SENDFILE: {
+    case TOX_SENDFILES: {
         /* param1: friend #
-         * param2: file namelength
-         * data: length (8 bytes) + name
+         * param2: offset of first file name in data
+         * data: file names
          */
-        uint64_t size = *(uint64_t*)data;
-        int filenumber = tox_new_file_sender(tox, param1, size, data + 8, param2);
-        if(filenumber != -1) {
-            FILE_T *ft = friend_newoutgoing(&friend[param1], filenumber);
-            if(ft) {
-                uint32_t id = addfile_t(ft);
-
-                ft->fid = param1;
-                ft->filenumber = filenumber;
-
-                ft->status = FT_SEND_PENDING;
-                ft->sendsize = tox_file_data_size(tox, param1);
-
-                memcpy(ft->name, data + 8, param2);
-                memset(ft->name + param2, 0, 1);
-                ft->total = size;
-
-                ft->data = fopen(ft->name, "rb");
-                ft->buffer = malloc(ft->sendsize);
-                fillbuffer(ft);
+        uint8_t *name = data;
+        _Bool multifile = (name[param2 - 1] == 0);
+        if(!multifile) {
+            sendfile(tox, param1, data, data + param2, strlen(data) + 1);
+        } else {
+            uint8_t *p = name + param2;
+            name += param2 - 1;
+            if(*(name - 1) != '\\') {
+                *name++ = '\\';
+            }
+            while(*p) {
+                int len = strlen((char*)p) + 1;
+                memmove(name, p, len);
+                p += len;
+                sendfile(tox, param1, data, name, len - 1);
             }
         }
 
@@ -818,6 +877,7 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
         GROUPCHAT *g = &group[param1];
         g->name_length = sprintf((char*)g->name, "Groupchat #%u", param1);
         list_addgroup(g);
+        redraw();
         break;
     }
 

@@ -23,7 +23,7 @@ typedef struct {
     uint32_t fid;
     void *data, *buffer;
     uint64_t bytes, total;
-    uint8_t name[256];
+    uint8_t name[128];
 } FILE_T;
 
 typedef struct {
@@ -39,14 +39,11 @@ typedef struct {
     uint8_t *name, *status_message, *typed;
     void **message;
 
-    uint32_t nincoming, noutgoing;
-    FILE_T *incoming;
-    FILE_T *outgoing;
+    FILE_T incoming[16];
+    FILE_T outgoing[16];
 } FRIEND;
 
 void friend_setname(FRIEND *f, uint8_t *name, uint16_t length);
-FILE_T* friend_newincoming(FRIEND *f, uint8_t filenumber);
-FILE_T* friend_newoutgoing(FRIEND *f, uint8_t filenumber);
 
 void friend_addid(uint8_t *id, uint8_t *msg, uint16_t msg_length);
 void friend_add(uint8_t *name, uint16_t length, uint8_t *msg, uint16_t msg_length);

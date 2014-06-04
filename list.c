@@ -289,8 +289,6 @@ void list_addfriendreq(FRIENDREQ *f)
 
 void list_draw(void *n, int x, int y, int width, int height)
 {
-    int left = LIST_X, right = LIST_X + ITEM_WIDTH, top = LIST_Y, bottom = SCROLL_BOTTOM;
-
     int my, dy = scroll_gety(&scroll_list, height);
 
     ITEM *i = item, *mi = NULL;

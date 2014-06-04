@@ -137,6 +137,9 @@ void setfont(int id)
     if(id == FONT_SUBTITLE) {
         SelectObject(hdc, font_big2);
     }
+    if(id == FONT_MED) {
+        SelectObject(hdc, font_med);
+    }
     //SelectObject(hdc, font[id]);
 }
 
@@ -366,13 +369,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     /* if opened with argument, check if winTox is already open and pass the argument to the existing process */
     CreateMutex(NULL, 0, "winTox");
     if(*cmd && GetLastError() == ERROR_ALREADY_EXISTS) {
-        HWND main = FindWindow("winTox", NULL);
-        SetForegroundWindow(main);
+        HWND hwnd = FindWindow("winTox", NULL);
+        SetForegroundWindow(hwnd);
         COPYDATASTRUCT data = {
             .cbData = strlen(cmd),
             .lpData = cmd
         };
-        SendMessage(main, WM_COPYDATA, (WPARAM)hInstance, (LPARAM)&data);
+        SendMessage(hwnd, WM_COPYDATA, (WPARAM)hInstance, (LPARAM)&data);
         return 0;
     }
 
@@ -571,7 +574,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     }
 
     case WM_GETMINMAXINFO: {
-        POINT min = {800, 320};
+        POINT min = {480, 320};
         ((MINMAXINFO*)lParam)->ptMinTrackSize = min;
 
         break;
@@ -644,15 +647,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
     case WM_KEYDOWN: {
         switch(wParam) {
-        case VK_F1: {
-            FRIEND *f = sitem->data;
-            uint64_t *data = malloc(8 + 12);
-            data[0] = 2451227;
-            memcpy(&data[1], "libtoxav.dll", 12);
-
-            tox_postmessage(TOX_SENDFILE, f - friend, 12, data);
-            break;
-        }
 
         case VK_ESCAPE: {
             edit_resetfocus();
@@ -882,7 +876,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
     case WM_COPYDATA: {
         COPYDATASTRUCT *data = (void*)lParam;
-        debug("Recvd argument: %.*s\n", data->cbData, data->lpData);
         memcpy(edit_addid.data, data->lpData, data->cbData);
         edit_addid.length = data->cbData;
         list_selectaddfriend();

@@ -71,9 +71,7 @@ _Bool scroll_mmove(SCROLLABLE *s, int x, int y, int dy, int width, int height)
                 s->d = 1.0;
             }
 
-            redraw();
-            //panel_redraw(s->panel.parent);
-            draw = 0;
+            draw = 1;
         }
     }
 
@@ -119,10 +117,11 @@ _Bool scroll_mwheel(SCROLLABLE *s, int height, double d)
                 s->d = 1.0;
             }
 
-            redraw();
-            //panel_redraw(s->panel.parent);
+            return 1;
         }
     }
+
+    return 0;
 }
 
 _Bool scroll_mup(SCROLLABLE *s)
