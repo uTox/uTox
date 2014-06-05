@@ -1,668 +1,378 @@
 #include "main.h"
 
-static _Bool msg_select;
-
-int drawmessage(int x, int y, int right, int bottom, uint8_t *str, uint16_t length)
+static void textout(int x, int y, wchar_t *str, uint16_t length, int d, int h1, int h2)
 {
-    int ry = y;
+    h1 -= d;
+    h2 -= d;
 
-    uint8_t *a = str, *end = a + length;
-    while(1)
-    {
-        if(a == end || *a == '\n')
-        {
-            if(str == a)
-            {
-                y += font_small_lineheight;
-            }
-
-            while(str != a)
-            {
-                int fit;
-                SIZE size;
-                GetTextExtentExPoint(hdc, (char*)str, a - str, right - x, &fit, NULL, &size);
-                TextOut(hdc, x, y, (char*)str, fit);
-
-                y += font_small_lineheight;
-                str += fit;
-
-            }
-
-            if(a == end)
-            {
-                break;
-            }
-
-            str++;
-            a++;
-        }
-        a++;
+    if(h1 < 0) {
+        h1 = 0;
     }
 
-    return y - ry;
+    if(h2 < 0) {
+        h2 = 0;
+    }
+
+    if(h1 > length)
+    {
+        h1 = length;
+    }
+
+    if(h2 > length)
+    {
+        h2 = length;
+    }
+
+    SIZE size;
+
+    TextOutW(hdc, x, y, str, h1);
+    GetTextExtentPoint32W(hdc, str, h1, &size);
+    x += size.cx;
+
+    setbgcolor(TEXT_HIGHLIGHT_BG);
+    setcolor(TEXT_HIGHLIGHT);
+
+    TextOutW(hdc, x, y, str + h1, h2 - h1);
+    GetTextExtentPoint32W(hdc, str + h1, h2 - h1, &size);
+    x += size.cx;
+
+    setbgcolor(~0);
+    setcolor(0);
+
+    TextOutW(hdc, x, y, str + h2, length - h2);
 }
 
-int drawmessage2(int x, int y, int right, int bottom, uint8_t *str, uint16_t length, uint16_t hstart, uint16_t hend)
+static int drawmsg(int x, int y, wchar_t *str, uint16_t length, int h1, int h2)
 {
-    int ry = y;
-    uint8_t *pstr = str;
-
-    int lx = x, cx = x;
-    uint8_t *a = str, *end = a + hstart;
-    while(hstart)
-    {
-        if(a == end || *a == '\n')
-        {
-            if(str == a)
-            {
-                y += font_small_lineheight;
-                cx = x;
-            }
-
-            while(str != a)
-            {
-                int fit;
-                SIZE size;
-                GetTextExtentExPoint(hdc, (char*)str, a - str, right - x, &fit, NULL, &size);
-                TextOut(hdc, x, y, (char*)str, fit);
-                cx = x + size.cx;
-
-                y += font_small_lineheight;
-                str += fit;
-
-            }
-
-            if(a == end)
-            {
-                lx = cx;
-                y -= font_small_lineheight;
-                break;
-            }
-
-            str++;
-            a++;
-        }
-        a++;
-    }
-
-    SetBkMode(hdc, OPAQUE);
-    SetBkColor(hdc, BLACK);
-    SetTextColor(hdc, WHITE);
-
-    end = pstr + hend;
-
-    while(hend != hstart)
-    {
-        if(a == end || *a == '\n')
-        {
-            if(str == a)
-            {
-                y += font_small_lineheight;
-                cx = x;
-                lx = x;
-            }
-
-            while(str != a)
-            {
-                int fit;
-                SIZE size;
-                GetTextExtentExPoint(hdc, (char*)str, a - str, right - lx, &fit, NULL, &size);
-                TextOut(hdc, lx, y, (char*)str, fit);
-                cx = lx + size.cx;
-                lx = x;
-
-                y += font_small_lineheight;
-                str += fit;
-
-            }
-
-            if(a == end)
-            {
-                lx = cx;
-                y -= font_small_lineheight;
-                break;
-            }
-
-            str++;
-            a++;
-        }
-        a++;
-    }
-
-    SetBkMode(hdc, TRANSPARENT);
-    SetTextColor(hdc, 0x333333);
-
-    end = pstr + length;
-
-    while(length != hend)
-    {
-        if(a == end || *a == '\n')
-        {
-            if(str == a)
-            {
-                y += font_small_lineheight;
-                lx = x;
-            }
-
-            while(str != a)
-            {
-                int fit;
-                SIZE size;
-                GetTextExtentExPoint(hdc, (char*)str, a - str, right - lx, &fit, NULL, &size);
-                TextOut(hdc, lx, y, (char*)str, fit);
-                lx = x;
-
-                y += font_small_lineheight;
-                str += fit;
-
-            }
-
-            if(a == end)
-            {
-                break;
-            }
-
-            str++;
-            a++;
-        }
-        a++;
-    }
-
-    if(length == hend)
-    {
-        y += font_small_lineheight;
-    }
-
-    return y - ry;
-}
-
-int heightmessage(uint8_t *str, uint16_t length, int width)
-{
-    int y = 0;
-
-    uint8_t *a = str, *end = a + length;
-    while(1)
-    {
-        if(a == end || *a == '\n')
-        {
-            if(str == a)
-            {
-                y += font_small_lineheight;
-            }
-
-            while(str != a)
-            {
-                int fit;
-                SIZE size;
-                GetTextExtentExPoint(hdc, (char*)str, a - str, width, &fit, NULL, &size);
-                //TextOut(hdc, x, y, (char*)str, fit);
-
-                y += font_small_lineheight;
-                str += fit;
-
-            }
-
-            if(a == end)
-            {
-                break;
-            }
-
-            str++;
-            a++;
-        }
-        a++;
-    }
-
-    return y;
-}
-
-int messages_height(void **message, uint32_t msg, int width)
-{
-    int y = 0;
-
-    void **m = message, **end = m + msg;
-    while(m != end)
-    {
-        uint16_t *msg = *m++;
-
-        uint8_t *str = (uint8_t*)(msg + 2);
-        uint16_t length = msg[1];
-
-        y += heightmessage(str, length, width);
-    }
-
-    return y;
-}
-
-int messages_y(void **message, uint32_t msg, double scroll, int width)
-{
-    uint32_t c = messages_height(message, msg, width);
-    uint32_t h = MESSAGES_BOTTOM - MESSAGES_Y;
-
-    int dy = 0;
-    if(c > h)
-    {
-        dy = (scroll * (double)(c - h)) + 0.5;
-    }
-
-    return -dy;
-}
-
-void somefunc(int x, int y, void **message, uint32_t msg, double scroll, int width)
-{
-    if(msg == 0)
-    {
-        return;
-    }
-
-    x -= MESSAGES_X + 100;
-    if(x < 0 || x >= width)
-    {
-        return;
-    }
-
-    y -= MESSAGES_Y;
-    if(y < 0 || y >= MESSAGES_BOTTOM - MESSAGES_Y)
-    {
-        return;
-    }
-
-    SelectObject(hdc, font_small);
-
-    int yy = messages_y(message, msg, scroll, width);
-
-    void **m = message, **end = m + msg;
-    while(m != end)
-    {
-        uint16_t *msg = *m;
-
-        uint8_t *str = (uint8_t*)(msg + 2);
-        uint16_t length = msg[1];
-
-        int p = -1;
-
-        uint8_t *a = str, *end = a + length, *pstr = str;
-        while(1)
-        {
-            if(a == end || *a == '\n')
-            {
-                if(str == a)
-                {
-                    if(y >= yy && y < yy + font_small_lineheight)
-                    {
-                        p = (str - pstr);
-                        break;
-                    }
-                    yy += font_small_lineheight;
-                }
-
-                while(str != a)
-                {
-                    if(y >= yy && y < yy + font_small_lineheight)
-                    {
-                        int fit;
-                        SIZE size;
-                        GetTextExtentExPoint(hdc, (char*)str, a - str, x, &fit, NULL, &size);
-
-                        p = fit + (str - pstr);
-
-                        a = end;
-                        break;
-                    }
-                    else
-                    {
-                        int fit;
-                        SIZE size;
-                        GetTextExtentExPoint(hdc, (char*)str, a - str, width, &fit, NULL, &size);
-                        //TextOut(hdc, x, y, (char*)str, fit);
-
-                        yy += font_small_lineheight;
-                        str += fit;
-                    }
-                }
-
-                if(a == end)
-                {
-                    break;
-                }
-
-                str++;
-                a++;
-            }
-            a++;
-        }
-
-        if(p != -1)
-        {
-            int sstr = m - message;
-
-            if(!msg_select)
-            {
-                msg_sel.mstart = msg_sel.mend = msg_sel.mp = sstr;
-                msg_sel.start = msg_sel.end = msg_sel.p = p;
-
-            }
-            else
-            {
-                if(sstr > msg_sel.mp)
-                {
-                    msg_sel.mstart = msg_sel.mp;
-                    msg_sel.start = msg_sel.p;
-
-                    msg_sel.mend = sstr;
-                    msg_sel.end = p;
-                }
-                else if(sstr < msg_sel.mp)
-                {
-                    msg_sel.mstart = sstr;
-                    msg_sel.start = p;
-
-                    msg_sel.mend = msg_sel.mp;
-                    msg_sel.end = msg_sel.p;
-                }
-                else
-                {
-                    msg_sel.mend = msg_sel.mp;
-                    msg_sel.mstart = msg_sel.mp;
-
-                    if(p > msg_sel.p)
-                    {
-                        msg_sel.start = msg_sel.p;
-                        msg_sel.end = p;
-                    }
-                    else
-                    {
-                        msg_sel.start = p;
-                        msg_sel.end = msg_sel.p;
-                    }
-                }
-
-            }
-
-            //ui_drawmain();
-
-            return;
-        }
-
-        m++;
-
-    }
-}
-
-void draw_messages(int x, int y, FRIEND *f)
-{
-    if(!f->message)
-    {
-        return;
-    }
-
-    HRGN rgn = CreateRectRgn(x, y, width - 24, height - 152);
-    SelectClipRgn (hdc, rgn);
-    DeleteObject(rgn);
-
-    void **m = f->message;
-
-    SelectObject(hdc, font_small);
-    SetTextColor(hdc, 0x333333);
-
-    int yy = messages_y(f->message, f->msg, 1.0 - f->scroll, (width - 24 - 100) - x);
-    uint8_t a = 0xFF;
-
-    int i = 0;
-    while(i != f->msg)
-    {
-        uint16_t *msg = *m++;
-
-        uint16_t length = msg[1];
-        uint8_t author = msg[0] & 1;
-
-        if(a != author)
-        {
-            a = author;
-
-            SetTextColor(hdc, 0x999999);
-
-            if(!author)
-            {
-                drawtextrange(x, x + 100, y + yy, self.name, self.name_length);
-            }
-            else
-            {
-                drawtextrange(x, x + 100, y + yy, f->name, f->name_length);
-            }
-
-            SetTextColor(hdc, 0x333333);
-        }
-
-        if(i == msg_sel.mstart)
-        {
-            if(i == msg_sel.mend)
-            {
-                yy += drawmessage2(x + 100, y + yy, width - 24, height - 152, (uint8_t*)(msg + 2), length, msg_sel.start, msg_sel.end);
-            }
-            else
-            {
-                yy += drawmessage2(x + 100, y + yy, width - 24, height - 152, (uint8_t*)(msg + 2), length, msg_sel.start, length);
-            }
-
-
-        }
-        else if(i == msg_sel.mend)
-        {
-            yy += drawmessage2(x + 100, y + yy, width - 24, height - 152, (uint8_t*)(msg + 2), length, 0, msg_sel.end);
-        }
-        else
-        {
-            _Bool h = (i > msg_sel.mstart && i < msg_sel.mend);
-
-            if(h)
-            {
-                SetBkMode(hdc, OPAQUE);
-                SetBkColor(hdc, BLACK);
-                SetTextColor(hdc, WHITE);
-            }
-            yy += drawmessage(x + 100, y + yy, width - 24, height - 152, (uint8_t*)(msg + 2), length);
-            if(h)
-            {
-                SetBkMode(hdc, TRANSPARENT);
-                SetTextColor(hdc, 0x333333);
-            }
-        }
-
-
-        /*if(i == msg_sel.mend)
-        {
-            SetBkMode(hdc, TRANSPARENT);
-            SetTextColor(hdc, 0x333333);
-        }*/
-
-        i++;
-    }
-
-    SelectClipRgn(hdc, NULL);
-}
-
-void draw_groupmessages(int x, int y, GROUPCHAT *g)
-{
-    void **m = g->message;
-    if(!m)
-    {
-        return;
-    }
-
-    HRGN rgn = CreateRectRgn(x, y, width - 24 - 100, height - 152);
-    SelectClipRgn (hdc, rgn);
-    DeleteObject(rgn);
-
-
-    SelectObject(hdc, font_small);
-
-    int yy = messages_y(g->message, g->msg, 1.0 - g->scroll, (width - 24 - 100 - 100) - x);
-
-    int i = 0;
-    while(i != g->msg)
-    {
-        uint16_t *msg = *m++;
-        //uint16_t id = msg[0] >> 9;
-        uint16_t length = msg[1];
-        uint8_t namelen = msg[0] & 0xFF;
-
-        void *str = (void*)msg + 4, *name = str + length;
-
-        SetTextColor(hdc, 0x999999);
-        drawtextrange(x, x + 100, y + yy, name, namelen);
-
-        SetTextColor(hdc, 0x333333);
-       // yy += drawmessage(x + 100, y + yy, width - 24 - 100, height - 152, (uint8_t*)(msg + 2), length);
-
-        if(i == msg_sel.mstart)
-        {
-            if(i == msg_sel.mend)
-            {
-                yy += drawmessage2(x + 100, y + yy, GMESSAGES_RIGHT, height - 152, (uint8_t*)(msg + 2), length, msg_sel.start, msg_sel.end);
-            }
-            else
-            {
-                yy += drawmessage2(x + 100, y + yy, GMESSAGES_RIGHT, height - 152, (uint8_t*)(msg + 2), length, msg_sel.start, length);
-            }
-
-
-        }
-        else if(i == msg_sel.mend)
-        {
-            yy += drawmessage2(x + 100, y + yy, GMESSAGES_RIGHT, height - 152, (uint8_t*)(msg + 2), length, 0, msg_sel.end);
-        }
-        else
-        {
-            _Bool h = (i > msg_sel.mstart && i < msg_sel.mend);
-
-            if(h)
-            {
-                SetBkMode(hdc, OPAQUE);
-                SetBkColor(hdc, BLACK);
-                SetTextColor(hdc, WHITE);
-            }
-            yy += drawmessage(x + 100, y + yy, GMESSAGES_RIGHT, height - 152, (uint8_t*)(msg + 2), length);
-            if(h)
-            {
-                SetBkMode(hdc, TRANSPARENT);
-            }
-        }
-
-        i++;
-
-    }
-
-    SelectClipRgn(hdc, NULL);
-
-}
-
-void messages_mousemove(int x, int y, void **message, uint32_t msg, double scroll, int width)
-{
-    if(msg_select)
-    {
-        somefunc(x, y, message, msg, 1.0 - scroll, width);
-    }
-}
-
-void messages_mousedown(int x, int y, void **message, uint32_t msg, double scroll, int width)
-{
-    somefunc(x, y, message, msg, 1.0 - scroll, width);
-    msg_select = 1;
-}
-
-void messages_mouseup(void)
-{
-    msg_select = 0;
-}
-
-void messages_mousewheel(int x, int y, double d, double *scroll)
-{
-    if(x < MESSAGES_X || x >= MESSAGES_RIGHT || y < MESSAGES_Y || y >= MESSAGES_BOTTOM)
-    {
-        return;
-    }
-
-    //uint32_t c = itemcount * ITEM_HEIGHT;
-    //uint32_t h = MESSAGES_BOTTOM - MESSAGES_Y;
-
-    //if(c > h)
-    {
-        //uint32_t m = (h * h) / c;
-        //double dd = (h - m);
-
-        //*scroll -= 16.0 * d / dd;;
-
-        *scroll += d / 16.0;
-        if(*scroll > 1.0)
-        {
-            *scroll = 1.0;
-        }
-        else if(*scroll < 0.0)
-        {
-            *scroll = 0.0;
-        }
-
-       // ui_drawmain();
-    }
-}
-
-void messages_copy(void **message)
-{
-    int length = 0;
-    int i = msg_sel.mstart;
-    while(i != msg_sel.mend + 1)
-    {
-        uint16_t *msg = message[i];
-        length += msg[1] + 1;
-        i++;
-    }
-    //note: approximate length
-
-    HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, length + 1);
-    uint8_t *p = GlobalLock(hMem), *s = p;
-    i = msg_sel.mstart;
-    while(1)
-    {
-        uint16_t *msg = message[i];
-        uint16_t length = msg[1];
-
-        if(i == msg_sel.mstart)
-        {
-            if(i == msg_sel.mend)
-            {
-                memcpy(s, (uint8_t*)(msg + 2) + msg_sel.start, msg_sel.end - msg_sel.start);
-                s += msg_sel.end - msg_sel.start;
-                break;
-            }
-            else
-            {
-                memcpy(s, (uint8_t*)(msg + 2) + msg_sel.start, length - msg_sel.start);
-                s += length - msg_sel.start;
-            }
-        }
-        else if(i == msg_sel.mend)
-        {
-            memcpy(s, (msg + 2), msg_sel.end);
-            s += msg_sel.end;
+    _Bool word = 0;
+    int xc = x;
+    wchar_t *a = str, *b = str, *end = str + length;
+    while(a != end) {
+        switch(*a) {
+        case '\n': {
+            textout(x, y, b, a - b, b - str, h1, h2);
+            y += font_msg_lineheight;
+            x = xc;
+            b = a;
+
+            setcolor(0);
+            word = 0;
             break;
         }
-        else
-        {
-            memcpy(s, (msg + 2), length);
-            s += length;
+
+        case ' ': {
+            if(word) {
+                SIZE size;
+                int count = a - b;
+                textout(x, y, b, count, b - str, h1, h2);
+                GetTextExtentPoint32W(hdc, b, count, &size);
+                x += size.cx;
+                b = a;
+
+                setcolor(0);
+                word = 0;
+            }
+
+            if((end - a >= 8 && memcmp(a, L" http://", 16) == 0) || (end - a >= 9 && memcmp(a, L" https://", 18) == 0)) {
+                SIZE size;
+                int count = a - b;
+                textout(x, y, b, count,  b - str, h1, h2);
+                GetTextExtentPoint32W(hdc, b, count, &size);
+                x += size.cx;
+                b = a;
+
+                setcolor(0xFF0000);
+                word = 1;
+            }
+            break;
+        }
+        }
+        a++;
+    }
+
+    textout(x, y, b, a - b, b - str, h1, h2);
+    y += font_msg_lineheight;
+    setcolor(0);
+
+    //RECT r = {x, y, x + width, bottom};
+    //y += DrawTextW(hdc, out, length, &r, DT_WORDBREAK | DT_NOPREFIX);
+
+    return y;
+}
+
+static uint32_t pmsg(int mx, int my, wchar_t *str, uint16_t length)
+{
+    wchar_t *a = str, *b = str, *end = str + length;
+    while(a != end) {
+        if(*a == '\n') {
+            if(my >= 0 && my <= font_msg_lineheight) {
+                break;
+            }
+            b = a;
+            my -= font_msg_lineheight;
+        }
+        a++;
+    }
+
+    int fit;
+    mx -= 100;
+    if(mx > 0) {
+        int len = a - b, d[len];
+        SIZE size;
+        GetTextExtentExPointW(hdc, b, len, mx, &fit, d, &size);
+    } else {
+        fit = 0;
+    }
+
+    return (b - str) + fit;
+}
+
+static int heightmsg(wchar_t *str, uint16_t length)
+{
+    int y = 0;
+    wchar_t *a = str, *end = str + length;
+    while(a != end) {
+        if(*a == '\n') {
+            y += font_msg_lineheight;
+        }
+        a++;
+    }
+
+    y += font_msg_lineheight;
+
+    return y;
+}
+
+void messages_draw(MESSAGES *m, int x, int y, int width, int height)
+{
+    setcolor(0);
+    setfont(FONT_MESSAGE);
+
+    FRIEND *f = m->data;
+
+    uint8_t lastauthor = 0xFF;
+
+    void **p = f->message;
+    int i = 0, n = f->msg;
+
+    while(i != n) {
+        MESSAGE *msg = *p++;
+        switch(msg->flags) {
+        case 0:
+        case 1:
+        case 2:
+        case 3: {
+            /* normal message */
+            uint8_t author = msg->flags & 1;
+            if(author != lastauthor) {
+                if(author) {
+                    drawtextwidth(x, 90, y, f->name, f->name_length);
+                } else {
+                    setcolor(0x888888);
+                    drawtextwidth(x, 90, y, self.name, self.name_length);
+                    setcolor(0);
+                }
+                lastauthor = author;
+            }
+
+            if(i == f->istart) {
+                y = drawmsg(x + 100, y, msg->msg, msg->length, f->start, ((i == f->iend) ? f->end : msg->length));
+            } else if(i == f->iend) {
+                y = drawmsg(x + 100, y, msg->msg, msg->length, 0, f->end);
+            } else if(i > f->istart && i < f->iend) {
+                y = drawmsg(x + 100, y, msg->msg, msg->length, 0, msg->length);
+            } else {
+                y = drawmsg(x + 100, y, msg->msg, msg->length, 0, 0);
+            }
+
+            break;
         }
 
-        *s++ = '\n';
+        case 4:
+        case 5: {
+            /* image */
+            MSG_IMG *img = (void*)msg;
+            SIZE size;
+
+            SelectObject(hdcMem, img->bitmap);
+            GetBitmapDimensionEx(img->bitmap, &size);
+            BitBlt(hdc, x, y, size.cx, size.cy, hdcMem, 0, 0, SRCCOPY);
+            y += img->height;
+            break;
+        }
+
+        case 6:
+        case 7: {
+            lastauthor = 0xFF;
+
+            /* file transfer */
+            MSG_FILE *file = (void*)msg;
+            char text[128];
+            char *type[] = {"Incoming", "Outgoing"};
+            char *status[] = {"Pending", "Transfering", "Paused", "Disconnected", "Cancelled", "Done"};
+            int i = sprintf(text, "File (%s): %s (%s)", type[msg->flags - 6], file->name, status[file->status]);
+
+            TextOut(hdc, x, y, text, i);
+            y += font_msg_lineheight;
+            break;
+        }
+        }
 
         i++;
     }
-    *s++ = 0;
+}
 
-    GlobalUnlock(hMem);
-    OpenClipboard(0);
-    EmptyClipboard();
-    SetClipboardData(CF_TEXT, hMem);
-    CloseClipboard();
+_Bool messages_mmove(MESSAGES *m, int mx, int my, int dy, int width, int height)
+{
+    if(my < 0) {
+        my = 0;
+    }
 
+    if(mx < 0 || mx >= width) {
+        m->iover = ~0;
+        return 0;
+    }
+
+    setfont(FONT_MESSAGE);
+
+    FRIEND *f = m->data;
+
+    void **p = f->message;
+    int i = 0, n = f->msg;
+
+    while(i != n) {
+        MESSAGE *msg = *p++;
+
+        int dy = msg->height;
+
+        if((my >= 0 && my < dy) || i == n - 1) {
+            switch(msg->flags) {
+            case 0:
+            case 1: {
+                /* normal message */
+                m->over = pmsg(mx, my, msg->msg, msg->length);
+                break;
+            }
+
+            case 2:
+            case 3: {
+                /* action */
+                m->over = pmsg(mx, my, msg->msg, msg->length);
+                break;
+            }
+
+            case 4:
+            case 5: {
+                /* image */
+                //MSG_IMG *img = (void*)msg;
+
+                //SIZE size;
+                //GetBitmapDimensionEx(img->bitmap, &size);
+
+                m->over = 0;
+                break;
+            }
+
+            case 6:
+            case 7: {
+                /* file transfer */
+                //MSG_FILE *file = (void*)msg;
+                //y += font_msg_lineheight;
+                m->over = 0;
+                break;
+            }
+            }
+
+            m->iover = i;
+
+            if(m->select) {
+                if(i > m->idown) {
+                    f->istart = m->idown;
+                    f->iend = i;
+
+                    f->start = m->down;
+                    f->end = m->over;
+                } else if(i < m->idown) {
+                    f->iend = m->idown;
+                    f->istart = i;
+
+                    f->end = m->down;
+                    f->start = m->over;
+                } else {
+                    f->istart = f->iend = i;
+                    if(m->over >= m->down) {
+                        f->start = m->down;
+                        f->end = m->over;
+                    } else {
+                        f->end = m->down;
+                        f->start = m->over;
+                    }
+                }
+
+                //debug("test: %u %u %u %u\n", f->istart, f->start, f->iend, f->end);
+            }
+            return 1;
+        }
+
+        my -= dy;
+
+        i++;
+    }
+
+    return 0;
+}
+
+_Bool messages_mdown(MESSAGES *m)
+{
+    if(m->iover != ~0) {
+        FRIEND *f = m->data;
+        f->istart = f->iend = m->idown = m->iover;
+        f->start = f->end = m->down = m->over;
+        m->select = 1;
+    }
+    return 0;
+}
+
+_Bool messages_mright(MESSAGES *m)
+{
+    return 0;
+}
+
+_Bool messages_mwheel(MESSAGES *m, int height, double d)
+{
+    return 0;
+}
+
+_Bool messages_mup(MESSAGES *m)
+{
+    m->select = 0;
+    return 0;
+}
+
+_Bool messages_mleave(MESSAGES *m)
+{
+    return 0;
+}
+
+void message_setheight(MESSAGE *msg, MESSAGES *m)
+{
+    switch(msg->flags) {
+    case 0:
+    case 1: {
+        msg->height = heightmsg(msg->msg, msg->length);
+        break;
+    }
+
+    case 6:
+    case 7: {
+        msg->height = font_msg_lineheight;
+        break;
+    }
+
+    }
+
+    if(m) {
+        m->height += msg->height;
+        m->panel.content_scroll->content_height = m->height;
+    }
 }

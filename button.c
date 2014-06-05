@@ -3,15 +3,18 @@
 void button_draw(BUTTON *b, int x, int y, int width, int height)
 {
     RECT frame = {x, y, x + width, y + height};
-    framerect(&frame, BLACK);
+    framerect(&frame, b->mouseover ? BLUE : INNER_BORDER);
 
     RECT area = {x + 1, y + 1, x + width - 1, y + height - 1};
     fillrect(&area, b->mouseover ? BUTTON_AREA_HIGHLIGHT : BUTTON_AREA);
 
-    setfont(FONT_BUTTON);
-    setcolor(b->mouseover ? 0x222222 : 0x555555);
-
-    drawtext(x + 5, y, b->text, b->text_length);
+    if(b->bm) {
+        drawbitmapalpha(b->bm, x, y, 48, 48);
+    } else {
+        setfont(FONT_BUTTON);
+        setcolor(b->mouseover ? 0x222222 : 0x555555);
+        drawtext(x + 5, y, b->text, b->text_length);
+    }
 }
 
 _Bool button_mmove(BUTTON *b, int x, int y, int dy, int width, int height)

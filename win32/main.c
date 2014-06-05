@@ -15,26 +15,16 @@ static _Bool mouse_tracked = 0;
 
 static _Bool hidden;
 
-static HBITMAP h;
-
 void drawbitmap(int bm, int x, int y, int width, int height)
 {
-    if(bitmap[bm] != h) {
-        SelectObject(hdcMem, bitmap[bm]);
-        h = bitmap[bm];
-    }
-
+    SelectObject(hdcMem, bitmap[bm]);
     BitBlt(hdc, x, y, width, height, hdcMem, 0, 0, SRCCOPY);
 }
 
 void drawbitmaptrans(int bm, int x, int y, int width, int height)
 {
-    if(bitmap[bm] != h) {
-        SelectObject(hdcMem, bitmap[bm]);
-        h = bitmap[bm];
-    }
-
-    MaskBlt(hdc, x, y, width, height, hdcMem, 0, 0, h, 0, 0, MAKEROP4(0x00AA0029, SRCCOPY));
+    SelectObject(hdcMem, bitmap[bm]);
+    MaskBlt(hdc, x, y, width, height, hdcMem, 0, 0, bitmap[bm], 0, 0, MAKEROP4(0x00AA0029, SRCCOPY));
     //BitBlt(hdc, x, y, width, height, hdcMem, 0, 0, SRCAND);
     //TransparentBlt(hdc, x, y, width, height, hdcMem, 0, 0, width, height, ~0);
 }
@@ -48,36 +38,32 @@ void drawbitmapalpha(int bm, int x, int y, int width, int height)
         .AlphaFormat = AC_SRC_ALPHA
     };
 
-    if(bitmap[bm] != h) {
-        SelectObject(hdcMem, bitmap[bm]);
-        h = bitmap[bm];
-    }
-
+    SelectObject(hdcMem, bitmap[bm]);
     AlphaBlend(hdc, x, y, width, height, hdcMem, 0, 0, width, height, ftn);
 }
 
 void drawtextwidth(int x, int width, int y, uint8_t *str, uint16_t length)
 {
     RECT r = {x, y, x + width, y + 256};
-    DrawText(hdc, (char*)str, length, &r, DT_SINGLELINE | DT_END_ELLIPSIS);
+    DrawText(hdc, (char*)str, length, &r, DT_SINGLELINE | DT_END_ELLIPSIS | DT_NOPREFIX);
 }
 
 void drawtextrange(int x, int x2, int y, uint8_t *str, uint16_t length)
 {
     RECT r = {x, y, x2, y + 256};
-    DrawText(hdc, (char*)str, length, &r, DT_SINGLELINE | DT_END_ELLIPSIS);
+    DrawText(hdc, (char*)str, length, &r, DT_SINGLELINE | DT_END_ELLIPSIS | DT_NOPREFIX);
 }
 
 void drawtextrangecut(int x, int x2, int y, uint8_t *str, uint16_t length)
 {
     RECT r = {x, y, x2, y + 256};
-    DrawText(hdc, (char*)str, length, &r, DT_SINGLELINE);
+    DrawText(hdc, (char*)str, length, &r, DT_SINGLELINE | DT_NOPREFIX);
 }
 
 int drawtextrect(int x, int y, int right, int bottom, uint8_t *str, uint16_t length)
 {
     RECT r = {x, y, right, bottom};
-    return DrawText(hdc, (char*)str, length, &r, DT_WORDBREAK);
+    return DrawText(hdc, (char*)str, length, &r, DT_WORDBREAK | DT_NOPREFIX);
 }
 
 /*int drawtextrect2(int x, int y, int right, int bottom, uint8_t *str, uint16_t length)
@@ -139,6 +125,9 @@ void setfont(int id)
     }
     if(id == FONT_MED) {
         SelectObject(hdc, font_med);
+    }
+    if(id == FONT_MESSAGE) {
+        SelectObject(hdc, font_msg);
     }
     //SelectObject(hdc, font[id]);
 }
@@ -465,6 +454,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     lf.lfHeight = -12;
     font_small = CreateFontIndirect(&lf);
 
+    memcpy(lf.lfFaceName, "Times New Roman", sizeof("Times New Roman"));
+    lf.lfHeight = 16;
+    font_msg = CreateFontIndirect(&lf);
+
     bm.bmBits = bm_minimize_bits;
     bitmap[BM_MINIMIZE] = CreateBitmapIndirect(&bm);
     bm.bmBits = bm_restore_bits;
@@ -485,6 +478,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     bitmap[BM_OFFLINE] = CreateBitmap(10, 10, 1, 32, bm_offline_bits);
     bitmap[BM_CONTACT] = CreateBitmap(48, 48, 1, 32, bm_contact_bits);
     bitmap[BM_GROUP] = CreateBitmap(48, 48, 1, 32, bm_group_bits);
+    bitmap[BM_FILE] = CreateBitmap(48, 48, 1, 32, bm_file_bits);
 
     uint32_t test[64];
     int xx = 0;
@@ -517,8 +511,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     TEXTMETRIC tm;
     SelectObject(hdc, font_small);
     GetTextMetrics(hdc, &tm);
-
     font_small_lineheight = tm.tmHeight + tm.tmExternalLeading;
+    SelectObject(hdc, font_msg);
+    GetTextMetrics(hdc, &tm);
+    font_msg_lineheight = tm.tmHeight + tm.tmExternalLeading;
 
 
     //wait for tox_thread init
@@ -670,16 +666,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                 if(edit_active()) {
                     edit_copy();
                     break;
-                }
-
-                if(sitem) {
-                    if(sitem->item == ITEM_FRIEND) {
-                        FRIEND *f = sitem->data;
-                        messages_copy(f->message);
-                    } else if(sitem->item == ITEM_GROUP) {
-                        GROUPCHAT *g = sitem->data;
-                        messages_copy(g->message);
-                    }
                 }
 
                 break;

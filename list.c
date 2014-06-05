@@ -180,8 +180,6 @@ static void selectitem(ITEM *i)
         f->typed_length = edit_msg.length;
         f->typed = malloc(edit_msg.length);
         memcpy(f->typed, edit_msg.data, edit_msg.length);
-
-        msg_sel.m = f->sel;
     }
 
     if(sitem->item == ITEM_GROUP)
@@ -192,8 +190,6 @@ static void selectitem(ITEM *i)
         g->typed_length = edit_msg.length;
         g->typed = malloc(edit_msg.length);
         memcpy(g->typed, edit_msg.data, edit_msg.length);
-
-        msg_sel.m = g->sel;
     }
 
     if(i->item == ITEM_FRIEND)
@@ -203,7 +199,8 @@ static void selectitem(ITEM *i)
         memcpy(edit_msg.data, f->typed, f->typed_length);
         edit_msg.length = f->typed_length;
 
-        msg_sel.m = f->sel;
+        messages_friend.data = f;
+        messages_friend.iover = ~0;
     }
 
     if(i->item == ITEM_GROUP)
@@ -212,8 +209,6 @@ static void selectitem(ITEM *i)
 
         memcpy(edit_msg.data, g->typed, g->typed_length);
         edit_msg.length = g->typed_length;
-
-        msg_sel.m = g->sel;
     }
 
     sitem = i;

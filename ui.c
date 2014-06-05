@@ -2,6 +2,7 @@
 
 #include "icons/contact.c"
 #include "icons/group.c"
+#include "icons/file.c"
 #include "icons/misc.c"
 
 #define STRLEN(x) (sizeof(x) - 1)
@@ -136,13 +137,24 @@ static void edit_msg_onenter(void)
     if(sitem->item == ITEM_FRIEND) {
         FRIEND *f = sitem->data;
 
-        uint16_t *data = malloc(length + 4);
+        uint16_t l = length;
+
+        wchar_t out[length];
+        length = MultiByteToWideChar(CP_UTF8, 0, (char*)edit_msg_data, length, out, length);
+
+        MESSAGE *msg = malloc(length * 2 + 6);
+        msg->flags = 0;
+        msg->length = length;
+        memcpy(msg->msg, out, length * 2);
+
+        /*uint16_t *data = malloc(length + 8);
         data[0] = 0;
         data[1] = length;
-        memcpy((void*)data + 4, edit_msg_data, length);
+        memcpy((void*)data + 4, edit_msg_data, length);*/
 
-        f->message = realloc(f->message, (f->msg + 1) * sizeof(void*));
-        f->message[f->msg++] = data;
+        friend_addmessage(f, msg);
+
+        length = l;
 
         //
         void *d = malloc(length);
@@ -298,7 +310,7 @@ static void button_sendfile_onpress(void)
         .hwndOwner = hwnd,
         .lpstrFile = filepath,
         .nMaxFile = 1024,
-        .Flags = OFN_EXPLORER | OFN_ALLOWMULTISELECT | OFN_FILEMUSTEXIST,
+        .Flags = OFN_EXPLORER | OFN_ALLOWMULTISELECT | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR,
     };
 
     if(GetOpenFileName(&ofn)) {
@@ -370,9 +382,9 @@ button_sendfile = {
         .width = 48,
         .height = 48,
     },
+    .bm = BM_FILE,
     .onpress = button_sendfile_onpress,
-               BUTTON_TEXT("file")
-           },
+},
 
 button_acceptfriend = {
     .panel = {
@@ -388,6 +400,21 @@ button_acceptfriend = {
 
 
 SCROLLABLE scroll_list = {
+    .panel = {
+        .type = PANEL_SCROLLABLE,
+        .x = LIST_X,
+        .y = 12,
+        .width = ITEM_WIDTH,
+        .height = -13,
+    }
+},
+
+scroll_friend = {
+    .panel = {
+        .type = PANEL_SCROLLABLE,
+        .y = 50,
+        .height = -94,
+    }
 };
 
 static void drawself(int x, int y, int width, int height)
@@ -438,11 +465,13 @@ static void drawfriend(int x, int y, int width, int height)
 
     SetTextColor(hdc, 0x333333);
     setfont(FONT_TITLE);
-    drawtextwidth(x, width, y + 2, f->name, f->name_length);
+    drawtextwidth(x, width - 112, y + 2, f->name, f->name_length);
 
     SetTextColor(hdc, 0x999999);
     setfont(FONT_MED);
-    drawtextwidth(x, width, y + 26, f->status_message, f->status_length);
+    drawtextwidth(x, width - 112, y + 26, f->status_message, f->status_length);
+
+    drawhline(x, y + 49, x + width, INNER_BORDER);
 
     switch(f->calling) {
     case 0: {
@@ -481,17 +510,24 @@ static void drawfriendreq(int x, int y, int width, int height)
 
 }
 
-static void drawfriendmsg(int x, int y, int width, int height)
-{
-    RECT r = {x, y, x + width, y + height};
-    fillrect(&r, 0xDDDDDD);
-}
+/* */
+MESSAGES messages_friend = {
+    .panel = {
+        .type = PANEL_MESSAGES,
+        .y = 50,
+        .height = -94,
+        .width = -SCROLL_WIDTH,
+        .content_scroll = &scroll_friend,
+    }
+},
 
-static void drawgroupmsg(int x, int y, int width, int height)
-{
-    RECT r = {x, y, x + width, y + height};
-    fillrect(&r, 0xDDDDDD);
-}
+messages_group = {
+    .panel = {
+        .type = PANEL_MESSAGES,
+        .y = 50,
+        .height = -94,
+    }
+};
 
 SYSMENU sysmenu = {
     .panel = {
@@ -510,22 +546,6 @@ PANEL panel_list = {
     .width = ITEM_WIDTH,
     .height = -13,
     .content_scroll = &scroll_list,
-    .child = (PANEL*[]) {
-        (void*)&scroll_list, NULL
-    }
-},
-
-panel_friendmessages = {
-    .type = PANEL_NONE,
-    .y = 50,
-    .height = -94,
-    .drawfunc = drawfriendmsg,
-},
-
-panel_groupmessages = {
-    .y = 50,
-    .height = -94,
-    .drawfunc = drawgroupmsg,
 },
 
 panel_item[] = {
@@ -558,7 +578,8 @@ panel_item[] = {
         .child = (PANEL*[]) {
             (void*)&button_call, (void*)&button_sendfile,
             (void*)&edit_msg,
-            (void*)&panel_friendmessages,
+            (void*)&messages_friend,
+            (void*)&scroll_friend,
             NULL
         }
     },
@@ -569,7 +590,7 @@ panel_item[] = {
         .drawfunc = drawgroup,
         .child = (PANEL*[]) {
             (void*)&edit_msg,
-            (void*)&panel_groupmessages,
+            //(void*)&messages_group,
             NULL
         }
     },
@@ -603,13 +624,16 @@ panel_main = {
     .width = 0,
     .height = 0,
     .child = (PANEL*[]) {
-        &panel_list, &panel_side, (void*)&sysmenu, NULL
+        &panel_list, &panel_side,
+        (void*)&sysmenu,
+        (void*)&scroll_list, NULL
     }
 };
 
 #define FUNC(x, ret, ...) static ret (* x##func[])(void *p, ##__VA_ARGS__) = { \
     (void*)background_##x, \
     (void*)sysmenu_##x, \
+    (void*)messages_##x, \
     (void*)list_##x, \
     (void*)button_##x, \
     (void*)edit_##x, \
@@ -637,7 +661,12 @@ static void panel_draw_sub(PANEL *p, int x, int y, int width, int height)
 {
     FUNC();
 
-    pushclip(x, y, width, height);
+    if(p->content_scroll) {
+        pushclip(x, y, width, height);
+
+        y -= scroll_gety(p->content_scroll, height);
+    }
+
 
     if(p->type) {
         drawfunc[p->type - 1](p, x, y, width, height);
@@ -656,7 +685,9 @@ static void panel_draw_sub(PANEL *p, int x, int y, int width, int height)
         }
     }
 
-    popclip();
+    if(p->content_scroll) {
+        popclip();
+    }
 }
 
 void panel_draw(PANEL *p, int x, int y, int width, int height)
@@ -692,6 +723,12 @@ _Bool panel_mmove(PANEL *p, int x, int y, int width, int height, int mx, int my,
     mx -= (p->x < 0) ? width + p->x : p->x;
     my -= (p->y < 0) ? height + p->y : p->y;
     FUNC();
+
+    if(p->content_scroll) {
+        int dy = scroll_gety(p->content_scroll, height);
+        y -= dy;
+        my += dy;
+    }
 
     _Bool draw = p->type ? mmovefunc[p->type - 1](p, mx, my, dy, width, height) : 0;
     PANEL **pp = p->child, *subp;

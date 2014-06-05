@@ -22,15 +22,9 @@
 #include <windows.h>
 #include <windowsx.h>
 
-#define IPV6_ENABLED 1
+#define IPV6_ENABLED 0
 #define DEFAULT_NAME "NSA"
 #define DEFAULT_STATUS "Adding backdoors to Tox"
-
-typedef struct
-{
-    uint32_t mstart, mend;
-    uint16_t start, end;
-}MSGSEL;
 
 typedef struct
 {
@@ -41,9 +35,6 @@ typedef struct
 typedef struct
 {
     uint32_t peers, msg;
-    double scroll;
-    //MESSAGES m;
-    MSGSEL sel;
     uint16_t name_length, topic_length, typed_length;
     uint8_t name[128], topic[128]; //static sizes for now
     uint8_t *typed;
@@ -139,8 +130,8 @@ int width, height;
 _Bool maximized;
 
 //fonts
-HFONT font_big, font_big2, font_med, font_med2, font_small;
-int font_small_lineheight;
+HFONT font_big, font_big2, font_med, font_med2, font_small, font_msg;
+int font_small_lineheight, font_msg_lineheight;
 
 enum
 {
@@ -150,6 +141,7 @@ enum
     FONT_TITLE,
     FONT_SUBTITLE,
     FONT_MED,
+    FONT_MESSAGE,
 };
 
 //sysmenu icons
@@ -166,7 +158,8 @@ enum
     BM_BUSY,
     BM_OFFLINE,
     BM_CONTACT,
-    BM_GROUP
+    BM_GROUP,
+    BM_FILE
 };
 
 HBITMAP bitmap[16];
@@ -189,22 +182,6 @@ struct
     uint16_t p1, p2;
 }edit_sel;
 _Bool edit_select;
-
-//messages
-struct
-{
-    union
-    {
-        MSGSEL m;
-        struct
-        {
-            uint32_t mstart, mend;
-            uint16_t start, end;
-        };
-    };
-    uint32_t mp;
-    uint16_t p;
-}msg_sel;
 
 #define inrect(x, y, rx, ry, width, height) ((x) >= (rx) && (y) >= (ry) && (x) < (rx) + (width) && (y) < (ry + height))
 
@@ -234,5 +211,7 @@ void enddraw(int x, int y, int width, int height);
 void address_to_clipboard(void);
 void editpopup(void);
 void listpopup(uint8_t item);
+
+#define openurl(s) ShellExecute(NULL, "open", (s), NULL, NULL, SW_SHOW);
 
 #endif

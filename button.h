@@ -2,7 +2,7 @@
 
 typedef struct {
     PANEL panel;
-
+    int bm;
     _Bool mouseover, mousedown;
     uint16_t text_length;
     uint8_t *text;

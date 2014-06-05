@@ -3,6 +3,7 @@ enum
     PANEL_NONE,
     PANEL_MAIN,
     PANEL_SYSMENU,
+    PANEL_MESSAGES,
     PANEL_LIST,
     PANEL_BUTTON,
     PANEL_EDIT,
@@ -12,6 +13,7 @@ enum
 typedef struct scrollable SCROLLABLE;
 typedef struct edit EDIT;
 typedef struct panel PANEL;
+typedef struct messages MESSAGES;
 struct panel
 {
     uint8_t type;
@@ -33,6 +35,7 @@ enum
 };
 
 extern PANEL panel_main, panel_item[5];
+extern MESSAGES messages_friend, messages_group;
 extern EDIT edit_name, edit_status, edit_addid, edit_addmsg, edit_msg;
 extern SCROLLABLE scroll_list;
 
@@ -45,7 +48,7 @@ _Bool panel_mwheel(PANEL *p, int x, int y, int width, int height, double d);
 _Bool panel_mup(PANEL *p);
 _Bool panel_mleave(PANEL *p);
 
-extern uint8_t bm_contact_bits[], bm_group_bits[];
+extern uint8_t bm_contact_bits[], bm_group_bits[], bm_file_bits[];
 extern uint8_t bm_minimize_bits[], bm_maximize_bits[], bm_restore_bits[], bm_exit_bits[], bm_plus_bits[];
 extern uint32_t bm_online_bits[], bm_away_bits[], bm_busy_bits[], bm_offline_bits[];
 

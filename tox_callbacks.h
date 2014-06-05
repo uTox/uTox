@@ -1,10 +1,13 @@
-static void* copy_message(uint8_t *message, uint16_t length, uint16_t flags) {
-    uint16_t *data = malloc(length + 4);
-    data[0] = flags;
-    data[1] = length;
-    memcpy((void*)data + 4, message, length);
+static void* copy_message(uint8_t *str, uint16_t length, uint16_t flags) {
+    wchar_t out[length];
+    length = MultiByteToWideChar(CP_UTF8, 0, (char*)str, length, out, length);
 
-    return data;
+    MESSAGE *msg = malloc(length * 2 + 6);
+    msg->flags = flags;
+    msg->length = length;
+    memcpy(msg->msg, out, length * 2);
+
+    return msg;
 }
 
 static void* copy_groupmessage(Tox *tox, uint8_t *message, uint16_t length, uint16_t flags, int gid, int pid)

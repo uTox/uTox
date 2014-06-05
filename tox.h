@@ -23,6 +23,7 @@ enum {
     TOX_GROUPINVITE,
 
     TOX_SENDFILES,
+    TOX_ACCEPTFILE
 };
 
 /* client thread messages (recieved by the client thread)
@@ -50,16 +51,18 @@ enum {
     FRIEND_CALL_RING,
     FRIEND_CALL_END,
 
+    /* friend file */
+    FRIEND_FILE_IN_NEW,
+    FRIEND_FILE_OUT_NEW,
+    FRIEND_FILE_IN_STATUS,
+    FRIEND_FILE_OUT_STATUS,
+
     /* group */
     GROUP_ADD,
     GROUP_MESSAGE,
     GROUP_PEER_ADD,
     GROUP_PEER_DEL,
     GROUP_PEER_NAME,
-
-    /* file */
-    FILE_BEGIN_RECV,
-    FILE_BEGIN_SEND
 };
 
 /* toxcore thread
