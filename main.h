@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <inttypes.h>
 #include <time.h>
+#include <string.h>
 
 #ifndef _WIN32_WINNT
 #define _WIN32_WINNT 0x500
@@ -213,6 +214,7 @@ int drawtext_getwidth(int x, int y, uint8_t *str, uint16_t length);
 #define drawstr_getwidth(x, y, str) drawtext_getwidth(x, y, (uint8_t*)str, sizeof(str) - 1)
 void drawtextwidth(int x, int width, int y, uint8_t *str, uint16_t length);
 void drawtextwidth_right(int x, int width, int y, uint8_t *str, uint16_t length);
+void drawtextwidth_rightW(int x, int width, int y, wchar_t *str, uint16_t length);
 void drawtextrange(int x, int x2, int y, uint8_t *str, uint16_t length);
 void drawtextrangecut(int x, int x2, int y, uint8_t *str, uint16_t length);
 int drawtextrect(int x, int y, int right, int bottom, uint8_t *str, uint16_t length);
@@ -222,7 +224,7 @@ void drawvline(int x, int y, int y2, uint32_t color);
 void fillrect(RECT *r, uint32_t color);
 void framerect(RECT *r, uint32_t color);
 void setfont(int id);
-void setcolor(uint32_t color);
+uint32_t setcolor(uint32_t color);
 void setbkcolor(uint32_t color);
 void setbgcolor(uint32_t color);
 void pushclip(int x, int y, int width, int height);
@@ -232,6 +234,6 @@ void address_to_clipboard(void);
 void editpopup(void);
 void listpopup(uint8_t item);
 
-#define openurl(s) ShellExecute(NULL, "open", (s), NULL, NULL, SW_SHOW);
+#define openurl(s) ShellExecuteW(NULL, L"open", (s), NULL, NULL, SW_SHOW);
 
 #endif

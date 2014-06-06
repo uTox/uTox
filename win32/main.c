@@ -62,6 +62,12 @@ void drawtextwidth_right(int x, int width, int y, uint8_t *str, uint16_t length)
     DrawText(hdc, (char*)str, length, &r, DT_SINGLELINE | DT_END_ELLIPSIS | DT_NOPREFIX | DT_RIGHT);
 }
 
+void drawtextwidth_rightW(int x, int width, int y, wchar_t *str, uint16_t length)
+{
+    RECT r = {x, y, x + width, y + 256};
+    DrawTextW(hdc, str, length, &r, DT_SINGLELINE | DT_END_ELLIPSIS | DT_NOPREFIX | DT_RIGHT);
+}
+
 void drawtextrange(int x, int x2, int y, uint8_t *str, uint16_t length)
 {
     RECT r = {x, y, x2, y + 256};
@@ -125,9 +131,9 @@ void setfont(int id)
     SelectObject(hdc, font[id]);
 }
 
-void setcolor(uint32_t color)
+uint32_t setcolor(uint32_t color)
 {
-    SetTextColor(hdc, color);
+    return SetTextColor(hdc, color);
 }
 
 void setbkcolor(uint32_t color)
@@ -664,6 +670,14 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                 if(edit_active()) {
                     edit_copy();
                     break;
+                }
+
+                if(sitem->item == ITEM_FRIEND) {
+                    messages_copy(&messages_friend);
+                }
+
+                if(sitem->item == ITEM_GROUP) {
+                    messages_copy(&messages_group);
                 }
 
                 break;

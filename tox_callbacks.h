@@ -19,13 +19,17 @@ static void* copy_groupmessage(Tox *tox, uint8_t *str, uint16_t length, uint16_t
         namelen = 9;
     }
 
-    wchar_t out[length];
+    wchar_t out[length], nameout[namelen];
     length = MultiByteToWideChar(CP_UTF8, 0, (char*)str, length, out, length);
+    namelen = MultiByteToWideChar(CP_UTF8, 0, (char*)name, namelen, nameout, namelen);
 
-    MESSAGE *msg = malloc(length * 2 + 6);
-    msg->flags = 0;
+    MESSAGE *msg = malloc(6 + length * 2 + namelen * 2);
+    msg->flags = flags;
     msg->length = length;
     memcpy(msg->msg, out, length * 2);
+
+    msg->msg[length] = (wchar_t)namelen;
+    memcpy(&msg->msg[length] + 1, nameout, namelen * 2);
 
     return msg;
 }
@@ -128,7 +132,7 @@ static void callback_group_message(Tox *tox, int gid, int pid, uint8_t *message,
 
 static void callback_group_action(Tox *tox, int gid, int pid, uint8_t *action, uint16_t length, void *userdata)
 {
-    postmessage(GROUP_MESSAGE, gid, 0, copy_groupmessage(tox, action, length, 1, gid, pid));
+    postmessage(GROUP_MESSAGE, gid, 0, copy_groupmessage(tox, action, length, 2, gid, pid));
 
     debug("Group Action (%u, %u): %.*s\n", gid, pid, length, action);
 }

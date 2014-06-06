@@ -337,6 +337,14 @@ void list_draw(void *n, int x, int y, int width, int height)
 
 static void deleteitem(ITEM *i)
 {
+    if(i == sitem) {
+        if(i == &item[itemcount] - 1) {
+            selectitem(i - 1);
+        } else {
+            selectitem(i + 1);
+        }
+    }
+
     switch(i->item)
     {
         case ITEM_FRIEND:
@@ -417,7 +425,7 @@ static void deleteitem(ITEM *i)
     {
         if(sitem == &item[itemcount])
         {
-            sitem--;
+            //sitem--;
         }
         //ui_drawmain();
     }

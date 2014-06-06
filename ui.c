@@ -422,6 +422,7 @@ scroll_group = {
     .panel = {
         .type = PANEL_SCROLLABLE,
         .y = 50,
+        .width = -100,
         .height = -94,
     },
     .d = 1.0,
@@ -514,15 +515,29 @@ static void drawgroup(int x, int y, int width, int height)
 {
     GROUPCHAT *g = sitem->data;
 
-    SetTextColor(hdc, 0x333333);
+    setcolor(0x333333);
     setfont(FONT_TITLE);
     drawtextwidth(x, width - 112, y + 2, g->name, g->name_length);
 
-    SetTextColor(hdc, 0x999999);
+    setcolor(0x999999);
     setfont(FONT_MED);
     drawtextwidth(x, width - 112, y + 26, g->topic, g->topic_length);
 
     drawhline(x, y + 49, x + width, INNER_BORDER);
+
+    setfont(FONT_MSG_NAME);
+    setcolor(0);
+
+    int i = 0;
+    while(i < g->peers)
+    {
+        uint8_t *name = g->peername[i];
+        if(name)
+        {
+            drawtextwidth(x + width - 100, 100, y + 50 + i * font_msg_lineheight, name + 1, name[0]);
+            i++;
+        }
+    }
 }
 
 static void drawfriendreq(int x, int y, int width, int height)
@@ -546,9 +561,10 @@ messages_group = {
         .type = PANEL_MESSAGES,
         .y = 50,
         .height = -94,
-        .width = -SCROLL_WIDTH,
+        .width = -100 -SCROLL_WIDTH,
         .content_scroll = &scroll_group,
-    }
+    },
+    .type = 1
 };
 
 SYSMENU sysmenu = {

@@ -28,14 +28,14 @@ static void textout(int x, int y, wchar_t *str, uint16_t length, int d, int h1, 
     x += size.cx;
 
     setbgcolor(TEXT_HIGHLIGHT_BG);
-    setcolor(TEXT_HIGHLIGHT);
+    uint32_t color = setcolor(TEXT_HIGHLIGHT);
 
     TextOutW(hdc, x, y, str + h1, h2 - h1);
     GetTextExtentPoint32W(hdc, str + h1, h2 - h1, &size);
     x += size.cx;
 
     setbgcolor(~0);
-    setcolor(0);
+    setcolor(color);
 
     TextOutW(hdc, x, y, str + h2, length - h2);
 }
@@ -54,6 +54,7 @@ static int drawmsg(int x, int y, wchar_t *str, uint16_t length, int h1, int h2)
             b = a + 1;
 
             setcolor(0);
+            setfont(FONT_MSG);
             word = 0;
             break;
         }
@@ -68,10 +69,14 @@ static int drawmsg(int x, int y, wchar_t *str, uint16_t length, int h1, int h2)
                 b = a;
 
                 setcolor(0);
+                setfont(FONT_MSG);
                 word = 0;
             }
+            break;
+        }
 
-            if((end - a >= 8 && memcmp(a, L" http://", 16) == 0) || (end - a >= 9 && memcmp(a, L" https://", 18) == 0)) {
+        case 'h': {
+            if((end - a >= 7 && memcmp(a, L"http://", 14) == 0) || (end - a >= 8 && memcmp(a, L"https://", 16) == 0)) {
                 SIZE size;
                 int count = a - b;
                 textout(x, y, b, count,  b - str, h1, h2);
@@ -79,7 +84,8 @@ static int drawmsg(int x, int y, wchar_t *str, uint16_t length, int h1, int h2)
                 x += size.cx;
                 b = a;
 
-                setcolor(0xFF0000);
+                setcolor(COLOR_LINK);
+                setfont(FONT_MSG_LINK);
                 word = 1;
             }
             break;
@@ -91,6 +97,7 @@ static int drawmsg(int x, int y, wchar_t *str, uint16_t length, int h1, int h2)
     textout(x, y, b, a - b, b - str, h1, h2);
     y += font_msg_lineheight;
     setcolor(0);
+    setfont(FONT_MSG);
 
     //RECT r = {x, y, x + width, bottom};
     //y += DrawTextW(hdc, out, length, &r, DT_WORDBREAK | DT_NOPREFIX);
@@ -154,19 +161,28 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
     while(i != n) {
         MESSAGE *msg = *p++;
 
-        /*uint8_t author = msg->flags & 1;
-        if(author != lastauthor) {
-            if(!author) {
-                setfont(FONT_MSG_NAME);
-                drawtextwidth_right(x, 95, y, f->name, f->name_length);
-                setfont(FONT_MSG);
-            } else {
-                setcolor(0x888888);
-                drawtextwidth_right(x, 95, y, self.name, self.name_length);
-                setcolor(0);
+        if(m->type) {
+            /* group */
+            setfont(FONT_MSG_NAME);
+            drawtextwidth_rightW(x, 95, y, &msg->msg[msg->length] + 1, (uint16_t)msg->msg[msg->length]);
+            setfont(FONT_MSG);
+        } else {
+            FRIEND *f = &friend[m->data->id];
+            uint8_t author = msg->flags & 1;
+            if(author != lastauthor) {
+                if(!author) {
+                    setfont(FONT_MSG_NAME);
+                    drawtextwidth_right(x, 95, y, f->name, f->name_length);
+                    setfont(FONT_MSG);
+                } else {
+                    setcolor(0x888888);
+                    drawtextwidth_right(x, 95, y, self.name, self.name_length);
+                    setcolor(0);
+                }
+                lastauthor = author;
             }
-            lastauthor = author;
-        }*/
+        }
+        /**/
 
         switch(msg->flags) {
         case 0:
@@ -174,6 +190,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
         case 2:
         case 3: {
             /* normal message */
+            setcolor(0);
             if(i == m->data->istart) {
                 y = drawmsg(x + 110, y, msg->msg, msg->length, m->data->start, ((i == m->data->iend) ? m->data->end : msg->length));
             } else if(i == m->data->iend) {
@@ -275,8 +292,6 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
             }
 
             case FILE_BROKEN: {
-                //"cancelled file winTox.png (150KiB)"
-
                 setcolor(0x888888);
                 dx += drawstr_getwidth(x + dx, y, "transferring file (disconnected) ");
                 setcolor(0);
@@ -290,8 +305,6 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
             }
 
             case FILE_KILLED: {
-                //"cancelled file winTox.png (150KiB)"
-
                 setcolor(0x888888);
                 dx += drawstr_getwidth(x + dx, y, "cancelled file ");
                 setcolor(0);
@@ -301,7 +314,6 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
             }
 
             case FILE_DONE: {
-                //"sent file winTox.png (150KiB) Open"
                 if(msg->flags == 6) {
                     setcolor(0x888888);
                     dx += drawstr_getwidth(x + dx, y, "transferred file ");
@@ -318,6 +330,12 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
                     dx += drawstr_getwidth(x + dx, y, "transferred file ");
                     setcolor(0);
                     dx += drawtext_getwidth(x + dx, y, file->name, file->name_length);
+                    setcolor(0x888888);
+                    dx += drawstr_getwidth(x + dx, y, " (");
+                    setcolor(0);
+                    dx += drawtext_getwidth(x + dx, y, size, sizelen);
+                    setcolor(0x888888);
+                    dx += drawstr_getwidth(x + dx, y, ") ");
                 }
 
                 break;
@@ -383,16 +401,51 @@ _Bool messages_mmove(MESSAGES *m, int mx, int my, int dy, int width, int height)
             m->over = 0;
             switch(msg->flags) {
             case 0:
-            case 1: {
-                /* normal message */
-                m->over = pmsg(mx, my, msg->msg, msg->length);
-                break;
-            }
-
+            case 1:
             case 2:
             case 3: {
-                /* action */
+                /* normal message */
                 m->over = pmsg(mx, my, msg->msg, msg->length);
+                m->urlover = 0xFFFF;
+
+                if(my >= dy || mx < 110 || m->over == msg->length)
+                {
+                    break;
+                }
+
+                wchar_t *str = msg->msg + m->over;
+                while(str != msg->msg)
+                {
+                    str--;
+                    if(*str == ' ' || *str == '\n')
+                    {
+                        str++;
+                        break;
+                    }
+                }
+
+                wchar_t *end = msg->msg + msg->length;
+                while(str != end && *str != ' ' && *str != '\n')
+                {
+                    if(end - str >= 7 && memcmp(str, L"http://", 14) == 0) {
+                        hand = 1;
+                        m->urlover = str - msg->msg;
+                    }
+
+                    if(end - str >= 8 && memcmp(str, L"https://", 16) == 0) {
+                        hand = 1;
+                        m->urlover = str - msg->msg;
+                    }
+
+                    str++;
+                }
+
+                if(m->urlover != 0xFFFF) {
+                    m->urllen = (str - msg->msg) - m->urlover;
+                }
+
+                debug("%u %u\n", m->urlover, m->urllen);
+
                 break;
             }
 
@@ -550,7 +603,6 @@ _Bool messages_mmove(MESSAGES *m, int mx, int my, int dy, int width, int height)
                 }
 
                 case FILE_DONE: {
-                    //"sent file winTox.png (150KiB) Open"
                     if(msg->flags == 6) {
                         SIZE sz;
                         char str[64];
@@ -626,6 +678,16 @@ _Bool messages_mdown(MESSAGES *m)
         {
             case 0 ... 3:
             {
+                if(m->urlover != 0xFFFF)
+                {
+                    wchar_t url[m->urllen + 1];
+                    memcpy(url, msg->msg + m->urlover, m->urllen * 2);
+                    url[m->urllen] = 0;
+
+                    debug("open %ls\n", url);
+                    openurl(url);
+                }
+
                 m->data->istart = m->data->iend = m->idown = m->iover;
                 m->data->start = m->data->end = m->down = m->over;
                 m->select = 1;
@@ -720,7 +782,9 @@ _Bool messages_mdown(MESSAGES *m)
             }
         }
 
+        return 1;
     }
+
     return 0;
 }
 
@@ -743,6 +807,61 @@ _Bool messages_mup(MESSAGES *m)
 _Bool messages_mleave(MESSAGES *m)
 {
     return 0;
+}
+
+void messages_copy(MESSAGES *m)
+{
+    int i = m->data->istart, n = m->data->iend + 1;
+    void **dp = &m->data->data[i];
+
+    HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, 65536);//! calculate this number
+    wchar_t *p = GlobalLock(hMem);
+
+    while(i != n) {
+        MESSAGE *msg = *dp++;
+
+        if(m->type) {
+            /* group */
+            memcpy(p, &msg->msg[msg->length + 1], (uint16_t)msg->msg[msg->length] * 2);
+            p += (uint16_t)msg->msg[msg->length];
+        } else {
+            FRIEND *f = &friend[m->data->id];
+            uint8_t author = msg->flags & 1;
+
+            if(!author) {
+                p += MultiByteToWideChar(CP_UTF8, 0, (char*)f->name, f->name_length, p, 65536);
+            } else {
+                p += MultiByteToWideChar(CP_UTF8, 0, (char*)self.name, self.name_length, p, 65536);
+            }
+        }
+
+        memcpy(p, L": ", 4);
+        p += 2;
+
+        switch(msg->flags)
+        {
+            case 0:
+            case 1:
+            case 2:
+            case 3: {
+                memcpy(p, msg->msg, msg->length * 2);
+                p += msg->length;
+                break;
+            }
+        }
+
+        memcpy(p, L"\r\n", 4);
+        p += 2;
+
+        i++;
+    }
+    *p = 0;
+
+    GlobalUnlock(hMem);
+    OpenClipboard(0);
+    EmptyClipboard();
+    SetClipboardData(CF_UNICODETEXT, hMem);
+    CloseClipboard();
 }
 
 static int msgheight(MESSAGE *msg)
