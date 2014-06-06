@@ -102,3 +102,23 @@ _Bool string_to_id(uint8_t *w, uint8_t *a)
 
     return 1;
 }
+
+int sprint_bytes(uint8_t *dest, uint64_t bytes)
+{
+    char *str[] = {"B", "KiB", "MiB", "GiB"};
+    int i = 0;
+    double f = bytes;
+    while(bytes >= 1024)
+    {
+        bytes /= 1024;
+        f /= 1024.0;
+        i++;
+    }
+
+    int r;
+
+    r = sprintf((char*)dest, "%u", (uint32_t)bytes);
+    //missing decimals
+    r += sprintf((char*)dest + r, "%s", str[i]);
+    return r;
+}

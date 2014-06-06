@@ -143,7 +143,7 @@ static void edit_msg_onenter(void)
         length = MultiByteToWideChar(CP_UTF8, 0, (char*)edit_msg_data, length, out, length);
 
         MESSAGE *msg = malloc(length * 2 + 6);
-        msg->flags = 0;
+        msg->flags = 1;
         msg->length = length;
         memcpy(msg->msg, out, length * 2);
 
@@ -414,7 +414,17 @@ scroll_friend = {
         .type = PANEL_SCROLLABLE,
         .y = 50,
         .height = -94,
-    }
+    },
+    .d = 1.0,
+},
+
+scroll_group = {
+    .panel = {
+        .type = PANEL_SCROLLABLE,
+        .y = 50,
+        .height = -94,
+    },
+    .d = 1.0,
 };
 
 static void drawself(int x, int y, int width, int height)
@@ -502,7 +512,17 @@ static void drawfriend(int x, int y, int width, int height)
 
 static void drawgroup(int x, int y, int width, int height)
 {
+    GROUPCHAT *g = sitem->data;
 
+    SetTextColor(hdc, 0x333333);
+    setfont(FONT_TITLE);
+    drawtextwidth(x, width - 112, y + 2, g->name, g->name_length);
+
+    SetTextColor(hdc, 0x999999);
+    setfont(FONT_MED);
+    drawtextwidth(x, width - 112, y + 26, g->topic, g->topic_length);
+
+    drawhline(x, y + 49, x + width, INNER_BORDER);
 }
 
 static void drawfriendreq(int x, int y, int width, int height)
@@ -526,6 +546,8 @@ messages_group = {
         .type = PANEL_MESSAGES,
         .y = 50,
         .height = -94,
+        .width = -SCROLL_WIDTH,
+        .content_scroll = &scroll_group,
     }
 };
 
@@ -590,7 +612,8 @@ panel_item[] = {
         .drawfunc = drawgroup,
         .child = (PANEL*[]) {
             (void*)&edit_msg,
-            //(void*)&messages_group,
+            (void*)&messages_group,
+            (void*)&scroll_group,
             NULL
         }
     },

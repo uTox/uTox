@@ -10,7 +10,7 @@ static void* copy_message(uint8_t *str, uint16_t length, uint16_t flags) {
     return msg;
 }
 
-static void* copy_groupmessage(Tox *tox, uint8_t *message, uint16_t length, uint16_t flags, int gid, int pid)
+static void* copy_groupmessage(Tox *tox, uint8_t *str, uint16_t length, uint16_t flags, int gid, int pid)
 {
     uint8_t name[TOX_MAX_NAME_LENGTH];
     int namelen = tox_group_peername(tox, gid, pid, name);
@@ -19,17 +19,15 @@ static void* copy_groupmessage(Tox *tox, uint8_t *message, uint16_t length, uint
         namelen = 9;
     }
 
-    uint16_t *data = malloc(namelen + length + 6);
-    data[0] = (pid << 9) | namelen;
-    //data[1] = namelen | (flags << 8);
-    data[1] = length;
-    //memcpy((void*)data + 4, name, namelen);
-    //memcpy((void*)data + 4 + namelen, message, length);
+    wchar_t out[length];
+    length = MultiByteToWideChar(CP_UTF8, 0, (char*)str, length, out, length);
 
-    memcpy((void*)data + 4, message, length);
-    memcpy((void*)data + 4 + length, name, namelen);
+    MESSAGE *msg = malloc(length * 2 + 6);
+    msg->flags = 0;
+    msg->length = length;
+    memcpy(msg->msg, out, length * 2);
 
-    return data;
+    return msg;
 }
 
 static void callback_friend_request(Tox *tox, uint8_t *id, uint8_t *msg, uint16_t length, void *userdata)
@@ -51,14 +49,14 @@ static void callback_friend_request(Tox *tox, uint8_t *id, uint8_t *msg, uint16_
 
 static void callback_friend_message(Tox *tox, int fid, uint8_t *message, uint16_t length, void *userdata)
 {
-    postmessage(FRIEND_MESSAGE, fid, 0, copy_message(message, length, 1));
+    postmessage(FRIEND_MESSAGE, fid, 0, copy_message(message, length, 0));
 
     debug("Friend Message (%u): %.*s\n", fid, length, message);
 }
 
 static void callback_friend_action(Tox *tox, int fid, uint8_t *action, uint16_t length, void *userdata)
 {
-    postmessage(FRIEND_MESSAGE, fid, 0, copy_message(action, length, 3));
+    postmessage(FRIEND_MESSAGE, fid, 0, copy_message(action, length, 2));
 
     debug("Friend Action (%u): %.*s\n", fid, length, action);
 }

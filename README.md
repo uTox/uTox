@@ -2,6 +2,8 @@
 
 Lightweight [Tox](https://github.com/irungentoo/ProjectTox-Core) client for Windows (other operating systems to be supported in the future)
 
+* Some things are incomplete, but feel free to make any design suggestions (colors, fonts, whatever)
+
 ## Screenshots
 ![test](https://raw.github.com/notsecure/winTox/master/images/winTox.png "winTox early build")
 

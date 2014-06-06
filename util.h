@@ -1,4 +1,4 @@
-/*todo: */
+/*todo: sprint_bytes */
 
 /* read a whole file from a path,
  *  on success: returns pointer to data (must be free()'d later), writes size of data to *size if size is not NULL
@@ -21,3 +21,9 @@ void cid_to_string(uint8_t *dest, uint8_t *src);
  *  notes: dest must be TOX_FRIEND_ADDRESS_SIZE bytes large, some data may be written to dest even on failure
  */
 _Bool string_to_id(uint8_t *dest, uint8_t *src);
+
+/* convert number of bytes to human readable string
+    returns number of characters written
+    notes: dest should be atleast # characters large
+*/
+int sprint_bytes(uint8_t *dest, uint64_t bytes);

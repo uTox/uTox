@@ -1,4 +1,6 @@
 /* todo: proper system for posting messages to the toxcore thread, comments, better names (?), proper cleanup of a/v and a/v thread*/
+/* -proper unpause/pause file transfers, resuming file transfers + what if new file transfer with same id gets created before the main thread receives the message for the old one?
+>= GiB file sizes with FILE_*_PROGRESS on 32bit */
 
 /* details about messages and their (param1, param2, data) values are in the message handlers in tox.c*/
 
@@ -23,7 +25,13 @@ enum {
     TOX_GROUPINVITE,
 
     TOX_SENDFILES,
-    TOX_ACCEPTFILE
+    TOX_ACCEPTFILE,
+    TOX_FILE_IN_CANCEL,
+    TOX_FILE_OUT_CANCEL,
+    TOX_FILE_IN_PAUSE,
+    TOX_FILE_OUT_PAUSE,
+    TOX_FILE_IN_RESUME,
+    TOX_FILE_OUT_RESUME,
 };
 
 /* client thread messages (recieved by the client thread)
@@ -56,6 +64,8 @@ enum {
     FRIEND_FILE_OUT_NEW,
     FRIEND_FILE_IN_STATUS,
     FRIEND_FILE_OUT_STATUS,
+    FRIEND_FILE_IN_PROGRESS,
+    FRIEND_FILE_OUT_PROGRESS,
 
     /* group */
     GROUP_ADD,

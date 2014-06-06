@@ -16,10 +16,7 @@ void friend_setname(FRIEND *f, uint8_t *name, uint16_t length)
 
 void friend_addmessage(FRIEND *f, void *data)
 {
-    f->message = realloc(f->message, (f->msg + 1) * sizeof(void*));
-    f->message[f->msg++] = data;
-
-    message_setheight(data, (f == messages_friend.data) ? &messages_friend : NULL);
+    message_add(&messages_friend, data, &f->msg);
 }
 
 void friend_addid(uint8_t *id, uint8_t *msg, uint16_t msg_length)

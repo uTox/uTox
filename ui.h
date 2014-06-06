@@ -80,6 +80,7 @@ extern uint32_t bm_online_bits[], bm_away_bits[], bm_busy_bits[], bm_offline_bit
 #define COLOR_BG                WHITE
 #define COLOR_SYSMENU           0xCCCCCC
 #define COLOR_TEXT              0x333333
+#define COLOR_LINK              RGB(0, 0, 255)
 
 #define INNER_BORDER            RGB(167, 215, 249)
 #define TEXT_HIGHLIGHT          WHITE

@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <inttypes.h>
 #include <time.h>
 
 #ifndef _WIN32_WINNT
@@ -34,12 +35,21 @@ typedef struct
 
 typedef struct
 {
-    uint32_t peers, msg;
+    uint32_t n, height, id;
+    uint16_t istart, start, iend, end;
+    void **data;
+    double scroll;
+}MSG_DATA;
+
+typedef struct
+{
+    uint32_t peers;
     uint16_t name_length, topic_length, typed_length;
     uint8_t name[128], topic[128]; //static sizes for now
     uint8_t *typed;
     uint8_t *peername[256];
-    void **message;
+
+    MSG_DATA msg;
 }GROUPCHAT;
 
 #include "tox.h"
@@ -129,9 +139,14 @@ HBITMAP hdc_bm;
 int width, height;
 _Bool maximized;
 
+_Bool hand;
+HCURSOR cursor_arrow, cursor_hand;
+
 //fonts
-HFONT font_big, font_big2, font_med, font_med2, font_small, font_msg;
+//HFONT font_big, font_big2, font_med, font_med2, font_small, font_msg;
 int font_small_lineheight, font_msg_lineheight;
+
+HFONT font[16];
 
 enum
 {
@@ -141,7 +156,9 @@ enum
     FONT_TITLE,
     FONT_SUBTITLE,
     FONT_MED,
-    FONT_MESSAGE,
+    FONT_MSG,
+    FONT_MSG_NAME,
+    FONT_MSG_LINK
 };
 
 //sysmenu icons
@@ -192,7 +209,10 @@ void drawbitmaptrans(int bm, int x, int y, int width, int height);
 void drawbitmapalpha(int bm, int x, int y, int width, int height);
 #define drawtext(x, y, str, len) TextOut(hdc, x, y, (char*)(str), len)
 #define drawstr(x, y, str) TextOut(hdc, x, y, str, sizeof(str) - 1)
+int drawtext_getwidth(int x, int y, uint8_t *str, uint16_t length);
+#define drawstr_getwidth(x, y, str) drawtext_getwidth(x, y, (uint8_t*)str, sizeof(str) - 1)
 void drawtextwidth(int x, int width, int y, uint8_t *str, uint16_t length);
+void drawtextwidth_right(int x, int width, int y, uint8_t *str, uint16_t length);
 void drawtextrange(int x, int x2, int y, uint8_t *str, uint16_t length);
 void drawtextrangecut(int x, int x2, int y, uint8_t *str, uint16_t length);
 int drawtextrect(int x, int y, int right, int bottom, uint8_t *str, uint16_t length);

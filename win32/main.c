@@ -42,10 +42,24 @@ void drawbitmapalpha(int bm, int x, int y, int width, int height)
     AlphaBlend(hdc, x, y, width, height, hdcMem, 0, 0, width, height, ftn);
 }
 
+int drawtext_getwidth(int x, int y, uint8_t *str, uint16_t length)
+{
+    SIZE size;
+    TextOut(hdc, x, y, (char*)str, length);
+    GetTextExtentPoint32(hdc, (char*)str, length, &size);
+    return size.cx;
+}
+
 void drawtextwidth(int x, int width, int y, uint8_t *str, uint16_t length)
 {
     RECT r = {x, y, x + width, y + 256};
     DrawText(hdc, (char*)str, length, &r, DT_SINGLELINE | DT_END_ELLIPSIS | DT_NOPREFIX);
+}
+
+void drawtextwidth_right(int x, int width, int y, uint8_t *str, uint16_t length)
+{
+    RECT r = {x, y, x + width, y + 256};
+    DrawText(hdc, (char*)str, length, &r, DT_SINGLELINE | DT_END_ELLIPSIS | DT_NOPREFIX | DT_RIGHT);
 }
 
 void drawtextrange(int x, int x2, int y, uint8_t *str, uint16_t length)
@@ -108,28 +122,7 @@ void framerect(RECT *r, uint32_t color)
 
 void setfont(int id)
 {
-    if(id == FONT_TEXT) {
-        SelectObject(hdc, font_small);
-    }
-    if(id == FONT_TEXT_LARGE) {
-        SelectObject(hdc, font_med2);
-    }
-    if(id == FONT_BUTTON) {
-        SelectObject(hdc, font_med2);
-    }
-    if(id == FONT_TITLE) {
-        SelectObject(hdc, font_big);
-    }
-    if(id == FONT_SUBTITLE) {
-        SelectObject(hdc, font_big2);
-    }
-    if(id == FONT_MED) {
-        SelectObject(hdc, font_med);
-    }
-    if(id == FONT_MESSAGE) {
-        SelectObject(hdc, font_msg);
-    }
-    //SelectObject(hdc, font[id]);
+    SelectObject(hdc, font[id]);
 }
 
 void setcolor(uint32_t color)
@@ -383,6 +376,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     const char classname[] = "winTox";
 
     HICON myicon = LoadIcon(hInstance, MAKEINTRESOURCE(101));
+    cursor_arrow = LoadCursor(NULL, IDC_ARROW);
+    cursor_hand = LoadCursor(NULL, IDC_HAND);
 
     WNDCLASS wc = {
         .style = CS_OWNDC,
@@ -390,7 +385,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
         .hInstance = hInstance,
         .hIcon = myicon,
         .lpszClassName = classname,
-        .hCursor = LoadCursor(NULL, IDC_ARROW),
     };
 
     NOTIFYICONDATA nid = {
@@ -406,7 +400,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
         //.lfCharSet = ANSI_CHARSET,
         .lfOutPrecision = OUT_TT_PRECIS,
         .lfQuality = CLEARTYPE_QUALITY,
-        .lfFaceName = "Arial",
+        .lfFaceName = "DejaVu Sans",
     };
 
     BITMAP bm = {
@@ -444,19 +438,24 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     Shell_NotifyIcon(NIM_ADD, &nid);
 
     lf.lfHeight = -20;
-    font_big = CreateFontIndirect(&lf);
+    font[FONT_TITLE] = CreateFontIndirect(&lf);
     lf.lfHeight = -18;
-    font_big2 = CreateFontIndirect(&lf);
+    font[FONT_SUBTITLE] = CreateFontIndirect(&lf);
     lf.lfHeight = -16;
-    font_med = CreateFontIndirect(&lf);
+    font[FONT_MED] = CreateFontIndirect(&lf);
     lf.lfHeight = -14;
-    font_med2 = CreateFontIndirect(&lf);
+    font[FONT_BUTTON] = font[FONT_TEXT_LARGE] = CreateFontIndirect(&lf);
     lf.lfHeight = -12;
-    font_small = CreateFontIndirect(&lf);
+    font[FONT_TEXT] = CreateFontIndirect(&lf);
 
-    memcpy(lf.lfFaceName, "Times New Roman", sizeof("Times New Roman"));
+    //memcpy(lf.lfFaceName, "DejaVu Sans", sizeof("DejaVu Sans"));
     lf.lfHeight = 16;
-    font_msg = CreateFontIndirect(&lf);
+    font[FONT_MSG] = CreateFontIndirect(&lf);
+    lf.lfWeight = FW_BOLD;
+    font[FONT_MSG_NAME] = CreateFontIndirect(&lf);
+    lf.lfWeight = FW_NORMAL;
+    lf.lfUnderline = 1;
+    font[FONT_MSG_LINK] = CreateFontIndirect(&lf);
 
     bm.bmBits = bm_minimize_bits;
     bitmap[BM_MINIMIZE] = CreateBitmapIndirect(&bm);
@@ -509,13 +508,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     bitmap[BM_CORNER] = CreateBitmapIndirect(&bm2);
 
     TEXTMETRIC tm;
-    SelectObject(hdc, font_small);
+    SelectObject(hdc, font[FONT_TEXT]);
     GetTextMetrics(hdc, &tm);
     font_small_lineheight = tm.tmHeight + tm.tmExternalLeading;
-    SelectObject(hdc, font_msg);
+    SelectObject(hdc, font[FONT_MSG]);
     GetTextMetrics(hdc, &tm);
     font_msg_lineheight = tm.tmHeight + tm.tmExternalLeading;
-
 
     //wait for tox_thread init
     while(!tox_thread_init) {
@@ -716,14 +714,18 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         dy = y - my;
         my = y;
 
+        hand = 0;
+
         panel_mmove(&panel_main, 0, 0, width, height, x, y, dy);
+
+        SetCursor(hand ? cursor_hand : cursor_arrow);
 
         if(!mouse_tracked) {
             TrackMouseEvent(&tme);
             mouse_tracked = 1;
         }
 
-        break;
+        return 0;
     }
 
     case WM_LBUTTONDOWN: {

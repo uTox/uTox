@@ -45,12 +45,12 @@ static void drawitembox(ITEM *i, int x, int y)
 
 static void drawname(ITEM *i, int x, int y, uint8_t *name, uint8_t *msg, uint16_t name_length, uint16_t msg_length)
 {
-    SetTextColor(hdc, (sitem == i) ? WHITE : 0x333333);
-    SelectObject(hdc, font_med);
+    setcolor((sitem == i) ? WHITE : 0x333333);
+    setfont(FONT_MED);
     drawtextwidth(x + 50, ITEM_WIDTH - 50, y + 6, name, name_length);
 
-    SetTextColor(hdc, (sitem == i) ? 0xFFE6C5 : 0x999999);
-    SelectObject(hdc, font_med2);
+    setcolor((sitem == i) ? 0xFFE6C5 : 0x999999);
+    setfont(FONT_TEXT_LARGE);
     drawtextwidth(x + 50, ITEM_WIDTH - 50, y + 25,  msg, msg_length);
 }
 
@@ -104,9 +104,9 @@ static void drawitem(ITEM *i, int x, int y)
 
         case ITEM_ADDFRIEND:
         {
-            SetTextColor(hdc, (sitem == i) ? WHITE : 0x999999);
+            setcolor((sitem == i) ? WHITE : 0x999999);
 
-            SelectObject(hdc, font_big);
+            setfont(FONT_TITLE);
             drawstr(x + 50, y + 14, "Add Friend");
 
             drawbitmaptrans(BM_PLUS, x + 16, y + 16, 16, 16);
@@ -180,6 +180,8 @@ static void selectitem(ITEM *i)
         f->typed_length = edit_msg.length;
         f->typed = malloc(edit_msg.length);
         memcpy(f->typed, edit_msg.data, edit_msg.length);
+
+        f->msg.scroll = messages_friend.panel.content_scroll->d;
     }
 
     if(sitem->item == ITEM_GROUP)
@@ -190,6 +192,8 @@ static void selectitem(ITEM *i)
         g->typed_length = edit_msg.length;
         g->typed = malloc(edit_msg.length);
         memcpy(g->typed, edit_msg.data, edit_msg.length);
+
+        g->msg.scroll = messages_group.panel.content_scroll->d;
     }
 
     if(i->item == ITEM_FRIEND)
@@ -199,8 +203,12 @@ static void selectitem(ITEM *i)
         memcpy(edit_msg.data, f->typed, f->typed_length);
         edit_msg.length = f->typed_length;
 
-        messages_friend.data = f;
+        messages_friend.data = &f->msg;
         messages_friend.iover = ~0;
+        messages_friend.panel.content_scroll->content_height = f->msg.height;
+        messages_friend.panel.content_scroll->d = f->msg.scroll;
+
+        f->msg.id = f - friend;
     }
 
     if(i->item == ITEM_GROUP)
@@ -209,6 +217,13 @@ static void selectitem(ITEM *i)
 
         memcpy(edit_msg.data, g->typed, g->typed_length);
         edit_msg.length = g->typed_length;
+
+        messages_group.data = &g->msg;
+        messages_group.iover = ~0;
+        messages_group.panel.content_scroll->content_height = g->msg.height;
+        messages_group.panel.content_scroll->d = g->msg.scroll;
+
+        g->msg.id = g - group;
     }
 
     sitem = i;
@@ -260,6 +275,11 @@ void list_addfriend2(FRIEND *f, FRIENDREQ *req)
     {
         if(item[i].data == req)
         {
+            if(&item[i] == sitem) {
+                panel_item[sitem->item - 1].disabled = 1;
+                panel_item[ITEM_FRIEND - 1].disabled = 0;
+            }
+
             item[i].item = ITEM_FRIEND;
             item[i].data = f;
             return;
@@ -330,13 +350,13 @@ static void deleteitem(ITEM *i)
             free(f->typed);
 
             int i = 0;
-            while(i < f->msg)
+            while(i < f->msg.n)
             {
-                free(f->message[i]);
+                free(f->msg.data[i]);
                 i++;
             }
 
-            free(f->message);
+            free(f->msg.data);
 
             memset(f, 0, sizeof(FRIEND));//
 
@@ -363,13 +383,13 @@ static void deleteitem(ITEM *i)
             }
 
             i = 0;
-            while(i < g->msg)
+            while(i < g->msg.n)
             {
-                free(g->message[i]);
+                free(g->msg.data[i]);
                 i++;
             }
 
-            free(g->message);
+            free(g->msg.data);
 
             memset(g, 0, sizeof(GROUPCHAT));//
             break;

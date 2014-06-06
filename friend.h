@@ -2,16 +2,10 @@
 enum {
     FT_NONE,
 
-    FT_RECV,
-    FT_RECV_PENDING,
-    FT_RECV_PAUSED,
-    FT_RECV_BROKEN,
-
     FT_SEND,
-    FT_SEND_PENDING,
-    FT_SEND_PAUSED,
-    FT_SEND_BROKEN,
-
+    FT_PENDING,
+    FT_PAUSE,
+    FT_BROKE,
     FT_KILL,
     FT_FINISHED,
 };
@@ -27,13 +21,15 @@ enum {
 
 typedef struct {
     /* used by the tox thread */
-    uint8_t status, filenumber;
+    uint8_t status, filenumber, name_length;
     _Bool finish;
     uint16_t sendsize, buffer_bytes;
     uint32_t fid;
     void *data, *buffer;
     uint64_t bytes, total;
     uint8_t name[128];
+
+    uint64_t lastupdate, lastprogress;
 
     /* used by the main thread */
     void *chatdata;
@@ -48,11 +44,7 @@ typedef struct {
     uint16_t name_length, status_length, typed_length;
     uint8_t *name, *status_message, *typed;
 
-    uint32_t msg;
-    uint16_t istart, start, iend, end;
-    void **message;
-
-
+    MSG_DATA msg;
 
     FILE_T incoming[16];
     FILE_T outgoing[16];
