@@ -1,11 +1,48 @@
 #include "main.h"
 #include <windns.h>
 
-static void parseargument(uint8_t *dest, uint8_t *src, uint16_t length)
+static uint32_t parseargument(uint8_t *dest, uint8_t *src, uint16_t length)
 {
     _Bool reset = 0, at = 0;
     uint8_t *a = src, *b = src + length, *d = dest;
+    uint32_t pin = 0;
     while(a != b) {
+        if(*a == ':')
+        {
+            a++;
+            int bits = 32;
+            while(a != b)
+            {
+                uint8_t ch;
+                if(*a >= 'A' && *a <= 'Z')
+                {
+                    ch = (*a - 'A');
+                } else if(*a >= 'a' && *a <= 'z')
+                {
+                    ch = (*a - 'a' + 26);
+                } else if(*a >= '0' && *a <= '9')
+                {
+                    ch = (*a - '0' + 52);
+                } else if(*a == '+') {
+                    ch = 62;
+                } else if(*a == '/') {
+                    ch = 63;
+                } else
+                {
+                    break;
+                }
+
+                bits -= 6;
+                if(bits >= 0){pin |= (uint32_t)ch << bits;
+                } else
+                {
+                    pin |= (uint32_t)ch >> -bits;
+                }
+
+                a++;
+            }
+            break;
+        }
         switch(*a) {
         case '0' ... '9':
         case 'A' ... 'Z':
@@ -42,24 +79,33 @@ static void parseargument(uint8_t *dest, uint8_t *src, uint16_t length)
 
     *d = 0;
 
-    debug("Parsed: (%.*s)->(%s)\n", length, src, dest);
+    debug("Parsed: (%.*s)->(%s) pin=%X\n", length, src, dest, pin);
+
+    return pin;
 }
 
-static _Bool parserecord(uint8_t *dest, uint8_t *src)
+static _Bool parserecord(uint8_t *dest, uint8_t *src, uint32_t pin)
 {
-    _Bool _id = 0, version = 0;
-    uint8_t id[TOX_FRIEND_ADDRESS_SIZE * 2];
-    uint8_t *a = src, *i = id;
+    _Bool _id = 0, _pub = 0;
+    uint32_t version = 0;
+    uint8_t *id = dest;
+    uint8_t *a = src;
     while(*a) {
         if(_id) {
-            if((*a >= '0' && *a <= '9') || (*a >= 'A' && *a <= 'F')) {
-                if(i == id + sizeof(id)) {
+            if(*a >= '0' && *a <= '9') {
+                if(id == dest + 38) {
                     debug("id too long\n");
                     return 0;
                 }
-                *i++ = *a;
+                *id++ = *a - '0';
+            } else if(*a >= 'A' && *a <= 'F') {
+                if(id == dest + 38) {
+                    debug("id too long\n");
+                    return 0;
+                }
+                *id++ = *a - 'A' + 10;
             } else if(*a != ' ') {
-                if(i != id + sizeof(id)) {
+                if(id != dest + 38) {
                     debug("id too short\n");
                     return 0;
                 }
@@ -67,13 +113,46 @@ static _Bool parserecord(uint8_t *dest, uint8_t *src)
             }
         }
 
-        if(i == id && memcmp("id=", a, 3) == 0) {
+        if(_pub) {
+            if(*a >= '0' && *a <= '9') {
+                if(id == dest + 32) {
+                    debug("id too long\n");
+                    return 0;
+                }
+                *id++ = *a - '0';
+            } else if(*a >= 'A' && *a <= 'F') {
+                if(id == dest + 32) {
+                    debug("id too long\n");
+                    return 0;
+                }
+                *id++ = *a - 'A' + 10;
+            } else if(*a != ' ') {
+                if(id != dest + 32) {
+                    debug("id too short\n");
+                    return 0;
+                }
+                _pub = 0;
+
+                //writechecksum(dest);
+            }
+        }
+
+        if(version == 1 && dest == id && memcmp("id=", a, 3) == 0) {
             _id = 1;
             a += 2;
         }
 
+        if(version == 2 && dest == id && memcmp("pub=", a, 3) == 0) {
+            _pub = 1;
+            a += 3;
+        }
+
         if(!version && memcmp("v=tox1", a, 6) == 0) {
             version = 1;
+        }
+
+        if(!version && memcmp("v=tox2", a, 6) == 0) {
+            version = 2;
         }
 
         a++;
@@ -84,9 +163,7 @@ static _Bool parserecord(uint8_t *dest, uint8_t *src)
         return 0;
     }
 
-    debug("Parsed: %.*s\n", sizeof(id), id);
-
-    return string_to_id(dest, id);
+    return 1;
 }
 
 static void dns_thread(void *data)
@@ -94,7 +171,7 @@ static void dns_thread(void *data)
     uint16_t length = *(uint16_t*)data;
     uint8_t result[256];
 
-    parseargument(result, data + 2, length);
+    uint32_t pin = parseargument(result, data + 2, length);
 
     DNS_RECORD *record = NULL;
     _Bool success = 0;
@@ -103,7 +180,8 @@ static void dns_thread(void *data)
         /* just take the first successfully parsed record (for now), and only parse the first string (seems to work) */
         DNS_TXT_DATA *txt = &record->Data.Txt;
         if(txt->pStringArray[0]) {
-            if((success = parserecord(data, (uint8_t*)txt->pStringArray[0]))) {
+            debug("Attempting:\n%s\n", txt->pStringArray[0]);
+            if((success = parserecord(data, (uint8_t*)txt->pStringArray[0], pin))) {
                 break;
             }
         }

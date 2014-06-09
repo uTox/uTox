@@ -171,6 +171,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
             uint8_t author = msg->flags & 1;
             if(author != lastauthor) {
                 if(!author) {
+                    setcolor(0);
                     setfont(FONT_MSG_NAME);
                     drawtextwidth_right(x, 95, y, f->name, f->name_length);
                     setfont(FONT_MSG);

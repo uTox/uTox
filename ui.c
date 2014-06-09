@@ -5,36 +5,24 @@
 #include "icons/file.c"
 #include "icons/misc.c"
 
-#define STRLEN(x) (sizeof(x) - 1)
+#define AFS(x) { .str = x, .length = sizeof(x) - 1 }
 
-static char *addfriend_status_str[] = {
-    "Friend request sent. Your friend will appear online when he accepts the request.",
-    "Attempting to resolve DNS name...",
-    "Error: Invalid Tox ID",
-    "Error: No Tox ID specified",
-    "Error: Message is too long",
-    "Error: Empty message",
-    "Error: Tox ID is self ID",
-    "Error: Tox ID is already in friend list",
-    "Error: Unknown",
-    "Error: Invalid Tox ID (bad checksum)",
-    "Error: Invalid Tox ID (bad nospam value)",
-    "Error: No memory"
-};
-
-static uint16_t addfriend_status_length[] = {
-    STRLEN("Friend request sent. Your friend will appear online when he accepts the request."),
-    STRLEN("Attempting to resolve DNS name..."),
-    STRLEN("Error: Invalid Tox ID"),
-    STRLEN("Error: No Tox ID specified"),
-    STRLEN("Error: Message is too long"),
-    STRLEN("Error: Empty message"),
-    STRLEN("Error: Tox ID is self ID"),
-    STRLEN("Error: Tox ID is already in friend list"),
-    STRLEN("Error: Unknown"),
-    STRLEN("Error: Invalid Tox ID (bad checksum)"),
-    STRLEN("Error: Invalid Tox ID (bad nospam value)"),
-    STRLEN("Error: No memory")
+static struct {
+    const char *str;
+    uint16_t length;
+} addstatus[] = {
+    AFS("Friend request sent. Your friend will appear online when he accepts the request."),
+    AFS("Attempting to resolve DNS name..."),
+    AFS("Error: Invalid Tox ID"),
+    AFS("Error: No Tox ID specified"),
+    AFS("Error: Message is too long"),
+    AFS("Error: Empty message"),
+    AFS("Error: Tox ID is self ID"),
+    AFS("Error: Tox ID is already in friend list"),
+    AFS("Error: Unknown"),
+    AFS("Error: Invalid Tox ID (bad checksum)"),
+    AFS("Error: Invalid Tox ID (bad nospam value)"),
+    AFS("Error: No memory")
 };
 
 static void background_draw(PANEL *p, int x, int y, int width, int height)
@@ -188,8 +176,6 @@ EDIT edit_name = {
         .height = 24,
         .width = 0
     },
-
-    .multiline = 0,
     .maxlength = 128,
     .data = edit_name_data,
     .onenter = edit_name_onenter,
@@ -203,7 +189,6 @@ edit_status = {
         .height = 24,
         .width = 0
     },
-    .multiline = 0,
     .maxlength = 128,
     .data = edit_status_data,
     .onenter = edit_status_onenter,
@@ -217,7 +202,6 @@ edit_addid = {
         .height = 24,
         .width = 0
     },
-    .multiline = 0,
     .maxlength = sizeof(edit_addid_data),
     .data = edit_addid_data,
 },
@@ -355,11 +339,11 @@ button_newgroup = {
         .type = PANEL_BUTTON,
         .x = 0,
         .y = 300,
-        .width = 50,
+        .width = 100,
         .height = 18,
     },
     .onpress = button_newgroup_onpress,
-               BUTTON_TEXT("add")
+               BUTTON_TEXT("new group")
            },
 
 button_call = {
@@ -466,7 +450,7 @@ static void drawadd(int x, int y, int width, int height)
     setfont(FONT_TEXT_LARGE);
 
     if(addfriend_status) {
-        drawtext(x, y + 200, addfriend_status_str[addfriend_status - 1], addfriend_status_length[addfriend_status - 1]);
+        drawtext(x, y + 200, addstatus[addfriend_status - 1].str, addstatus[addfriend_status - 1].length);
     }
 }
 

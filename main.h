@@ -25,8 +25,8 @@
 #include <windowsx.h>
 
 #define IPV6_ENABLED 0
-#define DEFAULT_NAME "NSA"
-#define DEFAULT_STATUS "Adding backdoors to Tox"
+#define DEFAULT_NAME "Tox User"
+#define DEFAULT_STATUS "Toxing on winTox"
 
 typedef struct
 {

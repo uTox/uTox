@@ -352,6 +352,91 @@ LRESULT nc_hit(int x, int y)
     return result[row][col];
 }
 
+static void parsecmd(uint8_t *cmd, int len)
+{
+    debug("Command: %.*s\n", len, cmd);
+
+    //! lacks max length checks, writes to inputs even on failure, no notice of failure
+    //doesnt reset unset inputs
+    if(len < 6)
+    {
+        return;
+    }
+
+    if(memcmp(cmd, "tox://", 6) != 0) {
+        return;
+    }
+
+    cmd += 6;
+    len -= 6;
+
+    uint8_t *b = edit_addid.data, *a = cmd, *end = cmd + len;
+    uint16_t *l = &edit_addid.length;
+    *l = 0;
+    while(a != end)
+    {
+        switch(*a)
+        {
+            case 'a' ... 'z':
+            case 'A' ... 'Z':
+            case '0' ... '9':
+            case '@':
+            case '.':
+            case ' ':
+            {
+                *b++ = *a;
+                *l = *l + 1;
+                break;
+            }
+
+            case '+':
+            {
+                *b++ = ' ';
+                *l = *l + 1;
+                break;
+            }
+
+            case '?':
+            case '&':
+            {
+                a++;
+                if(end - a >= 4 && memcmp(a, "pin=", 4) == 0)
+                {
+
+                    l = &edit_addid.length;
+                    b = edit_addid.data + *l;
+                    *b++ = ':';
+                    *l = *l + 1;
+                    a += 3;
+                    break;
+                }
+                else if(end - a >= 8 && memcmp(a, "message=", 8) == 0)
+                {
+                    b = edit_addmsg.data;
+                    l = &edit_addmsg.length;
+                    *l = 0;
+                    a += 7;
+                    break;
+                }
+                return;
+            }
+
+            case '/':
+            {
+                break;
+            }
+
+            default:
+            {
+                return;
+            }
+        }
+        a++;
+    }
+
+    list_selectaddfriend();
+}
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int nCmdShow)
 {
     /* if opened with argument, check if winTox is already open and pass the argument to the existing process */
@@ -531,9 +616,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     if(*cmd)
     {
         int len = strlen(cmd);
-        memcpy(edit_addid.data, cmd, len);
-        edit_addid.length = len;
-        list_selectaddfriend();
+        parsecmd((uint8_t*)cmd, len);
     }
 
     draw = 1;
@@ -878,9 +961,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
     case WM_COPYDATA: {
         COPYDATASTRUCT *data = (void*)lParam;
-        memcpy(edit_addid.data, data->lpData, data->cbData);
-        edit_addid.length = data->cbData;
-        list_selectaddfriend();
+        parsecmd(data->lpData, data->cbData);
         return 0;
     }
 
