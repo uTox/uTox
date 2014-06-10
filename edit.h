@@ -18,7 +18,7 @@ _Bool edit_mwheel(EDIT *edit, int height, double d);
 _Bool edit_mup(EDIT *edit);
 _Bool edit_mleave(EDIT *edit);
 
-void edit_char(uint32_t ch);
+void edit_char(uint32_t ch, _Bool control);
 
 void edit_cut(void);
 void edit_copy(void);

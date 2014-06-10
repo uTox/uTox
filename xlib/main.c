@@ -4,9 +4,12 @@
 #include <string.h>
 #include <X11/Xft/Xft.h>
 #include <X11/Xatom.h>
+#include <X11/X.h>
 
 #include <pthread.h>
 #include <unistd.h>
+
+#include "keysym2ucs.c"
 
 #define DEFAULT_BDWIDTH 1 /* border width */
 
@@ -352,7 +355,7 @@ static void pasteprimary(void)
     }
 }
 
-static  void pasteclipboard(void)
+static void pasteclipboard(void)
 {
     Window owner = XGetSelectionOwner(display, XA_CLIPBOARD);
     if(owner) {
@@ -666,7 +669,12 @@ int main(int argc, char *argv[])
             }
 
             if(edit_active()) {
-                edit_char(sym);
+                long key = keysym2ucs(sym);
+                if (key != -1) {
+                    edit_char((uint32_t)key, 0);
+                } else {
+                    edit_char(sym, 1);
+                }
                 break;
             }
 

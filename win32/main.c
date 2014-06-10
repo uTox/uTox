@@ -975,7 +975,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
     case WM_CHAR: {
         if(edit_active()) {
-            edit_char(wParam);
+            edit_char(wParam, 0);
             return 0;
         }
 

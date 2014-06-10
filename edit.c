@@ -162,42 +162,68 @@ _Bool edit_mleave(EDIT *edit)
     return 0;
 }
 
-void edit_char(uint32_t ch)
+static size_t unicode_to_utf8(uint32_t ch, uint8_t *dst, uint16_t *len)
+{
+    if (!dst) {
+        if (ch > 0x1FFFFF) {
+            return 0;
+        }
+        return 4 - (ch <= 0xFFFF) - (ch <= 0x7FF) - (ch <= 0x7F);
+    }
+    uint32_t HB = (uint32_t)0x80;
+    uint32_t SB = (uint32_t)0x3F;
+    if (ch <= 0x7F) {
+        dst[0] = (uint8_t)ch;
+        *len += 1;
+        return 1;
+    }
+    if (ch <= 0x7FF) {
+        dst[0] = (uint8_t)((ch >> 6) | (uint32_t)0xC0);
+        dst[1] = (uint8_t)((ch & SB) | HB);
+        *len += 2;
+        return 2;
+    }
+    if (ch <= 0xFFFF) {
+        dst[0] = (uint8_t)((ch >> 12) | (uint32_t)0xE0);
+        dst[1] = (uint8_t)(((ch >> 6) & SB) | HB);
+        dst[2] = (uint8_t)((ch & SB) | HB);
+        *len += 3;
+        return 3;
+    }
+    if (ch <= 0x1FFFFF) {
+        dst[0] = (uint8_t)((ch >> 18) | (uint32_t)0xF0);
+        dst[1] = (uint8_t)(((ch >> 12) & SB) | HB);
+        dst[2] = (uint8_t)(((ch >> 6) & SB) | HB);
+        dst[3] = (uint8_t)((ch & SB) | HB);
+        *len += 4;
+        return 4;
+    }
+    return 0;
+}
+
+void edit_char(uint32_t ch, _Bool control)
 {
     EDIT *edit = active_edit;
 
-    //debug("%u %u %u\n", ch, edit_sel.start, edit_sel.length);
-
-    if(ch >= ' ' && ch <= 126) {
-        if(edit->length != edit->maxlength || edit_sel.length > 0) {
-            uint8_t *p = edit->data + edit_sel.start;
-            if(edit_sel.length == 0) {
-                memmove(p + 1, p, edit->length - edit_sel.start);
-
-                edit->data[edit_sel.start] = ch;
-                edit->length++;
-            } else {
-                edit->data[edit_sel.start] = ch;
-
-                memmove(p + 1, p + edit_sel.length, edit->length - (edit_sel.start + edit_sel.length));
-                edit->length -= edit_sel.length - 1;
-            }
-
-            edit_sel.start++;
-            edit_sel.p1 = edit->mouseover_char = edit_sel.start;
-            edit_sel.length = 0;
-
-            redraw();
-        }
-    } else {
+    if(control || ch <= 0x1F || (ch >= 0x7f && ch <= 0x9F)) {
         switch(ch) {
         case KEY_BACK: {
             if(edit_sel.length == 0) {
                 if(edit_sel.start != 0) {
-                    memmove(edit->data + edit_sel.start - 1, edit->data + edit_sel.start, edit->length - edit_sel.start);
-                    edit->length--;
+                    size_t len = 1;
+                    if (edit->data[edit_sel.start-1] & 0x80) {
+                        do {
+                            if (len == edit_sel.start) {
+                                break;
+                            }
+                            len += 1;
+                        } while (!(edit->data[edit_sel.start-len] & 0x40));
+                    }
+                    memmove(edit->data + edit_sel.start - len, edit->data + edit_sel.start,
+                            edit->length - edit_sel.start);
+                    edit->length -= len;
 
-                    edit_sel.start--;
+                    edit_sel.start -= len;
                 }
             } else {
                 edit_delete();
@@ -213,6 +239,20 @@ void edit_char(uint32_t ch)
             }
             break;
         }
+        }
+    } else {
+        size_t len = unicode_to_utf8(ch, NULL, NULL);
+        if(edit->length - edit_sel.length + len <= edit->maxlength) {
+            uint8_t *p = edit->data + edit_sel.start;
+            memmove(p + len, p + edit_sel.length, edit->length - (edit_sel.start + edit_sel.length));
+            edit->length -= edit_sel.length;
+            unicode_to_utf8(ch, edit->data + edit_sel.start, &edit->length);
+
+            edit_sel.start += len;
+            edit_sel.p1 = edit->mouseover_char = edit_sel.start;
+            edit_sel.length = 0;
+
+            redraw();
         }
     }
 }
@@ -242,36 +282,75 @@ void edit_copy(void)
     CloseClipboard();*/
 }
 
+static ssize_t utf8_len(uint8_t *data, int len)
+{
+    if(!(*data & 0x80)) {
+        return 1;
+    }
+    size_t bytes = 1;
+    for(size_t i = 6; i != SIZE_MAX; i--) {
+        if (!((*data >> i) & 1)) {
+            break;
+        }
+        bytes++;
+    }
+    if(bytes == 1 || bytes == 8) {
+        return -1;
+    }
+    // Validate the utf8
+    if(bytes > len) {
+        return -1;
+    }
+    for(size_t i = 1; i < bytes; i++) {
+        if(!(data[i] & 0x80) || (data[i] & 0x40)) {
+            return -1;
+        }
+    }
+    return bytes;
+}
+
 void edit_paste(uint8_t *data, int length)
 {
     if(!active_edit) {
         return;
     }
 
-    uint8_t str[length], *s = str, c;
-    //paste only allowed characters
-    while((c = *data++)) {
-        if(c >= ' ' && c <= 126) {
-            *s++ = c;
-        } else {
-            length--;
+    uint8_t lens[length];
+    size_t num_chars = 0;
+    //paste only utf8
+    size_t i = 0;
+    while(i < length) {
+        if(data[i] <= 0x1F || data[i] == 0x7F) {
+            // Control characters.
+            break;
         }
+        ssize_t len = utf8_len(data+i, length-i);
+        if(len == -1) {
+            break;
+        }
+        if(len == 2 && data[0] == 0xc2 && data[1] <= 0x9f) {
+            // More control characters.
+            break;
+        }
+        lens[num_chars++] = len;
+        i += len;
     }
 
-    int newlen = active_edit->length + length;
-    if(newlen > active_edit->maxlength) {
-        //for now just return if paste doesnt fit
-        return;
+    // Invariant: active_edit->length <= active_edit->maxlength
+    int newlen = active_edit->length + i;
+    while(newlen > active_edit->maxlength) {
+        i -= lens[--num_chars];
+        newlen = active_edit->length + i;
     }
 
     uint8_t *p = active_edit->data + edit_sel.start;
 
-    memmove(p + length, p + edit_sel.length, active_edit->length - (edit_sel.start + edit_sel.length));
-    memcpy(p, str, length);
+    memmove(p + i, p + edit_sel.length, active_edit->length - (edit_sel.start + edit_sel.length));
+    memcpy(p, data, i);
 
-    active_edit->length += length - edit_sel.length;
+    active_edit->length += i - edit_sel.length;
 
-    edit_sel.start = edit_sel.start + length;
+    edit_sel.start = edit_sel.start + i;
     edit_sel.length = 0;
 
     redraw();
