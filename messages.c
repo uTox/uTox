@@ -781,9 +781,11 @@ int messages_selection(MESSAGES *m, void *data, uint32_t len)
             uint8_t author = msg->flags & 1;
 
             if(!author) {
-                p += utf8tonative(f->name, p, f->name_length);
+                memcpy(p, f->name, f->name_length);
+                p += f->name_length;
             } else {
-                p += utf8tonative(self.name, p, self.name_length);
+                memcpy(p, self.name, self.name_length);
+                p += self.name_length;
             }
         }
 

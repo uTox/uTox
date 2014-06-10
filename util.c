@@ -39,9 +39,9 @@ void* file_raw(char *path, uint32_t *size)
     return data;
 }
 
-static void to_hex(uint8_t *a, uint8_t *p, int size)
+static void to_hex(char_t *a, char_t *p, int size)
 {
-    uint8_t b, c, *end = p + size;
+    char_t b, c, *end = p + size;
 
     while(p != end) {
         b = *p++;
@@ -63,21 +63,21 @@ static void to_hex(uint8_t *a, uint8_t *p, int size)
     }
 }
 
-void id_to_string(uint8_t *dest, uint8_t *src)
+void id_to_string(char_t *dest, char_t *src)
 {
     to_hex(dest, src, TOX_FRIEND_ADDRESS_SIZE);
 }
 
-void cid_to_string(uint8_t *dest, uint8_t *src)
+void cid_to_string(char_t *dest, char_t *src)
 {
     to_hex(dest, src, TOX_CLIENT_ID_SIZE);
 }
 
-_Bool string_to_id(uint8_t *w, uint8_t *a)
+_Bool string_to_id(char_t *w, char_t *a)
 {
-    uint8_t *end = w + TOX_FRIEND_ADDRESS_SIZE;
+    char_t *end = w + TOX_FRIEND_ADDRESS_SIZE;
     while(w != end) {
-        uint8_t c, v;
+        char_t c, v;
 
         c = *a++;
         if(c >= '0' && c <= '9') {

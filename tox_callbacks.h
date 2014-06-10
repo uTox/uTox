@@ -1,11 +1,9 @@
-static void* copy_message(uint8_t *str, uint16_t length, uint16_t flags) {
-    char_t out[length];
-    length = utf8tonative(str, out, length);
-
-    MESSAGE *msg = malloc(length * 2 + 6);
+static void* copy_message(uint8_t *str, uint16_t length, uint16_t flags)
+{
+    MESSAGE *msg = malloc(length + 6);
     msg->flags = flags;
     msg->length = length;
-    memcpy(msg->msg, out, length * 2);
+    memcpy(msg->msg, str, length);
 
     return msg;
 }
@@ -19,17 +17,14 @@ static void* copy_groupmessage(Tox *tox, uint8_t *str, uint16_t length, uint16_t
         namelen = 9;
     }
 
-    char_t out[length], nameout[namelen];
-    length = utf8tonative(str, out, length);
-    namelen = utf8tonative(name, nameout, namelen);
 
-    MESSAGE *msg = malloc(6 + length * 2 + namelen * 2);
+    MESSAGE *msg = malloc(6 + length + namelen);
     msg->flags = flags;
     msg->length = length;
-    memcpy(msg->msg, out, length * 2);
+    memcpy(msg->msg, str, length);
 
     msg->msg[length] = (char_t)namelen;
-    memcpy(&msg->msg[length] + 1, nameout, namelen * 2);
+    memcpy(&msg->msg[length] + 1, name, namelen);
 
     return msg;
 }

@@ -125,15 +125,10 @@ static void edit_msg_onenter(void)
     if(sitem->item == ITEM_FRIEND) {
         FRIEND *f = sitem->data;
 
-        uint16_t l = length;
-
-        char_t out[length];
-        length = utf8tonative(edit_msg_data, out, length);
-
-        MESSAGE *msg = malloc(length * 2 + 6);
+        MESSAGE *msg = malloc(length + 6);
         msg->flags = 1;
         msg->length = length;
-        memcpy(msg->msg, out, length * 2);
+        memcpy(msg->msg, edit_msg_data, length);
 
         /*uint16_t *data = malloc(length + 8);
         data[0] = 0;
@@ -141,8 +136,6 @@ static void edit_msg_onenter(void)
         memcpy((void*)data + 4, edit_msg_data, length);*/
 
         friend_addmessage(f, msg);
-
-        length = l;
 
         //
         void *d = malloc(length);

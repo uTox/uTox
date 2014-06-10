@@ -42,7 +42,7 @@ typedef struct {
 
     uint8_t cid[TOX_CLIENT_ID_SIZE];
     uint16_t name_length, status_length, typed_length;
-    uint8_t *name, *status_message, *typed;
+    char_t *name, *status_message, *typed;
 
     MSG_DATA msg;
 
@@ -53,5 +53,5 @@ typedef struct {
 void friend_setname(FRIEND *f, uint8_t *name, uint16_t length);
 void friend_addmessage(FRIEND *f, void *data);
 
-void friend_addid(uint8_t *id, uint8_t *msg, uint16_t msg_length);
-void friend_add(uint8_t *name, uint16_t length, uint8_t *msg, uint16_t msg_length);
+void friend_addid(uint8_t *id, char_t *msg, uint16_t msg_length);
+void friend_add(char_t *name, uint16_t length, char_t *msg, uint16_t msg_length);

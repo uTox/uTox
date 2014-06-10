@@ -45,6 +45,8 @@ typedef struct
 
 typedef struct msg_file MSG_FILE;
 
+typedef uint8_t char_t;
+
 #ifdef __WIN32__
 #include "win32/main.h"
 #else
@@ -120,8 +122,8 @@ struct
 {
     uint8_t status;
     uint16_t name_length, statusmsg_length;
-    uint8_t *statusmsg, name[TOX_MAX_NAME_LENGTH];
-    uint8_t id[TOX_FRIEND_ADDRESS_SIZE * 2];
+    char_t *statusmsg, name[TOX_MAX_NAME_LENGTH];
+    char_t id[TOX_FRIEND_ADDRESS_SIZE * 2];
 }self;
 
 //add friend page
@@ -142,6 +144,9 @@ _Bool edit_select;
 
 #define inrect(x, y, rx, ry, width, height) ((x) >= (rx) && (y) >= (ry) && (x) < (rx) + (width) && (y) < (ry + height))
 
+#define strcmp2(x, y) (memcmp(x, y, sizeof(y) - 1))
+#define strcpy2(x, y) (memcpy(x, y, sizeof(y) - 1))
+
 void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data);
 
 /* draw functions*/
@@ -158,6 +163,7 @@ void drawtextwidth_right(int x, int width, int y, uint8_t *str, uint16_t length)
 void drawtextwidth_rightW(int x, int width, int y, char_t *str, uint16_t length);
 void drawtextrange(int x, int x2, int y, uint8_t *str, uint16_t length);
 void drawtextrangecut(int x, int x2, int y, uint8_t *str, uint16_t length);
+void drawtextrangecutW(int x, int x2, int y, char_t *str, uint16_t length);
 
 int textwidth(uint8_t *str, uint16_t length);
 int textwidthW(char_t *str, uint16_t length);
@@ -181,8 +187,6 @@ void popclip(void);
 void enddraw(int x, int y, int width, int height);
 
 /* other */
-uint16_t utf8tonative(uint8_t *str, char_t *out, uint16_t length);
-
 void thread(void func(void*), void *args);
 void yieldcpu(uint32_t ms);
 uint64_t get_time(void);

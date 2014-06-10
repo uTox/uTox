@@ -4,10 +4,3 @@
 
 #define KEY_BACK VK_BACK
 #define KEY_RETURN VK_RETURN
-
-typedef wchar_t char_t;
-
-
-
-#define strcmp2(x, y) (memcmp(x, L##y, sizeof(y) * 2 - 2))
-#define strcpy2(x, y) (memcpy(x, L##y, sizeof(y) * 2 - 2))

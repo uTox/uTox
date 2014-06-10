@@ -1,6 +1,6 @@
 #include "main.h"
 
-void friend_setname(FRIEND *f, uint8_t *name, uint16_t length)
+void friend_setname(FRIEND *f, char_t *name, uint16_t length)
 {
     free(f->name);
     if(length == 0) {
@@ -8,8 +8,8 @@ void friend_setname(FRIEND *f, uint8_t *name, uint16_t length)
         cid_to_string(f->name, f->cid);
         f->name_length = sizeof(f->cid) * 2;
     } else {
-        f->name = malloc(length);
-        memcpy(f->name, name, length);
+        f->name = malloc(length * sizeof(char_t));
+        memcpy(f->name, name, length * sizeof(char_t));
         f->name_length = length;
     }
 }
@@ -19,16 +19,16 @@ void friend_addmessage(FRIEND *f, void *data)
     message_add(&messages_friend, data, &f->msg);
 }
 
-void friend_addid(uint8_t *id, uint8_t *msg, uint16_t msg_length)
+void friend_addid(uint8_t *id, char_t *msg, uint16_t msg_length)
 {
-    void *data = malloc(TOX_FRIEND_ADDRESS_SIZE + msg_length);
+    void *data = malloc(TOX_FRIEND_ADDRESS_SIZE + msg_length * sizeof(char_t));
     memcpy(data, id, TOX_FRIEND_ADDRESS_SIZE);
-    memcpy(data + TOX_FRIEND_ADDRESS_SIZE, msg, msg_length);
+    memcpy(data + TOX_FRIEND_ADDRESS_SIZE, msg, msg_length * sizeof(char_t));
 
     tox_postmessage(TOX_ADDFRIEND, msg_length, 0, data);
 }
 
-void friend_add(uint8_t *name, uint16_t length, uint8_t *msg, uint16_t msg_length)
+void friend_add(char_t *name, uint16_t length, char_t *msg, uint16_t msg_length)
 {
     if(!length) {
         addfriend_status = ADDF_NONAME;

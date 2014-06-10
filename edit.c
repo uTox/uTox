@@ -13,17 +13,17 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
     setfont(FONT_TEXT);
     setcolor(COLOR_TEXT);
 
-    drawtextrangecut(x + 5, x + width - 5, y + 5, edit->data, edit->length);
+    drawtextrangecutW(x + 5, x + width - 5, y + 5, edit->data, edit->length);
 
     if(edit == active_edit) {
-        int x1 = textwidth(edit->data, edit_sel.start);
-        int w = textwidth(edit->data + edit_sel.start, edit_sel.length);
+        int x1 = textwidthW(edit->data, edit_sel.start);
+        int w = textwidthW(edit->data + edit_sel.start, edit_sel.length);
 
         setcolor(TEXT_HIGHLIGHT);
 
         if(edit_sel.length) {
             drawrect(x + 5 + x1, y + 5, w, 14, TEXT_HIGHLIGHT_BG);
-            drawtextrangecut(x + 5 + x1, x + width - 5, y + 5, edit->data + edit_sel.start, edit_sel.length);
+            drawtextrangecutW(x + 5 + x1, x + width - 5, y + 5, edit->data + edit_sel.start, edit_sel.length);
         } else {
             drawvline(x + 5 + x1, y + 5, y + 19, BLACK);
         }
@@ -48,11 +48,11 @@ _Bool edit_mmove(EDIT *edit, int x, int y, int dy, int width, int height)
         setfont(FONT_TEXT);
 
         if(extent > 0) {
-            fit = textfit(edit->data, edit->length, extent);
+            fit = textfitW(edit->data, edit->length, extent);
 
             if(fit != edit->length) {
-                x1 = textwidth(edit->data, fit);
-                x2 = textwidth(edit->data, fit + 1);
+                x1 = textwidthW(edit->data, fit);
+                x2 = textwidthW(edit->data, fit + 1);
 
                 if(x2 - extent < extent - x1) {
                     fit++;
@@ -76,11 +76,11 @@ _Bool edit_mmove(EDIT *edit, int x, int y, int dy, int width, int height)
         int fit = 0, extent = x - 5, x1, x2;
 
         setfont(FONT_TEXT);
-        fit = textfit(edit->data, edit->length, extent);
+        fit = textfitW(edit->data, edit->length, extent);
 
         if(fit != edit->length) {
-            x1 = textwidth(edit->data, fit);
-            x2 = textwidth(edit->data, fit + 1);
+            x1 = textwidthW(edit->data, fit);
+            x2 = textwidthW(edit->data, fit + 1);
 
             if(x2 - extent < extent - x1) {
                 fit++;
@@ -162,7 +162,7 @@ _Bool edit_mleave(EDIT *edit)
     return 0;
 }
 
-static size_t unicode_to_utf8(uint32_t ch, uint8_t *dst, uint16_t *len)
+static uint8_t unicode_to_native(uint32_t ch, char_t *dst, uint16_t *len)
 {
     if (!dst) {
         if (ch > 0x1FFFFF) {
@@ -220,7 +220,7 @@ void edit_char(uint32_t ch, _Bool control)
                         } while (!(edit->data[edit_sel.start-len] & 0x40));
                     }
                     memmove(edit->data + edit_sel.start - len, edit->data + edit_sel.start,
-                            edit->length - edit_sel.start);
+                            (edit->length - edit_sel.start) * sizeof(char_t));
                     edit->length -= len;
 
                     edit_sel.start -= len;
@@ -241,12 +241,12 @@ void edit_char(uint32_t ch, _Bool control)
         }
         }
     } else {
-        size_t len = unicode_to_utf8(ch, NULL, NULL);
+        size_t len = unicode_to_native(ch, NULL, NULL);
         if(edit->length - edit_sel.length + len <= edit->maxlength) {
-            uint8_t *p = edit->data + edit_sel.start;
-            memmove(p + len, p + edit_sel.length, edit->length - (edit_sel.start + edit_sel.length));
+            char_t *p = edit->data + edit_sel.start;
+            memmove(p + len, p + edit_sel.length, (edit->length - (edit_sel.start + edit_sel.length)) * sizeof(char_t));
             edit->length -= edit_sel.length;
-            unicode_to_utf8(ch, edit->data + edit_sel.start, &edit->length);
+            unicode_to_native(ch, edit->data + edit_sel.start, &edit->length);
 
             edit_sel.start += len;
             edit_sel.p1 = edit->mouseover_char = edit_sel.start;
@@ -282,13 +282,13 @@ void edit_copy(void)
     CloseClipboard();*/
 }
 
-static ssize_t utf8_len(uint8_t *data, int len)
+static int8_t utf8_len(char_t *data, int len)
 {
     if(!(*data & 0x80)) {
         return 1;
     }
-    size_t bytes = 1;
-    for(size_t i = 6; i != SIZE_MAX; i--) {
+    uint8_t bytes = 1;
+    for(uint8_t i = 6; i != 0xFF; i--) {
         if (!((*data >> i) & 1)) {
             break;
         }
@@ -301,7 +301,7 @@ static ssize_t utf8_len(uint8_t *data, int len)
     if(bytes > len) {
         return -1;
     }
-    for(size_t i = 1; i < bytes; i++) {
+    for(uint8_t i = 1; i < bytes; i++) {
         if(!(data[i] & 0x80) || (data[i] & 0x40)) {
             return -1;
         }
@@ -309,7 +309,7 @@ static ssize_t utf8_len(uint8_t *data, int len)
     return bytes;
 }
 
-void edit_paste(uint8_t *data, int length)
+void edit_paste(char_t *data, int length)
 {
     if(!active_edit) {
         return;
@@ -324,7 +324,7 @@ void edit_paste(uint8_t *data, int length)
             // Control characters.
             break;
         }
-        ssize_t len = utf8_len(data+i, length-i);
+        int8_t len = utf8_len(data+i, length-i);
         if(len == -1) {
             break;
         }
@@ -345,8 +345,8 @@ void edit_paste(uint8_t *data, int length)
 
     uint8_t *p = active_edit->data + edit_sel.start;
 
-    memmove(p + i, p + edit_sel.length, active_edit->length - (edit_sel.start + edit_sel.length));
-    memcpy(p, data, i);
+    memmove(p + i, p + edit_sel.length, (active_edit->length - (edit_sel.start + edit_sel.length)) * sizeof(char_t));
+    memcpy(p, data, i * sizeof(char_t));
 
     active_edit->length += i - edit_sel.length;
 
@@ -360,7 +360,7 @@ void edit_delete(void)
 {
     uint8_t *p = active_edit->data + edit_sel.start;
 
-    memmove(p, p + edit_sel.length, active_edit->length - (edit_sel.start + edit_sel.length));
+    memmove(p, p + edit_sel.length, (active_edit->length - (edit_sel.start + edit_sel.length)) * sizeof(char_t));
     active_edit->length -= edit_sel.length;
 
     edit_sel.length = 0;

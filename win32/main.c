@@ -59,6 +59,11 @@ enum
     LIST_ACCEPT
 };
 
+static uint16_t utf8tonative(char_t *str, wchar_t *out, uint16_t length)
+{
+    return MultiByteToWideChar(CP_UTF8, 0, str, length, out, 65536);
+}
+
 void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data)
 {
     PostMessage(hwnd, WM_TOX + (msg), ((param1) << 16) | (param2), (LPARAM)data);
@@ -98,7 +103,10 @@ void drawtext(int x, int y, uint8_t *str, uint16_t length)
 
 void drawtextW(int x, int y, char_t *str, uint16_t length)
 {
-    TextOutW(hdc, x, y, str, length);
+    wchar_t out[length];
+    length = utf8tonative(str, out, length);
+
+    TextOutW(hdc, x, y, out, length);
 }
 
 int drawtext_getwidth(int x, int y, uint8_t *str, uint16_t length)
@@ -111,9 +119,12 @@ int drawtext_getwidth(int x, int y, uint8_t *str, uint16_t length)
 
 int drawtext_getwidthW(int x, int y, char_t *str, uint16_t length)
 {
+    wchar_t out[length];
+    length = utf8tonative(str, out, length);
+
     SIZE size;
-    TextOutW(hdc, x, y, str, length);
-    GetTextExtentPoint32W(hdc, str, length, &size);
+    TextOutW(hdc, x, y, out, length);
+    GetTextExtentPoint32W(hdc, out, length, &size);
     return size.cx;
 }
 
@@ -131,8 +142,11 @@ void drawtextwidth_right(int x, int width, int y, uint8_t *str, uint16_t length)
 
 void drawtextwidth_rightW(int x, int width, int y, char_t *str, uint16_t length)
 {
+    wchar_t out[length];
+    length = utf8tonative(str, out, length);
+
     RECT r = {x, y, x + width, y + 256};
-    DrawTextW(hdc, str, length, &r, DT_SINGLELINE | DT_END_ELLIPSIS | DT_NOPREFIX | DT_RIGHT);
+    DrawTextW(hdc, out, length, &r, DT_SINGLELINE | DT_END_ELLIPSIS | DT_NOPREFIX | DT_RIGHT);
 }
 
 void drawtextrange(int x, int x2, int y, uint8_t *str, uint16_t length)
@@ -147,6 +161,15 @@ void drawtextrangecut(int x, int x2, int y, uint8_t *str, uint16_t length)
     DrawText(hdc, (char*)str, length, &r, DT_SINGLELINE | DT_NOPREFIX);
 }
 
+void drawtextrangecutW(int x, int x2, int y, char_t *str, uint16_t length)
+{
+    wchar_t out[length];
+    length = utf8tonative(str, out, length);
+
+    RECT r = {x, y, x2, y + 256};
+    DrawTextW(hdc, out, length, &r, DT_SINGLELINE | DT_NOPREFIX);
+}
+
 int textwidth(uint8_t *str, uint16_t length)
 {
     SIZE size;
@@ -156,8 +179,11 @@ int textwidth(uint8_t *str, uint16_t length)
 
 int textwidthW(char_t *str, uint16_t length)
 {
+    wchar_t out[length];
+    length = utf8tonative(str, out, length);
+
     SIZE size;
-    GetTextExtentPoint32W(hdc,str, length, &size);
+    GetTextExtentPoint32W(hdc, out, length, &size);
     return size.cx;
 }
 
@@ -172,9 +198,12 @@ int textfit(uint8_t *str, uint16_t length, int width)
 
 int textfitW(char_t *str, uint16_t length, int width)
 {
+    wchar_t out[length];
+    length = utf8tonative(str, out, length);
+
     int fit;
     SIZE size;
-    GetTextExtentExPointW(hdc, str, length, width, &fit, NULL, &size);
+    GetTextExtentExPointW(hdc, out, length, width, &fit, NULL, &size);
 
     return fit;
 }
@@ -276,11 +305,6 @@ void enddraw(int x, int y, int width, int height)
     BitBlt(main_hdc, x, y, width, height, hdc, x, y, SRCCOPY);
 }
 
-uint16_t utf8tonative(uint8_t *str, char_t *out, uint16_t length)
-{
-    return MultiByteToWideChar(CP_UTF8, 0, (char*)str, length, out, 65536);
-}
-
 void thread(void func(void*), void *args)
 {
     _beginthread(func, 0, args);
@@ -380,7 +404,8 @@ void listpopup(uint8_t item)
 
 void openurl(char_t *str)
 {
-    ShellExecuteW(NULL, L"open", str, NULL, NULL, SW_SHOW);
+    //!convert
+    ShellExecute(NULL, "open", str, NULL, NULL, SW_SHOW);
 }
 
 void openfilesend(void)

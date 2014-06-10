@@ -128,6 +128,11 @@ void drawtextrangecut(int x, int x2, int y, uint8_t *str, uint16_t length)
     drawtext(x, y, str, length);
 }
 
+void drawtextrangecutW(int x, int x2, int y, char_t *str, uint16_t length)
+{
+    drawtextrangecut(x, x2, y, str, length);
+}
+
 int textwidth(uint8_t *str, uint16_t length)
 {
     XGlyphInfo extents;
@@ -258,12 +263,6 @@ void popclip(void)
 void enddraw(int x, int y, int width, int height)
 {
     XCopyArea(display, drawbuf, window, gc, x, y, width, height, x, y);
-}
-
-uint16_t utf8tonative(uint8_t *str, char_t *out, uint16_t length)
-{
-    memcpy(out, str, length);
-    return length;
 }
 
 void thread(void func(void*), void *args)

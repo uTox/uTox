@@ -1,9 +1,10 @@
 #include "main.h"
 
-static uint32_t parseargument(uint8_t *dest, uint8_t *src, uint16_t length)
+static uint32_t parseargument(uint8_t *dest, char_t *src, uint16_t length)
 {
     _Bool reset = 0, at = 0;
-    uint8_t *a = src, *b = src + length, *d = dest;
+    char_t *a = src, *b = src + length;
+    uint8_t *d = dest;
     uint32_t pin = 0;
     while(a != b) {
         if(*a == ':')
@@ -194,11 +195,11 @@ static void dns_thread(void *data)
     postmessage(DNS_RESULT, success, 0, data);
 }
 
-void dns_request(uint8_t *name, uint16_t length)
+void dns_request(char_t *name, uint16_t length)
 {
-    void *data = malloc((2 + length < TOX_FRIEND_ADDRESS_SIZE) ? TOX_FRIEND_ADDRESS_SIZE : 2 + length);
+    void *data = malloc((2 + length < TOX_FRIEND_ADDRESS_SIZE) ? TOX_FRIEND_ADDRESS_SIZE : 2 + length * sizeof(char_t));
     memcpy(data, &length, 2);
-    memcpy(data + 2, name, length);
+    memcpy(data + 2, name, length * sizeof(char_t));
 
     thread(dns_thread, data);
 }

@@ -5,7 +5,7 @@ struct edit {
 
     _Bool multiline, mouseover;
     uint16_t mouseover_char, length, maxlength;
-    uint8_t *data;
+    char_t *data;
     void (*onenter)(void);
 };
 
@@ -22,7 +22,7 @@ void edit_char(uint32_t ch, _Bool control);
 
 void edit_cut(void);
 void edit_copy(void);
-void edit_paste(uint8_t *data, int len);
+void edit_paste(char_t *data, int len);
 void edit_delete(void);
 void edit_selectall(void);
 void edit_clear(void);
@@ -30,4 +30,4 @@ void edit_clear(void);
 _Bool edit_active(void);
 
 void edit_resetfocus(void);
-void edit_setstr(EDIT *edit, uint8_t *str, uint16_t length);
+void edit_setstr(EDIT *edit, char_t *str, uint16_t length);

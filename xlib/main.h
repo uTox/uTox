@@ -15,8 +15,3 @@ typedef struct
 {
     int left, top, right, bottom;
 }RECT;
-
-typedef uint8_t char_t;
-
-#define strcmp2(x, y) (memcmp(x, y, sizeof(y) - 1))
-#define strcpy2(x, y) (memcpy(x, y, sizeof(y) - 1))
