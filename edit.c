@@ -328,7 +328,7 @@ void edit_paste(char_t *data, int length)
         if(len == -1) {
             break;
         }
-        if(len == 2 && data[0] == 0xc2 && data[1] <= 0x9f) {
+        if(len == 2 && data[i] == 0xc2 && data[i+1] <= 0x9f) {
             // More control characters.
             break;
         }
