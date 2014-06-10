@@ -45,7 +45,7 @@ typedef struct
 
 typedef struct msg_file MSG_FILE;
 
-#ifdef WIN32
+#ifdef __WIN32__
 #include "win32/main.h"
 #else
 #include "xlib/main.h"
