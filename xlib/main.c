@@ -317,7 +317,11 @@ void openfilesend(void)
 
 void savefilerecv(uint32_t fid, MSG_FILE *file)
 {
+    char *path = malloc(file->name_length + 1);
+    memcpy(path, file->name, file->name_length);
+    path[file->name_length] = 0;
 
+    tox_postmessage(TOX_ACCEPTFILE, fid, file->filenumber, path);
 }
 
 void sysmexit(void)

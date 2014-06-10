@@ -700,12 +700,16 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint8_t msg, uint16_t param1
 
         if(param2 == 0xFFFF) {
             //paths with line breaks
-            uint8_t *name = data, *p = data;
+            uint8_t *name = data, *p = data, *s = name;
             while(*p) {
                 while(*p) {
                     if(*p == '\n') {
                         *p++ = 0;
                         break;
+                    }
+
+                    if(*p == '/') {
+                        s = p + 1;
                     }
                     p++;
                 }
@@ -714,8 +718,8 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint8_t msg, uint16_t param1
                     name += 7;
                 }
 
-                sendfile(tox, param1, name, name, p - name - 1);
-                name = p;
+                sendfile(tox, param1, name, s, p - s - 1);
+                s = name = p;
             }
         } else {
             //windows path list
