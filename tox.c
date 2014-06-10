@@ -697,21 +697,44 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint8_t msg, uint16_t param1
          * param2: offset of first file name in data
          * data: file names
          */
-        uint8_t *name = data;
-        _Bool multifile = (name[param2 - 1] == 0);
-        if(!multifile) {
-            sendfile(tox, param1, data, data + param2, strlen(data) - param2);
-        } else {
-            uint8_t *p = name + param2;
-            name += param2 - 1;
-            if(*(name - 1) != '\\') {
-                *name++ = '\\';
-            }
+
+        if(param2 == 0xFFFF) {
+            //paths with line breaks
+            uint8_t *name = data, *p = data;
             while(*p) {
-                int len = strlen((char*)p) + 1;
-                memmove(name, p, len);
-                p += len;
-                sendfile(tox, param1, data, name, len - 1);
+                while(*p) {
+                    if(*p == '\n') {
+                        *p++ = 0;
+                        break;
+                    }
+                    p++;
+                }
+
+                if(strcmp2(name, "file://") == 0) {
+                    name += 7;
+                }
+
+                sendfile(tox, param1, name, name, p - name - 1);
+                name = p;
+            }
+        } else {
+            //windows path list
+            uint8_t *name = data;
+            _Bool multifile = (name[param2 - 1] == 0);
+            if(!multifile) {
+                sendfile(tox, param1, data, data + param2, strlen(data) - param2);
+            } else {
+                uint8_t *p = name + param2;
+                name += param2 - 1;
+                if(*(name - 1) != '\\') {
+                    *name++ = '\\';
+                }
+                while(*p) {
+                    int len = strlen((char*)p) + 1;
+                    memmove(name, p, len);
+                    p += len;
+                    sendfile(tox, param1, data, name, len - 1);
+                }
             }
         }
 

@@ -39,6 +39,7 @@ void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data)
 {
     XEvent event = {
         .xclient = {
+            .window = 0,
             .type = ClientMessage,
             .message_type = msg,
             .format = 8,
@@ -416,6 +417,16 @@ int main(int argc, char *argv[])
     }
     targets = XInternAtom(display, "TARGETS", 0);
 
+    Atom XdndAware = XInternAtom(display, "XdndAware", False);
+    Atom XdndEnter = XInternAtom(display, "XdndEnter", False);
+    Atom XdndLeave = XInternAtom(display, "XdndLeave", False);
+    Atom XdndPosition = XInternAtom(display, "XdndPosition", False);
+    Atom XdndStatus = XInternAtom(display, "XdndStatus", False);
+    Atom XdndDrop = XInternAtom(display, "XdndDrop", False);
+    Atom XdndSelection = XInternAtom(display, "XdndSelection", False);
+    Atom XdndDATA = XInternAtom(display, "XdndDATA", False);
+    Atom XdndActionCopy = XInternAtom(display, "XdndActionCopy", False);
+
     /*int nvi = 0, x;
     XVisualInfo template;
     template.depth = 32;
@@ -429,6 +440,7 @@ int main(int argc, char *argv[])
     }
 
     visual = vlist[x].visual;*/
+
 
     XSetWindowAttributes attrib = {
         .background_pixel = WhitePixel(display, screen),
@@ -456,6 +468,9 @@ int main(int argc, char *argv[])
     window = XCreateWindow(display, RootWindow(display, screen), 0, 0, 800, 600, 0, 24, InputOutput, visual, CWBackPixel | CWBorderPixel | CWEventMask, &attrib);
     drawbuf = XCreatePixmap(display, window, 800, 600, 24);
     //XSelectInput(display, window, ExposureMask | ButtonPressMask | ButtonReleaseMask | EnterWindowMask | LeaveWindowMask | PointerMotionMask | StructureNotifyMask | KeyPressMask | KeyReleaseMask);
+
+    Atom version = 3;
+    XChangeProperty(display, window, XdndAware, XA_ATOM, 32, PropModeReplace, (uint8_t*)&version, 1);
 
 
     bitmap[BM_MINIMIZE] = XCreateBitmapFromData(display, window, (char*)bm_minimize_bits, 16, 10);
@@ -697,6 +712,8 @@ int main(int argc, char *argv[])
 
         case SelectionNotify: {
 
+            debug("SelectionNotify\n");
+
             XSelectionEvent *ev = &event.xselection;
 
             if(ev->property == None) {
@@ -711,6 +728,13 @@ int main(int argc, char *argv[])
             XGetWindowProperty(display, window, ev->property, 0, ~0L, True, AnyPropertyType, &type, &format, &len, &bytes_left, (unsigned char**)&data);
 
             if(!data) {
+                break;
+            }
+
+            if(ev->property == XdndDATA) {
+                char *path = malloc(len);
+                memcpy(path, data, len);
+                tox_postmessage(TOX_SENDFILES, (FRIEND*)sitem->data - friend, 0xFFFF, path);
                 break;
             }
 
@@ -785,9 +809,42 @@ int main(int argc, char *argv[])
         case ClientMessage:
             {
                 XClientMessageEvent *ev = &event.xclient;
-                void *data;
-                memcpy(&data, &ev->data.s[2], sizeof(void*));
-                tox_message(ev->message_type, ev->data.s[0], ev->data.s[1], data);
+                if(ev->window == 0) {
+                    void *data;
+                    memcpy(&data, &ev->data.s[2], sizeof(void*));
+                    tox_message(ev->message_type, ev->data.s[0], ev->data.s[1], data);
+                } else {
+                    if(ev->message_type == XdndEnter) {
+                        debug("enter\n");
+                    } else if(ev->message_type == XdndPosition) {
+                        Window src = ev->data.l[0];
+                        XEvent event = {
+                            .xclient = {
+                                .type = ClientMessage,
+                                .display = display,
+                                .window = src,
+                                .message_type = XdndStatus,
+                                .format = 32,
+                                .data = {
+                                    .l = {window, 1, 0, 0, XdndActionCopy}
+                                }
+                            }
+                        };
+
+                        XSendEvent(display, src, 0, 0, &event);
+                        //debug("position (version=%u)\n", ev->data.l[1] >> 24);
+                    } else if(ev->message_type == XdndStatus) {
+                        debug("status\n");
+                    } else if(ev->message_type == XdndDrop) {
+                        XConvertSelection(display, XdndSelection, XA_STRING, XdndDATA, window, CurrentTime);
+                        debug("drop\n");
+                    } else if(ev->message_type == XdndLeave) {
+                        debug("leave\n");
+                    } else {
+                        debug("dragshit\n");
+                    }
+                }
+
                 break;
             }
 
