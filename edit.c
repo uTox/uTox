@@ -69,6 +69,8 @@ _Bool edit_mmove(EDIT *edit, int x, int y, int dy, int width, int height)
             edit_sel.length = edit_sel.p1 - edit_sel.p2;
         }
 
+        //debug("%u %u\n", edit_sel.start, edit_sel.length);
+
         redraw = 1;
     } else if(mouseover) {
         int fit = 0, extent = x - 5, x1, x2;
@@ -164,6 +166,8 @@ void edit_char(uint32_t ch)
 {
     EDIT *edit = active_edit;
 
+    //debug("%u %u %u\n", ch, edit_sel.start, edit_sel.length);
+
     if(ch >= ' ' && ch <= 126) {
         if(edit->length != edit->maxlength || edit_sel.length > 0) {
             uint8_t *p = edit->data + edit_sel.start;
@@ -180,6 +184,7 @@ void edit_char(uint32_t ch)
             }
 
             edit_sel.start++;
+            edit_sel.p1 = edit->mouseover_char = edit_sel.start;
             edit_sel.length = 0;
 
             redraw();

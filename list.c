@@ -276,6 +276,13 @@ void list_addfriend2(FRIEND *f, FRIENDREQ *req)
             if(&item[i] == sitem) {
                 panel_item[sitem->item - 1].disabled = 1;
                 panel_item[ITEM_FRIEND - 1].disabled = 0;
+
+                messages_friend.data = &f->msg;
+                messages_friend.iover = ~0;
+                messages_friend.panel.content_scroll->content_height = f->msg.height;
+                messages_friend.panel.content_scroll->d = f->msg.scroll;
+
+                f->msg.id = f - friend;
             }
 
             item[i].item = ITEM_FRIEND;
