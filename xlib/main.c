@@ -631,6 +631,17 @@ int main(int argc, char *argv[])
                 panel_mright(&panel_main);
                 break;
             }
+
+            case Button4: {
+                panel_mwheel(&panel_main, 0, 0, width, height, 1.0);
+                break;
+            }
+
+            case Button5: {
+                panel_mwheel(&panel_main, 0, 0, width, height, -1.0);
+                break;
+            }
+
             }
 
             //debug("ButtonEvent: %u %u\n", ev->state, ev->button);
