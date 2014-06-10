@@ -625,6 +625,8 @@ _Bool messages_mmove(MESSAGES *m, int mx, int my, int dy, int width, int height)
                     }
                 }
 
+                setselection();
+
                 //debug("test: %u %u %u %u\n", f->istart, f->start, f->iend, f->end);
                 return 1;
             }
@@ -761,13 +763,12 @@ _Bool messages_mleave(MESSAGES *m)
     return 0;
 }
 
-void messages_copy(MESSAGES *m)
+int messages_selection(MESSAGES *m, void *data, uint32_t len)
 {
-    /*int i = m->data->istart, n = m->data->iend + 1;
+    int i = m->data->istart, n = m->data->iend + 1;
     void **dp = &m->data->data[i];
 
-    HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, 65536);//! calculate this number
-    wchar_t *p = GlobalLock(hMem);
+    char_t *p = data;
 
     while(i != n) {
         MESSAGE *msg = *dp++;
@@ -780,13 +781,13 @@ void messages_copy(MESSAGES *m)
             uint8_t author = msg->flags & 1;
 
             if(!author) {
-                p += MultiByteToWideChar(CP_UTF8, 0, (char*)f->name, f->name_length, p, 65536);
+                p += utf8tonative(f->name, p, f->name_length);
             } else {
-                p += MultiByteToWideChar(CP_UTF8, 0, (char*)self.name, self.name_length, p, 65536);
+                p += utf8tonative(self.name, p, self.name_length);
             }
         }
 
-        memcpy(p, L": ", 4);
+        strcpy2(p, ": ");
         p += 2;
 
         switch(msg->flags)
@@ -801,18 +802,14 @@ void messages_copy(MESSAGES *m)
             }
         }
 
-        memcpy(p, L"\r\n", 4);
+        strcpy2(p, "\r\n");
         p += 2;
 
         i++;
     }
     *p = 0;
 
-    GlobalUnlock(hMem);
-    OpenClipboard(0);
-    EmptyClipboard();
-    SetClipboardData(CF_UNICODETEXT, hMem);
-    CloseClipboard();*/
+    return (void*)p - data;
 }
 
 static int msgheight(MESSAGE *msg)

@@ -85,7 +85,7 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint8_t msg, uint16_t param1
 void tox_postmessage(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
 {
     while(tox_thread_msg) {
-        yieldcpu();
+        yieldcpu(1);
     }
 
     tox_msg.msg = msg;
@@ -427,7 +427,7 @@ static void av_thread(void *args)
             i++;
         }
 
-        yieldcpu();
+        yieldcpu(5);
     }
 
     //missing some cleanup
@@ -554,7 +554,8 @@ void tox_thread(void *args)
             }
         }
 
-        yieldcpu();
+        uint32_t interval = tox_do_interval(tox);
+        yieldcpu((interval > 20) ? 20 : interval);
     }
 
     av_thread_run = 0;

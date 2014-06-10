@@ -140,28 +140,6 @@ _Bool edit_select;
 #define MAIN_WIDTH 800
 #define MAIN_HEIGHT 600
 
-#define LIST_Y 12
-#define ITEM_HEIGHT 49
-#define SCROLL_X (LIST_X + ITEM_WIDTH + 1)
-#define SCROLL_Y LIST_Y
-#define SCROLL_WIDTH 9
-#define SCROLL_BOTTOM (height - 13)
-
-#define MAIN_X (SCROLL_X + SCROLL_WIDTH + 13)
-#define MAIN_Y 27
-
-#define MESSAGES_X (MAIN_X + 1)
-#define MESSAGES_Y (MAIN_Y + 47)
-#define MESSAGES_RIGHT (width - 24)
-#define MESSAGES_BOTTOM (height - 152)
-
-#define PEERS_WIDTH 100
-#define NAMES_WIDTH 100
-
-#define GMESSAGES_RIGHT (MESSAGES_RIGHT - PEERS_WIDTH)
-#define MESSAGES_WIDTH (MESSAGES_RIGHT - MESSAGES_X - NAMES_WIDTH)
-#define GMESSAGES_WIDTH (GMESSAGES_RIGHT - MESSAGES_X - NAMES_WIDTH)
-
 #define inrect(x, y, rx, ry, width, height) ((x) >= (rx) && (y) >= (ry) && (x) < (rx) + (width) && (y) < (ry + height))
 
 void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data);
@@ -206,7 +184,7 @@ void enddraw(int x, int y, int width, int height);
 uint16_t utf8tonative(uint8_t *str, char_t *out, uint16_t length);
 
 void thread(void func(void*), void *args);
-void yieldcpu(void);
+void yieldcpu(uint32_t ms);
 uint64_t get_time(void);
 
 void address_to_clipboard(void);
@@ -219,6 +197,8 @@ void savefilerecv(uint32_t fid, MSG_FILE *file);
 void sysmexit(void);
 void sysmsize(void);
 void sysmmini(void);
+
+void setselection(void);
 
 #define drawstr(x, y, str) drawtext(x, y, (uint8_t*)str, sizeof(str) - 1)
 #define drawstr_getwidth(x, y, str) drawtext_getwidth(x, y, (uint8_t*)str, sizeof(str) - 1)

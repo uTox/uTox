@@ -1,6 +1,6 @@
 # winTox
 
-Lightweight [Tox](https://github.com/irungentoo/ProjectTox-Core) client for Windows (other operating systems to be supported in the future)
+Lightweight [Tox](https://github.com/irungentoo/ProjectTox-Core) client.
 
 * Some things are incomplete, but feel free to make any design suggestions (colors, fonts, whatever)
 
@@ -14,9 +14,19 @@ Lightweight [Tox](https://github.com/irungentoo/ProjectTox-Core) client for Wind
 
 Something like this:
 
+Windows:
+
 >windres icons/icon.rc -O coff -o icon.res
 
 >gcc -o winTox.exe *.c icon.res -lgdi32 -lmsimg32 -ldnsapi -lcomdlg32 -lopenal32 -ltoxav
+
+Xlib:
+
+>gcc -o winTox.o *.c -lX11 -lXft -ltoxcore -ltoxav -lopenal -pthread
+
+or if you built toxcore statically:
+
+>gcc -o winTox.o *.c -lX11 -lXft -ltoxcore -ltoxav -lopenal -lsodium -lopus lvpx -lm  -pthread
 
 ## Downloads
 

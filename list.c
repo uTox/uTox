@@ -147,9 +147,7 @@ static ITEM* item_hit(int x, int y, int height)
         return NULL;
     }
 
-    uint32_t h = SCROLL_BOTTOM - SCROLL_Y;
-
-    if(y < 0 || y >= h)
+    if(y < 0 || y >= height)
     {
         return NULL;
     }

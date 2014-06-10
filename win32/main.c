@@ -278,7 +278,7 @@ void enddraw(int x, int y, int width, int height)
 
 uint16_t utf8tonative(uint8_t *str, char_t *out, uint16_t length)
 {
-    return MultiByteToWideChar(CP_UTF8, 0, (char*)str, length, out, length);
+    return MultiByteToWideChar(CP_UTF8, 0, (char*)str, length, out, 65536);
 }
 
 void thread(void func(void*), void *args)
@@ -286,9 +286,9 @@ void thread(void func(void*), void *args)
     _beginthread(func, 0, args);
 }
 
-void yieldcpu(void)
+void yieldcpu(uint32_t ms)
 {
-    Sleep(1);
+    Sleep(ms);
 }
 
 uint64_t get_time(void)
@@ -437,6 +437,11 @@ void sysmsize(void)
 void sysmmini(void)
 {
     ShowWindow(hwnd, SW_MINIMIZE);
+}
+
+void setselection(void)
+{
+
 }
 
 void togglehide(void)
@@ -922,13 +927,23 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                     break;
                 }
 
+                HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, 65536);//! calculate this number
+                char_t *data = GlobalLock(hMem);
+                data[0] = 0;
+
                 if(sitem->item == ITEM_FRIEND) {
-                    messages_copy(&messages_friend);
+                    messages_selection(&messages_friend, data, 65536);
                 }
 
                 if(sitem->item == ITEM_GROUP) {
-                    messages_copy(&messages_group);
+                    messages_selection(&messages_group, data, 65536);
                 }
+
+                GlobalUnlock(hMem);
+                OpenClipboard(0);
+                EmptyClipboard();
+                SetClipboardData(CF_UNICODETEXT, hMem);
+                CloseClipboard();
 
                 break;
             }

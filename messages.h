@@ -33,7 +33,7 @@ _Bool messages_mwheel(MESSAGES *m, int height, double d);
 _Bool messages_mup(MESSAGES *m);
 _Bool messages_mleave(MESSAGES *m);
 
-void messages_copy(MESSAGES *m);
+int messages_selection(MESSAGES *m, void *data, uint32_t len);
 
 void message_setheight(MESSAGES *m, MESSAGE *msg, MSG_DATA *p);
 void message_updateheight(MESSAGES *m, MESSAGE *msg, MSG_DATA *p);

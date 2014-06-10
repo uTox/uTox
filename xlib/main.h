@@ -9,6 +9,8 @@
 #define KEY_BACK XK_BackSpace
 #define KEY_RETURN XK_Return
 
+#define USENATIVECONTROLS
+
 typedef struct
 {
     int left, top, right, bottom;
@@ -17,3 +19,4 @@ typedef struct
 typedef uint8_t char_t;
 
 #define strcmp2(x, y) (memcmp(x, y, sizeof(y) - 1))
+#define strcpy2(x, y) (memcpy(x, y, sizeof(y) - 1))

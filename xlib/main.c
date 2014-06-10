@@ -30,6 +30,8 @@ Atom XA_CLIPBOARD, targets;
 
 Pixmap drawbuf;
 
+_Bool clipboard_id;
+
 void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data)
 {
     XEvent event = {
@@ -267,9 +269,9 @@ void thread(void func(void*), void *args)
     pthread_create(&thread_temp, NULL, (void*(*)(void*))func, args);
 }
 
-void yieldcpu(void)
+void yieldcpu(uint32_t ms)
 {
-    usleep(1000);
+    usleep(1000 * ms);
 }
 
 uint64_t get_time(void)
@@ -283,7 +285,8 @@ uint64_t get_time(void)
 
 void address_to_clipboard(void)
 {
-
+    XSetSelectionOwner(display, XA_CLIPBOARD, window, CurrentTime);
+    clipboard_id = 1;
 }
 
 void editpopup(void)
@@ -329,7 +332,19 @@ void sysmmini(void)
 
 }
 
-void pasteprimary(void)
+void setselection(void)
+{
+    XSetSelectionOwner(display, XA_PRIMARY, window, CurrentTime);
+    clipboard_id = 0;
+}
+
+static void setclipboard(void)
+{
+    XSetSelectionOwner(display, XA_CLIPBOARD, window, CurrentTime);
+    clipboard_id = 0;
+}
+
+static void pasteprimary(void)
 {
     Window owner = XGetSelectionOwner(display, XA_PRIMARY);
     if(owner) {
@@ -337,7 +352,7 @@ void pasteprimary(void)
     }
 }
 
-void pasteclipboard(void)
+static  void pasteclipboard(void)
 {
     Window owner = XGetSelectionOwner(display, XA_CLIPBOARD);
     if(owner) {
@@ -481,6 +496,42 @@ int main(int argc, char *argv[])
     XSetStandardProperties(display, window, "winTox", "winTox", None, argv, argc, &xsh);
     //XSetWMHints(display, window, &xwmh);
 
+    /*struct MwmHints {
+        unsigned long flags;
+        unsigned long functions;
+        unsigned long decorations;
+        long input_mode;
+        unsigned long status;
+    };
+
+     #define MWM_DECOR_NONE          0
+     #define MWM_DECOR_ALL           (1L << 0)
+     #define MWM_DECOR_BORDER        (1L << 1)
+     #define MWM_DECOR_RESIZEH       (1L << 2)
+     #define MWM_DECOR_TITLE         (1L << 3)
+     #define MWM_DECOR_MENU          (1L << 4)
+     #define MWM_DECOR_MINIMIZE      (1L << 5)
+     #define MWM_DECOR_MAXIMIZE      (1L << 6)
+
+    enum {
+        MWM_HINTS_FUNCTIONS = (1L << 0),
+        MWM_HINTS_DECORATIONS =  (1L << 1),
+
+        MWM_FUNC_ALL = (1L << 0),
+        MWM_FUNC_RESIZE = (1L << 1),
+        MWM_FUNC_MOVE = (1L << 2),
+        MWM_FUNC_MINIMIZE = (1L << 3),
+        MWM_FUNC_MAXIMIZE = (1L << 4),
+        MWM_FUNC_CLOSE = (1L << 5)
+    };
+
+    Atom mwmHintsProperty = XInternAtom(display, "_MOTIF_WM_HINTS", 0);
+    struct MwmHints hints;
+    hints.flags = MWM_HINTS_DECORATIONS;
+    hints.decorations = MWM_DECOR_BORDER;
+    XChangeProperty(display, window, mwmHintsProperty, mwmHintsProperty, 32, PropModeReplace, (unsigned char *)&hints, 5);*/
+
+
     /* Xft draw context */
     xftdraw = XftDrawCreate(display, drawbuf, visual, cmap);
     /* Xft text color */
@@ -504,7 +555,7 @@ int main(int argc, char *argv[])
 
     //wait for tox_thread init
     while(!tox_thread_init) {
-        yieldcpu();
+        yieldcpu(1);
     }
 
     list_start();
@@ -594,13 +645,22 @@ int main(int argc, char *argv[])
 
         case KeyPress: {
             XKeyEvent *ev = &event.xkey;
-            KeySym sym = XKeycodeToKeysym(display, ev->keycode, 0);
+            KeySym sym = XLookupKeysym(ev, 0);//XKeycodeToKeysym(display, ev->keycode, 0)
 
-            //debug("KeyEvent: %u %u\n", ev->state, ev->keycode);
+            char buffer[16];
+            //int len;
+
+            XLookupString(ev, buffer, sizeof(buffer), &sym, NULL);
+
+            //debug("KeyEvent: %u %u %u %.*s\n", ev->state, ev->keycode, sym, len, buffer);
 
             if(ev->state & 4) {
                 if(sym == 'v') {
                     pasteclipboard();
+                }
+
+                if(sym == 'c') {
+                    setclipboard();
                 }
                 break;
             }
@@ -637,6 +697,65 @@ int main(int argc, char *argv[])
             }
 
             XFree(data);
+
+            break;
+        }
+
+        case SelectionRequest: {
+
+            debug("SelectionRequest\n");
+
+            XSelectionRequestEvent *ev = &event.xselectionrequest;
+
+            XEvent resp = {
+                .xselection = {
+                    .type = SelectionNotify,
+                    .property = ev->property,
+                    .requestor = ev->requestor,
+                    .selection = ev->selection,
+                    .target = ev->target,
+                    .time = ev->time
+                }
+            };
+
+            if(ev->target == XA_STRING) {
+
+                if(clipboard_id) {
+                    XChangeProperty(display, ev->requestor, ev->property, ev->target, 8, PropModeReplace, self.id, sizeof(self.id));
+                } else {
+                    void *data = malloc(65536);
+                    int len = 0;
+
+                    if(sitem->item == ITEM_FRIEND) {
+                        len = messages_selection(&messages_friend, data, 65536);
+                    }
+
+                    if(sitem->item == ITEM_GROUP) {
+                        len = messages_selection(&messages_group, data, 65536);
+                    }
+
+                    XChangeProperty(display, ev->requestor, ev->property, ev->target, 8, PropModeReplace, data, len);
+
+                    free(data);
+                }
+
+            } else if(ev->target == targets) {
+                Atom supported[]={XA_STRING};
+                XChangeProperty (display,
+                    ev->requestor,
+                    ev->property,
+                    targets,
+                    8,
+                    PropModeReplace,
+                    (unsigned char *)(&supported),
+                    sizeof(supported)
+                );
+            }
+            else {
+                resp.xselection.property = None;
+            }
+
+            XSendEvent(display, ev->requestor, 0, 0, &resp);
 
             break;
         }

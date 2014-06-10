@@ -173,7 +173,7 @@ static void dns_thread(void *data)
     uint32_t pin = parseargument(result, data + 2, length);
     _Bool success = 0;
 
-    #ifdef WIN32
+    #ifdef __WIN32__
     DNS_RECORD *record = NULL;
     DnsQuery((char*)result, DNS_TYPE_TEXT, 0, NULL, &record, NULL);
     while(record) {

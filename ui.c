@@ -35,11 +35,11 @@ static void background_draw(PANEL *p, int x, int y, int width, int height)
 
     drawbitmap(BM_CORNER, width - 10, height - 10, 8, 8);
 
-    drawhline(LIST_X, SCROLL_BOTTOM + 1, LIST_X + ITEM_WIDTH + 3, INNER_BORDER);
+    /*drawhline(LIST_X, SCROLL_BOTTOM + 1, LIST_X + ITEM_WIDTH + 3, INNER_BORDER);
     drawvline(LIST_X + ITEM_WIDTH + 3, LIST_Y, SCROLL_BOTTOM + 2, INNER_BORDER);
 
     drawhline(MAIN_X - 9, SCROLL_BOTTOM + 1, width - 12, INNER_BORDER);
-    drawvline(MAIN_X - 10, MAIN_Y, SCROLL_BOTTOM + 2, INNER_BORDER);
+    drawvline(MAIN_X - 10, SIDE_Y, SCROLL_BOTTOM + 2, INNER_BORDER);*/
 }
 
 static _Bool background_mmove(PANEL *p, int x, int y, int dy, int width, int height)
@@ -162,11 +162,6 @@ static void edit_msg_onenter(void)
 
     redraw();
 }
-
-#define EDIT_NAME_Y (MAIN_Y + 64)
-#define EDIT_STATUS_Y (MAIN_Y + 114)
-#define EDIT_ADDID_Y (MAIN_Y + 64)
-#define EDIT_ADDMSG_Y (MAIN_Y + 114)
 
 EDIT edit_name = {
     .panel = {
@@ -550,7 +545,7 @@ SYSMENU sysmenu = {
 PANEL panel_list = {
     .type = PANEL_LIST,
     .x = LIST_X,
-    .y = 12,
+    .y = LIST_Y,
     .width = ITEM_WIDTH,
     .height = -13,
     .content_scroll = &scroll_list,
@@ -634,7 +629,9 @@ panel_main = {
     .height = 0,
     .child = (PANEL*[]) {
         &panel_list, &panel_side,
+#ifndef USENATIVECONTROLS
         (void*)&sysmenu,
+#endif
         (void*)&scroll_list, NULL
     }
 };
