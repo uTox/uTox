@@ -29,7 +29,7 @@ XftColor xftcolor;
 
 uint32_t scolor;
 
-Atom XA_CLIPBOARD, targets;
+Atom XA_CLIPBOARD, XA_UTF8_STRING, targets;
 
 Pixmap drawbuf;
 
@@ -351,7 +351,7 @@ static void pasteprimary(void)
 {
     Window owner = XGetSelectionOwner(display, XA_PRIMARY);
     if(owner) {
-        XConvertSelection(display, XA_PRIMARY, XA_STRING, targets, window, CurrentTime);
+        XConvertSelection(display, XA_PRIMARY, XA_UTF8_STRING, targets, window, CurrentTime);
     }
 }
 
@@ -359,7 +359,7 @@ static void pasteclipboard(void)
 {
     Window owner = XGetSelectionOwner(display, XA_CLIPBOARD);
     if(owner) {
-        XConvertSelection(display, XA_CLIPBOARD, XA_STRING, targets, window, CurrentTime);
+        XConvertSelection(display, XA_CLIPBOARD, XA_UTF8_STRING, targets, window, CurrentTime);
     }
 }
 
@@ -411,6 +411,10 @@ int main(int argc, char *argv[])
     visual = DefaultVisual(display, screen);
 
     XA_CLIPBOARD = XInternAtom(display, "CLIPBOARD", 0);
+    XA_UTF8_STRING = XInternAtom(display, "UTF8_STRING", 1);
+    if (XA_UTF8_STRING == None) {
+	    XA_UTF8_STRING = XA_STRING;
+    }
     targets = XInternAtom(display, "TARGETS", 0);
 
     /*int nvi = 0, x;
@@ -726,7 +730,7 @@ int main(int argc, char *argv[])
                 }
             };
 
-            if(ev->target == XA_STRING) {
+            if(ev->target == XA_UTF8_STRING) {
 
                 if(clipboard_id) {
                     XChangeProperty(display, ev->requestor, ev->property, ev->target, 8, PropModeReplace, self.id, sizeof(self.id));
@@ -748,7 +752,7 @@ int main(int argc, char *argv[])
                 }
 
             } else if(ev->target == targets) {
-                Atom supported[]={XA_STRING};
+                Atom supported[]={XA_UTF8_STRING};
                 XChangeProperty (display,
                     ev->requestor,
                     ev->property,
