@@ -49,7 +49,7 @@ static void drawname(ITEM *i, int x, int y, uint8_t *name, uint8_t *msg, uint16_
     setfont(FONT_MED);
     drawtextwidth(x + 50, ITEM_WIDTH - 50, y + 6, name, name_length);
 
-    setcolor((sitem == i) ? 0xFFE6C5 : 0x999999);
+    setcolor((sitem == i) ? RGB(0xC5, 0xE6, 0xFF) : 0x999999);
     setfont(FONT_TEXT_LARGE);
     drawtextwidth(x + 50, ITEM_WIDTH - 50, y + 25,  msg, msg_length);
 }
@@ -58,7 +58,7 @@ static void drawitem(ITEM *i, int x, int y)
 {
     drawitembox(i, x, y);
 
-    SetBkMode(hdc, TRANSPARENT);
+    setbgcolor(~0);
 
     switch(i->item)
     {

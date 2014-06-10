@@ -22,7 +22,7 @@ void edit_char(uint32_t ch);
 
 void edit_cut(void);
 void edit_copy(void);
-void edit_paste(void);
+void edit_paste(uint8_t *data, int len);
 void edit_delete(void);
 void edit_selectall(void);
 void edit_clear(void);

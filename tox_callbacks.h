@@ -1,6 +1,6 @@
 static void* copy_message(uint8_t *str, uint16_t length, uint16_t flags) {
-    wchar_t out[length];
-    length = MultiByteToWideChar(CP_UTF8, 0, (char*)str, length, out, length);
+    char_t out[length];
+    length = utf8tonative(str, out, length);
 
     MESSAGE *msg = malloc(length * 2 + 6);
     msg->flags = flags;
@@ -19,16 +19,16 @@ static void* copy_groupmessage(Tox *tox, uint8_t *str, uint16_t length, uint16_t
         namelen = 9;
     }
 
-    wchar_t out[length], nameout[namelen];
-    length = MultiByteToWideChar(CP_UTF8, 0, (char*)str, length, out, length);
-    namelen = MultiByteToWideChar(CP_UTF8, 0, (char*)name, namelen, nameout, namelen);
+    char_t out[length], nameout[namelen];
+    length = utf8tonative(str, out, length);
+    namelen = utf8tonative(name, nameout, namelen);
 
     MESSAGE *msg = malloc(6 + length * 2 + namelen * 2);
     msg->flags = flags;
     msg->length = length;
     memcpy(msg->msg, out, length * 2);
 
-    msg->msg[length] = (wchar_t)namelen;
+    msg->msg[length] = (char_t)namelen;
     memcpy(&msg->msg[length] + 1, nameout, namelen * 2);
 
     return msg;

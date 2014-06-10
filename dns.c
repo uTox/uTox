@@ -1,5 +1,4 @@
 #include "main.h"
-#include <windns.h>
 
 static uint32_t parseargument(uint8_t *dest, uint8_t *src, uint16_t length)
 {
@@ -172,9 +171,10 @@ static void dns_thread(void *data)
     uint8_t result[256];
 
     uint32_t pin = parseargument(result, data + 2, length);
-
-    DNS_RECORD *record = NULL;
     _Bool success = 0;
+
+    #ifdef WIN32
+    DNS_RECORD *record = NULL;
     DnsQuery((char*)result, DNS_TYPE_TEXT, 0, NULL, &record, NULL);
     while(record) {
         /* just take the first successfully parsed record (for now), and only parse the first string (seems to work) */
@@ -188,6 +188,8 @@ static void dns_thread(void *data)
 
         record = record->pNext;
     }
+    #else
+    #endif
 
     postmessage(DNS_RESULT, success, 0, data);
 }

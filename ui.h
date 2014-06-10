@@ -67,10 +67,9 @@ extern uint32_t bm_online_bits[], bm_away_bits[], bm_busy_bits[], bm_offline_bit
 #define GRAY4 0x333333
 #define GRAY5 0xCACACA
 #define GRAY6 0xA9A9A9
-#define BLUE 0xEAA64E
-#define RED 0x4343E0
-#define RED2 0x3D3D99
-#define GREEN 0x4CB122
+#define BLUE RGB(0x4E, 0xA6,0xEA)
+#define RED RGB(0xE0, 0x43, 0x43)
+#define RED2 RGB(0x99, 0x3D, 0x3D)
 
 #define YELLOW 0x33FFFF
 

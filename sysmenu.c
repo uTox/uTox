@@ -55,7 +55,7 @@ _Bool sysmenu_mmove(SYSMENU *s, int x, int y, int dy, int width, int height)
     }
     s->mover = sm;
 
-    if(!(GetKeyState(VK_LBUTTON) & 0x80)) {
+    if(!mdown) {
         if(sm != s->active) {
             s->active = sm;
             return 1;
@@ -98,17 +98,17 @@ _Bool sysmenu_mup(SYSMENU *s)
     if(s->active == s->mover) {
         switch(s->active) {
         case SYSMENU_EXIT: {
-            PostQuitMessage(0);
+            sysmexit();
             break;
         }
 
         case SYSMENU_SIZE: {
-            ShowWindow(hwnd, maximized ? SW_RESTORE : SW_MAXIMIZE);
+            sysmsize();
             break;
         }
 
         case SYSMENU_MINI: {
-            ShowWindow(hwnd, SW_MINIMIZE);
+            sysmmini();
             break;
         }
         }

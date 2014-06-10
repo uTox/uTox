@@ -1,3 +1,20 @@
+#ifndef _WIN32_WINNT
+#define _WIN32_WINNT 0x500
+#endif
+
+#ifndef WINVER
+#define WINVER 0x410
+#endif
+
+#include <windows.h>
+#include <windowsx.h>
+
+#include <process.h>
+#define CLEARTYPE_QUALITY 5
+
+#define WM_NOTIFYICON   (WM_APP + 0)
+#define WM_TOX          (WM_APP + 1)
+
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 _Bool draw = 0;
@@ -10,10 +27,42 @@ enum {
     MENU_MESSAGES = 102,
 };
 
+HBITMAP bitmap[16];
+HFONT font[16];
+HCURSOR cursor_arrow, cursor_hand;
+
+HWND hwnd;
+HDC main_hdc, hdc, hdcMem;
+HBRUSH hdc_brush;
+HBITMAP hdc_bm;
+
+
 static TRACKMOUSEEVENT tme = {sizeof(TRACKMOUSEEVENT), TME_LEAVE, 0, 0};
 static _Bool mouse_tracked = 0;
 
 static _Bool hidden;
+
+//WM_COMMAND
+enum
+{
+    TRAY_SHOWHIDE,
+    TRAY_EXIT,
+    TRAY_STATUS_AVAILABLE,
+    TRAY_STATUS_AWAY,
+    TRAY_STATUS_BUSY,
+    EDIT_CUT,
+    EDIT_COPY,
+    EDIT_PASTE,
+    EDIT_DELETE,
+    EDIT_SELECTALL,
+    LIST_DELETE,
+    LIST_ACCEPT
+};
+
+void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data)
+{
+    PostMessage(hwnd, WM_TOX + (msg), ((param1) << 16) | (param2), (LPARAM)data);
+}
 
 void drawbitmap(int bm, int x, int y, int width, int height)
 {
@@ -42,11 +91,29 @@ void drawbitmapalpha(int bm, int x, int y, int width, int height)
     AlphaBlend(hdc, x, y, width, height, hdcMem, 0, 0, width, height, ftn);
 }
 
+void drawtext(int x, int y, uint8_t *str, uint16_t length)
+{
+    TextOut(hdc, x, y, (char*)str, length);
+}
+
+void drawtextW(int x, int y, char_t *str, uint16_t length)
+{
+    TextOutW(hdc, x, y, str, length);
+}
+
 int drawtext_getwidth(int x, int y, uint8_t *str, uint16_t length)
 {
     SIZE size;
     TextOut(hdc, x, y, (char*)str, length);
     GetTextExtentPoint32(hdc, (char*)str, length, &size);
+    return size.cx;
+}
+
+int drawtext_getwidthW(int x, int y, char_t *str, uint16_t length)
+{
+    SIZE size;
+    TextOutW(hdc, x, y, str, length);
+    GetTextExtentPoint32W(hdc, str, length, &size);
     return size.cx;
 }
 
@@ -62,7 +129,7 @@ void drawtextwidth_right(int x, int width, int y, uint8_t *str, uint16_t length)
     DrawText(hdc, (char*)str, length, &r, DT_SINGLELINE | DT_END_ELLIPSIS | DT_NOPREFIX | DT_RIGHT);
 }
 
-void drawtextwidth_rightW(int x, int width, int y, wchar_t *str, uint16_t length)
+void drawtextwidth_rightW(int x, int width, int y, char_t *str, uint16_t length)
 {
     RECT r = {x, y, x + width, y + 256};
     DrawTextW(hdc, str, length, &r, DT_SINGLELINE | DT_END_ELLIPSIS | DT_NOPREFIX | DT_RIGHT);
@@ -80,18 +147,37 @@ void drawtextrangecut(int x, int x2, int y, uint8_t *str, uint16_t length)
     DrawText(hdc, (char*)str, length, &r, DT_SINGLELINE | DT_NOPREFIX);
 }
 
-int drawtextrect(int x, int y, int right, int bottom, uint8_t *str, uint16_t length)
+int textwidth(uint8_t *str, uint16_t length)
 {
-    RECT r = {x, y, right, bottom};
-    return DrawText(hdc, (char*)str, length, &r, DT_WORDBREAK | DT_NOPREFIX);
+    SIZE size;
+    GetTextExtentPoint32(hdc, (char*)str, length, &size);
+    return size.cx;
 }
 
-/*int drawtextrect2(int x, int y, int right, int bottom, uint8_t *str, uint16_t length)
+int textwidthW(char_t *str, uint16_t length)
 {
-    RECT r = {x, y, right, bottom};
-    DrawText(hdc, (char*)str, length, &r, DT_WORDBREAK | DT_CALCRECT);
-    return r.right - r.left;
-}*/
+    SIZE size;
+    GetTextExtentPoint32W(hdc,str, length, &size);
+    return size.cx;
+}
+
+int textfit(uint8_t *str, uint16_t length, int width)
+{
+    int fit;
+    SIZE size;
+    GetTextExtentExPoint(hdc, str, length, width, &fit, NULL, &size);
+
+    return fit;
+}
+
+int textfitW(char_t *str, uint16_t length, int width)
+{
+    int fit;
+    SIZE size;
+    GetTextExtentExPointW(hdc, str, length, width, &fit, NULL, &size);
+
+    return fit;
+}
 
 void drawrect(int x, int y, int width, int height, uint32_t color)
 {
@@ -190,6 +276,26 @@ void enddraw(int x, int y, int width, int height)
     BitBlt(main_hdc, x, y, width, height, hdc, x, y, SRCCOPY);
 }
 
+uint16_t utf8tonative(uint8_t *str, char_t *out, uint16_t length)
+{
+    return MultiByteToWideChar(CP_UTF8, 0, (char*)str, length, out, length);
+}
+
+void thread(void func(void*), void *args)
+{
+    _beginthread(func, 0, args);
+}
+
+void yieldcpu(void)
+{
+    Sleep(1);
+}
+
+uint64_t get_time(void)
+{
+    return ((uint64_t)clock() * 1000 * 1000);
+}
+
 void address_to_clipboard(void)
 {
 #define size sizeof(self.id)
@@ -270,6 +376,67 @@ void listpopup(uint8_t item)
         TrackPopupMenu(hMenu, TPM_TOPALIGN, p.x, p.y, 0, hwnd, NULL);
         DestroyMenu(hMenu);
     }
+}
+
+void openurl(char_t *str)
+{
+    ShellExecuteW(NULL, L"open", str, NULL, NULL, SW_SHOW);
+}
+
+void openfilesend(void)
+{
+    char *filepath = malloc(1024);
+    filepath[0] = 0;
+
+    OPENFILENAME ofn = {
+        .lStructSize = sizeof(OPENFILENAME),
+        .hwndOwner = hwnd,
+        .lpstrFile = filepath,
+        .nMaxFile = 1024,
+        .Flags = OFN_EXPLORER | OFN_ALLOWMULTISELECT | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR,
+    };
+
+    if(GetOpenFileName(&ofn)) {
+        tox_postmessage(TOX_SENDFILES, (FRIEND*)sitem->data - friend, ofn.nFileOffset, filepath);
+    } else {
+        debug("GetOpenFileName() failed\n");
+    }
+}
+
+void savefilerecv(uint32_t fid, MSG_FILE *file)
+{
+    char *path = malloc(256);
+    memcpy(path, file->name, file->name_length);
+    path[file->name_length] = 0;
+
+    OPENFILENAME ofn = {
+        .lStructSize = sizeof(OPENFILENAME),
+        .hwndOwner = hwnd,
+        .lpstrFile = path,
+        .nMaxFile = 256,
+        .Flags = OFN_EXPLORER | OFN_NOCHANGEDIR,
+    };
+
+    if(GetSaveFileName(&ofn)) {
+        tox_postmessage(TOX_ACCEPTFILE, fid, file->filenumber, path);
+    } else {
+        debug("GetSaveFileName() failed\n");
+    }
+}
+
+void sysmexit(void)
+{
+    PostQuitMessage(0);
+}
+
+void sysmsize(void)
+{
+    ShowWindow(hwnd, maximized ? SW_RESTORE : SW_MAXIMIZE);
+}
+
+void sysmmini(void)
+{
+    ShowWindow(hwnd, SW_MINIMIZE);
 }
 
 void togglehide(void)
@@ -535,7 +702,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     lf.lfHeight = -16;
     font[FONT_MED] = CreateFontIndirect(&lf);
     lf.lfHeight = -14;
-    font[FONT_BUTTON] = font[FONT_TEXT_LARGE] = CreateFontIndirect(&lf);
+    font[FONT_TEXT_LARGE] = CreateFontIndirect(&lf);
     lf.lfHeight = -12;
     font[FONT_TEXT] = CreateFontIndirect(&lf);
 
@@ -768,7 +935,11 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
             case 'V': {
                 if(edit_active()) {
-                    edit_paste();
+                    OpenClipboard(NULL);
+                    char *cd = GetClipboardData(CF_TEXT);
+                    int length = strlen(cd);
+                    edit_paste(cd, length);
+                    CloseClipboard();
                     break;
                 }
                 break;
@@ -828,6 +999,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_LBUTTONDOWN: {
         panel_mdown(&panel_main);
         SetCapture(hwnd);
+        mdown = 1;
         break;
     }
 
@@ -843,6 +1015,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_LBUTTONUP: {
         panel_mup(&panel_main);
         ReleaseCapture();
+        mdown = 0;
         break;
     }
 
@@ -897,7 +1070,14 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         }
 
         case EDIT_PASTE: {
-            edit_paste();
+            if(edit_active()) {
+                OpenClipboard(NULL);
+                char *cd = GetClipboardData(CF_TEXT);
+                int length = strlen(cd);
+                edit_paste(cd, length);
+                CloseClipboard();
+                break;
+            }
             break;
         }
 

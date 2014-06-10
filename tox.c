@@ -554,7 +554,7 @@ void tox_thread(void *args)
             }
         }
 
-        Sleep(100);
+        yieldcpu();
     }
 
     av_thread_run = 0;

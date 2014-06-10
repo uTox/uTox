@@ -5,10 +5,10 @@
 #include "icons/file.c"
 #include "icons/misc.c"
 
-#define AFS(x) { .str = x, .length = sizeof(x) - 1 }
+#define AFS(x) { .str = (uint8_t*)x, .length = sizeof(x) - 1 }
 
 static struct {
-    const char *str;
+    uint8_t *str;
     uint16_t length;
 } addstatus[] = {
     AFS("Friend request sent. Your friend will appear online when he accepts the request."),
@@ -127,8 +127,8 @@ static void edit_msg_onenter(void)
 
         uint16_t l = length;
 
-        wchar_t out[length];
-        length = MultiByteToWideChar(CP_UTF8, 0, (char*)edit_msg_data, length, out, length);
+        char_t out[length];
+        length = utf8tonative(edit_msg_data, out, length);
 
         MESSAGE *msg = malloc(length * 2 + 6);
         msg->flags = 1;
@@ -260,7 +260,7 @@ static void button_call_onpress(void)
     switch(f->calling) {
     case 0: {
         tox_postmessage(TOX_CALL, f - friend, 0, NULL);
-        debug("Calling friend: %u\n", f - friend);
+        debug("Calling friend: %u\n", (uint32_t)(f - friend));
         break;
     }
 
@@ -286,22 +286,7 @@ static void button_call_onpress(void)
 
 static void button_sendfile_onpress(void)
 {
-    char *filepath = malloc(1024);
-    filepath[0] = 0;
-
-    OPENFILENAME ofn = {
-        .lStructSize = sizeof(OPENFILENAME),
-        .hwndOwner = hwnd,
-        .lpstrFile = filepath,
-        .nMaxFile = 1024,
-        .Flags = OFN_EXPLORER | OFN_ALLOWMULTISELECT | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR,
-    };
-
-    if(GetOpenFileName(&ofn)) {
-        tox_postmessage(TOX_SENDFILES, (FRIEND*)sitem->data - friend, ofn.nFileOffset, filepath);
-    } else {
-        debug("GetOpenFileName() failed\n");
-    }
+    openfilesend();
 }
 
 static void button_acceptfriend_onpress(void)
@@ -458,11 +443,11 @@ static void drawfriend(int x, int y, int width, int height)
 {
     FRIEND *f = sitem->data;
 
-    SetTextColor(hdc, 0x333333);
+    setcolor(0x333333);
     setfont(FONT_TITLE);
     drawtextwidth(x, width - 112, y + 2, f->name, f->name_length);
 
-    SetTextColor(hdc, 0x999999);
+    setcolor(0x999999);
     setfont(FONT_MED);
     drawtextwidth(x, width - 112, y + 26, f->status_message, f->status_length);
 
@@ -512,15 +497,16 @@ static void drawgroup(int x, int y, int width, int height)
     setfont(FONT_MSG_NAME);
     setcolor(0);
 
-    int i = 0;
+    int i = 0, j = 0;
     while(i < g->peers)
     {
-        uint8_t *name = g->peername[i];
+        uint8_t *name = g->peername[j];
         if(name)
         {
             drawtextwidth(x + width - 100, 100, y + 50 + i * font_msg_lineheight, name + 1, name[0]);
             i++;
         }
+        j++;
     }
 }
 

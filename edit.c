@@ -16,19 +16,17 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
     drawtextrangecut(x + 5, x + width - 5, y + 5, edit->data, edit->length);
 
     if(edit == active_edit) {
-        SIZE size;
-        GetTextExtentPoint32(hdc, (char*)edit->data, edit_sel.start, &size);
+        int x1 = textwidth(edit->data, edit_sel.start);
+        int w = textwidth(edit->data + edit_sel.start, edit_sel.length);
 
-        setbgcolor(TEXT_HIGHLIGHT_BG);
         setcolor(TEXT_HIGHLIGHT);
 
         if(edit_sel.length) {
-            drawtextrangecut(x + 5 + size.cx, x + width - 5, y + 5, edit->data + edit_sel.start, edit_sel.length);
+            drawrect(x + 5 + x1, y + 5, w, 14, TEXT_HIGHLIGHT_BG);
+            drawtextrangecut(x + 5 + x1, x + width - 5, y + 5, edit->data + edit_sel.start, edit_sel.length);
         } else {
-            drawvline(x + 5 + size.cx, y + 5, y + 19, BLACK);
+            drawvline(x + 5 + x1, y + 5, y + 19, BLACK);
         }
-
-        setbgcolor(~0);
     }
 }
 
@@ -45,19 +43,20 @@ _Bool edit_mmove(EDIT *edit, int x, int y, int dy, int width, int height)
     }
 
     if(edit == active_edit && edit_select) {
-        int fit = 0, extent = x - 5;
-        SIZE size;
+        int fit = 0, extent = x - 5, x1, x2;
 
         setfont(FONT_TEXT);
 
         if(extent > 0) {
-            GetTextExtentExPoint(hdc, (char*)edit->data, edit->length, extent, &fit, NULL, &size);
+            fit = textfit(edit->data, edit->length, extent);
 
-            GetTextExtentPoint32(hdc, (char*)edit->data, fit, &size);
-            int sx = size.cx;
-            GetTextExtentPoint32(hdc, (char*)edit->data, fit + 1, &size);
-            if(fit != edit->length && size.cx - extent < extent - sx) {
-                fit += 1;
+            if(fit != edit->length) {
+                x1 = textwidth(edit->data, fit);
+                x2 = textwidth(edit->data, fit + 1);
+
+                if(x2 - extent < extent - x1) {
+                    fit++;
+                }
             }
         }
 
@@ -72,11 +71,21 @@ _Bool edit_mmove(EDIT *edit, int x, int y, int dy, int width, int height)
 
         redraw = 1;
     } else if(mouseover) {
-        int fit = 0, extent = x - 5;
-        SIZE size;
+        int fit = 0, extent = x - 5, x1, x2;
 
         setfont(FONT_TEXT);
-        GetTextExtentExPoint(hdc, (char*)edit->data, edit->length, extent, &fit, NULL, &size);
+        fit = textfit(edit->data, edit->length, extent);
+
+        if(fit != edit->length) {
+            x1 = textwidth(edit->data, fit);
+            x2 = textwidth(edit->data, fit + 1);
+
+            if(x2 - extent < extent - x1) {
+                fit++;
+            }
+        }
+
+        /*GetTextExtentExPoint(hdc, (char*)edit->data, edit->length, extent, &fit, NULL, &size);
 
         GetTextExtentPoint32(hdc, (char*)edit->data, fit, &size);
         int sx = size.cx;
@@ -84,7 +93,7 @@ _Bool edit_mmove(EDIT *edit, int x, int y, int dy, int width, int height)
         GetTextExtentPoint32(hdc, (char*)edit->data, fit + 1, &size);
         if(fit != edit->length && size.cx - extent < extent - sx) {
             fit += 1;
-        }
+        }*/
 
         edit->mouseover_char = fit;
     }
@@ -177,7 +186,7 @@ void edit_char(uint32_t ch)
         }
     } else {
         switch(ch) {
-        case VK_BACK: {
+        case KEY_BACK: {
             if(edit_sel.length == 0) {
                 if(edit_sel.start != 0) {
                     memmove(edit->data + edit_sel.start - 1, edit->data + edit_sel.start, edit->length - edit_sel.start);
@@ -193,7 +202,7 @@ void edit_char(uint32_t ch)
             break;
         }
 
-        case VK_RETURN: {
+        case KEY_RETURN: {
             if(edit->onenter) {
                 edit->onenter();
             }
@@ -217,7 +226,7 @@ void edit_copy(void)
         return;
     }
 
-    HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, length + 1);
+    /*HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, length + 1);
     uint8_t *p = GlobalLock(hMem);
     memcpy(p, active_edit->data + edit_sel.start, length);
     p[length] = 0;
@@ -225,30 +234,26 @@ void edit_copy(void)
     OpenClipboard(0);
     EmptyClipboard();
     SetClipboardData(CF_TEXT, hMem);
-    CloseClipboard();
+    CloseClipboard();*/
 }
 
-void edit_paste(void)
+void edit_paste(uint8_t *data, int length)
 {
     if(!active_edit) {
         return;
     }
 
-    OpenClipboard(NULL);
-    char *cd = GetClipboardData(CF_TEXT);
-    int length = strlen(cd);
-    char str[length], *s = str, c;
+    uint8_t str[length], *s = str, c;
     //paste only allowed characters
-    while((c = *cd++)) {
+    while((c = *data++)) {
         if(c >= ' ' && c <= 126) {
             *s++ = c;
         } else {
             length--;
         }
     }
-    CloseClipboard();
 
-    int newlen = (int)active_edit->length + length;
+    int newlen = active_edit->length + length;
     if(newlen > active_edit->maxlength) {
         //for now just return if paste doesnt fit
         return;

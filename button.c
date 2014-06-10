@@ -11,7 +11,7 @@ void button_draw(BUTTON *b, int x, int y, int width, int height)
     if(b->bm) {
         drawbitmapalpha(b->bm, x, y, 48, 48);
     } else {
-        setfont(FONT_BUTTON);
+        setfont(FONT_TEXT_LARGE);
         setcolor(b->mouseover ? 0x222222 : 0x555555);
         drawtext(x + 5, y, b->text, b->text_length);
     }
