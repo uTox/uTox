@@ -78,7 +78,7 @@ bm_plus_bits[] = {
 
 #undef B
 
-#define F(r, g, b, a) (RGB((b * a) / 0xFF, (g * a) / 0xFF, (r * a) / 0xFF) | a << 24)
+#define F(r, g, b, a) (((b * a) / 0xFF) | ((g * a) / 0xFF) << 8 | ((r * a) / 0xFF) << 16 | a << 24)
 #define G(x) F(107, 194, 96, x)
 uint32_t
 bm_online_bits[] = {
