@@ -1,5 +1,5 @@
 CFLAGS = $(shell pkg-config --cflags freetype2 x11 xft openal)
-CFLAGS += -g -pthread -std-gnu99
+CFLAGS += -g -pthread -std=gnu99
 LDFLAGS = $(shell pkg-config --libs freetype2 x11 xft openal)
 LDFLAGS += -ltoxcore -ltoxav -lresolv
 
