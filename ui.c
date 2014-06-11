@@ -563,8 +563,8 @@ panel_item[] = {
         .type = PANEL_NONE,
         //.disabled = 1,
         .child = (PANEL*[]) {
-            &panel_self,
             (void*)&scroll_self,
+            &panel_self,
             NULL
         }
     },
@@ -576,8 +576,8 @@ panel_item[] = {
         .child = (PANEL*[]) {
             (void*)&button_call, (void*)&button_sendfile,
             (void*)&edit_msg,
-            (void*)&messages_friend,
             (void*)&scroll_friend,
+            (void*)&messages_friend,
             NULL
         }
     },
@@ -588,8 +588,8 @@ panel_item[] = {
         .drawfunc = drawgroup,
         .child = (PANEL*[]) {
             (void*)&edit_msg,
-            (void*)&messages_group,
             (void*)&scroll_group,
+            (void*)&messages_group,
             NULL
         }
     },
@@ -612,7 +612,7 @@ panel_side = {
     .width = -12,
     .height = -12,
     .child = (PANEL*[]) {
-        &panel_item[0], &panel_item[1], &panel_item[2], &panel_item[3], &panel_item[4], NULL
+        &panel_item[0], &panel_item[1], &panel_item[2], &panel_item[3], NULL
     }
 },
 
@@ -768,23 +768,39 @@ _Bool panel_mmove(PANEL *p, int x, int y, int width, int height, int mx, int my,
     return draw;
 }
 
-_Bool panel_mdown(PANEL *p)
+static _Bool panel_mdown_sub(PANEL *p)
 {
-    _Bool draw = p->type ? mdownfunc[p->type - 1](p) : 0;
+    if(p->type && mdownfunc[p->type - 1](p)) {
+        return 1;
+    }
+
     PANEL **pp = p->child, *subp;
     if(pp) {
         while((subp = *pp++)) {
             if(!subp->disabled) {
-                draw |= panel_mdown(subp);
+                if(panel_mdown_sub(subp)) {
+                    return 1;
+                }
             }
         }
     }
 
-    if(draw && p == &panel_main) {
-        redraw();
-    }
+    return 0;
+}
 
-    return draw;
+void panel_mdown(PANEL *p)
+{
+    PANEL **pp = p->child, *subp;
+    if(pp) {
+        while((subp = *pp++)) {
+            if(!subp->disabled) {
+                if(panel_mdown_sub(subp)) {
+                    redraw();
+                    return;
+                }
+            }
+        }
+    }
 }
 
 _Bool panel_mright(PANEL *p)
