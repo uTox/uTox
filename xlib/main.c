@@ -478,7 +478,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    libgtk = dlopen("libgtkspell.so.0", RTLD_LAZY);
+    libgtk = dlopen("libgtk-x11-2.0.so.0", RTLD_LAZY);
     if(libgtk) {
         debug("have GTK, our system is bloated\n");
 
