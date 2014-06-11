@@ -189,13 +189,13 @@ void drawvline(int x, int y, int y2, uint32_t color)
 void fillrect(RECT *r, uint32_t color)
 {
     XSetForeground(display, gc, color);
-    XFillRectangle(display, drawbuf, gc, r->left, r->top, r->right - r->left + 1, r->bottom - r->top + 1);
+    XFillRectangle(display, drawbuf, gc, r->left, r->top, r->right - r->left, r->bottom - r->top);
 }
 
 void framerect(RECT *r, uint32_t color)
 {
     XSetForeground(display, gc, color);
-    XDrawRectangle(display, drawbuf, gc, r->left, r->top, r->right - r->left, r->bottom - r->top);
+    XDrawRectangle(display, drawbuf, gc, r->left, r->top, r->right - r->left - 1, r->bottom - r->top - 1);
 }
 
 void setfont(int id)
@@ -230,13 +230,13 @@ void setbgcolor(uint32_t color)
     XSetBackground(display, gc, color);
 }
 
-//XRectangle clip[16];
-//static int clipk;
+static XRectangle clip[16];
+static int clipk;
 
 void pushclip(int left, int top, int width, int height)
 {
-    /*if(!clipk) {
-        XSetClipMask(display, gc, drawbuf);
+    if(!clipk) {
+        //XSetClipMask(display, gc, drawbuf);
     }
 
     XRectangle *r = &clip[clipk++];
@@ -245,20 +245,23 @@ void pushclip(int left, int top, int width, int height)
     r->width = width;
     r->height = height;
 
-    XSetClipRectangles(display, gc, 0, 0, r, 1, Unsorted);*/
+    XSetClipRectangles(display, gc, 0, 0, r, 1, Unsorted);
+    XftDrawSetClipRectangles(xftdraw, 0, 0, r, 1);
 }
 
 void popclip(void)
 {
-    /*clipk--;
+    clipk--;
     if(!clipk) {
         XSetClipMask(display, gc, None);
+        XftDrawSetClip(xftdraw, None);
         return;
     }
 
     XRectangle *r = &clip[clipk - 1];
 
-    XSetClipRectangles(display, gc, 0, 0, r, 1, Unsorted);*/
+    XSetClipRectangles(display, gc, 0, 0, r, 1, Unsorted);
+    XftDrawSetClipRectangles(xftdraw, 0, 0, r, 1);
 }
 
 void enddraw(int x, int y, int width, int height)
