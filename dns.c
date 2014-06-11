@@ -1,5 +1,14 @@
 #include "main.h"
 
+static void writechecksum(uint8_t *address)
+{
+    uint8_t *checksum = address + 36;
+    uint32_t i;
+
+    for (i = 0; i < 36; ++i)
+        checksum[i % 2] ^= address[i];
+}
+
 static uint32_t parseargument(uint8_t *dest, char_t *src, uint16_t length)
 {
     _Bool reset = 0, at = 0;
@@ -143,7 +152,10 @@ static _Bool parserecord(uint8_t *dest, uint8_t *src, uint32_t pin)
                     debug("id too short\n");
                     return 0;
                 }
-                _id = 0;
+                _pub = 0;
+
+                memcpy(id, &pin, 4); id += 4;
+                writechecksum(dest);
             }
 
             if(_pub) {
