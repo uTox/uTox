@@ -192,10 +192,19 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
     uint8_t lastauthor = 0xFF;
 
     void **p = m->data->data;
-    int i = 0, n = m->data->n;
+    int i, n = m->data->n;
 
-    while(i != n) {
+    for(i = 0; i != n; i++) {
         MESSAGE *msg = *p++;
+
+        if(y + msg->height <= 0) { //! NOTE: should not be constant 0
+            y += msg->height;
+            continue;
+        }
+
+        if(y >= height + 100) { //! NOTE: should not be constant 100
+            break;
+        }
 
         if(m->type) {
             /* group */
@@ -416,8 +425,6 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
             break;
         }
         }
-
-        i++;
     }
 }
 
