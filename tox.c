@@ -1042,7 +1042,7 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
         MSG_FILE *msg = ft->chatdata;
         msg->status = (size_t)data;
 
-        message_updateheight(&messages_friend, (void*)msg, &f->msg);
+        message_fileupdateheight(&messages_friend, msg, &f->msg);
         updatefriend(f);
         break;
     }
@@ -1054,7 +1054,7 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
         MSG_FILE *msg = ft->chatdata;
         msg->status = (size_t)data;
 
-        message_updateheight(&messages_friend, (void*)msg, &f->msg);
+        message_fileupdateheight(&messages_friend, msg, &f->msg);
         updatefriend(f);
         break;
     }
