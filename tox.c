@@ -532,6 +532,7 @@ void tox_thread(void *args)
 
                         memmove(p, p + 1, ((void*)file_tend - (void*)(p + 1)));
                         p--;
+                        file_tend--;
                         ft->status = FT_FINISHED;
                         postmessage(FRIEND_FILE_OUT_STATUS, ft->fid, ft->filenumber, (void*)FILE_DONE);
                         break;
@@ -548,6 +549,7 @@ void tox_thread(void *args)
 
                 memmove(p, p + 1, ((void*)file_tend - (void*)(p + 1)));
                 p--;
+                file_tend--;
                 postmessage(FRIEND_FILE_OUT_STATUS, ft->fid, ft->filenumber, (void*)FILE_KILLED);
             }
 
