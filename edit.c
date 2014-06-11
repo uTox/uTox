@@ -104,10 +104,8 @@ _Bool edit_mdown(EDIT *edit)
 
         active_edit = edit;
         return 1;
-    } else if(edit == active_edit)
-    {
+    } else if(edit == active_edit) {
         edit_resetfocus();
-        return 1;
     }
 
     return 0;

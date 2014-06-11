@@ -790,16 +790,21 @@ static _Bool panel_mdown_sub(PANEL *p)
 
 void panel_mdown(PANEL *p)
 {
+    _Bool draw = edit_active();
     PANEL **pp = p->child, *subp;
     if(pp) {
         while((subp = *pp++)) {
             if(!subp->disabled) {
                 if(panel_mdown_sub(subp)) {
-                    redraw();
-                    return;
+                    draw = 1;
+                    break;
                 }
             }
         }
+    }
+
+    if(draw) {
+        redraw();
     }
 }
 
