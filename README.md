@@ -22,11 +22,11 @@ Windows:
 
 Xlib:
 
->gcc -o winTox.o *.c -lX11 -lXft -ltoxcore -ltoxav -lopenal -pthread -lresolv
+>gcc -o winTox.o *.c -lX11 -lXft -ltoxcore -ltoxav -lopenal -pthread -lresolv -ldl
 
 or if you built toxcore statically:
 
->gcc -o winTox.o *.c -lX11 -lXft -ltoxcore -ltoxav -lopenal -lsodium -lopus lvpx -lm  -pthread -lresolv
+>gcc -o winTox.o *.c -lX11 -lXft -ltoxcore -ltoxav -lopenal -lsodium -lopus lvpx -lm  -pthread -lresolv -ldl
 
 ## Downloads
 

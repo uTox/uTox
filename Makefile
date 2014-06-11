@@ -1,7 +1,7 @@
 CFLAGS = $(shell pkg-config --cflags freetype2 x11 xft openal)
 CFLAGS += -g -pthread -std=gnu99
 LDFLAGS = $(shell pkg-config --libs freetype2 x11 xft openal)
-LDFLAGS += -ltoxcore -ltoxav -lresolv
+LDFLAGS += -ltoxcore -ltoxav -lresolv -ldl
 
 SRC = $(wildcard *.c)
 OBJ = $(SRC:.c=.o)
