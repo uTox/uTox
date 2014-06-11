@@ -278,7 +278,11 @@ void yieldcpu(uint32_t ms)
 uint64_t get_time(void)
 {
     struct timespec ts;
+    #ifdef CLOCK_MONOTONIC_RAW
     clock_gettime(CLOCK_MONOTONIC_RAW, &ts);
+    #else
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    #endif
 
     return ((uint64_t)ts.tv_sec * (1000 * 1000 * 1000)) + (uint64_t)ts.tv_nsec;
 }
