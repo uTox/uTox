@@ -49,7 +49,7 @@ _Bool panel_mup(PANEL *p);
 _Bool panel_mleave(PANEL *p);
 
 extern uint8_t bm_contact_bits[], bm_group_bits[], bm_file_bits[];
-extern uint8_t bm_minimize_bits[], bm_maximize_bits[], bm_restore_bits[], bm_exit_bits[], bm_plus_bits[];
+extern uint8_t bm_minimize_bits[], bm_maximize_bits[], bm_restore_bits[], bm_exit_bits[];
 extern uint32_t bm_online_bits[], bm_away_bits[], bm_busy_bits[], bm_offline_bits[];
 
 #define redraw() panel_draw(&panel_main, 0, 0, width, height)

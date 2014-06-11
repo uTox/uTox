@@ -186,7 +186,7 @@ edit_addid = {
     .panel = {
         .type = PANEL_EDIT,
         .x = 0,
-        .y = 64,
+        .y = 274,
         .height = 24,
         .width = 0
     },
@@ -198,7 +198,7 @@ edit_addmsg = {
     .panel = {
         .type = PANEL_EDIT,
         .x = 0,
-        .y = 114,
+        .y = 324,
         .height = 84,
         .width = 0
     },
@@ -299,7 +299,7 @@ button_addfriend = {
     .panel = {
         .type = PANEL_BUTTON,
         .x = -50,
-        .y = 222,
+        .y = 412,
         .width = 50,
         .height = 18,
     },
@@ -311,7 +311,7 @@ button_newgroup = {
     .panel = {
         .type = PANEL_BUTTON,
         .x = 0,
-        .y = 300,
+        .y = 440,
         .width = 100,
         .height = 18,
     },
@@ -372,7 +372,6 @@ scroll_friend = {
         .y = 50,
         .height = -94,
     },
-    .d = 1.0,
 },
 
 scroll_group = {
@@ -382,7 +381,13 @@ scroll_group = {
         .width = -100,
         .height = -94,
     },
-    .d = 1.0,
+},
+
+scroll_self = {
+    .panel = {
+        .type = PANEL_SCROLLABLE,
+    },
+    .content_height = 500,
 };
 
 static void drawself(int x, int y, int width, int height)
@@ -403,10 +408,9 @@ static void drawself(int x, int y, int width, int height)
 
     setfont(FONT_TEXT_LARGE);
     drawtextwidth(x, width, y + 165, self.id, sizeof(self.id));
-}
 
-static void drawadd(int x, int y, int width, int height)
-{
+    y += 210;
+
     setcolor(0x333333);
     setfont(FONT_TITLE);
 
@@ -544,25 +548,23 @@ PANEL panel_list = {
     .content_scroll = &scroll_list,
 },
 
+panel_self = {
+    .drawfunc = drawself,
+    .content_scroll = &scroll_self,
+    .child = (PANEL*[]) {
+            (void*)&button_copyid, (void*)&button_addfriend, (void*)&button_newgroup,
+            (void*)&edit_name, (void*)&edit_status, (void*)&edit_addid, (void*)&edit_addmsg,
+            NULL
+        }
+},
+
 panel_item[] = {
     {
         .type = PANEL_NONE,
         //.disabled = 1,
-        .drawfunc = drawself,
         .child = (PANEL*[]) {
-            (void*)&button_copyid,
-            (void*)&edit_name, (void*)&edit_status,
-            NULL
-        }
-    },
-
-    {
-        .type = PANEL_NONE,
-        .disabled = 1,
-        .drawfunc = drawadd,
-        .child = (PANEL*[]) {
-            (void*)&button_addfriend, (void*)&button_newgroup,
-            (void*)&edit_addid, (void*)&edit_addmsg,
+            &panel_self,
+            (void*)&scroll_self,
             NULL
         }
     },

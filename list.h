@@ -3,7 +3,6 @@ enum
 {
     ITEM_NONE,
     ITEM_SELF,
-    ITEM_ADDFRIEND,
     ITEM_FRIEND,
     ITEM_GROUP,
     ITEM_FRIEND_ADD

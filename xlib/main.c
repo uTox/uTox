@@ -58,16 +58,11 @@ void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data)
 void drawbitmap(int bm, int x, int y, int width, int height)
 {
     //debug("%u %u\n", bm, bitmap[bm]);
-    if(bm <= BM_PLUS) {
+    if(bm <= BM_EXIT) {
         XCopyPlane(display, bitmap[bm], drawbuf, gc, 0, 0, width, height, x, y, 1);
     } else {
         XCopyArea(display, bitmap[bm], drawbuf, gc, 0, 0, width, height, x, y);
     }
-}
-
-void drawbitmaptrans(int bm, int x, int y, int width, int height)
-{
-
 }
 
 void drawbitmapalpha(int bm, int x, int y, int width, int height)
@@ -484,7 +479,6 @@ int main(int argc, char *argv[])
     bitmap[BM_RESTORE] = XCreateBitmapFromData(display, window, (char*)bm_restore_bits, 16, 10);
     bitmap[BM_MAXIMIZE] = XCreateBitmapFromData(display, window, (char*)bm_maximize_bits, 16, 10);
     bitmap[BM_EXIT] = XCreateBitmapFromData(display, window, (char*)bm_exit_bits, 16, 10);
-    bitmap[BM_PLUS] = XCreateBitmapFromData(display, window, (char*)bm_plus_bits, 16, 16);
 
     bitmap[BM_ONLINE] = createbitmap(10, 10, bm_online_bits);
     bitmap[BM_AWAY] = createbitmap(10, 10, bm_away_bits);

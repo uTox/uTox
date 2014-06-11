@@ -75,14 +75,6 @@ void drawbitmap(int bm, int x, int y, int width, int height)
     BitBlt(hdc, x, y, width, height, hdcMem, 0, 0, SRCCOPY);
 }
 
-void drawbitmaptrans(int bm, int x, int y, int width, int height)
-{
-    SelectObject(hdcMem, bitmap[bm]);
-    MaskBlt(hdc, x, y, width, height, hdcMem, 0, 0, bitmap[bm], 0, 0, MAKEROP4(0x00AA0029, SRCCOPY));
-    //BitBlt(hdc, x, y, width, height, hdcMem, 0, 0, SRCAND);
-    //TransparentBlt(hdc, x, y, width, height, hdcMem, 0, 0, width, height, ~0);
-}
-
 void drawbitmapalpha(int bm, int x, int y, int width, int height)
 {
     BLENDFUNCTION ftn = {
@@ -381,10 +373,6 @@ void listpopup(uint8_t item)
 
         case ITEM_GROUP: {
             InsertMenu(hMenu, -1, MF_BYPOSITION, LIST_DELETE, "Leave");
-            break;
-        }
-
-        case ITEM_ADDFRIEND: {
             break;
         }
 
@@ -754,9 +742,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     bm.bmBits = bm_exit_bits;
     bitmap[BM_EXIT] = CreateBitmapIndirect(&bm);
 
-    bm.bmBits = bm_plus_bits;
-    bm.bmHeight = 16;
-    bitmap[BM_PLUS] = CreateBitmapIndirect(&bm);
     //153, 182, 224
 
     bitmap[BM_ONLINE] = CreateBitmap(10, 10, 1, 32, bm_online_bits);

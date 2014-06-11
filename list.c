@@ -102,24 +102,9 @@ static void drawitem(ITEM *i, int x, int y)
             break;
         }
 
-        case ITEM_ADDFRIEND:
-        {
-            setcolor((sitem == i) ? WHITE : 0x999999);
-
-            setfont(FONT_TITLE);
-            drawstr(x + 50, y + 14, "Add Friend");
-
-            drawbitmaptrans(BM_PLUS, x + 16, y + 16, 16, 16);
-
-            break;
-        }
-
         case ITEM_FRIEND_ADD:
         {
             drawbitmap(BM_CONTACT, x, y, 48, 48);
-
-            setcolor(0x939393);
-            drawbitmaptrans(BM_PLUS, x + 27, y + 5, 16, 16);
 
             FRIENDREQ *f = i->data;
 
@@ -240,9 +225,6 @@ void list_start(void)
     sitem = i;
 
     i->item = ITEM_SELF;
-    i++;
-
-    i->item = ITEM_ADDFRIEND;
     i++;
 
     FRIEND *f = friend, *end = f + friends;

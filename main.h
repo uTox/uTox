@@ -105,7 +105,6 @@ enum
     BM_RESTORE,
     BM_MAXIMIZE,
     BM_EXIT,
-    BM_PLUS,
     BM_CORNER,
     BM_ONLINE,
     BM_AWAY,
@@ -151,7 +150,6 @@ void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data);
 
 /* draw functions*/
 void drawbitmap(int bm, int x, int y, int width, int height);
-void drawbitmaptrans(int bm, int x, int y, int width, int height);
 void drawbitmapalpha(int bm, int x, int y, int width, int height);
 
 void drawtext(int x, int y, uint8_t *str, uint16_t length);
