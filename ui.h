@@ -41,6 +41,8 @@ extern SCROLLABLE scroll_list;
 
 void panel_draw(PANEL *p, int x, int y, int width, int height);
 
+void panel_update(PANEL *p, int x, int y, int width, int height);
+
 _Bool panel_mmove(PANEL *p, int x, int y, int width, int height, int mx, int my, int dy);
 _Bool panel_mdown(PANEL *p);
 _Bool panel_mright(PANEL *p);

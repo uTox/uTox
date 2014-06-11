@@ -26,7 +26,7 @@ typedef struct
 
 typedef struct
 {
-    uint32_t n, height, id;
+    uint32_t n, width, height, id;
     uint16_t istart, start, iend, end;
     void **data;
     double scroll;

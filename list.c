@@ -187,6 +187,8 @@ static void selectitem(ITEM *i)
         edit_msg.length = f->typed_length;
 
         messages_friend.data = &f->msg;
+        messages_updateheight(&messages_friend);
+
         messages_friend.iover = ~0;
         messages_friend.panel.content_scroll->content_height = f->msg.height;
         messages_friend.panel.content_scroll->d = f->msg.scroll;
@@ -202,6 +204,8 @@ static void selectitem(ITEM *i)
         edit_msg.length = g->typed_length;
 
         messages_group.data = &g->msg;
+        messages_updateheight(&messages_group);
+
         messages_group.iover = ~0;
         messages_group.panel.content_scroll->content_height = g->msg.height;
         messages_group.panel.content_scroll->d = g->msg.scroll;

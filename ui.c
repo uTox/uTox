@@ -719,6 +719,26 @@ void panel_draw(PANEL *p, int x, int y, int width, int height)
     enddraw(x, y, width, height);
 }
 
+void panel_update(PANEL *p, int x, int y, int width, int height)
+{
+    FUNC();
+
+    if(p->type == PANEL_MESSAGES) {
+        MESSAGES *m = (void*)p;
+        m->width = width;
+        if(!p->disabled) {
+            messages_updateheight(m);
+        }
+    }
+
+    PANEL **pp = p->child, *subp;
+    if(pp) {
+        while((subp = *pp++)) {
+            panel_update(subp, x, y, width, height);
+        }
+    }
+}
+
 _Bool panel_mmove(PANEL *p, int x, int y, int width, int height, int mx, int my, int dy)
 {
     mx -= (p->x < 0) ? width + p->x : p->x;

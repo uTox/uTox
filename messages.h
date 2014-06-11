@@ -3,7 +3,7 @@ struct messages
     PANEL panel;
     _Bool type, select;
     uint16_t urlover, urllen;
-    uint32_t height;
+    uint32_t height, width;
     uint32_t iover, over, idown, down;
     MSG_DATA *data;
 };
@@ -35,6 +35,6 @@ _Bool messages_mleave(MESSAGES *m);
 
 int messages_selection(MESSAGES *m, void *data, uint32_t len);
 
-void message_setheight(MESSAGES *m, MESSAGE *msg, MSG_DATA *p);
-void message_updateheight(MESSAGES *m, MESSAGE *msg, MSG_DATA *p);
+void messages_updateheight(MESSAGES *m) ;
+void message_fileupdateheight(MESSAGES *m, MSG_FILE *file, MSG_DATA *p);
 void message_add(MESSAGES *m, MESSAGE *msg, MSG_DATA *p);

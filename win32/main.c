@@ -875,6 +875,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             width = w;
             height = h;
 
+            panel_update(&panel_main, 0, 0, width, height);
+
             if(hdc_bm) {
                 DeleteObject(hdc_bm);
             }

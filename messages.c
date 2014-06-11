@@ -39,39 +39,36 @@ static int textout(int x, int y, char_t *str, uint16_t length, int d, int h1, in
     return width;
 }
 
-static int drawmsg(int x, int y, char_t *str, uint16_t length, int h1, int h2)
+static int drawmsg(int x, int y, int width, char_t *str, uint16_t length, int h1, int h2)
 {
-    _Bool word = 0;
-    int xc = x;
+    int xc = x, right = x + width;
     char_t *a = str, *b = str, *end = str + length;
-    while(a != end) {
-        switch(*a) {
-        case '\n': {
-            textout(x, y, b, a - b, b - str, h1, h2);
-            y += font_msg_lineheight;
-            x = xc;
-            b = a + 1;
+    while(1) {
+        if(a == end || *a == ' ' || *a == '\n') {
+            int count = a - b, w = textwidthW(b, count);
+            if(x + w > right) {
+                y += font_msg_lineheight;
+                x = xc;
+                b++;
+                count--;
+            }
+
+            x += textout(x, y, b, count, b - str, h1, h2);
+            b = a;
+
+            if(a == end) {
+                break;
+            }
+
+            if(*a == '\n') {
+                b++;
+                y += font_msg_lineheight;
+                x = xc;
+            }
 
             setcolor(0);
             setfont(FONT_MSG);
-            word = 0;
-            break;
-        }
-
-        case ' ': {
-            if(word) {
-                int count = a - b;
-                x += textout(x, y, b, count, b - str, h1, h2);
-                b = a;
-
-                setcolor(0);
-                setfont(FONT_MSG);
-                word = 0;
-            }
-            break;
-        }
-
-        case 'h': {
+        } else if(*a == 'h' && (a == str || *(a - 1) == ' ')) {
             if((end - a >= 7 && strcmp2(a, "http://") == 0) || (end - a >= 8 && strcmp2(a, "https://") == 0)) {
                 int count = a - b;
                 x += textout(x, y, b, count,  b - str, h1, h2);
@@ -79,10 +76,7 @@ static int drawmsg(int x, int y, char_t *str, uint16_t length, int h1, int h2)
 
                 setcolor(COLOR_LINK);
                 setfont(FONT_MSG_LINK);
-                word = 1;
             }
-            break;
-        }
         }
         a++;
     }
@@ -98,25 +92,48 @@ static int drawmsg(int x, int y, char_t *str, uint16_t length, int h1, int h2)
     return y;
 }
 
-static uint32_t pmsg(int mx, int my, char_t *str, uint16_t length)
+static uint32_t pmsg(int mx, int my, int right, int height, char_t *str, uint16_t length)
 {
+    int x = 0;
     char_t *a = str, *b = str, *end = str + length;
-    while(a != end) {
-        if(*a == '\n') {
-            if(my >= 0 && my <= font_msg_lineheight) {
+    while(1) {
+        if(a == end ||  *a == '\n' || *a == ' ') {
+            int count = a - b, w = textwidthW(b, a - b);
+            if(x + w > right) {
+                if(my >= 0 && my <= font_msg_lineheight) {
+                    break;
+                }
+                my -= font_msg_lineheight;
+                height -= font_msg_lineheight;
+                x = 0;
+                b++;
+                count--;
+                w = textwidthW(b, count);
+            }
+
+            if(a == end || (mx >= x && mx < x + w && my >= 0 && my < font_msg_lineheight) || (((mx >= x && mx < x + w) || mx < 0) && height == font_msg_lineheight)) {
                 break;
             }
+            x += w;
             b = a;
-            my -= font_msg_lineheight;
+
+            if(*a == '\n') {
+                b++;
+                if(my >= 0 && my < font_msg_lineheight) {
+                    break;
+                }
+                my -= font_msg_lineheight;
+                height -= font_msg_lineheight;
+                x = 0;
+            }
         }
         a++;
     }
 
     int fit;
-    mx -= 110;
-    if(mx > 0) {
+    if(mx - x > 0) {
         int len = a - b;
-        fit = textfitW(b, len, mx);
+        fit = textfitW(b, len, mx - x);
     } else {
         fit = 0;
     }
@@ -124,13 +141,33 @@ static uint32_t pmsg(int mx, int my, char_t *str, uint16_t length)
     return (b - str) + fit;
 }
 
-static int heightmsg(char_t *str, uint16_t length)
+static int heightmsg(char_t *str, int right, uint16_t length)
 {
-    int y = 0;
-    char_t *a = str, *end = str + length;
-    while(a != end) {
-        if(*a == '\n') {
-            y += font_msg_lineheight;
+    int y = 0, x = 0;
+    char_t *a = str, *b = str, *end = str + length;
+    while(1) {
+        if(a == end || *a == '\n' || *a == ' ') {
+            int count = a - b, w = textwidthW(b, a - b);
+            if(x + w > right) {
+                y += font_msg_lineheight;
+                x = 0;
+                b++;
+                count--;
+                w = textwidthW(b, count);
+            }
+
+            x += w;
+            b = a;
+
+            if(a == end) {
+                break;
+            }
+
+            if(*a == '\n') {
+                b++;
+                y += font_msg_lineheight;
+                x = 0;
+            }
         }
         a++;
     }
@@ -183,16 +220,24 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
         case 2:
         case 3: {
             /* normal message */
-            setcolor(0);
+            int h1 = 0, h2 = 0;
             if(i == m->data->istart) {
-                y = drawmsg(x + 110, y, msg->msg, msg->length, m->data->start, ((i == m->data->iend) ? m->data->end : msg->length));
+                h1 = m->data->start;
+                h2 = ((i == m->data->iend) ? m->data->end : msg->length);
             } else if(i == m->data->iend) {
-                y = drawmsg(x + 110, y, msg->msg, msg->length, 0, m->data->end);
+                h1 = 0;
+                h2 = m->data->end;
             } else if(i > m->data->istart && i < m->data->iend) {
-                y = drawmsg(x + 110, y, msg->msg, msg->length, 0, msg->length);
-            } else {
-                y = drawmsg(x + 110, y, msg->msg, msg->length, 0, 0);
+                h1 = 0;
+                h2 = msg->length;
             }
+
+            setcolor(0);
+            int ny = drawmsg(x + 110, y, width - 110, msg->msg, msg->length, h1, h2);
+            if(ny - y != msg->height) {
+                debug("error101\n");
+            }
+            y = ny;
 
             break;
         }
@@ -398,7 +443,7 @@ _Bool messages_mmove(MESSAGES *m, int mx, int my, int dy, int width, int height)
             case 2:
             case 3: {
                 /* normal message */
-                m->over = pmsg(mx, my, msg->msg, msg->length);
+                m->over = pmsg(mx - 110, my, width - 110, msg->height, msg->msg, msg->length);
                 m->urlover = 0xFFFF;
 
                 if(my >= dy || mx < 110 || m->over == msg->length)
@@ -814,14 +859,14 @@ int messages_selection(MESSAGES *m, void *data, uint32_t len)
     return (void*)p - data;
 }
 
-static int msgheight(MESSAGE *msg)
+static int msgheight(MESSAGE *msg, int width)
 {
     switch(msg->flags) {
     case 0:
     case 1:
     case 2:
     case 3: {
-        return heightmsg(msg->msg, msg->length);
+        return heightmsg(msg->msg, width - 110, msg->length);
     }
 
     case 6:
@@ -835,20 +880,45 @@ static int msgheight(MESSAGE *msg)
     return 0;
 }
 
-void message_setheight(MESSAGES *m, MESSAGE *msg, MSG_DATA *p)
+void messages_updateheight(MESSAGES *m)
 {
-    msg->height = msgheight(msg);
+    MSG_DATA *data = m->data;
+    if(!data || m->width == data->width) {
+        return;
+    }
+
+    uint32_t height = 0;
+    int i = 0;
+    while(i < data->n) {
+        MESSAGE *msg = data->data[i];
+        msg->height = msgheight(msg, m->width);
+        height += msg->height;
+        i++;
+    }
+
+    m->height = height;
+    data->height = height;
+    data->width = width;
+    m->panel.content_scroll->content_height = height;
+}
+
+static void message_setheight(MESSAGES *m, MESSAGE *msg, MSG_DATA *p)
+{
+    if(m->width == 0) {
+        return;
+    }
+    msg->height = msgheight(msg, m->width);
     p->height += msg->height;
     if(m->data == p) {
         m->panel.content_scroll->content_height = p->height;
     }
 }
 
-void message_updateheight(MESSAGES *m, MESSAGE *msg, MSG_DATA *p)
+void message_fileupdateheight(MESSAGES *m, MSG_FILE *file, MSG_DATA *p)
 {
-    int newheight = msgheight(msg);
-    p->height += newheight - msg->height;
-    msg->height = newheight;
+    int newheight = (file->status != FILE_PENDING && file->status < FILE_KILLED) ? font_msg_lineheight * 2 : font_msg_lineheight;
+    p->height += newheight - file->height;
+    file->height = newheight;
     if(m->data == p) {
         m->panel.content_scroll->content_height = p->height;
     }

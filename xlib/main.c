@@ -601,6 +601,8 @@ int main(int argc, char *argv[])
             width = ev->width;
             height = ev->height;
 
+            panel_update(&panel_main, 0, 0, width, height);
+
             XFreePixmap(display, drawbuf);
             drawbuf = XCreatePixmap(display, window, width, height, 24);
 
