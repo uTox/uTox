@@ -1,5 +1,7 @@
 static void* copy_message(uint8_t *str, uint16_t length, uint16_t flags)
 {
+    length = utf8_validate(str, length);
+
     MESSAGE *msg = malloc(length + 6);
     msg->flags = flags;
     msg->length = length;
@@ -17,6 +19,9 @@ static void* copy_groupmessage(Tox *tox, uint8_t *str, uint16_t length, uint16_t
         namelen = 9;
     }
 
+    length = utf8_validate(str, length);
+    namelen = utf8_validate(name, namelen);
+
 
     MESSAGE *msg = malloc(6 + length + namelen);
     msg->flags = flags;
@@ -31,6 +36,8 @@ static void* copy_groupmessage(Tox *tox, uint8_t *str, uint16_t length, uint16_t
 
 static void callback_friend_request(Tox *tox, uint8_t *id, uint8_t *msg, uint16_t length, void *userdata)
 {
+    length = utf8_validate(msg, length);
+
     FRIENDREQ *req = malloc(sizeof(FRIENDREQ) - 1 + length);
 
     req->length = length;
@@ -62,6 +69,8 @@ static void callback_friend_action(Tox *tox, int fid, uint8_t *action, uint16_t 
 
 static void callback_name_change(Tox *tox, int fid, uint8_t *newname, uint16_t length, void *userdata)
 {
+    length = utf8_validate(newname, length);
+
     void *data = malloc(length);
     memcpy(data, newname, length);
 
@@ -72,6 +81,8 @@ static void callback_name_change(Tox *tox, int fid, uint8_t *newname, uint16_t l
 
 static void callback_status_message(Tox *tox, int fid, uint8_t *newstatus, uint16_t length, void *userdata)
 {
+    length = utf8_validate(newstatus, length);
+
     void *data = malloc(length);
     memcpy(data, newstatus, length);
 
@@ -148,6 +159,8 @@ static void callback_group_namelist_change(Tox *tox, int gid, int pid, uint8_t c
     case TOX_CHAT_CHANGE_PEER_NAME: {
         uint8_t name[TOX_MAX_NAME_LENGTH];
         int len = tox_group_peername(tox, gid, pid, name);
+
+        len = utf8_validate(name, len);
 
         void *data = malloc(len + 1);
         *(uint8_t*)data = len;

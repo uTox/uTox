@@ -197,7 +197,7 @@ int textfitW(char_t *str, uint16_t length, int width)
     SIZE size;
     GetTextExtentExPointW(hdc, out, length, width, &fit, NULL, &size);
 
-    return fit;
+    return WideCharToMultiByte(CP_UTF8, 0, out, fit, str, 65536, NULL, 0);
 }
 
 void drawrect(int x, int y, int width, int height, uint32_t color)

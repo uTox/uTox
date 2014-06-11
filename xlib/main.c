@@ -146,11 +146,12 @@ int textfit(uint8_t *str, uint16_t length, int width)
 {
     int i = 0;
     while(i < length) {
-        i++;
+        uint8_t len = utf8_len(str);
+        i += len;
         XGlyphInfo extents;
         XftTextExtentsUtf8(display, sfont, str, i, &extents);
         if(extents.xOff >= width) {
-            i--;
+            i -= len;
             break;
         }
     }
@@ -694,6 +695,10 @@ int main(int argc, char *argv[])
             //debug("KeyEvent: %u %u %u %.*s\n", ev->state, ev->keycode, sym, len, buffer);
 
             if(ev->state & 4) {
+                if(!edit_active()) {
+                    break;
+                }
+
                 if(sym == 'v') {
                     pasteclipboard();
                 }
@@ -701,10 +706,21 @@ int main(int argc, char *argv[])
                 if(sym == 'c') {
                     setclipboard();
                 }
+
+                if(sym == 'a') {
+                    edit_selectall();
+                }
+
+
                 break;
             }
 
             if(edit_active()) {
+                if(sym == XK_Delete) {
+                    edit_delete();
+                    break;
+                }
+
                 long key = keysym2ucs(sym);
                 if (key != -1) {
                     edit_char((uint32_t)key, 0);

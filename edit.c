@@ -51,11 +51,12 @@ _Bool edit_mmove(EDIT *edit, int x, int y, int dy, int width, int height)
             fit = textfitW(edit->data, edit->length, extent);
 
             if(fit != edit->length) {
+                uint8_t len = utf8_len(edit->data + fit);
                 x1 = textwidthW(edit->data, fit);
-                x2 = textwidthW(edit->data, fit + 1);
+                x2 = textwidthW(edit->data, fit + len);
 
                 if(x2 - extent < extent - x1) {
-                    fit++;
+                    fit += len;
                 }
             }
         }
@@ -79,23 +80,14 @@ _Bool edit_mmove(EDIT *edit, int x, int y, int dy, int width, int height)
         fit = textfitW(edit->data, edit->length, extent);
 
         if(fit != edit->length) {
+            uint8_t len = utf8_len(edit->data + fit);
             x1 = textwidthW(edit->data, fit);
-            x2 = textwidthW(edit->data, fit + 1);
+            x2 = textwidthW(edit->data, fit + len);
 
             if(x2 - extent < extent - x1) {
-                fit++;
+                fit += len;
             }
         }
-
-        /*GetTextExtentExPoint(hdc, (char*)edit->data, edit->length, extent, &fit, NULL, &size);
-
-        GetTextExtentPoint32(hdc, (char*)edit->data, fit, &size);
-        int sx = size.cx;
-
-        GetTextExtentPoint32(hdc, (char*)edit->data, fit + 1, &size);
-        if(fit != edit->length && size.cx - extent < extent - sx) {
-            fit += 1;
-        }*/
 
         edit->mouseover_char = fit;
     }
@@ -162,7 +154,7 @@ _Bool edit_mleave(EDIT *edit)
     return 0;
 }
 
-static uint8_t unicode_to_native(uint32_t ch, char_t *dst, uint16_t *len)
+static uint8_t unicode_to_utf8(uint32_t ch, char_t *dst, uint16_t *len)
 {
     if (!dst) {
         if (ch > 0x1FFFFF) {
@@ -241,12 +233,12 @@ void edit_char(uint32_t ch, _Bool control)
         }
         }
     } else {
-        size_t len = unicode_to_native(ch, NULL, NULL);
+        size_t len = unicode_to_utf8(ch, NULL, NULL);
         if(edit->length - edit_sel.length + len <= edit->maxlength) {
             char_t *p = edit->data + edit_sel.start;
             memmove(p + len, p + edit_sel.length, (edit->length - (edit_sel.start + edit_sel.length)) * sizeof(char_t));
             edit->length -= edit_sel.length;
-            unicode_to_native(ch, edit->data + edit_sel.start, &edit->length);
+            unicode_to_utf8(ch, edit->data + edit_sel.start, &edit->length);
 
             edit_sel.start += len;
             edit_sel.p1 = edit->mouseover_char = edit_sel.start;
@@ -282,38 +274,13 @@ void edit_copy(void)
     CloseClipboard();*/
 }
 
-static int8_t utf8_len(char_t *data, int len)
-{
-    if(!(*data & 0x80)) {
-        return 1;
-    }
-    uint8_t bytes = 1;
-    for(uint8_t i = 6; i != 0xFF; i--) {
-        if (!((*data >> i) & 1)) {
-            break;
-        }
-        bytes++;
-    }
-    if(bytes == 1 || bytes == 8) {
-        return -1;
-    }
-    // Validate the utf8
-    if(bytes > len) {
-        return -1;
-    }
-    for(uint8_t i = 1; i < bytes; i++) {
-        if(!(data[i] & 0x80) || (data[i] & 0x40)) {
-            return -1;
-        }
-    }
-    return bytes;
-}
-
 void edit_paste(char_t *data, int length)
 {
     if(!active_edit) {
         return;
     }
+
+    length = utf8_validate(data, length);
 
     uint8_t lens[length];
     size_t num_chars = 0;
@@ -324,14 +291,14 @@ void edit_paste(char_t *data, int length)
             // Control characters.
             break;
         }
-        int8_t len = utf8_len(data+i, length-i);
-        if(len == -1) {
-            break;
-        }
+
+        uint8_t len = utf8_len(data + i);
+
         if(len == 2 && data[i] == 0xc2 && data[i+1] <= 0x9f) {
             // More control characters.
             break;
         }
+
         lens[num_chars++] = len;
         i += len;
     }
