@@ -2,6 +2,10 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 
+#include <netinet/in.h>
+#include <arpa/nameser.h>
+#include <resolv.h>
+
 #include <errno.h>
 
 #define RGB(r, g, b) (((r) << 16) | ((g) << 8) | (b))

@@ -859,6 +859,8 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
             addfriend_status = ADDF_BADNAME;
         }
         free(data);
+
+        redraw();
         break;
     }
 
