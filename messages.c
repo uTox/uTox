@@ -820,7 +820,7 @@ int messages_selection(MESSAGES *m, void *data, uint32_t len)
 
         if(m->type) {
             memcpy(p, &msg->msg[msg->length + 1], (uint16_t)msg->msg[msg->length] * 2);
-            p += (uint16_t)msg->msg[msg->length];
+            p += (uint8_t)msg->msg[msg->length];
         } else {
             FRIEND *f = &friend[m->data->id];
             uint8_t author = msg->flags & 1;
@@ -843,8 +843,21 @@ int messages_selection(MESSAGES *m, void *data, uint32_t len)
             case 1:
             case 2:
             case 3: {
-                memcpy(p, msg->msg, msg->length * 2);
-                p += msg->length;
+                if(i == m->data->istart) {
+                    if(i == m->data->iend) {
+                        memcpy(p, msg->msg + m->data->start, m->data->end - m->data->start);
+                        p += m->data->end - m->data->start;
+                    } else {
+                        memcpy(p, msg->msg + m->data->start, msg->length - m->data->start);
+                        p += msg->length - m->data->start;
+                    }
+                } else if(i == m->data->iend) {
+                    memcpy(p, msg->msg, m->data->end);
+                    p += m->data->end;
+                } else {
+                    memcpy(p, msg->msg, msg->length);
+                    p += msg->length;
+                }
                 break;
             }
         }
