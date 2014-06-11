@@ -709,6 +709,10 @@ int main(int argc, char *argv[])
                     edit_char(sym, 1);
                 }
                 break;
+            } else {
+                if(sym == XK_Delete) {
+                    list_deletesitem();
+                }
             }
 
             break;
