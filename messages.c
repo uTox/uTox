@@ -94,6 +94,10 @@ static int drawmsg(int x, int y, int width, char_t *str, uint16_t length, int h1
 
 static uint32_t pmsg(int mx, int my, int right, int height, char_t *str, uint16_t length)
 {
+    if(mx < 0 && my >= height) {
+        return length;
+    }
+
     int x = 0;
     char_t *a = str, *b = str, *end = str + length;
     while(1) {
@@ -101,17 +105,19 @@ static uint32_t pmsg(int mx, int my, int right, int height, char_t *str, uint16_
             int count = a - b, w = textwidthW(b, a - b);
             if(x + w > right) {
                 if(my >= 0 && my <= font_msg_lineheight) {
+                    x = mx;
                     break;
                 }
                 my -= font_msg_lineheight;
                 height -= font_msg_lineheight;
+
                 x = 0;
                 b++;
                 count--;
                 w = textwidthW(b, count);
             }
 
-            if(a == end || (mx >= x && mx < x + w && my >= 0 && my < font_msg_lineheight) || (((mx >= x && mx < x + w) || mx < 0) && height == font_msg_lineheight)) {
+            if(a == end || (mx < 0 && my >= 0 && my <= font_msg_lineheight) || (mx >= x && mx < x + w && my >= 0 && (my < font_msg_lineheight || height == font_msg_lineheight))) {
                 break;
             }
             x += w;
@@ -120,6 +126,7 @@ static uint32_t pmsg(int mx, int my, int right, int height, char_t *str, uint16_
             if(*a == '\n') {
                 b++;
                 if(my >= 0 && my < font_msg_lineheight) {
+                    x = mx;
                     break;
                 }
                 my -= font_msg_lineheight;
@@ -420,7 +427,7 @@ _Bool messages_mmove(MESSAGES *m, int mx, int my, int dy, int width, int height)
         my = 0;
     }
 
-    if(mx < 0 || mx >= width) {
+    if(mx < 0) {
         m->iover = ~0;
         return 0;
     }
