@@ -49,7 +49,7 @@ static int drawmsg(int x, int y, int width, char_t *str, uint16_t length, int h1
             if(x + w > right) {
                 y += font_msg_lineheight;
                 x = xc;
-                b++;
+                b += utf8_len(b);
                 count--;
             }
 
@@ -61,7 +61,7 @@ static int drawmsg(int x, int y, int width, char_t *str, uint16_t length, int h1
             }
 
             if(*a == '\n') {
-                b++;
+                b += utf8_len(b);
                 y += font_msg_lineheight;
                 x = xc;
             }
@@ -78,7 +78,7 @@ static int drawmsg(int x, int y, int width, char_t *str, uint16_t length, int h1
                 setfont(FONT_MSG_LINK);
             }
         }
-        a++;
+        a += utf8_len(a);
     }
 
     textout(x, y, b, a - b, b - str, h1, h2);
@@ -112,7 +112,7 @@ static uint32_t pmsg(int mx, int my, int right, int height, char_t *str, uint16_
                 height -= font_msg_lineheight;
 
                 x = 0;
-                b++;
+                b += utf8_len(b);
                 count--;
                 w = textwidthW(b, count);
             }
@@ -124,7 +124,7 @@ static uint32_t pmsg(int mx, int my, int right, int height, char_t *str, uint16_
             b = a;
 
             if(*a == '\n') {
-                b++;
+                b += utf8_len(b);
                 if(my >= 0 && my < font_msg_lineheight) {
                     x = mx;
                     break;
@@ -134,7 +134,7 @@ static uint32_t pmsg(int mx, int my, int right, int height, char_t *str, uint16_
                 x = 0;
             }
         }
-        a++;
+        a += utf8_len(a);
     }
 
     int fit;
@@ -158,7 +158,7 @@ static int heightmsg(char_t *str, int right, uint16_t length)
             if(x + w > right) {
                 y += font_msg_lineheight;
                 x = 0;
-                b++;
+                b += utf8_len(b);
                 count--;
                 w = textwidthW(b, count);
             }
@@ -171,12 +171,12 @@ static int heightmsg(char_t *str, int right, uint16_t length)
             }
 
             if(*a == '\n') {
-                b++;
+                b += utf8_len(b);
                 y += font_msg_lineheight;
                 x = 0;
             }
         }
-        a++;
+        a += utf8_len(a);
     }
 
     y += font_msg_lineheight;

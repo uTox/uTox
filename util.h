@@ -27,3 +27,14 @@ _Bool string_to_id(char_t *dest, char_t *src);
     notes: dest should be atleast # characters large
 */
 int sprint_bytes(uint8_t *dest, uint64_t bytes);
+
+/* length of a utf-8 character
+    returns the size of the character in bytes
+    returns -1 if the size of the character is greater than len or if the character is invalid
+ */
+uint8_t utf8_len(char_t *data);
+
+/* remove invalid characters from utf8 string
+    returns the new length after invalid characters have been removed
+ */
+int utf8_validate(char_t *data, int len);
