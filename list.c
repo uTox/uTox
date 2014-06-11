@@ -549,7 +549,7 @@ _Bool list_mup(void *n)
                     FRIEND *f = sitem->data;
                     GROUPCHAT *g = nitem->data;
 
-                    tox_postmessage(TOX_GROUPINVITE, (f - friend), (g - group), NULL);
+                    tox_postmessage(TOX_GROUPINVITE, (g - group), (f - friend), NULL);
                 }
 
             }
