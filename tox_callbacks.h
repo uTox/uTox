@@ -34,7 +34,7 @@ static void* copy_groupmessage(Tox *tox, uint8_t *str, uint16_t length, uint16_t
     return msg;
 }
 
-static void callback_friend_request(Tox *tox, uint8_t *id, uint8_t *msg, uint16_t length, void *userdata)
+static void callback_friend_request(Tox *tox, const uint8_t *id, const uint8_t *msg, uint16_t length, void *userdata)
 {
     length = utf8_validate(msg, length);
 

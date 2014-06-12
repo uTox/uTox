@@ -140,10 +140,10 @@ uint8_t utf8_len(char_t *data)
     return bytes;
 }
 
-int utf8_validate(char_t *data, int len)
+int utf8_validate(const char_t *data, int len)
 {
     //stops when an invalid character is reached
-    char_t *a = data, *end = data + len;
+    const char_t *a = data, *end = data + len;
     while(a != end) {
         if(!(*a & 0x80)) {
             a++;

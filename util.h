@@ -37,4 +37,4 @@ uint8_t utf8_len(char_t *data);
 /* remove invalid characters from utf8 string
     returns the new length after invalid characters have been removed
  */
-int utf8_validate(char_t *data, int len);
+int utf8_validate(const char_t *data, int len);
