@@ -16,7 +16,7 @@
 
 #define IPV6_ENABLED 0
 #define DEFAULT_NAME "Tox User"
-#define DEFAULT_STATUS "Toxing on winTox"
+#define DEFAULT_STATUS "Toxing on uTox"
 
 typedef struct
 {

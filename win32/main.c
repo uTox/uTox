@@ -624,10 +624,10 @@ static void parsecmd(uint8_t *cmd, int len)
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int nCmdShow)
 {
-    /* if opened with argument, check if winTox is already open and pass the argument to the existing process */
-    CreateMutex(NULL, 0, "winTox");
+    /* if opened with argument, check if uTox is already open and pass the argument to the existing process */
+    CreateMutex(NULL, 0, "uTox");
     if(*cmd && GetLastError() == ERROR_ALREADY_EXISTS) {
-        HWND hwnd = FindWindow("winTox", NULL);
+        HWND hwnd = FindWindow("uTox", NULL);
         SetForegroundWindow(hwnd);
         COPYDATASTRUCT data = {
             .cbData = strlen(cmd),
@@ -649,7 +649,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     /* */
     MSG msg;
     int x, y;
-    const char classname[] = "winTox";
+    const char classname[] = "uTox";
 
     HICON myicon = LoadIcon(hInstance, MAKEINTRESOURCE(101));
     cursor_arrow = LoadCursor(NULL, IDC_ARROW);

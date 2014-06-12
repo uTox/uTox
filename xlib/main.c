@@ -615,7 +615,7 @@ int main(int argc, char *argv[])
 
     bitmap[BM_CORNER] = createbitmap(8, 8, test);
 
-    XSetStandardProperties(display, window, "winTox", "winTox", None, argv, argc, &xsh);
+    XSetStandardProperties(display, window, "uTox", "uTox", None, argv, argc, &xsh);
     //XSetWMHints(display, window, &xwmh);
 
     /*struct MwmHints {

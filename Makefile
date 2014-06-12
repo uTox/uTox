@@ -6,10 +6,10 @@ LDFLAGS += -ltoxcore -ltoxav -lresolv -ldl
 SRC = $(wildcard *.c)
 OBJ = $(SRC:.c=.o)
 
-all: winTox
+all: uTox
 
-winTox: $(OBJ)
-	$(CC) $(CFLAGS) -o winTox $(OBJ) $(LDFLAGS)
+uTox: $(OBJ)
+	$(CC) $(CFLAGS) -o uTox $(OBJ) $(LDFLAGS)
 
 main.o: xlib/main.c xlib/keysym2ucs.c
 
@@ -17,6 +17,6 @@ main.o: xlib/main.c xlib/keysym2ucs.c
 	$(CC) $(CFLAGS) -c $<
 
 clean:
-	rm -f winTox *.o
+	rm -f uTox *.o
 
 .PHONY: all clean
