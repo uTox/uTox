@@ -603,7 +603,14 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint8_t msg, uint16_t param1
         /* param1: length of message
          * data: friend id + message
          */
-        int r = tox_add_friend(tox, data, data + TOX_FRIEND_ADDRESS_SIZE, param1);
+        int r;
+
+        if(!param1) {
+            r = tox_add_friend(tox, data, (uint8_t*)DEFAULT_ADD_MESSAGE, sizeof(DEFAULT_ADD_MESSAGE) - 1);
+        } else {
+            r = tox_add_friend(tox, data, data + TOX_FRIEND_ADDRESS_SIZE, param1);
+        }
+
         postmessage(FRIEND_ADD, (r < 0), (r < 0) ? ~r : r, data);
         break;
     }
