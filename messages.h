@@ -10,7 +10,7 @@ struct messages
 
 typedef struct {
     uint16_t flags, height, length;
-    char_t msg[1];
+    char_t msg[0];
 } MESSAGE;
 
 typedef struct {

@@ -2,7 +2,7 @@ static void* copy_message(uint8_t *str, uint16_t length, uint16_t flags)
 {
     length = utf8_validate(str, length);
 
-    MESSAGE *msg = malloc(length + 6);
+    MESSAGE *msg = malloc(sizeof(MESSAGE) + length);
     msg->flags = flags;
     msg->length = length;
     memcpy(msg->msg, str, length);
@@ -23,7 +23,7 @@ static void* copy_groupmessage(Tox *tox, uint8_t *str, uint16_t length, uint16_t
     namelen = utf8_validate(name, namelen);
 
 
-    MESSAGE *msg = malloc(6 + length + namelen);
+    MESSAGE *msg = malloc(sizeof(MESSAGE) + 1 + length + namelen);
     msg->flags = flags;
     msg->length = length;
     memcpy(msg->msg, str, length);
@@ -162,8 +162,8 @@ static void callback_group_namelist_change(Tox *tox, int gid, int pid, uint8_t c
 
         len = utf8_validate(name, len);
 
-        void *data = malloc(len + 1);
-        *(uint8_t*)data = len;
+        uint8_t *data = malloc(len + 1);
+        data[0] = len;
         memcpy(data + 1, name, len);
 
         postmessage(GROUP_PEER_NAME, gid, pid, data);
