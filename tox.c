@@ -35,7 +35,7 @@ static void fillbuffer(FILE_T *ft)
 {
     ft->buffer_bytes = fread(ft->buffer, 1, ft->sendsize, ft->data);
     ft->bytes += ft->buffer_bytes;
-    ft->finish = (feof((FILE*)ft->data) != 0);
+    ft->finish = (ft->bytes >= ft->total) || (feof((FILE*)ft->data) != 0);
 }
 
 static void sendfile(Tox *tox, uint32_t fid, uint8_t *path, uint8_t *name, uint16_t name_length)
