@@ -75,7 +75,7 @@ _Bool tox_connected;
 //friends and groups
 //note: assumes array size will always be large enough
 FRIEND friend[256];
-GROUPCHAT group[64];
+GROUPCHAT group[1024];
 uint32_t friends, groups;
 
 //window
