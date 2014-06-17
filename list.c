@@ -1,7 +1,7 @@
 #include "main.h"
 
 static ITEM item_add, item_settings;
-static ITEM item[256], *mitem, *nitem;
+static ITEM item[1024], *mitem, *nitem;
 static uint32_t itemcount;
 
 static _Bool sitem_mousedown;
