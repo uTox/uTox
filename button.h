@@ -1,13 +1,12 @@
 /*todo: draw nice button */
 
-typedef struct {
+struct button {
     PANEL panel;
-    int bm;
-    _Bool mouseover, mousedown;
-    uint16_t text_length;
-    uint8_t *text;
+    int bm, bm2, bw, bh;
+    uint32_t c1, c2, c3;
+    _Bool mouseover, mousedown, disabled;
     void (*onpress)(void);
-} BUTTON;
+};
 
 void button_draw(BUTTON *b, int x, int y, int width, int height);
 _Bool button_mmove(BUTTON *b, int x, int y, int dy, int width, int height);

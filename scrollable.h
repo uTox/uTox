@@ -3,8 +3,11 @@ struct scrollable
 {
     PANEL panel;
 
+    uint32_t color;
+    int x;
+
     double d;
-    _Bool mousedown, mouseover, mouseover2;
+    _Bool left, mousedown, mouseover, mouseover2;
     int content_height;
 };
 

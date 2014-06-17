@@ -5,7 +5,7 @@ static EDIT *active_edit;
 void edit_draw(EDIT *edit, int x, int y, int width, int height)
 {
     RECT outline = {x, y, x + width, y + height};
-    framerect(&outline, (edit == active_edit) ? BLUE : (edit->mouseover ? GRAY6 : GRAY5));
+    framerect(&outline, (edit == active_edit) ? BLUE : (edit->mouseover ? C_GRAY2 : C_GRAY));
 
     RECT area = {x + 1, y + 1, x + width - 1, y + height - 1};
     fillrect(&area, WHITE);
@@ -13,17 +13,17 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
     setfont(FONT_TEXT);
     setcolor(COLOR_TEXT);
 
-    drawtextrangecutW(x + 5, x + width - 5, y + 5, edit->data, edit->length);
+    drawtextrangecut(x + 5, x + width - 5, y + 5, edit->data, edit->length);
 
     if(edit == active_edit) {
-        int x1 = textwidthW(edit->data, edit_sel.start);
-        int w = textwidthW(edit->data + edit_sel.start, edit_sel.length);
+        int x1 = textwidth(edit->data, edit_sel.start);
+        int w = textwidth(edit->data + edit_sel.start, edit_sel.length);
 
         setcolor(TEXT_HIGHLIGHT);
 
         if(edit_sel.length) {
-            drawrect(x + 5 + x1, y + 5, w, 14, TEXT_HIGHLIGHT_BG);
-            drawtextrangecutW(x + 5 + x1, x + width - 5, y + 5, edit->data + edit_sel.start, edit_sel.length);
+            drawrectw(x + 5 + x1, y + 5, w, 14, TEXT_HIGHLIGHT_BG);
+            drawtextrangecut(x + 5 + x1, x + width - 5, y + 5, edit->data + edit_sel.start, edit_sel.length);
         } else {
             drawvline(x + 5 + x1, y + 5, y + 19, BLACK);
         }
@@ -48,12 +48,12 @@ _Bool edit_mmove(EDIT *edit, int x, int y, int dy, int width, int height)
         setfont(FONT_TEXT);
 
         if(extent > 0) {
-            fit = textfitW(edit->data, edit->length, extent);
+            fit = textfit(edit->data, edit->length, extent);
 
             if(fit != edit->length) {
                 uint8_t len = utf8_len(edit->data + fit);
-                x1 = textwidthW(edit->data, fit);
-                x2 = textwidthW(edit->data, fit + len);
+                x1 = textwidth(edit->data, fit);
+                x2 = textwidth(edit->data, fit + len);
 
                 if(x2 - extent < extent - x1) {
                     fit += len;
@@ -77,12 +77,12 @@ _Bool edit_mmove(EDIT *edit, int x, int y, int dy, int width, int height)
         int fit = 0, extent = x - 5, x1, x2;
 
         setfont(FONT_TEXT);
-        fit = textfitW(edit->data, edit->length, extent);
+        fit = textfit(edit->data, edit->length, extent);
 
         if(fit != edit->length) {
             uint8_t len = utf8_len(edit->data + fit);
-            x1 = textwidthW(edit->data, fit);
-            x2 = textwidthW(edit->data, fit + len);
+            x1 = textwidth(edit->data, fit);
+            x2 = textwidth(edit->data, fit + len);
 
             if(x2 - extent < extent - x1) {
                 fit += len;

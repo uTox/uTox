@@ -2,18 +2,20 @@
 
 void button_draw(BUTTON *b, int x, int y, int width, int height)
 {
-    RECT frame = {x, y, x + width, y + height};
-    framerect(&frame, b->mouseover ? BLUE : INNER_BORDER);
-
-    RECT area = {x + 1, y + 1, x + width - 1, y + height - 1};
-    fillrect(&area, b->mouseover ? BUTTON_AREA_HIGHLIGHT : BUTTON_AREA);
-
+    uint32_t color = b->mousedown ? b->c3 : (b->mouseover ? b->c2 : b->c1);
     if(b->bm) {
-        drawbitmapalpha(b->bm, x, y, 48, 48);
+        drawalpha(b->bm, x, y, width, height, color);
     } else {
-        setfont(FONT_TEXT_LARGE);
-        setcolor(b->mouseover ? 0x222222 : 0x555555);
-        drawtext(x + 5, y, b->text, b->text_length);
+        drawrectw(x, y, width, height, b->disabled ? LIST_MAIN : color);
+
+        //setfont(FONT_TEXT_LARGE);
+        //setcolor(b->mouseover ? 0x222222 : 0x555555);
+        //drawtext(x + 5, y, b->text, b->text_length);
+    }
+
+    if(b->bm2) {
+        int bx = width / 2 - b->bw / 2, by = height / 2 - b->bh / 2;
+        drawalpha(b->bm2, x + bx, y + by, b->bw, b->bw, WHITE);
     }
 }
 

@@ -13,7 +13,10 @@
 
 #include "keysym2ucs.c"
 
-#define DEFAULT_BDWIDTH 1 /* border width */
+#define DEFAULT_WIDTH 764
+#define DEFAULT_HEIGHT 640
+
+#define DEFAULT_BDWIDTH 0;//1 /* border width */
 
 char *text = "Hello Xft";
 Display *display;
@@ -23,11 +26,13 @@ GC gc;
 Colormap cmap;
 Visual *visual;
 
-Pixmap bitmap[16];
+Picture bitmap[32];
 
-XftFont *font[16], *sfont;
+XftFont *font[32], *sfont;
 XftDraw *xftdraw;
 XftColor xftcolor;
+
+Picture testpicture;
 
 uint32_t scolor;
 
@@ -54,6 +59,11 @@ void* (*gtk_file_chooser_get_filename)(void*);
 void* (*gtk_file_chooser_get_filenames)(void*);
 void (*gtk_widget_destroy)(void*);
 
+void drawpicture(int x, int y, int width, int height)
+{
+    //XRenderComposite(display, PictOpBlendMaximum, testpicture, None, XftDrawPicture(xftdraw), 0, 0, 0, 0, x, y, width, height);
+}
+
 void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data)
 {
     XEvent event = {
@@ -77,16 +87,33 @@ void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data)
 void drawbitmap(int bm, int x, int y, int width, int height)
 {
     //debug("%u %u\n", bm, bitmap[bm]);
-    if(bm <= BM_EXIT) {
+    /*if(bm <= BM_EXIT) {
         XCopyPlane(display, bitmap[bm], drawbuf, gc, 0, 0, width, height, x, y, 1);
     } else {
         XCopyArea(display, bitmap[bm], drawbuf, gc, 0, 0, width, height, x, y);
-    }
+    }*/
 }
 
 void drawbitmapalpha(int bm, int x, int y, int width, int height)
 {
-    XCopyArea(display, bitmap[bm], drawbuf, gc, 0, 0, width, height, x, y);
+    drawpicture(x, y, width, height);
+    //XCopyArea(display, bitmap[bm], drawbuf, gc, 0, 0, width, height, x, y);
+}
+
+void drawalpha(int bm, int x, int y, int width, int height, uint32_t color)
+{
+    XRenderColor xrcolor = {
+        .red = ((color >> 8) & 0xFF00) | 0x80,
+        .green = ((color) & 0xFF00) | 0x80,
+        .blue = ((color << 8) & 0xFF00) | 0x80,
+        .alpha = 0xFFFF
+    };
+
+    Picture src = XRenderCreateSolidFill(display, &xrcolor);
+
+    XRenderComposite(display, PictOpOver, src, bitmap[bm], XftDrawPicture(xftdraw), 0, 0, 0, 0, x, y, width, height);
+
+    XRenderFreePicture(display, src);
 }
 
 void drawtext(int x, int y, uint8_t *str, uint16_t length)
@@ -116,27 +143,33 @@ int drawtext_getwidthW(int x, int y, char_t *str, uint16_t length)
 
 void drawtextwidth(int x, int width, int y, uint8_t *str, uint16_t length)
 {
-    pushclip(x, y, width, 256);
-
-    drawtext(x, y, str, length);
-
-    popclip();
-}
-
-void drawtextwidth_right(int x, int width, int y, uint8_t *str, uint16_t length)
-{
-    drawtext(x, y, str, length);
-}
-
-void drawtextwidth_rightW(int x, int width, int y, char_t *str, uint16_t length)
-{
-    drawtext(x, y, str, length);
+    int fit = textfit(str, length, width);
+    if(fit != length) {
+        uint8_t buf[fit + 3];
+        memcpy(buf, str, fit);
+        memcpy(buf + fit, "...", 3);
+        drawtext(x, y, buf, fit + 3);
+    } else {
+        drawtext(x, y, str, length);
+    }
 }
 
 void drawtextrange(int x, int x2, int y, uint8_t *str, uint16_t length)
 {
-    drawtext(x, y, str, length);
+    drawtextwidth(x, x2 - x, y, str, length);
 }
+
+void drawtextwidth_right(int x, int width, int y, uint8_t *str, uint16_t length)
+{
+    int w = textwidth(str, length);
+    drawtext(x + width - w, y, str, length);
+}
+
+void drawtextwidth_rightW(int x, int width, int y, char_t *str, uint16_t length)
+{
+    drawtextwidth_right(x, width, y, str, length);
+}
+
 
 void drawtextrangecut(int x, int x2, int y, uint8_t *str, uint16_t length)
 {
@@ -183,11 +216,18 @@ int textfitW(char_t *str, uint16_t length, int width)
     return textfit(str, length, width);
 }
 
-void drawrect(int x, int y, int width, int height, uint32_t color)
+void drawrect(int x, int y, int right, int bottom, uint32_t color)
+{
+    XSetForeground(display, gc, color);
+    XFillRectangle(display, drawbuf, gc, x, y, right - x, bottom - y);
+}
+
+void drawrectw(int x, int y, int width, int height, uint32_t color)
 {
     XSetForeground(display, gc, color);
     XFillRectangle(display, drawbuf, gc, x, y, width, height);
 }
+
 
 void drawhline(int x, int y, int x2, uint32_t color)
 {
@@ -438,17 +478,34 @@ static void pasteclipboard(void)
     }
 }
 
-static Pixmap createbitmap(int width, int height, void *data)
+static Picture loadrgba(void *data, int width, int height)
 {
-    XGCValues gcvalues;
+    Pixmap pixmap = XCreatePixmap(display, window, width, height, 32);
+    XImage *img = XCreateImage(display, CopyFromParent, 32, ZPixmap, 0, data, width, height, 32, 0);
+    GC legc = XCreateGC(display, pixmap, 0, NULL);
+    XPutImage(display, pixmap, legc, img, 0, 0, 0, 0, width, height);
 
-    XImage *img = XCreateImage(display, CopyFromParent, 24, ZPixmap, 0, data, width, height, 32, 0);
-    Pixmap p = XCreatePixmap(display, window, width, height, 24);
-    GC gc = XCreateGC(display, p, 0, &gcvalues);
+    Picture picture = XRenderCreatePicture(display, pixmap, XRenderFindStandardFormat(display, PictStandardARGB32), 0, NULL);
 
-    XPutImage(display, p, gc, img, 0, 0, 0, 0, width, height);
+    XFreeGC(display, legc);
+    XFreePixmap(display, pixmap);
 
-    return p;
+    return picture;
+}
+
+static Picture loadalpha(void *data, int width, int height)
+{
+    Pixmap pixmap = XCreatePixmap(display, window, width, height, 8);
+    XImage *img = XCreateImage(display, CopyFromParent, 8, ZPixmap, 0, data, width, height, 8, 0);
+    GC legc = XCreateGC(display, pixmap, 0, NULL);
+    XPutImage(display, pixmap, legc, img, 0, 0, 0, 0, width, height);
+
+    Picture picture = XRenderCreatePicture(display, pixmap, XRenderFindStandardFormat(display, PictStandardA8), 0, NULL);
+
+    XFreeGC(display, legc);
+    XFreePixmap(display, pixmap);
+
+    return picture;
 }
 
 int main(int argc, char *argv[])
@@ -459,9 +516,9 @@ int main(int argc, char *argv[])
 
     XSizeHints xsh = {
         .flags = PSize | PMinSize,
-        .width = 800,
+        .width = DEFAULT_WIDTH,
         .min_width = 480,
-        .height = 600,
+        .height = DEFAULT_HEIGHT,
         .min_height = 320
     };
 
@@ -551,107 +608,70 @@ int main(int argc, char *argv[])
                     PointerMotionMask | StructureNotifyMask | KeyPressMask | KeyReleaseMask,
     };
 
+    #define F(x) (x * SCALE / 2.0)
+    font[FONT_TEXT] = XftFontOpen(display, screen, XFT_FAMILY, XftTypeString, "Roboto", XFT_PIXEL_SIZE, XftTypeDouble, F(12.0), NULL);
 
-    font[FONT_TITLE] = XftFontOpen(display, screen, XFT_FAMILY, XftTypeString, "DejaVu Sans", XFT_PIXEL_SIZE, XftTypeDouble, 20.0, NULL);
-    font[FONT_SUBTITLE] = XftFontOpen(display, screen, XFT_FAMILY, XftTypeString, "DejaVu Sans", XFT_PIXEL_SIZE, XftTypeDouble, 18.0, NULL);
-    font[FONT_MED] = XftFontOpen(display, screen, XFT_FAMILY, XftTypeString, "DejaVu Sans", XFT_PIXEL_SIZE, XftTypeDouble, 16.0, NULL);
-    font[FONT_TEXT_LARGE] = XftFontOpen(display, screen, XFT_FAMILY, XftTypeString, "DejaVu Sans", XFT_PIXEL_SIZE, XftTypeDouble, 14.0, NULL);
-    font[FONT_TEXT] = XftFontOpen(display, screen, XFT_FAMILY, XftTypeString, "DejaVu Sans", XFT_PIXEL_SIZE, XftTypeDouble, 12.0, NULL);
+    font[FONT_TITLE] = XftFontOpen(display, screen, XFT_FAMILY, XftTypeString, "Roboto", XFT_PIXEL_SIZE, XftTypeDouble, F(12.0), XFT_WEIGHT, XftTypeInteger, FC_WEIGHT_BOLD, NULL);
 
-    font[FONT_MSG] = XftFontOpen(display, screen, XFT_FAMILY, XftTypeString, "DejaVu Sans", XFT_PIXEL_SIZE, XftTypeDouble, 16.0, NULL);
-    font[FONT_MSG_NAME] = XftFontOpen(display, screen, XFT_FAMILY, XftTypeString, "DejaVu Sans", XFT_PIXEL_SIZE, XftTypeDouble, 16.0, XFT_WEIGHT, XftTypeInteger, FC_WEIGHT_BOLD, NULL);
-    font[FONT_MSG_LINK] = XftFontOpen(display, screen, XFT_FAMILY, XftTypeString, "DejaVu Sans", XFT_PIXEL_SIZE, XftTypeDouble, 16.0, NULL);
+    font[FONT_SELF_NAME] = XftFontOpen(display, screen, XFT_FAMILY, XftTypeString, "Roboto", XFT_PIXEL_SIZE, XftTypeDouble, F(14.0), XFT_WEIGHT, XftTypeInteger, FC_WEIGHT_BOLD, NULL);
+    font[FONT_STATUS] = XftFontOpen(display, screen, XFT_FAMILY, XftTypeString, "Roboto", XFT_PIXEL_SIZE, XftTypeDouble, F(11.0), NULL);
 
+    font[FONT_LIST_NAME] = XftFontOpen(display, screen, XFT_FAMILY, XftTypeString, "Roboto", XFT_PIXEL_SIZE, XftTypeDouble, F(12.0), NULL);
+
+    font[FONT_MSG] = XftFontOpen(display, screen, XFT_FAMILY, XftTypeString, "Roboto", XFT_PIXEL_SIZE, XftTypeDouble, F(11.0), XFT_WEIGHT, XftTypeInteger, FC_WEIGHT_LIGHT, NULL);
+    font[FONT_MSG_NAME] = XftFontOpen(display, screen, XFT_FAMILY, XftTypeString, "Roboto", XFT_PIXEL_SIZE, XftTypeDouble, F(10.0), XFT_WEIGHT, XftTypeInteger, FC_WEIGHT_LIGHT, NULL);
+    font[FONT_MSG_LINK] = font[FONT_MSG];
+    #undef F
 
     font_small_lineheight = font[FONT_TEXT]->height;
     font_msg_lineheight = font[FONT_MSG]->height;
 
     //window = XCreateSimpleWindow(display, RootWindow(display, screen), 0, 0, 800, 600, 0, BlackPixel(display, screen), WhitePixel(display, screen));
-    window = XCreateWindow(display, RootWindow(display, screen), 0, 0, 800, 600, 0, 24, InputOutput, visual, CWBackPixel | CWBorderPixel | CWEventMask, &attrib);
-    drawbuf = XCreatePixmap(display, window, 800, 600, 24);
+    window = XCreateWindow(display, RootWindow(display, screen), 0, 0, DEFAULT_WIDTH, DEFAULT_HEIGHT, 0, 24, InputOutput, visual, CWBackPixel | CWBorderPixel | CWEventMask, &attrib);
+    drawbuf = XCreatePixmap(display, window, DEFAULT_WIDTH, DEFAULT_HEIGHT, 24);
     //XSelectInput(display, window, ExposureMask | ButtonPressMask | ButtonReleaseMask | EnterWindowMask | LeaveWindowMask | PointerMotionMask | StructureNotifyMask | KeyPressMask | KeyReleaseMask);
 
     Atom version = 3;
     XChangeProperty(display, window, XdndAware, XA_ATOM, 32, PropModeReplace, (uint8_t*)&version, 1);
 
+    svg_draw();
 
-    bitmap[BM_MINIMIZE] = XCreateBitmapFromData(display, window, (char*)bm_minimize_bits, 16, 10);
-    bitmap[BM_RESTORE] = XCreateBitmapFromData(display, window, (char*)bm_restore_bits, 16, 10);
-    bitmap[BM_MAXIMIZE] = XCreateBitmapFromData(display, window, (char*)bm_maximize_bits, 16, 10);
-    bitmap[BM_EXIT] = XCreateBitmapFromData(display, window, (char*)bm_exit_bits, 16, 10);
+    void *p = bm_status_bits;
+    bitmap[BM_ONLINE] = loadalpha(p, BM_STATUS_WIDTH, BM_STATUS_WIDTH); p += BM_STATUS_WIDTH * BM_STATUS_WIDTH;
+    bitmap[BM_AWAY] = loadalpha(p, BM_STATUS_WIDTH, BM_STATUS_WIDTH); p += BM_STATUS_WIDTH * BM_STATUS_WIDTH;
+    bitmap[BM_BUSY] = loadalpha(p, BM_STATUS_WIDTH, BM_STATUS_WIDTH); p += BM_STATUS_WIDTH * BM_STATUS_WIDTH;
+    bitmap[BM_OFFLINE] = loadalpha(p, BM_STATUS_WIDTH, BM_STATUS_WIDTH);
 
-    bitmap[BM_ONLINE] = createbitmap(10, 10, bm_online_bits);
-    bitmap[BM_AWAY] = createbitmap(10, 10, bm_away_bits);
-    bitmap[BM_BUSY] = createbitmap(10, 10, bm_busy_bits);
-    bitmap[BM_OFFLINE] = createbitmap(10, 10, bm_offline_bits);
-    bitmap[BM_CONTACT] = createbitmap(48, 48, bm_contact_bits);
-    bitmap[BM_GROUP] = createbitmap(48, 48, bm_group_bits);
-    bitmap[BM_FILE] = createbitmap(48, 48, bm_file_bits);
+    bitmap[BM_LBUTTON] = loadalpha(bm_lbutton, BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
+    bitmap[BM_SBUTTON] = loadalpha(bm_sbutton, BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+    //bitmap[BM_NMSG] = loadalpha(bm_status_bits, BM_NMSG_WIDTH, BM_NMSG_WIDTH);
 
-    uint32_t test[64];
-    int xx = 0;
-    while(xx < 8) {
-        int y = 0;
-        while(y < 8) {
-            uint32_t value = 0xFFFFFF;
-            if(xx + y >= 7) {
-                int a = xx % 3, b = y % 3;
-                if(a == 1) {
-                    if(b == 0) {
-                        value = 0xB6B6B6;
-                    } else if(b == 1) {
-                        value = 0x999999;
-                    }
-                } else if(a == 0 && b == 1) {
-                    value = 0xE0E0E0;
-                }
-            }
 
-            test[y * 8 + xx] = value;
-            y++;
-        }
-        xx++;
-    }
+    bitmap[BM_ADD] = loadalpha(bm_add, BM_ADD_WIDTH, BM_ADD_WIDTH);
+    bitmap[BM_GROUPS] = loadalpha(bm_groups, BM_ADD_WIDTH, BM_ADD_WIDTH);
+    bitmap[BM_TRANSFER] = loadalpha(bm_transfer, BM_ADD_WIDTH, BM_ADD_WIDTH);
+    bitmap[BM_SETTINGS] = loadalpha(bm_settings, BM_ADD_WIDTH, BM_ADD_WIDTH);
 
-    bitmap[BM_CORNER] = createbitmap(8, 8, test);
+    bitmap[BM_CONTACT] = loadalpha(bm_contact, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
+    bitmap[BM_GROUP] = loadalpha(bm_group, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
+
+    bitmap[BM_CALL] = loadalpha(bm_call, BM_LBICON_WIDTH, BM_LBICON_HEIGHT);
+    bitmap[BM_FILE] = loadalpha(bm_file, BM_LBICON_WIDTH, BM_LBICON_HEIGHT);
+
+    bitmap[BM_FT] = loadalpha(bm_ft, BM_FT_WIDTH, BM_FT_HEIGHT);
+    bitmap[BM_FTM] = loadalpha(bm_ftm, BM_FTM_WIDTH, BM_FT_HEIGHT);
+    bitmap[BM_FTB1] = loadalpha(bm_ftb, BM_FTB_WIDTH, BM_FTB_HEIGHT + SCALE);
+    bitmap[BM_FTB2] = loadalpha(bm_ftb + BM_FTB_WIDTH * (BM_FTB_HEIGHT + SCALE), BM_FTB_WIDTH, BM_FTB_HEIGHT);
+
+    bitmap[BM_SCROLLHALFTOP] = loadalpha(bm_scroll_bits, SCROLL_WIDTH, SCROLL_WIDTH / 2);
+    bitmap[BM_SCROLLHALFBOT] = loadalpha(bm_scroll_bits + SCROLL_WIDTH * SCROLL_WIDTH / 2, SCROLL_WIDTH, SCROLL_WIDTH / 2);
+    bitmap[BM_STATUSAREA] = loadalpha(bm_statusarea, BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT);
+
+    //testpicture = loadrgba(bm_contact_bits, 40, 40);
 
     XSetStandardProperties(display, window, "uTox", "uTox", None, argv, argc, &xsh);
     //XSetWMHints(display, window, &xwmh);
 
-    /*struct MwmHints {
-        unsigned long flags;
-        unsigned long functions;
-        unsigned long decorations;
-        long input_mode;
-        unsigned long status;
-    };
-
-     #define MWM_DECOR_NONE          0
-     #define MWM_DECOR_ALL           (1L << 0)
-     #define MWM_DECOR_BORDER        (1L << 1)
-     #define MWM_DECOR_RESIZEH       (1L << 2)
-     #define MWM_DECOR_TITLE         (1L << 3)
-     #define MWM_DECOR_MENU          (1L << 4)
-     #define MWM_DECOR_MINIMIZE      (1L << 5)
-     #define MWM_DECOR_MAXIMIZE      (1L << 6)
-
-    enum {
-        MWM_HINTS_FUNCTIONS = (1L << 0),
-        MWM_HINTS_DECORATIONS =  (1L << 1),
-
-        MWM_FUNC_ALL = (1L << 0),
-        MWM_FUNC_RESIZE = (1L << 1),
-        MWM_FUNC_MOVE = (1L << 2),
-        MWM_FUNC_MINIMIZE = (1L << 3),
-        MWM_FUNC_MAXIMIZE = (1L << 4),
-        MWM_FUNC_CLOSE = (1L << 5)
-    };
-
-    Atom mwmHintsProperty = XInternAtom(display, "_MOTIF_WM_HINTS", 0);
-    struct MwmHints hints;
-    hints.flags = MWM_HINTS_DECORATIONS;
-    hints.decorations = MWM_DECOR_BORDER;
-    XChangeProperty(display, window, mwmHintsProperty, mwmHintsProperty, 32, PropModeReplace, (unsigned char *)&hints, 5);*/
 
 
     /* Xft draw context */

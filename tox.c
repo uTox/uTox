@@ -1147,9 +1147,7 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
 
         g->topic_length = sprintf((char*)g->topic, "%u users in chat", g->peers);
 
-        if(sitem && g == sitem->data) {
-            redraw();//ui_drawmain();
-        }
+        updategroup(g);
 
         break;
     }

@@ -3,26 +3,37 @@
 void scroll_draw(SCROLLABLE *s, int x, int y, int width, int height)
 {
     uint32_t c = s->content_height;
-    uint32_t h = height;
+    uint32_t h = height, m, dy;
 
-    if(h >= c)
-    {
-        return;
+    if(h >= c) {
+        m = h;
+        dy = 0;
+    }
+    else {
+        m = (h * h) / c;
+        double d = (h - m);
+        dy = (s->d * d) + 0.5;
+        if(m <= 10) {
+            m = 10;
+        }
     }
 
-    RECT r = {x + width - SCROLL_WIDTH, y, x + width, y + height};
+    y += dy;
+    x += s->x;
 
-    fillrect(&r, s->mouseover ? GRAY : WHITE);
+    if(!s->left) {
+        x += width - SCROLL_WIDTH;
+    }
 
-    uint32_t m = (h * h) / c;
-    double d = (h - m);
-    uint32_t dy = (s->d * d) + 0.5;
+    drawalpha(BM_SCROLLHALFTOP, x, y, SCROLL_WIDTH, SCROLL_WIDTH / 2, s->color);
 
-    r.top += dy;
-    r.bottom = r.top + m;
+    y += SCROLL_WIDTH / 2;
+    int y2 = y + m - SCROLL_WIDTH, x2 = x + SCROLL_WIDTH;
+    //drawrect(x, y, x + 1, y2, GRAY(46)); //GRAY(37)
+    drawrect(x + 0, y, x2 - 0, y2, s->color);
+    //drawrect(x2 - 1, y, x2, y2, GRAY(46)); alpha lines?
 
-
-    fillrect(&r, s->mouseover ? GRAY3 : GRAY2);
+    drawalpha(BM_SCROLLHALFBOT, x, y2, SCROLL_WIDTH, SCROLL_WIDTH / 2, s->color);
 }
 
 int scroll_gety(SCROLLABLE *s, int height)

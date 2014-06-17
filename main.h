@@ -56,14 +56,17 @@ typedef uint8_t char_t;
 
 #include "tox.h"
 #include "dns.h"
-#include "ui.h"
 #include "friend.h"
+
+#include "ui.h"
+#include "svg.h"
+
 #include "list.h"
-#include "sysmenu.h"
 #include "messages.h"
 #include "edit.h"
 #include "scrollable.h"
 #include "button.h"
+
 #include "util.h"
 
 volatile _Bool tox_thread_init;
@@ -90,32 +93,51 @@ int font_small_lineheight, font_msg_lineheight;
 enum
 {
     FONT_TEXT,
-    FONT_TEXT_LARGE,
     FONT_TITLE,
-    FONT_SUBTITLE,
-    FONT_MED,
+
     FONT_MSG,
     FONT_MSG_NAME,
-    FONT_MSG_LINK
+    FONT_MSG_LINK,
+
+    FONT_SELF_NAME,
+    FONT_STATUS,
+    FONT_LIST_NAME,
 };
 
 //sysmenu icons
 enum
 {
-    BM_MINIMIZE,
-    BM_RESTORE,
-    BM_MAXIMIZE,
-    BM_EXIT,
-    BM_CORNER,
     BM_ONLINE,
     BM_AWAY,
     BM_BUSY,
     BM_OFFLINE,
+    BM_NMSG,
+
+    BM_ADD,
+    BM_GROUPS,
+    BM_TRANSFER,
+    BM_SETTINGS,
+
+    BM_LBUTTON,
+    BM_SBUTTON,
+
     BM_CONTACT,
     BM_GROUP,
-    BM_FILE
+
+    BM_FILE,
+    BM_CALL,
+
+    BM_FT,
+    BM_FTM,
+    BM_FTB1,
+    BM_FTB2,
+
+    BM_SCROLLHALFTOP,
+    BM_SCROLLHALFBOT,
+    BM_STATUSAREA,
 };
 
+void drawalpha(int bm, int x, int y, int width, int height, uint32_t color);
 
 //me
 struct
@@ -142,7 +164,7 @@ _Bool edit_select;
 #define MAIN_WIDTH 800
 #define MAIN_HEIGHT 600
 
-#define inrect(x, y, rx, ry, width, height) ((x) >= (rx) && (y) >= (ry) && (x) < (rx) + (width) && (y) < (ry + height))
+#define inrect(x, y, rx, ry, width, height) ((x) >= (rx) && (y) >= (ry) && (x) < ((rx) + (width)) && (y) < ((ry) + (height)))
 
 #define strcmp2(x, y) (memcmp(x, y, sizeof(y) - 1))
 #define strcpy2(x, y) (memcpy(x, y, sizeof(y) - 1))
@@ -150,37 +172,30 @@ _Bool edit_select;
 void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data);
 
 /* draw functions*/
-void drawbitmap(int bm, int x, int y, int width, int height);
-void drawbitmapalpha(int bm, int x, int y, int width, int height);
 
 void drawtext(int x, int y, uint8_t *str, uint16_t length);
-void drawtextW(int x, int y, char_t *str, uint16_t length);
 int drawtext_getwidth(int x, int y, uint8_t *str, uint16_t length);
-int drawtext_getwidthW(int x, int y, char_t *str, uint16_t length);
 void drawtextwidth(int x, int width, int y, uint8_t *str, uint16_t length);
 void drawtextwidth_right(int x, int width, int y, uint8_t *str, uint16_t length);
-void drawtextwidth_rightW(int x, int width, int y, char_t *str, uint16_t length);
 void drawtextrange(int x, int x2, int y, uint8_t *str, uint16_t length);
 void drawtextrangecut(int x, int x2, int y, uint8_t *str, uint16_t length);
-void drawtextrangecutW(int x, int x2, int y, char_t *str, uint16_t length);
 
 int textwidth(uint8_t *str, uint16_t length);
-int textwidthW(char_t *str, uint16_t length);
 int textfit(uint8_t *str, uint16_t length, int width);
-int textfitW(char_t *str, uint16_t length, int width);
 
 
-void drawrect(int x, int y, int width, int height, uint32_t color);
+void drawrect(int x, int y, int right, int bottom, uint32_t color);
+void drawrectw(int x, int y, int width, int height, uint32_t color);
+
 void drawhline(int x, int y, int x2, uint32_t color);
 void drawvline(int x, int y, int y2, uint32_t color);
+#define drawpixel(x, y, color) drawvline(x, y, (y) + 1, color)
 
 
 void fillrect(RECT *r, uint32_t color);
 void framerect(RECT *r, uint32_t color);
 void setfont(int id);
 uint32_t setcolor(uint32_t color);
-void setbkcolor(uint32_t color);
-void setbgcolor(uint32_t color);
 void pushclip(int x, int y, int width, int height);
 void popclip(void);
 void enddraw(int x, int y, int width, int height);

@@ -1,11 +1,14 @@
+/* list: the contact list
+ */
 
 enum
 {
     ITEM_NONE,
-    ITEM_SELF,
+    ITEM_ADD,
+    ITEM_SETTINGS,
     ITEM_FRIEND,
     ITEM_GROUP,
-    ITEM_FRIEND_ADD
+    ITEM_FRIEND_ADD,
 };
 
 typedef struct
@@ -24,7 +27,9 @@ void list_addgroup(GROUPCHAT *g);
 void list_addfriendreq(FRIENDREQ *f);
 void list_deletesitem(void);
 void list_deleteritem(void);
+
 void list_selectaddfriend(void);
+void list_selectsettings(void);
 
 void list_draw(void *n, int x, int y, int width, int height);
 

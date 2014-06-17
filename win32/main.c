@@ -27,8 +27,9 @@ enum {
     MENU_MESSAGES = 102,
 };
 
-HBITMAP bitmap[16];
-HFONT font[16];
+//HBITMAP bitmap[32];
+void *bitmap[32];
+HFONT font[32];
 HCURSOR cursor_arrow, cursor_hand;
 
 HWND hwnd;
@@ -61,7 +62,12 @@ enum
 
 static uint16_t utf8tonative(char_t *str, wchar_t *out, uint16_t length)
 {
-    return MultiByteToWideChar(CP_UTF8, 0, str, length, out, 65536);
+    /*uint8_t *end = str + length;
+    while(str != end) {
+        *out++ = *str++;
+    }
+    return length;*/
+    return MultiByteToWideChar(CP_UTF8, 0, str, length, out, length);
 }
 
 void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data)
@@ -69,14 +75,14 @@ void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data)
     PostMessage(hwnd, WM_TOX + (msg), ((param1) << 16) | (param2), (LPARAM)data);
 }
 
-void drawbitmap(int bm, int x, int y, int width, int height)
-{
-    SelectObject(hdcMem, bitmap[bm]);
-    BitBlt(hdc, x, y, width, height, hdcMem, 0, 0, SRCCOPY);
-}
+uint32_t leldata[65536];
 
-void drawbitmapalpha(int bm, int x, int y, int width, int height)
+void drawalpha(int bm, int x, int y, int width, int height, uint32_t color)
 {
+    if(!bitmap[bm]) {
+        return;
+    }
+
     BLENDFUNCTION ftn = {
         .BlendOp = AC_SRC_OVER,
         .BlendFlags = 0,
@@ -84,16 +90,22 @@ void drawbitmapalpha(int bm, int x, int y, int width, int height)
         .AlphaFormat = AC_SRC_ALPHA
     };
 
-    SelectObject(hdcMem, bitmap[bm]);
+    uint8_t *p = bitmap[bm], *end = p + width * height;
+    uint32_t *np = leldata;
+    while(p != end) {
+        uint8_t v = *p++;
+        *np++ = (((color & 0xFF) * v / 255) << 16) | ((((color >> 8) & 0xFF) * v / 255) << 8) | ((((color >> 16) & 0xFF) * v / 255) << 0) | (v << 24);
+    }
+
+    HBITMAP temp = CreateBitmap(width, height, 1, 32, leldata);//CreateCompatibleBitmap(tempDC, width, height);
+
+    SelectObject(hdcMem, temp);;
     AlphaBlend(hdc, x, y, width, height, hdcMem, 0, 0, width, height, ftn);
+
+    DeleteObject(temp);
 }
 
-void drawtext(int x, int y, uint8_t *str, uint16_t length)
-{
-    TextOut(hdc, x, y, (char*)str, length);
-}
-
-void drawtextW(int x, int y, char_t *str, uint16_t length)
+void drawtext(int x, int y, char_t *str, uint16_t length)
 {
     wchar_t out[length];
     length = utf8tonative(str, out, length);
@@ -101,15 +113,7 @@ void drawtextW(int x, int y, char_t *str, uint16_t length)
     TextOutW(hdc, x, y, out, length);
 }
 
-int drawtext_getwidth(int x, int y, uint8_t *str, uint16_t length)
-{
-    SIZE size;
-    TextOut(hdc, x, y, (char*)str, length);
-    GetTextExtentPoint32(hdc, (char*)str, length, &size);
-    return size.cx;
-}
-
-int drawtext_getwidthW(int x, int y, char_t *str, uint16_t length)
+int drawtext_getwidth(int x, int y, char_t *str, uint16_t length)
 {
     wchar_t out[length];
     length = utf8tonative(str, out, length);
@@ -143,17 +147,14 @@ void drawtextwidth_rightW(int x, int width, int y, char_t *str, uint16_t length)
 
 void drawtextrange(int x, int x2, int y, uint8_t *str, uint16_t length)
 {
+    wchar_t out[length];
+    length = utf8tonative(str, out, length);
+
     RECT r = {x, y, x2, y + 256};
-    DrawText(hdc, (char*)str, length, &r, DT_SINGLELINE | DT_END_ELLIPSIS | DT_NOPREFIX);
+    DrawTextW(hdc, out, length, &r, DT_SINGLELINE | DT_END_ELLIPSIS | DT_NOPREFIX);
 }
 
-void drawtextrangecut(int x, int x2, int y, uint8_t *str, uint16_t length)
-{
-    RECT r = {x, y, x2, y + 256};
-    DrawText(hdc, (char*)str, length, &r, DT_SINGLELINE | DT_NOPREFIX);
-}
-
-void drawtextrangecutW(int x, int x2, int y, char_t *str, uint16_t length)
+void drawtextrangecut(int x, int x2, int y, char_t *str, uint16_t length)
 {
     wchar_t out[length];
     length = utf8tonative(str, out, length);
@@ -162,14 +163,7 @@ void drawtextrangecutW(int x, int x2, int y, char_t *str, uint16_t length)
     DrawTextW(hdc, out, length, &r, DT_SINGLELINE | DT_NOPREFIX);
 }
 
-int textwidth(uint8_t *str, uint16_t length)
-{
-    SIZE size;
-    GetTextExtentPoint32(hdc, (char*)str, length, &size);
-    return size.cx;
-}
-
-int textwidthW(char_t *str, uint16_t length)
+int textwidth(char_t *str, uint16_t length)
 {
     wchar_t out[length];
     length = utf8tonative(str, out, length);
@@ -179,16 +173,7 @@ int textwidthW(char_t *str, uint16_t length)
     return size.cx;
 }
 
-int textfit(uint8_t *str, uint16_t length, int width)
-{
-    int fit;
-    SIZE size;
-    GetTextExtentExPoint(hdc, str, length, width, &fit, NULL, &size);
-
-    return fit;
-}
-
-int textfitW(char_t *str, uint16_t length, int width)
+int textfit(char_t *str, uint16_t length, int width)
 {
     wchar_t out[length];
     length = utf8tonative(str, out, length);
@@ -200,7 +185,14 @@ int textfitW(char_t *str, uint16_t length, int width)
     return WideCharToMultiByte(CP_UTF8, 0, out, fit, str, 65536, NULL, 0);
 }
 
-void drawrect(int x, int y, int width, int height, uint32_t color)
+void drawrect(int x, int y, int right, int bottom, uint32_t color)
+{
+    RECT r = {x, y, right, bottom};
+    SetDCBrushColor(hdc, color);
+    FillRect(hdc, &r, hdc_brush);
+}
+
+void drawrectw(int x, int y, int width, int height, uint32_t color)
 {
     RECT r = {x, y, x + width, y + height};
     SetDCBrushColor(hdc, color);
@@ -243,21 +235,6 @@ uint32_t setcolor(uint32_t color)
     return SetTextColor(hdc, color);
 }
 
-void setbkcolor(uint32_t color)
-{
-    SetBkColor(hdc, color);
-}
-
-void setbgcolor(uint32_t color)
-{
-    if(color == ~0) {
-        SetBkMode(hdc, TRANSPARENT);
-    } else {
-        SetBkMode(hdc, OPAQUE);
-        SetBkColor(hdc, color);
-    }
-}
-
 RECT clip[16];
 
 static int clipk;
@@ -294,6 +271,7 @@ void popclip(void)
 
 void enddraw(int x, int y, int width, int height)
 {
+    SelectObject(hdc, hdc_bm);
     BitBlt(main_hdc, x, y, width, height, hdc, x, y, SRCCOPY);
 }
 
@@ -359,12 +337,12 @@ void listpopup(uint8_t item)
     HMENU hMenu = CreatePopupMenu();
     if(hMenu) {
         switch(item) {
-        case ITEM_SELF: {
+        /*case ITEM_SELF: {
             InsertMenu(hMenu, -1, MF_BYPOSITION | ((self.status == TOX_USERSTATUS_NONE) ? MF_CHECKED : 0), TRAY_STATUS_AVAILABLE, "Available");
             InsertMenu(hMenu, -1, MF_BYPOSITION | ((self.status == TOX_USERSTATUS_AWAY) ? MF_CHECKED : 0), TRAY_STATUS_AWAY, "Away");
             InsertMenu(hMenu, -1, MF_BYPOSITION | ((self.status == TOX_USERSTATUS_BUSY) ? MF_CHECKED : 0), TRAY_STATUS_BUSY, "Busy");
             break;
-        }
+        }*/
 
         case ITEM_FRIEND: {
             InsertMenu(hMenu, -1, MF_BYPOSITION, LIST_DELETE, "Remove");
@@ -497,46 +475,6 @@ void ShowContextMenu(void)
     }
 }
 
-LRESULT nc_hit(int x, int y)
-{
-    uint8_t row, col;
-
-    row = 1;
-    col = 1;
-
-    if(x < BORDER) {
-        col = 0;
-    } else if(x >= width - BORDER) {
-        col = 2;
-    }
-
-    if(y < CAPTION + BORDER) {
-        if(y < BORDER) {
-            row = 0;
-        } else if(col == 1) {
-            if(x >= LIST_X && x < LIST_X + ITEM_WIDTH) {
-                return (y >= LIST_Y) ? HTCLIENT : HTCAPTION;
-            }
-
-            return inrect(x, y, width - 91, 1, 90, 26) ? HTCLIENT : HTCAPTION;
-        }
-    } else if(y >= height - BORDER) {
-        row = 2;
-    }
-
-    if(x >= width - 10 && y >= height - 10) {
-        return HTBOTTOMRIGHT;
-    }
-
-    const LRESULT result[3][3] = {
-        {HTTOPLEFT, HTTOP, HTTOPRIGHT},
-        {HTLEFT, HTCLIENT, HTRIGHT},
-        {HTBOTTOMLEFT, HTBOTTOM, HTBOTTOMRIGHT},
-    };
-
-    return result[row][col];
-}
-
 static void parsecmd(uint8_t *cmd, int len)
 {
     debug("Command: %.*s\n", len, cmd);
@@ -622,6 +560,28 @@ static void parsecmd(uint8_t *cmd, int len)
     list_selectaddfriend();
 }
 
+static void* loadalpha(void *data, int width, int height)
+{
+    /*uint8_t *newdata = malloc(width * height * 4), *np = newdata;
+    uint8_t *p = data, *end = data + width * height;
+    while(p != end) {
+        *np++ = *p;
+        *np++ = *p;
+        *np++ = *p;
+        *np++ = *p;
+        p++;
+    }
+
+    HBITMAP bm = CreateBitmap(width, height, 1, 32, newdata);
+
+    //free(newdata);
+
+    return bm;*/
+
+    //return CreateBitmap(width, height, 1, 8, data);
+    return data;
+}
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int nCmdShow)
 {
     /* if opened with argument, check if uTox is already open and pass the argument to the existing process */
@@ -676,23 +636,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
         //.lfCharSet = ANSI_CHARSET,
         .lfOutPrecision = OUT_TT_PRECIS,
         .lfQuality = CLEARTYPE_QUALITY,
-        .lfFaceName = "DejaVu Sans",
-    };
-
-    BITMAP bm = {
-        .bmWidth = 16,
-        .bmHeight = 10,
-        .bmWidthBytes = 2,
-        .bmPlanes = 1,
-        .bmBitsPixel = 1
-    };
-
-    BITMAP bm2 = {
-        .bmWidth = 8,
-        .bmHeight = 8,
-        .bmWidthBytes = 32,
-        .bmPlanes = 1,
-        .bmBitsPixel = 32
+        .lfFaceName = "Roboto",
     };
 
     //start tox thread
@@ -702,7 +646,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
 
     x = (GetSystemMetrics(SM_CXSCREEN) - MAIN_WIDTH) / 2;
     y = (GetSystemMetrics(SM_CYSCREEN) - MAIN_HEIGHT) / 2;
-    hwnd = CreateWindowEx(WS_EX_APPWINDOW, classname, "Tox", WS_POPUP | WS_MINIMIZEBOX | WS_MAXIMIZEBOX, x, y, MAIN_WIDTH, MAIN_HEIGHT, NULL, NULL, hInstance, NULL);
+    hwnd = CreateWindowEx(0, classname, "Tox", WS_OVERLAPPED, x, y, MAIN_WIDTH, MAIN_HEIGHT, NULL, NULL, hInstance, NULL);
 
     hdc_brush = GetStockObject(DC_BRUSH);
 
@@ -713,72 +657,58 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     nid.hWnd = hwnd;
     Shell_NotifyIcon(NIM_ADD, &nid);
 
-    lf.lfHeight = -20;
-    font[FONT_TITLE] = CreateFontIndirect(&lf);
-    lf.lfHeight = -18;
-    font[FONT_SUBTITLE] = CreateFontIndirect(&lf);
-    lf.lfHeight = -16;
-    font[FONT_MED] = CreateFontIndirect(&lf);
-    lf.lfHeight = -14;
-    font[FONT_TEXT_LARGE] = CreateFontIndirect(&lf);
-    lf.lfHeight = -12;
+    //memcpy(lf.lfFaceName, "DejaVu Sans", sizeof("DejaVu Sans"));
+    #define F(x) (-x * SCALE / 2)
+    lf.lfHeight = F(12);
     font[FONT_TEXT] = CreateFontIndirect(&lf);
 
-    //memcpy(lf.lfFaceName, "DejaVu Sans", sizeof("DejaVu Sans"));
-    lf.lfHeight = 16;
-    font[FONT_MSG] = CreateFontIndirect(&lf);
+    lf.lfHeight = F(11);
+    font[FONT_STATUS] = CreateFontIndirect(&lf);
+    lf.lfHeight = F(12);
+    font[FONT_LIST_NAME] = CreateFontIndirect(&lf);
     lf.lfWeight = FW_BOLD;
+    font[FONT_TITLE] = CreateFontIndirect(&lf);
+    lf.lfHeight = F(14);
+    font[FONT_SELF_NAME] = CreateFontIndirect(&lf);
+    lf.lfWeight = FW_LIGHT;
+    lf.lfHeight = F(10);
     font[FONT_MSG_NAME] = CreateFontIndirect(&lf);
-    lf.lfWeight = FW_NORMAL;
+    lf.lfHeight = F(11);
+    font[FONT_MSG] = CreateFontIndirect(&lf);
     lf.lfUnderline = 1;
     font[FONT_MSG_LINK] = CreateFontIndirect(&lf);
 
-    bm.bmBits = bm_minimize_bits;
-    bitmap[BM_MINIMIZE] = CreateBitmapIndirect(&bm);
-    bm.bmBits = bm_restore_bits;
-    bitmap[BM_RESTORE] = CreateBitmapIndirect(&bm);
-    bm.bmBits = bm_maximize_bits;
-    bitmap[BM_MAXIMIZE] = CreateBitmapIndirect(&bm);
-    bm.bmBits = bm_exit_bits;
-    bitmap[BM_EXIT] = CreateBitmapIndirect(&bm);
+    #undef F
 
-    //153, 182, 224
+    svg_draw();
 
-    bitmap[BM_ONLINE] = CreateBitmap(10, 10, 1, 32, bm_online_bits);
-    bitmap[BM_AWAY] = CreateBitmap(10, 10, 1, 32, bm_away_bits);
-    bitmap[BM_BUSY] = CreateBitmap(10, 10, 1, 32, bm_busy_bits);
-    bitmap[BM_OFFLINE] = CreateBitmap(10, 10, 1, 32, bm_offline_bits);
-    bitmap[BM_CONTACT] = CreateBitmap(48, 48, 1, 32, bm_contact_bits);
-    bitmap[BM_GROUP] = CreateBitmap(48, 48, 1, 32, bm_group_bits);
-    bitmap[BM_FILE] = CreateBitmap(48, 48, 1, 32, bm_file_bits);
+    void *p = bm_status_bits;
+    bitmap[BM_ONLINE] = loadalpha(p, BM_STATUS_WIDTH, BM_STATUS_WIDTH); p += BM_STATUS_WIDTH * BM_STATUS_WIDTH;
+    bitmap[BM_AWAY] = loadalpha(p, BM_STATUS_WIDTH, BM_STATUS_WIDTH); p += BM_STATUS_WIDTH * BM_STATUS_WIDTH;
+    bitmap[BM_BUSY] = loadalpha(p, BM_STATUS_WIDTH, BM_STATUS_WIDTH); p += BM_STATUS_WIDTH * BM_STATUS_WIDTH;
+    bitmap[BM_OFFLINE] = loadalpha(p, BM_STATUS_WIDTH, BM_STATUS_WIDTH);
 
-    uint32_t test[64];
-    int xx = 0;
-    while(xx < 8) {
-        int y = 0;
-        while(y < 8) {
-            uint32_t value = 0xFFFFFF;
-            if(xx + y >= 7) {
-                int a = xx % 3, b = y % 3;
-                if(a == 1) {
-                    if(b == 0) {
-                        value = 0xB6B6B6;
-                    } else if(b == 1) {
-                        value = 0x999999;
-                    }
-                } else if(a == 0 && b == 1) {
-                    value = 0xE0E0E0;
-                }
-            }
+    bitmap[BM_LBUTTON] = loadalpha(bm_lbutton, BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
+    bitmap[BM_SBUTTON] = loadalpha(bm_sbutton, BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+    //bitmap[BM_NMSG] = loadalpha(bm_status_bits, BM_NMSG_WIDTH, BM_NMSG_WIDTH);
 
-            test[y * 8 + xx] = value;
-            y++;
-        }
-        xx++;
-    }
 
-    bm2.bmBits = test;
-    bitmap[BM_CORNER] = CreateBitmapIndirect(&bm2);
+    bitmap[BM_ADD] = loadalpha(bm_add, BM_ADD_WIDTH, BM_ADD_WIDTH);
+    bitmap[BM_GROUPS] = loadalpha(bm_groups, BM_ADD_WIDTH, BM_ADD_WIDTH);
+    bitmap[BM_TRANSFER] = loadalpha(bm_transfer, BM_ADD_WIDTH, BM_ADD_WIDTH);
+    bitmap[BM_SETTINGS] = loadalpha(bm_settings, BM_ADD_WIDTH, BM_ADD_WIDTH);
+
+    bitmap[BM_CONTACT] = loadalpha(bm_contact, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
+    bitmap[BM_GROUP] = loadalpha(bm_group, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
+
+    bitmap[BM_CALL] = loadalpha(bm_call, BM_LBICON_WIDTH, BM_LBICON_HEIGHT);
+    bitmap[BM_FILE] = loadalpha(bm_file, BM_LBICON_WIDTH, BM_LBICON_HEIGHT);
+
+    bitmap[BM_FT] = loadalpha(bm_ft, BM_FT_WIDTH, BM_FT_HEIGHT);
+
+    bitmap[BM_SCROLLHALFTOP] = loadalpha(bm_scroll_bits, SCROLL_WIDTH, SCROLL_WIDTH / 2);
+    bitmap[BM_SCROLLHALFBOT] = loadalpha(bm_scroll_bits + SCROLL_WIDTH * SCROLL_WIDTH / 2, SCROLL_WIDTH, SCROLL_WIDTH / 2);
+    bitmap[BM_STATUSAREA] = loadalpha(bm_statusarea, BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT);
 
     TEXTMETRIC tm;
     SelectObject(hdc, font[FONT_TEXT]);
@@ -787,6 +717,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     SelectObject(hdc, font[FONT_MSG]);
     GetTextMetrics(hdc, &tm);
     font_msg_lineheight = tm.tmHeight + tm.tmExternalLeading;
+
+    SetBkMode(hdc, TRANSPARENT);
 
     //wait for tox_thread init
     while(!tox_thread_init) {
@@ -872,8 +804,15 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         h = GET_Y_LPARAM(lParam);
 
         if(w != 0) {
+            RECT r;
+            GetClientRect(hwnd, &r);
+            w = r.right;
+            h = r.bottom;
+
             width = w;
             height = h;
+
+            debug("%u %u\n", w, h);
 
             panel_update(&panel_main, 0, 0, width, height);
 
@@ -902,14 +841,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
         EndPaint(hwnd, &ps);
         return 0;
-    }
-
-    case WM_NCHITTEST: {
-        POINT p = {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
-
-        ScreenToClient(hwnd, &p);
-
-        return nc_hit(p.x, p.y);
     }
 
     case WM_KEYDOWN: {

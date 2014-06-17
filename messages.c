@@ -23,18 +23,18 @@ static int textout(int x, int y, char_t *str, uint16_t length, int d, int h1, in
 
     int width;
 
-    width = drawtext_getwidthW(x, y, str, h1);
+    width = drawtext_getwidth(x, y, str, h1);
 
     uint32_t color = setcolor(TEXT_HIGHLIGHT);
 
-    int w = textwidthW(str + h1, h2 - h1);
-    drawrect(x + width, y, w, font_msg_lineheight, TEXT_HIGHLIGHT_BG);
-    drawtextW(x + width, y, str + h1, h2 - h1);
+    int w = textwidth(str + h1, h2 - h1);
+    drawrectw(x + width, y, w, font_msg_lineheight, TEXT_HIGHLIGHT_BG);
+    drawtext(x + width, y, str + h1, h2 - h1);
     width += w;
 
     setcolor(color);
 
-    width += drawtext_getwidthW(x + width, y, str + h2, length - h2);
+    width += drawtext_getwidth(x + width, y, str + h2, length - h2);
 
     return width;
 }
@@ -45,7 +45,7 @@ static int drawmsg(int x, int y, int width, char_t *str, uint16_t length, int h1
     char_t *a = str, *b = str, *end = str + length;
     while(1) {
         if(a == end || *a == ' ' || *a == '\n') {
-            int count = a - b, w = textwidthW(b, count);
+            int count = a - b, w = textwidth(b, count);
             if(x + w > right) {
                 y += font_msg_lineheight;
                 x = xc;
@@ -102,7 +102,7 @@ static uint32_t pmsg(int mx, int my, int right, int height, char_t *str, uint16_
     char_t *a = str, *b = str, *end = str + length;
     while(1) {
         if(a == end ||  *a == '\n' || *a == ' ') {
-            int count = a - b, w = textwidthW(b, a - b);
+            int count = a - b, w = textwidth(b, a - b);
             if(x + w > right) {
                 if(my >= 0 && my <= font_msg_lineheight) {
                     x = mx;
@@ -114,7 +114,7 @@ static uint32_t pmsg(int mx, int my, int right, int height, char_t *str, uint16_
                 x = 0;
                 b += utf8_len(b);
                 count--;
-                w = textwidthW(b, count);
+                w = textwidth(b, count);
             }
 
             if(a == end || (mx < 0 && my >= 0 && my <= font_msg_lineheight) || (mx >= x && mx < x + w && my >= 0 && (my < font_msg_lineheight || height == font_msg_lineheight))) {
@@ -140,7 +140,7 @@ static uint32_t pmsg(int mx, int my, int right, int height, char_t *str, uint16_
     int fit;
     if(mx - x > 0) {
         int len = a - b;
-        fit = textfitW(b, len, mx - x);
+        fit = textfit(b, len, mx - x);
     } else {
         fit = 0;
     }
@@ -154,13 +154,13 @@ static int heightmsg(char_t *str, int right, uint16_t length)
     char_t *a = str, *b = str, *end = str + length;
     while(1) {
         if(a == end || *a == '\n' || *a == ' ') {
-            int count = a - b, w = textwidthW(b, a - b);
+            int count = a - b, w = textwidth(b, a - b);
             if(x + w > right) {
                 y += font_msg_lineheight;
                 x = 0;
                 b += utf8_len(b);
                 count--;
-                w = textwidthW(b, count);
+                w = textwidth(b, count);
             }
 
             x += w;
@@ -209,7 +209,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
         if(m->type) {
             /* group */
             setfont(FONT_MSG_NAME);
-            drawtextwidth_rightW(x, 95, y, &msg->msg[msg->length] + 1, (uint16_t)msg->msg[msg->length]);
+            drawtextwidth_right(x, 95, y, &msg->msg[msg->length] + 1, (uint16_t)msg->msg[msg->length]);
             setfont(FONT_MSG);
         } else {
             FRIEND *f = &friend[m->data->id];
@@ -275,152 +275,29 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
         case 7: {
             MSG_FILE *file = (void*)msg;
             int dx = 110;
+            int xx = x + 110;
 
             uint8_t size[16];
             int sizelen = sprint_bytes(size, file->size);
 
             switch(file->status) {
-            case FILE_PENDING: {
-                if(msg->flags == 6) {
-                    setcolor(0x888888);
-                    dx += drawstr_getwidth(x + dx, y, "wants to share file ");
-                    setcolor(0);
-                    dx += drawtext_getwidth(x + dx, y, file->name, file->name_length);
-                    setcolor(0x888888);
-                    dx += drawstr_getwidth(x + dx, y, " (");
-                    setcolor(0);
-                    dx += drawtext_getwidth(x + dx, y, size, sizelen);
-                    setcolor(0x888888);
-                    dx += drawstr_getwidth(x + dx, y, ") ");
-                    setcolor(COLOR_LINK);
-                    setfont(FONT_MSG_LINK);
-                    dx += drawstr_getwidth(x + dx, y, "Accept");
-                    drawstr(x + dx + 10, y, "Decline");
-                    setfont(FONT_MSG);
-                } else {
-                    setcolor(0x888888);
-                    dx += drawstr_getwidth(x + dx, y, "offering file ");
-                    setcolor(0);
-                    dx += drawtext_getwidth(x + dx, y, file->name, file->name_length);
-                    setcolor(0x888888);
-                    dx += drawstr_getwidth(x + dx, y, " (");
-                    setcolor(0);
-                    dx += drawtext_getwidth(x + dx, y, size, sizelen);
-                    setcolor(0x888888);
-                    dx += drawstr_getwidth(x + dx, y, ") ");
-                    setcolor(COLOR_LINK);
-                    setfont(FONT_MSG_LINK);
-                    drawstr(x + dx, y, "Cancel");
-                    setfont(FONT_MSG);
+                case FILE_PENDING: {
+                    drawalpha(BM_FTM, xx, y, BM_FTM_WIDTH, BM_FT_HEIGHT, C_GRAY);
+                    drawalpha(BM_FTB1, xx + BM_FTM_WIDTH + SCALE, y, BM_FTM_WIDTH, BM_FTB_HEIGHT + SCALE, C_GREEN);
+                    drawalpha(BM_FTB2, xx + BM_FTM_WIDTH + SCALE, y + BM_FTB_HEIGHT + SCALE * 2, BM_FTM_WIDTH, BM_FTB_HEIGHT, C_GREEN);
+                    if(msg->flags == 6) {
+
+                    }
+                    break;
                 }
 
-                break;
-            }
-
-            case FILE_OK: {
-                setcolor(0x888888);
-                dx += drawstr_getwidth(x + dx, y, "transferring file ");
-                setcolor(0);
-                dx += drawtext_getwidth(x + dx, y, file->name, file->name_length);
-
-                setcolor(COLOR_LINK);
-                setfont(FONT_MSG_LINK);
-                dx += drawstr_getwidth(x + dx + 10, y, "Pause");
-                drawstr(x + dx + 20, y, "Cancel");
-                setfont(FONT_MSG);
-                break;
-            }
-
-            case FILE_PAUSED: {
-                setcolor(0x888888);
-                dx += drawstr_getwidth(x + dx, y, "transferring file (paused) ");
-                setcolor(0);
-                dx += drawtext_getwidth(x + dx, y, file->name, file->name_length);
-
-                setcolor(COLOR_LINK);
-                setfont(FONT_MSG_LINK);
-                dx += drawstr_getwidth(x + dx + 10, y, "Resume");
-                drawstr(x + dx + 20, y, "Cancel");
-                setfont(FONT_MSG);
-                break;
-            }
-
-            case FILE_BROKEN: {
-                setcolor(0x888888);
-                dx += drawstr_getwidth(x + dx, y, "transferring file (disconnected) ");
-                setcolor(0);
-                dx += drawtext_getwidth(x + dx, y, file->name, file->name_length);
-
-                setcolor(COLOR_LINK);
-                setfont(FONT_MSG_LINK);
-                drawstr(x + dx + 10, y, "Cancel");
-                setfont(FONT_MSG);
-                break;
-            }
-
-            case FILE_KILLED: {
-                setcolor(0x888888);
-                dx += drawstr_getwidth(x + dx, y, "cancelled file ");
-                setcolor(0);
-                dx += drawtext_getwidth(x + dx, y, file->name, file->name_length);
-
-                break;
-            }
-
-            case FILE_DONE: {
-                if(msg->flags == 6) {
-                    setcolor(0x888888);
-                    dx += drawstr_getwidth(x + dx, y, "transferred file ");
-                    setcolor(0);
-                    dx += drawtext_getwidth(x + dx, y, file->name, file->name_length);
-
-                    setcolor(COLOR_LINK);
-                    setfont(FONT_MSG_LINK);
-                    drawstr(x + dx + 10, y, "Open");
-                    setfont(FONT_MSG);
-
-                } else {
-                    setcolor(0x888888);
-                    dx += drawstr_getwidth(x + dx, y, "transferred file ");
-                    setcolor(0);
-                    dx += drawtext_getwidth(x + dx, y, file->name, file->name_length);
-                    setcolor(0x888888);
-                    dx += drawstr_getwidth(x + dx, y, " (");
-                    setcolor(0);
-                    dx += drawtext_getwidth(x + dx, y, size, sizelen);
-                    setcolor(0x888888);
-                    dx += drawstr_getwidth(x + dx, y, ") ");
+                default: {
+                    drawalpha(BM_FT, xx, y, BM_FT_WIDTH, BM_FT_HEIGHT, C_GREEN);
+                    break;
                 }
-
-                break;
-            }
             }
 
-            y += font_msg_lineheight;
-
-
-
-            if(file->status != FILE_PENDING && file->status < FILE_KILLED) {
-                uint64_t progress = (file->progress > file->size) ? file->size : file->progress;
-                uint32_t x1 = (uint64_t)400 * progress / file->size;
-                RECT r = {x + 110, y, x + 110 + x1, y + font_msg_lineheight};
-                fillrect(&r, BLUE);
-                r.left = r.right;
-                r.right = x + 110 + 400;
-                fillrect(&r, 0x999999);
-
-                //SetTextAlign(hdc, TA_CENTER | TA_TOP | TA_NOUPDATECP);
-
-                //char text[128];
-                //int textlen = sprintf(text, "%"PRIu64"/%"PRIu64, file->progress, file->size);
-                //TextOut(hdc, x + 110 + 200, y, text, textlen);
-
-                //SetTextAlign(hdc, TA_LEFT | TA_TOP | TA_NOUPDATECP);
-
-                y += font_msg_lineheight;
-            }
-
-
+            y += BM_FT_HEIGHT;
 
             break;
         }
@@ -511,149 +388,9 @@ _Bool messages_mmove(MESSAGES *m, int mx, int my, int dy, int width, int height)
 
             case 6:
             case 7: {
-                if(my >= font_msg_lineheight) {break;}
+                if(my >= BM_FT_HEIGHT) {break;}
                 /* file transfer */
-                MSG_FILE *file = (void*)msg;
-                mx -= 110;
 
-                uint8_t size[16];
-                int sizelen = sprint_bytes(size, file->size);
-
-                switch(file->status) {
-                case FILE_PENDING: {
-                    if(msg->flags == 6) {
-                        uint8_t str[64];
-                        int x1, x2, strlen;
-
-                        strlen = sprintf((char*)str, "wants to share file %.*s (%.*s) ", file->name_length, file->name, sizelen, size);
-                        x1 = textwidth(str, strlen);
-                        x2 = x1 + strwidth("Accept");
-
-                        if(mx >= x1 && mx < x2) {
-                            hand = 1;
-                            m->over = 1;
-                            break;
-                        }
-
-                        x1 = x2 + 10;
-                        x2 = x1 + strwidth("Decline");
-
-                        if(mx >= x1 && mx < x2) {
-                            hand = 1;
-                            m->over = 2;
-                            break;
-                        }
-                    } else {
-                        uint8_t str[64];
-                        int x1, x2, strlen;
-
-                        strlen = sprintf((char*)str, "offering file %.*s (%.*s) ", file->name_length, file->name, sizelen, size);
-                        x1 = textwidth(str, strlen);
-                        x2 = x1 + strwidth("Cancel");
-
-                        if(mx >= x1 && mx < x2) {
-                            hand = 1;
-                            m->over = 1;
-                            break;
-                        }
-                    }
-
-                    break;
-                }
-
-                case FILE_OK: {
-                    uint8_t str[64];
-                    int x1, x2, strlen;
-
-                    strlen = sprintf((char*)str, "transferring file %.*s", file->name_length, file->name);
-                    x1 = textwidth(str, strlen) + 10;
-                    x2 = x1 + strwidth("Pause");
-
-                    if(mx >= x1 && mx < x2) {
-                        hand = 1;
-                        m->over = 1;
-                        break;
-                    }
-
-                    x1 = x2 + 10;
-                    x2 = x1 + strwidth("Cancel");
-
-                    if(mx >= x1 && mx < x2) {
-                        hand = 1;
-                        m->over = 2;
-                        break;
-                    }
-                    break;
-                }
-
-                case FILE_PAUSED: {
-                    uint8_t str[64];
-                    int x1, x2, strlen;
-
-                    strlen = sprintf((char*)str, "transferring file (paused) %.*s", file->name_length, file->name);
-                    x1 = textwidth(str, strlen) + 10;
-                    x2 = x1 + strwidth("Resume");
-
-                    if(mx >= x1 && mx < x2) {
-                        hand = 1;
-                        m->over = 1;
-                        break;
-                    }
-
-                    x1 = x2 + 10;
-                    x2 = x1 + strwidth("Cancel");
-
-                    if(mx >= x1 && mx < x2) {
-                        hand = 1;
-                        m->over = 2;
-                        break;
-                    }
-                    break;
-                }
-
-                case FILE_BROKEN: {
-                    //"cancelled file winTox.png (150KiB)"
-                    uint8_t str[64];
-                    int x1, x2, strlen;
-
-                    strlen = sprintf((char*)str, "transferring file %.*s", file->name_length, file->name);
-                    x1 = textwidth(str, strlen) + 10;
-                    x2 = x1 + strwidth("Cancel");
-
-                    if(mx >= x1 && mx < x2) {
-                        hand = 1;
-                        m->over = 1;
-                        break;
-                    }
-
-                    break;
-                }
-
-                case FILE_KILLED: {
-                    break;
-                }
-
-                case FILE_DONE: {
-                    if(msg->flags == 6) {
-                        uint8_t str[64];
-                        int x1, x2, strlen;
-
-                        strlen = sprintf((char*)str, "transferred file %.*s", file->name_length, file->name);
-                        x1 = textwidth(str, strlen) + 10;
-                        x2 = x1 + strwidth("Open");
-
-                        if(mx >= x1 && mx < x2) {
-                            hand = 1;
-                            m->over = 1;
-                            break;
-                        }
-
-
-                    }
-
-                    break;
-                }
-                }
                 break;
             }
             }
@@ -898,8 +635,8 @@ static int msgheight(MESSAGE *msg, int width)
 
     case 6:
     case 7: {
-        MSG_FILE *file = (void*)msg;
-        return (file->status != FILE_PENDING && file->status < FILE_KILLED) ? font_msg_lineheight * 2 : font_msg_lineheight;
+        //MSG_FILE *file = (void*)msg;
+        return BM_FT_HEIGHT;//(file->status != FILE_PENDING && file->status < FILE_KILLED) ? font_msg_lineheight * 2 : font_msg_lineheight;
     }
 
     }
