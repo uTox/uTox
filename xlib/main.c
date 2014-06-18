@@ -216,6 +216,12 @@ int textfitW(char_t *str, uint16_t length, int width)
     return textfit(str, length, width);
 }
 
+void framerect(int x, int y, int right, int bottom, uint32_t color)
+{
+    XSetForeground(display, gc, color);
+    XDrawRectangle(display, drawbuf, gc, x, y, right - x - 1, bottom - y - 1);
+}
+
 void drawrect(int x, int y, int right, int bottom, uint32_t color)
 {
     XSetForeground(display, gc, color);
@@ -228,7 +234,6 @@ void drawrectw(int x, int y, int width, int height, uint32_t color)
     XFillRectangle(display, drawbuf, gc, x, y, width, height);
 }
 
-
 void drawhline(int x, int y, int x2, uint32_t color)
 {
     XSetForeground(display, gc, color);
@@ -239,18 +244,6 @@ void drawvline(int x, int y, int y2, uint32_t color)
 {
     XSetForeground(display, gc, color);
     XDrawLine(display, drawbuf, gc, x, y, x, y2);
-}
-
-void fillrect(RECT *r, uint32_t color)
-{
-    XSetForeground(display, gc, color);
-    XFillRectangle(display, drawbuf, gc, r->left, r->top, r->right - r->left, r->bottom - r->top);
-}
-
-void framerect(RECT *r, uint32_t color)
-{
-    XSetForeground(display, gc, color);
-    XDrawRectangle(display, drawbuf, gc, r->left, r->top, r->right - r->left - 1, r->bottom - r->top - 1);
 }
 
 void setfont(int id)
@@ -759,7 +752,18 @@ int main(int argc, char *argv[])
             XButtonEvent *ev = &event.xbutton;
             switch(ev->button) {
             case Button1: {
+                //todo: better double/triple click detect
+                static Time lastclick, lastclick2;
                 panel_mdown(&panel_main);
+                if(ev->time - lastclick < 300) {
+                    _Bool triclick = (ev->time - lastclick2 < 600);
+                    panel_dclick(&panel_main, triclick);
+                    if(triclick) {
+                        lastclick = 0;
+                    }
+                }
+                lastclick2 = lastclick;
+                lastclick = ev->time;
                 mdown = 1;
                 break;
             }

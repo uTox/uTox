@@ -7,12 +7,14 @@ struct edit {
     uint16_t mouseover_char, length, maxlength;
     char_t *data;
     void (*onenter)(void);
+    void (*ontab)(void);
 };
 
 void edit_draw(EDIT *edit, int x, int y, int width, int height);
 
 _Bool edit_mmove(EDIT *edit, int x, int y, int dy, int width, int height);
 _Bool edit_mdown(EDIT *edit);
+_Bool edit_dclick(EDIT *edit, _Bool triclick);
 _Bool edit_mright(EDIT *edit);
 _Bool edit_mwheel(EDIT *edit, int height, double d);
 _Bool edit_mup(EDIT *edit);

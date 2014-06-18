@@ -157,13 +157,6 @@ struct
 //add friend page
 uint8_t addfriend_status;
 
-struct
-{
-    uint16_t start, length;
-    uint16_t p1, p2;
-}edit_sel;
-_Bool edit_select;
-
 #define BORDER 1
 #define CAPTION 26
 
@@ -178,7 +171,6 @@ _Bool edit_select;
 void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data);
 
 /* draw functions*/
-
 void drawtext(int x, int y, uint8_t *str, uint16_t length);
 int drawtext_getwidth(int x, int y, uint8_t *str, uint16_t length);
 void drawtextwidth(int x, int width, int y, uint8_t *str, uint16_t length);
@@ -189,7 +181,7 @@ void drawtextrangecut(int x, int x2, int y, uint8_t *str, uint16_t length);
 int textwidth(uint8_t *str, uint16_t length);
 int textfit(uint8_t *str, uint16_t length, int width);
 
-
+void framerect(int x, int y, int right, int bottom, uint32_t color);
 void drawrect(int x, int y, int right, int bottom, uint32_t color);
 void drawrectw(int x, int y, int width, int height, uint32_t color);
 
@@ -197,9 +189,6 @@ void drawhline(int x, int y, int x2, uint32_t color);
 void drawvline(int x, int y, int y2, uint32_t color);
 #define drawpixel(x, y, color) drawvline(x, y, (y) + 1, color)
 
-
-void fillrect(RECT *r, uint32_t color);
-void framerect(RECT *r, uint32_t color);
 void setfont(int id);
 uint32_t setcolor(uint32_t color);
 void pushclip(int x, int y, int width, int height);

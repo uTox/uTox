@@ -577,6 +577,31 @@ void panel_mdown(PANEL *p)
     }
 }
 
+_Bool panel_dclick(PANEL *p, _Bool triclick)
+{
+    _Bool draw = 0;
+    if(p->type == PANEL_EDIT) {
+        draw = edit_dclick((EDIT*)p, triclick);
+    } else if(p->type == PANEL_MESSAGES) {
+        draw = messages_dclick((MESSAGES*)p, triclick);
+    }
+
+    PANEL **pp = p->child, *subp;
+    if(pp) {
+        while((subp = *pp++)) {
+            if(!subp->disabled) {
+                draw |= panel_dclick(subp, triclick);
+            }
+        }
+    }
+
+    if(draw && p == &panel_main) {
+        redraw();
+    }
+
+    return draw;
+}
+
 _Bool panel_mright(PANEL *p)
 {
     _Bool draw = p->type ? mrightfunc[p->type - 1](p) : 0;

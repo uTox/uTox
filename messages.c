@@ -590,6 +590,31 @@ _Bool messages_mdown(MESSAGES *m)
     return 0;
 }
 
+_Bool messages_dclick(MESSAGES *m, _Bool triclick)
+{
+    if(m->iover != ~0) {
+        MESSAGE *msg = m->data->data[m->iover];
+        if(msg->flags >= 0 && msg->flags <= 3) {
+            m->data->istart = m->data->iend = m->iover;
+
+            uint8_t c = triclick ? '\n' : ' ';
+
+            uint16_t i = m->over;
+            while(i != 0 && msg->msg[i - 1] != c) {
+                i -= utf8_unlen(msg->msg + i);
+            }
+            m->data->start = i;
+            i = m->over;
+            while(i != msg->length && msg->msg[i] != c) {
+                i += utf8_len(msg->msg + i);
+            }
+            m->data->end = i;
+            return 1;
+        }
+    }
+    return 0;
+}
+
 _Bool messages_mright(MESSAGES *m)
 {
     return 0;

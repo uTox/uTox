@@ -12,10 +12,6 @@
 
 #define KEY_BACK XK_BackSpace
 #define KEY_RETURN XK_Return
-
-#define USENATIVECONTROLS
-
-typedef struct
-{
-    int left, top, right, bottom;
-}RECT;
+#define KEY_LEFT XK_Left
+#define KEY_RIGHT XK_Right
+#define KEY_TAB XK_Tab

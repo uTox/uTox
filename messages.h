@@ -32,6 +32,7 @@ struct msg_file {
 void messages_draw(MESSAGES *m, int x, int y, int width, int height);
 _Bool messages_mmove(MESSAGES *m, int mx, int my, int dy, int width, int height);
 _Bool messages_mdown(MESSAGES *m);
+_Bool messages_dclick(MESSAGES *m, _Bool triclick);
 _Bool messages_mright(MESSAGES *m);
 _Bool messages_mwheel(MESSAGES *m, int height, double d);
 _Bool messages_mup(MESSAGES *m);

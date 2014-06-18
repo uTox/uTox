@@ -185,6 +185,13 @@ int textfit(char_t *str, uint16_t length, int width)
     return WideCharToMultiByte(CP_UTF8, 0, out, fit, str, 65536, NULL, 0);
 }
 
+void framerect(int x, int y, int right, int bottom, uint32_t color)
+{
+    RECT r = {x, y, right, bottom};
+    SetDCBrushColor(hdc, color);
+    FrameRect(hdc, &r, hdc_brush);
+}
+
 void drawrect(int x, int y, int right, int bottom, uint32_t color)
 {
     RECT r = {x, y, right, bottom};
@@ -211,18 +218,6 @@ void drawvline(int x, int y, int y2, uint32_t color)
     RECT r = {x, y, x + 1, y2};
     SetDCBrushColor(hdc, color);
     FillRect(hdc, &r, hdc_brush);
-}
-
-void fillrect(RECT *r, uint32_t color)
-{
-    SetDCBrushColor(hdc, color);
-    FillRect(hdc, r, hdc_brush);
-}
-
-void framerect(RECT *r, uint32_t color)
-{
-    SetDCBrushColor(hdc, color);
-    FrameRect(hdc, r, hdc_brush);
 }
 
 void setfont(int id)
@@ -314,7 +309,7 @@ void editpopup(void)
 
     HMENU hMenu = CreatePopupMenu();
     if(hMenu) {
-        _Bool emptysel = (edit_sel.length == 0);
+        _Bool emptysel = 0;//(edit_sel.length == 0);
 
         InsertMenu(hMenu, -1, MF_BYPOSITION | (emptysel ? MF_GRAYED : 0), EDIT_CUT, "Cut");
         InsertMenu(hMenu, -1, MF_BYPOSITION | (emptysel ? MF_GRAYED : 0), EDIT_COPY, "Copy");
@@ -616,7 +611,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     cursor_hand = LoadCursor(NULL, IDC_HAND);
 
     WNDCLASS wc = {
-        .style = CS_OWNDC,
+        .style = CS_OWNDC | CS_DBLCLKS,
         .lpfnWndProc = WindowProc,
         .hInstance = hInstance,
         .hIcon = myicon,
@@ -868,6 +863,15 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             list_deletesitem();
             return 0;
         }
+
+        case VK_LEFT:
+        case VK_RIGHT:
+        case VK_TAB: {
+            if(edit_active()) {
+                edit_char(wParam, 1);
+                break;
+            }
+        }
         }
 
         if(GetKeyState(VK_CONTROL) & 0x80) {
@@ -966,6 +970,11 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         panel_mdown(&panel_main);
         SetCapture(hwnd);
         mdown = 1;
+        break;
+    }
+
+    case WM_LBUTTONDBLCLK: {
+        panel_dclick(&panel_main, 0);
         break;
     }
 

@@ -2,13 +2,17 @@
 
 static EDIT *active_edit;
 
+static struct
+{
+    uint16_t start, length;
+    uint16_t p1, p2, pm;
+}edit_sel;
+static _Bool edit_select;
+
 void edit_draw(EDIT *edit, int x, int y, int width, int height)
 {
-    RECT outline = {x, y, x + width, y + height};
-    framerect(&outline, (edit == active_edit) ? BLUE : (edit->mouseover ? C_GRAY2 : C_GRAY));
-
-    RECT area = {x + 1, y + 1, x + width - 1, y + height - 1};
-    fillrect(&area, WHITE);
+    framerect(x, y, x + width, y + height, (edit == active_edit) ? BLUE : (edit->mouseover ? C_GRAY2 : C_GRAY));
+    drawrect(x + 1, y + 1, x + width - 1, y + height - 1, WHITE);
 
     setfont(FONT_TEXT);
     setcolor(COLOR_TEXT);
@@ -111,6 +115,29 @@ _Bool edit_mdown(EDIT *edit)
     return 0;
 }
 
+_Bool edit_dclick(EDIT *edit, _Bool triclick)
+{
+    if(edit != active_edit) {
+        return 0;
+    }
+
+    uint8_t c = triclick ? '\n' : ' ';
+
+    uint16_t i = edit->mouseover_char;
+    while(i != 0 && edit->data[i - 1] != c) {
+        i -= utf8_unlen(edit->data + i);
+    }
+    edit_sel.start = edit_sel.p1 = i;
+    i = edit->mouseover_char;
+    while(i != edit->length && edit->data[i] != c) {
+        i += utf8_len(edit->data + i);
+    }
+    edit_sel.p2 = i;
+    edit_sel.length = i - edit_sel.start;
+
+    return 1;
+}
+
 _Bool edit_mright(EDIT *edit)
 {
     if(edit->mouseover) {
@@ -200,15 +227,7 @@ void edit_char(uint32_t ch, _Bool control)
         case KEY_BACK: {
             if(edit_sel.length == 0) {
                 if(edit_sel.start != 0) {
-                    size_t len = 1;
-                    if (edit->data[edit_sel.start-1] & 0x80) {
-                        do {
-                            if (len == edit_sel.start) {
-                                break;
-                            }
-                            len += 1;
-                        } while (!(edit->data[edit_sel.start-len] & 0x40));
-                    }
+                    uint8_t len = utf8_unlen(edit->data + edit_sel.start);
                     memmove(edit->data + edit_sel.start - len, edit->data + edit_sel.start,
                             (edit->length - edit_sel.start) * sizeof(char_t));
                     edit->length -= len;
@@ -223,12 +242,38 @@ void edit_char(uint32_t ch, _Bool control)
             break;
         }
 
+        case KEY_LEFT: {
+            if(edit_sel.start != 0) {
+                edit_sel.start--;
+            }
+            edit_sel.length = 0;
+            redraw();
+            break;
+        }
+
+        case KEY_RIGHT: {
+            if(edit_sel.start != edit->length) {
+                edit_sel.start++;
+            }
+            edit_sel.length = 0;
+            redraw();
+            break;
+        }
+
         case KEY_RETURN: {
             if(edit->onenter) {
                 edit->onenter();
             }
             break;
         }
+
+        case KEY_TAB: {
+            if(edit->ontab) {
+                edit->ontab();
+            }
+            break;
+        }
+
         }
     } else {
         size_t len = unicode_to_utf8(ch, NULL, NULL);
