@@ -641,7 +641,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
 
     x = (GetSystemMetrics(SM_CXSCREEN) - MAIN_WIDTH) / 2;
     y = (GetSystemMetrics(SM_CYSCREEN) - MAIN_HEIGHT) / 2;
-    hwnd = CreateWindowEx(0, classname, "Tox", WS_OVERLAPPED, x, y, MAIN_WIDTH, MAIN_HEIGHT, NULL, NULL, hInstance, NULL);
+    hwnd = CreateWindowEx(0, classname, "Tox", WS_OVERLAPPEDWINDOW, x, y, MAIN_WIDTH, MAIN_HEIGHT, NULL, NULL, hInstance, NULL);
 
     hdc_brush = GetStockObject(DC_BRUSH);
 
