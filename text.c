@@ -49,15 +49,16 @@ int drawtextmultiline(int x, int right, int y, uint16_t lineheight, char_t *data
         if(a == end || *a == ' ' || *a == '\n') {
             int count = a - b, w = textwidth(b, count);
             if(x + w > right) {
-                if(x != xc) {
+                if(x != xc || *a == '\n') {
                     y += lineheight;
                     if(!multiline) {
                         return y;
                     }
+                    int l = utf8_len(b);
+                    count -= l;
+                    b += l;
                 }
                 x = xc;
-                b += utf8_len(b);
-                count--;
                 w = textwidth(b, count);
             }
 
@@ -98,12 +99,15 @@ uint16_t hittextmultiline(int mx, int right, int my, int height, uint16_t linehe
         if(a == end ||  *a == '\n' || *a == ' ') {
             int count = a - b, w = textwidth(b, a - b);
             if(x + w > right) {
-                if(x != 0) {
+                if(x != 0 || *a == '\n') {
                     if(!multiline) {
                         return 0;
                     }
                     my -= lineheight;
                     height -= lineheight;
+                    int l = utf8_len(b);
+                    count -= l;
+                    b += l;
                 }
 
                 if(my >= -lineheight && my <= 0) {
@@ -112,8 +116,6 @@ uint16_t hittextmultiline(int mx, int right, int my, int height, uint16_t linehe
                 }
 
                 x = 0;
-                b += utf8_len(b);
-                count--;
                 w = textwidth(b, count);
             }
 

@@ -8,12 +8,13 @@ static int heightmsg(char_t *str, int right, uint16_t length)
         if(a == end || *a == '\n' || *a == ' ') {
             int count = a - b, w = textwidth(b, a - b);
             if(x + w > right) {
-                if(x != 0) {
+                if(x != 0 || *a == '\n') {
                     y += font_msg_lineheight;
+                    int l = utf8_len(b);
+                    count -= l;
+                    b += l;
                 }
                 x = 0;
-                b += utf8_len(b);
-                count--;
                 w = textwidth(b, count);
             }
 
@@ -101,7 +102,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
         case 2:
         case 3: {
             /* normal message */
-            int h1 = 0, h2 = 0;
+            int h1 = 0xFFFF, h2 = 0xFFFF;
             if(i == m->data->istart) {
                 h1 = m->data->start;
                 h2 = ((i == m->data->iend) ? m->data->end : msg->length);
