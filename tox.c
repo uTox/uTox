@@ -6,7 +6,7 @@
 
 #include <tox/toxav.h>
 
-#define MAX_CALLS 64
+#define MAX_CALLS 16
 
 static struct {
     _Bool active;
@@ -1051,7 +1051,6 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
         MSG_FILE *msg = ft->chatdata;
         msg->status = (size_t)data;
 
-        message_fileupdateheight(&messages_friend, msg, &f->msg);
         updatefriend(f);
         break;
     }
@@ -1063,7 +1062,6 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
         MSG_FILE *msg = ft->chatdata;
         msg->status = (size_t)data;
 
-        message_fileupdateheight(&messages_friend, msg, &f->msg);
         updatefriend(f);
         break;
     }

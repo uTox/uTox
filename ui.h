@@ -108,6 +108,8 @@ extern uint32_t status_color[];
 #define SELF_STATUS_X (96 * SCALE)
 #define SELF_STATUS_Y (5 * SCALE)
 
+#define MESSAGES_SPACING (SCALE * 2)
+
 /* main */
 //#define MAIN_X
 //#define MAIN_Y LIST_Y

@@ -43,6 +43,8 @@ static int drawmsg(int x, int y, int width, char_t *str, uint16_t length, int h1
 {
     int xc = x, right = x + width;
     char_t *a = str, *b = str, *end = str + length;
+    _Bool link = 0;
+    uint32_t color;
     while(1) {
         if(a == end || *a == ' ' || *a == '\n') {
             int count = a - b, w = textwidth(b, count);
@@ -66,16 +68,21 @@ static int drawmsg(int x, int y, int width, char_t *str, uint16_t length, int h1
                 x = xc;
             }
 
-            setcolor(0);
-            setfont(FONT_MSG);
+            if(link) {
+                setcolor(color);
+                setfont(FONT_MSG);
+                link = 0;
+            }
+
         } else if(*a == 'h' && (a == str || *(a - 1) == ' ')) {
             if((end - a >= 7 && strcmp2(a, "http://") == 0) || (end - a >= 8 && strcmp2(a, "https://") == 0)) {
-                int count = a - b;
+                int count = a - b - 1;
                 x += textout(x, y, b, count,  b - str, h1, h2);
-                b = a;
+                b = a - 1;
 
-                setcolor(COLOR_LINK);
+                color = setcolor(COLOR_LINK);
                 setfont(FONT_MSG_LINK);
+                link = 1;
             }
         }
         a += utf8_len(a);
@@ -206,26 +213,37 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
             break;
         }
 
+        setcolor(LIST_MAIN);
+        setfont(FONT_MISC);
+        char timestr[6];
+        int len;
+        len = sprintf(timestr, "%u:%.2u", msg->time / 60, msg->time % 60);
+        drawtext(x + width - 16 * SCALE, y, (uint8_t*)timestr, len);
+
         if(m->type) {
             /* group */
+            setcolor(0);
             setfont(FONT_MSG_NAME);
             drawtextwidth_right(x, 95, y, &msg->msg[msg->length] + 1, (uint16_t)msg->msg[msg->length]);
-            setfont(FONT_MSG);
         } else {
             FRIEND *f = &friend[m->data->id];
             uint8_t author = msg->flags & 1;
             if(author != lastauthor) {
+                setfont(FONT_MSG_NAME);
                 if(!author) {
                     setcolor(0);
-                    setfont(FONT_MSG_NAME);
                     drawtextwidth_right(x, 95, y, f->name, f->name_length);
-                    setfont(FONT_MSG);
                 } else {
-                    setcolor(0x888888);
+                    setcolor(CHAT_SELF);
                     drawtextwidth_right(x, 95, y, self.name, self.name_length);
-                    setcolor(0);
                 }
                 lastauthor = author;
+            } else {
+                if(!author) {
+                    setcolor(0);
+                } else {
+                    setcolor(CHAT_SELF);
+                }
             }
         }
         /**/
@@ -248,9 +266,9 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
                 h2 = msg->length;
             }
 
-            setcolor(0);
+            setfont(FONT_MSG);
             int ny = drawmsg(x + 110, y, width - 110, msg->msg, msg->length, h1, h2);
-            if(ny - y != msg->height) {
+            if(ny - y != msg->height - MESSAGES_SPACING) {
                 debug("error101\n");
             }
             y = ny;
@@ -276,32 +294,47 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
             MSG_FILE *file = (void*)msg;
             int dx = 110;
             int xx = x + 110;
+            _Bool mo = (m->iover == i);
 
             uint8_t size[16];
             int sizelen = sprint_bytes(size, file->size);
 
-            switch(file->status) {
-                case FILE_PENDING: {
+            setcolor(WHITE);
+
+            if(file->status == FILE_DONE) {
+                drawalpha(BM_FT, xx, y, BM_FT_WIDTH, BM_FT_HEIGHT, C_GREEN);
+            } else if(file->status == FILE_KILLED) {
+                drawalpha(BM_FT, xx, y, BM_FT_WIDTH, BM_FT_HEIGHT, C_RED);
+            } else {
+                if(file->status == FILE_BROKEN) {
+                    drawalpha(BM_FTM, xx, y, BM_FTM_WIDTH, BM_FT_HEIGHT, C_YELLOW);
+                } else {
                     drawalpha(BM_FTM, xx, y, BM_FTM_WIDTH, BM_FT_HEIGHT, C_GRAY);
-                    drawalpha(BM_FTB1, xx + BM_FTM_WIDTH + SCALE, y, BM_FTM_WIDTH, BM_FTB_HEIGHT + SCALE, C_GREEN);
-                    drawalpha(BM_FTB2, xx + BM_FTM_WIDTH + SCALE, y + BM_FTB_HEIGHT + SCALE * 2, BM_FTM_WIDTH, BM_FTB_HEIGHT, C_GREEN);
-                    if(msg->flags == 6) {
-
-                    }
-                    break;
+                    setcolor(GRAY(98));
                 }
 
-                default: {
-                    drawalpha(BM_FT, xx, y, BM_FT_WIDTH, BM_FT_HEIGHT, C_GREEN);
-                    break;
-                }
+                int x =  xx + BM_FTM_WIDTH + SCALE;
+                drawalpha(BM_FTB1, x, y, BM_FTM_WIDTH, BM_FTB_HEIGHT + SCALE, (mo && m->over == 1) ? C_GREEN_LIGHT : C_GREEN);
+                drawalpha(BM_NO, x + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2, y + SCALE * 4, BM_FB_WIDTH, BM_FB_WIDTH, WHITE);
+
+                uint32_t color = (msg->flags == 7 && (file->status == FILE_PENDING || file->status == FILE_BROKEN)) ? C_GRAY: ((mo && m->over == 2) ? C_GREEN_LIGHT : C_GREEN);
+                drawalpha(BM_FTB2, x, y + BM_FTB_HEIGHT + SCALE * 2, BM_FTM_WIDTH, BM_FTB_HEIGHT, color);
+                drawalpha((msg->flags == 6 && file->status ==  FILE_PENDING) ? BM_YES : BM_PAUSE, x + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2, y + BM_FTB_HEIGHT + SCALE * 5, BM_FB_WIDTH, BM_FB_WIDTH, color == C_GRAY ? LIST_MAIN : WHITE);
             }
+
+            setfont(FONT_MISC);
+
+
+            drawtext(xx + 35 * SCALE, y + 3 * SCALE, file->name, file->name_length);
+            drawtext(xx + 35 * SCALE, y + 10 * SCALE, size, sizelen);
 
             y += BM_FT_HEIGHT;
 
             break;
         }
         }
+
+        y += MESSAGES_SPACING;
     }
 }
 
@@ -312,7 +345,10 @@ _Bool messages_mmove(MESSAGES *m, int mx, int my, int dy, int width, int height)
     }
 
     if(mx < 0) {
-        m->iover = ~0;
+        if(m->iover != ~0) {
+            m->iover = ~0;
+            return 1;
+        }
         return 0;
     }
 
@@ -320,6 +356,7 @@ _Bool messages_mmove(MESSAGES *m, int mx, int my, int dy, int width, int height)
 
     void **p = m->data->data;
     int i = 0, n = m->data->n;
+    _Bool redraw = 0;
 
     while(i != n) {
         MESSAGE *msg = *p++;
@@ -327,7 +364,6 @@ _Bool messages_mmove(MESSAGES *m, int mx, int my, int dy, int width, int height)
         int dy = msg->height;
 
         if((my >= 0 && my < dy) || i == n - 1) {
-            m->over = 0;
             switch(msg->flags) {
             case 0:
             case 1:
@@ -337,25 +373,21 @@ _Bool messages_mmove(MESSAGES *m, int mx, int my, int dy, int width, int height)
                 m->over = pmsg(mx - 110, my, width - 110, msg->height, msg->msg, msg->length);
                 m->urlover = 0xFFFF;
 
-                if(my >= dy || mx < 110 || m->over == msg->length)
-                {
+                if(my >= dy || mx < 110 || m->over == msg->length) {
                     break;
                 }
 
                 char_t *str = msg->msg + m->over;
-                while(str != msg->msg)
-                {
+                while(str != msg->msg) {
                     str--;
-                    if(*str == ' ' || *str == '\n')
-                    {
+                    if(*str == ' ' || *str == '\n') {
                         str++;
                         break;
                     }
                 }
 
                 char_t *end = msg->msg + msg->length;
-                while(str != end && *str != ' ' && *str != '\n')
-                {
+                while(str != end && *str != ' ' && *str != '\n') {
                     if(end - str >= 7 && strcmp2(str, "http://") == 0) {
                         hand = 1;
                         m->urlover = str - msg->msg;
@@ -378,18 +410,35 @@ _Bool messages_mmove(MESSAGES *m, int mx, int my, int dy, int width, int height)
 
             case 4:
             case 5: {
-                /* image */
-                //MSG_IMG *img = (void*)msg;
-
-                //SIZE size;
-                //GetBitmapDimensionEx(img->bitmap, &size);
+                m->over = 0;
                 break;
             }
 
             case 6:
             case 7: {
-                if(my >= BM_FT_HEIGHT) {break;}
-                /* file transfer */
+                if(my >= BM_FT_HEIGHT) {
+                    break;
+                }
+
+                uint8_t over = 0;
+
+                mx -= 110;
+                if(mx >= 0 && mx < BM_FT_WIDTH && my >= 0 && my < BM_FT_HEIGHT) {
+                    over = 3;
+                    mx -= BM_FTM_WIDTH + SCALE;
+                    if(mx >= 0) {
+                        if(my < BM_FTB_HEIGHT + SCALE) {
+                            over = 1;
+                        } else if(my >= BM_FTB_HEIGHT + SCALE * 2) {
+                            over = 2;
+                        }
+                    }
+                }
+
+                if(over != m->over || i != m->iover) {
+                    redraw = 1;
+                    m->over = over;
+                }
 
                 break;
             }
@@ -398,35 +447,42 @@ _Bool messages_mmove(MESSAGES *m, int mx, int my, int dy, int width, int height)
             m->iover = i;
 
             if(m->select) {
+                int start, end, istart, iend;
                 if(i > m->idown) {
-                    m->data->istart = m->idown;
-                    m->data->iend = i;
+                    istart = m->idown;
+                    iend = i;
 
-                    m->data->start = m->down;
-                    m->data->end = m->over;
+                    start = m->down;
+                    end = m->over;
                 } else if(i < m->idown) {
-                    m->data->iend = m->idown;
-                    m->data->istart = i;
+                    iend = m->idown;
+                    istart = i;
 
-                    m->data->end = m->down;
-                    m->data->start = m->over;
+                    end = m->down;
+                    start = m->over;
                 } else {
-                    m->data->istart = m->data->iend = i;
+                    istart = iend = i;
                     if(m->over >= m->down) {
-                        m->data->start = m->down;
-                        m->data->end = m->over;
+                        start = m->down;
+                        end = m->over;
                     } else {
-                        m->data->end = m->down;
-                        m->data->start = m->over;
+                        end = m->down;
+                        start = m->over;
                     }
                 }
 
-                setselection();
+                if(start != m->data->start || istart != m->data->istart || end != m->data->end || iend != m->data->iend) {
+                    m->data->start = start;
+                    m->data->end = end;
+                    m->data->istart = istart;
+                    m->data->iend = iend;
 
-                //debug("test: %u %u %u %u\n", f->istart, f->start, f->iend, f->end);
-                return 1;
+                    setselection();
+                    redraw = 1;
+                }
+
             }
-            return 0;
+            return redraw;
         }
 
         my -= dy;
@@ -441,95 +497,84 @@ _Bool messages_mdown(MESSAGES *m)
 {
     if(m->iover != ~0) {
         MESSAGE *msg = m->data->data[m->iover];
-        switch(msg->flags)
-        {
-            case 0 ... 3:
-            {
-                if(m->urlover != 0xFFFF)
-                {
-                    char_t url[m->urllen + 1];
-                    memcpy(url, msg->msg + m->urlover, m->urllen * sizeof(char_t));
-                    url[m->urllen] = 0;
+        switch(msg->flags) {
+        case 0 ... 3: {
+            if(m->urlover != 0xFFFF) {
+                char_t url[m->urllen + 1];
+                memcpy(url, msg->msg + m->urlover, m->urllen * sizeof(char_t));
+                url[m->urllen] = 0;
 
-                    openurl(url);
-                }
+                openurl(url);
+            }
 
-                m->data->istart = m->data->iend = m->idown = m->iover;
-                m->data->start = m->data->end = m->down = m->over;
-                m->select = 1;
+            m->data->istart = m->data->iend = m->idown = m->iover;
+            m->data->start = m->data->end = m->down = m->over;
+            m->select = 1;
+            break;
+        }
+
+        case 6 ... 7: {
+            MSG_FILE *file = (void*)msg;
+            if(m->over == 0) {
                 break;
             }
 
-            case 6 ... 7:
-            {
-                MSG_FILE *file = (void*)msg;
-                if(m->over == 0)
-                {
-                    break;
+            switch(file->status) {
+            case FILE_PENDING: {
+                if(msg->flags == 6) {
+                    if(m->over == 2) {
+                        savefilerecv(m->data->id, file);
+                    } else if(m->over == 1) {
+                        //decline
+                        tox_postmessage(TOX_FILE_IN_CANCEL, m->data->id, file->filenumber, NULL);
+                    }
+                } else if(m->over == 1) {
+                    //cancel
+                    tox_postmessage(TOX_FILE_OUT_CANCEL, m->data->id, file->filenumber, NULL);
                 }
 
-                switch(file->status) {
-                    case FILE_PENDING:
-                    {
-                        if(msg->flags == 6)
-                        {
-                            if(m->over == 1) {
-                                savefilerecv(m->data->id, file);
-                            } else {
-                                //decline
-                                tox_postmessage(TOX_FILE_IN_CANCEL, m->data->id, file->filenumber, NULL);
-                            }
-                        } else
-                        {
-                            //cancel
-                            tox_postmessage(TOX_FILE_OUT_CANCEL, m->data->id, file->filenumber, NULL);
-                        }
 
+                break;
+            }
 
-                        break;
-                    }
-
-                    case FILE_OK:
-                    {
-                        if(m->over == 1) {
-                            //pause
-                            tox_postmessage(TOX_FILE_IN_PAUSE + (msg->flags & 1), m->data->id, file->filenumber, NULL);
-                        } else {
-                            //cancel
-                            tox_postmessage(TOX_FILE_IN_CANCEL + (msg->flags & 1), m->data->id, file->filenumber, NULL);
-                        }
-                        break;
-                    }
-
-                    case FILE_PAUSED:
-                    {
-                        if(m->over == 1) {
-                            //resume
-                            tox_postmessage(TOX_FILE_IN_RESUME + (msg->flags & 1), m->data->id, file->filenumber, NULL);
-                        } else {
-                            //cancel
-                            tox_postmessage(TOX_FILE_IN_CANCEL + (msg->flags & 1), m->data->id, file->filenumber, NULL);
-                        }
-                        break;
-                    }
-
-                    case FILE_BROKEN:
-                    {
-                        //cancel
-                        tox_postmessage(TOX_FILE_IN_CANCEL + (msg->flags & 1), m->data->id, file->filenumber, NULL);
-                        break;
-                    }
-
-                    case FILE_DONE:
-                    {
-                        if(msg->flags == 6) {
-                            //open the file
-                        }
-                        break;
-                    }
+            case FILE_OK: {
+                if(m->over == 2) {
+                    //pause
+                    tox_postmessage(TOX_FILE_IN_PAUSE + (msg->flags & 1), m->data->id, file->filenumber, NULL);
+                } else if(m->over == 1) {
+                    //cancel
+                    tox_postmessage(TOX_FILE_IN_CANCEL + (msg->flags & 1), m->data->id, file->filenumber, NULL);
                 }
                 break;
             }
+
+            case FILE_PAUSED: {
+                if(m->over == 2) {
+                    //resume
+                    tox_postmessage(TOX_FILE_IN_RESUME + (msg->flags & 1), m->data->id, file->filenumber, NULL);
+                } else if(m->over == 1) {
+                    //cancel
+                    tox_postmessage(TOX_FILE_IN_CANCEL + (msg->flags & 1), m->data->id, file->filenumber, NULL);
+                }
+                break;
+            }
+
+            case FILE_BROKEN: {
+                //cancel
+                if(m->over == 1) {
+                    tox_postmessage(TOX_FILE_IN_CANCEL + (msg->flags & 1), m->data->id, file->filenumber, NULL);
+                }
+                break;
+            }
+
+            case FILE_DONE: {
+                if(msg->flags == 6 && m->over == 3) {
+                }
+                break;
+            }
+            }
+            break;
+        }
         }
 
         return 1;
@@ -588,29 +633,28 @@ int messages_selection(MESSAGES *m, void *data, uint32_t len)
         strcpy2(p, ": ");
         p += 2;
 
-        switch(msg->flags)
-        {
-            case 0:
-            case 1:
-            case 2:
-            case 3: {
-                if(i == m->data->istart) {
-                    if(i == m->data->iend) {
-                        memcpy(p, msg->msg + m->data->start, m->data->end - m->data->start);
-                        p += m->data->end - m->data->start;
-                    } else {
-                        memcpy(p, msg->msg + m->data->start, msg->length - m->data->start);
-                        p += msg->length - m->data->start;
-                    }
-                } else if(i == m->data->iend) {
-                    memcpy(p, msg->msg, m->data->end);
-                    p += m->data->end;
+        switch(msg->flags) {
+        case 0:
+        case 1:
+        case 2:
+        case 3: {
+            if(i == m->data->istart) {
+                if(i == m->data->iend) {
+                    memcpy(p, msg->msg + m->data->start, m->data->end - m->data->start);
+                    p += m->data->end - m->data->start;
                 } else {
-                    memcpy(p, msg->msg, msg->length);
-                    p += msg->length;
+                    memcpy(p, msg->msg + m->data->start, msg->length - m->data->start);
+                    p += msg->length - m->data->start;
                 }
-                break;
+            } else if(i == m->data->iend) {
+                memcpy(p, msg->msg, m->data->end);
+                p += m->data->end;
+            } else {
+                memcpy(p, msg->msg, msg->length);
+                p += msg->length;
             }
+            break;
+        }
         }
 
         strcpy2(p, "\r\n");
@@ -630,13 +674,13 @@ static int msgheight(MESSAGE *msg, int width)
     case 1:
     case 2:
     case 3: {
-        return heightmsg(msg->msg, width - 110, msg->length);
+        return heightmsg(msg->msg, width - 110, msg->length) + MESSAGES_SPACING;
     }
 
     case 6:
     case 7: {
         //MSG_FILE *file = (void*)msg;
-        return BM_FT_HEIGHT;//(file->status != FILE_PENDING && file->status < FILE_KILLED) ? font_msg_lineheight * 2 : font_msg_lineheight;
+        return BM_FT_HEIGHT + MESSAGES_SPACING;//(file->status != FILE_PENDING && file->status < FILE_KILLED) ? font_msg_lineheight * 2 : font_msg_lineheight;
     }
 
     }
@@ -678,18 +722,15 @@ static void message_setheight(MESSAGES *m, MESSAGE *msg, MSG_DATA *p)
     }
 }
 
-void message_fileupdateheight(MESSAGES *m, MSG_FILE *file, MSG_DATA *p)
-{
-    int newheight = (file->status != FILE_PENDING && file->status < FILE_KILLED) ? font_msg_lineheight * 2 : font_msg_lineheight;
-    p->height += newheight - file->height;
-    file->height = newheight;
-    if(m->data == p) {
-        m->panel.content_scroll->content_height = p->height;
-    }
-}
-
 void message_add(MESSAGES *m, MESSAGE *msg, MSG_DATA *p)
 {
+    time_t rawtime;
+    struct tm *ti;
+    time(&rawtime);
+    ti = localtime(&rawtime);
+
+    msg->time = ti->tm_hour * 60 + ti->tm_min;
+
     p->data = realloc(p->data, (p->n + 1) * sizeof(void*));
     p->data[p->n++] = msg;
 

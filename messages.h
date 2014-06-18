@@ -9,17 +9,21 @@ struct messages
 };
 
 typedef struct {
-    uint16_t flags, height, length;
+    uint16_t flags, height;
+    uint32_t time;
+    uint16_t length;
     char_t msg[0];
 } MESSAGE;
 
 typedef struct {
     uint16_t flags, height;
+    uint32_t time;
     //HBITMAP bitmap;
 } MSG_IMG;
 
 struct msg_file {
     uint16_t flags, height;
+    uint32_t time;
     uint8_t filenumber, status, name_length;
     uint64_t size, progress;
     uint8_t name[24];
@@ -36,5 +40,4 @@ _Bool messages_mleave(MESSAGES *m);
 int messages_selection(MESSAGES *m, void *data, uint32_t len);
 
 void messages_updateheight(MESSAGES *m) ;
-void message_fileupdateheight(MESSAGES *m, MSG_FILE *file, MSG_DATA *p);
 void message_add(MESSAGES *m, MESSAGE *msg, MSG_DATA *p);

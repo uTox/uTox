@@ -52,7 +52,7 @@ _Bool scroll_mmove(SCROLLABLE *s, int x, int y, int dy, int width, int height)
 {
     _Bool draw = 0;
 
-    _Bool hit = inrect(x, y, width - SCROLL_WIDTH, 0, width, height);
+    _Bool hit = inrect(x, y, s->left ? SCROLL_WIDTH : (width - SCROLL_WIDTH), 0, width, height);
     if(s->mouseover != hit)
     {
         s->mouseover = hit;

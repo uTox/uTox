@@ -11,6 +11,10 @@
 #include "icons/file.c"
 #include "icons/call.c"
 
+#include "icons/no.c"
+#include "icons/pause.c"
+#include "icons/yes.c"
+
 static void drawrectrounded(uint8_t *data, int width, int height, int radius)
 {
     int x, y;
@@ -194,5 +198,15 @@ void svg_draw(void)
     bm_ftb = malloc(BM_FTB_WIDTH * (BM_FTB_HEIGHT + SCALE) + BM_FTB_WIDTH * BM_FTB_HEIGHT);
     drawrectroundedex(bm_ftb, BM_FTB_WIDTH, BM_FTB_HEIGHT + SCALE, SCALE * 2, 6);
     drawrectroundedex(bm_ftb + BM_FTB_WIDTH * (BM_FTB_HEIGHT + SCALE), BM_FTB_WIDTH, BM_FTB_HEIGHT, SCALE * 2, 10);
+
+    s = BM_FB_WIDTH * BM_FB_HEIGHT;
+    bm_no = malloc(s);
+    convert(bm_no, bm_no_bits, s);
+
+    bm_pause = malloc(s);
+    convert(bm_pause, bm_pause_bits, s);
+
+    bm_yes = malloc(s);
+    convert(bm_yes, bm_yes_bits, s);
 
 }

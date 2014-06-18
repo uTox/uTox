@@ -28,6 +28,9 @@
 #define BM_LBICON_WIDTH (11 * SCALE)
 #define BM_LBICON_HEIGHT (10 * SCALE)
 
+#define BM_FB_WIDTH (6 * SCALE)
+#define BM_FB_HEIGHT (5 * SCALE)
+
 //fix names
 /* rgb */
 
@@ -36,7 +39,7 @@ void *bm_scroll_bits, *bm_statusarea;
 
 void *bm_status_bits, *bm_nmsg;
 void *bm_lbutton, *bm_sbutton;
-void *bm_ft, *bm_ftm, *bm_ftb;
+void *bm_ft, *bm_ftm, *bm_ftb, *bm_no, *bm_pause, *bm_yes;
 
 void *bm_contact, *bm_group;
 

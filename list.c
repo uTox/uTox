@@ -84,11 +84,9 @@ static ITEM* item_hit(int x, int y, int height)
         return NULL;
     }
 
-    if(y < 0 || y >= height) {
+    if(y < 0) {
         return NULL;
     }
-
-    y += scroll_gety(&scroll_list, height);
 
     y /= ITEM_HEIGHT;
     if(y >= itemcount) {
@@ -256,12 +254,11 @@ void list_addfriendreq(FRIENDREQ *f)
 
 void list_draw(void *n, int x, int y, int width, int height)
 {
-    int my, dy = scroll_gety(&scroll_list, height);
+    int my;
 
     ITEM *i = item, *mi = NULL;
 
-    i += dy / ITEM_HEIGHT;
-    y -= dy % ITEM_HEIGHT;
+    //TODO: only draw visible
     while(i != &item[itemcount]) {
         if(i == sitem && (sitem_dy >= 5 || sitem_dy <= -5)) {
             mi = i;

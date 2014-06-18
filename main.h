@@ -102,6 +102,8 @@ enum
     FONT_SELF_NAME,
     FONT_STATUS,
     FONT_LIST_NAME,
+
+    FONT_MISC,
 };
 
 //sysmenu icons
@@ -131,6 +133,10 @@ enum
     BM_FTM,
     BM_FTB1,
     BM_FTB2,
+
+    BM_NO,
+    BM_PAUSE,
+    BM_YES,
 
     BM_SCROLLHALFTOP,
     BM_SCROLLHALFBOT,

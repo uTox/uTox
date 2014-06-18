@@ -51,7 +51,7 @@ static void edit_msg_onenter(void)
     if(sitem->item == ITEM_FRIEND) {
         FRIEND *f = sitem->data;
 
-        MESSAGE *msg = malloc(length + 6);
+        MESSAGE *msg = malloc(length + sizeof(MESSAGE));
         msg->flags = 1;
         msg->length = length;
         memcpy(msg->msg, edit_msg_data, length);
