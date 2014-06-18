@@ -25,11 +25,11 @@ Windows:
 
 Xlib:
 
->gcc -o uTox.o *.c -lX11 -lXft -ltoxcore -ltoxav -lopenal -pthread -lresolv -ldl
+>gcc -o uTox.o *.c -lX11 -lXft -ltoxcore -ltoxav -ltoxdns -lopenal -pthread -lresolv -ldl -lm
 
 or if you built toxcore statically:
 
->gcc -o uTox.o *.c -lX11 -lXft -ltoxcore -ltoxav -lopenal -lsodium -lopus lvpx -lm  -pthread -lresolv -ldl
+>gcc -o uTox.o *.c -lX11 -lXft -ltoxcore -ltoxav -ltoxdns -lopenal -lsodium -lopus lvpx -lm -pthread -lresolv -ldl
 
 ## Downloads
 
