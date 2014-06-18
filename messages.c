@@ -49,7 +49,9 @@ static int drawmsg(int x, int y, int width, char_t *str, uint16_t length, int h1
         if(a == end || *a == ' ' || *a == '\n') {
             int count = a - b, w = textwidth(b, count);
             if(x + w > right) {
-                y += font_msg_lineheight;
+                if(x != xc) {
+                    y += font_msg_lineheight;
+                }
                 x = xc;
                 b += utf8_len(b);
                 count--;
@@ -111,12 +113,15 @@ static uint32_t pmsg(int mx, int my, int right, int height, char_t *str, uint16_
         if(a == end ||  *a == '\n' || *a == ' ') {
             int count = a - b, w = textwidth(b, a - b);
             if(x + w > right) {
-                if(my >= 0 && my <= font_msg_lineheight) {
+                if(x != 0) {
+                    my -= font_msg_lineheight;
+                    height -= font_msg_lineheight;
+                }
+
+                if(my >= -font_msg_lineheight && my <= 0) {
                     x = mx;
                     break;
                 }
-                my -= font_msg_lineheight;
-                height -= font_msg_lineheight;
 
                 x = 0;
                 b += utf8_len(b);
@@ -163,7 +168,9 @@ static int heightmsg(char_t *str, int right, uint16_t length)
         if(a == end || *a == '\n' || *a == ' ') {
             int count = a - b, w = textwidth(b, a - b);
             if(x + w > right) {
-                y += font_msg_lineheight;
+                if(x != 0) {
+                    y += font_msg_lineheight;
+                }
                 x = 0;
                 b += utf8_len(b);
                 count--;
@@ -218,13 +225,13 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
         char timestr[6];
         int len;
         len = sprintf(timestr, "%u:%.2u", msg->time / 60, msg->time % 60);
-        drawtext(x + width - 16 * SCALE, y, (uint8_t*)timestr, len);
+        drawtext(x + width - TIME_WIDTH, y, (uint8_t*)timestr, len);
 
         if(m->type) {
             /* group */
             setcolor(0);
             setfont(FONT_MSG_NAME);
-            drawtextwidth_right(x, 95, y, &msg->msg[msg->length] + 1, (uint16_t)msg->msg[msg->length]);
+            drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, y, &msg->msg[msg->length] + 1, (uint16_t)msg->msg[msg->length]);
         } else {
             FRIEND *f = &friend[m->data->id];
             uint8_t author = msg->flags & 1;
@@ -232,10 +239,10 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
                 setfont(FONT_MSG_NAME);
                 if(!author) {
                     setcolor(0);
-                    drawtextwidth_right(x, 95, y, f->name, f->name_length);
+                    drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, y, f->name, f->name_length);
                 } else {
                     setcolor(CHAT_SELF);
-                    drawtextwidth_right(x, 95, y, self.name, self.name_length);
+                    drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, y, self.name, self.name_length);
                 }
                 lastauthor = author;
             } else {
@@ -267,7 +274,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
             }
 
             setfont(FONT_MSG);
-            int ny = drawmsg(x + 110, y, width - 110, msg->msg, msg->length, h1, h2);
+            int ny = drawmsg(x + MESSAGES_X, y, width - MESSAGES_X - TIME_WIDTH, msg->msg, msg->length, h1, h2);
             if(ny - y != msg->height - MESSAGES_SPACING) {
                 debug("error101\n");
             }
@@ -292,8 +299,8 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
         case 6:
         case 7: {
             MSG_FILE *file = (void*)msg;
-            int dx = 110;
-            int xx = x + 110;
+            int dx = MESSAGES_X;
+            int xx = x + dx;
             _Bool mo = (m->iover == i);
 
             uint8_t size[16];
@@ -370,10 +377,10 @@ _Bool messages_mmove(MESSAGES *m, int mx, int my, int dy, int width, int height)
             case 2:
             case 3: {
                 /* normal message */
-                m->over = pmsg(mx - 110, my, width - 110, msg->height, msg->msg, msg->length);
+                m->over = pmsg(mx - MESSAGES_X, my, width - MESSAGES_X - TIME_WIDTH, msg->height, msg->msg, msg->length);
                 m->urlover = 0xFFFF;
 
-                if(my >= dy || mx < 110 || m->over == msg->length) {
+                if(my >= dy || mx < MESSAGES_X || m->over == msg->length) {
                     break;
                 }
 
@@ -422,7 +429,7 @@ _Bool messages_mmove(MESSAGES *m, int mx, int my, int dy, int width, int height)
 
                 uint8_t over = 0;
 
-                mx -= 110;
+                mx -= MESSAGES_X;
                 if(mx >= 0 && mx < BM_FT_WIDTH && my >= 0 && my < BM_FT_HEIGHT) {
                     over = 3;
                     mx -= BM_FTM_WIDTH + SCALE;
