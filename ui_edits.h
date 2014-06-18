@@ -122,7 +122,7 @@ edit_addmsg = {
         .height = SCALE * 42,
         .width = -SCROLL_WIDTH - 5 * SCALE
     },
-    .multiline = 0,//1,
+    .multiline = 1,
     .maxlength = sizeof(edit_addmsg_data),
     .data = edit_addmsg_data,
 },
@@ -135,7 +135,7 @@ edit_msg = {
         .height = 84,
         .width = 0
     },
-    .multiline = 0,//1,
+    .multiline = 1,
     .maxlength = sizeof(edit_msg_data),
     .data = edit_msg_data,
     .onenter = edit_msg_onenter,

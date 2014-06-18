@@ -1,167 +1,5 @@
 #include "main.h"
 
-static int textout(int x, int y, char_t *str, uint16_t length, int d, int h1, int h2)
-{
-    h1 -= d;
-    h2 -= d;
-
-    if(h1 < 0) {
-        h1 = 0;
-    }
-
-    if(h2 < 0) {
-        h2 = 0;
-    }
-
-    if(h1 > length) {
-        h1 = length;
-    }
-
-    if(h2 > length) {
-        h2 = length;
-    }
-
-    int width;
-
-    width = drawtext_getwidth(x, y, str, h1);
-
-    uint32_t color = setcolor(TEXT_HIGHLIGHT);
-
-    int w = textwidth(str + h1, h2 - h1);
-    drawrectw(x + width, y, w, font_msg_lineheight, TEXT_HIGHLIGHT_BG);
-    drawtext(x + width, y, str + h1, h2 - h1);
-    width += w;
-
-    setcolor(color);
-
-    width += drawtext_getwidth(x + width, y, str + h2, length - h2);
-
-    return width;
-}
-
-static int drawmsg(int x, int y, int width, char_t *str, uint16_t length, int h1, int h2)
-{
-    int xc = x, right = x + width;
-    char_t *a = str, *b = str, *end = str + length;
-    _Bool link = 0;
-    uint32_t color;
-    while(1) {
-        if(a == end || *a == ' ' || *a == '\n') {
-            int count = a - b, w = textwidth(b, count);
-            if(x + w > right) {
-                if(x != xc) {
-                    y += font_msg_lineheight;
-                }
-                x = xc;
-                b += utf8_len(b);
-                count--;
-                w = textwidth(b, count);
-            }
-
-            textout(x, y, b, count, b - str, h1, h2);
-            x += w;
-            b = a;
-
-            if(a == end) {
-                break;
-            }
-
-            if(*a == '\n') {
-                b += utf8_len(b);
-                y += font_msg_lineheight;
-                x = xc;
-            }
-
-            if(link) {
-                setcolor(color);
-                setfont(FONT_MSG);
-                link = 0;
-            }
-
-        } else if(*a == 'h' && (a == str || *(a - 1) == ' ')) {
-            if((end - a >= 7 && strcmp2(a, "http://") == 0) || (end - a >= 8 && strcmp2(a, "https://") == 0)) {
-                int count = a - b - 1;
-                x += textout(x, y, b, count,  b - str, h1, h2);
-                b = a - 1;
-
-                color = setcolor(COLOR_LINK);
-                setfont(FONT_MSG_LINK);
-                link = 1;
-            }
-        }
-        a += utf8_len(a);
-    }
-
-    textout(x, y, b, a - b, b - str, h1, h2);
-    y += font_msg_lineheight;
-    setcolor(0);
-    setfont(FONT_MSG);
-
-    //RECT r = {x, y, x + width, bottom};
-    //y += DrawTextW(hdc, out, length, &r, DT_WORDBREAK | DT_NOPREFIX);
-
-    return y;
-}
-
-static uint32_t pmsg(int mx, int my, int right, int height, char_t *str, uint16_t length)
-{
-    if(mx < 0 && my >= height) {
-        return length;
-    }
-
-    int x = 0;
-    char_t *a = str, *b = str, *end = str + length;
-    while(1) {
-        if(a == end ||  *a == '\n' || *a == ' ') {
-            int count = a - b, w = textwidth(b, a - b);
-            if(x + w > right) {
-                if(x != 0) {
-                    my -= font_msg_lineheight;
-                    height -= font_msg_lineheight;
-                }
-
-                if(my >= -font_msg_lineheight && my <= 0) {
-                    x = mx;
-                    break;
-                }
-
-                x = 0;
-                b += utf8_len(b);
-                count--;
-                w = textwidth(b, count);
-            }
-
-            if(a == end || (mx < 0 && my >= 0 && my <= font_msg_lineheight) || (mx >= x && mx < x + w && my >= 0 && (my < font_msg_lineheight || height == font_msg_lineheight))) {
-                break;
-            }
-            x += w;
-            b = a;
-
-            if(*a == '\n') {
-                b += utf8_len(b);
-                if(my >= 0 && my < font_msg_lineheight) {
-                    x = mx;
-                    break;
-                }
-                my -= font_msg_lineheight;
-                height -= font_msg_lineheight;
-                x = 0;
-            }
-        }
-        a += utf8_len(a);
-    }
-
-    int fit;
-    if(mx - x > 0) {
-        int len = a - b;
-        fit = textfit(b, len, mx - x);
-    } else {
-        fit = 0;
-    }
-
-    return (b - str) + fit;
-}
-
 static int heightmsg(char_t *str, int right, uint16_t length)
 {
     int y = 0, x = 0;
@@ -275,8 +113,13 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
                 h2 = msg->length;
             }
 
+            if(m->data->istart == m->data->iend && m->data->start == m->data->end) {
+                h1 = 0xFFFF;
+                h2 = 0xFFFF;
+            }
+
             setfont(FONT_MSG);
-            int ny = drawmsg(x + MESSAGES_X, y, width - MESSAGES_X - TIME_WIDTH, msg->msg, msg->length, h1, h2);
+            int ny = drawtextmultiline(x + MESSAGES_X, x + width - TIME_WIDTH, y, font_msg_lineheight, msg->msg, msg->length, h1, h2 - h1, 1);
             if(ny - y != msg->height - MESSAGES_SPACING) {
                 debug("error101\n");
             }
@@ -379,7 +222,7 @@ _Bool messages_mmove(MESSAGES *m, int mx, int my, int dy, int width, int height)
             case 2:
             case 3: {
                 /* normal message */
-                m->over = pmsg(mx - MESSAGES_X, my, width - MESSAGES_X - TIME_WIDTH, msg->height, msg->msg, msg->length);
+                m->over = hittextmultiline(mx - MESSAGES_X, width - MESSAGES_X - TIME_WIDTH, my, msg->height, font_msg_lineheight, msg->msg, msg->length, 1);
                 m->urlover = 0xFFFF;
 
                 if(my >= dy || mx < MESSAGES_X || m->over == msg->length) {
@@ -717,8 +560,7 @@ static int msgheight(MESSAGE *msg, int width)
 
     case 6:
     case 7: {
-        //MSG_FILE *file = (void*)msg;
-        return BM_FT_HEIGHT + MESSAGES_SPACING;//(file->status != FILE_PENDING && file->status < FILE_KILLED) ? font_msg_lineheight * 2 : font_msg_lineheight;
+        return BM_FT_HEIGHT + MESSAGES_SPACING;
     }
 
     }

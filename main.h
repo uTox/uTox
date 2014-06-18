@@ -67,6 +67,7 @@ typedef uint8_t char_t;
 #include "scrollable.h"
 #include "button.h"
 
+#include "text.h"
 #include "util.h"
 
 volatile _Bool tox_thread_init;

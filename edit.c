@@ -17,21 +17,9 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
     setfont(FONT_TEXT);
     setcolor(COLOR_TEXT);
 
-    drawtextrangecut(x + 5, x + width - 5, y + 5, edit->data, edit->length);
-
-    if(edit == active_edit) {
-        int x1 = textwidth(edit->data, edit_sel.start);
-        int w = textwidth(edit->data + edit_sel.start, edit_sel.length);
-
-        setcolor(TEXT_HIGHLIGHT);
-
-        if(edit_sel.length) {
-            drawrectw(x + 5 + x1, y + 5, w, 14, TEXT_HIGHLIGHT_BG);
-            drawtextrangecut(x + 5 + x1, x + width - 5, y + 5, edit->data + edit_sel.start, edit_sel.length);
-        } else {
-            drawvline(x + 5 + x1, y + 5, y + 19, BLACK);
-        }
-    }
+    _Bool a = (edit == active_edit);
+    drawtextmultiline(x + 2 * SCALE, x + width - 2 * SCALE, y + 2 * SCALE, font_small_lineheight, edit->data, edit->length,
+                      a ? edit_sel.start : 0xFFFF, a ? edit_sel.length : 0xFFFF, edit->multiline);
 }
 
 _Bool edit_mmove(EDIT *edit, int x, int y, int dy, int width, int height)
@@ -47,25 +35,9 @@ _Bool edit_mmove(EDIT *edit, int x, int y, int dy, int width, int height)
     }
 
     if(edit == active_edit && edit_select) {
-        int fit = 0, extent = x - 5, x1, x2;
-
         setfont(FONT_TEXT);
 
-        if(extent > 0) {
-            fit = textfit(edit->data, edit->length, extent);
-
-            if(fit != edit->length) {
-                uint8_t len = utf8_len(edit->data + fit);
-                x1 = textwidth(edit->data, fit);
-                x2 = textwidth(edit->data, fit + len);
-
-                if(x2 - extent < extent - x1) {
-                    fit += len;
-                }
-            }
-        }
-
-        edit_sel.p2 = fit;
+        edit_sel.p2 = hittextmultiline(x - 2 * SCALE, width - 4 * SCALE, y - 2 * SCALE, height, font_small_lineheight, edit->data, edit->length, edit->multiline);
         if(edit_sel.p2 > edit_sel.p1) {
             edit_sel.start = edit_sel.p1;
             edit_sel.length = edit_sel.p2 - edit_sel.p1;
@@ -74,26 +46,11 @@ _Bool edit_mmove(EDIT *edit, int x, int y, int dy, int width, int height)
             edit_sel.length = edit_sel.p1 - edit_sel.p2;
         }
 
-        //debug("%u %u\n", edit_sel.start, edit_sel.length);
-
         redraw = 1;
     } else if(mouseover) {
-        int fit = 0, extent = x - 5, x1, x2;
-
         setfont(FONT_TEXT);
-        fit = textfit(edit->data, edit->length, extent);
 
-        if(fit != edit->length) {
-            uint8_t len = utf8_len(edit->data + fit);
-            x1 = textwidth(edit->data, fit);
-            x2 = textwidth(edit->data, fit + len);
-
-            if(x2 - extent < extent - x1) {
-                fit += len;
-            }
-        }
-
-        edit->mouseover_char = fit;
+        edit->mouseover_char = hittextmultiline(x - 2 * SCALE, width - 4 * SCALE, y - 2 * SCALE, height, font_small_lineheight, edit->data, edit->length, edit->multiline);
     }
 
     return redraw;
@@ -236,7 +193,7 @@ void edit_char(uint32_t ch, _Bool control)
 {
     EDIT *edit = active_edit;
 
-    if(control || ch <= 0x1F || (ch >= 0x7f && ch <= 0x9F)) {
+    if(control || (ch <= 0x1F && ch != '\n') || (ch >= 0x7f && ch <= 0x9F)) {
         switch(ch) {
         case KEY_BACK: {
             if(edit_sel.length == 0) {
@@ -334,16 +291,6 @@ void edit_copy(void)
     if(!active_edit || length == 0) {
         return;
     }
-
-    /*HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, length + 1);
-    uint8_t *p = GlobalLock(hMem);
-    memcpy(p, active_edit->data + edit_sel.start, length);
-    p[length] = 0;
-    GlobalUnlock(hMem);
-    OpenClipboard(0);
-    EmptyClipboard();
-    SetClipboardData(CF_TEXT, hMem);
-    CloseClipboard();*/
 }
 
 void edit_paste(char_t *data, int length)

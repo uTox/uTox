@@ -844,6 +844,11 @@ int main(int argc, char *argv[])
                     break;
                 }
 
+                if(sym == XK_Return && (ev->state & 1)) {
+                    edit_char('\n', 0);
+                    break;
+                }
+
                 long key = keysym2ucs(sym);
                 if (key != -1) {
                     edit_char((uint32_t)key, 0);

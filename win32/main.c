@@ -930,6 +930,9 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
     case WM_CHAR: {
         if(edit_active()) {
+            if(wParam == KEY_RETURN && (GetKeyState(VK_SHIFT) & 0x80)) {
+                wParam = '\n';
+            }
             edit_char(wParam, 0);
             return 0;
         }
