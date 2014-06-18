@@ -55,9 +55,11 @@ static int drawmsg(int x, int y, int width, char_t *str, uint16_t length, int h1
                 x = xc;
                 b += utf8_len(b);
                 count--;
+                w = textwidth(b, count);
             }
 
-            x += textout(x, y, b, count, b - str, h1, h2);
+            textout(x, y, b, count, b - str, h1, h2);
+            x += w;
             b = a;
 
             if(a == end) {
@@ -710,7 +712,7 @@ static int msgheight(MESSAGE *msg, int width)
     case 1:
     case 2:
     case 3: {
-        return heightmsg(msg->msg, width - 110, msg->length) + MESSAGES_SPACING;
+        return heightmsg(msg->msg, width - MESSAGES_X - TIME_WIDTH, msg->length) + MESSAGES_SPACING;
     }
 
     case 6:

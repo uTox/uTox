@@ -150,7 +150,13 @@ _Bool edit_mright(EDIT *edit)
 {
     if(edit->mouseover) {
         EDIT *active = active_edit;
-        active_edit = edit;
+        if(active != edit) {
+            active_edit = edit;
+
+            edit_sel.start = edit_sel.p1 = edit_sel.p2 = edit->mouseover_char;
+            edit_sel.length = 0;
+            edit_select = 1;
+        }
 
         editpopup();
 
