@@ -15,7 +15,7 @@ void button_draw(BUTTON *b, int x, int y, int width, int height)
 
     if(b->bm2) {
         int bx = width / 2 - b->bw / 2, by = height / 2 - b->bh / 2;
-        drawalpha(b->bm2, x + bx, y + by, b->bw, b->bw, WHITE);
+        drawalpha(b->bm2, x + bx, y + by, b->bw, b->bh, WHITE);
     }
 }
 
