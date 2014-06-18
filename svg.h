@@ -23,7 +23,7 @@
 #define BM_FTB_WIDTH (11 * SCALE)
 #define BM_FTB_HEIGHT (12 * SCALE)
 
-#define BM_CONTACT_WIDTH 40//(20 * SCALE)
+#define BM_CONTACT_WIDTH (20 * SCALE)
 
 #define BM_LBICON_WIDTH (11 * SCALE)
 #define BM_LBICON_HEIGHT (10 * SCALE)
