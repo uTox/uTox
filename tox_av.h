@@ -31,6 +31,11 @@ static void callback_av_cancel(int32_t call_index, void *arg)
 static void callback_av_reject(int32_t call_index, void *arg)
 {
     debug("A/V Reject (%i)\n", call_index);
+
+    int fid = toxav_get_peer_id(arg, call_index, 0);
+    postmessage(FRIEND_CALL_END, fid, call_index, NULL);
+
+    debug("A/V End (%i)\n", call_index);
 }
 
 static void callback_av_end(int32_t call_index, void *arg)
