@@ -70,7 +70,7 @@ typedef uint8_t char_t;
 #include "text.h"
 #include "util.h"
 
-volatile _Bool tox_thread_init;
+volatile _Bool tox_thread_init, tox_done;
 _Bool tox_connected;
 
 //friends and groups

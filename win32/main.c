@@ -752,13 +752,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     Shell_NotifyIcon(NIM_DELETE, &nid);
 
     //wait for tox_thread cleanup
-    while(1) {
-        if(GetMessage(&msg, NULL, 0, 0)) {
-            if(msg.message == WM_TOX + TOX_DONE) {
-                break;
-            }
-        }
-    }
+    while(!tox_done) { yieldcpu(1); }
 
     printf("clean exit\n");
 

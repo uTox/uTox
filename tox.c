@@ -570,7 +570,7 @@ void tox_thread(void *args)
         yieldcpu();
     }*/
 
-    postmessage(TOX_DONE, 0, 0, NULL);
+    tox_done = 1;
 }
 
 static void tox_thread_message(Tox *tox, ToxAv *av, uint8_t msg, uint16_t param1, uint16_t param2, void *data)
