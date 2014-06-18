@@ -638,6 +638,10 @@ _Bool messages_mleave(MESSAGES *m)
 
 int messages_selection(MESSAGES *m, void *data, uint32_t len)
 {
+    if(m->data->n == 0) {
+        return 0;
+    }
+
     int i = m->data->istart, n = m->data->iend + 1;
     void **dp = &m->data->data[i];
 
