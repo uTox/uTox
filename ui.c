@@ -590,7 +590,10 @@ _Bool panel_dclick(PANEL *p, _Bool triclick)
     if(pp) {
         while((subp = *pp++)) {
             if(!subp->disabled) {
-                draw |= panel_dclick(subp, triclick);
+                draw = panel_dclick(subp, triclick);
+                if(draw) {
+                    break;
+                }
             }
         }
     }

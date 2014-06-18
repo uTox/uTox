@@ -14,8 +14,6 @@ static void edit_name_onenter(void)
     self.name_length = length;
 
     tox_postmessage(TOX_SETNAME, length, 0, self.name);//!
-
-    redraw();
 }
 
 static void edit_status_onenter(void)
@@ -37,8 +35,6 @@ static void edit_status_onenter(void)
     self.statusmsg_length = length;
 
     tox_postmessage(TOX_SETSTATUSMSG, length, 0, self.statusmsg);//!
-
-    redraw();
 }
 
 static void edit_msg_onenter(void)
@@ -77,9 +73,7 @@ static void edit_msg_onenter(void)
         tox_postmessage(TOX_SENDMESSAGEGROUP, (g - group), length, d);
     }
 
-    edit_clear();
-
-    redraw();
+    edit_msg.length = 0;
 }
 
 EDIT edit_name = {

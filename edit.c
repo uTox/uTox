@@ -101,6 +101,10 @@ _Bool edit_mmove(EDIT *edit, int x, int y, int dy, int width, int height)
 
 _Bool edit_mdown(EDIT *edit)
 {
+    if(edit->mouseover_char > edit->length) {
+        edit->mouseover_char = edit->length;
+    }
+
     if(edit->mouseover) {
         edit_sel.start = edit_sel.p1 = edit_sel.p2 = edit->mouseover_char;
         edit_sel.length = 0;
@@ -119,6 +123,10 @@ _Bool edit_dclick(EDIT *edit, _Bool triclick)
 {
     if(edit != active_edit) {
         return 0;
+    }
+
+    if(edit->mouseover_char > edit->length) {
+        edit->mouseover_char = edit->length;
     }
 
     uint8_t c = triclick ? '\n' : ' ';
@@ -237,8 +245,6 @@ void edit_char(uint32_t ch, _Bool control)
             } else {
                 edit_delete();
             }
-
-            redraw();
             break;
         }
 
@@ -247,7 +253,6 @@ void edit_char(uint32_t ch, _Bool control)
                 edit_sel.start--;
             }
             edit_sel.length = 0;
-            redraw();
             break;
         }
 
@@ -256,7 +261,6 @@ void edit_char(uint32_t ch, _Bool control)
                 edit_sel.start++;
             }
             edit_sel.length = 0;
-            redraw();
             break;
         }
 
@@ -275,6 +279,25 @@ void edit_char(uint32_t ch, _Bool control)
         }
 
         }
+
+        if(edit_sel.start + edit_sel.length > edit->length) {
+            if(edit_sel.start > edit->length) {
+                edit_sel.start = edit->length;
+                edit_sel.length = 0;
+            } else {
+                edit_sel.length = edit->length - edit_sel.start;
+            }
+        }
+
+        if(edit_sel.p1 >= edit->length) {
+            edit_sel.p1 = edit->length;
+        }
+
+        if(edit_sel.p2 >= edit->length) {
+            edit_sel.p2 = edit->length;
+        }
+
+        redraw();
     } else {
         size_t len = unicode_to_utf8(ch, NULL, NULL);
         if(edit->length - edit_sel.length + len <= edit->maxlength) {
