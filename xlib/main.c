@@ -28,7 +28,7 @@ Visual *visual;
 
 Picture bitmap[32];
 
-XftFont *font[32][32], **sfont;
+XftFont *font[32][64], **sfont;
 XftDraw *xftdraw;
 XftColor xftcolor;
 FcCharSet *charset;
@@ -133,14 +133,8 @@ static void initfonts(void)
             }
 
             FcPatternAddString(pp, FC_FAMILY, (uint8_t*)"Roboto");
-            FcPatternAddDouble(pp, FC_PIXEL_SIZE, F(12.0));
-            FcPatternAddInteger(pp, FC_WEIGHT, FC_WEIGHT_REGULAR);
-
-            p = XftFontMatch(display, screen, pp, &result);
-            font[FONT_TEXT][j] = XftFontOpenPattern(display, p);
-
-            FcPatternDel(pp, FC_PIXEL_SIZE);
             FcPatternAddDouble(pp, FC_PIXEL_SIZE, F(11.0));
+            FcPatternAddInteger(pp, FC_WEIGHT, FC_WEIGHT_REGULAR);
 
             p = XftFontMatch(display, screen, pp, &result);
             font[FONT_STATUS][j] = XftFontOpenPattern(display, p);
@@ -200,6 +194,10 @@ static void initfonts(void)
 
             FcPatternDestroy(pp);
             j++;
+
+            if(j == 64) {
+                break;
+            }
         }
     }
 
