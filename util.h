@@ -33,6 +33,8 @@ int sprint_bytes(uint8_t *dest, uint64_t bytes);
     returns -1 if the size of the character is greater than len or if the character is invalid
  */
 uint8_t utf8_len(char_t *data);
+/* read the character into ch */
+uint8_t utf8_len_read(char_t *data, uint32_t *ch);
 /* backwards length */
 uint8_t utf8_unlen(char_t *data);
 

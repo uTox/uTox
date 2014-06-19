@@ -140,6 +140,43 @@ uint8_t utf8_len(char_t *data)
     return bytes;
 }
 
+uint8_t utf8_len_read(char_t *data, uint32_t *ch)
+{
+    uint8_t a = data[0];
+    if(!(a & 0x80)) {
+        *ch = data[0];
+        return 1;
+    }
+
+    if(!(a & 0x20)) {
+        *ch = ((data[0] & 0x1F) << 6) | (data[1] & 0x3F);
+        return 2;
+    }
+
+    if(!(a & 0x10)) {
+        *ch =  ((data[0] & 0xF) << 12) | ((data[1] & 0x3F) << 6) | (data[2] & 0x3F);
+        return 3;
+    }
+
+    if(!(a & 8)) {
+        *ch =  ((data[0] & 0x7) << 18) | ((data[1] & 0x3F) << 12) | ((data[2] & 0x3F) << 6) | (data[3] & 0x3F);
+        return 4;
+    }
+
+    if(!(a & 4)) {
+        *ch =  ((data[0] & 0x3) << 24) | ((data[1] & 0x3F) << 18) | ((data[2] & 0x3F) << 12) | ((data[3] & 0x3F) << 6) | (data[4] & 0x3F);
+        return 5;
+    }
+
+    if(!(a & 2)) {
+        *ch =  ((data[0] & 0x1) << 30) | ((data[1] & 0x3F) << 24) | ((data[2] & 0x3F) << 18) | ((data[3] & 0x3F) << 12) | ((data[4] & 0x3F) << 6) | (data[5] & 0x3F);
+        return 6;
+    }
+
+    //never happen
+    return 0;
+}
+
 uint8_t utf8_unlen(char_t *data)
 {
     uint8_t len = 1;

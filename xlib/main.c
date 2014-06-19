@@ -28,9 +28,13 @@ Visual *visual;
 
 Picture bitmap[32];
 
-XftFont *font[32], *sfont;
+XftFont *font[32][32], **sfont;
 XftDraw *xftdraw;
 XftColor xftcolor;
+FcCharSet *charset;
+
+uint32_t *glyphpages[65536];
+uint8_t pagefilled[1024 * 1024];
 
 Picture testpicture;
 
@@ -59,9 +63,148 @@ void* (*gtk_file_chooser_get_filename)(void*);
 void* (*gtk_file_chooser_get_filenames)(void*);
 void (*gtk_widget_destroy)(void*);
 
-void drawpicture(int x, int y, int width, int height)
+static _Bool addpage(uint32_t start, uint32_t *map)
 {
-    //XRenderComposite(display, PictOpBlendMaximum, testpicture, None, XftDrawPicture(xftdraw), 0, 0, 0, 0, x, y, width, height);
+    if((start & 0xFF) != 0) {
+        debug("unexpected\n");
+        return 0;
+    }
+
+    if(pagefilled[start >> (8 + 3)] & (1 << ((start >> 8) & 0x7))) {
+        return 0;
+    }
+
+    uint32_t x = start >> 15, y = (start & 0x7FFF) / 32, *p = glyphpages[x];
+    if(!p) {
+        p = glyphpages[x] = malloc(4096);
+        memcpy(p + y, map, FC_CHARSET_MAP_SIZE * 4);
+        return 1;
+    }
+
+    p += y;
+    _Bool r = 0, filled = 1;
+    int i;
+    for(i = 0; i != FC_CHARSET_MAP_SIZE; i++) {
+        uint32_t or = *p | *map;
+        if(or != *p) {
+            *p = or;
+            r = 1;
+        }
+        if(or != ~0) {
+            filled = 0;
+        }
+        p++;
+        map++;
+    }
+
+    if(filled) {
+        pagefilled[start >> (8 + 3)] |= (1 << ((start >> 8) & 0x7));
+    }
+
+    return r;
+}
+
+static void initfonts(void)
+{
+    FcPattern *pat = FcPatternCreate();
+    FcResult result;
+    FcFontSet *fs = FcFontSort(NULL, pat, 0, &charset, &result);
+
+    int i, j = 0;
+    for(i = 0; i != fs->nfont; i++) {
+        FcCharSet *cs;
+        result = FcPatternGetCharSet(fs->fonts[i], FC_CHARSET, 0, &cs);
+
+        _Bool newchars = 0;
+        uint32_t map[FC_CHARSET_MAP_SIZE];
+        uint32_t next, start = FcCharSetFirstPage(cs, map, &next);
+        while(start != FC_CHARSET_DONE) {
+            newchars |= addpage(start, map);
+            start = FcCharSetNextPage(cs, map, &next);
+        }
+
+        if(newchars) {
+            #define F(x) (x * SCALE / 2.0)
+            FcPattern *p, *pp = FcPatternCreate();
+
+            if(i != 0) {
+                //forces bold?
+                FcPatternAddCharSet(pp, FC_CHARSET, cs);
+            }
+
+            FcPatternAddString(pp, FC_FAMILY, (uint8_t*)"Roboto");
+            FcPatternAddDouble(pp, FC_PIXEL_SIZE, F(12.0));
+            FcPatternAddInteger(pp, FC_WEIGHT, FC_WEIGHT_REGULAR);
+
+            p = XftFontMatch(display, screen, pp, &result);
+            font[FONT_TEXT][j] = XftFontOpenPattern(display, p);
+
+            FcPatternDel(pp, FC_PIXEL_SIZE);
+            FcPatternAddDouble(pp, FC_PIXEL_SIZE, F(11.0));
+
+            p = XftFontMatch(display, screen, pp, &result);
+            font[FONT_STATUS][j] = XftFontOpenPattern(display, p);
+
+            FcPatternDel(pp, FC_PIXEL_SIZE);
+            FcPatternAddDouble(pp, FC_PIXEL_SIZE, F(12.0));
+
+            p = XftFontMatch(display, screen, pp, &result);
+            font[FONT_LIST_NAME][j] = XftFontOpenPattern(display, p);
+
+            FcPatternDel(pp, FC_PIXEL_SIZE);
+            FcPatternAddDouble(pp, FC_PIXEL_SIZE, F(10.0));
+
+            p = XftFontMatch(display, screen, pp, &result);
+            font[FONT_MISC][j] = XftFontOpenPattern(display, p);
+
+            FcPatternDel(pp, FC_PIXEL_SIZE);
+            FcPatternAddDouble(pp, FC_PIXEL_SIZE, F(12.0));
+
+            p = XftFontMatch(display, screen, pp, &result);
+            font[FONT_TEXT][j] = XftFontOpenPattern(display, p);
+
+            //cPatternAddDouble(pp, FC_PIXEL_SIZE, F(12.0));
+            FcPatternDel(pp, FC_WEIGHT);
+            FcPatternAddInteger(pp, FC_WEIGHT, FC_WEIGHT_BOLD);
+
+            p = XftFontMatch(display, screen, pp, &result);
+            font[FONT_TITLE][j] = XftFontOpenPattern(display, p);
+
+            FcPatternDel(pp, FC_PIXEL_SIZE);
+            FcPatternAddDouble(pp, FC_PIXEL_SIZE, F(14.0));
+
+            p = XftFontMatch(display, screen, pp, &result);
+            font[FONT_SELF_NAME][j] = XftFontOpenPattern(display, p);
+
+            FcPatternDel(pp, FC_WEIGHT);
+            FcPatternAddInteger(pp, FC_WEIGHT, FC_WEIGHT_LIGHT);
+
+            FcPatternDel(pp, FC_PIXEL_SIZE);
+            FcPatternAddDouble(pp, FC_PIXEL_SIZE, F(11.0));
+
+            p = XftFontMatch(display, screen, pp, &result);
+            font[FONT_MSG][j] = XftFontOpenPattern(display, p);
+
+            FcPatternDel(pp, FC_PIXEL_SIZE);
+            FcPatternAddDouble(pp, FC_PIXEL_SIZE, F(10.0));
+
+            p = XftFontMatch(display, screen, pp, &result);
+            font[FONT_MSG_NAME][j] = XftFontOpenPattern(display, p);
+
+            FcPatternDel(pp, FC_PIXEL_SIZE);
+            FcPatternAddDouble(pp, FC_PIXEL_SIZE, F(11.0));
+
+            p = XftFontMatch(display, screen, pp, &result);
+            font[FONT_MSG_LINK][j] = XftFontOpenPattern(display, p);
+            #undef F
+
+            FcPatternDestroy(pp);
+            j++;
+        }
+    }
+
+    FcFontSetSortDestroy(fs);
+    FcPatternDestroy(pat);
 }
 
 void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data)
@@ -80,24 +223,13 @@ void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data)
 
     memcpy(&event.xclient.data.s[2], &data, sizeof(void*));
 
-    XSendEvent(display, window, False, 0,  &event);
+    /* prevent sending before window is initialized */
+    while(!(volatile(window))) {
+        yieldcpu(1);
+    }
+
+    XSendEvent(display, window, False, 0, &event);
     XFlush(display);
-}
-
-void drawbitmap(int bm, int x, int y, int width, int height)
-{
-    //debug("%u %u\n", bm, bitmap[bm]);
-    /*if(bm <= BM_EXIT) {
-        XCopyPlane(display, bitmap[bm], drawbuf, gc, 0, 0, width, height, x, y, 1);
-    } else {
-        XCopyArea(display, bitmap[bm], drawbuf, gc, 0, 0, width, height, x, y);
-    }*/
-}
-
-void drawbitmapalpha(int bm, int x, int y, int width, int height)
-{
-    drawpicture(x, y, width, height);
-    //XCopyArea(display, bitmap[bm], drawbuf, gc, 0, 0, width, height, x, y);
 }
 
 void drawalpha(int bm, int x, int y, int width, int height, uint32_t color)
@@ -116,29 +248,46 @@ void drawalpha(int bm, int x, int y, int width, int height, uint32_t color)
     XRenderFreePicture(display, src);
 }
 
-void drawtext(int x, int y, uint8_t *str, uint16_t length)
+int _drawtext(int x, int y, uint8_t *str, uint16_t length)
 {
-    XftDrawStringUtf8(xftdraw, &xftcolor, sfont, x, y + sfont->ascent, str, length);
+    int x1 = x;
+    XGlyphInfo extents;
+    uint8_t *a = str, *b = str, *end = str + length;
+    while(a != end) {
+        uint32_t ch;
+        uint8_t len = utf8_len_read(a, &ch);
+        if(!XftGlyphExists(display, sfont[0], ch)) {
+            if(FcCharSetHasChar(charset, ch)) {
+                XftTextExtentsUtf8(display, sfont[0], b, a - b, &extents);
+                XftDrawStringUtf8(xftdraw, &xftcolor, sfont[0], x, y + sfont[0]->ascent, b, a - b);
+                x += extents.xOff;
+
+                XftFont **fallback = sfont + 1;
+                while(!XftGlyphExists(display, *fallback, ch)) {fallback++;}
+                XftTextExtentsUtf8(display, *fallback, a, len, &extents);
+                XftDrawStringUtf8(xftdraw, &xftcolor, *fallback, x, y + (*fallback)->ascent, a, len);
+                x += extents.xOff;
+
+                b = a + len;
+            }
+        }
+
+        a += len;
+    }
+    XftTextExtentsUtf8(display, sfont[0], b, a - b, &extents);
+    XftDrawStringUtf8(xftdraw, &xftcolor, sfont[0], x, y + sfont[0]->ascent, b, a - b);
+
+    return x - x1 + extents.xOff;
 }
 
-void drawtextW(int x, int y, char_t *str, uint16_t length)
+void drawtext(int x, int y, uint8_t *str, uint16_t length)
 {
-    drawtext(x, y, str, length);
+    _drawtext(x, y, str, length);
 }
 
 int drawtext_getwidth(int x, int y, uint8_t *str, uint16_t length)
 {
-    XGlyphInfo extents;
-    XftTextExtentsUtf8(display, sfont, str, length, &extents);
-
-    XftDrawStringUtf8(xftdraw, &xftcolor, sfont, x, y + sfont->ascent, str, length);
-
-    return extents.xOff;
-}
-
-int drawtext_getwidthW(int x, int y, char_t *str, uint16_t length)
-{
-    return drawtext_getwidth(x, y, str, length);
+    return _drawtext(x, y, str, length);
 }
 
 void drawtextwidth(int x, int width, int y, uint8_t *str, uint16_t length)
@@ -165,55 +314,69 @@ void drawtextwidth_right(int x, int width, int y, uint8_t *str, uint16_t length)
     drawtext(x + width - w, y, str, length);
 }
 
-void drawtextwidth_rightW(int x, int width, int y, char_t *str, uint16_t length)
-{
-    drawtextwidth_right(x, width, y, str, length);
-}
-
-
 void drawtextrangecut(int x, int x2, int y, uint8_t *str, uint16_t length)
 {
     drawtext(x, y, str, length);
 }
 
-void drawtextrangecutW(int x, int x2, int y, char_t *str, uint16_t length)
-{
-    drawtextrangecut(x, x2, y, str, length);
-}
-
 int textwidth(uint8_t *str, uint16_t length)
 {
+    int x = 0;
     XGlyphInfo extents;
-    XftTextExtentsUtf8(display, sfont, str, length, &extents);
+    uint8_t *a = str, *b = str, *end = str + length;
+    while(a != end) {
+        uint32_t ch;
+        uint8_t len = utf8_len_read(a, &ch);
+        if(!XftGlyphExists(display, sfont[0], ch)) {
+            if(FcCharSetHasChar(charset, ch)) {
+                XftTextExtentsUtf8(display, sfont[0], b, a - b, &extents);
+                //XftDrawStringUtf8(xftdraw, &xftcolor, sfont[0], x, y + sfont[0]->ascent, b, a - b);
+                x += extents.xOff;
 
-    return extents.xOff;
-}
+                XftFont **fallback = sfont + 1;
+                while(!XftGlyphExists(display, *fallback, ch)) {fallback++;}
+                XftTextExtentsUtf8(display, *fallback, a, len, &extents);
+                //XftDrawStringUtf8(xftdraw, &xftcolor, *fallback, x, y + (*fallback)->ascent, a, len);
+                x += extents.xOff;
 
-int textwidthW(char_t *str, uint16_t length)
-{
-    return textwidth(str, length);
+                b = a + len;
+            }
+        }
+
+        a += len;
+    }
+    XftTextExtentsUtf8(display, sfont[0], b, a - b, &extents);
+    //XftDrawStringUtf8(xftdraw, &xftcolor, sfont[0], x, y + sfont[0]->ascent, b, a - b);
+
+    return x + extents.xOff;
 }
 
 int textfit(uint8_t *str, uint16_t length, int width)
 {
     int i = 0;
+    int x = 0;
+    uint32_t ch;
+    XGlyphInfo extents;
     while(i < length) {
-        uint8_t len = utf8_len(str + i);
+        uint8_t len = utf8_len_read(str + i, &ch);
+        if(!XftGlyphExists(display, sfont[0], ch) && FcCharSetHasChar(charset, ch)) {
+            XftFont **fallback = sfont + 1;
+            while(!XftGlyphExists(display, *fallback, ch)) {fallback++;}
+            XftTextExtentsUtf8(display, *fallback, str + i, len, &extents);
+        } else {
+            XftTextExtentsUtf8(display, sfont[0], str + i, len, &extents);
+        }
+
+        x += extents.xOff;
         i += len;
-        XGlyphInfo extents;
-        XftTextExtentsUtf8(display, sfont, str, i, &extents);
-        if(extents.xOff >= width) {
+
+        if(x > width) {
             i -= len;
             break;
         }
     }
 
     return i;
-}
-
-int textfitW(char_t *str, uint16_t length, int width)
-{
-    return textfit(str, length, width);
 }
 
 void framerect(int x, int y, int right, int bottom, uint32_t color)
@@ -601,29 +764,15 @@ int main(int argc, char *argv[])
                     PointerMotionMask | StructureNotifyMask | KeyPressMask | KeyReleaseMask,
     };
 
-    #define F(x) (x * SCALE / 2.0)
-    font[FONT_TEXT] = XftFontOpen(display, screen, XFT_FAMILY, XftTypeString, "Roboto", XFT_PIXEL_SIZE, XftTypeDouble, F(12.0), NULL);
-
-    font[FONT_TITLE] = XftFontOpen(display, screen, XFT_FAMILY, XftTypeString, "Roboto", XFT_PIXEL_SIZE, XftTypeDouble, F(12.0), XFT_WEIGHT, XftTypeInteger, FC_WEIGHT_BOLD, NULL);
-
-    font[FONT_SELF_NAME] = XftFontOpen(display, screen, XFT_FAMILY, XftTypeString, "Roboto", XFT_PIXEL_SIZE, XftTypeDouble, F(14.0), XFT_WEIGHT, XftTypeInteger, FC_WEIGHT_BOLD, NULL);
-    font[FONT_STATUS] = XftFontOpen(display, screen, XFT_FAMILY, XftTypeString, "Roboto", XFT_PIXEL_SIZE, XftTypeDouble, F(11.0), NULL);
-
-    font[FONT_LIST_NAME] = XftFontOpen(display, screen, XFT_FAMILY, XftTypeString, "Roboto", XFT_PIXEL_SIZE, XftTypeDouble, F(12.0), NULL);
-
-    font[FONT_MSG] = XftFontOpen(display, screen, XFT_FAMILY, XftTypeString, "Roboto", XFT_PIXEL_SIZE, XftTypeDouble, F(11.0), XFT_WEIGHT, XftTypeInteger, FC_WEIGHT_LIGHT, NULL);
-    font[FONT_MSG_NAME] = XftFontOpen(display, screen, XFT_FAMILY, XftTypeString, "Roboto", XFT_PIXEL_SIZE, XftTypeDouble, F(10.0), XFT_WEIGHT, XftTypeInteger, FC_WEIGHT_LIGHT, NULL);
-    font[FONT_MISC] = XftFontOpen(display, screen, XFT_FAMILY, XftTypeString, "Roboto", XFT_PIXEL_SIZE, XftTypeDouble, F(10.0), NULL);
-    font[FONT_MSG_LINK] = font[FONT_MSG];
-    #undef F
-
-    font_small_lineheight = font[FONT_TEXT]->height;
-    font_msg_lineheight = font[FONT_MSG]->height;
-
     //window = XCreateSimpleWindow(display, RootWindow(display, screen), 0, 0, 800, 600, 0, BlackPixel(display, screen), WhitePixel(display, screen));
     window = XCreateWindow(display, RootWindow(display, screen), 0, 0, DEFAULT_WIDTH, DEFAULT_HEIGHT, 0, 24, InputOutput, visual, CWBackPixel | CWBorderPixel | CWEventMask, &attrib);
     drawbuf = XCreatePixmap(display, window, DEFAULT_WIDTH, DEFAULT_HEIGHT, 24);
     //XSelectInput(display, window, ExposureMask | ButtonPressMask | ButtonReleaseMask | EnterWindowMask | LeaveWindowMask | PointerMotionMask | StructureNotifyMask | KeyPressMask | KeyReleaseMask);
+
+    initfonts();
+
+    font_small_lineheight = font[FONT_TEXT][0]->height;
+    font_msg_lineheight = font[FONT_MSG][0]->height;
 
     Atom version = 3;
     XChangeProperty(display, window, XdndAware, XA_ATOM, 32, PropModeReplace, (uint8_t*)&version, 1);
