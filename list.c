@@ -285,6 +285,8 @@ static void deleteitem(ITEM *i)
         if(i == &item[itemcount] - 1) {
             if(i == item) {
                 selectitem(&item_add);
+            } else {
+                selectitem(i - 1);
             }
         } else {
             selectitem(i + 1);
@@ -358,12 +360,7 @@ static void deleteitem(ITEM *i)
     int size = (&item[itemcount] - i) * sizeof(ITEM);
     memmove(i, i + 1, size);
 
-    if(i == sitem) {
-        if(sitem == &item[itemcount]) {
-            //sitem--;
-        }
-        //ui_drawmain();
-    } else if(sitem > i) {
+    if(i != sitem && sitem > i) {
         sitem--;
     }
 
@@ -372,14 +369,14 @@ static void deleteitem(ITEM *i)
 
 void list_deletesitem(void)
 {
-    if(sitem) {
+    if(sitem >= item && sitem < item + countof(item)) {
         deleteitem(sitem);
     }
 }
 
 void list_deleteritem(void)
 {
-    if(ritem) {
+    if(ritem >= item && ritem < item + countof(item)) {
         deleteitem(ritem);
     }
 }
