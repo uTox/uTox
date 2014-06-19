@@ -213,7 +213,7 @@ void edit_char(uint32_t ch, _Bool control)
 
         case KEY_LEFT: {
             if(edit_sel.start != 0) {
-                edit_sel.start--;
+                edit_sel.start -= utf8_unlen(edit->data + edit_sel.start);
             }
             edit_sel.length = 0;
             break;
@@ -221,7 +221,7 @@ void edit_char(uint32_t ch, _Bool control)
 
         case KEY_RIGHT: {
             if(edit_sel.start != edit->length) {
-                edit_sel.start++;
+                edit_sel.start += utf8_len(edit->data + edit_sel.start);
             }
             edit_sel.length = 0;
             break;
