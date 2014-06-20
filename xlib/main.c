@@ -85,13 +85,12 @@ static XftFont* getfont(XftFont **font, uint32_t ch)
 
             double size;
             if(!FcPatternGetDouble(first->pattern, FC_PIXEL_SIZE, 0, &size)) {
-                debug("yep %f\n", size);
                 FcPatternAddDouble(p, FC_PIXEL_SIZE, size);
             }
 
+            FcPatternAddString(p, FC_FAMILY, (uint8_t*)"Roboto");
             pp = XftFontMatch(display, screen, p, &result);
             *font = XftFontOpenPattern(display, pp);
-            debug("%u\n", *font);
             FcPatternDestroy(p);
             return *font;
         }
