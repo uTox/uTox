@@ -609,12 +609,14 @@ void paste(void)
         return;
     }
 
-    OpenClipboard(hwnd);
-    wchar_t *d = GetClipboardData(CF_UNICODETEXT);
+    OpenClipboard(NULL);
+    HANDLE h = GetClipboardData(CF_UNICODETEXT);
+    wchar_t *d = GlobalLock(h);
     uint8_t data[65536];
     int len = WideCharToMultiByte(CP_UTF8, 0, d, -1, data, 65536, NULL, 0);
-    edit_paste(data, len);
+    GlobalUnlock(h);
     CloseClipboard();
+    edit_paste(data, len);
 }
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int nCmdShow)
