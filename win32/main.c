@@ -121,17 +121,14 @@ int drawtext_getwidth(int x, int y, char_t *str, uint16_t length)
 
 void drawtextwidth(int x, int width, int y, uint8_t *str, uint16_t length)
 {
+    wchar_t out[length];
+    length = utf8tonative(str, out, length);
+
     RECT r = {x, y, x + width, y + 256};
-    DrawText(hdc, (char*)str, length, &r, DT_SINGLELINE | DT_END_ELLIPSIS | DT_NOPREFIX);
+    DrawTextW(hdc, out, length, &r, DT_SINGLELINE | DT_END_ELLIPSIS | DT_NOPREFIX);
 }
 
-void drawtextwidth_right(int x, int width, int y, uint8_t *str, uint16_t length)
-{
-    RECT r = {x, y, x + width, y + 256};
-    DrawText(hdc, (char*)str, length, &r, DT_SINGLELINE | DT_END_ELLIPSIS | DT_NOPREFIX | DT_RIGHT);
-}
-
-void drawtextwidth_rightW(int x, int width, int y, char_t *str, uint16_t length)
+void drawtextwidth_right(int x, int width, int y, char_t *str, uint16_t length)
 {
     wchar_t out[length];
     length = utf8tonative(str, out, length);
