@@ -141,6 +141,12 @@ static void drawadd_content(int x, int y, int width, int height)
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 5, "Tox ID");
 
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 29, "Message");
+
+    if(addfriend_status) {
+        setfont(FONT_MISC);
+        setcolor(C_RED);
+        drawtext(LIST_RIGHT + SCALE * 5, y + SCALE * 83, addstatus[addfriend_status - 1].str, addstatus[addfriend_status - 1].length);
+    }
 }
 
 
@@ -228,7 +234,7 @@ scroll_friend = {
     .panel = {
         .type = PANEL_SCROLLABLE,
         .y = LIST_Y,
-        .height = -94,
+        .height = MESSAGES_BOTTOM,
     },
 
     .color = C_SCROLL,
@@ -238,7 +244,7 @@ scroll_group = {
     .panel = {
         .type = PANEL_SCROLLABLE,
         .y = LIST_Y,
-        .height = -94,
+        .height = MESSAGES_BOTTOM,
     },
 
     .color = C_SCROLL,
@@ -249,7 +255,7 @@ scroll_add = {
         .y = LIST_Y,
         .type = PANEL_SCROLLABLE,
     },
-    .content_height = 500,
+    .content_height = 200 * SCALE,
     .color = C_SCROLL,
 },
 
@@ -258,7 +264,7 @@ scroll_settings = {
         .y = LIST_Y,
         .type = PANEL_SCROLLABLE,
     },
-    .content_height = 500,
+    .content_height = 200 * SCALE,
     .color = C_SCROLL,
 };
 
@@ -267,7 +273,7 @@ MESSAGES messages_friend = {
     .panel = {
         .type = PANEL_MESSAGES,
         .y = LIST_Y,
-        .height = -94,
+        .height = MESSAGES_BOTTOM,
         .width = -SCROLL_WIDTH,
         .content_scroll = &scroll_friend,
     }
@@ -277,7 +283,7 @@ messages_group = {
     .panel = {
         .type = PANEL_MESSAGES,
         .y = LIST_Y,
-        .height = -94,
+        .height = MESSAGES_BOTTOM,
         .width = -SCROLL_WIDTH,
         .content_scroll = &scroll_group,
     },

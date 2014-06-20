@@ -130,10 +130,10 @@ edit_addmsg = {
 edit_msg = {
     .panel = {
         .type = PANEL_EDIT,
-        .x = 0,
-        .y = -94,
-        .height = 84,
-        .width = 0
+        .x = 5 * SCALE,
+        .y = -47 * SCALE,
+        .height =  42 * SCALE,
+        .width = - 5 * SCALE
     },
     .multiline = 1,
     .maxlength = sizeof(edit_msg_data),

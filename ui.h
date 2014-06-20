@@ -114,6 +114,8 @@ extern uint32_t status_color[];
 #define TIME_WIDTH (16 * SCALE)
 #define NAME_OFFSET (7 * SCALE)
 
+#define MESSAGES_BOTTOM (-47 * SCALE)
+
 /* main */
 //#define MAIN_X
 //#define MAIN_Y LIST_Y
