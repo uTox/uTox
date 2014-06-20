@@ -774,8 +774,6 @@ int main(int argc, char *argv[])
 
             XftDrawDestroy(xftdraw);
             xftdraw = XftDrawCreate(display, drawbuf, visual, cmap);
-
-            redraw();
             break;
         }
 
