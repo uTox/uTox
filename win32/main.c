@@ -281,14 +281,14 @@ void address_to_clipboard(void)
 {
 #define size sizeof(self.id)
 
-    HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, size + 1);
-    uint8_t *p = GlobalLock(hMem);
-    memcpy(p, self.id, size + 1);
+    HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, (size + 1) * 2);
+    wchar_t *p = GlobalLock(hMem);
+    utf8tonative(self.id, p, size);
     p[size] = 0;
     GlobalUnlock(hMem);
-    OpenClipboard(0);
+    OpenClipboard(hwnd);
     EmptyClipboard();
-    SetClipboardData(CF_TEXT, hMem);
+    SetClipboardData(CF_UNICODETEXT, hMem);
     CloseClipboard();
 
 #undef size
@@ -588,7 +588,7 @@ void copy(void)
     wchar_t *d = GlobalLock(hMem);
     utf8tonative(data, d, len + 1); //because data is nullterminated
     GlobalUnlock(hMem);
-    OpenClipboard(0);
+    OpenClipboard(hwnd);
     EmptyClipboard();
     SetClipboardData(CF_UNICODETEXT, hMem);
     CloseClipboard();
@@ -609,7 +609,7 @@ void paste(void)
         return;
     }
 
-    OpenClipboard(NULL);
+    OpenClipboard(hwnd);
     wchar_t *d = GetClipboardData(CF_UNICODETEXT);
     uint8_t data[65536];
     int len = WideCharToMultiByte(CP_UTF8, 0, d, -1, data, 65536, NULL, 0);
