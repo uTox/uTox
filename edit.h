@@ -22,8 +22,7 @@ _Bool edit_mleave(EDIT *edit);
 
 void edit_char(uint32_t ch, _Bool control);
 
-void edit_cut(void);
-void edit_copy(void);
+int edit_copy(char_t *data, int len);
 void edit_paste(char_t *data, int len);
 void edit_delete(void);
 void edit_selectall(void);

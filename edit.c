@@ -27,6 +27,9 @@ _Bool edit_mmove(EDIT *edit, int x, int y, int dy, int width, int height)
     _Bool redraw = 0;
 
     _Bool mouseover = inrect(x, y, 0, 0, width, height);
+    if(mouseover) {
+        overtext = 1;
+    }
     if(mouseover != edit->mouseover) {
         edit->mouseover = mouseover;
         if(edit != active_edit) {
@@ -278,19 +281,11 @@ void edit_char(uint32_t ch, _Bool control)
     }
 }
 
-void edit_cut(void)
+int edit_copy(char_t *data, int len)
 {
-    edit_copy();
-    edit_delete();
-}
-
-void edit_copy(void)
-{
-    uint16_t length = edit_sel.length;
-
-    if(!active_edit || length == 0) {
-        return;
-    }
+    memcpy(data, active_edit->data + edit_sel.start, edit_sel.length);
+    data[edit_sel.length] = 0;
+    return edit_sel.length;
 }
 
 void edit_paste(char_t *data, int length)

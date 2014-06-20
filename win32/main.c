@@ -10,7 +10,7 @@
 #include <windowsx.h>
 
 #include <process.h>
-#define CLEARTYPE_QUALITY 5
+//#define CLEARTYPE_QUALITY 5
 
 #define WM_NOTIFYICON   (WM_APP + 0)
 #define WM_TOX          (WM_APP + 1)
@@ -30,7 +30,7 @@ enum {
 //HBITMAP bitmap[32];
 void *bitmap[32];
 HFONT font[32];
-HCURSOR cursor_arrow, cursor_hand;
+HCURSOR cursor_arrow, cursor_hand, cursor_text;
 
 HWND hwnd;
 HDC main_hdc, hdc, hdcMem;
@@ -60,13 +60,8 @@ enum
     LIST_ACCEPT
 };
 
-static uint16_t utf8tonative(char_t *str, wchar_t *out, uint16_t length)
+static int utf8tonative(char_t *str, wchar_t *out, int length)
 {
-    /*uint8_t *end = str + length;
-    while(str != end) {
-        *out++ = *str++;
-    }
-    return length;*/
     return MultiByteToWideChar(CP_UTF8, 0, str, length, out, length);
 }
 
@@ -577,6 +572,54 @@ static void* loadalpha(void *data, int width, int height)
     return data;
 }
 
+void copy(void)
+{
+    uint8_t data[32768];//!
+    int len;
+
+    if(edit_active()) {
+        len = edit_copy(data, 32768);
+    } else if(sitem->item == ITEM_FRIEND) {
+        len = messages_selection(&messages_friend, data, 32768);
+    } else if(sitem->item == ITEM_GROUP) {
+        len = messages_selection(&messages_group, data, 32768);
+    } else {
+        return;
+    }
+
+    HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, (len + 1) * 2);
+    wchar_t *d = GlobalLock(hMem);
+    utf8tonative(data, d, len + 1); //because data is nullterminated
+    GlobalUnlock(hMem);
+    OpenClipboard(0);
+    EmptyClipboard();
+    SetClipboardData(CF_UNICODETEXT, hMem);
+    CloseClipboard();
+}
+
+void cut(void)
+{
+    if(!edit_active()) {
+        return;
+    }
+    copy();
+    edit_delete();
+}
+
+void paste(void)
+{
+    if(!edit_active()) {
+        return;
+    }
+
+    OpenClipboard(NULL);
+    wchar_t *d = GetClipboardData(CF_UNICODETEXT);
+    uint8_t data[65536];
+    int len = WideCharToMultiByte(CP_UTF8, 0, d, -1, data, 65536, NULL, 0);
+    edit_paste(data, len);
+    CloseClipboard();
+}
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int nCmdShow)
 {
     /* if opened with argument, check if uTox is already open and pass the argument to the existing process */
@@ -609,6 +652,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     HICON myicon = LoadIcon(hInstance, MAKEINTRESOURCE(101));
     cursor_arrow = LoadCursor(NULL, IDC_ARROW);
     cursor_hand = LoadCursor(NULL, IDC_HAND);
+    cursor_text = LoadCursor(NULL, IDC_IBEAM);
 
     WNDCLASS wc = {
         .style = CS_OWNDC | CS_DBLCLKS,
@@ -653,7 +697,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     Shell_NotifyIcon(NIM_ADD, &nid);
 
     //memcpy(lf.lfFaceName, "DejaVu Sans", sizeof("DejaVu Sans"));
-    #define F(x) (-x * SCALE / 2)
+    #define F(x) ((-x * SCALE - 1) / 2)
     lf.lfHeight = F(12);
     font[FONT_TEXT] = CreateFontIndirect(&lf);
 
@@ -667,7 +711,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     font[FONT_SELF_NAME] = CreateFontIndirect(&lf);
     lf.lfHeight = F(10);
     font[FONT_MISC] = CreateFontIndirect(&lf);
-    lf.lfWeight = FW_LIGHT;
+    lf.lfWeight = FW_NORMAL; //FW_LIGHT <- light fonts dont antialias
     font[FONT_MSG_NAME] = CreateFontIndirect(&lf);
     lf.lfHeight = F(11);
     font[FONT_MSG] = CreateFontIndirect(&lf);
@@ -871,41 +915,17 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         if(GetKeyState(VK_CONTROL) & 0x80) {
             switch(wParam) {
             case 'C': {
-                if(edit_active()) {
-                    edit_copy();
-                    break;
-                }
+                copy();
+                break;
+            }
 
-                HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, 65536);//! calculate this number
-                char_t *data = GlobalLock(hMem);
-                data[0] = 0;
-
-                if(sitem->item == ITEM_FRIEND) {
-                    messages_selection(&messages_friend, data, 65536);
-                }
-
-                if(sitem->item == ITEM_GROUP) {
-                    messages_selection(&messages_group, data, 65536);
-                }
-
-                GlobalUnlock(hMem);
-                OpenClipboard(0);
-                EmptyClipboard();
-                SetClipboardData(CF_UNICODETEXT, hMem);
-                CloseClipboard();
-
+            case 'X': {
+                cut();
                 break;
             }
 
             case 'V': {
-                if(edit_active()) {
-                    OpenClipboard(NULL);
-                    char *cd = GetClipboardData(CF_TEXT);
-                    int length = strlen(cd);
-                    edit_paste(cd, length);
-                    CloseClipboard();
-                    break;
-                }
+                paste();
                 break;
             }
 
@@ -919,7 +939,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             }
         }
 
-        break;
+        return 0;
     }
 
     case WM_CHAR: {
@@ -950,10 +970,11 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         my = y;
 
         hand = 0;
+        overtext = 0;
 
         panel_mmove(&panel_main, 0, 0, width, height, x, y, dy);
 
-        SetCursor(hand ? cursor_hand : cursor_arrow);
+        SetCursor(hand ? cursor_hand : (overtext ? cursor_text : cursor_arrow));
 
         if(!mouse_tracked) {
             TrackMouseEvent(&tme);
@@ -1032,24 +1053,17 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 
         case EDIT_CUT: {
-            edit_cut();
+            cut();
             break;
         }
 
         case EDIT_COPY: {
-            edit_copy();
+            copy();
             break;
         }
 
         case EDIT_PASTE: {
-            if(edit_active()) {
-                OpenClipboard(NULL);
-                char *cd = GetClipboardData(CF_TEXT);
-                int length = strlen(cd);
-                edit_paste(cd, length);
-                CloseClipboard();
-                break;
-            }
+            paste();
             break;
         }
 
