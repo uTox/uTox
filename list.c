@@ -360,7 +360,7 @@ static void deleteitem(ITEM *i)
     int size = (&item[itemcount] - i) * sizeof(ITEM);
     memmove(i, i + 1, size);
 
-    if(i != sitem && sitem > i) {
+    if(i != sitem && sitem > i && sitem >= item && sitem < item + countof(item)) {
         sitem--;
     }
 

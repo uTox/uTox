@@ -27,6 +27,9 @@ _Bool edit_mmove(EDIT *edit, int x, int y, int dy, int width, int height)
     _Bool redraw = 0;
 
     _Bool mouseover = inrect(x, y, 0, 0, width, height);
+    if(mouseover) {
+        overtext = 1;
+    }
     if(mouseover != edit->mouseover) {
         edit->mouseover = mouseover;
         if(edit != active_edit) {
@@ -193,7 +196,7 @@ void edit_char(uint32_t ch, _Bool control)
 {
     EDIT *edit = active_edit;
 
-    if(control || (ch <= 0x1F && ch != '\n') || (ch >= 0x7f && ch <= 0x9F)) {
+    if(control || (ch <= 0x1F && (!edit->multiline || ch != '\n')) || (ch >= 0x7f && ch <= 0x9F)) {
         switch(ch) {
         case KEY_BACK: {
             if(edit_sel.length == 0) {
@@ -278,19 +281,11 @@ void edit_char(uint32_t ch, _Bool control)
     }
 }
 
-void edit_cut(void)
+int edit_copy(char_t *data, int len)
 {
-    edit_copy();
-    edit_delete();
-}
-
-void edit_copy(void)
-{
-    uint16_t length = edit_sel.length;
-
-    if(!active_edit || length == 0) {
-        return;
-    }
+    memcpy(data, active_edit->data + edit_sel.start, edit_sel.length);
+    data[edit_sel.length] = 0;
+    return edit_sel.length;
 }
 
 void edit_paste(char_t *data, int length)
@@ -301,42 +296,32 @@ void edit_paste(char_t *data, int length)
 
     length = utf8_validate(data, length);
 
-    uint8_t lens[length];
-    size_t num_chars = 0;
-    //paste only utf8
-    size_t i = 0;
+    int maxlen = active_edit->maxlength - active_edit->length + edit_sel.length;
+    int newlen = 0, i = 0;
     while(i < length) {
-        if(data[i] <= 0x1F || data[i] == 0x7F) {
-            // Control characters.
-            break;
-        }
-
         uint8_t len = utf8_len(data + i);
-
-        if(len == 2 && data[i] == 0xc2 && data[i+1] <= 0x9f) {
-            // More control characters.
-            break;
+        if((((!active_edit->multiline || data[i] != '\n') && data[i] <= 0x1F) || data[i] == 0x7F) || (len == 2 && data[i] == 0xc2 && data[i + 1] <= 0x9f)) {
+            //control characters.
+        } else {
+            if(newlen + len > maxlen) {
+                break;
+            }
+            if(newlen != i) {
+                memcpy(data + newlen, data + i, len);
+            }
+            newlen += len;
         }
-
-        lens[num_chars++] = len;
         i += len;
-    }
-
-    // Invariant: active_edit->length <= active_edit->maxlength
-    int newlen = active_edit->length + i;
-    while(newlen > active_edit->maxlength) {
-        i -= lens[--num_chars];
-        newlen = active_edit->length + i;
     }
 
     uint8_t *p = active_edit->data + edit_sel.start;
 
-    memmove(p + i, p + edit_sel.length, (active_edit->length - (edit_sel.start + edit_sel.length)) * sizeof(char_t));
-    memcpy(p, data, i * sizeof(char_t));
+    memmove(p + newlen, p + edit_sel.length, (active_edit->length - (edit_sel.start + edit_sel.length)) * sizeof(char_t));
+    memcpy(p, data, newlen * sizeof(char_t));
 
-    active_edit->length += i - edit_sel.length;
+    active_edit->length += newlen - edit_sel.length;
 
-    edit_sel.start = edit_sel.start + i;
+    edit_sel.start = edit_sel.start + newlen;
     edit_sel.length = 0;
 
     redraw();

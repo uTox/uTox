@@ -83,7 +83,7 @@ uint32_t friends, groups;
 int width, height;
 _Bool maximized;
 
-_Bool hand;
+_Bool hand, overtext;
 
 _Bool mdown;
 

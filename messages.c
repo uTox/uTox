@@ -230,6 +230,8 @@ _Bool messages_mmove(MESSAGES *m, int mx, int my, int dy, int width, int height)
                     break;
                 }
 
+                overtext = 1;
+
                 char_t *str = msg->msg + m->over;
                 while(str != msg->msg) {
                     str--;
@@ -485,6 +487,7 @@ _Bool messages_mleave(MESSAGES *m)
 int messages_selection(MESSAGES *m, void *data, uint32_t len)
 {
     if(m->data->n == 0) {
+        *(uint8_t*)data = 0;
         return 0;
     }
 
