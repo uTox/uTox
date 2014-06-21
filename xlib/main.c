@@ -88,7 +88,6 @@ static XftFont* getfont(XftFont **font, uint32_t ch)
                 FcPatternAddDouble(p, FC_PIXEL_SIZE, size);
             }
 
-            FcPatternAddString(p, FC_FAMILY, (uint8_t*)"Roboto");
             pp = XftFontMatch(display, screen, p, &result);
             *font = XftFontOpenPattern(display, pp);
             FcPatternDestroy(p);
@@ -104,6 +103,9 @@ static void initfonts(void)
 {
     FcResult result;
     FcPattern *pat = FcPatternCreate();
+    FcPatternAddString(pat, FC_FAMILY, (uint8_t*)"Roboto");
+    FcConfigSubstitute(0, pat, FcMatchPattern);
+    FcDefaultSubstitute(pat);
     fs = FcFontSort(NULL, pat, 0, &charset, &result);
 
     FcPatternDestroy(pat);
