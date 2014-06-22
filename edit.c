@@ -331,8 +331,17 @@ void edit_delete(void)
 {
     uint8_t *p = active_edit->data + edit_sel.start;
 
-    memmove(p, p + edit_sel.length, (active_edit->length - (edit_sel.start + edit_sel.length)) * sizeof(char_t));
-    active_edit->length -= edit_sel.length;
+    if (edit_sel.length)
+    {
+        memmove(p, p + edit_sel.length, (active_edit->length - (edit_sel.start + edit_sel.length)) * sizeof(char_t));
+        active_edit->length -= edit_sel.length;
+    }
+    else if (edit_sel.start < active_edit->length)
+    {
+        unsigned len = utf8_len(p);
+        memmove(p, p + len, active_edit->length - edit_sel.start - len * sizeof(char_t));
+        active_edit->length -= len;
+    }
 
     edit_sel.length = 0;
 
