@@ -167,12 +167,12 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
                 }
 
                 int x =  xx + BM_FTM_WIDTH + SCALE;
-                drawalpha(BM_FTB1, x, y, BM_FTM_WIDTH, BM_FTB_HEIGHT + SCALE, (mo && m->over == 1) ? C_GREEN_LIGHT : C_GREEN);
-                drawalpha(BM_NO, x + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2, y + SCALE * 4, BM_FB_WIDTH, BM_FB_WIDTH, WHITE);
+                drawalpha(BM_FTB1, x, y, BM_FTB_WIDTH, BM_FTB_HEIGHT + SCALE, (mo && m->over == 1) ? C_GREEN_LIGHT : C_GREEN);
+                drawalpha(BM_NO, x + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2, y + SCALE * 4, BM_FB_WIDTH, BM_FB_HEIGHT, WHITE);
 
                 uint32_t color = (msg->flags == 7 && (file->status == FILE_PENDING || file->status == FILE_BROKEN)) ? C_GRAY: ((mo && m->over == 2) ? C_GREEN_LIGHT : C_GREEN);
-                drawalpha(BM_FTB2, x, y + BM_FTB_HEIGHT + SCALE * 2, BM_FTM_WIDTH, BM_FTB_HEIGHT, color);
-                drawalpha((msg->flags == 6 && file->status ==  FILE_PENDING) ? BM_YES : BM_PAUSE, x + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2, y + BM_FTB_HEIGHT + SCALE * 5, BM_FB_WIDTH, BM_FB_WIDTH, color == C_GRAY ? LIST_MAIN : WHITE);
+                drawalpha(BM_FTB2, x, y + BM_FTB_HEIGHT + SCALE * 2, BM_FTB_WIDTH, BM_FTB_HEIGHT, color);
+                drawalpha((msg->flags == 6 && file->status ==  FILE_PENDING) ? BM_YES : BM_PAUSE, x + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2, y + BM_FTB_HEIGHT + SCALE * 5, BM_FB_WIDTH, BM_FB_HEIGHT, color == C_GRAY ? LIST_MAIN : WHITE);
             }
 
             setfont(FONT_MISC);
