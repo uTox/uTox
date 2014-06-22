@@ -900,6 +900,12 @@ int main(int argc, char *argv[])
                     edit_char('\n', 0);
                     break;
                 }
+                
+                if (sym >= XK_KP_0 && sym <= XK_KP_9)
+                {
+                    edit_char('0'+sym-XK_KP_0, 0);
+                    break;
+                }
 
                 long key = keysym2ucs(sym);
                 if (key != -1) {
