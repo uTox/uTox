@@ -18,6 +18,12 @@
 #endif
 #endif
 
+#include <strmif.h>
+#include <amvideo.h>
+#include <control.h>
+#include <uuids.h>
+#include <vfwmsgs.h>
+
 #include <qedit.h>
 extern const CLSID CLSID_SampleGrabber;
 extern const CLSID CLSID_NullRenderer;
