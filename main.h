@@ -93,6 +93,8 @@ _Bool mdown;
 //HFONT font_big, font_big2, font_med, font_med2, font_small, font_msg;
 int font_small_lineheight, font_msg_lineheight;
 
+uint16_t video_width, video_height;
+
 enum
 {
     FONT_TEXT,
@@ -219,6 +221,8 @@ void setselection(void);
 void video_frame(FRIEND *f, vpx_image_t *frame);
 void video_begin(FRIEND *f, uint16_t width, uint16_t height);
 void video_end(FRIEND *f);
+_Bool video_init(void);
+_Bool video_getframe(vpx_image_t *image);
 
 #define drawstr(x, y, str) drawtext(x, y, (uint8_t*)str, sizeof(str) - 1)
 #define drawstr_getwidth(x, y, str) drawtext_getwidth(x, y, (uint8_t*)str, sizeof(str) - 1)

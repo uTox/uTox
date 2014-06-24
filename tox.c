@@ -4,31 +4,6 @@
 #include <AL/al.h>
 #include <AL/alc.h>
 
-#ifdef V4L
-#include <linux/videodev2.h>
-#include <libv4lconvert.h>
-
-static int fd = -1;
-struct buffer {
-    void   *start;
-    size_t  length;
-};
-static struct buffer *buffers;
-static uint32_t n_buffers;
-static struct v4lconvert_data *v4lconvert_data;
-struct v4l2_format fmt, dest_fmt = {
-    //.type = V4L2_BUF_TYPE_VIDEO_CAPTURE,
-    .fmt = {
-        .pix = {
-            .pixelformat = V4L2_PIX_FMT_YVU420,
-            //.field = V4L2_FIELD_NONE,
-        },
-    },
-};
-vpx_image_t input;
-#endif
-static uint16_t video_width, video_height;
-
 #define MAX_CALLS 16
 
 static struct {

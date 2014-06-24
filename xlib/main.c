@@ -1135,6 +1135,7 @@ void video_frame(FRIEND *f, vpx_image_t *frame)
     XCopyArea(display, pixmap, video_win[friend_id(f)], gc, 0, 0, frame->d_w, frame->d_h, 0, 0);
     XFreePixmap(display, pixmap);
     free(img_data);
+    vpx_img_free(frame);
 }
 
 void video_begin(FRIEND *f, uint16_t width, uint16_t height)
@@ -1150,3 +1151,270 @@ void video_end(FRIEND *f)
     XDestroyWindow(display, video_win[friend_id(f)]);
 }
 
+#ifdef V4L
+#include <linux/videodev2.h>
+#include <libv4lconvert.h>
+
+static int fd = -1;
+struct buffer {
+    void   *start;
+    size_t  length;
+};
+static struct buffer *buffers;
+static uint32_t n_buffers;
+static struct v4lconvert_data *v4lconvert_data;
+static struct v4l2_format fmt, dest_fmt = {
+    //.type = V4L2_BUF_TYPE_VIDEO_CAPTURE,
+    .fmt = {
+        .pix = {
+            .pixelformat = V4L2_PIX_FMT_YVU420,
+            //.field = V4L2_FIELD_NONE,
+        },
+    },
+};
+
+#define CLEAR(x) memset(&(x), 0, sizeof(x))
+
+static int xioctl(int fh, int request, void *arg)
+{
+    int r;
+
+    do {
+        r = ioctl(fh, request, arg);
+    } while (-1 == r && EINTR == errno);
+
+    return r;
+}
+
+static _Bool _video_init(char *dev_name)
+{
+    struct stat st;
+    if (-1 == stat(dev_name, &st)) {
+        debug("Cannot identify '%s': %d, %s\n", dev_name, errno, strerror(errno));
+        return 0;
+    }
+
+    if (!S_ISCHR(st.st_mode)) {
+        debug("%s is no device\n", dev_name);
+        return 0;
+    }
+
+    fd = open(dev_name, O_RDWR /* required */ | O_NONBLOCK, 0);
+
+    if (-1 == fd) {
+        debug("Cannot open '%s': %d, %s\n", dev_name, errno, strerror(errno));
+        return 0;
+    }
+
+    struct v4l2_capability cap;
+    struct v4l2_cropcap cropcap;
+    struct v4l2_crop crop;
+    unsigned int min;
+
+    if(-1 == xioctl(fd, VIDIOC_QUERYCAP, &cap)) {
+        if (EINVAL == errno) {
+            debug("%s is no V4L2 device\n", dev_name);
+        } else {
+            debug("VIDIOC_QUERYCAP error %d, %s\n", errno, strerror(errno));
+        }
+        return 0;
+    }
+
+    if(!(cap.capabilities & V4L2_CAP_VIDEO_CAPTURE)) {
+        debug("%s is no video capture device\n", dev_name);
+        return 0;
+    }
+
+    if(!(cap.capabilities & V4L2_CAP_STREAMING)) {
+        debug("%s does not support streaming i/o\n", dev_name);
+        return 0;
+    }
+
+    /* Select video input, video standard and tune here. */
+    CLEAR(cropcap);
+
+    cropcap.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+
+    if (0 == xioctl(fd, VIDIOC_CROPCAP, &cropcap)) {
+        crop.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+        crop.c = cropcap.defrect; /* reset to default */
+
+        if (-1 == xioctl(fd, VIDIOC_S_CROP, &crop)) {
+            switch (errno) {
+            case EINVAL:
+                /* Cropping not supported. */
+                break;
+            default:
+                /* Errors ignored. */
+                break;
+            }
+        }
+    } else {
+        /* Errors ignored. */
+    }
+
+    v4lconvert_data = v4lconvert_create(fd);
+
+    CLEAR(fmt);
+
+    fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+
+    if(-1 == xioctl(fd, VIDIOC_G_FMT, &fmt)) {
+        debug("VIDIOC_S_FMT error %d, %s\n", errno, strerror(errno));
+        return 0;
+    }
+
+    /*if(fmt.fmt.pix.pixelformat != V4L2_PIX_FMT_YUYV) {
+        debug("Unsupported video format: %u %u %u %u\n", fmt.fmt.pix.width, fmt.fmt.pix.height, fmt.fmt.pix.pixelformat, fmt.fmt.pix.field);
+    }*/
+
+    video_width = fmt.fmt.pix.width;
+    video_height = fmt.fmt.pix.height;
+    dest_fmt.fmt.pix.width = fmt.fmt.pix.width;
+    dest_fmt.fmt.pix.height = fmt.fmt.pix.height;
+    debug("Video size: %u %u\n", video_width, video_height);
+
+
+
+    /* Buggy driver paranoia. */
+    min = fmt.fmt.pix.width * 2;
+    if (fmt.fmt.pix.bytesperline < min)
+        fmt.fmt.pix.bytesperline = min;
+    min = fmt.fmt.pix.bytesperline * fmt.fmt.pix.height;
+    if (fmt.fmt.pix.sizeimage < min)
+        fmt.fmt.pix.sizeimage = min;
+
+
+    /* part 3*/
+    uint32_t buffer_size = fmt.fmt.pix.sizeimage;
+    struct v4l2_requestbuffers req;
+
+    CLEAR(req);
+
+    req.count  = 4;
+    req.type   = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    req.memory = V4L2_MEMORY_USERPTR;
+
+    if (-1 == xioctl(fd, VIDIOC_REQBUFS, &req)) {
+        if (EINVAL == errno) {
+            debug("%s does not support user pointer i/o\n", dev_name);
+        } else {
+            debug("VIDIOC_REQBUFS error %d, %s\n", errno, strerror(errno));
+        }
+        return 0;
+    }
+
+    buffers = calloc(4, sizeof(*buffers));
+
+    if (!buffers) {
+        debug("Out of memory\n");
+        return 0;
+    }
+
+    for (n_buffers = 0; n_buffers < 4; ++n_buffers) {
+        buffers[n_buffers].length = buffer_size;
+        buffers[n_buffers].start = malloc(buffer_size);
+
+        if (!buffers[n_buffers].start) {
+            debug("Out of memory\n");
+            return 0;
+        }
+    }
+
+    unsigned int i;
+    enum v4l2_buf_type type;
+
+    for (i = 0; i < n_buffers; ++i) {
+        struct v4l2_buffer buf;
+
+        CLEAR(buf);
+        buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+        buf.memory = V4L2_MEMORY_USERPTR;
+        buf.index = i;
+        buf.m.userptr = (unsigned long)buffers[i].start;
+        buf.length = buffers[i].length;
+
+        if (-1 == xioctl(fd, VIDIOC_QBUF, &buf)) {
+            debug("VIDIOC_QBUF error %d, %s\n", errno, strerror(errno));
+            return 0;
+        }
+    }
+    type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    if (-1 == xioctl(fd, VIDIOC_STREAMON, &type)) {
+        debug("VIDIOC_STREAMON error %d, %s\n", errno, strerror(errno));
+        return 0;
+    }
+
+    return 1;
+}
+
+_Bool video_init(void)
+{
+    return (_video_init("/dev/video0") || _video_init("/dev/video1"));
+}
+
+
+_Bool video_getframe(vpx_image_t *image)
+{
+    struct v4l2_buffer buf;
+    unsigned int i;
+
+    CLEAR(buf);
+
+    buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    buf.memory = V4L2_MEMORY_USERPTR;
+
+    if (-1 == ioctl(fd, VIDIOC_DQBUF, &buf)) {
+        switch (errno) {
+        case EINTR:
+        case EAGAIN:
+            return 0;
+
+        case EIO:
+        /* Could ignore EIO, see spec. */
+
+        /* fall through */
+
+        default:
+            debug("VIDIOC_DQBUF error %d, %s\n", errno, strerror(errno));
+            return 0;
+
+        }
+    }
+
+    for (i = 0; i < n_buffers; ++i)
+        if (buf.m.userptr == (unsigned long)buffers[i].start
+                && buf.length == buffers[i].length)
+            break;
+
+    if(i >= n_buffers) {
+        debug("fatal error\n");
+        return 0;
+    }
+
+    if(fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_YUYV) {
+        yuv422to420(image->planes[0], image->planes[1], image->planes[2], (void*)buf.m.userptr, video_width, video_height);
+    } else {
+        /* assumes planes are continuous memory */
+        v4lconvert_convert(v4lconvert_data, &fmt, &dest_fmt, (void*)buf.m.userptr, fmt.fmt.pix.sizeimage, image->planes[0], (video_width * video_height * 3) / 2);
+    }
+
+    if (-1 == xioctl(fd, VIDIOC_QBUF, &buf)) {
+        debug("VIDIOC_QBUF error %d, %s\n", errno, strerror(errno));
+    }
+
+    return 1;
+}
+
+#else
+_Bool video_init(void)
+{
+    return 0;
+}
+
+_Bool video_getframe(vpx_image_t *image)
+{
+    return 0;
+}
+
+#endif

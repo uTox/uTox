@@ -9,6 +9,15 @@
 #include <windows.h>
 #include <windowsx.h>
 
+#ifdef __CRT__NO_INLINE
+#undef __CRT__NO_INLINE
+#define DID_UNDEFINE__CRT__NO_INLINE
+#include <dshow.h>
+#ifdef DID_UNDEFINE__CRT__NO_INLINE
+#define __CRT__NO_INLINE
+#endif
+#endif
+
 #include <process.h>
 //#define CLEARTYPE_QUALITY 5
 
@@ -1141,6 +1150,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 void video_frame(FRIEND *f, vpx_image_t *frame)
 {
+     vpx_img_free(frame);
 }
 
 void video_begin(FRIEND *f, uint16_t width, uint16_t height)
@@ -1149,4 +1159,54 @@ void video_begin(FRIEND *f, uint16_t width, uint16_t height)
 
 void video_end(FRIEND *f)
 {
+}
+
+_Bool video_init(void)
+{
+    HRESULT hr;
+    ICreateDevEnum *pSysDevEnum = NULL;
+    hr = CoCreateInstance(&CLSID_SystemDeviceEnum, NULL, CLSCTX_INPROC_SERVER, &IID_ICreateDevEnum, (void**)&pSysDevEnum);
+    if(FAILED(hr)) {
+        return 0;
+    }
+    // Obtain a class enumerator for the video compressor category.
+    IEnumMoniker *pEnumCat = NULL;
+    hr = pSysDevEnum->lpVtbl->CreateClassEnumerator(pSysDevEnum, &CLSID_VideoInputDeviceCategory, &pEnumCat, 0);
+    if(hr != S_OK) {
+        pSysDevEnum->lpVtbl->Release(pSysDevEnum);
+        return 0;
+    }
+
+    IMoniker *pMoniker = NULL;
+    ULONG cFetched;
+    while(pEnumCat->lpVtbl->Next(pEnumCat, 1, &pMoniker, &cFetched) == S_OK) {
+        IPropertyBag *pPropBag;
+        hr = pMoniker->lpVtbl->BindToStorage(pMoniker, 0, 0, &IID_IPropertyBag, (void **)&pPropBag);
+        if(SUCCEEDED(hr)) {
+            // To retrieve the filter's friendly name, do the following:
+            VARIANT varName;
+            VariantInit(&varName);
+            hr = pPropBag->lpVtbl->Read(pPropBag, L"FriendlyName", &varName, 0);
+            if (SUCCEEDED(hr)) {
+                debug("friendly name: \n");
+                // Display the name in your UI somehow.
+            }
+            VariantClear(&varName);
+
+            // To create an instance of the filter, do the following:
+            IBaseFilter *pFilter;
+            hr = pMoniker->lpVtbl->BindToObject(pMoniker, NULL, NULL, &IID_IBaseFilter, (void**)&pFilter);
+            // Now add the filter to the graph.
+            //Remember to release pFilter later.
+            pPropBag->lpVtbl->Release(pPropBag);
+        }
+        pMoniker->lpVtbl->Release(pMoniker);
+    }
+    pEnumCat->lpVtbl->Release(pEnumCat);
+    pSysDevEnum->lpVtbl->Release(pSysDevEnum);
+}
+
+_Bool video_getframe(vpx_image_t *image)
+{
+
 }
