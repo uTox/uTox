@@ -1152,6 +1152,7 @@ void video_end(FRIEND *f)
 }
 
 #ifdef V4L
+#include <sys/mman.h>
 #include <linux/videodev2.h>
 #include <libv4lconvert.h>
 
@@ -1286,25 +1287,61 @@ static _Bool _video_init(char *dev_name)
 
 
     /* part 3*/
-    uint32_t buffer_size = fmt.fmt.pix.sizeimage;
+    //uint32_t buffer_size = fmt.fmt.pix.sizeimage;
     struct v4l2_requestbuffers req;
 
     CLEAR(req);
 
     req.count  = 4;
     req.type   = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    req.memory = V4L2_MEMORY_USERPTR;
+    req.memory = V4L2_MEMORY_MMAP;//V4L2_MEMORY_USERPTR;
 
     if (-1 == xioctl(fd, VIDIOC_REQBUFS, &req)) {
         if (EINVAL == errno) {
-            debug("%s does not support user pointer i/o\n", dev_name);
+            debug("%s does not support x i/o\n", dev_name);
         } else {
             debug("VIDIOC_REQBUFS error %d, %s\n", errno, strerror(errno));
         }
         return 0;
     }
 
-    buffers = calloc(4, sizeof(*buffers));
+    if(req.count < 2) {
+        fprintf(stderr, "Insufficient buffer memory on %s\n", dev_name);
+        exit(EXIT_FAILURE);
+    }
+
+    buffers = calloc(req.count, sizeof(*buffers));
+
+    for (n_buffers = 0; n_buffers < req.count; ++n_buffers) {
+            struct v4l2_buffer buf;
+
+            CLEAR(buf);
+
+            buf.type        = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+            buf.memory      = V4L2_MEMORY_MMAP;
+            buf.index       = n_buffers;
+
+            if (-1 == xioctl(fd, VIDIOC_QUERYBUF, &buf)) {
+                debug("VIDIOC_QUERYBUF error %d, %s\n", errno, strerror(errno));
+                return 0;
+            }
+
+            buffers[n_buffers].length = buf.length;
+            buffers[n_buffers].start =
+                    mmap(NULL /* start anywhere */,
+                          buf.length,
+                          PROT_READ | PROT_WRITE /* required */,
+                          MAP_SHARED /* recommended */,
+                          fd, buf.m.offset);
+
+            if(MAP_FAILED == buffers[n_buffers].start) {
+                debug("mmap error %d, %s\n", errno, strerror(errno));
+                return 0;
+            }
+
+    }
+
+    /*buffers = calloc(4, sizeof(*buffers));
 
     if (!buffers) {
         debug("Out of memory\n");
@@ -1319,7 +1356,7 @@ static _Bool _video_init(char *dev_name)
             debug("Out of memory\n");
             return 0;
         }
-    }
+    }*/
 
     unsigned int i;
     enum v4l2_buf_type type;
@@ -1329,10 +1366,10 @@ static _Bool _video_init(char *dev_name)
 
         CLEAR(buf);
         buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-        buf.memory = V4L2_MEMORY_USERPTR;
+        buf.memory = V4L2_MEMORY_MMAP;//V4L2_MEMORY_USERPTR;
         buf.index = i;
-        buf.m.userptr = (unsigned long)buffers[i].start;
-        buf.length = buffers[i].length;
+        //buf.m.userptr = (unsigned long)buffers[i].start;
+        //buf.length = buffers[i].length;
 
         if (-1 == xioctl(fd, VIDIOC_QBUF, &buf)) {
             debug("VIDIOC_QBUF error %d, %s\n", errno, strerror(errno));
@@ -1357,12 +1394,12 @@ _Bool video_init(void)
 _Bool video_getframe(vpx_image_t *image)
 {
     struct v4l2_buffer buf;
-    unsigned int i;
+    //unsigned int i;
 
     CLEAR(buf);
 
     buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    buf.memory = V4L2_MEMORY_USERPTR;
+    buf.memory = V4L2_MEMORY_MMAP;//V4L2_MEMORY_USERPTR;
 
     if (-1 == ioctl(fd, VIDIOC_DQBUF, &buf)) {
         switch (errno) {
@@ -1382,7 +1419,7 @@ _Bool video_getframe(vpx_image_t *image)
         }
     }
 
-    for (i = 0; i < n_buffers; ++i)
+    /*for (i = 0; i < n_buffers; ++i)
         if (buf.m.userptr == (unsigned long)buffers[i].start
                 && buf.length == buffers[i].length)
             break;
@@ -1390,13 +1427,15 @@ _Bool video_getframe(vpx_image_t *image)
     if(i >= n_buffers) {
         debug("fatal error\n");
         return 0;
-    }
+    }*/
+
+    void *data = (void*)buffers[buf.index].start; //length = buf.bytesused //(void*)buf.m.userptr
 
     if(fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_YUYV) {
-        yuv422to420(image->planes[0], image->planes[1], image->planes[2], (void*)buf.m.userptr, video_width, video_height);
+        yuv422to420(image->planes[0], image->planes[1], image->planes[2], data, video_width, video_height);
     } else {
         /* assumes planes are continuous memory */
-        v4lconvert_convert(v4lconvert_data, &fmt, &dest_fmt, (void*)buf.m.userptr, fmt.fmt.pix.sizeimage, image->planes[0], (video_width * video_height * 3) / 2);
+        v4lconvert_convert(v4lconvert_data, &fmt, &dest_fmt, data, fmt.fmt.pix.sizeimage, image->planes[0], (video_width * video_height * 3) / 2);
     }
 
     if (-1 == xioctl(fd, VIDIOC_QBUF, &buf)) {
