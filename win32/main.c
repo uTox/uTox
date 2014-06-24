@@ -18,6 +18,10 @@
 #endif
 #endif
 
+#include <qedit.h>
+extern const CLSID CLSID_SampleGrabber;
+extern const CLSID CLSID_NullRenderer;
+
 #include <process.h>
 //#define CLEARTYPE_QUALITY 5
 
@@ -42,9 +46,11 @@ HFONT font[32];
 HCURSOR cursor_arrow, cursor_hand, cursor_text;
 
 HWND hwnd;
+HINSTANCE hinstance;
 HDC main_hdc, hdc, hdcMem;
 HBRUSH hdc_brush;
 HBITMAP hdc_bm;
+HWND video_hwnd[256];
 
 
 static TRACKMOUSEEVENT tme = {sizeof(TRACKMOUSEEVENT), TME_LEAVE, 0, 0};
@@ -71,7 +77,7 @@ enum
 
 static int utf8tonative(char_t *str, wchar_t *out, int length)
 {
-    return MultiByteToWideChar(CP_UTF8, 0, str, length, out, length);
+    return MultiByteToWideChar(CP_UTF8, 0, (char*)str, length, out, length);
 }
 
 void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data)
@@ -183,7 +189,7 @@ int textfit(char_t *str, uint16_t length, int width)
     SIZE size;
     GetTextExtentExPointW(hdc, out, length, width, &fit, NULL, &size);
 
-    return WideCharToMultiByte(CP_UTF8, 0, out, fit, str, 65536, NULL, 0);
+    return WideCharToMultiByte(CP_UTF8, 0, out, fit, (char*)str, 65536, NULL, 0);
 }
 
 void framerect(int x, int y, int right, int bottom, uint32_t color)
@@ -367,7 +373,7 @@ void listpopup(uint8_t item)
 void openurl(char_t *str)
 {
     //!convert
-    ShellExecute(NULL, "open", str, NULL, NULL, SW_SHOW);
+    ShellExecute(NULL, "open", (char*)str, NULL, NULL, SW_SHOW);
 }
 
 void openfilesend(void)
@@ -622,7 +628,7 @@ void paste(void)
     HANDLE h = GetClipboardData(CF_UNICODETEXT);
     wchar_t *d = GlobalLock(h);
     uint8_t data[65536];
-    int len = WideCharToMultiByte(CP_UTF8, 0, d, -1, data, 65536, NULL, 0);
+    int len = WideCharToMultiByte(CP_UTF8, 0, d, -1, (char*)data, 65536, NULL, 0);
     GlobalUnlock(h);
     CloseClipboard();
     edit_paste(data, len);
@@ -661,6 +667,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     cursor_arrow = LoadCursor(NULL, IDC_ARROW);
     cursor_hand = LoadCursor(NULL, IDC_HAND);
     cursor_text = LoadCursor(NULL, IDC_IBEAM);
+
+    hinstance = hInstance;
 
     WNDCLASS wc = {
         .style = CS_OWNDC | CS_DBLCLKS,
@@ -811,8 +819,26 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     return 0;
 }
 
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
 {
+    if(hwnd && hwn != hwnd) {
+        if(msg == WM_DESTROY) {
+            int i;
+            for(i = 0; i != countof(friend); i++) {
+                if(video_hwnd[i] == hwn) {
+                    FRIEND *f = &friend[i];
+                    tox_postmessage(TOX_HANGUP, f->callid, 0, NULL);
+                    break;
+                }
+            }
+            if(i == countof(friend)) {
+                debug("this should not happen\n");
+            }
+        }
+
+        return DefWindowProc(hwn, msg, wParam, lParam);
+    }
+
     switch(msg) {
     case WM_DESTROY: {
         PostQuitMessage(0);
@@ -827,7 +853,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     }
 
     case WM_CREATE: {
-        main_hdc = GetDC(hwnd);
+        main_hdc = GetDC(hwn);
         hdc = CreateCompatibleDC(main_hdc);
         hdcMem = CreateCompatibleDC(hdc);
 
@@ -854,7 +880,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
         if(w != 0) {
             RECT r;
-            GetClientRect(hwnd, &r);
+            GetClientRect(hwn, &r);
             w = r.right;
             h = r.bottom;
 
@@ -883,12 +909,12 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_PAINT: {
         PAINTSTRUCT ps;
 
-        BeginPaint(hwnd, &ps);
+        BeginPaint(hwn, &ps);
 
         RECT r = ps.rcPaint;
         BitBlt(main_hdc, r.left, r.top, r.right - r.left, r.bottom - r.top, hdc, r.left, r.top, SRCCOPY);
 
-        EndPaint(hwnd, &ps);
+        EndPaint(hwn, &ps);
         return 0;
     }
 
@@ -994,7 +1020,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
     case WM_LBUTTONDOWN: {
         panel_mdown(&panel_main);
-        SetCapture(hwnd);
+        SetCapture(hwn);
         mdown = 1;
         break;
     }
@@ -1145,39 +1171,288 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     }
     }
 
-    return DefWindowProc(hwnd, msg, wParam, lParam);
+    return DefWindowProc(hwn, msg, wParam, lParam);
 }
 
 void video_frame(FRIEND *f, vpx_image_t *frame)
 {
-     vpx_img_free(frame);
+    uint8_t *img_data = malloc(frame->d_w * frame->d_h * 4);
+    yuv420torgb(frame, img_data);
+
+    HBITMAP bitmap = CreateBitmap(frame->d_w, frame->d_h, 1, 32, img_data);
+
+    HDC dc = GetDC(video_hwnd[friend_id(f)]);
+    HDC dc_src = CreateCompatibleDC(dc);
+    SelectObject(dc_src, bitmap);
+    BitBlt(dc, 0, 0, frame->d_w, frame->d_h, dc_src, 0, 0, SRCCOPY);
+
+
+    DeleteObject(bitmap);
+    free(img_data);
+    vpx_img_free(frame);
 }
 
 void video_begin(FRIEND *f, uint16_t width, uint16_t height)
 {
+    HWND *h = &video_hwnd[friend_id(f)];
+    wchar_t out[f->name_length + 1];
+    int len = utf8tonative(f->name, out, f->name_length);
+    out[len] = 0;
+
+    *h = CreateWindowExW(0, L"uTox", out, WS_OVERLAPPEDWINDOW, 0, 0, video_width, video_height, NULL, NULL, hinstance, NULL);
+    ShowWindow(*h, SW_SHOW);
 }
 
 void video_end(FRIEND *f)
 {
+    DestroyWindow(video_hwnd[friend_id(f)]);
 }
 
+volatile _Bool newframe = 0;
+uint8_t *frame_data;
+
+HRESULT STDMETHODCALLTYPE test_SampleCB(ISampleGrabberCB *lpMyObj, double SampleTime, IMediaSample *pSample)
+{
+    // you can call functions like:
+    //REFERENCE_TIME   tStart, tStop;
+    void *sampleBuffer;
+    int length;
+
+    pSample->lpVtbl->GetPointer(pSample, (BYTE**)&sampleBuffer);
+    length = pSample->lpVtbl->GetActualDataLength(pSample);
+
+    /*pSample->GetTime(&tStart, &tStop);
+    */
+    if(length == (uint32_t)video_width * video_height * 3)
+    {
+        uint8_t *p = frame_data + video_width * video_height * 3;
+        int y;
+        for(y = 0; y != video_height; y++) {
+            p -= video_width * 3;
+            memcpy(p, sampleBuffer, video_width * 3);
+            sampleBuffer += video_width * 3;
+        }
+
+        newframe = 1;
+    }
+
+    //debug("frame %u\n", length);
+    return S_OK;
+}
+
+IGraphBuilder *pGraph;
+IBaseFilter *pGrabberF;
+
+STDMETHODIMP test_QueryInterface(ISampleGrabberCB *lpMyObj, REFIID riid, LPVOID FAR * lppvObj)
+{
+    return 0;
+}
+
+STDMETHODIMP_(ULONG) test_AddRef(ISampleGrabberCB *lpMyObj)
+{
+    return 1;
+}
+
+STDMETHODIMP_(ULONG) test_Release(ISampleGrabberCB *lpMyObj)
+{
+    free(lpMyObj->lpVtbl);
+    free(lpMyObj);
+    return 0;
+}
+
+#define SafeRelease(x) if(*(x)) {(*(x))->lpVtbl->Release(*(x));}
+
+HRESULT IsPinConnected(IPin *pPin, BOOL *pResult)
+{
+    IPin *pTmp = NULL;
+    HRESULT hr = pPin->lpVtbl->ConnectedTo(pPin, &pTmp);
+    if (SUCCEEDED(hr))
+    {
+        *pResult = TRUE;
+    }
+    else if (hr == VFW_E_NOT_CONNECTED)
+    {
+        // The pin is not connected. This is not an error for our purposes.
+        *pResult = FALSE;
+        hr = S_OK;
+    }
+
+    SafeRelease(&pTmp);
+    return hr;
+}
+
+HRESULT IsPinDirection(IPin *pPin, PIN_DIRECTION dir, BOOL *pResult)
+{
+    PIN_DIRECTION pinDir;
+    HRESULT hr = pPin->lpVtbl->QueryDirection(pPin, &pinDir);
+    if (SUCCEEDED(hr))
+    {
+        *pResult = (pinDir == dir);
+    }
+    return hr;
+}
+
+HRESULT MatchPin(IPin *pPin, PIN_DIRECTION direction, BOOL bShouldBeConnected, BOOL *pResult)
+{
+    //assert(pResult != NULL);
+
+    BOOL bMatch = FALSE;
+    BOOL bIsConnected = FALSE;
+
+    HRESULT hr = IsPinConnected(pPin, &bIsConnected);
+    if (SUCCEEDED(hr))
+    {
+        if (bIsConnected == bShouldBeConnected)
+        {
+            hr = IsPinDirection(pPin, direction, &bMatch);
+        }
+    }
+
+    if (SUCCEEDED(hr))
+    {
+        *pResult = bMatch;
+    }
+    return hr;
+}
+
+HRESULT FindUnconnectedPin(IBaseFilter *pFilter, PIN_DIRECTION PinDir, IPin **ppPin)
+{
+    IEnumPins *pEnum = NULL;
+    IPin *pPin = NULL;
+    BOOL bFound = FALSE;
+
+    HRESULT hr = pFilter->lpVtbl->EnumPins(pFilter, &pEnum);
+    if (FAILED(hr))
+    {
+        goto done;
+    }
+
+    while (S_OK == pEnum->lpVtbl->Next(pEnum, 1, &pPin, NULL))
+    {
+        hr = MatchPin(pPin, PinDir, FALSE, &bFound);
+        if (FAILED(hr))
+        {
+            goto done;
+        }
+        if (bFound)
+        {
+            *ppPin = pPin;
+            (*ppPin)->lpVtbl->AddRef(*ppPin);
+            break;
+        }
+        SafeRelease(&pPin);
+    }
+
+    if (!bFound)
+    {
+        hr = VFW_E_NOT_FOUND;
+    }
+
+done:
+    SafeRelease(&pPin);
+    SafeRelease(&pEnum);
+    return hr;
+}
+
+HRESULT ConnectFilters2(IGraphBuilder *pGraph, IPin *pOut, IBaseFilter *pDest)
+{
+    IPin *pIn = NULL;
+
+    // Find an input pin on the downstream filter.
+    HRESULT hr = FindUnconnectedPin(pDest, PINDIR_INPUT, &pIn);
+    if (SUCCEEDED(hr))
+    {
+        // Try to connect them.
+        hr = pGraph->lpVtbl->Connect(pGraph, pOut, pIn);
+        pIn->lpVtbl->Release(pIn);
+    }
+    return hr;
+}
+
+HRESULT ConnectFilters(IGraphBuilder *pGraph, IBaseFilter *pSrc, IBaseFilter *pDest)
+{
+    IPin *pOut = NULL;
+
+    // Find an output pin on the first filter.
+    HRESULT hr = FindUnconnectedPin(pSrc, PINDIR_OUTPUT, &pOut);
+    if (SUCCEEDED(hr))
+    {
+        hr = ConnectFilters2(pGraph, pOut, pDest);
+        pOut->lpVtbl->Release(pOut);
+    }
+    return hr;
+}
+
+//!TODO: free resources correctly (on failure, etc)
 _Bool video_init(void)
 {
     HRESULT hr;
+    CoInitialize(NULL);
+
+    IMediaControl *pControl;
+    IMediaEventEx *pEvent;
+
+    hr = CoCreateInstance(&CLSID_FilterGraph, NULL, CLSCTX_INPROC_SERVER, &IID_IGraphBuilder, (void**)&pGraph);
+    if(FAILED(hr)) {
+        return 0;
+    }
+
+    hr = pGraph->lpVtbl->QueryInterface(pGraph, &IID_IMediaControl, (void**)&pControl);
+    if(FAILED(hr)) {
+        return 0;
+    }
+
+    hr = pGraph->lpVtbl->QueryInterface(pGraph, &IID_IMediaEventEx, (void**)&pEvent);
+    if(FAILED(hr)) {
+        return 0;
+    }
+
+    ISampleGrabber *pGrabber;
+
+    hr = CoCreateInstance(&CLSID_SampleGrabber, NULL, CLSCTX_INPROC_SERVER, &IID_IBaseFilter, (void**)&pGrabberF);
+    if(FAILED(hr)) {
+        return 0;
+    }
+
+    hr = pGraph->lpVtbl->AddFilter(pGraph, pGrabberF, L"Sample Grabber");
+    if(FAILED(hr)) {
+        return 0;
+    }
+
+    hr = pGrabberF->lpVtbl->QueryInterface(pGrabberF, &IID_ISampleGrabber, (void**)&pGrabber);
+    if(FAILED(hr)) {
+        return 0;
+    }
+
+    AM_MEDIA_TYPE mt = {
+        .majortype = MEDIATYPE_Video,
+        .subtype = MEDIASUBTYPE_RGB24,
+    };
+
+    hr = pGrabber->lpVtbl->SetMediaType(pGrabber, &mt);
+    if(FAILED(hr)) {
+        return 0;
+    }
+
     ICreateDevEnum *pSysDevEnum = NULL;
     hr = CoCreateInstance(&CLSID_SystemDeviceEnum, NULL, CLSCTX_INPROC_SERVER, &IID_ICreateDevEnum, (void**)&pSysDevEnum);
     if(FAILED(hr)) {
+        debug("CoCreateInstance failed()\n");
         return 0;
     }
     // Obtain a class enumerator for the video compressor category.
     IEnumMoniker *pEnumCat = NULL;
     hr = pSysDevEnum->lpVtbl->CreateClassEnumerator(pSysDevEnum, &CLSID_VideoInputDeviceCategory, &pEnumCat, 0);
     if(hr != S_OK) {
+
         pSysDevEnum->lpVtbl->Release(pSysDevEnum);
+        debug("CreateClassEnumerator failed()\n");
         return 0;
     }
 
+    IBaseFilter *pFilter = NULL;
     IMoniker *pMoniker = NULL;
+
     ULONG cFetched;
     while(pEnumCat->lpVtbl->Next(pEnumCat, 1, &pMoniker, &cFetched) == S_OK) {
         IPropertyBag *pPropBag;
@@ -1188,14 +1463,20 @@ _Bool video_init(void)
             VariantInit(&varName);
             hr = pPropBag->lpVtbl->Read(pPropBag, L"FriendlyName", &varName, 0);
             if (SUCCEEDED(hr)) {
-                debug("friendly name: \n");
+                if(varName.vt == VT_BSTR) {
+                    debug("friendly name: %ls\n", varName.bstrVal);
+                } else {
+                    debug("unfriendly name\n");
+                }
+
                 // Display the name in your UI somehow.
             }
             VariantClear(&varName);
 
             // To create an instance of the filter, do the following:
-            IBaseFilter *pFilter;
-            hr = pMoniker->lpVtbl->BindToObject(pMoniker, NULL, NULL, &IID_IBaseFilter, (void**)&pFilter);
+            if(!pFilter) {
+                hr = pMoniker->lpVtbl->BindToObject(pMoniker, NULL, NULL, &IID_IBaseFilter, (void**)&pFilter);
+            }
             // Now add the filter to the graph.
             //Remember to release pFilter later.
             pPropBag->lpVtbl->Release(pPropBag);
@@ -1204,9 +1485,116 @@ _Bool video_init(void)
     }
     pEnumCat->lpVtbl->Release(pEnumCat);
     pSysDevEnum->lpVtbl->Release(pSysDevEnum);
+
+    if(!pFilter) {
+        return 0;
+    }
+
+    hr = pGraph->lpVtbl->AddFilter(pGraph, pFilter, L"Video Capture");
+    if(FAILED(hr)) {
+        return 0;
+    }
+
+    debug("so far so good\n");
+
+    ISampleGrabberCB *test;
+    test = malloc(sizeof(ISampleGrabberCB));
+    test->lpVtbl = malloc(sizeof(*(test->lpVtbl)));
+    // no idea what im doing here
+    test->lpVtbl->QueryInterface = test_QueryInterface;
+    test->lpVtbl->AddRef = test_AddRef;
+    test->lpVtbl->Release = test_Release;
+    test->lpVtbl->SampleCB = test_SampleCB;
+    test->lpVtbl->BufferCB = 0;
+
+    hr = pGrabber->lpVtbl->SetCallback(pGrabber, test, 0);
+    if(FAILED(hr)) {
+        return 0;
+    }
+
+    debug("not so fast\n");
+
+    IEnumPins *pEnum = NULL;
+    IPin *pPin = NULL;
+
+    /* build filter graph */
+    hr = pFilter->lpVtbl->EnumPins(pFilter, &pEnum);
+    if(FAILED(hr)) {
+        return 0;
+    }
+
+    while(S_OK == pEnum->lpVtbl->Next(pEnum, 1, &pPin, NULL)) {
+        hr = ConnectFilters2(pGraph, pPin, pGrabberF);
+        SafeRelease(&pPin);
+        if(SUCCEEDED(hr)) {
+            break;
+        }
+    }
+
+    if(FAILED(hr)) {
+        return 0;
+    }
+
+    IAMStreamConfig *pConfig = NULL;
+    AM_MEDIA_TYPE *pmt = NULL;
+
+    hr = pPin->lpVtbl->QueryInterface(pPin, &IID_IAMStreamConfig, (void**)&pConfig);
+    if(FAILED(hr)) {
+        return 0;
+    }
+
+    hr = pConfig->lpVtbl->GetFormat(pConfig, &pmt);
+    if(FAILED(hr)) {
+        return 0;
+    }
+
+    BITMAPINFOHEADER *bmiHeader;
+    if(IsEqualGUID(&pmt->formattype, &FORMAT_VideoInfo)) {
+        VIDEOINFOHEADER *pvi = (VIDEOINFOHEADER*)pmt->pbFormat;
+        bmiHeader = &(pvi->bmiHeader);
+    } else {
+        debug("got bad format\n");
+    }
+
+    video_width = bmiHeader->biWidth;
+    video_height = bmiHeader->biHeight;
+    frame_data = malloc((size_t)video_width * video_height * 3);
+
+    debug("width height %u %u\n", video_width, video_height);
+
+    IBaseFilter *pNullF = NULL;
+    hr = CoCreateInstance(&CLSID_NullRenderer, NULL, CLSCTX_INPROC_SERVER, &IID_IBaseFilter, (void**)&pNullF);
+    if(FAILED(hr)) {
+        debug("CoCreateInstance failed\n");
+        return 0;
+    }
+
+    hr = pGraph->lpVtbl->AddFilter(pGraph, pNullF, L"Null Filter");
+    if(FAILED(hr)) {
+        debug("AddFilter failed\n");
+        return 0;
+    }
+
+    hr = ConnectFilters(pGraph, pGrabberF, pNullF);
+    if(FAILED(hr)) {
+        debug("ConnectFilters (2) failed\n");
+        return 0;
+    }
+
+    hr = pControl->lpVtbl->Run(pControl);
+    if(FAILED(hr)) {
+        debug("Run failed\n");
+        return 0;
+    }
+    return 1;
 }
 
 _Bool video_getframe(vpx_image_t *image)
 {
-
+    if(newframe) {
+        newframe = 0;
+        rgbtoyuv420(image->planes[0], image->planes[1], image->planes[2], frame_data, 640, 480);
+        return 1;
+    }
+    return 0;
 }
