@@ -34,33 +34,59 @@ static void button_settings_onpress(void)
 static void button_call_onpress(void)
 {
     FRIEND *f = sitem->data;
+    if(f->calling & 4) {
+        return;
+    }
 
-    switch(f->calling) {
-    case 0: {
+    switch(f->calling & 3) {
+    case CALL_NONE: {
         tox_postmessage(TOX_CALL, f - friend, 0, NULL);
         debug("Calling friend: %u\n", (uint32_t)(f - friend));
         break;
     }
 
-    case 1: {
+    case CALL_INVITED: {
         tox_postmessage(TOX_ACCEPTCALL, f->callid, 0, NULL);
         debug("Accept Call: %u\n", f->callid);
         break;
     }
 
-    case 2: {
-        //tox_postmessage(TOX_CALL, f - friend, 0, NULL);
-        //debug("Calling friend: %u\n", f - friend);
-        break;
-    }
-
-    case 3: {
+    case CALL_OK: {
         tox_postmessage(TOX_HANGUP, f->callid, 0, NULL);
         debug("Ending call: %u\n", f->callid);
         break;
     }
     }
 }
+
+static void button_video_onpress(void)
+{
+    FRIEND *f = sitem->data;
+    if(f->calling && !(f->calling & 4)) {
+        return;
+    }
+
+    switch(f->calling & 3) {
+    case CALL_NONE: {
+        tox_postmessage(TOX_CALL_VIDEO, f - friend, 0, NULL);
+        debug("Calling friend: %u\n", (uint32_t)(f - friend));
+        break;
+    }
+
+    case CALL_INVITED: {
+        tox_postmessage(TOX_ACCEPTCALL, f->callid, 1, NULL);
+        debug("Accept Call: %u\n", f->callid);
+        break;
+    }
+
+    case CALL_OK: {
+        tox_postmessage(TOX_HANGUP, f->callid, 0, NULL);
+        debug("Ending call: %u\n", f->callid);
+        break;
+    }
+    }
+}
+
 
 static void button_sendfile_onpress(void)
 {
@@ -198,10 +224,30 @@ button_call = {
     .onpress = button_call_onpress,
 },
 
-button_sendfile = {
+button_video = {
     .panel = {
         .type = PANEL_BUTTON,
         .x = -31 * SCALE,
+        .y = 5 * SCALE,
+        .width = BM_LBUTTON_WIDTH,
+        .height = BM_LBUTTON_HEIGHT,
+    },
+    .bm = BM_LBUTTON,
+    .c1 = C_GREEN,
+    .c2 = C_GREEN_LIGHT,
+    .c3 = C_GREEN_LIGHT,
+    //.bm2 = BM_FILE,
+    .bw = BM_LBICON_WIDTH,
+    .bh = BM_LBICON_HEIGHT,
+
+    .onpress = button_video_onpress,
+},
+
+
+button_sendfile = {
+    .panel = {
+        .type = PANEL_BUTTON,
+        .x = -93 * SCALE,
         .y = 5 * SCALE,
         .width = BM_LBUTTON_WIDTH,
         .height = BM_LBUTTON_HEIGHT,

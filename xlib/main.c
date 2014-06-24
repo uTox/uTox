@@ -34,7 +34,9 @@ XftColor xftcolor;
 FcCharSet *charset;
 FcFontSet *fs;
 
-Picture testpicture;
+Window video_win[256];
+
+Atom wm_protocols, wm_delete_window;
 
 uint32_t scolor;
 
@@ -647,6 +649,8 @@ int main(int argc, char *argv[])
     Atom XdndDATA = XInternAtom(display, "XdndDATA", False);
     Atom XdndActionCopy = XInternAtom(display, "XdndActionCopy", False);
 
+    wm_protocols = XInternAtom(display, "WM_PROTOCOLS", 0);
+    wm_delete_window = XInternAtom(display, "WM_DELETE_WINDOW", 0);
     /*int nvi = 0, x;
     XVisualInfo template;
     template.depth = 32;
@@ -672,6 +676,8 @@ int main(int argc, char *argv[])
     //window = XCreateSimpleWindow(display, RootWindow(display, screen), 0, 0, 800, 600, 0, BlackPixel(display, screen), WhitePixel(display, screen));
     window = XCreateWindow(display, RootWindow(display, screen), 0, 0, DEFAULT_WIDTH, DEFAULT_HEIGHT, 0, 24, InputOutput, visual, CWBackPixel | CWBorderPixel | CWEventMask, &attrib);
     drawbuf = XCreatePixmap(display, window, DEFAULT_WIDTH, DEFAULT_HEIGHT, 24);
+    XSetWMProtocols(display, window, &wm_delete_window, 1);
+
     //XSelectInput(display, window, ExposureMask | ButtonPressMask | ButtonReleaseMask | EnterWindowMask | LeaveWindowMask | PointerMotionMask | StructureNotifyMask | KeyPressMask | KeyReleaseMask);
 
     initfonts();
@@ -757,9 +763,30 @@ int main(int argc, char *argv[])
 
     while(!done) {
         XNextEvent(display, &event);
+        if(event.xany.window && event.xany.window != window) {
+            if(event.type == ClientMessage) {
+                XClientMessageEvent *ev = &event.xclient;
+                if((Atom)event.xclient.data.l[0] == wm_delete_window) {
+                    int i;
+                    for(i = 0; i != countof(friend); i++) {
+                        if(video_win[i] == ev->window) {
+                            FRIEND *f = &friend[i];
+                            tox_postmessage(TOX_HANGUP, f->callid, 0, NULL);
+                            break;
+                        }
+                    }
+                    if(i == countof(friend)) {
+                        debug("this should not happen\n");
+                    }
+                }
+            }
+            continue;
+        }
+
         switch(event.type) {
         case Expose: {
             redraw();
+            debug("expose\n");
             break;
         }
 
@@ -886,7 +913,6 @@ int main(int argc, char *argv[])
                     edit_selectall();
                 }
 
-
                 break;
             }
 
@@ -900,7 +926,7 @@ int main(int argc, char *argv[])
                     edit_char('\n', 0);
                     break;
                 }
-                
+
                 if (sym >= XK_KP_0 && sym <= XK_KP_9)
                 {
                     edit_char('0'+sym-XK_KP_0, 0);
@@ -1026,38 +1052,45 @@ int main(int argc, char *argv[])
                     void *data;
                     memcpy(&data, &ev->data.s[2], sizeof(void*));
                     tox_message(ev->message_type, ev->data.s[0], ev->data.s[1], data);
-                } else {
-                    if(ev->message_type == XdndEnter) {
-                        debug("enter\n");
-                    } else if(ev->message_type == XdndPosition) {
-                        Window src = ev->data.l[0];
-                        XEvent event = {
-                            .xclient = {
-                                .type = ClientMessage,
-                                .display = display,
-                                .window = src,
-                                .message_type = XdndStatus,
-                                .format = 32,
-                                .data = {
-                                    .l = {window, 1, 0, 0, XdndActionCopy}
-                                }
-                            }
-                        };
-
-                        XSendEvent(display, src, 0, 0, &event);
-                        //debug("position (version=%u)\n", ev->data.l[1] >> 24);
-                    } else if(ev->message_type == XdndStatus) {
-                        debug("status\n");
-                    } else if(ev->message_type == XdndDrop) {
-                        XConvertSelection(display, XdndSelection, XA_STRING, XdndDATA, window, CurrentTime);
-                        debug("drop\n");
-                    } else if(ev->message_type == XdndLeave) {
-                        debug("leave\n");
-                    } else {
-                        debug("dragshit\n");
-                    }
+                    break;
                 }
 
+                if(ev->message_type == wm_protocols) {
+                    if((Atom)event.xclient.data.l[0] == wm_delete_window) {
+                        done = 1;
+                    }
+                    break;
+                }
+
+                if(ev->message_type == XdndEnter) {
+                    debug("enter\n");
+                } else if(ev->message_type == XdndPosition) {
+                    Window src = ev->data.l[0];
+                    XEvent event = {
+                        .xclient = {
+                            .type = ClientMessage,
+                            .display = display,
+                            .window = src,
+                            .message_type = XdndStatus,
+                            .format = 32,
+                            .data = {
+                                .l = {window, 1, 0, 0, XdndActionCopy}
+                            }
+                        }
+                    };
+
+                    XSendEvent(display, src, 0, 0, &event);
+                    //debug("position (version=%u)\n", ev->data.l[1] >> 24);
+                } else if(ev->message_type == XdndStatus) {
+                    debug("status\n");
+                } else if(ev->message_type == XdndDrop) {
+                    XConvertSelection(display, XdndSelection, XA_STRING, XdndDATA, window, CurrentTime);
+                    debug("drop\n");
+                } else if(ev->message_type == XdndLeave) {
+                    debug("leave\n");
+                } else {
+                    debug("dragshit\n");
+                }
                 break;
             }
 
@@ -1074,3 +1107,46 @@ int main(int argc, char *argv[])
 
     return 0;
 }
+
+void video_frame(FRIEND *f, vpx_image_t *frame)
+{
+    uint8_t *img_data = malloc(frame->d_w * frame->d_h * 4);
+    yuv420torgb(frame, img_data);
+
+    XImage image = {
+        .width = frame->d_w,
+        .height = frame->d_h,
+        .depth = 24,
+        .bits_per_pixel = 32,
+        .format = ZPixmap,
+        .byte_order = LSBFirst,
+        .bitmap_unit = 8,
+        .bitmap_bit_order = LSBFirst,
+        .bytes_per_line = frame->d_w * 4,
+        .red_mask = 0xFF0000,
+        .green_mask = 0xFF00,
+        .blue_mask = 0xFF,
+        .data = (void*)img_data
+    };
+
+    GC gc = DefaultGC(display, screen);
+    Pixmap pixmap = XCreatePixmap(display, window, frame->d_w, frame->d_h, 24);
+    XPutImage(display, pixmap, gc, &image, 0, 0, 0, 0, frame->d_w, frame->d_h);
+    XCopyArea(display, pixmap, video_win[friend_id(f)], gc, 0, 0, frame->d_w, frame->d_h, 0, 0);
+    XFreePixmap(display, pixmap);
+    free(img_data);
+}
+
+void video_begin(FRIEND *f, uint16_t width, uint16_t height)
+{
+    Window *win = &video_win[friend_id(f)];
+    *win = XCreateSimpleWindow(display, RootWindow(display, screen), 0, 0, width, height, 0, BlackPixel(display, screen), WhitePixel(display, screen));
+    XSetWMProtocols(display, *win, &wm_delete_window, 1);
+    XMapWindow(display, *win);
+}
+
+void video_end(FRIEND *f)
+{
+    XDestroyWindow(display, video_win[friend_id(f)]);
+}
+

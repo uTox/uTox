@@ -50,6 +50,8 @@ typedef struct {
     FILE_T outgoing[16];
 } FRIEND;
 
+#define friend_id(f) (f -  friend)
+
 void friend_setname(FRIEND *f, uint8_t *name, uint16_t length);
 void friend_addmessage(FRIEND *f, void *data);
 

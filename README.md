@@ -25,11 +25,11 @@ Windows:
 
 Xlib:
 
->gcc -o uTox.o *.c -lX11 -lXft -lXrender -ltoxcore -ltoxav -ltoxdns -lopenal -pthread -lresolv -ldl -lm -lfontconfig -I/usr/include/freetype2
+>gcc -o uTox.o *.c -lX11 -lXft -lXrender -ltoxcore -ltoxav -ltoxdns -lopenal -pthread -lresolv -ldl -lm -lfontconfig -lv4lconvert -DV4L -I/usr/include/freetype2
 
 or if you built toxcore statically:
 
->gcc -o uTox.o *.c -lX11 -lXft -lXrender -ltoxcore -ltoxav -ltoxdns -lopenal -lsodium -lopus lvpx -lm -pthread -lresolv -ldl -lfontconfig --I/usr/include/freetype2
+>gcc -o uTox.o *.c -lX11 -lXft -lXrender -ltoxcore -ltoxav -ltoxdns -lopenal -lsodium -lopus lvpx -lm -pthread -lresolv -ldl -lfontconfig -lv4lconvert -DV4L --I/usr/include/freetype2
 
 ## Downloads
 

@@ -4,12 +4,35 @@
 #include <AL/al.h>
 #include <AL/alc.h>
 
-#include <tox/toxav.h>
+#ifdef V4L
+#include <linux/videodev2.h>
+#include <libv4lconvert.h>
+
+static int fd = -1;
+struct buffer {
+    void   *start;
+    size_t  length;
+};
+static struct buffer *buffers;
+static uint32_t n_buffers;
+static struct v4lconvert_data *v4lconvert_data;
+struct v4l2_format fmt, dest_fmt = {
+    //.type = V4L2_BUF_TYPE_VIDEO_CAPTURE,
+    .fmt = {
+        .pix = {
+            .pixelformat = V4L2_PIX_FMT_YVU420,
+            //.field = V4L2_FIELD_NONE,
+        },
+    },
+};
+vpx_image_t input;
+#endif
+static uint16_t video_width, video_height;
 
 #define MAX_CALLS 16
 
 static struct {
-    _Bool active;
+    volatile _Bool active, video;
 } call[MAX_CALLS];
 
 #define BUF_SIZE (1024 * 1024)
@@ -209,21 +232,6 @@ static void set_callbacks(Tox *tox)
     tox_callback_file_data(tox, callback_file_data, NULL);
 }
 
-static void set_av_callbacks(ToxAv *av)
-{
-    toxav_register_callstate_callback(callback_av_invite, av_OnInvite, av);
-    toxav_register_callstate_callback(callback_av_start, av_OnStart, av);
-    toxav_register_callstate_callback(callback_av_cancel, av_OnCancel, av);
-    toxav_register_callstate_callback(callback_av_reject, av_OnReject, av);
-    toxav_register_callstate_callback(callback_av_end, av_OnEnd, av);
-    toxav_register_callstate_callback(callback_av_ringing, av_OnRinging, av);
-    toxav_register_callstate_callback(callback_av_starting, av_OnStarting, av);
-    toxav_register_callstate_callback(callback_av_ending, av_OnEnding, av);
-    toxav_register_callstate_callback(callback_av_error, av_OnError, av);
-    toxav_register_callstate_callback(callback_av_requesttimeout, av_OnRequestTimeout, av);
-    toxav_register_callstate_callback(callback_av_peertimeout, av_OnPeerTimeout, av);
-}
-
 static _Bool load_save(Tox *tox)
 {
     uint32_t size;
@@ -302,146 +310,6 @@ static void write_save(Tox *tox)
     }
 
     free(data);
-}
-
-static void av_thread(void *args)
-{
-    ToxAv *av = args;
-    ALuint *p, *end;
-    const char *device_list;
-    _Bool record;
-
-    set_av_callbacks(av);
-
-    device_list = alcGetString(NULL, ALC_CAPTURE_DEVICE_SPECIFIER);
-    if(device_list) {
-        debug("Input Device List:\n");
-        while(*device_list) {
-            printf("%s\n", device_list);
-            device_list += strlen(device_list) + 1;
-        }
-    }
-
-    device_list = alcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER);
-    if(device_list) {
-        debug("Output Device List:\n");
-        while(*device_list) {
-            printf("%s\n", device_list);
-            device_list += strlen(device_list) + 1;
-        }
-    }
-
-    device_out = alcOpenDevice(NULL);
-    if(!device_out) {
-        printf("alcOpenDevice() failed\n");
-        return;
-    }
-
-    context = alcCreateContext(device_out, NULL);
-    if(!alcMakeContextCurrent(context)) {
-        printf("alcMakeContextCurrent() failed\n");
-        alcCloseDevice(device_out);
-        return;
-    }
-
-    device_in = alcCaptureOpenDevice(NULL, av_DefaultSettings.audio_sample_rate, AL_FORMAT_MONO16, (av_DefaultSettings.audio_frame_duration * av_DefaultSettings.audio_sample_rate * 2) / 1000);
-    if(!device_in) {
-        printf("no audio input, disabling audio input\n");
-        record = 0;
-    } else {
-        alcCaptureStart(device_in);
-        record = 1;
-    }
-
-    alListener3f(AL_POSITION, 0.0, 0.0, 0.0);
-    alListener3f(AL_VELOCITY, 0.0, 0.0, 0.0);
-
-    alGenSources(countof(source), source);
-    p = source;
-    end = p + countof(source);
-    while(p != end) {
-        ALuint s = *p++;
-        alSourcef(s, AL_PITCH, 1.0);
-        alSourcef(s, AL_GAIN, 1.0);
-        alSource3f(s, AL_POSITION, 0.0, 0.0, 0.0);
-        alSource3f(s, AL_VELOCITY, 0.0, 0.0, 0.0);
-        alSourcei(s, AL_LOOPING, AL_FALSE);
-    }
-
-    int perframe = (av_DefaultSettings.audio_frame_duration * av_DefaultSettings.audio_sample_rate) / 1000;
-    uint8_t buf[perframe * 2], dest[perframe * 2];
-
-    av_thread_run = 1;
-
-    while(av_thread_run) {
-        if(record) {
-            ALint samples;
-            alcGetIntegerv(device_in, ALC_CAPTURE_SAMPLES, sizeof(samples), &samples);
-            if(samples >= perframe) {
-                alcCaptureSamples(device_in, buf, perframe);
-
-                int i = 0;
-                while(i < MAX_CALLS) {
-                    if(call[i].active) {
-                        int r;
-                        if((r = toxav_prepare_audio_frame(av, i, dest, perframe * 2, (void*)buf, perframe)) < 0) {
-                            debug("toxav_prepare_audio_frame error %i\n", r);
-                        }
-
-                        if((r = toxav_send_audio(av, i, dest, r)) < 0) {
-                            debug("toxav_send_audio error %i %s\n", r, strerror(errno));
-                        }
-                    }
-                    i++;
-                }
-            }
-
-        }
-
-        int i = 0;
-        while(i < MAX_CALLS) {
-            if(call[i].active) {
-                int size = toxav_recv_audio(av, i, perframe, (void*)buf);
-                if(size > 0) {
-                    ALuint bufid;
-                    ALint processed;
-                    alGetSourcei(source[i], AL_BUFFERS_PROCESSED, &processed);
-
-                    if(processed) {
-                        alSourceUnqueueBuffers(source[i], 1, &bufid);
-                    } else {
-                        alGenBuffers(1, &bufid);
-                    }
-
-                    alBufferData(bufid, AL_FORMAT_MONO16, buf, size * 2, av_DefaultSettings.audio_sample_rate);
-                    alSourceQueueBuffers(source[i], 1, &bufid);
-
-                    ALint state;;
-                    alGetSourcei(source[i], AL_SOURCE_STATE, &state);
-                    if(state != AL_PLAYING) {
-                        alSourcePlay(source[i]);
-                        debug("Starting source %u\n", i);
-                    }
-                }
-            }
-            i++;
-        }
-
-        yieldcpu(5);
-    }
-
-    //missing some cleanup
-
-    if(record) {
-        alcCaptureStop(device_in);
-        alcCaptureCloseDevice(device_in);
-    }
-
-    alcCloseDevice(device_out);
-    alcMakeContextCurrent(NULL);
-    alcDestroyContext(context);
-
-    av_thread_run = 1;
 }
 
 void tox_thread(void *args)
@@ -657,14 +525,24 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint8_t msg, uint16_t param1
         int32_t id;
         toxav_call(av, &id, param1, TypeAudio, 10);
 
-        postmessage(FRIEND_CALL_RING, param1, id, NULL);
+        postmessage(FRIEND_CALL_STATUS, param1, id, (void*)CALL_RINGING);
+        break;
+    }
+
+    case TOX_CALL_VIDEO: {
+        /* param1: friend #
+         */
+        int32_t id;
+        toxav_call(av, &id, param1, TypeVideo, 10);
+
+        postmessage(FRIEND_CALL_STATUS, param1, id, (void*)CALL_RINGING_VIDEO);
         break;
     }
 
     case TOX_ACCEPTCALL: {
         /* param1: call #
          */
-        toxav_answer(av, param1, TypeAudio);
+        toxav_answer(av, param1, param2 ? TypeVideo : TypeAudio);
         break;
     }
 
@@ -972,37 +850,43 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
         break;
     }
 
-    case FRIEND_CALL_INVITE: {
+    case FRIEND_CALL_STATUS: {
+        /* param1: friend id
+           param2: call id
+           data: integer call status
+         */
         FRIEND *f = &friend[param1];
-        if(f->calling) {
-            //reject call
-        } else {
-            f->calling = 1;
-            f->callid = param2;
-            updatefriend(f);
+        uint8_t status = (size_t)data;
+        if(status == CALL_NONE && f->calling == CALL_OK_VIDEO) {
+            video_end(f);
         }
-        break;
-    }
 
-    case FRIEND_CALL_RING: {
-        FRIEND *f = &friend[param1];
-        f->calling = 2;
+        f->calling = status;
         f->callid = param2;
         updatefriend(f);
         break;
     }
 
-    case FRIEND_CALL_START: {
+    case FRIEND_CALL_START_VIDEO: {
+        /* param1: friend id
+           param2: call id
+           data: encoded width | height << 16 of video
+         */
         FRIEND *f = &friend[param1];
-        f->calling = 3;
+        f->calling = CALL_OK_VIDEO;
         updatefriend(f);
+
+        uint32_t res = (size_t)data;
+        video_begin(f, res & 0xFFFF, res >> 16);
         break;
     }
 
-    case FRIEND_CALL_END: {
-        FRIEND *f = &friend[param1];
-        f->calling = 0;
-        updatefriend(f);
+    case FRIEND_VIDEO_FRAME: {
+        /* param1: friend id
+           param2: call id
+           data: frame data
+         */
+        video_frame(&friend[param1], data);
         break;
     }
 

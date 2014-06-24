@@ -1138,3 +1138,15 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
     return DefWindowProc(hwnd, msg, wParam, lParam);
 }
+
+void video_frame(FRIEND *f, vpx_image_t *frame)
+{
+}
+
+void video_begin(FRIEND *f, uint16_t width, uint16_t height)
+{
+}
+
+void video_end(FRIEND *f)
+{
+}

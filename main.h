@@ -9,6 +9,8 @@
 #include <string.h>
 
 #include <tox/tox.h>
+#include <tox/toxav.h>
+#include <vpx/vpx_codec.h>
 
 #define debug(...) printf(__VA_ARGS__)
 #define countof(x) (sizeof(x)/sizeof(*(x)))
@@ -48,15 +50,15 @@ typedef struct msg_file MSG_FILE;
 
 typedef uint8_t char_t;
 
+#include "tox.h"
+#include "dns.h"
+#include "friend.h"
+
 #ifdef __WIN32__
 #include "win32/main.h"
 #else
 #include "xlib/main.h"
 #endif
-
-#include "tox.h"
-#include "dns.h"
-#include "friend.h"
 
 #include "ui.h"
 #include "svg.h"
@@ -213,6 +215,10 @@ void sysmsize(void);
 void sysmmini(void);
 
 void setselection(void);
+
+void video_frame(FRIEND *f, vpx_image_t *frame);
+void video_begin(FRIEND *f, uint16_t width, uint16_t height);
+void video_end(FRIEND *f);
 
 #define drawstr(x, y, str) drawtext(x, y, (uint8_t*)str, sizeof(str) - 1)
 #define drawstr_getwidth(x, y, str) drawtext_getwidth(x, y, (uint8_t*)str, sizeof(str) - 1)

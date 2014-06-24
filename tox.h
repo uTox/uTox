@@ -18,6 +18,7 @@ enum {
     TOX_SENDMESSAGE,
     TOX_SENDMESSAGEGROUP,
     TOX_CALL,
+    TOX_CALL_VIDEO,
     TOX_ACCEPTCALL,
     TOX_HANGUP,
     TOX_NEWGROUP,
@@ -54,10 +55,9 @@ enum {
     FRIEND_ONLINE,
 
     /* friend a/v */
-    FRIEND_CALL_INVITE,
-    FRIEND_CALL_START,
-    FRIEND_CALL_RING,
-    FRIEND_CALL_END,
+    FRIEND_CALL_STATUS,
+    FRIEND_CALL_START_VIDEO,
+    FRIEND_VIDEO_FRAME,
 
     /* friend file */
     FRIEND_FILE_IN_NEW,
@@ -75,6 +75,17 @@ enum {
     GROUP_PEER_NAME,
 };
 
+enum
+{
+    CALL_NONE,
+    CALL_INVITED,
+    CALL_RINGING,
+    CALL_OK,
+    CALL_NONE_VIDEO, //not used
+    CALL_INVITED_VIDEO,
+    CALL_RINGING_VIDEO,
+    CALL_OK_VIDEO,
+};
 /* toxcore thread
  */
 void tox_thread(void *args);

@@ -44,28 +44,47 @@ static void drawfriend(int x, int y, int w, int height)
     setfont(FONT_STATUS);
     drawtextrange(LIST_RIGHT + 30 * SCALE, width - 62 * SCALE, 16 * SCALE, f->status_message, f->status_length);
 
-    switch(f->calling) {
-    case 0: {
+    if(!f->calling) {
         button_call.c1 = C_GREEN;
         button_call.c2 = C_GREEN_LIGHT;
+        button_call.c3 = C_GREEN_LIGHT;
+        button_video.c1 = C_GREEN;
+        button_video.c2 = C_GREEN_LIGHT;
+        button_video.c3 = C_GREEN_LIGHT;
+
+        return;
+    }
+
+    button_call.c1 = C_GRAY;
+    button_call.c2 = C_GRAY;
+    button_call.c3 = C_GRAY;
+    button_video.c1 = C_GRAY;
+    button_video.c2 = C_GRAY;
+    button_video.c3 = C_GRAY;
+
+    BUTTON *b;
+    if(f->calling & 4) {
+        b = &button_video;
+    } else {
+        b = &button_call;
+    }
+
+    switch(f->calling & 3) {
+    case CALL_INVITED: {
+        b->c1 = C_YELLOW;
+        b->c2 = C_YELLOW_LIGHT;
         break;
     }
 
-    case 1: {
-        button_call.c1 = C_YELLOW;
-        button_call.c2 = C_YELLOW_LIGHT;
+    case CALL_RINGING: {
+        b->c1 = C_GRAY;
+        b->c2 = C_GRAY;
         break;
     }
 
-    case 2: {
-        button_call.c1 = C_GRAY;
-        button_call.c2 = C_GRAY;
-        break;
-    }
-
-    case 3: {
-        button_call.c1 = C_RED;
-        button_call.c2 = C_RED_LIGHT;
+    case CALL_OK: {
+        b->c1 = C_RED;
+        b->c2 = C_RED_LIGHT;
         break;
     }
     }
@@ -351,7 +370,7 @@ panel_item[] = {
         .disabled = 1,
         .drawfunc = drawfriend,
         .child = (PANEL*[]) {
-            (void*)&button_call, (void*)&button_sendfile,
+            (void*)&button_call, (void*)&button_video, (void*)&button_sendfile,
             (void*)&edit_msg,
             (void*)&scroll_friend,
             (void*)&messages_friend,

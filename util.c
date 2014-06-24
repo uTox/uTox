@@ -227,3 +227,136 @@ int utf8_validate(const char_t *data, int len)
 
     return a - data;
 }
+
+void yuv420torgb(vpx_image_t *img, uint8_t *out)
+{
+    const int w = img->d_w;
+    const int w2 = w / 2;
+    const int pstride = w * 4;
+    const int h = img->d_h;
+    const int h2 = h / 2;
+
+    const int strideY = img->stride[0];
+    const int strideU = img->stride[1];
+    const int strideV = img->stride[2];
+    int posy, posx;
+
+    for (posy = 0; posy < h2; posy++) {
+        uint32_t *dst = (uint32_t*)(out + pstride * (posy * 2));
+        uint32_t *dst2 = (uint32_t*)(out + pstride * (posy * 2 + 1));
+        const unsigned char *srcY = img->planes[0] + strideY * posy * 2;
+        const unsigned char *srcY2 = img->planes[0] + strideY * (posy * 2 + 1);
+        const unsigned char *srcU = img->planes[1] + strideU * posy;
+        const unsigned char *srcV = img->planes[2] + strideV * posy;
+
+        for (posx = 0; posx < w2; posx++) {
+            unsigned char Y, U, V;
+            short R, G, B;
+            short iR, iG, iB;
+
+            U = *(srcU++);
+            V = *(srcV++);
+            iR = (351 * (V - 128)) / 256;
+            iG = - (179 * (V - 128)) / 256 - (86 * (U - 128)) / 256;
+            iB = (444 * (U - 128)) / 256;
+
+            Y = *(srcY++);
+            R = Y + iR ;
+            G = Y + iG ;
+            B = Y + iB ;
+            R = (R < 0 ? 0 : (R > 255 ? 255 : R));
+            G = (G < 0 ? 0 : (G > 255 ? 255 : G));
+            B = (B < 0 ? 0 : (B > 255 ? 255 : B));
+            *dst++ = RGB(B, G, R);
+
+            Y = *(srcY2++);
+            R = Y + iR ;
+            G = Y + iG ;
+            B = Y + iB ;
+            R = (R < 0 ? 0 : (R > 255 ? 255 : R));
+            G = (G < 0 ? 0 : (G > 255 ? 255 : G));
+            B = (B < 0 ? 0 : (B > 255 ? 255 : B));
+            *dst2++ = RGB(B, G, R);
+
+            Y = *(srcY++) ;
+            R = Y + iR ;
+            G = Y + iG ;
+            B = Y + iB ;
+            R = (R < 0 ? 0 : (R > 255 ? 255 : R));
+            G = (G < 0 ? 0 : (G > 255 ? 255 : G));
+            B = (B < 0 ? 0 : (B > 255 ? 255 : B));
+            *dst++ = RGB(B, G, R);
+
+            Y = *(srcY2++);
+            R = Y + iR ;
+            G = Y + iG ;
+            B = Y + iB ;
+            R = (R < 0 ? 0 : (R > 255 ? 255 : R));
+            G = (G < 0 ? 0 : (G > 255 ? 255 : G));
+            B = (B < 0 ? 0 : (B > 255 ? 255 : B));
+            *dst2++ = RGB(B, G, R);
+        }
+    }
+}
+
+void yuv422to420(uint8_t *plane_y, uint8_t *plane_u, uint8_t *plane_v, uint8_t *input, uint16_t width, uint16_t height)
+{
+    uint8_t *end = input + width * height * 2;
+    while(input != end) {
+        uint8_t *line_end = input + width * 2;
+        while(input != line_end) {
+            *plane_y++ = *input++;
+            *plane_v++ = *input++;
+            *plane_y++ = *input++;
+            *plane_u++ = *input++;
+        }
+
+        line_end = input + width * 2;
+        while(input != line_end) {
+            *plane_y++ = *input++;
+            input++;//u
+            *plane_y++ = *input++;
+            input++;//v
+        }
+
+    }
+}
+
+void rgbtoyuv420(uint8_t *plane_y, uint8_t *plane_u, uint8_t *plane_v, uint8_t *rgb, uint16_t width, uint16_t height)
+{
+    size_t line, x;
+    for( line = 0; line < height; ++line )
+    {
+        if( !(line % 2) )
+        {
+            for( x = 0; x < width; x += 2 )
+            {
+                uint8_t r = *rgb++;
+                uint8_t g = *rgb++;
+                uint8_t b = *rgb++;
+
+                *plane_y++ = ((66*r + 129*g + 25*b) >> 8) + 16;
+
+                *plane_u++ = ((-38*r + -74*g + 112*b) >> 8) + 128;
+                *plane_v++ = ((112*r + -94*g + -18*b) >> 8) + 128;
+
+                r = *rgb++;
+                g = *rgb++;
+                b = *rgb++;
+
+                *plane_y++ = ((66*r + 129*g + 25*b) >> 8) + 16;
+            }
+        }
+        else
+        {
+            for( x = 0; x < width; x += 1 )
+            {
+                uint8_t r = *rgb++;
+                uint8_t g = *rgb++;
+                uint8_t b = *rgb++;
+
+                *plane_y++ = ((66*r + 129*g + 25*b) >> 8) + 16;
+            }
+        }
+    }
+}
