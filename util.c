@@ -267,7 +267,7 @@ void yuv420torgb(vpx_image_t *img, uint8_t *out)
             R = (R < 0 ? 0 : (R > 255 ? 255 : R));
             G = (G < 0 ? 0 : (G > 255 ? 255 : G));
             B = (B < 0 ? 0 : (B > 255 ? 255 : B));
-            *dst++ = RGB(R, G, B);
+            *dst++ = B << 16 | G << 8 | R;
 
             Y = *(srcY2++);
             R = Y + iR ;
@@ -276,7 +276,7 @@ void yuv420torgb(vpx_image_t *img, uint8_t *out)
             R = (R < 0 ? 0 : (R > 255 ? 255 : R));
             G = (G < 0 ? 0 : (G > 255 ? 255 : G));
             B = (B < 0 ? 0 : (B > 255 ? 255 : B));
-            *dst2++ = RGB(R, G, B);
+            *dst2++ = B << 16 | G << 8 | R;
 
             Y = *(srcY++) ;
             R = Y + iR ;
@@ -285,7 +285,7 @@ void yuv420torgb(vpx_image_t *img, uint8_t *out)
             R = (R < 0 ? 0 : (R > 255 ? 255 : R));
             G = (G < 0 ? 0 : (G > 255 ? 255 : G));
             B = (B < 0 ? 0 : (B > 255 ? 255 : B));
-            *dst++ = RGB(R, G, B);
+            *dst++ = B << 16 | G << 8 | R;
 
             Y = *(srcY2++);
             R = Y + iR ;
@@ -294,7 +294,7 @@ void yuv420torgb(vpx_image_t *img, uint8_t *out)
             R = (R < 0 ? 0 : (R > 255 ? 255 : R));
             G = (G < 0 ? 0 : (G > 255 ? 255 : G));
             B = (B < 0 ? 0 : (B > 255 ? 255 : B));
-            *dst2++ = RGB(R, G, B);
+            *dst2++ = B << 16 | G << 8 | R;
         }
     }
 }

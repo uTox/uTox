@@ -1123,9 +1123,9 @@ void video_frame(FRIEND *f, vpx_image_t *frame)
         .bitmap_unit = 8,
         .bitmap_bit_order = LSBFirst,
         .bytes_per_line = frame->d_w * 4,
-        .red_mask = 0xFF,
+        .red_mask = 0xFF0000,
         .green_mask = 0xFF00,
-        .blue_mask = 0xFF0000,
+        .blue_mask = 0xFF,
         .data = (void*)img_data
     };
 
