@@ -1,7 +1,8 @@
 CFLAGS = $(shell pkg-config --cflags freetype2 x11 xft openal)
 CFLAGS += -g -pthread -std=gnu99 -DV4L
 LDFLAGS = $(shell pkg-config --libs freetype2 x11 xft openal)
-LDFLAGS += -ltoxcore -ltoxav -ltoxdns -lresolv -ldl -lm -lfontconfig -lXrender -lv4lconvert
+LDFLAGS += -lX11 -lXft -lXrender -ltoxcore -ltoxav -ltoxdns -lopenal -pthread -lresolv -ldl -lm -lfontconfig -lv4lconvert -lvpx -DV4L
+
 DESTDIR=/usr/local
 
 SRC = $(wildcard *.c)
