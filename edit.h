@@ -14,6 +14,7 @@ struct edit {
     _Bool multiline, mouseover;
     uint16_t mouseover_char, length, maxlength, width;
     EDIT_CHANGE *current, *next, *last;
+    SCROLLABLE *scroll;
     char_t *data;
     void (*onenter)(void);
     void (*ontab)(void);

@@ -345,7 +345,7 @@ static void deleteitem(ITEM *i)
 
         tox_postmessage(TOX_LEAVEGROUP, (g - group), 0, NULL);
 
-        EDIT_CHANGE *p = f->last;
+        EDIT_CHANGE *p = g->last;
         while(p) {
             EDIT_CHANGE *temp = p->last;
             p = p->last;

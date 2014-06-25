@@ -151,6 +151,45 @@ uint16_t hittextmultiline(int mx, int right, int my, int height, uint16_t linehe
     return (b - str) + fit;
 }
 
+int text_height(int right, uint16_t lineheight, char_t *str, uint16_t length)
+{
+    int y = 0, x = 0;
+    char_t *a = str, *b = str, *end = str + length;
+    while(1) {
+        if(a == end || *a == '\n' || *a == ' ') {
+            int count = a - b, w = textwidth(b, a - b);
+            if(x + w > right) {
+                if(x != 0 || *a == '\n') {
+                    y += lineheight;
+                    int l = utf8_len(b);
+                    count -= l;
+                    b += l;
+                }
+                x = 0;
+                w = textwidth(b, count);
+            }
+
+            x += w;
+            b = a;
+
+            if(a == end) {
+                break;
+            }
+
+            if(*a == '\n') {
+                b += utf8_len(b);
+                y += lineheight;
+                x = 0;
+            }
+        }
+        a += utf8_len(a);
+    }
+
+    y += lineheight;
+
+    return y;
+}
+
 static void textxy(int width, uint16_t p, uint16_t lineheight, char_t *str, uint16_t length, int *outx, int *outy)
 {
     int x = 0, y = 0;

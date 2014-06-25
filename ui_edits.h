@@ -76,6 +76,20 @@ static void edit_msg_onenter(void)
     edit_msg.length = 0;
 }
 
+SCROLLABLE edit_addmsg_scroll = {
+    .panel = {
+        .type = PANEL_SCROLLABLE,
+    },
+    .color = C_SCROLL,
+},
+
+edit_msg_scroll = {
+    .panel = {
+        .type = PANEL_SCROLLABLE,
+    },
+    .color = C_SCROLL,
+};
+
 EDIT edit_name = {
     .panel = {
         .type = PANEL_EDIT,
@@ -120,9 +134,10 @@ edit_addmsg = {
         .x = 5 * SCALE,
         .y = SCALE * 38,
         .height = SCALE * 42,
-        .width = -SCROLL_WIDTH - 5 * SCALE
+        .width = -SCROLL_WIDTH - 5 * SCALE,
     },
     .multiline = 1,
+    .scroll = &edit_addmsg_scroll,
     .maxlength = sizeof(edit_addmsg_data),
     .data = edit_addmsg_data,
 },
@@ -133,9 +148,10 @@ edit_msg = {
         .x = 5 * SCALE,
         .y = -47 * SCALE,
         .height =  42 * SCALE,
-        .width = - 5 * SCALE
+        .width = - 5 * SCALE,
     },
     .multiline = 1,
+    .scroll = &edit_msg_scroll,
     .maxlength = sizeof(edit_msg_data),
     .data = edit_msg_data,
     .onenter = edit_msg_onenter,

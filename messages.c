@@ -1,44 +1,5 @@
 #include "main.h"
 
-static int heightmsg(char_t *str, int right, uint16_t length)
-{
-    int y = 0, x = 0;
-    char_t *a = str, *b = str, *end = str + length;
-    while(1) {
-        if(a == end || *a == '\n' || *a == ' ') {
-            int count = a - b, w = textwidth(b, a - b);
-            if(x + w > right) {
-                if(x != 0 || *a == '\n') {
-                    y += font_msg_lineheight;
-                    int l = utf8_len(b);
-                    count -= l;
-                    b += l;
-                }
-                x = 0;
-                w = textwidth(b, count);
-            }
-
-            x += w;
-            b = a;
-
-            if(a == end) {
-                break;
-            }
-
-            if(*a == '\n') {
-                b += utf8_len(b);
-                y += font_msg_lineheight;
-                x = 0;
-            }
-        }
-        a += utf8_len(a);
-    }
-
-    y += font_msg_lineheight;
-
-    return y;
-}
-
 void messages_draw(MESSAGES *m, int x, int y, int width, int height)
 {
     setcolor(0);
@@ -559,7 +520,7 @@ static int msgheight(MESSAGE *msg, int width)
     case 1:
     case 2:
     case 3: {
-        return heightmsg(msg->msg, width - MESSAGES_X - TIME_WIDTH, msg->length) + MESSAGES_SPACING;
+        return text_height(width - MESSAGES_X - TIME_WIDTH, font_msg_lineheight, msg->msg, msg->length) + MESSAGES_SPACING;
     }
 
     case 6:

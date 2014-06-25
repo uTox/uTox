@@ -19,8 +19,15 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
     setfont(FONT_TEXT);
     setcolor(COLOR_TEXT);
 
+    if(edit->multiline) {
+        SCROLLABLE *scroll = edit->scroll;
+        scroll->content_height = text_height(width - 4 * SCALE - SCROLL_WIDTH, font_small_lineheight, edit->data, edit->length);
+        scroll_draw(scroll, x - 1, y + 1, width, height - 2);
+        y -= scroll_gety(scroll, height - 4 * SCALE);
+    }
+
     _Bool a = (edit == active_edit);
-    drawtextmultiline(x + 2 * SCALE, x + width - 2 * SCALE, y + 2 * SCALE, font_small_lineheight, edit->data, edit->length,
+    drawtextmultiline(x + 2 * SCALE, x + width - 2 * SCALE - (edit->multiline ? SCROLL_WIDTH : 0), y + 2 * SCALE, font_small_lineheight, edit->data, edit->length,
                       a ? edit_sel.start : 0xFFFF, a ? edit_sel.length : 0xFFFF, edit->multiline);
 }
 
@@ -28,7 +35,7 @@ _Bool edit_mmove(EDIT *edit, int x, int y, int dy, int width, int height)
 {
     _Bool redraw = 0;
 
-    _Bool mouseover = inrect(x, y, 0, 0, width, height);
+    _Bool mouseover = inrect(x, y, 0, 0, width - (edit->multiline ? SCROLL_WIDTH : 0), height);
     if(mouseover) {
         overtext = 1;
     }
@@ -39,9 +46,14 @@ _Bool edit_mmove(EDIT *edit, int x, int y, int dy, int width, int height)
         }
     }
 
+    if(edit->multiline) {
+        redraw |= scroll_mmove(edit->scroll, x - 1, y + 1, dy, width, height - 2);
+        y += scroll_gety(edit->scroll, height);
+    }
+
     if(edit == active_edit && edit_select) {
         setfont(FONT_TEXT);
-        edit_sel.p2 = hittextmultiline(x - 2 * SCALE, width - 4 * SCALE, y - 2 * SCALE, height, font_small_lineheight, edit->data, edit->length, edit->multiline);
+        edit_sel.p2 = hittextmultiline(x - 2 * SCALE, width - 4 * SCALE - (edit->multiline ? SCROLL_WIDTH : 0), y - 2 * SCALE, INT_MAX, font_small_lineheight, edit->data, edit->length, edit->multiline);
 
         uint16_t start, length;
         if(edit_sel.p2 > edit_sel.p1) {
@@ -60,7 +72,7 @@ _Bool edit_mmove(EDIT *edit, int x, int y, int dy, int width, int height)
         }
     } else if(mouseover) {
         setfont(FONT_TEXT);
-        edit->mouseover_char = hittextmultiline(x - 2 * SCALE, width - 4 * SCALE, y - 2 * SCALE, height, font_small_lineheight, edit->data, edit->length, edit->multiline);
+        edit->mouseover_char = hittextmultiline(x - 2 * SCALE, width - 4 * SCALE - (edit->multiline ? SCROLL_WIDTH : 0), y - 2 * SCALE, INT_MAX, font_small_lineheight, edit->data, edit->length, edit->multiline);
     }
 
     return redraw;
@@ -70,6 +82,12 @@ _Bool edit_mdown(EDIT *edit)
 {
     if(edit->mouseover_char > edit->length) {
         edit->mouseover_char = edit->length;
+    }
+
+    if(edit->multiline) {
+        if(scroll_mdown(edit->scroll)) {
+            return 1;
+        }
     }
 
     if(edit->mouseover) {
@@ -144,11 +162,20 @@ _Bool edit_mright(EDIT *edit)
 
 _Bool edit_mwheel(EDIT *edit, int height, double d)
 {
+    if(edit->multiline) {
+        return scroll_mwheel(edit->scroll, height - SCALE * 4, d);
+    }
     return 0;
 }
 
 _Bool edit_mup(EDIT *edit)
 {
+    if(edit->multiline) {
+        if(scroll_mup(edit->scroll)) {
+            return 1;
+        }
+    }
+
     if(edit_select) {
         edit_select = 0;
     }
@@ -358,6 +385,24 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
                 edit_sel.p1 = edit_sel.p2;
             }
             updatesel();
+            break;
+        }
+
+        case KEY_PAGEUP: {
+            if(!edit->multiline) {
+                break;
+            }
+
+            edit->scroll->d = 0.0;
+            break;
+        }
+
+        case KEY_PAGEDOWN: {
+            if(!edit->multiline) {
+                break;
+            }
+
+            edit->scroll->d = 1.0;
             break;
         }
 

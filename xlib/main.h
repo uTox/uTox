@@ -20,3 +20,5 @@
 #define KEY_HOME XK_Home
 #define KEY_UP XK_Up
 #define KEY_DOWN XK_Down
+#define KEY_PAGEUP XK_Page_Up
+#define KEY_PAGEDOWN XK_Page_Down

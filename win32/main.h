@@ -12,3 +12,5 @@
 #define KEY_HOME VK_HOME
 #define KEY_UP VK_UP
 #define KEY_DOWN VK_DOWN
+#define KEY_PAGEUP VK_PRIOR
+#define KEY_PAGEDOWN VK_NEXT
