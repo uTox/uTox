@@ -581,3 +581,40 @@ void message_add(MESSAGES *m, MESSAGE *msg, MSG_DATA *p)
 
     message_setheight(m, msg, p);
 }
+
+_Bool messages_char(uint32_t ch)
+{
+    MESSAGES *m;
+    if(sitem->item == ITEM_FRIEND) {
+        m = &messages_friend;
+    } else if(sitem->item == ITEM_GROUP) {
+        m = &messages_group;
+    } else {
+        return 0;
+    }
+
+    switch(ch) {
+        //!TODO: not constant 0.25
+        case KEY_PAGEUP: {
+            SCROLLABLE *scroll = m->panel.content_scroll;
+            scroll->d -= 0.25;
+            if(scroll->d < 0.0) {
+                scroll->d = 0.0;
+            }
+            redraw();
+            return 1;
+        }
+
+        case KEY_PAGEDOWN: {
+            SCROLLABLE *scroll = m->panel.content_scroll;
+            scroll->d += 0.25;
+            if(scroll->d > 1.0) {
+                scroll->d = 1.0;
+            }
+            redraw();
+            return 1;
+        }
+    }
+
+    return 0;
+}

@@ -173,6 +173,8 @@ _Bool doevent(void)
             break;
         }
 
+        messages_char(sym);
+
         if(ev->state & 4) {
             if(sym == 'c') {
                 if(sitem->item == ITEM_FRIEND) {

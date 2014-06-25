@@ -40,5 +40,7 @@ _Bool messages_mleave(MESSAGES *m);
 
 int messages_selection(MESSAGES *m, void *data, uint32_t len);
 
+_Bool messages_char(uint32_t ch);
+
 void messages_updateheight(MESSAGES *m) ;
 void message_add(MESSAGES *m, MESSAGE *msg, MSG_DATA *p);

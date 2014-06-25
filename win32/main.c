@@ -943,10 +943,12 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
                 }
             }
 
-            if(control || (wParam < 'A' || wParam > 'Z')) {
+            if(control || (wParam < 'A' || wParam > 'Z') && wParam != VK_RETURN) {
                 edit_char(wParam, 1, (control << 2) | shift);
             }
         } else {
+            messages_char(wParam);
+
             switch(wParam) {
             case VK_DELETE: {
                 list_deletesitem();
@@ -958,11 +960,11 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
         return 0;
     }
 
-    case WM_UNICHAR: {
+    case WM_UNICHAR:
         if(wParam == UNICODE_NOCHAR) {
             return 1;
         }
-    case WM_CHAR:
+    case WM_CHAR: {
         if(edit_active()) {
             if(wParam == KEY_RETURN && (GetKeyState(VK_SHIFT) & 0x80)) {
                 wParam = '\n';
