@@ -229,6 +229,8 @@ static _Bool load_save(Tox *tox)
         FRIEND *f = &friend[i];
         uint8_t name[128];
 
+        f->msg.scroll = 1.0;
+
         tox_get_client_id(tox, i, f->cid);
 
         size = tox_get_name(tox, i, name);
@@ -745,6 +747,8 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
 
             FRIEND *f = &friend[param2];
             friends++;
+
+            f->msg.scroll = 1.0;
 
             memcpy(f->cid, data, sizeof(f->cid));
 
