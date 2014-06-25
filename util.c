@@ -228,6 +228,43 @@ int utf8_validate(const char_t *data, int len)
     return a - data;
 }
 
+uint8_t unicode_to_utf8_len(uint32_t ch)
+{
+    if (ch > 0x1FFFFF) {
+        return 0;
+    }
+    return 4 - (ch <= 0xFFFF) - (ch <= 0x7FF) - (ch <= 0x7F);
+}
+
+void unicode_to_utf8(uint32_t ch, char_t *dst)
+{
+    uint32_t HB = (uint32_t)0x80;
+    uint32_t SB = (uint32_t)0x3F;
+    if (ch <= 0x7F) {
+        dst[0] = (uint8_t)ch;
+        return;//1;
+    }
+    if (ch <= 0x7FF) {
+        dst[0] = (uint8_t)((ch >> 6) | (uint32_t)0xC0);
+        dst[1] = (uint8_t)((ch & SB) | HB);
+        return;//2;
+    }
+    if (ch <= 0xFFFF) {
+        dst[0] = (uint8_t)((ch >> 12) | (uint32_t)0xE0);
+        dst[1] = (uint8_t)(((ch >> 6) & SB) | HB);
+        dst[2] = (uint8_t)((ch & SB) | HB);
+        return;//3;
+    }
+    if (ch <= 0x1FFFFF) {
+        dst[0] = (uint8_t)((ch >> 18) | (uint32_t)0xF0);
+        dst[1] = (uint8_t)(((ch >> 12) & SB) | HB);
+        dst[2] = (uint8_t)(((ch >> 6) & SB) | HB);
+        dst[3] = (uint8_t)((ch & SB) | HB);
+        return;//4;
+    }
+    return;// 0;
+}
+
 void yuv420torgb(vpx_image_t *img, uint8_t *out)
 {
     const int w = img->d_w;

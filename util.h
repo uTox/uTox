@@ -43,6 +43,11 @@ uint8_t utf8_unlen(char_t *data);
  */
 int utf8_validate(const char_t *data, int len);
 
+/*
+ */
+uint8_t unicode_to_utf8_len(uint32_t ch);
+void unicode_to_utf8(uint32_t ch, char_t *dst);
+
 /* color format conversion functions
  *
  */

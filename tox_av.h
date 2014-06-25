@@ -239,10 +239,10 @@ static void av_thread(void *args)
                             continue;
                         }
 
+                        debug("%u\n", len);
+
                         if((r = toxav_send_video(av, i, (void*)lbuffer, len)) < 0) {
                             debug("toxav_send_video error %i %s\n", r, strerror(errno));
-                        } else {
-                            debug("sent frame %u\n", len);
                         }
                     }
                 }

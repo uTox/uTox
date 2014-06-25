@@ -35,16 +35,9 @@ typedef struct
     double scroll;
 }MSG_DATA;
 
-typedef struct
-{
-    uint32_t peers;
-    uint16_t name_length, topic_length, typed_length;
-    uint8_t name[128], topic[128]; //static sizes for now
-    uint8_t *typed;
-    uint8_t *peername[256];
-
-    MSG_DATA msg;
-}GROUPCHAT;
+typedef struct groupchat GROUPCHAT;
+typedef struct friend FRIEND;
+typedef struct edit_change EDIT_CHANGE;
 
 typedef struct msg_file MSG_FILE;
 
@@ -71,6 +64,19 @@ typedef uint8_t char_t;
 
 #include "text.h"
 #include "util.h"
+
+struct groupchat
+{
+    uint32_t peers;
+    uint16_t name_length, topic_length, typed_length;
+    uint8_t name[128], topic[128]; //static sizes for now
+    uint8_t *typed;
+    uint8_t *peername[256];
+
+    EDIT_CHANGE *current, *next, *last;
+
+    MSG_DATA msg;
+};
 
 volatile _Bool tox_thread_init, tox_done;
 _Bool tox_connected;

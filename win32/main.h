@@ -7,3 +7,8 @@
 #define KEY_LEFT VK_LEFT
 #define KEY_RIGHT VK_RIGHT
 #define KEY_TAB VK_TAB
+#define KEY_DEL VK_DELETE
+#define KEY_END VK_END
+#define KEY_HOME VK_HOME
+#define KEY_UP VK_UP
+#define KEY_DOWN VK_DOWN

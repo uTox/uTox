@@ -112,6 +112,10 @@ static void selectitem(ITEM *i)
         memcpy(f->typed, edit_msg.data, edit_msg.length);
 
         f->msg.scroll = messages_friend.panel.content_scroll->d;
+
+        f->current = edit_msg.current;
+        f->next = edit_msg.next;
+        f->last = edit_msg.last;
     }
 
     if(sitem->item == ITEM_GROUP) {
@@ -123,6 +127,10 @@ static void selectitem(ITEM *i)
         memcpy(g->typed, edit_msg.data, edit_msg.length);
 
         g->msg.scroll = messages_group.panel.content_scroll->d;
+
+        g->current = edit_msg.current;
+        g->next = edit_msg.next;
+        g->last = edit_msg.last;
     }
 
     if(sitem->item == ITEM_SETTINGS) {
@@ -147,6 +155,10 @@ static void selectitem(ITEM *i)
         messages_friend.panel.content_scroll->d = f->msg.scroll;
 
         f->msg.id = f - friend;
+
+        edit_msg.current = f->current;
+        edit_msg.next = f->next;
+        edit_msg.last = f->last;
     }
 
     if(i->item == ITEM_GROUP) {
@@ -163,6 +175,10 @@ static void selectitem(ITEM *i)
         messages_group.panel.content_scroll->d = g->msg.scroll;
 
         g->msg.id = g - group;
+
+        edit_msg.current = g->current;
+        edit_msg.next = g->next;
+        edit_msg.last = g->last;
     }
 
     if(i->item == ITEM_SETTINGS) {
@@ -299,6 +315,13 @@ static void deleteitem(ITEM *i)
 
         tox_postmessage(TOX_DELFRIEND, (f - friend), 0, NULL);
 
+        EDIT_CHANGE *p = f->last;
+        while(p) {
+            EDIT_CHANGE *temp = p->last;
+            p = p->last;
+            free(temp);
+        }
+
         free(f->name);
         free(f->status_message);
         free(f->typed);
@@ -321,6 +344,13 @@ static void deleteitem(ITEM *i)
         GROUPCHAT *g = i->data;
 
         tox_postmessage(TOX_LEAVEGROUP, (g - group), 0, NULL);
+
+        EDIT_CHANGE *p = f->last;
+        while(p) {
+            EDIT_CHANGE *temp = p->last;
+            p = p->last;
+            free(temp);
+        }
 
         uint8_t **np = g->peername;
         int i = 0;

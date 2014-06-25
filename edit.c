@@ -11,6 +11,8 @@ static _Bool edit_select;
 
 void edit_draw(EDIT *edit, int x, int y, int width, int height)
 {
+    edit->width = width -4 * SCALE;
+
     framerect(x, y, x + width, y + height, (edit == active_edit) ? BLUE : (edit->mouseover ? C_GRAY2 : C_GRAY));
     drawrect(x + 1, y + 1, x + width - 1, y + height - 1, WHITE);
 
@@ -39,20 +41,25 @@ _Bool edit_mmove(EDIT *edit, int x, int y, int dy, int width, int height)
 
     if(edit == active_edit && edit_select) {
         setfont(FONT_TEXT);
-
         edit_sel.p2 = hittextmultiline(x - 2 * SCALE, width - 4 * SCALE, y - 2 * SCALE, height, font_small_lineheight, edit->data, edit->length, edit->multiline);
+
+        uint16_t start, length;
         if(edit_sel.p2 > edit_sel.p1) {
-            edit_sel.start = edit_sel.p1;
-            edit_sel.length = edit_sel.p2 - edit_sel.p1;
+            start = edit_sel.p1;
+            length = edit_sel.p2 - edit_sel.p1;
         } else {
-            edit_sel.start = edit_sel.p2;
-            edit_sel.length = edit_sel.p1 - edit_sel.p2;
+            start = edit_sel.p2;
+            length = edit_sel.p1 - edit_sel.p2;
         }
 
-        redraw = 1;
+        if(start != edit_sel.start || length != edit_sel.length) {
+            edit_sel.start = start;
+            edit_sel.length = length;
+            setselection();
+            redraw = 1;
+        }
     } else if(mouseover) {
         setfont(FONT_TEXT);
-
         edit->mouseover_char = hittextmultiline(x - 2 * SCALE, width - 4 * SCALE, y - 2 * SCALE, height, font_small_lineheight, edit->data, edit->length, edit->multiline);
     }
 
@@ -78,6 +85,8 @@ _Bool edit_mdown(EDIT *edit)
 
     return 0;
 }
+
+
 
 _Bool edit_dclick(EDIT *edit, _Bool triclick)
 {
@@ -108,6 +117,10 @@ _Bool edit_dclick(EDIT *edit, _Bool triclick)
 
 _Bool edit_mright(EDIT *edit)
 {
+    if(edit->mouseover_char > edit->length) {
+        edit->mouseover_char = edit->length;
+    }
+
     if(edit->mouseover) {
         EDIT *active = active_edit;
         if(active != edit) {
@@ -153,46 +166,84 @@ _Bool edit_mleave(EDIT *edit)
     return 0;
 }
 
-static uint8_t unicode_to_utf8(uint32_t ch, char_t *dst, uint16_t *len)
+static void edit_redraw(void)
 {
-    if (!dst) {
-        if (ch > 0x1FFFFF) {
-            return 0;
-        }
-        return 4 - (ch <= 0xFFFF) - (ch <= 0x7FF) - (ch <= 0x7F);
-    }
-    uint32_t HB = (uint32_t)0x80;
-    uint32_t SB = (uint32_t)0x3F;
-    if (ch <= 0x7F) {
-        dst[0] = (uint8_t)ch;
-        *len += 1;
-        return 1;
-    }
-    if (ch <= 0x7FF) {
-        dst[0] = (uint8_t)((ch >> 6) | (uint32_t)0xC0);
-        dst[1] = (uint8_t)((ch & SB) | HB);
-        *len += 2;
-        return 2;
-    }
-    if (ch <= 0xFFFF) {
-        dst[0] = (uint8_t)((ch >> 12) | (uint32_t)0xE0);
-        dst[1] = (uint8_t)(((ch >> 6) & SB) | HB);
-        dst[2] = (uint8_t)((ch & SB) | HB);
-        *len += 3;
-        return 3;
-    }
-    if (ch <= 0x1FFFFF) {
-        dst[0] = (uint8_t)((ch >> 18) | (uint32_t)0xF0);
-        dst[1] = (uint8_t)(((ch >> 12) & SB) | HB);
-        dst[2] = (uint8_t)(((ch >> 6) & SB) | HB);
-        dst[3] = (uint8_t)((ch & SB) | HB);
-        *len += 4;
-        return 4;
-    }
-    return 0;
+    redraw();
 }
 
-void edit_char(uint32_t ch, _Bool control)
+static uint16_t edit_change_do(EDIT *edit, EDIT_CHANGE *c)
+{
+    uint16_t r = c->start;
+    if(c->remove) {
+        memmove(edit->data + c->start + c->length, edit->data + c->start, c->length);
+        memcpy(edit->data + c->start, c->data, c->length);
+        edit->length += c->length;
+        r += c->length;
+    } else {
+        memmove(edit->data + c->start, edit->data + c->start + c->length, c->length);
+        edit->length -= c->length;
+    }
+
+    c->remove = !c->remove;
+    return r;
+}
+
+static void edit_do(EDIT *edit, uint16_t start, uint16_t length, _Bool remove)
+{
+    EDIT_CHANGE *new;
+
+    new = malloc(sizeof(EDIT_CHANGE) + length);
+    new->remove = remove;
+    new->start = start;
+    new->length = length;
+    memcpy(new->data, edit->data + start, length);
+
+    new->last = edit->current;
+    new->next = NULL;
+
+    if(edit->current) {
+        if(edit->current->next) {
+            EDIT_CHANGE *p = edit->last;
+            while(p != edit->current) {
+                EDIT_CHANGE *temp = p;
+                p = p->last;
+                free(temp);
+            }
+        }
+        edit->current->next = new;
+    }
+
+    edit->current = edit->last = new;
+    edit->next = NULL;
+}
+
+static uint16_t edit_undo(EDIT *edit)
+{
+    uint16_t r = 0xFFFF;
+    EDIT_CHANGE *cur = edit->current;
+    if(cur) {
+        r = edit_change_do(edit, cur);
+        edit->current = cur->last;
+        edit->next = cur;
+    }
+    return r;
+}
+
+static uint16_t edit_redo(EDIT *edit)
+{
+    uint16_t r = 0xFFFF;
+    if(edit->next) {
+        r = edit_change_do(edit, edit->next);
+        edit->current = edit->next;
+        edit->next = edit->next->next;
+    }
+    return r;
+}
+
+#define updatesel() if(edit_sel.p1 <= edit_sel.p2) {edit_sel.start = edit_sel.p1; edit_sel.length = edit_sel.p2 - edit_sel.p1;} \
+                    else {edit_sel.start = edit_sel.p2; edit_sel.length = edit_sel.p1 - edit_sel.p2;}
+
+void edit_char(uint32_t ch, _Bool control, uint8_t flags)
 {
     EDIT *edit = active_edit;
 
@@ -202,37 +253,161 @@ void edit_char(uint32_t ch, _Bool control)
             if(edit_sel.length == 0) {
                 if(edit_sel.start != 0) {
                     uint8_t len = utf8_unlen(edit->data + edit_sel.start);
-                    memmove(edit->data + edit_sel.start - len, edit->data + edit_sel.start,
-                            (edit->length - edit_sel.start) * sizeof(char_t));
+                    edit_do(edit, edit_sel.start - len, len, 1);
+                    memmove(edit->data + edit_sel.start - len, edit->data + edit_sel.start, edit->length - edit_sel.start);
                     edit->length -= len;
 
                     edit_sel.start -= len;
+                    edit_sel.p1 = edit_sel.start;
+                    edit_sel.p2 = edit_sel.start;
                 }
+                break;
             } else {
-                edit_delete();
+                /* fall through to KEY_DEL */
             }
+        }
+
+        case KEY_DEL: {
+            uint8_t *p = active_edit->data + edit_sel.start;
+            if(edit_sel.length) {
+                edit_do(edit, edit_sel.start, edit_sel.length, 1);
+                memmove(p, p + edit_sel.length, active_edit->length - (edit_sel.start + edit_sel.length));
+                active_edit->length -= edit_sel.length;
+            }
+            else if(edit_sel.start < active_edit->length) {
+                uint8_t len = utf8_len(p);
+                edit_do(edit, edit_sel.start, len, 1);
+                memmove(p, p + len, active_edit->length - edit_sel.start - len);
+                active_edit->length -= len;
+            }
+            edit_sel.p1 = edit_sel.start;
+            edit_sel.p2 = edit_sel.start;
+            edit_sel.length = 0;
             break;
         }
 
         case KEY_LEFT: {
-            if(edit_sel.start != 0) {
-                edit_sel.start -= utf8_unlen(edit->data + edit_sel.start);
+            uint16_t p = edit_sel.p2;
+            if(p != 0) {
+                do {
+                    p -= utf8_unlen(&edit->data[p]);
+                } while((flags & 4) && p != 0 && edit->data[p - 1] != ' ' && edit->data[p - 1] != '\n');
             }
-            edit_sel.length = 0;
+
+            if(flags & 1) {
+                edit_sel.p2 = p;
+                updatesel();
+            } else {
+                if(edit_sel.length) {
+                    p = edit_sel.start;
+                }
+                edit_sel.p1 = p;
+                edit_sel.p2 = p;
+                edit_sel.start = p;
+                edit_sel.length = 0;
+            }
             break;
         }
 
         case KEY_RIGHT: {
-            if(edit_sel.start != edit->length) {
-                edit_sel.start += utf8_len(edit->data + edit_sel.start);
+            uint16_t p = edit_sel.p2;
+            do {
+                if(p == edit->length) {
+                    break;
+                }
+                p += utf8_len(&edit->data[p]);
+            } while((flags & 4) && edit->data[p] != ' ' && edit->data[p] != '\n');
+
+            if(flags & 1) {
+                edit_sel.p2 = p;
+                updatesel();
+            } else {
+                if(edit_sel.length) {
+                    p = edit_sel.start + edit_sel.length;
+                }
+                edit_sel.p1 = p;
+                edit_sel.p2 = p;
+                edit_sel.start = p;
+                edit_sel.length = 0;
             }
-            edit_sel.length = 0;
+            break;
+        }
+
+        case KEY_UP: {
+            if(!edit->multiline) {
+                break;
+            }
+
+            setfont(FONT_TEXT);
+            edit_sel.p2 = text_lineup(edit->width, edit_sel.p2, font_small_lineheight, edit->data, edit->length);
+            if(!(flags & 1)) {
+                edit_sel.p1 = edit_sel.p2;
+            }
+            updatesel();
+            break;
+        }
+
+        case KEY_DOWN: {
+            if(!edit->multiline) {
+                break;
+            }
+
+            setfont(FONT_TEXT);
+            edit_sel.p2 = text_linedown(edit->width, edit_sel.p2, font_small_lineheight, edit->data, edit->length);
+            if(!(flags & 1)) {
+                edit_sel.p1 = edit_sel.p2;
+            }
+            updatesel();
+            break;
+        }
+
+        case 'A':
+        case 'a': {
+            edit_sel.p1 = 0;
+            edit_sel.p2 = active_edit->length;
+            edit_sel.start = 0;
+            edit_sel.length = active_edit->length;
+            break;
+        }
+
+        case 'Z':
+        case 'z': {
+            if(!(flags & 1)) {
+                uint16_t p = edit_undo(edit);
+                if(p != 0xFFFF) {
+                    edit_sel.p1 = p;
+                    edit_sel.p2 = p;
+                    edit_sel.start = p;
+                    edit_sel.length = 0;
+                }
+                break;
+            } else {
+                /* ctrl+shift+z, fall to ctrl+y*/
+            }
+        }
+
+        case 'Y':
+        case 'y': {
+            uint16_t p = edit_redo(edit);
+            if(p != 0xFFFF) {
+                edit_sel.p1 = p;
+                edit_sel.p2 = p;
+                edit_sel.start = p;
+                edit_sel.length = 0;
+            }
             break;
         }
 
         case KEY_RETURN: {
             if(edit->onenter) {
                 edit->onenter();
+                /*dirty*/
+                if(edit->length == 0) {
+                    edit_sel.p1 = 0;
+                    edit_sel.p2 = 0;
+                    edit_sel.start = 0;
+                    edit_sel.length = 0;
+                }
             }
             break;
         }
@@ -246,37 +421,28 @@ void edit_char(uint32_t ch, _Bool control)
 
         }
 
-        if(edit_sel.start + edit_sel.length > edit->length) {
-            if(edit_sel.start > edit->length) {
-                edit_sel.start = edit->length;
-                edit_sel.length = 0;
-            } else {
-                edit_sel.length = edit->length - edit_sel.start;
-            }
-        }
+        edit_select = 0;
 
-        if(edit_sel.p1 >= edit->length) {
-            edit_sel.p1 = edit->length;
-        }
-
-        if(edit_sel.p2 >= edit->length) {
-            edit_sel.p2 = edit->length;
-        }
-
-        redraw();
+        edit_redraw();
     } else {
-        size_t len = unicode_to_utf8(ch, NULL, NULL);
+        uint8_t len = unicode_to_utf8_len(ch);
         if(edit->length - edit_sel.length + len <= edit->maxlength) {
-            char_t *p = edit->data + edit_sel.start;
-            memmove(p + len, p + edit_sel.length, (edit->length - (edit_sel.start + edit_sel.length)) * sizeof(char_t));
+            uint8_t *p = edit->data + edit_sel.start;
+            memmove(p + len, p + edit_sel.length, edit->length - (edit_sel.start + edit_sel.length));
             edit->length -= edit_sel.length;
-            unicode_to_utf8(ch, edit->data + edit_sel.start, &edit->length);
+            unicode_to_utf8(ch, edit->data + edit_sel.start);
+            edit->length += len;
+
+            edit_do(edit, edit_sel.start, len, 0);
 
             edit_sel.start += len;
-            edit_sel.p1 = edit->mouseover_char = edit_sel.start;
+            edit_sel.p1 = edit_sel.start;
+            edit_sel.p2 = edit_sel.p1;
             edit_sel.length = 0;
 
-            redraw();
+
+
+            edit_redraw();
         }
     }
 }
@@ -316,54 +482,17 @@ void edit_paste(char_t *data, int length)
 
     uint8_t *p = active_edit->data + edit_sel.start;
 
-    memmove(p + newlen, p + edit_sel.length, (active_edit->length - (edit_sel.start + edit_sel.length)) * sizeof(char_t));
-    memcpy(p, data, newlen * sizeof(char_t));
+    memmove(p + newlen, p + edit_sel.length, active_edit->length - (edit_sel.start + edit_sel.length));
+    memcpy(p, data, newlen);
+
+    edit_do(active_edit, edit_sel.start, newlen, 0);
 
     active_edit->length += newlen - edit_sel.length;
 
     edit_sel.start = edit_sel.start + newlen;
     edit_sel.length = 0;
 
-    redraw();
-}
-
-void edit_delete(void)
-{
-    uint8_t *p = active_edit->data + edit_sel.start;
-
-    if (edit_sel.length)
-    {
-        memmove(p, p + edit_sel.length, (active_edit->length - (edit_sel.start + edit_sel.length)) * sizeof(char_t));
-        active_edit->length -= edit_sel.length;
-    }
-    else if (edit_sel.start < active_edit->length)
-    {
-        unsigned len = utf8_len(p);
-        memmove(p, p + len, active_edit->length - edit_sel.start - len * sizeof(char_t));
-        active_edit->length -= len;
-    }
-
-    edit_sel.length = 0;
-
-    redraw();
-}
-
-void edit_selectall(void)
-{
-    edit_sel.start = 0;
-    edit_sel.length = active_edit->length;
-    edit_select = 0;
-
-    redraw();
-}
-
-void edit_clear(void)
-{
-    active_edit->length = 0;
-    edit_sel.start = 0;
-    edit_sel.length = 0;
-
-    redraw();
+    edit_redraw();
 }
 
 void edit_resetfocus(void)

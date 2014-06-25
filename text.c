@@ -143,10 +143,64 @@ uint16_t hittextmultiline(int mx, int right, int my, int height, uint16_t linehe
     int fit;
     if(mx - x > 0) {
         int len = a - b;
-        fit = textfit(b, len, mx - x);
+        fit = textfit(b, len + (a != end), mx - x);
     } else {
-        fit = 0;
+        fit = (mx != 0 && b != str) ? - 1 : 0;
     }
 
     return (b - str) + fit;
+}
+
+static void textxy(int width, uint16_t p, uint16_t lineheight, char_t *str, uint16_t length, int *outx, int *outy)
+{
+    int x = 0, y = 0;
+    char_t *a = str, *b = str, *end = str + p;
+    while(1) {
+        if(a == end ||  *a == '\n' || *a == ' ') {
+            int count = a - b, w = textwidth(b, a - b);
+            if(x + w > width) {
+                if(x != 0 || *a == '\n') {
+                    y += lineheight;
+                    int l = utf8_len(b);
+                    count -= l;
+                    b += l;
+                }
+                x = 0;
+                w = textwidth(b, count);
+            }
+
+            if(a == end) {
+                break;
+            }
+            x += w;
+            b = a;
+
+            if(*a == '\n') {
+                b += utf8_len(b);
+                y += lineheight;
+                x = 0;
+            }
+        }
+        a += utf8_len(a);
+    }
+    x += textwidth(b, a - b);
+
+    *outx = x;
+    *outy = y;
+}
+
+uint16_t text_lineup(int width, uint16_t p, uint16_t lineheight, char_t *str, uint16_t length)
+{
+    //lazy
+    int x, y;
+    textxy(width, p, lineheight, str, length, &x, &y);
+    return hittextmultiline(x, width, y - lineheight, INT_MAX, lineheight, str, length, 1);
+}
+
+uint16_t text_linedown(int width, uint16_t p, uint16_t lineheight, char_t *str, uint16_t length)
+{
+    //lazy
+    int x, y;
+    textxy(width, p, lineheight, str, length, &x, &y);
+    return hittextmultiline(x, width, y + lineheight, INT_MAX, lineheight, str, length, 1);
 }

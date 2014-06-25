@@ -35,7 +35,7 @@ typedef struct {
     void *chatdata;
 } FILE_T;
 
-typedef struct {
+struct friend {
     _Bool online, typing;
     uint8_t calling, status;
     int32_t callid;
@@ -46,9 +46,11 @@ typedef struct {
 
     MSG_DATA msg;
 
+    EDIT_CHANGE *current, *next, *last;
+
     FILE_T incoming[16];
     FILE_T outgoing[16];
-} FRIEND;
+};
 
 #define friend_id(f) (f -  friend)
 

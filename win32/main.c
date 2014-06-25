@@ -621,7 +621,7 @@ void cut(void)
         return;
     }
     copy();
-    edit_delete();
+    edit_char(KEY_DEL, 1, 0);
 }
 
 void paste(void)
@@ -925,56 +925,32 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     }
 
     case WM_KEYDOWN: {
-        switch(wParam) {
+        if(edit_active()) {
+            _Bool control = ((GetKeyState(VK_CONTROL) & 0x80) != 0);
+            _Bool shift = ((GetKeyState(VK_SHIFT) & 0x80) != 0);
 
-        case VK_ESCAPE: {
-            edit_resetfocus();
-            return 0;
-        }
-
-        case VK_DELETE: {
-            if(edit_active()) {
-                edit_delete();
-                break;
-            }
-
-            list_deletesitem();
-            return 0;
-        }
-
-        case VK_LEFT:
-        case VK_RIGHT:
-        case VK_TAB: {
-            if(edit_active()) {
-                edit_char(wParam, 1);
-                break;
-            }
-        }
-        }
-
-        if(GetKeyState(VK_CONTROL) & 0x80) {
-            switch(wParam) {
-            case 'C': {
-                copy();
-                break;
-            }
-
-            case 'X': {
-                cut();
-                break;
-            }
-
-            case 'V': {
-                paste();
-                break;
-            }
-
-            case 'A': {
-                if(edit_active()) {
-                    edit_selectall();
-                    break;
+            if(control) {
+                switch(wParam) {
+                case 'V':
+                    paste();
+                    return 0;
+                case 'C':
+                    copy();
+                    return 0;
+                case 'X':
+                    cut();
+                    return 0;
                 }
-                break;
+            }
+
+            if(control || (wParam < 'A' || wParam > 'Z')) {
+                edit_char(wParam, 1, (control << 2) | shift);
+            }
+        } else {
+            switch(wParam) {
+            case VK_DELETE: {
+                list_deletesitem();
+                return 0;
             }
             }
         }
@@ -982,12 +958,16 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
         return 0;
     }
 
-    case WM_CHAR: {
+    case WM_UNICHAR: {
+        if(wParam == UNICODE_NOCHAR) {
+            return 1;
+        }
+    case WM_CHAR:
         if(edit_active()) {
             if(wParam == KEY_RETURN && (GetKeyState(VK_SHIFT) & 0x80)) {
                 wParam = '\n';
             }
-            edit_char(wParam, 0);
+            edit_char(wParam, 0, 0);
             return 0;
         }
 
@@ -1108,12 +1088,12 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
         }
 
         case EDIT_DELETE: {
-            edit_delete();
+            edit_char(KEY_DEL, 1, 0);
             break;
         }
 
         case EDIT_SELECTALL: {
-            edit_selectall();
+            edit_char('A', 1, 4);
             break;
         }
 

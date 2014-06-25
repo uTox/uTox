@@ -813,7 +813,7 @@ struct codepair {
   { 0x20ac, 0x20ac }, /*                    EuroSign € EURO SIGN */
 };
 
-long keysym2ucs(KeySym keysym)
+uint32_t keysym2ucs(KeySym keysym)
 {
     int min = 0;
     int max = sizeof(keysymtab) / sizeof(struct codepair) - 1;
@@ -842,5 +842,5 @@ long keysym2ucs(KeySym keysym)
     }
 
     /* no matching Unicode value found */
-    return -1;
+    return ~0;
 }
