@@ -5,6 +5,13 @@
 #include <X11/Xft/Xft.h>
 #include <X11/Xatom.h>
 #include <X11/X.h>
+#include <X11/cursorfont.h>
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/ioctl.h>
 
 #include <pthread.h>
 #include <unistd.h>
@@ -27,6 +34,8 @@ Colormap cmap;
 Visual *visual;
 
 Picture bitmap[32];
+
+Cursor cursor_arrow, cursor_hand, cursor_text;
 
 XftFont *font[32][64], **sfont;
 XftDraw *xftdraw;
@@ -730,7 +739,9 @@ int main(int argc, char *argv[])
     XSetStandardProperties(display, window, "uTox", "uTox", None, argv, argc, &xsh);
     //XSetWMHints(display, window, &xwmh);
 
-
+    cursor_arrow = XCreateFontCursor(display, XC_left_ptr);
+    cursor_hand = XCreateFontCursor(display, XC_hand1);
+    cursor_text = XCreateFontCursor(display, XC_xterm);
 
     /* Xft draw context */
     xftdraw = XftDrawCreate(display, drawbuf, visual, cmap);
@@ -818,8 +829,11 @@ int main(int argc, char *argv[])
             my = ev->y;
 
             hand = 0;
+            overtext = 0;
 
             panel_mmove(&panel_main, 0, 0, width, height, ev->x, ev->y, dy);
+
+            XDefineCursor(display, window, hand ? cursor_hand : (overtext ? cursor_text : cursor_arrow));
 
             //SetCursor(hand ? cursor_hand : cursor_arrow);
 

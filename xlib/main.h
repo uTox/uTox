@@ -1,10 +1,6 @@
 
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
 
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <sys/ioctl.h>
+#include <X11/Xutil.h>
 
 #include <netinet/in.h>
 #include <arpa/nameser.h>
