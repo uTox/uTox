@@ -139,6 +139,7 @@ enum
 
     BM_FILE,
     BM_CALL,
+    BM_VIDEO,
 
     BM_FT,
     BM_FTM,

@@ -765,6 +765,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
 
     bitmap[BM_CALL] = loadalpha(bm_call, BM_LBICON_WIDTH, BM_LBICON_HEIGHT);
     bitmap[BM_FILE] = loadalpha(bm_file, BM_LBICON_WIDTH, BM_LBICON_HEIGHT);
+    bitmap[BM_VIDEO] = loadalpha(bm_video, BM_LBICON_WIDTH, BM_LBICON_HEIGHT);
 
     bitmap[BM_FT] = loadalpha(bm_ft, BM_FT_WIDTH, BM_FT_HEIGHT);
     bitmap[BM_FTM] = loadalpha(bm_ftm, BM_FTM_WIDTH, BM_FT_HEIGHT);

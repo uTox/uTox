@@ -44,6 +44,6 @@ void *bm_ft, *bm_ftm, *bm_ftb, *bm_no, *bm_pause, *bm_yes;
 void *bm_contact, *bm_group;
 
 void *bm_add, *bm_groups, *bm_transfer, *bm_settings;
-void *bm_call, *bm_file;
+void *bm_call, *bm_file, *bm_video;
 
 void svg_draw(void);

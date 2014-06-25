@@ -89,6 +89,32 @@ static void drawrectroundedex(uint8_t *data, int width, int height, int radius, 
     }
 }
 
+static void drawrectroundedsub(uint8_t *p, int width, int height, int sx, int sy, int sw, int sh, int radius)
+{
+    int x, y;
+    double hw = (double)radius - 0.5;
+    for(y = sy; y != sy + sh; y++) {
+        for(x = sx; x != sx + sw; x++) {
+            uint8_t *data = &p[y * width + x];
+            x -= sx;
+            y -= sy;
+
+            if((x < radius || x >= sw - radius) && (y < radius || y >= sh - radius)) {
+                double dx, dy;
+                dx = (x < radius) ? x - hw : x + hw - sw + 1.0;
+                dy = (y < radius) ? y - hw : y + hw - sh + 1.0;
+                double d = sqrt(dx * dx  + dy * dy) - hw + 0.5;
+                *data = pixel(d);
+            } else {
+                *data = 0xFF;
+            }
+
+            x += sx;
+            y += sy;
+        }
+    }
+}
+
 static void drawcircle(uint8_t *data, int width)
 {
     int x, y;
@@ -312,6 +338,18 @@ void svg_draw(void)
 
     bm_call = malloc(s);
     convert(bm_call, bm_call_bits, s);
+
+    bm_video = calloc(1, s);
+    int x, y;
+    uint8_t *data = bm_video;
+    for(y = 0; y != BM_LBICON_HEIGHT; y++) {
+        for(x = 0; x != SCALE * 4; x++) {
+            double d = fabs(y - 4.5 * SCALE) - 0.66 * (SCALE * 4 - x);
+            *data++ = pixel(d);
+        }
+        data += BM_LBICON_WIDTH - SCALE * 4;
+    }
+    drawrectroundedsub(bm_video, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, 4 * SCALE, SCALE, 7 * SCALE, 7 * SCALE, SCALE);
 
     #define S (BM_STATUS_WIDTH * BM_STATUS_WIDTH)
     bm_status_bits = malloc(S * 4);

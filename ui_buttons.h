@@ -236,7 +236,7 @@ button_video = {
     .c1 = C_GREEN,
     .c2 = C_GREEN_LIGHT,
     .c3 = C_GREEN_LIGHT,
-    //.bm2 = BM_FILE,
+    .bm2 = BM_VIDEO,
     .bw = BM_LBICON_WIDTH,
     .bh = BM_LBICON_HEIGHT,
 
