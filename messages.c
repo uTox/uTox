@@ -114,11 +114,13 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
             int sizelen = sprint_bytes(size, file->size);
 
             setcolor(WHITE);
+            setfont(FONT_MISC);
 
             if(file->status == FILE_DONE) {
                 drawalpha(BM_FT, xx, y, BM_FT_WIDTH, BM_FT_HEIGHT, C_GREEN);
             } else if(file->status == FILE_KILLED) {
                 drawalpha(BM_FT, xx, y, BM_FT_WIDTH, BM_FT_HEIGHT, C_RED);
+                drawstr(xx + 35 * SCALE, y + 17 * SCALE, "Cancelled");
             } else {
                 if(file->status == FILE_BROKEN) {
                     drawalpha(BM_FTM, xx, y, BM_FTM_WIDTH, BM_FT_HEIGHT, C_YELLOW);
@@ -134,9 +136,23 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
                 uint32_t color = (msg->flags == 7 && (file->status == FILE_PENDING || file->status == FILE_BROKEN)) ? C_GRAY: ((mo && m->over == 2) ? C_GREEN_LIGHT : C_GREEN);
                 drawalpha(BM_FTB2, x, y + BM_FTB_HEIGHT + SCALE * 2, BM_FTB_WIDTH, BM_FTB_HEIGHT, color);
                 drawalpha((msg->flags == 6 && file->status ==  FILE_PENDING) ? BM_YES : BM_PAUSE, x + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2, y + BM_FTB_HEIGHT + SCALE * 5, BM_FB_WIDTH, BM_FB_HEIGHT, color == C_GRAY ? LIST_MAIN : WHITE);
-            }
 
-            setfont(FONT_MISC);
+
+                uint64_t progress = file->progress;
+                if(progress > file->size) {
+                    progress = file->size;
+                }
+                framerect(xx + 35 * SCALE, y + 17 * SCALE, xx + 35 * SCALE + 76 * SCALE, y + 24 * SCALE, LIST_MAIN);
+                drawrectw(xx + 35 * SCALE, y + 17 * SCALE, (progress * (uint64_t)76 * SCALE) / file->size, 7 * SCALE, LIST_MAIN);
+
+                uint8_t speed[16];
+                int speedlen = sprint_bytes(speed, 0);
+                speed[speedlen++] = '/';
+                speed[speedlen++] = 's';
+
+                drawtext(xx + 35 * SCALE + 38 * SCALE - textwidth(speed, speedlen) / 2, y + 10 * SCALE, speed, speedlen);
+                drawtext(xx + 35 * SCALE + 76 * SCALE - textwidth((uint8_t*)"0:00", 4), y + 10 * SCALE, (uint8_t*)"0:00", 4);
+            }
 
 
             drawtext(xx + 35 * SCALE, y + 3 * SCALE, file->name, file->name_length);
