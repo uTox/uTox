@@ -557,6 +557,8 @@ void edit_paste(char_t *data, int length)
     active_edit->length += newlen - edit_sel.length;
 
     edit_sel.start = edit_sel.start + newlen;
+    edit_sel.p1 = edit_sel.start;
+    edit_sel.p2 = edit_sel.start;
     edit_sel.length = 0;
 
     edit_redraw();

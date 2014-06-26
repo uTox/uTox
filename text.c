@@ -87,6 +87,10 @@ int drawtextmultiline(int x, int right, int y, uint16_t lineheight, char_t *data
 
 uint16_t hittextmultiline(int mx, int right, int my, int height, uint16_t lineheight, char_t *str, uint16_t length, _Bool multiline)
 {
+    if(my < 0) {
+        return 0;
+    }
+
     if(mx < 0 && my >= height) {
         return length;
     }
@@ -117,7 +121,13 @@ uint16_t hittextmultiline(int mx, int right, int my, int height, uint16_t linehe
                 w = textwidth(b, count);
             }
 
-            if(a == end || (mx < 0 && my >= 0 && my <= lineheight) || (mx >= x && mx < x + w && my >= 0 && (my < lineheight || height == lineheight))) {
+            if(a == end) {
+                if(my >= lineheight) {
+                    return length;
+                }
+                break;
+            }
+            if((my >= 0 && my < lineheight) && (mx < 0 || (mx >= x && mx < x + w))) {
                 break;
             }
             x += w;
@@ -145,7 +155,7 @@ uint16_t hittextmultiline(int mx, int right, int my, int height, uint16_t linehe
         int len = a - b;
         fit = textfit(b, len + (a != end), mx - x);
     } else {
-        fit = (mx != 0 && b != str) ? - 1 : 0;
+        fit = 0;
     }
 
     return (b - str) + fit;
@@ -233,6 +243,9 @@ uint16_t text_lineup(int width, uint16_t p, uint16_t lineheight, char_t *str, ui
     //lazy
     int x, y;
     textxy(width, p, lineheight, str, length, &x, &y);
+    if(y == 0) {
+        return p;
+    }
     return hittextmultiline(x, width, y - lineheight, INT_MAX, lineheight, str, length, 1);
 }
 
