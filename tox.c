@@ -23,7 +23,7 @@ static volatile _Bool tox_thread_msg;
 
 static ALCdevice *device_out, *device_in;
 static ALCcontext *context;
-static ALuint source[MAX_CALLS];
+static ALuint source[MAX_CALLS], sourcebuffers[MAX_CALLS];
 
 static volatile _Bool av_thread_run;
 

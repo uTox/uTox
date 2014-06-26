@@ -278,8 +278,12 @@ static void av_thread(void *args)
 
                     if(processed) {
                         alSourceUnqueueBuffers(source[i], 1, &bufid);
-                    } else {
+                    } else if(sourcebuffers[i] < 16) {
                         alGenBuffers(1, &bufid);
+                        sourcebuffers[i]++;
+                    } else {
+                        debug("dropped audio frame\n");
+                        continue;
                     }
 
                     alBufferData(bufid, AL_FORMAT_MONO16, buf, size * 2, av_DefaultSettings.audio_sample_rate);
