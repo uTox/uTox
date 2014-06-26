@@ -667,7 +667,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     /* */
     MSG msg;
     int x, y;
-    const char classname[] = "uTox";
+    wchar_t classname[] = L"uTox";
 
     HICON myicon = LoadIcon(hInstance, MAKEINTRESOURCE(101));
     cursor_arrow = LoadCursor(NULL, IDC_ARROW);
@@ -676,7 +676,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
 
     hinstance = hInstance;
 
-    WNDCLASS wc = {
+    WNDCLASSW wc = {
         .style = CS_OWNDC | CS_DBLCLKS,
         .lpfnWndProc = WindowProc,
         .hInstance = hInstance,
@@ -703,11 +703,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     //start tox thread
     thread(tox_thread, NULL);
 
-    RegisterClass(&wc);
+    RegisterClassW(&wc);
 
     x = (GetSystemMetrics(SM_CXSCREEN) - MAIN_WIDTH) / 2;
     y = (GetSystemMetrics(SM_CYSCREEN) - MAIN_HEIGHT) / 2;
-    hwnd = CreateWindowEx(0, classname, "Tox", WS_OVERLAPPEDWINDOW, x, y, MAIN_WIDTH, MAIN_HEIGHT, NULL, NULL, hInstance, NULL);
+    hwnd = CreateWindowExW(0, classname, L"Tox", WS_OVERLAPPEDWINDOW, x, y, MAIN_WIDTH, MAIN_HEIGHT, NULL, NULL, hInstance, NULL);
 
     hdc_brush = GetStockObject(DC_BRUSH);
 
@@ -961,10 +961,6 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
         return 0;
     }
 
-    case WM_UNICHAR:
-        if(wParam == UNICODE_NOCHAR) {
-            return 1;
-        }
     case WM_CHAR: {
         if(edit_active()) {
             if(wParam == KEY_RETURN && (GetKeyState(VK_SHIFT) & 0x80)) {
