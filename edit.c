@@ -448,6 +448,15 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
                 edit->onenter();
                 /*dirty*/
                 if(edit->length == 0) {
+                    EDIT_CHANGE *p = edit->last;
+                    while(p) {
+                        EDIT_CHANGE *temp = p->last;
+                        p = p->last;
+                        free(temp);
+                    }
+                    edit->current = NULL;
+                    edit->next = NULL;
+                    edit->last = NULL;
                     edit_sel.p1 = 0;
                     edit_sel.p2 = 0;
                     edit_sel.start = 0;
