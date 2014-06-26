@@ -200,6 +200,8 @@ static void av_thread(void *args)
 
     int perframe = (av_DefaultSettings.audio_frame_duration * av_DefaultSettings.audio_sample_rate) / 1000;
     uint8_t buf[perframe * 2], dest[perframe * 2];
+    uint8_t video_count = 0;
+    _Bool video_on = 0;
 
     av_thread_run = 1;
 
@@ -228,8 +230,12 @@ static void av_thread(void *args)
 
         }
 
-        if(video) {
+        if(video_on) {
             if(video_getframe(&input)) {
+                if(video_preview) {
+                    postmessage(PREVIEW_FRAME, 0, 0, &input);
+                }
+
                 int i;
                 for(i = 0; i < MAX_CALLS; i++) {
                     if(call[i].active && call[i].video) {
@@ -249,7 +255,7 @@ static void av_thread(void *args)
             }
         }
 
-        int i;
+        int i, vc = 0;
         for(i = 0; i < MAX_CALLS; i++) {
             if(call[i].active) {
                 if(call[i].video) {
@@ -261,6 +267,7 @@ static void av_thread(void *args)
                     } else {
                         debug("toxav_recv_video() error\n");
                     }
+                    vc++;
                 }
 
                 int size = toxav_recv_audio(av, i, perframe, (void*)buf);
@@ -286,6 +293,20 @@ static void av_thread(void *args)
                     }
                 }
             }
+        }
+
+        vc += video_preview;
+
+        if(vc != video_count) {
+            if(vc == 0) {
+                if(video_on) {
+                    video_endread();
+                    video_on = 0;
+                }
+            } else if(video_count == 0) {
+                video_on = video_startread();
+            }
+            video_count = vc;
         }
 
         yieldcpu(5);

@@ -830,9 +830,15 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     if(hwnd && hwn != hwnd) {
         if(msg == WM_DESTROY) {
+            if(hwn == video_hwnd[0]) {
+                video_end(0);
+                video_preview = 0;
+                return 1;
+            }
+
             int i;
             for(i = 0; i != countof(friend); i++) {
-                if(video_hwnd[i] == hwn) {
+                if(video_hwnd[i + 1] == hwn) {
                     FRIEND *f = &friend[i];
                     tox_postmessage(TOX_HANGUP, f->callid, 0, NULL);
                     break;
@@ -1159,14 +1165,14 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     return DefWindowProcW(hwn, msg, wParam, lParam);
 }
 
-void video_frame(FRIEND *f, vpx_image_t *frame)
+void video_frame(uint32_t id, vpx_image_t *frame)
 {
     uint8_t *img_data = malloc(frame->d_w * frame->d_h * 4);
     yuv420torgb(frame, img_data);
 
     HBITMAP bitmap = CreateBitmap(frame->d_w, frame->d_h, 1, 32, img_data);
 
-    HDC dc = GetDC(video_hwnd[friend_id(f)]);
+    HDC dc = GetDC(video_hwnd[id]);
     HDC dc_src = CreateCompatibleDC(dc);
     SelectObject(dc_src, bitmap);
     BitBlt(dc, 0, 0, frame->d_w, frame->d_h, dc_src, 0, 0, SRCCOPY);
@@ -1174,23 +1180,22 @@ void video_frame(FRIEND *f, vpx_image_t *frame)
 
     DeleteObject(bitmap);
     free(img_data);
-    vpx_img_free(frame);
 }
 
-void video_begin(FRIEND *f, uint16_t width, uint16_t height)
+void video_begin(uint32_t id, uint8_t *name, uint16_t name_length, uint16_t width, uint16_t height)
 {
-    HWND *h = &video_hwnd[friend_id(f)];
-    wchar_t out[f->name_length + 1];
-    int len = utf8tonative(f->name, out, f->name_length);
+    HWND *h = &video_hwnd[id];
+    wchar_t out[name_length + 1];
+    int len = utf8tonative(name, out, name_length);
     out[len] = 0;
 
     *h = CreateWindowExW(0, L"uTox", out, WS_OVERLAPPEDWINDOW, 0, 0, video_width, video_height, NULL, NULL, hinstance, NULL);
     ShowWindow(*h, SW_SHOW);
 }
 
-void video_end(FRIEND *f)
+void video_end(uint32_t id)
 {
-    DestroyWindow(video_hwnd[friend_id(f)]);
+    DestroyWindow(video_hwnd[id]);
 }
 
 volatile _Bool newframe = 0;
@@ -1369,12 +1374,13 @@ HRESULT ConnectFilters(IGraphBuilder *pGraph, IBaseFilter *pSrc, IBaseFilter *pD
 }
 
 //!TODO: free resources correctly (on failure, etc)
+IMediaControl *pControl;
+
 _Bool video_init(void)
 {
     HRESULT hr;
     CoInitialize(NULL);
 
-    IMediaControl *pControl;
     IMediaEventEx *pEvent;
 
     hr = CoCreateInstance(&CLSID_FilterGraph, NULL, CLSCTX_INPROC_SERVER, &IID_IGraphBuilder, (void**)&pGraph);
@@ -1566,11 +1572,6 @@ _Bool video_init(void)
         return 0;
     }
 
-    hr = pControl->lpVtbl->Run(pControl);
-    if(FAILED(hr)) {
-        debug("Run failed\n");
-        return 0;
-    }
     return 1;
 }
 
@@ -1582,4 +1583,28 @@ _Bool video_getframe(vpx_image_t *image)
         return 1;
     }
     return 0;
+}
+
+_Bool video_startread(void)
+{
+    debug("start webcam\n");
+    HRESULT hr;
+    hr = pControl->lpVtbl->Run(pControl);
+    if(FAILED(hr)) {
+        debug("Run failed\n");
+        return 0;
+    }
+    return 1;
+}
+
+_Bool video_endread(void)
+{
+    debug("stop webcam\n");
+    HRESULT hr;
+    hr = pControl->lpVtbl->StopWhenReady(pControl);
+    if(FAILED(hr)) {
+        debug("Stop failed\n");
+        return 0;
+    }
+    return 1;
 }

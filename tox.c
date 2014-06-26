@@ -837,7 +837,7 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
         FRIEND *f = &friend[param1];
         uint8_t status = (size_t)data;
         if(status == CALL_NONE && f->calling == CALL_OK_VIDEO) {
-            video_end(f);
+            video_end(param1 + 1);
         }
 
         f->calling = status;
@@ -856,7 +856,7 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
         updatefriend(f);
 
         uint32_t res = (size_t)data;
-        video_begin(f, res & 0xFFFF, res >> 16);
+        video_begin(param1 + 1, f->name, f->name_length, res & 0xFFFF, res >> 16);
         break;
     }
 
@@ -865,7 +865,15 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
            param2: call id
            data: frame data
          */
-        video_frame(&friend[param1], data);
+        video_frame(param1 + 1, data);
+        vpx_img_free(data);
+        break;
+    }
+
+    case PREVIEW_FRAME: {
+        if(video_preview) {
+            video_frame(0, data);
+        }
         break;
     }
 

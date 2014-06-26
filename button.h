@@ -4,6 +4,7 @@ struct button {
     PANEL panel;
     int bm, bm2, bw, bh;
     uint32_t c1, c2, c3;
+    char *str;
     _Bool mouseover, mousedown, disabled;
     void (*onpress)(void);
 };

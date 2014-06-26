@@ -79,6 +79,7 @@ struct groupchat
 };
 
 volatile _Bool tox_thread_init, tox_done;
+volatile _Bool video_preview;
 _Bool tox_connected;
 
 //friends and groups
@@ -225,11 +226,15 @@ void sysmmini(void);
 
 void setselection(void);
 
-void video_frame(FRIEND *f, vpx_image_t *frame);
-void video_begin(FRIEND *f, uint16_t width, uint16_t height);
-void video_end(FRIEND *f);
+void video_frame(uint32_t id, vpx_image_t *frame);
+void video_begin(uint32_t id, uint8_t *name, uint16_t name_length, uint16_t width, uint16_t height);
+void video_end(uint32_t id);
+
 _Bool video_init(void);
 _Bool video_getframe(vpx_image_t *image);
+
+_Bool video_startread(void);
+_Bool video_endread(void);
 
 #define drawstr(x, y, str) drawtext(x, y, (uint8_t*)str, sizeof(str) - 1)
 #define drawstr_getwidth(x, y, str) drawtext_getwidth(x, y, (uint8_t*)str, sizeof(str) - 1)

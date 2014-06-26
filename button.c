@@ -17,6 +17,12 @@ void button_draw(BUTTON *b, int x, int y, int width, int height)
         int bx = width / 2 - b->bw / 2, by = height / 2 - b->bh / 2;
         drawalpha(b->bm2, x + bx, y + by, b->bw, b->bh, WHITE);
     }
+
+    if(b->str) {
+        setfont(FONT_SELF_NAME);
+        setcolor(WHITE);
+        drawtext(x + 3 * SCALE, y + SCALE, (uint8_t*)b->str, strlen(b->str));
+    }
 }
 
 _Bool button_mmove(BUTTON *b, int x, int y, int dy, int width, int height)

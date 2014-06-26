@@ -4,14 +4,15 @@ void friend_setname(FRIEND *f, char_t *name, uint16_t length)
 {
     free(f->name);
     if(length == 0) {
-        f->name = malloc(sizeof(f->cid) * 2);
+        f->name = malloc(sizeof(f->cid) * 2 + 1);
         cid_to_string(f->name, f->cid);
         f->name_length = sizeof(f->cid) * 2;
     } else {
-        f->name = malloc(length * sizeof(char_t));
-        memcpy(f->name, name, length * sizeof(char_t));
+        f->name = malloc(length + 1);
+        memcpy(f->name, name, length);
         f->name_length = length;
     }
+    f->name[f->name_length] = 0;
 }
 
 void friend_addmessage(FRIEND *f, void *data)

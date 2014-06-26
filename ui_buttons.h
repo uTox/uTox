@@ -5,6 +5,22 @@ static void button_copyid_onpress(void)
     address_to_clipboard();
 }
 
+static void button_callpreview_onpress(void)
+{
+
+}
+
+static void button_videopreview_onpress(void)
+{
+    if(video_preview) {
+        video_end(0);
+        video_preview = 0;
+    } else {
+        video_begin(0, (uint8_t*)"Video Preview", sizeof("Video Preview") - 1, video_width, video_height);
+        video_preview = 1;
+    }
+}
+
 static void button_addfriend_onpress(void)
 {
     friend_add(edit_addid_data, edit_addid.length, edit_addmsg.data, edit_addmsg.length);
@@ -176,7 +192,7 @@ button_settings = {
 button_copyid = {
     .panel = {
         .type = PANEL_BUTTON,
-        .x = SCALE * 31,
+        .x = SCALE * 33,
         .y = SCALE * 53,
         .width = BM_SBUTTON_WIDTH,
         .height = BM_SBUTTON_HEIGHT,
@@ -185,6 +201,7 @@ button_copyid = {
     .c1 = C_GREEN,
     .c2 = C_GREEN_LIGHT,
     .c3 = C_GREEN_LIGHT,
+    .str = "Copy",
 
     .onpress = button_copyid_onpress,
 },
@@ -201,6 +218,7 @@ button_addfriend = {
     .c1 = C_GREEN,
     .c2 = C_GREEN_LIGHT,
     .c3 = C_GREEN_LIGHT,
+    .str = "Add",
 
     .onpress = button_addfriend_onpress,
 },
@@ -275,6 +293,45 @@ button_acceptfriend = {
     .c1 = C_GREEN,
     .c2 = C_GREEN_LIGHT,
     .c3 = C_GREEN_LIGHT,
+    .str = "Add",
 
     .onpress = button_acceptfriend_onpress,
+},
+
+button_callpreview = {
+    .panel = {
+        .type = PANEL_BUTTON,
+        .x = 5 * SCALE,
+        .y = 90 * SCALE,
+        .width = BM_LBUTTON_WIDTH,
+        .height = BM_LBUTTON_HEIGHT,
+    },
+    .bm = BM_LBUTTON,
+    .c1 = C_GREEN,
+    .c2 = C_GREEN_LIGHT,
+    .c3 = C_GREEN_LIGHT,
+    .bm2 = BM_CALL,
+    .bw = BM_LBICON_WIDTH,
+    .bh = BM_LBICON_HEIGHT,
+
+    .onpress = button_callpreview_onpress,
+},
+
+button_videopreview = {
+    .panel = {
+        .type = PANEL_BUTTON,
+        .x = 36 * SCALE,
+        .y = 90 * SCALE,
+        .width = BM_LBUTTON_WIDTH,
+        .height = BM_LBUTTON_HEIGHT,
+    },
+    .bm = BM_LBUTTON,
+    .c1 = C_GREEN,
+    .c2 = C_GREEN_LIGHT,
+    .c3 = C_GREEN_LIGHT,
+    .bm2 = BM_VIDEO,
+    .bw = BM_LBICON_WIDTH,
+    .bh = BM_LBICON_HEIGHT,
+
+    .onpress = button_videopreview_onpress,
 };

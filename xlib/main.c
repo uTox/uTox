@@ -788,7 +788,7 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-void video_frame(FRIEND *f, vpx_image_t *frame)
+void video_frame(uint32_t id, vpx_image_t *frame)
 {
     uint8_t *img_data = malloc(frame->d_w * frame->d_h * 4);
     yuv420torgb(frame, img_data);
@@ -812,23 +812,23 @@ void video_frame(FRIEND *f, vpx_image_t *frame)
     GC gc = DefaultGC(display, screen);
     Pixmap pixmap = XCreatePixmap(display, window, frame->d_w, frame->d_h, 24);
     XPutImage(display, pixmap, gc, &image, 0, 0, 0, 0, frame->d_w, frame->d_h);
-    XCopyArea(display, pixmap, video_win[friend_id(f)], gc, 0, 0, frame->d_w, frame->d_h, 0, 0);
+    XCopyArea(display, pixmap, video_win[id], gc, 0, 0, frame->d_w, frame->d_h, 0, 0);
     XFreePixmap(display, pixmap);
     free(img_data);
-    vpx_img_free(frame);
 }
 
-void video_begin(FRIEND *f, uint16_t width, uint16_t height)
+void video_begin(uint32_t id, uint8_t *name, uint16_t name_length, uint16_t width, uint16_t height)
 {
-    Window *win = &video_win[friend_id(f)];
+    Window *win = &video_win[id];
     *win = XCreateSimpleWindow(display, RootWindow(display, screen), 0, 0, width, height, 0, BlackPixel(display, screen), WhitePixel(display, screen));
+    XStoreName(display, *win, (char*)name);
     XSetWMProtocols(display, *win, &wm_delete_window, 1);
     XMapWindow(display, *win);
 }
 
-void video_end(FRIEND *f)
+void video_end(uint32_t id)
 {
-    XDestroyWindow(display, video_win[friend_id(f)]);
+    XDestroyWindow(display, video_win[id]);
 }
 
 #ifdef V4L
@@ -1037,7 +1037,17 @@ static _Bool _video_init(char *dev_name)
             return 0;
         }
     }*/
+    return 1;
+}
 
+_Bool video_init(void)
+{
+    return (_video_init("/dev/video0") || _video_init("/dev/video1"));
+}
+
+_Bool video_startread(void)
+{
+    debug("start webcam\n");
     unsigned int i;
     enum v4l2_buf_type type;
 
@@ -1065,11 +1075,18 @@ static _Bool _video_init(char *dev_name)
     return 1;
 }
 
-_Bool video_init(void)
+_Bool video_endread(void)
 {
-    return (_video_init("/dev/video0") || _video_init("/dev/video1"));
-}
+    debug("stop webcam\n");
+    enum v4l2_buf_type type;
+    type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    if(-1 == xioctl(fd, VIDIOC_STREAMOFF, &type)) {
+        debug("VIDIOC_STREAMOFF error %d, %s\n", errno, strerror(errno));
+        return 0;
+    }
 
+    return 1;
+}
 
 _Bool video_getframe(vpx_image_t *image)
 {

@@ -7,9 +7,15 @@ _Bool doevent(void)
         if(event.type == ClientMessage) {
             XClientMessageEvent *ev = &event.xclient;
             if((Atom)event.xclient.data.l[0] == wm_delete_window) {
+                if(ev->window == video_win[0]) {
+                    video_end(0);
+                    video_preview = 0;
+                    return 1;
+                }
+
                 int i;
                 for(i = 0; i != countof(friend); i++) {
-                    if(video_win[i] == ev->window) {
+                    if(video_win[i + 1] == ev->window) {
                         FRIEND *f = &friend[i];
                         tox_postmessage(TOX_HANGUP, f->callid, 0, NULL);
                         break;

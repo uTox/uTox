@@ -73,6 +73,7 @@ static void drawfriend(int x, int y, int w, int height)
     case CALL_INVITED: {
         b->c1 = C_YELLOW;
         b->c2 = C_YELLOW_LIGHT;
+        b->c3 = C_YELLOW_LIGHT;
         break;
     }
 
@@ -85,6 +86,7 @@ static void drawfriend(int x, int y, int w, int height)
     case CALL_OK: {
         b->c1 = C_RED;
         b->c2 = C_RED_LIGHT;
+        b->c3 = C_RED_LIGHT;
         break;
     }
     }
@@ -182,6 +184,19 @@ static void drawsettings_content(int x, int y, int w, int height)
     setfont(FONT_SELF_NAME);
 
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 54, "Tox ID");
+
+    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 77, "Preview");
+
+    BUTTON *b = &button_videopreview;
+    if(video_preview) {
+        b->c1 = C_RED;
+        b->c2 = C_RED_LIGHT;
+        b->c3 = C_RED_LIGHT;
+    } else {
+        b->c1 = C_GREEN;
+        b->c2 = C_GREEN_LIGHT;
+        b->c3 = C_GREEN_LIGHT;
+    }
 
 }
 
@@ -336,6 +351,7 @@ panel_settings = {
     .content_scroll = &scroll_settings,
     .child = (PANEL*[]) {
             (void*)&button_copyid,
+            (void*)&button_callpreview, (void*)&button_videopreview,
             (void*)&edit_name, (void*)&edit_status,
             NULL
         }
