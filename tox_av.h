@@ -174,7 +174,7 @@ static void av_thread(void *args)
         return;
     }
 
-    device_in = alcCaptureOpenDevice(NULL, av_DefaultSettings.audio_sample_rate, AL_FORMAT_MONO16, (av_DefaultSettings.audio_frame_duration * av_DefaultSettings.audio_sample_rate * 2) / 1000);
+    device_in = alcCaptureOpenDevice(NULL, av_DefaultSettings.audio_sample_rate, AL_FORMAT_MONO16, (av_DefaultSettings.audio_frame_duration * av_DefaultSettings.audio_sample_rate * 4) / 1000);
     if(!device_in) {
         printf("no audio input, disabling audio input\n");
         record = 0;
