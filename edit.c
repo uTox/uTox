@@ -534,6 +534,10 @@ void edit_paste(char_t *data, int length)
         i += len;
     }
 
+    if(newlen == 0) {
+        return;
+    }
+
     uint8_t *p = active_edit->data + edit_sel.start;
 
     memmove(p + newlen, p + edit_sel.length, active_edit->length - (edit_sel.start + edit_sel.length));
