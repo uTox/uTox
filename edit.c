@@ -482,6 +482,11 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
         uint8_t len = unicode_to_utf8_len(ch);
         if(edit->length - edit_sel.length + len <= edit->maxlength) {
             uint8_t *p = edit->data + edit_sel.start;
+
+            if(edit_sel.length) {
+                edit_do(edit, edit_sel.start, edit_sel.length, 1);
+            }
+
             memmove(p + len, p + edit_sel.length, edit->length - (edit_sel.start + edit_sel.length));
             edit->length -= edit_sel.length;
             unicode_to_utf8(ch, edit->data + edit_sel.start);
@@ -539,6 +544,10 @@ void edit_paste(char_t *data, int length)
     }
 
     uint8_t *p = active_edit->data + edit_sel.start;
+
+    if(edit_sel.length) {
+        edit_do(active_edit, edit_sel.start, edit_sel.length, 1);
+    }
 
     memmove(p + newlen, p + edit_sel.length, active_edit->length - (edit_sel.start + edit_sel.length));
     memcpy(p, data, newlen);

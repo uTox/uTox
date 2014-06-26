@@ -1156,7 +1156,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     }
     }
 
-    return DefWindowProc(hwn, msg, wParam, lParam);
+    return DefWindowProcW(hwn, msg, wParam, lParam);
 }
 
 void video_frame(FRIEND *f, vpx_image_t *frame)
