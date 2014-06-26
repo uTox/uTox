@@ -1578,7 +1578,7 @@ _Bool video_getframe(vpx_image_t *image)
 {
     if(newframe) {
         newframe = 0;
-        rgbtoyuv420(image->planes[0], image->planes[1], image->planes[2], frame_data, 640, 480);
+        rgbtoyuv420(image->planes[0], image->planes[1], image->planes[2], frame_data, video_width, video_height);
         return 1;
     }
     return 0;
