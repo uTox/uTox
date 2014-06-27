@@ -9,6 +9,14 @@ static struct
 }edit_sel;
 static _Bool edit_select;
 
+static void setactive(EDIT *edit)
+{
+    if(edit != active_edit && active_edit) {
+        active_edit->onlosefocus();
+    }
+    active_edit = edit;
+}
+
 void edit_draw(EDIT *edit, int x, int y, int width, int height)
 {
     edit->width = width -4 * SCALE;
@@ -31,7 +39,7 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
                       a ? edit_sel.start : 0xFFFF, a ? edit_sel.length : 0xFFFF, edit->multiline);
 }
 
-_Bool edit_mmove(EDIT *edit, int x, int y, int dy, int width, int height)
+_Bool edit_mmove(EDIT *edit, int px, int py, int width, int height, int x, int y, int dy)
 {
     _Bool redraw = 0;
 
@@ -47,7 +55,7 @@ _Bool edit_mmove(EDIT *edit, int x, int y, int dy, int width, int height)
     }
 
     if(edit->multiline) {
-        redraw |= scroll_mmove(edit->scroll, x - 1, y + 1, dy, width, height - 2);
+        redraw |= scroll_mmove(edit->scroll, px + 1, py - 1, width, height - 2, x - 1, y + 1, dy);
         y += scroll_gety(edit->scroll, height);
     }
 
@@ -95,7 +103,7 @@ _Bool edit_mdown(EDIT *edit)
         edit_sel.length = 0;
         edit_select = 1;
 
-        active_edit = edit;
+        setactive(edit);
         return 1;
     } else if(edit == active_edit) {
         edit_resetfocus();
@@ -142,7 +150,7 @@ _Bool edit_mright(EDIT *edit)
     if(edit->mouseover) {
         EDIT *active = active_edit;
         if(active != edit) {
-            active_edit = edit;
+            setactive(edit);
 
             edit_sel.start = edit_sel.p1 = edit_sel.p2 = edit->mouseover_char;
             edit_sel.length = 0;
@@ -405,18 +413,18 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
             edit->scroll->d = 1.0;
             break;
         }
-        
+
         case KEY_HOME: {
             edit_sel.p1 = edit_sel.p2 = edit_sel.start = edit_sel.length = 0;
             break;
         }
-        
+
         case KEY_END: {
             edit_sel.p1 = edit_sel.p2 = edit_sel.start = edit->length;
             edit_sel.length = 0;
             break;
         }
-        
+
         case 'A':
         case 'a': {
             edit_sel.p1 = 0;
@@ -578,13 +586,13 @@ void edit_paste(char_t *data, int length)
 void edit_resetfocus(void)
 {
     edit_select = 0;
-    active_edit = NULL;
+    setactive(NULL);
 }
 
 void edit_setfocus(EDIT *edit)
 {
     edit_select = 0;
-    active_edit = NULL;
+    setactive(NULL);
 }
 
 _Bool edit_active(void)

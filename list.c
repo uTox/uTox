@@ -1,6 +1,6 @@
 #include "main.h"
 
-static ITEM item_add, item_settings;
+static ITEM item_add, item_settings, item_transfer;
 static ITEM item[1024], *mitem, *nitem;
 static uint32_t itemcount;
 
@@ -78,22 +78,22 @@ static ITEM* newitem(void)
     return i;
 }
 
-static ITEM* item_hit(int x, int y, int height)
+static ITEM* item_hit(int mx, int my, int height)
 {
-    if(x < LIST_X || x >= LIST_RIGHT) {
+    if(mx < LIST_X || mx >= LIST_RIGHT) {
         return NULL;
     }
 
-    if(y < 0) {
+    if(my < 0) {
         return NULL;
     }
 
-    y /= ITEM_HEIGHT;
-    if(y >= itemcount) {
+    my /= ITEM_HEIGHT;
+    if(my >= itemcount) {
         return NULL;
     }
 
-    ITEM *i = &item[y];
+    ITEM *i = &item[my];
 
     return i;
 }
@@ -139,6 +139,10 @@ static void selectitem(ITEM *i)
 
     if(sitem->item == ITEM_ADD) {
         button_add.disabled = 0;
+    }
+
+    if(sitem->item == ITEM_TRANSFER) {
+        button_transfer.disabled = 0;
     }
 
     if(i->item == ITEM_FRIEND) {
@@ -189,6 +193,10 @@ static void selectitem(ITEM *i)
         button_add.disabled = 1;
     }
 
+    if(i->item == ITEM_TRANSFER) {
+        button_transfer.disabled = 1;
+    }
+
     sitem = i;
 
     edit_resetfocus();
@@ -207,6 +215,7 @@ void list_start(void)
     button_add.disabled = 1;
 
     item_settings.item = ITEM_SETTINGS;
+    item_transfer.item = ITEM_TRANSFER;
     //sitem = &item_settings;
 
     FRIEND *f = friend, *end = f + friends;
@@ -421,9 +430,15 @@ void list_selectaddfriend(void)
     selectitem(&item_add);
 }
 
-_Bool list_mmove(void *n, int x, int y, int dy, int width, int height)
+void list_selectswap(void)
 {
-    ITEM *i = item_hit(x, y, height);
+    selectitem(&item_transfer);
+}
+
+
+_Bool list_mmove(void *n, int x, int y, int width, int height, int mx, int my, int dy)
+{
+    ITEM *i = item_hit(mx, my, height);
 
     _Bool draw = 0;
 

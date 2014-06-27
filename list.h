@@ -6,6 +6,7 @@ enum
     ITEM_NONE,
     ITEM_ADD,
     ITEM_SETTINGS,
+    ITEM_TRANSFER,
     ITEM_FRIEND,
     ITEM_GROUP,
     ITEM_FRIEND_ADD,
@@ -30,10 +31,11 @@ void list_deleteritem(void);
 
 void list_selectaddfriend(void);
 void list_selectsettings(void);
+void list_selectswap(void);
 
 void list_draw(void *n, int x, int y, int width, int height);
 
-_Bool list_mmove(void *n, int x, int y, int dy, int width, int height);
+_Bool list_mmove(void *n, int x, int y, int width, int height, int mx, int my, int dy);
 _Bool list_mdown(void *n);
 _Bool list_mright(void *n);
 _Bool list_mwheel(void *n, int height, double d);

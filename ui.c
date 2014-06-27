@@ -3,6 +3,7 @@
 #include "ui_strings.h"
 #include "ui_edits.h"
 #include "ui_buttons.h"
+#include "ui_dropdown.h"
 
 uint32_t status_color[] = {
     C_GREEN,
@@ -155,6 +156,13 @@ static void drawsettings(int x, int y, int width, int height)
     drawstr(LIST_RIGHT + SCALE * 5, SCALE * 10, "User Settings");
 }
 
+static void drawtransfer(int x, int y, int width, int height)
+{
+    setcolor(C_TITLE);
+    setfont(FONT_SELF_NAME);
+    drawstr(LIST_RIGHT + SCALE * 5, SCALE * 10, "Switch Profile");
+}
+
 static void drawadd_content(int x, int y, int width, int height)
 {
     setcolor(C_TITLE);
@@ -179,25 +187,26 @@ static void drawsettings_content(int x, int y, int w, int height)
 
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 29, "Status Message");
 
-    drawtextrange(LIST_RIGHT + SCALE * 5, width - SCALE * 5, y + SCALE * 64, self.id, sizeof(self.id));
+    drawtextrange(LIST_RIGHT + SCALE * 5, width - SCALE * 5, y + SCALE * 65, self.id, sizeof(self.id));
+
+    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 123, "Audio Input Device");
+    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 147, "Audio Output Device");
+    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 171, "Video Input Device");
+
+    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 205, "NOT YET");
+    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 225, "NOT YET");
 
     setfont(FONT_SELF_NAME);
 
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 54, "Tox ID");
 
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 77, "Preview");
+    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 76, "Preview");
 
-    BUTTON *b = &button_videopreview;
-    if(video_preview) {
-        b->c1 = C_RED;
-        b->c2 = C_RED_LIGHT;
-        b->c3 = C_RED_LIGHT;
-    } else {
-        b->c1 = C_GREEN;
-        b->c2 = C_GREEN_LIGHT;
-        b->c3 = C_GREEN_LIGHT;
-    }
+    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 113, "Device Selection");
 
+    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 195, "Save Settings");
+
+    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 215, "DPI Settings");
 }
 
 static void background_draw(PANEL *p, int x, int y, int width, int height)
@@ -220,7 +229,7 @@ static void background_draw(PANEL *p, int x, int y, int width, int height)
     drawhline(LIST_RIGHT + 1, LIST_Y - 1, width, C_GRAY);
 }
 
-static _Bool background_mmove(PANEL *p, int x, int y, int dy, int width, int height)
+static _Bool background_mmove(PANEL *p, int x, int y, int width, int height, int mx, int my, int dy)
 {
     return 0;
 }
@@ -298,7 +307,7 @@ scroll_settings = {
         .y = LIST_Y,
         .type = PANEL_SCROLLABLE,
     },
-    .content_height = 200 * SCALE,
+    .content_height = 400 * SCALE,
     .color = C_SCROLL,
 };
 
@@ -353,6 +362,7 @@ panel_settings = {
             (void*)&button_copyid,
             (void*)&button_callpreview, (void*)&button_videopreview,
             (void*)&edit_name, (void*)&edit_status,
+            (void*)&dropdown_audio_in, (void*)&dropdown_audio_out, (void*)&dropdown_video,
             NULL
         }
 },
@@ -377,6 +387,15 @@ panel_item[] = {
         .child = (PANEL*[]) {
             (void*)&scroll_settings,
             &panel_settings,
+            NULL
+        }
+    },
+
+    {
+        .type = PANEL_NONE,
+        .disabled = 1,
+        .drawfunc = drawtransfer,
+        .child = (PANEL*[]) {
             NULL
         }
     },
@@ -424,7 +443,7 @@ panel_side = {
     .width = 0,
     .height = 0,
     .child = (PANEL*[]) {
-        &panel_item[0], &panel_item[1], &panel_item[2], &panel_item[3], &panel_item[4], NULL
+        &panel_item[0], &panel_item[1], &panel_item[2], &panel_item[3], &panel_item[4], &panel_item[5], NULL
     }
 },
 
@@ -435,9 +454,9 @@ panel_main = {
     .width = 0,
     .height = 0,
     .child = (PANEL*[]) {
+        (void*)&button_add, (void*)&button_groups, (void*)&button_transfer, (void*)&button_settings,
         &panel_list, &panel_side,
         (void*)&scroll_list,
-        (void*)&button_add, (void*)&button_groups, (void*)&button_transfer, (void*)&button_settings,
         NULL
     }
 };
@@ -447,12 +466,13 @@ panel_main = {
     (void*)messages_##x, \
     (void*)list_##x, \
     (void*)button_##x, \
+    (void*)dropdown_##x, \
     (void*)edit_##x, \
     (void*)scroll_##x, \
 };
 
 FUNC(draw, void, int x, int y, int width, int height);
-FUNC(mmove, _Bool, int x, int y, int dy, int width, int height);
+FUNC(mmove, _Bool, int x, int y, int width, int height, int mx, int my, int dy);
 FUNC(mdown, _Bool);
 FUNC(mright, _Bool);
 FUNC(mwheel, _Bool, int height, double d);
@@ -505,7 +525,7 @@ void panel_draw(PANEL *p, int x, int y, int width, int height)
 {
     FUNC();
 
-    pushclip(x, y, width, height);
+    //pushclip(x, y, width, height);
 
     if(p->type) {
         drawfunc[p->type - 1](p, x, y, width, height);
@@ -524,7 +544,9 @@ void panel_draw(PANEL *p, int x, int y, int width, int height)
         }
     }
 
-    popclip();
+    //popclip();
+
+    dropdown_drawactive();
 
     enddraw(x, y, width, height);
 }
@@ -555,13 +577,20 @@ _Bool panel_mmove(PANEL *p, int x, int y, int width, int height, int mx, int my,
     my -= (p->y < 0) ? height + p->y : p->y;
     FUNC();
 
+    int mmy = my;
+
     if(p->content_scroll) {
         int dy = scroll_gety(p->content_scroll, height);
+        if(my < 0 || my >= height) {
+            mmy = -1;
+        } else {
+            mmy = my + dy;
+        }
         y -= dy;
         my += dy;
     }
 
-    _Bool draw = p->type ? mmovefunc[p->type - 1](p, mx, my, dy, width, height) : 0;
+    _Bool draw = p->type ? mmovefunc[p->type - 1](p, x, y, width, height, mx, mmy, dy) : 0;
     PANEL **pp = p->child, *subp;
     if(pp) {
         while((subp = *pp++)) {

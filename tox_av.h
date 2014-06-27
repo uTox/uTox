@@ -127,41 +127,98 @@ static void set_av_callbacks(ToxAv *av)
 
 uint8_t lbuffer[800 * 600 * 4];
 
+static ALCdevice* alcopencapture(const char *name)
+{
+    return alcCaptureOpenDevice(name, av_DefaultSettings.audio_sample_rate, AL_FORMAT_MONO16, (av_DefaultSettings.audio_frame_duration * av_DefaultSettings.audio_sample_rate * 4) / 1000);
+}
+
+static void sourceplaybuffer(int i, void *buf, int size)
+{
+    ALuint bufid;
+    ALint processed;
+    alGetSourcei(source[i], AL_BUFFERS_PROCESSED, &processed);
+
+    if(processed) {
+        alSourceUnqueueBuffers(source[i], 1, &bufid);
+    } else if(sourcebuffers[i] < 16) {
+        alGenBuffers(1, &bufid);
+        sourcebuffers[i]++;
+    } else {
+        debug("dropped audio frame\n");
+        return;
+    }
+
+    alBufferData(bufid, AL_FORMAT_MONO16, buf, size * 2, av_DefaultSettings.audio_sample_rate);
+    alSourceQueueBuffers(source[i], 1, &bufid);
+
+    ALint state;;
+    alGetSourcei(source[i], AL_SOURCE_STATE, &state);
+    if(state != AL_PLAYING) {
+        alSourcePlay(source[i]);
+        debug("Starting source %u\n", i);
+    }
+}
+
+static vpx_image_t input;
+
+static _Bool openvideodevice(void *handle)
+{
+    if(!video_init(handle)) {
+        debug("video_init() failed\n");
+        return 0;
+    }
+    vpx_img_alloc(&input, VPX_IMG_FMT_I420, video_width, video_height, 1);
+    return 1;
+}
+
+static void closevideodevice(void *handle)
+{
+    video_close(handle);
+    vpx_img_free(&input);
+}
+
 static void av_thread(void *args)
 {
     ToxAv *av = args;
-    ALuint *p, *end;
-    const char *device_list;
-    _Bool record, video;
-    vpx_image_t input;
+    const char *device_list, *audio_device = NULL, *output_device = NULL;
+    void *video_device;
+    _Bool audio_preview = 0, video = 0;
+
+    int perframe = (av_DefaultSettings.audio_frame_duration * av_DefaultSettings.audio_sample_rate) / 1000;
+    uint8_t buf[perframe * 2], dest[perframe * 2];
+    uint8_t video_count = 0, audio_count = 0;
+    _Bool video_on = 0, record_on = 0;
 
     set_av_callbacks(av);
 
-    if(!(video = video_init())) {
-        debug("no video\n");
-    } else {
-        vpx_img_alloc(&input, VPX_IMG_FMT_I420, video_width, video_height, 1);
+    video_device = video_detect();
+    if(video_device) {
+        video = openvideodevice(video_device);
     }
 
     device_list = alcGetString(NULL, ALC_CAPTURE_DEVICE_SPECIFIER);
     if(device_list) {
+        audio_device = device_list;
         debug("Input Device List:\n");
         while(*device_list) {
             printf("%s\n", device_list);
+            postmessage(NEW_AUDIO_IN_DEVICE, 0, 0, (void*)device_list);
             device_list += strlen(device_list) + 1;
         }
     }
 
     device_list = alcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER);
     if(device_list) {
+        output_device = device_list;
         debug("Output Device List:\n");
         while(*device_list) {
             printf("%s\n", device_list);
+            postmessage(NEW_AUDIO_OUT_DEVICE, 0, 0, (void*)device_list);
             device_list += strlen(device_list) + 1;
         }
     }
 
-    device_out = alcOpenDevice(NULL);
+    device_out = alcOpenDevice(output_device);
     if(!device_out) {
         printf("alcOpenDevice() failed\n");
         return;
@@ -174,43 +231,137 @@ static void av_thread(void *args)
         return;
     }
 
-    device_in = alcCaptureOpenDevice(NULL, av_DefaultSettings.audio_sample_rate, AL_FORMAT_MONO16, (av_DefaultSettings.audio_frame_duration * av_DefaultSettings.audio_sample_rate * 4) / 1000);
-    if(!device_in) {
-        printf("no audio input, disabling audio input\n");
-        record = 0;
-    } else {
-        alcCaptureStart(device_in);
-        record = 1;
-    }
-
-    alListener3f(AL_POSITION, 0.0, 0.0, 0.0);
-    alListener3f(AL_VELOCITY, 0.0, 0.0, 0.0);
-
     alGenSources(countof(source), source);
-    p = source;
-    end = p + countof(source);
-    while(p != end) {
-        ALuint s = *p++;
-        alSourcef(s, AL_PITCH, 1.0);
-        alSourcef(s, AL_GAIN, 1.0);
-        alSource3f(s, AL_POSITION, 0.0, 0.0, 0.0);
-        alSource3f(s, AL_VELOCITY, 0.0, 0.0, 0.0);
-        alSourcei(s, AL_LOOPING, AL_FALSE);
-    }
-
-    int perframe = (av_DefaultSettings.audio_frame_duration * av_DefaultSettings.audio_sample_rate) / 1000;
-    uint8_t buf[perframe * 2], dest[perframe * 2];
-    uint8_t video_count = 0;
-    _Bool video_on = 0;
 
     av_thread_run = 1;
 
-    while(av_thread_run) {
-        if(record) {
+    while(1) {
+        if(toxav_thread_msg) {
+            TOX_MSG *m = &toxav_msg;
+            if(!m->msg) {
+                break;
+            }
+            uint8_t msg;
+            //uint16_t param1, uint16_t param2;
+            void *data;
+            msg = m->msg;
+            //param1 = m->param1;
+            //param2 = m->param2;
+            data = m->data;
+
+            switch(msg) {
+            case AV_SET_AUDIO_INPUT: {
+                audio_device = data;
+
+                if(record_on) {
+                    alcCaptureStop(device_in);
+                    alcCaptureCloseDevice(device_in);
+                }
+
+                if(record_on) {
+                    device_in = alcopencapture(audio_device);
+                    if(!device_in) {
+                        record_on = 0;
+                    } else {
+                        alcCaptureStart(device_in);
+                    }
+                }
+
+                debug("set audio in\n");
+                break;
+            }
+
+            case AV_SET_AUDIO_OUTPUT: {
+                ALCdevice *device = alcOpenDevice(output_device);
+                if(!device) {
+                    printf("alcOpenDevice() failed\n");
+                    break;
+                }
+
+                ALCcontext *con = alcCreateContext(device, NULL);
+                if(!alcMakeContextCurrent(con)) {
+                    printf("alcMakeContextCurrent() failed\n");
+                    alcCloseDevice(device);
+                    break;
+                }
+
+                alcDestroyContext(context);
+                alcCloseDevice(device_out);
+                context = con;
+                device_out = device;
+
+                alGenSources(countof(source), source);
+                memset(sourcebuffers, 0, sizeof(sourcebuffers));
+
+                debug("set audio out\n");
+                break;
+            }
+
+            case AV_SET_VIDEO: {
+                if(video_on) {
+                    video_endread();
+                }
+
+                if(video) {
+                    closevideodevice(video_device);
+                }
+
+                video_device = data;
+                video = openvideodevice(video_device);
+                if(video) {
+                    if(video_on) {
+                        video_on = video_startread();
+                    }
+                } else {
+                    video_on = 0;
+                }
+
+                debug("set video\n");
+                break;
+            }
+
+            case AV_AUDIO_PREVIEW_START: {
+                audio_preview = 1;
+                /*if(audio_count == 0) {
+                    //turn on audio
+                }
+                audio_count++;*/
+                break;
+            }
+
+            case AV_AUDIO_PREVIEW_STOP: {
+                audio_preview = 0;
+                /*audio_count--;
+                if(audio_count == 0) {
+                    //turn off audio
+                }*/
+                break;
+            }
+
+            case AV_VIDEO_PREVIEW_START: {
+
+                break;
+            }
+
+            case AV_VIDEO_PREVIEW_STOP: {
+
+                break;
+            }
+
+            }
+
+            toxav_thread_msg = 0;
+        }
+
+        if(record_on) {
             ALint samples;
             alcGetIntegerv(device_in, ALC_CAPTURE_SAMPLES, sizeof(samples), &samples);
             if(samples >= perframe) {
                 alcCaptureSamples(device_in, buf, perframe);
+
+                if(audio_preview) {
+                    sourceplaybuffer(0, buf, perframe);
+                }
 
                 int i = 0;
                 while(i < MAX_CALLS) {
@@ -255,9 +406,10 @@ static void av_thread(void *args)
             }
         }
 
-        int i, vc = 0;
+        int i, vc = 0, ac = 0;
         for(i = 0; i < MAX_CALLS; i++) {
             if(call[i].active) {
+                ac++;
                 if(call[i].video) {
                     vpx_image_t *image;
                     if(toxav_recv_video(av, i, &image) == 0) {
@@ -272,34 +424,32 @@ static void av_thread(void *args)
 
                 int size = toxav_recv_audio(av, i, perframe, (void*)buf);
                 if(size > 0) {
-                    ALuint bufid;
-                    ALint processed;
-                    alGetSourcei(source[i], AL_BUFFERS_PROCESSED, &processed);
-
-                    if(processed) {
-                        alSourceUnqueueBuffers(source[i], 1, &bufid);
-                    } else if(sourcebuffers[i] < 16) {
-                        alGenBuffers(1, &bufid);
-                        sourcebuffers[i]++;
-                    } else {
-                        debug("dropped audio frame\n");
-                        continue;
-                    }
-
-                    alBufferData(bufid, AL_FORMAT_MONO16, buf, size * 2, av_DefaultSettings.audio_sample_rate);
-                    alSourceQueueBuffers(source[i], 1, &bufid);
-
-                    ALint state;;
-                    alGetSourcei(source[i], AL_SOURCE_STATE, &state);
-                    if(state != AL_PLAYING) {
-                        alSourcePlay(source[i]);
-                        debug("Starting source %u\n", i);
-                    }
+                    sourceplaybuffer(i + 1, buf, size);
                 }
             }
         }
 
-        vc += video_preview;
+        ac += audio_preview;
+        vc += (video && video_preview);
+
+        if(ac != audio_count) {
+            if(ac == 0) {
+                if(record_on) {
+                    alcCaptureStop(device_in);
+                    alcCaptureCloseDevice(device_in);
+                    debug("stop\n");
+                    record_on = 0;
+                }
+            } else if(audio_count == 0) {
+                device_in = alcopencapture(audio_device);
+                if(device_in) {
+                    alcCaptureStart(device_in);
+                    record_on = 1;
+                    debug("start\n");
+                }
+            }
+            audio_count = ac;
+        }
 
         if(vc != video_count) {
             if(vc == 0) {
@@ -318,8 +468,10 @@ static void av_thread(void *args)
 
     //missing some cleanup
 
-    if(record) {
-        alcCaptureStop(device_in);
+    if(device_in) {
+        if(record_on) {
+            alcCaptureStop(device_in);
+        }
         alcCaptureCloseDevice(device_in);
     }
 

@@ -61,6 +61,7 @@ typedef uint8_t char_t;
 #include "edit.h"
 #include "scrollable.h"
 #include "button.h"
+#include "dropdown.h"
 
 #include "text.h"
 #include "util.h"
@@ -79,7 +80,7 @@ struct groupchat
 };
 
 volatile _Bool tox_thread_init, tox_done;
-volatile _Bool video_preview;
+volatile _Bool video_preview, audio_preview;
 _Bool tox_connected;
 
 //friends and groups
@@ -230,9 +231,10 @@ void video_frame(uint32_t id, vpx_image_t *frame);
 void video_begin(uint32_t id, uint8_t *name, uint16_t name_length, uint16_t width, uint16_t height);
 void video_end(uint32_t id);
 
-_Bool video_init(void);
+void* video_detect(void);
+_Bool video_init(void *handle);
+void video_close(void *handle);
 _Bool video_getframe(vpx_image_t *image);
-
 _Bool video_startread(void);
 _Bool video_endread(void);
 

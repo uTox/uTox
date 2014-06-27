@@ -1,5 +1,3 @@
-/*todo: draw nice button */
-
 struct button {
     PANEL panel;
     int bm, bm2, bw, bh;
@@ -7,10 +5,11 @@ struct button {
     char *str;
     _Bool mouseover, mousedown, disabled;
     void (*onpress)(void);
+    void (*updatecolor)(BUTTON *b);
 };
 
 void button_draw(BUTTON *b, int x, int y, int width, int height);
-_Bool button_mmove(BUTTON *b, int x, int y, int dy, int width, int height);
+_Bool button_mmove(BUTTON *b, int x, int y, int width, int height, int mx, int my, int dy);
 _Bool button_mdown(BUTTON *b);
 _Bool button_mright(BUTTON *b);
 _Bool button_mwheel(BUTTON *b, int height, double d);

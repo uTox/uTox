@@ -5,6 +5,7 @@ enum
     PANEL_MESSAGES,
     PANEL_LIST,
     PANEL_BUTTON,
+    PANEL_DROPDOWN,
     PANEL_EDIT,
     PANEL_SCROLLABLE,
 };
@@ -13,6 +14,7 @@ typedef struct scrollable SCROLLABLE;
 typedef struct edit EDIT;
 typedef struct panel PANEL;
 typedef struct button BUTTON;
+typedef struct dropdown DROPDOWN;
 typedef struct messages MESSAGES;
 struct panel
 {
@@ -34,11 +36,12 @@ enum
     ADDF_TOOLONG
 };
 
-extern PANEL panel_main, panel_item[5];
+extern PANEL panel_main, panel_item[];
 extern MESSAGES messages_friend, messages_group;
 extern EDIT edit_name, edit_status, edit_addid, edit_addmsg, edit_msg;
 extern SCROLLABLE scroll_list;
-extern BUTTON button_add, button_settings;
+extern BUTTON button_add, button_settings, button_transfer;
+extern DROPDOWN dropdown_audio_in, dropdown_audio_out, dropdown_video;
 
 void panel_draw(PANEL *p, int x, int y, int width, int height);
 

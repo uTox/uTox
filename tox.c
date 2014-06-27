@@ -18,8 +18,8 @@ typedef struct {
     void *data;
 } TOX_MSG;
 
-static TOX_MSG tox_msg;
-static volatile _Bool tox_thread_msg;
+static TOX_MSG tox_msg, toxav_msg;
+static volatile _Bool tox_thread_msg, toxav_thread_msg;
 
 static ALCdevice *device_out, *device_in;
 static ALCcontext *context;
@@ -92,6 +92,20 @@ void tox_postmessage(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
     tox_msg.data = data;
 
     tox_thread_msg = 1;
+}
+
+void toxav_postmessage(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
+{
+    while(toxav_thread_msg) {
+        yieldcpu(1);
+    }
+
+    toxav_msg.msg = msg;
+    toxav_msg.param1 = param1;
+    toxav_msg.param2 = param2;
+    toxav_msg.data = data;
+
+    toxav_thread_msg = 1;
 }
 
 #include "tox_callbacks.h"
@@ -725,6 +739,21 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
         free(data);
 
         redraw();
+        break;
+    }
+
+    case NEW_AUDIO_IN_DEVICE: {
+        dropdown_add(&dropdown_audio_in, data, data);
+        break;
+    }
+
+    case NEW_AUDIO_OUT_DEVICE: {
+        dropdown_add(&dropdown_audio_out, data, data);
+        break;
+    }
+
+    case NEW_VIDEO_DEVICE: {
+        dropdown_add(&dropdown_video, data + sizeof(void*), *(void**)data);
         break;
     }
 

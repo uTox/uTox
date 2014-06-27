@@ -48,11 +48,11 @@ int scroll_gety(SCROLLABLE *s, int height)
     return 0;
 }
 
-_Bool scroll_mmove(SCROLLABLE *s, int x, int y, int dy, int width, int height)
+_Bool scroll_mmove(SCROLLABLE *s, int px, int py, int width, int height, int x, int y, int dy)
 {
     _Bool draw = 0;
 
-    _Bool hit = inrect(x, y, s->left ? SCROLL_WIDTH : (width - SCROLL_WIDTH), 0, width, height);
+    _Bool hit = inrect(x, y, s->left ? 0 : (width - SCROLL_WIDTH), 0, s->left ? SCROLL_WIDTH : width, height);
     if(s->mouseover != hit)
     {
         s->mouseover = hit;

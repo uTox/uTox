@@ -5,9 +5,28 @@ static void button_copyid_onpress(void)
     address_to_clipboard();
 }
 
-static void button_callpreview_onpress(void)
+static void button_audiopreview_onpress(void)
 {
+    if(!audio_preview) {
+        audio_preview = 1;
+        toxav_postmessage(AV_AUDIO_PREVIEW_START, 0, 0, NULL);
+    } else {
+        audio_preview = 0;
+        toxav_postmessage(AV_AUDIO_PREVIEW_STOP, 0, 0, NULL);
+    }
+}
 
+static void button_audiopreview_updatecolor(BUTTON *b)
+{
+    if(audio_preview) {
+        b->c1 = C_RED;
+        b->c2 = C_RED_LIGHT;
+        b->c3 = C_RED_LIGHT;
+    } else {
+        b->c1 = C_GREEN;
+        b->c2 = C_GREEN_LIGHT;
+        b->c3 = C_GREEN_LIGHT;
+    }
 }
 
 static void button_videopreview_onpress(void)
@@ -15,9 +34,22 @@ static void button_videopreview_onpress(void)
     if(video_preview) {
         video_end(0);
         video_preview = 0;
-    } else {
+    } else if(video_width) {
         video_begin(0, (uint8_t*)"Video Preview", sizeof("Video Preview") - 1, video_width, video_height);
         video_preview = 1;
+    }
+}
+
+static void button_videopreview_updatecolor(BUTTON *b)
+{
+    if(video_preview) {
+        b->c1 = C_RED;
+        b->c2 = C_RED_LIGHT;
+        b->c3 = C_RED_LIGHT;
+    } else {
+        b->c1 = C_GREEN;
+        b->c2 = C_GREEN_LIGHT;
+        b->c3 = C_GREEN_LIGHT;
     }
 }
 
@@ -39,7 +71,7 @@ static void button_groups_onpress(void)
 
 static void button_transfer_onpress(void)
 {
-
+    list_selectswap();
 }
 
 static void button_settings_onpress(void)
@@ -302,7 +334,7 @@ button_callpreview = {
     .panel = {
         .type = PANEL_BUTTON,
         .x = 5 * SCALE,
-        .y = 90 * SCALE,
+        .y = 89 * SCALE,
         .width = BM_LBUTTON_WIDTH,
         .height = BM_LBUTTON_HEIGHT,
     },
@@ -314,14 +346,15 @@ button_callpreview = {
     .bw = BM_LBICON_WIDTH,
     .bh = BM_LBICON_HEIGHT,
 
-    .onpress = button_callpreview_onpress,
+    .onpress = button_audiopreview_onpress,
+    .updatecolor = button_audiopreview_updatecolor,
 },
 
 button_videopreview = {
     .panel = {
         .type = PANEL_BUTTON,
         .x = 36 * SCALE,
-        .y = 90 * SCALE,
+        .y = 89 * SCALE,
         .width = BM_LBUTTON_WIDTH,
         .height = BM_LBUTTON_HEIGHT,
     },
@@ -334,4 +367,5 @@ button_videopreview = {
     .bh = BM_LBICON_HEIGHT,
 
     .onpress = button_videopreview_onpress,
+    .updatecolor = button_videopreview_updatecolor,
 };

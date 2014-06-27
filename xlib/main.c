@@ -20,8 +20,8 @@
 
 #include "keysym2ucs.c"
 
-#define DEFAULT_WIDTH 764
-#define DEFAULT_HEIGHT 640
+#define DEFAULT_WIDTH (382 * SCALE)
+#define DEFAULT_HEIGHT (320 * SCALE)
 
 #define DEFAULT_BDWIDTH 0;//1 /* border width */
 
@@ -867,18 +867,42 @@ static int xioctl(int fh, int request, void *arg)
     return r;
 }
 
-static _Bool _video_init(char *dev_name)
+void* video_detect(void)
 {
-    struct stat st;
-    if (-1 == stat(dev_name, &st)) {
-        debug("Cannot identify '%s': %d, %s\n", dev_name, errno, strerror(errno));
-        return 0;
+    char dev_name[] = "/dev/videoXX", *first = NULL;
+
+    int i;
+    for(i = 0; i != 64; i++) {
+        sprintf(dev_name + 10, "%i", i);
+
+        struct stat st;
+        if (-1 == stat(dev_name, &st)) {
+            continue;
+            //debug("Cannot identify '%s': %d, %s\n", dev_name, errno, strerror(errno));
+            //return 0;
+        }
+
+        if (!S_ISCHR(st.st_mode)) {
+            continue;
+            //debug("%s is no device\n", dev_name);
+            //return 0;
+        }
+
+        void *p = malloc(sizeof(void*) + sizeof(dev_name)), *pp = p + sizeof(void*);
+        memcpy(p, &pp, sizeof(void*));
+        memcpy(p + sizeof(void*), dev_name, sizeof(dev_name));
+        if(!first) {
+            first = pp;
+        }
+        postmessage(NEW_VIDEO_DEVICE, 0, 0, p);
     }
 
-    if (!S_ISCHR(st.st_mode)) {
-        debug("%s is no device\n", dev_name);
-        return 0;
-    }
+    return first;
+}
+
+_Bool video_init(void *handle)
+{
+    char *dev_name = handle;
 
     fd = open(dev_name, O_RDWR /* required */ | O_NONBLOCK, 0);
 
@@ -1040,9 +1064,16 @@ static _Bool _video_init(char *dev_name)
     return 1;
 }
 
-_Bool video_init(void)
+void video_close(void *handle)
 {
-    return (_video_init("/dev/video0") || _video_init("/dev/video1"));
+    int i;
+    for(i = 0; i < n_buffers; ++i) {
+        if(-1 == munmap(buffers[i].start, buffers[i].length)) {
+            debug("munmap error\n");
+        }
+    }
+
+    close(fd);
 }
 
 _Bool video_startread(void)
@@ -1128,12 +1159,14 @@ _Bool video_getframe(vpx_image_t *image)
 
     void *data = (void*)buffers[buf.index].start; //length = buf.bytesused //(void*)buf.m.userptr
 
-    if(fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_YUYV) {
+    /* assumes planes are continuous memory */
+    v4lconvert_convert(v4lconvert_data, &fmt, &dest_fmt, data, fmt.fmt.pix.sizeimage, image->planes[0], (video_width * video_height * 3) / 2);
+
+    /*if(fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_YUYV) {
         yuv422to420(image->planes[0], image->planes[1], image->planes[2], data, video_width, video_height);
     } else {
-        /* assumes planes are continuous memory */
-        v4lconvert_convert(v4lconvert_data, &fmt, &dest_fmt, data, fmt.fmt.pix.sizeimage, image->planes[0], (video_width * video_height * 3) / 2);
-    }
+
+    }*/
 
     if (-1 == xioctl(fd, VIDIOC_QBUF, &buf)) {
         debug("VIDIOC_QBUF error %d, %s\n", errno, strerror(errno));

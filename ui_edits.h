@@ -101,6 +101,7 @@ EDIT edit_name = {
     .maxlength = 128,
     .data = edit_name_data,
     .onenter = edit_name_onenter,
+    .onlosefocus = edit_name_onenter,
 },
 
 edit_status = {
@@ -114,6 +115,7 @@ edit_status = {
     .maxlength = 128,
     .data = edit_status_data,
     .onenter = edit_status_onenter,
+    .onlosefocus = edit_status_onenter,
 },
 
 edit_addid = {

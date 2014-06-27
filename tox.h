@@ -4,7 +4,7 @@
 
 /* details about messages and their (param1, param2, data) values are in the message handlers in tox.c*/
 
-/* toxcore thread messages (send from the client thread)
+/* toxcore thread messages (sent from the client thread)
  */
 enum {
     TOX_KILL,
@@ -35,6 +35,20 @@ enum {
     TOX_FILE_OUT_RESUME,
 };
 
+/* toxav thread messages (sent from the client thread)
+ */
+enum
+{
+    AV_DONE,
+    AV_SET_AUDIO_INPUT,
+    AV_SET_AUDIO_OUTPUT,
+    AV_SET_VIDEO,
+    AV_AUDIO_PREVIEW_START,
+    AV_AUDIO_PREVIEW_STOP,
+    AV_VIDEO_PREVIEW_START,
+    AV_VIDEO_PREVIEW_STOP,
+};
+
 /* client thread messages (recieved by the client thread)
  */
 enum {
@@ -42,6 +56,10 @@ enum {
     TOX_DONE,
     DHT_CONNECTED,
     DNS_RESULT,
+
+    NEW_AUDIO_IN_DEVICE,
+    NEW_AUDIO_OUT_DEVICE,
+    NEW_VIDEO_DEVICE,
 
     /* friend related */
     FRIEND_REQUEST,
@@ -94,6 +112,10 @@ void tox_thread(void *args);
 /* send a message to the toxcore thread
  */
 void tox_postmessage(uint8_t msg, uint16_t param1, uint16_t param2, void *data);
+
+/* send a message to the toxav thread
+ */
+void toxav_postmessage(uint8_t msg, uint16_t param1, uint16_t param2, void *data);
 
 /* read a message sent from the toxcore thread (sent with postmessage())
  */

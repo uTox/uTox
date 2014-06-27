@@ -1232,6 +1232,8 @@ HRESULT STDMETHODCALLTYPE test_SampleCB(ISampleGrabberCB *lpMyObj, double Sample
 
 IGraphBuilder *pGraph;
 IBaseFilter *pGrabberF;
+IMediaControl *pControl;
+ISampleGrabber *pGrabber;
 
 STDMETHODIMP test_QueryInterface(ISampleGrabberCB *lpMyObj, REFIID riid, LPVOID FAR * lppvObj)
 {
@@ -1374,9 +1376,9 @@ HRESULT ConnectFilters(IGraphBuilder *pGraph, IBaseFilter *pSrc, IBaseFilter *pD
 }
 
 //!TODO: free resources correctly (on failure, etc)
-IMediaControl *pControl;
+IBaseFilter *pNullF = NULL;
 
-_Bool video_init(void)
+void* video_detect(void)
 {
     HRESULT hr;
     CoInitialize(NULL);
@@ -1397,8 +1399,6 @@ _Bool video_init(void)
     if(FAILED(hr)) {
         return 0;
     }
-
-    ISampleGrabber *pGrabber;
 
     hr = CoCreateInstance(&CLSID_SampleGrabber, NULL, CLSCTX_INPROC_SERVER, &IID_IBaseFilter, (void**)&pGrabberF);
     if(FAILED(hr)) {
@@ -1465,9 +1465,19 @@ _Bool video_init(void)
             VariantClear(&varName);
 
             // To create an instance of the filter, do the following:
-            if(!pFilter) {
-                hr = pMoniker->lpVtbl->BindToObject(pMoniker, NULL, NULL, &IID_IBaseFilter, (void**)&pFilter);
+            IBaseFilter *temp;
+            hr = pMoniker->lpVtbl->BindToObject(pMoniker, NULL, NULL, &IID_IBaseFilter, (void**)&temp);
+            if(SUCCEEDED(hr)) {
+                if(!pFilter) {
+                    pFilter = temp;
+                }
+                int len = wcslen(varName.bstrVal);
+                void *data = malloc(sizeof(void*) + len * 3 / 2);
+                WideCharToMultiByte(CP_UTF8, 0, varName.bstrVal, -1, data + sizeof(void*), len * 3 / 2, NULL, 0);
+                memcpy(data, &temp, sizeof(pFilter));
+                postmessage(NEW_VIDEO_DEVICE, 0, 0, data);
             }
+
             // Now add the filter to the graph.
             //Remember to release pFilter later.
             pPropBag->lpVtbl->Release(pPropBag);
@@ -1477,16 +1487,17 @@ _Bool video_init(void)
     pEnumCat->lpVtbl->Release(pEnumCat);
     pSysDevEnum->lpVtbl->Release(pSysDevEnum);
 
-    if(!pFilter) {
-        return 0;
-    }
-
-    hr = pGraph->lpVtbl->AddFilter(pGraph, pFilter, L"Video Capture");
+    hr = CoCreateInstance(&CLSID_NullRenderer, NULL, CLSCTX_INPROC_SERVER, &IID_IBaseFilter, (void**)&pNullF);
     if(FAILED(hr)) {
+        debug("CoCreateInstance failed\n");
         return 0;
     }
 
-    debug("so far so good\n");
+    hr = pGraph->lpVtbl->AddFilter(pGraph, pNullF, L"Null Filter");
+    if(FAILED(hr)) {
+        debug("AddFilter failed\n");
+        return 0;
+    }
 
     ISampleGrabberCB *test;
     test = malloc(sizeof(ISampleGrabberCB));
@@ -1503,7 +1514,18 @@ _Bool video_init(void)
         return 0;
     }
 
-    debug("not so fast\n");
+    return pFilter;
+}
+
+_Bool video_init(void *handle)
+{
+    HRESULT hr;
+    IBaseFilter *pFilter = handle;
+
+    hr = pGraph->lpVtbl->AddFilter(pGraph, pFilter, L"Video Capture");
+    if(FAILED(hr)) {
+        return 0;
+    }
 
     IEnumPins *pEnum = NULL;
     IPin *pPin = NULL;
@@ -1553,19 +1575,6 @@ _Bool video_init(void)
 
     debug("width height %u %u\n", video_width, video_height);
 
-    IBaseFilter *pNullF = NULL;
-    hr = CoCreateInstance(&CLSID_NullRenderer, NULL, CLSCTX_INPROC_SERVER, &IID_IBaseFilter, (void**)&pNullF);
-    if(FAILED(hr)) {
-        debug("CoCreateInstance failed\n");
-        return 0;
-    }
-
-    hr = pGraph->lpVtbl->AddFilter(pGraph, pNullF, L"Null Filter");
-    if(FAILED(hr)) {
-        debug("AddFilter failed\n");
-        return 0;
-    }
-
     hr = ConnectFilters(pGraph, pGrabberF, pNullF);
     if(FAILED(hr)) {
         debug("ConnectFilters (2) failed\n");
@@ -1573,6 +1582,19 @@ _Bool video_init(void)
     }
 
     return 1;
+}
+
+void video_close(void *handle)
+{
+    HRESULT hr;
+    IBaseFilter *pFilter = handle;
+
+    hr = pGraph->lpVtbl->RemoveFilter(pGraph, pFilter);
+    if(FAILED(hr)) {
+        return;
+    }
+
+    debug("closed webcam\n");
 }
 
 _Bool video_getframe(vpx_image_t *image)

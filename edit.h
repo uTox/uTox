@@ -18,11 +18,12 @@ struct edit {
     char_t *data;
     void (*onenter)(void);
     void (*ontab)(void);
+    void (*onlosefocus)(void);
 };
 
 void edit_draw(EDIT *edit, int x, int y, int width, int height);
 
-_Bool edit_mmove(EDIT *edit, int x, int y, int dy, int width, int height);
+_Bool edit_mmove(EDIT *edit, int x, int y, int width, int height, int mx, int my, int dy);
 _Bool edit_mdown(EDIT *edit);
 _Bool edit_dclick(EDIT *edit, _Bool triclick);
 _Bool edit_mright(EDIT *edit);
