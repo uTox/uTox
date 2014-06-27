@@ -12,7 +12,9 @@ static _Bool edit_select;
 static void setactive(EDIT *edit)
 {
     if(edit != active_edit && active_edit) {
-        active_edit->onlosefocus();
+        if(active_edit->onlosefocus) {
+            active_edit->onlosefocus();
+        }
     }
     active_edit = edit;
 }
