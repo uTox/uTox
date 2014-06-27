@@ -97,7 +97,7 @@ _Bool dropdown_mup(DROPDOWN *b)
     if(b->open) {
         b->open = 0;
         active = NULL;
-        if(b->over != b->selected) {
+        if(b->over != b->selected && b->over < b->dropcount) {
             b->selected = b->over;
             b->onselect(b->drop[b->over].handle);
         }
