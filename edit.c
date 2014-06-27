@@ -405,7 +405,18 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
             edit->scroll->d = 1.0;
             break;
         }
-
+        
+        case KEY_HOME: {
+            edit_sel.p1 = edit_sel.p2 = edit_sel.start = edit_sel.length = 0;
+            break;
+        }
+        
+        case KEY_END: {
+            edit_sel.p1 = edit_sel.p2 = edit_sel.start = edit->length;
+            edit_sel.length = 0;
+            break;
+        }
+        
         case 'A':
         case 'a': {
             edit_sel.p1 = 0;
