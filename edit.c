@@ -472,8 +472,8 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
                     EDIT_CHANGE *p = edit->last;
                     while(p) {
                         EDIT_CHANGE *temp = p->last;
-                        p = p->last;
-                        free(temp);
+                        free(p);
+                        p = temp;
                     }
                     edit->current = NULL;
                     edit->next = NULL;

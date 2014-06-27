@@ -327,8 +327,8 @@ static void deleteitem(ITEM *i)
         EDIT_CHANGE *p = f->last;
         while(p) {
             EDIT_CHANGE *temp = p->last;
-            p = p->last;
-            free(temp);
+            free(p);
+            p = temp;
         }
 
         free(f->name);
@@ -357,8 +357,8 @@ static void deleteitem(ITEM *i)
         EDIT_CHANGE *p = g->last;
         while(p) {
             EDIT_CHANGE *temp = p->last;
-            p = p->last;
-            free(temp);
+            free(p);
+            p = temp;
         }
 
         uint8_t **np = g->peername;
