@@ -932,17 +932,19 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     }
 
     case WM_KEYDOWN: {
-        if(edit_active()) {
-            _Bool control = ((GetKeyState(VK_CONTROL) & 0x80) != 0);
-            _Bool shift = ((GetKeyState(VK_SHIFT) & 0x80) != 0);
+        _Bool control = ((GetKeyState(VK_CONTROL) & 0x80) != 0);
+        _Bool shift = ((GetKeyState(VK_SHIFT) & 0x80) != 0);
 
+        if(control && wParam == 'C') {
+            copy();
+            return 0;
+        }
+
+        if(edit_active()) {
             if(control) {
                 switch(wParam) {
                 case 'V':
                     paste();
-                    return 0;
-                case 'C':
-                    copy();
                     return 0;
                 case 'X':
                     cut();
