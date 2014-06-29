@@ -700,14 +700,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
         .lfFaceName = "Roboto",
     };
 
-    //start tox thread
-    thread(tox_thread, NULL);
-
     RegisterClassW(&wc);
 
     x = (GetSystemMetrics(SM_CXSCREEN) - MAIN_WIDTH) / 2;
     y = (GetSystemMetrics(SM_CYSCREEN) - MAIN_HEIGHT) / 2;
     hwnd = CreateWindowExW(0, classname, L"Tox", WS_OVERLAPPEDWINDOW, x, y, MAIN_WIDTH, MAIN_HEIGHT, NULL, NULL, hInstance, NULL);
+
+    //start tox thread (hwnd needs to be set first)
+    thread(tox_thread, NULL);
 
     hdc_brush = GetStockObject(DC_BRUSH);
 

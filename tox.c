@@ -36,7 +36,7 @@ static void fillbuffer(FILE_T *ft)
     ft->finish = (ft->bytes >= ft->total) || (feof((FILE*)ft->data) != 0);
 }
 
-static void sendfile(Tox *tox, uint32_t fid, uint8_t *path, uint8_t *name, uint16_t name_length)
+static void startft(Tox *tox, uint32_t fid, uint8_t *path, uint8_t *name, uint16_t name_length)
 {
     debug("Sending: %s\n", path);
 
@@ -596,7 +596,7 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint8_t msg, uint16_t param1
                     name += 7;
                 }
 
-                sendfile(tox, param1, name, s, p - s - 1);
+                startft(tox, param1, name, s, p - s - 1);
                 s = name = p;
             }
         } else {
@@ -604,7 +604,7 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint8_t msg, uint16_t param1
             uint8_t *name = data;
             _Bool multifile = (name[param2 - 1] == 0);
             if(!multifile) {
-                sendfile(tox, param1, data, data + param2, strlen(data) - param2);
+                startft(tox, param1, data, data + param2, strlen(data) - param2);
             } else {
                 uint8_t *p = name + param2;
                 name += param2 - 1;
@@ -615,7 +615,7 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint8_t msg, uint16_t param1
                     int len = strlen((char*)p) + 1;
                     memmove(name, p, len);
                     p += len;
-                    sendfile(tox, param1, data, name, len - 1);
+                    startft(tox, param1, data, name, len - 1);
                 }
             }
         }

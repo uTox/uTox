@@ -263,7 +263,7 @@ static void dns_thread(void *data)
     while(record) {
         /* just take the first successfully parsed record (for now), and only parse the first string (seems to work) */
         DNS_TXT_DATA *txt = &record->Data.Txt;
-        if(txt->pStringArray[0]) {
+        if(txt->dwStringCount) {
             debug("Attempting:\n%s\n", txt->pStringArray[0]);
             if((success = parserecord(data, (uint8_t*)txt->pStringArray[0], pin, dns3))) {
                 break;
