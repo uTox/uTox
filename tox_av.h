@@ -135,14 +135,18 @@ static ALCdevice* alcopencapture(const char *name)
 static void sourceplaybuffer(int i, void *buf, int size)
 {
     ALuint bufid;
-    ALint processed;
+    ALint processed, queued;
     alGetSourcei(source[i], AL_BUFFERS_PROCESSED, &processed);
+    alGetSourcei(source[i], AL_BUFFERS_QUEUED, &queued);
+    alSourcei(source[i], AL_LOOPING, AL_FALSE);
 
     if(processed) {
-        alSourceUnqueueBuffers(source[i], 1, &bufid);
-    } else if(sourcebuffers[i] < 16) {
+        ALuint bufids[processed];
+        alSourceUnqueueBuffers(source[i], processed, bufids);
+        alDeleteBuffers(processed - 1, bufids + 1);
+        bufid = bufids[0];
+    } else if(queued < 8) {
         alGenBuffers(1, &bufid);
-        sourcebuffers[i]++;
     } else {
         debug("dropped audio frame\n");
         return;
@@ -151,7 +155,7 @@ static void sourceplaybuffer(int i, void *buf, int size)
     alBufferData(bufid, AL_FORMAT_MONO16, buf, size * 2, av_DefaultSettings.audio_sample_rate);
     alSourceQueueBuffers(source[i], 1, &bufid);
 
-    ALint state;;
+    ALint state;
     alGetSourcei(source[i], AL_SOURCE_STATE, &state);
     if(state != AL_PLAYING) {
         alSourcePlay(source[i]);
@@ -291,7 +295,6 @@ static void av_thread(void *args)
                 device_out = device;
 
                 alGenSources(countof(source), source);
-                memset(sourcebuffers, 0, sizeof(sourcebuffers));
 
                 debug("set audio out\n");
                 break;
