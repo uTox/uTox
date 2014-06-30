@@ -144,7 +144,7 @@ static void loadfonts(void)
     font[FONT_MSG][0] = XftFontOpen(display, screen, XFT_FAMILY, XftTypeString, "Roboto", XFT_PIXEL_SIZE, XftTypeDouble, F(11.0), XFT_WEIGHT, XftTypeInteger, FC_WEIGHT_LIGHT, NULL);
     font[FONT_MSG_NAME][0] = XftFontOpen(display, screen, XFT_FAMILY, XftTypeString, "Roboto", XFT_PIXEL_SIZE, XftTypeDouble, F(10.0), XFT_WEIGHT, XftTypeInteger, FC_WEIGHT_LIGHT, NULL);
     font[FONT_MISC][0] = XftFontOpen(display, screen, XFT_FAMILY, XftTypeString, "Roboto", XFT_PIXEL_SIZE, XftTypeDouble, F(10.0), NULL);
-    font[FONT_MSG_LINK][0] = font[FONT_MSG][0];
+    font[FONT_MSG_LINK][0] = XftFontOpen(display, screen, XFT_FAMILY, XftTypeString, "Roboto", XFT_PIXEL_SIZE, XftTypeDouble, F(11.0), XFT_WEIGHT, XftTypeInteger, FC_WEIGHT_LIGHT, NULL);
     #undef F
 }
 
