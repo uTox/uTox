@@ -193,8 +193,7 @@ static void drawsettings_content(int x, int y, int w, int height)
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 147, "Audio Output Device");
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 171, "Video Input Device");
 
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 205, "NOT YET");
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 225, "NOT YET");
+    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 228, "NOT YET");
 
     setfont(FONT_SELF_NAME);
 
@@ -204,9 +203,9 @@ static void drawsettings_content(int x, int y, int w, int height)
 
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 113, "Device Selection");
 
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 195, "Save Settings");
+    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 195, "DPI Settings");
 
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 215, "DPI Settings");
+    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 218, "Save Settings");
 }
 
 static void background_draw(PANEL *p, int x, int y, int width, int height)
@@ -262,12 +261,7 @@ static _Bool background_mleave(PANEL *p)
 SCROLLABLE scroll_list = {
     .panel = {
         .type = PANEL_SCROLLABLE,
-        .x = 0,
-        .y = LIST_Y,
-        .width = LIST_RIGHT + 1,
-        .height = LIST_BOTTOM,
     },
-
     .color = LIST_DARK,
     .x = 2,
     .left = 1,
@@ -276,38 +270,28 @@ SCROLLABLE scroll_list = {
 scroll_friend = {
     .panel = {
         .type = PANEL_SCROLLABLE,
-        .y = LIST_Y,
-        .height = MESSAGES_BOTTOM,
     },
-
     .color = C_SCROLL,
 },
 
 scroll_group = {
     .panel = {
         .type = PANEL_SCROLLABLE,
-        .y = LIST_Y,
-        .height = MESSAGES_BOTTOM,
     },
-
     .color = C_SCROLL,
 },
 
 scroll_add = {
     .panel = {
-        .y = LIST_Y,
         .type = PANEL_SCROLLABLE,
     },
-    .content_height = 200 * SCALE,
     .color = C_SCROLL,
 },
 
 scroll_settings = {
     .panel = {
-        .y = LIST_Y,
         .type = PANEL_SCROLLABLE,
     },
-    .content_height = 400 * SCALE,
     .color = C_SCROLL,
 };
 
@@ -315,9 +299,6 @@ scroll_settings = {
 MESSAGES messages_friend = {
     .panel = {
         .type = PANEL_MESSAGES,
-        .y = LIST_Y,
-        .height = MESSAGES_BOTTOM,
-        .width = -SCROLL_WIDTH,
         .content_scroll = &scroll_friend,
     }
 },
@@ -325,9 +306,6 @@ MESSAGES messages_friend = {
 messages_group = {
     .panel = {
         .type = PANEL_MESSAGES,
-        .y = LIST_Y,
-        .height = MESSAGES_BOTTOM,
-        .width = -SCROLL_WIDTH,
         .content_scroll = &scroll_group,
     },
     .type = 1
@@ -335,36 +313,29 @@ messages_group = {
 
 PANEL panel_list = {
     .type = PANEL_LIST,
-    .x = 0,
-    .y = LIST_Y,
-    .width = LIST_RIGHT + 1,
-    .height = LIST_BOTTOM,
     .content_scroll = &scroll_list,
 },
 
 panel_add = {
-    .y = LIST_Y,
     .drawfunc = drawadd_content,
     .content_scroll = &scroll_add,
     .child = (PANEL*[]) {
-            (void*)&button_addfriend,
-            (void*)&edit_addid, (void*)&edit_addmsg,
-
-            NULL
-        }
+        (void*)&button_addfriend,
+        (void*)&edit_addid, (void*)&edit_addmsg,
+        NULL
+    }
 },
 
 panel_settings = {
-    .y = LIST_Y,
     .drawfunc = drawsettings_content,
     .content_scroll = &scroll_settings,
     .child = (PANEL*[]) {
-            (void*)&button_copyid,
-            (void*)&button_callpreview, (void*)&button_videopreview,
-            (void*)&edit_name, (void*)&edit_status,
-            (void*)&dropdown_audio_in, (void*)&dropdown_audio_out, (void*)&dropdown_video,
-            NULL
-        }
+        (void*)&button_copyid,
+        (void*)&button_callpreview, (void*)&button_videopreview,
+        (void*)&edit_name, (void*)&edit_status,
+        (void*)&dropdown_audio_in, (void*)&dropdown_audio_out, (void*)&dropdown_video, (void*)&dropdown_dpi,
+        NULL
+    }
 },
 
 
@@ -438,10 +409,6 @@ panel_item[] = {
 
 panel_side = {
     .type = PANEL_NONE,
-    .x = LIST_RIGHT,
-    .y = 0,
-    .width = 0,
-    .height = 0,
     .child = (PANEL*[]) {
         &panel_item[0], &panel_item[1], &panel_item[2], &panel_item[3], &panel_item[4], &panel_item[5], NULL
     }
@@ -449,10 +416,6 @@ panel_side = {
 
 panel_main = {
     .type = PANEL_MAIN,
-    .x = 0,
-    .y = 0,
-    .width = 0,
-    .height = 0,
     .child = (PANEL*[]) {
         (void*)&button_add, (void*)&button_groups, (void*)&button_transfer, (void*)&button_settings,
         &panel_list, &panel_side,
@@ -460,6 +423,241 @@ panel_main = {
         NULL
     }
 };
+
+void ui_scale(uint8_t scale)
+{
+    SCALE = scale;
+
+    setscale();
+
+    list_scale();
+
+    panel_side.x = LIST_RIGHT;
+
+    panel_add.y = LIST_Y;
+    panel_settings.y = LIST_Y;
+
+    panel_list.y = LIST_Y;
+    panel_list.width = LIST_RIGHT + 1;
+    panel_list.height = LIST_BOTTOM;
+
+    messages_friend.panel.y = LIST_Y;
+    messages_friend.panel.height = MESSAGES_BOTTOM;
+    messages_friend.panel.width = -SCROLL_WIDTH;
+
+    messages_group.panel.y = LIST_Y;
+    messages_group.panel.height = MESSAGES_BOTTOM;
+    messages_group.panel.width = -SCROLL_WIDTH;
+
+    scroll_add.panel.y = LIST_Y;
+    scroll_add.content_height = 200 * SCALE;
+
+    scroll_settings.panel.y = LIST_Y;
+    scroll_settings.content_height = 400 * SCALE;
+
+    scroll_group.panel.y = LIST_Y;
+    scroll_group.panel.height = MESSAGES_BOTTOM;
+
+    scroll_friend.panel.y = LIST_Y;
+    scroll_friend.panel.height = MESSAGES_BOTTOM;
+
+    scroll_list.panel.y = LIST_Y;
+    scroll_list.panel.width = LIST_RIGHT + 1;
+    scroll_list.panel.height = LIST_BOTTOM;
+
+
+    PANEL b_add = {
+        .type = PANEL_BUTTON,
+        .x = 0,
+        .y = LIST_BOTTOM,
+        .width = SCALE * 27,
+        .height = -LIST_BOTTOM - 1,
+    },
+
+    b_groups = {
+        .type = PANEL_BUTTON,
+        .x = SCALE * 28 * 1,
+        .y = LIST_BOTTOM,
+        .width = SCALE * 27,
+        .height = -LIST_BOTTOM - 1,
+    },
+
+    b_transfer = {
+        .type = PANEL_BUTTON,
+        .x = SCALE * 28 * 2,
+        .y = LIST_BOTTOM,
+        .width = SCALE * 27,
+        .height = -LIST_BOTTOM - 1,
+    },
+
+    b_settings = {
+        .type = PANEL_BUTTON,
+        .x = SCALE * 28 * 3,
+        .y = LIST_BOTTOM,
+        .width = SCALE * 27,
+        .height = -LIST_BOTTOM - 1,
+    },
+
+    b_copyid = {
+        .type = PANEL_BUTTON,
+        .x = SCALE * 33,
+        .y = SCALE * 53,
+        .width = BM_SBUTTON_WIDTH,
+        .height = BM_SBUTTON_HEIGHT,
+    },
+
+    b_addfriend = {
+        .type = PANEL_BUTTON,
+        .x = -SCALE * 5 - BM_SBUTTON_WIDTH - SCROLL_WIDTH,
+        .y = SCALE * 84,
+        .width = BM_SBUTTON_WIDTH,
+        .height = BM_SBUTTON_HEIGHT,
+    },
+
+    b_call = {
+        .type = PANEL_BUTTON,
+        .x = -62 * SCALE,
+        .y = 5 * SCALE,
+        .width = BM_LBUTTON_WIDTH,
+        .height = BM_LBUTTON_HEIGHT,
+    },
+
+    b_video = {
+        .type = PANEL_BUTTON,
+        .x = -31 * SCALE,
+        .y = 5 * SCALE,
+        .width = BM_LBUTTON_WIDTH,
+        .height = BM_LBUTTON_HEIGHT,
+    },
+
+    b_sendfile = {
+        .type = PANEL_BUTTON,
+        .x = -93 * SCALE,
+        .y = 5 * SCALE,
+        .width = BM_LBUTTON_WIDTH,
+        .height = BM_LBUTTON_HEIGHT,
+    },
+
+    b_acceptfriend = {
+        .type = PANEL_BUTTON,
+        .x = SCALE * 5,
+        .y = LIST_Y + SCALE * 5,
+        .width = BM_SBUTTON_WIDTH,
+        .height = BM_SBUTTON_HEIGHT,
+    },
+
+    b_callpreview = {
+        .type = PANEL_BUTTON,
+        .x = 5 * SCALE,
+        .y = 89 * SCALE,
+        .width = BM_LBUTTON_WIDTH,
+        .height = BM_LBUTTON_HEIGHT,
+    },
+
+    b_videopreview = {
+        .type = PANEL_BUTTON,
+        .x = 36 * SCALE,
+        .y = 89 * SCALE,
+        .width = BM_LBUTTON_WIDTH,
+        .height = BM_LBUTTON_HEIGHT,
+    };
+
+    button_add.panel = b_add;
+    button_settings.panel = b_settings;
+    button_transfer.panel = b_transfer;
+    button_groups.panel = b_groups;
+    button_copyid.panel = b_copyid;
+    button_addfriend.panel = b_addfriend;
+    button_call.panel = b_call;
+    button_video.panel = b_video;
+    button_sendfile.panel = b_sendfile;
+    button_acceptfriend.panel = b_acceptfriend;
+    button_callpreview.panel = b_callpreview;
+    button_videopreview.panel = b_videopreview;
+
+    PANEL d_audio_in = {
+        .type = PANEL_DROPDOWN,
+        .x = 5 * SCALE,
+        .y = SCALE * 132,
+        .height = SCALE * 12,
+        .width = SCALE * 180
+    },
+
+    d_audio_out = {
+        .type = PANEL_DROPDOWN,
+        .x = 5 * SCALE,
+        .y = SCALE * 156,
+        .height = SCALE * 12,
+        .width = SCALE * 180
+    },
+
+    d_video = {
+        .type = PANEL_DROPDOWN,
+        .x = 5 * SCALE,
+        .y = SCALE * 180,
+        .height = SCALE * 12,
+        .width = SCALE * 180
+    },
+
+    d_dpi = {
+        .type = PANEL_DROPDOWN,
+        .x = 5 * SCALE,
+        .y = SCALE * 204,
+        .height = SCALE * 12,
+        .width = SCALE * 100
+    };
+
+    dropdown_audio_in.panel = d_audio_in;
+    dropdown_audio_out.panel = d_audio_out;
+    dropdown_video.panel = d_video;
+    dropdown_dpi.panel = d_dpi;
+
+    PANEL e_name = {
+        .type = PANEL_EDIT,
+        .x = 5 * SCALE,
+        .y = SCALE * 14,
+        .height = SCALE * 12,
+        .width = -SCROLL_WIDTH - 5 * SCALE
+    },
+
+    e_status = {
+        .type = PANEL_EDIT,
+        .x = 5 * SCALE,
+        .y = SCALE * 38,
+        .height = SCALE * 12,
+        .width = -SCROLL_WIDTH - 5 * SCALE
+    },
+
+    e_addid = {
+        .type = PANEL_EDIT,
+        .x = 5 * SCALE,
+        .y = SCALE * 14,
+        .height = SCALE * 12,
+        .width = -SCROLL_WIDTH - 5 * SCALE
+    },
+
+    e_addmsg = {
+        .type = PANEL_EDIT,
+        .x = 5 * SCALE,
+        .y = SCALE * 38,
+        .height = SCALE * 42,
+        .width = -SCROLL_WIDTH - 5 * SCALE,
+    },
+
+    e_msg = {
+        .type = PANEL_EDIT,
+        .x = 5 * SCALE,
+        .y = -47 * SCALE,
+        .height =  42 * SCALE,
+        .width = - 5 * SCALE,
+    };
+
+    edit_name.panel = e_name;
+    edit_status.panel = e_status;
+    edit_addid.panel = e_addid;
+    edit_addmsg.panel = e_addmsg;
+    edit_msg.panel = e_msg;
+}
 
 #define FUNC(x, ret, ...) static ret (* x##func[])(void *p, ##__VA_ARGS__) = { \
     (void*)background_##x, \
@@ -487,6 +685,31 @@ FUNC(mleave, _Bool);
     y += dy; \
     width = (p->width <= 0) ? width + p->width - dx : p->width; \
     height = (p->height <= 0) ? height + p->height - dy : p->height; }\
+
+static void panel_update(PANEL *p, int x, int y, int width, int height)
+{
+    FUNC();
+
+    if(p->type == PANEL_MESSAGES) {
+        MESSAGES *m = (void*)p;
+        m->width = width;
+        if(!p->disabled) {
+            messages_updateheight(m);
+        }
+    }
+
+    PANEL **pp = p->child, *subp;
+    if(pp) {
+        while((subp = *pp++)) {
+            panel_update(subp, x, y, width, height);
+        }
+    }
+}
+
+void ui_size(int width, int height)
+{
+    panel_update(&panel_main, 0, 0, width, height);
+}
 
 static void panel_draw_sub(PANEL *p, int x, int y, int width, int height)
 {
@@ -549,26 +772,6 @@ void panel_draw(PANEL *p, int x, int y, int width, int height)
     dropdown_drawactive();
 
     enddraw(x, y, width, height);
-}
-
-void panel_update(PANEL *p, int x, int y, int width, int height)
-{
-    FUNC();
-
-    if(p->type == PANEL_MESSAGES) {
-        MESSAGES *m = (void*)p;
-        m->width = width;
-        if(!p->disabled) {
-            messages_updateheight(m);
-        }
-    }
-
-    PANEL **pp = p->child, *subp;
-    if(pp) {
-        while((subp = *pp++)) {
-            panel_update(subp, x, y, width, height);
-        }
-    }
 }
 
 _Bool panel_mmove(PANEL *p, int x, int y, int width, int height, int mx, int my, int dy)

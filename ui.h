@@ -43,9 +43,10 @@ extern SCROLLABLE scroll_list;
 extern BUTTON button_add, button_settings, button_transfer;
 extern DROPDOWN dropdown_audio_in, dropdown_audio_out, dropdown_video;
 
-void panel_draw(PANEL *p, int x, int y, int width, int height);
+void ui_scale(uint8_t scale);
+void ui_size(int width, int height);
 
-void panel_update(PANEL *p, int x, int y, int width, int height);
+void panel_draw(PANEL *p, int x, int y, int width, int height);
 
 _Bool panel_mmove(PANEL *p, int x, int y, int width, int height, int mx, int my, int dy);
 void panel_mdown(PANEL *p);
@@ -75,9 +76,7 @@ extern uint32_t status_color[];
 
 /* metrics
  */
-#ifndef SCALE
-#define SCALE 2
-#endif
+uint8_t SCALE;
 
 /* side */
 #define LIST_X (8 * SCALE)

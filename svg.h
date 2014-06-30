@@ -5,6 +5,7 @@
 #define BM_STATUSAREA_WIDTH (10 * SCALE)
 #define BM_STATUSAREA_HEIGHT (20 * SCALE)
 
+#define _BM_ADD_WIDTH 9
 #define BM_ADD_WIDTH (9 * SCALE)
 #define BM_STATUS_WIDTH (5 * SCALE)
 #define BM_NMSG_WIDTH (9 * SCALE)
@@ -25,25 +26,14 @@
 
 #define BM_CONTACT_WIDTH (20 * SCALE)
 
+#define _BM_LBICON_WIDTH 11
 #define BM_LBICON_WIDTH (11 * SCALE)
+#define _BM_LBICON_HEIGHT 10
 #define BM_LBICON_HEIGHT (10 * SCALE)
 
 #define BM_FB_WIDTH (6 * SCALE)
 #define BM_FB_HEIGHT (5 * SCALE)
 
-//fix names
-/* rgb */
+void *svg_data;
 
-/* alpha */
-void *bm_scroll_bits, *bm_statusarea;
-
-void *bm_status_bits, *bm_nmsg;
-void *bm_lbutton, *bm_sbutton;
-void *bm_ft, *bm_ftm, *bm_ftb, *bm_no, *bm_pause, *bm_yes;
-
-void *bm_contact, *bm_group;
-
-void *bm_add, *bm_groups, *bm_transfer, *bm_settings;
-void *bm_call, *bm_file, *bm_video;
-
-void svg_draw(void);
+_Bool svg_draw(_Bool needmemory);

@@ -18,8 +18,8 @@ void button_draw(BUTTON *b, int x, int y, int width, int height)
     }
 
     if(b->bm2) {
-        int bx = width / 2 - b->bw / 2, by = height / 2 - b->bh / 2;
-        drawalpha(b->bm2, x + bx, y + by, b->bw, b->bh, WHITE);
+        int bx = width / 2 - b->bw * SCALE / 2, by = height / 2 - b->bh * SCALE / 2;
+        drawalpha(b->bm2, x + bx, y + by, b->bw * SCALE, b->bh * SCALE, WHITE);
     }
 
     if(b->str) {

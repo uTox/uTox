@@ -1,9 +1,6 @@
 #include "main.h"
 #include "math.h"
 
-#include "icons/file.c"
-#include "icons/call.c"
-
 #define SQRT2 1.41421356237309504880168872420969807856967187537694807317667973799
 
 static uint8_t pixel(double d) {
@@ -142,6 +139,35 @@ static void drawnewcircle(uint8_t *data, int width, int height, double cx, doubl
     }
 }
 
+static void drawnewcircle2(uint8_t *data, int width, int height, double cx, double cy, double subwidth, uint8_t flags)
+{
+    int x, y;
+    double hw = cx - 0.5, vw = cy - 0.5, sw = (double)subwidth / 2.0 - 1.0;
+    _Bool b = (flags & 1) != 0;
+
+    for(y = 0; y != height; y++) {
+        for(x = 0; x != width; x++) {
+            double dx = (x - hw), dy = (y - vw);
+            if(b && dy > 0) {
+                dy *= 1.25;
+            }
+
+            if(!b && dx > 0) {
+                dx *= 1.25;
+            }
+
+            double d = sqrt(dx * dx  + dy * dy) - sw;
+
+            if((b && dx < 0) || (!b && dy < 0)) {
+                *data++ = pixel(d);
+            } else {
+                *data = pixelmax(d, *data); data++;
+            }
+
+        }
+    }
+}
+
 static void drawhead(uint8_t *data, int width, int cx, int cy, int subwidth)
 {
     int x, y;
@@ -159,12 +185,12 @@ static void drawhead(uint8_t *data, int width, int cx, int cy, int subwidth)
     }
 }
 
-static void drawsubcircle(uint8_t *data, int width, double cx, double cy, double subwidth)
+static void drawsubcircle(uint8_t *data, int width, int height, double cx, double cy, double subwidth)
 {
     int x, y;
     double hw = cx - 0.5, vw = cy - 0.5, sw = subwidth / 2.0 - 1.0;
 
-    for(y = 0; y != width; y++) {
+    for(y = 0; y != height; y++) {
         for(x = 0; x != width; x++) {
             double dx = (x - hw), dy = (y - vw);
             double d = sqrt(dx * dx  + dy * dy) - sw;
@@ -271,77 +297,165 @@ static void drawtri(uint8_t *data, int width, int height, double sx, double sy, 
     }
 }
 
+static void drawlineround(uint8_t *data, int width, int height, double sx, double sy, double span, double radius, double subwidth, uint8_t flags)
+{
+    int x, y;
+    double cx = sx - 0.5, cy = sy - 0.5, sw = (double)subwidth / 2.0 - 1.0;
+
+    for(y = 0; y != height; y++) {
+        for(x = 0; x != width; x++) {
+            double dx = (double)x - cx, dy = (double)y - cy;
+            double d = (SQRT2 / 2.0) * fabs(dx + dy) - radius;
+            d = fmax(fabs(dx) + fabs(dy) - (SQRT2 / 2.0) * (double)span - radius, d);
+
+            double ddx, ddy, d2;
+
+            if(!flags) {
+                ddx = (double)x - cx - span * SQRT2; ddy = (double)y - cy + span * SQRT2;
+                d2 = sqrt(ddx * ddx  + ddy * ddy) - sw;
+
+                d = fmin(d, d2);
+            }
+
+            ddx = (double)x - cx + span * SQRT2; ddy = (double)y - cy - span * SQRT2;
+            d2 = sqrt(ddx * ddx  + ddy * ddy) - sw;
+
+            d = fmin(d, d2);
+
+            *data = pixelmax(d, *data); data++;
+        }
+    }
+}
+
+static void drawlineroundempty(uint8_t *data, int width, int height, double sx, double sy, double span, double radius, double subwidth)
+{
+    int x, y;
+    double cx = sx - 0.5, cy = sy - 0.5, sw = (double)subwidth / 2.0 - 1.0;
+
+    for(y = 0; y != height; y++) {
+        for(x = 0; x != width; x++) {
+            double dx = (double)x - cx, dy = (double)y - cy;
+            double d = (SQRT2 / 2.0) * fabs(dx + dy) - radius;
+            d = fmax(fabs(dx) + fabs(dy) - (SQRT2 / 2.0) * (double)span - radius, d);
+
+            double ddx = (double)x - cx - span * SQRT2 , ddy = (double)y - cy + span * SQRT2;
+            double d2 = sqrt(ddx * ddx  + ddy * ddy) - sw;
+
+            d = fmin(d, d2);
+
+            ddx = (double)x - cx + span * SQRT2; ddy = (double)y - cy - span * SQRT2;
+            d2 = sqrt(ddx * ddx  + ddy * ddy) - sw;
+
+            d = fmin(d, d2);
+
+            *data = pixelmin(d, *data); data++;
+        }
+    }
+}
+
+
 static void drawgroup(uint8_t *data, int width)
 {
     double s = (double)width / BM_CONTACT_WIDTH;
     drawnewcircle(data, width, s * 9 * SCALE, s * 5 * SCALE, s * 9 * SCALE, s * 8 * SCALE);
     drawnewcircle(data, width, s * 9 * SCALE, s * 15 * SCALE, s * 9 * SCALE, s * 8 * SCALE);
-    drawsubcircle(data, width, s * 5 * SCALE, s * 4 * SCALE, s * 6 * SCALE);
-    drawsubcircle(data, width, s * 15 * SCALE, s * 4 * SCALE, s * 6 * SCALE);
+    drawsubcircle(data, width, width, s * 5 * SCALE, s * 4 * SCALE, s * 6 * SCALE);
+    drawsubcircle(data, width, width, s * 15 * SCALE, s * 4 * SCALE, s * 6 * SCALE);
     drawhead(data, width, s * 5 * SCALE, s * 3 * SCALE, s * 5 * SCALE);
     drawhead(data, width, s * 15 * SCALE, s * 3 * SCALE, s * 5 * SCALE);
 
     drawnewcircle(data, width, s * 20 * SCALE, s * 10 * SCALE, s * 20 * SCALE, s * 15 * SCALE);
-    drawsubcircle(data, width, s * 10 * SCALE, s * 12 * SCALE, s * 7 * SCALE);
-    drawsubcircle(data, width, s * 10 * SCALE, s * 8 * SCALE, s * 10 * SCALE);
+    drawsubcircle(data, width, width, s * 10 * SCALE, s * 12 * SCALE, s * 7 * SCALE);
+    drawsubcircle(data, width, width, s * 10 * SCALE, s * 8 * SCALE, s * 10 * SCALE);
     drawhead(data, width, s * 10 * SCALE, s * 8 * SCALE, s * 8 * SCALE);
 }
 
-static void convert(uint8_t *dest, uint8_t *src, int size)
+_Bool svg_draw(_Bool needmemory)
 {
-    uint8_t *end = dest + size;
-    while(dest != end) {
-        *dest++ = *src;
-        src += 3;
+    int size, s;
+    void *p;
+
+    if(svg_data) {
+        free(svg_data);
     }
-}
 
-void svg_draw(void)
-{
-    bm_scroll_bits = malloc(SCROLL_WIDTH * SCROLL_WIDTH);
-    drawcircle(bm_scroll_bits, SCROLL_WIDTH);
+    size = SCROLL_WIDTH * SCROLL_WIDTH + BM_STATUSAREA_WIDTH * BM_STATUSAREA_HEIGHT + BM_ADD_WIDTH * BM_ADD_WIDTH * 4 +
+            BM_CONTACT_WIDTH * BM_CONTACT_WIDTH * 2 + BM_LBICON_WIDTH * BM_LBICON_HEIGHT * 3 + BM_STATUS_WIDTH * BM_STATUS_WIDTH * 4 +
+            BM_LBUTTON_WIDTH * BM_LBUTTON_HEIGHT + BM_SBUTTON_WIDTH * BM_SBUTTON_HEIGHT + BM_FT_WIDTH * BM_FT_HEIGHT +
+            BM_FTM_WIDTH * BM_FT_HEIGHT + (BM_FTB_WIDTH * (BM_FTB_HEIGHT + SCALE) + BM_FTB_WIDTH * BM_FTB_HEIGHT) +
+            BM_FB_WIDTH * BM_FB_HEIGHT * 3;
+    svg_data = calloc(1, size);
 
-    bm_statusarea = malloc(BM_STATUSAREA_WIDTH * BM_STATUSAREA_HEIGHT);
-    drawrectrounded(bm_statusarea, BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT, SCALE * 2);
+    if(!svg_data) {
+        return 0;
+    }
 
-    bm_add = malloc(BM_ADD_WIDTH * BM_ADD_WIDTH);
-    drawcross(bm_add, BM_ADD_WIDTH);
+    p = svg_data;
 
-    int s = BM_ADD_WIDTH * BM_ADD_WIDTH;
-    bm_groups = calloc(1, s);
-    drawgroup(bm_groups, BM_ADD_WIDTH);
+    drawcircle(p, SCROLL_WIDTH);
+    loadalpha(BM_SCROLLHALFTOP, p, SCROLL_WIDTH, SCROLL_WIDTH / 2);
+    loadalpha(BM_SCROLLHALFBOT, p + SCROLL_WIDTH * SCROLL_WIDTH / 2, SCROLL_WIDTH, SCROLL_WIDTH / 2);
+    p += SCROLL_WIDTH * SCROLL_WIDTH;
 
-    bm_transfer = calloc(1, s);
-    drawline(bm_transfer, BM_ADD_WIDTH, BM_ADD_WIDTH, SCALE * 3, SCALE * 3, SCALE * 5, 0.75 * SCALE);
-    drawline(bm_transfer, BM_ADD_WIDTH, BM_ADD_WIDTH, SCALE * 6, SCALE * 6, SCALE * 5, 0.75 * SCALE);
-    drawtri(bm_transfer, BM_ADD_WIDTH, BM_ADD_WIDTH, 6 * SCALE, 0, 4 * SCALE, 0);
-    drawtri(bm_transfer, BM_ADD_WIDTH, BM_ADD_WIDTH, 3 * SCALE, 9 * SCALE, 4 * SCALE, 1);
+    drawrectrounded(p, BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT, SCALE * 2);
+    loadalpha(BM_STATUSAREA, p, BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT);
+    p += BM_STATUSAREA_WIDTH * BM_STATUSAREA_HEIGHT;
 
-    bm_settings = malloc(s);
-    drawcross(bm_settings, BM_ADD_WIDTH);
-    drawxcross(bm_settings, BM_ADD_WIDTH, BM_ADD_WIDTH, BM_ADD_WIDTH);
-    drawnewcircle(bm_settings, BM_ADD_WIDTH, BM_ADD_WIDTH, 0.5 * BM_ADD_WIDTH, 0.5 * BM_ADD_WIDTH, 8 * SCALE);
-    drawsubcircle(bm_settings, BM_ADD_WIDTH, 0.5 * BM_ADD_WIDTH, 0.5 * BM_ADD_WIDTH, 4 * SCALE);
+    s = BM_ADD_WIDTH * BM_ADD_WIDTH;
+
+    drawcross(p, BM_ADD_WIDTH);
+    loadalpha(BM_ADD, p, BM_ADD_WIDTH, BM_ADD_WIDTH);
+    p += s;
+
+    drawgroup(p, BM_ADD_WIDTH);
+    loadalpha(BM_GROUPS, p, BM_ADD_WIDTH, BM_ADD_WIDTH);
+    p += s;
+
+    drawline(p, BM_ADD_WIDTH, BM_ADD_WIDTH, SCALE * 3, SCALE * 3, SCALE * 5, 0.75 * SCALE);
+    drawline(p, BM_ADD_WIDTH, BM_ADD_WIDTH, SCALE * 6, SCALE * 6, SCALE * 5, 0.75 * SCALE);
+    drawtri(p, BM_ADD_WIDTH, BM_ADD_WIDTH, 6 * SCALE, 0, 4 * SCALE, 0);
+    drawtri(p, BM_ADD_WIDTH, BM_ADD_WIDTH, 3 * SCALE, 9 * SCALE, 4 * SCALE, 1);
+    loadalpha(BM_TRANSFER, p, BM_ADD_WIDTH, BM_ADD_WIDTH);
+    p += s;
+
+    drawcross(p, BM_ADD_WIDTH);
+    drawxcross(p, BM_ADD_WIDTH, BM_ADD_WIDTH, BM_ADD_WIDTH);
+    drawnewcircle(p, BM_ADD_WIDTH, BM_ADD_WIDTH, 0.5 * BM_ADD_WIDTH, 0.5 * BM_ADD_WIDTH, 8 * SCALE);
+    drawsubcircle(p, BM_ADD_WIDTH, BM_ADD_WIDTH, 0.5 * BM_ADD_WIDTH, 0.5 * BM_ADD_WIDTH, 4 * SCALE);
+    loadalpha(BM_SETTINGS, p, BM_ADD_WIDTH, BM_ADD_WIDTH);
+    p += s;
 
     s = BM_CONTACT_WIDTH * BM_CONTACT_WIDTH;
-    bm_contact = calloc(1, s);
-    drawnewcircle(bm_contact, BM_CONTACT_WIDTH, 18 * SCALE, 10 * SCALE, 18 * SCALE, 15 * SCALE);
-    drawsubcircle(bm_contact, BM_CONTACT_WIDTH, 10 * SCALE, 10 * SCALE, 7 * SCALE);
-    drawhead(bm_contact, BM_CONTACT_WIDTH, 10 * SCALE, 6 * SCALE, 8 * SCALE);
 
-    bm_group = calloc(1, s);
-    drawgroup(bm_group, BM_CONTACT_WIDTH);
+    drawnewcircle(p, BM_CONTACT_WIDTH, 18 * SCALE, 10 * SCALE, 18 * SCALE, 15 * SCALE);
+    drawsubcircle(p, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, 10 * SCALE, 10 * SCALE, 7 * SCALE);
+    drawhead(p, BM_CONTACT_WIDTH, 10 * SCALE, 6 * SCALE, 8 * SCALE);
+    loadalpha(BM_CONTACT, p, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
+    p += s;
+
+    drawgroup(p, BM_CONTACT_WIDTH);
+    loadalpha(BM_GROUP, p, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
+    p += s;
 
     s = BM_LBICON_WIDTH * BM_LBICON_HEIGHT;
-    bm_file = malloc(s);
-    convert(bm_file, bm_file_bits, s);
 
-    bm_call = malloc(s);
-    convert(bm_call, bm_call_bits, s);
+    drawlineround(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, 5.5 * SCALE, 5 * SCALE, 1 * SCALE, 3.5 * SCALE, 6.6 * SCALE, 0);
+    drawlineroundempty(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, 5.5 * SCALE, 5 * SCALE, 1 * SCALE, 2 * SCALE, 4.5 * SCALE);
+    drawsubcircle(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, 5.9 * SCALE, 8 * SCALE, 2.5 * SCALE);
+    drawlineround(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, 6.75 * SCALE, 5 * SCALE, 0.5 * SCALE, 2.2 * SCALE, 4.25 * SCALE, 1);
+    drawlineroundempty(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, 7.0 * SCALE, 4.75 * SCALE, 0.75 * SCALE, 0.75 * SCALE, 2 * SCALE);
+    loadalpha(BM_FILE, p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT);
+    p += s;
 
-    bm_video = calloc(1, s);
+    drawnewcircle(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, SCALE, 0, 20 * SCALE);
+    drawsubcircle(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, SCALE, 0, 16 * SCALE);
+    drawnewcircle2(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, 9 * SCALE, 2 * SCALE, 4 * SCALE, 0);
+    drawnewcircle2(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, 3 * SCALE, 8 * SCALE, 4 * SCALE, 1);
+    loadalpha(BM_CALL, p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT);
+    p += s;
+
     int x, y;
-    uint8_t *data = bm_video;
+    uint8_t *data = p;
     for(y = 0; y != BM_LBICON_HEIGHT; y++) {
         for(x = 0; x != SCALE * 4; x++) {
             double d = fabs(y - 4.5 * SCALE) - 0.66 * (SCALE * 4 - x);
@@ -349,42 +463,79 @@ void svg_draw(void)
         }
         data += BM_LBICON_WIDTH - SCALE * 4;
     }
-    drawrectroundedsub(bm_video, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, 4 * SCALE, SCALE, 7 * SCALE, 7 * SCALE, SCALE);
+    drawrectroundedsub(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, 4 * SCALE, SCALE, 7 * SCALE, 7 * SCALE, SCALE);
+    loadalpha(BM_VIDEO, p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT);
+    p += s;
 
-    #define S (BM_STATUS_WIDTH * BM_STATUS_WIDTH)
-    bm_status_bits = malloc(S * 4);
-    drawcircle(bm_status_bits, BM_STATUS_WIDTH);
-    drawcircle(bm_status_bits + S, BM_STATUS_WIDTH);
-    drawcircle(bm_status_bits + S * 2, BM_STATUS_WIDTH);
-    drawcircle(bm_status_bits + S * 3, BM_STATUS_WIDTH);
-    drawsubcircle(bm_status_bits + S * 3, BM_STATUS_WIDTH, 0.5 * BM_STATUS_WIDTH, 0.5 * BM_STATUS_WIDTH, 4 * SCALE);
-    #undef S
+    s = BM_STATUS_WIDTH * BM_STATUS_WIDTH;
 
-    bm_lbutton = malloc(BM_LBUTTON_WIDTH * BM_LBUTTON_HEIGHT);
-    drawrectrounded(bm_lbutton, BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT, SCALE * 2);
+    drawcircle(p, BM_STATUS_WIDTH);
+    loadalpha(BM_ONLINE, p, BM_STATUS_WIDTH, BM_STATUS_WIDTH);
+    p += s;
 
-    bm_sbutton = malloc(BM_SBUTTON_WIDTH * BM_SBUTTON_HEIGHT);
-    drawrectrounded(bm_sbutton, BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT, SCALE);
+    drawcircle(p, BM_STATUS_WIDTH);
+    drawsubcircle(p, BM_STATUS_WIDTH, BM_STATUS_WIDTH / 2, 0.5 * BM_STATUS_WIDTH, 0.5 * BM_STATUS_WIDTH, 4 * SCALE);
+    loadalpha(BM_AWAY, p, BM_STATUS_WIDTH, BM_STATUS_WIDTH);
+    p += s;
 
-    bm_ft = malloc(BM_FT_WIDTH * BM_FT_HEIGHT);
-    drawrectrounded(bm_ft, BM_FT_WIDTH, BM_FT_HEIGHT, SCALE * 2);
+    drawcircle(p, BM_STATUS_WIDTH);
+    drawsubcircle(p, BM_STATUS_WIDTH, BM_STATUS_WIDTH / 2, 0.5 * BM_STATUS_WIDTH, 0.5 * BM_STATUS_WIDTH, 4 * SCALE);
+    loadalpha(BM_BUSY, p, BM_STATUS_WIDTH, BM_STATUS_WIDTH);
+    p += s;
 
-    bm_ftm = malloc(BM_FTM_WIDTH * BM_FT_HEIGHT);
-    drawrectroundedex(bm_ftm, BM_FTM_WIDTH, BM_FT_HEIGHT, SCALE * 2, 13);
+    drawcircle(p, BM_STATUS_WIDTH);
+    drawsubcircle(p, BM_STATUS_WIDTH, BM_STATUS_WIDTH, 0.5 * BM_STATUS_WIDTH, 0.5 * BM_STATUS_WIDTH, 4 * SCALE);
+    loadalpha(BM_OFFLINE, p, BM_STATUS_WIDTH, BM_STATUS_WIDTH);
+    p += s;
 
-    bm_ftb = malloc(BM_FTB_WIDTH * (BM_FTB_HEIGHT + SCALE) + BM_FTB_WIDTH * BM_FTB_HEIGHT);
-    drawrectroundedex(bm_ftb, BM_FTB_WIDTH, BM_FTB_HEIGHT + SCALE, SCALE * 2, 6);
-    drawrectroundedex(bm_ftb + BM_FTB_WIDTH * (BM_FTB_HEIGHT + SCALE), BM_FTB_WIDTH, BM_FTB_HEIGHT, SCALE * 2, 10);
+    drawrectrounded(p, BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT, SCALE * 2);
+    loadalpha(BM_LBUTTON, p, BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
+    p += BM_LBUTTON_WIDTH * BM_LBUTTON_HEIGHT;
+
+    drawrectrounded(p, BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT, SCALE);
+    loadalpha(BM_SBUTTON, p, BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+    p += BM_SBUTTON_WIDTH * BM_SBUTTON_HEIGHT;
+
+    drawrectrounded(p, BM_FT_WIDTH, BM_FT_HEIGHT, SCALE * 2);
+    loadalpha(BM_FT, p, BM_FT_WIDTH, BM_FT_HEIGHT);
+    p += BM_FT_WIDTH * BM_FT_HEIGHT;
+
+    drawrectroundedex(p, BM_FTM_WIDTH, BM_FT_HEIGHT, SCALE * 2, 13);
+    loadalpha(BM_FTM, p, BM_FTM_WIDTH, BM_FT_HEIGHT);
+    p += BM_FTM_WIDTH * BM_FT_HEIGHT;
+
+    drawrectroundedex(p, BM_FTB_WIDTH, BM_FTB_HEIGHT + SCALE, SCALE * 2, 6);
+    loadalpha(BM_FTB1, p, BM_FTB_WIDTH, BM_FTB_HEIGHT + SCALE);
+    p += BM_FTB_WIDTH * (BM_FTB_HEIGHT + SCALE);
+
+    drawrectroundedex(p, BM_FTB_WIDTH, BM_FTB_HEIGHT, SCALE * 2, 10);
+    loadalpha(BM_FTB2, p, BM_FTB_WIDTH, BM_FTB_HEIGHT);
+    p += BM_FTB_WIDTH * BM_FTB_HEIGHT;
 
     s = BM_FB_WIDTH * BM_FB_HEIGHT;
-    bm_no = calloc(1, s);
-    drawxcross(bm_no, BM_FB_WIDTH, BM_FB_HEIGHT, BM_FB_HEIGHT);
-    bm_pause = calloc(1, s);
-    drawlinevert(bm_pause, BM_FB_WIDTH, BM_FB_HEIGHT, 0.75 * SCALE, 1.25 * SCALE);
-    drawlinevert(bm_pause, BM_FB_WIDTH, BM_FB_HEIGHT, 4.25 * SCALE, 1.25 * SCALE);
 
-    bm_yes = calloc(1, s);
-    drawline(bm_yes, BM_FB_WIDTH, BM_FB_HEIGHT, SCALE * 3.75, SCALE * 2.75, SCALE * 4, 0.5 * SCALE);
-    drawlinedown(bm_yes, BM_FB_WIDTH, BM_FB_HEIGHT, SCALE * 1.9, SCALE * 3.25, SCALE * 2.5, 0.5 * SCALE);
+    drawxcross(p, BM_FB_WIDTH, BM_FB_HEIGHT, BM_FB_HEIGHT);
+    loadalpha(BM_NO, p, BM_FB_WIDTH, BM_FB_HEIGHT);
+    p += s;
 
+    drawlinevert(p, BM_FB_WIDTH, BM_FB_HEIGHT, 0.75 * SCALE, 1.25 * SCALE);
+    drawlinevert(p, BM_FB_WIDTH, BM_FB_HEIGHT, 4.25 * SCALE, 1.25 * SCALE);
+    loadalpha(BM_PAUSE, p, BM_FB_WIDTH, BM_FB_HEIGHT);
+    p += s;
+
+    drawline(p, BM_FB_WIDTH, BM_FB_HEIGHT, SCALE * 3.75, SCALE * 2.75, SCALE * 4, 0.5 * SCALE);
+    drawlinedown(p, BM_FB_WIDTH, BM_FB_HEIGHT, SCALE * 1.9, SCALE * 3.25, SCALE * 2.5, 0.5 * SCALE);
+    loadalpha(BM_YES, p, BM_FB_WIDTH, BM_FB_HEIGHT);
+    p += s;
+
+    if(p - svg_data != size) {
+        debug("something went wrong\n");
+    }
+
+    if(!needmemory) {
+        free(svg_data);
+        svg_data = NULL;
+    }
+
+    return 1;
 }

@@ -20,12 +20,9 @@
 
 #include "keysym2ucs.c"
 
-#define DEFAULT_WIDTH (382 * SCALE)
-#define DEFAULT_HEIGHT (320 * SCALE)
+#define DEFAULT_WIDTH (382 * DEFAULT_SCALE)
+#define DEFAULT_HEIGHT (320 * DEFAULT_SCALE)
 
-#define DEFAULT_BDWIDTH 0;//1 /* border width */
-
-char *text = "Hello Xft";
 Display *display;
 int screen;
 Window window;
@@ -37,7 +34,7 @@ Picture bitmap[32];
 
 Cursor cursor_arrow, cursor_hand, cursor_text;
 
-XftFont *font[32][64], **sfont;
+XftFont *font[16][64], **sfont;
 XftDraw *xftdraw;
 XftColor xftcolor;
 FcCharSet *charset;
@@ -50,6 +47,7 @@ Atom wm_protocols, wm_delete_window;
 uint32_t scolor;
 
 Atom XA_CLIPBOARD, XA_UTF8_STRING, targets;
+Atom XdndAware, XdndEnter, XdndLeave, XdndPosition, XdndStatus, XdndDrop, XdndSelection, XdndDATA, XdndActionCopy;
 
 Pixmap drawbuf;
 
@@ -63,8 +61,6 @@ static void setclipboard(void)
 {
     XSetSelectionOwner(display, XA_CLIPBOARD, window, CurrentTime);
 }
-
-Atom XdndAware, XdndEnter, XdndLeave, XdndPosition, XdndStatus, XdndDrop, XdndSelection, XdndDATA, XdndActionCopy;
 
 typedef struct
 {
@@ -131,7 +127,10 @@ static void initfonts(void)
     fs = FcFontSort(NULL, pat, 0, &charset, &result);
 
     FcPatternDestroy(pat);
+}
 
+static void loadfonts(void)
+{
      #define F(x) (x * SCALE / 2.0)
     font[FONT_TEXT][0] = XftFontOpen(display, screen, XFT_FAMILY, XftTypeString, "Roboto", XFT_PIXEL_SIZE, XftTypeDouble, F(12.0), NULL);
 
@@ -149,6 +148,19 @@ static void initfonts(void)
     #undef F
 }
 
+static void freefonts(void)
+{
+    int i;
+    for(i = 0; i != countof(font); i++) {
+        XftFont **f = font[i];
+        while(*f) {
+            XftFontClose(display, *f);
+            *f = NULL;
+            f++;
+        }
+    }
+}
+
 void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data)
 {
     XEvent event = {
@@ -164,11 +176,6 @@ void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data)
     };
 
     memcpy(&event.xclient.data.s[2], &data, sizeof(void*));
-
-    /* prevent sending before window is initialized */
-    while(!(volatile(window))) {
-        yieldcpu(1);
-    }
 
     XSendEvent(display, window, False, 0, &event);
     XFlush(display);
@@ -569,7 +576,7 @@ static Picture loadrgba(void *data, int width, int height)
     return picture;
 }
 
-static Picture loadalpha(void *data, int width, int height)
+void loadalpha(int bm, void *data, int width, int height)
 {
     Pixmap pixmap = XCreatePixmap(display, window, width, height, 8);
     XImage *img = XCreateImage(display, CopyFromParent, 8, ZPixmap, 0, data, width, height, 8, 0);
@@ -581,27 +588,50 @@ static Picture loadalpha(void *data, int width, int height)
     XFreeGC(display, legc);
     XFreePixmap(display, pixmap);
 
-    return picture;
+    bitmap[bm] = picture;
+}
+
+XSizeHints *xsh;
+
+void setscale(void)
+{
+    int i;
+    for(i = 0; i != countof(bitmap); i++) {
+        if(bitmap[i]) {
+            XRenderFreePicture(display, bitmap[i]);
+        }
+    }
+
+    svg_draw(0);
+
+    freefonts();
+    loadfonts();
+
+    font_small_lineheight = font[FONT_TEXT][0]->height;
+    font_msg_lineheight = font[FONT_MSG][0]->height;
+
+    if(xsh) {
+        XFree(xsh);
+    }
+
+    xsh = XAllocSizeHints();
+    xsh->flags = PMinSize;
+    xsh->min_width = 320 * SCALE;
+    xsh->min_height = 160 * SCALE;
+
+    XSetWMNormalHints(display, window, xsh);
+
+    if(width > 320 * SCALE && height > 160 * SCALE)
+    {
+        /* wont get a resize event, call this manually */
+        ui_size(width, height);
+    }
 }
 
 #include "event.c"
 
 int main(int argc, char *argv[])
 {
-    XSizeHints xsh = {
-        .flags = PSize | PMinSize,
-        .width = DEFAULT_WIDTH,
-        .min_width = 480,
-        .height = DEFAULT_HEIGHT,
-        .min_height = 320
-    };
-
-    /*XWMHints xwmh = {
-        .flags = InputHint | StateHint,
-        .input = False,
-        .initial_state = NormalState
-    };*/
-
     XInitThreads();
 
     if((display = XOpenDisplay(NULL)) == NULL) {
@@ -609,6 +639,59 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    screen = DefaultScreen(display);
+    cmap = DefaultColormap(display, screen);
+    visual = DefaultVisual(display, screen);
+    gc = DefaultGC(display, screen);
+
+    XSetWindowAttributes attrib = {
+        .background_pixel = WhitePixel(display, screen),
+        .border_pixel = BlackPixel(display, screen),
+        .event_mask = ExposureMask | ButtonPressMask | ButtonReleaseMask | EnterWindowMask | LeaveWindowMask |
+                    PointerMotionMask | StructureNotifyMask | KeyPressMask | KeyReleaseMask,
+    };
+
+    /* create window */
+    window = XCreateWindow(display, RootWindow(display, screen), 0, 0, DEFAULT_WIDTH, DEFAULT_HEIGHT, 0, 24, InputOutput, visual, CWBackPixel | CWBorderPixel | CWEventMask, &attrib);
+
+    /* start the tox thread */
+    thread(tox_thread, NULL);
+
+    /* load atoms */
+    wm_protocols = XInternAtom(display, "WM_PROTOCOLS", 0);
+    wm_delete_window = XInternAtom(display, "WM_DELETE_WINDOW", 0);
+
+    XA_CLIPBOARD = XInternAtom(display, "CLIPBOARD", 0);
+    XA_UTF8_STRING = XInternAtom(display, "UTF8_STRING", 1);
+    if(XA_UTF8_STRING == None) {
+	    XA_UTF8_STRING = XA_STRING;
+    }
+    targets = XInternAtom(display, "TARGETS", 0);
+
+    XdndAware = XInternAtom(display, "XdndAware", False);
+    XdndEnter = XInternAtom(display, "XdndEnter", False);
+    XdndLeave = XInternAtom(display, "XdndLeave", False);
+    XdndPosition = XInternAtom(display, "XdndPosition", False);
+    XdndStatus = XInternAtom(display, "XdndStatus", False);
+    XdndDrop = XInternAtom(display, "XdndDrop", False);
+    XdndSelection = XInternAtom(display, "XdndSelection", False);
+    XdndDATA = XInternAtom(display, "XdndDATA", False);
+    XdndActionCopy = XInternAtom(display, "XdndActionCopy", False);
+
+    /* create the draw buffer */
+    drawbuf = XCreatePixmap(display, window, DEFAULT_WIDTH, DEFAULT_HEIGHT, 24);
+
+    /* catch WM_DELETE_WINDOW */
+    XSetWMProtocols(display, window, &wm_delete_window, 1);
+
+    /* set drag and drog version */
+    Atom dndversion = 3;
+    XChangeProperty(display, window, XdndAware, XA_ATOM, 32, PropModeReplace, (uint8_t*)&dndversion, 1);
+
+    /* set the window name */
+    XSetStandardProperties(display, window, "uTox", "uTox", None, argv, argc, None);
+
+    /* load some gtk functions if we have gtk */
     libgtk = dlopen("libgtk-x11-2.0.so.0", RTLD_LAZY);
     if(libgtk) {
         debug("have GTK, our system is bloated\n");
@@ -634,121 +717,22 @@ int main(int argc, char *argv[])
         }
     } else {
         debug("no GTK, our system is clean\n");
+        /* todo: try Qt */
     }
 
-
-    thread(tox_thread, NULL);
-
-    screen = DefaultScreen(display);
-    cmap = DefaultColormap(display, screen);
-    visual = DefaultVisual(display, screen);
-
-    XA_CLIPBOARD = XInternAtom(display, "CLIPBOARD", 0);
-    XA_UTF8_STRING = XInternAtom(display, "UTF8_STRING", 1);
-    if (XA_UTF8_STRING == None) {
-	    XA_UTF8_STRING = XA_STRING;
-    }
-    targets = XInternAtom(display, "TARGETS", 0);
-
-    XdndAware = XInternAtom(display, "XdndAware", False);
-    XdndEnter = XInternAtom(display, "XdndEnter", False);
-    XdndLeave = XInternAtom(display, "XdndLeave", False);
-    XdndPosition = XInternAtom(display, "XdndPosition", False);
-    XdndStatus = XInternAtom(display, "XdndStatus", False);
-    XdndDrop = XInternAtom(display, "XdndDrop", False);
-    XdndSelection = XInternAtom(display, "XdndSelection", False);
-    XdndDATA = XInternAtom(display, "XdndDATA", False);
-    XdndActionCopy = XInternAtom(display, "XdndActionCopy", False);
-
-    wm_protocols = XInternAtom(display, "WM_PROTOCOLS", 0);
-    wm_delete_window = XInternAtom(display, "WM_DELETE_WINDOW", 0);
-    /*int nvi = 0, x;
-    XVisualInfo template;
-    template.depth = 32;
-    template.screen = screen;
-    XVisualInfo *vlist = XGetVisualInfo(display, VisualDepthMask, &template, &nvi);
-
-    for(x = 0; x < nvi; x++)
-    {
-        if(vlist[x].depth == 32)
-            break;
-    }
-
-    visual = vlist[x].visual;*/
-
-
-    XSetWindowAttributes attrib = {
-        .background_pixel = WhitePixel(display, screen),
-        .border_pixel = BlackPixel(display, screen),
-        .event_mask = ExposureMask | ButtonPressMask | ButtonReleaseMask | EnterWindowMask | LeaveWindowMask |
-                    PointerMotionMask | StructureNotifyMask | KeyPressMask | KeyReleaseMask,
-    };
-
-    //window = XCreateSimpleWindow(display, RootWindow(display, screen), 0, 0, 800, 600, 0, BlackPixel(display, screen), WhitePixel(display, screen));
-    window = XCreateWindow(display, RootWindow(display, screen), 0, 0, DEFAULT_WIDTH, DEFAULT_HEIGHT, 0, 24, InputOutput, visual, CWBackPixel | CWBorderPixel | CWEventMask, &attrib);
-    drawbuf = XCreatePixmap(display, window, DEFAULT_WIDTH, DEFAULT_HEIGHT, 24);
-    XSetWMProtocols(display, window, &wm_delete_window, 1);
-
-    //XSelectInput(display, window, ExposureMask | ButtonPressMask | ButtonReleaseMask | EnterWindowMask | LeaveWindowMask | PointerMotionMask | StructureNotifyMask | KeyPressMask | KeyReleaseMask);
-
+    /* initialize fontconfig */
     initfonts();
 
-    font_small_lineheight = font[FONT_TEXT][0]->height;
-    font_msg_lineheight = font[FONT_MSG][0]->height;
+    /* load fonts and scalable bitmaps */
+    ui_scale(DEFAULT_SCALE);
 
-    Atom version = 3;
-    XChangeProperty(display, window, XdndAware, XA_ATOM, 32, PropModeReplace, (uint8_t*)&version, 1);
-
-    svg_draw();
-
-    void *p = bm_status_bits;
-    bitmap[BM_ONLINE] = loadalpha(p, BM_STATUS_WIDTH, BM_STATUS_WIDTH); p += BM_STATUS_WIDTH * BM_STATUS_WIDTH;
-    bitmap[BM_AWAY] = loadalpha(p, BM_STATUS_WIDTH, BM_STATUS_WIDTH); p += BM_STATUS_WIDTH * BM_STATUS_WIDTH;
-    bitmap[BM_BUSY] = loadalpha(p, BM_STATUS_WIDTH, BM_STATUS_WIDTH); p += BM_STATUS_WIDTH * BM_STATUS_WIDTH;
-    bitmap[BM_OFFLINE] = loadalpha(p, BM_STATUS_WIDTH, BM_STATUS_WIDTH);
-
-    bitmap[BM_LBUTTON] = loadalpha(bm_lbutton, BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
-    bitmap[BM_SBUTTON] = loadalpha(bm_sbutton, BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
-    //bitmap[BM_NMSG] = loadalpha(bm_status_bits, BM_NMSG_WIDTH, BM_NMSG_WIDTH);
-
-
-    bitmap[BM_ADD] = loadalpha(bm_add, BM_ADD_WIDTH, BM_ADD_WIDTH);
-    bitmap[BM_GROUPS] = loadalpha(bm_groups, BM_ADD_WIDTH, BM_ADD_WIDTH);
-    bitmap[BM_TRANSFER] = loadalpha(bm_transfer, BM_ADD_WIDTH, BM_ADD_WIDTH);
-    bitmap[BM_SETTINGS] = loadalpha(bm_settings, BM_ADD_WIDTH, BM_ADD_WIDTH);
-
-    bitmap[BM_CONTACT] = loadalpha(bm_contact, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
-    bitmap[BM_GROUP] = loadalpha(bm_group, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
-
-    bitmap[BM_CALL] = loadalpha(bm_call, BM_LBICON_WIDTH, BM_LBICON_HEIGHT);
-    bitmap[BM_FILE] = loadalpha(bm_file, BM_LBICON_WIDTH, BM_LBICON_HEIGHT);
-    bitmap[BM_VIDEO] = loadalpha(bm_video, BM_LBICON_WIDTH, BM_LBICON_HEIGHT);
-
-    bitmap[BM_FT] = loadalpha(bm_ft, BM_FT_WIDTH, BM_FT_HEIGHT);
-    bitmap[BM_FTM] = loadalpha(bm_ftm, BM_FTM_WIDTH, BM_FT_HEIGHT);
-    bitmap[BM_FTB1] = loadalpha(bm_ftb, BM_FTB_WIDTH, BM_FTB_HEIGHT + SCALE);
-    bitmap[BM_FTB2] = loadalpha(bm_ftb + BM_FTB_WIDTH * (BM_FTB_HEIGHT + SCALE), BM_FTB_WIDTH, BM_FTB_HEIGHT);
-
-    bitmap[BM_NO] = loadalpha(bm_no, BM_FB_WIDTH, BM_FB_HEIGHT);
-    bitmap[BM_PAUSE] = loadalpha(bm_pause, BM_FB_WIDTH, BM_FB_HEIGHT);
-    bitmap[BM_YES] = loadalpha(bm_yes, BM_FB_WIDTH, BM_FB_HEIGHT);
-
-    bitmap[BM_SCROLLHALFTOP] = loadalpha(bm_scroll_bits, SCROLL_WIDTH, SCROLL_WIDTH / 2);
-    bitmap[BM_SCROLLHALFBOT] = loadalpha(bm_scroll_bits + SCROLL_WIDTH * SCROLL_WIDTH / 2, SCROLL_WIDTH, SCROLL_WIDTH / 2);
-    bitmap[BM_STATUSAREA] = loadalpha(bm_statusarea, BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT);
-
-    //testpicture = loadrgba(bm_contact_bits, 40, 40);
-
-    XSetStandardProperties(display, window, "uTox", "uTox", None, argv, argc, &xsh);
-    //XSetWMHints(display, window, &xwmh);
-
+    /* load the used cursors */
     cursor_arrow = XCreateFontCursor(display, XC_left_ptr);
     cursor_hand = XCreateFontCursor(display, XC_hand1);
     cursor_text = XCreateFontCursor(display, XC_xterm);
 
-    /* Xft draw context */
+    /* Xft draw context/color */
     xftdraw = XftDrawCreate(display, drawbuf, visual, cmap);
-    /* Xft text color */
     XRenderColor xrcolor;
     xrcolor.red = 0x0;
     xrcolor.green = 0x0;
@@ -756,27 +740,29 @@ int main(int argc, char *argv[])
     xrcolor.alpha = 0xffff;
     XftColorAllocValue(display, visual, cmap, &xrcolor, &xftcolor);
 
+    /* make the window visible */
     XMapWindow(display, window);
 
-    gc = DefaultGC(display, screen);//XCreateGC(display, window, 0, 0);
+    /* set the width/height of the drawing region */
+    width = DEFAULT_WIDTH;
+    height = DEFAULT_HEIGHT;
+    ui_size(width, height);
 
-    width = 800;
-    height = 600;
-
-    //load fonts
-    //load bitmaps
-
-    //wait for tox_thread init
+    /* wait for the tox thread to finish initializing */
     while(!tox_thread_init) {
         yieldcpu(1);
     }
 
+    /* set up the contact list */
     list_start();
 
+    /* draw */
     redraw();
 
+    /* event loop */
     while(doevent());
 
+    /* free everything (todo) */
     XFreePixmap(display, drawbuf);
 
     XftDrawDestroy(xftdraw);
@@ -784,6 +770,9 @@ int main(int argc, char *argv[])
 
     XDestroyWindow(display, window);
     XCloseDisplay(display);
+
+    FcFontSetSortDestroy(fs);
+    freefonts();
 
     return 0;
 }

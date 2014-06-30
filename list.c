@@ -78,6 +78,11 @@ static ITEM* newitem(void)
     return i;
 }
 
+void list_scale(void)
+{
+    scroll_list.content_height = itemcount * ITEM_HEIGHT;
+}
+
 static ITEM* item_hit(int mx, int my, int height)
 {
     if(mx < LIST_X || mx >= LIST_RIGHT) {

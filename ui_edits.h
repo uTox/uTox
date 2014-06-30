@@ -91,13 +91,6 @@ edit_msg_scroll = {
 };
 
 EDIT edit_name = {
-    .panel = {
-        .type = PANEL_EDIT,
-        .x = 5 * SCALE,
-        .y = SCALE * 14,
-        .height = SCALE * 12,
-        .width = -SCROLL_WIDTH - 5 * SCALE
-    },
     .maxlength = 128,
     .data = edit_name_data,
     .onenter = edit_name_onenter,
@@ -105,13 +98,6 @@ EDIT edit_name = {
 },
 
 edit_status = {
-    .panel = {
-        .type = PANEL_EDIT,
-        .x = 5 * SCALE,
-        .y = SCALE * 38,
-        .height = SCALE * 12,
-        .width = -SCROLL_WIDTH - 5 * SCALE
-    },
     .maxlength = 128,
     .data = edit_status_data,
     .onenter = edit_status_onenter,
@@ -119,25 +105,11 @@ edit_status = {
 },
 
 edit_addid = {
-    .panel = {
-        .type = PANEL_EDIT,
-        .x = 5 * SCALE,
-        .y = SCALE * 14,
-        .height = SCALE * 12,
-        .width = -SCROLL_WIDTH - 5 * SCALE
-    },
     .maxlength = sizeof(edit_addid_data),
     .data = edit_addid_data,
 },
 
 edit_addmsg = {
-    .panel = {
-        .type = PANEL_EDIT,
-        .x = 5 * SCALE,
-        .y = SCALE * 38,
-        .height = SCALE * 42,
-        .width = -SCROLL_WIDTH - 5 * SCALE,
-    },
     .multiline = 1,
     .scroll = &edit_addmsg_scroll,
     .maxlength = sizeof(edit_addmsg_data),
@@ -145,13 +117,6 @@ edit_addmsg = {
 },
 
 edit_msg = {
-    .panel = {
-        .type = PANEL_EDIT,
-        .x = 5 * SCALE,
-        .y = -47 * SCALE,
-        .height =  42 * SCALE,
-        .width = - 5 * SCALE,
-    },
     .multiline = 1,
     .scroll = &edit_msg_scroll,
     .maxlength = sizeof(edit_msg_data),

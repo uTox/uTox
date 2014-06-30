@@ -33,6 +33,8 @@ void list_selectaddfriend(void);
 void list_selectsettings(void);
 void list_selectswap(void);
 
+void list_scale(void);
+
 void list_draw(void *n, int x, int y, int width, int height);
 
 _Bool list_mmove(void *n, int x, int y, int width, int height, int mx, int my, int dy);

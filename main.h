@@ -20,6 +20,7 @@
 #define DEFAULT_NAME "Tox User"
 #define DEFAULT_STATUS "Toxing on uTox"
 #define DEFAULT_ADD_MESSAGE "Please accept this friend request."
+#define DEFAULT_SCALE 2
 
 typedef struct
 {
@@ -158,6 +159,8 @@ enum
 };
 
 void drawalpha(int bm, int x, int y, int width, int height, uint32_t color);
+void loadalpha(int bm, void *data, int width, int height);
+void setscale(void);
 
 //me
 struct

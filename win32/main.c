@@ -568,26 +568,9 @@ static void parsecmd(uint8_t *cmd, int len)
     list_selectaddfriend();
 }
 
-static void* loadalpha(void *data, int width, int height)
+void loadalpha(int bm, void *data, int width, int height)
 {
-    /*uint8_t *newdata = malloc(width * height * 4), *np = newdata;
-    uint8_t *p = data, *end = data + width * height;
-    while(p != end) {
-        *np++ = *p;
-        *np++ = *p;
-        *np++ = *p;
-        *np++ = *p;
-        p++;
-    }
-
-    HBITMAP bm = CreateBitmap(width, height, 1, 32, newdata);
-
-    //free(newdata);
-
-    return bm;*/
-
-    //return CreateBitmap(width, height, 1, 8, data);
-    return data;
+    bitmap[bm] = data;
 }
 
 void copy(void)
@@ -638,6 +621,57 @@ void paste(void)
     GlobalUnlock(h);
     CloseClipboard();
     edit_paste(data, len);
+}
+
+void setscale(void)
+{
+    int i;
+    for(i = 0; i != countof(font); i++) {
+        if(font[i]) {
+            DeleteObject(font[i]);
+        }
+    }
+
+    LOGFONT lf = {
+        .lfWeight = FW_NORMAL,
+        //.lfCharSet = ANSI_CHARSET,
+        .lfOutPrecision = OUT_TT_PRECIS,
+        .lfQuality = CLEARTYPE_QUALITY,
+        .lfFaceName = "DejaVu Sans",
+    };
+
+    #define F(x) ((-x * SCALE - 1) / 2)
+    lf.lfHeight = F(12);
+    font[FONT_TEXT] = CreateFontIndirect(&lf);
+
+    lf.lfHeight = F(11);
+    font[FONT_STATUS] = CreateFontIndirect(&lf);
+    lf.lfHeight = F(12);
+    font[FONT_LIST_NAME] = CreateFontIndirect(&lf);
+    lf.lfWeight = FW_BOLD;
+    font[FONT_TITLE] = CreateFontIndirect(&lf);
+    lf.lfHeight = F(14);
+    font[FONT_SELF_NAME] = CreateFontIndirect(&lf);
+    lf.lfHeight = F(10);
+    font[FONT_MISC] = CreateFontIndirect(&lf);
+    lf.lfWeight = FW_NORMAL; //FW_LIGHT <- light fonts dont antialias
+    font[FONT_MSG_NAME] = CreateFontIndirect(&lf);
+    lf.lfHeight = F(11);
+    font[FONT_MSG] = CreateFontIndirect(&lf);
+    lf.lfUnderline = 1;
+    font[FONT_MSG_LINK] = CreateFontIndirect(&lf);
+
+    #undef F
+
+    TEXTMETRIC tm;
+    SelectObject(hdc, font[FONT_TEXT]);
+    GetTextMetrics(hdc, &tm);
+    font_small_lineheight = tm.tmHeight + tm.tmExternalLeading;
+    SelectObject(hdc, font[FONT_MSG]);
+    GetTextMetrics(hdc, &tm);
+    font_msg_lineheight = tm.tmHeight + tm.tmExternalLeading;
+
+    svg_draw(1);
 }
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int nCmdShow)
@@ -692,14 +726,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
         .cbSize = sizeof(nid),
     };
 
-    LOGFONT lf = {
-        .lfWeight = FW_NORMAL,
-        //.lfCharSet = ANSI_CHARSET,
-        .lfOutPrecision = OUT_TT_PRECIS,
-        .lfQuality = CLEARTYPE_QUALITY,
-        .lfFaceName = "Roboto",
-    };
-
     RegisterClassW(&wc);
 
     x = (GetSystemMetrics(SM_CXSCREEN) - MAIN_WIDTH) / 2;
@@ -718,75 +744,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     nid.hWnd = hwnd;
     Shell_NotifyIcon(NIM_ADD, &nid);
 
-    //memcpy(lf.lfFaceName, "DejaVu Sans", sizeof("DejaVu Sans"));
-    #define F(x) ((-x * SCALE - 1) / 2)
-    lf.lfHeight = F(12);
-    font[FONT_TEXT] = CreateFontIndirect(&lf);
-
-    lf.lfHeight = F(11);
-    font[FONT_STATUS] = CreateFontIndirect(&lf);
-    lf.lfHeight = F(12);
-    font[FONT_LIST_NAME] = CreateFontIndirect(&lf);
-    lf.lfWeight = FW_BOLD;
-    font[FONT_TITLE] = CreateFontIndirect(&lf);
-    lf.lfHeight = F(14);
-    font[FONT_SELF_NAME] = CreateFontIndirect(&lf);
-    lf.lfHeight = F(10);
-    font[FONT_MISC] = CreateFontIndirect(&lf);
-    lf.lfWeight = FW_NORMAL; //FW_LIGHT <- light fonts dont antialias
-    font[FONT_MSG_NAME] = CreateFontIndirect(&lf);
-    lf.lfHeight = F(11);
-    font[FONT_MSG] = CreateFontIndirect(&lf);
-    lf.lfUnderline = 1;
-    font[FONT_MSG_LINK] = CreateFontIndirect(&lf);
-
-    #undef F
-
-    svg_draw();
-
-    void *p = bm_status_bits;
-    bitmap[BM_ONLINE] = loadalpha(p, BM_STATUS_WIDTH, BM_STATUS_WIDTH); p += BM_STATUS_WIDTH * BM_STATUS_WIDTH;
-    bitmap[BM_AWAY] = loadalpha(p, BM_STATUS_WIDTH, BM_STATUS_WIDTH); p += BM_STATUS_WIDTH * BM_STATUS_WIDTH;
-    bitmap[BM_BUSY] = loadalpha(p, BM_STATUS_WIDTH, BM_STATUS_WIDTH); p += BM_STATUS_WIDTH * BM_STATUS_WIDTH;
-    bitmap[BM_OFFLINE] = loadalpha(p, BM_STATUS_WIDTH, BM_STATUS_WIDTH);
-
-    bitmap[BM_LBUTTON] = loadalpha(bm_lbutton, BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
-    bitmap[BM_SBUTTON] = loadalpha(bm_sbutton, BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
-    //bitmap[BM_NMSG] = loadalpha(bm_status_bits, BM_NMSG_WIDTH, BM_NMSG_WIDTH);
-
-
-    bitmap[BM_ADD] = loadalpha(bm_add, BM_ADD_WIDTH, BM_ADD_WIDTH);
-    bitmap[BM_GROUPS] = loadalpha(bm_groups, BM_ADD_WIDTH, BM_ADD_WIDTH);
-    bitmap[BM_TRANSFER] = loadalpha(bm_transfer, BM_ADD_WIDTH, BM_ADD_WIDTH);
-    bitmap[BM_SETTINGS] = loadalpha(bm_settings, BM_ADD_WIDTH, BM_ADD_WIDTH);
-
-    bitmap[BM_CONTACT] = loadalpha(bm_contact, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
-    bitmap[BM_GROUP] = loadalpha(bm_group, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
-
-    bitmap[BM_CALL] = loadalpha(bm_call, BM_LBICON_WIDTH, BM_LBICON_HEIGHT);
-    bitmap[BM_FILE] = loadalpha(bm_file, BM_LBICON_WIDTH, BM_LBICON_HEIGHT);
-    bitmap[BM_VIDEO] = loadalpha(bm_video, BM_LBICON_WIDTH, BM_LBICON_HEIGHT);
-
-    bitmap[BM_FT] = loadalpha(bm_ft, BM_FT_WIDTH, BM_FT_HEIGHT);
-    bitmap[BM_FTM] = loadalpha(bm_ftm, BM_FTM_WIDTH, BM_FT_HEIGHT);
-    bitmap[BM_FTB1] = loadalpha(bm_ftb, BM_FTB_WIDTH, BM_FTB_HEIGHT + SCALE);
-    bitmap[BM_FTB2] = loadalpha(bm_ftb + BM_FTB_WIDTH * (BM_FTB_HEIGHT + SCALE), BM_FTB_WIDTH, BM_FTB_HEIGHT);
-
-    bitmap[BM_NO] = loadalpha(bm_no, BM_FB_WIDTH, BM_FB_HEIGHT);
-    bitmap[BM_PAUSE] = loadalpha(bm_pause, BM_FB_WIDTH, BM_FB_HEIGHT);
-    bitmap[BM_YES] = loadalpha(bm_yes, BM_FB_WIDTH, BM_FB_HEIGHT);
-
-    bitmap[BM_SCROLLHALFTOP] = loadalpha(bm_scroll_bits, SCROLL_WIDTH, SCROLL_WIDTH / 2);
-    bitmap[BM_SCROLLHALFBOT] = loadalpha(bm_scroll_bits + SCROLL_WIDTH * SCROLL_WIDTH / 2, SCROLL_WIDTH, SCROLL_WIDTH / 2);
-    bitmap[BM_STATUSAREA] = loadalpha(bm_statusarea, BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT);
-
-    TEXTMETRIC tm;
-    SelectObject(hdc, font[FONT_TEXT]);
-    GetTextMetrics(hdc, &tm);
-    font_small_lineheight = tm.tmHeight + tm.tmExternalLeading;
-    SelectObject(hdc, font[FONT_MSG]);
-    GetTextMetrics(hdc, &tm);
-    font_msg_lineheight = tm.tmHeight + tm.tmExternalLeading;
+    ui_scale(DEFAULT_SCALE);
 
     SetBkMode(hdc, TRANSPARENT);
 
@@ -859,7 +817,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     }
 
     case WM_GETMINMAXINFO: {
-        POINT min = {480, 320};
+        POINT min = {320 * SCALE, 160 * SCALE};
         ((MINMAXINFO*)lParam)->ptMinTrackSize = min;
 
         break;
@@ -902,7 +860,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
 
             debug("%u %u\n", w, h);
 
-            panel_update(&panel_main, 0, 0, width, height);
+            ui_size(w, h);
 
             if(hdc_bm) {
                 DeleteObject(hdc_bm);

@@ -552,7 +552,7 @@ static int msgheight(MESSAGE *msg, int width)
 void messages_updateheight(MESSAGES *m)
 {
     MSG_DATA *data = m->data;
-    if(!data || m->width == data->width) {
+    if(!data) {
         return;
     }
 

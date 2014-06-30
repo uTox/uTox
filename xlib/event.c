@@ -38,16 +38,20 @@ _Bool doevent(void)
 
     case ConfigureNotify: {
         XConfigureEvent *ev = &event.xconfigure;
-        width = ev->width;
-        height = ev->height;
+        if(width != ev->width || height != ev->height) {
+            debug("resize\n");
+            width = ev->width;
+            height = ev->height;
 
-        panel_update(&panel_main, 0, 0, width, height);
+            ui_size(width, height);
 
-        XFreePixmap(display, drawbuf);
-        drawbuf = XCreatePixmap(display, window, width, height, 24);
+            XFreePixmap(display, drawbuf);
+            drawbuf = XCreatePixmap(display, window, width, height, 24);
 
-        XftDrawDestroy(xftdraw);
-        xftdraw = XftDrawCreate(display, drawbuf, visual, cmap);
+            XftDrawDestroy(xftdraw);
+            xftdraw = XftDrawCreate(display, drawbuf, visual, cmap);
+        }
+
         break;
     }
 
