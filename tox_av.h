@@ -237,7 +237,7 @@ static void av_thread(void *args)
 
     alGenSources(countof(source), source);
 
-    av_thread_run = 1;
+    av_thread_init = 1;
 
     while(1) {
         if(toxav_thread_msg) {
@@ -482,5 +482,5 @@ static void av_thread(void *args)
     alcMakeContextCurrent(NULL);
     alcDestroyContext(context);
 
-    av_thread_run = 1;
+    av_thread_init = 0;
 }

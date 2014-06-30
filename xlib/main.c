@@ -762,7 +762,14 @@ int main(int argc, char *argv[])
     /* event loop */
     while(doevent());
 
-    /* free everything (todo) */
+    toxav_postmessage(AV_KILL, 0, 0, NULL);
+    tox_postmessage(TOX_KILL, 0, 0, NULL);
+
+    /* free client thread stuff */
+
+    FcFontSetSortDestroy(fs);
+    freefonts();
+
     XFreePixmap(display, drawbuf);
 
     XftDrawDestroy(xftdraw);
@@ -771,8 +778,12 @@ int main(int argc, char *argv[])
     XDestroyWindow(display, window);
     XCloseDisplay(display);
 
-    FcFontSetSortDestroy(fs);
-    freefonts();
+    /* wait for threads to exit */
+    while(tox_thread_init) {
+        yieldcpu(1);
+    }
+
+    debug("clean exit\n");
 
     return 0;
 }

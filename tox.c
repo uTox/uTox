@@ -25,8 +25,6 @@ static ALCdevice *device_out, *device_in;
 static ALCcontext *context;
 static ALuint source[MAX_CALLS];
 
-static volatile _Bool av_thread_run;
-
 static FILE_T *file_t[256], **file_tend = file_t;
 
 static void fillbuffer(FILE_T *ft)
@@ -419,17 +417,18 @@ void tox_thread(void *args)
         yieldcpu((interval > 20) ? 20 : interval);
     }
 
-    av_thread_run = 0;
     write_save(tox);
 
-    //toxav_kill(av);
+    while(av_thread_init) {
+        yieldcpu(1);
+    }
+
+    debug("av_thread exit, tox thread ending\n");
+
+    toxav_kill(av);
     tox_kill(tox);
 
-    /*while(!av_thread_run) {
-        yieldcpu();
-    }*/
-
-    tox_done = 1;
+    tox_thread_init = 0;
 }
 
 static void tox_thread_message(Tox *tox, ToxAv *av, uint8_t msg, uint16_t param1, uint16_t param2, void *data)

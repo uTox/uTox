@@ -769,15 +769,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
         DispatchMessage(&msg);
     }
 
+    /* kill threads */
+    toxav_postmessage(AV_KILL, 0, 0, NULL);
     tox_postmessage(TOX_KILL, 0, 0, NULL);
 
-    //cleanup
+    /* cleanup */
 
-    //delete tray icon
+    /* delete tray icon */
     Shell_NotifyIcon(NIM_DELETE, &nid);
 
-    //wait for tox_thread cleanup
-    while(!tox_done) { yieldcpu(1); }
+    /* wait for threads to exit */
+    while(tox_thread_init) {
+        yieldcpu(1);
+    }
 
     printf("clean exit\n");
 

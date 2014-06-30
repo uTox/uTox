@@ -39,7 +39,7 @@ enum {
  */
 enum
 {
-    AV_DONE,
+    AV_KILL,
     AV_SET_AUDIO_INPUT,
     AV_SET_AUDIO_OUTPUT,
     AV_SET_VIDEO,

@@ -80,7 +80,7 @@ struct groupchat
     MSG_DATA msg;
 };
 
-volatile _Bool tox_thread_init, tox_done;
+volatile _Bool tox_thread_init, av_thread_init;
 volatile _Bool video_preview, audio_preview;
 _Bool tox_connected;
 
