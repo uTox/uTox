@@ -1,3 +1,32 @@
+#ifdef __APPLE__
+_Bool v4l_init(char *dev_name)
+{
+    return 0;
+}
+
+void v4l_close(void)
+{
+}
+
+_Bool v4l_startread(void)
+{
+    return 0;
+}
+
+_Bool v4l_endread(void)
+{
+    return 0;
+}
+
+_Bool v4l_getframe(vpx_image_t *image)
+{
+    return 0;
+}
+#else
+#include <sys/mman.h>
+#include <linux/videodev2.h>
+#include <libv4lconvert.h>
+
 #define CLEAR(x) memset(&(x), 0, sizeof(x))
 
 static int xioctl(int fh, int request, void *arg)
@@ -301,3 +330,4 @@ _Bool v4l_getframe(vpx_image_t *image)
 
     return 1;
 }
+#endif

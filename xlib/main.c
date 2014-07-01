@@ -20,13 +20,14 @@
 
 #include <dlfcn.h>
 
-#include <sys/mman.h>
-#include <linux/videodev2.h>
-#include <libv4lconvert.h>
-
 #include "v4l.c"
 
 #include "keysym2ucs.c"
+
+#ifdef __APPLE__
+#include <mach/clock.h>
+#include <mach/mach.h>
+#endif
 
 #define DEFAULT_WIDTH (382 * DEFAULT_SCALE)
 #define DEFAULT_HEIGHT (320 * DEFAULT_SCALE)
@@ -426,6 +427,14 @@ uint64_t get_time(void)
     struct timespec ts;
     #ifdef CLOCK_MONOTONIC_RAW
     clock_gettime(CLOCK_MONOTONIC_RAW, &ts);
+    #elif defined(__APPLE__)
+    clock_serv_t muhclock;
+    mach_timespec_t machtime;
+    host_get_clock_service(mach_host_self(), SYSTEM_CLOCK, &muhclock);
+    clock_get_time(muhclock, &machtime);
+    mach_port_deallocate(mach_task_self(), muhclock);
+    ts.tv_sec = machtime.tv_sec;
+    ts.tv_nsec = machtime.tv_nsec;
     #else
     clock_gettime(CLOCK_MONOTONIC, &ts);
     #endif
@@ -805,6 +814,8 @@ void* video_detect(void)
 {
     char dev_name[] = "/dev/videoXX", *first = NULL;
 
+    #ifdef __APPLE__
+    #else
     int i;
     for(i = 0; i != 64; i++) {
         sprintf(dev_name + 10, "%i", i);
@@ -833,6 +844,7 @@ void* video_detect(void)
         }
 
     }
+    #endif
 
     initshm();
 

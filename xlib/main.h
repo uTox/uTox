@@ -3,7 +3,13 @@
 #include <X11/Xutil.h>
 
 #include <netinet/in.h>
+
+#ifdef __APPLE__
+#include <arpa/nameser_compat.h>
+#else
 #include <arpa/nameser.h>
+#endif
+
 #include <resolv.h>
 
 #include <errno.h>
