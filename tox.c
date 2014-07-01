@@ -191,6 +191,7 @@ static void callback_file_control(Tox *tox, int32_t fid, uint8_t receive_send, u
     case TOX_FILECONTROL_RESUME_BROKEN: {
         if(receive_send && length == 8) {
             resetft(tox, ft, *(uint64_t*)data);
+            tox_file_send_control(tox, fid, 1, filenumber, TOX_FILECONTROL_ACCEPT, NULL, 0);
         }
 
         break;
