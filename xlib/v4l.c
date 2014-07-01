@@ -1,3 +1,4 @@
+static int fd = -1;
 #ifdef __APPLE__
 _Bool v4l_init(char *dev_name)
 {
@@ -39,8 +40,6 @@ static int xioctl(int fh, int request, void *arg)
 
     return r;
 }
-
-static int fd = -1;
 struct buffer {
     void   *start;
     size_t  length;
