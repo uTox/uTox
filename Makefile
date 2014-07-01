@@ -11,11 +11,11 @@ OBJ = $(SRC:.c=.o)
 all: uTox
 
 uTox: $(OBJ)
-	$(CC) $(CFLAGS) -o uTox $(OBJ) $(LDFLAGS)
+	$(CC) $(CFLAGS) -o utox $(OBJ) $(LDFLAGS)
 
-install: uTox
+install: utox
 	mkdir -pv $(DESTDIR)/bin
-	install -m 0755 uTox $(DESTDIR)/bin
+	install -m 0755 utox $(DESTDIR)/bin
 
 main.o: xlib/main.c xlib/keysym2ucs.c
 
@@ -23,6 +23,6 @@ main.o: xlib/main.c xlib/keysym2ucs.c
 	$(CC) $(CFLAGS) -c $<
 
 clean:
-	rm -f uTox *.o
+	rm -f utox *.o
 
 .PHONY: all clean
