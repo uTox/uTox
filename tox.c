@@ -1050,6 +1050,7 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
     case GROUP_ADD: {
         GROUPCHAT *g = &group[param1];
         g->name_length = sprintf((char*)g->name, "Groupchat #%u", param1);
+        g->msg.scroll = 1.0;
         list_addgroup(g);
         redraw();
         break;
