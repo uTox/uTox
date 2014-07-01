@@ -54,6 +54,11 @@ Atom XdndAware, XdndEnter, XdndLeave, XdndPosition, XdndStatus, XdndDrop, XdndSe
 Pixmap drawbuf;
 
 XImage *screen_image;
+
+/* pointers to dynamically loaded libs */
+void *libgtk;
+#include "gtk.c"
+
 struct
 {
     int len;
@@ -64,23 +69,6 @@ static void setclipboard(void)
 {
     XSetSelectionOwner(display, XA_CLIPBOARD, window, CurrentTime);
 }
-
-typedef struct
-{
-    void *data, *next;
-}g_list;
-
-void *libgtk;
-void (*gtk_init)(int*, char***);
-_Bool (*gtk_events_pending)(void);
-void (*gtk_main_iteration)(void);
-void* (*gtk_file_chooser_dialog_new)(const char*, void*, int, const char*, ...);
-void (*gtk_file_chooser_set_select_multiple)(void*, _Bool);
-void (*gtk_file_chooser_set_current_name)(void*, char*);
-int (*gtk_dialog_run)(void*);
-void* (*gtk_file_chooser_get_filename)(void*);
-void* (*gtk_file_chooser_get_filenames)(void*);
-void (*gtk_widget_destroy)(void*);
 
 static XftFont* getfont(XftFont **font, uint32_t ch)
 {
@@ -465,59 +453,17 @@ void openurl(char_t *str)
     system(cmd);
 }
 
-void openfilesend()
+void openfilesend(void)
 {
     if(libgtk) {
-        void *dialog = gtk_file_chooser_dialog_new("Open File", NULL, 0, "gtk-cancel", -6, "gtk-open", -3, NULL);
-        gtk_file_chooser_set_select_multiple(dialog, 1);
-        int result = gtk_dialog_run(dialog);
-        if(result == -3) {
-            char *out = malloc(65536), *outp = out;
-            g_list *list = gtk_file_chooser_get_filenames(dialog), *p = list;
-            while(p) {
-                outp = stpcpy(outp, p->data);
-                *outp++ = '\n';
-                //g_free(p->data)
-                p = p->next;
-            }
-            //g_slist_free(list)
-            debug("files: %s\n", out);
-
-            tox_postmessage(TOX_SENDFILES, (FRIEND*)sitem->data - friend, 0xFFFF, out);
-        }
-
-        gtk_widget_destroy(dialog);
-        while(gtk_events_pending()) {
-            gtk_main_iteration();
-        }
+        gtk_openfilesend();
     }
 }
 
 void savefilerecv(uint32_t fid, MSG_FILE *file)
 {
     if(libgtk) {
-        void *dialog = gtk_file_chooser_dialog_new("Save File", NULL, 1, "gtk-cancel", -6, "gtk-save", -3, NULL);
-        char buf[sizeof(file->name) + 1];
-        memcpy(buf, file->name, file->name_length);
-        buf[file->name_length] = 0;
-        gtk_file_chooser_set_current_name(dialog, buf);
-        int result = gtk_dialog_run(dialog);
-        if(result == -3) {
-            char *name = gtk_file_chooser_get_filename(dialog);
-            int len = strlen(name) + 1;
-            char *path = malloc(len);
-            memcpy(path, name, len);
-            //g_free(name)
-
-            //debug("name: %s\npath: %s\n", name, path);
-
-            tox_postmessage(TOX_ACCEPTFILE, fid, file->filenumber, path);
-        }
-
-        gtk_widget_destroy(dialog);
-        while(gtk_events_pending()) {
-            gtk_main_iteration();
-        }
+        gtk_savefilerecv(fid, file);
     } else {
         //fall back to working dir
         char *path = malloc(file->name_length + 1);
@@ -699,33 +645,9 @@ int main(int argc, char *argv[])
     /* set the window name */
     XSetStandardProperties(display, window, "uTox", "uTox", None, argv, argc, None);
 
-    /* load some gtk functions if we have gtk */
-    libgtk = dlopen("libgtk-x11-2.0.so.0", RTLD_LAZY);
-    if(libgtk) {
-        debug("have GTK, our system is bloated\n");
-
-        gtk_init = dlsym(libgtk, "gtk_init");
-        gtk_main_iteration = dlsym(libgtk, "gtk_main_iteration");
-        gtk_events_pending = dlsym(libgtk, "gtk_events_pending");
-        gtk_file_chooser_dialog_new = dlsym(libgtk, "gtk_file_chooser_dialog_new");
-        gtk_dialog_run = dlsym(libgtk, "gtk_dialog_run");
-        gtk_file_chooser_get_filename = dlsym(libgtk, "gtk_file_chooser_get_filename");
-        gtk_file_chooser_get_filenames = dlsym(libgtk, "gtk_file_chooser_get_filenames");
-        gtk_file_chooser_set_select_multiple = dlsym(libgtk, "gtk_file_chooser_set_select_multiple");
-        gtk_file_chooser_set_current_name = dlsym(libgtk, "gtk_file_chooser_set_current_name");
-        gtk_widget_destroy = dlsym(libgtk, "gtk_widget_destroy");
-
-        if(!gtk_init || !gtk_main_iteration || !gtk_events_pending || !gtk_file_chooser_dialog_new || !gtk_dialog_run || !gtk_file_chooser_get_filename ||
-           !gtk_file_chooser_get_filenames || !gtk_file_chooser_set_select_multiple || !gtk_file_chooser_set_current_name || !gtk_widget_destroy) {
-            debug("bad GTK\n");
-            dlclose(libgtk);
-            libgtk = NULL;
-        } else {
-            gtk_init(&argc, &argv);
-        }
-    } else {
-        debug("no GTK, our system is clean\n");
-        /* todo: try Qt */
+    /* choose available libraries for optional UI stuff */
+    if(!(libgtk = gtk_load())) {
+        //try Qt
     }
 
     /* initialize fontconfig */
@@ -777,6 +699,9 @@ int main(int argc, char *argv[])
     tox_postmessage(TOX_KILL, 0, 0, NULL);
 
     /* free client thread stuff */
+    if(libgtk) {
+
+    }
 
     FcFontSetSortDestroy(fs);
     freefonts();
@@ -1192,6 +1117,7 @@ _Bool video_getframe(vpx_image_t *image)
         XDestroyImage(screen_image);
         return 1;
     }
+
     struct v4l2_buffer buf;
     //unsigned int i;
 
