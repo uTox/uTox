@@ -8,6 +8,8 @@
 #include <X11/cursorfont.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
+#include <sys/shm.h>
+#include <X11/extensions/XShm.h>
 
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -51,6 +53,7 @@ Atom XdndAware, XdndEnter, XdndLeave, XdndPosition, XdndStatus, XdndDrop, XdndSe
 
 Pixmap drawbuf;
 
+XImage *screen_image;
 struct
 {
     int len;
@@ -630,6 +633,9 @@ void setscale(void)
 
 #include "event.c"
 
+int depth;
+Screen *scr;
+
 int main(int argc, char *argv[])
 {
     XInitThreads();
@@ -643,6 +649,8 @@ int main(int argc, char *argv[])
     cmap = DefaultColormap(display, screen);
     visual = DefaultVisual(display, screen);
     gc = DefaultGC(display, screen);
+    depth = DefaultDepth(display, screen);
+    scr = DefaultScreenOfDisplay(display);
 
     XSetWindowAttributes attrib = {
         .background_pixel = WhitePixel(display, screen),
@@ -652,7 +660,7 @@ int main(int argc, char *argv[])
     };
 
     /* create window */
-    window = XCreateWindow(display, RootWindow(display, screen), 0, 0, DEFAULT_WIDTH, DEFAULT_HEIGHT, 0, 24, InputOutput, visual, CWBackPixel | CWBorderPixel | CWEventMask, &attrib);
+    window = XCreateWindow(display, RootWindow(display, screen), 0, 0, DEFAULT_WIDTH, DEFAULT_HEIGHT, 0, depth, InputOutput, visual, CWBackPixel | CWBorderPixel | CWEventMask, &attrib);
 
     /* start the tox thread */
     thread(tox_thread, NULL);
@@ -679,7 +687,7 @@ int main(int argc, char *argv[])
     XdndActionCopy = XInternAtom(display, "XdndActionCopy", False);
 
     /* create the draw buffer */
-    drawbuf = XCreatePixmap(display, window, DEFAULT_WIDTH, DEFAULT_HEIGHT, 24);
+    drawbuf = XCreatePixmap(display, window, DEFAULT_WIDTH, DEFAULT_HEIGHT, depth);
 
     /* catch WM_DELETE_WINDOW */
     XSetWMProtocols(display, window, &wm_delete_window, 1);
@@ -739,6 +747,9 @@ int main(int argc, char *argv[])
     xrcolor.blue = 0x0;
     xrcolor.alpha = 0xffff;
     XftColorAllocValue(display, visual, cmap, &xrcolor, &xftcolor);
+
+    /* set-up desktop video input */
+    dropdown_add(&dropdown_video, (uint8_t*)"Desktop", (void*)"");
 
     /* make the window visible */
     XMapWindow(display, window);
@@ -867,6 +878,34 @@ static int xioctl(int fh, int request, void *arg)
     return r;
 }
 
+Display *deskdisplay;
+int deskscreen;
+
+void initshm(void)
+{
+    deskdisplay = XOpenDisplay(NULL);
+    deskscreen = DefaultScreen(deskdisplay);
+    //debug("desktop: %u %u\n", scr->width, scr->height);
+
+    /*XShmSegmentInfo shminfo;
+    if(!(screen_image = XShmCreateImage(deskdisplay, DefaultVisual(deskdisplay, deskscreen), DefaultDepth(deskdisplay, deskscreen), ZPixmap, NULL, &shminfo, 640, 480))) {
+       return;
+    }
+
+    if((shminfo.shmid = shmget(IPC_PRIVATE, screen_image->bytes_per_line * screen_image->height, IPC_CREAT | 0777)) < 0) {
+        return;
+    }
+
+    if((shminfo.shmaddr = screen_image->data = (char*)shmat(shminfo.shmid, 0, 0)) == (char*)-1) {
+        return;
+    }
+
+    shminfo.readOnly = False;
+    if(!XShmAttach(deskdisplay, &shminfo)) {
+        return;
+    }*/
+}
+
 void* video_detect(void)
 {
     char dev_name[] = "/dev/videoXX", *first = NULL;
@@ -893,9 +932,14 @@ void* video_detect(void)
         memcpy(p + sizeof(void*), dev_name, sizeof(dev_name));
         if(!first) {
             first = pp;
+            postmessage(NEW_VIDEO_DEVICE, 1, 0, p);
+        } else {
+            postmessage(NEW_VIDEO_DEVICE, 0, 0, p);
         }
-        postmessage(NEW_VIDEO_DEVICE, 0, 0, p);
+
     }
+
+    initshm();
 
     return first;
 }
@@ -903,6 +947,12 @@ void* video_detect(void)
 _Bool video_init(void *handle)
 {
     char *dev_name = handle;
+    if(!dev_name[0]) {
+        fd = -1;
+        video_width = scr->width;
+        video_height = scr->height;
+        return 1;
+    }
 
     fd = open(dev_name, O_RDWR /* required */ | O_NONBLOCK, 0);
 
@@ -1066,6 +1116,11 @@ _Bool video_init(void *handle)
 
 void video_close(void *handle)
 {
+    if(!*(uint8_t*)handle) {
+        //desktop
+        return;
+    }
+
     int i;
     for(i = 0; i < n_buffers; ++i) {
         if(-1 == munmap(buffers[i].start, buffers[i].length)) {
@@ -1078,6 +1133,10 @@ void video_close(void *handle)
 
 _Bool video_startread(void)
 {
+    if(fd == -1) {
+        return 1;
+    }
+
     debug("start webcam\n");
     unsigned int i;
     enum v4l2_buf_type type;
@@ -1108,6 +1167,10 @@ _Bool video_startread(void)
 
 _Bool video_endread(void)
 {
+    if(fd == -1) {
+        return 1;
+    }
+
     debug("stop webcam\n");
     enum v4l2_buf_type type;
     type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -1121,6 +1184,14 @@ _Bool video_endread(void)
 
 _Bool video_getframe(vpx_image_t *image)
 {
+    if(fd == -1) {
+        screen_image = XGetImage(deskdisplay,RootWindow(deskdisplay, DefaultScreen(deskdisplay)), 0, 0, scr->width, scr->height, XAllPlanes(), ZPixmap);
+
+        //XShmGetImage(deskdisplay,RootWindow(deskdisplay, deskscreen), screen_image, 0, 0, AllPlanes);
+        rgbxtoyuv420(image->planes[0], image->planes[1], image->planes[2], (uint8_t*)screen_image->data, screen_image->width, screen_image->height);
+        XDestroyImage(screen_image);
+        return 1;
+    }
     struct v4l2_buffer buf;
     //unsigned int i;
 

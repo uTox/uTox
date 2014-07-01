@@ -58,5 +58,6 @@ dropdown_dpi = {
     .onselect = dropdown_dpi_onselect,
     .dropcount = 4,
     .selected = 1,
+    .over = 1,
     .drop = dpidrops
 };

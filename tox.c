@@ -799,6 +799,7 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
     }
 
     case NEW_VIDEO_DEVICE: {
+        dropdown_video.selected = dropdown_video.over = dropdown_video.dropcount;
         dropdown_add(&dropdown_video, data + sizeof(void*), *(void**)data);
         break;
     }

@@ -397,3 +397,45 @@ void rgbtoyuv420(uint8_t *plane_y, uint8_t *plane_u, uint8_t *plane_v, uint8_t *
         }
     }
 }
+
+void rgbxtoyuv420(uint8_t *plane_y, uint8_t *plane_u, uint8_t *plane_v, uint8_t *rgb, uint16_t width, uint16_t height)
+{
+    size_t line, x;
+    for( line = 0; line < height; ++line )
+    {
+        if( !(line % 2) )
+        {
+            for( x = 0; x < width; x += 2 )
+            {
+                uint8_t r = *rgb++;
+                uint8_t g = *rgb++;
+                uint8_t b = *rgb++;
+                rgb++;
+
+                *plane_y++ = ((66*r + 129*g + 25*b) >> 8) + 16;
+
+                *plane_u++ = ((-38*r + -74*g + 112*b) >> 8) + 128;
+                *plane_v++ = ((112*r + -94*g + -18*b) >> 8) + 128;
+
+                r = *rgb++;
+                g = *rgb++;
+                b = *rgb++;
+                rgb++;
+
+                *plane_y++ = ((66*r + 129*g + 25*b) >> 8) + 16;
+            }
+        }
+        else
+        {
+            for( x = 0; x < width; x += 1 )
+            {
+                uint8_t r = *rgb++;
+                uint8_t g = *rgb++;
+                uint8_t b = *rgb++;
+                rgb++;
+
+                *plane_y++ = ((66*r + 129*g + 25*b) >> 8) + 16;
+            }
+        }
+    }
+}
