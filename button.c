@@ -32,6 +32,9 @@ void button_draw(BUTTON *b, int x, int y, int width, int height)
 _Bool button_mmove(BUTTON *b, int x, int y, int width, int height, int mx, int my, int dy)
 {
     _Bool mouseover = inrect(mx, my, 0, 0, width, height);
+    if(mouseover) {
+        hand = 1;
+    }
     if(mouseover != b->mouseover) {
         b->mouseover = mouseover;
         return 1;
