@@ -21,6 +21,7 @@
 #include <dlfcn.h>
 
 #include "v4l.c"
+#include "dbus.c"
 
 #include "keysym2ucs.c"
 
@@ -48,6 +49,8 @@ XftDraw *xftdraw;
 XftColor xftcolor;
 FcCharSet *charset;
 FcFontSet *fs;
+
+_Bool havefocus = 0;
 
 Window video_win[256];
 
@@ -489,21 +492,6 @@ void savefilerecv(uint32_t fid, MSG_FILE *file)
     }
 }
 
-void sysmexit(void)
-{
-
-}
-
-void sysmsize(void)
-{
-
-}
-
-void sysmmini(void)
-{
-
-}
-
 void setselection(void)
 {
     XSetSelectionOwner(display, XA_PRIMARY, window, CurrentTime);
@@ -523,21 +511,6 @@ static void pasteclipboard(void)
     if(owner) {
         XConvertSelection(display, XA_CLIPBOARD, XA_UTF8_STRING, targets, window, CurrentTime);
     }
-}
-
-static Picture loadrgba(void *data, int width, int height)
-{
-    Pixmap pixmap = XCreatePixmap(display, window, width, height, 32);
-    XImage *img = XCreateImage(display, CopyFromParent, 32, ZPixmap, 0, data, width, height, 32, 0);
-    GC legc = XCreateGC(display, pixmap, 0, NULL);
-    XPutImage(display, pixmap, legc, img, 0, 0, 0, 0, width, height);
-
-    Picture picture = XRenderCreatePicture(display, pixmap, XRenderFindStandardFormat(display, PictStandardARGB32), 0, NULL);
-
-    XFreeGC(display, legc);
-    XFreePixmap(display, pixmap);
-
-    return picture;
 }
 
 void loadalpha(int bm, void *data, int width, int height)
@@ -592,6 +565,22 @@ void setscale(void)
     }
 }
 
+void notify(uint8_t *title, uint16_t title_length, uint8_t *msg, uint16_t msg_length)
+{
+    if(havefocus) {
+        return;
+    }
+
+    XWMHints hints = {.flags = 256};
+    XSetWMHints(display, window, &hints);
+
+    char *p = malloc(msg_length + 1);
+    memcpy(p, msg, msg_length);
+    p[msg_length] = 0;
+    dbus_notify((char*)title, p);
+    free(p);
+}
+
 #include "event.c"
 
 int depth;
@@ -617,7 +606,7 @@ int main(int argc, char *argv[])
         .background_pixel = WhitePixel(display, screen),
         .border_pixel = BlackPixel(display, screen),
         .event_mask = ExposureMask | ButtonPressMask | ButtonReleaseMask | EnterWindowMask | LeaveWindowMask |
-                    PointerMotionMask | StructureNotifyMask | KeyPressMask | KeyReleaseMask,
+                    PointerMotionMask | StructureNotifyMask | KeyPressMask | KeyReleaseMask | FocusChangeMask,
     };
 
     /* create window */

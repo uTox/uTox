@@ -160,6 +160,7 @@ enum
 
 void drawalpha(int bm, int x, int y, int width, int height, uint32_t color);
 void loadalpha(int bm, void *data, int width, int height);
+void notify(uint8_t *title, uint16_t title_length, uint8_t *msg, uint16_t msg_length);
 void setscale(void);
 
 //me

@@ -625,6 +625,10 @@ void paste(void)
     edit_paste(data, len);
 }
 
+void notify(uint8_t *title, uint16_t title_length, uint8_t *msg, uint16_t msg_length)
+{
+}
+
 void setscale(void)
 {
     int i;

@@ -1,7 +1,7 @@
-CFLAGS = $(shell pkg-config --cflags freetype2 x11 xft openal)
-CFLAGS += -g -pthread -std=gnu99 -DV4L
-LDFLAGS = $(shell pkg-config --libs freetype2 x11 xft openal)
-LDFLAGS += -lX11 -lXft -lXrender -ltoxcore -ltoxav -ltoxdns -lopenal -pthread -lresolv -ldl -lm -lfontconfig -lv4lconvert -lvpx -DV4L
+CFLAGS = $(shell pkg-config --cflags freetype2 x11 xft openal dbus)
+CFLAGS += -g -pthread -std=gnu99
+LDFLAGS = $(shell pkg-config --libs freetype2 x11 xft openal dbus)
+LDFLAGS += -lX11 -lXft -lXrender -ltoxcore -ltoxav -ltoxdns -lopenal -pthread -lresolv -ldl -lm -lfontconfig -lv4lconvert -lvpx
 
 DESTDIR=/usr/local
 

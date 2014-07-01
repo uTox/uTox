@@ -1,4 +1,3 @@
-
 _Bool doevent(void)
 {
     XEvent event;
@@ -33,6 +32,18 @@ _Bool doevent(void)
     case Expose: {
         redraw();
         debug("expose\n");
+        break;
+    }
+
+    case FocusIn: {
+        havefocus = 1;
+        XWMHints hints = {0};
+        XSetWMHints(display, window, &hints);
+        break;
+    }
+
+    case FocusOut: {
+        havefocus = 0;
         break;
     }
 

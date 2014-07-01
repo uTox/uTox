@@ -29,7 +29,13 @@ void friend_setname(FRIEND *f, char_t *name, uint16_t length)
 
 void friend_addmessage(FRIEND *f, void *data)
 {
+    MESSAGE *msg = data;
+
     message_add(&messages_friend, data, &f->msg);
+
+    if(msg->flags < 4) {
+        notify(f->name, f->name_length, msg->msg, msg->length);
+    }
 
     if(sitem->data != f) {
         f->notify = 1;
