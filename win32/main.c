@@ -29,7 +29,9 @@ extern const CLSID CLSID_SampleGrabber;
 extern const CLSID CLSID_NullRenderer;
 
 #include <process.h>
-//#define CLEARTYPE_QUALITY 5
+
+#undef CLEARTYPE_QUALITY
+#define CLEARTYPE_QUALITY 5
 
 #define WM_NOTIFYICON   (WM_APP + 0)
 #define WM_TOX          (WM_APP + 1)
@@ -1141,8 +1143,8 @@ void video_frame(uint32_t id, vpx_image_t *frame)
     SelectObject(dc_src, bitmap);
     BitBlt(dc, 0, 0, frame->d_w, frame->d_h, dc_src, 0, 0, SRCCOPY);
 
-
     DeleteObject(bitmap);
+    DeleteDC(dc_src);
     free(img_data);
 }
 
@@ -1310,7 +1312,7 @@ done:
     return hr;
 }
 
-HRESULT ConnectFilters2(IGraphBuilder *pGraph, IPin *pOut, IBaseFilter *pDest)
+IPin* ConnectFilters2(IGraphBuilder *pGraph, IPin *pOut, IBaseFilter *pDest)
 {
     IPin *pIn = NULL;
 
@@ -1322,7 +1324,7 @@ HRESULT ConnectFilters2(IGraphBuilder *pGraph, IPin *pOut, IBaseFilter *pDest)
         hr = pGraph->lpVtbl->Connect(pGraph, pOut, pIn);
         pIn->lpVtbl->Release(pIn);
     }
-    return hr;
+    return SUCCEEDED(hr) ? pIn : NULL;
 }
 
 HRESULT ConnectFilters(IGraphBuilder *pGraph, IBaseFilter *pSrc, IBaseFilter *pDest)
@@ -1333,7 +1335,9 @@ HRESULT ConnectFilters(IGraphBuilder *pGraph, IBaseFilter *pSrc, IBaseFilter *pD
     HRESULT hr = FindUnconnectedPin(pSrc, PINDIR_OUTPUT, &pOut);
     if (SUCCEEDED(hr))
     {
-        hr = ConnectFilters2(pGraph, pOut, pDest);
+        if(!ConnectFilters2(pGraph, pOut, pDest)) {
+            hr = 1;
+        }
         pOut->lpVtbl->Release(pOut);
     }
     return hr;
@@ -1463,6 +1467,12 @@ void* video_detect(void)
         return 0;
     }
 
+    hr = ConnectFilters(pGraph, pGrabberF, pNullF);
+    if(FAILED(hr)) {
+        debug("ConnectFilters (2) failed\n");
+        return 0;
+    }
+
     ISampleGrabberCB *test;
     test = malloc(sizeof(ISampleGrabberCB));
     test->lpVtbl = malloc(sizeof(*(test->lpVtbl)));
@@ -1481,6 +1491,8 @@ void* video_detect(void)
     return pFilter;
 }
 
+IPin *pPin = NULL, *pIPin;
+
 _Bool video_init(void *handle)
 {
     HRESULT hr;
@@ -1488,27 +1500,30 @@ _Bool video_init(void *handle)
 
     hr = pGraph->lpVtbl->AddFilter(pGraph, pFilter, L"Video Capture");
     if(FAILED(hr)) {
+        debug("AddFilter failed\n");
         return 0;
     }
 
     IEnumPins *pEnum = NULL;
-    IPin *pPin = NULL;
+
 
     /* build filter graph */
     hr = pFilter->lpVtbl->EnumPins(pFilter, &pEnum);
     if(FAILED(hr)) {
+        debug("EnumPins failed\n");
         return 0;
     }
 
     while(S_OK == pEnum->lpVtbl->Next(pEnum, 1, &pPin, NULL)) {
-        hr = ConnectFilters2(pGraph, pPin, pGrabberF);
+        pIPin = ConnectFilters2(pGraph, pPin, pGrabberF);
         SafeRelease(&pPin);
-        if(SUCCEEDED(hr)) {
+        if(pIPin) {
             break;
         }
     }
 
     if(FAILED(hr)) {
+        debug("failed to connect a filter\n");
         return 0;
     }
 
@@ -1517,11 +1532,13 @@ _Bool video_init(void *handle)
 
     hr = pPin->lpVtbl->QueryInterface(pPin, &IID_IAMStreamConfig, (void**)&pConfig);
     if(FAILED(hr)) {
+        debug("QueryInterface failed\n");
         return 0;
     }
 
     hr = pConfig->lpVtbl->GetFormat(pConfig, &pmt);
     if(FAILED(hr)) {
+        debug("GetFormat failed\n");
         return 0;
     }
 
@@ -1539,12 +1556,6 @@ _Bool video_init(void *handle)
 
     debug("width height %u %u\n", video_width, video_height);
 
-    hr = ConnectFilters(pGraph, pGrabberF, pNullF);
-    if(FAILED(hr)) {
-        debug("ConnectFilters (2) failed\n");
-        return 0;
-    }
-
     return 1;
 }
 
@@ -1554,6 +1565,16 @@ void video_close(void *handle)
     IBaseFilter *pFilter = handle;
 
     hr = pGraph->lpVtbl->RemoveFilter(pGraph, pFilter);
+    if(FAILED(hr)) {
+        return;
+    }
+
+    hr = pGraph->lpVtbl->Disconnect(pGraph, pPin);
+    if(FAILED(hr)) {
+        return;
+    }
+
+    hr = pGraph->lpVtbl->Disconnect(pGraph, pIPin);
     if(FAILED(hr)) {
         return;
     }
