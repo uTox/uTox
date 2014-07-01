@@ -42,6 +42,7 @@ _Bool draw = 0;
 
 float scale = 1.0;
 _Bool connected = 0;
+_Bool havefocus;
 
 enum {
     MENU_TEXTINPUT = 101,
@@ -627,6 +628,24 @@ void paste(void)
 
 void notify(uint8_t *title, uint16_t title_length, uint8_t *msg, uint16_t msg_length)
 {
+    if(havefocus) {
+        return;
+    }
+
+    FlashWindow(hwnd, 1);
+
+    NOTIFYICONDATAW nid = {
+        .uFlags = NIF_INFO,
+        .hWnd = hwnd,
+        .uTimeout = 5000,
+        .dwInfoFlags = 0,
+        .cbSize = sizeof(nid),
+    };
+
+    utf8tonative(title, nid.szInfoTitle, title_length > sizeof(nid.szInfoTitle) - 1 ? sizeof(nid.szInfoTitle) - 1 : title_length);
+    utf8tonative(msg, nid.szInfo, msg_length > sizeof(nid.szInfo) - 1 ? sizeof(nid.szInfo) - 1 : msg_length);
+
+    Shell_NotifyIconW(NIM_MODIFY, &nid);
 }
 
 void setscale(void)
@@ -880,6 +899,17 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
             SelectObject(hdc, hdc_bm);
             redraw();
         }
+        break;
+    }
+
+    case WM_SETFOCUS: {
+        havefocus = 1;
+        FlashWindow(hwnd, 0);
+        break;
+    }
+
+    case WM_KILLFOCUS: {
+        havefocus = 0;
         break;
     }
 
