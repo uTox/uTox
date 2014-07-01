@@ -127,7 +127,7 @@ enum
     BM_AWAY,
     BM_BUSY,
     BM_OFFLINE,
-    BM_NMSG,
+    BM_STATUS_NOTIFY,
 
     BM_ADD,
     BM_GROUPS,

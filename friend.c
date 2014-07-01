@@ -18,6 +18,10 @@ void friend_setname(FRIEND *f, char_t *name, uint16_t length)
 void friend_addmessage(FRIEND *f, void *data)
 {
     message_add(&messages_friend, data, &f->msg);
+
+    if(sitem->data != f) {
+        f->notify = 1;
+    }
 }
 
 void friend_addid(uint8_t *id, char_t *msg, uint16_t msg_length)

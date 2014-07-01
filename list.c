@@ -48,6 +48,9 @@ static void drawitem(ITEM *i, int x, int y)
 
         uint8_t status = f->online ? f->status : 3;
         drawalpha(BM_ONLINE + status, LIST_RIGHT - SCALE * 12, y + ITEM_HEIGHT / 2 - BM_STATUS_WIDTH / 2, BM_STATUS_WIDTH, BM_STATUS_WIDTH, status_color[status]);
+        if(f->notify) {
+            drawalpha(BM_STATUS_NOTIFY, LIST_RIGHT - SCALE * 13, y + ITEM_HEIGHT / 2 - BM_STATUS_NOTIFY_WIDTH / 2, BM_STATUS_NOTIFY_WIDTH, BM_STATUS_NOTIFY_WIDTH, status_color[status]);
+        }
         break;
     }
 
@@ -164,6 +167,8 @@ static void selectitem(ITEM *i)
         messages_friend.panel.content_scroll->d = f->msg.scroll;
 
         f->msg.id = f - friend;
+
+        f->notify = 0;
 
         edit_msg.current = f->current;
         edit_msg.next = f->next;

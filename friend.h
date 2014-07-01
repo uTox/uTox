@@ -35,7 +35,7 @@ typedef struct {
 } FILE_T;
 
 struct friend {
-    _Bool online, typing;
+    _Bool online, typing, notify;
     uint8_t calling, status;
     int32_t callid;
 

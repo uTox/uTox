@@ -8,6 +8,7 @@
 #define _BM_ADD_WIDTH 9
 #define BM_ADD_WIDTH (9 * SCALE)
 #define BM_STATUS_WIDTH (5 * SCALE)
+#define BM_STATUS_NOTIFY_WIDTH (7 * SCALE)
 #define BM_NMSG_WIDTH (9 * SCALE)
 
 #define BM_LBUTTON_WIDTH (26 * SCALE)
