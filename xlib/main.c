@@ -22,6 +22,11 @@
 
 #include "keysym2ucs.c"
 
+#ifdef __APPLE__
+#include <mach/clock.h>
+#include <mach/mach.h>
+#endif
+
 #define DEFAULT_WIDTH (382 * DEFAULT_SCALE)
 #define DEFAULT_HEIGHT (320 * DEFAULT_SCALE)
 
@@ -432,6 +437,14 @@ uint64_t get_time(void)
     struct timespec ts;
     #ifdef CLOCK_MONOTONIC_RAW
     clock_gettime(CLOCK_MONOTONIC_RAW, &ts);
+    #elif defined(__APPLE__)
+    clock_serv_t muhclock;
+    mach_timespec_t machtime;
+    host_get_clock_service(mach_host_self(), SYSTEM_CLOCK, &muhclock);
+    clock_get_time(muhclock, &machtime);
+    mach_port_deallocate(mach_task_self(), muhclock);
+    ts.tv_sec = machtime.tv_sec;
+    ts.tv_nsec = machtime.tv_nsec;
     #else
     clock_gettime(CLOCK_MONOTONIC, &ts);
     #endif
@@ -1247,14 +1260,35 @@ _Bool video_getframe(vpx_image_t *image)
 }
 
 #else
-_Bool video_init(void)
+
+_Bool video_init(void *handle)
 {
     return 0;
+}
+
+void video_close(void *handle)
+{
+    return;
 }
 
 _Bool video_getframe(vpx_image_t *image)
 {
     return 0;
+}
+
+_Bool video_startread(void)
+{
+    return 0;
+}
+
+_Bool video_endread(void)
+{
+    return 0;
+}
+
+void *video_detect(void)
+{
+    return NULL;
 }
 
 #endif
