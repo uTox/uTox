@@ -18,6 +18,12 @@ typedef struct {
     void *data;
 } TOX_MSG;
 
+typedef struct
+{
+    uint64_t bytes;
+    uint32_t speed;
+} FILE_PROGRESS;
+
 static TOX_MSG tox_msg, toxav_msg;
 static volatile _Bool tox_thread_msg, toxav_thread_msg;
 
@@ -74,6 +80,18 @@ static void startft(Tox *tox, uint32_t fid, uint8_t *path, uint8_t *name, uint16
         fclose(file);
         debug("tox_new_file_sender() failed\n");
     }
+}
+
+static void resetft(Tox *tox, FILE_T *ft, uint64_t start)
+{
+    if(start >= ft->total) {
+        return;
+    }
+
+    fseek(ft->data, start, SEEK_SET);
+    fillbuffer(ft);
+
+    ft->status = FT_SEND;
 }
 
 static void tox_thread_message(Tox *tox, ToxAv *av, uint8_t msg, uint16_t param1, uint16_t param2, void *data);
@@ -136,7 +154,7 @@ static void callback_file_control(Tox *tox, int32_t fid, uint8_t receive_send, u
     }
 
     case TOX_FILECONTROL_KILL: {
-        ft->status = FT_KILL;
+        ft->status = receive_send ? FT_KILL : FT_NONE;
         if(!receive_send) {
             if(ft->data) {
                 fclose(ft->data);
@@ -148,14 +166,20 @@ static void callback_file_control(Tox *tox, int32_t fid, uint8_t receive_send, u
     }
 
     case TOX_FILECONTROL_PAUSE: {
-        ft->status = FT_PAUSE;
-        postmessage(FRIEND_FILE_IN_STATUS + receive_send, fid, filenumber, (void*)FILE_PAUSED);
+        if(ft->status == FT_SEND) {
+            ft->status = FT_PAUSE;
+            postmessage(FRIEND_FILE_IN_STATUS + receive_send, fid, filenumber, (void*)FILE_PAUSED);
+        } else if(ft->status == FT_PAUSE) {
+            ft->status = FT_SEND;
+            postmessage(FRIEND_FILE_IN_STATUS + receive_send, fid, filenumber, (void*)FILE_OK);
+        }
+
         break;
     }
 
     case TOX_FILECONTROL_FINISHED: {
         if(!receive_send) {
-            ft->status = FT_FINISHED;
+            ft->status = FT_NONE;
             if(ft->data) {
                 fclose(ft->data);
             }
@@ -163,22 +187,35 @@ static void callback_file_control(Tox *tox, int32_t fid, uint8_t receive_send, u
         }
         break;
     }
+
+    case TOX_FILECONTROL_RESUME_BROKEN: {
+        if(receive_send && length == 8) {
+            resetft(tox, ft, *(uint64_t*)data);
+        }
+
+        break;
+    }
+
     }
     debug("File Control\n");
 }
 
 static void callback_file_data(Tox *tox, int32_t fid, uint8_t filenumber, uint8_t *data, uint16_t length, void *userdata)
 {
-    //debug("data: %u\n", length);
-
     FILE_T *ft = &friend[fid].incoming[filenumber];
     fwrite(data, 1, length, ft->data);
     ft->bytes += length;
 
     uint64_t time = get_time();
     if(time - ft->lastupdate >= 1000 * 1000 * 50) {
+        FILE_PROGRESS *p = malloc(sizeof(FILE_PROGRESS));
+        p->bytes = ft->bytes;
+        p->speed = ((ft->bytes - ft->lastprogress) * 1000 * 1000 * 1000) / (time - ft->lastupdate);
+
+        postmessage(FRIEND_FILE_IN_PROGRESS, fid, filenumber, p);
+
         ft->lastupdate = time;
-        postmessage(FRIEND_FILE_IN_PROGRESS, fid, filenumber, (void*)ft->bytes);
+        ft->lastprogress = ft->bytes;
     }
 }
 
@@ -378,9 +415,14 @@ void tox_thread(void *args)
             case FT_SEND: {
                 while(tox_file_send_data(tox, ft->fid, ft->filenumber, ft->buffer, ft->buffer_bytes) != -1) {
                     if(time - ft->lastupdate >= 1000 * 1000 * 50 || ft->bytes - ft->lastprogress >= 1024 * 1024) {
+                        FILE_PROGRESS *p = malloc(sizeof(FILE_PROGRESS));
+                        p->bytes = ft->bytes;
+                        p->speed = (time - ft->lastupdate) == 0 ? 0 : ((ft->bytes - ft->lastprogress) * 1000 * 1000 * 1000) / (time - ft->lastupdate);
+
+                        postmessage(FRIEND_FILE_OUT_PROGRESS, ft->fid, ft->filenumber, p);
+
                         ft->lastupdate = time;
                         ft->lastprogress = ft->bytes;
-                        postmessage(FRIEND_FILE_OUT_PROGRESS, ft->fid, ft->filenumber, (void*)ft->bytes);
                     }
                     if(ft->finish) {
                         tox_file_send_control(tox, ft->fid, 0, ft->filenumber, TOX_FILECONTROL_FINISHED, NULL, 0);
@@ -390,7 +432,7 @@ void tox_thread(void *args)
                         memmove(p, p + 1, ((void*)file_tend - (void*)(p + 1)));
                         p--;
                         file_tend--;
-                        ft->status = FT_FINISHED;
+                        ft->status = FT_NONE;
                         postmessage(FRIEND_FILE_OUT_STATUS, ft->fid, ft->filenumber, (void*)FILE_DONE);
                         break;
                     }
@@ -637,6 +679,8 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint8_t msg, uint16_t param1
             break;
         }
 
+        ft->status = FT_SEND;
+
         tox_file_send_control(tox, param1, 1, param2, TOX_FILECONTROL_ACCEPT, NULL, 0);
 
         postmessage(FRIEND_FILE_IN_STATUS, param1, param2, (void*)FILE_OK);
@@ -652,6 +696,8 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint8_t msg, uint16_t param1
         if(ft->data) {
             fclose(ft->data);
         }
+
+        ft->status = FT_NONE;
         tox_file_send_control(tox, param1, 1, param2, TOX_FILECONTROL_KILL, NULL, 0);
         postmessage(FRIEND_FILE_IN_STATUS, param1, param2, (void*)FILE_KILLED);
         break;
@@ -915,6 +961,8 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
         msg->status = FILE_PENDING;
         msg->name_length = (ft->name_length > sizeof(msg->name)) ? sizeof(msg->name) : ft->name_length;
         msg->size = ft->total;
+        msg->progress = 0;
+        msg->speed = 0;
         memcpy(msg->name, ft->name, msg->name_length);
 
         friend_addmessage(f, msg);
@@ -934,6 +982,8 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
         msg->status = FILE_PENDING;
         msg->name_length = (ft->name_length > sizeof(msg->name)) ? sizeof(msg->name) : ft->name_length;
         msg->size = ft->total;
+        msg->progress = 0;
+        msg->speed = 0;
         memcpy(msg->name, ft->name, msg->name_length);
 
         friend_addmessage(f, msg);
@@ -968,9 +1018,13 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
     case FRIEND_FILE_IN_PROGRESS: {
         FRIEND *f = &friend[param1];
         FILE_T *ft = &f->incoming[param2];
+        FILE_PROGRESS *p = data;
 
         MSG_FILE *msg = ft->chatdata;
-        msg->progress = (size_t)data;
+        msg->progress = p->bytes;
+        msg->speed = p->speed;
+
+        free(p);
 
         updatefriend(f);
         break;
@@ -979,9 +1033,13 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
     case FRIEND_FILE_OUT_PROGRESS: {
         FRIEND *f = &friend[param1];
         FILE_T *ft = &f->outgoing[param2];
+        FILE_PROGRESS *p = data;
 
         MSG_FILE *msg = ft->chatdata;
-        msg->progress = (size_t)data;
+        msg->progress = p->bytes;
+        msg->speed = p->speed;
+
+        free(p);
 
         updatefriend(f);
         break;

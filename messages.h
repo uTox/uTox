@@ -23,7 +23,7 @@ typedef struct {
 
 struct msg_file {
     uint16_t flags, height;
-    uint32_t time;
+    uint32_t time, speed;
     uint8_t filenumber, status, name_length;
     uint64_t size, progress;
     uint8_t name[24];

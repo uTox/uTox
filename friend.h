@@ -7,7 +7,6 @@ enum {
     FT_PAUSE,
     FT_BROKE,
     FT_KILL,
-    FT_FINISHED,
 };
 
 enum {

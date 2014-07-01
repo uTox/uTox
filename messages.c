@@ -118,18 +118,25 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
 
             if(file->status == FILE_DONE) {
                 drawalpha(BM_FT, xx, y, BM_FT_WIDTH, BM_FT_HEIGHT, C_GREEN);
+                drawalpha(BM_YES, xx + BM_FTM_WIDTH + SCALE + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2, y + SCALE * 4, BM_FB_WIDTH, BM_FB_HEIGHT, WHITE);
             } else if(file->status == FILE_KILLED) {
                 drawalpha(BM_FT, xx, y, BM_FT_WIDTH, BM_FT_HEIGHT, C_RED);
+                drawalpha(BM_NO, xx + BM_FTM_WIDTH + SCALE + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2, y + SCALE * 4, BM_FB_WIDTH, BM_FB_HEIGHT, WHITE);
                 drawstr(xx + 35 * SCALE, y + 17 * SCALE, "Cancelled");
             } else {
                 if(file->status == FILE_BROKEN) {
-                    drawalpha(BM_FTM, xx, y, BM_FTM_WIDTH, BM_FT_HEIGHT, C_YELLOW);
-                } else {
+                    drawalpha(BM_FTM, xx, y, BM_FTM_WIDTH, BM_FT_HEIGHT, C_RED);
+                } else if(file->status == FILE_PAUSED) {
                     drawalpha(BM_FTM, xx, y, BM_FTM_WIDTH, BM_FT_HEIGHT, C_GRAY);
                     setcolor(GRAY(98));
+                } else if(file->status == FILE_PENDING) {
+                    drawalpha(BM_FTM, xx, y, BM_FTM_WIDTH, BM_FT_HEIGHT, C_GRAY);
+                    setcolor(GRAY(98));
+                } else {
+                    drawalpha(BM_FTM, xx, y, BM_FTM_WIDTH, BM_FT_HEIGHT, BLUE);
                 }
 
-                int x =  xx + BM_FTM_WIDTH + SCALE;
+                int x = xx + BM_FTM_WIDTH + SCALE;
                 drawalpha(BM_FTB1, x, y, BM_FTB_WIDTH, BM_FTB_HEIGHT + SCALE, (mo && m->over == 1) ? C_GREEN_LIGHT : C_GREEN);
                 drawalpha(BM_NO, x + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2, y + SCALE * 4, BM_FB_WIDTH, BM_FB_HEIGHT, WHITE);
 
@@ -142,16 +149,31 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
                 if(progress > file->size) {
                     progress = file->size;
                 }
-                framerect(xx + 35 * SCALE, y + 17 * SCALE, xx + 35 * SCALE + 76 * SCALE, y + 24 * SCALE, LIST_MAIN);
-                drawrectw(xx + 35 * SCALE, y + 17 * SCALE, (progress * (uint64_t)76 * SCALE) / file->size, 7 * SCALE, LIST_MAIN);
 
-                uint8_t speed[16];
-                int speedlen = sprint_bytes(speed, 0);
-                speed[speedlen++] = '/';
-                speed[speedlen++] = 's';
+                uint32_t w = (file->size == 0) ? 0 : (progress * (uint64_t)76 * SCALE) / file->size;
 
-                drawtext(xx + 35 * SCALE + 38 * SCALE - textwidth(speed, speedlen) / 2, y + 10 * SCALE, speed, speedlen);
-                drawtext(xx + 35 * SCALE + 76 * SCALE - textwidth((uint8_t*)"0:00", 4), y + 10 * SCALE, (uint8_t*)"0:00", 4);
+                framerect(xx + 35 * SCALE, y + 17 * SCALE, xx + 35 * SCALE + 76 * SCALE, y + 24 * SCALE, (file->status == FILE_PENDING || file->status == FILE_PAUSED) ? LIST_MAIN : WHITE);
+                drawrectw(xx + 35 * SCALE, y + 17 * SCALE, w, 7 * SCALE, (file->status == FILE_PENDING || file->status == FILE_PAUSED) ? LIST_MAIN : WHITE);
+
+                if(file->status == FILE_OK) {
+                    uint8_t text[16];
+                    int len;
+
+                    len = sprint_bytes(text, file->speed);
+                    text[len++] = '/';
+                    text[len++] = 's';
+
+                    drawtext(xx + 35 * SCALE + 38 * SCALE - textwidth(text, len) / 2, y + 10 * SCALE, text, len);
+
+                    uint64_t etasec = 0;
+                    if(file->speed) {
+                        etasec = (file->size - progress) / file->speed;
+                    }
+
+                    len = sprintf((char*)text, "%us", (uint32_t)etasec);
+
+                    drawtext(xx + 35 * SCALE + 76 * SCALE - textwidth(text, len), y + 10 * SCALE, text, len);
+                }
             }
 
 
