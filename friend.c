@@ -2,6 +2,18 @@
 
 void friend_setname(FRIEND *f, char_t *name, uint16_t length)
 {
+    if(f->name && (length != f->name_length || memcmp(f->name, name, length) != 0)) {
+        MESSAGE *msg = malloc(sizeof(MESSAGE) + sizeof(" is now known as ") - 1 + f->name_length + length);
+        msg->flags = 2;
+        msg->length = sizeof(" is now known as ") - 1 + f->name_length + length;
+        uint8_t *p = msg->msg;
+        memcpy(p, f->name, f->name_length); p += f->name_length;
+        memcpy(p, " is now known as ", sizeof(" is now known as ") - 1); p += sizeof(" is now known as ") - 1;
+        memcpy(p, name, length);
+
+        friend_addmessage(f, msg);
+    }
+
     free(f->name);
     if(length == 0) {
         f->name = malloc(sizeof(f->cid) * 2 + 1);
