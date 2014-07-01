@@ -27,8 +27,8 @@
 #include <mach/mach.h>
 #endif
 
-#define DEFAULT_WIDTH (382 * SCALE)
-#define DEFAULT_HEIGHT (320 * SCALE)
+#define DEFAULT_WIDTH (382 * DEFAULT_SCALE)
+#define DEFAULT_HEIGHT (320 * DEFAULT_SCALE)
 
 Display *display;
 int screen;
