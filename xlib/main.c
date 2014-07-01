@@ -736,7 +736,7 @@ int main(int argc, char *argv[])
 
     /* load the used cursors */
     cursor_arrow = XCreateFontCursor(display, XC_left_ptr);
-    cursor_hand = XCreateFontCursor(display, XC_hand1);
+    cursor_hand = XCreateFontCursor(display, XC_hand2);
     cursor_text = XCreateFontCursor(display, XC_xterm);
 
     /* Xft draw context/color */
