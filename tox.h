@@ -86,6 +86,7 @@ enum {
     FRIEND_CALL_START_VIDEO,
     FRIEND_VIDEO_FRAME,
     PREVIEW_FRAME,
+    PREVIEW_FRAME_NEW,
 
     /* friend file */
     FRIEND_FILE_IN_NEW,

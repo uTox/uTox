@@ -38,6 +38,7 @@ struct friend {
     _Bool online, typing, notify;
     uint8_t calling, status;
     int32_t callid;
+    uint16_t call_width, call_height;
 
     uint8_t cid[TOX_CLIENT_ID_SIZE];
     uint16_t name_length, status_length, typed_length;

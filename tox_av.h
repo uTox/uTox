@@ -194,7 +194,8 @@ static void video_thread(void *args)
     _Bool video = 0;
     uint8_t video_count = 0;
     _Bool video_on = 0;
-    _Bool call[MAX_CALLS] = {0}, preview = 0;
+    _Bool call[MAX_CALLS] = {0}, preview = 0, newinput = 1;
+
 
     video_device = video_detect();
     if(video_device) {
@@ -235,6 +236,8 @@ static void video_thread(void *args)
                 } else {
                     video_on = 0;
                 }
+
+                newinput = 1;
                 break;
             }
 
@@ -287,7 +290,8 @@ static void video_thread(void *args)
             if(preview) {
                 uint8_t *img_data = malloc(input.d_w * input.d_h * 4);
                 yuv420torgb(&input, img_data);
-                postmessage(PREVIEW_FRAME, input.d_w, input.d_h, img_data);
+                postmessage(PREVIEW_FRAME + newinput, input.d_w, input.d_h, img_data);
+                newinput = 0;
             }
 
             int i;

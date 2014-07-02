@@ -1186,8 +1186,12 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     return DefWindowProcW(hwn, msg, wParam, lParam);
 }
 
-void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height)
+void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height, _Bool resize)
 {
+    if(resize) {
+        SetWindowPos(video_hwnd[id], 0, 0, 0, width, height, SWP_NOZORDER | SWP_NOMOVE);
+    }
+
     HBITMAP bitmap = CreateBitmap(width, height, 1, 32, img_data);
 
     HDC dc = GetDC(video_hwnd[id]);

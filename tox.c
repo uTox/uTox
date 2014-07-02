@@ -958,8 +958,12 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
         updatefriend(f);
 
         uint32_t res = (size_t)data;
-        video_begin(param1 + 1, f->name, f->name_length, res & 0xFFFF, res >> 16);
+        uint16_t width = res & 0xFFFF, height = res >> 16;
 
+        video_begin(param1 + 1, f->name, f->name_length, width, height);
+
+        f->call_width = width;
+        f->call_height = height;
 
         call_notify(f, CALL_OK_VIDEO);
 
@@ -972,19 +976,26 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
            data: frame data
          */
         vpx_image_t *image = data;
+        FRIEND *f = &friend[param1];
 
         uint8_t *img_data = malloc(image->d_w * image->d_h * 4);
         yuv420torgb(image, img_data);
-        video_frame(param1 + 1, img_data, image->d_w, image->d_h);
+        _Bool b = (image->d_w != f->call_width || image->d_h != f->call_height);
+        if(b) {
+            f->call_width = image->d_w;
+            f->call_height = image->d_h;
+        }
+        video_frame(param1 + 1, img_data, image->d_w, image->d_h, b);
 
         free(img_data);
         vpx_img_free(data);
         break;
     }
 
+    case PREVIEW_FRAME_NEW:
     case PREVIEW_FRAME: {
         if(video_preview) {
-            video_frame(0, data, param1, param2);
+            video_frame(0, data, param1, param2, msg == PREVIEW_FRAME_NEW);
         }
         free(data);
         break;

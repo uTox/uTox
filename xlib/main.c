@@ -763,8 +763,16 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height)
+void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height, _Bool resize)
 {
+    if(resize) {
+        XWindowChanges changes = {
+            .width = width,
+            .height = height
+        };
+        XConfigureWindow(display, video_win[id], CWWidth | CWHeight, &changes);
+    }
+
     XImage image = {
         .width = width,
         .height = height,
