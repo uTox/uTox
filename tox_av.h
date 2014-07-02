@@ -225,7 +225,11 @@ static void video_thread(void *args)
                 if(video_device == NULL) {
                     video = 0;
                     video_on = 0;
-                    break;
+                    if(m->param1) {
+                        goto VIDEO_PREVIEW_END;
+                    } else {
+                        break;
+                    }
                 }
 
                 video = openvideodevice(video_device);
@@ -259,6 +263,7 @@ static void video_thread(void *args)
                 break;
             }
 
+            VIDEO_PREVIEW_END:
             case VIDEO_PREVIEW_END: {
                 preview = 0;
                 video_count--;

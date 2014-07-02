@@ -10,7 +10,13 @@ static void dropdown_audio_out_onselect(void *handle)
 
 static void dropdown_video_onselect(void *handle)
 {
-    toxvideo_postmessage(VIDEO_SET, 0, 0, handle);
+    uint16_t b = 0;
+    if(!handle && video_preview) {
+        video_end(0);
+        video_preview = 0;
+        b = 1;
+    }
+    toxvideo_postmessage(VIDEO_SET, b, 0, handle);
 }
 
 static void dropdown_dpi_onselect(void *handle)
