@@ -265,7 +265,7 @@ static void set_callbacks(Tox *tox)
 static _Bool load_save(Tox *tox)
 {
     uint32_t size;
-    void *data = file_raw("tox_save", &size);
+    void *data = loadsavedata(&size);
     if(!data) {
         return 0;
     }
@@ -327,20 +327,13 @@ static void load_defaults(Tox *tox)
 
 static void write_save(Tox *tox)
 {
-    FILE *file;
     void *data;
     uint32_t size;
 
     size = tox_size(tox);
     data = malloc(size);
     tox_save(tox, data);
-    file = fopen("tox_save", "wb");
-    if(file) {
-        fwrite(data, size, 1, file);
-        fclose(file);
-        debug("Saved data\n");
-    }
-
+    writesavedata(data, size);
     free(data);
 }
 

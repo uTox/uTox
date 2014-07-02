@@ -626,6 +626,22 @@ void paste(void)
     edit_paste(data, len);
 }
 
+void* loadsavedata(uint32_t *len)
+{
+    return file_raw("tox_save", len);
+}
+
+void writesavedata(void *data, uint32_t len)
+{
+    FILE *file;
+    file = fopen("tox_save", "wb");
+    if(file) {
+        fwrite(data, len, 1, file);
+        fclose(file);
+        debug("Saved data\n");
+    }
+}
+
 void notify(uint8_t *title, uint16_t title_length, uint8_t *msg, uint16_t msg_length)
 {
     if(havefocus) {

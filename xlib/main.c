@@ -50,6 +50,8 @@ XftColor xftcolor;
 FcCharSet *charset;
 FcFontSet *fs;
 
+XSizeHints *xsh;
+
 _Bool havefocus = 0;
 
 Window video_win[256];
@@ -528,7 +530,42 @@ void loadalpha(int bm, void *data, int width, int height)
     bitmap[bm] = picture;
 }
 
-XSizeHints *xsh;
+void* loadsavedata(uint32_t *len)
+{
+    char *home = getenv("HOME");
+    char path[256];
+    sprintf(path, "%.230s/.config/tox/data", home);
+
+    void *data;
+    if((data = file_raw("tox_save", len))) {
+        return data;
+    }
+
+    return file_raw(path, len);
+}
+
+void writesavedata(void *data, uint32_t len)
+{
+    char *home = getenv("HOME");
+    char path[256];
+    int l = sprintf(path, "%.230s/.config/tox/data", home);
+    path[l - 5] = 0;
+    mkdir(path, 0700);
+    path[l - 5] = '/';
+
+    FILE *file;
+    file = fopen(path, "wb");
+    if(file) {
+        fwrite(data, len, 1, file);
+        fclose(file);
+    }
+
+    file = fopen("tox_save", "wb");
+    if(file) {
+        fwrite(data, len, 1, file);
+        fclose(file);
+    }
+}
 
 void setscale(void)
 {
