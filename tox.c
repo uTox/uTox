@@ -11,12 +11,6 @@
 
 #define MAX_CALLS 16
 
-static struct {
-    volatile _Bool active, video;
-} call[MAX_CALLS];
-
-#define BUF_SIZE (1024 * 1024)
-
 typedef struct {
     uint8_t msg;
     uint16_t param1, param2;
@@ -29,8 +23,8 @@ typedef struct
     uint32_t speed;
 } FILE_PROGRESS;
 
-static TOX_MSG tox_msg, toxav_msg;
-static volatile _Bool tox_thread_msg, toxav_thread_msg;
+static TOX_MSG tox_msg, audio_msg, video_msg;
+static volatile _Bool tox_thread_msg, audio_thread_msg, video_thread_msg;
 
 static ALCdevice *device_out, *device_in;
 static ALCcontext *context;
@@ -115,18 +109,32 @@ void tox_postmessage(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
     tox_thread_msg = 1;
 }
 
-void toxav_postmessage(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
+void toxaudio_postmessage(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
 {
-    while(toxav_thread_msg) {
+    while(audio_thread_msg) {
         yieldcpu(1);
     }
 
-    toxav_msg.msg = msg;
-    toxav_msg.param1 = param1;
-    toxav_msg.param2 = param2;
-    toxav_msg.data = data;
+    audio_msg.msg = msg;
+    audio_msg.param1 = param1;
+    audio_msg.param2 = param2;
+    audio_msg.data = data;
 
-    toxav_thread_msg = 1;
+    audio_thread_msg = 1;
+}
+
+void toxvideo_postmessage(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
+{
+    while(video_thread_msg) {
+        yieldcpu(1);
+    }
+
+    video_msg.msg = msg;
+    video_msg.param1 = param1;
+    video_msg.param2 = param2;
+    video_msg.data = data;
+
+    video_thread_msg = 1;
 }
 
 #include "tox_callbacks.h"
@@ -367,8 +375,11 @@ void tox_thread(void *args)
 
     av = toxav_new(tox, MAX_CALLS);
 
+    set_av_callbacks(av);
+
     tox_thread_init = 1;
-    thread(av_thread, av);
+    thread(audio_thread, av);
+    thread(video_thread, av);
 
     _Bool connected = 0;
     uint64_t last_save = get_time(), time;
@@ -460,7 +471,7 @@ void tox_thread(void *args)
 
     write_save(tox);
 
-    while(av_thread_init) {
+    while(audio_thread_init || video_thread_init) {
         yieldcpu(1);
     }
 

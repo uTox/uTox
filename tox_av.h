@@ -13,8 +13,11 @@ static void av_start(int32_t call_index, void *arg)
     }
 
     if(toxav_prepare_transmission(arg, call_index, &settings, video) == 0) {
-        call[call_index].video = video;
-        call[call_index].active = 1;
+        if(video) {
+            toxvideo_postmessage(VIDEO_CALL_START, call_index, 0, NULL);
+        }
+        toxaudio_postmessage(AUDIO_CALL_START, call_index, 0, NULL);
+
         if(video) {
             postmessage(FRIEND_CALL_START_VIDEO, fid, call_index, (void*)(settings.video_width | (size_t)settings.video_height << 16));
         } else {
@@ -46,7 +49,8 @@ static void callback_av_start(int32_t call_index, void *arg)
     postmessage(FRIEND_CALL_STATUS, fid, call_index, (void*)(size_t)CALL_NONE);
 
 #define stopcall() \
-    call[call_index].active = 0; \
+    toxaudio_postmessage(AUDIO_CALL_END, call_index, 0, NULL); \
+    toxvideo_postmessage(VIDEO_CALL_END, call_index, 0, NULL); \
     endcall();
 
 static void callback_av_cancel(int32_t call_index, void *arg)
@@ -125,7 +129,7 @@ static void set_av_callbacks(ToxAv *av)
     toxav_register_callstate_callback(callback_av_peertimeout, av_OnPeerTimeout, av);
 }
 
-uint8_t lbuffer[800 * 600 * 4];
+uint8_t lbuffer[800 * 600 * 4]; //needs to be always large enough for encoded frames
 
 static ALCdevice* alcopencapture(const char *name)
 {
@@ -181,24 +185,161 @@ static void closevideodevice(void *handle)
     vpx_img_free(&input);
 }
 
-static void av_thread(void *args)
+static void video_thread(void *args)
 {
     ToxAv *av = args;
-    const char *device_list, *audio_device = NULL, *output_device = NULL;
+
     void *video_device;
-    _Bool audio_preview = 0, video = 0;
-
-    int perframe = (av_DefaultSettings.audio_frame_duration * av_DefaultSettings.audio_sample_rate) / 1000;
-    uint8_t buf[perframe * 2], dest[perframe * 2];
-    uint8_t video_count = 0, audio_count = 0;
-    _Bool video_on = 0, record_on = 0;
-
-    set_av_callbacks(av);
+    _Bool video = 0;
+    uint8_t video_count = 0;
+    _Bool video_on = 0;
+    _Bool call[MAX_CALLS] = {0}, preview = 0;
 
     video_device = video_detect();
     if(video_device) {
         video = openvideodevice(video_device);
     }
+
+    video_thread_init = 1;
+
+    while(1) {
+        if(video_thread_msg) {
+            TOX_MSG *m = &video_msg;
+            if(!m->msg) {
+                break;
+            }
+
+            switch(m->msg) {
+            case VIDEO_SET: {
+                if(video_on) {
+                    video_endread();
+                }
+
+                if(video) {
+                    closevideodevice(video_device);
+                }
+
+                video_device = m->data;
+                video = openvideodevice(video_device);
+                if(video) {
+                    if(video_on) {
+                        video_on = video_startread();
+                    }
+                } else {
+                    video_on = 0;
+                }
+
+                debug("set video\n");
+                break;
+            }
+
+            case VIDEO_PREVIEW_START: {
+                preview = 1;
+                video_count++;
+                if(video && !video_on) {
+                    video_on = video_startread();
+                }
+                break;
+            }
+
+            case VIDEO_CALL_START: {
+                call[m->param1] = 1;
+                video_count++;
+                if(video && !video_on) {
+                    video_on = video_startread();
+                }
+                break;
+            }
+
+            case VIDEO_PREVIEW_END: {
+                preview = 0;
+                video_count--;
+                if(!video_count && video_on) {
+                    video_endread();
+                    video_on = 0;
+                }
+                break;
+            }
+
+            case VIDEO_CALL_END: {
+                if(!call[m->param1]) {
+                    break;
+                }
+                call[m->param1] = 0;
+                video_count--;
+                if(!video_count && video_on) {
+                    video_endread();
+                    video_on = 0;
+                }
+                break;
+            }
+            }
+
+            video_thread_msg = 0;
+        }
+
+        if(video_on && video_getframe(&input)) {
+            if(preview) {
+                postmessage(PREVIEW_FRAME, 0, 0, &input);
+            }
+
+            int i;
+            for(i = 0; i < MAX_CALLS; i++) {
+                if(call[i]) {
+                    int r, len;
+                    if((len = toxav_prepare_video_frame(av, i, lbuffer, sizeof(lbuffer), &input)) < 0) {
+                        debug("toxav_prepare_video_frame error %i\n", r);
+                        continue;
+                    }
+
+                    debug("%u\n", len);
+
+                    if((r = toxav_send_video(av, i, (void*)lbuffer, len)) < 0) {
+                        debug("toxav_send_video error %i %s\n", r, strerror(errno));
+                    }
+                }
+            }
+        }
+
+        int i;
+        for(i = 0; i < MAX_CALLS; i++) {
+            if(call[i]) {
+                vpx_image_t *image;
+                if(toxav_recv_video(av, i, &image) == 0) {
+                    if(image) {
+                        postmessage(FRIEND_VIDEO_FRAME, toxav_get_peer_id(av, i, 0), i, image);
+                    }
+                } else {
+                    debug("toxav_recv_video() error\n");
+                }
+            }
+        }
+
+        yieldcpu(5);
+    }
+
+    if(video_on) {
+        video_endread();
+    }
+
+    if(video) {
+        closevideodevice(video_device);
+    }
+
+    video_thread_init = 0;
+}
+
+static void audio_thread(void *args)
+{
+    ToxAv *av = args;
+    const char *device_list, *audio_device = NULL, *output_device = NULL;
+
+    _Bool call[MAX_CALLS], preview = 0;
+
+    int perframe = (av_DefaultSettings.audio_frame_duration * av_DefaultSettings.audio_sample_rate) / 1000;
+    uint8_t buf[perframe * 2], dest[perframe * 2];
+    uint8_t audio_count = 0;
+    _Bool record_on = 0;
 
     device_list = alcGetString(NULL, ALC_CAPTURE_DEVICE_SPECIFIER);
     if(device_list) {
@@ -237,25 +378,18 @@ static void av_thread(void *args)
 
     alGenSources(countof(source), source);
 
-    av_thread_init = 1;
+    audio_thread_init = 1;
 
     while(1) {
-        if(toxav_thread_msg) {
-            TOX_MSG *m = &toxav_msg;
+        if(audio_thread_msg) {
+            TOX_MSG *m = &audio_msg;
             if(!m->msg) {
                 break;
             }
-            uint8_t msg;
-            //uint16_t param1, uint16_t param2;
-            void *data;
-            msg = m->msg;
-            //param1 = m->param1;
-            //param2 = m->param2;
-            data = m->data;
 
-            switch(msg) {
-            case AV_SET_AUDIO_INPUT: {
-                audio_device = data;
+            switch(m->msg) {
+            case AUDIO_SET_INPUT: {
+                audio_device = m->data;
 
                 if(record_on) {
                     alcCaptureStop(device_in);
@@ -275,7 +409,9 @@ static void av_thread(void *args)
                 break;
             }
 
-            case AV_SET_AUDIO_OUTPUT: {
+            case AUDIO_SET_OUTPUT: {
+                output_device = m->data;
+
                 ALCdevice *device = alcOpenDevice(output_device);
                 if(!device) {
                     printf("alcOpenDevice() failed\n");
@@ -300,60 +436,64 @@ static void av_thread(void *args)
                 break;
             }
 
-            case AV_SET_VIDEO: {
-                if(video_on) {
-                    video_endread();
-                }
-
-                if(video) {
-                    closevideodevice(video_device);
-                }
-
-                video_device = data;
-                video = openvideodevice(video_device);
-                if(video) {
-                    if(video_on) {
-                        video_on = video_startread();
+            case AUDIO_PREVIEW_START: {
+                preview = 1;
+                audio_count++;
+                if(!record_on) {
+                    device_in = alcopencapture(audio_device);
+                    if(device_in) {
+                        alcCaptureStart(device_in);
+                        record_on = 1;
+                        debug("start\n");
                     }
-                } else {
-                    video_on = 0;
                 }
-
-                debug("set video\n");
                 break;
             }
 
-            case AV_AUDIO_PREVIEW_START: {
-                audio_preview = 1;
-                /*if(audio_count == 0) {
-                    //turn on audio
+            case AUDIO_CALL_START: {
+                call[m->param1] = 1;
+                audio_count++;
+                if(!record_on) {
+                    device_in = alcopencapture(audio_device);
+                    if(device_in) {
+                        alcCaptureStart(device_in);
+                        record_on = 1;
+                        debug("start\n");
+                    }
                 }
-                audio_count++;*/
                 break;
             }
 
-            case AV_AUDIO_PREVIEW_STOP: {
-                audio_preview = 0;
-                /*audio_count--;
-                if(audio_count == 0) {
-                    //turn off audio
-                }*/
+            case AUDIO_PREVIEW_END: {
+                preview = 0;
+                audio_count--;
+                if(!audio_count && record_on) {
+                    alcCaptureStop(device_in);
+                    alcCaptureCloseDevice(device_in);
+                    record_on = 0;
+                    debug("stop\n");
+                }
                 break;
             }
 
-            case AV_VIDEO_PREVIEW_START: {
-
+            case AUDIO_CALL_END: {
+                if(!call[m->param1]) {
+                    break;
+                }
+                call[m->param1] = 0;
+                audio_count--;
+                if(!audio_count && record_on) {
+                    alcCaptureStop(device_in);
+                    alcCaptureCloseDevice(device_in);
+                    record_on = 0;
+                    debug("stop\n");
+                }
                 break;
             }
 
-            case AV_VIDEO_PREVIEW_STOP: {
-
-                break;
             }
 
-            }
-
-            toxav_thread_msg = 0;
+            audio_thread_msg = 0;
         }
 
         if(record_on) {
@@ -362,13 +502,13 @@ static void av_thread(void *args)
             if(samples >= perframe) {
                 alcCaptureSamples(device_in, buf, perframe);
 
-                if(audio_preview) {
+                if(preview) {
                     sourceplaybuffer(0, buf, perframe);
                 }
 
-                int i = 0;
-                while(i < MAX_CALLS) {
-                    if(call[i].active) {
+                int i;
+                for(i =0; i < MAX_CALLS; i++) {
+                    if(call[i]) {
                         int r;
                         if((r = toxav_prepare_audio_frame(av, i, dest, perframe * 2, (void*)buf, perframe)) < 0) {
                             debug("toxav_prepare_audio_frame error %i\n", r);
@@ -378,92 +518,19 @@ static void av_thread(void *args)
                             debug("toxav_send_audio error %i %s\n", r, strerror(errno));
                         }
                     }
-                    i++;
                 }
             }
 
         }
 
-        if(video_on) {
-            if(video_getframe(&input)) {
-                if(video_preview) {
-                    postmessage(PREVIEW_FRAME, 0, 0, &input);
-                }
-
-                int i;
-                for(i = 0; i < MAX_CALLS; i++) {
-                    if(call[i].active && call[i].video) {
-                        int r, len;
-                        if((len = toxav_prepare_video_frame(av, i, lbuffer, sizeof(lbuffer), &input)) < 0) {
-                            debug("toxav_prepare_video_frame error %i\n", r);
-                            continue;
-                        }
-
-                        debug("%u\n", len);
-
-                        if((r = toxav_send_video(av, i, (void*)lbuffer, len)) < 0) {
-                            debug("toxav_send_video error %i %s\n", r, strerror(errno));
-                        }
-                    }
-                }
-            }
-        }
-
-        int i, vc = 0, ac = 0;
+        int i;
         for(i = 0; i < MAX_CALLS; i++) {
-            if(call[i].active) {
-                ac++;
-                if(call[i].video) {
-                    vpx_image_t *image;
-                    if(toxav_recv_video(av, i, &image) == 0) {
-                        if(image) {
-                            postmessage(FRIEND_VIDEO_FRAME, toxav_get_peer_id(av, i, 0), i, image);
-                        }
-                    } else {
-                        debug("toxav_recv_video() error\n");
-                    }
-                    vc++;
-                }
-
+            if(call[i]) {
                 int size = toxav_recv_audio(av, i, perframe, (void*)buf);
                 if(size > 0) {
                     sourceplaybuffer(i + 1, buf, size);
                 }
             }
-        }
-
-        ac += audio_preview;
-        vc += (video && video_preview);
-
-        if(ac != audio_count) {
-            if(ac == 0) {
-                if(record_on) {
-                    alcCaptureStop(device_in);
-                    alcCaptureCloseDevice(device_in);
-                    debug("stop\n");
-                    record_on = 0;
-                }
-            } else if(audio_count == 0) {
-                device_in = alcopencapture(audio_device);
-                if(device_in) {
-                    alcCaptureStart(device_in);
-                    record_on = 1;
-                    debug("start\n");
-                }
-            }
-            audio_count = ac;
-        }
-
-        if(vc != video_count) {
-            if(vc == 0) {
-                if(video_on) {
-                    video_endread();
-                    video_on = 0;
-                }
-            } else if(video_count == 0) {
-                video_on = video_startread();
-            }
-            video_count = vc;
         }
 
         yieldcpu(5);
@@ -482,5 +549,5 @@ static void av_thread(void *args)
     alcMakeContextCurrent(NULL);
     alcDestroyContext(context);
 
-    av_thread_init = 0;
+    audio_thread_init = 0;
 }

@@ -1,16 +1,16 @@
 static void dropdown_audio_in_onselect(void *handle)
 {
-    toxav_postmessage(AV_SET_AUDIO_INPUT, 0, 0, handle);
+    toxaudio_postmessage(AUDIO_SET_INPUT, 0, 0, handle);
 }
 
 static void dropdown_audio_out_onselect(void *handle)
 {
-    toxav_postmessage(AV_SET_AUDIO_OUTPUT, 0, 0, handle);
+    toxaudio_postmessage(AUDIO_SET_OUTPUT, 0, 0, handle);
 }
 
 static void dropdown_video_onselect(void *handle)
 {
-    toxav_postmessage(AV_SET_VIDEO, 0, 0, handle);
+    toxvideo_postmessage(VIDEO_SET, 0, 0, handle);
 }
 
 static void dropdown_dpi_onselect(void *handle)

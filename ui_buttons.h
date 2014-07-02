@@ -8,12 +8,12 @@ static void button_copyid_onpress(void)
 static void button_audiopreview_onpress(void)
 {
     if(!audio_preview) {
-        audio_preview = 1;
-        toxav_postmessage(AV_AUDIO_PREVIEW_START, 0, 0, NULL);
+        toxaudio_postmessage(AUDIO_PREVIEW_START, 0, 0, NULL);
     } else {
-        audio_preview = 0;
-        toxav_postmessage(AV_AUDIO_PREVIEW_STOP, 0, 0, NULL);
+        toxaudio_postmessage(AUDIO_PREVIEW_END, 0, 0, NULL);
     }
+
+    audio_preview = !audio_preview;
 }
 
 static void button_audiopreview_updatecolor(BUTTON *b)
@@ -33,9 +33,11 @@ static void button_videopreview_onpress(void)
 {
     if(video_preview) {
         video_end(0);
+        toxvideo_postmessage(VIDEO_PREVIEW_END, 0, 0, NULL);
         video_preview = 0;
     } else if(video_width) {
         video_begin(0, (uint8_t*)"Video Preview", sizeof("Video Preview") - 1, video_width, video_height);
+        toxvideo_postmessage(VIDEO_PREVIEW_START, 0, 0, NULL);
         video_preview = 1;
     }
 }

@@ -732,7 +732,8 @@ int main(int argc, char *argv[])
     /* event loop */
     while(doevent());
 
-    toxav_postmessage(AV_KILL, 0, 0, NULL);
+    toxaudio_postmessage(AUDIO_KILL, 0, 0, NULL);
+    toxvideo_postmessage(VIDEO_KILL, 0, 0, NULL);
     tox_postmessage(TOX_KILL, 0, 0, NULL);
 
     /* free client thread stuff */

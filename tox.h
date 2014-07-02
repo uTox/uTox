@@ -39,14 +39,23 @@ enum {
  */
 enum
 {
-    AV_KILL,
-    AV_SET_AUDIO_INPUT,
-    AV_SET_AUDIO_OUTPUT,
-    AV_SET_VIDEO,
-    AV_AUDIO_PREVIEW_START,
-    AV_AUDIO_PREVIEW_STOP,
-    AV_VIDEO_PREVIEW_START,
-    AV_VIDEO_PREVIEW_STOP,
+    AUDIO_KILL,
+    AUDIO_SET_INPUT,
+    AUDIO_SET_OUTPUT,
+    AUDIO_PREVIEW_START,
+    AUDIO_PREVIEW_END,
+    AUDIO_CALL_START,
+    AUDIO_CALL_END,
+};
+
+enum
+{
+    VIDEO_KILL,
+    VIDEO_SET,
+    VIDEO_PREVIEW_START,
+    VIDEO_PREVIEW_END,
+    VIDEO_CALL_START,
+    VIDEO_CALL_END,
 };
 
 /* client thread messages (recieved by the client thread)
@@ -113,9 +122,13 @@ void tox_thread(void *args);
  */
 void tox_postmessage(uint8_t msg, uint16_t param1, uint16_t param2, void *data);
 
-/* send a message to the toxav thread
+/* send a message to the audio thread
  */
-void toxav_postmessage(uint8_t msg, uint16_t param1, uint16_t param2, void *data);
+void toxaudio_postmessage(uint8_t msg, uint16_t param1, uint16_t param2, void *data);
+
+/* send a message to the video thread
+ */
+void toxvideo_postmessage(uint8_t msg, uint16_t param1, uint16_t param2, void *data);
 
 /* read a message sent from the toxcore thread (sent with postmessage())
  */

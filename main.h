@@ -80,9 +80,10 @@ struct groupchat
     MSG_DATA msg;
 };
 
-volatile _Bool tox_thread_init, av_thread_init;
-volatile _Bool video_preview, audio_preview;
+volatile _Bool tox_thread_init, audio_thread_init, video_thread_init;
 _Bool tox_connected;
+
+_Bool audio_preview, video_preview;
 
 //friends and groups
 //note: assumes array size will always be large enough
