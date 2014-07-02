@@ -574,11 +574,7 @@ void notify(uint8_t *title, uint16_t title_length, uint8_t *msg, uint16_t msg_le
     XWMHints hints = {.flags = 256};
     XSetWMHints(display, window, &hints);
 
-    char *p = malloc(msg_length + 1);
-    memcpy(p, msg, msg_length);
-    p[msg_length] = 0;
-    dbus_notify((char*)title, p);
-    free(p);
+    dbus_notify((char*)title, (char*)msg);
 }
 
 #include "event.c"

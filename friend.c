@@ -27,6 +27,19 @@ void friend_setname(FRIEND *f, char_t *name, uint16_t length)
     f->name[f->name_length] = 0;
 }
 
+void friend_notify(FRIEND *f, uint8_t *str, uint16_t str_length, uint8_t *msg, uint16_t msg_length)
+{
+    int len = f->name_length + str_length + 3;
+    uint8_t title[len + 1], *p = title;
+    memcpy(p, str, str_length); p += str_length;
+    *p++ = ' ';
+    *p++ = '(';
+    memcpy(p, f->name, f->name_length); p += f->name_length;
+    *p++ = ')';
+    *p = 0;
+    notify(title, len, msg, msg_length);
+}
+
 void friend_addmessage(FRIEND *f, void *data)
 {
     MESSAGE *msg = data;
@@ -34,7 +47,10 @@ void friend_addmessage(FRIEND *f, void *data)
     message_add(&messages_friend, data, &f->msg);
 
     if(msg->flags < 4) {
-        notify(f->name, f->name_length, msg->msg, msg->length);
+        uint8_t m[msg->length + 1];
+        memcpy(m, msg->msg, msg->length);
+        m[msg->length] = 0;
+        notify(f->name, f->name_length, m, msg->length);
     }
 
     if(sitem->data != f) {

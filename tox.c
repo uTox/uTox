@@ -767,6 +767,18 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint8_t msg, uint16_t param1
     }
 }
 
+static void file_notify(FRIEND *f, MSG_FILE *msg)
+{
+    STRING *str = &filestatus[msg->status];
+    friend_notify(f, str->str, str->length, msg->name, msg->name_length);
+}
+
+static void call_notify(FRIEND *f, uint8_t status)
+{
+    STRING *str = &callstatus[status & 3];
+    friend_notify(f, str->str, str->length, (uint8_t*)"", 0);
+}
+
 void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
 {
     switch(msg) {
@@ -923,6 +935,9 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
 
         f->calling = status;
         f->callid = param2;
+
+        call_notify(f, status);
+
         updatefriend(f);
         break;
     }
@@ -938,6 +953,10 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
 
         uint32_t res = (size_t)data;
         video_begin(param1 + 1, f->name, f->name_length, res & 0xFFFF, res >> 16);
+
+
+        call_notify(f, CALL_OK_VIDEO);
+
         break;
     }
 
@@ -975,6 +994,8 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
         friend_addmessage(f, msg);
         ft->chatdata = msg;
 
+        file_notify(f, msg);
+
         updatefriend(f);
         break;
     }
@@ -987,14 +1008,17 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
         msg->flags = 7;
         msg->filenumber = param2;
         msg->status = FILE_PENDING;
-        msg->name_length = (ft->name_length > sizeof(msg->name)) ? sizeof(msg->name) : ft->name_length;
+        msg->name_length = (ft->name_length >= sizeof(msg->name)) ? sizeof(msg->name) - 1 : ft->name_length;
         msg->size = ft->total;
         msg->progress = 0;
         msg->speed = 0;
         memcpy(msg->name, ft->name, msg->name_length);
+        msg->name[msg->name_length] = 0;
 
         friend_addmessage(f, msg);
         ft->chatdata = msg;
+
+        file_notify(f, msg);
 
         updatefriend(f);
         break;
@@ -1007,6 +1031,8 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
         MSG_FILE *msg = ft->chatdata;
         msg->status = (size_t)data;
 
+        file_notify(f, msg);
+
         updatefriend(f);
         break;
     }
@@ -1017,6 +1043,8 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
 
         MSG_FILE *msg = ft->chatdata;
         msg->status = (size_t)data;
+
+        file_notify(f, msg);
 
         updatefriend(f);
         break;
