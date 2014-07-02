@@ -717,6 +717,7 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint8_t msg, uint16_t param1
         FILE_T *ft = &friend[param1].outgoing[param2];
         ft->status = FT_KILL;
         tox_file_send_control(tox, param1, 0, param2, TOX_FILECONTROL_KILL, NULL, 0);
+        postmessage(FRIEND_FILE_OUT_STATUS, param1, param2, (void*)FILE_KILLED);
         break;
     }
 
@@ -1017,8 +1018,6 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
 
         friend_addmessage(f, msg);
         ft->chatdata = msg;
-
-        file_notify(f, msg);
 
         updatefriend(f);
         break;

@@ -53,7 +53,7 @@ static void drawrectrounded(uint8_t *data, int width, int height, int radius)
                 double dx, dy;
                 dx = (x < radius) ? x - hw : x + hw - width + 1.0;
                 dy = (y < radius) ? y - hw : y + hw - height + 1.0;
-                double d = sqrt(dx * dx  + dy * dy) - hw + 0.5;
+                double d = sqrt(dx * dx  + dy * dy) - hw;
                 *data++ = pixel(d);
             } else {
                 *data++ = 0xFF;
@@ -77,7 +77,7 @@ static void drawrectroundedex(uint8_t *data, int width, int height, int radius, 
                 double dx, dy;
                 dx = (x < radius) ? x - hw : x + hw - width + 1.0;
                 dy = (y < radius) ? y - hw : y + hw - height + 1.0;
-                double d = sqrt(dx * dx  + dy * dy) - hw + 0.5;
+                double d = sqrt(dx * dx  + dy * dy) - hw;
                 *data++ = pixel(d);
             } else {
                 *data++ = 0xFF;
@@ -100,7 +100,7 @@ static void drawrectroundedsub(uint8_t *p, int width, int height, int sx, int sy
                 double dx, dy;
                 dx = (x < radius) ? x - hw : x + hw - sw + 1.0;
                 dy = (y < radius) ? y - hw : y + hw - sh + 1.0;
-                double d = sqrt(dx * dx  + dy * dy) - hw + 0.5;
+                double d = sqrt(dx * dx  + dy * dy) - hw;
                 *data = pixel(d);
             } else {
                 *data = 0xFF;

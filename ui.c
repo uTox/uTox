@@ -213,8 +213,7 @@ static void background_draw(PANEL *p, int x, int y, int width, int height)
     drawrect(0, 0, LIST_RIGHT, LIST_Y - 1, LIST_DARK);
     drawhline(0, LIST_Y - 1, LIST_RIGHT, LIST_EDGE);
     drawrect(0, LIST_Y, LIST_RIGHT, height + LIST_BOTTOM, LIST_MAIN);
-    drawrect(0, height + LIST_BOTTOM, LIST_RIGHT, height - 1, LIST_DARK);
-    drawhline(0, height - 1, LIST_RIGHT, LIST_EDGE2);
+    drawrect(0, height + LIST_BOTTOM, LIST_RIGHT, height, LIST_DARK);
 
     drawself();
 
@@ -471,7 +470,7 @@ void ui_scale(uint8_t scale)
         .x = 0,
         .y = LIST_BOTTOM,
         .width = SCALE * 27,
-        .height = -LIST_BOTTOM - 1,
+        .height = -LIST_BOTTOM,
     },
 
     b_groups = {
@@ -479,7 +478,7 @@ void ui_scale(uint8_t scale)
         .x = SCALE * 28 * 1,
         .y = LIST_BOTTOM,
         .width = SCALE * 27,
-        .height = -LIST_BOTTOM - 1,
+        .height = -LIST_BOTTOM,
     },
 
     b_transfer = {
@@ -487,7 +486,7 @@ void ui_scale(uint8_t scale)
         .x = SCALE * 28 * 2,
         .y = LIST_BOTTOM,
         .width = SCALE * 27,
-        .height = -LIST_BOTTOM - 1,
+        .height = -LIST_BOTTOM,
     },
 
     b_settings = {
@@ -495,7 +494,7 @@ void ui_scale(uint8_t scale)
         .x = SCALE * 28 * 3,
         .y = LIST_BOTTOM,
         .width = SCALE * 27,
-        .height = -LIST_BOTTOM - 1,
+        .height = -LIST_BOTTOM,
     },
 
     b_copyid = {

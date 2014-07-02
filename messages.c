@@ -192,10 +192,6 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
 
 _Bool messages_mmove(MESSAGES *m, int px, int py, int width, int height, int mx, int my, int dy)
 {
-    if(my < 0) {
-        my = 0;
-    }
-
     if(mx < 0) {
         if(m->iover != ~0) {
             m->iover = ~0;
@@ -222,7 +218,7 @@ _Bool messages_mmove(MESSAGES *m, int px, int py, int width, int height, int mx,
             case 2:
             case 3: {
                 /* normal message */
-                m->over = hittextmultiline(mx - MESSAGES_X, width - MESSAGES_X - TIME_WIDTH, my, msg->height, font_msg_lineheight, msg->msg, msg->length, 1);
+                m->over = hittextmultiline(mx - MESSAGES_X, width - MESSAGES_X - TIME_WIDTH, my < 0 ? 0 : my, msg->height, font_msg_lineheight, msg->msg, msg->length, 1);
                 m->urlover = 0xFFFF;
 
                 if(my >= dy || mx < MESSAGES_X || m->over == msg->length) {
