@@ -1,4 +1,4 @@
-static void* copy_message(uint8_t *str, uint16_t length, uint16_t flags)
+static void* copy_message(const uint8_t *str, uint16_t length, uint16_t flags)
 {
     length = utf8_validate(str, length);
 
@@ -10,7 +10,7 @@ static void* copy_message(uint8_t *str, uint16_t length, uint16_t flags)
     return msg;
 }
 
-static void* copy_groupmessage(Tox *tox, uint8_t *str, uint16_t length, uint16_t flags, int gid, int pid)
+static void* copy_groupmessage(Tox *tox, const uint8_t *str, uint16_t length, uint16_t flags, int gid, int pid)
 {
     uint8_t name[TOX_MAX_NAME_LENGTH];
     int namelen = tox_group_peername(tox, gid, pid, name);
@@ -53,21 +53,21 @@ static void callback_friend_request(Tox *tox, const uint8_t *id, const uint8_t *
     postmessage(FRIEND_ACCEPT, (r < 0), (r < 0) ? 0 : r, data);*/
 }
 
-static void callback_friend_message(Tox *tox, int fid, uint8_t *message, uint16_t length, void *userdata)
+static void callback_friend_message(Tox *tox, int fid, const uint8_t *message, uint16_t length, void *userdata)
 {
     postmessage(FRIEND_MESSAGE, fid, 0, copy_message(message, length, 0));
 
     debug("Friend Message (%u): %.*s\n", fid, length, message);
 }
 
-static void callback_friend_action(Tox *tox, int fid, uint8_t *action, uint16_t length, void *userdata)
+static void callback_friend_action(Tox *tox, int fid, const uint8_t *action, uint16_t length, void *userdata)
 {
     postmessage(FRIEND_MESSAGE, fid, 0, copy_message(action, length, 2));
 
     debug("Friend Action (%u): %.*s\n", fid, length, action);
 }
 
-static void callback_name_change(Tox *tox, int fid, uint8_t *newname, uint16_t length, void *userdata)
+static void callback_name_change(Tox *tox, int fid, const uint8_t *newname, uint16_t length, void *userdata)
 {
     length = utf8_validate(newname, length);
 
@@ -79,7 +79,7 @@ static void callback_name_change(Tox *tox, int fid, uint8_t *newname, uint16_t l
     debug("Friend Name (%u): %.*s\n", fid, length, newname);
 }
 
-static void callback_status_message(Tox *tox, int fid, uint8_t *newstatus, uint16_t length, void *userdata)
+static void callback_status_message(Tox *tox, int fid, const uint8_t *newstatus, uint16_t length, void *userdata)
 {
     length = utf8_validate(newstatus, length);
 
@@ -145,7 +145,7 @@ static void callback_connection_status(Tox *tox, int fid, uint8_t status, void *
     debug("Friend Online/Offline (%u): %u\n", fid, status);
 }
 
-static void callback_group_invite(Tox *tox, int fid, uint8_t *group_public_key, void *userdata)
+static void callback_group_invite(Tox *tox, int fid, const uint8_t *group_public_key, void *userdata)
 {
     int gid = tox_join_groupchat(tox, fid, group_public_key);
     if(gid != -1) {
@@ -155,14 +155,14 @@ static void callback_group_invite(Tox *tox, int fid, uint8_t *group_public_key, 
     debug("Group Invite (%i,f:%i)\n", gid, fid);
 }
 
-static void callback_group_message(Tox *tox, int gid, int pid, uint8_t *message, uint16_t length, void *userdata)
+static void callback_group_message(Tox *tox, int gid, int pid, const uint8_t *message, uint16_t length, void *userdata)
 {
     postmessage(GROUP_MESSAGE, gid, 0, copy_groupmessage(tox, message, length, 0, gid, pid));
 
     debug("Group Message (%u, %u): %.*s\n", gid, pid, length, message);
 }
 
-static void callback_group_action(Tox *tox, int gid, int pid, uint8_t *action, uint16_t length, void *userdata)
+static void callback_group_action(Tox *tox, int gid, int pid, const uint8_t *action, uint16_t length, void *userdata)
 {
     postmessage(GROUP_MESSAGE, gid, 0, copy_groupmessage(tox, action, length, 2, gid, pid));
 
