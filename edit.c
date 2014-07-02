@@ -21,7 +21,7 @@ static void setactive(EDIT *edit)
 
 void edit_draw(EDIT *edit, int x, int y, int width, int height)
 {
-    edit->width = width -4 * SCALE;
+    edit->width = width -4 * SCALE - (edit->multiline ? SCROLL_WIDTH : 0);
 
     framerect(x, y, x + width, y + height, (edit == active_edit) ? BLUE : (edit->mouseover ? C_GRAY2 : C_GRAY));
     drawrect(x + 1, y + 1, x + width - 1, y + height - 1, WHITE);
@@ -30,6 +30,8 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
     setcolor(COLOR_TEXT);
 
     if(edit->multiline) {
+        pushclip(x + 1, y + 1, width - 2, height - 2);
+
         SCROLLABLE *scroll = edit->scroll;
         scroll->content_height = text_height(width - 4 * SCALE - SCROLL_WIDTH, font_small_lineheight, edit->data, edit->length);
         scroll_draw(scroll, x - 1, y + 1, width, height - 2);
@@ -39,6 +41,10 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
     _Bool a = (edit == active_edit);
     drawtextmultiline(x + 2 * SCALE, x + width - 2 * SCALE - (edit->multiline ? SCROLL_WIDTH : 0), y + 2 * SCALE, font_small_lineheight, edit->data, edit->length,
                       a ? edit_sel.start : 0xFFFF, a ? edit_sel.length : 0xFFFF, edit->multiline);
+
+    if(edit->multiline) {
+        popclip();
+    }
 }
 
 _Bool edit_mmove(EDIT *edit, int px, int py, int width, int height, int x, int y, int dy)
