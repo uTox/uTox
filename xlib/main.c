@@ -805,14 +805,15 @@ void video_end(uint32_t id)
 Display *deskdisplay;
 int deskscreen;
 
+XShmSegmentInfo shminfo;
+
 void initshm(void)
 {
     deskdisplay = XOpenDisplay(NULL);
     deskscreen = DefaultScreen(deskdisplay);
-    //debug("desktop: %u %u\n", scr->width, scr->height);
+    debug("desktop: %u %u\n", scr->width, scr->height);
 
-    /*XShmSegmentInfo shminfo;
-    if(!(screen_image = XShmCreateImage(deskdisplay, DefaultVisual(deskdisplay, deskscreen), DefaultDepth(deskdisplay, deskscreen), ZPixmap, NULL, &shminfo, 640, 480))) {
+    if(!(screen_image = XShmCreateImage(deskdisplay, DefaultVisual(deskdisplay, deskscreen), DefaultDepth(deskdisplay, deskscreen), ZPixmap, NULL, &shminfo, scr->width, scr->height))) {
        return;
     }
 
@@ -827,7 +828,7 @@ void initshm(void)
     shminfo.readOnly = False;
     if(!XShmAttach(deskdisplay, &shminfo)) {
         return;
-    }*/
+    }
 }
 
 void* video_detect(void)
@@ -915,11 +916,11 @@ _Bool video_endread(void)
 _Bool video_getframe(vpx_image_t *image)
 {
     if(fd == -1) {
-        screen_image = XGetImage(deskdisplay,RootWindow(deskdisplay, DefaultScreen(deskdisplay)), 0, 0, scr->width, scr->height, XAllPlanes(), ZPixmap);
+        //screen_image = XGetImage(deskdisplay,RootWindow(deskdisplay, DefaultScreen(deskdisplay)), 0, 0, scr->width, scr->height, XAllPlanes(), ZPixmap);
 
-        //XShmGetImage(deskdisplay,RootWindow(deskdisplay, deskscreen), screen_image, 0, 0, AllPlanes);
+        XShmGetImage(deskdisplay,RootWindow(deskdisplay, deskscreen), screen_image, 0, 0, AllPlanes);
         rgbxtoyuv420(image->planes[0], image->planes[1], image->planes[2], (uint8_t*)screen_image->data, screen_image->width, screen_image->height);
-        XDestroyImage(screen_image);
+        //XDestroyImage(screen_image);
         return 1;
     }
 

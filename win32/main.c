@@ -778,6 +778,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
 
     hdc_brush = GetStockObject(DC_BRUSH);
 
+    dropdown_add(&dropdown_video, (uint8_t*)"None", NULL);
+    dropdown_add(&dropdown_video, (uint8_t*)"Desktop", (void*)1);
+
     ShowWindow(hwnd, nCmdShow);
 
     tme.hwndTrack = hwnd;
@@ -837,6 +840,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
             if(hwn == video_hwnd[0]) {
                 video_end(0);
                 video_preview = 0;
+                toxvideo_postmessage(VIDEO_PREVIEW_END, 0, 0, NULL);
                 return 1;
             }
 
@@ -1539,9 +1543,27 @@ void* video_detect(void)
 }
 
 IPin *pPin = NULL, *pIPin;
+HWND desktopwnd;
+HDC desktopdc, capturedc;
+HBITMAP capturebitmap;
+_Bool capturedesktop;
+void *dibits;
 
 _Bool video_init(void *handle)
 {
+    if((size_t)handle == 1) {
+        video_width = GetSystemMetrics(SM_CXSCREEN);
+        video_height = GetSystemMetrics(SM_CYSCREEN);
+        desktopwnd = GetDesktopWindow();
+        desktopdc = GetDC(desktopwnd);
+        capturedc = CreateCompatibleDC(desktopdc);
+        capturebitmap = CreateCompatibleBitmap(desktopdc, video_width, video_height);
+        SelectObject(capturedc, capturebitmap);
+        dibits = malloc(video_width * video_height * 3);
+        capturedesktop = 1;
+        return 1;
+    }
+
     HRESULT hr;
     IBaseFilter *pFilter = handle;
 
@@ -1608,6 +1630,15 @@ _Bool video_init(void *handle)
 
 void video_close(void *handle)
 {
+    if((size_t)handle == 1) {
+        ReleaseDC(desktopwnd, desktopdc);
+        DeleteDC(capturedc);
+        DeleteObject(capturebitmap);
+        free(dibits);
+        capturedesktop = 0;
+        return;
+    }
+
     HRESULT hr;
     IBaseFilter *pFilter = handle;
 
@@ -1631,6 +1662,30 @@ void video_close(void *handle)
 
 _Bool video_getframe(vpx_image_t *image)
 {
+    if(capturedesktop) {
+        static uint64_t lasttime;
+        uint64_t t = get_time();
+        if(t - lasttime >= (uint64_t)1000 * 1000 * 1000 / 50) {
+            BITMAPINFO info = {
+                .bmiHeader = {
+                    .biSize = sizeof(BITMAPINFOHEADER),
+                    .biWidth = video_width,
+                    .biHeight = -(int)video_height,
+                    .biPlanes = 1,
+                    .biBitCount = 24,
+                    .biCompression = BI_RGB,
+                }
+            };
+
+            BitBlt(capturedc, 0, 0, video_width, video_height, desktopdc, 0, 0, SRCCOPY | CAPTUREBLT);
+            GetDIBits(capturedc, capturebitmap, 0, video_height, dibits, &info, DIB_RGB_COLORS);
+            rgbtoyuv420(image->planes[0], image->planes[1], image->planes[2], dibits, video_width, video_height);
+            lasttime = t;
+            return 1;
+        }
+        return 0;
+    }
+
     if(newframe) {
         newframe = 0;
         rgbtoyuv420(image->planes[0], image->planes[1], image->planes[2], frame_data, video_width, video_height);

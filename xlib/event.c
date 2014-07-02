@@ -9,6 +9,7 @@ _Bool doevent(void)
                 if(ev->window == video_win[0]) {
                     video_end(0);
                     video_preview = 0;
+                    toxvideo_postmessage(VIDEO_PREVIEW_END, 0, 0, NULL);
                     return 1;
                 }
 
