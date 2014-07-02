@@ -270,10 +270,6 @@ _Bool messages_mmove(MESSAGES *m, int px, int py, int width, int height, int mx,
 
             case 6:
             case 7: {
-                if(my >= BM_FT_HEIGHT) {
-                    break;
-                }
-
                 uint8_t over = 0;
 
                 mx -= MESSAGES_X;
