@@ -21,7 +21,11 @@
 #include <dlfcn.h>
 
 #include "v4l.c"
+
+#ifndef __APPLE__
+#define HAVE_DBUS
 #include "dbus.c"
+#endif
 
 #include "keysym2ucs.c"
 
@@ -611,7 +615,9 @@ void notify(uint8_t *title, uint16_t title_length, uint8_t *msg, uint16_t msg_le
     XWMHints hints = {.flags = 256};
     XSetWMHints(display, window, &hints);
 
+    #ifdef HAVE_DBUS
     dbus_notify((char*)title, (char*)msg);
+    #endif
 }
 
 #include "event.c"
