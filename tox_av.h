@@ -51,6 +51,7 @@ static void callback_av_start(int32_t call_index, void *arg)
 #define stopcall() \
     toxaudio_postmessage(AUDIO_CALL_END, call_index, 0, NULL); \
     toxvideo_postmessage(VIDEO_CALL_END, call_index, 0, NULL); \
+    toxav_kill_transmission(arg, call_index); \
     endcall();
 
 static void callback_av_cancel(int32_t call_index, void *arg)
