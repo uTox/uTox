@@ -869,7 +869,7 @@ void* video_detect(void)
 
     initshm();
 
-    return first ? first : "";
+    return first;
 }
 
 _Bool video_init(void *handle)
