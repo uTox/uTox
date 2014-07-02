@@ -378,6 +378,7 @@ void tox_thread(void *args)
     set_av_callbacks(av);
 
     tox_thread_init = 1;
+
     thread(audio_thread, av);
     thread(video_thread, av);
 
@@ -970,15 +971,22 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
            param2: call id
            data: frame data
          */
-        video_frame(param1 + 1, data);
+        vpx_image_t *image = data;
+
+        uint8_t *img_data = malloc(image->d_w * image->d_h * 4);
+        yuv420torgb(image, img_data);
+        video_frame(param1 + 1, img_data, image->d_w, image->d_h);
+
+        free(img_data);
         vpx_img_free(data);
         break;
     }
 
     case PREVIEW_FRAME: {
         if(video_preview) {
-            video_frame(0, data);
+            video_frame(0, data, param1, param2);
         }
+        free(data);
         break;
     }
 

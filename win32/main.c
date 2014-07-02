@@ -1182,21 +1182,17 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     return DefWindowProcW(hwn, msg, wParam, lParam);
 }
 
-void video_frame(uint32_t id, vpx_image_t *frame)
+void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height)
 {
-    uint8_t *img_data = malloc(frame->d_w * frame->d_h * 4);
-    yuv420torgb(frame, img_data);
-
-    HBITMAP bitmap = CreateBitmap(frame->d_w, frame->d_h, 1, 32, img_data);
+    HBITMAP bitmap = CreateBitmap(width, height, 1, 32, img_data);
 
     HDC dc = GetDC(video_hwnd[id]);
     HDC dc_src = CreateCompatibleDC(dc);
     SelectObject(dc_src, bitmap);
-    BitBlt(dc, 0, 0, frame->d_w, frame->d_h, dc_src, 0, 0, SRCCOPY);
+    BitBlt(dc, 0, 0, width, height, dc_src, 0, 0, SRCCOPY);
 
     DeleteObject(bitmap);
     DeleteDC(dc_src);
-    free(img_data);
 }
 
 void video_begin(uint32_t id, uint8_t *name, uint16_t name_length, uint16_t width, uint16_t height)

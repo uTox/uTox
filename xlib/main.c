@@ -708,6 +708,7 @@ int main(int argc, char *argv[])
     XftColorAllocValue(display, visual, cmap, &xrcolor, &xftcolor);
 
     /* set-up desktop video input */
+    dropdown_add(&dropdown_video, (uint8_t*)"None", NULL);
     dropdown_add(&dropdown_video, (uint8_t*)"Desktop", (void*)"");
 
     /* make the window visible */
@@ -762,21 +763,18 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-void video_frame(uint32_t id, vpx_image_t *frame)
+void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height)
 {
-    uint8_t *img_data = malloc(frame->d_w * frame->d_h * 4);
-    yuv420torgb(frame, img_data);
-
     XImage image = {
-        .width = frame->d_w,
-        .height = frame->d_h,
+        .width = width,
+        .height = height,
         .depth = 24,
         .bits_per_pixel = 32,
         .format = ZPixmap,
         .byte_order = LSBFirst,
         .bitmap_unit = 8,
         .bitmap_bit_order = LSBFirst,
-        .bytes_per_line = frame->d_w * 4,
+        .bytes_per_line = width * 4,
         .red_mask = 0xFF0000,
         .green_mask = 0xFF00,
         .blue_mask = 0xFF,
@@ -784,11 +782,10 @@ void video_frame(uint32_t id, vpx_image_t *frame)
     };
 
     GC gc = DefaultGC(display, screen);
-    Pixmap pixmap = XCreatePixmap(display, window, frame->d_w, frame->d_h, 24);
-    XPutImage(display, pixmap, gc, &image, 0, 0, 0, 0, frame->d_w, frame->d_h);
-    XCopyArea(display, pixmap, video_win[id], gc, 0, 0, frame->d_w, frame->d_h, 0, 0);
+    Pixmap pixmap = XCreatePixmap(display, window, width, height, 24);
+    XPutImage(display, pixmap, gc, &image, 0, 0, 0, 0, width, height);
+    XCopyArea(display, pixmap, video_win[id], gc, 0, 0, width, height, 0, 0);
     XFreePixmap(display, pixmap);
-    free(img_data);
 }
 
 void video_begin(uint32_t id, uint8_t *name, uint16_t name_length, uint16_t width, uint16_t height)

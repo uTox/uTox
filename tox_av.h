@@ -220,6 +220,12 @@ static void video_thread(void *args)
                 }
 
                 video_device = m->data;
+                if(video_device == NULL) {
+                    video = 0;
+                    video_on = 0;
+                    break;
+                }
+
                 video = openvideodevice(video_device);
                 if(video) {
                     if(video_on) {
@@ -228,8 +234,6 @@ static void video_thread(void *args)
                 } else {
                     video_on = 0;
                 }
-
-                debug("set video\n");
                 break;
             }
 
@@ -280,7 +284,9 @@ static void video_thread(void *args)
 
         if(video_on && video_getframe(&input)) {
             if(preview) {
-                postmessage(PREVIEW_FRAME, 0, 0, &input);
+                uint8_t *img_data = malloc(input.d_w * input.d_h * 4);
+                yuv420torgb(&input, img_data);
+                postmessage(PREVIEW_FRAME, input.d_w, input.d_h, img_data);
             }
 
             int i;
@@ -334,7 +340,7 @@ static void audio_thread(void *args)
     ToxAv *av = args;
     const char *device_list, *audio_device = NULL, *output_device = NULL;
 
-    _Bool call[MAX_CALLS], preview = 0;
+    _Bool call[MAX_CALLS] = {0}, preview = 0;
 
     int perframe = (av_DefaultSettings.audio_frame_duration * av_DefaultSettings.audio_sample_rate) / 1000;
     uint8_t buf[perframe * 2], dest[perframe * 2];
