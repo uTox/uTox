@@ -147,6 +147,25 @@ static void button_acceptfriend_onpress(void)
     tox_postmessage(TOX_ACCEPTFRIEND, 0, 0, req);
 }
 
+static void button_name_onpress(void)
+{
+    list_selectsettings();
+}
+
+static void button_statusmsg_onpress(void)
+{
+    list_selectsettings();
+}
+
+static void button_status_onpress(void)
+{
+    self.status++;
+    if(self.status == 3) {
+        self.status = 0;
+    }
+}
+
+
 BUTTON
 
 button_add = {
@@ -284,4 +303,19 @@ button_videopreview = {
 
     .onpress = button_videopreview_onpress,
     .updatecolor = button_videopreview_updatecolor,
+},
+
+button_name = {
+    .nodraw = 1,
+    .onpress = button_name_onpress,
+},
+
+button_statusmsg = {
+    .nodraw = 1,
+    .onpress = button_statusmsg_onpress,
+},
+
+button_status = {
+    .nodraw = 1,
+    .onpress = button_status_onpress,
 };

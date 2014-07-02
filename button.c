@@ -2,6 +2,10 @@
 
 void button_draw(BUTTON *b, int x, int y, int width, int height)
 {
+    if(b->nodraw) {
+        return;
+    }
+
     if(b->updatecolor) {
         b->updatecolor(b);
     }

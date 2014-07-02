@@ -15,17 +15,17 @@ uint32_t status_color[] = {
 static void drawself(void)
 {
     //40x40 self icon at 10,10
-    setcolor(WHITE);
+    setcolor(button_name.mouseover ? C_STATUS : WHITE);
     setfont(FONT_SELF_NAME);
     drawtextrange(SELF_NAME_X, SELF_STATUS_X, SELF_NAME_Y, self.name, self.name_length);
 
-    setcolor(C_STATUS);
+    setcolor(button_statusmsg.mouseover ? C_GRAY2 : C_STATUS);
     setfont(FONT_STATUS);
     drawtextrange(SELF_MSG_X, SELF_STATUS_X, SELF_MSG_Y, self.statusmsg, self.statusmsg_length);
 
     drawalpha(BM_CONTACT, SELF_AVATAR_X, SELF_AVATAR_Y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, WHITE);
 
-    drawalpha(BM_STATUSAREA, SELF_STATUS_X, SELF_STATUS_Y, BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT, LIST_MAIN);
+    drawalpha(BM_STATUSAREA, SELF_STATUS_X, SELF_STATUS_Y, BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT, button_status.mouseover ? LIST_HIGHLIGHT : LIST_MAIN);
 
     uint8_t status = tox_connected ? self.status : 3;
     drawalpha(BM_ONLINE + status, SELF_STATUS_X + BM_STATUSAREA_WIDTH / 2 - BM_STATUS_WIDTH / 2, SELF_STATUS_Y + BM_STATUSAREA_HEIGHT / 2 - BM_STATUS_WIDTH / 2, BM_STATUS_WIDTH, BM_STATUS_WIDTH, status_color[status]);
@@ -417,6 +417,7 @@ panel_main = {
     .type = PANEL_MAIN,
     .child = (PANEL*[]) {
         (void*)&button_add, (void*)&button_groups, (void*)&button_transfer, (void*)&button_settings,
+        (void*)&button_name, (void*)&button_statusmsg, (void*)&button_status,
         &panel_list, &panel_side,
         (void*)&scroll_list,
         NULL
@@ -559,6 +560,30 @@ void ui_scale(uint8_t scale)
         .y = 89 * SCALE,
         .width = BM_LBUTTON_WIDTH,
         .height = BM_LBUTTON_HEIGHT,
+    },
+
+    b_name = {
+        .type = PANEL_BUTTON,
+        .x = SELF_NAME_X,
+        .y = SELF_NAME_Y + 2 * SCALE,
+        .width = SELF_STATUS_X - SELF_NAME_X,
+        .height = SELF_MSG_Y - SELF_NAME_Y,
+    },
+
+    b_statusmsg = {
+        .type = PANEL_BUTTON,
+        .x = SELF_MSG_X,
+        .y = SELF_MSG_Y + 2 * SCALE,
+        .width = SELF_STATUS_X - SELF_MSG_X,
+        .height = 6 * SCALE,
+    },
+
+    b_status = {
+        .type = PANEL_BUTTON,
+        .x = SELF_STATUS_X,
+        .y = SELF_STATUS_Y,
+        .width = BM_STATUSAREA_WIDTH,
+        .height = BM_STATUSAREA_HEIGHT,
     };
 
     button_add.panel = b_add;
@@ -573,6 +598,9 @@ void ui_scale(uint8_t scale)
     button_acceptfriend.panel = b_acceptfriend;
     button_callpreview.panel = b_callpreview;
     button_videopreview.panel = b_videopreview;
+    button_name.panel = b_name;
+    button_statusmsg.panel = b_statusmsg;
+    button_status.panel = b_status;
 
     PANEL d_audio_in = {
         .type = PANEL_DROPDOWN,
