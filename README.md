@@ -21,15 +21,15 @@ Windows:
 
 > windres icons/icon.rc -O coff -o icon.res
 
-> gcc -o uTox.exe *.c icon.res -lgdi32 -lmsimg32 -ldnsapi -lcomdlg32 -lopenal32 -ltoxav
+> cc -o uTox.exe *.c icon.res -lgdi32 -lmsimg32 -ldnsapi -lcomdlg32 -lopenal32 -ltoxav
 
 Xlib:
 
-> gcc -o uTox.o *.c -lX11 -lXft -lXrender -ltoxcore -ltoxav -ltoxdns -lopenal -pthread -lresolv -ldl -lm -lfontconfig -lv4lconvert -lvpx -I/usr/include/freetype2 -DV4L
+> cc -o uTox.o *.c -lX11 -lXft -lXrender -ltoxcore -ltoxav -ltoxdns -lopenal -pthread -lresolv -ldl -lm -lfontconfig -lv4lconvert -lvpx -I/usr/include/freetype2 -DV4L
 
 or if you built toxcore statically:
 
-> gcc -o uTox.o *.c -lX11 -lXft -lXrender -ltoxcore -ltoxav -ltoxdns -lopenal -lsodium -lopus -lvpx -lm -pthread -lresolv -ldl -lfontconfig -lv4lconvert -DV4L -I/usr/include/freetype2
+> cc -o uTox.o *.c -lX11 -lXft -lXrender -ltoxcore -ltoxav -ltoxdns -lopenal -lsodium -lopus -lvpx -lm -pthread -lresolv -ldl -lfontconfig -lv4lconvert -DV4L -I/usr/include/freetype2
 
 
 ## Downloads
