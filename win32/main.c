@@ -666,13 +666,92 @@ void notify(uint8_t *title, uint16_t title_length, uint8_t *msg, uint16_t msg_le
     Shell_NotifyIconW(NIM_MODIFY, &nid);
 }
 
+static int grabx, graby, grabpx, grabpy;
+static _Bool grabbing;
+
 void desktopgrab(void)
 {
-    /*capturewnd = CreateWindowExW(0, L"uTox", L"Tox", WS_POPUP, 0, 0, 80, 80, NULL, NULL, hinstance, NULL);
-    ShowWindow(capturewnd, SW_SHOW);
-    SetCapture(capturewnd);*/
+    int x, y, w, h;
 
-    toxvideo_postmessage(VIDEO_SET, 0, 0, (void*)1);
+    x = GetSystemMetrics(SM_XVIRTUALSCREEN);
+    y = GetSystemMetrics(SM_YVIRTUALSCREEN);
+    w = GetSystemMetrics(SM_CXVIRTUALSCREEN);
+    h = GetSystemMetrics(SM_CYVIRTUALSCREEN);
+
+    debug("%i %i %i %i\n", x, y, w, h);
+
+    capturewnd = CreateWindowExW(WS_EX_TOPMOST | WS_EX_LAYERED, L"uToxgrab", L"Tox", WS_POPUP, x, y, w, h, NULL, NULL, hinstance, NULL);
+    SetLayeredWindowAttributes(capturewnd, 0xFFFFFF, 128, LWA_ALPHA | LWA_COLORKEY);
+    ShowWindow(capturewnd, SW_SHOW);
+    SetForegroundWindow(capturewnd);
+
+    //SetCapture(hwnd);
+    //grabbing = 1;
+
+    //toxvideo_postmessage(VIDEO_SET, 0, 0, (void*)1);
+}
+
+LRESULT CALLBACK GrabProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+    POINT p = {
+        .x = GET_X_LPARAM(lParam),
+        .y = GET_Y_LPARAM(lParam)
+    };
+
+    ClientToScreen(hwnd, &p);
+
+    if(msg == WM_MOUSEMOVE) {
+
+        if(grabbing) {
+            HDC hdc = GetDC(hwnd);
+            BitBlt(hdc, grabx, graby, grabpx - grabx, grabpy - graby, hdc, grabx, graby, BLACKNESS);
+            grabpx = p.x;
+            grabpy = p.y;
+            BitBlt(hdc, grabx, graby, grabpx - grabx, grabpy - graby, hdc, grabx, graby, WHITENESS);
+        }
+
+        return 0;
+    }
+
+    if(msg == WM_LBUTTONDOWN) {
+        grabx = grabpx = p.x;
+        graby = grabpy = p.y;
+        grabbing = 1;
+        SetCapture(hwnd);
+        return 0;
+    }
+
+    if(msg == WM_LBUTTONUP) {
+        ReleaseCapture();
+        grabbing = 0;
+
+        if(grabx < grabpx) {
+            grabpx -= grabx;
+        } else {
+            int w = grabx - grabpx;
+            grabx = grabpx;
+            grabpx = w;
+        }
+
+        if(graby < grabpy) {
+            grabpy -= graby;
+        } else {
+            int w = graby - grabpy;
+            graby = grabpy;
+            grabpy = w;
+        }
+
+        toxvideo_postmessage(VIDEO_SET, 0, 0, (void*)1);
+
+        DestroyWindow(hwnd);
+        return 0;
+    }
+
+    if(msg == WM_DESTROY) {
+        grabbing = 0;
+    }
+
+    return DefWindowProcW(hwnd, msg, wParam, lParam);
 }
 
 void setscale(void)
@@ -753,7 +832,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     /* */
     MSG msg;
     int x, y;
-    wchar_t classname[] = L"uTox";
+    wchar_t classname[] = L"uTox", popupclassname[] = L"uToxgrab";
 
     HICON myicon = LoadIcon(hInstance, MAKEINTRESOURCE(101));
     cursor_arrow = LoadCursor(NULL, IDC_ARROW);
@@ -768,6 +847,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
         .hInstance = hInstance,
         .hIcon = myicon,
         .lpszClassName = classname,
+    },
+
+    wc2 = {
+        .lpfnWndProc = GrabProc,
+        .hInstance = hInstance,
+        .hIcon = myicon,
+        .lpszClassName = popupclassname,
     };
 
     NOTIFYICONDATA nid = {
@@ -779,6 +865,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     };
 
     RegisterClassW(&wc);
+    RegisterClassW(&wc2);
 
     x = (GetSystemMetrics(SM_CXSCREEN) - MAIN_WIDTH) / 2;
     y = (GetSystemMetrics(SM_CYSCREEN) - MAIN_HEIGHT) / 2;
@@ -846,33 +933,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
 
 LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
 {
+    static int mx, my;
+
     if(hwnd && hwn != hwnd) {
-        if(hwn == capturewnd) {
-            if(msg == WM_MOUSEMOVE) {
-                POINT p = {
-                    .x = GET_X_LPARAM(lParam),
-                    .y = GET_Y_LPARAM(lParam)
-                };
-
-                ClientToScreen(capturewnd, &p);
-
-                SetWindowPos(capturewnd, HWND_TOPMOST, p.x, p.y, 80, 80, 0);
-            }
-
-            if(msg == WM_LBUTTONUP) {
-                ReleaseCapture();
-                DestroyWindow(capturewnd);
-            }
-
-            return DefWindowProcW(hwn, msg, wParam, lParam);
-        }
-
         if(msg == WM_DESTROY) {
             if(hwn == video_hwnd[0]) {
-                video_end(0);
-                video_preview = 0;
-                toxvideo_postmessage(VIDEO_PREVIEW_END, 0, 0, NULL);
-                return 1;
+                if(video_preview) {
+                    video_preview = 0;
+                    toxvideo_postmessage(VIDEO_PREVIEW_END, 0, 0, NULL);
+                }
+
+                return 0;
             }
 
             int i;
@@ -1041,13 +1112,13 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     }
 
     case WM_MOUSEMOVE: {
-        static int my;
         int x, y, dy;
 
         x = GET_X_LPARAM(lParam);
         y = GET_Y_LPARAM(lParam);
 
         dy = y - my;
+        mx = x;
         my = y;
 
         hand = 0;
@@ -1066,6 +1137,15 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     }
 
     case WM_LBUTTONDOWN: {
+        int x, y;
+
+        x = GET_X_LPARAM(lParam);
+        y = GET_Y_LPARAM(lParam);
+
+        if(x != mx || y != my) {
+            debug("issue\n");
+        }
+
         panel_mdown(&panel_main);
         SetCapture(hwn);
         mdown = 1;
@@ -1587,16 +1667,53 @@ HDC desktopdc, capturedc;
 HBITMAP capturebitmap;
 _Bool capturedesktop;
 void *dibits;
+static uint16_t video_x, video_y;
 
 _Bool video_init(void *handle)
 {
     if((size_t)handle == 1) {
-        video_width = GetSystemMetrics(SM_CXSCREEN);
-        video_height = GetSystemMetrics(SM_CYSCREEN);
+        video_x = volatile(grabx);
+        video_y = volatile(graby);
+        video_width = volatile(grabpx);
+        video_height = volatile(grabpy);
+
+        if(video_width & 1) {
+            if(video_x & 1) {
+                video_x--;
+            }
+            video_width++;
+        }
+
+        if(video_width & 2) {
+            video_width -= 2;
+        }
+
+        if(video_height & 1) {
+            if(video_y & 1) {
+                video_y--;
+            }
+            video_height++;
+        }
+
+        debug("size: %u %u\n", video_width, video_height);
+
         desktopwnd = GetDesktopWindow();
-        desktopdc = GetDC(desktopwnd);
-        capturedc = CreateCompatibleDC(desktopdc);
-        capturebitmap = CreateCompatibleBitmap(desktopdc, video_width, video_height);
+        if(!desktopwnd) {
+            return 0;
+        }
+
+        if(!(desktopdc = GetDC(desktopwnd))) {
+           return 0;
+        }
+
+        if(!(capturedc = CreateCompatibleDC(desktopdc))) {
+            return 0;
+        }
+
+        if(!(capturebitmap = CreateCompatibleBitmap(desktopdc, video_width, video_height))) {
+            return 0;
+        }
+
         SelectObject(capturedc, capturebitmap);
         dibits = malloc(video_width * video_height * 3);
         capturedesktop = 1;
@@ -1716,7 +1833,7 @@ _Bool video_getframe(vpx_image_t *image)
                 }
             };
 
-            BitBlt(capturedc, 0, 0, video_width, video_height, desktopdc, 0, 0, SRCCOPY | CAPTUREBLT);
+            BitBlt(capturedc, 0, 0, video_width, video_height, desktopdc, video_x, video_y, SRCCOPY | CAPTUREBLT);
             GetDIBits(capturedc, capturebitmap, 0, video_height, dibits, &info, DIB_RGB_COLORS);
             rgbtoyuv420(image->planes[0], image->planes[1], image->planes[2], dibits, video_width, video_height);
             lasttime = t;
@@ -1735,6 +1852,9 @@ _Bool video_getframe(vpx_image_t *image)
 
 _Bool video_startread(void)
 {
+    if(capturedesktop) {
+        return 1;
+    }
     debug("start webcam\n");
     HRESULT hr;
     hr = pControl->lpVtbl->Run(pControl);
@@ -1747,6 +1867,9 @@ _Bool video_startread(void)
 
 _Bool video_endread(void)
 {
+    if(capturedesktop) {
+        return 1;
+    }
     debug("stop webcam\n");
     HRESULT hr;
     hr = pControl->lpVtbl->StopWhenReady(pControl);

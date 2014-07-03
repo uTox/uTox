@@ -32,9 +32,9 @@ static void button_audiopreview_updatecolor(BUTTON *b)
 static void button_videopreview_onpress(void)
 {
     if(video_preview) {
+        video_preview = 0;
         video_end(0);
         toxvideo_postmessage(VIDEO_PREVIEW_END, 0, 0, NULL);
-        video_preview = 0;
     } else if(video_width) {
         video_begin(0, (uint8_t*)"Video Preview", sizeof("Video Preview") - 1, video_width, video_height);
         toxvideo_postmessage(VIDEO_PREVIEW_START, 0, 0, NULL);

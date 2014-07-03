@@ -258,6 +258,7 @@ static void video_thread(void *args)
 
             VIDEO_PREVIEW_END:
             case VIDEO_PREVIEW_END: {
+                debug("preview end %u\n", video_count);
                 preview = 0;
                 video_count--;
                 if(!video_count && video_on) {
