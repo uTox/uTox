@@ -165,6 +165,8 @@ static void button_status_onpress(void)
     if(self.status == 3) {
         self.status = 0;
     }
+
+    tox_postmessage(TOX_SETSTATUS, self.status, 0, NULL);
 }
 
 

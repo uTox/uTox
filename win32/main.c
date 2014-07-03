@@ -61,6 +61,7 @@ HBRUSH hdc_brush;
 HBITMAP hdc_bm;
 HWND video_hwnd[256];
 
+static _Bool flashing;
 
 static TRACKMOUSEEVENT tme = {sizeof(TRACKMOUSEEVENT), TME_LEAVE, 0, 0};
 static _Bool mouse_tracked = 0;
@@ -649,6 +650,7 @@ void notify(uint8_t *title, uint16_t title_length, uint8_t *msg, uint16_t msg_le
     }
 
     FlashWindow(hwnd, 1);
+    flashing = 1;
 
     NOTIFYICONDATAW nid = {
         .uFlags = NIF_INFO,
@@ -953,8 +955,12 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     }
 
     case WM_SETFOCUS: {
+        if(flashing) {
+            FlashWindow(hwnd, 0);
+            flashing = 0;
+        }
+
         havefocus = 1;
-        FlashWindow(hwnd, 0);
         break;
     }
 
