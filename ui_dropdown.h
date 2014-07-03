@@ -40,13 +40,18 @@ static DROP_ELEMENT dpidrops[] = {
     },
 
     {
-        .name = (uint8_t*)"Large (150%)",
+        .name = (uint8_t*)"Big (150%)",
         .handle = (void*)(size_t)3
     },
 
     {
-        .name = (uint8_t*)"Huge (200%)",
+        .name = (uint8_t*)"Large (200%)",
         .handle = (void*)(size_t)4
+    },
+
+    {
+        .name = (uint8_t*)"Huge (250%)",
+        .handle = (void*)(size_t)5
     }
 };
 
@@ -66,7 +71,7 @@ dropdown_video = {
 
 dropdown_dpi = {
     .onselect = dropdown_dpi_onselect,
-    .dropcount = 4,
+    .dropcount = countof(dpidrops),
     .selected = 1,
     .over = 1,
     .drop = dpidrops
