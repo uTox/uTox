@@ -73,6 +73,20 @@ _Bool doevent(void)
 
     case MotionNotify: {
         XMotionEvent *ev = &event.xmotion;
+        if(pointergrab) {
+            XDrawRectangle(display, RootWindow(display, screen), grabgc, grabx < grabpx ? grabx : grabpx, graby < grabpy ? graby : grabpy,
+                           grabx < grabpx ? grabpx - grabx : grabx - grabpx, graby < grabpy ? grabpy - graby : graby - grabpy);
+
+            grabpx = ev->x_root;
+            grabpy = ev->y_root;
+
+            XDrawRectangle(display, RootWindow(display, screen), grabgc, grabx < grabpx ? grabx : grabpx, graby < grabpy ? graby : grabpy,
+                           grabx < grabpx ? grabpx - grabx : grabx - grabpx, graby < grabpy ? grabpy - graby : graby - grabpy);
+
+            break;
+        }
+
+
         static int my;
         int dy;
 
@@ -96,6 +110,15 @@ _Bool doevent(void)
         XButtonEvent *ev = &event.xbutton;
         switch(ev->button) {
         case Button1: {
+            if(pointergrab) {
+                grabpx = grabx = ev->x_root;
+                grabpy = graby = ev->y_root;
+
+                //XDrawRectangle(display, RootWindow(display, screen), grabgc, grabx, graby, 0, 0);
+
+                break;
+            }
+
             //todo: better double/triple click detect
             static Time lastclick, lastclick2;
             panel_mdown(&panel_main);
@@ -142,8 +165,32 @@ _Bool doevent(void)
         XButtonEvent *ev = &event.xbutton;
         switch(ev->button) {
         case Button1: {
-            panel_mup(&panel_main);
-            mdown = 0;
+            if(pointergrab) {
+                if(grabx < grabpx) {
+                    grabpx -= grabx;
+                } else {
+                    int w = grabx - grabpx;
+                    grabx = grabpx;
+                    grabpx = w;
+                }
+
+                if(graby < grabpy) {
+                    grabpy -= graby;
+                } else {
+                    int w = graby - grabpy;
+                    graby = grabpy;
+                    grabpy = w;
+                }
+
+                XDrawRectangle(display, RootWindow(display, screen), grabgc, grabx, graby, grabpx, grabpy);
+                XUngrabPointer(display, CurrentTime);
+                pointergrab = 0;
+
+                toxvideo_postmessage(VIDEO_SET, 0, 0, (void*)1);
+            } else {
+                panel_mup(&panel_main);
+                mdown = 0;
+            }
             break;
         }
         }

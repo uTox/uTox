@@ -14,8 +14,12 @@ static void dropdown_video_onselect(void *handle)
     if(!handle && video_preview) {
         video_end(0);
         video_preview = 0;
-        b = 1;
+        b = 1; //tell video thread to stop preview too
+    } else if((size_t)handle == 1) {
+        desktopgrab();
+        return;
     }
+
     toxvideo_postmessage(VIDEO_SET, b, 0, handle);
 }
 

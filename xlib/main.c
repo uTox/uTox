@@ -46,7 +46,11 @@ Visual *visual;
 
 Picture bitmap[32];
 
-Cursor cursor_arrow, cursor_hand, cursor_text;
+Cursor cursor_arrow, cursor_hand, cursor_text, cursor_select;
+
+_Bool pointergrab;
+int grabx, graby, grabpx, grabpy;
+GC grabgc;
 
 XftFont *font[16][64], **sfont;
 XftDraw *xftdraw;
@@ -703,6 +707,17 @@ int main(int argc, char *argv[])
     cursor_arrow = XCreateFontCursor(display, XC_left_ptr);
     cursor_hand = XCreateFontCursor(display, XC_hand2);
     cursor_text = XCreateFontCursor(display, XC_xterm);
+    cursor_select = XCreateFontCursor(display, XC_crosshair);
+
+    /* */
+    XGCValues gcval;
+    gcval.foreground = XWhitePixel(display, 0);
+    gcval.function = GXxor;
+    gcval.background = XBlackPixel(display, 0);
+    gcval.plane_mask = gcval.background ^ gcval.foreground;
+    gcval.subwindow_mode = IncludeInferiors;
+
+    grabgc = XCreateGC(display, RootWindow(display, screen), GCFunction | GCForeground | GCBackground | GCSubwindowMode, &gcval);
 
     /* Xft draw context/color */
     xftdraw = XftDrawCreate(display, drawbuf, visual, cmap);
@@ -715,7 +730,7 @@ int main(int argc, char *argv[])
 
     /* set-up desktop video input */
     dropdown_add(&dropdown_video, (uint8_t*)"None", NULL);
-    dropdown_add(&dropdown_video, (uint8_t*)"Desktop", (void*)"");
+    dropdown_add(&dropdown_video, (uint8_t*)"Desktop", (void*)1);
 
     /* make the window visible */
     XMapWindow(display, window);
@@ -752,6 +767,8 @@ int main(int argc, char *argv[])
     freefonts();
 
     XFreePixmap(display, drawbuf);
+
+    XFreeGC(display, grabgc);
 
     XftDrawDestroy(xftdraw);
     XftColorFree(display, visual, cmap, &xftcolor);
@@ -826,23 +843,6 @@ void initshm(void)
     deskdisplay = XOpenDisplay(NULL);
     deskscreen = DefaultScreen(deskdisplay);
     debug("desktop: %u %u\n", scr->width, scr->height);
-
-    if(!(screen_image = XShmCreateImage(deskdisplay, DefaultVisual(deskdisplay, deskscreen), DefaultDepth(deskdisplay, deskscreen), ZPixmap, NULL, &shminfo, scr->width, scr->height))) {
-       return;
-    }
-
-    if((shminfo.shmid = shmget(IPC_PRIVATE, screen_image->bytes_per_line * screen_image->height, IPC_CREAT | 0777)) < 0) {
-        return;
-    }
-
-    if((shminfo.shmaddr = screen_image->data = (char*)shmat(shminfo.shmid, 0, 0)) == (char*)-1) {
-        return;
-    }
-
-    shminfo.readOnly = False;
-    if(!XShmAttach(deskdisplay, &shminfo)) {
-        return;
-    }
 }
 
 void* video_detect(void)
@@ -886,23 +886,67 @@ void* video_detect(void)
     return first;
 }
 
+void desktopgrab(void)
+{
+    pointergrab = 1;
+    XGrabPointer(display, window, False, Button1MotionMask | ButtonPressMask | ButtonReleaseMask, GrabModeAsync, GrabModeAsync, None, cursor_select, CurrentTime);
+}
+
+static uint16_t video_x, video_y;
+
 _Bool video_init(void *handle)
 {
-    char *dev_name = handle;
-    if(!dev_name[0]) {
+    if(isdesktop(handle)) {
         fd = -1;
-        video_width = scr->width;
-        video_height = scr->height;
+
+        video_x = volatile(grabx);
+        video_y = volatile(graby);
+        video_width = volatile(grabpx);
+        video_height = volatile(grabpy);
+
+        if(video_width & 1) {
+            if(video_x & 1) {
+                video_x--;
+            }
+            video_width++;
+        }
+
+        if(video_height & 1) {
+            if(video_y & 1) {
+                video_y--;
+            }
+            video_height++;
+        }
+
+        if(!(screen_image = XShmCreateImage(deskdisplay, DefaultVisual(deskdisplay, deskscreen), DefaultDepth(deskdisplay, deskscreen), ZPixmap, NULL, &shminfo, video_width, video_height))) {
+            return 0;
+        }
+
+        if((shminfo.shmid = shmget(IPC_PRIVATE, screen_image->bytes_per_line * screen_image->height, IPC_CREAT | 0777)) < 0) {
+            return 0;
+        }
+
+        if((shminfo.shmaddr = screen_image->data = (char*)shmat(shminfo.shmid, 0, 0)) == (char*)-1) {
+            return 0;
+        }
+
+        shminfo.readOnly = False;
+        if(!XShmAttach(deskdisplay, &shminfo)) {
+            return 0;
+        }
+
+
+
         return 1;
     }
 
-    return v4l_init(dev_name);
+    return v4l_init(handle);
 }
 
 void video_close(void *handle)
 {
-    if(!*(uint8_t*)handle) {
-        //desktop
+    if(isdesktop(handle)) {
+        XShmDetach(deskdisplay, &shminfo);
         return;
     }
 
@@ -932,7 +976,7 @@ _Bool video_getframe(vpx_image_t *image)
     if(fd == -1) {
         //screen_image = XGetImage(deskdisplay,RootWindow(deskdisplay, DefaultScreen(deskdisplay)), 0, 0, scr->width, scr->height, XAllPlanes(), ZPixmap);
 
-        XShmGetImage(deskdisplay,RootWindow(deskdisplay, deskscreen), screen_image, 0, 0, AllPlanes);
+        XShmGetImage(deskdisplay,RootWindow(deskdisplay, deskscreen), screen_image, video_x, video_y, AllPlanes);
         rgbxtoyuv420(image->planes[0], image->planes[1], image->planes[2], (uint8_t*)screen_image->data, screen_image->width, screen_image->height);
         //XDestroyImage(screen_image);
         return 1;

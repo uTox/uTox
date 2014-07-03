@@ -426,6 +426,10 @@ panel_main = {
 
 void ui_scale(uint8_t scale)
 {
+    if(SCALE == scale) {
+        return;
+    }
+
     SCALE = scale;
 
     setscale();

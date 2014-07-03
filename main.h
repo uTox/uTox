@@ -159,10 +159,13 @@ enum
     BM_STATUSAREA,
 };
 
+#define isdesktop(x) ((size_t)(x) == 1)
+
 void drawalpha(int bm, int x, int y, int width, int height, uint32_t color);
 void loadalpha(int bm, void *data, int width, int height);
 void* loadsavedata(uint32_t *len);
 void writesavedata(void *data, uint32_t len);
+void desktopgrab(void);
 void notify(uint8_t *title, uint16_t title_length, uint8_t *msg, uint16_t msg_length);
 void setscale(void);
 

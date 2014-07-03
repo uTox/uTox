@@ -54,7 +54,7 @@ void *bitmap[32];
 HFONT font[32];
 HCURSOR cursor_arrow, cursor_hand, cursor_text;
 
-HWND hwnd;
+HWND hwnd, capturewnd;
 HINSTANCE hinstance;
 HDC main_hdc, hdc, hdcMem;
 HBRUSH hdc_brush;
@@ -664,6 +664,15 @@ void notify(uint8_t *title, uint16_t title_length, uint8_t *msg, uint16_t msg_le
     Shell_NotifyIconW(NIM_MODIFY, &nid);
 }
 
+void desktopgrab(void)
+{
+    /*capturewnd = CreateWindowExW(0, L"uTox", L"Tox", WS_POPUP, 0, 0, 80, 80, NULL, NULL, hinstance, NULL);
+    ShowWindow(capturewnd, SW_SHOW);
+    SetCapture(capturewnd);*/
+
+    toxvideo_postmessage(VIDEO_SET, 0, 0, (void*)1);
+}
+
 void setscale(void)
 {
     int i;
@@ -836,6 +845,26 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
 LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     if(hwnd && hwn != hwnd) {
+        if(hwn == capturewnd) {
+            if(msg == WM_MOUSEMOVE) {
+                POINT p = {
+                    .x = GET_X_LPARAM(lParam),
+                    .y = GET_Y_LPARAM(lParam)
+                };
+
+                ClientToScreen(capturewnd, &p);
+
+                SetWindowPos(capturewnd, HWND_TOPMOST, p.x, p.y, 80, 80, 0);
+            }
+
+            if(msg == WM_LBUTTONUP) {
+                ReleaseCapture();
+                DestroyWindow(capturewnd);
+            }
+
+            return DefWindowProcW(hwn, msg, wParam, lParam);
+        }
+
         if(msg == WM_DESTROY) {
             if(hwn == video_hwnd[0]) {
                 video_end(0);
@@ -857,7 +886,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
             }
         }
 
-        return DefWindowProc(hwn, msg, wParam, lParam);
+        return DefWindowProcW(hwn, msg, wParam, lParam);
     }
 
     switch(msg) {
@@ -1052,8 +1081,8 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     }
 
     case WM_LBUTTONUP: {
-        panel_mup(&panel_main);
         ReleaseCapture();
+        panel_mup(&panel_main);
         mdown = 0;
         break;
     }
