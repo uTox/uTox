@@ -43,6 +43,7 @@ static void drawtexth(int x, int y, char_t *str, uint16_t length, int d, int h, 
 
 int drawtextmultiline(int x, int right, int y, uint16_t lineheight, char_t *data, uint16_t length, uint16_t h, uint16_t hlen, _Bool multiline)
 {
+    int yc = y;
     int xc = x;
     char_t *a = data, *b = a, *end = a + length;
     while(1) {
@@ -182,24 +183,25 @@ uint16_t hittextmultiline(int mx, int right, int my, int height, uint16_t linehe
     return (b - str) + fit;
 }
 
-int text_height(int width, uint16_t lineheight, char_t *str, uint16_t length)
+int text_height(int right, uint16_t lineheight, char_t *str, uint16_t length)
 {
-    int y = 0, x = 0;
-    char_t *a = str, *b = str, *end = str + length;
+    int x = 0, y = 0;
+    char_t *a = str, *b = a, *end = a + length;
     while(1) {
-        if(a == end || *a == '\n' || *a == ' ') {
-            int count = a - b, w = textwidth(b, a - b);
-            if(x + w > width) {
+        if(a == end || *a == ' ' || *a == '\n') {
+            int count = a - b, w = textwidth(b, count);
+            if(x + w > right) {
                 if(x == 0) {
                     //force break
-                    while(w > width) {
-                        int fit = textfit(b, count, width);
+                    while(x + w > right) {
+                        int fit = textfit(b, count, right);
                         count -= fit;
                         b += fit;
                         y += lineheight;
                         w = textwidth(b, count);
                     }
-                } else if(*a == '\n') {
+
+                } else {
                     y += lineheight;
                     int l = utf8_len(b);
                     count -= l;
@@ -217,10 +219,11 @@ int text_height(int width, uint16_t lineheight, char_t *str, uint16_t length)
             }
 
             if(*a == '\n') {
-                b += utf8_len(b);
                 y += lineheight;
+                b += utf8_len(b);
                 x = 0;
             }
+
         }
         a += utf8_len(a);
     }
@@ -237,7 +240,6 @@ static void textxy(int width, uint16_t p, uint16_t lineheight, char_t *str, uint
     while(1) {
         if(a == end ||  *a == '\n' || *a == ' ') {
             int count = a - b, w = textwidth(b, a - b);
-            debug("%i %i %i\n", count, w, x);
             if(x + w > width) {
                 if(x == 0) {
                     //force break
@@ -248,7 +250,7 @@ static void textxy(int width, uint16_t p, uint16_t lineheight, char_t *str, uint
                         y += lineheight;
                         w = textwidth(b, count);
                     }
-                } else if(*a == '\n') {
+                } else {
                     y += lineheight;
                     int l = utf8_len(b);
                     count -= l;

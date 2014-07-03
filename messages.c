@@ -83,7 +83,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
             setfont(FONT_MSG);
             int ny = drawtextmultiline(x + MESSAGES_X, x + width - TIME_WIDTH, y, font_msg_lineheight, msg->msg, msg->length, h1, h2 - h1, 1);
             if(ny - y != msg->height - MESSAGES_SPACING) {
-                debug("error101\n");
+                debug("error101 %u %u\n", ny -y, msg->height - MESSAGES_SPACING);
             }
             y = ny;
 
@@ -570,6 +570,8 @@ void messages_updateheight(MESSAGES *m)
         return;
     }
 
+    setfont(FONT_MSG);
+
     uint32_t height = 0;
     int i = 0;
     while(i < data->n) {
@@ -581,7 +583,7 @@ void messages_updateheight(MESSAGES *m)
 
     m->height = height;
     data->height = height;
-    data->width = width;
+    data->width = m->width;
     m->panel.content_scroll->content_height = height;
 }
 
@@ -590,6 +592,9 @@ static void message_setheight(MESSAGES *m, MESSAGE *msg, MSG_DATA *p)
     if(m->width == 0) {
         return;
     }
+
+    setfont(FONT_MSG);
+
     msg->height = msgheight(msg, m->width);
     p->height += msg->height;
     if(m->data == p) {

@@ -886,8 +886,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     nid.hWnd = hwnd;
     Shell_NotifyIcon(NIM_ADD, &nid);
 
-    ui_scale(DEFAULT_SCALE);
-
     SetBkMode(hdc, TRANSPARENT);
 
     //wait for tox_thread init
@@ -1012,6 +1010,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
 
             debug("%u %u\n", w, h);
 
+            ui_scale(DEFAULT_SCALE);
             ui_size(w, h);
 
             if(hdc_bm) {

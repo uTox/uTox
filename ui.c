@@ -432,8 +432,6 @@ void ui_scale(uint8_t scale)
 
     SCALE = scale;
 
-    setscale();
-
     list_scale();
 
     panel_side.x = LIST_RIGHT;
@@ -688,6 +686,8 @@ void ui_scale(uint8_t scale)
     edit_addid.panel = e_addid;
     edit_addmsg.panel = e_addmsg;
     edit_msg.panel = e_msg;
+
+    setscale();
 }
 
 #define FUNC(x, ret, ...) static ret (* x##func[])(void *p, ##__VA_ARGS__) = { \
