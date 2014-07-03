@@ -25,7 +25,7 @@ void dropdown_drawactive(void)
         if(j == b->over) {
             drawrectw(x + 1, y + 1 + i * height, width - 2, height - 2, C_GRAY);
         }
-        drawtext(x + 2 * SCALE, y + 2 * SCALE + i * height, e->name, strlen((char*)e->name));
+        drawtextwidth(x + 2 * SCALE, width - 4 * SCALE, y + 2 * SCALE + i * height, e->name, strlen((char*)e->name));
     }
 }
 
@@ -39,7 +39,7 @@ void dropdown_draw(DROPDOWN *b, int x, int y, int width, int height)
             setfont(FONT_TEXT);
             setcolor(COLOR_TEXT);
             DROP_ELEMENT *e = &b->drop[b->selected];
-            drawtext(x + 2 * SCALE, y + 2 * SCALE, e->name, strlen((char*)e->name));
+            drawtextwidth(x + 2 * SCALE, width - 4 * SCALE, y + 2 * SCALE, e->name, strlen((char*)e->name));
         }
     } else {
         active_x = x;

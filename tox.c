@@ -935,12 +935,20 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
          */
         FRIEND *f = &friend[param1];
         uint8_t status = (size_t)data;
-        if(status == CALL_NONE && f->calling == CALL_OK_VIDEO) {
-            video_end(param1 + 1);
+        if(status == CALL_NONE && (f->calling == CALL_OK || f->calling == CALL_OK_VIDEO)) {
+            toxaudio_postmessage(AUDIO_CALL_END, param2, 0, NULL);
+            if(f->calling == CALL_OK_VIDEO) {
+                toxvideo_postmessage(VIDEO_CALL_END, param2, 0, NULL);
+                video_end(param1 + 1);
+            }
         }
 
         f->calling = status;
         f->callid = param2;
+
+        if(status == CALL_OK) {
+            toxaudio_postmessage(AUDIO_CALL_START, param2, 0, NULL);
+        }
 
         call_notify(f, status);
 
@@ -955,12 +963,16 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
          */
         FRIEND *f = &friend[param1];
         f->calling = CALL_OK_VIDEO;
+        f->callid = param2;
         updatefriend(f);
 
         uint32_t res = (size_t)data;
         uint16_t width = res & 0xFFFF, height = res >> 16;
 
         video_begin(param1 + 1, f->name, f->name_length, width, height);
+
+        toxvideo_postmessage(VIDEO_CALL_START, param2, 0, NULL);
+        toxaudio_postmessage(AUDIO_CALL_START, param2, 0, NULL);
 
         f->call_width = width;
         f->call_height = height;

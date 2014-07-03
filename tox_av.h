@@ -14,11 +14,6 @@ static void av_start(int32_t call_index, void *arg)
 
     if(toxav_prepare_transmission(arg, call_index, &settings, video) == 0) {
         if(video) {
-            toxvideo_postmessage(VIDEO_CALL_START, call_index, 0, NULL);
-        }
-        toxaudio_postmessage(AUDIO_CALL_START, call_index, 0, NULL);
-
-        if(video) {
             postmessage(FRIEND_CALL_START_VIDEO, fid, call_index, (void*)(settings.video_width | (size_t)settings.video_height << 16));
         } else {
             postmessage(FRIEND_CALL_STATUS, fid, call_index, (void*)CALL_OK);
@@ -49,8 +44,6 @@ static void callback_av_start(int32_t call_index, void *arg)
     postmessage(FRIEND_CALL_STATUS, fid, call_index, (void*)(size_t)CALL_NONE);
 
 #define stopcall() \
-    toxaudio_postmessage(AUDIO_CALL_END, call_index, 0, NULL); \
-    toxvideo_postmessage(VIDEO_CALL_END, call_index, 0, NULL); \
     toxav_kill_transmission(arg, call_index); \
     endcall();
 
