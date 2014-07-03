@@ -43,7 +43,6 @@ static void drawtexth(int x, int y, char_t *str, uint16_t length, int d, int h, 
 
 int drawtextmultiline(int x, int right, int y, uint16_t lineheight, char_t *data, uint16_t length, uint16_t h, uint16_t hlen, _Bool multiline)
 {
-    int yc = y;
     int xc = x;
     char_t *a = data, *b = a, *end = a + length;
     while(1) {

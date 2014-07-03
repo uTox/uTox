@@ -108,8 +108,7 @@ int sprint_bytes(uint8_t *dest, uint64_t bytes)
     char *str[] = {"B", "KiB", "MiB", "GiB"};
     int i = 0;
     double f = bytes;
-    while(bytes >= 1024)
-    {
+    while(bytes >= 1024) {
         bytes /= 1024;
         f /= 1024.0;
         i++;
@@ -361,81 +360,83 @@ void yuv422to420(uint8_t *plane_y, uint8_t *plane_u, uint8_t *plane_v, uint8_t *
 
 void rgbtoyuv420(uint8_t *plane_y, uint8_t *plane_u, uint8_t *plane_v, uint8_t *rgb, uint16_t width, uint16_t height)
 {
-    size_t line, x;
-    for( line = 0; line < height; ++line )
-    {
-        if( !(line % 2) )
-        {
-            for( x = 0; x < width; x += 2 )
-            {
-                uint8_t r = *rgb++;
-                uint8_t g = *rgb++;
-                uint8_t b = *rgb++;
+    uint16_t x, y;
+    uint8_t *p;
+    uint8_t r, g, b;
 
-                *plane_y++ = ((66*r + 129*g + 25*b) >> 8) + 16;
-
-                *plane_u++ = ((-38*r + -74*g + 112*b) >> 8) + 128;
-                *plane_v++ = ((112*r + -94*g + -18*b) >> 8) + 128;
-
-                r = *rgb++;
-                g = *rgb++;
-                b = *rgb++;
-
-                *plane_y++ = ((66*r + 129*g + 25*b) >> 8) + 16;
-            }
+    for(y = 0; y != height; y += 2) {
+        p = rgb;
+        for(x = 0; x != width; x++) {
+            r = *rgb++;
+            g = *rgb++;
+            b = *rgb++;
+            *plane_y++ = ((66 * r + 129 * g + 25 * b) >> 8) + 16;
         }
-        else
-        {
-            for( x = 0; x < width; x += 1 )
-            {
-                uint8_t r = *rgb++;
-                uint8_t g = *rgb++;
-                uint8_t b = *rgb++;
 
-                *plane_y++ = ((66*r + 129*g + 25*b) >> 8) + 16;
-            }
+        for(x = 0; x != width / 2; x++) {
+            r = *rgb++;
+            g = *rgb++;
+            b = *rgb++;
+            *plane_y++ = ((66 * r + 129 * g + 25 * b) >> 8) + 16;
+
+            r = *rgb++;
+            g = *rgb++;
+            b = *rgb++;
+            *plane_y++ = ((66 * r + 129 * g + 25 * b) >> 8) + 16;
+
+            r = ((int)r + (int)*(rgb - 6) + (int)*p + (int)*(p + 3) + 2) / 4; p++;
+            g = ((int)g + (int)*(rgb - 5) + (int)*p + (int)*(p + 3) + 2) / 4; p++;
+            b = ((int)b + (int)*(rgb - 4) + (int)*p + (int)*(p + 3) + 2) / 4; p++;
+
+            *plane_u++ = ((-38 * r + -74 * g + 112 * b) >> 8) + 128;
+            *plane_v++ = ((112 * r + -94 * g + -18 * b) >> 8) + 128;
+
+            p += 3;
         }
     }
 }
 
 void rgbxtoyuv420(uint8_t *plane_y, uint8_t *plane_u, uint8_t *plane_v, uint8_t *rgb, uint16_t width, uint16_t height)
 {
-    size_t line, x;
-    for( line = 0; line < height; ++line )
-    {
-        if( !(line % 2) )
-        {
-            for( x = 0; x < width; x += 2 )
-            {
-                uint8_t r = *rgb++;
-                uint8_t g = *rgb++;
-                uint8_t b = *rgb++;
-                rgb++;
+    uint16_t x, y;
+    uint8_t *p;
+    uint8_t r, g, b;
 
-                *plane_y++ = ((66*r + 129*g + 25*b) >> 8) + 16;
+    for(y = 0; y != height; y += 2) {
+        p = rgb;
+        for(x = 0; x != width; x++) {
+            r = *rgb++;
+            g = *rgb++;
+            b = *rgb++;
+            rgb++;
 
-                *plane_u++ = ((-38*r + -74*g + 112*b) >> 8) + 128;
-                *plane_v++ = ((112*r + -94*g + -18*b) >> 8) + 128;
-
-                r = *rgb++;
-                g = *rgb++;
-                b = *rgb++;
-                rgb++;
-
-                *plane_y++ = ((66*r + 129*g + 25*b) >> 8) + 16;
-            }
+            *plane_y++ = ((66 * r + 129 * g + 25 * b) >> 8) + 16;
         }
-        else
-        {
-            for( x = 0; x < width; x += 1 )
-            {
-                uint8_t r = *rgb++;
-                uint8_t g = *rgb++;
-                uint8_t b = *rgb++;
-                rgb++;
 
-                *plane_y++ = ((66*r + 129*g + 25*b) >> 8) + 16;
-            }
+        for(x = 0; x != width / 2; x++) {
+            r = *rgb++;
+            g = *rgb++;
+            b = *rgb++;
+            rgb++;
+
+            *plane_y++ = ((66 * r + 129 * g + 25 * b) >> 8) + 16;
+
+            r = *rgb++;
+            g = *rgb++;
+            b = *rgb++;
+            rgb++;
+
+            *plane_y++ = ((66 * r + 129 * g + 25 * b) >> 8) + 16;
+
+            r = ((int)r + (int)*(rgb - 8) + (int)*p + (int)*(p + 4) + 2) / 4; p++;
+            g = ((int)g + (int)*(rgb - 7) + (int)*p + (int)*(p + 4) + 2) / 4; p++;
+            b = ((int)b + (int)*(rgb - 6) + (int)*p + (int)*(p + 4) + 2) / 4; p++;
+            p++;
+
+            *plane_u++ = ((-38 * r + -74 * g + 112 * b) >> 8) + 128;
+            *plane_v++ = ((112 * r + -94 * g + -18 * b) >> 8) + 128;
+
+            p += 4;
         }
     }
 }
