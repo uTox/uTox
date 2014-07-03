@@ -266,75 +266,26 @@ void unicode_to_utf8(uint32_t ch, char_t *dst)
 
 void yuv420torgb(vpx_image_t *img, uint8_t *out)
 {
-    const int w = img->d_w;
-    const int w2 = w / 2;
-    const int pstride = w * 4;
-    const int h = img->d_h;
-    const int h2 = h / 2;
+    unsigned long int i, j;
+    for (i = 0; i < img->d_h; ++i) {
+        for (j = 0; j < img->d_w; ++j) {
+            unsigned int real_index = ((i * img->d_w) + j);
+            uint8_t *point = out + 4 * real_index;
+            int y = img->planes[0][real_index];
+            unsigned int o_index = (((i / 2) * (img->d_w / 2)) + (j / 2));
+            int u = img->planes[1][o_index];
+            int v = img->planes[2][o_index];
 
-    const int strideY = img->stride[0];
-    const int strideU = img->stride[1];
-    const int strideV = img->stride[2];
-    int posy, posx;
-
-    for (posy = 0; posy < h2; posy++) {
-        uint32_t *dst = (uint32_t*)(out + pstride * (posy * 2));
-        uint32_t *dst2 = (uint32_t*)(out + pstride * (posy * 2 + 1));
-        const unsigned char *srcY = img->planes[0] + strideY * posy * 2;
-        const unsigned char *srcY2 = img->planes[0] + strideY * (posy * 2 + 1);
-        const unsigned char *srcU = img->planes[1] + strideU * posy;
-        const unsigned char *srcV = img->planes[2] + strideV * posy;
-
-        for (posx = 0; posx < w2; posx++) {
-            unsigned char Y, U, V;
-            short R, G, B;
-            short iR, iG, iB;
-
-            U = *(srcU++);
-            V = *(srcV++);
-            iR = (351 * (V - 128)) / 256;
-            iG = - (179 * (V - 128)) / 256 - (86 * (U - 128)) / 256;
-            iB = (444 * (U - 128)) / 256;
-
-            Y = *(srcY++);
-            R = Y + iR ;
-            G = Y + iG ;
-            B = Y + iB ;
-            R = (R < 0 ? 0 : (R > 255 ? 255 : R));
-            G = (G < 0 ? 0 : (G > 255 ? 255 : G));
-            B = (B < 0 ? 0 : (B > 255 ? 255 : B));
-            *dst++ = B << 16 | G << 8 | R;
-
-            Y = *(srcY2++);
-            R = Y + iR ;
-            G = Y + iG ;
-            B = Y + iB ;
-            R = (R < 0 ? 0 : (R > 255 ? 255 : R));
-            G = (G < 0 ? 0 : (G > 255 ? 255 : G));
-            B = (B < 0 ? 0 : (B > 255 ? 255 : B));
-            *dst2++ = B << 16 | G << 8 | R;
-
-            Y = *(srcY++) ;
-            R = Y + iR ;
-            G = Y + iG ;
-            B = Y + iB ;
-            R = (R < 0 ? 0 : (R > 255 ? 255 : R));
-            G = (G < 0 ? 0 : (G > 255 ? 255 : G));
-            B = (B < 0 ? 0 : (B > 255 ? 255 : B));
-            *dst++ = B << 16 | G << 8 | R;
-
-            Y = *(srcY2++);
-            R = Y + iR ;
-            G = Y + iG ;
-            B = Y + iB ;
-            R = (R < 0 ? 0 : (R > 255 ? 255 : R));
-            G = (G < 0 ? 0 : (G > 255 ? 255 : G));
-            B = (B < 0 ? 0 : (B > 255 ? 255 : B));
-            *dst2++ = B << 16 | G << 8 | R;
+            int r = (298 * (y - 16) + 409 * (v - 128) + 128) >> 8;
+            int g = (298 * (y - 16) - 100 * (u - 128) - 208 * (v - 128) + 128) >> 8;
+            int b = (298 * (y - 16) + 516 * (u - 128) + 128) >> 8;
+            point[0] = r>255? 255 : r<0 ? 0 : r;
+            point[1] = g>255? 255 : g<0 ? 0 : g;
+            point[2] = b>255? 255 : b<0 ? 0 : b;
+            point[3] = ~0;
         }
     }
 }
-
 void yuv422to420(uint8_t *plane_y, uint8_t *plane_u, uint8_t *plane_v, uint8_t *input, uint16_t width, uint16_t height)
 {
     uint8_t *end = input + width * height * 2;
