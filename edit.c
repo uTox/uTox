@@ -83,7 +83,7 @@ _Bool edit_mmove(EDIT *edit, int px, int py, int width, int height, int x, int y
         if(start != edit_sel.start || length != edit_sel.length) {
             edit_sel.start = start;
             edit_sel.length = length;
-            setselection();
+            setselection(0, edit);
             redraw = 1;
         }
     } else if(mouseover) {
@@ -533,11 +533,16 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
     }
 }
 
-int edit_copy(char_t *data, int len)
+int edit_selection(EDIT *edit, char_t *data, int len)
 {
-    memcpy(data, active_edit->data + edit_sel.start, edit_sel.length);
+    memcpy(data, edit->data + edit_sel.start, edit_sel.length);
     data[edit_sel.length] = 0;
     return edit_sel.length;
+}
+
+int edit_copy(char_t *data, int len)
+{
+    return edit_selection(active_edit, data, len);
 }
 
 void edit_paste(char_t *data, int length)

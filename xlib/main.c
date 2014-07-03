@@ -85,6 +85,15 @@ struct
     uint8_t data[65536];
 }clipboard;
 
+struct
+{
+    int len;
+    uint8_t data[65536];
+}primary;
+
+uint8_t selection_src;
+void *selection_p;
+
 static void setclipboard(void)
 {
     XSetSelectionOwner(display, XA_CLIPBOARD, window, CurrentTime);
@@ -461,6 +470,8 @@ void address_to_clipboard(void)
     memcpy(clipboard.data, self.id, sizeof(self.id));
     clipboard.len = sizeof(self.id);
     setclipboard();
+
+    setselection(2, NULL);
 }
 
 void editpopup(void)
@@ -502,8 +513,10 @@ void savefilerecv(uint32_t fid, MSG_FILE *file)
     }
 }
 
-void setselection(void)
+void setselection(uint8_t src, void *p)
 {
+    selection_src = src;
+    selection_p = p;
     XSetSelectionOwner(display, XA_PRIMARY, window, CurrentTime);
 }
 

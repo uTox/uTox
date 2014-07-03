@@ -235,7 +235,7 @@ void sysmexit(void);
 void sysmsize(void);
 void sysmmini(void);
 
-void setselection(void);
+void setselection(uint8_t src, void *p);
 
 void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height, _Bool resize);
 void video_begin(uint32_t id, uint8_t *name, uint16_t name_length, uint16_t width, uint16_t height);

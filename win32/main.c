@@ -427,22 +427,7 @@ void savefilerecv(uint32_t fid, MSG_FILE *file)
     }
 }
 
-void sysmexit(void)
-{
-    PostQuitMessage(0);
-}
-
-void sysmsize(void)
-{
-    ShowWindow(hwnd, maximized ? SW_RESTORE : SW_MAXIMIZE);
-}
-
-void sysmmini(void)
-{
-    ShowWindow(hwnd, SW_MINIMIZE);
-}
-
-void setselection(void)
+void setselection(uint8_t src, void *p)
 {
 
 }

@@ -323,7 +323,7 @@ _Bool messages_mmove(MESSAGES *m, int px, int py, int width, int height, int mx,
                     m->data->istart = istart;
                     m->data->iend = iend;
 
-                    setselection();
+                    setselection(1, m);
                     redraw = 1;
                 }
 

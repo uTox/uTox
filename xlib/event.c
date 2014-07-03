@@ -302,9 +302,6 @@ _Bool doevent(void)
     }
 
     case SelectionRequest: {
-
-        debug("SelectionRequest\n");
-
         XSelectionRequestEvent *ev = &event.xselectionrequest;
 
         XEvent resp = {
@@ -318,25 +315,28 @@ _Bool doevent(void)
             }
         };//self.id, sizeof(self.id)
 
-        if(ev->target == XA_UTF8_STRING) {
-            if(ev->property == XA_PRIMARY) {
-                XChangeProperty(display, ev->requestor, ev->property, ev->target, 8, PropModeReplace, clipboard.data, clipboard.len);
+        if(ev->target == XA_UTF8_STRING || ev->target == XA_STRING) {
+            debug("strings: %u %u\n", ev->selection, ev->property);
+            if(ev->selection == XA_PRIMARY) {
+                if(!selection_src) {
+                    primary.len = edit_selection(selection_p, primary.data, sizeof(primary.data));
+                } else if(selection_src == 1) {
+                    primary.len = messages_selection(selection_p, primary.data, sizeof(primary.data));
+                } else {
+                    memcpy(primary.data, self.id, sizeof(self.id));
+                    primary.len = sizeof(self.id);
+                }
+                XChangeProperty(display, ev->requestor, ev->property, ev->target, 8, PropModeReplace, primary.data, primary.len);
             } else {
                 XChangeProperty(display, ev->requestor, ev->property, ev->target, 8, PropModeReplace, clipboard.data, clipboard.len);
             }
         } else if(ev->target == targets) {
-            Atom supported[]={XA_UTF8_STRING};
-            XChangeProperty (display,
-                ev->requestor,
-                ev->property,
-                targets,
-                8,
-                PropModeReplace,
-                (unsigned char *)(&supported),
-                sizeof(supported)
-            );
+            debug("targets %u %u\n", ev->selection, ev->property);
+            Atom supported[] = {XA_STRING, XA_UTF8_STRING};
+            XChangeProperty(display, ev->requestor, ev->property, targets, 8, PropModeReplace, (uint8_t*)(&supported), sizeof(supported));
         }
         else {
+            debug("unknown\n");
             resp.xselection.property = None;
         }
 
