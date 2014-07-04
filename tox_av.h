@@ -143,7 +143,7 @@ static void sourceplaybuffer(int i, void *buf, int size)
         alSourceUnqueueBuffers(source[i], processed, bufids);
         alDeleteBuffers(processed - 1, bufids + 1);
         bufid = bufids[0];
-    } else if(queued < 8) {
+    } else if(queued < 16) {
         alGenBuffers(1, &bufid);
     } else {
         debug("dropped audio frame\n");

@@ -55,7 +55,7 @@ int drawtextmultiline(int x, int right, int y, uint16_t lineheight, char_t *data
                     count -= fit;
                     b += fit;
                     y += lineheight;
-                } else if(x != xc || *a == '\n') {
+                } else if(x != xc || *a == '\n' || !multiline) {
                     if(!multiline) {
                         drawtexth(x, y, b, count, b - data, h, hlen, lineheight);
                         return y + lineheight;
