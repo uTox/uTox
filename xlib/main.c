@@ -72,6 +72,7 @@ Atom XA_CLIPBOARD, XA_UTF8_STRING, targets;
 Atom XdndAware, XdndEnter, XdndLeave, XdndPosition, XdndStatus, XdndDrop, XdndSelection, XdndDATA, XdndActionCopy;
 
 Pixmap drawbuf;
+uint16_t drawwidth, drawheight;
 
 XImage *screen_image;
 

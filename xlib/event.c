@@ -69,16 +69,21 @@ _Bool doevent(void)
         XConfigureEvent *ev = &event.xconfigure;
         if(width != ev->width || height != ev->height) {
             debug("resize\n");
+
+            if(ev->width > drawwidth || ev->height > drawheight) {
+                drawwidth = ev->width + 10;
+                drawheight = ev->height + 10;
+
+                XFreePixmap(display, drawbuf);
+                drawbuf = XCreatePixmap(display, window, drawwidth, drawheight, 24);
+                XftDrawDestroy(xftdraw);
+                xftdraw = XftDrawCreate(display, drawbuf, visual, cmap);
+            }
+
             width = ev->width;
             height = ev->height;
 
             ui_size(width, height);
-
-            XFreePixmap(display, drawbuf);
-            drawbuf = XCreatePixmap(display, window, width, height, 24);
-
-            XftDrawDestroy(xftdraw);
-            xftdraw = XftDrawCreate(display, drawbuf, visual, cmap);
 
             redraw();
         }
