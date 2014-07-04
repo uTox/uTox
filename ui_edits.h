@@ -97,6 +97,13 @@ EDIT edit_name = {
     .onlosefocus = edit_name_onenter,
 },
 
+edit_toxid = {
+    .length = sizeof(self.id),
+    .data = self.id,
+    .readonly = 1,
+    .noborder = 1,
+},
+
 edit_status = {
     .maxlength = 128,
     .data = edit_status_data,

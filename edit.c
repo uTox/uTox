@@ -23,7 +23,9 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
 {
     edit->width = width -4 * SCALE - (edit->multiline ? SCROLL_WIDTH : 0);
 
-    framerect(x, y, x + width, y + height, (edit == active_edit) ? BLUE : (edit->mouseover ? C_GRAY2 : C_GRAY));
+    if(!edit->noborder) {
+        framerect(x, y, x + width, y + height, (edit == active_edit) ? BLUE : (edit->mouseover ? C_GRAY2 : C_GRAY));
+    }
     drawrect(x + 1, y + 1, x + width - 1, y + height - 1, WHITE);
 
     setfont(FONT_TEXT);
@@ -297,6 +299,9 @@ static uint16_t edit_redo(EDIT *edit)
 void edit_char(uint32_t ch, _Bool control, uint8_t flags)
 {
     EDIT *edit = active_edit;
+    if(edit->readonly) {
+        return;
+    }
 
     if(control || (ch <= 0x1F && (!edit->multiline || ch != '\n')) || (ch >= 0x7f && ch <= 0x9F)) {
         switch(ch) {
@@ -555,6 +560,10 @@ int edit_copy(char_t *data, int len)
 void edit_paste(char_t *data, int length, _Bool select)
 {
     if(!active_edit) {
+        return;
+    }
+
+    if(active_edit->readonly) {
         return;
     }
 

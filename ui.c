@@ -187,8 +187,6 @@ static void drawsettings_content(int x, int y, int w, int height)
 
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 29, "Status Message");
 
-    drawtextrange(LIST_RIGHT + SCALE * 5, width - SCALE * 5, y + SCALE * 65, self.id, sizeof(self.id));
-
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 123, "Audio Input Device");
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 147, "Audio Output Device");
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 171, "Video Input Device");
@@ -331,7 +329,7 @@ panel_settings = {
     .child = (PANEL*[]) {
         (void*)&button_copyid,
         (void*)&button_callpreview, (void*)&button_videopreview,
-        (void*)&edit_name, (void*)&edit_status,
+        (void*)&edit_name, (void*)&edit_status, (void*)&edit_toxid,
         (void*)&dropdown_audio_in, (void*)&dropdown_audio_out, (void*)&dropdown_video, (void*)&dropdown_dpi,
         NULL
     }
@@ -657,6 +655,14 @@ void ui_scale(uint8_t scale)
         .width = -SCROLL_WIDTH - 5 * SCALE
     },
 
+    e_toxid = {
+        .type = PANEL_EDIT,
+        .x = 3 * SCALE,
+        .y = SCALE * 63,
+        .height = SCALE * 12,
+        .width = -SCROLL_WIDTH - 5 * SCALE
+    },
+
     e_addid = {
         .type = PANEL_EDIT,
         .x = 5 * SCALE,
@@ -683,6 +689,7 @@ void ui_scale(uint8_t scale)
 
     edit_name.panel = e_name;
     edit_status.panel = e_status;
+    edit_toxid.panel = e_toxid;
     edit_addid.panel = e_addid;
     edit_addmsg.panel = e_addmsg;
     edit_msg.panel = e_msg;
