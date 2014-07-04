@@ -55,11 +55,10 @@ int drawtextmultiline(int x, int right, int y, uint16_t lineheight, char_t *data
                     count -= fit;
                     b += fit;
                     y += lineheight;
-                } else if(x != xc || *a == '\n' || !multiline) {
-                    if(!multiline) {
-                        drawtexth(x, y, b, count, b - data, h, hlen, lineheight);
-                        return y + lineheight;
-                    }
+                } else if(!multiline) {
+                    drawtexth(x, y, b, count, b - data, h, hlen, lineheight);
+                    return y + lineheight;
+                } else if(x != xc || *a == '\n') {
                     y += lineheight;
                     int l = utf8_len(b);
                     count -= l;
@@ -113,10 +112,9 @@ uint16_t hittextmultiline(int mx, int right, int my, int height, uint16_t linehe
                     b += fit;
                     my -= lineheight;
                     height -= lineheight;
+                } else if(!multiline) {
+                    break;
                 } else if(x != 0 || *a == '\n') {
-                    if(!multiline) {
-                        break;
-                    }
                     my -= lineheight;
                     height -= lineheight;
                     int l = utf8_len(b);
@@ -146,14 +144,11 @@ uint16_t hittextmultiline(int mx, int right, int my, int height, uint16_t linehe
             b = a;
 
             if(*a == '\n') {
-                b += utf8_len(b);
                 if(my >= 0 && my < lineheight) {
                     x = mx;
-                    break;
+                    return a - str;
                 }
-                if(!multiline) {
-                    return 0;
-                }
+                b += utf8_len(b);
                 my -= lineheight;
                 height -= lineheight;
                 x = 0;
@@ -256,6 +251,9 @@ static void textxy(int width, uint16_t pp, uint16_t lineheight, char_t *str, uin
             b = a;
 
             if(*a == '\n') {
+                if(p == a) {
+                    break;
+                }
                 b += utf8_len(b);
                 y += lineheight;
                 x = 0;

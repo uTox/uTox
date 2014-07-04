@@ -811,6 +811,16 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
         break;
     }
 
+    case OPEN_FILES: {
+        tox_postmessage(TOX_SENDFILES, param1, param2, data);
+        break;
+    }
+
+    case SAVE_FILE: {
+        tox_postmessage(TOX_ACCEPTFILE, param1, param2, data);
+        break;
+    }
+
     case NEW_AUDIO_IN_DEVICE: {
         dropdown_add(&dropdown_audio_in, data, data);
         break;

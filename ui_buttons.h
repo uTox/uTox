@@ -152,11 +152,13 @@ static void button_acceptfriend_onpress(void)
 static void button_name_onpress(void)
 {
     list_selectsettings();
+    edit_setfocus(&edit_name);
 }
 
 static void button_statusmsg_onpress(void)
 {
     list_selectsettings();
+    edit_setfocus(&edit_status);
 }
 
 static void button_status_onpress(void)

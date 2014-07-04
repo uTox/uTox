@@ -15,8 +15,12 @@ void* (*gtk_file_chooser_get_filename)(void*);
 void* (*gtk_file_chooser_get_filenames)(void*);
 void (*gtk_widget_destroy)(void*);
 
-static void gtk_openfilesend(void)
+volatile _Bool gtk_open;
+
+static void gtk_openthread(void *args)
 {
+    uint16_t fid = (size_t)args;
+
     void *dialog = gtk_file_chooser_dialog_new("Open File", NULL, 0, "gtk-cancel", -6, "gtk-open", -3, NULL);
     gtk_file_chooser_set_select_multiple(dialog, 1);
     int result = gtk_dialog_run(dialog);
@@ -29,20 +33,28 @@ static void gtk_openfilesend(void)
             //g_free(p->data)
             p = p->next;
         }
+        *outp = 0;
         //g_slist_free(list)
         debug("files: %s\n", out);
 
-        tox_postmessage(TOX_SENDFILES, (FRIEND*)sitem->data - friend, 0xFFFF, out);
+        //dont call this from this thread
+        postmessage(OPEN_FILES, fid, 0xFFFF, out);
     }
 
     gtk_widget_destroy(dialog);
     while(gtk_events_pending()) {
         gtk_main_iteration();
     }
+
+    gtk_open = 0;
 }
 
-void gtk_savefilerecv(uint32_t fid, MSG_FILE *file)
+static void gtk_savethread(void *args)
 {
+    MSG_FILE *file = args;
+    uint16_t fid = file->progress;
+    file->progress = 0;
+
     void *dialog = gtk_file_chooser_dialog_new("Save File", NULL, 1, "gtk-cancel", -6, "gtk-save", -3, NULL);
     char buf[sizeof(file->name) + 1];
     memcpy(buf, file->name, file->name_length);
@@ -56,15 +68,34 @@ void gtk_savefilerecv(uint32_t fid, MSG_FILE *file)
         memcpy(path, name, len);
         //g_free(name)
 
-        //debug("name: %s\npath: %s\n", name, path);
+        debug("name: %s\npath: %s\n", name, path);
 
-        tox_postmessage(TOX_ACCEPTFILE, fid, file->filenumber, path);
+        postmessage(SAVE_FILE, fid, file->filenumber, path);
     }
 
     gtk_widget_destroy(dialog);
     while(gtk_events_pending()) {
         gtk_main_iteration();
     }
+}
+
+void gtk_openfilesend(void)
+{
+    if(gtk_open) {
+        return;
+    }
+    gtk_open = 1;
+    thread(gtk_openthread, (void*)(size_t)((FRIEND*)sitem->data - friend));
+}
+
+void gtk_savefilerecv(uint32_t fid, MSG_FILE *file)
+{
+    if(gtk_open) {
+        return;
+    }
+    gtk_open = 1;
+    file->progress = fid;
+    thread(gtk_savethread, file);
 }
 
 void* gtk_load(void)

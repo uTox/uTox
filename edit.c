@@ -605,7 +605,9 @@ void edit_resetfocus(void)
 void edit_setfocus(EDIT *edit)
 {
     edit_select = 0;
-    setactive(NULL);
+    edit_sel.start = edit_sel.p1 = edit_sel.p2 = edit->length;
+    edit_sel.length = 0;
+    setactive(edit);
 }
 
 _Bool edit_active(void)

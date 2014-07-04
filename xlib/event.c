@@ -31,7 +31,7 @@ _Bool doevent(void)
 
     switch(event.type) {
     case Expose: {
-        redraw();
+        enddraw(0, 0, width, height);
         debug("expose\n");
         break;
     }
@@ -62,6 +62,8 @@ _Bool doevent(void)
 
             XftDrawDestroy(xftdraw);
             xftdraw = XftDrawCreate(display, drawbuf, visual, cmap);
+
+            redraw();
         }
 
         break;

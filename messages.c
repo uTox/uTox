@@ -18,7 +18,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
             continue;
         }
 
-        if(y >= height + 100) { //! NOTE: should not be constant 100
+        if(y >= height + 50 * SCALE) { //! NOTE: should not be constant 100
             break;
         }
 
@@ -490,24 +490,26 @@ int messages_selection(MESSAGES *m, void *data, uint32_t len)
     while(i != n) {
         MESSAGE *msg = *dp++;
 
-        if(m->type) {
-            memcpy(p, &msg->msg[msg->length + 1], (uint16_t)msg->msg[msg->length] * 2);
-            p += (uint8_t)msg->msg[msg->length];
-        } else {
-            FRIEND *f = &friend[m->data->id];
-            uint8_t author = msg->flags & 1;
-
-            if(!author) {
-                memcpy(p, f->name, f->name_length);
-                p += f->name_length;
+        if(i != m->data->istart || m->data->start == 0) {
+            if(m->type) {
+                memcpy(p, &msg->msg[msg->length + 1], (uint16_t)msg->msg[msg->length] * 2);
+                p += (uint8_t)msg->msg[msg->length];
             } else {
-                memcpy(p, self.name, self.name_length);
-                p += self.name_length;
-            }
-        }
+                FRIEND *f = &friend[m->data->id];
+                uint8_t author = msg->flags & 1;
 
-        strcpy2(p, ": ");
-        p += 2;
+                if(!author) {
+                    memcpy(p, f->name, f->name_length);
+                    p += f->name_length;
+                } else {
+                    memcpy(p, self.name, self.name_length);
+                    p += self.name_length;
+                }
+            }
+
+            strcpy2(p, ": ");
+            p += 2;
+        }
 
         switch(msg->flags) {
         case 0:
@@ -533,10 +535,12 @@ int messages_selection(MESSAGES *m, void *data, uint32_t len)
         }
         }
 
-        strcpy2(p, "\r\n");
-        p += 2;
-
         i++;
+
+        if(i != n) {
+            strcpy2(p, "\r\n");
+            p += 2;
+        }
     }
     *p = 0;
 

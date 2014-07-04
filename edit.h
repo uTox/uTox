@@ -40,4 +40,5 @@ void edit_paste(char_t *data, int len);
 _Bool edit_active(void);
 
 void edit_resetfocus(void);
+void edit_setfocus(EDIT *edit);
 void edit_setstr(EDIT *edit, char_t *str, uint16_t length);
