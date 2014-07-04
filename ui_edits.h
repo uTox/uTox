@@ -80,6 +80,7 @@ SCROLLABLE edit_addmsg_scroll = {
     .panel = {
         .type = PANEL_SCROLLABLE,
     },
+    .d = 1.0,
     .color = C_SCROLL,
 },
 
@@ -87,6 +88,7 @@ edit_msg_scroll = {
     .panel = {
         .type = PANEL_SCROLLABLE,
     },
+    .d = 1.0,
     .color = C_SCROLL,
 };
 
