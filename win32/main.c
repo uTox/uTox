@@ -610,7 +610,7 @@ void paste(void)
     int len = WideCharToMultiByte(CP_UTF8, 0, d, -1, (char*)data, 65536, NULL, 0);
     GlobalUnlock(h);
     CloseClipboard();
-    edit_paste(data, len);
+    edit_paste(data, len, 0);
 }
 
 void* loadsavedata(uint32_t *len)
