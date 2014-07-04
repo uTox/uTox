@@ -77,6 +77,8 @@ static void gtk_savethread(void *args)
     while(gtk_events_pending()) {
         gtk_main_iteration();
     }
+
+    gtk_open = 0;
 }
 
 void gtk_openfilesend(void)

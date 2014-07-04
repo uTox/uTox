@@ -26,7 +26,8 @@ struct msg_file {
     uint32_t time, speed;
     uint8_t filenumber, status, name_length;
     uint64_t size, progress;
-    uint8_t name[24];
+    uint8_t *path;
+    uint8_t name[32];
 };
 
 void messages_draw(MESSAGES *m, int x, int y, int width, int height);

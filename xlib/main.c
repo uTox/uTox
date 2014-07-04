@@ -487,7 +487,7 @@ void listpopup(uint8_t item)
 void openurl(char_t *str)
 {
     char cmd[1024];
-    sprintf(cmd, "xdg-open %s", str);
+    sprintf(cmd, "xdg-open \"%.999s\"", str);
     debug("cmd: %s\n", cmd);
     system(cmd);
 }

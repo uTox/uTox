@@ -62,6 +62,8 @@ static void startft(Tox *tox, uint32_t fid, uint8_t *path, uint8_t *name, uint16
 
         ft->fid = fid;
         ft->filenumber = filenumber;
+
+        name_length = name_length > sizeof(ft->name) ? sizeof(ft->name) : name_length;
         ft->name_length = name_length;
 
         ft->status = FT_PENDING;
@@ -69,6 +71,8 @@ static void startft(Tox *tox, uint32_t fid, uint8_t *path, uint8_t *name, uint16
 
         memcpy(ft->name, name, name_length);
         ft->total = size;
+
+        ft->path = (uint8_t*)strdup((char*)path);
 
         ft->data = file;
         ft->buffer = malloc(ft->sendsize);
@@ -171,6 +175,7 @@ static void callback_file_control(Tox *tox, int32_t fid, uint8_t receive_send, u
         if(!receive_send) {
             if(ft->data) {
                 fclose(ft->data);
+                free(ft->path);
             }
             postmessage(FRIEND_FILE_IN_STATUS, fid, filenumber, (void*)FILE_KILLED);
         }
@@ -196,7 +201,7 @@ static void callback_file_control(Tox *tox, int32_t fid, uint8_t receive_send, u
             if(ft->data) {
                 fclose(ft->data);
             }
-            postmessage(FRIEND_FILE_IN_STATUS, fid, filenumber, (void*)FILE_DONE);
+            postmessage(FRIEND_FILE_IN_DONE, fid, filenumber, ft->path);
         }
         break;
     }
@@ -444,7 +449,7 @@ void tox_thread(void *args)
                         p--;
                         file_tend--;
                         ft->status = FT_NONE;
-                        postmessage(FRIEND_FILE_OUT_STATUS, ft->fid, ft->filenumber, (void*)FILE_DONE);
+                        postmessage(FRIEND_FILE_OUT_DONE, ft->fid, ft->filenumber, ft->path);
                         break;
                     }
 
@@ -455,6 +460,7 @@ void tox_thread(void *args)
 
             case FT_KILL: {
                 free(ft->buffer);
+                free(ft->path);
                 fclose(ft->data);
 
                 memmove(p, p + 1, ((void*)file_tend - (void*)(p + 1)));
@@ -685,11 +691,12 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint8_t msg, uint16_t param1
          */
         FILE_T *ft = &friend[param1].incoming[param2];
         ft->data = fopen(data, "wb");
-        free(data);
         if(!ft->data) {
+            free(data);
             break;
         }
 
+        ft->path = data;
         ft->status = FT_SEND;
 
         tox_file_send_control(tox, param1, 1, param2, TOX_FILECONTROL_ACCEPT, NULL, 0);
@@ -706,6 +713,7 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint8_t msg, uint16_t param1
         FILE_T *ft = &friend[param1].incoming[param2];
         if(ft->data) {
             fclose(ft->data);
+            free(ft->path);
         }
 
         ft->status = FT_NONE;
@@ -1087,6 +1095,34 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
 
         MSG_FILE *msg = ft->chatdata;
         msg->status = (size_t)data;
+
+        file_notify(f, msg);
+
+        updatefriend(f);
+        break;
+    }
+
+    case FRIEND_FILE_IN_DONE: {
+        FRIEND *f = &friend[param1];
+        FILE_T *ft = &f->incoming[param2];
+
+        MSG_FILE *msg = ft->chatdata;
+        msg->status = FILE_DONE;
+        msg->path = data;
+
+        file_notify(f, msg);
+
+        updatefriend(f);
+        break;
+    }
+
+    case FRIEND_FILE_OUT_DONE: {
+        FRIEND *f = &friend[param1];
+        FILE_T *ft = &f->outgoing[param2];
+
+        MSG_FILE *msg = ft->chatdata;
+        msg->status = FILE_DONE;
+        msg->path = data;
 
         file_notify(f, msg);
 

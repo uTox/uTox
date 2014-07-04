@@ -117,12 +117,13 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
             setfont(FONT_MISC);
 
             if(file->status == FILE_DONE) {
-                drawalpha(BM_FT, xx, y, BM_FT_WIDTH, BM_FT_HEIGHT, C_GREEN);
+                drawalpha(BM_FT, xx, y, BM_FT_WIDTH, BM_FT_HEIGHT, (mo && m->over) ? C_GREEN_LIGHT : C_GREEN);
                 drawalpha(BM_YES, xx + BM_FTM_WIDTH + SCALE + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2, y + SCALE * 4, BM_FB_WIDTH, BM_FB_HEIGHT, WHITE);
+                drawstr(xx + 5 * SCALE, y + 17 * SCALE, "Click to open");
             } else if(file->status == FILE_KILLED) {
                 drawalpha(BM_FT, xx, y, BM_FT_WIDTH, BM_FT_HEIGHT, C_RED);
                 drawalpha(BM_NO, xx + BM_FTM_WIDTH + SCALE + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2, y + SCALE * 4, BM_FB_WIDTH, BM_FB_HEIGHT, WHITE);
-                drawstr(xx + 35 * SCALE, y + 17 * SCALE, "Cancelled");
+                drawstr(xx + 5 * SCALE, y + 17 * SCALE, "Cancelled");
             } else {
                 if(file->status == FILE_BROKEN) {
                     drawalpha(BM_FTM, xx, y, BM_FTM_WIDTH, BM_FT_HEIGHT, C_RED);
@@ -150,10 +151,10 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
                     progress = file->size;
                 }
 
-                uint32_t w = (file->size == 0) ? 0 : (progress * (uint64_t)76 * SCALE) / file->size;
+                uint32_t w = (file->size == 0) ? 0 : (progress * (uint64_t)106 * SCALE) / file->size;
 
-                framerect(xx + 35 * SCALE, y + 17 * SCALE, xx + 35 * SCALE + 76 * SCALE, y + 24 * SCALE, (file->status == FILE_PENDING || file->status == FILE_PAUSED) ? LIST_MAIN : WHITE);
-                drawrectw(xx + 35 * SCALE, y + 17 * SCALE, w, 7 * SCALE, (file->status == FILE_PENDING || file->status == FILE_PAUSED) ? LIST_MAIN : WHITE);
+                framerect(xx + 5 * SCALE, y + 17 * SCALE, xx + 111 * SCALE, y + 24 * SCALE, (file->status == FILE_PENDING || file->status == FILE_PAUSED) ? LIST_MAIN : WHITE);
+                drawrectw(xx + 5 * SCALE, y + 17 * SCALE, w, 7 * SCALE, (file->status == FILE_PENDING || file->status == FILE_PAUSED) ? LIST_MAIN : WHITE);
 
                 if(file->status == FILE_OK) {
                     uint8_t text[16];
@@ -163,7 +164,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
                     text[len++] = '/';
                     text[len++] = 's';
 
-                    drawtext(xx + 35 * SCALE + 38 * SCALE - textwidth(text, len) / 2, y + 10 * SCALE, text, len);
+                    drawtext(xx + 5 * SCALE + 53 * SCALE - textwidth(text, len) / 2, y + 10 * SCALE, text, len);
 
                     uint64_t etasec = 0;
                     if(file->speed) {
@@ -172,13 +173,13 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
 
                     len = sprintf((char*)text, "%us", (uint32_t)etasec);
 
-                    drawtext(xx + 35 * SCALE + 76 * SCALE - textwidth(text, len), y + 10 * SCALE, text, len);
+                    drawtext(xx + 5 * SCALE + 106 * SCALE - textwidth(text, len), y + 10 * SCALE, text, len);
                 }
             }
 
 
-            drawtext(xx + 35 * SCALE, y + 3 * SCALE, file->name, file->name_length);
-            drawtext(xx + 35 * SCALE, y + 10 * SCALE, size, sizelen);
+            drawtext(xx + 5 * SCALE, y + 3 * SCALE, file->name, file->name_length);
+            drawtext(xx + 5 * SCALE, y + 10 * SCALE, size, sizelen);
 
             y += BM_FT_HEIGHT;
 
@@ -414,7 +415,8 @@ _Bool messages_mdown(MESSAGES *m)
             }
 
             case FILE_DONE: {
-                if(msg->flags == 6 && m->over == 3) {
+                if(m->over) {
+                    openurl(file->path);
                 }
                 break;
             }

@@ -26,7 +26,8 @@ typedef struct {
     uint32_t fid;
     void *data, *buffer;
     uint64_t bytes, total;
-    uint8_t name[128];
+    uint8_t name[64];
+    uint8_t *path;
 
     uint64_t lastupdate, lastprogress;
 
