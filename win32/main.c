@@ -1805,7 +1805,7 @@ _Bool video_getframe(vpx_image_t *image)
     if(capturedesktop) {
         static uint64_t lasttime;
         uint64_t t = get_time();
-        if(t - lasttime >= (uint64_t)1000 * 1000 * 1000 / 50) {
+        if(t - lasttime >= (uint64_t)1000 * 1000 * 1000 / 24) {
             BITMAPINFO info = {
                 .bmiHeader = {
                     .biSize = sizeof(BITMAPINFOHEADER),

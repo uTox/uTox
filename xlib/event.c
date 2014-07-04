@@ -316,7 +316,6 @@ _Bool doevent(void)
         };//self.id, sizeof(self.id)
 
         if(ev->target == XA_UTF8_STRING || ev->target == XA_STRING) {
-            debug("strings: %u %u\n", ev->selection, ev->property);
             if(ev->selection == XA_PRIMARY) {
                 if(!selection_src) {
                     primary.len = edit_selection(selection_p, primary.data, sizeof(primary.data));
@@ -331,12 +330,11 @@ _Bool doevent(void)
                 XChangeProperty(display, ev->requestor, ev->property, ev->target, 8, PropModeReplace, clipboard.data, clipboard.len);
             }
         } else if(ev->target == targets) {
-            debug("targets %u %u\n", ev->selection, ev->property);
             Atom supported[] = {XA_STRING, XA_UTF8_STRING};
             XChangeProperty(display, ev->requestor, ev->property, targets, 8, PropModeReplace, (uint8_t*)(&supported), sizeof(supported));
         }
         else {
-            debug("unknown\n");
+            debug("unknown request\n");
             resp.xselection.property = None;
         }
 

@@ -987,12 +987,15 @@ _Bool video_endread(void)
 _Bool video_getframe(vpx_image_t *image)
 {
     if(fd == -1) {
-        //screen_image = XGetImage(deskdisplay,RootWindow(deskdisplay, DefaultScreen(deskdisplay)), 0, 0, scr->width, scr->height, XAllPlanes(), ZPixmap);
-
-        XShmGetImage(deskdisplay,RootWindow(deskdisplay, deskscreen), screen_image, video_x, video_y, AllPlanes);
-        rgbxtoyuv420(image->planes[0], image->planes[1], image->planes[2], (uint8_t*)screen_image->data, screen_image->width, screen_image->height);
-        //XDestroyImage(screen_image);
-        return 1;
+        static uint64_t lasttime;
+        uint64_t t = get_time();
+        if(t - lasttime >= (uint64_t)1000 * 1000 * 1000 / 24) {
+            XShmGetImage(deskdisplay,RootWindow(deskdisplay, deskscreen), screen_image, video_x, video_y, AllPlanes);
+            rgbxtoyuv420(image->planes[0], image->planes[1], image->planes[2], (uint8_t*)screen_image->data, screen_image->width, screen_image->height);
+            lasttime = t;
+            return 1;
+        }
+        return 0;
     }
 
     return v4l_getframe(image);
