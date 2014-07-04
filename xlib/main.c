@@ -636,7 +636,7 @@ void notify(uint8_t *title, uint16_t title_length, uint8_t *msg, uint16_t msg_le
     #ifdef HAVE_DBUS
     char *str = malloc(msg_length + 1);
     memcpy(str, msg, msg_length);
-    str[msg_length] = 1;
+    str[msg_length] = 0;
 
     dbus_notify((char*)title, str);
 
