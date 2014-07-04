@@ -111,6 +111,8 @@ _Bool edit_mdown(EDIT *edit)
         edit_sel.length = 0;
         edit_select = 1;
 
+        setselection(0, edit);
+
         setactive(edit);
         return 1;
     } else if(edit == active_edit) {
@@ -174,6 +176,12 @@ _Bool edit_mright(EDIT *edit)
     }
 
     return 0;
+}
+
+void edit_press(void)
+{
+    edit_sel.start = edit_sel.p1 = edit_sel.p2 = active_edit->mouseover_char;
+    edit_sel.length = 0;
 }
 
 _Bool edit_mwheel(EDIT *edit, int height, double d)
@@ -536,7 +544,6 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
 int edit_selection(EDIT *edit, char_t *data, int len)
 {
     memcpy(data, edit->data + edit_sel.start, edit_sel.length);
-    data[edit_sel.length] = 0;
     return edit_sel.length;
 }
 
@@ -545,7 +552,7 @@ int edit_copy(char_t *data, int len)
     return edit_selection(active_edit, data, len);
 }
 
-void edit_paste(char_t *data, int length)
+void edit_paste(char_t *data, int length, _Bool select)
 {
     if(!active_edit) {
         return;
@@ -588,10 +595,16 @@ void edit_paste(char_t *data, int length)
 
     active_edit->length += newlen - edit_sel.length;
 
-    edit_sel.start = edit_sel.start + newlen;
+    if(select) {
+        edit_sel.start = edit_sel.start;
+        edit_sel.length = newlen;
+    } else {
+        edit_sel.start = edit_sel.start + newlen;
+        edit_sel.length = 0;
+    }
+
     edit_sel.p1 = edit_sel.start;
-    edit_sel.p2 = edit_sel.start;
-    edit_sel.length = 0;
+    edit_sel.p2 = edit_sel.start + edit_sel.length;
 
     edit_redraw();
 }

@@ -1,3 +1,20 @@
+static void saveprimary(void)
+{
+    int len;
+    if(!selection_src) {
+        len = edit_selection(selection_p, primary.data, sizeof(primary.data));
+    } else if(selection_src == 1) {
+        len = messages_selection(selection_p, primary.data, sizeof(primary.data));
+    } else {
+        memcpy(primary.data, self.id, sizeof(self.id));
+        len = sizeof(self.id);
+    }
+
+    if(len) {
+        primary.len = len;
+    }
+}
+
 _Bool doevent(void)
 {
     XEvent event;
@@ -111,6 +128,16 @@ _Bool doevent(void)
     case ButtonPress: {
         XButtonEvent *ev = &event.xbutton;
         switch(ev->button) {
+        case Button2: {
+            saveprimary();
+
+            panel_mdown(&panel_main);
+            panel_mup(&panel_main);
+
+            pasteprimary();
+            break;
+        }
+
         case Button1: {
             if(pointergrab) {
                 grabpx = grabx = ev->x_root;
@@ -134,11 +161,6 @@ _Bool doevent(void)
             lastclick2 = lastclick;
             lastclick = ev->time;
             mdown = 1;
-            break;
-        }
-
-        case Button2: {
-            pasteprimary();
             break;
         }
 
@@ -295,7 +317,7 @@ _Bool doevent(void)
         }
 
         if(edit_active()) {
-            edit_paste(data, len);
+            edit_paste(data, len, ev->selection == XA_PRIMARY);
         }
 
         XFree(data);
@@ -319,14 +341,7 @@ _Bool doevent(void)
 
         if(ev->target == XA_UTF8_STRING || ev->target == XA_STRING) {
             if(ev->selection == XA_PRIMARY) {
-                if(!selection_src) {
-                    primary.len = edit_selection(selection_p, primary.data, sizeof(primary.data));
-                } else if(selection_src == 1) {
-                    primary.len = messages_selection(selection_p, primary.data, sizeof(primary.data));
-                } else {
-                    memcpy(primary.data, self.id, sizeof(self.id));
-                    primary.len = sizeof(self.id);
-                }
+                saveprimary();
                 XChangeProperty(display, ev->requestor, ev->property, ev->target, 8, PropModeReplace, primary.data, primary.len);
             } else {
                 XChangeProperty(display, ev->requestor, ev->property, ev->target, 8, PropModeReplace, clipboard.data, clipboard.len);

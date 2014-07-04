@@ -152,6 +152,7 @@ enum
 
     BM_NO,
     BM_PAUSE,
+    BM_RESUME,
     BM_YES,
 
     BM_SCROLLHALFTOP,

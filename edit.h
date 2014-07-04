@@ -31,11 +31,13 @@ _Bool edit_mwheel(EDIT *edit, int height, double d);
 _Bool edit_mup(EDIT *edit);
 _Bool edit_mleave(EDIT *edit);
 
+void edit_press(void);
+
 void edit_char(uint32_t ch, _Bool control, uint8_t flags);
 
 int edit_selection(EDIT *edit, char_t *data, int len);
 int edit_copy(char_t *data, int len);
-void edit_paste(char_t *data, int len);
+void edit_paste(char_t *data, int len, _Bool select);
 
 _Bool edit_active(void);
 

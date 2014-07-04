@@ -568,7 +568,8 @@ void copy(void)
     int len;
 
     if(edit_active()) {
-        len = edit_copy(data, 32768);
+        len = edit_copy(data, 32767);
+        data[len] = 0;
     } else if(sitem->item == ITEM_FRIEND) {
         len = messages_selection(&messages_friend, data, 32768);
     } else if(sitem->item == ITEM_GROUP) {

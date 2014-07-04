@@ -143,7 +143,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
 
                 uint32_t color = (msg->flags == 7 && (file->status == FILE_PENDING || file->status == FILE_BROKEN)) ? C_GRAY: ((mo && m->over == 2) ? C_GREEN_LIGHT : C_GREEN);
                 drawalpha(BM_FTB2, x, y + BM_FTB_HEIGHT + SCALE * 2, BM_FTB_WIDTH, BM_FTB_HEIGHT, color);
-                drawalpha((msg->flags == 6 && file->status ==  FILE_PENDING) ? BM_YES : BM_PAUSE, x + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2, y + BM_FTB_HEIGHT + SCALE * 5, BM_FB_WIDTH, BM_FB_HEIGHT, color == C_GRAY ? LIST_MAIN : WHITE);
+                drawalpha((msg->flags == 6 && file->status ==  FILE_PENDING) ? BM_YES : (file->status == FILE_PAUSED ? BM_RESUME : BM_PAUSE), x + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2, y + BM_FTB_HEIGHT + SCALE * 5, BM_FB_WIDTH, BM_FB_HEIGHT, color == C_GRAY ? LIST_MAIN : WHITE);
 
 
                 uint64_t progress = file->progress;
@@ -178,7 +178,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
             }
 
 
-            drawtext(xx + 5 * SCALE, y + 3 * SCALE, file->name, file->name_length);
+            drawtextwidth(xx + 5 * SCALE, 106 * SCALE, y + 3 * SCALE, file->name, file->name_length);
             drawtext(xx + 5 * SCALE, y + 10 * SCALE, size, sizelen);
 
             y += BM_FT_HEIGHT;

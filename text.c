@@ -97,7 +97,7 @@ uint16_t hittextmultiline(int mx, int right, int my, int height, uint16_t linehe
         return 0;
     }
 
-    if(mx < 0 && my >= height) {
+    if(my >= height) {
         return length;
     }
 
