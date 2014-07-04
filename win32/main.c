@@ -646,8 +646,8 @@ void notify(uint8_t *title, uint16_t title_length, uint8_t *msg, uint16_t msg_le
         .cbSize = sizeof(nid),
     };
 
-    utf8tonative(title, nid.szInfoTitle, title_length > sizeof(nid.szInfoTitle) - 1 ? sizeof(nid.szInfoTitle) - 1 : title_length);
-    utf8tonative(msg, nid.szInfo, msg_length > sizeof(nid.szInfo) - 1 ? sizeof(nid.szInfo) - 1 : msg_length);
+    utf8tonative(title, nid.szInfoTitle, title_length > sizeof(nid.szInfoTitle) / sizeof(*nid.szInfoTitle) - 1 ? sizeof(nid.szInfoTitle) / sizeof(*nid.szInfoTitle) - 1 : title_length);
+    utf8tonative(msg, nid.szInfo, msg_length > sizeof(nid.szInfo) / sizeof(*nid.szInfo) - 1 ? sizeof(nid.szInfo) / sizeof(*nid.szInfo) - 1 : msg_length);
 
     Shell_NotifyIconW(NIM_MODIFY, &nid);
 }
