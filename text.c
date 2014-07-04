@@ -43,9 +43,16 @@ static void drawtexth(int x, int y, char_t *str, uint16_t length, int d, int h, 
 
 int drawtextmultiline(int x, int right, int y, uint16_t lineheight, char_t *data, uint16_t length, uint16_t h, uint16_t hlen, _Bool multiline)
 {
+    uint32_t c;
+    _Bool greentext = 0;
     int xc = x;
     char_t *a = data, *b = a, *end = a + length;
     while(1) {
+        if(*a == '>' && (a == data || *a == '\n')) {
+            c = setcolor(RGB(0, 128, 0));
+            greentext = 1;
+        }
+
         if(a == end || *a == ' ' || *a == '\n') {
             int count = a - b, w = textwidth(b, count);
             while(x + w > right) {
@@ -75,10 +82,18 @@ int drawtextmultiline(int x, int right, int y, uint16_t lineheight, char_t *data
             b = a;
 
             if(a == end) {
+                if(greentext) {
+                    setcolor(c);
+                    greentext = 0;
+                }
                 break;
             }
 
             if(*a == '\n') {
+                if(greentext) {
+                    setcolor(c);
+                    greentext = 0;
+                }
                 y += lineheight;
                 b += utf8_len(b);
                 x = xc;
