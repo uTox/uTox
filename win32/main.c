@@ -1643,6 +1643,9 @@ void* video_detect(void)
         return 0;
     }
 
+    max_video_width = GetSystemMetrics(SM_CXVIRTUALSCREEN);
+    max_video_height = GetSystemMetrics(SM_CYVIRTUALSCREEN);
+
     return pFilter;
 }
 

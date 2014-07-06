@@ -863,6 +863,8 @@ void initshm(void)
     deskdisplay = XOpenDisplay(NULL);
     deskscreen = DefaultScreen(deskdisplay);
     debug("desktop: %u %u\n", scr->width, scr->height);
+    max_video_width = scr->width;
+    max_video_height = scr->height;
 }
 
 void* video_detect(void)
