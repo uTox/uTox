@@ -9,12 +9,9 @@ static sig_atomic_t  done;
 static int notify_build_message(DBusMessage* notify_msg, char *title, char *content)
 {
     DBusMessageIter args[4];
-    char *app_name[]= {"uTox"};
-    uint32_t replaces_id=-1;
-    char *app_icon[]= {""}; //path to icon
-    char *summary[]= {title};
-    char *body[]= {content};
-    //const char* array[] = { "v1", "v2", NULL };
+    char *app_name = "uTox";
+    uint32_t replaces_id = -1;
+    char *app_icon = "";
     int32_t timeout = 5000;
     dbus_bool_t m = 0;
     char* key = "foo";
@@ -24,8 +21,8 @@ static int notify_build_message(DBusMessage* notify_msg, char *title, char *cont
     m |= dbus_message_iter_append_basic(&args[0], DBUS_TYPE_STRING, &app_name);
     m |= dbus_message_iter_append_basic(&args[0], DBUS_TYPE_UINT32, &replaces_id);
     m |= dbus_message_iter_append_basic(&args[0], DBUS_TYPE_STRING, &app_icon);
-    m |= dbus_message_iter_append_basic(&args[0], DBUS_TYPE_STRING, &summary);
-    m |= dbus_message_iter_append_basic(&args[0], DBUS_TYPE_STRING, &body);
+    m |= dbus_message_iter_append_basic(&args[0], DBUS_TYPE_STRING, &title);
+    m |= dbus_message_iter_append_basic(&args[0], DBUS_TYPE_STRING, &content);
 
     m |= dbus_message_iter_open_container(&args[0],DBUS_TYPE_ARRAY,DBUS_TYPE_STRING_AS_STRING,&args[1]);
     /*for (i = 0; array[i]; i++ )
