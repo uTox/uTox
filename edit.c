@@ -310,16 +310,30 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
         switch(ch) {
         case KEY_BACK: {
             if(edit_sel.length == 0) {
-                if(edit_sel.start != 0) {
-                    uint8_t len = utf8_unlen(edit->data + edit_sel.start);
-                    edit_do(edit, edit_sel.start - len, len, 1);
-                    memmove(edit->data + edit_sel.start - len, edit->data + edit_sel.start, edit->length - edit_sel.start);
-                    edit->length -= len;
-
-                    edit_sel.start -= len;
-                    edit_sel.p1 = edit_sel.start;
-                    edit_sel.p2 = edit_sel.start;
+                uint16_t p = edit_sel.start;
+                if(p == 0) {
+                    break;
                 }
+
+                /* same as ctrl+left */
+                if(flags & 4) {
+                    while(p != 0 && edit->data[p - 1] == ' ') {
+                        p--;
+                    }
+                }
+
+                do {
+                    p -= utf8_unlen(&edit->data[p]);
+                } while((flags & 4) && p != 0 && edit->data[p - 1] != ' ' && edit->data[p - 1] != '\n');
+
+                uint16_t len = edit_sel.start - p;
+                edit_do(edit, edit_sel.start - len, len, 1);
+                memmove(edit->data + edit_sel.start - len, edit->data + edit_sel.start, edit->length - edit_sel.start);
+                edit->length -= len;
+
+                edit_sel.start -= len;
+                edit_sel.p1 = edit_sel.start;
+                edit_sel.p2 = edit_sel.start;
                 break;
             } else {
                 /* fall through to KEY_DEL */
