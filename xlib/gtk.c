@@ -1,3 +1,8 @@
+#ifdef __APPLE__
+#define LIBGTK_FILENAME "libgtk-x11-2.0.dylib"
+#else
+#define LIBGTK_FILENAME "libgtk-x11-2.0.so.0"
+#endif
 
 typedef struct
 {
@@ -102,7 +107,7 @@ void gtk_savefilerecv(uint32_t fid, MSG_FILE *file)
 
 void* gtk_load(void)
 {
-    void *lib = dlopen("libgtk-x11-2.0.so.0", RTLD_LAZY);
+    void *lib = dlopen(LIBGTK_FILENAME, RTLD_LAZY);
     if(lib) {
         debug("have GTK\n");
 
