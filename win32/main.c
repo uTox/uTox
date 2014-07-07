@@ -202,6 +202,19 @@ int textfit(char_t *str, uint16_t length, int width)
     return WideCharToMultiByte(CP_UTF8, 0, out, fit, (char*)str, 65536, NULL, 0);
 }
 
+int textfit_near(char_t *str, uint16_t length, int width)
+{
+    /*todo: near*/
+    wchar_t out[length];
+    length = utf8tonative(str, out, length);
+
+    int fit;
+    SIZE size;
+    GetTextExtentExPointW(hdc, out, length, width, &fit, NULL, &size);
+
+    return WideCharToMultiByte(CP_UTF8, 0, out, fit, (char*)str, 65536, NULL, 0);
+}
+
 void framerect(int x, int y, int right, int bottom, uint32_t color)
 {
     RECT r = {x, y, right, bottom};

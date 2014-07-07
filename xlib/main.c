@@ -322,6 +322,29 @@ int textfit(uint8_t *str, uint16_t length, int width)
         font = getfont(sfont, ch);
         XftTextExtentsUtf8(display, font, str + i, len, &extents);
 
+        x += extents.xOff;
+        if(x >= width) {
+            break;
+        }
+
+        i += len;
+    }
+
+    return i;
+}
+
+int textfit_near(uint8_t *str, uint16_t length, int width)
+{
+    int i = 0;
+    int x = 0;
+    XftFont *font;
+    uint32_t ch;
+    XGlyphInfo extents;
+    while(i < length) {
+        uint8_t len = utf8_len_read(str + i, &ch);
+        font = getfont(sfont, ch);
+        XftTextExtentsUtf8(display, font, str + i, len, &extents);
+
         if(x + extents.xOff / 2 > width) {
             break;
         }

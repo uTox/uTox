@@ -205,6 +205,7 @@ void drawtextrangecut(int x, int x2, int y, uint8_t *str, uint16_t length);
 
 int textwidth(uint8_t *str, uint16_t length);
 int textfit(uint8_t *str, uint16_t length, int width);
+int textfit_near(uint8_t *str, uint16_t length, int width);
 
 void framerect(int x, int y, int right, int bottom, uint32_t color);
 void drawrect(int x, int y, int right, int bottom, uint32_t color);

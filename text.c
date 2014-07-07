@@ -174,9 +174,11 @@ uint16_t hittextmultiline(int mx, int right, int my, int height, uint16_t linehe
     }
 
     int fit;
-    if(mx - x > 0) {
+    if(mx >= right) {
+        fit = textfit(b, a - b, right - x);
+    } else if(mx - x > 0) {
         int len = a - b;
-        fit = textfit(b, len + (a != end), mx - x);
+        fit = textfit_near(b, len + (a != end), mx - x);
     } else {
         fit = 0;
     }
