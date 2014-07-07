@@ -36,9 +36,9 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
         pushclip(x + 1, y + 1, width - 2, height - 2);
 
         SCROLLABLE *scroll = edit->scroll;
-        scroll->content_height = text_height(width - 4 * SCALE - SCROLL_WIDTH, font_small_lineheight, edit->data, edit->length);
-        scroll_draw(scroll, x - 1, y + 1, width, height - 2);
-        y -= scroll_gety(scroll, height - 4 * SCALE);
+        scroll->content_height = text_height(width - 4 * SCALE - SCROLL_WIDTH, font_small_lineheight, edit->data, edit->length) + 4 * SCALE;
+        scroll_draw(scroll, x, y, width, height);
+        y -= scroll_gety(scroll, height);
     }
 
     _Bool a = (edit == active_edit);
@@ -66,7 +66,7 @@ _Bool edit_mmove(EDIT *edit, int px, int py, int width, int height, int x, int y
     }
 
     if(edit->multiline) {
-        redraw |= scroll_mmove(edit->scroll, px + 1, py - 1, width, height - 2, x - 1, y + 1, dy);
+        redraw |= scroll_mmove(edit->scroll, px, py, width, height, x, y, dy);
         y += scroll_gety(edit->scroll, height);
     }
 
