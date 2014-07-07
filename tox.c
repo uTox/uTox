@@ -1005,20 +1005,16 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
            param2: call id
            data: frame data
          */
-        vpx_image_t *image = data;
+        uint16_t *image = data;
         FRIEND *f = &friend[param1];
 
-        uint8_t *img_data = malloc(image->d_w * image->d_h * 4);
-        yuv420torgb(image, img_data);
-        _Bool b = (image->d_w != f->call_width || image->d_h != f->call_height);
+        _Bool b = (image[0] != f->call_width || image[1] != f->call_height);
         if(b) {
-            f->call_width = image->d_w;
-            f->call_height = image->d_h;
+            f->call_width = image[0];
+            f->call_height = image[1];
         }
-        video_frame(param1 + 1, img_data, image->d_w, image->d_h, b);
-
-        free(img_data);
-        vpx_img_free(data);
+        video_frame(param1 + 1, (void*)&image[2], image[0], image[1], b);
+        free(image);
         break;
     }
 

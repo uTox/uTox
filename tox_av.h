@@ -108,21 +108,6 @@ static void callback_av_peertimeout(int32_t call_index, void *arg)
     debug("A/V PeerTimeout (%i)\n", call_index);
 }
 
-static void set_av_callbacks(ToxAv *av)
-{
-    toxav_register_callstate_callback(callback_av_invite, av_OnInvite, av);
-    toxav_register_callstate_callback(callback_av_start, av_OnStart, av);
-    toxav_register_callstate_callback(callback_av_cancel, av_OnCancel, av);
-    toxav_register_callstate_callback(callback_av_reject, av_OnReject, av);
-    toxav_register_callstate_callback(callback_av_end, av_OnEnd, av);
-    toxav_register_callstate_callback(callback_av_ringing, av_OnRinging, av);
-    toxav_register_callstate_callback(callback_av_starting, av_OnStarting, av);
-    toxav_register_callstate_callback(callback_av_ending, av_OnEnding, av);
-    toxav_register_callstate_callback(callback_av_error, av_OnError, av);
-    toxav_register_callstate_callback(callback_av_requesttimeout, av_OnRequestTimeout, av);
-    toxav_register_callstate_callback(callback_av_peertimeout, av_OnPeerTimeout, av);
-}
-
 uint8_t lbuffer[800 * 600 * 4]; //needs to be always large enough for encoded frames
 
 static ALCdevice* alcopencapture(const char *name)
@@ -130,7 +115,7 @@ static ALCdevice* alcopencapture(const char *name)
     return alcCaptureOpenDevice(name, av_DefaultSettings.audio_sample_rate, AL_FORMAT_MONO16, (av_DefaultSettings.audio_frame_duration * av_DefaultSettings.audio_sample_rate * 4) / 1000);
 }
 
-static void sourceplaybuffer(int i, void *buf, int size)
+static void sourceplaybuffer(int i, int16_t *data, int samples)
 {
     ALuint bufid;
     ALint processed, queued;
@@ -150,7 +135,7 @@ static void sourceplaybuffer(int i, void *buf, int size)
         return;
     }
 
-    alBufferData(bufid, AL_FORMAT_MONO16, buf, size * 2, av_DefaultSettings.audio_sample_rate);
+    alBufferData(bufid, AL_FORMAT_MONO16, data, samples * 2, av_DefaultSettings.audio_sample_rate);
     alSourceQueueBuffers(source[i], 1, &bufid);
 
     ALint state;
@@ -307,20 +292,6 @@ static void video_thread(void *args)
                     if((r = toxav_send_video(av, i, (void*)lbuffer, len)) < 0) {
                         debug("toxav_send_video error %i %s\n", r, strerror(errno));
                     }
-                }
-            }
-        }
-
-        int i;
-        for(i = 0; i < MAX_CALLS; i++) {
-            if(call[i]) {
-                vpx_image_t *image;
-                if(toxav_recv_video(av, i, &image) == 0) {
-                    if(image) {
-                        postmessage(FRIEND_VIDEO_FRAME, toxav_get_peer_id(av, i, 0), i, image);
-                    }
-                } else {
-                    debug("toxav_recv_video() error\n");
                 }
             }
         }
@@ -513,7 +484,7 @@ static void audio_thread(void *args)
                 alcCaptureSamples(device_in, buf, perframe);
 
                 if(preview) {
-                    sourceplaybuffer(0, buf, perframe);
+                    sourceplaybuffer(0, (int16_t*)buf, perframe);
                 }
 
                 int i;
@@ -533,16 +504,6 @@ static void audio_thread(void *args)
 
         }
 
-        int i;
-        for(i = 0; i < MAX_CALLS; i++) {
-            if(call[i]) {
-                int size = toxav_recv_audio(av, i, perframe, (void*)buf);
-                if(size > 0) {
-                    sourceplaybuffer(i + 1, buf, size);
-                }
-            }
-        }
-
         yieldcpu(5);
     }
 
@@ -560,4 +521,38 @@ static void audio_thread(void *args)
     alcDestroyContext(context);
 
     audio_thread_init = 0;
+}
+
+static void callback_av_audio(ToxAv *av, int32_t call_index, int16_t *data, int length)
+{
+    sourceplaybuffer(call_index + 1, data, length);
+}
+
+static void callback_av_video(ToxAv *av, int32_t call_index, vpx_image_t *img)
+{
+    /* copy the vpx_image */
+    uint16_t *img_data = malloc(4 + img->d_w * img->d_h * 4);
+    img_data[0] = img->d_w;
+    img_data[1] = img->d_h;
+    yuv420torgb(img, (void*)&img_data[2]);
+
+    postmessage(FRIEND_VIDEO_FRAME, toxav_get_peer_id(av, call_index, 0), call_index, img_data);
+}
+
+static void set_av_callbacks(ToxAv *av)
+{
+    toxav_register_callstate_callback(callback_av_invite, av_OnInvite, av);
+    toxav_register_callstate_callback(callback_av_start, av_OnStart, av);
+    toxav_register_callstate_callback(callback_av_cancel, av_OnCancel, av);
+    toxav_register_callstate_callback(callback_av_reject, av_OnReject, av);
+    toxav_register_callstate_callback(callback_av_end, av_OnEnd, av);
+    toxav_register_callstate_callback(callback_av_ringing, av_OnRinging, av);
+    toxav_register_callstate_callback(callback_av_starting, av_OnStarting, av);
+    toxav_register_callstate_callback(callback_av_ending, av_OnEnding, av);
+    toxav_register_callstate_callback(callback_av_error, av_OnError, av);
+    toxav_register_callstate_callback(callback_av_requesttimeout, av_OnRequestTimeout, av);
+    toxav_register_callstate_callback(callback_av_peertimeout, av_OnPeerTimeout, av);
+
+    toxav_register_audio_recv_callback(av, callback_av_audio);
+    toxav_register_video_recv_callback(av, callback_av_video);
 }
