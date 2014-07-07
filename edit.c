@@ -296,6 +296,9 @@ static uint16_t edit_redo(EDIT *edit)
 #define updatesel() if(edit_sel.p1 <= edit_sel.p2) {edit_sel.start = edit_sel.p1; edit_sel.length = edit_sel.p2 - edit_sel.p1;} \
                     else {edit_sel.start = edit_sel.p2; edit_sel.length = edit_sel.p1 - edit_sel.p2;}
 
+/* shift: flags & 1
+ * control: flags & 4
+*/
 void edit_char(uint32_t ch, _Bool control, uint8_t flags)
 {
     EDIT *edit = active_edit;
@@ -345,6 +348,12 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
         case KEY_LEFT: {
             uint16_t p = edit_sel.p2;
             if(p != 0) {
+                if(flags & 4) {
+                    while(p != 0 && edit->data[p - 1] == ' ') {
+                        p--;
+                    }
+                }
+
                 do {
                     p -= utf8_unlen(&edit->data[p]);
                 } while((flags & 4) && p != 0 && edit->data[p - 1] != ' ' && edit->data[p - 1] != '\n');
@@ -367,6 +376,12 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
 
         case KEY_RIGHT: {
             uint16_t p = edit_sel.p2;
+            if(flags & 4) {
+                while(p != edit->length && edit->data[p] == ' ') {
+                    p++;
+                }
+            }
+
             do {
                 if(p == edit->length) {
                     break;
