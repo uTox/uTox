@@ -22,6 +22,7 @@ static void setactive(EDIT *edit)
 void edit_draw(EDIT *edit, int x, int y, int width, int height)
 {
     edit->width = width -4 * SCALE - (edit->multiline ? SCROLL_WIDTH : 0);
+    edit->height = height - 4 * SCALE;
 
     if(!edit->noborder) {
         framerect(x, y, x + width, y + height, (edit == active_edit) ? BLUE : (edit->mouseover ? C_GRAY2 : C_GRAY));
@@ -424,7 +425,7 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
             }
 
             setfont(FONT_TEXT);
-            edit_sel.p2 = text_lineup(edit->width, edit_sel.p2, font_small_lineheight, edit->data, edit->length);
+            edit_sel.p2 = text_lineup(edit->width, edit->height, edit_sel.p2, font_small_lineheight, edit->data, edit->length, edit->scroll);
             if(!(flags & 1)) {
                 edit_sel.p1 = edit_sel.p2;
             }
@@ -438,7 +439,7 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
             }
 
             setfont(FONT_TEXT);
-            edit_sel.p2 = text_linedown(edit->width, edit_sel.p2, font_small_lineheight, edit->data, edit->length);
+            edit_sel.p2 = text_linedown(edit->width, edit->height, edit_sel.p2, font_small_lineheight, edit->data, edit->length, edit->scroll);
             if(!(flags & 1)) {
                 edit_sel.p1 = edit_sel.p2;
             }

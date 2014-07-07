@@ -284,21 +284,48 @@ static void textxy(int width, uint16_t pp, uint16_t lineheight, char_t *str, uin
     *outy = y;
 }
 
-uint16_t text_lineup(int width, uint16_t p, uint16_t lineheight, char_t *str, uint16_t length)
+uint16_t text_lineup(int width, int height, uint16_t p, uint16_t lineheight, char_t *str, uint16_t length, SCROLLABLE *scroll)
 {
     //lazy
     int x, y;
     textxy(width, p, lineheight, str, length, &x, &y);
     if(y == 0) {
+        scroll->d = 0.0;
         return p;
     }
-    return hittextmultiline(x, width, y - lineheight, INT_MAX, lineheight, str, length, 1);
+
+    y -= lineheight;
+
+    if(scroll->content_height > height) {
+        double d1 = (double)y / (double)(scroll->content_height - height);
+        double d2 = (double)(y - height + lineheight) / (double)(scroll->content_height - height);
+        if(d1 < scroll->d) {
+            scroll->d = d1;
+        } else if(d2 > scroll->d) {
+            scroll->d = d2;
+        }
+    }
+
+    return hittextmultiline(x, width, y, INT_MAX, lineheight, str, length, 1);
 }
 
-uint16_t text_linedown(int width, uint16_t p, uint16_t lineheight, char_t *str, uint16_t length)
+uint16_t text_linedown(int width, int height, uint16_t p, uint16_t lineheight, char_t *str, uint16_t length, SCROLLABLE *scroll)
 {
     //lazy
     int x, y;
     textxy(width, p, lineheight, str, length, &x, &y);
-    return hittextmultiline(x, width, y + lineheight, INT_MAX, lineheight, str, length, 1);
+
+    y += lineheight;
+
+    if(scroll->content_height > height) {
+        double d1 = (double)y / (double)(scroll->content_height - height);
+        double d2 = (double)(y - height + lineheight) / (double)(scroll->content_height - height);
+        if(d2 > scroll->d) {
+            scroll->d = d2 > 1.0 ? 1.0 : d2;
+        } else if(d1 < scroll->d) {
+            scroll->d = d1;
+        }
+    }
+
+    return hittextmultiline(x, width, y, INT_MAX, lineheight, str, length, 1);
 }

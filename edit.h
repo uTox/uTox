@@ -12,7 +12,7 @@ struct edit {
     PANEL panel;
 
     _Bool multiline, mouseover, noborder, readonly;
-    uint16_t mouseover_char, length, maxlength, width;
+    uint16_t mouseover_char, length, maxlength, width, height;
     EDIT_CHANGE *current, *next, *last;
     SCROLLABLE *scroll;
     char_t *data;
