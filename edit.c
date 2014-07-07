@@ -576,7 +576,7 @@ void edit_paste(char_t *data, int length, _Bool select)
         if((((!active_edit->multiline || data[i] != '\n') && data[i] <= 0x1F) || data[i] == 0x7F) || (len == 2 && data[i] == 0xc2 && data[i + 1] <= 0x9f)) {
             //control characters.
         } else {
-            if(newlen + len > maxlen) {
+            if(newlen + len >= maxlen) {
                 break;
             }
             if(newlen != i) {
