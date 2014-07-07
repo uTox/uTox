@@ -1516,6 +1516,9 @@ IBaseFilter *pNullF = NULL;
 
 void* video_detect(void)
 {
+    max_video_width = GetSystemMetrics(SM_CXVIRTUALSCREEN);
+    max_video_height = GetSystemMetrics(SM_CYVIRTUALSCREEN);
+
     HRESULT hr;
     CoInitialize(NULL);
 
@@ -1655,9 +1658,6 @@ void* video_detect(void)
     if(FAILED(hr)) {
         return 0;
     }
-
-    max_video_width = GetSystemMetrics(SM_CXVIRTUALSCREEN);
-    max_video_height = GetSystemMetrics(SM_CYVIRTUALSCREEN);
 
     return pFilter;
 }
