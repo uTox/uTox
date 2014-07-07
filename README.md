@@ -31,6 +31,12 @@ or if you built toxcore statically:
 
 > cc -o uTox.o *.c -lX11 -lXft -lXrender -ltoxcore -ltoxav -ltoxdns -lopenal -lsodium -lopus -lvpx -lm -pthread -lresolv -ldl -lfontconfig -lv4lconvert -DV4L -I/usr/include/freetype2
 
+OS X (you need XQuartz on 10.8+, no video yet):
+
+> cc -o uTox.o *.c -I/opt/X11/include -L/opt/X11/lib -lX11 -lXft -lXrender -lXext -ltoxcore -ltoxav -ltoxdns -framework OpenAL -pthread -lresolv -ldl -lm -lfontconfig -lvpx -I/opt/X11/include/freetype2
+
+
+
 
 ## Downloads
 
