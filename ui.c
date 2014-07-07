@@ -146,6 +146,18 @@ static void drawadd(int x, int y, int width, int height)
     setcolor(C_TITLE);
     setfont(FONT_SELF_NAME);
     drawstr(LIST_RIGHT + SCALE * 5, SCALE * 10, "Add Friends");
+
+    setcolor(C_TITLE);
+    setfont(FONT_TEXT);
+    drawstr(LIST_RIGHT + SCALE * 5, LIST_Y + SCALE * 5, "Tox ID");
+
+    drawstr(LIST_RIGHT + SCALE * 5, LIST_Y + SCALE * 29, "Message");
+
+    if(addfriend_status) {
+        setfont(FONT_MISC);
+        setcolor(C_RED);
+        drawtext(LIST_RIGHT + SCALE * 5, LIST_Y + SCALE * 83, addstatus[addfriend_status - 1].str, addstatus[addfriend_status - 1].length);
+    }
 }
 
 
@@ -162,22 +174,6 @@ static void drawtransfer(int x, int y, int width, int height)
     setfont(FONT_SELF_NAME);
     drawstr(LIST_RIGHT + SCALE * 5, SCALE * 10, "Switch Profile");
 }
-
-static void drawadd_content(int x, int y, int width, int height)
-{
-    setcolor(C_TITLE);
-    setfont(FONT_TEXT);
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 5, "Tox ID");
-
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 29, "Message");
-
-    if(addfriend_status) {
-        setfont(FONT_MISC);
-        setcolor(C_RED);
-        drawtext(LIST_RIGHT + SCALE * 5, y + SCALE * 83, addstatus[addfriend_status - 1].str, addstatus[addfriend_status - 1].length);
-    }
-}
-
 
 static void drawsettings_content(int x, int y, int w, int height)
 {
@@ -278,13 +274,6 @@ scroll_group = {
     .color = C_SCROLL,
 },
 
-scroll_add = {
-    .panel = {
-        .type = PANEL_SCROLLABLE,
-    },
-    .color = C_SCROLL,
-},
-
 scroll_settings = {
     .panel = {
         .type = PANEL_SCROLLABLE,
@@ -313,16 +302,6 @@ PANEL panel_list = {
     .content_scroll = &scroll_list,
 },
 
-panel_add = {
-    .drawfunc = drawadd_content,
-    .content_scroll = &scroll_add,
-    .child = (PANEL*[]) {
-        (void*)&button_addfriend,
-        (void*)&edit_addid, (void*)&edit_addmsg,
-        NULL
-    }
-},
-
 panel_settings = {
     .drawfunc = drawsettings_content,
     .content_scroll = &scroll_settings,
@@ -342,8 +321,8 @@ panel_item[] = {
         //.disabled = 1,
         .drawfunc = drawadd,
         .child = (PANEL*[]) {
-            (void*)&scroll_add,
-            &panel_add,
+            (void*)&button_addfriend,
+            (void*)&edit_addid, (void*)&edit_addmsg,
             NULL
         }
     },
@@ -434,7 +413,6 @@ void ui_scale(uint8_t scale)
 
     panel_side.x = LIST_RIGHT;
 
-    panel_add.y = LIST_Y;
     panel_settings.y = LIST_Y;
 
     panel_list.y = LIST_Y;
@@ -448,9 +426,6 @@ void ui_scale(uint8_t scale)
     messages_group.panel.y = LIST_Y;
     messages_group.panel.height = MESSAGES_BOTTOM;
     messages_group.panel.width = -SCROLL_WIDTH;
-
-    scroll_add.panel.y = LIST_Y;
-    scroll_add.content_height = 200 * SCALE;
 
     scroll_settings.panel.y = LIST_Y;
     scroll_settings.content_height = 400 * SCALE;
@@ -508,8 +483,8 @@ void ui_scale(uint8_t scale)
 
     b_addfriend = {
         .type = PANEL_BUTTON,
-        .x = -SCALE * 5 - BM_SBUTTON_WIDTH - SCROLL_WIDTH,
-        .y = SCALE * 84,
+        .x = -SCALE * 5 - BM_SBUTTON_WIDTH,
+        .y = LIST_Y + SCALE * 84,
         .width = BM_SBUTTON_WIDTH,
         .height = BM_SBUTTON_HEIGHT,
     },
@@ -666,17 +641,17 @@ void ui_scale(uint8_t scale)
     e_addid = {
         .type = PANEL_EDIT,
         .x = 5 * SCALE,
-        .y = SCALE * 14,
+        .y = LIST_Y + SCALE * 14,
         .height = SCALE * 12,
-        .width = -SCROLL_WIDTH - 5 * SCALE
+        .width = -5 * SCALE
     },
 
     e_addmsg = {
         .type = PANEL_EDIT,
         .x = 5 * SCALE,
-        .y = SCALE * 38,
+        .y = LIST_Y + SCALE * 38,
         .height = SCALE * 42,
-        .width = -SCROLL_WIDTH - 5 * SCALE,
+        .width = -5 * SCALE,
     },
 
     e_msg = {
