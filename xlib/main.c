@@ -657,11 +657,9 @@ void notify(uint8_t *title, uint16_t title_length, uint8_t *msg, uint16_t msg_le
     XSetWMHints(display, window, &hints);
 
     #ifdef HAVE_DBUS
-    char *str = malloc(msg_length + 1);
-    memcpy(str, msg, msg_length);
-    str[msg_length] = 0;
+    uint8_t *str = tohtml(msg, msg_length);
 
-    dbus_notify((char*)title, str);
+    dbus_notify((char*)title, (char*)str);
 
     free(str);
     #endif
