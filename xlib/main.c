@@ -511,7 +511,11 @@ void listpopup(uint8_t item)
 void openurl(char_t *str)
 {
     char cmd[1024];
+    #ifdef __APPLE__
+    sprintf(cmd, "open \"%.999s\"", str);
+    #else
     sprintf(cmd, "xdg-open \"%.999s\"", str);
+    #endif
     debug("cmd: %s\n", cmd);
     system(cmd);
 }
