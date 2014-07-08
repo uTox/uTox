@@ -75,7 +75,7 @@ void friend_add(char_t *name, uint16_t length, char_t *msg, uint16_t msg_length)
     }
 
     uint8_t id[TOX_FRIEND_ADDRESS_SIZE];
-    if(length == TOX_FRIEND_ADDRESS_SIZE * 2 && string_to_id(id, edit_addid.data)) {
+    if(length == TOX_FRIEND_ADDRESS_SIZE * 2 && string_to_id(id, name)) {
         friend_addid(id, msg, msg_length);
     } else {
         /* not a regular id, try DNS discovery */

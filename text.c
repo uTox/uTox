@@ -48,7 +48,7 @@ int drawtextmultiline(int x, int right, int y, uint16_t lineheight, char_t *data
     int xc = x;
     char_t *a = data, *b = a, *end = a + length;
     while(1) {
-        if(*a == '>' && (a == data || *a == '\n')) {
+        if(a != end && *a == '>' && (a == data || *a == '\n')) {
             c = setcolor(RGB(0, 128, 0));
             greentext = 1;
         }
@@ -66,7 +66,7 @@ int drawtextmultiline(int x, int right, int y, uint16_t lineheight, char_t *data
                     int fit = textfit(b, count, right - x);
                     drawtexth(x, y, b, fit, b - data, h, hlen, lineheight);
                     return y + lineheight;
-                } else if(x != xc || *a == '\n') {
+                } else {
                     y += lineheight;
                     int l = utf8_len(b);
                     count -= l;
@@ -130,7 +130,7 @@ uint16_t hittextmultiline(int mx, int right, int my, int height, uint16_t linehe
                     height -= lineheight;
                 } else if(!multiline) {
                     break;
-                } else if(x != 0 || *a == '\n') {
+                } else {
                     my -= lineheight;
                     height -= lineheight;
                     int l = utf8_len(b);
