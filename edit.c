@@ -56,7 +56,7 @@ _Bool edit_mmove(EDIT *edit, int px, int py, int width, int height, int x, int y
 
     _Bool mouseover = inrect(x, y, 0, 0, width - (edit->multiline ? SCROLL_WIDTH : 0), height);
     if(mouseover) {
-        overtext = 1;
+        cursor = CURSOR_TEXT;
     }
     if(mouseover != edit->mouseover) {
         edit->mouseover = mouseover;

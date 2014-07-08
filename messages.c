@@ -226,7 +226,7 @@ _Bool messages_mmove(MESSAGES *m, int px, int py, int width, int height, int mx,
                     break;
                 }
 
-                overtext = 1;
+                cursor = CURSOR_TEXT;
 
                 char_t *str = msg->msg + m->over;
                 while(str != msg->msg) {
@@ -240,12 +240,12 @@ _Bool messages_mmove(MESSAGES *m, int px, int py, int width, int height, int mx,
                 char_t *end = msg->msg + msg->length;
                 while(str != end && *str != ' ' && *str != '\n') {
                     if(end - str >= 7 && strcmp2(str, "http://") == 0) {
-                        hand = 1;
+                        cursor = CURSOR_HAND;
                         m->urlover = str - msg->msg;
                     }
 
                     if(end - str >= 8 && strcmp2(str, "https://") == 0) {
-                        hand = 1;
+                        cursor = CURSOR_HAND;
                         m->urlover = str - msg->msg;
                     }
 
@@ -268,6 +268,7 @@ _Bool messages_mmove(MESSAGES *m, int px, int py, int width, int height, int mx,
             case 6:
             case 7: {
                 uint8_t over = 0;
+                MSG_FILE *file = (void*)msg;
 
                 mx -= MESSAGES_X;
                 if(mx >= 0 && mx < BM_FT_WIDTH && my >= 0 && my < BM_FT_HEIGHT) {
@@ -280,6 +281,30 @@ _Bool messages_mmove(MESSAGES *m, int px, int py, int width, int height, int mx,
                             over = 2;
                         }
                     }
+                }
+
+                static const uint8_t f[12] = {
+                    0b011,
+                    0b001,
+
+                    0b011,
+                    0b011,
+
+                    0b011,
+                    0b011,
+
+                    0b001,
+                    0b001,
+
+                    0b000,
+                    0b000,
+
+                    0b111,
+                    0b111,
+                };
+
+                if(over && f[file->status * 2 + (file->flags == 7)] & (1 << (over - 1))) {
+                    cursor = CURSOR_HAND;
                 }
 
                 if(over != m->over || i != m->iover) {

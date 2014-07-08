@@ -52,7 +52,7 @@ enum {
 //HBITMAP bitmap[32];
 void *bitmap[32];
 HFONT font[32];
-HCURSOR cursor_arrow, cursor_hand, cursor_text;
+HCURSOR cursors[4];
 
 HWND hwnd, capturewnd;
 HINSTANCE hinstance;
@@ -834,9 +834,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     wchar_t classname[] = L"uTox", popupclassname[] = L"uToxgrab";
 
     HICON myicon = LoadIcon(hInstance, MAKEINTRESOURCE(101));
-    cursor_arrow = LoadCursor(NULL, IDC_ARROW);
-    cursor_hand = LoadCursor(NULL, IDC_HAND);
-    cursor_text = LoadCursor(NULL, IDC_IBEAM);
+    cursors[CURSOR_NONE] = LoadCursor(NULL, IDC_ARROW);
+    cursors[CURSOR_HAND] = LoadCursor(NULL, IDC_HAND);
+    cursors[CURSOR_TEXT] = LoadCursor(NULL, IDC_IBEAM);
+    cursors[CURSOR_SELECT] = LoadCursor(NULL, IDC_CROSS);
 
     hinstance = hInstance;
 
@@ -1119,12 +1120,10 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
         mx = x;
         my = y;
 
-        hand = 0;
-        overtext = 0;
-
+        cursor = 0;
         panel_mmove(&panel_main, 0, 0, width, height, x, y, dy);
 
-        SetCursor(hand ? cursor_hand : (overtext ? cursor_text : cursor_arrow));
+        SetCursor(cursors[cursor]);
 
         if(!mouse_tracked) {
             TrackMouseEvent(&tme);

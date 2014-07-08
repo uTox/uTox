@@ -46,7 +46,7 @@ Visual *visual;
 
 Picture bitmap[32];
 
-Cursor cursor_arrow, cursor_hand, cursor_text, cursor_select;
+Cursor cursors[4];
 
 _Bool pointergrab;
 int grabx, graby, grabpx, grabpy;
@@ -749,10 +749,10 @@ int main(int argc, char *argv[])
     ui_scale(DEFAULT_SCALE);
 
     /* load the used cursors */
-    cursor_arrow = XCreateFontCursor(display, XC_left_ptr);
-    cursor_hand = XCreateFontCursor(display, XC_hand2);
-    cursor_text = XCreateFontCursor(display, XC_xterm);
-    cursor_select = XCreateFontCursor(display, XC_crosshair);
+    cursors[CURSOR_NONE] = XCreateFontCursor(display, XC_left_ptr);
+    cursors[CURSOR_HAND] = XCreateFontCursor(display, XC_hand2);
+    cursors[CURSOR_TEXT] = XCreateFontCursor(display, XC_xterm);
+    cursors[CURSOR_SELECT] = XCreateFontCursor(display, XC_crosshair);
 
     /* */
     XGCValues gcval;
@@ -936,7 +936,7 @@ void* video_detect(void)
 void desktopgrab(void)
 {
     pointergrab = 1;
-    XGrabPointer(display, window, False, Button1MotionMask | ButtonPressMask | ButtonReleaseMask, GrabModeAsync, GrabModeAsync, None, cursor_select, CurrentTime);
+    XGrabPointer(display, window, False, Button1MotionMask | ButtonPressMask | ButtonReleaseMask, GrabModeAsync, GrabModeAsync, None, cursors[CURSOR_SELECT], CurrentTime);
 }
 
 static uint16_t video_x, video_y;

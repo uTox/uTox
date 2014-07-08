@@ -37,7 +37,7 @@ _Bool button_mmove(BUTTON *b, int x, int y, int width, int height, int mx, int m
 {
     _Bool mouseover = inrect(mx, my, 0, 0, width, height);
     if(mouseover) {
-        hand = 1;
+        cursor = CURSOR_HAND;
     }
     if(mouseover != b->mouseover) {
         b->mouseover = mouseover;

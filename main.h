@@ -95,7 +95,14 @@ uint32_t friends, groups;
 int width, height;
 _Bool maximized;
 
-_Bool hand, overtext;
+enum
+{
+    CURSOR_NONE,
+    CURSOR_TEXT,
+    CURSOR_HAND,
+    CURSOR_SELECT,
+};
+uint8_t cursor;
 
 _Bool mdown;
 

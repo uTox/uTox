@@ -117,12 +117,10 @@ _Bool doevent(void)
         dy = ev->y - my;
         my = ev->y;
 
-        hand = 0;
-        overtext = 0;
-
+        cursor = CURSOR_NONE;
         panel_mmove(&panel_main, 0, 0, width, height, ev->x, ev->y, dy);
 
-        XDefineCursor(display, window, hand ? cursor_hand : (overtext ? cursor_text : cursor_arrow));
+        XDefineCursor(display, window, cursors[cursor]);
 
         //SetCursor(hand ? cursor_hand : cursor_arrow);
 
