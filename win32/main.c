@@ -809,6 +809,28 @@ void setscale(void)
     svg_draw(1);
 }
 
+static UTOX_SAVE* loadconfig(void)
+{
+    UTOX_SAVE *r = file_raw("utox_save", NULL);
+    if(r) {
+        if(r->version == 0) {
+            return r;
+        } else {
+            free(r);
+            r = NULL;
+        }
+    }
+
+    r = malloc(sizeof(UTOX_SAVE));
+    r->version = 0;
+    r->scale = DEFAULT_SCALE - 1;
+    r->window_x = (GetSystemMetrics(SM_CXSCREEN) - MAIN_WIDTH) / 2;
+    r->window_y = (GetSystemMetrics(SM_CYSCREEN) - MAIN_HEIGHT) / 2;
+    r->window_width = MAIN_WIDTH;
+    r->window_height = MAIN_HEIGHT;
+    return r;
+}
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int nCmdShow)
 {
     /* if opened with argument, check if uTox is already open and pass the argument to the existing process */
@@ -872,9 +894,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     RegisterClassW(&wc);
     RegisterClassW(&wc2);
 
-    x = (GetSystemMetrics(SM_CXSCREEN) - MAIN_WIDTH) / 2;
-    y = (GetSystemMetrics(SM_CYSCREEN) - MAIN_HEIGHT) / 2;
-    hwnd = CreateWindowExW(0, classname, L"Tox", WS_OVERLAPPEDWINDOW, x, y, MAIN_WIDTH, MAIN_HEIGHT, NULL, NULL, hInstance, NULL);
+    UTOX_SAVE *save = loadconfig();
+
+    dropdown_dpi.selected = dropdown_dpi.over = save->scale;
+
+    hwnd = CreateWindowExW(0, classname, L"Tox", WS_OVERLAPPEDWINDOW, save->window_x, save->window_y, save->window_width, save->window_height, NULL, NULL, hInstance, NULL);
+
+    free(save);
 
     //start tox thread (hwnd needs to be set first)
     thread(tox_thread, NULL);
@@ -967,6 +993,27 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
 
     switch(msg) {
     case WM_DESTROY: {
+        FILE *file = fopen("utox_save", "wb");
+        if(!file) {
+            PostQuitMessage(0);
+            return 0;
+        }
+
+        RECT wndrect = {0};
+        GetWindowRect(hwnd, &wndrect);
+
+        UTOX_SAVE d = {
+            .version = 0,
+            .scale = SCALE - 1,
+            .window_x = wndrect.left < 0 ? 0 : wndrect.left,
+            .window_y = wndrect.top < 0 ? 0 : wndrect.top,
+            .window_width = (wndrect.right - wndrect.left),
+            .window_height = (wndrect.bottom - wndrect.top),
+        };
+
+        fwrite(&d, sizeof(d), 1, file);
+        fclose(file);
+
         PostQuitMessage(0);
         return 0;
     }
@@ -1015,7 +1062,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
 
             debug("%u %u\n", w, h);
 
-            ui_scale(DEFAULT_SCALE);
+            ui_scale(dropdown_dpi.selected + 1);
             ui_size(w, h);
 
             if(hdc_bm) {
