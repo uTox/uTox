@@ -28,3 +28,5 @@
 #define KEY_DOWN XK_Down
 #define KEY_PAGEUP XK_Page_Up
 #define KEY_PAGEDOWN XK_Page_Down
+
+#define KEY(x) (x + 'a' - 'A')

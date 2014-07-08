@@ -1076,7 +1076,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
                 }
             }
 
-            if(control || (wParam < 'A' || wParam > 'Z') && wParam != VK_RETURN && wParam != VK_BACK) {
+            if(control || ((wParam < 'A' || wParam > 'Z') && wParam != VK_RETURN && wParam != VK_BACK)) {
                 edit_char(wParam, 1, (control << 2) | shift);
             }
         } else {
