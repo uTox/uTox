@@ -837,9 +837,12 @@ int main(int argc, char *argv[])
 
     }
 
-    Window root_return;
-    int x_return, y_return, width_return, height_return, i;
+    Window root_return, child_return;
+    int x_return, y_return;
+    unsigned int width_return, height_return, i;
     XGetGeometry(display, window, &root_return, &x_return, &y_return, &width_return, &height_return, &i, &i);
+
+    XTranslateCoordinates(display, window, root_return, 0, 0, &x_return, &y_return, &child_return);
 
     UTOX_SAVE d = {
         .version = 0,
