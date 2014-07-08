@@ -1,5 +1,5 @@
 /* edits */
-static uint8_t edit_name_data[128], edit_status_data[128], edit_addid_data[TOX_FRIEND_ADDRESS_SIZE * 2], edit_addmsg_data[1024], edit_msg_data[1024];
+static uint8_t edit_name_data[128], edit_status_data[128], edit_addid_data[TOX_FRIEND_ADDRESS_SIZE * 2], edit_addmsg_data[1024], edit_msg_data[65535];
 
 static void edit_name_onenter(void)
 {
@@ -52,14 +52,8 @@ static void edit_msg_onenter(void)
         msg->length = length;
         memcpy(msg->msg, edit_msg_data, length);
 
-        /*uint16_t *data = malloc(length + 8);
-        data[0] = 0;
-        data[1] = length;
-        memcpy((void*)data + 4, edit_msg_data, length);*/
-
         friend_addmessage(f, msg);
 
-        //
         void *d = malloc(length);
         memcpy(d, edit_msg_data, length);
 

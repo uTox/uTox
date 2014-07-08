@@ -553,7 +553,14 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint8_t msg, uint16_t param1
          * param2: message length
          * data: message
          */
-        tox_send_message(tox, param1, data, param2);
+        void *p = data;
+        while(param2 > TOX_MAX_MESSAGE_LENGTH) {
+            tox_send_message(tox, param1, p, TOX_MAX_MESSAGE_LENGTH);
+            param2 -= TOX_MAX_MESSAGE_LENGTH;
+            p += TOX_MAX_MESSAGE_LENGTH;
+        }
+
+        tox_send_message(tox, param1, p, param2);
         free(data);
         break;
     }
