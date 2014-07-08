@@ -212,7 +212,7 @@ static void video_thread(void *args)
 
                 video = openvideodevice(video_device);
                 if(video) {
-                    if(video_on) {
+                    if(video_count) {
                         video_on = video_startread();
                     }
                 } else {
