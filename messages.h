@@ -9,20 +9,23 @@ struct messages
 };
 
 typedef struct {
-    uint16_t flags, height;
+    uint16_t flags;
+    uint32_t height;
     uint32_t time;
     uint16_t length;
     char_t msg[0];
 } MESSAGE;
 
 typedef struct {
-    uint16_t flags, height;
+    uint16_t flags;
+    uint32_t height;
     uint32_t time;
     //HBITMAP bitmap;
 } MSG_IMG;
 
 struct msg_file {
-    uint16_t flags, height;
+    uint16_t flags;
+    uint32_t height;
     uint32_t time, speed;
     uint8_t filenumber, status, name_length;
     uint64_t size, progress;

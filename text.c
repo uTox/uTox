@@ -41,10 +41,10 @@ static void drawtexth(int x, int y, char_t *str, uint16_t length, int d, int h, 
     drawtext(x + width, y, str + h + hlen, length - (h + hlen));
 }
 
-int drawtextmultiline(int x, int right, int y, uint16_t lineheight, char_t *data, uint16_t length, uint16_t h, uint16_t hlen, _Bool multiline)
+int drawtextmultiline(int x, int right, int y, int top, int bottom, uint16_t lineheight, char_t *data, uint16_t length, uint16_t h, uint16_t hlen, _Bool multiline)
 {
     uint32_t c;
-    _Bool greentext = 0;
+    _Bool greentext = 0, draw = y + lineheight >= top;
     int xc = x;
     char_t *a = data, *b = a, *end = a + length;
     while(1) {
@@ -58,16 +58,22 @@ int drawtextmultiline(int x, int right, int y, uint16_t lineheight, char_t *data
             while(x + w > right) {
                 if(multiline && x == xc) {
                     int fit = textfit(b, count, right - x);
-                    drawtexth(x, y, b, fit, b - data, h, hlen, lineheight);
+                    if(draw) {
+                        drawtexth(x, y, b, fit, b - data, h, hlen, lineheight);
+                    }
                     count -= fit;
                     b += fit;
                     y += lineheight;
+                    draw = (y + lineheight >= top && y < bottom);
                 } else if(!multiline) {
                     int fit = textfit(b, count, right - x);
-                    drawtexth(x, y, b, fit, b - data, h, hlen, lineheight);
+                    if(draw) {
+                        drawtexth(x, y, b, fit, b - data, h, hlen, lineheight);
+                    }
                     return y + lineheight;
                 } else {
                     y += lineheight;
+                    draw = (y + lineheight >= top && y < bottom);
                     int l = utf8_len(b);
                     count -= l;
                     b += l;
@@ -76,7 +82,9 @@ int drawtextmultiline(int x, int right, int y, uint16_t lineheight, char_t *data
                 w = textwidth(b, count);
             }
 
-            drawtexth(x, y, b, count, b - data, h, hlen, lineheight);
+            if(draw) {
+                drawtexth(x, y, b, count, b - data, h, hlen, lineheight);
+            }
 
             x += w;
             b = a;
@@ -95,6 +103,7 @@ int drawtextmultiline(int x, int right, int y, uint16_t lineheight, char_t *data
                     greentext = 0;
                 }
                 y += lineheight;
+                draw = (y + lineheight >= top && y < bottom);
                 b += utf8_len(b);
                 x = xc;
             }

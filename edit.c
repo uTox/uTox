@@ -32,17 +32,19 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
     setfont(FONT_TEXT);
     setcolor(COLOR_TEXT);
 
+    int yy = y;
+
     if(edit->multiline) {
         pushclip(x + 1, y + 1, width - 2, height - 2);
 
         SCROLLABLE *scroll = edit->scroll;
         scroll->content_height = text_height(width - 4 * SCALE - SCROLL_WIDTH, font_small_lineheight, edit->data, edit->length) + 4 * SCALE;
         scroll_draw(scroll, x, y, width, height);
-        y -= scroll_gety(scroll, height);
+        yy -= scroll_gety(scroll, height);
     }
 
     _Bool a = (edit == active_edit);
-    drawtextmultiline(x + 2 * SCALE, x + width - 2 * SCALE - (edit->multiline ? SCROLL_WIDTH : 0), y + 2 * SCALE, font_small_lineheight, edit->data, edit->length,
+    drawtextmultiline(x + 2 * SCALE, x + width - 2 * SCALE - (edit->multiline ? SCROLL_WIDTH : 0), yy + 2 * SCALE, y, y + height, font_small_lineheight, edit->data, edit->length,
                       a ? edit_sel.start : 0xFFFF, a ? edit_sel.length : 0xFFFF, edit->multiline);
 
     if(edit->multiline) {
