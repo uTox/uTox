@@ -18,6 +18,7 @@ static STRING addstatus[] = {
 STRING filestatus[] = {
     AFS("New file transfer"),
     AFS("File transfer started"),
+    AFS(".."),
     AFS("File transfer paused"),
     AFS("File transfer broken"),
     AFS("File transfer cancelled"),

@@ -186,7 +186,7 @@ static void callback_file_control(Tox *tox, int32_t fid, uint8_t receive_send, u
     case TOX_FILECONTROL_PAUSE: {
         if(ft->status == FT_SEND) {
             ft->status = FT_PAUSE;
-            postmessage(FRIEND_FILE_IN_STATUS + receive_send, fid, filenumber, (void*)FILE_PAUSED);
+            postmessage(FRIEND_FILE_IN_STATUS + receive_send, fid, filenumber, (void*)FILE_PAUSED_OTHER);
         } else if(ft->status == FT_PAUSE) {
             ft->status = FT_SEND;
             postmessage(FRIEND_FILE_IN_STATUS + receive_send, fid, filenumber, (void*)FILE_OK);

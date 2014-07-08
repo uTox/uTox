@@ -13,6 +13,7 @@ enum {
     FILE_PENDING,
     FILE_OK,
     FILE_PAUSED,
+    FILE_PAUSED_OTHER,
     FILE_BROKEN,
     FILE_KILLED,
     FILE_DONE,

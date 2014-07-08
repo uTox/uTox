@@ -127,21 +127,18 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
             } else {
                 if(file->status == FILE_BROKEN) {
                     drawalpha(BM_FTM, xx, y, BM_FTM_WIDTH, BM_FT_HEIGHT, C_RED);
-                } else if(file->status == FILE_PAUSED) {
-                    drawalpha(BM_FTM, xx, y, BM_FTM_WIDTH, BM_FT_HEIGHT, C_GRAY);
-                    setcolor(GRAY(98));
-                } else if(file->status == FILE_PENDING) {
-                    drawalpha(BM_FTM, xx, y, BM_FTM_WIDTH, BM_FT_HEIGHT, C_GRAY);
-                    setcolor(GRAY(98));
-                } else {
+                } else if(file->status == FILE_OK) {
                     drawalpha(BM_FTM, xx, y, BM_FTM_WIDTH, BM_FT_HEIGHT, BLUE);
+                } else {
+                    drawalpha(BM_FTM, xx, y, BM_FTM_WIDTH, BM_FT_HEIGHT, C_GRAY);
+                    setcolor(GRAY(98));
                 }
 
                 int x = xx + BM_FTM_WIDTH + SCALE;
                 drawalpha(BM_FTB1, x, y, BM_FTB_WIDTH, BM_FTB_HEIGHT + SCALE, (mo && m->over == 1) ? C_GREEN_LIGHT : C_GREEN);
                 drawalpha(BM_NO, x + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2, y + SCALE * 4, BM_FB_WIDTH, BM_FB_HEIGHT, WHITE);
 
-                uint32_t color = (msg->flags == 7 && (file->status == FILE_PENDING || file->status == FILE_BROKEN)) ? C_GRAY: ((mo && m->over == 2) ? C_GREEN_LIGHT : C_GREEN);
+                uint32_t color = ((msg->flags == 7 && file->status == FILE_PENDING) || file->status == FILE_BROKEN || file->status == FILE_PAUSED_OTHER) ? C_GRAY: ((mo && m->over == 2) ? C_GREEN_LIGHT : C_GREEN);
                 drawalpha(BM_FTB2, x, y + BM_FTB_HEIGHT + SCALE * 2, BM_FTB_WIDTH, BM_FTB_HEIGHT, color);
                 drawalpha((msg->flags == 6 && file->status ==  FILE_PENDING) ? BM_YES : (file->status == FILE_PAUSED ? BM_RESUME : BM_PAUSE), x + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2, y + BM_FTB_HEIGHT + SCALE * 5, BM_FB_WIDTH, BM_FB_HEIGHT, color == C_GRAY ? LIST_MAIN : WHITE);
 
@@ -153,8 +150,9 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
 
                 uint32_t w = (file->size == 0) ? 0 : (progress * (uint64_t)106 * SCALE) / file->size;
 
-                framerect(xx + 5 * SCALE, y + 17 * SCALE, xx + 111 * SCALE, y + 24 * SCALE, (file->status == FILE_PENDING || file->status == FILE_PAUSED) ? LIST_MAIN : WHITE);
-                drawrectw(xx + 5 * SCALE, y + 17 * SCALE, w, 7 * SCALE, (file->status == FILE_PENDING || file->status == FILE_PAUSED) ? LIST_MAIN : WHITE);
+                color = (file->status == FILE_PENDING || file->status == FILE_PAUSED || file->status == FILE_PAUSED_OTHER) ? LIST_MAIN : WHITE;
+                framerect(xx + 5 * SCALE, y + 17 * SCALE, xx + 111 * SCALE, y + 24 * SCALE, color);
+                drawrectw(xx + 5 * SCALE, y + 17 * SCALE, w, 7 * SCALE, color);
 
                 if(file->status == FILE_OK) {
                     uint8_t text[16];
@@ -283,7 +281,7 @@ _Bool messages_mmove(MESSAGES *m, int px, int py, int width, int height, int mx,
                     }
                 }
 
-                static const uint8_t f[12] = {
+                static const uint8_t f[14] = {
                     0b011,
                     0b001,
 
@@ -292,6 +290,9 @@ _Bool messages_mmove(MESSAGES *m, int px, int py, int width, int height, int mx,
 
                     0b011,
                     0b011,
+
+                    0b001,
+                    0b001,
 
                     0b001,
                     0b001,
@@ -431,6 +432,7 @@ _Bool messages_mdown(MESSAGES *m)
                 break;
             }
 
+            case FILE_PAUSED_OTHER:
             case FILE_BROKEN: {
                 //cancel
                 if(m->over == 1) {
