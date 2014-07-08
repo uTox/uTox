@@ -116,8 +116,6 @@ _Bool edit_mdown(EDIT *edit)
         edit_sel.length = 0;
         edit_select = 1;
 
-        setselection(0, edit);
-
         setactive(edit);
         return 1;
     } else if(edit == active_edit) {
@@ -152,6 +150,7 @@ _Bool edit_dclick(EDIT *edit, _Bool triclick)
     }
     edit_sel.p2 = i;
     edit_sel.length = i - edit_sel.start;
+    setselection(0, edit);
 
     return 1;
 }
@@ -484,6 +483,7 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
             edit_sel.p2 = active_edit->length;
             edit_sel.start = 0;
             edit_sel.length = active_edit->length;
+            setselection(0, edit);
             break;
         }
 
@@ -639,6 +639,7 @@ void edit_paste(char_t *data, int length, _Bool select)
     if(select) {
         edit_sel.start = edit_sel.start;
         edit_sel.length = newlen;
+        setselection(0, active_edit);
     } else {
         edit_sel.start = edit_sel.start + newlen;
         edit_sel.length = 0;
