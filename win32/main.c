@@ -404,12 +404,15 @@ void openfilesend(void)
     char *filepath = malloc(1024);
     filepath[0] = 0;
 
+    wchar_t dir[1024];
+    GetCurrentDirectoryW(countof(dir), dir);
+
     OPENFILENAME ofn = {
         .lStructSize = sizeof(OPENFILENAME),
         .hwndOwner = hwnd,
         .lpstrFile = filepath,
         .nMaxFile = 1024,
-        .Flags = OFN_EXPLORER | OFN_ALLOWMULTISELECT | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR,
+        .Flags = OFN_EXPLORER | OFN_ALLOWMULTISELECT | OFN_FILEMUSTEXIST,
     };
 
     if(GetOpenFileName(&ofn)) {
@@ -417,6 +420,8 @@ void openfilesend(void)
     } else {
         debug("GetOpenFileName() failed\n");
     }
+
+    SetCurrentDirectoryW(dir);
 }
 
 void savefilerecv(uint32_t fid, MSG_FILE *file)
