@@ -2,7 +2,7 @@ static void saveprimary(void)
 {
     int len;
     if(!selection_src) {
-        len = edit_selection(selection_p, primary.data, sizeof(primary.data));
+        len = edit_active() ? edit_selection(selection_p, primary.data, sizeof(primary.data)) : 0;
     } else if(selection_src == 1) {
         len = messages_selection(selection_p, primary.data, sizeof(primary.data));
     } else {
