@@ -477,8 +477,7 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
             break;
         }
 
-        case 'A':
-        case 'a': {
+        case KEY('A'): {
             edit_sel.p1 = 0;
             edit_sel.p2 = active_edit->length;
             edit_sel.start = 0;
@@ -487,8 +486,7 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
             break;
         }
 
-        case 'Z':
-        case 'z': {
+        case KEY('Z'): {
             if(!(flags & 1)) {
                 uint16_t p = edit_undo(edit);
                 if(p != 0xFFFF) {
@@ -503,8 +501,7 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
             }
         }
 
-        case 'Y':
-        case 'y': {
+        case KEY('Y'): {
             uint16_t p = edit_redo(edit);
             if(p != 0xFFFF) {
                 edit_sel.p1 = p;

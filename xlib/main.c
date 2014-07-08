@@ -674,6 +674,28 @@ void notify(uint8_t *title, uint16_t title_length, uint8_t *msg, uint16_t msg_le
 int depth;
 Screen *scr;
 
+static UTOX_SAVE* loadconfig(void)
+{
+    UTOX_SAVE *r = file_raw("utox_save", NULL);
+    if(r) {
+        if(r->version == 0) {
+            return r;
+        } else {
+            free(r);
+            r = NULL;
+        }
+    }
+
+    r = malloc(sizeof(UTOX_SAVE));
+    r->version = 0;
+    r->scale = DEFAULT_SCALE - 1;
+    r->window_x = 0;
+    r->window_y = 0;
+    r->window_width = DEFAULT_WIDTH;
+    r->window_height = DEFAULT_HEIGHT;
+    return r;
+}
+
 int main(int argc, char *argv[])
 {
     XInitThreads();
@@ -697,8 +719,11 @@ int main(int argc, char *argv[])
                     PointerMotionMask | StructureNotifyMask | KeyPressMask | KeyReleaseMask | FocusChangeMask,
     };
 
+    /* load save data */
+    UTOX_SAVE *save = loadconfig();
+
     /* create window */
-    window = XCreateWindow(display, RootWindow(display, screen), 0, 0, DEFAULT_WIDTH, DEFAULT_HEIGHT, 0, depth, InputOutput, visual, CWBackPixel | CWBorderPixel | CWEventMask, &attrib);
+    window = XCreateWindow(display, RootWindow(display, screen), save->window_x, save->window_y, save->window_width, save->window_height, 0, depth, InputOutput, visual, CWBackPixel | CWBorderPixel | CWEventMask, &attrib);
 
     /* start the tox thread */
     thread(tox_thread, NULL);
@@ -746,7 +771,11 @@ int main(int argc, char *argv[])
     initfonts();
 
     /* load fonts and scalable bitmaps */
-    ui_scale(DEFAULT_SCALE);
+    dropdown_dpi.selected = dropdown_dpi.over = save->scale;
+    ui_scale(save->scale + 1);
+
+    /* done with save */
+    free(save);
 
     /* load the used cursors */
     cursors[CURSOR_NONE] = XCreateFontCursor(display, XC_left_ptr);
@@ -806,6 +835,25 @@ int main(int argc, char *argv[])
     /* free client thread stuff */
     if(libgtk) {
 
+    }
+
+    Window root_return;
+    int x_return, y_return, width_return, height_return, i;
+    XGetGeometry(display, window, &root_return, &x_return, &y_return, &width_return, &height_return, &i, &i);
+
+    UTOX_SAVE d = {
+        .version = 0,
+        .scale = SCALE - 1,
+        .window_x = x_return < 0 ? 0 : x_return,
+        .window_y = y_return < 0 ? 0 : y_return,
+        .window_width = width_return,
+        .window_height = height_return,
+    };
+
+    FILE *file = fopen("utox_save", "wb");
+    if(file) {
+        fwrite(&d, sizeof(d), 1, file);
+        fclose(file);
     }
 
     FcFontSetSortDestroy(fs);

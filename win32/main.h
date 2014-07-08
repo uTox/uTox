@@ -14,3 +14,5 @@
 #define KEY_DOWN VK_DOWN
 #define KEY_PAGEUP VK_PRIOR
 #define KEY_PAGEDOWN VK_NEXT
+
+#define KEY(x) (x)

@@ -72,7 +72,5 @@ dropdown_video = {
 dropdown_dpi = {
     .onselect = dropdown_dpi_onselect,
     .dropcount = countof(dpidrops),
-    .selected = 1,
-    .over = 1,
     .drop = dpidrops
 };
