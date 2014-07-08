@@ -254,9 +254,16 @@ _Bool doevent(void)
                 break;
             }
 
-            if(sym >= XK_KP_0 && sym <= XK_KP_9) {
-                edit_char(sym - XK_KP_0 + '0', 0, ev->state);
-                break;
+            if(sym == XK_KP_Space) {
+                sym = XK_space;
+            }
+
+            if(sym >= XK_KP_Home && sym <= XK_KP_Begin) {
+                sym -= 0x45;
+            }
+
+            if(sym >= XK_KP_Multiply && sym <= XK_KP_Equal) {
+                sym -= 0xFF80;
             }
 
             uint32_t key = keysym2ucs(sym);
@@ -330,6 +337,8 @@ _Bool doevent(void)
 
     case SelectionRequest: {
         XSelectionRequestEvent *ev = &event.xselectionrequest;
+
+        debug("SelectionRequest\n");
 
         XEvent resp = {
             .xselection = {
