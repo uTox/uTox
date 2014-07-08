@@ -24,6 +24,12 @@
 
 typedef struct
 {
+    uint8_t version, scale;
+    uint16_t window_x, window_y, window_width, window_height;
+}UTOX_SAVE;
+
+typedef struct
+{
     uint16_t length;
     uint8_t id[TOX_CLIENT_ID_SIZE], msg[1];
 }FRIENDREQ;
