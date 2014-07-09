@@ -40,7 +40,7 @@ void friend_notify(FRIEND *f, uint8_t *str, uint16_t str_length, uint8_t *msg, u
     notify(title, len, msg, msg_length);
 }
 
-void friend_add_str_message(FRIEND *f, char_t *data, uint16_t length)
+void friend_addmessage_notify(FRIEND *f, char_t *data, uint16_t length)
 {
     MESSAGE *msg = malloc(sizeof(MESSAGE) + length);
     msg->flags = 2;
