@@ -28,7 +28,7 @@ STRING filestatus[] = {
 STRING callstatus[] = {
     AFS("Call cancelled"),
     AFS("Call invited"),
-    AFS(".."),
+    AFS("Call ringing"),
     AFS("Call started")
 };
 

@@ -40,6 +40,21 @@ void friend_notify(FRIEND *f, uint8_t *str, uint16_t str_length, uint8_t *msg, u
     notify(title, len, msg, msg_length);
 }
 
+void friend_add_str_message(FRIEND *f, char_t *data, uint16_t length)
+{
+    MESSAGE *msg = malloc(sizeof(MESSAGE) + length);
+    msg->flags = 2;
+    msg->length = length;
+    uint8_t *p = msg->msg;
+    memcpy(p, data, length);
+
+    message_add(&messages_friend, msg, &f->msg);
+
+    if(sitem->data != f) {
+        f->notify = 1;
+    }
+}
+
 void friend_addmessage(FRIEND *f, void *data)
 {
     MESSAGE *msg = data;

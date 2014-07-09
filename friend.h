@@ -61,6 +61,7 @@ void friend_addmessage(FRIEND *f, void *data);
 
 void friend_notify(FRIEND *f, uint8_t *str, uint16_t str_length, uint8_t *msg, uint16_t msg_length);
 #define friend_notifystr(f, str, msg, mlen) friend_notify(f, (uint8_t*)str, sizeof(str) - 1, msg, mlen)
+void friend_add_str_message(FRIEND *f, char_t *data, uint16_t length);
 
 void friend_addid(uint8_t *id, char_t *msg, uint16_t msg_length);
 void friend_add(char_t *name, uint16_t length, char_t *msg, uint16_t msg_length);
