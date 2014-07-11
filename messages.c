@@ -75,7 +75,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
                 h2 = msg->length;
             }
 
-            if(m->data->istart == m->data->iend && m->data->start == m->data->end) {
+            if((m->data->istart == m->data->iend && m->data->start == m->data->end) || h1 == h2) {
                 h1 = 0xFFFF;
                 h2 = 0xFFFF;
             }
