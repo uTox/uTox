@@ -7,6 +7,7 @@
 #include <inttypes.h>
 #include <time.h>
 #include <string.h>
+#include <math.h>
 
 #include <tox/tox.h>
 #include <tox/toxav.h>
@@ -262,6 +263,11 @@ void video_close(void *handle);
 _Bool video_getframe(vpx_image_t *image);
 _Bool video_startread(void);
 _Bool video_endread(void);
+
+void audio_detect(void);
+_Bool audio_init(void *handle);
+_Bool audio_close(void *handle);
+_Bool audio_frame(int16_t *buffer);
 
 #define drawstr(x, y, str) drawtext(x, y, (uint8_t*)str, sizeof(str) - 1)
 #define drawstr_getwidth(x, y, str) drawtext_getwidth(x, y, (uint8_t*)str, sizeof(str) - 1)

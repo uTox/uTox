@@ -838,7 +838,7 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
     }
 
     case NEW_AUDIO_IN_DEVICE: {
-        dropdown_add(&dropdown_audio_in, data, data);
+        dropdown_add(&dropdown_audio_in, data, param2 ? (void*)(size_t)(param2 - 1) : data);
         break;
     }
 

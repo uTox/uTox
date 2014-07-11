@@ -20,6 +20,7 @@
 
 #include <dlfcn.h>
 
+#include "audio.c"
 #include "v4l.c"
 
 #ifndef __APPLE__

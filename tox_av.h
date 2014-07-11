@@ -110,9 +110,46 @@ static void callback_av_peertimeout(int32_t call_index, void *arg)
 
 uint8_t lbuffer[800 * 600 * 4]; //needs to be always large enough for encoded frames
 
-static ALCdevice* alcopencapture(const char *name)
+static ALCdevice* alcopencapture(void *handle)
 {
-    return alcCaptureOpenDevice(name, av_DefaultSettings.audio_sample_rate, AL_FORMAT_MONO16, (av_DefaultSettings.audio_frame_duration * av_DefaultSettings.audio_sample_rate * 4) / 1000);
+    if(!handle) {
+        return NULL;
+    }
+
+    if(handle == (void*)1) {
+        return handle;
+    }
+
+    return alcCaptureOpenDevice(handle, av_DefaultSettings.audio_sample_rate, AL_FORMAT_MONO16, (av_DefaultSettings.audio_frame_duration * av_DefaultSettings.audio_sample_rate * 4) / 1000);
+}
+
+static void alccapturestart(void *handle)
+{
+    if(handle == (void*)1) {
+        audio_init(handle);
+        return;
+    }
+
+    alcCaptureStart(handle);
+}
+
+static void alccapturestop(void *handle)
+{
+    if(handle == (void*)1) {
+        audio_close(handle);
+        return;
+    }
+
+    alcCaptureStop(handle);
+}
+
+static void alccaptureclose(void *handle)
+{
+    if(handle == (void*)1) {
+        return;
+    }
+
+    alcCaptureCloseDevice(handle);
 }
 
 static void sourceplaybuffer(int i, int16_t *data, int samples)
@@ -313,7 +350,8 @@ static void video_thread(void *args)
 static void audio_thread(void *args)
 {
     ToxAv *av = args;
-    const char *device_list, *audio_device = NULL, *output_device = NULL;
+    const char *device_list, *output_device = NULL;
+    void *audio_device = NULL;
 
     _Bool call[MAX_CALLS] = {0}, preview = 0;
 
@@ -322,9 +360,11 @@ static void audio_thread(void *args)
     uint8_t audio_count = 0;
     _Bool record_on = 0;
 
+    debug("frame size: %u\n", perframe);
+
     device_list = alcGetString(NULL, ALC_CAPTURE_DEVICE_SPECIFIER);
     if(device_list) {
-        audio_device = device_list;
+        audio_device = (void*)device_list;
         debug("Input Device List:\n");
         while(*device_list) {
             printf("%s\n", device_list);
@@ -332,6 +372,9 @@ static void audio_thread(void *args)
             device_list += strlen(device_list) + 1;
         }
     }
+
+    postmessage(NEW_AUDIO_IN_DEVICE, 0, 1, "None");
+    audio_detect();
 
     device_list = alcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER);
     if(device_list) {
@@ -373,16 +416,17 @@ static void audio_thread(void *args)
                 audio_device = m->data;
 
                 if(record_on) {
-                    alcCaptureStop(device_in);
-                    alcCaptureCloseDevice(device_in);
+                    alccapturestop(device_in);
+                    alccaptureclose(device_in);
                 }
 
-                if(record_on) {
+                if(audio_count) {
                     device_in = alcopencapture(audio_device);
                     if(!device_in) {
                         record_on = 0;
                     } else {
-                        alcCaptureStart(device_in);
+                        alccapturestart(device_in);
+                        record_on = 1;
                     }
                 }
 
@@ -423,7 +467,7 @@ static void audio_thread(void *args)
                 if(!record_on) {
                     device_in = alcopencapture(audio_device);
                     if(device_in) {
-                        alcCaptureStart(device_in);
+                        alccapturestart(device_in);
                         record_on = 1;
                         debug("start\n");
                     }
@@ -437,7 +481,7 @@ static void audio_thread(void *args)
                 if(!record_on) {
                     device_in = alcopencapture(audio_device);
                     if(device_in) {
-                        alcCaptureStart(device_in);
+                        alccapturestart(device_in);
                         record_on = 1;
                         debug("start\n");
                     }
@@ -449,8 +493,8 @@ static void audio_thread(void *args)
                 preview = 0;
                 audio_count--;
                 if(!audio_count && record_on) {
-                    alcCaptureStop(device_in);
-                    alcCaptureCloseDevice(device_in);
+                    alccapturestop(device_in);
+                    alccaptureclose(device_in);
                     record_on = 0;
                     debug("stop\n");
                 }
@@ -464,8 +508,8 @@ static void audio_thread(void *args)
                 call[m->param1] = 0;
                 audio_count--;
                 if(!audio_count && record_on) {
-                    alcCaptureStop(device_in);
-                    alcCaptureCloseDevice(device_in);
+                    alccapturestop(device_in);
+                    alccaptureclose(device_in);
                     record_on = 0;
                     debug("stop\n");
                 }
@@ -478,11 +522,19 @@ static void audio_thread(void *args)
         }
 
         if(record_on) {
-            ALint samples;
-            alcGetIntegerv(device_in, ALC_CAPTURE_SAMPLES, sizeof(samples), &samples);
-            if(samples >= perframe) {
-                alcCaptureSamples(device_in, buf, perframe);
+            _Bool frame = 0;
+            if(device_in == (void*)1) {
+                frame = audio_frame((void*)buf);
+            } else {
+                ALint samples;
+                alcGetIntegerv(device_in, ALC_CAPTURE_SAMPLES, sizeof(samples), &samples);
+                if(samples >= perframe) {
+                    alcCaptureSamples(device_in, buf, perframe);
+                    frame = 1;
+                }
+            }
 
+            if(frame) {
                 if(preview) {
                     sourceplaybuffer(0, (int16_t*)buf, perframe);
                 }
@@ -501,7 +553,6 @@ static void audio_thread(void *args)
                     }
                 }
             }
-
         }
 
         yieldcpu(5);

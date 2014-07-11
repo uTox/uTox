@@ -28,6 +28,11 @@
 extern const CLSID CLSID_SampleGrabber;
 extern const CLSID CLSID_NullRenderer;
 
+#include <audioclient.h>
+#include <mmdeviceapi.h>
+
+#include "audio.c"
+
 #include <process.h>
 
 #undef CLEARTYPE_QUALITY
@@ -1185,7 +1190,8 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
         return 0;
     }
 
-    case WM_LBUTTONDOWN: {
+    case WM_LBUTTONDOWN:
+    case WM_LBUTTONDBLCLK: {
         int x, y;
 
         x = GET_X_LPARAM(lParam);
@@ -1196,13 +1202,11 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
         }
 
         panel_mdown(&panel_main);
+        if(msg == WM_LBUTTONDBLCLK) {
+            panel_dclick(&panel_main, 0);
+        }
         SetCapture(hwn);
         mdown = 1;
-        break;
-    }
-
-    case WM_LBUTTONDBLCLK: {
-        panel_dclick(&panel_main, 0);
         break;
     }
 
