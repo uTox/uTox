@@ -304,13 +304,14 @@ static uint16_t edit_redo(EDIT *edit)
 void edit_char(uint32_t ch, _Bool control, uint8_t flags)
 {
     EDIT *edit = active_edit;
-    if(edit->readonly) {
-        return;
-    }
 
     if(control || (ch <= 0x1F && (!edit->multiline || ch != '\n')) || (ch >= 0x7f && ch <= 0x9F)) {
         switch(ch) {
         case KEY_BACK: {
+            if(edit->readonly) {
+                return;
+            }
+
             if(edit_sel.length == 0) {
                 uint16_t p = edit_sel.start;
                 if(p == 0) {
@@ -343,6 +344,10 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
         }
 
         case KEY_DEL: {
+            if(edit->readonly) {
+                return;
+            }
+
             uint8_t *p = active_edit->data + edit_sel.start;
             if(edit_sel.length) {
                 edit_do(edit, edit_sel.start, edit_sel.length, 1);
@@ -547,7 +552,7 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
         edit_select = 0;
 
         edit_redraw();
-    } else {
+    } else if(!edit->readonly) {
         uint8_t len = unicode_to_utf8_len(ch);
         if(edit->length - edit_sel.length + len <= edit->maxlength) {
             uint8_t *p = edit->data + edit_sel.start;
