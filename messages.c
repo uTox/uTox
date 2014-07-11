@@ -308,13 +308,13 @@ _Bool messages_mmove(MESSAGES *m, int px, int py, int width, int height, int mx,
                     cursor = CURSOR_HAND;
                 }
 
-                if(over != m->over || i != m->iover) {
-                    redraw = 1;
-                    m->over = over;
-                }
-
                 break;
             }
+            }
+
+            if(((msg->flags & 0xFFFE) == 6 || (((MESSAGE*)(m->data->data[m->iover]))->flags & 0xFFFE) == 6) && (over != m->over || i != m->iover)) {
+                redraw = 1;
+                m->over = over;
             }
 
             m->iover = i;
