@@ -43,14 +43,21 @@ static void drawtexth(int x, int y, char_t *str, uint16_t length, int d, int h, 
 
 int drawtextmultiline(int x, int right, int y, int top, int bottom, uint16_t lineheight, char_t *data, uint16_t length, uint16_t h, uint16_t hlen, _Bool multiline)
 {
-    uint32_t c;
-    _Bool greentext = 0, draw = y + lineheight >= top;
+    uint32_t c1, c2;
+    _Bool greentext = 0, link = 0, draw = y + lineheight >= top;
     int xc = x;
     char_t *a = data, *b = a, *end = a + length;
     while(1) {
-        if(a != end && *a == '>' && (a == data || *a == '\n')) {
-            c = setcolor(RGB(0, 128, 0));
-            greentext = 1;
+        if(a != end) {
+            if(*a == '>' && (a == data || *a == '\n'))  {
+                c1 = setcolor(RGB(0, 128, 0));
+                greentext = 1;
+            }
+
+            if((a == data || *a == '\n' || *a == ' ') && ((end - a >= 7 && memcmp(a, "http://", 7) == 0) || (end - a >= 8 && memcmp(a, "https://", 8) == 0))) {
+                c2 = setcolor(RGB(0, 0, 255));
+                link = 1;
+            }
         }
 
         if(a == end || *a == ' ' || *a == '\n') {
@@ -89,9 +96,14 @@ int drawtextmultiline(int x, int right, int y, int top, int bottom, uint16_t lin
             x += w;
             b = a;
 
+            if(link) {
+                setcolor(c2);
+                link = 0;
+            }
+
             if(a == end) {
                 if(greentext) {
-                    setcolor(c);
+                    setcolor(c1);
                     greentext = 0;
                 }
                 break;
@@ -99,7 +111,7 @@ int drawtextmultiline(int x, int right, int y, int top, int bottom, uint16_t lin
 
             if(*a == '\n') {
                 if(greentext) {
-                    setcolor(c);
+                    setcolor(c1);
                     greentext = 0;
                 }
                 y += lineheight;
