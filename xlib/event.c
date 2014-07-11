@@ -360,7 +360,7 @@ _Bool doevent(void)
             }
         } else if(ev->target == targets) {
             Atom supported[] = {XA_STRING, XA_UTF8_STRING};
-            XChangeProperty(display, ev->requestor, ev->property, targets, 8, PropModeReplace, (uint8_t*)(&supported), sizeof(supported));
+            XChangeProperty(display, ev->requestor, ev->property, XA_ATOM, 32, PropModeReplace, (void*)&supported, countof(supported));
         }
         else {
             debug("unknown request\n");
