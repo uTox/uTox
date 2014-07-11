@@ -14,7 +14,7 @@ static void av_start(int32_t call_index, void *arg)
 
     if(toxav_prepare_transmission(arg, call_index, &settings, video) == 0) {
         if(video) {
-            postmessage(FRIEND_CALL_START_VIDEO, fid, call_index, (void*)(video_width | (size_t)video_height << 16));
+            postmessage(FRIEND_CALL_START_VIDEO, fid, call_index, (void*)(640 | (size_t)480 << 16));
         } else {
             postmessage(FRIEND_CALL_STATUS, fid, call_index, (void*)CALL_OK);
         }
