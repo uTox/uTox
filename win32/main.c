@@ -1198,7 +1198,9 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
         y = GET_Y_LPARAM(lParam);
 
         if(x != mx || y != my) {
-            debug("issue\n");
+            panel_mmove(&panel_main, 0, 0, width, height, x, y, y - my);
+            mx = x;
+            my = y;
         }
 
         panel_mdown(&panel_main);

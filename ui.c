@@ -797,8 +797,10 @@ _Bool panel_mmove(PANEL *p, int x, int y, int width, int height, int mx, int my,
 
     if(p->content_scroll) {
         int dy = scroll_gety(p->content_scroll, height);
-        if(my < 0 || my >= height) {
+        if(my < 0) {
             mmy = -1;
+        } else if (my >= height) {
+            mmy = 1024 * 1024 * 1024;//large value
         } else {
             mmy = my + dy;
         }

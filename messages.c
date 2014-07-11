@@ -210,7 +210,7 @@ _Bool messages_mmove(MESSAGES *m, int px, int py, int width, int height, int mx,
 
         int dy = msg->height;
 
-        if((my >= 0 && my < dy) || i == n - 1) {
+        if(((my >= 0 || i == 0) && my < dy) || i == n - 1) {
             switch(msg->flags) {
             case 0:
             case 1:

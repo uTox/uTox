@@ -47,6 +47,10 @@ static void edit_msg_onenter(void)
     if(sitem->item == ITEM_FRIEND) {
         FRIEND *f = sitem->data;
 
+        if(!f->online) {
+            return;
+        }
+
         MESSAGE *msg = malloc(length + sizeof(MESSAGE));
         msg->flags = 1;
         msg->length = length;
