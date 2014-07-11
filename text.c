@@ -49,12 +49,12 @@ int drawtextmultiline(int x, int right, int y, int top, int bottom, uint16_t lin
     char_t *a = data, *b = a, *end = a + length;
     while(1) {
         if(a != end) {
-            if(*a == '>' && (a == data || *a == '\n'))  {
+            if(*a == '>' && (a == data || *(a - 1) == '\n'))  {
                 c1 = setcolor(RGB(0, 128, 0));
                 greentext = 1;
             }
 
-            if((a == data || *a == '\n' || *a == ' ') && ((end - a >= 7 && memcmp(a, "http://", 7) == 0) || (end - a >= 8 && memcmp(a, "https://", 8) == 0))) {
+            if((a == data || *(a - 1) == '\n' || *(a - 1) == ' ') && ((end - a >= 7 && memcmp(a, "http://", 7) == 0) || (end - a >= 8 && memcmp(a, "https://", 8) == 0))) {
                 c2 = setcolor(RGB(0, 0, 255));
                 link = 1;
             }
