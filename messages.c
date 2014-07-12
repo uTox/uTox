@@ -317,7 +317,7 @@ _Bool messages_mmove(MESSAGES *m, int px, int py, int width, int height, int mx,
             }
             }
 
-            if(i != m->iover && ((msg->flags & 0xFFFE) == 6 || (((MESSAGE*)(m->data->data[m->iover]))->flags & 0xFFFE) == 6)) {
+            if(i != m->iover && m->iover != ~0 && ((msg->flags & 0xFFFE) == 6 || (((MESSAGE*)(m->data->data[m->iover]))->flags & 0xFFFE) == 6)) {
                 redraw = 1;
             }
 
