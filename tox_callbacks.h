@@ -137,7 +137,7 @@ static void callback_connection_status(Tox *tox, int fid, uint8_t status, void *
         /* resume any broken file transfers */
         for(i = 0; i != countof(f->incoming); i++) {
             if(f->incoming[i].status == FT_BROKE) {
-                tox_file_send_control(tox, fid, 0, i, TOX_FILECONTROL_RESUME_BROKEN, (void*)&f->incoming[i].bytes, sizeof(uint64_t));
+                tox_file_send_control(tox, fid, 1, i, TOX_FILECONTROL_RESUME_BROKEN, (void*)&f->incoming[i].bytes, sizeof(uint64_t));
             }
         }
     }
