@@ -210,6 +210,7 @@ static void callback_file_control(Tox *tox, int32_t fid, uint8_t receive_send, u
         if(receive_send && length == 8) {
             resetft(tox, ft, *(uint64_t*)data);
             tox_file_send_control(tox, fid, 0, filenumber, TOX_FILECONTROL_ACCEPT, NULL, 0);
+            postmessage(FRIEND_FILE_IN_STATUS + receive_send, fid, filenumber, (void*)FILE_OK);
         }
 
         break;
