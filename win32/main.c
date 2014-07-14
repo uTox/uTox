@@ -66,6 +66,8 @@ HBRUSH hdc_brush;
 HBITMAP hdc_bm;
 HWND video_hwnd[256];
 
+static char save_path[280];
+
 static _Bool flashing;
 
 static TRACKMOUSEEVENT tme = {sizeof(TRACKMOUSEEVENT), TME_LEAVE, 0, 0};
@@ -638,13 +640,16 @@ void paste(void)
 
 void* loadsavedata(uint32_t *len)
 {
-    return file_raw("tox_save", len);
+    int end = GetCurrentDirectory(sizeof(save_path) - 16, save_path);
+    memcpy(save_path + end, "\\tox_save", 9);
+
+    return file_raw(save_path, len);
 }
 
 void writesavedata(void *data, uint32_t len)
 {
     FILE *file;
-    file = fopen("tox_save", "wb");
+    file = fopen(save_path, "wb");
     if(file) {
         fwrite(data, len, 1, file);
         fclose(file);
