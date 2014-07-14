@@ -91,6 +91,7 @@ static void resetft(Tox *tox, FILE_T *ft, uint64_t start)
         return;
     }
 
+    ft->bytes = start;
     fseek(ft->data, start, SEEK_SET);
     fillbuffer(ft);
 
