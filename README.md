@@ -31,11 +31,11 @@ Note: building for Windows requires mingw-w64 (mingw lacks some header files), o
 
 Xlib:
 
-> cc -o uTox.o *.c ./png/png.c -lX11 -lXft -lXrender -ltoxcore -ltoxav -ltoxdns -lopenal -pthread -lresolv -ldl -lm -lfontconfig -lv4lconvert -lvpx -I/usr/include/freetype2 -ldbus-1
+> cc -o uTox.o *.c ./png/png.c -lX11 -lXft -lXrender -lXext -ltoxcore -ltoxav -ltoxdns -lopenal -pthread -lresolv -ldl -lm -lfontconfig -lv4lconvert -lvpx -I/usr/include/freetype2 -ldbus-1
 
 or if you built toxcore statically:
 
-> cc -o uTox.o *.c ./png/png.c -lX11 -lXft -lXrender -ltoxcore -ltoxav -ltoxdns -lopenal -lsodium -lopus -lvpx -lm -pthread -lresolv -ldl -lfontconfig -lv4lconvert -I/usr/include/freetype2 -ldbus-1
+> cc -o uTox.o *.c ./png/png.c -lX11 -lXft -lXrender -lXext -ltoxcore -ltoxav -ltoxdns -lopenal -lsodium -lopus -lvpx -lm -pthread -lresolv -ldl -lfontconfig -lv4lconvert -I/usr/include/freetype2 -ldbus-1
 
 OS X (you need XQuartz on 10.8+, no video yet):
 
