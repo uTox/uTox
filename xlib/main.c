@@ -47,9 +47,9 @@ Visual *visual;
 
 Picture bitmap[32];
 
-Cursor cursors[4];
+Cursor cursors[8];
 
-_Bool pointergrab;
+uint8_t pointergrab;
 int grabx, graby, grabpx, grabpy;
 GC grabgc;
 
@@ -217,6 +217,33 @@ void drawalpha(int bm, int x, int y, int width, int height, uint32_t color)
     XRenderComposite(display, PictOpOver, src, bitmap[bm], XftDrawPicture(xftdraw), 0, 0, 0, 0, x, y, width, height);
 
     XRenderFreePicture(display, src);
+}
+
+void drawimage(void *data, int x, int y, int width, int height, int maxwidth, _Bool zoom)
+{
+    Picture bm = (Picture)data;
+    if(!zoom && width > maxwidth) {
+        uint32_t v = (width * 65536) / maxwidth;
+        XTransform trans = {
+            {{v, 0, 0},
+            {0, v, 0},
+            {0, 0, 65536}}
+        };
+        XRenderSetPictureTransform(display, bm, &trans);
+        XRenderSetPictureFilter(display, bm, FilterBilinear, NULL, 0);
+
+        XRenderComposite(display, PictOpSrc, bm, None, XftDrawPicture(xftdraw), 0, 0, 0, 0, x, y, maxwidth, height * maxwidth / width);
+
+        XTransform trans2 = {
+            {{65536, 0, 0},
+            {0, 65536, 0},
+            {0, 0, 65536}}
+        };
+        XRenderSetPictureFilter(display, bm, FilterNearest, NULL, 0);
+        XRenderSetPictureTransform(display, bm, &trans2);
+    } else {
+        XRenderComposite(display, PictOpSrc, bm, None, XftDrawPicture(xftdraw), 0, 0, 0, 0, x, y, width > maxwidth ? maxwidth : width, height);
+    }
 }
 
 int _drawtext(int x, int y, uint8_t *str, uint16_t length)
@@ -506,7 +533,6 @@ void editpopup(void)
 
 void listpopup(uint8_t item)
 {
-
 }
 
 void openurl(char_t *str)
@@ -539,6 +565,24 @@ void savefilerecv(uint32_t fid, MSG_FILE *file)
         path[file->name_length] = 0;
 
         tox_postmessage(TOX_ACCEPTFILE, fid, file->filenumber, path);
+    }
+}
+
+void savefiledata(MSG_FILE *file)
+{
+    if(libgtk) {
+        gtk_savefiledata(file);
+    } else {
+        //fall back to working dir inline.png
+        FILE *fp = fopen("inline.png", "wb");
+        if(fp) {
+            fwrite(file->path + ((file->flags & 1) ? 4 : 0), file->size, 1, fp);
+            fclose(fp);
+
+            free(file->path);
+            file->path = (uint8_t*)strdup("inline.png");
+            file->inline_png = 0;
+        }
     }
 }
 
@@ -580,6 +624,41 @@ void loadalpha(int bm, void *data, int width, int height)
     bitmap[bm] = picture;
 }
 
+static Picture image_to_picture(XImage *img)
+{
+    Pixmap pixmap = XCreatePixmap(display, window, img->width, img->height, 24);
+    GC legc = XCreateGC(display, pixmap, 0, NULL);
+    XPutImage(display, pixmap, legc, img, 0, 0, 0, 0, img->width, img->height);
+
+    Picture picture = XRenderCreatePicture(display, pixmap, XRenderFindStandardFormat(display, PictStandardRGB24), 0, NULL);
+
+    XFreeGC(display, legc);
+    XFreePixmap(display, pixmap);
+    //XDestroyImage(img);
+
+    return picture;
+}
+
+void* png_to_image(void *data, uint16_t *w, uint16_t *h, uint32_t size)
+{
+    uint8_t *out;
+    unsigned width, height;
+    unsigned r = lodepng_decode32(&out, &width, &height, data, size);
+    //free(data);
+
+    if(r != 0) {
+        return NULL;
+    }
+
+    *w = width;
+    *h = height;
+    XImage *img = XCreateImage(display, visual, 24, ZPixmap, 0, (char*)out, width, height, 32, width * 4);
+    Picture picture = image_to_picture(img);
+    free(out);
+
+    return (void*)picture;
+}
+
 void* loadsavedata(uint32_t *len)
 {
     char *home = getenv("HOME");
@@ -591,7 +670,7 @@ void* loadsavedata(uint32_t *len)
         return data;
     }
 
-    return file_raw(path, len);
+    return NULL;//file_raw(path, len);
 }
 
 void writesavedata(void *data, uint32_t len)
@@ -604,11 +683,11 @@ void writesavedata(void *data, uint32_t len)
     path[l - 5] = '/';
 
     FILE *file;
-    file = fopen(path, "wb");
+    /*file = fopen(path, "wb");
     if(file) {
         fwrite(data, len, 1, file);
         fclose(file);
-    }
+    }*/
 
     file = fopen("tox_save", "wb");
     if(file) {
@@ -783,6 +862,8 @@ int main(int argc, char *argv[])
     cursors[CURSOR_HAND] = XCreateFontCursor(display, XC_hand2);
     cursors[CURSOR_TEXT] = XCreateFontCursor(display, XC_xterm);
     cursors[CURSOR_SELECT] = XCreateFontCursor(display, XC_crosshair);
+    cursors[CURSOR_ZOOM_IN] = XCreateFontCursor(display, XC_target);
+    cursors[CURSOR_ZOOM_OUT] = XCreateFontCursor(display, XC_target);
 
     /* */
     XGCValues gcval;
@@ -985,9 +1066,9 @@ void* video_detect(void)
     return first;
 }
 
-void desktopgrab(void)
+void desktopgrab(_Bool video)
 {
-    pointergrab = 1;
+    pointergrab = 1 + video;
     XGrabPointer(display, window, False, Button1MotionMask | ButtonPressMask | ButtonReleaseMask, GrabModeAsync, GrabModeAsync, None, cursors[CURSOR_SELECT], CurrentTime);
 }
 

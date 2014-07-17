@@ -57,7 +57,7 @@ enum {
 //HBITMAP bitmap[32];
 void *bitmap[32];
 HFONT font[32];
-HCURSOR cursors[4];
+HCURSOR cursors[8];
 
 HWND hwnd, capturewnd;
 HINSTANCE hinstance;
@@ -66,9 +66,10 @@ HBRUSH hdc_brush;
 HBITMAP hdc_bm;
 HWND video_hwnd[256];
 
+
 static char save_path[280];
 
-static _Bool flashing;
+static _Bool flashing, desktopgrab_video;
 
 static TRACKMOUSEEVENT tme = {sizeof(TRACKMOUSEEVENT), TME_LEAVE, 0, 0};
 static _Bool mouse_tracked = 0;
@@ -130,6 +131,18 @@ void drawalpha(int bm, int x, int y, int width, int height, uint32_t color)
     AlphaBlend(hdc, x, y, width, height, hdcMem, 0, 0, width, height, ftn);
 
     DeleteObject(temp);
+}
+
+void drawimage(void *data, int x, int y, int width, int height, int maxwidth, _Bool zoom)
+{
+    HBITMAP bm = data;
+    SelectObject(hdcMem, bm);
+    if(!zoom && width > maxwidth) {
+        StretchBlt(hdc, x, y, maxwidth, height * maxwidth / width, hdcMem, 0, 0, width, height, SRCCOPY);
+    } else {
+        BitBlt(hdc, x, y, width > maxwidth ? maxwidth : width, height, hdcMem, 0, 0, SRCCOPY);
+    }
+
 }
 
 void drawtext(int x, int y, char_t *str, uint16_t length)
@@ -452,6 +465,35 @@ void savefilerecv(uint32_t fid, MSG_FILE *file)
     }
 }
 
+void savefiledata(MSG_FILE *file)
+{
+    char *path = malloc(256);
+    memcpy(path, file->name, file->name_length);
+    path[file->name_length] = 0;
+
+    OPENFILENAME ofn = {
+        .lStructSize = sizeof(OPENFILENAME),
+        .hwndOwner = hwnd,
+        .lpstrFile = path,
+        .nMaxFile = 256,
+        .Flags = OFN_EXPLORER | OFN_NOCHANGEDIR,
+    };
+
+    if(GetSaveFileName(&ofn)) {
+        FILE *fp = fopen(path, "wb");
+        if(fp) {
+            fwrite(file->path + ((file->flags & 1) ? 4 : 0), file->size, 1, fp);
+            fclose(fp);
+
+            free(file->path);
+            file->path = (uint8_t*)strdup("inline.png");
+            file->inline_png = 0;
+        }
+    } else {
+        debug("GetSaveFileName() failed\n");
+    }
+}
+
 void setselection(uint8_t src, void *p)
 {
 
@@ -638,6 +680,25 @@ void paste(void)
     edit_paste(data, len, 0);
 }
 
+void* png_to_image(void *data, uint16_t *w, uint16_t *h, uint32_t size)
+{
+    uint8_t *out;
+    unsigned width, height;
+    unsigned r = lodepng_decode32(&out, &width, &height, data, size);
+    //free(data);
+
+    if(r != 0) {
+        return NULL;
+    }
+
+    *w = width;
+    *h = height;
+    HBITMAP bm = CreateBitmap(width, height, 1, 32, out);
+    free(out);
+
+    return bm;
+}
+
 void* loadsavedata(uint32_t *len)
 {
     int end = GetCurrentDirectory(sizeof(save_path) - 16, save_path);
@@ -683,7 +744,7 @@ void notify(uint8_t *title, uint16_t title_length, uint8_t *msg, uint16_t msg_le
 static int grabx, graby, grabpx, grabpy;
 static _Bool grabbing;
 
-void desktopgrab(void)
+void desktopgrab(_Bool video)
 {
     int x, y, w, h;
 
@@ -698,6 +759,8 @@ void desktopgrab(void)
     SetLayeredWindowAttributes(capturewnd, 0xFFFFFF, 128, LWA_ALPHA | LWA_COLORKEY);
     ShowWindow(capturewnd, SW_SHOW);
     SetForegroundWindow(capturewnd);
+
+    desktopgrab_video = video;
 
     //SetCapture(hwnd);
     //grabbing = 1;
@@ -755,7 +818,57 @@ LRESULT CALLBACK GrabProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             grabpy = w;
         }
 
-        toxvideo_postmessage(VIDEO_SET, 0, 0, (void*)1);
+        if(desktopgrab_video) {
+            toxvideo_postmessage(VIDEO_SET, 0, 0, (void*)1);
+        } else {
+            FRIEND *f = sitem->data;
+            if(sitem->item == ITEM_FRIEND && f->online) {
+                BITMAPINFO info = {
+                    .bmiHeader = {
+                        .biSize = sizeof(BITMAPINFOHEADER),
+                        .biWidth = grabpx,
+                        .biHeight = -(int)grabpy,
+                        .biPlanes = 1,
+                        .biBitCount = 24,
+                        .biCompression = BI_RGB,
+                    }
+                };
+
+                void *bits = malloc(grabpx * (grabpy + 3) * 3);
+
+                HWND dwnd = GetDesktopWindow();
+                HDC ddc = GetDC(dwnd);
+
+                HBITMAP capture = CreateCompatibleBitmap(hdcMem, grabpx, grabpy);
+                SelectObject(hdcMem, capture);
+
+                BitBlt(hdcMem, 0, 0, grabpx, grabpy, ddc, grabx, graby, SRCCOPY | CAPTUREBLT);
+                GetDIBits(hdcMem, capture, 0, grabpy, bits, &info, DIB_RGB_COLORS);
+
+                if(grabpx & 3) {
+                    uint8_t pbytes = grabpx & 3, *p = bits, *pp = bits, *end = p + grabpx * grabpy * 3;
+                    uint32_t offset = 0;
+                    while(p != end) {
+                        memmove(p, pp, grabpx * 3);
+                        p += grabpx * 3;
+                        pp += grabpx * 3 + pbytes;
+                    }
+                }
+
+                uint8_t *out;
+                size_t size;
+                lodepng_encode_memory(&out, &size, bits, grabpx, grabpy, LCT_RGB, 8);
+                free(bits);
+
+                uint32_t s = size;
+                void *data = malloc(size + 4);
+                memcpy(data, &s, 4);
+                memcpy(data + 4, out, size);
+                free(out);
+
+                friend_sendimage(sitem->data, capture, data, grabpx, grabpy);
+            }
+        }
 
         DestroyWindow(hwnd);
         return 0;
@@ -875,6 +988,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     cursors[CURSOR_HAND] = LoadCursor(NULL, IDC_HAND);
     cursors[CURSOR_TEXT] = LoadCursor(NULL, IDC_IBEAM);
     cursors[CURSOR_SELECT] = LoadCursor(NULL, IDC_CROSS);
+    cursors[CURSOR_ZOOM_IN] = LoadCursor(NULL, IDC_SIZEALL);
+    cursors[CURSOR_ZOOM_OUT] = LoadCursor(NULL, IDC_SIZEALL);
 
     hinstance = hInstance;
 

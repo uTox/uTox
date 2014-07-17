@@ -352,7 +352,7 @@ panel_item[] = {
         .disabled = 1,
         .drawfunc = drawfriend,
         .child = (PANEL*[]) {
-            (void*)&button_call, (void*)&button_video, (void*)&button_sendfile,
+            (void*)&button_call, (void*)&button_video, (void*)&button_sendfile, (void*)&button_chat1, (void*)&button_chat2,
             (void*)&edit_msg,
             (void*)&scroll_friend,
             (void*)&messages_friend,
@@ -537,6 +537,22 @@ void ui_scale(uint8_t scale)
         .height = BM_LBUTTON_HEIGHT,
     },
 
+    b_chat1 = {
+        .type = PANEL_BUTTON,
+        .x = -5 * SCALE - BM_CB_WIDTH,
+        .y = -47 * SCALE,
+        .height = BM_CB_HEIGHT,
+        .width = BM_CB_WIDTH,
+    },
+
+    b_chat2 = {
+        .type = PANEL_BUTTON,
+        .x = -5 * SCALE - BM_CB_WIDTH,
+        .y = -47 * SCALE + BM_CB_HEIGHT + SCALE,
+        .height = BM_CB_HEIGHT + SCALE,
+        .width = BM_CB_WIDTH,
+    },
+
     b_name = {
         .type = PANEL_BUTTON,
         .x = SELF_NAME_X,
@@ -573,6 +589,8 @@ void ui_scale(uint8_t scale)
     button_acceptfriend.panel = b_acceptfriend;
     button_callpreview.panel = b_callpreview;
     button_videopreview.panel = b_videopreview;
+    button_chat1.panel = b_chat1;
+    button_chat2.panel = b_chat2;
     button_name.panel = b_name;
     button_statusmsg.panel = b_statusmsg;
     button_status.panel = b_status;
@@ -659,7 +677,7 @@ void ui_scale(uint8_t scale)
         .x = 5 * SCALE,
         .y = -47 * SCALE,
         .height =  42 * SCALE,
-        .width = - 5 * SCALE,
+        .width = - 5 * SCALE - BM_CB_WIDTH,
     };
 
     edit_name.panel = e_name;

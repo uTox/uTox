@@ -27,6 +27,38 @@ void friend_setname(FRIEND *f, char_t *name, uint16_t length)
     f->name[f->name_length] = 0;
 }
 
+void friend_sendimage(FRIEND *f, void *data, void *pngdata, uint16_t width, uint16_t height)
+{
+    MSG_IMG *msg = malloc(sizeof(MSG_IMG));
+    msg->flags = 5;
+    msg->w = width;
+    msg->h = height;
+    msg->zoom = 0;
+    msg->data = data;
+
+    message_add(&messages_friend, (void*)msg, &f->msg);
+
+    tox_postmessage(TOX_SEND_INLINE, f - friend, 0, pngdata);
+}
+
+void friend_recvimage(FRIEND *f, void *pngdata, uint32_t size)
+{
+    uint16_t width, height;
+    void *data = png_to_image(pngdata, &width, &height, size);
+    if(!data) {
+        return;
+    }
+
+    MSG_IMG *msg = malloc(sizeof(MSG_IMG));
+    msg->flags = 4;
+    msg->w = width;
+    msg->h = height;
+    msg->zoom = 0;
+    msg->data = data;
+
+    message_add(&messages_friend, (void*)msg, &f->msg);
+}
+
 void friend_notify(FRIEND *f, uint8_t *str, uint16_t str_length, uint8_t *msg, uint16_t msg_length)
 {
     int len = f->name_length + str_length + 3;

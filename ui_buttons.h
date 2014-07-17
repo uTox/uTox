@@ -171,6 +171,16 @@ static void button_status_onpress(void)
     tox_postmessage(TOX_SETSTATUS, self.status, 0, NULL);
 }
 
+static void button_chat1_onpress(void)
+{
+    desktopgrab(0);
+}
+
+static void button_chat2_onpress(void)
+{
+    debug("lel2\n");
+}
+
 
 BUTTON
 
@@ -309,6 +319,25 @@ button_videopreview = {
 
     .onpress = button_videopreview_onpress,
     .updatecolor = button_videopreview_updatecolor,
+},
+
+button_chat1 = {
+    .bm = BM_CB1,
+    .c1 = C_GREEN,
+    .c2 = C_GREEN_LIGHT,
+    .c3 = C_GREEN_LIGHT,
+    .bm2 = BM_CI1,
+    .bw = _BM_CI_WIDTH,
+    .bh = _BM_CI_WIDTH,
+    .onpress = button_chat1_onpress,
+},
+
+button_chat2 = {
+    .bm = BM_CB2,
+    .c1 = C_GREEN,
+    .c2 = C_GREEN_LIGHT,
+    .c3 = C_GREEN_LIGHT,
+    .onpress = button_chat2_onpress,
 },
 
 button_name = {

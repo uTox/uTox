@@ -94,12 +94,9 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
         case 5: {
             /* image */
             MSG_IMG *img = (void*)msg;
-            //SIZE size;
-
-            //SelectObject(hdcMem, img->bitmap);
-            //GetBitmapDimensionEx(img->bitmap, &size);
-            //BitBlt(hdc, x, y, size.cx, size.cy, hdcMem, 0, 0, SRCCOPY);
-            y += img->height;
+            int maxwidth = width - MESSAGES_X - TIME_WIDTH;
+            drawimage(img->data, x + MESSAGES_X, y, img->w, img->h, maxwidth, img->zoom);
+            y += (img->zoom || img->w <= maxwidth) ? img->h : img->h * maxwidth / img->w;
             break;
         }
 
@@ -119,7 +116,11 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
             if(file->status == FILE_DONE) {
                 drawalpha(BM_FT, xx, y, BM_FT_WIDTH, BM_FT_HEIGHT, (mo && m->over) ? C_GREEN_LIGHT : C_GREEN);
                 drawalpha(BM_YES, xx + BM_FTM_WIDTH + SCALE + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2, y + SCALE * 4, BM_FB_WIDTH, BM_FB_HEIGHT, WHITE);
-                drawstr(xx + 5 * SCALE, y + 17 * SCALE, "Click to open");
+                if(file->inline_png) {
+                    drawstr(xx + 5 * SCALE, y + 17 * SCALE, "Click to save");
+                } else {
+                    drawstr(xx + 5 * SCALE, y + 17 * SCALE, "Click to open");
+                }
             } else if(file->status == FILE_KILLED) {
                 drawalpha(BM_FT, xx, y, BM_FT_WIDTH, BM_FT_HEIGHT, C_RED);
                 drawalpha(BM_NO, xx + BM_FTM_WIDTH + SCALE + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2, y + SCALE * 4, BM_FB_WIDTH, BM_FB_HEIGHT, WHITE);
@@ -260,6 +261,19 @@ _Bool messages_mmove(MESSAGES *m, int px, int py, int width, int height, int mx,
             case 4:
             case 5: {
                 m->over = 0;
+
+                MSG_IMG *img = (void*)msg;
+                int maxwidth = width - MESSAGES_X - TIME_WIDTH;
+
+                if(img->w > maxwidth) {
+                    mx -= MESSAGES_X;
+                    int w = img->w > maxwidth ? maxwidth : img->w;
+                    int h = (img->zoom || img->w <= maxwidth) ? img->h : img->h * maxwidth / img->w;
+                    if(mx >= 0 && my >= 0 && mx < w && my < h) {
+                        m->over = 1;
+                        cursor = CURSOR_ZOOM_IN + img->zoom;
+                    }
+                }
                 break;
             }
 
@@ -390,6 +404,16 @@ _Bool messages_mdown(MESSAGES *m)
             break;
         }
 
+        case 4:
+        case 5: {
+            MSG_IMG *img = (void*)msg;
+            if(m->over) {
+                img->zoom = !img->zoom;
+                message_updateheight(m, msg, m->data);
+            }
+            break;
+        }
+
         case 6 ... 7: {
             MSG_FILE *file = (void*)msg;
             if(m->over == 0) {
@@ -447,7 +471,11 @@ _Bool messages_mdown(MESSAGES *m)
 
             case FILE_DONE: {
                 if(m->over) {
-                    openurl(file->path);
+                    if(file->inline_png) {
+                        savefiledata(file);
+                    } else {
+                        openurl(file->path);
+                    }
                 }
                 break;
             }
@@ -590,6 +618,13 @@ static int msgheight(MESSAGE *msg, int width)
         return text_height(width - MESSAGES_X - TIME_WIDTH, font_msg_lineheight, msg->msg, msg->length) + MESSAGES_SPACING;
     }
 
+    case 4:
+    case 5: {
+        MSG_IMG *img = (void*)msg;
+        int maxwidth = width - MESSAGES_X - TIME_WIDTH;
+        return ((img->zoom || img->w <= maxwidth) ? img->h : img->h * maxwidth / img->w) + MESSAGES_SPACING;
+    }
+
     case 6:
     case 7: {
         return BM_FT_HEIGHT + MESSAGES_SPACING;
@@ -632,6 +667,22 @@ static void message_setheight(MESSAGES *m, MESSAGE *msg, MSG_DATA *p)
 
     setfont(FONT_MSG);
 
+    msg->height = msgheight(msg, m->width);
+    p->height += msg->height;
+    if(m->data == p) {
+        m->panel.content_scroll->content_height = p->height;
+    }
+}
+
+void message_updateheight(MESSAGES *m, MESSAGE *msg, MSG_DATA *p)
+{
+    if(m->width == 0) {
+        return;
+    }
+
+    setfont(FONT_MSG);
+
+    p->height -= msg->height;
     msg->height = msgheight(msg, m->width);
     p->height += msg->height;
     if(m->data == p) {

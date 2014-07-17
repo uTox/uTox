@@ -5,7 +5,7 @@ LDFLAGS += -lX11 -lXft -lXrender -ltoxcore -ltoxav -ltoxdns -lopenal -pthread -l
 
 DESTDIR=/usr/local
 
-SRC = $(wildcard *.c)
+SRC = $(wildcard *.c) png/png.c
 OBJ = $(SRC:.c=.o)
 
 all: uTox

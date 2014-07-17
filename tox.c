@@ -34,6 +34,21 @@ static FILE_T *file_t[256], **file_tend = file_t;
 
 static void fillbuffer(FILE_T *ft)
 {
+    if(ft->inline_png) {
+        ft->buffer += ft->sendsize;
+
+        if(ft->total - ft->bytes <= ft->sendsize) {
+            ft->buffer_bytes = ft->total - ft->bytes;
+            ft->bytes = ft->total;
+            ft->finish = 1;
+            return;
+        }
+
+        ft->buffer_bytes = ft->sendsize;
+        ft->bytes += ft->sendsize;
+        return;
+    }
+
     ft->buffer_bytes = fread(ft->buffer, 1, ft->sendsize, ft->data);
     ft->bytes += ft->buffer_bytes;
     ft->finish = (ft->bytes >= ft->total) || (feof((FILE*)ft->data) != 0);
@@ -85,16 +100,62 @@ static void startft(Tox *tox, uint32_t fid, uint8_t *path, uint8_t *name, uint16
     }
 }
 
+static void startft_inline(Tox *tox, uint16_t fid, void *pngdata)
+{
+    uint32_t size;
+    memcpy(&size, pngdata, 4);
+
+    int filenumber = tox_new_file_sender(tox, fid, size, (uint8_t*)"inline.png", sizeof("inline.png") - 1);
+    if(filenumber != -1) {
+        FILE_T *ft = &friend[fid].outgoing[filenumber];
+        memset(ft, 0, sizeof(FILE));
+
+        *file_tend++ = ft;
+
+        ft->fid = fid;
+        ft->filenumber = filenumber;
+        ft->inline_png = 1;
+
+        ft->status = FT_PENDING;
+        ft->sendsize = tox_file_data_size(tox, fid);
+
+        memcpy(ft->name, "inline.png", sizeof("inline.png") - 1);
+        ft->name_length = sizeof("inline.png") - 1;
+        ft->total = size;
+
+        ft->data = pngdata;
+        ft->buffer = ft->data + 4;
+
+        if(ft->total <= ft->sendsize) {
+            ft->bytes = ft->total;
+            ft->buffer_bytes = ft->total;
+            ft->finish = 1;
+        } else {
+            ft->bytes = ft->sendsize;
+            ft->buffer_bytes = ft->sendsize;
+        }
+
+
+        postmessage(FRIEND_FILE_OUT_NEW_INLINE, fid, filenumber, NULL);
+    } else {
+        free(pngdata);
+    }
+}
+
 static void resetft(Tox *tox, FILE_T *ft, uint64_t start)
 {
     if(start >= ft->total) {
         return;
     }
 
-    ft->bytes = start;
-    fseek(ft->data, start, SEEK_SET);
-    fillbuffer(ft);
+    if(ft->inline_png) {
+        ft->buffer = ft->data + 4;
+    } else {
+        fseek(ft->data, start, SEEK_SET);
+        fillbuffer(ft);
+    }
 
+    ft->bytes = start;
     ft->status = FT_SEND;
 }
 
@@ -156,7 +217,19 @@ static void callback_file_send_request(Tox *tox, int32_t fid, uint8_t filenumber
     memcpy(ft->name, filename, filename_length);
     debug("File Request %.*s\n", filename_length, filename);
 
-    postmessage(FRIEND_FILE_IN_NEW, fid, filenumber, NULL);
+    if(filesize < 1024 * 1024 *4 && filename_length == sizeof("inline.png") - 1 && memcmp(filename, "inline.png", filename_length) == 0) {
+        ft->inline_png = 1;
+        ft->status = FT_SEND;
+
+        ft->data = malloc(filesize);
+
+        tox_file_send_control(tox, fid, 1, filenumber, TOX_FILECONTROL_ACCEPT, NULL, 0);
+
+        //postmessage(FRIEND_FILE_IN_STATUS, fid, filenumber, (void*)FILE_OK);
+        postmessage(FRIEND_FILE_IN_NEW_INLINE, fid, filenumber, NULL);
+    } else {
+        postmessage(FRIEND_FILE_IN_NEW, fid, filenumber, NULL);
+    }
 }
 
 static void callback_file_control(Tox *tox, int32_t fid, uint8_t receive_send, uint8_t filenumber, uint8_t control, const uint8_t *data, uint16_t length, void *userdata)
@@ -175,8 +248,12 @@ static void callback_file_control(Tox *tox, int32_t fid, uint8_t receive_send, u
         ft->status = receive_send ? FT_KILL : FT_NONE;
         if(!receive_send) {
             if(ft->data) {
-                fclose(ft->data);
-                free(ft->path);
+                if(ft->inline_png) {
+                    free(ft->data);
+                } else {
+                    fclose(ft->data);
+                    free(ft->path);
+                }
             }
             postmessage(FRIEND_FILE_IN_STATUS, fid, filenumber, (void*)FILE_KILLED);
         }
@@ -199,10 +276,12 @@ static void callback_file_control(Tox *tox, int32_t fid, uint8_t receive_send, u
     case TOX_FILECONTROL_FINISHED: {
         if(!receive_send) {
             ft->status = FT_NONE;
-            if(ft->data) {
+            if(ft->inline_png) {
+                postmessage(FRIEND_FILE_IN_DONE_INLINE, fid, filenumber, ft->data);
+            } else {
                 fclose(ft->data);
+                postmessage(FRIEND_FILE_IN_DONE, fid, filenumber, ft->path);
             }
-            postmessage(FRIEND_FILE_IN_DONE, fid, filenumber, ft->path);
         }
         break;
     }
@@ -224,7 +303,11 @@ static void callback_file_control(Tox *tox, int32_t fid, uint8_t receive_send, u
 static void callback_file_data(Tox *tox, int32_t fid, uint8_t filenumber, const uint8_t *data, uint16_t length, void *userdata)
 {
     FILE_T *ft = &friend[fid].incoming[filenumber];
-    fwrite(data, 1, length, ft->data);
+    if(ft->inline_png) {
+        memcpy(ft->data + ft->bytes, data, length);
+    } else {
+        fwrite(data, 1, length, ft->data);
+    }
     ft->bytes += length;
 
     uint64_t time = get_time();
@@ -444,14 +527,16 @@ void tox_thread(void *args)
                     }
                     if(ft->finish) {
                         tox_file_send_control(tox, ft->fid, 0, ft->filenumber, TOX_FILECONTROL_FINISHED, NULL, 0);
-                        free(ft->buffer);
-                        fclose(ft->data);
+                        if(!ft->inline_png) {
+                            fclose(ft->data);
+                            free(ft->buffer);
+                        }
 
                         memmove(p, p + 1, ((void*)file_tend - (void*)(p + 1)));
                         p--;
                         file_tend--;
                         ft->status = FT_NONE;
-                        postmessage(FRIEND_FILE_OUT_DONE, ft->fid, ft->filenumber, ft->path);
+                        postmessage(FRIEND_FILE_OUT_DONE, ft->fid, ft->filenumber, ft->data);
                         break;
                     }
 
@@ -461,9 +546,12 @@ void tox_thread(void *args)
             }
 
             case FT_KILL: {
-                free(ft->buffer);
-                free(ft->path);
-                fclose(ft->data);
+                if(ft->inline_png) {
+                    free(ft->data);
+                } else {
+                    fclose(ft->data);
+                    free(ft->buffer);
+                }
 
                 memmove(p, p + 1, ((void*)file_tend - (void*)(p + 1)));
                 p--;
@@ -693,8 +781,15 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint8_t msg, uint16_t param1
         break;
     }
 
-    case TOX_ACCEPTFILE:
-    {
+    case TOX_SEND_INLINE: {
+        /* param1: friend id
+           data: pointer to pngdata
+         */
+        startft_inline(tox, param1, data);
+        break;
+    }
+
+    case TOX_ACCEPTFILE: {
         /* param1: friend #
          * param2: file #
          * data: path to write file
@@ -722,8 +817,12 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint8_t msg, uint16_t param1
          */
         FILE_T *ft = &friend[param1].incoming[param2];
         if(ft->data) {
-            fclose(ft->data);
-            free(ft->path);
+            if(ft->inline_png) {
+                free(ft->data);
+            } else {
+                fclose(ft->data);
+                free(ft->path);
+            }
         }
 
         ft->status = FT_NONE;
@@ -1050,6 +1149,7 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
         msg->size = ft->total;
         msg->progress = 0;
         msg->speed = 0;
+        msg->inline_png = 0;
         memcpy(msg->name, ft->name, msg->name_length);
 
         friend_addmessage(f, msg);
@@ -1061,9 +1161,36 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
         break;
     }
 
-    case FRIEND_FILE_OUT_NEW: {
+    case FRIEND_FILE_IN_NEW_INLINE: {
+        FRIEND *f = &friend[param1];
+        FILE_T *ft = &f->incoming[param2];
+
+        MSG_FILE *msg = malloc(sizeof(MSG_FILE));
+        msg->flags = 6;
+        msg->filenumber = param2;
+        msg->status = FILE_OK;
+        msg->name_length = (ft->name_length > sizeof(msg->name)) ? sizeof(msg->name) : ft->name_length;
+        msg->size = ft->total;
+        msg->progress = 0;
+        msg->speed = 0;
+        msg->inline_png = 1;
+        memcpy(msg->name, ft->name, msg->name_length);
+
+        friend_addmessage(f, msg);
+        ft->chatdata = msg;
+
+        file_notify(f, msg);
+
+        updatefriend(f);
+        break;
+    }
+
+
+    case FRIEND_FILE_OUT_NEW:
+    case FRIEND_FILE_OUT_NEW_INLINE: {
         FRIEND *f = &friend[param1];
         FILE_T *ft = &f->outgoing[param2];
+        _Bool inline_png = (msg == FRIEND_FILE_OUT_NEW_INLINE);
 
         MSG_FILE *msg = malloc(sizeof(MSG_FILE));
         msg->flags = 7;
@@ -1073,6 +1200,7 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
         msg->size = ft->total;
         msg->progress = 0;
         msg->speed = 0;
+        msg->inline_png = inline_png;
         memcpy(msg->name, ft->name, msg->name_length);
         msg->name[msg->name_length] = 0;
 
@@ -1116,6 +1244,22 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
         MSG_FILE *msg = ft->chatdata;
         msg->status = FILE_DONE;
         msg->path = data;
+
+        file_notify(f, msg);
+
+        updatefriend(f);
+        break;
+    }
+
+    case FRIEND_FILE_IN_DONE_INLINE: {
+        FRIEND *f = &friend[param1];
+        FILE_T *ft = &f->incoming[param2];
+
+        MSG_FILE *msg = ft->chatdata;
+        msg->status = FILE_DONE;
+        msg->path = data;
+
+        friend_recvimage(f, data, msg->size);
 
         file_notify(f, msg);
 

@@ -112,6 +112,32 @@ static void drawrectroundedsub(uint8_t *p, int width, int height, int sx, int sy
     }
 }
 
+static void drawrectroundedneg(uint8_t *p, int width, int height, int sx, int sy, int sw, int sh, int radius)
+{
+    int x, y;
+    double hw = (double)radius - 0.5;
+    for(y = sy; y != sy + sh; y++) {
+        for(x = sx; x != sx + sw; x++) {
+            uint8_t *data = &p[y * width + x];
+            x -= sx;
+            y -= sy;
+
+            if((x < radius || x >= sw - radius) && (y < radius || y >= sh - radius)) {
+                double dx, dy;
+                dx = (x < radius) ? x - hw : x + hw - sw + 1.0;
+                dy = (y < radius) ? y - hw : y + hw - sh + 1.0;
+                double d = sqrt(dx * dx  + dy * dy) - hw;
+                *data = 0xFF - pixel(d);
+            } else {
+                *data = 0;
+            }
+
+            x += sx;
+            y += sy;
+        }
+    }
+}
+
 static void drawcircle(uint8_t *data, int width)
 {
     int x, y;
@@ -384,7 +410,7 @@ _Bool svg_draw(_Bool needmemory)
             BM_STATUS_NOTIFY_WIDTH * BM_STATUS_NOTIFY_WIDTH +
             BM_LBUTTON_WIDTH * BM_LBUTTON_HEIGHT + BM_SBUTTON_WIDTH * BM_SBUTTON_HEIGHT + BM_FT_WIDTH * BM_FT_HEIGHT +
             BM_FTM_WIDTH * BM_FT_HEIGHT + (BM_FTB_WIDTH * (BM_FTB_HEIGHT + SCALE) + BM_FTB_WIDTH * BM_FTB_HEIGHT) +
-            BM_FB_WIDTH * BM_FB_HEIGHT * 4;
+            BM_FB_WIDTH * BM_FB_HEIGHT * 4 + BM_CB_WIDTH * BM_CB_HEIGHT * 2 + BM_CB_WIDTH * SCALE + BM_CI_WIDTH * BM_CI_WIDTH;
     svg_data = calloc(1, size);
 
     if(!svg_data) {
@@ -540,6 +566,19 @@ _Bool svg_draw(_Bool needmemory)
     drawlinedown(p, BM_FB_WIDTH, BM_FB_HEIGHT, SCALE * 1.9, SCALE * 3.25, SCALE * 2.5, 0.5 * SCALE);
     loadalpha(BM_YES, p, BM_FB_WIDTH, BM_FB_HEIGHT);
     p += s;
+
+    drawrectroundedex(p, BM_CB_WIDTH, BM_CB_HEIGHT, SCALE * 2, 6);
+    loadalpha(BM_CB1, p, BM_CB_WIDTH, BM_CB_HEIGHT);
+    p += BM_CB_WIDTH * BM_CB_HEIGHT;
+
+    drawrectroundedex(p, BM_CB_WIDTH, BM_CB_HEIGHT + SCALE, SCALE * 2, 10);
+    loadalpha(BM_CB2, p, BM_CB_WIDTH, BM_CB_HEIGHT + SCALE);
+    p += BM_CB_WIDTH * (BM_CB_HEIGHT + SCALE);
+
+    drawrectrounded(p, BM_CI_WIDTH, BM_CI_WIDTH, SCALE * 2);
+    drawrectroundedneg(p, BM_CI_WIDTH, BM_CI_WIDTH, SCALE, SCALE, 14 * SCALE, 14 * SCALE, 1 * SCALE);
+    loadalpha(BM_CI1, p, BM_CI_WIDTH, BM_CI_WIDTH);
+    p += BM_CI_WIDTH * BM_CI_WIDTH;
 
     if(p - svg_data != size) {
         debug("something went wrong\n");

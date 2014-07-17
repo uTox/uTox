@@ -35,6 +35,12 @@
 #define BM_FB_WIDTH (6 * SCALE)
 #define BM_FB_HEIGHT (5 * SCALE)
 
+#define BM_CB_WIDTH (20 * SCALE)
+#define BM_CB_HEIGHT (20 * SCALE)
+
+#define _BM_CI_WIDTH 16
+#define BM_CI_WIDTH (16 * SCALE)
+
 void *svg_data;
 
 _Bool svg_draw(_Bool needmemory);

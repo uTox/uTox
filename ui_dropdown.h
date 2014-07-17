@@ -16,7 +16,7 @@ static void dropdown_video_onselect(void *handle)
         video_preview = 0;
         b = 1; //tell video thread to stop preview too
     } else if((size_t)handle == 1) {
-        desktopgrab();
+        desktopgrab(1);
         return;
     }
 

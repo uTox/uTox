@@ -22,7 +22,7 @@ enum {
 typedef struct {
     /* used by the tox thread */
     uint8_t status, filenumber, name_length;
-    _Bool finish;
+    _Bool finish, inline_png;
     uint16_t sendsize, buffer_bytes;
     uint32_t fid;
     void *data, *buffer;
@@ -58,6 +58,8 @@ struct friend {
 
 void friend_setname(FRIEND *f, uint8_t *name, uint16_t length);
 void friend_addmessage(FRIEND *f, void *data);
+void friend_sendimage(FRIEND *f, void *data, void *pngdata, uint16_t width, uint16_t height);
+void friend_recvimage(FRIEND *f, void *pngdata, uint32_t size);
 
 void friend_notify(FRIEND *f, uint8_t *str, uint16_t str_length, uint8_t *msg, uint16_t msg_length);
 #define friend_notifystr(f, str, msg, mlen) friend_notify(f, (uint8_t*)str, sizeof(str) - 1, msg, mlen)

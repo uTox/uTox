@@ -211,9 +211,42 @@ _Bool doevent(void)
 
                 XDrawRectangle(display, RootWindow(display, screen), grabgc, grabx, graby, grabpx, grabpy);
                 XUngrabPointer(display, CurrentTime);
-                pointergrab = 0;
+                if(pointergrab == 1) {
+                    FRIEND *f = sitem->data;
+                    if(sitem->item == ITEM_FRIEND && f->online) {
+                        XImage *img = XGetImage(display, RootWindow(display, screen), grabx, graby, grabpx, grabpy, XAllPlanes(), ZPixmap);
+                        if(img) {
+                            uint8_t *out;
+                            size_t size;
+                            uint8_t *temp, *p;
+                            uint32_t *pp = (void*)img->data, *end = &pp[img->width * img->height];
+                            p = temp = malloc(img->width * img->height * 3);
+                            while(pp != end) {
+                                uint32_t i = *pp++;
+                                *p++ = i;
+                                *p++ = i >> 8;
+                                *p++ = i >> 16;
+                            }
+                            lodepng_encode_memory(&out, &size, temp, img->width, img->height, LCT_RGB, 8);
+                            free(temp);
 
-                toxvideo_postmessage(VIDEO_SET, 0, 0, (void*)1);
+                            uint32_t s = size;
+                            void *data = malloc(size + 4);
+                            memcpy(data, &s, 4);
+                            memcpy(data + 4, out, size);
+                            free(out);
+
+                            uint16_t w = img->width;
+                            uint16_t h = img->height;
+                            Picture pic = image_to_picture(img);
+
+                            friend_sendimage(f, (void*)pic, data, w, h);
+                        }
+                    }
+                } else {
+                    toxvideo_postmessage(VIDEO_SET, 0, 0, (void*)1);
+                }
+                pointergrab = 0;
             } else {
                 panel_mup(&panel_main);
                 mdown = 0;

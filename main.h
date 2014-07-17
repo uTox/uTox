@@ -51,6 +51,8 @@ typedef struct msg_file MSG_FILE;
 
 typedef uint8_t char_t;
 
+#include "png/png.h"
+
 #include "tox.h"
 #include "dns.h"
 #include "friend.h"
@@ -108,6 +110,8 @@ enum
     CURSOR_TEXT,
     CURSOR_HAND,
     CURSOR_SELECT,
+    CURSOR_ZOOM_IN,
+    CURSOR_ZOOM_OUT,
 };
 uint8_t cursor;
 
@@ -172,6 +176,10 @@ enum
     BM_SCROLLHALFTOP,
     BM_SCROLLHALFBOT,
     BM_STATUSAREA,
+
+    BM_CB1,
+    BM_CB2,
+    BM_CI1
 };
 
 #define isdesktop(x) ((size_t)(x) == 1)
@@ -180,9 +188,11 @@ void drawalpha(int bm, int x, int y, int width, int height, uint32_t color);
 void loadalpha(int bm, void *data, int width, int height);
 void* loadsavedata(uint32_t *len);
 void writesavedata(void *data, uint32_t len);
-void desktopgrab(void);
+void desktopgrab(_Bool video);
 void notify(uint8_t *title, uint16_t title_length, uint8_t *msg, uint16_t msg_length);
 void setscale(void);
+void drawimage(void *data, int x, int y, int width, int height, int maxwidth, _Bool zoom);
+void* png_to_image(void *data, uint16_t *w, uint16_t *h, uint32_t size);
 
 //me
 struct
@@ -246,6 +256,7 @@ void listpopup(uint8_t item);
 void openurl(char_t *str);
 void openfilesend(void);
 void savefilerecv(uint32_t fid, MSG_FILE *file);
+void savefiledata(MSG_FILE *file);
 
 void sysmexit(void);
 void sysmsize(void);

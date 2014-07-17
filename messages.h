@@ -20,7 +20,9 @@ typedef struct {
     uint16_t flags;
     uint32_t height;
     uint32_t time;
-    //HBITMAP bitmap;
+    uint16_t w, h;
+    _Bool zoom;
+    void *data;
 } MSG_IMG;
 
 struct msg_file {
@@ -29,6 +31,7 @@ struct msg_file {
     uint32_t time, speed;
     uint8_t filenumber, status, name_length;
     uint64_t size, progress;
+    _Bool inline_png;
     uint8_t *path;
     uint8_t name[64];
 };
@@ -46,5 +49,6 @@ int messages_selection(MESSAGES *m, void *data, uint32_t len);
 
 _Bool messages_char(uint32_t ch);
 
-void messages_updateheight(MESSAGES *m) ;
+void messages_updateheight(MESSAGES *m);
+void message_updateheight(MESSAGES *m, MESSAGE *msg, MSG_DATA *p);
 void message_add(MESSAGES *m, MESSAGE *msg, MSG_DATA *p);

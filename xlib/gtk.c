@@ -68,14 +68,40 @@ static void gtk_savethread(void *args)
     int result = gtk_dialog_run(dialog);
     if(result == -3) {
         char *name = gtk_file_chooser_get_filename(dialog);
-        int len = strlen(name) + 1;
-        char *path = malloc(len);
-        memcpy(path, name, len);
+        char *path = strdup(name);
         //g_free(name)
 
         debug("name: %s\npath: %s\n", name, path);
 
         postmessage(SAVE_FILE, fid, file->filenumber, path);
+    }
+
+    gtk_widget_destroy(dialog);
+    while(gtk_events_pending()) {
+        gtk_main_iteration();
+    }
+
+    gtk_open = 0;
+}
+
+static void gtk_savedatathread(void *args)
+{
+    MSG_FILE *file = args;
+    void *dialog = gtk_file_chooser_dialog_new("Save File", NULL, 1, "gtk-cancel", -6, "gtk-save", -3, NULL);
+    gtk_file_chooser_set_current_name(dialog, "inline.png");
+    int result = gtk_dialog_run(dialog);
+    if(result == -3) {
+        char *name = gtk_file_chooser_get_filename(dialog);
+
+        FILE *fp = fopen(name, "wb");
+        if(fp) {
+            fwrite(file->path + ((file->flags & 1) ? 4 : 0), file->size, 1, fp);
+            fclose(fp);
+
+            free(file->path);
+            file->path = (uint8_t*)strdup(name);
+            file->inline_png = 0;
+        }
     }
 
     gtk_widget_destroy(dialog);
@@ -103,6 +129,15 @@ void gtk_savefilerecv(uint32_t fid, MSG_FILE *file)
     gtk_open = 1;
     file->progress = fid;
     thread(gtk_savethread, file);
+}
+
+void gtk_savefiledata(MSG_FILE *file)
+{
+    if(gtk_open) {
+        return;
+    }
+    gtk_open = 1;
+    thread(gtk_savedatathread, file);
 }
 
 void* gtk_load(void)
