@@ -892,27 +892,34 @@ void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height
         };
         XConfigureWindow(display, video_win[id], CWWidth | CWHeight, &changes);
     }
+    
+    XWindowAttributes attrs;
+    XGetWindowAttributes(display, video_win[id], &attrs);
+    uint8_t new_data[attrs.width * attrs.height * 4];
 
+    scale_rgbx_image(img_data, width, height, new_data, attrs.width, attrs.height);
+    
     XImage image = {
-        .width = width,
-        .height = height,
+        .width = attrs.width,
+        .height = attrs.height,
         .depth = 24,
         .bits_per_pixel = 32,
         .format = ZPixmap,
         .byte_order = LSBFirst,
         .bitmap_unit = 8,
         .bitmap_bit_order = LSBFirst,
-        .bytes_per_line = width * 4,
+        .bytes_per_line = attrs.width * 4,
         .red_mask = 0xFF0000,
         .green_mask = 0xFF00,
         .blue_mask = 0xFF,
-        .data = (void*)img_data
+        .data = (void*)new_data
     };
 
+
     GC gc = DefaultGC(display, screen);
-    Pixmap pixmap = XCreatePixmap(display, window, width, height, 24);
-    XPutImage(display, pixmap, gc, &image, 0, 0, 0, 0, width, height);
-    XCopyArea(display, pixmap, video_win[id], gc, 0, 0, width, height, 0, 0);
+    Pixmap pixmap = XCreatePixmap(display, window, attrs.width, attrs.height, 24);
+    XPutImage(display, pixmap, gc, &image, 0, 0, 0, 0, attrs.width, attrs.height);
+    XCopyArea(display, pixmap, video_win[id], gc, 0, 0, attrs.width, attrs.height, 0, 0);
     XFreePixmap(display, pixmap);
 }
 
