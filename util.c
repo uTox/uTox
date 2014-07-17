@@ -448,7 +448,7 @@ void rgbxtoyuv420(uint8_t *plane_y, uint8_t *plane_u, uint8_t *plane_v, uint8_t 
 
 void scale_rgbx_image(uint8_t *old_rgbx, uint16_t old_width, uint16_t old_height, uint8_t *new_rgbx, uint16_t new_width, uint16_t new_height)
 {
-    int x, y, i, x0, y0, a, b;
+    int x, y, x0, y0, a, b;
     for(y = 0; y != new_height; y++) {
         y0 = y * old_height / new_height;
         for(x = 0; x != new_width; x++) {

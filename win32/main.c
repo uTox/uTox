@@ -1482,12 +1482,19 @@ void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height
         SetWindowPos(video_hwnd[id], 0, 0, 0, width, height, SWP_NOZORDER | SWP_NOMOVE);
     }
 
+    RECT r = {0};
+    GetClientRect(video_hwnd[id], &r);
+
     HBITMAP bitmap = CreateBitmap(width, height, 1, 32, img_data);
 
     HDC dc = GetDC(video_hwnd[id]);
     HDC dc_src = CreateCompatibleDC(dc);
     SelectObject(dc_src, bitmap);
-    BitBlt(dc, 0, 0, width, height, dc_src, 0, 0, SRCCOPY);
+    if(width == r.right && height == r.bottom) {
+        BitBlt(dc, 0, 0, width, height, dc_src, 0, 0, SRCCOPY);
+    } else {
+        StretchBlt(dc, 0, 0, r.right, r.bottom, dc_src, 0, 0, width, height, SRCCOPY);
+    }
 
     DeleteObject(bitmap);
     DeleteDC(dc_src);

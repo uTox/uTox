@@ -973,13 +973,10 @@ void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height
         };
         XConfigureWindow(display, video_win[id], CWWidth | CWHeight, &changes);
     }
-    
+
     XWindowAttributes attrs;
     XGetWindowAttributes(display, video_win[id], &attrs);
-    uint8_t new_data[attrs.width * attrs.height * 4];
 
-    scale_rgbx_image(img_data, width, height, new_data, attrs.width, attrs.height);
-    
     XImage image = {
         .width = attrs.width,
         .height = attrs.height,
@@ -993,8 +990,15 @@ void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height
         .red_mask = 0xFF0000,
         .green_mask = 0xFF00,
         .blue_mask = 0xFF,
-        .data = (void*)new_data
+        .data = (char*)img_data
     };
+
+    /* scale image if needed */
+    uint8_t new_data[attrs.width * attrs.height * 4];
+    if(attrs.width != width || attrs.height != height) {
+        scale_rgbx_image(img_data, width, height, new_data, attrs.width, attrs.height);
+        image.data = (char*)new_data;
+    }
 
 
     GC gc = DefaultGC(display, screen);
