@@ -472,11 +472,23 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
         }
 
         case KEY_HOME: {
+            if(flags & 1) {
+                edit_sel.p2 = 0;
+                edit_sel.start = 0;
+                edit_sel.length = edit_sel.p1;
+                break;
+            }
             edit_sel.p1 = edit_sel.p2 = edit_sel.start = edit_sel.length = 0;
             break;
         }
 
         case KEY_END: {
+            if(flags & 1) {
+                edit_sel.p2 = edit->length;
+                edit_sel.start = edit_sel.p1;
+                edit_sel.length = edit_sel.p2 - edit_sel.p1;
+                break;
+            }
             edit_sel.p1 = edit_sel.p2 = edit_sel.start = edit->length;
             edit_sel.length = 0;
             break;
