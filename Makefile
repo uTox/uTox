@@ -8,9 +8,9 @@ DESTDIR=/usr/local
 SRC = $(wildcard *.c png/png.c)
 OBJ = $(SRC:.c=.o)
 
-all: uTox
+all: utox
 
-uTox: $(OBJ)
+utox: $(OBJ)
 	$(CC) $(CFLAGS) -o utox $(OBJ) $(LDFLAGS)
 
 install: utox
@@ -20,9 +20,9 @@ install: utox
 main.o: xlib/main.c xlib/keysym2ucs.c
 
 .c.o:
-	$(CC) $(CFLAGS) -c $<
+	$(CC) $(CFLAGS) -o $@ -c $<
 
 clean:
-	rm -f utox *.o
+	rm -f utox *.o png/*.o
 
 .PHONY: all clean
