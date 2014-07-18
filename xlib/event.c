@@ -223,9 +223,9 @@ _Bool doevent(void)
                             p = temp = malloc(img->width * img->height * 3);
                             while(pp != end) {
                                 uint32_t i = *pp++;
-                                *p++ = i;
-                                *p++ = i >> 8;
                                 *p++ = i >> 16;
+                                *p++ = i >> 8;
+                                *p++ = i;
                             }
                             lodepng_encode_memory(&out, &size, temp, img->width, img->height, LCT_RGB, 8);
                             free(temp);

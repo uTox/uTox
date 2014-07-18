@@ -834,7 +834,7 @@ LRESULT CALLBACK GrabProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                     }
                 };
 
-                void *bits = malloc(grabpx * (grabpy + 3) * 3);
+                void *bits = malloc((grabpx + 3) * grabpy * 3);
 
                 HWND dwnd = GetDesktopWindow();
                 HDC ddc = GetDC(dwnd);
@@ -849,7 +849,13 @@ LRESULT CALLBACK GrabProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                     uint8_t pbytes = grabpx & 3, *p = bits, *pp = bits, *end = p + grabpx * grabpy * 3;
                     uint32_t offset = 0;
                     while(p != end) {
-                        memmove(p, pp, grabpx * 3);
+                        int i;
+                        for(i = 0; i != grabpx; i++) {
+                            uint8_t t = pp[i * 3];
+                            p[i * 3] = pp[i * 3 + 2];
+                            p[i * 3 + 1] = pp[i * 3 + 1];
+                            p[i * 3 + 2] = t;
+                        }
                         p += grabpx * 3;
                         pp += grabpx * 3 + pbytes;
                     }

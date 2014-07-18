@@ -3267,9 +3267,9 @@ static unsigned getPixelColorsRGBA8(unsigned char* buffer, size_t numpixels,
     {
       for(i = 0; i < numpixels; i++, buffer += num_channels)
       {
-        buffer[0] = in[i * 3 + 0];
+        buffer[0] = in[i * 3 + 2];
         buffer[1] = in[i * 3 + 1];
-        buffer[2] = in[i * 3 + 2];
+        buffer[2] = in[i * 3 + 0];
         if(has_alpha) buffer[3] = mode->key_defined && buffer[0] == mode->key_r
            && buffer[1]== mode->key_g && buffer[2] == mode->key_b ? 0 : 255;
       }
@@ -3416,7 +3416,7 @@ unsigned lodepng_convert(unsigned char* out, const unsigned char* in,
   if(lodepng_color_mode_equal(mode_out, mode_in))
   {
     size_t numbytes = lodepng_get_raw_size(w, h, mode_in);
-    for(i = 0; i < numbytes; i++) out[i] = in[i];
+    for(i = 0; i < numbytes; i++) out[i + 2 - (i % 3)] = in[i];
     return error;
   }
 
@@ -4753,18 +4753,7 @@ unsigned lodepng_decode(unsigned char** out, unsigned* w, unsigned* h,
   *out = 0;
   decodeGeneric(out, w, h, state, in, insize);
   if(state->error) return state->error;
-  if(!state->decoder.color_convert || lodepng_color_mode_equal(&state->info_raw, &state->info_png.color))
-  {
-    /*same color type, no copying or converting of data needed*/
-    /*store the info_png color settings on the info_raw so that the info_raw still reflects what colortype
-    the raw image has to the end user*/
-    if(!state->decoder.color_convert)
-    {
-      state->error = lodepng_color_mode_copy(&state->info_raw, &state->info_png.color);
-      if(state->error) return state->error;
-    }
-  }
-  else
+
   {
     /*color conversion needed; sort of copy of the data*/
     unsigned char* data = *out;
