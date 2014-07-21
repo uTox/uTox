@@ -1485,7 +1485,14 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
 void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height, _Bool resize)
 {
     if(resize) {
-        SetWindowPos(video_hwnd[id], 0, 0, 0, width, height, SWP_NOZORDER | SWP_NOMOVE);
+        RECT r = {
+            .left = 0,
+            .top = 0,
+            .right = width,
+            .bottom = height
+        };
+        AdjustWindowRect(&r, WS_OVERLAPPEDWINDOW, 0);
+        SetWindowPos(video_hwnd[id], 0, 0, 0, r.right - r.left, r.bottom - r.top, SWP_NOZORDER | SWP_NOMOVE);
     }
 
     RECT r = {0};
@@ -1513,8 +1520,20 @@ void video_begin(uint32_t id, uint8_t *name, uint16_t name_length, uint16_t widt
     int len = utf8tonative(name, out, name_length);
     out[len] = 0;
 
-    *h = CreateWindowExW(0, L"uTox", out, WS_OVERLAPPEDWINDOW, 0, 0, video_width, video_height, NULL, NULL, hinstance, NULL);
+    RECT r = {
+        .left = 0,
+        .top = 0,
+        .right = width,
+        .bottom = height
+    };
+    AdjustWindowRect(&r, WS_OVERLAPPEDWINDOW, 0);
+    *h = CreateWindowExW(0, L"uTox", out, WS_OVERLAPPEDWINDOW, 0, 0, r.right - r.left, r.bottom - r.top, NULL, NULL, hinstance, NULL);
+
+
+
     ShowWindow(*h, SW_SHOW);
+
+
 }
 
 void video_end(uint32_t id)
