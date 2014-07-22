@@ -2,14 +2,19 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
-#include <X11/Xft/Xft.h>
 #include <X11/Xatom.h>
 #include <X11/X.h>
 #include <X11/cursorfont.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
-#include <sys/shm.h>
+
+#include <X11/extensions/Xrender.h>
+#include <ft2build.h>
+#include <fontconfig/fontconfig.h>
+#include <fontconfig/fcfreetype.h>
+
 #include <X11/extensions/XShm.h>
+#include <sys/shm.h>
 
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -53,12 +58,6 @@ uint8_t pointergrab;
 int grabx, graby, grabpx, grabpy;
 GC grabgc;
 
-XftFont *font[16][64], **sfont;
-XftDraw *xftdraw;
-XftColor xftcolor;
-FcCharSet *charset;
-FcFontSet *fs;
-
 XSizeHints *xsh;
 
 _Bool havefocus = 0;
@@ -73,6 +72,9 @@ Atom XA_CLIPBOARD, XA_UTF8_STRING, targets;
 Atom XdndAware, XdndEnter, XdndLeave, XdndPosition, XdndStatus, XdndDrop, XdndSelection, XdndDATA, XdndActionCopy;
 
 Pixmap drawbuf;
+Picture renderpic;
+Picture colorpic;
+
 uint16_t drawwidth, drawheight;
 
 XImage *screen_image;
@@ -80,6 +82,8 @@ XImage *screen_image;
 /* pointers to dynamically loaded libs */
 void *libgtk;
 #include "gtk.c"
+
+#include "freetype.c"
 
 struct
 {
@@ -101,7 +105,7 @@ static void setclipboard(void)
     XSetSelectionOwner(display, XA_CLIPBOARD, window, CurrentTime);
 }
 
-static XftFont* getfont(XftFont **font, uint32_t ch)
+/*static XftFont* getfont(XftFont **font, uint32_t ch)
 {
     XftFont *first = font[0];
     if(!FcCharSetHasChar(charset, ch)) {
@@ -137,51 +141,7 @@ static XftFont* getfont(XftFont **font, uint32_t ch)
 
     //should never happen
     return first;
-}
-
-static void initfonts(void)
-{
-    FcResult result;
-    FcPattern *pat = FcPatternCreate();
-    FcPatternAddString(pat, FC_FAMILY, (uint8_t*)"Roboto");
-    FcConfigSubstitute(0, pat, FcMatchPattern);
-    FcDefaultSubstitute(pat);
-    fs = FcFontSort(NULL, pat, 0, &charset, &result);
-
-    FcPatternDestroy(pat);
-}
-
-static void loadfonts(void)
-{
-     #define F(x) (x * SCALE / 2.0)
-    font[FONT_TEXT][0] = XftFontOpen(display, screen, XFT_FAMILY, XftTypeString, "Roboto", XFT_PIXEL_SIZE, XftTypeDouble, F(12.0), NULL);
-
-    font[FONT_TITLE][0] = XftFontOpen(display, screen, XFT_FAMILY, XftTypeString, "Roboto", XFT_PIXEL_SIZE, XftTypeDouble, F(12.0), XFT_WEIGHT, XftTypeInteger, FC_WEIGHT_BOLD, NULL);
-
-    font[FONT_SELF_NAME][0] = XftFontOpen(display, screen, XFT_FAMILY, XftTypeString, "Roboto", XFT_PIXEL_SIZE, XftTypeDouble, F(14.0), XFT_WEIGHT, XftTypeInteger, FC_WEIGHT_BOLD, NULL);
-    font[FONT_STATUS][0] = XftFontOpen(display, screen, XFT_FAMILY, XftTypeString, "Roboto", XFT_PIXEL_SIZE, XftTypeDouble, F(11.0), NULL);
-
-    font[FONT_LIST_NAME][0] = XftFontOpen(display, screen, XFT_FAMILY, XftTypeString, "Roboto", XFT_PIXEL_SIZE, XftTypeDouble, F(12.0), NULL);
-
-    font[FONT_MSG][0] = XftFontOpen(display, screen, XFT_FAMILY, XftTypeString, "Roboto", XFT_PIXEL_SIZE, XftTypeDouble, F(11.0), XFT_WEIGHT, XftTypeInteger, FC_WEIGHT_LIGHT, NULL);
-    font[FONT_MSG_NAME][0] = XftFontOpen(display, screen, XFT_FAMILY, XftTypeString, "Roboto", XFT_PIXEL_SIZE, XftTypeDouble, F(10.0), XFT_WEIGHT, XftTypeInteger, FC_WEIGHT_LIGHT, NULL);
-    font[FONT_MISC][0] = XftFontOpen(display, screen, XFT_FAMILY, XftTypeString, "Roboto", XFT_PIXEL_SIZE, XftTypeDouble, F(10.0), NULL);
-    font[FONT_MSG_LINK][0] = XftFontOpen(display, screen, XFT_FAMILY, XftTypeString, "Roboto", XFT_PIXEL_SIZE, XftTypeDouble, F(11.0), XFT_WEIGHT, XftTypeInteger, FC_WEIGHT_LIGHT, NULL);
-    #undef F
-}
-
-static void freefonts(void)
-{
-    int i;
-    for(i = 0; i != countof(font); i++) {
-        XftFont **f = font[i];
-        while(*f) {
-            XftFontClose(display, *f);
-            *f = NULL;
-            f++;
-        }
-    }
-}
+}*/
 
 void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data)
 {
@@ -214,7 +174,7 @@ void drawalpha(int bm, int x, int y, int width, int height, uint32_t color)
 
     Picture src = XRenderCreateSolidFill(display, &xrcolor);
 
-    XRenderComposite(display, PictOpOver, src, bitmap[bm], XftDrawPicture(xftdraw), 0, 0, 0, 0, x, y, width, height);
+    XRenderComposite(display, PictOpOver, src, bitmap[bm], renderpic, 0, 0, 0, 0, x, y, width, height);
 
     XRenderFreePicture(display, src);
 }
@@ -232,7 +192,7 @@ void drawimage(void *data, int x, int y, int width, int height, int maxwidth, _B
         XRenderSetPictureTransform(display, bm, &trans);
         XRenderSetPictureFilter(display, bm, FilterBilinear, NULL, 0);
 
-        XRenderComposite(display, PictOpSrc, bm, None, XftDrawPicture(xftdraw), 0, 0, 0, 0, x, y, maxwidth, height * maxwidth / width);
+        XRenderComposite(display, PictOpSrc, bm, None, renderpic, 0, 0, 0, 0, x, y, maxwidth, height * maxwidth / width);
 
         XTransform trans2 = {
             {{65536, 0, 0},
@@ -242,64 +202,55 @@ void drawimage(void *data, int x, int y, int width, int height, int maxwidth, _B
         XRenderSetPictureFilter(display, bm, FilterNearest, NULL, 0);
         XRenderSetPictureTransform(display, bm, &trans2);
     } else {
-        XRenderComposite(display, PictOpSrc, bm, None, XftDrawPicture(xftdraw), 0, 0, 0, 0, x, y, width > maxwidth ? maxwidth : width, height);
+        XRenderComposite(display, PictOpSrc, bm, None, renderpic, 0, 0, 0, 0, x, y, width > maxwidth ? maxwidth : width, height);
     }
 }
 
-int _drawtext(int x, int y, uint8_t *str, uint16_t length)
+static int _drawtext(int x, int xmax, int y, uint8_t *str, uint16_t length)
 {
-    XftFont *font = sfont[0], *nfont;
-    int x1 = x;
-    XGlyphInfo extents;
-    uint8_t *a = str, *b = str, *end = str + length;
-    while(a != end) {
-        uint32_t ch;
-        uint8_t len = utf8_len_read(a, &ch);
-        nfont = getfont(sfont, ch);
-        if(nfont != font) {
-            XftTextExtentsUtf8(display, font, b, a - b, &extents);
-            XftDrawStringUtf8(xftdraw, &xftcolor, font, x, y + font->ascent, b, a - b);
-            x += extents.xOff;
+    GLYPH *g;
+    uint8_t len;
+    uint32_t ch;
+    while(length) {
+        len = utf8_len_read(str, &ch);
+        str += len;
+        length -= len;
 
-            font = nfont;
-            b = a;
+        g = font_getglyph(sfont, ch);
+        if(g) {
+            if(x + g->xadvance > xmax) {
+                return -x;
+            }
+
+            XRenderComposite(display, PictOpOver, colorpic, g->pic, renderpic, 0, 0, 0, 0, x + g->x, y + g->y, g->width, g->height);
+            x += g->xadvance;
         }
-
-        a += len;
     }
 
-    XftTextExtentsUtf8(display, font, b, a - b, &extents);
-    XftDrawStringUtf8(xftdraw, &xftcolor, font, x, y + font->ascent, b, a - b);
-
-    return x - x1 + extents.xOff;
+    return x;
 }
 
 void drawtext(int x, int y, uint8_t *str, uint16_t length)
 {
-    _drawtext(x, y, str, length);
+    _drawtext(x, INT_MAX, y, str, length);
 }
 
 int drawtext_getwidth(int x, int y, uint8_t *str, uint16_t length)
 {
-    return _drawtext(x, y, str, length);
+    return _drawtext(x, INT_MAX, y, str, length) - x;
+}
+
+void drawtextrange(int x, int xmax, int y, uint8_t *str, uint16_t length)
+{
+    x = _drawtext(x, xmax - SCALE * 4, y, str, length);
+    if(x < 0) {
+        _drawtext(-x, INT_MAX, y, (uint8_t*)"...", 3);
+    }
 }
 
 void drawtextwidth(int x, int width, int y, uint8_t *str, uint16_t length)
 {
-    int fit = textfit(str, length, width);
-    if(fit != length) {
-        uint8_t buf[fit + 3];
-        memcpy(buf, str, fit);
-        memcpy(buf + fit, "...", 3);
-        drawtext(x, y, buf, fit + 3);
-    } else {
-        drawtext(x, y, str, length);
-    }
-}
-
-void drawtextrange(int x, int x2, int y, uint8_t *str, uint16_t length)
-{
-    drawtextwidth(x, x2 - x, y, str, length);
+    drawtextrange(x, x + width, y, str, length);
 }
 
 void drawtextwidth_right(int x, int width, int y, uint8_t *str, uint16_t length)
@@ -315,73 +266,69 @@ void drawtextrangecut(int x, int x2, int y, uint8_t *str, uint16_t length)
 
 int textwidth(uint8_t *str, uint16_t length)
 {
-    XftFont *font = sfont[0], *nfont;
+    GLYPH *g;
+    uint8_t len;
+    uint32_t ch;
     int x = 0;
-    XGlyphInfo extents;
-    uint8_t *a = str, *b = str, *end = str + length;
-    while(a != end) {
-        uint32_t ch;
-        uint8_t len = utf8_len_read(a, &ch);
-        nfont = getfont(sfont, ch);
-        if(nfont != font) {
-            XftTextExtentsUtf8(display, font, b, a - b, &extents);
-            x += extents.xOff;
+    while(length) {
+        len = utf8_len_read(str, &ch);
+        str += len;
+        length -= len;
 
-            font = nfont;
-            b = a;
+        g = font_getglyph(sfont, ch);
+        if(g) {
+            x += g->xadvance;
         }
-
-        a += len;
     }
-    XftTextExtentsUtf8(display, font, b, a - b, &extents);
-
-    return x + extents.xOff;
+    return x;
 }
 
 int textfit(uint8_t *str, uint16_t length, int width)
 {
-    int i = 0;
-    int x = 0;
-    XftFont *font;
+    GLYPH *g;
+    uint8_t len;
     uint32_t ch;
-    XGlyphInfo extents;
-    while(i < length) {
-        uint8_t len = utf8_len_read(str + i, &ch);
-        font = getfont(sfont, ch);
-        XftTextExtentsUtf8(display, font, str + i, len, &extents);
+    int x = 0, i = 0;
+    while(i != length) {
+        len = utf8_len_read(str, &ch);
+        str += len;
 
-        x += extents.xOff;
-        if(x >= width) {
-            break;
+        g = font_getglyph(sfont, ch);
+        if(g) {
+            x += g->xadvance;
+            if(x > width) {
+                return i;
+            }
         }
 
         i += len;
     }
 
-    return i;
+    return length;
 }
 
 int textfit_near(uint8_t *str, uint16_t length, int width)
 {
-    int i = 0;
-    int x = 0;
-    XftFont *font;
+    GLYPH *g;
+    uint8_t len;
     uint32_t ch;
-    XGlyphInfo extents;
-    while(i < length) {
-        uint8_t len = utf8_len_read(str + i, &ch);
-        font = getfont(sfont, ch);
-        XftTextExtentsUtf8(display, font, str + i, len, &extents);
+    int x = 0, i = 0;
+    while(i != length) {
+        len = utf8_len_read(str, &ch);
+        str += len;
 
-        if(x + extents.xOff / 2 > width) {
-            break;
+        g = font_getglyph(sfont, ch);
+        if(g) {
+            x += g->xadvance;
+            if(x > width) {
+                return i;
+            }
         }
 
-        x += extents.xOff;
         i += len;
     }
 
-    return i;
+    return length;
 }
 
 void framerect(int x, int y, int right, int bottom, uint32_t color)
@@ -416,22 +363,23 @@ void drawvline(int x, int y, int y2, uint32_t color)
 
 void setfont(int id)
 {
-    sfont = font[id];
+    sfont = &font[id];
 }
 
 uint32_t setcolor(uint32_t color)
 {
     XRenderColor xrcolor;
-    XftColorFree(display, visual, cmap, &xftcolor);
     xrcolor.red = ((color >> 8) & 0xFF00) | 0x80;
     xrcolor.green = ((color) & 0xFF00) | 0x80;
     xrcolor.blue = ((color << 8) & 0xFF00) | 0x80;
     xrcolor.alpha = 0xFFFF;
-    XftColorAllocValue(display, visual, cmap, &xrcolor, &xftcolor);
+
+    XRenderFreePicture(display, colorpic);
+    colorpic = XRenderCreateSolidFill(display, &xrcolor);
 
     uint32_t old = scolor;
     scolor = color;
-    xftcolor.pixel = color;
+    //xftcolor.pixel = color;
     XSetForeground(display, gc, color);
     return old;
 }
@@ -462,7 +410,7 @@ void pushclip(int left, int top, int width, int height)
     r->height = height;
 
     XSetClipRectangles(display, gc, 0, 0, r, 1, Unsorted);
-    XftDrawSetClipRectangles(xftdraw, 0, 0, r, 1);
+    XRenderSetPictureClipRectangles(display, renderpic, 0, 0, r, 1);
 }
 
 void popclip(void)
@@ -470,14 +418,17 @@ void popclip(void)
     clipk--;
     if(!clipk) {
         XSetClipMask(display, gc, None);
-        XftDrawSetClip(xftdraw, None);
+
+        XRenderPictureAttributes pa;
+	    pa.clip_mask = None;
+	    XRenderChangePicture(display, renderpic, CPClipMask, &pa);
         return;
     }
 
     XRectangle *r = &clip[clipk - 1];
 
     XSetClipRectangles(display, gc, 0, 0, r, 1, Unsorted);
-    XftDrawSetClipRectangles(xftdraw, 0, 0, r, 1);
+    XRenderSetPictureClipRectangles(display, renderpic, 0, 0, r, 1);
 }
 
 void enddraw(int x, int y, int width, int height)
@@ -710,8 +661,8 @@ void setscale(void)
     freefonts();
     loadfonts();
 
-    font_small_lineheight = font[FONT_TEXT][0]->height;
-    font_msg_lineheight = font[FONT_MSG][0]->height;
+    font_small_lineheight = (font[FONT_TEXT].info[0].face->size->metrics.height + (1 << 5)) >> 6;
+    font_msg_lineheight = (font[FONT_MSG].info[0].face->size->metrics.height + (1 << 5)) >> 6;
 
     if(xsh) {
         XFree(xsh);
@@ -876,13 +827,18 @@ int main(int argc, char *argv[])
     grabgc = XCreateGC(display, RootWindow(display, screen), GCFunction | GCForeground | GCBackground | GCSubwindowMode, &gcval);
 
     /* Xft draw context/color */
-    xftdraw = XftDrawCreate(display, drawbuf, visual, cmap);
+    renderpic = XRenderCreatePicture (display, drawbuf, XRenderFindStandardFormat(display, PictStandardRGB24), 0, NULL);
+
+    XRenderColor xrcolor = {0};
+    colorpic = XRenderCreateSolidFill(display, &xrcolor);
+
+    /*xftdraw = XftDrawCreate(display, drawbuf, visual, cmap);
     XRenderColor xrcolor;
     xrcolor.red = 0x0;
     xrcolor.green = 0x0;
     xrcolor.blue = 0x0;
     xrcolor.alpha = 0xffff;
-    XftColorAllocValue(display, visual, cmap, &xrcolor, &xftcolor);
+    XftColorAllocValue(display, visual, cmap, &xrcolor, &xftcolor);*/
 
     /* set-up desktop video input */
     dropdown_add(&dropdown_video, (uint8_t*)"None", NULL);
@@ -948,8 +904,8 @@ int main(int argc, char *argv[])
 
     XFreeGC(display, grabgc);
 
-    XftDrawDestroy(xftdraw);
-    XftColorFree(display, visual, cmap, &xftcolor);
+    XRenderFreePicture(display, renderpic);
+    XRenderFreePicture(display, colorpic);
 
     XDestroyWindow(display, window);
     XCloseDisplay(display);

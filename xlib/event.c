@@ -76,8 +76,8 @@ _Bool doevent(void)
 
                 XFreePixmap(display, drawbuf);
                 drawbuf = XCreatePixmap(display, window, drawwidth, drawheight, 24);
-                XftDrawDestroy(xftdraw);
-                xftdraw = XftDrawCreate(display, drawbuf, visual, cmap);
+                XRenderFreePicture(display, renderpic);
+                renderpic = XRenderCreatePicture(display, drawbuf,XRenderFindStandardFormat(display, PictStandardRGB24), 0, NULL);
             }
 
             width = ev->width;
