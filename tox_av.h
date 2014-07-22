@@ -23,7 +23,7 @@ static void av_start(int32_t call_index, void *arg)
     }
 }
 
-static void callback_av_invite(int32_t call_index, void *arg)
+static void callback_av_invite(void *arg, int32_t call_index, void *userdata)
 {
     int fid = toxav_get_peer_id(arg, call_index, 0);
     _Bool video = toxav_get_peer_transmission_type(arg, call_index, 0) == TypeVideo;
@@ -32,7 +32,7 @@ static void callback_av_invite(int32_t call_index, void *arg)
     debug("A/V Invite (%i)\n", call_index);
 }
 
-static void callback_av_start(int32_t call_index, void *arg)
+static void callback_av_start(void *arg, int32_t call_index, void *userdata)
 {
     av_start(call_index, arg);
 
@@ -47,61 +47,54 @@ static void callback_av_start(int32_t call_index, void *arg)
     toxav_kill_transmission(arg, call_index); \
     endcall();
 
-static void callback_av_cancel(int32_t call_index, void *arg)
+static void callback_av_cancel(void *arg, int32_t call_index, void *userdata)
 {
     stopcall();
 
     debug("A/V Cancel (%i)\n", call_index);
 }
 
-static void callback_av_reject(int32_t call_index, void *arg)
+static void callback_av_reject(void *arg, int32_t call_index, void *userdata)
 {
     endcall();
 
     debug("A/V Reject (%i)\n", call_index);
 }
 
-static void callback_av_end(int32_t call_index, void *arg)
+static void callback_av_end(void *arg, int32_t call_index, void *userdata)
 {
     stopcall();
 
     debug("A/V End (%i)\n", call_index);
 }
 
-static void callback_av_ringing(int32_t call_index, void *arg)
+static void callback_av_ringing(void *arg, int32_t call_index, void *userdata)
 {
     debug("A/V Ringing (%i)\n", call_index);
 }
 
-static void callback_av_starting(int32_t call_index, void *arg)
+static void callback_av_starting(void *arg, int32_t call_index, void *userdata)
 {
     av_start(call_index, arg);
 
     debug("A/V Starting (%i)\n", call_index);
 }
 
-static void callback_av_ending(int32_t call_index, void *arg)
+static void callback_av_ending(void *arg, int32_t call_index, void *userdata)
 {
     stopcall();
 
     debug("A/V Ending (%i)\n", call_index);
 }
 
-static void callback_av_error(int32_t call_index, void *arg)
-{
-    stopcall();
-
-    debug("A/V Error (%i)\n", call_index);
-}
-
-static void callback_av_requesttimeout(int32_t call_index, void *arg)
+static void callback_av_requesttimeout(void *arg, int32_t call_index, void *userdata)
 {
     endcall();
 
     debug("A/V ReqTimeout (%i)\n", call_index);
 }
 
-static void callback_av_peertimeout(int32_t call_index, void *arg)
+static void callback_av_peertimeout(void *arg, int32_t call_index, void *userdata)
 {
     stopcall();
 
@@ -592,17 +585,19 @@ static void callback_av_video(ToxAv *av, int32_t call_index, vpx_image_t *img)
 
 static void set_av_callbacks(ToxAv *av)
 {
-    toxav_register_callstate_callback(callback_av_invite, av_OnInvite, av);
-    toxav_register_callstate_callback(callback_av_start, av_OnStart, av);
-    toxav_register_callstate_callback(callback_av_cancel, av_OnCancel, av);
-    toxav_register_callstate_callback(callback_av_reject, av_OnReject, av);
-    toxav_register_callstate_callback(callback_av_end, av_OnEnd, av);
-    toxav_register_callstate_callback(callback_av_ringing, av_OnRinging, av);
-    toxav_register_callstate_callback(callback_av_starting, av_OnStarting, av);
-    toxav_register_callstate_callback(callback_av_ending, av_OnEnding, av);
-    toxav_register_callstate_callback(callback_av_error, av_OnError, av);
-    toxav_register_callstate_callback(callback_av_requesttimeout, av_OnRequestTimeout, av);
-    toxav_register_callstate_callback(callback_av_peertimeout, av_OnPeerTimeout, av);
+    toxav_register_callstate_callback(av, callback_av_invite, av_OnInvite, NULL);
+    toxav_register_callstate_callback(av, callback_av_start, av_OnStart, NULL);
+    toxav_register_callstate_callback(av, callback_av_cancel, av_OnCancel, NULL);
+    toxav_register_callstate_callback(av, callback_av_reject, av_OnReject, NULL);
+    toxav_register_callstate_callback(av, callback_av_end, av_OnEnd, NULL);
+
+    toxav_register_callstate_callback(av, callback_av_ringing, av_OnRinging, NULL);
+    toxav_register_callstate_callback(av, callback_av_starting, av_OnStarting, NULL);
+    toxav_register_callstate_callback(av, callback_av_ending, av_OnEnding, NULL);
+
+    toxav_register_callstate_callback(av, callback_av_requesttimeout, av_OnRequestTimeout, NULL);
+    toxav_register_callstate_callback(av, callback_av_peertimeout, av_OnPeerTimeout, NULL);
+    //toxav_register_callstate_callback(av, callback_av_mediachange, av_OnMediaChange, NULL);
 
     toxav_register_audio_recv_callback(av, callback_av_audio);
     toxav_register_video_recv_callback(av, callback_av_video);
