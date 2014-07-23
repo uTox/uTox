@@ -117,7 +117,7 @@ GLYPH* font_getglyph(FONT *f, uint32_t ch)
         f->info = i;
         i += count;
 
-        f->info[1].face = NULL;
+        i[1].face = NULL;
 
         int j;
         for(j = 0; j != fs->nfont; j++) {
