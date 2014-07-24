@@ -38,7 +38,7 @@ static void callback_friend_request(Tox *tox, const uint8_t *id, const uint8_t *
 {
     length = utf8_validate(msg, length);
 
-    FRIENDREQ *req = malloc(sizeof(FRIENDREQ) - 1 + length);
+    FRIENDREQ *req = malloc(sizeof(FRIENDREQ) + length);
 
     req->length = length;
     memcpy(req->id, id, sizeof(req->id));

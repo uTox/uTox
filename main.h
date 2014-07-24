@@ -35,7 +35,7 @@ typedef struct
 typedef struct
 {
     uint16_t length;
-    uint8_t id[TOX_CLIENT_ID_SIZE], msg[1];
+    uint8_t id[TOX_FRIEND_ADDRESS_SIZE], msg[0];
 }FRIENDREQ;
 
 typedef struct
