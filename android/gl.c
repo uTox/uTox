@@ -372,14 +372,7 @@ _Bool gl_init(void)
     glGenTextures(countof(bitmap), bitmap);
 
     svg_draw(0);
-
-    static _Bool loadedfonts;
-
-    if(loadedfonts) {
-        freefonts();
-    }
     loadfonts();
-    loadedfonts = 1;
 
     float vec[4];
     vec[0] = -(float)width / 2.0;
