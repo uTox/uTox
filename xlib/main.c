@@ -230,106 +230,7 @@ static int _drawtext(int x, int xmax, int y, uint8_t *str, uint16_t length)
     return x;
 }
 
-void drawtext(int x, int y, uint8_t *str, uint16_t length)
-{
-    _drawtext(x, INT_MAX, y, str, length);
-}
-
-int drawtext_getwidth(int x, int y, uint8_t *str, uint16_t length)
-{
-    return _drawtext(x, INT_MAX, y, str, length) - x;
-}
-
-void drawtextrange(int x, int xmax, int y, uint8_t *str, uint16_t length)
-{
-    x = _drawtext(x, xmax - SCALE * 4, y, str, length);
-    if(x < 0) {
-        _drawtext(-x, INT_MAX, y, (uint8_t*)"...", 3);
-    }
-}
-
-void drawtextwidth(int x, int width, int y, uint8_t *str, uint16_t length)
-{
-    drawtextrange(x, x + width, y, str, length);
-}
-
-void drawtextwidth_right(int x, int width, int y, uint8_t *str, uint16_t length)
-{
-    int w = textwidth(str, length);
-    drawtext(x + width - w, y, str, length);
-}
-
-void drawtextrangecut(int x, int x2, int y, uint8_t *str, uint16_t length)
-{
-    drawtext(x, y, str, length);
-}
-
-int textwidth(uint8_t *str, uint16_t length)
-{
-    GLYPH *g;
-    uint8_t len;
-    uint32_t ch;
-    int x = 0;
-    while(length) {
-        len = utf8_len_read(str, &ch);
-        str += len;
-        length -= len;
-
-        g = font_getglyph(sfont, ch);
-        if(g) {
-            x += g->xadvance;
-        }
-    }
-    return x;
-}
-
-int textfit(uint8_t *str, uint16_t length, int width)
-{
-    GLYPH *g;
-    uint8_t len;
-    uint32_t ch;
-    int x = 0, i = 0;
-    while(i != length) {
-        len = utf8_len_read(str, &ch);
-        str += len;
-
-        g = font_getglyph(sfont, ch);
-        if(g) {
-            x += g->xadvance;
-            if(x > width) {
-                return i;
-            }
-        }
-
-        i += len;
-    }
-
-    return length;
-}
-
-int textfit_near(uint8_t *str, uint16_t length, int width)
-{
-    GLYPH *g;
-    uint8_t len;
-    uint32_t ch;
-    int x = 0, i = 0;
-    while(i != length) {
-        len = utf8_len_read(str, &ch);
-        str += len;
-
-        g = font_getglyph(sfont, ch);
-        if(g) {
-            x += g->xadvance;
-            if(x > width) {
-                return i;
-            }
-        }
-
-        i += len;
-    }
-
-    return length;
-}
+#include "../shared/freetype-text.c"
 
 void framerect(int x, int y, int right, int bottom, uint32_t color)
 {
@@ -361,11 +262,6 @@ void drawvline(int x, int y, int y2, uint32_t color)
     XDrawLine(display, drawbuf, gc, x, y, x, y2);
 }
 
-void setfont(int id)
-{
-    sfont = &font[id];
-}
-
 uint32_t setcolor(uint32_t color)
 {
     XRenderColor xrcolor;
@@ -382,16 +278,6 @@ uint32_t setcolor(uint32_t color)
     //xftcolor.pixel = color;
     XSetForeground(display, gc, color);
     return old;
-}
-
-void setbkcolor(uint32_t color)
-{
-    XSetBackground(display, gc, color);
-}
-
-void setbgcolor(uint32_t color)
-{
-    XSetBackground(display, gc, color);
 }
 
 static XRectangle clip[16];
@@ -698,6 +584,16 @@ void notify(uint8_t *title, uint16_t title_length, uint8_t *msg, uint16_t msg_le
 
     free(str);
     #endif
+}
+
+void showkeyboard(_Bool show)
+{
+
+}
+
+void redraw(void)
+{
+    panel_draw(&panel_main, 0, 0, width, height);
 }
 
 #include "event.c"

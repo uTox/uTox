@@ -741,6 +741,16 @@ void notify(uint8_t *title, uint16_t title_length, uint8_t *msg, uint16_t msg_le
     Shell_NotifyIconW(NIM_MODIFY, &nid);
 }
 
+void showkeyboard(_Bool show)
+{
+
+}
+
+void redraw(void)
+{
+    panel_draw(&panel_main, 0, 0, width, height);
+}
+
 static int grabx, graby, grabpx, grabpy;
 static _Bool grabbing;
 

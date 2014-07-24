@@ -14,6 +14,8 @@
 
 #include <errno.h>
 
+#define debug(...) printf(__VA_ARGS__)
+
 #define RGB(r, g, b) (((r) << 16) | ((g) << 8) | (b))
 
 #define KEY_BACK XK_BackSpace

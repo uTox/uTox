@@ -278,6 +278,76 @@ static void dns_thread(void *data)
         record = record->pNext;
     }
     #else
+    #ifdef __ANDROID__
+    /* get the dns IP and make a dns request manually */
+    char value[PROP_VALUE_MAX];
+    __system_property_get("net.dns1", value);
+    struct sockaddr_in addr = {
+        .sin_family = AF_INET,
+        .sin_port = htons(53),
+    };
+    int sock, len;
+    uint8_t packet[256] = {
+        0x24, 0x1a, //transaction id
+        0x01, 0x00, //flags
+        0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, //counts
+        //name
+    };
+
+    uint8_t *l = packet + 12, *p = l + 1, *a = result, ll = 0;
+    while(*a) {
+        if(*a == '.') {
+            *l = ll;
+            l = p;
+            ll = 0;
+        } else {
+            *p = *a;
+            ll++;
+        }
+        a++;
+        p++;
+    }
+    *l = ll;
+    *p++ = 0;
+
+    uint8_t packet_end[] = {0x00, 0x10, 0x00, 0x01}; //request type + IN
+
+    memcpy(p, packet_end, 4); p += 4;
+
+    if(!inet_pton(AF_INET, value, &addr.sin_addr)) {
+        goto FAIL;
+    }
+
+    if((sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1) {
+        goto FAIL;
+    }
+
+    struct timeval timeout = {
+        .tv_sec = 5,
+        .tv_usec = 0
+    };
+
+    if(setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout)) < 0) {
+        goto FAIL;
+    }
+
+    debug("%s %u\n", value, p - packet);
+
+    sendto(sock, packet, p - packet, 0, (struct sockaddr*)&addr, sizeof(addr));
+    if((len = recv(sock, packet, sizeof(packet), 0)) < 0) {
+        goto FAIL;
+    }
+
+    debug("%s reponded %u\n", value, len);
+
+    p = memmem(packet, len, "v=tox", 5);
+    if(p) {
+        debug("test %u\n", *(p - 1));
+        p[*(p - 1)] = 0;
+        success = parserecord(data, p, pin, dns3);
+    }
+
+    #else
     uint8_t answer[PACKETSZ + 1], *answend, *pt;
     char host[128];
     int len, type;
@@ -354,8 +424,9 @@ static void dns_thread(void *data)
     } else {
         debug("timeout\n");
     }
-    FAIL:
     #endif
+    #endif
+    FAIL:
 
     postmessage(DNS_RESULT, success, 0, data);
 }

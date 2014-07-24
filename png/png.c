@@ -3416,7 +3416,7 @@ unsigned lodepng_convert(unsigned char* out, const unsigned char* in,
   if(lodepng_color_mode_equal(mode_out, mode_in))
   {
     size_t numbytes = lodepng_get_raw_size(w, h, mode_in);
-    for(i = 0; i < numbytes; i++) out[i + 2 - (i % 3)] = in[i];
+    for(i = 0; i < numbytes; i++) out[i] = in[i];
     return error;
   }
 

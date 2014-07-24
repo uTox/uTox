@@ -65,8 +65,6 @@ _Bool panel_mleave(PANEL *p);
 
 extern uint32_t status_color[];
 
-#define redraw() panel_draw(&panel_main, 0, 0, width, height)
-
 #define GRAY(x) (((x) << 16) | ((x) << 8) | (x))
 
 #define BLACK 0

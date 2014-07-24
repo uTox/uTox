@@ -1,16 +1,6 @@
 #include "main.h"
 #include "tox_bootstrap.h"
 
-#ifdef __APPLE__
-#include <OpenAL/al.h>
-#include <OpenAL/alc.h>
-#else
-#include <AL/al.h>
-#include <AL/alc.h>
-#endif
-
-#define MAX_CALLS 16
-
 typedef struct {
     uint8_t msg;
     uint16_t param1, param2;
@@ -25,10 +15,6 @@ typedef struct
 
 static TOX_MSG tox_msg, audio_msg, video_msg;
 static volatile _Bool tox_thread_msg, audio_thread_msg, video_thread_msg;
-
-static ALCdevice *device_out, *device_in;
-static ALCcontext *context;
-static ALuint source[MAX_CALLS];
 
 static FILE_T *file_t[256], **file_tend = file_t;
 
@@ -173,20 +159,6 @@ void tox_postmessage(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
     tox_msg.data = data;
 
     tox_thread_msg = 1;
-}
-
-void toxaudio_postmessage(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
-{
-    while(audio_thread_msg) {
-        yieldcpu(1);
-    }
-
-    audio_msg.msg = msg;
-    audio_msg.param1 = param1;
-    audio_msg.param2 = param2;
-    audio_msg.data = data;
-
-    audio_thread_msg = 1;
 }
 
 void toxvideo_postmessage(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
@@ -467,6 +439,8 @@ void tox_thread(void *args)
 
     set_av_callbacks(av);
 
+
+    global_av = av;
     tox_thread_init = 1;
 
     thread(audio_thread, av);

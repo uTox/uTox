@@ -103,79 +103,6 @@ static void callback_av_peertimeout(void *arg, int32_t call_index, void *userdat
 
 uint8_t lbuffer[800 * 600 * 4]; //needs to be always large enough for encoded frames
 
-static ALCdevice* alcopencapture(void *handle)
-{
-    if(!handle) {
-        return NULL;
-    }
-
-    if(handle == (void*)1) {
-        return handle;
-    }
-
-    return alcCaptureOpenDevice(handle, av_DefaultSettings.audio_sample_rate, AL_FORMAT_MONO16, (av_DefaultSettings.audio_frame_duration * av_DefaultSettings.audio_sample_rate * 4) / 1000);
-}
-
-static void alccapturestart(void *handle)
-{
-    if(handle == (void*)1) {
-        audio_init(handle);
-        return;
-    }
-
-    alcCaptureStart(handle);
-}
-
-static void alccapturestop(void *handle)
-{
-    if(handle == (void*)1) {
-        audio_close(handle);
-        return;
-    }
-
-    alcCaptureStop(handle);
-}
-
-static void alccaptureclose(void *handle)
-{
-    if(handle == (void*)1) {
-        return;
-    }
-
-    alcCaptureCloseDevice(handle);
-}
-
-static void sourceplaybuffer(int i, int16_t *data, int samples)
-{
-    ALuint bufid;
-    ALint processed, queued;
-    alGetSourcei(source[i], AL_BUFFERS_PROCESSED, &processed);
-    alGetSourcei(source[i], AL_BUFFERS_QUEUED, &queued);
-    alSourcei(source[i], AL_LOOPING, AL_FALSE);
-
-    if(processed) {
-        ALuint bufids[processed];
-        alSourceUnqueueBuffers(source[i], processed, bufids);
-        alDeleteBuffers(processed - 1, bufids + 1);
-        bufid = bufids[0];
-    } else if(queued < 16) {
-        alGenBuffers(1, &bufid);
-    } else {
-        debug("dropped audio frame\n");
-        return;
-    }
-
-    alBufferData(bufid, AL_FORMAT_MONO16, data, samples * 2, av_DefaultSettings.audio_sample_rate);
-    alSourceQueueBuffers(source[i], 1, &bufid);
-
-    ALint state;
-    alGetSourcei(source[i], AL_SOURCE_STATE, &state);
-    if(state != AL_PLAYING) {
-        alSourcePlay(source[i]);
-        debug("Starting source %u\n", i);
-    }
-}
-
 static vpx_image_t input;
 
 static _Bool openvideodevice(void *handle)
@@ -338,6 +265,92 @@ static void video_thread(void *args)
     }
 
     video_thread_init = 0;
+}
+
+#ifndef __ANDROID__
+#ifdef __APPLE__
+#include <OpenAL/al.h>
+#include <OpenAL/alc.h>
+#else
+#include <AL/al.h>
+#include <AL/alc.h>
+#endif
+
+static ALCdevice *device_out, *device_in;
+static ALCcontext *context;
+static ALuint source[MAX_CALLS];
+
+static ALCdevice* alcopencapture(void *handle)
+{
+    if(!handle) {
+        return NULL;
+    }
+
+    if(handle == (void*)1) {
+        return handle;
+    }
+
+    return alcCaptureOpenDevice(handle, av_DefaultSettings.audio_sample_rate, AL_FORMAT_MONO16, (av_DefaultSettings.audio_frame_duration * av_DefaultSettings.audio_sample_rate * 4) / 1000);
+}
+
+static void alccapturestart(void *handle)
+{
+    if(handle == (void*)1) {
+        audio_init(handle);
+        return;
+    }
+
+    alcCaptureStart(handle);
+}
+
+static void alccapturestop(void *handle)
+{
+    if(handle == (void*)1) {
+        audio_close(handle);
+        return;
+    }
+
+    alcCaptureStop(handle);
+}
+
+static void alccaptureclose(void *handle)
+{
+    if(handle == (void*)1) {
+        return;
+    }
+
+    alcCaptureCloseDevice(handle);
+}
+
+static void sourceplaybuffer(int i, int16_t *data, int samples)
+{
+    ALuint bufid;
+    ALint processed, queued;
+    alGetSourcei(source[i], AL_BUFFERS_PROCESSED, &processed);
+    alGetSourcei(source[i], AL_BUFFERS_QUEUED, &queued);
+    alSourcei(source[i], AL_LOOPING, AL_FALSE);
+
+    if(processed) {
+        ALuint bufids[processed];
+        alSourceUnqueueBuffers(source[i], processed, bufids);
+        alDeleteBuffers(processed - 1, bufids + 1);
+        bufid = bufids[0];
+    } else if(queued < 16) {
+        alGenBuffers(1, &bufid);
+    } else {
+        debug("dropped audio frame\n");
+        return;
+    }
+
+    alBufferData(bufid, AL_FORMAT_MONO16, data, samples * 2, av_DefaultSettings.audio_sample_rate);
+    alSourceQueueBuffers(source[i], 1, &bufid);
+
+    ALint state;
+    alGetSourcei(source[i], AL_SOURCE_STATE, &state);
+    if(state != AL_PLAYING) {
+        alSourcePlay(source[i]);
+        debug("Starting source %u\n", i);
+    }
 }
 
 static void audio_thread(void *args)
@@ -533,7 +546,7 @@ static void audio_thread(void *args)
                 }
 
                 int i;
-                for(i =0; i < MAX_CALLS; i++) {
+                for(i = 0; i < MAX_CALLS; i++) {
                     if(call[i]) {
                         int r;
                         if((r = toxav_prepare_audio_frame(av, i, dest, perframe * 2, (void*)buf, perframe)) < 0) {
@@ -571,6 +584,63 @@ static void callback_av_audio(ToxAv *av, int32_t call_index, int16_t *data, int 
 {
     sourceplaybuffer(call_index + 1, data, length);
 }
+
+void toxaudio_postmessage(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
+{
+    while(audio_thread_msg) {
+        yieldcpu(1);
+    }
+
+    audio_msg.msg = msg;
+    audio_msg.param1 = param1;
+    audio_msg.param2 = param2;
+    audio_msg.data = data;
+
+    audio_thread_msg = 1;
+}
+#else
+static void audio_thread(void *args)
+{
+}
+
+void toxaudio_postmessage(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
+{
+    switch(msg) {
+    case AUDIO_SET_INPUT: {;
+        break;
+    }
+
+    case AUDIO_SET_OUTPUT: {
+        break;
+    }
+
+    case AUDIO_PREVIEW_START: {
+        break;
+    }
+
+    case AUDIO_CALL_START: {
+        audio_begin(param1);
+        break;
+    }
+
+    case AUDIO_PREVIEW_END: {
+        break;
+    }
+
+    case AUDIO_CALL_END: {
+        audio_end(param1);
+        break;
+    }
+
+    }
+}
+
+static void callback_av_audio(ToxAv *av, int32_t call_index, int16_t *data, int length)
+{
+    audio_play(call_index, data, length);
+    //sourceplaybuffer(call_index + 1, data, length);
+}
+#endif
 
 static void callback_av_video(ToxAv *av, int32_t call_index, vpx_image_t *img)
 {

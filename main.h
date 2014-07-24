@@ -13,7 +13,6 @@
 #include <tox/toxav.h>
 #include <vpx/vpx_codec.h>
 
-#define debug(...) printf(__VA_ARGS__)
 #define countof(x) (sizeof(x)/sizeof(*(x)))
 #define volatile(x) (*((volatile typeof(x)*)&x))
 
@@ -24,6 +23,8 @@
 #define DEFAULT_SCALE 2
 
 #define VERSION "0.0.9"
+
+#define MAX_CALLS 16
 
 typedef struct
 {
@@ -62,7 +63,11 @@ typedef uint8_t char_t;
 #ifdef __WIN32__
 #include "win32/main.h"
 #else
+#ifdef __ANDROID__
+#include "android/main.h"
+#else
 #include "xlib/main.h"
+#endif
 #endif
 
 #include "ui.h"
@@ -103,7 +108,7 @@ GROUPCHAT group[1024];
 uint32_t friends, groups;
 
 //window
-int width, height;
+int width, height, baseline;
 _Bool maximized;
 
 enum
@@ -195,6 +200,8 @@ void notify(uint8_t *title, uint16_t title_length, uint8_t *msg, uint16_t msg_le
 void setscale(void);
 void drawimage(void *data, int x, int y, int width, int height, int maxwidth, _Bool zoom);
 void* png_to_image(void *data, uint16_t *w, uint16_t *h, uint32_t size);
+void showkeyboard(_Bool show);
+void redraw(void);
 
 //me
 struct
@@ -232,6 +239,7 @@ void drawtextrangecut(int x, int x2, int y, uint8_t *str, uint16_t length);
 int textwidth(uint8_t *str, uint16_t length);
 int textfit(uint8_t *str, uint16_t length, int width);
 int textfit_near(uint8_t *str, uint16_t length, int width);
+int text_drawline(int x, int right, int y, uint8_t *str, int i, int length, int highlight, int hlen, uint16_t lineheight);
 
 void framerect(int x, int y, int right, int bottom, uint32_t color);
 void drawrect(int x, int y, int right, int bottom, uint32_t color);
@@ -281,6 +289,12 @@ void audio_detect(void);
 _Bool audio_init(void *handle);
 _Bool audio_close(void *handle);
 _Bool audio_frame(int16_t *buffer);
+
+ToxAv* global_av;
+
+void audio_play(int32_t call_index, const int16_t *data, int length);
+void audio_begin(int32_t call_index);
+void audio_end(int32_t call_index);
 
 #define drawstr(x, y, str) drawtext(x, y, (uint8_t*)str, sizeof(str) - 1)
 #define drawstr_getwidth(x, y, str) drawtext_getwidth(x, y, (uint8_t*)str, sizeof(str) - 1)
