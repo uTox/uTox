@@ -729,6 +729,13 @@ static UTOX_SAVE* loadconfig(void)
 
 int main(int argc, char *argv[])
 {
+    if(argc == 2 && argv[1]) {
+        if(!strcmp(argv[1], "--version")) {
+            debug("%s\n", VERSION);
+            return 0;
+        }
+    }
+
     XInitThreads();
 
     if((display = XOpenDisplay(NULL)) == NULL) {

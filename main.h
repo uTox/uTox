@@ -23,6 +23,8 @@
 #define DEFAULT_ADD_MESSAGE "Please accept this friend request."
 #define DEFAULT_SCALE 2
 
+#define VERSION "0.0.9"
+
 typedef struct
 {
     uint8_t version, scale;
