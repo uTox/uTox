@@ -417,12 +417,11 @@ void tox_thread(void *args)
     if((tox = tox_new(1)) == NULL) {
         debug("tox_new(1) failed, trying without ipv6\n");
     }
-    #else
+    #endif
     if(!tox && (tox = tox_new(0)) == NULL) {
         debug("tox_new() failed\n");
         exit(1);
     }
-    #endif
 
     if(!load_save(tox)) {
         debug("No save file, using defaults\n");
