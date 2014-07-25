@@ -21,9 +21,9 @@ typedef struct
     SLObjectItf player;
     SLAndroidSimpleBufferQueueItf queue;
     uint8_t value;
-    volatile _Bool queued[2];
-    _Bool b;
-    short buf[2 * FRAMES];
+    volatile _Bool queued[8];
+    uint8_t unqueue;
+    short buf[960 * 8];
 } AUDIO_PLAYER;
 
 AUDIO_PLAYER loopback, call_player[MAX_CALLS];
@@ -49,24 +49,18 @@ static void player_queue(AUDIO_PLAYER *p, const int16_t *data)
 {
     SLresult result;
 
-    /* accumulate 3 frames before playing so Enqueue doesn't give underflow error */
-    memcpy(&p->buf[p->value * 960], data, 960 * 2);
-    p->value++;
-    if(p->value == 3) {
-        if(!p->queued[0]) {
-            result = (*p->queue)->Enqueue(p->queue, &p->buf[0], FRAMES * 2);
-            p->queued[0] = 1;
-        } else {
-            debug("drop\n");
+    if(!p->queued[p->value]) {
+        p->queued[p->value] = 1;
+
+        memcpy(&p->buf[p->value * 960], data, 960 * 2);
+        result = (*p->queue)->Enqueue(p->queue, &p->buf[p->value * 960], 960 * 2);
+
+        p->value++;
+        if(p->value == 8) {
+            p->value = 0;
         }
-    } else if(p->value == 6) {
-        if(!p->queued[1]) {
-            result = (*p->queue)->Enqueue(p->queue, &p->buf[FRAMES], FRAMES * 2);
-            p->queued[1] = 1;
-        } else {
-            debug("drop\n");
-        }
-        p->value = 0;
+    } else {
+        debug("dropped\n");
     }
 }
 
@@ -145,8 +139,10 @@ void bqRecorderCallback(SLAndroidSimpleBufferQueueItf bq, void *context)
 void playCallback(SLAndroidSimpleBufferQueueItf bq, void *context)
 {
     AUDIO_PLAYER *p = context;
-    p->queued[p->b] = 0;
-    p->b = !p->b;
+    p->queued[p->unqueue++] = 0;
+    if(p->unqueue == 8) {
+        p->unqueue = 0;
+    }
 }
 
 _Bool createAudioRecorder(ToxAv *av)
@@ -205,7 +201,7 @@ void startRecording(void)
 
 void init_player(AUDIO_PLAYER *p)
 {
-    SLDataLocator_AndroidSimpleBufferQueue loc_bufq = {SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE, 2};
+    SLDataLocator_AndroidSimpleBufferQueue loc_bufq = {SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE, 8};
     SLDataSource audioSrc = {&loc_bufq, &format_pcm};
     SLDataLocator_OutputMix loc_outmix = {SL_DATALOCATOR_OUTPUTMIX, outputMixObject};
     SLDataSink audioSnk = {&loc_outmix, NULL};
