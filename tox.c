@@ -413,13 +413,19 @@ void tox_thread(void *args)
     ToxAv *av;
     uint8_t id[TOX_FRIEND_ADDRESS_SIZE];
 
-    if((tox = tox_new(IPV6_ENABLED)) == NULL) {
-        printf("tox_new() failed\n");
+    #ifdef IPV6_ENABLED
+    if((tox = tox_new(1)) == NULL) {
+        debug("tox_new(1) failed, trying without ipv6\n");
+    }
+    #else
+    if(!tox && (tox = tox_new(0)) == NULL) {
+        debug("tox_new() failed\n");
         exit(1);
     }
+    #endif
 
     if(!load_save(tox)) {
-        printf("No save file, using defaults\n");
+        debug("No save file, using defaults\n");
         load_defaults(tox);
     }
 
@@ -429,7 +435,7 @@ void tox_thread(void *args)
     tox_get_address(tox, id);
     id_to_string(self.id, id);
 
-    printf("Tox ID: %.*s\n", (int)sizeof(self.id), self.id);
+    debug("Tox ID: %.*s\n", (int)sizeof(self.id), self.id);
 
     set_callbacks(tox);
 

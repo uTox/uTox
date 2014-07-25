@@ -16,7 +16,7 @@
 #define countof(x) (sizeof(x)/sizeof(*(x)))
 #define volatile(x) (*((volatile typeof(x)*)&x))
 
-#define IPV6_ENABLED 1
+#define IPV6_ENABLED
 #define DEFAULT_NAME "Tox User"
 #define DEFAULT_STATUS "Toxing on uTox"
 #define DEFAULT_ADD_MESSAGE "Please accept this friend request."
