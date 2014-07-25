@@ -1,6 +1,7 @@
-#ifndef _WIN32_WINNT
-#define _WIN32_WINNT 0x500
+#ifdef _WIN32_WINNT
+#undef _WIN32_WINNT
 #endif
+#define _WIN32_WINNT 0x500
 
 #ifndef WINVER
 #define WINVER 0x410
@@ -103,8 +104,6 @@ void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data)
     PostMessage(hwnd, WM_TOX + (msg), ((param1) << 16) | (param2), (LPARAM)data);
 }
 
-uint32_t leldata[65536];
-
 void drawalpha(int bm, int x, int y, int width, int height, uint32_t color)
 {
     if(!bitmap[bm]) {
@@ -118,16 +117,29 @@ void drawalpha(int bm, int x, int y, int width, int height, uint32_t color)
         .AlphaFormat = AC_SRC_ALPHA
     };
 
+    BITMAPINFO bmi = {
+        .bmiHeader = {
+            .biSize = sizeof(BITMAPINFOHEADER),
+            .biWidth = width,
+            .biHeight = -height,
+            .biPlanes = 1,
+            .biBitCount = 32,
+            .biCompression = BI_RGB,
+        }
+    };
+
     uint8_t *p = bitmap[bm], *end = p + width * height;
-    uint32_t *np = leldata;
+
+
+    uint32_t *np;
+    HBITMAP temp = CreateDIBSection(hdcMem, &bmi, DIB_RGB_COLORS, (void**)&np, NULL, 0);
+    SelectObject(hdcMem, temp);
+
     while(p != end) {
         uint8_t v = *p++;
         *np++ = (((color & 0xFF) * v / 255) << 16) | ((((color >> 8) & 0xFF) * v / 255) << 8) | ((((color >> 16) & 0xFF) * v / 255) << 0) | (v << 24);
     }
 
-    HBITMAP temp = CreateBitmap(width, height, 1, 32, leldata);//CreateCompatibleBitmap(tempDC, width, height);
-
-    SelectObject(hdcMem, temp);;
     AlphaBlend(hdc, x, y, width, height, hdcMem, 0, 0, width, height, ftn);
 
     DeleteObject(temp);
@@ -763,10 +775,22 @@ void desktopgrab(_Bool video)
     w = GetSystemMetrics(SM_CXVIRTUALSCREEN);
     h = GetSystemMetrics(SM_CYVIRTUALSCREEN);
 
-    debug("%i %i %i %i\n", x, y, w, h);
+    debug("result: %i %i %i %i\n", x, y, w, h);
 
     capturewnd = CreateWindowExW(WS_EX_TOPMOST | WS_EX_LAYERED, L"uToxgrab", L"Tox", WS_POPUP, x, y, w, h, NULL, NULL, hinstance, NULL);
+    if(!capturewnd) {
+        debug("CreateWindowExW() failed\n");
+        return;
+    }
+
+    HDC hdc = GetDC(capturewnd);
+    BitBlt(hdc, 0, 0, w, h, hdc, 0, 0, BLACKNESS);
+
     SetLayeredWindowAttributes(capturewnd, 0xFFFFFF, 128, LWA_ALPHA | LWA_COLORKEY);
+
+
+    //UpdateLayeredWindow(hwnd, NULL, NULL, NULL, NULL, NULL, 0xFFFFFF, ULW_ALPHA | ULW_COLORKEY);
+
     ShowWindow(capturewnd, SW_SHOW);
     SetForegroundWindow(capturewnd);
 
@@ -1505,22 +1529,28 @@ void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height
         SetWindowPos(video_hwnd[id], 0, 0, 0, r.right - r.left, r.bottom - r.top, SWP_NOZORDER | SWP_NOMOVE);
     }
 
+    BITMAPINFO bmi = {
+        .bmiHeader = {
+            .biSize = sizeof(BITMAPINFOHEADER),
+            .biWidth = width,
+            .biHeight = -height,
+            .biPlanes = 1,
+            .biBitCount = 32,
+            .biCompression = BI_RGB,
+        }
+    };
+
+
     RECT r = {0};
     GetClientRect(video_hwnd[id], &r);
 
-    HBITMAP bitmap = CreateBitmap(width, height, 1, 32, img_data);
-
     HDC dc = GetDC(video_hwnd[id]);
-    HDC dc_src = CreateCompatibleDC(dc);
-    SelectObject(dc_src, bitmap);
-    if(width == r.right && height == r.bottom) {
-        BitBlt(dc, 0, 0, width, height, dc_src, 0, 0, SRCCOPY);
-    } else {
-        StretchBlt(dc, 0, 0, r.right, r.bottom, dc_src, 0, 0, width, height, SRCCOPY);
-    }
 
-    DeleteObject(bitmap);
-    DeleteDC(dc_src);
+    if(width == r.right && height == r.bottom) {
+        SetDIBitsToDevice(dc, 0, 0, width, height, 0, 0, 0, height, img_data, &bmi, DIB_RGB_COLORS);
+    } else {
+        StretchDIBits(dc, 0, 0, r.right, r.bottom, 0, 0, width, height, img_data, &bmi, DIB_RGB_COLORS, SRCCOPY);
+    }
 }
 
 void video_begin(uint32_t id, uint8_t *name, uint16_t name_length, uint16_t width, uint16_t height)
@@ -1919,18 +1949,22 @@ _Bool video_init(void *handle)
 
         desktopwnd = GetDesktopWindow();
         if(!desktopwnd) {
+            debug("GetDesktopWindow() failed\n");
             return 0;
         }
 
         if(!(desktopdc = GetDC(desktopwnd))) {
+            debug("GetDC(desktopwnd) failed\n");
            return 0;
         }
 
         if(!(capturedc = CreateCompatibleDC(desktopdc))) {
+            debug("CreateCompatibleDC(desktopdc) failed\n");
             return 0;
         }
 
         if(!(capturebitmap = CreateCompatibleBitmap(desktopdc, video_width, video_height))) {
+            debug("CreateCompatibleBitmap(desktopdc) failed\n");
             return 0;
         }
 
