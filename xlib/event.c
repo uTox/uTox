@@ -353,8 +353,9 @@ _Bool doevent(void)
         }
 
         if(ev->property == XdndDATA) {
-            char *path = malloc(len);
+            char *path = malloc(len + 1);
             memcpy(path, data, len);
+            path[len] = 0;
             tox_postmessage(TOX_SENDFILES, (FRIEND*)sitem->data - friend, 0xFFFF, path);
             break;
         }
