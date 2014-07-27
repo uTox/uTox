@@ -185,6 +185,10 @@ static void callback_file_send_request(Tox *tox, int32_t fid, uint8_t filenumber
     ft->fid = fid;
     ft->filenumber = filenumber;
     ft->total = filesize;
+
+    filename_length = filename_length > sizeof(ft->name) ? sizeof(ft->name) : filename_length;
+    filename_length = utf8_validate(filename, filename_length);
+
     ft->name_length = filename_length;
     memcpy(ft->name, filename, filename_length);
     debug("File Request %.*s\n", filename_length, filename);
