@@ -699,7 +699,7 @@ void* png_to_image(void *data, uint16_t *w, uint16_t *h, uint32_t size)
     unsigned r = lodepng_decode32(&out, &width, &height, data, size);
     //free(data);
 
-    if(r != 0) {
+    if(r != 0 || !width || !height) {
         return NULL;
     }
 
