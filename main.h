@@ -91,7 +91,8 @@ struct groupchat
     uint8_t *typed;
     uint8_t *peername[256];
 
-    EDIT_CHANGE *current, *next, *last;
+    EDIT_CHANGE **edit_history;
+    uint16_t edit_history_cur, edit_history_length;
 
     MSG_DATA msg;
 };

@@ -121,9 +121,9 @@ static void selectitem(ITEM *i)
 
         f->msg.scroll = messages_friend.panel.content_scroll->d;
 
-        f->current = edit_msg.current;
-        f->next = edit_msg.next;
-        f->last = edit_msg.last;
+        f->edit_history = edit_msg.history;
+        f->edit_history_cur = edit_msg.history_cur;
+        f->edit_history_length = edit_msg.history_length;
     }
 
     if(sitem->item == ITEM_GROUP) {
@@ -136,9 +136,9 @@ static void selectitem(ITEM *i)
 
         g->msg.scroll = messages_group.panel.content_scroll->d;
 
-        g->current = edit_msg.current;
-        g->next = edit_msg.next;
-        g->last = edit_msg.last;
+        g->edit_history = edit_msg.history;
+        g->edit_history_cur = edit_msg.history_cur;
+        g->edit_history_length = edit_msg.history_length;
     }
 
     if(sitem->item == ITEM_SETTINGS) {
@@ -170,9 +170,9 @@ static void selectitem(ITEM *i)
 
         f->notify = 0;
 
-        edit_msg.current = f->current;
-        edit_msg.next = f->next;
-        edit_msg.last = f->last;
+        edit_msg.history = f->edit_history;
+        edit_msg.history_cur = f->edit_history_cur;
+        edit_msg.history_length = f->edit_history_length;
     }
 
     if(i->item == ITEM_GROUP) {
@@ -190,9 +190,9 @@ static void selectitem(ITEM *i)
 
         g->msg.id = g - group;
 
-        edit_msg.current = g->current;
-        edit_msg.next = g->next;
-        edit_msg.last = g->last;
+        edit_msg.history = g->edit_history;
+        edit_msg.history_cur = g->edit_history_cur;
+        edit_msg.history_length = g->edit_history_length;
     }
 
     if(i->item == ITEM_SETTINGS) {
@@ -334,18 +334,18 @@ static void deleteitem(ITEM *i)
 
         tox_postmessage(TOX_DELFRIEND, (f - friend), 0, NULL);
 
-        EDIT_CHANGE *p = f->last;
-        while(p) {
-            EDIT_CHANGE *temp = p->last;
-            free(p);
-            p = temp;
+        int i = 0;
+        while(i != f->edit_history_length) {
+            free(f->edit_history[i]);
+            i++;
         }
+        free(f->edit_history);
 
         free(f->name);
         free(f->status_message);
         free(f->typed);
 
-        int i = 0;
+        i = 0;
         while(i < f->msg.n) {
             free(f->msg.data[i]);
             i++;
@@ -364,15 +364,15 @@ static void deleteitem(ITEM *i)
 
         tox_postmessage(TOX_LEAVEGROUP, (g - group), 0, NULL);
 
-        EDIT_CHANGE *p = g->last;
-        while(p) {
-            EDIT_CHANGE *temp = p->last;
-            free(p);
-            p = temp;
+        int i = 0;
+        while(i != g->edit_history_length) {
+            free(g->edit_history[i]);
+            i++;
         }
+        free(g->edit_history);
 
         uint8_t **np = g->peername;
-        int i = 0;
+        i = 0;
         while(i < g->peers) {
             uint8_t *n = *np++;
             if(n) {

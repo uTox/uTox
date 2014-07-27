@@ -2,9 +2,8 @@
 
 struct edit_change
 {
-    _Bool remove;
+    _Bool remove, padding;
     uint16_t start, length;
-    EDIT_CHANGE *last, *next;
     uint8_t data[0];
 };
 
@@ -13,7 +12,10 @@ struct edit {
 
     _Bool multiline, mouseover, noborder, readonly;
     uint16_t mouseover_char, length, maxlength, width, height;
-    EDIT_CHANGE *current, *next, *last;
+
+    uint16_t history_cur, history_length;
+    EDIT_CHANGE **history;
+
     SCROLLABLE *scroll;
     char_t *data;
     void (*onenter)(void);

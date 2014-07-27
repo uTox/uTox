@@ -258,41 +258,45 @@ static uint16_t edit_change_do(EDIT *edit, EDIT_CHANGE *c)
 
 static void edit_do(EDIT *edit, uint16_t start, uint16_t length, _Bool remove)
 {
-    EDIT_CHANGE *new;
+    EDIT_CHANGE *new, **history;
 
     new = malloc(sizeof(EDIT_CHANGE) + length);
+    if(!new) {
+        return;
+    }
+
     new->remove = remove;
     new->start = start;
     new->length = length;
     memcpy(new->data, edit->data + start, length);
 
-    new->last = edit->current;
-    new->next = NULL;
 
-    if(edit->current) {
-        if(edit->current->next) {
-            EDIT_CHANGE *p = edit->last;
-            while(p != edit->current) {
-                EDIT_CHANGE *temp = p;
-                p = p->last;
-                free(temp);
-            }
+    if(edit->history_cur != edit->history_length) {
+        uint16_t i = edit->history_cur;
+        while(i != edit->history_length) {
+            free(edit->history[i]);
+            i++;
         }
-        edit->current->next = new;
     }
 
-    edit->current = edit->last = new;
-    edit->next = NULL;
+    history = realloc(edit->history, (edit->history_cur + 1) * sizeof(void*));
+    if(!history) {
+        //
+    }
+
+    history[edit->history_cur] = new;
+    edit->history = history;
+
+    edit->history_cur++;
+    edit->history_length = edit->history_cur;
 }
 
 static uint16_t edit_undo(EDIT *edit)
 {
     uint16_t r = 0xFFFF;
-    EDIT_CHANGE *cur = edit->current;
-    if(cur) {
-        r = edit_change_do(edit, cur);
-        edit->current = cur->last;
-        edit->next = cur;
+    if(edit->history_cur) {
+        edit->history_cur--;
+        r = edit_change_do(edit, edit->history[edit->history_cur]);
     }
     return r;
 }
@@ -300,10 +304,9 @@ static uint16_t edit_undo(EDIT *edit)
 static uint16_t edit_redo(EDIT *edit)
 {
     uint16_t r = 0xFFFF;
-    if(edit->next) {
-        r = edit_change_do(edit, edit->next);
-        edit->current = edit->next;
-        edit->next = edit->next->next;
+    if(edit->history_cur != edit->history_length) {
+        r = edit_change_do(edit, edit->history[edit->history_cur]);
+        edit->history_cur++;
     }
     return r;
 }
@@ -547,15 +550,16 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
                 edit->onenter();
                 /*dirty*/
                 if(edit->length == 0) {
-                    EDIT_CHANGE *p = edit->last;
-                    while(p) {
-                        EDIT_CHANGE *temp = p->last;
-                        free(p);
-                        p = temp;
+                    uint16_t i = 0;
+                    while(i != edit->history_length) {
+                        free(edit->history[i]);
+                        i++;
                     }
-                    edit->current = NULL;
-                    edit->next = NULL;
-                    edit->last = NULL;
+                    free(edit->history);
+                    edit->history = NULL;
+                    edit->history_cur = 0;
+                    edit->history_length = 0;
+
                     edit_sel.p1 = 0;
                     edit_sel.p2 = 0;
                     edit_sel.start = 0;

@@ -48,7 +48,8 @@ struct friend {
 
     MSG_DATA msg;
 
-    EDIT_CHANGE *current, *next, *last;
+    EDIT_CHANGE **edit_history;
+    uint16_t edit_history_cur, edit_history_length;
 
     FILE_T incoming[16];
     FILE_T outgoing[16];
