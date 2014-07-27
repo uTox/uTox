@@ -33,7 +33,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
             /* group */
             setcolor(0);
             setfont(FONT_MSG_NAME);
-            drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, y, &msg->msg[msg->length] + 1, (uint16_t)msg->msg[msg->length]);
+            drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, y, &msg->msg[msg->length] + 1, msg->msg[msg->length]);
         } else {
             FRIEND *f = &friend[m->data->id];
             uint8_t author = msg->flags & 1;
@@ -553,7 +553,7 @@ int messages_selection(MESSAGES *m, void *data, uint32_t len)
 
         if(i != m->data->istart || m->data->start == 0) {
             if(m->type) {
-                memcpy(p, &msg->msg[msg->length + 1], (uint16_t)msg->msg[msg->length] * 2);
+                memcpy(p, &msg->msg[msg->length + 1], msg->msg[msg->length]);
                 p += (uint8_t)msg->msg[msg->length];
             } else {
                 FRIEND *f = &friend[m->data->id];
