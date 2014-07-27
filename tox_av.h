@@ -324,8 +324,12 @@ static void alccaptureclose(void *handle)
     alcCaptureCloseDevice(handle);
 }
 
-static void sourceplaybuffer(int i, int16_t *data, int samples)
+static void sourceplaybuffer(int i, int16_t *data, int samples, uint8_t channels, unsigned int sample_rate)
 {
+    if(!channels || channels > 2) {
+        return;
+    }
+
     ALuint bufid;
     ALint processed, queued;
     alGetSourcei(source[i], AL_BUFFERS_PROCESSED, &processed);
@@ -344,7 +348,7 @@ static void sourceplaybuffer(int i, int16_t *data, int samples)
         return;
     }
 
-    alBufferData(bufid, AL_FORMAT_MONO16, data, samples * 2, av_DefaultSettings.audio_sample_rate);
+    alBufferData(bufid, (channels == 1) ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16, data, samples * 2 * channels, sample_rate);
     alSourceQueueBuffers(source[i], 1, &bufid);
 
     ALint state;
@@ -544,7 +548,7 @@ static void audio_thread(void *args)
 
             if(frame) {
                 if(preview) {
-                    sourceplaybuffer(0, (int16_t*)buf, perframe);
+                    sourceplaybuffer(0, (int16_t*)buf, perframe, 1, av_DefaultSettings.audio_sample_rate);
                 }
 
                 int i;
@@ -582,9 +586,12 @@ static void audio_thread(void *args)
     audio_thread_init = 0;
 }
 
-static void callback_av_audio(ToxAv *av, int32_t call_index, int16_t *data, int length)
+static void callback_av_audio(ToxAv *av, int32_t call_index, int16_t *data, int samples)
 {
-    sourceplaybuffer(call_index + 1, data, length);
+    ToxAvCSettings dest;
+    if(toxav_get_peer_csettings(av, call_index, 0, &dest) == 0) {
+        sourceplaybuffer(call_index + 1, data, samples, dest.audio_channels, dest.audio_sample_rate);
+    }
 }
 
 void toxaudio_postmessage(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
