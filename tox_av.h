@@ -1,18 +1,16 @@
 
 static void av_start(int32_t call_index, void *arg)
 {
+    ToxAvCSettings peer_settings;
+
     int fid = toxav_get_peer_id(arg, call_index, 0);
-    _Bool video = toxav_get_peer_transmission_type(arg, call_index, 0) == TypeVideo;
+    toxav_get_peer_csettings(arg, call_index, 0, &peer_settings);
+
+    _Bool video = (peer_settings.call_type == TypeVideo);
 
     debug("video for this call: %u\n", video);
 
-    ToxAvCodecSettings settings = av_DefaultSettings;
-    if(video && video_width) {
-        settings.max_video_width = max_video_width;
-        settings.max_video_height = max_video_height;
-    }
-
-    if(toxav_prepare_transmission(arg, call_index, &settings, video) == 0) {
+    if(toxav_prepare_transmission(arg, call_index, av_jbufdc, av_VADd, video) == 0) {
         if(video) {
             postmessage(FRIEND_CALL_START_VIDEO, fid, call_index, (void*)(640 | (size_t)480 << 16));
         } else {
@@ -26,7 +24,11 @@ static void av_start(int32_t call_index, void *arg)
 static void callback_av_invite(void *arg, int32_t call_index, void *userdata)
 {
     int fid = toxav_get_peer_id(arg, call_index, 0);
-    _Bool video = toxav_get_peer_transmission_type(arg, call_index, 0) == TypeVideo;
+
+    ToxAvCSettings peer_settings;
+    toxav_get_peer_csettings(arg, call_index, 0, &peer_settings);
+    _Bool video = (peer_settings.call_type == TypeVideo);
+
     postmessage(FRIEND_CALL_STATUS, fid, call_index, (void*)(size_t)(video ? CALL_INVITED_VIDEO : CALL_INVITED));
 
     debug("A/V Invite (%i)\n", call_index);

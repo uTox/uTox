@@ -653,7 +653,7 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint8_t msg, uint16_t param1
         /* param1: friend #
          */
         int32_t id;
-        toxav_call(av, &id, param1, TypeAudio, 10);
+        toxav_call(av, &id, param1, &av_DefaultSettings, 10);
 
         postmessage(FRIEND_CALL_STATUS, param1, id, (void*)CALL_RINGING);
         break;
@@ -662,8 +662,13 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint8_t msg, uint16_t param1
     case TOX_CALL_VIDEO: {
         /* param1: friend #
          */
+        ToxAvCSettings settings = av_DefaultSettings;
+        settings.call_type = TypeVideo;
+        settings.max_video_width = max_video_width;
+        settings.max_video_height = max_video_height;
+
         int32_t id;
-        toxav_call(av, &id, param1, TypeVideo, 10);
+        toxav_call(av, &id, param1, &settings, 10);
 
         postmessage(FRIEND_CALL_STATUS, param1, id, (void*)CALL_RINGING_VIDEO);
         break;
@@ -672,7 +677,14 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint8_t msg, uint16_t param1
     case TOX_ACCEPTCALL: {
         /* param1: call #
          */
-        toxav_answer(av, param1, param2 ? TypeVideo : TypeAudio);
+        ToxAvCSettings settings = av_DefaultSettings;
+        if(param2) {
+            settings.call_type = TypeVideo;
+            settings.max_video_width = max_video_width;
+            settings.max_video_height = max_video_height;
+        }
+
+        toxav_answer(av, param1, &settings);
         break;
     }
 
