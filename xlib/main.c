@@ -657,7 +657,7 @@ int main(int argc, char *argv[])
     UTOX_SAVE *save = loadconfig();
 
     /* create window */
-    window = XCreateWindow(display, RootWindow(display, screen), save->window_x, save->window_y, save->window_width, save->window_height, 0, depth, InputOutput, visual, CWBackPixel | CWBorderPixel | CWEventMask, &attrib);
+    window = XCreateWindow(display, RootWindow(display, screen), save->window_x, save->window_y, save->window_width, save->window_height, 0, depth, InputOutput, visual, CWBackPixmap | CWBorderPixel | CWEventMask, &attrib);
 
     /* start the tox thread */
     thread(tox_thread, NULL);
