@@ -293,7 +293,7 @@ _Bool audio_frame(int16_t *buffer);
 
 ToxAv* global_av;
 
-void audio_play(int32_t call_index, const int16_t *data, int length);
+void audio_play(int32_t call_index, const int16_t *data, int length, uint8_t channels);
 void audio_begin(int32_t call_index);
 void audio_end(int32_t call_index);
 

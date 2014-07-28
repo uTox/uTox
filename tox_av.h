@@ -646,8 +646,10 @@ void toxaudio_postmessage(uint8_t msg, uint16_t param1, uint16_t param2, void *d
 
 static void callback_av_audio(ToxAv *av, int32_t call_index, int16_t *data, int length)
 {
-    audio_play(call_index, data, length);
-    //sourceplaybuffer(call_index + 1, data, length);
+    ToxAvCSettings dest;
+    if(toxav_get_peer_csettings(av, call_index, 0, &dest) == 0) {
+        audio_play(call_index, data, length, dest.audio_channels);
+    }
 }
 #endif
 

@@ -20,10 +20,11 @@ typedef struct
 {
     SLObjectItf player;
     SLAndroidSimpleBufferQueueItf queue;
+    uint8_t channels;
     uint8_t value;
     volatile _Bool queued[8];
     uint8_t unqueue;
-    short buf[960 * 8];
+    short *buf;
 } AUDIO_PLAYER;
 
 AUDIO_PLAYER loopback, call_player[MAX_CALLS];
@@ -45,15 +46,64 @@ pthread_mutex_t callback_lock;
 void* frames[128];
 uint8_t frame_count;
 
-static void player_queue(AUDIO_PLAYER *p, const int16_t *data)
+void playCallback(SLAndroidSimpleBufferQueueItf bq, void *context)
 {
+    AUDIO_PLAYER *p = context;
+    p->queued[p->unqueue++] = 0;
+    if(p->unqueue == 8) {
+        p->unqueue = 0;
+    }
+}
+
+void init_player(AUDIO_PLAYER *p, uint8_t channels)
+{
+    format_pcm.numChannels = channels;
+    format_pcm.channelMask = ((channels == 1) ? SL_SPEAKER_FRONT_CENTER : (SL_SPEAKER_FRONT_LEFT | SL_SPEAKER_FRONT_RIGHT));
+    p->channels = channels;
+
+    SLDataLocator_AndroidSimpleBufferQueue loc_bufq = {SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE, 8};
+    SLDataSource audioSrc = {&loc_bufq, &format_pcm};
+    SLDataLocator_OutputMix loc_outmix = {SL_DATALOCATOR_OUTPUTMIX, outputMixObject};
+    SLDataSink audioSnk = {&loc_outmix, NULL};
+    SLPlayItf bqPlayerPlay;
+
+    const SLInterfaceID ids[] = {SL_IID_BUFFERQUEUE};
+    const SLboolean reqs[] = {SL_BOOLEAN_TRUE};
+
+    (*engineEngine)->CreateAudioPlayer(engineEngine, &p->player, &audioSrc, &audioSnk, 1, ids, reqs);
+    (*p->player)->Realize(p->player, SL_BOOLEAN_FALSE);
+    (*p->player)->GetInterface(p->player, SL_IID_PLAY, &bqPlayerPlay);
+    (*p->player)->GetInterface(p->player, SL_IID_BUFFERQUEUE, &p->queue);
+    (*p->queue)->RegisterCallback(p->queue, playCallback, p);
+    (*bqPlayerPlay)->SetPlayState(bqPlayerPlay, SL_PLAYSTATE_PLAYING);
+
+    p->buf = malloc(960 * 2 * 8 * channels);
+}
+
+void close_player(AUDIO_PLAYER *p)
+{
+    (*p->player)->Destroy(p->player);
+    free(p->buf);
+    memset(p, 0, sizeof(*p));
+}
+
+static void player_queue(AUDIO_PLAYER *p, const int16_t *data, uint8_t channels)
+{
+    if(channels != p->channels && p->player) {
+        close_player(p);
+    }
+
+    if(!p->player) {
+        init_player(p, channels);
+    }
+
     SLresult result;
 
     if(!p->queued[p->value]) {
         p->queued[p->value] = 1;
 
-        memcpy(&p->buf[p->value * 960], data, 960 * 2);
-        result = (*p->queue)->Enqueue(p->queue, &p->buf[p->value * 960], 960 * 2);
+        memcpy(&p->buf[p->value * 960 * channels], data, 960 * 2 * channels);
+        result = (*p->queue)->Enqueue(p->queue, &p->buf[p->value * 960 * channels], 960 * 2 * channels);
 
         p->value++;
         if(p->value == 8) {
@@ -85,7 +135,7 @@ void encoder_thread(void *arg)
 
         if(c) {
             if(volatile(audio_preview)) {
-                player_queue(&loopback, frame);
+                player_queue(&loopback, frame, 1);
             }
 
             int i;
@@ -134,15 +184,6 @@ void bqRecorderCallback(SLAndroidSimpleBufferQueueItf bq, void *context)
     b = !b;
 
     pthread_mutex_unlock(&callback_lock);
-}
-
-void playCallback(SLAndroidSimpleBufferQueueItf bq, void *context)
-{
-    AUDIO_PLAYER *p = context;
-    p->queued[p->unqueue++] = 0;
-    if(p->unqueue == 8) {
-        p->unqueue = 0;
-    }
 }
 
 _Bool createAudioRecorder(ToxAv *av)
@@ -199,25 +240,6 @@ void startRecording(void)
     result = (*recorderRecord)->SetRecordState(recorderRecord, SL_RECORDSTATE_RECORDING);
 }
 
-void init_player(AUDIO_PLAYER *p)
-{
-    SLDataLocator_AndroidSimpleBufferQueue loc_bufq = {SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE, 8};
-    SLDataSource audioSrc = {&loc_bufq, &format_pcm};
-    SLDataLocator_OutputMix loc_outmix = {SL_DATALOCATOR_OUTPUTMIX, outputMixObject};
-    SLDataSink audioSnk = {&loc_outmix, NULL};
-    SLPlayItf bqPlayerPlay;
-
-    const SLInterfaceID ids[] = {SL_IID_BUFFERQUEUE};
-    const SLboolean reqs[] = {SL_BOOLEAN_TRUE};
-
-    (*engineEngine)->CreateAudioPlayer(engineEngine, &p->player, &audioSrc, &audioSnk, 1, ids, reqs);
-    (*p->player)->Realize(p->player, SL_BOOLEAN_FALSE);
-    (*p->player)->GetInterface(p->player, SL_IID_PLAY, &bqPlayerPlay);
-    (*p->player)->GetInterface(p->player, SL_IID_BUFFERQUEUE, &p->queue);
-    (*p->queue)->RegisterCallback(p->queue, playCallback, p);
-    (*bqPlayerPlay)->SetPlayState(bqPlayerPlay, SL_PLAYSTATE_PLAYING);
-}
-
 void createEngine(void)
 {
     SLresult result;
@@ -233,18 +255,13 @@ void createEngine(void)
     result = (*outputMixObject)->Realize(outputMixObject, SL_BOOLEAN_FALSE);
 
 
-    init_player(&loopback);
-
-    int i = 0;
-    for(i = 0; i != MAX_CALLS; i++) {
-        init_player(&call_player[i]);
-    }
+    init_player(&loopback, 1);
 }
 
 /* ASSUMES LENGTH == 960 */
-void audio_play(int32_t call_index, const int16_t *data, int length)
+void audio_play(int32_t call_index, const int16_t *data, int length, uint8_t channels)
 {
-    player_queue(&call_player[call_index], data);
+    player_queue(&call_player[call_index], data, channels);
 }
 
 void audio_begin(int32_t call_index)
