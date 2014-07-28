@@ -93,6 +93,11 @@ static void startft_inline(Tox *tox, uint16_t fid, void *pngdata)
 
     int filenumber = tox_new_file_sender(tox, fid, size, (uint8_t*)"inline.png", sizeof("inline.png") - 1);
     if(filenumber != -1) {
+        if(filenumber > countof(friend[0].outgoing)) {
+            tox_file_send_control(tox, fid, 0, filenumber, TOX_FILECONTROL_KILL, NULL, 0);
+            return;
+        }
+
         FILE_T *ft = &friend[fid].outgoing[filenumber];
         memset(ft, 0, sizeof(FILE));
 
@@ -179,6 +184,11 @@ void toxvideo_postmessage(uint8_t msg, uint16_t param1, uint16_t param2, void *d
 
 static void callback_file_send_request(Tox *tox, int32_t fid, uint8_t filenumber, uint64_t filesize, const uint8_t *filename, uint16_t filename_length, void *userdata)
 {
+    if(filenumber > countof(friend[0].incoming)) {
+        tox_file_send_control(tox, fid, 1, filenumber, TOX_FILECONTROL_KILL, NULL, 0);
+        return;
+    }
+
     FILE_T *ft = &friend[fid].incoming[filenumber];
     memset(ft, 0, sizeof(FILE));
 
