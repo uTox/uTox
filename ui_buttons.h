@@ -84,26 +84,67 @@ static void button_settings_onpress(void)
 static void button_call_onpress(void)
 {
     FRIEND *f = sitem->data;
-    if(f->calling & 4) {
-        return;
-    }
 
-    switch(f->calling & 3) {
-    case CALL_NONE: {
-        tox_postmessage(TOX_CALL, f - friend, 0, NULL);
-        debug("Calling friend: %u\n", (uint32_t)(f - friend));
-        break;
-    }
-
+    switch(f->calling) {
     case CALL_INVITED: {
         tox_postmessage(TOX_ACCEPTCALL, f->callid, 0, NULL);
         debug("Accept Call: %u\n", f->callid);
         break;
     }
 
-    case CALL_OK: {
+    case CALL_NONE: {
+        if(f->online) {
+            tox_postmessage(TOX_CALL, f - friend, 0, NULL);
+            debug("Calling friend: %u\n", (uint32_t)(f - friend));
+        }
+        break;
+    }
+
+    case CALL_OK:
+    case CALL_OK_VIDEO: {
         tox_postmessage(TOX_HANGUP, f->callid, 0, NULL);
         debug("Ending call: %u\n", f->callid);
+        break;
+    }
+    }
+}
+
+static void button_call_updatecolor(BUTTON *b)
+{
+    FRIEND *f = sitem->data;
+
+    switch(f->calling) {
+    case CALL_INVITED: {
+        b->c1 = C_YELLOW;
+        b->c2 = C_YELLOW_LIGHT;
+        b->c3 = C_YELLOW_LIGHT;
+        break;
+    }
+
+    case CALL_NONE: {
+        if(f->online) {
+            b->c1 = C_GREEN;
+            b->c2 = C_GREEN_LIGHT;
+            b->c3 = C_GREEN_LIGHT;
+            break;
+        }
+        /* fall through */
+    }
+
+    case CALL_RINGING:
+    case CALL_RINGING_VIDEO:
+    case CALL_INVITED_VIDEO: {
+        b->c1 = C_GRAY;
+        b->c2 = C_GRAY;
+        b->c3 = C_GRAY;
+        break;
+    }
+
+    case CALL_OK:
+    case CALL_OK_VIDEO: {
+        b->c1 = C_RED;
+        b->c2 = C_RED_LIGHT;
+        b->c3 = C_RED_LIGHT;
         break;
     }
     }
@@ -112,35 +153,103 @@ static void button_call_onpress(void)
 static void button_video_onpress(void)
 {
     FRIEND *f = sitem->data;
-    if(f->calling && !(f->calling & 4)) {
-        return;
-    }
 
-    switch(f->calling & 3) {
-    case CALL_NONE: {
-        tox_postmessage(TOX_CALL_VIDEO, f - friend, 0, NULL);
-        debug("Calling friend: %u\n", (uint32_t)(f - friend));
-        break;
-    }
-
-    case CALL_INVITED: {
+    switch(f->calling) {
+    case CALL_INVITED_VIDEO: {
         tox_postmessage(TOX_ACCEPTCALL, f->callid, 1, NULL);
         debug("Accept Call: %u\n", f->callid);
         break;
     }
 
+    case CALL_NONE: {
+        if(f->online) {
+            tox_postmessage(TOX_CALL_VIDEO, f - friend, 0, NULL);
+            debug("Calling friend: %u\n", (uint32_t)(f - friend));
+        }
+        break;
+    }
+
     case CALL_OK: {
-        tox_postmessage(TOX_HANGUP, f->callid, 0, NULL);
-        debug("Ending call: %u\n", f->callid);
+        tox_postmessage(TOX_CALL_VIDEO_ON, f - friend, f->callid, NULL);
+        debug("start sending video\n");
+        break;
+    }
+
+    case CALL_OK_VIDEO: {
+        tox_postmessage(TOX_CALL_VIDEO_OFF, f - friend, f->callid, NULL);
+        debug("stop sending video\n");
         break;
     }
     }
 }
 
+static void button_video_updatecolor(BUTTON *b)
+{
+    FRIEND *f = sitem->data;
+
+    switch(f->calling) {
+    case CALL_INVITED_VIDEO: {
+        b->c1 = C_YELLOW;
+        b->c2 = C_YELLOW_LIGHT;
+        b->c3 = C_YELLOW_LIGHT;
+        break;
+    }
+
+    case CALL_NONE: {
+        if(f->online) {
+            b->c1 = C_GREEN;
+            b->c2 = C_GREEN_LIGHT;
+            b->c3 = C_GREEN_LIGHT;
+            break;
+        }
+        /* fall through */
+    }
+
+    case CALL_RINGING:
+    case CALL_RINGING_VIDEO:
+    case CALL_INVITED: {
+        b->c1 = C_GRAY;
+        b->c2 = C_GRAY;
+        b->c3 = C_GRAY;
+        break;
+    }
+
+    case CALL_OK: {
+        b->c1 = C_GREEN;
+        b->c2 = C_GREEN_LIGHT;
+        b->c3 = C_GREEN_LIGHT;
+        break;
+    }
+
+    case CALL_OK_VIDEO: {
+        b->c1 = C_RED;
+        b->c2 = C_RED_LIGHT;
+        b->c3 = C_RED_LIGHT;
+        break;
+    }
+    }
+}
 
 static void button_sendfile_onpress(void)
 {
-    openfilesend();
+    FRIEND *f = sitem->data;
+    if(f->online) {
+        openfilesend();
+    }
+}
+
+static void button_sendfile_updatecolor(BUTTON *b)
+{
+    FRIEND *f = sitem->data;
+    if(f->online) {
+        b->c1 = C_GREEN;
+        b->c2 = C_GREEN_LIGHT;
+        b->c3 = C_GREEN_LIGHT;
+    } else {
+        b->c1 = C_GRAY;
+        b->c2 = C_GRAY;
+        b->c3 = C_GRAY;
+    }
 }
 
 static void button_acceptfriend_onpress(void)
@@ -173,12 +282,43 @@ static void button_status_onpress(void)
 
 static void button_chat1_onpress(void)
 {
-    desktopgrab(0);
+    FRIEND *f = sitem->data;
+    if(f->online) {
+        desktopgrab(0);
+    }
+}
+
+static void button_chat1_updatecolor(BUTTON *b)
+{
+    FRIEND *f = sitem->data;
+    if(f->online) {
+        b->c1 = C_GREEN;
+        b->c2 = C_GREEN_LIGHT;
+        b->c3 = C_GREEN_LIGHT;
+    } else {
+        b->c1 = C_GRAY;
+        b->c2 = C_GRAY;
+        b->c3 = C_GRAY;
+    }
 }
 
 static void button_chat2_onpress(void)
 {
     debug("lel2\n");
+}
+
+static void button_chat2_updatecolor(BUTTON *b)
+{
+    FRIEND *f = sitem->data;
+    if(f->online) {
+        b->c1 = C_GRAY;
+        b->c2 = C_GRAY;
+        b->c3 = C_GRAY;
+    } else {
+        b->c1 = C_GRAY;
+        b->c2 = C_GRAY;
+        b->c3 = C_GRAY;
+    }
 }
 
 
@@ -258,6 +398,7 @@ button_call = {
     .bh = _BM_LBICON_HEIGHT,
 
     .onpress = button_call_onpress,
+    .updatecolor = button_call_updatecolor,
 },
 
 button_video = {
@@ -270,6 +411,7 @@ button_video = {
     .bh = _BM_LBICON_HEIGHT,
 
     .onpress = button_video_onpress,
+    .updatecolor = button_video_updatecolor,
 },
 
 
@@ -283,6 +425,7 @@ button_sendfile = {
     .bh = _BM_LBICON_HEIGHT,
 
     .onpress = button_sendfile_onpress,
+    .updatecolor = button_sendfile_updatecolor,
 },
 
 button_acceptfriend = {
@@ -330,6 +473,7 @@ button_chat1 = {
     .bw = _BM_CI_WIDTH,
     .bh = _BM_CI_WIDTH,
     .onpress = button_chat1_onpress,
+    .updatecolor = button_chat1_updatecolor,
 },
 
 button_chat2 = {
@@ -338,6 +482,7 @@ button_chat2 = {
     .c2 = C_GREEN_LIGHT,
     .c3 = C_GREEN_LIGHT,
     .onpress = button_chat2_onpress,
+    .updatecolor = button_chat2_updatecolor,
 },
 
 button_name = {

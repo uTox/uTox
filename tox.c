@@ -674,6 +674,30 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint8_t msg, uint16_t param1
         break;
     }
 
+    case TOX_CALL_VIDEO_ON: {
+        /* param1: friend #
+         * param2: call #
+         */
+        ToxAvCSettings settings = av_DefaultSettings;
+        settings.call_type = TypeVideo;
+        settings.max_video_width = max_video_width;
+        settings.max_video_height = max_video_height;
+
+
+        toxav_change_settings(av, param2, &settings);
+        postmessage(FRIEND_CALL_START_VIDEO, param1, param2, NULL);
+        break;
+    }
+
+    case TOX_CALL_VIDEO_OFF: {
+        /* param1: friend #
+         * param2: call #
+         */
+        toxav_change_settings(av, param2, &av_DefaultSettings);
+        postmessage(FRIEND_CALL_STOP_VIDEO, param1, param2, NULL);
+        break;
+    }
+
     case TOX_ACCEPTCALL: {
         /* param1: call #
          */
@@ -1062,8 +1086,9 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
             toxaudio_postmessage(AUDIO_CALL_END, param2, 0, NULL);
             if(f->calling == CALL_OK_VIDEO) {
                 toxvideo_postmessage(VIDEO_CALL_END, param2, 0, NULL);
-                video_end(param1 + 1);
             }
+
+            video_end(param1 + 1);
         }
 
         f->calling = status;
@@ -1079,29 +1104,69 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
         break;
     }
 
-    case FRIEND_CALL_START_VIDEO: {
+    case FRIEND_CALL_VIDEO: {
         /* param1: friend id
            param2: call id
-           data: encoded width | height << 16 of video
          */
         FRIEND *f = &friend[param1];
         f->calling = CALL_OK_VIDEO;
         f->callid = param2;
         updatefriend(f);
 
-        uint32_t res = (size_t)data;
-        uint16_t width = res & 0xFFFF, height = res >> 16;
-
-        video_begin(param1 + 1, f->name, f->name_length, width, height);
-
         toxvideo_postmessage(VIDEO_CALL_START, param2, 0, NULL);
         toxaudio_postmessage(AUDIO_CALL_START, param2, 0, NULL);
 
-        f->call_width = width;
-        f->call_height = height;
+        f->call_width = 640;
+        f->call_height = 480;
+
+        video_begin(param1 + 1, f->name, f->name_length, 640, 480);
 
         call_notify(f, CALL_OK_VIDEO);
 
+        break;
+    }
+
+    case FRIEND_CALL_MEDIACHANGE: {
+        /* param1: friend id
+           param2: call id
+           data: zero = audio, nonzero = audio/video
+         */
+        FRIEND *f = &friend[param1];
+
+        if(!data) {
+            video_end(param1 + 1);
+        } else {
+            f->call_width = 640;
+            f->call_height = 480;
+
+            video_begin(param1 + 1, f->name, f->name_length, 640, 480);
+        }
+        break;
+    }
+
+    case FRIEND_CALL_START_VIDEO: {
+        /* param1: friend id
+           param2: call id
+         */
+        FRIEND *f = &friend[param1];
+        if(f->calling == CALL_OK) {
+            f->calling = CALL_OK_VIDEO;
+            toxvideo_postmessage(VIDEO_CALL_START, param2, 0, NULL);
+            updatefriend(f);
+        }
+        break;
+    }
+
+    case FRIEND_CALL_STOP_VIDEO: {
+        /* param1: friend id
+           param2: call id
+         */
+        FRIEND *f = &friend[param1];
+        if(f->calling == CALL_OK_VIDEO) {
+            f->calling = CALL_OK;
+            toxvideo_postmessage(VIDEO_CALL_END, param2, 0, NULL);
+            updatefriend(f);
+        }
         break;
     }
 

@@ -1518,6 +1518,11 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
 
 void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height, _Bool resize)
 {
+    if(!video_hwnd[id]) {
+        debug("frame for null window\n");
+        return;
+    }
+
     if(resize) {
         RECT r = {
             .left = 0,
@@ -1555,6 +1560,10 @@ void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height
 
 void video_begin(uint32_t id, uint8_t *name, uint16_t name_length, uint16_t width, uint16_t height)
 {
+    if(video_hwnd[id]) {
+        return;
+    }
+
     HWND *h = &video_hwnd[id];
     wchar_t out[name_length + 1];
     int len = utf8tonative(name, out, name_length);
@@ -1578,7 +1587,12 @@ void video_begin(uint32_t id, uint8_t *name, uint16_t name_length, uint16_t widt
 
 void video_end(uint32_t id)
 {
+    if(!video_hwnd[id]) {
+        return;
+    }
+
     DestroyWindow(video_hwnd[id]);
+    video_hwnd[id] = NULL;
 }
 
 volatile _Bool newframe = 0;

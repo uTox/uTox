@@ -10,9 +10,9 @@ static void av_start(int32_t call_index, void *arg)
 
     debug("video for this call: %u\n", video);
 
-    if(toxav_prepare_transmission(arg, call_index, av_jbufdc, av_VADd, video) == 0) {
+    if(toxav_prepare_transmission(arg, call_index, av_jbufdc, av_VADd, 1) == 0) {
         if(video) {
-            postmessage(FRIEND_CALL_START_VIDEO, fid, call_index, (void*)(640 | (size_t)480 << 16));
+            postmessage(FRIEND_CALL_VIDEO, fid, call_index, (void*)(640 | (size_t)480 << 16));
         } else {
             postmessage(FRIEND_CALL_STATUS, fid, call_index, (void*)CALL_OK);
         }
@@ -101,6 +101,16 @@ static void callback_av_peertimeout(void *arg, int32_t call_index, void *userdat
     stopcall();
 
     debug("A/V PeerTimeout (%i)\n", call_index);
+}
+
+static void callback_av_mediachange(void *arg, int32_t call_index, void *userdata)
+{
+    ToxAvCSettings settings;
+    toxav_get_peer_csettings(arg, call_index, 0, &settings);
+    int fid = toxav_get_peer_id(arg, call_index, 0);
+
+    postmessage(FRIEND_CALL_MEDIACHANGE, fid, call_index, (settings.call_type == TypeVideo) ? (void*)1 : NULL);
+    debug("A/V Mediachange (%i)\n", call_index);
 }
 
 uint8_t lbuffer[800 * 600 * 4]; //needs to be always large enough for encoded frames
@@ -678,7 +688,7 @@ static void set_av_callbacks(ToxAv *av)
 
     toxav_register_callstate_callback(av, callback_av_requesttimeout, av_OnRequestTimeout, NULL);
     toxav_register_callstate_callback(av, callback_av_peertimeout, av_OnPeerTimeout, NULL);
-    //toxav_register_callstate_callback(av, callback_av_mediachange, av_OnMediaChange, NULL);
+    toxav_register_callstate_callback(av, callback_av_mediachange, av_OnMediaChange, NULL);
 
     toxav_register_audio_recv_callback(av, callback_av_audio);
     toxav_register_video_recv_callback(av, callback_av_video);
