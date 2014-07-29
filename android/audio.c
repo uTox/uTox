@@ -146,6 +146,7 @@ void encoder_thread(void *arg)
 
                     if((r = toxav_prepare_audio_frame(arg, i, dest, sizeof(dest), frame, 960)) < 0) {
                         debug("toxav_prepare_audio_frame error %i\n", r);
+                        continue;
                     }
 
                     if((r = toxav_send_audio(arg, i, dest, r)) < 0) {

@@ -567,6 +567,7 @@ static void audio_thread(void *args)
                         int r;
                         if((r = toxav_prepare_audio_frame(av, i, dest, perframe * 2, (void*)buf, perframe)) < 0) {
                             debug("toxav_prepare_audio_frame error %i\n", r);
+                            continue;
                         }
 
                         if((r = toxav_send_audio(av, i, dest, r)) < 0) {
