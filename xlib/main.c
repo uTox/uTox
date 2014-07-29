@@ -825,6 +825,11 @@ int main(int argc, char *argv[])
 
 void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height, _Bool resize)
 {
+    if(!video_win[id]) {
+        debug("frame for null window\n");
+        return;
+    }
+
     if(resize) {
         XWindowChanges changes = {
             .width = width,
@@ -870,6 +875,10 @@ void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height
 void video_begin(uint32_t id, uint8_t *name, uint16_t name_length, uint16_t width, uint16_t height)
 {
     Window *win = &video_win[id];
+    if(*win) {
+        return;
+    }
+
     *win = XCreateSimpleWindow(display, RootWindow(display, screen), 0, 0, width, height, 0, BlackPixel(display, screen), WhitePixel(display, screen));
     XStoreName(display, *win, (char*)name);
     XSetWMProtocols(display, *win, &wm_delete_window, 1);
@@ -878,7 +887,12 @@ void video_begin(uint32_t id, uint8_t *name, uint16_t name_length, uint16_t widt
 
 void video_end(uint32_t id)
 {
+    if(!video_win[id]) {
+        return;
+    }
+
     XDestroyWindow(display, video_win[id]);
+    video_win[id] = None;
 }
 
 Display *deskdisplay;
