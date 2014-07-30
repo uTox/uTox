@@ -238,12 +238,12 @@ _Bool messages_mmove(MESSAGES *m, int px, int py, int width, int height, int mx,
 
                 char_t *end = msg->msg + msg->length;
                 while(str != end && *str != ' ' && *str != '\n') {
-                    if(end - str >= 7 && strcmp2(str, "http://") == 0) {
+                    if(m->urlover == 0xFFFF && end - str >= 7 && strcmp2(str, "http://") == 0) {
                         cursor = CURSOR_HAND;
                         m->urlover = str - msg->msg;
                     }
 
-                    if(end - str >= 8 && strcmp2(str, "https://") == 0) {
+                    if(m->urlover == 0xFFFF && end - str >= 8 && strcmp2(str, "https://") == 0) {
                         cursor = CURSOR_HAND;
                         m->urlover = str - msg->msg;
                     }

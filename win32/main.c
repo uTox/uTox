@@ -872,15 +872,12 @@ LRESULT CALLBACK GrabProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
                 HWND dwnd = GetDesktopWindow();
                 HDC ddc = GetDC(dwnd);
-                HDC tempdc = CreateCompatibleDC(ddc);
 
-                HBITMAP capture = CreateCompatibleBitmap(tempdc, grabpx, grabpy);
-                SelectObject(tempdc, capture);
+                HBITMAP capture = CreateCompatibleBitmap(ddc, grabpx, grabpy);
+                SelectObject(hdcMem, capture);
 
-                BitBlt(tempdc, 0, 0, grabpx, grabpy, ddc, grabx, graby, SRCCOPY | CAPTUREBLT);
-                GetDIBits(tempdc, capture, 0, grabpy, bits, &info, DIB_RGB_COLORS);
-
-                DeleteDC(tempdc);
+                BitBlt(hdcMem, 0, 0, grabpx, grabpy, ddc, grabx, graby, SRCCOPY | CAPTUREBLT);
+                GetDIBits(hdcMem, capture, 0, grabpy, bits, &info, DIB_RGB_COLORS);
 
                 if(grabpx & 3) {
                     uint8_t pbytes = grabpx & 3, *p = bits, *pp = bits, *end = p + grabpx * grabpy * 3;
