@@ -980,6 +980,15 @@ static UTOX_SAVE* loadconfig(void)
     UTOX_SAVE *r = file_raw("utox_save", NULL);
     if(r) {
         if(r->version == 0) {
+            /* validate values */
+            if(r->scale > 4) {
+                r->scale = 4;
+            }
+
+            if(r->window_x > GetSystemMetrics(SM_CXSCREEN) || r->window_width > GetSystemMetrics(SM_CXSCREEN)
+               || r->window_y > GetSystemMetrics(SM_CYSCREEN) || r->window_height > GetSystemMetrics(SM_CYSCREEN)) {
+                goto SET_DEFAULTS;
+            }
             return r;
         } else {
             free(r);
@@ -990,6 +999,7 @@ static UTOX_SAVE* loadconfig(void)
     r = malloc(sizeof(UTOX_SAVE));
     r->version = 0;
     r->scale = DEFAULT_SCALE - 1;
+SET_DEFAULTS:
     r->window_x = (GetSystemMetrics(SM_CXSCREEN) - MAIN_WIDTH) / 2;
     r->window_y = (GetSystemMetrics(SM_CYSCREEN) - MAIN_HEIGHT) / 2;
     r->window_width = MAIN_WIDTH;
