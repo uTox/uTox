@@ -286,6 +286,12 @@ static void video_thread(void *args)
 #else
 #include <AL/al.h>
 #include <AL/alc.h>
+
+/* include for compatibility with older versions of OpenAL */
+#ifndef ALC_ALL_DEVICES_SPECIFIER
+#include <AL/alext.h>
+#endif
+
 #endif
 
 static ALCdevice *device_out, *device_in;
