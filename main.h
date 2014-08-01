@@ -8,6 +8,7 @@
 #include <time.h>
 #include <string.h>
 #include <math.h>
+#include <limits.h>
 
 #include <tox/tox.h>
 #include <tox/toxav.h>

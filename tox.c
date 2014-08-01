@@ -57,7 +57,7 @@ static void startft(Tox *tox, uint32_t fid, uint8_t *path, uint8_t *name, uint16
     int filenumber = tox_new_file_sender(tox, fid, size, name, name_length);
     if(filenumber != -1) {
         FILE_T *ft = &friend[fid].outgoing[filenumber];
-        memset(ft, 0, sizeof(FILE));
+        memset(ft, 0, sizeof(FILE_T));
 
         *file_tend++ = ft;
 
@@ -99,7 +99,7 @@ static void startft_inline(Tox *tox, uint16_t fid, void *pngdata)
         }
 
         FILE_T *ft = &friend[fid].outgoing[filenumber];
-        memset(ft, 0, sizeof(FILE));
+        memset(ft, 0, sizeof(FILE_T));
 
         *file_tend++ = ft;
 
@@ -190,7 +190,7 @@ static void callback_file_send_request(Tox *tox, int32_t fid, uint8_t filenumber
     }
 
     FILE_T *ft = &friend[fid].incoming[filenumber];
-    memset(ft, 0, sizeof(FILE));
+    memset(ft, 0, sizeof(FILE_T));
 
     ft->fid = fid;
     ft->filenumber = filenumber;
