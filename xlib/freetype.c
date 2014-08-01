@@ -29,14 +29,17 @@ FONT font[16], *sfont;
 FcCharSet *charset;
 FcFontSet *fs;
 
+_Bool ft_vert, ft_swap_blue_red;
+
 static void font_info_open(FONT_INFO *i, FcPattern *pattern);
 
-Picture loadglyphpic(uint8_t *data, int width, int height)
+Picture loadglyphpic(uint8_t *data, int width, int height, int pitch)
 {
     if(!width || !height) {
         return None;
     }
-   /* uint32_t *rgbx, *p, *end;
+
+    uint32_t *rgbx, *p, *end;
 
     rgbx = malloc(4 * width * height);
     if(!rgbx) {
@@ -44,23 +47,28 @@ Picture loadglyphpic(uint8_t *data, int width, int height)
     }
 
     p = rgbx;
-    end = rgbx + width * height;
+    int i = height;
+    do {
+        end = p + width;
+        while(p != end) {
+            *p++ = ft_swap_blue_red ? RGB(data[2], data[1], data[0]) : RGB(data[0], data[1], data[2]);
+            data += 3;
+        }
+        data += pitch - width * 3;
+    } while(--i);
 
-    while(p != end) {
-        *p++ = RGB(data[0], data[1], data[2]); data += 3;
-    }*/
-
-    Pixmap pixmap = XCreatePixmap(display, window, width, height, 8);
-    XImage *img = XCreateImage(display, CopyFromParent, 8, ZPixmap, 0, (char*)data, width, height, 8, 0);
+    Pixmap pixmap = XCreatePixmap(display, window, width, height, 24);
+    XImage *img = XCreateImage(display, CopyFromParent, 24, ZPixmap, 0, (char*)rgbx, width, height, 32, 0);
     GC legc = XCreateGC(display, pixmap, 0, NULL);
     XPutImage(display, pixmap, legc, img, 0, 0, 0, 0, width, height);
 
-    Picture picture = XRenderCreatePicture(display, pixmap, XRenderFindStandardFormat(display, PictStandardA8), 0, NULL);
+    XRenderPictureAttributes attr = {.component_alpha = 1};
+    Picture picture = XRenderCreatePicture(display, pixmap, XRenderFindStandardFormat(display, PictStandardRGB24), CPComponentAlpha, &attr);
 
     XFreeGC(display, legc);
     XFreePixmap(display, pixmap);
 
-    //free(rgbx);
+    free(rgbx);
 
     return picture;
 }
@@ -147,18 +155,18 @@ GLYPH* font_getglyph(FONT *f, uint32_t ch)
 
     g[1].ucs4 = ~0;
     FT_UInt index = FcFreeTypeCharIndex(i->face, ch);
-    FT_Load_Glyph(i->face, index, FT_LOAD_RENDER);
+    FT_Load_Glyph(i->face, index, FT_LOAD_RENDER | (ft_vert ? FT_LOAD_TARGET_LCD_V : FT_LOAD_TARGET_LCD));
     FT_GlyphSlotRec *p = i->face->glyph;
 
     g->ucs4 = ch;
     g->x = p->bitmap_left;
     g->y = PIXELS(i->face->size->metrics.ascender) - p->bitmap_top;
-    g->width = p->bitmap.width;
+    g->width = p->bitmap.width / 3;
     g->height = p->bitmap.rows;
     g->xadvance = (p->advance.x + (1 << 5)) >> 6;
 
     //debug("%u %u %u %u %C\n", PIXELS(i->face->size->metrics.height), g->width, g->height, p->bitmap.pitch, ch);
-    g->pic = loadglyphpic(p->bitmap.buffer, g->width, g->height);
+    g->pic = loadglyphpic(p->bitmap.buffer, g->width, g->height, p->bitmap.pitch);
 
     return g;
 }
@@ -183,6 +191,7 @@ static void initfonts(void)
 
 static void default_sub(FcPattern *pattern)
 {
+    //this is actually mostly useless
     //FcValue	v;
     //double	dpi;
 
@@ -277,6 +286,17 @@ static _Bool font_open(FONT *font, ...)
 
 static void loadfonts(void)
 {
+    int render_order = XRenderQuerySubpixelOrder (display, screen);
+    if(render_order == SubPixelHorizontalBGR || render_order == SubPixelVerticalBGR) {
+        ft_swap_blue_red = 1;
+        debug("ft_swap_blue_red\n");
+    }
+
+    if(render_order == SubPixelVerticalBGR || render_order == SubPixelVerticalRGB) {
+        ft_vert = 1;
+        debug("ft_vert\n");
+    }
+
      #define F(x) (x * SCALE / 2.0)
      font_open(&font[FONT_TEXT], FC_FAMILY, FcTypeString, "Roboto", FC_PIXEL_SIZE, FcTypeDouble, F(12.0), NULL);
 

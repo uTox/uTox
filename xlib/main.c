@@ -222,7 +222,9 @@ static int _drawtext(int x, int xmax, int y, uint8_t *str, uint16_t length)
                 return -x;
             }
 
-            XRenderComposite(display, PictOpOver, colorpic, g->pic, renderpic, 0, 0, 0, 0, x + g->x, y + g->y, g->width, g->height);
+            if(g->pic) {
+                XRenderComposite(display, PictOpOver, colorpic, g->pic, renderpic, 0, 0, 0, 0, x + g->x, y + g->y, g->width, g->height);
+            }
             x += g->xadvance;
         }
     }
