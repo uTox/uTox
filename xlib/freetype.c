@@ -293,7 +293,7 @@ static void loadfonts(void)
     }
 
     if(render_order == SubPixelVerticalBGR || render_order == SubPixelVerticalRGB) {
-        ft_vert = 1;
+        //ft_vert = 1;
         debug("ft_vert\n");
     }
 
