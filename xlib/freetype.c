@@ -33,42 +33,60 @@ _Bool ft_vert, ft_swap_blue_red;
 
 static void font_info_open(FONT_INFO *i, FcPattern *pattern);
 
-Picture loadglyphpic(uint8_t *data, int width, int height, int pitch)
+Picture loadglyphpic(uint8_t *data, int width, int height, int pitch, _Bool no_subpixel)
 {
     if(!width || !height) {
         return None;
     }
 
-    uint32_t *rgbx, *p, *end;
+    Picture picture;
+    GC legc;
+    Pixmap pixmap;
+    XImage *img;
 
-    rgbx = malloc(4 * width * height);
-    if(!rgbx) {
-        return None;
-    }
+    if(no_subpixel) {
+        pixmap = XCreatePixmap(display, window, width, height, 8);
 
-    p = rgbx;
-    int i = height;
-    do {
-        end = p + width;
-        while(p != end) {
-            *p++ = ft_swap_blue_red ? RGB(data[2], data[1], data[0]) : RGB(data[0], data[1], data[2]);
-            data += 3;
+        pixmap = XCreatePixmap(display, window, width, height, 8);
+        img = XCreateImage(display, CopyFromParent, 8, ZPixmap, 0, (char*)data, width, height, 8, 0);
+        legc = XCreateGC(display, pixmap, 0, NULL);
+        XPutImage(display, pixmap, legc, img, 0, 0, 0, 0, width, height);
+        picture = XRenderCreatePicture(display, pixmap, XRenderFindStandardFormat(display, PictStandardA8), 0, NULL);
+    } else {
+
+        uint32_t *rgbx, *p, *end;
+
+        rgbx = malloc(4 * width * height);
+        if(!rgbx) {
+            return None;
         }
-        data += pitch - width * 3;
-    } while(--i);
 
-    Pixmap pixmap = XCreatePixmap(display, window, width, height, 24);
-    XImage *img = XCreateImage(display, CopyFromParent, 24, ZPixmap, 0, (char*)rgbx, width, height, 32, 0);
-    GC legc = XCreateGC(display, pixmap, 0, NULL);
-    XPutImage(display, pixmap, legc, img, 0, 0, 0, 0, width, height);
+        p = rgbx;
+        int i = height;
+        do {
+            end = p + width;
+            while(p != end) {
+                *p++ = ft_swap_blue_red ? RGB(data[2], data[1], data[0]) : RGB(data[0], data[1], data[2]);
+                data += 3;
+            }
+            data += pitch - width * 3;
+        } while(--i);
 
-    XRenderPictureAttributes attr = {.component_alpha = 1};
-    Picture picture = XRenderCreatePicture(display, pixmap, XRenderFindStandardFormat(display, PictStandardRGB24), CPComponentAlpha, &attr);
+        pixmap = XCreatePixmap(display, window, width, height, 24);
+        img = XCreateImage(display, CopyFromParent, 24, ZPixmap, 0, (char*)rgbx, width, height, 32, 0);
+        legc = XCreateGC(display, pixmap, 0, NULL);
+        XPutImage(display, pixmap, legc, img, 0, 0, 0, 0, width, height);
+
+
+
+        XRenderPictureAttributes attr = {.component_alpha = 1};
+        picture = XRenderCreatePicture(display, pixmap, XRenderFindStandardFormat(display, PictStandardRGB24), CPComponentAlpha, &attr);
+
+        free(rgbx);
+    }
 
     XFreeGC(display, legc);
     XFreePixmap(display, pixmap);
-
-    free(rgbx);
 
     return picture;
 }
@@ -153,20 +171,27 @@ GLYPH* font_getglyph(FONT *f, uint32_t ch)
         }
     }
 
+    int weight;
+    FcPatternGetInteger(f->pattern, FC_WEIGHT, 0, &weight);
+    _Bool no_subpixel = (weight <= FC_WEIGHT_LIGHT);
+
     g[1].ucs4 = ~0;
     FT_UInt index = FcFreeTypeCharIndex(i->face, ch);
-    FT_Load_Glyph(i->face, index, FT_LOAD_RENDER | (ft_vert ? FT_LOAD_TARGET_LCD_V : FT_LOAD_TARGET_LCD));
+    FT_Load_Glyph(i->face, index, FT_LOAD_RENDER | (no_subpixel ? 0 : (ft_vert ? FT_LOAD_TARGET_LCD_V : FT_LOAD_TARGET_LCD)));
     FT_GlyphSlotRec *p = i->face->glyph;
 
     g->ucs4 = ch;
     g->x = p->bitmap_left;
     g->y = PIXELS(i->face->size->metrics.ascender) - p->bitmap_top;
-    g->width = p->bitmap.width / 3;
+    g->width = p->bitmap.width;
+    if(!no_subpixel) {
+        g->width /= 3;
+    }
     g->height = p->bitmap.rows;
     g->xadvance = (p->advance.x + (1 << 5)) >> 6;
 
     //debug("%u %u %u %u %C\n", PIXELS(i->face->size->metrics.height), g->width, g->height, p->bitmap.pitch, ch);
-    g->pic = loadglyphpic(p->bitmap.buffer, g->width, g->height, p->bitmap.pitch);
+    g->pic = loadglyphpic(p->bitmap.buffer, g->width, g->height, p->bitmap.pitch, no_subpixel);
 
     return g;
 }
