@@ -28,7 +28,7 @@
 #include "audio.c"
 #include "v4l.c"
 
-#ifndef __APPLE__
+#if !(defined(__APPLE__) || defined(NO_DBUS))
 #define HAVE_DBUS
 #include "dbus.c"
 #endif
