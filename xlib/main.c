@@ -327,7 +327,11 @@ void enddraw(int x, int y, int width, int height)
 void thread(void func(void*), void *args)
 {
     pthread_t thread_temp;
-    pthread_create(&thread_temp, NULL, (void*(*)(void*))func, args);
+    pthread_attr_t attr;
+    pthread_attr_init(&attr);
+    pthread_attr_setstacksize(&attr, 1 << 18);
+    pthread_create(&thread_temp, &attr, (void*(*)(void*))func, args);
+    pthread_attr_destroy(&attr);
 }
 
 void yieldcpu(uint32_t ms)
