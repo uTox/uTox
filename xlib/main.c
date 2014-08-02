@@ -329,7 +329,7 @@ void thread(void func(void*), void *args)
     pthread_t thread_temp;
     pthread_attr_t attr;
     pthread_attr_init(&attr);
-    pthread_attr_setstacksize(&attr, 1 << 17);
+    pthread_attr_setstacksize(&attr, 1 << 18);
     pthread_create(&thread_temp, &attr, (void*(*)(void*))func, args);
     pthread_attr_destroy(&attr);
 }
