@@ -1,3 +1,5 @@
+#ifndef NO_DBUS
+
 #include <dbus/dbus.h>
 #include <signal.h>
 
@@ -106,3 +108,5 @@ void dbus_notify(char *title, char *content)
 
     return;
 }
+
+#endif /* NODBUS */
