@@ -352,47 +352,34 @@ _Bool doevent(void)
             break;
         }
 
+        debug("Type: %s\n", XGetAtomName(display, type));
+
         if(ev->property == XA_ATOM) {
-            Atom *atoms = (Atom *) data;
-            for (int i = 0; i < len; i++) {
-	    	debug("Supported type: %s\n", XGetAtomName(display, atoms[i]));
-                if (atoms[i] == URI_LIST) {
-                    XConvertSelection(display, XA_CLIPBOARD, URI_LIST, targets, window, CurrentTime);
-		    break;
-                } 
-		if (atoms[i] == XA_UTF8_STRING) {
-                    XConvertSelection(display, XA_CLIPBOARD, XA_UTF8_STRING, targets, window, CurrentTime);
-		    break;
-                }
-            }
+            pastebestformat((Atom *)data, len, ev->selection);
+        } /*else if (type == XA_INCR) {
+            debug("Todo: support incremental copying\n");
+        }*/ else if (type == XA_PNG_IMG) {
+            uint16_t width, height;
+            uint32_t size = len;
+            
+            void *pngdata = malloc(len + 4);
+            void *img = png_to_image(data, &width, &height, len);
+            if (img) {
+                debug("Pasted image: %dx%d\n", width, height);
 
-        } else if (type == URI_LIST) {
+                memcpy(pngdata, &size, 4);
+                memcpy(pngdata + 4, data, len);
+                friend_sendimage((FRIEND*)sitem->data, img, pngdata, width, height);
+            }
+        } else if (type == XA_URI_LIST) {
             char *path = malloc(len + 2);
-            char *text = (char *)data;
-
-            //Tox does not like CRLF
-            int removed = 0, start = 0;
-            for (int i = 0; i < len; i++) {
-                if (text[i] == '\r') {
-                    memcpy(path + start - removed, text + start, i - start);
-                    start = i + 1;
-                    removed++;
-                }
-            }
-            if (start != len) {
-                memcpy(path + start - removed, text + start, len - start);
-            }
-
-            path[len - removed] = 0;
-            path[len - removed - 1] = '\n';
+            formaturilist(path, (char*)data, len);
             tox_postmessage(TOX_SENDFILES, (FRIEND*)sitem->data - friend, 0xFFFF, path);
-
         } else if(ev->property == XdndDATA) {
             char *path = malloc(len + 1);
             memcpy(path, data, len);
             path[len] = 0;
             tox_postmessage(TOX_SENDFILES, (FRIEND*)sitem->data - friend, 0xFFFF, path);
-
         } else if(edit_active()) {
             edit_paste(data, len, ev->selection == XA_PRIMARY);
         }

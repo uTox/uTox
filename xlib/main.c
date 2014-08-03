@@ -70,7 +70,7 @@ uint32_t scolor;
 
 Atom XA_CLIPBOARD, XA_UTF8_STRING, targets;
 Atom XdndAware, XdndEnter, XdndLeave, XdndPosition, XdndStatus, XdndDrop, XdndSelection, XdndDATA, XdndActionCopy;
-Atom URI_LIST;
+Atom XA_URI_LIST, XA_PNG_IMG;
 
 Pixmap drawbuf;
 Picture renderpic;
@@ -309,8 +309,8 @@ void popclip(void)
         XSetClipMask(display, gc, None);
 
         XRenderPictureAttributes pa;
-	    pa.clip_mask = None;
-	    XRenderChangePicture(display, renderpic, CPClipMask, &pa);
+        pa.clip_mask = None;
+        XRenderChangePicture(display, renderpic, CPClipMask, &pa);
         return;
     }
 
@@ -452,22 +452,57 @@ static void pasteclipboard(void)
     /* Ask owner for supported types */
     if (owner) {
         XEvent event = {
-	    .xselectionrequest = {
+            .xselectionrequest = {
                 .type = SelectionRequest,
-	        .send_event = True,
-	        .display = display,
-	        .owner = owner,
-	        .requestor = window,
-	        .target = targets,
-	        .selection = XA_CLIPBOARD,
-	        .property = XA_ATOM,
-	        .time = CurrentTime
+                .send_event = True,
+                .display = display,
+                .owner = owner,
+                .requestor = window,
+                .target = targets,
+                .selection = XA_CLIPBOARD,
+                .property = XA_ATOM,
+                .time = CurrentTime
             }
         };
 
         XSendEvent(display, owner, 0, NoEventMask, &event);
-	XFlush(display);
+        XFlush(display);
     }
+}
+
+static void pastebestformat(const Atom atoms[], int len, Atom selection)
+{
+    const Atom supported[] = {XA_PNG_IMG, XA_URI_LIST, XA_UTF8_STRING};
+    for (int i = 0; i < len; i++) {
+        debug("Supported type: %s\n", XGetAtomName(display, atoms[i]));
+    }
+    for (int i = 0; i < len; i++) {
+        for (int j = 0; j < countof(supported); j++) {
+            if (atoms[i] == supported[j]) {
+                XConvertSelection(display, selection, supported[j], targets, window, CurrentTime);
+                return;
+            } 
+        }
+    }
+}
+
+static void formaturilist(char *out, const char *in, int len) {
+    int removed = 0, start = 0;
+
+    //Tox does not like CRLF
+    for (int i = 0; i < len; i++) {
+        if (in[i] == '\r') {
+            memcpy(out + start - removed, in + start, i - start);
+            start = i + 1;
+            removed++;
+        }
+    }
+    if (start != len) {
+        memcpy(out + start - removed, in + start, len - start);
+    }
+
+    out[len - removed] = 0;
+    out[len - removed - 1] = '\n';
 }
 
 void loadalpha(int bm, void *data, int width, int height)
@@ -693,7 +728,7 @@ int main(int argc, char *argv[])
     XA_CLIPBOARD = XInternAtom(display, "CLIPBOARD", 0);
     XA_UTF8_STRING = XInternAtom(display, "UTF8_STRING", 1);
     if(XA_UTF8_STRING == None) {
-	    XA_UTF8_STRING = XA_STRING;
+        XA_UTF8_STRING = XA_STRING;
     }
     targets = XInternAtom(display, "TARGETS", 0);
 
@@ -707,7 +742,8 @@ int main(int argc, char *argv[])
     XdndDATA = XInternAtom(display, "XdndDATA", False);
     XdndActionCopy = XInternAtom(display, "XdndActionCopy", False);
 
-    URI_LIST = XInternAtom(display, "text/uri-list", False);
+    XA_URI_LIST = XInternAtom(display, "text/uri-list", False);
+    XA_PNG_IMG = XInternAtom(display, "image/png", False);
 
     /* create the draw buffer */
     drawbuf = XCreatePixmap(display, window, DEFAULT_WIDTH, DEFAULT_HEIGHT, depth);
