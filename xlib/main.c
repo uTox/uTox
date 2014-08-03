@@ -70,6 +70,7 @@ uint32_t scolor;
 
 Atom XA_CLIPBOARD, XA_UTF8_STRING, targets;
 Atom XdndAware, XdndEnter, XdndLeave, XdndPosition, XdndStatus, XdndDrop, XdndSelection, XdndDATA, XdndActionCopy;
+Atom URI_LIST;
 
 Pixmap drawbuf;
 Picture renderpic;
@@ -447,8 +448,25 @@ static void pasteprimary(void)
 static void pasteclipboard(void)
 {
     Window owner = XGetSelectionOwner(display, XA_CLIPBOARD);
-    if(owner) {
-        XConvertSelection(display, XA_CLIPBOARD, XA_UTF8_STRING, targets, window, CurrentTime);
+
+    /* Ask owner for supported types */
+    if (owner) {
+        XEvent event = {
+	    .xselectionrequest = {
+                .type = SelectionRequest,
+	        .send_event = True,
+	        .display = display,
+	        .owner = owner,
+	        .requestor = window,
+	        .target = targets,
+	        .selection = XA_CLIPBOARD,
+	        .property = XA_ATOM,
+	        .time = CurrentTime
+            }
+        };
+
+        XSendEvent(display, owner, 0, NoEventMask, &event);
+	XFlush(display);
     }
 }
 
@@ -688,6 +706,8 @@ int main(int argc, char *argv[])
     XdndSelection = XInternAtom(display, "XdndSelection", False);
     XdndDATA = XInternAtom(display, "XdndDATA", False);
     XdndActionCopy = XInternAtom(display, "XdndActionCopy", False);
+
+    URI_LIST = XInternAtom(display, "text/uri-list", False);
 
     /* create the draw buffer */
     drawbuf = XCreatePixmap(display, window, DEFAULT_WIDTH, DEFAULT_HEIGHT, depth);
