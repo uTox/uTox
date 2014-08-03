@@ -466,7 +466,7 @@ static void pasteclipboard(void)
         };
 
         XSendEvent(display, owner, 0, NoEventMask, &event);
-	XFlush(display);
+        XFlush(display);
     }
 }
 
