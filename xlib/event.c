@@ -355,10 +355,14 @@ _Bool doevent(void)
         if(ev->property == XA_ATOM) {
             Atom *atoms = (Atom *) data;
             for (int i = 0; i < len; i++) {
+	    	debug("Supported type: %s\n", XGetAtomName(display, atoms[i]));
                 if (atoms[i] == URI_LIST) {
                     XConvertSelection(display, XA_CLIPBOARD, URI_LIST, targets, window, CurrentTime);
-                } else if (atoms[i] == XA_UTF8_STRING) {
+		    break;
+                } 
+		if (atoms[i] == XA_UTF8_STRING) {
                     XConvertSelection(display, XA_CLIPBOARD, XA_UTF8_STRING, targets, window, CurrentTime);
+		    break;
                 }
             }
 
