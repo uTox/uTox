@@ -268,6 +268,13 @@ static void callback_file_control(Tox *tox, int32_t fid, uint8_t receive_send, u
                 fclose(ft->data);
                 postmessage(FRIEND_FILE_IN_DONE, fid, filenumber, ft->path);
             }
+
+            tox_file_send_control(tox, fid, 1, filenumber, TOX_FILECONTROL_FINISHED, NULL, 0);
+
+        } else {
+            if(ft->status == FT_NONE) {
+                postmessage(FRIEND_FILE_OUT_DONE, fid, filenumber, ft->data);
+            }
         }
         break;
     }
@@ -529,7 +536,6 @@ void tox_thread(void *args)
                         p--;
                         file_tend--;
                         ft->status = FT_NONE;
-                        postmessage(FRIEND_FILE_OUT_DONE, ft->fid, ft->filenumber, ft->data);
                         break;
                     }
 
