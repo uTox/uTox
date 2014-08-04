@@ -273,7 +273,7 @@ static void callback_file_control(Tox *tox, int32_t fid, uint8_t receive_send, u
 
         } else {
             if(ft->status == FT_NONE) {
-                postmessage(FRIEND_FILE_OUT_DONE, fid, filenumber, ft->data);
+                postmessage(FRIEND_FILE_OUT_DONE, fid, filenumber, ft->path);
             }
         }
         break;
