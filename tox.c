@@ -765,13 +765,15 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint8_t msg, uint16_t param1
             //paths with line breaks
             uint8_t *name = data, *p = data, *s = name;
             while(*p) {
+                _Bool end = 1;
                 while(*p) {
                     if(*p == '\n') {
                         *p = 0;
+                        end = 0;
                         break;
                     }
 
-                    if(*p == '/') {
+                    if(*p == '/' || *p == '\\') {
                         s = p + 1;
                     }
                     p++;
@@ -784,6 +786,10 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint8_t msg, uint16_t param1
                 startft(tox, param1, name, s, p - s);
                 p++;
                 s = name = p;
+
+                if(end) {
+                    break;
+                }
             }
         } else {
             //windows path list
