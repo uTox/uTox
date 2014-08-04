@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
+#include <ctype.h>
 #include <X11/Xatom.h>
 #include <X11/X.h>
 #include <X11/cursorfont.h>
@@ -486,15 +487,34 @@ static void pastebestformat(const Atom atoms[], int len, Atom selection)
     }
 }
 
+static _Bool ishexdigit(char c)
+{
+    c = toupper(c);
+    return c >= '0' && c <= '9' || c >= 'A' && c <= 'F';
+}
+
+static char hexdecode(char upper, char lower)
+{
+    upper = toupper(upper);
+    lower = toupper(lower);
+    return (upper >= 'A' ? upper - 'A' + 10 : upper - '0') * 16 +
+        (lower >= 'A' ? lower - 'A' + 10 : lower - '0');
+}
+
 static void formaturilist(char *out, const char *in, int len) {
     int removed = 0, start = 0;
 
-    //Tox does not like CRLF
     for (int i = 0; i < len; i++) {
+        //Replace CRLF with LF
         if (in[i] == '\r') {
             memcpy(out + start - removed, in + start, i - start);
             start = i + 1;
             removed++;
+        } else if (in[i] == '%' && i + 2 < len && ishexdigit(in[i+1]) && ishexdigit(in[i+2])) {
+            memcpy(out + start - removed, in + start, i - start);
+            out[i - removed] = hexdecode(in[i+1], in[i+2]);
+            start = i + 3;
+            removed += 2;
         }
     }
     if (start != len) {

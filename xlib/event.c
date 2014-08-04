@@ -373,11 +373,11 @@ _Bool doevent(void)
             }
         } else if (type == XA_URI_LIST) {
             char *path = malloc(len + 2);
-            formaturilist(path, (char*)data, len);
+            formaturilist(path, (char*) data, len);
             tox_postmessage(TOX_SENDFILES, (FRIEND*)sitem->data - friend, 0xFFFF, path);
         } else if(ev->property == XdndDATA) {
             char *path = malloc(len + 1);
-            memcpy(path, data, len);
+            formaturilist(path, (char*) data, len);
             path[len] = 0;
             tox_postmessage(TOX_SENDFILES, (FRIEND*)sitem->data - friend, 0xFFFF, path);
         } else if(edit_active()) {
