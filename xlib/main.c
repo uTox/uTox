@@ -75,6 +75,8 @@ Pixmap drawbuf;
 Picture renderpic;
 Picture colorpic;
 
+_Bool _redraw;
+
 uint16_t drawwidth, drawheight;
 
 XImage *screen_image;
@@ -599,7 +601,7 @@ void showkeyboard(_Bool show)
 
 void redraw(void)
 {
-    panel_draw(&panel_main, 0, 0, width, height);
+    _redraw = 1;
 }
 
 #include "event.c"
@@ -770,10 +772,31 @@ int main(int argc, char *argv[])
     list_start();
 
     /* draw */
-    redraw();
+    panel_draw(&panel_main, 0, 0, width, height);
 
     /* event loop */
-    while(doevent());
+    while(1) {
+        /* block on the first event, then process all events */
+        XEvent event;
+
+        XNextEvent(display, &event);
+        if(!doevent(event)) {
+            break;
+        }
+
+        while(XPending(display)) {
+            XNextEvent(display, &event);
+            if(!doevent(event)) {
+                goto BREAK;
+            }
+        }
+
+        if(_redraw) {
+            panel_draw(&panel_main, 0, 0, width, height);
+            _redraw = 0;
+        }
+    }
+    BREAK:
 
     toxaudio_postmessage(AUDIO_KILL, 0, 0, NULL);
     toxvideo_postmessage(VIDEO_KILL, 0, 0, NULL);

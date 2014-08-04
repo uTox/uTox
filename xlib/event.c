@@ -15,10 +15,8 @@ static void saveprimary(void)
     }
 }
 
-_Bool doevent(void)
+_Bool doevent(XEvent event)
 {
-    XEvent event;
-    XNextEvent(display, &event);
     if(event.xany.window && event.xany.window != window) {
         if(event.type == ClientMessage) {
             XClientMessageEvent *ev = &event.xclient;
