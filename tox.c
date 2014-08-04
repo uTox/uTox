@@ -767,7 +767,7 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint8_t msg, uint16_t param1
             while(*p) {
                 while(*p) {
                     if(*p == '\n') {
-                        *p++ = 0;
+                        *p = 0;
                         break;
                     }
 
@@ -781,7 +781,8 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint8_t msg, uint16_t param1
                     name += 7;
                 }
 
-                startft(tox, param1, name, s, p - s - 1);
+                startft(tox, param1, name, s, p - s);
+                p++;
                 s = name = p;
             }
         } else {
