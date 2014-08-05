@@ -268,6 +268,17 @@ static void callback_file_control(Tox *tox, int32_t fid, uint8_t receive_send, u
                 fclose(ft->data);
                 postmessage(FRIEND_FILE_IN_DONE, fid, filenumber, ft->path);
             }
+
+            tox_file_send_control(tox, fid, 1, filenumber, TOX_FILECONTROL_FINISHED, NULL, 0);
+
+        } else {
+            if(ft->status == FT_NONE) {
+                if(!ft->inline_png) {
+                    fclose(ft->data);
+                    free(ft->buffer);
+                }
+                postmessage(FRIEND_FILE_OUT_DONE, fid, filenumber, ft->path);
+            }
         }
         break;
     }
@@ -520,16 +531,11 @@ void tox_thread(void *args)
                     }
                     if(ft->finish) {
                         tox_file_send_control(tox, ft->fid, 0, ft->filenumber, TOX_FILECONTROL_FINISHED, NULL, 0);
-                        if(!ft->inline_png) {
-                            fclose(ft->data);
-                            free(ft->buffer);
-                        }
 
                         memmove(p, p + 1, ((void*)file_tend - (void*)(p + 1)));
                         p--;
                         file_tend--;
                         ft->status = FT_NONE;
-                        postmessage(FRIEND_FILE_OUT_DONE, ft->fid, ft->filenumber, ft->data);
                         break;
                     }
 
@@ -765,13 +771,15 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint8_t msg, uint16_t param1
             //paths with line breaks
             uint8_t *name = data, *p = data, *s = name;
             while(*p) {
+                _Bool end = 1;
                 while(*p) {
                     if(*p == '\n') {
                         *p = 0;
+                        end = 0;
                         break;
                     }
 
-                    if(*p == '/') {
+                    if(*p == '/' || *p == '\\') {
                         s = p + 1;
                     }
                     p++;
@@ -784,6 +792,10 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint8_t msg, uint16_t param1
                 startft(tox, param1, name, s, p - s);
                 p++;
                 s = name = p;
+
+                if(end) {
+                    break;
+                }
             }
         } else {
             //windows path list

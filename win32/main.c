@@ -1004,6 +1004,8 @@ SET_DEFAULTS:
     return r;
 }
 
+#include "dnd.c"
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int nCmdShow)
 {
     /* if opened with argument, check if uTox is already open and pass the argument to the existing process */
@@ -1066,6 +1068,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
         .cbSize = sizeof(nid),
     };
 
+
+    OleInitialize(NULL);
     RegisterClassW(&wc);
     RegisterClassW(&wc2);
 
@@ -1093,6 +1097,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     Shell_NotifyIcon(NIM_ADD, &nid);
 
     SetBkMode(hdc, TRANSPARENT);
+
+    dnd_init(hwnd);
 
     //wait for tox_thread init
     while(!tox_thread_init) {
