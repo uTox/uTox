@@ -546,7 +546,7 @@ static Picture image_to_picture(XImage *img)
     GC legc = XCreateGC(display, pixmap, 0, NULL);
     XPutImage(display, pixmap, legc, img, 0, 0, 0, 0, img->width, img->height);
 
-    Picture picture = XRenderCreatePicture(display, pixmap, XRenderFindStandardFormat(display, PictStandardRGB24), 0, NULL);
+    Picture picture = XRenderCreatePicture(display, pixmap, XRenderFindVisualFormat(display, visual), 0, NULL);
 
     XFreeGC(display, legc);
     XFreePixmap(display, pixmap);
@@ -564,6 +564,21 @@ void* png_to_image(void *data, uint16_t *w, uint16_t *h, uint32_t size)
 
     if(r != 0 || !width || !height) {
         return NULL;
+    }
+
+    uint8_t red, blue, green;
+    uint8_t *p, *end = out + width * height * 4;
+    uint32_t *temp;
+
+    for (p = out; p != end; p += 4) {
+        red = p[0] & 0xFF;
+        green = p[1] & 0xFF;
+        blue = p[2] & 0xFF;
+
+        temp = (uint32_t *)p;
+        *temp = (red | (red << 8) | (red << 16) | (red << 24)) & visual->red_mask;
+        *temp |= (blue | (blue << 8) | (blue << 16) | (blue << 24)) & visual->blue_mask;
+        *temp |= (green | (green << 8) | (green << 16) | (green << 24)) & visual->green_mask;
     }
 
     *w = width;
