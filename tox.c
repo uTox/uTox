@@ -273,6 +273,10 @@ static void callback_file_control(Tox *tox, int32_t fid, uint8_t receive_send, u
 
         } else {
             if(ft->status == FT_NONE) {
+                if(!ft->inline_png) {
+                    fclose(ft->data);
+                    free(ft->buffer);
+                }
                 postmessage(FRIEND_FILE_OUT_DONE, fid, filenumber, ft->path);
             }
         }
@@ -527,10 +531,6 @@ void tox_thread(void *args)
                     }
                     if(ft->finish) {
                         tox_file_send_control(tox, ft->fid, 0, ft->filenumber, TOX_FILECONTROL_FINISHED, NULL, 0);
-                        if(!ft->inline_png) {
-                            fclose(ft->data);
-                            free(ft->buffer);
-                        }
 
                         memmove(p, p + 1, ((void*)file_tend - (void*)(p + 1)));
                         p--;
