@@ -69,7 +69,7 @@ Atom wm_protocols, wm_delete_window;
 
 uint32_t scolor;
 
-Atom XA_CLIPBOARD, XA_UTF8_STRING, targets;
+Atom XA_CLIPBOARD, XA_UTF8_STRING, targets, XA_INCR;
 Atom XdndAware, XdndEnter, XdndLeave, XdndPosition, XdndStatus, XdndDrop, XdndSelection, XdndDATA, XdndActionCopy;
 Atom XA_URI_LIST, XA_PNG_IMG;
 
@@ -98,6 +98,13 @@ struct
     int len;
     uint8_t data[65536];
 }primary;
+
+struct
+{
+    int len, left;
+    Atom type;
+    void *data;
+} pastebuf;
 
 uint8_t selection_src;
 void *selection_p;
@@ -525,6 +532,30 @@ static void formaturilist(char *out, const char *in, int len) {
     out[len - removed - 1] = '\n';
 }
 
+static void pastedata(void *data, Atom type, int len, _Bool select)
+{
+   if (type == XA_PNG_IMG) {
+        uint16_t width, height;
+        uint32_t size = len;
+         
+        void *pngdata = malloc(len + 4);
+        void *img = png_to_image(data, &width, &height, len);
+        if (img) {
+            debug("Pasted image: %dx%d\n", width, height);
+
+            memcpy(pngdata, &size, 4);
+            memcpy(pngdata + 4, data, len);
+            friend_sendimage((FRIEND*)sitem->data, img, pngdata, width, height);
+        }
+    } else if (type == XA_URI_LIST) {
+        char *path = malloc(len + 2);
+        formaturilist(path, (char*) data, len);
+        tox_postmessage(TOX_SENDFILES, (FRIEND*)sitem->data - friend, 0xFFFF, path);
+    } else if(type == XA_UTF8_STRING && edit_active()) {
+        edit_paste(data, len, select);
+    }
+}
+
 void loadalpha(int bm, void *data, int width, int height)
 {
     Pixmap pixmap = XCreatePixmap(display, window, width, height, 8);
@@ -744,7 +775,8 @@ int main(int argc, char *argv[])
         .background_pixel = WhitePixel(display, screen),
         .border_pixel = BlackPixel(display, screen),
         .event_mask = ExposureMask | ButtonPressMask | ButtonReleaseMask | EnterWindowMask | LeaveWindowMask |
-                    PointerMotionMask | StructureNotifyMask | KeyPressMask | KeyReleaseMask | FocusChangeMask,
+                    PointerMotionMask | StructureNotifyMask | KeyPressMask | KeyReleaseMask | FocusChangeMask |
+                    PropertyChangeMask,
     };
 
     /* load save data */
@@ -766,6 +798,8 @@ int main(int argc, char *argv[])
         XA_UTF8_STRING = XA_STRING;
     }
     targets = XInternAtom(display, "TARGETS", 0);
+
+    XA_INCR = XInternAtom(display, "INCR", False);
 
     XdndAware = XInternAtom(display, "XdndAware", False);
     XdndEnter = XInternAtom(display, "XdndEnter", False);

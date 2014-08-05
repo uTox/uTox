@@ -353,35 +353,27 @@ _Bool doevent(void)
         }
 
         debug("Type: %s\n", XGetAtomName(display, type));
+        debug("Poperty: %s\n", XGetAtomName(display, ev->property));
 
         if(ev->property == XA_ATOM) {
             pastebestformat((Atom *)data, len, ev->selection);
-        } /*else if (type == XA_INCR) {
-            debug("Todo: support incremental copying\n");
-        }*/ else if (type == XA_PNG_IMG) {
-            uint16_t width, height;
-            uint32_t size = len;
-            
-            void *pngdata = malloc(len + 4);
-            void *img = png_to_image(data, &width, &height, len);
-            if (img) {
-                debug("Pasted image: %dx%d\n", width, height);
-
-                memcpy(pngdata, &size, 4);
-                memcpy(pngdata + 4, data, len);
-                friend_sendimage((FRIEND*)sitem->data, img, pngdata, width, height);
-            }
-        } else if (type == XA_URI_LIST) {
-            char *path = malloc(len + 2);
-            formaturilist(path, (char*) data, len);
-            tox_postmessage(TOX_SENDFILES, (FRIEND*)sitem->data - friend, 0xFFFF, path);
         } else if(ev->property == XdndDATA) {
             char *path = malloc(len + 1);
             formaturilist(path, (char*) data, len);
             path[len] = 0;
             tox_postmessage(TOX_SENDFILES, (FRIEND*)sitem->data - friend, 0xFFFF, path);
-        } else if(edit_active()) {
-            edit_paste(data, len, ev->selection == XA_PRIMARY);
+        } else if (type == XA_INCR) {
+            if (pastebuf.data) {
+                /* already pasting something, give up on that */
+                free(pastebuf.data);
+                pastebuf.data = NULL;
+            }
+            pastebuf.len = *(unsigned long *)data;
+            pastebuf.left = pastebuf.len;
+            pastebuf.data = malloc(pastebuf.len);
+            /* Deleting the window property triggers incremental paste */
+        } else {
+            pastedata(data, type, len, ev->selection == XA_PRIMARY);
         }
 
         XFree(data);
@@ -425,6 +417,40 @@ _Bool doevent(void)
 
         break;
     }
+
+    case PropertyNotify:
+        {
+            XPropertyEvent *ev = &event.xproperty;
+            if (ev->state == PropertyNewValue && ev->atom == targets && pastebuf.data) {
+                debug("Property changed: %s\n", XGetAtomName(display, ev->atom));
+
+                Atom type;
+                int format;
+                unsigned long int len, bytes_left;
+                void *data;
+
+                XGetWindowProperty(display, window, ev->atom, 0, ~0L, True, AnyPropertyType, &type, &format, &len, &bytes_left, (unsigned char**)&data);
+
+                if (len == 0) {
+                    debug("Got 0 length data, pasting\n");
+                    pastedata(pastebuf.data, type, pastebuf.len, False);
+                    pastebuf.data = NULL;
+                    break;
+                }
+
+                if (pastebuf.left < len) {
+                    pastebuf.len += len - pastebuf.left;
+                    pastebuf.data = realloc(pastebuf.data, pastebuf.len);
+                    pastebuf.left = len;
+                }
+
+                memcpy(pastebuf.data + pastebuf.len - pastebuf.left, data, len);
+                pastebuf.left -= len;
+
+                XFree(data);
+            }
+            break;
+        }
 
     case ClientMessage:
         {
