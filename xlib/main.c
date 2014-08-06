@@ -483,15 +483,17 @@ static void pasteclipboard(void)
 static void pastebestformat(const Atom atoms[], int len, Atom selection)
 {
     const Atom supported[] = {XA_PNG_IMG, XA_URI_LIST, XA_UTF8_STRING};
-    for (int i = 0; i < len; i++) {
+    int i, j;
+    for (i = 0; i < len; i++) {
         debug("Supported type: %s\n", XGetAtomName(display, atoms[i]));
     }
-    for (int i = 0; i < len; i++) {
-        for (int j = 0; j < countof(supported); j++) {
+
+    for (i = 0; i < len; i++) {
+        for (j = 0; j < countof(supported); j++) {
             if (atoms[i] == supported[j]) {
                 XConvertSelection(display, selection, supported[j], targets, window, CurrentTime);
                 return;
-            } 
+            }
         }
     }
 }
@@ -499,7 +501,7 @@ static void pastebestformat(const Atom atoms[], int len, Atom selection)
 static _Bool ishexdigit(char c)
 {
     c = toupper(c);
-    return c >= '0' && c <= '9' || c >= 'A' && c <= 'F';
+    return (c >= '0' && c <= '9') || (c >= 'A' && c <= 'F');
 }
 
 static char hexdecode(char upper, char lower)
@@ -511,9 +513,9 @@ static char hexdecode(char upper, char lower)
 }
 
 static void formaturilist(char *out, const char *in, int len) {
-    int removed = 0, start = 0;
+    int i, removed = 0, start = 0;
 
-    for (int i = 0; i < len; i++) {
+    for (i = 0; i < len; i++) {
         //Replace CRLF with LF
         if (in[i] == '\r') {
             memcpy(out + start - removed, in + start, i - start);

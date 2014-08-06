@@ -703,9 +703,32 @@ void* png_to_image(void *data, uint16_t *w, uint16_t *h, uint32_t size)
         return NULL;
     }
 
+    HBITMAP bm = CreateCompatibleBitmap(hdcMem, width, height);
+    SelectObject(hdcMem, bm);
+
+    BITMAPINFO bmi = {
+        .bmiHeader = {
+            .biSize = sizeof(BITMAPINFOHEADER),
+            .biWidth = width,
+            .biHeight = -height,
+            .biPlanes = 1,
+            .biBitCount = 32,
+            .biCompression = BI_RGB,
+        }
+    };
+
+    uint8_t *p = out, *end = p + width * height * 4;
+    do {
+        uint8_t r = p[0];
+        p[0] = p[2];
+        p[2] = r;
+        p += 4;
+    } while(p != end);
+
+    SetDIBitsToDevice(hdcMem, 0, 0, width, height, 0, 0, 0, height, out, &bmi, DIB_RGB_COLORS);
+
     *w = width;
     *h = height;
-    HBITMAP bm = CreateBitmap(width, height, 1, 32, out);
     free(out);
 
     return bm;
@@ -872,12 +895,17 @@ LRESULT CALLBACK GrabProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
                 HWND dwnd = GetDesktopWindow();
                 HDC ddc = GetDC(dwnd);
+                HDC mem = CreateCompatibleDC(ddc);
 
                 HBITMAP capture = CreateCompatibleBitmap(ddc, grabpx, grabpy);
-                SelectObject(hdcMem, capture);
+                SelectObject(mem, capture);
 
-                BitBlt(hdcMem, 0, 0, grabpx, grabpy, ddc, grabx, graby, SRCCOPY | CAPTUREBLT);
-                GetDIBits(hdcMem, capture, 0, grabpy, bits, &info, DIB_RGB_COLORS);
+                BitBlt(mem, 0, 0, grabpx, grabpy, ddc, grabx, graby, SRCCOPY | CAPTUREBLT);
+                GetDIBits(mem, capture, 0, grabpy, bits, &info, DIB_RGB_COLORS);
+
+                ReleaseDC(dwnd, ddc);
+                DeleteDC(mem);
+                DeleteObject(capture);
 
                 if(grabpx & 3) {
                     uint8_t pbytes = grabpx & 3, *p = bits, *pp = bits, *end = p + grabpx * grabpy * 3;
@@ -885,10 +913,10 @@ LRESULT CALLBACK GrabProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                     while(p != end) {
                         int i;
                         for(i = 0; i != grabpx; i++) {
-                            uint8_t t = pp[i * 3];
+                            uint8_t b = pp[i * 3];
                             p[i * 3] = pp[i * 3 + 2];
                             p[i * 3 + 1] = pp[i * 3 + 1];
-                            p[i * 3 + 2] = t;
+                            p[i * 3 + 2] = b;
                         }
                         p += grabpx * 3;
                         pp += grabpx * 3 + pbytes;
