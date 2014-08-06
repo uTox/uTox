@@ -3267,9 +3267,9 @@ static unsigned getPixelColorsRGBA8(unsigned char* buffer, size_t numpixels,
     {
       for(i = 0; i < numpixels; i++, buffer += num_channels)
       {
-        buffer[0] = in[i * 3 + 2];
+        buffer[0] = in[i * 3 + 0];
         buffer[1] = in[i * 3 + 1];
-        buffer[2] = in[i * 3 + 0];
+        buffer[2] = in[i * 3 + 2];
         if(has_alpha) buffer[3] = mode->key_defined && buffer[0] == mode->key_r
            && buffer[1]== mode->key_g && buffer[2] == mode->key_b ? 0 : 255;
       }
