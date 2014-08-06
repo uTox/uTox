@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
+#include <ctype.h>
 #include <X11/Xatom.h>
 #include <X11/X.h>
 #include <X11/cursorfont.h>
@@ -68,8 +69,9 @@ Atom wm_protocols, wm_delete_window;
 
 uint32_t scolor;
 
-Atom XA_CLIPBOARD, XA_UTF8_STRING, targets;
+Atom XA_CLIPBOARD, XA_UTF8_STRING, targets, XA_INCR;
 Atom XdndAware, XdndEnter, XdndLeave, XdndPosition, XdndStatus, XdndDrop, XdndSelection, XdndDATA, XdndActionCopy;
+Atom XA_URI_LIST, XA_PNG_IMG;
 
 Pixmap drawbuf;
 Picture renderpic;
@@ -98,6 +100,13 @@ struct
     int len;
     uint8_t data[65536];
 }primary;
+
+struct
+{
+    int len, left;
+    Atom type;
+    void *data;
+} pastebuf;
 
 uint8_t selection_src;
 void *selection_p;
@@ -310,8 +319,8 @@ void popclip(void)
         XSetClipMask(display, gc, None);
 
         XRenderPictureAttributes pa;
-	    pa.clip_mask = None;
-	    XRenderChangePicture(display, renderpic, CPClipMask, &pa);
+        pa.clip_mask = None;
+        XRenderChangePicture(display, renderpic, CPClipMask, &pa);
         return;
     }
 
@@ -449,8 +458,105 @@ static void pasteprimary(void)
 static void pasteclipboard(void)
 {
     Window owner = XGetSelectionOwner(display, XA_CLIPBOARD);
-    if(owner) {
-        XConvertSelection(display, XA_CLIPBOARD, XA_UTF8_STRING, targets, window, CurrentTime);
+
+    /* Ask owner for supported types */
+    if (owner) {
+        XEvent event = {
+            .xselectionrequest = {
+                .type = SelectionRequest,
+                .send_event = True,
+                .display = display,
+                .owner = owner,
+                .requestor = window,
+                .target = targets,
+                .selection = XA_CLIPBOARD,
+                .property = XA_ATOM,
+                .time = CurrentTime
+            }
+        };
+
+        XSendEvent(display, owner, 0, NoEventMask, &event);
+        XFlush(display);
+    }
+}
+
+static void pastebestformat(const Atom atoms[], int len, Atom selection)
+{
+    const Atom supported[] = {XA_PNG_IMG, XA_URI_LIST, XA_UTF8_STRING};
+    int i, j;
+    for (i = 0; i < len; i++) {
+        debug("Supported type: %s\n", XGetAtomName(display, atoms[i]));
+    }
+
+    for (i = 0; i < len; i++) {
+        for (j = 0; j < countof(supported); j++) {
+            if (atoms[i] == supported[j]) {
+                XConvertSelection(display, selection, supported[j], targets, window, CurrentTime);
+                return;
+            }
+        }
+    }
+}
+
+static _Bool ishexdigit(char c)
+{
+    c = toupper(c);
+    return (c >= '0' && c <= '9') || (c >= 'A' && c <= 'F');
+}
+
+static char hexdecode(char upper, char lower)
+{
+    upper = toupper(upper);
+    lower = toupper(lower);
+    return (upper >= 'A' ? upper - 'A' + 10 : upper - '0') * 16 +
+        (lower >= 'A' ? lower - 'A' + 10 : lower - '0');
+}
+
+static void formaturilist(char *out, const char *in, int len) {
+    int i, removed = 0, start = 0;
+
+    for (i = 0; i < len; i++) {
+        //Replace CRLF with LF
+        if (in[i] == '\r') {
+            memcpy(out + start - removed, in + start, i - start);
+            start = i + 1;
+            removed++;
+        } else if (in[i] == '%' && i + 2 < len && ishexdigit(in[i+1]) && ishexdigit(in[i+2])) {
+            memcpy(out + start - removed, in + start, i - start);
+            out[i - removed] = hexdecode(in[i+1], in[i+2]);
+            start = i + 3;
+            removed += 2;
+        }
+    }
+    if (start != len) {
+        memcpy(out + start - removed, in + start, len - start);
+    }
+
+    out[len - removed] = 0;
+    out[len - removed - 1] = '\n';
+}
+
+static void pastedata(void *data, Atom type, int len, _Bool select)
+{
+   if (type == XA_PNG_IMG) {
+        uint16_t width, height;
+        uint32_t size = len;
+         
+        void *pngdata = malloc(len + 4);
+        void *img = png_to_image(data, &width, &height, len);
+        if (img) {
+            debug("Pasted image: %dx%d\n", width, height);
+
+            memcpy(pngdata, &size, 4);
+            memcpy(pngdata + 4, data, len);
+            friend_sendimage((FRIEND*)sitem->data, img, pngdata, width, height);
+        }
+    } else if (type == XA_URI_LIST) {
+        char *path = malloc(len + 2);
+        formaturilist(path, (char*) data, len);
+        tox_postmessage(TOX_SENDFILES, (FRIEND*)sitem->data - friend, 0xFFFF, path);
+    } else if(type == XA_UTF8_STRING && edit_active()) {
+        edit_paste(data, len, select);
     }
 }
 
@@ -475,7 +581,7 @@ static Picture image_to_picture(XImage *img)
     GC legc = XCreateGC(display, pixmap, 0, NULL);
     XPutImage(display, pixmap, legc, img, 0, 0, 0, 0, img->width, img->height);
 
-    Picture picture = XRenderCreatePicture(display, pixmap, XRenderFindStandardFormat(display, PictStandardRGB24), 0, NULL);
+    Picture picture = XRenderCreatePicture(display, pixmap, XRenderFindVisualFormat(display, visual), 0, NULL);
 
     XFreeGC(display, legc);
     XFreePixmap(display, pixmap);
@@ -493,6 +599,21 @@ void* png_to_image(void *data, uint16_t *w, uint16_t *h, uint32_t size)
 
     if(r != 0 || !width || !height) {
         return NULL;
+    }
+
+    uint8_t red, blue, green;
+    uint8_t *p, *end = out + width * height * 4;
+    uint32_t *temp;
+
+    for (p = out; p != end; p += 4) {
+        red = p[0] & 0xFF;
+        green = p[1] & 0xFF;
+        blue = p[2] & 0xFF;
+
+        temp = (uint32_t *)p;
+        *temp = (red | (red << 8) | (red << 16) | (red << 24)) & visual->red_mask;
+        *temp |= (blue | (blue << 8) | (blue << 16) | (blue << 24)) & visual->blue_mask;
+        *temp |= (green | (green << 8) | (green << 16) | (green << 24)) & visual->green_mask;
     }
 
     *w = width;
@@ -658,7 +779,8 @@ int main(int argc, char *argv[])
         .background_pixel = WhitePixel(display, screen),
         .border_pixel = BlackPixel(display, screen),
         .event_mask = ExposureMask | ButtonPressMask | ButtonReleaseMask | EnterWindowMask | LeaveWindowMask |
-                    PointerMotionMask | StructureNotifyMask | KeyPressMask | KeyReleaseMask | FocusChangeMask,
+                    PointerMotionMask | StructureNotifyMask | KeyPressMask | KeyReleaseMask | FocusChangeMask |
+                    PropertyChangeMask,
     };
 
     /* load save data */
@@ -677,9 +799,11 @@ int main(int argc, char *argv[])
     XA_CLIPBOARD = XInternAtom(display, "CLIPBOARD", 0);
     XA_UTF8_STRING = XInternAtom(display, "UTF8_STRING", 1);
     if(XA_UTF8_STRING == None) {
-	    XA_UTF8_STRING = XA_STRING;
+        XA_UTF8_STRING = XA_STRING;
     }
     targets = XInternAtom(display, "TARGETS", 0);
+
+    XA_INCR = XInternAtom(display, "INCR", False);
 
     XdndAware = XInternAtom(display, "XdndAware", False);
     XdndEnter = XInternAtom(display, "XdndEnter", False);
@@ -690,6 +814,9 @@ int main(int argc, char *argv[])
     XdndSelection = XInternAtom(display, "XdndSelection", False);
     XdndDATA = XInternAtom(display, "XdndDATA", False);
     XdndActionCopy = XInternAtom(display, "XdndActionCopy", False);
+
+    XA_URI_LIST = XInternAtom(display, "text/uri-list", False);
+    XA_PNG_IMG = XInternAtom(display, "image/png", False);
 
     /* create the draw buffer */
     drawbuf = XCreatePixmap(display, window, DEFAULT_WIDTH, DEFAULT_HEIGHT, depth);
