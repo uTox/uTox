@@ -84,11 +84,11 @@ static void edit_search_onenter(void)
     } else {
         SEARCH = 1;
         char *d = malloc(length);
-        debug("EDit Search Data: %s\n",edit_search_data);
+
         memcpy(d, edit_search_data, length);
         *(d + length) = '\0';
         strcpy(search_data, d);
-        debug("Search Data: %s\n",search_data);
+
         free(d);
     }
 
