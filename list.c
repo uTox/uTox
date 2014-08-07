@@ -100,8 +100,14 @@ static ITEM* item_hit(int mx, int my, int height)
     if(my >= itemcount) {
         return NULL;
     }
+    ITEM *i;
 
-    ITEM *i = &item[my];
+    if(!SEARCH) {
+        i = &item[my];
+    } else {
+        debug("my %i : %i\n", my, search_offset[my]);
+        i = &item[my + search_offset[my]];
+    }
 
     return i;
 }
@@ -289,27 +295,34 @@ void list_addfriendreq(FRIENDREQ *f)
 
 void list_draw(void *n, int x, int y, int width, int height)
 {
-    int my;
+    int my, j, k;
 
     ITEM *i = item, *mi = NULL;
-
+    FRIEND *f;
+    j = 0;
+    k = 1;
     //TODO: only draw visible
     while(i != &item[itemcount]) {
-        if(i == sitem && (sitem_dy >= 5 || sitem_dy <= -5)) {
-            mi = i;
-            my = y + sitem_dy;
+        f = i->data;
+        if(!SEARCH || i->item == ITEM_FRIEND_ADD || i->item == ITEM_GROUP || strstr(f->name, search_data)){
+            if(i == sitem && (sitem_dy >= 5 || sitem_dy <= -5)) {
+                mi = i;
+                my = y + sitem_dy;
 
-            //RECT r = {LIST_X, y, LIST_X + ITEM_WIDTH, y + ITEM_HEIGHT};
-            //fillrect(&r, WHITE);
-        } else {
-            drawitem(i, LIST_X, y);
+                //RECT r = {LIST_X, y, LIST_X + ITEM_WIDTH, y + ITEM_HEIGHT};
+                //fillrect(&r, WHITE);
+            } else {
+                drawitem(i, LIST_X, y);
+            }
+            search_offset[j] = k - y / ITEM_HEIGHT;
+            j++;
+            y += ITEM_HEIGHT;
         }
-
-        y += ITEM_HEIGHT;
+        k++;
         i++;
     }
 
-    if(mi) {
+    if(mi) {  
         drawitem(mi, LIST_X, my);
     }
 }
@@ -460,6 +473,8 @@ _Bool list_mmove(void *n, int x, int y, int width, int height, int mx, int my, i
     if(sitem_mousedown) {
         sitem_dy += dy;
         nitem = NULL;
+        debug("sitem_dy %i: dy %i\n", sitem_dy, dy);
+        debug("s - item %li", sitem - item);
         if(abs(sitem_dy) >= ITEM_HEIGHT / 2) {
             int d;
             if(sitem_dy > 0) {
@@ -468,9 +483,9 @@ _Bool list_mmove(void *n, int x, int y, int width, int height, int mx, int my, i
                 d = (sitem_dy - ITEM_HEIGHT / 2) / ITEM_HEIGHT;
             }
 
-            ITEM *i = sitem + d;
+            ITEM *i = sitem + d - search_offset[sitem - item] + search_offset[d];
             if(d != 0 && i >= item && i < &item[itemcount]) {
-                nitem = i;
+                nitem = i;// + search_offset[ + d];
             }
         }
 

@@ -43,7 +43,7 @@ typedef struct {
 
 extern PANEL panel_main, panel_item[];
 extern MESSAGES messages_friend, messages_group;
-extern EDIT edit_name, edit_status, edit_addid, edit_addmsg, edit_msg;
+extern EDIT edit_name, edit_status, edit_addid, edit_addmsg, edit_msg, edit_search;
 extern SCROLLABLE scroll_list;
 extern BUTTON button_add, button_settings, button_transfer;
 extern DROPDOWN dropdown_audio_in, dropdown_audio_out, dropdown_video, dropdown_dpi;
@@ -78,6 +78,13 @@ extern uint32_t status_color[];
 #define COLOR_LINK              RGB(0, 0, 255)
 
 #define BLUE RGB(0x4E, 0xA6,0xEA)
+
+/* search
+ */
+
+uint8_t SEARCH;
+int search_offset[1024];
+char search_data[128];
 
 /* metrics
  */
