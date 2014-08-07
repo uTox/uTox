@@ -294,12 +294,15 @@ void list_addfriendreq(FRIENDREQ *f)
 
 void list_draw(void *n, int x, int y, int width, int height)
 {
-    int my, j, k;
+    int my, j, k, y_off;
 
     ITEM *i = item, *mi = NULL;
     FRIEND *f;
     j = 0;
-    k = 1;
+    k = y / ITEM_HEIGHT;
+    if(y < 0){
+        k -= 1;
+    }
     //TODO: only draw visible
     while(i != &item[itemcount]) {
         f = i->data;
@@ -313,7 +316,7 @@ void list_draw(void *n, int x, int y, int width, int height)
             } else {
                 drawitem(i, LIST_X, y);
             }
-            search_offset[j] = k - y / ITEM_HEIGHT;
+            search_offset[j] = k - (y) / ITEM_HEIGHT;
             j++;
             y += ITEM_HEIGHT;
         }
@@ -482,7 +485,7 @@ _Bool list_mmove(void *n, int x, int y, int width, int height, int mx, int my, i
 
             ITEM *i = sitem + d - search_offset[sitem - item] + search_offset[d];
             if(d != 0 && i >= item && i < &item[itemcount]) {
-                nitem = i;// + search_offset[ + d];
+                nitem = i;
             }
         }
 
