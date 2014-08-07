@@ -294,7 +294,7 @@ void list_addfriendreq(FRIENDREQ *f)
 
 void list_draw(void *n, int x, int y, int width, int height)
 {
-    int my, j, k, y_off;
+    int my, j, k;
 
     ITEM *i = item, *mi = NULL;
     FRIEND *f;
@@ -324,7 +324,7 @@ void list_draw(void *n, int x, int y, int width, int height)
         i++;
     }
 
-    if(mi) {  
+    if(mi) {
         drawitem(mi, LIST_X, my);
     }
 }
