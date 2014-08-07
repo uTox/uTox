@@ -105,7 +105,6 @@ static ITEM* item_hit(int mx, int my, int height)
     if(!SEARCH) {
         i = &item[my];
     } else {
-        debug("my %i : %i\n", my, search_offset[my]);
         i = &item[my + search_offset[my]];
     }
 
@@ -473,8 +472,6 @@ _Bool list_mmove(void *n, int x, int y, int width, int height, int mx, int my, i
     if(sitem_mousedown) {
         sitem_dy += dy;
         nitem = NULL;
-        debug("sitem_dy %i: dy %i\n", sitem_dy, dy);
-        debug("s - item %li", sitem - item);
         if(abs(sitem_dy) >= ITEM_HEIGHT / 2) {
             int d;
             if(sitem_dy > 0) {
