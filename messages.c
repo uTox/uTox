@@ -509,6 +509,8 @@ _Bool messages_dclick(MESSAGES *m, _Bool triclick)
                 i += utf8_len(msg->msg + i);
             }
             m->data->end = i;
+
+            setselection(1, m);
             return 1;
         }
     }
