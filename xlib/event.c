@@ -151,6 +151,7 @@ _Bool doevent(XEvent event)
 
             //todo: better double/triple click detect
             static Time lastclick, lastclick2;
+            panel_mmove(&panel_main, 0, 0, width, height, ev->x, ev->y, 0);
             panel_mdown(&panel_main);
             if(ev->time - lastclick < 300) {
                 _Bool triclick = (ev->time - lastclick2 < 600);
