@@ -579,6 +579,9 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
         }
 
         edit_select = 0;
+        if(edit->onchange) {
+            edit->onchange();
+        }
 
         edit_redraw();
     } else if(!edit->readonly) {
@@ -602,7 +605,9 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
             edit_sel.p2 = edit_sel.p1;
             edit_sel.length = 0;
 
-
+            if(edit->onchange) {
+                edit->onchange();
+            }
 
             edit_redraw();
         }

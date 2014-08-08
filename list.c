@@ -2,7 +2,7 @@
 
 static ITEM item_add, item_settings, item_transfer;
 static ITEM item[1024], *mitem, *nitem;
-static uint32_t itemcount;
+static uint32_t itemcount, searchcount;
 
 static _Bool sitem_mousedown;
 
@@ -97,7 +97,7 @@ static ITEM* item_hit(int mx, int my, int height)
     }
 
     my /= ITEM_HEIGHT;
-    if(my >= itemcount) {
+    if(my >= searchcount) {
         return NULL;
     }
     ITEM *i;
@@ -306,7 +306,7 @@ void list_draw(void *n, int x, int y, int width, int height)
     //TODO: only draw visible
     while(i != &item[itemcount]) {
         f = i->data;
-        if(!SEARCH || i->item == ITEM_FRIEND_ADD || i->item == ITEM_GROUP || strstr(f->name, search_data)){
+        if(!SEARCH || i->item == ITEM_FRIEND_ADD || i->item == ITEM_GROUP || strcasestr((char*)f->name, (char*)search_data)){
             if(i == sitem && (sitem_dy >= 5 || sitem_dy <= -5)) {
                 mi = i;
                 my = y + sitem_dy;
@@ -323,6 +323,8 @@ void list_draw(void *n, int x, int y, int width, int height)
         k++;
         i++;
     }
+
+    searchcount = j;
 
     if(mi) {
         drawitem(mi, LIST_X, my);
@@ -484,7 +486,7 @@ _Bool list_mmove(void *n, int x, int y, int width, int height, int mx, int my, i
             }
 
             ITEM *i = sitem + d - search_offset[sitem - item] + search_offset[d];
-            if(d != 0 && i >= item && i < &item[itemcount]) {
+            if(d != 0 && i >= item && i < &item[searchcount]) {
                 nitem = i;
             }
         }

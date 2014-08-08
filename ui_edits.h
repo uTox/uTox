@@ -1,5 +1,5 @@
 /* edits */
-static uint8_t edit_name_data[128], edit_status_data[128], edit_addid_data[TOX_FRIEND_ADDRESS_SIZE * 2], edit_addmsg_data[1024], edit_msg_data[65535], edit_search_data[128];
+static uint8_t edit_name_data[128], edit_status_data[128], edit_addid_data[TOX_FRIEND_ADDRESS_SIZE * 2], edit_addmsg_data[1024], edit_msg_data[65535], edit_search_data[127];
 
 static void edit_name_onenter(void)
 {
@@ -74,7 +74,7 @@ static void edit_msg_onenter(void)
     edit_msg.length = 0;
 }
 
-static void edit_search_onenter(void)
+static void edit_search_onchange(void)
 {
     uint8_t *data = edit_search_data;
     uint16_t length = edit_search.length;
@@ -83,13 +83,8 @@ static void edit_search_onenter(void)
         SEARCH = 0;
     } else {
         SEARCH = 1;
-        char *d = malloc(length);
-
-        memcpy(d, edit_search_data, length);
-        *(d + length) = '\0';
-        strcpy(search_data, d);
-
-        free(d);
+        memcpy(search_data, data, length);
+        search_data[length] = 0;
     }
 
     redraw();
@@ -156,5 +151,5 @@ edit_msg = {
 edit_search = {
     .maxlength = sizeof(edit_search_data),
     .data = edit_search_data,
-    .onenter = edit_search_onenter,
+    .onchange = edit_search_onchange,
 };

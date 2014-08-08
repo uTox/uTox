@@ -19,6 +19,7 @@ struct edit {
     SCROLLABLE *scroll;
     char_t *data;
     void (*onenter)(void);
+    void (*onchange)(void);
     void (*ontab)(void);
     void (*onlosefocus)(void);
 };
