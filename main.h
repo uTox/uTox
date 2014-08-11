@@ -137,9 +137,9 @@ enum
     FONT_TEXT,
     FONT_TITLE,
 
-    FONT_MSG,
+    /*FONT_MSG,
     FONT_MSG_NAME,
-    FONT_MSG_LINK,
+    FONT_MSG_LINK,*/
 
     FONT_SELF_NAME,
     FONT_STATUS,

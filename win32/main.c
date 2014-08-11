@@ -1007,12 +1007,12 @@ void setscale(void)
     font[FONT_SELF_NAME] = CreateFontIndirect(&lf);
     lf.lfHeight = F(10);
     font[FONT_MISC] = CreateFontIndirect(&lf);
-    lf.lfWeight = FW_NORMAL; //FW_LIGHT <- light fonts dont antialias
+    /*lf.lfWeight = FW_NORMAL; //FW_LIGHT <- light fonts dont antialias
     font[FONT_MSG_NAME] = CreateFontIndirect(&lf);
     lf.lfHeight = F(11);
     font[FONT_MSG] = CreateFontIndirect(&lf);
     lf.lfUnderline = 1;
-    font[FONT_MSG_LINK] = CreateFontIndirect(&lf);
+    font[FONT_MSG_LINK] = CreateFontIndirect(&lf);*/
 
     #undef F
 
@@ -1020,9 +1020,9 @@ void setscale(void)
     SelectObject(hdc, font[FONT_TEXT]);
     GetTextMetrics(hdc, &tm);
     font_small_lineheight = tm.tmHeight + tm.tmExternalLeading;
-    SelectObject(hdc, font[FONT_MSG]);
-    GetTextMetrics(hdc, &tm);
-    font_msg_lineheight = tm.tmHeight + tm.tmExternalLeading;
+    //SelectObject(hdc, font[FONT_MSG]);
+    //GetTextMetrics(hdc, &tm);
+    //font_msg_lineheight = tm.tmHeight + tm.tmExternalLeading;
 
     svg_draw(1);
 }

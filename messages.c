@@ -3,7 +3,7 @@
 void messages_draw(MESSAGES *m, int x, int y, int width, int height)
 {
     setcolor(0);
-    setfont(FONT_MSG);
+    setfont(FONT_TEXT);
 
     uint8_t lastauthor = 0xFF;
 
@@ -32,13 +32,13 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
         if(m->type) {
             /* group */
             setcolor(0);
-            setfont(FONT_MSG_NAME);
+            setfont(FONT_TEXT);
             drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, y, &msg->msg[msg->length] + 1, msg->msg[msg->length]);
         } else {
             FRIEND *f = &friend[m->data->id];
             uint8_t author = msg->flags & 1;
             if(author != lastauthor) {
-                setfont(FONT_MSG_NAME);
+                setfont(FONT_TEXT);
                 if(!author) {
                     setcolor(0);
                     drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, y, f->name, f->name_length);
@@ -80,8 +80,8 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
                 h2 = 0xFFFF;
             }
 
-            setfont(FONT_MSG);
-            int ny = drawtextmultiline(x + MESSAGES_X, x + width - TIME_WIDTH, y, y, y + msg->height, font_msg_lineheight, msg->msg, msg->length, h1, h2 - h1, 1);
+            setfont(FONT_TEXT);
+            int ny = drawtextmultiline(x + MESSAGES_X, x + width - TIME_WIDTH, y, y, y + msg->height, font_small_lineheight, msg->msg, msg->length, h1, h2 - h1, 1);
             if(ny - y != msg->height - MESSAGES_SPACING) {
                 debug("error101 %u %u\n", ny -y, msg->height - MESSAGES_SPACING);
             }
@@ -215,7 +215,7 @@ _Bool messages_mmove(MESSAGES *m, int px, int py, int width, int height, int mx,
         return 0;
     }
 
-    setfont(FONT_MSG);
+    setfont(FONT_TEXT);
 
     void **p = m->data->data;
     int i = 0, n = m->data->n;
@@ -233,7 +233,7 @@ _Bool messages_mmove(MESSAGES *m, int px, int py, int width, int height, int mx,
             case 2:
             case 3: {
                 /* normal message */
-                m->over = hittextmultiline(mx - MESSAGES_X, width - MESSAGES_X - TIME_WIDTH, my < 0 ? 0 : my, msg->height, font_msg_lineheight, msg->msg, msg->length, 1);
+                m->over = hittextmultiline(mx - MESSAGES_X, width - MESSAGES_X - TIME_WIDTH, my < 0 ? 0 : my, msg->height, font_small_lineheight, msg->msg, msg->length, 1);
                 m->urlover = 0xFFFF;
 
                 if(my < 0 || my >= dy || mx < MESSAGES_X || m->over == msg->length) {
@@ -693,7 +693,7 @@ static int msgheight(MESSAGE *msg, int width)
     case 1:
     case 2:
     case 3: {
-        return text_height(width - MESSAGES_X - TIME_WIDTH, font_msg_lineheight, msg->msg, msg->length) + MESSAGES_SPACING;
+        return text_height(width - MESSAGES_X - TIME_WIDTH, font_small_lineheight, msg->msg, msg->length) + MESSAGES_SPACING;
     }
 
     case 4:
@@ -720,7 +720,7 @@ void messages_updateheight(MESSAGES *m)
         return;
     }
 
-    setfont(FONT_MSG);
+    setfont(FONT_TEXT);
 
     uint32_t height = 0;
     int i = 0;
@@ -743,7 +743,7 @@ static void message_setheight(MESSAGES *m, MESSAGE *msg, MSG_DATA *p)
         return;
     }
 
-    setfont(FONT_MSG);
+    setfont(FONT_TEXT);
 
     msg->height = msgheight(msg, m->width);
     p->height += msg->height;
@@ -758,7 +758,7 @@ void message_updateheight(MESSAGES *m, MESSAGE *msg, MSG_DATA *p)
         return;
     }
 
-    setfont(FONT_MSG);
+    setfont(FONT_TEXT);
 
     p->height -= msg->height;
     msg->height = msgheight(msg, m->width);
