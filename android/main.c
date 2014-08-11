@@ -60,7 +60,7 @@ void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data)
     write(pipefd[1], &piping, sizeof(PIPING));
 }
 
-void drawimage(void *data, int x, int y, int width, int height, int maxwidth, _Bool zoom)
+void drawimage(void *data, int x, int y, int width, int height, int maxwidth, _Bool zoom, double position)
 {
     GLuint texture = (size_t)data;
 
