@@ -43,7 +43,7 @@ typedef struct {
 
 extern PANEL panel_main, panel_item[];
 extern MESSAGES messages_friend, messages_group;
-extern EDIT edit_name, edit_status, edit_addid, edit_addmsg, edit_msg;
+extern EDIT edit_name, edit_status, edit_addid, edit_addmsg, edit_msg, edit_search;
 extern SCROLLABLE scroll_list;
 extern BUTTON button_add, button_settings, button_transfer;
 extern DROPDOWN dropdown_audio_in, dropdown_audio_out, dropdown_video, dropdown_dpi;
@@ -79,6 +79,14 @@ extern uint32_t status_color[];
 
 #define BLUE RGB(0x4E, 0xA6,0xEA)
 
+/* search
+ */
+
+uint8_t SEARCH;
+int search_offset[1024];
+int search_unset[1024];
+char search_data[128];
+
 /* metrics
  */
 uint8_t SCALE;
@@ -86,7 +94,7 @@ uint8_t SCALE;
 /* side */
 #define LIST_X (8 * SCALE)
 #define LIST_RIGHT (111 * SCALE)
-#define LIST_Y (31 * SCALE)
+#define LIST_Y (43 * SCALE)
 #define LIST_BOTTOM (-18 * SCALE)
 
 #define LIST_NAME_X (37 * SCALE)
@@ -122,6 +130,8 @@ uint8_t SCALE;
 #define NAME_OFFSET (7 * SCALE)
 
 #define MESSAGES_BOTTOM (-47 * SCALE)
+
+#define SEARCH_Y (31 * SCALE)
 
 /* main */
 //#define MAIN_X

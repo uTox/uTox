@@ -49,6 +49,12 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
         yy -= scroll_gety(scroll, height);
     }
 
+
+    if(!edit->length && edit->empty_str) {
+        setcolor(C_GRAY2);
+        drawtext(x + 2 * SCALE, yy + 2 * SCALE, edit->empty_str, strlen((char*)edit->empty_str));
+    }
+
     _Bool a = (edit == active_edit);
     drawtextmultiline(x + 2 * SCALE, x + width - 2 * SCALE - (edit->multiline ? SCROLL_WIDTH : 0), yy + 2 * SCALE, y, y + height, font_small_lineheight, edit->data, edit->length,
                       a ? edit_sel.start : 0xFFFF, a ? edit_sel.length : 0xFFFF, edit->multiline);
@@ -576,6 +582,9 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
         }
 
         edit_select = 0;
+        if(edit->onchange) {
+            edit->onchange();
+        }
 
         edit_redraw();
     } else if(!edit->readonly) {
@@ -599,7 +608,9 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
             edit_sel.p2 = edit_sel.p1;
             edit_sel.length = 0;
 
-
+            if(edit->onchange) {
+                edit->onchange();
+            }
 
             edit_redraw();
         }

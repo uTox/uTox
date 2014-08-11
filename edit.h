@@ -17,8 +17,10 @@ struct edit {
     EDIT_CHANGE **history;
 
     SCROLLABLE *scroll;
-    char_t *data;
+    uint8_t *data;
+    uint8_t *empty_str;
     void (*onenter)(void);
+    void (*onchange)(void);
     void (*ontab)(void);
     void (*onlosefocus)(void);
 };

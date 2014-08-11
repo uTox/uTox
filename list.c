@@ -2,7 +2,7 @@
 
 static ITEM item_add, item_settings, item_transfer;
 static ITEM item[1024], *mitem, *nitem;
-static uint32_t itemcount;
+static uint32_t itemcount, searchcount;
 
 static _Bool sitem_mousedown;
 
@@ -97,11 +97,16 @@ static ITEM* item_hit(int mx, int my, int height)
     }
 
     my /= ITEM_HEIGHT;
-    if(my >= itemcount) {
+    if(my >= searchcount) {
         return NULL;
     }
+    ITEM *i;
 
-    ITEM *i = &item[my];
+    if(!SEARCH) {
+        i = &item[my];
+    } else {
+        i = &item[my + search_offset[my]];
+    }
 
     return i;
 }
@@ -289,25 +294,37 @@ void list_addfriendreq(FRIENDREQ *f)
 
 void list_draw(void *n, int x, int y, int width, int height)
 {
-    int my;
+    int my, j, k;
 
     ITEM *i = item, *mi = NULL;
-
+    FRIEND *f;
+    j = 0;
+    k = 0;
     //TODO: only draw visible
     while(i != &item[itemcount]) {
-        if(i == sitem && (sitem_dy >= 5 || sitem_dy <= -5)) {
-            mi = i;
-            my = y + sitem_dy;
+        f = i->data;
+        if(!SEARCH || i->item == ITEM_FRIEND_ADD || i->item == ITEM_GROUP || strcasestr((char*)f->name, (char*)search_data)){
+            if(i == sitem && (sitem_dy >= 5 || sitem_dy <= -5)) {
+                mi = i;
+                my = y + sitem_dy;
 
-            //RECT r = {LIST_X, y, LIST_X + ITEM_WIDTH, y + ITEM_HEIGHT};
-            //fillrect(&r, WHITE);
+                //RECT r = {LIST_X, y, LIST_X + ITEM_WIDTH, y + ITEM_HEIGHT};
+                //fillrect(&r, WHITE);
+            } else {
+                drawitem(i, LIST_X, y);
+            }
+            search_offset[j] = k - j;
+            search_unset[k] = j - k;
+            j++;
+            y += ITEM_HEIGHT;
         } else {
-            drawitem(i, LIST_X, y);
+            search_offset[j] = INT_MAX;
         }
-
-        y += ITEM_HEIGHT;
+        k++;
         i++;
     }
+
+    searchcount = j;
 
     if(mi) {
         drawitem(mi, LIST_X, my);
@@ -467,10 +484,13 @@ _Bool list_mmove(void *n, int x, int y, int width, int height, int mx, int my, i
             } else {
                 d = (sitem_dy - ITEM_HEIGHT / 2) / ITEM_HEIGHT;
             }
-
-            ITEM *i = sitem + d;
-            if(d != 0 && i >= item && i < &item[itemcount]) {
-                nitem = i;
+            int index = (sitem - item) + search_unset[sitem - item] + d;
+            int offset = search_offset[index];
+            if(offset != INT_MAX) {
+                index += offset;
+                if(index >= 0 && index < itemcount) {
+                    nitem = item + index;
+                }
             }
         }
 

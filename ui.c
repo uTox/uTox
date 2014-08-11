@@ -350,6 +350,7 @@ panel_main = {
         (void*)&button_name, (void*)&button_statusmsg, (void*)&button_status,
         &panel_list, &panel_side,
         (void*)&scroll_list,
+        (void*)&edit_search,
         NULL
     }
 };
@@ -631,6 +632,14 @@ void ui_scale(uint8_t scale)
         .y = -47 * SCALE,
         .height =  42 * SCALE,
         .width = - 5 * SCALE - BM_CB_WIDTH,
+    },
+
+    e_search = {
+        .type = PANEL_EDIT,
+        .x = 0,
+        .y = SEARCH_Y,
+        .height = 12 * SCALE,
+        .width = LIST_RIGHT,
     };
 
     edit_name.panel = e_name;
@@ -639,6 +648,7 @@ void ui_scale(uint8_t scale)
     edit_addid.panel = e_addid;
     edit_addmsg.panel = e_addmsg;
     edit_msg.panel = e_msg;
+    edit_search.panel = e_search;
 
     setscale();
 }
