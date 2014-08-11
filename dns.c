@@ -270,8 +270,10 @@ static void dns_thread(void *data)
         DNS_TXT_DATA *txt = &record->Data.Txt;
         if(txt->dwStringCount) {
             debug("Attempting:\n%s\n", txt->pStringArray[0]);
-            if((success = parserecord(data, (uint8_t*)txt->pStringArray[0], pin, dns3))) {
-                break;
+            if(txt->pStringArray[0]) {
+                if((success = parserecord(data, (uint8_t*)txt->pStringArray[0], pin, dns3))) {
+                    break;
+                }
             }
         }
 
