@@ -828,6 +828,14 @@ int main(int argc, char *argv[])
     /* catch WM_DELETE_WINDOW */
     XSetWMProtocols(display, window, &wm_delete_window, 1);
 
+    /* set WM_CLASS */
+    XClassHint hint = {
+        .res_name = "utox",
+        .res_class = "utox"
+    };
+
+    XSetClassHint(display, window, &hint);
+
     /* set drag and drog version */
     Atom dndversion = 3;
     XChangeProperty(display, window, XdndAware, XA_ATOM, 32, PropModeReplace, (uint8_t*)&dndversion, 1);
