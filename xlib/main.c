@@ -190,7 +190,7 @@ void drawalpha(int bm, int x, int y, int width, int height, uint32_t color)
     XRenderFreePicture(display, src);
 }
 
-void drawimage(void *data, int x, int y, int width, int height, int maxwidth, _Bool zoom)
+void drawimage(void *data, int x, int y, int width, int height, int maxwidth, _Bool zoom, double position)
 {
     Picture bm = (Picture)data;
     if(!zoom && width > maxwidth) {
@@ -213,7 +213,11 @@ void drawimage(void *data, int x, int y, int width, int height, int maxwidth, _B
         XRenderSetPictureFilter(display, bm, FilterNearest, NULL, 0);
         XRenderSetPictureTransform(display, bm, &trans2);
     } else {
-        XRenderComposite(display, PictOpSrc, bm, None, renderpic, 0, 0, 0, 0, x, y, width > maxwidth ? maxwidth : width, height);
+        if(width > maxwidth) {
+            XRenderComposite(display, PictOpSrc, bm, None, renderpic, (int)((double)(width - maxwidth) * position), 0, 0, 0, x, y, maxwidth, height);
+        } else {
+            XRenderComposite(display, PictOpSrc, bm, None, renderpic, 0, 0, 0, 0, x, y, width, height);
+        }
     }
 }
 

@@ -22,6 +22,7 @@ typedef struct {
     uint32_t time;
     uint16_t w, h;
     _Bool zoom;
+    double position;
     void *data;
 } MSG_IMG;
 
@@ -37,7 +38,7 @@ struct msg_file {
 };
 
 void messages_draw(MESSAGES *m, int x, int y, int width, int height);
-_Bool messages_mmove(MESSAGES *m, int x, int y, int width, int height, int mx, int my, int dy);
+_Bool messages_mmove(MESSAGES *m, int x, int y, int width, int height, int mx, int my, int dx, int dy);
 _Bool messages_mdown(MESSAGES *m);
 _Bool messages_dclick(MESSAGES *m, _Bool triclick);
 _Bool messages_mright(MESSAGES *m);

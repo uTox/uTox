@@ -145,14 +145,18 @@ void drawalpha(int bm, int x, int y, int width, int height, uint32_t color)
     DeleteObject(temp);
 }
 
-void drawimage(void *data, int x, int y, int width, int height, int maxwidth, _Bool zoom)
+void drawimage(void *data, int x, int y, int width, int height, int maxwidth, _Bool zoom, double position)
 {
     HBITMAP bm = data;
     SelectObject(hdcMem, bm);
     if(!zoom && width > maxwidth) {
         StretchBlt(hdc, x, y, maxwidth, height * maxwidth / width, hdcMem, 0, 0, width, height, SRCCOPY);
     } else {
-        BitBlt(hdc, x, y, width > maxwidth ? maxwidth : width, height, hdcMem, 0, 0, SRCCOPY);
+        if(width > maxwidth) {
+            BitBlt(hdc, x, y, maxwidth, height, hdcMem, (int)((double)(width - maxwidth) * position), 0, SRCCOPY);
+        } else {
+            BitBlt(hdc, x, y, width, height, hdcMem, 0, 0, SRCCOPY);
+        }
     }
 
 }
@@ -1372,17 +1376,18 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     }
 
     case WM_MOUSEMOVE: {
-        int x, y, dy;
+        int x, y, dx, dy;
 
         x = GET_X_LPARAM(lParam);
         y = GET_Y_LPARAM(lParam);
 
+        dx = x - mx;
         dy = y - my;
         mx = x;
         my = y;
 
         cursor = 0;
-        panel_mmove(&panel_main, 0, 0, width, height, x, y, dy);
+        panel_mmove(&panel_main, 0, 0, width, height, x, y, dx, dy);
 
         SetCursor(cursors[cursor]);
 
@@ -1402,7 +1407,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
         y = GET_Y_LPARAM(lParam);
 
         if(x != mx || y != my) {
-            panel_mmove(&panel_main, 0, 0, width, height, x, y, y - my);
+            panel_mmove(&panel_main, 0, 0, width, height, x, y, x - mx, y - my);
             mx = x;
             my = y;
         }

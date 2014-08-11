@@ -95,7 +95,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
             /* image */
             MSG_IMG *img = (void*)msg;
             int maxwidth = width - MESSAGES_X - TIME_WIDTH;
-            drawimage(img->data, x + MESSAGES_X, y, img->w, img->h, maxwidth, img->zoom);
+            drawimage(img->data, x + MESSAGES_X, y, img->w, img->h, maxwidth, img->zoom, img->position);
             y += (img->zoom || img->w <= maxwidth) ? img->h : img->h * maxwidth / img->w;
             break;
         }
@@ -190,8 +190,23 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
     }
 }
 
-_Bool messages_mmove(MESSAGES *m, int px, int py, int width, int height, int mx, int my, int dy)
+_Bool messages_mmove(MESSAGES *m, int px, int py, int width, int height, int mx, int my, int dx, int dy)
 {
+    if(m->idown < m->data->n) {
+        int maxwidth = width - MESSAGES_X - TIME_WIDTH;
+        MSG_IMG *img_down = m->data->data[m->idown];
+        if((img_down->flags & (~1)) == 4 && img_down->w  > maxwidth) {
+            img_down->position -= (double)dx / (double)(img_down->w - maxwidth);
+            if(img_down->position > 1.0) {
+                img_down->position = 1.0;
+            } else if(img_down->position < 0.0) {
+                img_down->position = 0.0;
+            }
+            cursor = CURSOR_ZOOM_OUT;
+            return 1;
+        }
+    }
+
     if(mx < 0) {
         if(m->iover != ~0) {
             m->iover = ~0;
@@ -386,6 +401,7 @@ _Bool messages_mmove(MESSAGES *m, int px, int py, int width, int height, int mx,
 
 _Bool messages_mdown(MESSAGES *m)
 {
+    m->idown = 0xFFFF;
     if(m->iover != ~0) {
         MESSAGE *msg = m->data->data[m->iover];
         switch(msg->flags) {
@@ -408,8 +424,12 @@ _Bool messages_mdown(MESSAGES *m)
         case 5: {
             MSG_IMG *img = (void*)msg;
             if(m->over) {
-                img->zoom = !img->zoom;
-                message_updateheight(m, msg, m->data);
+                if(!img->zoom) {
+                    img->zoom = 1;
+                    message_updateheight(m, msg, m->data);
+                } else {
+                    m->idown = m->iover;
+                }
             }
             break;
         }
@@ -512,6 +532,14 @@ _Bool messages_dclick(MESSAGES *m, _Bool triclick)
 
             setselection(1, m);
             return 1;
+        } else if(msg->flags >= 4 && msg->flags <= 5) {
+            MSG_IMG *img = (void*)msg;
+            if(m->over) {
+                if(img->zoom) {
+                    img->zoom = 0;
+                    message_updateheight(m, msg, m->data);
+                }
+            }
         }
     }
     return 0;
@@ -527,8 +555,10 @@ _Bool messages_mwheel(MESSAGES *m, int height, double d)
     return 0;
 }
 
+
 _Bool messages_mup(MESSAGES *m)
 {
+    m->idown = 0xFFFF;
     m->select = 0;
     return 0;
 }

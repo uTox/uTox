@@ -49,7 +49,7 @@ void dropdown_draw(DROPDOWN *b, int x, int y, int width, int height)
     }
 }
 
-_Bool dropdown_mmove(DROPDOWN *b, int x, int y, int width, int height, int mx, int my, int dy)
+_Bool dropdown_mmove(DROPDOWN *b, int x, int y, int width, int height, int mx, int my, int dx, int dy)
 {
     _Bool mouseover = inrect(mx, my, 0, 0, width, height);
     if(mouseover != b->mouseover) {

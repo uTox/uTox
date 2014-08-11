@@ -200,7 +200,7 @@ void writesavedata(void *data, uint32_t len);
 void desktopgrab(_Bool video);
 void notify(uint8_t *title, uint16_t title_length, uint8_t *msg, uint16_t msg_length);
 void setscale(void);
-void drawimage(void *data, int x, int y, int width, int height, int maxwidth, _Bool zoom);
+void drawimage(void *data, int x, int y, int width, int height, int maxwidth, _Bool zoom, double position);
 void* png_to_image(void *data, uint16_t *w, uint16_t *h, uint32_t size);
 void showkeyboard(_Bool show);
 void redraw(void);

@@ -174,7 +174,7 @@ static void background_draw(PANEL *p, int x, int y, int width, int height)
     drawhline(LIST_RIGHT + 1, LIST_Y - 1, width, C_GRAY);
 }
 
-static _Bool background_mmove(PANEL *p, int x, int y, int width, int height, int mx, int my, int dy)
+static _Bool background_mmove(PANEL *p, int x, int y, int width, int height, int mx, int my, int dx, int dy)
 {
     return 0;
 }
@@ -654,7 +654,7 @@ void ui_scale(uint8_t scale)
 };
 
 FUNC(draw, void, int x, int y, int width, int height);
-FUNC(mmove, _Bool, int x, int y, int width, int height, int mx, int my, int dy);
+FUNC(mmove, _Bool, int x, int y, int width, int height, int mx, int my, int dx, int dy);
 FUNC(mdown, _Bool);
 FUNC(mright, _Bool);
 FUNC(mwheel, _Bool, int height, double d);
@@ -758,7 +758,7 @@ void panel_draw(PANEL *p, int x, int y, int width, int height)
     enddraw(x, y, width, height);
 }
 
-_Bool panel_mmove(PANEL *p, int x, int y, int width, int height, int mx, int my, int dy)
+_Bool panel_mmove(PANEL *p, int x, int y, int width, int height, int mx, int my, int dx, int dy)
 {
     mx -= (p->x < 0) ? width + p->x : p->x;
     my -= (p->y < 0) ? height + p->y : p->y;
@@ -779,12 +779,12 @@ _Bool panel_mmove(PANEL *p, int x, int y, int width, int height, int mx, int my,
         my += dy;
     }
 
-    _Bool draw = p->type ? mmovefunc[p->type - 1](p, x, y, width, height, mx, mmy, dy) : 0;
+    _Bool draw = p->type ? mmovefunc[p->type - 1](p, x, y, width, height, mx, mmy, dx, dy) : 0;
     PANEL **pp = p->child, *subp;
     if(pp) {
         while((subp = *pp++)) {
             if(!subp->disabled) {
-                draw |= panel_mmove(subp, x, y, width, height, mx, my, dy);
+                draw |= panel_mmove(subp, x, y, width, height, mx, my, dx, dy);
             }
         }
     }

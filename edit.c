@@ -58,7 +58,7 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
     }
 }
 
-_Bool edit_mmove(EDIT *edit, int px, int py, int width, int height, int x, int y, int dy)
+_Bool edit_mmove(EDIT *edit, int px, int py, int width, int height, int x, int y, int dx, int dy)
 {
     if(baseline && py > baseline - font_small_lineheight - 4 * SCALE) {
         y += py - (baseline - font_small_lineheight - 4 * SCALE);
@@ -79,7 +79,7 @@ _Bool edit_mmove(EDIT *edit, int px, int py, int width, int height, int x, int y
     }
 
     if(edit->multiline) {
-        redraw |= scroll_mmove(edit->scroll, px, py, width, height, x, y, dy);
+        redraw |= scroll_mmove(edit->scroll, px, py, width, height, x, y, dx, dy);
         y += scroll_gety(edit->scroll, height);
     }
 

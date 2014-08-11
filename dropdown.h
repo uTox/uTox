@@ -15,7 +15,7 @@ struct dropdown {
 void dropdown_drawactive(void);
 
 void dropdown_draw(DROPDOWN *b, int x, int y, int width, int height);
-_Bool dropdown_mmove(DROPDOWN *b, int x, int y, int width, int height, int mx, int my, int dyt);
+_Bool dropdown_mmove(DROPDOWN *b, int x, int y, int width, int height, int mx, int my, int dx, int dy);
 _Bool dropdown_mdown(DROPDOWN *b);
 _Bool dropdown_mright(DROPDOWN *b);
 _Bool dropdown_mwheel(DROPDOWN *b, int height, double d);

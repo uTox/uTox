@@ -446,7 +446,7 @@ void list_selectswap(void)
 }
 
 
-_Bool list_mmove(void *n, int x, int y, int width, int height, int mx, int my, int dy)
+_Bool list_mmove(void *n, int x, int y, int width, int height, int mx, int my, int dx, int dy)
 {
     ITEM *i = item_hit(mx, my, height);
 
