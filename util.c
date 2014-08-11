@@ -39,6 +39,26 @@ void* file_raw(char *path, uint32_t *size)
     return data;
 }
 
+_Bool strcasestr(const char *a, const char *b)
+{
+    const char *c = b;
+    while(*a) {
+        if(tolower(*a) != tolower(*c)) {
+            c = b;
+        }
+
+        if(tolower(*a) == tolower(*c)) {
+            c++;
+            if(!*c) {
+                return 1;
+            }
+        }
+        a++;
+    }
+
+    return 0;
+}
+
 static void to_hex(char_t *a, char_t *p, int size)
 {
     char_t b, c, *end = p + size;

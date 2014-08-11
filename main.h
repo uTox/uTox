@@ -1,8 +1,6 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-#define _GNU_SOURCE
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -11,6 +9,7 @@
 #include <string.h>
 #include <math.h>
 #include <limits.h>
+#include <ctype.h>
 
 #include <tox/tox.h>
 #include <tox/toxav.h>
