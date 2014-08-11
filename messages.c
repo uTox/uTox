@@ -382,8 +382,6 @@ _Bool messages_mmove(MESSAGES *m, int px, int py, int width, int height, int mx,
                     m->data->end = end;
                     m->data->istart = istart;
                     m->data->iend = iend;
-
-                    setselection(1, m);
                     redraw = 1;
                 }
 
@@ -529,8 +527,6 @@ _Bool messages_dclick(MESSAGES *m, _Bool triclick)
                 i += utf8_len(msg->msg + i);
             }
             m->data->end = i;
-
-            setselection(1, m);
             return 1;
         } else if(msg->flags >= 4 && msg->flags <= 5) {
             MSG_IMG *img = (void*)msg;
@@ -558,6 +554,11 @@ _Bool messages_mwheel(MESSAGES *m, int height, double d)
 
 _Bool messages_mup(MESSAGES *m)
 {
+    //temporary, change this
+    uint8_t *lel = malloc(65536);
+    setselection(lel, messages_selection(m, lel, 65536));
+    free(lel);
+
     m->idown = 0xFFFF;
     m->select = 0;
     return 0;
@@ -585,23 +586,44 @@ int messages_selection(MESSAGES *m, void *data, uint32_t len)
 
         if(i != m->data->istart || m->data->start == 0) {
             if(m->type) {
-                memcpy(p, &msg->msg[msg->length + 1], msg->msg[msg->length]);
-                p += (uint8_t)msg->msg[msg->length];
+                uint8_t l = (uint8_t)msg->msg[msg->length];
+                if(len <= l) {
+                    break;
+                }
+
+                memcpy(p, &msg->msg[msg->length + 1], l);
+                p += l;
+                len -= l;
             } else {
                 FRIEND *f = &friend[m->data->id];
                 uint8_t author = msg->flags & 1;
 
                 if(!author) {
+                    if(len <= f->name_length) {
+                        break;
+                    }
+
                     memcpy(p, f->name, f->name_length);
                     p += f->name_length;
+                    len -= f->name_length;
                 } else {
+                    if(len <= self.name_length) {
+                        break;
+                    }
+
                     memcpy(p, self.name, self.name_length);
                     p += self.name_length;
+                    len -= self.name_length;
                 }
+            }
+
+            if(len <= 2) {
+                break;
             }
 
             strcpy2(p, ": ");
             p += 2;
+            len -= 2;
         }
 
         switch(msg->flags) {
@@ -609,21 +631,31 @@ int messages_selection(MESSAGES *m, void *data, uint32_t len)
         case 1:
         case 2:
         case 3: {
+            uint8_t *data;
+            uint16_t length;
             if(i == m->data->istart) {
                 if(i == m->data->iend) {
-                    memcpy(p, msg->msg + m->data->start, m->data->end - m->data->start);
-                    p += m->data->end - m->data->start;
+                    data = msg->msg + m->data->start;
+                    length = m->data->end - m->data->start;
                 } else {
-                    memcpy(p, msg->msg + m->data->start, msg->length - m->data->start);
-                    p += msg->length - m->data->start;
+                    data = msg->msg + m->data->start;
+                    length = msg->length - m->data->start;
                 }
             } else if(i == m->data->iend) {
-                memcpy(p, msg->msg, m->data->end);
-                p += m->data->end;
+                data = msg->msg;
+                length = m->data->end;
             } else {
-                memcpy(p, msg->msg, msg->length);
-                p += msg->length;
+                data = msg->msg;
+                length = msg->length;
             }
+
+            if(len <= length) {
+                goto BREAK;
+            }
+
+            memcpy(p, data, length);
+            p += length;
+            len -= length;
             break;
         }
         }
@@ -631,10 +663,23 @@ int messages_selection(MESSAGES *m, void *data, uint32_t len)
         i++;
 
         if(i != n) {
-            strcpy2(p, "\r\n");
-            p += 2;
+            #ifdef __WIN32__
+            if(len <= 2) {
+                break;
+            }
+            *p++ = '\r';
+            *p++ = '\n';
+            len -= 2;
+            #else
+            if(len <= 1) {
+                break;
+            }
+            *p++ = '\n';
+            len--;
+            #endif
         }
     }
+    BREAK:
     *p = 0;
 
     return (void*)p - data;

@@ -108,9 +108,6 @@ struct
     void *data;
 } pastebuf;
 
-uint8_t selection_src;
-void *selection_p;
-
 static void setclipboard(void)
 {
     XSetSelectionOwner(display, XA_CLIPBOARD, window, CurrentTime);
@@ -381,7 +378,7 @@ void address_to_clipboard(void)
     clipboard.len = sizeof(self.id);
     setclipboard();
 
-    setselection(2, NULL);
+    setselection(self.id, sizeof(self.id));
 }
 
 void editpopup(void)
@@ -444,10 +441,14 @@ void savefiledata(MSG_FILE *file)
     }
 }
 
-void setselection(uint8_t src, void *p)
+void setselection(uint8_t *data, uint16_t length)
 {
-    selection_src = src;
-    selection_p = p;
+    if(!length) {
+        return;
+    }
+
+    memcpy(primary.data, data, length);
+    primary.len = length;
     XSetSelectionOwner(display, XA_PRIMARY, window, CurrentTime);
 }
 

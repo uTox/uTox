@@ -510,9 +510,8 @@ void savefiledata(MSG_FILE *file)
     }
 }
 
-void setselection(uint8_t src, void *p)
+void setselection(uint8_t *data, uint16_t length);
 {
-
 }
 
 void togglehide(void)

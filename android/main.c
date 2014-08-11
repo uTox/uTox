@@ -130,9 +130,8 @@ void savefiledata(MSG_FILE *file)
 {
 }
 
-void setselection(uint8_t src, void *p)
+void setselection(uint8_t *data, uint16_t length);
 {
-
 }
 
 void* png_to_image(void *data, uint16_t *w, uint16_t *h, uint32_t size)
