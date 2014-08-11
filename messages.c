@@ -536,6 +536,7 @@ _Bool messages_dclick(MESSAGES *m, _Bool triclick)
                     message_updateheight(m, msg, m->data);
                 }
             }
+            return 1;
         }
     }
     return 0;

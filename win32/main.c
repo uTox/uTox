@@ -644,6 +644,53 @@ void loadalpha(int bm, void *data, int width, int height)
     bitmap[bm] = data;
 }
 
+static void sendbitmap(HDC mem, HBITMAP hbm, int width, int height)
+{
+    BITMAPINFO info = {
+        .bmiHeader = {
+            .biSize = sizeof(BITMAPINFOHEADER),
+            .biWidth = width,
+            .biHeight = -(int)height,
+            .biPlanes = 1,
+            .biBitCount = 24,
+            .biCompression = BI_RGB,
+        }
+    };
+
+    void *bits = malloc((width + 3) * height * 3);
+
+    GetDIBits(mem, hbm, 0, height, bits, &info, DIB_RGB_COLORS);
+
+    if(width & 3) {
+        uint8_t pbytes = width & 3, *p = bits, *pp = bits, *end = p + width * height * 3;
+        uint32_t offset = 0;
+        while(p != end) {
+            int i;
+            for(i = 0; i != width; i++) {
+                uint8_t b = pp[i * 3];
+                p[i * 3] = pp[i * 3 + 2];
+                p[i * 3 + 1] = pp[i * 3 + 1];
+                p[i * 3 + 2] = b;
+            }
+            p += width * 3;
+            pp += width * 3 + pbytes;
+        }
+    }
+
+    uint8_t *out;
+    size_t size;
+    lodepng_encode_memory(&out, &size, bits, width, height, LCT_RGB, 8);
+    free(bits);
+
+    uint32_t s = size;
+    void *data = malloc(size + 4);
+    memcpy(data, &s, 4);
+    memcpy(data + 4, out, size);
+    free(out);
+
+    friend_sendimage(sitem->data, hbm, data, width, height);
+}
+
 void copy(void)
 {
     uint8_t data[32768];//!
@@ -681,18 +728,38 @@ void cut(void)
 
 void paste(void)
 {
-    if(!edit_active()) {
-        return;
-    }
-
     OpenClipboard(NULL);
     HANDLE h = GetClipboardData(CF_UNICODETEXT);
-    wchar_t *d = GlobalLock(h);
-    uint8_t data[65536];
-    int len = WideCharToMultiByte(CP_UTF8, 0, d, -1, (char*)data, 65536, NULL, 0);
+    if(!h) {
+        h = GetClipboardData(CF_BITMAP);
+        if(h && sitem->item == ITEM_FRIEND) {
+            HBITMAP copy;
+            BITMAP bm;
+            HDC tempdc;
+            GetObject(h, sizeof(bm), &bm);
+
+            tempdc = CreateCompatibleDC(NULL);
+            SelectObject(tempdc, h);
+
+            copy = CreateCompatibleBitmap(hdcMem, bm.bmWidth, bm.bmHeight);
+            SelectObject(hdcMem, copy);
+            BitBlt(hdcMem, 0, 0, bm.bmWidth, bm.bmHeight, tempdc, 0, 0, SRCCOPY);
+
+            sendbitmap(hdcMem, copy, bm.bmWidth, bm.bmHeight);
+
+            DeleteDC(tempdc);
+        }
+    } else {
+        wchar_t *d = GlobalLock(h);
+        uint8_t data[65536];
+        int len = WideCharToMultiByte(CP_UTF8, 0, d, -1, (char*)data, 65536, NULL, 0);
+        if(edit_active()) {
+            edit_paste(data, len, 0);
+        }
+    }
+
     GlobalUnlock(h);
     CloseClipboard();
-    edit_paste(data, len, 0);
 }
 
 void* png_to_image(void *data, uint16_t *w, uint16_t *h, uint32_t size)
@@ -883,19 +950,6 @@ LRESULT CALLBACK GrabProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         } else {
             FRIEND *f = sitem->data;
             if(sitem->item == ITEM_FRIEND && f->online) {
-                BITMAPINFO info = {
-                    .bmiHeader = {
-                        .biSize = sizeof(BITMAPINFOHEADER),
-                        .biWidth = grabpx,
-                        .biHeight = -(int)grabpy,
-                        .biPlanes = 1,
-                        .biBitCount = 24,
-                        .biCompression = BI_RGB,
-                    }
-                };
-
-                void *bits = malloc((grabpx + 3) * grabpy * 3);
-
                 HWND dwnd = GetDesktopWindow();
                 HDC ddc = GetDC(dwnd);
                 HDC mem = CreateCompatibleDC(ddc);
@@ -904,40 +958,10 @@ LRESULT CALLBACK GrabProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                 SelectObject(mem, capture);
 
                 BitBlt(mem, 0, 0, grabpx, grabpy, ddc, grabx, graby, SRCCOPY | CAPTUREBLT);
-                GetDIBits(mem, capture, 0, grabpy, bits, &info, DIB_RGB_COLORS);
+                sendbitmap(mem, capture, grabpx, grabpy);
 
                 ReleaseDC(dwnd, ddc);
                 DeleteDC(mem);
-                DeleteObject(capture);
-
-                if(grabpx & 3) {
-                    uint8_t pbytes = grabpx & 3, *p = bits, *pp = bits, *end = p + grabpx * grabpy * 3;
-                    uint32_t offset = 0;
-                    while(p != end) {
-                        int i;
-                        for(i = 0; i != grabpx; i++) {
-                            uint8_t b = pp[i * 3];
-                            p[i * 3] = pp[i * 3 + 2];
-                            p[i * 3 + 1] = pp[i * 3 + 1];
-                            p[i * 3 + 2] = b;
-                        }
-                        p += grabpx * 3;
-                        pp += grabpx * 3 + pbytes;
-                    }
-                }
-
-                uint8_t *out;
-                size_t size;
-                lodepng_encode_memory(&out, &size, bits, grabpx, grabpy, LCT_RGB, 8);
-                free(bits);
-
-                uint32_t s = size;
-                void *data = malloc(size + 4);
-                memcpy(data, &s, 4);
-                memcpy(data + 4, out, size);
-                free(out);
-
-                friend_sendimage(sitem->data, capture, data, grabpx, grabpy);
             }
         }
 
@@ -1411,9 +1435,10 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
             my = y;
         }
 
-        panel_mdown(&panel_main);
         if(msg == WM_LBUTTONDBLCLK) {
             panel_dclick(&panel_main, 0);
+        } else {
+            panel_mdown(&panel_main);
         }
         SetCapture(hwn);
         mdown = 1;
