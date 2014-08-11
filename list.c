@@ -299,10 +299,7 @@ void list_draw(void *n, int x, int y, int width, int height)
     ITEM *i = item, *mi = NULL;
     FRIEND *f;
     j = 0;
-    k = y / ITEM_HEIGHT;
-    if(y < 0){
-        k -= 1;
-    }
+    k = 0;
     //TODO: only draw visible
     while(i != &item[itemcount]) {
         f = i->data;
@@ -316,7 +313,8 @@ void list_draw(void *n, int x, int y, int width, int height)
             } else {
                 drawitem(i, LIST_X, y);
             }
-            search_offset[j] = k - (y) / ITEM_HEIGHT;
+            search_offset[j] = k - j;
+            search_unset[k] = j - k;
             j++;
             y += ITEM_HEIGHT;
         }
@@ -484,9 +482,10 @@ _Bool list_mmove(void *n, int x, int y, int width, int height, int mx, int my, i
             } else {
                 d = (sitem_dy - ITEM_HEIGHT / 2) / ITEM_HEIGHT;
             }
-
-            ITEM *i = sitem + d - search_offset[sitem - item] + search_offset[d];
-            if(d != 0 && i >= item && i < &item[searchcount]) {
+            int unset = search_unset[sitem - item];
+            ITEM *i = sitem + d + unset + search_offset[(sitem - item) + unset + d];
+            debug("i : %li search_unset : %i item : %i\n", i - item, search_unset[i - item], searchcount);
+            if(d != 0 && i >= item && (i + search_unset[i - item]) < &item[searchcount]) {
                 nitem = i;
             }
         }

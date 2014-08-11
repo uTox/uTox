@@ -636,10 +636,10 @@ void ui_scale(uint8_t scale)
 
     e_search = {
         .type = PANEL_EDIT,
-        .x = 5 * SCALE,
-        .y = LIST_BOTTOM - 12 * SCALE,
+        .x = 0,
+        .y = SEARCH_Y,
         .height = 12 * SCALE,
-        .width = SCALE * 27 * 4 - 5,
+        .width = LIST_RIGHT,
     };
 
     edit_name.panel = e_name;

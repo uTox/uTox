@@ -80,6 +80,8 @@ static void edit_search_onchange(void)
     uint16_t length = edit_search.length;
 
     if(!length) {
+        memset(search_offset, 0, sizeof(int) * 1024);
+        memset(search_unset, 0, sizeof(int) * 1024);
         SEARCH = 0;
     } else {
         SEARCH = 1;
