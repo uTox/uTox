@@ -84,6 +84,7 @@ extern uint32_t status_color[];
 
 uint8_t SEARCH;
 int search_offset[1024];
+int search_unset[1024];
 char search_data[128];
 
 /* metrics
@@ -93,7 +94,7 @@ uint8_t SCALE;
 /* side */
 #define LIST_X (8 * SCALE)
 #define LIST_RIGHT (111 * SCALE)
-#define LIST_Y (31 * SCALE)
+#define LIST_Y (43 * SCALE)
 #define LIST_BOTTOM (-18 * SCALE)
 
 #define LIST_NAME_X (37 * SCALE)
@@ -129,6 +130,8 @@ uint8_t SCALE;
 #define NAME_OFFSET (7 * SCALE)
 
 #define MESSAGES_BOTTOM (-47 * SCALE)
+
+#define SEARCH_Y (31 * SCALE)
 
 /* main */
 //#define MAIN_X
