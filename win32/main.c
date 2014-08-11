@@ -1435,11 +1435,12 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
             my = y;
         }
 
+        //double redraw>
+        panel_mdown(&panel_main);
         if(msg == WM_LBUTTONDBLCLK) {
             panel_dclick(&panel_main, 0);
-        } else {
-            panel_mdown(&panel_main);
         }
+
         SetCapture(hwn);
         mdown = 1;
         break;
