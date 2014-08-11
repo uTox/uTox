@@ -1054,8 +1054,8 @@ void video_begin(uint32_t id, uint8_t *name, uint16_t name_length, uint16_t widt
 
     /* set WM_CLASS */
     XClassHint hint = {
-        .res_name = "utox",
-        .res_class = "utox"
+        .res_name = "utoxvideo",
+        .res_class = "utoxvideo"
     };
 
     XSetClassHint(display, *win, &hint);
