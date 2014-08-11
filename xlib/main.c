@@ -546,7 +546,7 @@ static void pastedata(void *data, Atom type, int len, _Bool select)
    if (type == XA_PNG_IMG) {
         uint16_t width, height;
         uint32_t size = len;
-         
+
         void *pngdata = malloc(len + 4);
         void *img = png_to_image(data, &width, &height, len);
         if (img) {
@@ -1051,6 +1051,15 @@ void video_begin(uint32_t id, uint8_t *name, uint16_t name_length, uint16_t widt
     *win = XCreateSimpleWindow(display, RootWindow(display, screen), 0, 0, width, height, 0, BlackPixel(display, screen), WhitePixel(display, screen));
     XStoreName(display, *win, (char*)name);
     XSetWMProtocols(display, *win, &wm_delete_window, 1);
+
+    /* set WM_CLASS */
+    XClassHint hint = {
+        .res_name = "utox",
+        .res_class = "utox"
+    };
+
+    XSetClassHint(display, *win, &hint);
+
     XMapWindow(display, *win);
 }
 
