@@ -317,6 +317,8 @@ void list_draw(void *n, int x, int y, int width, int height)
             search_unset[k] = j - k;
             j++;
             y += ITEM_HEIGHT;
+        } else {
+            search_offset[j] = INT_MAX;
         }
         k++;
         i++;
@@ -482,11 +484,13 @@ _Bool list_mmove(void *n, int x, int y, int width, int height, int mx, int my, i
             } else {
                 d = (sitem_dy - ITEM_HEIGHT / 2) / ITEM_HEIGHT;
             }
-            int unset = search_unset[sitem - item];
-            ITEM *i = sitem + d + unset + search_offset[(sitem - item) + unset + d];
-            debug("i : %li search_unset : %i item : %i\n", i - item, search_unset[i - item], searchcount);
-            if(d != 0 && i >= item && (i + search_unset[i - item]) < &item[searchcount]) {
-                nitem = i;
+            int index = (sitem - item) + search_unset[sitem - item] + d;
+            int offset = search_offset[index];
+            if(offset != INT_MAX) {
+                index += offset;
+                if(index >= 0 && index < itemcount) {
+                    nitem = item + index;
+                }
             }
         }
 

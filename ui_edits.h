@@ -80,8 +80,8 @@ static void edit_search_onchange(void)
     uint16_t length = edit_search.length;
 
     if(!length) {
-        memset(search_offset, 0, sizeof(int) * 1024);
-        memset(search_unset, 0, sizeof(int) * 1024);
+        memset(search_offset, 0, sizeof(search_offset));
+        memset(search_unset, 0, sizeof(search_unset));
         SEARCH = 0;
     } else {
         SEARCH = 1;
@@ -153,5 +153,6 @@ edit_msg = {
 edit_search = {
     .maxlength = sizeof(edit_search_data),
     .data = edit_search_data,
+    .empty_str = (uint8_t*)"Search friends",
     .onchange = edit_search_onchange,
 };
