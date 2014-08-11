@@ -7,7 +7,7 @@
 void* file_raw(char *path, uint32_t *size);
 
 /* returns non-zero if substring is found */
-_Bool strcasestr(const char *a, const char *b);
+_Bool strstr_case(const char *a, const char *b);
 
 /* convert tox id to string
  *  notes: dest must be (TOX_FRIEND_ADDRESS_SIZE * 2) bytes large, src must be TOX_FRIEND_ADDRESS_SIZE bytes large

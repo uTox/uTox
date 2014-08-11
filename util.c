@@ -39,7 +39,7 @@ void* file_raw(char *path, uint32_t *size)
     return data;
 }
 
-_Bool strcasestr(const char *a, const char *b)
+_Bool strstr_case(const char *a, const char *b)
 {
     const char *c = b;
     while(*a) {
