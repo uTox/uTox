@@ -641,7 +641,7 @@ void* loadsavedata(uint32_t *len)
         return data;
     }
 
-    return NULL;//file_raw(path, len);
+    return file_raw(path, len);
 }
 
 void writesavedata(void *data, uint32_t len)
