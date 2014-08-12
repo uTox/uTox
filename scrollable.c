@@ -8,14 +8,10 @@ void scroll_draw(SCROLLABLE *s, int x, int y, int width, int height)
     if(h >= c) {
         m = h;
         dy = 0;
-    }
-    else {
+    } else {
         m = (h * h) / c;
         double d = (h - m);
         dy = (s->d * d) + 0.5;
-        if(m <= 10) {
-            m = 10;
-        }
     }
 
     y += dy;
@@ -29,9 +25,7 @@ void scroll_draw(SCROLLABLE *s, int x, int y, int width, int height)
 
     y += SCROLL_WIDTH / 2;
     int y2 = y + m - SCROLL_WIDTH, x2 = x + SCROLL_WIDTH;
-    //drawrect(x, y, x + 1, y2, GRAY(46)); //GRAY(37)
-    drawrect(x + 0, y, x2 - 0, y2, s->color);
-    //drawrect(x2 - 1, y, x2, y2, GRAY(46)); alpha lines?
+    drawrect(x, y, x + SCROLL_WIDTH, y2 + (SCROLL_WIDTH >= m) ? 0 : (m - SCROLL_WIDTH), s->color);
 
     drawalpha(BM_SCROLLHALFBOT, x, y2, SCROLL_WIDTH, SCROLL_WIDTH / 2, s->color);
 }
