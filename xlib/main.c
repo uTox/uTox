@@ -392,12 +392,25 @@ void listpopup(uint8_t item)
 
 void openurl(char_t *str)
 {
-    char cmd[1024];
+    char cmd[1024], *p = cmd;
+
     #ifdef __APPLE__
-    sprintf(cmd, "open \"%.999s\" &", str);
+    p += sprintf(p, "open \"");
     #else
-    sprintf(cmd, "xdg-open \"%.999s\" &", str);
+    p += sprintf(p, "xdg-open \"");
     #endif
+
+    while(*str) {
+        if(*str == '"' || *str == '\\') {
+            *p++ = '\\';
+        }
+        *p++ = *str++;
+    }
+    *p++ = '\"';
+    *p++ = ' ';
+    *p++ = '&';
+    *p = 0;
+
     debug("cmd: %s\n", cmd);
     system(cmd);
 }
