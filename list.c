@@ -364,7 +364,7 @@ static void deleteitem(ITEM *i)
 
         i = 0;
         while(i < f->msg.n) {
-            free(f->msg.data[i]);
+            message_free(f->msg.data[i]);
             i++;
         }
 

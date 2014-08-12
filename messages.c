@@ -777,8 +777,15 @@ void message_add(MESSAGES *m, MESSAGE *msg, MSG_DATA *p)
 
     msg->time = ti->tm_hour * 60 + ti->tm_min;
 
-    p->data = realloc(p->data, (p->n + 1) * sizeof(void*));
-    p->data[p->n++] = msg;
+    if(p->n != 128) {
+        p->data = realloc(p->data, (p->n + 1) * sizeof(void*));
+        p->data[p->n++] = msg;
+    } else {
+        p->height -= ((MESSAGE*)p->data[0])->height;
+        message_free(p->data[0]);
+        memmove(p->data, p->data + 1, 127 * sizeof(void*));
+        p->data[127] = msg;
+    }
 
     message_setheight(m, msg, p);
 }
@@ -818,4 +825,17 @@ _Bool messages_char(uint32_t ch)
     }
 
     return 0;
+}
+
+void message_free(MESSAGE *msg)
+{
+    switch(msg->flags >> 1) {
+    case 2:
+        //TODO: freeimage
+        break;
+    case 3:
+        free(((MSG_FILE*)msg)->path);
+        break;
+    }
+    free(msg);
 }
