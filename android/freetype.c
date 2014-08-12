@@ -121,14 +121,14 @@ static void loadfonts(void)
 
     font_open(&font[FONT_LIST_NAME], F(12.0), 0);
 
-    font_open(&font[FONT_MSG], F(11.0), 2);
-    font_open(&font[FONT_MSG_NAME], F(10.0), 2);
+    //font_open(&font[FONT_MSG], F(11.0), 2);
+    //font_open(&font[FONT_MSG_NAME], F(10.0), 2);
     font_open(&font[FONT_MISC], F(10.0), 0);
-    font_open(&font[FONT_MSG_LINK], F(11.0), 2);
+    //font_open(&font[FONT_MSG_LINK], F(11.0), 2);
     #undef F
 
     font_small_lineheight = (font[FONT_TEXT].face->size->metrics.height + (1 << 5)) >> 6;
-    font_msg_lineheight = (font[FONT_MSG].face->size->metrics.height + (1 << 5)) >> 6;
+    //font_msg_lineheight = (font[FONT_MSG].face->size->metrics.height + (1 << 5)) >> 6;
 }
 
 static void freefonts(void)

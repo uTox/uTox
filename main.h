@@ -9,6 +9,7 @@
 #include <string.h>
 #include <math.h>
 #include <limits.h>
+#include <ctype.h>
 
 #include <tox/tox.h>
 #include <tox/toxav.h>
@@ -137,9 +138,9 @@ enum
     FONT_TEXT,
     FONT_TITLE,
 
-    FONT_MSG,
+    /*FONT_MSG,
     FONT_MSG_NAME,
-    FONT_MSG_LINK,
+    FONT_MSG_LINK,*/
 
     FONT_SELF_NAME,
     FONT_STATUS,
@@ -200,7 +201,7 @@ void writesavedata(void *data, uint32_t len);
 void desktopgrab(_Bool video);
 void notify(uint8_t *title, uint16_t title_length, uint8_t *msg, uint16_t msg_length);
 void setscale(void);
-void drawimage(void *data, int x, int y, int width, int height, int maxwidth, _Bool zoom);
+void drawimage(void *data, int x, int y, int width, int height, int maxwidth, _Bool zoom, double position);
 void* png_to_image(void *data, uint16_t *w, uint16_t *h, uint32_t size);
 void showkeyboard(_Bool show);
 void redraw(void);
@@ -274,7 +275,7 @@ void sysmexit(void);
 void sysmsize(void);
 void sysmmini(void);
 
-void setselection(uint8_t src, void *p);
+void setselection(uint8_t *data, uint16_t length);
 
 void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height, _Bool resize);
 void video_begin(uint32_t id, uint8_t *name, uint16_t name_length, uint16_t width, uint16_t height);

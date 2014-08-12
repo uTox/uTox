@@ -108,9 +108,6 @@ struct
     void *data;
 } pastebuf;
 
-uint8_t selection_src;
-void *selection_p;
-
 static void setclipboard(void)
 {
     XSetSelectionOwner(display, XA_CLIPBOARD, window, CurrentTime);
@@ -190,7 +187,7 @@ void drawalpha(int bm, int x, int y, int width, int height, uint32_t color)
     XRenderFreePicture(display, src);
 }
 
-void drawimage(void *data, int x, int y, int width, int height, int maxwidth, _Bool zoom)
+void drawimage(void *data, int x, int y, int width, int height, int maxwidth, _Bool zoom, double position)
 {
     Picture bm = (Picture)data;
     if(!zoom && width > maxwidth) {
@@ -213,7 +210,11 @@ void drawimage(void *data, int x, int y, int width, int height, int maxwidth, _B
         XRenderSetPictureFilter(display, bm, FilterNearest, NULL, 0);
         XRenderSetPictureTransform(display, bm, &trans2);
     } else {
-        XRenderComposite(display, PictOpSrc, bm, None, renderpic, 0, 0, 0, 0, x, y, width > maxwidth ? maxwidth : width, height);
+        if(width > maxwidth) {
+            XRenderComposite(display, PictOpSrc, bm, None, renderpic, (int)((double)(width - maxwidth) * position), 0, 0, 0, x, y, maxwidth, height);
+        } else {
+            XRenderComposite(display, PictOpSrc, bm, None, renderpic, 0, 0, 0, 0, x, y, width, height);
+        }
     }
 }
 
@@ -377,7 +378,7 @@ void address_to_clipboard(void)
     clipboard.len = sizeof(self.id);
     setclipboard();
 
-    setselection(2, NULL);
+    setselection(self.id, sizeof(self.id));
 }
 
 void editpopup(void)
@@ -440,10 +441,14 @@ void savefiledata(MSG_FILE *file)
     }
 }
 
-void setselection(uint8_t src, void *p)
+void setselection(uint8_t *data, uint16_t length)
 {
-    selection_src = src;
-    selection_p = p;
+    if(!length) {
+        return;
+    }
+
+    memcpy(primary.data, data, length);
+    primary.len = length;
     XSetSelectionOwner(display, XA_PRIMARY, window, CurrentTime);
 }
 
@@ -541,7 +546,7 @@ static void pastedata(void *data, Atom type, int len, _Bool select)
    if (type == XA_PNG_IMG) {
         uint16_t width, height;
         uint32_t size = len;
-         
+
         void *pngdata = malloc(len + 4);
         void *img = png_to_image(data, &width, &height, len);
         if (img) {
@@ -677,7 +682,7 @@ void setscale(void)
     loadfonts();
 
     font_small_lineheight = (font[FONT_TEXT].info[0].face->size->metrics.height + (1 << 5)) >> 6;
-    font_msg_lineheight = (font[FONT_MSG].info[0].face->size->metrics.height + (1 << 5)) >> 6;
+    //font_msg_lineheight = (font[FONT_MSG].info[0].face->size->metrics.height + (1 << 5)) >> 6;
 
     if(xsh) {
         XFree(xsh);
@@ -823,6 +828,14 @@ int main(int argc, char *argv[])
 
     /* catch WM_DELETE_WINDOW */
     XSetWMProtocols(display, window, &wm_delete_window, 1);
+
+    /* set WM_CLASS */
+    XClassHint hint = {
+        .res_name = "utox",
+        .res_class = "utox"
+    };
+
+    XSetClassHint(display, window, &hint);
 
     /* set drag and drog version */
     Atom dndversion = 3;
@@ -1038,6 +1051,15 @@ void video_begin(uint32_t id, uint8_t *name, uint16_t name_length, uint16_t widt
     *win = XCreateSimpleWindow(display, RootWindow(display, screen), 0, 0, width, height, 0, BlackPixel(display, screen), WhitePixel(display, screen));
     XStoreName(display, *win, (char*)name);
     XSetWMProtocols(display, *win, &wm_delete_window, 1);
+
+    /* set WM_CLASS */
+    XClassHint hint = {
+        .res_name = "utoxvideo",
+        .res_class = "utoxvideo"
+    };
+
+    XSetClassHint(display, *win, &hint);
+
     XMapWindow(display, *win);
 }
 

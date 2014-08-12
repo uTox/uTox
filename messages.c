@@ -3,7 +3,7 @@
 void messages_draw(MESSAGES *m, int x, int y, int width, int height)
 {
     setcolor(0);
-    setfont(FONT_MSG);
+    setfont(FONT_TEXT);
 
     uint8_t lastauthor = 0xFF;
 
@@ -32,13 +32,13 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
         if(m->type) {
             /* group */
             setcolor(0);
-            setfont(FONT_MSG_NAME);
+            setfont(FONT_TEXT);
             drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, y, &msg->msg[msg->length] + 1, msg->msg[msg->length]);
         } else {
             FRIEND *f = &friend[m->data->id];
             uint8_t author = msg->flags & 1;
             if(author != lastauthor) {
-                setfont(FONT_MSG_NAME);
+                setfont(FONT_TEXT);
                 if(!author) {
                     setcolor(0);
                     drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, y, f->name, f->name_length);
@@ -80,8 +80,8 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
                 h2 = 0xFFFF;
             }
 
-            setfont(FONT_MSG);
-            int ny = drawtextmultiline(x + MESSAGES_X, x + width - TIME_WIDTH, y, y, y + msg->height, font_msg_lineheight, msg->msg, msg->length, h1, h2 - h1, 1);
+            setfont(FONT_TEXT);
+            int ny = drawtextmultiline(x + MESSAGES_X, x + width - TIME_WIDTH, y, y, y + msg->height, font_small_lineheight, msg->msg, msg->length, h1, h2 - h1, 1);
             if(ny - y != msg->height - MESSAGES_SPACING) {
                 debug("error101 %u %u\n", ny -y, msg->height - MESSAGES_SPACING);
             }
@@ -95,7 +95,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
             /* image */
             MSG_IMG *img = (void*)msg;
             int maxwidth = width - MESSAGES_X - TIME_WIDTH;
-            drawimage(img->data, x + MESSAGES_X, y, img->w, img->h, maxwidth, img->zoom);
+            drawimage(img->data, x + MESSAGES_X, y, img->w, img->h, maxwidth, img->zoom, img->position);
             y += (img->zoom || img->w <= maxwidth) ? img->h : img->h * maxwidth / img->w;
             break;
         }
@@ -190,8 +190,23 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
     }
 }
 
-_Bool messages_mmove(MESSAGES *m, int px, int py, int width, int height, int mx, int my, int dy)
+_Bool messages_mmove(MESSAGES *m, int px, int py, int width, int height, int mx, int my, int dx, int dy)
 {
+    if(m->idown < m->data->n) {
+        int maxwidth = width - MESSAGES_X - TIME_WIDTH;
+        MSG_IMG *img_down = m->data->data[m->idown];
+        if((img_down->flags & (~1)) == 4 && img_down->w  > maxwidth) {
+            img_down->position -= (double)dx / (double)(img_down->w - maxwidth);
+            if(img_down->position > 1.0) {
+                img_down->position = 1.0;
+            } else if(img_down->position < 0.0) {
+                img_down->position = 0.0;
+            }
+            cursor = CURSOR_ZOOM_OUT;
+            return 1;
+        }
+    }
+
     if(mx < 0) {
         if(m->iover != ~0) {
             m->iover = ~0;
@@ -200,7 +215,7 @@ _Bool messages_mmove(MESSAGES *m, int px, int py, int width, int height, int mx,
         return 0;
     }
 
-    setfont(FONT_MSG);
+    setfont(FONT_TEXT);
 
     void **p = m->data->data;
     int i = 0, n = m->data->n;
@@ -218,7 +233,7 @@ _Bool messages_mmove(MESSAGES *m, int px, int py, int width, int height, int mx,
             case 2:
             case 3: {
                 /* normal message */
-                m->over = hittextmultiline(mx - MESSAGES_X, width - MESSAGES_X - TIME_WIDTH, my < 0 ? 0 : my, msg->height, font_msg_lineheight, msg->msg, msg->length, 1);
+                m->over = hittextmultiline(mx - MESSAGES_X, width - MESSAGES_X - TIME_WIDTH, my < 0 ? 0 : my, msg->height, font_small_lineheight, msg->msg, msg->length, 1);
                 m->urlover = 0xFFFF;
 
                 if(my < 0 || my >= dy || mx < MESSAGES_X || m->over == msg->length) {
@@ -367,8 +382,6 @@ _Bool messages_mmove(MESSAGES *m, int px, int py, int width, int height, int mx,
                     m->data->end = end;
                     m->data->istart = istart;
                     m->data->iend = iend;
-
-                    setselection(1, m);
                     redraw = 1;
                 }
 
@@ -386,6 +399,7 @@ _Bool messages_mmove(MESSAGES *m, int px, int py, int width, int height, int mx,
 
 _Bool messages_mdown(MESSAGES *m)
 {
+    m->idown = 0xFFFF;
     if(m->iover != ~0) {
         MESSAGE *msg = m->data->data[m->iover];
         switch(msg->flags) {
@@ -408,8 +422,12 @@ _Bool messages_mdown(MESSAGES *m)
         case 5: {
             MSG_IMG *img = (void*)msg;
             if(m->over) {
-                img->zoom = !img->zoom;
-                message_updateheight(m, msg, m->data);
+                if(!img->zoom) {
+                    img->zoom = 1;
+                    message_updateheight(m, msg, m->data);
+                } else {
+                    m->idown = m->iover;
+                }
             }
             break;
         }
@@ -510,6 +528,15 @@ _Bool messages_dclick(MESSAGES *m, _Bool triclick)
             }
             m->data->end = i;
             return 1;
+        } else if(msg->flags >= 4 && msg->flags <= 5) {
+            MSG_IMG *img = (void*)msg;
+            if(m->over) {
+                if(img->zoom) {
+                    img->zoom = 0;
+                    message_updateheight(m, msg, m->data);
+                }
+            }
+            return 1;
         }
     }
     return 0;
@@ -525,8 +552,15 @@ _Bool messages_mwheel(MESSAGES *m, int height, double d)
     return 0;
 }
 
+
 _Bool messages_mup(MESSAGES *m)
 {
+    //temporary, change this
+    uint8_t *lel = malloc(65536);
+    setselection(lel, messages_selection(m, lel, 65536));
+    free(lel);
+
+    m->idown = 0xFFFF;
     m->select = 0;
     return 0;
 }
@@ -553,23 +587,44 @@ int messages_selection(MESSAGES *m, void *data, uint32_t len)
 
         if(i != m->data->istart || m->data->start == 0) {
             if(m->type) {
-                memcpy(p, &msg->msg[msg->length + 1], msg->msg[msg->length]);
-                p += (uint8_t)msg->msg[msg->length];
+                uint8_t l = (uint8_t)msg->msg[msg->length];
+                if(len <= l) {
+                    break;
+                }
+
+                memcpy(p, &msg->msg[msg->length + 1], l);
+                p += l;
+                len -= l;
             } else {
                 FRIEND *f = &friend[m->data->id];
                 uint8_t author = msg->flags & 1;
 
                 if(!author) {
+                    if(len <= f->name_length) {
+                        break;
+                    }
+
                     memcpy(p, f->name, f->name_length);
                     p += f->name_length;
+                    len -= f->name_length;
                 } else {
+                    if(len <= self.name_length) {
+                        break;
+                    }
+
                     memcpy(p, self.name, self.name_length);
                     p += self.name_length;
+                    len -= self.name_length;
                 }
+            }
+
+            if(len <= 2) {
+                break;
             }
 
             strcpy2(p, ": ");
             p += 2;
+            len -= 2;
         }
 
         switch(msg->flags) {
@@ -577,21 +632,31 @@ int messages_selection(MESSAGES *m, void *data, uint32_t len)
         case 1:
         case 2:
         case 3: {
+            uint8_t *data;
+            uint16_t length;
             if(i == m->data->istart) {
                 if(i == m->data->iend) {
-                    memcpy(p, msg->msg + m->data->start, m->data->end - m->data->start);
-                    p += m->data->end - m->data->start;
+                    data = msg->msg + m->data->start;
+                    length = m->data->end - m->data->start;
                 } else {
-                    memcpy(p, msg->msg + m->data->start, msg->length - m->data->start);
-                    p += msg->length - m->data->start;
+                    data = msg->msg + m->data->start;
+                    length = msg->length - m->data->start;
                 }
             } else if(i == m->data->iend) {
-                memcpy(p, msg->msg, m->data->end);
-                p += m->data->end;
+                data = msg->msg;
+                length = m->data->end;
             } else {
-                memcpy(p, msg->msg, msg->length);
-                p += msg->length;
+                data = msg->msg;
+                length = msg->length;
             }
+
+            if(len <= length) {
+                goto BREAK;
+            }
+
+            memcpy(p, data, length);
+            p += length;
+            len -= length;
             break;
         }
         }
@@ -599,10 +664,23 @@ int messages_selection(MESSAGES *m, void *data, uint32_t len)
         i++;
 
         if(i != n) {
-            strcpy2(p, "\r\n");
-            p += 2;
+            #ifdef __WIN32__
+            if(len <= 2) {
+                break;
+            }
+            *p++ = '\r';
+            *p++ = '\n';
+            len -= 2;
+            #else
+            if(len <= 1) {
+                break;
+            }
+            *p++ = '\n';
+            len--;
+            #endif
         }
     }
+    BREAK:
     *p = 0;
 
     return (void*)p - data;
@@ -615,7 +693,7 @@ static int msgheight(MESSAGE *msg, int width)
     case 1:
     case 2:
     case 3: {
-        return text_height(width - MESSAGES_X - TIME_WIDTH, font_msg_lineheight, msg->msg, msg->length) + MESSAGES_SPACING;
+        return text_height(width - MESSAGES_X - TIME_WIDTH, font_small_lineheight, msg->msg, msg->length) + MESSAGES_SPACING;
     }
 
     case 4:
@@ -642,7 +720,7 @@ void messages_updateheight(MESSAGES *m)
         return;
     }
 
-    setfont(FONT_MSG);
+    setfont(FONT_TEXT);
 
     uint32_t height = 0;
     int i = 0;
@@ -665,7 +743,7 @@ static void message_setheight(MESSAGES *m, MESSAGE *msg, MSG_DATA *p)
         return;
     }
 
-    setfont(FONT_MSG);
+    setfont(FONT_TEXT);
 
     msg->height = msgheight(msg, m->width);
     p->height += msg->height;
@@ -680,7 +758,7 @@ void message_updateheight(MESSAGES *m, MESSAGE *msg, MSG_DATA *p)
         return;
     }
 
-    setfont(FONT_MSG);
+    setfont(FONT_TEXT);
 
     p->height -= msg->height;
     msg->height = msgheight(msg, m->width);

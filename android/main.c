@@ -60,14 +60,14 @@ void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data)
     write(pipefd[1], &piping, sizeof(PIPING));
 }
 
-void drawimage(void *data, int x, int y, int width, int height, int maxwidth, _Bool zoom)
+void drawimage(void *data, int x, int y, int width, int height, int maxwidth, _Bool zoom, double position)
 {
     GLuint texture = (size_t)data;
 
     if(!zoom && width > maxwidth) {
         makequad(&quads[0], x, y, x + maxwidth, y + (height * maxwidth / width));
     } else {
-        makequad(&quads[0], x, y, x + width, y + height);
+        makequad(&quads[0], x - (int)((double)(width - maxwidth) * position), y, x + width, y + height);
     }
 
     glBindTexture(GL_TEXTURE_2D, texture);
@@ -130,9 +130,8 @@ void savefiledata(MSG_FILE *file)
 {
 }
 
-void setselection(uint8_t src, void *p)
+void setselection(uint8_t *data, uint16_t length)
 {
-
 }
 
 void* png_to_image(void *data, uint16_t *w, uint16_t *h, uint32_t size)
@@ -429,10 +428,10 @@ void redraw(void)
     _redraw = 1;
 }
 
-static int ly;
-
 static void android_main(void) /* main thread */
 {
+    int lx = 0, ly = 0;
+
     pipe(pipefd);
     fcntl(pipefd[0], F_SETFL, O_NONBLOCK);
 
@@ -470,8 +469,9 @@ static void android_main(void) /* main thread */
                         switch(action_bits) {
                         case AMOTION_EVENT_ACTION_DOWN:
                         case AMOTION_EVENT_ACTION_POINTER_DOWN: {
+                            lx = x;
                             ly = y;
-                            panel_mmove(&panel_main, 0, 0, width, height, x, y, 0);
+                            panel_mmove(&panel_main, 0, 0, width, height, x, y, 0, 0);
                             panel_mdown(&panel_main);
                             //pointer[pointer_index].down = true;
                             //pointer[pointer_index].x = x;
@@ -497,7 +497,8 @@ static void android_main(void) /* main thread */
                         }
 
                         case AMOTION_EVENT_ACTION_MOVE: {
-                            panel_mmove(&panel_main, 0, 0, width, height, x, y, y - ly);
+                            panel_mmove(&panel_main, 0, 0, width, height, x, y, x - lx, y - ly);
+                            lx = x;
                             ly = y;
                             //pointer[pointer_index].x = x;
                             //pointer[pointer_index].y = y;
@@ -677,8 +678,11 @@ static void onContentRectChanged(ANativeActivity* activity, const ARect* r)
     _redraw = 1;
 }
 
-void ANativeActivity_onCreate(ANativeActivity* act, void* savedState, size_t savedStateSize)
+__attribute__ ((externally_visible)) void ANativeActivity_onCreate(ANativeActivity* act, void* savedState, size_t savedStateSize)
 {
+    if(!act) {
+        return;
+    }
     activity = act;
 
     //Add callbacks here (find them in android/native_activity.h)

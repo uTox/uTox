@@ -48,7 +48,7 @@ int scroll_gety(SCROLLABLE *s, int height)
     return 0;
 }
 
-_Bool scroll_mmove(SCROLLABLE *s, int px, int py, int width, int height, int x, int y, int dy)
+_Bool scroll_mmove(SCROLLABLE *s, int px, int py, int width, int height, int x, int y, int dx, int dy)
 {
     _Bool draw = 0;
 

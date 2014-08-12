@@ -49,6 +49,12 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
         yy -= scroll_gety(scroll, height);
     }
 
+
+    if(!edit->length && edit->empty_str) {
+        setcolor(C_GRAY2);
+        drawtext(x + 2 * SCALE, yy + 2 * SCALE, edit->empty_str, strlen((char*)edit->empty_str));
+    }
+
     _Bool a = (edit == active_edit);
     drawtextmultiline(x + 2 * SCALE, x + width - 2 * SCALE - (edit->multiline ? SCROLL_WIDTH : 0), yy + 2 * SCALE, y, y + height, font_small_lineheight, edit->data, edit->length,
                       a ? edit_sel.start : 0xFFFF, a ? edit_sel.length : 0xFFFF, edit->multiline);
@@ -58,7 +64,7 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
     }
 }
 
-_Bool edit_mmove(EDIT *edit, int px, int py, int width, int height, int x, int y, int dy)
+_Bool edit_mmove(EDIT *edit, int px, int py, int width, int height, int x, int y, int dx, int dy)
 {
     if(baseline && py > baseline - font_small_lineheight - 4 * SCALE) {
         y += py - (baseline - font_small_lineheight - 4 * SCALE);
@@ -79,7 +85,7 @@ _Bool edit_mmove(EDIT *edit, int px, int py, int width, int height, int x, int y
     }
 
     if(edit->multiline) {
-        redraw |= scroll_mmove(edit->scroll, px, py, width, height, x, y, dy);
+        redraw |= scroll_mmove(edit->scroll, px, py, width, height, x, y, dx, dy);
         y += scroll_gety(edit->scroll, height);
     }
 
@@ -99,7 +105,6 @@ _Bool edit_mmove(EDIT *edit, int px, int py, int width, int height, int x, int y
         if(start != edit_sel.start || length != edit_sel.length) {
             edit_sel.start = start;
             edit_sel.length = length;
-            setselection(0, edit);
             redraw = 1;
         }
     } else if(mouseover) {
@@ -138,8 +143,6 @@ _Bool edit_mdown(EDIT *edit)
     return 0;
 }
 
-
-
 _Bool edit_dclick(EDIT *edit, _Bool triclick)
 {
     if(edit != active_edit) {
@@ -163,7 +166,6 @@ _Bool edit_dclick(EDIT *edit, _Bool triclick)
     }
     edit_sel.p2 = i;
     edit_sel.length = i - edit_sel.start;
-    setselection(0, edit);
 
     return 1;
 }
@@ -217,7 +219,8 @@ _Bool edit_mup(EDIT *edit)
         }
     }
 
-    if(edit_select) {
+    if(edit_select && edit == active_edit) {
+        setselection(edit->data + edit_sel.start, edit_sel.length);
         edit_select = 0;
     }
 
@@ -243,13 +246,13 @@ static uint16_t edit_change_do(EDIT *edit, EDIT_CHANGE *c)
 {
     uint16_t r = c->start;
     if(c->remove) {
-        memmove(edit->data + c->start + c->length, edit->data + c->start, c->length);
+        memmove(edit->data + c->start + c->length, edit->data + c->start, edit->length - c->start);
         memcpy(edit->data + c->start, c->data, c->length);
         edit->length += c->length;
         r += c->length;
     } else {
-        memmove(edit->data + c->start, edit->data + c->start + c->length, c->length);
         edit->length -= c->length;
+        memmove(edit->data + c->start, edit->data + c->start + c->length, edit->length - c->start);
     }
 
     c->remove = !c->remove;
@@ -515,7 +518,7 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
             edit_sel.p2 = active_edit->length;
             edit_sel.start = 0;
             edit_sel.length = active_edit->length;
-            setselection(0, edit);
+            setselection(active_edit->data, active_edit->length);
             break;
         }
 
@@ -579,6 +582,9 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
         }
 
         edit_select = 0;
+        if(edit->onchange) {
+            edit->onchange();
+        }
 
         edit_redraw();
     } else if(!edit->readonly) {
@@ -602,7 +608,9 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
             edit_sel.p2 = edit_sel.p1;
             edit_sel.length = 0;
 
-
+            if(edit->onchange) {
+                edit->onchange();
+            }
 
             edit_redraw();
         }
@@ -668,9 +676,8 @@ void edit_paste(char_t *data, int length, _Bool select)
     active_edit->length += newlen - edit_sel.length;
 
     if(select) {
-        edit_sel.start = edit_sel.start;
         edit_sel.length = newlen;
-        setselection(0, active_edit);
+        setselection(active_edit->data + edit_sel.start, newlen);
     } else {
         edit_sel.start = edit_sel.start + newlen;
         edit_sel.length = 0;

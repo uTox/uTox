@@ -145,14 +145,18 @@ void drawalpha(int bm, int x, int y, int width, int height, uint32_t color)
     DeleteObject(temp);
 }
 
-void drawimage(void *data, int x, int y, int width, int height, int maxwidth, _Bool zoom)
+void drawimage(void *data, int x, int y, int width, int height, int maxwidth, _Bool zoom, double position)
 {
     HBITMAP bm = data;
     SelectObject(hdcMem, bm);
     if(!zoom && width > maxwidth) {
         StretchBlt(hdc, x, y, maxwidth, height * maxwidth / width, hdcMem, 0, 0, width, height, SRCCOPY);
     } else {
-        BitBlt(hdc, x, y, width > maxwidth ? maxwidth : width, height, hdcMem, 0, 0, SRCCOPY);
+        if(width > maxwidth) {
+            BitBlt(hdc, x, y, maxwidth, height, hdcMem, (int)((double)(width - maxwidth) * position), 0, SRCCOPY);
+        } else {
+            BitBlt(hdc, x, y, width, height, hdcMem, 0, 0, SRCCOPY);
+        }
     }
 
 }
@@ -506,9 +510,8 @@ void savefiledata(MSG_FILE *file)
     }
 }
 
-void setselection(uint8_t src, void *p)
+void setselection(uint8_t *data, uint16_t length)
 {
-
 }
 
 void togglehide(void)
@@ -641,6 +644,53 @@ void loadalpha(int bm, void *data, int width, int height)
     bitmap[bm] = data;
 }
 
+static void sendbitmap(HDC mem, HBITMAP hbm, int width, int height)
+{
+    BITMAPINFO info = {
+        .bmiHeader = {
+            .biSize = sizeof(BITMAPINFOHEADER),
+            .biWidth = width,
+            .biHeight = -(int)height,
+            .biPlanes = 1,
+            .biBitCount = 24,
+            .biCompression = BI_RGB,
+        }
+    };
+
+    void *bits = malloc((width + 3) * height * 3);
+
+    GetDIBits(mem, hbm, 0, height, bits, &info, DIB_RGB_COLORS);
+
+    if(width & 3) {
+        uint8_t pbytes = width & 3, *p = bits, *pp = bits, *end = p + width * height * 3;
+        uint32_t offset = 0;
+        while(p != end) {
+            int i;
+            for(i = 0; i != width; i++) {
+                uint8_t b = pp[i * 3];
+                p[i * 3] = pp[i * 3 + 2];
+                p[i * 3 + 1] = pp[i * 3 + 1];
+                p[i * 3 + 2] = b;
+            }
+            p += width * 3;
+            pp += width * 3 + pbytes;
+        }
+    }
+
+    uint8_t *out;
+    size_t size;
+    lodepng_encode_memory(&out, &size, bits, width, height, LCT_RGB, 8);
+    free(bits);
+
+    uint32_t s = size;
+    void *data = malloc(size + 4);
+    memcpy(data, &s, 4);
+    memcpy(data + 4, out, size);
+    free(out);
+
+    friend_sendimage(sitem->data, hbm, data, width, height);
+}
+
 void copy(void)
 {
     uint8_t data[32768];//!
@@ -678,18 +728,38 @@ void cut(void)
 
 void paste(void)
 {
-    if(!edit_active()) {
-        return;
-    }
-
     OpenClipboard(NULL);
     HANDLE h = GetClipboardData(CF_UNICODETEXT);
-    wchar_t *d = GlobalLock(h);
-    uint8_t data[65536];
-    int len = WideCharToMultiByte(CP_UTF8, 0, d, -1, (char*)data, 65536, NULL, 0);
+    if(!h) {
+        h = GetClipboardData(CF_BITMAP);
+        if(h && sitem->item == ITEM_FRIEND) {
+            HBITMAP copy;
+            BITMAP bm;
+            HDC tempdc;
+            GetObject(h, sizeof(bm), &bm);
+
+            tempdc = CreateCompatibleDC(NULL);
+            SelectObject(tempdc, h);
+
+            copy = CreateCompatibleBitmap(hdcMem, bm.bmWidth, bm.bmHeight);
+            SelectObject(hdcMem, copy);
+            BitBlt(hdcMem, 0, 0, bm.bmWidth, bm.bmHeight, tempdc, 0, 0, SRCCOPY);
+
+            sendbitmap(hdcMem, copy, bm.bmWidth, bm.bmHeight);
+
+            DeleteDC(tempdc);
+        }
+    } else {
+        wchar_t *d = GlobalLock(h);
+        uint8_t data[65536];
+        int len = WideCharToMultiByte(CP_UTF8, 0, d, -1, (char*)data, 65536, NULL, 0);
+        if(edit_active()) {
+            edit_paste(data, len, 0);
+        }
+    }
+
     GlobalUnlock(h);
     CloseClipboard();
-    edit_paste(data, len, 0);
 }
 
 void* png_to_image(void *data, uint16_t *w, uint16_t *h, uint32_t size)
@@ -880,19 +950,6 @@ LRESULT CALLBACK GrabProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         } else {
             FRIEND *f = sitem->data;
             if(sitem->item == ITEM_FRIEND && f->online) {
-                BITMAPINFO info = {
-                    .bmiHeader = {
-                        .biSize = sizeof(BITMAPINFOHEADER),
-                        .biWidth = grabpx,
-                        .biHeight = -(int)grabpy,
-                        .biPlanes = 1,
-                        .biBitCount = 24,
-                        .biCompression = BI_RGB,
-                    }
-                };
-
-                void *bits = malloc((grabpx + 3) * grabpy * 3);
-
                 HWND dwnd = GetDesktopWindow();
                 HDC ddc = GetDC(dwnd);
                 HDC mem = CreateCompatibleDC(ddc);
@@ -901,40 +958,10 @@ LRESULT CALLBACK GrabProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                 SelectObject(mem, capture);
 
                 BitBlt(mem, 0, 0, grabpx, grabpy, ddc, grabx, graby, SRCCOPY | CAPTUREBLT);
-                GetDIBits(mem, capture, 0, grabpy, bits, &info, DIB_RGB_COLORS);
+                sendbitmap(mem, capture, grabpx, grabpy);
 
                 ReleaseDC(dwnd, ddc);
                 DeleteDC(mem);
-                DeleteObject(capture);
-
-                if(grabpx & 3) {
-                    uint8_t pbytes = grabpx & 3, *p = bits, *pp = bits, *end = p + grabpx * grabpy * 3;
-                    uint32_t offset = 0;
-                    while(p != end) {
-                        int i;
-                        for(i = 0; i != grabpx; i++) {
-                            uint8_t b = pp[i * 3];
-                            p[i * 3] = pp[i * 3 + 2];
-                            p[i * 3 + 1] = pp[i * 3 + 1];
-                            p[i * 3 + 2] = b;
-                        }
-                        p += grabpx * 3;
-                        pp += grabpx * 3 + pbytes;
-                    }
-                }
-
-                uint8_t *out;
-                size_t size;
-                lodepng_encode_memory(&out, &size, bits, grabpx, grabpy, LCT_RGB, 8);
-                free(bits);
-
-                uint32_t s = size;
-                void *data = malloc(size + 4);
-                memcpy(data, &s, 4);
-                memcpy(data + 4, out, size);
-                free(out);
-
-                friend_sendimage(sitem->data, capture, data, grabpx, grabpy);
             }
         }
 
@@ -980,12 +1007,12 @@ void setscale(void)
     font[FONT_SELF_NAME] = CreateFontIndirect(&lf);
     lf.lfHeight = F(10);
     font[FONT_MISC] = CreateFontIndirect(&lf);
-    lf.lfWeight = FW_NORMAL; //FW_LIGHT <- light fonts dont antialias
+    /*lf.lfWeight = FW_NORMAL; //FW_LIGHT <- light fonts dont antialias
     font[FONT_MSG_NAME] = CreateFontIndirect(&lf);
     lf.lfHeight = F(11);
     font[FONT_MSG] = CreateFontIndirect(&lf);
     lf.lfUnderline = 1;
-    font[FONT_MSG_LINK] = CreateFontIndirect(&lf);
+    font[FONT_MSG_LINK] = CreateFontIndirect(&lf);*/
 
     #undef F
 
@@ -993,9 +1020,9 @@ void setscale(void)
     SelectObject(hdc, font[FONT_TEXT]);
     GetTextMetrics(hdc, &tm);
     font_small_lineheight = tm.tmHeight + tm.tmExternalLeading;
-    SelectObject(hdc, font[FONT_MSG]);
-    GetTextMetrics(hdc, &tm);
-    font_msg_lineheight = tm.tmHeight + tm.tmExternalLeading;
+    //SelectObject(hdc, font[FONT_MSG]);
+    //GetTextMetrics(hdc, &tm);
+    //font_msg_lineheight = tm.tmHeight + tm.tmExternalLeading;
 
     svg_draw(1);
 }
@@ -1372,17 +1399,18 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     }
 
     case WM_MOUSEMOVE: {
-        int x, y, dy;
+        int x, y, dx, dy;
 
         x = GET_X_LPARAM(lParam);
         y = GET_Y_LPARAM(lParam);
 
+        dx = x - mx;
         dy = y - my;
         mx = x;
         my = y;
 
         cursor = 0;
-        panel_mmove(&panel_main, 0, 0, width, height, x, y, dy);
+        panel_mmove(&panel_main, 0, 0, width, height, x, y, dx, dy);
 
         SetCursor(cursors[cursor]);
 
@@ -1402,15 +1430,17 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
         y = GET_Y_LPARAM(lParam);
 
         if(x != mx || y != my) {
-            panel_mmove(&panel_main, 0, 0, width, height, x, y, y - my);
+            panel_mmove(&panel_main, 0, 0, width, height, x, y, x - mx, y - my);
             mx = x;
             my = y;
         }
 
+        //double redraw>
         panel_mdown(&panel_main);
         if(msg == WM_LBUTTONDBLCLK) {
             panel_dclick(&panel_main, 0);
         }
+
         SetCapture(hwn);
         mdown = 1;
         break;

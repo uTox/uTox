@@ -332,10 +332,10 @@ static void loadfonts(void)
 
      font_open(&font[FONT_LIST_NAME], FC_FAMILY, FcTypeString, "Roboto", FC_PIXEL_SIZE, FcTypeDouble, F(12.0), NULL);
 
-     font_open(&font[FONT_MSG], FC_FAMILY, FcTypeString, "Roboto", FC_PIXEL_SIZE, FcTypeDouble, F(11.0), FC_WEIGHT, FcTypeInteger, FC_WEIGHT_LIGHT, NULL);
-     font_open(&font[FONT_MSG_NAME], FC_FAMILY, FcTypeString, "Roboto", FC_PIXEL_SIZE, FcTypeDouble, F(10.0), FC_WEIGHT, FcTypeInteger, FC_WEIGHT_LIGHT, NULL);
+     //font_open(&font[FONT_MSG], FC_FAMILY, FcTypeString, "Roboto", FC_PIXEL_SIZE, FcTypeDouble, F(11.0), FC_WEIGHT, FcTypeInteger, FC_WEIGHT_LIGHT, NULL);
+     //font_open(&font[FONT_MSG_NAME], FC_FAMILY, FcTypeString, "Roboto", FC_PIXEL_SIZE, FcTypeDouble, F(10.0), FC_WEIGHT, FcTypeInteger, FC_WEIGHT_LIGHT, NULL);
      font_open(&font[FONT_MISC], FC_FAMILY, FcTypeString, "Roboto", FC_PIXEL_SIZE, FcTypeDouble, F(10.0), NULL);
-     font_open(&font[FONT_MSG_LINK], FC_FAMILY, FcTypeString, "Roboto", FC_PIXEL_SIZE, FcTypeDouble, F(11.0), FC_WEIGHT, FcTypeInteger, FC_WEIGHT_LIGHT, NULL);
+     //font_open(&font[FONT_MSG_LINK], FC_FAMILY, FcTypeString, "Roboto", FC_PIXEL_SIZE, FcTypeDouble, F(11.0), FC_WEIGHT, FcTypeInteger, FC_WEIGHT_LIGHT, NULL);
     #undef F
 }
 

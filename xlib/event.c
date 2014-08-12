@@ -1,20 +1,3 @@
-static void saveprimary(void)
-{
-    int len;
-    if(!selection_src) {
-        len = selection_p ? edit_selection(selection_p, primary.data, sizeof(primary.data)) : 0;
-    } else if(selection_src == 1) {
-        len = messages_selection(selection_p, primary.data, sizeof(primary.data));
-    } else {
-        memcpy(primary.data, self.id, sizeof(self.id));
-        len = sizeof(self.id);
-    }
-
-    if(len) {
-        primary.len = len;
-    }
-}
-
 _Bool doevent(XEvent event)
 {
     if(event.xany.window && event.xany.window != window) {
@@ -109,14 +92,16 @@ _Bool doevent(XEvent event)
         }
 
 
-        static int my;
-        int dy;
+        static int mx, my;
+        int dx, dy;
 
+        dx = ev->x - mx;
         dy = ev->y - my;
+        mx = ev->x;
         my = ev->y;
 
         cursor = CURSOR_NONE;
-        panel_mmove(&panel_main, 0, 0, width, height, ev->x, ev->y, dy);
+        panel_mmove(&panel_main, 0, 0, width, height, ev->x, ev->y, dx, dy);
 
         XDefineCursor(display, window, cursors[cursor]);
 
@@ -130,8 +115,6 @@ _Bool doevent(XEvent event)
         XButtonEvent *ev = &event.xbutton;
         switch(ev->button) {
         case Button2: {
-            saveprimary();
-
             panel_mdown(&panel_main);
             panel_mup(&panel_main);
 
@@ -151,6 +134,7 @@ _Bool doevent(XEvent event)
 
             //todo: better double/triple click detect
             static Time lastclick, lastclick2;
+            panel_mmove(&panel_main, 0, 0, width, height, ev->x, ev->y, 0, 0);
             panel_mdown(&panel_main);
             if(ev->time - lastclick < 300) {
                 _Bool triclick = (ev->time - lastclick2 < 600);
@@ -397,7 +381,7 @@ _Bool doevent(XEvent event)
 
         if(ev->target == XA_UTF8_STRING || ev->target == XA_STRING) {
             if(ev->selection == XA_PRIMARY) {
-                saveprimary();
+                debug("%u\n", primary.len);
                 XChangeProperty(display, ev->requestor, ev->property, ev->target, 8, PropModeReplace, primary.data, primary.len);
             } else {
                 XChangeProperty(display, ev->requestor, ev->property, ev->target, 8, PropModeReplace, clipboard.data, clipboard.len);
