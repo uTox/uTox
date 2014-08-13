@@ -381,15 +381,6 @@ void address_to_clipboard(void)
     setselection(self.id, sizeof(self.id));
 }
 
-void editpopup(void)
-{
-
-}
-
-void listpopup(uint8_t item)
-{
-}
-
 void openurl(char_t *str)
 {
     char cmd[1024], *p = cmd;
@@ -473,7 +464,13 @@ static void pasteprimary(void)
     }
 }
 
-static void pasteclipboard(void)
+void copy(void)
+{
+    clipboard.len = edit_copy(clipboard.data, sizeof(clipboard.data));
+    setclipboard();
+}
+
+void paste(void)
 {
     Window owner = XGetSelectionOwner(display, XA_CLIPBOARD);
 

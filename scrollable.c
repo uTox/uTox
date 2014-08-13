@@ -24,8 +24,11 @@ void scroll_draw(SCROLLABLE *s, int x, int y, int width, int height)
     drawalpha(BM_SCROLLHALFTOP, x, y, SCROLL_WIDTH, SCROLL_WIDTH / 2, s->color);
 
     y += SCROLL_WIDTH / 2;
-    int y2 = y + m - SCROLL_WIDTH, x2 = x + SCROLL_WIDTH;
-    drawrect(x, y, x + SCROLL_WIDTH, y2 + (SCROLL_WIDTH >= m) ? 0 : (m - SCROLL_WIDTH), s->color);
+    int y2 = y + m - SCROLL_WIDTH;
+    if(SCROLL_WIDTH > m) {
+        y2 = y;
+    }
+    drawrect(x, y, x + SCROLL_WIDTH, y2, s->color);
 
     drawalpha(BM_SCROLLHALFBOT, x, y2, SCROLL_WIDTH, SCROLL_WIDTH / 2, s->color);
 }

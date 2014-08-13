@@ -94,7 +94,8 @@ uint8_t SCALE;
 /* side */
 #define LIST_X (8 * SCALE)
 #define LIST_RIGHT (111 * SCALE)
-#define LIST_Y (43 * SCALE)
+#define LIST_Y (31 * SCALE)
+#define LIST_Y2 (43 * SCALE)
 #define LIST_BOTTOM (-18 * SCALE)
 
 #define LIST_NAME_X (37 * SCALE)

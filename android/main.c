@@ -101,16 +101,15 @@ uint64_t get_time(void)
     return ((uint64_t)ts.tv_sec * (1000 * 1000 * 1000)) + (uint64_t)ts.tv_nsec;
 }
 
+void copy(void)
+{
+}
+
+void paste(void)
+{
+}
+
 void address_to_clipboard(void)
-{
-}
-
-void editpopup(void)
-{
-
-}
-
-void listpopup(uint8_t item)
 {
 }
 

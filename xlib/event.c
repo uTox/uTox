@@ -251,15 +251,14 @@ _Bool doevent(XEvent event)
             if(ev->state & 4) {
                 switch(sym) {
                 case 'v':
-                    pasteclipboard();
+                    paste();
+                    return 1;
+                case 'c':
+                    copy();
                     return 1;
                 case 'x':
-                case 'c':
-                    clipboard.len = edit_copy(clipboard.data, sizeof(clipboard.data));
-                    setclipboard();
-                    if(sym == 'x') {
-                        edit_char(KEY_DEL, 1, 0);
-                    }
+                    copy();
+                    edit_char(KEY_DEL, 1, 0);
                     return 1;
                 }
             }

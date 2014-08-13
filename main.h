@@ -81,6 +81,7 @@ typedef uint8_t char_t;
 #include "scrollable.h"
 #include "button.h"
 #include "dropdown.h"
+#include "contextmenu.h"
 
 #include "text.h"
 #include "util.h"
@@ -126,6 +127,10 @@ enum
 uint8_t cursor;
 
 _Bool mdown;
+
+struct {
+    int x, y;
+} mouse;
 
 //fonts
 //HFONT font_big, font_big2, font_med, font_med2, font_small, font_msg;
@@ -263,9 +268,10 @@ void thread(void func(void*), void *args);
 void yieldcpu(uint32_t ms);
 uint64_t get_time(void);
 
+void copy(void);
+void paste(void);
+
 void address_to_clipboard(void);
-void editpopup(void);
-void listpopup(uint8_t item);
 void openurl(char_t *str);
 void openfilesend(void);
 void savefilerecv(uint32_t fid, MSG_FILE *file);

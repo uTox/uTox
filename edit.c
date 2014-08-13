@@ -170,6 +170,28 @@ _Bool edit_dclick(EDIT *edit, _Bool triclick)
     return 1;
 }
 
+static void contextmenu_edit_onselect(uint8_t i)
+{
+    switch(i) {
+    case 0:
+        copy();
+        edit_char(KEY_DEL, 1, 0);
+        break;
+    case 1:
+        copy();
+        break;
+    case 2:
+        paste();
+        break;
+    case 3:
+        edit_char(KEY_DEL, 1, 0);
+        break;
+    case 4:
+        edit_char(KEY('A'), 1, 4);
+        break;
+    }
+}
+
 _Bool edit_mright(EDIT *edit)
 {
     if(edit->mouseover_char > edit->length) {
@@ -186,12 +208,10 @@ _Bool edit_mright(EDIT *edit)
             edit_select = 1;
         }
 
-        editpopup();
+        uint8_t *names[] = {(uint8_t*)"Cut", (uint8_t*)"Copy", (uint8_t*)"Paste", (uint8_t*)"Delete", (uint8_t*)"Select All"};
+        contextmenu_new(names, 5, contextmenu_edit_onselect);
 
-        if(active != edit) {
-            return 1;
-        }
-
+        return 1;
     }
 
     return 0;

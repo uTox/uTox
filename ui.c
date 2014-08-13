@@ -369,7 +369,7 @@ void ui_scale(uint8_t scale)
 
     panel_settings.y = LIST_Y;
 
-    panel_list.y = LIST_Y;
+    panel_list.y = LIST_Y2;
     panel_list.width = LIST_RIGHT + 1;
     panel_list.height = LIST_BOTTOM;
 
@@ -390,7 +390,7 @@ void ui_scale(uint8_t scale)
     scroll_friend.panel.y = LIST_Y;
     scroll_friend.panel.height = MESSAGES_BOTTOM;
 
-    scroll_list.panel.y = LIST_Y;
+    scroll_list.panel.y = LIST_Y2;
     scroll_list.panel.width = LIST_RIGHT + 1;
     scroll_list.panel.height = LIST_BOTTOM;
 
@@ -764,12 +764,18 @@ void panel_draw(PANEL *p, int x, int y, int width, int height)
     //popclip();
 
     dropdown_drawactive();
+    contextmenu_draw();
 
     enddraw(x, y, width, height);
 }
 
 _Bool panel_mmove(PANEL *p, int x, int y, int width, int height, int mx, int my, int dx, int dy)
 {
+    if(p == &panel_main) {
+        mouse.x = mx;
+        mouse.y = my;
+    }
+
     mx -= (p->x < 0) ? width + p->x : p->x;
     my -= (p->y < 0) ? height + p->y : p->y;
     FUNC();
@@ -799,8 +805,11 @@ _Bool panel_mmove(PANEL *p, int x, int y, int width, int height, int mx, int my,
         }
     }
 
-    if(draw && p == &panel_main) {
-        redraw();
+    if(p == &panel_main) {
+        draw |= contextmenu_mmove(mx, my, dx, dy);
+        if(draw) {
+            redraw();
+        }
     }
 
     return draw;
@@ -828,6 +837,11 @@ static _Bool panel_mdown_sub(PANEL *p)
 
 void panel_mdown(PANEL *p)
 {
+    if(contextmenu_mdown()) {
+        redraw();
+        return;
+    }
+
     _Bool draw = edit_active();
     PANEL **pp = p->child, *subp;
     if(pp) {
@@ -926,8 +940,11 @@ _Bool panel_mup(PANEL *p)
         }
     }
 
-    if(draw && p == &panel_main) {
-        redraw();
+    if(p == &panel_main) {
+        draw |= contextmenu_mup();
+        if(draw) {
+            redraw();
+        }
     }
 
     return draw;
@@ -945,8 +962,11 @@ _Bool panel_mleave(PANEL *p)
         }
     }
 
-    if(draw && p == &panel_main) {
-        redraw();
+    if(p == &panel_main) {
+        draw |= contextmenu_mleave();
+        if(draw) {
+            redraw();
+        }
     }
 
     return draw;

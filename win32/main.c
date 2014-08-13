@@ -85,13 +85,6 @@ enum
     TRAY_STATUS_AVAILABLE,
     TRAY_STATUS_AWAY,
     TRAY_STATUS_BUSY,
-    EDIT_CUT,
-    EDIT_COPY,
-    EDIT_PASTE,
-    EDIT_DELETE,
-    EDIT_SELECTALL,
-    LIST_DELETE,
-    LIST_ACCEPT
 };
 
 static int utf8tonative(char_t *str, wchar_t *out, int length)
@@ -366,67 +359,6 @@ void address_to_clipboard(void)
     CloseClipboard();
 
 #undef size
-}
-
-void editpopup(void)
-{
-    POINT p;
-    GetCursorPos(&p);
-
-    HMENU hMenu = CreatePopupMenu();
-    if(hMenu) {
-        _Bool emptysel = 0;//(edit_sel.length == 0);
-
-        InsertMenu(hMenu, -1, MF_BYPOSITION | (emptysel ? MF_GRAYED : 0), EDIT_CUT, "Cut");
-        InsertMenu(hMenu, -1, MF_BYPOSITION | (emptysel ? MF_GRAYED : 0), EDIT_COPY, "Copy");
-        InsertMenu(hMenu, -1, MF_BYPOSITION, EDIT_PASTE, "Paste");///gray out if clipboard empty
-        InsertMenu(hMenu, -1, MF_BYPOSITION | (emptysel ? MF_GRAYED : 0), EDIT_DELETE, "Delete");
-        InsertMenu(hMenu, -1, MF_BYPOSITION, EDIT_SELECTALL, "Select All");
-
-        SetForegroundWindow(hwnd);
-
-        TrackPopupMenu(hMenu, TPM_TOPALIGN, p.x, p.y, 0, hwnd, NULL);
-        DestroyMenu(hMenu);
-    }
-}
-
-void listpopup(uint8_t item)
-{
-    POINT p;
-    GetCursorPos(&p);
-
-    HMENU hMenu = CreatePopupMenu();
-    if(hMenu) {
-        switch(item) {
-        /*case ITEM_SELF: {
-            InsertMenu(hMenu, -1, MF_BYPOSITION | ((self.status == TOX_USERSTATUS_NONE) ? MF_CHECKED : 0), TRAY_STATUS_AVAILABLE, "Available");
-            InsertMenu(hMenu, -1, MF_BYPOSITION | ((self.status == TOX_USERSTATUS_AWAY) ? MF_CHECKED : 0), TRAY_STATUS_AWAY, "Away");
-            InsertMenu(hMenu, -1, MF_BYPOSITION | ((self.status == TOX_USERSTATUS_BUSY) ? MF_CHECKED : 0), TRAY_STATUS_BUSY, "Busy");
-            break;
-        }*/
-
-        case ITEM_FRIEND: {
-            InsertMenu(hMenu, -1, MF_BYPOSITION, LIST_DELETE, "Remove");
-            break;
-        }
-
-        case ITEM_GROUP: {
-            InsertMenu(hMenu, -1, MF_BYPOSITION, LIST_DELETE, "Leave");
-            break;
-        }
-
-        case ITEM_FRIEND_ADD: {
-            InsertMenu(hMenu, -1, MF_BYPOSITION, LIST_ACCEPT, "Accept");
-            InsertMenu(hMenu, -1, MF_BYPOSITION, LIST_DELETE, "Ignore");
-            break;
-        }
-        }
-
-        SetForegroundWindow(hwnd);
-
-        TrackPopupMenu(hMenu, TPM_TOPALIGN, p.x, p.y, 0, hwnd, NULL);
-        DestroyMenu(hMenu);
-    }
 }
 
 void openurl(char_t *str)
@@ -715,15 +647,6 @@ void copy(void)
     EmptyClipboard();
     SetClipboardData(CF_UNICODETEXT, hMem);
     CloseClipboard();
-}
-
-void cut(void)
-{
-    if(!edit_active()) {
-        return;
-    }
-    copy();
-    edit_char(KEY_DEL, 1, 0);
 }
 
 void paste(void)
@@ -1359,7 +1282,8 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
                     paste();
                     return 0;
                 case 'X':
-                    cut();
+                    copy();
+                    edit_char(KEY_DEL, 1, 0);
                     return 0;
                 }
             }
@@ -1498,43 +1422,6 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
 
         case TRAY_STATUS_BUSY: {
             setstatus(TOX_USERSTATUS_BUSY);
-            break;
-        }
-
-
-        case EDIT_CUT: {
-            cut();
-            break;
-        }
-
-        case EDIT_COPY: {
-            copy();
-            break;
-        }
-
-        case EDIT_PASTE: {
-            paste();
-            break;
-        }
-
-        case EDIT_DELETE: {
-            edit_char(KEY_DEL, 1, 0);
-            break;
-        }
-
-        case EDIT_SELECTALL: {
-            edit_char('A', 1, 4);
-            break;
-        }
-
-        case LIST_DELETE: {
-            list_deleteritem();
-            break;
-        }
-
-        case LIST_ACCEPT: {
-            FRIENDREQ *req = ritem->data;
-            tox_postmessage(TOX_ACCEPTFRIEND, 0, 0, req);
             break;
         }
         }

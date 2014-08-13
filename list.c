@@ -516,11 +516,33 @@ _Bool list_mdown(void *n)
     return draw;
 }
 
+static void contextmenu_list_onselect(uint8_t i)
+{
+    if(ritem->item == ITEM_FRIEND_ADD && i == 0) {
+        FRIENDREQ *req = ritem->data;
+        tox_postmessage(TOX_ACCEPTFRIEND, 0, 0, req);
+        return;
+    }
+
+    list_deleteritem();
+}
+
 _Bool list_mright(void *n)
 {
     if(mitem) {
         ritem = mitem;
-        listpopup(mitem->item);
+        if(mitem->item == ITEM_FRIEND) {
+            uint8_t *remove = (uint8_t*)"Remove";
+            contextmenu_new(&remove, 1, contextmenu_list_onselect);
+        } else if(mitem->item == ITEM_GROUP) {
+            uint8_t *leave = (uint8_t*)"Leave";
+            contextmenu_new(&leave, 1, contextmenu_list_onselect);
+        } else {
+            uint8_t *names[] = {(uint8_t*)"Accept", (uint8_t*)"Ignore"};
+            contextmenu_new(names, 2, contextmenu_list_onselect);
+        }
+        return 1;
+        //listpopup(mitem->item);
     }
 
     return 0;
