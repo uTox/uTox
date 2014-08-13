@@ -100,14 +100,10 @@ static ITEM* item_hit(int mx, int my, int height)
     if(my >= searchcount) {
         return NULL;
     }
+
     ITEM *i;
 
-    if(!SEARCH) {
-        i = &item[my];
-    } else {
-        i = &item[my + search_offset[my]];
-    }
-
+    i = &item[my + search_offset[my]];
     return i;
 }
 
