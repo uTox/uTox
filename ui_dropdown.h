@@ -28,6 +28,11 @@ static void dropdown_dpi_onselect(void *handle)
     ui_scale((size_t)handle);
 }
 
+static void dropdown_language_onselect(void *handle)
+{
+    LANG = (size_t)handle;
+}
+
 static DROP_ELEMENT dpidrops[] = {
     {
         .name = (uint8_t*)"Tiny (50%)",
@@ -55,6 +60,34 @@ static DROP_ELEMENT dpidrops[] = {
     }
 };
 
+static DROP_ELEMENT langdrops[] = {
+    {
+        .name = (uint8_t*)"English",
+        .handle = (void*)(size_t)0
+    },
+
+    {
+        .name = (uint8_t*)"French",
+        .handle = (void*)(size_t)1
+    },
+
+    {
+        .name = (uint8_t*)"Russian",
+        .handle = (void*)(size_t)2
+    },
+
+    {
+        .name = (uint8_t*)"Spanish",
+        .handle = (void*)(size_t)3
+    },
+
+    {
+        .name = (uint8_t*)"German",
+        .handle = (void*)(size_t)4
+    }
+};
+
+
 DROPDOWN
 
 dropdown_audio_in = {
@@ -73,4 +106,10 @@ dropdown_dpi = {
     .onselect = dropdown_dpi_onselect,
     .dropcount = countof(dpidrops),
     .drop = dpidrops
+},
+
+dropdown_language = {
+    .onselect = dropdown_language_onselect,
+    .dropcount = countof(langdrops),
+    .drop = langdrops
 };

@@ -305,7 +305,7 @@ void audio_play(int32_t call_index, const int16_t *data, int length, uint8_t cha
 void audio_begin(int32_t call_index);
 void audio_end(int32_t call_index);
 
-#define drawstr(x, y, str) drawtext(x, y, (uint8_t*)str, sizeof(str) - 1)
+#define drawstr(x, y, i) drawtext(x, y, strings[LANG][STR_##i].str, strings[LANG][STR_##i].length)
 #define drawstr_getwidth(x, y, str) drawtext_getwidth(x, y, (uint8_t*)str, sizeof(str) - 1)
 #define strwidth(x) textwidth((uint8_t*)x, sizeof(x) - 1)
 

@@ -208,7 +208,7 @@ _Bool edit_mright(EDIT *edit)
             edit_select = 1;
         }
 
-        uint8_t *names[] = {(uint8_t*)"Cut", (uint8_t*)"Copy", (uint8_t*)"Paste", (uint8_t*)"Delete", (uint8_t*)"Select All"};
+        uint8_t *names[] = {S(CUT), S(COPY), S(PASTE), S(DELETE), S(SELECTALL)};
         contextmenu_new(names, 5, contextmenu_edit_onselect);
 
         return 1;

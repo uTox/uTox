@@ -48,7 +48,80 @@ extern SCROLLABLE scroll_list;
 extern BUTTON button_add, button_settings, button_transfer;
 extern DROPDOWN dropdown_audio_in, dropdown_audio_out, dropdown_video, dropdown_dpi;
 
-extern STRING filestatus[], callstatus[];
+enum {
+    //NOT REFERRED TO BY NAME
+    REQ_STRING_1,
+    REQ_RESOLVE,
+    REQ_INVALID_ID,
+    REQ_EMPTY_ID,
+    REQ_LONG_MSG,
+    REQ_NO_MSG,
+    REQ_SELF_ID,
+    REQ_ALREADY_FRIENDS,
+    REQ_UNKNOWN,
+    REQ_BAD_CHECKSUM,
+    REQ_BAD_NOSPAM,
+    REQ_NO_MEMORY,
+
+    FILE_STRING_1,
+    TRANSFER_STARTED,
+    TRANSFER___,
+    TRANSFER_PAUSED,
+    TRANSFER_BROKEN,
+    TRANSFER_CANCELLED,
+    TRANSFER_COMPLETE,
+
+    CALL_STRING_1,
+    CALL_STRING_2,
+    CALL_STRING_3,
+    CALL_STRING_4,
+
+    //REFERRED TO BY NAME
+    STR_ADDFRIENDS,
+    STR_TOXID,
+    STR_MESSAGE,
+    STR_SEARCHFRIENDS,
+    STR_ADD,
+    STR_SWITCHPROFILE,
+    STR_FRIENDREQUEST,
+    STR_USERSETTINGS,
+    STR_NAME,
+    STR_STATUSMESSAGE,
+    STR_PREVIEW,
+    STR_DEVICESELECTION,
+    STR_AUDIOINPUTDEVICE,
+    STR_AUDIOOUTPUTDEVICE,
+    STR_VIDEOINPUTDEVICE,
+    STR_OTHERSETTINGS,
+    STR_DPI,
+    STR_SAVELOCATION,
+    STR_LANGUAGE,
+    STR_COPY,
+    STR_CUT,
+    STR_PASTE,
+    STR_DELETE,
+    STR_SELECTALL,
+    STR_REMOVE,
+    STR_LEAVE,
+    STR_ACCEPT,
+    STR_IGNORE,
+
+    STR_CLICKTOSAVE,
+    STR_CLICKTOOPEN,
+    STR_CANCELLED,
+
+    STR_ENGLISH,
+    STR_FRENCH,
+    STR_RUSSIAN,
+    STR_SPANISH,
+    STR_GERMAN,
+};
+
+#define S(x) strings[LANG][STR_##x].str
+#define SLEN(x) strings[LANG][STR_##x].length
+extern STRING strings[][64];
+
+uint8_t LANG;
 
 void ui_scale(uint8_t scale);
 void ui_size(int width, int height);

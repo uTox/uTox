@@ -934,13 +934,13 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint8_t msg, uint16_t param1
 
 static void file_notify(FRIEND *f, MSG_FILE *msg)
 {
-    STRING *str = &filestatus[msg->status];
+    STRING *str = &strings[LANG][FILE_STRING_1 + msg->status];
     friend_notify(f, str->str, str->length, msg->name, msg->name_length);
 }
 
 static void call_notify(FRIEND *f, uint8_t status)
 {
-    STRING *str = &callstatus[status & 3];
+    STRING *str = &strings[LANG][CALL_STRING_1 + (status & 3)];
     friend_notify(f, str->str, str->length, (uint8_t*)"", 0);
     friend_addmessage_notify(f, str->str, str->length);
 }

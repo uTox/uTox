@@ -74,7 +74,7 @@ static void drawgroup(int x, int y, int w, int height)
 
             int w = textwidth(buf, name[0] + 2);
             if(k + w >= width) {
-                drawstr(k, 18 * SCALE, "...");
+                drawtext(k, 18 * SCALE, (uint8_t*)"...", 3);
                 break;
             }
 
@@ -91,25 +91,26 @@ static void drawfriendreq(int x, int y, int width, int height)
 {
     setcolor(C_TITLE);
     setfont(FONT_SELF_NAME);
-    drawstr(LIST_RIGHT + SCALE * 5, SCALE * 10, "Friend Request");
+    drawstr(LIST_RIGHT + SCALE * 5, SCALE * 10, FRIENDREQUEST);
 }
 
 static void drawadd(int x, int y, int width, int height)
 {
     setcolor(C_TITLE);
     setfont(FONT_SELF_NAME);
-    drawstr(LIST_RIGHT + SCALE * 5, SCALE * 10, "Add Friends");
+    drawstr(LIST_RIGHT + SCALE * 5, SCALE * 10, ADDFRIENDS);
 
     setcolor(C_TITLE);
     setfont(FONT_TEXT);
-    drawstr(LIST_RIGHT + SCALE * 5, LIST_Y + SCALE * 5, "Tox ID");
+    drawstr(LIST_RIGHT + SCALE * 5, LIST_Y + SCALE * 5, TOXID);
 
-    drawstr(LIST_RIGHT + SCALE * 5, LIST_Y + SCALE * 29, "Message");
+    drawstr(LIST_RIGHT + SCALE * 5, LIST_Y + SCALE * 29, MESSAGE);
 
     if(addfriend_status) {
         setfont(FONT_MISC);
         setcolor(C_RED);
-        drawtext(LIST_RIGHT + SCALE * 5, LIST_Y + SCALE * 83, addstatus[addfriend_status - 1].str, addstatus[addfriend_status - 1].length);
+        STRING *str = &strings[LANG][REQ_STRING_1 + addfriend_status - 1];
+        drawtext(LIST_RIGHT + SCALE * 5, LIST_Y + SCALE * 83, str->str, str->length);
     }
 }
 
@@ -118,41 +119,40 @@ static void drawsettings(int x, int y, int width, int height)
 {
     setcolor(C_TITLE);
     setfont(FONT_SELF_NAME);
-    drawstr(LIST_RIGHT + SCALE * 5, SCALE * 10, "User Settings");
+    drawstr(LIST_RIGHT + SCALE * 5, SCALE * 10, USERSETTINGS);
 }
 
 static void drawtransfer(int x, int y, int width, int height)
 {
     setcolor(C_TITLE);
     setfont(FONT_SELF_NAME);
-    drawstr(LIST_RIGHT + SCALE * 5, SCALE * 10, "Switch Profile");
+    drawstr(LIST_RIGHT + SCALE * 5, SCALE * 10, SWITCHPROFILE);
 }
 
 static void drawsettings_content(int x, int y, int w, int height)
 {
     setcolor(C_TITLE);
     setfont(FONT_TEXT);
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 5, "Name");
+    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 5, NAME);
 
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 29, "Status Message");
+    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 29, STATUSMESSAGE);
 
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 123, "Audio Input Device");
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 147, "Audio Output Device");
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 171, "Video Input Device");
+    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 123, AUDIOINPUTDEVICE);
+    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 147, AUDIOOUTPUTDEVICE);
+    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 171, VIDEOINPUTDEVICE);
 
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 228, "NOT YET");
+    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 206, DPI);
+    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 230, LANGUAGE);
 
     setfont(FONT_SELF_NAME);
 
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 54, "Tox ID");
+    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 54, TOXID);
 
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 76, "Preview");
+    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 76, PREVIEW);
 
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 113, "Device Selection");
+    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 113, DEVICESELECTION);
 
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 195, "DPI Settings");
-
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 218, "Save Settings");
+    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 195, OTHERSETTINGS);
 }
 
 static void background_draw(PANEL *p, int x, int y, int width, int height)
@@ -262,7 +262,8 @@ panel_settings = {
         (void*)&button_copyid,
         (void*)&button_callpreview, (void*)&button_videopreview,
         (void*)&edit_name, (void*)&edit_status, (void*)&edit_toxid,
-        (void*)&dropdown_audio_in, (void*)&dropdown_audio_out, (void*)&dropdown_video, (void*)&dropdown_dpi,
+        (void*)&dropdown_audio_in, (void*)&dropdown_audio_out, (void*)&dropdown_video,
+        (void*)&dropdown_dpi, (void*)&dropdown_language,
         NULL
     }
 },
@@ -576,7 +577,15 @@ void ui_scale(uint8_t scale)
     d_dpi = {
         .type = PANEL_DROPDOWN,
         .x = 5 * SCALE,
-        .y = SCALE * 204,
+        .y = SCALE * 216,
+        .height = SCALE * 12,
+        .width = SCALE * 100
+    },
+
+    d_language = {
+        .type = PANEL_DROPDOWN,
+        .x = 5 * SCALE,
+        .y = SCALE * 240,
         .height = SCALE * 12,
         .width = SCALE * 100
     };
@@ -585,6 +594,7 @@ void ui_scale(uint8_t scale)
     dropdown_audio_out.panel = d_audio_out;
     dropdown_video.panel = d_video;
     dropdown_dpi.panel = d_dpi;
+    dropdown_language.panel = d_language;
 
     PANEL e_name = {
         .type = PANEL_EDIT,

@@ -117,14 +117,14 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
                 drawalpha(BM_FT, xx, y, BM_FT_WIDTH, BM_FT_HEIGHT, (mo && m->over) ? C_GREEN_LIGHT : C_GREEN);
                 drawalpha(BM_YES, xx + BM_FTM_WIDTH + SCALE + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2, y + SCALE * 4, BM_FB_WIDTH, BM_FB_HEIGHT, WHITE);
                 if(file->inline_png) {
-                    drawstr(xx + 5 * SCALE, y + 17 * SCALE, "Click to save");
+                    drawstr(xx + 5 * SCALE, y + 17 * SCALE, CLICKTOSAVE);
                 } else {
-                    drawstr(xx + 5 * SCALE, y + 17 * SCALE, "Click to open");
+                    drawstr(xx + 5 * SCALE, y + 17 * SCALE, CLICKTOOPEN);
                 }
             } else if(file->status == FILE_KILLED) {
                 drawalpha(BM_FT, xx, y, BM_FT_WIDTH, BM_FT_HEIGHT, C_RED);
                 drawalpha(BM_NO, xx + BM_FTM_WIDTH + SCALE + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2, y + SCALE * 4, BM_FB_WIDTH, BM_FB_HEIGHT, WHITE);
-                drawstr(xx + 5 * SCALE, y + 17 * SCALE, "Cancelled");
+                drawstr(xx + 5 * SCALE, y + 17 * SCALE, CANCELLED);
             } else {
                 if(file->status == FILE_BROKEN) {
                     drawalpha(BM_FTM, xx, y, BM_FTM_WIDTH, BM_FT_HEIGHT, C_RED);
