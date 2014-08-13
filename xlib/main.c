@@ -1223,7 +1223,7 @@ _Bool video_endread(void)
     return v4l_endread();
 }
 
-_Bool video_getframe(vpx_image_t *image)
+int video_getframe(vpx_image_t *image)
 {
     if(fd == -1) {
         static uint64_t lasttime;

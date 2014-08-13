@@ -274,7 +274,7 @@ _Bool v4l_endread(void)
     return 1;
 }
 
-_Bool v4l_getframe(vpx_image_t *image)
+int v4l_getframe(vpx_image_t *image)
 {
     struct v4l2_buffer buf;
     //unsigned int i;
@@ -297,7 +297,7 @@ _Bool v4l_getframe(vpx_image_t *image)
 
         default:
             debug("VIDIOC_DQBUF error %d, %s\n", errno, strerror(errno));
-            return 0;
+            return -1;
 
         }
     }

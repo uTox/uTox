@@ -2045,7 +2045,7 @@ void video_close(void *handle)
     debug("closed webcam\n");
 }
 
-_Bool video_getframe(vpx_image_t *image)
+int video_getframe(vpx_image_t *image)
 {
     if(capturedesktop) {
         static uint64_t lasttime;

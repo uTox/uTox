@@ -246,7 +246,7 @@ _Bool video_endread(void)
     return 1;
 }
 
-_Bool video_getframe(vpx_image_t *image)
+int video_getframe(vpx_image_t *image)
 {
     return 0;
 }

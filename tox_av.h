@@ -239,29 +239,37 @@ static void video_thread(void *args)
             video_thread_msg = 0;
         }
 
-        if(video_on && video_getframe(&input)) {
-            if(preview) {
-                uint8_t *img_data = malloc(input.d_w * input.d_h * 4);
-                yuv420torgb(&input, img_data);
-                postmessage(PREVIEW_FRAME + newinput, input.d_w, input.d_h, img_data);
-                newinput = 0;
-            }
+        if(video_on) {
+            int r = video_getframe(&input);
+            if(r == 1) {
+                if(preview) {
+                    uint8_t *img_data = malloc(input.d_w * input.d_h * 4);
+                    yuv420torgb(&input, img_data);
+                    postmessage(PREVIEW_FRAME + newinput, input.d_w, input.d_h, img_data);
+                    newinput = 0;
+                }
 
-            int i;
-            for(i = 0; i < MAX_CALLS; i++) {
-                if(call[i]) {
-                    int r, len;
-                    if((len = toxav_prepare_video_frame(av, i, lbuffer, sizeof(lbuffer), &input)) < 0) {
-                        debug("toxav_prepare_video_frame error %i\n", r);
-                        continue;
-                    }
+                int i;
+                for(i = 0; i < MAX_CALLS; i++) {
+                    if(call[i]) {
+                        int r, len;
+                        if((len = toxav_prepare_video_frame(av, i, lbuffer, sizeof(lbuffer), &input)) < 0) {
+                            debug("toxav_prepare_video_frame error %i\n", r);
+                            continue;
+                        }
 
-                    debug("%u\n", len);
+                        debug("%u\n", len);
 
-                    if((r = toxav_send_video(av, i, (void*)lbuffer, len)) < 0) {
-                        debug("toxav_send_video error %i %s\n", r, strerror(errno));
+                        if((r = toxav_send_video(av, i, (void*)lbuffer, len)) < 0) {
+                            debug("toxav_send_video error %i %s\n", r, strerror(errno));
+                        }
                     }
                 }
+            } else if(r == -1) {
+                video_on = 0;
+                video = 0;
+                video_endread();
+                closevideodevice(video_device);
             }
         }
 
@@ -607,6 +615,7 @@ static void callback_av_audio(ToxAv *av, int32_t call_index, int16_t *data, int 
 {
     ToxAvCSettings dest;
     if(toxav_get_peer_csettings(av, call_index, 0, &dest) == 0) {
+        debug("%u\n", dest.audio_channels);
         sourceplaybuffer(call_index + 1, data, samples, dest.audio_channels, dest.audio_sample_rate);
     }
 }
