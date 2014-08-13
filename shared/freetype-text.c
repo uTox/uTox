@@ -11,7 +11,7 @@ int drawtext_getwidth(int x, int y, uint8_t *str, uint16_t length)
 
 void drawtextrange(int x, int xmax, int y, uint8_t *str, uint16_t length)
 {
-    x = _drawtext(x, xmax - SCALE * 4, y, str, length);
+    x = _drawtext(x, xmax, y, str, length);
     if(x < 0) {
         _drawtext(-x, INT_MAX, y, (uint8_t*)"...", 3);
     }

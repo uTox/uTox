@@ -303,7 +303,8 @@ void list_draw(void *n, int x, int y, int width, int height)
     //TODO: only draw visible
     while(i != &item[itemcount]) {
         f = i->data;
-        if(!SEARCH || i->item == ITEM_FRIEND_ADD || i->item == ITEM_GROUP || strstr_case((char*)f->name, (char*)search_data)){
+        if(i->item != ITEM_FRIEND ||
+           ((!FILTER || f->online) && (!SEARCH || strstr_case((char*)f->name, (char*)search_data)))) {
             if(i == sitem && (sitem_dy >= 5 || sitem_dy <= -5)) {
                 mi = i;
                 my = y + sitem_dy;

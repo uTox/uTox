@@ -33,6 +33,11 @@ static void dropdown_language_onselect(void *handle)
     LANG = (size_t)handle;
 }
 
+static void dropdown_filter_onselect(void *handle)
+{
+    FILTER = (size_t)handle;
+}
+
 static DROP_ELEMENT dpidrops[] = {
     {
         .name = (uint8_t*)"Tiny (50%)",
@@ -87,6 +92,18 @@ static DROP_ELEMENT langdrops[] = {
     }
 };
 
+static DROP_ELEMENT filterdrops[] = {
+    {
+        .name = (uint8_t*)"All",
+        .handle = (void*)(size_t)0
+    },
+
+    {
+        .name = (uint8_t*)"Online",
+        .handle = (void*)(size_t)1
+    },
+};
+
 
 DROPDOWN
 
@@ -112,4 +129,10 @@ dropdown_language = {
     .onselect = dropdown_language_onselect,
     .dropcount = countof(langdrops),
     .drop = langdrops
+},
+
+dropdown_filter = {
+    .onselect = dropdown_filter_onselect,
+    .dropcount = countof(filterdrops),
+    .drop = filterdrops
 };

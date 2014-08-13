@@ -351,7 +351,7 @@ panel_main = {
         (void*)&button_name, (void*)&button_statusmsg, (void*)&button_status,
         &panel_list, &panel_side,
         (void*)&scroll_list,
-        (void*)&edit_search,
+        (void*)&edit_search, (void*)&dropdown_filter,
         NULL
     }
 };
@@ -588,6 +588,14 @@ void ui_scale(uint8_t scale)
         .y = SCALE * 240,
         .height = SCALE * 12,
         .width = SCALE * 100
+    },
+
+    d_filter = {
+        .type = PANEL_DROPDOWN,
+        .x = LIST_RIGHT - SCALE * 25,
+        .y = SEARCH_Y,
+        .height = 12 * SCALE,
+        .width = SCALE * 25,
     };
 
     dropdown_audio_in.panel = d_audio_in;
@@ -595,6 +603,7 @@ void ui_scale(uint8_t scale)
     dropdown_video.panel = d_video;
     dropdown_dpi.panel = d_dpi;
     dropdown_language.panel = d_language;
+    dropdown_filter.panel = d_filter;
 
     PANEL e_name = {
         .type = PANEL_EDIT,
@@ -649,7 +658,7 @@ void ui_scale(uint8_t scale)
         .x = 0,
         .y = SEARCH_Y,
         .height = 12 * SCALE,
-        .width = LIST_RIGHT,
+        .width = LIST_RIGHT - SCALE * 25,
     };
 
     edit_name.panel = e_name;
