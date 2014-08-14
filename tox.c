@@ -442,12 +442,20 @@ void tox_thread(void *args)
     ToxAv *av;
     uint8_t id[TOX_FRIEND_ADDRESS_SIZE];
 
+    Tox_Options options = {
+        .ipv6enabled = 0,
+        .udp_disabled = 0,
+        .proxy_enabled = 0,
+    };
+
     #ifdef IPV6_ENABLED
-    if((tox = tox_new(1)) == NULL) {
+    options.ipv6enabled = 1;
+    if((tox = tox_new(&options)) == NULL) {
         debug("tox_new(1) failed, trying without ipv6\n");
+        options.ipv6enabled = 0;
     }
     #endif
-    if(!tox && (tox = tox_new(0)) == NULL) {
+    if(!tox && (tox = tox_new(&options)) == NULL) {
         debug("tox_new() failed\n");
         exit(1);
     }
