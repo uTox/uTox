@@ -146,6 +146,10 @@ static void resetft(Tox *tox, FILE_T *ft, uint64_t start)
         fillbuffer(ft);
     }
 
+    if(ft->status == FT_NONE) {
+        *file_tend++ = ft;
+    }
+
     ft->bytes = start;
     ft->status = FT_SEND;
 }
