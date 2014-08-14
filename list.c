@@ -77,13 +77,14 @@ static void drawitem(ITEM *i, int x, int y)
 static ITEM* newitem(void)
 {
     ITEM *i = &item[itemcount++];
-    scroll_list.content_height = itemcount * ITEM_HEIGHT;
+    //TODO: ..
+    scroll_list.content_height = searchcount * ITEM_HEIGHT;
     return i;
 }
 
 void list_scale(void)
 {
-    scroll_list.content_height = itemcount * ITEM_HEIGHT;
+    scroll_list.content_height = searchcount * ITEM_HEIGHT;
 }
 
 static ITEM* item_hit(int mx, int my, int height)
@@ -322,6 +323,7 @@ void list_draw(void *n, int x, int y, int width, int height)
     }
 
     searchcount = j;
+    scroll_list.content_height = searchcount * ITEM_HEIGHT;
 
     if(mi) {
         drawitem(mi, LIST_X, my);
