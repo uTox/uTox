@@ -268,7 +268,7 @@ void thread(void func(void*), void *args);
 void yieldcpu(uint32_t ms);
 uint64_t get_time(void);
 
-void copy(void);
+void copy(int value);
 void paste(void);
 
 void address_to_clipboard(void);

@@ -254,10 +254,10 @@ _Bool doevent(XEvent event)
                     paste();
                     return 1;
                 case 'c':
-                    copy();
+                    copy(0);
                     return 1;
                 case 'x':
-                    copy();
+                    copy(0);
                     edit_char(KEY_DEL, 1, 0);
                     return 1;
                 }
@@ -295,10 +295,10 @@ _Bool doevent(XEvent event)
         if(ev->state & 4) {
             if(sym == 'c') {
                 if(sitem->item == ITEM_FRIEND) {
-                    clipboard.len = messages_selection(&messages_friend, clipboard.data, sizeof(clipboard.data));
+                    clipboard.len = messages_selection(&messages_friend, clipboard.data, sizeof(clipboard.data), 1);
                     setclipboard();
                 } else if(sitem->item == ITEM_GROUP) {
-                    clipboard.len = messages_selection(&messages_group, clipboard.data, sizeof(clipboard.data));
+                    clipboard.len = messages_selection(&messages_group, clipboard.data, sizeof(clipboard.data), 1);
                     setclipboard();
                 }
                 break;

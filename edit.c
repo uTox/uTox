@@ -174,11 +174,11 @@ static void contextmenu_edit_onselect(uint8_t i)
 {
     switch(i) {
     case 0:
-        copy();
+        copy(0);
         edit_char(KEY_DEL, 1, 0);
         break;
     case 1:
-        copy();
+        copy(0);
         break;
     case 2:
         paste();

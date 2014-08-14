@@ -623,7 +623,7 @@ static void sendbitmap(HDC mem, HBITMAP hbm, int width, int height)
     friend_sendimage(sitem->data, hbm, data, width, height);
 }
 
-void copy(void)
+void copy(int value)
 {
     uint8_t data[32768];//!
     int len;
@@ -632,9 +632,9 @@ void copy(void)
         len = edit_copy(data, 32767);
         data[len] = 0;
     } else if(sitem->item == ITEM_FRIEND) {
-        len = messages_selection(&messages_friend, data, 32768);
+        len = messages_selection(&messages_friend, data, 32768, value);
     } else if(sitem->item == ITEM_GROUP) {
-        len = messages_selection(&messages_group, data, 32768);
+        len = messages_selection(&messages_group, data, 32768, value);
     } else {
         return;
     }
@@ -1296,7 +1296,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
         _Bool shift = ((GetKeyState(VK_SHIFT) & 0x80) != 0);
 
         if(control && wParam == 'C') {
-            copy();
+            copy(1);
             return 0;
         }
 
@@ -1307,7 +1307,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
                     paste();
                     return 0;
                 case 'X':
-                    copy();
+                    copy(0);
                     edit_char(KEY_DEL, 1, 0);
                     return 0;
                 }

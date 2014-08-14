@@ -55,6 +55,7 @@ STRING strings[][64] = {
 
     //41
     STR("Kopieren"),
+    STR("Kopieren (no names)"),
     STR("Ausschneiden"),
     STR("Einfügen"),
     STR("Löschen"),
@@ -124,6 +125,7 @@ STRING strings[][64] = {
 
     //41
     STR("Copy"),
+    STR("Copy (no names)"),
     STR("Cut"),
     STR("Paste"),
     STR("Delete"),
@@ -193,6 +195,7 @@ STRING strings[][64] = {
 
     //41
     STR("Copy"),
+    STR("Copy (no names)"),
     STR("Cut"),
     STR("Paste"),
     STR("Delete"),
@@ -260,6 +263,7 @@ STRING strings[][64] = {
 
     //41
     STR("Copy"),
+    STR("Copy (no names)"),
     STR("Cut"),
     STR("Paste"),
     STR("Delete"),
@@ -329,6 +333,7 @@ STRING strings[][64] = {
 
     //41
     STR("Kopiuj"),
+    STR("Kopiuj (no names)"),
     STR("Wytnij"),
     STR("Wklej"),
     STR("Usuń"),
@@ -398,6 +403,7 @@ STRING strings[][64] = {
 
     //41
     STR("Копировать"),
+    STR("Копировать (no names)"),
     STR("Вырезать"),
     STR("Вставить"),
     STR("Удалить"),

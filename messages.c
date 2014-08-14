@@ -207,7 +207,7 @@ _Bool messages_mmove(MESSAGES *m, int px, int py, int width, int height, int mx,
         }
     }
 
-    if(mx < 0) {
+    if(mx < 0 || my > m->data->height || my < 0) {
         if(m->iover != ~0) {
             m->iover = ~0;
             return 1;
@@ -226,7 +226,7 @@ _Bool messages_mmove(MESSAGES *m, int px, int py, int width, int height, int mx,
 
         int dy = msg->height;
 
-        if(((my >= 0 || i == 0) && my < dy) || i == n - 1) {
+        if(my >= 0 && my < dy) {
             switch(msg->flags) {
             case 0:
             case 1:
@@ -503,6 +503,14 @@ _Bool messages_mdown(MESSAGES *m)
         }
 
         return 1;
+    } else {
+        if(m->data->istart != m->data->iend || m->data->start != m->data->end) {
+            m->data->istart = 0;
+            m->data->iend = 0;
+            m->data->start = 0;
+            m->data->end = 0;
+            return 1;
+        }
     }
 
     return 0;
@@ -542,8 +550,25 @@ _Bool messages_dclick(MESSAGES *m, _Bool triclick)
     return 0;
 }
 
+static void contextmenu_messages_onselect(uint8_t i)
+{
+    switch(i) {
+    case 0:
+        copy(1);
+        break;
+    case 1:
+        copy(0);
+        break;
+    }
+}
+
 _Bool messages_mright(MESSAGES *m)
 {
+    if(m->iover != ~0) {
+        uint8_t *names[] = {S(COPY), S(COPYWITHOUTNAMES)};
+        contextmenu_new(names, 2, contextmenu_messages_onselect);
+        return 1;
+    }
     return 0;
 }
 
@@ -557,7 +582,7 @@ _Bool messages_mup(MESSAGES *m)
 {
     //temporary, change this
     uint8_t *lel = malloc(65536);
-    setselection(lel, messages_selection(m, lel, 65536));
+    setselection(lel, messages_selection(m, lel, 65536, 0));
     free(lel);
 
     m->idown = 0xFFFF;
@@ -570,7 +595,7 @@ _Bool messages_mleave(MESSAGES *m)
     return 0;
 }
 
-int messages_selection(MESSAGES *m, void *data, uint32_t len)
+int messages_selection(MESSAGES *m, void *data, uint32_t len, _Bool names)
 {
     if(m->data->n == 0) {
         *(uint8_t*)data = 0;
@@ -585,7 +610,7 @@ int messages_selection(MESSAGES *m, void *data, uint32_t len)
     while(i != n) {
         MESSAGE *msg = *dp++;
 
-        if(i != m->data->istart || m->data->start == 0) {
+        if(names && (i != m->data->istart || m->data->start == 0)) {
             if(m->type) {
                 uint8_t l = (uint8_t)msg->msg[msg->length];
                 if(len <= l) {

@@ -464,9 +464,15 @@ static void pasteprimary(void)
     }
 }
 
-void copy(void)
+void copy(int value)
 {
-    clipboard.len = edit_copy(clipboard.data, sizeof(clipboard.data));
+    if(edit_active()) {
+        clipboard.len = edit_copy(clipboard.data, sizeof(clipboard.data));
+    } else if(sitem->item == ITEM_FRIEND) {
+        clipboard.len = messages_selection(&messages_friend, clipboard.data, sizeof(clipboard.data), value);
+    } else {
+        clipboard.len = messages_selection(&messages_group, clipboard.data, sizeof(clipboard.data), value);
+    }
     setclipboard();
 }
 

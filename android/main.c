@@ -101,7 +101,7 @@ uint64_t get_time(void)
     return ((uint64_t)ts.tv_sec * (1000 * 1000 * 1000)) + (uint64_t)ts.tv_nsec;
 }
 
-void copy(void)
+void copy(int value)
 {
 }
 

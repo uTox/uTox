@@ -46,7 +46,7 @@ _Bool messages_mwheel(MESSAGES *m, int height, double d);
 _Bool messages_mup(MESSAGES *m);
 _Bool messages_mleave(MESSAGES *m);
 
-int messages_selection(MESSAGES *m, void *data, uint32_t len);
+int messages_selection(MESSAGES *m, void *data, uint32_t len, _Bool names);
 
 _Bool messages_char(uint32_t ch);
 
