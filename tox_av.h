@@ -615,7 +615,6 @@ static void callback_av_audio(ToxAv *av, int32_t call_index, int16_t *data, int 
 {
     ToxAvCSettings dest;
     if(toxav_get_peer_csettings(av, call_index, 0, &dest) == 0) {
-        debug("%u\n", dest.audio_channels);
         sourceplaybuffer(call_index + 1, data, samples, dest.audio_channels, dest.audio_sample_rate);
     }
 }
