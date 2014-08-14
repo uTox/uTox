@@ -441,6 +441,9 @@ static void android_main(void) /* main thread */
     dropdown_dpi.selected = dropdown_dpi.over = 2;
     ui_scale(3);
 
+    LANG = LANG_EN;
+    dropdown_language.selected = LANG;
+
     while(!tox_thread_init) {
         yieldcpu(1);
     }

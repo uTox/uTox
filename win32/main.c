@@ -1078,6 +1078,31 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
 
     dnd_init(hwnd);
 
+    uint8_t langid = GetUserDefaultUILanguage() & 0xFF;
+    switch(langid) {
+    default:
+    case 0x09:
+        LANG = LANG_EN;
+        break;
+    case 0x0C:
+        LANG = LANG_FR;
+        break;
+    case 0x07:
+        LANG = LANG_DE;
+        break;
+    case 0x0A:
+        LANG = LANG_ES;
+        break;
+    case 0x19:
+        LANG = LANG_RU;
+        break;
+    case 0x15:
+        LANG = LANG_PL;
+        break;
+    }
+
+    dropdown_language.selected = LANG;
+
     //wait for tox_thread init
     while(!tox_thread_init) {
         Sleep(1);

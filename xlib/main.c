@@ -767,6 +767,31 @@ static UTOX_SAVE* loadconfig(void)
     return r;
 }
 
+static int systemlang(void)
+{
+    char *str = getenv("LANG");
+    if(!str) {
+        return LANG_EN;
+    }
+    if(strstr(str, "fr")) {
+        return LANG_FR;
+    }
+    if(strstr(str, "es")) {
+        return LANG_ES;
+    }
+    if(strstr(str, "de")) {
+        return LANG_DE;
+    }
+    if(strstr(str, "ru")) {
+        return LANG_RU;
+    }
+    if(strstr(str, "pl")) {
+        return LANG_PL;
+    }
+
+    return LANG_EN;
+}
+
 int main(int argc, char *argv[])
 {
     if(argc == 2 && argv[1]) {
@@ -900,6 +925,9 @@ int main(int argc, char *argv[])
     xrcolor.blue = 0x0;
     xrcolor.alpha = 0xffff;
     XftColorAllocValue(display, visual, cmap, &xrcolor, &xftcolor);*/
+
+    LANG = systemlang();
+    dropdown_language.selected = LANG;
 
     /* set-up desktop video input */
     dropdown_add(&dropdown_video, (uint8_t*)"None", NULL);

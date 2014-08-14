@@ -77,22 +77,22 @@ static DROP_ELEMENT langdrops[] = {
     },
 
     {
-        .name = (uint8_t*)"French",
+        .name = (uint8_t*)"Español",
         .handle = (void*)(size_t)2
     },
 
     {
-        .name = (uint8_t*)"Polski",
+        .name = (uint8_t*)"Français",
         .handle = (void*)(size_t)3
     },
 
     {
-        .name = (uint8_t*)"Русский",
+        .name = (uint8_t*)"Polski",
         .handle = (void*)(size_t)4
     },
 
     {
-        .name = (uint8_t*)"Spanish",
+        .name = (uint8_t*)"Русский",
         .handle = (void*)(size_t)5
     },
 };
