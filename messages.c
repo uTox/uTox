@@ -581,12 +581,17 @@ _Bool messages_mwheel(MESSAGES *m, int height, double d)
 _Bool messages_mup(MESSAGES *m)
 {
     //temporary, change this
-    uint8_t *lel = malloc(65536);
-    setselection(lel, messages_selection(m, lel, 65536, 0));
-    free(lel);
+    if(m->select) {
+        uint8_t *lel = malloc(65536);
+        setselection(lel, messages_selection(m, lel, 65536, 0));
+        free(lel);
+
+
+        m->select = 0;
+    }
 
     m->idown = 0xFFFF;
-    m->select = 0;
+
     return 0;
 }
 
