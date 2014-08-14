@@ -46,7 +46,16 @@ extern MESSAGES messages_friend, messages_group;
 extern EDIT edit_name, edit_status, edit_addid, edit_addmsg, edit_msg, edit_search;
 extern SCROLLABLE scroll_list;
 extern BUTTON button_add, button_settings, button_transfer;
-extern DROPDOWN dropdown_audio_in, dropdown_audio_out, dropdown_video, dropdown_dpi;
+extern DROPDOWN dropdown_audio_in, dropdown_audio_out, dropdown_video, dropdown_dpi, dropdown_language;
+
+enum {
+    LANG_DE,
+    LANG_EN,
+    LANG_ES,
+    LANG_FR,
+    LANG_PL,
+    LANG_RU,
+};
 
 enum {
     //NOT REFERRED TO BY NAME
@@ -109,12 +118,6 @@ enum {
     STR_CLICKTOSAVE,
     STR_CLICKTOOPEN,
     STR_CANCELLED,
-
-    STR_ENGLISH,
-    STR_FRENCH,
-    STR_RUSSIAN,
-    STR_SPANISH,
-    STR_GERMAN,
 };
 
 #define S(x) strings[LANG][STR_##x].str
