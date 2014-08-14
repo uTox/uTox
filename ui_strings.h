@@ -1,7 +1,83 @@
 #define STR(x) { .str = (uint8_t*)x, .length = sizeof(x) - 1 }
 
 STRING strings[][64] = {
-//ENGLISH
+//Deutsch  GERMAN
+{
+    //0
+    STR("Freundschaftsanfrage verschickt. Dein Freund wird online erscheinen, wenn er deine Anfrage akzeptiert."),
+    STR("Versuche DNS Namen aufzulösen..."),
+    STR("Fehler: Ungültige Tox ID"),
+    STR("Fehler: Keine Tox ID angegeben"),
+    STR("Fehler: Nachricht ist zu lang"),
+    STR("Fehler: Leere Nachricht"),
+    STR("Fehler: Tox ID ist eigene ID"),
+    STR("Fehler: Tox ID wurde bereits in der Freundesliste"),
+    STR("Fehler: Unbekannt"),
+    STR("Fehler: Ungültige Tox ID (bad checksum)"),
+    STR("Fehler: Ungültige Tox ID (bad nospam value)"),
+    STR("Fehler: Kein Speicher"),
+
+    //12
+    STR("Neue Datenübertragung"),
+    STR("Datenübertragung gestartet"),
+    STR(".."),
+    STR("Datenübertragung pausiert"),
+    STR("Datenübertragung fehlerhaft"),
+    STR("Datenübertragung abgebrochen"),
+    STR("Datenübertragung fertig"),
+
+    //19
+    STR("Anruf abgebrochen"),
+    STR("Anruf eingeladen"),
+    STR("Anruf klingelt"),
+    STR("Anruf gestartet"),
+
+    //23
+    STR("Freunde hinzufügen"),
+    STR("Tox ID"),
+    STR("Nachricht"),
+    STR("Suche Freund"),
+    STR("Hinzufügen"),
+    STR("Profil wechseln"),
+    STR("Freundesanfrage"),
+    STR("Benutzereinstellungen"),
+    STR("Name"),
+    STR("Status Nachricht"),
+    STR("Vorschau"),
+    STR("Geräte Auswahl"),
+    STR("Audio Quelle"),
+    STR("Audio Ausgabegerät"),
+    STR("Video Quelle"),
+    STR("Andere Einstellungen"),
+    STR("DPI"),
+    STR("Speichere Standort Einstellung"),
+    STR("Sprache"),
+
+    //41
+    STR("Kopieren"),
+    STR("Ausschneiden"),
+    STR("Einfügen"),
+    STR("Löschen"),
+    STR("Alle auswählen"),
+    STR("Entfernen"),
+    STR("Verlassen"),
+    STR("Akzeptieren"),
+    STR("Ignorieren"),
+
+    //50
+    STR("Klicke zum speichern"),
+    STR("Klicke zum öffnen"),
+    STR("Abgebrochen"),
+
+    //53
+    STR("Deutsch"),
+    STR("Englisch"),
+    STR("Französisch"),
+    STR("Russisch"),
+    STR("Spanisch"),
+},
+
+//English  ENGLISH
 {
     //0
     STR("Friend request sent. Your friend will appear online when he accepts the request."),
@@ -77,7 +153,7 @@ STRING strings[][64] = {
     STR("German"),
 },
 
-//FRENCH
+//French FRENCH
 {
     //0
     STR("Demande envoyée. Votre ami apparaîtra en ligne quand il acceptera votre demande."),
@@ -151,8 +227,84 @@ STRING strings[][64] = {
     STR("German"),
 },
 
+//Polski POLISH
+{
+    //0
+    STR("Zapytanie zostało wysłane. Znajomy pojawi się online kiedy zaakceptuje zapytanie."),
+    STR("Próba rozwiązania nazwy DNS..."),
+    STR("Error: Invalid Tox ID"),
+    STR("Error: No Tox ID specified"),
+    STR("Error: Message is too long"),
+    STR("Error: Empty message"),
+    STR("Error: Tox ID is self ID"),
+    STR("Error: Tox ID is already in friend list"),
+    STR("Error: Unknown"),
+    STR("Error: Invalid Tox ID (bad checksum)"),
+    STR("Error: Invalid Tox ID (bad nospam value)"),
+    STR("Error: No memory"),
 
-//RUSSIAN
+    //12
+    STR("Nowy transfer pliku"),
+    STR("Transfer pliku rozpoczęty"),
+    STR(".."),
+    STR("Transfer pliku wstrzymany"),
+    STR("Transfer pliku nieudany"),
+    STR("Transfer pliku anulowany"),
+    STR("Transfer pliku zakończony"),
+
+    //19
+    STR("Rozmowa anulowana"),
+    STR("Rozmowa przychodząca"),
+    STR("Nawiązywanie połączenia"),
+    STR("Rozmowa rozpoczęta"),
+
+    //23
+    STR("Dodaj znajomych"),
+    STR("Tox ID"),
+    STR("Wiadomość"),
+    STR("Znajdź znajomych"),
+    STR("Dodaj"),
+    STR("Zmień profil"),
+    STR("Zapytania znajomych"),
+    STR("Ustawienia użytkownika"),
+    STR("Nazwa"),
+    STR("Status"),
+    STR("Podgląd"),
+    STR("Wybór urządzenia"),
+    STR("Urządzenie wejściowe audio"),
+    STR("Urządzenie wyjściowe audio"),
+    STR("Urządzenie wejściowe wideo"),
+    STR("Inne ustawienia"),
+    STR("DPI"),
+    STR("Save Location"),
+    STR("Język"),
+
+    //41
+    STR("Kopiuj"),
+    STR("Wytnij"),
+    STR("Wklej"),
+    STR("Usuń"),
+    STR("Zaznacz wszystko"),
+    STR("Usuń"),
+    STR("Opuść"),
+    STR("Zaakceptuj"),
+    STR("Ignoruj"),
+
+    //50
+    STR("Przyciśnij by zapisać"),
+    STR("Przyciśnij by otworzyć"),
+    STR("Anulowano"),
+
+    //53
+    STR("English"),
+    STR("French"),
+    STR("German"),
+    STR("Polski"),
+    STR("Russian"),
+    STR("Spanish"),
+},
+
+//Русский RUSSIAN
 {
     //0
     STR("Запрос добавления в друзья отправлен. Ваш друг появится в сети, как только подтвердит запос."),
@@ -228,7 +380,7 @@ STRING strings[][64] = {
     STR("Немецкий"),
 },
 
-//SPANISH
+//Spanish SPANISH
 {
     //0
     STR("Friend request sent. Your friend will appear online when he accepts the request."),
@@ -302,82 +454,6 @@ STRING strings[][64] = {
     STR("Russian"),
     STR("Spanish"),
     STR("German"),
-},
-
-//GERMAN
-{
-    //0
-    STR("Freundschaftsanfrage verschickt. Dein Freund wird online erscheinen, wenn er deine Anfrage akzeptiert."),
-    STR("Versuche DNS Namen aufzulösen..."),
-    STR("Fehler: Ungültige Tox ID"),
-    STR("Fehler: Keine Tox ID angegeben"),
-    STR("Fehler: Nachricht ist zu lang"),
-    STR("Fehler: Leere Nachricht"),
-    STR("Fehler: Tox ID ist eigene ID"),
-    STR("Fehler: Tox ID wurde bereits in der Freundesliste"),
-    STR("Fehler: Unbekannt"),
-    STR("Fehler: Ungültige Tox ID (bad checksum)"),
-    STR("Fehler: Ungültige Tox ID (bad nospam value)"),
-    STR("Fehler: Kein Speicher"),
-
-    //12
-    STR("Neue Datenübertragung"),
-    STR("Datenübertragung gestartet"),
-    STR(".."),
-    STR("Datenübertragung pausiert"),
-    STR("Datenübertragung fehlerhaft"),
-    STR("Datenübertragung abgebrochen"),
-    STR("Datenübertragung fertig"),
-
-    //19
-    STR("Anruf abgebrochen"),
-    STR("Anruf eingeladen"),
-    STR("Anruf klingelt"),
-    STR("Anruf gestartet"),
-
-    //23
-    STR("Freunde hinzufügen"),
-    STR("Tox ID"),
-    STR("Nachricht"),
-    STR("Suche Freund"),
-    STR("Hinzufügen"),
-    STR("Profil wechseln"),
-    STR("Freundesanfrage"),
-    STR("Benutzereinstellungen"),
-    STR("Name"),
-    STR("Status Nachricht"),
-    STR("Vorschau"),
-    STR("Geräte Auswahl"),
-    STR("Audio Quelle"),
-    STR("Audio Ausgabegerät"),
-    STR("Video Quelle"),
-    STR("Andere Einstellungen"),
-    STR("DPI"),
-    STR("Speichere Standort Einstellung"),
-    STR("Sprache"),
-
-    //41
-    STR("Kopieren"),
-    STR("Ausschneiden"),
-    STR("Einfügen"),
-    STR("Löschen"),
-    STR("Alle auswählen"),
-    STR("Entfernen"),
-    STR("Verlassen"),
-    STR("Akzeptieren"),
-    STR("Ignorieren"),
-
-    //50
-    STR("Klicke zum speichern"),
-    STR("Klicke zum öffnen"),
-    STR("Abgebrochen"),
-
-    //53
-    STR("Englisch"),
-    STR("Französisch"),
-    STR("Russisch"),
-    STR("Spanisch"),
-    STR("Deutsch"),
 },
 
 };

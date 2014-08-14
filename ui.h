@@ -112,9 +112,10 @@ enum {
 
     STR_ENGLISH,
     STR_FRENCH,
+    STR_GERMAN,
+    STR_POLISH,
     STR_RUSSIAN,
     STR_SPANISH,
-    STR_GERMAN,
 };
 
 #define S(x) strings[LANG][STR_##x].str
