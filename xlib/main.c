@@ -560,7 +560,7 @@ static void formaturilist(char *out, const char *in, int len) {
     }
 
     out[len - removed] = 0;
-    out[len - removed - 1] = '\n';
+    //out[len - removed - 1] = '\n';
 }
 
 static void pastedata(void *data, Atom type, int len, _Bool select)
@@ -579,7 +579,7 @@ static void pastedata(void *data, Atom type, int len, _Bool select)
             friend_sendimage((FRIEND*)sitem->data, img, pngdata, width, height);
         }
     } else if (type == XA_URI_LIST) {
-        char *path = malloc(len + 2);
+        char *path = malloc(len + 1);
         formaturilist(path, (char*) data, len);
         tox_postmessage(TOX_SENDFILES, (FRIEND*)sitem->data - friend, 0xFFFF, path);
     } else if(type == XA_UTF8_STRING && edit_active()) {

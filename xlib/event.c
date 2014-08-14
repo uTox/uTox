@@ -334,14 +334,13 @@ _Bool doevent(XEvent event)
         }
 
         debug("Type: %s\n", XGetAtomName(display, type));
-        debug("Poperty: %s\n", XGetAtomName(display, ev->property));
+        debug("Property: %s\n", XGetAtomName(display, ev->property));
 
         if(ev->property == XA_ATOM) {
             pastebestformat((Atom *)data, len, ev->selection);
         } else if(ev->property == XdndDATA) {
             char *path = malloc(len + 1);
-            formaturilist(path, (char*) data, len);
-            path[len] = 0;
+            formaturilist(path, (char*)data, len);
             tox_postmessage(TOX_SENDFILES, (FRIEND*)sitem->data - friend, 0xFFFF, path);
         } else if (type == XA_INCR) {
             if (pastebuf.data) {
