@@ -936,7 +936,7 @@ int main(int argc, char *argv[])
     XftColorAllocValue(display, visual, cmap, &xrcolor, &xftcolor);*/
 
     LANG = systemlang();
-    dropdown_language.selected = LANG;
+    dropdown_language.selected = dropdown_language.over = LANG;
 
     /* set-up desktop video input */
     dropdown_add(&dropdown_video, (uint8_t*)"None", NULL);

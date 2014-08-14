@@ -12,20 +12,34 @@ void dropdown_drawactive(void)
         return;
     }
 
-    int x = active_x, y = active_y, width = active_width, height = active_height;
+    int x = active_x, y = active_y, w = active_width, h = active_height;
 
     setfont(FONT_TEXT);
     setcolor(COLOR_TEXT);
-    framerect(x, y, x + width, y + height * b->dropcount, BLUE);
-    drawrect(x + 1, y + 1, x + width - 1, y + height * b->dropcount - 1, WHITE);
-    int i;
+
+    int i, sign = 1;
+
+    if(y + h * b->dropcount > height) {
+        y -= h * (b->dropcount - 1);
+        sign = -1;
+    }
+
+    drawrect(x, y, x + w, y + h * b->dropcount, WHITE);
+    framerect(x, y, x + w, y + h * b->dropcount, BLUE);
+
+    if(sign == -1) {
+        y += h * (b->dropcount - 1);
+    }
+
     for(i = 0; i != b->dropcount; i++) {
         int j = index(b, i);
         DROP_ELEMENT *e = &b->drop[j];
         if(j == b->over) {
-            drawrectw(x + 1, y + 1 + i * height, width - 2, height - 2, C_GRAY);
+            drawrectw(x + 1, y + 1, w - 2, h - 2, C_GRAY);
         }
-        drawtextwidth(x + 2 * SCALE, width - 4 * SCALE, y + 2 * SCALE + i * height, e->name, strlen((char*)e->name));
+        drawtextwidth(x + 2 * SCALE, w - 4 * SCALE, y + 2 * SCALE, e->name, strlen((char*)e->name));
+
+        y += sign * h;
     }
 }
 
@@ -49,22 +63,25 @@ void dropdown_draw(DROPDOWN *b, int x, int y, int width, int height)
     }
 }
 
-_Bool dropdown_mmove(DROPDOWN *b, int x, int y, int width, int height, int mx, int my, int dx, int dy)
+_Bool dropdown_mmove(DROPDOWN *b, int x, int y, int w, int h, int mx, int my, int dx, int dy)
 {
-    _Bool mouseover = inrect(mx, my, 0, 0, width, height);
-    if(mouseover != b->mouseover) {
-        b->mouseover = mouseover;
-        return 1;
-    }
-
     if(b->open) {
-        int over = my / height;
+        int over = my / h;
+        if(y + h * b->dropcount > height) {
+            over = my > 0 ? 0 : ((-my) / h + 1);
+        }
         if(over < b->dropcount) {
             over = index(b, over);
             if(over != b->over) {
                 b->over = over;
                 return 1;
             }
+        }
+    } else {
+        _Bool mouseover = inrect(mx, my, 0, 0, w, h);
+        if(mouseover != b->mouseover) {
+            b->mouseover = mouseover;
+            return 1;
         }
     }
 

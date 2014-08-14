@@ -1101,7 +1101,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
         break;
     }
 
-    dropdown_language.selected = LANG;
+    dropdown_language.selected = dropdown_language.over = LANG;
 
     //wait for tox_thread init
     while(!tox_thread_init) {
