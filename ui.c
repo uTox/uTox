@@ -39,11 +39,11 @@ static void drawfriend(int x, int y, int w, int height)
 
     setcolor(C_TITLE);
     setfont(FONT_TITLE);
-    drawtextrange(LIST_RIGHT + 30 * SCALE, width - 62 * SCALE, 9 * SCALE, f->name, f->name_length);
+    drawtextrange(LIST_RIGHT + 30 * SCALE, width - 92 * SCALE, 9 * SCALE, f->name, f->name_length);
 
     setcolor(LIST_MAIN);
     setfont(FONT_STATUS);
-    drawtextrange(LIST_RIGHT + 30 * SCALE, width - 62 * SCALE, 16 * SCALE, f->status_message, f->status_length);
+    drawtextrange(LIST_RIGHT + 30 * SCALE, width - 92 * SCALE, 16 * SCALE, f->status_message, f->status_length);
 }
 
 static void drawgroup(int x, int y, int w, int height)
@@ -94,7 +94,7 @@ static void drawfriendreq(int x, int y, int width, int height)
     drawstr(LIST_RIGHT + SCALE * 5, SCALE * 10, FRIENDREQUEST);
 }
 
-static void drawadd(int x, int y, int width, int height)
+static void drawadd(int x, int y, int w, int height)
 {
     setcolor(C_TITLE);
     setfont(FONT_SELF_NAME);
@@ -110,7 +110,7 @@ static void drawadd(int x, int y, int width, int height)
         setfont(FONT_MISC);
         setcolor(C_RED);
         STRING *str = &strings[LANG][REQ_STRING_1 + addfriend_status - 1];
-        drawtext(LIST_RIGHT + SCALE * 5, LIST_Y + SCALE * 83, str->str, str->length);
+        drawtextmultiline(LIST_RIGHT + SCALE * 5, width - BM_SBUTTON_WIDTH - 5 * SCALE, LIST_Y + SCALE * 83, 0, height, font_small_lineheight, str->str, str->length, 0xFFFF, 0, 1);
     }
 }
 

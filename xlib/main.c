@@ -230,7 +230,7 @@ static int _drawtext(int x, int xmax, int y, uint8_t *str, uint16_t length)
 
         g = font_getglyph(sfont, ch);
         if(g) {
-            if(x + g->xadvance > xmax) {
+            if(x + g->xadvance + SCALE * 5 > xmax && length) {
                 return -x;
             }
 
