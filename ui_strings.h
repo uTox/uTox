@@ -284,16 +284,16 @@ STRING strings[][64] = {
     //0
     STR("Zapytanie zostało wysłane. Znajomy pojawi się online kiedy zaakceptuje zapytanie."),
     STR("Próba rozwiązania nazwy DNS..."),
-    STR("Error: Invalid Tox ID"),
-    STR("Error: No Tox ID specified"),
-    STR("Error: Message is too long"),
-    STR("Error: Empty message"),
-    STR("Error: Tox ID is self ID"),
-    STR("Error: Tox ID is already in friend list"),
-    STR("Error: Unknown"),
-    STR("Error: Invalid Tox ID (bad checksum)"),
-    STR("Error: Invalid Tox ID (bad nospam value)"),
-    STR("Error: No memory"),
+    STR("Błąd: Niepoprawny Tox ID"),
+    STR("Błąd: Nie określono Tox ID"),
+    STR("Błąd: Wiadomość jest zbyt długa"),
+    STR("Błąd: Pusta wiadomość"),
+    STR("Błąd: Tox ID to twój ID"),
+    STR("Błąd: Tox ID jest już na liście znajomych"),
+    STR("Błąd: Nieznany"),
+    STR("Błąd: Niepoprawny Tox ID (zła suma kontrolna)"),
+    STR("Błąd: Niepoprawny Tox ID (zła wartość nospam)"),
+    STR("Błąd: Brak pamięci"),
 
     //12
     STR("Nowy transfer pliku"),
@@ -333,7 +333,7 @@ STRING strings[][64] = {
 
     //41
     STR("Kopiuj"),
-    STR("Kopiuj (no names)"),
+    STR("Kopiuj (bez nazw)"),
     STR("Wytnij"),
     STR("Wklej"),
     STR("Usuń"),
