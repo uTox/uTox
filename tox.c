@@ -333,7 +333,7 @@ static void do_bootstrap(Tox *tox)
     int i = 0;
     while(i < 2) {
         struct bootstrap_node *d = &bootstrap_nodes[j % countof(bootstrap_nodes)];
-        tox_bootstrap_from_address(tox, d->address, 0, d->port, d->key);
+        tox_bootstrap_from_address(tox, d->address, d->port, d->key);
         i++;
         j++;
     }
