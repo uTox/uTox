@@ -775,7 +775,10 @@ static UTOX_SAVE* loadconfig(void)
 
 static int systemlang(void)
 {
-    char *str = getenv("LANG");
+    char *str = getenv("LC_MESSAGES");
+    if(!str) {
+        str = getenv("LANG");
+    }
     if(!str) {
         return LANG_EN;
     }
