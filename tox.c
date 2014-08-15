@@ -1289,6 +1289,7 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
         msg->progress = 0;
         msg->speed = 0;
         msg->inline_png = 0;
+        msg->path = NULL;
         memcpy(msg->name, ft->name, msg->name_length);
 
         friend_addmessage(f, msg);
@@ -1313,6 +1314,7 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
         msg->progress = 0;
         msg->speed = 0;
         msg->inline_png = 1;
+        msg->path = NULL;
         memcpy(msg->name, ft->name, msg->name_length);
 
         friend_addmessage(f, msg);
@@ -1340,6 +1342,7 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
         msg->progress = 0;
         msg->speed = 0;
         msg->inline_png = inline_png;
+        msg->path = NULL;
         memcpy(msg->name, ft->name, msg->name_length);
         msg->name[msg->name_length] = 0;
 
