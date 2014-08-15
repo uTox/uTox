@@ -130,3 +130,57 @@ void friend_add(char_t *name, uint16_t length, char_t *msg, uint16_t msg_length)
         dns_request(name, length);
     }
 }
+
+void friend_free(FRIEND *f)
+{
+    int i = 0;
+    while(i != f->edit_history_length) {
+        free(f->edit_history[i]);
+        i++;
+    }
+    free(f->edit_history);
+
+    free(f->name);
+    free(f->status_message);
+    free(f->typed);
+
+    i = 0;
+    while(i < f->msg.n) {
+        message_free(f->msg.data[i]);
+        i++;
+    }
+
+    free(f->msg.data);
+
+    memset(f, 0, sizeof(FRIEND));//
+}
+
+void group_free(GROUPCHAT *g)
+{
+    int i = 0;
+    while(i != g->edit_history_length) {
+        free(g->edit_history[i]);
+        i++;
+    }
+    free(g->edit_history);
+
+    uint8_t **np = g->peername;
+    i = 0;
+    while(i < g->peers) {
+        uint8_t *n = *np++;
+        if(n) {
+            free(n);
+            i++;
+        }
+    }
+
+    i = 0;
+    while(i < g->msg.n) {
+        free(g->msg.data[i]);
+        i++;
+    }
+
+    free(g->msg.data);
+
+    memset(g, 0, sizeof(GROUPCHAT));//
+}

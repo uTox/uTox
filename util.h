@@ -6,6 +6,9 @@
  */
 void* file_raw(char *path, uint32_t *size);
 
+//add null terminator to data
+void* file_text(char *path);
+
 /* returns non-zero if substring is found */
 _Bool strstr_case(const char *a, const char *b);
 

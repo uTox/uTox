@@ -68,3 +68,6 @@ void friend_addmessage_notify(FRIEND *f, char_t *data, uint16_t length);
 
 void friend_addid(uint8_t *id, char_t *msg, uint16_t msg_length);
 void friend_add(char_t *name, uint16_t length, char_t *msg, uint16_t msg_length);
+
+void friend_free(FRIEND *f);
+void group_free(GROUPCHAT *g);

@@ -284,6 +284,7 @@ static void video_thread(void *args)
         closevideodevice(video_device);
     }
 
+    video_thread_msg = 0;
     video_thread_init = 0;
 }
 
@@ -608,6 +609,7 @@ static void audio_thread(void *args)
     alcMakeContextCurrent(NULL);
     alcDestroyContext(context);
 
+    audio_thread_msg = 0;
     audio_thread_init = 0;
 }
 

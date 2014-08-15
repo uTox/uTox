@@ -436,28 +436,44 @@ static void write_save(Tox *tox)
     free(data);
 }
 
+void tox_settingschanged(void)
+{
+    //free everything
+    tox_connected = 0;
+    list_freeall();
+
+    tox_thread_init = 0;
+
+    toxaudio_postmessage(AUDIO_KILL, 0, 0, NULL);
+    toxvideo_postmessage(VIDEO_KILL, 0, 0, NULL);
+    tox_postmessage(0, 1, 0, NULL);
+
+    while(!tox_thread_init) {
+        yieldcpu(1);
+    }
+
+    list_start();
+}
+
 void tox_thread(void *args)
 {
     Tox *tox;
     ToxAv *av;
     uint8_t id[TOX_FRIEND_ADDRESS_SIZE];
 
-    Tox_Options options = {
-        .ipv6enabled = 0,
-        .udp_disabled = 0,
-        .proxy_enabled = 0,
-    };
-
-    #ifdef IPV6_ENABLED
-    options.ipv6enabled = 1;
+TOP:;
+    debug("new tox object ipv6: %u no_udp: %u proxy: %u %s %u\n", options.ipv6enabled, options.udp_disabled, options.proxy_enabled, options.proxy_address, options.proxy_port);
     if((tox = tox_new(&options)) == NULL) {
-        debug("tox_new(1) failed, trying without ipv6\n");
-        options.ipv6enabled = 0;
-    }
-    #endif
-    if(!tox && (tox = tox_new(&options)) == NULL) {
-        debug("tox_new() failed\n");
-        exit(1);
+        debug("trying without proxy\n");
+        if(!options.proxy_enabled || (options.proxy_enabled = 0, (tox = tox_new(&options)) == NULL)) {
+            debug("trying without ipv6\n");
+            if(!options.ipv6enabled || (options.ipv6enabled = 0, (tox = tox_new(&options)) == NULL)) {
+                debug("tox_new() failed\n");
+                exit(1);
+            }
+            dropdown_ipv6.selected = dropdown_ipv6.over = 1;
+        }
+        dropdown_proxy.selected = dropdown_proxy.over = 0;
     }
 
     if(!load_save(tox)) {
@@ -488,7 +504,7 @@ void tox_thread(void *args)
     thread(audio_thread, av);
     thread(video_thread, av);
 
-    _Bool connected = 0;
+    _Bool connected = 0, reconfig;
     uint64_t last_save = get_time(), time;
     while(1) {
         tox_do(tox);
@@ -515,6 +531,8 @@ void tox_thread(void *args)
         if(tox_thread_msg) {
             TOX_MSG *msg = &tox_msg;
             if(!msg->msg) {
+                reconfig = msg->param1;
+                tox_thread_msg = 0;
                 break;
             }
             tox_thread_message(tox, av, msg->msg, msg->param1, msg->param2, msg->data);
@@ -587,6 +605,10 @@ void tox_thread(void *args)
 
     toxav_kill(av);
     tox_kill(tox);
+
+    if(reconfig) {
+        goto TOP;
+    }
 
     tox_thread_init = 0;
 }

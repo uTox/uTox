@@ -43,10 +43,10 @@ typedef struct {
 
 extern PANEL panel_main, panel_item[];
 extern MESSAGES messages_friend, messages_group;
-extern EDIT edit_name, edit_status, edit_addid, edit_addmsg, edit_msg, edit_search;
+extern EDIT edit_name, edit_status, edit_addid, edit_addmsg, edit_msg, edit_search, edit_proxy_ip, edit_proxy_port;
 extern SCROLLABLE scroll_list;
 extern BUTTON button_add, button_settings, button_transfer;
-extern DROPDOWN dropdown_audio_in, dropdown_audio_out, dropdown_video, dropdown_dpi, dropdown_language;
+extern DROPDOWN dropdown_audio_in, dropdown_audio_out, dropdown_video, dropdown_dpi, dropdown_language, dropdown_proxy, dropdown_ipv6, dropdown_udp;
 
 enum {
     LANG_DE,
@@ -105,6 +105,12 @@ enum {
     STR_DPI,
     STR_SAVELOCATION,
     STR_LANGUAGE,
+    STR_NETWORK,
+    STR_IPV6,
+    STR_UDP,
+    STR_PROXY,
+    STR_WARNING,
+
     STR_COPY,
     STR_COPYWITHOUTNAMES,
     STR_CUT,

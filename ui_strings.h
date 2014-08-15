@@ -52,6 +52,11 @@ STRING strings[][64] = {
     STR("DPI"),
     STR("Speichere Standort Einstellung"),
     STR("Sprache"),
+    STR("Network"),
+    STR("IPV6:"),
+    STR("UDP:"),
+    STR("Proxy (SOCKS 5)"),
+    STR("Changing Network/Proxy settings will disconnect you from the Tox network"),
 
     //41
     STR("Kopieren"),
@@ -122,6 +127,11 @@ STRING strings[][64] = {
     STR("DPI"),
     STR("Save Location"),
     STR("Language"),
+    STR("Network"),
+    STR("IPV6:"),
+    STR("UDP:"),
+    STR("Proxy (SOCKS 5)"),
+    STR("Changing Network/Proxy settings will disconnect you from the Tox network"),
 
     //41
     STR("Copy"),
@@ -192,6 +202,11 @@ STRING strings[][64] = {
     STR("DPI"),
     STR("Save Location"),
     STR("Language"),
+    STR("Network"),
+    STR("IPV6:"),
+    STR("UDP:"),
+    STR("Proxy (SOCKS 5)"),
+    STR("Changing Network/Proxy settings will disconnect you from the Tox network"),
 
     //41
     STR("Copy"),
@@ -260,6 +275,11 @@ STRING strings[][64] = {
     STR("DPI"),
     STR("Save Location"),
     STR("Langue"),
+    STR("Network"),
+    STR("IPV6:"),
+    STR("UDP:"),
+    STR("Proxy (SOCKS 5)"),
+    STR("Changing Network/Proxy settings will disconnect you from the Tox network"),
 
     //41
     STR("Copy"),
@@ -330,6 +350,11 @@ STRING strings[][64] = {
     STR("DPI"),
     STR("Save Location"),
     STR("Język"),
+    STR("Network"),
+    STR("IPV6:"),
+    STR("UDP:"),
+    STR("Proxy (SOCKS 5)"),
+    STR("Changing Network/Proxy settings will disconnect you from the Tox network"),
 
     //41
     STR("Kopiuj"),
@@ -400,6 +425,11 @@ STRING strings[][64] = {
     STR("Разрешение, точек/дюйм"),
     STR("Сохранить расположение"),
     STR("Язык"),
+    STR("Network"),
+    STR("IPV6:"),
+    STR("UDP:"),
+    STR("Proxy (SOCKS 5)"),
+    STR("Changing Network/Proxy settings will disconnect you from the Tox network"),
 
     //41
     STR("Копировать"),

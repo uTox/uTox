@@ -2,6 +2,7 @@
 
 static ITEM item_add, item_settings, item_transfer;
 static ITEM item[1024], *mitem, *nitem;
+ITEM *sitem = &item_add;
 static uint32_t itemcount, searchcount;
 
 static _Bool sitem_mousedown;
@@ -223,7 +224,6 @@ void list_start(void)
     ITEM *i = item;
 
     item_add.item = ITEM_ADD;
-    sitem = &item_add;
     button_add.disabled = 1;
 
     item_settings.item = ITEM_SETTINGS;
@@ -350,26 +350,7 @@ static void deleteitem(ITEM *i)
 
         tox_postmessage(TOX_DELFRIEND, (f - friend), 0, NULL);
 
-        int i = 0;
-        while(i != f->edit_history_length) {
-            free(f->edit_history[i]);
-            i++;
-        }
-        free(f->edit_history);
-
-        free(f->name);
-        free(f->status_message);
-        free(f->typed);
-
-        i = 0;
-        while(i < f->msg.n) {
-            message_free(f->msg.data[i]);
-            i++;
-        }
-
-        free(f->msg.data);
-
-        memset(f, 0, sizeof(FRIEND));//
+        friend_free(f);
 
         friends--;
         break;
@@ -380,32 +361,7 @@ static void deleteitem(ITEM *i)
 
         tox_postmessage(TOX_LEAVEGROUP, (g - group), 0, NULL);
 
-        int i = 0;
-        while(i != g->edit_history_length) {
-            free(g->edit_history[i]);
-            i++;
-        }
-        free(g->edit_history);
-
-        uint8_t **np = g->peername;
-        i = 0;
-        while(i < g->peers) {
-            uint8_t *n = *np++;
-            if(n) {
-                free(n);
-                i++;
-            }
-        }
-
-        i = 0;
-        while(i < g->msg.n) {
-            free(g->msg.data[i]);
-            i++;
-        }
-
-        free(g->msg.data);
-
-        memset(g, 0, sizeof(GROUPCHAT));//
+        group_free(g);
         break;
     }
 
@@ -443,6 +399,24 @@ void list_deleteritem(void)
 {
     if(ritem >= item && ritem < item + countof(item)) {
         deleteitem(ritem);
+    }
+}
+
+void list_freeall(void)
+{
+    ITEM *i;
+    for(i = item; i != item + itemcount; i++) {
+        switch(i->item) {
+        case ITEM_FRIEND:
+            friend_free(i->data);
+            break;
+        case ITEM_GROUP:
+            group_free(i->data);
+            break;
+        case ITEM_FRIEND_ADD:
+            free(i->data);
+            break;
+        }
     }
 }
 

@@ -148,3 +148,5 @@ void toxvideo_postmessage(uint8_t msg, uint16_t param1, uint16_t param2, void *d
 /* read a message sent from the toxcore thread (sent with postmessage())
  */
 void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data);
+
+void tox_settingschanged(void);

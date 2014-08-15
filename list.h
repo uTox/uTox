@@ -19,7 +19,8 @@ typedef struct
     void *data;
 }ITEM;
 
-ITEM *sitem, *ritem;
+extern ITEM *sitem;
+ITEM *ritem;
 
 void list_start(void);
 void list_addfriend(FRIEND *f);
@@ -36,6 +37,7 @@ void list_selectswap(void);
 void list_scale(void);
 
 void list_draw(void *n, int x, int y, int width, int height);
+void list_freeall(void);
 
 _Bool list_mmove(void *n, int x, int y, int width, int height, int mx, int my, int dx, int dy);
 _Bool list_mdown(void *n);

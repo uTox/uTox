@@ -39,6 +39,43 @@ void* file_raw(char *path, uint32_t *size)
     return data;
 }
 
+void* file_text(char *path)
+{
+    FILE *file;
+    char *data;
+    int len;
+
+    file = fopen(path, "rb");
+    if(!file) {
+        debug("File not found (%s)\n", path);
+        return NULL;
+    }
+
+    fseek(file, 0, SEEK_END);
+    len = ftell(file);
+    data = malloc(len + 1);
+    if(!data) {
+        fclose(file);
+        return NULL;
+    }
+
+    fseek(file, 0, SEEK_SET);
+
+    if(fread(data, len, 1, file) != 1) {
+        debug("Read error (%s)\n", path);
+        fclose(file);
+        free(data);
+        return NULL;
+    }
+
+    fclose(file);
+
+    debug("Read %u bytes (%s)\n", len, path);
+
+    data[len] = 0;
+    return data;
+}
+
 _Bool strstr_case(const char *a, const char *b)
 {
     const char *c = b;

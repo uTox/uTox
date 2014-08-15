@@ -18,7 +18,6 @@
 #define countof(x) (sizeof(x)/sizeof(*(x)))
 #define volatile(x) (*((volatile typeof(x)*)&x))
 
-#define IPV6_ENABLED
 #define DEFAULT_NAME "Tox User"
 #define DEFAULT_STATUS "Toxing on uTox"
 #define DEFAULT_ADD_MESSAGE "Please accept this friend request."
@@ -30,8 +29,11 @@
 
 typedef struct
 {
-    uint8_t version, scale;
+    uint8_t version, scale, enableipv6, disableudp;
     uint16_t window_x, window_y, window_width, window_height;
+    uint16_t proxy_port;
+    uint8_t proxyenable, padding;
+    uint8_t proxy_ip[0];
 }UTOX_SAVE;
 
 typedef struct
@@ -137,6 +139,8 @@ struct {
 int font_small_lineheight, font_msg_lineheight;
 
 uint16_t video_width, video_height, max_video_width, max_video_height;
+
+Tox_Options options;
 
 enum
 {
