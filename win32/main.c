@@ -7,6 +7,8 @@
 #define WINVER 0x410
 #endif
 
+#define STRSAFE_NO_DEPRECATE
+
 #include <windows.h>
 #include <windowsx.h>
 
@@ -593,20 +595,18 @@ static void sendbitmap(HDC mem, HBITMAP hbm, int width, int height)
 
     GetDIBits(mem, hbm, 0, height, bits, &info, DIB_RGB_COLORS);
 
-    if(width & 3) {
-        uint8_t pbytes = width & 3, *p = bits, *pp = bits, *end = p + width * height * 3;
-        uint32_t offset = 0;
-        while(p != end) {
-            int i;
-            for(i = 0; i != width; i++) {
-                uint8_t b = pp[i * 3];
-                p[i * 3] = pp[i * 3 + 2];
-                p[i * 3 + 1] = pp[i * 3 + 1];
-                p[i * 3 + 2] = b;
-            }
-            p += width * 3;
-            pp += width * 3 + pbytes;
+    uint8_t pbytes = width & 3, *p = bits, *pp = bits, *end = p + width * height * 3;
+    uint32_t offset = 0;
+    while(p != end) {
+        int i;
+        for(i = 0; i != width; i++) {
+            uint8_t b = pp[i * 3];
+            p[i * 3] = pp[i * 3 + 2];
+            p[i * 3 + 1] = pp[i * 3 + 1];
+            p[i * 3 + 2] = b;
         }
+        p += width * 3;
+        pp += width * 3 + pbytes;
     }
 
     uint8_t *out;
