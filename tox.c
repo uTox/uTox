@@ -442,6 +442,28 @@ void tox_settingschanged(void)
     tox_connected = 0;
     list_freeall();
 
+    free(dropdown_audio_in.drop);
+    dropdown_audio_in.drop = NULL;
+    dropdown_audio_in.dropcount = 0;
+    dropdown_audio_in.over = 0;
+    dropdown_audio_in.selected = 0;
+
+    free(dropdown_audio_out.drop);
+    dropdown_audio_out.drop = NULL;
+    dropdown_audio_out.dropcount = 0;
+    dropdown_audio_out.over = 0;
+    dropdown_audio_out.selected = 0;
+
+    free(dropdown_video.drop);
+    dropdown_video.drop = NULL;
+    dropdown_video.dropcount = 0;
+    dropdown_video.over = 0;
+    dropdown_video.selected = 0;
+
+    dropdown_add(&dropdown_video, (uint8_t*)"None", NULL);
+    dropdown_add(&dropdown_video, (uint8_t*)"Desktop", (void*)1);
+
+
     tox_thread_init = 0;
 
     toxaudio_postmessage(AUDIO_KILL, 0, 0, NULL);
