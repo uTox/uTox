@@ -5,7 +5,8 @@ LDFLAGS += $(shell pkg-config --libs freetype2 x11 openal)
 LDFLAGS += $(shell pkg-config --libs dbus-1)
 LDFLAGS += -lX11 -lXft -lXrender -ltoxcore -ltoxav -ltoxdns -lopenal -pthread -lresolv -ldl -lm -lfontconfig -lv4lconvert -lvpx -lXext
 
-DESTDIR=/usr/local
+DESTDIR?=	# empty
+PREFIX?=	/usr/local
 
 SRC = $(wildcard *.c png/png.c)
 OBJ = $(SRC:.c=.o)
@@ -16,8 +17,8 @@ utox: $(OBJ)
 	$(CC) $(CFLAGS) -o utox $(OBJ) $(LDFLAGS)
 
 install: utox
-	mkdir -pv $(DESTDIR)/bin
-	install -m 0755 utox $(DESTDIR)/bin
+	mkdir -pv $(DESTDIR)$(PREFIX)/bin
+	install -m 0755 utox $(DESTDIR)$(PREFIX)/bin
 
 main.o: xlib/main.c xlib/keysym2ucs.c
 
