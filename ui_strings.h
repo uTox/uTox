@@ -350,11 +350,11 @@ STRING strings[][64] = {
     STR("DPI"),
     STR("Save Location"),
     STR("Język"),
-    STR("Network"),
+    STR("Sieć"),
     STR("IPv6:"),
     STR("UDP:"),
     STR("Proxy (SOCKS 5)"),
-    STR("Changing Network/Proxy settings will disconnect you from the Tox network"),
+    STR("Zmiana ustawień sieci/proxy rozłączy cię z siecią Tox"),
 
     //41
     STR("Kopiuj"),
