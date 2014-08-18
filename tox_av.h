@@ -254,7 +254,7 @@ static void video_thread(void *args)
                     if(call[i]) {
                         int r, len;
                         if((len = toxav_prepare_video_frame(av, i, lbuffer, sizeof(lbuffer), &input)) < 0) {
-                            debug("toxav_prepare_video_frame error %i\n", r);
+                            debug("toxav_prepare_video_frame error %i\n", len);
                             continue;
                         }
 
