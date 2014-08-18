@@ -337,7 +337,7 @@ STRING strings[][64] = {
     STR("Znajdź znajomych"),
     STR("Dodaj"),
     STR("Zmień profil"),
-    STR("Zapytania znajomych"),
+    STR("Zapytanie do znajomych"),
     STR("Ustawienia użytkownika"),
     STR("Nazwa"),
     STR("Status"),
