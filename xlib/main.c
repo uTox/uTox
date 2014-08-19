@@ -388,16 +388,17 @@ void openurl(char_t *str)
     #ifdef __APPLE__
     p += sprintf(p, "open \"");
     #else
-    p += sprintf(p, "xdg-open \"");
+    p += sprintf(p, "xdg-open \'");
     #endif
 
     while(*str) {
-        if(*str == '"' || *str == '\\') {
+        //escape these characters
+        if(*str == '\"' || *str == '\\' || *str == '\'' || *str == '\$') {
             *p++ = '\\';
         }
         *p++ = *str++;
     }
-    *p++ = '\"';
+    *p++ = '\'';
     *p++ = ' ';
     *p++ = '&';
     *p = 0;
