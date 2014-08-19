@@ -24,6 +24,8 @@
 #include <pthread.h>
 #include <unistd.h>
 
+#include <locale.h>
+
 #include <dlfcn.h>
 
 #include "audio.c"
@@ -80,6 +82,8 @@ Picture colorpic;
 _Bool _redraw;
 
 uint16_t drawwidth, drawheight;
+
+XIC xic;
 
 XImage *screen_image;
 
@@ -835,6 +839,14 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    XIM xim;
+    setlocale(LC_ALL, "");
+    XSetLocaleModifiers("");
+    if((xim = XOpenIM(display, 0, 0, 0)) == NULL) {
+        printf("Cannot open input method\n");
+        return 1;
+    }
+
     screen = DefaultScreen(display);
     cmap = DefaultColormap(display, screen);
     visual = DefaultVisual(display, screen);
@@ -977,6 +989,12 @@ int main(int argc, char *argv[])
 
     /* make the window visible */
     XMapWindow(display, window);
+
+    if((xic = XCreateIC(xim, XNInputStyle, XIMPreeditNothing | XIMStatusNothing, XNClientWindow, window, XNFocusWindow, window, NULL)) == NULL) {
+        printf("Cannot open input method\n");
+        return 1;
+    }
+    XSetICFocus(xic);
 
     /* set the width/height of the drawing region */
     width = DEFAULT_WIDTH;

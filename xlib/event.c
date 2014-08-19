@@ -1,5 +1,6 @@
 _Bool doevent(XEvent event)
 {
+    if(XFilterEvent(&event, None)) return 1;
     if(event.xany.window && event.xany.window != window) {
         if(event.type == ClientMessage) {
             XClientMessageEvent *ev = &event.xclient;
@@ -243,10 +244,11 @@ _Bool doevent(XEvent event)
         XKeyEvent *ev = &event.xkey;
         KeySym sym = XLookupKeysym(ev, 0);//XKeycodeToKeysym(display, ev->keycode, 0)
 
-        char buffer[16];
-        //int len;
+        wchar_t buffer[16];
+        Status status_return;
+        int len;
 
-        XLookupString(ev, buffer, sizeof(buffer), &sym, NULL);
+        len = XwcLookupString(xic, ev, buffer, sizeof(buffer), &sym, &status_return);
         if(edit_active()) {
             if(ev->state & 4) {
                 switch(sym) {
@@ -280,6 +282,11 @@ _Bool doevent(XEvent event)
                 sym -= 0xFF80;
             }
 
+            if(!sym) {
+              int i;
+              for(i = 0; i < len; i++)
+                edit_char(buffer[i], (ev->state & 4) != 0, ev->state);
+            }
             uint32_t key = keysym2ucs(sym);
             if(key != ~0) {
                 edit_char(key, (ev->state & 4) != 0, ev->state);
