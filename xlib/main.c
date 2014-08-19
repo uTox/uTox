@@ -386,7 +386,7 @@ void openurl(char_t *str)
     char cmd[1024], *p = cmd;
 
     #ifdef __APPLE__
-    p += sprintf(p, "open \"");
+    p += sprintf(p, "open \'");
     #else
     p += sprintf(p, "xdg-open \'");
     #endif
