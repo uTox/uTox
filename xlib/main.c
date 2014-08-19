@@ -392,6 +392,7 @@ void openurl(char_t *str)
     #endif
 
     while(*str) {
+        //escape single quotes, very important, prevents executing arbitrary commands
         if(*str == '\'') {
             *p++ = '\'';
             *p++ = '\"';
