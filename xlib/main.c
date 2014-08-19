@@ -393,7 +393,7 @@ void openurl(char_t *str)
 
     while(*str) {
         //escape these characters
-        if(*str == '\"' || *str == '\\' || *str == '\'' || *str == '\$') {
+        if(*str == '\"' || *str == '\\' || *str == '\'') {
             *p++ = '\\';
         }
         *p++ = *str++;
