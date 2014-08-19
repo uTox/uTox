@@ -349,12 +349,7 @@ static void deleteitem(ITEM *i)
     switch(i->item) {
     case ITEM_FRIEND: {
         FRIEND *f = i->data;
-
-        tox_postmessage(TOX_DELFRIEND, (f - friend), 0, NULL);
-
-        friend_free(f);
-
-        friends--;
+        tox_postmessage(TOX_DELFRIEND, (f - friend), 0, f);
         break;
     }
 

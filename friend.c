@@ -154,6 +154,13 @@ void friend_free(FRIEND *f)
 
     free(f->msg.data);
 
+    if(f->calling) {
+        toxaudio_postmessage(AUDIO_CALL_END, f->callid, 0, NULL);
+        if(f->calling == CALL_OK_VIDEO) {
+            toxvideo_postmessage(VIDEO_CALL_END, f->callid, 0, NULL);
+        }
+    }
+
     memset(f, 0, sizeof(FRIEND));//
 }
 

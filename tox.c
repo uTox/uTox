@@ -681,6 +681,7 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint8_t msg, uint16_t param1
         /* param1: friend #
          */
         tox_del_friend(tox, param1);
+        postmessage(FRIEND_DEL, 0, 0, data);
         break;
     }
 
@@ -1105,6 +1106,12 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
         }
 
         free(data);
+        break;
+    }
+
+    case FRIEND_DEL: {
+        friend_free(data);
+        friends--;
         break;
     }
 
