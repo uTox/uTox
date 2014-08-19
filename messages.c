@@ -815,6 +815,18 @@ void message_add(MESSAGES *m, MESSAGE *msg, MSG_DATA *p)
         message_free(p->data[0]);
         memmove(p->data, p->data + 1, 127 * sizeof(void*));
         p->data[127] = msg;
+        if(p->start != 0xFFFF) {
+            if(!p->istart) {
+                if(!p->iend) {
+                    p->istart = p->iend = 0xFFFF;
+                } else {
+                    p->start = 0;
+                }
+            } else {
+                p->istart--;
+                p->iend--;
+            }
+        }
     }
 
     message_setheight(m, msg, p);
