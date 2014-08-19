@@ -608,6 +608,14 @@ TOP:;
                 p--;
                 file_tend--;
                 postmessage(FRIEND_FILE_OUT_STATUS, ft->fid, ft->filenumber, (void*)FILE_KILLED);
+                break;
+            }
+
+            case FT_NONE: {
+                memmove(p, p + 1, ((void*)file_tend - (void*)(p + 1)));
+                p--;
+                file_tend--;
+                break;
             }
 
             }

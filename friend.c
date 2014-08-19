@@ -148,7 +148,29 @@ void friend_free(FRIEND *f)
 
     i = 0;
     while(i < f->msg.n) {
-        message_free(f->msg.data[i]);
+        MESSAGE *msg = f->msg.data[i];
+        if((msg->flags & (~1)) == 4) {
+            MSG_IMG *img = (void*)msg;
+            //todo: free image
+        }
+        if((msg->flags & (~1)) == 6) {
+            MSG_FILE *file = (void*)msg;
+            free(file->path);
+            FILE_T *ft = &f->incoming[file->filenumber];
+            if(ft->data) {
+                if(ft->inline_png) {
+                    free(ft->data);
+                } else {
+                    fclose(ft->data);
+                    free(ft->path);
+                }
+            }
+
+            if(msg->flags & 1) {
+                ft->status = FT_NONE;
+            }
+        }
+        message_free(msg);
         i++;
     }
 
