@@ -402,7 +402,7 @@ STRING strings[][64] = {
     //19
     STR("Звонок отменён"),
     STR("Входящий звонок"),
-    STR("Звонок"),
+    STR("Исходящий Звонок"),
     STR("Разговор начат"),
 
     //23
@@ -425,15 +425,15 @@ STRING strings[][64] = {
     STR("Разрешение, точек/дюйм"),
     STR("Сохранить расположение"),
     STR("Язык"),
-    STR("Network"),
+    STR("Сеть"),
     STR("IPv6:"),
     STR("UDP:"),
-    STR("Proxy (SOCKS 5)"),
-    STR("Changing Network/Proxy settings will disconnect you from the Tox network"),
+    STR("Прокси (SOCKS 5)"),
+    STR("Изменение настроек сети или прокси-сервера требует отключения от сети Tox"),
 
     //41
     STR("Копировать"),
-    STR("Копировать (no names)"),
+    STR("Копировать (без имени)"),
     STR("Вырезать"),
     STR("Вставить"),
     STR("Удалить"),
