@@ -392,9 +392,11 @@ void openurl(char_t *str)
     #endif
 
     while(*str) {
-        //escape these characters
-        if(*str == '\\' || *str == '\'') {
-            *p++ = '\\';
+        if(*str == '\'') {
+            *p++ = '\'';
+            *p++ = '\"';
+            *p++ = '\'';
+            *p++ = '\"';
         }
         *p++ = *str++;
     }
