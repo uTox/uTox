@@ -51,6 +51,7 @@ extern DROPDOWN dropdown_audio_in, dropdown_audio_out, dropdown_video, dropdown_
 enum {
     LANG_DE,
     LANG_EN,
+    LANG_IT,
     LANG_ES,
     LANG_FR,
     LANG_PL,

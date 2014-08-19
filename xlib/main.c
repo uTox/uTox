@@ -393,7 +393,7 @@ void openurl(char_t *str)
 
     while(*str) {
         //escape these characters
-        if(*str == '\"' || *str == '\\' || *str == '\'' || *str == '\$') {
+        if(*str == '\"' || *str == '\\' || *str == '\'' || *str == '$') {
             *p++ = '\\';
         }
         *p++ = *str++;
@@ -793,6 +793,9 @@ static int systemlang(void)
     }
     if(!str) {
         return LANG_EN;
+    }
+    if(strstr(str, "it")) {
+        return LANG_IT;
     }
     if(strstr(str, "fr")) {
         return LANG_FR;

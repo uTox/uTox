@@ -1103,6 +1103,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     case 0x09:
         LANG = LANG_EN;
         break;
+    case 0x10:
+        LANG = LANG_IT;
+        break;
     case 0x0C:
         LANG = LANG_FR;
         break;
