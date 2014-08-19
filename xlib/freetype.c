@@ -46,8 +46,6 @@ Picture loadglyphpic(uint8_t *data, int width, int height, int pitch, _Bool no_s
 
     if(no_subpixel) {
         pixmap = XCreatePixmap(display, window, width, height, 8);
-
-        pixmap = XCreatePixmap(display, window, width, height, 8);
         img = XCreateImage(display, CopyFromParent, 8, ZPixmap, 0, (char*)data, width, height, 8, 0);
         legc = XCreateGC(display, pixmap, 0, NULL);
         XPutImage(display, pixmap, legc, img, 0, 0, 0, 0, width, height);

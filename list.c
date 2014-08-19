@@ -332,6 +332,8 @@ void list_draw(void *n, int x, int y, int width, int height)
 
 static void deleteitem(ITEM *i)
 {
+    ritem = NULL;
+
     if(i == sitem) {
         if(i == &item[itemcount] - 1) {
             if(i == item) {

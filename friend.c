@@ -35,6 +35,7 @@ void friend_sendimage(FRIEND *f, void *data, void *pngdata, uint16_t width, uint
     msg->h = height;
     msg->zoom = 0;
     msg->data = data;
+    msg->position = 0.0;
 
     message_add(&messages_friend, (void*)msg, &f->msg);
 
@@ -55,6 +56,7 @@ void friend_recvimage(FRIEND *f, void *pngdata, uint32_t size)
     msg->h = height;
     msg->zoom = 0;
     msg->data = data;
+    msg->position = 0.0;
 
     message_add(&messages_friend, (void*)msg, &f->msg);
 }
