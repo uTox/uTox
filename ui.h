@@ -54,6 +54,7 @@ enum {
     LANG_IT,
     LANG_ES,
     LANG_FR,
+    LANG_JA,
     LANG_PL,
     LANG_RU,
 };
