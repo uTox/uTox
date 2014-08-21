@@ -241,6 +241,7 @@ STRING strings[][64] = {
     STR("Erreur: Tox ID invalide (bad checksum)"),
     STR("Erreur: Tox ID invalide (bad nospam value)"),
     STR("Erreur: Pas de mémoire"),
+
     //12
     STR("Nouveau transfert de fichier"),
     STR("Transfert de fichier commencé"),
@@ -249,11 +250,13 @@ STRING strings[][64] = {
     STR("Transfert de fichier interrompu"),
     STR("Transfert de fichier annulé"),
     STR("Transfert de fichier complété"),
+
     //19
     STR("Appel annulé"),
     STR("Réception d'un appel"),
     STR("Appel en cours"),
     STR("Appel commencé"),
+
     //23
     STR("Ajouter un ami"),
     STR("Tox ID"),
@@ -279,6 +282,7 @@ STRING strings[][64] = {
     STR("UDP:"),
     STR("Proxy (SOCKS 5)"),
     STR("Modifier les paramètres Réseau/Proxy vous déconnectera du réseau Tox"),
+
     //41
     STR("Copier")
     STR("Copier (sans les noms)"),
@@ -290,6 +294,7 @@ STRING strings[][64] = {
     STR("Partir"),
     STR("Accepter"),
     STR("Ignorer"),
+
     //50
     STR("Cliquer pour sauvegarder"),
     STR("Cliquer pour ouvrir"),
