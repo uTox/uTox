@@ -380,16 +380,16 @@ STRING strings[][64] = {
 {
     //0
     STR("Vriendschapsverzoek verstuurd. Uw vriend zal online verschijnen zodra hij/zij deze heeft geaccepteerd."),
-    STR("Proberen om de DNS naam te resolven..."),
-    STR("Fout: Ongeldige Tox ID"),
+    STR("Proberen om de DNS naam op te zoeken..."),
+    STR("Fout: Ongeldig Tox ID"),
     STR("Fout: Geen Tox ID gegeven"),
     STR("Fout: Het bericht is te lang"),
     STR("Fout: Het bericht is leeg"),
-    STR("Fout: De Tox ID is gelijk aan die van uzelf"),
-    STR("Fout: Deze Tox ID staat al in uw vriendenlijst"),
+    STR("Fout: Het Tox ID is gelijk aan die van uzelf"),
+    STR("Fout: Het desbetreffende Tox ID staat al in uw vriendenlijst"),
     STR("Fout: Onbekend"),
-    STR("Fout: Ongeldige Tox ID (foutief controlecijfer)"),
-    STR("Fout: Ongeldige Tox ID (foutieve nospam waarde)"),
+    STR("Fout: Ongeldig Tox ID (foutief controlecijfer)"),
+    STR("Fout: Ongeldig Tox ID (foutieve nospam waarde)"),
     STR("Fout: Niet genoeg geheugen"),
 
     //12
@@ -403,7 +403,7 @@ STRING strings[][64] = {
 
     //19
     STR("Gesprek geannuleerd"),
-    STR("Gesprek uitnodiging verstuurd"),
+    STR("Gespreksuitnodiging verstuurd"),
     STR("Call ringing"),
     STR("Gesprek gestart"),
 
@@ -417,7 +417,7 @@ STRING strings[][64] = {
     STR("Vriendschapsverzoek"),
     STR("Gebruikersinstellingen"),
     STR("Naam"),
-    STR("Status Bericht"),
+    STR("Statusbericht"),
     STR("Voorbeeld"),
     STR("Apparaat Selectie"),
     STR("Geluid Invoerapparaat"),
@@ -425,7 +425,7 @@ STRING strings[][64] = {
     STR("Video Invoerapparaat"),
     STR("Andere Instellingen"),
     STR("DPI"),
-    STR("Opslag Locatie"),
+    STR("Opslaglocatie"),
     STR("Taal"),
     STR("Netwerk"),
     STR("IPv6:"),
