@@ -151,6 +151,81 @@ STRING strings[][64] = {
     STR("Cancelled"),
 },
 
+//Italiano  ITALIAN
+{
+    //0
+    STR("Richiesta d'amicizia inviata. Il contatto apparirà online quando accetterà la richiesta."),
+    STR("Tentativo di risoluzione del nome attraverso DNS..."),
+    STR("Errore: Tox ID non valido"),
+    STR("Errore: Nessun Tox ID specificato"),
+    STR("Errore: Il messaggio è troppo lungo"),
+    STR("Errore: Il messaggio è vuoto"),
+    STR("Errore: Non puoi inserire il tuo Tox ID"),
+    STR("Errore: Questo Tox ID è già nella tua lista dei contatti"),
+    STR("Errore: Sconosciuto"),
+    STR("Errore: Tox ID non valido (checksum errato)"),
+    STR("Errore: Tox ID non valido (valore \"nospam\" errato)"),
+    STR("Errore: Memoria insufficiente"),
+
+    //12
+    STR("Nuovo trasferimento file"),
+    STR("Trasferimento file iniziato"),
+    STR("..."),
+    STR("Trasferimento file in pausa"),
+    STR("Trasferimento file interrotto"),
+    STR("Trasferimento file annullato"),
+    STR("Trasferimento file completato"),
+
+    //19
+    STR("Chiamata annullata"),
+    STR("Chiamata invitata"),
+    STR("Sta squillando"),
+    STR("Chiamata iniziata"),
+
+    //23
+    STR("Aggiungi contatto"),
+    STR("Tox ID"),
+    STR("Messaggio"),
+    STR("Cerca contatti"),
+    STR("Aggiungi"),
+    STR("Cambia Profilo"),
+    STR("Richieste d'amicizia"),
+    STR("Impostazioni"),
+    STR("Nome"),
+    STR("Messaggio di stato"),
+    STR("Anteprima"),
+    STR("Dispositivi"),
+    STR("Audio (input)"),
+    STR("Audio (output)"),
+    STR("Video (input)"),
+    STR("Altro"),
+    STR("DPI"),
+    STR("Salva Locazione"),
+    STR("Lingua"),
+    STR("Network"),
+    STR("IPv6:"),
+    STR("UDP:"),
+    STR("Proxy (SOCKS 5)"),
+    STR("Cambiando le impostazioni del Network o del Proxy, verrai disconnesso dalla rete Tox"),
+
+    //41
+    STR("Copia"),
+    STR("Copia (nessun nome)"),
+    STR("Taglia"),
+    STR("Incolla"),
+    STR("Cancella"),
+    STR("Seleziona Tutto"),
+    STR("Rimuovi"),
+    STR("Abbandona"),
+    STR("Accetta"),
+    STR("Ignora"),
+
+    //50
+    STR("Clicca per salvare"),
+    STR("Clicca per aprire"),
+    STR("Annullato"),
+},
+
 //Spanish SPANISH
 {
     //0
