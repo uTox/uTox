@@ -151,81 +151,6 @@ STRING strings[][64] = {
     STR("Cancelled"),
 },
 
-//Italiano  ITALIAN
-{
-    //0
-    STR("Richiesta d'amicizia inviata. Il contatto apparirà online quando accetterà la richiesta."),
-    STR("Tentativo di risoluzione del nome attraverso DNS..."),
-    STR("Errore: Tox ID non valido"),
-    STR("Errore: Nessun Tox ID specificato"),
-    STR("Errore: Il messaggio è troppo lungo"),
-    STR("Errore: Il messaggio è vuoto"),
-    STR("Errore: Non puoi inserire il tuo Tox ID"),
-    STR("Errore: Questo Tox ID è già nella tua lista dei contatti"),
-    STR("Errore: Sconosciuto"),
-    STR("Errore: Tox ID non valido (checksum errato)"),
-    STR("Errore: Tox ID non valido (valore \"nospam\" errato)"),
-    STR("Errore: Memoria insufficiente"),
-
-    //12
-    STR("Nuovo trasferimento file"),
-    STR("Trasferimento file iniziato"),
-    STR("..."),
-    STR("Trasferimento file in pausa"),
-    STR("Trasferimento file interrotto"),
-    STR("Trasferimento file annullato"),
-    STR("Trasferimento file completato"),
-
-    //19
-    STR("Chiamata annullata"),
-    STR("Chiamata invitata"),
-    STR("Sta squillando"),
-    STR("Chiamata iniziata"),
-
-    //23
-    STR("Aggiungi contatto"),
-    STR("Tox ID"),
-    STR("Messaggio"),
-    STR("Cerca contatti"),
-    STR("Aggiungi"),
-    STR("Cambia Profilo"),
-    STR("Richieste d'amicizia"),
-    STR("Impostazioni"),
-    STR("Nome"),
-    STR("Messaggio di stato"),
-    STR("Anteprima"),
-    STR("Dispositivi"),
-    STR("Audio (input)"),
-    STR("Audio (output)"),
-    STR("Video (input)"),
-    STR("Altro"),
-    STR("DPI"),
-    STR("Salva Locazione"),
-    STR("Lingua"),
-    STR("Network"),
-    STR("IPv6:"),
-    STR("UDP:"),
-    STR("Proxy (SOCKS 5)"),
-    STR("Cambiando le impostazioni del Network o del Proxy, verrai disconnesso dalla rete Tox"),
-
-    //41
-    STR("Copia"),
-    STR("Copia (nessun nome)"),
-    STR("Taglia"),
-    STR("Incolla"),
-    STR("Cancella"),
-    STR("Seleziona Tutto"),
-    STR("Rimuovi"),
-    STR("Abbandona"),
-    STR("Accetta"),
-    STR("Ignora"),
-
-    //50
-    STR("Clicca per salvare"),
-    STR("Clicca per aprire"),
-    STR("Annullato"),
-},
-
 //Spanish SPANISH
 {
     //0
@@ -374,6 +299,156 @@ STRING strings[][64] = {
     STR("Cliquer pour sauvegarder"),
     STR("Cliquer pour ouvrir"),
     STR("Annulé"),
+},
+
+//Italiano  ITALIAN
+{
+    //0
+    STR("Richiesta d'amicizia inviata. Il contatto apparirà online quando accetterà la richiesta."),
+    STR("Tentativo di risoluzione del nome attraverso DNS..."),
+    STR("Errore: Tox ID non valido"),
+    STR("Errore: Nessun Tox ID specificato"),
+    STR("Errore: Il messaggio è troppo lungo"),
+    STR("Errore: Il messaggio è vuoto"),
+    STR("Errore: Non puoi inserire il tuo Tox ID"),
+    STR("Errore: Questo Tox ID è già nella tua lista dei contatti"),
+    STR("Errore: Sconosciuto"),
+    STR("Errore: Tox ID non valido (checksum errato)"),
+    STR("Errore: Tox ID non valido (valore \"nospam\" errato)"),
+    STR("Errore: Memoria insufficiente"),
+
+    //12
+    STR("Nuovo trasferimento file"),
+    STR("Trasferimento file iniziato"),
+    STR("..."),
+    STR("Trasferimento file in pausa"),
+    STR("Trasferimento file interrotto"),
+    STR("Trasferimento file annullato"),
+    STR("Trasferimento file completato"),
+
+    //19
+    STR("Chiamata annullata"),
+    STR("Chiamata invitata"),
+    STR("Sta squillando"),
+    STR("Chiamata iniziata"),
+
+    //23
+    STR("Aggiungi contatto"),
+    STR("Tox ID"),
+    STR("Messaggio"),
+    STR("Cerca contatti"),
+    STR("Aggiungi"),
+    STR("Cambia Profilo"),
+    STR("Richieste d'amicizia"),
+    STR("Impostazioni"),
+    STR("Nome"),
+    STR("Messaggio di stato"),
+    STR("Anteprima"),
+    STR("Dispositivi"),
+    STR("Audio (input)"),
+    STR("Audio (output)"),
+    STR("Video (input)"),
+    STR("Altro"),
+    STR("DPI"),
+    STR("Salva Locazione"),
+    STR("Lingua"),
+    STR("Network"),
+    STR("IPv6:"),
+    STR("UDP:"),
+    STR("Proxy (SOCKS 5)"),
+    STR("Cambiando le impostazioni del Network o del Proxy, verrai disconnesso dalla rete Tox"),
+
+    //41
+    STR("Copia"),
+    STR("Copia (nessun nome)"),
+    STR("Taglia"),
+    STR("Incolla"),
+    STR("Cancella"),
+    STR("Seleziona Tutto"),
+    STR("Rimuovi"),
+    STR("Abbandona"),
+    STR("Accetta"),
+    STR("Ignora"),
+
+    //50
+    STR("Clicca per salvare"),
+    STR("Clicca per aprire"),
+    STR("Annullato"),
+},
+
+//日本語  JAPANESE
+{
+    //0
+    STR("フレンド要求が送信した。フレンドが承認とオンラインで現れます。"),
+    STR("DNS解決中"),
+    STR("エラー: 無効なTox IDです"),
+    STR("エラー: Tox IDが指定されていません"),
+    STR("エラー: メッセージが長すぎます"),
+    STR("エラー: 空のメッセージ"),
+    STR("エラー: Tox IDは自身のIDです"),
+    STR("エラー: Tox IDは既にフレンドリストの中です"),
+    STR("エラー: 不明"),
+    STR("エラー: Tox IDは不正です (不正なチェックサム)"),
+    STR("エラー: Tox IDは不正です (不正なnospam)"),
+    STR("エラー: メモリが不足です"),
+
+    //12
+    STR("新しいファイルの転送"),
+    STR("ファイルの転送が開始しました"),
+    STR(".."),
+    STR("ファイルの転送が停止しまた"),
+    STR("ファイルの転送が失敗しました"),
+    STR("ファイルの転送がキャンセルしました"),
+    STR("ファイルの転送が完了しました"),
+
+    //19
+    STR("通話をキャンセルしました"),
+    STR("通話を招待しました"),
+    STR("通話が鳴っています"),
+    STR("通話を開始しますた"),
+
+    //23
+    STR("フレンド追加"),
+    STR("Tox ID"),
+    STR("メッセージ"),
+    STR("フレンドの検索"),
+    STR("追加"),
+    STR("プロファイルを変更する"),
+    STR("フレンド要求"),
+    STR("ユーザ設定"),
+    STR("名前"),
+    STR("状態メッセージ"),
+    STR("プレビュー"),
+    STR("デバイス選択"),
+    STR("音声入力デバイス"),
+    STR("音声出力デバイス"),
+    STR("ビデオ入力デバイス"),
+    STR("他の設定"),
+    STR("解像度"),
+    STR("場所の保存"),
+    STR("言語"),
+    STR("ネットワーク"),
+    STR("IPV6:"),
+    STR("UDP:"),
+    STR("プロキシ (SOCKS 5)"),
+    STR("ネットワークやプロキシの設定を変えるとToxネットワークの接続が切ります"),
+
+    //41
+    STR("コピー"),
+    STR("コピー（名前を除いて）"),
+    STR("カット"),
+    STR("ペースト"),
+    STR("削除"),
+    STR("すべてを選択"),
+    STR("削除"),
+    STR("退出"),
+    STR("承認"),
+    STR("無視する"),
+
+    //50
+    STR("クリックで保存"),
+    STR("クリックで開く"),
+    STR("キャンセルしました"),
 },
 
 //Polski POLISH
