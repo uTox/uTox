@@ -815,6 +815,9 @@ static int systemlang(void)
     if(strstr(str, "pl")) {
         return LANG_PL;
     }
+    if(strstr(str, "nl")) {
+        return LANG_NL;
+    }
 
     return LANG_EN;
 }

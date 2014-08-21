@@ -376,6 +376,81 @@ STRING strings[][64] = {
     STR("Annullato"),
 },
 
+//Nederlands DUTCH
+{
+    //0
+    STR("Vriendschapsverzoek verstuurd. Uw vriend zal online verschijnen zodra hij/zij deze heeft geaccepteerd."),
+    STR("Proberen om de DNS naam te resolven..."),
+    STR("Fout: Ongeldige Tox ID"),
+    STR("Fout: Geen Tox ID gegeven"),
+    STR("Fout: Het bericht is te lang"),
+    STR("Fout: Het bericht is leeg"),
+    STR("Fout: De Tox ID is gelijk aan die van uzelf"),
+    STR("Fout: Deze Tox ID staat al in uw vriendenlijst"),
+    STR("Fout: Onbekend"),
+    STR("Fout: Ongeldige Tox ID (foutief controlecijfer)"),
+    STR("Fout: Ongeldige Tox ID (foutieve nospam waarde)"),
+    STR("Fout: Niet genoeg geheugen"),
+
+    //12
+    STR("Nieuwe bestandsoverdracht"),
+    STR("Bestandsoverdracht gestart"),
+    STR(".."),
+    STR("Bestandsoverdracht gepauzeerd"),
+    STR("Bestandsoverdracht onderbroken"),
+    STR("Bestandsoverdracht geannuleerd"),
+    STR("Bestandsoverdracht voltooid"),
+
+    //19
+    STR("Gesprek geannuleerd"),
+    STR("Gesprek uitnodiging verstuurd"),
+    STR("Call ringing"),
+    STR("Gesprek gestart"),
+
+    //23
+    STR("Vrienden Toevoegen"),
+    STR("Tox ID"),
+    STR("Bericht"),
+    STR("Zoek Vrienden"),
+    STR("Toevoegen"),
+    STR("Van Profiel Veranderen"),
+    STR("Vriendschapsverzoek"),
+    STR("Gebruikersinstellingen"),
+    STR("Naam"),
+    STR("Status Bericht"),
+    STR("Voorbeeld"),
+    STR("Apparaat Selectie"),
+    STR("Geluid Invoerapparaat"),
+    STR("Geluid Uitvoerapparaat"),
+    STR("Video Invoerapparaat"),
+    STR("Andere Instellingen"),
+    STR("DPI"),
+    STR("Opslag Locatie"),
+    STR("Taal"),
+    STR("Netwerk"),
+    STR("IPv6:"),
+    STR("UDP:"),
+    STR("Proxy (SOCKS 5)"),
+    STR("Veranderen van Netwerk/Proxy instelling zal de verbinding met het Tox netwerk verbreken"),
+
+    //41
+    STR("Kopiëren"),
+    STR("Kopieër (zonder namen)"),
+    STR("Knippen"),
+    STR("Plakken"),
+    STR("Wissen"),
+    STR("Alles Selecteren"),
+    STR("Verwijderen"),
+    STR("Verlaten"),
+    STR("Accepteren"),
+    STR("Negeren"),
+
+    //50
+    STR("Klik om op te slaan"),
+    STR("Klik om te openen"),
+    STR("Geannuleerd"),
+},
+
 //日本語  JAPANESE
 {
     //0

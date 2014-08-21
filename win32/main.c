@@ -1100,7 +1100,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     uint8_t langid = GetUserDefaultUILanguage() & 0xFF;
     switch(langid) {
     default:
-    case 0x09:
+    case :
         LANG = LANG_EN;
         break;
     case 0x10:
@@ -1123,6 +1123,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
         break;
     case 0x15:
         LANG = LANG_PL;
+        break;
+    case 0x13:
+        LANG = LANG_NL;
         break;
     }
 
