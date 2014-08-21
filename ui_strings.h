@@ -284,7 +284,7 @@ STRING strings[][64] = {
     STR("Modifier les paramètres Réseau/Proxy vous déconnectera du réseau Tox"),
 
     //41
-    STR("Copier")
+    STR("Copier"),
     STR("Copier (sans les noms)"),
     STR("Couper"),
     STR("Coller"),
