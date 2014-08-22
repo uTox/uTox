@@ -327,7 +327,7 @@ STRING strings[][64] = {
     STR("Trasferimento file completato"),
 
     //19
-    STR("Chiamata annullata"),
+    STR("Chiamata terminata"),
     STR("Chiamata invitata"),
     STR("Sta squillando"),
     STR("Chiamata iniziata"),
