@@ -57,6 +57,7 @@ enum {
     LANG_JA,
     LANG_PL,
     LANG_RU,
+    LANG_UA,
 };
 
 enum {
