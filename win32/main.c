@@ -1130,6 +1130,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     case 0x22:
         LANG = LANG_UA;
         break;
+    case 0x26:
+        LANG = LANG_LV;
+        break;
     }
 
     dropdown_language.selected = dropdown_language.over = LANG;
