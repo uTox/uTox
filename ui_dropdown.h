@@ -158,7 +158,7 @@ static DROP_ELEMENT langdrops[] = {
     
     {
         .name = (uint8_t*)"Українська",
-        .handle = (void*)(size_t)8
+        .handle = (void*)(size_t)9
     },
 };
 
