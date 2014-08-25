@@ -7,6 +7,16 @@ Dependencies on Debian Jessie:
 sudo apt-get install libv4l-dev libopenal-dev libfreetype6-dev libdbus-1-dev libxrender-dev libfontconfig1-dev libxext-dev libxft-dev
 ```
 
+Compile:
+```bash
+make all
+```
+
+Compile and install:
+```bash
+sudo make install
+```
+
 ### Cross-compiling for Windows
 
 Something like this (these commands may sometimes be outdated, try the makefile or make an issue if they do not work):
