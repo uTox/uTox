@@ -1,5 +1,11 @@
 # Install
 
+- [Unix like](#unix)
+- [OS X](#osx)
+- [Windows](#windows)
+- [Android](#android)
+
+<a name="unix" />
 ## Linux / Unix-like
 
 Dependencies on Debian Jessie:
@@ -29,7 +35,7 @@ Note: building for Windows requires mingw-w64 (mingw lacks some header files), o
 
 > gcc -o uTox.exe *.c ./png/png.c icon.res -lgdi32 -lmsimg32 -ldnsapi -lcomdlg32 -lopenal32 -lole32 -lstrmiids -loleaut32 -lvpx -ltoxav
 
-## Xlib
+### Xlib
 
 > cc -o uTox.o *.c ./png/png.c -lX11 -lXrender -lXext -ltoxcore -ltoxav -ltoxdns -lopenal -pthread -lresolv -ldl -lm -lfontconfig -lv4lconvert -lvpx -I/usr/include/freetype2 -ldbus-1
 
@@ -37,11 +43,16 @@ or if you built toxcore statically:
 
 > cc -o uTox.o *.c ./png/png.c -lX11 -lXrender -lXext -ltoxcore -ltoxav -ltoxdns -lopenal -lsodium -lopus -lvpx -lm -pthread -lresolv -ldl -lfontconfig -lfreetype -lv4lconvert -I/usr/include/freetype2 -ldbus-1
 
+<a name="osx" />
 ## OS X
 You need XQuartz on 10.8+, no video yet.
 
 > cc -o uTox.o *.c -I/opt/X11/include -L/opt/X11/lib -lX11 -lXrender -lXext -ltoxcore -ltoxav -ltoxdns -framework OpenAL -pthread -lresolv -ldl -lm -lfontconfig -lfreetype -lvpx -I/opt/X11/include/freetype2
 
+<a name="windows" />
+## Windows
+
+<a name="android" />
 ## Android
 
 Requires Android SDK+NDK
