@@ -4,6 +4,7 @@
 - [OS X](#osx)
 - [Windows](#windows)
 - [Android](#android)
+- [Binaries](#binaries)
 
 <a name="unix" />
 ## Linux / Unix-like
@@ -79,3 +80,20 @@ dx --dex --output=./tmp/classes.dex ./tmp/java
 java -classpath $SDK_PATH/tools/lib/sdklib.jar com.android.sdklib.build.ApkBuilderMain ./tmp/tmp2.apk -u -z ./tmp/tmp1.apk -f ./tmp/classes.dex -nf ./tmp/libs
 jarsigner -sigalg SHA1withRSA -digestalg SHA1 -keystore ./tmp/debug.keystore -storepass $PASSWORD ./tmp/tmp2.apk $ALIAS
 ```
+
+<a name="binaries" />
+## Pre-compiled binaries
+
+[Jenkins](https://jenkins.libtoxcore.so) offers automatically compiled binaries. All files below link to the last successful build. [See which changes are in which Jenkins build of uTox](https://jenkins.libtoxcore.so/job/Sync%20uTox/changes).
+
+**Caution**: These are automatically compiled with every push and possibly unstable.
+
+- Linux
+  - [amd64](https://jenkins.libtoxcore.so/view/Clients/job/uTox_linux_amd64/) [[.tar.xz]](https://jenkins.libtoxcore.so/view/Clients/job/uTox_linux_amd64/lastSuccessfulBuild/artifact/utox/utox_linux_amd64.tar.xz)
+  - [i686](https://jenkins.libtoxcore.so/view/Clients/job/uTox_linux_i686/) [[.tar.xz]](https://jenkins.libtoxcore.so/view/Clients/job/uTox_linux_i686/lastSuccessfulBuild/artifact/utox/utox_linux_i686.tar.xz)
+- Windows
+  - [Updater](https://jenkins.libtoxcore.so/view/Clients/job/utox_update_win32/) (32-bit) [[.zip]](https://jenkins.libtoxcore.so/view/Clients/job/utox_update_win32/lastSuccessfulBuild/artifact/utox-updater.zip)
+  - [32-bit](https://jenkins.libtoxcore.so/view/Clients/job/uTox_win32/) [[.zip]](https://jenkins.libtoxcore.so/view/Clients/job/uTox_win32/lastSuccessfulBuild/artifact/utox/utox_win32.zip)
+  - [64-bit](https://jenkins.libtoxcore.so/view/Clients/job/uTox_win64/) [[.zip]](https://jenkins.libtoxcore.so/view/Clients/job/uTox_win64/lastSuccessfulBuild/artifact/utox/utox_win64.zip)
+- OS X (not available)
+- [Android](https://jenkins.libtoxcore.so/view/Clients/job/uTox_android/) [[.apk]](https://jenkins.libtoxcore.so/view/Clients/job/uTox_android/lastSuccessfulBuild/artifact/future.apk)
