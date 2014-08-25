@@ -451,6 +451,81 @@ STRING strings[][64] = {
     STR("キャンセルしました"),
 },
 
+//Latviešu  LATVIAN
+{
+    //0
+    STR("Friend request sent. Your friend will appear online when they accept the request."),
+    STR("Attempting to resolve DNS name..."),
+    STR("Kļūda: Nederīgs Tox ID"),
+    STR("Kļūda: No Tox ID specified"),
+    STR("Kļūda: Ziņa ir pārāk gara"),
+    STR("Kļūda: Tukša ziņa"),
+    STR("Kļūda: Tox ID is self ID"),
+    STR("Kļūda: Tox ID jau ir draugu sarakstā"),
+    STR("Kļūda: Unknown"),
+    STR("Kļūda: Nederīgs Tox ID (bad checksum)"),
+    STR("Kļūda: Nederīgs Tox ID (bad nospam value)"),
+    STR("Kļūda: No memory"),
+
+    //12
+    STR("Jauna faila pārsūtīšana"),
+    STR("Faila pārsūtīšana sākta"),
+    STR(".."),
+    STR("Faila pārsūtīšana apturēta"),
+    STR("Kļūda faila pārsūtīšanā"),
+    STR("Faila pārsūtīšana atcelta"),
+    STR("Faila pārsūtīšana pabeigta"),
+
+    //19
+    STR("Zvans atcelts"),
+    STR("Call invited"),
+    STR("Call ringing"),
+    STR("Zvans uzsākts"),
+
+    //23
+    STR("Pievienot draugus"),
+    STR("Tox ID"),
+    STR("Ziņa"),
+    STR("Meklēt draugus"),
+    STR("Pievienot"),
+    STR("Switch Profile"),
+    STR("Friend Request"),
+    STR("Lietotāja iestatījumi"),
+    STR("Vārds"),
+    STR("Statusa ziņojums"),
+    STR("Priekšskatījums"),
+    STR("Ierīču izvēle"),
+    STR("Audio ievades ierīce"),
+    STR("Audio izvades ierīce"),
+    STR("Video ievades ierīce"),
+    STR("Citi iestatījumi"),
+    STR("DPI"),
+    STR("Save Location"),
+    STR("Valoda"),
+    STR("Tīkls"),
+    STR("IPv6:"),
+    STR("UDP:"),
+    STR("Starpniekserveris (SOCKS 5)"),
+    STR("Changing Network/Proxy settings will disconnect you from the Tox network"),
+
+    //41
+    STR("Kopēt"),
+    STR("Kopēt (no names)"),
+    STR("Izgriezt"),
+    STR("Ielīmēt"),
+    STR("Dzēst"),
+    STR("Atlasīt visu"),
+    STR("Noņemt"),
+    STR("Pamest"),
+    STR("Accept"),
+    STR("Ignorēt"),
+
+    //50
+    STR("Spiest, lai saglabātu"),
+    STR("Spiest, lai atvērtu"),
+    STR("Atcelts"),
+},
+
 //Nederlands DUTCH
 {
     //0
@@ -751,80 +826,6 @@ STRING strings[][64] = {
     STR("Скасовано"),
 },
 
-//Latviešu  LATVIAN
-{
-    //0
-    STR("Friend request sent. Your friend will appear online when they accept the request."),
-    STR("Attempting to resolve DNS name..."),
-    STR("Kļūda: Nederīgs Tox ID"),
-    STR("Kļūda: No Tox ID specified"),
-    STR("Kļūda: Ziņa ir pārāk gara"),
-    STR("Kļūda: Tukša ziņa"),
-    STR("Kļūda: Tox ID is self ID"),
-    STR("Kļūda: Tox ID jau ir draugu sarakstā"),
-    STR("Kļūda: Unknown"),
-    STR("Kļūda: Nederīgs Tox ID (bad checksum)"),
-    STR("Kļūda: Nederīgs Tox ID (bad nospam value)"),
-    STR("Kļūda: No memory"),
-
-    //12
-    STR("Jauna faila pārsūtīšana"),
-    STR("Faila pārsūtīšana sākta"),
-    STR(".."),
-    STR("Faila pārsūtīšana apturēta"),
-    STR("Kļūda faila pārsūtīšanā"),
-    STR("Faila pārsūtīšana atcelta"),
-    STR("Faila pārsūtīšana pabeigta"),
-
-    //19
-    STR("Zvans atcelts"),
-    STR("Call invited"),
-    STR("Call ringing"),
-    STR("Zvans uzsākts"),
-
-    //23
-    STR("Pievienot draugus"),
-    STR("Tox ID"),
-    STR("Ziņa"),
-    STR("Meklēt draugus"),
-    STR("Pievienot"),
-    STR("Switch Profile"),
-    STR("Friend Request"),
-    STR("Lietotāja iestatījumi"),
-    STR("Vārds"),
-    STR("Statusa ziņojums"),
-    STR("Priekšskatījums"),
-    STR("Ierīču izvēle"),
-    STR("Audio ievades ierīce"),
-    STR("Audio izvades ierīce"),
-    STR("Video ievades ierīce"),
-    STR("Citi iestatījumi"),
-    STR("DPI"),
-    STR("Save Location"),
-    STR("Valoda"),
-    STR("Tīkls"),
-    STR("IPv6:"),
-    STR("UDP:"),
-    STR("Starpniekserveris (SOCKS 5)"),
-    STR("Changing Network/Proxy settings will disconnect you from the Tox network"),
-
-    //41
-    STR("Kopēt"),
-    STR("Kopēt (no names)"),
-    STR("Izgriezt"),
-    STR("Ielīmēt"),
-    STR("Dzēst"),
-    STR("Atlasīt visu"),
-    STR("Noņemt"),
-    STR("Pamest"),
-    STR("Accept"),
-    STR("Ignorēt"),
-
-    //50
-    STR("Spiest, lai saglabātu"),
-    STR("Spiest, lai atvērtu"),
-    STR("Atcelts"),
-},
 };
 
 #undef STR
