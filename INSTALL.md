@@ -1,5 +1,9 @@
 # Install
 
+## Linux / Unix-like
+
+### Cross-compiling for Windows
+
 Something like this (these commands may sometimes be outdated, try the makefile or make an issue if they do not work):
 
 Windows, using prebuilt toxav dll from Jenkins [32-bit](https://jenkins.libtoxcore.so/job/toxcore_win32_dll/) | [64-bit](https://jenkins.libtoxcore.so/job/toxcore_win64_dll/):
@@ -10,7 +14,7 @@ Note: building for Windows requires mingw-w64 (mingw lacks some header files), o
 
 > gcc -o uTox.exe *.c ./png/png.c icon.res -lgdi32 -lmsimg32 -ldnsapi -lcomdlg32 -lopenal32 -lole32 -lstrmiids -loleaut32 -lvpx -ltoxav
 
-Xlib:
+## Xlib
 
 > cc -o uTox.o *.c ./png/png.c -lX11 -lXrender -lXext -ltoxcore -ltoxav -ltoxdns -lopenal -pthread -lresolv -ldl -lm -lfontconfig -lv4lconvert -lvpx -I/usr/include/freetype2 -ldbus-1
 
@@ -18,11 +22,12 @@ or if you built toxcore statically:
 
 > cc -o uTox.o *.c ./png/png.c -lX11 -lXrender -lXext -ltoxcore -ltoxav -ltoxdns -lopenal -lsodium -lopus -lvpx -lm -pthread -lresolv -ldl -lfontconfig -lfreetype -lv4lconvert -I/usr/include/freetype2 -ldbus-1
 
-OS X (you need XQuartz on 10.8+, no video yet):
+## OS X
+You need XQuartz on 10.8+, no video yet.
 
 > cc -o uTox.o *.c -I/opt/X11/include -L/opt/X11/lib -lX11 -lXrender -lXext -ltoxcore -ltoxav -ltoxdns -framework OpenAL -pthread -lresolv -ldl -lm -lfontconfig -lfreetype -lvpx -I/opt/X11/include/freetype2
 
-Android:
+## Android
 
 Requires Android SDK+NDK
 
