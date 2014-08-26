@@ -77,6 +77,10 @@ void log_read(Tox *tox, int fid)
     strcpy(p, ".txt");
 
     p = pp = file_raw((char*)path, &size);
+    if(!p) {
+        return;
+    }
+
     end = p + size;
 
     /* todo: some checks to avoid crashes with corrupted log files */
