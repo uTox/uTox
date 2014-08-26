@@ -475,8 +475,13 @@ static void set_callbacks(Tox *tox)
 
 static _Bool load_save(Tox *tox)
 {
+    uint8_t path[512], *p;
     uint32_t size;
-    void *data = loadsavedata(&size);
+
+    p = path + datapath(path);
+    strcpy(p, "tox_save");
+
+    void *data = file_raw(path, &size);
     if(!data) {
         return 0;
     }
@@ -542,11 +547,23 @@ static void write_save(Tox *tox)
 {
     void *data;
     uint32_t size;
+    uint8_t path[512], *p;
+    FILE *file;
 
     size = tox_size(tox);
     data = malloc(size);
     tox_save(tox, data);
-    writesavedata(data, size);
+
+    p = path + datapath(path);
+    strcpy(p, "tox_save");
+
+    file = fopen(path, "wb");
+    if(file) {
+        fwrite(data, size, 1, file);
+        fclose(file);
+        debug("Saved data\n");
+    }
+
     free(data);
 }
 

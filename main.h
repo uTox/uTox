@@ -209,8 +209,6 @@ enum
 
 void drawalpha(int bm, int x, int y, int width, int height, uint32_t color);
 void loadalpha(int bm, void *data, int width, int height);
-void* loadsavedata(uint32_t *len);
-void writesavedata(void *data, uint32_t len);
 void desktopgrab(_Bool video);
 void notify(uint8_t *title, uint16_t title_length, uint8_t *msg, uint16_t msg_length);
 void setscale(void);
@@ -220,6 +218,7 @@ void showkeyboard(_Bool show);
 void redraw(void);
 
 int datapath(uint8_t *dest);
+void config_osdefaults(UTOX_SAVE *r);
 
 //me
 struct

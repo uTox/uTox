@@ -729,25 +729,6 @@ void* png_to_image(void *data, uint16_t *w, uint16_t *h, uint32_t size)
     return bm;
 }
 
-void* loadsavedata(uint32_t *len)
-{
-    int end = GetCurrentDirectory(sizeof(save_path) - 16, save_path);
-    memcpy(save_path + end, "\\tox_save", 9);
-
-    return file_raw(save_path, len);
-}
-
-void writesavedata(void *data, uint32_t len)
-{
-    FILE *file;
-    file = fopen(save_path, "wb");
-    if(file) {
-        fwrite(data, len, 1, file);
-        fclose(file);
-        debug("Saved data\n");
-    }
-}
-
 int datapath(uint8_t *dest)
 {
     if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, (char*)dest))) {
@@ -965,42 +946,12 @@ void setscale(void)
     svg_draw(1);
 }
 
-static UTOX_SAVE* loadconfig(void)
+void config_osdefaults(UTOX_SAVE *r)
 {
-    UTOX_SAVE *r = file_text("utox_save");
-    if(r) {
-        if(r->version == SAVE_VERSION) {
-            /* validate values */
-            if(r->scale > 4) {
-                r->scale = 4;
-            }
-
-            if(r->window_x > GetSystemMetrics(SM_CXSCREEN) || r->window_width > GetSystemMetrics(SM_CXSCREEN)
-               || r->window_y > GetSystemMetrics(SM_CYSCREEN) || r->window_height > GetSystemMetrics(SM_CYSCREEN)) {
-                goto SET_DEFAULTS;
-            }
-            return r;
-        } else {
-            free(r);
-            r = NULL;
-        }
-    }
-
-    r = malloc(sizeof(UTOX_SAVE) + 1);
-    r->version = 1;
-    r->scale = DEFAULT_SCALE - 1;
-    r->enableipv6 = 1;
-    r->disableudp = 0;
-    r->proxy_port = 0;
-    r->proxyenable = 0;
-    r->logging_enabled = 0;
-    r->proxy_ip[0] = 0;
-SET_DEFAULTS:
     r->window_x = (GetSystemMetrics(SM_CXSCREEN) - MAIN_WIDTH) / 2;
     r->window_y = (GetSystemMetrics(SM_CYSCREEN) - MAIN_HEIGHT) / 2;
     r->window_width = MAIN_WIDTH;
     r->window_height = MAIN_HEIGHT;
-    return r;
 }
 
 #include "dnd.c"
@@ -1067,31 +1018,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
         .cbSize = sizeof(nid),
     };
 
-
     OleInitialize(NULL);
     RegisterClassW(&wc);
     RegisterClassW(&wc2);
 
-    UTOX_SAVE *save = loadconfig();
-
-    dropdown_dpi.selected = dropdown_dpi.over = save->scale;
-    dropdown_ipv6.selected = dropdown_ipv6.over = !save->enableipv6;
-    dropdown_udp.selected = dropdown_udp.over = (save->disableudp != 0);
-    dropdown_proxy.selected = dropdown_proxy.over = save->proxyenable <= 2 ? save->proxyenable : 2;
-    dropdown_logging.selected = dropdown_logging.over = save->logging_enabled;
-
-    options.ipv6enabled = save->enableipv6;
-    options.udp_disabled = save->disableudp;
-    options.proxy_enabled = save->proxyenable;
-    options.proxy_port = save->proxy_port;
-    strcpy((char*)options.proxy_address, (char*)save->proxy_ip);
-    edit_proxy_ip.length = strlen((char*)save->proxy_ip);
-    strcpy((char*)edit_proxy_ip.data, (char*)save->proxy_ip);
-    if(save->proxy_port) {
-        edit_proxy_port.length = sprintf((char*)edit_proxy_port.data, "%u", save->proxy_port);
-    }
-
-    logging_enabled = save->logging_enabled;
+    UTOX_SAVE *save = config_load();
 
     hwnd = CreateWindowExW(0, classname, L"Tox", WS_OVERLAPPEDWINDOW, save->window_x, save->window_y, save->window_width, save->window_height, NULL, NULL, hInstance, NULL);
 
@@ -1230,33 +1161,17 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
 
     switch(msg) {
     case WM_DESTROY: {
-        FILE *file = fopen("utox_save", "wb");
-        if(!file) {
-            PostQuitMessage(0);
-            return 0;
-        }
-
         RECT wndrect = {0};
         GetWindowRect(hwnd, &wndrect);
 
         UTOX_SAVE d = {
-            .version = SAVE_VERSION,
-            .scale = SCALE - 1,
             .window_x = wndrect.left < 0 ? 0 : wndrect.left,
             .window_y = wndrect.top < 0 ? 0 : wndrect.top,
             .window_width = (wndrect.right - wndrect.left),
             .window_height = (wndrect.bottom - wndrect.top),
-            .enableipv6 = !dropdown_ipv6.selected,
-            .disableudp = dropdown_udp.selected,
-            .proxyenable = dropdown_proxy.selected,
-            .logging_enabled = logging_enabled,
-            .proxy_port = options.proxy_port,
         };
 
-        fwrite(&d, sizeof(d), 1, file);
-        fwrite(options.proxy_address, strlen(options.proxy_address), 1, file);
-        fclose(file);
-
+        config_save(&d);
         PostQuitMessage(0);
         return 0;
     }

@@ -519,3 +519,84 @@ void scale_rgbx_image(uint8_t *old_rgbx, uint16_t old_width, uint16_t old_height
         }
     }
 }
+
+UTOX_SAVE* config_load(void)
+{
+    uint8_t path[512], *p;
+    UTOX_SAVE *save;
+
+    p = path + datapath(path);
+    strcpy(p, "utox_save");
+
+    save = file_text(path);
+    if(save) {
+        if(save->version == SAVE_VERSION) {
+            /* validate values */
+            if(save->scale > 4) {
+                save->scale = 4;
+            }
+            goto NEXT;
+        } else {
+            free(save);
+        }
+    }
+
+    save = malloc(sizeof(UTOX_SAVE) + 1);
+    save->version = 1;
+    save->scale = DEFAULT_SCALE - 1;
+    save->enableipv6 = 1;
+    save->disableudp = 0;
+    save->proxy_port = 0;
+    save->proxyenable = 0;
+    save->logging_enabled = 0;
+    save->proxy_ip[0] = 0;
+
+    config_osdefaults(save);
+NEXT:
+    dropdown_dpi.selected = dropdown_dpi.over = save->scale;
+    dropdown_ipv6.selected = dropdown_ipv6.over = !save->enableipv6;
+    dropdown_udp.selected = dropdown_udp.over = (save->disableudp != 0);
+    dropdown_proxy.selected = dropdown_proxy.over = save->proxyenable <= 2 ? save->proxyenable : 2;
+    dropdown_logging.selected = dropdown_logging.over = save->logging_enabled;
+
+    options.ipv6enabled = save->enableipv6;
+    options.udp_disabled = save->disableudp;
+    options.proxy_enabled = save->proxyenable;
+    options.proxy_port = save->proxy_port;
+    strcpy((char*)options.proxy_address, (char*)save->proxy_ip);
+    edit_proxy_ip.length = strlen((char*)save->proxy_ip);
+    strcpy((char*)edit_proxy_ip.data, (char*)save->proxy_ip);
+    if(save->proxy_port) {
+        edit_proxy_port.length = sprintf((char*)edit_proxy_port.data, "%u", save->proxy_port);
+    }
+
+    logging_enabled = save->logging_enabled;
+
+    return save;
+}
+
+void config_save(UTOX_SAVE *save)
+{
+    uint8_t path[512], *p;
+    FILE *file;
+
+    p = path + datapath(path);
+    strcpy(p, "utox_save");
+
+    file = fopen(path, "wb");
+    if(!file) {
+        return;
+    }
+
+    save->version = SAVE_VERSION;
+    save->scale = SCALE - 1;
+    save->enableipv6 = !dropdown_ipv6.selected;
+    save->disableudp = dropdown_udp.selected;
+    save->proxyenable = dropdown_proxy.selected;
+    save->logging_enabled = logging_enabled;
+    save->proxy_port = options.proxy_port;
+
+    fwrite(save, sizeof(*save), 1, file);
+    fwrite(options.proxy_address, strlen(options.proxy_address), 1, file);
+    fclose(file);
+}

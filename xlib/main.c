@@ -653,46 +653,14 @@ void* png_to_image(void *data, uint16_t *w, uint16_t *h, uint32_t size)
     return (void*)picture;
 }
 
-void* loadsavedata(uint32_t *len)
-{
-    char *home = getenv("HOME");
-    char path[256];
-    sprintf(path, "%.230s/.config/tox/data", home);
-
-    void *data;
-    if((data = file_raw("tox_save", len))) {
-        return data;
-    }
-
-    return file_raw(path, len);
-}
-
-void writesavedata(void *data, uint32_t len)
-{
-    char *home = getenv("HOME");
-    char path[256];
-    int l = sprintf(path, "%.230s/.config/tox/data", home);
-    path[l - 5] = 0;
-    mkdir(path, 0700);
-    path[l - 5] = '/';
-
-    FILE *file;
-    /*file = fopen(path, "wb");
-    if(file) {
-        fwrite(data, len, 1, file);
-        fclose(file);
-    }*/
-
-    file = fopen("tox_save", "wb");
-    if(file) {
-        fwrite(data, len, 1, file);
-        fclose(file);
-    }
-}
-
 int datapath(uint8_t *dest)
 {
-    return 0;
+    char *home = getenv("HOME");
+    int l = sprintf(dest, "%.230s/.config/tox", home);
+    mkdir(dest, 0700);
+    dest[l++] = '/';
+
+    return l;
 }
 
 void setscale(void)
@@ -763,32 +731,12 @@ void redraw(void)
 int depth;
 Screen *scr;
 
-static UTOX_SAVE* loadconfig(void)
+void config_osdefaults(UTOX_SAVE *r)
 {
-    UTOX_SAVE *r = file_text("utox_save");
-    if(r) {
-        if(r->version == SAVE_VERSION) {
-            return r;
-        } else {
-            free(r);
-            r = NULL;
-        }
-    }
-
-    r = malloc(sizeof(UTOX_SAVE) + 1);
-    r->version = 1;
-    r->scale = DEFAULT_SCALE - 1;
     r->window_x = 0;
     r->window_y = 0;
     r->window_width = DEFAULT_WIDTH;
     r->window_height = DEFAULT_HEIGHT;
-    r->enableipv6 = 1;
-    r->disableudp = 0;
-    r->proxy_port = 0;
-    r->proxyenable = 0;
-    r->logging_enabled = 0;
-    r->proxy_ip[0] = 0;
-    return r;
 }
 
 static int systemlang(void)
@@ -866,26 +814,7 @@ int main(int argc, char *argv[])
     };
 
     /* load save data */
-    UTOX_SAVE *save = loadconfig();
-
-    dropdown_dpi.selected = dropdown_dpi.over = save->scale;
-    dropdown_ipv6.selected = dropdown_ipv6.over = !save->enableipv6;
-    dropdown_udp.selected = dropdown_udp.over = (save->disableudp != 0);
-    dropdown_proxy.selected = dropdown_proxy.over = save->proxyenable <= 2 ? save->proxyenable : 2;
-    dropdown_logging.selected = dropdown_logging.over = save->logging_enabled;
-
-    options.ipv6enabled = save->enableipv6;
-    options.udp_disabled = save->disableudp;
-    options.proxy_enabled = save->proxyenable;
-    options.proxy_port = save->proxy_port;
-    strcpy((char*)options.proxy_address, (char*)save->proxy_ip);
-    edit_proxy_ip.length = strlen((char*)save->proxy_ip);
-    strcpy((char*)edit_proxy_ip.data, (char*)save->proxy_ip);
-    if(save->proxy_port) {
-        edit_proxy_port.length = sprintf((char*)edit_proxy_port.data, "%u", save->proxy_port);
-    }
-
-    logging_enabled = save->logging_enabled;
+    UTOX_SAVE *save = config_load();
 
     /* create window */
     window = XCreateWindow(display, RootWindow(display, screen), save->window_x, save->window_y, save->window_width, save->window_height, 0, depth, InputOutput, visual, CWBackPixmap | CWBorderPixel | CWEventMask, &attrib);
@@ -1053,25 +982,13 @@ int main(int argc, char *argv[])
     XTranslateCoordinates(display, window, root_return, 0, 0, &x_return, &y_return, &child_return);
 
     UTOX_SAVE d = {
-        .version = SAVE_VERSION,
-        .scale = SCALE - 1,
         .window_x = x_return < 0 ? 0 : x_return,
         .window_y = y_return < 0 ? 0 : y_return,
         .window_width = width_return,
         .window_height = height_return,
-        .enableipv6 = !dropdown_ipv6.selected,
-        .disableudp = dropdown_udp.selected,
-        .proxyenable = dropdown_proxy.selected,
-        .logging_enabled = logging_enabled,
-        .proxy_port = options.proxy_port,
     };
 
-    FILE *file = fopen("utox_save", "wb");
-    if(file) {
-        fwrite(&d, sizeof(d), 1, file);
-        fwrite(options.proxy_address, strlen(options.proxy_address), 1, file);
-        fclose(file);
-    }
+    config_save(&d);
 
     FcFontSetSortDestroy(fs);
     freefonts();
