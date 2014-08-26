@@ -487,7 +487,10 @@ static _Bool load_save(Tox *tox)
 
     void *data = file_raw(path, &size);
     if(!data) {
-        return 0;
+        data = file_raw("tox_save", &size);
+        if(!data) {
+            return 0;
+        }
     }
     int r = tox_load(tox, data, size);
     free(data);

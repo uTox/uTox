@@ -529,7 +529,7 @@ UTOX_SAVE* config_load(void)
     strcpy(p, "utox_save");
 
     save = file_text(path);
-    if(save) {
+    if(save || (save = file_text("utox_save"))) {
         if(save->version == SAVE_VERSION) {
             /* validate values */
             if(save->scale > 4) {
