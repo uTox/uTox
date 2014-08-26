@@ -77,14 +77,13 @@ int main(int argc, char *argv[])
         memcpy(&time, p, 8);
         memcpy(&namelen, p + 8, 2);
         memcpy(&length, p + 10, 2);
+        if(p[12]) {
+            fputs("[Sent]", out);
+        }
         p += 16;
 
         rawtime = (time_t)time;
         timestr = ctime(&rawtime);
-
-        if(p[12]) {
-            fputs("[Sent]", out);
-        }
 
         fprintf(out, "[%.*s] %.*s: %.*s\n", strlen(timestr) - 1, timestr, namelen, p, length, p + namelen);
         p += length + namelen;
