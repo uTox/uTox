@@ -57,6 +57,7 @@ STRING strings[][64] = {
     STR("UDP:"),
     STR("Proxy (SOCKS 5)"),
     STR("Das Verändern von Netzwerk/Proxy-Einstellungen unterbricht die Verbindung zum Tox-Netzwerk."),
+    STR("Logging"),
 
     //41
     STR("Kopieren"),
@@ -132,6 +133,7 @@ STRING strings[][64] = {
     STR("UDP:"),
     STR("Proxy (SOCKS 5)"),
     STR("Changing Network/Proxy settings will disconnect you from the Tox network"),
+    STR("Logging"),
 
     //41
     STR("Copy"),
@@ -207,6 +209,7 @@ STRING strings[][64] = {
     STR("UDP:"),
     STR("Proxy (SOCKS 5)"),
     STR("Changing Network/Proxy settings will disconnect you from the Tox network"),
+    STR("Logging"),
 
     //41
     STR("Copy"),
@@ -282,6 +285,7 @@ STRING strings[][64] = {
     STR("UDP:"),
     STR("Proxy (SOCKS 5)"),
     STR("Modifier les paramètres Réseau/Proxy vous déconnectera du réseau Tox"),
+    STR("Logging"),
 
     //41
     STR("Copier"),
@@ -357,6 +361,7 @@ STRING strings[][64] = {
     STR("UDP:"),
     STR("Proxy (SOCKS 5)"),
     STR("Cambiando le impostazioni del Network o del Proxy, verrai disconnesso dalla rete Tox"),
+    STR("Logging"),
 
     //41
     STR("Copia"),
@@ -432,6 +437,7 @@ STRING strings[][64] = {
     STR("UDP:"),
     STR("プロキシ (SOCKS 5)"),
     STR("ネットワークやプロキシの設定を変えるとToxネットワークの接続が切ります"),
+    STR("Logging"),
 
     //41
     STR("コピー"),
@@ -507,6 +513,7 @@ STRING strings[][64] = {
     STR("UDP:"),
     STR("Starpniekserveris (SOCKS 5)"),
     STR("Changing Network/Proxy settings will disconnect you from the Tox network"),
+    STR("Logging"),
 
     //41
     STR("Kopēt"),
@@ -582,6 +589,7 @@ STRING strings[][64] = {
     STR("UDP:"),
     STR("Proxy (SOCKS 5)"),
     STR("Veranderen van Netwerk/Proxy instelling zal de verbinding met het Tox netwerk verbreken"),
+    STR("Logging"),
 
     //41
     STR("Kopiëren"),
@@ -657,6 +665,7 @@ STRING strings[][64] = {
     STR("UDP:"),
     STR("Proxy (SOCKS 5)"),
     STR("Zmiana ustawień sieci/proxy rozłączy cię z siecią Tox"),
+    STR("Logging"),
 
     //41
     STR("Kopiuj"),
@@ -732,6 +741,7 @@ STRING strings[][64] = {
     STR("UDP:"),
     STR("Прокси (SOCKS 5)"),
     STR("Изменение настроек сети или прокси-сервера требует отключения от сети Tox"),
+    STR("Logging"),
 
     //41
     STR("Копировать"),
@@ -807,6 +817,7 @@ STRING strings[][64] = {
     STR("UDP:"),
     STR("Проксі (SOCKS 5)"),
     STR("Зміна налаштувань мережі або проксі-сервера потребує від'єднання від мережі Tox"),
+    STR("Logging"),
 
     //41
     STR("Копіювати"),

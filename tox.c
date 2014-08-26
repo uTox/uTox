@@ -18,6 +18,118 @@ static volatile _Bool tox_thread_msg, audio_thread_msg, video_thread_msg;
 
 static FILE_T *file_t[256], **file_tend = file_t;
 
+void log_write(Tox *tox, int fid, const uint8_t *message, uint16_t length, _Bool self)
+{
+    if(!logging_enabled) {
+        return;
+    }
+
+    uint8_t path[512], *p;
+    uint8_t name[TOX_MAX_NAME_LENGTH];
+    int namelen;
+    uint8_t client_id[TOX_CLIENT_ID_SIZE];
+    FILE *file;
+
+    p = path + datapath(path);
+    tox_get_client_id(tox, fid, client_id);
+    cid_to_string(p, client_id); p += TOX_CLIENT_ID_SIZE * 2;
+    strcpy(p, ".txt");
+
+    file = fopen((char*)path, "ab");
+    if(file) {
+        time_t rawtime;
+        time(&rawtime);
+
+        if(self) {
+            namelen = tox_get_self_name(tox, name);
+        } else if((namelen = tox_get_name(tox, fid, name)) == -1) {
+            //error reading name
+            namelen = 0;
+        }
+
+        struct {
+            uint64_t time;
+            uint16_t namelen, length;
+            uint8_t flags, zeroes[3];
+        } header = {
+            .time = rawtime,
+            .namelen = namelen,
+            .length = length,
+            .flags = self,
+        };
+
+        fwrite(&header, sizeof(header), 1, file);
+        fwrite(name, namelen, 1, file);
+        fwrite(message, length, 1, file);
+        fclose(file);
+    }
+}
+
+void log_read(Tox *tox, int fid)
+{
+    uint8_t path[512], *p, *pp, *end;
+    uint8_t client_id[TOX_CLIENT_ID_SIZE];
+    uint32_t size, i;
+
+    p = path + datapath(path);
+    tox_get_client_id(tox, fid, client_id);
+    cid_to_string(p, client_id); p += TOX_CLIENT_ID_SIZE * 2;
+    strcpy(p, ".txt");
+
+    p = pp = file_raw((char*)path, &size);
+    end = p + size;
+
+    /* todo: some checks to avoid crashes with corrupted log files */
+    /* first find the last 128 messages in the log */
+    i = 0;
+    while(p < end) {
+        uint16_t namelen, length;
+        memcpy(&namelen, p + 8, 2);
+        memcpy(&length, p + 10, 2);
+        p += 16 + namelen + length;;
+
+        if(++i > 128) {
+            memcpy(&namelen, pp + 8, 2);
+            memcpy(&length, pp + 10, 2);
+            pp += 16 + namelen + length;
+        }
+    }
+
+    MSG_DATA *m = &friend[fid].msg;
+    m->data = malloc(sizeof(void*) * i);
+    m->n = i;
+    i = 0;
+
+    /* add the messages */
+    p = pp;
+    while(p < end) {
+        uint64_t time;
+        uint16_t namelen, length;
+        uint8_t flags;
+        memcpy(&time, p, 8);
+        memcpy(&namelen, p + 8, 2);
+        memcpy(&length, p + 10, 2);
+        flags = p[12];
+        p += 16;
+
+        MESSAGE *msg = malloc(sizeof(MESSAGE) + length);
+        msg->flags = flags;
+        msg->length = length;
+        memcpy(msg->msg, p + namelen, length);
+
+        struct tm *ti;
+        time_t rawtime = time;
+        ti = localtime(&rawtime);
+
+        msg->time = ti->tm_hour * 60 + ti->tm_min;
+
+        m->data[i++] = msg;
+
+        debug("loaded backlog: %.*s: %.*s\n", namelen, p, length, p + namelen);
+        p += namelen + length;
+    }
+}
+
 static void fillbuffer(FILE_T *ft)
 {
     if(ft->inline_png) {
@@ -396,6 +508,8 @@ static _Bool load_save(Tox *tox)
         tox_get_status_message(tox, i, f->status_message, size);
         f->status_length = size;
 
+        log_read(tox, i);
+
         i++;
     }
 
@@ -707,6 +821,8 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint8_t msg, uint16_t param1
          * param2: message length
          * data: message
          */
+        log_write(tox, param1, data, param2, 1);
+
         void *p = data;
         while(param2 > TOX_MAX_MESSAGE_LENGTH) {
             uint16_t len = TOX_MAX_MESSAGE_LENGTH - utf8_unlen(p + TOX_MAX_MESSAGE_LENGTH);

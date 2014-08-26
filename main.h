@@ -32,9 +32,11 @@ typedef struct
     uint8_t version, scale, enableipv6, disableudp;
     uint16_t window_x, window_y, window_width, window_height;
     uint16_t proxy_port;
-    uint8_t proxyenable, padding;
+    uint8_t proxyenable, logging_enabled;
     uint8_t proxy_ip[0];
 }UTOX_SAVE;
+
+#define SAVE_VERSION 2
 
 typedef struct
 {
@@ -106,6 +108,8 @@ volatile _Bool tox_thread_init, audio_thread_init, video_thread_init;
 _Bool tox_connected;
 
 _Bool audio_preview, video_preview;
+
+volatile _Bool logging_enabled;
 
 //friends and groups
 //note: assumes array size will always be large enough
@@ -214,6 +218,8 @@ void drawimage(void *data, int x, int y, int width, int height, int maxwidth, _B
 void* png_to_image(void *data, uint16_t *w, uint16_t *h, uint32_t size);
 void showkeyboard(_Bool show);
 void redraw(void);
+
+int datapath(uint8_t *dest);
 
 //me
 struct

@@ -173,6 +173,11 @@ void writesavedata(void *data, uint32_t len)
     }
 }
 
+int datapath(uint8_t *dest)
+{
+    return 0;
+}
+
 void setscale(void)
 {
     if(window) {

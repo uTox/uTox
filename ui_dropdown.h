@@ -78,6 +78,11 @@ static void dropdown_udp_onselect(void *handle)
     }
 }
 
+static void dropdown_logging_onselect(void *handle)
+{
+    logging_enabled = (handle != 0);
+}
+
 static DROP_ELEMENT dpidrops[] = {
     {
         .name = (uint8_t*)"Tiny (50%)",
@@ -204,6 +209,18 @@ static DROP_ELEMENT yesnodrops[] = {
     },
 };
 
+static DROP_ELEMENT noyesdrops[] = {
+    {
+        .name = (uint8_t*)"No",
+        .handle = (void*)(size_t)0
+    },
+
+    {
+        .name = (uint8_t*)"Yes",
+        .handle = (void*)(size_t)1
+    },
+};
+
 DROPDOWN
 
 dropdown_audio_in = {
@@ -252,4 +269,10 @@ dropdown_udp = {
     .onselect = dropdown_udp_onselect,
     .dropcount = countof(yesnodrops),
     .drop = yesnodrops
+},
+
+dropdown_logging = {
+    .onselect = dropdown_logging_onselect,
+    .dropcount = countof(noyesdrops),
+    .drop = noyesdrops
 };

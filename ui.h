@@ -46,7 +46,7 @@ extern MESSAGES messages_friend, messages_group;
 extern EDIT edit_name, edit_status, edit_addid, edit_addmsg, edit_msg, edit_search, edit_proxy_ip, edit_proxy_port;
 extern SCROLLABLE scroll_list;
 extern BUTTON button_add, button_settings, button_transfer;
-extern DROPDOWN dropdown_audio_in, dropdown_audio_out, dropdown_video, dropdown_dpi, dropdown_language, dropdown_proxy, dropdown_ipv6, dropdown_udp;
+extern DROPDOWN dropdown_audio_in, dropdown_audio_out, dropdown_video, dropdown_dpi, dropdown_language, dropdown_proxy, dropdown_ipv6, dropdown_udp, dropdown_logging;
 
 enum {
     LANG_DE,
@@ -115,6 +115,7 @@ enum {
     STR_UDP,
     STR_PROXY,
     STR_WARNING,
+    STR_LOGGING,
 
     STR_COPY,
     STR_COPYWITHOUTNAMES,

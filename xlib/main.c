@@ -690,6 +690,11 @@ void writesavedata(void *data, uint32_t len)
     }
 }
 
+int datapath(uint8_t *dest)
+{
+    return 0;
+}
+
 void setscale(void)
 {
     int i;
@@ -762,7 +767,7 @@ static UTOX_SAVE* loadconfig(void)
 {
     UTOX_SAVE *r = file_text("utox_save");
     if(r) {
-        if(r->version == 1) {
+        if(r->version == SAVE_VERSION) {
             return r;
         } else {
             free(r);
@@ -781,6 +786,7 @@ static UTOX_SAVE* loadconfig(void)
     r->disableudp = 0;
     r->proxy_port = 0;
     r->proxyenable = 0;
+    r->logging_enabled = 0;
     r->proxy_ip[0] = 0;
     return r;
 }
@@ -866,6 +872,7 @@ int main(int argc, char *argv[])
     dropdown_ipv6.selected = dropdown_ipv6.over = !save->enableipv6;
     dropdown_udp.selected = dropdown_udp.over = (save->disableudp != 0);
     dropdown_proxy.selected = dropdown_proxy.over = save->proxyenable <= 2 ? save->proxyenable : 2;
+    dropdown_logging.selected = dropdown_logging.over = save->logging_enabled;
 
     options.ipv6enabled = save->enableipv6;
     options.udp_disabled = save->disableudp;
@@ -877,6 +884,8 @@ int main(int argc, char *argv[])
     if(save->proxy_port) {
         edit_proxy_port.length = sprintf((char*)edit_proxy_port.data, "%u", save->proxy_port);
     }
+
+    logging_enabled = save->logging_enabled;
 
     /* create window */
     window = XCreateWindow(display, RootWindow(display, screen), save->window_x, save->window_y, save->window_width, save->window_height, 0, depth, InputOutput, visual, CWBackPixmap | CWBorderPixel | CWEventMask, &attrib);
@@ -1044,7 +1053,7 @@ int main(int argc, char *argv[])
     XTranslateCoordinates(display, window, root_return, 0, 0, &x_return, &y_return, &child_return);
 
     UTOX_SAVE d = {
-        .version = 1,
+        .version = SAVE_VERSION,
         .scale = SCALE - 1,
         .window_x = x_return < 0 ? 0 : x_return,
         .window_y = y_return < 0 ? 0 : y_return,
@@ -1053,6 +1062,7 @@ int main(int argc, char *argv[])
         .enableipv6 = !dropdown_ipv6.selected,
         .disableudp = dropdown_udp.selected,
         .proxyenable = dropdown_proxy.selected,
+        .logging_enabled = logging_enabled,
         .proxy_port = options.proxy_port,
     };
 

@@ -58,6 +58,8 @@ static void callback_friend_message(Tox *tox, int fid, const uint8_t *message, u
     postmessage(FRIEND_MESSAGE, fid, 0, copy_message(message, length, 0));
 
     debug("Friend Message (%u): %.*s\n", fid, length, message);
+
+    log_write(tox, fid, message, length, 0);
 }
 
 static void callback_friend_action(Tox *tox, int fid, const uint8_t *action, uint16_t length, void *userdata)
