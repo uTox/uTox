@@ -797,20 +797,35 @@ static int systemlang(void)
     if(!str) {
         return LANG_EN;
     }
-    if(strstr(str, "fr")) {
-        return LANG_FR;
+    if(strstr(str, "de")) {
+        return LANG_DE;
     }
     if(strstr(str, "es")) {
         return LANG_ES;
     }
-    if(strstr(str, "de")) {
-        return LANG_DE;
+    if(strstr(str, "fr")) {
+        return LANG_FR;
+    }
+    if(strstr(str, "it")) {
+        return LANG_IT;
+    }
+    if(strstr(str, "ja")) {
+        return LANG_JA;
+    }
+    if(strstr(str, "lv")) {
+        return LANG_LV;
+    }
+    if(strstr(str, "nl")) {
+        return LANG_NL;
+    }
+    if(strstr(str, "pl")) {
+        return LANG_PL;
     }
     if(strstr(str, "ru")) {
         return LANG_RU;
     }
-    if(strstr(str, "pl")) {
-        return LANG_PL;
+    if(strstr(str, "uk")) {
+        return LANG_UA;
     }
 
     return LANG_EN;

@@ -53,8 +53,13 @@ enum {
     LANG_EN,
     LANG_ES,
     LANG_FR,
+    LANG_IT,
+    LANG_JA,
+    LANG_LV,
+    LANG_NL,
     LANG_PL,
     LANG_RU,
+    LANG_UA,
 };
 
 enum {
