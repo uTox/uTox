@@ -1490,8 +1490,20 @@ void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height
             .right = width,
             .bottom = height
         };
+
+        int width, height;
+        width = r.right - r.left;
+        height = r.bottom - r.top;
+        if(width > GetSystemMetrics(SM_CXSCREEN)) {
+            width = GetSystemMetrics(SM_CXSCREEN);
+        }
+
+        if(height > GetSystemMetrics(SM_CYSCREEN)) {
+            height = GetSystemMetrics(SM_CYSCREEN);
+        }
+
         AdjustWindowRect(&r, WS_OVERLAPPEDWINDOW, 0);
-        SetWindowPos(video_hwnd[id], 0, 0, 0, r.right - r.left, r.bottom - r.top, SWP_NOZORDER | SWP_NOMOVE);
+        SetWindowPos(video_hwnd[id], 0, 0, 0, width, height, SWP_NOZORDER | SWP_NOMOVE);
     }
 
     BITMAPINFO bmi = {
@@ -1536,7 +1548,18 @@ void video_begin(uint32_t id, uint8_t *name, uint16_t name_length, uint16_t widt
         .bottom = height
     };
     AdjustWindowRect(&r, WS_OVERLAPPEDWINDOW, 0);
-    *h = CreateWindowExW(0, L"uTox", out, WS_OVERLAPPEDWINDOW, 0, 0, r.right - r.left, r.bottom - r.top, NULL, NULL, hinstance, NULL);
+
+    width = r.right - r.left;
+    height = r.bottom - r.top;
+    if(width > GetSystemMetrics(SM_CXSCREEN)) {
+        width = GetSystemMetrics(SM_CXSCREEN);
+    }
+
+    if(height > GetSystemMetrics(SM_CYSCREEN)) {
+        height = GetSystemMetrics(SM_CYSCREEN);
+    }
+
+    *h = CreateWindowExW(0, L"uTox", out, WS_OVERLAPPEDWINDOW, 0, 0, width, height, NULL, NULL, hinstance, NULL);
 
 
 
