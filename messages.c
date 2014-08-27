@@ -2,6 +2,10 @@
 
 void messages_draw(MESSAGES *m, int x, int y, int width, int height)
 {
+    if(width - MESSAGES_X - TIME_WIDTH < textwidth("_", 1) * SCALE) {
+        return;
+    }
+
     setcolor(0);
     setfont(FONT_TEXT);
 
@@ -718,6 +722,10 @@ int messages_selection(MESSAGES *m, void *data, uint32_t len, _Bool names)
 
 static int msgheight(MESSAGE *msg, int width)
 {
+    if ((width - MESSAGES_X - TIME_WIDTH) < textwidth("_", 1) * SCALE) {
+        return 0;
+    }
+
     switch(msg->flags) {
     case 0:
     case 1:
