@@ -83,7 +83,7 @@ _Bool _redraw;
 
 uint16_t drawwidth, drawheight;
 
-XIC xic;
+XIC xic = NULL;
 
 XImage *screen_image;
 
@@ -807,7 +807,6 @@ int main(int argc, char *argv[])
     XSetLocaleModifiers("");
     if((xim = XOpenIM(display, 0, 0, 0)) == NULL) {
         printf("Cannot open input method\n");
-        return 1;
     }
 
     screen = DefaultScreen(display);
@@ -937,11 +936,13 @@ int main(int argc, char *argv[])
     /* make the window visible */
     XMapWindow(display, window);
 
-    if((xic = XCreateIC(xim, XNInputStyle, XIMPreeditNothing | XIMStatusNothing, XNClientWindow, window, XNFocusWindow, window, NULL)) == NULL) {
-        printf("Cannot open input method\n");
-        return 1;
+    if (xim) {
+        if((xic = XCreateIC(xim, XNInputStyle, XIMPreeditNothing | XIMStatusNothing, XNClientWindow, window, XNFocusWindow, window, NULL)) == NULL) {
+            printf("Cannot open input method\n");
+            XCloseIM(xim);
+        }
+        XSetICFocus(xic);
     }
-    XSetICFocus(xic);
 
     /* set the width/height of the drawing region */
     width = DEFAULT_WIDTH;
@@ -1017,6 +1018,9 @@ int main(int argc, char *argv[])
 
     XRenderFreePicture(display, renderpic);
     XRenderFreePicture(display, colorpic);
+
+    if (xic) XDestroyIC(xic);
+    if (xim) XCloseIM(xim);
 
     XDestroyWindow(display, window);
     XCloseDisplay(display);

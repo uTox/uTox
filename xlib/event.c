@@ -245,10 +245,13 @@ _Bool doevent(XEvent event)
         KeySym sym = XLookupKeysym(ev, 0);//XKeycodeToKeysym(display, ev->keycode, 0)
 
         wchar_t buffer[16];
-        Status status_return;
         int len;
 
-        len = XwcLookupString(xic, ev, buffer, sizeof(buffer), &sym, &status_return);
+        if (xic) {
+            len = XwcLookupString(xic, ev, buffer, sizeof(buffer), &sym, NULL);
+        } else {
+            len = XLookupString(ev, (char *)buffer, sizeof(buffer), &sym, NULL);
+        }
         if(edit_active()) {
             if(ev->state & 4) {
                 switch(sym) {
