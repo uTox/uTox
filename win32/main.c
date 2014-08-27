@@ -789,14 +789,11 @@ void desktopgrab(_Bool video)
 
     debug("result: %i %i %i %i\n", x, y, w, h);
 
-    capturewnd = CreateWindowExW(WS_EX_TOPMOST | WS_EX_LAYERED, L"uToxgrab", L"Tox", WS_POPUP, x, y, w, h, NULL, NULL, hinstance, NULL);
+    capturewnd = CreateWindowExW(WS_EX_TOOLWINDOW | WS_EX_LAYERED, L"uToxgrab", L"Tox", WS_POPUP, x, y, w, h, NULL, NULL, hinstance, NULL);
     if(!capturewnd) {
         debug("CreateWindowExW() failed\n");
         return;
     }
-
-    HDC hdc = GetDC(capturewnd);
-    BitBlt(hdc, 0, 0, w, h, hdc, 0, 0, BLACKNESS);
 
     SetLayeredWindowAttributes(capturewnd, 0xFFFFFF, 128, LWA_ALPHA | LWA_COLORKEY);
 
@@ -831,6 +828,7 @@ LRESULT CALLBACK GrabProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             grabpx = p.x;
             grabpy = p.y;
             BitBlt(hdc, grabx, graby, grabpx - grabx, grabpy - graby, hdc, grabx, graby, WHITENESS);
+            ReleaseDC(hwnd, hdc);
         }
 
         return 0;
@@ -1008,6 +1006,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
         .hInstance = hInstance,
         .hIcon = myicon,
         .lpszClassName = popupclassname,
+        .hbrBackground = (HBRUSH)GetStockObject (BLACK_BRUSH),
     };
 
     NOTIFYICONDATA nid = {
@@ -1021,31 +1020,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     OleInitialize(NULL);
     RegisterClassW(&wc);
     RegisterClassW(&wc2);
-
-    UTOX_SAVE *save = config_load();
-
-    hwnd = CreateWindowExW(0, classname, L"Tox", WS_OVERLAPPEDWINDOW, save->window_x, save->window_y, save->window_width, save->window_height, NULL, NULL, hInstance, NULL);
-
-    free(save);
-
-    //start tox thread (hwnd needs to be set first)
-    thread(tox_thread, NULL);
-
-    hdc_brush = GetStockObject(DC_BRUSH);
-
-    dropdown_add(&dropdown_video, (uint8_t*)"None", NULL);
-    dropdown_add(&dropdown_video, (uint8_t*)"Desktop", (void*)1);
-
-    ShowWindow(hwnd, nCmdShow);
-
-    tme.hwndTrack = hwnd;
-
-    nid.hWnd = hwnd;
-    Shell_NotifyIcon(NIM_ADD, &nid);
-
-    SetBkMode(hdc, TRANSPARENT);
-
-    dnd_init(hwnd);
 
     uint8_t langid = GetUserDefaultUILanguage() & 0xFF;
     switch(langid) {
@@ -1086,6 +1060,31 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     }
 
     dropdown_language.selected = dropdown_language.over = LANG;
+
+    UTOX_SAVE *save = config_load();
+
+    hwnd = CreateWindowExW(0, classname, L"Tox", WS_OVERLAPPEDWINDOW, save->window_x, save->window_y, save->window_width, save->window_height, NULL, NULL, hInstance, NULL);
+
+    free(save);
+
+    //start tox thread (hwnd needs to be set first)
+    thread(tox_thread, NULL);
+
+    hdc_brush = GetStockObject(DC_BRUSH);
+
+    dropdown_add(&dropdown_video, (uint8_t*)"None", NULL);
+    dropdown_add(&dropdown_video, (uint8_t*)"Desktop", (void*)1);
+
+    ShowWindow(hwnd, nCmdShow);
+
+    tme.hwndTrack = hwnd;
+
+    nid.hWnd = hwnd;
+    Shell_NotifyIcon(NIM_ADD, &nid);
+
+    SetBkMode(hdc, TRANSPARENT);
+
+    dnd_init(hwnd);
 
     //wait for tox_thread init
     while(!tox_thread_init) {
@@ -1490,6 +1489,7 @@ void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height
             .right = width,
             .bottom = height
         };
+        AdjustWindowRect(&r, WS_OVERLAPPEDWINDOW, 0);
 
         int width, height;
         width = r.right - r.left;
@@ -1502,7 +1502,6 @@ void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height
             height = GetSystemMetrics(SM_CYSCREEN);
         }
 
-        AdjustWindowRect(&r, WS_OVERLAPPEDWINDOW, 0);
         SetWindowPos(video_hwnd[id], 0, 0, 0, width, height, SWP_NOZORDER | SWP_NOMOVE);
     }
 
@@ -1551,6 +1550,7 @@ void video_begin(uint32_t id, uint8_t *name, uint16_t name_length, uint16_t widt
 
     width = r.right - r.left;
     height = r.bottom - r.top;
+
     if(width > GetSystemMetrics(SM_CXSCREEN)) {
         width = GetSystemMetrics(SM_CXSCREEN);
     }
@@ -1561,11 +1561,7 @@ void video_begin(uint32_t id, uint8_t *name, uint16_t name_length, uint16_t widt
 
     *h = CreateWindowExW(0, L"uTox", out, WS_OVERLAPPEDWINDOW, 0, 0, width, height, NULL, NULL, hinstance, NULL);
 
-
-
     ShowWindow(*h, SW_SHOW);
-
-
 }
 
 void video_end(uint32_t id)
