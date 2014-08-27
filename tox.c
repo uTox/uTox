@@ -33,7 +33,7 @@ void log_write(Tox *tox, int fid, const uint8_t *message, uint16_t length, _Bool
     p = path + datapath(path);
     tox_get_client_id(tox, fid, client_id);
     cid_to_string(p, client_id); p += TOX_CLIENT_ID_SIZE * 2;
-    strcpy(p, ".txt");
+    strcpy((char*)p, ".txt");
 
     file = fopen((char*)path, "ab");
     if(file) {
@@ -74,7 +74,7 @@ void log_read(Tox *tox, int fid)
     p = path + datapath(path);
     tox_get_client_id(tox, fid, client_id);
     cid_to_string(p, client_id); p += TOX_CLIENT_ID_SIZE * 2;
-    strcpy(p, ".txt");
+    strcpy((char*)p, ".txt");
 
     p = pp = file_raw((char*)path, &size);
     if(!p) {
@@ -483,9 +483,9 @@ static _Bool load_save(Tox *tox)
     uint32_t size;
 
     p = path + datapath(path);
-    strcpy(p, "tox_save");
+    strcpy((char*)p, "tox_save");
 
-    void *data = file_raw(path, &size);
+    void *data = file_raw((char*)path, &size);
     if(!data) {
         data = file_raw("tox_save", &size);
         if(!data) {
@@ -562,9 +562,9 @@ static void write_save(Tox *tox)
     tox_save(tox, data);
 
     p = path + datapath(path);
-    strcpy(p, "tox_save");
+    strcpy((char*)p, "tox_save");
 
-    file = fopen(path, "wb");
+    file = fopen((char*)path, "wb");
     if(file) {
         fwrite(data, size, 1, file);
         fclose(file);

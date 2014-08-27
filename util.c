@@ -526,9 +526,9 @@ UTOX_SAVE* config_load(void)
     UTOX_SAVE *save;
 
     p = path + datapath(path);
-    strcpy(p, "utox_save");
+    strcpy((char*)p, "utox_save");
 
-    save = file_text(path);
+    save = file_text((char*)path);
     if(save || (save = file_text("utox_save"))) {
         if(save->version == SAVE_VERSION) {
             /* validate values */
@@ -581,9 +581,9 @@ void config_save(UTOX_SAVE *save)
     FILE *file;
 
     p = path + datapath(path);
-    strcpy(p, "utox_save");
+    strcpy((char*)p, "utox_save");
 
-    file = fopen(path, "wb");
+    file = fopen((char*)path, "wb");
     if(!file) {
         return;
     }

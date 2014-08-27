@@ -150,7 +150,7 @@ void friend_free(FRIEND *f)
     while(i < f->msg.n) {
         MESSAGE *msg = f->msg.data[i];
         if((msg->flags & (~1)) == 4) {
-            MSG_IMG *img = (void*)msg;
+            //MSG_IMG *img = (void*)msg;
             //todo: free image
         }
         if((msg->flags & (~1)) == 6) {

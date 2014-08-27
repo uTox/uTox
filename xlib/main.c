@@ -660,8 +660,8 @@ void* png_to_image(void *data, uint16_t *w, uint16_t *h, uint32_t size)
 int datapath(uint8_t *dest)
 {
     char *home = getenv("HOME");
-    int l = sprintf(dest, "%.230s/.config/tox", home);
-    mkdir(dest, 0700);
+    int l = sprintf((char*)dest, "%.230s/.config/tox", home);
+    mkdir((char*)dest, 0700);
     dest[l++] = '/';
 
     return l;
