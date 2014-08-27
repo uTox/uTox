@@ -876,7 +876,8 @@ void message_free(MESSAGE *msg)
         //TODO: freeimage
         break;
     case 3:
-        free(((MSG_FILE*)msg)->path);
+        //already gets free()d
+        //free(((MSG_FILE*)msg)->path);
         break;
     }
     free(msg);
