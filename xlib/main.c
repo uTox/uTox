@@ -392,7 +392,7 @@ void openurl(char_t *str)
 #ifdef __APPLE__
     cmd = "open";
 #endif
-    if (!fork()) {
+    if(!fork()) {
         execlp(cmd, cmd, str, (char *)0);
         exit(127);
     }
