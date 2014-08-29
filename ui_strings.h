@@ -840,18 +840,18 @@ STRING strings[][64] = {
 //简体中文  SIMPLIFIED CHINESE
 {
     //0
-    STR("Friend request sent. Your friend will appear online when he accepts the request."),
-    STR("Attempting to resolve DNS name..."),
-    STR("Error: Invalid Tox ID"),
-    STR("Error: No Tox ID specified"),
-    STR("Error: Message is too long"),
-    STR("Error: Empty message"),
-    STR("Error: Tox ID is self ID"),
-    STR("Error: Tox ID is already in friend list"),
-    STR("Error: Unknown"),
-    STR("Error: Invalid Tox ID (bad checksum)"),
-    STR("Error: Invalid Tox ID (bad nospam value)"),
-    STR("Error: No memory"),
+    STR("添加好友请求已发送。当对方接受请求后将在好友列表中在线。"),
+    STR("尝试解析DNS名......"),
+    STR("错误： 无效的 Tox ID"),
+    STR("错误： 没有指定Tox ID"),
+    STR("错误： 消息太长"),
+    STR("错误： 空消息"),
+    STR("错误： Tox ID 是你自己的 ID"),
+    STR("错误： Tox ID 已在好友列表中了"),
+    STR("错误： 未知"),
+    STR("错误： 无效的 Tox ID (错误的校验和)"),
+    STR("错误： 无效的 Tox ID (错误的nospam值)"),
+    STR("错误： 没内存了"),
 
     //12
     STR("新建文件传输任务"),
