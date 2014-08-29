@@ -2,10 +2,14 @@ UNAME_S := $(shell uname -s)
 
 CFLAGS += $(shell pkg-config --cflags freetype2 x11 openal)
 CFLAGS += $(shell pkg-config --cflags dbus-1)
+CFLAGS += $(shell pkg-config --cflags libtoxcore)
+CFLAGS += $(shell pkg-config --cflags libtoxav)
 CFLAGS += -g -pthread -std=gnu99
 LDFLAGS += $(shell pkg-config --libs freetype2 x11 openal)
 LDFLAGS += $(shell pkg-config --libs dbus-1)
-LDFLAGS += -lX11 -lXft -lXrender -ltoxcore -ltoxav -ltoxdns -lopenal -pthread -lm -lfontconfig -lv4lconvert -lvpx -lXext
+LDFLAGS += $(shell pkg-config --libs libtoxcore)
+LDFLAGS += $(shell pkg-config --libs libtoxav)
+LDFLAGS += -lX11 -lXft -lXrender -lopenal -pthread -lm -lfontconfig -lv4lconvert -lvpx -lXext
 
 ifeq ($(UNAME_S),Linux)
 	LDFLAGS += -lresolv -ldl
