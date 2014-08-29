@@ -165,6 +165,11 @@ static DROP_ELEMENT langdrops[] = {
         .name = (uint8_t*)"Українська",
         .handle = (void*)(size_t)10
     },
+
+    {
+        .name = (uint8_t*)"简体中文",
+        .handle = (void*)(size_t)11
+    },
 };
 
 static DROP_ELEMENT filterdrops[] = {
