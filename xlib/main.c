@@ -782,6 +782,9 @@ static int systemlang(void)
     if(strstr(str, "uk")) {
         return LANG_UA;
     }
+    if(strstr(str, "zh_CN")) {
+        return LANG_CN;
+    }
 
     return LANG_EN;
 }
