@@ -60,6 +60,7 @@ enum {
     LANG_PL,
     LANG_RU,
     LANG_UA,
+    LANG_CN,
 };
 
 enum {
