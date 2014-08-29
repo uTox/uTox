@@ -837,6 +837,81 @@ STRING strings[][64] = {
     STR("Скасовано"),
 },
 
+//简体中文  SIMPLIFIED CHINESE
+{
+    //0
+    STR("Friend request sent. Your friend will appear online when he accepts the request."),
+    STR("Attempting to resolve DNS name..."),
+    STR("Error: Invalid Tox ID"),
+    STR("Error: No Tox ID specified"),
+    STR("Error: Message is too long"),
+    STR("Error: Empty message"),
+    STR("Error: Tox ID is self ID"),
+    STR("Error: Tox ID is already in friend list"),
+    STR("Error: Unknown"),
+    STR("Error: Invalid Tox ID (bad checksum)"),
+    STR("Error: Invalid Tox ID (bad nospam value)"),
+    STR("Error: No memory"),
+
+    //12
+    STR("新建文件传输任务"),
+    STR("文件传输开始"),
+    STR(".."),
+    STR("文件传输暂停"),
+    STR("文件传输中断"),
+    STR("文件传输取消"),
+    STR("文件传输完成"),
+
+    //19
+    STR("呼叫取消"),
+    STR("呼叫邀请"),
+    STR("呼叫振铃"),
+    STR("呼叫开始"),
+
+    //23
+    STR("添加好友"),
+    STR("Tox ID"),
+    STR("消息"),
+    STR("搜索好友"),
+    STR("添加"),
+    STR("切换设置"),
+    STR("好友呼叫"),
+    STR("用户设置"),
+    STR("名字"),
+    STR("状态消息（签名）"),
+    STR("预览"),
+    STR("设备选择"),
+    STR("音频输入设备"),
+    STR("音频输出设备"),
+    STR("视频输入设备"),
+    STR("其他设置"),
+    STR("DPI"),
+    STR("Save Location"),
+    STR("语言"),
+    STR("网络"),
+    STR("IPv6:"),
+    STR("UDP:"),
+    STR("代理 (SOCKS 5)"),
+    STR("修改网络或代理设置将会断开tox网络连接"),
+
+    //41
+    STR("复制"),
+    STR("复制 (不带名字)"),
+    STR("剪切"),
+    STR("粘贴"),
+    STR("删除"),
+    STR("全选"),
+    STR("删除"),
+    STR("离开"),
+    STR("接受"),
+    STR("忽略"),
+
+    //50
+    STR("点击保存"),
+    STR("点击打开"),
+    STR("取消"),
+},
+
 };
 
 #undef STR
