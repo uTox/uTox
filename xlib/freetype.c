@@ -174,8 +174,7 @@ GLYPH* font_getglyph(FONT *f, uint32_t ch)
     _Bool no_subpixel = (weight <= FC_WEIGHT_LIGHT);
 
     g[1].ucs4 = ~0;
-    FT_UInt index = FcFreeTypeCharIndex(i->face, ch);
-    FT_Load_Glyph(i->face, index, FT_LOAD_RENDER | (no_subpixel ? 0 : (ft_vert ? FT_LOAD_TARGET_LCD_V : FT_LOAD_TARGET_LCD)));
+    FT_Load_Char(i->face, ch, FT_LOAD_RENDER | (no_subpixel ? 0 : (ft_vert ? FT_LOAD_TARGET_LCD_V : FT_LOAD_TARGET_LCD)));
     FT_GlyphSlotRec *p = i->face->glyph;
 
     g->ucs4 = ch;
@@ -187,6 +186,22 @@ GLYPH* font_getglyph(FONT *f, uint32_t ch)
     }
     g->height = p->bitmap.rows;
     g->xadvance = (p->advance.x + (1 << 5)) >> 6;
+
+    if(p->bitmap.pixel_mode == FT_PIXEL_MODE_MONO) {
+        unsigned int r, x, pitch = p->bitmap.pitch*8;
+        uint8_t *mybuf = calloc(pitch*p->bitmap.rows, 1);
+        uint8_t *sline = p->bitmap.buffer, *dline = mybuf;
+
+        for(r = 0; r < p->bitmap.rows; r++, sline += p->bitmap.pitch, dline += pitch) {
+            for(x = 0; x < p->bitmap.width; x++) {
+                dline[x] = (sline[(x >> 3)] & (0x80 >> (x & 7))) * 0xff;
+            }
+        }
+        free(p->bitmap.buffer);
+        p->bitmap.buffer = mybuf;
+        g->width = p->bitmap.pitch = pitch;
+        no_subpixel = 1;
+    }
 
     //debug("%u %u %u %u %C\n", PIXELS(i->face->size->metrics.height), g->width, g->height, p->bitmap.pitch, ch);
     g->pic = loadglyphpic(p->bitmap.buffer, g->width, g->height, p->bitmap.pitch, no_subpixel);
