@@ -11,12 +11,16 @@ CFLAGS += $(shell pkg-config --cflags dbus-1)
 else
 CFLAGS+=-DNO_DBUS
 endif
+CFLAGS += $(shell pkg-config --cflags libtoxcore)
+CFLAGS += $(shell pkg-config --cflags libtoxav)
 CFLAGS += -g -pthread -std=gnu99
 LDFLAGS += $(shell pkg-config --libs freetype2 x11 openal)
 ifeq ($(DBUS), 1)
 LDFLAGS += $(shell pkg-config --libs dbus-1)
 endif
-LDFLAGS += -lX11 -lXft -lXrender -ltoxcore -ltoxav -ltoxdns -lopenal -pthread -lm -lfontconfig -lv4lconvert -lvpx -lXext
+LDFLAGS += $(shell pkg-config --libs libtoxcore)
+LDFLAGS += $(shell pkg-config --libs libtoxav)
+LDFLAGS += -lX11 -lXft -lXrender -lopenal -pthread -lm -lfontconfig -lv4lconvert -lvpx -lXext
 
 ifeq ($(UNAME_S),Linux)
 	LDFLAGS += -lresolv -ldl
