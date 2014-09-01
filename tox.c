@@ -99,9 +99,13 @@ void log_read(Tox *tox, int fid)
         }
     }
 
+    if(i > 128) {
+        i = 128;
+    }
+
     MSG_DATA *m = &friend[fid].msg;
     m->data = malloc(sizeof(void*) * i);
-    m->n = (i > 128) ? 128 : i;
+    m->n = i;
     i = 0;
 
     /* add the messages */
