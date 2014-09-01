@@ -390,15 +390,18 @@ void openurl(char_t *str)
     char cmd[1024], *p = cmd;
 
     #ifdef __APPLE__
-    p += sprintf(p, "open \"");
+    p += sprintf(p, "open \'");
     #else
     p += sprintf(p, "xdg-open \'");
     #endif
 
     while(*str) {
-        //escape these characters
-        if(*str == '\"' || *str == '\\' || *str == '\'' || *str == '$') {
-            *p++ = '\\';
+        //escape single quotes, very important, prevents executing arbitrary commands
+        if(*str == '\'') {
+            *p++ = '\'';
+            *p++ = '\"';
+            *p++ = '\'';
+            *p++ = '\"';
         }
         *p++ = *str++;
     }
