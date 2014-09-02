@@ -38,7 +38,7 @@ utox: $(OBJ)
 install: utox
 	mkdir -p $(DESTDIR)$(PREFIX)/bin
 	install -m 0755 utox $(DESTDIR)$(PREFIX)/bin/utox
-	
+
 	mkdir -p $(DESTDIR)$(PREFIX)/share/icons/hicolor/14x14/apps
 	install -m 644 icons/utox-14x14.png $(DESTDIR)$(PREFIX)/share/icons/hicolor/14x14/apps/utox.png
 	mkdir -p $(DESTDIR)$(PREFIX)/share/icons/hicolor/16x16/apps
@@ -69,7 +69,7 @@ install: utox
 	install -m 644 icons/utox-512x512.png $(DESTDIR)$(PREFIX)/share/icons/hicolor/512x512/apps/utox.png
 	mkdir -p $(DESTDIR)$(PREFIX)/share/icons/hicolor/scalable/apps
 	install -m 644 icons/utox.svg $(DESTDIR)$(PREFIX)/share/icons/hicolor/scalable/apps/utox.svg
-	
+
 	mkdir -p $(DESTDIR)$(PREFIX)/share/applications
 	install -m 644 utox.desktop $(DESTDIR)$(PREFIX)/share/applications/utox.desktop
 
