@@ -612,7 +612,7 @@ STRING strings[][64] = {
 //Polski POLISH
 {
     //0
-    STR("Zapytanie zostało wysłane. Znajomy pojawi się online kiedy zaakceptuje zapytanie."),
+    STR("Zapytanie zostało wysłane. Znajomy/a pojawi się online kiedy zaakceptuje zapytanie."),
     STR("Próba rozwiązania nazwy DNS..."),
     STR("Błąd: Niepoprawny Tox ID"),
     STR("Błąd: Nie określono Tox ID"),
@@ -649,7 +649,7 @@ STRING strings[][64] = {
     STR("Zmień profil"),
     STR("Zapytanie do znajomych"),
     STR("Ustawienia użytkownika"),
-    STR("Nazwa"),
+    STR("Nick"),
     STR("Status"),
     STR("Podgląd"),
     STR("Wybór urządzenia"),
@@ -658,18 +658,18 @@ STRING strings[][64] = {
     STR("Urządzenie wejściowe wideo"),
     STR("Inne ustawienia"),
     STR("DPI"),
-    STR("Save Location"),
+    STR("Lokalizacja dla zapisu danych"),
     STR("Język"),
     STR("Sieć"),
     STR("IPv6:"),
     STR("UDP:"),
     STR("Proxy (SOCKS 5)"),
     STR("Zmiana ustawień sieci/proxy rozłączy cię z siecią Tox"),
-    STR("Logging"),
+    STR("Historia"),
 
     //41
     STR("Kopiuj"),
-    STR("Kopiuj (bez nazw)"),
+    STR("Kopiuj (bez nicków)"),
     STR("Wytnij"),
     STR("Wklej"),
     STR("Usuń"),
