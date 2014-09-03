@@ -2,8 +2,8 @@
 # set to anything else to disable DBUS
 DBUS = 1
 
-DEPS = fontconfig freetype2 libtoxav libtoxcore libv4lconvert openal
-DEPS += vpx x11 xext xft xrender
+DEPS = fontconfig freetype2 libtoxav libtoxcore
+DEPS += libv4lconvert openal vpx x11 xext xrender
 ifeq ($(DBUS), 1)
 	DEPS += dbus-1
 endif
