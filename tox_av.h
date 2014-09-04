@@ -356,7 +356,7 @@ static void sourceplaybuffer(int i, int16_t *data, int samples, uint8_t channels
     }
 
     ALuint bufid;
-    ALint processed, queued;
+    ALint processed = 0, queued = 16;
     alGetSourcei(source[i], AL_BUFFERS_PROCESSED, &processed);
     alGetSourcei(source[i], AL_BUFFERS_QUEUED, &queued);
     alSourcei(source[i], AL_LOOPING, AL_FALSE);
