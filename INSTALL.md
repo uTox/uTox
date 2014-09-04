@@ -11,7 +11,7 @@
 
 Dependencies on Debian Jessie:
 ```bash
-sudo apt-get install libv4l-dev libopenal-dev libfreetype6-dev libdbus-1-dev libxrender-dev libfontconfig1-dev libxext-dev libxft-dev
+sudo apt-get install libv4l-dev libopenal-dev libfreetype6-dev libdbus-1-dev libxrender-dev libfontconfig1-dev libxext-dev
 ```
 
 Compile:
