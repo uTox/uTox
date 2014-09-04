@@ -1021,44 +1021,47 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     RegisterClassW(&wc);
     RegisterClassW(&wc2);
 
-    uint8_t langid = GetUserDefaultUILanguage() & 0xFF;
+    uint16_t langid = GetUserDefaultUILanguage() & 0xFFFF;
     switch(langid) {
     default:
-    case 0x07:
+    case 0x0C07:
         LANG = LANG_DE;
         break;
-    case 0x09:
+    case 0x0409:
         LANG = LANG_EN;
         break;
-    case 0x0A:
+    case 0x2C0A:
         LANG = LANG_ES;
         break;
-    case 0x0C:
+    case 0x080C:
         LANG = LANG_FR;
         break;
-    case 0x10:
+    case 0x0410:
         LANG = LANG_IT;
         break;
-    case 0x11:
+    case 0x0411:
         LANG = LANG_JA;
         break;
-    case 0x13:
+    case 0x0813:
         LANG = LANG_NL;
         break;
-    case 0x15:
+    case 0x0415:
         LANG = LANG_PL;
         break;
-    case 0x19:
+    case 0x0419:
         LANG = LANG_RU;
 	break;
-    case 0x22:
+    case 0x0422:
         LANG = LANG_UA;
         break;
-    case 0x26:
+    case 0x0426:
         LANG = LANG_LV;
         break;
-    case 0x04:
+    case 0x0804:
         LANG = LANG_CN;
+        break;
+    case 0x0404:
+        LANG = LANG_TW;
         break;
     }
 
