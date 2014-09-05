@@ -1063,7 +1063,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
 
     UTOX_SAVE *save = config_load();
 
-    hwnd = CreateWindowExW(0, classname, L"Tox", WS_OVERLAPPEDWINDOW, save->window_x, save->window_y, save->window_width, save->window_height, NULL, NULL, hInstance, NULL);
+    hwnd = CreateWindowExW(0, classname, L"Tox", WS_OVERLAPPEDWINDOW, save->window_x, save->window_y, MAIN_WIDTH, MAIN_HEIGHT, NULL, NULL, hInstance, NULL);
 
     free(save);
 
