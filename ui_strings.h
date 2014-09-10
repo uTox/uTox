@@ -285,7 +285,7 @@ STRING strings[][64] = {
     STR("UDP:"),
     STR("Proxy (SOCKS 5)"),
     STR("Modifier les paramètres Réseau/Proxy vous déconnectera du réseau Tox"),
-    STR("Logging"),
+    STR("Historique"),
 
     //41
     STR("Copier"),
