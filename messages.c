@@ -2,10 +2,6 @@
 
 void messages_draw(MESSAGES *m, int x, int y, int width, int height)
 {
-    if(width - MESSAGES_X - TIME_WIDTH < textwidth("_", 1) * SCALE) {
-        return;
-    }
-
     setcolor(0);
     setfont(FONT_TEXT);
 
@@ -16,6 +12,10 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
 
     for(i = 0; i != n; i++) {
         MESSAGE *msg = *p++;
+
+	if(msg->height == 0) {
+            return;
+	}
 
         if(y + msg->height <= 0) { //! NOTE: should not be constant 0
             y += msg->height;
@@ -722,16 +722,13 @@ int messages_selection(MESSAGES *m, void *data, uint32_t len, _Bool names)
 
 static int msgheight(MESSAGE *msg, int width)
 {
-    if ((width - MESSAGES_X - TIME_WIDTH) < textwidth("_", 1) * SCALE) {
-        return 0;
-    }
-
     switch(msg->flags) {
     case 0:
     case 1:
     case 2:
     case 3: {
-        return text_height(width - MESSAGES_X - TIME_WIDTH, font_small_lineheight, msg->msg, msg->length) + MESSAGES_SPACING;
+        int theight = text_height(width - MESSAGES_X - TIME_WIDTH, font_small_lineheight, msg->msg, msg->length);
+        return (theight == 0) ? 0 : theight + MESSAGES_SPACING;
     }
 
     case 4:
