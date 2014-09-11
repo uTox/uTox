@@ -215,13 +215,10 @@ int text_height(int right, uint16_t lineheight, char_t *str, uint16_t length)
         if(a == end || *a == ' ' || *a == '\n') {
             int count = a - b, w = textwidth(b, count);
             while(x + w > right) {
-                if(count == 0) {
-                    return 0;
-                }
                 if(x == 0) {
                     int fit = textfit(b, count, right);
                     count -= fit;
-                    if(fit == 0 && count != 0) {
+                    if(fit == 0 && (count != 0 || *b == '\n')) {
                         return 0;
                     }
                     b += fit;
@@ -230,7 +227,7 @@ int text_height(int right, uint16_t lineheight, char_t *str, uint16_t length)
                     y += lineheight;
                     int l = utf8_len(b);
                     count -= l;
-                    if(l == 0 && count != 0) {
+                    if(l == 0 && (count != 0 || *b == '\n')) {
                         return 0;
                     }
                     b += l;
