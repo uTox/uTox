@@ -218,12 +218,18 @@ int text_height(int right, uint16_t lineheight, char_t *str, uint16_t length)
                 if(x == 0) {
                     int fit = textfit(b, count, right);
                     count -= fit;
+                    if(fit == 0 && (count != 0 || *b == '\n')) {
+                        return 0;
+                    }
                     b += fit;
                     y += lineheight;
                 } else {
                     y += lineheight;
                     int l = utf8_len(b);
                     count -= l;
+                    if(l == 0 && (count != 0 || *b == '\n')) {
+                        return 0;
+                    }
                     b += l;
                 }
                 x = 0;
