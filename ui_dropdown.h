@@ -170,6 +170,11 @@ static DROP_ELEMENT langdrops[] = {
         .name = (uint8_t*)"简体中文",
         .handle = (void*)(size_t)11
     },
+
+    {
+        .name = (uint8_t*)"繁體中文",
+        .handle = (void*)(size_t)12
+    },
 };
 
 static DROP_ELEMENT filterdrops[] = {
