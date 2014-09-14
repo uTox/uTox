@@ -356,7 +356,7 @@ STRING strings[][64] = {
     STR("DPI"),
     STR("Salva Locazione"),
     STR("Lingua"),
-    STR("Network"),
+    STR("Rete"),
     STR("IPv6:"),
     STR("UDP:"),
     STR("Proxy (SOCKS 5)"),
