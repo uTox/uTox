@@ -80,7 +80,7 @@ STRING strings[][64] = {
 //English  ENGLISH
 {
     //0
-    STR("Friend request sent. Your friend will appear online when he accepts the request."),
+    STR("Friend request sent. Your friend will appear online after the request is accepted."),
     STR("Attempting to resolve DNS name..."),
     STR("Error: Invalid Tox ID"),
     STR("Error: No Tox ID specified"),
@@ -285,7 +285,7 @@ STRING strings[][64] = {
     STR("UDP:"),
     STR("Proxy (SOCKS 5)"),
     STR("Modifier les paramètres Réseau/Proxy vous déconnectera du réseau Tox"),
-    STR("Logging"),
+    STR("Historique"),
 
     //41
     STR("Copier"),
@@ -356,7 +356,7 @@ STRING strings[][64] = {
     STR("DPI"),
     STR("Salva Locazione"),
     STR("Lingua"),
-    STR("Network"),
+    STR("Rete"),
     STR("IPv6:"),
     STR("UDP:"),
     STR("Proxy (SOCKS 5)"),
@@ -688,7 +688,7 @@ STRING strings[][64] = {
 //Русский RUSSIAN
 {
     //0
-    STR("Запрос добавления в друзья отправлен. Ваш друг появится в сети, как только подтвердит запос."),
+    STR("Запрос добавления в друзья отправлен. Ваш друг появится в сети, как только подтвердит запрос."),
     STR("Попытка определения DNS-имени..."),
     STR("Ошибка: Некорректный Tox ID"),
     STR("Ошибка: Не указан Tox ID"),
@@ -741,7 +741,7 @@ STRING strings[][64] = {
     STR("UDP:"),
     STR("Прокси (SOCKS 5)"),
     STR("Изменение настроек сети или прокси-сервера требует отключения от сети Tox"),
-    STR("Logging"),
+    STR("Сохранять историю чата"),
 
     //41
     STR("Копировать"),
@@ -749,7 +749,7 @@ STRING strings[][64] = {
     STR("Вырезать"),
     STR("Вставить"),
     STR("Удалить"),
-    STR("Выбрать всё"),
+    STR("Выделить всё"),
     STR("Удалить"),
     STR("Покинуть"),
     STR("Принять"),
@@ -817,7 +817,7 @@ STRING strings[][64] = {
     STR("UDP:"),
     STR("Проксі (SOCKS 5)"),
     STR("Зміна налаштувань мережі або проксі-сервера потребує від'єднання від мережі Tox"),
-    STR("Logging"),
+    STR("Зберігати історію чату"),
 
     //41
     STR("Копіювати"),
@@ -909,6 +909,76 @@ STRING strings[][64] = {
     //50
     STR("点击保存"),
     STR("点击打开"),
+    STR("取消"),
+},
+
+//繁體中文 TRADITIONAL CHINESE
+{
+//0
+    STR("添加好友請求已發送。當對方接受請求後將在好友列表中在線。"),
+    STR("嘗試解析DNS名......"),
+    STR("錯誤： 無效的 Tox ID"),
+    STR("錯誤： 沒有指定Tox ID"),
+    STR("錯誤： 消息太長"),
+    STR("錯誤： 空消息"),
+    STR("錯誤： Tox ID 是你自己的 ID"),
+    STR("錯誤： Tox ID 已在好友列表中了"),
+    STR("錯誤： 未知"),
+    STR("錯誤： 無效的 Tox ID (錯誤的校驗和)"),
+    STR("錯誤： 無效的 Tox ID (錯誤的nospam值)"),
+    STR("錯誤： 沒內存了"),
+    //12
+    STR("新建文件傳輸任務"),
+    STR("文件傳輸開始"),
+    STR(".."),
+    STR("文件傳輸暫停"),
+    STR("文件傳輸中斷"),
+    STR("文件傳輸取消"),
+    STR("文件傳輸完成"),
+    //19
+    STR("呼叫取消"),
+    STR("呼叫邀請"),
+    STR("呼叫振鈴"),
+    STR("呼叫開始"),
+    //23
+    STR("添加好友"),
+    STR("Tox ID"),
+    STR("消息"),
+    STR("搜索好友"),
+    STR("添加"),
+    STR("切換設置"),
+    STR("好友呼叫"),
+    STR("用戶設置"),
+    STR("名字"),
+    STR("狀態消息（簽名）"),
+    STR("預覽"),
+    STR("設備選擇"),
+    STR("音頻輸入設備"),
+    STR("音頻輸出設備"),
+    STR("視頻輸入設備"),
+    STR("其他設置"),
+    STR("DPI"),
+    STR("Save Location"),
+    STR("語言"),
+    STR("網絡"),
+    STR("IPv6:"),
+    STR("UDP:"),
+    STR("代理 (SOCKS 5)"),
+    STR("修改網絡或代理設置將會斷開tox網絡連接"),
+    //41
+    STR("複制"),
+    STR("複制 (不帶名字)"),
+    STR("剪切"),
+    STR("粘貼"),
+    STR("刪除"),
+    STR("全選"),
+    STR("刪除"),
+    STR("離開"),
+    STR("接受"),
+    STR("忽略"),
+    //50
+    STR("點擊保存"),
+    STR("點擊打開"),
     STR("取消"),
 },
 

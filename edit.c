@@ -23,6 +23,10 @@ static void setactive(EDIT *edit)
 
 void edit_draw(EDIT *edit, int x, int y, int width, int height)
 {
+    if((width - 4 * SCALE - SCROLL_WIDTH) < 0) {
+        return;
+    }
+
     if(baseline && y > baseline - font_small_lineheight - 4 * SCALE) {
         y = baseline - font_small_lineheight - 4 * SCALE;
     }

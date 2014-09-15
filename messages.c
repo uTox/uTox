@@ -13,6 +13,10 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
     for(i = 0; i != n; i++) {
         MESSAGE *msg = *p++;
 
+	if(msg->height == 0) {
+            return;
+	}
+
         if(y + msg->height <= 0) { //! NOTE: should not be constant 0
             y += msg->height;
             continue;
@@ -723,7 +727,8 @@ static int msgheight(MESSAGE *msg, int width)
     case 1:
     case 2:
     case 3: {
-        return text_height(width - MESSAGES_X - TIME_WIDTH, font_small_lineheight, msg->msg, msg->length) + MESSAGES_SPACING;
+        int theight = text_height(width - MESSAGES_X - TIME_WIDTH, font_small_lineheight, msg->msg, msg->length);
+        return (theight == 0) ? 0 : theight + MESSAGES_SPACING;
     }
 
     case 4:
