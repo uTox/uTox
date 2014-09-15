@@ -1210,6 +1210,80 @@ STRING strings[][64] = {
     STR("Cancelled"),
 },
 
+//Norsk NORWEGIAN
+{
+    STR("Venne forespørsel sent sent. Vennen din vil bli vist som pålogget når venneforespørselen blir godtatt."),
+    STR("Forsøk på å løse DNS..."),
+    STR("Error: Ugyldig Tox ID"),
+    STR("Error: Ingen Tox ID spesifisert"),
+    STR("Error: For lang melding"),
+    STR("Error: Ingen melding"),
+    STR("Error: Tox ID din ID"),
+    STR("Error: Tox ID er allerede på vennelisten din"),
+    STR("Error: Ukjent"),
+    STR("Error: Ugyldig Tox ID (dårlig checksum)"),
+    STR("Error: Ugyldig Tox ID (dårlig antispam verdi)"),
+    STR("Error: Ingen minne"),
+
+    //12
+    STR("Ny filoverføring"),
+    STR("Startet filoverføring"),
+    STR("..."),
+    STR("Filoverføring pauset"),
+    STR("Filoverføring  mislyktes"),
+    STR("Filoverføring avbrutt"),
+    STR("Filoverføring ferdig"),
+
+    //19
+    STR("Samtale avbrutt"),
+    STR("Samtale invitert"),
+    STR("Samtale ringer"),
+    STR("Samtale startet"),
+
+    //23
+    STR("Legg til venner"),
+    STR("Tox ID"),
+    STR("Melding"),
+    STR("Søk etter venner"),
+    STR("Legg til"),
+    STR("bytt profil"),
+    STR("Venneforespørsel"),
+    STR("brukerinnstillinger"),
+    STR("Navn"),
+    STR("Status beskjed"),
+    STR("forhåndsvisning"),
+    STR("Enhetsvalg"),
+    STR("lydinnspillingsenhet"),
+    STR("lydavspillingsenhet"),
+    STR("Videoavspillingsenhet"),
+    STR("Andre innstillinger"),
+    STR("DPI"),
+    STR("Lagre lokasjon "),
+    STR("Språk"),
+    STR("Netverk"),
+    STR("IPv6:"),
+    STR("UDP:"),
+    STR("Proxy (SOCKS 5)"),
+    STR("å bytte nettverks/Proxy innstillinger vill frakoble deg fra Tux nettverket"),
+    STR("Lagre logger fra chatt"),
+
+    //41
+    STR("kopier"),
+    STR("kopier (ingen navn)"),
+    STR("klipp ut"),
+    STR("lim inn"),
+    STR("slett"),
+    STR("Velg alle"),
+    STR("Fjern"),
+    STR("Forlat"),
+    STR("Godta"),
+    STR("Ignorer"),
+
+    //50
+    STR("Klikk for å lagre"),
+    STR("Klikk for å åpne"),
+    STR("avbrutt"),
+},
 
 };
 
