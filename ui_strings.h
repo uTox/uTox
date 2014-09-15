@@ -332,7 +332,7 @@ STRING strings[][64] = {
 
     //19
     STR("Chiamata terminata"),
-    STR("Chiamata invitata"),
+    STR("Ti sta chiamando"),
     STR("Sta squillando"),
     STR("Chiamata iniziata"),
 
@@ -361,7 +361,7 @@ STRING strings[][64] = {
     STR("UDP:"),
     STR("Proxy (SOCKS 5)"),
     STR("Cambiando le impostazioni del Network o del Proxy, verrai disconnesso dalla rete Tox"),
-    STR("Logging"),
+    STR("Salvare i log delle chat?"),
 
     //41
     STR("Copia"),
