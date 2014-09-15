@@ -20,7 +20,7 @@ STRING strings[][64] = {
     //12
     STR("Neue Datenübertragung"),
     STR("Datenübertragung gestartet"),
-    STR(".."),
+    STR("..."),
     STR("Datenübertragung pausiert"),
     STR("Datenübertragung fehlerhaft"),
     STR("Datenübertragung abgebrochen"),
@@ -96,7 +96,7 @@ STRING strings[][64] = {
     //12
     STR("New file transfer"),
     STR("File transfer started"),
-    STR(".."),
+    STR("..."),
     STR("File transfer paused"),
     STR("File transfer broken"),
     STR("File transfer cancelled"),
@@ -172,7 +172,7 @@ STRING strings[][64] = {
     //12
     STR("New file transfer"),
     STR("File transfer started"),
-    STR(".."),
+    STR("..."),
     STR("File transfer paused"),
     STR("File transfer broken"),
     STR("File transfer cancelled"),
@@ -248,7 +248,7 @@ STRING strings[][64] = {
     //12
     STR("Nouveau transfert de fichier"),
     STR("Transfert de fichier commencé"),
-    STR(".."),
+    STR("..."),
     STR("Transfert de fichier en pause"),
     STR("Transfert de fichier interrompu"),
     STR("Transfert de fichier annulé"),
@@ -400,7 +400,7 @@ STRING strings[][64] = {
     //12
     STR("新しいファイルの転送"),
     STR("ファイルの転送が開始しました"),
-    STR(".."),
+    STR("..."),
     STR("ファイルの転送が停止しました"),
     STR("ファイルの転送が失敗しました"),
     STR("ファイルの転送をキャンセルしました"),
@@ -476,7 +476,7 @@ STRING strings[][64] = {
     //12
     STR("Jauna faila pārsūtīšana"),
     STR("Faila pārsūtīšana sākta"),
-    STR(".."),
+    STR("..."),
     STR("Faila pārsūtīšana apturēta"),
     STR("Kļūda faila pārsūtīšanā"),
     STR("Faila pārsūtīšana atcelta"),
@@ -552,7 +552,7 @@ STRING strings[][64] = {
     //12
     STR("Nieuwe bestandsoverdracht"),
     STR("Bestandsoverdracht gestart"),
-    STR(".."),
+    STR("..."),
     STR("Bestandsoverdracht gepauzeerd"),
     STR("Bestandsoverdracht onderbroken"),
     STR("Bestandsoverdracht geannuleerd"),
@@ -628,7 +628,7 @@ STRING strings[][64] = {
     //12
     STR("Nowy transfer pliku"),
     STR("Transfer pliku rozpoczęty"),
-    STR(".."),
+    STR("..."),
     STR("Transfer pliku wstrzymany"),
     STR("Transfer pliku nieudany"),
     STR("Transfer pliku anulowany"),
@@ -704,7 +704,7 @@ STRING strings[][64] = {
     //12
     STR("Передача нового файла"),
     STR("Передача файла начата"),
-    STR(".."),
+    STR("..."),
     STR("Передача файла приостановлена"),
     STR("Передача файла прервана"),
     STR("Передача файла отменена"),
@@ -780,7 +780,7 @@ STRING strings[][64] = {
     //12
     STR("Передача файлу"),
     STR("Розпочато передачу файлу"),
-    STR(".."),
+    STR("..."),
     STR("Призупинено передачу файлу"),
     STR("Перервано передачу файлу"),
     STR("Скасовано передачу файлу"),
@@ -856,7 +856,7 @@ STRING strings[][64] = {
     //12
     STR("新建文件传输任务"),
     STR("文件传输开始"),
-    STR(".."),
+    STR("..."),
     STR("文件传输暂停"),
     STR("文件传输中断"),
     STR("文件传输取消"),
@@ -930,7 +930,7 @@ STRING strings[][64] = {
     //12
     STR("新建文件傳輸任務"),
     STR("文件傳輸開始"),
-    STR(".."),
+    STR("..."),
     STR("文件傳輸暫停"),
     STR("文件傳輸中斷"),
     STR("文件傳輸取消"),
@@ -1001,7 +1001,7 @@ STRING strings[][64] = {
     //12
     STR("Transferul unui fişier nou"),
     STR("Transferul fişierului a început"),
-    STR(".."),
+    STR("..."),
     STR("Transferul fişierului a fost pus pe pauză"),
     STR("Transferul fişierului este stricat"),
     STR("Transferul fişierului a fost anulat"),
@@ -1077,7 +1077,7 @@ STRING strings[][64] = {
     //12
     STR("New file transfer"),
     STR("File transfer started"),
-    STR(".."),
+    STR("..."),
     STR("File transfer paused"),
     STR("File transfer broken"),
     STR("File transfer cancelled"),
@@ -1153,7 +1153,7 @@ STRING strings[][64] = {
     //12
     STR("New file transfer"),
     STR("File transfer started"),
-    STR(".."),
+    STR("..."),
     STR("File transfer paused"),
     STR("File transfer broken"),
     STR("File transfer cancelled"),
