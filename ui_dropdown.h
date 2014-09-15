@@ -112,81 +112,97 @@ static DROP_ELEMENT dpidrops[] = {
 
 static DROP_ELEMENT langdrops[] = {
     {
+        // German
         .name = (uint8_t*)"Deutsch",
         .handle = (void*)(size_t)0
     },
 
     {
+        // English
         .name = (uint8_t*)"English",
         .handle = (void*)(size_t)1
     },
 
     {
+        // Spanish
         .name = (uint8_t*)"Español",
         .handle = (void*)(size_t)2
     },
 
     {
+        // French
         .name = (uint8_t*)"Français",
         .handle = (void*)(size_t)3
     },
 
     {
+        // Italian
         .name = (uint8_t*)"Italiano",
         .handle = (void*)(size_t)4
     },
 
     {
+        // Japanese
         .name = (uint8_t*)"日本語",
         .handle = (void*)(size_t)5
     },
 
     {
+        // Latvian
         .name = (uint8_t*)"Latviešu",
         .handle = (void*)(size_t)6
     },
 
     {
+        // Dutch
         .name = (uint8_t*)"Nederlands",
         .handle = (void*)(size_t)7
     },
 
     {
+        // Polish
         .name = (uint8_t*)"Polski",
         .handle = (void*)(size_t)8
     },
 
     {
+        // Russian
         .name = (uint8_t*)"Русский",
         .handle = (void*)(size_t)9
     },
 
     {
+        // Ukrainian
         .name = (uint8_t*)"Українська",
         .handle = (void*)(size_t)10
     },
 
     {
+        // Simplified Chinese
         .name = (uint8_t*)"简体中文",
         .handle = (void*)(size_t)11
     },
 
     {
+        // Traditional Chinese
         .name = (uint8_t*)"繁體中文",
         .handle = (void*)(size_t)12
     },
 
     {
+        // Romanian
         .name = (uint8_t*)"Română",
         .handle = (void*)(size_t)13
     },
 
     {
+        // Bulgarian
         .name = (uint8_t*)"Български",
         .handle = (void*)(size_t)14
     },
 
     {
+        // Turkish
         .name = (uint8_t*)"Türk",
         .handle = (void*)(size_t)15
     },
