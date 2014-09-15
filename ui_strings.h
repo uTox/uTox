@@ -1134,6 +1134,82 @@ STRING strings[][64] = {
     STR("Cancelled"),
 },
 
+//Türk   TURKISH
+{
+    //0
+    STR("Friend request sent. Your friend will appear online after the request is accepted."),
+    STR("Attempting to resolve DNS name..."),
+    STR("Error: Invalid Tox ID"),
+    STR("Error: No Tox ID specified"),
+    STR("Error: Message is too long"),
+    STR("Error: Empty message"),
+    STR("Error: Tox ID is self ID"),
+    STR("Error: Tox ID is already in friend list"),
+    STR("Error: Unknown"),
+    STR("Error: Invalid Tox ID (bad checksum)"),
+    STR("Error: Invalid Tox ID (bad nospam value)"),
+    STR("Error: No memory"),
+
+    //12
+    STR("New file transfer"),
+    STR("File transfer started"),
+    STR(".."),
+    STR("File transfer paused"),
+    STR("File transfer broken"),
+    STR("File transfer cancelled"),
+    STR("File transfer complete"),
+
+    //19
+    STR("Call cancelled"),
+    STR("Call invited"),
+    STR("Call ringing"),
+    STR("Call started"),
+
+    //23
+    STR("Add Friends"),
+    STR("Tox ID"),
+    STR("Message"),
+    STR("Search friends"),
+    STR("Add"),
+    STR("Switch Profile"),
+    STR("Friend Request"),
+    STR("User Settings"),
+    STR("Name"),
+    STR("Status Message"),
+    STR("Preview"),
+    STR("Device Selection"),
+    STR("Audio Input Device"),
+    STR("Audio Output Device"),
+    STR("Video Input Device"),
+    STR("Other Settings"),
+    STR("DPI"),
+    STR("Save Location"),
+    STR("Language"),
+    STR("Network"),
+    STR("IPv6:"),
+    STR("UDP:"),
+    STR("Proxy (SOCKS 5)"),
+    STR("Changing Network/Proxy settings will disconnect you from the Tox network"),
+    STR("Logging"),
+
+    //41
+    STR("Copy"),
+    STR("Copy (no names)"),
+    STR("Cut"),
+    STR("Paste"),
+    STR("Delete"),
+    STR("Select All"),
+    STR("Remove"),
+    STR("Leave"),
+    STR("Accept"),
+    STR("Ignore"),
+
+    //50
+    STR("Click to save"),
+    STR("Click to open"),
+    STR("Cancelled"),
+},
+
 
 };
 
