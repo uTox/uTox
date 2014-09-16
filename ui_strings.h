@@ -5,22 +5,22 @@ STRING strings[][64] = {
 {
     //0
     STR("Freundschaftsanfrage verschickt. Dein Freund wird online erscheinen, wenn er deine Anfrage akzeptiert."),
-    STR("Versuche DNS Namen aufzulösen..."),
-    STR("Fehler: Ungültige Tox ID"),
-    STR("Fehler: Keine Tox ID angegeben"),
+    STR("Versuche DNS-Namen aufzulösen..."),
+    STR("Fehler: Ungültige Tox-ID"),
+    STR("Fehler: Keine Tox-ID angegeben"),
     STR("Fehler: Nachricht ist zu lang"),
     STR("Fehler: Leere Nachricht"),
-    STR("Fehler: Tox ID ist eigene ID"),
-    STR("Fehler: Tox ID ist bereits in der Freundesliste"),
+    STR("Fehler: Tox-ID ist eigene ID"),
+    STR("Fehler: Tox-ID ist bereits in der Freundesliste"),
     STR("Fehler: Unbekannt"),
-    STR("Fehler: Ungültige Tox ID (bad checksum)"),
-    STR("Fehler: Ungültige Tox ID (bad nospam value)"),
+    STR("Fehler: Ungültige Tox-ID (bad checksum)"),
+    STR("Fehler: Ungültige Tox-ID (bad nospam value)"),
     STR("Fehler: Kein Speicher"),
 
     //12
     STR("Neue Datenübertragung"),
     STR("Datenübertragung gestartet"),
-    STR("..."),
+    STR(".."),
     STR("Datenübertragung pausiert"),
     STR("Datenübertragung fehlerhaft"),
     STR("Datenübertragung abgebrochen"),
@@ -34,7 +34,7 @@ STRING strings[][64] = {
 
     //23
     STR("Freunde hinzufügen"),
-    STR("Tox ID"),
+    STR("Tox-ID"),
     STR("Nachricht"),
     STR("Suche Freund"),
     STR("Hinzufügen"),
@@ -46,22 +46,16 @@ STRING strings[][64] = {
     STR("Vorschau"),
     STR("Geräteauswahl"),
     STR("Audioquelle"),
-    STR("Audio-Ausgabegerät"),
+    STR("Audioausgabegerät"),
     STR("Videoquelle"),
     STR("Andere Einstellungen"),
     STR("DPI"),
-    STR("Standort speichern"),
+    STR("Speichere Standorteinstellung"),
     STR("Sprache"),
-    STR("Netzwerk"),
-    STR("IPv6:"),
-    STR("UDP:"),
-    STR("Proxy (SOCKS 5)"),
-    STR("Das Verändern von Netzwerk/Proxy-Einstellungen unterbricht die Verbindung zum Tox-Netzwerk."),
-    STR("Logging"),
 
     //41
     STR("Kopieren"),
-    STR("Kopieren (ohne Namen)"),
+    STR("Kopieren (no names)"),
     STR("Ausschneiden"),
     STR("Einfügen"),
     STR("Löschen"),
@@ -72,8 +66,8 @@ STRING strings[][64] = {
     STR("Ignorieren"),
 
     //50
-    STR("Zum speichern klicken"),
-    STR("Zum öffnen klicken"),
+    STR("Klicke zum speichern"),
+    STR("Klicke zum öffnen"),
     STR("Abgebrochen"),
 },
 
