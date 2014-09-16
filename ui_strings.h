@@ -1152,7 +1152,7 @@ STRING strings[][64] = {
     //12
     STR("Yeni dosya transferi"),
     STR("Dosya transferi başlatıldı"),
-    STR(".."),
+    STR("..."),
     STR("Dosya transferi durduruldu"),
     STR("Dosya transferi hatası"),
     STR("Dosya transferi iptal edildi"),
