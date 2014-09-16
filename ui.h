@@ -49,17 +49,22 @@ extern BUTTON button_add, button_settings, button_transfer;
 extern DROPDOWN dropdown_audio_in, dropdown_audio_out, dropdown_video, dropdown_dpi, dropdown_language, dropdown_proxy, dropdown_ipv6, dropdown_udp, dropdown_logging;
 
 enum {
+    LANG_BG,
     LANG_DE,
     LANG_EN,
     LANG_ES,
     LANG_FR,
-    LANG_IT,
+    LANG_HI, //5
     LANG_JA,
+    LANG_IT,
     LANG_LV,
     LANG_NL,
+    LANG_NO, //10
     LANG_PL,
+    LANG_RO,
     LANG_RU,
-    LANG_UA,
+    LANG_TR,
+    LANG_UA, //15
     LANG_CN,
     LANG_TW,
 };
