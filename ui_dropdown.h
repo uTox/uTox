@@ -216,7 +216,7 @@ static DROP_ELEMENT langdrops[] = {
     {
         // Hindi
         .name = (uint8_t*)"हिन्दी",
-        .handle = (void*)(size_t)16
+        .handle = (void*)(size_t)17
     },
 };
 
