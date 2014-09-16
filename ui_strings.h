@@ -1138,15 +1138,15 @@ STRING strings[][64] = {
     //0
     STR("Arkadaşlık talebi gönderildi. Talebiniz karşı taraf tarafından kabul edildiğinde, arkadaşınız çevirimiçi olarak gözükecek."),
     STR("DNS adı çözümleniyor..."),
-    STR("Hata: Geçersiz TOX ID"),
-    STR("Hata: Bir TOX ID giriniz"),
+    STR("Hata: Geçersiz Tox ID"),
+    STR("Hata: Bir Tox ID giriniz"),
     STR("Hata: Mesaj çok uzun."),
     STR("Hata: Bir mesaj giriniz."),
-    STR("Hata: TOX ID sizin kendi IDniz. Lütfen başka ID giriniz."),
+    STR("Hata: Tox ID sizin kendi IDniz. Lütfen başka ID giriniz."),
     STR("Hata: Tox ID zaten listenizde bulunuyor."),
     STR("Hata: Bilinmeyen hata."),
-    STR("Hata: Geçersiz TOX ID (geçersiz sağlama toplamı)"),
-    STR("Hata: Geçersiz TOX ID (geçersiz nospam değeri)"),
+    STR("Hata: Geçersiz Tox ID (geçersiz sağlama toplamı)"),
+    STR("Hata: Geçersiz Tox ID (geçersiz nospam değeri)"),
     STR("Hata: Yetersiz hafıza."),
 
     //12
