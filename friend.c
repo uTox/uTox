@@ -107,6 +107,11 @@ void friend_addmessage(FRIEND *f, void *data)
     }
 }
 
+void friend_set_typing(FRIEND *f, int typing) {
+    f->typing = typing;
+    messages_set_typing(&messages_friend, &f->msg, typing);
+}
+
 void friend_addid(uint8_t *id, char_t *msg, uint16_t msg_length)
 {
     void *data = malloc(TOX_FRIEND_ADDRESS_SIZE + msg_length * sizeof(char_t));
