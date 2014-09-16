@@ -1284,6 +1284,82 @@ STRING strings[][64] = {
     STR("Avbrutt"),
 },
 
+// Hindi  HINDI
+{
+       //0
+    STR("मित्र अनुरोध. अपने दोस्त यहाँ होगा"),
+    STR("Attempting to resolve DNS name..."),
+    STR("Error: Invalid Tox ID"),
+    STR("Error: नहीं Tox ID specified"),
+    STR("Error: इस संदेश लंबा है"),
+    STR("Error: खाली संदेश"),
+    STR("Error: Tox ID is self ID"),
+    STR("Error: Tox ID is already in friend list"),
+    STR("Error: अज्ञात"),
+    STR("Error: Invalid Tox ID (bad checksum)"),
+    STR("Error: Invalid Tox ID (bad nospam value)"),
+    STR("Error: No memory"),
+
+    //12
+    STR("नई file transfer"),
+    STR("नई transfer शुरुआत"),
+    STR(".."),
+    STR("File transfer इंतजार"),
+    STR("File transfer बुरा"),
+    STR("File transfer बंद"),
+    STR("File transfer खत्म"),
+
+    //19
+    STR("Call बंद"),
+    STR("Call आमंत्रित"),
+    STR("Call इंतजार"),
+    STR("Call शुरुआत"),
+
+    //23
+    STR("मित्र"),
+    STR("Tox ID"),
+    STR("संदेश"),
+    STR("मित्र खोजें"),
+    STR("Add"),
+    STR("Switch Profile"),
+    STR("मित्र Request"),
+    STR("User Settings"),
+    STR("Nombre"),
+    STR("Status Message"),
+    STR("Preview"),
+    STR("Device Selection"),
+    STR("Audio Input Device"),
+    STR("Audio Output Device"),
+    STR("Video Input Device"),
+    STR("Other Settings"),
+    STR("DPI"),
+    STR("Save Location"),
+    STR("भाषा"),
+    STR("Network"),
+    STR("IPv6:"),
+    STR("UDP:"),
+    STR("Proxy (SOCKS 5)"),
+    STR("Changing Network/Proxy settings will disconnect you from the Tox network"),
+    STR("Logging"),
+
+    //41
+    STR("Copy"),
+    STR("Copy (no names)"),
+    STR("Cut"),
+    STR("Paste"),
+    STR("Delete"),
+    STR("Select All"),
+    STR("निकालें"),
+    STR("छोड़ दो"),
+    STR("इसे ले"),
+    STR("उपेक्षा"),
+
+    //50
+    STR("Click to save"),
+    STR("Click to open"),
+    STR("बंद"),
+},
+
 };
 
 #undef STR
