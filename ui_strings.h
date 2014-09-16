@@ -1247,13 +1247,13 @@ STRING strings[][64] = {
     STR("Legg til"),
     STR("bytt profil"),
     STR("Venneforespørsel"),
-    STR("brukerinnstillinger"),
+    STR("Brukerinnstillinger"),
     STR("Navn"),
     STR("Status beskjed"),
-    STR("forhåndsvisning"),
+    STR("Forhåndsvisning"),
     STR("Enhetsvalg"),
-    STR("lydinnspillingsenhet"),
-    STR("lydavspillingsenhet"),
+    STR("Lydinnspillingsenhet"),
+    STR("Lydavspillingsenhet"),
     STR("Videoavspillingsenhet"),
     STR("Andre innstillinger"),
     STR("DPI"),
@@ -1267,11 +1267,11 @@ STRING strings[][64] = {
     STR("Lagre logger fra chatt"),
 
     //41
-    STR("kopier"),
-    STR("kopier (ingen navn)"),
-    STR("klipp ut"),
-    STR("lim inn"),
-    STR("slett"),
+    STR("Kopier"),
+    STR("Kopier (ingen navn)"),
+    STR("Klipp ut"),
+    STR("Lim inn"),
+    STR("Slett"),
     STR("Velg alle"),
     STR("Fjern"),
     STR("Forlat"),
@@ -1281,7 +1281,7 @@ STRING strings[][64] = {
     //50
     STR("Klikk for å lagre"),
     STR("Klikk for å åpne"),
-    STR("avbrutt"),
+    STR("Avbrutt"),
 },
 
 };
