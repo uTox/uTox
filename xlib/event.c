@@ -268,6 +268,10 @@ _Bool doevent(XEvent event)
                 }
             }
 
+            if(sym == XK_KP_Enter){
+                sym = XK_Return;
+            }
+
             if(sym == XK_Return && (ev->state & 1)) {
                 edit_char('\n', 0, 0);
                 break;
