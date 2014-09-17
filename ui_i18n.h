@@ -12,7 +12,7 @@
 #define msgid(x) [_LANG_ID][STR_##x]=
 #define msgstr(x) STR(x),
 
-STRING strings[][64] = {
+STRING strings[][STRS_MAX+1] = {
 
 //"BULGARIAN" "Български"
 #define _LANG_ID LANG_BG
