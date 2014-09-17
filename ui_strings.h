@@ -96,7 +96,7 @@ STRING strings[][64] = {
     //12
     STR("Neue Datenübertragung"),
     STR("Datenübertragung gestartet"),
-    STR(".."),
+    STR("..."),
     STR("Datenübertragung pausiert"),
     STR("Datenübertragung fehlerhaft"),
     STR("Datenübertragung abgebrochen"),
