@@ -128,6 +128,12 @@ STRING strings[][64] = {
     STR("DPI"),
     STR("Speichere Standorteinstellung"),
     STR("Sprache"),
+    STR("Netzwerk"),       
+    STR("IPv6:"),      
+    STR("UDP:"),       
+    STR("Proxy (SOCKS 5)"),        
+    STR("Das Verändern von Netzwerk/Proxy-Einstellungen unterbricht die Verbindung zum Tox-Netzwerk."),        
+    STR("Logging"),        
 
     //41
     STR("Kopieren"),
