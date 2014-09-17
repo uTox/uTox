@@ -82,15 +82,15 @@ STRING strings[][64] = {
     //0
     STR("Freundschaftsanfrage verschickt. Dein Freund wird online erscheinen, wenn er deine Anfrage akzeptiert."),
     STR("Versuche DNS-Namen aufzulösen..."),
-    STR("Fehler: Ungültige Tox-ID"),
-    STR("Fehler: Keine Tox-ID angegeben"),
+    STR("Fehler: Ungültige Tox ID"),
+    STR("Fehler: Keine Tox ID angegeben"),
     STR("Fehler: Nachricht ist zu lang"),
     STR("Fehler: Leere Nachricht"),
-    STR("Fehler: Tox-ID ist eigene ID"),
-    STR("Fehler: Tox-ID ist bereits in der Freundesliste"),
+    STR("Fehler: Tox ID ist eigene ID"),
+    STR("Fehler: Tox ID ist bereits in der Freundesliste"),
     STR("Fehler: Unbekannt"),
-    STR("Fehler: Ungültige Tox-ID (bad checksum)"),
-    STR("Fehler: Ungültige Tox-ID (bad nospam value)"),
+    STR("Fehler: Ungültige Tox ID (bad checksum)"),
+    STR("Fehler: Ungültige Tox ID (bad nospam value)"),
     STR("Fehler: Kein Speicher"),
 
     //12
@@ -110,7 +110,7 @@ STRING strings[][64] = {
 
     //23
     STR("Freunde hinzufügen"),
-    STR("Tox-ID"),
+    STR("Tox ID"),
     STR("Nachricht"),
     STR("Suche Freund"),
     STR("Hinzufügen"),
