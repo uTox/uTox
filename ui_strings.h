@@ -905,7 +905,7 @@ STRING strings[][64] = {
     STR("Proxy (SOCKS 5)"),
     STR("Zmiana ustawień sieci/proxy rozłączy cię z siecią Tox"),
     STR("Historia"),
-    STR("is typing..."), //TODO: localize
+    STR("pisze..."),
 
     //41
     STR("Kopiuj"),
