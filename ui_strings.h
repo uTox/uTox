@@ -58,6 +58,7 @@ STRING strings[][64] = {
     STR("Прокси(SOCKS 5)"),
     STR("Смяната на мрежови/прокси настройки ще прекрати връзката ви с Tox мрежата"),
     STR("Logging"),
+    STR("is typing..."), //TODO: localize
 
     //41
     STR("Копирай"),
@@ -134,6 +135,7 @@ STRING strings[][64] = {
     STR("Proxy (SOCKS 5)"),        
     STR("Das Verändern von Netzwerk/Proxy-Einstellungen unterbricht die Verbindung zum Tox-Netzwerk."),        
     STR("Logging"),        
+    STR("is typing..."), //TODO: localize
 
     //41
     STR("Kopieren"),
@@ -210,6 +212,7 @@ STRING strings[][64] = {
     STR("Proxy (SOCKS 5)"),
     STR("Changing Network/Proxy settings will disconnect you from the Tox network"),
     STR("Logging"),
+    STR("is typing..."),
 
     //41
     STR("Copy"),
@@ -285,6 +288,7 @@ STRING strings[][64] = {
     STR("Proxy (SOCKS 5)"),
     STR("Al Cambiar configuración de la Red/Proxy, sera desconectado de la Red Tox"),
     STR("Registrando"),
+    STR("is typing..."), //TODO: localize
 
     //41
     STR("Copiar"),
@@ -361,6 +365,7 @@ STRING strings[][64] = {
     STR("Proxy (SOCKS 5)"),
     STR("Modifier les paramètres Réseau/Proxy vous déconnectera du réseau Tox"),
     STR("Historique"),
+    STR("is typing..."), //TODO: localize
 
     //41
     STR("Copier"),
@@ -437,6 +442,7 @@ STRING strings[][64] = {
     STR("Proxy (SOCKS 5)"),
     STR("Changing Network/Proxy settings will disconnect you from the Tox network"),
     STR("Logging"),
+    STR("is typing..."), //TODO: localize
 
     //41
     STR("Copy"),
@@ -513,6 +519,7 @@ STRING strings[][64] = {
     STR("プロキシ (SOCKS 5)"),
     STR("ネットワークやプロキシの設定を変えるとToxネットワークの接続が切断されます"),
     STR("ロギング"),
+    STR("is typing..."), //TODO: localize
 
     //41
     STR("コピー"),
@@ -589,6 +596,7 @@ STRING strings[][64] = {
     STR("Proxy (SOCKS 5)"),
     STR("Cambiando le impostazioni del Network o del Proxy, verrai disconnesso dalla rete Tox"),
     STR("Salvare i log delle chat?"),
+    STR("is typing..."), //TODO: localize
 
     //41
     STR("Copia"),
@@ -666,6 +674,7 @@ STRING strings[][64] = {
     STR("Starpniekserveris (SOCKS 5)"),
     STR("Changing Network/Proxy settings will disconnect you from the Tox network"),
     STR("Logging"),
+    STR("is typing..."), //TODO: localize
 
     //41
     STR("Kopēt"),
@@ -742,6 +751,7 @@ STRING strings[][64] = {
     STR("Proxy (SOCKS 5)"),
     STR("Veranderen van Netwerk/Proxy instelling zal de verbinding met het Tox netwerk verbreken"),
     STR("Logging"),
+    STR("is typing..."), //TODO: localize
 
     //41
     STR("Kopiëren"),
@@ -818,6 +828,7 @@ STRING strings[][64] = {
     STR("Proxy (SOCKS 5)"),
     STR("å bytte nettverks/Proxy innstillinger vill frakoble deg fra Tux nettverket"),
     STR("Lagre logger fra chatt"),
+    STR("is typing..."), //TODO: localize
 
     //41
     STR("Kopier"),
@@ -894,6 +905,7 @@ STRING strings[][64] = {
     STR("Proxy (SOCKS 5)"),
     STR("Zmiana ustawień sieci/proxy rozłączy cię z siecią Tox"),
     STR("Historia"),
+    STR("is typing..."), //TODO: localize
 
     //41
     STR("Kopiuj"),
@@ -970,6 +982,7 @@ STRING strings[][64] = {
     STR("Proxy (SOCKS 5)"),
     STR("Schimbarea setărilor Network/Proxy te vor deconecta de la internetul Tox"),
     STR("Logare"),
+    STR("is typing..."), //TODO: localize
 
     //41
     STR("Copiere"),
@@ -1046,6 +1059,7 @@ STRING strings[][64] = {
     STR("Прокси (SOCKS 5)"),
     STR("Изменение настроек сети или прокси-сервера требует отключения от сети Tox"),
     STR("Сохранять историю чата"),
+    STR("пишет..."),
 
     //41
     STR("Копировать"),
@@ -1122,6 +1136,7 @@ STRING strings[][64] = {
     STR("Proxy (SOCKS 5)"),
     STR("Ağ veya Proxy ayarlarını değiştirmek sizi Tox ağından koparır."),
     STR("Loglama"),
+    STR("is typing..."), //TODO: localize
 
     //41
     STR("Kopyala"),
@@ -1198,6 +1213,7 @@ STRING strings[][64] = {
     STR("Проксі (SOCKS 5)"),
     STR("Зміна налаштувань мережі або проксі-сервера потребує від'єднання від мережі Tox"),
     STR("Зберігати історію чату"),
+    STR("is typing..."), //TODO: localize
 
     //41
     STR("Копіювати"),
@@ -1274,6 +1290,7 @@ STRING strings[][64] = {
     STR("代理 (SOCKS 5)"),
     STR("修改网络或代理设置将会断开tox网络连接"),
     STR("Logging"), //TODO: localize
+    STR("is typing..."), //TODO: localize
 
     //41
     STR("复制"),
@@ -1347,6 +1364,7 @@ STRING strings[][64] = {
     STR("代理 (SOCKS 5)"),
     STR("修改網絡或代理設置將會斷開tox網絡連接"),
     STR("Logging"), //TODO: localize
+    STR("is typing..."), //TODO: localize
 
     //41
     STR("複制"),

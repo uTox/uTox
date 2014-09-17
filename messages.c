@@ -217,8 +217,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
             setfont(FONT_TEXT);
             setcolor(C_GRAY2);
             drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, y, f->name, f->name_length);
-            // TODO: i18n
-            drawtextwidth(x + MESSAGES_X, x + width, y, "is typing...", sizeof("is typing...") - 1);
+            drawtextwidth(x + MESSAGES_X, x + width, y, S(IS_TYPING), SLEN(IS_TYPING));
         }
     }
 }
