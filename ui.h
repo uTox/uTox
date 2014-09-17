@@ -144,6 +144,9 @@ enum {
     STR_CLICKTOSAVE,
     STR_CLICKTOOPEN,
     STR_CANCELLED,
+
+    STR_LANG_NATIVE_NAME,
+    STR_LANG_ENGLISH_NAME,
 };
 
 #define S(x) strings[LANG][STR_##x].str
