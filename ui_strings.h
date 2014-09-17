@@ -1273,6 +1273,7 @@ STRING strings[][64] = {
     STR("UDP:"),
     STR("代理 (SOCKS 5)"),
     STR("修改网络或代理设置将会断开tox网络连接"),
+    STR("Logging"), //TODO: localize
 
     //41
     STR("复制"),
@@ -1345,6 +1346,8 @@ STRING strings[][64] = {
     STR("UDP:"),
     STR("代理 (SOCKS 5)"),
     STR("修改網絡或代理設置將會斷開tox網絡連接"),
+    STR("Logging"), //TODO: localize
+
     //41
     STR("複制"),
     STR("複制 (不帶名字)"),
