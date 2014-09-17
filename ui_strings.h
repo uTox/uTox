@@ -208,7 +208,7 @@ STRING strings[][64] = {
     STR("IPv6:"),
     STR("UDP:"),
     STR("Proxy (SOCKS 5)"),
-    STR("Changing Network/Proxy settings will disconnect you from the Tox network"),
+    STR("Changing Network/Proxy settings will temporarily disconnect you from the Tox network"),
     STR("Logging"),
 
     //41
