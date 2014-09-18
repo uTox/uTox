@@ -1301,7 +1301,7 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
 
     case FRIEND_TYPING: {
         FRIEND *f = &friend[param1];
-        f->typing = param2;
+        friend_set_typing(f, param2);
         updatefriend(f);
         break;
     }
@@ -1309,6 +1309,9 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
     case FRIEND_ONLINE: {
         FRIEND *f = &friend[param1];
         f->online = param2;
+        if(!f->online) {
+            friend_set_typing(f, 0);
+        }
         updatefriend(f);
         break;
     }
