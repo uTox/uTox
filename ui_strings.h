@@ -81,7 +81,7 @@ STRING strings[][64] = {
 //Deutsch  GERMAN  1
 {
     //0
-    STR("Freundschaftsanfrage verschickt. Dein Freund wird online erscheinen, wenn er deine Anfrage akzeptiert."),
+    STR("Freundschaftsanfrage verschickt. Dein Freund wird online erscheinen, sobald er deine Anfrage akzeptiert hat."),
     STR("Versuche DNS-Namen aufzulösen..."),
     STR("Fehler: Ungültige Tox ID"),
     STR("Fehler: Keine Tox ID angegeben"),
@@ -90,7 +90,7 @@ STRING strings[][64] = {
     STR("Fehler: Tox ID ist eigene ID"),
     STR("Fehler: Tox ID ist bereits in der Freundesliste"),
     STR("Fehler: Unbekannt"),
-    STR("Fehler: Ungültige Tox ID (bad checksum)"),
+    STR("Fehler: Ungültige Tox ID (ungültige Prüfsumme)"),
     STR("Fehler: Ungültige Tox ID (bad nospam value)"),
     STR("Fehler: Kein Speicher"),
 
@@ -135,7 +135,7 @@ STRING strings[][64] = {
     STR("Proxy (SOCKS 5)"),        
     STR("Das Verändern von Netzwerk/Proxy-Einstellungen unterbricht die Verbindung zum Tox-Netzwerk."),        
     STR("Logging"),        
-    STR("is typing..."), //TODO: localize
+    STR("schreibt..."),
 
     //41
     STR("Kopieren"),
