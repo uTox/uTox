@@ -596,11 +596,11 @@ STRING strings[][64] = {
     STR("Proxy (SOCKS 5)"),
     STR("Cambiando le impostazioni del Network o del Proxy, verrai temporaneamente disconnesso dalla rete Tox"),
     STR("Salvare i log delle chat?"),
-    STR("is typing..."), //TODO: localize
+    STR("sta scrivendo..."),
 
     //41
     STR("Copia"),
-    STR("Copia (nessun nome)"),
+    STR("Copia (senza nome contatto)"),
     STR("Taglia"),
     STR("Incolla"),
     STR("Cancella"),
