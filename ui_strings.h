@@ -749,9 +749,9 @@ STRING strings[][64] = {
     STR("IPv6:"),
     STR("UDP:"),
     STR("Proxy (SOCKS 5)"),
-    STR("Veranderen van Netwerk/Proxy instelling zal de verbinding met het Tox netwerk verbreken"),
-    STR("Logging"),
-    STR("is typing..."), //TODO: localize
+    STR("Het veranderen van Netwerk/Proxy instellingen zal de verbinding met het Tox netwerk tijdelijk verbreken"),
+    STR("Logboek registratie"),
+    STR("is bezig met typen..."),
 
     //41
     STR("Kopiëren"),
