@@ -450,8 +450,12 @@ static void callback_file_data(Tox *tox, int32_t fid, uint8_t filenumber, const 
 static void do_bootstrap(Tox *tox)
 {
     static int j = 0;
+
+    if (j == 0)
+        j = rand();
+
     int i = 0;
-    while(i < 2) {
+    while(i < 4) {
         struct bootstrap_node *d = &bootstrap_nodes[j % countof(bootstrap_nodes)];
         tox_bootstrap_from_address(tox, d->address, d->port, d->key);
         i++;
