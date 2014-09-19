@@ -1167,7 +1167,26 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint8_t msg, uint16_t param1
 
 static void file_notify(FRIEND *f, MSG_FILE *msg)
 {
-    STRING *str = &strings[LANG][FILE_STRING_1 + msg->status];
+    STRING *str;
+
+    switch(msg->status) {
+    case FILE_PENDING:
+        str = SPTR(TRANSFER_NEW); break;
+    case FILE_OK:
+        str = SPTR(TRANSFER_STARTED); break;
+    case FILE_PAUSED:
+        str = SPTR(TRANSFER___); break;
+    case FILE_PAUSED_OTHER:
+        str = SPTR(TRANSFER_PAUSED); break;
+    case FILE_KILLED:
+        str = SPTR(TRANSFER_CANCELLED); break;
+    case FILE_DONE:
+        str = SPTR(TRANSFER_COMPLETE); break;
+    case FILE_BROKEN:
+    default: //render unknown status as "transfer broken"
+        str = SPTR(TRANSFER_BROKEN); break;
+    }
+
     friend_notify(f, str->str, str->length, msg->name, msg->name_length);
 }
 
