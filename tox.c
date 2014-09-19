@@ -823,7 +823,31 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint8_t msg, uint16_t param1
             r = tox_add_friend(tox, data, data + TOX_FRIEND_ADDRESS_SIZE, param1);
         }
 
-        postmessage(FRIEND_ADD, (r < 0), (r < 0) ? ~r : r, data);
+        if(r < 0) {
+            uint8_t addf_error;
+            switch(r) {
+            case TOX_FAERR_TOOLONG:
+                addf_error = ADDF_TOOLONG; break;
+            case TOX_FAERR_NOMESSAGE:
+                addf_error = ADDF_NOMESSAGE; break;
+            case TOX_FAERR_OWNKEY:
+                addf_error = ADDF_OWNKEY; break;
+            case TOX_FAERR_ALREADYSENT:
+                addf_error = ADDF_ALREADYSENT; break;
+            case TOX_FAERR_BADCHECKSUM:
+                addf_error = ADDF_BADCHECKSUM; break;
+            case TOX_FAERR_SETNEWNOSPAM:
+                addf_error = ADDF_SETNEWNOSPAM; break;
+            case TOX_FAERR_NOMEM:
+                addf_error = ADDF_NOMEM; break;
+            case TOX_FAERR_UNKNOWN:
+            default:
+                addf_error = ADDF_UNKNOWN; break;
+            }
+            postmessage(FRIEND_ADD, 1, addf_error, data);
+        } else {
+            postmessage(FRIEND_ADD, 0, r, data);
+        }
         break;
     }
 
@@ -1217,7 +1241,7 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
         /* confirmation that friend has been added to friend list (add) */
         if(param1) {
             /* friend was not added */
-            addfriend_status = param2 + ADDF_TOOLONG;
+            addfriend_status = param2;
         } else {
             /* friend was added */
             edit_addid.length = 0;
