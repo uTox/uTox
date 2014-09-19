@@ -77,7 +77,6 @@ enum {
 };
 
 enum {
-    //NOT REFERRED TO BY NAME
     STR_REQ_SENT,
     STR_REQ_RESOLVE,
     STR_REQ_INVALID_ID,
@@ -104,7 +103,6 @@ enum {
     STR_CALL_RINGING,
     STR_CALL_STARTED,
 
-    //REFERRED TO BY NAME
     STR_ADDFRIENDS,
     STR_TOXID,
     STR_MESSAGE,
