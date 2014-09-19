@@ -143,6 +143,7 @@ enum {
 
 #define S(x) strings[LANG][STR_##x].str
 #define SLEN(x) strings[LANG][STR_##x].length
+#define SPTR(x) &strings[LANG][STR_##x]
 extern STRING strings[][64];
 
 uint8_t LANG;
