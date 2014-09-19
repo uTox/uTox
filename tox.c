@@ -1192,7 +1192,23 @@ static void file_notify(FRIEND *f, MSG_FILE *msg)
 
 static void call_notify(FRIEND *f, uint8_t status)
 {
-    STRING *str = &strings[LANG][CALL_STRING_1 + (status & 3)];
+    STRING *str;
+
+    switch(status) {
+    case CALL_INVITED:
+    case CALL_INVITED_VIDEO:
+        str = SPTR(CALL_INVITED); break;
+    case CALL_RINGING:
+    case CALL_RINGING_VIDEO:
+        str = SPTR(CALL_RINGING); break;
+    case CALL_OK:
+    case CALL_OK_VIDEO:
+        str = SPTR(CALL_STARTED); break;
+    case CALL_NONE:
+    default: //render unknown status as "call cancelled"
+        str = SPTR(CALL_CANCELLED); break;
+    }
+
     friend_notify(f, str->str, str->length, (uint8_t*)"", 0);
     friend_addmessage_notify(f, str->str, str->length);
 }
