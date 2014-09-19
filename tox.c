@@ -449,7 +449,7 @@ static void callback_file_data(Tox *tox, int32_t fid, uint8_t filenumber, const 
 /* bootstrap to dht with bootstrap_nodes */
 static void do_bootstrap(Tox *tox)
 {
-    static int j = 0;
+    static unsigned int j = 0;
 
     if (j == 0)
         j = rand();
