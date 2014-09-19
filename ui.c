@@ -109,7 +109,37 @@ static void drawadd(int x, int y, int w, int height)
     if(addfriend_status) {
         setfont(FONT_MISC);
         setcolor(C_RED);
-        STRING *str = &strings[LANG][REQ_STRING_1 + addfriend_status - 1];
+
+        STRING *str;
+        switch(addfriend_status) {
+        case ADDF_SENT:
+            str = SPTR(REQ_SENT); break;
+        case ADDF_DISCOVER:
+            str = SPTR(REQ_RESOLVE); break;
+        case ADDF_BADNAME:
+            str = SPTR(REQ_INVALID_ID); break;
+        case ADDF_NONAME:
+            str = SPTR(REQ_EMPTY_ID); break;
+        case ADDF_TOOLONG: //if message length is too long.
+            str = SPTR(REQ_LONG_MSG); break;
+        case ADDF_NOMESSAGE: //if no message (message length must be >= 1 byte).
+            str = SPTR(REQ_NO_MSG); break;
+        case ADDF_OWNKEY: //if user's own key.
+            str = SPTR(REQ_SELF_ID); break;
+        case ADDF_ALREADYSENT: //if friend request already sent or already a friend.
+            str = SPTR(REQ_ALREADY_FRIENDS); break;
+        case ADDF_BADCHECKSUM: //if bad checksum in address.
+            str = SPTR(REQ_BAD_CHECKSUM); break;
+        case ADDF_SETNEWNOSPAM: //if the friend was already there but the nospam was different.
+            str = SPTR(REQ_BAD_NOSPAM); break;
+        case ADDF_NOMEM: //if increasing the friend list size fails.
+            str = SPTR(REQ_NO_MEMORY); break;
+        case ADDF_UNKNOWN: //for unknown error.
+        case ADDF_NONE: //this case must never be rendered, but if it does, assume it's an error
+        default:
+            str = SPTR(REQ_UNKNOWN); break;
+        }
+
         drawtextmultiline(LIST_RIGHT + SCALE * 5, width - BM_SBUTTON_WIDTH - 5 * SCALE, LIST_Y + SCALE * 83, 0, height, font_small_lineheight, str->str, str->length, 0xFFFF, 0, 1);
     }
 }

@@ -33,7 +33,14 @@ enum
     ADDF_DISCOVER,
     ADDF_BADNAME,
     ADDF_NONAME,
-    ADDF_TOOLONG
+    ADDF_TOOLONG, //if message length is too long.
+    ADDF_NOMESSAGE, //if no message (message length must be >= 1 byte).
+    ADDF_OWNKEY, //if user's own key.
+    ADDF_ALREADYSENT, //if friend request already sent or already a friend.
+    ADDF_UNKNOWN, //for unknown error.
+    ADDF_BADCHECKSUM, //if bad checksum in address.
+    ADDF_SETNEWNOSPAM, //if the friend was already there but the nospam was different.
+    ADDF_NOMEM, //if increasing the friend list size fails.
 };
 
 typedef struct {
@@ -70,34 +77,32 @@ enum {
 };
 
 enum {
-    //NOT REFERRED TO BY NAME
-    REQ_STRING_1,
-    REQ_RESOLVE,
-    REQ_INVALID_ID,
-    REQ_EMPTY_ID,
-    REQ_LONG_MSG,
-    REQ_NO_MSG,
-    REQ_SELF_ID,
-    REQ_ALREADY_FRIENDS,
-    REQ_UNKNOWN,
-    REQ_BAD_CHECKSUM,
-    REQ_BAD_NOSPAM,
-    REQ_NO_MEMORY,
+    STR_REQ_SENT,
+    STR_REQ_RESOLVE,
+    STR_REQ_INVALID_ID,
+    STR_REQ_EMPTY_ID,
+    STR_REQ_LONG_MSG,
+    STR_REQ_NO_MSG,
+    STR_REQ_SELF_ID,
+    STR_REQ_ALREADY_FRIENDS,
+    STR_REQ_UNKNOWN,
+    STR_REQ_BAD_CHECKSUM,
+    STR_REQ_BAD_NOSPAM,
+    STR_REQ_NO_MEMORY,
 
-    FILE_STRING_1,
-    TRANSFER_STARTED,
-    TRANSFER___,
-    TRANSFER_PAUSED,
-    TRANSFER_BROKEN,
-    TRANSFER_CANCELLED,
-    TRANSFER_COMPLETE,
+    STR_TRANSFER_NEW,
+    STR_TRANSFER_STARTED,
+    STR_TRANSFER___,
+    STR_TRANSFER_PAUSED,
+    STR_TRANSFER_BROKEN,
+    STR_TRANSFER_CANCELLED,
+    STR_TRANSFER_COMPLETE,
 
-    CALL_STRING_1,
-    CALL_STRING_2,
-    CALL_STRING_3,
-    CALL_STRING_4,
+    STR_CALL_CANCELLED,
+    STR_CALL_INVITED,
+    STR_CALL_RINGING,
+    STR_CALL_STARTED,
 
-    //REFERRED TO BY NAME
     STR_ADDFRIENDS,
     STR_TOXID,
     STR_MESSAGE,
@@ -143,6 +148,7 @@ enum {
 
 #define S(x) strings[LANG][STR_##x].str
 #define SLEN(x) strings[LANG][STR_##x].length
+#define SPTR(x) &strings[LANG][STR_##x]
 extern STRING strings[][64];
 
 uint8_t LANG;
