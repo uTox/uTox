@@ -53,5 +53,6 @@ _Bool messages_char(uint32_t ch);
 void messages_updateheight(MESSAGES *m);
 void message_updateheight(MESSAGES *m, MESSAGE *msg, MSG_DATA *p);
 void message_add(MESSAGES *m, MESSAGE *msg, MSG_DATA *p);
+void messages_set_typing(MESSAGES *m, MSG_DATA *p, int typing);
 
 void message_free(MESSAGE *msg);
