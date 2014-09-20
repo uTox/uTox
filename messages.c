@@ -47,7 +47,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
         setfont(FONT_MISC);
         char timestr[6];
         int len;
-        len = sprintf(timestr, "%u:%.2u", msg->time / 60, msg->time % 60);
+        len = snprintf(timestr, sizeof(timestr), "%u:%.2u", msg->time / 60, msg->time % 60);
         drawtext(x + width - TIME_WIDTH, y, (uint8_t*)timestr, len);
 
         if(m->type) {
@@ -129,7 +129,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
             _Bool mo = (m->iover == i);
 
             uint8_t size[16];
-            int sizelen = sprint_bytes(size, file->size);
+            int sizelen = sprint_bytes(size, sizeof(size), file->size);
 
             setcolor(WHITE);
             setfont(FONT_MISC);
@@ -180,7 +180,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
                     uint8_t text[16];
                     int len;
 
-                    len = sprint_bytes(text, file->speed);
+                    len = sprint_bytes(text, sizeof(text), file->speed);
                     text[len++] = '/';
                     text[len++] = 's';
 
@@ -191,7 +191,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
                         etasec = (file->size - progress) / file->speed;
                     }
 
-                    len = sprintf((char*)text, "%us", (uint32_t)etasec);
+                    len = snprintf((char*)text, sizeof(text), "%us", (uint32_t)etasec);
 
                     drawtext(xx + 5 * SCALE + 106 * SCALE - textwidth(text, len), y + 10 * SCALE, text, len);
                 }

@@ -32,7 +32,7 @@ _Bool string_to_id(char_t *dest, char_t *src);
     returns number of characters written
     notes: dest should be atleast # characters large
 */
-int sprint_bytes(uint8_t *dest, uint64_t bytes);
+int sprint_bytes(uint8_t *dest, unsigned int size, uint64_t bytes);
 
 /* length of a utf-8 character
     returns the size of the character in bytes

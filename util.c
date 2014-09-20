@@ -160,7 +160,7 @@ _Bool string_to_id(char_t *w, char_t *a)
     return 1;
 }
 
-int sprint_bytes(uint8_t *dest, uint64_t bytes)
+int sprint_bytes(uint8_t *dest, unsigned int size, uint64_t bytes)
 {
     char *str[] = {"B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB"};
     int i = 0;
@@ -173,9 +173,10 @@ int sprint_bytes(uint8_t *dest, uint64_t bytes)
 
     int r;
 
-    r = sprintf((char*)dest, "%u", (uint32_t)bytes);
+    r = snprintf((char*)dest, size, "%u", (uint32_t)bytes);
+
     //missing decimals
-    r += sprintf((char*)dest + r, "%s", str[i]);
+    r += snprintf((char*)dest + r, size - r, "%s", str[i]);
     return r;
 }
 
@@ -567,7 +568,7 @@ NEXT:
     edit_proxy_ip.length = strlen((char*)save->proxy_ip);
     strcpy((char*)edit_proxy_ip.data, (char*)save->proxy_ip);
     if(save->proxy_port) {
-        edit_proxy_port.length = sprintf((char*)edit_proxy_port.data, "%u", save->proxy_port);
+        edit_proxy_port.length = snprintf((char*)edit_proxy_port.data, edit_proxy_port.maxlength + 1, "%u", save->proxy_port);
     }
 
     logging_enabled = save->logging_enabled;
