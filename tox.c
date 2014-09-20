@@ -400,8 +400,11 @@ static void callback_file_control(Tox *tox, int32_t fid, uint8_t receive_send, u
                 if(!ft->inline_png) {
                     fclose(ft->data);
                     free(ft->buffer);
+                    postmessage(FRIEND_FILE_OUT_DONE, fid, filenumber, ft->path);
+                } else {
+                    postmessage(FRIEND_FILE_OUT_DONE, fid, filenumber, ft->data);
                 }
-                postmessage(FRIEND_FILE_OUT_DONE, fid, filenumber, ft->path);
+
             }
         }
         break;
