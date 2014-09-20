@@ -144,12 +144,17 @@ enum {
     STR_CLICKTOSAVE,
     STR_CLICKTOOPEN,
     STR_CANCELLED,
+
+    STR_LANG_NATIVE_NAME,
+    STR_LANG_ENGLISH_NAME,
+    //Do NOT add new values beyond this point, or alter STRS_MAX accordingly.
+    STRS_MAX = STR_LANG_ENGLISH_NAME
 };
 
 #define S(x) strings[LANG][STR_##x].str
 #define SLEN(x) strings[LANG][STR_##x].length
 #define SPTR(x) &strings[LANG][STR_##x]
-extern STRING strings[][64];
+extern STRING strings[][STRS_MAX+1];
 
 uint8_t LANG;
 
