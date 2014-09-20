@@ -775,7 +775,7 @@ static int systemlang(void)
         return LANG_TW;
     }
 
-    return LANG_EN;
+    return DEFAULT_LANG;
 }
 
 int main(int argc, char *argv[])

@@ -1027,6 +1027,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
         LANG = LANG_DE;
         break;
     default:
+        LANG = DEFAULT_LANG;
+        break;
     case 0x09:
         LANG = LANG_EN;
         break;

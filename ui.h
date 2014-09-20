@@ -151,9 +151,10 @@ enum {
     STRS_MAX = STR_LANG_ENGLISH_NAME
 };
 
-#define S(x) strings[LANG][STR_##x].str
-#define SLEN(x) strings[LANG][STR_##x].length
-#define SPTR(x) &strings[LANG][STR_##x]
+#define DEFAULT_LANG LANG_EN
+#define S(x) (strings[LANG][STR_##x].length ? strings[LANG][STR_##x].str : strings[DEFAULT_LANG][STR_##x].str)
+#define SLEN(x) (strings[LANG][STR_##x].length ? strings[LANG][STR_##x].length : strings[DEFAULT_LANG][STR_##x].length)
+#define SPTR(x) (strings[LANG][STR_##x].length ? &strings[LANG][STR_##x] : &strings[DEFAULT_LANG][STR_##x])
 extern STRING strings[][STRS_MAX+1];
 
 uint8_t LANG;
