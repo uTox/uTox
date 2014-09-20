@@ -134,6 +134,9 @@ static int64_t parseargument(uint8_t *dest, char_t *src, uint16_t length, void *
     }
 
     if(!at) {
+        if ((d - dest) > TOXDNS_MAX_RECOMMENDED_NAME_LENGTH)
+            return -1;
+
         void *dns3 = istox3("utox.org", sizeof("utox.org") - 1);
 
         if (!dns3)
