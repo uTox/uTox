@@ -33,11 +33,11 @@ void dropdown_drawactive(void)
 
     for(i = 0; i != b->dropcount; i++) {
         int j = index(b, i);
-        DROP_ELEMENT *e = &b->drop[j];
+        STRING* e = b->ondisplay(j, b);
         if(j == b->over) {
             drawrectw(x + 1, y + 1, w - 2, h - 2, C_GRAY);
         }
-        drawtextwidth(x + 2 * SCALE, w - 4 * SCALE, y + 2 * SCALE, e->name, strlen((char*)e->name));
+        drawtextwidth(x + 2 * SCALE, w - 4 * SCALE, y + 2 * SCALE, e->str, e->length);
 
         y += sign * h;
     }
@@ -52,8 +52,8 @@ void dropdown_draw(DROPDOWN *b, int x, int y, int width, int height)
         if(b->dropcount) {
             setfont(FONT_TEXT);
             setcolor(COLOR_TEXT);
-            DROP_ELEMENT *e = &b->drop[b->selected];
-            drawtextwidth(x + 2 * SCALE, width - 4 * SCALE, y + 2 * SCALE, e->name, strlen((char*)e->name));
+            STRING* e = b->ondisplay(b->selected, b);
+            drawtextwidth(x + 2 * SCALE, width - 4 * SCALE, y + 2 * SCALE, e->str, e->length);
         }
     } else {
         active_x = x;
@@ -116,7 +116,7 @@ _Bool dropdown_mup(DROPDOWN *b)
         active = NULL;
         if(b->over < b->dropcount) {
             b->selected = b->over;
-            b->onselect(b->drop[b->over].handle);
+            b->onselect(b->selected, b);
         }
         return 1;
     }
@@ -134,15 +134,71 @@ _Bool dropdown_mleave(DROPDOWN *b)
     return 0;
 }
 
-void dropdown_add(DROPDOWN *b, uint8_t *name, void *handle)
+/***** list-based dropdown menu start *****/
+
+// Appends localization-independent menu item.
+void list_dropdown_add_hardcoded(DROPDOWN *b, uint8_t* name, void *handle)
 {
-    void *p = realloc(b->drop, (b->dropcount + 1) * sizeof(DROP_ELEMENT));
+    void *p = realloc(b->userdata, (b->dropcount + 1) * sizeof(DROP_ELEMENT));
     if(!p) {
         return;
     }
+    b->userdata = p;
 
-    b->drop = p;
-    DROP_ELEMENT *e = &b->drop[b->dropcount++];
-    e->name = name;
+    DROP_ELEMENT *e = &((DROP_ELEMENT*)b->userdata)[b->dropcount++];
+    e->name.str = name;
+    e->name.length = strlen((char*)name);
+    e->string_id = 0;
     e->handle = handle;
 }
+
+// Appends localized menu item.
+void list_dropdown_add_localized(DROPDOWN *b, UI_STRING_ID string_id, void *handle)
+{
+    void *p = realloc(b->userdata, (b->dropcount + 1) * sizeof(DROP_ELEMENT));
+    if(!p) {
+        return;
+    }
+    b->userdata = p;
+
+    DROP_ELEMENT *e = &((DROP_ELEMENT*)b->userdata)[b->dropcount++];
+    e->name.str = NULL;
+    e->name.length = 0;
+    e->string_id = string_id;
+    e->handle = handle;
+}
+
+// Clears menu (removes all menu items of a list-based dropdown).
+void list_dropdown_clear(DROPDOWN *b)
+{
+    free(b->userdata);
+    b->userdata = NULL;
+    b->dropcount = 0;
+    b->over = 0;
+    b->selected = 0;
+}
+
+// Generic display function for list-based dropdowns,
+// userdata of which is an array of DROP_ELEMENTs.
+STRING* list_dropdown_ondisplay(uint16_t i, const DROPDOWN* dm)
+{
+    DROP_ELEMENT *e = &((DROP_ELEMENT*) dm->userdata)[i];
+    if(e->name.str) {
+        return &e->name;
+    } else {
+        return SPTRFORLANG(LANG, e->string_id);
+    }
+}
+
+/***** list-based dropdown menu end *****/
+
+/***** simple localized dropdown menu start *****/
+
+// Generic display function for simple dropdowns,
+// userdata of which is a simple array of UI_STRING_IDs.
+STRING* simple_dropdown_ondisplay(uint16_t i, const DROPDOWN* dm)
+{
+    return SPTRFORLANG(LANG, ((UI_STRING_ID*) dm->userdata)[i]);
+}
+
+/***** simple localized dropdown menu end *****/

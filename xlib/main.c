@@ -922,8 +922,8 @@ int main(int argc, char *argv[])
     dropdown_language.selected = dropdown_language.over = LANG;
 
     /* set-up desktop video input */
-    dropdown_add(&dropdown_video, (uint8_t*)"None", NULL);
-    dropdown_add(&dropdown_video, (uint8_t*)"Desktop", (void*)1);
+    list_dropdown_add_localized(&dropdown_video, STR_VIDEO_IN_NONE, NULL);
+    list_dropdown_add_localized(&dropdown_video, STR_VIDEO_IN_DESKTOP, (void*)1);
 
     /* make the window visible */
     XMapWindow(display, window);

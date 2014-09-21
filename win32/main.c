@@ -1082,8 +1082,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
 
     hdc_brush = GetStockObject(DC_BRUSH);
 
-    dropdown_add(&dropdown_video, (uint8_t*)"None", NULL);
-    dropdown_add(&dropdown_video, (uint8_t*)"Desktop", (void*)1);
+    list_dropdown_add_localized(&dropdown_video, STR_VIDEO_IN_NONE, NULL);
+    list_dropdown_add_localized(&dropdown_video, STR_VIDEO_IN_DESKTOP, (void*)1);
 
     ShowWindow(hwnd, nCmdShow);
 
