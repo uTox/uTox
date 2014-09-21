@@ -4,13 +4,13 @@ typedef struct
     void *handle;
 }DROP_ELEMENT;
 
-struct dropdown {
+typedef struct dropdown {
     PANEL panel;
     _Bool mouseover, open;
     uint16_t dropcount, selected, over;
     DROP_ELEMENT *drop;
     void (*onselect)(void*);
-};
+} DROPDOWN;
 
 void dropdown_drawactive(void);
 

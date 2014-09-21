@@ -94,6 +94,8 @@ typedef uint8_t char_t;
 #include "text.h"
 #include "util.h"
 
+#include "ui_dropdown.h"
+
 struct groupchat
 {
     uint32_t peers;
