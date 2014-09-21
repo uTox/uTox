@@ -565,21 +565,29 @@ static void write_save(Tox *tox)
 {
     void *data;
     uint32_t size;
-    uint8_t path[512], *p;
+    uint8_t path_tmp[512], path_real[512], *p;
     FILE *file;
 
     size = tox_size(tox);
     data = malloc(size);
     tox_save(tox, data);
 
-    p = path + datapath(path);
-    strcpy((char*)p, "tox_save");
+    p = path_real + datapath(path_real);
+    memcpy(p, "tox_save", sizeof("tox_save"));
 
-    file = fopen((char*)path, "wb");
+    unsigned int path_len = (p - path_real) + sizeof("tox_save");
+    memcpy(path_tmp, path_real, path_len);
+    memcpy(path_tmp + (path_len - 1), ".tmp", sizeof(".tmp"));
+
+    file = fopen((char*)path_tmp, "wb");
     if(file) {
         fwrite(data, size, 1, file);
         fclose(file);
-        debug("Saved data\n");
+        if (rename((char*)path_tmp, (char*)path_real) != 0) {
+            debug("Failed to rename file. %s to %s\n", path_tmp, path_real);
+        } else {
+            debug("Saved data\n");
+        }
     }
 
     free(data);
