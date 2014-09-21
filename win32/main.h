@@ -18,3 +18,8 @@
 #define debug(...) printf(__VA_ARGS__)
 
 #define KEY(x) (x)
+
+#ifdef __MINGW32__
+#define fseeko fseeko64
+#define ftello ftello64
+#endif

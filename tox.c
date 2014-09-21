@@ -170,9 +170,9 @@ static void startft(Tox *tox, uint32_t fid, uint8_t *path, uint8_t *name, uint16
     }
 
     uint64_t size;
-    fseek(file, 0, SEEK_END);
-    size = ftell(file);
-    fseek(file, 0, SEEK_SET);
+    fseeko(file, 0, SEEK_END);
+    size = ftello(file);
+    fseeko(file, 0, SEEK_SET);
 
     int filenumber = tox_new_file_sender(tox, fid, size, name, name_length);
     if(filenumber != -1) {
