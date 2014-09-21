@@ -197,3 +197,59 @@ msgstr("Açmak için tıklayın")
 msgid(CANCELLED)
 msgstr("İptal Edildi")
 
+//TODO: Localize or remove.
+//msgid(DPI_TINY)
+//msgstr("Tiny (50%)")
+
+//TODO: Localize or remove.
+//msgid(DPI_NORMAL)
+//msgstr("Normal (100%)")
+
+//TODO: Localize or remove.
+//msgid(DPI_BIG)
+//msgstr("Big (150%)")
+
+//TODO: Localize or remove.
+//msgid(DPI_LARGE)
+//msgstr("Large (200%)")
+
+//TODO: Localize or remove.
+//msgid(DPI_HUGE)
+//msgstr("Huge (250%)")
+
+//TODO: Localize or remove.
+//msgid(CONTACTS_FILTER_ALL)
+//msgstr("All")
+
+//TODO: Localize or remove.
+//msgid(CONTACTS_FILTER_ONLINE)
+//msgstr("Online")
+
+//TODO: Localize or remove.
+//msgid(PROXY_DISABLED)
+//msgstr("Disabled")
+
+//TODO: Localize or remove.
+//msgid(PROXY_FALLBACK)
+//msgstr("Fallback")
+
+//TODO: Localize or remove.
+//msgid(PROXY_ALWAYS_USE)
+//msgstr("Always use")
+
+//TODO: Localize or remove.
+//msgid(NO)
+//msgstr("No")
+
+//TODO: Localize or remove.
+//msgid(YES)
+//msgstr("Yes")
+
+//TODO: Localize or remove.
+//msgid(VIDEO_IN_NONE)
+//msgstr("None")
+
+//TODO: Localize or remove.
+//msgid(VIDEO_IN_DESKTOP)
+//msgstr("Desktop")
+
