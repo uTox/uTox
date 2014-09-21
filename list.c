@@ -499,17 +499,18 @@ static void contextmenu_list_onselect(uint8_t i)
 
 _Bool list_mright(void *n)
 {
+    static UI_STRING_ID menu_friend[] = {STR_REMOVE_FRIEND};
+    static UI_STRING_ID menu_group[] = {STR_REMOVE_GROUP};
+    static UI_STRING_ID menu_request[] = {STR_REQ_ACCEPT, STR_REQ_DECLINE};
+
     if(mitem) {
         ritem = mitem;
         if(mitem->item == ITEM_FRIEND) {
-            uint8_t *remove = (uint8_t*)"Remove";
-            contextmenu_new(&remove, 1, contextmenu_list_onselect);
+            contextmenu_new(countof(menu_friend), menu_friend, contextmenu_list_onselect);
         } else if(mitem->item == ITEM_GROUP) {
-            uint8_t *leave = (uint8_t*)"Leave";
-            contextmenu_new(&leave, 1, contextmenu_list_onselect);
+            contextmenu_new(countof(menu_group), menu_group, contextmenu_list_onselect);
         } else {
-            uint8_t *names[] = {(uint8_t*)"Accept", (uint8_t*)"Ignore"};
-            contextmenu_new(names, 2, contextmenu_list_onselect);
+            contextmenu_new(countof(menu_request), menu_request, contextmenu_list_onselect);
         }
         return 1;
         //listpopup(mitem->item);

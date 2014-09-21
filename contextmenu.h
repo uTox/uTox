@@ -1,10 +1,11 @@
 
-typedef struct {
+typedef struct contextmenu {
     int x, y, width, height;
     _Bool open;
     uint8_t count, over, down;
     void (*onselect)(uint8_t);
-    uint8_t *names[8];
+    STRING* (*ondisplay)(uint8_t, const struct contextmenu*);
+    void *userdata;
 } CONTEXTMENU;
 
 void contextmenu_draw(void);
@@ -13,4 +14,5 @@ _Bool contextmenu_mdown(void);
 _Bool contextmenu_mup(void);
 _Bool contextmenu_mleave(void);
 
-void contextmenu_new(uint8_t **names, uint8_t count, void (*onselect)(uint8_t));
+void contextmenu_new(uint8_t count, UI_STRING_ID* menu_string_ids, void (*onselect)(uint8_t));
+void contextmenu_new_ex(uint8_t count, void *userdata, void (*onselect)(uint8_t), STRING* (*ondisplay)(uint8_t, const CONTEXTMENU*));

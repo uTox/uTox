@@ -20,7 +20,8 @@ void contextmenu_draw(void)
 
     int i;
     for(i = 0; i != b->count; i++) {
-        drawtext(b->x + SCALE * 2, b->y + SCALE * 2 + i * CONTEXT_HEIGHT, b->names[i], strlen((char*)b->names[i]));
+        STRING *name = b->ondisplay(i, b);
+        drawtext(b->x + SCALE * 2, b->y + SCALE * 2 + i * CONTEXT_HEIGHT, name->str, name->length);
     }
 
     framerect(b->x, b->y, b->x + b->width, b->y + b->height, BLUE);
@@ -107,7 +108,7 @@ _Bool contextmenu_mleave(void)
     return 0;
 }
 
-void contextmenu_new(uint8_t **names, uint8_t count, void (*onselect)(uint8_t))
+void contextmenu_new_ex(uint8_t count, void *userdata, void (*onselect)(uint8_t), STRING* (*ondisplay)(uint8_t, const CONTEXTMENU*))
 {
     CONTEXTMENU *b = &context_menu;
 
@@ -126,5 +127,15 @@ void contextmenu_new(uint8_t **names, uint8_t count, void (*onselect)(uint8_t))
     b->count = count;
     b->over = 0xFF;
     b->onselect = onselect;
-    memcpy(b->names, names, sizeof(uint8_t*) * count);
+    b->ondisplay = ondisplay;
+    b->userdata = userdata;
+}
+
+static STRING* contextmenu_localized_ondisplay(uint8_t i, const CONTEXTMENU* cm)
+{
+    return SPTRFORLANG(LANG, ((UI_STRING_ID*) cm->userdata)[i]);
+}
+
+void contextmenu_new(uint8_t count, UI_STRING_ID* menu_string_ids, void (*onselect)(uint8_t)) {
+    contextmenu_new_ex(count, menu_string_ids, onselect, contextmenu_localized_ondisplay);
 }
