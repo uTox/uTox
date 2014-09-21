@@ -194,59 +194,45 @@ msgstr("Открыть")
 msgid(CANCELLED)
 msgstr("Отменено")
 
-//TODO: Localize or remove.
-//msgid(DPI_TINY)
-//msgstr("Tiny (50%)")
+msgid(DPI_TINY)
+msgstr("Мелкое (50%)")
 
-//TODO: Localize or remove.
-//msgid(DPI_NORMAL)
-//msgstr("Normal (100%)")
+msgid(DPI_NORMAL)
+msgstr("Нормальное (100%)")
 
-//TODO: Localize or remove.
-//msgid(DPI_BIG)
-//msgstr("Big (150%)")
+msgid(DPI_BIG)
+msgstr("Крупное (150%)")
 
-//TODO: Localize or remove.
-//msgid(DPI_LARGE)
-//msgstr("Large (200%)")
+msgid(DPI_LARGE)
+msgstr("Большое (200%)")
 
-//TODO: Localize or remove.
-//msgid(DPI_HUGE)
-//msgstr("Huge (250%)")
+msgid(DPI_HUGE)
+msgstr("Очень большое (250%)")
 
-//TODO: Localize or remove.
-//msgid(CONTACTS_FILTER_ALL)
-//msgstr("All")
+msgid(CONTACTS_FILTER_ALL)
+msgstr("Все")
 
-//TODO: Localize or remove.
-//msgid(CONTACTS_FILTER_ONLINE)
-//msgstr("Online")
+msgid(CONTACTS_FILTER_ONLINE)
+msgstr("Онлайн")
 
-//TODO: Localize or remove.
-//msgid(PROXY_DISABLED)
-//msgstr("Disabled")
+msgid(PROXY_DISABLED)
+msgstr("Отключено")
 
-//TODO: Localize or remove.
-//msgid(PROXY_FALLBACK)
-//msgstr("Fallback")
+msgid(PROXY_FALLBACK)
+msgstr("Если нужно")
 
-//TODO: Localize or remove.
-//msgid(PROXY_ALWAYS_USE)
-//msgstr("Always use")
+msgid(PROXY_ALWAYS_USE)
+msgstr("Всегда")
 
-//TODO: Localize or remove.
-//msgid(NO)
-//msgstr("No")
+msgid(NO)
+msgstr("Нет")
 
-//TODO: Localize or remove.
-//msgid(YES)
-//msgstr("Yes")
+msgid(YES)
+msgstr("Да")
 
-//TODO: Localize or remove.
-//msgid(VIDEO_IN_NONE)
-//msgstr("None")
+msgid(VIDEO_IN_NONE)
+msgstr("Не выбрано")
 
-//TODO: Localize or remove.
-//msgid(VIDEO_IN_DESKTOP)
-//msgstr("Desktop")
+msgid(VIDEO_IN_DESKTOP)
+msgstr("Рабочий стол")
 
