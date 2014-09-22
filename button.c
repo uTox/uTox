@@ -57,12 +57,12 @@ _Bool button_mdown(BUTTON *b)
     return 0;
 }
 
-_Bool button_mright(BUTTON *b)
+_Bool button_mright(BUTTON *UNUSED(b))
 {
     return 0;
 }
 
-_Bool button_mwheel(BUTTON *b, int height, double d)
+_Bool button_mwheel(BUTTON *UNUSED(b), int UNUSED(height), double UNUSED(d))
 {
     return 0;
 }

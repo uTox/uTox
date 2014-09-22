@@ -218,32 +218,32 @@ static void background_draw(PANEL *p, int x, int y, int width, int height)
     drawhline(LIST_RIGHT + 1, LIST_Y - 1, width, C_GRAY);
 }
 
-static _Bool background_mmove(PANEL *p, int x, int y, int width, int height, int mx, int my, int dx, int dy)
+static _Bool background_mmove(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height), int UNUSED(mx), int UNUSED(my), int UNUSED(dx), int UNUSED(dy))
 {
     return 0;
 }
 
-static _Bool background_mdown(PANEL *p)
+static _Bool background_mdown(PANEL *UNUSED(p))
 {
     return 0;
 }
 
-static _Bool background_mright(PANEL *p)
+static _Bool background_mright(PANEL *UNUSED(p))
 {
     return 0;
 }
 
-static _Bool background_mwheel(PANEL *p, int height, double d)
+static _Bool background_mwheel(PANEL *UNUSED(p), int UNUSED(height), double UNUSED(d))
 {
     return 0;
 }
 
-static _Bool background_mup(PANEL *p)
+static _Bool background_mup(PANEL *UNUSED(p))
 {
     return 0;
 }
 
-static _Bool background_mleave(PANEL *p)
+static _Bool background_mleave(PANEL *UNUSED(p))
 {
     return 0;
 }

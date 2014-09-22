@@ -604,7 +604,7 @@ _Bool messages_mright(MESSAGES *m)
     return 0;
 }
 
-_Bool messages_mwheel(MESSAGES *m, int height, double d)
+_Bool messages_mwheel(MESSAGES *UNUSED(m), int UNUSED(height), double UNUSED(d))
 {
     return 0;
 }
@@ -627,7 +627,7 @@ _Bool messages_mup(MESSAGES *m)
     return 0;
 }
 
-_Bool messages_mleave(MESSAGES *m)
+_Bool messages_mleave(MESSAGES *UNUSED(m))
 {
     return 0;
 }

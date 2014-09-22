@@ -97,7 +97,7 @@ _Bool scroll_mdown(SCROLLABLE *s)
     return 0;
 }
 
-_Bool scroll_mright(SCROLLABLE *s)
+_Bool scroll_mright(SCROLLABLE *UNUSED(s))
 {
     return 0;
 }
