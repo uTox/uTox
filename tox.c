@@ -634,7 +634,7 @@ void tox_settingschanged(void)
     list_start();
 }
 
-void tox_thread(void *args)
+void tox_thread(void *UNUSED(args))
 {
     Tox *tox;
     ToxAv *av;
