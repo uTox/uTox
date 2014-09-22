@@ -194,3 +194,45 @@ msgstr("Открыть")
 msgid(CANCELLED)
 msgstr("Отменено")
 
+msgid(DPI_TINY)
+msgstr("Мелкое (50%)")
+
+msgid(DPI_NORMAL)
+msgstr("Нормальное (100%)")
+
+msgid(DPI_BIG)
+msgstr("Крупное (150%)")
+
+msgid(DPI_LARGE)
+msgstr("Большое (200%)")
+
+msgid(DPI_HUGE)
+msgstr("Очень большое (250%)")
+
+msgid(CONTACTS_FILTER_ALL)
+msgstr("Все")
+
+msgid(CONTACTS_FILTER_ONLINE)
+msgstr("Онлайн")
+
+msgid(PROXY_DISABLED)
+msgstr("Отключено")
+
+msgid(PROXY_FALLBACK)
+msgstr("Если нужно")
+
+msgid(PROXY_ALWAYS_USE)
+msgstr("Всегда")
+
+msgid(NO)
+msgstr("Нет")
+
+msgid(YES)
+msgstr("Да")
+
+msgid(VIDEO_IN_NONE)
+msgstr("Не выбрано")
+
+msgid(VIDEO_IN_DESKTOP)
+msgstr("Рабочий стол")
+

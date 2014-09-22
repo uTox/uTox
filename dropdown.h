@@ -1,16 +1,19 @@
+// userdata of list-based dropdown consists of these records
 typedef struct
 {
-    uint8_t *name;
+    UI_STRING_ID string_id;
+    STRING name;
     void *handle;
 }DROP_ELEMENT;
 
-struct dropdown {
+typedef struct dropdown {
     PANEL panel;
     _Bool mouseover, open;
     uint16_t dropcount, selected, over;
-    DROP_ELEMENT *drop;
-    void (*onselect)(void*);
-};
+    void (*onselect)(uint16_t, const struct dropdown*);
+    STRING* (*ondisplay)(uint16_t, const struct dropdown*);
+    void *userdata;
+} DROPDOWN;
 
 void dropdown_drawactive(void);
 
@@ -22,4 +25,9 @@ _Bool dropdown_mwheel(DROPDOWN *b, int height, double d);
 _Bool dropdown_mup(DROPDOWN *b);
 _Bool dropdown_mleave(DROPDOWN *b);
 
-void dropdown_add(DROPDOWN *b, uint8_t *name, void *handle);
+STRING* simple_dropdown_ondisplay(uint16_t, const DROPDOWN*);
+
+STRING* list_dropdown_ondisplay(uint16_t, const DROPDOWN*);
+void list_dropdown_add_hardcoded(DROPDOWN*, uint8_t* name, void *handle);
+void list_dropdown_add_localized(DROPDOWN*, UI_STRING_ID string_id, void *handle);
+void list_dropdown_clear(DROPDOWN*);

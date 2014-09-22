@@ -190,3 +190,45 @@ msgstr("Click to open")
 msgid(CANCELLED)
 msgstr("Cancelled")
 
+msgid(DPI_TINY)
+msgstr("Tiny (50%)")
+
+msgid(DPI_NORMAL)
+msgstr("Normal (100%)")
+
+msgid(DPI_BIG)
+msgstr("Big (150%)")
+
+msgid(DPI_LARGE)
+msgstr("Large (200%)")
+
+msgid(DPI_HUGE)
+msgstr("Huge (250%)")
+
+msgid(CONTACTS_FILTER_ALL)
+msgstr("All")
+
+msgid(CONTACTS_FILTER_ONLINE)
+msgstr("Online")
+
+msgid(PROXY_DISABLED)
+msgstr("Disabled")
+
+msgid(PROXY_FALLBACK)
+msgstr("Fallback")
+
+msgid(PROXY_ALWAYS_USE)
+msgstr("Always use")
+
+msgid(NO)
+msgstr("No")
+
+msgid(YES)
+msgstr("Yes")
+
+msgid(VIDEO_IN_NONE)
+msgstr("None")
+
+msgid(VIDEO_IN_DESKTOP)
+msgstr("Desktop")
+

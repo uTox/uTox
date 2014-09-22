@@ -14,7 +14,6 @@ typedef struct scrollable SCROLLABLE;
 typedef struct edit EDIT;
 typedef struct panel PANEL;
 typedef struct button BUTTON;
-typedef struct dropdown DROPDOWN;
 typedef struct messages MESSAGES;
 struct panel
 {
@@ -53,7 +52,6 @@ extern MESSAGES messages_friend, messages_group;
 extern EDIT edit_name, edit_status, edit_addid, edit_addmsg, edit_msg, edit_search, edit_proxy_ip, edit_proxy_port;
 extern SCROLLABLE scroll_list;
 extern BUTTON button_add, button_settings, button_transfer;
-extern DROPDOWN dropdown_audio_in, dropdown_audio_out, dropdown_video, dropdown_dpi, dropdown_language, dropdown_proxy, dropdown_ipv6, dropdown_udp, dropdown_logging;
 
 enum {
     LANG_BG,
@@ -146,6 +144,25 @@ enum {
     STR_CLICKTOSAVE,
     STR_CLICKTOOPEN,
     STR_CANCELLED,
+
+    STR_DPI_TINY,
+    STR_DPI_NORMAL,
+    STR_DPI_BIG,
+    STR_DPI_LARGE,
+    STR_DPI_HUGE,
+
+    STR_CONTACTS_FILTER_ALL,
+    STR_CONTACTS_FILTER_ONLINE,
+
+    STR_PROXY_DISABLED,
+    STR_PROXY_FALLBACK,
+    STR_PROXY_ALWAYS_USE,
+
+    STR_NO,
+    STR_YES,
+
+    STR_VIDEO_IN_NONE,
+    STR_VIDEO_IN_DESKTOP,
 
     STR_LANG_NATIVE_NAME,
     STR_LANG_ENGLISH_NAME,

@@ -599,27 +599,12 @@ void tox_settingschanged(void)
     tox_connected = 0;
     list_freeall();
 
-    free(dropdown_audio_in.drop);
-    dropdown_audio_in.drop = NULL;
-    dropdown_audio_in.dropcount = 0;
-    dropdown_audio_in.over = 0;
-    dropdown_audio_in.selected = 0;
+    list_dropdown_clear(&dropdown_audio_in);
+    list_dropdown_clear(&dropdown_audio_out);
+    list_dropdown_clear(&dropdown_video);
 
-    free(dropdown_audio_out.drop);
-    dropdown_audio_out.drop = NULL;
-    dropdown_audio_out.dropcount = 0;
-    dropdown_audio_out.over = 0;
-    dropdown_audio_out.selected = 0;
-
-    free(dropdown_video.drop);
-    dropdown_video.drop = NULL;
-    dropdown_video.dropcount = 0;
-    dropdown_video.over = 0;
-    dropdown_video.selected = 0;
-
-    dropdown_add(&dropdown_video, (uint8_t*)"None", NULL);
-    dropdown_add(&dropdown_video, (uint8_t*)"Desktop", (void*)1);
-
+    list_dropdown_add_localized(&dropdown_video, STR_VIDEO_IN_NONE, NULL);
+    list_dropdown_add_localized(&dropdown_video, STR_VIDEO_IN_DESKTOP, (void*)1);
 
     tox_thread_init = 0;
 
@@ -1265,18 +1250,18 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
     }
 
     case NEW_AUDIO_IN_DEVICE: {
-        dropdown_add(&dropdown_audio_in, data, param2 ? (void*)(size_t)(param2 - 1) : data);
+        list_dropdown_add_hardcoded(&dropdown_audio_in, data, param2 ? (void*)(size_t)(param2 - 1) : data);
         break;
     }
 
     case NEW_AUDIO_OUT_DEVICE: {
-        dropdown_add(&dropdown_audio_out, data, data);
+        list_dropdown_add_hardcoded(&dropdown_audio_out, data, data);
         break;
     }
 
     case NEW_VIDEO_DEVICE: {
+        list_dropdown_add_hardcoded(&dropdown_video, data + sizeof(void*), *(void**)data);
         dropdown_video.selected = dropdown_video.over = dropdown_video.dropcount;
-        dropdown_add(&dropdown_video, data + sizeof(void*), *(void**)data);
         break;
     }
 
