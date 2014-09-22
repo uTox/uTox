@@ -253,7 +253,7 @@ static void startft_inline(Tox *tox, uint16_t fid, void *pngdata)
     }
 }
 
-static void resetft(Tox *tox, FILE_T *ft, uint64_t start)
+static void resetft(Tox *UNUSED(tox), FILE_T *ft, uint64_t start)
 {
     if(start >= ft->total) {
         return;
@@ -306,7 +306,7 @@ void toxvideo_postmessage(uint8_t msg, uint16_t param1, uint16_t param2, void *d
 
 #include "tox_callbacks.h"
 
-static void callback_file_send_request(Tox *tox, int32_t fid, uint8_t filenumber, uint64_t filesize, const uint8_t *filename, uint16_t filename_length, void *userdata)
+static void callback_file_send_request(Tox *tox, int32_t fid, uint8_t filenumber, uint64_t filesize, const uint8_t *filename, uint16_t filename_length, void *UNUSED(userdata))
 {
     if(filenumber > countof(friend[0].incoming)) {
         tox_file_send_control(tox, fid, 1, filenumber, TOX_FILECONTROL_KILL, NULL, 0);
@@ -342,7 +342,7 @@ static void callback_file_send_request(Tox *tox, int32_t fid, uint8_t filenumber
     }
 }
 
-static void callback_file_control(Tox *tox, int32_t fid, uint8_t receive_send, uint8_t filenumber, uint8_t control, const uint8_t *data, uint16_t length, void *userdata)
+static void callback_file_control(Tox *tox, int32_t fid, uint8_t receive_send, uint8_t filenumber, uint8_t control, const uint8_t *data, uint16_t length, void *UNUSED(userdata))
 {
     FILE_T *ft = (receive_send) ? &friend[fid].outgoing[filenumber] : &friend[fid].incoming[filenumber];
 
@@ -424,7 +424,7 @@ static void callback_file_control(Tox *tox, int32_t fid, uint8_t receive_send, u
     debug("File Control\n");
 }
 
-static void callback_file_data(Tox *tox, int32_t fid, uint8_t filenumber, const uint8_t *data, uint16_t length, void *userdata)
+static void callback_file_data(Tox *UNUSED(tox), int32_t fid, uint8_t filenumber, const uint8_t *data, uint16_t length, void *UNUSED(userdata))
 {
     FILE_T *ft = &friend[fid].incoming[filenumber];
     if(ft->inline_png) {
@@ -619,7 +619,7 @@ void tox_settingschanged(void)
     list_start();
 }
 
-void tox_thread(void *args)
+void tox_thread(void *UNUSED(args))
 {
     Tox *tox;
     ToxAv *av;

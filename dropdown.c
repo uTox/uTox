@@ -72,7 +72,7 @@ void dropdown_draw(DROPDOWN *b, int x, int y, int width, int height)
     }
 }
 
-_Bool dropdown_mmove(DROPDOWN *b, int x, int y, int w, int h, int mx, int my, int dx, int dy)
+_Bool dropdown_mmove(DROPDOWN *b, int UNUSED(x), int y, int w, int h, int mx, int my, int UNUSED(dx), int UNUSED(dy))
 {
     if(b->open) {
         int over = my / h;
@@ -108,12 +108,12 @@ _Bool dropdown_mdown(DROPDOWN *b)
     return 0;
 }
 
-_Bool dropdown_mright(DROPDOWN *b)
+_Bool dropdown_mright(DROPDOWN *UNUSED(b))
 {
     return 0;
 }
 
-_Bool dropdown_mwheel(DROPDOWN *b, int height, double d)
+_Bool dropdown_mwheel(DROPDOWN *UNUSED(b), int UNUSED(height), double UNUSED(d))
 {
     return 0;
 }

@@ -26,7 +26,7 @@ void contextmenu_draw(void)
     framerect(b->x, b->y, b->x + b->width, b->y + b->height, BLUE);
 }
 
-_Bool contextmenu_mmove(int mx, int my, int dx, int dy)
+_Bool contextmenu_mmove(int mx, int my, int UNUSED(dx), int UNUSED(dy))
 {
     CONTEXTMENU *b = &context_menu;
 

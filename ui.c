@@ -30,7 +30,7 @@ static void drawself(void)
     drawalpha(BM_ONLINE + status, SELF_STATUS_X + BM_STATUSAREA_WIDTH / 2 - BM_STATUS_WIDTH / 2, SELF_STATUS_Y + BM_STATUSAREA_HEIGHT / 2 - BM_STATUS_WIDTH / 2, BM_STATUS_WIDTH, BM_STATUS_WIDTH, status_color[status]);
 }
 
-static void drawfriend(int x, int y, int w, int height)
+static void drawfriend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height))
 {
     FRIEND *f = sitem->data;
 
@@ -45,7 +45,7 @@ static void drawfriend(int x, int y, int w, int height)
     drawtextrange(LIST_RIGHT + 30 * SCALE, width - 92 * SCALE, 16 * SCALE, f->status_message, f->status_length);
 }
 
-static void drawgroup(int x, int y, int w, int height)
+static void drawgroup(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height))
 {
     GROUPCHAT *g = sitem->data;
 
@@ -86,14 +86,14 @@ static void drawgroup(int x, int y, int w, int height)
     }
 }
 
-static void drawfriendreq(int x, int y, int width, int height)
+static void drawfriendreq(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height))
 {
     setcolor(C_TITLE);
     setfont(FONT_SELF_NAME);
     drawstr(LIST_RIGHT + SCALE * 5, SCALE * 10, FRIENDREQUEST);
 }
 
-static void drawadd(int x, int y, int w, int height)
+static void drawadd(int UNUSED(x), int UNUSED(y), int UNUSED(w), int height)
 {
     setcolor(C_TITLE);
     setfont(FONT_SELF_NAME);
@@ -144,21 +144,21 @@ static void drawadd(int x, int y, int w, int height)
 }
 
 
-static void drawsettings(int x, int y, int width, int height)
+static void drawsettings(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height))
 {
     setcolor(C_TITLE);
     setfont(FONT_SELF_NAME);
     drawstr(LIST_RIGHT + SCALE * 5, SCALE * 10, USERSETTINGS);
 }
 
-static void drawtransfer(int x, int y, int width, int height)
+static void drawtransfer(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height))
 {
     setcolor(C_TITLE);
     setfont(FONT_SELF_NAME);
     drawstr(LIST_RIGHT + SCALE * 5, SCALE * 10, SWITCHPROFILE);
 }
 
-static void drawsettings_content(int x, int y, int w, int height)
+static void drawsettings_content(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height))
 {
     setcolor(C_TITLE);
     setfont(FONT_TEXT);
@@ -198,7 +198,7 @@ static void drawsettings_content(int x, int y, int w, int height)
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 302, WARNING);
 }
 
-static void background_draw(PANEL *p, int x, int y, int width, int height)
+static void background_draw(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int width, int height)
 {
     drawrect(0, 0, LIST_RIGHT, LIST_Y - 1, LIST_DARK);
     drawhline(0, LIST_Y - 1, LIST_RIGHT, LIST_EDGE);
@@ -217,32 +217,32 @@ static void background_draw(PANEL *p, int x, int y, int width, int height)
     drawhline(LIST_RIGHT + 1, LIST_Y - 1, width, C_GRAY);
 }
 
-static _Bool background_mmove(PANEL *p, int x, int y, int width, int height, int mx, int my, int dx, int dy)
+static _Bool background_mmove(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height), int UNUSED(mx), int UNUSED(my), int UNUSED(dx), int UNUSED(dy))
 {
     return 0;
 }
 
-static _Bool background_mdown(PANEL *p)
+static _Bool background_mdown(PANEL *UNUSED(p))
 {
     return 0;
 }
 
-static _Bool background_mright(PANEL *p)
+static _Bool background_mright(PANEL *UNUSED(p))
 {
     return 0;
 }
 
-static _Bool background_mwheel(PANEL *p, int height, double d)
+static _Bool background_mwheel(PANEL *UNUSED(p), int UNUSED(height), double UNUSED(d))
 {
     return 0;
 }
 
-static _Bool background_mup(PANEL *p)
+static _Bool background_mup(PANEL *UNUSED(p))
 {
     return 0;
 }
 
-static _Bool background_mleave(PANEL *p)
+static _Bool background_mleave(PANEL *UNUSED(p))
 {
     return 0;
 }
