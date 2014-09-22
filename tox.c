@@ -584,7 +584,13 @@ static void write_save(Tox *tox)
         fwrite(data, size, 1, file);
         fclose(file);
         if (rename((char*)path_tmp, (char*)path_real) != 0) {
-            debug("Failed to rename file. %s to %s\n", path_tmp, path_real);
+            debug("Failed to rename file. %s to %s deleting and trying again\n", path_tmp, path_real);
+            remove(path_real);
+            if (rename((char*)path_tmp, (char*)path_real) != 0) {
+                debug("Saving Failed\n");
+            } else {
+                debug("Saved data\n");
+            }
         } else {
             debug("Saved data\n");
         }
