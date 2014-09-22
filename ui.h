@@ -74,6 +74,8 @@ enum {
     LANG_UA, //15
     LANG_CN,
     LANG_TW,
+    //Do NOT add new values beyond this point, or alter LANGS_MAX accordingly.
+    LANGS_MAX = LANG_TW
 };
 
 enum {
@@ -152,10 +154,13 @@ enum {
 };
 
 #define DEFAULT_LANG LANG_EN
-#define S(x) (strings[LANG][STR_##x].length ? strings[LANG][STR_##x].str : strings[DEFAULT_LANG][STR_##x].str)
-#define SLEN(x) (strings[LANG][STR_##x].length ? strings[LANG][STR_##x].length : strings[DEFAULT_LANG][STR_##x].length)
-#define SPTR(x) (strings[LANG][STR_##x].length ? &strings[LANG][STR_##x] : &strings[DEFAULT_LANG][STR_##x])
-extern STRING strings[][STRS_MAX+1];
+#define S(x) (ui_gettext(LANG, (STR_##x))->str)
+#define SLEN(x) (ui_gettext(LANG, (STR_##x))->length)
+#define SPTR(x) (ui_gettext(LANG, (STR_##x)))
+#define SPTRFORLANG(l,x) (ui_gettext((l), (x)))
+typedef uint8_t UI_LANG_ID;
+typedef uint16_t UI_STRING_ID;
+STRING* ui_gettext(UI_LANG_ID lang, UI_STRING_ID string_id);
 
 uint8_t LANG;
 

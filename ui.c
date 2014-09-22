@@ -1,6 +1,5 @@
 #include "main.h"
 
-#include "ui_i18n.h"
 #include "ui_edits.h"
 #include "ui_buttons.h"
 #include "ui_dropdown.h"
