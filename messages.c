@@ -596,9 +596,9 @@ static void contextmenu_messages_onselect(uint8_t i)
 
 _Bool messages_mright(MESSAGES *m)
 {
+    static UI_STRING_ID menu_copy[] = {STR_COPY, STR_COPYWITHOUTNAMES};
     if(m->iover != ~0 && ((MESSAGE*)m->data->data[m->iover])->flags <= 3) {
-        uint8_t *names[] = {S(COPY), S(COPYWITHOUTNAMES)};
-        contextmenu_new(names, 2, contextmenu_messages_onselect);
+        contextmenu_new(countof(menu_copy), menu_copy, contextmenu_messages_onselect);
         return 1;
     }
     return 0;

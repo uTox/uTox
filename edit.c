@@ -198,6 +198,7 @@ static void contextmenu_edit_onselect(uint8_t i)
 
 _Bool edit_mright(EDIT *edit)
 {
+    static UI_STRING_ID menu_edit[] = {STR_CUT, STR_COPY, STR_PASTE, STR_DELETE, STR_SELECTALL};
     if(edit->mouseover_char > edit->length) {
         edit->mouseover_char = edit->length;
     }
@@ -212,8 +213,7 @@ _Bool edit_mright(EDIT *edit)
             edit_select = 1;
         }
 
-        uint8_t *names[] = {S(CUT), S(COPY), S(PASTE), S(DELETE), S(SELECTALL)};
-        contextmenu_new(names, 5, contextmenu_edit_onselect);
+        contextmenu_new(countof(menu_edit), menu_edit, contextmenu_edit_onselect);
 
         return 1;
     }

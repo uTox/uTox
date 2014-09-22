@@ -5,6 +5,27 @@ static CONTEXTMENU context_menu;
 #define CONTEXT_WIDTH (SCALE * 60)
 #define CONTEXT_HEIGHT (SCALE * 12)
 
+static void calculate_pos_and_width(CONTEXTMENU *b, int *x, int *w) {
+    uint8_t i;
+
+    *x = b->x;
+    *w = b->width;
+
+    // Increase width if needed, so that all menu items fit.
+    for(i = 0; i < b->count; i++) {
+        STRING *name = b->ondisplay(i, b);
+        int needed_w = textwidth(name->str, name->length) + 4 * SCALE;
+        if(*w < needed_w) {
+            *w = needed_w;
+        }
+    }
+
+    // Push away from the right border to fit.
+    if(*x + *w >= width) {
+        *x -= *w;
+    }
+}
+
 void contextmenu_draw(void)
 {
     CONTEXTMENU *b = &context_menu;
@@ -12,18 +33,23 @@ void contextmenu_draw(void)
         return;
     }
 
+    // Ensure that font is set before calculating position and width.
     setfont(FONT_TEXT);
     setcolor(COLOR_TEXT);
 
-    drawrectw(b->x, b->y, b->width, b->height, WHITE);
-    drawrectw(b->x, b->y + b->over * CONTEXT_HEIGHT, b->width, CONTEXT_HEIGHT, C_GRAY);
+    int x, w;
+    calculate_pos_and_width(b, &x, &w);
+
+    drawrectw(x, b->y, w, b->height, WHITE);
+    drawrectw(x, b->y + b->over * CONTEXT_HEIGHT, w, CONTEXT_HEIGHT, C_GRAY);
 
     int i;
     for(i = 0; i != b->count; i++) {
-        drawtext(b->x + SCALE * 2, b->y + SCALE * 2 + i * CONTEXT_HEIGHT, b->names[i], strlen((char*)b->names[i]));
+        STRING *name = b->ondisplay(i, b);
+        drawtext(x + SCALE * 2, b->y + SCALE * 2 + i * CONTEXT_HEIGHT, name->str, name->length);
     }
 
-    framerect(b->x, b->y, b->x + b->width, b->y + b->height, BLUE);
+    framerect(x, b->y, x + w, b->y + b->height, BLUE);
 }
 
 _Bool contextmenu_mmove(int mx, int my, int UNUSED(dx), int UNUSED(dy))
@@ -36,7 +62,14 @@ _Bool contextmenu_mmove(int mx, int my, int UNUSED(dx), int UNUSED(dy))
 
     cursor = CURSOR_NONE;
 
-    _Bool mouseover = inrect(mx, my, b->x, b->y, b->width, b->height);
+    // Ensure that font is set before calculating position and width.
+    setfont(FONT_TEXT);
+    setcolor(COLOR_TEXT);
+
+    int x, w;
+    calculate_pos_and_width(b, &x, &w);
+
+    _Bool mouseover = inrect(mx, my, x, b->y, w, b->height);
     if(!mouseover) {
         if(b->over != 0xFF) {
             b->over = 0xFF;
@@ -107,7 +140,7 @@ _Bool contextmenu_mleave(void)
     return 0;
 }
 
-void contextmenu_new(uint8_t **names, uint8_t count, void (*onselect)(uint8_t))
+void contextmenu_new_ex(uint8_t count, void *userdata, void (*onselect)(uint8_t), STRING* (*ondisplay)(uint8_t, const CONTEXTMENU*))
 {
     CONTEXTMENU *b = &context_menu;
 
@@ -118,13 +151,20 @@ void contextmenu_new(uint8_t **names, uint8_t count, void (*onselect)(uint8_t))
     }
     b->x = mouse.x;
     b->width = CONTEXT_WIDTH;
-    if(b->x + b->width >= width) {
-        b->x -= b->width;
-    }
 
     b->open = 1;
     b->count = count;
     b->over = 0xFF;
     b->onselect = onselect;
-    memcpy(b->names, names, sizeof(uint8_t*) * count);
+    b->ondisplay = ondisplay;
+    b->userdata = userdata;
+}
+
+static STRING* contextmenu_localized_ondisplay(uint8_t i, const CONTEXTMENU* cm)
+{
+    return SPTRFORLANG(LANG, ((UI_STRING_ID*) cm->userdata)[i]);
+}
+
+void contextmenu_new(uint8_t count, UI_STRING_ID* menu_string_ids, void (*onselect)(uint8_t)) {
+    contextmenu_new_ex(count, menu_string_ids, onselect, contextmenu_localized_ondisplay);
 }
