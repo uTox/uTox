@@ -1062,8 +1062,8 @@ void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height
     };
 
     /* scale image if needed */
-    uint8_t new_data[attrs.width * attrs.height * 4];
-    if(attrs.width != width || attrs.height != height) {
+    uint8_t *new_data = malloc(attrs.width * attrs.height * 4);
+    if(new_data && (attrs.width != width || attrs.height != height)) {
         scale_rgbx_image(img_data, width, height, new_data, attrs.width, attrs.height);
         image.data = (char*)new_data;
     }
@@ -1074,6 +1074,7 @@ void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height
     XPutImage(display, pixmap, gc, &image, 0, 0, 0, 0, attrs.width, attrs.height);
     XCopyArea(display, pixmap, video_win[id], gc, 0, 0, attrs.width, attrs.height, 0, 0);
     XFreePixmap(display, pixmap);
+    free(new_data);
 }
 
 void video_begin(uint32_t id, uint8_t *name, uint16_t name_length, uint16_t width, uint16_t height)
