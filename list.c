@@ -35,7 +35,7 @@ static void drawname(ITEM *i, int y, uint8_t *name, uint8_t *msg, uint16_t name_
     drawtextwidth(LIST_STATUS_X, LIST_RIGHT - LIST_STATUS_X - SCALE * 16, y + LIST_STATUS_Y,  msg, msg_length);
 }
 
-static void drawitem(ITEM *i, int x, int y)
+static void drawitem(ITEM *i, int UNUSED(x), int y)
 {
     drawitembox(i, y);
 
@@ -88,7 +88,7 @@ void list_scale(void)
     scroll_list.content_height = searchcount * ITEM_HEIGHT;
 }
 
-static ITEM* item_hit(int mx, int my, int height)
+static ITEM* item_hit(int mx, int my, int UNUSED(height))
 {
     if(mx < LIST_X || mx >= LIST_RIGHT) {
         return NULL;
@@ -289,7 +289,7 @@ void list_addfriendreq(FRIENDREQ *f)
     i->data = f;
 }
 
-void list_draw(void *n, int x, int y, int width, int height)
+void list_draw(void *UNUSED(n), int UNUSED(x), int y, int UNUSED(width), int UNUSED(height))
 {
     int my, j, k;
 
@@ -433,7 +433,7 @@ void list_selectswap(void)
 }
 
 
-_Bool list_mmove(void *n, int x, int y, int width, int height, int mx, int my, int dx, int dy)
+_Bool list_mmove(void *UNUSED(n), int UNUSED(x), int UNUSED(y), int UNUSED(width), int height, int mx, int my, int UNUSED(dx), int dy)
 {
     ITEM *i = item_hit(mx, my, height);
 
@@ -470,7 +470,7 @@ _Bool list_mmove(void *n, int x, int y, int width, int height, int mx, int my, i
     return draw;
 }
 
-_Bool list_mdown(void *n)
+_Bool list_mdown(void *UNUSED(n))
 {
     _Bool draw = 0;
 
@@ -497,7 +497,7 @@ static void contextmenu_list_onselect(uint8_t i)
     list_deleteritem();
 }
 
-_Bool list_mright(void *n)
+_Bool list_mright(void *UNUSED(n))
 {
     if(mitem) {
         ritem = mitem;
@@ -523,7 +523,7 @@ _Bool list_mwheel(void *UNUSED(n), int UNUSED(height), double UNUSED(d))
     return 0;
 }
 
-_Bool list_mup(void *n)
+_Bool list_mup(void *UNUSED(n))
 {
     _Bool draw = 0;
     if(sitem_mousedown && abs(sitem_dy) >= 5) {
@@ -573,7 +573,7 @@ _Bool list_mup(void *n)
     return draw;
 }
 
-_Bool list_mleave(void *n)
+_Bool list_mleave(void *UNUSED(n))
 {
     if(mitem) {
         mitem = NULL;

@@ -222,7 +222,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
     }
 }
 
-_Bool messages_mmove(MESSAGES *m, int px, int py, int width, int height, int mx, int my, int dx, int dy)
+_Bool messages_mmove(MESSAGES *m, int UNUSED(px), int UNUSED(py), int width, int UNUSED(height), int mx, int my, int dx, int UNUSED(dy))
 {
     if(m->idown < m->data->n) {
         int maxwidth = width - MESSAGES_X - TIME_WIDTH;

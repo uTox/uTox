@@ -63,7 +63,7 @@ void dropdown_draw(DROPDOWN *b, int x, int y, int width, int height)
     }
 }
 
-_Bool dropdown_mmove(DROPDOWN *b, int x, int y, int w, int h, int mx, int my, int dx, int dy)
+_Bool dropdown_mmove(DROPDOWN *b, int UNUSED(x), int y, int w, int h, int mx, int my, int UNUSED(dx), int UNUSED(dy))
 {
     if(b->open) {
         int over = my / h;
