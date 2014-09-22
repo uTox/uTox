@@ -253,7 +253,7 @@ static void startft_inline(Tox *tox, uint16_t fid, void *pngdata)
     }
 }
 
-static void resetft(Tox *tox, FILE_T *ft, uint64_t start)
+static void resetft(Tox *UNUSED(tox), FILE_T *ft, uint64_t start)
 {
     if(start >= ft->total) {
         return;
@@ -424,7 +424,7 @@ static void callback_file_control(Tox *tox, int32_t fid, uint8_t receive_send, u
     debug("File Control\n");
 }
 
-static void callback_file_data(Tox *tox, int32_t fid, uint8_t filenumber, const uint8_t *data, uint16_t length, void *UNUSED(userdata))
+static void callback_file_data(Tox *UNUSED(tox), int32_t fid, uint8_t filenumber, const uint8_t *data, uint16_t length, void *UNUSED(userdata))
 {
     FILE_T *ft = &friend[fid].incoming[filenumber];
     if(ft->inline_png) {
