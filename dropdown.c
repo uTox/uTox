@@ -19,6 +19,15 @@ void dropdown_drawactive(void)
 
     int i, sign = 1;
 
+    // Increase width if needed, so that all menu items fit.
+    for(i = 0; i != b->dropcount; i++) {
+        STRING* e = b->ondisplay(i, b);
+        int needed_w = textwidth(e->str, e->length) + 4 * SCALE;
+        if(w < needed_w) {
+            w = needed_w;
+        }
+    }
+
     if(y + h * b->dropcount > height) {
         y -= h * (b->dropcount - 1);
         sign = -1;
@@ -37,7 +46,7 @@ void dropdown_drawactive(void)
         if(j == b->over) {
             drawrectw(x + 1, y + 1, w - 2, h - 2, C_GRAY);
         }
-        drawtextwidth(x + 2 * SCALE, w - 4 * SCALE, y + 2 * SCALE, e->str, e->length);
+        drawtext(x + 2 * SCALE, y + 2 * SCALE, e->str, e->length);
 
         y += sign * h;
     }
