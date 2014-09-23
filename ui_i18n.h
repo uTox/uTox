@@ -22,7 +22,7 @@
 #include "langs/es.h"
 #undef _LANG_ID
 
-//"FRENCH" "French"
+//"FRENCH" "Français"
 #define _LANG_ID LANG_FR
 #include "langs/en.h" //fallback to English for untranslated things
 #include "langs/fr.h"
