@@ -1,5 +1,5 @@
 msgid(LANG_NATIVE_NAME)
-msgstr("French")
+msgstr("Français")
 
 msgid(LANG_ENGLISH_NAME)
 msgstr("FRENCH")
@@ -46,10 +46,6 @@ msgstr("Nouveau transfert de fichier")
 msgid(TRANSFER_STARTED)
 msgstr("Transfert de fichier commencé")
 
-//TODO: Same as in English? Localize or remove.
-//msgid(TRANSFER___)
-//msgstr("...")
-
 msgid(TRANSFER_PAUSED)
 msgstr("Transfert de fichier en pause")
 
@@ -76,14 +72,6 @@ msgstr("Appel commencé")
 
 msgid(ADDFRIENDS)
 msgstr("Ajouter un ami")
-
-//TODO: Same as in English? Localize or remove.
-//msgid(TOXID)
-//msgstr("Tox ID")
-
-//TODO: Same as in English? Localize or remove.
-//msgid(MESSAGE)
-//msgstr("Message")
 
 msgid(SEARCHFRIENDS)
 msgstr("Recherche d'ami")
@@ -136,27 +124,14 @@ msgstr("Langue")
 msgid(NETWORK)
 msgstr("Réseau")
 
-//TODO: Same as in English? Localize or remove.
-//msgid(IPV6)
-//msgstr("IPv6:")
-
-//TODO: Same as in English? Localize or remove.
-//msgid(UDP)
-//msgstr("UDP:")
-
-//TODO: Same as in English? Localize or remove.
-//msgid(PROXY)
-//msgstr("Proxy (SOCKS 5)")
-
 msgid(WARNING)
 msgstr("Modifier les paramètres Réseau/Proxy vous déconnectera du réseau Tox")
 
 msgid(LOGGING)
 msgstr("Historique")
 
-//TODO: Same as in English? Localize or remove.
-//msgid(IS_TYPING)
-//msgstr("is typing...")
+msgid(IS_TYPING)
+msgstr("en train d'écrire...")
 
 msgid(COPY)
 msgstr("Copier")
@@ -197,59 +172,38 @@ msgstr("Cliquer pour ouvrir")
 msgid(CANCELLED)
 msgstr("Annulé")
 
-//TODO: Localize or remove.
-//msgid(DPI_TINY)
-//msgstr("Tiny (50%)")
+msgid(DPI_TINY)
+msgstr("Petit (50%)")
 
-//TODO: Localize or remove.
-//msgid(DPI_NORMAL)
-//msgstr("Normal (100%)")
+msgid(DPI_BIG)
+msgstr("Grand (150%)")
 
-//TODO: Localize or remove.
-//msgid(DPI_BIG)
-//msgstr("Big (150%)")
+msgid(DPI_HUGE)
+msgstr("Très large (250%)")
 
-//TODO: Localize or remove.
-//msgid(DPI_LARGE)
-//msgstr("Large (200%)")
+msgid(CONTACTS_FILTER_ALL)
+msgstr("Tout")
 
-//TODO: Localize or remove.
-//msgid(DPI_HUGE)
-//msgstr("Huge (250%)")
+msgid(CONTACTS_FILTER_ONLINE)
+msgstr("En ligne")
 
-//TODO: Localize or remove.
-//msgid(CONTACTS_FILTER_ALL)
-//msgstr("All")
+msgid(PROXY_DISABLED)
+msgstr("Désactivé")
 
-//TODO: Localize or remove.
-//msgid(CONTACTS_FILTER_ONLINE)
-//msgstr("Online")
+msgid(PROXY_FALLBACK)
+msgstr("Repli")
 
-//TODO: Localize or remove.
-//msgid(PROXY_DISABLED)
-//msgstr("Disabled")
+msgid(PROXY_ALWAYS_USE)
+msgstr("Toujours utiliser")
 
-//TODO: Localize or remove.
-//msgid(PROXY_FALLBACK)
-//msgstr("Fallback")
+msgid(NO)
+msgstr("Non")
 
-//TODO: Localize or remove.
-//msgid(PROXY_ALWAYS_USE)
-//msgstr("Always use")
+msgid(YES)
+msgstr("Oui")
 
-//TODO: Localize or remove.
-//msgid(NO)
-//msgstr("No")
+msgid(VIDEO_IN_NONE)
+msgstr("Aucun")
 
-//TODO: Localize or remove.
-//msgid(YES)
-//msgstr("Yes")
-
-//TODO: Localize or remove.
-//msgid(VIDEO_IN_NONE)
-//msgstr("None")
-
-//TODO: Localize or remove.
-//msgid(VIDEO_IN_DESKTOP)
-//msgstr("Desktop")
-
+msgid(VIDEO_IN_DESKTOP)
+msgstr("Ecran")
