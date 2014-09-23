@@ -10,7 +10,7 @@ struct edit_change
 struct edit {
     PANEL panel;
 
-    _Bool multiline, mouseover, noborder, readonly;
+    _Bool multiline, mouseover, noborder, readonly, select_completely;
     uint16_t mouseover_char, length, maxlength, width, height;
 
     uint16_t history_cur, history_length;

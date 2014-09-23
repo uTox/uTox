@@ -94,6 +94,12 @@ _Bool edit_mmove(EDIT *edit, int px, int py, int width, int height, int x, int y
     }
 
     if(edit == active_edit && edit_select) {
+        if (edit->select_completely) {
+            edit_setfocus(edit);
+            redraw = 1;
+            return redraw;
+        }
+ 
         setfont(FONT_TEXT);
         edit_sel.p2 = hittextmultiline(x - 2 * SCALE, width - 4 * SCALE - (edit->multiline ? SCROLL_WIDTH : 0), y - 2 * SCALE, INT_MAX, font_small_lineheight, edit->data, edit->length, edit->multiline);
 

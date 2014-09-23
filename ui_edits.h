@@ -122,6 +122,7 @@ edit_toxid = {
     .data = self.id,
     .readonly = 1,
     .noborder = 1,
+    .select_completely = 1,
 },
 
 edit_status = {
