@@ -929,11 +929,13 @@ int main(int argc, char *argv[])
     XMapWindow(display, window);
 
     if (xim) {
-        if((xic = XCreateIC(xim, XNInputStyle, XIMPreeditNothing | XIMStatusNothing, XNClientWindow, window, XNFocusWindow, window, NULL)) == NULL) {
+        if((xic = XCreateIC(xim, XNInputStyle, XIMPreeditNothing | XIMStatusNothing, XNClientWindow, window, XNFocusWindow, window, NULL))) {
+            XSetICFocus(xic);
+        } else {
             printf("Cannot open input method\n");
             XCloseIM(xim);
+            xim = 0;
         }
-        XSetICFocus(xic);
     }
 
     /* set the width/height of the drawing region */

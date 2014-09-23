@@ -36,6 +36,10 @@ _Bool doevent(XEvent event)
     }
 
     case FocusIn: {
+        if (xic) {
+            XSetICFocus(xic);
+        }
+
         havefocus = 1;
         XWMHints hints = {0};
         XSetWMHints(display, window, &hints);
@@ -43,6 +47,10 @@ _Bool doevent(XEvent event)
     }
 
     case FocusOut: {
+        if (xic) {
+            XUnsetICFocus(xic);
+        }
+
         havefocus = 0;
         break;
     }
