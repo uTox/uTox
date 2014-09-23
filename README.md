@@ -26,8 +26,3 @@ See [INSTALL.md](INSTALL.md).
 ## Downloads
 
 [Up to date download links on utox.org](http://utox.org)
-
-## Info
-
-
-
