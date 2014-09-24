@@ -1,4 +1,10 @@
 
+//"CZECH" "Čeština"
+#define _LANG_ID LANG_CS
+#include "langs/en.h" //fallback to English for untranslated things
+#include "langs/cs.h"
+#undef _LANG_ID
+
 //"BULGARIAN" "Български"
 #define _LANG_ID LANG_BG
 #include "langs/en.h" //fallback to English for untranslated things
