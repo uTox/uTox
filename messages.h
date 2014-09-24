@@ -4,7 +4,8 @@ struct messages {
     _Bool type, select;
     uint16_t urlover, urllen;
     uint32_t height, width;
-    uint32_t iover, over, idown, down;
+    MSG_IDX iover, idown;
+    uint32_t over, down;
     MSG_DATA *data;
 };
 

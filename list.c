@@ -165,7 +165,7 @@ static void selectitem(ITEM *i)
         messages_friend.data = &f->msg;
         messages_updateheight(&messages_friend);
 
-        messages_friend.iover = ~0;
+        messages_friend.iover = MSG_IDX_MAX;
         messages_friend.panel.content_scroll->content_height = f->msg.height;
         messages_friend.panel.content_scroll->d = f->msg.scroll;
 
@@ -187,7 +187,7 @@ static void selectitem(ITEM *i)
         messages_group.data = &g->msg;
         messages_updateheight(&messages_group);
 
-        messages_group.iover = ~0;
+        messages_group.iover = MSG_IDX_MAX;
         messages_group.panel.content_scroll->content_height = g->msg.height;
         messages_group.panel.content_scroll->d = g->msg.scroll;
 
@@ -260,7 +260,7 @@ void list_addfriend2(FRIEND *f, FRIENDREQ *req)
                 panel_item[ITEM_FRIEND - 1].disabled = 0;
 
                 messages_friend.data = &f->msg;
-                messages_friend.iover = ~0;
+                messages_friend.iover = MSG_IDX_MAX;
                 messages_friend.panel.content_scroll->content_height = f->msg.height;
                 messages_friend.panel.content_scroll->d = f->msg.scroll;
 

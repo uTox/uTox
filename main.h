@@ -48,13 +48,18 @@ typedef struct
     uint8_t id[TOX_FRIEND_ADDRESS_SIZE], msg[0];
 }FRIENDREQ;
 
+//Type for indexing into MSG_DATA->data array of messages
+typedef uint32_t MSG_IDX;
+#define MSG_IDX_MAX (UINT32_MAX)
+
 typedef struct
 {
-    uint32_t n, width, height, id;
-    uint16_t istart, start, iend, end;
+    uint32_t width, height, id;
+    MSG_IDX n, istart, iend;
+    uint16_t start, end;
     void **data;
     double scroll;
-}MSG_DATA;
+} MSG_DATA;
 
 typedef struct groupchat GROUPCHAT;
 typedef struct friend FRIEND;
