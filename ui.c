@@ -61,7 +61,8 @@ static void drawgroup(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(he
 
 
     setcolor(GRAY(150));
-    int i = 0, j = 0, k = LIST_RIGHT + 30 * SCALE;
+    uint32_t i = 0, j = 0;
+    int k = LIST_RIGHT + 30 * SCALE;
     while(i < g->peers)
     {
         uint8_t *name = g->peername[j];
