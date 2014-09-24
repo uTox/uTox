@@ -83,7 +83,7 @@ void log_write(Tox *tox, int fid, const uint8_t *message, uint16_t length, _Bool
 
 void log_read(Tox *tox, int fid)
 {
-    uint8_t path[512], *p, *pp, *end;
+    uint8_t path[512], *p, *pp, *end, *file_r;
     uint8_t client_id[TOX_CLIENT_ID_SIZE];
     uint32_t size, i;
 
@@ -95,7 +95,7 @@ void log_read(Tox *tox, int fid)
 
     p += len;
 
-    p = pp = file_raw((char*)path, &size);
+    file_r = p = pp = file_raw((char*)path, &size);
 
     if(!p) {
         p = path + datapath_old(path);
@@ -167,7 +167,7 @@ void log_read(Tox *tox, int fid)
         p += namelen + length;
     }
 
-    free(p);
+    free(file_r);
 }
 
 static void fillbuffer(FILE_T *ft)
