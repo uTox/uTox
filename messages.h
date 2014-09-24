@@ -1,5 +1,5 @@
-struct messages
-{
+
+struct messages {
     PANEL panel;
     _Bool type, select;
     uint16_t urlover, urllen;
@@ -26,7 +26,7 @@ typedef struct {
     void *data;
 } MSG_IMG;
 
-struct msg_file {
+typedef struct msg_file {
     uint16_t flags;
     uint32_t height;
     uint32_t time, speed;
@@ -35,7 +35,7 @@ struct msg_file {
     _Bool inline_png;
     uint8_t *path;
     uint8_t name[64];
-};
+} MSG_FILE;
 
 void messages_draw(MESSAGES *m, int x, int y, int width, int height);
 _Bool messages_mmove(MESSAGES *m, int x, int y, int width, int height, int mx, int my, int dx, int dy);

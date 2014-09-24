@@ -60,8 +60,6 @@ typedef struct groupchat GROUPCHAT;
 typedef struct friend FRIEND;
 typedef struct edit_change EDIT_CHANGE;
 
-typedef struct msg_file MSG_FILE;
-
 typedef uint8_t char_t;
 
 #include "unused.h"
