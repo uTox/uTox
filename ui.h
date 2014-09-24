@@ -53,7 +53,8 @@ extern BUTTON button_add, button_settings, button_transfer;
 #define SLEN(x) (ui_gettext(LANG, (STR_##x))->length)
 #define SPTR(x) (ui_gettext(LANG, (STR_##x)))
 #define SPTRFORLANG(l,x) (ui_gettext((l), (x)))
-uint8_t LANG;
+// Application-wide language setting
+extern UI_LANG_ID LANG;
 
 void ui_scale(uint8_t scale);
 void ui_size(int width, int height);

@@ -4,6 +4,9 @@
 #include "ui_buttons.h"
 #include "ui_dropdown.h"
 
+// Application-wide language setting
+UI_LANG_ID LANG;
+
 uint32_t status_color[] = {
     C_GREEN,
     C_YELLOW,
