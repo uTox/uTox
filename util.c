@@ -531,6 +531,13 @@ UTOX_SAVE* config_load(void)
     strcpy((char*)p, "utox_save");
 
     save = file_text((char*)path);
+
+    if (!save) {
+        p = path + datapath_old(path);
+        strcpy((char*)p, "utox_save");
+        save = file_text((char*)path);
+    }
+
     if(save || (save = file_text("utox_save"))) {
         if(save->version == SAVE_VERSION) {
             /* validate values */

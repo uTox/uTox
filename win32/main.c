@@ -729,9 +729,21 @@ void* png_to_image(void *data, uint16_t *w, uint16_t *h, uint32_t size)
     return bm;
 }
 
-int datapath(uint8_t *dest)
+int datapath_old(uint8_t *dest)
 {
     if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, (char*)dest))) {
+        uint8_t *p = dest + strlen((char*)dest);
+        strcpy(p, "\\Tox"); p += 4;
+        *p++ = '\\';
+        return p - dest;
+    }
+
+    return 0;
+}
+
+int datapath(uint8_t *dest)
+{
+    if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, (char*)dest))) {
         uint8_t *p = dest + strlen((char*)dest);
         strcpy(p, "\\Tox"); p += 4;
         CreateDirectory((char*)dest, NULL);

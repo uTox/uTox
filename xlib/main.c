@@ -643,6 +643,11 @@ void* png_to_image(void *data, uint16_t *w, uint16_t *h, uint32_t size)
     return (void*)picture;
 }
 
+int datapath_old(uint8_t *dest)
+{
+    return 0;
+}
+
 int datapath(uint8_t *dest)
 {
     char *home = getenv("HOME");

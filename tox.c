@@ -18,6 +18,20 @@ static volatile _Bool tox_thread_msg, audio_thread_msg, video_thread_msg;
 
 static FILE_T *file_t[256], **file_tend = file_t;
 
+/* Writes log filename for fid to dest. returns length written */
+static int log_file_name(uint8_t *dest, uint16_t size_dest, Tox *tox, int fid)
+{
+    if (size_dest < TOX_CLIENT_ID_SIZE * 2 + sizeof(".txt"))
+        return -1;
+
+    uint8_t client_id[TOX_CLIENT_ID_SIZE];
+    tox_get_client_id(tox, fid, client_id);
+    cid_to_string(dest, client_id); dest += TOX_CLIENT_ID_SIZE * 2;
+    memcpy((char*)dest, ".txt", sizeof(".txt"));
+
+    return TOX_CLIENT_ID_SIZE * 2 + sizeof(".txt");
+}
+
 void log_write(Tox *tox, int fid, const uint8_t *message, uint16_t length, _Bool self)
 {
     if(!logging_enabled) {
@@ -27,13 +41,15 @@ void log_write(Tox *tox, int fid, const uint8_t *message, uint16_t length, _Bool
     uint8_t path[512], *p;
     uint8_t name[TOX_MAX_NAME_LENGTH];
     int namelen;
-    uint8_t client_id[TOX_CLIENT_ID_SIZE];
     FILE *file;
 
     p = path + datapath(path);
-    tox_get_client_id(tox, fid, client_id);
-    cid_to_string(p, client_id); p += TOX_CLIENT_ID_SIZE * 2;
-    strcpy((char*)p, ".txt");
+
+    int len = log_file_name(p, sizeof(path) - (p - path), tox, fid);
+    if (len == -1)
+        return;
+
+    p += len;
 
     file = fopen((char*)path, "ab");
     if(file) {
@@ -72,13 +88,27 @@ void log_read(Tox *tox, int fid)
     uint32_t size, i;
 
     p = path + datapath(path);
-    tox_get_client_id(tox, fid, client_id);
-    cid_to_string(p, client_id); p += TOX_CLIENT_ID_SIZE * 2;
-    strcpy((char*)p, ".txt");
+
+    int len = log_file_name(p, sizeof(path) - (p - path), tox, fid);
+    if (len == -1)
+        return;
+
+    p += len;
 
     p = pp = file_raw((char*)path, &size);
+
     if(!p) {
-        return;
+        p = path + datapath_old(path);
+
+        len = log_file_name(p, sizeof(path) - (p - path), tox, fid);
+        if (len == -1)
+            return;
+
+        p += len;
+        p = pp = file_raw((char*)path, &size);
+        if (!p) {
+            return;
+        }
     }
 
     end = p + size;
@@ -136,6 +166,8 @@ void log_read(Tox *tox, int fid)
         debug("loaded backlog: %.*s: %.*s\n", namelen, p, length, p + namelen);
         p += namelen + length;
     }
+
+    free(p);
 }
 
 static void fillbuffer(FILE_T *ft)
@@ -498,11 +530,17 @@ static _Bool load_save(Tox *tox)
 
     void *data = file_raw((char*)path, &size);
     if(!data) {
-        data = file_raw("tox_save", &size);
-        if(!data) {
-            return 0;
+        p = path + datapath_old(path);
+        strcpy((char*)p, "tox_save");
+        data = file_raw((char*)path, &size);
+        if (!data) {
+            data = file_raw("tox_save", &size);
+            if(!data) {
+                return 0;
+            }
         }
     }
+
     int r = tox_load(tox, data, size);
     free(data);
 

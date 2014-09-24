@@ -225,6 +225,7 @@ void* png_to_image(void *data, uint16_t *w, uint16_t *h, uint32_t size);
 void showkeyboard(_Bool show);
 void redraw(void);
 
+int datapath_old(uint8_t *dest);
 int datapath(uint8_t *dest);
 void config_osdefaults(UTOX_SAVE *r);
 
