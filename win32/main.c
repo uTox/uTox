@@ -70,7 +70,7 @@ HINSTANCE hinstance;
 HDC main_hdc, hdc, hdcMem;
 HBRUSH hdc_brush;
 HBITMAP hdc_bm;
-HWND video_hwnd[256];
+HWND video_hwnd[MAX_NUM_FRIENDS];
 
 
 static char save_path[280];

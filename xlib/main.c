@@ -65,7 +65,7 @@ XSizeHints *xsh;
 
 _Bool havefocus = 0;
 
-Window video_win[256];
+Window video_win[MAX_NUM_FRIENDS];
 
 Atom wm_protocols, wm_delete_window;
 
