@@ -72,8 +72,9 @@ enum {
     LANG_UA, //15
     LANG_CN,
     LANG_TW,
+    LANG_CS,
     //Do NOT add new values beyond this point, or alter LANGS_MAX accordingly.
-    LANGS_MAX = LANG_TW
+    LANGS_MAX = LANG_CS
 };
 
 enum {
