@@ -140,10 +140,10 @@ void friend_add(char_t *name, uint16_t length, char_t *msg, uint16_t msg_length)
 
 void friend_free(FRIEND *f)
 {
-    int i = 0;
-    while(i != f->edit_history_length) {
-        free(f->edit_history[i]);
-        i++;
+    uint16_t j = 0;
+    while(j != f->edit_history_length) {
+        free(f->edit_history[j]);
+        j++;
     }
     free(f->edit_history);
 
@@ -151,7 +151,7 @@ void friend_free(FRIEND *f)
     free(f->status_message);
     free(f->typed);
 
-    i = 0;
+    MSG_IDX i = 0;
     while(i < f->msg.n) {
         MESSAGE *msg = f->msg.data[i];
         if((msg->flags & (~1)) == 4) {
@@ -193,7 +193,7 @@ void friend_free(FRIEND *f)
 
 void group_free(GROUPCHAT *g)
 {
-    int i = 0;
+    uint16_t i = 0;
     while(i != g->edit_history_length) {
         free(g->edit_history[i]);
         i++;
@@ -201,19 +201,19 @@ void group_free(GROUPCHAT *g)
     free(g->edit_history);
 
     uint8_t **np = g->peername;
-    i = 0;
-    while(i < g->peers) {
+    uint32_t j = 0;
+    while(j < g->peers) {
         uint8_t *n = *np++;
         if(n) {
             free(n);
-            i++;
+            j++;
         }
     }
 
-    i = 0;
-    while(i < g->msg.n) {
-        free(g->msg.data[i]);
-        i++;
+    MSG_IDX k = 0;
+    while(k < g->msg.n) {
+        free(g->msg.data[k]);
+        k++;
     }
 
     free(g->msg.data);
