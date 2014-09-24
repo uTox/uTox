@@ -82,6 +82,9 @@ typedef uint8_t char_t;
 #endif
 #endif
 
+#include "sized_string.h"
+#include "ui_i18n_decls.h"
+
 #include "ui.h"
 #include "svg.h"
 

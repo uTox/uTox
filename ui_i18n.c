@@ -1,6 +1,7 @@
-#include <stdio.h>
 #include <stdint.h>
-#include "ui.h"
+
+#include "sized_string.h"
+#include "ui_i18n_decls.h"
 
 #ifdef STR
   #error "STR is already defined"
