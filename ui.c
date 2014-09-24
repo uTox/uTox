@@ -86,11 +86,17 @@ static void drawgroup(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(he
     }
 }
 
-static void drawfriendreq(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height))
+static void drawfriendreq(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height))
 {
+    FRIENDREQ *req = sitem->data;
+
     setcolor(C_TITLE);
     setfont(FONT_SELF_NAME);
     drawstr(LIST_RIGHT + SCALE * 5, SCALE * 10, FRIENDREQUEST);
+
+    setcolor(LIST_MAIN);
+    setfont(FONT_STATUS);
+    drawtextrange(LIST_RIGHT + 5 * SCALE, width, 20 * SCALE, req->msg, req->length);
 }
 
 static void drawadd(int UNUSED(x), int UNUSED(y), int UNUSED(w), int height)
