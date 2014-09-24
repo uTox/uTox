@@ -63,6 +63,7 @@ enum {
 void *bitmap[32];
 HFONT font[32];
 HCURSOR cursors[8];
+HICON my_icon, unread_messages_icon;
 
 HWND hwnd, capturewnd;
 HINSTANCE hinstance;
@@ -764,8 +765,9 @@ void notify(uint8_t *title, uint16_t title_length, uint8_t *msg, uint16_t msg_le
     flashing = 1;
 
     NOTIFYICONDATAW nid = {
-        .uFlags = NIF_INFO,
+        .uFlags = NIF_ICON | NIF_INFO,
         .hWnd = hwnd,
+        .hIcon = unread_messages_icon,
         .uTimeout = 5000,
         .dwInfoFlags = 0,
         .cbSize = sizeof(nid),
@@ -995,7 +997,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     int x, y;
     wchar_t classname[] = L"uTox", popupclassname[] = L"uToxgrab";
 
-    HICON myicon = LoadIcon(hInstance, MAKEINTRESOURCE(101));
+    my_icon = LoadIcon(hInstance, MAKEINTRESOURCE(101));
+    unread_messages_icon = LoadIcon(hInstance, MAKEINTRESOURCE(102));
+
     cursors[CURSOR_NONE] = LoadCursor(NULL, IDC_ARROW);
     cursors[CURSOR_HAND] = LoadCursor(NULL, IDC_HAND);
     cursors[CURSOR_TEXT] = LoadCursor(NULL, IDC_IBEAM);
@@ -1009,14 +1013,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
         .style = CS_OWNDC | CS_DBLCLKS,
         .lpfnWndProc = WindowProc,
         .hInstance = hInstance,
-        .hIcon = myicon,
+        .hIcon = my_icon,
         .lpszClassName = classname,
     },
 
     wc2 = {
         .lpfnWndProc = GrabProc,
         .hInstance = hInstance,
-        .hIcon = myicon,
+        .hIcon = my_icon,
         .lpszClassName = popupclassname,
         .hbrBackground = (HBRUSH)GetStockObject (BLACK_BRUSH),
     };
@@ -1024,7 +1028,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     NOTIFYICONDATA nid = {
         .uFlags = NIF_MESSAGE | NIF_ICON | NIF_TIP,
         .uCallbackMessage = WM_NOTIFYICON,
-        .hIcon = myicon,
+        .hIcon = my_icon,
         .szTip = "Tox - tooltip",
         .cbSize = sizeof(nid),
     };
@@ -1259,6 +1263,15 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
         if(flashing) {
             FlashWindow(hwnd, 0);
             flashing = 0;
+
+            NOTIFYICONDATAW nid = {
+                    .uFlags = NIF_ICON,
+                    .hWnd = hwnd,
+                    .hIcon = my_icon,
+                    .cbSize = sizeof(nid),
+            };
+
+            Shell_NotifyIconW(NIM_MODIFY, &nid);
         }
 
         havefocus = 1;
