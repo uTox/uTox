@@ -126,3 +126,5 @@ typedef uint8_t UI_LANG_ID;
 typedef uint16_t UI_STRING_ID;
 
 STRING* ui_gettext(UI_LANG_ID lang, UI_STRING_ID string_id);
+
+UI_LANG_ID ui_guess_lang_by_posix_locale(const char* locale, UI_LANG_ID deflt);
