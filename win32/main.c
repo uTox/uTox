@@ -1034,52 +1034,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     RegisterClassW(&wc2);
 
     uint16_t langid = GetUserDefaultUILanguage() & 0xFFFF;
-    switch(langid & 0xFF) {
-    case 0x07:
-        LANG = LANG_DE;
-        break;
-    default:
-        LANG = DEFAULT_LANG;
-        break;
-    case 0x09:
-        LANG = LANG_EN;
-        break;
-    case 0x0A:
-        LANG = LANG_ES;
-        break;
-    case 0x0C:
-        LANG = LANG_FR;
-        break;
-    case 0x10:
-        LANG = LANG_IT;
-        break;
-    case 0x11:
-        LANG = LANG_JA;
-        break;
-    case 0x13:
-        LANG = LANG_NL;
-        break;
-    case 0x15:
-        LANG = LANG_PL;
-        break;
-    case 0x19:
-        LANG = LANG_RU;
-        break;
-    case 0x22:
-        LANG = LANG_UA;
-        break;
-    case 0x26:
-        LANG = LANG_LV;
-        break;
-    case 0x04:
-        if (langid == 0x0404) {
-            LANG = LANG_TW;
-        } else { /* if 0x0804 */
-            LANG = LANG_CN;
-        }
-
-        break;
-    }
+    LANG = ui_guess_lang_by_windows_lang_id(langid, DEFAULT_LANG);
 
     dropdown_language.selected = dropdown_language.over = LANG;
 
