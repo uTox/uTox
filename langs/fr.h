@@ -207,3 +207,8 @@ msgstr("Aucun")
 
 msgid(VIDEO_IN_DESKTOP)
 msgstr("Ecran")
+
+//TODO: Localize or remove.
+//msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
+//msgstr("Please accept this friend request.")
+

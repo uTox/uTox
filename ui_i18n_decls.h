@@ -116,6 +116,8 @@ enum {
     STR_VIDEO_IN_NONE,
     STR_VIDEO_IN_DESKTOP,
 
+    STR_DEFAULT_FRIEND_REQUEST_MESSAGE,
+
     STR_LANG_NATIVE_NAME,
     STR_LANG_ENGLISH_NAME,
     //Do NOT add new values beyond this point, or alter STRS_MAX accordingly.

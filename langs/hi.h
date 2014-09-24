@@ -282,3 +282,7 @@ msgstr("बंद")
 //msgid(VIDEO_IN_DESKTOP)
 //msgstr("Desktop")
 
+//TODO: Localize or remove.
+//msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
+//msgstr("Please accept this friend request.")
+

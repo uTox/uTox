@@ -232,3 +232,6 @@ msgstr("None")
 msgid(VIDEO_IN_DESKTOP)
 msgstr("Desktop")
 
+msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
+msgstr("Please accept this friend request.")
+

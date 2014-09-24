@@ -202,3 +202,7 @@ msgstr("Sì")
 msgid(VIDEO_IN_NONE)
 msgstr("Disabilitato")
 
+//TODO: Localize or remove.
+//msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
+//msgstr("Please accept this friend request.")
+
