@@ -36,7 +36,7 @@ typedef struct {
     void *chatdata;
 } FILE_T;
 
-struct friend {
+typedef struct friend {
     _Bool online, typing, notify;
     uint8_t calling, status;
     int32_t callid;
@@ -53,7 +53,20 @@ struct friend {
 
     FILE_T incoming[16];
     FILE_T outgoing[16];
-};
+} FRIEND;
+
+typedef struct groupchat {
+    uint32_t peers;
+    uint16_t name_length, topic_length, typed_length;
+    uint8_t name[128], topic[128]; //static sizes for now
+    uint8_t *typed;
+    uint8_t *peername[256];
+
+    EDIT_CHANGE **edit_history;
+    uint16_t edit_history_cur, edit_history_length;
+
+    MSG_DATA msg;
+} GROUPCHAT;
 
 #define friend_id(f) (f -  friend)
 
