@@ -258,3 +258,15 @@ msgstr("取消")
 //msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
 //msgstr("Please accept this friend request.")
 
+//TODO: Localize or remove.
+//msgid(CONTACTS_FILTER_EDIT_HINT)
+//msgstr("Search friends")
+
+//TODO: Localize or remove.
+//msgid(PROXY_EDIT_HINT_IP)
+//msgstr("IP")
+
+//TODO: Localize or remove.
+//msgid(PROXY_EDIT_HINT_PORT)
+//msgstr("Port")
+

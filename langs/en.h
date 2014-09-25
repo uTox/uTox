@@ -235,3 +235,12 @@ msgstr("Desktop")
 msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
 msgstr("Please accept this friend request.")
 
+msgid(CONTACTS_FILTER_EDIT_HINT)
+msgstr("Search friends")
+
+msgid(PROXY_EDIT_HINT_IP)
+msgstr("IP")
+
+msgid(PROXY_EDIT_HINT_PORT)
+msgstr("Port")
+
