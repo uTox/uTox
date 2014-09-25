@@ -94,6 +94,26 @@ static void edit_search_onchange(void)
     return;
 }
 
+
+static void edit_proxy_ip_port_onlosefocus(void)
+{
+    edit_proxy_port.data[edit_proxy_port.length] = 0;
+    uint16_t proxy_port = strtol((char*)edit_proxy_port.data, NULL, 0);
+
+    if (memcmp(options.proxy_address, edit_proxy_ip.data, edit_proxy_ip.length) == 0 &&
+        options.proxy_address[edit_proxy_ip.length] == 0 &&
+        options.proxy_port == proxy_port)
+            return;
+
+    memcpy(options.proxy_address, edit_proxy_ip.data, edit_proxy_ip.length);
+    options.proxy_address[edit_proxy_ip.length] = 0;
+
+    options.proxy_port = proxy_port;
+
+    if (options.proxy_enabled)
+        tox_settingschanged();
+}
+
 SCROLLABLE edit_addmsg_scroll = {
     .panel = {
         .type = PANEL_SCROLLABLE,
@@ -162,11 +182,13 @@ edit_search = {
 edit_proxy_ip = {
     .maxlength = sizeof(edit_proxy_ip_data) - 1,
     .data = edit_proxy_ip_data,
+    .onlosefocus = edit_proxy_ip_port_onlosefocus,
     .empty_str = (uint8_t*)"IP",
 },
 
 edit_proxy_port = {
     .maxlength = sizeof(edit_proxy_port_data) - 1,
     .data = edit_proxy_port_data,
+    .onlosefocus = edit_proxy_ip_port_onlosefocus,
     .empty_str = (uint8_t*)"Port",
 };
