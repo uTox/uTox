@@ -30,6 +30,7 @@
 #define VERSION "0.1.8"
 
 #define MAX_CALLS 16
+#define MAX_BACKLOG_MESSAGES 128
 
 typedef struct
 {
