@@ -18,7 +18,9 @@ struct edit {
 
     SCROLLABLE *scroll;
     uint8_t *data;
-    uint8_t *empty_str;
+
+    MAYBE_I18NAL_STRING empty_str;
+
     void (*onenter)(void);
     void (*onchange)(void);
     void (*ontab)(void);
