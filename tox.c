@@ -541,12 +541,8 @@ static _Bool load_save(Tox *tox)
         }
     }
 
-    int r = tox_load(tox, data, size);
+    tox_load(tox, data, size);
     free(data);
-
-    if(r != 0) {
-        return 0;
-    }
 
     friends = tox_count_friendlist(tox);
 
