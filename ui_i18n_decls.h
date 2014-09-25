@@ -23,6 +23,10 @@ enum {
 };
 
 enum {
+    //This ensures that all statically initialized to zero UI_STRING_ID vars
+    //will render as canary "BUG. PLEASE REPORT." strings.
+    UI_STRING_ID_INVALID = 0,
+
     STR_REQ_SENT,
     STR_REQ_RESOLVE,
     STR_REQ_INVALID_ID,
