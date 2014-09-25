@@ -1,4 +1,17 @@
 
+//Type for indexing into MSG_DATA->data array of messages
+typedef uint32_t MSG_IDX;
+#define MSG_IDX_MAX (UINT32_MAX)
+
+typedef struct
+{
+    uint32_t width, height, id;
+    MSG_IDX n, istart, iend;
+    uint16_t start, end;
+    void **data;
+    double scroll;
+} MSG_DATA;
+
 struct messages {
     PANEL panel;
     _Bool type, select;
