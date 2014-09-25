@@ -35,7 +35,7 @@ void scroll_draw(SCROLLABLE *s, int x, int y, int width, int height)
 
 int scroll_gety(SCROLLABLE *s, int height)
 {
-    uint32_t c = s->content_height;
+    int c = s->content_height;
 
     if(c > height)
     {
