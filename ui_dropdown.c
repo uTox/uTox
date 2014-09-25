@@ -31,27 +31,27 @@ static void dropdown_video_onselect(uint16_t i, const DROPDOWN* dm)
     toxvideo_postmessage(VIDEO_SET, b, 0, handle);
 }
 
-static void dropdown_dpi_onselect(uint16_t i, const DROPDOWN* dm)
+static void dropdown_dpi_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
 {
     ui_scale(i + 1);
 }
 
-static void dropdown_language_onselect(uint16_t i, const DROPDOWN* dm)
+static void dropdown_language_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
 {
     LANG = (UI_LANG_ID)i;
 }
-static STRING* dropdown_language_ondisplay(uint16_t i, const DROPDOWN* dm)
+static STRING* dropdown_language_ondisplay(uint16_t i, const DROPDOWN* UNUSED(dm))
 {
     UI_LANG_ID l = (UI_LANG_ID)i;
     return SPTRFORLANG(l, STR_LANG_NATIVE_NAME);
 }
 
-static void dropdown_filter_onselect(uint16_t i, const DROPDOWN* dm)
+static void dropdown_filter_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
 {
     FILTER = !!i;
 }
 
-static void dropdown_proxy_onselect(uint16_t i, const DROPDOWN* dm)
+static void dropdown_proxy_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
 {
     if((i != 0) != (options.proxy_enabled) || i) {
         options.proxy_enabled = (i != 0);
@@ -69,7 +69,7 @@ static void dropdown_proxy_onselect(uint16_t i, const DROPDOWN* dm)
     }
 }
 
-static void dropdown_ipv6_onselect(uint16_t i, const DROPDOWN* dm)
+static void dropdown_ipv6_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
 {
     if(!i != options.ipv6enabled) {
         options.ipv6enabled = !i;
@@ -77,7 +77,7 @@ static void dropdown_ipv6_onselect(uint16_t i, const DROPDOWN* dm)
     }
 }
 
-static void dropdown_udp_onselect(uint16_t i, const DROPDOWN* dm)
+static void dropdown_udp_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
 {
     if(i != options.udp_disabled) {
         options.udp_disabled = i;
@@ -88,7 +88,7 @@ static void dropdown_udp_onselect(uint16_t i, const DROPDOWN* dm)
     }
 }
 
-static void dropdown_logging_onselect(uint16_t i, const DROPDOWN* dm)
+static void dropdown_logging_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
 {
     logging_enabled = !!i;
 }
