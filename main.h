@@ -50,8 +50,6 @@ typedef struct
 
 typedef struct edit_change EDIT_CHANGE;
 
-typedef uint8_t char_t;
-
 #include "unused.h"
 
 #include "png/png.h"

@@ -1,7 +1,9 @@
 
+typedef uint8_t char_t;
+
 typedef struct {
-    uint8_t *str;
+    char_t *str;
     uint16_t length;
 } STRING;
 
-#define STRING_INIT(x) { .str = (uint8_t*)x, .length = sizeof(x) - 1 }
+#define STRING_INIT(x) { .str = (char_t*)x, .length = sizeof(x) - 1 }
