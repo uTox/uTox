@@ -48,6 +48,16 @@ extern EDIT edit_name, edit_status, edit_addid, edit_addmsg, edit_msg, edit_sear
 extern SCROLLABLE scroll_list;
 extern BUTTON button_add, button_settings, button_transfer;
 
+typedef struct {
+  STRING plain;
+  UI_STRING_ID i18nal;
+} MAYBE_I18NAL_STRING;
+
+void maybe_i18nal_string_set_plain(MAYBE_I18NAL_STRING*, char_t *str, uint16_t length);
+void maybe_i18nal_string_set_i18nal(MAYBE_I18NAL_STRING*, UI_STRING_ID);
+STRING* maybe_i18nal_string_get(MAYBE_I18NAL_STRING*);
+_Bool maybe_i18nal_string_is_valid(MAYBE_I18NAL_STRING*);
+
 #define DEFAULT_LANG LANG_EN
 #define S(x) (ui_gettext(LANG, (STR_##x))->str)
 #define SLEN(x) (ui_gettext(LANG, (STR_##x))->length)
