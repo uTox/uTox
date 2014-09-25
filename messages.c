@@ -844,14 +844,14 @@ void message_add(MESSAGES *m, MESSAGE *msg, MSG_DATA *p)
 
     msg->time = ti->tm_hour * 60 + ti->tm_min;
 
-    if(p->n != 128) {
+    if(p->n < MAX_BACKLOG_MESSAGES) {
         p->data = realloc(p->data, (p->n + 1) * sizeof(void*));
         p->data[p->n++] = msg;
     } else {
         p->height -= ((MESSAGE*)p->data[0])->height;
         message_free(p->data[0]);
-        memmove(p->data, p->data + 1, 127 * sizeof(void*));
-        p->data[127] = msg;
+        memmove(p->data, p->data + 1, (MAX_BACKLOG_MESSAGES - 1) * sizeof(void*));
+        p->data[MAX_BACKLOG_MESSAGES - 1] = msg;
         if(p->start != 0xFFFF) {
             if(!p->istart) {
                 if(!p->iend) {
