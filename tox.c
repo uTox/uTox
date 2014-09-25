@@ -554,7 +554,7 @@ static _Bool load_save(Tox *tox)
     while(i != friends) {
         int size;
         FRIEND *f = &friend[i];
-        uint8_t name[128];
+        uint8_t name[TOX_MAX_NAME_LENGTH];
 
         f->msg.scroll = 1.0;
 
