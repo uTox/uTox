@@ -239,15 +239,9 @@ msgstr("Рабочий стол")
 msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
 msgstr("Пожалуйста, добавьте меня в друзья.")
 
-//TODO: Localize or remove.
-//msgid(CONTACTS_FILTER_EDIT_HINT)
-//msgstr("Search friends")
+msgid(CONTACTS_FILTER_EDIT_HINT)
+msgstr("Поиск контакта")
 
-//TODO: Localize or remove.
-//msgid(PROXY_EDIT_HINT_IP)
-//msgstr("IP")
-
-//TODO: Localize or remove.
-//msgid(PROXY_EDIT_HINT_PORT)
-//msgstr("Port")
+msgid(PROXY_EDIT_HINT_PORT)
+msgstr("Порт")
 
