@@ -70,8 +70,6 @@ typedef uint8_t char_t;
 #include "png/png.h"
 
 #include "tox.h"
-#include "dns.h"
-#include "friend.h"
 
 #ifdef __WIN32__
 #include "win32/main.h"
@@ -89,6 +87,8 @@ typedef uint8_t char_t;
 #include "ui.h"
 #include "svg.h"
 
+#include "dns.h"
+#include "friend.h"
 #include "list.h"
 #include "messages.h"
 #include "edit.h"
