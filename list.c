@@ -98,14 +98,16 @@ static ITEM* item_hit(int mx, int my, int UNUSED(height))
         return NULL;
     }
 
-    my /= ITEM_HEIGHT;
-    if(my >= searchcount) {
+    uint32_t item_idx = my;
+    item_idx /= ITEM_HEIGHT;
+
+    if(item_idx >= searchcount) {
         return NULL;
     }
 
     ITEM *i;
 
-    i = &item[my + search_offset[my]];
+    i = &item[item_idx + search_offset[item_idx]];
     return i;
 }
 
@@ -165,7 +167,7 @@ static void selectitem(ITEM *i)
         messages_friend.data = &f->msg;
         messages_updateheight(&messages_friend);
 
-        messages_friend.iover = ~0;
+        messages_friend.iover = MSG_IDX_MAX;
         messages_friend.panel.content_scroll->content_height = f->msg.height;
         messages_friend.panel.content_scroll->d = f->msg.scroll;
 
@@ -187,7 +189,7 @@ static void selectitem(ITEM *i)
         messages_group.data = &g->msg;
         messages_updateheight(&messages_group);
 
-        messages_group.iover = ~0;
+        messages_group.iover = MSG_IDX_MAX;
         messages_group.panel.content_scroll->content_height = g->msg.height;
         messages_group.panel.content_scroll->d = g->msg.scroll;
 
@@ -252,7 +254,7 @@ void list_addfriend(FRIEND *f)
 
 void list_addfriend2(FRIEND *f, FRIENDREQ *req)
 {
-    int i = 0;
+    uint32_t i = 0;
     while(i < itemcount) {
         if(item[i].data == req) {
             if(&item[i] == sitem) {
@@ -260,7 +262,7 @@ void list_addfriend2(FRIEND *f, FRIENDREQ *req)
                 panel_item[ITEM_FRIEND - 1].disabled = 0;
 
                 messages_friend.data = &f->msg;
-                messages_friend.iover = ~0;
+                messages_friend.iover = MSG_IDX_MAX;
                 messages_friend.panel.content_scroll->content_height = f->msg.height;
                 messages_friend.panel.content_scroll->d = f->msg.scroll;
 
@@ -458,7 +460,7 @@ _Bool list_mmove(void *UNUSED(n), int UNUSED(x), int UNUSED(y), int UNUSED(width
             int offset = search_offset[index];
             if(offset != INT_MAX) {
                 index += offset;
-                if(index >= 0 && index < itemcount) {
+                if(index >= 0 && ((uint32_t) index) < itemcount) {
                     nitem = item + index;
                 }
             }

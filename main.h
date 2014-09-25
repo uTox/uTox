@@ -48,19 +48,20 @@ typedef struct
     uint8_t id[TOX_FRIEND_ADDRESS_SIZE], msg[0];
 }FRIENDREQ;
 
+//Type for indexing into MSG_DATA->data array of messages
+typedef uint32_t MSG_IDX;
+#define MSG_IDX_MAX (UINT32_MAX)
+
 typedef struct
 {
-    uint32_t n, width, height, id;
-    uint16_t istart, start, iend, end;
+    uint32_t width, height, id;
+    MSG_IDX n, istart, iend;
+    uint16_t start, end;
     void **data;
     double scroll;
-}MSG_DATA;
+} MSG_DATA;
 
-typedef struct groupchat GROUPCHAT;
-typedef struct friend FRIEND;
 typedef struct edit_change EDIT_CHANGE;
-
-typedef struct msg_file MSG_FILE;
 
 typedef uint8_t char_t;
 
@@ -100,20 +101,6 @@ typedef uint8_t char_t;
 #include "util.h"
 
 #include "ui_dropdown.h"
-
-struct groupchat
-{
-    uint32_t peers;
-    uint16_t name_length, topic_length, typed_length;
-    uint8_t name[128], topic[128]; //static sizes for now
-    uint8_t *typed;
-    uint8_t *peername[256];
-
-    EDIT_CHANGE **edit_history;
-    uint16_t edit_history_cur, edit_history_length;
-
-    MSG_DATA msg;
-};
 
 volatile _Bool tox_thread_init, audio_thread_init, video_thread_init;
 _Bool tox_connected;

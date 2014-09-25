@@ -25,7 +25,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
     uint8_t lastauthor = 0xFF;
 
     void **p = m->data->data;
-    int i, n = m->data->n;
+    MSG_IDX i, n = m->data->n;
 
     for(i = 0; i != n; i++) {
         MESSAGE *msg = *p++;
@@ -103,7 +103,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
 
             setfont(FONT_TEXT);
             int ny = drawtextmultiline(x + MESSAGES_X, x + width - TIME_WIDTH, y, y, y + msg->height, font_small_lineheight, msg->msg, msg->length, h1, h2 - h1, 1);
-            if(ny - y != msg->height - MESSAGES_SPACING) {
+            if(ny < y || (uint32_t)(ny - y) + MESSAGES_SPACING != msg->height) {
                 debug("error101 %u %u\n", ny -y, msg->height - MESSAGES_SPACING);
             }
             y = ny;
@@ -239,9 +239,9 @@ _Bool messages_mmove(MESSAGES *m, int UNUSED(px), int UNUSED(py), int width, int
         }
     }
 
-    if(mx < 0 || my > m->data->height || my < 0) {
-        if(m->iover != ~0) {
-            m->iover = ~0;
+    if(mx < 0 || my < 0 || (uint32_t) my > m->data->height) {
+        if(m->iover != MSG_IDX_MAX) {
+            m->iover = MSG_IDX_MAX;
             return 1;
         }
         return 0;
@@ -250,7 +250,7 @@ _Bool messages_mmove(MESSAGES *m, int UNUSED(px), int UNUSED(py), int width, int
     setfont(FONT_TEXT);
 
     void **p = m->data->data;
-    int i = 0, n = m->data->n;
+    MSG_IDX i = 0, n = m->data->n;
     _Bool redraw = 0;
 
     while(i != n) {
@@ -378,14 +378,15 @@ _Bool messages_mmove(MESSAGES *m, int UNUSED(px), int UNUSED(py), int width, int
             }
             }
 
-            if(i != m->iover && m->iover != ~0 && ((msg->flags & 0xFFFE) == 6 || (((MESSAGE*)(m->data->data[m->iover]))->flags & 0xFFFE) == 6)) {
+            if(i != m->iover && m->iover != MSG_IDX_MAX && ((msg->flags & 0xFFFE) == 6 || (((MESSAGE*)(m->data->data[m->iover]))->flags & 0xFFFE) == 6)) {
                 redraw = 1;
             }
 
             m->iover = i;
 
             if(m->select) {
-                int start, end, istart, iend;
+                MSG_IDX istart, iend;
+                int start, end;
                 if(i > m->idown) {
                     istart = m->idown;
                     iend = i;
@@ -431,8 +432,8 @@ _Bool messages_mmove(MESSAGES *m, int UNUSED(px), int UNUSED(py), int width, int
 
 _Bool messages_mdown(MESSAGES *m)
 {
-    m->idown = 0xFFFF;
-    if(m->iover != ~0) {
+    m->idown = MSG_IDX_MAX;
+    if(m->iover != MSG_IDX_MAX) {
         MESSAGE *msg = m->data->data[m->iover];
         switch(msg->flags) {
         case 0 ... 3: {
@@ -550,7 +551,7 @@ _Bool messages_mdown(MESSAGES *m)
 
 _Bool messages_dclick(MESSAGES *m, _Bool triclick)
 {
-    if(m->iover != ~0) {
+    if(m->iover != MSG_IDX_MAX) {
         MESSAGE *msg = m->data->data[m->iover];
         if(msg->flags >= 0 && msg->flags <= 3) {
             m->data->istart = m->data->iend = m->iover;
@@ -597,7 +598,7 @@ static void contextmenu_messages_onselect(uint8_t i)
 _Bool messages_mright(MESSAGES *m)
 {
     static UI_STRING_ID menu_copy[] = {STR_COPY, STR_COPYWITHOUTNAMES};
-    if(m->iover != ~0 && ((MESSAGE*)m->data->data[m->iover])->flags <= 3) {
+    if(m->iover != MSG_IDX_MAX && ((MESSAGE*)m->data->data[m->iover])->flags <= 3) {
         contextmenu_new(countof(menu_copy), menu_copy, contextmenu_messages_onselect);
         return 1;
     }
@@ -622,7 +623,7 @@ _Bool messages_mup(MESSAGES *m)
         m->select = 0;
     }
 
-    m->idown = 0xFFFF;
+    m->idown = MSG_IDX_MAX;
 
     return 0;
 }
@@ -639,7 +640,7 @@ int messages_selection(MESSAGES *m, void *data, uint32_t len, _Bool names)
         return 0;
     }
 
-    int i = m->data->istart, n = m->data->iend + 1;
+    MSG_IDX i = m->data->istart, n = m->data->iend + 1;
     void **dp = &m->data->data[i];
 
     char_t *p = data;
@@ -786,7 +787,7 @@ void messages_updateheight(MESSAGES *m)
     setfont(FONT_TEXT);
 
     uint32_t height = 0;
-    int i = 0;
+    MSG_IDX i = 0;
     while(i < data->n) {
         MESSAGE *msg = data->data[i];
         msg->height = msgheight(msg, m->width);
@@ -855,7 +856,7 @@ void message_add(MESSAGES *m, MESSAGE *msg, MSG_DATA *p)
         if(p->start != 0xFFFF) {
             if(!p->istart) {
                 if(!p->iend) {
-                    p->istart = p->iend = 0xFFFF;
+                    p->istart = p->iend = MSG_IDX_MAX;
                 } else {
                     p->start = 0;
                 }

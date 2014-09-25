@@ -459,7 +459,7 @@ static void dns_thread(void *data)
 
 void dns_request(char_t *name, uint16_t length)
 {
-    void *data = malloc((2 + length < TOX_FRIEND_ADDRESS_SIZE) ? TOX_FRIEND_ADDRESS_SIZE : 2 + length * sizeof(char_t));
+    void *data = malloc((2u + length < TOX_FRIEND_ADDRESS_SIZE) ? TOX_FRIEND_ADDRESS_SIZE : 2u + length * sizeof(char_t));
     memcpy(data, &length, 2);
     memcpy(data + 2, name, length * sizeof(char_t));
 
