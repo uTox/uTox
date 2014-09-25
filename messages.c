@@ -103,7 +103,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
 
             setfont(FONT_TEXT);
             int ny = drawtextmultiline(x + MESSAGES_X, x + width - TIME_WIDTH, y, y, y + msg->height, font_small_lineheight, msg->msg, msg->length, h1, h2 - h1, 1);
-            if(ny - y != msg->height - MESSAGES_SPACING) {
+            if(ny < y || (uint32_t)(ny - y) + MESSAGES_SPACING != msg->height) {
                 debug("error101 %u %u\n", ny -y, msg->height - MESSAGES_SPACING);
             }
             y = ny;
@@ -239,7 +239,7 @@ _Bool messages_mmove(MESSAGES *m, int UNUSED(px), int UNUSED(py), int width, int
         }
     }
 
-    if(mx < 0 || my > m->data->height || my < 0) {
+    if(mx < 0 || my < 0 || (uint32_t) my > m->data->height) {
         if(m->iover != MSG_IDX_MAX) {
             m->iover = MSG_IDX_MAX;
             return 1;
