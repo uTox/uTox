@@ -56,7 +56,7 @@ void unicode_to_utf8(uint32_t ch, char_t *dst);
 
 /* replace html entities (<,>,&) with html
  */
-uint8_t* tohtml(uint8_t *str, uint16_t len);
+char_t* tohtml(char_t *str, STRING_IDX len);
 
 /* color format conversion functions
  *

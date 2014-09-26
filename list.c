@@ -24,7 +24,7 @@ static void drawitembox(ITEM *i, int y)
     }
 }
 
-static void drawname(ITEM *i, int y, uint8_t *name, uint8_t *msg, uint16_t name_length, uint16_t msg_length)
+static void drawname(ITEM *i, int y, char_t *name, char_t *msg, STRING_IDX name_length, STRING_IDX msg_length)
 {
     setcolor((sitem == i) ? LIST_DARK : LIST_SELECTED);
     setfont(FONT_LIST_NAME);
@@ -65,7 +65,7 @@ static void drawitem(ITEM *i, int UNUSED(x), int y)
     case ITEM_FRIEND_ADD: {
         FRIENDREQ *f = i->data;
 
-        uint8_t name[TOX_FRIEND_ADDRESS_SIZE * 2];
+        char_t name[TOX_FRIEND_ADDRESS_SIZE * 2];
         id_to_string(name, f->id);
 
         drawalpha(BM_CONTACT, LIST_AVATAR_X, y + LIST_AVATAR_Y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, (sitem == i) ? LIST_MAIN : WHITE);

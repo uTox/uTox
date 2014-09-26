@@ -323,7 +323,7 @@ void unicode_to_utf8(uint32_t ch, char_t *dst)
     return;// 0;
 }
 
-uint8_t* tohtml(uint8_t *str, uint16_t length)
+char_t* tohtml(char_t *str, STRING_IDX length)
 {
     int i = 0, len = 0;
     while(i != length) {
@@ -343,7 +343,7 @@ uint8_t* tohtml(uint8_t *str, uint16_t length)
         i += utf8_len(str + i);
     }
 
-    uint8_t *out = malloc(length + len + 1);
+    char_t *out = malloc(length + len + 1);
     i = 0; len = 0;
     while(i != length) {
         switch(str[i]) {
