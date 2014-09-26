@@ -46,7 +46,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
         setcolor(LIST_MAIN);
         setfont(FONT_MISC);
         char timestr[6];
-        int len;
+        STRING_IDX len;
         len = snprintf(timestr, sizeof(timestr), "%u:%.2u", msg->time / 60, msg->time % 60);
         drawtext(x + width - TIME_WIDTH, y, (char_t*)timestr, len);
 
@@ -84,7 +84,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
         case 2:
         case 3: {
             /* normal message */
-            int h1 = STRING_IDX_MAX, h2 = STRING_IDX_MAX;
+            STRING_IDX h1 = STRING_IDX_MAX, h2 = STRING_IDX_MAX;
             if(i == m->data->istart) {
                 h1 = m->data->start;
                 h2 = ((i == m->data->iend) ? m->data->end : msg->length);
@@ -129,7 +129,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
             _Bool mo = (m->iover == i);
 
             char_t size[16];
-            int sizelen = sprint_bytes(size, sizeof(size), file->size);
+            STRING_IDX sizelen = sprint_bytes(size, sizeof(size), file->size);
 
             setcolor(WHITE);
             setfont(FONT_MISC);
@@ -178,7 +178,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
 
                 if(file->status == FILE_OK) {
                     char_t text[16];
-                    int len;
+                    STRING_IDX len;
 
                     len = sprint_bytes(text, sizeof(text), file->speed);
                     text[len++] = '/';
@@ -386,7 +386,7 @@ _Bool messages_mmove(MESSAGES *m, int UNUSED(px), int UNUSED(py), int width, int
 
             if(m->select) {
                 MSG_IDX istart, iend;
-                int start, end;
+                STRING_IDX start, end;
                 if(i > m->idown) {
                     istart = m->idown;
                     iend = i;

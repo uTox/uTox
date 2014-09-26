@@ -52,7 +52,9 @@ int textfit(char_t *str, STRING_IDX length, int width)
     GLYPH *g;
     uint8_t len;
     uint32_t ch;
-    int x = 0, i = 0;
+    int x = 0;
+
+    STRING_IDX i = 0;
     while(i != length) {
         len = utf8_len_read(str, &ch);
         str += len;
@@ -76,7 +78,9 @@ int textfit_near(char_t *str, STRING_IDX length, int width)
     GLYPH *g;
     uint8_t len;
     uint32_t ch;
-    int x = 0, i = 0;
+    int x = 0;
+
+    STRING_IDX i = 0;
     while(i != length) {
         len = utf8_len_read(str, &ch);
         str += len;

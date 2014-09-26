@@ -325,7 +325,8 @@ void unicode_to_utf8(uint32_t ch, char_t *dst)
 
 char_t* tohtml(char_t *str, STRING_IDX length)
 {
-    int i = 0, len = 0;
+    STRING_IDX i = 0;
+    int len = 0;
     while(i != length) {
         switch(str[i]) {
         case '<':
@@ -363,7 +364,7 @@ char_t* tohtml(char_t *str, STRING_IDX length)
         }
 
         default: {
-            int r = utf8_len(str + i);
+            STRING_IDX r = utf8_len(str + i);
             memcpy(out + len, str + i, r);
             len += r;
             i += r;

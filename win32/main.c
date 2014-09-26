@@ -224,7 +224,7 @@ int textwidth(char_t *str, STRING_IDX length)
     return size.cx;
 }
 
-int textfit(char_t *str, uint16_t length, int width)
+int textfit(char_t *str, STRING_IDX length, int width)
 {
     wchar_t out[length];
     length = utf8tonative(str, out, length);
@@ -236,7 +236,7 @@ int textfit(char_t *str, uint16_t length, int width)
     return WideCharToMultiByte(CP_UTF8, 0, out, fit, (char*)str, 65536, NULL, 0);
 }
 
-int textfit_near(char_t *str, uint16_t length, int width)
+int textfit_near(char_t *str, STRING_IDX length, int width)
 {
     /*todo: near*/
     wchar_t out[length];
