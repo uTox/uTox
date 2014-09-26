@@ -4,9 +4,6 @@
 #include "sized_string.h"
 #include "ui_i18n_decls.h"
 
-#ifdef STR
-  #error "STR is already defined"
-#endif
 #ifdef msgid
   #error "msgid is already defined"
 #endif
@@ -23,8 +20,6 @@
   #error "LANG_PRIORITY is already defined"
 #endif
 
-#define STR(x) { .str = (uint8_t*)x, .length = sizeof(x) - 1 }
-
 /***** Parsing localized strings *****/
 
 #define msgid(x) curr_id = (STR_##x);
@@ -35,7 +30,7 @@
 #define LANG_POSIX_LOCALE(x)
 #define LANG_PRIORITY(x)
 
-static STRING canary = STR("BUG. PLEASE REPORT.");
+static STRING canary = STRING_INIT("BUG. PLEASE REPORT.");
 
 static void init_strings(STRING (*localized_strings)[STRS_MAX+1]) {
     uint16_t curr_id = 0;

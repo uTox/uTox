@@ -23,6 +23,10 @@ enum {
 };
 
 enum {
+    //This ensures that all statically initialized to zero UI_STRING_ID vars
+    //will render as canary "BUG. PLEASE REPORT." strings.
+    UI_STRING_ID_INVALID = 0,
+
     STR_REQ_SENT,
     STR_REQ_RESOLVE,
     STR_REQ_INVALID_ID,
@@ -106,15 +110,22 @@ enum {
     STR_CONTACTS_FILTER_ALL,
     STR_CONTACTS_FILTER_ONLINE,
 
+    STR_CONTACTS_FILTER_EDIT_HINT,
+
     STR_PROXY_DISABLED,
     STR_PROXY_FALLBACK,
     STR_PROXY_ALWAYS_USE,
+
+    STR_PROXY_EDIT_HINT_IP,
+    STR_PROXY_EDIT_HINT_PORT,
 
     STR_NO,
     STR_YES,
 
     STR_VIDEO_IN_NONE,
     STR_VIDEO_IN_DESKTOP,
+
+    STR_DEFAULT_FRIEND_REQUEST_MESSAGE,
 
     STR_LANG_NATIVE_NAME,
     STR_LANG_ENGLISH_NAME,

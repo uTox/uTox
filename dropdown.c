@@ -155,9 +155,7 @@ void list_dropdown_add_hardcoded(DROPDOWN *b, uint8_t* name, void *handle)
     b->userdata = p;
 
     DROP_ELEMENT *e = &((DROP_ELEMENT*)b->userdata)[b->dropcount++];
-    e->name.str = name;
-    e->name.length = strlen((char*)name);
-    e->string_id = 0;
+    maybe_i18nal_string_set_plain(&e->name, name, strlen((char*)name));
     e->handle = handle;
 }
 
@@ -171,9 +169,7 @@ void list_dropdown_add_localized(DROPDOWN *b, UI_STRING_ID string_id, void *hand
     b->userdata = p;
 
     DROP_ELEMENT *e = &((DROP_ELEMENT*)b->userdata)[b->dropcount++];
-    e->name.str = NULL;
-    e->name.length = 0;
-    e->string_id = string_id;
+    maybe_i18nal_string_set_i18nal(&e->name, string_id);
     e->handle = handle;
 }
 
@@ -192,11 +188,7 @@ void list_dropdown_clear(DROPDOWN *b)
 STRING* list_dropdown_ondisplay(uint16_t i, const DROPDOWN* dm)
 {
     DROP_ELEMENT *e = &((DROP_ELEMENT*) dm->userdata)[i];
-    if(e->name.str) {
-        return &e->name;
-    } else {
-        return SPTRFORLANG(LANG, e->string_id);
-    }
+    return maybe_i18nal_string_get(&e->name);
 }
 
 /***** list-based dropdown menu end *****/

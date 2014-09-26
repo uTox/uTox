@@ -54,9 +54,10 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
     }
 
 
-    if(!edit->length && edit->empty_str) {
+    if(!edit->length && maybe_i18nal_string_is_valid(&edit->empty_str)) {
+        STRING* empty_str_text = maybe_i18nal_string_get(&edit->empty_str);
         setcolor(C_GRAY2);
-        drawtext(x + 2 * SCALE, yy + 2 * SCALE, edit->empty_str, strlen((char*)edit->empty_str));
+        drawtext(x + 2 * SCALE, yy + 2 * SCALE, empty_str_text->str, empty_str_text->length);
     }
 
     _Bool a = (edit == active_edit);

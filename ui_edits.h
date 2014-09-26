@@ -175,7 +175,7 @@ edit_msg = {
 edit_search = {
     .maxlength = sizeof(edit_search_data),
     .data = edit_search_data,
-    .empty_str = (uint8_t*)"Search friends",
+    .empty_str = { .i18nal = STR_CONTACTS_FILTER_EDIT_HINT },
     .onchange = edit_search_onchange,
 },
 
@@ -183,12 +183,12 @@ edit_proxy_ip = {
     .maxlength = sizeof(edit_proxy_ip_data) - 1,
     .data = edit_proxy_ip_data,
     .onlosefocus = edit_proxy_ip_port_onlosefocus,
-    .empty_str = (uint8_t*)"IP",
+    .empty_str = { .i18nal = STR_PROXY_EDIT_HINT_IP },
 },
 
 edit_proxy_port = {
     .maxlength = sizeof(edit_proxy_port_data) - 1,
     .data = edit_proxy_port_data,
     .onlosefocus = edit_proxy_ip_port_onlosefocus,
-    .empty_str = (uint8_t*)"Port",
+    .empty_str = { .i18nal = STR_PROXY_EDIT_HINT_PORT },
 };
