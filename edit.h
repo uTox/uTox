@@ -11,7 +11,8 @@ struct edit {
     PANEL panel;
 
     _Bool multiline, mouseover, noborder, readonly, select_completely;
-    uint16_t mouseover_char, length, maxlength, width, height;
+    STRING_IDX mouseover_char, length, maxlength;
+    uint16_t width, height;
 
     uint16_t history_cur, history_length;
     EDIT_CHANGE **history;
