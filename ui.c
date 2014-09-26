@@ -7,6 +7,34 @@
 // Application-wide language setting
 UI_LANG_ID LANG;
 
+/***** MAYBE_I18NAL_STRING helpers start *****/
+
+void maybe_i18nal_string_set_plain(MAYBE_I18NAL_STRING *mis, char_t *str, uint16_t length) {
+    mis->plain.str = str;
+    mis->plain.length = length;
+    mis->i18nal = UI_STRING_ID_INVALID;
+}
+
+void maybe_i18nal_string_set_i18nal(MAYBE_I18NAL_STRING *mis, UI_STRING_ID string_id) {
+    mis->plain.str = NULL;
+    mis->plain.length = 0;
+    mis->i18nal = string_id; 
+}
+
+STRING* maybe_i18nal_string_get(MAYBE_I18NAL_STRING *mis) {
+    if(mis->plain.str) {
+        return &mis->plain;
+    } else {
+        return SPTRFORLANG(LANG, mis->i18nal);
+    }
+}
+
+_Bool maybe_i18nal_string_is_valid(MAYBE_I18NAL_STRING *mis) {
+    return (mis->plain.str || ((UI_STRING_ID_INVALID != mis->i18nal) && (mis->i18nal <= STRS_MAX)));
+}
+
+/***** MAYBE_I18NAL_STRING helpers end *****/
+
 uint32_t status_color[] = {
     C_GREEN,
     C_YELLOW,

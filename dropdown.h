@@ -1,8 +1,7 @@
 // userdata of list-based dropdown consists of these records
 typedef struct
 {
-    UI_STRING_ID string_id;
-    STRING name;
+    MAYBE_I18NAL_STRING name;
     void *handle;
 }DROP_ELEMENT;
 

@@ -236,3 +236,12 @@ msgstr("Не выбрано")
 msgid(VIDEO_IN_DESKTOP)
 msgstr("Рабочий стол")
 
+msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
+msgstr("Пожалуйста, добавьте меня в друзья.")
+
+msgid(CONTACTS_FILTER_EDIT_HINT)
+msgstr("Поиск контакта")
+
+msgid(PROXY_EDIT_HINT_PORT)
+msgstr("Порт")
+
