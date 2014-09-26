@@ -628,7 +628,7 @@ static void sendbitmap(HDC mem, HBITMAP hbm, int width, int height)
 
 void copy(int value)
 {
-    char_t data[32768];//!
+    char_t data[32768];//!TODO: De-hardcode this value.
     int len;
 
     if(edit_active()) {
@@ -677,7 +677,7 @@ void paste(void)
         }
     } else {
         wchar_t *d = GlobalLock(h);
-        char_t data[65536];
+        char_t data[65536]; //TODO: De-hardcode this value.
         int len = WideCharToMultiByte(CP_UTF8, 0, d, -1, (char*)data, sizeof(data), NULL, 0);
         if(edit_active()) {
             edit_paste(data, len, 0);

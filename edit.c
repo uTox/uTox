@@ -6,6 +6,7 @@ static struct
 {
     STRING_IDX start, length;
     STRING_IDX p1, p2, pm;
+    //TODO: pm field doesn't seem to be used. Remove?
 }edit_sel;
 static _Bool edit_select;
 

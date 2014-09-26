@@ -242,6 +242,7 @@ void drawtextrangecut(int x, int x2, int y, char_t *str, STRING_IDX length);
 int textwidth(char_t *str, STRING_IDX length);
 int textfit(char_t *str, STRING_IDX length, int width);
 int textfit_near(char_t *str, STRING_IDX length, int width);
+//TODO: Seems to be unused. Remove?
 int text_drawline(int x, int right, int y, uint8_t *str, int i, int length, int highlight, int hlen, uint16_t lineheight);
 
 void framerect(int x, int y, int right, int bottom, uint32_t color);

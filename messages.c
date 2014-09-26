@@ -615,7 +615,7 @@ _Bool messages_mup(MESSAGES *m)
 {
     //temporary, change this
     if(m->select) {
-        char_t *lel = malloc(65536);
+        char_t *lel = malloc(65536); //TODO: De-hardcode this value.
         setselection(lel, messages_selection(m, lel, 65536, 0));
         free(lel);
 
@@ -650,6 +650,8 @@ int messages_selection(MESSAGES *m, void *data, uint32_t len, _Bool names)
 
         if(names && (i != m->data->istart || m->data->start == 0)) {
             if(m->type) {
+                //TODO: get rid of such hacks or provide unpacker.
+                //This basically undoes copy_groupmessage().
                 uint8_t l = (uint8_t)msg->msg[msg->length];
                 if(len <= l) {
                     break;

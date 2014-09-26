@@ -96,13 +96,13 @@ void *libgtk;
 struct
 {
     int len;
-    char_t data[65536];
+    char_t data[65536]; //TODO: De-hardcode this value.
 }clipboard;
 
 struct
 {
     int len;
-    char_t data[65536];
+    char_t data[65536]; //TODO: De-hardcode this value.
 }primary;
 
 struct
