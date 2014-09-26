@@ -202,19 +202,12 @@ msgstr("Sì")
 msgid(VIDEO_IN_NONE)
 msgstr("Disabilitato")
 
-//TODO: Localize or remove.
-//msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
-//msgstr("Please accept this friend request.")
+msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
+msgstr("Per favore accetta questa richiesta d'amicizia.")
 
-//TODO: Localize or remove.
-//msgid(CONTACTS_FILTER_EDIT_HINT)
-//msgstr("Search friends")
+msgid(CONTACTS_FILTER_EDIT_HINT)
+msgstr("Cerca tra i contatti")
 
-//TODO: Localize or remove.
-//msgid(PROXY_EDIT_HINT_IP)
-//msgstr("IP")
-
-//TODO: Localize or remove.
-//msgid(PROXY_EDIT_HINT_PORT)
-//msgstr("Port")
+msgid(PROXY_EDIT_HINT_PORT)
+msgstr("Porta")
 
