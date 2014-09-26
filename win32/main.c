@@ -224,29 +224,29 @@ int textwidth(char_t *str, STRING_IDX length)
     return size.cx;
 }
 
-int textfit(char_t *str, STRING_IDX length, int width)
+int textfit(char_t *str, STRING_IDX len, int width)
 {
-    wchar_t out[length];
-    length = utf8tonative(str, out, length);
+    wchar_t out[len];
+    int length = utf8tonative(str, out, len);
 
     int fit;
     SIZE size;
     GetTextExtentExPointW(hdc, out, length, width, &fit, NULL, &size);
 
-    return WideCharToMultiByte(CP_UTF8, 0, out, fit, (char*)str, 65536, NULL, 0);
+    return WideCharToMultiByte(CP_UTF8, 0, out, fit, (char*)str, len, NULL, 0);
 }
 
-int textfit_near(char_t *str, STRING_IDX length, int width)
+int textfit_near(char_t *str, STRING_IDX len, int width)
 {
     /*todo: near*/
-    wchar_t out[length];
-    length = utf8tonative(str, out, length);
+    wchar_t out[len];
+    int length = utf8tonative(str, out, len);
 
     int fit;
     SIZE size;
     GetTextExtentExPointW(hdc, out, length, width, &fit, NULL, &size);
 
-    return WideCharToMultiByte(CP_UTF8, 0, out, fit, (char*)str, 65536, NULL, 0);
+    return WideCharToMultiByte(CP_UTF8, 0, out, fit, (char*)str, len, NULL, 0);
 }
 
 void framerect(int x, int y, int right, int bottom, uint32_t color)
@@ -678,7 +678,7 @@ void paste(void)
     } else {
         wchar_t *d = GlobalLock(h);
         char_t data[65536];
-        int len = WideCharToMultiByte(CP_UTF8, 0, d, -1, (char*)data, 65536, NULL, 0);
+        int len = WideCharToMultiByte(CP_UTF8, 0, d, -1, (char*)data, sizeof(data), NULL, 0);
         if(edit_active()) {
             edit_paste(data, len, 0);
         }
