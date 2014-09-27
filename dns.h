@@ -1,1 +1,1 @@
-void dns_request(uint8_t *name, uint16_t length);
+void dns_request(char_t *name, uint16_t length);

@@ -1,12 +1,12 @@
 #include "main.h"
 
-void friend_setname(FRIEND *f, char_t *name, uint16_t length)
+void friend_setname(FRIEND *f, char_t *name, STRING_IDX length)
 {
     if(f->name && (length != f->name_length || memcmp(f->name, name, length) != 0)) {
         MESSAGE *msg = malloc(sizeof(MESSAGE) + sizeof(" is now known as ") - 1 + f->name_length + length);
         msg->flags = 2;
         msg->length = sizeof(" is now known as ") - 1 + f->name_length + length;
-        uint8_t *p = msg->msg;
+        char_t *p = msg->msg;
         memcpy(p, f->name, f->name_length); p += f->name_length;
         memcpy(p, " is now known as ", sizeof(" is now known as ") - 1); p += sizeof(" is now known as ") - 1;
         memcpy(p, name, length);
@@ -61,10 +61,10 @@ void friend_recvimage(FRIEND *f, void *pngdata, uint32_t size)
     message_add(&messages_friend, (void*)msg, &f->msg);
 }
 
-void friend_notify(FRIEND *f, uint8_t *str, uint16_t str_length, uint8_t *msg, uint16_t msg_length)
+void friend_notify(FRIEND *f, char_t *str, STRING_IDX str_length, char_t *msg, STRING_IDX msg_length)
 {
     int len = f->name_length + str_length + 3;
-    uint8_t title[len + 1], *p = title;
+    char_t title[len + 1], *p = title;
     memcpy(p, str, str_length); p += str_length;
     *p++ = ' ';
     *p++ = '(';
@@ -74,12 +74,12 @@ void friend_notify(FRIEND *f, uint8_t *str, uint16_t str_length, uint8_t *msg, u
     notify(title, len, msg, msg_length);
 }
 
-void friend_addmessage_notify(FRIEND *f, char_t *data, uint16_t length)
+void friend_addmessage_notify(FRIEND *f, char_t *data, STRING_IDX length)
 {
     MESSAGE *msg = malloc(sizeof(MESSAGE) + length);
     msg->flags = 2;
     msg->length = length;
-    uint8_t *p = msg->msg;
+    char_t *p = msg->msg;
     memcpy(p, data, length);
 
     message_add(&messages_friend, msg, &f->msg);
@@ -96,7 +96,7 @@ void friend_addmessage(FRIEND *f, void *data)
     message_add(&messages_friend, data, &f->msg);
 
     if(msg->flags < 4) {
-        uint8_t m[msg->length + 1];
+        char_t m[msg->length + 1];
         memcpy(m, msg->msg, msg->length);
         m[msg->length] = 0;
         notify(f->name, f->name_length, m, msg->length);
@@ -112,7 +112,7 @@ void friend_set_typing(FRIEND *f, int typing) {
     messages_set_typing(&messages_friend, &f->msg, typing);
 }
 
-void friend_addid(uint8_t *id, char_t *msg, uint16_t msg_length)
+void friend_addid(uint8_t *id, char_t *msg, STRING_IDX msg_length)
 {
     void *data = malloc(TOX_FRIEND_ADDRESS_SIZE + msg_length * sizeof(char_t));
     memcpy(data, id, TOX_FRIEND_ADDRESS_SIZE);
@@ -121,7 +121,7 @@ void friend_addid(uint8_t *id, char_t *msg, uint16_t msg_length)
     tox_postmessage(TOX_ADDFRIEND, msg_length, 0, data);
 }
 
-void friend_add(char_t *name, uint16_t length, char_t *msg, uint16_t msg_length)
+void friend_add(char_t *name, STRING_IDX length, char_t *msg, STRING_IDX msg_length)
 {
     if(!length) {
         addfriend_status = ADDF_NONAME;
@@ -200,10 +200,10 @@ void group_free(GROUPCHAT *g)
     }
     free(g->edit_history);
 
-    uint8_t **np = g->peername;
+    char_t **np = g->peername;
     uint32_t j = 0;
     while(j < g->peers) {
-        uint8_t *n = *np++;
+        char_t *n = *np++;
         if(n) {
             free(n);
             j++;

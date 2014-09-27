@@ -33,7 +33,6 @@
 static STRING canary = STRING_INIT("BUG. PLEASE REPORT.");
 
 static void init_strings(STRING (*localized_strings)[STRS_MAX+1]) {
-    uint16_t curr_id = 0;
     UI_LANG_ID i;
     UI_STRING_ID j;
 
@@ -42,6 +41,8 @@ static void init_strings(STRING (*localized_strings)[STRS_MAX+1]) {
             localized_strings[i][j] = canary;
         }
     }
+
+    UI_STRING_ID curr_id = 0;
 
 #include "ui_i18n.h"
 

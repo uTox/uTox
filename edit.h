@@ -3,21 +3,22 @@
 struct edit_change
 {
     _Bool remove, padding;
-    uint16_t start, length;
-    uint8_t data[0];
+    STRING_IDX start, length;
+    char_t data[0];
 };
 
 struct edit {
     PANEL panel;
 
     _Bool multiline, mouseover, noborder, readonly, select_completely;
-    uint16_t mouseover_char, length, maxlength, width, height;
+    STRING_IDX mouseover_char, length, maxlength;
+    uint16_t width, height;
 
     uint16_t history_cur, history_length;
     EDIT_CHANGE **history;
 
     SCROLLABLE *scroll;
-    uint8_t *data;
+    char_t *data;
 
     MAYBE_I18NAL_STRING empty_str;
 
@@ -49,4 +50,4 @@ _Bool edit_active(void);
 
 void edit_resetfocus(void);
 void edit_setfocus(EDIT *edit);
-void edit_setstr(EDIT *edit, char_t *str, uint16_t length);
+void edit_setstr(EDIT *edit, char_t *str, STRING_IDX length);

@@ -1,11 +1,11 @@
 /* edits */
-static uint8_t edit_name_data[128], edit_status_data[128], edit_addid_data[TOX_FRIEND_ADDRESS_SIZE * 2], edit_addmsg_data[1024], edit_msg_data[65535], edit_search_data[127],
+static char_t edit_name_data[128], edit_status_data[128], edit_addid_data[TOX_FRIEND_ADDRESS_SIZE * 2], edit_addmsg_data[1024], edit_msg_data[65535], edit_search_data[127],
     edit_proxy_ip_data[256], edit_proxy_port_data[8];
 
 static void edit_name_onenter(void)
 {
-    uint8_t *data = edit_name_data;
-    uint16_t length = edit_name.length;
+    char_t *data = edit_name_data;
+    STRING_IDX length = edit_name.length;
 
     if(!length) {
         return;
@@ -19,8 +19,8 @@ static void edit_name_onenter(void)
 
 static void edit_status_onenter(void)
 {
-    uint8_t *data = edit_status_data;
-    uint16_t length = edit_status.length;
+    char_t *data = edit_status_data;
+    STRING_IDX length = edit_status.length;
 
     if(!length) {
         return;
@@ -40,7 +40,7 @@ static void edit_status_onenter(void)
 
 static void edit_msg_onenter(void)
 {
-    uint16_t length = edit_msg.length;
+    STRING_IDX length = edit_msg.length;
     if(length == 0) {
         return;
     }
@@ -77,8 +77,8 @@ static void edit_msg_onenter(void)
 
 static void edit_search_onchange(void)
 {
-    uint8_t *data = edit_search_data;
-    uint16_t length = edit_search.length;
+    char_t *data = edit_search_data;
+    STRING_IDX length = edit_search.length;
 
     if(!length) {
         memset(search_offset, 0, sizeof(search_offset));

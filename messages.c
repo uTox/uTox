@@ -46,9 +46,9 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
         setcolor(LIST_MAIN);
         setfont(FONT_MISC);
         char timestr[6];
-        int len;
+        STRING_IDX len;
         len = snprintf(timestr, sizeof(timestr), "%u:%.2u", msg->time / 60, msg->time % 60);
-        drawtext(x + width - TIME_WIDTH, y, (uint8_t*)timestr, len);
+        drawtext(x + width - TIME_WIDTH, y, (char_t*)timestr, len);
 
         if(m->type) {
             /* group */
@@ -84,7 +84,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
         case 2:
         case 3: {
             /* normal message */
-            int h1 = 0xFFFF, h2 = 0xFFFF;
+            STRING_IDX h1 = STRING_IDX_MAX, h2 = STRING_IDX_MAX;
             if(i == m->data->istart) {
                 h1 = m->data->start;
                 h2 = ((i == m->data->iend) ? m->data->end : msg->length);
@@ -97,8 +97,8 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
             }
 
             if((m->data->istart == m->data->iend && m->data->start == m->data->end) || h1 == h2) {
-                h1 = 0xFFFF;
-                h2 = 0xFFFF;
+                h1 = STRING_IDX_MAX;
+                h2 = STRING_IDX_MAX;
             }
 
             setfont(FONT_TEXT);
@@ -128,8 +128,8 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
             int xx = x + dx;
             _Bool mo = (m->iover == i);
 
-            uint8_t size[16];
-            int sizelen = sprint_bytes(size, sizeof(size), file->size);
+            char_t size[16];
+            STRING_IDX sizelen = sprint_bytes(size, sizeof(size), file->size);
 
             setcolor(WHITE);
             setfont(FONT_MISC);
@@ -177,8 +177,8 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
                 drawrectw(xx + 5 * SCALE, y + 17 * SCALE, w, 7 * SCALE, color);
 
                 if(file->status == FILE_OK) {
-                    uint8_t text[16];
-                    int len;
+                    char_t text[16];
+                    STRING_IDX len;
 
                     len = sprint_bytes(text, sizeof(text), file->speed);
                     text[len++] = '/';
@@ -266,7 +266,7 @@ _Bool messages_mmove(MESSAGES *m, int UNUSED(px), int UNUSED(py), int width, int
             case 3: {
                 /* normal message */
                 m->over = hittextmultiline(mx - MESSAGES_X, width - MESSAGES_X - TIME_WIDTH, my < 0 ? 0 : my, msg->height, font_small_lineheight, msg->msg, msg->length, 1);
-                m->urlover = 0xFFFF;
+                m->urlover = STRING_IDX_MAX;
 
                 if(my < 0 || my >= dy || mx < MESSAGES_X || m->over == msg->length) {
                     break;
@@ -285,12 +285,12 @@ _Bool messages_mmove(MESSAGES *m, int UNUSED(px), int UNUSED(py), int width, int
 
                 char_t *end = msg->msg + msg->length;
                 while(str != end && *str != ' ' && *str != '\n') {
-                    if(m->urlover == 0xFFFF && end - str >= 7 && strcmp2(str, "http://") == 0) {
+                    if(m->urlover == STRING_IDX_MAX && end - str >= 7 && strcmp2(str, "http://") == 0) {
                         cursor = CURSOR_HAND;
                         m->urlover = str - msg->msg;
                     }
 
-                    if(m->urlover == 0xFFFF && end - str >= 8 && strcmp2(str, "https://") == 0) {
+                    if(m->urlover == STRING_IDX_MAX && end - str >= 8 && strcmp2(str, "https://") == 0) {
                         cursor = CURSOR_HAND;
                         m->urlover = str - msg->msg;
                     }
@@ -298,7 +298,7 @@ _Bool messages_mmove(MESSAGES *m, int UNUSED(px), int UNUSED(py), int width, int
                     str++;
                 }
 
-                if(m->urlover != 0xFFFF) {
+                if(m->urlover != STRING_IDX_MAX) {
                     m->urllen = (str - msg->msg) - m->urlover;
                 }
 
@@ -386,7 +386,7 @@ _Bool messages_mmove(MESSAGES *m, int UNUSED(px), int UNUSED(py), int width, int
 
             if(m->select) {
                 MSG_IDX istart, iend;
-                int start, end;
+                STRING_IDX start, end;
                 if(i > m->idown) {
                     istart = m->idown;
                     iend = i;
@@ -437,7 +437,7 @@ _Bool messages_mdown(MESSAGES *m)
         MESSAGE *msg = m->data->data[m->iover];
         switch(msg->flags) {
         case 0 ... 3: {
-            if(m->urlover != 0xFFFF) {
+            if(m->urlover != STRING_IDX_MAX) {
                 char_t url[m->urllen + 1];
                 memcpy(url, msg->msg + m->urlover, m->urllen * sizeof(char_t));
                 url[m->urllen] = 0;
@@ -556,9 +556,9 @@ _Bool messages_dclick(MESSAGES *m, _Bool triclick)
         if(msg->flags >= 0 && msg->flags <= 3) {
             m->data->istart = m->data->iend = m->iover;
 
-            uint8_t c = triclick ? '\n' : ' ';
+            char_t c = triclick ? '\n' : ' ';
 
-            uint16_t i = m->over;
+            STRING_IDX i = m->over;
             while(i != 0 && msg->msg[i - 1] != c) {
                 i -= utf8_unlen(msg->msg + i);
             }
@@ -615,7 +615,7 @@ _Bool messages_mup(MESSAGES *m)
 {
     //temporary, change this
     if(m->select) {
-        uint8_t *lel = malloc(65536);
+        char_t *lel = malloc(65536); //TODO: De-hardcode this value.
         setselection(lel, messages_selection(m, lel, 65536, 0));
         free(lel);
 
@@ -636,7 +636,7 @@ _Bool messages_mleave(MESSAGES *UNUSED(m))
 int messages_selection(MESSAGES *m, void *data, uint32_t len, _Bool names)
 {
     if(m->data->n == 0) {
-        *(uint8_t*)data = 0;
+        *(char_t*)data = 0;
         return 0;
     }
 
@@ -650,6 +650,8 @@ int messages_selection(MESSAGES *m, void *data, uint32_t len, _Bool names)
 
         if(names && (i != m->data->istart || m->data->start == 0)) {
             if(m->type) {
+                //TODO: get rid of such hacks or provide unpacker.
+                //This basically undoes copy_groupmessage().
                 uint8_t l = (uint8_t)msg->msg[msg->length];
                 if(len <= l) {
                     break;
@@ -695,8 +697,8 @@ int messages_selection(MESSAGES *m, void *data, uint32_t len, _Bool names)
         case 1:
         case 2:
         case 3: {
-            uint8_t *data;
-            uint16_t length;
+            char_t *data;
+            STRING_IDX length;
             if(i == m->data->istart) {
                 if(i == m->data->iend) {
                     data = msg->msg + m->data->start;
@@ -853,7 +855,7 @@ void message_add(MESSAGES *m, MESSAGE *msg, MSG_DATA *p)
         message_free(p->data[0]);
         memmove(p->data, p->data + 1, (MAX_BACKLOG_MESSAGES - 1) * sizeof(void*));
         p->data[MAX_BACKLOG_MESSAGES - 1] = msg;
-        if(p->start != 0xFFFF) {
+        if(p->start != STRING_IDX_MAX) {
             if(!p->istart) {
                 if(!p->iend) {
                     p->istart = p->iend = MSG_IDX_MAX;
