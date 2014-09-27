@@ -115,6 +115,9 @@ msgstr("Video (input)")
 msgid(OTHERSETTINGS)
 msgstr("Altro")
 
+msgid(DPI)
+msgstr("Dimensione Caratteri")
+
 msgid(SAVELOCATION)
 msgstr("Salva Locazione")
 
