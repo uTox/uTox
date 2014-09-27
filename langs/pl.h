@@ -14,7 +14,7 @@ msgid(REQ_INVALID_ID)
 msgstr("Błąd: Niepoprawny Tox ID")
 
 msgid(REQ_EMPTY_ID)
-msgstr("Błąd: Nie określono Tox ID")
+msgstr("Błąd: Nie podano Tox ID")
 
 msgid(REQ_LONG_MSG)
 msgstr("Błąd: Wiadomość jest zbyt długa")
@@ -23,10 +23,10 @@ msgid(REQ_NO_MSG)
 msgstr("Błąd: Pusta wiadomość")
 
 msgid(REQ_SELF_ID)
-msgstr("Błąd: Tox ID to twój ID")
+msgstr("Błąd: Podany Tox ID jest twoim ID")
 
 msgid(REQ_ALREADY_FRIENDS)
-msgstr("Błąd: Tox ID jest już na liście znajomych")
+msgstr("Błąd: Podany Tox ID jest już na liście znajomych")
 
 msgid(REQ_UNKNOWN)
 msgstr("Błąd: Nieznany")
@@ -149,7 +149,7 @@ msgstr("Sieć")
 //msgstr("Proxy (SOCKS 5)")
 
 msgid(WARNING)
-msgstr("Zmiana ustawień sieci/proxy rozłączy cię z siecią Tox")
+msgstr("Zmiana ustawień sieci/proxy tymczasowo rozłączy cię z siecią Tox")
 
 msgid(LOGGING)
 msgstr("Historia")
@@ -196,61 +196,48 @@ msgstr("Przyciśnij by otworzyć")
 msgid(CANCELLED)
 msgstr("Anulowano")
 
-//TODO: Localize or remove.
-//msgid(DPI_TINY)
-//msgstr("Tiny (50%)")
+msgid(DPI_TINY)
+msgstr("Małe (50%)")
 
-//TODO: Localize or remove.
-//msgid(DPI_NORMAL)
-//msgstr("Normal (100%)")
+msgid(DPI_NORMAL)
+msgstr("Normalne (100%)")
 
-//TODO: Localize or remove.
-//msgid(DPI_BIG)
-//msgstr("Big (150%)")
+msgid(DPI_BIG)
+msgstr("Duże (150%)")
 
-//TODO: Localize or remove.
-//msgid(DPI_LARGE)
-//msgstr("Large (200%)")
+msgid(DPI_LARGE)
+msgstr("Wielkie (200%)")
 
-//TODO: Localize or remove.
-//msgid(DPI_HUGE)
-//msgstr("Huge (250%)")
+msgid(DPI_HUGE)
+msgstr("Ogromne (250%)")
 
-//TODO: Localize or remove.
-//msgid(CONTACTS_FILTER_ALL)
-//msgstr("All")
+msgid(CONTACTS_FILTER_ALL)
+msgstr("Wszyscy")
 
 //TODO: Localize or remove.
 //msgid(CONTACTS_FILTER_ONLINE)
 //msgstr("Online")
 
-//TODO: Localize or remove.
-//msgid(PROXY_DISABLED)
-//msgstr("Disabled")
+msgid(PROXY_DISABLED)
+msgstr("Wyłączone")
 
-//TODO: Localize or remove.
-//msgid(PROXY_FALLBACK)
-//msgstr("Fallback")
+msgid(PROXY_FALLBACK)
+msgstr("Awaryjnie")
 
-//TODO: Localize or remove.
-//msgid(PROXY_ALWAYS_USE)
-//msgstr("Always use")
+msgid(PROXY_ALWAYS_USE)
+msgstr("Zawsze")
 
-//TODO: Localize or remove.
-//msgid(NO)
-//msgstr("No")
+msgid(NO)
+msgstr("Nie")
 
-//TODO: Localize or remove.
-//msgid(YES)
-//msgstr("Yes")
+msgid(YES)
+msgstr("Tak")
 
-//TODO: Localize or remove.
-//msgid(VIDEO_IN_NONE)
-//msgstr("None")
+msgid(VIDEO_IN_NONE)
+msgstr("Brak")
 
-//TODO: Localize or remove.
-//msgid(VIDEO_IN_DESKTOP)
-//msgstr("Desktop")
+msgid(VIDEO_IN_DESKTOP)
+msgstr("Ekran")
 
 //TODO: Localize or remove.
 //msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
