@@ -1,11 +1,11 @@
 [Desktop Entry]
-Version=1.0
+Version=0.18
 Type=Application
 Name=uTox
 Comment=A lightweight Tox client
 TryExec=utox
 Exec=utox
 Icon=utox
-Categories=InstantMessaging;Network;
+Categories=InstantMessaging;;AudioVideo;Network;
 Terminal=false
 MimeType=x-scheme-handler/tox;
