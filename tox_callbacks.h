@@ -147,9 +147,9 @@ static void callback_connection_status(Tox *tox, int fid, uint8_t status, void *
     debug("Friend Online/Offline (%u): %u\n", fid, status);
 }
 
-static void callback_group_invite(Tox *tox, int fid, const uint8_t *group_public_key, void *UNUSED(userdata))
+static void callback_group_invite(Tox *tox, int fid, const uint8_t *data, uint16_t length, void *UNUSED(userdata))
 {
-    int gid = tox_join_groupchat(tox, fid, group_public_key);
+    int gid = tox_join_groupchat(tox, fid, data, length);
     if(gid != -1) {
         postmessage(GROUP_ADD, gid, 0, NULL);
     }
