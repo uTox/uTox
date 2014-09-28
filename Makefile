@@ -10,7 +10,7 @@ endif
 
 UNAME_S := $(shell uname -s)
 
-CFLAGS += -g -pthread -std=gnu99
+CFLAGS += -g -Wall -pthread -std=gnu99
 CFLAGS += $(shell pkg-config --cflags $(DEPS))
 LDFLAGS = -pthread -lm
 LDFLAGS += $(shell pkg-config --libs $(DEPS))
