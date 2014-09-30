@@ -46,8 +46,8 @@ msgstr("Nova transferência de arquivo")
 msgid(TRANSFER_STARTED)
 msgstr("Transferência de arquivo iniciada")
 
-msgid(TRANSFER___)
-msgstr("...")
+//msgid(TRANSFER___)
+//msgstr("...")
 
 msgid(TRANSFER_PAUSED)
 msgstr("Transferência de arquivo parada")
@@ -121,8 +121,8 @@ msgstr("Dispositivo de entrada de vídeo")
 msgid(OTHERSETTINGS)
 msgstr("Outras configurações")
 
-msgid(DPI)
-msgstr("DPI")
+//msgid(DPI)
+//msgstr("DPI")
 
 msgid(SAVELOCATION)
 msgstr("Salvar localização")
@@ -133,14 +133,14 @@ msgstr("Idioma")
 msgid(NETWORK)
 msgstr("Rede")
 
-msgid(IPV6)
-msgstr("IPv6:")
+//msgid(IPV6)
+//msgstr("IPv6:")
 
-msgid(UDP)
-msgstr("UDP:")
+//msgid(UDP)
+//msgstr("UDP:")
 
-msgid(PROXY)
-msgstr("Proxy (SOCKS 5)")
+//msgid(PROXY)
+//msgstr("Proxy (SOCKS 5)")
 
 msgid(WARNING)
 msgstr("Mudar as configurações de rede/proxy te desconectará temporariamente da rede Tox")
@@ -238,8 +238,8 @@ msgstr("Por favor, aceite este pedido de amizade.")
 msgid(CONTACTS_FILTER_EDIT_HINT)
 msgstr("Buscar amigo(s)")
 
-msgid(PROXY_EDIT_HINT_IP)
-msgstr("IP")
+//msgid(PROXY_EDIT_HINT_IP)
+//msgstr("IP")
 
 msgid(PROXY_EDIT_HINT_PORT)
 msgstr("Porta")
