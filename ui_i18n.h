@@ -106,6 +106,14 @@ LANG_WINDOWS_ID(0x0415)
 #include "langs/pl.h"
 #undef _LANG_ID
 
+//"BRAZILIAN PORTUGUESE" "Português brasileiro"
+#define _LANG_ID LANG_BR
+LANG_POSIX_LOCALE("pt_BR")
+LANG_WINDOWS_ID(0x0416)
+#include "langs/en.h" //fallback to English for untranslated things
+#include "langs/br.h"
+#undef _LANG_ID
+
 //"ROMANIAN" "Română"
 #define _LANG_ID LANG_RO
 LANG_POSIX_LOCALE("ro_RO")
