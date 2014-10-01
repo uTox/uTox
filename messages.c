@@ -855,17 +855,17 @@ void message_add(MESSAGES *m, MESSAGE *msg, MSG_DATA *p)
         message_free(p->data[0]);
         memmove(p->data, p->data + 1, (MAX_BACKLOG_MESSAGES - 1) * sizeof(void*));
         p->data[MAX_BACKLOG_MESSAGES - 1] = msg;
-        if(p->start != STRING_IDX_MAX) {
-            if(!p->istart) {
-                if(!p->iend) {
-                    p->istart = p->iend = MSG_IDX_MAX;
-                } else {
-                    p->start = 0;
-                }
-            } else {
-                p->istart--;
-                p->iend--;
-            }
+
+        // Scroll selection up so that it stays over the same messages.
+        if(0 < p->istart) {
+            p->istart--;
+        } else {
+            p->start = 0;
+        }
+        if(0 < p->iend) {
+            p->iend--;
+        } else {
+            p->end = 0;
         }
     }
 

@@ -6,19 +6,47 @@ typedef uint32_t MSG_IDX;
 typedef struct
 {
     uint32_t width, height, id;
-    MSG_IDX n, istart, iend;
+
+    // Number of messages in data array.
+    MSG_IDX n;
+
+    // Indices of messages in data array, where text selection starts and ends.
+    MSG_IDX istart, iend;
+    // Indices in strings of corresponding messages, where selection starts/ends.
     STRING_IDX start, end;
+
+    // Pointers at various message structs, at most MAX_BACKLOG_MESSAGES.
     void **data;
+
+    // Field for preserving position of text scroll,
+    // while this MSG_DATA is inactive.
     double scroll;
 } MSG_DATA;
 
 struct messages {
     PANEL panel;
-    _Bool type, select;
+
+    // false for Friendchat, true for Groupchat.
+    _Bool type;
+
+    // true if we're in the middle of selection operation
+    // (mousedown without mouseup yet).
+    _Bool select;
+
+    // Position and length of an URL in the message under the mouse,
+    // if present. urlover == STRING_IDX_MAX if there's none.
     STRING_IDX urlover, urllen;
+
     uint32_t height, width;
+
+    // Indices of messages, that the mouse is over now/has been
+    // pressed mousedown over. MSG_IDX_MAX, when the mouse isn't over
+    // any message/when not in selection mode.
     MSG_IDX iover, idown;
+    // For text messages encodes indices of chars in strings.
+    // For non-text messages, encodes various logical parts of them.
     uint32_t over, down;
+
     MSG_DATA *data;
 };
 
