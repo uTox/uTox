@@ -755,6 +755,13 @@ int datapath(uint8_t *dest)
     return 0;
 }
 
+void flush_file(FILE *file)
+{
+    fflush(file);
+    int fd = _fileno(file);
+    _commit(fd);
+}
+
 void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_length)
 {
     if(havefocus) {

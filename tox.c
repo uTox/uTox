@@ -616,6 +616,7 @@ static void write_save(Tox *tox)
     file = fopen((char*)path_tmp, "wb");
     if(file) {
         fwrite(data, size, 1, file);
+        flush_file(file);
         fclose(file);
         if (rename((char*)path_tmp, (char*)path_real) != 0) {
             debug("Failed to rename file. %s to %s deleting and trying again\n", path_tmp, path_real);

@@ -658,6 +658,13 @@ int datapath(uint8_t *dest)
     return l;
 }
 
+void flush_file(FILE *file)
+{
+    fflush(file);
+    int fd = fileno(file);
+    fsync(fd);
+}
+
 void setscale(void)
 {
     int i;

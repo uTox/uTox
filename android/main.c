@@ -183,6 +183,13 @@ int datapath(uint8_t *dest)
     return 0;
 }
 
+void flush_file(FILE *file)
+{
+    fflush(file);
+    int fd = fileno(file);
+    fsync(fd);
+}
+
 void setscale(void)
 {
     if(window) {

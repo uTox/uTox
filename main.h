@@ -204,6 +204,7 @@ void redraw(void);
 
 int datapath_old(uint8_t *dest);
 int datapath(uint8_t *dest);
+void flush_file(FILE *file);
 void config_osdefaults(UTOX_SAVE *r);
 
 //me
