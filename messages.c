@@ -30,9 +30,9 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
     for(i = 0; i != n; i++) {
         MESSAGE *msg = *p++;
 
-	if(msg->height == 0) {
+        if(msg->height == 0) {
             return;
-	}
+        }
 
         if(y + msg->height <= 0) { //! NOTE: should not be constant 0
             y += msg->height;
