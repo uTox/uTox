@@ -426,7 +426,7 @@ void savefiledata(MSG_FILE *file)
         //fall back to working dir inline.png
         FILE *fp = fopen("inline.png", "wb");
         if(fp) {
-            fwrite(file->path + ((file->flags & 1) ? 4 : 0), file->size, 1, fp);
+            fwrite(file->path + (file->author ? 4 : 0), file->size, 1, fp);
             fclose(fp);
 
             free(file->path);

@@ -4,7 +4,8 @@ void friend_setname(FRIEND *f, char_t *name, STRING_IDX length)
 {
     if(f->name && (length != f->name_length || memcmp(f->name, name, length) != 0)) {
         MESSAGE *msg = malloc(sizeof(MESSAGE) + sizeof(" is now known as ") - 1 + f->name_length + length);
-        msg->flags = 2;
+        msg->author = 0;
+        msg->msg_type = MSG_TYPE_ACTION_TEXT;
         msg->length = sizeof(" is now known as ") - 1 + f->name_length + length;
         char_t *p = msg->msg;
         memcpy(p, f->name, f->name_length); p += f->name_length;
@@ -30,7 +31,8 @@ void friend_setname(FRIEND *f, char_t *name, STRING_IDX length)
 void friend_sendimage(FRIEND *f, void *data, void *pngdata, uint16_t width, uint16_t height)
 {
     MSG_IMG *msg = malloc(sizeof(MSG_IMG));
-    msg->flags = 5;
+    msg->author = 1;
+    msg->msg_type = MSG_TYPE_IMAGE;
     msg->w = width;
     msg->h = height;
     msg->zoom = 0;
@@ -51,7 +53,8 @@ void friend_recvimage(FRIEND *f, void *pngdata, uint32_t size)
     }
 
     MSG_IMG *msg = malloc(sizeof(MSG_IMG));
-    msg->flags = 4;
+    msg->author = 0;
+    msg->msg_type = MSG_TYPE_IMAGE;
     msg->w = width;
     msg->h = height;
     msg->zoom = 0;
@@ -77,7 +80,8 @@ void friend_notify(FRIEND *f, char_t *str, STRING_IDX str_length, char_t *msg, S
 void friend_addmessage_notify(FRIEND *f, char_t *data, STRING_IDX length)
 {
     MESSAGE *msg = malloc(sizeof(MESSAGE) + length);
-    msg->flags = 2;
+    msg->author = 0;
+    msg->msg_type = MSG_TYPE_ACTION_TEXT;
     msg->length = length;
     char_t *p = msg->msg;
     memcpy(p, data, length);
@@ -95,11 +99,15 @@ void friend_addmessage(FRIEND *f, void *data)
 
     message_add(&messages_friend, data, &f->msg);
 
-    if(msg->flags < 4) {
+    switch(msg->msg_type) {
+    case MSG_TYPE_TEXT:
+    case MSG_TYPE_ACTION_TEXT: {
         char_t m[msg->length + 1];
         memcpy(m, msg->msg, msg->length);
         m[msg->length] = 0;
         notify(f->name, f->name_length, m, msg->length);
+        break;
+    }
     }
 
     if(sitem->data != f) {
@@ -154,11 +162,13 @@ void friend_free(FRIEND *f)
     MSG_IDX i = 0;
     while(i < f->msg.n) {
         MESSAGE *msg = f->msg.data[i];
-        if((msg->flags & (~1)) == 4) {
+        switch(msg->msg_type) {
+        case MSG_TYPE_IMAGE: {
             //MSG_IMG *img = (void*)msg;
             //todo: free image
+            break;
         }
-        if((msg->flags & (~1)) == 6) {
+        case MSG_TYPE_FILE: {
             MSG_FILE *file = (void*)msg;
             free(file->path);
             FILE_T *ft = &f->incoming[file->filenumber];
@@ -171,9 +181,11 @@ void friend_free(FRIEND *f)
                 }
             }
 
-            if(msg->flags & 1) {
+            if(msg->author) {
                 ft->status = FT_NONE;
             }
+            break;
+        }
         }
         message_free(msg);
         i++;

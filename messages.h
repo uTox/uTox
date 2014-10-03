@@ -50,8 +50,18 @@ struct messages {
     MSG_DATA *data;
 };
 
+enum {
+    MSG_TYPE_TEXT,
+    MSG_TYPE_ACTION_TEXT,
+    MSG_TYPE_IMAGE,
+    MSG_TYPE_FILE,
+};
+
 typedef struct {
-    uint16_t flags;
+    // true, if we're the author, false, if someone else.
+    _Bool author;
+    uint8_t msg_type;
+
     uint32_t height;
     uint32_t time;
     STRING_IDX length;
@@ -59,7 +69,10 @@ typedef struct {
 } MESSAGE;
 
 typedef struct {
-    uint16_t flags;
+    // true, if we're the author, false, if someone else.
+    _Bool author;
+    uint8_t msg_type;
+
     uint32_t height;
     uint32_t time;
     uint16_t w, h;
@@ -69,7 +82,10 @@ typedef struct {
 } MSG_IMG;
 
 typedef struct msg_file {
-    uint16_t flags;
+    // true, if we're the author, false, if someone else.
+    _Bool author;
+    uint8_t msg_type;
+
     uint32_t height;
     uint32_t time, speed;
     uint8_t filenumber, status, name_length;

@@ -151,7 +151,8 @@ void log_read(Tox *tox, int fid)
         p += 16;
 
         MESSAGE *msg = malloc(sizeof(MESSAGE) + length);
-        msg->flags = flags & 1;
+        msg->author = flags & 1;
+        msg->msg_type = MSG_TYPE_TEXT;
         msg->length = length;
         memcpy(msg->msg, p + namelen, length);
 
@@ -1544,7 +1545,8 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
         FILE_T *ft = &f->incoming[param2];
 
         MSG_FILE *msg = malloc(sizeof(MSG_FILE));
-        msg->flags = 6;
+        msg->author = 0;
+        msg->msg_type = MSG_TYPE_FILE;
         msg->filenumber = param2;
         msg->status = FILE_PENDING;
         msg->name_length = (ft->name_length > sizeof(msg->name)) ? sizeof(msg->name) : ft->name_length;
@@ -1569,7 +1571,8 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
         FILE_T *ft = &f->incoming[param2];
 
         MSG_FILE *msg = malloc(sizeof(MSG_FILE));
-        msg->flags = 6;
+        msg->author = 0;
+        msg->msg_type = MSG_TYPE_FILE;
         msg->filenumber = param2;
         msg->status = FILE_OK;
         msg->name_length = (ft->name_length > sizeof(msg->name)) ? sizeof(msg->name) : ft->name_length;
@@ -1597,7 +1600,8 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
         _Bool inline_png = (msg == FRIEND_FILE_OUT_NEW_INLINE);
 
         MSG_FILE *msg = malloc(sizeof(MSG_FILE));
-        msg->flags = 7;
+        msg->author = 1;
+        msg->msg_type = MSG_TYPE_FILE;
         msg->filenumber = param2;
         msg->status = FILE_PENDING;
         msg->name_length = (ft->name_length >= sizeof(msg->name)) ? sizeof(msg->name) - 1 : ft->name_length;
