@@ -151,7 +151,7 @@ void log_read(Tox *tox, int fid)
         p += 16;
 
         MESSAGE *msg = malloc(sizeof(MESSAGE) + length);
-        msg->flags = flags;
+        msg->flags = flags & 1;
         msg->length = length;
         memcpy(msg->msg, p + namelen, length);
 
