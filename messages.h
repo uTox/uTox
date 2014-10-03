@@ -67,6 +67,7 @@ typedef struct {
 
     uint32_t height;
     uint32_t time;
+
     STRING_IDX length;
     char_t msg[0];
 } MESSAGE;
@@ -78,6 +79,7 @@ typedef struct {
 
     uint32_t height;
     uint32_t time;
+
     uint16_t w, h;
     _Bool zoom;
     double position;
@@ -90,7 +92,9 @@ typedef struct msg_file {
     uint8_t msg_type;
 
     uint32_t height;
-    uint32_t time, speed;
+    uint32_t time;
+
+    uint32_t speed;
     uint8_t filenumber, status, name_length;
     uint64_t size, progress;
     _Bool inline_png;
