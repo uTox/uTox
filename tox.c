@@ -32,6 +32,12 @@ static int log_file_name(uint8_t *dest, uint16_t size_dest, Tox *tox, int fid)
     return TOX_CLIENT_ID_SIZE * 2 + sizeof(".txt");
 }
 
+typedef struct {
+    uint64_t time;
+    uint16_t namelen, length;
+    uint8_t flags, zeroes[3];
+} LOG_FILE_MSG_HEADER;
+
 void log_write(Tox *tox, int fid, const uint8_t *message, uint16_t length, _Bool self)
 {
     if(!logging_enabled) {
@@ -63,11 +69,7 @@ void log_write(Tox *tox, int fid, const uint8_t *message, uint16_t length, _Bool
             namelen = 0;
         }
 
-        struct {
-            uint64_t time;
-            uint16_t namelen, length;
-            uint8_t flags, zeroes[3];
-        } header = {
+        LOG_FILE_MSG_HEADER header = {
             .time = rawtime,
             .namelen = namelen,
             .length = length,
