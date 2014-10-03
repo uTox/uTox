@@ -5,7 +5,10 @@ typedef uint32_t MSG_IDX;
 
 typedef struct
 {
-    uint32_t width, height, id;
+    uint32_t width, height;
+
+    // Tox friendnumber/groupnumber
+    uint32_t id;
 
     // Number of messages in data array.
     MSG_IDX n;
