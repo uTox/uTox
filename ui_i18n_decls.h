@@ -10,11 +10,12 @@ enum {
     LANG_LV,
     LANG_NL,
     LANG_NO, //10
+    LANG_BR,
     LANG_PL,
     LANG_RO,
     LANG_RU,
-    LANG_TR,
-    LANG_UA, //15
+    LANG_TR, //15
+    LANG_UA,
     LANG_CN,
     LANG_TW,
     LANG_CS,
