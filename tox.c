@@ -118,15 +118,12 @@ void log_read(Tox *tox, int fid)
     /* first find the last MAX_BACKLOG_MESSAGES messages in the log */
     i = 0;
     while(p < end) {
-        uint16_t namelen, length;
-        memcpy(&namelen, p + 8, 2);
-        memcpy(&length, p + 10, 2);
-        p += 16 + namelen + length;;
+        const LOG_FILE_MSG_HEADER* header = (void*) p;
+        p += sizeof(LOG_FILE_MSG_HEADER) + header->namelen + header->length;
 
         if(++i > MAX_BACKLOG_MESSAGES) {
-            memcpy(&namelen, pp + 8, 2);
-            memcpy(&length, pp + 10, 2);
-            pp += 16 + namelen + length;
+            const LOG_FILE_MSG_HEADER* header2 = (void*) pp;
+            pp += sizeof(LOG_FILE_MSG_HEADER) + header2->namelen + header2->length;
         }
     }
 
@@ -142,31 +139,25 @@ void log_read(Tox *tox, int fid)
     /* add the messages */
     p = pp;
     while(p < end) {
-        uint64_t time;
-        uint16_t namelen, length;
-        uint8_t flags;
-        memcpy(&time, p, 8);
-        memcpy(&namelen, p + 8, 2);
-        memcpy(&length, p + 10, 2);
-        flags = p[12];
-        p += 16;
+        const LOG_FILE_MSG_HEADER* header = (void*) p;
+        p += sizeof(LOG_FILE_MSG_HEADER);
 
-        MESSAGE *msg = malloc(sizeof(MESSAGE) + length);
-        msg->author = flags & 1;
+        MESSAGE *msg = malloc(sizeof(MESSAGE) + header->length);
+        msg->author = header->flags & 1;
         msg->msg_type = MSG_TYPE_TEXT;
-        msg->length = length;
-        memcpy(msg->msg, p + namelen, length);
+        msg->length = header->length;
+        memcpy(msg->msg, p + header->namelen, header->length);
 
         struct tm *ti;
-        time_t rawtime = time;
+        time_t rawtime = header->time;
         ti = localtime(&rawtime);
 
         msg->time = ti->tm_hour * 60 + ti->tm_min;
 
         m->data[i++] = msg;
 
-        debug("loaded backlog: %.*s: %.*s\n", namelen, p, length, p + namelen);
-        p += namelen + length;
+        debug("loaded backlog: %.*s: %.*s\n", header->namelen, p, header->length, p + header->namelen);
+        p += header->namelen + header->length;
     }
 
     free(file_r);
