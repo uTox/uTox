@@ -40,6 +40,8 @@ extern const CLSID CLSID_NullRenderer;
 
 #include <shlobj.h>
 
+#include <io.h>
+
 #undef CLEARTYPE_QUALITY
 #define CLEARTYPE_QUALITY 5
 
