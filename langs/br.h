@@ -104,10 +104,10 @@ msgid(STATUSMESSAGE)
 msgstr("Mensagem de status")
 
 msgid(PREVIEW)
-msgstr("Previsão")
+msgstr("Pré-visualização")
 
 msgid(DEVICESELECTION)
-msgstr("Dispisitivo selecionado")
+msgstr("Dispositivo selecionado")
 
 msgid(AUDIOINPUTDEVICE)
 msgstr("Dispositivo de entrada de áudio")
@@ -209,7 +209,7 @@ msgid(CONTACTS_FILTER_ALL)
 msgstr("Todos")
 
 msgid(CONTACTS_FILTER_ONLINE)
-msgstr("Conectados")
+msgstr("Online")
 
 msgid(PROXY_DISABLED)
 msgstr("Desabilitado")
