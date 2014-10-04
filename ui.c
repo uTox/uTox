@@ -92,11 +92,11 @@ static void drawgroup(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(he
 
 
     setcolor(GRAY(150));
-    uint32_t i = 0, j = 0;
+    uint32_t i = 0;
     int k = LIST_RIGHT + 30 * SCALE;
     while(i < g->peers)
     {
-        uint8_t *name = g->peername[j];
+        uint8_t *name = g->peername[i];
         if(name)
         {
             uint8_t buf[134];
@@ -112,9 +112,8 @@ static void drawgroup(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(he
             drawtext(k, 18 * SCALE, buf, name[0] + 2);
 
             k += w;
-            i++;
         }
-        j++;
+        i++;
     }
 }
 
