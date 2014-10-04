@@ -84,7 +84,6 @@ void log_write(Tox *tox, int fid, const uint8_t *message, uint16_t length, _Bool
 void log_read(Tox *tox, int fid)
 {
     uint8_t path[512], *p, *pp, *end, *file_r;
-    uint8_t client_id[TOX_CLIENT_ID_SIZE];
     uint32_t size, i;
 
     p = path + datapath(path);
@@ -621,7 +620,7 @@ static void write_save(Tox *tox)
         fclose(file);
         if (rename((char*)path_tmp, (char*)path_real) != 0) {
             debug("Failed to rename file. %s to %s deleting and trying again\n", path_tmp, path_real);
-            remove(path_real);
+            remove((const char *)path_real);
             if (rename((char*)path_tmp, (char*)path_real) != 0) {
                 debug("Saving Failed\n");
             } else {
