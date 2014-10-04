@@ -53,7 +53,8 @@ static void edit_msg_onenter(void)
         }
 
         MESSAGE *msg = malloc(length + sizeof(MESSAGE));
-        msg->flags = 1;
+        msg->author = 1;
+        msg->msg_type = MSG_TYPE_TEXT;
         msg->length = length;
         memcpy(msg->msg, edit_msg_data, length);
 

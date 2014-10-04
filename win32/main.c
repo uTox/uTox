@@ -437,7 +437,7 @@ void savefiledata(MSG_FILE *file)
     if(GetSaveFileName(&ofn)) {
         FILE *fp = fopen(path, "wb");
         if(fp) {
-            fwrite(file->path + ((file->flags & 1) ? 4 : 0), file->size, 1, fp);
+            fwrite(file->path + (file->author ? 4 : 0), file->size, 1, fp);
             fclose(fp);
 
             free(file->path);

@@ -1,16 +1,17 @@
-static void* copy_message(const uint8_t *str, uint16_t length, uint16_t flags)
+static void* copy_message(const uint8_t *str, uint16_t length, uint8_t msg_type)
 {
     length = utf8_validate(str, length);
 
     MESSAGE *msg = malloc(sizeof(MESSAGE) + length);
-    msg->flags = flags;
+    msg->author = 0;
+    msg->msg_type = msg_type;
     msg->length = length;
     memcpy(msg->msg, str, length);
 
     return msg;
 }
 
-static void* copy_groupmessage(Tox *tox, const uint8_t *str, uint16_t length, uint16_t flags, int gid, int pid)
+static void* copy_groupmessage(Tox *tox, const uint8_t *str, uint16_t length, uint8_t msg_type, int gid, int pid)
 {
     uint8_t name[TOX_MAX_NAME_LENGTH];
     int namelen = tox_group_peername(tox, gid, pid, name);
@@ -24,7 +25,8 @@ static void* copy_groupmessage(Tox *tox, const uint8_t *str, uint16_t length, ui
 
 
     MESSAGE *msg = malloc(sizeof(MESSAGE) + 1 + length + namelen);
-    msg->flags = flags;
+    msg->author = 0;
+    msg->msg_type = msg_type;
     msg->length = length;
     memcpy(msg->msg, str, length);
 
@@ -55,7 +57,7 @@ static void callback_friend_request(Tox *UNUSED(tox), const uint8_t *id, const u
 
 static void callback_friend_message(Tox *tox, int fid, const uint8_t *message, uint16_t length, void *UNUSED(userdata))
 {
-    postmessage(FRIEND_MESSAGE, fid, 0, copy_message(message, length, 0));
+    postmessage(FRIEND_MESSAGE, fid, 0, copy_message(message, length, MSG_TYPE_TEXT));
 
     debug("Friend Message (%u): %.*s\n", fid, length, message);
 
@@ -64,7 +66,7 @@ static void callback_friend_message(Tox *tox, int fid, const uint8_t *message, u
 
 static void callback_friend_action(Tox *UNUSED(tox), int fid, const uint8_t *action, uint16_t length, void *UNUSED(userdata))
 {
-    postmessage(FRIEND_MESSAGE, fid, 0, copy_message(action, length, 2));
+    postmessage(FRIEND_MESSAGE, fid, 0, copy_message(action, length, MSG_TYPE_ACTION_TEXT));
 
     debug("Friend Action (%u): %.*s\n", fid, length, action);
 }
@@ -159,14 +161,14 @@ static void callback_group_invite(Tox *tox, int fid, const uint8_t *data, uint16
 
 static void callback_group_message(Tox *tox, int gid, int pid, const uint8_t *message, uint16_t length, void *UNUSED(userdata))
 {
-    postmessage(GROUP_MESSAGE, gid, 0, copy_groupmessage(tox, message, length, 0, gid, pid));
+    postmessage(GROUP_MESSAGE, gid, 0, copy_groupmessage(tox, message, length, MSG_TYPE_TEXT, gid, pid));
 
     debug("Group Message (%u, %u): %.*s\n", gid, pid, length, message);
 }
 
 static void callback_group_action(Tox *tox, int gid, int pid, const uint8_t *action, uint16_t length, void *UNUSED(userdata))
 {
-    postmessage(GROUP_MESSAGE, gid, 0, copy_groupmessage(tox, action, length, 2, gid, pid));
+    postmessage(GROUP_MESSAGE, gid, 0, copy_groupmessage(tox, action, length, MSG_TYPE_ACTION_TEXT, gid, pid));
 
     debug("Group Action (%u, %u): %.*s\n", gid, pid, length, action);
 }

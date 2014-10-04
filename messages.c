@@ -30,9 +30,9 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
     for(i = 0; i != n; i++) {
         MESSAGE *msg = *p++;
 
-	if(msg->height == 0) {
+        if(msg->height == 0) {
             return;
-	}
+        }
 
         if(y + msg->height <= 0) { //! NOTE: should not be constant 0
             y += msg->height;
@@ -57,19 +57,18 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
             drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, y, &msg->msg[msg->length] + 1, msg->msg[msg->length]);
         } else {
             FRIEND *f = &friend[m->data->id];
-            uint8_t author = msg->flags & 1;
-            if(author != lastauthor) {
+            if(msg->author != lastauthor) {
                 setfont(FONT_TEXT);
-                if(!author) {
+                if(!msg->author) {
                     setcolor(0);
                     drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, y, f->name, f->name_length);
                 } else {
                     setcolor(CHAT_SELF);
                     drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, y, self.name, self.name_length);
                 }
-                lastauthor = author;
+                lastauthor = msg->author;
             } else {
-                if(!author) {
+                if(!msg->author) {
                     setcolor(0);
                 } else {
                     setcolor(CHAT_SELF);
@@ -78,11 +77,9 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
         }
         /**/
 
-        switch(msg->flags) {
-        case 0:
-        case 1:
-        case 2:
-        case 3: {
+        switch(msg->msg_type) {
+        case MSG_TYPE_TEXT:
+        case MSG_TYPE_ACTION_TEXT: {
             /* normal message */
             STRING_IDX h1 = STRING_IDX_MAX, h2 = STRING_IDX_MAX;
             if(i == m->data->istart) {
@@ -111,8 +108,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
             break;
         }
 
-        case 4:
-        case 5: {
+        case MSG_TYPE_IMAGE: {
             /* image */
             MSG_IMG *img = (void*)msg;
             int maxwidth = width - MESSAGES_X - TIME_WIDTH;
@@ -121,8 +117,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
             break;
         }
 
-        case 6:
-        case 7: {
+        case MSG_TYPE_FILE: {
             MSG_FILE *file = (void*)msg;
             int dx = MESSAGES_X;
             int xx = x + dx;
@@ -160,9 +155,9 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
                 drawalpha(BM_FTB1, x, y, BM_FTB_WIDTH, BM_FTB_HEIGHT + SCALE, (mo && m->over == 1) ? C_GREEN_LIGHT : C_GREEN);
                 drawalpha(BM_NO, x + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2, y + SCALE * 4, BM_FB_WIDTH, BM_FB_HEIGHT, WHITE);
 
-                uint32_t color = ((msg->flags == 7 && file->status == FILE_PENDING) || file->status == FILE_BROKEN || file->status == FILE_PAUSED_OTHER) ? C_GRAY: ((mo && m->over == 2) ? C_GREEN_LIGHT : C_GREEN);
+                uint32_t color = ((msg->author && file->status == FILE_PENDING) || file->status == FILE_BROKEN || file->status == FILE_PAUSED_OTHER) ? C_GRAY: ((mo && m->over == 2) ? C_GREEN_LIGHT : C_GREEN);
                 drawalpha(BM_FTB2, x, y + BM_FTB_HEIGHT + SCALE * 2, BM_FTB_WIDTH, BM_FTB_HEIGHT, color);
-                drawalpha((msg->flags == 6 && file->status ==  FILE_PENDING) ? BM_YES : (file->status == FILE_PAUSED ? BM_RESUME : BM_PAUSE), x + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2, y + BM_FTB_HEIGHT + SCALE * 5, BM_FB_WIDTH, BM_FB_HEIGHT, color == C_GRAY ? LIST_MAIN : WHITE);
+                drawalpha((!msg->author && file->status ==  FILE_PENDING) ? BM_YES : (file->status == FILE_PAUSED ? BM_RESUME : BM_PAUSE), x + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2, y + BM_FTB_HEIGHT + SCALE * 5, BM_FB_WIDTH, BM_FB_HEIGHT, color == C_GRAY ? LIST_MAIN : WHITE);
 
 
                 uint64_t progress = file->progress;
@@ -227,7 +222,7 @@ _Bool messages_mmove(MESSAGES *m, int UNUSED(px), int UNUSED(py), int width, int
     if(m->idown < m->data->n) {
         int maxwidth = width - MESSAGES_X - TIME_WIDTH;
         MSG_IMG *img_down = m->data->data[m->idown];
-        if((img_down->flags & (~1)) == 4 && img_down->w  > maxwidth) {
+        if((img_down->msg_type == MSG_TYPE_IMAGE) && (img_down->w > maxwidth)) {
             img_down->position -= (double)dx / (double)(img_down->w - maxwidth);
             if(img_down->position > 1.0) {
                 img_down->position = 1.0;
@@ -259,11 +254,9 @@ _Bool messages_mmove(MESSAGES *m, int UNUSED(px), int UNUSED(py), int width, int
         int dy = msg->height;
 
         if(my >= 0 && my < dy) {
-            switch(msg->flags) {
-            case 0:
-            case 1:
-            case 2:
-            case 3: {
+            switch(msg->msg_type) {
+            case MSG_TYPE_TEXT:
+            case MSG_TYPE_ACTION_TEXT: {
                 /* normal message */
                 m->over = hittextmultiline(mx - MESSAGES_X, width - MESSAGES_X - TIME_WIDTH, my < 0 ? 0 : my, msg->height, font_small_lineheight, msg->msg, msg->length, 1);
                 m->urlover = STRING_IDX_MAX;
@@ -305,8 +298,7 @@ _Bool messages_mmove(MESSAGES *m, int UNUSED(px), int UNUSED(py), int width, int
                 break;
             }
 
-            case 4:
-            case 5: {
+            case MSG_TYPE_IMAGE: {
                 m->over = 0;
 
                 MSG_IMG *img = (void*)msg;
@@ -324,8 +316,7 @@ _Bool messages_mmove(MESSAGES *m, int UNUSED(px), int UNUSED(py), int width, int
                 break;
             }
 
-            case 6:
-            case 7: {
+            case MSG_TYPE_FILE: {
                 uint8_t over = 0;
                 MSG_FILE *file = (void*)msg;
 
@@ -365,7 +356,7 @@ _Bool messages_mmove(MESSAGES *m, int UNUSED(px), int UNUSED(py), int width, int
                     0b111,
                 };
 
-                if(over && f[file->status * 2 + (file->flags == 7)] & (1 << (over - 1))) {
+                if(over && f[file->status * 2 + file->author] & (1 << (over - 1))) {
                     cursor = CURSOR_HAND;
                 }
 
@@ -378,8 +369,8 @@ _Bool messages_mmove(MESSAGES *m, int UNUSED(px), int UNUSED(py), int width, int
             }
             }
 
-            if(i != m->iover && m->iover != MSG_IDX_MAX && ((msg->flags & 0xFFFE) == 6 || (((MESSAGE*)(m->data->data[m->iover]))->flags & 0xFFFE) == 6)) {
-                redraw = 1;
+            if((i != m->iover) && (m->iover != MSG_IDX_MAX) && ((msg->msg_type == MSG_TYPE_FILE) || (((MESSAGE*)(m->data->data[m->iover]))->msg_type == MSG_TYPE_FILE))) {
+                redraw = 1; // Redraw file on hover-in/out.
             }
 
             m->iover = i;
@@ -435,8 +426,9 @@ _Bool messages_mdown(MESSAGES *m)
     m->idown = MSG_IDX_MAX;
     if(m->iover != MSG_IDX_MAX) {
         MESSAGE *msg = m->data->data[m->iover];
-        switch(msg->flags) {
-        case 0 ... 3: {
+        switch(msg->msg_type) {
+        case MSG_TYPE_TEXT:
+        case MSG_TYPE_ACTION_TEXT: {
             if(m->urlover != STRING_IDX_MAX) {
                 char_t url[m->urllen + 1];
                 memcpy(url, msg->msg + m->urlover, m->urllen * sizeof(char_t));
@@ -451,8 +443,7 @@ _Bool messages_mdown(MESSAGES *m)
             break;
         }
 
-        case 4:
-        case 5: {
+        case MSG_TYPE_IMAGE: {
             MSG_IMG *img = (void*)msg;
             if(m->over) {
                 if(!img->zoom) {
@@ -465,7 +456,7 @@ _Bool messages_mdown(MESSAGES *m)
             break;
         }
 
-        case 6 ... 7: {
+        case MSG_TYPE_FILE: {
             MSG_FILE *file = (void*)msg;
             if(m->over == 0) {
                 break;
@@ -473,7 +464,7 @@ _Bool messages_mdown(MESSAGES *m)
 
             switch(file->status) {
             case FILE_PENDING: {
-                if(msg->flags == 6) {
+                if(!msg->author) {
                     if(m->over == 2) {
                         savefilerecv(m->data->id, file);
                     } else if(m->over == 1) {
@@ -492,10 +483,10 @@ _Bool messages_mdown(MESSAGES *m)
             case FILE_OK: {
                 if(m->over == 2) {
                     //pause
-                    tox_postmessage(TOX_FILE_IN_PAUSE + (msg->flags & 1), m->data->id, file->filenumber, NULL);
+                    tox_postmessage((msg->author ? TOX_FILE_OUT_PAUSE : TOX_FILE_IN_PAUSE), m->data->id, file->filenumber, NULL);
                 } else if(m->over == 1) {
                     //cancel
-                    tox_postmessage(TOX_FILE_IN_CANCEL + (msg->flags & 1), m->data->id, file->filenumber, NULL);
+                    tox_postmessage((msg->author ? TOX_FILE_OUT_CANCEL : TOX_FILE_IN_CANCEL), m->data->id, file->filenumber, NULL);
                 }
                 break;
             }
@@ -503,10 +494,10 @@ _Bool messages_mdown(MESSAGES *m)
             case FILE_PAUSED: {
                 if(m->over == 2) {
                     //resume
-                    tox_postmessage(TOX_FILE_IN_RESUME + (msg->flags & 1), m->data->id, file->filenumber, NULL);
+                    tox_postmessage((msg->author ? TOX_FILE_OUT_RESUME : TOX_FILE_IN_RESUME), m->data->id, file->filenumber, NULL);
                 } else if(m->over == 1) {
                     //cancel
-                    tox_postmessage(TOX_FILE_IN_CANCEL + (msg->flags & 1), m->data->id, file->filenumber, NULL);
+                    tox_postmessage((msg->author ? TOX_FILE_OUT_CANCEL : TOX_FILE_IN_CANCEL), m->data->id, file->filenumber, NULL);
                 }
                 break;
             }
@@ -515,7 +506,7 @@ _Bool messages_mdown(MESSAGES *m)
             case FILE_BROKEN: {
                 //cancel
                 if(m->over == 1) {
-                    tox_postmessage(TOX_FILE_IN_CANCEL + (msg->flags & 1), m->data->id, file->filenumber, NULL);
+                    tox_postmessage((msg->author ? TOX_FILE_OUT_CANCEL : TOX_FILE_IN_CANCEL), m->data->id, file->filenumber, NULL);
                 }
                 break;
             }
@@ -553,7 +544,9 @@ _Bool messages_dclick(MESSAGES *m, _Bool triclick)
 {
     if(m->iover != MSG_IDX_MAX) {
         MESSAGE *msg = m->data->data[m->iover];
-        if(msg->flags >= 0 && msg->flags <= 3) {
+        switch(msg->msg_type) {
+        case MSG_TYPE_TEXT:
+        case MSG_TYPE_ACTION_TEXT: {
             m->data->istart = m->data->iend = m->iover;
 
             char_t c = triclick ? '\n' : ' ';
@@ -569,7 +562,8 @@ _Bool messages_dclick(MESSAGES *m, _Bool triclick)
             }
             m->data->end = i;
             return 1;
-        } else if(msg->flags >= 4 && msg->flags <= 5) {
+        }
+        case MSG_TYPE_IMAGE: {
             MSG_IMG *img = (void*)msg;
             if(m->over) {
                 if(img->zoom) {
@@ -578,6 +572,7 @@ _Bool messages_dclick(MESSAGES *m, _Bool triclick)
                 }
             }
             return 1;
+        }
         }
     }
     return 0;
@@ -598,9 +593,18 @@ static void contextmenu_messages_onselect(uint8_t i)
 _Bool messages_mright(MESSAGES *m)
 {
     static UI_STRING_ID menu_copy[] = {STR_COPY, STR_COPYWITHOUTNAMES};
-    if(m->iover != MSG_IDX_MAX && ((MESSAGE*)m->data->data[m->iover])->flags <= 3) {
+    if(m->iover == MSG_IDX_MAX) {
+        return 0;
+    }
+
+    MESSAGE* msg = (MESSAGE*)m->data->data[m->iover];
+
+    switch(msg->msg_type) {
+    case MSG_TYPE_TEXT:
+    case MSG_TYPE_ACTION_TEXT: {
         contextmenu_new(countof(menu_copy), menu_copy, contextmenu_messages_onselect);
         return 1;
+    }
     }
     return 0;
 }
@@ -662,9 +666,8 @@ int messages_selection(MESSAGES *m, void *data, uint32_t len, _Bool names)
                 len -= l;
             } else {
                 FRIEND *f = &friend[m->data->id];
-                uint8_t author = msg->flags & 1;
 
-                if(!author) {
+                if(!msg->author) {
                     if(len <= f->name_length) {
                         break;
                     }
@@ -692,11 +695,9 @@ int messages_selection(MESSAGES *m, void *data, uint32_t len, _Bool names)
             len -= 2;
         }
 
-        switch(msg->flags) {
-        case 0:
-        case 1:
-        case 2:
-        case 3: {
+        switch(msg->msg_type) {
+        case MSG_TYPE_TEXT:
+        case MSG_TYPE_ACTION_TEXT: {
             char_t *data;
             STRING_IDX length;
             if(i == m->data->istart) {
@@ -753,24 +754,20 @@ int messages_selection(MESSAGES *m, void *data, uint32_t len, _Bool names)
 
 static int msgheight(MESSAGE *msg, int width)
 {
-    switch(msg->flags) {
-    case 0:
-    case 1:
-    case 2:
-    case 3: {
+    switch(msg->msg_type) {
+    case MSG_TYPE_TEXT:
+    case MSG_TYPE_ACTION_TEXT: {
         int theight = text_height(width - MESSAGES_X - TIME_WIDTH, font_small_lineheight, msg->msg, msg->length);
         return (theight == 0) ? 0 : theight + MESSAGES_SPACING;
     }
 
-    case 4:
-    case 5: {
+    case MSG_TYPE_IMAGE: {
         MSG_IMG *img = (void*)msg;
         int maxwidth = width - MESSAGES_X - TIME_WIDTH;
         return ((img->zoom || img->w <= maxwidth) ? img->h : img->h * maxwidth / img->w) + MESSAGES_SPACING;
     }
 
-    case 6:
-    case 7: {
+    case MSG_TYPE_FILE: {
         return BM_FT_HEIGHT + MESSAGES_SPACING;
     }
 
@@ -919,11 +916,11 @@ _Bool messages_char(uint32_t ch)
 
 void message_free(MESSAGE *msg)
 {
-    switch(msg->flags >> 1) {
-    case 2:
+    switch(msg->msg_type) {
+    case MSG_TYPE_IMAGE:
         //TODO: freeimage
         break;
-    case 3:
+    case MSG_TYPE_FILE:
         //already gets free()d
         //free(((MSG_FILE*)msg)->path);
         break;
