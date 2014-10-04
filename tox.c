@@ -19,7 +19,7 @@ static volatile _Bool tox_thread_msg, audio_thread_msg, video_thread_msg;
 static FILE_T *file_t[256], **file_tend = file_t;
 
 /* Writes log filename for fid to dest. returns length written */
-static int log_file_name(uint8_t *dest, uint16_t size_dest, Tox *tox, int fid)
+static int log_file_name(uint8_t *dest, size_t size_dest, Tox *tox, int fid)
 {
     if (size_dest < TOX_CLIENT_ID_SIZE * 2 + sizeof(".txt"))
         return -1;
@@ -85,82 +85,102 @@ void log_write(Tox *tox, int fid, const uint8_t *message, uint16_t length, _Bool
 
 void log_read(Tox *tox, int fid)
 {
-    uint8_t path[512], *p, *pp, *end, *file_r;
-    uint32_t size, i;
+    uint8_t path[512], *p;
+    FILE *file;
 
     p = path + datapath(path);
 
     int len = log_file_name(p, sizeof(path) - (p - path), tox, fid);
-    if (len == -1)
+    if (len == -1) {
+        debug("Error getting log file name for friend %d\n", fid);
         return;
+    }
 
-    p += len;
-
-    file_r = p = pp = file_raw((char*)path, &size);
-
-    if(!p) {
+    file = fopen((char*)path, "rb");
+    if(!file) {
+        debug("File not found (%s)\n", path);
         p = path + datapath_old(path);
 
         len = log_file_name(p, sizeof(path) - (p - path), tox, fid);
-        if (len == -1)
+        if (len == -1) {
+            debug("Error getting log file name for friend %d\n", fid);
             return;
+        }
 
-        p += len;
-        p = pp = file_raw((char*)path, &size);
-        if (!p) {
+        file = fopen((char*) path, "rb");
+        if (!file) {
+            debug("File not found (%s)\n", path);
             return;
         }
     }
 
-    end = p + size;
+    LOG_FILE_MSG_HEADER header;
+    off_t rewinds[MAX_BACKLOG_MESSAGES] = {};
+    size_t records_count = 0;
 
     /* todo: some checks to avoid crashes with corrupted log files */
     /* first find the last MAX_BACKLOG_MESSAGES messages in the log */
-    i = 0;
-    while(p < end) {
-        const LOG_FILE_MSG_HEADER* header = (void*) p;
-        p += sizeof(LOG_FILE_MSG_HEADER) + header->namelen + header->length;
+    while(1 == fread(&header, sizeof(LOG_FILE_MSG_HEADER), 1, file)) {
+        fseeko(file, header.namelen + header.length, SEEK_CUR);
 
-        if(++i > MAX_BACKLOG_MESSAGES) {
-            const LOG_FILE_MSG_HEADER* header2 = (void*) pp;
-            pp += sizeof(LOG_FILE_MSG_HEADER) + header2->namelen + header2->length;
-        }
+        rewinds[records_count % countof(rewinds)] =
+                (off_t) sizeof(LOG_FILE_MSG_HEADER) + header.namelen + header.length;
+        records_count++;
     }
 
-    if(i > MAX_BACKLOG_MESSAGES) {
-        i = MAX_BACKLOG_MESSAGES;
+    if(ferror(file) || !feof(file)) {
+        // TODO: consider removing or truncating the log file.
+        // If !feof() this means that the file has an incomplete record,
+        // which would prevent it from loading forever, even though
+        // new records will keep being appended as usual.
+        debug("Log read error (%s)\n", path);
+        fclose(file);
+        return;
     }
+
+    // Backtrack to read last MAX_BACKLOG_MESSAGES in full.
+    off_t rewind = 0;
+    MSG_IDX i;
+    for(i = 0; (i < records_count) && (i < countof(rewinds)); i++) {
+        rewind += rewinds[i];
+    }
+    fseeko(file, -rewind, SEEK_CUR);
 
     MSG_DATA *m = &friend[fid].msg;
     m->data = malloc(sizeof(void*) * i);
-    m->n = i;
-    i = 0;
+    m->n = 0;
 
     /* add the messages */
-    p = pp;
-    while(p < end) {
-        const LOG_FILE_MSG_HEADER* header = (void*) p;
-        p += sizeof(LOG_FILE_MSG_HEADER);
+    while((0 < i) && (1 == fread(&header, sizeof(LOG_FILE_MSG_HEADER), 1, file))) {
+        // Skip unused friend name recorded at the time.
+        fseeko(file, header.namelen, SEEK_CUR);
 
-        MESSAGE *msg = malloc(sizeof(MESSAGE) + header->length);
-        msg->author = header->flags & 1;
+        // Read text message.
+        MESSAGE *msg = malloc(sizeof(MESSAGE) + header.length);
+        msg->author = header.flags & 1;
         msg->msg_type = MSG_TYPE_TEXT;
-        msg->length = header->length;
-        memcpy(msg->msg, p + header->namelen, header->length);
+        msg->length = header.length;
+
+        if(1 != fread(msg->msg, msg->length, 1, file)) {
+            debug("Log read error (%s)\n", path);
+            fclose(file);
+            return;
+        }
 
         struct tm *ti;
-        time_t rawtime = header->time;
+        time_t rawtime = header.time;
         ti = localtime(&rawtime);
 
         msg->time = ti->tm_hour * 60 + ti->tm_min;
 
-        m->data[i++] = msg;
+        m->data[m->n++] = msg;
 
-        debug("loaded backlog: %.*s: %.*s\n", header->namelen, p, header->length, p + header->namelen);
-        p += header->namelen + header->length;
+        debug("loaded backlog: %d: %.*s\n", fid, msg->length, msg->msg);
+
+        i--;
     }
 
-    free(file_r);
+    fclose(file);
 }
 
 static void fillbuffer(FILE_T *ft)
