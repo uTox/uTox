@@ -1761,9 +1761,9 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
         if(g->peername[param2]) {
             free(g->peername[param2]);
             g->peername[param2] = NULL;
-            g->peers--;
         }
 
+        g->peers--;
         g->topic_length = snprintf((char*)g->topic, sizeof(g->topic), "%u users in chat", g->peers);
 
         updategroup(g);
@@ -1777,8 +1777,6 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
 
         if(g->peername[param2]) {
             free(g->peername[param2]);
-        } else {
-            g->peers++;
         }
 
         if(msg == GROUP_PEER_ADD) {
@@ -1786,6 +1784,7 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
             n[0] = 9;
             memcpy(n + 1, "<unknown>", 9);
             data = n;
+            g->peers++;
         }
 
         g->peername[param2] = data;
