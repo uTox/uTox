@@ -854,15 +854,35 @@ void message_add(MESSAGES *m, MESSAGE *msg, MSG_DATA *p)
         p->data[MAX_BACKLOG_MESSAGES - 1] = msg;
 
         // Scroll selection up so that it stays over the same messages.
-        if(0 < p->istart) {
-            p->istart--;
-        } else {
-            p->start = 0;
+        if (p->istart != MSG_IDX_MAX) {
+            if(0 < p->istart) {
+                p->istart--;
+            } else {
+                p->start = 0;
+            }
         }
-        if(0 < p->iend) {
-            p->iend--;
-        } else {
-            p->end = 0;
+        if (p->iend != MSG_IDX_MAX) {
+            if(0 < p->iend) {
+                p->iend--;
+            } else {
+                p->end = 0;
+            }
+        }
+        if (p == m->data) {
+            if (m->idown != MSG_IDX_MAX) {
+                if(0 < m->idown) {
+                    m->idown--;
+                } else {
+                    m->down = 0;
+                }
+            }
+            if (m->iover != MSG_IDX_MAX) {
+                if(0 < m->iover) {
+                    m->iover--;
+                } else {
+                    m->over = 0;
+                }
+            }
         }
     }
 
