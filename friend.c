@@ -218,8 +218,8 @@ void group_free(GROUPCHAT *g)
         char_t *n = *np++;
         if(n) {
             free(n);
-            j++;
         }
+        j++;
     }
 
     MSG_IDX k = 0;
