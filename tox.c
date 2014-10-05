@@ -1764,6 +1764,7 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
         }
 
         g->peers--;
+        g->peername[param2] = g->peername[g->peers];
         g->topic_length = snprintf((char*)g->topic, sizeof(g->topic), "%u users in chat", g->peers);
 
         updategroup(g);
