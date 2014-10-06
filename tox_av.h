@@ -405,12 +405,12 @@ static void audio_thread(void *args)
         debug("Input Device List:\n");
         while(*device_list) {
             printf("%s\n", device_list);
-            postmessage(NEW_AUDIO_IN_DEVICE, 0, 0, (void*)device_list);
+            postmessage(NEW_AUDIO_IN_DEVICE, UI_STRING_ID_INVALID, 0, (void*)device_list);
             device_list += strlen(device_list) + 1;
         }
     }
 
-    postmessage(NEW_AUDIO_IN_DEVICE, 0, 1, "None");
+    postmessage(NEW_AUDIO_IN_DEVICE, STR_AUDIO_IN_NONE, 1, NULL);
     audio_detect();
 
     device_list = alcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER);
