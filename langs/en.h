@@ -232,6 +232,9 @@ msgstr("None")
 msgid(VIDEO_IN_DESKTOP)
 msgstr("Desktop")
 
+msgid(AUDIO_IN_DEFAULT_LOOPBACK)
+msgstr("Default Loopback")
+
 msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
 msgstr("Please accept this friend request.")
 
