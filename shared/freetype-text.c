@@ -25,7 +25,11 @@ void drawtextwidth(int x, int width, int y, char_t *str, STRING_IDX length)
 void drawtextwidth_right(int x, int width, int y, char_t *str, STRING_IDX length)
 {
     int w = textwidth(str, length);
-    drawtext(x + width - w, y, str, length);
+    if (w < width) {
+        drawtext(x + width - w, y, str, length);
+    } else {
+        drawtextrange(x, x + width, y, str, length);
+    }
 }
 
 int textwidth(char_t *str, STRING_IDX length)
