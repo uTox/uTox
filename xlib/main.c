@@ -896,10 +896,6 @@ int main(int argc, char *argv[])
     LANG = systemlang();
     dropdown_language.selected = dropdown_language.over = LANG;
 
-    /* set-up desktop video input */
-    list_dropdown_add_localized(&dropdown_video, STR_VIDEO_IN_NONE, NULL);
-    list_dropdown_add_localized(&dropdown_video, STR_VIDEO_IN_DESKTOP, (void*)1);
-
     /* make the window visible */
     XMapWindow(display, window);
 
@@ -1104,6 +1100,9 @@ void* video_detect(void)
 {
     char dev_name[] = "/dev/videoXX", *first = NULL;
 
+    // Indicate that we support desktop capturing.
+    postmessage(NEW_VIDEO_DEVICE, STR_VIDEO_IN_DESKTOP, 0, (void*)1);
+
     #ifdef __APPLE__
     #else
     int i;
@@ -1128,9 +1127,9 @@ void* video_detect(void)
         memcpy(p + sizeof(void*), dev_name, sizeof(dev_name));
         if(!first) {
             first = pp;
-            postmessage(NEW_VIDEO_DEVICE, 1, 0, p);
+            postmessage(NEW_VIDEO_DEVICE, UI_STRING_ID_INVALID, 1, p);
         } else {
-            postmessage(NEW_VIDEO_DEVICE, 0, 0, p);
+            postmessage(NEW_VIDEO_DEVICE, UI_STRING_ID_INVALID, 0, p);
         }
 
     }

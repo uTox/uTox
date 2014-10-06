@@ -1062,9 +1062,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
 
     hdc_brush = GetStockObject(DC_BRUSH);
 
-    list_dropdown_add_localized(&dropdown_video, STR_VIDEO_IN_NONE, NULL);
-    list_dropdown_add_localized(&dropdown_video, STR_VIDEO_IN_DESKTOP, (void*)1);
-
     ShowWindow(hwnd, nCmdShow);
 
     tme.hwndTrack = hwnd;
@@ -1757,6 +1754,9 @@ IBaseFilter *pNullF = NULL;
 
 void* video_detect(void)
 {
+    // Indicate that we support desktop capturing.
+    postmessage(NEW_VIDEO_DEVICE, STR_VIDEO_IN_DESKTOP, 0, (void*)1);
+
     max_video_width = GetSystemMetrics(SM_CXVIRTUALSCREEN);
     max_video_height = GetSystemMetrics(SM_CYVIRTUALSCREEN);
 
@@ -1855,7 +1855,7 @@ void* video_detect(void)
                 void *data = malloc(sizeof(void*) + len * 3 / 2);
                 WideCharToMultiByte(CP_UTF8, 0, varName.bstrVal, -1, data + sizeof(void*), len * 3 / 2, NULL, 0);
                 memcpy(data, &temp, sizeof(pFilter));
-                postmessage(NEW_VIDEO_DEVICE, 0, 0, data);
+                postmessage(NEW_VIDEO_DEVICE, UI_STRING_ID_INVALID, 1, data);
             }
 
             // Now add the filter to the graph.

@@ -657,9 +657,6 @@ void tox_settingschanged(void)
     list_dropdown_clear(&dropdown_audio_out);
     list_dropdown_clear(&dropdown_video);
 
-    list_dropdown_add_localized(&dropdown_video, STR_VIDEO_IN_NONE, NULL);
-    list_dropdown_add_localized(&dropdown_video, STR_VIDEO_IN_DESKTOP, (void*)1);
-
     tox_thread_init = 0;
 
     toxaudio_postmessage(AUDIO_KILL, 0, 0, NULL);
@@ -1320,8 +1317,20 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
     }
 
     case NEW_VIDEO_DEVICE: {
-        list_dropdown_add_hardcoded(&dropdown_video, data + sizeof(void*), *(void**)data);
-        dropdown_video.selected = dropdown_video.over = (dropdown_video.dropcount - 1);
+        if(UI_STRING_ID_INVALID == param1) {
+            // Device name is a hardcoded string.
+            // data is a pointer to a buffer, that contains device handle pointer,
+            // followed by device name string.
+            list_dropdown_add_hardcoded(&dropdown_video, data + sizeof(void*), *(void**)data);
+        } else {
+            // Device name is localized with param1 containing UI_STRING_ID.
+            // data is device handle pointer.
+            list_dropdown_add_localized(&dropdown_video, param1, data);
+        }
+        //param2 == true, if this device will be chosen by video detecting code.
+        if(param2) {
+            dropdown_video.selected = dropdown_video.over = (dropdown_video.dropcount - 1);
+        }
         break;
     }
 
