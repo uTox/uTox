@@ -729,7 +729,7 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint8_t msg, uint16_t param1
                     name += 7;
                 }
 
-                startft(tox, param1, name, s, p - s);
+                utox_transfer_start_file(tox, param1, name, s, p - s);
                 p++;
                 s = name = p;
 
@@ -742,7 +742,7 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint8_t msg, uint16_t param1
             uint8_t *name = data;
             _Bool multifile = (name[param2 - 1] == 0);
             if(!multifile) {
-                startft(tox, param1, data, data + param2, strlen(data) - param2);
+                utox_transfer_start_file(tox, param1, data, data + param2, strlen(data) - param2);
             } else {
                 uint8_t *p = name + param2;
                 name += param2 - 1;
@@ -753,7 +753,7 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint8_t msg, uint16_t param1
                     int len = strlen((char*)p) + 1;
                     memmove(name, p, len);
                     p += len;
-                    startft(tox, param1, data, name, len - 1);
+                    utox_transfer_start_file(tox, param1, data, name, len - 1);
                 }
             }
         }
@@ -767,7 +767,7 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint8_t msg, uint16_t param1
         /* param1: friend id
            data: pointer to pngdata
          */
-        startft_inline(tox, param1, data);
+        utox_transfer_start_memory(tox, param1, data);
         break;
     }
 

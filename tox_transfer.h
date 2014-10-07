@@ -23,7 +23,9 @@ static void fillbuffer(FILE_T *ft)
     ft->finish = (ft->bytes >= ft->total) || (feof((FILE*)ft->data) != 0);
 }
 
-static void startft(Tox *tox, uint32_t fid, uint8_t *path, uint8_t *name, uint16_t name_length)
+// Outgoing transfer functions
+
+void utox_transfer_start_file(Tox *tox, uint32_t fid, uint8_t *path, uint8_t *name, uint16_t name_length)
 {
     debug("Sending: %s\n", path);
 
@@ -69,7 +71,7 @@ static void startft(Tox *tox, uint32_t fid, uint8_t *path, uint8_t *name, uint16
     }
 }
 
-static void startft_inline(Tox *tox, uint16_t fid, void *pngdata)
+void utox_transfer_start_memory(Tox *tox, uint16_t fid, void *pngdata)
 {
     uint32_t size;
     memcpy(&size, pngdata, 4);
