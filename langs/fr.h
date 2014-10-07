@@ -213,3 +213,8 @@ msgstr("Veuillez accepter cette requête d'ami.")
 
 msgid(CONTACTS_FILTER_EDIT_HINT)
 msgstr("Recherche d'ami")
+
+//TODO: Localize or remove.
+//msgid(AUDIO_IN_DEFAULT_LOOPBACK)
+//msgstr("Default Loopback")
+

@@ -267,3 +267,7 @@ msgstr("Скасовано")
 //msgid(PROXY_EDIT_HINT_PORT)
 //msgstr("Port")
 
+//TODO: Localize or remove.
+//msgid(AUDIO_IN_DEFAULT_LOOPBACK)
+//msgstr("Default Loopback")
+

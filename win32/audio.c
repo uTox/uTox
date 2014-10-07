@@ -102,7 +102,7 @@ void audio_detect(void)
 
     printf("%u %u\n", bufferFrameCount, pwfx->nSamplesPerSec);
 
-    postmessage(NEW_AUDIO_IN_DEVICE, 0, 2, (void*)"Default Loopback");
+    postmessage(NEW_AUDIO_IN_DEVICE, STR_AUDIO_IN_DEFAULT_LOOPBACK, 0, (void*)(size_t)1);
     return;
 
 Exit:

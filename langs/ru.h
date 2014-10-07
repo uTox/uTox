@@ -245,3 +245,7 @@ msgstr("Поиск контакта")
 msgid(PROXY_EDIT_HINT_PORT)
 msgstr("Порт")
 
+//TODO: Localize or remove.
+//msgid(AUDIO_IN_DEFAULT_LOOPBACK)
+//msgstr("Default Loopback")
+
