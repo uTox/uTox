@@ -1,8 +1,3 @@
-typedef struct
-{
-    uint64_t bytes;
-    uint32_t speed;
-} FILE_PROGRESS;
 
 static FILE_T *file_t[256], **file_tend = file_t;
 

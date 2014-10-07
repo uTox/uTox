@@ -34,3 +34,9 @@ typedef struct {
     /* used by the main thread */
     void *chatdata;
 } FILE_T;
+
+typedef struct
+{
+    uint64_t bytes;
+    uint32_t speed;
+} FILE_PROGRESS;
