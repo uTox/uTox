@@ -373,7 +373,7 @@ button_copyid = {
     .c1 = C_GREEN,
     .c2 = C_GREEN_LIGHT,
     .c3 = C_GREEN_LIGHT,
-    .str = "Copy",
+    .button_text = { .i18nal = STR_COPY_TOX_ID },
 
     .onpress = button_copyid_onpress,
 },
@@ -383,7 +383,7 @@ button_addfriend = {
     .c1 = C_GREEN,
     .c2 = C_GREEN_LIGHT,
     .c3 = C_GREEN_LIGHT,
-    .str = "Add",
+    .button_text = { .i18nal = STR_BUTTON_ADD_FRIEND },
 
     .onpress = button_addfriend_onpress,
 },
@@ -433,7 +433,7 @@ button_acceptfriend = {
     .c1 = C_GREEN,
     .c2 = C_GREEN_LIGHT,
     .c3 = C_GREEN_LIGHT,
-    .str = "Add",
+    .button_text = { .i18nal = STR_BUTTON_ACCEPT_FRIEND },
 
     .onpress = button_acceptfriend_onpress,
 },

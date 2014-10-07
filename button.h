@@ -1,9 +1,19 @@
 struct button {
     PANEL panel;
-    int bm, bm2, bw, bh;
+
+    // Button picture id, top-left aligned/centered respectively.
+    int bm, bm2;
+
+    // Width/height of bm2 picture. Used for centering.
+    int bw, bh;
+
+    // Background RGB color for bm picture, when Idle/Hovered/Pressed respectively.
     uint32_t c1, c2, c3;
-    char *str;
+
+    MAYBE_I18NAL_STRING button_text;
+
     _Bool mouseover, mousedown, disabled, nodraw;
+
     void (*onpress)(void);
     void (*updatecolor)(BUTTON *b);
 };

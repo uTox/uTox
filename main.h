@@ -150,7 +150,7 @@ enum
 //sysmenu icons
 enum
 {
-    BM_ONLINE,
+    BM_ONLINE = 1,
     BM_AWAY,
     BM_BUSY,
     BM_OFFLINE,
