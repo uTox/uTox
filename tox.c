@@ -206,7 +206,6 @@ void toxvideo_postmessage(uint8_t msg, uint16_t param1, uint16_t param2, void *d
 }
 
 #include "tox_callbacks.h"
-#include "tox_transfer.h"
 #include "tox_av.h"
 
 /* bootstrap to dht with bootstrap_nodes */

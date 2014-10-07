@@ -1,3 +1,4 @@
+#include "main.h"
 
 static FILE_T *file_t[256], **file_tend = file_t;
 

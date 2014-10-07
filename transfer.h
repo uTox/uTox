@@ -40,3 +40,9 @@ typedef struct
     uint64_t bytes;
     uint32_t speed;
 } FILE_PROGRESS;
+
+void utox_transfer_start_file(Tox *tox, uint32_t fid, uint8_t *path, uint8_t *name, uint16_t name_length);
+void utox_transfer_start_memory(Tox *tox, uint16_t fid, void *pngdata);
+
+void utox_set_callbacks_for_transfer(Tox *tox);
+void utox_thread_work_for_transfers(Tox *tox, uint64_t time);
