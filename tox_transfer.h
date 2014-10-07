@@ -286,5 +286,67 @@ static void callback_file_data(Tox *UNUSED(tox), int32_t fid, uint8_t filenumber
     }
 }
 
+// Called from tox_thread main loop to do transfer work.
+// Tox API can be called directly.
+void utox_thread_work_for_transfers(Tox *tox, uint64_t time)
+{
+    FILE_T **p;
+    for(p = file_t; p < file_tend; p++) {
+        FILE_T *ft = *p;
+        if(!ft) {
+            continue;
+        }
 
+        switch(ft->status) {
+        case FT_SEND: {
+            while(tox_file_send_data(tox, ft->fid, ft->filenumber, ft->buffer, ft->buffer_bytes) != -1) {
+                if(time - ft->lastupdate >= 1000 * 1000 * 50 || ft->bytes - ft->lastprogress >= 1024 * 1024) {
+                    FILE_PROGRESS *p = malloc(sizeof(FILE_PROGRESS));
+                    p->bytes = ft->bytes;
+                    p->speed = (time - ft->lastupdate) == 0 ? 0 : ((ft->bytes - ft->lastprogress) * 1000 * 1000 * 1000) / (time - ft->lastupdate);
 
+                    postmessage(FRIEND_FILE_OUT_PROGRESS, ft->fid, ft->filenumber, p);
+
+                    ft->lastupdate = time;
+                    ft->lastprogress = ft->bytes;
+                }
+                if(ft->finish) {
+                    tox_file_send_control(tox, ft->fid, 0, ft->filenumber, TOX_FILECONTROL_FINISHED, NULL, 0);
+
+                    memmove(p, p + 1, ((void*)file_tend - (void*)(p + 1)));
+                    p--;
+                    file_tend--;
+                    ft->status = FT_NONE;
+                    break;
+                }
+
+                fillbuffer(ft);
+            }
+            break;
+        }
+
+        case FT_KILL: {
+            if(ft->inline_png) {
+                free(ft->data);
+            } else {
+                fclose(ft->data);
+                free(ft->buffer);
+            }
+
+            memmove(p, p + 1, ((void*)file_tend - (void*)(p + 1)));
+            p--;
+            file_tend--;
+            postmessage(FRIEND_FILE_OUT_STATUS, ft->fid, ft->filenumber, (void*)FILE_KILLED);
+            break;
+        }
+
+        case FT_NONE: {
+            memmove(p, p + 1, ((void*)file_tend - (void*)(p + 1)));
+            p--;
+            file_tend--;
+            break;
+        }
+
+        }
+    }
+}
