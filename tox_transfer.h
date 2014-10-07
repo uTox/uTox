@@ -286,6 +286,13 @@ static void callback_file_data(Tox *UNUSED(tox), int32_t fid, uint8_t filenumber
     }
 }
 
+void utox_set_callbacks_for_transfer(Tox *tox)
+{
+    tox_callback_file_send_request(tox, callback_file_send_request, NULL);
+    tox_callback_file_control(tox, callback_file_control, NULL);
+    tox_callback_file_data(tox, callback_file_data, NULL);
+}
+
 // Called from tox_thread main loop to do transfer work.
 // Tox API can be called directly.
 void utox_thread_work_for_transfers(Tox *tox, uint64_t time)

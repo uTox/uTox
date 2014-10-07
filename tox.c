@@ -243,9 +243,7 @@ static void set_callbacks(Tox *tox)
     tox_callback_group_action(tox, callback_group_action, NULL);
     tox_callback_group_namelist_change(tox, callback_group_namelist_change, NULL);
 
-    tox_callback_file_send_request(tox, callback_file_send_request, NULL);
-    tox_callback_file_control(tox, callback_file_control, NULL);
-    tox_callback_file_data(tox, callback_file_data, NULL);
+    utox_set_callbacks_for_transfer(tox);
 }
 
 static _Bool load_save(Tox *tox)
