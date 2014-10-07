@@ -1302,11 +1302,10 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
     }
 
     case NEW_AUDIO_IN_DEVICE: {
-        void *handle = param2 ? (void*)(size_t)(param2 - 1) : data;
         if(UI_STRING_ID_INVALID == param1) {
-            list_dropdown_add_hardcoded(&dropdown_audio_in, data, handle);
+            list_dropdown_add_hardcoded(&dropdown_audio_in, data, data);
         } else {
-            list_dropdown_add_localized(&dropdown_audio_in, param1, handle);
+            list_dropdown_add_localized(&dropdown_audio_in, param1, data);
         }
         break;
     }

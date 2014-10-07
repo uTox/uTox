@@ -412,7 +412,7 @@ static void audio_thread(void *args)
         }
     }
 
-    postmessage(NEW_AUDIO_IN_DEVICE, STR_AUDIO_IN_NONE, 1, NULL);
+    postmessage(NEW_AUDIO_IN_DEVICE, STR_AUDIO_IN_NONE, 0, NULL);
     audio_detect();
 
     device_list = alcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER);
