@@ -74,6 +74,7 @@ typedef struct edit_change EDIT_CHANGE;
 
 #include "messages.h"
 #include "dns.h"
+#include "transfer.h"
 #include "friend.h"
 #include "list.h"
 #include "edit.h"
