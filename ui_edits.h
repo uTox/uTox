@@ -76,6 +76,19 @@ static void edit_msg_onenter(void)
     edit_msg.length = 0;
 }
 
+static void edit_msg_onchange(void)
+{
+    if(sitem->item == ITEM_FRIEND) {
+        FRIEND *f = sitem->data;
+
+        if(!f->online) {
+            return;
+        }
+
+        tox_postmessage(TOX_SET_TYPING, (f - friend), 0, NULL);
+    }
+}
+
 static void edit_search_onchange(void)
 {
     char_t *data = edit_search_data;
@@ -171,6 +184,7 @@ edit_msg = {
     .maxlength = sizeof(edit_msg_data),
     .data = edit_msg_data,
     .onenter = edit_msg_onenter,
+    .onchange = edit_msg_onchange,
 },
 
 edit_search = {
