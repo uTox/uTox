@@ -594,12 +594,41 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint8_t msg, uint16_t param1
         break;
     }
 
+    case TOX_SENDACTION: {
+        /* param1: friend #
+         * param2: message length
+         * data: message
+         */
+
+        void *p = data;
+        while(param2 > TOX_MAX_MESSAGE_LENGTH) {
+            uint16_t len = TOX_MAX_MESSAGE_LENGTH - utf8_unlen(p + TOX_MAX_MESSAGE_LENGTH);
+            tox_send_action(tox, param1, p, len);
+            param2 -= len;
+            p += len;
+        }
+
+        tox_send_action(tox, param1, p, param2);
+        free(data);
+        break;
+    }
+
     case TOX_SENDMESSAGEGROUP: {
         /* param1: group #
          * param2: message length
          * data: message
          */
         tox_group_message_send(tox, param1, data, param2);
+        free(data);
+        break;
+    }
+
+    case TOX_SENDACTIONGROUP: {
+        /* param1: group #
+         * param2: message length
+         * data: message
+         */
+        tox_group_action_send(tox, param1, data, param2);
         free(data);
         break;
     }
