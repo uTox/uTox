@@ -24,13 +24,20 @@ static int log_file_name(uint8_t *dest, size_t size_dest, Tox *tox, int fid)
     return TOX_CLIENT_ID_SIZE * 2 + sizeof(".txt");
 }
 
+enum {
+  LOG_FILE_MSG_TYPE_TEXT = 0,
+  LOG_FILE_MSG_TYPE_ACTION = 1,
+};
+
 typedef struct {
     uint64_t time;
     uint16_t namelen, length;
-    uint8_t flags, zeroes[3];
+    uint8_t flags;
+    uint8_t msg_type;
+    uint8_t zeroes[2];
 } LOG_FILE_MSG_HEADER;
 
-void log_write(Tox *tox, int fid, const uint8_t *message, uint16_t length, _Bool self)
+void log_write(Tox *tox, int fid, const uint8_t *message, uint16_t length, _Bool self, uint8_t msg_type)
 {
     if(!logging_enabled) {
         return;
@@ -66,6 +73,7 @@ void log_write(Tox *tox, int fid, const uint8_t *message, uint16_t length, _Bool
             .namelen = namelen,
             .length = length,
             .flags = self,
+            .msg_type = msg_type,
         };
 
         fwrite(&header, sizeof(header), 1, file);
@@ -144,13 +152,32 @@ void log_read(Tox *tox, int fid)
 
     /* add the messages */
     while((0 < i) && (1 == fread(&header, sizeof(LOG_FILE_MSG_HEADER), 1, file))) {
+        i--;
+
         // Skip unused friend name recorded at the time.
         fseeko(file, header.namelen, SEEK_CUR);
 
+        MESSAGE *msg = NULL;
+        switch(header.msg_type) {
+        case LOG_FILE_MSG_TYPE_ACTION: {
+            msg = malloc(sizeof(MESSAGE) + header.length);
+            msg->msg_type = MSG_TYPE_ACTION_TEXT;
+            break;
+        }
+        case LOG_FILE_MSG_TYPE_TEXT: {
+            msg = malloc(sizeof(MESSAGE) + header.length);
+            msg->msg_type = MSG_TYPE_TEXT;
+            break;
+        }
+        default: {
+            debug("Unknown backlog message type(%d), skipping.\n", (int)header.msg_type);
+            fseeko(file, header.length, SEEK_CUR);
+            continue;
+        }
+        }
+
         // Read text message.
-        MESSAGE *msg = malloc(sizeof(MESSAGE) + header.length);
         msg->author = header.flags & 1;
-        msg->msg_type = MSG_TYPE_TEXT;
         msg->length = header.length;
 
         if(1 != fread(msg->msg, msg->length, 1, file)) {
@@ -168,8 +195,6 @@ void log_read(Tox *tox, int fid)
         m->data[m->n++] = msg;
 
         debug("loaded backlog: %d: %.*s\n", fid, msg->length, msg->msg);
-
-        i--;
     }
 
     fclose(file);
@@ -579,7 +604,7 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint8_t msg, uint16_t param1
          * param2: message length
          * data: message
          */
-        log_write(tox, param1, data, param2, 1);
+        log_write(tox, param1, data, param2, 1, LOG_FILE_MSG_TYPE_TEXT);
 
         void *p = data;
         while(param2 > TOX_MAX_MESSAGE_LENGTH) {
@@ -599,6 +624,8 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint8_t msg, uint16_t param1
          * param2: message length
          * data: message
          */
+
+        log_write(tox, param1, data, param2, 1, LOG_FILE_MSG_TYPE_ACTION);
 
         void *p = data;
         while(param2 > TOX_MAX_MESSAGE_LENGTH) {

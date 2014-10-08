@@ -61,14 +61,16 @@ static void callback_friend_message(Tox *tox, int fid, const uint8_t *message, u
 
     debug("Friend Message (%u): %.*s\n", fid, length, message);
 
-    log_write(tox, fid, message, length, 0);
+    log_write(tox, fid, message, length, 0, LOG_FILE_MSG_TYPE_TEXT);
 }
 
-static void callback_friend_action(Tox *UNUSED(tox), int fid, const uint8_t *action, uint16_t length, void *UNUSED(userdata))
+static void callback_friend_action(Tox *tox, int fid, const uint8_t *action, uint16_t length, void *UNUSED(userdata))
 {
     postmessage(FRIEND_MESSAGE, fid, 0, copy_message(action, length, MSG_TYPE_ACTION_TEXT));
 
     debug("Friend Action (%u): %.*s\n", fid, length, action);
+
+    log_write(tox, fid, action, length, 0, LOG_FILE_MSG_TYPE_ACTION);
 }
 
 static void callback_name_change(Tox *UNUSED(tox), int fid, const uint8_t *newname, uint16_t length, void *UNUSED(userdata))
