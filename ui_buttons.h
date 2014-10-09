@@ -36,7 +36,8 @@ static void button_videopreview_onpress(void)
         video_end(0);
         toxvideo_postmessage(VIDEO_PREVIEW_END, 0, 0, NULL);
     } else if(video_width) {
-        video_begin(0, (char_t*)"Video Preview", sizeof("Video Preview") - 1, video_width, video_height);
+        STRING *s = SPTR(WINDOW_TITLE_VIDEO_PREVIEW);
+        video_begin(0, s->str, s->length, video_width, video_height);
         toxvideo_postmessage(VIDEO_PREVIEW_START, 0, 0, NULL);
         video_preview = 1;
     }

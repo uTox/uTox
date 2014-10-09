@@ -249,3 +249,6 @@ msgstr("Порт")
 //msgid(AUDIO_IN_DEFAULT_LOOPBACK)
 //msgstr("Default Loopback")
 
+msgid(WINDOW_TITLE_VIDEO_PREVIEW)
+msgstr("Предпросмотр Видео")
+

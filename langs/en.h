@@ -247,3 +247,6 @@ msgstr("IP")
 msgid(PROXY_EDIT_HINT_PORT)
 msgstr("Port")
 
+msgid(WINDOW_TITLE_VIDEO_PREVIEW)
+msgstr("Video Preview")
+
