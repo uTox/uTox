@@ -40,8 +40,25 @@ static void edit_status_onenter(void)
 
 static void edit_msg_onenter(void)
 {
+    static const STRING me = STRING_INIT("/me");
     STRING_IDX length = edit_msg.length;
-    if(length == 0) {
+
+    char_t *p = edit_msg_data;
+    _Bool is_action = (length >= me.length) && (!memcmp(p, me.str, me.length));
+    is_action = is_action && ((length == me.length) || (p[me.length] == ' '));
+    if(is_action) {
+        p += me.length;
+
+        // Strip all whitespace after "/me".
+        while((p - edit_msg_data < length) && (*p == ' ')) {
+            p++;
+        }
+
+        length -= p - edit_msg_data;
+    }
+
+    if(length <= 0) {
+        // Deny sending empty messages/actions.
         return;
     }
 
@@ -54,23 +71,23 @@ static void edit_msg_onenter(void)
 
         MESSAGE *msg = malloc(length + sizeof(MESSAGE));
         msg->author = 1;
-        msg->msg_type = MSG_TYPE_TEXT;
+        msg->msg_type = is_action ? MSG_TYPE_ACTION_TEXT : MSG_TYPE_TEXT;
         msg->length = length;
-        memcpy(msg->msg, edit_msg_data, length);
+        memcpy(msg->msg, p, length);
 
         friend_addmessage(f, msg);
 
         void *d = malloc(length);
-        memcpy(d, edit_msg_data, length);
+        memcpy(d, p, length);
 
-        tox_postmessage(TOX_SENDMESSAGE, (f - friend), length, d);
+        tox_postmessage((is_action ? TOX_SENDACTION : TOX_SENDMESSAGE), (f - friend), length, d);
     } else {
         GROUPCHAT *g = sitem->data;
 
         void *d = malloc(length);
-        memcpy(d, edit_msg_data, length);
+        memcpy(d, p, length);
 
-        tox_postmessage(TOX_SENDMESSAGEGROUP, (g - group), length, d);
+        tox_postmessage((is_action ? TOX_SENDACTIONGROUP : TOX_SENDMESSAGEGROUP), (g - group), length, d);
     }
 
     edit_msg.length = 0;
