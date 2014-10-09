@@ -1335,46 +1335,22 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
         break;
     }
 
-    case FRIEND_FILE_IN_NEW: {
-        FRIEND *f = &friend[param1];
-        FILE_T *ft = &f->incoming[param2];
-
-        MSG_FILE *msg = malloc(sizeof(MSG_FILE));
-        msg->author = 0;
-        msg->msg_type = MSG_TYPE_FILE;
-        msg->filenumber = param2;
-        msg->status = FILE_PENDING;
-        msg->name_length = (ft->name_length > sizeof(msg->name)) ? sizeof(msg->name) : ft->name_length;
-        msg->size = ft->total;
-        msg->progress = 0;
-        msg->speed = 0;
-        msg->inline_png = 0;
-        msg->path = NULL;
-        memcpy(msg->name, ft->name, msg->name_length);
-
-        friend_addmessage(f, msg);
-        ft->chatdata = msg;
-
-        file_notify(f, msg);
-
-        updatefriend(f);
-        break;
-    }
-
+    case FRIEND_FILE_IN_NEW:
     case FRIEND_FILE_IN_NEW_INLINE: {
         FRIEND *f = &friend[param1];
         FILE_T *ft = &f->incoming[param2];
+        _Bool inline_png = (msg == FRIEND_FILE_IN_NEW_INLINE);
 
         MSG_FILE *msg = malloc(sizeof(MSG_FILE));
         msg->author = 0;
         msg->msg_type = MSG_TYPE_FILE;
         msg->filenumber = param2;
-        msg->status = FILE_OK;
+        msg->status = (inline_png ? FILE_OK : FILE_PENDING);
         msg->name_length = (ft->name_length > sizeof(msg->name)) ? sizeof(msg->name) : ft->name_length;
         msg->size = ft->total;
         msg->progress = 0;
         msg->speed = 0;
-        msg->inline_png = 1;
+        msg->inline_png = inline_png;
         msg->path = NULL;
         memcpy(msg->name, ft->name, msg->name_length);
 
@@ -1386,7 +1362,6 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
         updatefriend(f);
         break;
     }
-
 
     case FRIEND_FILE_OUT_NEW:
     case FRIEND_FILE_OUT_NEW_INLINE: {
