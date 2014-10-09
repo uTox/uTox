@@ -200,7 +200,7 @@ void log_read(Tox *tox, int fid)
     fclose(file);
 }
 
-static void tox_thread_message(Tox *tox, ToxAv *av, uint8_t msg, uint16_t param1, uint16_t param2, void *data);
+static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, uint16_t param1, uint16_t param2, void *data);
 
 void tox_postmessage(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
 {
@@ -407,6 +407,38 @@ void tox_settingschanged(void)
     list_start();
 }
 
+#define UTOX_TYPING_NOTIFICATION_TIMEOUT (5ul*1000*1000*1000)
+
+static struct {
+    Tox *tox;
+    uint16_t friendnumber;
+    uint64_t time;
+    _Bool sent_value;
+} typing_state = {
+        .tox = NULL,
+        .friendnumber = 0,
+        .time = 0,
+        .sent_value = 0,
+};
+
+static void utox_thread_work_for_typing_notifications(Tox *tox, uint64_t time)
+{
+    if(typing_state.tox != tox) {
+        // Guard against Tox engine restarts.
+        return;
+    }
+
+    _Bool is_typing = (time < typing_state.time + UTOX_TYPING_NOTIFICATION_TIMEOUT);
+    if(typing_state.sent_value ^ is_typing) {
+        // Need to send an update.
+        if(!tox_set_user_is_typing(tox, typing_state.friendnumber, is_typing)){
+            // Successfully sent. Mark new state.
+            typing_state.sent_value = is_typing;
+            debug("Sent typing state to friend (%d): %d\n", typing_state.friendnumber, typing_state.sent_value);
+        }
+    }
+}
+
 void tox_thread(void *UNUSED(args))
 {
     Tox *tox;
@@ -487,11 +519,12 @@ TOP:;
                 tox_thread_msg = 0;
                 break;
             }
-            tox_thread_message(tox, av, msg->msg, msg->param1, msg->param2, msg->data);
+            tox_thread_message(tox, av, time, msg->msg, msg->param1, msg->param2, msg->data);
             tox_thread_msg = 0;
         }
 
         utox_thread_work_for_transfers(tox, time);
+        utox_thread_work_for_typing_notifications(tox, time);
 
         uint32_t interval = tox_do_interval(tox);
         yieldcpu((interval > 20) ? 20 : interval);
@@ -515,7 +548,7 @@ TOP:;
     tox_thread_init = 0;
 }
 
-static void tox_thread_message(Tox *tox, ToxAv *av, uint8_t msg, uint16_t param1, uint16_t param2, void *data)
+static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, uint16_t param1, uint16_t param2, void *data)
 {
     switch(msg) {
     case TOX_SETNAME: {
@@ -657,6 +690,33 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint8_t msg, uint16_t param1
          */
         tox_group_action_send(tox, param1, data, param2);
         free(data);
+    }
+
+    case TOX_SET_TYPING: {
+        /* param1: friend #
+         */
+
+        // Check if user has switched to another friend window chat.
+        // Take care not to react on obsolete data from old Tox instance.
+        _Bool need_resetting = (typing_state.tox == tox) &&
+            (typing_state.friendnumber != param1) &&
+            (typing_state.sent_value);
+
+        if(need_resetting) {
+            // Tell previous friend that he's betrayed.
+            tox_set_user_is_typing(tox, typing_state.friendnumber, 0);
+            // Mark that new friend doesn't know that we're typing yet.
+            typing_state.sent_value = 0;
+        }
+
+        // Mark us as typing to this friend at the moment.
+        // utox_thread_work_for_typing_notifications() will
+        // send a notification if it deems necessary.
+        typing_state.tox = tox;
+        typing_state.friendnumber = param1;
+        typing_state.time = time;
+
+        //debug("Set typing state for friend (%d): %d\n", typing_state.friendnumber, typing_state.sent_value);
         break;
     }
 
