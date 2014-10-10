@@ -69,11 +69,11 @@ static void drawfriend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(h
 
     setcolor(C_TITLE);
     setfont(FONT_TITLE);
-    drawtextrange(LIST_RIGHT + 30 * SCALE, width - 92 * SCALE, 9 * SCALE, f->name, f->name_length);
+    drawtextrange(LIST_RIGHT + 30 * SCALE, utox_window_width - 92 * SCALE, 9 * SCALE, f->name, f->name_length);
 
     setcolor(LIST_MAIN);
     setfont(FONT_STATUS);
-    drawtextrange(LIST_RIGHT + 30 * SCALE, width - 92 * SCALE, 16 * SCALE, f->status_message, f->status_length);
+    drawtextrange(LIST_RIGHT + 30 * SCALE, utox_window_width - 92 * SCALE, 16 * SCALE, f->status_message, f->status_length);
 }
 
 static void drawgroup(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height))
@@ -104,7 +104,7 @@ static void drawgroup(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(he
             memcpy(buf + name[0], ", ", 2);
 
             int w = textwidth(buf, name[0] + 2);
-            if(k + w >= width) {
+            if(k + w >= utox_window_width) {
                 drawtext(k, 18 * SCALE, (uint8_t*)"...", 3);
                 break;
             }
@@ -127,7 +127,7 @@ static void drawfriendreq(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSE
 
     setcolor(LIST_MAIN);
     setfont(FONT_STATUS);
-    drawtextrange(LIST_RIGHT + 5 * SCALE, width, 20 * SCALE, req->msg, req->length);
+    drawtextrange(LIST_RIGHT + 5 * SCALE, utox_window_width, 20 * SCALE, req->msg, req->length);
 }
 
 static void drawadd(int UNUSED(x), int UNUSED(y), int UNUSED(w), int height)
@@ -176,7 +176,7 @@ static void drawadd(int UNUSED(x), int UNUSED(y), int UNUSED(w), int height)
             str = SPTR(REQ_UNKNOWN); break;
         }
 
-        drawtextmultiline(LIST_RIGHT + SCALE * 5, width - BM_SBUTTON_WIDTH - 5 * SCALE, LIST_Y + SCALE * 83, 0, height, font_small_lineheight, str->str, str->length, 0xFFFF, 0, 1);
+        drawtextmultiline(LIST_RIGHT + SCALE * 5, utox_window_width - BM_SBUTTON_WIDTH - 5 * SCALE, LIST_Y + SCALE * 83, 0, height, font_small_lineheight, str->str, str->length, 0xFFFF, 0, 1);
     }
 }
 

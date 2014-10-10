@@ -30,7 +30,7 @@ _Bool doevent(XEvent event)
 
     switch(event.type) {
     case Expose: {
-        enddraw(0, 0, width, height);
+        enddraw(0, 0, utox_window_width, utox_window_height);
         debug("expose\n");
         break;
     }
@@ -57,7 +57,7 @@ _Bool doevent(XEvent event)
 
     case ConfigureNotify: {
         XConfigureEvent *ev = &event.xconfigure;
-        if(width != ev->width || height != ev->height) {
+        if(utox_window_width != ev->width || utox_window_height != ev->height) {
             debug("resize\n");
 
             if(ev->width > drawwidth || ev->height > drawheight) {
@@ -70,10 +70,10 @@ _Bool doevent(XEvent event)
                 renderpic = XRenderCreatePicture(display, drawbuf,XRenderFindStandardFormat(display, PictStandardRGB24), 0, NULL);
             }
 
-            width = ev->width;
-            height = ev->height;
+            utox_window_width = ev->width;
+            utox_window_height = ev->height;
 
-            ui_size(width, height);
+            ui_size(utox_window_width, utox_window_height);
 
             redraw();
         }
@@ -110,7 +110,7 @@ _Bool doevent(XEvent event)
         my = ev->y;
 
         cursor = CURSOR_NONE;
-        panel_mmove(&panel_main, 0, 0, width, height, ev->x, ev->y, dx, dy);
+        panel_mmove(&panel_main, 0, 0, utox_window_width, utox_window_height, ev->x, ev->y, dx, dy);
 
         XDefineCursor(display, window, cursors[cursor]);
 
@@ -143,7 +143,7 @@ _Bool doevent(XEvent event)
 
             //todo: better double/triple click detect
             static Time lastclick, lastclick2;
-            panel_mmove(&panel_main, 0, 0, width, height, ev->x, ev->y, 0, 0);
+            panel_mmove(&panel_main, 0, 0, utox_window_width, utox_window_height, ev->x, ev->y, 0, 0);
             panel_mdown(&panel_main);
             if(ev->time - lastclick < 300) {
                 _Bool triclick = (ev->time - lastclick2 < 600);
@@ -164,12 +164,12 @@ _Bool doevent(XEvent event)
         }
 
         case Button4: {
-            panel_mwheel(&panel_main, 0, 0, width, height, 1.0);
+            panel_mwheel(&panel_main, 0, 0, utox_window_width, utox_window_height, 1.0);
             break;
         }
 
         case Button5: {
-            panel_mwheel(&panel_main, 0, 0, width, height, -1.0);
+            panel_mwheel(&panel_main, 0, 0, utox_window_width, utox_window_height, -1.0);
             break;
         }
 
