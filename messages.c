@@ -249,7 +249,7 @@ _Bool messages_mmove(MESSAGES *m, int UNUSED(px), int UNUSED(py), int width, int
 
     void **p = m->data->data;
     MSG_IDX i = 0, n = m->data->n;
-    _Bool redraw = 0;
+    _Bool need_redraw = 0;
 
     while(i != n) {
         MESSAGE *msg = *p++;
@@ -364,7 +364,7 @@ _Bool messages_mmove(MESSAGES *m, int UNUSED(px), int UNUSED(py), int width, int
                 }
 
                 if(over != m->over) {
-                    redraw = 1;
+                    need_redraw = 1;
                     m->over = over;
                 }
 
@@ -373,7 +373,7 @@ _Bool messages_mmove(MESSAGES *m, int UNUSED(px), int UNUSED(py), int width, int
             }
 
             if((i != m->iover) && (m->iover != MSG_IDX_MAX) && ((msg->msg_type == MSG_TYPE_FILE) || (((MESSAGE*)(m->data->data[m->iover]))->msg_type == MSG_TYPE_FILE))) {
-                redraw = 1; // Redraw file on hover-in/out.
+                need_redraw = 1; // Redraw file on hover-in/out.
             }
 
             m->iover = i;
@@ -409,11 +409,11 @@ _Bool messages_mmove(MESSAGES *m, int UNUSED(px), int UNUSED(py), int width, int
                     m->data->end = end;
                     m->data->istart = istart;
                     m->data->iend = iend;
-                    redraw = 1;
+                    need_redraw = 1;
                 }
 
             }
-            return redraw;
+            return need_redraw;
         }
 
         my -= dy;
