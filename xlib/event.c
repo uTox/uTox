@@ -469,7 +469,7 @@ _Bool doevent(XEvent event)
                 debug("enter\n");
             } else if(ev->message_type == XdndPosition) {
                 Window src = ev->data.l[0];
-                XEvent event = {
+                XEvent reply_event = {
                     .xclient = {
                         .type = ClientMessage,
                         .display = display,
@@ -482,7 +482,7 @@ _Bool doevent(XEvent event)
                     }
                 };
 
-                XSendEvent(display, src, 0, 0, &event);
+                XSendEvent(display, src, 0, 0, &reply_event);
                 //debug("position (version=%u)\n", ev->data.l[1] >> 24);
             } else if(ev->message_type == XdndStatus) {
                 debug("status\n");
