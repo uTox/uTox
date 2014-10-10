@@ -37,7 +37,7 @@ typedef struct {
     uint8_t zeroes[2];
 } LOG_FILE_MSG_HEADER;
 
-void log_write(Tox *tox, int fid, const uint8_t *message, uint16_t length, _Bool self, uint8_t msg_type)
+void log_write(Tox *tox, int fid, const uint8_t *message, uint16_t length, _Bool author, uint8_t msg_type)
 {
     if(!logging_enabled) {
         return;
@@ -61,7 +61,7 @@ void log_write(Tox *tox, int fid, const uint8_t *message, uint16_t length, _Bool
         time_t rawtime;
         time(&rawtime);
 
-        if(self) {
+        if(author) {
             namelen = tox_get_self_name(tox, name);
         } else if((namelen = tox_get_name(tox, fid, name)) == -1) {
             //error reading name
@@ -72,7 +72,7 @@ void log_write(Tox *tox, int fid, const uint8_t *message, uint16_t length, _Bool
             .time = rawtime,
             .namelen = namelen,
             .length = length,
-            .flags = self,
+            .flags = author,
             .msg_type = msg_type,
         };
 
