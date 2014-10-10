@@ -191,9 +191,9 @@ void drawalpha(int bm, int x, int y, int width, int height, uint32_t color)
     XRenderFreePicture(display, src);
 }
 
-void drawimage(void *data, int x, int y, int width, int height, int maxwidth, _Bool zoom, double position)
+void drawimage(UTOX_NATIVE_IMAGE data, int x, int y, int width, int height, int maxwidth, _Bool zoom, double position)
 {
-    Picture bm = (Picture)data;
+    Picture bm = data;
     if(!zoom && width > maxwidth) {
         uint32_t v = (width * 65536) / maxwidth;
         XTransform trans = {
@@ -426,7 +426,7 @@ void savefiledata(MSG_FILE *file)
         //fall back to working dir inline.png
         FILE *fp = fopen("inline.png", "wb");
         if(fp) {
-            fwrite(file->path + (file->author ? 4 : 0), file->size, 1, fp);
+            fwrite(file->path, file->size, 1, fp);
             fclose(fp);
 
             free(file->path);
@@ -556,18 +556,20 @@ static void formaturilist(char *out, const char *in, int len) {
 
 static void pastedata(void *data, Atom type, int len, _Bool select)
 {
+   if (0 > len) {
+       return; // Let my conscience be clear about signed->unsigned casts.
+   }
+   size_t size = (size_t) len;
    if (type == XA_PNG_IMG) {
         uint16_t width, height;
-        uint32_t size = len;
 
-        void *pngdata = malloc(len + 4);
-        void *img = png_to_image(data, &width, &height, len);
-        if (img) {
+        UTOX_NATIVE_IMAGE native_image = png_to_image(data, size, &width, &height);
+        if (UTOX_NATIVE_IMAGE_IS_VALID(native_image)) {
             debug("Pasted image: %dx%d\n", width, height);
 
-            memcpy(pngdata, &size, 4);
-            memcpy(pngdata + 4, data, len);
-            friend_sendimage((FRIEND*)sitem->data, img, pngdata, width, height);
+            UTOX_PNG_IMAGE png_image = malloc(size);
+            memcpy(png_image, data, size);
+            friend_sendimage((FRIEND*)sitem->data, native_image, width, height, png_image, size);
         }
     } else if (type == XA_URI_LIST) {
         char *path = malloc(len + 1);
@@ -608,15 +610,15 @@ static Picture image_to_picture(XImage *img)
     return picture;
 }
 
-void* png_to_image(void *data, uint16_t *w, uint16_t *h, uint32_t size)
+UTOX_NATIVE_IMAGE png_to_image(UTOX_PNG_IMAGE data, size_t size, uint16_t *w, uint16_t *h)
 {
     uint8_t *out;
     unsigned width, height;
-    unsigned r = lodepng_decode32(&out, &width, &height, data, size);
+    unsigned r = lodepng_decode32(&out, &width, &height, data->png_data, size);
     //free(data);
 
     if(r != 0 || !width || !height) {
-        return NULL;
+        return None;
     }
 
     uint8_t red, blue, green;
@@ -640,7 +642,7 @@ void* png_to_image(void *data, uint16_t *w, uint16_t *h, uint32_t size)
     Picture picture = image_to_picture(img);
     free(out);
 
-    return (void*)picture;
+    return picture;
 }
 
 int datapath_old(uint8_t *dest)
