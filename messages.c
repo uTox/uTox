@@ -112,7 +112,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
             /* image */
             MSG_IMG *img = (void*)msg;
             int maxwidth = width - MESSAGES_X - TIME_WIDTH;
-            drawimage(img->data, x + MESSAGES_X, y, img->w, img->h, maxwidth, img->zoom, img->position);
+            drawimage(img->image, x + MESSAGES_X, y, img->w, img->h, maxwidth, img->zoom, img->position);
             y += (img->zoom || img->w <= maxwidth) ? img->h : img->h * maxwidth / img->w;
             break;
         }

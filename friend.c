@@ -36,7 +36,7 @@ void friend_sendimage(FRIEND *f, UTOX_NATIVE_IMAGE native_image, uint16_t width,
     msg->w = width;
     msg->h = height;
     msg->zoom = 0;
-    msg->data = native_image;
+    msg->image = native_image;
     msg->position = 0.0;
 
     message_add(&messages_friend, (void*)msg, &f->msg);
@@ -50,8 +50,8 @@ void friend_sendimage(FRIEND *f, UTOX_NATIVE_IMAGE native_image, uint16_t width,
 void friend_recvimage(FRIEND *f, UTOX_PNG_IMAGE png_image, size_t png_size)
 {
     uint16_t width, height;
-    UTOX_NATIVE_IMAGE data = png_to_image(png_image, png_size, &width, &height);
-    if(!UTOX_NATIVE_IMAGE_IS_VALID(data)) {
+    UTOX_NATIVE_IMAGE native_image = png_to_image(png_image, png_size, &width, &height);
+    if(!UTOX_NATIVE_IMAGE_IS_VALID(native_image)) {
         return;
     }
 
@@ -61,7 +61,7 @@ void friend_recvimage(FRIEND *f, UTOX_PNG_IMAGE png_image, size_t png_size)
     msg->w = width;
     msg->h = height;
     msg->zoom = 0;
-    msg->data = data;
+    msg->image = native_image;
     msg->position = 0.0;
 
     message_add(&messages_friend, (void*)msg, &f->msg);
