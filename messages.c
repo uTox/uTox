@@ -640,17 +640,17 @@ _Bool messages_mleave(MESSAGES *UNUSED(m))
     return 0;
 }
 
-int messages_selection(MESSAGES *m, void *data, uint32_t len, _Bool names)
+int messages_selection(MESSAGES *m, void *buffer, uint32_t len, _Bool names)
 {
     if(m->data->n == 0) {
-        *(char_t*)data = 0;
+        *(char_t*)buffer = 0;
         return 0;
     }
 
     MSG_IDX i = m->data->istart, n = m->data->iend + 1;
     void **dp = &m->data->data[i];
 
-    char_t *p = data;
+    char_t *p = buffer;
 
     while(i != n) {
         MESSAGE *msg = *dp++;
@@ -752,7 +752,7 @@ int messages_selection(MESSAGES *m, void *data, uint32_t len, _Bool names)
     BREAK:
     *p = 0;
 
-    return (void*)p - data;
+    return (void*)p - buffer;
 }
 
 static int msgheight(MESSAGE *msg, int width)
