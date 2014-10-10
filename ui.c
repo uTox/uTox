@@ -828,12 +828,12 @@ FUNC(mleave, _Bool);
 
 #undef FUNC
 #define FUNC() {\
-    int dx = (p->x < 0) ? width + p->x : p->x;\
-    int dy = (p->y < 0) ? height + p->y : p->y;\
-    x += dx; \
-    y += dy; \
-    width = (p->width <= 0) ? width + p->width - dx : p->width; \
-    height = (p->height <= 0) ? height + p->height - dy : p->height; }\
+    int relx = (p->x < 0) ? width + p->x : p->x;\
+    int rely = (p->y < 0) ? height + p->y : p->y;\
+    x += relx; \
+    y += rely; \
+    width = (p->width <= 0) ? width + p->width - relx : p->width; \
+    height = (p->height <= 0) ? height + p->height - rely : p->height; }\
 
 static void panel_update(PANEL *p, int x, int y, int width, int height)
 {
@@ -938,16 +938,16 @@ _Bool panel_mmove(PANEL *p, int x, int y, int width, int height, int mx, int my,
     int mmy = my;
 
     if(p->content_scroll) {
-        int dy = scroll_gety(p->content_scroll, height);
+        int scroll_y = scroll_gety(p->content_scroll, height);
         if(my < 0) {
             mmy = -1;
         } else if (my >= height) {
             mmy = 1024 * 1024 * 1024;//large value
         } else {
-            mmy = my + dy;
+            mmy = my + scroll_y;
         }
-        y -= dy;
-        my += dy;
+        y -= scroll_y;
+        my += scroll_y;
     }
 
     _Bool draw = p->type ? mmovefunc[p->type - 1](p, x, y, width, height, mx, mmy, dx, dy) : 0;
