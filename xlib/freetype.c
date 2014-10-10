@@ -294,7 +294,7 @@ static void font_info_open(FONT_INFO *i, FcPattern *pattern)
     debug("Loaded font %s %u %i %i\n", filename, id, PIXELS(i->face->ascender), PIXELS(i->face->descender));
 }
 
-static _Bool font_open(FONT *font, ...)
+static _Bool font_open(FONT *a_font, ...)
 {
     /* add error checks */
     va_list	    va;
@@ -302,7 +302,7 @@ static _Bool font_open(FONT *font, ...)
     FcPattern	    *match;
     FcResult	    result;
 
-    va_start (va, font);
+    va_start (va, a_font);
     pat = FcPatternVaBuild(NULL, va);
     va_end (va);
 
@@ -311,13 +311,13 @@ static _Bool font_open(FONT *font, ...)
     match = FcFontMatch(NULL, pat, &result);
     FcPatternDestroy(pat);
 
-    font->info = malloc(sizeof(FONT_INFO) * 2);
+    a_font->info = malloc(sizeof(FONT_INFO) * 2);
 
-    font_info_open(font->info, match);
+    font_info_open(a_font->info, match);
 
-    font->pattern = match;
+    a_font->pattern = match;
 
-    font->info[1].face = NULL;
+    a_font->info[1].face = NULL;
 
     return 1;
 }
