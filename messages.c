@@ -45,10 +45,13 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
 
         setcolor(LIST_MAIN);
         setfont(FONT_MISC);
-        char timestr[6];
-        STRING_IDX len;
-        len = snprintf(timestr, sizeof(timestr), "%u:%.2u", msg->time / 60, msg->time % 60);
-        drawtext(x + width - TIME_WIDTH, y, (char_t*)timestr, len);
+
+        {
+            char timestr[6];
+            STRING_IDX len;
+            len = snprintf(timestr, sizeof(timestr), "%u:%.2u", msg->time / 60, msg->time % 60);
+            drawtext(x + width - TIME_WIDTH, y, (char_t*)timestr, len);
+        }
 
         if(m->type) {
             /* group */
