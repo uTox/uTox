@@ -1,4 +1,6 @@
-static int fd = -1;
+
+static int utox_v4l_fd = -1;
+
 #ifdef __APPLE__
 _Bool v4l_init(char *dev_name)
 {
@@ -59,9 +61,9 @@ static struct v4l2_format fmt, dest_fmt = {
 
 _Bool v4l_init(char *dev_name)
 {
-    fd = open(dev_name, O_RDWR /* required */ | O_NONBLOCK, 0);
+    utox_v4l_fd = open(dev_name, O_RDWR /* required */ | O_NONBLOCK, 0);
 
-    if (-1 == fd) {
+    if (-1 == utox_v4l_fd) {
         debug("Cannot open '%s': %d, %s\n", dev_name, errno, strerror(errno));
         return 0;
     }
@@ -71,7 +73,7 @@ _Bool v4l_init(char *dev_name)
     struct v4l2_crop crop;
     unsigned int min;
 
-    if(-1 == xioctl(fd, VIDIOC_QUERYCAP, &cap)) {
+    if(-1 == xioctl(utox_v4l_fd, VIDIOC_QUERYCAP, &cap)) {
         if (EINVAL == errno) {
             debug("%s is no V4L2 device\n", dev_name);
         } else {
@@ -95,11 +97,11 @@ _Bool v4l_init(char *dev_name)
 
     cropcap.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
-    if (0 == xioctl(fd, VIDIOC_CROPCAP, &cropcap)) {
+    if (0 == xioctl(utox_v4l_fd, VIDIOC_CROPCAP, &cropcap)) {
         crop.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
         crop.c = cropcap.defrect; /* reset to default */
 
-        if (-1 == xioctl(fd, VIDIOC_S_CROP, &crop)) {
+        if (-1 == xioctl(utox_v4l_fd, VIDIOC_S_CROP, &crop)) {
             switch (errno) {
             case EINVAL:
                 /* Cropping not supported. */
@@ -113,13 +115,13 @@ _Bool v4l_init(char *dev_name)
         /* Errors ignored. */
     }
 
-    v4lconvert_data = v4lconvert_create(fd);
+    v4lconvert_data = v4lconvert_create(utox_v4l_fd);
 
     CLEAR(fmt);
 
     fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
-    if(-1 == xioctl(fd, VIDIOC_G_FMT, &fmt)) {
+    if(-1 == xioctl(utox_v4l_fd, VIDIOC_G_FMT, &fmt)) {
         debug("VIDIOC_S_FMT error %d, %s\n", errno, strerror(errno));
         return 0;
     }
@@ -155,7 +157,7 @@ _Bool v4l_init(char *dev_name)
     req.type   = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     req.memory = V4L2_MEMORY_MMAP;//V4L2_MEMORY_USERPTR;
 
-    if (-1 == xioctl(fd, VIDIOC_REQBUFS, &req)) {
+    if (-1 == xioctl(utox_v4l_fd, VIDIOC_REQBUFS, &req)) {
         if (EINVAL == errno) {
             debug("%s does not support x i/o\n", dev_name);
         } else {
@@ -180,7 +182,7 @@ _Bool v4l_init(char *dev_name)
             buf.memory      = V4L2_MEMORY_MMAP;
             buf.index       = n_buffers;
 
-            if (-1 == xioctl(fd, VIDIOC_QUERYBUF, &buf)) {
+            if (-1 == xioctl(utox_v4l_fd, VIDIOC_QUERYBUF, &buf)) {
                 debug("VIDIOC_QUERYBUF error %d, %s\n", errno, strerror(errno));
                 return 0;
             }
@@ -191,7 +193,7 @@ _Bool v4l_init(char *dev_name)
                           buf.length,
                           PROT_READ | PROT_WRITE /* required */,
                           MAP_SHARED /* recommended */,
-                          fd, buf.m.offset);
+                          utox_v4l_fd, buf.m.offset);
 
             if(MAP_FAILED == buffers[n_buffers].start) {
                 debug("mmap error %d, %s\n", errno, strerror(errno));
@@ -228,7 +230,7 @@ void v4l_close(void)
         }
     }
 
-    close(fd);
+    close(utox_v4l_fd);
 }
 
 _Bool v4l_startread(void)
@@ -247,13 +249,13 @@ _Bool v4l_startread(void)
         //buf.m.userptr = (unsigned long)buffers[i].start;
         //buf.length = buffers[i].length;
 
-        if (-1 == xioctl(fd, VIDIOC_QBUF, &buf)) {
+        if (-1 == xioctl(utox_v4l_fd, VIDIOC_QBUF, &buf)) {
             debug("VIDIOC_QBUF error %d, %s\n", errno, strerror(errno));
             return 0;
         }
     }
     type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    if (-1 == xioctl(fd, VIDIOC_STREAMON, &type)) {
+    if (-1 == xioctl(utox_v4l_fd, VIDIOC_STREAMON, &type)) {
         debug("VIDIOC_STREAMON error %d, %s\n", errno, strerror(errno));
         return 0;
     }
@@ -266,7 +268,7 @@ _Bool v4l_endread(void)
     debug("stop webcam\n");
     enum v4l2_buf_type type;
     type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    if(-1 == xioctl(fd, VIDIOC_STREAMOFF, &type)) {
+    if(-1 == xioctl(utox_v4l_fd, VIDIOC_STREAMOFF, &type)) {
         debug("VIDIOC_STREAMOFF error %d, %s\n", errno, strerror(errno));
         return 0;
     }
@@ -284,7 +286,7 @@ int v4l_getframe(vpx_image_t *image)
     buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     buf.memory = V4L2_MEMORY_MMAP;//V4L2_MEMORY_USERPTR;
 
-    if (-1 == ioctl(fd, VIDIOC_DQBUF, &buf)) {
+    if (-1 == ioctl(utox_v4l_fd, VIDIOC_DQBUF, &buf)) {
         switch (errno) {
         case EINTR:
         case EAGAIN:
@@ -323,7 +325,7 @@ int v4l_getframe(vpx_image_t *image)
 
     }*/
 
-    if (-1 == xioctl(fd, VIDIOC_QBUF, &buf)) {
+    if (-1 == xioctl(utox_v4l_fd, VIDIOC_QBUF, &buf)) {
         debug("VIDIOC_QBUF error %d, %s\n", errno, strerror(errno));
     }
 

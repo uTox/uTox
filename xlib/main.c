@@ -1161,7 +1161,7 @@ static uint16_t video_x, video_y;
 _Bool video_init(void *handle)
 {
     if(isdesktop(handle)) {
-        fd = -1;
+        utox_v4l_fd = -1;
 
         video_x = volatile(grabx);
         video_y = volatile(graby);
@@ -1219,7 +1219,7 @@ void video_close(void *handle)
 
 _Bool video_startread(void)
 {
-    if(fd == -1) {
+    if(utox_v4l_fd == -1) {
         return 1;
     }
 
@@ -1228,7 +1228,7 @@ _Bool video_startread(void)
 
 _Bool video_endread(void)
 {
-    if(fd == -1) {
+    if(utox_v4l_fd == -1) {
         return 1;
     }
 
@@ -1237,7 +1237,7 @@ _Bool video_endread(void)
 
 int video_getframe(vpx_image_t *image)
 {
-    if(fd == -1) {
+    if(utox_v4l_fd == -1) {
         static uint64_t lasttime;
         uint64_t t = get_time();
         if(t - lasttime >= (uint64_t)1000 * 1000 * 1000 / 24) {
