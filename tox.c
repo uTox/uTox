@@ -272,27 +272,29 @@ static void set_callbacks(Tox *tox)
 
 static _Bool load_save(Tox *tox)
 {
-    uint8_t path[512], *p;
-    uint32_t size;
+    {
+        uint8_t path[512], *p;
+        uint32_t size;
 
-    p = path + datapath(path);
-    strcpy((char*)p, "tox_save");
-
-    void *data = file_raw((char*)path, &size);
-    if(!data) {
-        p = path + datapath_old(path);
+        p = path + datapath(path);
         strcpy((char*)p, "tox_save");
-        data = file_raw((char*)path, &size);
-        if (!data) {
-            data = file_raw("tox_save", &size);
-            if(!data) {
-                return 0;
+
+        void *data = file_raw((char*)path, &size);
+        if(!data) {
+            p = path + datapath_old(path);
+            strcpy((char*)p, "tox_save");
+            data = file_raw((char*)path, &size);
+            if (!data) {
+                data = file_raw("tox_save", &size);
+                if(!data) {
+                    return 0;
+                }
             }
         }
-    }
 
-    tox_load(tox, data, size);
-    free(data);
+        tox_load(tox, data, size);
+        free(data);
+    }
 
     friends = tox_count_friendlist(tox);
 
