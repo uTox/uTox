@@ -362,10 +362,10 @@ static void freefonts(void)
         }
 
         if(f->info) {
-            FONT_INFO *i = f->info;
-            while(i->face) {
-                FT_Done_Face(i->face);
-                i++;
+            FONT_INFO *fi = f->info;
+            while(fi->face) {
+                FT_Done_Face(fi->face);
+                fi++;
             }
             free(f->info);
         }
