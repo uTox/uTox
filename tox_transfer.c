@@ -72,11 +72,8 @@ void utox_transfer_start_file(Tox *tox, uint32_t fid, uint8_t *path, uint8_t *na
     }
 }
 
-void utox_transfer_start_memory(Tox *tox, uint16_t fid, void *pngdata)
+void utox_transfer_start_memory(Tox *tox, uint16_t fid, void *pngdata, size_t size)
 {
-    uint32_t size;
-    memcpy(&size, pngdata, 4);
-
     int filenumber = tox_new_file_sender(tox, fid, size, (uint8_t*)"inline.png", sizeof("inline.png") - 1);
     if(filenumber != -1) {
         if(filenumber > countof(friend[0].outgoing)) {
@@ -101,7 +98,7 @@ void utox_transfer_start_memory(Tox *tox, uint16_t fid, void *pngdata)
         ft->total = size;
 
         ft->data = pngdata;
-        ft->buffer = ft->data + 4;
+        ft->buffer = ft->data;
 
         if(ft->total <= ft->sendsize) {
             ft->bytes = ft->total;
@@ -126,7 +123,7 @@ static void resetft(Tox *UNUSED(tox), FILE_T *ft, uint64_t start)
     }
 
     if(ft->inline_png) {
-        ft->buffer = ft->data + 4;
+        ft->buffer = ft->data;
     } else {
         fseek(ft->data, start, SEEK_SET);
         fillbuffer(ft);

@@ -23,3 +23,6 @@
 #define fseeko fseeko64
 #define ftello ftello64
 #endif
+
+typedef HBITMAP UTOX_NATIVE_IMAGE;
+#define UTOX_NATIVE_IMAGE_IS_VALID(x) (NULL != (x))

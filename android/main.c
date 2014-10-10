@@ -60,9 +60,9 @@ void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data)
     write(pipefd[1], &piping, sizeof(PIPING));
 }
 
-void drawimage(void *data, int x, int y, int width, int height, int maxwidth, _Bool zoom, double position)
+void drawimage(UTOX_NATIVE_IMAGE data, int x, int y, int width, int height, int maxwidth, _Bool zoom, double position)
 {
-    GLuint texture = (size_t)data;
+    GLuint texture = data;
 
     if(!zoom && width > maxwidth) {
         makequad(&quads[0], x, y, x + maxwidth, y + (height * maxwidth / width));
@@ -133,20 +133,20 @@ void setselection(char_t *data, STRING_IDX length)
 {
 }
 
-void* png_to_image(void *data, uint16_t *w, uint16_t *h, uint32_t size)
+UTOX_NATIVE_IMAGE png_to_image(UTOX_PNG_IMAGE data, size_t size, uint16_t *w, uint16_t *h)
 {
     uint8_t *out;
     unsigned width, height;
-    unsigned r = lodepng_decode24(&out, &width, &height, data, size);
+    unsigned r = lodepng_decode24(&out, &width, &height, data->png_data, size);
     //free(data);
 
     if(r != 0 || !width || !height) {
-        return NULL;
+        return 0;
     }
 
     *w = width;
     *h = height;
-    GLuint texture;
+    GLuint texture = 0;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -154,7 +154,7 @@ void* png_to_image(void *data, uint16_t *w, uint16_t *h, uint32_t size)
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, out);
     free(out);
 
-    return (void*)(size_t)texture;
+    return texture;
 }
 
 void* loadsavedata(uint32_t *len)

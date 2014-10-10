@@ -145,7 +145,7 @@ void drawalpha(int bm, int x, int y, int width, int height, uint32_t color)
     DeleteObject(temp);
 }
 
-void drawimage(void *data, int x, int y, int width, int height, int maxwidth, _Bool zoom, double position)
+void drawimage(UTOX_NATIVE_IMAGE data, int x, int y, int width, int height, int maxwidth, _Bool zoom, double position)
 {
     HBITMAP bm = data;
     SelectObject(hdcMem, bm);
@@ -437,7 +437,7 @@ void savefiledata(MSG_FILE *file)
     if(GetSaveFileName(&ofn)) {
         FILE *fp = fopen(path, "wb");
         if(fp) {
-            fwrite(file->path + (file->author ? 4 : 0), file->size, 1, fp);
+            fwrite(file->path, file->size, 1, fp);
             fclose(fp);
 
             free(file->path);
@@ -619,13 +619,7 @@ static void sendbitmap(HDC mem, HBITMAP hbm, int width, int height)
     lodepng_encode_memory(&out, &size, bits, width, height, LCT_RGB, 8);
     free(bits);
 
-    uint32_t s = size;
-    void *data = malloc(size + 4);
-    memcpy(data, &s, 4);
-    memcpy(data + 4, out, size);
-    free(out);
-
-    friend_sendimage(sitem->data, hbm, data, width, height);
+    friend_sendimage(sitem->data, hbm, width, height, (UTOX_PNG_IMAGE)out, size);
 }
 
 void copy(int value)
@@ -690,11 +684,11 @@ void paste(void)
     CloseClipboard();
 }
 
-void* png_to_image(void *data, uint16_t *w, uint16_t *h, uint32_t size)
+UTOX_NATIVE_IMAGE png_to_image(UTOX_PNG_IMAGE data, uint32_t size, uint16_t *w, uint16_t *h)
 {
     uint8_t *out;
     unsigned width, height;
-    unsigned r = lodepng_decode32(&out, &width, &height, data, size);
+    unsigned r = lodepng_decode32(&out, &width, &height, data->png_data, size);
     //free(data);
 
     if(r != 0 || !width || !height) {

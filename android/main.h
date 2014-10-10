@@ -28,3 +28,8 @@
 #define KEY_PAGEDOWN 12
 
 #define KEY(x) (x)
+
+// Early include to obtain GLuint.
+#include <GLES2/gl2.h>
+typedef GLuint UTOX_NATIVE_IMAGE;
+#define UTOX_NATIVE_IMAGE_IS_VALID(x) (0 != (x))

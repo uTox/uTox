@@ -32,3 +32,8 @@
 #define KEY_PAGEDOWN XK_Page_Down
 
 #define KEY(x) (x + 'a' - 'A')
+
+// This is really a Picture, but it is just a typedef for XID, and I didn't
+// want to clutter namespace with #include <X11/extensions/Xrender.h> for it.
+typedef XID UTOX_NATIVE_IMAGE;
+#define UTOX_NATIVE_IMAGE_IS_VALID(x) (None != (x))

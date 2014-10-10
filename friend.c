@@ -28,7 +28,7 @@ void friend_setname(FRIEND *f, char_t *name, STRING_IDX length)
     f->name[f->name_length] = 0;
 }
 
-void friend_sendimage(FRIEND *f, void *data, void *pngdata, uint16_t width, uint16_t height)
+void friend_sendimage(FRIEND *f, UTOX_NATIVE_IMAGE native_image, uint16_t width, uint16_t height, UTOX_PNG_IMAGE png_image, size_t png_size)
 {
     MSG_IMG *msg = malloc(sizeof(MSG_IMG));
     msg->author = 1;
@@ -36,19 +36,22 @@ void friend_sendimage(FRIEND *f, void *data, void *pngdata, uint16_t width, uint
     msg->w = width;
     msg->h = height;
     msg->zoom = 0;
-    msg->data = data;
+    msg->image = native_image;
     msg->position = 0.0;
 
     message_add(&messages_friend, (void*)msg, &f->msg);
 
-    tox_postmessage(TOX_SEND_INLINE, f - friend, 0, pngdata);
+    struct TOX_SEND_INLINE_MSG *tsim = malloc(sizeof(struct TOX_SEND_INLINE_MSG));
+    tsim->image = png_image;
+    tsim->image_size = png_size;
+    tox_postmessage(TOX_SEND_INLINE, f - friend, 0, tsim);
 }
 
-void friend_recvimage(FRIEND *f, void *pngdata, uint32_t size)
+void friend_recvimage(FRIEND *f, UTOX_PNG_IMAGE png_image, size_t png_size)
 {
     uint16_t width, height;
-    void *data = png_to_image(pngdata, &width, &height, size);
-    if(!data) {
+    UTOX_NATIVE_IMAGE native_image = png_to_image(png_image, png_size, &width, &height);
+    if(!UTOX_NATIVE_IMAGE_IS_VALID(native_image)) {
         return;
     }
 
@@ -58,7 +61,7 @@ void friend_recvimage(FRIEND *f, void *pngdata, uint32_t size)
     msg->w = width;
     msg->h = height;
     msg->zoom = 0;
-    msg->data = data;
+    msg->image = native_image;
     msg->position = 0.0;
 
     message_add(&messages_friend, (void*)msg, &f->msg);

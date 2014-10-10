@@ -41,6 +41,11 @@ enum {
     TOX_FILE_OUT_RESUME,
 };
 
+struct TOX_SEND_INLINE_MSG {
+    size_t image_size;
+    UTOX_PNG_IMAGE image;
+};
+
 /* toxav thread messages (sent from the client thread)
  */
 enum

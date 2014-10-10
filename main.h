@@ -48,6 +48,11 @@ typedef struct
     uint8_t id[TOX_FRIEND_ADDRESS_SIZE], msg[0];
 }FRIENDREQ;
 
+typedef struct {
+    // Castless wrapper for lodepng data arguments.
+    unsigned char png_data[0];
+} *UTOX_PNG_IMAGE;
+
 typedef struct edit_change EDIT_CHANGE;
 
 #include "unused.h"
@@ -198,8 +203,8 @@ void loadalpha(int bm, void *data, int width, int height);
 void desktopgrab(_Bool video);
 void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_length);
 void setscale(void);
-void drawimage(void *data, int x, int y, int width, int height, int maxwidth, _Bool zoom, double position);
-void* png_to_image(void *data, uint16_t *w, uint16_t *h, uint32_t size);
+void drawimage(UTOX_NATIVE_IMAGE, int x, int y, int width, int height, int maxwidth, _Bool zoom, double position);
+UTOX_NATIVE_IMAGE png_to_image(UTOX_PNG_IMAGE, size_t png_size, uint16_t *w, uint16_t *h);
 void showkeyboard(_Bool show);
 void redraw(void);
 

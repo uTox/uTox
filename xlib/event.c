@@ -221,17 +221,11 @@ _Bool doevent(XEvent event)
                             lodepng_encode_memory(&out, &size, temp, img->width, img->height, LCT_RGB, 8);
                             free(temp);
 
-                            uint32_t s = size;
-                            void *data = malloc(size + 4);
-                            memcpy(data, &s, 4);
-                            memcpy(data + 4, out, size);
-                            free(out);
-
                             uint16_t w = img->width;
                             uint16_t h = img->height;
                             Picture pic = image_to_picture(img);
 
-                            friend_sendimage(f, (void*)pic, data, w, h);
+                            friend_sendimage(f, pic, w, h, (UTOX_PNG_IMAGE)out, size);
                         }
                     }
                 } else {
