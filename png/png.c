@@ -3649,11 +3649,11 @@ static unsigned get_color_profile(ColorProfile* profile,
           if(profile->numcolors < 256)
           {
             unsigned char* p = profile->palette;
-            unsigned i = profile->numcolors;
-            p[i * 4 + 0] = (unsigned char)r;
-            p[i * 4 + 1] = (unsigned char)g;
-            p[i * 4 + 2] = (unsigned char)b;
-            p[i * 4 + 3] = (unsigned char)a;
+            unsigned j = profile->numcolors;
+            p[j * 4 + 0] = (unsigned char)r;
+            p[j * 4 + 1] = (unsigned char)g;
+            p[j * 4 + 2] = (unsigned char)b;
+            p[j * 4 + 3] = (unsigned char)a;
           }
           profile->numcolors++;
           if(profile->numcolors >= profile->maxnumcolors) profile->numcolors_done = 1;
@@ -3726,11 +3726,11 @@ static unsigned get_color_profile(ColorProfile* profile,
           if(profile->numcolors < 256)
           {
             unsigned char* p = profile->palette;
-            unsigned i = profile->numcolors;
-            p[i * 4 + 0] = r;
-            p[i * 4 + 1] = g;
-            p[i * 4 + 2] = b;
-            p[i * 4 + 3] = a;
+            unsigned j = profile->numcolors;
+            p[j * 4 + 0] = r;
+            p[j * 4 + 1] = g;
+            p[j * 4 + 2] = b;
+            p[j * 4 + 3] = a;
           }
           profile->numcolors++;
           if(profile->numcolors >= profile->maxnumcolors) profile->numcolors_done = 1;
