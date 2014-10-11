@@ -628,7 +628,7 @@ static void android_main(void) /* main thread */
             eglQuerySurface(display, surface, EGL_WIDTH, &new_width);
             eglQuerySurface(display, surface, EGL_HEIGHT, &new_height);
 
-            if(new_width != width || new_height != height) {
+            if(new_width != utox_window_width || new_height != utox_window_height) {
                 utox_window_width = new_width;
                 utox_window_height = new_height;
 
