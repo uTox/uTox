@@ -31,7 +31,7 @@ _Bool v4l_getframe(vpx_image_t *image)
 #include <linux/videodev2.h>
 #endif
 
-#ifndef NO_LIBV4LCONVERT
+#ifndef NO_V4LCONVERT
 #include <libv4lconvert.h>
 #endif
 
@@ -54,7 +54,7 @@ struct buffer {
 static struct buffer *buffers;
 static uint32_t n_buffers;
 
-#ifndef NO_LIBV4LCONVERT
+#ifndef NO_V4LCONVERT
 static struct v4lconvert_data *v4lconvert_data;
 #endif
 
@@ -124,7 +124,7 @@ _Bool v4l_init(char *dev_name)
         /* Errors ignored. */
     }
 
-#ifndef NO_LIBV4LCONVERT
+#ifndef NO_V4LCONVERT
     v4lconvert_data = v4lconvert_create(fd);
 #endif
 
@@ -328,7 +328,7 @@ int v4l_getframe(vpx_image_t *image)
     void *data = (void*)buffers[buf.index].start; //length = buf.bytesused //(void*)buf.m.userptr
 
     /* assumes planes are continuous memory */
-#ifndef NO_LIBV4LCONVERT
+#ifndef NO_V4LCONVERT
     v4lconvert_convert(v4lconvert_data, &fmt, &dest_fmt, data, fmt.fmt.pix.sizeimage, image->planes[0], (video_width * video_height * 3) / 2);
 #else
     if(fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_YUYV) {

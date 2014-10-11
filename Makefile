@@ -1,7 +1,7 @@
 ## OPTIONS ##
 # set to anything else to disable them
 DBUS = 1
-LIBV4LCONVERT = 1
+V4LCONVERT = 1
 
 DEPS = fontconfig freetype2 libtoxav libtoxcore
 DEPS += openal vpx x11 xext xrender
@@ -10,7 +10,7 @@ ifeq ($(DBUS), 1)
 	DEPS += dbus-1
 endif
 
-ifeq ($(LIBV4LCONVERT), 1)
+ifeq ($(V4LCONVERT), 1)
 	DEPS += libv4lconvert
 endif
 
@@ -25,8 +25,8 @@ ifneq ($(DBUS), 1)
 	CFLAGS += -DNO_DBUS
 endif
 
-ifneq ($(LIBV4LCONVERT), 1)
-	CFLAGS += -DNO_LIBV4LCONVERT
+ifneq ($(V4LCONVERT), 1)
+	CFLAGS += -DNO_V4LCONVERT
 endif
 
 ifeq ($(UNAME_S), Linux)
