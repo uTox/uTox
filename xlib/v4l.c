@@ -35,7 +35,7 @@ _Bool v4l_getframe(vpx_image_t *image)
 
 #define CLEAR(x) memset(&(x), 0, sizeof(x))
 
-static int xioctl(int fh, int request, void *arg)
+static int xioctl(int fh, unsigned long request, void *arg)
 {
     int r;
 
