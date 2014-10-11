@@ -25,7 +25,12 @@ _Bool v4l_getframe(vpx_image_t *image)
 }
 #else
 #include <sys/mman.h>
+#ifdef __OpenBSD__
+#include <sys/videoio.h>
+#else
 #include <linux/videodev2.h>
+#endif
+
 #include <libv4lconvert.h>
 
 #define CLEAR(x) memset(&(x), 0, sizeof(x))
