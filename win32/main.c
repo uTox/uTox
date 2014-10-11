@@ -684,7 +684,7 @@ void paste(void)
     CloseClipboard();
 }
 
-UTOX_NATIVE_IMAGE png_to_image(UTOX_PNG_IMAGE data, uint32_t size, uint16_t *w, uint16_t *h)
+UTOX_NATIVE_IMAGE png_to_image(UTOX_PNG_IMAGE data, size_t size, uint16_t *w, uint16_t *h)
 {
     uint8_t *out;
     unsigned width, height;
