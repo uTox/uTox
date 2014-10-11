@@ -28,8 +28,8 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
         return;
     }
 
-    if(baseline && y > baseline - font_small_lineheight - 4 * SCALE) {
-        y = baseline - font_small_lineheight - 4 * SCALE;
+    if(utox_window_baseline && y > utox_window_baseline - font_small_lineheight - 4 * SCALE) {
+        y = utox_window_baseline - font_small_lineheight - 4 * SCALE;
     }
 
     edit->width = width -4 * SCALE - (edit->multiline ? SCROLL_WIDTH : 0);
@@ -72,12 +72,12 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
 
 _Bool edit_mmove(EDIT *edit, int px, int py, int width, int height, int x, int y, int dx, int dy)
 {
-    if(baseline && py > baseline - font_small_lineheight - 4 * SCALE) {
-        y += py - (baseline - font_small_lineheight - 4 * SCALE);
-        py = baseline - font_small_lineheight - 4 * SCALE;
+    if(utox_window_baseline && py > utox_window_baseline - font_small_lineheight - 4 * SCALE) {
+        y += py - (utox_window_baseline - font_small_lineheight - 4 * SCALE);
+        py = utox_window_baseline - font_small_lineheight - 4 * SCALE;
     }
 
-    _Bool redraw = 0;
+    _Bool need_redraw = 0;
 
     _Bool mouseover = inrect(x, y, 0, 0, width - (edit->multiline ? SCROLL_WIDTH : 0), height);
     if(mouseover) {
@@ -86,20 +86,20 @@ _Bool edit_mmove(EDIT *edit, int px, int py, int width, int height, int x, int y
     if(mouseover != edit->mouseover) {
         edit->mouseover = mouseover;
         if(edit != active_edit) {
-            redraw = 1;
+            need_redraw = 1;
         }
     }
 
     if(edit->multiline) {
-        redraw |= scroll_mmove(edit->scroll, px, py, width, height, x, y, dx, dy);
+        need_redraw |= scroll_mmove(edit->scroll, px, py, width, height, x, y, dx, dy);
         y += scroll_gety(edit->scroll, height);
     }
 
     if(edit == active_edit && edit_select) {
         if (edit->select_completely) {
             edit_setfocus(edit);
-            redraw = 1;
-            return redraw;
+            need_redraw = 1;
+            return need_redraw;
         }
  
         setfont(FONT_TEXT);
@@ -117,14 +117,14 @@ _Bool edit_mmove(EDIT *edit, int px, int py, int width, int height, int x, int y
         if(start != edit_sel.start || length != edit_sel.length) {
             edit_sel.start = start;
             edit_sel.length = length;
-            redraw = 1;
+            need_redraw = 1;
         }
     } else if(mouseover) {
         setfont(FONT_TEXT);
         edit->mouseover_char = hittextmultiline(x - 2 * SCALE, width - 4 * SCALE - (edit->multiline ? SCROLL_WIDTH : 0), y - 2 * SCALE, INT_MAX, font_small_lineheight, edit->data, edit->length, edit->multiline);
     }
 
-    return redraw;
+    return need_redraw;
 }
 
 _Bool edit_mdown(EDIT *edit)

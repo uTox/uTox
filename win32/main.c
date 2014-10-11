@@ -789,7 +789,7 @@ void showkeyboard(_Bool show)
 
 void redraw(void)
 {
-    panel_draw(&panel_main, 0, 0, width, height);
+    panel_draw(&panel_main, 0, 0, utox_window_width, utox_window_height);
 }
 
 static int grabx, graby, grabpx, grabpy;
@@ -1174,12 +1174,12 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_SIZE: {
         switch(wParam) {
         case SIZE_MAXIMIZED: {
-            maximized = 1;
+            utox_window_maximized = 1;
             break;
         }
 
         case SIZE_RESTORED: {
-            maximized = 0;
+            utox_window_maximized = 0;
             break;
         }
         }
@@ -1195,8 +1195,8 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
             w = r.right;
             h = r.bottom;
 
-            width = w;
-            height = h;
+            utox_window_width = w;
+            utox_window_height = h;
 
             debug("%u %u\n", w, h);
 
@@ -1207,7 +1207,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
                 DeleteObject(hdc_bm);
             }
 
-            hdc_bm = CreateCompatibleBitmap(main_hdc, width, height);
+            hdc_bm = CreateCompatibleBitmap(main_hdc, utox_window_width, utox_window_height);
             SelectObject(hdc, hdc_bm);
             redraw();
         }
@@ -1306,7 +1306,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     }
 
     case WM_MOUSEWHEEL: {
-        panel_mwheel(&panel_main, 0, 0, width, height, (double)((int16_t)HIWORD(wParam)) / (double)(WHEEL_DELTA));
+        panel_mwheel(&panel_main, 0, 0, utox_window_width, utox_window_height, (double)((int16_t)HIWORD(wParam)) / (double)(WHEEL_DELTA));
         return 0;
     }
 
@@ -1322,7 +1322,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
         my = y;
 
         cursor = 0;
-        panel_mmove(&panel_main, 0, 0, width, height, x, y, dx, dy);
+        panel_mmove(&panel_main, 0, 0, utox_window_width, utox_window_height, x, y, dx, dy);
 
         SetCursor(cursors[cursor]);
 
@@ -1342,7 +1342,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
         y = GET_Y_LPARAM(lParam);
 
         if(x != mx || y != my) {
-            panel_mmove(&panel_main, 0, 0, width, height, x, y, x - mx, y - my);
+            panel_mmove(&panel_main, 0, 0, utox_window_width, utox_window_height, x, y, x - mx, y - my);
             mx = x;
             my = y;
         }

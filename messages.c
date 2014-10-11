@@ -45,10 +45,13 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
 
         setcolor(LIST_MAIN);
         setfont(FONT_MISC);
-        char timestr[6];
-        STRING_IDX len;
-        len = snprintf(timestr, sizeof(timestr), "%u:%.2u", msg->time / 60, msg->time % 60);
-        drawtext(x + width - TIME_WIDTH, y, (char_t*)timestr, len);
+
+        {
+            char timestr[6];
+            STRING_IDX len;
+            len = snprintf(timestr, sizeof(timestr), "%u:%.2u", msg->time / 60, msg->time % 60);
+            drawtext(x + width - TIME_WIDTH, y, (char_t*)timestr, len);
+        }
 
         if(m->type) {
             /* group */
@@ -151,13 +154,13 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
                     setcolor(GRAY(98));
                 }
 
-                int x = xx + BM_FTM_WIDTH + SCALE;
-                drawalpha(BM_FTB1, x, y, BM_FTB_WIDTH, BM_FTB_HEIGHT + SCALE, (mo && m->over == 1) ? C_GREEN_LIGHT : C_GREEN);
-                drawalpha(BM_NO, x + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2, y + SCALE * 4, BM_FB_WIDTH, BM_FB_HEIGHT, WHITE);
+                int xxx = xx + BM_FTM_WIDTH + SCALE;
+                drawalpha(BM_FTB1, xxx, y, BM_FTB_WIDTH, BM_FTB_HEIGHT + SCALE, (mo && m->over == 1) ? C_GREEN_LIGHT : C_GREEN);
+                drawalpha(BM_NO, xxx + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2, y + SCALE * 4, BM_FB_WIDTH, BM_FB_HEIGHT, WHITE);
 
                 uint32_t color = ((msg->author && file->status == FILE_PENDING) || file->status == FILE_BROKEN || file->status == FILE_PAUSED_OTHER) ? C_GRAY: ((mo && m->over == 2) ? C_GREEN_LIGHT : C_GREEN);
-                drawalpha(BM_FTB2, x, y + BM_FTB_HEIGHT + SCALE * 2, BM_FTB_WIDTH, BM_FTB_HEIGHT, color);
-                drawalpha((!msg->author && file->status ==  FILE_PENDING) ? BM_YES : (file->status == FILE_PAUSED ? BM_RESUME : BM_PAUSE), x + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2, y + BM_FTB_HEIGHT + SCALE * 5, BM_FB_WIDTH, BM_FB_HEIGHT, color == C_GRAY ? LIST_MAIN : WHITE);
+                drawalpha(BM_FTB2, xxx, y + BM_FTB_HEIGHT + SCALE * 2, BM_FTB_WIDTH, BM_FTB_HEIGHT, color);
+                drawalpha((!msg->author && file->status ==  FILE_PENDING) ? BM_YES : (file->status == FILE_PAUSED ? BM_RESUME : BM_PAUSE), xxx + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2, y + BM_FTB_HEIGHT + SCALE * 5, BM_FB_WIDTH, BM_FB_HEIGHT, color == C_GRAY ? LIST_MAIN : WHITE);
 
 
                 uint64_t progress = file->progress;
@@ -246,7 +249,7 @@ _Bool messages_mmove(MESSAGES *m, int UNUSED(px), int UNUSED(py), int width, int
 
     void **p = m->data->data;
     MSG_IDX i = 0, n = m->data->n;
-    _Bool redraw = 0;
+    _Bool need_redraw = 0;
 
     while(i != n) {
         MESSAGE *msg = *p++;
@@ -361,7 +364,7 @@ _Bool messages_mmove(MESSAGES *m, int UNUSED(px), int UNUSED(py), int width, int
                 }
 
                 if(over != m->over) {
-                    redraw = 1;
+                    need_redraw = 1;
                     m->over = over;
                 }
 
@@ -370,7 +373,7 @@ _Bool messages_mmove(MESSAGES *m, int UNUSED(px), int UNUSED(py), int width, int
             }
 
             if((i != m->iover) && (m->iover != MSG_IDX_MAX) && ((msg->msg_type == MSG_TYPE_FILE) || (((MESSAGE*)(m->data->data[m->iover]))->msg_type == MSG_TYPE_FILE))) {
-                redraw = 1; // Redraw file on hover-in/out.
+                need_redraw = 1; // Redraw file on hover-in/out.
             }
 
             m->iover = i;
@@ -406,11 +409,11 @@ _Bool messages_mmove(MESSAGES *m, int UNUSED(px), int UNUSED(py), int width, int
                     m->data->end = end;
                     m->data->istart = istart;
                     m->data->iend = iend;
-                    redraw = 1;
+                    need_redraw = 1;
                 }
 
             }
-            return redraw;
+            return need_redraw;
         }
 
         my -= dy;
@@ -637,17 +640,17 @@ _Bool messages_mleave(MESSAGES *UNUSED(m))
     return 0;
 }
 
-int messages_selection(MESSAGES *m, void *data, uint32_t len, _Bool names)
+int messages_selection(MESSAGES *m, void *buffer, uint32_t len, _Bool names)
 {
     if(m->data->n == 0) {
-        *(char_t*)data = 0;
+        *(char_t*)buffer = 0;
         return 0;
     }
 
     MSG_IDX i = m->data->istart, n = m->data->iend + 1;
     void **dp = &m->data->data[i];
 
-    char_t *p = data;
+    char_t *p = buffer;
 
     while(i != n) {
         MESSAGE *msg = *dp++;
@@ -749,7 +752,7 @@ int messages_selection(MESSAGES *m, void *data, uint32_t len, _Bool names)
     BREAK:
     *p = 0;
 
-    return (void*)p - data;
+    return (void*)p - buffer;
 }
 
 static int msgheight(MESSAGE *msg, int width)

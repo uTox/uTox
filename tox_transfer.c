@@ -303,11 +303,11 @@ void utox_thread_work_for_transfers(Tox *tox, uint64_t time)
         case FT_SEND: {
             while(tox_file_send_data(tox, ft->fid, ft->filenumber, ft->buffer, ft->buffer_bytes) != -1) {
                 if(time - ft->lastupdate >= 1000 * 1000 * 50 || ft->bytes - ft->lastprogress >= 1024 * 1024) {
-                    FILE_PROGRESS *p = malloc(sizeof(FILE_PROGRESS));
-                    p->bytes = ft->bytes;
-                    p->speed = (time - ft->lastupdate) == 0 ? 0 : ((ft->bytes - ft->lastprogress) * 1000 * 1000 * 1000) / (time - ft->lastupdate);
+                    FILE_PROGRESS *fp = malloc(sizeof(FILE_PROGRESS));
+                    fp->bytes = ft->bytes;
+                    fp->speed = (time - ft->lastupdate) == 0 ? 0 : ((ft->bytes - ft->lastprogress) * 1000 * 1000 * 1000) / (time - ft->lastupdate);
 
-                    postmessage(FRIEND_FILE_OUT_PROGRESS, ft->fid, ft->filenumber, p);
+                    postmessage(FRIEND_FILE_OUT_PROGRESS, ft->fid, ft->filenumber, fp);
 
                     ft->lastupdate = time;
                     ft->lastprogress = ft->bytes;

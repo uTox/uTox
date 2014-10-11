@@ -254,7 +254,7 @@ static void video_thread(void *args)
                 int i;
                 for(i = 0; i < MAX_CALLS; i++) {
                     if(call[i]) {
-                        int r, len;
+                        int rr, len;
                         if((len = toxav_prepare_video_frame(av, i, lbuffer, sizeof(lbuffer), &input)) < 0) {
                             debug("toxav_prepare_video_frame error %i\n", len);
                             continue;
@@ -262,8 +262,8 @@ static void video_thread(void *args)
 
                         debug("%u\n", len);
 
-                        if((r = toxav_send_video(av, i, (void*)lbuffer, len)) < 0) {
-                            debug("toxav_send_video error %i %s\n", r, strerror(errno));
+                        if((rr = toxav_send_video(av, i, (void*)lbuffer, len)) < 0) {
+                            debug("toxav_send_video error %i %s\n", rr, strerror(errno));
                         }
                     }
                 }

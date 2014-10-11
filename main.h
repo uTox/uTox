@@ -109,8 +109,8 @@ GROUPCHAT group[1024];
 uint32_t friends, groups;
 
 //window
-int width, height, baseline;
-_Bool maximized;
+int utox_window_width, utox_window_height, utox_window_baseline;
+_Bool utox_window_maximized;
 
 enum
 {

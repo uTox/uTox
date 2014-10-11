@@ -695,10 +695,10 @@ void setscale(void)
 
     XSetWMNormalHints(display, window, xsh);
 
-    if(width > 320 * SCALE && height > 160 * SCALE)
+    if(utox_window_width > 320 * SCALE && utox_window_height > 160 * SCALE)
     {
         /* wont get a resize event, call this manually */
-        ui_size(width, height);
+        ui_size(utox_window_width, utox_window_height);
     }
 }
 
@@ -912,9 +912,9 @@ int main(int argc, char *argv[])
     }
 
     /* set the width/height of the drawing region */
-    width = DEFAULT_WIDTH;
-    height = DEFAULT_HEIGHT;
-    ui_size(width, height);
+    utox_window_width = DEFAULT_WIDTH;
+    utox_window_height = DEFAULT_HEIGHT;
+    ui_size(utox_window_width, utox_window_height);
 
     /* wait for the tox thread to finish initializing */
     while(!tox_thread_init) {
@@ -925,7 +925,7 @@ int main(int argc, char *argv[])
     list_start();
 
     /* draw */
-    panel_draw(&panel_main, 0, 0, width, height);
+    panel_draw(&panel_main, 0, 0, utox_window_width, utox_window_height);
 
     /* event loop */
     while(1) {
@@ -945,7 +945,7 @@ int main(int argc, char *argv[])
         }
 
         if(_redraw) {
-            panel_draw(&panel_main, 0, 0, width, height);
+            panel_draw(&panel_main, 0, 0, utox_window_width, utox_window_height);
             _redraw = 0;
         }
     }
@@ -1161,7 +1161,7 @@ static uint16_t video_x, video_y;
 _Bool video_init(void *handle)
 {
     if(isdesktop(handle)) {
-        fd = -1;
+        utox_v4l_fd = -1;
 
         video_x = volatile(grabx);
         video_y = volatile(graby);
@@ -1219,7 +1219,7 @@ void video_close(void *handle)
 
 _Bool video_startread(void)
 {
-    if(fd == -1) {
+    if(utox_v4l_fd == -1) {
         return 1;
     }
 
@@ -1228,7 +1228,7 @@ _Bool video_startread(void)
 
 _Bool video_endread(void)
 {
-    if(fd == -1) {
+    if(utox_v4l_fd == -1) {
         return 1;
     }
 
@@ -1237,7 +1237,7 @@ _Bool video_endread(void)
 
 int video_getframe(vpx_image_t *image)
 {
-    if(fd == -1) {
+    if(utox_v4l_fd == -1) {
         static uint64_t lasttime;
         uint64_t t = get_time();
         if(t - lasttime >= (uint64_t)1000 * 1000 * 1000 / 24) {

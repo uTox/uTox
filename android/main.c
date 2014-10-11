@@ -305,8 +305,8 @@ static _Bool init_display(void)
     eglQuerySurface(display, surface, EGL_WIDTH, &w);
     eglQuerySurface(display, surface, EGL_HEIGHT, &h);
 
-    width = w;
-    height = h;
+    utox_window_width = w;
+    utox_window_height = h;
 
     return gl_init();
 }
@@ -490,7 +490,7 @@ static void android_main(void) /* main thread */
                         case AMOTION_EVENT_ACTION_POINTER_DOWN: {
                             lx = x;
                             ly = y;
-                            panel_mmove(&panel_main, 0, 0, width, height, x, y, 0, 0);
+                            panel_mmove(&panel_main, 0, 0, utox_window_width, utox_window_height, x, y, 0, 0);
                             panel_mdown(&panel_main);
                             //pointer[pointer_index].down = true;
                             //pointer[pointer_index].x = x;
@@ -516,7 +516,7 @@ static void android_main(void) /* main thread */
                         }
 
                         case AMOTION_EVENT_ACTION_MOVE: {
-                            panel_mmove(&panel_main, 0, 0, width, height, x, y, x - lx, y - ly);
+                            panel_mmove(&panel_main, 0, 0, utox_window_width, utox_window_height, x, y, x - lx, y - ly);
                             lx = x;
                             ly = y;
                             //pointer[pointer_index].x = x;
@@ -629,26 +629,26 @@ static void android_main(void) /* main thread */
             eglQuerySurface(display, surface, EGL_HEIGHT, &new_height);
 
             if(new_width != width || new_height != height) {
-                width = new_width;
-                height = new_height;
+                utox_window_width = new_width;
+                utox_window_height = new_height;
 
                 float vec[4];
-                vec[0] = -(float)width / 2.0;
-                vec[1] = -(float)height / 2.0;
-                vec[2] = 2.0 / (float)width;
-                vec[3] = -2.0 / (float)height;
+                vec[0] = -(float)utox_window_width / 2.0;
+                vec[1] = -(float)utox_window_height / 2.0;
+                vec[2] = 2.0 / (float)utox_window_width;
+                vec[3] = -2.0 / (float)utox_window_height;
                 glUniform4fv(matrix, 1, vec);
 
-                ui_size(width, height);
+                ui_size(utox_window_width, utox_window_height);
 
-                glViewport(0, 0, width, height);
+                glViewport(0, 0, utox_window_width, utox_window_height);
 
                 _redraw = 1;
             }
 
             if(_redraw) {
                 _redraw = 0;
-                panel_draw(&panel_main, 0, 0, width, height);
+                panel_draw(&panel_main, 0, 0, utox_window_width, utox_window_height);
             }
         }
 
@@ -693,7 +693,7 @@ static void onContentRectChanged(ANativeActivity* activity, const ARect* r)
     rect = *r;
     debug("rect: %u %u %u %u\n", rect.left, rect.right, rect.top, rect.bottom);
 
-    baseline = rect.bottom;
+    utox_window_baseline = rect.bottom;
     _redraw = 1;
 }
 

@@ -37,7 +37,7 @@ typedef struct {
     uint8_t zeroes[2];
 } LOG_FILE_MSG_HEADER;
 
-void log_write(Tox *tox, int fid, const uint8_t *message, uint16_t length, _Bool self, uint8_t msg_type)
+void log_write(Tox *tox, int fid, const uint8_t *message, uint16_t length, _Bool author, uint8_t msg_type)
 {
     if(!logging_enabled) {
         return;
@@ -61,7 +61,7 @@ void log_write(Tox *tox, int fid, const uint8_t *message, uint16_t length, _Bool
         time_t rawtime;
         time(&rawtime);
 
-        if(self) {
+        if(author) {
             namelen = tox_get_self_name(tox, name);
         } else if((namelen = tox_get_name(tox, fid, name)) == -1) {
             //error reading name
@@ -72,7 +72,7 @@ void log_write(Tox *tox, int fid, const uint8_t *message, uint16_t length, _Bool
             .time = rawtime,
             .namelen = namelen,
             .length = length,
-            .flags = self,
+            .flags = author,
             .msg_type = msg_type,
         };
 
@@ -272,27 +272,29 @@ static void set_callbacks(Tox *tox)
 
 static _Bool load_save(Tox *tox)
 {
-    uint8_t path[512], *p;
-    uint32_t size;
+    {
+        uint8_t path[512], *p;
+        uint32_t size;
 
-    p = path + datapath(path);
-    strcpy((char*)p, "tox_save");
-
-    void *data = file_raw((char*)path, &size);
-    if(!data) {
-        p = path + datapath_old(path);
+        p = path + datapath(path);
         strcpy((char*)p, "tox_save");
-        data = file_raw((char*)path, &size);
-        if (!data) {
-            data = file_raw("tox_save", &size);
-            if(!data) {
-                return 0;
+
+        void *data = file_raw((char*)path, &size);
+        if(!data) {
+            p = path + datapath_old(path);
+            strcpy((char*)p, "tox_save");
+            data = file_raw((char*)path, &size);
+            if (!data) {
+                data = file_raw("tox_save", &size);
+                if(!data) {
+                    return 0;
+                }
             }
         }
-    }
 
-    tox_load(tox, data, size);
-    free(data);
+        tox_load(tox, data, size);
+        free(data);
+    }
 
     friends = tox_count_friendlist(tox);
 
@@ -1038,9 +1040,9 @@ static void call_notify(FRIEND *f, uint8_t status)
     friend_addmessage_notify(f, str->str, str->length);
 }
 
-void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
+void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void *data)
 {
-    switch(msg) {
+    switch(tox_message_id) {
     case DHT_CONNECTED: {
         /* param1: connection status (1 = connected, 0 = disconnected)
          */
@@ -1332,7 +1334,7 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
     case PREVIEW_FRAME_NEW:
     case PREVIEW_FRAME: {
         if(video_preview) {
-            video_frame(0, data, param1, param2, msg == PREVIEW_FRAME_NEW);
+            video_frame(0, data, param1, param2, tox_message_id == PREVIEW_FRAME_NEW);
         }
         free(data);
         break;
@@ -1342,7 +1344,7 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
     case FRIEND_FILE_IN_NEW_INLINE: {
         FRIEND *f = &friend[param1];
         FILE_T *ft = &f->incoming[param2];
-        _Bool inline_png = (msg == FRIEND_FILE_IN_NEW_INLINE);
+        _Bool inline_png = (tox_message_id == FRIEND_FILE_IN_NEW_INLINE);
 
         MSG_FILE *msg = malloc(sizeof(MSG_FILE));
         msg->author = 0;
@@ -1370,7 +1372,7 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
     case FRIEND_FILE_OUT_NEW_INLINE: {
         FRIEND *f = &friend[param1];
         FILE_T *ft = &f->outgoing[param2];
-        _Bool inline_png = (msg == FRIEND_FILE_OUT_NEW_INLINE);
+        _Bool inline_png = (tox_message_id == FRIEND_FILE_OUT_NEW_INLINE);
 
         MSG_FILE *msg = malloc(sizeof(MSG_FILE));
         msg->author = 1;
@@ -1542,7 +1544,7 @@ void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
             free(g->peername[param2]);
         }
 
-        if(msg == GROUP_PEER_ADD) {
+        if(tox_message_id == GROUP_PEER_ADD) {
             uint8_t *n = malloc(10);
             n[0] = 9;
             memcpy(n + 1, "<unknown>", 9);

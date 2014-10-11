@@ -28,7 +28,7 @@ void dropdown_drawactive(void)
         }
     }
 
-    if(y + h * b->dropcount > height) {
+    if(y + h * b->dropcount > utox_window_height) {
         y -= h * (b->dropcount - 1);
         sign = -1;
     }
@@ -76,7 +76,7 @@ _Bool dropdown_mmove(DROPDOWN *b, int UNUSED(x), int y, int w, int h, int mx, in
 {
     if(b->open) {
         int over = my / h;
-        if(y + h * b->dropcount > height) {
+        if(y + h * b->dropcount > utox_window_height) {
             over = my > 0 ? 0 : ((-my) / h + 1);
         }
         if(over < b->dropcount) {
