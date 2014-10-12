@@ -27,12 +27,19 @@ _Bool v4l_getframe(vpx_image_t *image)
 }
 #else
 #include <sys/mman.h>
+#ifdef __OpenBSD__
+#include <sys/videoio.h>
+#else
 #include <linux/videodev2.h>
+#endif
+
+#ifndef NO_V4LCONVERT
 #include <libv4lconvert.h>
+#endif
 
 #define CLEAR(x) memset(&(x), 0, sizeof(x))
 
-static int xioctl(int fh, int request, void *arg)
+static int xioctl(int fh, unsigned long request, void *arg)
 {
     int r;
 
@@ -48,7 +55,11 @@ struct buffer {
 };
 static struct buffer *buffers;
 static uint32_t n_buffers;
+
+#ifndef NO_V4LCONVERT
 static struct v4lconvert_data *v4lconvert_data;
+#endif
+
 static struct v4l2_format fmt, dest_fmt = {
     //.type = V4L2_BUF_TYPE_VIDEO_CAPTURE,
     .fmt = {
@@ -115,7 +126,9 @@ _Bool v4l_init(char *dev_name)
         /* Errors ignored. */
     }
 
+#ifndef NO_V4LCONVERT
     v4lconvert_data = v4lconvert_create(utox_v4l_fd);
+#endif
 
     CLEAR(fmt);
 
@@ -317,13 +330,15 @@ int v4l_getframe(vpx_image_t *image)
     void *data = (void*)buffers[buf.index].start; //length = buf.bytesused //(void*)buf.m.userptr
 
     /* assumes planes are continuous memory */
+#ifndef NO_V4LCONVERT
     v4lconvert_convert(v4lconvert_data, &fmt, &dest_fmt, data, fmt.fmt.pix.sizeimage, image->planes[0], (video_width * video_height * 3) / 2);
-
-    /*if(fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_YUYV) {
+#else
+    if(fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_YUYV) {
         yuv422to420(image->planes[0], image->planes[1], image->planes[2], data, video_width, video_height);
     } else {
 
-    }*/
+    }
+#endif
 
     if (-1 == xioctl(utox_v4l_fd, VIDIOC_QBUF, &buf)) {
         debug("VIDIOC_QBUF error %d, %s\n", errno, strerror(errno));
