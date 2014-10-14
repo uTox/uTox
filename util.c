@@ -141,6 +141,8 @@ _Bool string_to_id(char_t *w, char_t *a)
             v = (c - '0') << 4;
         } else if(c >= 'A' && c <= 'F') {
             v = (c - 'A' + 10) << 4;
+        } else if(c >= 'a' && c <= 'f') {
+            v = (c - 'a' + 10) << 4;
         } else {
             return 0;
         }
@@ -150,6 +152,8 @@ _Bool string_to_id(char_t *w, char_t *a)
             v |= (c - '0');
         } else if(c >= 'A' && c <= 'F') {
             v |= (c - 'A' + 10);
+        } else if(c >= 'a' && c <= 'f') {
+            v |= (c - 'a' + 10);
         } else {
             return 0;
         }
