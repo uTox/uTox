@@ -163,3 +163,10 @@ LANG_WINDOWS_ID(0x0404)
 #include "langs/tw.h"
 #undef _LANG_ID
 
+//"DANISH" "Dansk"
+#define _LANG_ID LANG_DK
+LANG_POSIX_LOCALE("da_DK")
+LANG_WINDOWS_ID(0x0406)
+#include "langs/en.h" //fallback to English for untranslated things
+#include "langs/da.h"
+#undef _LANG_ID
