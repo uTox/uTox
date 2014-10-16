@@ -100,4 +100,4 @@ jarsigner -sigalg SHA1withRSA -digestalg SHA1 -keystore ./tmp/debug.keystore -st
   - [32-bit](https://jenkins.libtoxcore.so/view/Clients/job/uTox_win32/) [[.zip]](https://jenkins.libtoxcore.so/view/Clients/job/uTox_win32/lastSuccessfulBuild/artifact/utox/utox_win32.zip)
   - [64-bit](https://jenkins.libtoxcore.so/view/Clients/job/uTox_win64/) [[.zip]](https://jenkins.libtoxcore.so/view/Clients/job/uTox_win64/lastSuccessfulBuild/artifact/utox/utox_win64.zip)
 - OS X (not available)
-- [Android](https://jenkins.libtoxcore.so/view/Clients/job/uTox_android/) [[.apk]](https://jenkins.libtoxcore.so/view/Clients/job/uTox_android/lastSuccessfulBuild/artifact/future.apk)
+- [Android](https://jenkins.libtoxcore.so/view/Clients/job/uTox_android/) [[.apk]](https://jenkins.libtoxcore.so/job/uTox_android/lastSuccessfulBuild/artifact/utox.apk)
