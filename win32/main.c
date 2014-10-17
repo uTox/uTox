@@ -975,14 +975,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
 {
     /* if opened with argument, check if uTox is already open and pass the argument to the existing process */
     CreateMutex(NULL, 0, "uTox");
-    if(*cmd && GetLastError() == ERROR_ALREADY_EXISTS) {
+    if(GetLastError() == ERROR_ALREADY_EXISTS) {
         HWND hwnd = FindWindow("uTox", NULL);
         SetForegroundWindow(hwnd);
-        COPYDATASTRUCT data = {
-            .cbData = strlen(cmd),
-            .lpData = cmd
-        };
-        SendMessage(hwnd, WM_COPYDATA, (WPARAM)hInstance, (LPARAM)&data);
+        if (*cmd) {
+            COPYDATASTRUCT data = {
+                .cbData = strlen(cmd),
+                .lpData = cmd
+            };
+            SendMessage(hwnd, WM_COPYDATA, (WPARAM)hInstance, (LPARAM)&data);
+        }
         return 0;
     }
 
