@@ -148,6 +148,9 @@ msgstr("Changing Network/Proxy settings will temporarily disconnect you from the
 msgid(LOGGING)
 msgstr("Logging")
 
+msgid(AUDIONOTIFICATIONS)
+msgstr("Enable Audible Notification (Ringtone)")
+
 msgid(IS_TYPING)
 msgstr("is typing...")
 

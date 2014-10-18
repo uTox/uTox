@@ -563,6 +563,7 @@ UTOX_SAVE* config_load(void)
     save->proxy_port = 0;
     save->proxyenable = 0;
     save->logging_enabled = 0;
+    save->audible_notifications_enabled = 1;
     save->proxy_ip[0] = 0;
 
     config_osdefaults(save);
@@ -572,6 +573,7 @@ NEXT:
     dropdown_udp.selected = dropdown_udp.over = (save->disableudp != 0);
     dropdown_proxy.selected = dropdown_proxy.over = save->proxyenable <= 2 ? save->proxyenable : 2;
     dropdown_logging.selected = dropdown_logging.over = save->logging_enabled;
+    dropdown_audible_notification.selected = dropdown_audible_notification.over = !save->audible_notifications_enabled;
 
     options.ipv6enabled = save->enableipv6;
     options.udp_disabled = save->disableudp;
@@ -585,6 +587,7 @@ NEXT:
     }
 
     logging_enabled = save->logging_enabled;
+    audible_notifications_enabled = save->audible_notifications_enabled;
 
     return save;
 }
@@ -608,6 +611,7 @@ void config_save(UTOX_SAVE *save)
     save->disableudp = dropdown_udp.selected;
     save->proxyenable = dropdown_proxy.selected;
     save->logging_enabled = logging_enabled;
+    save->audible_notifications_enabled = audible_notifications_enabled;
     save->proxy_port = options.proxy_port;
 
     fwrite(save, sizeof(*save), 1, file);
