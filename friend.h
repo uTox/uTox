@@ -1,3 +1,6 @@
+
+#define MAX_FILE_TRANSFERS 32
+
 typedef struct friend {
     _Bool online, typing, notify;
     uint8_t calling, status;
@@ -13,8 +16,8 @@ typedef struct friend {
     EDIT_CHANGE **edit_history;
     uint16_t edit_history_cur, edit_history_length;
 
-    FILE_T incoming[16];
-    FILE_T outgoing[16];
+    FILE_T incoming[MAX_FILE_TRANSFERS];
+    FILE_T outgoing[MAX_FILE_TRANSFERS];
 } FRIEND;
 
 typedef struct groupchat {
