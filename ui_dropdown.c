@@ -93,6 +93,14 @@ static void dropdown_logging_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
     logging_enabled = !!i;
 }
 
+static void dropdown_notifications_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
+{
+    audible_notifications_enabled = !i;
+}
+
+
+
+
 static UI_STRING_ID dpidrops[] = {
     STR_DPI_TINY,
     STR_DPI_NORMAL,
@@ -179,4 +187,11 @@ dropdown_logging = {
     .onselect = dropdown_logging_onselect,
     .dropcount = countof(noyesdrops),
     .userdata = noyesdrops
+},
+
+dropdown_audible_notification = {
+    .ondisplay = simple_dropdown_ondisplay,
+    .onselect = dropdown_notifications_onselect,
+    .dropcount = countof(yesnodrops),
+    .userdata = yesnodrops
 };

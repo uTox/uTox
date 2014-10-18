@@ -1,4 +1,3 @@
-
 static void av_start(int32_t call_index, void *arg)
 {
     ToxAvCSettings peer_settings;
@@ -308,6 +307,8 @@ static void video_thread(void *args)
 static ALCdevice *device_out, *device_in;
 static ALCcontext *context;
 static ALuint source[MAX_CALLS];
+static ALuint ringSrc = 0;
+
 
 static ALCdevice* alcopencapture(void *handle)
 {
@@ -440,6 +441,7 @@ static void audio_thread(void *args)
     }
 
     alGenSources(countof(source), source);
+    alGenSources(1, &ringSrc);
 
     audio_thread_init = 1;
 
@@ -554,6 +556,70 @@ static void audio_thread(void *args)
                 }
                 break;
             }
+
+            case AUDIO_PLAY_RINGTONE:
+                {
+
+                     if(!audible_notifications_enabled)
+                     {
+                        break;
+                     }
+
+
+                    /* Create buffer to store samples */
+                    ALuint RingBuffer;
+                    alGenBuffers(1, &RingBuffer);
+
+
+                    float frequency1 = 441.f;
+                    float frequency2 = 882.f;
+                    int seconds = 10.0;
+                    unsigned sample_rate = 22050;
+                    size_t buf_size = seconds * sample_rate *2; //16 bit (2 bytes per sample)
+                    short *samples=0;
+                    samples = (short*)malloc(buf_size*sizeof(short));
+
+
+                    /*Generate an electronic ringer sound that quickly alternates between two frequencies*/
+                    int index=0;
+                    for(index=0; index<buf_size; ++index)
+                    {
+                        if(( index/(sample_rate )) %4<2 )//4 second ring cycle, first 2 secondsring, the rest(2 seconds) is silence
+                        {
+                            if((index/1000)%2==1 )
+                            {
+                                samples[index] = 5000 * sin( (2.0*3.1415926*frequency1)/sample_rate * index ); //5000=amplitude(volume level). It can be from zero to 32700
+
+                            }
+                            else
+                            {
+                                samples[index] = 5000 * sin( (2.0*3.1415926*frequency2)/sample_rate * index );
+                            }
+                        }
+                        else
+                        {
+                            samples[index]=0;
+                        }
+                    }
+
+
+                    alBufferData(RingBuffer, AL_FORMAT_MONO16, samples, buf_size, sample_rate);
+                    alSourcei(ringSrc, AL_BUFFER, RingBuffer);
+                    alSourcePlay(ringSrc);
+                    if(samples)
+                        free(samples);
+                    break;
+                }
+
+
+            case AUDIO_STOP_RINGTONE:
+                {
+                    ALint state;
+                    alGetSourcei(ringSrc, AL_SOURCE_STATE, &state);
+                    if(state==AL_PLAYING)
+                        alSourceStop(ringSrc);
+                    break;
+                }
 
             }
 

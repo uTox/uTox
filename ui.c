@@ -233,6 +233,10 @@ static void drawsettings_content(int UNUSED(x), int y, int UNUSED(w), int UNUSED
     setfont(FONT_MISC);
     setcolor(C_RED);
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 302, WARNING);
+
+    setcolor(C_TITLE);
+    setfont(FONT_TEXT);
+    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 334, AUDIONOTIFICATIONS);
 }
 
 static void background_draw(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int width, int height)
@@ -346,6 +350,7 @@ panel_settings = {
         (void*)&dropdown_audio_in, (void*)&dropdown_audio_out, (void*)&dropdown_video,
         (void*)&dropdown_dpi, (void*)&dropdown_language, (void*)&dropdown_proxy,
         (void*)&dropdown_ipv6, (void*)&dropdown_udp, (void*)&dropdown_logging,
+        (void*)&dropdown_audible_notification,
         NULL
     }
 },
@@ -710,6 +715,15 @@ void ui_scale(uint8_t scale)
         .y = SCALE * 320,
         .height = SCALE * 12,
         .width = SCALE * 20
+    },
+
+
+    d_notifications = {
+        .type = PANEL_DROPDOWN,
+        .x = 5 * SCALE,
+        .y = SCALE * 343,
+        .height = SCALE * 12,
+        .width = SCALE * 20
     };
 
     dropdown_audio_in.panel = d_audio_in;
@@ -722,6 +736,9 @@ void ui_scale(uint8_t scale)
     dropdown_ipv6.panel = d_ipv6;
     dropdown_udp.panel = d_udp;
     dropdown_logging.panel = d_logging;
+    dropdown_audible_notification.panel = d_notifications;
+
+
 
     PANEL e_name = {
         .type = PANEL_EDIT,
