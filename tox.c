@@ -756,7 +756,6 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
         settings.max_video_width = max_video_width;
         settings.max_video_height = max_video_height;
 
-
         toxav_change_settings(av, param2, &settings);
         postmessage(FRIEND_CALL_START_VIDEO, param1, param2, NULL);
         break;
@@ -1025,7 +1024,6 @@ static void call_notify(FRIEND *f, uint8_t status)
     case CALL_INVITED:
     case CALL_INVITED_VIDEO:
         str = SPTR(CALL_INVITED);
-        toxaudio_postmessage(AUDIO_PLAY_RINGTONE, 0, 0, NULL);
         break;
     case CALL_RINGING:
     case CALL_RINGING_VIDEO:
@@ -1033,7 +1031,6 @@ static void call_notify(FRIEND *f, uint8_t status)
     case CALL_OK:
     case CALL_OK_VIDEO:
         str = SPTR(CALL_STARTED);
-        toxaudio_postmessage(AUDIO_STOP_RINGTONE, 0, 0, NULL);
         break;
     case CALL_NONE:
     default: //render unknown status as "call cancelled"
