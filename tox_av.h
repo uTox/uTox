@@ -29,7 +29,7 @@ static void callback_av_invite(void *arg, int32_t call_index, void *UNUSED(userd
     _Bool video = (peer_settings.call_type == TypeVideo);
 
     postmessage(FRIEND_CALL_STATUS, fid, call_index, (void*)(size_t)(video ? CALL_INVITED_VIDEO : CALL_INVITED));
-    toxaudio_postmessage(AUDIO_PLAY_RINGTONE, 0, 0, NULL);
+    toxaudio_postmessage(AUDIO_PLAY_RINGTONE, call_index, 0, NULL);
 
     debug("A/V Invite (%i)\n", call_index);
 }
@@ -37,7 +37,7 @@ static void callback_av_invite(void *arg, int32_t call_index, void *UNUSED(userd
 static void callback_av_start(void *arg, int32_t call_index, void *UNUSED(userdata))
 {
     av_start(call_index, arg);
-    toxaudio_postmessage(AUDIO_STOP_RINGTONE, 0, 0, NULL);
+    toxaudio_postmessage(AUDIO_STOP_RINGTONE, call_index, 0, NULL);
 
     debug("A/V Start (%i)\n", call_index);
 }
@@ -45,7 +45,7 @@ static void callback_av_start(void *arg, int32_t call_index, void *UNUSED(userda
 #define endcall() \
     int fid = toxav_get_peer_id(arg, call_index, 0); \
     postmessage(FRIEND_CALL_STATUS, fid, call_index, (void*)(size_t)CALL_NONE); \
-    toxaudio_postmessage(AUDIO_STOP_RINGTONE, 0, 0, NULL);
+    toxaudio_postmessage(AUDIO_STOP_RINGTONE, call_index, 0, NULL);
 
 #define stopcall() \
     toxav_kill_transmission(arg, call_index); \
@@ -310,7 +310,6 @@ static void video_thread(void *args)
 static ALCdevice *device_out, *device_in;
 static ALCcontext *context;
 static ALuint source[MAX_CALLS];
-static ALuint ringSrc = 0;
 
 
 static ALCdevice* alcopencapture(void *handle)
@@ -444,8 +443,14 @@ static void audio_thread(void *args)
     }
 
     alGenSources(countof(source), source);
-    alGenSources(1, &ringSrc);
-    alSourcei(ringSrc, AL_LOOPING, AL_TRUE);
+
+    static ALuint ringSrc[MAX_CALLS];
+    alGenSources(MAX_CALLS, ringSrc);
+
+    unsigned int i;
+    for (i = 0; i < MAX_CALLS; ++i) {
+        alSourcei(ringSrc[i], AL_LOOPING, AL_TRUE);
+    }
 
     audio_thread_init = 1;
 
@@ -595,17 +600,18 @@ static void audio_thread(void *args)
                 }
 
                 alBufferData(RingBuffer, AL_FORMAT_MONO16, samples, buf_size, sample_rate);
-                alSourcei(ringSrc, AL_BUFFER, RingBuffer);
-                alSourcePlay(ringSrc);
+                alSourcei(ringSrc[m->param1], AL_BUFFER, RingBuffer);
+                alSourcePlay(ringSrc[m->param1]);
                 free(samples);
                 break;
             }
 
             case AUDIO_STOP_RINGTONE: {
                     ALint state;
-                    alGetSourcei(ringSrc, AL_SOURCE_STATE, &state);
+                    alGetSourcei(ringSrc[m->param1], AL_SOURCE_STATE, &state);
                     if(state == AL_PLAYING)
-                        alSourceStop(ringSrc);
+                        alSourceStop(ringSrc[m->param1]);
+
                     break;
                 }
 
