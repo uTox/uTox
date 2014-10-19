@@ -445,6 +445,7 @@ static void audio_thread(void *args)
 
     alGenSources(countof(source), source);
     alGenSources(1, &ringSrc);
+    alSourcei(ringSrc, AL_LOOPING, AL_TRUE);
 
     audio_thread_init = 1;
 
@@ -571,7 +572,7 @@ static void audio_thread(void *args)
 
                 float frequency1 = 441.f;
                 float frequency2 = 882.f;
-                int seconds = 10;
+                int seconds = 4;
                 unsigned sample_rate = 22050;
                 size_t buf_size = seconds * sample_rate * 2; //16 bit (2 bytes per sample)
                 int16_t *samples = 0;
@@ -582,7 +583,7 @@ static void audio_thread(void *args)
                 /*Generate an electronic ringer sound that quickly alternates between two frequencies*/
                 int index = 0;
                 for(index = 0; index < buf_size; ++index) {
-                    if ((index/(sample_rate )) % 4 < 2 ) {//4 second ring cycle, first 2 secondsring, the rest(2 seconds) is silence
+                    if ((index / (sample_rate)) % 4 < 2 ) {//4 second ring cycle, first 2 secondsring, the rest(2 seconds) is silence
                         if((index / 1000) % 2 == 1) {
                             samples[index] = 5000 * sin((2.0 * 3.1415926 * frequency1) / sample_rate * index); //5000=amplitude(volume level). It can be from zero to 32700
                         } else {
