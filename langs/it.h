@@ -128,10 +128,13 @@ msgid(NETWORK)
 msgstr("Rete")
 
 msgid(WARNING)
-msgstr("Cambiando le impostazioni del Network o del Proxy, verrai temporaneamente disconnesso dalla rete Tox")
+msgstr("Cambiando le impostazioni della Rete o del Proxy, verrai temporaneamente disconnesso dalla rete Tox")
 
 msgid(LOGGING)
 msgstr("Salvare i log delle chat?")
+
+msgid(AUDIONOTIFICATIONS)
+msgstr("Abilita notifiche audio per le chiamate (Suoneria)")
 
 msgid(IS_TYPING)
 msgstr("sta scrivendo...")
