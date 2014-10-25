@@ -5,7 +5,7 @@ msgid(LANG_ENGLISH_NAME)
 msgstr("HUNGARIAN")
 
 msgid(REQ_SENT)
-msgstr("Partnerkérelem elküldve. A partner elérhető lesz, miután a kérelmet elf$
+msgstr("Partnerkérelem elküldve. A partner elérhető lesz, miután a kérelmet elfogadta.")
 
 msgid(REQ_RESOLVE)
 msgstr("DNS név feloldásának kísérlete...")
