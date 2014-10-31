@@ -11,6 +11,7 @@ struct button {
     uint32_t c1, c2, c3;
 
     MAYBE_I18NAL_STRING button_text;
+    MAYBE_I18NAL_STRING tooltip_text;
 
     _Bool mouseover, mousedown, disabled, nodraw;
 

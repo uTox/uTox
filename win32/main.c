@@ -943,6 +943,8 @@ void update_tray(void)
     Shell_NotifyIconW(NIM_MODIFY, &nid);
 
     free(tip);
+void force_redraw(void) {
+    redraw();
 }
 
 static int grabx, graby, grabpx, grabpy;
