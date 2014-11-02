@@ -20,8 +20,9 @@ enum {
     LANG_TW,
     LANG_CS,
     LANG_DK,
+    LANG_HU,
     //Do NOT add new values beyond this point, or alter LANGS_MAX accordingly.
-    LANGS_MAX = LANG_DK
+    LANGS_MAX = LANG_HU
 };
 
 enum {

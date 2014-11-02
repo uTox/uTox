@@ -170,3 +170,11 @@ LANG_WINDOWS_ID(0x0406)
 #include "langs/en.h" //fallback to English for untranslated things
 #include "langs/da.h"
 #undef _LANG_ID
+
+//"HUNGARIAN" "Magyar"
+#define _LANG_ID LANG_HU
+LANG_POSIX_LOCALE("hu_HU")
+LANG_WINDOWS_ID(0x040E)
+#include "langs/en.h" //fallback to English for untranslated things
+#include "langs/hu.h"
+#undef _LANG_ID
