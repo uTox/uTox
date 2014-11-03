@@ -1185,6 +1185,7 @@ _Bool panel_mup(PANEL *p)
 
     if(p == &panel_main) {
         draw |= contextmenu_mup();
+        tooltip_mup();
         if(draw) {
             redraw();
         }

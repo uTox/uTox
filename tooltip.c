@@ -66,6 +66,7 @@ _Bool tooltip_mdown(void)
     TOOLTIP *b = &tooltip;
 
     b->can_show = 0;
+    b->mouse_down = 1;
 
     if(!b->visible) {
         return 0;
@@ -73,6 +74,14 @@ _Bool tooltip_mdown(void)
 
     b->visible = 0;
     return 1;
+}
+_Bool tooltip_mup(void)
+{
+    TOOLTIP *b = &tooltip;
+
+    b->can_show = 0;
+    b->mouse_down = 0;
+    return 0;
 }
 
 void tooltip_show(void)
@@ -101,7 +110,7 @@ void tooltip_new(MAYBE_I18NAL_STRING* text)
     b->can_show = 1;
     b->tt_text = text;
 
-    if(b->timer_running || b->visible) {
+    if(b->timer_running || b->visible || b->mouse_down) {
         return;
     }
     thread(mouse_pos_check,NULL);
@@ -116,10 +125,9 @@ void mouse_pos_check(void *UNUSED(args))
         if(mouse.x - old_x == 0 && mouse.y - old_y == 0) {
             if(tick >= 10) {
                 // 1 second of not moving, show tooltip
-                if(b->can_show) {
+                if(b->can_show && !b->mouse_down) {
                     tooltip_show();
                 }
-                tick = 0;
                 break;
             } else {
                 tick++;
@@ -132,5 +140,7 @@ void mouse_pos_check(void *UNUSED(args))
         }
         yieldcpu(100);
     }
+    tick = 0;
+    b->visible = 1;
     b->timer_running = 0;
 }
