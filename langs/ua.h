@@ -46,9 +46,8 @@ msgstr("Передача файлу")
 msgid(TRANSFER_STARTED)
 msgstr("Розпочато передачу файлу")
 
-//TODO: Same as in English? Localize or remove.
-//msgid(TRANSFER___)
-//msgstr("...")
+msgid(TRANSFER___)
+msgstr("...")
 
 msgid(TRANSFER_PAUSED)
 msgstr("Призупинено передачу файлу")
@@ -77,9 +76,8 @@ msgstr("Розпочато розмову")
 msgid(ADDFRIENDS)
 msgstr("Додати друзів")
 
-//TODO: Same as in English? Localize or remove.
-//msgid(TOXID)
-//msgstr("Tox ID")
+msgid(TOXID)
+msgstr("Tox ID")
 
 msgid(MESSAGE)
 msgstr("Повідомлення")
@@ -135,13 +133,11 @@ msgstr("Мова")
 msgid(NETWORK)
 msgstr("Мережа")
 
-//TODO: Same as in English? Localize or remove.
-//msgid(IPV6)
-//msgstr("IPv6:")
+msgid(IPV6)
+msgstr("IPv6:")
 
-//TODO: Same as in English? Localize or remove.
-//msgid(UDP)
-//msgstr("UDP:")
+msgid(UDP)
+msgstr("UDP:")
 
 msgid(PROXY)
 msgstr("Проксі (SOCKS 5)")
@@ -152,9 +148,11 @@ msgstr("Зміна налаштувань мережі або проксі-се�
 msgid(LOGGING)
 msgstr("Зберігати історію чату")
 
-//TODO: Same as in English? Localize or remove.
-//msgid(IS_TYPING)
-//msgstr("is typing...")
+msgid(AUDIONOTIFICATIONS)
+msgstr("Ввімкнути звукове сповіщення (рингтон)")
+
+msgid(IS_TYPING)
+msgstr("набирає...")
 
 msgid(COPY)
 msgstr("Копіювати")
@@ -195,83 +193,66 @@ msgstr("Натисніть для відкриття")
 msgid(CANCELLED)
 msgstr("Скасовано")
 
-//TODO: Localize or remove.
-//msgid(DPI_TINY)
-//msgstr("Tiny (50%)")
+msgid(DPI_TINY)
+msgstr("Дрібний (50%)")
 
-//TODO: Localize or remove.
-//msgid(DPI_NORMAL)
-//msgstr("Normal (100%)")
+msgid(DPI_NORMAL)
+msgstr("Нормальний (100%)")
 
-//TODO: Localize or remove.
-//msgid(DPI_BIG)
-//msgstr("Big (150%)")
+msgid(DPI_BIG)
+msgstr("Крупний (150%)")
 
-//TODO: Localize or remove.
-//msgid(DPI_LARGE)
-//msgstr("Large (200%)")
+msgid(DPI_LARGE)
+msgstr("Великий (200%)")
 
-//TODO: Localize or remove.
-//msgid(DPI_HUGE)
-//msgstr("Huge (250%)")
+msgid(DPI_HUGE)
+msgstr("Дуже великий (250%)")
 
-//TODO: Localize or remove.
-//msgid(CONTACTS_FILTER_ALL)
-//msgstr("All")
+msgid(CONTACTS_FILTER_ALL)
+msgstr("Всі")
 
-//TODO: Localize or remove.
-//msgid(CONTACTS_FILTER_ONLINE)
-//msgstr("Online")
+msgid(CONTACTS_FILTER_ONLINE)
+msgstr("В мережі")
 
-//TODO: Localize or remove.
-//msgid(PROXY_DISABLED)
-//msgstr("Disabled")
+msgid(PROXY_DISABLED)
+msgstr("Відключено")
 
-//TODO: Localize or remove.
-//msgid(PROXY_FALLBACK)
-//msgstr("Fallback")
+msgid(PROXY_FALLBACK)
+msgstr("За потреби")
 
-//TODO: Localize or remove.
-//msgid(PROXY_ALWAYS_USE)
-//msgstr("Always use")
+msgid(PROXY_ALWAYS_USE)
+msgstr("Завжди")
 
-//TODO: Localize or remove.
-//msgid(NO)
-//msgstr("No")
+msgid(NO)
+msgstr("Ні")
 
-//TODO: Localize or remove.
-//msgid(YES)
-//msgstr("Yes")
+msgid(YES)
+msgstr("Так")
 
 //TODO: Localize or remove.
 //msgid(VIDEO_IN_NONE)
-//msgstr("None")
+//msgstr("None") //Не вибрано
 
 //TODO: Localize or remove.
 //msgid(VIDEO_IN_DESKTOP)
-//msgstr("Desktop")
+//msgstr("Desktop") //Стільниця
 
-//TODO: Localize or remove.
-//msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
-//msgstr("Please accept this friend request.")
+msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
+msgstr("Будь ласка, додайте мене в друзі.")
 
-//TODO: Localize or remove.
-//msgid(CONTACTS_FILTER_EDIT_HINT)
-//msgstr("Search friends")
+msgid(CONTACTS_FILTER_EDIT_HINT)
+msgstr("Пошук друзів")
 
 //TODO: Localize or remove.
 //msgid(PROXY_EDIT_HINT_IP)
 //msgstr("IP")
 
-//TODO: Localize or remove.
-//msgid(PROXY_EDIT_HINT_PORT)
-//msgstr("Port")
+msgid(PROXY_EDIT_HINT_PORT)
+msgstr("Порт")
 
 //TODO: Localize or remove.
 //msgid(AUDIO_IN_DEFAULT_LOOPBACK)
 //msgstr("Default Loopback")
 
-//TODO: Localize or remove.
-//msgid(WINDOW_TITLE_VIDEO_PREVIEW)
-//msgstr("Video Preview")
-
+msgid(WINDOW_TITLE_VIDEO_PREVIEW)
+msgstr("Попередній перегляд відео")
