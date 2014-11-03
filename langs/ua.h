@@ -237,22 +237,21 @@ msgstr("Так")
 //msgid(VIDEO_IN_DESKTOP)
 //msgstr("Desktop") //Стільниця
 
+//TODO: Localize or remove.
+//msgid(AUDIO_IN_DEFAULT_LOOPBACK)
+//msgstr("Default Loopback")
+
 msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
 msgstr("Будь ласка, додайте мене в друзі.")
 
 msgid(CONTACTS_FILTER_EDIT_HINT)
 msgstr("Пошук друзів")
 
-//TODO: Localize or remove.
-//msgid(PROXY_EDIT_HINT_IP)
-//msgstr("IP")
+msgid(PROXY_EDIT_HINT_IP)
+msgstr("IP")
 
 msgid(PROXY_EDIT_HINT_PORT)
 msgstr("Порт")
-
-//TODO: Localize or remove.
-//msgid(AUDIO_IN_DEFAULT_LOOPBACK)
-//msgstr("Default Loopback")
 
 msgid(WINDOW_TITLE_VIDEO_PREVIEW)
 msgstr("Попередній перегляд відео")
