@@ -152,7 +152,7 @@ msgid(AUDIONOTIFICATIONS)
 msgstr("Ввімкнути звукове сповіщення (рингтон)")
 
 msgid(IS_TYPING)
-msgstr("набирає...")
+msgstr("набирає повідомлення...")
 
 msgid(COPY)
 msgstr("Копіювати")
@@ -229,9 +229,8 @@ msgstr("Ні")
 msgid(YES)
 msgstr("Так")
 
-//TODO: Localize or remove.
-//msgid(VIDEO_IN_NONE)
-//msgstr("None") //Не вибрано
+msgid(VIDEO_IN_NONE)
+msgstr("Не вибрано")
 
 //TODO: Localize or remove.
 //msgid(VIDEO_IN_DESKTOP)
