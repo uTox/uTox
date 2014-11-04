@@ -252,3 +252,6 @@ msgstr("Porta")
 //msgid(WINDOW_TITLE_VIDEO_PREVIEW)
 //msgstr("Video Preview")
 
+//TODO: Localize or remove.
+//msgid(AUDIONOTIFICATIONS)
+//msgstr("Enable Audible Notification (Ringtone)")

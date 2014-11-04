@@ -255,3 +255,6 @@ msgstr("Порт")
 msgid(WINDOW_TITLE_VIDEO_PREVIEW)
 msgstr("Попередній перегляд відео")
 
+//TODO: Localize or remove.
+//msgid(AUDIONOTIFICATIONS)
+//msgstr("Enable Audible Notification (Ringtone)")

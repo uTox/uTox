@@ -212,3 +212,6 @@ msgstr("Standard Loopback")
 msgid(WINDOW_TITLE_VIDEO_PREVIEW)
 msgstr("Video Vorschau")
 
+//TODO: Localize or remove.
+//msgid(AUDIONOTIFICATIONS)
+//msgstr("Enable Audible Notification (Ringtone)")

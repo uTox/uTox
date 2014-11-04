@@ -250,3 +250,6 @@ msgstr("Find venner")
 msgid(WINDOW_TITLE_VIDEO_PREVIEW)
 msgstr("Video prøve")
 
+//TODO: Localize or remove.
+//msgid(AUDIONOTIFICATIONS)
+//msgstr("Enable Audible Notification (Ringtone)")
