@@ -139,13 +139,29 @@ void friend_add(char_t *name, STRING_IDX length, char_t *msg, STRING_IDX msg_len
         return;
     }
 
+    uint8_t name_cleaned[length];
+    uint16_t length_cleaned = 0;
+
+    unsigned int i;
+    for (i = 0; i < length; ++i) {
+        if (name[i] != ' ') {
+            name_cleaned[length_cleaned] = name[i];
+            ++length_cleaned;
+        }
+    }
+
+    if(!length_cleaned) {
+        addfriend_status = ADDF_NONAME;
+        return;
+    }
+
     uint8_t id[TOX_FRIEND_ADDRESS_SIZE];
-    if(length == TOX_FRIEND_ADDRESS_SIZE * 2 && string_to_id(id, name)) {
+    if(length_cleaned == TOX_FRIEND_ADDRESS_SIZE * 2 && string_to_id(id, name_cleaned)) {
         friend_addid(id, msg, msg_length);
     } else {
         /* not a regular id, try DNS discovery */
         addfriend_status = ADDF_DISCOVER;
-        dns_request(name, length);
+        dns_request(name_cleaned, length_cleaned);
     }
 }
 
