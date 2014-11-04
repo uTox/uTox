@@ -130,6 +130,9 @@ msgstr("Modifier les paramètres Réseau/Proxy vous déconnectera du réseau Tox
 msgid(LOGGING)
 msgstr("Historique")
 
+msgid(AUDIONOTIFICATIONS)
+msgstr("Activer les notifications audio (Sonnerie)")
+
 msgid(IS_TYPING)
 msgstr("en train d'écrire...")
 
@@ -214,11 +217,9 @@ msgstr("Veuillez accepter cette requête d'ami.")
 msgid(CONTACTS_FILTER_EDIT_HINT)
 msgstr("Recherche d'ami")
 
-//TODO: Localize or remove.
-//msgid(AUDIO_IN_DEFAULT_LOOPBACK)
-//msgstr("Default Loopback")
+msgid(AUDIO_IN_DEFAULT_LOOPBACK)
+msgstr("Par défaut")
 
-//TODO: Localize or remove.
-//msgid(WINDOW_TITLE_VIDEO_PREVIEW)
-//msgstr("Video Preview")
+msgid(WINDOW_TITLE_VIDEO_PREVIEW)
+msgstr("Aperçu vidéo")
 
