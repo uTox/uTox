@@ -69,7 +69,7 @@ static void button_add_onpress(void)
 
 static void button_groups_onpress(void)
 {
-    tox_postmessage(TOX_NEWGROUP, 0, 0, NULL);
+    tox_postmessage(TOX_NEWGROUP, 1, 0, NULL);
 }
 
 static void button_transfer_onpress(void)

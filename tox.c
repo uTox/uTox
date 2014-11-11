@@ -794,7 +794,12 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
     case TOX_NEWGROUP: {
         /*
          */
-        int g = tox_add_groupchat(tox);
+        int g = -1;
+        if (param1) {
+            g = toxav_add_av_groupchat(tox, &callback_av_group_audio, NULL);
+        } else {
+            g = tox_add_groupchat(tox);
+        }
         if(g != -1) {
             postmessage(GROUP_ADD, g, 0, NULL);
         }
