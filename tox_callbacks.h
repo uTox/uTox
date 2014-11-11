@@ -151,14 +151,21 @@ static void callback_connection_status(Tox *tox, int fid, uint8_t status, void *
     debug("Friend Online/Offline (%u): %u\n", fid, status);
 }
 
-static void callback_group_invite(Tox *tox, int fid, const uint8_t *data, uint16_t length, void *UNUSED(userdata))
+static void callback_group_invite(Tox *tox, int fid, uint8_t type, const uint8_t *data, uint16_t length, void *UNUSED(userdata))
 {
-    int gid = tox_join_groupchat(tox, fid, data, length);
+    int gid = -1;
+    if (type == TOX_GROUPCHAT_TYPE_TEXT) {
+        gid = tox_join_groupchat(tox, fid, data, length);
+    } else if (type == TOX_GROUPCHAT_TYPE_AV) {
+        //gid = toxav_join_av_groupchat(tox, fid, data, length, &callback_av_group_audio, NULL);
+        gid = -1;
+    }
+
     if(gid != -1) {
         postmessage(GROUP_ADD, gid, 0, NULL);
     }
 
-    debug("Group Invite (%i,f:%i)\n", gid, fid);
+    debug("Group Invite (%i,f:%i) type %u\n", gid, fid, type);
 }
 
 static void callback_group_message(Tox *tox, int gid, int pid, const uint8_t *message, uint16_t length, void *UNUSED(userdata))
