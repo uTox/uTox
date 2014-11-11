@@ -775,7 +775,7 @@ int main(int argc, char *argv[])
             debug("Launching uTox in portable mode: All data will be saved to the tox folder in the current working directory\n");
             utox_portable = 1;
         } else {
-            debug("Valid arguments are: --version and --portable (launches uTox in portable mode)\n", VERSION);
+            debug("Valid arguments are: --version and --portable (launches uTox in portable mode)\n");
             return 0;
         }
     }

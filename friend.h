@@ -20,12 +20,15 @@ typedef struct friend {
     FILE_T outgoing[MAX_FILE_TRANSFERS];
 } FRIEND;
 
+#define MAX_GROUP_PEERS 256
+
 typedef struct groupchat {
     uint32_t peers;
     STRING_IDX name_length, topic_length, typed_length;
     char_t name[128], topic[128]; //static sizes for now
     char_t *typed;
-    char_t *peername[256];
+    char_t *peername[MAX_GROUP_PEERS];
+    unsigned int source[MAX_GROUP_PEERS];
 
     EDIT_CHANGE **edit_history;
     uint16_t edit_history_cur, edit_history_length;

@@ -186,12 +186,12 @@ static void callback_group_namelist_change(Tox *tox, int gid, int pid, uint8_t c
 {
     switch(change) {
     case TOX_CHAT_CHANGE_PEER_ADD: {
-        postmessage(GROUP_PEER_ADD, gid, pid, NULL);
+        postmessage(GROUP_PEER_ADD, gid, pid, tox);
         break;
     }
 
     case TOX_CHAT_CHANGE_PEER_DEL: {
-        postmessage(GROUP_PEER_DEL, gid, pid, NULL);
+        postmessage(GROUP_PEER_DEL, gid, pid, tox);
         break;
     }
 

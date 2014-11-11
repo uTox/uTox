@@ -360,6 +360,20 @@ static void deleteitem(ITEM *i)
 
         tox_postmessage(TOX_LEAVEGROUP, (g - group), 0, NULL);
 
+        unsigned int j;
+        for (j = 0; j < g->peers; ++j) {
+            if(g->peername[j]) {
+                free(g->peername[j]);
+                g->peername[j] = NULL;
+            }
+
+            group_av_peer_remove(g, j);
+        }
+
+        if (g->peers > 1) {
+            toxaudio_postmessage(GROUP_AUDIO_CALL_END, 0, 0, NULL);
+        }
+
         group_free(g);
         break;
     }
