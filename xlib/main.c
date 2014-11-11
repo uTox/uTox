@@ -93,6 +93,8 @@ void *libgtk;
 
 #include "freetype.c"
 
+_Bool utox_portable;
+
 struct
 {
     int len;
@@ -652,12 +654,20 @@ int datapath_old(uint8_t *dest)
 
 int datapath(uint8_t *dest)
 {
-    char *home = getenv("HOME");
-    int l = sprintf((char*)dest, "%.230s/.config/tox", home);
-    mkdir((char*)dest, 0700);
-    dest[l++] = '/';
+    if (utox_portable) {
+        int l = sprintf((char*)dest, "./tox");
+        mkdir((char*)dest, 0700);
+        dest[l++] = '/';
 
-    return l;
+        return l;
+    } else {
+        char *home = getenv("HOME");
+        int l = sprintf((char*)dest, "%.230s/.config/tox", home);
+        mkdir((char*)dest, 0700);
+        dest[l++] = '/';
+
+        return l;
+    }
 }
 
 void flush_file(FILE *file)
@@ -760,6 +770,12 @@ int main(int argc, char *argv[])
     if(argc == 2 && argv[1]) {
         if(!strcmp(argv[1], "--version")) {
             debug("%s\n", VERSION);
+            return 0;
+        } else if(!strcmp(argv[1], "--portable")) {
+            debug("Launching uTox in portable mode: All data will be saved to the tox folder in the current working directory\n");
+            utox_portable = 1;
+        } else {
+            debug("Valid arguments are: --version and --portable (launches uTox in portable mode)\n", VERSION);
             return 0;
         }
     }
