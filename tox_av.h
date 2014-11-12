@@ -311,7 +311,6 @@ static ALCdevice *device_out, *device_in;
 static ALCcontext *context;
 static ALuint source[MAX_CALLS];
 
-
 static ALCdevice* alcopencapture(void *handle)
 {
     if(!handle) {
@@ -322,7 +321,11 @@ static ALCdevice* alcopencapture(void *handle)
         return handle;
     }
 
-    return alcCaptureOpenDevice(handle, av_DefaultSettings.audio_sample_rate, AL_FORMAT_MONO16, (av_DefaultSettings.audio_frame_duration * av_DefaultSettings.audio_sample_rate * 4) / 1000);
+    if (av_DefaultSettings.audio_channels == 1) {
+        return alcCaptureOpenDevice(handle, av_DefaultSettings.audio_sample_rate, AL_FORMAT_MONO16, (av_DefaultSettings.audio_frame_duration * av_DefaultSettings.audio_sample_rate * 4) / 1000);
+    } else {
+        return alcCaptureOpenDevice(handle, av_DefaultSettings.audio_sample_rate, AL_FORMAT_STEREO16, ((av_DefaultSettings.audio_frame_duration * av_DefaultSettings.audio_sample_rate * 4) / 1000) * av_DefaultSettings.audio_channels);
+    }
 }
 
 static void alccapturestart(void *handle)
@@ -398,7 +401,7 @@ static void audio_thread(void *args)
     _Bool call[MAX_CALLS] = {0}, preview = 0;
 
     int perframe = (av_DefaultSettings.audio_frame_duration * av_DefaultSettings.audio_sample_rate) / 1000;
-    uint8_t buf[perframe * 2], dest[perframe * 2];
+    uint8_t buf[perframe * 2 * av_DefaultSettings.audio_channels], dest[perframe * 2 * av_DefaultSettings.audio_channels];
     uint8_t audio_count = 0;
     _Bool record_on = 0;
 
@@ -677,14 +680,14 @@ static void audio_thread(void *args)
 
             if(frame) {
                 if(preview) {
-                    sourceplaybuffer(0, (int16_t*)buf, perframe, 1, av_DefaultSettings.audio_sample_rate);
+                    sourceplaybuffer(0, (int16_t*)buf, perframe, av_DefaultSettings.audio_channels, av_DefaultSettings.audio_sample_rate);
                 }
 
                 int i;
                 for(i = 0; i < MAX_CALLS; i++) {
                     if(call[i]) {
                         int r;
-                        if((r = toxav_prepare_audio_frame(av, i, dest, perframe * 2, (void*)buf, perframe)) < 0) {
+                        if((r = toxav_prepare_audio_frame(av, i, dest, sizeof(dest), (void*)buf, perframe)) < 0) {
                             debug("toxav_prepare_audio_frame error %i\n", r);
                             continue;
                         }
@@ -702,7 +705,7 @@ static void audio_thread(void *args)
                     int32_t chats[num_chats];
                     uint32_t max = tox_get_chatlist(tox, chats, num_chats);
                     for (i = 0; i < max; ++i) {
-                        int ret = toxav_group_send_audio(tox, chats[i], buf, perframe, 1, av_DefaultSettings.audio_sample_rate);
+                        int ret = toxav_group_send_audio(tox, chats[i], buf, perframe, av_DefaultSettings.audio_channels, av_DefaultSettings.audio_sample_rate);
                         debug("toxav_group_send_audio %i\n", ret);
                     }
                 }
