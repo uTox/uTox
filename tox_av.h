@@ -539,6 +539,21 @@ static void audio_thread(void *args)
                 device_out = device;
 
                 alGenSources(countof(source), source);
+                alGenSources(MAX_CALLS, ringSrc);
+
+                Tox *tox = toxav_get_tox(av);
+                uint32_t num_chats = tox_count_chatlist(tox);
+
+                if (num_chats != 0) {
+                    int32_t chats[num_chats];
+                    uint32_t max = tox_get_chatlist(tox, chats, num_chats);
+                    for (i = 0; i < max; ++i) {
+                        if (tox_group_get_type(tox, chats[i]) == TOX_GROUPCHAT_TYPE_AV) {
+                            GROUPCHAT *g = &group[chats[i]];
+                            alGenSources(g->peers, source);
+                        }
+                    }
+                }
 
                 debug("set audio out\n");
                 break;
