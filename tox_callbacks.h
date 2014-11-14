@@ -213,3 +213,15 @@ static void callback_group_namelist_change(Tox *tox, int gid, int pid, uint8_t c
     }
     debug("Group Namelist Change (%u, %u): %u\n", gid, pid, change);
 }
+
+static void callback_group_title(Tox *tox, int gid, int pid, const uint8_t *title, uint8_t length, void *UNUSED(userdata))
+{
+    uint8_t *copy_title = malloc(length);
+    if (!copy_title)
+        return;
+
+    memcpy(copy_title, title, length);
+    postmessage(GROUP_TITLE, gid, length, copy_title);
+
+    debug("Group Title (%u, %u): %.*s\n", gid, pid, length, title);
+}

@@ -402,6 +402,8 @@ static void audio_thread(void *args)
 
     int perframe = (av_DefaultSettings.audio_frame_duration * av_DefaultSettings.audio_sample_rate) / 1000;
     uint8_t buf[perframe * 2 * av_DefaultSettings.audio_channels], dest[perframe * 2 * av_DefaultSettings.audio_channels];
+    memset(buf, 0, sizeof(buf));
+
     uint8_t audio_count = 0;
     _Bool record_on = 0;
 
@@ -706,7 +708,6 @@ static void audio_thread(void *args)
                     uint32_t max = tox_get_chatlist(tox, chats, num_chats);
                     for (i = 0; i < max; ++i) {
                         int ret = toxav_group_send_audio(tox, chats[i], buf, perframe, av_DefaultSettings.audio_channels, av_DefaultSettings.audio_sample_rate);
-                        debug("toxav_group_send_audio %i\n", ret);
                     }
                 }
             }

@@ -266,6 +266,7 @@ static void set_callbacks(Tox *tox)
     tox_callback_group_message(tox, callback_group_message, NULL);
     tox_callback_group_action(tox, callback_group_action, NULL);
     tox_callback_group_namelist_change(tox, callback_group_namelist_change, NULL);
+    tox_callback_group_title(tox, callback_group_title, NULL);
 
     utox_set_callbacks_for_transfer(tox);
 }
@@ -819,6 +820,16 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
          * param2: friend #
          */
         tox_invite_friend(tox, param2, param1);
+        break;
+    }
+
+    case TOX_GROUPCHANGETOPIC: {
+        /* param1: group #
+         * param2: topic length
+         * data: topic
+         */
+        tox_group_set_title(tox, param1, data, param2);
+        postmessage(GROUP_TITLE, param1, param2, data);
         break;
     }
 
@@ -1588,6 +1599,22 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
 
         updategroup(g);
 
+        break;
+    }
+
+    case GROUP_TITLE: {
+        GROUPCHAT *g = &group[param1];
+
+        if (param2 > sizeof(g->name)) {
+            memcpy(g->name, data, sizeof(g->name));
+            g->name_length = sizeof(g->name);
+        } else {
+            memcpy(g->name, data, param2);
+            g->name_length = param2;
+        }
+
+        free(data);
+        updategroup(g);
         break;
     }
     }

@@ -40,26 +40,52 @@ static void edit_status_onenter(void)
 
 static void edit_msg_onenter(void)
 {
-    static const STRING me = STRING_INIT("/me");
     STRING_IDX length = edit_msg.length;
-
-    char_t *p = edit_msg_data;
-    _Bool is_action = (length >= me.length) && (!memcmp(p, me.str, me.length));
-    is_action = is_action && ((length == me.length) || (p[me.length] == ' '));
-    if(is_action) {
-        p += me.length;
-
-        // Strip all whitespace after "/me".
-        while((p - edit_msg_data < length) && (*p == ' ')) {
-            p++;
-        }
-
-        length -= p - edit_msg_data;
-    }
+    char_t *text = edit_msg_data;
 
     if(length <= 0) {
-        // Deny sending empty messages/actions.
         return;
+    }
+
+    STRING_IDX command_length = 0;
+    char_t *command = NULL;
+
+    STRING_IDX argument_length = 0;
+    char_t *argument = NULL;
+
+    if (text[0] == '/') {
+        unsigned int i;
+        for (i = 0; i < length; ++i) {
+            if (text[i] == ' ') {
+                command_length = i;
+                break;
+            }
+        }
+
+        ++i;
+        for (; i < length; ++i) {
+            if (text[i] != ' ') {
+                argument_length = length - i;
+                argument = text + i;
+                break;
+            }
+        }
+
+        if (command_length) {
+            --command_length;
+            command = text + 1;
+        }
+    }
+
+    _Bool action = 0;
+    if ((command_length == 2) && (!memcmp(command, "me", 2))) {
+        if (!argument) {
+            return;
+        }
+
+        action = 1;
+        length = argument_length;
+        text = argument;
     }
 
     if(sitem->item == ITEM_FRIEND) {
@@ -71,23 +97,30 @@ static void edit_msg_onenter(void)
 
         MESSAGE *msg = malloc(length + sizeof(MESSAGE));
         msg->author = 1;
-        msg->msg_type = is_action ? MSG_TYPE_ACTION_TEXT : MSG_TYPE_TEXT;
+        msg->msg_type = action ? MSG_TYPE_ACTION_TEXT : MSG_TYPE_TEXT;
         msg->length = length;
-        memcpy(msg->msg, p, length);
+        memcpy(msg->msg, text, length);
 
         friend_addmessage(f, msg);
 
         void *d = malloc(length);
-        memcpy(d, p, length);
+        memcpy(d, text, length);
 
-        tox_postmessage((is_action ? TOX_SENDACTION : TOX_SENDMESSAGE), (f - friend), length, d);
+        tox_postmessage((action ? TOX_SENDACTION : TOX_SENDMESSAGE), (f - friend), length, d);
     } else {
         GROUPCHAT *g = sitem->data;
 
-        void *d = malloc(length);
-        memcpy(d, p, length);
+        if ((command_length == 5) && (!memcmp(command, "topic", 5))) {
+            void *d = malloc(argument_length);
+            memcpy(d, argument, argument_length);
 
-        tox_postmessage((is_action ? TOX_SENDACTIONGROUP : TOX_SENDMESSAGEGROUP), (g - group), length, d);
+            tox_postmessage(TOX_GROUPCHANGETOPIC, (g - group), argument_length, d);
+        } else {
+            void *d = malloc(length);
+            memcpy(d, text, length);
+
+            tox_postmessage((action ? TOX_SENDACTIONGROUP : TOX_SENDMESSAGEGROUP), (g - group), length, d);
+        }
     }
 
     edit_msg.length = 0;
