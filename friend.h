@@ -24,11 +24,13 @@ typedef struct friend {
 
 typedef struct groupchat {
     uint32_t peers;
+    uint32_t our_peer_number;
     STRING_IDX name_length, topic_length, typed_length;
     char_t name[128], topic[128]; //static sizes for now
     char_t *typed;
     char_t *peername[MAX_GROUP_PEERS];
     unsigned int source[MAX_GROUP_PEERS];
+    uint64_t last_recv_audio[MAX_GROUP_PEERS];
 
     EDIT_CHANGE **edit_history;
     uint16_t edit_history_cur, edit_history_length;

@@ -1556,7 +1556,13 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             }
 
             g->source[param2] = g->source[g->peers];
+            g->last_recv_audio[param2] = g->last_recv_audio[g->peers];
+            g->last_recv_audio[g->peers] = 0;
             group_av_peer_remove(g, param2);
+        }
+
+        if (g->peers == g->our_peer_number) {
+            g->our_peer_number = param2;
         }
 
         g->topic_length = snprintf((char*)g->topic, sizeof(g->topic), "%u users in chat", g->peers);
@@ -1586,11 +1592,16 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
                 }
             }
 
+            if (tox_group_peernumber_is_ours(data, param1, param2)) {
+                g->our_peer_number = param2;
+            }
+
             uint8_t *n = malloc(10);
             n[0] = 9;
             memcpy(n + 1, "<unknown>", 9);
             data = n;
             g->peers++;
+
         }
 
         g->peername[param2] = data;

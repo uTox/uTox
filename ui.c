@@ -90,10 +90,12 @@ static void drawgroup(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(he
     setfont(FONT_STATUS);
     drawtext(LIST_RIGHT + 30 * SCALE, 12 * SCALE, g->topic, g->topic_length);
 
-
     setcolor(GRAY(150));
     uint32_t i = 0;
     int k = LIST_RIGHT + 30 * SCALE;
+
+    uint64_t time = get_time();
+
     while(i < g->peers)
     {
         uint8_t *name = g->peername[i];
@@ -104,6 +106,14 @@ static void drawgroup(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(he
             memcpy(buf + name[0], ", ", 2);
 
             int w = textwidth(buf, name[0] + 2);
+            if (i == g->our_peer_number) {
+                setcolor(C_GREEN);
+            } else if (time - g->last_recv_audio[i] <= (uint64_t)1 * 1000 * 1000 * 1000) {
+                setcolor(C_RED);
+            } else {
+                setcolor(GRAY(150));
+            }
+
             if(k + w >= utox_window_width) {
                 drawtext(k, 18 * SCALE, (uint8_t*)"...", 3);
                 break;
