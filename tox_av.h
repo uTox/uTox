@@ -556,7 +556,7 @@ static void audio_thread(void *args)
                     for (i = 0; i < max; ++i) {
                         if (tox_group_get_type(tox, chats[i]) == TOX_GROUPCHAT_TYPE_AV) {
                             GROUPCHAT *g = &group[chats[i]];
-                            alGenSources(g->peers, source);
+                            alGenSources(g->peers, g->source);
                         }
                     }
                 }
