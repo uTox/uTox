@@ -115,7 +115,7 @@ static void drawgroup(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(he
                 setcolor(GRAY(150));
             }
 
-            if(k + w >= utox_window_width) {
+            if(k + w >= (utox_window_width - 32 * SCALE)) {
                 if (pos_y == 15) {
                     pos_y += 6;
                     k = LIST_RIGHT + 30 * SCALE;
