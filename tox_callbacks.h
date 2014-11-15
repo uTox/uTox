@@ -164,7 +164,7 @@ static void callback_group_invite(Tox *tox, int fid, uint8_t type, const uint8_t
     }
 
     if(gid != -1) {
-        postmessage(GROUP_ADD, gid, 0, NULL);
+        postmessage(GROUP_ADD, gid, 0, tox);
     }
 
     debug("Group Invite (%i,f:%i) type %u\n", gid, fid, type);

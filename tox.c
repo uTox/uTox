@@ -802,7 +802,7 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
             g = tox_add_groupchat(tox);
         }
         if(g != -1) {
-            postmessage(GROUP_ADD, g, 0, NULL);
+            postmessage(GROUP_ADD, g, 0, tox);
         }
 
         break;
@@ -830,6 +830,20 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
          */
         tox_group_set_title(tox, param1, data, param2);
         postmessage(GROUP_TITLE, param1, param2, data);
+        break;
+    }
+
+    case TOX_GROUP_AUDIO_START:{
+        /* param1: group #
+         */
+        postmessage(GROUP_AUDIO_START, param1, 0, NULL);
+        break;
+    }
+
+    case TOX_GROUP_AUDIO_END:{
+        /* param1: group #
+         */
+        postmessage(GROUP_AUDIO_END, param1, 0, NULL);
         break;
     }
 
@@ -1518,6 +1532,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         g->topic_length = sizeof("Drag friends to invite them") - 1;
         memcpy(g->topic, "Drag friends to invite them", sizeof("Drag friends to invite them") - 1);
         g->msg.scroll = 1.0;
+        g->type = tox_group_get_type(data, param1);
         list_addgroup(g);
         redraw();
         break;
@@ -1550,11 +1565,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         g->peername[param2] = g->peername[g->peers];
         g->peername[g->peers] = NULL;
 
-        if (tox_group_get_type(data, param1) == TOX_GROUPCHAT_TYPE_AV) {
-            if (g->peers == 1) {
-                toxaudio_postmessage(GROUP_AUDIO_CALL_END, 0, 0, NULL);
-            }
-
+        if (g->type == TOX_GROUPCHAT_TYPE_AV) {
             g->source[param2] = g->source[g->peers];
             g->last_recv_audio[param2] = g->last_recv_audio[g->peers];
             g->last_recv_audio[g->peers] = 0;
@@ -1584,12 +1595,8 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         }
 
         if(tox_message_id == GROUP_PEER_ADD) {
-            if (tox_group_get_type(data, param1) == TOX_GROUPCHAT_TYPE_AV) {
+            if (g->type == TOX_GROUPCHAT_TYPE_AV) {
                 group_av_peer_add(g, param2);
-
-                if (g->peers == 1) {
-                    toxaudio_postmessage(GROUP_AUDIO_CALL_START, 0, 0, NULL);
-                }
             }
 
             if (tox_group_peernumber_is_ours(data, param1, param2)) {
@@ -1626,6 +1633,27 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
 
         free(data);
         updategroup(g);
+        break;
+    }
+
+    case GROUP_AUDIO_START: {
+        GROUPCHAT *g = &group[param1];
+
+        if (g->type == TOX_GROUPCHAT_TYPE_AV) {
+            g->audio_calling = 1;
+            toxaudio_postmessage(GROUP_AUDIO_CALL_START, param1, 0, NULL);
+            updategroup(g);
+        }
+        break;
+    }
+    case GROUP_AUDIO_END: {
+        GROUPCHAT *g = &group[param1];
+
+        if (g->type == TOX_GROUPCHAT_TYPE_AV) {
+            g->audio_calling = 0;
+            toxaudio_postmessage(GROUP_AUDIO_CALL_END, param1, 0, NULL);
+            updategroup(g);
+        }
         break;
     }
     }

@@ -82,6 +82,30 @@ static void button_settings_onpress(void)
     list_selectsettings();
 }
 
+static void button_group_audio_onpress(void)
+{
+    GROUPCHAT *g = sitem->data;
+    if (g->audio_calling) {
+        tox_postmessage(TOX_GROUP_AUDIO_END, (g - group), 0, NULL);
+    } else {
+        tox_postmessage(TOX_GROUP_AUDIO_START, (g - group), 0, NULL);
+    }
+}
+
+static void button_group_audio_updatecolor(BUTTON *b)
+{
+    GROUPCHAT *g = sitem->data;
+    if (g->audio_calling) {
+        b->c1 = C_RED;
+        b->c2 = C_RED_LIGHT;
+        b->c3 = C_RED_LIGHT;
+    } else {
+        b->c1 = C_GREEN;
+        b->c2 = C_GREEN_LIGHT;
+        b->c3 = C_GREEN_LIGHT;
+    }
+}
+
 static void button_call_onpress(void)
 {
     FRIEND *f = sitem->data;
@@ -400,6 +424,19 @@ button_call = {
 
     .onpress = button_call_onpress,
     .updatecolor = button_call_updatecolor,
+},
+
+button_group_audio = {
+    .bm = BM_LBUTTON,
+    .c1 = C_GREEN,
+    .c2 = C_GREEN_LIGHT,
+    .c3 = C_GREEN_LIGHT,
+    .bm2 = BM_CALL,
+    .bw = _BM_LBICON_WIDTH,
+    .bh = _BM_LBICON_HEIGHT,
+
+    .onpress = button_group_audio_onpress,
+    .updatecolor = button_group_audio_updatecolor,
 },
 
 button_video = {

@@ -106,11 +106,12 @@ volatile _Bool logging_enabled;
 volatile _Bool audible_notifications_enabled;
 
 #define MAX_NUM_FRIENDS 256
+#define MAX_NUM_GROUPS 512
 
 //friends and groups
 //note: assumes array size will always be large enough
 FRIEND friend[MAX_NUM_FRIENDS];
-GROUPCHAT group[1024];
+GROUPCHAT group[MAX_NUM_GROUPS];
 uint32_t friends, groups;
 
 //window

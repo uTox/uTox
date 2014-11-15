@@ -425,6 +425,7 @@ panel_item[] = {
             (void*)&edit_msg,
             (void*)&scroll_group,
             (void*)&messages_group,
+            (void*)&button_group_audio,
             NULL
         }
     },
@@ -555,6 +556,14 @@ void ui_scale(uint8_t scale)
         .height = BM_LBUTTON_HEIGHT,
     },
 
+    b_group_audio = {
+        .type = PANEL_BUTTON,
+        .x = -31 * SCALE,
+        .y = 5 * SCALE,
+        .width = BM_LBUTTON_WIDTH,
+        .height = BM_LBUTTON_HEIGHT,
+    },
+
     b_video = {
         .type = PANEL_BUTTON,
         .x = -31 * SCALE,
@@ -642,6 +651,7 @@ void ui_scale(uint8_t scale)
     button_copyid.panel = b_copyid;
     button_addfriend.panel = b_addfriend;
     button_call.panel = b_call;
+    button_group_audio.panel = b_group_audio;
     button_video.panel = b_video;
     button_sendfile.panel = b_sendfile;
     button_acceptfriend.panel = b_acceptfriend;

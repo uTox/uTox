@@ -370,9 +370,7 @@ static void deleteitem(ITEM *i)
             group_av_peer_remove(g, j);
         }
 
-        if (g->peers > 1) {
-            toxaudio_postmessage(GROUP_AUDIO_CALL_END, 0, 0, NULL);
-        }
+        toxaudio_postmessage(GROUP_AUDIO_CALL_END, (g - group), 0, NULL);
 
         group_free(g);
         break;
