@@ -812,7 +812,7 @@ void group_av_peer_add(GROUPCHAT *g, int peernumber)
 
 void group_av_peer_remove(GROUPCHAT *g, int peernumber)
 {
-    alDeleteSources(1, &g->source[g->peers]);
+    alDeleteSources(1, &g->source[peernumber]);
 }
 
 #else
