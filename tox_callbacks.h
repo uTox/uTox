@@ -216,6 +216,10 @@ static void callback_group_namelist_change(Tox *tox, int gid, int pid, uint8_t c
 
 static void callback_group_title(Tox *tox, int gid, int pid, const uint8_t *title, uint8_t length, void *UNUSED(userdata))
 {
+    length = utf8_validate(title, length);
+    if (!length)
+        return;
+
     uint8_t *copy_title = malloc(length);
     if (!copy_title)
         return;
