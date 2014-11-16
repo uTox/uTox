@@ -127,6 +127,9 @@ msgstr("Das Verändern von Netzwerk/Proxy-Einstellungen unterbricht die Verbindu
 msgid(LOGGING)
 msgstr("Chatverläufe speichern")
 
+msgid(AUDIONOTIFICATIONS)
+msgstr("Aktiviere aktustische Benachrichtungen (Klingelton)")
+
 msgid(IS_TYPING)
 msgstr("schreibt...")
 
