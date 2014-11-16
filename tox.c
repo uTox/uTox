@@ -1566,10 +1566,10 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         g->peername[g->peers] = NULL;
 
         if (g->type == TOX_GROUPCHAT_TYPE_AV) {
-            g->source[param2] = g->source[g->peers];
             g->last_recv_audio[param2] = g->last_recv_audio[g->peers];
             g->last_recv_audio[g->peers] = 0;
             group_av_peer_remove(g, param2);
+            g->source[param2] = g->source[g->peers];
         }
 
         if (g->peers == g->our_peer_number) {
