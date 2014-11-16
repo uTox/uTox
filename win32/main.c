@@ -84,6 +84,8 @@ static _Bool mouse_tracked = 0;
 
 static _Bool hidden;
 
+_Bool utox_portable;
+
 //WM_COMMAND
 enum
 {
@@ -728,11 +730,15 @@ UTOX_NATIVE_IMAGE png_to_image(UTOX_PNG_IMAGE data, size_t size, uint16_t *w, ui
 
 int datapath_old(uint8_t *dest)
 {
-    if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, (char*)dest))) {
-        uint8_t *p = dest + strlen((char*)dest);
-        strcpy(p, "\\Tox"); p += 4;
-        *p++ = '\\';
-        return p - dest;
+    if (utox_portable) {
+        return 0;
+    } else {
+        if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, (char*)dest))) {
+            uint8_t *p = dest + strlen((char*)dest);
+            strcpy(p, "\\Tox"); p += 4;
+            *p++ = '\\';
+            return p - dest;
+        }
     }
 
     return 0;
@@ -740,12 +746,20 @@ int datapath_old(uint8_t *dest)
 
 int datapath(uint8_t *dest)
 {
-    if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, (char*)dest))) {
-        uint8_t *p = dest + strlen((char*)dest);
-        strcpy(p, "\\Tox"); p += 4;
+    if (utox_portable) {
+        uint8_t *p = dest;
+        strcpy(p, "Tox"); p += 4;
         CreateDirectory((char*)dest, NULL);
         *p++ = '\\';
         return p - dest;
+    } else {
+        if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, (char*)dest))) {
+            uint8_t *p = dest + strlen((char*)dest);
+            strcpy(p, "\\Tox"); p += 4;
+            CreateDirectory((char*)dest, NULL);
+            *p++ = '\\';
+            return p - dest;
+        }
     }
 
     return 0;
@@ -995,6 +1009,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
         int len = GetModuleFileName(hModule, path, MAX_PATH);
         path[len - 10] = 0;//!
         SetCurrentDirectory(path);
+
+        if (strcmp(cmd, "--portable") == 0) {
+            utox_portable = 1;
+        }
     }
 
     /* */
