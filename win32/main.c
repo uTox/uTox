@@ -748,7 +748,7 @@ int datapath(uint8_t *dest)
 {
     if (utox_portable) {
         uint8_t *p = dest;
-        strcpy(p, "Tox"); p += 4;
+        strcpy(p, "Tox"); p += 3;
         CreateDirectory((char*)dest, NULL);
         *p++ = '\\';
         return p - dest;
