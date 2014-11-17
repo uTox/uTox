@@ -770,6 +770,7 @@ void callback_av_group_audio(Tox *tox, int groupnumber, int peernumber, const in
                                     uint8_t channels, unsigned int sample_rate, void *userdata)
 {
     GROUPCHAT *g = &group[groupnumber];
+    g->last_recv_audio[peernumber] = get_time();
 
     if(!channels || channels > 2 || g->muted) {
         return;
@@ -780,7 +781,6 @@ void callback_av_group_audio(Tox *tox, int groupnumber, int peernumber, const in
     alGetSourcei(g->source[peernumber], AL_BUFFERS_PROCESSED, &processed);
     alGetSourcei(g->source[peernumber], AL_BUFFERS_QUEUED, &queued);
     alSourcei(g->source[peernumber], AL_LOOPING, AL_FALSE);
-    g->last_recv_audio[peernumber] = get_time();
 
     if(processed) {
         ALuint bufids[processed];

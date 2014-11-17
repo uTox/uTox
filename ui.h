@@ -166,6 +166,7 @@ uint8_t SCALE;
 #define C_YELLOW_LIGHT          RGB(227, 210, 76)
 #define C_RED                   RGB(200, 78, 78)
 #define C_RED_LIGHT             RGB(220, 86, 86)
+#define C_BLUE                  RGB(78, 78, 200)
 
 #define LIST_MAIN               GRAY(65)
 #define LIST_HIGHLIGHT          GRAY(80)

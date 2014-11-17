@@ -24,13 +24,19 @@ static void drawitembox(ITEM *i, int y)
     }
 }
 
-static void drawname(ITEM *i, int y, char_t *name, char_t *msg, STRING_IDX name_length, STRING_IDX msg_length)
+static void drawname(ITEM *i, int y, char_t *name, char_t *msg, STRING_IDX name_length, STRING_IDX msg_length, _Bool color_overide, uint32_t color)
 {
-    setcolor((sitem == i) ? LIST_DARK : LIST_SELECTED);
+    if (!color_overide)
+        color = (sitem == i) ? LIST_DARK : LIST_SELECTED;
+
+    setcolor(color);
     setfont(FONT_LIST_NAME);
     drawtextwidth(LIST_NAME_X, LIST_RIGHT - LIST_NAME_X - SCALE * 16, y + LIST_NAME_Y, name, name_length);
 
-    setcolor((sitem == i) ? LIST_MAIN : C_STATUS);
+    if (!color_overide)
+        color = (sitem == i) ? LIST_MAIN : C_STATUS;
+
+    setcolor(color);
     setfont(FONT_STATUS);
     drawtextwidth(LIST_STATUS_X, LIST_RIGHT - LIST_STATUS_X - SCALE * 16, y + LIST_STATUS_Y,  msg, msg_length);
 }
@@ -45,7 +51,7 @@ static void drawitem(ITEM *i, int UNUSED(x), int y)
 
         drawalpha(BM_CONTACT, LIST_AVATAR_X, y + LIST_AVATAR_Y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, (sitem == i) ? LIST_MAIN : WHITE);
 
-        drawname(i, y, f->name, f->status_message, f->name_length, f->status_length);
+        drawname(i, y, f->name, f->status_message, f->name_length, f->status_length, 0, 0);
 
         uint8_t status = f->online ? f->status : 3;
         drawalpha(BM_ONLINE + status, LIST_RIGHT - SCALE * 12, y + ITEM_HEIGHT / 2 - BM_STATUS_WIDTH / 2, BM_STATUS_WIDTH, BM_STATUS_WIDTH, status_color[status]);
@@ -58,7 +64,25 @@ static void drawitem(ITEM *i, int UNUSED(x), int y)
     case ITEM_GROUP: {
         GROUPCHAT *g = i->data;
         drawalpha(BM_GROUP, LIST_AVATAR_X, y + LIST_AVATAR_Y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, (sitem == i) ? LIST_MAIN : WHITE);
-        drawname(i, y, g->name, g->topic, g->name_length, g->topic_length);
+        _Bool color_overide = 0;
+        uint32_t color = 0;
+
+        if (g->muted) {
+            color_overide = 1;
+            color = C_BLUE;
+        } else {
+            uint64_t time = get_time();
+            unsigned int j;
+            for (j = 0; j < g->peers; ++j) {
+                if (time - g->last_recv_audio[j] <= (uint64_t)1 * 1000 * 1000 * 1000) {
+                    color_overide = 1;
+                    color = C_RED;
+                    break;
+                }
+            }
+        }
+
+        drawname(i, y, g->name, g->topic, g->name_length, g->topic_length, color_overide, color);
         break;
     }
 
@@ -69,7 +93,7 @@ static void drawitem(ITEM *i, int UNUSED(x), int y)
         id_to_string(name, f->id);
 
         drawalpha(BM_CONTACT, LIST_AVATAR_X, y + LIST_AVATAR_Y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, (sitem == i) ? LIST_MAIN : WHITE);
-        drawname(i, y, name, f->msg, sizeof(name), f->length);
+        drawname(i, y, name, f->msg, sizeof(name), f->length, 0, 0);
         break;
     }
     }
@@ -331,6 +355,8 @@ void list_draw(void *UNUSED(n), int UNUSED(x), int y, int UNUSED(width), int UNU
         drawitem(mi, LIST_X, my);
     }
 }
+
+void group_av_peer_remove(GROUPCHAT *g, int peernumber);
 
 static void deleteitem(ITEM *i)
 {
