@@ -508,12 +508,22 @@ static void contextmenu_list_onselect(uint8_t i)
         return;
     }
 
+    if (ritem->item == ITEM_GROUP && i == 0) {
+        GROUPCHAT *g = ritem->data;
+        if (g->type == TOX_GROUPCHAT_TYPE_AV) {
+            g->muted = !g->muted;
+            return;
+        }
+    }
+
     list_deleteritem();
 }
 
 _Bool list_mright(void *UNUSED(n))
 {
     static UI_STRING_ID menu_friend[] = {STR_REMOVE_FRIEND};
+    static UI_STRING_ID menu_group_unmuted[] = {STR_MUTE, STR_REMOVE_GROUP};
+    static UI_STRING_ID menu_group_muted[] = {STR_UNMUTE, STR_REMOVE_GROUP};
     static UI_STRING_ID menu_group[] = {STR_REMOVE_GROUP};
     static UI_STRING_ID menu_request[] = {STR_REQ_ACCEPT, STR_REQ_DECLINE};
 
@@ -522,7 +532,17 @@ _Bool list_mright(void *UNUSED(n))
         if(mitem->item == ITEM_FRIEND) {
             contextmenu_new(countof(menu_friend), menu_friend, contextmenu_list_onselect);
         } else if(mitem->item == ITEM_GROUP) {
-            contextmenu_new(countof(menu_group), menu_group, contextmenu_list_onselect);
+            GROUPCHAT *g = mitem->data;
+
+            if (g->type == TOX_GROUPCHAT_TYPE_AV) {
+                if (g->muted) {
+                    contextmenu_new(countof(menu_group_muted), menu_group_muted, contextmenu_list_onselect);
+                } else {
+                    contextmenu_new(countof(menu_group_unmuted), menu_group_unmuted, contextmenu_list_onselect);
+                }
+            } else {
+                contextmenu_new(countof(menu_group), menu_group, contextmenu_list_onselect);
+            }
         } else {
             contextmenu_new(countof(menu_request), menu_request, contextmenu_list_onselect);
         }

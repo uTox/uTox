@@ -253,3 +253,9 @@ msgstr("Port")
 msgid(WINDOW_TITLE_VIDEO_PREVIEW)
 msgstr("Video Preview")
 
+msgid(MUTE)
+msgstr("Mute")
+
+msgid(UNMUTE)
+msgstr("Unmute")
+

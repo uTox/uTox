@@ -27,6 +27,7 @@ typedef struct groupchat {
     uint32_t our_peer_number;
     uint8_t type;
     _Bool audio_calling;
+    volatile _Bool muted;
     STRING_IDX name_length, topic_length, typed_length;
     char_t name[128], topic[128]; //static sizes for now
     char_t *typed;

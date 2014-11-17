@@ -771,7 +771,7 @@ void callback_av_group_audio(Tox *tox, int groupnumber, int peernumber, const in
 {
     GROUPCHAT *g = &group[groupnumber];
 
-    if(!channels || channels > 2) {
+    if(!channels || channels > 2 || g->muted) {
         return;
     }
 

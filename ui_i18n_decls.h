@@ -130,6 +130,8 @@ enum {
 
     STR_WINDOW_TITLE_VIDEO_PREVIEW,
 
+    STR_MUTE,
+    STR_UNMUTE,
     STR_LANG_NATIVE_NAME,
     STR_LANG_ENGLISH_NAME,
     //Do NOT add new values beyond this point, or alter STRS_MAX accordingly.
