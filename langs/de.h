@@ -35,7 +35,7 @@ msgid(REQ_BAD_CHECKSUM)
 msgstr("Fehler: Ungültige Tox ID (ungültige Prüfsumme)")
 
 msgid(REQ_BAD_NOSPAM)
-msgstr("Fehler: Ungültige Tox ID (bad nospam value)")
+msgstr("Fehler: Ungültige Tox ID (ungültiger NoSpam-Wert)")
 
 msgid(REQ_NO_MEMORY)
 msgstr("Fehler: Kein Speicher")
@@ -128,7 +128,7 @@ msgid(LOGGING)
 msgstr("Chatverläufe speichern")
 
 msgid(AUDIONOTIFICATIONS)
-msgstr("Aktiviere aktustische Benachrichtungen (Klingelton)")
+msgstr("Aktiviere akustische Benachrichtungen (Klingelton)")
 
 msgid(IS_TYPING)
 msgstr("schreibt...")
@@ -202,9 +202,8 @@ msgstr("Ja")
 msgid(VIDEO_IN_NONE)
 msgstr("keine")
 
-//TODO: Localize or remove.
-//msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
-//msgstr("Please accept this friend request.")
+msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
+msgstr("Bitte füge mich deiner Kontaktliste hinzu.")
 
 msgid(CONTACTS_FILTER_EDIT_HINT)
 msgstr("Freunde suchen")
@@ -215,6 +214,5 @@ msgstr("Standard Loopback")
 msgid(WINDOW_TITLE_VIDEO_PREVIEW)
 msgstr("Video Vorschau")
 
-//TODO: Localize or remove.
-//msgid(AUDIONOTIFICATIONS)
-//msgstr("Enable Audible Notification (Ringtone)")
+msgid(AUDIONOTIFICATIONS)
+msgstr("Akustische Benachrichtigungen einschalten (Klingelton)")
