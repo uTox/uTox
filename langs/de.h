@@ -161,10 +161,10 @@ msgid(IGNORE)
 msgstr("Ignorieren")
 
 msgid(CLICKTOSAVE)
-msgstr("Klicken zum speichern")
+msgstr("Klicken um zu speichern")
 
 msgid(CLICKTOOPEN)
-msgstr("Klicken zum öffnen")
+msgstr("Klicken um zu öffnen")
 
 msgid(CANCELLED)
 msgstr("Abgebrochen")
