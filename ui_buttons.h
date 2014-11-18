@@ -95,14 +95,20 @@ static void button_group_audio_onpress(void)
 static void button_group_audio_updatecolor(BUTTON *b)
 {
     GROUPCHAT *g = sitem->data;
-    if (g->audio_calling) {
-        b->c1 = C_RED;
-        b->c2 = C_RED_LIGHT;
-        b->c3 = C_RED_LIGHT;
+    if (g->type == TOX_GROUPCHAT_TYPE_AV) {
+        if (g->audio_calling) {
+            b->c1 = C_RED;
+            b->c2 = C_RED_LIGHT;
+            b->c3 = C_RED_LIGHT;
+        } else {
+            b->c1 = C_GREEN;
+            b->c2 = C_GREEN_LIGHT;
+            b->c3 = C_GREEN_LIGHT;
+        }
     } else {
-        b->c1 = C_GREEN;
-        b->c2 = C_GREEN_LIGHT;
-        b->c3 = C_GREEN_LIGHT;
+        b->c1 = C_GRAY;
+        b->c2 = C_GRAY;
+        b->c3 = C_GRAY;
     }
 }
 
