@@ -86,7 +86,7 @@ msgid(SWITCHPROFILE)
 msgstr("Profil wechseln")
 
 msgid(FRIENDREQUEST)
-msgstr("Freundesanfrage")
+msgstr("Freundschaftsanfrage")
 
 msgid(USERSETTINGS)
 msgstr("Benutzereinstellungen")
@@ -127,9 +127,6 @@ msgstr("Das Verändern von Netzwerk/Proxy-Einstellungen unterbricht die Verbindu
 msgid(LOGGING)
 msgstr("Chatverläufe speichern")
 
-msgid(AUDIONOTIFICATIONS)
-msgstr("Aktiviere akustische Benachrichtungen (Klingelton)")
-
 msgid(IS_TYPING)
 msgstr("schreibt...")
 
@@ -164,10 +161,10 @@ msgid(IGNORE)
 msgstr("Ignorieren")
 
 msgid(CLICKTOSAVE)
-msgstr("Klicke zum speichern")
+msgstr("Klicken zum speichern")
 
 msgid(CLICKTOOPEN)
-msgstr("Klicke zum öffnen")
+msgstr("Klicken zum öffnen")
 
 msgid(CANCELLED)
 msgstr("Abgebrochen")
