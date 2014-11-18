@@ -33,7 +33,7 @@ typedef struct groupchat {
     char_t *typed;
     char_t *peername[MAX_GROUP_PEERS];
     unsigned int source[MAX_GROUP_PEERS];
-    uint64_t last_recv_audio[MAX_GROUP_PEERS];
+    volatile uint64_t last_recv_audio[MAX_GROUP_PEERS]; /* TODO: thread safety (This should work fine but it isn't very clean.) */
 
     EDIT_CHANGE **edit_history;
     uint16_t edit_history_cur, edit_history_length;

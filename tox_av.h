@@ -770,7 +770,14 @@ void callback_av_group_audio(Tox *tox, int groupnumber, int peernumber, const in
                                     uint8_t channels, unsigned int sample_rate, void *userdata)
 {
     GROUPCHAT *g = &group[groupnumber];
-    g->last_recv_audio[peernumber] = get_time();
+
+    uint64_t time = get_time();
+
+    if (time - g->last_recv_audio[peernumber] > (uint64_t)1 * 1000 * 1000 * 1000) {
+        postmessage(GROUP_UPDATE, groupnumber, peernumber, NULL);
+    }
+
+    g->last_recv_audio[peernumber] = time;
 
     if(!channels || channels > 2 || g->muted) {
         return;

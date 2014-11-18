@@ -1656,5 +1656,12 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         }
         break;
     }
+
+    case GROUP_UPDATE: {
+        GROUPCHAT *g = &group[param1];
+        updategroup(g);
+
+        break;
+    }
     }
 }

@@ -135,6 +135,7 @@ enum {
     GROUP_TITLE,
     GROUP_AUDIO_START,
     GROUP_AUDIO_END,
+    GROUP_UPDATE,
 };
 
 enum
