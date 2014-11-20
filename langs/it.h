@@ -220,3 +220,9 @@ msgstr("Porta")
 msgid(WINDOW_TITLE_VIDEO_PREVIEW)
 msgstr("uTox video test")
 
+msgid(MUTE)
+msgstr("Disattiva")
+
+msgid(UNMUTE)
+msgstr("Attiva")
+
