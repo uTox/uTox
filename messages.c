@@ -101,6 +101,12 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
                 h2 = STRING_IDX_MAX;
             }
 
+            if (msg->msg_type == MSG_TYPE_ACTION_TEXT) {
+                setcolor(C_BLUE);
+            } else {
+                setcolor(0);
+            }
+
             setfont(FONT_TEXT);
             int ny = drawtextmultiline(x + MESSAGES_X, x + width - TIME_WIDTH, y, y, y + msg->height, font_small_lineheight, msg->msg, msg->length, h1, h2 - h1, 1);
             if(ny < y || (uint32_t)(ny - y) + MESSAGES_SPACING != msg->height) {
