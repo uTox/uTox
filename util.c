@@ -564,6 +564,7 @@ UTOX_SAVE* config_load(void)
     save->proxyenable = 0;
     save->logging_enabled = 0;
     save->audible_notifications_enabled = 1;
+    save->audio_filtering_enabled = 1;
     save->proxy_ip[0] = 0;
 
     config_osdefaults(save);
@@ -574,6 +575,7 @@ NEXT:
     dropdown_proxy.selected = dropdown_proxy.over = save->proxyenable <= 2 ? save->proxyenable : 2;
     dropdown_logging.selected = dropdown_logging.over = save->logging_enabled;
     dropdown_audible_notification.selected = dropdown_audible_notification.over = !save->audible_notifications_enabled;
+    dropdown_audio_filtering.selected = dropdown_audio_filtering.over = !save->audio_filtering_enabled;
     dropdown_filter.selected = FILTER = save->filter;
 
     options.ipv6enabled = save->enableipv6;
@@ -589,6 +591,7 @@ NEXT:
 
     logging_enabled = save->logging_enabled;
     audible_notifications_enabled = save->audible_notifications_enabled;
+    audio_filtering_enabled = save->audio_filtering_enabled;
 
     return save;
 }
@@ -613,6 +616,8 @@ void config_save(UTOX_SAVE *save)
     save->proxyenable = dropdown_proxy.selected;
     save->logging_enabled = logging_enabled;
     save->audible_notifications_enabled = audible_notifications_enabled;
+    save->audio_filtering_enabled = audio_filtering_enabled;
+
     save->filter = FILTER;
     save->proxy_port = options.proxy_port;
 

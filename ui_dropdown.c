@@ -98,7 +98,10 @@ static void dropdown_notifications_onselect(uint16_t i, const DROPDOWN* UNUSED(d
     audible_notifications_enabled = !i;
 }
 
-
+static void dropdown_audio_filtering_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
+{
+    audio_filtering_enabled = !i;
+}
 
 
 static UI_STRING_ID dpidrops[] = {
@@ -192,6 +195,13 @@ dropdown_logging = {
 dropdown_audible_notification = {
     .ondisplay = simple_dropdown_ondisplay,
     .onselect = dropdown_notifications_onselect,
+    .dropcount = countof(yesnodrops),
+    .userdata = yesnodrops
+},
+
+dropdown_audio_filtering = {
+    .ondisplay = simple_dropdown_ondisplay,
+    .onselect = dropdown_audio_filtering_onselect,
     .dropcount = countof(yesnodrops),
     .userdata = yesnodrops
 };

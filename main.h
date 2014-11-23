@@ -40,7 +40,8 @@ typedef struct
     uint8_t logging_enabled : 1;
     uint8_t audible_notifications_enabled : 1;
     uint8_t filter : 1;
-    uint8_t zero : 5;
+    uint8_t audio_filtering_enabled : 1;
+    uint8_t zero : 4;
     uint8_t proxy_ip[0];
 }UTOX_SAVE;
 
@@ -105,6 +106,8 @@ _Bool audio_preview, video_preview;
 volatile _Bool logging_enabled;
 
 volatile _Bool audible_notifications_enabled;
+
+volatile _Bool audio_filtering_enabled;
 
 #define MAX_NUM_FRIENDS 256
 #define MAX_NUM_GROUPS 512

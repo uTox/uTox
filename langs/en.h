@@ -112,6 +112,9 @@ msgstr("Device Selection")
 msgid(AUDIOINPUTDEVICE)
 msgstr("Audio Input Device")
 
+msgid(AUDIOFILTERING)
+msgstr("Filter Audio")
+
 msgid(AUDIOOUTPUTDEVICE)
 msgstr("Audio Output Device")
 

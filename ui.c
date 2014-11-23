@@ -220,6 +220,7 @@ static void drawsettings_content(int UNUSED(x), int y, int UNUSED(w), int UNUSED
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 29, STATUSMESSAGE);
 
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 123, AUDIOINPUTDEVICE);
+    drawstr(LIST_RIGHT + SCALE * 190, y + SCALE * 123, AUDIOFILTERING);
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 147, AUDIOOUTPUTDEVICE);
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 171, VIDEOINPUTDEVICE);
 
@@ -366,7 +367,7 @@ panel_settings = {
         (void*)&dropdown_audio_in, (void*)&dropdown_audio_out, (void*)&dropdown_video,
         (void*)&dropdown_dpi, (void*)&dropdown_language, (void*)&dropdown_proxy,
         (void*)&dropdown_ipv6, (void*)&dropdown_udp, (void*)&dropdown_logging,
-        (void*)&dropdown_audible_notification,
+        (void*)&dropdown_audible_notification, (void*)&dropdown_audio_filtering,
         NULL
     }
 },
@@ -743,11 +744,18 @@ void ui_scale(uint8_t scale)
         .width = SCALE * 20
     },
 
-
     d_notifications = {
         .type = PANEL_DROPDOWN,
         .x = 5 * SCALE,
         .y = SCALE * 343,
+        .height = SCALE * 12,
+        .width = SCALE * 20
+    },
+
+    d_audio_filtering = {
+        .type = PANEL_DROPDOWN,
+        .x = 190 * SCALE,
+        .y = SCALE * 132,
         .height = SCALE * 12,
         .width = SCALE * 20
     };
@@ -763,6 +771,7 @@ void ui_scale(uint8_t scale)
     dropdown_udp.panel = d_udp;
     dropdown_logging.panel = d_logging;
     dropdown_audible_notification.panel = d_notifications;
+    dropdown_audio_filtering.panel = d_audio_filtering;
 
 
 

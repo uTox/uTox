@@ -307,6 +307,10 @@ static void video_thread(void *args)
 
 #endif
 
+#ifdef AUDIO_FILTERING
+#include <filter_audio.h>
+#endif
+
 static ALCdevice *device_out, *device_in;
 static ALCcontext *context;
 static ALuint source[MAX_CALLS];
@@ -491,6 +495,10 @@ static void audio_thread(void *args)
         alSourcei(ringSrc[i], AL_BUFFER, RingBuffer);
     }
 
+#ifdef AUDIO_FILTERING
+    Filter_Audio *f_a = NULL;
+#endif
+
     audio_thread_init = 1;
 
     while(1) {
@@ -659,19 +667,37 @@ static void audio_thread(void *args)
             }
 
             case AUDIO_STOP_RINGTONE: {
-                    ALint state;
-                    alGetSourcei(ringSrc[m->param1], AL_SOURCE_STATE, &state);
-                    if(state == AL_PLAYING) {
-                        alSourceStop(ringSrc[m->param1]);
-                    }
-
-                    break;
+                ALint state;
+                alGetSourcei(ringSrc[m->param1], AL_SOURCE_STATE, &state);
+                if(state == AL_PLAYING) {
+                    alSourceStop(ringSrc[m->param1]);
                 }
 
+                break;
+            }
             }
 
             audio_thread_msg = 0;
         }
+
+#ifdef AUDIO_FILTERING
+        if (!f_a && audio_filtering_enabled) {
+            f_a = new_filter_audio(av_DefaultSettings.audio_sample_rate);
+            if (!f_a) {
+                audio_filtering_enabled = 0;
+                debug("filter audio failed\n");
+            } else {
+                debug("filter audio on\n");
+            }
+        } else if (f_a && !audio_filtering_enabled) {
+            kill_filter_audio(f_a);
+            f_a = NULL;
+            debug("filter audio off\n");
+        }
+#else
+        if (audio_filtering_enabled)
+            audio_filtering_enabled = 0;
+#endif
 
         if(record_on) {
             _Bool frame = 0;
@@ -687,6 +713,11 @@ static void audio_thread(void *args)
             }
 
             if(frame) {
+#ifdef AUDIO_FILTERING
+                if (f_a && filter_audio(f_a, buf, perframe) == -1) {
+                    debug("filter audio error\n");
+                }
+#endif
                 if(preview) {
                     sourceplaybuffer(0, (int16_t*)buf, perframe, av_DefaultSettings.audio_channels, av_DefaultSettings.audio_sample_rate);
                 }
