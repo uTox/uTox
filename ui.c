@@ -771,8 +771,9 @@ void ui_scale(uint8_t scale)
     dropdown_udp.panel = d_udp;
     dropdown_logging.panel = d_logging;
     dropdown_audible_notification.panel = d_notifications;
+#ifdef AUDIO_FILTERING
     dropdown_audio_filtering.panel = d_audio_filtering;
-
+#endif
 
 
     PANEL e_name = {
