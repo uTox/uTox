@@ -98,7 +98,7 @@ typedef struct edit_change EDIT_CHANGE;
 
 #include "ui_dropdown.h"
 
-volatile _Bool tox_thread_init, audio_thread_init, video_thread_init;
+volatile _Bool tox_thread_init, audio_thread_init, video_thread_init, toxav_thread_init;
 _Bool tox_connected;
 
 _Bool audio_preview, video_preview;

@@ -5,11 +5,11 @@ static void av_start(int32_t call_index, void *arg)
     int fid = toxav_get_peer_id(arg, call_index, 0);
     toxav_get_peer_csettings(arg, call_index, 0, &peer_settings);
 
-    _Bool video = (peer_settings.call_type == TypeVideo);
+    _Bool video = (peer_settings.call_type == av_TypeVideo);
 
     debug("video for this call: %u\n", video);
 
-    if(toxav_prepare_transmission(arg, call_index, av_jbufdc, av_VADd, 1) == 0) {
+    if(toxav_prepare_transmission(arg, call_index, 1) == 0) {
         if(video) {
             postmessage(FRIEND_CALL_VIDEO, fid, call_index, (void*)(640 | (size_t)480 << 16));
         } else {
@@ -26,7 +26,7 @@ static void callback_av_invite(void *arg, int32_t call_index, void *UNUSED(userd
 
     ToxAvCSettings peer_settings;
     toxav_get_peer_csettings(arg, call_index, 0, &peer_settings);
-    _Bool video = (peer_settings.call_type == TypeVideo);
+    _Bool video = (peer_settings.call_type == av_TypeVideo);
 
     postmessage(FRIEND_CALL_STATUS, fid, call_index, (void*)(size_t)(video ? CALL_INVITED_VIDEO : CALL_INVITED));
     toxaudio_postmessage(AUDIO_PLAY_RINGTONE, call_index, 0, NULL);
@@ -77,20 +77,6 @@ static void callback_av_ringing(void *arg, int32_t call_index, void *UNUSED(user
     debug("A/V Ringing (%i)\n", call_index);
 }
 
-static void callback_av_starting(void *arg, int32_t call_index, void *UNUSED(userdata))
-{
-    av_start(call_index, arg);
-
-    debug("A/V Starting (%i)\n", call_index);
-}
-
-static void callback_av_ending(void *arg, int32_t call_index, void *UNUSED(userdata))
-{
-    stopcall();
-
-    debug("A/V Ending (%i)\n", call_index);
-}
-
 static void callback_av_requesttimeout(void *arg, int32_t call_index, void *UNUSED(userdata))
 {
     endcall();
@@ -105,14 +91,19 @@ static void callback_av_peertimeout(void *arg, int32_t call_index, void *UNUSED(
     debug("A/V PeerTimeout (%i)\n", call_index);
 }
 
-static void callback_av_mediachange(void *arg, int32_t call_index, void *UNUSED(userdata))
+static void callback_av_selfmediachange(void *arg, int32_t call_index, void *UNUSED(userdata))
+{
+    debug("A/V SelfMediachange (%i)\n", call_index);
+}
+
+static void callback_av_peermediachange(void *arg, int32_t call_index, void *UNUSED(userdata))
 {
     ToxAvCSettings settings;
     toxav_get_peer_csettings(arg, call_index, 0, &settings);
     int fid = toxav_get_peer_id(arg, call_index, 0);
 
-    postmessage(FRIEND_CALL_MEDIACHANGE, fid, call_index, (settings.call_type == TypeVideo) ? (void*)1 : NULL);
-    debug("A/V Mediachange (%i)\n", call_index);
+    postmessage(FRIEND_CALL_MEDIACHANGE, fid, call_index, (settings.call_type == av_TypeVideo) ? (void*)1 : NULL);
+    debug("A/V PeerMediachange (%i)\n", call_index);
 }
 
 uint8_t lbuffer[800 * 600 * 4]; //needs to be always large enough for encoded frames
@@ -775,7 +766,7 @@ static void audio_thread(void *args)
     audio_thread_init = 0;
 }
 
-static void callback_av_audio(ToxAv *av, int32_t call_index, int16_t *data, int samples, void *UNUSED(userdata))
+static void callback_av_audio(void *av, int32_t call_index, const int16_t *data, uint16_t samples, void *UNUSED(userdata))
 {
     ToxAvCSettings dest;
     if(toxav_get_peer_csettings(av, call_index, 0, &dest) == 0) {
@@ -899,7 +890,35 @@ static void callback_av_audio(ToxAv *av, int32_t call_index, int16_t *data, int 
 }
 #endif
 
-static void callback_av_video(ToxAv *av, int32_t call_index, vpx_image_t *img, void *UNUSED(userdata))
+static void toxav_thread(void *args)
+{
+    ToxAv *av = args;
+
+    toxav_thread_init = 1;
+
+    debug("Toxav thread init\n");
+    while (1) {
+        if(toxav_thread_msg) {
+            TOX_MSG *msg = &toxav_msg;
+            if(msg->msg == TOXAV_KILL) {
+                break;
+            }
+            /*
+            switch(m->msg) {
+            }*/
+            toxav_thread_msg = 0;
+        }
+
+        toxav_do(av);
+        yieldcpu(toxav_do_interval(av));
+    }
+
+    debug("Toxav thread die\n");
+    toxav_thread_msg = 0;
+    toxav_thread_init = 0;
+}
+
+static void callback_av_video(ToxAv *av, int32_t call_index, const vpx_image_t *img, void *UNUSED(userdata))
 {
     /* copy the vpx_image */
     uint16_t *img_data = malloc(4 + img->d_w * img->d_h * 4);
@@ -919,13 +938,12 @@ static void set_av_callbacks(ToxAv *av)
     toxav_register_callstate_callback(av, callback_av_end, av_OnEnd, NULL);
 
     toxav_register_callstate_callback(av, callback_av_ringing, av_OnRinging, NULL);
-    toxav_register_callstate_callback(av, callback_av_starting, av_OnStarting, NULL);
-    toxav_register_callstate_callback(av, callback_av_ending, av_OnEnding, NULL);
 
     toxav_register_callstate_callback(av, callback_av_requesttimeout, av_OnRequestTimeout, NULL);
     toxav_register_callstate_callback(av, callback_av_peertimeout, av_OnPeerTimeout, NULL);
-    toxav_register_callstate_callback(av, callback_av_mediachange, av_OnMediaChange, NULL);
+    toxav_register_callstate_callback(av, callback_av_selfmediachange, av_OnSelfCSChange, NULL);
+    toxav_register_callstate_callback(av, callback_av_peermediachange, av_OnPeerCSChange, NULL);
 
-    toxav_register_audio_recv_callback(av, callback_av_audio, NULL);
-    toxav_register_video_recv_callback(av, callback_av_video, NULL);
+    toxav_register_audio_callback(callback_av_audio, NULL);
+    toxav_register_video_callback(callback_av_video, NULL);
 }

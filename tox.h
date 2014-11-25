@@ -76,6 +76,11 @@ enum
     VIDEO_CALL_END,
 };
 
+
+enum
+{
+    TOXAV_KILL,
+};
 /* client thread messages (recieved by the client thread)
  */
 enum {
@@ -164,6 +169,10 @@ void toxaudio_postmessage(uint8_t msg, uint16_t param1, uint16_t param2, void *d
 /* send a message to the video thread
  */
 void toxvideo_postmessage(uint8_t msg, uint16_t param1, uint16_t param2, void *data);
+
+/* send a message to the toxav thread
+ */
+void toxav_postmessage(uint8_t msg, uint16_t param1, uint16_t param2, void *data);
 
 /* read a message sent from the toxcore thread (sent with postmessage())
  */

@@ -7,8 +7,8 @@ typedef struct {
     void *data;
 } TOX_MSG;
 
-static TOX_MSG tox_msg, audio_msg, video_msg;
-static volatile _Bool tox_thread_msg, audio_thread_msg, video_thread_msg;
+static TOX_MSG tox_msg, audio_msg, video_msg, toxav_msg;
+static volatile _Bool tox_thread_msg, audio_thread_msg, video_thread_msg, toxav_thread_msg;
 
 /* Writes log filename for fid to dest. returns length written */
 static int log_file_name(uint8_t *dest, size_t size_dest, Tox *tox, int fid)
@@ -230,6 +230,20 @@ void toxvideo_postmessage(uint8_t msg, uint16_t param1, uint16_t param2, void *d
     video_thread_msg = 1;
 }
 
+void toxav_postmessage(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
+{
+    while(toxav_thread_msg) {
+        yieldcpu(1);
+    }
+
+    toxav_msg.msg = msg;
+    toxav_msg.param1 = param1;
+    toxav_msg.param2 = param2;
+    toxav_msg.data = data;
+
+    toxav_thread_msg = 1;
+}
+
 #include "tox_callbacks.h"
 #include "tox_av.h"
 
@@ -401,6 +415,8 @@ void tox_settingschanged(void)
 
     toxaudio_postmessage(AUDIO_KILL, 0, 0, NULL);
     toxvideo_postmessage(VIDEO_KILL, 0, 0, NULL);
+    toxav_postmessage(TOXAV_KILL, 0, 0, NULL);
+
     tox_postmessage(0, 1, 0, NULL);
 
     while(!tox_thread_init) {
@@ -490,6 +506,7 @@ TOP:;
 
     thread(audio_thread, av);
     thread(video_thread, av);
+    thread(toxav_thread, av);
 
     _Bool connected = 0, reconfig;
     uint64_t last_save = get_time(), time;
@@ -535,7 +552,7 @@ TOP:;
 
     write_save(tox);
 
-    while(audio_thread_init || video_thread_init) {
+    while(audio_thread_init || video_thread_init || toxav_thread_init) {
         yieldcpu(1);
     }
 
@@ -737,7 +754,7 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
         /* param1: friend #
          */
         ToxAvCSettings settings = av_DefaultSettings;
-        settings.call_type = TypeVideo;
+        settings.call_type = av_TypeVideo;
         settings.max_video_width = max_video_width;
         settings.max_video_height = max_video_height;
 
@@ -753,7 +770,7 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
          * param2: call #
          */
         ToxAvCSettings settings = av_DefaultSettings;
-        settings.call_type = TypeVideo;
+        settings.call_type = av_TypeVideo;
         settings.max_video_width = max_video_width;
         settings.max_video_height = max_video_height;
 
@@ -776,7 +793,7 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
          */
         ToxAvCSettings settings = av_DefaultSettings;
         if(param2) {
-            settings.call_type = TypeVideo;
+            settings.call_type = av_TypeVideo;
             settings.max_video_width = max_video_width;
             settings.max_video_height = max_video_height;
         }
