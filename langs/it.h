@@ -106,6 +106,9 @@ msgstr("Dispositivi")
 msgid(AUDIOINPUTDEVICE)
 msgstr("Audio (input)")
 
+msgid(AUDIOFILTERING)
+msgstr("Filtro Audio")
+
 msgid(AUDIOOUTPUTDEVICE)
 msgstr("Audio (output)")
 
