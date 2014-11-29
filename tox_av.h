@@ -283,7 +283,7 @@ static void video_thread(void *args)
     video_thread_init = 0;
 }
 
-#ifndef __ANDROID__
+#ifndef NATIVE_ANDROID_AUDIO
 #ifdef __APPLE__
 #include <OpenAL/al.h>
 #include <OpenAL/alc.h>
