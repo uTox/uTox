@@ -944,6 +944,6 @@ static void set_av_callbacks(ToxAv *av)
     toxav_register_callstate_callback(av, callback_av_selfmediachange, av_OnSelfCSChange, NULL);
     toxav_register_callstate_callback(av, callback_av_peermediachange, av_OnPeerCSChange, NULL);
 
-    toxav_register_audio_callback(callback_av_audio, NULL);
-    toxav_register_video_callback(callback_av_video, NULL);
+    toxav_register_audio_callback(av, callback_av_audio, NULL);
+    toxav_register_video_callback(av, callback_av_video, NULL);
 }
