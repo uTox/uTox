@@ -444,6 +444,10 @@ void redraw(void)
     _redraw = 1;
 }
 
+void config_osdefaults(UTOX_SAVE *r)
+{
+}
+
 static void android_main(void) /* main thread */
 {
     int lx = 0, ly = 0;
