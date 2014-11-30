@@ -562,7 +562,7 @@ UTOX_SAVE* config_load(void)
     save->disableudp = 0;
     save->proxy_port = 0;
     save->proxyenable = 0;
-    save->logging_enabled = 0;
+    save->logging_enabled = 1;
     save->audible_notifications_enabled = 1;
     save->audio_filtering_enabled = 1;
     save->proxy_ip[0] = 0;
