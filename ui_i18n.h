@@ -171,6 +171,14 @@ LANG_WINDOWS_ID(0x0406)
 #include "langs/da.h"
 #undef _LANG_ID
 
+//"SWEDISH" "Svenska"
+#define _LANG_ID LANG_SV
+LANG_POSIX_LOCALE("sv_SE")
+LANG_WINDOWS_ID(0x041d)
+#include "langs/en.h" //fallback to English for untranslated things
+#include "langs/sv.h"
+#undef _LANG_ID
+
 //"HUNGARIAN" "Magyar"
 #define _LANG_ID LANG_HU
 LANG_POSIX_LOCALE("hu_HU")
