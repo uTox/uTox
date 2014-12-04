@@ -112,6 +112,9 @@ msgstr("Вибір пристроїв")
 msgid(AUDIOINPUTDEVICE)
 msgstr("Пристрій захоплення звуку")
 
+msgid(AUDIOFILTERING)
+msgstr("Filter Audio")
+
 msgid(AUDIOOUTPUTDEVICE)
 msgstr("Пристрій відтворення звуку")
 
@@ -232,13 +235,11 @@ msgstr("Так")
 msgid(VIDEO_IN_NONE)
 msgstr("Не вибрано")
 
-//TODO: Localize or remove.
-//msgid(VIDEO_IN_DESKTOP)
-//msgstr("Desktop") //Стільниця
+msgid(VIDEO_IN_DESKTOP)
+msgstr("Стільниця")
 
-//TODO: Localize or remove.
-//msgid(AUDIO_IN_DEFAULT_LOOPBACK)
-//msgstr("Default Loopback")
+msgid(AUDIO_IN_DEFAULT_LOOPBACK)
+msgstr("Default Loopback")
 
 msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
 msgstr("Будь ласка, додайте мене в друзі.")
@@ -254,3 +255,9 @@ msgstr("Порт")
 
 msgid(WINDOW_TITLE_VIDEO_PREVIEW)
 msgstr("Попередній перегляд відео")
+
+msgid(MUTE)
+msgstr("Вимкути звуки")
+
+msgid(UNMUTE)
+msgstr("Увімкнути звуки")
