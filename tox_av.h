@@ -690,6 +690,8 @@ static void audio_thread(void *args)
             audio_filtering_enabled = 0;
 #endif
 
+        _Bool sleep = 1;
+
         if(record_on) {
             _Bool frame = 0;
             if(device_in == (void*)1) {
@@ -700,6 +702,9 @@ static void audio_thread(void *args)
                 if(samples >= perframe) {
                     alcCaptureSamples(device_in, buf, perframe);
                     frame = 1;
+                    if (samples >= perframe * 2) {
+                        sleep = 0;
+                    }
                 }
             }
 
@@ -743,7 +748,9 @@ static void audio_thread(void *args)
             }
         }
 
-        yieldcpu(5);
+        if (sleep) {
+            yieldcpu(5);
+        }
     }
 
     //missing some cleanup ?
