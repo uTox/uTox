@@ -5,10 +5,10 @@ msgid(LANG_ENGLISH_NAME)
 msgstr("RUSSIAN")
 
 msgid(REQ_SENT)
-msgstr("Запрос добавления в друзья отправлен. Ваш друг появится в сети, как только подтвердит запрос.")
+msgstr("Запрос на добавление в друзья отправлен. Ваш друг появится в сети, как только подтвердит запрос.")
 
 msgid(REQ_RESOLVE)
-msgstr("Попытка определения DNS-имени...")
+msgstr("Определение DNS-имени...")
 
 msgid(REQ_INVALID_ID)
 msgstr("Ошибка: Некорректный Tox ID")
@@ -26,7 +26,7 @@ msgid(REQ_SELF_ID)
 msgstr("Ошибка: Tox ID совпадает с собственным")
 
 msgid(REQ_ALREADY_FRIENDS)
-msgstr("Ошибка: Tox ID уже в списке друзей")
+msgstr("Ошибка: Tox ID уже есть в списке друзей")
 
 msgid(REQ_UNKNOWN)
 msgstr("Ошибка: Неизвестная")
@@ -35,7 +35,7 @@ msgid(REQ_BAD_CHECKSUM)
 msgstr("Ошибка: Некорректный Tox ID (контрольная сумма не совпадает)")
 
 msgid(REQ_BAD_NOSPAM)
-msgstr("Ошибка: Некорректный Tox ID (плохое значение nospam)")
+msgstr("Ошибка: Некорректный Tox ID (неверное значение nospam)")
 
 msgid(REQ_NO_MEMORY)
 msgstr("Ошибка: Не хватает памяти")
@@ -45,10 +45,6 @@ msgstr("Передача нового файла")
 
 msgid(TRANSFER_STARTED)
 msgstr("Передача файла начата")
-
-//TODO: Same as in English? Localize or remove.
-//msgid(TRANSFER___)
-//msgstr("...")
 
 msgid(TRANSFER_PAUSED)
 msgstr("Передача файла приостановлена")
@@ -69,17 +65,13 @@ msgid(CALL_INVITED)
 msgstr("Входящий звонок")
 
 msgid(CALL_RINGING)
-msgstr("Исходящий Звонок")
+msgstr("Исходящий звонок")
 
 msgid(CALL_STARTED)
 msgstr("Разговор начат")
 
 msgid(ADDFRIENDS)
 msgstr("Добавить друзей")
-
-//TODO: Same as in English? Localize or remove.
-//msgid(TOXID)
-//msgstr("Tox ID")
 
 msgid(MESSAGE)
 msgstr("Сообщение")
@@ -94,16 +86,16 @@ msgid(SWITCHPROFILE)
 msgstr("Переключить профиль")
 
 msgid(FRIENDREQUEST)
-msgstr("Запрос добавления в список друзей")
+msgstr("Запрос на добавление в список друзей")
 
 msgid(USERSETTINGS)
-msgstr("Настройки пользователя")
+msgstr("Настройки")
 
 msgid(NAME)
 msgstr("Имя")
 
 msgid(STATUSMESSAGE)
-msgstr("Статусное сообщение")
+msgstr("Статус")
 
 msgid(PREVIEW)
 msgstr("Предпросмотр")
@@ -113,6 +105,9 @@ msgstr("Выбор устройств")
 
 msgid(AUDIOINPUTDEVICE)
 msgstr("Устройство ввода звука")
+
+msgid(AUDIOFILTERING)
+msgstr("Фильтр аудио")
 
 msgid(AUDIOOUTPUTDEVICE)
 msgstr("Устройство вывода звука")
@@ -135,19 +130,11 @@ msgstr("Язык")
 msgid(NETWORK)
 msgstr("Сеть")
 
-//TODO: Same as in English? Localize or remove.
-//msgid(IPV6)
-//msgstr("IPv6:")
-
-//TODO: Same as in English? Localize or remove.
-//msgid(UDP)
-//msgstr("UDP:")
-
 msgid(PROXY)
 msgstr("Прокси (SOCKS 5)")
 
 msgid(WARNING)
-msgstr("Изменение настроек сети или прокси-сервера требует отключения от сети Tox")
+msgstr("Для изменения сетевых настроек необходимо отключение от сети Tox")
 
 msgid(LOGGING)
 msgstr("Сохранять историю чата")
@@ -156,7 +143,7 @@ msgid(AUDIONOTIFICATIONS)
 msgstr("Включить звуковое уведомление (мелодия звонка)")
 
 msgid(IS_TYPING)
-msgstr("пишет...")
+msgstr("печатает...")
 
 msgid(COPY)
 msgstr("Копировать")
@@ -180,7 +167,7 @@ msgid(REMOVE)
 msgstr("Удалить")
 
 msgid(LEAVE)
-msgstr("Покинуть")
+msgstr("Выйти")
 
 msgid(ACCEPT)
 msgstr("Принять")
@@ -222,7 +209,7 @@ msgid(PROXY_DISABLED)
 msgstr("Отключено")
 
 msgid(PROXY_FALLBACK)
-msgstr("Если нужно")
+msgstr("Если необходимо")
 
 msgid(PROXY_ALWAYS_USE)
 msgstr("Всегда")
@@ -240,7 +227,7 @@ msgid(VIDEO_IN_DESKTOP)
 msgstr("Рабочий стол")
 
 msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
-msgstr("Пожалуйста, добавьте меня в друзья.")
+msgstr("Пожалуйста, добавьте меня в свой список друзей.")
 
 msgid(CONTACTS_FILTER_EDIT_HINT)
 msgstr("Поиск контакта")
@@ -248,10 +235,14 @@ msgstr("Поиск контакта")
 msgid(PROXY_EDIT_HINT_PORT)
 msgstr("Порт")
 
-//TODO: Localize or remove.
-//msgid(AUDIO_IN_DEFAULT_LOOPBACK)
-//msgstr("Default Loopback")
+msgid(AUDIO_IN_DEFAULT_LOOPBACK)
+msgstr("Стандартная петля")
 
 msgid(WINDOW_TITLE_VIDEO_PREVIEW)
 msgstr("Предпросмотр видео")
 
+msgid(MUTE)
+msgstr("Заглушить")
+
+msgid(UNMUTE)
+msgstr("Включить")
