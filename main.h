@@ -112,6 +112,8 @@ volatile _Bool audible_notifications_enabled;
 
 volatile _Bool audio_filtering_enabled;
 
+volatile uint16_t loaded_audio_in_device, loaded_audio_out_device;
+
 #define MAX_NUM_FRIENDS 256
 #define MAX_NUM_GROUPS 512
 

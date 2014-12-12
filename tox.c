@@ -1130,11 +1130,25 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         } else {
             list_dropdown_add_localized(&dropdown_audio_in, param1, data);
         }
+
+        if (loaded_audio_in_device != 0 && (dropdown_audio_in.dropcount - 1) == loaded_audio_in_device) {
+            toxaudio_postmessage(AUDIO_SET_INPUT, 0, 0, data);
+            dropdown_audio_in.selected = loaded_audio_in_device;
+            loaded_audio_in_device = 0;
+        }
+
         break;
     }
 
     case NEW_AUDIO_OUT_DEVICE: {
         list_dropdown_add_hardcoded(&dropdown_audio_out, data, data);
+
+        if (loaded_audio_out_device != 0 && (dropdown_audio_out.dropcount - 1) == loaded_audio_out_device) {
+            toxaudio_postmessage(AUDIO_SET_OUTPUT, 0, 0, data);
+            dropdown_audio_out.selected = loaded_audio_out_device;
+            loaded_audio_out_device = 0;
+        }
+
         break;
     }
 

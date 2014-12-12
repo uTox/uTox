@@ -566,7 +566,7 @@ UTOX_SAVE* config_load(void)
             goto NEXT;
         } else if (save->version == 2) {
             UTOX_SAVE_V2 *save_v2 = save;
-            save = malloc(sizeof(UTOX_SAVE) + 1 + strlen(save_v2->proxy_ip));
+            save = calloc(sizeof(UTOX_SAVE) + 1 + strlen(save_v2->proxy_ip), 1);
 
             memcpy(save, save_v2, sizeof(UTOX_SAVE_V2));
             save->version = SAVE_VERSION;
@@ -621,6 +621,8 @@ NEXT:
     logging_enabled = save->logging_enabled;
     audible_notifications_enabled = save->audible_notifications_enabled;
     audio_filtering_enabled = save->audio_filtering_enabled;
+    loaded_audio_out_device = save->audio_device_out;
+    loaded_audio_in_device = save->audio_device_in;
 
     return save;
 }
@@ -650,8 +652,8 @@ void config_save(UTOX_SAVE *save)
     save->filter = FILTER;
     save->proxy_port = options.proxy_port;
 
-    save->audio_device_out = dropdown_audio_in.selected;
-    save->audio_device_in = dropdown_audio_out.selected;
+    save->audio_device_in = dropdown_audio_in.selected;
+    save->audio_device_out = dropdown_audio_out.selected;
     memset(save->unused, 0, sizeof(save->unused));
 
     fwrite(save, sizeof(*save), 1, file);
