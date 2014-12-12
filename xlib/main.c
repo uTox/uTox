@@ -815,6 +815,11 @@ int main(int argc, char *argv[])
     /* create window */
     window = XCreateWindow(display, RootWindow(display, screen), save->window_x, save->window_y, save->window_width, save->window_height, 0, depth, InputOutput, visual, CWBackPixmap | CWBorderPixel | CWEventMask, &attrib);
 
+    /* choose available libraries for optional UI stuff */
+    if(!(libgtk = gtk_load())) {
+        //try Qt
+    }
+
     /* start the tox thread */
     thread(tox_thread, NULL);
 
@@ -864,11 +869,6 @@ int main(int argc, char *argv[])
 
     /* set the window name */
     XSetStandardProperties(display, window, "uTox", "uTox", None, argv, argc, None);
-
-    /* choose available libraries for optional UI stuff */
-    if(!(libgtk = gtk_load())) {
-        //try Qt
-    }
 
     /* initialize fontconfig */
     initfonts();
