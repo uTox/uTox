@@ -527,6 +527,20 @@ void scale_rgbx_image(uint8_t *old_rgbx, uint16_t old_width, uint16_t old_height
     }
 }
 
+typedef struct
+{
+    uint8_t version, scale, enableipv6, disableudp;
+    uint16_t window_x, window_y, window_width, window_height;
+    uint16_t proxy_port;
+    uint8_t proxyenable;
+    uint8_t logging_enabled : 1;
+    uint8_t audible_notifications_enabled : 1;
+    uint8_t filter : 1;
+    uint8_t audio_filtering_enabled : 1;
+    uint8_t zero : 4;
+    uint8_t proxy_ip[0];
+}UTOX_SAVE_V2;
+
 UTOX_SAVE* config_load(void)
 {
     uint8_t path[512], *p;
@@ -550,6 +564,20 @@ UTOX_SAVE* config_load(void)
                 save->scale = 4;
             }
             goto NEXT;
+        } else if (save->version == 2) {
+            UTOX_SAVE_V2 *save_v2 = save;
+            save = malloc(sizeof(UTOX_SAVE) + 1 + strlen(save_v2->proxy_ip));
+
+            memcpy(save, save_v2, sizeof(UTOX_SAVE_V2));
+            save->version = SAVE_VERSION;
+
+            if(save->scale > 4) {
+                save->scale = 4;
+            }
+
+            strcpy((char*)save->proxy_ip, (char*)save_v2->proxy_ip);
+            free(save_v2);
+            goto NEXT;
         } else {
             free(save);
         }
@@ -566,6 +594,7 @@ UTOX_SAVE* config_load(void)
     save->audible_notifications_enabled = 1;
     save->audio_filtering_enabled = 1;
     save->proxy_ip[0] = 0;
+    save->filter = 0;
 
     config_osdefaults(save);
 NEXT:
@@ -620,6 +649,10 @@ void config_save(UTOX_SAVE *save)
 
     save->filter = FILTER;
     save->proxy_port = options.proxy_port;
+
+    save->audio_device_out = dropdown_audio_in.selected;
+    save->audio_device_in = dropdown_audio_out.selected;
+    memset(save->unused, 0, sizeof(save->unused));
 
     fwrite(save, sizeof(*save), 1, file);
     fwrite(options.proxy_address, strlen(options.proxy_address), 1, file);

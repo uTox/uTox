@@ -42,10 +42,13 @@ typedef struct
     uint8_t filter : 1;
     uint8_t audio_filtering_enabled : 1;
     uint8_t zero : 4;
+    uint16_t audio_device_in;
+    uint16_t audio_device_out;
+    uint16_t unused[32];
     uint8_t proxy_ip[0];
 }UTOX_SAVE;
 
-#define SAVE_VERSION 2
+#define SAVE_VERSION 3
 
 typedef struct
 {
