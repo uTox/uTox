@@ -1390,8 +1390,15 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
 
     case WM_LBUTTONUP: {
         ReleaseCapture();
-        panel_mup(&panel_main);
-        mdown = 0;
+        break;
+    }
+
+    case WM_CAPTURECHANGED: {
+        if (mdown) {
+            panel_mup(&panel_main);
+            mdown = 0;
+        }
+
         break;
     }
 
