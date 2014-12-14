@@ -658,7 +658,7 @@ int messages_selection(MESSAGES *m, void *buffer, uint32_t len, _Bool names)
 
     char_t *p = buffer;
 
-    while(i != n) {
+    while(i != MSG_IDX_MAX && i != n) {
         MESSAGE *msg = *dp++;
 
         if(names && (i != m->data->istart || m->data->start == 0)) {
