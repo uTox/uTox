@@ -13,6 +13,7 @@ static void edit_name_onenter(void)
 
     memcpy(self.name, data, length);
     self.name_length = length;
+    redraw_tray();
 
     tox_postmessage(TOX_SETNAME, length, 0, self.name);//!
 }

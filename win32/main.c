@@ -805,6 +805,17 @@ void redraw(void)
 {
     panel_draw(&panel_main, 0, 0, utox_window_width, utox_window_height);
 }
+void redraw_tray(void)
+{
+    NOTIFYICONDATAW nid = {
+        .uFlags = NIF_TIP,
+        .hWnd = hwnd,
+        .cbSize = sizeof(nid),
+    };
+
+    utf8tonative(self.name, nid.szTip, self.name_length > sizeof(nid.szTip) / sizeof(*nid.szTip) -1 ? sizeof(nid.szTip) / sizeof(*nid.szTip) -1 : self.name_length);
+    Shell_NotifyIconW(NIM_MODIFY, &nid);
+}
 
 static int grabx, graby, grabpx, grabpy;
 static _Bool grabbing;
@@ -1081,6 +1092,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     tme.hwndTrack = hwnd;
 
     nid.hWnd = hwnd;
+    strcpy(nid.szTip, self.name);
     Shell_NotifyIcon(NIM_ADD, &nid);
 
     SetBkMode(hdc, TRANSPARENT);
