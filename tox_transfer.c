@@ -30,6 +30,11 @@ void utox_transfer_start_file(Tox *tox, uint32_t fid, uint8_t *path, uint8_t *na
 {
     debug("Sending: %s\n", path);
 
+    if (friend[fid].count_outgoing >= MAX_FILE_TRANSFERS || (file_tend - file_t) >= countof(file_t)) {
+        debug("Maximum outgoing file sending limit reached.\n");
+        return;
+    }
+
     FILE *file = fopen((char*)path, "rb");
     if(!file) {
         return;
@@ -66,6 +71,7 @@ void utox_transfer_start_file(Tox *tox, uint32_t fid, uint8_t *path, uint8_t *na
         fillbuffer(ft);
 
         postmessage(FRIEND_FILE_OUT_NEW, fid, filenumber, NULL);
+        ++friend[fid].count_outgoing;
     } else {
         fclose(file);
         debug("tox_new_file_sender() failed\n");
@@ -74,13 +80,13 @@ void utox_transfer_start_file(Tox *tox, uint32_t fid, uint8_t *path, uint8_t *na
 
 void utox_transfer_start_memory(Tox *tox, uint16_t fid, void *pngdata, size_t size)
 {
+    if (friend[fid].count_outgoing >= MAX_FILE_TRANSFERS || (file_tend - file_t) >= countof(file_t)) {
+        debug("Maximum outgoing file sending limit reached.\n");
+        return;
+    }
+
     int filenumber = tox_new_file_sender(tox, fid, size, (uint8_t*)"inline.png", sizeof("inline.png") - 1);
     if(filenumber != -1) {
-        if(filenumber > countof(friend[0].outgoing)) {
-            tox_file_send_control(tox, fid, 0, filenumber, TOX_FILECONTROL_KILL, NULL, 0);
-            return;
-        }
-
         FILE_T *ft = &friend[fid].outgoing[filenumber];
         memset(ft, 0, sizeof(FILE_T));
 
@@ -111,6 +117,7 @@ void utox_transfer_start_memory(Tox *tox, uint16_t fid, void *pngdata, size_t si
 
 
         postmessage(FRIEND_FILE_OUT_NEW_INLINE, fid, filenumber, NULL);
+        ++friend[fid].count_outgoing;
     } else {
         free(pngdata);
     }
@@ -318,6 +325,7 @@ void utox_thread_work_for_transfers(Tox *tox, uint64_t time)
                     memmove(p, p + 1, ((void*)file_tend - (void*)(p + 1)));
                     p--;
                     file_tend--;
+                    --friend[ft->fid].count_outgoing;
                     ft->status = FT_NONE;
                     break;
                 }
@@ -338,6 +346,7 @@ void utox_thread_work_for_transfers(Tox *tox, uint64_t time)
             memmove(p, p + 1, ((void*)file_tend - (void*)(p + 1)));
             p--;
             file_tend--;
+            --friend[ft->fid].count_outgoing;
             postmessage(FRIEND_FILE_OUT_STATUS, ft->fid, ft->filenumber, (void*)FILE_KILLED);
             break;
         }
@@ -346,6 +355,7 @@ void utox_thread_work_for_transfers(Tox *tox, uint64_t time)
             memmove(p, p + 1, ((void*)file_tend - (void*)(p + 1)));
             p--;
             file_tend--;
+            --friend[ft->fid].count_outgoing;
             break;
         }
 

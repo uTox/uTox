@@ -18,6 +18,7 @@ typedef struct friend {
 
     FILE_T incoming[MAX_FILE_TRANSFERS];
     FILE_T outgoing[MAX_FILE_TRANSFERS];
+    uint16_t count_outgoing;
 } FRIEND;
 
 #define MAX_GROUP_PEERS 256
