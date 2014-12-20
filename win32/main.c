@@ -806,12 +806,12 @@ void redraw(void)
     panel_draw(&panel_main, 0, 0, utox_window_width, utox_window_height);
 }
 /**
- * redraw_tray(void)
+ * update_tray(void)
  * creates a win32 NOTIFYICONDATAW struct, sets the tiptab flag, gives *hwnd,
  * sets struct .cbSize, and resets the tibtab to native self.name;
  */
 
-void redraw_tray(void)
+void update_tray(void)
 {
     char *tip;
     tip = malloc(128 * sizeof(char)); //128 is the max length of nid.szTip
@@ -1127,7 +1127,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
 
     draw = 1;
     redraw();
-    redraw_tray();
+    update_tray();
 
     while(GetMessage(&msg, NULL, 0, 0)) {
         TranslateMessage(&msg);
