@@ -805,16 +805,29 @@ void redraw(void)
 {
     panel_draw(&panel_main, 0, 0, utox_window_width, utox_window_height);
 }
+/**
+ * redraw_tray(void)
+ * creates a win32 NOTIFYICONDATAW struct, sets the tiptab flag, gives *hwnd,
+ * sets struct .cbSize, and resets the tibtab to native self.name;
+ */
+
 void redraw_tray(void)
 {
+    char *tip;
+    tip = malloc(128 * sizeof(char)); //128 is the max length of nid.szTip
+    snprintf(tip, 127*sizeof(char), "%s : %s", self.name, self.statusmsg);
+
     NOTIFYICONDATAW nid = {
         .uFlags = NIF_TIP,
         .hWnd = hwnd,
         .cbSize = sizeof(nid),
     };
 
-    utf8tonative(self.name, nid.szTip, self.name_length > sizeof(nid.szTip) / sizeof(*nid.szTip) -1 ? sizeof(nid.szTip) / sizeof(*nid.szTip) -1 : self.name_length);
+    utf8tonative(tip, nid.szTip, strlen(tip));
+
     Shell_NotifyIconW(NIM_MODIFY, &nid);
+
+    free(tip);
 }
 
 static int grabx, graby, grabpx, grabpy;
@@ -1063,7 +1076,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
         .uFlags = NIF_MESSAGE | NIF_ICON | NIF_TIP,
         .uCallbackMessage = WM_NOTIFYICON,
         .hIcon = my_icon,
-        .szTip = "Tox - tooltip",
+        .szTip = "uTox default tooltip",
         .cbSize = sizeof(nid),
     };
 
@@ -1092,8 +1105,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     tme.hwndTrack = hwnd;
 
     nid.hWnd = hwnd;
-    strcpy(nid.szTip, self.name);
     Shell_NotifyIcon(NIM_ADD, &nid);
+
 
     SetBkMode(hdc, TRANSPARENT);
 
@@ -1114,6 +1127,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
 
     draw = 1;
     redraw();
+    redraw_tray();
 
     while(GetMessage(&msg, NULL, 0, 0)) {
         TranslateMessage(&msg);

@@ -35,6 +35,7 @@ static void edit_status_onenter(void)
     self.statusmsg = p;
     memcpy(self.statusmsg, data, length);
     self.statusmsg_length = length;
+    redraw_tray();
 
     tox_postmessage(TOX_SETSTATUSMSG, length, 0, self.statusmsg);//!
 }
