@@ -13,6 +13,7 @@ static void edit_name_onenter(void)
 
     memcpy(self.name, data, length);
     self.name_length = length;
+    update_tray();
 
     tox_postmessage(TOX_SETNAME, length, 0, self.name);//!
 }
@@ -34,6 +35,7 @@ static void edit_status_onenter(void)
     self.statusmsg = p;
     memcpy(self.statusmsg, data, length);
     self.statusmsg_length = length;
+    update_tray();
 
     tox_postmessage(TOX_SETSTATUSMSG, length, 0, self.statusmsg);//!
 }

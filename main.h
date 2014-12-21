@@ -26,7 +26,7 @@
 #define DEFAULT_STATUS "Toxing on uTox"
 #define DEFAULT_SCALE 2
 
-#define VERSION "0.1.8"
+#define VERSION "0.1.8a"
 
 #define MAX_CALLS 16
 #define MAX_BACKLOG_MESSAGES 128
@@ -222,6 +222,7 @@ void drawimage(UTOX_NATIVE_IMAGE, int x, int y, int width, int height, int maxwi
 UTOX_NATIVE_IMAGE png_to_image(UTOX_PNG_IMAGE, size_t png_size, uint16_t *w, uint16_t *h);
 void showkeyboard(_Bool show);
 void redraw(void);
+void update_tray(void);
 
 int datapath_old(uint8_t *dest);
 int datapath(uint8_t *dest);
