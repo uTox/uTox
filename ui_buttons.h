@@ -384,7 +384,8 @@ button_add = {
     .bw = _BM_ADD_WIDTH,
     .bh = _BM_ADD_WIDTH,
 
-    .onpress = button_add_onpress
+    .onpress = button_add_onpress,
+    .tooltip_text = { .i18nal = STR_ADDFRIENDS },
 },
 
 button_groups = {
@@ -395,7 +396,7 @@ button_groups = {
     .bw = _BM_ADD_WIDTH,
     .bh = _BM_ADD_WIDTH,
 
-    .onpress = button_groups_onpress
+    .onpress = button_groups_onpress,
 },
 
 button_transfer = {
@@ -406,7 +407,8 @@ button_transfer = {
     .bw = _BM_ADD_WIDTH,
     .bh = _BM_ADD_WIDTH,
 
-    .onpress = button_transfer_onpress
+    .onpress = button_transfer_onpress,
+    .tooltip_text = { .i18nal = STR_TRANSFER_NEW },
 },
 
 button_settings = {
@@ -417,7 +419,8 @@ button_settings = {
     .bw = _BM_ADD_WIDTH,
     .bh = _BM_ADD_WIDTH,
 
-    .onpress = button_settings_onpress
+    .onpress = button_settings_onpress,
+    .tooltip_text = { .i18nal = STR_OTHERSETTINGS },
 },
 
 button_copyid = {
