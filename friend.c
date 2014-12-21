@@ -102,6 +102,7 @@ void friend_addmessage(FRIEND *f, void *data)
 
     message_add(&messages_friend, data, &f->msg);
 
+    /* if msg_type is text/action ? create tray popup */
     switch(msg->msg_type) {
     case MSG_TYPE_TEXT:
     case MSG_TYPE_ACTION_TEXT: {
