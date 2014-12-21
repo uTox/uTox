@@ -96,6 +96,12 @@ enum
     TRAY_STATUS_BUSY,
 };
 
+/** Translate a char* from UTF-8 encoding to OS native;
+ *
+ * Accepts char_t pointer, native array pointer, length of input;
+ * Retuns: number of chars writen, or 0 on failure.
+ *
+ */
 static int utf8tonative(char_t *str, wchar_t *out, int length)
 {
     return MultiByteToWideChar(CP_UTF8, 0, (char*)str, length, out, length);
@@ -455,6 +461,7 @@ void setselection(char_t *data, STRING_IDX length)
 {
 }
 
+/** Toggels the main window to/from hidden to tray/shown. */
 void togglehide(void)
 {
     if(hidden) {
@@ -468,6 +475,7 @@ void togglehide(void)
     }
 }
 
+/** Right click context menu for the tray icon */
 void ShowContextMenu(void)
 {
     POINT pt;
@@ -771,7 +779,11 @@ void flush_file(FILE *file)
     int fd = _fileno(file);
     _commit(fd);
 }
-
+/** Creates a tray baloon popup with the message, and flashes the main window 
+ *
+ * accepts: char_t *title, title legnth, char_t *msg, msg length;
+ * returns void;
+ */
 void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_length)
 {
     if(havefocus) {
@@ -801,6 +813,7 @@ void showkeyboard(_Bool show)
 
 }
 
+/* Redraws the main UI window */
 void redraw(void)
 {
     panel_draw(&panel_main, 0, 0, utox_window_width, utox_window_height);
@@ -985,6 +998,14 @@ void config_osdefaults(UTOX_SAVE *r)
 
 #include "dnd.c"
 
+/** client main()
+ *
+ * Main thread
+ * generates settings, loads settings from save file, generates main UI, starts
+ * tox, generates tray icon, handels client messages. Cleans up, and exits.
+ *
+ * also handles call from other apps.
+ */
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int nCmdShow)
 {
     /* if opened with argument, check if uTox is already open and pass the argument to the existing process */
@@ -1129,6 +1150,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     return 0;
 }
 
+/** Handels all callback requests from winmain();
+ *
+ * handels the window functions internally, and ships off the tox calls to tox
+ */
 LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     static int mx, my;
