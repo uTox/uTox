@@ -17,6 +17,11 @@ static FRIEND* get_typers(MESSAGES *m) {
     return NULL;
 }
 
+/** Formats all messages from self and friends, and then call draw functions
+ * to write them to the UI.
+ *
+ * accepts: messages struct *pointer, int x,y positions, int width,height
+ */
 void messages_draw(MESSAGES *m, int x, int y, int width, int height)
 {
     setcolor(0);
@@ -844,6 +849,13 @@ void message_updateheight(MESSAGES *m, MESSAGE *msg, MSG_DATA *p)
     }
 }
 
+/** Appends a messages from self or firend to the message list;
+ * will realloc or trim messages as needed;
+ *
+ * also handels auto scrolling selections with messages
+ *
+ * accepts: MESSAGES *pointer, MESSAGE *pointer, MSG_DATA *pointer
+ */
 void message_add(MESSAGES *m, MESSAGE *msg, MSG_DATA *p)
 {
     time_t rawtime;

@@ -657,6 +657,8 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
          * param2: message length
          * data: message
          */
+
+        /* write message to friend to logfile */
         log_write(tox, param1, data, param2, 1, LOG_FILE_MSG_TYPE_TEXT);
 
         void *p = data;
@@ -678,6 +680,7 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
          * data: message
          */
 
+        /* write action/emote to friend to logfile */
         log_write(tox, param1, data, param2, 1, LOG_FILE_MSG_TYPE_ACTION);
 
         void *p = data;

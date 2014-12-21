@@ -57,19 +57,23 @@ static void callback_friend_request(Tox *UNUSED(tox), const uint8_t *id, const u
 
 static void callback_friend_message(Tox *tox, int fid, const uint8_t *message, uint16_t length, void *UNUSED(userdata))
 {
+    /* send message to UI */
     postmessage(FRIEND_MESSAGE, fid, 0, copy_message(message, length, MSG_TYPE_TEXT));
 
     debug("Friend Message (%u): %.*s\n", fid, length, message);
 
+    /* write message to logfile */
     log_write(tox, fid, message, length, 0, LOG_FILE_MSG_TYPE_TEXT);
 }
 
 static void callback_friend_action(Tox *tox, int fid, const uint8_t *action, uint16_t length, void *UNUSED(userdata))
 {
+    /* send action/emote to UI */
     postmessage(FRIEND_MESSAGE, fid, 0, copy_message(action, length, MSG_TYPE_ACTION_TEXT));
 
     debug("Friend Action (%u): %.*s\n", fid, length, action);
 
+    /* write action/emote to logfile */
     log_write(tox, fid, action, length, 0, LOG_FILE_MSG_TYPE_ACTION);
 }
 
