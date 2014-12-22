@@ -740,6 +740,10 @@ void redraw(void)
     _redraw = 1;
 }
 
+void update_tray(void)
+{
+}
+
 #include "event.c"
 
 int depth;
