@@ -42,6 +42,9 @@ uint32_t status_color[] = {
     C_RED
 };
 
+/* Draw funcitons to generate Window pages */
+
+/* Top left self interface Avatar, name, statusmsg, status icon */
 static void drawself(void)
 {
     //40x40 self icon at 10,10
@@ -61,6 +64,7 @@ static void drawself(void)
     drawalpha(BM_ONLINE + status, SELF_STATUS_X + BM_STATUSAREA_WIDTH / 2 - BM_STATUS_WIDTH / 2, SELF_STATUS_Y + BM_STATUSAREA_HEIGHT / 2 - BM_STATUS_WIDTH / 2, BM_STATUS_WIDTH, BM_STATUS_WIDTH, status_color[status]);
 }
 
+/* List of friends */
 static void drawfriend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height))
 {
     FRIEND *f = sitem->data;
@@ -133,6 +137,7 @@ static void drawgroup(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(he
     }
 }
 
+/* Draw an invite to be a friend window */
 static void drawfriendreq(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height))
 {
     FRIENDREQ *req = sitem->data;
@@ -146,6 +151,7 @@ static void drawfriendreq(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSE
     drawtextrange(LIST_RIGHT + 5 * SCALE, utox_window_width, 20 * SCALE, req->msg, req->length);
 }
 
+/* Draw add a friend window */
 static void drawadd(int UNUSED(x), int UNUSED(y), int UNUSED(w), int height)
 {
     setcolor(C_TITLE);
@@ -196,7 +202,7 @@ static void drawadd(int UNUSED(x), int UNUSED(y), int UNUSED(w), int height)
     }
 }
 
-
+/* Top bar for user settings */
 static void drawsettings(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height))
 {
     setcolor(C_TITLE);
@@ -204,6 +210,8 @@ static void drawsettings(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UN
     drawstr(LIST_RIGHT + SCALE * 5, SCALE * 10, USERSETTINGS);
 }
 
+/* draw switch profile top bar */
+/* Current TODO */
 static void drawtransfer(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height))
 {
     setcolor(C_TITLE);
@@ -211,6 +219,7 @@ static void drawtransfer(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UN
     drawstr(LIST_RIGHT + SCALE * 5, SCALE * 10, SWITCHPROFILE);
 }
 
+/* Text content for settings page */
 static void drawsettings_content(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height))
 {
     setcolor(C_TITLE);
@@ -442,6 +451,7 @@ panel_item[] = {
     },
 },
 
+/* Side panel probably the chat window */
 panel_side = {
     .type = PANEL_NONE,
     .child = (PANEL*[]) {
@@ -449,6 +459,7 @@ panel_side = {
     }
 },
 
+/* Main window structure */
 panel_main = {
     .type = PANEL_MAIN,
     .child = (PANEL*[]) {
