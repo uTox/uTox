@@ -509,7 +509,7 @@ void ui_scale(uint8_t scale)
     messages_group.panel.width = -SCROLL_WIDTH;
 
     scroll_settings.panel.y = LIST_Y;
-    scroll_settings.content_height = 400 * SCALE;
+    scroll_settings.content_height = 375 * SCALE;
 
     scroll_group.panel.y = LIST_Y;
     scroll_group.panel.height = MESSAGES_BOTTOM;
