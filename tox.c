@@ -1041,6 +1041,7 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
     }
 }
 
+/** Translates status code to text then sends back to the user */
 static void file_notify(FRIEND *f, MSG_FILE *msg)
 {
     STRING *str;

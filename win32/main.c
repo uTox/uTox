@@ -166,7 +166,6 @@ void drawimage(UTOX_NATIVE_IMAGE data, int x, int y, int width, int height, int 
             BitBlt(hdc, x, y, width, height, hdcMem, 0, 0, SRCCOPY);
         }
     }
-
 }
 
 void drawtext(int x, int y, char_t *str, STRING_IDX length)
@@ -382,6 +381,7 @@ void openurl(char_t *str)
     ShellExecute(NULL, "open", (char*)str, NULL, NULL, SW_SHOW);
 }
 
+/** Open system file browser dialog */
 void openfilesend(void)
 {
     char *filepath = malloc(1024);
