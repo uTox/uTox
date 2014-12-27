@@ -64,7 +64,7 @@ static void drawself(void)
     drawalpha(BM_ONLINE + status, SELF_STATUS_X + BM_STATUSAREA_WIDTH / 2 - BM_STATUS_WIDTH / 2, SELF_STATUS_Y + BM_STATUSAREA_HEIGHT / 2 - BM_STATUS_WIDTH / 2, BM_STATUS_WIDTH, BM_STATUS_WIDTH, status_color[status]);
 }
 
-/* List of friends */
+/* Header for friend chat window */
 static void drawfriend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height))
 {
     FRIEND *f = sitem->data;
