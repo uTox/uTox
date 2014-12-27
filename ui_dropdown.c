@@ -53,8 +53,8 @@ static void dropdown_filter_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
 
 static void dropdown_proxy_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
 {
-    if((i != 0) != (options.proxy_enabled) || i) {
-        options.proxy_enabled = (i != 0);
+    if((i != 0) != (options.proxy_type) || i) {
+        options.proxy_type = (i != 0);
         if(i == 2 && !options.udp_disabled) {
             options.udp_disabled = 1;
             dropdown_udp.selected = dropdown_udp.over = 1;

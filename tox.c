@@ -465,10 +465,10 @@ void tox_thread(void *UNUSED(args))
     uint8_t id[TOX_FRIEND_ADDRESS_SIZE];
 
 TOP:;
-    debug("new tox object ipv6: %u no_udp: %u proxy: %u %s %u\n", options.ipv6enabled, options.udp_disabled, options.proxy_enabled, options.proxy_address, options.proxy_port);
+    debug("new tox object ipv6: %u no_udp: %u proxy: %u %s %u\n", options.ipv6enabled, options.udp_disabled, options.proxy_type, options.proxy_address, options.proxy_port);
     if((tox = tox_new(&options)) == NULL) {
         debug("trying without proxy\n");
-        if(!options.proxy_enabled || (options.proxy_enabled = 0, (tox = tox_new(&options)) == NULL)) {
+        if(!options.proxy_type || (options.proxy_type = TOX_PROXY_NONE, (tox = tox_new(&options)) == NULL)) {
             debug("trying without ipv6\n");
             if(!options.ipv6enabled || (options.ipv6enabled = 0, (tox = tox_new(&options)) == NULL)) {
                 debug("tox_new() failed\n");

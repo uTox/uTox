@@ -176,7 +176,7 @@ static void edit_proxy_ip_port_onlosefocus(void)
 
     options.proxy_port = proxy_port;
 
-    if (options.proxy_enabled)
+    if (options.proxy_type)
         tox_settingschanged();
 }
 
