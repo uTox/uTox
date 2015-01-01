@@ -458,112 +458,132 @@ static void utox_thread_work_for_typing_notifications(Tox *tox, uint64_t time)
     }
 }
 
+/** void tox_thread(void)
+ *
+ * Main tox function, starts a new toxcore for utox to use, and then spwans it's
+ * threads.
+ *
+ * Accepts and retuns nothing.
+ */
 void tox_thread(void *UNUSED(args))
 {
     Tox *tox;
     ToxAv *av;
     uint8_t id[TOX_FRIEND_ADDRESS_SIZE];
 
-TOP:;
-    debug("new tox object ipv6: %u no_udp: %u proxy: %u %s %u\n", options.ipv6enabled, options.udp_disabled, options.proxy_type, options.proxy_address, options.proxy_port);
-    if((tox = tox_new(&options)) == NULL) {
-        debug("trying without proxy\n");
-        if(!options.proxy_type || (options.proxy_type = TOX_PROXY_NONE, (tox = tox_new(&options)) == NULL)) {
-            debug("trying without ipv6\n");
-            if(!options.ipv6enabled || (options.ipv6enabled = 0, (tox = tox_new(&options)) == NULL)) {
-                debug("tox_new() failed\n");
-                exit(1);
+    do {
+        // Create main connection
+        debug("new tox object ipv6: %u no_udp: %u proxy: %u %s %u\n", options.ipv6enabled, options.udp_disabled, options.proxy_type, options.proxy_address, options.proxy_port);
+        if((tox = tox_new(&options)) == NULL) {
+            debug("trying without proxy\n");
+            if(!options.proxy_type || (options.proxy_type = TOX_PROXY_NONE, (tox = tox_new(&options)) == NULL)) {
+                debug("trying without ipv6\n");
+                if(!options.ipv6enabled || (options.ipv6enabled = 0, (tox = tox_new(&options)) == NULL)) {
+                    debug("tox_new() failed\n");
+                    exit(1);
+                }
+                dropdown_ipv6.selected = dropdown_ipv6.over = 1;
             }
-            dropdown_ipv6.selected = dropdown_ipv6.over = 1;
-        }
-        dropdown_proxy.selected = dropdown_proxy.over = 0;
-    }
-
-    if(!load_save(tox)) {
-        debug("No save file, using defaults\n");
-        load_defaults(tox);
-    }
-
-    edit_setstr(&edit_name, self.name, self.name_length);
-    edit_setstr(&edit_status, self.statusmsg, self.statusmsg_length);
-
-    tox_get_address(tox, id);
-    id_to_string(self.id, id);
-
-    debug("Tox ID: %.*s\n", (int)sizeof(self.id), self.id);
-
-    set_callbacks(tox);
-
-    do_bootstrap(tox);
-
-    av = toxav_new(tox, MAX_CALLS);
-
-    set_av_callbacks(av);
-
-
-    global_av = av;
-    tox_thread_init = 1;
-
-    thread(audio_thread, av);
-    thread(video_thread, av);
-    thread(toxav_thread, av);
-
-    _Bool connected = 0, reconfig;
-    uint64_t last_save = get_time(), time;
-    while(1) {
-        tox_do(tox);
-
-        if(tox_isconnected(tox) != connected) {
-            connected = !connected;
-            postmessage(DHT_CONNECTED, connected, 0, NULL);
-
-            debug("Connected to DHT: %u\n", connected);
+            dropdown_proxy.selected = dropdown_proxy.over = 0;
         }
 
-        time = get_time();
+        // Load saved information, else use defaults
+        if(!load_save(tox)) {
+            debug("No save file, using defaults\n");
+            load_defaults(tox);
+        }
 
-        if(time - last_save >= (uint64_t)10 * 1000 * 1000 * 1000) {
-            last_save = time;
+        // Set local info for self
+        edit_setstr(&edit_name, self.name, self.name_length);
+        edit_setstr(&edit_status, self.statusmsg, self.statusmsg_length);
 
-            if(!connected) {
-                do_bootstrap(tox);
+        // Get tox id, and gets the hex version for utox
+        tox_get_address(tox, id);
+        id_to_string(self.id, id);
+        debug("Tox ID: %.*s\n", (int)sizeof(self.id), self.id);
+
+        // Give toxcore the functions to call
+        set_callbacks(tox);
+
+        // Connect to bootstraped nodes in "tox_bootstrap.h"
+        do_bootstrap(tox);
+
+        // Start the tox av session.
+        av = toxav_new(tox, MAX_CALLS);
+
+        // Give toxcore the av functions to call
+        set_av_callbacks(av);
+
+        global_av = av;
+        tox_thread_init = 1;
+
+        // Start the treads
+        thread(audio_thread, av);
+        thread(video_thread, av);
+        thread(toxav_thread, av);
+
+        //
+        _Bool connected = 0, reconfig;
+        uint64_t last_save = get_time(), time;
+        while(1) {
+            // Put toxcore to work
+            tox_do(tox);
+
+            // Check currents connection
+            if(tox_isconnected(tox) != connected) {
+                connected = !connected;
+                postmessage(DHT_CONNECTED, connected, 0, NULL);
+
+                debug("Connected to DHT: %u\n", connected);
             }
 
-            write_save(tox);
-        }
+            time = get_time();
 
-        if(tox_thread_msg) {
-            TOX_MSG *msg = &tox_msg;
-            if(!msg->msg) {
-                reconfig = msg->param1;
+            // Wait 1million ticks then reconnect if needed and write save
+            if(time - last_save >= (uint64_t)10 * 1000 * 1000 * 1000) {
+                last_save = time;
+
+                if(!connected) {
+                    do_bootstrap(tox);
+                }
+                write_save(tox);
+            }
+
+            // If there's a message, load it, and send to the tox message thread
+            if(tox_thread_msg) {
+                TOX_MSG *msg = &tox_msg;
+                // If msg->msg is 0, reconfig if needed and break from tox_do
+                if(!msg->msg) {
+                    reconfig = msg->param1;
+                    tox_thread_msg = 0;
+                    break;
+                }
+                tox_thread_message(tox, av, time, msg->msg, msg->param1, msg->param2, msg->data);
                 tox_thread_msg = 0;
-                break;
             }
-            tox_thread_message(tox, av, time, msg->msg, msg->param1, msg->param2, msg->data);
-            tox_thread_msg = 0;
+
+            // Thread active transfers and check if friend is typing
+            utox_thread_work_for_transfers(tox, time);
+            utox_thread_work_for_typing_notifications(tox, time);
+
+            // Ask toxcore how many ms to wait, then wait at the most 20ms
+            uint32_t interval = tox_do_interval(tox);
+            yieldcpu((interval > 20) ? 20 : interval);
         }
 
-        utox_thread_work_for_transfers(tox, time);
-        utox_thread_work_for_typing_notifications(tox, time);
+        write_save(tox);
 
-        uint32_t interval = tox_do_interval(tox);
-        yieldcpu((interval > 20) ? 20 : interval);
-    }
+        // Wait for all a/v threads to return 0
+        while(audio_thread_init || video_thread_init || toxav_thread_init) {
+            yieldcpu(1);
+        }
 
-    write_save(tox);
+        // Stop av threads, and toxcore.
+        debug("av_thread exit, tox thread ending\n");
+        toxav_kill(av);
+        tox_kill(tox);
 
-    while(audio_thread_init || video_thread_init || toxav_thread_init) {
-        yieldcpu(1);
-    }
-
-    debug("av_thread exit, tox thread ending\n");
-
-    toxav_kill(av);
-    tox_kill(tox);
-
-    if(reconfig) {
-        goto TOP;
-    }
+    } while(reconfig);
 
     tox_thread_init = 0;
 }
