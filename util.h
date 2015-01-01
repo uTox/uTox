@@ -21,6 +21,10 @@ void id_to_string(char_t *dest, char_t *src);
  */
 void cid_to_string(char_t *dest, char_t *src);
 
+/* same as id_to_string(), but for TOX_HASH_LENGTH
+ */
+void hash_to_string(char_t *dest, char_t *src);
+
 /* convert string to tox id
  *  on success: returns 1
  *  on failure: returns 0

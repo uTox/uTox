@@ -168,6 +168,38 @@ void drawimage(UTOX_NATIVE_IMAGE data, int x, int y, int width, int height, int 
     }
 }
 
+void drawimage2(UTOX_NATIVE_IMAGE data, int x, int y, int width, int height, int targetwidth, int targetheight)
+{
+    HBITMAP bm = data;
+    SelectObject(hdcMem, bm);
+
+    uint32_t resize;
+    {
+        /* get smallest rational difference of width or height */
+        uint32_t w_resize = targetheight * 65536 / height;
+        uint32_t h_resize = targetwidth * 65536 / width;
+        resize = (abs((int)w_resize - 65536) > abs((int)h_resize - 65536)) ? h_resize : w_resize;
+    }
+
+    uint32_t new_width = width * resize / 65536;
+    uint32_t new_height = height * resize / 65536;
+
+    HDC tempdc = CreateCompatibleDC(NULL);
+    HBITMAP tmp = CreateCompatibleBitmap(hdcMem, new_width, new_height);
+
+    SetStretchBltMode(tempdc, HALFTONE);
+    SelectObject(tempdc, tmp);
+
+    StretchBlt(tempdc, 0, 0, new_width, new_height, hdcMem, 0, 0, width, height, SRCCOPY);
+
+    int xpos = (int) ((double)new_width / 2 - (double)targetwidth / 2);
+    int ypos = (int) ((double)new_height / 2 - (double)targetheight / 2);
+    BitBlt(hdc, x, y, targetwidth, targetheight, tempdc, xpos, ypos, SRCCOPY);
+
+    DeleteObject(tmp);
+    DeleteDC(tempdc);
+}
+
 void drawtext(int x, int y, char_t *str, STRING_IDX length)
 {
     wchar_t out[length];
@@ -404,6 +436,55 @@ void openfilesend(void)
         debug("GetOpenFileName() failed\n");
     }
 
+    SetCurrentDirectoryW(dir);
+}
+
+void openfileavatar(void)
+{
+    char *filepath = malloc(1024);
+    filepath[0] = 0;
+
+    wchar_t dir[1024];
+    GetCurrentDirectoryW(countof(dir), dir);
+
+    OPENFILENAME ofn = {
+        .lStructSize = sizeof(OPENFILENAME),
+        .lpstrFilter = "PNG Files\0*.PNG\0\0",
+        .hwndOwner = hwnd,
+        .lpstrFile = filepath,
+        .nMaxFile = 1024,
+        .Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST,
+    };
+
+    while (1) {
+        if(GetOpenFileName(&ofn)) {
+            uint32_t size;
+
+            void *file_data = file_raw(filepath, &size);
+            if (!file_data) {
+                MessageBox(NULL, (const char *)S(CANT_FIND_FILE_OR_EMPTY), NULL, MB_ICONWARNING);
+            } else if (size > TOX_AVATAR_MAX_DATA_LENGTH) {
+                free(file_data);
+                char_t message[1024];
+                if (sizeof(message) < SLEN(AVATAR_TOO_LARGE_MAX_SIZE_IS) + 16) {
+                    debug("error: AVATAR_TOO_LARGE message is larger than allocated buffer(%u bytes)\n", (unsigned int)sizeof(message));
+                    break;
+                }
+                int len = sprintf(message, "%.*s", SLEN(AVATAR_TOO_LARGE_MAX_SIZE_IS), S(AVATAR_TOO_LARGE_MAX_SIZE_IS));
+                len += sprint_bytes(message+len, sizeof(message)-len, TOX_AVATAR_MAX_DATA_LENGTH);
+                message[len++] = '\0';
+                MessageBox(NULL, message, NULL, MB_ICONWARNING);
+            } else {
+                postmessage(SET_AVATAR, size, 0, file_data);
+                break;
+            }
+        } else {
+            debug("GetOpenFileName() failed\n");
+            break;
+        }
+    }
+
+    free(filepath);
     SetCurrentDirectoryW(dir);
 }
 
@@ -771,6 +852,16 @@ int datapath(uint8_t *dest)
     }
 
     return 0;
+}
+
+int datapath_subdir(uint8_t *dest, const char *subdir)
+{
+    int l = datapath(dest);
+    l += sprintf((char*)(dest+l), "%s", subdir);
+    CreateDirectory((char*)dest, NULL);
+    dest[l++] = '\\';
+
+    return l;
 }
 
 void flush_file(FILE *file)

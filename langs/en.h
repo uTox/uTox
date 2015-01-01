@@ -262,3 +262,8 @@ msgstr("Mute")
 msgid(UNMUTE)
 msgstr("Unmute")
 
+msgid(AVATAR_TOO_LARGE_MAX_SIZE_IS)
+msgstr("Avatar too large. Maximum size: ")
+
+msgid(CANT_FIND_FILE_OR_EMPTY)
+msgstr("Cannot find selected file or selected file is empty.")

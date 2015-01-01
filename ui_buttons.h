@@ -289,6 +289,27 @@ static void button_acceptfriend_onpress(void)
     tox_postmessage(TOX_ACCEPTFRIEND, 0, 0, req);
 }
 
+static void button_avatar_onpress(void)
+{
+    openfileavatar();
+}
+
+static void contextmenu_avatar_onselect(uint8_t i)
+{
+    if (i == 0) {
+        self_remove_avatar();
+    }
+}
+
+static void button_avatar_onright(void)
+{
+    if (self_has_avatar()) {
+        static UI_STRING_ID menu[] = {STR_REMOVE};
+        contextmenu_new(countof(menu), menu, contextmenu_avatar_onselect);
+    }
+}
+
+
 static void button_name_onpress(void)
 {
     list_selectsettings();
@@ -527,6 +548,12 @@ button_chat2 = {
     .c3 = C_GREEN_LIGHT,
     .onpress = button_chat2_onpress,
     .updatecolor = button_chat2_updatecolor,
+},
+
+button_avatar = {
+    .nodraw = 1,
+    .onpress = button_avatar_onpress,
+    .onright = button_avatar_onright,
 },
 
 button_name = {

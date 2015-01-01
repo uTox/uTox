@@ -14,6 +14,7 @@ struct button {
 
     _Bool mouseover, mousedown, disabled, nodraw;
 
+    void (*onright)(void);
     void (*onpress)(void);
     void (*updatecolor)(BUTTON *b);
 };

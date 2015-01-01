@@ -82,6 +82,10 @@ void drawimage(UTOX_NATIVE_IMAGE data, int x, int y, int width, int height, int 
     glUniform3fv(k2, 1, one);
 }
 
+void drawimage2(UTOX_NATIVE_IMAGE, int x, int y, int width, int height, int targetwidth, int targetheight)
+{
+}
+
 void thread(void func(void*), void *args)
 {
     pthread_t thread_temp;
@@ -118,6 +122,10 @@ void openurl(char_t *str)
 }
 
 void openfilesend(void)
+{
+}
+
+void openfileavatar(void)
 {
 }
 

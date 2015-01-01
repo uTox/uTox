@@ -224,6 +224,40 @@ void drawimage(UTOX_NATIVE_IMAGE data, int x, int y, int width, int height, int 
     }
 }
 
+void drawimage2(UTOX_NATIVE_IMAGE data, int x, int y, int width, int height, int targetwidth, int targetheight)
+{
+    Picture bm = data;
+
+    uint32_t resize;
+    {
+        /* get smallest rational difference of width or height */
+        uint32_t w_resize = (width * 65536) / targetwidth;
+        uint32_t h_resize = (height * 65536) / targetheight;
+        resize = (abs((int)w_resize - 65536) > abs((int)h_resize - 65536)) ? h_resize : w_resize;
+    }
+
+    XTransform trans = {
+        {{resize, 0, 0},
+        {0, resize, 0},
+        {0, 0, 65536}}
+    };
+    XRenderSetPictureTransform(display, bm, &trans);
+    XRenderSetPictureFilter(display, bm, FilterBilinear, NULL, 0);
+
+    /* set position to show the middle of the image */
+    int xpos = (int) ((double)width * 65536 / resize / 2 - (double)targetwidth / 2);
+    int ypos = (int) ((double)height * 65536 / resize / 2 - (double)targetheight / 2);
+    XRenderComposite(display, PictOpSrc, bm, None, renderpic, xpos, ypos, 0, 0, x, y, targetwidth, targetheight);
+
+    XTransform trans2 = {
+        {{65536, 0, 0},
+        {0, 65536, 0},
+        {0, 0, 65536}}
+    };
+    XRenderSetPictureFilter(display, bm, FilterNearest, NULL, 0);
+    XRenderSetPictureTransform(display, bm, &trans2);
+}
+
 static int _drawtext(int x, int xmax, int y, char_t *str, STRING_IDX length)
 {
     GLYPH *g;
@@ -403,6 +437,13 @@ void openfilesend(void)
 {
     if(libgtk) {
         gtk_openfilesend();
+    }
+}
+
+void openfileavatar(void)
+{
+    if(libgtk) {
+        gtk_openfileavatar();
     }
 }
 
@@ -668,6 +709,16 @@ int datapath(uint8_t *dest)
 
         return l;
     }
+}
+
+int datapath_subdir(uint8_t *dest, const char *subdir)
+{
+    int l = datapath(dest);
+    l += sprintf((char*)(dest+l), "%s", subdir);
+    mkdir((char*)dest, 0700);
+    dest[l++] = '/';
+
+    return l;
 }
 
 void flush_file(FILE *file)

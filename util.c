@@ -130,6 +130,11 @@ void cid_to_string(char_t *dest, char_t *src)
     to_hex(dest, src, TOX_CLIENT_ID_SIZE);
 }
 
+void hash_to_string(char_t *dest, char_t *src)
+{
+    to_hex(dest, src, TOX_HASH_LENGTH);
+}
+
 _Bool string_to_id(char_t *w, char_t *a)
 {
     char_t *end = w + TOX_FRIEND_ADDRESS_SIZE;
