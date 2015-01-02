@@ -168,7 +168,7 @@ void drawimage(UTOX_NATIVE_IMAGE data, int x, int y, int width, int height, int 
     }
 }
 
-void drawimage2(UTOX_NATIVE_IMAGE data, int x, int y, int width, int height, int targetwidth, int targetheight)
+void drawavatarimage(UTOX_NATIVE_IMAGE data, int x, int y, int width, int height, int targetwidth, int targetheight)
 {
     HBITMAP bm = data;
     SelectObject(hdcMem, bm);
@@ -184,16 +184,21 @@ void drawimage2(UTOX_NATIVE_IMAGE data, int x, int y, int width, int height, int
     uint32_t new_width = width * resize / 65536;
     uint32_t new_height = height * resize / 65536;
 
+    // temporary device context and bitmap for holding the scaled image
     HDC tempdc = CreateCompatibleDC(NULL);
     HBITMAP tmp = CreateCompatibleBitmap(hdcMem, new_width, new_height);
-
-    SetStretchBltMode(tempdc, HALFTONE);
     SelectObject(tempdc, tmp);
 
+    SetStretchBltMode(tempdc, HALFTONE); // prettiest built-in scaling
+
+    // scale image
     StretchBlt(tempdc, 0, 0, new_width, new_height, hdcMem, 0, 0, width, height, SRCCOPY);
 
+    // set positions to show middle of image in the center
     int xpos = (int) ((double)new_width / 2 - (double)targetwidth / 2);
     int ypos = (int) ((double)new_height / 2 - (double)targetheight / 2);
+
+    // crop and draw image
     BitBlt(hdc, x, y, targetwidth, targetheight, tempdc, xpos, ypos, SRCCOPY);
 
     DeleteObject(tmp);
@@ -456,7 +461,7 @@ void openfileavatar(void)
         .Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST,
     };
 
-    while (1) {
+    while (1) { // loop until we have a good file or the user closed the dialog
         if(GetOpenFileName(&ofn)) {
             uint32_t size;
 
@@ -470,6 +475,7 @@ void openfileavatar(void)
                     debug("error: AVATAR_TOO_LARGE message is larger than allocated buffer(%u bytes)\n", (unsigned int)sizeof(message));
                     break;
                 }
+                // create message containing text that selected avatar is too large and what the max size is
                 int len = sprintf(message, "%.*s", SLEN(AVATAR_TOO_LARGE_MAX_SIZE_IS), S(AVATAR_TOO_LARGE_MAX_SIZE_IS));
                 len += sprint_bytes(message+len, sizeof(message)-len, TOX_AVATAR_MAX_DATA_LENGTH);
                 message[len++] = '\0';
@@ -775,12 +781,11 @@ void paste(void)
     CloseClipboard();
 }
 
-UTOX_NATIVE_IMAGE png_to_image(UTOX_PNG_IMAGE data, size_t size, uint16_t *w, uint16_t *h)
+UTOX_NATIVE_IMAGE png_to_image(const UTOX_PNG_IMAGE data, size_t size, uint16_t *w, uint16_t *h)
 {
     uint8_t *out;
     unsigned width, height;
     unsigned r = lodepng_decode32(&out, &width, &height, data->png_data, size);
-    //free(data);
 
     if(r != 0 || !width || !height) {
         return NULL;

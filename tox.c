@@ -287,18 +287,34 @@ static void set_callbacks(Tox *tox)
     utox_set_callbacks_for_transfer(tox);
 }
 
+/* tried to load avatar from disk for given client id string and set avatar based on its result
+ *  avatar is avatar to initialize. Will be unset if no file is found on disk or if file is corrupt or too large, 
+ *      otherwise will be set to avatar found on disk
+ *  id is cid string of whose avatar to find(see also load_avatar in avatar.h)
+ *  if png_data_out is not NULL, the png data loaded from disk will be copied to it.
+ *      if it is not null, it should be at least TOX_AVATAR_MAX_DATA_LENGTH bytes long
+ *  if png_size_out is not null, the size of the png data will be stored in it
+ *
+ *  returns: 1 on successful loading, 0 on failure
+ */
 static _Bool init_avatar(AVATAR *avatar, const char_t *id, uint8_t *png_data_out, uint32_t *png_size_out) {
     unset_avatar(avatar);
     uint8_t avatar_data[TOX_AVATAR_MAX_DATA_LENGTH];
     uint32_t size;
-    if (load_avatar(id, avatar_data, &size) && set_avatar(avatar, avatar_data, size, 1)) {
-        if (png_data_out) {
-            memcpy(png_data_out, avatar_data, size);
+    if (load_avatar(id, avatar_data, &size)) {
+        _Bool have_hash = load_avatar_hash(id, avatar->hash);
+        if (set_avatar(avatar, avatar_data, size, !have_hash)) {
+            if (png_data_out) {
+                memcpy(png_data_out, avatar_data, size);
+            }
+            if (png_size_out) {
+                *png_size_out = size;
+            }
+            if (!have_hash) {
+                save_avatar_hash(id, avatar->hash);
+            }
+            return 1;
         }
-        if (png_size_out) {
-            *png_size_out = size;
-        }
-        return 1;
     }
     return 0;
 }
@@ -517,7 +533,7 @@ TOP:;
     uint8_t avatar_data[TOX_AVATAR_MAX_DATA_LENGTH];
     uint32_t avatar_size;
     if (init_avatar(&self.avatar, self.id, avatar_data, &avatar_size)) {
-        tox_set_avatar(tox, TOX_AVATAR_FORMAT_PNG, avatar_data, avatar_size);
+        tox_set_avatar(tox, TOX_AVATAR_FORMAT_PNG, avatar_data, avatar_size); // set avatar before connecting
 
         char_t hash_string[TOX_HASH_LENGTH * 2];
         hash_to_string(hash_string, self.avatar.hash);
@@ -1290,9 +1306,11 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
     case FRIEND_DEL: {
         FRIEND *f = data;
 
+        // we don't need their avatar anymore
         char_t cid[TOX_CLIENT_ID_SIZE * 2];
         cid_to_string(cid, f->cid);
         delete_saved_avatar(cid);
+        delete_avatar_hash(cid);
 
         friend_free(f);
         friends--;
@@ -1323,12 +1341,15 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         FRIEND *f = &friend[param1];
         if (set_avatar(&f->avatar, data, param2, 0)) {
 
+            // remove avatar and hash from disk
             char_t cid[TOX_CLIENT_ID_SIZE * 2];
             cid_to_string(cid, f->cid);
             save_avatar(cid, data, param2);
+            save_avatar_hash(cid, f->avatar.hash);
 
             updatefriend(f);
         }
+        free(data);
         break;
     }
 
@@ -1336,9 +1357,11 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         FRIEND *f = &friend[param1];
         unset_avatar(&f->avatar);
 
+        // remove avatar and hash from disk
         char_t cid[TOX_CLIENT_ID_SIZE * 2];
         cid_to_string(cid, f->cid);
         delete_saved_avatar(cid);
+        delete_avatar_hash(cid);
 
         updatefriend(f);
         break;

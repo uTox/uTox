@@ -66,7 +66,7 @@ static void gtk_openavatarthread(void *UNUSED(args))
     gtk_file_filter_add_mime_type(filter, "image/png");
     gtk_file_chooser_set_filter(dialog, filter);
 
-    while (gtk_dialog_run(dialog) == -3) {
+    while (gtk_dialog_run(dialog) == -3) { // -3 means user selected an image
         char *filename = gtk_file_chooser_get_filename(dialog);
         uint32_t size;
 
@@ -77,12 +77,12 @@ static void gtk_openavatarthread(void *UNUSED(args))
             gtk_dialog_run(message_dialog);
             gtk_widget_destroy(message_dialog);
         } else if (size > TOX_AVATAR_MAX_DATA_LENGTH) {
+            free(file_data);
             char_t size_str[16];
             int len = sprint_bytes(size_str, sizeof(size_str), TOX_AVATAR_MAX_DATA_LENGTH);
             void *message_dialog = gtk_message_dialog_new(dialog, 0, 1, 2, "%s%.*s.", S(AVATAR_TOO_LARGE_MAX_SIZE_IS), len, size_str);
             gtk_dialog_run(message_dialog);
             gtk_widget_destroy(message_dialog);
-            free(file_data);
         } else {
             postmessage(SET_AVATAR, size, 0, file_data);
             break;

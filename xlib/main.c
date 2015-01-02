@@ -224,7 +224,7 @@ void drawimage(UTOX_NATIVE_IMAGE data, int x, int y, int width, int height, int 
     }
 }
 
-void drawimage2(UTOX_NATIVE_IMAGE data, int x, int y, int width, int height, int targetwidth, int targetheight)
+void drawavatarimage(UTOX_NATIVE_IMAGE data, int x, int y, int width, int height, int targetwidth, int targetheight)
 {
     Picture bm = data;
 
@@ -236,6 +236,7 @@ void drawimage2(UTOX_NATIVE_IMAGE data, int x, int y, int width, int height, int
         resize = (abs((int)w_resize - 65536) > abs((int)h_resize - 65536)) ? h_resize : w_resize;
     }
 
+    /* transformation matrix to scale image to mostly fit within target dimensions */
     XTransform trans = {
         {{resize, 0, 0},
         {0, resize, 0},
@@ -244,11 +245,14 @@ void drawimage2(UTOX_NATIVE_IMAGE data, int x, int y, int width, int height, int
     XRenderSetPictureTransform(display, bm, &trans);
     XRenderSetPictureFilter(display, bm, FilterBilinear, NULL, 0);
 
-    /* set position to show the middle of the image */
+    /* set position to show the middle of the image in the center  */
     int xpos = (int) ((double)width * 65536 / resize / 2 - (double)targetwidth / 2);
     int ypos = (int) ((double)height * 65536 / resize / 2 - (double)targetheight / 2);
+
+    /* draw the image */ 
     XRenderComposite(display, PictOpSrc, bm, None, renderpic, xpos, ypos, 0, 0, x, y, targetwidth, targetheight);
 
+    /* reset matrix and filter */
     XTransform trans2 = {
         {{65536, 0, 0},
         {0, 65536, 0},
@@ -653,12 +657,11 @@ static Picture image_to_picture(XImage *img)
     return picture;
 }
 
-UTOX_NATIVE_IMAGE png_to_image(UTOX_PNG_IMAGE data, size_t size, uint16_t *w, uint16_t *h)
+UTOX_NATIVE_IMAGE png_to_image(const UTOX_PNG_IMAGE data, size_t size, uint16_t *w, uint16_t *h)
 {
     uint8_t *out;
     unsigned width, height;
     unsigned r = lodepng_decode32(&out, &width, &height, data->png_data, size);
-    //free(data);
 
     if(r != 0 || !width || !height) {
         return None;

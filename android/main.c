@@ -82,7 +82,7 @@ void drawimage(UTOX_NATIVE_IMAGE data, int x, int y, int width, int height, int 
     glUniform3fv(k2, 1, one);
 }
 
-void drawimage2(UTOX_NATIVE_IMAGE, int x, int y, int width, int height, int targetwidth, int targetheight)
+void drawavatarimage(UTOX_NATIVE_IMAGE data, int x, int y, int width, int height, int targetwidth, int targetheight)
 {
 }
 
@@ -141,7 +141,7 @@ void setselection(char_t *data, STRING_IDX length)
 {
 }
 
-UTOX_NATIVE_IMAGE png_to_image(UTOX_PNG_IMAGE data, size_t size, uint16_t *w, uint16_t *h)
+UTOX_NATIVE_IMAGE png_to_image(const UTOX_PNG_IMAGE data, size_t size, uint16_t *w, uint16_t *h)
 {
     uint8_t *out;
     unsigned width, height;
@@ -187,6 +187,11 @@ int datapath_old(uint8_t *dest)
 }
 
 int datapath(uint8_t *dest)
+{
+    return 0;
+}
+
+int datapath_subdir(uint8_t *dest, const char *subdir)
 {
     return 0;
 }

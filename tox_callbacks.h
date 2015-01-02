@@ -162,8 +162,8 @@ void callback_avatar_info(Tox *tox, int fid, uint8_t format, uint8_t *hash, void
     FRIEND *f = &friend[fid];
 
     if (format != TOX_AVATAR_FORMAT_NONE) {
-        if (!friend_has_avatar(f) || memcmp(f->avatar.hash, hash, TOX_HASH_LENGTH) != 0) {
-            memcpy(f->avatar.hash, hash, TOX_HASH_LENGTH);
+        if (!friend_has_avatar(f) || memcmp(f->avatar.hash, hash, TOX_HASH_LENGTH) != 0) { // check if avatar has changed
+            memcpy(f->avatar.hash, hash, TOX_HASH_LENGTH); // set hash pre-emptively so we don't request data twice
 
             char_t hash_string[TOX_HASH_LENGTH * 2];
             hash_to_string(hash_string, hash);
@@ -172,7 +172,7 @@ void callback_avatar_info(Tox *tox, int fid, uint8_t format, uint8_t *hash, void
             tox_request_avatar_data(tox, fid);
         }
     } else if (friend_has_avatar(f)) {
-        postmessage(FRIEND_UNSETAVATAR, fid, 0, NULL);
+        postmessage(FRIEND_UNSETAVATAR, fid, 0, NULL); // unset avatar if we had one
     }
 }
 
@@ -181,7 +181,9 @@ void callback_avatar_data(Tox *tox, int fid, uint8_t format, uint8_t *hash, uint
     FRIEND *f = &friend[fid];
 
     if (memcmp(f->avatar.hash, hash, TOX_HASH_LENGTH) == 0) { // same hash as in last avatar_info
-        postmessage(FRIEND_SETAVATAR, fid, datalen, data);
+        uint8_t *data_out = malloc(datalen);
+        memcpy(data_out, data, datalen);
+        postmessage(FRIEND_SETAVATAR, fid, datalen, data_out);
     }
 }
 
