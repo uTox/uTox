@@ -971,21 +971,21 @@ void message_free(MESSAGE *msg)
 
 void message_clear(MESSAGES *m, MSG_DATA *p)
 {
-	MSG_IDX i;
+    MSG_IDX i;
 
-	for(i = 0; i < p->n; i++)
-	{
-		message_free((MESSAGE*)p->data[i]);
-	}
+    for(i = 0; i < p->n; i++)
+    {
+        message_free((MESSAGE*)p->data[i]);
+    }
 
-	free(p->data);
-	p->data = NULL;
-	p->n = 0;
+    free(p->data);
+    p->data = NULL;
+    p->n = 0;
 
-	p->istart = p->iend = p->start = p->end = 0;
+    p->istart = p->iend = p->start = p->end = 0;
 
-	p->height = 0;
-	if(m->data == p) {
+    p->height = 0;
+    if(m->data == p) {
         m->panel.content_scroll->content_height = p->height;
     }
 }

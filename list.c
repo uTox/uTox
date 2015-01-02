@@ -529,15 +529,15 @@ _Bool list_mdown(void *UNUSED(n))
 static void contextmenu_list_onselect(uint8_t i)
 {
     if(ritem->item == ITEM_FRIEND_ADD && i == 0) {
-		FRIENDREQ *req = ritem->data;
-		tox_postmessage(TOX_ACCEPTFRIEND, 0, 0, req);
-		return;
+        FRIENDREQ *req = ritem->data;
+        tox_postmessage(TOX_ACCEPTFRIEND, 0, 0, req);
+        return;
     }
 
-	if (ritem->item == ITEM_FRIEND && i == 1) {
-		friend_history_clear((FRIEND*)ritem->data);
-		return;
-	}
+    if (ritem->item == ITEM_FRIEND && i == 1) {
+        friend_history_clear((FRIEND*)ritem->data);
+        return;
+    }
 
     if (ritem->item == ITEM_GROUP && i == 0) {
         GROUPCHAT *g = ritem->data;
