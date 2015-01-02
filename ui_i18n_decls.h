@@ -134,6 +134,7 @@ enum {
 
     STR_MUTE,
     STR_UNMUTE,
+	STR_CLEAR_HISTORY,
     STR_LANG_NATIVE_NAME,
     STR_LANG_ENGLISH_NAME,
     //Do NOT add new values beyond this point, or alter STRS_MAX accordingly.

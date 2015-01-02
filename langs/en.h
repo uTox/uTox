@@ -262,3 +262,5 @@ msgstr("Mute")
 msgid(UNMUTE)
 msgstr("Unmute")
 
+msgid(CLEAR_HISTORY)
+msgstr("Clear history")
