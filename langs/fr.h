@@ -223,3 +223,5 @@ msgstr("Par défaut")
 msgid(WINDOW_TITLE_VIDEO_PREVIEW)
 msgstr("Aperçu vidéo")
 
+msgid(CLEAR_HISTORY)
+msgstr("Nettoyer l'historique")
