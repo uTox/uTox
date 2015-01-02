@@ -132,11 +132,11 @@ static void button_call_onpress(void)
     }
 
     case CALL_RINGING:
-	case CALL_RINGING_VIDEO: {
-	    tox_postmessage(TOX_CANCELCALL, f->callid, f - friend, NULL);
-		debug("Cancelling call: id = %u, friend = %u\n", f->callid, f - friend);
-		break;
-	}
+    case CALL_RINGING_VIDEO: {
+        tox_postmessage(TOX_CANCELCALL, f->callid, f - friend, NULL);
+        debug("Cancelling call: id = %u, friend = %u\n", f->callid, f - friend);
+        break;
+    }
 
     case CALL_OK:
     case CALL_OK_VIDEO: {

@@ -835,13 +835,13 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
     }
 
     case TOX_CANCELCALL: {
-	    /* param1: call #
-		   param2: friend #
-		 */
-		toxav_cancel(av, param1, param2, "Call canceled by friend");
-		postmessage(FRIEND_CALL_STATUS, param2, param1, (void*)(size_t)CALL_NONE);
-		break;
-	}
+        /* param1: call #
+         * param2: friend #
+         */
+        toxav_cancel(av, param1, param2, "Call canceled by friend");
+        postmessage(FRIEND_CALL_STATUS, param2, param1, (void*)(size_t)CALL_NONE);
+        break;
+    }
 
     case TOX_NEWGROUP: {
         /*
