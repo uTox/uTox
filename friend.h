@@ -57,5 +57,7 @@ void friend_set_typing(FRIEND *f, int typing);
 void friend_addid(uint8_t *id, char_t *msg, STRING_IDX msg_length);
 void friend_add(char_t *name, STRING_IDX length, char_t *msg, STRING_IDX msg_length);
 
+void friend_history_clear(FRIEND *f);
+
 void friend_free(FRIEND *f);
 void group_free(GROUPCHAT *g);
