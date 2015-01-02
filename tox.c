@@ -310,7 +310,7 @@ static _Bool init_avatar(AVATAR *avatar, const char_t *id, uint8_t *png_data_out
             if (png_size_out) {
                 *png_size_out = size;
             }
-            if (!have_hash) {
+            if (!have_hash) { // save newly created hash if it wasn't found on disk
                 save_avatar_hash(id, avatar->hash);
             }
             return 1;
@@ -365,10 +365,6 @@ static _Bool load_save(Tox *tox)
         f->status_message = malloc(size);
         tox_get_status_message(tox, i, f->status_message, size);
         f->status_length = size;
-
-        char_t cid[TOX_CLIENT_ID_SIZE * 2];
-        cid_to_string(cid, f->cid);
-        init_avatar(&f->avatar, cid, NULL, NULL);
 
         log_read(tox, i);
 
@@ -530,16 +526,6 @@ TOP:;
 
     debug("Tox ID: %.*s\n", (int)sizeof(self.id), self.id);
 
-    uint8_t avatar_data[TOX_AVATAR_MAX_DATA_LENGTH];
-    uint32_t avatar_size;
-    if (init_avatar(&self.avatar, self.id, avatar_data, &avatar_size)) {
-        tox_set_avatar(tox, TOX_AVATAR_FORMAT_PNG, avatar_data, avatar_size); // set avatar before connecting
-
-        char_t hash_string[TOX_HASH_LENGTH * 2];
-        hash_to_string(hash_string, self.avatar.hash);
-        debug("Tox Avatar Hash: %.*s\n", (int)sizeof(hash_string), hash_string);
-    }
-
     set_callbacks(tox);
 
     do_bootstrap(tox);
@@ -550,6 +536,29 @@ TOP:;
 
 
     global_av = av;
+
+    // init avatars as late as possible because of possible corrupt loading if png_to_image is called too early on windows
+    uint8_t avatar_data[TOX_AVATAR_MAX_DATA_LENGTH];
+    uint32_t avatar_size;
+    if (init_avatar(&self.avatar, self.id, avatar_data, &avatar_size)) {
+        tox_set_avatar(tox, TOX_AVATAR_FORMAT_PNG, avatar_data, avatar_size); // set avatar before connecting
+
+        char_t hash_string[TOX_HASH_LENGTH * 2];
+        hash_to_string(hash_string, self.avatar.hash);
+        debug("Tox Avatar Hash: %.*s\n", (int)sizeof(hash_string), hash_string);
+    }
+    {
+        int i = 0;
+        while (i != friends) {
+            FRIEND *f = &friend[i];
+
+            char_t cid[TOX_CLIENT_ID_SIZE * 2];
+            cid_to_string(cid, f->cid);
+            init_avatar(&f->avatar, cid, NULL, NULL);
+            i++;
+        }
+    }
+
     tox_thread_init = 1;
 
     thread(audio_thread, av);
@@ -1306,11 +1315,12 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
     case FRIEND_DEL: {
         FRIEND *f = data;
 
-        // we don't need their avatar anymore
-        char_t cid[TOX_CLIENT_ID_SIZE * 2];
-        cid_to_string(cid, f->cid);
-        delete_saved_avatar(cid);
-        delete_avatar_hash(cid);
+        // commented out incase you have multiple clients in the same data dir and remove one as friend from the other
+        //   (it would remove his avatar locally too otherwise)
+        //char_t cid[TOX_CLIENT_ID_SIZE * 2];
+        //cid_to_string(cid, f->cid);
+        //delete_saved_avatar(cid);
+        //delete_avatar_hash(cid);
 
         friend_free(f);
         friends--;

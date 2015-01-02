@@ -249,7 +249,7 @@ void drawavatarimage(UTOX_NATIVE_IMAGE data, int x, int y, int width, int height
     int xpos = (int) ((double)width * 65536 / resize / 2 - (double)targetwidth / 2);
     int ypos = (int) ((double)height * 65536 / resize / 2 - (double)targetheight / 2);
 
-    /* draw the image */ 
+    /* draw the image */
     XRenderComposite(display, PictOpSrc, bm, None, renderpic, xpos, ypos, 0, 0, x, y, targetwidth, targetheight);
 
     /* reset matrix and filter */
