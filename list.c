@@ -529,10 +529,15 @@ _Bool list_mdown(void *UNUSED(n))
 static void contextmenu_list_onselect(uint8_t i)
 {
     if(ritem->item == ITEM_FRIEND_ADD && i == 0) {
-        FRIENDREQ *req = ritem->data;
-        tox_postmessage(TOX_ACCEPTFRIEND, 0, 0, req);
-        return;
+		FRIENDREQ *req = ritem->data;
+		tox_postmessage(TOX_ACCEPTFRIEND, 0, 0, req);
+		return;
     }
+
+	if (ritem->item == ITEM_FRIEND && i == 1) {
+		friend_history_clear((FRIEND*)ritem->data);
+		return;
+	}
 
     if (ritem->item == ITEM_GROUP && i == 0) {
         GROUPCHAT *g = ritem->data;
@@ -547,7 +552,7 @@ static void contextmenu_list_onselect(uint8_t i)
 
 _Bool list_mright(void *UNUSED(n))
 {
-    static UI_STRING_ID menu_friend[] = {STR_REMOVE_FRIEND};
+    static UI_STRING_ID menu_friend[] = {STR_REMOVE_FRIEND, STR_CLEAR_HISTORY};
     static UI_STRING_ID menu_group_unmuted[] = {STR_MUTE, STR_REMOVE_GROUP};
     static UI_STRING_ID menu_group_muted[] = {STR_UNMUTE, STR_REMOVE_GROUP};
     static UI_STRING_ID menu_group[] = {STR_REMOVE_GROUP};
