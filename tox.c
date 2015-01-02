@@ -1351,7 +1351,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         FRIEND *f = &friend[param1];
         if (set_avatar(&f->avatar, data, param2, 0)) {
 
-            // remove avatar and hash from disk
+            // save avatar and hash to disk
             char_t cid[TOX_CLIENT_ID_SIZE * 2];
             cid_to_string(cid, f->cid);
             save_avatar(cid, data, param2);
