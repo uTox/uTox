@@ -471,6 +471,8 @@ void tox_thread(void *UNUSED(args))
     ToxAv *av;
     uint8_t id[TOX_FRIEND_ADDRESS_SIZE];
 
+    _Bool reconfig;
+
     do {
         // Create main connection
         debug("new tox object ipv6: %u no_udp: %u proxy: %u %s %u\n", options.ipv6enabled, options.udp_disabled, options.proxy_type, options.proxy_address, options.proxy_port);
@@ -523,7 +525,7 @@ void tox_thread(void *UNUSED(args))
         thread(toxav_thread, av);
 
         //
-        _Bool connected = 0, reconfig;
+        _Bool connected = 0;
         uint64_t last_save = get_time(), time;
         while(1) {
             // Put toxcore to work
