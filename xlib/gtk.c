@@ -23,7 +23,7 @@ void* (*gtk_file_chooser_get_filenames)(void*);
 void (*gtk_file_chooser_set_filter)(void*, void*);
 void (*gtk_file_filter_add_mime_type)(void*, const char*);
 void (*gtk_widget_destroy)(void*);
-void (*g_free)(void*);
+void (*g_free_utox)(void*); // this can't be called g_free because it causes segvaults on some machines if it is
 
 volatile _Bool gtk_open;
 
@@ -71,7 +71,7 @@ static void gtk_openavatarthread(void *UNUSED(args))
         uint32_t size;
 
         void *file_data = file_raw(filename, &size);
-        g_free(filename);
+        g_free_utox(filename);
         if (!file_data) {
             void *message_dialog = gtk_message_dialog_new(dialog, 0, 1, 2, (const char *)S(CANT_FIND_FILE_OR_EMPTY));
             gtk_dialog_run(message_dialog);
@@ -212,12 +212,12 @@ void* gtk_load(void)
         gtk_file_chooser_set_filter = dlsym(lib, "gtk_file_chooser_set_filter");
         gtk_file_filter_add_mime_type = dlsym(lib, "gtk_file_filter_add_mime_type");
         gtk_widget_destroy = dlsym(lib, "gtk_widget_destroy");
-        g_free = dlsym(lib, "g_free");
+        g_free_utox = dlsym(lib, "g_free");
 
         if(!gtk_init || !gtk_main_iteration || !gtk_events_pending || !gtk_file_chooser_dialog_new || !gtk_file_filter_new ||
            !gtk_message_dialog_new || !gtk_dialog_run || !gtk_file_chooser_get_filename || !gtk_file_chooser_get_filenames ||
            !gtk_file_chooser_set_select_multiple || !gtk_file_chooser_set_current_name || !gtk_file_chooser_set_filter ||
-           !gtk_file_filter_add_mime_type || !gtk_widget_destroy || !g_free) {
+           !gtk_file_filter_add_mime_type || !gtk_widget_destroy || !g_free_utox) {
             debug("bad GTK\n");
             dlclose(lib);
         } else {

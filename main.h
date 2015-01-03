@@ -26,7 +26,7 @@
 #define DEFAULT_STATUS "Toxing on uTox"
 #define DEFAULT_SCALE 2
 
-#define VERSION "0.1.8a"
+#define VERSION "0.1.9"
 
 #define MAX_CALLS 16
 #define MAX_BACKLOG_MESSAGES 128
@@ -309,7 +309,7 @@ void address_to_clipboard(void);
 void openurl(char_t *str);
 void openfilesend(void);
 
-/* use the file chooser to pick an avatar and set it at the user's */
+/* use the file chooser to pick an avatar and set it as the user's */
 void openfileavatar(void);
 void savefilerecv(uint32_t fid, MSG_FILE *file);
 void savefiledata(MSG_FILE *file);

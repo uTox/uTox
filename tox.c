@@ -366,6 +366,10 @@ static _Bool load_save(Tox *tox)
         tox_get_status_message(tox, i, f->status_message, size);
         f->status_length = size;
 
+        char_t cid[TOX_CLIENT_ID_SIZE * 2];
+        cid_to_string(cid, f->cid);
+        init_avatar(&f->avatar, cid, NULL, NULL);
+
         log_read(tox, i);
 
         i++;
@@ -526,6 +530,16 @@ TOP:;
 
     debug("Tox ID: %.*s\n", (int)sizeof(self.id), self.id);
 
+    uint8_t avatar_data[TOX_AVATAR_MAX_DATA_LENGTH];
+    uint32_t avatar_size;
+    if (init_avatar(&self.avatar, self.id, avatar_data, &avatar_size)) {
+        tox_set_avatar(tox, TOX_AVATAR_FORMAT_PNG, avatar_data, avatar_size); // set avatar before connecting
+
+        char_t hash_string[TOX_HASH_LENGTH * 2];
+        hash_to_string(hash_string, self.avatar.hash);
+        debug("Tox Avatar Hash: %.*s\n", (int)sizeof(hash_string), hash_string);
+    }
+
     set_callbacks(tox);
 
     do_bootstrap(tox);
@@ -536,28 +550,6 @@ TOP:;
 
 
     global_av = av;
-
-    // init avatars as late as possible because of possible corrupt loading if png_to_image is called too early on windows
-    uint8_t avatar_data[TOX_AVATAR_MAX_DATA_LENGTH];
-    uint32_t avatar_size;
-    if (init_avatar(&self.avatar, self.id, avatar_data, &avatar_size)) {
-        tox_set_avatar(tox, TOX_AVATAR_FORMAT_PNG, avatar_data, avatar_size); // set avatar before connecting
-
-        char_t hash_string[TOX_HASH_LENGTH * 2];
-        hash_to_string(hash_string, self.avatar.hash);
-        debug("Tox Avatar Hash: %.*s\n", (int)sizeof(hash_string), hash_string);
-    }
-    {
-        int i = 0;
-        while (i != friends) {
-            FRIEND *f = &friend[i];
-
-            char_t cid[TOX_CLIENT_ID_SIZE * 2];
-            cid_to_string(cid, f->cid);
-            init_avatar(&f->avatar, cid, NULL, NULL);
-            i++;
-        }
-    }
 
     tox_thread_init = 1;
 
