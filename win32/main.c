@@ -1116,9 +1116,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
 
     free(save);
 
-    //start tox thread (hwnd needs to be set first)
-    thread(tox_thread, NULL);
-
     hdc_brush = GetStockObject(DC_BRUSH);
 
     ShowWindow(hwnd, nCmdShow);
@@ -1128,10 +1125,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     nid.hWnd = hwnd;
     Shell_NotifyIcon(NIM_ADD, &nid);
 
-
     SetBkMode(hdc, TRANSPARENT);
 
     dnd_init(hwnd);
+
+    //start tox thread (hwnd needs to be set first)
+    thread(tox_thread, NULL);
 
     //wait for tox_thread init
     while(!tox_thread_init) {
