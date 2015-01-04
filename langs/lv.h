@@ -223,9 +223,8 @@ msgstr("Nē")
 msgid(YES)
 msgstr("Jā")
 
-//TODO: Localize or remove.
-//msgid(VIDEO_IN_NONE)
-//msgstr("Nav")
+msgid(VIDEO_IN_NONE)
+msgstr("Nav")
 
 //TODO: Localize or remove.
 //msgid(VIDEO_IN_DESKTOP)
@@ -236,10 +235,6 @@ msgstr("Lūdzu, pieņemiet šo drauga pieprasījumu.")
 
 msgid(CONTACTS_FILTER_EDIT_HINT)
 msgstr("Meklēt draugus")
-
-//TODO: Localize or remove.
-//msgid(PROXY_EDIT_HINT_IP)
-//msgstr("IP")
 
 //TODO: Localize or remove.
 //msgid(PROXY_EDIT_HINT_PORT)
