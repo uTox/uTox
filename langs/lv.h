@@ -226,9 +226,8 @@ msgstr("Jā")
 msgid(VIDEO_IN_NONE)
 msgstr("Nav")
 
-//TODO: Localize or remove.
-//msgid(VIDEO_IN_DESKTOP)
-//msgstr("Desktop")
+msgid(VIDEO_IN_DESKTOP)
+msgstr("Galddators")
 
 msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
 msgstr("Lūdzu, pieņemiet šo drauga pieprasījumu.")
