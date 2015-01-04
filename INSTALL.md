@@ -1,6 +1,6 @@
 # Install
 
-- [GNU/Linux](#unix)
+- [GNU/Linux (Unix-like)](#unix)
 - [OS X](#osx)
 - [Windows](#windows)
 - [Android](#android)
