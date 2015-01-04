@@ -1,5 +1,5 @@
 #!/bin/bash
-# Script to cross compile utox for win64 from a linux host with ming32
+# Script to cross compile utox for win64 from a GNU/Linux host with ming32
 #
 # Expects build dir to be git root with filter_audio and toxcore libs in ../
 
