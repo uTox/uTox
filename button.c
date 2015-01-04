@@ -97,8 +97,13 @@ _Bool button_mdown(BUTTON *b)
     return 0;
 }
 
-_Bool button_mright(BUTTON *UNUSED(b))
+_Bool button_mright(BUTTON *b)
 {
+    if(b->mouseover && b->onright) {
+        b->onright();
+        return 1;
+    }
+
     return 0;
 }
 

@@ -16,6 +16,8 @@ typedef struct friend {
     EDIT_CHANGE **edit_history;
     uint16_t edit_history_cur, edit_history_length;
 
+    AVATAR avatar;
+
     FILE_T incoming[MAX_FILE_TRANSFERS];
     FILE_T outgoing[MAX_FILE_TRANSFERS];
     uint16_t count_outgoing;

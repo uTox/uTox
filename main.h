@@ -26,7 +26,7 @@
 #define DEFAULT_STATUS "Toxing on uTox"
 #define DEFAULT_SCALE 2
 
-#define VERSION "0.1.8a"
+#define VERSION "0.1.9"
 
 #define MAX_CALLS 16
 #define MAX_BACKLOG_MESSAGES 128
@@ -85,6 +85,7 @@ typedef struct edit_change EDIT_CHANGE;
 #include "ui.h"
 #include "svg.h"
 
+#include "avatar.h"
 #include "messages.h"
 #include "dns.h"
 #include "transfer.h"
@@ -219,13 +220,26 @@ void desktopgrab(_Bool video);
 void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_length);
 void setscale(void);
 void drawimage(UTOX_NATIVE_IMAGE, int x, int y, int width, int height, int maxwidth, _Bool zoom, double position);
-UTOX_NATIVE_IMAGE png_to_image(UTOX_PNG_IMAGE, size_t png_size, uint16_t *w, uint16_t *h);
+
+/* draws an image in the style of an avatar at within rect (x,y,targetwidth,targetheight)
+ * this means: resize the image while keeping proportion so that the dimension(width or height) that has the smallest rational difference to the targetdimension becomes exactly targetdimension, then
+ * crop the image so it fits in the (x,y,targetwidth,targetheight) rect, and
+ * set the position if a dimension is too large so it's centered on the middle
+ *
+ * first argument is the image to draw, width and height are the width and height of the input image
+ */
+void drawavatarimage(UTOX_NATIVE_IMAGE, int x, int y, int width, int height, int targetwidth, int targetheight);
+UTOX_NATIVE_IMAGE png_to_image(const UTOX_PNG_IMAGE, size_t png_size, uint16_t *w, uint16_t *h);
 void showkeyboard(_Bool show);
 void redraw(void);
 void update_tray(void);
 
 int datapath_old(uint8_t *dest);
 int datapath(uint8_t *dest);
+
+/* gets a subdirectory of tox's datapath and puts the full pathname in dest,
+ * returns number of characters written */
+int datapath_subdir(uint8_t *dest, const char *subdir);
 void flush_file(FILE *file);
 void config_osdefaults(UTOX_SAVE *r);
 
@@ -236,6 +250,7 @@ struct
     STRING_IDX name_length, statusmsg_length;
     char_t *statusmsg, name[TOX_MAX_NAME_LENGTH];
     char_t id[TOX_FRIEND_ADDRESS_SIZE * 2];
+    AVATAR avatar;
 }self;
 
 //add friend page
@@ -293,6 +308,9 @@ void paste(void);
 void address_to_clipboard(void);
 void openurl(char_t *str);
 void openfilesend(void);
+
+/* use the file chooser to pick an avatar and set it as the user's */
+void openfileavatar(void);
 void savefilerecv(uint32_t fid, MSG_FILE *file);
 void savefiledata(MSG_FILE *file);
 

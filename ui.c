@@ -56,7 +56,12 @@ static void drawself(void)
     setfont(FONT_STATUS);
     drawtextrange(SELF_MSG_X, SELF_STATUS_X, SELF_MSG_Y, self.statusmsg, self.statusmsg_length);
 
-    drawalpha(BM_CONTACT, SELF_AVATAR_X, SELF_AVATAR_Y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, WHITE);
+    // draw avatar or default image
+    if (self_has_avatar()) {
+        drawavatarimage(self.avatar.image, SELF_AVATAR_X, SELF_AVATAR_Y, self.avatar.width, self.avatar.height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
+    } else {
+        drawalpha(BM_CONTACT, SELF_AVATAR_X, SELF_AVATAR_Y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, WHITE);
+    }
 
     drawalpha(BM_STATUSAREA, SELF_STATUS_X, SELF_STATUS_Y, BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT, button_status.mouseover ? LIST_HIGHLIGHT : LIST_MAIN);
 
@@ -69,7 +74,12 @@ static void drawfriend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(h
 {
     FRIEND *f = sitem->data;
 
-    drawalpha(BM_CONTACT, LIST_RIGHT + SCALE * 5, SCALE * 5, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, LIST_MAIN);
+    // draw avatar or default image
+    if (friend_has_avatar(f)) {
+        drawavatarimage(f->avatar.image, LIST_RIGHT + SCALE * 5, SCALE * 5, f->avatar.width, f->avatar.height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
+    } else {
+        drawalpha(BM_CONTACT, LIST_RIGHT + SCALE * 5, SCALE * 5, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, LIST_MAIN);
+    }
 
     setcolor(C_TITLE);
     setfont(FONT_TITLE);
@@ -464,7 +474,7 @@ panel_main = {
     .type = PANEL_MAIN,
     .child = (PANEL*[]) {
         (void*)&button_add, (void*)&button_groups, (void*)&button_transfer, (void*)&button_settings,
-        (void*)&button_name, (void*)&button_statusmsg, (void*)&button_status,
+        (void*)&button_avatar, (void*)&button_name, (void*)&button_statusmsg, (void*)&button_status,
         &panel_list, &panel_side,
         (void*)&scroll_list,
         (void*)&edit_search, (void*)&dropdown_filter,
@@ -632,6 +642,14 @@ void ui_scale(uint8_t scale)
         .width = BM_CB_WIDTH,
     },
 
+    b_avatar = {
+        .type = PANEL_BUTTON,
+        .x = SELF_AVATAR_X,
+        .y = SELF_AVATAR_Y,
+        .width = BM_CONTACT_WIDTH,
+        .height = BM_CONTACT_WIDTH,
+    },
+
     b_name = {
         .type = PANEL_BUTTON,
         .x = SELF_NAME_X,
@@ -671,6 +689,7 @@ void ui_scale(uint8_t scale)
     button_videopreview.panel = b_videopreview;
     button_chat1.panel = b_chat1;
     button_chat2.panel = b_chat2;
+    button_avatar.panel = b_avatar;
     button_name.panel = b_name;
     button_statusmsg.panel = b_statusmsg;
     button_status.panel = b_status;
