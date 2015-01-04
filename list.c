@@ -145,6 +145,8 @@ static void selectitem(ITEM *i)
     panel_item[sitem->item - 1].disabled = 1;
     panel_item[i->item - 1].disabled = 0;
 
+    edit_resetfocus();
+
     if(sitem->item == ITEM_FRIEND) {
         FRIEND *f = sitem->data;
 
@@ -207,6 +209,7 @@ static void selectitem(ITEM *i)
         edit_msg.history = f->edit_history;
         edit_msg.history_cur = f->edit_history_cur;
         edit_msg.history_length = f->edit_history_length;
+        edit_setfocus(&edit_msg);
     }
 
     if(i->item == ITEM_GROUP) {
@@ -221,6 +224,7 @@ static void selectitem(ITEM *i)
         messages_group.iover = MSG_IDX_MAX;
         messages_group.panel.content_scroll->content_height = g->msg.height;
         messages_group.panel.content_scroll->d = g->msg.scroll;
+        edit_setfocus(&edit_msg);
 
         g->msg.id = g - group;
 
@@ -235,6 +239,7 @@ static void selectitem(ITEM *i)
 
     if(i->item == ITEM_ADD) {
         button_add.disabled = 1;
+        edit_setfocus(&edit_addid);
     }
 
     if(i->item == ITEM_TRANSFER) {
@@ -242,8 +247,6 @@ static void selectitem(ITEM *i)
     }
 
     sitem = i;
-
-    edit_resetfocus();
 
     addfriend_status = 0;
 
@@ -256,6 +259,7 @@ void list_start(void)
 
     item_add.item = ITEM_ADD;
     button_add.disabled = 1;
+    edit_setfocus(&edit_addid);
 
     item_settings.item = ITEM_SETTINGS;
     item_transfer.item = ITEM_TRANSFER;
