@@ -325,18 +325,27 @@ static _Bool load_save(Tox *tox)
         uint8_t path[512], *p;
         uint32_t size;
 
+        /* Try the default save location */
         p = path + datapath(path);
         strcpy((char*)p, "tox_save");
-
         void *data = file_raw((char*)path, &size);
         if(!data) {
-            p = path + datapath_old(path);
-            strcpy((char*)p, "tox_save");
+            /* That didn't work, do we have a backup? */
+            p = path + datapath(path);
+            strcpy((char*)p, "tox_save.tmp");
             data = file_raw((char*)path, &size);
-            if (!data) {
-                data = file_raw("tox_save", &size);
-                if(!data) {
-                    return 0;
+            if(!data){
+                /* No backup huh? Is it in an old location we support? */
+                p = path + datapath_old(path);
+                strcpy((char*)p, "tox_save");
+                data = file_raw((char*)path, &size);
+                if (!data) {
+                    /* Well, lets try the current directiory... */
+                    data = file_raw("tox_save", &size);
+                    if(!data) {
+                        /* F***it I give up! */
+                        return 0;
+                    }
                 }
             }
         }
