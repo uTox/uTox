@@ -81,10 +81,6 @@ msgstr("Zvans uzsākts")
 msgid(ADDFRIENDS)
 msgstr("Pievienot draugus")
 
-//TODO: Same as in English? Localize or remove.
-//msgid(TOXID)
-//msgstr("Tox ID")
-
 msgid(MESSAGE)
 msgstr("Ziņa")
 
@@ -94,13 +90,11 @@ msgstr("Meklēt draugus")
 msgid(ADD)
 msgstr("Pievienot")
 
-//TODO: Same as in English? Localize or remove.
-//msgid(SWITCHPROFILE)
-//msgstr("Switch Profile")
+msgid(SWITCHPROFILE)
+msgstr("Mainīt lietotāju")
 
-//TODO: Same as in English? Localize or remove.
-//msgid(FRIENDREQUEST)
-//msgstr("Friend Request")
+msgid(FRIENDREQUEST)
+msgstr("Draugu pieprasījums")
 
 msgid(USERSETTINGS)
 msgstr("Lietotāja iestatījumi")
@@ -129,27 +123,14 @@ msgstr("Video ievades ierīce")
 msgid(OTHERSETTINGS)
 msgstr("Citi iestatījumi")
 
-//TODO: Same as in English? Localize or remove.
-//msgid(DPI)
-//msgstr("DPI")
-
-//TODO: Same as in English? Localize or remove.
-//msgid(SAVELOCATION)
-//msgstr("Save Location")
+msgid(SAVELOCATION)
+msgstr("Saglabāt novietojumu")
 
 msgid(LANGUAGE)
 msgstr("Valoda")
 
 msgid(NETWORK)
 msgstr("Tīkls")
-
-//TODO: Same as in English? Localize or remove.
-//msgid(IPV6)
-//msgstr("IPv6:")
-
-//TODO: Same as in English? Localize or remove.
-//msgid(UDP)
-//msgstr("UDP:")
 
 msgid(PROXY)
 msgstr("Starpniekserveris (SOCKS 5)")
@@ -158,19 +139,17 @@ msgstr("Starpniekserveris (SOCKS 5)")
 //msgid(WARNING)
 //msgstr("Changing Network/Proxy settings will temporarily disconnect you from the Tox network")
 
-//TODO: Same as in English? Localize or remove.
-//msgid(LOGGING)
-//msgstr("Logging")
+msgid(LOGGING)
+msgstr("Žurnāli")
 
-//TODO: Same as in English? Localize or remove.
-//msgid(IS_TYPING)
-//msgstr("is typing...")
+msgid(IS_TYPING)
+msgstr("raksta...")
 
 msgid(COPY)
 msgstr("Kopēt")
 
 msgid(COPYWITHOUTNAMES)
-msgstr("Kopēt (no names)")
+msgstr("Kopēt (bez vārdiem)")
 
 msgid(CUT)
 msgstr("Izgriezt")
@@ -190,9 +169,8 @@ msgstr("Noņemt")
 msgid(LEAVE)
 msgstr("Pamest")
 
-//TODO: Same as in English? Localize or remove.
-//msgid(ACCEPT)
-//msgstr("Accept")
+msgid(ACCEPT)
+msgstr("Pieņemt")
 
 msgid(IGNORE)
 msgstr("Ignorēt")
@@ -206,69 +184,58 @@ msgstr("Spiest, lai atvērtu")
 msgid(CANCELLED)
 msgstr("Atcelts")
 
-//TODO: Localize or remove.
-//msgid(DPI_TINY)
-//msgstr("Tiny (50%)")
+msgid(DPI_TINY)
+msgstr("Mazs (50%)")
 
-//TODO: Localize or remove.
-//msgid(DPI_NORMAL)
-//msgstr("Normal (100%)")
+msgid(DPI_NORMAL)
+msgstr("Normāls (100%)")
 
-//TODO: Localize or remove.
-//msgid(DPI_BIG)
-//msgstr("Big (150%)")
+msgid(DPI_BIG)
+msgstr("Liels (150%)")
 
-//TODO: Localize or remove.
-//msgid(DPI_LARGE)
-//msgstr("Large (200%)")
+msgid(DPI_LARGE)
+msgstr("Ļoti liels (200%)")
 
-//TODO: Localize or remove.
-//msgid(DPI_HUGE)
-//msgstr("Huge (250%)")
+msgid(DPI_HUGE)
+msgstr("Milzīgs (250%)")
 
-//TODO: Localize or remove.
-//msgid(CONTACTS_FILTER_ALL)
-//msgstr("All")
+msgid(CONTACTS_FILTER_ALL)
+msgstr("Viss")
 
 //TODO: Localize or remove.
 //msgid(CONTACTS_FILTER_ONLINE)
 //msgstr("Online")
 
-//TODO: Localize or remove.
-//msgid(PROXY_DISABLED)
-//msgstr("Disabled")
+msgid(PROXY_DISABLED)
+msgstr("Atslēgts")
 
 //TODO: Localize or remove.
 //msgid(PROXY_FALLBACK)
 //msgstr("Fallback")
+//msgstr("Starpniekserveri alternatīva")
 
-//TODO: Localize or remove.
-//msgid(PROXY_ALWAYS_USE)
-//msgstr("Always use")
+msgid(PROXY_ALWAYS_USE)
+msgstr("Vienmēr izmantot")
 
-//TODO: Localize or remove.
-//msgid(NO)
-//msgstr("No")
+msgid(NO)
+msgstr("Nē")
 
-//TODO: Localize or remove.
-//msgid(YES)
-//msgstr("Yes")
+msgid(YES)
+msgstr("Jā")
 
 //TODO: Localize or remove.
 //msgid(VIDEO_IN_NONE)
-//msgstr("None")
+//msgstr("Nav")
 
 //TODO: Localize or remove.
 //msgid(VIDEO_IN_DESKTOP)
 //msgstr("Desktop")
 
-//TODO: Localize or remove.
-//msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
-//msgstr("Please accept this friend request.")
+msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
+msgstr("Lūdzu, pieņemiet šo drauga pieprasījumu.")
 
-//TODO: Localize or remove.
-//msgid(CONTACTS_FILTER_EDIT_HINT)
-//msgstr("Search friends")
+msgid(CONTACTS_FILTER_EDIT_HINT)
+msgstr("Meklēt draugus")
 
 //TODO: Localize or remove.
 //msgid(PROXY_EDIT_HINT_IP)
@@ -282,10 +249,8 @@ msgstr("Atcelts")
 //msgid(AUDIO_IN_DEFAULT_LOOPBACK)
 //msgstr("Default Loopback")
 
-//TODO: Localize or remove.
-//msgid(WINDOW_TITLE_VIDEO_PREVIEW)
-//msgstr("Video Preview")
+msgid(WINDOW_TITLE_VIDEO_PREVIEW)
+msgstr("Priekšskatījums")
 
-//TODO: Localize or remove.
-//msgid(AUDIONOTIFICATIONS)
-//msgstr("Enable Audible Notification (Ringtone)")
+msgid(AUDIONOTIFICATIONS)
+msgstr("Ieslēgt zvana signālu")
