@@ -20,6 +20,7 @@ Dependencies:
   ```bash
   sudo pacman -S dbus-c++ fontconfig freetype2 libdbus libvpx libxext libxrender openal v4l-utils
   ```
+  Please note that [`tox-git`](https://aur.archlinux.org/packages/tox-git/) package from AUR is also required.
 
 Compile:
 ```bash
