@@ -166,6 +166,34 @@ void friend_add(char_t *name, STRING_IDX length, char_t *msg, STRING_IDX msg_len
     }
 }
 
+#define LOGFILE_EXT ".txt"
+
+void friend_history_clear(FRIEND *f)
+{
+    uint8_t path[512], *p;
+
+    message_clear(&messages_friend, &f->msg);
+
+    {
+        /* We get the file path of the log file */
+        p = path + datapath(path);
+
+        if(countof(path) - (p - path) < TOX_CLIENT_ID_SIZE * 2 + sizeof(LOGFILE_EXT))
+        {
+            /* We ensure that we have enough space in the buffer,
+               if not we fail */
+            debug("error/history_clear: path too long\n");
+            return;
+        }
+
+        cid_to_string(p, f->cid);
+        p += TOX_CLIENT_ID_SIZE * 2;
+        memcpy((char*)p, LOGFILE_EXT, sizeof(LOGFILE_EXT));
+    }
+
+    remove((const char *)path);
+}
+
 void friend_free(FRIEND *f)
 {
     uint16_t j = 0;
