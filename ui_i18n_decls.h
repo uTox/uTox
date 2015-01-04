@@ -138,6 +138,8 @@ enum {
     STR_AVATAR_TOO_LARGE_MAX_SIZE_IS,
     STR_CANT_FIND_FILE_OR_EMPTY,
 
+    STR_CLEAR_HISTORY,
+
     STR_LANG_NATIVE_NAME,
     STR_LANG_ENGLISH_NAME,
     //Do NOT add new values beyond this point, or alter STRS_MAX accordingly.

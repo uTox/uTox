@@ -267,3 +267,6 @@ msgstr("Avatar too large. Maximum size: ")
 
 msgid(CANT_FIND_FILE_OR_EMPTY)
 msgstr("Cannot find selected file or selected file is empty.")
+
+msgid(CLEAR_HISTORY)
+msgstr("Clear history")
