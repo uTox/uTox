@@ -61,7 +61,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
         // Draw the names for groups or friends
         if(m->type) {
             /* group */
-            setcolor(0);
+            setcolor(C_BLUE);
             setfont(FONT_TEXT);
             drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, y, &msg->msg[msg->length] + 1, msg->msg[msg->length]);
         } else {
