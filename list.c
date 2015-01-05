@@ -119,10 +119,12 @@ void list_scale(void)
 
 static ITEM* item_hit(int mx, int my, int UNUSED(height))
 {
+    /* Mouse is outsite the list */
     if(mx < LIST_X || mx >= LIST_RIGHT) {
         return NULL;
     }
 
+    /* Mouse is above the list */
     if(my < 0) {
         return NULL;
     }
