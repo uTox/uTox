@@ -9,10 +9,21 @@
 <a name="unix" />
 ## Linux / Unix-like
 
-Dependencies on Debian Jessie:
-```bash
-sudo apt-get install libv4l-dev libopenal-dev libfreetype6-dev libdbus-1-dev libxrender-dev libfontconfig1-dev libxext-dev
-```
+Dependencies:
+
+- Debian Jessie:
+  ```bash
+  sudo apt-get install libv4l-dev libopenal-dev libfreetype6-dev libdbus-1-dev libxrender-dev libfontconfig1-dev libxext-dev
+  ```
+
+- Archlinux:
+
+  ```bash
+  sudo pacman -S dbus-c++ fontconfig freetype2 libdbus libvpx libxext libxrender openal v4l-utils
+  ```
+    1. Note: `dbus-c++` is an optional dependency.
+
+    2. Please note that [`tox-git`](https://aur.archlinux.org/packages/tox-git/) package from AUR is also required (unless you have already built `toxcore` from source).
 
 Compile:
 ```bash
