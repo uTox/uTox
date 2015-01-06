@@ -229,3 +229,11 @@ msgstr("Disattiva")
 msgid(UNMUTE)
 msgstr("Attiva")
 
+msgid(CLEAR_HISTORY)
+msgstr("Cancella cronologia")
+
+msgid(AVATAR_TOO_LARGE_MAX_SIZE_IS)
+msgstr("Avatar troppo grande. Dimensione massima: ")
+
+msgid(CANT_FIND_FILE_OR_EMPTY)
+msgstr("Impossibile trovare il file o il file è vuoto.")
