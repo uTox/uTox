@@ -31,6 +31,10 @@ Note: building for Windows requires mingw-w64 (mingw lacks needed header files),
 
 `gcc -o uTox.exe *.c ./png/png.c icon.res -lgdi32 -lmsimg32 -ldnsapi -lcomdlg32 -lopenal32 -lole32 -lstrmiids -loleaut32 -lvpx -ltoxav`
 
+### Automagic scrips
+
+Assuming you have a working unix-like envrioment, there's a build script to cross compile for windows in [tools/]
+
 <a name="osx" />
 ## OSX
 You need XQuartz on 10.8+, no video yet.
