@@ -3,6 +3,8 @@
 Following are barebone compilation instructions that should get you going. They probably wont work but #tox-dev can 
 probably help you out if you're nice when you ask.
 
+If you're looking for it to "just work" you're going to want [these instructions](INSTALL.md) instead.
+
 <a name="unix" />
 ## Unix Like
 

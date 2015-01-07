@@ -19,9 +19,13 @@ Lightweight [Tox](https://github.com/irungentoo/ProjectTox-Core) client.
 ![μTox on *nix](https://raw.github.com/notsecure/uTox/master/images/uTox-xlib.png "μTox running on lubuntu")
 
 
-## Building
+## Installing
 
 See [INSTALL.md](docs/INSTALL.md).
+
+## Building
+
+See [BUILD.md](docs/BUILD.md).
 
 ## Downloads
 

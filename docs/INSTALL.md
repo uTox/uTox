@@ -2,7 +2,7 @@
 
 The following will help you get μTox installed on your computron/toaster/carrier pigon. The focus of this guide is to 
 get you running ASAP. And mostly deals with precomplied binarys. If you're looking to contribute (you're the real MVP) 
-you're probably looking for [Building](docs/BUILD.md). 
+you're probably looking for [Building](BUILD.md). 
 
 - [Unix-like](#unix)
 - [OS X](#osx)
