@@ -1,4 +1,4 @@
-# uTox
+# μTox
 
 Lightweight [Tox](https://github.com/irungentoo/ProjectTox-Core) client.
 
@@ -10,18 +10,22 @@ Lightweight [Tox](https://github.com/irungentoo/ProjectTox-Core) client.
 
 ## Screenshots
 
-uTox running on Windows 8
+μTox running on Windows 8
 
-![test](https://raw.github.com/notsecure/uTox/master/images/uTox-win32.png "uTox running on Windows 8")
+![μTox on Win32](https://raw.github.com/notsecure/uTox/master/images/uTox-win32.png "μTox running on Windows 8")
 
-uTox running on lubuntu:
+μTox running on lubuntu:
 
-![test](https://raw.github.com/notsecure/uTox/master/images/uTox-xlib.png "uTox running on lubuntu")
+![μTox on *nix](https://raw.github.com/notsecure/uTox/master/images/uTox-xlib.png "μTox running on lubuntu")
 
+
+## Installing
+
+See [INSTALL.md](docs/INSTALL.md).
 
 ## Building
 
-See [INSTALL.md](INSTALL.md).
+See [BUILD.md](docs/BUILD.md).
 
 ## Downloads
 
