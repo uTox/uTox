@@ -31,18 +31,11 @@ If make/install really isn't your thing, you can try some precomplied binarys.
 - [i686](https://jenkins.libtoxcore.so/view/Clients/job/uTox_linux_i686/) [[.tar.xz]](https://jenkins.libtoxcore.so/view/Clients/job/uTox_linux_i686/lastSuccessfulBuild/artifact/utox/utox_linux_i686.tar.xz)
 
 
-- Debian Jessie:
-  ```bash
-  sudo apt-get install libdbus-1-dev libfontconfig1-dev libfreetype6-dev libopenal-dev libv4l-dev libxext-dev libxrender-dev
-  ```
+### Archlinux
 
-- Archlinux:
-  ```bash
-  sudo pacman -S dbus-c++ fontconfig freetype2 libdbus libvpx libxext libxrender openal v4l-utils
-  ```
-    1. Note: `dbus-c++` is an optional dependency.
-    2. Please note that [`tox-git`](https://aur.archlinux.org/packages/tox-git/) package from AUR is also required (unless you have already built `toxcore` from source).
+If you're luck enough to use Arch Linux, someone has an AUR package just for you!
 
+https://aur.archlinux.org/packages/utox-git/
 
 <a name="osx" />
 ## OS X
