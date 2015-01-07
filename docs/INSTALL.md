@@ -1,19 +1,21 @@
 # Install
 
-- [Unix like](#unix)
+- [Unix-like](#unix)
 - [OS X](#osx)
 - [Windows](#windows)
 - [Android](#android)
 - [Binaries](#binaries)
 
 <a name="unix" />
-## Linux / Unix-like
+## Unix-like
 
 Dependencies:
 
+```dbus freetype libvpx openal v4l xext xrender```
+
 - Debian Jessie:
   ```bash
-  sudo apt-get install libv4l-dev libopenal-dev libfreetype6-dev libdbus-1-dev libxrender-dev libfontconfig1-dev libxext-dev
+  sudo apt-get install libdbus-1-dev libfontconfig1-dev libfreetype6-dev libopenal-dev libv4l-dev libxext-dev libxrender-dev
   ```
 
 - Archlinux:
@@ -21,6 +23,7 @@ Dependencies:
   ```bash
   sudo pacman -S dbus-c++ fontconfig freetype2 libdbus libvpx libxext libxrender openal v4l-utils
   ```
+
     1. Note: `dbus-c++` is an optional dependency.
 
     2. Please note that [`tox-git`](https://aur.archlinux.org/packages/tox-git/) package from AUR is also required (unless you have already built `toxcore` from source).
