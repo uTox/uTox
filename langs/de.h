@@ -130,6 +130,9 @@ msgstr("Das Verändern von Netzwerk/Proxy-Einstellungen unterbricht die Verbindu
 msgid(LOGGING)
 msgstr("Chatverläufe speichern")
 
+msgid(AUDIONOTIFICATIONS)
+msgstr("Akustische Benachrichtigungen einschalten (Klingelton)")
+
 msgid(IS_TYPING)
 msgstr("schreibt...")
 
@@ -214,5 +217,17 @@ msgstr("Standard Loopback")
 msgid(WINDOW_TITLE_VIDEO_PREVIEW)
 msgstr("Video Vorschau")
 
-msgid(AUDIONOTIFICATIONS)
-msgstr("Akustische Benachrichtigungen einschalten (Klingelton)")
+msgid(MUTE)
+msgstr("Stummschalten")
+
+msgid(UNMUTE)
+msgstr("Stummschaltung aufheben")
+
+msgid(AVATAR_TOO_LARGE_MAX_SIZE_IS)
+msgstr("Avatar zu groß. Maximale Größe: ")
+
+msgid(CANT_FIND_FILE_OR_EMPTY)
+msgstr("Ausgewählte Datei existiert nicht oder ist leer.")
+
+msgid(CLEAR_HISTORY)
+msgstr("Chatverlauf leeren")
