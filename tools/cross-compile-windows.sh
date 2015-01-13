@@ -3,6 +3,14 @@
 #
 # Expects build dir to be git root with filter_audio and toxcore libs in ../
 
+usage() {
+	echo "Cross compile script to build windows uTox from a ~unix enviroment."
+	echo 
+	echo "Usage: $0 [32|64]"
+	return 0
+}
+
+
 if [[ $1 == 32 ]]; then
 	WINDOWS_TOOLCHAIN=i686-w64-mingw32
 	echo "Building 32bit version of utox"
@@ -10,6 +18,7 @@ elif [[ $1 == 64 ]]; then
 	WINDOWS_TOOLCHAIN=x86_64-w64-mingw32
 	echo "Building 64xbit version of utox"
 elif [[ $1 != '' ]]; then
+	usage
 	echo "First argument must either 32 or 64"
 	exit 1
 else
