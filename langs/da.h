@@ -112,6 +112,9 @@ msgstr("Vælg enhed")
 msgid(AUDIOINPUTDEVICE)
 msgstr("Lyd input enhed")
 
+msgid(AUDIOFILTERING)
+msgstr("Lyd Filter")
+
 msgid(AUDIOOUTPUTDEVICE)
 msgstr("Lyd output enhed")
 
@@ -147,6 +150,9 @@ msgstr("Ændring af Netværk/Proxy indstillinger vil midlertidigt afbryde din fo
 
 msgid(LOGGING)
 msgstr("Logger")
+
+msgid(AUDIONOTIFICATIONS)
+msgstr("Aktiver lyd notifikation (Ringetone)")
 
 msgid(IS_TYPING)
 msgstr("skriver...")
@@ -250,6 +256,17 @@ msgstr("Find venner")
 msgid(WINDOW_TITLE_VIDEO_PREVIEW)
 msgstr("Video prøve")
 
-//TODO: Localize or remove.
-//msgid(AUDIONOTIFICATIONS)
-//msgstr("Enable Audible Notification (Ringtone)")
+//msgid(MUTE)
+//msgstr("Mute")
+
+//msgid(UNMUTE)
+//msgstr("Unmute")
+
+msgid(AVATAR_TOO_LARGE_MAX_SIZE_IS)
+msgstr("Avatar er for stor. Maximum Størrelse: ")
+
+msgid(CANT_FIND_FILE_OR_EMPTY)
+msgstr("Kan ikke finde den valgte fil eller også er valgte fil tom.")
+
+msgid(CLEAR_HISTORY)
+msgstr("Slet historie")
