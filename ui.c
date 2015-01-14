@@ -35,14 +35,32 @@ _Bool maybe_i18nal_string_is_valid(MAYBE_I18NAL_STRING *mis) {
 
 /***** MAYBE_I18NAL_STRING helpers end *****/
 
+void draw_avatar_image(UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t targetwidth, uint32_t targetheight)
+{
+    /* get smallest difference of width or height */
+    double scale = (abs((int)width - targetwidth) > abs((int)height - targetheight)) ?
+                      (double)targetheight / height :
+                      (double)targetwidth / width;
+
+    image_set_scale(image, scale);
+    image_set_filter(image, FILTER_BILINEAR);
+
+    /* set position to show the middle of the image in the center  */
+    int xpos = (int) ((double)width * scale / 2 - (double)targetwidth / 2);
+    int ypos = (int) ((double)height * scale / 2 - (double)targetheight / 2);
+
+    draw_image(image, x, y, targetwidth, targetheight, xpos, ypos);
+
+    image_set_scale(image, 1.0);
+    image_set_filter(image, FILTER_NEAREST);
+}
+
 uint32_t status_color[] = {
     C_GREEN,
     C_YELLOW,
     C_RED,
     C_RED
 };
-
-/* Draw funcitons to generate Window pages */
 
 /* Top left self interface Avatar, name, statusmsg, status icon */
 static void drawself(void)
@@ -58,7 +76,7 @@ static void drawself(void)
 
     // draw avatar or default image
     if (self_has_avatar()) {
-        drawavatarimage(self.avatar.image, SELF_AVATAR_X, SELF_AVATAR_Y, self.avatar.width, self.avatar.height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
+        draw_avatar_image(self.avatar.image, SELF_AVATAR_X, SELF_AVATAR_Y, self.avatar.width, self.avatar.height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
     } else {
         drawalpha(BM_CONTACT, SELF_AVATAR_X, SELF_AVATAR_Y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, WHITE);
     }
@@ -76,7 +94,7 @@ static void drawfriend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(h
 
     // draw avatar or default image
     if (friend_has_avatar(f)) {
-        drawavatarimage(f->avatar.image, LIST_RIGHT + SCALE * 5, SCALE * 5, f->avatar.width, f->avatar.height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
+        draw_avatar_image(f->avatar.image, LIST_RIGHT + SCALE * 5, SCALE * 5, f->avatar.width, f->avatar.height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
     } else {
         drawalpha(BM_CONTACT, LIST_RIGHT + SCALE * 5, SCALE * 5, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, LIST_MAIN);
     }

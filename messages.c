@@ -17,6 +17,29 @@ static FRIEND* get_typers(MESSAGES *m) {
     return NULL;
 }
 
+/* draws an inline image at rect (x,y,width,height)
+ *  maxwidth is maximum width the image can take in
+ *  zoom is whether the image is currently zoomed in
+ *  position is the y position along the image the player has scrolled */
+static void draw_message_image(UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t maxwidth, _Bool zoom, double position)
+{
+    if(!zoom && width > maxwidth) {
+        image_set_scale(image, (double)maxwidth / width);
+        image_set_filter(image, FILTER_BILINEAR);
+
+        draw_image(image, x, y, maxwidth, height * maxwidth / width, 0, 0);
+
+        image_set_scale(image, 1.0);
+        image_set_filter(image, FILTER_NEAREST);
+    } else {
+        if(width > maxwidth) {
+            draw_image(image, x, y, maxwidth, height, (int)((double)(width - maxwidth) * position), 0);
+        } else {
+            draw_image(image, x, y, width, height, 0, 0);
+        }
+    }
+}
+
 /** Formats all messages from self and friends, and then call draw functions
  * to write them to the UI.
  *
@@ -126,7 +149,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
             /* image */
             MSG_IMG *img = (void*)msg;
             int maxwidth = width - MESSAGES_X - TIME_WIDTH;
-            drawimage(img->image, x + MESSAGES_X, y, img->w, img->h, maxwidth, img->zoom, img->position);
+            draw_message_image(img->image, x + MESSAGES_X, y, img->w, img->h, maxwidth, img->zoom, img->position);
             y += (img->zoom || img->w <= maxwidth) ? img->h : img->h * maxwidth / img->w;
             break;
         }
@@ -958,13 +981,16 @@ _Bool messages_char(uint32_t ch)
 void message_free(MESSAGE *msg)
 {
     switch(msg->msg_type) {
-    case MSG_TYPE_IMAGE:
-        //TODO: freeimage
+    case MSG_TYPE_IMAGE: {
+        MSG_IMG *img = (void*)msg;
+        image_free(img->image);
         break;
-    case MSG_TYPE_FILE:
+    }
+    case MSG_TYPE_FILE: {
         //already gets free()d
         //free(((MSG_FILE*)msg)->path);
         break;
+    }
     }
     free(msg);
 }

@@ -219,17 +219,30 @@ void loadalpha(int bm, void *data, int width, int height);
 void desktopgrab(_Bool video);
 void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_length);
 void setscale(void);
-void drawimage(UTOX_NATIVE_IMAGE, int x, int y, int width, int height, int maxwidth, _Bool zoom, double position);
 
-/* draws an image in the style of an avatar at within rect (x,y,targetwidth,targetheight)
- * this means: resize the image while keeping proportion so that the dimension(width or height) that has the smallest rational difference to the targetdimension becomes exactly targetdimension, then
- * crop the image so it fits in the (x,y,targetwidth,targetheight) rect, and
- * set the position if a dimension is too large so it's centered on the middle
- *
- * first argument is the image to draw, width and height are the width and height of the input image
+enum {
+    FILTER_NEAREST, // ugly and quick filtering
+    FILTER_BILINEAR // prettier and a bit slower filtering
+};
+/* set filtering method used when resizing given image to one of above enum */
+void image_set_filter(UTOX_NATIVE_IMAGE *image, uint8_t filter);
+
+/* set scale of image so that when it's drawn it will be `scale' times as large(2.0 for double size, 0.5 for half, etc.)
+ *  notes: theoretically lowest possible scale is (1.0/65536.0), highest is 65536.0, values outside of this range will create weird issues
+ *         scaling will be rounded to pixels, so it might not be exact
  */
-void drawavatarimage(UTOX_NATIVE_IMAGE, int x, int y, int width, int height, int targetwidth, int targetheight);
-UTOX_NATIVE_IMAGE png_to_image(const UTOX_PNG_IMAGE, size_t png_size, uint16_t *w, uint16_t *h);
+void image_set_scale(UTOX_NATIVE_IMAGE *image, double scale);
+
+/* draws an utox image with or without alpha channel into the rect of (x,y,width,height) on the screen,
+ * starting at position (imgx,imgy) of the image */
+void draw_image(const UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t imgx, uint32_t imgy);
+
+/* converts a png to a UTOX_NATIVE_IMAGE, returns a pointer to it, keeping alpha channel only if keep_alpha is 1 */
+UTOX_NATIVE_IMAGE *png_to_image(const UTOX_PNG_IMAGE, size_t size, uint16_t *w, uint16_t *h, _Bool keep_alpha);
+
+/* free an image created by png_to_image */
+void image_free(UTOX_NATIVE_IMAGE *image);
+
 void showkeyboard(_Bool show);
 void redraw(void);
 void update_tray(void);

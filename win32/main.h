@@ -24,5 +24,24 @@
 #define ftello ftello64
 #endif
 
-typedef HBITMAP UTOX_NATIVE_IMAGE;
+// internal representation of an image
+typedef struct utox_native_image {
+    HBITMAP rgb; // bitmap representing its RGB channel,
+                 // may not be null
+    HBITMAP alpha; // bitmap representing the alpha channel,
+                   // may be null
+
+    // width and height in pixels of the rgb and alpha
+    uint32_t width, height;
+
+    // width and height in pixels the image should be drawn to
+    uint32_t scaled_width, scaled_height;
+
+    // stretch mode used when stretching this image, either
+    // COLORONCOLOR(ugly and fast), or HALFTONE(prettier and slower)
+    int stretch_mode;
+
+} UTOX_NATIVE_IMAGE;
+
 #define UTOX_NATIVE_IMAGE_IS_VALID(x) (NULL != (x))
+#define UTOX_NATIVE_IMAGE_HAS_ALPHA(x) (NULL != (x->alpha))

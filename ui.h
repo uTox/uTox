@@ -1,3 +1,13 @@
+
+/* draws an image in the style of an avatar at within rect (x,y,targetwidth,targetheight)
+ * this means: resize the image while keeping proportion so that the dimension(width or height) that has the smallest rational difference to the targetdimension becomes exactly targetdimension, then
+ * crop the image so it fits in the (x,y,targetwidth,targetheight) rect, and
+ * set the position if a dimension is too large so it's centered on the middle
+ *
+ * first argument is the image to draw, width and height are the width and height of the input image
+ */
+void draw_avatar_image(UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t targetwidth, uint32_t targetheight);
+
 enum
 {
     PANEL_NONE,
