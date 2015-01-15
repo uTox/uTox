@@ -875,6 +875,12 @@ void flush_file(FILE *file)
     int fd = _fileno(file);
     _commit(fd);
 }
+
+
+int ch_mod(uint8_t *file){
+    /* You're probably looking for ./xlix as windows is lamesauce  and want's nothing to do with sane premissions */
+}
+
 /** Creates a tray baloon popup with the message, and flashes the main window 
  *
  * accepts: char_t *title, title legnth, char_t *msg, msg length;

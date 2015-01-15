@@ -724,6 +724,14 @@ int datapath_subdir(uint8_t *dest, const char *subdir)
     return l;
 }
 
+/** Sets file system permssions to something slightly safer.
+ *
+ * returns 0 and 1 on sucess and failure.
+ */
+int ch_mod(uint8_t *file){
+    return chmod((char*)file, S_IRUSR | S_IWUSR);
+}
+
 void flush_file(FILE *file)
 {
     fflush(file);

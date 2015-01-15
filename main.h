@@ -15,6 +15,8 @@
 #include <limits.h>
 #include <ctype.h>
 
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <tox/tox.h>
 #include <tox/toxav.h>
 #include <vpx/vpx_codec.h>
@@ -241,6 +243,7 @@ int datapath(uint8_t *dest);
  * returns number of characters written */
 int datapath_subdir(uint8_t *dest, const char *subdir);
 void flush_file(FILE *file);
+int ch_mod(uint8_t *file);
 void config_osdefaults(UTOX_SAVE *r);
 
 //me

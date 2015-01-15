@@ -444,6 +444,12 @@ static void write_save(Tox *tox)
             debug("Saved data\n");
         }
     }
+    int ch = ch_mod(path_real);
+    if(!ch){
+        debug("CHMOD: success\n");
+    } else {
+        debug("CHMOD: failure\n");
+    }
 
     free(data);
 }

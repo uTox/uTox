@@ -203,6 +203,12 @@ void flush_file(FILE *file)
     fsync(fd);
 }
 
+
+
+int ch_mod(uint8_t *file){
+    /* You're probably looking for ./xlix as android isn't working when this was written. */
+}
+
 void setscale(void)
 {
     if(window) {
