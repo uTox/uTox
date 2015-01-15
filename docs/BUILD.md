@@ -21,21 +21,16 @@ or if you built toxcore statically:
 
 ### Cross-compiling for Windows
 
-These commands are out of date, they'll soon* be replaced with something that should work. 
+If you have mingw32 and a working cygwin enviroment, the build script it tools/ 
+should just work. You must tell it if you want 32 or 64 bit, then the enviroment
+ you want to use.
 
-Something like this (these commands may sometimes be outdated, try the makefile or make an issue if they do not work):
+64bit should be `tools/cross_compile_windows.sh 64 win`
 
-Windows, using prebuilt toxav dll from Jenkins [32-bit](https://jenkins.libtoxcore.so/job/toxcore_win32_dll/) | [64-bit](https://jenkins.libtoxcore.so/job/toxcore_win64_dll/):
+32bit should be `tools/cross_compile_windows.sh 32 win`
 
-Note: building for Windows requires mingw-w64 (mingw lacks needed header files), other compilers (not tested) may work with some tweaks
-
-`windres icons/icon.rc -O coff -o icon.res`
-
-`gcc -o uTox.exe *.c ./png/png.c icon.res -lgdi32 -lmsimg32 -ldnsapi -lcomdlg32 -lopenal32 -lole32 -lstrmiids -loleaut32 -lvpx -ltoxav`
-
-### Automagic scrips
-
-Assuming you have a working unix-like envrioment, there's a build script to cross compile for windows in [tools/]
+Make sure you grab a copy of toxcore, openal, and filter_audio from 
+https://jenkins.libtoxcore.so/ (Make sure you grab the right bit version.)
 
 <a name="osx" />
 ## OSX
