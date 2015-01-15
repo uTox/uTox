@@ -505,7 +505,7 @@ void savefilerecv(uint32_t fid, MSG_FILE *file)
         .hwndOwner = hwnd,
         .lpstrFile = path,
         .nMaxFile = 256,
-        .Flags = OFN_EXPLORER | OFN_NOCHANGEDIR,
+        .Flags = OFN_EXPLORER | OFN_NOCHANGEDIR | OFN_NOREADONLYRETURN |OFN_OVERWRITEPROMPT,
     };
 
     if(GetSaveFileName(&ofn)) {

@@ -20,6 +20,7 @@ void (*gtk_file_chooser_set_current_name)(void*, char*);
 int (*gtk_dialog_run)(void*);
 void* (*gtk_file_chooser_get_filename)(void*);
 void* (*gtk_file_chooser_get_filenames)(void*);
+void* (*gtk_file_chooser_set_do_overwrite_confirmation)(const char*, void*);
 void (*gtk_file_chooser_set_filter)(void*, void*);
 void (*gtk_file_filter_add_mime_type)(void*, const char*);
 void (*gtk_widget_destroy)(void*);
@@ -103,11 +104,15 @@ static void gtk_savethread(void *args)
     uint16_t fid = file->progress;
     file->progress = 0;
 
+    /* Create a GTK save window */
     void *dialog = gtk_file_chooser_dialog_new("Save File", NULL, 1, "gtk-cancel", -6, "gtk-save", -3, NULL);
+    /* Get incoming file name*/
     char buf[sizeof(file->name) + 1];
     memcpy(buf, file->name, file->name_length);
     buf[file->name_length] = 0;
     gtk_file_chooser_set_current_name(dialog, buf);
+    /* Prompt to overwrite */
+    gtk_file_chooser_set_do_overwrite_confirmation(dialog, TRUE);
     int result = gtk_dialog_run(dialog);
     if(result == -3) {
         char *name = gtk_file_chooser_get_filename(dialog);
@@ -207,6 +212,7 @@ void* gtk_load(void)
         gtk_dialog_run = dlsym(lib, "gtk_dialog_run");
         gtk_file_chooser_get_filename = dlsym(lib, "gtk_file_chooser_get_filename");
         gtk_file_chooser_get_filenames = dlsym(lib, "gtk_file_chooser_get_filenames");
+        gtk_file_chooser_set_do_overwrite_confirmation = dlsym(lib, "gtk_file_chooser_set_do_overwrite_confirmation");
         gtk_file_chooser_set_select_multiple = dlsym(lib, "gtk_file_chooser_set_select_multiple");
         gtk_file_chooser_set_current_name = dlsym(lib, "gtk_file_chooser_set_current_name");
         gtk_file_chooser_set_filter = dlsym(lib, "gtk_file_chooser_set_filter");
@@ -216,8 +222,8 @@ void* gtk_load(void)
 
         if(!gtk_init || !gtk_main_iteration || !gtk_events_pending || !gtk_file_chooser_dialog_new || !gtk_file_filter_new ||
            !gtk_message_dialog_new || !gtk_dialog_run || !gtk_file_chooser_get_filename || !gtk_file_chooser_get_filenames ||
-           !gtk_file_chooser_set_select_multiple || !gtk_file_chooser_set_current_name || !gtk_file_chooser_set_filter ||
-           !gtk_file_filter_add_mime_type || !gtk_widget_destroy || !g_free_utox) {
+           !gtk_file_chooser_set_do_overwrite_confirmation || !gtk_file_chooser_set_select_multiple || !gtk_file_chooser_set_current_name ||
+           !gtk_file_chooser_set_filter || !gtk_file_filter_add_mime_type || !gtk_widget_destroy || !g_free_utox) {
             debug("bad GTK\n");
             dlclose(lib);
         } else {
