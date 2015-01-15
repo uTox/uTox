@@ -724,7 +724,7 @@ int datapath_subdir(uint8_t *dest, const char *subdir)
     return l;
 }
 
-/** Sets file system permssions to something slightly safer.
+/** Sets file system permissions to something slightly safer.
  *
  * returns 0 and 1 on sucess and failure.
  */

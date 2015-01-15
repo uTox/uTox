@@ -878,7 +878,7 @@ void flush_file(FILE *file)
 
 
 int ch_mod(uint8_t *file){
-    /* You're probably looking for ./xlix as windows is lamesauce  and want's nothing to do with sane premissions */
+    /* You're probably looking for ./xlib as windows is lamesauce and wants nothing to do with sane permissions */
 }
 
 /** Creates a tray baloon popup with the message, and flashes the main window 
