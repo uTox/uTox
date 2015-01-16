@@ -98,33 +98,61 @@ static void gtk_openavatarthread(void *UNUSED(args))
     gtk_open = 0;
 }
 
-static void gtk_savethread(void *args)
-{
+static void gtk_savethread(void *args){
     MSG_FILE *file = args;
     uint16_t fid = file->progress;
     file->progress = 0;
 
-    /* Create a GTK save window */
-    void *dialog = gtk_file_chooser_dialog_new("Save File", NULL, 1, "gtk-cancel", -6, "gtk-save", -3, NULL);
-    /* Get incoming file name*/
-    char buf[sizeof(file->name) + 1];
-    memcpy(buf, file->name, file->name_length);
-    buf[file->name_length] = 0;
-    gtk_file_chooser_set_current_name(dialog, buf);
-    /* Prompt to overwrite */
-    gtk_file_chooser_set_do_overwrite_confirmation(dialog, TRUE);
-    int result = gtk_dialog_run(dialog);
-    if(result == -3) {
-        char *name = gtk_file_chooser_get_filename(dialog);
-        char *path = strdup(name);
-        //g_free(name)
+    while(1){ //TODO, save current dir, and filename and preload them to gtk dialog if save fails.
+        /* Create a GTK save window */
+        void *dialog = gtk_file_chooser_dialog_new("Save File", NULL, 1, "gtk-cancel", -6, "gtk-save", -3, NULL);
+        /* Get incoming file name*/
+        char buf[sizeof(file->name) + 1];
+        memcpy(buf, file->name, file->name_length);
+        buf[file->name_length] = 0;
+        /* give gtk the file name our friend is sending. */
+        gtk_file_chooser_set_current_name(dialog, buf);
+        /* Prompt to overwrite */
+        gtk_file_chooser_set_do_overwrite_confirmation(dialog, 1);
+        /* Users can create folders when saving. */ //TODO ENABLE BELOW!
+        //gtk_file_chooser_set_create_folders(dialog, TRUE);
+        int result = gtk_dialog_run(dialog);
+        /* If user is ready to save check then pass to utox. */
+        if(result == -3) {
+            char *name = gtk_file_chooser_get_filename(dialog);
+            char *path = strdup(name);
+            //g_free(name)
 
-        debug("name: %s\npath: %s\n", name, path);
+            debug("name: %s\npath: %s\n", name, path);
 
-        postmessage(SAVE_FILE, fid, file->filenumber, path);
+            /* can we really write this file? */
+            FILE *fp = fopen(path, "w");
+            if(fp == NULL){
+                /* No, we can't display error, jump to top. */
+                if(errno == EACCES){
+                    debug("File write permission denied.\n");
+                    void *errordialog = gtk_message_dialog_new(dialog, 1, 3, 2,
+                            //parent, destroy_with_parent, gtk_error_message, gtk_buttons_close
+                                            "Error writing to file '%s'", name);
+                    gtk_dialog_run(errordialog);
+                    gtk_widget_destroy(errordialog);
+                    gtk_widget_destroy(dialog);
+                    continue;
+                } else {
+                    debug("Unknown file write error...\n");
+                }
+            } else {
+                /* write test passed, we're done! */
+                gtk_widget_destroy(dialog);
+                postmessage(SAVE_FILE, fid, file->filenumber, path);
+                break;
+            }
+        }
+        /* catch all */
+        gtk_widget_destroy(dialog);
+        break;
     }
 
-    gtk_widget_destroy(dialog);
     while(gtk_events_pending()) {
         gtk_main_iteration();
     }
