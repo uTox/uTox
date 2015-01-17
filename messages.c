@@ -25,12 +25,10 @@ static void draw_message_image(UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t 
 {
     if(!zoom && width > maxwidth) {
         image_set_scale(image, (double)maxwidth / width);
-        image_set_filter(image, FILTER_BILINEAR);
 
         draw_image(image, x, y, maxwidth, height * maxwidth / width, 0, 0);
 
         image_set_scale(image, 1.0);
-        image_set_filter(image, FILTER_NEAREST);
     } else {
         if(width > maxwidth) {
             draw_image(image, x, y, maxwidth, height, (int)((double)(width - maxwidth) * position), 0);

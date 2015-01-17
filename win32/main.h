@@ -26,10 +26,10 @@
 
 // internal representation of an image
 typedef struct utox_native_image {
-    HBITMAP rgb; // bitmap representing its RGB channel,
-                 // may not be null
-    HBITMAP alpha; // bitmap representing the alpha channel,
-                   // may be null
+    HBITMAP bitmap; // 32 bit bitmap containing
+                    // red, green, blue and alpha
+
+    _Bool has_alpha; // whether bitmap has an alpha channel
 
     // width and height in pixels of the rgb and alpha
     uint32_t width, height;
@@ -44,4 +44,4 @@ typedef struct utox_native_image {
 } UTOX_NATIVE_IMAGE;
 
 #define UTOX_NATIVE_IMAGE_IS_VALID(x) (NULL != (x))
-#define UTOX_NATIVE_IMAGE_HAS_ALPHA(x) (NULL != (x->alpha))
+#define UTOX_NATIVE_IMAGE_HAS_ALPHA(x) (x->has_alpha)
