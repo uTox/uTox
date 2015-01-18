@@ -136,20 +136,32 @@ void drawalpha(int bm, int x, int y, int width, int height, uint32_t color)
         }
     };
 
-    uint8_t *p = bitmap[bm], *end = p + width * height;
+    // create pointer to begining and end of the alpha-channel-only bitmap
+    uint8_t *alpha_pixel = bitmap[bm], *end = alpha_pixel + width * height;
 
 
-    uint32_t *np;
-    HBITMAP temp = CreateDIBSection(hdcMem, &bmi, DIB_RGB_COLORS, (void**)&np, NULL, 0);
+    // create temporary bitmap we'll combine the alpha and colors on
+    uint32_t *out_pixel;
+    HBITMAP temp = CreateDIBSection(hdcMem, &bmi, DIB_RGB_COLORS, (void**)&out_pixel, NULL, 0);
     SelectObject(hdcMem, temp);
 
-    while(p != end) {
-        uint8_t v = *p++;
-        *np++ = (((color & 0xFF) * v / 255) << 16) | ((((color >> 8) & 0xFF) * v / 255) << 8) | ((((color >> 16) & 0xFF) * v / 255) << 0) | (v << 24);
+    // create pixels for the drawable bitmap based on the alpha value of
+    // each pixel in the alpha bitmap and the color given by 'color',
+    // the Win32 API requires we pre-apply our alpha channel as well by
+    // doing (color * alpha / 255) for each color channel
+    // NOTE: Input color is in the format 0BGR, output pixel is in the format ARGB
+    while(alpha_pixel != end) {
+        uint8_t alpha = *alpha_pixel++;
+        *out_pixel++ = (((color & 0xFF) * alpha / 255) << 16) // red
+                     | ((((color >> 8) & 0xFF) * alpha / 255) << 8)  // green
+                     | ((((color >> 16) & 0xFF) * alpha / 255) << 0) // blue
+                     | (alpha << 24); // alpha
     }
 
+    // draw temporary bitmap on screen
     AlphaBlend(hdc, x, y, width, height, hdcMem, 0, 0, width, height, blend_function);
 
+    // clean up
     DeleteObject(temp);
 }
 
@@ -845,14 +857,14 @@ UTOX_NATIVE_IMAGE *png_to_image(const UTOX_PNG_IMAGE data, size_t size, uint16_t
     uint8_t *out;
     HBITMAP bitmap = CreateDIBSection(hdcMem, &bmi, DIB_RGB_COLORS, (void**)&out, NULL, 0);
 
-    // convert RGBA data to internal format, switching the first and
-    // third bytes, and pre-applying the alpha if we're keeping the
-    // alpha channel
+    // convert RGBA data to internal format
+    // pre-applying the alpha if we're keeping the alpha channel,
     // put the result in out
+    // NOTE: input pixels are in format RGBA, output is BGRA
     uint8_t *p, *end = rgba_data + width * height * 4;
-    uint8_t alpha;
     p = rgba_data;
     if (keep_alpha) {
+        uint8_t alpha;
         do {
             alpha = p[3];
             out[0] = p[2] * (alpha / 255.0); // pre-apply alpha

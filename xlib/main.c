@@ -599,6 +599,8 @@ static void pastedata(void *data, Atom type, int len, _Bool select)
     }
 }
 
+// converts an XImage to a Picture usable by XRender, uses XRenderPictFormat given by
+// 'format', uses the default format if it is NULL
 static Picture ximage_to_picture(XImage *img, const XRenderPictFormat *format)
 {
     Pixmap pixmap = XCreatePixmap(display, window, img->width, img->height, img->depth);
@@ -620,6 +622,9 @@ void loadalpha(int bm, void *data, int width, int height)
 {
     XImage *img = XCreateImage(display, CopyFromParent, 8, ZPixmap, 0, data, width, height, 8, 0);
 
+    // create picture that only holds alpha values
+    // NOTE: the XImage made earlier should really be freed, but calling XDestroyImage on it will also
+    // automatically free the data it's pointing to(which we don't want), so there's no easy way to destroy them currently
     bitmap[bm] = ximage_to_picture(img, XRenderFindStandardFormat(display, PictStandardA8));
 }
 
@@ -629,12 +634,14 @@ void loadalpha(int bm, void *data, int width, int height)
  */
 static Picture generate_alpha_bitmask(const uint8_t *rgba_data, uint16_t width, uint16_t height, uint32_t rgba_size)
 {
+    // we don't need to free this, that's done by XDestroyImage()
     uint8_t *out = malloc(rgba_size / 4);
     uint32_t i, j;
     for (i = j = 0; i < rgba_size; i += 4, j++) {
         out[j] = (rgba_data+i)[3] & 0xFF; // take only alpha values
     }
 
+    // create 1-byte-per-pixel image and convert it to a Alpha-format Picture
     XImage *img = XCreateImage(display, CopyFromParent, 8, ZPixmap, 0, (char*)out, width, height, 8, width);
     Picture picture = ximage_to_picture(img, XRenderFindStandardFormat(display, PictStandardA8));
 
@@ -658,6 +665,7 @@ UTOX_NATIVE_IMAGE *png_to_image(const UTOX_PNG_IMAGE data, size_t size, uint16_t
     // we don't need to free this, that's done by XDestroyImage()
     uint8_t *out = malloc(rgba_size);
 
+    // colors are read into red, blue and green and written into the target pointer
     uint8_t red, blue, green;
     uint32_t *target;
 
