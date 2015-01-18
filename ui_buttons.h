@@ -356,16 +356,20 @@ static void button_chat1_updatecolor(BUTTON *b)
 
 static void button_chat2_onpress(void)
 {
-    debug("lel2\n");
+    FRIEND *f = sitem->data;
+    if(f->online) {
+        edit_msg_onenter();
+    }
+        debug("lel2\n");
 }
 
 static void button_chat2_updatecolor(BUTTON *b)
 {
     FRIEND *f = sitem->data;
     if(f->online) {
-        b->c1 = C_GRAY;
-        b->c2 = C_GRAY;
-        b->c3 = C_GRAY;
+        b->c1 = C_GREEN;
+        b->c2 = C_GREEN_LIGHT;
+        b->c3 = C_GREEN_LIGHT;
     } else {
         b->c1 = C_GRAY;
         b->c2 = C_GRAY;
