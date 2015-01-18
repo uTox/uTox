@@ -626,6 +626,7 @@ void ui_scale(uint8_t scale)
         .height = BM_LBUTTON_HEIGHT,
     },
 
+/* top right chat message window button */
     b_chat1 = {
         .type = PANEL_BUTTON,
         .x = -5 * SCALE - BM_CB_WIDTH,
@@ -634,6 +635,7 @@ void ui_scale(uint8_t scale)
         .width = BM_CB_WIDTH,
     },
 
+/* bottom right chat message window button */
     b_chat2 = {
         .type = PANEL_BUTTON,
         .x = -5 * SCALE - BM_CB_WIDTH,
