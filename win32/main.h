@@ -15,7 +15,7 @@
 #define KEY_PAGEUP VK_PRIOR
 #define KEY_PAGEDOWN VK_NEXT
 
-#define debug(...) printf(__VA_ARGS__)
+#define debug(...) printf(__VA_ARGS__); fflush(stdout)
 
 #define KEY(x) (x)
 
