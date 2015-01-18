@@ -332,6 +332,7 @@ static void button_status_onpress(void)
     tox_postmessage(TOX_SETSTATUS, self.status, 0, NULL);
 }
 
+/* top right chat message window button */
 static void button_chat1_onpress(void)
 {
     FRIEND *f = sitem->data;
@@ -354,13 +355,13 @@ static void button_chat1_updatecolor(BUTTON *b)
     }
 }
 
+/* bottom right chat message window button */
 static void button_chat2_onpress(void)
 {
     FRIEND *f = sitem->data;
     if(f->online) {
         edit_msg_onenter();
     }
-        debug("lel2\n");
 }
 
 static void button_chat2_updatecolor(BUTTON *b)
@@ -533,6 +534,7 @@ button_videopreview = {
     .updatecolor = button_videopreview_updatecolor,
 },
 
+/* top right chat message window button */
 button_chat1 = {
     .bm = BM_CB1,
     .c1 = C_GREEN,
@@ -545,6 +547,7 @@ button_chat1 = {
     .updatecolor = button_chat1_updatecolor,
 },
 
+/* bottom right chat message window button */
 button_chat2 = {
     .bm = BM_CB2,
     .c1 = C_GREEN,
