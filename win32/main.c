@@ -149,7 +149,7 @@ void drawalpha(int bm, int x, int y, int width, int height, uint32_t color)
     // each pixel in the alpha bitmap and the color given by 'color',
     // the Win32 API requires we pre-apply our alpha channel as well by
     // doing (color * alpha / 255) for each color channel
-    // NOTE: Input color is in the format 0BGR, output pixel is in the format ARGB
+    // NOTE: Input color is in the format 0BGR, output pixel is in the format BGRA
     while(alpha_pixel != end) {
         uint8_t alpha = *alpha_pixel++;
         *out_pixel++ = (((color & 0xFF) * alpha / 255) << 16) // red
