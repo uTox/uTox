@@ -234,7 +234,9 @@ void image_set_filter(UTOX_NATIVE_IMAGE *image, uint8_t filter);
 void image_set_scale(UTOX_NATIVE_IMAGE *image, double scale);
 
 /* draws an utox image with or without alpha channel into the rect of (x,y,width,height) on the screen,
- * starting at position (imgx,imgy) of the image */
+ * starting at position (imgx,imgy) of the image
+ * WARNING: Windows can fail to show the image at all if the rect (imgx,imgy,width,height) contains even 1 pixel outside of
+ * the image's size AFTER SCALING, so be careful (We might want to improve this so this function is safer to use in the future) */
 void draw_image(const UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t imgx, uint32_t imgy);
 
 /* converts a png to a UTOX_NATIVE_IMAGE, returns a pointer to it, keeping alpha channel only if keep_alpha is 1 */

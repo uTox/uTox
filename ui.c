@@ -37,8 +37,8 @@ _Bool maybe_i18nal_string_is_valid(MAYBE_I18NAL_STRING *mis) {
 
 void draw_avatar_image(UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t targetwidth, uint32_t targetheight)
 {
-    /* get smallest difference of width or height */
-    double scale = (abs((int)width - targetwidth) > abs((int)height - targetheight)) ?
+    /* get smallest of width or height */
+    double scale = (width > height) ?
                       (double)targetheight / height :
                       (double)targetwidth / width;
 

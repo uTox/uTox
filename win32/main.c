@@ -219,8 +219,11 @@ void draw_image(const UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, ui
         SelectObject(hdcMem, image->bitmap);
 
         // stretch image onto temporary bitmap
-        StretchBlt(drawdc, 0, 0, image->scaled_width, image->scaled_height, hdcMem, 0, 0, image->width, image->height, SRCCOPY);
-
+        if (image->has_alpha) {
+            AlphaBlend(drawdc, 0, 0, image->scaled_width, image->scaled_height, hdcMem, 0, 0, image->width, image->height, blend_function);
+        } else {
+            StretchBlt(drawdc, 0, 0, image->scaled_width, image->scaled_height, hdcMem, 0, 0, image->width, image->height, SRCCOPY);
+        }
     }
 
     // clip and draw
