@@ -2,6 +2,7 @@
 # set to anything else to disable them
 DBUS = 1
 V4LCONVERT = 1
+FILTER_AUDIO = 1
 
 DEPS = fontconfig freetype2 libtoxav libtoxcore
 DEPS += openal vpx x11 xext xrender
@@ -12,6 +13,10 @@ endif
 
 ifeq ($(V4LCONVERT), 1)
 	DEPS += libv4lconvert
+endif
+
+ifeq ($(FILTER_AUDIO), 1)
+	DEPS += filteraudio
 endif
 
 UNAME_S := $(shell uname -s)
@@ -27,6 +32,10 @@ endif
 
 ifneq ($(V4LCONVERT), 1)
 	CFLAGS += -DNO_V4LCONVERT
+endif
+
+ifeq ($(FILTER_AUDIO), 1)
+	CFLAGS += -DAUDIO_FILTERING
 endif
 
 ifeq ($(UNAME_S), Linux)
