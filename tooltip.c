@@ -123,8 +123,8 @@ void mouse_pos_check(void *UNUSED(args))
     b->timer_running = 1;
     while(1) {
         if(mouse.x - old_x == 0 && mouse.y - old_y == 0) {
-            if(tick >= 10) {
-                // 1 second of not moving, show tooltip
+            if(tick >= 5) {
+                // ~500ms of not moving, show tooltip
                 if(b->can_show && !b->mouse_down) {
                     tooltip_show();
                 }
