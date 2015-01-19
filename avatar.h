@@ -75,9 +75,6 @@ int set_avatar(AVATAR *avatar, const uint8_t *data, uint32_t size, _Bool create_
  * freeing its image */
 void unset_avatar(AVATAR *avatar);
 
-/* frees the image of an avatar, does nothing if image is NULL */
-void avatar_free_image(AVATAR *avatar);
-
 /* sets own avatar based on given png data and saves it to disk if successful
  *  data is png data to set avatar to
  *  size is size of data

@@ -22,6 +22,16 @@ int get_avatar_hash_location(char_t *dest, const char_t *id)
     return p - dest;
 }
 
+/* frees the image of an avatar, does nothing if image is NULL */
+void avatar_free_image(AVATAR *avatar)
+{
+    if (avatar->image) {
+        image_free(avatar->image);
+        avatar->image = NULL;
+    }
+}
+
+
 int load_avatar(const char_t *id, uint8_t *dest, uint32_t *size_out)
 {
     char_t path[512];
@@ -152,14 +162,6 @@ void unset_avatar(AVATAR *avatar)
 {
     avatar->format = TOX_AVATAR_FORMAT_NONE;
     avatar_free_image(avatar);
-}
-
-void avatar_free_image(AVATAR *avatar)
-{
-    if (avatar->image) {
-        image_free(avatar->image);
-        avatar->image = NULL;
-    }
 }
 
 /* sets self avatar, see self_set_and_save_avatar */

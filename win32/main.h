@@ -31,7 +31,7 @@ typedef struct utox_native_image {
 
     _Bool has_alpha; // whether bitmap has an alpha channel
 
-    // width and height in pixels of the rgb and alpha
+    // width and height in pixels of the bitmap
     uint32_t width, height;
 
     // width and height in pixels the image should be drawn to
