@@ -462,6 +462,10 @@ void redraw(void)
 {
     _redraw = 1;
 }
+void force_redraw(void)
+{
+    redraw();
+}
 
 void update_tray(void)
 {

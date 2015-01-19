@@ -920,12 +920,12 @@ void redraw(void)
 {
     panel_draw(&panel_main, 0, 0, utox_window_width, utox_window_height);
 }
+
 /**
  * update_tray(void)
  * creates a win32 NOTIFYICONDATAW struct, sets the tiptab flag, gives *hwnd,
  * sets struct .cbSize, and resets the tibtab to native self.name;
  */
-
 void update_tray(void)
 {
     char *tip;
@@ -943,6 +943,10 @@ void update_tray(void)
     Shell_NotifyIconW(NIM_MODIFY, &nid);
 
     free(tip);
+}
+
+void force_redraw(void) {
+    redraw();
 }
 
 static int grabx, graby, grabpx, grabpy;

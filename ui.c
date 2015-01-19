@@ -1005,6 +1005,7 @@ void panel_draw(PANEL *p, int x, int y, int width, int height)
 
     dropdown_drawactive();
     contextmenu_draw();
+    tooltip_draw();
 
     enddraw(x, y, width, height);
 }
@@ -1036,6 +1037,10 @@ _Bool panel_mmove(PANEL *p, int x, int y, int width, int height, int mx, int my,
     }
 
     _Bool draw = p->type ? mmovefunc[p->type - 1](p, x, y, width, height, mx, mmy, dx, dy) : 0;
+    // Has to be called before children mmove
+    if(p == &panel_main) {
+        draw |= tooltip_mmove();
+    }
     PANEL **pp = p->child, *subp;
     if(pp) {
         while((subp = *pp++)) {
@@ -1077,7 +1082,7 @@ static _Bool panel_mdown_sub(PANEL *p)
 
 void panel_mdown(PANEL *p)
 {
-    if(contextmenu_mdown()) {
+    if(contextmenu_mdown() || tooltip_mdown()) {
         redraw();
         return;
     }
@@ -1182,6 +1187,7 @@ _Bool panel_mup(PANEL *p)
 
     if(p == &panel_main) {
         draw |= contextmenu_mup();
+        tooltip_mup();
         if(draw) {
             redraw();
         }
