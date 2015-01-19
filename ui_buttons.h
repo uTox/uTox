@@ -361,6 +361,8 @@ static void button_chat2_onpress(void)
     FRIEND *f = sitem->data;
     if(f->online) {
         edit_msg_onenter();
+        // reset focus to the chat window on send to prevent segfault. May break on android.
+        edit_setfocus(&edit_msg);
     }
 }
 
