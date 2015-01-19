@@ -413,7 +413,6 @@ button_transfer = {
     .bh = _BM_ADD_WIDTH,
 
     .onpress = button_transfer_onpress,
-    .tooltip_text = { .i18nal = STR_TRANSFER_NEW },
 },
 
 button_settings = {
