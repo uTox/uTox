@@ -14,6 +14,15 @@ typedef struct avatar {
 /* whether friend f's avatar is set, where f is a pointer to a friend struct */
 #define friend_has_avatar(f) (f->avatar.format != TOX_AVATAR_FORMAT_NONE)
 
+/* gets the avatar location on the diskloads an avatar from disk and puts the result in dest.
+ * id is the client id string for given client. To get the cid string from a cid, use cid_to_string
+ *   id should be at least (TOX_CLIENT_ID_SIZE * 2) bytes long
+ *  on success: returns the number of chars written
+ *  on failure: returns 0
+ *  notes: dest should be at least TOX_AVATAR_MAX_DATA_LENGTH bytes long.
+ */
+int get_avatar_location(char_t *dest, const char_t *id);
+
 /* loads an avatar from disk and puts the resulting png data in buffer given by dest.
  * id is the client id string for given client. To get the cid string from a cid, use cid_to_string
  *   id should be at least (TOX_CLIENT_ID_SIZE * 2) bytes long

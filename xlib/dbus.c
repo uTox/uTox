@@ -1,22 +1,33 @@
 #include <dbus/dbus.h>
 #include <signal.h>
+#include "../util.h"
 
 #define NOTIFY_OBJECT "/org/freedesktop/Notifications"
 #define NOTIFY_INTERFACE "org.freedesktop.Notifications"
 
 static sig_atomic_t  done;
 
-static int notify_build_message(DBusMessage* notify_msg, char *title, char *content)
+static int notify_build_message(DBusMessage* notify_msg, char *title, char *content, uint8_t *cid)
 {
     DBusMessageIter args[4];
     char *app_name = "uTox";
     uint32_t replaces_id = -1;
+    char_t string_cid[TOX_CLIENT_ID_SIZE * 2];
+    char_t app_icon_data[256];
     char *app_icon = "";
     int32_t timeout = 5000;
     dbus_bool_t m = 0;
     char* key = "foo";
     int value = 42;
 
+    // Gets the avatar of the user to be displayed in the notification
+    if(cid != NULL)
+    {
+        cid_to_string(string_cid, cid);
+        get_avatar_location(app_icon_data, string_cid);
+        app_icon = (char*) app_icon_data;
+    }
+    
     dbus_message_iter_init_append(notify_msg, &args[0]);
     m |= dbus_message_iter_append_basic(&args[0], DBUS_TYPE_STRING, &app_name);
     m |= dbus_message_iter_append_basic(&args[0], DBUS_TYPE_UINT32, &replaces_id);
@@ -47,7 +58,7 @@ static void notify_callback(DBusPendingCall* pending, void* user_data)
     done = 1;
 }
 
-void dbus_notify(char *title, char *content)
+void dbus_notify(char *title, char *content, uint8_t *cid)
 {
     DBusMessage *msg;
     DBusConnection* conn;
@@ -80,7 +91,7 @@ void dbus_notify(char *title, char *content)
     /* append arguments
     UINT32 org.freedesktop.Notifications.Notify (STRING app_name, UINT32 replaces_id, STRING app_icon, STRING summary, STRING body, ARRAY actions, DICT hints, INT32 expire_timeout); */
 
-    if(!notify_build_message(msg, title, content)) {
+    if(!notify_build_message(msg, title, content, cid)) {
         //fprintf(stderr, "Out Of Memory!\n");
         return;
     }
