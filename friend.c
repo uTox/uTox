@@ -80,8 +80,9 @@ void friend_notify(FRIEND *f, char_t *str, STRING_IDX str_length, char_t *msg, S
     *p++ = ')';
     *p = 0;
     
-    if(friend_has_avatar(f))
+    if(friend_has_avatar(f)) {
         f_cid = f->cid;
+    }
     
     notify(title, len, msg, msg_length, f_cid);
 }

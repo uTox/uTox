@@ -1,6 +1,5 @@
 #include <dbus/dbus.h>
 #include <signal.h>
-#include "../util.h"
 
 #define NOTIFY_OBJECT "/org/freedesktop/Notifications"
 #define NOTIFY_INTERFACE "org.freedesktop.Notifications"
@@ -12,7 +11,6 @@ static int notify_build_message(DBusMessage* notify_msg, char *title, char *cont
     DBusMessageIter args[4];
     char *app_name = "uTox";
     uint32_t replaces_id = -1;
-    char_t string_cid[TOX_CLIENT_ID_SIZE * 2];
     char_t app_icon_data[256];
     char *app_icon = "";
     int32_t timeout = 5000;
@@ -23,6 +21,7 @@ static int notify_build_message(DBusMessage* notify_msg, char *title, char *cont
     // Gets the avatar of the user to be displayed in the notification
     if(cid != NULL)
     {
+        char_t string_cid[TOX_CLIENT_ID_SIZE * 2];
         cid_to_string(string_cid, cid);
         get_avatar_location(app_icon_data, string_cid);
         app_icon = (char*) app_icon_data;
