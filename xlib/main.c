@@ -74,6 +74,7 @@ uint32_t scolor;
 Atom XA_CLIPBOARD, XA_UTF8_STRING, targets, XA_INCR;
 Atom XdndAware, XdndEnter, XdndLeave, XdndPosition, XdndStatus, XdndDrop, XdndSelection, XdndDATA, XdndActionCopy;
 Atom XA_URI_LIST, XA_PNG_IMG;
+Atom XRedraw;
 
 Pixmap drawbuf;
 Picture renderpic;
@@ -724,6 +725,14 @@ int datapath_subdir(uint8_t *dest, const char *subdir)
     return l;
 }
 
+/** Sets file system permissions to something slightly safer.
+ *
+ * returns 0 and 1 on sucess and failure.
+ */
+int ch_mod(uint8_t *file){
+    return chmod((char*)file, S_IRUSR | S_IWUSR);
+}
+
 void flush_file(FILE *file)
 {
     fflush(file);
@@ -792,6 +801,23 @@ void showkeyboard(_Bool show)
 void redraw(void)
 {
     _redraw = 1;
+}
+void force_redraw(void) {
+    XEvent ev = {
+        .xclient = {
+            .type = ClientMessage,
+            .display = display,
+            .window = window,
+            .message_type = XRedraw,
+            .format = 8,
+            .data = {
+                .s = {0,0}
+            }
+        }
+    };
+    _redraw = 1;
+    XSendEvent(display, window, 0, 0, &ev);
+    XFlush(display);
 }
 
 void update_tray(void)
@@ -906,6 +932,8 @@ int main(int argc, char *argv[])
 
     XA_URI_LIST = XInternAtom(display, "text/uri-list", False);
     XA_PNG_IMG = XInternAtom(display, "image/png", False);
+
+    XRedraw = XInternAtom(display, "XRedraw", False);
 
     /* create the draw buffer */
     drawbuf = XCreatePixmap(display, window, DEFAULT_WIDTH, DEFAULT_HEIGHT, depth);

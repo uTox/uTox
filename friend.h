@@ -7,7 +7,7 @@ typedef struct friend {
     int32_t callid;
     uint16_t call_width, call_height;
 
-    uint8_t cid[TOX_CLIENT_ID_SIZE];
+    uint8_t cid[TOX_CLIENT_ID_SIZE], tooltip[8];
     STRING_IDX name_length, status_length, typed_length;
     char_t *name, *status_message, *typed;
 

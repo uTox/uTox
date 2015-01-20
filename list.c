@@ -44,7 +44,6 @@ static void drawname(ITEM *i, int y, char_t *name, char_t *msg, STRING_IDX name_
 static void drawitem(ITEM *i, int UNUSED(x), int y)
 {
     drawitembox(i, y);
-
     switch(i->item) {
     case ITEM_FRIEND: {
         FRIEND *f = i->data;
@@ -63,6 +62,7 @@ static void drawitem(ITEM *i, int UNUSED(x), int y)
         if(f->notify) {
             drawalpha(BM_STATUS_NOTIFY, LIST_RIGHT - SCALE * 13, y + ITEM_HEIGHT / 2 - BM_STATUS_NOTIFY_WIDTH / 2, BM_STATUS_NOTIFY_WIDTH, BM_STATUS_NOTIFY_WIDTH, status_color[status]);
         }
+        // tooltip_new(utf8tonative(snprint_t(f->name, sizeof(char_t)*8));
         break;
     }
 
@@ -119,10 +119,12 @@ void list_scale(void)
 
 static ITEM* item_hit(int mx, int my, int UNUSED(height))
 {
+    /* Mouse is outsite the list */
     if(mx < LIST_X || mx >= LIST_RIGHT) {
         return NULL;
     }
 
+    /* Mouse is above the list */
     if(my < 0) {
         return NULL;
     }
@@ -514,6 +516,8 @@ _Bool list_mmove(void *UNUSED(n), int UNUSED(x), int UNUSED(y), int UNUSED(width
         }
 
         draw = 1;
+    } else {
+    tooltip_draw();
     }
 
     return draw;
@@ -522,7 +526,7 @@ _Bool list_mmove(void *UNUSED(n), int UNUSED(x), int UNUSED(y), int UNUSED(width
 _Bool list_mdown(void *UNUSED(n))
 {
     _Bool draw = 0;
-
+    tooltip_mdown(); /* may need to return on true */
     if(mitem) {
         if(mitem != sitem) {
             selectitem(mitem);
@@ -601,6 +605,7 @@ _Bool list_mwheel(void *UNUSED(n), int UNUSED(height), double UNUSED(d))
 _Bool list_mup(void *UNUSED(n))
 {
     _Bool draw = 0;
+    tooltip_mup(); /* may need to return one true */
     if(sitem_mousedown && abs(sitem_dy) >= 5) {
         if(nitem) {
             if(sitem->item == ITEM_FRIEND) {

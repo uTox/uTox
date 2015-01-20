@@ -15,6 +15,8 @@
 #include <limits.h>
 #include <ctype.h>
 
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <tox/tox.h>
 #include <tox/toxav.h>
 #include <vpx/vpx_codec.h>
@@ -96,6 +98,7 @@ typedef struct edit_change EDIT_CHANGE;
 #include "button.h"
 #include "dropdown.h"
 #include "contextmenu.h"
+#include "tooltip.h"
 
 #include "text.h"
 #include "util.h"
@@ -233,6 +236,7 @@ UTOX_NATIVE_IMAGE png_to_image(const UTOX_PNG_IMAGE, size_t png_size, uint16_t *
 void showkeyboard(_Bool show);
 void redraw(void);
 void update_tray(void);
+void force_redraw(void); // TODO: as parameter for redraw()?
 
 int datapath_old(uint8_t *dest);
 int datapath(uint8_t *dest);
@@ -241,6 +245,7 @@ int datapath(uint8_t *dest);
  * returns number of characters written */
 int datapath_subdir(uint8_t *dest, const char *subdir);
 void flush_file(FILE *file);
+int ch_mod(uint8_t *file);
 void config_osdefaults(UTOX_SAVE *r);
 
 //me

@@ -332,6 +332,7 @@ static void button_status_onpress(void)
     tox_postmessage(TOX_SETSTATUS, self.status, 0, NULL);
 }
 
+/* top right chat message window button */
 static void button_chat1_onpress(void)
 {
     FRIEND *f = sitem->data;
@@ -354,18 +355,24 @@ static void button_chat1_updatecolor(BUTTON *b)
     }
 }
 
+/* bottom right chat message window button */
 static void button_chat2_onpress(void)
 {
-    debug("lel2\n");
+    FRIEND *f = sitem->data;
+    if(f->online) {
+        edit_msg_onenter();
+        // reset focus to the chat window on send to prevent segfault. May break on android.
+        edit_setfocus(&edit_msg);
+    }
 }
 
 static void button_chat2_updatecolor(BUTTON *b)
 {
     FRIEND *f = sitem->data;
     if(f->online) {
-        b->c1 = C_GRAY;
-        b->c2 = C_GRAY;
-        b->c3 = C_GRAY;
+        b->c1 = C_GREEN;
+        b->c2 = C_GREEN_LIGHT;
+        b->c3 = C_GREEN_LIGHT;
     } else {
         b->c1 = C_GRAY;
         b->c2 = C_GRAY;
@@ -384,7 +391,8 @@ button_add = {
     .bw = _BM_ADD_WIDTH,
     .bh = _BM_ADD_WIDTH,
 
-    .onpress = button_add_onpress
+    .onpress = button_add_onpress,
+    .tooltip_text = { .i18nal = STR_ADDFRIENDS },
 },
 
 button_groups = {
@@ -395,7 +403,7 @@ button_groups = {
     .bw = _BM_ADD_WIDTH,
     .bh = _BM_ADD_WIDTH,
 
-    .onpress = button_groups_onpress
+    .onpress = button_groups_onpress,
 },
 
 button_transfer = {
@@ -406,7 +414,7 @@ button_transfer = {
     .bw = _BM_ADD_WIDTH,
     .bh = _BM_ADD_WIDTH,
 
-    .onpress = button_transfer_onpress
+    .onpress = button_transfer_onpress,
 },
 
 button_settings = {
@@ -417,7 +425,8 @@ button_settings = {
     .bw = _BM_ADD_WIDTH,
     .bh = _BM_ADD_WIDTH,
 
-    .onpress = button_settings_onpress
+    .onpress = button_settings_onpress,
+    .tooltip_text = { .i18nal = STR_OTHERSETTINGS },
 },
 
 button_copyid = {
@@ -529,6 +538,7 @@ button_videopreview = {
     .updatecolor = button_videopreview_updatecolor,
 },
 
+/* top right chat message window button */
 button_chat1 = {
     .bm = BM_CB1,
     .c1 = C_GREEN,
@@ -541,11 +551,15 @@ button_chat1 = {
     .updatecolor = button_chat1_updatecolor,
 },
 
+/* bottom right chat message window button */
 button_chat2 = {
     .bm = BM_CB2,
     .c1 = C_GREEN,
     .c2 = C_GREEN_LIGHT,
     .c3 = C_GREEN_LIGHT,
+    .bm2 = BM_ADD,
+    .bw = _BM_ADD_WIDTH,
+    .bh = _BM_ADD_WIDTH,
     .onpress = button_chat2_onpress,
     .updatecolor = button_chat2_updatecolor,
 },

@@ -203,6 +203,12 @@ void flush_file(FILE *file)
     fsync(fd);
 }
 
+
+
+int ch_mod(uint8_t *file){
+    /* You're probably looking for ./xlib as android isn't working when this was written. */
+}
+
 void setscale(void)
 {
     if(window) {
@@ -455,6 +461,10 @@ static uint32_t getkeychar(int32_t key) /* get a character from an android keyco
 void redraw(void)
 {
     _redraw = 1;
+}
+void force_redraw(void)
+{
+    redraw();
 }
 
 void update_tray(void)
