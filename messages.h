@@ -83,7 +83,7 @@ typedef struct {
     uint16_t w, h;
     _Bool zoom;
     double position;
-    UTOX_NATIVE_IMAGE image;
+    UTOX_NATIVE_IMAGE *image;
 } MSG_IMG;
 
 typedef struct msg_file {

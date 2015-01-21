@@ -287,7 +287,7 @@ static void set_callbacks(Tox *tox)
     utox_set_callbacks_for_transfer(tox);
 }
 
-/* tried to load avatar from disk for given client id string and set avatar based on its result
+/* tries to load avatar from disk for given client id string and set avatar based on saved png data
  *  avatar is avatar to initialize. Will be unset if no file is found on disk or if file is corrupt or too large, 
  *      otherwise will be set to avatar found on disk
  *  id is cid string of whose avatar to find(see also load_avatar in avatar.h)

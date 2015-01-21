@@ -60,6 +60,22 @@ void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data)
     write(pipefd[1], &piping, sizeof(PIPING));
 }
 
+void image_set_filter(UTOX_NATIVE_IMAGE *image, uint8_t filter)
+{
+}
+
+void image_set_scale(UTOX_NATIVE_IMAGE *image, double scale)
+{
+}
+
+void draw_image(const UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t imgx, uint32_t imgy)
+{
+}
+
+
+/* this function is no longer used, but it might contain handy information for creating the newer image draw functions
+   on android. Currently drawing images is unsupported.
+
 void drawimage(UTOX_NATIVE_IMAGE data, int x, int y, int width, int height, int maxwidth, _Bool zoom, double position)
 {
     GLuint texture = data;
@@ -81,10 +97,7 @@ void drawimage(UTOX_NATIVE_IMAGE data, int x, int y, int width, int height, int 
 
     glUniform3fv(k2, 1, one);
 }
-
-void drawavatarimage(UTOX_NATIVE_IMAGE data, int x, int y, int width, int height, int targetwidth, int targetheight)
-{
-}
+*/
 
 void thread(void func(void*), void *args)
 {

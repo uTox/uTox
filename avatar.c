@@ -22,6 +22,16 @@ int get_avatar_hash_location(char_t *dest, const char_t *id)
     return p - dest;
 }
 
+/* frees the image of an avatar, does nothing if image is NULL */
+void avatar_free_image(AVATAR *avatar)
+{
+    if (avatar->image) {
+        image_free(avatar->image);
+        avatar->image = NULL;
+    }
+}
+
+
 int load_avatar(const char_t *id, uint8_t *dest, uint32_t *size_out)
 {
     char_t path[512];
@@ -129,11 +139,14 @@ int set_avatar(AVATAR *avatar, const uint8_t *data, uint32_t size, _Bool create_
     }
 
     uint16_t w, h;
-    UTOX_NATIVE_IMAGE image = png_to_image((UTOX_PNG_IMAGE)data, size, &w, &h);
+    UTOX_NATIVE_IMAGE *image = png_to_image((UTOX_PNG_IMAGE)data, size, &w, &h, 1);
     if(!UTOX_NATIVE_IMAGE_IS_VALID(image)) {
         debug("warning: avatar is invalid\n");
         return 0;
     } else {
+
+        avatar_free_image(avatar);
+
         avatar->image = image;
         avatar->width = w;
         avatar->height = h;
@@ -148,6 +161,7 @@ int set_avatar(AVATAR *avatar, const uint8_t *data, uint32_t size, _Bool create_
 void unset_avatar(AVATAR *avatar)
 {
     avatar->format = TOX_AVATAR_FORMAT_NONE;
+    avatar_free_image(avatar);
 }
 
 /* sets self avatar, see self_set_and_save_avatar */

@@ -28,7 +28,7 @@ void friend_setname(FRIEND *f, char_t *name, STRING_IDX length)
     f->name[f->name_length] = 0;
 }
 
-void friend_sendimage(FRIEND *f, UTOX_NATIVE_IMAGE native_image, uint16_t width, uint16_t height, UTOX_PNG_IMAGE png_image, size_t png_size)
+void friend_sendimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width, uint16_t height, UTOX_PNG_IMAGE png_image, size_t png_size)
 {
     MSG_IMG *msg = malloc(sizeof(MSG_IMG));
     msg->author = 1;
@@ -50,7 +50,7 @@ void friend_sendimage(FRIEND *f, UTOX_NATIVE_IMAGE native_image, uint16_t width,
 void friend_recvimage(FRIEND *f, UTOX_PNG_IMAGE png_image, size_t png_size)
 {
     uint16_t width, height;
-    UTOX_NATIVE_IMAGE native_image = png_to_image(png_image, png_size, &width, &height);
+    UTOX_NATIVE_IMAGE *native_image = png_to_image(png_image, png_size, &width, &height, 0);
     if(!UTOX_NATIVE_IMAGE_IS_VALID(native_image)) {
         return;
     }
