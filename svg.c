@@ -428,8 +428,8 @@ _Bool svg_draw(_Bool needmemory)
     loadalpha(BM_STATUSAREA, p, BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT);
     p += BM_STATUSAREA_WIDTH * BM_STATUSAREA_HEIGHT;
 
+    /* Draw panel Buttons */
     s = BM_ADD_WIDTH * BM_ADD_WIDTH;
-
     drawcross(p, BM_ADD_WIDTH);
     loadalpha(BM_ADD, p, BM_ADD_WIDTH, BM_ADD_WIDTH);
     p += s;
@@ -464,6 +464,7 @@ _Bool svg_draw(_Bool needmemory)
     loadalpha(BM_GROUP, p, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
     p += s;
 
+    /* Draw button icon overlays. */
     s = BM_LBICON_WIDTH * BM_LBICON_HEIGHT;
 
     drawlineround(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, 5.5 * SCALE, 5 * SCALE, 1 * SCALE, 3.85 * SCALE, 6.6 * SCALE, 0);
@@ -494,8 +495,8 @@ _Bool svg_draw(_Bool needmemory)
     loadalpha(BM_VIDEO, p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT);
     p += s;
 
+    /* Draw user status Buttons */
     s = BM_STATUS_WIDTH * BM_STATUS_WIDTH;
-
     drawcircle(p, BM_STATUS_WIDTH);
     loadalpha(BM_ONLINE, p, BM_STATUS_WIDTH, BM_STATUS_WIDTH);
     p += s;
@@ -528,6 +529,7 @@ _Bool svg_draw(_Bool needmemory)
     loadalpha(BM_SBUTTON, p, BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
     p += BM_SBUTTON_WIDTH * BM_SBUTTON_HEIGHT;
 
+    /* Draw file transfer buttons */
     drawrectrounded(p, BM_FT_WIDTH, BM_FT_HEIGHT, SCALE * 2);
     loadalpha(BM_FT, p, BM_FT_WIDTH, BM_FT_HEIGHT);
     p += BM_FT_WIDTH * BM_FT_HEIGHT;

@@ -395,6 +395,7 @@ PANEL panel_list = {
     .content_scroll = &scroll_list,
 },
 
+/* Panel to draw settings page */
 panel_settings = {
     .drawfunc = drawsettings_content,
     .content_scroll = &scroll_settings,
@@ -916,6 +917,7 @@ void ui_scale(uint8_t scale)
     setscale();
 }
 
+/* Use the preprocessor to build functions for all user inactions */
 #define FUNC(x, ret, ...) static ret (* x##func[])(void *p, ##__VA_ARGS__) = { \
     (void*)background_##x, \
     (void*)messages_##x, \
@@ -935,6 +937,8 @@ FUNC(mup, _Bool);
 FUNC(mleave, _Bool);
 
 #undef FUNC
+
+/* Use the preprocessor to add code to adjust the x,y cords for panels or sub panels. */
 #define FUNC() {\
     int relx = (p->x < 0) ? width + p->x : p->x;\
     int rely = (p->y < 0) ? height + p->y : p->y;\
