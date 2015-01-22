@@ -51,3 +51,5 @@ _Bool edit_active(void);
 void edit_resetfocus(void);
 void edit_setfocus(EDIT *edit);
 void edit_setstr(EDIT *edit, char_t *str, STRING_IDX length);
+void edit_setcursorpos(EDIT *edit, STRING_IDX pos);
+STRING_IDX edit_getcursorpos(void);

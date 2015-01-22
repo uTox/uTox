@@ -332,6 +332,32 @@ void unicode_to_utf8(uint32_t ch, char_t *dst)
     return;// 0;
 }
 
+_Bool memcmp_case(const char_t *s1, const char_t *s2, uint32_t n)
+{
+    uint32_t i;
+
+    for(i = 0; i < n; i++) {
+        char_t c1, c2;
+
+        c1 = s1[i];
+        c2 = s2[i];
+
+        if(c1 >= (char_t) 'a' && c1 <= (char_t) 'z') {
+            c1 += ('A' - 'a');
+        }
+
+        if(c2 >= (char_t) 'a' && c2 <= (char_t) 'z') {
+            c2 += ('A' - 'a');
+        }
+
+        if(c1 != c2) {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
 char_t* tohtml(char_t *str, STRING_IDX length)
 {
     STRING_IDX i = 0;

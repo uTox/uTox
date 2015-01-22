@@ -59,6 +59,13 @@ int utf8_validate(const char_t *data, int len);
 uint8_t unicode_to_utf8_len(uint32_t ch);
 void unicode_to_utf8(uint32_t ch, char_t *dst);
 
+/* compare first n bytes of s1 and s2, ignoring the case of alpha chars
+ *  match: returns 0
+ *  no match: returns 1
+ *  notes: n must be <= length of s1 and <= length of s2
+ */
+_Bool memcmp_case(const char_t *s1, const char_t *s2, uint32_t n);
+
 /* replace html entities (<,>,&) with html
  */
 char_t* tohtml(char_t *str, STRING_IDX len);
