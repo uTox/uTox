@@ -428,9 +428,11 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
                     }
                 }
 
-                do {
-                    p -= utf8_unlen(&edit->data[p]);
-                } while((flags & 4) && p != 0 && edit->data[p - 1] != ' ' && edit->data[p - 1] != '\n');
+                if (p != 0) {
+                    do {
+                        p -= utf8_unlen(&edit->data[p]);
+                    } while((flags & 4) && p != 0 && edit->data[p - 1] != ' ' && edit->data[p - 1] != '\n');
+                }
             }
 
             if(flags & 1) {
