@@ -405,12 +405,28 @@ _Bool svg_draw(_Bool needmemory)
         free(svg_data);
     }
 
-    size = SCROLL_WIDTH * SCROLL_WIDTH + BM_STATUSAREA_WIDTH * BM_STATUSAREA_HEIGHT + BM_ADD_WIDTH * BM_ADD_WIDTH * 4 +
-            BM_CONTACT_WIDTH * BM_CONTACT_WIDTH * 2 + BM_LBICON_WIDTH * BM_LBICON_HEIGHT * 3 + BM_STATUS_WIDTH * BM_STATUS_WIDTH * 4 +
-            BM_STATUS_NOTIFY_WIDTH * BM_STATUS_NOTIFY_WIDTH +
-            BM_LBUTTON_WIDTH * BM_LBUTTON_HEIGHT + BM_SBUTTON_WIDTH * BM_SBUTTON_HEIGHT + BM_FT_WIDTH * BM_FT_HEIGHT +
-            BM_FTM_WIDTH * BM_FT_HEIGHT + (BM_FTB_WIDTH * (BM_FTB_HEIGHT + SCALE) + BM_FTB_WIDTH * BM_FTB_HEIGHT) +
-            BM_FB_WIDTH * BM_FB_HEIGHT * 4 + BM_CB_WIDTH * BM_CB_HEIGHT * 2 + BM_CB_WIDTH * SCALE + BM_CI_WIDTH * BM_CI_WIDTH;
+    /* Build what we expect the size to be. */
+    size = SCROLL_WIDTH * SCROLL_WIDTH +
+        BM_STATUSAREA_WIDTH * BM_STATUSAREA_HEIGHT +
+        /* Panel buttons */
+        BM_ADD_WIDTH * BM_ADD_WIDTH * 4 +
+        BM_CONTACT_WIDTH * BM_CONTACT_WIDTH * 2 +
+        BM_LBICON_WIDTH * BM_LBICON_HEIGHT * 3 + // file, call, video
+        BM_STATUS_WIDTH * BM_STATUS_WIDTH * 4 +
+        BM_STATUS_NOTIFY_WIDTH * BM_STATUS_NOTIFY_WIDTH +
+        BM_LBUTTON_WIDTH * BM_LBUTTON_HEIGHT +
+        BM_SBUTTON_WIDTH * BM_SBUTTON_HEIGHT +
+        /* File transfer */
+        BM_FT_WIDTH * BM_FT_HEIGHT + BM_FTM_WIDTH * BM_FT_HEIGHT +
+        (BM_FTB_WIDTH * (BM_FTB_HEIGHT + SCALE) + BM_FTB_WIDTH * BM_FTB_HEIGHT) +
+        BM_FB_WIDTH * BM_FB_HEIGHT * 4 +
+        /* Chat Buttons */
+        BM_CHAT_BUTTON_WIDTH * (BM_CHAT_BUTTON_HEIGHT + SCALE) * 2 +
+        BM_CHAT_SEND_WIDTH * BM_CHAT_SEND_HEIGHT +
+        BM_CHAT_SEND_OVERLAY_WIDTH * BM_CHAT_SEND_OVERLAY_HEIGHT +
+        BM_CI_WIDTH * BM_CI_WIDTH;
+
+
     svg_data = calloc(1, size);
 
     if(!svg_data) {
@@ -577,13 +593,18 @@ _Bool svg_draw(_Bool needmemory)
     loadalpha(BM_CB2, p, BM_CHAT_BUTTON_WIDTH, BM_CHAT_BUTTON_HEIGHT + SCALE);
     p += BM_CHAT_BUTTON_WIDTH * (BM_CHAT_BUTTON_HEIGHT + SCALE);
 
+    /* Draw chat send button */
+    drawrectrounded(p, BM_CHAT_SEND_WIDTH, BM_CHAT_SEND_HEIGHT, 4 * SCALE);
+    loadalpha(BM_CHAT_SEND, p, BM_CHAT_SEND_WIDTH, BM_CHAT_SEND_HEIGHT);
+    p += BM_CHAT_SEND_WIDTH * BM_CHAT_SEND_HEIGHT;
 
-    drawrectroundedex(p, BM_CB_WIDTH, BM_CB_HEIGHT + SCALE, SCALE * 2, 10);
-    loadalpha(BM_CB2, p, BM_CB_WIDTH, BM_CB_HEIGHT + SCALE);
-    p += BM_CB_WIDTH * (BM_CB_HEIGHT + SCALE);
+    /* Draw chat send overlay */
+    drawnewcircle2(p, BM_CHAT_SEND_OVERLAY_WIDTH, BM_CHAT_SEND_OVERLAY_HEIGHT, 5 * SCALE, 4 * SCALE, 12 * SCALE, 1);
+    loadalpha(BM_CHAT_SEND_OVERLAY, p, BM_CHAT_SEND_OVERLAY_WIDTH, BM_CHAT_SEND_OVERLAY_HEIGHT);
+    p += BM_CHAT_SEND_OVERLAY_WIDTH * BM_CHAT_SEND_OVERLAY_HEIGHT;
 
     drawrectrounded(p, BM_CI_WIDTH, BM_CI_WIDTH, SCALE * 2);
-    drawrectroundedneg(p, BM_CI_WIDTH, BM_CI_WIDTH, SCALE, SCALE, 14 * SCALE, 14 * SCALE, 1 * SCALE);
+    drawrectroundedneg(p, BM_CI_WIDTH, BM_CI_WIDTH, SCALE, SCALE, (_BM_CI_WIDTH - 2) * SCALE, (_BM_CI_WIDTH - 2) * SCALE, 1 * SCALE);
     loadalpha(BM_CI1, p, BM_CI_WIDTH, BM_CI_WIDTH);
     p += BM_CI_WIDTH * BM_CI_WIDTH;
 

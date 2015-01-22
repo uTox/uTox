@@ -605,6 +605,20 @@ button_chat2 = {
     .updatecolor = button_chat2_updatecolor,
 },
 
+/* bottom right chat message window button */
+button_chat_send = {
+    .bm  = BM_CHAT_SEND,
+    .c1  = C_GREEN,
+    .c2  = C_GREEN_LIGHT,
+    .c3  = C_GREEN_LIGHT,
+    .bm2 = BM_CHAT_SEND_OVERLAY,
+    .bw  = _BM_CHAT_SEND_OVERLAY_WIDTH,
+    .bh  = _BM_CHAT_SEND_OVERLAY_WIDTH,
+
+    .onpress = button_chat_send_onpress,
+    .updatecolor = button_chat_send_updatecolor,
+},
+
 button_avatar = {
     .nodraw = 1,
     .onpress = button_avatar_onpress,
