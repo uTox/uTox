@@ -450,7 +450,7 @@ panel_item[] = {
         .disabled = 1,
         .drawfunc = drawfriend,
         .child = (PANEL*[]) {
-            (void*)&button_call, (void*)&button_video, (void*)&button_sendfile, 
+            (void*)&button_call, (void*)&button_video, (void*)&button_sendfile,
             (void*)&button_chat1, (void*)&button_chat2, (void*)&button_chat_send,
             (void*)&edit_msg,
             (void*)&scroll_friend,
@@ -468,6 +468,7 @@ panel_item[] = {
             (void*)&scroll_group,
             (void*)&messages_group,
             (void*)&button_group_audio,
+            (void*)&button_chat1, (void*)&button_chat2, (void*)&button_chat_send,
             NULL
         }
     },
