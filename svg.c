@@ -569,9 +569,14 @@ _Bool svg_draw(_Bool needmemory)
     loadalpha(BM_YES, p, BM_FB_WIDTH, BM_FB_HEIGHT);
     p += s;
 
-    drawrectroundedex(p, BM_CB_WIDTH, BM_CB_HEIGHT, SCALE * 2, 6);
-    loadalpha(BM_CB1, p, BM_CB_WIDTH, BM_CB_HEIGHT);
-    p += BM_CB_WIDTH * BM_CB_HEIGHT;
+    drawrectroundedex(p, BM_CHAT_BUTTON_WIDTH, BM_CHAT_BUTTON_HEIGHT, SCALE * 2, 6);
+    loadalpha(BM_CB1, p, BM_CHAT_BUTTON_WIDTH, BM_CHAT_BUTTON_HEIGHT);
+    p += BM_CHAT_BUTTON_WIDTH * BM_CHAT_BUTTON_HEIGHT;
+
+    drawrectroundedex(p, BM_CHAT_BUTTON_WIDTH, BM_CHAT_BUTTON_HEIGHT + SCALE, SCALE * 2, 10);
+    loadalpha(BM_CB2, p, BM_CHAT_BUTTON_WIDTH, BM_CHAT_BUTTON_HEIGHT + SCALE);
+    p += BM_CHAT_BUTTON_WIDTH * (BM_CHAT_BUTTON_HEIGHT + SCALE);
+
 
     drawrectroundedex(p, BM_CB_WIDTH, BM_CB_HEIGHT + SCALE, SCALE * 2, 10);
     loadalpha(BM_CB2, p, BM_CB_WIDTH, BM_CB_HEIGHT + SCALE);

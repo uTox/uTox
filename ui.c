@@ -450,7 +450,8 @@ panel_item[] = {
         .disabled = 1,
         .drawfunc = drawfriend,
         .child = (PANEL*[]) {
-            (void*)&button_call, (void*)&button_video, (void*)&button_sendfile, (void*)&button_chat1, (void*)&button_chat2,
+            (void*)&button_call, (void*)&button_video, (void*)&button_sendfile, 
+            (void*)&button_chat1, (void*)&button_chat2, 
             (void*)&edit_msg,
             (void*)&scroll_friend,
             (void*)&messages_friend,
@@ -647,22 +648,22 @@ void ui_scale(uint8_t scale)
         .height = BM_LBUTTON_HEIGHT,
     },
 
-/* top right chat message window button */
+    /* top right chat message window button */
     b_chat1 = {
         .type = PANEL_BUTTON,
-        .x = -5 * SCALE - BM_CB_WIDTH,
-        .y = -47 * SCALE,
-        .height = BM_CB_HEIGHT,
-        .width = BM_CB_WIDTH,
+        .x = -40 * SCALE - BM_CHAT_BUTTON_WIDTH,
+        .y = -40 * SCALE,
+        .height = BM_CHAT_BUTTON_HEIGHT,
+        .width = BM_CHAT_BUTTON_WIDTH,
     },
 
-/* bottom right chat message window button */
+    /* bottom right chat message window button */
     b_chat2 = {
         .type = PANEL_BUTTON,
-        .x = -5 * SCALE - BM_CB_WIDTH,
-        .y = -47 * SCALE + BM_CB_HEIGHT + SCALE,
-        .height = BM_CB_HEIGHT + SCALE,
-        .width = BM_CB_WIDTH,
+        .x = -40 * SCALE - BM_CHAT_BUTTON_WIDTH,
+        .y = -40 * SCALE + BM_CHAT_BUTTON_HEIGHT + SCALE,
+        .height = BM_CHAT_BUTTON_HEIGHT + SCALE,
+        .width = BM_CHAT_BUTTON_WIDTH,
     },
 
     b_avatar = {
