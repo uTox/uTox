@@ -754,10 +754,10 @@ void edit_setstr(EDIT *edit, char_t *str, STRING_IDX length)
 
 void edit_setcursorpos(EDIT *edit, STRING_IDX pos)
 {
-    if(pos <= edit->length) {
+    if (pos <= edit->length) {
         edit_sel.p1 = pos;
     } else {
-        edit_sel.p1 = edit->length - 1;
+        edit_sel.p1 = edit->length;
     }
 
     edit_sel.p2 = edit_sel.start = edit_sel.p1;

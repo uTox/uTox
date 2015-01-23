@@ -139,21 +139,19 @@ static void edit_msg_onenter(void)
 static uint8_t nick_completion_search(char_t *found_nick)
 {
     char_t *text = edit_msg_data;
-    uint32_t i = 0, prev_index,
-             compsize = completion.length;
+    uint32_t i = 0, prev_index, compsize = completion.length;
     uint8_t *nick;
 
     _Bool found = 0;
     GROUPCHAT *g = sitem->data;
 
-    while(!found) {
-        if(i >= g->peers - 1) {
+    while (!found) {
+        if (i >= g->peers) {
             found = 1;
             i = 0;
         } else {
             nick = g->peername[i];
-            if (nick
-                    && nick[0] == completion.end - completion.start - completion.spacing
+            if (nick && nick[0] == completion.end - completion.start - completion.spacing
                     && !memcmp(nick + 1, text + completion.start, nick[0])) {
                 found = 1;
             } else {
@@ -166,19 +164,19 @@ static uint8_t nick_completion_search(char_t *found_nick)
     found = 0;
     do {
         i++;
-        if(i >= g->peers - 1) {
+        if (i >= g->peers) {
             i = 0;
         }
 
         nick = g->peername[i];
 
-        if(nick && nick[0] >= compsize
+        if (nick && nick[0] >= compsize
                 && !memcmp_case(nick + 1, text + completion.start, compsize)) {
             found = 1;
         }
-    } while(!found && i != prev_index);
+    } while (!found && i != prev_index);
 
-    if(found) {
+    if (found) {
         memcpy(found_nick, nick + 1, nick[0]);
         return nick[0];
     } else {
@@ -194,15 +192,14 @@ static void nick_completion_replace(char_t *nick, uint32_t size)
 
     completion.spacing = 1;
     size += 1;
-    if(!completion.start) {
+    if (!completion.start) {
         size += 1;
         completion.spacing += 1;
         nick[size - 2] = ':';
     }
 
     nick[size - 1] = ' ';
-    if (length >= completion.start + size
-            && text[completion.start + size] != ' ') {
+    if (length > completion.end) {
         size -= 1;
         completion.spacing -= 1;
     }
@@ -225,22 +222,34 @@ static void edit_msg_ontab(void)
     char_t *text = edit_msg_data;
     STRING_IDX length = edit_msg.length;
 
-    if(sitem->item == ITEM_GROUP) {
+    if (sitem->item == ITEM_GROUP) {
         char_t nick[130];
         uint8_t nick_length;
 
-        if(completion.cursorpos != edit_getcursorpos()) {
+        if (completion.cursorpos != edit_getcursorpos()) {
             completion.active = 0;
         }
 
-        if(!completion.active) {
+        if (!completion.active) {
+            if ((length == 6 && !memcmp(text, "/topic", 6))
+                    || (length == 7 && !memcmp(text, "/topic ", 7))) {
+                GROUPCHAT *g = sitem->data;
+
+                text[6] = ' ';
+                memcpy(text + 7, g->name, g->name_length);
+                edit_msg.length = g->name_length + 7;
+                edit_setcursorpos(&edit_msg, edit_msg.length);
+
+                return;
+            }
+
             completion.start = edit_getcursorpos();
-            while(completion.start > 0 && text[completion.start - 1] != ' ') {
+            while (completion.start > 0 && text[completion.start - 1] != ' ') {
                 completion.start--;
             }
 
             completion.end = completion.start;
-            while(completion.end < length && text[completion.end] != ' ') {
+            while (completion.end < length && text[completion.end] != ' ') {
                 completion.end++;
             }
 
@@ -249,9 +258,9 @@ static void edit_msg_ontab(void)
         }
 
         nick_length = nick_completion_search(nick);
-        if(nick_length) {
+        if (nick_length) {
             completion.edited = 1;
-            if(!(nick_length == completion.end - completion.start - completion.spacing
+            if (!(nick_length == completion.end - completion.start - completion.spacing
                     && !memcmp(nick, text + completion.start, nick_length))) {
                 nick_completion_replace(nick, nick_length);
             }
@@ -280,7 +289,7 @@ static void edit_msg_onchange(void)
         tox_postmessage(TOX_SET_TYPING, (f - friend), 0, NULL);
     }
 
-    if(completion.edited) {
+    if (completion.edited) {
         completion.edited = 0;
     } else {
         completion.active = 0;
