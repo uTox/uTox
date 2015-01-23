@@ -46,6 +46,8 @@
 #define DEFAULT_WIDTH (382 * DEFAULT_SCALE)
 #define DEFAULT_HEIGHT (320 * DEFAULT_SCALE)
 
+#include <messaging-menu/messaging-menu.h>
+
 Display *display;
 int screen;
 Window window;
@@ -87,6 +89,8 @@ uint16_t drawwidth, drawheight;
 XIC xic = NULL;
 
 XImage *screen_image;
+
+MessagingMenuApp *mmapp;
 
 /* pointers to dynamically loaded libs */
 void *libgtk;
@@ -775,7 +779,9 @@ void setscale(void)
     }
 }
 
-void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_length, uint8_t *cid)
+#include "mmenu.c"
+
+void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_length, FRIEND *f)
 {
     if(havefocus) {
         return;
@@ -786,11 +792,24 @@ void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_
 
     #ifdef HAVE_DBUS
     char_t *str = tohtml(msg, msg_length);
-
-    dbus_notify((char*)title, (char*)str, (uint8_t*)cid);
+    uint8_t *f_cid = NULL;
+    
+    if(friend_has_avatar(f)) {
+        f_cid = f->cid;
+    }
+    
+    dbus_notify((char*)title, (char*)str, (uint8_t*)f_cid);
 
     free(str);
     #endif
+    
+    mm_notify(mmapp, f->name, f->cid);
+}
+
+void mm_register()
+{
+    mmapp = messaging_menu_app_new("utox.desktop");
+    messaging_menu_app_register(mmapp);
 }
 
 void showkeyboard(_Bool show)
@@ -1022,7 +1041,10 @@ int main(int argc, char *argv[])
     while(!tox_thread_init) {
         yieldcpu(1);
     }
-
+    
+    /* Registers the app in the Unity MM */
+    mm_register();
+    
     /* set up the contact list */
     list_start();
 

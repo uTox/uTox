@@ -70,7 +70,6 @@ void friend_recvimage(FRIEND *f, UTOX_PNG_IMAGE png_image, size_t png_size)
 void friend_notify(FRIEND *f, char_t *str, STRING_IDX str_length, char_t *msg, STRING_IDX msg_length)
 {
     int len = f->name_length + str_length + 3;
-    uint8_t *f_cid = NULL;
     
     char_t title[len + 1], *p = title;
     memcpy(p, str, str_length); p += str_length;
@@ -80,11 +79,7 @@ void friend_notify(FRIEND *f, char_t *str, STRING_IDX str_length, char_t *msg, S
     *p++ = ')';
     *p = 0;
     
-    if(friend_has_avatar(f)) {
-        f_cid = f->cid;
-    }
-    
-    notify(title, len, msg, msg_length, f_cid);
+    notify(title, len, msg, msg_length, f);
 }
 
 void friend_addmessage_notify(FRIEND *f, char_t *data, STRING_IDX length)
