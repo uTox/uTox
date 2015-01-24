@@ -151,11 +151,17 @@ static void button_call_updatecolor(BUTTON *b)
     FRIEND *f = sitem->data;
 
     switch(f->calling) {
-    case CALL_RINGING:
     case CALL_INVITED: {
         b->c1 = C_YELLOW;
         b->c2 = C_YELLOW_LIGHT;
         b->c3 = C_YELLOW_LIGHT;
+        break;
+    }
+
+    case CALL_RINGING: {
+        b->c1 = C_YELLOW;
+        b->c2 = C_RED_LIGHT;
+        b->c3 = C_RED_LIGHT;
         break;
     }
 
@@ -232,11 +238,17 @@ static void button_video_updatecolor(BUTTON *b)
     FRIEND *f = sitem->data;
 
     switch(f->calling) {
-    case CALL_RINGING_VIDEO:
     case CALL_INVITED_VIDEO: {
         b->c1 = C_YELLOW;
         b->c2 = C_YELLOW_LIGHT;
         b->c3 = C_YELLOW_LIGHT;
+        break;
+    }
+
+    case CALL_RINGING_VIDEO: {
+        b->c1 = C_YELLOW;
+        b->c2 = C_RED_LIGHT;
+        b->c3 = C_RED_LIGHT;
         break;
     }
 
