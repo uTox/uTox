@@ -968,6 +968,7 @@ void ui_mouseleave(void)
 {
     panel_mleave(&panel_main);
     tooltip_reset();
+    redraw();
 }
 
 static void panel_draw_sub(PANEL *p, int x, int y, int width, int height)
