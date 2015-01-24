@@ -709,7 +709,7 @@ static void audio_thread(void *args)
 
             if(frame) {
 #ifdef AUDIO_FILTERING
-                if (f_a && filter_audio(f_a, buf, perframe) == -1) {
+                if (f_a && filter_audio(f_a, (int16_t*)buf, perframe) == -1) {
                     debug("filter audio error\n");
                 }
 #endif
