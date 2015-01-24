@@ -25,6 +25,14 @@ static void calculate_pos_and_width(TOOLTIP *b, int *x, int *w) {
     }
 }
 
+void tooltip_reset(void)
+{
+    TOOLTIP *b = &tooltip;
+
+    b->visible = 0;
+    b->can_show = 0;
+}
+
 void tooltip_draw(void)
 {
     TOOLTIP *b = &tooltip;
@@ -39,12 +47,12 @@ void tooltip_draw(void)
     int x, w;
     calculate_pos_and_width(b, &x, &w);
 
-    drawrectw(x, b->y, w, b->height, C_YELLOW_LIGHT);
+    drawrectw(x, b->y, w, b->height, WHITE);
 
     STRING* s = maybe_i18nal_string_get(b->tt_text);
     drawtext(x + SCALE * 2, b->y + SCALE * 2, s->str, s->length);
 
-    framerect(x, b->y, x + w, b->y + b->height, C_YELLOW);
+    framerect(x, b->y, x + w, b->y + b->height, BLACK);
 }
 
 _Bool tooltip_mmove(void)
@@ -67,14 +75,11 @@ _Bool tooltip_mdown(void)
 
     b->can_show = 0;
     b->mouse_down = 1;
-
-    if(!b->visible) {
-        return 0;
-    }
-
     b->visible = 0;
-    return 1;
+
+    return 0;
 }
+
 _Bool tooltip_mup(void)
 {
     TOOLTIP *b = &tooltip;
@@ -143,6 +148,5 @@ void mouse_pos_check(void *UNUSED(args))
         yieldcpu(100);
     }
     tick = 0;
-    b->visible = 1;
     b->timer_running = 0;
 }

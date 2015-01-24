@@ -517,7 +517,7 @@ _Bool list_mmove(void *UNUSED(n), int UNUSED(x), int UNUSED(y), int UNUSED(width
 
         draw = 1;
     } else {
-    tooltip_draw();
+        tooltip_draw();
     }
 
     return draw;

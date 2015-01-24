@@ -82,7 +82,7 @@ _Bool doevent(XEvent event)
     }
 
     case LeaveNotify: {
-        panel_mleave(&panel_main);
+        ui_mouseleave();
     }
 
     case MotionNotify: {
