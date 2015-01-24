@@ -961,6 +961,13 @@ static void panel_update(PANEL *p, int x, int y, int width, int height)
 void ui_size(int width, int height)
 {
     panel_update(&panel_main, 0, 0, width, height);
+    tooltip_reset();
+}
+
+void ui_mouseleave(void)
+{
+    panel_mleave(&panel_main);
+    tooltip_reset();
 }
 
 static void panel_draw_sub(PANEL *p, int x, int y, int width, int height)

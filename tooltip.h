@@ -9,6 +9,7 @@ typedef struct tooltip {
     MAYBE_I18NAL_STRING* tt_text;
 } TOOLTIP;
 
+void tooltip_reset(void);
 void tooltip_draw(void);
 _Bool tooltip_mmove(void);
 _Bool tooltip_mdown(void);

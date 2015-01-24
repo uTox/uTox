@@ -1641,7 +1641,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     }
 
     case WM_MOUSELEAVE: {
-        panel_mleave(&panel_main);
+        ui_mouseleave();
         mouse_tracked = 0;
         break;
     }

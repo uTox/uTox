@@ -79,6 +79,8 @@ extern UI_LANG_ID LANG;
 void ui_scale(uint8_t scale);
 void ui_size(int width, int height);
 
+void ui_mouseleave(void);
+
 void panel_draw(PANEL *p, int x, int y, int width, int height);
 
 _Bool panel_mmove(PANEL *p, int x, int y, int width, int height, int mx, int my, int dx, int dy);
