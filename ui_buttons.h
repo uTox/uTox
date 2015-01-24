@@ -131,6 +131,12 @@ static void button_call_onpress(void)
         break;
     }
 
+    case CALL_RINGING: {
+        tox_postmessage(TOX_CANCELCALL, f->callid, f - friend, NULL);
+        debug("Cancelling call: id = %u, friend = %u\n", f->callid, f - friend);
+        break;
+    }
+
     case CALL_OK:
     case CALL_OK_VIDEO: {
         tox_postmessage(TOX_HANGUP, f->callid, 0, NULL);
@@ -145,6 +151,7 @@ static void button_call_updatecolor(BUTTON *b)
     FRIEND *f = sitem->data;
 
     switch(f->calling) {
+    case CALL_RINGING:
     case CALL_INVITED: {
         b->c1 = C_YELLOW;
         b->c2 = C_YELLOW_LIGHT;
@@ -162,7 +169,6 @@ static void button_call_updatecolor(BUTTON *b)
         /* fall through */
     }
 
-    case CALL_RINGING:
     case CALL_RINGING_VIDEO:
     case CALL_INVITED_VIDEO: {
         b->c1 = C_GRAY;
@@ -200,6 +206,13 @@ static void button_video_onpress(void)
         break;
     }
 
+    case CALL_RINGING_VIDEO: {
+        tox_postmessage(TOX_CANCELCALL, f->callid, f - friend, NULL);
+        debug("Cancelling call: id = %u, friend = %u\n", f->callid, f - friend);
+        break;
+    }
+
+
     case CALL_OK: {
         tox_postmessage(TOX_CALL_VIDEO_ON, f - friend, f->callid, NULL);
         debug("start sending video\n");
@@ -219,6 +232,7 @@ static void button_video_updatecolor(BUTTON *b)
     FRIEND *f = sitem->data;
 
     switch(f->calling) {
+    case CALL_RINGING_VIDEO:
     case CALL_INVITED_VIDEO: {
         b->c1 = C_YELLOW;
         b->c2 = C_YELLOW_LIGHT;
@@ -237,7 +251,6 @@ static void button_video_updatecolor(BUTTON *b)
     }
 
     case CALL_RINGING:
-    case CALL_RINGING_VIDEO:
     case CALL_INVITED: {
         b->c1 = C_GRAY;
         b->c2 = C_GRAY;
