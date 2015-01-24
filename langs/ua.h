@@ -5,7 +5,7 @@ msgid(LANG_ENGLISH_NAME)
 msgstr("UKRAINIAN")
 
 msgid(REQ_SENT)
-msgstr("Запит до друга надіслано. Контакт з'явиться в мережі щойно підтвердить ваш запит.")
+msgstr("Запит на додавання в друзі відправлений. Ваш друг з'явиться в мережі, як тільки підтвердить запит.")
 
 msgid(REQ_RESOLVE)
 msgstr("Визначення DNS-імені...")
@@ -26,7 +26,7 @@ msgid(REQ_SELF_ID)
 msgstr("Помилка: Tox ID є власним ID")
 
 msgid(REQ_ALREADY_FRIENDS)
-msgstr("Помилка: Tox ID вже у списку друзів")
+msgstr("Помилка: Tox ID вже є у списку друзів")
 
 msgid(REQ_UNKNOWN)
 msgstr("Помилка: Невідома")
@@ -89,13 +89,13 @@ msgid(ADD)
 msgstr("Додати")
 
 msgid(SWITCHPROFILE)
-msgstr("Перемикання профілю")
+msgstr("Перемкнути профіль")
 
 msgid(FRIENDREQUEST)
-msgstr("Запит додання до друзів")
+msgstr("Запит на додавання до списку друзів")
 
 msgid(USERSETTINGS)
-msgstr("Налаштування користувача")
+msgstr("Налаштування")
 
 msgid(NAME)
 msgstr("Ім'я")
@@ -113,7 +113,7 @@ msgid(AUDIOINPUTDEVICE)
 msgstr("Пристрій захоплення звуку")
 
 msgid(AUDIOFILTERING)
-msgstr("Filter Audio")
+msgstr("Фільтр аудіо") // Check the correctness
 
 msgid(AUDIOOUTPUTDEVICE)
 msgstr("Пристрій відтворення звуку")
@@ -122,7 +122,7 @@ msgid(VIDEOINPUTDEVICE)
 msgstr("Пристрій захоплення відео")
 
 msgid(OTHERSETTINGS)
-msgstr("Інше")
+msgstr("Інші налаштування")
 
 msgid(DPI)
 msgstr("Масштаб")
@@ -239,10 +239,10 @@ msgid(VIDEO_IN_DESKTOP)
 msgstr("Стільниця")
 
 msgid(AUDIO_IN_DEFAULT_LOOPBACK)
-msgstr("Default Loopback")
+msgstr("Стандартна петля") // Check the correctness
 
 msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
-msgstr("Будь ласка, додайте мене в друзі.")
+msgstr("Будь ласка, додайте мене в свій список друзів.")
 
 msgid(CONTACTS_FILTER_EDIT_HINT)
 msgstr("Пошук друзів")
@@ -257,7 +257,16 @@ msgid(WINDOW_TITLE_VIDEO_PREVIEW)
 msgstr("Попередній перегляд відео")
 
 msgid(MUTE)
-msgstr("Вимкути звуки")
+msgstr("Заглушити")
 
 msgid(UNMUTE)
-msgstr("Увімкнути звуки")
+msgstr("Відновити")
+
+msgid(AVATAR_TOO_LARGE_MAX_SIZE_IS)
+msgstr("Аватар надто великий. Максимальний розмір: ")
+
+msgid(CANT_FIND_FILE_OR_EMPTY)
+msgstr("Не вдається знайти вибраний файл або він порожній.")
+
+msgid(CLEAR_HISTORY)
+msgstr("Очистити історію")
