@@ -352,7 +352,7 @@ static void alccaptureclose(void *handle)
     alcCaptureCloseDevice(handle);
 }
 
-static void sourceplaybuffer(int i, int16_t *data, int samples, uint8_t channels, unsigned int sample_rate)
+static void sourceplaybuffer(int i, const int16_t *data, int samples, uint8_t channels, unsigned int sample_rate)
 {
     if(!channels || channels > 2) {
         return;
@@ -480,8 +480,7 @@ static void audio_thread(void *args)
         free(samples);
     }
 
-    unsigned int i;
-    for (i = 0; i < MAX_CALLS; ++i) {
+    for (unsigned int i = 0; i < MAX_CALLS; ++i) {
         alSourcei(ringSrc[i], AL_LOOPING, AL_TRUE);
         alSourcei(ringSrc[i], AL_BUFFER, RingBuffer);
     }
@@ -552,7 +551,7 @@ static void audio_thread(void *args)
                 if (num_chats != 0) {
                     int32_t chats[num_chats];
                     uint32_t max = tox_get_chatlist(tox, chats, num_chats);
-                    for (i = 0; i < max; ++i) {
+                    for (unsigned int i = 0; i < max; ++i) {
                         if (tox_group_get_type(tox, chats[i]) == TOX_GROUPCHAT_TYPE_AV) {
                             GROUPCHAT *g = &group[chats[i]];
                             alGenSources(g->peers, g->source);
@@ -718,8 +717,7 @@ static void audio_thread(void *args)
                     sourceplaybuffer(0, (int16_t*)buf, perframe, av_DefaultSettings.audio_channels, av_DefaultSettings.audio_sample_rate);
                 }
 
-                int i;
-                for(i = 0; i < MAX_CALLS; i++) {
+                for(int i = 0; i < MAX_CALLS; i++) {
                     if(call[i]) {
                         int r;
                         if((r = toxav_prepare_audio_frame(av, i, dest, sizeof(dest), (void*)buf, perframe)) < 0) {
@@ -739,9 +737,9 @@ static void audio_thread(void *args)
                 if (num_chats != 0) {
                     int32_t chats[num_chats];
                     uint32_t max = tox_get_chatlist(tox, chats, num_chats);
-                    for (i = 0; i < max; ++i) {
+                    for (int i = 0; i < max; ++i) {
                         if (groups_audio[chats[i]]) {
-                            toxav_group_send_audio(tox, chats[i], buf, perframe, av_DefaultSettings.audio_channels, av_DefaultSettings.audio_sample_rate);
+                            toxav_group_send_audio(tox, chats[i], (int16_t *)buf, perframe, av_DefaultSettings.audio_channels, av_DefaultSettings.audio_sample_rate);
                         }
                     }
                 }
@@ -925,7 +923,7 @@ static void toxav_thread(void *args)
     toxav_thread_init = 0;
 }
 
-static void callback_av_video(ToxAv *av, int32_t call_index, const vpx_image_t *img, void *UNUSED(userdata))
+static void callback_av_video(void *av, int32_t call_index, const vpx_image_t *img, void *UNUSED(userdata))
 {
     /* copy the vpx_image */
     uint16_t *img_data = malloc(4 + img->d_w * img->d_h * 4);

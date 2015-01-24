@@ -257,7 +257,9 @@ static void drawsettings_content(int UNUSED(x), int y, int UNUSED(w), int UNUSED
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 29, STATUSMESSAGE);
 
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 123, AUDIOINPUTDEVICE);
+#ifdef AUDIO_FILTERING
     drawstr(LIST_RIGHT + SCALE * 190, y + SCALE * 123, AUDIOFILTERING);
+#endif
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 147, AUDIOOUTPUTDEVICE);
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 171, VIDEOINPUTDEVICE);
 
@@ -800,15 +802,18 @@ void ui_scale(uint8_t scale)
         .y = SCALE * 343,
         .height = SCALE * 12,
         .width = SCALE * 20
-    },
+    }
 
-    d_audio_filtering = {
+#ifdef AUDIO_FILTERING
+    , d_audio_filtering = {
         .type = PANEL_DROPDOWN,
         .x = 190 * SCALE,
         .y = SCALE * 132,
         .height = SCALE * 12,
         .width = SCALE * 20
-    };
+    }
+#endif
+    ;
 
     dropdown_audio_in.panel = d_audio_in;
     dropdown_audio_out.panel = d_audio_out;

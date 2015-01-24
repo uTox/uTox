@@ -1164,10 +1164,10 @@ void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height
     }
 
 
-    GC gc = DefaultGC(display, screen);
+    GC default_gc = DefaultGC(display, screen);
     Pixmap pixmap = XCreatePixmap(display, window, attrs.width, attrs.height, 24);
-    XPutImage(display, pixmap, gc, &image, 0, 0, 0, 0, attrs.width, attrs.height);
-    XCopyArea(display, pixmap, video_win[id], gc, 0, 0, attrs.width, attrs.height, 0, 0);
+    XPutImage(display, pixmap, default_gc, &image, 0, 0, 0, 0, attrs.width, attrs.height);
+    XCopyArea(display, pixmap, video_win[id], default_gc, 0, 0, attrs.width, attrs.height, 0, 0);
     XFreePixmap(display, pixmap);
     free(new_data);
 }
