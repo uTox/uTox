@@ -136,22 +136,58 @@ static void edit_msg_onenter(void)
     edit_msg.length = 0;
 }
 
-static uint8_t nick_completion_search(char_t *found_nick)
+static uint32_t peers_deduplicate(char_t **dedup, char_t **peernames, uint32_t peers)
+{
+    int peer, i, count;
+
+    count = 0;
+    for (peer = 0; peer < peers; peer++) {
+        char_t *nick;
+
+        nick = peernames[peer];
+
+        if (nick) {
+            _Bool found = 0;
+            i = 0;
+
+            while (!found && i < count) {
+                if (nick[0] == dedup[i][0]
+                        && !memcmp(nick + 1, dedup[i] + 1, nick[0])) {
+                    found = 1;
+                }
+
+                i++;
+            }
+
+            if (!found) {
+                dedup[count] = nick;
+                count++;
+            }
+        }
+    }
+
+    return count;
+}
+
+static uint8_t nick_completion_search(char_t *found_nick, int direction)
 {
     char_t *text = edit_msg_data;
-    uint32_t i = 0, prev_index, compsize = completion.length;
-    uint8_t *nick;
-
+    uint32_t i, peers, prev_index, compsize = completion.length;
+    char_t *nick;
     _Bool found = 0;
+    static char_t *dedup[65536];
     GROUPCHAT *g = sitem->data;
 
+    peers = peers_deduplicate(dedup, g->peername, g->peers);
+
+    i = 0;
     while (!found) {
-        if (i >= g->peers) {
+        if (i >= peers) {
             found = 1;
             i = 0;
         } else {
-            nick = g->peername[i];
-            if (nick && nick[0] == completion.end - completion.start - completion.spacing
+            nick = dedup[i];
+            if (nick[0] == completion.end - completion.start - completion.spacing
                     && !memcmp(nick + 1, text + completion.start, nick[0])) {
                 found = 1;
             } else {
@@ -163,14 +199,18 @@ static uint8_t nick_completion_search(char_t *found_nick)
     prev_index = i;
     found = 0;
     do {
-        i++;
-        if (i >= g->peers) {
+        if (direction == -1 && i == 0) {
+            i = peers;
+        }
+        i += direction;
+
+        if (i >= peers) {
             i = 0;
         }
 
-        nick = g->peername[i];
+        nick = dedup[i];
 
-        if (nick && nick[0] >= compsize
+        if (nick[0] >= compsize
                 && !memcmp_case(nick + 1, text + completion.start, compsize)) {
             found = 1;
         }
@@ -257,7 +297,7 @@ static void edit_msg_ontab(void)
             completion.length = completion.end - completion.start;
         }
 
-        nick_length = nick_completion_search(nick);
+        nick_length = nick_completion_search(nick, 1);
         if (nick_length) {
             completion.edited = 1;
             if (!(nick_length == completion.end - completion.start - completion.spacing
@@ -266,6 +306,36 @@ static void edit_msg_ontab(void)
             }
             edit_setcursorpos(&edit_msg, completion.end);
             completion.cursorpos = edit_getcursorpos();
+        }
+    } else {
+        completion.active = 0;
+    }
+}
+
+static void edit_msg_onshifttab(void)
+{
+    char_t *text = edit_msg_data;
+
+    if (sitem->item == ITEM_GROUP) {
+        char_t nick[130];
+        uint8_t nick_length;
+        printf("shift-tabbed\n");
+
+        if (completion.cursorpos != edit_getcursorpos()) {
+            completion.active = 0;
+        }
+
+        if (completion.active) {
+            nick_length = nick_completion_search(nick, -1);
+            if (nick_length) {
+                completion.edited = 1;
+                if (!(nick_length == completion.end - completion.start - completion.spacing
+                            && !memcmp(nick, text + completion.start, nick_length))) {
+                    nick_completion_replace(nick, nick_length);
+                }
+                edit_setcursorpos(&edit_msg, completion.end);
+                completion.cursorpos = edit_getcursorpos();
+            }
         }
     } else {
         completion.active = 0;
@@ -392,6 +462,7 @@ edit_msg = {
     .data = edit_msg_data,
     .onenter = edit_msg_onenter,
     .ontab = edit_msg_ontab,
+    .onshifttab = edit_msg_onshifttab,
     .onchange = edit_msg_onchange,
     .onlosefocus = edit_msg_onlosefocus,
 },

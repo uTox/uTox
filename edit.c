@@ -357,6 +357,12 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
     EDIT *edit = active_edit;
 
     if(control || (ch <= 0x1F && (!edit->multiline || ch != '\n')) || (ch >= 0x7f && ch <= 0x9F)) {
+        _Bool modified = 0;
+
+        if (flags & 4) {
+            printf("%u Flags & 4---%u!!!\n", KEY_TAB, ch); /* 655056 */
+        }
+
         switch(ch) {
         case KEY_BACK: {
             if(edit->readonly) {
@@ -368,6 +374,8 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
                 if(p == 0) {
                     break;
                 }
+
+                modified = 1;
 
                 /* same as ctrl+left */
                 if(flags & 4) {
@@ -416,6 +424,7 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
             edit_sel.p1 = edit_sel.start;
             edit_sel.p2 = edit_sel.start;
             edit_sel.length = 0;
+            modified = 1;
             break;
         }
 
@@ -564,6 +573,7 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
                     edit_sel.p2 = p;
                     edit_sel.start = p;
                     edit_sel.length = 0;
+                    modified = 1;
                 }
                 break;
             } else {
@@ -578,11 +588,14 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
                 edit_sel.p2 = p;
                 edit_sel.start = p;
                 edit_sel.length = 0;
+                modified = 1;
             }
             break;
         }
 
         case KEY_RETURN: {
+            modified = 1;
+
             if(edit->onenter) {
                 edit->onenter();
                 /*dirty*/
@@ -606,17 +619,23 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
             break;
         }
 
+#ifdef KEY_LEFT_TAB
+        case KEY_LEFT_TAB:
+#endif
         case KEY_TAB: {
-            if(edit->ontab) {
+            if (flags == 0 && edit->ontab) {
                 edit->ontab();
+            } else if (flags == 1 && edit->onshifttab) {
+                edit->onshifttab();
             }
+
             break;
         }
 
         }
 
         edit_select = 0;
-        if(edit->onchange) {
+        if(modified && edit->onchange) {
             edit->onchange();
         }
 

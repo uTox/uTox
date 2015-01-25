@@ -25,6 +25,7 @@ struct edit {
     void (*onenter)(void);
     void (*onchange)(void);
     void (*ontab)(void);
+    void (*onshifttab)(void);
     void (*onlosefocus)(void);
 };
 
