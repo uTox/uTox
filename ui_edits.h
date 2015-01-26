@@ -252,14 +252,20 @@ static void nick_completion_replace(char_t *nick, uint32_t size)
 
     edit_do(&edit_msg, completion.start, completion.end - completion.start, 1);
 
-    memmove(text + completion.end - offset,
-            text + completion.end, length - completion.end);
+    memmove(text + completion.end - offset, text + completion.end,
+            length - offset > edit_msg.maxlength
+            ? edit_msg.maxlength - completion.end + offset
+            : length - completion.end);
 
     memcpy(text + completion.start, nick, size);
 
     edit_do(&edit_msg, completion.start, size, 0);
 
-    edit_msg.length -= offset;
+    if (length - offset > edit_msg.maxlength) {
+        edit_msg.length = edit_msg.maxlength;
+    } else {
+        edit_msg.length -= offset;
+    }
     completion.end -= offset;
 }
 
