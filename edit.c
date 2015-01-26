@@ -359,10 +359,6 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
     if(control || (ch <= 0x1F && (!edit->multiline || ch != '\n')) || (ch >= 0x7f && ch <= 0x9F)) {
         _Bool modified = 0;
 
-        if (flags & 4) {
-            printf("%u Flags & 4---%u!!!\n", KEY_TAB, ch); /* 655056 */
-        }
-
         switch(ch) {
         case KEY_BACK: {
             if(edit->readonly) {
@@ -623,10 +619,10 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
         case KEY_LEFT_TAB:
 #endif
         case KEY_TAB: {
-            if (flags == 0 && edit->ontab) {
-                edit->ontab();
-            } else if (flags == 1 && edit->onshifttab) {
+            if ((flags & 1) && !(flags & 4) && edit->onshifttab) {
                 edit->onshifttab();
+            } else if (!(flags & 4) && edit->ontab) {
+                edit->ontab();
             }
 
             break;

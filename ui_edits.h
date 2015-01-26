@@ -251,7 +251,9 @@ static void nick_completion_replace(char_t *nick, uint32_t size)
             ? edit_msg.maxlength - completion.end
             : completion.start + size);
 
-    memcpy(text + completion.start, nick, size);
+    memcpy(text + completion.start, nick,
+            completion.start + size >= edit_msg.maxlength - 2
+            ? edit_msg.maxlength - completion.start - 3 : size);
 
     edit_msg.length -= offset;
     completion.end -= offset;
