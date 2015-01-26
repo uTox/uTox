@@ -970,8 +970,10 @@ int main(int argc, char *argv[])
     Atom dndversion = 3;
     XChangeProperty(display, window, XdndAware, XA_ATOM, 32, PropModeReplace, (uint8_t*)&dndversion, 1);
 
+    char title_name[128];
+    snprintf(title_name, 128, "%s %s", TITLE, SUB_TITLE);
     /* set the window name */
-    XSetStandardProperties(display, window, "uTox", "uTox", None, argv, argc, None);
+    XSetStandardProperties(display, window, title_name, "uTox", None, argv, argc, None);
 
     /* initialize fontconfig */
     initfonts();

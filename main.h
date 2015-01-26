@@ -28,6 +28,8 @@
 #define DEFAULT_STATUS "Toxing on uTox"
 #define DEFAULT_SCALE 2
 
+#define TITLE "µTox"
+#define SUB_TITLE "(Alpha)"
 #define VERSION "0.1.9"
 
 #define MAX_CALLS 16
