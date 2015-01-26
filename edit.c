@@ -291,7 +291,7 @@ static STRING_IDX edit_change_do(EDIT *edit, EDIT_CHANGE *c)
     return r;
 }
 
-static void edit_do(EDIT *edit, STRING_IDX start, STRING_IDX length, _Bool remove)
+void edit_do(EDIT *edit, STRING_IDX start, STRING_IDX length, _Bool remove)
 {
     EDIT_CHANGE *new, **history;
 
@@ -615,9 +615,6 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
             break;
         }
 
-#ifdef KEY_LEFT_TAB
-        case KEY_LEFT_TAB:
-#endif
         case KEY_TAB: {
             if ((flags & 1) && !(flags & 4) && edit->onshifttab) {
                 edit->onshifttab();

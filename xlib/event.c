@@ -272,28 +272,32 @@ _Bool doevent(XEvent event)
                 }
             }
 
-            if(sym == XK_KP_Enter){
+            if (sym == XK_KP_Enter){
                 sym = XK_Return;
             }
 
-            if(sym == XK_Return && (ev->state & 1)) {
+            if (sym == XK_ISO_Left_Tab) {
+                sym = XK_Tab;
+            }
+
+            if (sym == XK_Return && (ev->state & 1)) {
                 edit_char('\n', 0, 0);
                 break;
             }
 
-            if(sym == XK_KP_Space) {
+            if (sym == XK_KP_Space) {
                 sym = XK_space;
             }
 
-            if(sym >= XK_KP_Home && sym <= XK_KP_Begin) {
+            if (sym >= XK_KP_Home && sym <= XK_KP_Begin) {
                 sym -= 0x45;
             }
 
-            if(sym >= XK_KP_Multiply && sym <= XK_KP_Equal) {
+            if (sym >= XK_KP_Multiply && sym <= XK_KP_Equal) {
                 sym -= 0xFF80;
             }
 
-            if(!sym) {
+            if (!sym) {
               int i;
               for(i = 0; i < len; i++)
                 edit_char(buffer[i], (ev->state & 4) != 0, ev->state);

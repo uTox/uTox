@@ -244,16 +244,20 @@ static void nick_completion_replace(char_t *nick, uint32_t size)
         completion.spacing -= 1;
     }
 
+    if (completion.start + size > edit_msg.maxlength) {
+        size = edit_msg.maxlength - completion.start;
+    }
+
     offset = completion.end - completion.start - size;
 
-    memmove(text + completion.end - offset, text + completion.end,
-            length - offset > edit_msg.maxlength
-            ? edit_msg.maxlength - completion.end
-            : completion.start + size);
+    edit_do(&edit_msg, completion.start, completion.end - completion.start, 1);
 
-    memcpy(text + completion.start, nick,
-            completion.start + size >= edit_msg.maxlength - 2
-            ? edit_msg.maxlength - completion.start - 3 : size);
+    memmove(text + completion.end - offset,
+            text + completion.end, length - completion.end);
+
+    memcpy(text + completion.start, nick, size);
+
+    edit_do(&edit_msg, completion.start, size, 0);
 
     edit_msg.length -= offset;
     completion.end -= offset;
@@ -321,7 +325,6 @@ static void edit_msg_onshifttab(void)
     if (sitem->item == ITEM_GROUP) {
         char_t nick[130];
         uint8_t nick_length;
-        printf("shift-tabbed\n");
 
         if (completion.cursorpos != edit_getcursorpos()) {
             completion.active = 0;
