@@ -25,6 +25,7 @@ struct edit {
     void (*onenter)(void);
     void (*onchange)(void);
     void (*ontab)(void);
+    void (*onshifttab)(void);
     void (*onlosefocus)(void);
 };
 
@@ -37,6 +38,8 @@ _Bool edit_mright(EDIT *edit);
 _Bool edit_mwheel(EDIT *edit, int height, double d);
 _Bool edit_mup(EDIT *edit);
 _Bool edit_mleave(EDIT *edit);
+
+void edit_do(EDIT *edit, STRING_IDX start, STRING_IDX length, _Bool remove);
 
 void edit_press(void);
 
@@ -51,3 +54,5 @@ _Bool edit_active(void);
 void edit_resetfocus(void);
 void edit_setfocus(EDIT *edit);
 void edit_setstr(EDIT *edit, char_t *str, STRING_IDX length);
+void edit_setcursorpos(EDIT *edit, STRING_IDX pos);
+STRING_IDX edit_getcursorpos(void);

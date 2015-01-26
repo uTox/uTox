@@ -1557,7 +1557,9 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
             if(wParam == KEY_RETURN && (GetKeyState(VK_SHIFT) & 0x80)) {
                 wParam = '\n';
             }
-            edit_char(wParam, 0, 0);
+            if (wParam != KEY_TAB) {
+                edit_char(wParam, 0, 0);
+            }
             return 0;
         }
 

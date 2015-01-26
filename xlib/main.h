@@ -23,6 +23,7 @@
 #define KEY_LEFT XK_Left
 #define KEY_RIGHT XK_Right
 #define KEY_TAB XK_Tab
+#define KEY_LEFT_TAB XK_ISO_Left_Tab
 #define KEY_DEL XK_Delete
 #define KEY_END XK_End
 #define KEY_HOME XK_Home
