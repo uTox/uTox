@@ -44,6 +44,7 @@ int load_avatar(const char_t *id, uint8_t *dest, uint32_t *size_out)
         return 0;
     }
     if (size > TOX_AVATAR_MAX_DATA_LENGTH) {
+        free(avatar_data);
         debug("warning: saved avatar file(%s) too large for tox\n", path);
         return 0;
     }
@@ -96,6 +97,7 @@ int load_avatar_hash(const char_t *id, uint8_t *dest)
     }
     if (size != TOX_HASH_LENGTH) {
         debug("warning: saved avatar hash (%s) does not have TOX_HASH_LENGTH bytes\n", path);
+        free(hash_data);
         return 0;
     }
 
@@ -104,7 +106,7 @@ int load_avatar_hash(const char_t *id, uint8_t *dest)
     return 1;
 }
 
-int save_avatar_hash(const char_t *id, uint8_t *hash)
+int save_avatar_hash(const char_t *id, const uint8_t *hash)
 {
     char_t path[512];
 

@@ -113,7 +113,7 @@ static void gtk_savethread(void *args){
         /* give gtk the file name our friend is sending. */
         gtk_file_chooser_set_current_name(dialog, buf);
         /* Prompt to overwrite */
-        gtk_file_chooser_set_do_overwrite_confirmation(dialog, 1);
+        gtk_file_chooser_set_do_overwrite_confirmation(dialog, (void*)1);
         /* Users can create folders when saving. */ //TODO ENABLE BELOW!
         //gtk_file_chooser_set_create_folders(dialog, TRUE);
         int result = gtk_dialog_run(dialog);

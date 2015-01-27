@@ -92,13 +92,13 @@ HRESULT __stdcall dnd_Drop(IDropTarget *lpMyObj, IDataObject * pDataObject, DWOR
 
         ReleaseStgMedium(&medium);
     } else {
-        debug("itz failed! %X\n", r);
+        debug("itz failed! %lX\n", r);
     }
 
     return S_OK;
 }
 
-static void dnd_init(HWND hwnd)
+static void dnd_init(HWND window)
 {
     my_IDropTarget *p;
     p = malloc(sizeof(my_IDropTarget));
@@ -116,5 +116,5 @@ static void dnd_init(HWND hwnd)
 
     CoLockObjectExternal((struct IUnknown*)p, TRUE, FALSE);
 
-    RegisterDragDrop(hwnd, (IDropTarget*)p);
+    RegisterDragDrop(window, (IDropTarget*)p);
 }

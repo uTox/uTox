@@ -100,7 +100,8 @@ UI_LANG_ID ui_guess_lang_by_posix_locale(const char* locale, UI_LANG_ID deflt) {
         ready = 1;
     }
 
-    UI_LANG_ID i, found_lang;
+    UI_LANG_ID i;
+    UI_LANG_ID found_lang = 0;
     int8_t found_prio = INT8_MAX;
 
     // Try detecting by full prefix match first.
@@ -171,7 +172,8 @@ UI_LANG_ID ui_guess_lang_by_windows_lang_id(uint16_t lang_id, UI_LANG_ID deflt) 
         ready = 1;
     }
 
-    UI_LANG_ID i, found_lang;
+    UI_LANG_ID i;
+    UI_LANG_ID found_lang = 0;
     int8_t found_prio = INT8_MAX;
 
     // Try detecting by full match first, including sublanguage part.

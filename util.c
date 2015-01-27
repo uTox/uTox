@@ -414,7 +414,7 @@ char_t* tohtml(char_t *str, STRING_IDX length)
     return out;
 }
 
-void yuv420torgb(vpx_image_t *img, uint8_t *out)
+void yuv420torgb(const vpx_image_t *img, uint8_t *out)
 {
     unsigned long int i, j;
     for (i = 0; i < img->d_h; ++i) {
@@ -596,8 +596,8 @@ UTOX_SAVE* config_load(void)
             }
             goto NEXT;
         } else if (save->version == 2) {
-            UTOX_SAVE_V2 *save_v2 = save;
-            save = calloc(sizeof(UTOX_SAVE) + 1 + strlen(save_v2->proxy_ip), 1);
+            UTOX_SAVE_V2 *save_v2 = (UTOX_SAVE_V2*)save;
+            save = calloc(sizeof(UTOX_SAVE) + 1 + strlen((char *)save_v2->proxy_ip), 1);
 
             memcpy(save, save_v2, sizeof(UTOX_SAVE_V2));
             save->version = SAVE_VERSION;

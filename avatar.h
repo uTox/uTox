@@ -56,7 +56,7 @@ int load_avatar_hash(const char_t *id, uint8_t *dest);
  *  on failure: returns 0
  *  notes: hash should be TOX_HASH_LENGTH bytes long
  */
-int save_avatar_hash(const char_t *id, uint8_t *hash);
+int save_avatar_hash(const char_t *id, const uint8_t *hash);
 /* deletes saved avatar hash for given id
  *  on success: returns 1
  *  on failure: returns 0

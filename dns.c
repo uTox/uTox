@@ -171,7 +171,7 @@ static _Bool parserecord(uint8_t *dest, uint8_t *src, uint32_t pin, void *dns3)
     uint8_t *a = src;
     while(*a) {
         if(_id) {
-            uint8_t ch;
+            uint8_t ch = '\0';
             if(*a >= '0' && *a <= '9') {
                 if(id == dest + 38) {
                     debug("id too long\n");
@@ -204,7 +204,7 @@ static _Bool parserecord(uint8_t *dest, uint8_t *src, uint32_t pin, void *dns3)
         }
 
         if(_pub) {
-            uint8_t ch;
+            uint8_t ch = '\0';
             if(*a >= '0' && *a <= '9') {
                 if(id == dest + 32) {
                     debug("id too long\n");
