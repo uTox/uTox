@@ -972,7 +972,9 @@ int main(int argc, char *argv[])
 
     char title_name[128];
     snprintf(title_name, 128, "%s %s (version: %s)", TITLE, SUB_TITLE, VERSION);
-    memmove(title_name, title_name+1, strlen(title_name))
+    // Effett, I give up! No OS can agree how to handle non ascii bytes, so effemm!
+    // may be needed when uTox becomes muTox
+    //memmove(title_name, title_name+1, strlen(title_name))
     /* set the window name */
     XSetStandardProperties(display, window, title_name, "uTox", None, argv, argc, None);
 

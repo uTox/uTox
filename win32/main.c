@@ -1306,7 +1306,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     wchar_t title[title_size];
     mbstowcs(title,pretitle,title_size);
     /* trim first letter that appears for god knows why */
-    wmemmove(title, title+1, wcslen(title));
+    /* needed if/when the uTox becomes a muTox */
+    //wmemmove(title, title+1, wcslen(title));
 
     hwnd = CreateWindowExW(0, classname, title, WS_OVERLAPPEDWINDOW, save->window_x, save->window_y, MAIN_WIDTH, MAIN_HEIGHT, NULL, NULL, hInstance, NULL);
 
