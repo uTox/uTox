@@ -480,11 +480,13 @@ static void audio_thread(void *args)
         free(samples);
     }
 
-    for (unsigned int i = 0; i < MAX_CALLS; ++i) {
-        alSourcei(ringSrc[i], AL_LOOPING, AL_TRUE);
-        alSourcei(ringSrc[i], AL_BUFFER, RingBuffer);
+    {
+        unsigned int i;
+        for (i = 0; i < MAX_CALLS; ++i) {
+            alSourcei(ringSrc[i], AL_LOOPING, AL_TRUE);
+            alSourcei(ringSrc[i], AL_BUFFER, RingBuffer);
+        }
     }
-
 #ifdef AUDIO_FILTERING
     Filter_Audio *f_a = NULL;
 #endif
@@ -551,7 +553,9 @@ static void audio_thread(void *args)
                 if (num_chats != 0) {
                     int32_t chats[num_chats];
                     uint32_t max = tox_get_chatlist(tox, chats, num_chats);
-                    for (unsigned int i = 0; i < max; ++i) {
+
+                    unsigned int i;
+                    for (i = 0; i < max; ++i) {
                         if (tox_group_get_type(tox, chats[i]) == TOX_GROUPCHAT_TYPE_AV) {
                             GROUPCHAT *g = &group[chats[i]];
                             alGenSources(g->peers, g->source);
@@ -717,7 +721,8 @@ static void audio_thread(void *args)
                     sourceplaybuffer(0, (int16_t*)buf, perframe, av_DefaultSettings.audio_channels, av_DefaultSettings.audio_sample_rate);
                 }
 
-                for(int i = 0; i < MAX_CALLS; i++) {
+                int i;
+                for(i = 0; i < MAX_CALLS; i++) {
                     if(call[i]) {
                         int r;
                         if((r = toxav_prepare_audio_frame(av, i, dest, sizeof(dest), (void*)buf, perframe)) < 0) {
@@ -737,7 +742,7 @@ static void audio_thread(void *args)
                 if (num_chats != 0) {
                     int32_t chats[num_chats];
                     uint32_t max = tox_get_chatlist(tox, chats, num_chats);
-                    for (int i = 0; i < max; ++i) {
+                    for (i = 0; i < max; ++i) {
                         if (groups_audio[chats[i]]) {
                             toxav_group_send_audio(tox, chats[i], (int16_t *)buf, perframe, av_DefaultSettings.audio_channels, av_DefaultSettings.audio_sample_rate);
                         }
