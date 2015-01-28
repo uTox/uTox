@@ -970,8 +970,13 @@ int main(int argc, char *argv[])
     Atom dndversion = 3;
     XChangeProperty(display, window, XdndAware, XA_ATOM, 32, PropModeReplace, (uint8_t*)&dndversion, 1);
 
+    char title_name[128];
+    snprintf(title_name, 128, "%s %s (version: %s)", TITLE, SUB_TITLE, VERSION);
+    // Effett, I give up! No OS can agree how to handle non ascii bytes, so effemm!
+    // may be needed when uTox becomes muTox
+    //memmove(title_name, title_name+1, strlen(title_name))
     /* set the window name */
-    XSetStandardProperties(display, window, "uTox", "uTox", None, argv, argc, None);
+    XSetStandardProperties(display, window, title_name, "uTox", None, argv, argc, None);
 
     /* initialize fontconfig */
     initfonts();

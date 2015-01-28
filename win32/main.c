@@ -1301,7 +1301,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
 
     UTOX_SAVE *save = config_load();
 
-    hwnd = CreateWindowExW(0, classname, L"Tox", WS_OVERLAPPEDWINDOW, save->window_x, save->window_y, MAIN_WIDTH, MAIN_HEIGHT, NULL, NULL, hInstance, NULL);
+    char pretitle[128];
+    snprintf(pretitle, 128, "%s %s (version : %s)", TITLE, SUB_TITLE, VERSION);
+    size_t title_size = strlen(pretitle)+1;
+    wchar_t title[title_size];
+    mbstowcs(title,pretitle,title_size);
+    /* trim first letter that appears for god knows why */
+    /* needed if/when the uTox becomes a muTox */
+    //wmemmove(title, title+1, wcslen(title));
+
+    hwnd = CreateWindowExW(0, classname, title, WS_OVERLAPPEDWINDOW, save->window_x, save->window_y, MAIN_WIDTH, MAIN_HEIGHT, NULL, NULL, hInstance, NULL);
 
     free(save);
 
