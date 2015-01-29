@@ -1211,6 +1211,75 @@ void config_osdefaults(UTOX_SAVE *r)
     r->window_height = MAIN_HEIGHT;
 }
 
+
+/** create a popup window to accept or reject new call.
+ *
+ */
+void incoming_call_inturrupt(){
+
+    CreateMutex(NULL, 0, "utox_interrupt");
+    if(GetLastError() == ERROR_ALREADY_EXISTS) {
+        HWND window = FindWindow("utox_interrupt", NULL);
+        SetForegroundWindow(window);
+        if (*cmd) {
+            COPYDATASTRUCT data = {
+                .cbData = strlen(cmd),
+                .lpData = cmd
+            };
+            //TODO eval this section
+            SendMessage(window, WM_COPYDATA, (WPARAM)hInstance, (LPARAM)&data);
+        }
+        return 0;
+    }
+
+    MSG msg;
+    //int x, y;
+
+    my_icon = LoadIcon(hInstance, MAKEINTRESOURCE(101));
+    unread_messages_icon = LoadIcon(hInstance, MAKEINTRESOURCE(102));
+
+    cursors[CURSOR_NONE] = LoadCursor(NULL, IDC_ARROW);
+    cursors[CURSOR_HAND] = LoadCursor(NULL, IDC_HAND);
+    cursors[CURSOR_TEXT] = LoadCursor(NULL, IDC_IBEAM);
+    cursors[CURSOR_SELECT] = LoadCursor(NULL, IDC_CROSS);
+    cursors[CURSOR_ZOOM_IN] = LoadCursor(NULL, IDC_SIZEALL);
+    cursors[CURSOR_ZOOM_OUT] = LoadCursor(NULL, IDC_SIZEALL);
+
+    hinstance = hInstance;
+    wchar_t classname[] = L"utox_interrupt", popupclassname[] = L"utoxgrab_inturput";
+
+    WNDCLASSW wc = {
+        .style = CS_OWNDC | CS_DBLCLKS,
+        .lpfnWndProc = WindowProc,
+        .hInstance = hInstance,
+        .hIcon = my_icon,
+        .lpszClassName = classname,
+    },
+
+    wc2 = {
+        .lpfnWndProc = GrabProc,
+        .hInstance = hInstance,
+        .hIcon = my_icon,
+        .lpszClassName = popupclassname,
+        .hbrBackground = (HBRUSH)GetStockObject (BLACK_BRUSH),
+    };
+
+    int pop_up_setx, pop_up_sety;
+
+    pop_up_setx = GetSystemMetrics(SM_CXSCREEN)/2-150;
+    pop_up_sety = GetSystemMetrics(SM_CYSCREEN)/2-100;
+
+    interrupt_hwnd = CreateWindowExW(0, classname, L"utox_interrupt", WS_POPUP, pop_up_setx, pop_up_sety, POPUP_WIDTH, POPUP_HEIGHT, hwnd, NULL, hInstance, NULL);
+    LONG lStyle = GetWindowLongPtr(interrupt_hwnd, GWL_STYLE);
+    // box only please, no frame
+    lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZE | WS_MAXIMIZE | WS_SYSMENU);
+    SetWindowLongPtr(interrupt_hwnd, GWL_STYLE, lStyle);
+    SetWindowPos(interrupt_hwnd, HWND_TOP, 0,0,0,0, SWP_SHOWWINDOW | SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE | SWP_NOOWNERZORDER);
+    // I think we also need SWP_ASYNCWINDOWPOS
+
+}
+
+
 #include "dnd.c"
 
 /** client main()
