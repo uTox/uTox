@@ -510,7 +510,7 @@ panel_main = {
 
 /* Drawing the popup window */
 panel_interrupt = {
-    .type = PANEL_MAIN,
+    .type = PANEL_NONE,
     //.disabled = 1,
     .child = (PANEL*[]) {
         //Friend avatar, name, status
@@ -1046,6 +1046,7 @@ static void panel_update(PANEL *p, int x, int y, int width, int height)
 void ui_size(int width, int height)
 {
     panel_update(&panel_main, 0, 0, width, height);
+    panel_update(&panel_interrupt, 0, 0, width, height);
     tooltip_reset();
 }
 

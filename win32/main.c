@@ -72,9 +72,9 @@ HICON my_icon, unread_messages_icon;
 
 HWND hwnd, capturewnd, video_hwnd[MAX_NUM_FRIENDS], interrupt_hwnd;
 HINSTANCE hinstance, interrupt_hInstance;
-HDC main_hdc, hdc, hdcMem, interrupt_main_hdc, interrupt_hdc, interrupt_hdcMem;
-HBRUSH hdc_brush, interrupt_hdc_brush;
-HBITMAP hdc_bm, interrupt_hdc_bm;
+HDC main_hdc, hdc, hdcMem, interrupt_main_hdc, interrupt_hdc, interrupt_hdcMem, old_hdc, old_hdcMem;
+HBRUSH hdc_brush;
+HBITMAP hdc_bm, interrupt_hdc_bm, old_hdc_bm;
 
 
 //static char save_path[280];
@@ -1229,22 +1229,12 @@ void incoming_call_inturrupt(){
 
     debug("trying to spawn new window\n");
 
-    CreateMutex(NULL, 0, "utox_interrupt");
-    if(GetLastError() == ERROR_ALREADY_EXISTS) {
-        debug("tried to create existing interrupt\n");
-        return;
-    }
-
-    my_icon = LoadIcon(interrupt_hInstance, MAKEINTRESOURCE(101));
-    unread_messages_icon = LoadIcon(interrupt_hInstance, MAKEINTRESOURCE(102));
-
-    wchar_t interrupt_classname[] = L"utox_interrupt", interrupt_popupclassname[] = L"utoxgrab_inturput";
-
     int pop_up_setx, pop_up_sety;
-    pop_up_setx = GetSystemMetrics(SM_CXSCREEN)/2-150;
-    pop_up_sety = GetSystemMetrics(SM_CYSCREEN)/2-100;
+    pop_up_setx = GetSystemMetrics(SM_CXSCREEN) / 2 - INTERRUPT_WIDTH;
+    pop_up_sety = GetSystemMetrics(SM_CYSCREEN) / 2 - INTERRUPT_HEIGHT;
 
-    interrupt_hwnd = CreateWindowExW(0, interrupt_classname, L"utox_interrupt", WS_POPUP | WS_VISIBLE | WS_OVERLAPPEDWINDOW, pop_up_setx, pop_up_sety, INTERRUPT_WIDTH, INTERRUPT_HEIGHT, hwnd, NULL, interrupt_hInstance, NULL);
+    interrupt_hwnd = CreateWindowExW(0, L"uTox", L"utox_interrupt", WS_OVERLAPPEDWINDOW, 
+        pop_up_setx, pop_up_sety, INTERRUPT_WIDTH, INTERRUPT_HEIGHT, NULL, NULL, hinstance, NULL);
     // LONG lStyle = GetWindowLongPtr(interrupt_hwnd, GWL_STYLE);
     // box only please, no frame
     // lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZE | WS_MAXIMIZE | WS_SYSMENU);
@@ -1252,18 +1242,31 @@ void incoming_call_inturrupt(){
     // SetWindowPos(interrupt_hwnd, HWND_TOP, 0,0,0,0, SWP_SHOWWINDOW | SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE | SWP_NOOWNERZORDER);
     // I think we also need SWP_ASYNCWINDOWPOS
 
-    ShowWindow(interrupt_hwnd, SW_SHOW);
+    interrupt_main_hdc = GetDC(interrupt_hwnd);
+    interrupt_hdc = CreateCompatibleDC(interrupt_main_hdc);
+    interrupt_hdcMem = CreateCompatibleDC(interrupt_hdc);
+    interrupt_hdc_bm = CreateCompatibleBitmap(interrupt_main_hdc, INTERRUPT_WIDTH, INTERRUPT_HEIGHT);
+    SelectObject(interrupt_hdc, interrupt_hdc_bm);
+
     SetBkMode(interrupt_hdc, TRANSPARENT);
+    ShowWindow(interrupt_hwnd, SW_SHOW);
 
     int blerg = 0;
     while(dirty_hack && blerg <= 90){
+        old_hdc    = hdc;
+        old_hdcMem = hdcMem;
+        old_hdc_bm = hdc_bm;
+        hdc    = interrupt_hdc;
+        hdcMem = interrupt_hdcMem;
+        hdc_bm = interrupt_hdc_bm;
         redraw_interrupt();
+        hdc    = old_hdc;
+        hdcMem = old_hdcMem;
+        hdc_bm = old_hdc_bm;
         yieldcpu(100);
         blerg++;
     }
 
-    debug("okay, close this now\n");
-    DestroyWindow(interrupt_hwnd);
     return;
 }
 
