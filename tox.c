@@ -9,6 +9,7 @@ typedef struct {
 
 static TOX_MSG tox_msg, audio_msg, video_msg, toxav_msg;
 static volatile _Bool tox_thread_msg, audio_thread_msg, video_thread_msg, toxav_thread_msg;
+static volatile _Bool save_needed = 1;
 
 /* Writes log filename for fid to dest. returns length written */
 static int log_file_name(uint8_t *dest, size_t size_dest, Tox *tox, int fid)
@@ -451,6 +452,7 @@ static void write_save(Tox *tox)
         debug("CHMOD: failure\n");
     }
 
+    save_needed = 0;
     free(data);
 }
 
@@ -611,7 +613,10 @@ void tox_thread(void *UNUSED(args))
                 if(!connected) {
                     do_bootstrap(tox);
                 }
-                write_save(tox);
+                //save every 10mill.
+                if (save_needed || (time - last_save >= (uint64_t)100 * 1000 * 1000 * 1000)){
+                    write_save(tox);
+                }
             }
 
             // If there's a message, load it, and send to the tox message thread
@@ -1149,6 +1154,7 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
     }
 
     }
+    save_needed = 1;
 }
 
 /** Translates status code to text then sends back to the user */
