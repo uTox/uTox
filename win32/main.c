@@ -1267,6 +1267,9 @@ void incoming_call_inturrupt(){
         blerg++;
     }
 
+    // todo GrabingProc, WindowProc, rewrite all draw functions to get a pulled hdc, create layout for popup
+    // remove winow title bars intergrate grabproc with winproc so that users can move bars around
+
     return;
 }
 

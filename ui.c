@@ -318,6 +318,29 @@ static void background_draw(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int 
     drawhline(LIST_RIGHT + 1, LIST_Y - 1, width, C_GRAY);
 }
 
+
+static void draw_popup(void){
+    setcolor(button_name.mouseover ? C_STATUS : WHITE);
+    setfont(FONT_SELF_NAME);
+    drawtextrange(SELF_NAME_X, SELF_STATUS_X, SELF_NAME_Y, self.name, self.name_length);
+
+    setcolor(button_statusmsg.mouseover ? C_GRAY2 : C_STATUS);
+    setfont(FONT_STATUS);
+    drawtextrange(SELF_MSG_X, SELF_STATUS_X, SELF_MSG_Y, self.statusmsg, self.statusmsg_length);
+
+    // draw avatar or default image
+    if (self_has_avatar()) {
+        draw_avatar_image(self.avatar.image, SELF_AVATAR_X, SELF_AVATAR_Y, self.avatar.width, self.avatar.height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
+    } else {
+        drawalpha(BM_CONTACT, SELF_AVATAR_X, SELF_AVATAR_Y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, WHITE);
+    }
+
+    drawalpha(BM_STATUSAREA, SELF_STATUS_X, SELF_STATUS_Y, BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT, button_status.mouseover ? LIST_HIGHLIGHT : LIST_MAIN);
+
+    uint8_t status = tox_connected ? self.status : 3;
+    drawalpha(BM_ONLINE + status, SELF_STATUS_X + BM_STATUSAREA_WIDTH / 2 - BM_STATUS_WIDTH / 2, SELF_STATUS_Y + BM_STATUSAREA_HEIGHT / 2 - BM_STATUS_WIDTH / 2, BM_STATUS_WIDTH, BM_STATUS_WIDTH, status_color[status]);
+}
+
 static _Bool background_mmove(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height), int UNUSED(mx), int UNUSED(my), int UNUSED(dx), int UNUSED(dy))
 {
     return 0;
@@ -511,13 +534,8 @@ panel_main = {
 /* Drawing the popup window */
 panel_interrupt = {
     .type = PANEL_NONE,
-    //.disabled = 1,
-    .child = (PANEL*[]) {
-        //Friend avatar, name, status
-        //Accept call { Audio | Video }, Reject call, ignore
-        (void*)&button_interrupt_call, (void*)&button_interrupt_video,
-        NULL
-    },
+    .drawfunc = draw_popup,
+    .child = (PANEL*[]) { NULL },
     .popup = 1,
 };
 
