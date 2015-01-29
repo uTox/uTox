@@ -70,7 +70,7 @@ rm utox.exe
 "$WINDOWS_TOOLCHAIN"-windres icons/icon.rc -O coff -o icon.o
 
 # Compile
-"$WINDOWS_TOOLCHAIN"-gcc -s -Ofast -DAL_LIBTYPE_STATIC -o utox.exe ./*.c     \
+"$WINDOWS_TOOLCHAIN"-gcc -std=gnu99 -s -Ofast -DAL_LIBTYPE_STATIC -o utox.exe ./*.c     \
 ./png/png.c $AUDIO_FILTERING_BUILD -I ../toxcore/include/ -I                 \
 ../openal/include/  ../openal/lib/libOpenAL32.a ../openal/lib/libcommon.a    \
 ../toxcore/lib/libtoxav.a ../toxcore/lib/libtoxdns.a                         \
