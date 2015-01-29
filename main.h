@@ -266,6 +266,8 @@ void flush_file(FILE *file);
 int ch_mod(uint8_t *file);
 void config_osdefaults(UTOX_SAVE *r);
 
+void incoming_call_inturrupt();
+
 //me
 struct
 {

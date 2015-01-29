@@ -854,6 +854,8 @@ void config_osdefaults(UTOX_SAVE *r)
     r->window_height = DEFAULT_HEIGHT;
 }
 
+void incoming_call_inturrupt(){};
+
 static int systemlang(void)
 {
     char *str = getenv("LC_MESSAGES");
