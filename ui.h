@@ -33,6 +33,7 @@ struct panel
     SCROLLABLE *content_scroll;
     void (*drawfunc)(int, int, int, int);
     PANEL **child;
+    int popup;
 };
 
 enum
@@ -52,7 +53,7 @@ enum
     ADDF_NOMEM, //if increasing the friend list size fails.
 };
 
-extern PANEL panel_main, panel_item[];
+extern PANEL panel_main, panel_item[], panel_interrupt;
 extern MESSAGES messages_friend, messages_group;
 extern EDIT edit_name, edit_status, edit_addid, edit_addmsg, edit_msg, edit_search, edit_proxy_ip, edit_proxy_port;
 extern SCROLLABLE scroll_list;

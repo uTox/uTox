@@ -284,8 +284,8 @@ uint8_t addfriend_status;
 
 #define MAIN_WIDTH 800
 #define MAIN_HEIGHT 600
-#define POPUP_WIDTH 300
-#define POPUP_HEIGHT 200
+#define INTERRUPT_WIDTH 300
+#define INTERRUPT_HEIGHT 200
 
 #define inrect(x, y, rx, ry, width, height) ((x) >= (rx) && (y) >= (ry) && (x) < ((rx) + (width)) && (y) < ((ry) + (height)))
 
@@ -320,7 +320,7 @@ void setfont(int id);
 uint32_t setcolor(uint32_t color);
 void pushclip(int x, int y, int width, int height);
 void popclip(void);
-void enddraw(int x, int y, int width, int height);
+void enddraw(int x, int y, int width, int height, int target);
 
 /* other */
 void thread(void func(void*), void *args);

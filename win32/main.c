@@ -67,12 +67,11 @@ HFONT font[32];
 HCURSOR cursors[8];
 HICON my_icon, unread_messages_icon;
 
-HWND hwnd, capturewnd;
-HINSTANCE hinstance;
-HDC main_hdc, hdc, hdcMem;
+HWND hwnd, capturewnd, video_hwnd[MAX_NUM_FRIENDS], interrupt_hwnd;
+HINSTANCE hinstance, interrupt_hInstance;
+HDC main_hdc, hdc, hdcMem, interrupt_main_hdc, interrupt_hdc, interrupt_hdcMem;
 HBRUSH hdc_brush;
-HBITMAP hdc_bm;
-HWND video_hwnd[MAX_NUM_FRIENDS];
+HBITMAP hdc_bm, interrupt_hdc_bm;
 
 
 //static char save_path[280];
@@ -409,10 +408,14 @@ void popclip(void)
     DeleteObject(rgn);
 }
 
-void enddraw(int x, int y, int width, int height)
-{
-    SelectObject(hdc, hdc_bm);
-    BitBlt(main_hdc, x, y, width, height, hdc, x, y, SRCCOPY);
+void enddraw(int x, int y, int width, int height, int target){
+    if(target){
+        SelectObject(interrupt_hdc, interrupt_hdc_bm);
+        BitBlt(interrupt_main_hdc, x, y, width, height, interrupt_hdc, x, y, SRCCOPY);
+    } else {
+        SelectObject(hdc, hdc_bm);
+        BitBlt(main_hdc, x, y, width, height, hdc, x, y, SRCCOPY);
+    }
 }
 
 void thread(void func(void*), void *args)
@@ -1004,6 +1007,11 @@ void redraw(void)
     panel_draw(&panel_main, 0, 0, utox_window_width, utox_window_height);
 }
 
+void redraw_interrupt(void)
+{
+    panel_draw(&panel_interrupt, 0, 0, 150, 100);
+}
+
 /**
  * update_tray(void)
  * creates a win32 NOTIFYICONDATAW struct, sets the tiptab flag, gives *hwnd,
@@ -1215,28 +1223,20 @@ void config_osdefaults(UTOX_SAVE *r)
 /** create a popup window to accept or reject new call.
  *
  */
-void incoming_call_inturrupt(){
+int incoming_call_inturrupt(){
 
     CreateMutex(NULL, 0, "utox_interrupt");
     if(GetLastError() == ERROR_ALREADY_EXISTS) {
         HWND window = FindWindow("utox_interrupt", NULL);
         SetForegroundWindow(window);
-        if (*cmd) {
-            COPYDATASTRUCT data = {
-                .cbData = strlen(cmd),
-                .lpData = cmd
-            };
-            //TODO eval this section
-            SendMessage(window, WM_COPYDATA, (WPARAM)hInstance, (LPARAM)&data);
-        }
         return 0;
     }
 
     MSG msg;
     //int x, y;
 
-    my_icon = LoadIcon(hInstance, MAKEINTRESOURCE(101));
-    unread_messages_icon = LoadIcon(hInstance, MAKEINTRESOURCE(102));
+    my_icon = LoadIcon(interrupt_hInstance, MAKEINTRESOURCE(101));
+    unread_messages_icon = LoadIcon(interrupt_hInstance, MAKEINTRESOURCE(102));
 
     cursors[CURSOR_NONE] = LoadCursor(NULL, IDC_ARROW);
     cursors[CURSOR_HAND] = LoadCursor(NULL, IDC_HAND);
@@ -1245,22 +1245,21 @@ void incoming_call_inturrupt(){
     cursors[CURSOR_ZOOM_IN] = LoadCursor(NULL, IDC_SIZEALL);
     cursors[CURSOR_ZOOM_OUT] = LoadCursor(NULL, IDC_SIZEALL);
 
-    hinstance = hInstance;
-    wchar_t classname[] = L"utox_interrupt", popupclassname[] = L"utoxgrab_inturput";
+    wchar_t interrupt_classname[] = L"utox_interrupt", interrupt_popupclassname[] = L"utoxgrab_inturput";
 
     WNDCLASSW wc = {
         .style = CS_OWNDC | CS_DBLCLKS,
         .lpfnWndProc = WindowProc,
-        .hInstance = hInstance,
+        .hInstance = interrupt_hInstance,
         .hIcon = my_icon,
-        .lpszClassName = classname,
+        .lpszClassName = interrupt_classname,
     },
 
     wc2 = {
         .lpfnWndProc = GrabProc,
-        .hInstance = hInstance,
+        .hInstance = interrupt_hInstance,
         .hIcon = my_icon,
-        .lpszClassName = popupclassname,
+        .lpszClassName = interrupt_popupclassname,
         .hbrBackground = (HBRUSH)GetStockObject (BLACK_BRUSH),
     };
 
@@ -1269,13 +1268,15 @@ void incoming_call_inturrupt(){
     pop_up_setx = GetSystemMetrics(SM_CXSCREEN)/2-150;
     pop_up_sety = GetSystemMetrics(SM_CYSCREEN)/2-100;
 
-    interrupt_hwnd = CreateWindowExW(0, classname, L"utox_interrupt", WS_POPUP, pop_up_setx, pop_up_sety, POPUP_WIDTH, POPUP_HEIGHT, hwnd, NULL, hInstance, NULL);
+    interrupt_hwnd = CreateWindowExW(0, interrupt_classname, L"utox_interrupt", WS_POPUP, pop_up_setx, pop_up_sety, INTERRUPT_WIDTH, INTERRUPT_HEIGHT, hwnd, NULL, interrupt_hInstance, NULL);
     LONG lStyle = GetWindowLongPtr(interrupt_hwnd, GWL_STYLE);
     // box only please, no frame
     lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZE | WS_MAXIMIZE | WS_SYSMENU);
     SetWindowLongPtr(interrupt_hwnd, GWL_STYLE, lStyle);
     SetWindowPos(interrupt_hwnd, HWND_TOP, 0,0,0,0, SWP_SHOWWINDOW | SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE | SWP_NOOWNERZORDER);
     // I think we also need SWP_ASYNCWINDOWPOS
+
+    redraw_interrupt();
 
 }
 

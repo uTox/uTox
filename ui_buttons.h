@@ -432,6 +432,24 @@ static void button_chat_send_updatecolor(BUTTON *b){
     }
 }
 
+static void button_interrupt_call_onpress(void){
+    FRIEND *f = sitem->data;
+
+    if (f->calling == CALL_INVITED) {
+        tox_postmessage(TOX_ACCEPTCALL, f->callid, 1, NULL);
+        debug("Accept Call Interrupt: %u\n", f->callid);
+    }
+}
+
+static void button_interrupt_video_onpress(void){
+    FRIEND *f = sitem->data;
+
+    if (f->calling == CALL_INVITED_VIDEO) {
+        tox_postmessage(TOX_ACCEPTCALL, f->callid, 1, NULL);
+        debug("Accept Call Interrupt: %u\n", f->callid);
+    }
+}
+
 
 BUTTON
 
@@ -650,4 +668,26 @@ button_statusmsg = {
 button_status = {
     .nodraw = 1,
     .onpress = button_status_onpress,
+},
+
+button_interrupt_call = {
+    .bm = BM_LBUTTON,
+    .c1 = C_GREEN,
+    .c2 = C_GREEN_LIGHT,
+    .c3 = C_GREEN_LIGHT,
+    .bm2 = BM_CALL,
+    .bw = _BM_LBICON_WIDTH,
+    .bh = _BM_LBICON_HEIGHT,
+    .onpress = button_interrupt_call_onpress,
+},
+
+button_interrupt_video = {
+    .bm = BM_LBUTTON,
+    .c1 = C_GREEN,
+    .c2 = C_GREEN_LIGHT,
+    .c3 = C_GREEN_LIGHT,
+    .bm2 = BM_VIDEO,
+    .bw = _BM_LBICON_WIDTH,
+    .bh = _BM_LBICON_HEIGHT,
+    .onpress = button_interrupt_video_onpress,
 };

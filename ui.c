@@ -506,6 +506,19 @@ panel_main = {
         (void*)&edit_search, (void*)&dropdown_filter,
         NULL
     }
+},
+
+/* Drawing the popup window */
+panel_interrupt = {
+    .type = PANEL_MAIN,
+    //.disabled = 1,
+    .child = (PANEL*[]) {
+        //Friend avatar, name, status
+        //Accept call { Audio | Video }, Reject call, ignore
+        (void*)&button_interrupt_call, (void*)&button_interrupt_video,
+        NULL
+    },
+    .popup = 1,
 };
 
 void ui_scale(uint8_t scale)
@@ -708,6 +721,22 @@ void ui_scale(uint8_t scale)
         .y = SELF_STATUS_Y,
         .width = BM_STATUSAREA_WIDTH,
         .height = BM_STATUSAREA_HEIGHT,
+    },
+
+    b_interrupt_call = {
+        .type = PANEL_BUTTON,
+        .x = 5 * SCALE,
+        .y = 5 * SCALE,
+        .width = BM_LBUTTON_WIDTH,
+        .height = BM_LBUTTON_HEIGHT,
+    },
+
+    b_interrupt_video = {
+        .type = PANEL_BUTTON,
+        .x = 55 * SCALE,
+        .y = 5 * SCALE,
+        .width = BM_LBUTTON_WIDTH,
+        .height = BM_LBUTTON_HEIGHT,
     };
 
     button_add.panel = b_add;
@@ -730,6 +759,8 @@ void ui_scale(uint8_t scale)
     button_name.panel = b_name;
     button_statusmsg.panel = b_statusmsg;
     button_status.panel = b_status;
+    button_interrupt_call.panel = b_interrupt_call;
+    button_interrupt_video.panel = b_interrupt_video;
 
     PANEL d_audio_in = {
         .type = PANEL_DROPDOWN,
@@ -1086,7 +1117,11 @@ void panel_draw(PANEL *p, int x, int y, int width, int height)
     contextmenu_draw();
     tooltip_draw();
 
-    enddraw(x, y, width, height);
+    if(p->popup){
+        enddraw(x, y, width, height, 1); //hard coded TODO change to some val
+    } else {
+        enddraw(x, y, width, height, 0);
+    }
 }
 
 _Bool panel_mmove(PANEL *p, int x, int y, int width, int height, int mx, int my, int dx, int dy)
