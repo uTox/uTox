@@ -1022,6 +1022,7 @@ FUNC(mleave, _Bool);
     width = (p->width <= 0) ? width + p->width - relx : p->width; \
     height = (p->height <= 0) ? height + p->height - rely : p->height; }\
 
+//TODO: fix the redraws to redraw the popup if needed
 static void panel_update(PANEL *p, int x, int y, int width, int height)
 {
     FUNC();
