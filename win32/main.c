@@ -1307,7 +1307,7 @@ LRESULT CALLBACK PopupProc(HWND window_handle, UINT msg, WPARAM wParam, LPARAM l
             return 0;
             }
         case WM_MOUSEMOVE: {
-            debug("WM_MOUSEMOVE was called by POPUPPROC\n");
+            //debug("WM_MOUSEMOVE was called by POPUPPROC\n");
             int x, y, dx, dy;
 
             x = GET_X_LPARAM(lParam);
@@ -1377,8 +1377,8 @@ void incoming_call_inturrupt(){
     debug("trying to spawn new window\n");
 
     int pop_up_setx, pop_up_sety;
-    pop_up_setx = GetSystemMetrics(SM_CXSCREEN) / 2 - INTERRUPT_WIDTH;
-    pop_up_sety = GetSystemMetrics(SM_CYSCREEN) / 2 - INTERRUPT_HEIGHT;
+    pop_up_setx = (GetSystemMetrics(SM_CXSCREEN) - INTERRUPT_WIDTH  ) /2;
+    pop_up_sety = (GetSystemMetrics(SM_CYSCREEN) - INTERRUPT_HEIGHT ) /2;
 
     WNDCLASSW interrupt_windclass = {
         .lpszClassName = L"uTox Call",
@@ -1392,12 +1392,12 @@ void incoming_call_inturrupt(){
     RegisterClassW(&interrupt_windclass);
 
     interrupt_hwnd = CreateWindowExW(0, L"uTox Call", L"utox_interrupt", WS_OVERLAPPEDWINDOW, 
-        pop_up_setx, pop_up_sety, INTERRUPT_WIDTH, INTERRUPT_HEIGHT, NULL, NULL, hinstance, NULL);
-    // LONG lStyle = GetWindowLongPtr(interrupt_hwnd, GWL_STYLE);
+                    pop_up_setx, pop_up_sety, INTERRUPT_WIDTH, INTERRUPT_HEIGHT, NULL, NULL, hinstance, NULL);
+    LONG lStyle = GetWindowLongPtr(interrupt_hwnd, GWL_STYLE);
     // box only please, no frame
-    // lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZE | WS_MAXIMIZE | WS_SYSMENU);
-    // SetWindowLongPtr(interrupt_hwnd, GWL_STYLE, lStyle);
-    // SetWindowPos(interrupt_hwnd, HWND_TOP, 0,0,0,0, SWP_SHOWWINDOW | SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE | SWP_NOOWNERZORDER);
+    lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZE | WS_MAXIMIZE | WS_SYSMENU);
+    SetWindowLongPtr(interrupt_hwnd, GWL_STYLE, lStyle);
+    SetWindowPos(interrupt_hwnd, HWND_TOP, 0,0,0,0, SWP_SHOWWINDOW | SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE | SWP_NOOWNERZORDER);
     // I think we also need SWP_ASYNCWINDOWPOS
 
     main_interrupt_hdc = GetDC(interrupt_hwnd);
@@ -1412,12 +1412,13 @@ void incoming_call_inturrupt(){
         SetForegroundWindow(interrupt_hwnd);
     }
 
-
+    MSG msg;
     int blerg = 0;
-    while(GetMessage(&msg, NULL, 0, 0) && (blerg <= 9000) ) {
+    while(GetMessage(&msg, NULL, 0, 0) && (blerg <= 900) ) {
         TranslateMessage(&msg);
         DispatchMessage(&msg);
         yieldcpu(1);
+        redraw_interrupt();
         blerg++;
     }
 

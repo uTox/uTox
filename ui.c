@@ -330,7 +330,7 @@ static void draw_popup(void){
 
     // draw avatar or default image
     if (self_has_avatar()) {
-        draw_avatar_image(self.avatar.image, 10, 10, self.avatar.width, self.avatar.height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
+        draw_avatar_image(self.avatar.image, SELF_AVATAR_X, SELF_AVATAR_Y, self.avatar.width, self.avatar.height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
     } else {
         drawalpha(BM_CONTACT, SELF_AVATAR_X, SELF_AVATAR_Y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, WHITE);
     }
