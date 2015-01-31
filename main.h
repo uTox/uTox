@@ -252,6 +252,10 @@ UTOX_NATIVE_IMAGE *png_to_image(const UTOX_PNG_IMAGE, size_t size, uint16_t *w, 
 void image_free(UTOX_NATIVE_IMAGE *image);
 
 void showkeyboard(_Bool show);
+
+void redraw_utox();
+void redraw_interrupt();
+/* deprecated */
 void redraw(void);
 void update_tray(void);
 void force_redraw(void); // TODO: as parameter for redraw()?

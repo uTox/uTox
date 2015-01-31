@@ -1040,7 +1040,6 @@ FUNC(mleave, _Bool);
     width = (p->width <= 0) ? width + p->width - relx : p->width; \
     height = (p->height <= 0) ? height + p->height - rely : p->height; }\
 
-//TODO: fix the redraws to redraw the popup if needed
 static void panel_update(PANEL *p, int x, int y, int width, int height)
 {
     FUNC();
@@ -1063,8 +1062,8 @@ static void panel_update(PANEL *p, int x, int y, int width, int height)
 
 void ui_size(int width, int height)
 {
-    panel_update(&panel_main, 0, 0, width, height);
-    panel_update(&panel_interrupt, 0, 0, width, height);
+    redraw_utox();
+    redraw_interrupt();
     tooltip_reset();
 }
 

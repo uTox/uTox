@@ -69,9 +69,10 @@ HICON my_icon, unread_messages_icon;
 
 HWND hwnd, capturewnd, video_hwnd[MAX_NUM_FRIENDS], interrupt_hwnd;
 HINSTANCE hinstance, interrupt_hInstance;
-HDC main_hdc, hdc, hdcMem, interrupt_main_hdc, interrupt_hdc, interrupt_hdcMem, old_hdc, old_hdcMem;
+HDC hdc, hdcMem;
+HDC active_hdc, main_utox_hdc, main_interrupt_hdc;
 HBRUSH hdc_brush;
-HBITMAP hdc_bm, interrupt_hdc_bm, old_hdc_bm;
+HBITMAP hdc_bm, utox_hdc_bm, interrupt_hdc_bm;
 
 
 //static char save_path[280];
@@ -409,8 +410,7 @@ void popclip(void)
 }
 
 void enddraw(int x, int y, int width, int height){
-    SelectObject(hdc, hdc_bm);
-    BitBlt(main_hdc, x, y, width, height, hdc, x, y, SRCCOPY);
+    BitBlt(active_hdc, x, y, width, height, hdc, x, y, SRCCOPY);
 }
 
 void thread(void func(void*), void *args)
@@ -997,12 +997,38 @@ void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_
 void showkeyboard(_Bool show){}
 
 /* Redraws the main UI window */
-void redraw(void){
+void redraw_utox(void){
+    if(active_hdc != main_utox_hdc){
+        active_hdc = main_utox_hdc;
+        hdc_bm = utox_hdc_bm;
+        hdc = CreateCompatibleDC(main_utox_hdc);
+        hdcMem = CreateCompatibleDC(hdc);
+        SelectObject(hdc, utox_hdc_bm);
+        debug("Resetting    :: utox_main_hdc\n");
+        redraw_utox();
+    }
+    debug("Redrawing    :: utox_main\n");
     panel_draw(&panel_main, 0, 0, utox_window_width, utox_window_height);
 }
 
+/* Redraws the interrupt window*/
 void redraw_interrupt(void){
+    if(active_hdc != main_interrupt_hdc){
+        active_hdc = main_interrupt_hdc;
+        hdc_bm = interrupt_hdc_bm;
+        hdc = CreateCompatibleDC(main_interrupt_hdc);
+        hdcMem = CreateCompatibleDC(hdc);
+        SelectObject(hdc, interrupt_hdc_bm);
+        debug("Resetting    :: utox_interrupt_hdc\n");
+        redraw_interrupt();
+    }
+    debug("Redrawing :: utox_interrupt\n");
     panel_draw(&panel_interrupt, 0, 0, 150, 100);
+}
+
+/* deprecated redraw call */
+void redraw(void){
+    redraw_utox();
 }
 
 /**
@@ -1030,7 +1056,7 @@ void update_tray(void)
 }
 
 void force_redraw(void) {
-    redraw();
+    redraw_utox();
 }
 
 static int grabx, graby, grabpx, grabpy;
@@ -1244,13 +1270,18 @@ void incoming_call_inturrupt(){
     // SetWindowPos(interrupt_hwnd, HWND_TOP, 0,0,0,0, SWP_SHOWWINDOW | SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE | SWP_NOOWNERZORDER);
     // I think we also need SWP_ASYNCWINDOWPOS
 
-    interrupt_main_hdc = GetDC(interrupt_hwnd);
-    interrupt_hdc = CreateCompatibleDC(interrupt_main_hdc);
-    interrupt_hdcMem = CreateCompatibleDC(interrupt_hdc);
-    interrupt_hdc_bm = CreateCompatibleBitmap(interrupt_main_hdc, INTERRUPT_WIDTH, INTERRUPT_HEIGHT);
-    SelectObject(interrupt_hdc, interrupt_hdc_bm);
+    main_interrupt_hdc = GetDC(interrupt_hwnd);
+    interrupt_hdc_bm = CreateCompatibleBitmap(main_interrupt_hdc, INTERRUPT_WIDTH, INTERRUPT_HEIGHT);
+
+    SelectObject(hdc, interrupt_hdc_bm);
+    SetBkMode(hdc, TRANSPARENT);
 
     ShowWindow(interrupt_hwnd, SW_SHOW);
+
+    if(1){ //if(we_should_inturrupt)
+        SetForegroundWindow(interrupt_hwnd);
+    }
+
 
     int blerg = 0;
     while(blerg <= 90){
@@ -1503,8 +1534,8 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     }
 
     case WM_CREATE: {
-        main_hdc = GetDC(hwn);
-        hdc = CreateCompatibleDC(main_hdc);
+        main_utox_hdc = GetDC(hwn);
+        hdc = CreateCompatibleDC(main_utox_hdc);
         hdcMem = CreateCompatibleDC(hdc);
 
         return 0;
@@ -1537,17 +1568,15 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
             utox_window_width = w;
             utox_window_height = h;
 
-            debug("%u %u\n", w, h);
+            debug("Window Size :: %u %u\n", w, h);
 
             ui_scale(dropdown_dpi.selected + 1);
             ui_size(w, h);
 
-            if(hdc_bm) {
-                DeleteObject(hdc_bm);
+            if(utox_hdc_bm) {
+                DeleteObject(utox_hdc_bm);
             }
-
-            hdc_bm = CreateCompatibleBitmap(main_hdc, utox_window_width, utox_window_height);
-            SelectObject(hdc, hdc_bm);
+            utox_hdc_bm = CreateCompatibleBitmap(main_utox_hdc, utox_window_width, utox_window_height);
             redraw();
         }
         break;
@@ -1587,7 +1616,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
         BeginPaint(hwn, &ps);
 
         RECT r = ps.rcPaint;
-        BitBlt(main_hdc, r.left, r.top, r.right - r.left, r.bottom - r.top, hdc, r.left, r.top, SRCCOPY);
+        BitBlt(main_utox_hdc, r.left, r.top, r.right - r.left, r.bottom - r.top, hdc, r.left, r.top, SRCCOPY);
 
         EndPaint(hwn, &ps);
         return 0;
@@ -1705,7 +1734,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     }
 
     case WM_RBUTTONUP: {
-        break;  
+        break;
     }
 
     case WM_LBUTTONUP: {
