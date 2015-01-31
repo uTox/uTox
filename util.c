@@ -565,7 +565,6 @@ typedef struct
     uint16_t proxy_port;
     uint8_t proxyenable;
     uint8_t logging_enabled : 1;
-    uint8_t close_to_tray;
     uint8_t audible_notifications_enabled : 1;
     uint8_t filter : 1;
     uint8_t audio_filtering_enabled : 1;
@@ -623,7 +622,6 @@ UTOX_SAVE* config_load(void)
     save->proxy_port = 0;
     save->proxyenable = 0;
     save->logging_enabled = 1;
-    save->close_to_tray = 0;
     save->audible_notifications_enabled = 1;
     save->audio_filtering_enabled = 1;
     save->proxy_ip[0] = 0;
@@ -636,7 +634,6 @@ NEXT:
     dropdown_udp.selected = dropdown_udp.over = (save->disableudp != 0);
     dropdown_proxy.selected = dropdown_proxy.over = save->proxyenable <= 2 ? save->proxyenable : 2;
     dropdown_logging.selected = dropdown_logging.over = save->logging_enabled;
-    dropdown_close_to_tray.selected = dropdown_close_to_tray.over = save->close_to_tray;
     dropdown_audible_notification.selected = dropdown_audible_notification.over = !save->audible_notifications_enabled;
     dropdown_audio_filtering.selected = dropdown_audio_filtering.over = !save->audio_filtering_enabled;
     dropdown_filter.selected = FILTER = save->filter;
@@ -653,7 +650,6 @@ NEXT:
     }
 
     logging_enabled = save->logging_enabled;
-    close_to_tray = save->close_to_tray;
     audible_notifications_enabled = save->audible_notifications_enabled;
     audio_filtering_enabled = save->audio_filtering_enabled;
     loaded_audio_out_device = save->audio_device_out;
@@ -672,7 +668,6 @@ void config_save(UTOX_SAVE *save)
 
     file = fopen((char*)path, "wb");
     if(!file) {
-        debug("Unable to open uTox Save	::\n");
         return;
     }
 
@@ -682,7 +677,6 @@ void config_save(UTOX_SAVE *save)
     save->disableudp = dropdown_udp.selected;
     save->proxyenable = dropdown_proxy.selected;
     save->logging_enabled = logging_enabled;
-    save->close_to_tray = close_to_tray;
     save->audible_notifications_enabled = audible_notifications_enabled;
     save->audio_filtering_enabled = audio_filtering_enabled;
 
@@ -693,7 +687,6 @@ void config_save(UTOX_SAVE *save)
     save->audio_device_out = dropdown_audio_out.selected;
     memset(save->unused, 0, sizeof(save->unused));
 
-    debug("Writing uTox Save	::\n");
     fwrite(save, sizeof(*save), 1, file);
     fwrite(options.proxy_address, strlen(options.proxy_address), 1, file);
     fclose(file);
