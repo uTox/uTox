@@ -52,9 +52,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 _Bool draw = 0;
 
-//DIRTY_HACK kill_grayhatter()
-_Bool dirty_hack = 1;
-
 float scale = 1.0;
 _Bool connected = 0;
 _Bool havefocus;
@@ -972,7 +969,6 @@ int ch_mod(uint8_t *file){
  */
 void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_length, uint8_t *cid){
 
-    dirty_hack = 1;
     debug("Going to call popup\n");
     thread(incoming_call_inturrupt,NULL);
 
@@ -1228,7 +1224,18 @@ void incoming_call_inturrupt(){
     pop_up_setx = GetSystemMetrics(SM_CXSCREEN) / 2 - INTERRUPT_WIDTH;
     pop_up_sety = GetSystemMetrics(SM_CYSCREEN) / 2 - INTERRUPT_HEIGHT;
 
-    interrupt_hwnd = CreateWindowExW(0, L"uTox", L"utox_interrupt", WS_OVERLAPPEDWINDOW, 
+    WNDCLASSW interrupt_windclass = {
+        .lpszClassName = L"uTox Call",
+        .hIcon = my_icon,
+        .lpfnWndProc = GrabProc,
+        .style = CS_OWNDC | CS_DBLCLKS,
+        .hInstance = hinstance,
+        .hbrBackground = (HBRUSH)GetStockObject (BLACK_BRUSH),
+    };
+
+    RegisterClassW(&interrupt_windclass);
+
+    interrupt_hwnd = CreateWindowExW(0, L"uTox Call", L"utox_interrupt", WS_OVERLAPPEDWINDOW, 
         pop_up_setx, pop_up_sety, INTERRUPT_WIDTH, INTERRUPT_HEIGHT, NULL, NULL, hinstance, NULL);
     // LONG lStyle = GetWindowLongPtr(interrupt_hwnd, GWL_STYLE);
     // box only please, no frame
@@ -1243,21 +1250,11 @@ void incoming_call_inturrupt(){
     interrupt_hdc_bm = CreateCompatibleBitmap(interrupt_main_hdc, INTERRUPT_WIDTH, INTERRUPT_HEIGHT);
     SelectObject(interrupt_hdc, interrupt_hdc_bm);
 
-    SetBkMode(interrupt_hdc, TRANSPARENT);
     ShowWindow(interrupt_hwnd, SW_SHOW);
 
     int blerg = 0;
-    while(dirty_hack && blerg <= 90){
-        old_hdc    = hdc;
-        old_hdcMem = hdcMem;
-        old_hdc_bm = hdc_bm;
-        hdc    = interrupt_hdc;
-        hdcMem = interrupt_hdcMem;
-        hdc_bm = interrupt_hdc_bm;
+    while(blerg <= 90){
         redraw_interrupt();
-        hdc    = old_hdc;
-        hdcMem = old_hdcMem;
-        hdc_bm = old_hdc_bm;
         yieldcpu(100);
         blerg++;
     }
@@ -1713,7 +1710,6 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
 
     case WM_LBUTTONUP: {
         ReleaseCapture();
-        dirty_hack = 0;
         break;
     }
 
