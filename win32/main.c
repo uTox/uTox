@@ -1022,7 +1022,7 @@ void redraw_interrupt(void){
         SelectObject(hdc, interrupt_hdc_bm);
     }
     debug("Redrawing	:: utox_interrupt\n");
-    panel_draw(&panel_interrupt, 0, 0, 150, 100);
+    panel_draw(&panel_interrupt, 0, 0, INTERRUPT_WIDTH, INTERRUPT_HEIGHT);
 }
 
 /* deprecated redraw call */
@@ -1094,6 +1094,11 @@ void desktopgrab(_Bool video)
     //toxvideo_postmessage(VIDEO_SET, 0, 0, (void*)1);
 }
 
+/** GrabProc
+ *
+ *  Windows Process handler for selecting from desktop. Draws an overlay on the desktop, then sends mouse positions back
+ *  to utox.
+ */
 LRESULT CALLBACK GrabProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     POINT p = {
@@ -1239,7 +1244,6 @@ void config_osdefaults(UTOX_SAVE *r)
 
 
 /** create a popup window to accept or reject new call.
- *
  */
 void incoming_call_inturrupt(){
 
@@ -1252,7 +1256,7 @@ void incoming_call_inturrupt(){
     WNDCLASSW interrupt_windclass = {
         .lpszClassName = L"uTox Call",
         .hIcon = my_icon,
-        .lpfnWndProc = GrabProc,
+        .lpfnWndProc = WindowProc,
         .style = CS_OWNDC | CS_DBLCLKS,
         .hInstance = hinstance,
         .hbrBackground = (HBRUSH)GetStockObject (BLACK_BRUSH),
