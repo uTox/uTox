@@ -121,8 +121,8 @@ char search_data[128];
 uint8_t SCALE;
 
 /* side */
-#define LIST_X (3 * SCALE)
-#define LIST_RIGHT (116 * SCALE)
+#define LIST_X (8 * SCALE)
+#define LIST_RIGHT (111 * SCALE)
 #define LIST_Y (31 * SCALE)
 #define LIST_Y2 (43 * SCALE)
 #define LIST_BOTTOM (-18 * SCALE)

@@ -464,11 +464,9 @@ panel_item[] = {
         .disabled = 1,
         .drawfunc = drawgroup,
         .child = (PANEL*[]) {
-            (void*)&edit_msg,
-            (void*)&scroll_group,
-            (void*)&messages_group,
             (void*)&button_group_audio,
-            (void*)&button_chat1, (void*)&button_chat2, (void*)&button_chat_send,
+            (void*)&scroll_group, (void*)&messages_group,
+            (void*)&edit_msg_group, (void*)&button_chat_send,
             NULL
         }
     },
@@ -893,6 +891,15 @@ void ui_scale(uint8_t scale)
         .width  = -40 * SCALE - BM_CHAT_BUTTON_WIDTH,
     },
 
+    e_msg_group = {
+        .type   = PANEL_EDIT,
+        .x      = 5 * SCALE,
+        .y      = -40 * SCALE,
+        // a text line is 8 high. 32 / 8 = 4 lines of text.
+        .height = 32 * SCALE,
+        .width  = -10 * SCALE - BM_CHAT_SEND_WIDTH,
+    },
+
     e_search = {
         .type = PANEL_EDIT,
         .x = 0,
@@ -923,6 +930,7 @@ void ui_scale(uint8_t scale)
     edit_addid.panel = e_addid;
     edit_addmsg.panel = e_addmsg;
     edit_msg.panel = e_msg;
+    edit_msg_group.panel = e_msg_group;
     edit_search.panel = e_search;
     edit_proxy_ip.panel = e_proxy_ip;
     edit_proxy_port.panel = e_proxy_port;
