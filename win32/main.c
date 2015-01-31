@@ -415,6 +415,7 @@ void enddraw(int x, int y, int width, int height){
 
 void thread(void func(void*), void *args)
 {
+    debug("Spawning :: %s  \n", func);
     _beginthread(func, 0, args);
 }
 
@@ -1837,9 +1838,10 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
         tox_message(msg - WM_TOX, wParam >> 16, wParam, (void*)lParam);
         return 0;
     }
+    default:
+        return DefWindowProcW(hwn, msg, wParam, lParam);
     }
 
-    return DefWindowProcW(hwn, msg, wParam, lParam);
 }
 
 void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height, _Bool resize)

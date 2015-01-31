@@ -1062,8 +1062,7 @@ static void panel_update(PANEL *p, int x, int y, int width, int height)
 
 void ui_size(int width, int height)
 {
-    redraw_utox();
-    redraw_interrupt();
+    panel_update(&panel_main, 0, 0, width, height);
     tooltip_reset();
 }
 
