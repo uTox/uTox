@@ -999,31 +999,29 @@ void showkeyboard(_Bool show){}
 /* Redraws the main UI window */
 void redraw_utox(void){
     if(active_hdc != main_utox_hdc){
+        debug("Resetting	:: utox_main_hdc\n");
         active_hdc = main_utox_hdc;
         hdc_bm = utox_hdc_bm;
         hdc = CreateCompatibleDC(main_utox_hdc);
         hdcMem = CreateCompatibleDC(hdc);
         SelectObject(hdc, utox_hdc_bm);
         SetBkMode(hdc, TRANSPARENT);
-        debug("Resetting    :: utox_main_hdc\n");
-        redraw_utox();
     }
-    debug("Redrawing    :: utox_main\n");
+    debug("Redrawing	:: utox_main\n");
     panel_draw(&panel_main, 0, 0, utox_window_width, utox_window_height);
 }
 
 /* Redraws the interrupt window*/
 void redraw_interrupt(void){
     if(active_hdc != main_interrupt_hdc){
+        debug("Resetting	:: utox_interrupt_hdc\n");
         active_hdc = main_interrupt_hdc;
         hdc_bm = interrupt_hdc_bm;
         hdc = CreateCompatibleDC(main_interrupt_hdc);
         hdcMem = CreateCompatibleDC(hdc);
         SelectObject(hdc, interrupt_hdc_bm);
-        debug("Resetting    :: utox_interrupt_hdc\n");
-        redraw_interrupt();
     }
-    debug("Redrawing :: utox_interrupt\n");
+    debug("Redrawing	:: utox_interrupt\n");
     panel_draw(&panel_interrupt, 0, 0, 150, 100);
 }
 
@@ -1569,7 +1567,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
             utox_window_width = w;
             utox_window_height = h;
 
-            debug("Window Size :: %u %u\n", w, h);
+            debug("Window Size	:: %u %u\n", w, h);
 
             ui_scale(dropdown_dpi.selected + 1);
             ui_size(w, h);
@@ -1578,7 +1576,8 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
                 DeleteObject(utox_hdc_bm);
             }
             utox_hdc_bm = CreateCompatibleBitmap(main_utox_hdc, utox_window_width, utox_window_height);
-            redraw();
+            active_hdc = NULL;
+            redraw_utox();
         }
         break;
     }
