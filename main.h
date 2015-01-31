@@ -46,7 +46,8 @@ typedef struct
     uint8_t filter : 1;
     uint8_t audio_filtering_enabled : 1;
     uint8_t close_to_tray : 1;
-    uint8_t zero : 3;
+    uint8_t start_in_tray : 1;
+    uint8_t zero : 2;
     uint16_t audio_device_in;
     uint16_t audio_device_out;
     uint16_t unused[32];
