@@ -293,6 +293,9 @@ static void drawsettings_content(int UNUSED(x), int y, int UNUSED(w), int UNUSED
     setcolor(C_TITLE);
     setfont(FONT_TEXT);
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 334, AUDIONOTIFICATIONS);
+
+    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 357, CLOSE_TO_TRAY);
+
 }
 
 static void background_draw(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int width, int height)
@@ -406,7 +409,7 @@ panel_settings = {
         (void*)&dropdown_audio_in, (void*)&dropdown_audio_out, (void*)&dropdown_video,
         (void*)&dropdown_dpi, (void*)&dropdown_language, (void*)&dropdown_proxy,
         (void*)&dropdown_ipv6, (void*)&dropdown_udp, (void*)&dropdown_logging,
-        (void*)&dropdown_audible_notification, (void*)&dropdown_audio_filtering,
+        (void*)&dropdown_audible_notification, (void*)&dropdown_audio_filtering, (void*)&dropdown_close_to_tray,
         NULL
     }
 },
@@ -529,7 +532,7 @@ void ui_scale(uint8_t scale)
     messages_group.panel.width = -SCROLL_WIDTH;
 
     scroll_settings.panel.y = LIST_Y;
-    scroll_settings.content_height = 375 * SCALE;
+    scroll_settings.content_height = 390 * SCALE;
 
     scroll_group.panel.y = LIST_Y;
     scroll_group.panel.height = MESSAGES_BOTTOM;
@@ -802,6 +805,14 @@ void ui_scale(uint8_t scale)
         .y = SCALE * 343,
         .height = SCALE * 12,
         .width = SCALE * 20
+    },
+
+    d_close_to_tray = {
+        .type = PANEL_DROPDOWN,
+        .x = 5 * SCALE,
+        .y = SCALE * 366,
+        .height = SCALE * 12,
+        .width = SCALE * 20
     }
 
 #ifdef AUDIO_FILTERING
@@ -826,6 +837,7 @@ void ui_scale(uint8_t scale)
     dropdown_udp.panel = d_udp;
     dropdown_logging.panel = d_logging;
     dropdown_audible_notification.panel = d_notifications;
+    dropdown_close_to_tray.panel = d_close_to_tray;
 #ifdef AUDIO_FILTERING
     dropdown_audio_filtering.panel = d_audio_filtering;
 #endif

@@ -42,6 +42,7 @@ typedef struct
     uint16_t proxy_port;
     uint8_t proxyenable;
     uint8_t logging_enabled : 1;
+    uint8_t close_to_tray;
     uint8_t audible_notifications_enabled : 1;
     uint8_t filter : 1;
     uint8_t audio_filtering_enabled : 1;
@@ -112,11 +113,7 @@ _Bool tox_connected;
 
 _Bool audio_preview, video_preview;
 
-volatile _Bool logging_enabled;
-
-volatile _Bool audible_notifications_enabled;
-
-volatile _Bool audio_filtering_enabled;
+volatile _Bool logging_enabled, audible_notifications_enabled, audio_filtering_enabled, close_to_tray;
 
 volatile uint16_t loaded_audio_in_device, loaded_audio_out_device;
 

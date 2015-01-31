@@ -1368,7 +1368,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
         yieldcpu(1);
     }
 
-    printf("clean exit\n");
+    RECT wndrect = {0};
+    GetWindowRect(hwnd, &wndrect);
+    UTOX_SAVE d = {
+        .window_x = wndrect.left < 0 ? 0 : wndrect.left,
+        .window_y = wndrect.top < 0 ? 0 : wndrect.top,
+        .window_width = (wndrect.right - wndrect.left),
+        .window_height = (wndrect.bottom - wndrect.top),
+    };
+    config_save(&d);
+
+    printf("uTox Clean Exit	::\n");
 
     return 0;
 }
@@ -1409,20 +1419,17 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     }
 
     switch(msg) {
+    case WM_QUIT:
+    case WM_CLOSE:
     case WM_DESTROY: {
-        RECT wndrect = {0};
-        GetWindowRect(hwnd, &wndrect);
-
-        UTOX_SAVE d = {
-            .window_x = wndrect.left < 0 ? 0 : wndrect.left,
-            .window_y = wndrect.top < 0 ? 0 : wndrect.top,
-            .window_width = (wndrect.right - wndrect.left),
-            .window_height = (wndrect.bottom - wndrect.top),
-        };
-
-        config_save(&d);
-        PostQuitMessage(0);
-        return 0;
+        if(close_to_tray){
+            debug("Closing to tray.\n");
+            togglehide();
+            return 1;
+        } else {
+            PostQuitMessage(0);
+            return 0;
+        }
     }
 
     case WM_GETMINMAXINFO: {

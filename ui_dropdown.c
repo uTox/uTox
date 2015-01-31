@@ -103,6 +103,10 @@ static void dropdown_audio_filtering_onselect(uint16_t i, const DROPDOWN* UNUSED
     audio_filtering_enabled = !i;
 }
 
+static void dropdown_close_to_tray_onselect(uint16_t i, const DROPDOWN* UNUSED(dm)){
+    close_to_tray = i;
+    debug("Close To Tray.	:: %i\n", close_to_tray);
+}
 
 static UI_STRING_ID dpidrops[] = {
     STR_DPI_TINY,
@@ -188,6 +192,13 @@ dropdown_udp = {
 dropdown_logging = {
     .ondisplay = simple_dropdown_ondisplay,
     .onselect = dropdown_logging_onselect,
+    .dropcount = countof(noyesdrops),
+    .userdata = noyesdrops
+},
+
+dropdown_close_to_tray = {
+    .ondisplay = simple_dropdown_ondisplay,
+    .onselect = dropdown_close_to_tray_onselect,
     .dropcount = countof(noyesdrops),
     .userdata = noyesdrops
 },

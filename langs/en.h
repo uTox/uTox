@@ -157,6 +157,9 @@ msgstr("Enable Audible Notification (Ringtone)")
 msgid(IS_TYPING)
 msgstr("is typing...")
 
+msgid(CLOSE_TO_TRAY)
+msgstr("Close To Tray")
+
 msgid(COPY)
 msgstr("Copy")
 
