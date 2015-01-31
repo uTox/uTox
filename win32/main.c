@@ -1243,6 +1243,133 @@ void config_osdefaults(UTOX_SAVE *r)
 }
 
 
+LRESULT CALLBACK PopupProc(HWND window_handle, UINT msg, WPARAM wParam, LPARAM lParam){
+    static int mouse_x, mouse_y;
+
+    switch(msg) {
+        case WM_CREATE: {
+            debug("WM_CREATE was called by POPUPPROC\n");
+            return 0;
+            }
+        case WM_DESTROY: {
+            debug("WM_DESTROY was called by POPUPPROC\n");
+            return 0;
+            }
+        case WM_SETFOCUS: {
+            debug("WM_SETFOCUS was called by POPUPPROC\n");
+            return 0;
+            }
+        case WM_KILLFOCUS: {
+            debug("WM_KILLFOCUS was called by POPUPPROC\n");
+            return 0;
+            }
+        case WM_PAINT: {
+            debug("WM_PAINT was called by POPUPPROC\n");
+
+            PAINTSTRUCT ps;
+            BeginPaint(window_handle, &ps);
+            RECT r = ps.rcPaint;
+            BitBlt(main_interrupt_hdc, r.left, r.top, r.right - r.left, r.bottom - r.top, hdc, r.left, r.top, SRCCOPY);
+            EndPaint(window_handle, &ps);
+            return 0;
+            }
+        case WM_KEYDOWN: {
+            //TODO: Enter, SPACE and ESC, BKSP, DEL
+
+             debug("WM_KEYDOWN was called by POPUPPROC\n");
+            _Bool control = ((GetKeyState(VK_CONTROL) & 0x80) != 0);
+            _Bool shift = ((GetKeyState(VK_SHIFT) & 0x80) != 0);
+            if(edit_active()) {
+                if(control) {
+                    switch(wParam) {
+                       case 'V':
+                            paste();
+                            return 0;
+                        case 'X':
+                            copy(0);
+                            edit_char(KEY_DEL, 1, 0);
+                            return 0;
+                            }
+                    }
+                }
+            return 0;
+            }
+        case WM_CHAR: {
+            if(edit_active()) {
+                if(wParam == KEY_RETURN && (GetKeyState(VK_SHIFT) & 0x80)) {
+                    wParam = '\n';
+                }
+                if (wParam != KEY_TAB) {
+                    edit_char(wParam, 0, 0);
+                }
+                return 0;
+            }
+            return 0;
+            }
+        case WM_MOUSEMOVE: {
+            debug("WM_MOUSEMOVE was called by POPUPPROC\n");
+            int x, y, dx, dy;
+
+            x = GET_X_LPARAM(lParam);
+            y = GET_Y_LPARAM(lParam);
+
+            dx = x - mouse_x;
+            dy = y - mouse_y;
+            mouse_x = x;
+            mouse_y = y;
+
+            cursor = 0;
+            panel_mmove(&panel_main, 0, 0, utox_window_width, utox_window_height, x, y, dx, dy);
+
+            SetCursor(cursors[cursor]);
+            return 0;
+            }
+        case WM_LBUTTONDOWN:
+        case WM_LBUTTONDBLCLK: {
+            int x, y;
+
+            x = GET_X_LPARAM(lParam);
+            y = GET_Y_LPARAM(lParam);
+
+            if(x != mouse_x || y != mouse_y) {
+                panel_mmove(&panel_main, 0, 0, utox_window_width, utox_window_height, x, y, x - mouse_x, y - mouse_y);
+                mouse_x = x;
+                mouse_y = y;
+            }
+
+            //double redraw>
+            panel_mdown(&panel_main);
+            if(msg == WM_LBUTTONDBLCLK) {
+                panel_dclick(&panel_main, 0);
+            }
+
+            SetCapture(window_handle);
+            mdown = 1;
+            break;
+            }
+        case WM_LBUTTONUP: {
+            ReleaseCapture();
+            break;
+            }
+        case WM_CAPTURECHANGED: {
+            if (mdown) {
+                panel_mup(&panel_main);
+                mdown = 0;
+            }
+            break;
+            }
+        case WM_MOUSELEAVE: {
+            debug("WM_MOUSELEAVE was called by POPUPPROC\n");
+            ui_mouseleave();
+            mouse_tracked = 0;
+            break;
+            }
+        default:{
+            return DefWindowProcW(window_handle, msg, wParam, lParam);
+        }
+    }
+}
+
 /** create a popup window to accept or reject new call.
  */
 void incoming_call_inturrupt(){
@@ -1256,7 +1383,7 @@ void incoming_call_inturrupt(){
     WNDCLASSW interrupt_windclass = {
         .lpszClassName = L"uTox Call",
         .hIcon = my_icon,
-        .lpfnWndProc = WindowProc,
+        .lpfnWndProc = PopupProc,
         .style = CS_OWNDC | CS_DBLCLKS,
         .hInstance = hinstance,
         .hbrBackground = (HBRUSH)GetStockObject (BLACK_BRUSH),
@@ -1287,9 +1414,10 @@ void incoming_call_inturrupt(){
 
 
     int blerg = 0;
-    while(blerg <= 90){
-        redraw_interrupt();
-        yieldcpu(100);
+    while(GetMessage(&msg, NULL, 0, 0) && (blerg <= 9000) ) {
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+        yieldcpu(1);
         blerg++;
     }
 
