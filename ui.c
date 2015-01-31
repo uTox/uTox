@@ -409,7 +409,8 @@ panel_settings = {
         (void*)&dropdown_audio_in, (void*)&dropdown_audio_out, (void*)&dropdown_video,
         (void*)&dropdown_dpi, (void*)&dropdown_language, (void*)&dropdown_proxy,
         (void*)&dropdown_ipv6, (void*)&dropdown_udp, (void*)&dropdown_logging,
-        (void*)&dropdown_audible_notification, (void*)&dropdown_audio_filtering, (void*)&dropdown_close_to_tray,
+        (void*)&dropdown_audible_notification, (void*)&dropdown_audio_filtering, 
+        (void*)&dropdown_close_to_tray, (void*)&dropdown_start_in_tray,
         NULL
     }
 },
@@ -813,6 +814,14 @@ void ui_scale(uint8_t scale)
         .y = SCALE * 366,
         .height = SCALE * 12,
         .width = SCALE * 20
+    },
+
+    d_start_in_tray = {
+        .type = PANEL_DROPDOWN,
+        .x = 75 * SCALE,
+        .y = SCALE * 366,
+        .height = SCALE * 12,
+        .width = SCALE * 20
     }
 
 #ifdef AUDIO_FILTERING
@@ -838,6 +847,7 @@ void ui_scale(uint8_t scale)
     dropdown_logging.panel = d_logging;
     dropdown_audible_notification.panel = d_notifications;
     dropdown_close_to_tray.panel = d_close_to_tray;
+    dropdown_start_in_tray.panel = d_start_in_tray;
 #ifdef AUDIO_FILTERING
     dropdown_audio_filtering.panel = d_audio_filtering;
 #endif

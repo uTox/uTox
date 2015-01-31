@@ -160,6 +160,9 @@ msgstr("is typing...")
 msgid(CLOSE_TO_TRAY)
 msgstr("Close To Tray")
 
+msgid(START_IN_TRAY)
+msgstr("Start In Tray")
+
 msgid(COPY)
 msgstr("Copy")
 

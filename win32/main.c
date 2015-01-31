@@ -1316,7 +1316,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
 
     hdc_brush = GetStockObject(DC_BRUSH);
 
-    ShowWindow(hwnd, nCmdShow);
 
     tme.hwndTrack = hwnd;
 
@@ -1346,6 +1345,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     draw = 1;
     redraw();
     update_tray();
+
+    if(start_in_tray){
+        ShowWindow(hwnd, SW_HIDE);
+        hidden = 1;
+    } else {
+        ShowWindow(hwnd, nCmdShow);
+    }
 
     while(GetMessage(&msg, NULL, 0, 0)) {
         TranslateMessage(&msg);

@@ -113,7 +113,7 @@ _Bool tox_connected;
 
 _Bool audio_preview, video_preview;
 
-volatile _Bool logging_enabled, audible_notifications_enabled, audio_filtering_enabled, close_to_tray;
+volatile _Bool logging_enabled, audible_notifications_enabled, audio_filtering_enabled, close_to_tray, start_in_tray;
 
 volatile uint16_t loaded_audio_in_device, loaded_audio_out_device;
 
