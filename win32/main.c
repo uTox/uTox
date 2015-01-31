@@ -415,7 +415,6 @@ void enddraw(int x, int y, int width, int height){
 
 void thread(void func(void*), void *args)
 {
-    debug("Spawning :: %s  \n", func);
     _beginthread(func, 0, args);
 }
 
@@ -1005,6 +1004,7 @@ void redraw_utox(void){
         hdc = CreateCompatibleDC(main_utox_hdc);
         hdcMem = CreateCompatibleDC(hdc);
         SelectObject(hdc, utox_hdc_bm);
+        SetBkMode(hdc, TRANSPARENT);
         debug("Resetting    :: utox_main_hdc\n");
         redraw_utox();
     }
