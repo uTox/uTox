@@ -348,7 +348,7 @@ void popclip(void)
     XRenderSetPictureClipRectangles(display, renderpic, 0, 0, r, 1);
 }
 
-void enddraw(int x, int y, int width, int height, int target)
+void enddraw(int x, int y, int width, int height)
 {
     XCopyArea(display, drawbuf, window, gc, x, y, width, height, x, y);
 }

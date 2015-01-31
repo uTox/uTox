@@ -411,14 +411,9 @@ void popclip(void)
     DeleteObject(rgn);
 }
 
-void enddraw(int x, int y, int width, int height, int target){
-    if(target){
-        SelectObject(interrupt_hdc, interrupt_hdc_bm);
-        BitBlt(interrupt_main_hdc, x, y, width, height, interrupt_hdc, x, y, SRCCOPY);
-    } else {
-        SelectObject(hdc, hdc_bm);
-        BitBlt(main_hdc, x, y, width, height, hdc, x, y, SRCCOPY);
-    }
+void enddraw(int x, int y, int width, int height){
+    SelectObject(hdc, hdc_bm);
+    BitBlt(main_hdc, x, y, width, height, hdc, x, y, SRCCOPY);
 }
 
 void thread(void func(void*), void *args)

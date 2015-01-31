@@ -322,7 +322,7 @@ void setfont(int id);
 uint32_t setcolor(uint32_t color);
 void pushclip(int x, int y, int width, int height);
 void popclip(void);
-void enddraw(int x, int y, int width, int height, int target);
+void enddraw(int x, int y, int width, int height);
 
 /* other */
 void thread(void func(void*), void *args);

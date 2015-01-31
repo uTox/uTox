@@ -1137,11 +1137,7 @@ void panel_draw(PANEL *p, int x, int y, int width, int height)
     contextmenu_draw();
     tooltip_draw();
 
-    if(p->popup){
-        enddraw(x, y, width, height, 1); //hard coded TODO change to some val
-    } else {
-        enddraw(x, y, width, height, 0);
-    }
+    enddraw(x, y, width, height);
 }
 
 _Bool panel_mmove(PANEL *p, int x, int y, int width, int height, int mx, int my, int dx, int dy)
