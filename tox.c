@@ -326,26 +326,32 @@ static _Bool load_save(Tox *tox)
         uint8_t path[512], *p;
         uint32_t size;
 
-        /* Try the default save location */
+        /* Try the STS compliant save location */
         p = path + datapath(path);
-        strcpy((char*)p, "tox_save");
+        strcpy((char*)p, "tox_save.tox");
         void *data = file_raw((char*)path, &size);
         if(!data) {
-            /* That didn't work, do we have a backup? */
+            /* Try filename missing the .tox extension */
             p = path + datapath(path);
-            strcpy((char*)p, "tox_save.tmp");
-            data = file_raw((char*)path, &size);
-            if(!data){
-                /* No backup huh? Is it in an old location we support? */
-                p = path + datapath_old(path);
-                strcpy((char*)p, "tox_save");
+            strcpy((char*)p, "tox_save");
+            void *data = file_raw((char*)path, &size);
+            if(!data) {
+                /* That didn't work, do we have a backup? */
+                p = path + datapath(path);
+                strcpy((char*)p, "tox_save.tmp");
                 data = file_raw((char*)path, &size);
-                if (!data) {
-                    /* Well, lets try the current directiory... */
-                    data = file_raw("tox_save", &size);
-                    if(!data) {
-                        /* F***it I give up! */
-                        return 0;
+                if(!data){
+                    /* No backup huh? Is it in an old location we support? */
+                    p = path + datapath_old(path);
+                    strcpy((char*)p, "tox_save");
+                    data = file_raw((char*)path, &size);
+                    if (!data) {
+                        /* Well, lets try the current directory... */
+                        data = file_raw("tox_save", &size);
+                        if(!data) {
+                            /* F***it I give up! */
+                            return 0;
+                        }
                     }
                 }
             }
@@ -422,9 +428,9 @@ static void write_save(Tox *tox)
     tox_save(tox, data);
 
     p = path_real + datapath(path_real);
-    memcpy(p, "tox_save", sizeof("tox_save"));
+    memcpy(p, "tox_save.tox", sizeof("tox_save.tox"));
 
-    unsigned int path_len = (p - path_real) + sizeof("tox_save");
+    unsigned int path_len = (p - path_real) + sizeof("tox_save.tox");
     memcpy(path_tmp, path_real, path_len);
     memcpy(path_tmp + (path_len - 1), ".tmp", sizeof(".tmp"));
 
