@@ -5,7 +5,7 @@
 int get_avatar_location(char_t *dest, const char_t *id)
 {
     char_t *p = dest + datapath_subdir(dest, AVATAR_DIRECTORY);
-    memcpy((char *)p, id, TOX_CLIENT_ID_SIZE * 2); p += TOX_CLIENT_ID_SIZE * 2;
+    memcpy((char *)p, id, TOX_PUBLIC_KEY_SIZE * 2); p += TOX_PUBLIC_KEY_SIZE * 2;
     strcpy((char *)p, ".png"); p += sizeof(".png") - 1;
 
     return p - dest;
@@ -16,7 +16,7 @@ int get_avatar_location(char_t *dest, const char_t *id)
 int get_avatar_hash_location(char_t *dest, const char_t *id)
 {
     char_t *p = dest + datapath_subdir(dest, AVATAR_DIRECTORY);
-    memcpy((char *)p, id, TOX_CLIENT_ID_SIZE * 2); p += TOX_CLIENT_ID_SIZE * 2;
+    memcpy((char *)p, id, TOX_PUBLIC_KEY_SIZE * 2); p += TOX_PUBLIC_KEY_SIZE * 2;
     strcpy((char *)p, ".hash"); p += sizeof(".hash") - 1;
 
     return p - dest;
