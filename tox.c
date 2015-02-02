@@ -334,7 +334,7 @@ static _Bool load_save(Tox *tox)
             /* Try filename missing the .tox extension */
             p = path + datapath(path);
             strcpy((char*)p, "tox_save");
-            void *data = file_raw((char*)path, &size);
+            data = file_raw((char*)path, &size);
             if(!data) {
                 /* That didn't work, do we have a backup? */
                 p = path + datapath(path);
