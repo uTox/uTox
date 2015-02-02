@@ -314,12 +314,12 @@ _Bool messages_mmove(MESSAGES *m, int UNUSED(px), int UNUSED(py), int width, int
 
                 char_t *end = msg->msg + msg->length;
                 while(str != end && *str != ' ' && *str != '\n') {
-                    if(m->urlover == STRING_IDX_MAX && end - str >= 7 && strcmp2(str, "http://") == 0) {
+                    if(( str == msg->msg || *(str - 1) == '\n' || *(str - 1) == ' ') && (m->urlover == STRING_IDX_MAX && end - str >= 7 && strcmp2(str, "http://") == 0)) {
                         cursor = CURSOR_HAND;
                         m->urlover = str - msg->msg;
                     }
 
-                    if(m->urlover == STRING_IDX_MAX && end - str >= 8 && strcmp2(str, "https://") == 0) {
+                    if(( str == msg->msg || *(str - 1) == '\n' || *(str - 1) == ' ') && (m->urlover == STRING_IDX_MAX && end - str >= 8 && strcmp2(str, "https://") == 0)) {
                         cursor = CURSOR_HAND;
                         m->urlover = str - msg->msg;
                     }
