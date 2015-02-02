@@ -14,15 +14,15 @@ static volatile _Bool save_needed = 1;
 /* Writes log filename for fid to dest. returns length written */
 static int log_file_name(uint8_t *dest, size_t size_dest, Tox *tox, int fid)
 {
-    if (size_dest < TOX_CLIENT_ID_SIZE * 2 + sizeof(".txt"))
+    if (size_dest < TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".txt"))
         return -1;
 
-    uint8_t client_id[TOX_CLIENT_ID_SIZE];
+    uint8_t client_id[TOX_PUBLIC_KEY_SIZE];
     tox_get_client_id(tox, fid, client_id);
-    cid_to_string(dest, client_id); dest += TOX_CLIENT_ID_SIZE * 2;
+    cid_to_string(dest, client_id); dest += TOX_PUBLIC_KEY_SIZE * 2;
     memcpy((char*)dest, ".txt", sizeof(".txt"));
 
-    return TOX_CLIENT_ID_SIZE * 2 + sizeof(".txt");
+    return TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".txt");
 }
 
 enum {
@@ -382,7 +382,7 @@ static _Bool load_save(Tox *tox)
         tox_get_status_message(tox, i, f->status_message, size);
         f->status_length = size;
 
-        char_t cid[TOX_CLIENT_ID_SIZE * 2];
+        char_t cid[TOX_PUBLIC_KEY_SIZE * 2];
         cid_to_string(cid, f->cid);
         init_avatar(&f->avatar, cid, NULL, NULL);
 
@@ -1366,7 +1366,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
 
         // commented out incase you have multiple clients in the same data dir and remove one as friend from the other
         //   (it would remove his avatar locally too otherwise)
-        //char_t cid[TOX_CLIENT_ID_SIZE * 2];
+        //char_t cid[TOX_PUBLIC_KEY_SIZE * 2];
         //cid_to_string(cid, f->cid);
         //delete_saved_avatar(cid);
         //delete_avatar_hash(cid);
@@ -1401,7 +1401,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         if (set_avatar(&f->avatar, data, param2, 0)) {
 
             // save avatar and hash to disk
-            char_t cid[TOX_CLIENT_ID_SIZE * 2];
+            char_t cid[TOX_PUBLIC_KEY_SIZE * 2];
             cid_to_string(cid, f->cid);
             save_avatar(cid, data, param2);
             save_avatar_hash(cid, f->avatar.hash);
@@ -1417,7 +1417,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         unset_avatar(&f->avatar);
 
         // remove avatar and hash from disk
-        char_t cid[TOX_CLIENT_ID_SIZE * 2];
+        char_t cid[TOX_PUBLIC_KEY_SIZE * 2];
         cid_to_string(cid, f->cid);
         delete_saved_avatar(cid);
         delete_avatar_hash(cid);

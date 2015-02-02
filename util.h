@@ -17,7 +17,7 @@ _Bool strstr_case(const char *a, const char *b);
  */
 void id_to_string(char_t *dest, char_t *src);
 
-/* same as id_to_string(), but for TOX_CLIENT_ID_SIZE
+/* same as id_to_string(), but for TOX_PUBLIC_KEY_SIZE
  */
 void cid_to_string(char_t *dest, char_t *src);
 

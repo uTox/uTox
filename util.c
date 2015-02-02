@@ -127,7 +127,7 @@ void id_to_string(char_t *dest, char_t *src)
 
 void cid_to_string(char_t *dest, char_t *src)
 {
-    to_hex(dest, src, TOX_CLIENT_ID_SIZE);
+    to_hex(dest, src, TOX_PUBLIC_KEY_SIZE);
 }
 
 void hash_to_string(char_t *dest, char_t *src)

@@ -22,7 +22,7 @@ int get_avatar_location(char_t *dest, const char_t *id);
 
 /* loads an avatar from disk and puts the resulting png data in buffer given by dest.
  * id is the client id string for given client. To get the cid string from a cid, use cid_to_string
- *   id should be at least (TOX_CLIENT_ID_SIZE * 2) bytes long
+ *   id should be at least (TOX_PUBLIC_KEY_SIZE * 2) bytes long
  * if size_out is not NULL, load_avatar will store the length of the png data there
  *  on success: returns 1
  *  on failure: returns 0
