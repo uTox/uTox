@@ -295,6 +295,7 @@ static void drawsettings_content(int UNUSED(x), int y, int UNUSED(w), int UNUSED
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 334, AUDIONOTIFICATIONS);
 
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 357, CLOSE_TO_TRAY);
+    drawstr(LIST_RIGHT + SCALE * 75, y + SCALE * 357, START_IN_TRAY);
 
 }
 
