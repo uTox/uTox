@@ -433,20 +433,20 @@ static void button_chat_send_updatecolor(BUTTON *b){
 }
 
 static void button_interrupt_call_onpress(void){
-    FRIEND *f = sitem->data;
+    debug("Accept Call Interrupt\n");
 
+    FRIEND *f = sitem->data;
     if (f->calling == CALL_INVITED) {
         tox_postmessage(TOX_ACCEPTCALL, f->callid, 1, NULL);
-        debug("Accept Call Interrupt: %u\n", f->callid);
     }
 }
 
 static void button_interrupt_video_onpress(void){
-    FRIEND *f = sitem->data;
+    debug("Accept Video Interrupt\n");
 
+    FRIEND *f = sitem->data;
     if (f->calling == CALL_INVITED_VIDEO) {
         tox_postmessage(TOX_ACCEPTCALL, f->callid, 1, NULL);
-        debug("Accept Call Interrupt: %u\n", f->callid);
     }
 }
 

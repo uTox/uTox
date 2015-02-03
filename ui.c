@@ -1031,6 +1031,8 @@ void popup_scale(uint8_t scale){
     };
     button_interrupt_call.panel = b_interrupt_call;
     button_interrupt_video.panel = b_interrupt_video;
+
+    setscale();
 }
 
 #define FUNC(x, ret, ...) static ret (* x##func[])(void *p, ##__VA_ARGS__) = { \
@@ -1207,8 +1209,10 @@ _Bool panel_mmove(PANEL *p, int x, int y, int width, int height, int mx, int my,
 
     if(p == &panel_main) {
         draw |= contextmenu_mmove(mx, my, dx, dy);
-        if(draw) {
-            redraw();
+        if(draw && p == &panel_main) {
+            redraw_utox();
+        } else if(p == &panel_interrupt){
+            redraw_interrupt();
         }
     }
 
@@ -1238,7 +1242,7 @@ static _Bool panel_mdown_sub(PANEL *p)
 void panel_mdown(PANEL *p)
 {
     if(contextmenu_mdown() || tooltip_mdown()) {
-        redraw();
+        redraw_utox();
         return;
     }
 
@@ -1255,8 +1259,10 @@ void panel_mdown(PANEL *p)
         }
     }
 
-    if(draw) {
-        redraw();
+    if(draw && p == &panel_main) {
+        redraw_utox();
+    } else if(p == &panel_interrupt){
+        redraw_interrupt();
     }
 }
 
@@ -1282,7 +1288,9 @@ _Bool panel_dclick(PANEL *p, _Bool triclick)
     }
 
     if(draw && p == &panel_main) {
-        redraw();
+        redraw_utox();
+    } else if(p == &panel_interrupt){
+        redraw_interrupt();
     }
 
     return draw;
@@ -1301,7 +1309,9 @@ _Bool panel_mright(PANEL *p)
     }
 
     if(draw && p == &panel_main) {
-        redraw();
+        redraw_utox();
+    } else if(p == &panel_interrupt){
+        redraw_interrupt();
     }
 
     return draw;
@@ -1322,7 +1332,9 @@ _Bool panel_mwheel(PANEL *p, int x, int y, int width, int height, double d)
     }
 
     if(draw && p == &panel_main) {
-        redraw();
+        redraw_utox();
+    } else if(p == &panel_interrupt){
+        redraw_interrupt();
     }
 
     return draw;
@@ -1343,8 +1355,10 @@ _Bool panel_mup(PANEL *p)
     if(p == &panel_main) {
         draw |= contextmenu_mup();
         tooltip_mup();
-        if(draw) {
-            redraw();
+        if(draw && p == &panel_main) {
+            redraw_utox();
+        } else if(p == &panel_interrupt){
+            redraw_interrupt();
         }
     }
 
@@ -1365,8 +1379,10 @@ _Bool panel_mleave(PANEL *p)
 
     if(p == &panel_main) {
         draw |= contextmenu_mleave();
-        if(draw) {
-            redraw();
+        if(draw && p == &panel_main) {
+            redraw_utox();
+        } else if(p == &panel_interrupt){
+            redraw_interrupt();
         }
     }
 

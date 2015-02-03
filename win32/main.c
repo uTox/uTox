@@ -1020,6 +1020,7 @@ void redraw_interrupt(void){
         hdc = CreateCompatibleDC(main_interrupt_hdc);
         hdcMem = CreateCompatibleDC(hdc);
         SelectObject(hdc, interrupt_hdc_bm);
+        SetBkMode(hdc, TRANSPARENT);
     }
     debug("Redrawing	:: utox_interrupt\n");
     panel_draw(&panel_interrupt, 0, 0, INTERRUPT_WIDTH, INTERRUPT_HEIGHT);
@@ -1027,7 +1028,11 @@ void redraw_interrupt(void){
 
 /* deprecated redraw call */
 void redraw(void){
-    redraw_utox();
+    if(active_hdc == main_interrupt_hdc){
+        redraw_interrupt();
+    } else {
+        redraw_utox();
+    }
 }
 
 /**
@@ -1274,8 +1279,8 @@ LRESULT CALLBACK PopupProc(HWND window_handle, UINT msg, WPARAM wParam, LPARAM l
                 }
                 interrupt_hdc_bm = CreateCompatibleBitmap(main_interrupt_hdc, w, h);
                 active_hdc = NULL;
-                redraw_interrupt();
             }
+            redraw_interrupt();
             return 0;
         }
         case WM_DESTROY: {
@@ -1347,7 +1352,7 @@ LRESULT CALLBACK PopupProc(HWND window_handle, UINT msg, WPARAM wParam, LPARAM l
             mouse_y = y;
 
             cursor = 0;
-            panel_mmove(&panel_main, 0, 0, utox_window_width, utox_window_height, x, y, dx, dy);
+            panel_mmove(&panel_interrupt, 0, 0, utox_window_width, utox_window_height, x, y, dx, dy);
 
             SetCursor(cursors[cursor]);
             return 0;
@@ -1360,15 +1365,15 @@ LRESULT CALLBACK PopupProc(HWND window_handle, UINT msg, WPARAM wParam, LPARAM l
             y = GET_Y_LPARAM(lParam);
 
             if(x != mouse_x || y != mouse_y) {
-                panel_mmove(&panel_main, 0, 0, utox_window_width, utox_window_height, x, y, x - mouse_x, y - mouse_y);
+                panel_mmove(&panel_interrupt, 0, 0, utox_window_width, utox_window_height, x, y, x - mouse_x, y - mouse_y);
                 mouse_x = x;
                 mouse_y = y;
             }
 
             //double redraw>
-            panel_mdown(&panel_main);
+            panel_mdown(&panel_interrupt);
             if(msg == WM_LBUTTONDBLCLK) {
-                panel_dclick(&panel_main, 0);
+                panel_dclick(&panel_interrupt, 0);
             }
 
             SetCapture(window_handle);
@@ -1381,15 +1386,16 @@ LRESULT CALLBACK PopupProc(HWND window_handle, UINT msg, WPARAM wParam, LPARAM l
             }
         case WM_CAPTURECHANGED: {
             if (mdown) {
-                panel_mup(&panel_main);
+                panel_mup(&panel_interrupt);
                 mdown = 0;
             }
             break;
             }
         case WM_MOUSELEAVE: {
             debug("WM_MOUSELEAVE was called by POPUPPROC\n");
-            ui_mouseleave();
-            mouse_tracked = 0;
+            // TODO finish this
+            // ui_mouseleave();
+            // mouse_tracked = 0;
             break;
             }
         default:{
@@ -1446,7 +1452,6 @@ void incoming_call_inturrupt(){
         TranslateMessage(&msg);
         DispatchMessage(&msg);
         yieldcpu(1);
-        redraw_interrupt();
         blerg++;
     }
 
