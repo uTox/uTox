@@ -80,6 +80,9 @@ extern UI_LANG_ID LANG;
 void ui_scale(uint8_t scale);
 void ui_size(int width, int height);
 
+void popup_scale(uint8_t scale);
+void popup_size(int width, int height);
+
 void ui_mouseleave(void);
 
 void panel_draw(PANEL *p, int x, int y, int width, int height);

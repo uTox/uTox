@@ -962,7 +962,7 @@ int ch_mod(uint8_t *file){
     return 1;
 }
 
-/** Creates a tray baloon popup with the message, and flashes the main window 
+/** Creates a tray baloon popup with the message, and flashes the main window
  *
  * accepts: char_t *title, title legnth, char_t *msg, msg length;
  * returns void;
@@ -1007,7 +1007,7 @@ void redraw_utox(void){
         SelectObject(hdc, utox_hdc_bm);
         SetBkMode(hdc, TRANSPARENT);
     }
-    debug("Redrawing	:: utox_main\n");
+    // debug("Redrawing	:: utox_main\n");
     panel_draw(&panel_main, 0, 0, utox_window_width, utox_window_height);
 }
 
@@ -1251,6 +1251,33 @@ LRESULT CALLBACK PopupProc(HWND window_handle, UINT msg, WPARAM wParam, LPARAM l
             debug("WM_CREATE was called by POPUPPROC\n");
             return 0;
             }
+        case WM_SIZE: {
+            debug("WM_SIZE was called by POPUPPROC\n");
+
+            int w, h;
+            w = GET_X_LPARAM(lParam);
+            h = GET_Y_LPARAM(lParam);
+
+            if(w != 0) {
+                RECT r;
+                GetClientRect(window_handle, &r);
+                w = r.right;
+                h = r.bottom;
+
+                debug("Popup Size   :: %u %u\n", w, h);
+
+                popup_scale(dropdown_dpi.selected + 1);
+                popup_size(w, h);
+
+                if(interrupt_hdc_bm) {
+                    DeleteObject(interrupt_hdc_bm);
+                }
+                interrupt_hdc_bm = CreateCompatibleBitmap(main_interrupt_hdc, w, h);
+                active_hdc = NULL;
+                redraw_interrupt();
+            }
+            return 0;
+        }
         case WM_DESTROY: {
             debug("WM_DESTROY was called by POPUPPROC\n");
             return 0;
@@ -1261,6 +1288,7 @@ LRESULT CALLBACK PopupProc(HWND window_handle, UINT msg, WPARAM wParam, LPARAM l
             }
         case WM_KILLFOCUS: {
             debug("WM_KILLFOCUS was called by POPUPPROC\n");
+            PostQuitMessage(0);
             return 0;
             }
         case WM_PAINT: {
@@ -1391,7 +1419,7 @@ void incoming_call_inturrupt(){
 
     RegisterClassW(&interrupt_windclass);
 
-    interrupt_hwnd = CreateWindowExW(0, L"uTox Call", L"utox_interrupt", WS_OVERLAPPEDWINDOW, 
+    interrupt_hwnd = CreateWindowExW(0, L"uTox Call", L"utox_interrupt", WS_OVERLAPPEDWINDOW,
                     pop_up_setx, pop_up_sety, INTERRUPT_WIDTH, INTERRUPT_HEIGHT, NULL, NULL, hinstance, NULL);
     LONG lStyle = GetWindowLongPtr(interrupt_hwnd, GWL_STYLE);
     // box only please, no frame

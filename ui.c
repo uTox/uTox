@@ -18,7 +18,7 @@ void maybe_i18nal_string_set_plain(MAYBE_I18NAL_STRING *mis, char_t *str, STRING
 void maybe_i18nal_string_set_i18nal(MAYBE_I18NAL_STRING *mis, UI_STRING_ID string_id) {
     mis->plain.str = NULL;
     mis->plain.length = 0;
-    mis->i18nal = string_id; 
+    mis->i18nal = string_id;
 }
 
 STRING* maybe_i18nal_string_get(MAYBE_I18NAL_STRING *mis) {
@@ -524,15 +524,8 @@ panel_main = {
         (void*)&edit_search, (void*)&dropdown_filter,
         NULL
     }
-},
-
-/* Drawing the popup window */
-panel_interrupt = {
-    .type = PANEL_NONE,
-    .drawfunc = draw_popup,
-    .child = (PANEL*[]) { NULL },
-    .popup = 1,
 };
+
 
 void ui_scale(uint8_t scale)
 {
@@ -1005,7 +998,41 @@ void ui_scale(uint8_t scale)
     setscale();
 }
 
-/* Use the preprocessor to build functions for all user inactions */
+/* Drawing the popup window */
+PANEL panel_interrupt = {
+    .type = PANEL_MAIN,
+    .drawfunc = draw_popup,
+    .child = (PANEL*[]) { NULL },
+    .popup = 1,
+};
+
+
+void popup_scale(uint8_t scale){
+    debug("popup_scale\n");
+    if(SCALE == scale) {
+        return;
+    }
+    SCALE = scale;
+
+    PANEL b_interrupt_call = {
+        .type = PANEL_BUTTON,
+        .x = 5 * SCALE,
+        .y = 5 * SCALE,
+        .width = BM_LBUTTON_WIDTH,
+        .height = BM_LBUTTON_HEIGHT,
+    },
+
+    b_interrupt_video = {
+        .type = PANEL_BUTTON,
+        .x = 55 * SCALE,
+        .y = 5 * SCALE,
+        .width = BM_LBUTTON_WIDTH,
+        .height = BM_LBUTTON_HEIGHT,
+    };
+    button_interrupt_call.panel = b_interrupt_call;
+    button_interrupt_video.panel = b_interrupt_video;
+}
+
 #define FUNC(x, ret, ...) static ret (* x##func[])(void *p, ##__VA_ARGS__) = { \
     (void*)background_##x, \
     (void*)messages_##x, \
@@ -1059,6 +1086,11 @@ void ui_size(int width, int height)
 {
     panel_update(&panel_main, 0, 0, width, height);
     tooltip_reset();
+}
+
+void popup_size(int width, int height){
+    debug("popup_size\n");
+    panel_update(&panel_interrupt, 0, 0, width, height);
 }
 
 void ui_mouseleave(void)
