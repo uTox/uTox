@@ -1121,9 +1121,11 @@ LRESULT CALLBACK GrabProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
 
         if(desktopgrab_video) {
             toxvideo_postmessage(VIDEO_SET, 0, 0, (void*)1);
+            DestroyWindow(window);
         } else {
             FRIEND *f = sitem->data;
             if(sitem->item == ITEM_FRIEND && f->online) {
+                DestroyWindow(window);
                 HWND dwnd = GetDesktopWindow();
                 HDC ddc = GetDC(dwnd);
                 HDC mem = CreateCompatibleDC(ddc);
@@ -1139,7 +1141,7 @@ LRESULT CALLBACK GrabProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
             }
         }
 
-        DestroyWindow(window);
+
         return 0;
     }
 
