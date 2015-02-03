@@ -465,14 +465,6 @@ _Bool messages_mdown(MESSAGES *m)
         switch(msg->msg_type) {
         case MSG_TYPE_TEXT:
         case MSG_TYPE_ACTION_TEXT: {
-            if(m->urlover != STRING_IDX_MAX) {
-                char_t url[m->urllen + 1];
-                memcpy(url, msg->msg + m->urlover, m->urllen * sizeof(char_t));
-                url[m->urllen] = 0;
-
-                openurl(url);
-            }
-
             m->data->istart = m->data->iend = m->idown = m->iover;
             m->data->start = m->data->end = m->down = m->over;
             m->select = 1;
@@ -651,8 +643,20 @@ _Bool messages_mwheel(MESSAGES *UNUSED(m), int UNUSED(height), double UNUSED(d))
 }
 
 
-_Bool messages_mup(MESSAGES *m)
-{
+_Bool messages_mup(MESSAGES *m){
+
+    if(m->iover != MSG_IDX_MAX) {
+        MESSAGE *msg = m->data->data[m->iover];
+        if(msg->msg_type == MSG_TYPE_TEXT){
+            if(m->urlover != STRING_IDX_MAX) {
+                char_t url[m->urllen + 1];
+                memcpy(url, msg->msg + m->urlover, m->urllen * sizeof(char_t));
+                url[m->urllen] = 0;
+                openurl(url);
+            }
+        }
+    }
+
     //temporary, change this
     if(m->select) {
         char_t *lel = malloc(65536); //TODO: De-hardcode this value.
