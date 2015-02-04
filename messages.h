@@ -40,6 +40,9 @@ struct messages {
     // if present. urlover == STRING_IDX_MAX if there's none.
     STRING_IDX urlover, urllen;
 
+    // Was the url pressed by the mouse.
+    _Bool urlmdown;
+
     uint32_t height, width;
 
     // Indices of messages, that the mouse is over now/has been

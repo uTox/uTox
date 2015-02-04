@@ -295,7 +295,12 @@ _Bool messages_mmove(MESSAGES *m, int UNUSED(px), int UNUSED(py), int width, int
             case MSG_TYPE_ACTION_TEXT: {
                 /* normal message */
                 m->over = hittextmultiline(mx - MESSAGES_X, width - MESSAGES_X - TIME_WIDTH, my < 0 ? 0 : my, msg->height, font_small_lineheight, msg->msg, msg->length, 1);
-                m->urlover = STRING_IDX_MAX;
+
+                _Bool prev_urlmdown = m->urlmdown;
+                if (m->urlover != STRING_IDX_MAX) {
+                    m->urlmdown = 0;
+                    m->urlover = STRING_IDX_MAX;
+                }
 
                 if(my < 0 || my >= dy || mx < MESSAGES_X || m->over == msg->length) {
                     break;
@@ -329,6 +334,7 @@ _Bool messages_mmove(MESSAGES *m, int UNUSED(px), int UNUSED(py), int width, int
 
                 if(m->urlover != STRING_IDX_MAX) {
                     m->urllen = (str - msg->msg) - m->urlover;
+                    m->urlmdown = prev_urlmdown;
                 }
 
                 break;
@@ -465,6 +471,10 @@ _Bool messages_mdown(MESSAGES *m)
         switch(msg->msg_type) {
         case MSG_TYPE_TEXT:
         case MSG_TYPE_ACTION_TEXT: {
+            if(m->urlover != STRING_IDX_MAX) {
+                m->urlmdown = 1;
+            }
+
             m->data->istart = m->data->iend = m->idown = m->iover;
             m->data->start = m->data->end = m->down = m->over;
             m->select = 1;
@@ -648,11 +658,12 @@ _Bool messages_mup(MESSAGES *m){
     if(m->iover != MSG_IDX_MAX) {
         MESSAGE *msg = m->data->data[m->iover];
         if(msg->msg_type == MSG_TYPE_TEXT){
-            if(m->urlover != STRING_IDX_MAX) {
+            if(m->urlover != STRING_IDX_MAX && m->urlmdown) {
                 char_t url[m->urllen + 1];
                 memcpy(url, msg->msg + m->urlover, m->urllen * sizeof(char_t));
                 url[m->urllen] = 0;
                 openurl(url);
+                m->urlmdown = 0;
             }
         }
     }
