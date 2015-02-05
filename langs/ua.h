@@ -157,6 +157,12 @@ msgstr("Ввімкнути звукове сповіщення (рингтон)"
 msgid(IS_TYPING)
 msgstr("набирає повідомлення...")
 
+msgid(CLOSE_TO_TRAY)
+msgstr("Сховати в трей") // Check the correctness (трей чи  системний лоток)
+
+msgid(START_IN_TRAY)
+msgstr("Запускати в треї")// Check the correctness (трей чи  системний лоток)
+
 msgid(COPY)
 msgstr("Копіювати")
 
