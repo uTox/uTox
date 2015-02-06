@@ -49,7 +49,7 @@ _Bool scroll_mmove(SCROLLABLE *s, int UNUSED(px), int UNUSED(py), int width, int
 {
     _Bool draw = 0;
 
-    _Bool hit = inrect(x, y, s->left ? 0 : (width - SCROLL_WIDTH), 0, s->left ? SCROLL_WIDTH : width, height);
+    _Bool hit = inrect(x, y, s->left ? 0 : (width - SCROLL_WIDTH), 0, SCROLL_WIDTH, height);
     if(s->mouseover != hit)
     {
         s->mouseover = hit;
