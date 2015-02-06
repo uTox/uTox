@@ -142,6 +142,12 @@ msgstr("Abilita notifiche audio per le chiamate (Suoneria)")
 msgid(IS_TYPING)
 msgstr("sta scrivendo...")
 
+msgid(CLOSE_TO_TRAY)
+msgstr("Chiudi nella traybar")
+
+msgid(START_IN_TRAY)
+msgstr("Avvia nella traybar")
+
 msgid(COPY)
 msgstr("Copia")
 
