@@ -381,8 +381,24 @@ static void button_chat1_updatecolor(BUTTON *b)
 }
 
 /* bottom right chat message window button */
-static void button_chat2_onpress(void)
-{
+static void button_chat2_onpress(void){
+}
+
+static void button_chat2_updatecolor(BUTTON *b){
+/*    FRIEND *f = sitem->data;
+    if(f->online) {
+        b->c1 = C_GREEN;
+        b->c2 = C_GREEN_LIGHT;
+        b->c3 = C_GREEN_LIGHT;
+    } else { */
+        b->c1 = C_GRAY;
+        b->c2 = C_GRAY;
+        b->c3 = C_GRAY;
+/*    }*/
+}
+
+/* Button to send chat message */
+static void button_chat_send_onpress(void){
     FRIEND *f = sitem->data;
     if(f->online) {
         edit_msg_onenter();
@@ -391,8 +407,7 @@ static void button_chat2_onpress(void)
     }
 }
 
-static void button_chat2_updatecolor(BUTTON *b)
-{
+static void button_chat_send_updatecolor(BUTTON *b){
     FRIEND *f = sitem->data;
     if(f->online) {
         b->c1 = C_GREEN;
@@ -582,11 +597,26 @@ button_chat2 = {
     .c1 = C_GREEN,
     .c2 = C_GREEN_LIGHT,
     .c3 = C_GREEN_LIGHT,
-    .bm2 = BM_ADD,
-    .bw = _BM_ADD_WIDTH,
-    .bh = _BM_ADD_WIDTH,
+    // TODO: replace with something useful
+    // .bm2 = BM_ADD,
+    // .bw = _BM_ADD_WIDTH,
+    // .bh = _BM_ADD_WIDTH,
     .onpress = button_chat2_onpress,
     .updatecolor = button_chat2_updatecolor,
+},
+
+/* bottom right chat message window button */
+button_chat_send = {
+    .bm  = BM_CHAT_SEND,
+    .c1  = C_GREEN,
+    .c2  = C_GREEN_LIGHT,
+    .c3  = C_GREEN_LIGHT,
+    .bm2 = BM_CHAT_SEND_OVERLAY,
+    .bw  = _BM_CHAT_SEND_OVERLAY_WIDTH,
+    .bh  = _BM_CHAT_SEND_OVERLAY_WIDTH,
+
+    .onpress = button_chat_send_onpress,
+    .updatecolor = button_chat_send_updatecolor,
 },
 
 button_avatar = {

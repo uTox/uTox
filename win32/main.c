@@ -583,7 +583,7 @@ void setselection(char_t *data, STRING_IDX length)
 {
 }
 
-/** Toggels the main window to/from hidden to tray/shown. */
+/** Toggles the main window to/from hidden to tray/shown. */
 void togglehide(void)
 {
     if(hidden) {

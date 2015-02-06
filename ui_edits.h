@@ -478,6 +478,18 @@ edit_msg = {
     .onlosefocus = edit_msg_onlosefocus,
 },
 
+edit_msg_group = {
+    .multiline = 1,
+    .scroll = &edit_msg_scroll,
+    .maxlength = sizeof(edit_msg_data),
+    .data = edit_msg_data,
+    .onenter = edit_msg_onenter,
+    .ontab = edit_msg_ontab,
+    .onshifttab = edit_msg_onshifttab,
+    .onchange = edit_msg_onchange,
+    .onlosefocus = edit_msg_onlosefocus,
+},
+
 edit_search = {
     .maxlength = sizeof(edit_search_data),
     .data = edit_search_data,

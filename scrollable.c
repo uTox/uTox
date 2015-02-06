@@ -6,8 +6,8 @@ void scroll_draw(SCROLLABLE *s, int x, int y, int width, int height)
     uint32_t h = height, m, dy;
 
     if(h >= c) {
-        m = h;
-        dy = 0;
+        // If h(eight) > c(ontent height), don't draw anything.
+        return;
     } else {
         m = (h * h) / c;
         double d = (h - m);
