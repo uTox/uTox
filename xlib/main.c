@@ -53,7 +53,7 @@ GC gc;
 Colormap cmap;
 Visual *visual;
 
-Picture bitmap[32];
+Picture bitmap[BM_CI1 + 1];
 
 Cursor cursors[8];
 
