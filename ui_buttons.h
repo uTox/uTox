@@ -399,24 +399,36 @@ static void button_chat2_updatecolor(BUTTON *b){
 
 /* Button to send chat message */
 static void button_chat_send_onpress(void){
-    FRIEND *f = sitem->data;
-    if(f->online) {
-        edit_msg_onenter(&edit_msg);
+    if (sitem->item == ITEM_FRIEND) {
+        FRIEND *f = sitem->data;
+        if(f->online) {
+            edit_msg_onenter(&edit_msg);
+            // reset focus to the chat window on send to prevent segfault. May break on android.
+            edit_setfocus(&edit_msg);
+        }
+    } else {
+        edit_msg_onenter(&edit_msg_group);
         // reset focus to the chat window on send to prevent segfault. May break on android.
-        edit_setfocus(&edit_msg);
+        edit_setfocus(&edit_msg_group);
     }
 }
 
 static void button_chat_send_updatecolor(BUTTON *b){
-    FRIEND *f = sitem->data;
-    if(f->online) {
+    if (sitem->item == ITEM_FRIEND) {
+        FRIEND *f = sitem->data;
+        if(f->online) {
+            b->c1 = C_GREEN;
+            b->c2 = C_GREEN_LIGHT;
+            b->c3 = C_GREEN_LIGHT;
+        } else {
+            b->c1 = C_GRAY;
+            b->c2 = C_GRAY;
+            b->c3 = C_GRAY;
+        }
+    } else {
         b->c1 = C_GREEN;
         b->c2 = C_GREEN_LIGHT;
         b->c3 = C_GREEN_LIGHT;
-    } else {
-        b->c1 = C_GRAY;
-        b->c2 = C_GRAY;
-        b->c3 = C_GRAY;
     }
 }
 
