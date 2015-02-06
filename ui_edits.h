@@ -9,10 +9,10 @@ static struct {
     _Bool edited;
 } completion;
 
-static void edit_name_onenter(void)
+static void edit_name_onenter(EDIT *edit)
 {
-    char_t *data = edit_name_data;
-    STRING_IDX length = edit_name.length;
+    char_t *data = edit->data;
+    STRING_IDX length = edit->length;
 
     if(!length) {
         return;
@@ -25,10 +25,10 @@ static void edit_name_onenter(void)
     tox_postmessage(TOX_SETNAME, length, 0, self.name);//!
 }
 
-static void edit_status_onenter(void)
+static void edit_status_onenter(EDIT *edit)
 {
-    char_t *data = edit_status_data;
-    STRING_IDX length = edit_status.length;
+    char_t *data = edit->data;
+    STRING_IDX length = edit->length;
 
     if(!length) {
         return;
@@ -47,10 +47,10 @@ static void edit_status_onenter(void)
     tox_postmessage(TOX_SETSTATUSMSG, length, 0, self.statusmsg);//!
 }
 
-static void edit_msg_onenter(void)
+static void edit_msg_onenter(EDIT *edit)
 {
-    STRING_IDX length = edit_msg.length;
-    char_t *text = edit_msg_data;
+    char_t *text = edit->data;
+    STRING_IDX length = edit->length;
 
     if(length <= 0) {
         return;
@@ -133,7 +133,7 @@ static void edit_msg_onenter(void)
     }
 
     completion.active = 0;
-    edit_msg.length = 0;
+    edit->length = 0;
 }
 
 static uint32_t peers_deduplicate(char_t **dedup, char_t **peernames, uint32_t peers)
@@ -169,9 +169,9 @@ static uint32_t peers_deduplicate(char_t **dedup, char_t **peernames, uint32_t p
     return count;
 }
 
-static uint8_t nick_completion_search(char_t *found_nick, int direction)
+static uint8_t nick_completion_search(EDIT *edit, char_t *found_nick, int direction)
 {
-    char_t *text = edit_msg_data;
+    char_t *text = edit->data;
     uint32_t i, peers, prev_index, compsize = completion.length;
     char_t *nick;
     _Bool found = 0;
@@ -224,10 +224,12 @@ static uint8_t nick_completion_search(char_t *found_nick, int direction)
     }
 }
 
-static void nick_completion_replace(char_t *nick, uint32_t size)
+static void nick_completion_replace(EDIT *edit, char_t *nick, uint32_t size)
 {
-    char_t *text = edit_msg_data;
-    STRING_IDX length = edit_msg.length;
+    char_t *text = edit->data;
+    STRING_IDX length = edit->length;
+    STRING_IDX maxlength = edit->maxlength;
+
     int offset;
 
     completion.spacing = 1;
@@ -244,35 +246,35 @@ static void nick_completion_replace(char_t *nick, uint32_t size)
         completion.spacing -= 1;
     }
 
-    if (completion.start + size > edit_msg.maxlength) {
-        size = edit_msg.maxlength - completion.start;
+    if (completion.start + size > maxlength) {
+        size = maxlength - completion.start;
     }
 
     offset = completion.end - completion.start - size;
 
-    edit_do(&edit_msg, completion.start, completion.end - completion.start, 1);
+    edit_do(edit, completion.start, completion.end - completion.start, 1);
 
     memmove(text + completion.end - offset, text + completion.end,
-            length - offset > edit_msg.maxlength
-            ? edit_msg.maxlength - completion.end + offset
+            length - offset > maxlength
+            ? maxlength - completion.end + offset
             : length - completion.end);
 
     memcpy(text + completion.start, nick, size);
 
-    edit_do(&edit_msg, completion.start, size, 0);
+    edit_do(edit, completion.start, size, 0);
 
-    if (length - offset > edit_msg.maxlength) {
-        edit_msg.length = edit_msg.maxlength;
+    if (length - offset > maxlength) {
+        edit->length = maxlength;
     } else {
-        edit_msg.length -= offset;
+        edit->length -= offset;
     }
     completion.end -= offset;
 }
 
-static void edit_msg_ontab(void)
+static void edit_msg_ontab(EDIT *edit)
 {
-    char_t *text = edit_msg_data;
-    STRING_IDX length = edit_msg.length;
+    char_t *text = edit->data;
+    STRING_IDX length = edit->length;
 
     if (sitem->item == ITEM_GROUP) {
         char_t nick[130];
@@ -289,8 +291,8 @@ static void edit_msg_ontab(void)
 
                 text[6] = ' ';
                 memcpy(text + 7, g->name, g->name_length);
-                edit_msg.length = g->name_length + 7;
-                edit_setcursorpos(&edit_msg, edit_msg.length);
+                edit->length = g->name_length + 7;
+                edit_setcursorpos(edit, edit->length);
 
                 return;
             }
@@ -309,14 +311,14 @@ static void edit_msg_ontab(void)
             completion.length = completion.end - completion.start;
         }
 
-        nick_length = nick_completion_search(nick, 1);
+        nick_length = nick_completion_search(edit, nick, 1);
         if (nick_length) {
             completion.edited = 1;
             if (!(nick_length == completion.end - completion.start - completion.spacing
                     && !memcmp(nick, text + completion.start, nick_length))) {
-                nick_completion_replace(nick, nick_length);
+                nick_completion_replace(edit, nick, nick_length);
             }
-            edit_setcursorpos(&edit_msg, completion.end);
+            edit_setcursorpos(edit, completion.end);
             completion.cursorpos = edit_getcursorpos();
         }
     } else {
@@ -324,9 +326,9 @@ static void edit_msg_ontab(void)
     }
 }
 
-static void edit_msg_onshifttab(void)
+static void edit_msg_onshifttab(EDIT *edit)
 {
-    char_t *text = edit_msg_data;
+    char_t *text = edit->data;
 
     if (sitem->item == ITEM_GROUP) {
         char_t nick[130];
@@ -337,14 +339,14 @@ static void edit_msg_onshifttab(void)
         }
 
         if (completion.active) {
-            nick_length = nick_completion_search(nick, -1);
+            nick_length = nick_completion_search(edit, nick, -1);
             if (nick_length) {
                 completion.edited = 1;
                 if (!(nick_length == completion.end - completion.start - completion.spacing
                             && !memcmp(nick, text + completion.start, nick_length))) {
-                    nick_completion_replace(nick, nick_length);
+                    nick_completion_replace(edit, nick, nick_length);
                 }
-                edit_setcursorpos(&edit_msg, completion.end);
+                edit_setcursorpos(edit, completion.end);
                 completion.cursorpos = edit_getcursorpos();
             }
         }
@@ -353,12 +355,12 @@ static void edit_msg_onshifttab(void)
     }
 }
 
-static void edit_msg_onlosefocus(void)
+static void edit_msg_onlosefocus(EDIT *edit)
 {
     completion.active = 0;
 }
 
-static void edit_msg_onchange(void)
+static void edit_msg_onchange(EDIT *edit)
 {
     if(sitem->item == ITEM_FRIEND) {
         FRIEND *f = sitem->data;
@@ -377,10 +379,10 @@ static void edit_msg_onchange(void)
     }
 }
 
-static void edit_search_onchange(void)
+static void edit_search_onchange(EDIT *edit)
 {
-    char_t *data = edit_search_data;
-    STRING_IDX length = edit_search.length;
+    char_t *data = edit->data;
+    STRING_IDX length = edit->length;
 
     if(!length) {
         memset(search_offset, 0, sizeof(search_offset));
@@ -397,7 +399,7 @@ static void edit_search_onchange(void)
 }
 
 
-static void edit_proxy_ip_port_onlosefocus(void)
+static void edit_proxy_ip_port_onlosefocus(EDIT *edit)
 {
     edit_proxy_port.data[edit_proxy_port.length] = 0;
     uint16_t proxy_port = strtol((char*)edit_proxy_port.data, NULL, 0);

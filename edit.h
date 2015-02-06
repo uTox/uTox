@@ -22,11 +22,11 @@ struct edit {
 
     MAYBE_I18NAL_STRING empty_str;
 
-    void (*onenter)(void);
-    void (*onchange)(void);
-    void (*ontab)(void);
-    void (*onshifttab)(void);
-    void (*onlosefocus)(void);
+    void (*onenter)(EDIT *edit);
+    void (*onchange)(EDIT *edit);
+    void (*ontab)(EDIT *edit);
+    void (*onshifttab)(EDIT *edit);
+    void (*onlosefocus)(EDIT *edit);
 };
 
 void edit_draw(EDIT *edit, int x, int y, int width, int height);

@@ -401,7 +401,7 @@ static void button_chat2_updatecolor(BUTTON *b){
 static void button_chat_send_onpress(void){
     FRIEND *f = sitem->data;
     if(f->online) {
-        edit_msg_onenter();
+        edit_msg_onenter(&edit_msg);
         // reset focus to the chat window on send to prevent segfault. May break on android.
         edit_setfocus(&edit_msg);
     }

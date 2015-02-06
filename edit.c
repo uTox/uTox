@@ -14,7 +14,7 @@ static void setactive(EDIT *edit)
 {
     if(edit != active_edit) {
         if(active_edit && active_edit->onlosefocus) {
-            active_edit->onlosefocus();
+            active_edit->onlosefocus(active_edit);
         }
 
         active_edit = edit;
@@ -595,7 +595,7 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
             modified = 1;
 
             if(edit->onenter) {
-                edit->onenter();
+                edit->onenter(edit);
                 /*dirty*/
                 if(edit->length == 0) {
                     uint16_t i = 0;
@@ -619,9 +619,9 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
 
         case KEY_TAB: {
             if ((flags & 1) && !(flags & 4) && edit->onshifttab) {
-                edit->onshifttab();
+                edit->onshifttab(edit);
             } else if (!(flags & 4) && edit->ontab) {
-                edit->ontab();
+                edit->ontab(edit);
             }
 
             break;
@@ -631,7 +631,7 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
 
         edit_select = 0;
         if(modified && edit->onchange) {
-            edit->onchange();
+            edit->onchange(edit);
         }
 
         edit_redraw();
@@ -657,7 +657,7 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
             edit_sel.length = 0;
 
             if(edit->onchange) {
-                edit->onchange();
+                edit->onchange(edit);
             }
 
             edit_redraw();
