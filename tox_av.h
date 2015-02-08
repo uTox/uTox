@@ -756,6 +756,10 @@ static void audio_thread(void *args)
         }
     }
 
+#ifdef AUDIO_FILTERING
+    kill_filter_audio(f_a);
+#endif
+
     //missing some cleanup ?
     alDeleteSources(MAX_CALLS, ringSrc);
     alDeleteSources(countof(source), source);
