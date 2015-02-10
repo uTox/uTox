@@ -187,6 +187,8 @@ void log_read(Tox *tox, int fid)
             return;
         }
 
+        msg->length = utf8_validate(msg->msg, msg->length);
+
         struct tm *ti;
         time_t rawtime = header.time;
         ti = localtime(&rawtime);
