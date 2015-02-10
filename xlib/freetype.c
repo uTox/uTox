@@ -91,10 +91,6 @@ Picture loadglyphpic(uint8_t *data, int width, int height, int pitch, _Bool no_s
 
 GLYPH* font_getglyph(FONT *f, uint32_t ch)
 {
-    if(!FcCharSetHasChar(charset, ch)) {
-        return NULL;
-    }
-
     uint32_t hash = ch % 128;
     GLYPH *g = f->glyphs[hash], *s = g;
     if(g) {
@@ -103,6 +99,10 @@ GLYPH* font_getglyph(FONT *f, uint32_t ch)
                 return g;
             }
             g++;
+        }
+
+        if(!FcCharSetHasChar(charset, ch)) {
+            return NULL;
         }
 
         uint32_t count = (uint32_t)(g - s);
@@ -114,6 +114,10 @@ GLYPH* font_getglyph(FONT *f, uint32_t ch)
         f->glyphs[hash] = g;
         g += count;
     } else {
+        if(!FcCharSetHasChar(charset, ch)) {
+            return NULL;
+        }
+
         g = malloc(sizeof(GLYPH) * 2);
         if(!g) {
             return NULL;
