@@ -263,12 +263,25 @@ _Bool doevent(XEvent event)
                     paste();
                     return 1;
                 case 'c':
+                case XK_Insert:
                     copy(0);
                     return 1;
                 case 'x':
                     copy(0);
                     edit_char(KEY_DEL, 1, 0);
                     return 1;
+                }
+            }
+
+            if(ev->state & ShiftMask) {
+                switch(sym) {
+                    case XK_Insert:
+                        paste();
+                        return 1;
+                    case XK_Delete:
+                        copy(0);
+                        edit_char(KEY_DEL, 1, 0);
+                        return 1;
                 }
             }
 
