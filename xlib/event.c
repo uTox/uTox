@@ -269,6 +269,9 @@ _Bool doevent(XEvent event)
                     copy(0);
                     edit_char(KEY_DEL, 1, 0);
                     return 1;
+                case 'w':
+                    edit_char(KEY_BACK, 1, 4);
+                    return 1;
                 }
             }
 
