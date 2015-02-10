@@ -291,6 +291,10 @@ static void video_thread(void *args)
 #include <AL/al.h>
 #include <AL/alc.h>
 
+#ifdef AUDIO_FILTERING
+#include <AL/alext.h>
+#endif
+
 /* include for compatibility with older versions of OpenAL */
 #ifndef ALC_ALL_DEVICES_SPECIFIER
 #include <AL/alext.h>
@@ -713,6 +717,24 @@ static void audio_thread(void *args)
                     }
                 }
             }
+
+#ifdef AUDIO_FILTERING
+#ifdef ALC_LOOPBACK_CAPTURE_SAMPLES
+            if (f_a && audio_filtering_enabled) {
+                ALint samples;
+                alcGetIntegerv(device_out, ALC_LOOPBACK_CAPTURE_SAMPLES, sizeof(samples), &samples);
+                if(samples >= perframe) {
+                    int16_t buf[perframe];
+                    alcCaptureSamplesLoopback(device_out, buf, perframe);
+                    int ret = pass_audio_output(f_a, buf, perframe);
+                    set_echo_delay_ms(f_a, 5);
+                    if (samples >= perframe * 2) {
+                        sleep = 0;
+                    }
+                }
+            }
+#endif
+#endif
 
             if(frame) {
 #ifdef AUDIO_FILTERING
