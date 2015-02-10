@@ -436,7 +436,10 @@ static void audio_thread(void *args)
         return;
     }
 
-    context = alcCreateContext(device_out, NULL);
+    int attrlist[] = {  ALC_FREQUENCY, av_DefaultSettings.audio_sample_rate,
+                        ALC_INVALID };
+
+    context = alcCreateContext(device_out, attrlist);
     if(!alcMakeContextCurrent(context)) {
         printf("alcMakeContextCurrent() failed\n");
         alcCloseDevice(device_out);
