@@ -406,6 +406,13 @@ static void audio_thread(void *args)
 
     uint8_t audio_count = 0;
     _Bool record_on = 0;
+#ifdef AUDIO_FILTERING
+    debug("Audio Filtering");
+#ifdef ALC_LOOPBACK_CAPTURE_SAMPLES
+    debug(" and Echo cancelation");
+#endif
+    debug(" enabled in this build\n");
+#endif
 
     debug("frame size: %u\n", perframe);
 
