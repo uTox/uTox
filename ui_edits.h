@@ -2,10 +2,17 @@
 static char_t edit_name_data[128], edit_status_data[128], edit_addid_data[TOX_FRIEND_ADDRESS_SIZE * 4], edit_addmsg_data[1024], edit_msg_data[65535], edit_search_data[127],
     edit_proxy_ip_data[256], edit_proxy_port_data[8];
 
-static void edit_name_onenter(void)
+static struct {
+    STRING_IDX start, end, cursorpos;
+    uint32_t length, spacing;
+    _Bool active;
+    _Bool edited;
+} completion;
+
+static void edit_name_onenter(EDIT *edit)
 {
-    char_t *data = edit_name_data;
-    STRING_IDX length = edit_name.length;
+    char_t *data = edit->data;
+    STRING_IDX length = edit->length;
 
     if(!length) {
         return;
@@ -18,10 +25,10 @@ static void edit_name_onenter(void)
     tox_postmessage(TOX_SETNAME, length, 0, self.name);//!
 }
 
-static void edit_status_onenter(void)
+static void edit_status_onenter(EDIT *edit)
 {
-    char_t *data = edit_status_data;
-    STRING_IDX length = edit_status.length;
+    char_t *data = edit->data;
+    STRING_IDX length = edit->length;
 
     if(!length) {
         return;
@@ -40,10 +47,10 @@ static void edit_status_onenter(void)
     tox_postmessage(TOX_SETSTATUSMSG, length, 0, self.statusmsg);//!
 }
 
-static void edit_msg_onenter(void)
+static void edit_msg_onenter(EDIT *edit)
 {
-    STRING_IDX length = edit_msg.length;
-    char_t *text = edit_msg_data;
+    char_t *text = edit->data;
+    STRING_IDX length = edit->length;
 
     if(length <= 0) {
         return;
@@ -125,10 +132,235 @@ static void edit_msg_onenter(void)
         }
     }
 
-    edit_msg.length = 0;
+    completion.active = 0;
+    edit->length = 0;
 }
 
-static void edit_msg_onchange(void)
+static uint32_t peers_deduplicate(char_t **dedup, char_t **peernames, uint32_t peers)
+{
+    int peer, i, count;
+
+    count = 0;
+    for (peer = 0; peer < peers; peer++) {
+        char_t *nick;
+
+        nick = peernames[peer];
+
+        if (nick) {
+            _Bool found = 0;
+            i = 0;
+
+            while (!found && i < count) {
+                if (nick[0] == dedup[i][0]
+                        && !memcmp(nick + 1, dedup[i] + 1, nick[0])) {
+                    found = 1;
+                }
+
+                i++;
+            }
+
+            if (!found) {
+                dedup[count] = nick;
+                count++;
+            }
+        }
+    }
+
+    return count;
+}
+
+static uint8_t nick_completion_search(EDIT *edit, char_t *found_nick, int direction)
+{
+    char_t *text = edit->data;
+    uint32_t i, peers, prev_index, compsize = completion.length;
+    char_t *nick;
+    _Bool found = 0;
+    static char_t *dedup[65536];
+    GROUPCHAT *g = sitem->data;
+
+    peers = peers_deduplicate(dedup, g->peername, g->peers);
+
+    i = 0;
+    while (!found) {
+        if (i >= peers) {
+            found = 1;
+            i = 0;
+        } else {
+            nick = dedup[i];
+            if (nick[0] == completion.end - completion.start - completion.spacing
+                    && !memcmp(nick + 1, text + completion.start, nick[0])) {
+                found = 1;
+            } else {
+                i++;
+            }
+        }
+    }
+
+    prev_index = i;
+    found = 0;
+    do {
+        if (direction == -1 && i == 0) {
+            i = peers;
+        }
+        i += direction;
+
+        if (i >= peers) {
+            i = 0;
+        }
+
+        nick = dedup[i];
+
+        if (nick[0] >= compsize
+                && !memcmp_case(nick + 1, text + completion.start, compsize)) {
+            found = 1;
+        }
+    } while (!found && i != prev_index);
+
+    if (found) {
+        memcpy(found_nick, nick + 1, nick[0]);
+        return nick[0];
+    } else {
+        return 0;
+    }
+}
+
+static void nick_completion_replace(EDIT *edit, char_t *nick, uint32_t size)
+{
+    char_t *text = edit->data;
+    STRING_IDX length = edit->length;
+    STRING_IDX maxlength = edit->maxlength;
+
+    int offset;
+
+    completion.spacing = 1;
+    size += 1;
+    if (!completion.start) {
+        size += 1;
+        completion.spacing += 1;
+        nick[size - 2] = ':';
+    }
+
+    nick[size - 1] = ' ';
+    if (length > completion.end) {
+        size -= 1;
+        completion.spacing -= 1;
+    }
+
+    if (completion.start + size > maxlength) {
+        size = maxlength - completion.start;
+    }
+
+    offset = completion.end - completion.start - size;
+
+    edit_do(edit, completion.start, completion.end - completion.start, 1);
+
+    memmove(text + completion.end - offset, text + completion.end,
+            length - offset > maxlength
+            ? maxlength - completion.end + offset
+            : length - completion.end);
+
+    memcpy(text + completion.start, nick, size);
+
+    edit_do(edit, completion.start, size, 0);
+
+    if (length - offset > maxlength) {
+        edit->length = maxlength;
+    } else {
+        edit->length -= offset;
+    }
+    completion.end -= offset;
+}
+
+static void edit_msg_ontab(EDIT *edit)
+{
+    char_t *text = edit->data;
+    STRING_IDX length = edit->length;
+
+    if (sitem->item == ITEM_GROUP) {
+        char_t nick[130];
+        uint8_t nick_length;
+
+        if (completion.cursorpos != edit_getcursorpos()) {
+            completion.active = 0;
+        }
+
+        if (!completion.active) {
+            if ((length == 6 && !memcmp(text, "/topic", 6))
+                    || (length == 7 && !memcmp(text, "/topic ", 7))) {
+                GROUPCHAT *g = sitem->data;
+
+                text[6] = ' ';
+                memcpy(text + 7, g->name, g->name_length);
+                edit->length = g->name_length + 7;
+                edit_setcursorpos(edit, edit->length);
+
+                return;
+            }
+
+            completion.start = edit_getcursorpos();
+            while (completion.start > 0 && text[completion.start - 1] != ' ') {
+                completion.start--;
+            }
+
+            completion.end = completion.start;
+            while (completion.end < length && text[completion.end] != ' ') {
+                completion.end++;
+            }
+
+            completion.active = 1;
+            completion.length = completion.end - completion.start;
+        }
+
+        nick_length = nick_completion_search(edit, nick, 1);
+        if (nick_length) {
+            completion.edited = 1;
+            if (!(nick_length == completion.end - completion.start - completion.spacing
+                    && !memcmp(nick, text + completion.start, nick_length))) {
+                nick_completion_replace(edit, nick, nick_length);
+            }
+            edit_setcursorpos(edit, completion.end);
+            completion.cursorpos = edit_getcursorpos();
+        }
+    } else {
+        completion.active = 0;
+    }
+}
+
+static void edit_msg_onshifttab(EDIT *edit)
+{
+    char_t *text = edit->data;
+
+    if (sitem->item == ITEM_GROUP) {
+        char_t nick[130];
+        uint8_t nick_length;
+
+        if (completion.cursorpos != edit_getcursorpos()) {
+            completion.active = 0;
+        }
+
+        if (completion.active) {
+            nick_length = nick_completion_search(edit, nick, -1);
+            if (nick_length) {
+                completion.edited = 1;
+                if (!(nick_length == completion.end - completion.start - completion.spacing
+                            && !memcmp(nick, text + completion.start, nick_length))) {
+                    nick_completion_replace(edit, nick, nick_length);
+                }
+                edit_setcursorpos(edit, completion.end);
+                completion.cursorpos = edit_getcursorpos();
+            }
+        }
+    } else {
+        completion.active = 0;
+    }
+}
+
+static void edit_msg_onlosefocus(EDIT *edit)
+{
+    completion.active = 0;
+}
+
+static void edit_msg_onchange(EDIT *edit)
 {
     if(sitem->item == ITEM_FRIEND) {
         FRIEND *f = sitem->data;
@@ -139,12 +371,18 @@ static void edit_msg_onchange(void)
 
         tox_postmessage(TOX_SET_TYPING, (f - friend), 0, NULL);
     }
+
+    if (completion.edited) {
+        completion.edited = 0;
+    } else {
+        completion.active = 0;
+    }
 }
 
-static void edit_search_onchange(void)
+static void edit_search_onchange(EDIT *edit)
 {
-    char_t *data = edit_search_data;
-    STRING_IDX length = edit_search.length;
+    char_t *data = edit->data;
+    STRING_IDX length = edit->length;
 
     if(!length) {
         memset(search_offset, 0, sizeof(search_offset));
@@ -161,7 +399,7 @@ static void edit_search_onchange(void)
 }
 
 
-static void edit_proxy_ip_port_onlosefocus(void)
+static void edit_proxy_ip_port_onlosefocus(EDIT *edit)
 {
     edit_proxy_port.data[edit_proxy_port.length] = 0;
     uint16_t proxy_port = strtol((char*)edit_proxy_port.data, NULL, 0);
@@ -236,7 +474,22 @@ edit_msg = {
     .maxlength = sizeof(edit_msg_data),
     .data = edit_msg_data,
     .onenter = edit_msg_onenter,
+    .ontab = edit_msg_ontab,
+    .onshifttab = edit_msg_onshifttab,
     .onchange = edit_msg_onchange,
+    .onlosefocus = edit_msg_onlosefocus,
+},
+
+edit_msg_group = {
+    .multiline = 1,
+    .scroll = &edit_msg_scroll,
+    .maxlength = sizeof(edit_msg_data),
+    .data = edit_msg_data,
+    .onenter = edit_msg_onenter,
+    .ontab = edit_msg_ontab,
+    .onshifttab = edit_msg_onshifttab,
+    .onchange = edit_msg_onchange,
+    .onlosefocus = edit_msg_onlosefocus,
 },
 
 edit_search = {

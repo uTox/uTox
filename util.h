@@ -17,7 +17,7 @@ _Bool strstr_case(const char *a, const char *b);
  */
 void id_to_string(char_t *dest, char_t *src);
 
-/* same as id_to_string(), but for TOX_CLIENT_ID_SIZE
+/* same as id_to_string(), but for TOX_PUBLIC_KEY_SIZE
  */
 void cid_to_string(char_t *dest, char_t *src);
 
@@ -59,6 +59,13 @@ int utf8_validate(const char_t *data, int len);
 uint8_t unicode_to_utf8_len(uint32_t ch);
 void unicode_to_utf8(uint32_t ch, char_t *dst);
 
+/* compare first n bytes of s1 and s2, ignoring the case of alpha chars
+ *  match: returns 0
+ *  no match: returns 1
+ *  notes: n must be <= length of s1 and <= length of s2
+ */
+_Bool memcmp_case(const char_t *s1, const char_t *s2, uint32_t n);
+
 /* replace html entities (<,>,&) with html
  */
 char_t* tohtml(char_t *str, STRING_IDX len);
@@ -66,7 +73,7 @@ char_t* tohtml(char_t *str, STRING_IDX len);
 /* color format conversion functions
  *
  */
-void yuv420torgb(vpx_image_t *img, uint8_t *out);
+void yuv420torgb(const vpx_image_t *img, uint8_t *out);
 void yuv422to420(uint8_t *plane_y, uint8_t *plane_u, uint8_t *plane_v, uint8_t *input, uint16_t width, uint16_t height);
 void rgbtoyuv420(uint8_t *plane_y, uint8_t *plane_u, uint8_t *plane_v, uint8_t *rgb, uint16_t width, uint16_t height);
 void rgbxtoyuv420(uint8_t *plane_y, uint8_t *plane_u, uint8_t *plane_v, uint8_t *rgb, uint16_t width, uint16_t height);

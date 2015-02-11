@@ -6,8 +6,8 @@ void scroll_draw(SCROLLABLE *s, int x, int y, int width, int height)
     uint32_t h = height, m, dy;
 
     if(h >= c) {
-        m = h;
-        dy = 0;
+        // If h(eight) > c(ontent height), don't draw anything.
+        return;
     } else {
         m = (h * h) / c;
         double d = (h - m);
@@ -49,7 +49,7 @@ _Bool scroll_mmove(SCROLLABLE *s, int UNUSED(px), int UNUSED(py), int width, int
 {
     _Bool draw = 0;
 
-    _Bool hit = inrect(x, y, s->left ? 0 : (width - SCROLL_WIDTH), 0, s->left ? SCROLL_WIDTH : width, height);
+    _Bool hit = inrect(x, y, s->left ? 0 : (width - SCROLL_WIDTH), 0, SCROLL_WIDTH, height);
     if(s->mouseover != hit)
     {
         s->mouseover = hit;

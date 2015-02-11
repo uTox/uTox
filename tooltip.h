@@ -9,6 +9,9 @@ typedef struct tooltip {
     MAYBE_I18NAL_STRING* tt_text;
 } TOOLTIP;
 
+// removes the tooltip, requires a redraw
+void tooltip_reset(void);
+
 void tooltip_draw(void);
 _Bool tooltip_mmove(void);
 _Bool tooltip_mdown(void);

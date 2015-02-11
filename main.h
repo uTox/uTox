@@ -28,7 +28,9 @@
 #define DEFAULT_STATUS "Toxing on uTox"
 #define DEFAULT_SCALE 2
 
-#define VERSION "0.1.9"
+#define TITLE "uTox"
+#define SUB_TITLE "(Alpha)"
+#define VERSION "0.2.m"
 
 #define MAX_CALLS 16
 #define MAX_BACKLOG_MESSAGES 128
@@ -43,7 +45,9 @@ typedef struct
     uint8_t audible_notifications_enabled : 1;
     uint8_t filter : 1;
     uint8_t audio_filtering_enabled : 1;
-    uint8_t zero : 4;
+    uint8_t close_to_tray : 1;
+    uint8_t start_in_tray : 1;
+    uint8_t zero : 2;
     uint16_t audio_device_in;
     uint16_t audio_device_out;
     uint16_t unused[32];
@@ -110,11 +114,7 @@ _Bool tox_connected;
 
 _Bool audio_preview, video_preview;
 
-volatile _Bool logging_enabled;
-
-volatile _Bool audible_notifications_enabled;
-
-volatile _Bool audio_filtering_enabled;
+volatile _Bool logging_enabled, audible_notifications_enabled, audio_filtering_enabled, close_to_tray, start_in_tray;
 
 volatile uint16_t loaded_audio_in_device, loaded_audio_out_device;
 
@@ -212,6 +212,8 @@ enum
 
     BM_CB1,
     BM_CB2,
+    BM_CHAT_SEND,
+    BM_CHAT_SEND_OVERLAY,
     BM_CI1
 };
 

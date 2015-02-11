@@ -14,7 +14,7 @@ static void setactive(EDIT *edit)
 {
     if(edit != active_edit) {
         if(active_edit && active_edit->onlosefocus) {
-            active_edit->onlosefocus();
+            active_edit->onlosefocus(active_edit);
         }
 
         active_edit = edit;
@@ -291,7 +291,7 @@ static STRING_IDX edit_change_do(EDIT *edit, EDIT_CHANGE *c)
     return r;
 }
 
-static void edit_do(EDIT *edit, STRING_IDX start, STRING_IDX length, _Bool remove)
+void edit_do(EDIT *edit, STRING_IDX start, STRING_IDX length, _Bool remove)
 {
     EDIT_CHANGE *new, **history;
 
@@ -357,6 +357,8 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
     EDIT *edit = active_edit;
 
     if(control || (ch <= 0x1F && (!edit->multiline || ch != '\n')) || (ch >= 0x7f && ch <= 0x9F)) {
+        _Bool modified = 0;
+
         switch(ch) {
         case KEY_BACK: {
             if(edit->readonly) {
@@ -368,6 +370,8 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
                 if(p == 0) {
                     break;
                 }
+
+                modified = 1;
 
                 /* same as ctrl+left */
                 if(flags & 4) {
@@ -416,6 +420,7 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
             edit_sel.p1 = edit_sel.start;
             edit_sel.p2 = edit_sel.start;
             edit_sel.length = 0;
+            modified = 1;
             break;
         }
 
@@ -566,6 +571,7 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
                     edit_sel.p2 = p;
                     edit_sel.start = p;
                     edit_sel.length = 0;
+                    modified = 1;
                 }
                 break;
             } else {
@@ -580,13 +586,16 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
                 edit_sel.p2 = p;
                 edit_sel.start = p;
                 edit_sel.length = 0;
+                modified = 1;
             }
             break;
         }
 
         case KEY_RETURN: {
+            modified = 1;
+
             if(edit->onenter) {
-                edit->onenter();
+                edit->onenter(edit);
                 /*dirty*/
                 if(edit->length == 0) {
                     uint16_t i = 0;
@@ -609,17 +618,20 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
         }
 
         case KEY_TAB: {
-            if(edit->ontab) {
-                edit->ontab();
+            if ((flags & 1) && !(flags & 4) && edit->onshifttab) {
+                edit->onshifttab(edit);
+            } else if (!(flags & 4) && edit->ontab) {
+                edit->ontab(edit);
             }
+
             break;
         }
 
         }
 
         edit_select = 0;
-        if(edit->onchange) {
-            edit->onchange();
+        if(modified && edit->onchange) {
+            edit->onchange(edit);
         }
 
         edit_redraw();
@@ -645,7 +657,7 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
             edit_sel.length = 0;
 
             if(edit->onchange) {
-                edit->onchange();
+                edit->onchange(edit);
             }
 
             edit_redraw();
@@ -752,4 +764,21 @@ void edit_setstr(EDIT *edit, char_t *str, STRING_IDX length)
 
     edit->length = length;
     memcpy(edit->data, str, length);
+}
+
+void edit_setcursorpos(EDIT *edit, STRING_IDX pos)
+{
+    if (pos <= edit->length) {
+        edit_sel.p1 = pos;
+    } else {
+        edit_sel.p1 = edit->length;
+    }
+
+    edit_sel.p2 = edit_sel.start = edit_sel.p1;
+    edit_sel.length = 0;
+}
+
+STRING_IDX edit_getcursorpos(void)
+{
+    return edit_sel.p1 < edit_sel.p2 ? edit_sel.p1 : edit_sel.p2;
 }

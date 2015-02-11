@@ -62,7 +62,7 @@ enum {
 };
 
 //HBITMAP bitmap[32];
-void *bitmap[32];
+void *bitmap[BM_CI1 + 1];
 HFONT font[32];
 HCURSOR cursors[8];
 HICON my_icon, unread_messages_icon;
@@ -75,7 +75,7 @@ HBITMAP hdc_bm;
 HWND video_hwnd[MAX_NUM_FRIENDS];
 
 
-static char save_path[280];
+//static char save_path[280];
 
 static _Bool flashing, desktopgrab_video;
 
@@ -583,7 +583,7 @@ void setselection(char_t *data, STRING_IDX length)
 {
 }
 
-/** Toggels the main window to/from hidden to tray/shown. */
+/** Toggles the main window to/from hidden to tray/shown. */
 void togglehide(void)
 {
     if(hidden) {
@@ -717,10 +717,10 @@ void loadalpha(int bm, void *data, int width, int height)
 
 // creates an UTOX_NATIVE image based on given arguments
 // image should be freed with image_free
-static UTOX_NATIVE_IMAGE *create_utox_image(HBITMAP bitmap, _Bool has_alpha, uint32_t width, uint32_t height)
+static UTOX_NATIVE_IMAGE *create_utox_image(HBITMAP bmp, _Bool has_alpha, uint32_t width, uint32_t height)
 {
     UTOX_NATIVE_IMAGE *image = malloc(sizeof(UTOX_NATIVE_IMAGE));
-    image->bitmap = bitmap;
+    image->bitmap = bmp;
     image->has_alpha = has_alpha;
     image->width = width;
     image->height = height;
@@ -750,7 +750,7 @@ static void sendbitmap(HDC mem, HBITMAP hbm, int width, int height)
     GetDIBits(mem, hbm, 0, height, bits, &info, DIB_RGB_COLORS);
 
     uint8_t pbytes = width & 3, *p = bits, *pp = bits, *end = p + width * height * 3;
-    uint32_t offset = 0;
+    //uint32_t offset = 0;
     while(p != end) {
         int i;
         for(i = 0; i != width; i++) {
@@ -858,7 +858,7 @@ UTOX_NATIVE_IMAGE *png_to_image(const UTOX_PNG_IMAGE data, size_t size, uint16_t
     // create device independent bitmap, we can write the bytes to out
     // to put them in the bitmap
     uint8_t *out;
-    HBITMAP bitmap = CreateDIBSection(hdcMem, &bmi, DIB_RGB_COLORS, (void**)&out, NULL, 0);
+    HBITMAP bmp = CreateDIBSection(hdcMem, &bmi, DIB_RGB_COLORS, (void**)&out, NULL, 0);
 
     // convert RGBA data to internal format
     // pre-applying the alpha if we're keeping the alpha channel,
@@ -891,7 +891,7 @@ UTOX_NATIVE_IMAGE *png_to_image(const UTOX_PNG_IMAGE data, size_t size, uint16_t
     free(rgba_data);
 
 
-    UTOX_NATIVE_IMAGE *image = create_utox_image(bitmap, keep_alpha, width, height);
+    UTOX_NATIVE_IMAGE *image = create_utox_image(bmp, keep_alpha, width, height);
 
     *w = width;
     *h = height;
@@ -911,7 +911,7 @@ int datapath_old(uint8_t *dest)
     } else {
         if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, (char*)dest))) {
             uint8_t *p = dest + strlen((char*)dest);
-            strcpy(p, "\\Tox"); p += 4;
+            strcpy((char *)p, "\\Tox"); p += 4;
             *p++ = '\\';
             return p - dest;
         }
@@ -924,14 +924,14 @@ int datapath(uint8_t *dest)
 {
     if (utox_portable) {
         uint8_t *p = dest;
-        strcpy(p, "Tox"); p += 3;
+        strcpy((char *)p, "Tox"); p += 3;
         CreateDirectory((char*)dest, NULL);
         *p++ = '\\';
         return p - dest;
     } else {
         if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, (char*)dest))) {
             uint8_t *p = dest + strlen((char*)dest);
-            strcpy(p, "\\Tox"); p += 4;
+            strcpy((char *)p, "\\Tox"); p += 4;
             CreateDirectory((char*)dest, NULL);
             *p++ = '\\';
             return p - dest;
@@ -961,6 +961,7 @@ void flush_file(FILE *file)
 
 int ch_mod(uint8_t *file){
     /* You're probably looking for ./xlib as windows is lamesauce and wants nothing to do with sane permissions */
+    return 1;
 }
 
 /** Creates a tray baloon popup with the message, and flashes the main window 
@@ -1020,7 +1021,7 @@ void update_tray(void)
         .cbSize = sizeof(nid),
     };
 
-    utf8tonative(tip, nid.szTip, strlen(tip));
+    utf8tonative((char_t *)tip, nid.szTip, strlen(tip));
 
     Shell_NotifyIconW(NIM_MODIFY, &nid);
 
@@ -1067,24 +1068,24 @@ void desktopgrab(_Bool video)
     //toxvideo_postmessage(VIDEO_SET, 0, 0, (void*)1);
 }
 
-LRESULT CALLBACK GrabProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK GrabProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     POINT p = {
         .x = GET_X_LPARAM(lParam),
         .y = GET_Y_LPARAM(lParam)
     };
 
-    ClientToScreen(hwnd, &p);
+    ClientToScreen(window, &p);
 
     if(msg == WM_MOUSEMOVE) {
 
         if(grabbing) {
-            HDC hdc = GetDC(hwnd);
-            BitBlt(hdc, grabx, graby, grabpx - grabx, grabpy - graby, hdc, grabx, graby, BLACKNESS);
+            HDC dc = GetDC(window);
+            BitBlt(dc, grabx, graby, grabpx - grabx, grabpy - graby, dc, grabx, graby, BLACKNESS);
             grabpx = p.x;
             grabpy = p.y;
-            BitBlt(hdc, grabx, graby, grabpx - grabx, grabpy - graby, hdc, grabx, graby, WHITENESS);
-            ReleaseDC(hwnd, hdc);
+            BitBlt(dc, grabx, graby, grabpx - grabx, grabpy - graby, dc, grabx, graby, WHITENESS);
+            ReleaseDC(window, dc);
         }
 
         return 0;
@@ -1094,7 +1095,7 @@ LRESULT CALLBACK GrabProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         grabx = grabpx = p.x;
         graby = grabpy = p.y;
         grabbing = 1;
-        SetCapture(hwnd);
+        SetCapture(window);
         return 0;
     }
 
@@ -1120,9 +1121,11 @@ LRESULT CALLBACK GrabProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
         if(desktopgrab_video) {
             toxvideo_postmessage(VIDEO_SET, 0, 0, (void*)1);
+            DestroyWindow(window);
         } else {
             FRIEND *f = sitem->data;
             if(sitem->item == ITEM_FRIEND && f->online) {
+                DestroyWindow(window);
                 HWND dwnd = GetDesktopWindow();
                 HDC ddc = GetDC(dwnd);
                 HDC mem = CreateCompatibleDC(ddc);
@@ -1138,7 +1141,7 @@ LRESULT CALLBACK GrabProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             }
         }
 
-        DestroyWindow(hwnd);
+
         return 0;
     }
 
@@ -1146,7 +1149,7 @@ LRESULT CALLBACK GrabProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         grabbing = 0;
     }
 
-    return DefWindowProcW(hwnd, msg, wParam, lParam);
+    return DefWindowProcW(window, msg, wParam, lParam);
 }
 
 void setscale(void)
@@ -1223,14 +1226,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     /* if opened with argument, check if uTox is already open and pass the argument to the existing process */
     CreateMutex(NULL, 0, "uTox");
     if(GetLastError() == ERROR_ALREADY_EXISTS) {
-        HWND hwnd = FindWindow("uTox", NULL);
-        SetForegroundWindow(hwnd);
+        HWND window = FindWindow("uTox", NULL);
+        SetForegroundWindow(window);
         if (*cmd) {
             COPYDATASTRUCT data = {
                 .cbData = strlen(cmd),
                 .lpData = cmd
             };
-            SendMessage(hwnd, WM_COPYDATA, (WPARAM)hInstance, (LPARAM)&data);
+            SendMessage(window, WM_COPYDATA, (WPARAM)hInstance, (LPARAM)&data);
         }
         return 0;
     }
@@ -1250,7 +1253,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
 
     /* */
     MSG msg;
-    int x, y;
+    //int x, y;
     wchar_t classname[] = L"uTox", popupclassname[] = L"uToxgrab";
 
     my_icon = LoadIcon(hInstance, MAKEINTRESOURCE(101));
@@ -1300,13 +1303,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
 
     UTOX_SAVE *save = config_load();
 
-    hwnd = CreateWindowExW(0, classname, L"Tox", WS_OVERLAPPEDWINDOW, save->window_x, save->window_y, MAIN_WIDTH, MAIN_HEIGHT, NULL, NULL, hInstance, NULL);
+    char pretitle[128];
+    snprintf(pretitle, 128, "%s %s (version : %s)", TITLE, SUB_TITLE, VERSION);
+    size_t title_size = strlen(pretitle)+1;
+    wchar_t title[title_size];
+    mbstowcs(title,pretitle,title_size);
+    /* trim first letter that appears for god knows why */
+    /* needed if/when the uTox becomes a muTox */
+    //wmemmove(title, title+1, wcslen(title));
+
+    hwnd = CreateWindowExW(0, classname, title, WS_OVERLAPPEDWINDOW, save->window_x, save->window_y, MAIN_WIDTH, MAIN_HEIGHT, NULL, NULL, hInstance, NULL);
 
     free(save);
 
     hdc_brush = GetStockObject(DC_BRUSH);
 
-    ShowWindow(hwnd, nCmdShow);
 
     tme.hwndTrack = hwnd;
 
@@ -1337,6 +1348,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     redraw();
     update_tray();
 
+    if(start_in_tray){
+        ShowWindow(hwnd, SW_HIDE);
+        hidden = 1;
+    } else {
+        ShowWindow(hwnd, nCmdShow);
+    }
+
     while(GetMessage(&msg, NULL, 0, 0)) {
         TranslateMessage(&msg);
         DispatchMessage(&msg);
@@ -1358,7 +1376,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
         yieldcpu(1);
     }
 
-    printf("clean exit\n");
+    RECT wndrect = {0};
+    GetWindowRect(hwnd, &wndrect);
+    UTOX_SAVE d = {
+        .window_x = wndrect.left < 0 ? 0 : wndrect.left,
+        .window_y = wndrect.top < 0 ? 0 : wndrect.top,
+        .window_width = (wndrect.right - wndrect.left),
+        .window_height = (wndrect.bottom - wndrect.top),
+    };
+    config_save(&d);
+
+    printf("uTox Clean Exit	::\n");
 
     return 0;
 }
@@ -1399,20 +1427,17 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     }
 
     switch(msg) {
+    case WM_QUIT:
+    case WM_CLOSE:
     case WM_DESTROY: {
-        RECT wndrect = {0};
-        GetWindowRect(hwnd, &wndrect);
-
-        UTOX_SAVE d = {
-            .window_x = wndrect.left < 0 ? 0 : wndrect.left,
-            .window_y = wndrect.top < 0 ? 0 : wndrect.top,
-            .window_width = (wndrect.right - wndrect.left),
-            .window_height = (wndrect.bottom - wndrect.top),
-        };
-
-        config_save(&d);
-        PostQuitMessage(0);
-        return 0;
+        if(close_to_tray){
+            debug("Closing to tray.\n");
+            togglehide();
+            return 1;
+        } else {
+            PostQuitMessage(0);
+            return 0;
+        }
     }
 
     case WM_GETMINMAXINFO: {
@@ -1557,7 +1582,9 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
             if(wParam == KEY_RETURN && (GetKeyState(VK_SHIFT) & 0x80)) {
                 wParam = '\n';
             }
-            edit_char(wParam, 0, 0);
+            if (wParam != KEY_TAB) {
+                edit_char(wParam, 0, 0);
+            }
             return 0;
         }
 
@@ -1641,7 +1668,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     }
 
     case WM_MOUSELEAVE: {
-        panel_mleave(&panel_main);
+        ui_mouseleave();
         mouse_tracked = 0;
         break;
     }
@@ -1684,9 +1711,9 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     }
 
     case WM_NOTIFYICON: {
-        int msg = LOWORD(lParam);
+        int message = LOWORD(lParam);
 
-        switch(msg) {
+        switch(message) {
         case WM_MOUSEMOVE: {
             break;
         }
@@ -1747,18 +1774,18 @@ void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height
         };
         AdjustWindowRect(&r, WS_OVERLAPPEDWINDOW, 0);
 
-        int width, height;
-        width = r.right - r.left;
-        height = r.bottom - r.top;
-        if(width > GetSystemMetrics(SM_CXSCREEN)) {
-            width = GetSystemMetrics(SM_CXSCREEN);
+        int w, h;
+        w = r.right - r.left;
+        h = r.bottom - r.top;
+        if(w > GetSystemMetrics(SM_CXSCREEN)) {
+            w = GetSystemMetrics(SM_CXSCREEN);
         }
 
-        if(height > GetSystemMetrics(SM_CYSCREEN)) {
-            height = GetSystemMetrics(SM_CYSCREEN);
+        if(h > GetSystemMetrics(SM_CYSCREEN)) {
+            h = GetSystemMetrics(SM_CYSCREEN);
         }
 
-        SetWindowPos(video_hwnd[id], 0, 0, 0, width, height, SWP_NOZORDER | SWP_NOMOVE);
+        SetWindowPos(video_hwnd[id], 0, 0, 0, w, h, SWP_NOZORDER | SWP_NOMOVE);
     }
 
     BITMAPINFO bmi = {
@@ -1978,7 +2005,7 @@ done:
     return hr;
 }
 
-IPin* ConnectFilters2(IGraphBuilder *pGraph, IPin *pOut, IBaseFilter *pDest)
+IPin* ConnectFilters2(IGraphBuilder *_pGraph, IPin *pOut, IBaseFilter *pDest)
 {
     IPin *pIn = NULL;
 
@@ -1987,13 +2014,13 @@ IPin* ConnectFilters2(IGraphBuilder *pGraph, IPin *pOut, IBaseFilter *pDest)
     if (SUCCEEDED(hr))
     {
         // Try to connect them.
-        hr = pGraph->lpVtbl->Connect(pGraph, pOut, pIn);
+        hr = pGraph->lpVtbl->Connect(_pGraph, pOut, pIn);
         pIn->lpVtbl->Release(pIn);
     }
     return SUCCEEDED(hr) ? pIn : NULL;
 }
 
-HRESULT ConnectFilters(IGraphBuilder *pGraph, IBaseFilter *pSrc, IBaseFilter *pDest)
+HRESULT ConnectFilters(IGraphBuilder *_pGraph, IBaseFilter *pSrc, IBaseFilter *pDest)
 {
     IPin *pOut = NULL;
 
@@ -2001,7 +2028,7 @@ HRESULT ConnectFilters(IGraphBuilder *pGraph, IBaseFilter *pSrc, IBaseFilter *pD
     HRESULT hr = FindUnconnectedPin(pSrc, PINDIR_OUTPUT, &pOut);
     if (SUCCEEDED(hr))
     {
-        if(!ConnectFilters2(pGraph, pOut, pDest)) {
+        if(!ConnectFilters2(_pGraph, pOut, pDest)) {
             hr = 1;
         }
         pOut->lpVtbl->Release(pOut);
@@ -2277,12 +2304,14 @@ _Bool video_init(void *handle)
     if(IsEqualGUID(&pmt->formattype, &FORMAT_VideoInfo)) {
         VIDEOINFOHEADER *pvi = (VIDEOINFOHEADER*)pmt->pbFormat;
         bmiHeader = &(pvi->bmiHeader);
+        video_width = bmiHeader->biWidth;
+        video_height = bmiHeader->biHeight;
     } else {
         debug("got bad format\n");
+        video_width = 0;
+        video_height = 0;
     }
 
-    video_width = bmiHeader->biWidth;
-    video_height = bmiHeader->biHeight;
     frame_data = malloc((size_t)video_width * video_height * 3);
 
     debug("width height %u %u\n", video_width, video_height);

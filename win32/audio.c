@@ -22,7 +22,7 @@ WAVEFORMATEX *pwfx = NULL;
 //const GUID KSDATAFORMAT_SUBTYPE_IEEE_FLOAT = {STATIC_KSDATAFORMAT_SUBTYPE_IEEE_FLOAT};
 //const GUID KSDATAFORMAT_SUBTYPE_PCM = {STATIC_KSDATAFORMAT_SUBTYPE_PCM};
 
-const GUID IID_IAudioCaptureClient = {0xc8adbd64, 0xe71e, 0x48a0, {0xa4,0xde, 0x18,0x5c,0x39,0x5c,0xd3,0x17}};
+const GUID IID_IAudioCaptureClient_utox = {0xc8adbd64, 0xe71e, 0x48a0, {0xa4,0xde, 0x18,0x5c,0x39,0x5c,0xd3,0x17}};
 
 
 /* note: only works when loopback is 48khz 2 channel floating*/
@@ -30,12 +30,12 @@ void audio_detect(void)
 {
     HRESULT hr;
     REFERENCE_TIME hnsRequestedDuration = REFTIMES_PER_SEC;
-    REFERENCE_TIME hnsActualDuration;
+    //REFERENCE_TIME hnsActualDuration;
     UINT32 bufferFrameCount;
     IMMDeviceEnumerator *pEnumerator = NULL;
     IMMDevice *pDevice = NULL;
     IMMDeviceCollection *pDeviceCollection = NULL;
-    BOOL bDone = FALSE;
+    //BOOL bDone = FALSE;
     UINT count;
     //HANDLE hEvent = NULL;
 
@@ -61,7 +61,7 @@ void audio_detect(void)
     hr = pAudioClient->lpVtbl->GetMixFormat(pAudioClient, &pwfx);
     EXIT_ON_ERROR(hr)
 
-    printf("default format: %u %u %u %u %u %u %u\n", WAVE_FORMAT_PCM, pwfx->wFormatTag, pwfx->nChannels, pwfx->nSamplesPerSec, pwfx->nAvgBytesPerSec, pwfx->wBitsPerSample, pwfx->nBlockAlign);
+    printf("default format: %u %u %u %lu %lu %u %u\n", WAVE_FORMAT_PCM, pwfx->wFormatTag, pwfx->nChannels, pwfx->nSamplesPerSec, pwfx->nAvgBytesPerSec, pwfx->wBitsPerSample, pwfx->nBlockAlign);
 
     if(pwfx->nSamplesPerSec != 48000 || pwfx->nChannels != 2 || pwfx->wFormatTag != WAVE_FORMAT_EXTENSIBLE) {
         printf("unsupported format for loopback\n");
@@ -97,10 +97,10 @@ void audio_detect(void)
     hr = pAudioClient->lpVtbl->GetBufferSize(pAudioClient, &bufferFrameCount);
     EXIT_ON_ERROR(hr)
 
-    hr = pAudioClient->lpVtbl->GetService(pAudioClient, &IID_IAudioCaptureClient, (void**)&pCaptureClient);
+    hr = pAudioClient->lpVtbl->GetService(pAudioClient, &IID_IAudioCaptureClient_utox, (void**)&pCaptureClient);
     EXIT_ON_ERROR(hr)
 
-    printf("%u %u\n", bufferFrameCount, pwfx->nSamplesPerSec);
+    printf("%u %lu\n", bufferFrameCount, pwfx->nSamplesPerSec);
 
     postmessage(NEW_AUDIO_IN_DEVICE, STR_AUDIO_IN_DEFAULT_LOOPBACK, 0, (void*)(size_t)1);
     return;
@@ -112,7 +112,7 @@ Exit:
     SAFE_RELEASE(pAudioClient)
     SAFE_RELEASE(pCaptureClient)
 
-    printf("audio_init fail: %u\n", hr);
+    printf("audio_init fail: %lu\n", hr);
 
 }
 
@@ -152,18 +152,20 @@ static void *convertsamples(int16_t *dest, float *src, int samples)
 
 _Bool audio_frame(int16_t *buffer)
 {
-    HRESULT hr;
+    //HRESULT hr;
     UINT32 numFramesAvailable;
     UINT32 packetLength = 0;
     BYTE *pData;
     DWORD flags;
 
-    hr = pCaptureClient->lpVtbl->GetNextPacketSize(pCaptureClient, &packetLength);
+    pCaptureClient->lpVtbl->GetNextPacketSize(pCaptureClient, &packetLength);
+    //hr = pCaptureClient->lpVtbl->GetNextPacketSize(pCaptureClient, &packetLength);
     //EXIT_ON_ERROR(hr)
 
     while (packetLength != 0) {
         // Get the available data in the shared buffer.
-        hr = pCaptureClient->lpVtbl->GetBuffer(pCaptureClient, &pData, &numFramesAvailable, &flags, NULL, NULL);
+        pCaptureClient->lpVtbl->GetBuffer(pCaptureClient, &pData, &numFramesAvailable, &flags, NULL, NULL);
+        //hr = pCaptureClient->lpVtbl->GetBuffer(pCaptureClient, &pData, &numFramesAvailable, &flags, NULL, NULL);
         //EXIT_ON_ERROR(hr)
 
         if (flags & AUDCLNT_BUFFERFLAGS_SILENT) {
@@ -186,14 +188,16 @@ _Bool audio_frame(int16_t *buffer)
         //hr = pMySink->CopyData(pData, numFramesAvailable, &bDone);
         //EXIT_ON_ERROR(hr)
 
-        hr = pCaptureClient->lpVtbl->ReleaseBuffer(pCaptureClient, numFramesAvailable);
+        pCaptureClient->lpVtbl->ReleaseBuffer(pCaptureClient, numFramesAvailable);
+        //hr = pCaptureClient->lpVtbl->ReleaseBuffer(pCaptureClient, numFramesAvailable);
         //EXIT_ON_ERROR(hr)
 
         if(frame) {
             return 1;
         }
 
-        hr = pCaptureClient->lpVtbl->GetNextPacketSize(pCaptureClient, &packetLength);
+        pCaptureClient->lpVtbl->GetNextPacketSize(pCaptureClient, &packetLength);
+        //hr = pCaptureClient->lpVtbl->GetNextPacketSize(pCaptureClient, &packetLength);
         //EXIT_ON_ERROR(hr)
     }
 

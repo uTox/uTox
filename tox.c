@@ -9,19 +9,20 @@ typedef struct {
 
 static TOX_MSG tox_msg, audio_msg, video_msg, toxav_msg;
 static volatile _Bool tox_thread_msg, audio_thread_msg, video_thread_msg, toxav_thread_msg;
+static volatile _Bool save_needed = 1;
 
 /* Writes log filename for fid to dest. returns length written */
 static int log_file_name(uint8_t *dest, size_t size_dest, Tox *tox, int fid)
 {
-    if (size_dest < TOX_CLIENT_ID_SIZE * 2 + sizeof(".txt"))
+    if (size_dest < TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".txt"))
         return -1;
 
-    uint8_t client_id[TOX_CLIENT_ID_SIZE];
+    uint8_t client_id[TOX_PUBLIC_KEY_SIZE];
     tox_get_client_id(tox, fid, client_id);
-    cid_to_string(dest, client_id); dest += TOX_CLIENT_ID_SIZE * 2;
+    cid_to_string(dest, client_id); dest += TOX_PUBLIC_KEY_SIZE * 2;
     memcpy((char*)dest, ".txt", sizeof(".txt"));
 
-    return TOX_CLIENT_ID_SIZE * 2 + sizeof(".txt");
+    return TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".txt");
 }
 
 enum {
@@ -186,6 +187,8 @@ void log_read(Tox *tox, int fid)
             return;
         }
 
+        msg->length = utf8_validate(msg->msg, msg->length);
+
         struct tm *ti;
         time_t rawtime = header.time;
         ti = localtime(&rawtime);
@@ -325,26 +328,32 @@ static _Bool load_save(Tox *tox)
         uint8_t path[512], *p;
         uint32_t size;
 
-        /* Try the default save location */
+        /* Try the STS compliant save location */
         p = path + datapath(path);
-        strcpy((char*)p, "tox_save");
+        strcpy((char*)p, "tox_save.tox");
         void *data = file_raw((char*)path, &size);
         if(!data) {
-            /* That didn't work, do we have a backup? */
+            /* Try filename missing the .tox extension */
             p = path + datapath(path);
-            strcpy((char*)p, "tox_save.tmp");
+            strcpy((char*)p, "tox_save");
             data = file_raw((char*)path, &size);
-            if(!data){
-                /* No backup huh? Is it in an old location we support? */
-                p = path + datapath_old(path);
-                strcpy((char*)p, "tox_save");
+            if(!data) {
+                /* That didn't work, do we have a backup? */
+                p = path + datapath(path);
+                strcpy((char*)p, "tox_save.tmp");
                 data = file_raw((char*)path, &size);
-                if (!data) {
-                    /* Well, lets try the current directiory... */
-                    data = file_raw("tox_save", &size);
-                    if(!data) {
-                        /* F***it I give up! */
-                        return 0;
+                if(!data){
+                    /* No backup huh? Is it in an old location we support? */
+                    p = path + datapath_old(path);
+                    strcpy((char*)p, "tox_save");
+                    data = file_raw((char*)path, &size);
+                    if (!data) {
+                        /* Well, lets try the current directory... */
+                        data = file_raw("tox_save", &size);
+                        if(!data) {
+                            /* F***it I give up! */
+                            return 0;
+                        }
                     }
                 }
             }
@@ -375,7 +384,7 @@ static _Bool load_save(Tox *tox)
         tox_get_status_message(tox, i, f->status_message, size);
         f->status_length = size;
 
-        char_t cid[TOX_CLIENT_ID_SIZE * 2];
+        char_t cid[TOX_PUBLIC_KEY_SIZE * 2];
         cid_to_string(cid, f->cid);
         init_avatar(&f->avatar, cid, NULL, NULL);
 
@@ -421,9 +430,9 @@ static void write_save(Tox *tox)
     tox_save(tox, data);
 
     p = path_real + datapath(path_real);
-    memcpy(p, "tox_save", sizeof("tox_save"));
+    memcpy(p, "tox_save.tox", sizeof("tox_save.tox"));
 
-    unsigned int path_len = (p - path_real) + sizeof("tox_save");
+    unsigned int path_len = (p - path_real) + sizeof("tox_save.tox");
     memcpy(path_tmp, path_real, path_len);
     memcpy(path_tmp + (path_len - 1), ".tmp", sizeof(".tmp"));
 
@@ -451,6 +460,7 @@ static void write_save(Tox *tox)
         debug("CHMOD: failure\n");
     }
 
+    save_needed = 0;
     free(data);
 }
 
@@ -611,7 +621,10 @@ void tox_thread(void *UNUSED(args))
                 if(!connected) {
                     do_bootstrap(tox);
                 }
-                write_save(tox);
+                //save every 10mill.
+                if (save_needed || (time - last_save >= (uint64_t)100 * 1000 * 1000 * 1000)){
+                    write_save(tox);
+                }
             }
 
             // If there's a message, load it, and send to the tox message thread
@@ -913,6 +926,15 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
         break;
     }
 
+    case TOX_CANCELCALL: {
+        /* param1: call #
+         * param2: friend #
+         */
+        toxav_cancel(av, param1, param2, "Call canceled by friend");
+        postmessage(FRIEND_CALL_STATUS, param2, param1, (void*)(size_t)CALL_NONE);
+        break;
+    }
+
     case TOX_NEWGROUP: {
         /*
          */
@@ -1140,6 +1162,7 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
     }
 
     }
+    save_needed = 1;
 }
 
 /** Translates status code to text then sends back to the user */
@@ -1345,7 +1368,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
 
         // commented out incase you have multiple clients in the same data dir and remove one as friend from the other
         //   (it would remove his avatar locally too otherwise)
-        //char_t cid[TOX_CLIENT_ID_SIZE * 2];
+        //char_t cid[TOX_PUBLIC_KEY_SIZE * 2];
         //cid_to_string(cid, f->cid);
         //delete_saved_avatar(cid);
         //delete_avatar_hash(cid);
@@ -1380,7 +1403,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         if (set_avatar(&f->avatar, data, param2, 0)) {
 
             // save avatar and hash to disk
-            char_t cid[TOX_CLIENT_ID_SIZE * 2];
+            char_t cid[TOX_PUBLIC_KEY_SIZE * 2];
             cid_to_string(cid, f->cid);
             save_avatar(cid, data, param2);
             save_avatar_hash(cid, f->avatar.hash);
@@ -1396,7 +1419,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         unset_avatar(&f->avatar);
 
         // remove avatar and hash from disk
-        char_t cid[TOX_CLIENT_ID_SIZE * 2];
+        char_t cid[TOX_PUBLIC_KEY_SIZE * 2];
         cid_to_string(cid, f->cid);
         delete_saved_avatar(cid);
         delete_avatar_hash(cid);
@@ -1847,7 +1870,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
     }
 
     case GROUP_UPDATE: {
-        GROUPCHAT *g = &group[param1];
+        //GROUPCHAT *g = &group[param1];
         updategroup(g);
 
         break;

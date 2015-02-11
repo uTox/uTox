@@ -35,11 +35,20 @@
 #define BM_FB_WIDTH (6 * SCALE)
 #define BM_FB_HEIGHT (5 * SCALE)
 
-#define BM_CB_WIDTH (20 * SCALE)
-#define BM_CB_HEIGHT (20 * SCALE)
+/* Chat button placements */
+#define BM_CHAT_BUTTON_WIDTH (15 * SCALE)
+#define BM_CHAT_BUTTON_HEIGHT (15 * SCALE)
+#define BM_CHAT_SEND_WIDTH (32 * SCALE)
+#define BM_CHAT_SEND_HEIGHT (32 * SCALE)
+#define _BM_CHAT_SEND_OVERLAY_WIDTH 20
+#define BM_CHAT_SEND_OVERLAY_HEIGHT (20 * SCALE)
+#define BM_CHAT_SEND_OVERLAY_WIDTH (20 * SCALE)
 
-#define _BM_CI_WIDTH 16
-#define BM_CI_WIDTH (16 * SCALE)
+#define _BM_CHAT_WIDTH 10
+#define BM_CHAT_WIDTH (10 * SCALE)
+
+#define _BM_CI_WIDTH 10
+#define BM_CI_WIDTH (10 * SCALE)
 
 void *svg_data;
 

@@ -291,6 +291,10 @@ static void video_thread(void *args)
 #include <AL/al.h>
 #include <AL/alc.h>
 
+#ifdef AUDIO_FILTERING
+#include <AL/alext.h>
+#endif
+
 /* include for compatibility with older versions of OpenAL */
 #ifndef ALC_ALL_DEVICES_SPECIFIER
 #include <AL/alext.h>
@@ -352,7 +356,7 @@ static void alccaptureclose(void *handle)
     alcCaptureCloseDevice(handle);
 }
 
-static void sourceplaybuffer(int i, int16_t *data, int samples, uint8_t channels, unsigned int sample_rate)
+static void sourceplaybuffer(int i, const int16_t *data, int samples, uint8_t channels, unsigned int sample_rate)
 {
     if(!channels || channels > 2) {
         return;
@@ -402,6 +406,13 @@ static void audio_thread(void *args)
 
     uint8_t audio_count = 0;
     _Bool record_on = 0;
+#ifdef AUDIO_FILTERING
+    debug("Audio Filtering");
+#ifdef ALC_LOOPBACK_CAPTURE_SAMPLES
+    debug(" and Echo cancelation");
+#endif
+    debug(" enabled in this build\n");
+#endif
 
     debug("frame size: %u\n", perframe);
 
@@ -436,7 +447,10 @@ static void audio_thread(void *args)
         return;
     }
 
-    context = alcCreateContext(device_out, NULL);
+    int attrlist[] = {  ALC_FREQUENCY, av_DefaultSettings.audio_sample_rate,
+                        ALC_INVALID };
+
+    context = alcCreateContext(device_out, attrlist);
     if(!alcMakeContextCurrent(context)) {
         printf("alcMakeContextCurrent() failed\n");
         alcCloseDevice(device_out);
@@ -480,12 +494,13 @@ static void audio_thread(void *args)
         free(samples);
     }
 
-    unsigned int i;
-    for (i = 0; i < MAX_CALLS; ++i) {
-        alSourcei(ringSrc[i], AL_LOOPING, AL_TRUE);
-        alSourcei(ringSrc[i], AL_BUFFER, RingBuffer);
+    {
+        unsigned int i;
+        for (i = 0; i < MAX_CALLS; ++i) {
+            alSourcei(ringSrc[i], AL_LOOPING, AL_TRUE);
+            alSourcei(ringSrc[i], AL_BUFFER, RingBuffer);
+        }
     }
-
 #ifdef AUDIO_FILTERING
     Filter_Audio *f_a = NULL;
 #endif
@@ -552,6 +567,8 @@ static void audio_thread(void *args)
                 if (num_chats != 0) {
                     int32_t chats[num_chats];
                     uint32_t max = tox_get_chatlist(tox, chats, num_chats);
+
+                    unsigned int i;
                     for (i = 0; i < max; ++i) {
                         if (tox_group_get_type(tox, chats[i]) == TOX_GROUPCHAT_TYPE_AV) {
                             GROUPCHAT *g = &group[chats[i]];
@@ -708,9 +725,27 @@ static void audio_thread(void *args)
                 }
             }
 
+#ifdef AUDIO_FILTERING
+#ifdef ALC_LOOPBACK_CAPTURE_SAMPLES
+            if (f_a && audio_filtering_enabled) {
+                ALint samples;
+                alcGetIntegerv(device_out, ALC_LOOPBACK_CAPTURE_SAMPLES, sizeof(samples), &samples);
+                if(samples >= perframe) {
+                    int16_t buf[perframe];
+                    alcCaptureSamplesLoopback(device_out, buf, perframe);
+                    int ret = pass_audio_output(f_a, buf, perframe);
+                    set_echo_delay_ms(f_a, 5);
+                    if (samples >= perframe * 2) {
+                        sleep = 0;
+                    }
+                }
+            }
+#endif
+#endif
+
             if(frame) {
 #ifdef AUDIO_FILTERING
-                if (f_a && filter_audio(f_a, buf, perframe) == -1) {
+                if (f_a && filter_audio(f_a, (int16_t*)buf, perframe) == -1) {
                     debug("filter audio error\n");
                 }
 #endif
@@ -741,7 +776,7 @@ static void audio_thread(void *args)
                     uint32_t max = tox_get_chatlist(tox, chats, num_chats);
                     for (i = 0; i < max; ++i) {
                         if (groups_audio[chats[i]]) {
-                            toxav_group_send_audio(tox, chats[i], buf, perframe, av_DefaultSettings.audio_channels, av_DefaultSettings.audio_sample_rate);
+                            toxav_group_send_audio(tox, chats[i], (int16_t *)buf, perframe, av_DefaultSettings.audio_channels, av_DefaultSettings.audio_sample_rate);
                         }
                     }
                 }
@@ -752,6 +787,10 @@ static void audio_thread(void *args)
             yieldcpu(5);
         }
     }
+
+#ifdef AUDIO_FILTERING
+    kill_filter_audio(f_a);
+#endif
 
     //missing some cleanup ?
     alDeleteSources(MAX_CALLS, ringSrc);
@@ -925,7 +964,7 @@ static void toxav_thread(void *args)
     toxav_thread_init = 0;
 }
 
-static void callback_av_video(ToxAv *av, int32_t call_index, const vpx_image_t *img, void *UNUSED(userdata))
+static void callback_av_video(void *av, int32_t call_index, const vpx_image_t *img, void *UNUSED(userdata))
 {
     /* copy the vpx_image */
     uint16_t *img_data = malloc(4 + img->d_w * img->d_h * 4);

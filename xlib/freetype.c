@@ -91,10 +91,6 @@ Picture loadglyphpic(uint8_t *data, int width, int height, int pitch, _Bool no_s
 
 GLYPH* font_getglyph(FONT *f, uint32_t ch)
 {
-    if(!FcCharSetHasChar(charset, ch)) {
-        return NULL;
-    }
-
     uint32_t hash = ch % 128;
     GLYPH *g = f->glyphs[hash], *s = g;
     if(g) {
@@ -103,6 +99,10 @@ GLYPH* font_getglyph(FONT *f, uint32_t ch)
                 return g;
             }
             g++;
+        }
+
+        if(!FcCharSetHasChar(charset, ch)) {
+            return NULL;
         }
 
         uint32_t count = (uint32_t)(g - s);
@@ -114,6 +114,10 @@ GLYPH* font_getglyph(FONT *f, uint32_t ch)
         f->glyphs[hash] = g;
         g += count;
     } else {
+        if(!FcCharSetHasChar(charset, ch)) {
+            return NULL;
+        }
+
         g = malloc(sizeof(GLYPH) * 2);
         if(!g) {
             return NULL;
@@ -289,8 +293,19 @@ static void font_info_open(FONT_INFO *i, FcPattern *pattern)
 
     FcPatternGetDouble(pattern, FC_PIXEL_SIZE, 0, &size);
 
-    FT_New_Face(ftlib, (char*)filename, id, &i->face);
-    FT_Set_Char_Size(i->face, (size * 64.0 + 0.5), (size * 64.0 + 0.5), 0, 0);
+    int ft_error = FT_New_Face(ftlib, (char*)filename, id, &i->face);
+
+    if (ft_error != 0) {
+        debug("Freetype error %u %s %i\n", ft_error, filename, id);
+        return;
+    }
+
+    ft_error = FT_Set_Char_Size(i->face, (size * 64.0 + 0.5), (size * 64.0 + 0.5), 0, 0);
+    if (ft_error != 0) {
+        debug("Freetype error %u %lf\n", ft_error, size);
+        return;
+    }
+
     debug("Loaded font %s %u %i %i\n", filename, id, PIXELS(i->face->ascender), PIXELS(i->face->descender));
 }
 

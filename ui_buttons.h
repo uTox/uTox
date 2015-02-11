@@ -131,6 +131,12 @@ static void button_call_onpress(void)
         break;
     }
 
+    case CALL_RINGING: {
+        tox_postmessage(TOX_CANCELCALL, f->callid, f - friend, NULL);
+        debug("Cancelling call: id = %u, friend = %d\n", f->callid, (int)(f - friend));
+        break;
+    }
+
     case CALL_OK:
     case CALL_OK_VIDEO: {
         tox_postmessage(TOX_HANGUP, f->callid, 0, NULL);
@@ -152,6 +158,13 @@ static void button_call_updatecolor(BUTTON *b)
         break;
     }
 
+    case CALL_RINGING: {
+        b->c1 = C_YELLOW;
+        b->c2 = C_RED_LIGHT;
+        b->c3 = C_RED_LIGHT;
+        break;
+    }
+
     case CALL_NONE: {
         if(f->online) {
             b->c1 = C_GREEN;
@@ -162,7 +175,6 @@ static void button_call_updatecolor(BUTTON *b)
         /* fall through */
     }
 
-    case CALL_RINGING:
     case CALL_RINGING_VIDEO:
     case CALL_INVITED_VIDEO: {
         b->c1 = C_GRAY;
@@ -200,6 +212,13 @@ static void button_video_onpress(void)
         break;
     }
 
+    case CALL_RINGING_VIDEO: {
+        tox_postmessage(TOX_CANCELCALL, f->callid, f - friend, NULL);
+        debug("Cancelling call: id = %u, friend = %d\n", f->callid, (int)(f - friend));
+        break;
+    }
+
+
     case CALL_OK: {
         tox_postmessage(TOX_CALL_VIDEO_ON, f - friend, f->callid, NULL);
         debug("start sending video\n");
@@ -226,6 +245,13 @@ static void button_video_updatecolor(BUTTON *b)
         break;
     }
 
+    case CALL_RINGING_VIDEO: {
+        b->c1 = C_YELLOW;
+        b->c2 = C_RED_LIGHT;
+        b->c3 = C_RED_LIGHT;
+        break;
+    }
+
     case CALL_NONE: {
         if(f->online) {
             b->c1 = C_GREEN;
@@ -237,7 +263,6 @@ static void button_video_updatecolor(BUTTON *b)
     }
 
     case CALL_RINGING:
-    case CALL_RINGING_VIDEO:
     case CALL_INVITED: {
         b->c1 = C_GRAY;
         b->c2 = C_GRAY;
@@ -356,27 +381,54 @@ static void button_chat1_updatecolor(BUTTON *b)
 }
 
 /* bottom right chat message window button */
-static void button_chat2_onpress(void)
-{
-    FRIEND *f = sitem->data;
-    if(f->online) {
-        edit_msg_onenter();
-        // reset focus to the chat window on send to prevent segfault. May break on android.
-        edit_setfocus(&edit_msg);
-    }
+static void button_chat2_onpress(void){
 }
 
-static void button_chat2_updatecolor(BUTTON *b)
-{
-    FRIEND *f = sitem->data;
+static void button_chat2_updatecolor(BUTTON *b){
+/*    FRIEND *f = sitem->data;
     if(f->online) {
         b->c1 = C_GREEN;
         b->c2 = C_GREEN_LIGHT;
         b->c3 = C_GREEN_LIGHT;
-    } else {
+    } else { */
         b->c1 = C_GRAY;
         b->c2 = C_GRAY;
         b->c3 = C_GRAY;
+/*    }*/
+}
+
+/* Button to send chat message */
+static void button_chat_send_onpress(void){
+    if (sitem->item == ITEM_FRIEND) {
+        FRIEND *f = sitem->data;
+        if(f->online) {
+            edit_msg_onenter(&edit_msg);
+            // reset focus to the chat window on send to prevent segfault. May break on android.
+            edit_setfocus(&edit_msg);
+        }
+    } else {
+        edit_msg_onenter(&edit_msg_group);
+        // reset focus to the chat window on send to prevent segfault. May break on android.
+        edit_setfocus(&edit_msg_group);
+    }
+}
+
+static void button_chat_send_updatecolor(BUTTON *b){
+    if (sitem->item == ITEM_FRIEND) {
+        FRIEND *f = sitem->data;
+        if(f->online) {
+            b->c1 = C_GREEN;
+            b->c2 = C_GREEN_LIGHT;
+            b->c3 = C_GREEN_LIGHT;
+        } else {
+            b->c1 = C_GRAY;
+            b->c2 = C_GRAY;
+            b->c3 = C_GRAY;
+        }
+    } else {
+        b->c1 = C_GREEN;
+        b->c2 = C_GREEN_LIGHT;
+        b->c3 = C_GREEN_LIGHT;
     }
 }
 
@@ -557,11 +609,26 @@ button_chat2 = {
     .c1 = C_GREEN,
     .c2 = C_GREEN_LIGHT,
     .c3 = C_GREEN_LIGHT,
-    .bm2 = BM_ADD,
-    .bw = _BM_ADD_WIDTH,
-    .bh = _BM_ADD_WIDTH,
+    // TODO: replace with something useful
+    // .bm2 = BM_ADD,
+    // .bw = _BM_ADD_WIDTH,
+    // .bh = _BM_ADD_WIDTH,
     .onpress = button_chat2_onpress,
     .updatecolor = button_chat2_updatecolor,
+},
+
+/* bottom right chat message window button */
+button_chat_send = {
+    .bm  = BM_CHAT_SEND,
+    .c1  = C_GREEN,
+    .c2  = C_GREEN_LIGHT,
+    .c3  = C_GREEN_LIGHT,
+    .bm2 = BM_CHAT_SEND_OVERLAY,
+    .bw  = _BM_CHAT_SEND_OVERLAY_WIDTH,
+    .bh  = _BM_CHAT_SEND_OVERLAY_WIDTH,
+
+    .onpress = button_chat_send_onpress,
+    .updatecolor = button_chat_send_updatecolor,
 },
 
 button_avatar = {

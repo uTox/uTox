@@ -257,7 +257,9 @@ static void drawsettings_content(int UNUSED(x), int y, int UNUSED(w), int UNUSED
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 29, STATUSMESSAGE);
 
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 123, AUDIOINPUTDEVICE);
+#ifdef AUDIO_FILTERING
     drawstr(LIST_RIGHT + SCALE * 190, y + SCALE * 123, AUDIOFILTERING);
+#endif
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 147, AUDIOOUTPUTDEVICE);
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 171, VIDEOINPUTDEVICE);
 
@@ -291,6 +293,10 @@ static void drawsettings_content(int UNUSED(x), int y, int UNUSED(w), int UNUSED
     setcolor(C_TITLE);
     setfont(FONT_TEXT);
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 334, AUDIONOTIFICATIONS);
+
+    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 357, CLOSE_TO_TRAY);
+    drawstr(LIST_RIGHT + SCALE * 75, y + SCALE * 357, START_IN_TRAY);
+
 }
 
 static void background_draw(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int width, int height)
@@ -393,6 +399,7 @@ PANEL panel_list = {
     .content_scroll = &scroll_list,
 },
 
+/* Panel to draw settings page */
 panel_settings = {
     .drawfunc = drawsettings_content,
     .content_scroll = &scroll_settings,
@@ -404,7 +411,8 @@ panel_settings = {
         (void*)&dropdown_audio_in, (void*)&dropdown_audio_out, (void*)&dropdown_video,
         (void*)&dropdown_dpi, (void*)&dropdown_language, (void*)&dropdown_proxy,
         (void*)&dropdown_ipv6, (void*)&dropdown_udp, (void*)&dropdown_logging,
-        (void*)&dropdown_audible_notification, (void*)&dropdown_audio_filtering,
+        (void*)&dropdown_audible_notification, (void*)&dropdown_audio_filtering, 
+        (void*)&dropdown_close_to_tray, (void*)&dropdown_start_in_tray,
         NULL
     }
 },
@@ -447,7 +455,8 @@ panel_item[] = {
         .disabled = 1,
         .drawfunc = drawfriend,
         .child = (PANEL*[]) {
-            (void*)&button_call, (void*)&button_video, (void*)&button_sendfile, (void*)&button_chat1, (void*)&button_chat2,
+            (void*)&button_call, (void*)&button_video, (void*)&button_sendfile,
+            (void*)&button_chat1, (void*)&button_chat2, (void*)&button_chat_send,
             (void*)&edit_msg,
             (void*)&scroll_friend,
             (void*)&messages_friend,
@@ -460,10 +469,9 @@ panel_item[] = {
         .disabled = 1,
         .drawfunc = drawgroup,
         .child = (PANEL*[]) {
-            (void*)&edit_msg,
-            (void*)&scroll_group,
-            (void*)&messages_group,
             (void*)&button_group_audio,
+            (void*)&scroll_group, (void*)&messages_group,
+            (void*)&edit_msg_group, (void*)&button_chat_send,
             NULL
         }
     },
@@ -527,7 +535,7 @@ void ui_scale(uint8_t scale)
     messages_group.panel.width = -SCROLL_WIDTH;
 
     scroll_settings.panel.y = LIST_Y;
-    scroll_settings.content_height = 375 * SCALE;
+    scroll_settings.content_height = 390 * SCALE;
 
     scroll_group.panel.y = LIST_Y;
     scroll_group.panel.height = MESSAGES_BOTTOM;
@@ -644,22 +652,30 @@ void ui_scale(uint8_t scale)
         .height = BM_LBUTTON_HEIGHT,
     },
 
-/* top right chat message window button */
+    /* top right chat message window button */
     b_chat1 = {
         .type = PANEL_BUTTON,
-        .x = -5 * SCALE - BM_CB_WIDTH,
-        .y = -47 * SCALE,
-        .height = BM_CB_HEIGHT,
-        .width = BM_CB_WIDTH,
+        .x = -40 * SCALE - BM_CHAT_BUTTON_WIDTH,
+        .y = -40 * SCALE,
+        .height = BM_CHAT_BUTTON_HEIGHT,
+        .width = BM_CHAT_BUTTON_WIDTH,
     },
 
-/* bottom right chat message window button */
+    /* bottom right chat message window button */
     b_chat2 = {
         .type = PANEL_BUTTON,
-        .x = -5 * SCALE - BM_CB_WIDTH,
-        .y = -47 * SCALE + BM_CB_HEIGHT + SCALE,
-        .height = BM_CB_HEIGHT + SCALE,
-        .width = BM_CB_WIDTH,
+        .x = -40 * SCALE - BM_CHAT_BUTTON_WIDTH,
+        .y = -40 * SCALE + BM_CHAT_BUTTON_HEIGHT + SCALE,
+        .height = BM_CHAT_BUTTON_HEIGHT + SCALE,
+        .width = BM_CHAT_BUTTON_WIDTH,
+    },
+
+    b_chat_send = {
+        .type   = PANEL_BUTTON,
+        .x      = -5 * SCALE - BM_CHAT_SEND_WIDTH,
+        .y      = -40 * SCALE,
+        .height = BM_CHAT_SEND_HEIGHT + SCALE,
+        .width  = BM_CHAT_SEND_WIDTH,
     },
 
     b_avatar = {
@@ -709,6 +725,7 @@ void ui_scale(uint8_t scale)
     button_videopreview.panel = b_videopreview;
     button_chat1.panel = b_chat1;
     button_chat2.panel = b_chat2;
+    button_chat_send.panel = b_chat_send;
     button_avatar.panel = b_avatar;
     button_name.panel = b_name;
     button_statusmsg.panel = b_statusmsg;
@@ -802,13 +819,32 @@ void ui_scale(uint8_t scale)
         .width = SCALE * 20
     },
 
-    d_audio_filtering = {
+    d_close_to_tray = {
+        .type = PANEL_DROPDOWN,
+        .x = 5 * SCALE,
+        .y = SCALE * 366,
+        .height = SCALE * 12,
+        .width = SCALE * 20
+    },
+
+    d_start_in_tray = {
+        .type = PANEL_DROPDOWN,
+        .x = 75 * SCALE,
+        .y = SCALE * 366,
+        .height = SCALE * 12,
+        .width = SCALE * 20
+    }
+
+#ifdef AUDIO_FILTERING
+    , d_audio_filtering = {
         .type = PANEL_DROPDOWN,
         .x = 190 * SCALE,
         .y = SCALE * 132,
         .height = SCALE * 12,
         .width = SCALE * 20
-    };
+    }
+#endif
+    ;
 
     dropdown_audio_in.panel = d_audio_in;
     dropdown_audio_out.panel = d_audio_out;
@@ -821,6 +857,8 @@ void ui_scale(uint8_t scale)
     dropdown_udp.panel = d_udp;
     dropdown_logging.panel = d_logging;
     dropdown_audible_notification.panel = d_notifications;
+    dropdown_close_to_tray.panel = d_close_to_tray;
+    dropdown_start_in_tray.panel = d_start_in_tray;
 #ifdef AUDIO_FILTERING
     dropdown_audio_filtering.panel = d_audio_filtering;
 #endif
@@ -866,12 +904,23 @@ void ui_scale(uint8_t scale)
         .width = -5 * SCALE,
     },
 
+    /* Message entry box for friends and groups */
     e_msg = {
-        .type = PANEL_EDIT,
-        .x = 5 * SCALE,
-        .y = -47 * SCALE,
-        .height =  42 * SCALE,
-        .width = - 5 * SCALE - BM_CB_WIDTH,
+        .type   = PANEL_EDIT,
+        .x      = 5 * SCALE,
+        .y      = -40 * SCALE,
+        // a text line is 8 high. 32 / 8 = 4 lines of text.
+        .height = 32 * SCALE,
+        .width  = -40 * SCALE - BM_CHAT_BUTTON_WIDTH,
+    },
+
+    e_msg_group = {
+        .type   = PANEL_EDIT,
+        .x      = 5 * SCALE,
+        .y      = -40 * SCALE,
+        // a text line is 8 high. 32 / 8 = 4 lines of text.
+        .height = 32 * SCALE,
+        .width  = -10 * SCALE - BM_CHAT_SEND_WIDTH,
     },
 
     e_search = {
@@ -904,6 +953,7 @@ void ui_scale(uint8_t scale)
     edit_addid.panel = e_addid;
     edit_addmsg.panel = e_addmsg;
     edit_msg.panel = e_msg;
+    edit_msg_group.panel = e_msg_group;
     edit_search.panel = e_search;
     edit_proxy_ip.panel = e_proxy_ip;
     edit_proxy_port.panel = e_proxy_port;
@@ -911,6 +961,7 @@ void ui_scale(uint8_t scale)
     setscale();
 }
 
+/* Use the preprocessor to build functions for all user inactions */
 #define FUNC(x, ret, ...) static ret (* x##func[])(void *p, ##__VA_ARGS__) = { \
     (void*)background_##x, \
     (void*)messages_##x, \
@@ -930,6 +981,8 @@ FUNC(mup, _Bool);
 FUNC(mleave, _Bool);
 
 #undef FUNC
+
+/* Use the preprocessor to add code to adjust the x,y cords for panels or sub panels. */
 #define FUNC() {\
     int relx = (p->x < 0) ? width + p->x : p->x;\
     int rely = (p->y < 0) ? height + p->y : p->y;\
@@ -961,6 +1014,14 @@ static void panel_update(PANEL *p, int x, int y, int width, int height)
 void ui_size(int width, int height)
 {
     panel_update(&panel_main, 0, 0, width, height);
+    tooltip_reset();
+}
+
+void ui_mouseleave(void)
+{
+    panel_mleave(&panel_main);
+    tooltip_reset();
+    redraw();
 }
 
 static void panel_draw_sub(PANEL *p, int x, int y, int width, int height)

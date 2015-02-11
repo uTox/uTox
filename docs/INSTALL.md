@@ -14,7 +14,7 @@ you're probably looking for [Building](BUILD.md).
 
 Dependencies:
 
-```dbus freetype libvpx openal v4l xext xrender```
+```dbus filter_audio freetype libvpx openal v4l xext xrender```
 
 Compile:
 ```bash
