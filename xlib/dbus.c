@@ -19,14 +19,13 @@ static int notify_build_message(DBusMessage* notify_msg, char *title, char *cont
     int value = 42;
 
     // Gets the avatar of the user to be displayed in the notification
-    if(cid != NULL)
-    {
+    if(cid != NULL) {
         char_t string_cid[TOX_CLIENT_ID_SIZE * 2];
         cid_to_string(string_cid, cid);
         get_avatar_location(app_icon_data, string_cid);
         app_icon = (char*) app_icon_data;
     }
-    
+
     dbus_message_iter_init_append(notify_msg, &args[0]);
     m |= dbus_message_iter_append_basic(&args[0], DBUS_TYPE_STRING, &app_name);
     m |= dbus_message_iter_append_basic(&args[0], DBUS_TYPE_UINT32, &replaces_id);

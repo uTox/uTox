@@ -223,9 +223,11 @@ _Bool doevent(XEvent event)
 
                             uint16_t w = img->width;
                             uint16_t h = img->height;
-                            Picture pic = image_to_picture(img);
 
-                            friend_sendimage(f, pic, w, h, (UTOX_PNG_IMAGE)out, size);
+                            UTOX_NATIVE_IMAGE *image = malloc(sizeof(UTOX_NATIVE_IMAGE));
+                            image->rgb = ximage_to_picture(img, NULL);
+                            image->alpha = None;
+                            friend_sendimage(f, image, w, h, (UTOX_PNG_IMAGE)out, size);
                         }
                     }
                 } else {

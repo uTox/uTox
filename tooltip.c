@@ -113,6 +113,8 @@ void tooltip_new(MAYBE_I18NAL_STRING* text)
     if(b->timer_running || b->visible || b->mouse_down) {
         return;
     }
+
+    b->timer_running = 1;
     thread(mouse_pos_check,NULL);
 }
 
@@ -120,7 +122,7 @@ void mouse_pos_check(void *UNUSED(args))
 {
     TOOLTIP *b = &tooltip;
     int old_x = 0, old_y = 0, tick = 0;
-    b->timer_running = 1;
+
     while(1) {
         if(mouse.x - old_x == 0 && mouse.y - old_y == 0) {
             if(tick >= 5) {

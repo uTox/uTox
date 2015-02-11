@@ -96,6 +96,13 @@ enum
     TRAY_STATUS_BUSY,
 };
 
+BLENDFUNCTION blend_function = {
+    .BlendOp = AC_SRC_OVER,
+    .BlendFlags = 0,
+    .SourceConstantAlpha = 0xFF,
+    .AlphaFormat = AC_SRC_ALPHA
+};
+
 /** Translate a char* from UTF-8 encoding to OS native;
  *
  * Accepts char_t pointer, native array pointer, length of input;
@@ -118,13 +125,6 @@ void drawalpha(int bm, int x, int y, int width, int height, uint32_t color)
         return;
     }
 
-    BLENDFUNCTION ftn = {
-        .BlendOp = AC_SRC_OVER,
-        .BlendFlags = 0,
-        .SourceConstantAlpha = 0xFF,
-        .AlphaFormat = AC_SRC_ALPHA
-    };
-
     BITMAPINFO bmi = {
         .bmiHeader = {
             .biSize = sizeof(BITMAPINFOHEADER),
@@ -136,73 +136,108 @@ void drawalpha(int bm, int x, int y, int width, int height, uint32_t color)
         }
     };
 
-    uint8_t *p = bitmap[bm], *end = p + width * height;
+    // create pointer to begining and end of the alpha-channel-only bitmap
+    uint8_t *alpha_pixel = bitmap[bm], *end = alpha_pixel + width * height;
 
 
-    uint32_t *np;
-    HBITMAP temp = CreateDIBSection(hdcMem, &bmi, DIB_RGB_COLORS, (void**)&np, NULL, 0);
+    // create temporary bitmap we'll combine the alpha and colors on
+    uint32_t *out_pixel;
+    HBITMAP temp = CreateDIBSection(hdcMem, &bmi, DIB_RGB_COLORS, (void**)&out_pixel, NULL, 0);
     SelectObject(hdcMem, temp);
 
-    while(p != end) {
-        uint8_t v = *p++;
-        *np++ = (((color & 0xFF) * v / 255) << 16) | ((((color >> 8) & 0xFF) * v / 255) << 8) | ((((color >> 16) & 0xFF) * v / 255) << 0) | (v << 24);
+    // create pixels for the drawable bitmap based on the alpha value of
+    // each pixel in the alpha bitmap and the color given by 'color',
+    // the Win32 API requires we pre-apply our alpha channel as well by
+    // doing (color * alpha / 255) for each color channel
+    // NOTE: Input color is in the format 0BGR, output pixel is in the format BGRA
+    while(alpha_pixel != end) {
+        uint8_t alpha = *alpha_pixel++;
+        *out_pixel++ = (((color & 0xFF) * alpha / 255) << 16) // red
+                     | ((((color >> 8) & 0xFF) * alpha / 255) << 8)  // green
+                     | ((((color >> 16) & 0xFF) * alpha / 255) << 0) // blue
+                     | (alpha << 24); // alpha
     }
 
-    AlphaBlend(hdc, x, y, width, height, hdcMem, 0, 0, width, height, ftn);
+    // draw temporary bitmap on screen
+    AlphaBlend(hdc, x, y, width, height, hdcMem, 0, 0, width, height, blend_function);
 
+    // clean up
     DeleteObject(temp);
 }
 
-void drawimage(UTOX_NATIVE_IMAGE data, int x, int y, int width, int height, int maxwidth, _Bool zoom, double position)
+void image_set_filter(UTOX_NATIVE_IMAGE *image, uint8_t filter)
 {
-    HBITMAP bm = data;
-    SelectObject(hdcMem, bm);
-    if(!zoom && width > maxwidth) {
-        StretchBlt(hdc, x, y, maxwidth, height * maxwidth / width, hdcMem, 0, 0, width, height, SRCCOPY);
-    } else {
-        if(width > maxwidth) {
-            BitBlt(hdc, x, y, maxwidth, height, hdcMem, (int)((double)(width - maxwidth) * position), 0, SRCCOPY);
-        } else {
-            BitBlt(hdc, x, y, width, height, hdcMem, 0, 0, SRCCOPY);
-        }
+    switch (filter) {
+    case FILTER_NEAREST:
+        image->stretch_mode = COLORONCOLOR;
+        break;
+    case FILTER_BILINEAR:
+        image->stretch_mode = HALFTONE;
+        break;
+    default:
+        debug("Warning: Tried to set image to unrecognized filter(%u).\n", filter);
+        return;
     }
 }
 
-void drawavatarimage(UTOX_NATIVE_IMAGE data, int x, int y, int width, int height, int targetwidth, int targetheight)
+void image_set_scale(UTOX_NATIVE_IMAGE *image, double img_scale)
 {
-    HBITMAP bm = data;
-    SelectObject(hdcMem, bm);
+    image->scaled_width = (uint32_t)((double)image->width * img_scale);
+    image->scaled_height = (uint32_t)((double)image->height * img_scale);
+}
 
-    uint32_t resize;
-    {
-        /* get smallest rational difference of width or height */
-        uint32_t w_resize = targetheight * 65536 / height;
-        uint32_t h_resize = targetwidth * 65536 / width;
-        resize = (abs((int)w_resize - 65536) > abs((int)h_resize - 65536)) ? h_resize : w_resize;
+static _Bool image_is_stretched(const UTOX_NATIVE_IMAGE *image)
+{
+    return image->width != image->scaled_width ||
+           image->height != image->scaled_height;
+}
+
+// NOTE: This function is way more complicated than the XRender variant, because
+// the Win32 API is a lot more limited, so all scaling, clipping, and handling
+// transparency has to be done explicitly
+void draw_image(const UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t imgx, uint32_t imgy)
+{
+    HDC drawdc; // device context we'll do the eventual drawing with
+    HBITMAP tmp = NULL; // used when scaling
+
+    if (!image_is_stretched(image)) {
+
+        SelectObject(hdcMem, image->bitmap);
+        drawdc = hdcMem;
+
+    } else {
+        // temporary device context for the scaling operation
+        drawdc = CreateCompatibleDC(NULL);
+
+        // set stretch mode from image
+        SetStretchBltMode(drawdc, image->stretch_mode);
+
+        // scaled bitmap will be drawn onto this bitmap
+        tmp = CreateCompatibleBitmap(hdcMem, image->scaled_width, image->scaled_height);
+        SelectObject(drawdc, tmp);
+
+        SelectObject(hdcMem, image->bitmap);
+
+        // stretch image onto temporary bitmap
+        if (image->has_alpha) {
+            AlphaBlend(drawdc, 0, 0, image->scaled_width, image->scaled_height, hdcMem, 0, 0, image->width, image->height, blend_function);
+        } else {
+            StretchBlt(drawdc, 0, 0, image->scaled_width, image->scaled_height, hdcMem, 0, 0, image->width, image->height, SRCCOPY);
+        }
     }
 
-    uint32_t new_width = width * resize / 65536;
-    uint32_t new_height = height * resize / 65536;
+    // clip and draw
+    if (image->has_alpha) {
+        AlphaBlend(hdc, x, y, width, height, drawdc, imgx, imgy, width, height, blend_function);
+    } else {
+        BitBlt(hdc, x, y, width, height, drawdc, imgx, imgy, SRCCOPY);
+    }
 
-    // temporary device context and bitmap for holding the scaled image
-    HDC tempdc = CreateCompatibleDC(NULL);
-    HBITMAP tmp = CreateCompatibleBitmap(hdcMem, new_width, new_height);
-    SelectObject(tempdc, tmp);
-
-    SetStretchBltMode(tempdc, HALFTONE); // prettiest built-in scaling
-
-    // scale image
-    StretchBlt(tempdc, 0, 0, new_width, new_height, hdcMem, 0, 0, width, height, SRCCOPY);
-
-    // set positions to show middle of image in the center
-    int xpos = (int) ((double)new_width / 2 - (double)targetwidth / 2);
-    int ypos = (int) ((double)new_height / 2 - (double)targetheight / 2);
-
-    // crop and draw image
-    BitBlt(hdc, x, y, targetwidth, targetheight, tempdc, xpos, ypos, SRCCOPY);
-
-    DeleteObject(tmp);
-    DeleteDC(tempdc);
+    // clean up
+    if (image_is_stretched(image)) {
+        DeleteObject(tmp);
+        DeleteDC(drawdc);
+    }
 }
 
 void drawtext(int x, int y, char_t *str, STRING_IDX length)
@@ -476,10 +511,10 @@ void openfileavatar(void)
                     break;
                 }
                 // create message containing text that selected avatar is too large and what the max size is
-                int len = sprintf(message, "%.*s", SLEN(AVATAR_TOO_LARGE_MAX_SIZE_IS), S(AVATAR_TOO_LARGE_MAX_SIZE_IS));
+                int len = sprintf((char *)message, "%.*s", SLEN(AVATAR_TOO_LARGE_MAX_SIZE_IS), S(AVATAR_TOO_LARGE_MAX_SIZE_IS));
                 len += sprint_bytes(message+len, sizeof(message)-len, TOX_AVATAR_MAX_DATA_LENGTH);
                 message[len++] = '\0';
-                MessageBox(NULL, message, NULL, MB_ICONWARNING);
+                MessageBox(NULL, (char *)message, NULL, MB_ICONWARNING);
             } else {
                 postmessage(SET_AVATAR, size, 0, file_data);
                 break;
@@ -680,6 +715,23 @@ void loadalpha(int bm, void *data, int width, int height)
     bitmap[bm] = data;
 }
 
+// creates an UTOX_NATIVE image based on given arguments
+// image should be freed with image_free
+static UTOX_NATIVE_IMAGE *create_utox_image(HBITMAP bitmap, _Bool has_alpha, uint32_t width, uint32_t height)
+{
+    UTOX_NATIVE_IMAGE *image = malloc(sizeof(UTOX_NATIVE_IMAGE));
+    image->bitmap = bitmap;
+    image->has_alpha = has_alpha;
+    image->width = width;
+    image->height = height;
+    image->scaled_width = width;
+    image->scaled_height = height;
+    image->stretch_mode = COLORONCOLOR;
+
+    return image;
+}
+
+
 static void sendbitmap(HDC mem, HBITMAP hbm, int width, int height)
 {
     BITMAPINFO info = {
@@ -716,7 +768,8 @@ static void sendbitmap(HDC mem, HBITMAP hbm, int width, int height)
     lodepng_encode_memory(&out, &size, bits, width, height, LCT_RGB, 8);
     free(bits);
 
-    friend_sendimage(sitem->data, hbm, width, height, (UTOX_PNG_IMAGE)out, size);
+    UTOX_NATIVE_IMAGE *image = create_utox_image(hbm, 0, width, height);
+    friend_sendimage(sitem->data, image, width, height, (UTOX_PNG_IMAGE)out, size);
 }
 
 void copy(int value)
@@ -781,18 +834,15 @@ void paste(void)
     CloseClipboard();
 }
 
-UTOX_NATIVE_IMAGE png_to_image(const UTOX_PNG_IMAGE data, size_t size, uint16_t *w, uint16_t *h)
+UTOX_NATIVE_IMAGE *png_to_image(const UTOX_PNG_IMAGE data, size_t size, uint16_t *w, uint16_t *h, _Bool keep_alpha)
 {
-    uint8_t *out;
+    uint8_t *rgba_data;
     unsigned width, height;
-    unsigned r = lodepng_decode32(&out, &width, &height, data->png_data, size);
+    unsigned r = lodepng_decode32(&rgba_data, &width, &height, data->png_data, size);
 
     if(r != 0 || !width || !height) {
-        return NULL;
+        return NULL; // invalid image
     }
-
-    HBITMAP bm = CreateCompatibleBitmap(hdcMem, width, height);
-    SelectObject(hdcMem, bm);
 
     BITMAPINFO bmi = {
         .bmiHeader = {
@@ -805,21 +855,53 @@ UTOX_NATIVE_IMAGE png_to_image(const UTOX_PNG_IMAGE data, size_t size, uint16_t 
         }
     };
 
-    uint8_t *p = out, *end = p + width * height * 4;
-    do {
-        uint8_t r = p[0];
-        p[0] = p[2];
-        p[2] = r;
-        p += 4;
-    } while(p != end);
+    // create device independent bitmap, we can write the bytes to out
+    // to put them in the bitmap
+    uint8_t *out;
+    HBITMAP bitmap = CreateDIBSection(hdcMem, &bmi, DIB_RGB_COLORS, (void**)&out, NULL, 0);
 
-    SetDIBitsToDevice(hdcMem, 0, 0, width, height, 0, 0, 0, height, out, &bmi, DIB_RGB_COLORS);
+    // convert RGBA data to internal format
+    // pre-applying the alpha if we're keeping the alpha channel,
+    // put the result in out
+    // NOTE: input pixels are in format RGBA, output is BGRA
+    uint8_t *p, *end = rgba_data + width * height * 4;
+    p = rgba_data;
+    if (keep_alpha) {
+        uint8_t alpha;
+        do {
+            alpha = p[3];
+            out[0] = p[2] * (alpha / 255.0); // pre-apply alpha
+            out[1] = p[1] * (alpha / 255.0);
+            out[2] = p[0] * (alpha / 255.0);
+            out[3] = alpha;
+            out += 4;
+            p += 4;
+        } while(p != end);
+    } else {
+        do {
+            out[0] = p[2];
+            out[1] = p[1];
+            out[2] = p[0];
+            out[3] = 0;
+            out += 4;
+            p += 4;
+        } while (p != end);
+    }
+
+    free(rgba_data);
+
+
+    UTOX_NATIVE_IMAGE *image = create_utox_image(bitmap, keep_alpha, width, height);
 
     *w = width;
     *h = height;
-    free(out);
+    return image;
+}
 
-    return bm;
+void image_free(UTOX_NATIVE_IMAGE *image)
+{
+    DeleteObject(image->bitmap);
+    free(image);
 }
 
 int datapath_old(uint8_t *dest)

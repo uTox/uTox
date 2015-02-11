@@ -5,7 +5,7 @@
 typedef struct avatar {
     uint8_t format; /* one of TOX_AVATAR_FORMAT */
     uint8_t hash[TOX_HASH_LENGTH]; /* tox_hash for the png data of this avatar */
-    UTOX_NATIVE_IMAGE image; /* converted avatar image to draw */
+    UTOX_NATIVE_IMAGE *image; /* converted avatar image to draw */
     uint16_t width, height; /* width and height of image (in pixels) */
 }AVATAR;
 
@@ -77,7 +77,8 @@ int delete_avatar_hash(const char_t *id);
  */
 int set_avatar(AVATAR *avatar, const uint8_t *data, uint32_t size, _Bool create_hash);
 
-/* unsets an avatar by setting its format to TOX_AVATAR_FORMAT_NONE */
+/* unsets an avatar by setting its format to TOX_AVATAR_FORMAT_NONE and
+ * freeing its image */
 void unset_avatar(AVATAR *avatar);
 
 /* sets own avatar based on given png data and saves it to disk if successful
