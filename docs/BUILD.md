@@ -21,18 +21,24 @@ For the build to pass you need to install the following from sources: [filteraud
 <a name="win" />
 ## Windows
 
-### Cross-compiling for Windows
+### Compiling for Windows
 
-If you have mingw32 and a working cygwin enviroment, the build script it tools/ 
-should just work. You must tell it if you want 32 or 64 bit, then the enviroment
+If you have mingw-w64 and a working cygwin enviroment, the build script provided in 
+tools/ should just work. You must tell it if you want 32 or 64 bit, then the enviroment
  you want to use.
 
-64bit should be `tools/cross_compile_windows.sh 64 win`
+64bit should be `tools/cross-compile-windows.sh`
 
-32bit should be `tools/cross_compile_windows.sh 32 win`
+32bit should be `tools/cross-compile-windows.sh -32`
 
 Make sure you grab a copy of toxcore, openal, and filter_audio from 
 https://jenkins.libtoxcore.so/ (Make sure you grab the right bit version.)
+
+You can also cross compile from unix if that's more your thing; again you'll need mingw-w64 and then just:
+
+`tools/cross-compile-windows.sh -unix`
+
+Don't forget to add -32 if you'd rather build the 32bit version.
 
 <a name="osx" />
 ## OSX
