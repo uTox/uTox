@@ -409,7 +409,7 @@ static void audio_thread(void *args)
 #ifdef AUDIO_FILTERING
     debug("Audio Filtering");
 #ifdef ALC_LOOPBACK_CAPTURE_SAMPLES
-    debug(" and Echo cancelation");
+    debug(" and Echo cancellation");
 #endif
     debug(" enabled in this build\n");
 #endif
