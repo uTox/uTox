@@ -3,7 +3,7 @@
 DBUS = 1
 V4LCONVERT = 1
 FILTER_AUDIO = 1
-UNITY = 1
+UNITY = 0
 
 DEPS = fontconfig freetype2 libtoxav libtoxcore
 DEPS += openal vpx x11 xext xrender
