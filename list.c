@@ -1,4 +1,8 @@
 #include "main.h"
+#ifdef UNITY
+#include "xlib/mmenu.h"
+extern _Bool unity_running;
+#endif
 
 static ITEM item_add, item_settings, item_transfer;
 static ITEM item[1024], *mitem, *nitem;
@@ -194,7 +198,11 @@ static void selectitem(ITEM *i)
     if(i->item == ITEM_FRIEND) {
         FRIEND *f = i->data;
 
-        mm_rm_entry(f->cid);
+        #ifdef UNITY
+        if(unity_running) {
+            mm_rm_entry(f->cid);
+        }
+        #endif
 
         memcpy(edit_msg.data, f->typed, f->typed_length);
         edit_msg.length = f->typed_length;

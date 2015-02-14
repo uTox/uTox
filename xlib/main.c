@@ -46,7 +46,10 @@
 #define DEFAULT_WIDTH (382 * DEFAULT_SCALE)
 #define DEFAULT_HEIGHT (320 * DEFAULT_SCALE)
 
+#ifdef UNITY
 #include <messaging-menu/messaging-menu.h>
+#include "mmenu.c"
+#endif
 
 Display *display;
 int screen;
@@ -89,9 +92,6 @@ uint16_t drawwidth, drawheight;
 XIC xic = NULL;
 
 XImage *screen_image;
-
-MessagingMenuApp *mmapp;
-GMainLoop *mmloop;
 
 
 /* pointers to dynamically loaded libs */
@@ -798,8 +798,6 @@ void setscale(void)
     }
 }
 
-#include "mmenu.c"
-
 void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_length, FRIEND *f)
 {
     if(havefocus) {
@@ -811,34 +809,24 @@ void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_
 
     #ifdef HAVE_DBUS
     char_t *str = tohtml(msg, msg_length);
-    
+
     uint8_t *f_cid = NULL;
     if(friend_has_avatar(f)) {
         f_cid = f->cid;
     }
-    
+
     dbus_notify((char*)title, (char*)str, (uint8_t*)f_cid);
 
     free(str);
     #endif
-    
-    mm_notify(f->name, f->cid);
-}
-/*
-void mm_register()
-{
-    mmapp = messaging_menu_app_new("utox.desktop");
-    messaging_menu_app_register(mmapp);
-    loop = g_main_loop_new (NULL, FALSE);
-    g_main_loop_run(loop);
+
+    #ifdef UNITY
+    if(unity_running) {
+        mm_notify(f->name, f->cid);
+    }
+    #endif
 }
 
-void mm_unregister()
-{
-    messaging_menu_app_unregister(mmapp);
-    g_object_unref(mmapp);
-}
-*/
 void showkeyboard(_Bool show)
 {
 
@@ -1073,10 +1061,15 @@ int main(int argc, char *argv[])
     while(!tox_thread_init) {
         yieldcpu(1);
     }
-    
+
     /* Registers the app in the Unity MM */
-    mm_register();
-    
+    #ifdef UNITY
+    unity_running = is_unity_running();
+    if(unity_running) {
+        mm_register();
+    }
+    #endif
+
     /* set up the contact list */
     list_start();
 
@@ -1149,8 +1142,12 @@ int main(int argc, char *argv[])
     XDestroyWindow(display, window);
     XCloseDisplay(display);
 
-    /* Unregisters the app in the Unity MM */
-    mm_unregister();
+    /* Unregisters the app from the Unity MM */
+    #ifdef UNITY
+    if(unity_running) {
+        mm_unregister();
+    }
+    #endif
 
     /* wait for threads to exit */
     while(tox_thread_init) {
