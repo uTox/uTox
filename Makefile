@@ -21,7 +21,7 @@ ifeq ($(FILTER_AUDIO), 1)
 endif
 
 ifeq ($(UNITY), 1)
-	DEPS += messaging-menu
+	DEPS += messaging-menu unity
 endif
 
 UNAME_S := $(shell uname -s)

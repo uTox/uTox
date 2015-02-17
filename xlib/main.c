@@ -48,6 +48,7 @@
 
 #ifdef UNITY
 #include <messaging-menu/messaging-menu.h>
+#include <unity.h>
 #include "mmenu.c"
 #endif
 

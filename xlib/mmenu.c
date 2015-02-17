@@ -1,10 +1,12 @@
 MessagingMenuApp *mmapp;
+UnityLauncherEntry *launcher;
 GMainLoop *mmloop;
 _Bool unity_running;
 
 char_t f_name_data[TOX_MAX_NAME_LENGTH] = "";
 char_t f_id_data[TOX_PUBLIC_KEY_SIZE * 2 + 1] = "";
 char_t f_id_data_on_minimize[TOX_PUBLIC_KEY_SIZE * 2 + 1] = "";
+uint8_t unread_friends = 0;
 
 // Checks if the current desktop is unity
 _Bool is_unity_running()
@@ -33,6 +35,7 @@ static void source_activated(MessagingMenuApp *mmapp_, const gchar *source_id, g
 void mm_register()
 {
     mmapp = messaging_menu_app_new("utox.desktop");
+    launcher = unity_launcher_entry_get_for_desktop_id("utox.desktop");
     messaging_menu_app_register(mmapp);
     g_signal_connect(mmapp, "activate-source", G_CALLBACK (source_activated), NULL);
     mmloop = g_main_loop_new(NULL, FALSE);
@@ -78,6 +81,11 @@ gboolean add_source()
 {
     messaging_menu_app_append_source(mmapp, (gchar*)f_id_data, NULL, (gchar*)f_name_data);
     messaging_menu_app_draw_attention(mmapp, (gchar*)f_id_data);
+    unread_friends++;
+    unity_launcher_entry_set_count(launcher, unread_friends);
+    if(unread_friends == 1) {
+        unity_launcher_entry_set_count_visible(launcher, TRUE);
+    }
     return FALSE;
 }
 
@@ -94,6 +102,11 @@ void mm_notify(char_t *f_name, uint8_t *f_id)
 gboolean remove_source()
 {
     messaging_menu_app_remove_source(mmapp, (gchar*)f_id_data);
+    unread_friends--;
+    unity_launcher_entry_set_count(launcher, unread_friends);
+    if(unread_friends == 0) {
+        unity_launcher_entry_set_count_visible(launcher, FALSE);
+    }
     return FALSE;
 }
 
