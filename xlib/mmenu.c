@@ -6,7 +6,7 @@ _Bool unity_running;
 char_t f_name_data[TOX_MAX_NAME_LENGTH] = "";
 char_t f_id_data[TOX_PUBLIC_KEY_SIZE * 2 + 1] = "";
 char_t f_id_data_on_minimize[TOX_PUBLIC_KEY_SIZE * 2 + 1] = "";
-uint8_t unread_friends = 0;
+uint_fast32_t unread_friends = 0;
 
 // Checks if the current desktop is unity
 _Bool is_unity_running()
