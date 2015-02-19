@@ -1000,6 +1000,10 @@ void showkeyboard(_Bool show){}
 void redraw_utox(void){
     if(active_hdc != main_utox_hdc){
         debug("Resetting	:: utox_main_hdc\n");
+        if(utox_hdc_bm) {
+                DeleteObject(utox_hdc_bm);
+        }
+        utox_hdc_bm = CreateCompatibleBitmap(main_utox_hdc, utox_window_width, utox_window_height);
         active_hdc = main_utox_hdc;
         hdc_bm = utox_hdc_bm;
         hdc = CreateCompatibleDC(main_utox_hdc);
@@ -1015,6 +1019,10 @@ void redraw_utox(void){
 void redraw_interrupt(void){
     if(active_hdc != main_interrupt_hdc){
         debug("Resetting	:: utox_interrupt_hdc\n");
+        if(interrupt_hdc_bm) {
+            DeleteObject(interrupt_hdc_bm);
+        }
+        interrupt_hdc_bm = CreateCompatibleBitmap(main_interrupt_hdc, INTERRUPT_WIDTH, INTERRUPT_HEIGHT);
         active_hdc = main_interrupt_hdc;
         hdc_bm = interrupt_hdc_bm;
         hdc = CreateCompatibleDC(main_interrupt_hdc);
@@ -1304,6 +1312,9 @@ LRESULT CALLBACK PopupProc(HWND window_handle, UINT msg, WPARAM wParam, LPARAM l
             RECT r = ps.rcPaint;
             BitBlt(main_interrupt_hdc, r.left, r.top, r.right - r.left, r.bottom - r.top, hdc, r.left, r.top, SRCCOPY);
             EndPaint(window_handle, &ps);
+
+            redraw_interrupt();
+
             return 0;
             }
         case WM_KEYDOWN: {
@@ -1777,6 +1788,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     }
 
     case WM_PAINT: {
+        debug("WM_PAINT was called by MAINPROC\n");
         PAINTSTRUCT ps;
 
         BeginPaint(hwn, &ps);
@@ -1785,6 +1797,8 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
         BitBlt(main_utox_hdc, r.left, r.top, r.right - r.left, r.bottom - r.top, hdc, r.left, r.top, SRCCOPY);
 
         EndPaint(hwn, &ps);
+
+
         return 0;
     }
 
