@@ -129,6 +129,8 @@ uint32_t friends, groups;
 
 //window
 int utox_window_width, utox_window_height, utox_window_baseline;
+//todo use this to size the inturrutp as a portion of the display size
+//int utox_window_width, utox_window_height, utox_window_baseline;
 _Bool utox_window_maximized;
 
 enum
