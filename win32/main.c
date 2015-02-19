@@ -993,6 +993,12 @@ void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_
 
 void incoming_call(){
     debug("Going to call popup\n");
+
+    // We don't need to popup a window if utox already has focus
+    if(havefocus) {
+        return;
+    }
+
     //flush utox drawing first to avoid error101;
     redraw_utox();
     thread(incoming_call_inturrupt,NULL);
@@ -1474,6 +1480,8 @@ void incoming_call_inturrupt(){
     // todo GrabingProc, WindowProc, rewrite all draw functions to get a pulled hdc, create layout for popup
     // remove winow title bars intergrate grabproc with winproc so that users can move bars around
 
+    // We're done so lets redraw_utox to make sure everything looks clean
+    redraw_utox();
     return;
 }
 

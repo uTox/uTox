@@ -293,8 +293,8 @@ uint8_t addfriend_status;
 
 #define MAIN_WIDTH 800
 #define MAIN_HEIGHT 600
-#define INTERRUPT_WIDTH 300
-#define INTERRUPT_HEIGHT 200
+#define INTERRUPT_WIDTH 600
+#define INTERRUPT_HEIGHT 300
 
 #define inrect(x, y, rx, ry, width, height) ((x) >= (rx) && (y) >= (ry) && (x) < ((rx) + (width)) && (y) < ((ry) + (height)))
 

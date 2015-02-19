@@ -30,6 +30,7 @@ static void callback_av_invite(void *arg, int32_t call_index, void *UNUSED(userd
 
     postmessage(FRIEND_CALL_STATUS, fid, call_index, (void*)(size_t)(video ? CALL_INVITED_VIDEO : CALL_INVITED));
     toxaudio_postmessage(AUDIO_PLAY_RINGTONE, call_index, 0, NULL);
+    incoming_call();
 
     debug("A/V Invite (%i)\n", call_index);
 }
