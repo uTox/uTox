@@ -322,18 +322,8 @@ static void background_draw(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int 
 static void draw_popup(void){
     setcolor(button_name.mouseover ? C_STATUS : WHITE);
     setfont(FONT_SELF_NAME);
-    drawtextrange(SELF_NAME_X, SELF_STATUS_X, SELF_NAME_Y, self.name, self.name_length);
+    drawtextrange(5, SELF_STATUS_X, 5, "Incoming call", 13);
 
-    setcolor(button_statusmsg.mouseover ? C_GRAY2 : C_STATUS);
-    setfont(FONT_STATUS);
-    drawtextrange(SELF_MSG_X, SELF_STATUS_X, SELF_MSG_Y, self.statusmsg, self.statusmsg_length);
-
-    // draw avatar or default image
-    if (self_has_avatar()) {
-        draw_avatar_image(self.avatar.image, SELF_AVATAR_X, SELF_AVATAR_Y, self.avatar.width, self.avatar.height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
-    } else {
-        drawalpha(BM_CONTACT, SELF_AVATAR_X, SELF_AVATAR_Y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, WHITE);
-    }
 }
 
 static _Bool background_mmove(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height), int UNUSED(mx), int UNUSED(my), int UNUSED(dx), int UNUSED(dy))
@@ -429,7 +419,7 @@ panel_settings = {
         (void*)&dropdown_audio_in, (void*)&dropdown_audio_out, (void*)&dropdown_video,
         (void*)&dropdown_dpi, (void*)&dropdown_language, (void*)&dropdown_proxy,
         (void*)&dropdown_ipv6, (void*)&dropdown_udp, (void*)&dropdown_logging,
-        (void*)&dropdown_audible_notification, (void*)&dropdown_audio_filtering, 
+        (void*)&dropdown_audible_notification, (void*)&dropdown_audio_filtering,
         (void*)&dropdown_close_to_tray, (void*)&dropdown_start_in_tray,
         NULL
     }
@@ -1000,7 +990,7 @@ void ui_scale(uint8_t scale)
 
 /* Drawing the popup window */
 PANEL panel_interrupt = {
-    .type = PANEL_MAIN,
+    .type = PANEL_NONE,
     .drawfunc = draw_popup,
     .child = (PANEL*[]) { NULL },
     .popup = 1,
