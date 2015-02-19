@@ -969,11 +969,6 @@ int ch_mod(uint8_t *file){
  */
 void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_length, uint8_t *cid){
 
-    debug("Going to call popup\n");
-    //flush utox drawing first to avoid error101;
-    redraw_utox();
-    thread(incoming_call_inturrupt,NULL);
-
     if(havefocus) {
         return;
     }
@@ -994,6 +989,14 @@ void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_
     utf8tonative(msg, nid.szInfo, msg_length > sizeof(nid.szInfo) / sizeof(*nid.szInfo) - 1 ? sizeof(nid.szInfo) / sizeof(*nid.szInfo) - 1 : msg_length);
 
     Shell_NotifyIconW(NIM_MODIFY, &nid);
+}
+
+void incoming_call(){
+    debug("Going to call popup\n");
+    //flush utox drawing first to avoid error101;
+    redraw_utox();
+    thread(incoming_call_inturrupt,NULL);
+
 }
 
 void showkeyboard(_Bool show){}

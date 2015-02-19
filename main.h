@@ -225,6 +225,7 @@ void drawalpha(int bm, int x, int y, int width, int height, uint32_t color);
 void loadalpha(int bm, void *data, int width, int height);
 void desktopgrab(_Bool video);
 void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_length, uint8_t *cid);
+void incoming_call();
 void setscale(void);
 
 enum {
