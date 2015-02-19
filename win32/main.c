@@ -970,6 +970,8 @@ int ch_mod(uint8_t *file){
 void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_length, uint8_t *cid){
 
     debug("Going to call popup\n");
+    //flush utox drawing first to avoid error101;
+    redraw_utox();
     thread(incoming_call_inturrupt,NULL);
 
     if(havefocus) {
@@ -1459,7 +1461,7 @@ void incoming_call_inturrupt(){
 
     MSG msg;
     int blerg = 0;
-    while(GetMessage(&msg, NULL, 0, 0) && (blerg <= 900) ) {
+    while(GetMessage(&msg, NULL, 0, 0) && (blerg <= 50) ) {
         TranslateMessage(&msg);
         DispatchMessage(&msg);
         yieldcpu(1);
