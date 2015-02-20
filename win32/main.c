@@ -1158,7 +1158,7 @@ LRESULT CALLBACK GrabProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
     return DefWindowProcW(window, msg, wParam, lParam);
 }
 
-void setscale(void)
+void setscale(int target)
 {
     int i;
     for(i = 0; i != countof(font); i++) {
@@ -1200,8 +1200,8 @@ void setscale(void)
 
     TEXTMETRIC tm;
     //todo change to hdc array
-    SelectObject(hdc[0], font[FONT_TEXT]);
-    GetTextMetrics(hdc[0], &tm);
+    SelectObject(hdc[target], font[FONT_TEXT]);
+    GetTextMetrics(hdc[target], &tm);
     font_small_lineheight = tm.tmHeight + tm.tmExternalLeading;
     //SelectObject(hdc[target], font[FONT_MSG]);
     //GetTextMetrics(hdc[target], &tm);

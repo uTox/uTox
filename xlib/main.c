@@ -746,8 +746,8 @@ void flush_file(FILE *file)
     fsync(fd);
 }
 
-void setscale(void)
-{
+void setscale(int target){
+
     int i;
     for(i = 0; i != countof(bitmap); i++) {
         if(bitmap[i]) {

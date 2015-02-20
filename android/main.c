@@ -222,7 +222,7 @@ int ch_mod(uint8_t *file){
     /* You're probably looking for ./xlib as android isn't working when this was written. */
 }
 
-void setscale(void)
+void setscale(int target)
 {
     if(window) {
         svg_draw(0);

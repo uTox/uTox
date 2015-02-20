@@ -320,7 +320,7 @@ static void background_draw(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int 
 
 
 static void draw_popup(void){
-    setcolor_common(0, button_name.mouseover ? C_STATUS : WHITE);
+    setcolor_common(1, WHITE);
     setfont_common(1, FONT_SELF_NAME);
     drawtextrange_common(1, 5, SELF_STATUS_X, 5, "Incoming call", 13);
 
@@ -985,7 +985,8 @@ void ui_scale(uint8_t scale)
     edit_proxy_ip.panel = e_proxy_ip;
     edit_proxy_port.panel = e_proxy_port;
 
-    setscale();
+    //set the main window scale (0)
+    setscale(0);
 }
 
 /* Drawing the popup window */
@@ -1022,7 +1023,8 @@ void popup_scale(uint8_t scale){
     button_interrupt_call.panel = b_interrupt_call;
     button_interrupt_video.panel = b_interrupt_video;
 
-    setscale();
+    // Set the popup scale, todo, change to key not 1
+    setscale(1);
 }
 
 #define FUNC(x, ret, ...) static ret (* x##func[])(void *p, ##__VA_ARGS__) = { \
