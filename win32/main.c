@@ -976,7 +976,7 @@ void incoming_call(){
 
     // We don't need to popup a window if utox already has focus
     if(havefocus) {
-        return;
+        // return; // always show while testing
     }
 
     //flush utox drawing first to avoid error101;
@@ -989,7 +989,7 @@ void showkeyboard(_Bool show){}
 
 /* Redraws the main UI window */
 void redraw_utox(void){
-    debug("Redrawing	:: utox_main\n");
+    //debug("Redrawing	:: utox_main\n");
     panel_draw(&panel_main, 0, 0, 0, utox_window_width, utox_window_height);
 }
 
@@ -1225,6 +1225,9 @@ LRESULT CALLBACK PopupProc(HWND window_handle, UINT msg, WPARAM wParam, LPARAM l
     switch(msg) {
         case WM_CREATE: {
             debug("WM_CREATE was called by POPUPPROC\n");
+            main_hdc[1] = GetDC(window_handle);
+            hdc[1] = CreateCompatibleDC(main_hdc[1]);
+            hdcMem[1] = CreateCompatibleDC(hdc[1]);
             return 0;
             }
         case WM_SIZE: {
@@ -1249,6 +1252,7 @@ LRESULT CALLBACK PopupProc(HWND window_handle, UINT msg, WPARAM wParam, LPARAM l
                     DeleteObject(hdc_bm[1]);
                 }
                 hdc_bm[1] = CreateCompatibleBitmap(main_hdc[1], w, h);
+                SelectObject(hdc[1], hdc_bm[1]);
             }
             redraw_interrupt(1);
             return 0;
