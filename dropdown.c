@@ -14,15 +14,15 @@ void dropdown_drawactive(void)
 
     int x = active_x, y = active_y, w = active_width, h = active_height;
 
-    setfont(FONT_TEXT);
-    setcolor(COLOR_TEXT);
+    setfont_common(0, FONT_TEXT);
+    setcolor_common(0, COLOR_TEXT);
 
     int i, sign = 1;
 
     // Increase width if needed, so that all menu items fit.
     for(i = 0; i != b->dropcount; i++) {
         STRING* e = b->ondisplay(i, b);
-        int needed_w = textwidth(e->str, e->length) + 4 * SCALE;
+        int needed_w = textwidth_common(0, e->str, e->length) + 4 * SCALE;
         if(w < needed_w) {
             w = needed_w;
         }
@@ -33,8 +33,8 @@ void dropdown_drawactive(void)
         sign = -1;
     }
 
-    drawrect(x, y, x + w, y + h * b->dropcount, WHITE);
-    framerect(x, y, x + w, y + h * b->dropcount, BLUE);
+    drawrect_common(0, x, y, x + w, y + h * b->dropcount, WHITE);
+    framerect_common(0, x, y, x + w, y + h * b->dropcount, BLUE);
 
     if(sign == -1) {
         y += h * (b->dropcount - 1);
@@ -44,9 +44,9 @@ void dropdown_drawactive(void)
         int j = index(b, i);
         STRING* e = b->ondisplay(j, b);
         if(j == b->over) {
-            drawrectw(x + 1, y + 1, w - 2, h - 2, C_GRAY);
+            drawrectw_common(0, x + 1, y + 1, w - 2, h - 2, C_GRAY);
         }
-        drawtext(x + 2 * SCALE, y + 2 * SCALE, e->str, e->length);
+        drawtext_common(0, x + 2 * SCALE, y + 2 * SCALE, e->str, e->length);
 
         y += sign * h;
     }
@@ -55,14 +55,14 @@ void dropdown_drawactive(void)
 void dropdown_draw(DROPDOWN *b, int x, int y, int width, int height)
 {
     if(!b->open) {
-        framerect(x, y, x + width, y + height, (b->mouseover ? C_GRAY2 : C_GRAY));
-        drawrect(x + 1, y + 1, x + width - 1, y + height - 1, WHITE);
+        framerect_common(0, x, y, x + width, y + height, (b->mouseover ? C_GRAY2 : C_GRAY));
+        drawrect_common(0, x + 1, y + 1, x + width - 1, y + height - 1, WHITE);
 
         if(b->dropcount) {
-            setfont(FONT_TEXT);
-            setcolor(COLOR_TEXT);
+            setfont_common(0, FONT_TEXT);
+            setcolor_common(0, COLOR_TEXT);
             STRING* e = b->ondisplay(b->selected, b);
-            drawtextwidth(x + 2 * SCALE, width - 4 * SCALE, y + 2 * SCALE, e->str, e->length);
+            drawtextwidth_common(0, x + 2 * SCALE, width - 4 * SCALE, y + 2 * SCALE, e->str, e->length);
         }
     } else {
         active_x = x;

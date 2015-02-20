@@ -66,25 +66,25 @@ uint32_t status_color[] = {
 static void drawself(void)
 {
     //40x40 self icon at 10,10
-    setcolor(button_name.mouseover ? C_STATUS : WHITE);
-    setfont(FONT_SELF_NAME);
-    drawtextrange(SELF_NAME_X, SELF_STATUS_X, SELF_NAME_Y, self.name, self.name_length);
+    setcolor_common(0, button_name.mouseover ? C_STATUS : WHITE);
+    setfont_common(0, FONT_SELF_NAME);
+    drawtextrange_common(0, SELF_NAME_X, SELF_STATUS_X, SELF_NAME_Y, self.name, self.name_length);
 
-    setcolor(button_statusmsg.mouseover ? C_GRAY2 : C_STATUS);
-    setfont(FONT_STATUS);
-    drawtextrange(SELF_MSG_X, SELF_STATUS_X, SELF_MSG_Y, self.statusmsg, self.statusmsg_length);
+    setcolor_common(0, button_statusmsg.mouseover ? C_GRAY2 : C_STATUS);
+    setfont_common(0, FONT_STATUS);
+    drawtextrange_common(0, SELF_MSG_X, SELF_STATUS_X, SELF_MSG_Y, self.statusmsg, self.statusmsg_length);
 
     // draw avatar or default image
     if (self_has_avatar()) {
         draw_avatar_image(self.avatar.image, SELF_AVATAR_X, SELF_AVATAR_Y, self.avatar.width, self.avatar.height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
     } else {
-        drawalpha(BM_CONTACT, SELF_AVATAR_X, SELF_AVATAR_Y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, WHITE);
+        drawalpha_common(0, BM_CONTACT, SELF_AVATAR_X, SELF_AVATAR_Y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, WHITE);
     }
 
-    drawalpha(BM_STATUSAREA, SELF_STATUS_X, SELF_STATUS_Y, BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT, button_status.mouseover ? LIST_HIGHLIGHT : LIST_MAIN);
+    drawalpha_common(0, BM_STATUSAREA, SELF_STATUS_X, SELF_STATUS_Y, BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT, button_status.mouseover ? LIST_HIGHLIGHT : LIST_MAIN);
 
     uint8_t status = tox_connected ? self.status : 3;
-    drawalpha(BM_ONLINE + status, SELF_STATUS_X + BM_STATUSAREA_WIDTH / 2 - BM_STATUS_WIDTH / 2, SELF_STATUS_Y + BM_STATUSAREA_HEIGHT / 2 - BM_STATUS_WIDTH / 2, BM_STATUS_WIDTH, BM_STATUS_WIDTH, status_color[status]);
+    drawalpha_common(0, BM_ONLINE + status, SELF_STATUS_X + BM_STATUSAREA_WIDTH / 2 - BM_STATUS_WIDTH / 2, SELF_STATUS_Y + BM_STATUSAREA_HEIGHT / 2 - BM_STATUS_WIDTH / 2, BM_STATUS_WIDTH, BM_STATUS_WIDTH, status_color[status]);
 }
 
 /* Header for friend chat window */
@@ -96,33 +96,33 @@ static void drawfriend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(h
     if (friend_has_avatar(f)) {
         draw_avatar_image(f->avatar.image, LIST_RIGHT + SCALE * 5, SCALE * 5, f->avatar.width, f->avatar.height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
     } else {
-        drawalpha(BM_CONTACT, LIST_RIGHT + SCALE * 5, SCALE * 5, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, LIST_MAIN);
+        drawalpha_common(0, BM_CONTACT, LIST_RIGHT + SCALE * 5, SCALE * 5, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, LIST_MAIN);
     }
 
-    setcolor(C_TITLE);
-    setfont(FONT_TITLE);
-    drawtextrange(LIST_RIGHT + 30 * SCALE, utox_window_width - 92 * SCALE, 9 * SCALE, f->name, f->name_length);
+    setcolor_common(0, C_TITLE);
+    setfont_common(0, FONT_TITLE);
+    drawtextrange_common(0, LIST_RIGHT + 30 * SCALE, utox_window_width - 92 * SCALE, 9 * SCALE, f->name, f->name_length);
 
-    setcolor(LIST_MAIN);
-    setfont(FONT_STATUS);
-    drawtextrange(LIST_RIGHT + 30 * SCALE, utox_window_width - 92 * SCALE, 16 * SCALE, f->status_message, f->status_length);
+    setcolor_common(0, LIST_MAIN);
+    setfont_common(0, FONT_STATUS);
+    drawtextrange_common(0, LIST_RIGHT + 30 * SCALE, utox_window_width - 92 * SCALE, 16 * SCALE, f->status_message, f->status_length);
 }
 
 static void drawgroup(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height))
 {
     GROUPCHAT *g = sitem->data;
 
-    drawalpha(BM_GROUP, LIST_RIGHT + SCALE * 5, SCALE * 5, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, LIST_MAIN);
+    drawalpha_common(0, BM_GROUP, LIST_RIGHT + SCALE * 5, SCALE * 5, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, LIST_MAIN);
 
-    setcolor(C_TITLE);
-    setfont(FONT_TITLE);
-    drawtext(LIST_RIGHT + 30 * SCALE, 1 * SCALE, g->name, g->name_length);
+    setcolor_common(0, C_TITLE);
+    setfont_common(0, FONT_TITLE);
+    drawtext_common(0, LIST_RIGHT + 30 * SCALE, 1 * SCALE, g->name, g->name_length);
 
-    setcolor(LIST_MAIN);
-    setfont(FONT_STATUS);
-    drawtext(LIST_RIGHT + 30 * SCALE, 8 * SCALE, g->topic, g->topic_length);
+    setcolor_common(0, LIST_MAIN);
+    setfont_common(0, FONT_STATUS);
+    drawtext_common(0, LIST_RIGHT + 30 * SCALE, 8 * SCALE, g->topic, g->topic_length);
 
-    setcolor(GRAY(150));
+    setcolor_common(0, GRAY(150));
     uint32_t i = 0;
     int k = LIST_RIGHT + 30 * SCALE;
 
@@ -138,13 +138,13 @@ static void drawgroup(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(he
             memcpy(buf, name + 1, name[0]);
             memcpy(buf + name[0], ", ", 2);
 
-            int w = textwidth(buf, name[0] + 2);
+            int w = textwidth_common(0, buf, name[0] + 2);
             if (i == g->our_peer_number) {
-                setcolor(C_GREEN);
+                setcolor_common(0, C_GREEN);
             } else if (time - g->last_recv_audio[i] <= (uint64_t)1 * 1000 * 1000 * 1000) {
-                setcolor(C_RED);
+                setcolor_common(0, C_RED);
             } else {
-                setcolor(GRAY(150));
+                setcolor_common(0, GRAY(150));
             }
 
             if(k + w >= (utox_window_width - 32 * SCALE)) {
@@ -152,12 +152,12 @@ static void drawgroup(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(he
                     pos_y += 6;
                     k = LIST_RIGHT + 30 * SCALE;
                 } else {
-                    drawtext(k, pos_y * SCALE, (uint8_t*)"...", 3);
+                    drawtext_common(0, k, pos_y * SCALE, (uint8_t*)"...", 3);
                     break;
                 }
             }
 
-            drawtext(k, pos_y * SCALE, buf, name[0] + 2);
+            drawtext_common(0, k, pos_y * SCALE, buf, name[0] + 2);
 
             k += w;
         }
@@ -170,31 +170,31 @@ static void drawfriendreq(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSE
 {
     FRIENDREQ *req = sitem->data;
 
-    setcolor(C_TITLE);
-    setfont(FONT_SELF_NAME);
+    setcolor_common(0, C_TITLE);
+    setfont_common(0, FONT_SELF_NAME);
     drawstr(LIST_RIGHT + SCALE * 5, SCALE * 10, FRIENDREQUEST);
 
-    setcolor(LIST_MAIN);
-    setfont(FONT_STATUS);
-    drawtextrange(LIST_RIGHT + 5 * SCALE, utox_window_width, 20 * SCALE, req->msg, req->length);
+    setcolor_common(0, LIST_MAIN);
+    setfont_common(0, FONT_STATUS);
+    drawtextrange_common(0, LIST_RIGHT + 5 * SCALE, utox_window_width, 20 * SCALE, req->msg, req->length);
 }
 
 /* Draw add a friend window */
 static void drawadd(int UNUSED(x), int UNUSED(y), int UNUSED(w), int height)
 {
-    setcolor(C_TITLE);
-    setfont(FONT_SELF_NAME);
+    setcolor_common(0, C_TITLE);
+    setfont_common(0, FONT_SELF_NAME);
     drawstr(LIST_RIGHT + SCALE * 5, SCALE * 10, ADDFRIENDS);
 
-    setcolor(C_TITLE);
-    setfont(FONT_TEXT);
+    setcolor_common(0, C_TITLE);
+    setfont_common(0, FONT_TEXT);
     drawstr(LIST_RIGHT + SCALE * 5, LIST_Y + SCALE * 5, TOXID);
 
     drawstr(LIST_RIGHT + SCALE * 5, LIST_Y + SCALE * 29, MESSAGE);
 
     if(addfriend_status) {
-        setfont(FONT_MISC);
-        setcolor(C_RED);
+        setfont_common(0, FONT_MISC);
+        setcolor_common(0, C_RED);
 
         STRING *str;
         switch(addfriend_status) {
@@ -233,8 +233,8 @@ static void drawadd(int UNUSED(x), int UNUSED(y), int UNUSED(w), int height)
 /* Top bar for user settings */
 static void drawsettings(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height))
 {
-    setcolor(C_TITLE);
-    setfont(FONT_SELF_NAME);
+    setcolor_common(0, C_TITLE);
+    setfont_common(0, FONT_SELF_NAME);
     drawstr(LIST_RIGHT + SCALE * 5, SCALE * 10, USERSETTINGS);
 }
 
@@ -242,16 +242,16 @@ static void drawsettings(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UN
 /* Current TODO */
 static void drawtransfer(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height))
 {
-    setcolor(C_TITLE);
-    setfont(FONT_SELF_NAME);
+    setcolor_common(0, C_TITLE);
+    setfont_common(0, FONT_SELF_NAME);
     drawstr(LIST_RIGHT + SCALE * 5, SCALE * 10, SWITCHPROFILE);
 }
 
 /* Text content for settings page */
 static void drawsettings_content(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height))
 {
-    setcolor(C_TITLE);
-    setfont(FONT_TEXT);
+    setcolor_common(0, C_TITLE);
+    setfont_common(0, FONT_TEXT);
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 5, NAME);
 
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 29, STATUSMESSAGE);
@@ -274,9 +274,9 @@ static void drawsettings_content(int UNUSED(x), int y, int UNUSED(w), int UNUSED
 
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 310, LOGGING);
 
-    drawtext(LIST_RIGHT + SCALE * 132, y + SCALE * 290, (uint8_t*)":", 1);
+    drawtext_common(0, LIST_RIGHT + SCALE * 132, y + SCALE * 290, (uint8_t*)":", 1);
 
-    setfont(FONT_SELF_NAME);
+    setfont_common(0, FONT_SELF_NAME);
 
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 54, TOXID);
 
@@ -286,12 +286,12 @@ static void drawsettings_content(int UNUSED(x), int y, int UNUSED(w), int UNUSED
 
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 195, OTHERSETTINGS);
 
-    setfont(FONT_MISC);
-    setcolor(C_RED);
+    setfont_common(0, FONT_MISC);
+    setcolor_common(0, C_RED);
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 302, WARNING);
 
-    setcolor(C_TITLE);
-    setfont(FONT_TEXT);
+    setcolor_common(0, C_TITLE);
+    setfont_common(0, FONT_TEXT);
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 334, AUDIONOTIFICATIONS);
 
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 357, CLOSE_TO_TRAY);
@@ -301,28 +301,28 @@ static void drawsettings_content(int UNUSED(x), int y, int UNUSED(w), int UNUSED
 
 static void background_draw(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int width, int height)
 {
-    drawrect(0, 0, LIST_RIGHT, LIST_Y - 1, LIST_DARK);
-    drawhline(0, LIST_Y - 1, LIST_RIGHT, LIST_EDGE);
-    drawrect(0, LIST_Y, LIST_RIGHT, height + LIST_BOTTOM, LIST_MAIN);
-    drawrect(0, height + LIST_BOTTOM, LIST_RIGHT, height, LIST_DARK);
+    drawrect_common(0, 0, 0, LIST_RIGHT, LIST_Y - 1, LIST_DARK);
+    drawhline_common(0, 0, LIST_Y - 1, LIST_RIGHT, LIST_EDGE);
+    drawrect_common(0, 0, LIST_Y, LIST_RIGHT, height + LIST_BOTTOM, LIST_MAIN);
+    drawrect_common(0, 0, height + LIST_BOTTOM, LIST_RIGHT, height, LIST_DARK);
 
     drawself();
 
-    drawrect(LIST_RIGHT, 0, width, height, WHITE);
+    drawrect_common(0, LIST_RIGHT, 0, width, height, WHITE);
 
-    drawvline(LIST_RIGHT, 1, LIST_Y - 1, LIST_EDGE3);
+    drawvline_common(0, LIST_RIGHT, 1, LIST_Y - 1, LIST_EDGE3);
     drawpixel(LIST_RIGHT, LIST_Y - 1, LIST_EDGE2);
-    drawvline(LIST_RIGHT, LIST_Y, height - SCALE * 15, LIST_EDGE4);
+    drawvline_common(0, LIST_RIGHT, LIST_Y, height - SCALE * 15, LIST_EDGE4);
     drawpixel(LIST_RIGHT, height - SCALE * 15, LIST_EDGE5);
 
-    drawhline(LIST_RIGHT + 1, LIST_Y - 1, width, C_GRAY);
+    drawhline_common(0, LIST_RIGHT + 1, LIST_Y - 1, width, C_GRAY);
 }
 
 
 static void draw_popup(void){
-    setcolor(button_name.mouseover ? C_STATUS : WHITE);
-    setfont(FONT_SELF_NAME);
-    drawtextrange(5, SELF_STATUS_X, 5, "Incoming call", 13);
+    setcolor_common(0, button_name.mouseover ? C_STATUS : WHITE);
+    setfont_common(1, FONT_SELF_NAME);
+    drawtextrange_common(1, 5, SELF_STATUS_X, 5, "Incoming call", 13);
 
 }
 
@@ -1097,7 +1097,7 @@ static void panel_draw_sub(PANEL *p, int x, int y, int width, int height)
     FUNC();
 
     if(p->content_scroll) {
-        pushclip(x, y, width, height);
+        pushclip_common(0, x, y, width, height);
 
         y -= scroll_gety(p->content_scroll, height);
     }
@@ -1121,15 +1121,15 @@ static void panel_draw_sub(PANEL *p, int x, int y, int width, int height)
     }
 
     if(p->content_scroll) {
-        popclip();
+        popclip_common(0);
     }
 }
 
-void panel_draw(PANEL *p, int x, int y, int width, int height)
+void panel_draw(PANEL *p, int target, int x, int y, int width, int height)
 {
     FUNC();
 
-    //pushclip(x, y, width, height);
+    //pushclip_common(0, x, y, width, height);
 
     if(p->type) {
         drawfunc[p->type - 1](p, x, y, width, height);
@@ -1148,13 +1148,13 @@ void panel_draw(PANEL *p, int x, int y, int width, int height)
         }
     }
 
-    //popclip();
+    //popclip_common(0);
 
     dropdown_drawactive();
     contextmenu_draw();
     tooltip_draw();
 
-    enddraw(x, y, width, height);
+    enddraw_common(target, x, y, width, height);
 }
 
 _Bool panel_mmove(PANEL *p, int x, int y, int width, int height, int mx, int my, int dx, int dy)
@@ -1202,7 +1202,7 @@ _Bool panel_mmove(PANEL *p, int x, int y, int width, int height, int mx, int my,
         if(draw && p == &panel_main) {
             redraw_utox();
         } else if(p == &panel_interrupt){
-            redraw_interrupt();
+            redraw_interrupt(1);
         }
     }
 
@@ -1252,7 +1252,7 @@ void panel_mdown(PANEL *p)
     if(draw && p == &panel_main) {
         redraw_utox();
     } else if(p == &panel_interrupt){
-        redraw_interrupt();
+        redraw_interrupt(1);
     }
 }
 
@@ -1280,7 +1280,7 @@ _Bool panel_dclick(PANEL *p, _Bool triclick)
     if(draw && p == &panel_main) {
         redraw_utox();
     } else if(p == &panel_interrupt){
-        redraw_interrupt();
+        redraw_interrupt(1);
     }
 
     return draw;
@@ -1301,7 +1301,7 @@ _Bool panel_mright(PANEL *p)
     if(draw && p == &panel_main) {
         redraw_utox();
     } else if(p == &panel_interrupt){
-        redraw_interrupt();
+        redraw_interrupt(1);
     }
 
     return draw;
@@ -1324,7 +1324,7 @@ _Bool panel_mwheel(PANEL *p, int x, int y, int width, int height, double d)
     if(draw && p == &panel_main) {
         redraw_utox();
     } else if(p == &panel_interrupt){
-        redraw_interrupt();
+        redraw_interrupt(1);
     }
 
     return draw;
@@ -1348,7 +1348,7 @@ _Bool panel_mup(PANEL *p)
         if(draw && p == &panel_main) {
             redraw_utox();
         } else if(p == &panel_interrupt){
-            redraw_interrupt();
+            redraw_interrupt(1);
         }
     }
 
@@ -1372,7 +1372,7 @@ _Bool panel_mleave(PANEL *p)
         if(draw && p == &panel_main) {
             redraw_utox();
         } else if(p == &panel_interrupt){
-            redraw_interrupt();
+            redraw_interrupt(1);
         }
     }
 

@@ -45,8 +45,8 @@ static void draw_message_image(UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t 
  */
 void messages_draw(MESSAGES *m, int x, int y, int width, int height)
 {
-    setcolor(0);
-    setfont(FONT_TEXT);
+    setcolor_common(0, 0);
+    setfont_common(0, FONT_TEXT);
 
     uint8_t lastauthor = 0xFF;
 
@@ -69,39 +69,39 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
             break;
         }
 
-        setcolor(LIST_MAIN);
-        setfont(FONT_MISC);
+        setcolor_common(0, LIST_MAIN);
+        setfont_common(0, FONT_MISC);
 
         {
             char timestr[6];
             STRING_IDX len;
             len = snprintf(timestr, sizeof(timestr), "%u:%.2u", msg->time / 60, msg->time % 60);
-            drawtext(x + width - TIME_WIDTH, y, (char_t*)timestr, len);
+            drawtext_common(0, x + width - TIME_WIDTH, y, (char_t*)timestr, len);
         }
 
         // Draw the names for groups or friends
         if(m->type) {
             /* group */
-            setcolor(C_BLUE);
-            setfont(FONT_TEXT);
-            drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, y, &msg->msg[msg->length] + 1, msg->msg[msg->length]);
+            setcolor_common(0, C_BLUE);
+            setfont_common(0, FONT_TEXT);
+            drawtextwidth_right_common(0,  x, MESSAGES_X - NAME_OFFSET, y, &msg->msg[msg->length] + 1, msg->msg[msg->length]);
         } else {
             FRIEND *f = &friend[m->data->id];
             if(msg->author != lastauthor) {
-                setfont(FONT_TEXT);
+                setfont_common(0, FONT_TEXT);
                 if(!msg->author) {
-                    setcolor(0);
-                    drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, y, f->name, f->name_length);
+                    setcolor_common(0, 0);
+                    drawtextwidth_right_common(0,  x, MESSAGES_X - NAME_OFFSET, y, f->name, f->name_length);
                 } else {
-                    setcolor(CHAT_SELF);
-                    drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, y, self.name, self.name_length);
+                    setcolor_common(0, CHAT_SELF);
+                    drawtextwidth_right_common(0,  x, MESSAGES_X - NAME_OFFSET, y, self.name, self.name_length);
                 }
                 lastauthor = msg->author;
             } else {
                 if(!msg->author) {
-                    setcolor(0);
+                    setcolor_common(0, 0);
                 } else {
-                    setcolor(CHAT_SELF);
+                    setcolor_common(0, CHAT_SELF);
                 }
             }
         }
@@ -129,12 +129,12 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
             }
 
             if (msg->msg_type == MSG_TYPE_ACTION_TEXT) {
-                setcolor(C_BLUE);
+                setcolor_common(0, C_BLUE);
             } else {
-                setcolor(0);
+                setcolor_common(0, 0);
             }
 
-            setfont(FONT_TEXT);
+            setfont_common(0, FONT_TEXT);
             int ny = drawtextmultiline(x + MESSAGES_X, x + width - TIME_WIDTH, y, y, y + msg->height, font_small_lineheight, msg->msg, msg->length, h1, h2 - h1, 1);
             if(ny < y || (uint32_t)(ny - y) + MESSAGES_SPACING != msg->height) {
                 debug("error101 %u %u\n", ny -y, msg->height - MESSAGES_SPACING);
@@ -162,38 +162,38 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
             char_t size[16];
             STRING_IDX sizelen = sprint_bytes(size, sizeof(size), file->size);
 
-            setcolor(WHITE);
-            setfont(FONT_MISC);
+            setcolor_common(0, WHITE);
+            setfont_common(0, FONT_MISC);
 
             if(file->status == FILE_DONE) {
-                drawalpha(BM_FT, xx, y, BM_FT_WIDTH, BM_FT_HEIGHT, (mo && m->over) ? C_GREEN_LIGHT : C_GREEN);
-                drawalpha(BM_YES, xx + BM_FTM_WIDTH + SCALE + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2, y + SCALE * 4, BM_FB_WIDTH, BM_FB_HEIGHT, WHITE);
+                drawalpha_common(0, BM_FT, xx, y, BM_FT_WIDTH, BM_FT_HEIGHT, (mo && m->over) ? C_GREEN_LIGHT : C_GREEN);
+                drawalpha_common(0, BM_YES, xx + BM_FTM_WIDTH + SCALE + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2, y + SCALE * 4, BM_FB_WIDTH, BM_FB_HEIGHT, WHITE);
                 if(file->inline_png) {
                     drawstr(xx + 5 * SCALE, y + 17 * SCALE, CLICKTOSAVE);
                 } else {
                     drawstr(xx + 5 * SCALE, y + 17 * SCALE, CLICKTOOPEN);
                 }
             } else if(file->status == FILE_KILLED) {
-                drawalpha(BM_FT, xx, y, BM_FT_WIDTH, BM_FT_HEIGHT, C_RED);
-                drawalpha(BM_NO, xx + BM_FTM_WIDTH + SCALE + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2, y + SCALE * 4, BM_FB_WIDTH, BM_FB_HEIGHT, WHITE);
+                drawalpha_common(0, BM_FT, xx, y, BM_FT_WIDTH, BM_FT_HEIGHT, C_RED);
+                drawalpha_common(0, BM_NO, xx + BM_FTM_WIDTH + SCALE + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2, y + SCALE * 4, BM_FB_WIDTH, BM_FB_HEIGHT, WHITE);
                 drawstr(xx + 5 * SCALE, y + 17 * SCALE, CANCELLED);
             } else {
                 if(file->status == FILE_BROKEN) {
-                    drawalpha(BM_FTM, xx, y, BM_FTM_WIDTH, BM_FT_HEIGHT, C_RED);
+                    drawalpha_common(0, BM_FTM, xx, y, BM_FTM_WIDTH, BM_FT_HEIGHT, C_RED);
                 } else if(file->status == FILE_OK) {
-                    drawalpha(BM_FTM, xx, y, BM_FTM_WIDTH, BM_FT_HEIGHT, BLUE);
+                    drawalpha_common(0, BM_FTM, xx, y, BM_FTM_WIDTH, BM_FT_HEIGHT, BLUE);
                 } else {
-                    drawalpha(BM_FTM, xx, y, BM_FTM_WIDTH, BM_FT_HEIGHT, C_GRAY);
-                    setcolor(GRAY(98));
+                    drawalpha_common(0, BM_FTM, xx, y, BM_FTM_WIDTH, BM_FT_HEIGHT, C_GRAY);
+                    setcolor_common(0, GRAY(98));
                 }
 
                 int xxx = xx + BM_FTM_WIDTH + SCALE;
-                drawalpha(BM_FTB1, xxx, y, BM_FTB_WIDTH, BM_FTB_HEIGHT + SCALE, (mo && m->over == 1) ? C_GREEN_LIGHT : C_GREEN);
-                drawalpha(BM_NO, xxx + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2, y + SCALE * 4, BM_FB_WIDTH, BM_FB_HEIGHT, WHITE);
+                drawalpha_common(0, BM_FTB1, xxx, y, BM_FTB_WIDTH, BM_FTB_HEIGHT + SCALE, (mo && m->over == 1) ? C_GREEN_LIGHT : C_GREEN);
+                drawalpha_common(0, BM_NO, xxx + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2, y + SCALE * 4, BM_FB_WIDTH, BM_FB_HEIGHT, WHITE);
 
                 uint32_t color = ((msg->author && file->status == FILE_PENDING) || file->status == FILE_BROKEN || file->status == FILE_PAUSED_OTHER) ? C_GRAY: ((mo && m->over == 2) ? C_GREEN_LIGHT : C_GREEN);
-                drawalpha(BM_FTB2, xxx, y + BM_FTB_HEIGHT + SCALE * 2, BM_FTB_WIDTH, BM_FTB_HEIGHT, color);
-                drawalpha((!msg->author && file->status ==  FILE_PENDING) ? BM_YES : (file->status == FILE_PAUSED ? BM_RESUME : BM_PAUSE), xxx + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2, y + BM_FTB_HEIGHT + SCALE * 5, BM_FB_WIDTH, BM_FB_HEIGHT, color == C_GRAY ? LIST_MAIN : WHITE);
+                drawalpha_common(0, BM_FTB2, xxx, y + BM_FTB_HEIGHT + SCALE * 2, BM_FTB_WIDTH, BM_FTB_HEIGHT, color);
+                drawalpha_common(0, (!msg->author && file->status ==  FILE_PENDING) ? BM_YES : (file->status == FILE_PAUSED ? BM_RESUME : BM_PAUSE), xxx + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2, y + BM_FTB_HEIGHT + SCALE * 5, BM_FB_WIDTH, BM_FB_HEIGHT, color == C_GRAY ? LIST_MAIN : WHITE);
 
 
                 uint64_t progress = file->progress;
@@ -204,8 +204,8 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
                 uint32_t w = (file->size == 0) ? 0 : (progress * (uint64_t)106 * SCALE) / file->size;
 
                 color = (file->status == FILE_PENDING || file->status == FILE_PAUSED || file->status == FILE_PAUSED_OTHER) ? LIST_MAIN : WHITE;
-                framerect(xx + 5 * SCALE, y + 17 * SCALE, xx + 111 * SCALE, y + 24 * SCALE, color);
-                drawrectw(xx + 5 * SCALE, y + 17 * SCALE, w, 7 * SCALE, color);
+                framerect_common(0, xx + 5 * SCALE, y + 17 * SCALE, xx + 111 * SCALE, y + 24 * SCALE, color);
+                drawrectw_common(0, xx + 5 * SCALE, y + 17 * SCALE, w, 7 * SCALE, color);
 
                 if(file->status == FILE_OK) {
                     char_t text[16];
@@ -215,7 +215,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
                     text[len++] = '/';
                     text[len++] = 's';
 
-                    drawtext(xx + 5 * SCALE + 53 * SCALE - textwidth(text, len) / 2, y + 10 * SCALE, text, len);
+                    drawtext_common(0, xx + 5 * SCALE + 53 * SCALE - textwidth_common(0, text, len) / 2, y + 10 * SCALE, text, len);
 
                     uint64_t etasec = 0;
                     if(file->speed) {
@@ -224,13 +224,13 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
 
                     len = snprintf((char*)text, sizeof(text), "%us", (uint32_t)etasec);
 
-                    drawtext(xx + 5 * SCALE + 106 * SCALE - textwidth(text, len), y + 10 * SCALE, text, len);
+                    drawtext_common(0, xx + 5 * SCALE + 106 * SCALE - textwidth_common(0, text, len), y + 10 * SCALE, text, len);
                 }
             }
 
 
-            drawtextwidth(xx + 5 * SCALE, 106 * SCALE, y + 3 * SCALE, file->name, file->name_length);
-            drawtext(xx + 5 * SCALE, y + 10 * SCALE, size, sizelen);
+            drawtextwidth_common(0, xx + 5 * SCALE, 106 * SCALE, y + 3 * SCALE, file->name, file->name_length);
+            drawtext_common(0, xx + 5 * SCALE, y + 10 * SCALE, size, sizelen);
 
             y += BM_FT_HEIGHT;
 
@@ -245,10 +245,10 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
         // Last message is visible. Append typing notifications, if needed.
         FRIEND *f = get_typers(m);
         if(f) {
-            setfont(FONT_TEXT);
-            setcolor(C_GRAY2);
-            drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, y, f->name, f->name_length);
-            drawtextwidth(x + MESSAGES_X, x + width, y, S(IS_TYPING), SLEN(IS_TYPING));
+            setfont_common(0, FONT_TEXT);
+            setcolor_common(0, C_GRAY2);
+            drawtextwidth_right_common(0,  x, MESSAGES_X - NAME_OFFSET, y, f->name, f->name_length);
+            drawtextwidth_common(0, x + MESSAGES_X, x + width, y, S(IS_TYPING), SLEN(IS_TYPING));
         }
     }
 }
@@ -278,7 +278,7 @@ _Bool messages_mmove(MESSAGES *m, int UNUSED(px), int UNUSED(py), int width, int
         return 0;
     }
 
-    setfont(FONT_TEXT);
+    setfont_common(0, FONT_TEXT);
 
     void **p = m->data->data;
     MSG_IDX i = 0, n = m->data->n;
@@ -834,7 +834,7 @@ void messages_updateheight(MESSAGES *m)
         return;
     }
 
-    setfont(FONT_TEXT);
+    setfont_common(0, FONT_TEXT);
 
     uint32_t height = 0;
     MSG_IDX i = 0;
@@ -861,7 +861,7 @@ static void message_setheight(MESSAGES *m, MESSAGE *msg, MSG_DATA *p)
         return;
     }
 
-    setfont(FONT_TEXT);
+    setfont_common(0, FONT_TEXT);
 
     msg->height = msgheight(msg, m->width);
     p->height += msg->height;
@@ -876,7 +876,7 @@ void message_updateheight(MESSAGES *m, MESSAGE *msg, MSG_DATA *p)
         return;
     }
 
-    setfont(FONT_TEXT);
+    setfont_common(0, FONT_TEXT);
 
     p->height -= msg->height;
     msg->height = msgheight(msg, m->width);

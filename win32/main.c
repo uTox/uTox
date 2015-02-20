@@ -68,11 +68,10 @@ HCURSOR cursors[8];
 HICON my_icon, unread_messages_icon;
 
 HWND hwnd, capturewnd, video_hwnd[MAX_NUM_FRIENDS], interrupt_hwnd;
-HINSTANCE hinstance, interrupt_hInstance;
-HDC hdc, hdcMem;
-HDC active_hdc, main_utox_hdc, main_interrupt_hdc;
+HINSTANCE hinstance;
+HDC main_hdc[9], hdc[9], hdcMem[9];
 HBRUSH hdc_brush;
-HBITMAP hdc_bm, utox_hdc_bm, interrupt_hdc_bm;
+HBITMAP hdc_bm[9];
 
 
 //static char save_path[280];
@@ -119,8 +118,7 @@ void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data)
     PostMessage(hwnd, WM_TOX + (msg), ((param1) << 16) | (param2), (LPARAM)data);
 }
 
-void drawalpha(int bm, int x, int y, int width, int height, uint32_t color)
-{
+void drawalpha_common(int target, int bm, int x, int y, int width, int height, uint32_t color){
     if(!bitmap[bm]) {
         return;
     }
@@ -142,8 +140,8 @@ void drawalpha(int bm, int x, int y, int width, int height, uint32_t color)
 
     // create temporary bitmap we'll combine the alpha and colors on
     uint32_t *out_pixel;
-    HBITMAP temp = CreateDIBSection(hdcMem, &bmi, DIB_RGB_COLORS, (void**)&out_pixel, NULL, 0);
-    SelectObject(hdcMem, temp);
+    HBITMAP temp = CreateDIBSection(hdcMem[target], &bmi, DIB_RGB_COLORS, (void**)&out_pixel, NULL, 0);
+    SelectObject(hdcMem[target], temp);
 
     // create pixels for the drawable bitmap based on the alpha value of
     // each pixel in the alpha bitmap and the color given by 'color',
@@ -159,7 +157,7 @@ void drawalpha(int bm, int x, int y, int width, int height, uint32_t color)
     }
 
     // draw temporary bitmap on screen
-    AlphaBlend(hdc, x, y, width, height, hdcMem, 0, 0, width, height, blend_function);
+    AlphaBlend(hdc[target], x, y, width, height, hdcMem[target], 0, 0, width, height, blend_function);
 
     // clean up
     DeleteObject(temp);
@@ -202,8 +200,8 @@ void draw_image(const UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, ui
 
     if (!image_is_stretched(image)) {
 
-        SelectObject(hdcMem, image->bitmap);
-        drawdc = hdcMem;
+        SelectObject(hdcMem[0], image->bitmap);
+        drawdc = hdcMem[0];
 
     } else {
         // temporary device context for the scaling operation
@@ -213,24 +211,24 @@ void draw_image(const UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, ui
         SetStretchBltMode(drawdc, image->stretch_mode);
 
         // scaled bitmap will be drawn onto this bitmap
-        tmp = CreateCompatibleBitmap(hdcMem, image->scaled_width, image->scaled_height);
+        tmp = CreateCompatibleBitmap(hdcMem[0], image->scaled_width, image->scaled_height);
         SelectObject(drawdc, tmp);
 
-        SelectObject(hdcMem, image->bitmap);
+        SelectObject(hdcMem[0], image->bitmap);
 
         // stretch image onto temporary bitmap
         if (image->has_alpha) {
-            AlphaBlend(drawdc, 0, 0, image->scaled_width, image->scaled_height, hdcMem, 0, 0, image->width, image->height, blend_function);
+            AlphaBlend(drawdc, 0, 0, image->scaled_width, image->scaled_height, hdcMem[0], 0, 0, image->width, image->height, blend_function);
         } else {
-            StretchBlt(drawdc, 0, 0, image->scaled_width, image->scaled_height, hdcMem, 0, 0, image->width, image->height, SRCCOPY);
+            StretchBlt(drawdc, 0, 0, image->scaled_width, image->scaled_height, hdcMem[0], 0, 0, image->width, image->height, SRCCOPY);
         }
     }
 
     // clip and draw
     if (image->has_alpha) {
-        AlphaBlend(hdc, x, y, width, height, drawdc, imgx, imgy, width, height, blend_function);
+        AlphaBlend(hdc[0], x, y, width, height, drawdc, imgx, imgy, width, height, blend_function);
     } else {
-        BitBlt(hdc, x, y, width, height, drawdc, imgx, imgy, SRCCOPY);
+        BitBlt(hdc[0], x, y, width, height, drawdc, imgx, imgy, SRCCOPY);
     }
 
     // clean up
@@ -240,147 +238,130 @@ void draw_image(const UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, ui
     }
 }
 
-void drawtext(int x, int y, char_t *str, STRING_IDX length)
-{
+void drawtext_common(int target, int x, int y, char_t *str, STRING_IDX length){
     wchar_t out[length];
     length = utf8tonative(str, out, length);
 
-    TextOutW(hdc, x, y, out, length);
+    TextOutW(hdc[target], x, y, out, length);
 }
 
-int drawtext_getwidth(int x, int y, char_t *str, STRING_IDX length)
-{
-    wchar_t out[length];
-    length = utf8tonative(str, out, length);
-
-    SIZE size;
-    TextOutW(hdc, x, y, out, length);
-    GetTextExtentPoint32W(hdc, out, length, &size);
-    return size.cx;
-}
-
-void drawtextwidth(int x, int width, int y, char_t *str, STRING_IDX length)
-{
-    wchar_t out[length];
-    length = utf8tonative(str, out, length);
-
-    RECT r = {x, y, x + width, y + 256};
-    DrawTextW(hdc, out, length, &r, DT_SINGLELINE | DT_END_ELLIPSIS | DT_NOPREFIX);
-}
-
-void drawtextwidth_right(int x, int width, int y, char_t *str, STRING_IDX length)
-{
-    wchar_t out[length];
-    length = utf8tonative(str, out, length);
-
-    RECT r = {x, y, x + width, y + 256};
-    DrawTextW(hdc, out, length, &r, DT_SINGLELINE | DT_END_ELLIPSIS | DT_NOPREFIX | DT_RIGHT);
-}
-
-void drawtextrange(int x, int x2, int y, char_t *str, STRING_IDX length)
-{
-    wchar_t out[length];
-    length = utf8tonative(str, out, length);
-
-    RECT r = {x, y, x2, y + 256};
-    DrawTextW(hdc, out, length, &r, DT_SINGLELINE | DT_END_ELLIPSIS | DT_NOPREFIX);
-}
-
-void drawtextrangecut(int x, int x2, int y, char_t *str, STRING_IDX length)
-{
-    wchar_t out[length];
-    length = utf8tonative(str, out, length);
-
-    RECT r = {x, y, x2, y + 256};
-    DrawTextW(hdc, out, length, &r, DT_SINGLELINE | DT_NOPREFIX);
-}
-
-int textwidth(char_t *str, STRING_IDX length)
-{
+int drawtext_getwidth_common(int target, int x, int y, char_t *str, STRING_IDX length){
     wchar_t out[length];
     length = utf8tonative(str, out, length);
 
     SIZE size;
-    GetTextExtentPoint32W(hdc, out, length, &size);
+    TextOutW(hdc[target], x, y, out, length);
+    GetTextExtentPoint32W(hdc[target], out, length, &size);
     return size.cx;
 }
 
-int textfit(char_t *str, STRING_IDX len, int width)
-{
+void drawtextwidth_common(int target, int x, int width, int y, char_t *str, STRING_IDX length){
+    wchar_t out[length];
+    length = utf8tonative(str, out, length);
+
+    RECT r = {x, y, x + width, y + 256};
+    DrawTextW(hdc[target], out, length, &r, DT_SINGLELINE | DT_END_ELLIPSIS | DT_NOPREFIX);
+}
+
+void drawtextwidth_right_common(int target, int x, int width, int y, char_t *str, STRING_IDX length){
+    wchar_t out[length];
+    length = utf8tonative(str, out, length);
+
+    RECT r = {x, y, x + width, y + 256};
+    DrawTextW(hdc[target], out, length, &r, DT_SINGLELINE | DT_END_ELLIPSIS | DT_NOPREFIX | DT_RIGHT);
+}
+
+void drawtextrange_common(int target, int x, int x2, int y, char_t *str, STRING_IDX length){
+    wchar_t out[length];
+    length = utf8tonative(str, out, length);
+
+    RECT r = {x, y, x2, y + 256};
+    DrawTextW(hdc[target], out, length, &r, DT_SINGLELINE | DT_END_ELLIPSIS | DT_NOPREFIX);
+}
+
+void drawtextrangecut_common(int target, int x, int x2, int y, char_t *str, STRING_IDX length){
+    wchar_t out[length];
+    length = utf8tonative(str, out, length);
+
+    RECT r = {x, y, x2, y + 256};
+    DrawTextW(hdc[target], out, length, &r, DT_SINGLELINE | DT_NOPREFIX);
+}
+
+int textwidth_common(int target, char_t *str, STRING_IDX length){
+    wchar_t out[length];
+    length = utf8tonative(str, out, length);
+
+    SIZE size;
+    GetTextExtentPoint32W(hdc[target], out, length, &size);
+    return size.cx;
+}
+
+int textfit_common(int target, char_t *str, STRING_IDX len, int width){
     wchar_t out[len];
     int length = utf8tonative(str, out, len);
 
     int fit;
     SIZE size;
-    GetTextExtentExPointW(hdc, out, length, width, &fit, NULL, &size);
+    GetTextExtentExPointW(hdc[target], out, length, width, &fit, NULL, &size);
 
     return WideCharToMultiByte(CP_UTF8, 0, out, fit, (char*)str, len, NULL, 0);
 }
 
-int textfit_near(char_t *str, STRING_IDX len, int width)
-{
+int textfit_near_common(int target, char_t *str, STRING_IDX len, int width){
     /*todo: near*/
     wchar_t out[len];
     int length = utf8tonative(str, out, len);
 
     int fit;
     SIZE size;
-    GetTextExtentExPointW(hdc, out, length, width, &fit, NULL, &size);
+    GetTextExtentExPointW(hdc[target], out, length, width, &fit, NULL, &size);
 
     return WideCharToMultiByte(CP_UTF8, 0, out, fit, (char*)str, len, NULL, 0);
 }
 
-void framerect(int x, int y, int right, int bottom, uint32_t color)
-{
+void framerect_common(int target, int x, int y, int right, int bottom, uint32_t color){
     RECT r = {x, y, right, bottom};
-    SetDCBrushColor(hdc, color);
-    FrameRect(hdc, &r, hdc_brush);
+    SetDCBrushColor(hdc[target], color);
+    FrameRect(hdc[target], &r, hdc_brush);
 }
 
-void drawrect(int x, int y, int right, int bottom, uint32_t color)
-{
+void drawrect_common(int target, int x, int y, int right, int bottom, uint32_t color){
     RECT r = {x, y, right, bottom};
-    SetDCBrushColor(hdc, color);
-    FillRect(hdc, &r, hdc_brush);
+    SetDCBrushColor(hdc[target], color);
+    FillRect(hdc[target], &r, hdc_brush);
 }
 
-void drawrectw(int x, int y, int width, int height, uint32_t color)
-{
+void drawrectw_common(int target, int x, int y, int width, int height, uint32_t color){
     RECT r = {x, y, x + width, y + height};
-    SetDCBrushColor(hdc, color);
-    FillRect(hdc, &r, hdc_brush);
+    SetDCBrushColor(hdc[target], color);
+    FillRect(hdc[target], &r, hdc_brush);
 }
 
-void drawhline(int x, int y, int x2, uint32_t color)
-{
+void drawhline_common(int target, int x, int y, int x2, uint32_t color){
     RECT r = {x, y, x2, y + 1};
-    SetDCBrushColor(hdc, color);
-    FillRect(hdc, &r, hdc_brush);
+    SetDCBrushColor(hdc[target], color);
+    FillRect(hdc[target], &r, hdc_brush);
 }
 
-void drawvline(int x, int y, int y2, uint32_t color)
-{
+void drawvline_common(int target, int x, int y, int y2, uint32_t color){
     RECT r = {x, y, x + 1, y2};
-    SetDCBrushColor(hdc, color);
-    FillRect(hdc, &r, hdc_brush);
+    SetDCBrushColor(hdc[target], color);
+    FillRect(hdc[target], &r, hdc_brush);
 }
 
-void setfont(int id)
-{
-    SelectObject(hdc, font[id]);
+void setfont_common(int target, int id){
+    SelectObject(hdc[target], font[id]);
 }
 
-uint32_t setcolor(uint32_t color)
-{
-    return SetTextColor(hdc, color);
+uint32_t setcolor_common(int target, uint32_t color){
+    return SetTextColor(hdc[target], color);
 }
 
 RECT clip[16];
 
 static int clipk;
 
-void pushclip(int left, int top, int width, int height)
-{
+void pushclip_common(int target, int left, int top, int width, int height){
     int right = left + width, bottom = top + height;
 
     RECT *r = &clip[clipk++];
@@ -390,27 +371,26 @@ void pushclip(int left, int top, int width, int height)
     r->bottom = bottom;
 
     HRGN rgn = CreateRectRgn(left, top, right, bottom);
-    SelectClipRgn (hdc, rgn);
+    SelectClipRgn (hdc[target], rgn);
     DeleteObject(rgn);
 }
 
-void popclip(void)
-{
+void popclip_common(int target){
     clipk--;
     if(!clipk) {
-        SelectClipRgn(hdc, NULL);
+        SelectClipRgn(hdc[target], NULL);
         return;
     }
 
     RECT *r = &clip[clipk - 1];
 
     HRGN rgn = CreateRectRgn(r->left, r->top, r->right, r->bottom);
-    SelectClipRgn (hdc, rgn);
+    SelectClipRgn (hdc[target], rgn);
     DeleteObject(rgn);
 }
 
-void enddraw(int x, int y, int width, int height){
-    BitBlt(active_hdc, x, y, width, height, hdc, x, y, SRCCOPY);
+void enddraw_common(int target, int x, int y, int width, int height){
+    BitBlt(main_hdc[target], x, y, width, height, hdc[target], x, y, SRCCOPY);
 }
 
 void thread(void func(void*), void *args)
@@ -811,11 +791,11 @@ void paste(void)
             tempdc = CreateCompatibleDC(NULL);
             SelectObject(tempdc, h);
 
-            copy = CreateCompatibleBitmap(hdcMem, bm.bmWidth, bm.bmHeight);
-            SelectObject(hdcMem, copy);
-            BitBlt(hdcMem, 0, 0, bm.bmWidth, bm.bmHeight, tempdc, 0, 0, SRCCOPY);
+            copy = CreateCompatibleBitmap(hdcMem[0], bm.bmWidth, bm.bmHeight);
+            SelectObject(hdcMem[0], copy);
+            BitBlt(hdcMem[0], 0, 0, bm.bmWidth, bm.bmHeight, tempdc, 0, 0, SRCCOPY);
 
-            sendbitmap(hdcMem, copy, bm.bmWidth, bm.bmHeight);
+            sendbitmap(hdcMem[0], copy, bm.bmWidth, bm.bmHeight);
 
             DeleteDC(tempdc);
         }
@@ -856,7 +836,7 @@ UTOX_NATIVE_IMAGE *png_to_image(const UTOX_PNG_IMAGE data, size_t size, uint16_t
     // create device independent bitmap, we can write the bytes to out
     // to put them in the bitmap
     uint8_t *out;
-    HBITMAP bmp = CreateDIBSection(hdcMem, &bmi, DIB_RGB_COLORS, (void**)&out, NULL, 0);
+    HBITMAP bmp = CreateDIBSection(hdcMem[0], &bmi, DIB_RGB_COLORS, (void**)&out, NULL, 0);
 
     // convert RGBA data to internal format
     // pre-applying the alpha if we're keeping the alpha channel,
@@ -1009,49 +989,20 @@ void showkeyboard(_Bool show){}
 
 /* Redraws the main UI window */
 void redraw_utox(void){
-    if(active_hdc != main_utox_hdc){
-        debug("Resetting	:: utox_main_hdc\n");
-        if(utox_hdc_bm) {
-                DeleteObject(utox_hdc_bm);
-        }
-        utox_hdc_bm = CreateCompatibleBitmap(main_utox_hdc, utox_window_width, utox_window_height);
-        active_hdc = main_utox_hdc;
-        hdc_bm = utox_hdc_bm;
-        hdc = CreateCompatibleDC(main_utox_hdc);
-        hdcMem = CreateCompatibleDC(hdc);
-        SelectObject(hdc, utox_hdc_bm);
-        SetBkMode(hdc, TRANSPARENT);
-    }
-    // debug("Redrawing	:: utox_main\n");
-    panel_draw(&panel_main, 0, 0, utox_window_width, utox_window_height);
+    debug("Redrawing	:: utox_main\n");
+    panel_draw(&panel_main, 0, 0, 0, utox_window_width, utox_window_height);
 }
 
 /* Redraws the interrupt window*/
-void redraw_interrupt(void){
-    if(active_hdc != main_interrupt_hdc){
-        debug("Resetting	:: utox_interrupt_hdc\n");
-        if(interrupt_hdc_bm) {
-            DeleteObject(interrupt_hdc_bm);
-        }
-        interrupt_hdc_bm = CreateCompatibleBitmap(main_interrupt_hdc, INTERRUPT_WIDTH, INTERRUPT_HEIGHT);
-        active_hdc = main_interrupt_hdc;
-        hdc_bm = interrupt_hdc_bm;
-        hdc = CreateCompatibleDC(main_interrupt_hdc);
-        hdcMem = CreateCompatibleDC(hdc);
-        SelectObject(hdc, interrupt_hdc_bm);
-        SetBkMode(hdc, TRANSPARENT);
-    }
+void redraw_interrupt(int target){
     debug("Redrawing	:: utox_interrupt\n");
-    panel_draw(&panel_interrupt, 0, 0, INTERRUPT_WIDTH, INTERRUPT_HEIGHT);
+    // todo change to key not 1
+    panel_draw(&panel_interrupt, 1, 0, 0, INTERRUPT_WIDTH, INTERRUPT_HEIGHT);
 }
 
 /* deprecated redraw call */
 void redraw(void){
-    if(active_hdc == main_interrupt_hdc){
-        redraw_interrupt();
-    } else {
-        redraw_utox();
-    }
+    redraw_utox();
 }
 
 /**
@@ -1248,11 +1199,12 @@ void setscale(void)
     #undef F
 
     TEXTMETRIC tm;
-    SelectObject(hdc, font[FONT_TEXT]);
-    GetTextMetrics(hdc, &tm);
+    //todo change to hdc array
+    SelectObject(hdc[0], font[FONT_TEXT]);
+    GetTextMetrics(hdc[0], &tm);
     font_small_lineheight = tm.tmHeight + tm.tmExternalLeading;
-    //SelectObject(hdc, font[FONT_MSG]);
-    //GetTextMetrics(hdc, &tm);
+    //SelectObject(hdc[target], font[FONT_MSG]);
+    //GetTextMetrics(hdc[target], &tm);
     //font_msg_lineheight = tm.tmHeight + tm.tmExternalLeading;
 
     svg_draw(1);
@@ -1293,13 +1245,12 @@ LRESULT CALLBACK PopupProc(HWND window_handle, UINT msg, WPARAM wParam, LPARAM l
                 popup_scale(dropdown_dpi.selected + 1);
                 popup_size(w, h);
 
-                if(interrupt_hdc_bm) {
-                    DeleteObject(interrupt_hdc_bm);
+                if(hdc_bm[1]) {
+                    DeleteObject(hdc_bm[1]);
                 }
-                interrupt_hdc_bm = CreateCompatibleBitmap(main_interrupt_hdc, w, h);
-                active_hdc = NULL;
+                hdc_bm[1] = CreateCompatibleBitmap(main_hdc[1], w, h);
             }
-            redraw_interrupt();
+            redraw_interrupt(1);
             return 0;
         }
         case WM_DESTROY: {
@@ -1321,10 +1272,11 @@ LRESULT CALLBACK PopupProc(HWND window_handle, UINT msg, WPARAM wParam, LPARAM l
             PAINTSTRUCT ps;
             BeginPaint(window_handle, &ps);
             RECT r = ps.rcPaint;
-            BitBlt(main_interrupt_hdc, r.left, r.top, r.right - r.left, r.bottom - r.top, hdc, r.left, r.top, SRCCOPY);
+                                                                                        //to do, change this to target
+            BitBlt(main_hdc[1], r.left, r.top, r.right - r.left, r.bottom - r.top, hdc[1], r.left, r.top, SRCCOPY);
             EndPaint(window_handle, &ps);
 
-            redraw_interrupt();
+            redraw_interrupt(1);
 
             return 0;
             }
@@ -1456,11 +1408,11 @@ void incoming_call_inturrupt(){
     SetWindowPos(interrupt_hwnd, HWND_TOP, 0,0,0,0, SWP_SHOWWINDOW | SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE | SWP_NOOWNERZORDER);
     // I think we also need SWP_ASYNCWINDOWPOS
 
-    main_interrupt_hdc = GetDC(interrupt_hwnd);
-    interrupt_hdc_bm = CreateCompatibleBitmap(main_interrupt_hdc, INTERRUPT_WIDTH, INTERRUPT_HEIGHT);
+    main_hdc[1] = GetDC(interrupt_hwnd);
+    hdc_bm[1] = CreateCompatibleBitmap(main_hdc[1], INTERRUPT_WIDTH, INTERRUPT_HEIGHT);
 
-    SelectObject(hdc, interrupt_hdc_bm);
-    SetBkMode(hdc, TRANSPARENT);
+    SelectObject(hdc[1], hdc_bm[1]);
+    SetBkMode(hdc[1], TRANSPARENT);
 
     ShowWindow(interrupt_hwnd, SW_SHOW);
 
@@ -1477,7 +1429,7 @@ void incoming_call_inturrupt(){
         blerg++;
     }
 
-    // todo GrabingProc, WindowProc, rewrite all draw functions to get a pulled hdc, create layout for popup
+    // todo GrabingProc, WindowProc, rewrite all draw functions to get a pulled hdc[target], create layout for popup
     // remove winow title bars intergrate grabproc with winproc so that users can move bars around
 
     // We're done so lets redraw_utox to make sure everything looks clean
@@ -1599,7 +1551,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     nid.hWnd = hwnd;
     Shell_NotifyIcon(NIM_ADD, &nid);
 
-    SetBkMode(hdc, TRANSPARENT);
+    SetBkMode(hdc[0], TRANSPARENT);
 
     dnd_init(hwnd);
 
@@ -1723,9 +1675,9 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     }
 
     case WM_CREATE: {
-        main_utox_hdc = GetDC(hwn);
-        hdc = CreateCompatibleDC(main_utox_hdc);
-        hdcMem = CreateCompatibleDC(hdc);
+        main_hdc[0] = GetDC(hwn);
+        hdc[0] = CreateCompatibleDC(main_hdc[0]);
+        hdcMem[0] = CreateCompatibleDC(hdc[0]);
 
         return 0;
     }
@@ -1762,11 +1714,11 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
             ui_scale(dropdown_dpi.selected + 1);
             ui_size(w, h);
 
-            if(utox_hdc_bm) {
-                DeleteObject(utox_hdc_bm);
+            if(hdc_bm[0]) {
+                DeleteObject(hdc_bm[0]);
             }
-            utox_hdc_bm = CreateCompatibleBitmap(main_utox_hdc, utox_window_width, utox_window_height);
-            active_hdc = NULL;
+            hdc_bm[0] = CreateCompatibleBitmap(main_hdc[0], utox_window_width, utox_window_height);
+            SelectObject(hdc[0], hdc_bm[0]);
             redraw_utox();
         }
         break;
@@ -1807,7 +1759,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
         BeginPaint(hwn, &ps);
 
         RECT r = ps.rcPaint;
-        BitBlt(main_utox_hdc, r.left, r.top, r.right - r.left, r.bottom - r.top, hdc, r.left, r.top, SRCCOPY);
+        BitBlt(main_hdc[0], r.left, r.top, r.right - r.left, r.bottom - r.top, hdc[0], r.left, r.top, SRCCOPY);
 
         EndPaint(hwn, &ps);
 

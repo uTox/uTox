@@ -36,17 +36,17 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
     edit->height = height - 4 * SCALE;
 
     if(!edit->noborder) {
-        framerect(x, y, x + width, y + height, (edit == active_edit) ? BLUE : (edit->mouseover ? C_GRAY2 : C_GRAY));
+        framerect_common(0, x, y, x + width, y + height, (edit == active_edit) ? BLUE : (edit->mouseover ? C_GRAY2 : C_GRAY));
     }
-    drawrect(x + 1, y + 1, x + width - 1, y + height - 1, WHITE);
+    drawrect_common(0, x + 1, y + 1, x + width - 1, y + height - 1, WHITE);
 
-    setfont(FONT_TEXT);
-    setcolor(COLOR_TEXT);
+    setfont_common(0, FONT_TEXT);
+    setcolor_common(0, COLOR_TEXT);
 
     int yy = y;
 
     if(edit->multiline) {
-        pushclip(x + 1, y + 1, width - 2, height - 2);
+        pushclip_common(0, x + 1, y + 1, width - 2, height - 2);
 
         SCROLLABLE *scroll = edit->scroll;
         scroll->content_height = text_height(width - 4 * SCALE - SCROLL_WIDTH, font_small_lineheight, edit->data, edit->length) + 4 * SCALE;
@@ -57,8 +57,8 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
 
     if(!edit->length && maybe_i18nal_string_is_valid(&edit->empty_str)) {
         STRING* empty_str_text = maybe_i18nal_string_get(&edit->empty_str);
-        setcolor(C_GRAY2);
-        drawtext(x + 2 * SCALE, yy + 2 * SCALE, empty_str_text->str, empty_str_text->length);
+        setcolor_common(0, C_GRAY2);
+        drawtext_common(0, x + 2 * SCALE, yy + 2 * SCALE, empty_str_text->str, empty_str_text->length);
     }
 
     _Bool a = (edit == active_edit);
@@ -66,7 +66,7 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
                       a ? edit_sel.start : STRING_IDX_MAX, a ? edit_sel.length : STRING_IDX_MAX, edit->multiline);
 
     if(edit->multiline) {
-        popclip();
+        popclip_common(0);
     }
 }
 
@@ -101,8 +101,8 @@ _Bool edit_mmove(EDIT *edit, int px, int py, int width, int height, int x, int y
             need_redraw = 1;
             return need_redraw;
         }
- 
-        setfont(FONT_TEXT);
+
+        setfont_common(0, FONT_TEXT);
         edit_sel.p2 = hittextmultiline(x - 2 * SCALE, width - 4 * SCALE - (edit->multiline ? SCROLL_WIDTH : 0), y - 2 * SCALE, INT_MAX, font_small_lineheight, edit->data, edit->length, edit->multiline);
 
         STRING_IDX start, length;
@@ -120,7 +120,7 @@ _Bool edit_mmove(EDIT *edit, int px, int py, int width, int height, int x, int y
             need_redraw = 1;
         }
     } else if(mouseover) {
-        setfont(FONT_TEXT);
+        setfont_common(0, FONT_TEXT);
         edit->mouseover_char = hittextmultiline(x - 2 * SCALE, width - 4 * SCALE - (edit->multiline ? SCROLL_WIDTH : 0), y - 2 * SCALE, INT_MAX, font_small_lineheight, edit->data, edit->length, edit->multiline);
     }
 
@@ -490,7 +490,7 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
                 break;
             }
 
-            setfont(FONT_TEXT);
+            setfont_common(0, FONT_TEXT);
             edit_sel.p2 = text_lineup(edit->width, edit->height, edit_sel.p2, font_small_lineheight, edit->data, edit->length, edit->scroll);
             if(!(flags & 1)) {
                 edit_sel.p1 = edit_sel.p2;
@@ -504,7 +504,7 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
                 break;
             }
 
-            setfont(FONT_TEXT);
+            setfont_common(0, FONT_TEXT);
             edit_sel.p2 = text_linedown(edit->width, edit->height, edit_sel.p2, font_small_lineheight, edit->data, edit->length, edit->scroll);
             if(!(flags & 1)) {
                 edit_sel.p1 = edit_sel.p2;

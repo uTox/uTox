@@ -221,7 +221,7 @@ enum
 
 #define isdesktop(x) ((size_t)(x) == 1)
 
-void drawalpha(int bm, int x, int y, int width, int height, uint32_t color);
+void drawalpha_common(int target, int bm, int x, int y, int width, int height, uint32_t color);
 void loadalpha(int bm, void *data, int width, int height);
 void desktopgrab(_Bool video);
 void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_length, uint8_t *cid);
@@ -257,7 +257,7 @@ void image_free(UTOX_NATIVE_IMAGE *image);
 void showkeyboard(_Bool show);
 
 void redraw_utox();
-void redraw_interrupt();
+void redraw_interrupt(int target);
 /* deprecated */
 void redraw(void);
 void update_tray(void);
@@ -304,32 +304,32 @@ uint8_t addfriend_status;
 void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data);
 
 /* draw functions*/
-void drawtext(int x, int y, char_t *str, STRING_IDX length);
-int drawtext_getwidth(int x, int y, char_t *str, STRING_IDX length);
-void drawtextwidth(int x, int width, int y, char_t *str, STRING_IDX length);
-void drawtextwidth_right(int x, int width, int y, char_t *str, STRING_IDX length);
-void drawtextrange(int x, int x2, int y, char_t *str, STRING_IDX length);
-void drawtextrangecut(int x, int x2, int y, char_t *str, STRING_IDX length);
+void drawtext_common(int target, int x, int y, char_t *str, STRING_IDX length);
+int drawtext_getwidth_common(int target, int x, int y, char_t *str, STRING_IDX length);
+void drawtextwidth_common(int target, int x, int width, int y, char_t *str, STRING_IDX length);
+void drawtextwidth_right_common(int target, int x, int width, int y, char_t *str, STRING_IDX length);
+void drawtextrange_common(int target, int x, int x2, int y, char_t *str, STRING_IDX length);
+void drawtextrangecut_common(int target,int x, int x2, int y, char_t *str, STRING_IDX length);
 
-int textwidth(char_t *str, STRING_IDX length);
-int textfit(char_t *str, STRING_IDX length, int width);
-int textfit_near(char_t *str, STRING_IDX length, int width);
+int textwidth_common(int target, char_t *str, STRING_IDX length);
+int textfit_common(int target, char_t *str, STRING_IDX length, int width);
+int textfit_near_common(int target, char_t *str, STRING_IDX length, int width);
 //TODO: Seems to be unused. Remove?
 int text_drawline(int x, int right, int y, uint8_t *str, int i, int length, int highlight, int hlen, uint16_t lineheight);
 
-void framerect(int x, int y, int right, int bottom, uint32_t color);
-void drawrect(int x, int y, int right, int bottom, uint32_t color);
-void drawrectw(int x, int y, int width, int height, uint32_t color);
+void framerect_common(int target, int x, int y, int right, int bottom, uint32_t color);
+void drawrect_common(int target, int x, int y, int right, int bottom, uint32_t color);
+void drawrectw_common(int target, int x, int y, int width, int height, uint32_t color);
 
-void drawhline(int x, int y, int x2, uint32_t color);
-void drawvline(int x, int y, int y2, uint32_t color);
-#define drawpixel(x, y, color) drawvline(x, y, (y) + 1, color)
+void drawhline_common(int target, int x, int y, int x2, uint32_t color);
+void drawvline_common(int target, int x, int y, int y2, uint32_t color);
+#define drawpixel(x, y, color) drawvline_common(0, x, y, (y) + 1, color)
 
-void setfont(int id);
-uint32_t setcolor(uint32_t color);
-void pushclip(int x, int y, int width, int height);
-void popclip(void);
-void enddraw(int x, int y, int width, int height);
+void setfont_common(int target, int id);
+uint32_t setcolor_common(int target, uint32_t color);
+void pushclip_common(int target, int x, int y, int width, int height);
+void popclip_common(int target);
+void enddraw_common(int target, int x, int y, int width, int height);
 
 /* other */
 void thread(void func(void*), void *args);
@@ -376,8 +376,8 @@ void audio_play(int32_t call_index, const int16_t *data, int length, uint8_t cha
 void audio_begin(int32_t call_index);
 void audio_end(int32_t call_index);
 
-#define drawstr(x, y, i) drawtext(x, y, S(i), SLEN(i))
-#define drawstr_getwidth(x, y, str) drawtext_getwidth(x, y, (char_t*)str, sizeof(str) - 1)
-#define strwidth(x) textwidth((char_t*)x, sizeof(x) - 1)
+#define drawstr(x, y, i) drawtext_common(0, x, y, S(i), SLEN(i))
+#define drawstr_getwidth(x, y, str) drawtext_getwidth_common(target, x, y, (char_t*)str, sizeof(str) - 1)
+#define strwidth(x) textwidth_common(0, (char_t*)x, sizeof(x) - 1)
 
 #endif

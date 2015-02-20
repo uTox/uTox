@@ -13,7 +13,7 @@ static void calculate_pos_and_width(TOOLTIP *b, int *x, int *w) {
     // Increase width if needed, so that tooltip text fits.
     if(maybe_i18nal_string_is_valid(b->tt_text)) {
         STRING* s = maybe_i18nal_string_get(b->tt_text);
-        int needed_w = textwidth(s->str, s->length) + 4 * SCALE;
+        int needed_w = textwidth_common(0, s->str, s->length) + 4 * SCALE;
         if(*w < needed_w) {
             *w = needed_w;
         }
@@ -41,18 +41,18 @@ void tooltip_draw(void)
     }
 
     // Ensure that font is set before calculating position and width.
-    setfont(FONT_TEXT);
-    setcolor(COLOR_TEXT);
+    setfont_common(0, FONT_TEXT);
+    setcolor_common(0, COLOR_TEXT);
 
     int x, w;
     calculate_pos_and_width(b, &x, &w);
 
-    drawrectw(x, b->y, w, b->height, WHITE);
+    drawrectw_common(0, x, b->y, w, b->height, WHITE);
 
     STRING* s = maybe_i18nal_string_get(b->tt_text);
-    drawtext(x + SCALE * 2, b->y + SCALE * 2, s->str, s->length);
+    drawtext_common(0, x + SCALE * 2, b->y + SCALE * 2, s->str, s->length);
 
-    framerect(x, b->y, x + w, b->y + b->height, BLACK);
+    framerect_common(0, x, b->y, x + w, b->y + b->height, BLACK);
 }
 
 _Bool tooltip_mmove(void)

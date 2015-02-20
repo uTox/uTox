@@ -14,7 +14,7 @@ static void calculate_pos_and_width(CONTEXTMENU *b, int *x, int *w) {
     // Increase width if needed, so that all menu items fit.
     for(i = 0; i < b->count; i++) {
         STRING *name = b->ondisplay(i, b);
-        int needed_w = textwidth(name->str, name->length) + 4 * SCALE;
+        int needed_w = textwidth_common(0, name->str, name->length) + 4 * SCALE;
         if(*w < needed_w) {
             *w = needed_w;
         }
@@ -34,22 +34,22 @@ void contextmenu_draw(void)
     }
 
     // Ensure that font is set before calculating position and width.
-    setfont(FONT_TEXT);
-    setcolor(COLOR_TEXT);
+    setfont_common(0, FONT_TEXT);
+    setcolor_common(0, COLOR_TEXT);
 
     int x, w;
     calculate_pos_and_width(b, &x, &w);
 
-    drawrectw(x, b->y, w, b->height, WHITE);
-    drawrectw(x, b->y + b->over * CONTEXT_HEIGHT, w, CONTEXT_HEIGHT, C_GRAY);
+    drawrectw_common(0, x, b->y, w, b->height, WHITE);
+    drawrectw_common(0, x, b->y + b->over * CONTEXT_HEIGHT, w, CONTEXT_HEIGHT, C_GRAY);
 
     int i;
     for(i = 0; i != b->count; i++) {
         STRING *name = b->ondisplay(i, b);
-        drawtext(x + SCALE * 2, b->y + SCALE * 2 + i * CONTEXT_HEIGHT, name->str, name->length);
+        drawtext_common(0, x + SCALE * 2, b->y + SCALE * 2 + i * CONTEXT_HEIGHT, name->str, name->length);
     }
 
-    framerect(x, b->y, x + w, b->y + b->height, BLUE);
+    framerect_common(0, x, b->y, x + w, b->y + b->height, BLUE);
 }
 
 _Bool contextmenu_mmove(int mx, int my, int UNUSED(dx), int UNUSED(dy))
@@ -63,8 +63,8 @@ _Bool contextmenu_mmove(int mx, int my, int UNUSED(dx), int UNUSED(dy))
     cursor = CURSOR_NONE;
 
     // Ensure that font is set before calculating position and width.
-    setfont(FONT_TEXT);
-    setcolor(COLOR_TEXT);
+    setfont_common(0, FONT_TEXT);
+    setcolor_common(0, COLOR_TEXT);
 
     int x, w;
     calculate_pos_and_width(b, &x, &w);

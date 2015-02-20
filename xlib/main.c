@@ -219,8 +219,7 @@ void draw_image(const UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, ui
     XRenderComposite(display, PictOpOver, image->rgb, image->alpha, renderpic, imgx, imgy, imgx, imgy, x, y, width, height);
 }
 
-void drawalpha(int bm, int x, int y, int width, int height, uint32_t color)
-{
+void drawalpha_common(int target, int bm, int x, int y, int width, int height, uint32_t color){
     XRenderColor xrcolor = {
         .red = ((color >> 8) & 0xFF00) | 0x80,
         .green = ((color) & 0xFF00) | 0x80,
@@ -235,8 +234,7 @@ void drawalpha(int bm, int x, int y, int width, int height, uint32_t color)
     XRenderFreePicture(display, src);
 }
 
-static int _drawtext(int x, int xmax, int y, char_t *str, STRING_IDX length)
-{
+static int _drawtext_common(0, int x, int xmax, int y, char_t *str, STRING_IDX length){
     GLYPH *g;
     uint8_t len;
     uint32_t ch;
@@ -263,38 +261,32 @@ static int _drawtext(int x, int xmax, int y, char_t *str, STRING_IDX length)
 
 #include "../shared/freetype-text.c"
 
-void framerect(int x, int y, int right, int bottom, uint32_t color)
-{
+void framerect_common(int targetf, int x, int y, int right, int bottom, uint32_t color){
     XSetForeground(display, gc, color);
     XDrawRectangle(display, drawbuf, gc, x, y, right - x - 1, bottom - y - 1);
 }
 
-void drawrect(int x, int y, int right, int bottom, uint32_t color)
-{
+void drawrect_common(int target, int x, int y, int right, int bottom, uint32_t color){
     XSetForeground(display, gc, color);
     XFillRectangle(display, drawbuf, gc, x, y, right - x, bottom - y);
 }
 
-void drawrectw(int x, int y, int width, int height, uint32_t color)
-{
+void drawrectw_common(int target, int x, int y, int width, int height, uint32_t color){
     XSetForeground(display, gc, color);
     XFillRectangle(display, drawbuf, gc, x, y, width, height);
 }
 
-void drawhline(int x, int y, int x2, uint32_t color)
-{
+void drawhline_common(0, int x, int y, int x2, uint32_t color){
     XSetForeground(display, gc, color);
     XDrawLine(display, drawbuf, gc, x, y, x2, y);
 }
 
-void drawvline(int x, int y, int y2, uint32_t color)
-{
+void drawvline_common(int target, int x, int y, int y2, uint32_t color){
     XSetForeground(display, gc, color);
     XDrawLine(display, drawbuf, gc, x, y, x, y2);
 }
 
-uint32_t setcolor(uint32_t color)
-{
+uint32_t setcolor_common(int target, uint32_t color){
     XRenderColor xrcolor;
     xrcolor.red = ((color >> 8) & 0xFF00) | 0x80;
     xrcolor.green = ((color) & 0xFF00) | 0x80;
@@ -314,8 +306,7 @@ uint32_t setcolor(uint32_t color)
 static XRectangle clip[16];
 static int clipk;
 
-void pushclip(int left, int top, int width, int height)
-{
+void pushclip_common(0, int left, int top, int width, int height){
     if(!clipk) {
         //XSetClipMask(display, gc, drawbuf);
     }
@@ -330,8 +321,7 @@ void pushclip(int left, int top, int width, int height)
     XRenderSetPictureClipRectangles(display, renderpic, 0, 0, r, 1);
 }
 
-void popclip(void)
-{
+void popclip_common(int target){
     clipk--;
     if(!clipk) {
         XSetClipMask(display, gc, None);
@@ -348,8 +338,7 @@ void popclip(void)
     XRenderSetPictureClipRectangles(display, renderpic, 0, 0, r, 1);
 }
 
-void enddraw(int x, int y, int width, int height)
-{
+void enddraw_common(int x, int y, int width, int height){
     XCopyArea(display, drawbuf, window, gc, x, y, width, height, x, y);
 }
 

@@ -4,12 +4,12 @@ static void drawtexth(int x, int y, char_t *str, STRING_IDX length, int d, int h
 {
     h -= d;
     if(h + hlen < 0 || h > length) {
-        drawtext(x, y, str, length);
+        drawtext_common(0, x, y, str, length);
         return;
     } else if(hlen == 0) {
-        drawtext(x, y, str, length);
-        int w =  textwidth(str, h + hlen);
-        drawvline(x + w, y, y + lineheight, BLACK);
+        drawtext_common(0, x, y, str, length);
+        int w =  textwidth_common(0, str, h + hlen);
+        drawvline_common(0, x + w, y, y + lineheight, BLACK);
         return;
     }
 
@@ -27,18 +27,18 @@ static void drawtexth(int x, int y, char_t *str, STRING_IDX length, int d, int h
 
     int width;
 
-    width = drawtext_getwidth(x, y, str, h);
+    width = drawtext_getwidth_common(0, x, y, str, h);
 
-    uint32_t color = setcolor(TEXT_HIGHLIGHT);
+    uint32_t color = setcolor_common(0, TEXT_HIGHLIGHT);
 
-    int w = textwidth(str + h, hlen);
-    drawrectw(x + width, y, w, lineheight, TEXT_HIGHLIGHT_BG);
-    drawtext(x + width, y, str + h, hlen);
+    int w = textwidth_common(0, str + h, hlen);
+    drawrectw_common(0, x + width, y, w, lineheight, TEXT_HIGHLIGHT_BG);
+    drawtext_common(0, x + width, y, str + h, hlen);
     width += w;
 
-    setcolor(color);
+    setcolor_common(0, color);
 
-    drawtext(x + width, y, str + h + hlen, length - (h + hlen));
+    drawtext_common(0, x + width, y, str + h + hlen, length - (h + hlen));
 }
 
 int drawtextmultiline(int x, int right, int y, int top, int bottom, uint16_t lineheight, char_t *data, STRING_IDX length, STRING_IDX h, STRING_IDX hlen, _Bool multiline)
@@ -50,21 +50,21 @@ int drawtextmultiline(int x, int right, int y, int top, int bottom, uint16_t lin
     while(1) {
         if(a != end) {
             if(*a == '>' && (a == data || *(a - 1) == '\n'))  {
-                c1 = setcolor(RGB(0, 128, 0));
+                c1 = setcolor_common(0, RGB(0, 128, 0));
                 greentext = 1;
             }
 
             if((a == data || *(a - 1) == '\n' || *(a - 1) == ' ') && ((end - a >= 7 && memcmp(a, "http://", 7) == 0) || (end - a >= 8 && memcmp(a, "https://", 8) == 0))) {
-                c2 = setcolor(RGB(0, 0, 255));
+                c2 = setcolor_common(0, RGB(0, 0, 255));
                 link = 1;
             }
         }
 
         if(a == end || *a == ' ' || *a == '\n') {
-            int count = a - b, w = textwidth(b, count);
+            int count = a - b, w = textwidth_common(0, b, count);
             while(x + w > right) {
                 if(multiline && x == xc) {
-                    int fit = textfit(b, count, right - x);
+                    int fit = textfit_common(0, b, count, right - x);
                     if(draw) {
                         drawtexth(x, y, b, fit, b - data, h, hlen, lineheight);
                     }
@@ -73,7 +73,7 @@ int drawtextmultiline(int x, int right, int y, int top, int bottom, uint16_t lin
                     y += lineheight;
                     draw = (y + lineheight >= top && y < bottom);
                 } else if(!multiline) {
-                    int fit = textfit(b, count, right - x);
+                    int fit = textfit_common(0, b, count, right - x);
                     if(draw) {
                         drawtexth(x, y, b, fit, b - data, h, hlen, lineheight);
                     }
@@ -86,7 +86,7 @@ int drawtextmultiline(int x, int right, int y, int top, int bottom, uint16_t lin
                     b += l;
                 }
                 x = xc;
-                w = textwidth(b, count);
+                w = textwidth_common(0, b, count);
             }
 
             if(draw) {
@@ -97,13 +97,13 @@ int drawtextmultiline(int x, int right, int y, int top, int bottom, uint16_t lin
             b = a;
 
             if(link) {
-                setcolor(c2);
+                setcolor_common(0, c2);
                 link = 0;
             }
 
             if(a == end) {
                 if(greentext) {
-                    setcolor(c1);
+                    setcolor_common(0, c1);
                     greentext = 0;
                 }
                 break;
@@ -111,7 +111,7 @@ int drawtextmultiline(int x, int right, int y, int top, int bottom, uint16_t lin
 
             if(*a == '\n') {
                 if(greentext) {
-                    setcolor(c1);
+                    setcolor_common(0, c1);
                     greentext = 0;
                 }
                 y += lineheight;
@@ -141,10 +141,10 @@ STRING_IDX hittextmultiline(int mx, int right, int my, int height, uint16_t line
     char_t *a = str, *b = str, *end = str + length;
     while(1) {
         if(a == end ||  *a == '\n' || *a == ' ') {
-            int count = a - b, w = textwidth(b, a - b);
+            int count = a - b, w = textwidth_common(0, b, a - b);
             while(x + w > right && my >= lineheight) {
                 if(multiline && x == 0) {
-                    int fit = textfit(b, count, right);
+                    int fit = textfit_common(0, b, count, right);
                     count -= fit;
                     b += fit;
                     my -= lineheight;
@@ -165,7 +165,7 @@ STRING_IDX hittextmultiline(int mx, int right, int my, int height, uint16_t line
                 }
 
                 x = 0;
-                w = textwidth(b, count);
+                w = textwidth_common(0, b, count);
             }
 
             if(a == end) {
@@ -196,10 +196,10 @@ STRING_IDX hittextmultiline(int mx, int right, int my, int height, uint16_t line
 
     int fit;
     if(mx >= right) {
-        fit = textfit(b, a - b, right - x);
+        fit = textfit_common(0, b, a - b, right - x);
     } else if(mx - x > 0) {
         int len = a - b;
-        fit = textfit_near(b, len + (a != end), mx - x);
+        fit = textfit_near_common(0, b, len + (a != end), mx - x);
     } else {
         fit = 0;
     }
@@ -213,10 +213,10 @@ int text_height(int right, uint16_t lineheight, char_t *str, STRING_IDX length)
     char_t *a = str, *b = a, *end = a + length;
     while(1) {
         if(a == end || *a == ' ' || *a == '\n') {
-            int count = a - b, w = textwidth(b, count);
+            int count = a - b, w = textwidth_common(0, b, count);
             while(x + w > right) {
                 if(x == 0) {
-                    int fit = textfit(b, count, right);
+                    int fit = textfit_common(0, b, count, right);
                     count -= fit;
                     if(fit == 0 && (count != 0 || *b == '\n')) {
                         return 0;
@@ -230,7 +230,7 @@ int text_height(int right, uint16_t lineheight, char_t *str, STRING_IDX length)
                     b += l;
                 }
                 x = 0;
-                w = textwidth(b, count);
+                w = textwidth_common(0, b, count);
             }
 
             x += w;
@@ -261,10 +261,10 @@ static void textxy(int width, STRING_IDX pp, uint16_t lineheight, char_t *str, S
     char_t *a = str, *b = str, *end = str + length, *p = str + pp;
     while(1) {
         if(a == end ||  *a == '\n' || *a == ' ') {
-            int count = a - b, w = textwidth(b, a - b);
+            int count = a - b, w = textwidth_common(0, b, a - b);
             while(x + w > width) {
                 if(x == 0) {
-                    int fit = textfit(b, count, width);
+                    int fit = textfit_common(0, b, count, width);
                     if(p >= b && p < b + fit) {
                         break;
                     }
@@ -278,11 +278,11 @@ static void textxy(int width, STRING_IDX pp, uint16_t lineheight, char_t *str, S
                     b += l;
                 }
                 x = 0;
-                w = textwidth(b, count);
+                w = textwidth_common(0, b, count);
             }
 
             if(p >= b && p < b + count) {
-                w = textwidth(b, p - b);
+                w = textwidth_common(0, b, p - b);
                 a = end;
             }
 
