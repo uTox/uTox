@@ -382,6 +382,7 @@ static void button_chat1_updatecolor(BUTTON *b)
 
 /* bottom right chat message window button */
 static void button_chat2_onpress(void){
+    incoming_call();
 }
 
 static void button_chat2_updatecolor(BUTTON *b){
