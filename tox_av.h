@@ -670,7 +670,7 @@ static void audio_thread(void *args)
                 if(!audible_notifications_enabled) {
                     break;
                 }
-
+                debug("Ringing for incoming call\n");
                 alSourcePlay(ringSrc[m->param1]);
                 break;
             }
@@ -681,7 +681,7 @@ static void audio_thread(void *args)
                 if(state == AL_PLAYING) {
                     alSourceStop(ringSrc[m->param1]);
                 }
-
+                debug("Ringing stopped\n");
                 break;
             }
             }
