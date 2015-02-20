@@ -123,7 +123,7 @@ static void set_color(uint32_t a)
 uint32_t colori;
 float colorf[3];
 
-uint32_t setcolor(uint32_t a)
+uint32_t setcolor_common(int unused, uint32_t a)
 {
     union {
         uint32_t c;
@@ -142,7 +142,7 @@ uint32_t setcolor(uint32_t a)
     return s;
 }
 
-void drawrect(int x, int y, int right, int bottom, uint32_t color)
+void drawrect_common(int unused, int x, int y, int right, int bottom, uint32_t color)
 {
     set_color(color);
     glBindTexture(GL_TEXTURE_2D, white);
@@ -150,12 +150,12 @@ void drawrect(int x, int y, int right, int bottom, uint32_t color)
     glDrawQuads(0, 1);
 }
 
-void drawrectw(int x, int y, int width, int height, uint32_t color)
+void drawrectw_common(int unused, int x, int y, int width, int height, uint32_t color)
 {
-    drawrect(x, y, x + width, y + height, color);
+    drawrect_common(0, x, y, x + width, y + height, color);
 }
 
-void framerect(int x, int y, int right, int bottom, uint32_t color)
+void framerect_common(int unused, int x, int y, int right, int bottom, uint32_t color)
 {
     set_color(color);
     glBindTexture(GL_TEXTURE_2D, white);
@@ -163,7 +163,7 @@ void framerect(int x, int y, int right, int bottom, uint32_t color)
     glDrawArrays(GL_LINE_LOOP, 0, 4);
 }
 
-void drawhline(int x, int y, int x2, uint32_t color)
+void drawhline_common(0, int x, int y, int x2, uint32_t color)
 {
     set_color(color);
     glBindTexture(GL_TEXTURE_2D, white);
@@ -171,7 +171,7 @@ void drawhline(int x, int y, int x2, uint32_t color)
     glDrawArrays(GL_LINES, 0, 2);
 }
 
-void drawvline(int x, int y, int y2, uint32_t color)
+void drawvline_common(0, int x, int y, int y2, uint32_t color)
 {
     set_color(color);
     glBindTexture(GL_TEXTURE_2D, white);
@@ -179,7 +179,7 @@ void drawvline(int x, int y, int y2, uint32_t color)
     glDrawArrays(GL_LINES, 0, 2);
 }
 
-void drawalpha(int bm, int x, int y, int width, int height, uint32_t color)
+void drawalpha_common(int target, int bm, int x, int y, int width, int height, uint32_t color)
 {
     set_color(color);
     glBindTexture(GL_TEXTURE_2D, bitmap[bm]);
@@ -203,7 +203,7 @@ typedef struct {
 static RECT clip[16];
 static int clipk;
 
-void pushclip(int left, int top, int w, int h)
+void pushclip_common(0, int left, int top, int w, int h)
 {
     if(!clipk) {
         glEnable(GL_SCISSOR_TEST);
@@ -218,7 +218,7 @@ void pushclip(int left, int top, int w, int h)
     glScissor(r->x, r->y, r->width, r->height);
 }
 
-void popclip(void)
+void popclip_common(0)
 {
     clipk--;
     if(!clipk) {

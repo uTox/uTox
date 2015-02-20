@@ -158,7 +158,7 @@ static void freefonts(void)
     }
 }
 
-static int _drawtext(int x, int xmax, int y, char_t *str, STRING_IDX length)
+static int _drawtext_common(0, int x, int xmax, int y, char_t *str, STRING_IDX length)
 {
     glUniform3fv(k, 1, colorf);
     glBindTexture(GL_TEXTURE_2D, sfont->texture);
