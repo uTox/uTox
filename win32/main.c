@@ -1275,18 +1275,17 @@ LRESULT CALLBACK PopupProc(HWND window_handle, UINT msg, WPARAM wParam, LPARAM l
             return 0;
             }
         case WM_PAINT: {
-            debug("WM_PAINT was called by POPUPPROC\n");
+            // debug("WM_PAINT was called by POPUPPROC\n");
 
             PAINTSTRUCT ps;
             RECT r = ps.rcPaint;
 
             redraw_interrupt(1);
 
-            //to do, change this to target
+            // to do, change this to target
             BeginPaint(window_handle, &ps);
             BitBlt(main_hdc[1], r.left, r.top, r.right - r.left, r.bottom - r.top, hdc[1], r.left, r.top, SRCCOPY);
             EndPaint(window_handle, &ps);
-
 
             return 0;
             }
@@ -1409,14 +1408,12 @@ void incoming_call_inturrupt(){
 
     RegisterClassW(&interrupt_windclass);
 
-    interrupt_hwnd = CreateWindowExW(0, L"uTox Call", L"utox_interrupt", WS_OVERLAPPEDWINDOW,
+    interrupt_hwnd = CreateWindowExW(WS_EX_TOOLWINDOW | WS_EX_LAYERED, L"uTox Call", L"utox_interrupt", WS_POPUP,
                     pop_up_setx, pop_up_sety, INTERRUPT_WIDTH, INTERRUPT_HEIGHT, NULL, NULL, hinstance, NULL);
-    LONG lStyle = GetWindowLongPtr(interrupt_hwnd, GWL_STYLE);
-    // box only please, no frame
-    lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZE | WS_MAXIMIZE | WS_SYSMENU);
-    SetWindowLongPtr(interrupt_hwnd, GWL_STYLE, lStyle);
-    SetWindowPos(interrupt_hwnd, HWND_TOP, 0,0,0,0, SWP_SHOWWINDOW | SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE | SWP_NOOWNERZORDER);
-    // I think we also need SWP_ASYNCWINDOWPOS
+
+    //                       handle, 0x00 (black) is the transparent, and everything else is 100% opaque
+    SetLayeredWindowAttributes(interrupt_hwnd, 0x00, 255, LWA_ALPHA | LWA_COLORKEY);
+
 
     main_hdc[1] = GetDC(interrupt_hwnd);
     hdc_bm[1] = CreateCompatibleBitmap(main_hdc[1], INTERRUPT_WIDTH, INTERRUPT_HEIGHT);
@@ -1432,7 +1429,7 @@ void incoming_call_inturrupt(){
 
     MSG msg;
     int blerg = 0;
-    while(GetMessage(&msg, NULL, 0, 0) && (blerg <= 50) ) {
+    while(GetMessage(&msg, NULL, 0, 0) && (blerg <= 5000) ) {
         TranslateMessage(&msg);
         DispatchMessage(&msg);
         yieldcpu(1);
