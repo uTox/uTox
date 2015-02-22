@@ -190,18 +190,22 @@ static _Bool image_is_stretched(const UTOX_NATIVE_IMAGE *image)
            image->height != image->scaled_height;
 }
 
+// Replaced by draw_image_common, legacy will default to hdc[0] context.
+void draw_image(const UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t imgx, uint32_t imgy){
+    draw_image_common(0, image, x, y, width, height, imgx, imgy);
+}
+
 // NOTE: This function is way more complicated than the XRender variant, because
 // the Win32 API is a lot more limited, so all scaling, clipping, and handling
 // transparency has to be done explicitly
-void draw_image(const UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t imgx, uint32_t imgy)
-{
+void draw_image_common(int target, const UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t imgx, uint32_t imgy){
     HDC drawdc; // device context we'll do the eventual drawing with
     HBITMAP tmp = NULL; // used when scaling
 
     if (!image_is_stretched(image)) {
 
-        SelectObject(hdcMem[0], image->bitmap);
-        drawdc = hdcMem[0];
+        SelectObject(hdcMem[target], image->bitmap);
+        drawdc = hdcMem[target];
 
     } else {
         // temporary device context for the scaling operation
@@ -211,24 +215,24 @@ void draw_image(const UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, ui
         SetStretchBltMode(drawdc, image->stretch_mode);
 
         // scaled bitmap will be drawn onto this bitmap
-        tmp = CreateCompatibleBitmap(hdcMem[0], image->scaled_width, image->scaled_height);
+        tmp = CreateCompatibleBitmap(hdcMem[target], image->scaled_width, image->scaled_height);
         SelectObject(drawdc, tmp);
 
-        SelectObject(hdcMem[0], image->bitmap);
+        SelectObject(hdcMem[target], image->bitmap);
 
         // stretch image onto temporary bitmap
         if (image->has_alpha) {
-            AlphaBlend(drawdc, 0, 0, image->scaled_width, image->scaled_height, hdcMem[0], 0, 0, image->width, image->height, blend_function);
+            AlphaBlend(drawdc, 0, 0, image->scaled_width, image->scaled_height, hdcMem[target], 0, 0, image->width, image->height, blend_function);
         } else {
-            StretchBlt(drawdc, 0, 0, image->scaled_width, image->scaled_height, hdcMem[0], 0, 0, image->width, image->height, SRCCOPY);
+            StretchBlt(drawdc, 0, 0, image->scaled_width, image->scaled_height, hdcMem[target], 0, 0, image->width, image->height, SRCCOPY);
         }
     }
 
     // clip and draw
     if (image->has_alpha) {
-        AlphaBlend(hdc[0], x, y, width, height, drawdc, imgx, imgy, width, height, blend_function);
+        AlphaBlend(hdc[target], x, y, width, height, drawdc, imgx, imgy, width, height, blend_function);
     } else {
-        BitBlt(hdc[0], x, y, width, height, drawdc, imgx, imgy, SRCCOPY);
+        BitBlt(hdc[target], x, y, width, height, drawdc, imgx, imgy, SRCCOPY);
     }
 
     // clean up

@@ -55,6 +55,25 @@ void draw_avatar_image(UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, u
     image_set_filter(image, FILTER_NEAREST);
 }
 
+void draw_avatar_image_common(int target, UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t targetwidth, uint32_t targetheight){
+    /* get smallest of width or height */
+    double scale = (width > height) ?
+                      (double)targetheight / height :
+                      (double)targetwidth / width;
+
+    image_set_scale(image, scale);
+    image_set_filter(image, FILTER_BILINEAR);
+
+    /* set position to show the middle of the image in the center  */
+    int xpos = (int) ((double)width * scale / 2 - (double)targetwidth / 2);
+    int ypos = (int) ((double)height * scale / 2 - (double)targetheight / 2);
+
+    draw_image_common(target, image, x, y, targetwidth, targetheight, xpos, ypos);
+
+    image_set_scale(image, 1.0);
+    image_set_filter(image, FILTER_NEAREST);
+}
+
 uint32_t status_color[] = {
     C_GREEN,
     C_YELLOW,

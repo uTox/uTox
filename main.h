@@ -247,6 +247,7 @@ void image_set_scale(UTOX_NATIVE_IMAGE *image, double scale);
  * the image's size AFTER SCALING, so be careful.
  * TODO: improve this so this function is safer to use */
 void draw_image(const UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t imgx, uint32_t imgy);
+void draw_image_common(int target, const UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t imgx, uint32_t imgy);
 
 /* converts a png to a UTOX_NATIVE_IMAGE, returns a pointer to it, keeping alpha channel only if keep_alpha is 1 */
 UTOX_NATIVE_IMAGE *png_to_image(const UTOX_PNG_IMAGE, size_t size, uint16_t *w, uint16_t *h, _Bool keep_alpha);
