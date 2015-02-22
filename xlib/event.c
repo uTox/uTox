@@ -40,6 +40,12 @@ _Bool doevent(XEvent event)
             XSetICFocus(xic);
         }
 
+        #ifdef UNITY
+        if(unity_running) {
+            mm_rm_entry(NULL);
+        }
+        #endif
+
         havefocus = 1;
         XWMHints hints = {0};
         XSetWMHints(display, window, &hints);
@@ -50,6 +56,12 @@ _Bool doevent(XEvent event)
         if (xic) {
             XUnsetICFocus(xic);
         }
+
+        #ifdef UNITY
+        if(unity_running) {
+            mm_save_cid();
+        }
+        #endif
 
         havefocus = 0;
         break;
