@@ -1274,13 +1274,15 @@ LRESULT CALLBACK PopupProc(HWND window_handle, UINT msg, WPARAM wParam, LPARAM l
             debug("WM_PAINT was called by POPUPPROC\n");
 
             PAINTSTRUCT ps;
-            BeginPaint(window_handle, &ps);
             RECT r = ps.rcPaint;
-                                                                                        //to do, change this to target
+
+            redraw_interrupt(1);
+
+            //to do, change this to target
+            BeginPaint(window_handle, &ps);
             BitBlt(main_hdc[1], r.left, r.top, r.right - r.left, r.bottom - r.top, hdc[1], r.left, r.top, SRCCOPY);
             EndPaint(window_handle, &ps);
 
-            redraw_interrupt(1);
 
             return 0;
             }
@@ -1420,7 +1422,7 @@ void incoming_call_inturrupt(){
 
     ShowWindow(interrupt_hwnd, SW_SHOW);
 
-    if(1){ //if(we_should_inturrupt)
+    if(1){ //if(we_should_inturrupt) // Ideally we will make a decision if we should bother the user, for now always.
         SetForegroundWindow(interrupt_hwnd);
     }
 
