@@ -35,6 +35,16 @@
 #define MAX_CALLS 16
 #define MAX_BACKLOG_MESSAGES 128
 
+#define BORDER 1
+#define CAPTION 26
+
+#define MAIN_WIDTH 800
+#define MAIN_HEIGHT 600
+#define INTERRUPT_WIDTH 600
+#define INTERRUPT_HEIGHT 300
+
+#define SAVE_VERSION 3
+
 typedef struct
 {
     uint8_t version, scale, enableipv6, disableudp;
@@ -53,8 +63,6 @@ typedef struct
     uint16_t unused[32];
     uint8_t proxy_ip[0];
 }UTOX_SAVE;
-
-#define SAVE_VERSION 3
 
 typedef struct
 {
@@ -288,14 +296,6 @@ struct
 
 //add friend page
 uint8_t addfriend_status;
-
-#define BORDER 1
-#define CAPTION 26
-
-#define MAIN_WIDTH 800
-#define MAIN_HEIGHT 600
-#define INTERRUPT_WIDTH 600
-#define INTERRUPT_HEIGHT 300
 
 #define inrect(x, y, rx, ry, width, height) ((x) >= (rx) && (y) >= (ry) && (x) < ((rx) + (width)) && (y) < ((ry) + (height)))
 
