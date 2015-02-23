@@ -983,8 +983,8 @@ void incoming_call(){
         // return; // always show while testing
     }
 
-    //flush utox drawing first to avoid error101;
-    redraw_utox();
+    //flush utox drawing first to avoid error101; now "error while drawing messages"
+    redraw_utox(1);
     thread(incoming_call_inturrupt,NULL);
 
 }
@@ -992,8 +992,15 @@ void incoming_call(){
 void showkeyboard(_Bool show){}
 
 /* Redraws the main UI window */
-void redraw_utox(void){
+void redraw_utox(int reset){
     //debug("Redrawing	:: utox_main\n");
+    //
+    if(reset){
+        debug("resetting utox handels\n");
+        main_hdc[0] = GetDC(hwnd);
+        hdc[0] = CreateCompatibleDC(main_hdc[0]);
+        hdcMem[0] = CreateCompatibleDC(hdc[0]);
+    }
     panel_draw(&panel_main, 0, 0, 0, utox_window_width, utox_window_height);
 }
 
@@ -1006,7 +1013,7 @@ void redraw_interrupt(int target){
 
 /* deprecated redraw call */
 void redraw(void){
-    redraw_utox();
+    redraw_utox(0);
 }
 
 /**
@@ -1034,7 +1041,7 @@ void update_tray(void)
 }
 
 void force_redraw(void) {
-    redraw_utox();
+    redraw_utox(0);
 }
 
 static int grabx, graby, grabpx, grabpy;
@@ -1440,7 +1447,7 @@ void incoming_call_inturrupt(){
     // remove winow title bars intergrate grabproc with winproc so that users can move bars around
 
     // We're done so lets redraw_utox to make sure everything looks clean
-    redraw_utox();
+    redraw_utox(1);
     return;
 }
 
@@ -1726,7 +1733,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
             }
             hdc_bm[0] = CreateCompatibleBitmap(main_hdc[0], utox_window_width, utox_window_height);
             SelectObject(hdc[0], hdc_bm[0]);
-            redraw_utox();
+            redraw_utox(0);
         }
         break;
     }

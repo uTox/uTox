@@ -265,7 +265,7 @@ void image_free(UTOX_NATIVE_IMAGE *image);
 
 void showkeyboard(_Bool show);
 
-void redraw_utox();
+void redraw_utox(int reset);
 void redraw_interrupt(int target);
 /* deprecated */
 void redraw(void);

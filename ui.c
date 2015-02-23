@@ -1233,7 +1233,7 @@ _Bool panel_mmove(PANEL *p, int x, int y, int width, int height, int mx, int my,
     if(p == &panel_main) {
         draw |= contextmenu_mmove(mx, my, dx, dy);
         if(draw && p == &panel_main) {
-            redraw_utox();
+            redraw_utox(0);
         } else if(p == &panel_interrupt){
             redraw_interrupt(1);
         }
@@ -1265,7 +1265,7 @@ static _Bool panel_mdown_sub(PANEL *p)
 void panel_mdown(PANEL *p)
 {
     if(contextmenu_mdown() || tooltip_mdown()) {
-        redraw_utox();
+        redraw_utox(0);
         return;
     }
 
@@ -1283,7 +1283,7 @@ void panel_mdown(PANEL *p)
     }
 
     if(draw && p == &panel_main) {
-        redraw_utox();
+        redraw_utox(0);
     } else if(p == &panel_interrupt){
         redraw_interrupt(1);
     }
@@ -1311,7 +1311,7 @@ _Bool panel_dclick(PANEL *p, _Bool triclick)
     }
 
     if(draw && p == &panel_main) {
-        redraw_utox();
+        redraw_utox(0);
     } else if(p == &panel_interrupt){
         redraw_interrupt(1);
     }
@@ -1332,7 +1332,7 @@ _Bool panel_mright(PANEL *p)
     }
 
     if(draw && p == &panel_main) {
-        redraw_utox();
+        redraw_utox(0);
     } else if(p == &panel_interrupt){
         redraw_interrupt(1);
     }
@@ -1355,7 +1355,7 @@ _Bool panel_mwheel(PANEL *p, int x, int y, int width, int height, double d)
     }
 
     if(draw && p == &panel_main) {
-        redraw_utox();
+        redraw_utox(0);
     } else if(p == &panel_interrupt){
         redraw_interrupt(1);
     }
@@ -1379,7 +1379,7 @@ _Bool panel_mup(PANEL *p)
         draw |= contextmenu_mup();
         tooltip_mup();
         if(draw && p == &panel_main) {
-            redraw_utox();
+            redraw_utox(0);
         } else if(p == &panel_interrupt){
             redraw_interrupt(1);
         }
@@ -1403,7 +1403,7 @@ _Bool panel_mleave(PANEL *p)
     if(p == &panel_main) {
         draw |= contextmenu_mleave();
         if(draw && p == &panel_main) {
-            redraw_utox();
+            redraw_utox(0);
         } else if(p == &panel_interrupt){
             redraw_interrupt(1);
         }
