@@ -341,13 +341,20 @@ static void background_draw(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int 
 static void draw_popup(void){
     setcolor_common(1, WHITE);
     setfont_common(1, FONT_SELF_NAME);
+
+    //draw background frame
+    drawrect_common(1, 0, 50, 600, 300, LIST_DARK);
+    drawrect_common(1, 245, 0, 355, 110, LIST_DARK); // 110x110
+    drawrect_common(1, 250, 5, 350, 105, LIST_MAIN); // 100x100
+
+
     drawtext_common(1, 5, 5, "Incoming call", 13);
 
     FRIEND *f = sitem->data;
 
     // draw avatar or default image
     if (friend_has_avatar(f)) {
-        draw_avatar_image_common(1, f->avatar.image, 20, 20, f->avatar.width, f->avatar.height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
+        draw_avatar_image_common(1, f->avatar.image, 255, 10, f->avatar.width, f->avatar.height, 90, 90);
     } else {
         drawalpha_common(1, BM_GROUP, 20, 20, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, WHITE);
     }
