@@ -1065,6 +1065,7 @@ void popup_scale(uint8_t scale){
     setscale(1);
 }
 
+// Generate function prototypes with the pre-processor
 #define FUNC(x, ret, ...) static ret (* x##func[])(void *p, ##__VA_ARGS__) = { \
     (void*)background_##x, \
     (void*)messages_##x, \
@@ -1076,6 +1077,7 @@ void popup_scale(uint8_t scale){
 };
 
 FUNC(draw, void, int x, int y, int width, int height);
+FUNC(draw_common, void, int target, int x, int y, int width, int height);
 FUNC(mmove, _Bool, int x, int y, int width, int height, int mx, int my, int dx, int dy);
 FUNC(mdown, _Bool);
 FUNC(mright, _Bool);
