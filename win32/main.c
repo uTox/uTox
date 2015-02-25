@@ -993,14 +993,16 @@ void showkeyboard(_Bool show){}
 
 /* Redraws the main UI window */
 void redraw_utox(int reset){
-    //debug("Redrawing	:: utox_main\n");
-    //
     if(reset){
-        debug("resetting utox handels\n");
-        main_hdc[0] = GetDC(hwnd);
-        hdc[0] = CreateCompatibleDC(main_hdc[0]);
-        hdcMem[0] = CreateCompatibleDC(hdc[0]);
+        if(hdc_bm[0]) {
+            DeleteObject(hdc_bm[0]);
+        }
+        hdc_bm[0] = CreateCompatibleBitmap(main_hdc[0], utox_window_width, utox_window_height);
+        SelectObject(hdc[0], hdc_bm[0]);
+
+    ui_scale(0);
     }
+
     panel_draw(&panel_main, 0, 0, 0, utox_window_width, utox_window_height);
 }
 
@@ -1278,7 +1280,8 @@ LRESULT CALLBACK PopupProc(HWND window_handle, UINT msg, WPARAM wParam, LPARAM l
             }
         case WM_KILLFOCUS: {
             debug("WM_KILLFOCUS was called by POPUPPROC\n");
-            PostQuitMessage(0);
+            DestroyWindow(window_handle);
+            // PostQuitMessage(0);
             return 0;
             }
         case WM_PAINT: {

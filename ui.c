@@ -1121,8 +1121,8 @@ void ui_size(int width, int height)
 }
 
 void popup_size(int width, int height){
-    debug("popup_size\n");
-    panel_update(&panel_interrupt, 0, 0, width, height);
+    debug("popup_size (DISABLED)\n");
+//    panel_update(&panel_interrupt, 0, 0, width, height);
 }
 
 void ui_mouseleave(void)
