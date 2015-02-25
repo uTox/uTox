@@ -19,52 +19,8 @@ static void calculate_pos_and_width(BUTTON *b, int *x, int *w) {
     }
 }
 
-void button_draw(BUTTON *b, int x, int y, int width, int height)
-{
-    if(b->nodraw) {
-        return;
-    }
-
-    if(b->updatecolor) {
-        b->updatecolor(b);
-    }
-
-    // Ensure that font is set before calculating position and width.
-    setfont_common(0, FONT_SELF_NAME);
-    setcolor_common(0, WHITE);
-
-    int w = width;
-    calculate_pos_and_width(b, &x, &w);
-
-    uint32_t color = b->mousedown ? b->c3 : (b->mouseover ? b->c2 : b->c1);
-    if(b->bm) {
-        drawalpha_common(0, b->bm, x, y, width, height, color);
-    } else {
-        drawrectw_common(0, x, y, w, height, b->disabled ? LIST_MAIN : color);
-
-        //setfont_common(0, FONT_TEXT_LARGE);
-        //setcolor_common(0, b->mouseover ? 0x222222 : 0x555555);
-        //drawtext_common(0, x + 5, y, b->text, b->text_length);
-    }
-
-    if(b->bm2) {
-        int bx = w / 2 - b->bw * SCALE / 2, by = height / 2 - b->bh * SCALE / 2;
-        drawalpha_common(0, b->bm2, x + bx, y + by, b->bw * SCALE, b->bh * SCALE, WHITE);
-    }
-
-    if(maybe_i18nal_string_is_valid(&b->button_text)) {
-        if(b->bm) {
-            while(w > width) {
-                // The text didn't fit into the original width.
-                // Fill the rest of the new width with the image
-                // and hope for the best.
-                drawalpha_common(0, b->bm, x - width + w, y, width, height, color);
-                w -= width / 2 + 1;
-            }
-        }
-        STRING* s = maybe_i18nal_string_get(&b->button_text);
-        drawtext_common(0, x + 3 * SCALE, y + SCALE, s->str, s->length);
-    }
+void button_draw(BUTTON *b, int x, int y, int width, int height){
+    buttton_draw_common(b, 0, x, y, width, height);
 }
 
 /** button_draw_common
