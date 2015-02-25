@@ -983,8 +983,6 @@ void incoming_call(){
         // return; // always show while testing
     }
 
-    //flush utox drawing first to avoid error101; now "error while drawing messages"
-    redraw_utox(1);
     thread(incoming_call_inturrupt,NULL);
 
 }
@@ -1301,87 +1299,86 @@ LRESULT CALLBACK PopupProc(HWND window_handle, UINT msg, WPARAM wParam, LPARAM l
             }
         case WM_KEYDOWN: {
             //TODO: Enter, SPACE and ESC, BKSP, DEL
-
              debug("WM_KEYDOWN was called by POPUPPROC\n");
-            _Bool control = ((GetKeyState(VK_CONTROL) & 0x80) != 0);
-            _Bool shift = ((GetKeyState(VK_SHIFT) & 0x80) != 0);
-            if(edit_active()) {
-                if(control) {
-                    switch(wParam) {
-                       case 'V':
-                            paste();
-                            return 0;
-                        case 'X':
-                            copy(0);
-                            edit_char(KEY_DEL, 1, 0);
-                            return 0;
-                            }
-                    }
-                }
+            // _Bool control = ((GetKeyState(VK_CONTROL) & 0x80) != 0);
+            // _Bool shift = ((GetKeyState(VK_SHIFT) & 0x80) != 0);
+            // if(edit_active()) {
+            //     if(control) {
+            //         switch(wParam) {
+            //            case 'V':
+            //                 paste();
+            //                 return 0;
+            //             case 'X':
+            //                 copy(0);
+            //                 edit_char(KEY_DEL, 1, 0);
+            //                 return 0;
+            //                 }
+            //         }
+            //     }
             return 0;
             }
         case WM_CHAR: {
-            if(edit_active()) {
-                if(wParam == KEY_RETURN && (GetKeyState(VK_SHIFT) & 0x80)) {
-                    wParam = '\n';
-                }
-                if (wParam != KEY_TAB) {
-                    edit_char(wParam, 0, 0);
-                }
-                return 0;
-            }
+            // if(edit_active()) {
+            //     if(wParam == KEY_RETURN && (GetKeyState(VK_SHIFT) & 0x80)) {
+            //         wParam = '\n';
+            //     }
+            //     if (wParam != KEY_TAB) {
+            //         edit_char(wParam, 0, 0);
+            //     }
+            //     return 0;
+            // }
             return 0;
             }
         case WM_MOUSEMOVE: {
-            //debug("WM_MOUSEMOVE was called by POPUPPROC\n");
-            int x, y, dx, dy;
+            // debug("WM_MOUSEMOVE was called by POPUPPROC\n");
+            // int x, y, dx, dy;
 
-            x = GET_X_LPARAM(lParam);
-            y = GET_Y_LPARAM(lParam);
+            // x = GET_X_LPARAM(lParam);
+            // y = GET_Y_LPARAM(lParam);
 
-            dx = x - mouse_x;
-            dy = y - mouse_y;
-            mouse_x = x;
-            mouse_y = y;
+            // dx = x - mouse_x;
+            // dy = y - mouse_y;
+            // mouse_x = x;
+            // mouse_y = y;
 
-            cursor = 0;
-            panel_mmove(&panel_interrupt, 0, 0, utox_window_width, utox_window_height, x, y, dx, dy);
+            // cursor = 0;
+            // panel_mmove(&panel_interrupt, 0, 0, utox_window_width, utox_window_height, x, y, dx, dy);
 
             SetCursor(cursors[cursor]);
             return 0;
             }
         case WM_LBUTTONDOWN:
         case WM_LBUTTONDBLCLK: {
-            int x, y;
+            // int x, y;
 
-            x = GET_X_LPARAM(lParam);
-            y = GET_Y_LPARAM(lParam);
+            // x = GET_X_LPARAM(lParam);
+            // y = GET_Y_LPARAM(lParam);
 
-            if(x != mouse_x || y != mouse_y) {
-                panel_mmove(&panel_interrupt, 0, 0, utox_window_width, utox_window_height, x, y, x - mouse_x, y - mouse_y);
-                mouse_x = x;
-                mouse_y = y;
-            }
+            // if(x != mouse_x || y != mouse_y) {
+            //     panel_mmove(&panel_interrupt, 0, 0, utox_window_width, utox_window_height, x, y, x - mouse_x, y - mouse_y);
+            //     mouse_x = x;
+            //     mouse_y = y;
+            // }
 
-            //double redraw>
-            panel_mdown(&panel_interrupt);
-            if(msg == WM_LBUTTONDBLCLK) {
-                panel_dclick(&panel_interrupt, 0);
-            }
+            // //double redraw>
+            // panel_mdown(&panel_interrupt);
+            // if(msg == WM_LBUTTONDBLCLK) {
+            //     panel_dclick(&panel_interrupt, 0);
+            // }
 
-            SetCapture(window_handle);
-            mdown = 1;
+            // SetCapture(window_handle);
+            // mdown = 1;
             break;
             }
         case WM_LBUTTONUP: {
-            ReleaseCapture();
+            // ReleaseCapture();
             break;
             }
         case WM_CAPTURECHANGED: {
-            if (mdown) {
-                panel_mup(&panel_interrupt);
-                mdown = 0;
-            }
+            // if (mdown) {
+            //     panel_mup(&panel_interrupt);
+            //     mdown = 0;
+            // }
             break;
             }
         case WM_MOUSELEAVE: {
