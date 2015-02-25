@@ -672,7 +672,7 @@ button_status = {
 },
 
 button_interrupt_call = {
-    .bm = BM_LARGE_BUTTON,
+    .bm = BM_HUGE_BUTTON,
     .c1 = C_GREEN,
     .c2 = C_GREEN_LIGHT,
     .c3 = C_GREEN_LIGHT,
@@ -683,7 +683,7 @@ button_interrupt_call = {
 },
 
 button_interrupt_video = {
-    .bm = BM_LARGE_BUTTON,
+    .bm = BM_HUGE_BUTTON,
     .c1 = C_GREEN,
     .c2 = C_GREEN_LIGHT,
     .c3 = C_GREEN_LIGHT,

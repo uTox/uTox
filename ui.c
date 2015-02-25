@@ -347,7 +347,7 @@ static void draw_popup(int x, int y, int w, int h){
     drawrect_common(1, 250, 5, 350, 105, LIST_MAIN); // 100x100
 
 
-    drawtext_common(1, 5, 5, "Incoming call", 13);
+    drawtext_common(1, 5, 65, "Incoming call", 13);
 
     FRIEND *f = sitem->data;
 
@@ -358,7 +358,7 @@ static void draw_popup(int x, int y, int w, int h){
         drawalpha_common(1, BM_GROUP, 20, 20, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, WHITE);
     }
 
-    drawtext_common(1, 5, 70, f->name, f->name_length);
+    drawtext_common(1, 365, 65, f->name, f->name_length);
 
 
 }
@@ -1045,16 +1045,16 @@ void popup_scale(uint8_t scale){
         .type = PANEL_BUTTON,
         .x = 40,
         .y = 100,
-        .width = BM_LARGE_BUTTON_WIDTH * 3,
-        .height = BM_LARGE_BUTTON_HEIGHT * 3,
+        .width = BM_HUGE_BUTTON_WIDTH,
+        .height = BM_HUGE_BUTTON_HEIGHT,
     },
 
     b_interrupt_video = {
         .type = PANEL_BUTTON,
-        .x = 390,
+        .x = INTERRUPT_WIDTH - BM_HUGE_BUTTON_WIDTH - 40,
         .y = 100,
-        .width = BM_LARGE_BUTTON_WIDTH * 3,
-        .height = BM_LARGE_BUTTON_HEIGHT * 3,
+        .width = BM_HUGE_BUTTON_WIDTH,
+        .height = BM_HUGE_BUTTON_HEIGHT,
     };
     button_interrupt_call.panel = b_interrupt_call;
     button_interrupt_video.panel = b_interrupt_video;

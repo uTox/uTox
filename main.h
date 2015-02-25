@@ -198,6 +198,7 @@ enum
 
     BM_LARGE_BUTTON,
     BM_SMALL_BUTTON,
+    BM_HUGE_BUTTON,
 
     BM_CONTACT,
     BM_GROUP,
