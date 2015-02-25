@@ -291,7 +291,7 @@ static void set_callbacks(Tox *tox)
 }
 
 /* tries to load avatar from disk for given client id string and set avatar based on saved png data
- *  avatar is avatar to initialize. Will be unset if no file is found on disk or if file is corrupt or too large, 
+ *  avatar is avatar to initialize. Will be unset if no file is found on disk or if file is corrupt or too large,
  *      otherwise will be set to avatar found on disk
  *  id is cid string of whose avatar to find(see also load_avatar in avatar.h)
  *  if png_data_out is not NULL, the png data loaded from disk will be copied to it.
@@ -864,6 +864,7 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
         toxav_call(av, &id, param1, &av_DefaultSettings, 10);
 
         postmessage(FRIEND_CALL_STATUS, param1, id, (void*)CALL_RINGING);
+        incoming_call();
         break;
     }
 
@@ -923,6 +924,7 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
         /* param1: call #
          */
         toxav_hangup(av, param1);
+        // incoming_call(NULL);
         break;
     }
 
