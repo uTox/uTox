@@ -245,7 +245,7 @@ static void drawadd(int UNUSED(x), int UNUSED(y), int UNUSED(w), int height)
             str = SPTR(REQ_UNKNOWN); break;
         }
 
-        drawtextmultiline(LIST_RIGHT + SCALE * 5, utox_window_width - BM_SBUTTON_WIDTH - 5 * SCALE, LIST_Y + SCALE * 83, 0, height, font_small_lineheight, str->str, str->length, 0xFFFF, 0, 1);
+        drawtextmultiline(LIST_RIGHT + SCALE * 5, utox_window_width - BM_SMALL_BUTTON_WIDTH - 5 * SCALE, LIST_Y + SCALE * 83, 0, height, font_small_lineheight, str->str, str->length, 0xFFFF, 0, 1);
     }
 }
 
@@ -337,7 +337,7 @@ static void background_draw_common(PANEL *UNUSED(p), int target, int UNUSED(x), 
 }
 
 
-static void draw_popup(void){
+static void draw_popup(int x, int y, int w, int h){
     setcolor_common(1, WHITE);
     setfont_common(1, FONT_SELF_NAME);
 
@@ -630,72 +630,72 @@ void ui_scale(uint8_t scale)
         .type = PANEL_BUTTON,
         .x = SCALE * 33,
         .y = SCALE * 53,
-        .width = BM_SBUTTON_WIDTH,
-        .height = BM_SBUTTON_HEIGHT,
+        .width = BM_SMALL_BUTTON_WIDTH,
+        .height = BM_SMALL_BUTTON_HEIGHT,
     },
 
     b_addfriend = {
         .type = PANEL_BUTTON,
-        .x = -SCALE * 5 - BM_SBUTTON_WIDTH,
+        .x = -SCALE * 5 - BM_SMALL_BUTTON_WIDTH,
         .y = LIST_Y + SCALE * 84,
-        .width = BM_SBUTTON_WIDTH,
-        .height = BM_SBUTTON_HEIGHT,
+        .width = BM_SMALL_BUTTON_WIDTH,
+        .height = BM_SMALL_BUTTON_HEIGHT,
     },
 
     b_call = {
         .type = PANEL_BUTTON,
         .x = -62 * SCALE,
         .y = 5 * SCALE,
-        .width = BM_LBUTTON_WIDTH,
-        .height = BM_LBUTTON_HEIGHT,
+        .width = BM_LARGE_BUTTON_WIDTH,
+        .height = BM_LARGE_BUTTON_HEIGHT,
     },
 
     b_group_audio = {
         .type = PANEL_BUTTON,
         .x = -31 * SCALE,
         .y = 5 * SCALE,
-        .width = BM_LBUTTON_WIDTH,
-        .height = BM_LBUTTON_HEIGHT,
+        .width = BM_LARGE_BUTTON_WIDTH,
+        .height = BM_LARGE_BUTTON_HEIGHT,
     },
 
     b_video = {
         .type = PANEL_BUTTON,
         .x = -31 * SCALE,
         .y = 5 * SCALE,
-        .width = BM_LBUTTON_WIDTH,
-        .height = BM_LBUTTON_HEIGHT,
+        .width = BM_LARGE_BUTTON_WIDTH,
+        .height = BM_LARGE_BUTTON_HEIGHT,
     },
 
     b_sendfile = {
         .type = PANEL_BUTTON,
         .x = -93 * SCALE,
         .y = 5 * SCALE,
-        .width = BM_LBUTTON_WIDTH,
-        .height = BM_LBUTTON_HEIGHT,
+        .width = BM_LARGE_BUTTON_WIDTH,
+        .height = BM_LARGE_BUTTON_HEIGHT,
     },
 
     b_acceptfriend = {
         .type = PANEL_BUTTON,
         .x = SCALE * 5,
         .y = LIST_Y + SCALE * 5,
-        .width = BM_SBUTTON_WIDTH,
-        .height = BM_SBUTTON_HEIGHT,
+        .width = BM_SMALL_BUTTON_WIDTH,
+        .height = BM_SMALL_BUTTON_HEIGHT,
     },
 
     b_callpreview = {
         .type = PANEL_BUTTON,
         .x = 5 * SCALE,
         .y = 89 * SCALE,
-        .width = BM_LBUTTON_WIDTH,
-        .height = BM_LBUTTON_HEIGHT,
+        .width = BM_LARGE_BUTTON_WIDTH,
+        .height = BM_LARGE_BUTTON_HEIGHT,
     },
 
     b_videopreview = {
         .type = PANEL_BUTTON,
         .x = 36 * SCALE,
         .y = 89 * SCALE,
-        .width = BM_LBUTTON_WIDTH,
-        .height = BM_LBUTTON_HEIGHT,
+        .width = BM_LARGE_BUTTON_WIDTH,
+        .height = BM_LARGE_BUTTON_HEIGHT,
     },
 
     /* top right chat message window button */
@@ -760,16 +760,16 @@ void ui_scale(uint8_t scale)
         .type = PANEL_BUTTON,
         .x = 5 * SCALE,
         .y = 5 * SCALE,
-        .width = BM_LBUTTON_WIDTH,
-        .height = BM_LBUTTON_HEIGHT,
+        .width = BM_LARGE_BUTTON_WIDTH,
+        .height = BM_LARGE_BUTTON_HEIGHT,
     },
 
     b_interrupt_video = {
         .type = PANEL_BUTTON,
         .x = 55 * SCALE,
         .y = 5 * SCALE,
-        .width = BM_LBUTTON_WIDTH,
-        .height = BM_LBUTTON_HEIGHT,
+        .width = BM_LARGE_BUTTON_WIDTH,
+        .height = BM_LARGE_BUTTON_HEIGHT,
     };
 
     button_add.panel = b_add;
@@ -1030,32 +1030,31 @@ void ui_scale(uint8_t scale)
 PANEL panel_interrupt = {
     .type = PANEL_NONE,
     .drawfunc = draw_popup,
-    .child = (PANEL*[]) { NULL },
+    .child = (PANEL*[]) {
+        (void*)&button_interrupt_call,
+        (void*)&button_interrupt_video,
+         NULL },
     .popup = 1,
 };
 
 
 void popup_scale(uint8_t scale){
     debug("popup_scale\n");
-    if(SCALE == scale) {
-        return;
-    }
-    SCALE = scale;
 
     PANEL b_interrupt_call = {
         .type = PANEL_BUTTON,
-        .x = 5 * SCALE,
-        .y = 5 * SCALE,
-        .width = BM_LBUTTON_WIDTH,
-        .height = BM_LBUTTON_HEIGHT,
+        .x = 40,
+        .y = 100,
+        .width = BM_LARGE_BUTTON_WIDTH * 3,
+        .height = BM_LARGE_BUTTON_HEIGHT * 3,
     },
 
     b_interrupt_video = {
         .type = PANEL_BUTTON,
-        .x = 55 * SCALE,
-        .y = 5 * SCALE,
-        .width = BM_LBUTTON_WIDTH,
-        .height = BM_LBUTTON_HEIGHT,
+        .x = 390,
+        .y = 100,
+        .width = BM_LARGE_BUTTON_WIDTH * 3,
+        .height = BM_LARGE_BUTTON_HEIGHT * 3,
     };
     button_interrupt_call.panel = b_interrupt_call;
     button_interrupt_video.panel = b_interrupt_video;
@@ -1095,6 +1094,7 @@ FUNC(mleave, _Bool);
     y += rely; \
     width = (p->width <= 0) ? width + p->width - relx : p->width; \
     height = (p->height <= 0) ? height + p->height - rely : p->height; }\
+
 
 static void panel_update(PANEL *p, int x, int y, int width, int height)
 {

@@ -411,11 +411,11 @@ _Bool svg_draw(_Bool needmemory)
         /* Panel buttons */
         BM_ADD_WIDTH * BM_ADD_WIDTH * 4 +
         BM_CONTACT_WIDTH * BM_CONTACT_WIDTH * 2 +
-        BM_LBICON_WIDTH * BM_LBICON_HEIGHT * 3 + // file, call, video
+        BM_LARGE_BUTTON_ICON_WIDTH * BM_LARGE_BUTTON_ICON_HEIGHT * 3 + // file, call, video
         BM_STATUS_WIDTH * BM_STATUS_WIDTH * 4 +
         BM_STATUS_NOTIFY_WIDTH * BM_STATUS_NOTIFY_WIDTH +
-        BM_LBUTTON_WIDTH * BM_LBUTTON_HEIGHT +
-        BM_SBUTTON_WIDTH * BM_SBUTTON_HEIGHT +
+        BM_LARGE_BUTTON_WIDTH * BM_LARGE_BUTTON_HEIGHT +
+        BM_SMALL_BUTTON_WIDTH * BM_SMALL_BUTTON_HEIGHT +
         /* File transfer */
         BM_FT_WIDTH * BM_FT_HEIGHT + BM_FTM_WIDTH * BM_FT_HEIGHT +
         (BM_FTB_WIDTH * (BM_FTB_HEIGHT + SCALE) + BM_FTB_WIDTH * BM_FTB_HEIGHT) +
@@ -481,34 +481,34 @@ _Bool svg_draw(_Bool needmemory)
     p += s;
 
     /* Draw button icon overlays. */
-    s = BM_LBICON_WIDTH * BM_LBICON_HEIGHT;
+    s = BM_LARGE_BUTTON_ICON_WIDTH * BM_LARGE_BUTTON_ICON_HEIGHT;
 
-    drawlineround(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, 5.5 * SCALE, 5 * SCALE, 1 * SCALE, 3.85 * SCALE, 6.6 * SCALE, 0);
-    drawlineroundempty(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, 5.5 * SCALE, 5 * SCALE, 1 * SCALE, 2.4 * SCALE, 4.5 * SCALE);
-    drawsubcircle(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, 6.0 * SCALE, 8.1 * SCALE, 2.5 * SCALE);
-    drawlineround(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, 7.0 * SCALE, 5.40 * SCALE, 0.5 * SCALE, 2.2 * SCALE, 3.75 * SCALE, 1);
-    drawlineroundempty(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, 7.25 * SCALE, 5.15 * SCALE, 0.75 * SCALE, 0.75 * SCALE, 1.5 * SCALE);
-    loadalpha(BM_FILE, p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT);
+    drawlineround(p, BM_LARGE_BUTTON_ICON_WIDTH, BM_LARGE_BUTTON_ICON_HEIGHT, 5.5 * SCALE, 5 * SCALE, 1 * SCALE, 3.85 * SCALE, 6.6 * SCALE, 0);
+    drawlineroundempty(p, BM_LARGE_BUTTON_ICON_WIDTH, BM_LARGE_BUTTON_ICON_HEIGHT, 5.5 * SCALE, 5 * SCALE, 1 * SCALE, 2.4 * SCALE, 4.5 * SCALE);
+    drawsubcircle(p, BM_LARGE_BUTTON_ICON_WIDTH, BM_LARGE_BUTTON_ICON_HEIGHT, 6.0 * SCALE, 8.1 * SCALE, 2.5 * SCALE);
+    drawlineround(p, BM_LARGE_BUTTON_ICON_WIDTH, BM_LARGE_BUTTON_ICON_HEIGHT, 7.0 * SCALE, 5.40 * SCALE, 0.5 * SCALE, 2.2 * SCALE, 3.75 * SCALE, 1);
+    drawlineroundempty(p, BM_LARGE_BUTTON_ICON_WIDTH, BM_LARGE_BUTTON_ICON_HEIGHT, 7.25 * SCALE, 5.15 * SCALE, 0.75 * SCALE, 0.75 * SCALE, 1.5 * SCALE);
+    loadalpha(BM_FILE, p, BM_LARGE_BUTTON_ICON_WIDTH, BM_LARGE_BUTTON_ICON_HEIGHT);
     p += s;
 
-    drawnewcircle(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, SCALE, 0, 19 * SCALE);
-    drawsubcircle(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, SCALE, 0, 15 * SCALE);
-    drawnewcircle2(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, 9 * SCALE, 2 * SCALE, 3 * SCALE, 0);
-    drawnewcircle2(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, 3 * SCALE, 8 * SCALE, 3 * SCALE, 1);
-    loadalpha(BM_CALL, p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT);
+    drawnewcircle(p, BM_LARGE_BUTTON_ICON_WIDTH, BM_LARGE_BUTTON_ICON_HEIGHT, SCALE, 0, 19 * SCALE);
+    drawsubcircle(p, BM_LARGE_BUTTON_ICON_WIDTH, BM_LARGE_BUTTON_ICON_HEIGHT, SCALE, 0, 15 * SCALE);
+    drawnewcircle2(p, BM_LARGE_BUTTON_ICON_WIDTH, BM_LARGE_BUTTON_ICON_HEIGHT, 9 * SCALE, 2 * SCALE, 3 * SCALE, 0);
+    drawnewcircle2(p, BM_LARGE_BUTTON_ICON_WIDTH, BM_LARGE_BUTTON_ICON_HEIGHT, 3 * SCALE, 8 * SCALE, 3 * SCALE, 1);
+    loadalpha(BM_CALL, p, BM_LARGE_BUTTON_ICON_WIDTH, BM_LARGE_BUTTON_ICON_HEIGHT);
     p += s;
 
     int x, y;
     uint8_t *data = p;
-    for(y = 0; y != BM_LBICON_HEIGHT; y++) {
+    for(y = 0; y != BM_LARGE_BUTTON_ICON_HEIGHT; y++) {
         for(x = 0; x != SCALE * 4; x++) {
             double d = fabs(y - 4.5 * SCALE) - 0.66 * (SCALE * 4 - x);
             *data++ = pixel(d);
         }
-        data += BM_LBICON_WIDTH - SCALE * 4;
+        data += BM_LARGE_BUTTON_ICON_WIDTH - SCALE * 4;
     }
-    drawrectroundedsub(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, 4 * SCALE, SCALE, 7 * SCALE, 7 * SCALE, SCALE);
-    loadalpha(BM_VIDEO, p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT);
+    drawrectroundedsub(p, BM_LARGE_BUTTON_ICON_WIDTH, BM_LARGE_BUTTON_ICON_HEIGHT, 4 * SCALE, SCALE, 7 * SCALE, 7 * SCALE, SCALE);
+    loadalpha(BM_VIDEO, p, BM_LARGE_BUTTON_ICON_WIDTH, BM_LARGE_BUTTON_ICON_HEIGHT);
     p += s;
 
     /* Draw user status Buttons */
@@ -537,13 +537,13 @@ _Bool svg_draw(_Bool needmemory)
     loadalpha(BM_STATUS_NOTIFY, p, BM_STATUS_NOTIFY_WIDTH, BM_STATUS_NOTIFY_WIDTH);
     p += BM_STATUS_NOTIFY_WIDTH * BM_STATUS_NOTIFY_WIDTH;
 
-    drawrectrounded(p, BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT, SCALE * 2);
-    loadalpha(BM_LBUTTON, p, BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
-    p += BM_LBUTTON_WIDTH * BM_LBUTTON_HEIGHT;
+    drawrectrounded(p, BM_LARGE_BUTTON_WIDTH, BM_LARGE_BUTTON_HEIGHT, SCALE * 2);
+    loadalpha(BM_LARGE_BUTTON, p, BM_LARGE_BUTTON_WIDTH, BM_LARGE_BUTTON_HEIGHT);
+    p += BM_LARGE_BUTTON_WIDTH * BM_LARGE_BUTTON_HEIGHT;
 
-    drawrectrounded(p, BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT, SCALE);
-    loadalpha(BM_SBUTTON, p, BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
-    p += BM_SBUTTON_WIDTH * BM_SBUTTON_HEIGHT;
+    drawrectrounded(p, BM_SMALL_BUTTON_WIDTH, BM_SMALL_BUTTON_HEIGHT, SCALE);
+    loadalpha(BM_SMALL_BUTTON, p, BM_SMALL_BUTTON_WIDTH, BM_SMALL_BUTTON_HEIGHT);
+    p += BM_SMALL_BUTTON_WIDTH * BM_SMALL_BUTTON_HEIGHT;
 
     /* Draw file transfer buttons */
     drawrectrounded(p, BM_FT_WIDTH, BM_FT_HEIGHT, SCALE * 2);

@@ -501,7 +501,7 @@ button_settings = {
 },
 
 button_copyid = {
-    .bm = BM_SBUTTON,
+    .bm = BM_SMALL_BUTTON,
     .c1 = C_GREEN,
     .c2 = C_GREEN_LIGHT,
     .c3 = C_GREEN_LIGHT,
@@ -511,7 +511,7 @@ button_copyid = {
 },
 
 button_addfriend = {
-    .bm = BM_SBUTTON,
+    .bm = BM_SMALL_BUTTON,
     .c1 = C_GREEN,
     .c2 = C_GREEN_LIGHT,
     .c3 = C_GREEN_LIGHT,
@@ -521,39 +521,39 @@ button_addfriend = {
 },
 
 button_call = {
-    .bm = BM_LBUTTON,
+    .bm = BM_LARGE_BUTTON,
     .c1 = C_GREEN,
     .c2 = C_GREEN_LIGHT,
     .c3 = C_GREEN_LIGHT,
     .bm2 = BM_CALL,
-    .bw = _BM_LBICON_WIDTH,
-    .bh = _BM_LBICON_HEIGHT,
+    .bw = _BM_LARGE_BUTTON_ICON_WIDTH,
+    .bh = _BM_LARGE_BUTTON_ICON_HEIGHT,
 
     .onpress = button_call_onpress,
     .updatecolor = button_call_updatecolor,
 },
 
 button_group_audio = {
-    .bm = BM_LBUTTON,
+    .bm = BM_LARGE_BUTTON,
     .c1 = C_GREEN,
     .c2 = C_GREEN_LIGHT,
     .c3 = C_GREEN_LIGHT,
     .bm2 = BM_CALL,
-    .bw = _BM_LBICON_WIDTH,
-    .bh = _BM_LBICON_HEIGHT,
+    .bw = _BM_LARGE_BUTTON_ICON_WIDTH,
+    .bh = _BM_LARGE_BUTTON_ICON_HEIGHT,
 
     .onpress = button_group_audio_onpress,
     .updatecolor = button_group_audio_updatecolor,
 },
 
 button_video = {
-    .bm = BM_LBUTTON,
+    .bm = BM_LARGE_BUTTON,
     .c1 = C_GREEN,
     .c2 = C_GREEN_LIGHT,
     .c3 = C_GREEN_LIGHT,
     .bm2 = BM_VIDEO,
-    .bw = _BM_LBICON_WIDTH,
-    .bh = _BM_LBICON_HEIGHT,
+    .bw = _BM_LARGE_BUTTON_ICON_WIDTH,
+    .bh = _BM_LARGE_BUTTON_ICON_HEIGHT,
 
     .onpress = button_video_onpress,
     .updatecolor = button_video_updatecolor,
@@ -561,20 +561,20 @@ button_video = {
 
 
 button_sendfile = {
-    .bm = BM_LBUTTON,
+    .bm = BM_LARGE_BUTTON,
     .c1 = C_GREEN,
     .c2 = C_GREEN_LIGHT,
     .c3 = C_GREEN_LIGHT,
     .bm2 = BM_FILE,
-    .bw = _BM_LBICON_WIDTH,
-    .bh = _BM_LBICON_HEIGHT,
+    .bw = _BM_LARGE_BUTTON_ICON_WIDTH,
+    .bh = _BM_LARGE_BUTTON_ICON_HEIGHT,
 
     .onpress = button_sendfile_onpress,
     .updatecolor = button_sendfile_updatecolor,
 },
 
 button_acceptfriend = {
-    .bm = BM_SBUTTON,
+    .bm = BM_SMALL_BUTTON,
     .c1 = C_GREEN,
     .c2 = C_GREEN_LIGHT,
     .c3 = C_GREEN_LIGHT,
@@ -584,26 +584,26 @@ button_acceptfriend = {
 },
 
 button_callpreview = {
-    .bm = BM_LBUTTON,
+    .bm = BM_LARGE_BUTTON,
     .c1 = C_GREEN,
     .c2 = C_GREEN_LIGHT,
     .c3 = C_GREEN_LIGHT,
     .bm2 = BM_CALL,
-    .bw = _BM_LBICON_WIDTH,
-    .bh = _BM_LBICON_HEIGHT,
+    .bw = _BM_LARGE_BUTTON_ICON_WIDTH,
+    .bh = _BM_LARGE_BUTTON_ICON_HEIGHT,
 
     .onpress = button_audiopreview_onpress,
     .updatecolor = button_audiopreview_updatecolor,
 },
 
 button_videopreview = {
-    .bm = BM_LBUTTON,
+    .bm = BM_LARGE_BUTTON,
     .c1 = C_GREEN,
     .c2 = C_GREEN_LIGHT,
     .c3 = C_GREEN_LIGHT,
     .bm2 = BM_VIDEO,
-    .bw = _BM_LBICON_WIDTH,
-    .bh = _BM_LBICON_HEIGHT,
+    .bw = _BM_LARGE_BUTTON_ICON_WIDTH,
+    .bh = _BM_LARGE_BUTTON_ICON_HEIGHT,
 
     .onpress = button_videopreview_onpress,
     .updatecolor = button_videopreview_updatecolor,
@@ -672,23 +672,23 @@ button_status = {
 },
 
 button_interrupt_call = {
-    .bm = BM_LBUTTON,
+    .bm = BM_LARGE_BUTTON,
     .c1 = C_GREEN,
     .c2 = C_GREEN_LIGHT,
     .c3 = C_GREEN_LIGHT,
     .bm2 = BM_CALL,
-    .bw = _BM_LBICON_WIDTH,
-    .bh = _BM_LBICON_HEIGHT,
+    .bw = _BM_LARGE_BUTTON_ICON_WIDTH,
+    .bh = _BM_LARGE_BUTTON_ICON_HEIGHT,
     .onpress = button_interrupt_call_onpress,
 },
 
 button_interrupt_video = {
-    .bm = BM_LBUTTON,
+    .bm = BM_LARGE_BUTTON,
     .c1 = C_GREEN,
     .c2 = C_GREEN_LIGHT,
     .c3 = C_GREEN_LIGHT,
     .bm2 = BM_VIDEO,
-    .bw = _BM_LBICON_WIDTH,
-    .bh = _BM_LBICON_HEIGHT,
+    .bw = _BM_LARGE_BUTTON_ICON_WIDTH,
+    .bh = _BM_LARGE_BUTTON_ICON_HEIGHT,
     .onpress = button_interrupt_video_onpress,
 };
