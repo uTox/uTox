@@ -11,7 +11,7 @@ struct scrollable
     int content_height;
 };
 
-void scroll_draw(SCROLLABLE *s, int x, int y, int width, int height);
+void scroll_draw_common(SCROLLABLE *s, int target, int x, int y, int width, int height);
 int scroll_gety(SCROLLABLE *s, int height);
 
 _Bool scroll_mmove(SCROLLABLE *s, int x, int y, int width, int height, int mx, int my, int dx, int dy);

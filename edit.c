@@ -22,8 +22,7 @@ static void setactive(EDIT *edit)
 
 }
 
-void edit_draw(EDIT *edit, int x, int y, int width, int height)
-{
+void edit_draw_common(EDIT *edit, int target, int x, int y, int width, int height){
     if((width - 4 * SCALE - SCROLL_WIDTH) < 0) {
         return;
     }
@@ -36,29 +35,29 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
     edit->height = height - 4 * SCALE;
 
     if(!edit->noborder) {
-        framerect_common(0, x, y, x + width, y + height, (edit == active_edit) ? BLUE : (edit->mouseover ? C_GRAY2 : C_GRAY));
+        framerect_common(target, x, y, x + width, y + height, (edit == active_edit) ? BLUE : (edit->mouseover ? C_GRAY2 : C_GRAY));
     }
-    drawrect_common(0, x + 1, y + 1, x + width - 1, y + height - 1, WHITE);
+    drawrect_common(target, x + 1, y + 1, x + width - 1, y + height - 1, WHITE);
 
-    setfont_common(0, FONT_TEXT);
-    setcolor_common(0, COLOR_TEXT);
+    setfont_common(target, FONT_TEXT);
+    setcolor_common(target, COLOR_TEXT);
 
     int yy = y;
 
     if(edit->multiline) {
-        pushclip_common(0, x + 1, y + 1, width - 2, height - 2);
+        pushclip_common(target, x + 1, y + 1, width - 2, height - 2);
 
         SCROLLABLE *scroll = edit->scroll;
         scroll->content_height = text_height(width - 4 * SCALE - SCROLL_WIDTH, font_small_lineheight, edit->data, edit->length) + 4 * SCALE;
-        scroll_draw(scroll, x, y, width, height);
+        scroll_draw_common(scroll, target, x, y, width, height);
         yy -= scroll_gety(scroll, height);
     }
 
 
     if(!edit->length && maybe_i18nal_string_is_valid(&edit->empty_str)) {
         STRING* empty_str_text = maybe_i18nal_string_get(&edit->empty_str);
-        setcolor_common(0, C_GRAY2);
-        drawtext_common(0, x + 2 * SCALE, yy + 2 * SCALE, empty_str_text->str, empty_str_text->length);
+        setcolor_common(target, C_GRAY2);
+        drawtext_common(target, x + 2 * SCALE, yy + 2 * SCALE, empty_str_text->str, empty_str_text->length);
     }
 
     _Bool a = (edit == active_edit);
@@ -66,7 +65,7 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
                       a ? edit_sel.start : STRING_IDX_MAX, a ? edit_sel.length : STRING_IDX_MAX, edit->multiline);
 
     if(edit->multiline) {
-        popclip_common(0);
+        popclip_common(target);
     }
 }
 

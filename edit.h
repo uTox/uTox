@@ -29,7 +29,7 @@ struct edit {
     void (*onlosefocus)(EDIT *edit);
 };
 
-void edit_draw(EDIT *edit, int x, int y, int width, int height);
+void edit_draw_common(EDIT *edit, int target, int x, int y, int width, int height);
 
 _Bool edit_mmove(EDIT *edit, int x, int y, int width, int height, int mx, int my, int dx, int dy);
 _Bool edit_mdown(EDIT *edit);

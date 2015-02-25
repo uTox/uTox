@@ -14,9 +14,9 @@ typedef struct dropdown {
     void *userdata;
 } DROPDOWN;
 
-void dropdown_drawactive(void);
+void dropdown_drawactive_common(int target);
 
-void dropdown_draw(DROPDOWN *b, int x, int y, int width, int height);
+void dropdown_draw_common(DROPDOWN *b, int target, int x, int y, int width, int height);
 _Bool dropdown_mmove(DROPDOWN *b, int x, int y, int width, int height, int mx, int my, int dx, int dy);
 _Bool dropdown_mdown(DROPDOWN *b);
 _Bool dropdown_mright(DROPDOWN *b);

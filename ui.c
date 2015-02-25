@@ -318,23 +318,22 @@ static void drawsettings_content(int UNUSED(x), int y, int UNUSED(w), int UNUSED
 
 }
 
-static void background_draw(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int width, int height)
-{
-    drawrect_common(0, 0, 0, LIST_RIGHT, LIST_Y - 1, LIST_DARK);
-    drawhline_common(0, 0, LIST_Y - 1, LIST_RIGHT, LIST_EDGE);
-    drawrect_common(0, 0, LIST_Y, LIST_RIGHT, height + LIST_BOTTOM, LIST_MAIN);
-    drawrect_common(0, 0, height + LIST_BOTTOM, LIST_RIGHT, height, LIST_DARK);
+static void background_draw_common(PANEL *UNUSED(p), int target, int UNUSED(x), int UNUSED(y), int width, int height){
+    drawrect_common(target, 0, 0, LIST_RIGHT, LIST_Y - 1, LIST_DARK);
+    drawhline_common(target, 0, LIST_Y - 1, LIST_RIGHT, LIST_EDGE);
+    drawrect_common(target, 0, LIST_Y, LIST_RIGHT, height + LIST_BOTTOM, LIST_MAIN);
+    drawrect_common(target, 0, height + LIST_BOTTOM, LIST_RIGHT, height, LIST_DARK);
 
     drawself();
 
-    drawrect_common(0, LIST_RIGHT, 0, width, height, WHITE);
+    drawrect_common(target, LIST_RIGHT, 0, width, height, WHITE);
 
-    drawvline_common(0, LIST_RIGHT, 1, LIST_Y - 1, LIST_EDGE3);
+    drawvline_common(target, LIST_RIGHT, 1, LIST_Y - 1, LIST_EDGE3);
     drawpixel(LIST_RIGHT, LIST_Y - 1, LIST_EDGE2);
-    drawvline_common(0, LIST_RIGHT, LIST_Y, height - SCALE * 15, LIST_EDGE4);
+    drawvline_common(target, LIST_RIGHT, LIST_Y, height - SCALE * 15, LIST_EDGE4);
     drawpixel(LIST_RIGHT, height - SCALE * 15, LIST_EDGE5);
 
-    drawhline_common(0, LIST_RIGHT + 1, LIST_Y - 1, width, C_GRAY);
+    drawhline_common(target, LIST_RIGHT + 1, LIST_Y - 1, width, C_GRAY);
 }
 
 
@@ -1065,7 +1064,7 @@ void popup_scale(uint8_t scale){
     setscale(1);
 }
 
-// Generate function prototypes with the pre-processor
+// Generate function prototypes links with the pre-processor
 #define FUNC(x, ret, ...) static ret (* x##func[])(void *p, ##__VA_ARGS__) = { \
     (void*)background_##x, \
     (void*)messages_##x, \
@@ -1076,7 +1075,6 @@ void popup_scale(uint8_t scale){
     (void*)scroll_##x, \
 };
 
-FUNC(draw, void, int x, int y, int width, int height);
 FUNC(draw_common, void, int target, int x, int y, int width, int height);
 FUNC(mmove, _Bool, int x, int y, int width, int height, int mx, int my, int dx, int dy);
 FUNC(mdown, _Bool);
@@ -1087,7 +1085,9 @@ FUNC(mleave, _Bool);
 
 #undef FUNC
 
-/* Use the preprocessor to add code to adjust the x,y cords for panels or sub panels. */
+/* Use the preprocessor to add code to adjust the x,y cords for panels or sub panels.
+ * If x or y is negative, subtract that from width and height, and use that instead.
+ */
 #define FUNC() {\
     int relx = (p->x < 0) ? width + p->x : p->x;\
     int rely = (p->y < 0) ? height + p->y : p->y;\
@@ -1134,7 +1134,7 @@ void ui_mouseleave(void)
     redraw();
 }
 
-static void panel_draw_sub(PANEL *p, int x, int y, int width, int height)
+static void panel_draw_sub(PANEL *p, int target, int x, int y, int width, int height)
 {
     FUNC();
 
@@ -1146,7 +1146,7 @@ static void panel_draw_sub(PANEL *p, int x, int y, int width, int height)
 
 
     if(p->type) {
-        drawfunc[p->type - 1](p, x, y, width, height);
+        draw_commonfunc[p->type - 1](p, target, x, y, width, height);
     } else {
         if(p->drawfunc) {
             p->drawfunc(x, y, width, height);
@@ -1157,7 +1157,7 @@ static void panel_draw_sub(PANEL *p, int x, int y, int width, int height)
     if(pp) {
         while((subp = *pp++)) {
             if(!subp->disabled) {
-                panel_draw_sub(subp, x, y, width, height);
+                panel_draw_sub(subp, target, x, y, width, height);
             }
         }
     }
@@ -1174,7 +1174,7 @@ void panel_draw(PANEL *p, int target, int x, int y, int width, int height)
     //pushclip_common(0, x, y, width, height);
 
     if(p->type) {
-        drawfunc[p->type - 1](p, x, y, width, height);
+        draw_commonfunc[p->type - 1](p, target, x, y, width, height);
     } else {
         if(p->drawfunc) {
             p->drawfunc(x, y, width, height);
@@ -1185,15 +1185,15 @@ void panel_draw(PANEL *p, int target, int x, int y, int width, int height)
     if(pp) {
         while((subp = *pp++)) {
             if(!subp->disabled) {
-                panel_draw_sub(subp, x, y, width, height);
+                panel_draw_sub(subp, target, x, y, width, height);
             }
         }
     }
 
     //popclip_common(0);
 
-    dropdown_drawactive();
-    contextmenu_draw();
+    dropdown_drawactive_common(target);
+    contextmenu_draw_common(target);
     tooltip_draw();
 
     enddraw_common(target, x, y, width, height);

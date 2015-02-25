@@ -9,58 +9,59 @@ static _Bool sitem_mousedown;
 
 static int sitem_dy;
 
-static void drawitembox(ITEM *i, int y)
+static void drawitembox(ITEM *i, int target, int y)
 {
     if(sitem == i) {
         drawpixel(LIST_X, y, LIST_EDGE6);
-        drawhline_common(0, LIST_X + 1, y, LIST_RIGHT, LIST_EDGE7);
+        drawhline_common(target, LIST_X + 1, y, LIST_RIGHT, LIST_EDGE7);
         drawpixel(LIST_RIGHT, y, LIST_EDGE5);
-        drawvline_common(0, LIST_X, y + 1, y + ITEM_HEIGHT, LIST_EDGE4);
-        drawrect_common(0, LIST_X + 1, y + 1, LIST_RIGHT + 1, y + ITEM_HEIGHT, LIST_SELECTED);
+        drawvline_common(target, LIST_X, y + 1, y + ITEM_HEIGHT, LIST_EDGE4);
+        drawrect_common(target, LIST_X + 1, y + 1, LIST_RIGHT + 1, y + ITEM_HEIGHT, LIST_SELECTED);
 
-        //drawrectw_common(0, LIST_X + 5 * SCALE / 2, y + 5 * SCALE / 2, 40, 40, LIST_MAIN);
+        //drawrectw_common(target, LIST_X + 5 * SCALE / 2, y + 5 * SCALE / 2, 40, 40, LIST_MAIN);
     } else if(mitem == i) {
-        drawrect_common(0, LIST_X + 1, y + 1, LIST_RIGHT, y + ITEM_HEIGHT, LIST_HIGHLIGHT);
+        drawrect_common(target, LIST_X + 1, y + 1, LIST_RIGHT, y + ITEM_HEIGHT, LIST_HIGHLIGHT);
     }
 }
 
-static void drawname(ITEM *i, int y, char_t *name, char_t *msg, STRING_IDX name_length, STRING_IDX msg_length, _Bool color_overide, uint32_t color)
+static void drawname(ITEM *i, int target, int y, char_t *name, char_t *msg, STRING_IDX name_length, STRING_IDX msg_length, _Bool color_overide, uint32_t color)
 {
     if (!color_overide)
         color = (sitem == i) ? LIST_DARK : LIST_SELECTED;
 
-    setcolor_common(0, color);
-    setfont_common(0, FONT_LIST_NAME);
-    drawtextwidth_common(0, LIST_NAME_X, LIST_RIGHT - LIST_NAME_X - SCALE * 16, y + LIST_NAME_Y, name, name_length);
+    setcolor_common(target, color);
+    setfont_common(target, FONT_LIST_NAME);
+    drawtextwidth_common(target, LIST_NAME_X, LIST_RIGHT - LIST_NAME_X - SCALE * 16, y + LIST_NAME_Y, name, name_length);
 
     if (!color_overide)
         color = (sitem == i) ? LIST_MAIN : C_STATUS;
 
-    setcolor_common(0, color);
-    setfont_common(0, FONT_STATUS);
-    drawtextwidth_common(0, LIST_STATUS_X, LIST_RIGHT - LIST_STATUS_X - SCALE * 16, y + LIST_STATUS_Y,  msg, msg_length);
+    setcolor_common(target, color);
+    setfont_common(target, FONT_STATUS);
+    drawtextwidth_common(target, LIST_STATUS_X, LIST_RIGHT - LIST_STATUS_X - SCALE * 16, y + LIST_STATUS_Y,  msg, msg_length);
 }
 
-static void drawitem(ITEM *i, int UNUSED(x), int y)
+static void drawitem(ITEM *i, int target, int UNUSED(x), int y)
 {
-    drawitembox(i, y);
+    drawitembox(i, target, y);
     switch(i->item) {
     case ITEM_FRIEND: {
         FRIEND *f = i->data;
 
         // draw avatar or default image
         if (friend_has_avatar(f)) {
+            // TODO convert to accept target
             draw_avatar_image(f->avatar.image, LIST_AVATAR_X, y + LIST_AVATAR_Y, f->avatar.width, f->avatar.height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
         } else {
-            drawalpha_common(0, BM_CONTACT, LIST_AVATAR_X, y + LIST_AVATAR_Y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, (sitem == i) ? LIST_MAIN : WHITE);
+            drawalpha_common(target, BM_CONTACT, LIST_AVATAR_X, y + LIST_AVATAR_Y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, (sitem == i) ? LIST_MAIN : WHITE);
         }
 
-        drawname(i, y, f->name, f->status_message, f->name_length, f->status_length, 0, 0);
+        drawname(i, target, y, f->name, f->status_message, f->name_length, f->status_length, 0, 0);
 
         uint8_t status = f->online ? f->status : 3;
-        drawalpha_common(0, BM_ONLINE + status, LIST_RIGHT - SCALE * 12, y + ITEM_HEIGHT / 2 - BM_STATUS_WIDTH / 2, BM_STATUS_WIDTH, BM_STATUS_WIDTH, status_color[status]);
+        drawalpha_common(target, BM_ONLINE + status, LIST_RIGHT - SCALE * 12, y + ITEM_HEIGHT / 2 - BM_STATUS_WIDTH / 2, BM_STATUS_WIDTH, BM_STATUS_WIDTH, status_color[status]);
         if(f->notify) {
-            drawalpha_common(0, BM_STATUS_NOTIFY, LIST_RIGHT - SCALE * 13, y + ITEM_HEIGHT / 2 - BM_STATUS_NOTIFY_WIDTH / 2, BM_STATUS_NOTIFY_WIDTH, BM_STATUS_NOTIFY_WIDTH, status_color[status]);
+            drawalpha_common(target, BM_STATUS_NOTIFY, LIST_RIGHT - SCALE * 13, y + ITEM_HEIGHT / 2 - BM_STATUS_NOTIFY_WIDTH / 2, BM_STATUS_NOTIFY_WIDTH, BM_STATUS_NOTIFY_WIDTH, status_color[status]);
         }
         // tooltip_new(utf8tonative(snprint_t(f->name, sizeof(char_t)*8));
         break;
@@ -68,7 +69,7 @@ static void drawitem(ITEM *i, int UNUSED(x), int y)
 
     case ITEM_GROUP: {
         GROUPCHAT *g = i->data;
-        drawalpha_common(0, BM_GROUP, LIST_AVATAR_X, y + LIST_AVATAR_Y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, (sitem == i) ? LIST_MAIN : WHITE);
+        drawalpha_common(target, BM_GROUP, LIST_AVATAR_X, y + LIST_AVATAR_Y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, (sitem == i) ? LIST_MAIN : WHITE);
         _Bool color_overide = 0;
         uint32_t color = 0;
 
@@ -87,7 +88,7 @@ static void drawitem(ITEM *i, int UNUSED(x), int y)
             }
         }
 
-        drawname(i, y, g->name, g->topic, g->name_length, g->topic_length, color_overide, color);
+        drawname(i, target, y, g->name, g->topic, g->name_length, g->topic_length, color_overide, color);
         break;
     }
 
@@ -97,8 +98,8 @@ static void drawitem(ITEM *i, int UNUSED(x), int y)
         char_t name[TOX_FRIEND_ADDRESS_SIZE * 2];
         id_to_string(name, f->id);
 
-        drawalpha_common(0, BM_CONTACT, LIST_AVATAR_X, y + LIST_AVATAR_Y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, (sitem == i) ? LIST_MAIN : WHITE);
-        drawname(i, y, name, f->msg, sizeof(name), f->length, 0, 0);
+        drawalpha_common(target, BM_CONTACT, LIST_AVATAR_X, y + LIST_AVATAR_Y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, (sitem == i) ? LIST_MAIN : WHITE);
+        drawname(i, target, y, name, f->msg, sizeof(name), f->length, 0, 0);
         break;
     }
     }
@@ -326,8 +327,7 @@ void list_addfriendreq(FRIENDREQ *f)
     i->data = f;
 }
 
-void list_draw(void *UNUSED(n), int UNUSED(x), int y, int UNUSED(width), int UNUSED(height))
-{
+void list_draw_common(void *UNUSED(n), int target, int UNUSED(x), int y, int UNUSED(width), int UNUSED(height)){
     int my, j, k;
 
     ITEM *i = item, *mi = NULL;
@@ -346,7 +346,7 @@ void list_draw(void *UNUSED(n), int UNUSED(x), int y, int UNUSED(width), int UNU
                 //RECT r = {LIST_X, y, LIST_X + ITEM_WIDTH, y + ITEM_HEIGHT};
                 //fillrect(&r, WHITE);
             } else {
-                drawitem(i, LIST_X, y);
+                drawitem(i, target, LIST_X, y);
             }
             search_offset[j] = k - j;
             search_unset[k] = j - k;
@@ -363,7 +363,7 @@ void list_draw(void *UNUSED(n), int UNUSED(x), int y, int UNUSED(width), int UNU
     scroll_list.content_height = searchcount * ITEM_HEIGHT;
 
     if(mi) {
-        drawitem(mi, LIST_X, my);
+        drawitem(mi, target, LIST_X, my);
     }
 }
 

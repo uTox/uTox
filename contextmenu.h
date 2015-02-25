@@ -8,7 +8,7 @@ typedef struct contextmenu {
     void *userdata;
 } CONTEXTMENU;
 
-void contextmenu_draw(void);
+void contextmenu_draw_common(int target);
 _Bool contextmenu_mmove(int mx, int my, int dx, int dy);
 _Bool contextmenu_mdown(void);
 _Bool contextmenu_mup(void);

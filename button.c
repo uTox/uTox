@@ -19,17 +19,11 @@ static void calculate_pos_and_width(BUTTON *b, int *x, int *w) {
     }
 }
 
-void button_draw(BUTTON *b, int x, int y, int width, int height){
-    buttton_draw_common(b, 0, x, y, width, height);
-}
-
 /** button_draw_common
  *
 *  takes: button, draw-handle target, xy cords, h,w.
 *
 * and draws it all pretty like
-*
-* replaces button_draw
 */
 void button_draw_common(BUTTON *b, int target, int x, int y, int width, int height){
     if(b->nodraw) {

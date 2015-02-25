@@ -26,30 +26,29 @@ static void calculate_pos_and_width(CONTEXTMENU *b, int *x, int *w) {
     }
 }
 
-void contextmenu_draw(void)
-{
+void contextmenu_draw_common(int target){
     CONTEXTMENU *b = &context_menu;
     if(!b->open) {
         return;
     }
 
     // Ensure that font is set before calculating position and width.
-    setfont_common(0, FONT_TEXT);
-    setcolor_common(0, COLOR_TEXT);
+    setfont_common(target, FONT_TEXT);
+    setcolor_common(target, COLOR_TEXT);
 
     int x, w;
     calculate_pos_and_width(b, &x, &w);
 
-    drawrectw_common(0, x, b->y, w, b->height, WHITE);
-    drawrectw_common(0, x, b->y + b->over * CONTEXT_HEIGHT, w, CONTEXT_HEIGHT, C_GRAY);
+    drawrectw_common(target, x, b->y, w, b->height, WHITE);
+    drawrectw_common(target, x, b->y + b->over * CONTEXT_HEIGHT, w, CONTEXT_HEIGHT, C_GRAY);
 
     int i;
     for(i = 0; i != b->count; i++) {
         STRING *name = b->ondisplay(i, b);
-        drawtext_common(0, x + SCALE * 2, b->y + SCALE * 2 + i * CONTEXT_HEIGHT, name->str, name->length);
+        drawtext_common(target, x + SCALE * 2, b->y + SCALE * 2 + i * CONTEXT_HEIGHT, name->str, name->length);
     }
 
-    framerect_common(0, x, b->y, x + w, b->y + b->height, BLUE);
+    framerect_common(target, x, b->y, x + w, b->y + b->height, BLUE);
 }
 
 _Bool contextmenu_mmove(int mx, int my, int UNUSED(dx), int UNUSED(dy))
