@@ -1400,6 +1400,7 @@ void incoming_call_inturrupt(){
 
     debug("trying to spawn new window\n");
 
+    // Center to the system screen
     int pop_up_setx, pop_up_sety;
     pop_up_setx = (GetSystemMetrics(SM_CXSCREEN) - INTERRUPT_WIDTH  ) /2;
     pop_up_sety = (GetSystemMetrics(SM_CYSCREEN) - INTERRUPT_HEIGHT ) /2;
@@ -1412,39 +1413,34 @@ void incoming_call_inturrupt(){
         .hInstance = hinstance,
         .hbrBackground = (HBRUSH)GetStockObject (BLACK_BRUSH),
     };
-
     RegisterClassW(&interrupt_windclass);
 
+    // Create the popup window, using WS_EX_LAYERD to allow for transparency.
     interrupt_hwnd = CreateWindowExW(WS_EX_TOOLWINDOW | WS_EX_LAYERED, L"uTox Call", L"utox_interrupt", WS_POPUP,
                     pop_up_setx, pop_up_sety, INTERRUPT_WIDTH, INTERRUPT_HEIGHT, NULL, NULL, hinstance, NULL);
 
     //                       handle, 0x00 (black) is the transparent, and everything else is 100% opaque
     SetLayeredWindowAttributes(interrupt_hwnd, 0x00, 255, LWA_ALPHA | LWA_COLORKEY);
 
-
+    // Create the DC handlers we need to draw to/with
+    // TODO use a target instead of 1
     main_hdc[1] = GetDC(interrupt_hwnd);
     hdc_bm[1] = CreateCompatibleBitmap(main_hdc[1], INTERRUPT_WIDTH, INTERRUPT_HEIGHT);
-
     SelectObject(hdc[1], hdc_bm[1]);
     SetBkMode(hdc[1], TRANSPARENT);
 
-    ShowWindow(interrupt_hwnd, SW_SHOW);
 
+    ShowWindow(interrupt_hwnd, SW_SHOW);
     if(1){ //if(we_should_inturrupt) // Ideally we will make a decision if we should bother the user, for now always.
         SetForegroundWindow(interrupt_hwnd);
     }
 
     MSG msg;
-    int blerg = 0;
-    while(GetMessage(&msg, NULL, 0, 0) && (blerg <= 5000) ) {
+    while(GetMessage(&msg, NULL, 0, 0)) {
         TranslateMessage(&msg);
         DispatchMessage(&msg);
         yieldcpu(1);
-        blerg++;
     }
-
-    // todo GrabingProc, WindowProc, rewrite all draw functions to get a pulled hdc[target], create layout for popup
-    // remove winow title bars intergrate grabproc with winproc so that users can move bars around
 
     // We're done so lets redraw_utox to make sure everything looks clean
     redraw_utox(1);
