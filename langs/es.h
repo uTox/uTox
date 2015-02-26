@@ -1,5 +1,5 @@
 msgid(LANG_NATIVE_NAME)
-msgstr("Spanish")
+msgstr("Espańol")
 
 msgid(LANG_ENGLISH_NAME)
 msgstr("SPANISH")
@@ -46,10 +46,6 @@ msgstr("Nueva Transferencia de archivos")
 msgid(TRANSFER_STARTED)
 msgstr("Transferencia de archivos Iniciada")
 
-//TODO: Same as in English? Localize or remove.
-//msgid(TRANSFER___)
-//msgstr("...")
-
 msgid(TRANSFER_PAUSED)
 msgstr("Transferencia de archivos pausada")
 
@@ -76,10 +72,6 @@ msgstr("Llamada iniciada")
 
 msgid(ADDFRIENDS)
 msgstr("Agregar amigos")
-
-//TODO: Same as in English? Localize or remove.
-//msgid(TOXID)
-//msgstr("Tox ID")
 
 msgid(MESSAGE)
 msgstr("Mensaje")
@@ -114,6 +106,9 @@ msgstr("Seleccionar dispositivo")
 msgid(AUDIOINPUTDEVICE)
 msgstr("Seleccionar Entrada de Audio")
 
+msgid(AUDIOFILTERING)
+msgstr("Filtrar Audio")
+
 msgid(AUDIOOUTPUTDEVICE)
 msgstr("Seleccionar Salida de Audio")
 
@@ -123,9 +118,8 @@ msgstr("Seleccionar Entrada de Vídeo")
 msgid(OTHERSETTINGS)
 msgstr("Configuración extra")
 
-//TODO: Same as in English? Localize or remove.
-//msgid(DPI)
-//msgstr("DPI")
+msgid(DPI)
+msgstr("Resolución de PPP")
 
 msgid(SAVELOCATION)
 msgstr("Guardar ubicación")
@@ -136,27 +130,23 @@ msgstr("Idioma")
 msgid(NETWORK)
 msgstr("Red")
 
-//TODO: Same as in English? Localize or remove.
-//msgid(IPV6)
-//msgstr("IPv6:")
-
-//TODO: Same as in English? Localize or remove.
-//msgid(UDP)
-//msgstr("UDP:")
-
-//TODO: Same as in English? Localize or remove.
-//msgid(PROXY)
-//msgstr("Proxy (SOCKS 5)")
-
 msgid(WARNING)
-msgstr("Al Cambiar configuración de la Red/Proxy, sera desconectado de la Red Tox")
+msgstr("Al Cambiar configuración de la Red/Proxy, sera desconectado temporalmente de la Red Tox")
 
 msgid(LOGGING)
-msgstr("Registrando")
+msgstr("Registro")
 
-//TODO: Same as in English? Localize or remove.
-//msgid(IS_TYPING)
-//msgstr("is typing...")
+msgid(AUDIONOTIFICATIONS)
+msgstr("Activar notificación audible (tono de llamada)")
+
+msgid(IS_TYPING)
+msgstr("está escribiendo...")
+
+msgid(CLOSE_TO_TRAY)
+msgstr("Minimizar en la bandeja en vez de cierre")
+
+msgid(START_IN_TRAY)
+msgstr("Iniciar minimizado en la bandeja del sistema")
 
 msgid(COPY)
 msgstr("Copiar")
@@ -197,86 +187,71 @@ msgstr("Click para abrir")
 msgid(CANCELLED)
 msgstr("Cancelado")
 
-//TODO: Localize or remove.
-//msgid(DPI_TINY)
-//msgstr("Tiny (50%)")
+msgid(DPI_TINY)
+msgstr("Diminuto (50%)")
 
-//TODO: Localize or remove.
-//msgid(DPI_NORMAL)
-//msgstr("Normal (100%)")
+msgid(DPI_NORMAL)
+msgstr("Normales (100%)")
 
-//TODO: Localize or remove.
-//msgid(DPI_BIG)
-//msgstr("Big (150%)")
+msgid(DPI_BIG)
+msgstr("Grande (150%)")
 
-//TODO: Localize or remove.
-//msgid(DPI_LARGE)
-//msgstr("Large (200%)")
+msgid(DPI_LARGE)
+msgstr("Muy grande (200%)")
 
-//TODO: Localize or remove.
-//msgid(DPI_HUGE)
-//msgstr("Huge (250%)")
+msgid(DPI_HUGE)
+msgstr("Enorme (250%)")
 
-//TODO: Localize or remove.
-//msgid(CONTACTS_FILTER_ALL)
-//msgstr("All")
+msgid(CONTACTS_FILTER_ALL)
+msgstr("Todas")
 
-//TODO: Localize or remove.
-//msgid(CONTACTS_FILTER_ONLINE)
-//msgstr("Online")
+msgid(CONTACTS_FILTER_ONLINE)
+msgstr("En línea")
 
-//TODO: Localize or remove.
-//msgid(PROXY_DISABLED)
-//msgstr("Disabled")
+msgid(PROXY_DISABLED)
+msgstr("Discapacitado")
 
-//TODO: Localize or remove.
-//msgid(PROXY_FALLBACK)
-//msgstr("Fallback")
+msgid(PROXY_FALLBACK)
+msgstr("Si es necesario")
 
-//TODO: Localize or remove.
-//msgid(PROXY_ALWAYS_USE)
-//msgstr("Always use")
+msgid(PROXY_ALWAYS_USE)
+msgstr("Usar siempre")
 
-//TODO: Localize or remove.
-//msgid(NO)
-//msgstr("No")
+msgid(YES)
+msgstr("Sí")
 
-//TODO: Localize or remove.
-//msgid(YES)
-//msgstr("Yes")
+msgid(VIDEO_IN_NONE)
+msgstr("Nada")
 
-//TODO: Localize or remove.
-//msgid(VIDEO_IN_NONE)
-//msgstr("None")
+msgid(VIDEO_IN_DESKTOP)
+msgstr("Escritorio")
 
-//TODO: Localize or remove.
-//msgid(VIDEO_IN_DESKTOP)
-//msgstr("Desktop")
+msgid(AUDIO_IN_DEFAULT_LOOPBACK)
+msgstr("Bucle invertido ordinario")
 
-//TODO: Localize or remove.
-//msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
-//msgstr("Please accept this friend request.")
+msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
+msgstr("Acepte esta solicitud de amistad por favor.")
 
-//TODO: Localize or remove.
-//msgid(CONTACTS_FILTER_EDIT_HINT)
-//msgstr("Search friends")
+msgid(CONTACTS_FILTER_EDIT_HINT)
+msgstr("Buscar amigos")
 
-//TODO: Localize or remove.
-//msgid(PROXY_EDIT_HINT_IP)
-//msgstr("IP")
+msgid(PROXY_EDIT_HINT_PORT)
+msgstr("Puerto")
 
-//TODO: Localize or remove.
-//msgid(PROXY_EDIT_HINT_PORT)
-//msgstr("Port")
+msgid(WINDOW_TITLE_VIDEO_PREVIEW)
+msgstr("Vista previa de vídeo")
 
-//TODO: Localize or remove.
-//msgid(AUDIO_IN_DEFAULT_LOOPBACK)
-//msgstr("Default Loopback")
+msgid(MUTE)
+msgstr("Enmudecer")
 
-//TODO: Localize or remove.
-//msgid(WINDOW_TITLE_VIDEO_PREVIEW)
-//msgstr("Video Preview")
+msgid(UNMUTE)
+msgstr("Desenmudecer")
 
-//TODO: Localize or remove.
-//msgid(AUDIONOTIFICATIONS)
-//msgstr("Enable Audible Notification (Ringtone)")
+msgid(AVATAR_TOO_LARGE_MAX_SIZE_IS)
+msgstr("Imagen es demasiado grande. Tamaño máximo: ")
+
+msgid(CANT_FIND_FILE_OR_EMPTY)
+msgstr("No se puede encontrar el archivo seleccionado o archivo seleccionado está vacío.")
+
+msgid(CLEAR_HISTORY)
+msgstr("Borrar el historial")

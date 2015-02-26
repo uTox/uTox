@@ -11,7 +11,7 @@ msgid(REQ_RESOLVE)
 msgstr("Определение DNS-имени...")
 
 msgid(REQ_INVALID_ID)
-msgstr("Ошибка: Некорректный Tox ID")
+msgstr("Ошибка: Неправильный Tox ID")
 
 msgid(REQ_EMPTY_ID)
 msgstr("Ошибка: Не указан Tox ID")
@@ -32,10 +32,10 @@ msgid(REQ_UNKNOWN)
 msgstr("Ошибка: Неизвестная")
 
 msgid(REQ_BAD_CHECKSUM)
-msgstr("Ошибка: Некорректный Tox ID (контрольная сумма не совпадает)")
+msgstr("Ошибка: Неправильный Tox ID (контрольная сумма не совпадает)")
 
 msgid(REQ_BAD_NOSPAM)
-msgstr("Ошибка: Некорректный Tox ID (неверное значение nospam)")
+msgstr("Ошибка: Неправильный Tox ID (неверное значение nospam)")
 
 msgid(REQ_NO_MEMORY)
 msgstr("Ошибка: Не хватает памяти")
@@ -134,7 +134,7 @@ msgid(PROXY)
 msgstr("Прокси (SOCKS 5)")
 
 msgid(WARNING)
-msgstr("Для изменения сетевых настроек необходимо отключение от сети Tox")
+msgstr("Изменение сетевых настроек приведёт к временному отключению от сети Tox")
 
 msgid(LOGGING)
 msgstr("Сохранять историю чата")
@@ -144,6 +144,12 @@ msgstr("Включить звуковое уведомление (мелодия
 
 msgid(IS_TYPING)
 msgstr("печатает...")
+
+msgid(CLOSE_TO_TRAY)
+msgstr("Сворачивать вместо закрытия")
+
+msgid(START_IN_TRAY)
+msgstr("Запускать свёрнутым")
 
 msgid(COPY)
 msgstr("Копировать")
@@ -226,17 +232,17 @@ msgstr("Не выбрано")
 msgid(VIDEO_IN_DESKTOP)
 msgstr("Рабочий стол")
 
+msgid(AUDIO_IN_DEFAULT_LOOPBACK)
+msgstr("Стандартная петля")
+
 msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
 msgstr("Пожалуйста, добавьте меня в свой список друзей.")
 
 msgid(CONTACTS_FILTER_EDIT_HINT)
-msgstr("Поиск контакта")
+msgstr("Найти друга")
 
 msgid(PROXY_EDIT_HINT_PORT)
 msgstr("Порт")
-
-msgid(AUDIO_IN_DEFAULT_LOOPBACK)
-msgstr("Стандартная петля")
 
 msgid(WINDOW_TITLE_VIDEO_PREVIEW)
 msgstr("Предпросмотр видео")
@@ -246,3 +252,12 @@ msgstr("Заглушить")
 
 msgid(UNMUTE)
 msgstr("Включить")
+
+msgid(AVATAR_TOO_LARGE_MAX_SIZE_IS)
+msgstr("Изображение слишком большое. Максимальный размер: ")
+
+msgid(CANT_FIND_FILE_OR_EMPTY)
+msgstr("Невозможно найти выбранный файл или выбранный файл пуст.")
+
+msgid(CLEAR_HISTORY)
+msgstr("Очистить историю")
