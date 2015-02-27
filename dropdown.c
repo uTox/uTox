@@ -95,7 +95,7 @@ _Bool dropdown_mmove(DROPDOWN *b, int target, int UNUSED(x), int y, int w, int h
     return 0;
 }
 
-_Bool dropdown_mdown(DROPDOWN *b)
+_Bool dropdown_mdown(DROPDOWN *b, int target)
 {
     if(b->mouseover && b->dropcount) {
         b->open = 1;
@@ -116,8 +116,7 @@ _Bool dropdown_mwheel(DROPDOWN *UNUSED(b), int UNUSED(height), double UNUSED(d))
     return 0;
 }
 
-_Bool dropdown_mup(DROPDOWN *b)
-{
+_Bool dropdown_mup(DROPDOWN *b, int target){
     if(b->open) {
         b->open = 0;
         active = NULL;

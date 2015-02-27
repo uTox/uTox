@@ -107,11 +107,11 @@ typedef struct msg_file {
 
 void messages_draw_common(MESSAGES *m, int target, int x, int y, int width, int height);
 _Bool messages_mmove(MESSAGES *m, int target, int x, int y, int width, int height, int mx, int my, int dx, int dy);
-_Bool messages_mdown(MESSAGES *m);
-_Bool messages_dclick(MESSAGES *m, _Bool triclick);
+_Bool messages_mdown(MESSAGES *m, int target);
+_Bool messages_dclick(MESSAGES *m, int target, _Bool triclick);
 _Bool messages_mright(MESSAGES *m);
 _Bool messages_mwheel(MESSAGES *m, int height, double d);
-_Bool messages_mup(MESSAGES *m);
+_Bool messages_mup(MESSAGES *m, int target);
 _Bool messages_mleave(MESSAGES *m);
 
 int messages_selection(MESSAGES *m, void *data, uint32_t len, _Bool names);

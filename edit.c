@@ -126,14 +126,14 @@ _Bool edit_mmove(EDIT *edit, int target, int px, int py, int width, int height, 
     return need_redraw;
 }
 
-_Bool edit_mdown(EDIT *edit)
+_Bool edit_mdown(EDIT *edit, int target)
 {
     if(edit->mouseover_char > edit->length) {
         edit->mouseover_char = edit->length;
     }
 
     if(edit->multiline) {
-        if(scroll_mdown(edit->scroll)) {
+        if(scroll_mdown(edit->scroll, target)) {
             return 1;
         }
     }
@@ -154,7 +154,7 @@ _Bool edit_mdown(EDIT *edit)
     return 0;
 }
 
-_Bool edit_dclick(EDIT *edit, _Bool triclick)
+_Bool edit_dclick(EDIT *edit, int target, _Bool triclick)
 {
     if(edit != active_edit) {
         return 0;
@@ -242,10 +242,9 @@ _Bool edit_mwheel(EDIT *edit, int height, double d)
     return 0;
 }
 
-_Bool edit_mup(EDIT *edit)
-{
+_Bool edit_mup(EDIT *edit, int target){
     if(edit->multiline) {
-        if(scroll_mup(edit->scroll)) {
+        if(scroll_mup(edit->scroll, target)) {
             return 1;
         }
     }

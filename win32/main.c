@@ -1349,36 +1349,36 @@ LRESULT CALLBACK PopupProc(HWND window_handle, UINT msg, WPARAM wParam, LPARAM l
             }
         case WM_LBUTTONDOWN:
         case WM_LBUTTONDBLCLK: {
-            // int x, y;
+            int x, y;
 
-            // x = GET_X_LPARAM(lParam);
-            // y = GET_Y_LPARAM(lParam);
+            x = GET_X_LPARAM(lParam);
+            y = GET_Y_LPARAM(lParam);
 
-            // if(x != mouse_x || y != mouse_y) {
-            //     panel_mmove(&panel_interrupt, 1, 0, 0, utox_window_width, utox_window_height, x, y, x - mouse_x, y - mouse_y);
-            //     mouse_x = x;
-            //     mouse_y = y;
-            // }
+            if(x != mouse_x || y != mouse_y) {
+                panel_mmove(&panel_interrupt, 1, 0, 0, utox_window_width, utox_window_height, x, y, x - mouse_x, y - mouse_y);
+                mouse_x = x;
+                mouse_y = y;
+            }
 
-            // //double redraw>
-            // panel_mdown(&panel_interrupt);
-            // if(msg == WM_LBUTTONDBLCLK) {
-            //     panel_dclick(&panel_interrupt, 0);
-            // }
+            //double redraw>
+            panel_mdown(&panel_interrupt, 1);
+            if(msg == WM_LBUTTONDBLCLK) {
+                panel_dclick(&panel_interrupt, 1, 0);
+            }
 
-            // SetCapture(window_handle);
-            // mdown = 1;
+            SetCapture(window_handle);
+            mdown = 1;
             break;
             }
         case WM_LBUTTONUP: {
-            // ReleaseCapture();
+            ReleaseCapture();
             break;
             }
         case WM_CAPTURECHANGED: {
-            // if (mdown) {
-            //     panel_mup(&panel_interrupt);
-            //     mdown = 0;
-            // }
+            if (mdown) {
+                panel_mup(&panel_interrupt, 1);
+                mdown = 0;
+            }
             break;
             }
         case WM_MOUSELEAVE: {
@@ -1873,9 +1873,9 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
         }
 
         //double redraw>
-        panel_mdown(&panel_main);
+        panel_mdown(&panel_main, 0);
         if(msg == WM_LBUTTONDBLCLK) {
-            panel_dclick(&panel_main, 0);
+            panel_dclick(&panel_main, 0, 0);
         }
 
         SetCapture(hwn);
@@ -1899,7 +1899,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
 
     case WM_CAPTURECHANGED: {
         if (mdown) {
-            panel_mup(&panel_main);
+            panel_mup(&panel_main, 0);
             mdown = 0;
         }
 

@@ -10,8 +10,8 @@ typedef struct contextmenu {
 
 void contextmenu_draw_common(int target);
 _Bool contextmenu_mmove(int mx, int my, int dx, int dy);
-_Bool contextmenu_mdown(void);
-_Bool contextmenu_mup(void);
+_Bool contextmenu_mdown(int target);
+_Bool contextmenu_mup(int target);
 _Bool contextmenu_mleave(void);
 
 void contextmenu_new(uint8_t count, UI_STRING_ID* menu_string_ids, void (*onselect)(uint8_t));

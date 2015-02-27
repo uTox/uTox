@@ -85,7 +85,7 @@ _Bool scroll_mmove(SCROLLABLE *s, int target, int UNUSED(px), int UNUSED(py), in
     return draw;
 }
 
-_Bool scroll_mdown(SCROLLABLE *s)
+_Bool scroll_mdown(SCROLLABLE *s, int target)
 {
     if(s->mouseover)
     {
@@ -131,8 +131,7 @@ _Bool scroll_mwheel(SCROLLABLE *s, int height, double d)
     return 0;
 }
 
-_Bool scroll_mup(SCROLLABLE *s)
-{
+_Bool scroll_mup(SCROLLABLE *s, int target){
     if(s->mousedown)
     {
         s->mousedown = 0;

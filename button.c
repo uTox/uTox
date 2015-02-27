@@ -98,7 +98,7 @@ _Bool button_mmove(BUTTON *b, int target, int UNUSED(x), int UNUSED(y), int widt
     return 0;
 }
 
-_Bool button_mdown(BUTTON *b)
+_Bool button_mdown(BUTTON *b, int target)
 {
     if(!b->mousedown && b->mouseover) {
         b->mousedown = 1;
@@ -123,7 +123,7 @@ _Bool button_mwheel(BUTTON *UNUSED(b), int UNUSED(height), double UNUSED(d))
     return 0;
 }
 
-_Bool button_mup(BUTTON *b)
+_Bool button_mup(BUTTON *b, int target)
 {
     if(b->mousedown) {
         if(b->mouseover) {

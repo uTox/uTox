@@ -124,8 +124,8 @@ _Bool doevent(XEvent event)
         XButtonEvent *ev = &event.xbutton;
         switch(ev->button) {
         case Button2: {
-            panel_mdown(&panel_main);
-            panel_mup(&panel_main);
+            panel_mdown(&panel_main, 0);
+            panel_mup(&panel_main, 0);
 
             pasteprimary();
             break;
@@ -147,7 +147,7 @@ _Bool doevent(XEvent event)
             panel_mdown(&panel_main);
             if(ev->time - lastclick < 300) {
                 _Bool triclick = (ev->time - lastclick2 < 600);
-                panel_dclick(&panel_main, triclick);
+                panel_dclick(&panel_main, target, triclick);
                 if(triclick) {
                     lastclick = 0;
                 }
@@ -235,7 +235,7 @@ _Bool doevent(XEvent event)
                 }
                 pointergrab = 0;
             } else {
-                panel_mup(&panel_main);
+                panel_mup(&panel_main, 0);
                 mdown = 0;
             }
             break;

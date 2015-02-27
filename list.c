@@ -523,7 +523,7 @@ _Bool list_mmove(void *UNUSED(n), int target, int UNUSED(x), int UNUSED(y), int 
     return draw;
 }
 
-_Bool list_mdown(void *UNUSED(n))
+_Bool list_mdown(void *UNUSED(n),  int target)
 {
     _Bool draw = 0;
     tooltip_mdown(); /* may need to return on true */
@@ -602,8 +602,7 @@ _Bool list_mwheel(void *UNUSED(n), int UNUSED(height), double UNUSED(d))
     return 0;
 }
 
-_Bool list_mup(void *UNUSED(n))
-{
+_Bool list_mup(void *UNUSED(n), int target){
     _Bool draw = 0;
     tooltip_mup(); /* may need to return one true */
     if(sitem_mousedown && abs(sitem_dy) >= 5) {

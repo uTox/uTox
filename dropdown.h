@@ -18,10 +18,10 @@ void dropdown_drawactive_common(int target);
 
 void dropdown_draw_common(DROPDOWN *b, int target, int x, int y, int width, int height);
 _Bool dropdown_mmove(DROPDOWN *b, int target, int x, int y, int width, int height, int mx, int my, int dx, int dy);
-_Bool dropdown_mdown(DROPDOWN *b);
+_Bool dropdown_mdown(DROPDOWN *b, int target);
 _Bool dropdown_mright(DROPDOWN *b);
 _Bool dropdown_mwheel(DROPDOWN *b, int height, double d);
-_Bool dropdown_mup(DROPDOWN *b);
+_Bool dropdown_mup(DROPDOWN *b, int target);
 _Bool dropdown_mleave(DROPDOWN *b);
 
 STRING* simple_dropdown_ondisplay(uint16_t, const DROPDOWN*);

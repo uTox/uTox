@@ -462,7 +462,7 @@ _Bool messages_mmove(MESSAGES *m, int target, int UNUSED(px), int UNUSED(py), in
     return 0;
 }
 
-_Bool messages_mdown(MESSAGES *m)
+_Bool messages_mdown(MESSAGES *m, int target)
 {
     m->idown = MSG_IDX_MAX;
     if(m->iover != MSG_IDX_MAX) {
@@ -577,7 +577,7 @@ _Bool messages_mdown(MESSAGES *m)
     return 0;
 }
 
-_Bool messages_dclick(MESSAGES *m, _Bool triclick)
+_Bool messages_dclick(MESSAGES *m, int target, _Bool triclick)
 {
     if(m->iover != MSG_IDX_MAX) {
         MESSAGE *msg = m->data->data[m->iover];
@@ -652,7 +652,7 @@ _Bool messages_mwheel(MESSAGES *UNUSED(m), int UNUSED(height), double UNUSED(d))
 }
 
 
-_Bool messages_mup(MESSAGES *m){
+_Bool messages_mup(MESSAGES *m, int target){
 
     if(m->iover != MSG_IDX_MAX) {
         MESSAGE *msg = m->data->data[m->iover];

@@ -90,7 +90,7 @@ _Bool contextmenu_mmove(int mx, int my, int UNUSED(dx), int UNUSED(dy))
     return 0;
 }
 
-_Bool contextmenu_mdown(void)
+_Bool contextmenu_mdown(int target)
 {
     CONTEXTMENU *b = &context_menu;
 
@@ -106,7 +106,7 @@ _Bool contextmenu_mdown(void)
     return 1;
 }
 
-_Bool contextmenu_mup(void)
+_Bool contextmenu_mup(int target)
 {
     CONTEXTMENU *b = &context_menu;
 

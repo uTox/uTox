@@ -88,11 +88,11 @@ void ui_mouseleave(void);
 void panel_draw(PANEL *p, int target, int x, int y, int width, int height);
 
 _Bool panel_mmove(PANEL *p, int target, int x, int y, int width, int height, int mx, int my, int dx, int dy);
-void panel_mdown(PANEL *p);
-_Bool panel_dclick(PANEL *p, _Bool triclick);
+void panel_mdown(PANEL *p, int target);
+_Bool panel_dclick(PANEL *p, int target, _Bool triclick);
 _Bool panel_mright(PANEL *p);
 _Bool panel_mwheel(PANEL *p, int x, int y, int width, int height, double d);
-_Bool panel_mup(PANEL *p);
+_Bool panel_mup(PANEL *p, int target);
 _Bool panel_mleave(PANEL *p);
 
 extern uint32_t status_color[];

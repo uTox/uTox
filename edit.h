@@ -32,11 +32,11 @@ struct edit {
 void edit_draw_common(EDIT *edit, int target, int x, int y, int width, int height);
 
 _Bool edit_mmove(EDIT *edit, int target, int x, int y, int width, int height, int mx, int my, int dx, int dy);
-_Bool edit_mdown(EDIT *edit);
-_Bool edit_dclick(EDIT *edit, _Bool triclick);
+_Bool edit_mdown(EDIT *edit, int target);
+_Bool edit_dclick(EDIT *edit, int target, _Bool triclick);
 _Bool edit_mright(EDIT *edit);
 _Bool edit_mwheel(EDIT *edit, int height, double d);
-_Bool edit_mup(EDIT *edit);
+_Bool edit_mup(EDIT *edit, int target);
 _Bool edit_mleave(EDIT *edit);
 
 void edit_do(EDIT *edit, STRING_IDX start, STRING_IDX length, _Bool remove);

@@ -363,13 +363,11 @@ static void draw_popup(int x, int y, int w, int h){
 
 }
 
-static _Bool background_mmove(PANEL *UNUSED(p), int target, int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height), int UNUSED(mx), int UNUSED(my), int UNUSED(dx), int UNUSED(dy))
-{
+static _Bool background_mmove(PANEL *UNUSED(p), int target, int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height), int UNUSED(mx), int UNUSED(my), int UNUSED(dx), int UNUSED(dy)){
     return 0;
 }
 
-static _Bool background_mdown(PANEL *UNUSED(p))
-{
+static _Bool background_mdown(PANEL *UNUSED(p), int target){
     return 0;
 }
 
@@ -383,8 +381,7 @@ static _Bool background_mwheel(PANEL *UNUSED(p), int UNUSED(height), double UNUS
     return 0;
 }
 
-static _Bool background_mup(PANEL *UNUSED(p))
-{
+static _Bool background_mup(PANEL *UNUSED(p), int target){
     return 0;
 }
 
@@ -1076,10 +1073,10 @@ void popup_scale(uint8_t scale){
 
 FUNC(draw_common, void, int target, int x, int y, int width, int height);
 FUNC(mmove, _Bool, int target, int x, int y, int width, int height, int mx, int my, int dx, int dy);
-FUNC(mdown, _Bool);
+FUNC(mdown, _Bool, int target);
+FUNC(mup, _Bool, int target);
 FUNC(mright, _Bool);
 FUNC(mwheel, _Bool, int height, double d);
-FUNC(mup, _Bool);
 FUNC(mleave, _Bool);
 
 #undef FUNC
@@ -1251,9 +1248,9 @@ _Bool panel_mmove(PANEL *p, int target, int x, int y, int width, int height, int
     return draw;
 }
 
-static _Bool panel_mdown_sub(PANEL *p)
+static _Bool panel_mdown_sub(PANEL *p, int target)
 {
-    if(p->type && mdownfunc[p->type - 1](p)) {
+    if(p->type && mdownfunc[p->type - 1](p, target)) {
         return 1;
     }
 
@@ -1261,7 +1258,7 @@ static _Bool panel_mdown_sub(PANEL *p)
     if(pp) {
         while((subp = *pp++)) {
             if(!subp->disabled) {
-                if(panel_mdown_sub(subp)) {
+                if(panel_mdown_sub(subp, target)) {
                     return 1;
                 }
             }
@@ -1271,9 +1268,9 @@ static _Bool panel_mdown_sub(PANEL *p)
     return 0;
 }
 
-void panel_mdown(PANEL *p)
+void panel_mdown(PANEL *p, int target)
 {
-    if(contextmenu_mdown() || tooltip_mdown()) {
+    if(contextmenu_mdown(target) || tooltip_mdown()) {
         redraw_utox(0);
         return;
     }
@@ -1283,7 +1280,7 @@ void panel_mdown(PANEL *p)
     if(pp) {
         while((subp = *pp++)) {
             if(!subp->disabled) {
-                if(panel_mdown_sub(subp)) {
+                if(panel_mdown_sub(subp, target)) {
                     draw = 1;
                     break;
                 }
@@ -1298,20 +1295,20 @@ void panel_mdown(PANEL *p)
     }
 }
 
-_Bool panel_dclick(PANEL *p, _Bool triclick)
+_Bool panel_dclick(PANEL *p, int target, _Bool triclick)
 {
     _Bool draw = 0;
     if(p->type == PANEL_EDIT) {
-        draw = edit_dclick((EDIT*)p, triclick);
+        draw = edit_dclick((EDIT*)p, target, triclick);
     } else if(p->type == PANEL_MESSAGES) {
-        draw = messages_dclick((MESSAGES*)p, triclick);
+        draw = messages_dclick((MESSAGES*)p, target, triclick);
     }
 
     PANEL **pp = p->child, *subp;
     if(pp) {
         while((subp = *pp++)) {
             if(!subp->disabled) {
-                draw = panel_dclick(subp, triclick);
+                draw = panel_dclick(subp, target, triclick);
                 if(draw) {
                     break;
                 }
@@ -1372,20 +1369,19 @@ _Bool panel_mwheel(PANEL *p, int x, int y, int width, int height, double d)
     return draw;
 }
 
-_Bool panel_mup(PANEL *p)
-{
-    _Bool draw = p->type ? mupfunc[p->type - 1](p) : 0;
+_Bool panel_mup(PANEL *p, int target){
+    _Bool draw = p->type ? mupfunc[p->type - 1](p, target) : 0;
     PANEL **pp = p->child, *subp;
     if(pp) {
         while((subp = *pp++)) {
             if(!subp->disabled) {
-                draw |= panel_mup(subp);
+                draw |= panel_mup(subp, target);
             }
         }
     }
 
     if(p == &panel_main) {
-        draw |= contextmenu_mup();
+        draw |= contextmenu_mup(target);
         tooltip_mup();
         if(draw && p == &panel_main) {
             redraw_utox(0);
