@@ -30,7 +30,7 @@ _Bool doevent(XEvent event)
 
     switch(event.type) {
     case Expose: {
-        enddraw_common(0, 0, utox_window_width, utox_window_height);
+        enddraw_common(0, 0, 0, utox_window_width, utox_window_height);
         debug("expose\n");
         break;
     }

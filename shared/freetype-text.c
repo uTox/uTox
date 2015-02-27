@@ -7,7 +7,7 @@ int drawtext_getwidth_common(int target, int x, int y, char_t *str, STRING_IDX l
     return _drawtext_common(target, x, INT_MAX, y, str, length) - x;
 }
 
-void drawtextrange_common(int target, int target, int x, int xmax, int y, char_t *str, STRING_IDX length){
+void drawtextrange_common(int target, int x, int xmax, int y, char_t *str, STRING_IDX length){
     x = _drawtext_common(target, x, xmax, y, str, length);
     if(x < 0) {
         _drawtext_common(target, -x, INT_MAX, y, (char_t*)"...", 3);
