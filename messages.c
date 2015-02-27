@@ -252,7 +252,7 @@ void messages_draw_common(MESSAGES *m, int target, int x, int y, int width, int 
     }
 }
 
-_Bool messages_mmove(MESSAGES *m, int UNUSED(px), int UNUSED(py), int width, int UNUSED(height), int mx, int my, int dx, int UNUSED(dy))
+_Bool messages_mmove(MESSAGES *m, int target, int UNUSED(px), int UNUSED(py), int width, int UNUSED(height), int mx, int my, int dx, int UNUSED(dy))
 {
     if(m->idown < m->data->n) {
         int maxwidth = width - MESSAGES_X - TIME_WIDTH;

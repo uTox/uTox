@@ -363,7 +363,7 @@ static void draw_popup(int x, int y, int w, int h){
 
 }
 
-static _Bool background_mmove(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height), int UNUSED(mx), int UNUSED(my), int UNUSED(dx), int UNUSED(dy))
+static _Bool background_mmove(PANEL *UNUSED(p), int target, int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height), int UNUSED(mx), int UNUSED(my), int UNUSED(dx), int UNUSED(dy))
 {
     return 0;
 }
@@ -1075,7 +1075,7 @@ void popup_scale(uint8_t scale){
 };
 
 FUNC(draw_common, void, int target, int x, int y, int width, int height);
-FUNC(mmove, _Bool, int x, int y, int width, int height, int mx, int my, int dx, int dy);
+FUNC(mmove, _Bool, int target, int x, int y, int width, int height, int mx, int my, int dx, int dy);
 FUNC(mdown, _Bool);
 FUNC(mright, _Bool);
 FUNC(mwheel, _Bool, int height, double d);
@@ -1199,7 +1199,7 @@ void panel_draw(PANEL *p, int target, int x, int y, int width, int height)
     enddraw_common(target, x, y, width, height);
 }
 
-_Bool panel_mmove(PANEL *p, int x, int y, int width, int height, int mx, int my, int dx, int dy)
+_Bool panel_mmove(PANEL *p, int target, int x, int y, int width, int height, int mx, int my, int dx, int dy)
 {
     if(p == &panel_main) {
         mouse.x = mx;
@@ -1225,7 +1225,7 @@ _Bool panel_mmove(PANEL *p, int x, int y, int width, int height, int mx, int my,
         my += scroll_y;
     }
 
-    _Bool draw = p->type ? mmovefunc[p->type - 1](p, x, y, width, height, mx, mmy, dx, dy) : 0;
+    _Bool draw = p->type ? mmovefunc[p->type - 1](p, target, x, y, width, height, mx, mmy, dx, dy) : 0;
     // Has to be called before children mmove
     if(p == &panel_main) {
         draw |= tooltip_mmove();
@@ -1234,7 +1234,7 @@ _Bool panel_mmove(PANEL *p, int x, int y, int width, int height, int mx, int my,
     if(pp) {
         while((subp = *pp++)) {
             if(!subp->disabled) {
-                draw |= panel_mmove(subp, x, y, width, height, mx, my, dx, dy);
+                draw |= panel_mmove(subp, target, x, y, width, height, mx, my, dx, dy);
             }
         }
     }

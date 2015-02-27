@@ -110,7 +110,7 @@ _Bool doevent(XEvent event)
         my = ev->y;
 
         cursor = CURSOR_NONE;
-        panel_mmove(&panel_main, 0, 0, utox_window_width, utox_window_height, ev->x, ev->y, dx, dy);
+        panel_mmove(&panel_main, 0, 0, 0, utox_window_width, utox_window_height, ev->x, ev->y, dx, dy);
 
         XDefineCursor(display, window, cursors[cursor]);
 
@@ -143,7 +143,7 @@ _Bool doevent(XEvent event)
 
             //todo: better double/triple click detect
             static Time lastclick, lastclick2;
-            panel_mmove(&panel_main, 0, 0, utox_window_width, utox_window_height, ev->x, ev->y, 0, 0);
+            panel_mmove(&panel_main, 0, 0, 0, utox_window_width, utox_window_height, ev->x, ev->y, 0, 0);
             panel_mdown(&panel_main);
             if(ev->time - lastclick < 300) {
                 _Bool triclick = (ev->time - lastclick2 < 600);

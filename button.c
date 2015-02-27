@@ -74,7 +74,7 @@ void button_draw_common(BUTTON *b, int target, int x, int y, int width, int heig
     }
 }
 
-_Bool button_mmove(BUTTON *b, int UNUSED(x), int UNUSED(y), int width, int height, int mx, int my, int UNUSED(dx), int UNUSED(dy))
+_Bool button_mmove(BUTTON *b, int target, int UNUSED(x), int UNUSED(y), int width, int height, int mx, int my, int UNUSED(dx), int UNUSED(dy))
 {
     // Ensure that font is set before calculating position and width.
     setfont_common(0, FONT_SELF_NAME);

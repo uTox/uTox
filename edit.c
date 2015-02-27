@@ -69,7 +69,7 @@ void edit_draw_common(EDIT *edit, int target, int x, int y, int width, int heigh
     }
 }
 
-_Bool edit_mmove(EDIT *edit, int px, int py, int width, int height, int x, int y, int dx, int dy)
+_Bool edit_mmove(EDIT *edit, int target, int px, int py, int width, int height, int x, int y, int dx, int dy)
 {
     if(utox_window_baseline && py > utox_window_baseline - font_small_lineheight - 4 * SCALE) {
         y += py - (utox_window_baseline - font_small_lineheight - 4 * SCALE);
@@ -90,7 +90,7 @@ _Bool edit_mmove(EDIT *edit, int px, int py, int width, int height, int x, int y
     }
 
     if(edit->multiline) {
-        need_redraw |= scroll_mmove(edit->scroll, px, py, width, height, x, y, dx, dy);
+        need_redraw |= scroll_mmove(edit->scroll, target, px, py, width, height, x, y, dx, dy);
         y += scroll_gety(edit->scroll, height);
     }
 

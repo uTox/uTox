@@ -39,7 +39,7 @@ void list_scale(void);
 void list_draw_common(void *n, int target, int x, int y, int width, int height);
 void list_freeall(void);
 
-_Bool list_mmove(void *n, int x, int y, int width, int height, int mx, int my, int dx, int dy);
+_Bool list_mmove(void *n, int target, int x, int y, int width, int height, int mx, int my, int dx, int dy);
 _Bool list_mdown(void *n);
 _Bool list_mright(void *n);
 _Bool list_mwheel(void *n, int height, double d);

@@ -484,7 +484,7 @@ void list_selectswap(void)
 }
 
 
-_Bool list_mmove(void *UNUSED(n), int UNUSED(x), int UNUSED(y), int UNUSED(width), int height, int mx, int my, int UNUSED(dx), int dy)
+_Bool list_mmove(void *UNUSED(n), int target, int UNUSED(x), int UNUSED(y), int UNUSED(width), int height, int mx, int my, int UNUSED(dx), int dy)
 {
     ITEM *i = item_hit(mx, my, height);
 

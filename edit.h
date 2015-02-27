@@ -31,7 +31,7 @@ struct edit {
 
 void edit_draw_common(EDIT *edit, int target, int x, int y, int width, int height);
 
-_Bool edit_mmove(EDIT *edit, int x, int y, int width, int height, int mx, int my, int dx, int dy);
+_Bool edit_mmove(EDIT *edit, int target, int x, int y, int width, int height, int mx, int my, int dx, int dy);
 _Bool edit_mdown(EDIT *edit);
 _Bool edit_dclick(EDIT *edit, _Bool triclick);
 _Bool edit_mright(EDIT *edit);
