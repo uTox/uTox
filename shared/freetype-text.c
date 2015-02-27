@@ -1,27 +1,27 @@
 
 void drawtext_common(int target, int x, int y, char_t *str, STRING_IDX length){
-    _drawtext_common(0, x, INT_MAX, y, str, length);
+    _drawtext_common(target, x, INT_MAX, y, str, length);
 }
 
 int drawtext_getwidth_common(int target, int x, int y, char_t *str, STRING_IDX length){
-    return _drawtext_common(0, x, INT_MAX, y, str, length) - x;
+    return _drawtext_common(target, x, INT_MAX, y, str, length) - x;
 }
 
-void drawtextrange_common(target, int target, int x, int xmax, int y, char_t *str, STRING_IDX length){
-    x = _drawtext_common(0, x, xmax, y, str, length);
+void drawtextrange_common(int target, int target, int x, int xmax, int y, char_t *str, STRING_IDX length){
+    x = _drawtext_common(target, x, xmax, y, str, length);
     if(x < 0) {
-        _drawtext_common(0, -x, INT_MAX, y, (char_t*)"...", 3);
+        _drawtext_common(target, -x, INT_MAX, y, (char_t*)"...", 3);
     }
 }
 
-void drawtextwidth_common(target,int target, int x, int width, int y, char_t *str, STRING_IDX length){
+void drawtextwidth_common(int target, int x, int width, int y, char_t *str, STRING_IDX length){
     drawtextrange_common(target, x, x + width, y, str, length);
 }
 
 void drawtextwidth_right_common(int target, int x, int width, int y, char_t *str, STRING_IDX length){
-    int w = textwidth_common(0, str, length);
+    int w = textwidth_common(target, str, length);
     if (w < width) {
-        drawtext_common(0, x + width - w, y, str, length);
+        drawtext_common(target, x + width - w, y, str, length);
     } else {
         drawtextrange_common(target, x, x + width, y, str, length);
     }
@@ -70,7 +70,7 @@ int textfit_common(int target, char_t *str, STRING_IDX length, int width){
     return length;
 }
 
-int textfit_near_common(target, char_t *str, STRING_IDX length, int width){
+int textfit_near_common(int target, char_t *str, STRING_IDX length, int width){
     GLYPH *g;
     uint8_t len;
     uint32_t ch;

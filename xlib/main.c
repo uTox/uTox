@@ -234,7 +234,7 @@ void drawalpha_common(int target, int bm, int x, int y, int width, int height, u
     XRenderFreePicture(display, src);
 }
 
-static int _drawtext_common(0, int x, int xmax, int y, char_t *str, STRING_IDX length){
+static int _drawtext_common(int target, int x, int xmax, int y, char_t *str, STRING_IDX length){
     GLYPH *g;
     uint8_t len;
     uint32_t ch;
@@ -261,7 +261,7 @@ static int _drawtext_common(0, int x, int xmax, int y, char_t *str, STRING_IDX l
 
 #include "../shared/freetype-text.c"
 
-void framerect_common(int targetf, int x, int y, int right, int bottom, uint32_t color){
+void framerect_common(int target, int x, int y, int right, int bottom, uint32_t color){
     XSetForeground(display, gc, color);
     XDrawRectangle(display, drawbuf, gc, x, y, right - x - 1, bottom - y - 1);
 }
@@ -276,7 +276,7 @@ void drawrectw_common(int target, int x, int y, int width, int height, uint32_t 
     XFillRectangle(display, drawbuf, gc, x, y, width, height);
 }
 
-void drawhline_common(0, int x, int y, int x2, uint32_t color){
+void drawhline_common(int target, int x, int y, int x2, uint32_t color){
     XSetForeground(display, gc, color);
     XDrawLine(display, drawbuf, gc, x, y, x2, y);
 }
@@ -306,7 +306,7 @@ uint32_t setcolor_common(int target, uint32_t color){
 static XRectangle clip[16];
 static int clipk;
 
-void pushclip_common(0, int left, int top, int width, int height){
+void pushclip_common(int target, int left, int top, int width, int height){
     if(!clipk) {
         //XSetClipMask(display, gc, drawbuf);
     }
@@ -338,7 +338,7 @@ void popclip_common(int target){
     XRenderSetPictureClipRectangles(display, renderpic, 0, 0, r, 1);
 }
 
-void enddraw_common(int x, int y, int width, int height){
+void enddraw_common(int target, int x, int y, int width, int height){
     XCopyArea(display, drawbuf, window, gc, x, y, width, height, x, y);
 }
 
@@ -1046,7 +1046,7 @@ int main(int argc, char *argv[])
     list_start();
 
     /* draw */
-    panel_draw(&panel_main, 0, 0, utox_window_width, utox_window_height);
+    panel_draw(&panel_main, 0, 0, 0, utox_window_width, utox_window_height);
 
     /* event loop */
     while(1) {
@@ -1066,7 +1066,7 @@ int main(int argc, char *argv[])
         }
 
         if(_redraw) {
-            panel_draw(&panel_main, 0, 0, utox_window_width, utox_window_height);
+            panel_draw(&panel_main, 0, 0, 0, utox_window_width, utox_window_height);
             _redraw = 0;
         }
     }
