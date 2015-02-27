@@ -810,10 +810,19 @@ void showkeyboard(_Bool show)
 
 }
 
-void redraw(void)
-{
+void redraw_utox(int reset){
     _redraw = 1;
 }
+
+void redraw_interrupt(int target){
+    // this does nothing right now.
+    // soon it will control the popup
+}
+
+void redraw(void){
+    redraw_utox(0);
+}
+
 void force_redraw(void) {
     XEvent ev = {
         .xclient = {
