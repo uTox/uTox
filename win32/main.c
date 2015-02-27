@@ -975,22 +975,25 @@ void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_
     Shell_NotifyIconW(NIM_MODIFY, &nid);
 }
 
-void incoming_call(){
+void incoming_call(void){
     debug("Going to call popup\n");
-
     // We don't need to popup a window if utox already has focus
     if(havefocus) {
         // return; // always show while testing
     }
-
     thread(incoming_call_inturrupt,NULL);
+}
 
+void incoming_call_hide(void){
+    debug("Hiding Call Popup\n");
+    PostMessage(interrupt_hwnd, WM_KILLFOCUS, 0x00, 0x00);
 }
 
 void showkeyboard(_Bool show){}
 
 /* Redraws the main UI window */
 void redraw_utox(int reset){
+    // reset probably doesn't do much, you should try removing it, just to see what happens.
     if(reset){
         if(hdc_bm[0]) {
             DeleteObject(hdc_bm[0]);

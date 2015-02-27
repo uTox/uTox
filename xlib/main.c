@@ -799,7 +799,13 @@ void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_
     #endif
 }
 
-void incoming_call(){
+void incoming_call(void){
+    /* I don't really do much on linux yet...
+       Maybe you'll adopt me and make me work?
+    */
+}
+
+void incoming_call_hide(void){
     /* I don't really do much on linux yet...
        Maybe you'll adopt me and make me work?
     */
