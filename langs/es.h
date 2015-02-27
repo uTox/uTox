@@ -1,5 +1,5 @@
 msgid(LANG_NATIVE_NAME)
-msgstr("Espańol")
+msgstr("Español")
 
 msgid(LANG_ENGLISH_NAME)
 msgstr("SPANISH")
