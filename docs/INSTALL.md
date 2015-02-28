@@ -4,6 +4,8 @@ The following will help you get μTox installed on your computron/toaster/carrie
 get you running ASAP. And mostly deals with precomplied binarys. If you're looking to contribute (you're the real MVP) 
 you're probably looking for [Building](BUILD.md). 
 
+For any and all of the following, you'll need to have [toxcore](https://github.com/irungentoo/toxcore) installed first.
+
 - [Unix-like](#unix)
 - [OS X](#osx)
 - [Windows](#windows)
