@@ -101,7 +101,7 @@ _Bool edit_mmove(EDIT *edit, int px, int py, int width, int height, int x, int y
             need_redraw = 1;
             return need_redraw;
         }
- 
+
         setfont(FONT_TEXT);
         edit_sel.p2 = hittextmultiline(x - 2 * SCALE, width - 4 * SCALE - (edit->multiline ? SCROLL_WIDTH : 0), y - 2 * SCALE, INT_MAX, font_small_lineheight, edit->data, edit->length, edit->multiline);
 
@@ -349,11 +349,9 @@ static STRING_IDX edit_redo(EDIT *edit)
 #define updatesel() if(edit_sel.p1 <= edit_sel.p2) {edit_sel.start = edit_sel.p1; edit_sel.length = edit_sel.p2 - edit_sel.p1;} \
                     else {edit_sel.start = edit_sel.p2; edit_sel.length = edit_sel.p1 - edit_sel.p2;}
 
-/* shift: flags & 1
- * control: flags & 4
-*/
-void edit_char(uint32_t ch, _Bool control, uint8_t flags)
-{
+void edit_char(uint32_t ch, _Bool control, uint8_t flags){
+    /* shift: flags & 1
+     * control: flags & 4 */
     EDIT *edit = active_edit;
 
     if(control || (ch <= 0x1F && (!edit->multiline || ch != '\n')) || (ch >= 0x7f && ch <= 0x9F)) {
@@ -594,7 +592,7 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
         case KEY_RETURN: {
             modified = 1;
 
-            if(edit->onenter) {
+            if(edit->onenter && !(flags & 4)) {
                 edit->onenter(edit);
                 /*dirty*/
                 if(edit->length == 0) {
