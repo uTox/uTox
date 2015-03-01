@@ -4,6 +4,10 @@
 #include "ui_buttons.h"
 #include "ui_dropdown.h"
 
+extern int COLOUR_BACKGROUND;
+extern int COLOUR_EDGE_BACKGROUND;
+extern int COLOUR_LIST_BACKGROUND;
+
 // Application-wide language setting
 UI_LANG_ID LANG;
 
@@ -66,7 +70,7 @@ uint32_t status_color[] = {
 static void drawself(void)
 {
     //40x40 self icon at 10,10
-    setcolor(button_name.mouseover ? C_STATUS : WHITE);
+    setcolor(button_name.mouseover ? C_STATUS : COLOUR_BACKGROUND);
     setfont(FONT_SELF_NAME);
     drawtextrange(SELF_NAME_X, SELF_STATUS_X, SELF_NAME_Y, self.name, self.name_length);
 
@@ -78,10 +82,10 @@ static void drawself(void)
     if (self_has_avatar()) {
         draw_avatar_image(self.avatar.image, SELF_AVATAR_X, SELF_AVATAR_Y, self.avatar.width, self.avatar.height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
     } else {
-        drawalpha(BM_CONTACT, SELF_AVATAR_X, SELF_AVATAR_Y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, WHITE);
+        drawalpha(BM_CONTACT, SELF_AVATAR_X, SELF_AVATAR_Y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOUR_BACKGROUND);
     }
 
-    drawalpha(BM_STATUSAREA, SELF_STATUS_X, SELF_STATUS_Y, BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT, button_status.mouseover ? LIST_HIGHLIGHT : LIST_MAIN);
+    drawalpha(BM_STATUSAREA, SELF_STATUS_X, SELF_STATUS_Y, BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT, button_status.mouseover ? COLOUR_LIST_HIGHLIGHT_BACKGROUND : COLOUR_LIST_BACKGROUND);
 
     uint8_t status = tox_connected ? self.status : 3;
     drawalpha(BM_ONLINE + status, SELF_STATUS_X + BM_STATUSAREA_WIDTH / 2 - BM_STATUS_WIDTH / 2, SELF_STATUS_Y + BM_STATUSAREA_HEIGHT / 2 - BM_STATUS_WIDTH / 2, BM_STATUS_WIDTH, BM_STATUS_WIDTH, status_color[status]);
@@ -96,14 +100,14 @@ static void drawfriend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(h
     if (friend_has_avatar(f)) {
         draw_avatar_image(f->avatar.image, LIST_RIGHT + SCALE * 5, SCALE * 5, f->avatar.width, f->avatar.height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
     } else {
-        drawalpha(BM_CONTACT, LIST_RIGHT + SCALE * 5, SCALE * 5, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, LIST_MAIN);
+        drawalpha(BM_CONTACT, LIST_RIGHT + SCALE * 5, SCALE * 5, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOUR_LIST_BACKGROUND);
     }
 
     setcolor(C_TITLE);
     setfont(FONT_TITLE);
     drawtextrange(LIST_RIGHT + 30 * SCALE, utox_window_width - 92 * SCALE, 9 * SCALE, f->name, f->name_length);
 
-    setcolor(LIST_MAIN);
+    setcolor(COLOUR_LIST_BACKGROUND);
     setfont(FONT_STATUS);
     drawtextrange(LIST_RIGHT + 30 * SCALE, utox_window_width - 92 * SCALE, 16 * SCALE, f->status_message, f->status_length);
 }
@@ -112,13 +116,13 @@ static void drawgroup(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(he
 {
     GROUPCHAT *g = sitem->data;
 
-    drawalpha(BM_GROUP, LIST_RIGHT + SCALE * 5, SCALE * 5, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, LIST_MAIN);
+    drawalpha(BM_GROUP, LIST_RIGHT + SCALE * 5, SCALE * 5, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOUR_LIST_BACKGROUND);
 
     setcolor(C_TITLE);
     setfont(FONT_TITLE);
     drawtext(LIST_RIGHT + 30 * SCALE, 1 * SCALE, g->name, g->name_length);
 
-    setcolor(LIST_MAIN);
+    setcolor(COLOUR_LIST_BACKGROUND);
     setfont(FONT_STATUS);
     drawtext(LIST_RIGHT + 30 * SCALE, 8 * SCALE, g->topic, g->topic_length);
 
@@ -174,7 +178,7 @@ static void drawfriendreq(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSE
     setfont(FONT_SELF_NAME);
     drawstr(LIST_RIGHT + SCALE * 5, SCALE * 10, FRIENDREQUEST);
 
-    setcolor(LIST_MAIN);
+    setcolor(COLOUR_LIST_BACKGROUND);
     setfont(FONT_STATUS);
     drawtextrange(LIST_RIGHT + 5 * SCALE, utox_window_width, 20 * SCALE, req->msg, req->length);
 }
@@ -302,18 +306,13 @@ static void drawsettings_content(int UNUSED(x), int y, int UNUSED(w), int UNUSED
 static void background_draw(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int width, int height)
 {
     drawrect(0, 0, LIST_RIGHT, LIST_Y - 1, LIST_DARK);
-    drawhline(0, LIST_Y - 1, LIST_RIGHT, LIST_EDGE);
-    drawrect(0, LIST_Y, LIST_RIGHT, height + LIST_BOTTOM, LIST_MAIN);
+    drawrect(0, LIST_Y, LIST_RIGHT, height + LIST_BOTTOM, COLOUR_LIST_BACKGROUND);
     drawrect(0, height + LIST_BOTTOM, LIST_RIGHT, height, LIST_DARK);
 
     drawself();
 
-    drawrect(LIST_RIGHT, 0, width, height, WHITE);
+    drawrect(LIST_RIGHT, 0, width, height, COLOUR_BACKGROUND);
 
-    drawvline(LIST_RIGHT, 1, LIST_Y - 1, LIST_EDGE3);
-    drawpixel(LIST_RIGHT, LIST_Y - 1, LIST_EDGE2);
-    drawvline(LIST_RIGHT, LIST_Y, height - SCALE * 15, LIST_EDGE4);
-    drawpixel(LIST_RIGHT, height - SCALE * 15, LIST_EDGE5);
 
     drawhline(LIST_RIGHT + 1, LIST_Y - 1, width, C_GRAY);
 }

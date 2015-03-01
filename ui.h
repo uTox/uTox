@@ -96,14 +96,10 @@ extern uint32_t status_color[];
 #define GRAY(x) (((x) << 16) | ((x) << 8) | (x))
 
 #define BLACK 0
-#define WHITE 0xFFFFFF
 
 #define TEXT_SELF               0x595959
 #define TEXT_HIGHLIGHT          WHITE
 #define TEXT_HIGHLIGHT_BG       RGB(51, 153, 255)
-
-#define COLOR_TEXT              0x333333
-#define COLOR_LINK              RGB(0, 0, 255)
 
 #define BLUE RGB(0x4E, 0xA6,0xEA)
 
@@ -178,22 +174,10 @@ uint8_t SCALE;
 #define C_YELLOW_LIGHT          RGB(227, 210, 76)
 #define C_RED                   RGB(200, 78, 78)
 #define C_RED_LIGHT             RGB(220, 86, 86)
-#define C_BLUE                  RGB(78, 78, 200)
 
 #define LIST_MAIN               GRAY(65)
-#define LIST_HIGHLIGHT          GRAY(80)
-#define LIST_SELECTED           WHITE
 #define LIST_DARK               GRAY(28)
 #define LIST_DARK_LIGHT         GRAY(40)
-
-#define LIST_EDGE               GRAY(56)
-#define LIST_EDGE2              GRAY(196)
-#define LIST_EDGE3              GRAY(198)
-#define LIST_EDGE4              GRAY(207)
-#define LIST_EDGE5              GRAY(219)
-#define LIST_EDGE6              GRAY(101)
-#define LIST_EDGE7              GRAY(113)
-
 #define C_GRAY                  GRAY(209)
 #define C_GRAY2                 GRAY(150)
 #define C_SCROLL                GRAY(209)

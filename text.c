@@ -1,5 +1,9 @@
 #include "main.h"
 
+extern int COLOUR_FOREGROUND;
+extern int COLOUR_HIGHLIGHT_BACKGROUND;
+extern int COLOUR_HIGHLIGHT_FOREGROUND;
+
 static void drawtexth(int x, int y, char_t *str, STRING_IDX length, int d, int h, int hlen, uint16_t lineheight)
 {
     h -= d;
@@ -9,7 +13,7 @@ static void drawtexth(int x, int y, char_t *str, STRING_IDX length, int d, int h
     } else if(hlen == 0) {
         drawtext(x, y, str, length);
         int w =  textwidth(str, h + hlen);
-        drawvline(x + w, y, y + lineheight, BLACK);
+        drawvline(x + w, y, y + lineheight, COLOUR_FOREGROUND);
         return;
     }
 
@@ -29,10 +33,10 @@ static void drawtexth(int x, int y, char_t *str, STRING_IDX length, int d, int h
 
     width = drawtext_getwidth(x, y, str, h);
 
-    uint32_t color = setcolor(TEXT_HIGHLIGHT);
+    uint32_t color = setcolor(COLOUR_HIGHLIGHT_FOREGROUND);
 
     int w = textwidth(str + h, hlen);
-    drawrectw(x + width, y, w, lineheight, TEXT_HIGHLIGHT_BG);
+    drawrectw(x + width, y, w, lineheight, COLOUR_HIGHLIGHT_BACKGROUND);
     drawtext(x + width, y, str + h, hlen);
     width += w;
 

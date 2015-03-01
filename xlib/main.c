@@ -884,6 +884,21 @@ static int systemlang(void)
     return ui_guess_lang_by_posix_locale(str, DEFAULT_LANG);
 }
 
+int COLOUR_BACKGROUND;
+int COLOUR_FOREGROUND;
+int COLOUR_BACKGROUND_TABS;
+int COLOUR_HIGHLIGHT_BACKGROUND;
+int COLOUR_HIGHLIGHT_FOREGROUND;
+int COLOUR_LINK_FOREGROUND;
+int COLOUR_HIGHLIGHT_BACKGROUND;
+int COLOUR_EDGE_BACKGROUND;
+
+int COLOUR_LIST_BACKGROUND;
+int COLOUR_LIST_FOREGROUND;
+int COLOUR_LIST_HIGHLIGHT_BACKGROUND;
+
+int COLOUR_GROUP_UNUSUAL;
+
 int main(int argc, char *argv[])
 {
     if(argc == 2 && argv[1]) {
@@ -927,6 +942,24 @@ int main(int argc, char *argv[])
                     PointerMotionMask | StructureNotifyMask | KeyPressMask | KeyReleaseMask | FocusChangeMask |
                     PropertyChangeMask,
     };
+    
+    /* Setting colours */
+    COLOUR_BACKGROUND      = 0x8Fba8F;
+    COLOUR_FOREGROUND      = 0x1b6a1b;
+    COLOUR_LINK_FOREGROUND = 0xF000AA;
+    COLOUR_LINK_FOREGROUND = 0x003300;
+    COLOUR_LIST_HIGHLIGHT_BACKGROUND = 0x3b3a1b;
+    
+    COLOUR_BACKGROUND_TABS = COLOUR_BACKGROUND;
+    COLOUR_HIGHLIGHT_BACKGROUND = COLOUR_FOREGROUND;
+    COLOUR_HIGHLIGHT_FOREGROUND = COLOUR_BACKGROUND;
+    
+    COLOUR_LIST_BACKGROUND = COLOUR_FOREGROUND;
+    COLOUR_LIST_FOREGROUND = COLOUR_BACKGROUND;
+    
+    COLOUR_GROUP_UNUSUAL = COLOUR_LINK_FOREGROUND;
+    
+    COLOUR_EDGE_BACKGROUND = 0xff0000;
 
     /* load save data */
     UTOX_SAVE *save = config_load();

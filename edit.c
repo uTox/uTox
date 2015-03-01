@@ -2,6 +2,9 @@
 
 static EDIT *active_edit;
 
+extern int COLOUR_BACKGROUND;
+extern int COLOUR_FOREGROUND;
+
 static struct
 {
     STRING_IDX start, length;
@@ -38,10 +41,10 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
     if(!edit->noborder) {
         framerect(x, y, x + width, y + height, (edit == active_edit) ? BLUE : (edit->mouseover ? C_GRAY2 : C_GRAY));
     }
-    drawrect(x + 1, y + 1, x + width - 1, y + height - 1, WHITE);
+    drawrect(x + 1, y + 1, x + width - 1, y + height - 1, COLOUR_BACKGROUND);
 
     setfont(FONT_TEXT);
-    setcolor(COLOR_TEXT);
+    setcolor(COLOUR_FOREGROUND);
 
     int yy = y;
 

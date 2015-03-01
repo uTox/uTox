@@ -1,5 +1,8 @@
 #include "main.h"
 
+extern int COLOUR_BACKGROUND;
+extern int COLOUR_LIST_BACKGROUND;
+
 static void calculate_pos_and_width(BUTTON *b, int *x, int *w) {
     int old_w = *w;
 
@@ -31,7 +34,7 @@ void button_draw(BUTTON *b, int x, int y, int width, int height)
 
     // Ensure that font is set before calculating position and width.
     setfont(FONT_SELF_NAME);
-    setcolor(WHITE);
+    setcolor(COLOUR_BACKGROUND);
 
     int w = width;
     calculate_pos_and_width(b, &x, &w);
@@ -40,7 +43,7 @@ void button_draw(BUTTON *b, int x, int y, int width, int height)
     if(b->bm) {
         drawalpha(b->bm, x, y, width, height, color);
     } else {
-        drawrectw(x, y, w, height, b->disabled ? LIST_MAIN : color);
+        drawrectw(x, y, w, height, b->disabled ? COLOUR_LIST_BACKGROUND : color);
 
         //setfont(FONT_TEXT_LARGE);
         //setcolor(b->mouseover ? 0x222222 : 0x555555);
@@ -49,7 +52,7 @@ void button_draw(BUTTON *b, int x, int y, int width, int height)
 
     if(b->bm2) {
         int bx = w / 2 - b->bw * SCALE / 2, by = height / 2 - b->bh * SCALE / 2;
-        drawalpha(b->bm2, x + bx, y + by, b->bw * SCALE, b->bh * SCALE, WHITE);
+        drawalpha(b->bm2, x + bx, y + by, b->bw * SCALE, b->bh * SCALE, COLOUR_BACKGROUND);
     }
 
     if(maybe_i18nal_string_is_valid(&b->button_text)) {

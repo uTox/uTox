@@ -5,6 +5,9 @@ static CONTEXTMENU context_menu;
 #define CONTEXT_WIDTH (SCALE * 60)
 #define CONTEXT_HEIGHT (SCALE * 12)
 
+extern int COLOUR_BACKGROUND;
+extern int COLOUR_FOREGROUND;
+
 static void calculate_pos_and_width(CONTEXTMENU *b, int *x, int *w) {
     uint8_t i;
 
@@ -35,12 +38,12 @@ void contextmenu_draw(void)
 
     // Ensure that font is set before calculating position and width.
     setfont(FONT_TEXT);
-    setcolor(COLOR_TEXT);
+    setcolor(COLOUR_FOREGROUND);
 
     int x, w;
     calculate_pos_and_width(b, &x, &w);
 
-    drawrectw(x, b->y, w, b->height, WHITE);
+    drawrectw(x, b->y, w, b->height, COLOUR_BACKGROUND);
     drawrectw(x, b->y + b->over * CONTEXT_HEIGHT, w, CONTEXT_HEIGHT, C_GRAY);
 
     int i;
@@ -64,7 +67,7 @@ _Bool contextmenu_mmove(int mx, int my, int UNUSED(dx), int UNUSED(dy))
 
     // Ensure that font is set before calculating position and width.
     setfont(FONT_TEXT);
-    setcolor(COLOR_TEXT);
+    setcolor(COLOUR_FOREGROUND);
 
     int x, w;
     calculate_pos_and_width(b, &x, &w);
