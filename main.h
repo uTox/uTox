@@ -30,7 +30,7 @@
 
 #define TITLE "uTox"
 #define SUB_TITLE "(Alpha)"
-#define VERSION "0.2.n"
+#define VERSION "0.3.0"
 
 #define MAX_CALLS 16
 #define MAX_BACKLOG_MESSAGES 128
@@ -234,7 +234,8 @@ void drawalpha_common(int target, int bm, int x, int y, int width, int height, u
 void loadalpha(int bm, void *data, int width, int height);
 void desktopgrab(_Bool video);
 void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_length, uint8_t *cid);
-void incoming_call();
+void incoming_call(void);
+void incoming_call_hide(void);
 void setscale(int target);
 
 enum {

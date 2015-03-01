@@ -52,24 +52,21 @@ static void callback_av_start(void *arg, int32_t call_index, void *UNUSED(userda
     toxav_kill_transmission(arg, call_index); \
     endcall();
 
-static void callback_av_cancel(void *arg, int32_t call_index, void *UNUSED(userdata))
-{
+static void callback_av_cancel(void *arg, int32_t call_index, void *UNUSED(userdata)){
     stopcall();
-
+    incoming_call_hide();
     debug("A/V Cancel (%i)\n", call_index);
 }
 
-static void callback_av_reject(void *arg, int32_t call_index, void *UNUSED(userdata))
-{
+static void callback_av_reject(void *arg, int32_t call_index, void *UNUSED(userdata)){
     endcall();
-
+    incoming_call_hide();
     debug("A/V Reject (%i)\n", call_index);
 }
 
-static void callback_av_end(void *arg, int32_t call_index, void *UNUSED(userdata))
-{
+static void callback_av_end(void *arg, int32_t call_index, void *UNUSED(userdata)){
     stopcall();
-
+    incoming_call_hide();
     debug("A/V End (%i)\n", call_index);
 }
 
@@ -78,17 +75,15 @@ static void callback_av_ringing(void *arg, int32_t call_index, void *UNUSED(user
     debug("A/V Ringing (%i)\n", call_index);
 }
 
-static void callback_av_requesttimeout(void *arg, int32_t call_index, void *UNUSED(userdata))
-{
+static void callback_av_requesttimeout(void *arg, int32_t call_index, void *UNUSED(userdata)){
     endcall();
-
+    incoming_call_hide();
     debug("A/V ReqTimeout (%i)\n", call_index);
 }
 
-static void callback_av_peertimeout(void *arg, int32_t call_index, void *UNUSED(userdata))
-{
+static void callback_av_peertimeout(void *arg, int32_t call_index, void *UNUSED(userdata)){
     stopcall();
-
+    incoming_call_hide();
     debug("A/V PeerTimeout (%i)\n", call_index);
 }
 

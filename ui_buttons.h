@@ -133,7 +133,7 @@ static void button_call_onpress(void)
 
     case CALL_RINGING: {
         tox_postmessage(TOX_CANCELCALL, f->callid, f - friend, NULL);
-        debug("Cancelling call: id = %u, friend = %d\n", f->callid, (int)(f - friend));
+        debug("Canceling call: id = %u, friend = %d\n", f->callid, (int)(f - friend));
         break;
     }
 
@@ -382,7 +382,7 @@ static void button_chat1_updatecolor(BUTTON *b)
 
 /* bottom right chat message window button */
 static void button_chat2_onpress(void){
-    incoming_call();
+    // Do nothing yet...
 }
 
 static void button_chat2_updatecolor(BUTTON *b){

@@ -864,7 +864,6 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
         toxav_call(av, &id, param1, &av_DefaultSettings, 10);
 
         postmessage(FRIEND_CALL_STATUS, param1, id, (void*)CALL_RINGING);
-        incoming_call();
         break;
     }
 
@@ -915,7 +914,7 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
             settings.max_video_width = max_video_width;
             settings.max_video_height = max_video_height;
         }
-
+        incoming_call_hide();
         toxav_answer(av, param1, &settings);
         break;
     }
@@ -1477,6 +1476,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             }
 
             video_end(param1 + 1);
+            incoming_call_hide();
         }
 
         f->calling = status;
