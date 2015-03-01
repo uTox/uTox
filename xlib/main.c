@@ -907,15 +907,63 @@ int COLOUR_MENU_BACKGROUND;
 int COLOUR_MENU_HOVER;
 int COLOUR_SELF_FOREGROUND;
 
+_Bool parse_args_wait_for_theme;
+char theme;
+
 int main(int argc, char *argv[])
 {
+    parse_args_wait_for_theme = 0;
+    theme = '-';
+        
+    if (argc > 1)
+        for (int i = 1; i < argc; i++) {
+            if (parse_args_wait_for_theme) {
+                if(!strcmp(argv[i], "default")) {
+                    theme = '-';
+                    parse_args_wait_for_theme = 0;
+                    continue;
+                }
+                if(!strcmp(argv[i], "dark")) {
+                    theme = 'd';
+                    parse_args_wait_for_theme = 0;
+                    continue;
+                }
+                if(!strcmp(argv[i], "light")) {
+                    theme = 'l';
+                    parse_args_wait_for_theme = 0;
+                    continue;
+                }
+                debug("Please specify correct theme. Valid values are:\n - default\n - dark\n - light");
+                return 1;
+            }
+            
+            if(!strcmp(argv[i], "--version")) {
+                debug("%s\n", VERSION);
+                return 0;
+            }
+            if(!strcmp(argv[i], "--version")) {
+                debug("Launching uTox in portable mode: All data will be saved to the tox folder in the current working directory\n");
+                utox_portable = 1;
+            }
+            if(!strcmp(argv[i], "--theme")) {
+                parse_args_wait_for_theme = 1;
+            }
+            printf("arg %d: %s\n", i, argv[i]);
+        }
+        
+    if (parse_args_wait_for_theme) {
+        debug("Expected theme name, but got nothing. -_-\n");
+        return 0;
+    }
+
+
+
     if(argc == 2 && argv[1]) {
         if(!strcmp(argv[1], "--version")) {
             debug("%s\n", VERSION);
             return 0;
         } else if(!strcmp(argv[1], "--portable")) {
-            debug("Launching uTox in portable mode: All data will be saved to the tox folder in the current working directory\n");
-            utox_portable = 1;
+            
         } else {
             debug("Valid arguments are: --version and --portable (launches uTox in portable mode)\n");
             return 0;
@@ -951,6 +999,8 @@ int main(int argc, char *argv[])
                     PropertyChangeMask,
     };
     
+    
+    
     /* Default colours */
     // Chat area colours
     COLOUR_MAIN_BACKGROUND = 0xFFFFFF;
@@ -977,28 +1027,41 @@ int main(int argc, char *argv[])
     COLOUR_EDGE_HOVER = COLOUR_MAIN_FOREGROUND;
     COLOUR_DROPDOWN_ACTIVE_BACKGROUND = COLOUR_MAIN_FOREGROUND;
     COLOUR_DROPDOWN_ACTIVE_FOREGROUND = COLOUR_MAIN_BACKGROUND;
-    
+
     // Get rid of
     COLOUR_MAIN_BACKGROUND_SECONDARY  = 0xBaBaBa;
     
-    
-    /* Debug colours -- dark theme */
-    // Chat area colours
-    /*COLOUR_MAIN_BACKGROUND = 0x333333;
-    COLOUR_MAIN_FOREGROUND = 0xdddddd;
-    COLOUR_MAIN_FOREGROUND_SECONDARY = 0xbbbbbb;
-    COLOUR_MAIN_ACTIONTEXT = 0x00AAAA;
-    COLOUR_MAIN_URLTEXT = 0x00AAAA;
-    // Buddy list colours
-    COLOUR_LIST_BACKGROUND = 0x222222;
-    COLOUR_LIST_HOVER_BACKGROUND = 0x151515;
-    COLOUR_MAIN_BACKGROUND_SECONDARY  = 0x555555;
-    // Text highlighing
-    COLOUR_HIGHLIGHT_BACKGROUND = COLOUR_MAIN_FOREGROUND;
-    COLOUR_HIGHLIGHT_FOREGROUND = COLOUR_MAIN_BACKGROUND;
-    COLOUR_GROUP_UNUSUAL = COLOUR_MAIN_URLTEXT;
-    // Inputs
-    COLOUR_EDGE_ACTIVE = COLOUR_MAIN_URLTEXT;*/
+    switch (theme) {
+    case 'd':
+        // Chat area colours
+        COLOUR_MAIN_BACKGROUND = 0x333333;
+        COLOUR_MAIN_FOREGROUND = 0xdddddd;
+        COLOUR_MAIN_FOREGROUND_SECONDARY = 0xbbbbbb;
+        COLOUR_MAIN_ACTIONTEXT = 0x00AAAA;
+        COLOUR_MAIN_URLTEXT = 0x00AAAA;
+        // Buddy list colours
+        COLOUR_LIST_BACKGROUND = 0x222222;
+        COLOUR_LIST_HOVER_BACKGROUND = 0x151515;
+        COLOUR_MAIN_BACKGROUND_SECONDARY  = 0x555555;
+        // Text highlighing
+        COLOUR_HIGHLIGHT_BACKGROUND = COLOUR_MAIN_FOREGROUND;
+        COLOUR_HIGHLIGHT_FOREGROUND = COLOUR_MAIN_BACKGROUND;
+        COLOUR_GROUP_UNUSUAL = COLOUR_MAIN_URLTEXT;
+        // Inputs
+        COLOUR_EDGE_ACTIVE = COLOUR_MAIN_URLTEXT;
+        break;
+    case 'l':
+        // Buddy list colours
+        COLOUR_LIST_BACKGROUND = 0xEEEEEE;
+        COLOUR_LIST_HOVER_BACKGROUND = 0xDDDDDD;
+        COLOUR_LIST_FOREGROUND = COLOUR_MAIN_FOREGROUND;
+        COLOUR_LIST_FOREGROUND_SECONDARY = COLOUR_MAIN_FOREGROUND_SECONDARY;
+        // Buddy list colours
+        COLOUR_MENU_BACKGROUND = COLOUR_MAIN_BACKGROUND;
+        COLOUR_MENU_HOVER = 0xdddddd;
+        COLOUR_MENU_ACTIVE = COLOUR_MAIN_FOREGROUND;
+        break;
+    }
 
     /* load save data */
     UTOX_SAVE *save = config_load();
