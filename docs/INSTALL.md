@@ -32,6 +32,27 @@ If make/install really isn't your thing, you can try some precomplied binarys.
 - [amd64](https://jenkins.libtoxcore.so/view/Clients/job/uTox_linux_amd64/) [[.tar.xz]](https://jenkins.libtoxcore.so/view/Clients/job/uTox_linux_amd64/lastSuccessfulBuild/artifact/utox/utox_linux_amd64.tar.xz)
 - [i686](https://jenkins.libtoxcore.so/view/Clients/job/uTox_linux_i686/) [[.tar.xz]](https://jenkins.libtoxcore.so/view/Clients/job/uTox_linux_i686/lastSuccessfulBuild/artifact/utox/utox_linux_i686.tar.xz)
 
+### Adding a desktop launcher
+
+Assuming that repository working copy is your current directory.
+
+1. Copy `.desktop` entry
+
+    ```bash
+    sudo cp ./utox.desktop /usr/share/applications/utox.desktop
+    ```
+
+2. Make it executable
+
+    ```bash
+    sudo chmod +x /usr/share/applications/utox.desktop
+    ```
+    
+3. Add an icon
+
+    ```bash
+    sudo cp ./icons/utox-128x128.png /usr/share/pixmaps/utox.png
+    ```
 
 ### Archlinux
 
