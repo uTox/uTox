@@ -1,8 +1,6 @@
 # Install
 
-The following will help you get μTox installed on your computron/toaster/carrier pigon. The focus of this guide is to 
-get you running ASAP. And mostly deals with precomplied binarys. If you're looking to contribute (you're the real MVP) 
-you're probably looking for [Building](BUILD.md). 
+The following will help you get μTox installed on your computron/toaster/carrier pigeon. The focus of this guide is to get you running ASAP. And mostly deals with precomplied binaries. If you're looking to contribute (you're the real MVP) you're probably looking for [Building](BUILD.md).
 
 For any and all of the following, you'll need to have [toxcore](https://github.com/irungentoo/toxcore) installed first.
 
@@ -18,24 +16,25 @@ Dependencies:
 
 ```dbus filter_audio freetype libvpx openal v4l xext xrender```
 
-Compile:
-```bash
-make all
-```
+1. First compile:
 
-Now install:
-```bash
-sudo make install
-```
+    ```bash
+    make all
+    ```
 
-If make/install really isn't your thing, you can try some precomplied binarys.
+2. Then install:
+
+    ```bash
+    sudo make install
+    ```
+
+If make/install really isn't your thing, you can try some precomplied binaries.
 - [amd64](https://jenkins.libtoxcore.so/view/Clients/job/uTox_linux_amd64/) [[.tar.xz]](https://jenkins.libtoxcore.so/view/Clients/job/uTox_linux_amd64/lastSuccessfulBuild/artifact/utox/utox_linux_amd64.tar.xz)
 - [i686](https://jenkins.libtoxcore.so/view/Clients/job/uTox_linux_i686/) [[.tar.xz]](https://jenkins.libtoxcore.so/view/Clients/job/uTox_linux_i686/lastSuccessfulBuild/artifact/utox/utox_linux_i686.tar.xz)
 
-
 ### Archlinux
 
-If you're luck enough to use Arch Linux, someone has an AUR package just for you!
+If you're lucky enough to use Archlinux, someone has an AUR package just for you!
 
 https://aur.archlinux.org/packages/utox-git/
 
@@ -49,7 +48,7 @@ No one is currently providing binaries for OSX yet... Sorry Apple people...
 <a name="windows" />
 ## Windows
 
-Installing on windows isn't really a thing yet... you can download the nightlies. They should just work.
+Installing on windows isn't really a thing yet... you can download the nighties. They should just work.
 
   - [32-bit](https://jenkins.libtoxcore.so/view/Clients/job/uTox_win32/) [[.zip]](https://jenkins.libtoxcore.so/view/Clients/job/uTox_win32/lastSuccessfulBuild/artifact/utox/utox_win32.zip)
   - [64-bit](https://jenkins.libtoxcore.so/view/Clients/job/uTox_win64/) [[.zip]](https://jenkins.libtoxcore.so/view/Clients/job/uTox_win64/lastSuccessfulBuild/artifact/utox/utox_win64.zip)
