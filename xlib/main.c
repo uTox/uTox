@@ -1057,6 +1057,7 @@ int main(int argc, char *argv[])
         COLOUR_EDGE_HOVER = COLOUR_MAIN_FOREGROUND;
         COLOUR_DROPDOWN_ACTIVE_BACKGROUND = COLOUR_MAIN_FOREGROUND;
         COLOUR_DROPDOWN_ACTIVE_FOREGROUND = COLOUR_MAIN_BACKGROUND;
+        COLOUR_MENU_ACTIVE_FOREGROUND = 0x151515;
         break;
     
     case 'l':
@@ -1069,6 +1070,8 @@ int main(int argc, char *argv[])
         COLOUR_MENU_BACKGROUND = COLOUR_MAIN_BACKGROUND;
         COLOUR_MENU_HOVER = 0xdddddd;
         COLOUR_MENU_ACTIVE = 0x555555;
+        COLOUR_MENU_FOREGROUND = 0x555555;
+        COLOUR_MENU_ACTIVE_FOREGROUND = 0xffffff;
         break;
     }
 
