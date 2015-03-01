@@ -53,6 +53,7 @@ static void draw_message_image(UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t 
  */
 void messages_draw(MESSAGES *m, int x, int y, int width, int height)
 {
+
     // Don't not draw author next to name every message
     uint8_t lastauthor = 0xFF;
 
@@ -79,7 +80,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
         if(y >= height + 50 * SCALE) {
             break;
         }
-
+    
         // Draw timestamps
         {
             char timestr[6];
@@ -106,15 +107,17 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
             // Draw author name
             if(msg->author != lastauthor) {
                 // If author is current user
+                setfont(FONT_TEXT);
                 if (msg->msg_type == MSG_TYPE_ACTION_TEXT)
                     setcolor(COLOUR_MAIN_ACTIONTEXT);
                 else
-                    if(msg->author)
+                    if(msg->author) {
                         setcolor(COLOUR_MAIN_FOREGROUND_SECONDARY);
-                    else
+                        drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, y, self.name, self.name_length);
+                    } else {
                         setcolor(COLOUR_MAIN_FOREGROUND);
-                setfont(FONT_TEXT);
-                drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, y, self.name, self.name_length);
+                        drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, y, f->name, f->name_length);
+                    }
                 lastauthor = msg->author;
             }
         }
