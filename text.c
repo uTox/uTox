@@ -3,6 +3,7 @@
 extern int COLOUR_MAIN_BACKGROUND;
 extern int COLOUR_HIGHLIGHT_BACKGROUND;
 extern int COLOUR_HIGHLIGHT_FOREGROUND;
+extern int COLOUR_MAIN_URLTEXT;
 
 static void drawtexth(int x, int y, char_t *str, STRING_IDX length, int d, int h, int hlen, uint16_t lineheight)
 {
@@ -59,7 +60,7 @@ int drawtextmultiline(int x, int right, int y, int top, int bottom, uint16_t lin
             }
 
             if((a == data || *(a - 1) == '\n' || *(a - 1) == ' ') && ((end - a >= 7 && memcmp(a, "http://", 7) == 0) || (end - a >= 8 && memcmp(a, "https://", 8) == 0))) {
-                c2 = setcolor(RGB(0, 0, 255));
+                c2 = setcolor(COLOUR_MAIN_URLTEXT);
                 link = 1;
             }
         }

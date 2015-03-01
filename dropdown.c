@@ -6,9 +6,12 @@ static int active_x, active_y, active_width, active_height;
 extern int COLOUR_MAIN_FOREGROUND;
 extern int COLOUR_MAIN_BACKGROUND;
 extern int COLOUR_EDGE_BACKGROUND;
+extern int COLOUR_DROPDOWN_ACTIVE_BACKGROUND;
+extern int COLOUR_DROPDOWN_ACTIVE_FOREGROUND;
 
 #define index(b, i) (i == 0 ? b->selected : ((i > b->selected) ? i : i - 1))
 
+// Draw background recktangles for a dropdown
 void dropdown_drawactive(void)
 {
     DROPDOWN *b = active;
@@ -17,9 +20,6 @@ void dropdown_drawactive(void)
     }
 
     int x = active_x, y = active_y, w = active_width, h = active_height;
-
-    setfont(FONT_TEXT);
-    setcolor(COLOUR_MAIN_FOREGROUND);
 
     int i, sign = 1;
 
@@ -48,14 +48,19 @@ void dropdown_drawactive(void)
         int j = index(b, i);
         STRING* e = b->ondisplay(j, b);
         if(j == b->over) {
-            drawrectw(x + 1, y + 1, w - 2, h - 2, C_GRAY);
+            drawrectw(x + 1, y + 1, w - 2, h - 2, COLOUR_DROPDOWN_ACTIVE_BACKGROUND);
+            setcolor(COLOUR_MAIN_BACKGROUND);
+        } else {
+            setcolor(COLOUR_MAIN_FOREGROUND);
         }
+        setfont(FONT_TEXT);
         drawtext(x + 2 * SCALE, y + 2 * SCALE, e->str, e->length);
 
         y += sign * h;
     }
 }
 
+// Draw collapsed dropdown
 void dropdown_draw(DROPDOWN *b, int x, int y, int width, int height)
 {
     if(!b->open) {

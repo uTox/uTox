@@ -170,7 +170,6 @@ uint8_t SCALE;
 #define C_RED                   RGB(200, 78, 78)
 #define C_RED_LIGHT             RGB(220, 86, 86)
 
-#define LIST_DARK_LIGHT         GRAY(40)
 #define C_GRAY                  GRAY(209)
 #define C_GRAY2                 GRAY(150)
 #define C_SCROLL                GRAY(209)
@@ -178,5 +177,6 @@ uint8_t SCALE;
 
 // Required for H files
 // @TODO
+#define LIST_DARK_LIGHT         GRAY(20)
 #define LIST_MAIN               GRAY(65)
 #define LIST_DARK               GRAY(28)

@@ -13,16 +13,17 @@ static _Bool sitem_mousedown;
 
 static int sitem_dy;
 
-extern int COLOUR_MAIN_BACKGROUND;
-extern int COLOUR_MAIN_BACKGROUND_SECONDARY;
 extern int COLOUR_EDGE_BACKGROUND;
-extern int COLOUR_MENU_HOVER;
 extern int COLOUR_GROUP_UNUSUAL;
 extern int COLOUR_LIST_BACKGROUND;
-extern int COLOUR_MAIN_FOREGROUND;
-extern int COLOUR_MAIN_FOREGROUND_SECONDARY;
-extern int COLOUR_MENU_BACKGROUND;
+extern int COLOUR_LIST_FOREGROUND_SECONDARY;
+extern int COLOUR_LIST_FOREGROUND;
 extern int COLOUR_LIST_HOVER_BACKGROUND;
+extern int COLOUR_MAIN_BACKGROUND;
+extern int COLOUR_MAIN_FOREGROUND_SECONDARY;
+extern int COLOUR_MAIN_FOREGROUND;
+extern int COLOUR_MENU_BACKGROUND;
+extern int COLOUR_MENU_HOVER;
 
 
 static void drawitembox(ITEM *i, int y)
@@ -39,14 +40,14 @@ static void drawitembox(ITEM *i, int y)
 static void drawname(ITEM *i, int y, char_t *name, char_t *msg, STRING_IDX name_length, STRING_IDX msg_length, _Bool color_overide, uint32_t color)
 {
     if (!color_overide)
-        color = (sitem == i) ? COLOUR_MAIN_FOREGROUND : COLOUR_MAIN_BACKGROUND;
+        color = (sitem == i) ? COLOUR_MAIN_FOREGROUND : COLOUR_LIST_FOREGROUND;
 
     setcolor(color);
     setfont(FONT_LIST_NAME);
     drawtextwidth(LIST_NAME_X, LIST_RIGHT - LIST_NAME_X - SCALE * 16, y + LIST_NAME_Y, name, name_length);
 
     if (!color_overide)
-        color = (sitem == i) ? COLOUR_MAIN_FOREGROUND_SECONDARY : COLOUR_MAIN_BACKGROUND_SECONDARY;
+        color = (sitem == i) ? COLOUR_MAIN_FOREGROUND_SECONDARY : COLOUR_LIST_FOREGROUND_SECONDARY;
 
     setcolor(color);
     setfont(FONT_STATUS);
