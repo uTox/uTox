@@ -12,6 +12,8 @@ extern int COLOUR_LIST_HOVER_BACKGROUND;
 extern int COLOUR_MENU_BACKGROUND;
 extern int COLOUR_MAIN_FOREGROUND;
 extern int COLOUR_MAIN_FOREGROUND_SECONDARY;
+extern int COLOUR_MENU_FOREGROUND;
+extern int COLOUR_MENU_ACTIVE_FOREGROUND;
 
 // Application-wide language setting
 UI_LANG_ID LANG;
@@ -74,11 +76,11 @@ uint32_t status_color[] = {
 /* Top left self interface Avatar, name, statusmsg, status icon */
 static void drawself(void)
 {
-    setcolor(!button_name.mouseover ? COLOUR_MAIN_FOREGROUND : COLOUR_MAIN_FOREGROUND_SECONDARY);
+    setcolor(!button_name.mouseover ? COLOUR_MENU_ACTIVE_FOREGROUND : COLOUR_MENU_FOREGROUND);
     setfont(FONT_SELF_NAME);
     drawtextrange(SELF_NAME_X, SELF_STATUS_X, SELF_NAME_Y, self.name, self.name_length);
 
-    setcolor(!button_statusmsg.mouseover ? COLOUR_MAIN_FOREGROUND_SECONDARY : COLOUR_MAIN_FOREGROUND);
+    setcolor(!button_statusmsg.mouseover ? COLOUR_MENU_FOREGROUND : COLOUR_MENU_ACTIVE_FOREGROUND);
     setfont(FONT_STATUS);
     drawtextrange(SELF_MSG_X, SELF_STATUS_X, SELF_MSG_Y, self.statusmsg, self.statusmsg_length);
 

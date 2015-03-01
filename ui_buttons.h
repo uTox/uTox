@@ -291,15 +291,17 @@ extern int COLOUR_MENU_HOVER;
 extern int COLOUR_MENU_ACTIVE;
 extern int COLOUR_MAIN_FOREGROUND_SECONDARY;
 extern int COLOUR_MAIN_BACKGROUND;
+extern int COLOUR_MENU_ACTIVE_FOREGROUND;
+extern int COLOUR_MENU_FOREGROUND;
 
 static void button_bottommenu_updatecolor(BUTTON *b)
 {
     b->c1 = COLOUR_MENU_BACKGROUND;
     b->c2 = COLOUR_MENU_HOVER;
     b->c3 = COLOUR_MENU_ACTIVE;
-    b->ic = COLOUR_MAIN_FOREGROUND_SECONDARY;
+    b->ic = COLOUR_MENU_FOREGROUND;
     if (b->mousedown || b->disabled)
-        b->ic = COLOUR_MAIN_BACKGROUND;
+        b->ic = COLOUR_MENU_ACTIVE_FOREGROUND;
     b->cd = COLOUR_MENU_ACTIVE;
 }
 
