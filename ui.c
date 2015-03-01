@@ -14,6 +14,7 @@ extern int COLOUR_MAIN_FOREGROUND;
 extern int COLOUR_MAIN_FOREGROUND_SECONDARY;
 extern int COLOUR_MENU_FOREGROUND;
 extern int COLOUR_MENU_ACTIVE_FOREGROUND;
+extern int COLOUR_EDGE_NORMAL;
 
 // Application-wide language setting
 UI_LANG_ID LANG;
@@ -76,7 +77,7 @@ uint32_t status_color[] = {
 /* Top left self interface Avatar, name, statusmsg, status icon */
 static void drawself(void)
 {
-    setcolor(!button_name.mouseover ? COLOUR_MENU_ACTIVE_FOREGROUND : COLOUR_MENU_FOREGROUND);
+    setcolor(!button_name.mouseover ? COLOUR_MENU_FOREGROUND : COLOUR_MENU_ACTIVE_FOREGROUND);
     setfont(FONT_SELF_NAME);
     drawtextrange(SELF_NAME_X, SELF_STATUS_X, SELF_NAME_Y, self.name, self.name_length);
 
@@ -310,16 +311,21 @@ static void drawsettings_content(int UNUSED(x), int y, int UNUSED(w), int UNUSED
 
 static void background_draw(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int width, int height)
 {
-    drawrect(0, 0, LIST_RIGHT, LIST_Y - 1, COLOUR_MENU_BACKGROUND);
+    // Current user avatar & name background
+    drawrect(0, 0, LIST_RIGHT, LIST_Y, COLOUR_MENU_BACKGROUND);
+    // Friend list ('roaster') background
     drawrect(0, LIST_Y, LIST_RIGHT, height + LIST_BOTTOM, COLOUR_LIST_BACKGROUND);
+    // Bottom icons menu background
     drawrect(0, height + LIST_BOTTOM, LIST_RIGHT, height, COLOUR_MENU_BACKGROUND);
 
+    // Current user avatar & name
     drawself();
 
+    // Chat background
     drawrect(LIST_RIGHT, 0, width, height, COLOUR_MAIN_BACKGROUND);
-
-
-    drawhline(LIST_RIGHT + 1, LIST_Y - 1, width, C_GRAY);
+    
+    // Chat and chat header separation
+    drawhline(LIST_RIGHT + 1, LIST_Y - 1, width, COLOUR_EDGE_NORMAL);
 }
 
 static _Bool background_mmove(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height), int UNUSED(mx), int UNUSED(my), int UNUSED(dx), int UNUSED(dy))
