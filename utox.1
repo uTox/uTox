@@ -12,15 +12,29 @@ utox [OPTIONS]
  * 1-to-1 text IM
  * group IM
  * audio calls
- * audio conversations
+ * video calls
+ * group audio calls
+ * desktop sharing
  * file transfer
- * avatar image support
- * video support
 
 .SH OPTIONS
 .SS General Options
   \-\-version      print version and exit
   \-\-portable     run in portable mode
+
+.SH FILES
+All files listed below are located in \fB$HOME/.config/tox\fP. If µTox is
+running in portable mode, their location will be \fB./tox\fP.
+.SS tox_save.tox
+\fBtox_save.tox\fP is the file that contains the public/private key pair, name,
+status and contacts. It's compatible with other Tox clients.
+.SS utox_save
+\fButox_save\fP is µTox' binary config file, it contains settings such as
+language, proxy options, DPI or logging.
+.SS avatars
+The \fBavatars\fP directory contains other contacts' avatars along with their
+hashes. Avatars are named [public_key].png, avatar hashes are called
+[public_key].hash.
 
 .SH CONTRIBUTORS
 Please see the list page:
