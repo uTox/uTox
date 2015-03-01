@@ -7,6 +7,7 @@
 extern int COLOUR_BACKGROUND;
 extern int COLOUR_EDGE_BACKGROUND;
 extern int COLOUR_LIST_BACKGROUND;
+extern int COLOUR_LIST_HIGHLIGHT_BACKGROUND;
 
 // Application-wide language setting
 UI_LANG_ID LANG;
