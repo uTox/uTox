@@ -30,7 +30,7 @@ fragment_shader[] =
         "gl_FragColor = (texture2D(samp, x) + vec4(k2, 0.0)) * vec4(k, 1.0);"
     "}";
 
-static GLuint prog, COLOUR_BACKGROUND;
+static GLuint prog, COLOUR_MAIN_BACKGROUND;
 static GLint matrix, k, k2, samp;
 static GLuint bitmap[32];
 
@@ -41,7 +41,7 @@ static EGLSurface surface;
 static EGLContext context;
 static EGLConfig config;
 
-extern int COLOUR_BACKGROUND;
+extern int COLOUR_MAIN_BACKGROUND;
 
 #ifndef NO_OPENGL_ES
 #define glDrawQuads(x,y) glDrawElements(GL_TRIANGLES, (y) * 6, GL_UNSIGNED_BYTE, &quad_indices[(x) * 6])
@@ -147,7 +147,7 @@ uint32_t setcolor(uint32_t a)
 void drawrect(int x, int y, int right, int bottom, uint32_t color)
 {
     set_color(color);
-    glBindTexture(GL_TEXTURE_2D, COLOUR_BACKGROUND);
+    glBindTexture(GL_TEXTURE_2D, COLOUR_MAIN_BACKGROUND);
     makequad(&quads[0], x, y, right, bottom);
     glDrawQuads(0, 1);
 }
@@ -160,7 +160,7 @@ void drawrectw(int x, int y, int width, int height, uint32_t color)
 void framerect(int x, int y, int right, int bottom, uint32_t color)
 {
     set_color(color);
-    glBindTexture(GL_TEXTURE_2D, COLOUR_BACKGROUND);
+    glBindTexture(GL_TEXTURE_2D, COLOUR_MAIN_BACKGROUND);
     makequad(&quads[0], x, y, right, bottom);
     glDrawArrays(GL_LINE_LOOP, 0, 4);
 }
@@ -168,7 +168,7 @@ void framerect(int x, int y, int right, int bottom, uint32_t color)
 void drawhline(int x, int y, int x2, uint32_t color)
 {
     set_color(color);
-    glBindTexture(GL_TEXTURE_2D, COLOUR_BACKGROUND);
+    glBindTexture(GL_TEXTURE_2D, COLOUR_MAIN_BACKGROUND);
     makeline(&quads[0], x, y + 1, x2, y + 1);
     glDrawArrays(GL_LINES, 0, 2);
 }
@@ -176,7 +176,7 @@ void drawhline(int x, int y, int x2, uint32_t color)
 void drawvline(int x, int y, int y2, uint32_t color)
 {
     set_color(color);
-    glBindTexture(GL_TEXTURE_2D, COLOUR_BACKGROUND);
+    glBindTexture(GL_TEXTURE_2D, COLOUR_MAIN_BACKGROUND);
     makeline(&quads[0], x + 1, y, x + 1, y2);
     glDrawArrays(GL_LINES, 0, 2);
 }
@@ -337,8 +337,8 @@ _Bool gl_init(void)
     glUniform3fv(k2, 1, one);
 
     uint8_t wh = {255};
-    glGenTextures(1, &COLOUR_BACKGROUND);
-    glBindTexture(GL_TEXTURE_2D, COLOUR_BACKGROUND);
+    glGenTextures(1, &COLOUR_MAIN_BACKGROUND);
+    glBindTexture(GL_TEXTURE_2D, COLOUR_MAIN_BACKGROUND);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, 1, 1, 0, GL_ALPHA, GL_UNSIGNED_BYTE, &wh);

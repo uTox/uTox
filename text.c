@@ -1,6 +1,6 @@
 #include "main.h"
 
-extern int COLOUR_FOREGROUND;
+extern int COLOUR_MAIN_BACKGROUND;
 extern int COLOUR_HIGHLIGHT_BACKGROUND;
 extern int COLOUR_HIGHLIGHT_FOREGROUND;
 
@@ -13,7 +13,7 @@ static void drawtexth(int x, int y, char_t *str, STRING_IDX length, int d, int h
     } else if(hlen == 0) {
         drawtext(x, y, str, length);
         int w =  textwidth(str, h + hlen);
-        drawvline(x + w, y, y + lineheight, COLOUR_FOREGROUND);
+        drawvline(x + w, y, y + lineheight, COLOUR_MAIN_BACKGROUND);
         return;
     }
 

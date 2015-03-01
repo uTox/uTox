@@ -97,10 +97,6 @@ extern uint32_t status_color[];
 
 #define BLACK 0
 
-#define TEXT_SELF               0x595959
-#define TEXT_HIGHLIGHT          WHITE
-#define TEXT_HIGHLIGHT_BG       RGB(51, 153, 255)
-
 #define BLUE RGB(0x4E, 0xA6,0xEA)
 
 /* search
@@ -167,7 +163,6 @@ uint8_t SCALE;
 /* colors
  */
 
-#define C_STATUS                GRAY(209)
 #define C_GREEN                 RGB(107, 194, 96)
 #define C_GREEN_LIGHT           RGB(118, 213, 106)
 #define C_YELLOW                RGB(206, 191, 69)
@@ -175,12 +170,13 @@ uint8_t SCALE;
 #define C_RED                   RGB(200, 78, 78)
 #define C_RED_LIGHT             RGB(220, 86, 86)
 
-#define LIST_MAIN               GRAY(65)
-#define LIST_DARK               GRAY(28)
 #define LIST_DARK_LIGHT         GRAY(40)
 #define C_GRAY                  GRAY(209)
 #define C_GRAY2                 GRAY(150)
 #define C_SCROLL                GRAY(209)
 
-#define C_TITLE                 GRAY(68)
-#define CHAT_SELF               GRAY(89)
+
+// Required for H files
+// @TODO
+#define LIST_MAIN               GRAY(65)
+#define LIST_DARK               GRAY(28)

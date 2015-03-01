@@ -2,8 +2,9 @@
 
 static EDIT *active_edit;
 
-extern int COLOUR_BACKGROUND;
-extern int COLOUR_FOREGROUND;
+extern int COLOUR_MAIN_BACKGROUND;
+extern int COLOUR_MAIN_BACKGROUND;
+extern int COLOUR_EDGE_BACKGROUND;
 
 static struct
 {
@@ -39,12 +40,12 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
     edit->height = height - 4 * SCALE;
 
     if(!edit->noborder) {
-        framerect(x, y, x + width, y + height, (edit == active_edit) ? BLUE : (edit->mouseover ? C_GRAY2 : C_GRAY));
+        framerect(x, y, x + width, y + height, (edit == active_edit) ? COLOUR_EDGE_BACKGROUND : (edit->mouseover ? C_GRAY2 : C_GRAY));
     }
-    drawrect(x + 1, y + 1, x + width - 1, y + height - 1, COLOUR_BACKGROUND);
+    drawrect(x + 1, y + 1, x + width - 1, y + height - 1, COLOUR_MAIN_BACKGROUND);
 
     setfont(FONT_TEXT);
-    setcolor(COLOUR_FOREGROUND);
+    setcolor(COLOUR_MAIN_BACKGROUND);
 
     int yy = y;
 

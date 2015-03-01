@@ -1,6 +1,6 @@
 #include "main.h"
 
-extern int COLOUR_BACKGROUND;
+extern int COLOUR_MAIN_BACKGROUND;
 extern int COLOUR_LIST_BACKGROUND;
 
 static void calculate_pos_and_width(BUTTON *b, int *x, int *w) {
@@ -34,7 +34,7 @@ void button_draw(BUTTON *b, int x, int y, int width, int height)
 
     // Ensure that font is set before calculating position and width.
     setfont(FONT_SELF_NAME);
-    setcolor(COLOUR_BACKGROUND);
+    setcolor(COLOUR_MAIN_BACKGROUND);
 
     int w = width;
     calculate_pos_and_width(b, &x, &w);
@@ -52,7 +52,7 @@ void button_draw(BUTTON *b, int x, int y, int width, int height)
 
     if(b->bm2) {
         int bx = w / 2 - b->bw * SCALE / 2, by = height / 2 - b->bh * SCALE / 2;
-        drawalpha(b->bm2, x + bx, y + by, b->bw * SCALE, b->bh * SCALE, COLOUR_BACKGROUND);
+        drawalpha(b->bm2, x + bx, y + by, b->bw * SCALE, b->bh * SCALE, COLOUR_MAIN_BACKGROUND);
     }
 
     if(maybe_i18nal_string_is_valid(&b->button_text)) {

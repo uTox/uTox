@@ -5,8 +5,10 @@ static CONTEXTMENU context_menu;
 #define CONTEXT_WIDTH (SCALE * 60)
 #define CONTEXT_HEIGHT (SCALE * 12)
 
-extern int COLOUR_BACKGROUND;
-extern int COLOUR_FOREGROUND;
+extern int COLOUR_MAIN_BACKGROUND;
+extern int COLOUR_EDGE_BACKGROUND;
+extern int COLOUR_MAIN_BACKGROUND;
+extern int COLOUR_MAIN_BACKGROUND_MENU;
 
 static void calculate_pos_and_width(CONTEXTMENU *b, int *x, int *w) {
     uint8_t i;
@@ -38,12 +40,12 @@ void contextmenu_draw(void)
 
     // Ensure that font is set before calculating position and width.
     setfont(FONT_TEXT);
-    setcolor(COLOUR_FOREGROUND);
+    setcolor(COLOUR_MAIN_BACKGROUND);
 
     int x, w;
     calculate_pos_and_width(b, &x, &w);
 
-    drawrectw(x, b->y, w, b->height, COLOUR_BACKGROUND);
+    drawrectw(x, b->y, w, b->height, COLOUR_MAIN_BACKGROUND);
     drawrectw(x, b->y + b->over * CONTEXT_HEIGHT, w, CONTEXT_HEIGHT, C_GRAY);
 
     int i;
@@ -52,7 +54,7 @@ void contextmenu_draw(void)
         drawtext(x + SCALE * 2, b->y + SCALE * 2 + i * CONTEXT_HEIGHT, name->str, name->length);
     }
 
-    framerect(x, b->y, x + w, b->y + b->height, BLUE);
+    framerect(x, b->y, x + w, b->y + b->height, COLOUR_EDGE_BACKGROUND);
 }
 
 _Bool contextmenu_mmove(int mx, int my, int UNUSED(dx), int UNUSED(dy))
@@ -67,7 +69,7 @@ _Bool contextmenu_mmove(int mx, int my, int UNUSED(dx), int UNUSED(dy))
 
     // Ensure that font is set before calculating position and width.
     setfont(FONT_TEXT);
-    setcolor(COLOUR_FOREGROUND);
+    setcolor(COLOUR_MAIN_BACKGROUND);
 
     int x, w;
     calculate_pos_and_width(b, &x, &w);

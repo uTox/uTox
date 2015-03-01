@@ -3,8 +3,9 @@
 static DROPDOWN *active;
 static int active_x, active_y, active_width, active_height;
 
-extern int COLOUR_BACKGROUND;
-extern int COLOUR_FOREGROUND;
+extern int COLOUR_MAIN_BACKGROUND;
+extern int COLOUR_MAIN_BACKGROUND;
+extern int COLOUR_EDGE_BACKGROUND;
 
 #define index(b, i) (i == 0 ? b->selected : ((i > b->selected) ? i : i - 1))
 
@@ -18,7 +19,7 @@ void dropdown_drawactive(void)
     int x = active_x, y = active_y, w = active_width, h = active_height;
 
     setfont(FONT_TEXT);
-    setcolor(COLOUR_FOREGROUND);
+    setcolor(COLOUR_MAIN_BACKGROUND);
 
     int i, sign = 1;
 
@@ -36,8 +37,8 @@ void dropdown_drawactive(void)
         sign = -1;
     }
 
-    drawrect(x, y, x + w, y + h * b->dropcount, COLOUR_BACKGROUND);
-    framerect(x, y, x + w, y + h * b->dropcount, BLUE);
+    drawrect(x, y, x + w, y + h * b->dropcount, COLOUR_MAIN_BACKGROUND);
+    framerect(x, y, x + w, y + h * b->dropcount, COLOUR_EDGE_BACKGROUND);
 
     if(sign == -1) {
         y += h * (b->dropcount - 1);
@@ -59,11 +60,11 @@ void dropdown_draw(DROPDOWN *b, int x, int y, int width, int height)
 {
     if(!b->open) {
         framerect(x, y, x + width, y + height, (b->mouseover ? C_GRAY2 : C_GRAY));
-        drawrect(x + 1, y + 1, x + width - 1, y + height - 1, COLOUR_BACKGROUND);
+        drawrect(x + 1, y + 1, x + width - 1, y + height - 1, COLOUR_MAIN_BACKGROUND);
 
         if(b->dropcount) {
             setfont(FONT_TEXT);
-            setcolor(COLOUR_FOREGROUND);
+            setcolor(COLOUR_MAIN_BACKGROUND);
             STRING* e = b->ondisplay(b->selected, b);
             drawtextwidth(x + 2 * SCALE, width - 4 * SCALE, y + 2 * SCALE, e->str, e->length);
         }
