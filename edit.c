@@ -2,7 +2,7 @@
 
 static EDIT *active_edit;
 
-extern int COLOUR_MAIN_BACKGROUND;
+extern int COLOUR_MAIN_FOREGROUND;
 extern int COLOUR_MAIN_BACKGROUND;
 extern int COLOUR_EDGE_BACKGROUND;
 
@@ -45,7 +45,7 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
     drawrect(x + 1, y + 1, x + width - 1, y + height - 1, COLOUR_MAIN_BACKGROUND);
 
     setfont(FONT_TEXT);
-    setcolor(COLOUR_MAIN_BACKGROUND);
+    setcolor(COLOUR_MAIN_FOREGROUND);
 
     int yy = y;
 

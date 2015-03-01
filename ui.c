@@ -5,12 +5,13 @@
 #include "ui_dropdown.h"
 
 extern int COLOUR_MAIN_BACKGROUND;
-extern int COLOUR_MAIN_BACKGROUND;
 extern int COLOUR_MAIN_BACKGROUND_SECONDARY;
 extern int COLOUR_EDGE_BACKGROUND;
 extern int COLOUR_LIST_BACKGROUND;
 extern int COLOUR_LIST_HOVER_BACKGROUND;
 extern int COLOUR_MAIN_BACKGROUND_MENU;
+extern int COLOUR_MAIN_FOREGROUND;
+extern int COLOUR_MAIN_FOREGROUND_SECONDARY;
 
 // Application-wide language setting
 UI_LANG_ID LANG;
@@ -107,11 +108,11 @@ static void drawfriend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(h
         drawalpha(BM_CONTACT, LIST_RIGHT + SCALE * 5, SCALE * 5, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOUR_LIST_BACKGROUND);
     }
 
-    setcolor(COLOUR_MAIN_BACKGROUND);
+    setcolor(COLOUR_MAIN_FOREGROUND);
     setfont(FONT_TITLE);
     drawtextrange(LIST_RIGHT + 30 * SCALE, utox_window_width - 92 * SCALE, 9 * SCALE, f->name, f->name_length);
 
-    setcolor(COLOUR_LIST_BACKGROUND);
+    setcolor(COLOUR_MAIN_FOREGROUND_SECONDARY);
     setfont(FONT_STATUS);
     drawtextrange(LIST_RIGHT + 30 * SCALE, utox_window_width - 92 * SCALE, 16 * SCALE, f->status_message, f->status_length);
 }
@@ -122,15 +123,14 @@ static void drawgroup(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(he
 
     drawalpha(BM_GROUP, LIST_RIGHT + SCALE * 5, SCALE * 5, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOUR_LIST_BACKGROUND);
 
-    setcolor(COLOUR_MAIN_BACKGROUND);
+    setcolor(COLOUR_MAIN_FOREGROUND);
     setfont(FONT_TITLE);
     drawtext(LIST_RIGHT + 30 * SCALE, 1 * SCALE, g->name, g->name_length);
 
-    setcolor(COLOUR_LIST_BACKGROUND);
+    setcolor(COLOUR_MAIN_FOREGROUND_SECONDARY);
     setfont(FONT_STATUS);
     drawtext(LIST_RIGHT + 30 * SCALE, 8 * SCALE, g->topic, g->topic_length);
 
-    setcolor(GRAY(150));
     uint32_t i = 0;
     int k = LIST_RIGHT + 30 * SCALE;
 
@@ -178,11 +178,11 @@ static void drawfriendreq(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSE
 {
     FRIENDREQ *req = sitem->data;
 
-    setcolor(COLOUR_MAIN_BACKGROUND);
+    setcolor(COLOUR_MAIN_FOREGROUND);
     setfont(FONT_SELF_NAME);
     drawstr(LIST_RIGHT + SCALE * 5, SCALE * 10, FRIENDREQUEST);
 
-    setcolor(COLOUR_LIST_BACKGROUND);
+    setcolor(COLOUR_MAIN_FOREGROUND_SECONDARY);
     setfont(FONT_STATUS);
     drawtextrange(LIST_RIGHT + 5 * SCALE, utox_window_width, 20 * SCALE, req->msg, req->length);
 }
@@ -190,11 +190,11 @@ static void drawfriendreq(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSE
 /* Draw add a friend window */
 static void drawadd(int UNUSED(x), int UNUSED(y), int UNUSED(w), int height)
 {
-    setcolor(COLOUR_MAIN_BACKGROUND);
+    setcolor(COLOUR_MAIN_FOREGROUND);
     setfont(FONT_SELF_NAME);
     drawstr(LIST_RIGHT + SCALE * 5, SCALE * 10, ADDFRIENDS);
 
-    setcolor(COLOUR_MAIN_BACKGROUND);
+    setcolor(COLOUR_MAIN_FOREGROUND_SECONDARY);
     setfont(FONT_TEXT);
     drawstr(LIST_RIGHT + SCALE * 5, LIST_Y + SCALE * 5, TOXID);
 
@@ -241,7 +241,7 @@ static void drawadd(int UNUSED(x), int UNUSED(y), int UNUSED(w), int height)
 /* Top bar for user settings */
 static void drawsettings(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height))
 {
-    setcolor(COLOUR_MAIN_BACKGROUND);
+    setcolor(COLOUR_MAIN_FOREGROUND);
     setfont(FONT_SELF_NAME);
     drawstr(LIST_RIGHT + SCALE * 5, SCALE * 10, USERSETTINGS);
 }
@@ -250,7 +250,7 @@ static void drawsettings(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UN
 /* Current TODO */
 static void drawtransfer(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height))
 {
-    setcolor(COLOUR_MAIN_BACKGROUND);
+    setcolor(COLOUR_MAIN_FOREGROUND);
     setfont(FONT_SELF_NAME);
     drawstr(LIST_RIGHT + SCALE * 5, SCALE * 10, SWITCHPROFILE);
 }
@@ -258,7 +258,7 @@ static void drawtransfer(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UN
 /* Text content for settings page */
 static void drawsettings_content(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height))
 {
-    setcolor(COLOUR_MAIN_BACKGROUND);
+    setcolor(COLOUR_MAIN_FOREGROUND);
     setfont(FONT_TEXT);
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 5, NAME);
 

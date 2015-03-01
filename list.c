@@ -360,9 +360,6 @@ void list_draw(void *UNUSED(n), int UNUSED(x), int y, int UNUSED(width), int UNU
             if(i == sitem && (sitem_dy >= 5 || sitem_dy <= -5)) {
                 mi = i;
                 my = y + sitem_dy;
-
-                //RECT r = {LIST_X, y, LIST_X + ITEM_WIDTH, y + ITEM_HEIGHT};
-                //fillrect(&r, COLOUR_MAIN_BACKGROUND);
             } else {
                 drawitem(i, LIST_X, y);
             }
