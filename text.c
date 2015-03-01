@@ -1,12 +1,13 @@
 #include "main.h"
 
-extern int COLOUR_MAIN_BACKGROUND;
+extern int COLOUR_MAIN_FOREGROUND;
 extern int COLOUR_HIGHLIGHT_BACKGROUND;
 extern int COLOUR_HIGHLIGHT_FOREGROUND;
 extern int COLOUR_MAIN_URLTEXT;
 
 static void drawtexth(int x, int y, char_t *str, STRING_IDX length, int d, int h, int hlen, uint16_t lineheight)
 {
+    // Draw cursor
     h -= d;
     if(h + hlen < 0 || h > length) {
         drawtext(x, y, str, length);
@@ -14,7 +15,7 @@ static void drawtexth(int x, int y, char_t *str, STRING_IDX length, int d, int h
     } else if(hlen == 0) {
         drawtext(x, y, str, length);
         int w =  textwidth(str, h + hlen);
-        drawvline(x + w, y, y + lineheight, COLOUR_MAIN_BACKGROUND);
+        drawvline(x + w, y, y + lineheight, COLOUR_MAIN_FOREGROUND);
         return;
     }
 
