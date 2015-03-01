@@ -6,8 +6,9 @@ static TOOLTIP tooltip;
 #define TOOLTIP_HEIGHT (SCALE * 12)
 #define TOOLTIP_YOFFSET 12
 
+extern int COLOUR_MAIN_FOREGROUND;
 extern int COLOUR_MAIN_BACKGROUND;
-extern int COLOUR_MAIN_BACKGROUND;
+extern int COLOUR_EDGE_NORMAL;
 
 static void calculate_pos_and_width(TOOLTIP *b, int *x, int *w) {
     *x = b->x;
@@ -45,7 +46,7 @@ void tooltip_draw(void)
 
     // Ensure that font is set before calculating position and width.
     setfont(FONT_TEXT);
-    setcolor(COLOUR_MAIN_BACKGROUND);
+    setcolor(COLOUR_MAIN_FOREGROUND);
 
     int x, w;
     calculate_pos_and_width(b, &x, &w);
@@ -55,7 +56,7 @@ void tooltip_draw(void)
     STRING* s = maybe_i18nal_string_get(b->tt_text);
     drawtext(x + SCALE * 2, b->y + SCALE * 2, s->str, s->length);
 
-    framerect(x, b->y, x + w, b->y + b->height, COLOUR_MAIN_BACKGROUND);
+    framerect(x, b->y, x + w, b->y + b->height, COLOUR_EDGE_NORMAL);
 }
 
 _Bool tooltip_mmove(void)

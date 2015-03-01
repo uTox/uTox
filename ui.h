@@ -97,8 +97,6 @@ extern uint32_t status_color[];
 
 #define BLACK 0
 
-#define BLUE RGB(0x4E, 0xA6,0xEA)
-
 /* search
  */
 
@@ -177,6 +175,16 @@ uint8_t SCALE;
 
 // Required for H files
 // @TODO
-#define LIST_DARK_LIGHT         GRAY(20)
-#define LIST_MAIN               GRAY(65)
+// BOTTOM BUTTON NORMAL
+// BELOW SHOULD BE COLOUR_LIST_BACKGROUND
 #define LIST_DARK               GRAY(28)
+
+// @TODO
+// BOTTOM BUTTON HOVER
+// BELOW SHOULD BE COLOUR_MENU_HOVER
+#define LIST_DARK_LIGHT         GRAY(20)
+
+// @TODO
+// BOTTOM BUTTON ACTIVE
+// BELOW SHOULD BE COLOUR_MENU_ACTIVE
+#define LIST_MAIN               GRAY(65)

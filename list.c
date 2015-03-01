@@ -13,7 +13,7 @@ static _Bool sitem_mousedown;
 
 static int sitem_dy;
 
-extern int COLOUR_EDGE_BACKGROUND;
+extern int COLOUR_EDGE_ACTIVE;
 extern int COLOUR_GROUP_UNUSUAL;
 extern int COLOUR_LIST_BACKGROUND;
 extern int COLOUR_LIST_FOREGROUND_SECONDARY;

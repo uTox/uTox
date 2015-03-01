@@ -4,7 +4,9 @@ static EDIT *active_edit;
 
 extern int COLOUR_MAIN_FOREGROUND;
 extern int COLOUR_MAIN_BACKGROUND;
-extern int COLOUR_EDGE_BACKGROUND;
+extern int COLOUR_EDGE_NORMAL;
+extern int COLOUR_EDGE_ACTIVE;
+extern int COLOUR_EDGE_HOVER;
 
 static struct
 {
@@ -40,7 +42,7 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
     edit->height = height - 4 * SCALE;
 
     if(!edit->noborder) {
-        framerect(x, y, x + width, y + height, (edit == active_edit) ? COLOUR_EDGE_BACKGROUND : (edit->mouseover ? C_GRAY2 : C_GRAY));
+        framerect(x, y, x + width, y + height, (edit == active_edit) ? COLOUR_EDGE_ACTIVE : (edit->mouseover ? COLOUR_EDGE_HOVER : COLOUR_EDGE_NORMAL));
     }
     drawrect(x + 1, y + 1, x + width - 1, y + height - 1, COLOUR_MAIN_BACKGROUND);
 
@@ -58,10 +60,10 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
         yy -= scroll_gety(scroll, height);
     }
 
-
+    // TODO: what is this for?
     if(!edit->length && maybe_i18nal_string_is_valid(&edit->empty_str)) {
         STRING* empty_str_text = maybe_i18nal_string_get(&edit->empty_str);
-        setcolor(C_GRAY2);
+        setcolor(COLOUR_MAIN_FOREGROUND);
         drawtext(x + 2 * SCALE, yy + 2 * SCALE, empty_str_text->str, empty_str_text->length);
     }
 

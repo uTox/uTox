@@ -6,7 +6,7 @@ static CONTEXTMENU context_menu;
 #define CONTEXT_HEIGHT (SCALE * 12)
 
 extern int COLOUR_MAIN_BACKGROUND;
-extern int COLOUR_EDGE_BACKGROUND;
+extern int COLOUR_EDGE_ACTIVE;
 extern int COLOUR_MAIN_FOREGROUND;
 extern int COLOUR_MAIN_BACKGROUND_MENU;
 extern int COLOUR_DROPDOWN_ACTIVE_BACKGROUND;
@@ -58,7 +58,7 @@ void contextmenu_draw(void)
         drawtext(x + SCALE * 2, b->y + SCALE * 2 + i * CONTEXT_HEIGHT, name->str, name->length);
     }
 
-    framerect(x, b->y, x + w, b->y + b->height, COLOUR_EDGE_BACKGROUND);
+    framerect(x, b->y, x + w, b->y + b->height, COLOUR_EDGE_ACTIVE);
 }
 
 _Bool contextmenu_mmove(int mx, int my, int UNUSED(dx), int UNUSED(dy))

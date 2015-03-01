@@ -5,9 +5,11 @@ static int active_x, active_y, active_width, active_height;
 
 extern int COLOUR_MAIN_FOREGROUND;
 extern int COLOUR_MAIN_BACKGROUND;
-extern int COLOUR_EDGE_BACKGROUND;
+extern int COLOUR_EDGE_ACTIVE;
 extern int COLOUR_DROPDOWN_ACTIVE_BACKGROUND;
 extern int COLOUR_DROPDOWN_ACTIVE_FOREGROUND;
+extern int COLOUR_EDGE_NORMAL;
+extern int COLOUR_EDGE_HOVER;
 
 #define index(b, i) (i == 0 ? b->selected : ((i > b->selected) ? i : i - 1))
 
@@ -38,7 +40,7 @@ void dropdown_drawactive(void)
     }
 
     drawrect(x, y, x + w, y + h * b->dropcount, COLOUR_MAIN_BACKGROUND);
-    framerect(x, y, x + w, y + h * b->dropcount, COLOUR_EDGE_BACKGROUND);
+    framerect(x, y, x + w, y + h * b->dropcount, COLOUR_EDGE_ACTIVE);
 
     if(sign == -1) {
         y += h * (b->dropcount - 1);
@@ -64,7 +66,7 @@ void dropdown_drawactive(void)
 void dropdown_draw(DROPDOWN *b, int x, int y, int width, int height)
 {
     if(!b->open) {
-        framerect(x, y, x + width, y + height, (b->mouseover ? C_GRAY2 : C_GRAY));
+        framerect(x, y, x + width, y + height, (b->mouseover ? COLOUR_EDGE_HOVER : COLOUR_EDGE_NORMAL));
         drawrect(x + 1, y + 1, x + width - 1, y + height - 1, COLOUR_MAIN_BACKGROUND);
 
         if(b->dropcount) {

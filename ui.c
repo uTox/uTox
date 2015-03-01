@@ -6,10 +6,10 @@
 
 extern int COLOUR_MAIN_BACKGROUND;
 extern int COLOUR_MAIN_BACKGROUND_SECONDARY;
-extern int COLOUR_EDGE_BACKGROUND;
+extern int COLOUR_EDGE_ACTIVE;
 extern int COLOUR_LIST_BACKGROUND;
 extern int COLOUR_LIST_HOVER_BACKGROUND;
-extern int COLOUR_MAIN_BACKGROUND_MENU;
+extern int COLOUR_MENU_BACKGROUND;
 extern int COLOUR_MAIN_FOREGROUND;
 extern int COLOUR_MAIN_FOREGROUND_SECONDARY;
 
@@ -309,9 +309,9 @@ static void drawsettings_content(int UNUSED(x), int y, int UNUSED(w), int UNUSED
 
 static void background_draw(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int width, int height)
 {
-    drawrect(0, 0, LIST_RIGHT, LIST_Y - 1, COLOUR_MAIN_BACKGROUND_MENU);
+    drawrect(0, 0, LIST_RIGHT, LIST_Y - 1, COLOUR_MENU_BACKGROUND);
     drawrect(0, LIST_Y, LIST_RIGHT, height + LIST_BOTTOM, COLOUR_LIST_BACKGROUND);
-    drawrect(0, height + LIST_BOTTOM, LIST_RIGHT, height, COLOUR_MAIN_BACKGROUND_MENU);
+    drawrect(0, height + LIST_BOTTOM, LIST_RIGHT, height, COLOUR_MENU_BACKGROUND);
 
     drawself();
 
