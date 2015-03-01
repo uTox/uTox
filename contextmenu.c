@@ -7,8 +7,10 @@ static CONTEXTMENU context_menu;
 
 extern int COLOUR_MAIN_BACKGROUND;
 extern int COLOUR_EDGE_BACKGROUND;
-extern int COLOUR_MAIN_BACKGROUND;
+extern int COLOUR_MAIN_FOREGROUND;
 extern int COLOUR_MAIN_BACKGROUND_MENU;
+extern int COLOUR_DROPDOWN_ACTIVE_BACKGROUND;
+extern int COLOUR_DROPDOWN_ACTIVE_FOREGROUND;
 
 static void calculate_pos_and_width(CONTEXTMENU *b, int *x, int *w) {
     uint8_t i;
@@ -38,19 +40,21 @@ void contextmenu_draw(void)
         return;
     }
 
-    // Ensure that font is set before calculating position and width.
-    setfont(FONT_TEXT);
-    setcolor(COLOUR_MAIN_BACKGROUND);
 
-    int x, w;
+
+    int x, w, active_h;
     calculate_pos_and_width(b, &x, &w);
 
     drawrectw(x, b->y, w, b->height, COLOUR_MAIN_BACKGROUND);
-    drawrectw(x, b->y + b->over * CONTEXT_HEIGHT, w, CONTEXT_HEIGHT, C_GRAY);
+    active_h = b->y + b->over * CONTEXT_HEIGHT;
+    drawrectw(x, active_h, w, CONTEXT_HEIGHT, COLOUR_DROPDOWN_ACTIVE_BACKGROUND);
 
     int i;
     for(i = 0; i != b->count; i++) {
+        // Ensure that font is set before calculating position and width.
         STRING *name = b->ondisplay(i, b);
+        setfont(FONT_TEXT);
+        setcolor((active_h == b->y + i * CONTEXT_HEIGHT) ? COLOUR_DROPDOWN_ACTIVE_FOREGROUND : COLOUR_MAIN_FOREGROUND);
         drawtext(x + SCALE * 2, b->y + SCALE * 2 + i * CONTEXT_HEIGHT, name->str, name->length);
     }
 
