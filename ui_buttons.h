@@ -286,6 +286,23 @@ static void button_video_updatecolor(BUTTON *b)
     }
 }
 
+extern int COLOUR_MENU_BACKGROUND;
+extern int COLOUR_MENU_HOVER;
+extern int COLOUR_MENU_ACTIVE;
+extern int COLOUR_MAIN_FOREGROUND_SECONDARY;
+extern int COLOUR_MAIN_BACKGROUND;
+
+static void button_bottommenu_updatecolor(BUTTON *b)
+{
+    b->c1 = COLOUR_MENU_BACKGROUND;
+    b->c2 = COLOUR_MENU_HOVER;
+    b->c3 = COLOUR_MENU_ACTIVE;
+    b->ic = COLOUR_MAIN_FOREGROUND_SECONDARY;
+    if (b->mousedown || b->disabled)
+        b->ic = COLOUR_MAIN_BACKGROUND;
+    b->cd = COLOUR_MENU_ACTIVE;
+}
+
 static void button_sendfile_onpress(void)
 {
     FRIEND *f = sitem->data;
@@ -436,47 +453,35 @@ static void button_chat_send_updatecolor(BUTTON *b){
 BUTTON
 
 button_add = {
-    .c1 = LIST_DARK,
-    .c2 = LIST_DARK_LIGHT,
-    .c3 = LIST_MAIN,
     .bm2 = BM_ADD,
     .bw = _BM_ADD_WIDTH,
     .bh = _BM_ADD_WIDTH,
-
+    .updatecolor = button_bottommenu_updatecolor,
     .onpress = button_add_onpress,
     .tooltip_text = { .i18nal = STR_ADDFRIENDS },
 },
 
 button_groups = {
-    .c1 = LIST_DARK,
-    .c2 = LIST_DARK_LIGHT,
-    .c3 = LIST_MAIN,
     .bm2 = BM_GROUPS,
     .bw = _BM_ADD_WIDTH,
     .bh = _BM_ADD_WIDTH,
-
+    .updatecolor = button_bottommenu_updatecolor,
     .onpress = button_groups_onpress,
 },
 
 button_transfer = {
-    .c1 = LIST_DARK,
-    .c2 = LIST_DARK_LIGHT,
-    .c3 = LIST_MAIN,
     .bm2 = BM_TRANSFER,
     .bw = _BM_ADD_WIDTH,
     .bh = _BM_ADD_WIDTH,
-
+    .updatecolor = button_bottommenu_updatecolor,
     .onpress = button_transfer_onpress,
 },
 
 button_settings = {
-    .c1 = LIST_DARK,
-    .c2 = LIST_DARK_LIGHT,
-    .c3 = LIST_MAIN,
     .bm2 = BM_SETTINGS,
     .bw = _BM_ADD_WIDTH,
     .bh = _BM_ADD_WIDTH,
-
+    .updatecolor = button_bottommenu_updatecolor,
     .onpress = button_settings_onpress,
     .tooltip_text = { .i18nal = STR_OTHERSETTINGS },
 },

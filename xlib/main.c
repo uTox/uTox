@@ -933,7 +933,7 @@ int main(int argc, char *argv[])
                     parse_args_wait_for_theme = 0;
                     continue;
                 }
-                debug("Please specify correct theme. Valid values are:\n - default\n - dark\n - light");
+                debug("Please specify correct theme. Valid values are:\n - default\n - dark\n - light\n");
                 return 1;
             }
             
@@ -955,8 +955,6 @@ int main(int argc, char *argv[])
         debug("Expected theme name, but got nothing. -_-\n");
         return 0;
     }
-
-
 
     if(argc == 2 && argv[1]) {
         if(!strcmp(argv[1], "--version")) {
@@ -999,8 +997,6 @@ int main(int argc, char *argv[])
                     PropertyChangeMask,
     };
     
-    
-    
     /* Default colours */
     // Chat area colours
     COLOUR_MAIN_BACKGROUND = 0xFFFFFF;
@@ -1011,7 +1007,7 @@ int main(int argc, char *argv[])
     // Top & bottom 'Menu' colours
     COLOUR_MENU_BACKGROUND = 0x1c1c1c;
     COLOUR_MENU_HOVER = 0x202020;
-    COLOUR_MENU_ACTIVE = 0x656565;
+    COLOUR_MENU_ACTIVE = 0x404040;
     // Buddy list colours
     COLOUR_LIST_BACKGROUND = 0x282828;
     COLOUR_LIST_HOVER_BACKGROUND = 0x555555;
@@ -1043,13 +1039,22 @@ int main(int argc, char *argv[])
         COLOUR_LIST_BACKGROUND = 0x222222;
         COLOUR_LIST_HOVER_BACKGROUND = 0x151515;
         COLOUR_MAIN_BACKGROUND_SECONDARY  = 0x555555;
+        // Buddy list colours
+        COLOUR_MENU_BACKGROUND = COLOUR_LIST_BACKGROUND;
+        COLOUR_MENU_HOVER = COLOUR_LIST_HOVER_BACKGROUND;
+        COLOUR_MENU_ACTIVE = COLOUR_MAIN_FOREGROUND;
         // Text highlighing
         COLOUR_HIGHLIGHT_BACKGROUND = COLOUR_MAIN_FOREGROUND;
         COLOUR_HIGHLIGHT_FOREGROUND = COLOUR_MAIN_BACKGROUND;
         COLOUR_GROUP_UNUSUAL = COLOUR_MAIN_URLTEXT;
         // Inputs
+        COLOUR_EDGE_NORMAL = COLOUR_MAIN_FOREGROUND_SECONDARY;
         COLOUR_EDGE_ACTIVE = COLOUR_MAIN_URLTEXT;
+        COLOUR_EDGE_HOVER = COLOUR_MAIN_FOREGROUND;
+        COLOUR_DROPDOWN_ACTIVE_BACKGROUND = COLOUR_MAIN_FOREGROUND;
+        COLOUR_DROPDOWN_ACTIVE_FOREGROUND = COLOUR_MAIN_BACKGROUND;
         break;
+    
     case 'l':
         // Buddy list colours
         COLOUR_LIST_BACKGROUND = 0xEEEEEE;
@@ -1059,7 +1064,7 @@ int main(int argc, char *argv[])
         // Buddy list colours
         COLOUR_MENU_BACKGROUND = COLOUR_MAIN_BACKGROUND;
         COLOUR_MENU_HOVER = 0xdddddd;
-        COLOUR_MENU_ACTIVE = COLOUR_MAIN_FOREGROUND;
+        COLOUR_MENU_ACTIVE = 0x555555;
         break;
     }
 
@@ -1491,8 +1496,6 @@ _Bool video_init(void *handle)
         if(!XShmAttach(deskdisplay, &shminfo)) {
             return 0;
         }
-
-
 
         return 1;
     }
