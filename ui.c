@@ -74,12 +74,11 @@ uint32_t status_color[] = {
 /* Top left self interface Avatar, name, statusmsg, status icon */
 static void drawself(void)
 {
-    //40x40 self icon at 10,10
-    setcolor(button_name.mouseover ? COLOUR_MAIN_BACKGROUND_SECONDARY : COLOUR_MAIN_BACKGROUND);
+    setcolor(!button_name.mouseover ? COLOUR_MAIN_FOREGROUND : COLOUR_MAIN_FOREGROUND_SECONDARY);
     setfont(FONT_SELF_NAME);
     drawtextrange(SELF_NAME_X, SELF_STATUS_X, SELF_NAME_Y, self.name, self.name_length);
 
-    setcolor(button_statusmsg.mouseover ? C_GRAY2 : COLOUR_MAIN_BACKGROUND_SECONDARY);
+    setcolor(!button_statusmsg.mouseover ? COLOUR_MAIN_FOREGROUND_SECONDARY : COLOUR_MAIN_FOREGROUND);
     setfont(FONT_STATUS);
     drawtextrange(SELF_MSG_X, SELF_STATUS_X, SELF_MSG_Y, self.statusmsg, self.statusmsg_length);
 

@@ -98,18 +98,23 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
             drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, y, &msg->msg[msg->length] + 1, msg->msg[msg->length]);
         } else {
             FRIEND *f = &friend[m->data->id];
+            
+            // Always draw name next to action message
+            if (msg->msg_type == MSG_TYPE_ACTION_TEXT)
+                lastauthor = 0xFF;
+                
             // Draw author name
             if(msg->author != lastauthor) {
                 // If author is current user
-                if(msg->author) {
-                    setcolor(COLOUR_MAIN_FOREGROUND_SECONDARY);
-                    setfont(FONT_TEXT);
-                    drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, y, self.name, self.name_length);
-                } else {
-                    setcolor(COLOUR_MAIN_FOREGROUND);
-                    setfont(FONT_TEXT);
-                    drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, y, f->name, f->name_length);
-                }
+                if (msg->msg_type == MSG_TYPE_ACTION_TEXT)
+                    setcolor(COLOUR_MAIN_ACTIONTEXT);
+                else
+                    if(msg->author)
+                        setcolor(COLOUR_MAIN_FOREGROUND_SECONDARY);
+                    else
+                        setcolor(COLOUR_MAIN_FOREGROUND);
+                setfont(FONT_TEXT);
+                drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, y, self.name, self.name_length);
                 lastauthor = msg->author;
             }
         }
