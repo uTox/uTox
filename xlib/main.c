@@ -23,9 +23,7 @@
 
 #include <pthread.h>
 #include <unistd.h>
-
 #include <locale.h>
-
 #include <dlfcn.h>
 
 #include "audio.c"
@@ -884,54 +882,29 @@ static int systemlang(void)
     return ui_guess_lang_by_posix_locale(str, DEFAULT_LANG);
 }
 
-int COLOUR_DROPDOWN_ACTIVE_BACKGROUND;
-int COLOUR_DROPDOWN_ACTIVE_FOREGROUND;
-int COLOUR_EDGE_ACTIVE;
-int COLOUR_EDGE_HOVER;
-int COLOUR_EDGE_NORMAL;
-int COLOUR_GROUP_UNUSUAL;
-int COLOUR_HIGHLIGHT_BACKGROUND;
-int COLOUR_HIGHLIGHT_FOREGROUND;
-int COLOUR_LIST_BACKGROUND;
-int COLOUR_LIST_FOREGROUND_SECONDARY;
-int COLOUR_LIST_FOREGROUND;
-int COLOUR_LIST_HOVER_BACKGROUND;
-int COLOUR_MAIN_ACTIONTEXT;
-int COLOUR_MAIN_BACKGROUND_SECONDARY;
-int COLOUR_MAIN_BACKGROUND;
-int COLOUR_MAIN_FOREGROUND_SECONDARY;
-int COLOUR_MAIN_FOREGROUND;
-int COLOUR_MAIN_URLTEXT;
-int COLOUR_MENU_ACTIVE;
-int COLOUR_MENU_BACKGROUND;
-int COLOUR_MENU_HOVER;
-int COLOUR_SELF_FOREGROUND;
-int COLOUR_MENU_FOREGROUND;
-int COLOUR_MENU_ACTIVE_FOREGROUND;
-
 _Bool parse_args_wait_for_theme;
 char theme;
 
 int main(int argc, char *argv[])
 {
     parse_args_wait_for_theme = 0;
-    theme = '-';
-        
+    theme = THEME_DEFAULT;
+    
     if (argc > 1)
         for (int i = 1; i < argc; i++) {
             if (parse_args_wait_for_theme) {
                 if(!strcmp(argv[i], "default")) {
-                    theme = '-';
+                    theme = THEME_DEFAULT;
                     parse_args_wait_for_theme = 0;
                     continue;
                 }
                 if(!strcmp(argv[i], "dark")) {
-                    theme = 'd';
+                    theme = THEME_DARK;
                     parse_args_wait_for_theme = 0;
                     continue;
                 }
                 if(!strcmp(argv[i], "light")) {
-                    theme = 'l';
+                    theme = THEME_LIGHT;
                     parse_args_wait_for_theme = 0;
                     continue;
                 }
@@ -943,7 +916,7 @@ int main(int argc, char *argv[])
                 debug("%s\n", VERSION);
                 return 0;
             }
-            if(!strcmp(argv[i], "--version")) {
+            if(!strcmp(argv[i], "--portable")) {
                 debug("Launching uTox in portable mode: All data will be saved to the tox folder in the current working directory\n");
                 utox_portable = 1;
             }
@@ -999,81 +972,7 @@ int main(int argc, char *argv[])
                     PropertyChangeMask,
     };
     
-    /* Default colours */
-    // Chat area colours
-    COLOUR_MAIN_BACKGROUND = 0xFFFFFF;
-    COLOUR_MAIN_FOREGROUND = 0x1c1c1c;
-    COLOUR_MAIN_FOREGROUND_SECONDARY = 0x7a7a7a;
-    COLOUR_MAIN_ACTIONTEXT = 0x4444ff;
-    COLOUR_MAIN_URLTEXT = 0x4444ff;
-    // Top & bottom 'Menu' colours
-    COLOUR_MENU_BACKGROUND = 0x1c1c1c;
-    COLOUR_MENU_FOREGROUND = 0xC0C0C0;
-    COLOUR_MENU_HOVER = 0x202020;
-    COLOUR_MENU_ACTIVE = 0x404040;
-    COLOUR_MENU_ACTIVE_FOREGROUND = 0xE5E5E5;
-    // Buddy list colours
-    COLOUR_LIST_BACKGROUND = 0x282828;
-    COLOUR_LIST_HOVER_BACKGROUND = 0x555555;
-    COLOUR_LIST_FOREGROUND = COLOUR_MAIN_BACKGROUND;
-    COLOUR_LIST_FOREGROUND_SECONDARY = 0xBaBaBa;
-    // Text highlighing
-    COLOUR_HIGHLIGHT_BACKGROUND = COLOUR_MAIN_FOREGROUND;
-    COLOUR_HIGHLIGHT_FOREGROUND = COLOUR_MAIN_BACKGROUND;
-    COLOUR_GROUP_UNUSUAL = COLOUR_MAIN_URLTEXT;
-    // Inputs
-    COLOUR_EDGE_NORMAL = 0xC0C0C0;
-    COLOUR_EDGE_ACTIVE = COLOUR_MAIN_URLTEXT;
-    COLOUR_EDGE_HOVER = 0x707070;
-    COLOUR_DROPDOWN_ACTIVE_BACKGROUND = COLOUR_MAIN_FOREGROUND;
-    COLOUR_DROPDOWN_ACTIVE_FOREGROUND = COLOUR_MAIN_BACKGROUND;
-
-    // Get rid of
-    COLOUR_MAIN_BACKGROUND_SECONDARY  = 0xBaBaBa;
-    
-    switch (theme) {
-    case 'd':
-        // Chat area colours
-        COLOUR_MAIN_BACKGROUND = 0x333333;
-        COLOUR_MAIN_FOREGROUND = 0xdddddd;
-        COLOUR_MAIN_FOREGROUND_SECONDARY = 0xbbbbbb;
-        COLOUR_MAIN_ACTIONTEXT = 0x00AAAA;
-        COLOUR_MAIN_URLTEXT = 0x00AAAA;
-        // Buddy list colours
-        COLOUR_LIST_BACKGROUND = 0x222222;
-        COLOUR_LIST_HOVER_BACKGROUND = 0x151515;
-        COLOUR_MAIN_BACKGROUND_SECONDARY  = 0x555555;
-        // Buddy list colours
-        COLOUR_MENU_BACKGROUND = COLOUR_LIST_BACKGROUND;
-        COLOUR_MENU_HOVER = COLOUR_LIST_HOVER_BACKGROUND;
-        COLOUR_MENU_ACTIVE = COLOUR_MAIN_FOREGROUND;
-        // Text highlighing
-        COLOUR_HIGHLIGHT_BACKGROUND = COLOUR_MAIN_FOREGROUND;
-        COLOUR_HIGHLIGHT_FOREGROUND = COLOUR_MAIN_BACKGROUND;
-        COLOUR_GROUP_UNUSUAL = COLOUR_MAIN_URLTEXT;
-        // Inputs
-        COLOUR_EDGE_NORMAL = 0x555555;
-        COLOUR_EDGE_ACTIVE = 0x228888;
-        COLOUR_EDGE_HOVER = 0x999999;
-        COLOUR_DROPDOWN_ACTIVE_BACKGROUND = COLOUR_MAIN_FOREGROUND;
-        COLOUR_DROPDOWN_ACTIVE_FOREGROUND = COLOUR_MAIN_BACKGROUND;
-        COLOUR_MENU_ACTIVE_FOREGROUND = 0x151515;
-        break;
-    
-    case 'l':
-        // Buddy list colours
-        COLOUR_LIST_BACKGROUND = 0xF0F0F0;
-        COLOUR_LIST_HOVER_BACKGROUND = 0xE0E0E0;
-        COLOUR_LIST_FOREGROUND = COLOUR_MAIN_FOREGROUND;
-        COLOUR_LIST_FOREGROUND_SECONDARY = COLOUR_MAIN_FOREGROUND_SECONDARY;
-        // Buddy list colours
-        COLOUR_MENU_BACKGROUND = 0xF0F0F0;
-        COLOUR_MENU_HOVER = 0xE0E0E0;
-        COLOUR_MENU_ACTIVE = 0x555555;
-        COLOUR_MENU_FOREGROUND = 0x555555;
-        COLOUR_MENU_ACTIVE_FOREGROUND = 0xffffff;
-        break;
-    }
+    theme_load(theme);
 
     /* load save data */
     UTOX_SAVE *save = config_load();
