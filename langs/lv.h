@@ -4,13 +4,11 @@ msgstr("Latviešu")
 msgid(LANG_ENGLISH_NAME)
 msgstr("LATVIAN")
 
-//TODO: Same as in English? Localize or remove.
-//msgid(REQ_SENT)
-//msgstr("Friend request sent. Your friend will appear online after the request is accepted.")
+msgid(REQ_SENT)
+msgstr("Draugu pieprasījums ir nosūtīts. Jūsu draugs parādīsies tiešsaistē kad pieprasījums būs pieņemts.")
 
-//TODO: Same as in English? Localize or remove.
-//msgid(REQ_RESOLVE)
-//msgstr("Attempting to resolve DNS name...")
+msgid(REQ_RESOLVE)
+msgstr("Atrisinājam DNS ierakstus")
 
 msgid(REQ_INVALID_ID)
 msgstr("Kļūda: Nederīgs Tox ID")
@@ -48,10 +46,6 @@ msgstr("Jauna faila pārsūtīšana")
 msgid(TRANSFER_STARTED)
 msgstr("Faila pārsūtīšana sākta")
 
-//TODO: Same as in English? Localize or remove.
-//msgid(TRANSFER___)
-//msgstr("...")
-
 msgid(TRANSFER_PAUSED)
 msgstr("Faila pārsūtīšana apturēta")
 
@@ -67,13 +61,11 @@ msgstr("Faila pārsūtīšana pabeigta")
 msgid(CALL_CANCELLED)
 msgstr("Zvans atcelts")
 
-//TODO: Same as in English? Localize or remove.
-//msgid(CALL_INVITED)
-//msgstr("Call invited")
+msgid(CALL_INVITED)
+msgstr("Saruna aicinājums")
 
-//TODO: Same as in English? Localize or remove.
-//msgid(CALL_RINGING)
-//msgstr("Call ringing")
+msgid(CALL_RINGING)
+msgstr("Jums zvana")
 
 msgid(CALL_STARTED)
 msgstr("Zvans uzsākts")
@@ -135,9 +127,8 @@ msgstr("Tīkls")
 msgid(PROXY)
 msgstr("Starpniekserveris (SOCKS 5)")
 
-//TODO: Same as in English? Localize or remove.
-//msgid(WARNING)
-//msgstr("Changing Network/Proxy settings will temporarily disconnect you from the Tox network")
+msgid(WARNING)
+msgstr("Mainot starpniekservera iestatījumus, jūs tiksit īslaicīgi atvienots no Tox tīkla")
 
 msgid(LOGGING)
 msgstr("Žurnāli")
@@ -202,17 +193,14 @@ msgstr("Milzīgs (250%)")
 msgid(CONTACTS_FILTER_ALL)
 msgstr("Viss")
 
-//TODO: Localize or remove.
-//msgid(CONTACTS_FILTER_ONLINE)
-//msgstr("Online")
+msgid(CONTACTS_FILTER_ONLINE)
+msgstr("Tiešsaistē")
 
 msgid(PROXY_DISABLED)
 msgstr("Atslēgts")
 
-//TODO: Localize or remove.
-//msgid(PROXY_FALLBACK)
-//msgstr("Fallback")
-//msgstr("Starpniekserveri alternatīva")
+msgid(PROXY_FALLBACK)
+msgstr("Alternatīvs starpniekserveris (fallback)")
 
 msgid(PROXY_ALWAYS_USE)
 msgstr("Vienmēr izmantot")
@@ -235,9 +223,8 @@ msgstr("Lūdzu, pieņemiet šo drauga pieprasījumu.")
 msgid(CONTACTS_FILTER_EDIT_HINT)
 msgstr("Meklēt draugus")
 
-//TODO: Localize or remove.
-//msgid(PROXY_EDIT_HINT_PORT)
-//msgstr("Port")
+msgid(PROXY_EDIT_HINT_PORT)
+msgstr("Ports")
 
 //TODO: Localize or remove.
 //msgid(AUDIO_IN_DEFAULT_LOOPBACK)
