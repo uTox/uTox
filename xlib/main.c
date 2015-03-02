@@ -913,7 +913,7 @@ int main(int argc, char *argv[])
                     parse_args_wait_for_theme = 0;
                     continue;
                 }
-                debug("Please specify correct theme. Valid values are:\n - default\n - dark\n - light\n");
+                debug("Please specify correct theme (please check user manual for list of correct values).");
                 return 1;
             }
             
