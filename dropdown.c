@@ -43,7 +43,7 @@ void dropdown_drawactive(void)
         STRING* e = b->ondisplay(j, b);
         if(j == b->over) {
             drawrectw(x + 1, y + 1, w - 2, h - 2, COLOR_ACTIVEOPTION_BACKGROUND);
-            setcolor(COLOR_MAIN_BACKGROUND);
+            setcolor(COLOR_ACTIVEOPTION_TEXT);
         } else {
             setcolor(COLOR_MAIN_TEXT);
         }

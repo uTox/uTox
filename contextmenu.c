@@ -33,8 +33,6 @@ void contextmenu_draw(void)
         return;
     }
 
-
-
     int x, w, active_h;
     calculate_pos_and_width(b, &x, &w);
 
