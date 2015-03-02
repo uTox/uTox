@@ -3,7 +3,8 @@
 µTox \- Lightweight Tox client
 
 .SH SYNOPSIS
-utox [OPTIONS]
+uasge: utox [--portable] [--theme <default|dark|light>]
+   or: utox --version
 
 .SH DESCRIPTION
 µTox is a free software lighweight X.org graphical Tox client.
@@ -19,8 +20,14 @@ utox [OPTIONS]
 
 .SH OPTIONS
 .SS General Options
-  \-\-version      print version and exit
-  \-\-portable     run in portable mode
+\-\-theme <THEME>
+    Choose a colour scheme. Possible options are \fBdefault\fP, \fBdark\fP or \fBlight\fP.
+
+\-\-portable
+    run in portable mode
+
+\-\-version
+    print version and exit
 
 .SH FILES
 All files listed below are located in \fB$HOME/.config/tox\fP. If µTox is
