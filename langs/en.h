@@ -288,3 +288,6 @@ msgstr("Light theme")
 
 msgid(THEME_DARK)
 msgstr("Dark theme")
+
+msgid(THEME_HIGHCONTRAST)
+msgstr("High contrast")

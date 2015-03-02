@@ -40,7 +40,7 @@ void button_draw(BUTTON *b, int x, int y, int width, int height)
     if(b->bm) {
         drawalpha(b->bm, x, y, width, height, color);
     } else {
-        drawrectw(x, y, w, height, b->disabled ? (b->cd ? b->cd : 0xffff00) : color);
+        drawrectw(x, y, w, height, b->disabled ? (b->cd ? b->cd : b->cd) : color);
 
         //setfont(FONT_TEXT_LARGE);
         //setcolor(b->mouseover ? 0x222222 : 0x555555);

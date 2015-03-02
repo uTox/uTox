@@ -908,6 +908,11 @@ int main(int argc, char *argv[])
                     parse_args_wait_for_theme = 0;
                     continue;
                 }
+                if(!strcmp(argv[i], "highcontrast")) {
+                    theme = THEME_HIGHCONTRAST;
+                    parse_args_wait_for_theme = 0;
+                    continue;
+                }
                 debug("Please specify correct theme. Valid values are:\n - default\n - dark\n - light\n");
                 return 1;
             }

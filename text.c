@@ -52,7 +52,7 @@ int drawtextmultiline(int x, int right, int y, int top, int bottom, uint16_t lin
     while(1) {
         if(a != end) {
             if(*a == '>' && (a == data || *(a - 1) == '\n'))  {
-                c1 = setcolor(RGB(0, 128, 0));
+                c1 = setcolor(COLOUR_MAIN_QUOTETEXT);
                 greentext = 1;
             }
 
