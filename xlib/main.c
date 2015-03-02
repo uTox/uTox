@@ -931,18 +931,6 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    if(argc == 2 && argv[1]) {
-        if(!strcmp(argv[1], "--version")) {
-            debug("%s\n", VERSION);
-            return 0;
-        } else if(!strcmp(argv[1], "--portable")) {
-            
-        } else {
-            debug("Valid arguments are: --version and --portable (launches uTox in portable mode)\n");
-            return 0;
-        }
-    }
-
     XInitThreads();
 
     if((display = XOpenDisplay(NULL)) == NULL) {
