@@ -1,5 +1,10 @@
 /* buttons */
 
+#ifdef UNITY
+#include "xlib/mmenu.h"
+extern _Bool unity_running;
+#endif
+
 static void button_copyid_onpress(void)
 {
     address_to_clipboard();
@@ -353,6 +358,12 @@ static void button_status_onpress(void)
     if(self.status == 3) {
         self.status = 0;
     }
+
+    #ifdef UNITY
+    if(unity_running) {
+        mm_set_status(self.status);
+    }
+    #endif
 
     tox_postmessage(TOX_SETSTATUS, self.status, 0, NULL);
 }
