@@ -5,13 +5,6 @@ static CONTEXTMENU context_menu;
 #define CONTEXT_WIDTH (SCALE * 60)
 #define CONTEXT_HEIGHT (SCALE * 12)
 
-extern int COLOUR_MAIN_BACKGROUND;
-extern int COLOUR_EDGE_ACTIVE;
-extern int COLOUR_MAIN_FOREGROUND;
-extern int COLOUR_MAIN_BACKGROUND_MENU;
-extern int COLOUR_DROPDOWN_ACTIVE_BACKGROUND;
-extern int COLOUR_DROPDOWN_ACTIVE_FOREGROUND;
-
 static void calculate_pos_and_width(CONTEXTMENU *b, int *x, int *w) {
     uint8_t i;
 

@@ -3,14 +3,6 @@
 static DROPDOWN *active;
 static int active_x, active_y, active_width, active_height;
 
-extern int COLOUR_MAIN_FOREGROUND;
-extern int COLOUR_MAIN_BACKGROUND;
-extern int COLOUR_EDGE_ACTIVE;
-extern int COLOUR_DROPDOWN_ACTIVE_BACKGROUND;
-extern int COLOUR_DROPDOWN_ACTIVE_FOREGROUND;
-extern int COLOUR_EDGE_NORMAL;
-extern int COLOUR_EDGE_HOVER;
-
 #define index(b, i) (i == 0 ? b->selected : ((i > b->selected) ? i : i - 1))
 
 // Draw background recktangles for a dropdown

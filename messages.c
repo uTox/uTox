@@ -1,13 +1,5 @@
 #include "main.h"
 
-extern int COLOUR_MAIN_URLTEXT;
-extern int COLOUR_MAIN_BACKGROUND;
-extern int COLOUR_MAIN_FOREGROUND;
-extern int COLOUR_LIST_BACKGROUND;
-extern int COLOUR_MAIN_FOREGROUND_SECONDARY;
-extern int COLOUR_SELF_FOREGROUND;
-extern int COLOUR_MAIN_ACTIONTEXT;
-
 // Ideally this function would have returned an array of simultaneously
 // typing friends, e.g. in a groupchat. But since groupchats don't support
 // notifications, it simply returns the friend associated with

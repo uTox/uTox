@@ -13,18 +13,6 @@ static _Bool sitem_mousedown;
 
 static int sitem_dy;
 
-extern int COLOUR_EDGE_ACTIVE;
-extern int COLOUR_GROUP_UNUSUAL;
-extern int COLOUR_LIST_BACKGROUND;
-extern int COLOUR_LIST_FOREGROUND_SECONDARY;
-extern int COLOUR_LIST_FOREGROUND;
-extern int COLOUR_LIST_HOVER_BACKGROUND;
-extern int COLOUR_MAIN_BACKGROUND;
-extern int COLOUR_MAIN_FOREGROUND_SECONDARY;
-extern int COLOUR_MAIN_FOREGROUND;
-extern int COLOUR_MENU_HOVER;
-
-
 static void drawitembox(ITEM *i, int y)
 {
     if(sitem == i) {

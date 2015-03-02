@@ -1,10 +1,5 @@
 #include "main.h"
 
-extern int COLOUR_MAIN_FOREGROUND;
-extern int COLOUR_HIGHLIGHT_BACKGROUND;
-extern int COLOUR_HIGHLIGHT_FOREGROUND;
-extern int COLOUR_MAIN_URLTEXT;
-
 static void drawtexth(int x, int y, char_t *str, STRING_IDX length, int d, int h, int hlen, uint16_t lineheight)
 {
 

@@ -1,9 +1,5 @@
 #include "main.h"
 
-extern int COLOUR_MAIN_BACKGROUND;
-extern int COLOUR_MAIN_FOREGROUND;
-extern int COLOUR_LIST_BACKGROUND;
-
 static void calculate_pos_and_width(BUTTON *b, int *x, int *w) {
     int old_w = *w;
 

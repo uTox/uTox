@@ -4,18 +4,6 @@
 #include "ui_buttons.h"
 #include "ui_dropdown.h"
 
-extern int COLOUR_MAIN_BACKGROUND;
-extern int COLOUR_MAIN_BACKGROUND_SECONDARY;
-extern int COLOUR_EDGE_ACTIVE;
-extern int COLOUR_LIST_BACKGROUND;
-extern int COLOUR_LIST_HOVER_BACKGROUND;
-extern int COLOUR_MENU_BACKGROUND;
-extern int COLOUR_MAIN_FOREGROUND;
-extern int COLOUR_MAIN_FOREGROUND_SECONDARY;
-extern int COLOUR_MENU_FOREGROUND;
-extern int COLOUR_MENU_ACTIVE_FOREGROUND;
-extern int COLOUR_EDGE_NORMAL;
-
 // Application-wide language setting
 UI_LANG_ID LANG;
 

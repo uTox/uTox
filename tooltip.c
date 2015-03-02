@@ -6,10 +6,6 @@ static TOOLTIP tooltip;
 #define TOOLTIP_HEIGHT (SCALE * 12)
 #define TOOLTIP_YOFFSET 12
 
-extern int COLOUR_MAIN_FOREGROUND;
-extern int COLOUR_MAIN_BACKGROUND;
-extern int COLOUR_EDGE_NORMAL;
-
 static void calculate_pos_and_width(TOOLTIP *b, int *x, int *w) {
     *x = b->x;
     *w = b->width;

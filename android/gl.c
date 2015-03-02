@@ -41,8 +41,6 @@ static EGLSurface surface;
 static EGLContext context;
 static EGLConfig config;
 
-extern int COLOUR_MAIN_BACKGROUND;
-
 #ifndef NO_OPENGL_ES
 #define glDrawQuads(x,y) glDrawElements(GL_TRIANGLES, (y) * 6, GL_UNSIGNED_BYTE, &quad_indices[(x) * 6])
 static uint8_t quad_indices[384];

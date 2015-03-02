@@ -2,12 +2,6 @@
 
 static EDIT *active_edit;
 
-extern int COLOUR_MAIN_FOREGROUND;
-extern int COLOUR_MAIN_BACKGROUND;
-extern int COLOUR_EDGE_NORMAL;
-extern int COLOUR_EDGE_ACTIVE;
-extern int COLOUR_EDGE_HOVER;
-
 static struct
 {
     STRING_IDX start, length;
