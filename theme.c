@@ -1,6 +1,6 @@
 #include "main.h"
 
-void theme_load(char theme)
+void theme_load(char loadtheme)
 {
     /* Default colours */
     // Chat area colours
@@ -34,7 +34,7 @@ void theme_load(char theme)
     // Get rid of
     COLOUR_MAIN_BACKGROUND_SECONDARY  = 0xBaBaBa;
     
-    switch (theme) {
+    switch (loadtheme) {
     case THEME_DARK:
         // Chat area colours
         COLOUR_MAIN_BACKGROUND = 0x333333;

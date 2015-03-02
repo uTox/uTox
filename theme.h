@@ -33,4 +33,4 @@ int COLOUR_MENU_FOREGROUND;
 int COLOUR_MENU_HOVER;
 int COLOUR_SELF_FOREGROUND;
 
-void theme_load(char theme);
+void theme_load(char loadtheme);
