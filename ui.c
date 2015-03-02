@@ -271,6 +271,8 @@ static void drawsettings_content(int UNUSED(x), int y, int UNUSED(w), int UNUSED
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 278, PROXY);
 
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 310, LOGGING);
+    
+    drawstr(LIST_RIGHT + SCALE * 80, y + SCALE * 310, THEME);
 
     drawtext(LIST_RIGHT + SCALE * 132, y + SCALE * 290, (uint8_t*)":", 1);
 
@@ -411,6 +413,7 @@ panel_settings = {
         (void*)&dropdown_ipv6, (void*)&dropdown_udp, (void*)&dropdown_logging,
         (void*)&dropdown_audible_notification, (void*)&dropdown_audio_filtering, 
         (void*)&dropdown_close_to_tray, (void*)&dropdown_start_in_tray,
+        (void*)&dropdown_theme,
         NULL
     }
 },
@@ -831,6 +834,14 @@ void ui_scale(uint8_t scale)
         .y = SCALE * 366,
         .height = SCALE * 12,
         .width = SCALE * 20
+    },
+    
+    d_theme = {
+        .type = PANEL_DROPDOWN,
+        .x = 80 * SCALE,
+        .y = SCALE * 320,
+        .height = SCALE * 12,
+        .width = SCALE * 40
     }
 
 #ifdef AUDIO_FILTERING
@@ -857,6 +868,7 @@ void ui_scale(uint8_t scale)
     dropdown_audible_notification.panel = d_notifications;
     dropdown_close_to_tray.panel = d_close_to_tray;
     dropdown_start_in_tray.panel = d_start_in_tray;
+    dropdown_theme.panel = d_theme;
 #ifdef AUDIO_FILTERING
     dropdown_audio_filtering.panel = d_audio_filtering;
 #endif

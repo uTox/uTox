@@ -1,8 +1,8 @@
 enum
 {
     THEME_DEFAULT,
-    THEME_DARK,
-    THEME_LIGHT
+    THEME_LIGHT,
+    THEME_DARK
     
     // @TODO
     // THEME_XRESOURCE
