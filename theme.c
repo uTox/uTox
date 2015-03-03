@@ -40,9 +40,6 @@ void theme_load(char loadtheme)
     COLOR_STATUS_AWAY   = 0xcebf45;
     COLOR_STATUS_BUSY   = 0xc84e4e;
 
-    // Get rid of
-    COLOR_MAIN_BACKGROUND_SECONDARY  = 0xBaBaBa;
-
     switch (loadtheme) {
     case THEME_DARK:
         COLOR_MAIN_BACKGROUND = 0x333333;
@@ -54,7 +51,6 @@ void theme_load(char loadtheme)
         
         COLOR_LIST_BACKGROUND = 0x222222;
         COLOR_LIST_HOVER_BACKGROUND = 0x151515;
-        COLOR_MAIN_BACKGROUND_SECONDARY  = 0x555555;
         
         COLOR_MENU_BACKGROUND = COLOR_LIST_BACKGROUND;
         COLOR_MENU_HOVER_BACKGROUND = COLOR_LIST_HOVER_BACKGROUND;
