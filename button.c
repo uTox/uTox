@@ -21,26 +21,31 @@ static void calculate_pos_and_width(BUTTON *b, int *x, int *w) {
 
 void button_draw(BUTTON *b, int x, int y, int width, int height)
 {
-    if(b->nodraw) {
+    // Button is hidden
+    if (b->nodraw)
         return;
-    }
 
-    if(b->updatecolor) {
+    // If `updatecolor` function is defined, call it on each draw
+    if (b->updatecolor)
         b->updatecolor(b);
-    }
 
     // Ensure that font is set before calculating position and width.
     setfont(FONT_SELF_NAME);
-    setcolor(COLOR_MAIN_TEXT);
+    
+    // Button contents colour
+    uint32_t color_text = b->mousedown ? b->ct2 : (b->mouseover ? b->ct2 : b->ct1);
+    setcolor(color_text);
 
     int w = width;
     calculate_pos_and_width(b, &x, &w);
 
-    uint32_t color = b->mousedown ? b->c3 : (b->mouseover ? b->c2 : b->c1);
+    // Button background colour
+    uint32_t color_background = b->mousedown ? b->c3 : (b->mouseover ? b->c2 : b->c1);
+    
     if(b->bm) {
-        drawalpha(b->bm, x, y, width, height, color);
+        drawalpha(b->bm, x, y, width, height, color_background);
     } else {
-        drawrectw(x, y, w, height, b->disabled ? (b->cd ? b->cd : b->cd) : color);
+        drawrectw(x, y, w, height, b->disabled ? (b->cd ? b->cd : b->cd) : color_background);
 
         //setfont(FONT_TEXT_LARGE);
         //setcolor(b->mouseover ? 0x222222 : 0x555555);
@@ -49,7 +54,7 @@ void button_draw(BUTTON *b, int x, int y, int width, int height)
 
     if(b->bm2) {
         int bx = w / 2 - b->bw * SCALE / 2, by = height / 2 - b->bh * SCALE / 2;
-        drawalpha(b->bm2, x + bx, y + by, b->bw * SCALE, b->bh * SCALE, b->ic ? b->ic : COLOR_MAIN_BACKGROUND);
+        drawalpha(b->bm2, x + bx, y + by, b->bw * SCALE, b->bh * SCALE, color_text);
     }
 
     if(maybe_i18nal_string_is_valid(&b->button_text)) {
@@ -58,7 +63,7 @@ void button_draw(BUTTON *b, int x, int y, int width, int height)
                 // The text didn't fit into the original width.
                 // Fill the rest of the new width with the image
                 // and hope for the best.
-                drawalpha(b->bm, x - width + w, y, width, height, color);
+                drawalpha(b->bm, x - width + w, y, width, height, color_background);
                 w -= width / 2 + 1;
             }
         }

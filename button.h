@@ -8,7 +8,13 @@ struct button {
     int bw, bh;
 
     // Background RGB color for bm picture, when Idle/Hovered/Pressed respectively.
-    uint32_t c1, c2, c3, ic, cd;
+    uint32_t
+        c1, // Button normal background colour
+        c2, // Button hover background colour
+        c3, // Button active (press) background colour
+        ct1, // Button contents (text or icon) colour
+        ct2, // Button contents (text or icon) hover colour
+        cd;
 
     MAYBE_I18NAL_STRING button_text;
     MAYBE_I18NAL_STRING tooltip_text;
