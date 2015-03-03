@@ -883,7 +883,6 @@ static int systemlang(void)
 }
 
 _Bool parse_args_wait_for_theme;
-char theme;
 
 int main(int argc, char *argv[])
 {
