@@ -1,10 +1,8 @@
-enum
-{
+enum {
     THEME_DEFAULT,
     THEME_LIGHT,
     THEME_DARK,
     THEME_HIGHCONTRAST
-    
     // @TODO
     // THEME_XRESOURCE
 };
@@ -36,3 +34,5 @@ int COLOUR_MENU_HOVER;
 int COLOUR_SELF_FOREGROUND;
 
 void theme_load(char loadtheme);
+
+int theme;
