@@ -182,8 +182,8 @@ void image_set_filter(UTOX_NATIVE_IMAGE *image, uint8_t filter)
 
 void image_set_scale(UTOX_NATIVE_IMAGE *image, double img_scale)
 {
-    image->scaled_width = (uint32_t)((double)image->width * img_scale);
-    image->scaled_height = (uint32_t)((double)image->height * img_scale);
+    image->scaled_width = (uint32_t)(((double)image->width * img_scale) + 0.5);
+    image->scaled_height = (uint32_t)(((double)image->height * img_scale) + 0.5);
 }
 
 static _Bool image_is_stretched(const UTOX_NATIVE_IMAGE *image)
