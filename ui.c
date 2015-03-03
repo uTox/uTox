@@ -133,9 +133,11 @@ static void drawgroup(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(he
 
             int w = textwidth(buf, name[0] + 2);
             if (i == g->our_peer_number) {
-                setcolor(C_GREEN);
+                // @TODO: separate these colours
+                setcolor(COLOR_STATUS_ONLINE);
             } else if (time - g->last_recv_audio[i] <= (uint64_t)1 * 1000 * 1000 * 1000) {
-                setcolor(C_RED);
+                // @TODO: separate these colours
+                setcolor(COLOR_STATUS_BUSY);
             } else {
                 setcolor(GRAY(150));
             }

@@ -155,34 +155,7 @@ uint8_t SCALE;
 //#define MAIN_X
 //#define MAIN_Y LIST_Y
 
-
-/* colors
- */
-
-#define C_GREEN                 RGB(107, 194, 96)
-#define C_GREEN_LIGHT           RGB(118, 213, 106)
-#define C_YELLOW                RGB(206, 191, 69)
-#define C_YELLOW_LIGHT          RGB(227, 210, 76)
+/* colors */
 #define C_RED                   RGB(200, 78, 78)
-#define C_RED_LIGHT             RGB(220, 86, 86)
-
 #define C_GRAY                  GRAY(209)
-#define C_GRAY2                 GRAY(150)
 #define C_SCROLL                GRAY(209)
-
-
-// Required for H files
-// @TODO
-// BOTTOM BUTTON NORMAL
-// BELOW SHOULD BE COLOR_LIST_BACKGROUND
-#define LIST_DARK               GRAY(28)
-
-// @TODO
-// BOTTOM BUTTON HOVER
-// BELOW SHOULD BE COLOR_MENU_HOVER_BACKGROUND
-#define LIST_DARK_LIGHT         GRAY(20)
-
-// @TODO
-// BOTTOM BUTTON ACTIVE
-// BELOW SHOULD BE COLOR_MENU_ACTIVE_BACKGROUND
-#define LIST_MAIN               GRAY(65)
