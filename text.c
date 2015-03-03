@@ -11,7 +11,7 @@ static void drawtexth(int x, int y, char_t *str, STRING_IDX length, int d, int h
     } else if(hlen == 0) {
         drawtext(x, y, str, length);
         int w =  textwidth(str, h + hlen);
-        drawvline(x + w, y, y + lineheight, COLOUR_MAIN_FOREGROUND);
+        drawvline(x + w, y, y + lineheight, COLOR_MAIN_TEXT);
         return;
     }
 
@@ -31,10 +31,10 @@ static void drawtexth(int x, int y, char_t *str, STRING_IDX length, int d, int h
 
     width = drawtext_getwidth(x, y, str, h);
 
-    uint32_t color = setcolor(COLOUR_HIGHLIGHT_FOREGROUND);
+    uint32_t color = setcolor(COLOR_SELECTION_TEXT);
 
     int w = textwidth(str + h, hlen);
-    drawrectw(x + width, y, w, lineheight, COLOUR_HIGHLIGHT_BACKGROUND);
+    drawrectw(x + width, y, w, lineheight, COLOR_SELECTION_BACKGROUND);
     drawtext(x + width, y, str + h, hlen);
     width += w;
 
@@ -52,12 +52,12 @@ int drawtextmultiline(int x, int right, int y, int top, int bottom, uint16_t lin
     while(1) {
         if(a != end) {
             if(*a == '>' && (a == data || *(a - 1) == '\n'))  {
-                c1 = setcolor(COLOUR_MAIN_QUOTETEXT);
+                c1 = setcolor(COLOR_MAIN_QUOTETEXT);
                 greentext = 1;
             }
 
             if((a == data || *(a - 1) == '\n' || *(a - 1) == ' ') && ((end - a >= 7 && memcmp(a, "http://", 7) == 0) || (end - a >= 8 && memcmp(a, "https://", 8) == 0))) {
-                c2 = setcolor(COLOUR_MAIN_URLTEXT);
+                c2 = setcolor(COLOR_MAIN_URLTEXT);
                 link = 1;
             }
         }

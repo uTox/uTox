@@ -16,25 +16,25 @@ static int sitem_dy;
 static void drawitembox(ITEM *i, int y)
 {
     if(sitem == i) {
-        drawrect(LIST_X + 1, y + 1, LIST_RIGHT + 1, y + ITEM_HEIGHT, COLOUR_MAIN_BACKGROUND);
+        drawrect(LIST_X + 1, y + 1, LIST_RIGHT + 1, y + ITEM_HEIGHT, COLOR_MAIN_BACKGROUND);
 
-        //drawrectw(LIST_X + 5 * SCALE / 2, y + 5 * SCALE / 2, 40, 40, COLOUR_LIST_BACKGROUND);
+        //drawrectw(LIST_X + 5 * SCALE / 2, y + 5 * SCALE / 2, 40, 40, COLOR_LIST_BACKGROUND);
     } else if(mitem == i) {
-        drawrect(LIST_X + 1, y + 1, LIST_RIGHT, y + ITEM_HEIGHT, COLOUR_LIST_HOVER_BACKGROUND);
+        drawrect(LIST_X + 1, y + 1, LIST_RIGHT, y + ITEM_HEIGHT, COLOR_LIST_HOVER_BACKGROUND);
     }
 }
 
 static void drawname(ITEM *i, int y, char_t *name, char_t *msg, STRING_IDX name_length, STRING_IDX msg_length, _Bool color_overide, uint32_t color)
 {
     if (!color_overide)
-        color = (sitem == i) ? COLOUR_MAIN_FOREGROUND : COLOUR_LIST_FOREGROUND;
+        color = (sitem == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT;
 
     setcolor(color);
     setfont(FONT_LIST_NAME);
     drawtextwidth(LIST_NAME_X, LIST_RIGHT - LIST_NAME_X - SCALE * 16, y + LIST_NAME_Y, name, name_length);
 
     if (!color_overide)
-        color = (sitem == i) ? COLOUR_MAIN_FOREGROUND_SECONDARY : COLOUR_LIST_FOREGROUND_SECONDARY;
+        color = (sitem == i) ? COLOR_MAIN_SUBTEXT : COLOR_LIST_SUBTEXT;
 
     setcolor(color);
     setfont(FONT_STATUS);
@@ -52,7 +52,7 @@ static void drawitem(ITEM *i, int UNUSED(x), int y)
         if (friend_has_avatar(f)) {
             draw_avatar_image(f->avatar.image, LIST_AVATAR_X, y + LIST_AVATAR_Y, f->avatar.width, f->avatar.height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
         } else {
-            drawalpha(BM_CONTACT, LIST_AVATAR_X, y + LIST_AVATAR_Y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, (sitem == i) ? COLOUR_LIST_BACKGROUND : COLOUR_MAIN_BACKGROUND);
+            drawalpha(BM_CONTACT, LIST_AVATAR_X, y + LIST_AVATAR_Y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, (sitem == i) ? COLOR_LIST_BACKGROUND : COLOR_MAIN_BACKGROUND);
         }
 
         drawname(i, y, f->name, f->status_message, f->name_length, f->status_length, 0, 0);
@@ -68,13 +68,13 @@ static void drawitem(ITEM *i, int UNUSED(x), int y)
 
     case ITEM_GROUP: {
         GROUPCHAT *g = i->data;
-        drawalpha(BM_GROUP, LIST_AVATAR_X, y + LIST_AVATAR_Y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, (sitem == i) ? COLOUR_LIST_BACKGROUND : COLOUR_MAIN_BACKGROUND);
+        drawalpha(BM_GROUP, LIST_AVATAR_X, y + LIST_AVATAR_Y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, (sitem == i) ? COLOR_LIST_BACKGROUND : COLOR_MAIN_BACKGROUND);
         _Bool color_overide = 0;
         uint32_t color = 0;
 
         if (g->muted) {
             color_overide = 1;
-            color = COLOUR_GROUP_UNUSUAL;
+            color = COLOR_GROUP_UNUSUAL;
         } else {
             uint64_t time = get_time();
             unsigned int j;
@@ -97,7 +97,7 @@ static void drawitem(ITEM *i, int UNUSED(x), int y)
         char_t name[TOX_FRIEND_ADDRESS_SIZE * 2];
         id_to_string(name, f->id);
 
-        drawalpha(BM_CONTACT, LIST_AVATAR_X, y + LIST_AVATAR_Y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, (sitem == i) ? COLOUR_LIST_BACKGROUND : COLOUR_MAIN_BACKGROUND);
+        drawalpha(BM_CONTACT, LIST_AVATAR_X, y + LIST_AVATAR_Y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, (sitem == i) ? COLOR_LIST_BACKGROUND : COLOR_MAIN_BACKGROUND);
         drawname(i, y, name, f->msg, sizeof(name), f->length, 0, 0);
         break;
     }

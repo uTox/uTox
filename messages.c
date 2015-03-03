@@ -78,7 +78,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
             char timestr[6];
             STRING_IDX len;
             len = snprintf(timestr, sizeof(timestr), "%u:%.2u", msg->time / 60, msg->time % 60);
-            setcolor(COLOUR_MAIN_FOREGROUND_SECONDARY);
+            setcolor(COLOR_MAIN_SUBTEXT);
             setfont(FONT_MISC);
             drawtext(x + width - TIME_WIDTH, y, (char_t*)timestr, len);
         }
@@ -86,7 +86,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
         // Draw the names for groups or friends
         if(m->type) {
             // Group message authors are all the same colour
-            setcolor(COLOUR_MAIN_FOREGROUND);
+            setcolor(COLOR_MAIN_TEXT);
             setfont(FONT_TEXT);
             drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, y, &msg->msg[msg->length] + 1, msg->msg[msg->length]);
         } else {
@@ -101,12 +101,12 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
                 // If author is current user
                 setfont(FONT_TEXT);
                 if(msg->msg_type == MSG_TYPE_ACTION_TEXT)
-                    setcolor(COLOUR_MAIN_ACTIONTEXT);
+                    setcolor(COLOR_MAIN_ACTIONTEXT);
                 else
                     if(msg->author)
-                        setcolor(COLOUR_MAIN_FOREGROUND_SECONDARY);
+                        setcolor(COLOR_MAIN_SUBTEXT);
                     else
-                        setcolor(COLOUR_MAIN_FOREGROUND);
+                        setcolor(COLOR_MAIN_TEXT);
                 if(msg->author)
                     drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, y, self.name, self.name_length);
                 else
@@ -138,13 +138,13 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
             }
 
             if(msg->author) {
-                setcolor(COLOUR_MAIN_FOREGROUND_SECONDARY);
+                setcolor(COLOR_MAIN_SUBTEXT);
             } else {
-                setcolor(COLOUR_MAIN_FOREGROUND);
+                setcolor(COLOR_MAIN_TEXT);
             }
             
             if (msg->msg_type == MSG_TYPE_ACTION_TEXT) {
-                setcolor(COLOUR_MAIN_ACTIONTEXT);
+                setcolor(COLOR_MAIN_ACTIONTEXT);
             }
             
             setfont(FONT_TEXT);
@@ -177,11 +177,11 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
             STRING_IDX sizelen = sprint_bytes(size, sizeof(size), file->size);
 
             setfont(FONT_MISC);
-            setcolor(COLOUR_MAIN_BACKGROUND);
+            setcolor(COLOR_MAIN_BACKGROUND);
 
             if(file->status == FILE_DONE) {
                 drawalpha(BM_FT, xx, y, BM_FT_WIDTH, BM_FT_HEIGHT, (mo && m->over) ? C_GREEN_LIGHT : C_GREEN);
-                drawalpha(BM_YES, xx + BM_FTM_WIDTH + SCALE + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2, y + SCALE * 4, BM_FB_WIDTH, BM_FB_HEIGHT, COLOUR_MAIN_BACKGROUND);
+                drawalpha(BM_YES, xx + BM_FTM_WIDTH + SCALE + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2, y + SCALE * 4, BM_FB_WIDTH, BM_FB_HEIGHT, COLOR_MAIN_BACKGROUND);
                 if(file->inline_png) {
                     drawstr(xx + 5 * SCALE, y + 17 * SCALE, CLICKTOSAVE);
                 } else {
@@ -189,25 +189,25 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
                 }
             } else if(file->status == FILE_KILLED) {
                 drawalpha(BM_FT, xx, y, BM_FT_WIDTH, BM_FT_HEIGHT, C_RED);
-                drawalpha(BM_NO, xx + BM_FTM_WIDTH + SCALE + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2, y + SCALE * 4, BM_FB_WIDTH, BM_FB_HEIGHT, COLOUR_MAIN_BACKGROUND);
+                drawalpha(BM_NO, xx + BM_FTM_WIDTH + SCALE + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2, y + SCALE * 4, BM_FB_WIDTH, BM_FB_HEIGHT, COLOR_MAIN_BACKGROUND);
                 drawstr(xx + 5 * SCALE, y + 17 * SCALE, CANCELLED);
             } else {
                 if(file->status == FILE_BROKEN) {
                     drawalpha(BM_FTM, xx, y, BM_FTM_WIDTH, BM_FT_HEIGHT, C_RED);
                 } else if(file->status == FILE_OK) {
-                    drawalpha(BM_FTM, xx, y, BM_FTM_WIDTH, BM_FT_HEIGHT, COLOUR_MAIN_URLTEXT);
+                    drawalpha(BM_FTM, xx, y, BM_FTM_WIDTH, BM_FT_HEIGHT, COLOR_MAIN_URLTEXT);
                 } else {
                     drawalpha(BM_FTM, xx, y, BM_FTM_WIDTH, BM_FT_HEIGHT, C_GRAY);
-                    setcolor(COLOUR_MAIN_FOREGROUND);
+                    setcolor(COLOR_MAIN_TEXT);
                 }
 
                 int xxx = xx + BM_FTM_WIDTH + SCALE;
                 drawalpha(BM_FTB1, xxx, y, BM_FTB_WIDTH, BM_FTB_HEIGHT + SCALE, (mo && m->over == 1) ? C_GREEN_LIGHT : C_GREEN);
-                drawalpha(BM_NO, xxx + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2, y + SCALE * 4, BM_FB_WIDTH, BM_FB_HEIGHT, COLOUR_MAIN_BACKGROUND);
+                drawalpha(BM_NO, xxx + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2, y + SCALE * 4, BM_FB_WIDTH, BM_FB_HEIGHT, COLOR_MAIN_BACKGROUND);
 
                 uint32_t color = ((msg->author && file->status == FILE_PENDING) || file->status == FILE_BROKEN || file->status == FILE_PAUSED_OTHER) ? C_GRAY: ((mo && m->over == 2) ? C_GREEN_LIGHT : C_GREEN);
                 drawalpha(BM_FTB2, xxx, y + BM_FTB_HEIGHT + SCALE * 2, BM_FTB_WIDTH, BM_FTB_HEIGHT, color);
-                drawalpha((!msg->author && file->status ==  FILE_PENDING) ? BM_YES : (file->status == FILE_PAUSED ? BM_RESUME : BM_PAUSE), xxx + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2, y + BM_FTB_HEIGHT + SCALE * 5, BM_FB_WIDTH, BM_FB_HEIGHT, color == C_GRAY ? COLOUR_LIST_BACKGROUND : COLOUR_MAIN_BACKGROUND);
+                drawalpha((!msg->author && file->status ==  FILE_PENDING) ? BM_YES : (file->status == FILE_PAUSED ? BM_RESUME : BM_PAUSE), xxx + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2, y + BM_FTB_HEIGHT + SCALE * 5, BM_FB_WIDTH, BM_FB_HEIGHT, color == C_GRAY ? COLOR_LIST_BACKGROUND : COLOR_MAIN_BACKGROUND);
 
 
                 uint64_t progress = file->progress;
@@ -217,7 +217,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
 
                 uint32_t w = (file->size == 0) ? 0 : (progress * (uint64_t)106 * SCALE) / file->size;
 
-                color = (file->status == FILE_PENDING || file->status == FILE_PAUSED || file->status == FILE_PAUSED_OTHER) ? COLOUR_LIST_BACKGROUND : COLOUR_MAIN_BACKGROUND;
+                color = (file->status == FILE_PENDING || file->status == FILE_PAUSED || file->status == FILE_PAUSED_OTHER) ? COLOR_LIST_BACKGROUND : COLOR_MAIN_BACKGROUND;
                 framerect(xx + 5 * SCALE, y + 17 * SCALE, xx + 111 * SCALE, y + 24 * SCALE, color);
                 drawrectw(xx + 5 * SCALE, y + 17 * SCALE, w, 7 * SCALE, color);
 
@@ -260,7 +260,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
         FRIEND *f = get_typers(m);
         if(f) {
             setfont(FONT_TEXT);
-            setcolor(COLOUR_MAIN_FOREGROUND);
+            setcolor(COLOR_MAIN_TEXT);
             drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, y, f->name, f->name_length);
             drawtextwidth(x + MESSAGES_X, x + width, y, S(IS_TYPING), SLEN(IS_TYPING));
         }

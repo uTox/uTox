@@ -65,11 +65,11 @@ uint32_t status_color[] = {
 /* Top left self interface Avatar, name, statusmsg, status icon */
 static void drawself(void)
 {
-    setcolor(!button_name.mouseover ? COLOUR_MENU_FOREGROUND : COLOUR_MENU_ACTIVE_FOREGROUND);
+    setcolor(!button_name.mouseover ? COLOR_MENU_TEXT : COLOR_MENU_ACTIVE_TEXT);
     setfont(FONT_SELF_NAME);
     drawtextrange(SELF_NAME_X, SELF_STATUS_X, SELF_NAME_Y, self.name, self.name_length);
 
-    setcolor(!button_statusmsg.mouseover ? COLOUR_MENU_FOREGROUND : COLOUR_MENU_ACTIVE_FOREGROUND);
+    setcolor(!button_statusmsg.mouseover ? COLOR_MENU_TEXT : COLOR_MENU_ACTIVE_TEXT);
     setfont(FONT_STATUS);
     drawtextrange(SELF_MSG_X, SELF_STATUS_X, SELF_MSG_Y, self.statusmsg, self.statusmsg_length);
 
@@ -77,10 +77,10 @@ static void drawself(void)
     if (self_has_avatar()) {
         draw_avatar_image(self.avatar.image, SELF_AVATAR_X, SELF_AVATAR_Y, self.avatar.width, self.avatar.height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
     } else {
-        drawalpha(BM_CONTACT, SELF_AVATAR_X, SELF_AVATAR_Y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOUR_MAIN_BACKGROUND);
+        drawalpha(BM_CONTACT, SELF_AVATAR_X, SELF_AVATAR_Y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_MAIN_BACKGROUND);
     }
 
-    drawalpha(BM_STATUSAREA, SELF_STATUS_X, SELF_STATUS_Y, BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT, button_status.mouseover ? COLOUR_LIST_HOVER_BACKGROUND : COLOUR_LIST_BACKGROUND);
+    drawalpha(BM_STATUSAREA, SELF_STATUS_X, SELF_STATUS_Y, BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT, button_status.mouseover ? COLOR_LIST_HOVER_BACKGROUND : COLOR_LIST_BACKGROUND);
 
     uint8_t status = tox_connected ? self.status : 3;
     drawalpha(BM_ONLINE + status, SELF_STATUS_X + BM_STATUSAREA_WIDTH / 2 - BM_STATUS_WIDTH / 2, SELF_STATUS_Y + BM_STATUSAREA_HEIGHT / 2 - BM_STATUS_WIDTH / 2, BM_STATUS_WIDTH, BM_STATUS_WIDTH, status_color[status]);
@@ -95,14 +95,14 @@ static void drawfriend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(h
     if (friend_has_avatar(f)) {
         draw_avatar_image(f->avatar.image, LIST_RIGHT + SCALE * 5, SCALE * 5, f->avatar.width, f->avatar.height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
     } else {
-        drawalpha(BM_CONTACT, LIST_RIGHT + SCALE * 5, SCALE * 5, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOUR_LIST_BACKGROUND);
+        drawalpha(BM_CONTACT, LIST_RIGHT + SCALE * 5, SCALE * 5, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_LIST_BACKGROUND);
     }
 
-    setcolor(COLOUR_MAIN_FOREGROUND);
+    setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_TITLE);
     drawtextrange(LIST_RIGHT + 30 * SCALE, utox_window_width - 92 * SCALE, 9 * SCALE, f->name, f->name_length);
 
-    setcolor(COLOUR_MAIN_FOREGROUND_SECONDARY);
+    setcolor(COLOR_MAIN_SUBTEXT);
     setfont(FONT_STATUS);
     drawtextrange(LIST_RIGHT + 30 * SCALE, utox_window_width - 92 * SCALE, 16 * SCALE, f->status_message, f->status_length);
 }
@@ -111,13 +111,13 @@ static void drawgroup(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(he
 {
     GROUPCHAT *g = sitem->data;
 
-    drawalpha(BM_GROUP, LIST_RIGHT + SCALE * 5, SCALE * 5, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOUR_LIST_BACKGROUND);
+    drawalpha(BM_GROUP, LIST_RIGHT + SCALE * 5, SCALE * 5, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_LIST_BACKGROUND);
 
-    setcolor(COLOUR_MAIN_FOREGROUND);
+    setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_TITLE);
     drawtext(LIST_RIGHT + 30 * SCALE, 1 * SCALE, g->name, g->name_length);
 
-    setcolor(COLOUR_MAIN_FOREGROUND_SECONDARY);
+    setcolor(COLOR_MAIN_SUBTEXT);
     setfont(FONT_STATUS);
     drawtext(LIST_RIGHT + 30 * SCALE, 8 * SCALE, g->topic, g->topic_length);
 
@@ -168,11 +168,11 @@ static void drawfriendreq(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSE
 {
     FRIENDREQ *req = sitem->data;
 
-    setcolor(COLOUR_MAIN_FOREGROUND);
+    setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
     drawstr(LIST_RIGHT + SCALE * 5, SCALE * 10, FRIENDREQUEST);
 
-    setcolor(COLOUR_MAIN_FOREGROUND_SECONDARY);
+    setcolor(COLOR_MAIN_SUBTEXT);
     setfont(FONT_STATUS);
     drawtextrange(LIST_RIGHT + 5 * SCALE, utox_window_width, 20 * SCALE, req->msg, req->length);
 }
@@ -180,11 +180,11 @@ static void drawfriendreq(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSE
 /* Draw add a friend window */
 static void drawadd(int UNUSED(x), int UNUSED(y), int UNUSED(w), int height)
 {
-    setcolor(COLOUR_MAIN_FOREGROUND);
+    setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
     drawstr(LIST_RIGHT + SCALE * 5, SCALE * 10, ADDFRIENDS);
 
-    setcolor(COLOUR_MAIN_FOREGROUND_SECONDARY);
+    setcolor(COLOR_MAIN_SUBTEXT);
     setfont(FONT_TEXT);
     drawstr(LIST_RIGHT + SCALE * 5, LIST_Y + SCALE * 5, TOXID);
 
@@ -231,7 +231,7 @@ static void drawadd(int UNUSED(x), int UNUSED(y), int UNUSED(w), int height)
 /* Top bar for user settings */
 static void drawsettings(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height))
 {
-    setcolor(COLOUR_MAIN_FOREGROUND);
+    setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
     drawstr(LIST_RIGHT + SCALE * 5, SCALE * 10, USERSETTINGS);
 }
@@ -240,7 +240,7 @@ static void drawsettings(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UN
 /* Current TODO */
 static void drawtransfer(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height))
 {
-    setcolor(COLOUR_MAIN_FOREGROUND);
+    setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
     drawstr(LIST_RIGHT + SCALE * 5, SCALE * 10, SWITCHPROFILE);
 }
@@ -248,7 +248,7 @@ static void drawtransfer(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UN
 /* Text content for settings page */
 static void drawsettings_content(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height))
 {
-    setcolor(COLOUR_MAIN_FOREGROUND);
+    setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_TEXT);
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 5, NAME);
 
@@ -290,7 +290,7 @@ static void drawsettings_content(int UNUSED(x), int y, int UNUSED(w), int UNUSED
     setcolor(C_RED);
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 302, WARNING);
 
-    setcolor(COLOUR_MAIN_BACKGROUND);
+    setcolor(COLOR_MAIN_BACKGROUND);
     setfont(FONT_TEXT);
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 334, AUDIONOTIFICATIONS);
 
@@ -302,20 +302,20 @@ static void drawsettings_content(int UNUSED(x), int y, int UNUSED(w), int UNUSED
 static void background_draw(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int width, int height)
 {
     // Current user avatar & name background
-    drawrect(0, 0, LIST_RIGHT, LIST_Y, COLOUR_MENU_BACKGROUND);
+    drawrect(0, 0, LIST_RIGHT, LIST_Y, COLOR_MENU_BACKGROUND);
     // Friend list ('roaster') background
-    drawrect(0, LIST_Y, LIST_RIGHT, height + LIST_BOTTOM, COLOUR_LIST_BACKGROUND);
+    drawrect(0, LIST_Y, LIST_RIGHT, height + LIST_BOTTOM, COLOR_LIST_BACKGROUND);
     // Bottom icons menu background
-    drawrect(0, height + LIST_BOTTOM, LIST_RIGHT, height, COLOUR_MENU_BACKGROUND);
+    drawrect(0, height + LIST_BOTTOM, LIST_RIGHT, height, COLOR_MENU_BACKGROUND);
 
     // Current user avatar & name
     drawself();
 
     // Chat background
-    drawrect(LIST_RIGHT, 0, width, height, COLOUR_MAIN_BACKGROUND);
+    drawrect(LIST_RIGHT, 0, width, height, COLOR_MAIN_BACKGROUND);
     
     // Chat and chat header separation
-    drawhline(LIST_RIGHT, LIST_Y, width, COLOUR_EDGE_NORMAL);
+    drawhline(LIST_RIGHT, LIST_Y, width, COLOR_EDGE_NORMAL);
 }
 
 static _Bool background_mmove(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height), int UNUSED(mx), int UNUSED(my), int UNUSED(dx), int UNUSED(dy))

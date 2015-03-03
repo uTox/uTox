@@ -286,23 +286,23 @@ static void button_video_updatecolor(BUTTON *b)
     }
 }
 
-extern int COLOUR_MENU_BACKGROUND;
-extern int COLOUR_MENU_HOVER;
-extern int COLOUR_MENU_ACTIVE;
-extern int COLOUR_MAIN_FOREGROUND_SECONDARY;
-extern int COLOUR_MAIN_BACKGROUND;
-extern int COLOUR_MENU_ACTIVE_FOREGROUND;
-extern int COLOUR_MENU_FOREGROUND;
+extern int COLOR_MENU_BACKGROUND;
+extern int COLOR_MENU_HOVER;
+extern int COLOR_MENU_ACTIVE_BACKGROUND;
+extern int COLOR_MAIN_SUBTEXT;
+extern int COLOR_MAIN_BACKGROUND;
+extern int COLOR_MENU_ACTIVE_TEXT;
+extern int COLOR_MENU_TEXT;
 
 static void button_bottommenu_updatecolor(BUTTON *b)
 {
-    b->c1 = COLOUR_MENU_BACKGROUND;
-    b->c2 = COLOUR_MENU_HOVER;
-    b->c3 = COLOUR_MENU_ACTIVE;
-    b->ic = COLOUR_MENU_FOREGROUND;
+    b->c1 = COLOR_MENU_BACKGROUND;
+    b->c2 = COLOR_MENU_HOVER;
+    b->c3 = COLOR_MENU_ACTIVE_BACKGROUND;
+    b->ic = COLOR_MENU_TEXT;
     if (b->mousedown || b->disabled)
-        b->ic = COLOUR_MENU_ACTIVE_FOREGROUND;
-    b->cd = COLOUR_MENU_ACTIVE;
+        b->ic = COLOR_MENU_ACTIVE_TEXT;
+    b->cd = COLOR_MENU_ACTIVE_BACKGROUND;
 }
 
 static void button_sendfile_onpress(void)

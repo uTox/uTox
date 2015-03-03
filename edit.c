@@ -36,12 +36,12 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
     edit->height = height - 4 * SCALE;
 
     if(!edit->noborder) {
-        framerect(x, y, x + width, y + height, (edit == active_edit) ? COLOUR_EDGE_ACTIVE : (edit->mouseover ? COLOUR_EDGE_HOVER : COLOUR_EDGE_NORMAL));
+        framerect(x, y, x + width, y + height, (edit == active_edit) ? COLOR_EDGE_ACTIVE : (edit->mouseover ? COLOR_EDGE_HOVER : COLOR_EDGE_NORMAL));
     }
-    drawrect(x + 1, y + 1, x + width - 1, y + height - 1, COLOUR_MAIN_BACKGROUND);
+    drawrect(x + 1, y + 1, x + width - 1, y + height - 1, COLOR_MAIN_BACKGROUND);
 
     setfont(FONT_TEXT);
-    setcolor(COLOUR_MAIN_FOREGROUND);
+    setcolor(COLOR_MAIN_TEXT);
 
     int yy = y;
 
@@ -57,7 +57,7 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
     // TODO: what is this for?
     if(!edit->length && maybe_i18nal_string_is_valid(&edit->empty_str)) {
         STRING* empty_str_text = maybe_i18nal_string_get(&edit->empty_str);
-        setcolor(COLOUR_MAIN_FOREGROUND);
+        setcolor(COLOR_MAIN_TEXT);
         drawtext(x + 2 * SCALE, yy + 2 * SCALE, empty_str_text->str, empty_str_text->length);
     }
 
