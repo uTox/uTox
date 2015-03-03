@@ -41,26 +41,25 @@ void theme_load(char loadtheme)
 
     switch (loadtheme) {
     case THEME_DARK:
-        // Chat area colours
         COLOR_MAIN_BACKGROUND = 0x333333;
         COLOR_MAIN_TEXT = 0xdfdfdf;
         COLOR_MAIN_SUBTEXT = 0xbbbbbb;
         COLOR_MAIN_ACTIONTEXT = 0x27a9bc;
         COLOR_MAIN_URLTEXT = COLOR_MAIN_ACTIONTEXT;
         COLOR_MAIN_QUOTETEXT = 0x55b317;
-        // Buddy list colours
+        
         COLOR_LIST_BACKGROUND = 0x222222;
         COLOR_LIST_HOVER_BACKGROUND = 0x151515;
         COLOR_MAIN_BACKGROUND_SECONDARY  = 0x555555;
-        // Buddy list colours
+        
         COLOR_MENU_BACKGROUND = COLOR_LIST_BACKGROUND;
         COLOR_MENU_HOVER = COLOR_LIST_HOVER_BACKGROUND;
         COLOR_MENU_ACTIVE_BACKGROUND = COLOR_MAIN_TEXT;
-        // Text highlighing
+        
         COLOR_SELECTION_BACKGROUND = COLOR_MAIN_TEXT;
         COLOR_SELECTION_TEXT = COLOR_MAIN_BACKGROUND;
         COLOR_GROUP_UNUSUAL = COLOR_MAIN_URLTEXT;
-        // Inputs
+        
         COLOR_EDGE_NORMAL = 0x555555;
         COLOR_EDGE_ACTIVE = 0x228888;
         COLOR_EDGE_HOVER = 0x999999;
@@ -70,18 +69,18 @@ void theme_load(char loadtheme)
         break;
 
     case THEME_LIGHT:
-        // Buddy list colours
+        
         COLOR_LIST_BACKGROUND = 0xF0F0F0;
         COLOR_LIST_HOVER_BACKGROUND = 0xE0E0E0;
         COLOR_LIST_TEXT = COLOR_MAIN_TEXT;
         COLOR_LIST_SUBTEXT = COLOR_MAIN_SUBTEXT;
-        // Buddy list colours
+        
         COLOR_MENU_BACKGROUND = 0xF0F0F0;
         COLOR_MENU_HOVER = 0xE0E0E0;
         COLOR_MENU_ACTIVE_BACKGROUND = 0x555555;
         COLOR_MENU_TEXT = 0x555555;
         COLOR_MENU_ACTIVE_TEXT = 0xffffff;
-        // Inputs
+        
         COLOR_EDGE_NORMAL = 0xC0C0C0;
         COLOR_EDGE_ACTIVE = COLOR_MAIN_URLTEXT;
         COLOR_EDGE_HOVER = 0x707070;
@@ -90,29 +89,29 @@ void theme_load(char loadtheme)
         break;
 
     case THEME_HIGHCONTRAST:
-        // Chat area colours
+        
         COLOR_MAIN_BACKGROUND = 0xFFFFFF;
         COLOR_MAIN_TEXT = 0x000001;
         COLOR_MAIN_SUBTEXT = COLOR_MAIN_TEXT;
         COLOR_MAIN_ACTIONTEXT = 0x000033;
         COLOR_MAIN_QUOTETEXT = 0x003300;
         COLOR_MAIN_URLTEXT = COLOR_MAIN_ACTIONTEXT;
-        // Top & bottom 'Menu' colours
+        
         COLOR_MENU_BACKGROUND = COLOR_MAIN_BACKGROUND;
         COLOR_MENU_TEXT = COLOR_MAIN_TEXT;
         COLOR_MENU_HOVER = COLOR_MAIN_BACKGROUND;
         COLOR_MENU_ACTIVE_BACKGROUND = COLOR_MAIN_TEXT;
         COLOR_MENU_ACTIVE_TEXT = COLOR_MAIN_BACKGROUND;
-        // Buddy list colours
+        
         COLOR_LIST_BACKGROUND = COLOR_MAIN_TEXT;
         COLOR_LIST_HOVER_BACKGROUND = COLOR_MAIN_TEXT;
         COLOR_LIST_TEXT = COLOR_MAIN_BACKGROUND;
         COLOR_LIST_SUBTEXT = COLOR_MAIN_BACKGROUND;
-        // Text highlighing
+        
         COLOR_SELECTION_BACKGROUND = COLOR_MAIN_TEXT;
         COLOR_SELECTION_TEXT = COLOR_MAIN_BACKGROUND;
         COLOR_GROUP_UNUSUAL = COLOR_MAIN_URLTEXT;
-        // Inputs
+        
         COLOR_EDGE_NORMAL = COLOR_MAIN_TEXT;
         COLOR_EDGE_ACTIVE = COLOR_MAIN_TEXT;
         COLOR_EDGE_HOVER = COLOR_MAIN_TEXT;
