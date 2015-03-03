@@ -5,16 +5,16 @@ void theme_load(char loadtheme)
     // ==== Default theme ====
     //---- Main chat area ----
     COLOR_MAIN_BACKGROUND = 0xFFFFFF;
-    COLOR_MAIN_TEXT       = 0x1c1c1c;
-    COLOR_MAIN_SUBTEXT    = 0x7a7a7a;
+    COLOR_MAIN_TEXT       = 0x333333;
+    COLOR_MAIN_SUBTEXT    = 0x595959;
     COLOR_MAIN_ACTIONTEXT = 0x4444ff;
     COLOR_MAIN_QUOTETEXT  = 0x008800;
     COLOR_MAIN_URLTEXT    = COLOR_MAIN_ACTIONTEXT;
 
-    //---- Top & bottom 'menu' colours ----
+    //---- Top & bottom menu colours ----
     COLOR_MENU_BACKGROUND        = 0x1c1c1c;
     COLOR_MENU_TEXT              = 0xC0C0C0;
-    COLOR_MENU_HOVER             = 0x202020;
+    COLOR_MENU_HOVER_BACKGROUND  = 0x202020;
     COLOR_MENU_ACTIVE_BACKGROUND = 0x404040;
     COLOR_MENU_ACTIVE_TEXT       = 0xE5E5E5;
 
@@ -34,7 +34,11 @@ void theme_load(char loadtheme)
     COLOR_EDGE_ACTIVE             = COLOR_MAIN_URLTEXT;
     COLOR_EDGE_HOVER              = 0x707070;
     COLOR_ACTIVEOPTION_BACKGROUND = 0xCCCCFF;
-    COLOR_ACTIVEOPTION_TEXT       = COLOR_MAIN_TEXT;
+    
+    //---- Status circles ----
+    COLOR_STATUS_ONLINE = 0x6bc260;
+    COLOR_STATUS_AWAY   = 0xcebf45;
+    COLOR_STATUS_BUSY   = 0xc84e4e;
 
     // Get rid of
     COLOR_MAIN_BACKGROUND_SECONDARY  = 0xBaBaBa;
@@ -53,7 +57,7 @@ void theme_load(char loadtheme)
         COLOR_MAIN_BACKGROUND_SECONDARY  = 0x555555;
         
         COLOR_MENU_BACKGROUND = COLOR_LIST_BACKGROUND;
-        COLOR_MENU_HOVER = COLOR_LIST_HOVER_BACKGROUND;
+        COLOR_MENU_HOVER_BACKGROUND = COLOR_LIST_HOVER_BACKGROUND;
         COLOR_MENU_ACTIVE_BACKGROUND = COLOR_MAIN_TEXT;
         
         COLOR_SELECTION_BACKGROUND = COLOR_MAIN_TEXT;
@@ -76,7 +80,7 @@ void theme_load(char loadtheme)
         COLOR_LIST_SUBTEXT = COLOR_MAIN_SUBTEXT;
         
         COLOR_MENU_BACKGROUND = 0xF0F0F0;
-        COLOR_MENU_HOVER = 0xE0E0E0;
+        COLOR_MENU_HOVER_BACKGROUND = 0xE0E0E0;
         COLOR_MENU_ACTIVE_BACKGROUND = 0x555555;
         COLOR_MENU_TEXT = 0x555555;
         COLOR_MENU_ACTIVE_TEXT = 0xffffff;
@@ -99,7 +103,7 @@ void theme_load(char loadtheme)
         
         COLOR_MENU_BACKGROUND = COLOR_MAIN_BACKGROUND;
         COLOR_MENU_TEXT = COLOR_MAIN_TEXT;
-        COLOR_MENU_HOVER = COLOR_MAIN_BACKGROUND;
+        COLOR_MENU_HOVER_BACKGROUND = COLOR_MAIN_BACKGROUND;
         COLOR_MENU_ACTIVE_BACKGROUND = COLOR_MAIN_TEXT;
         COLOR_MENU_ACTIVE_TEXT = COLOR_MAIN_BACKGROUND;
         
@@ -119,4 +123,9 @@ void theme_load(char loadtheme)
         COLOR_ACTIVEOPTION_TEXT = COLOR_MAIN_BACKGROUND;
         break;
     }
+    
+    status_color[0] = COLOR_STATUS_ONLINE;
+    status_color[1] = COLOR_STATUS_AWAY;
+    status_color[2] = COLOR_STATUS_BUSY;
+    status_color[3] = COLOR_STATUS_BUSY;
 }

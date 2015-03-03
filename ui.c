@@ -55,12 +55,7 @@ void draw_avatar_image(UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, u
     image_set_filter(image, FILTER_NEAREST);
 }
 
-uint32_t status_color[] = {
-    C_GREEN,
-    C_YELLOW,
-    C_RED,
-    C_RED
-};
+
 
 /* Top left self interface Avatar, name, statusmsg, status icon */
 static void drawself(void)

@@ -287,7 +287,7 @@ static void button_video_updatecolor(BUTTON *b)
 }
 
 extern int COLOR_MENU_BACKGROUND;
-extern int COLOR_MENU_HOVER;
+extern int COLOR_MENU_HOVER_BACKGROUND;
 extern int COLOR_MENU_ACTIVE_BACKGROUND;
 extern int COLOR_MAIN_SUBTEXT;
 extern int COLOR_MAIN_BACKGROUND;
@@ -297,7 +297,7 @@ extern int COLOR_MENU_TEXT;
 static void button_bottommenu_updatecolor(BUTTON *b)
 {
     b->c1 = COLOR_MENU_BACKGROUND;
-    b->c2 = COLOR_MENU_HOVER;
+    b->c2 = COLOR_MENU_HOVER_BACKGROUND;
     b->c3 = COLOR_MENU_ACTIVE_BACKGROUND;
     b->ic = COLOR_MENU_TEXT;
     if (b->mousedown || b->disabled)

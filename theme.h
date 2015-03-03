@@ -30,9 +30,14 @@ int COLOR_MENU_ACTIVE_TEXT;
 int COLOR_MENU_ACTIVE_BACKGROUND;
 int COLOR_MENU_BACKGROUND;
 int COLOR_MENU_TEXT;
-int COLOR_MENU_HOVER;
+int COLOR_MENU_HOVER_BACKGROUND;
 int COLOR_SELF_FOREGROUND;
+int COLOR_STATUS_ONLINE;
+int COLOR_STATUS_AWAY;
+int COLOR_STATUS_BUSY;
 
 void theme_load(char loadtheme);
 
-int theme;
+uint32_t status_color[4];
+
+char theme;

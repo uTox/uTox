@@ -91,8 +91,6 @@ _Bool panel_mwheel(PANEL *p, int x, int y, int width, int height, double d);
 _Bool panel_mup(PANEL *p);
 _Bool panel_mleave(PANEL *p);
 
-extern uint32_t status_color[];
-
 #define GRAY(x) (((x) << 16) | ((x) << 8) | (x))
 
 #define BLACK 0
@@ -181,7 +179,7 @@ uint8_t SCALE;
 
 // @TODO
 // BOTTOM BUTTON HOVER
-// BELOW SHOULD BE COLOR_MENU_HOVER
+// BELOW SHOULD BE COLOR_MENU_HOVER_BACKGROUND
 #define LIST_DARK_LIGHT         GRAY(20)
 
 // @TODO
