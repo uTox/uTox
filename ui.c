@@ -345,22 +345,26 @@ static _Bool background_mleave(PANEL *UNUSED(p))
     return 0;
 }
 
+// Scrollbar or friend list
 SCROLLABLE scroll_list = {
     .panel = {
         .type = PANEL_SCROLLABLE,
     },
-    .color = C_SCROLL,
+    .color = 0x1c1c1c,
     .x = 2,
     .left = 1,
 },
 
+// Scrollbar in chat window
 scroll_friend = {
     .panel = {
         .type = PANEL_SCROLLABLE,
     },
-    .color = C_SCROLL,
+    .color = 0xd1d1d1,
 },
 
+// ?
+// @TODO
 scroll_group = {
     .panel = {
         .type = PANEL_SCROLLABLE,
@@ -368,6 +372,8 @@ scroll_group = {
     .color = C_SCROLL,
 },
 
+// Colour is not used for settings
+// @TODO
 scroll_settings = {
     .panel = {
         .type = PANEL_SCROLLABLE,

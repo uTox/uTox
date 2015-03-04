@@ -9,21 +9,21 @@ void theme_load(char loadtheme)
     //---- Main chat area ----
     COLOR_MAIN_BACKGROUND = 0xFFFFFF;
     COLOR_MAIN_TEXT       = 0x333333;
-    COLOR_MAIN_SUBTEXT    = 0x595959;
-    COLOR_MAIN_ACTIONTEXT = 0x4444ff;
-    COLOR_MAIN_QUOTETEXT  = 0x008800;
-    COLOR_MAIN_URLTEXT    = COLOR_MAIN_ACTIONTEXT;
+    COLOR_MAIN_SUBTEXT    = 0x414141;
+    COLOR_MAIN_ACTIONTEXT = 0x4e4ec8;
+    COLOR_MAIN_QUOTETEXT  = 0x008000;
+    COLOR_MAIN_URLTEXT    = 0x0000ff;
 
     //---- Top & bottom menu colours ----
     COLOR_MENU_BACKGROUND        = 0x1c1c1c;
     COLOR_MENU_TEXT              = 0xC0C0C0;
-    COLOR_MENU_HOVER_BACKGROUND  = 0x202020;
-    COLOR_MENU_ACTIVE_BACKGROUND = 0x404040;
+    COLOR_MENU_HOVER_BACKGROUND  = 0x282828;
+    COLOR_MENU_ACTIVE_BACKGROUND = 0x414141;
     COLOR_MENU_ACTIVE_TEXT       = 0xE5E5E5;
 
     //---- Friend list  ----
-    COLOR_LIST_BACKGROUND       = 0x282828;
-    COLOR_LIST_HOVER_BACKGROUND = 0x555555;
+    COLOR_LIST_BACKGROUND       = 0x414141;
+    COLOR_LIST_HOVER_BACKGROUND = 0x505050;
     COLOR_LIST_TEXT             = COLOR_MAIN_BACKGROUND;
     COLOR_LIST_SUBTEXT          = 0xBaBaBa;
 
@@ -34,9 +34,9 @@ void theme_load(char loadtheme)
 
     //---- Inputs, dropdowns & tooltips ----
     COLOR_EDGE_NORMAL             = 0xC0C0C0;
-    COLOR_EDGE_ACTIVE             = COLOR_MAIN_URLTEXT;
-    COLOR_EDGE_HOVER              = 0x707070;
-    COLOR_ACTIVEOPTION_BACKGROUND = 0xCCCCFF;
+    COLOR_EDGE_HOVER              = 0x969696;
+    COLOR_EDGE_ACTIVE             = 0x4ea6ea;
+    COLOR_ACTIVEOPTION_BACKGROUND = 0xd1d1d1;
     COLOR_ACTIVEOPTION_TEXT       = COLOR_MAIN_TEXT;
     
     //---- Status circles ----
