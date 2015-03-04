@@ -1261,18 +1261,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
                 utox_portable = 1;
                 debug("Starting uTox in portable mode: Data will be saved to tox/ in the current directory\n");
             } else if(wcscmp(arglist[i], L"--theme") == 0){
-                debug("in theme\n");
-                if(wcscmp(arglist[(i+1)], L"default") == 0){
-                    theme = THEME_DEFAULT;
-                } else if(wcscmp(arglist[(i+1)], L"dark") == 0){
-                    theme = THEME_DARK;
-                } else if(wcscmp(arglist[(i+1)], L"light") == 0){
-                    theme = THEME_LIGHT;
-                } else if(wcscmp(arglist[(i+1)], L"highcontrast") == 0){
-                    theme = THEME_HIGHCONTRAST;
-                } else {
-                    debug("Please specify correct theme (please check user manual for list of correct values).");
-                    theme = THEME_DEFAULT;
+                debug("Searching for theme from argv\n");
+                if(arglist[(i+1)]){
+                    if(wcscmp(arglist[(i+1)], L"default") == 0){
+                        theme = THEME_DEFAULT;
+                    } else if(wcscmp(arglist[(i+1)], L"dark") == 0){
+                        theme = THEME_DARK;
+                    } else if(wcscmp(arglist[(i+1)], L"light") == 0){
+                        theme = THEME_LIGHT;
+                    } else if(wcscmp(arglist[(i+1)], L"highcontrast") == 0){
+                        theme = THEME_HIGHCONTRAST;
+                    } else {
+                        debug("Please specify correct theme (please check user manual for list of correct values).");
+                        theme = THEME_DEFAULT;
+                    }
                 }
             }
         }
