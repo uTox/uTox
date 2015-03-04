@@ -16,10 +16,10 @@ void theme_load(char loadtheme)
 
     //---- Top & bottom menu colours ----
     COLOR_MENU_BACKGROUND        = 0x1c1c1c;
-    COLOR_MENU_TEXT              = 0xC0C0C0;
+    COLOR_MENU_TEXT              = COLOR_MAIN_BACKGROUND;
     COLOR_MENU_HOVER_BACKGROUND  = 0x282828;
     COLOR_MENU_ACTIVE_BACKGROUND = 0x414141;
-    COLOR_MENU_ACTIVE_TEXT       = 0xE5E5E5;
+    COLOR_MENU_ACTIVE_TEXT       = COLOR_MAIN_BACKGROUND;
 
     //---- Friend list  ----
     COLOR_LIST_BACKGROUND       = 0x414141;
