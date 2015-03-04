@@ -1,10 +1,6 @@
 #include "main.h"
 
-#ifdef __WIN32__
-#define COLOR_PROC(a_ulColor) (a_ulColor & 0xFF000000) | ((a_ulColor & 0xFF0000) >> 16) | (a_ulColor & 0x00FF00) | ((a_ulColor & 0x0000FF) << 16)
-#else
-#define COLOR_PROC(a_ulColor) (a_ulColor)
-#endif
+#define COLOR_PROC(a_ulColor) RGB((a_ulColor >> 16) & 0x0000FF, (a_ulColor >> 8) & 0x0000FF, a_ulColor & 0x0000FF)
 
 void theme_load(char loadtheme)
 {
