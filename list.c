@@ -97,7 +97,7 @@ static void drawitem(ITEM *i, int UNUSED(x), int y)
         char_t name[TOX_FRIEND_ADDRESS_SIZE * 2];
         id_to_string(name, f->id);
 
-        drawalpha(BM_CONTACT, LIST_AVATAR_X, y + LIST_AVATAR_Y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, (sitem == i) ? COLOR_LIST_BACKGROUND : COLOR_MAIN_BACKGROUND);
+        drawalpha(BM_CONTACT, LIST_AVATAR_X, y + LIST_AVATAR_Y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, (sitem == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
         drawname(i, y, name, f->msg, sizeof(name), f->length, 0, 0);
         break;
     }
