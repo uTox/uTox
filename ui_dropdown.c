@@ -93,6 +93,11 @@ static void dropdown_logging_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
     logging_enabled = !!i;
 }
 
+static void dropdown_theme_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
+{
+    theme_load(i);
+}
+
 static void dropdown_notifications_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
 {
     audible_notifications_enabled = !i;
@@ -130,6 +135,13 @@ static UI_STRING_ID proxydrops[] = {
     STR_PROXY_DISABLED,
     STR_PROXY_FALLBACK,
     STR_PROXY_ALWAYS_USE,
+};
+
+static UI_STRING_ID themedrops[] = {
+    STR_THEME_DEFAULT,
+    STR_THEME_LIGHT,
+    STR_THEME_DARK,
+    STR_THEME_HIGHCONTRAST,
 };
 
 static UI_STRING_ID yesnodrops[] = {STR_YES, STR_NO};
@@ -199,6 +211,13 @@ dropdown_logging = {
     .onselect = dropdown_logging_onselect,
     .dropcount = countof(noyesdrops),
     .userdata = noyesdrops
+},
+
+dropdown_theme = {
+    .ondisplay = simple_dropdown_ondisplay,
+    .onselect = dropdown_theme_onselect,
+    .dropcount = countof(themedrops),
+    .userdata = themedrops
 },
 
 dropdown_close_to_tray = {

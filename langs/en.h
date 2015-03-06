@@ -276,3 +276,18 @@ msgstr("Cannot find selected file or selected file is empty.")
 
 msgid(CLEAR_HISTORY)
 msgstr("Clear history")
+
+msgid(THEME)
+msgstr("Theme")
+
+msgid(THEME_DEFAULT)
+msgstr("Default")
+
+msgid(THEME_LIGHT)
+msgstr("Light theme")
+
+msgid(THEME_DARK)
+msgstr("Dark theme")
+
+msgid(THEME_HIGHCONTRAST)
+msgstr("High contrast")

@@ -42,17 +42,17 @@ void tooltip_draw(void)
 
     // Ensure that font is set before calculating position and width.
     setfont(FONT_TEXT);
-    setcolor(COLOR_TEXT);
+    setcolor(COLOR_MAIN_TEXT);
 
     int x, w;
     calculate_pos_and_width(b, &x, &w);
 
-    drawrectw(x, b->y, w, b->height, WHITE);
+    drawrectw(x, b->y, w, b->height, COLOR_MAIN_BACKGROUND);
 
     STRING* s = maybe_i18nal_string_get(b->tt_text);
     drawtext(x + SCALE * 2, b->y + SCALE * 2, s->str, s->length);
 
-    framerect(x, b->y, x + w, b->y + b->height, BLACK);
+    framerect(x, b->y, x + w, b->y + b->height, COLOR_EDGE_NORMAL);
 }
 
 _Bool tooltip_mmove(void)

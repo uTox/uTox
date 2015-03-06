@@ -55,22 +55,16 @@ void draw_avatar_image(UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, u
     image_set_filter(image, FILTER_NEAREST);
 }
 
-uint32_t status_color[] = {
-    C_GREEN,
-    C_YELLOW,
-    C_RED,
-    C_RED
-};
+
 
 /* Top left self interface Avatar, name, statusmsg, status icon */
 static void drawself(void)
 {
-    //40x40 self icon at 10,10
-    setcolor(button_name.mouseover ? C_STATUS : WHITE);
+    setcolor(!button_name.mouseover ? COLOR_MENU_TEXT : COLOR_MENU_ACTIVE_TEXT);
     setfont(FONT_SELF_NAME);
     drawtextrange(SELF_NAME_X, SELF_STATUS_X, SELF_NAME_Y, self.name, self.name_length);
 
-    setcolor(button_statusmsg.mouseover ? C_GRAY2 : C_STATUS);
+    setcolor(!button_statusmsg.mouseover ? COLOR_MENU_TEXT : COLOR_MENU_ACTIVE_TEXT);
     setfont(FONT_STATUS);
     drawtextrange(SELF_MSG_X, SELF_STATUS_X, SELF_MSG_Y, self.statusmsg, self.statusmsg_length);
 
@@ -78,10 +72,10 @@ static void drawself(void)
     if (self_has_avatar()) {
         draw_avatar_image(self.avatar.image, SELF_AVATAR_X, SELF_AVATAR_Y, self.avatar.width, self.avatar.height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
     } else {
-        drawalpha(BM_CONTACT, SELF_AVATAR_X, SELF_AVATAR_Y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, WHITE);
+        drawalpha(BM_CONTACT, SELF_AVATAR_X, SELF_AVATAR_Y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_MAIN_BACKGROUND);
     }
 
-    drawalpha(BM_STATUSAREA, SELF_STATUS_X, SELF_STATUS_Y, BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT, button_status.mouseover ? LIST_HIGHLIGHT : LIST_MAIN);
+    drawalpha(BM_STATUSAREA, SELF_STATUS_X, SELF_STATUS_Y, BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT, button_status.mouseover ? COLOR_LIST_HOVER_BACKGROUND : COLOR_LIST_BACKGROUND);
 
     uint8_t status = tox_connected ? self.status : 3;
     drawalpha(BM_ONLINE + status, SELF_STATUS_X + BM_STATUSAREA_WIDTH / 2 - BM_STATUS_WIDTH / 2, SELF_STATUS_Y + BM_STATUSAREA_HEIGHT / 2 - BM_STATUS_WIDTH / 2, BM_STATUS_WIDTH, BM_STATUS_WIDTH, status_color[status]);
@@ -96,14 +90,14 @@ static void drawfriend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(h
     if (friend_has_avatar(f)) {
         draw_avatar_image(f->avatar.image, LIST_RIGHT + SCALE * 5, SCALE * 5, f->avatar.width, f->avatar.height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
     } else {
-        drawalpha(BM_CONTACT, LIST_RIGHT + SCALE * 5, SCALE * 5, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, LIST_MAIN);
+        drawalpha(BM_CONTACT, LIST_RIGHT + SCALE * 5, SCALE * 5, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_LIST_BACKGROUND);
     }
 
-    setcolor(C_TITLE);
+    setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_TITLE);
     drawtextrange(LIST_RIGHT + 30 * SCALE, utox_window_width - 92 * SCALE, 9 * SCALE, f->name, f->name_length);
 
-    setcolor(LIST_MAIN);
+    setcolor(COLOR_MAIN_SUBTEXT);
     setfont(FONT_STATUS);
     drawtextrange(LIST_RIGHT + 30 * SCALE, utox_window_width - 92 * SCALE, 16 * SCALE, f->status_message, f->status_length);
 }
@@ -112,17 +106,16 @@ static void drawgroup(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(he
 {
     GROUPCHAT *g = sitem->data;
 
-    drawalpha(BM_GROUP, LIST_RIGHT + SCALE * 5, SCALE * 5, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, LIST_MAIN);
+    drawalpha(BM_GROUP, LIST_RIGHT + SCALE * 5, SCALE * 5, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_LIST_BACKGROUND);
 
-    setcolor(C_TITLE);
+    setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_TITLE);
     drawtext(LIST_RIGHT + 30 * SCALE, 1 * SCALE, g->name, g->name_length);
 
-    setcolor(LIST_MAIN);
+    setcolor(COLOR_MAIN_SUBTEXT);
     setfont(FONT_STATUS);
     drawtext(LIST_RIGHT + 30 * SCALE, 8 * SCALE, g->topic, g->topic_length);
 
-    setcolor(GRAY(150));
     uint32_t i = 0;
     int k = LIST_RIGHT + 30 * SCALE;
 
@@ -140,9 +133,11 @@ static void drawgroup(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(he
 
             int w = textwidth(buf, name[0] + 2);
             if (i == g->our_peer_number) {
-                setcolor(C_GREEN);
+                // @TODO: separate these colours
+                setcolor(COLOR_STATUS_ONLINE);
             } else if (time - g->last_recv_audio[i] <= (uint64_t)1 * 1000 * 1000 * 1000) {
-                setcolor(C_RED);
+                // @TODO: separate these colours
+                setcolor(COLOR_STATUS_BUSY);
             } else {
                 setcolor(GRAY(150));
             }
@@ -170,11 +165,11 @@ static void drawfriendreq(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSE
 {
     FRIENDREQ *req = sitem->data;
 
-    setcolor(C_TITLE);
+    setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
     drawstr(LIST_RIGHT + SCALE * 5, SCALE * 10, FRIENDREQUEST);
 
-    setcolor(LIST_MAIN);
+    setcolor(COLOR_MAIN_SUBTEXT);
     setfont(FONT_STATUS);
     drawtextrange(LIST_RIGHT + 5 * SCALE, utox_window_width, 20 * SCALE, req->msg, req->length);
 }
@@ -182,11 +177,11 @@ static void drawfriendreq(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSE
 /* Draw add a friend window */
 static void drawadd(int UNUSED(x), int UNUSED(y), int UNUSED(w), int height)
 {
-    setcolor(C_TITLE);
+    setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
     drawstr(LIST_RIGHT + SCALE * 5, SCALE * 10, ADDFRIENDS);
 
-    setcolor(C_TITLE);
+    setcolor(COLOR_MAIN_SUBTEXT);
     setfont(FONT_TEXT);
     drawstr(LIST_RIGHT + SCALE * 5, LIST_Y + SCALE * 5, TOXID);
 
@@ -233,7 +228,7 @@ static void drawadd(int UNUSED(x), int UNUSED(y), int UNUSED(w), int height)
 /* Top bar for user settings */
 static void drawsettings(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height))
 {
-    setcolor(C_TITLE);
+    setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
     drawstr(LIST_RIGHT + SCALE * 5, SCALE * 10, USERSETTINGS);
 }
@@ -242,7 +237,7 @@ static void drawsettings(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UN
 /* Current TODO */
 static void drawtransfer(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height))
 {
-    setcolor(C_TITLE);
+    setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
     drawstr(LIST_RIGHT + SCALE * 5, SCALE * 10, SWITCHPROFILE);
 }
@@ -250,7 +245,7 @@ static void drawtransfer(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UN
 /* Text content for settings page */
 static void drawsettings_content(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height))
 {
-    setcolor(C_TITLE);
+    setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_TEXT);
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 5, NAME);
 
@@ -273,6 +268,8 @@ static void drawsettings_content(int UNUSED(x), int y, int UNUSED(w), int UNUSED
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 278, PROXY);
 
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 310, LOGGING);
+    
+    drawstr(LIST_RIGHT + SCALE * 80, y + SCALE * 310, THEME);
 
     drawtext(LIST_RIGHT + SCALE * 132, y + SCALE * 290, (uint8_t*)":", 1);
 
@@ -290,7 +287,7 @@ static void drawsettings_content(int UNUSED(x), int y, int UNUSED(w), int UNUSED
     setcolor(C_RED);
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 302, WARNING);
 
-    setcolor(C_TITLE);
+    setcolor(COLOR_MAIN_BACKGROUND);
     setfont(FONT_TEXT);
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 334, AUDIONOTIFICATIONS);
 
@@ -301,21 +298,21 @@ static void drawsettings_content(int UNUSED(x), int y, int UNUSED(w), int UNUSED
 
 static void background_draw(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int width, int height)
 {
-    drawrect(0, 0, LIST_RIGHT, LIST_Y - 1, LIST_DARK);
-    drawhline(0, LIST_Y - 1, LIST_RIGHT, LIST_EDGE);
-    drawrect(0, LIST_Y, LIST_RIGHT, height + LIST_BOTTOM, LIST_MAIN);
-    drawrect(0, height + LIST_BOTTOM, LIST_RIGHT, height, LIST_DARK);
+    // Current user avatar & name background
+    drawrect(0, 0, LIST_RIGHT, LIST_Y, COLOR_MENU_BACKGROUND);
+    // Friend list ('roaster') background
+    drawrect(0, LIST_Y, LIST_RIGHT, height + LIST_BOTTOM, COLOR_LIST_BACKGROUND);
+    // Bottom icons menu background
+    drawrect(0, height + LIST_BOTTOM, LIST_RIGHT, height, COLOR_MENU_BACKGROUND);
 
+    // Current user avatar & name
     drawself();
 
-    drawrect(LIST_RIGHT, 0, width, height, WHITE);
-
-    drawvline(LIST_RIGHT, 1, LIST_Y - 1, LIST_EDGE3);
-    drawpixel(LIST_RIGHT, LIST_Y - 1, LIST_EDGE2);
-    drawvline(LIST_RIGHT, LIST_Y, height - SCALE * 15, LIST_EDGE4);
-    drawpixel(LIST_RIGHT, height - SCALE * 15, LIST_EDGE5);
-
-    drawhline(LIST_RIGHT + 1, LIST_Y - 1, width, C_GRAY);
+    // Chat background
+    drawrect(LIST_RIGHT, 0, width, height, COLOR_MAIN_BACKGROUND);
+    
+    // Chat and chat header separation
+    drawhline(LIST_RIGHT, LIST_Y, width, COLOR_EDGE_NORMAL);
 }
 
 static _Bool background_mmove(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height), int UNUSED(mx), int UNUSED(my), int UNUSED(dx), int UNUSED(dy))
@@ -348,22 +345,26 @@ static _Bool background_mleave(PANEL *UNUSED(p))
     return 0;
 }
 
+// Scrollbar or friend list
 SCROLLABLE scroll_list = {
     .panel = {
         .type = PANEL_SCROLLABLE,
     },
-    .color = LIST_DARK,
+    .color = 0x1c1c1c,
     .x = 2,
     .left = 1,
 },
 
+// Scrollbar in chat window
 scroll_friend = {
     .panel = {
         .type = PANEL_SCROLLABLE,
     },
-    .color = C_SCROLL,
+    .color = 0xd1d1d1,
 },
 
+// ?
+// @TODO
 scroll_group = {
     .panel = {
         .type = PANEL_SCROLLABLE,
@@ -371,6 +372,8 @@ scroll_group = {
     .color = C_SCROLL,
 },
 
+// Colour is not used for settings
+// @TODO
 scroll_settings = {
     .panel = {
         .type = PANEL_SCROLLABLE,
@@ -413,6 +416,7 @@ panel_settings = {
         (void*)&dropdown_ipv6, (void*)&dropdown_udp, (void*)&dropdown_logging,
         (void*)&dropdown_audible_notification, (void*)&dropdown_audio_filtering, 
         (void*)&dropdown_close_to_tray, (void*)&dropdown_start_in_tray,
+        (void*)&dropdown_theme,
         NULL
     }
 },
@@ -833,6 +837,14 @@ void ui_scale(uint8_t scale)
         .y = SCALE * 366,
         .height = SCALE * 12,
         .width = SCALE * 20
+    },
+    
+    d_theme = {
+        .type = PANEL_DROPDOWN,
+        .x = 80 * SCALE,
+        .y = SCALE * 320,
+        .height = SCALE * 12,
+        .width = SCALE * 40
     }
 
 #ifdef AUDIO_FILTERING
@@ -859,6 +871,7 @@ void ui_scale(uint8_t scale)
     dropdown_audible_notification.panel = d_notifications;
     dropdown_close_to_tray.panel = d_close_to_tray;
     dropdown_start_in_tray.panel = d_start_in_tray;
+    dropdown_theme.panel = d_theme;
 #ifdef AUDIO_FILTERING
     dropdown_audio_filtering.panel = d_audio_filtering;
 #endif
