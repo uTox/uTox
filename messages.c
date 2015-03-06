@@ -137,7 +137,11 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
                 h2 = STRING_IDX_MAX;
             }
 
-            setcolor(COLOR_MAIN_CHATTEXT);
+            if(msg->author) {
+                setcolor(COLOR_MAIN_SUBTEXT);
+            } else {
+                setcolor(COLOR_MAIN_CHATTEXT);
+            }
             
             if (msg->msg_type == MSG_TYPE_ACTION_TEXT) {
                 setcolor(COLOR_MAIN_ACTIONTEXT);
