@@ -11,10 +11,12 @@ void theme_load(char loadtheme)
     //---- Main chat area ----
     COLOR_MAIN_BACKGROUND = COLOR_PROC(0xFFFFFF);
     COLOR_MAIN_TEXT       = COLOR_PROC(0x333333);
+    COLOR_MAIN_CHATTEXT   = COLOR_PROC(0x000000);
     COLOR_MAIN_SUBTEXT    = COLOR_PROC(0x414141);
     COLOR_MAIN_ACTIONTEXT = COLOR_PROC(0x4e4ec8);
     COLOR_MAIN_QUOTETEXT  = COLOR_PROC(0x008000);
     COLOR_MAIN_URLTEXT    = COLOR_PROC(0x0000ff);
+    COLOR_MAIN_HINTTEXT   = COLOR_PROC(0x969696);
 
     //---- Top & bottom menu colours ----
     COLOR_MENU_BACKGROUND        = COLOR_PROC(0x1c1c1c);
@@ -66,6 +68,7 @@ void theme_load(char loadtheme)
     case THEME_DARK:
         COLOR_MAIN_BACKGROUND                 = COLOR_PROC(0x333333);
         COLOR_MAIN_TEXT                       = COLOR_PROC(0xdfdfdf);
+        COLOR_MAIN_CHATTEXT                   = COLOR_PROC(0xFFFFFF);
         COLOR_MAIN_SUBTEXT                    = COLOR_PROC(0xbbbbbb);
         COLOR_MAIN_ACTIONTEXT                 = COLOR_PROC(0x27a9bc);
         COLOR_MAIN_URLTEXT                    = COLOR_MAIN_ACTIONTEXT;
@@ -121,10 +124,12 @@ void theme_load(char loadtheme)
         
         COLOR_MAIN_BACKGROUND                 = COLOR_PROC(0xFFFFFF);
         COLOR_MAIN_TEXT                       = COLOR_PROC(0x000001);
+        COLOR_MAIN_CHATTEXT                   = COLOR_MAIN_TEXT;
         COLOR_MAIN_SUBTEXT                    = COLOR_MAIN_TEXT;
         COLOR_MAIN_ACTIONTEXT                 = COLOR_PROC(0x000033);
         COLOR_MAIN_QUOTETEXT                  = COLOR_PROC(0x003300);
         COLOR_MAIN_URLTEXT                    = COLOR_MAIN_ACTIONTEXT;
+        COLOR_MAIN_HINTTEXT                   = COLOR_MAIN_TEXT;
         COLOR_MENU_BACKGROUND                 = COLOR_MAIN_BACKGROUND;
         COLOR_MENU_TEXT                       = COLOR_MAIN_TEXT;
         COLOR_MENU_HOVER_BACKGROUND           = COLOR_MAIN_BACKGROUND;

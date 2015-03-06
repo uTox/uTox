@@ -86,7 +86,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
         // Draw the names for groups or friends
         if(m->type) {
             // Group message authors are all the same colour
-            setcolor(COLOR_MAIN_TEXT);
+            setcolor(COLOR_MAIN_CHATTEXT);
             setfont(FONT_TEXT);
             drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, y, &msg->msg[msg->length] + 1, msg->msg[msg->length]);
         } else {
@@ -137,11 +137,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
                 h2 = STRING_IDX_MAX;
             }
 
-            if(msg->author) {
-                setcolor(COLOR_MAIN_SUBTEXT);
-            } else {
-                setcolor(COLOR_MAIN_TEXT);
-            }
+            setcolor(COLOR_MAIN_CHATTEXT);
             
             if (msg->msg_type == MSG_TYPE_ACTION_TEXT) {
                 setcolor(COLOR_MAIN_ACTIONTEXT);
@@ -260,7 +256,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
         FRIEND *f = get_typers(m);
         if(f) {
             setfont(FONT_TEXT);
-            setcolor(COLOR_MAIN_TEXT);
+            setcolor(COLOR_MAIN_HINTTEXT);
             drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, y, f->name, f->name_length);
             drawtextwidth(x + MESSAGES_X, x + width, y, S(IS_TYPING), SLEN(IS_TYPING));
         }
