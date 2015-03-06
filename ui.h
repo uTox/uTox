@@ -149,7 +149,7 @@ uint8_t SCALE;
 
 #define MESSAGES_BOTTOM (-47 * SCALE)
 
-#define SEARCH_Y (31 * SCALE)
+#define SEARCH_Y (31 * SCALE) - 1
 
 /* main */
 //#define MAIN_X
