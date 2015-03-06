@@ -21,6 +21,7 @@ void theme_load(char loadtheme)
     //---- Top & bottom menu colours ----
     COLOR_MENU_BACKGROUND        = COLOR_PROC(0x1c1c1c);
     COLOR_MENU_TEXT              = COLOR_MAIN_BACKGROUND;
+    COLOR_MENU_SUBTEXT           = COLOR_PROC(0xd1d1d1);
     COLOR_MENU_HOVER_BACKGROUND  = COLOR_PROC(0x282828);
     COLOR_MENU_ACTIVE_BACKGROUND = COLOR_PROC(0x414141);
     COLOR_MENU_ACTIVE_TEXT       = COLOR_MAIN_BACKGROUND;
@@ -28,8 +29,8 @@ void theme_load(char loadtheme)
     //---- Friend list  ----
     COLOR_LIST_BACKGROUND       = COLOR_PROC(0x414141);
     COLOR_LIST_HOVER_BACKGROUND = COLOR_PROC(0x505050);
-    COLOR_LIST_TEXT             = COLOR_MAIN_BACKGROUND;
-    COLOR_LIST_SUBTEXT          = COLOR_PROC(0xd1d1d1);
+    COLOR_LIST_TEXT             = COLOR_MENU_TEXT;
+    COLOR_LIST_SUBTEXT          = COLOR_MENU_SUBTEXT;
 
     //---- Text selection ----
     COLOR_SELECTION_BACKGROUND = COLOR_MAIN_TEXT;
@@ -132,13 +133,14 @@ void theme_load(char loadtheme)
         COLOR_MAIN_HINTTEXT                   = COLOR_MAIN_TEXT;
         COLOR_MENU_BACKGROUND                 = COLOR_MAIN_BACKGROUND;
         COLOR_MENU_TEXT                       = COLOR_MAIN_TEXT;
+        COLOR_MENU_SUBTEXT                    = COLOR_MAIN_TEXT;
         COLOR_MENU_HOVER_BACKGROUND           = COLOR_MAIN_BACKGROUND;
         COLOR_MENU_ACTIVE_BACKGROUND          = COLOR_MAIN_TEXT;
         COLOR_MENU_ACTIVE_TEXT                = COLOR_MAIN_BACKGROUND;
         COLOR_LIST_BACKGROUND                 = COLOR_PROC(0x444444);
         COLOR_LIST_HOVER_BACKGROUND           = COLOR_MAIN_BACKGROUND;
-        COLOR_LIST_TEXT                       = COLOR_MAIN_TEXT;
-        COLOR_LIST_SUBTEXT                    = COLOR_MAIN_TEXT;
+        COLOR_LIST_TEXT                       = COLOR_MAIN_BACKGROUND;
+        COLOR_LIST_SUBTEXT                    = COLOR_MAIN_BACKGROUND;
         COLOR_SELECTION_BACKGROUND            = COLOR_MAIN_TEXT;
         COLOR_SELECTION_TEXT                  = COLOR_MAIN_BACKGROUND;
         COLOR_GROUP_UNUSUAL                   = COLOR_MAIN_URLTEXT;

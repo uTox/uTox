@@ -60,13 +60,12 @@ void draw_avatar_image(UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, u
 /* Top left self interface Avatar, name, statusmsg, status icon */
 static void drawself(void)
 {
-    // @TODO: separate these colours if needed (COLOR_LIST_SUBTEXT)
-    setcolor(!button_name.mouseover ? COLOR_LIST_TEXT : COLOR_LIST_SUBTEXT);
+    setcolor(!button_name.mouseover ? COLOR_MENU_TEXT : COLOR_MENU_SUBTEXT);
     setfont(FONT_SELF_NAME);
     drawtextrange(SELF_NAME_X, SELF_STATUS_X, SELF_NAME_Y, self.name, self.name_length);
 
     // @TODO: separate these colours if needed (COLOR_MAIN_HINTTEXT)
-    setcolor(!button_statusmsg.mouseover ? COLOR_LIST_SUBTEXT : COLOR_MAIN_HINTTEXT);
+    setcolor(!button_statusmsg.mouseover ? COLOR_MENU_SUBTEXT : COLOR_MAIN_HINTTEXT);
     setfont(FONT_STATUS);
     drawtextrange(SELF_MSG_X, SELF_STATUS_X, SELF_MSG_Y, self.statusmsg, self.statusmsg_length);
 
@@ -74,7 +73,7 @@ static void drawself(void)
     if (self_has_avatar()) {
         draw_avatar_image(self.avatar.image, SELF_AVATAR_X, SELF_AVATAR_Y, self.avatar.width, self.avatar.height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
     } else {
-        drawalpha(BM_CONTACT, SELF_AVATAR_X, SELF_AVATAR_Y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_LIST_TEXT);
+        drawalpha(BM_CONTACT, SELF_AVATAR_X, SELF_AVATAR_Y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_MENU_TEXT);
     }
 
     drawalpha(BM_STATUSAREA, SELF_STATUS_X, SELF_STATUS_Y, BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT, button_status.mouseover ? COLOR_LIST_HOVER_BACKGROUND : COLOR_LIST_BACKGROUND);
