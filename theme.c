@@ -29,7 +29,7 @@ void theme_load(char loadtheme)
     COLOR_LIST_BACKGROUND       = COLOR_PROC(0x414141);
     COLOR_LIST_HOVER_BACKGROUND = COLOR_PROC(0x505050);
     COLOR_LIST_TEXT             = COLOR_MAIN_BACKGROUND;
-    COLOR_LIST_SUBTEXT          = COLOR_PROC(0xBaBaBa);
+    COLOR_LIST_SUBTEXT          = COLOR_PROC(0xd1d1d1);
 
     //---- Text selection ----
     COLOR_SELECTION_BACKGROUND = COLOR_MAIN_TEXT;

@@ -256,6 +256,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
         FRIEND *f = get_typers(m);
         if(f) {
             setfont(FONT_TEXT);
+            // @TODO: separate these colours if needed
             setcolor(COLOR_MAIN_HINTTEXT);
             drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, y, f->name, f->name_length);
             drawtextwidth(x + MESSAGES_X, x + width, y, S(IS_TYPING), SLEN(IS_TYPING));

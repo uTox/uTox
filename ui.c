@@ -60,11 +60,13 @@ void draw_avatar_image(UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, u
 /* Top left self interface Avatar, name, statusmsg, status icon */
 static void drawself(void)
 {
-    setcolor(!button_name.mouseover ? COLOR_MENU_TEXT : COLOR_MENU_ACTIVE_TEXT);
+    // @TODO: separate these colours if needed (COLOR_LIST_SUBTEXT)
+    setcolor(!button_name.mouseover ? COLOR_LIST_TEXT : COLOR_LIST_SUBTEXT);
     setfont(FONT_SELF_NAME);
     drawtextrange(SELF_NAME_X, SELF_STATUS_X, SELF_NAME_Y, self.name, self.name_length);
 
-    setcolor(!button_statusmsg.mouseover ? COLOR_MENU_TEXT : COLOR_MENU_ACTIVE_TEXT);
+    // @TODO: separate these colours if needed (COLOR_MAIN_HINTTEXT)
+    setcolor(!button_statusmsg.mouseover ? COLOR_LIST_SUBTEXT : COLOR_MAIN_HINTTEXT);
     setfont(FONT_STATUS);
     drawtextrange(SELF_MSG_X, SELF_STATUS_X, SELF_MSG_Y, self.statusmsg, self.statusmsg_length);
 
