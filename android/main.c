@@ -178,6 +178,12 @@ UTOX_NATIVE_IMAGE *png_to_image(const UTOX_PNG_IMAGE data, size_t size, uint16_t
     return texture;
 }
 
+void image_free(UTOX_NATIVE_IMAGE *image)
+{
+    GLuint texture = image;
+    glDeleteTextures(1, &texture);
+}
+
 void* loadsavedata(uint32_t *len)
 {
     return file_raw("/data/data/tox.utox/files/tox_save", len);
