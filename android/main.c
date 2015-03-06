@@ -154,7 +154,7 @@ void setselection(char_t *data, STRING_IDX length)
 {
 }
 
-UTOX_NATIVE_IMAGE png_to_image(const UTOX_PNG_IMAGE data, size_t size, uint16_t *w, uint16_t *h)
+UTOX_NATIVE_IMAGE *png_to_image(const UTOX_PNG_IMAGE data, size_t size, uint16_t *w, uint16_t *h, _Bool keep_alpha)
 {
     uint8_t *out;
     unsigned width, height;
@@ -176,6 +176,12 @@ UTOX_NATIVE_IMAGE png_to_image(const UTOX_PNG_IMAGE data, size_t size, uint16_t 
     free(out);
 
     return texture;
+}
+
+void image_free(UTOX_NATIVE_IMAGE *image)
+{
+    GLuint texture = image;
+    glDeleteTextures(1, &texture);
 }
 
 void* loadsavedata(uint32_t *len)

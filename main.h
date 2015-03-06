@@ -93,6 +93,7 @@ typedef struct edit_change EDIT_CHANGE;
 
 #include "avatar.h"
 #include "messages.h"
+#include "theme.h"
 #include "dns.h"
 #include "transfer.h"
 #include "friend.h"

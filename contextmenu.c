@@ -33,23 +33,23 @@ void contextmenu_draw(void)
         return;
     }
 
-    // Ensure that font is set before calculating position and width.
-    setfont(FONT_TEXT);
-    setcolor(COLOR_TEXT);
-
-    int x, w;
+    int x, w, active_h;
     calculate_pos_and_width(b, &x, &w);
 
-    drawrectw(x, b->y, w, b->height, WHITE);
-    drawrectw(x, b->y + b->over * CONTEXT_HEIGHT, w, CONTEXT_HEIGHT, C_GRAY);
+    drawrectw(x, b->y, w, b->height, COLOR_MAIN_BACKGROUND);
+    active_h = b->y + b->over * CONTEXT_HEIGHT;
+    drawrectw(x, active_h, w, CONTEXT_HEIGHT, COLOR_ACTIVEOPTION_BACKGROUND);
 
     int i;
     for(i = 0; i != b->count; i++) {
+        // Ensure that font is set before calculating position and width.
         STRING *name = b->ondisplay(i, b);
+        setfont(FONT_TEXT);
+        setcolor((active_h == b->y + i * CONTEXT_HEIGHT) ? COLOR_ACTIVEOPTION_TEXT : COLOR_MAIN_TEXT);
         drawtext(x + SCALE * 2, b->y + SCALE * 2 + i * CONTEXT_HEIGHT, name->str, name->length);
     }
 
-    framerect(x, b->y, x + w, b->y + b->height, BLUE);
+    framerect(x, b->y, x + w, b->y + b->height, COLOR_EDGE_ACTIVE);
 }
 
 _Bool contextmenu_mmove(int mx, int my, int UNUSED(dx), int UNUSED(dy))
@@ -64,7 +64,7 @@ _Bool contextmenu_mmove(int mx, int my, int UNUSED(dx), int UNUSED(dy))
 
     // Ensure that font is set before calculating position and width.
     setfont(FONT_TEXT);
-    setcolor(COLOR_TEXT);
+    setcolor(COLOR_MAIN_BACKGROUND);
 
     int x, w;
     calculate_pos_and_width(b, &x, &w);

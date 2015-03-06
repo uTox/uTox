@@ -23,9 +23,7 @@
 
 #include <pthread.h>
 #include <unistd.h>
-
 #include <locale.h>
-
 #include <dlfcn.h>
 
 #include "audio.c"
@@ -884,19 +882,57 @@ static int systemlang(void)
     return ui_guess_lang_by_posix_locale(str, DEFAULT_LANG);
 }
 
+_Bool parse_args_wait_for_theme;
+
 int main(int argc, char *argv[])
 {
-    if(argc == 2 && argv[1]) {
-        if(!strcmp(argv[1], "--version")) {
-            debug("%s\n", VERSION);
-            return 0;
-        } else if(!strcmp(argv[1], "--portable")) {
-            debug("Launching uTox in portable mode: All data will be saved to the tox folder in the current working directory\n");
-            utox_portable = 1;
-        } else {
-            debug("Valid arguments are: --version and --portable (launches uTox in portable mode)\n");
-            return 0;
+    parse_args_wait_for_theme = 0;
+    theme = THEME_DEFAULT;
+    
+    if (argc > 1)
+        for (int i = 1; i < argc; i++) {
+            if (parse_args_wait_for_theme) {
+                if(!strcmp(argv[i], "default")) {
+                    theme = THEME_DEFAULT;
+                    parse_args_wait_for_theme = 0;
+                    continue;
+                }
+                if(!strcmp(argv[i], "dark")) {
+                    theme = THEME_DARK;
+                    parse_args_wait_for_theme = 0;
+                    continue;
+                }
+                if(!strcmp(argv[i], "light")) {
+                    theme = THEME_LIGHT;
+                    parse_args_wait_for_theme = 0;
+                    continue;
+                }
+                if(!strcmp(argv[i], "highcontrast")) {
+                    theme = THEME_HIGHCONTRAST;
+                    parse_args_wait_for_theme = 0;
+                    continue;
+                }
+                debug("Please specify correct theme (please check user manual for list of correct values).");
+                return 1;
+            }
+            
+            if(!strcmp(argv[i], "--version")) {
+                debug("%s\n", VERSION);
+                return 0;
+            }
+            if(!strcmp(argv[i], "--portable")) {
+                debug("Launching uTox in portable mode: All data will be saved to the tox folder in the current working directory\n");
+                utox_portable = 1;
+            }
+            if(!strcmp(argv[i], "--theme")) {
+                parse_args_wait_for_theme = 1;
+            }
+            printf("arg %d: %s\n", i, argv[i]);
         }
+        
+    if (parse_args_wait_for_theme) {
+        debug("Expected theme name, but got nothing. -_-\n");
+        return 0;
     }
 
     XInitThreads();
@@ -927,6 +963,8 @@ int main(int argc, char *argv[])
                     PointerMotionMask | StructureNotifyMask | KeyPressMask | KeyReleaseMask | FocusChangeMask |
                     PropertyChangeMask,
     };
+    
+    theme_load(theme);
 
     /* load save data */
     UTOX_SAVE *save = config_load();
@@ -1356,8 +1394,6 @@ _Bool video_init(void *handle)
         if(!XShmAttach(deskdisplay, &shminfo)) {
             return 0;
         }
-
-
 
         return 1;
     }

@@ -182,8 +182,8 @@ void image_set_filter(UTOX_NATIVE_IMAGE *image, uint8_t filter)
 
 void image_set_scale(UTOX_NATIVE_IMAGE *image, double img_scale)
 {
-    image->scaled_width = (uint32_t)((double)image->width * img_scale);
-    image->scaled_height = (uint32_t)((double)image->height * img_scale);
+    image->scaled_width = (uint32_t)(((double)image->width * img_scale) + 0.5);
+    image->scaled_height = (uint32_t)(((double)image->height * img_scale) + 0.5);
 }
 
 static _Bool image_is_stretched(const UTOX_NATIVE_IMAGE *image)
@@ -964,7 +964,7 @@ int ch_mod(uint8_t *file){
     return 1;
 }
 
-/** Creates a tray baloon popup with the message, and flashes the main window 
+/** Creates a tray baloon popup with the message, and flashes the main window
  *
  * accepts: char_t *title, title legnth, char_t *msg, msg length;
  * returns void;
@@ -1221,8 +1221,8 @@ void config_osdefaults(UTOX_SAVE *r)
  *
  * also handles call from other apps.
  */
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int nCmdShow)
-{
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int nCmdShow){
+
     /* if opened with argument, check if uTox is already open and pass the argument to the existing process */
     CreateMutex(NULL, 0, "uTox");
     if(GetLastError() == ERROR_ALREADY_EXISTS) {
@@ -1238,18 +1238,52 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
         return 0;
     }
 
-    /* force the working directory if opened with a command */
-    if(*cmd) {
-        HMODULE hModule = GetModuleHandle(NULL);
-        char path[MAX_PATH];
-        int len = GetModuleFileName(hModule, path, MAX_PATH);
-        path[len - 10] = 0;//!
-        SetCurrentDirectory(path);
+    /* Process argc/v the backwards (read: windows) way. */
+    LPWSTR *arglist;
+    int argc, i;
 
-        if (strcmp(cmd, "--portable") == 0) {
-            utox_portable = 1;
+    /* Convert PSTR command line args from windows to argc */
+    arglist = CommandLineToArgvW(GetCommandLineW(), &argc);
+    if( NULL == arglist ){
+      debug("CommandLineToArgvW failed\n");
+    } else {
+        for( i=0; i < argc; i++) {
+            if(wcscmp(arglist[i], L"--version") == 0) {
+                debug("uTox version: %s\n", VERSION);
+                return 0;
+            } else if (wcscmp(arglist[i], L"--portable") == 0) {
+                /* force the working directory if opened with portable command */
+                HMODULE hModule = GetModuleHandle(NULL);
+                char path[MAX_PATH];
+                int len = GetModuleFileName(hModule, path, MAX_PATH);
+                path[len - 10] = 0;//!
+                SetCurrentDirectory(path);
+                utox_portable = 1;
+                debug("Starting uTox in portable mode: Data will be saved to tox/ in the current directory\n");
+            } else if(wcscmp(arglist[i], L"--theme") == 0){
+                debug("Searching for theme from argv\n");
+                if(arglist[(i+1)]){
+                    if(wcscmp(arglist[(i+1)], L"default") == 0){
+                        theme = THEME_DEFAULT;
+                    } else if(wcscmp(arglist[(i+1)], L"dark") == 0){
+                        theme = THEME_DARK;
+                    } else if(wcscmp(arglist[(i+1)], L"light") == 0){
+                        theme = THEME_LIGHT;
+                    } else if(wcscmp(arglist[(i+1)], L"highcontrast") == 0){
+                        theme = THEME_HIGHCONTRAST;
+                    } else {
+                        debug("Please specify correct theme (please check user manual for list of correct values).");
+                        theme = THEME_DEFAULT;
+                    }
+                }
+            }
         }
     }
+
+    theme_load(theme);
+
+    // Free memory allocated for CommandLineToArgvW arguments.
+    LocalFree(arglist);
 
     /* */
     MSG msg;

@@ -112,6 +112,9 @@ msgstr("Eszközválasztás")
 msgid(AUDIOINPUTDEVICE)
 msgstr("Bemeneti hangeszköz")
 
+msgid(AUDIOFILTERING)
+msgstr("Hangszűrés")
+
 msgid(AUDIOOUTPUTDEVICE)
 msgstr("Kimeneti hangeszköz")
 
@@ -153,6 +156,12 @@ msgstr("Hallható jelzés (csengőhang) engedélyezése")
 
 msgid(IS_TYPING)
 msgstr("éppen ír...")
+
+msgid(CLOSE_TO_TRAY)
+msgstr("Bezárás a tálcára")
+
+msgid(START_IN_TRAY)
+msgstr("Indítás a tálcán")
 
 msgid(COPY)
 msgstr("Másolás")
@@ -253,3 +262,17 @@ msgstr("Port")
 msgid(WINDOW_TITLE_VIDEO_PREVIEW)
 msgstr("Videó előnézet")
 
+msgid(MUTE)
+msgstr("Némítás")
+
+msgid(UNMUTE)
+msgstr("Némítás visszavonása")
+
+msgid(AVATAR_TOO_LARGE_MAX_SIZE_IS)
+msgstr("Az avatarkép túl nagy! Maximális méret: ")
+
+msgid(CANT_FIND_FILE_OR_EMPTY)
+msgstr("A kiválasztott kép nem található, vagy üres.")
+
+msgid(CLEAR_HISTORY)
+msgstr("Előzmények törlése")

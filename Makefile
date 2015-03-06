@@ -101,6 +101,9 @@ install: utox
 	mkdir -p $(DESTDIR)$(PREFIX)/share/applications
 	install -m 644 utox.desktop $(DESTDIR)$(PREFIX)/share/applications/utox.desktop
 	if [ "$UNITY" -eq "1" ]; then echo "X-MessagingMenu-UsesChatSection=true" >> $(DESTDIR)$(PREFIX)/share/applications/utox.desktop; fi
+	
+	mkdir -p $(DESTDIR)$(PREFIX)/share/man/man1
+	install -m 644 utox.1 $(DESTDIR)$(PREFIX)/share/man/man1/utox.1
 
 main.o: xlib/main.c xlib/keysym2ucs.c
 

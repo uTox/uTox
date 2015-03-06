@@ -36,12 +36,12 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
     edit->height = height - 4 * SCALE;
 
     if(!edit->noborder) {
-        framerect(x, y, x + width, y + height, (edit == active_edit) ? BLUE : (edit->mouseover ? C_GRAY2 : C_GRAY));
+        framerect(x, y, x + width, y + height, (edit == active_edit) ? COLOR_EDGE_ACTIVE : (edit->mouseover ? COLOR_EDGE_HOVER : COLOR_EDGE_NORMAL));
     }
-    drawrect(x + 1, y + 1, x + width - 1, y + height - 1, WHITE);
+    drawrect(x + 1, y + 1, x + width - 1, y + height - 1, COLOR_MAIN_BACKGROUND);
 
     setfont(FONT_TEXT);
-    setcolor(COLOR_TEXT);
+    setcolor(COLOR_MAIN_TEXT);
 
     int yy = y;
 
@@ -54,10 +54,10 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
         yy -= scroll_gety(scroll, height);
     }
 
-
+    // TODO: what is this for?
     if(!edit->length && maybe_i18nal_string_is_valid(&edit->empty_str)) {
         STRING* empty_str_text = maybe_i18nal_string_get(&edit->empty_str);
-        setcolor(C_GRAY2);
+        setcolor(COLOR_MAIN_TEXT);
         drawtext(x + 2 * SCALE, yy + 2 * SCALE, empty_str_text->str, empty_str_text->length);
     }
 
@@ -101,7 +101,7 @@ _Bool edit_mmove(EDIT *edit, int px, int py, int width, int height, int x, int y
             need_redraw = 1;
             return need_redraw;
         }
- 
+
         setfont(FONT_TEXT);
         edit_sel.p2 = hittextmultiline(x - 2 * SCALE, width - 4 * SCALE - (edit->multiline ? SCROLL_WIDTH : 0), y - 2 * SCALE, INT_MAX, font_small_lineheight, edit->data, edit->length, edit->multiline);
 
@@ -349,11 +349,9 @@ static STRING_IDX edit_redo(EDIT *edit)
 #define updatesel() if(edit_sel.p1 <= edit_sel.p2) {edit_sel.start = edit_sel.p1; edit_sel.length = edit_sel.p2 - edit_sel.p1;} \
                     else {edit_sel.start = edit_sel.p2; edit_sel.length = edit_sel.p1 - edit_sel.p2;}
 
-/* shift: flags & 1
- * control: flags & 4
-*/
-void edit_char(uint32_t ch, _Bool control, uint8_t flags)
-{
+void edit_char(uint32_t ch, _Bool control, uint8_t flags){
+    /* shift: flags & 1
+     * control: flags & 4 */
     EDIT *edit = active_edit;
 
     if(control || (ch <= 0x1F && (!edit->multiline || ch != '\n')) || (ch >= 0x7f && ch <= 0x9F)) {
@@ -594,7 +592,7 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags)
         case KEY_RETURN: {
             modified = 1;
 
-            if(edit->onenter) {
+            if(edit->onenter && !(flags & 4)) {
                 edit->onenter(edit);
                 /*dirty*/
                 if(edit->length == 0) {
