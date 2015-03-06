@@ -30,7 +30,7 @@ fragment_shader[] =
         "gl_FragColor = (texture2D(samp, x) + vec4(k2, 0.0)) * vec4(k, 1.0);"
     "}";
 
-static GLuint prog, COLOR_MAIN_BACKGROUND;
+static GLuint prog;
 static GLint matrix, k, k2, samp;
 static GLuint bitmap[32];
 
