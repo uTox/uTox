@@ -91,7 +91,7 @@ static void drawfriend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(h
     if (friend_has_avatar(f)) {
         draw_avatar_image(f->avatar.image, LIST_RIGHT + SCALE * 5, SCALE * 5, f->avatar.width, f->avatar.height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
     } else {
-        drawalpha(BM_CONTACT, LIST_RIGHT + SCALE * 5, SCALE * 5, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_LIST_BACKGROUND);
+        drawalpha(BM_CONTACT, LIST_RIGHT + SCALE * 5, SCALE * 5, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_MAIN_TEXT);
     }
 
     setcolor(COLOR_MAIN_TEXT);
@@ -107,7 +107,7 @@ static void drawgroup(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(he
 {
     GROUPCHAT *g = sitem->data;
 
-    drawalpha(BM_GROUP, LIST_RIGHT + SCALE * 5, SCALE * 5, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_LIST_BACKGROUND);
+    drawalpha(BM_GROUP, LIST_RIGHT + SCALE * 5, SCALE * 5, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_MAIN_TEXT);
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_TITLE);
