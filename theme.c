@@ -137,8 +137,8 @@ void theme_load(char loadtheme)
         COLOR_MENU_ACTIVE_TEXT                = COLOR_MAIN_BACKGROUND;
         COLOR_LIST_BACKGROUND                 = COLOR_PROC(0x444444);
         COLOR_LIST_HOVER_BACKGROUND           = COLOR_MAIN_TEXT;
-        COLOR_LIST_TEXT                       = COLOR_MAIN_BACKGROUND;
-        COLOR_LIST_SUBTEXT                    = COLOR_MAIN_BACKGROUND;
+        COLOR_LIST_TEXT                       = COLOR_MAIN_TEXT;
+        COLOR_LIST_SUBTEXT                    = COLOR_MAIN_TEXT;
         COLOR_SELECTION_BACKGROUND            = COLOR_MAIN_TEXT;
         COLOR_SELECTION_TEXT                  = COLOR_MAIN_BACKGROUND;
         COLOR_GROUP_UNUSUAL                   = COLOR_MAIN_URLTEXT;
