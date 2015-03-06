@@ -12,7 +12,7 @@
 
 #define debug(...) ((void)__android_log_print(ANDROID_LOG_INFO, "utox", __VA_ARGS__))
 
-#define RGB(r, g, b) ((r) | ((g) << 8) | (b << 16))
+#define RGB(r, g, b) ((r) | ((g) << 8) | ((b) << 16))
 
 #define KEY_BACK 1
 #define KEY_RETURN 2
