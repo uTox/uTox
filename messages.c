@@ -106,7 +106,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
                     if(msg->author)
                         setcolor(COLOR_MAIN_SUBTEXT);
                     else
-                        setcolor(COLOR_MAIN_TEXT);
+                        setcolor(COLOR_MAIN_CHATTEXT);
                 if(msg->author)
                     drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, y, self.name, self.name_length);
                 else
