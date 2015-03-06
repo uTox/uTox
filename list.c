@@ -52,7 +52,7 @@ static void drawitem(ITEM *i, int UNUSED(x), int y)
         if (friend_has_avatar(f)) {
             draw_avatar_image(f->avatar.image, LIST_AVATAR_X, y + LIST_AVATAR_Y, f->avatar.width, f->avatar.height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
         } else {
-            drawalpha(BM_CONTACT, LIST_AVATAR_X, y + LIST_AVATAR_Y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, (sitem == i) ? COLOR_LIST_BACKGROUND : COLOR_MAIN_BACKGROUND);
+            drawalpha(BM_CONTACT, LIST_AVATAR_X, y + LIST_AVATAR_Y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, (sitem == i) ? COLOR_LIST_BACKGROUND : COLOR_LIST_TEXT);
         }
 
         drawname(i, y, f->name, f->status_message, f->name_length, f->status_length, 0, 0);
