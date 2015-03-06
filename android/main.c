@@ -501,6 +501,8 @@ static void android_main(void) /* main thread */
     pipe(pipefd);
     fcntl(pipefd[0], F_SETFL, O_NONBLOCK);
 
+    theme_load(THEME_DEFAULT);
+
     thread(tox_thread, NULL);
 
     initfonts();
