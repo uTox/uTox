@@ -287,7 +287,7 @@ static void drawsettings_content(int UNUSED(x), int y, int UNUSED(w), int UNUSED
     setcolor(C_RED);
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 302, WARNING);
 
-    setcolor(COLOR_MAIN_BACKGROUND);
+    setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_TEXT);
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 334, AUDIONOTIFICATIONS);
 
