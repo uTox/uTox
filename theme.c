@@ -113,6 +113,7 @@ void theme_load(char loadtheme)
         COLOR_MENU_HOVER_BACKGROUND   = COLOR_PROC(0xE0E0E0);
         COLOR_MENU_ACTIVE_BACKGROUND  = COLOR_PROC(0x555555);
         COLOR_MENU_TEXT               = COLOR_PROC(0x555555);
+        COLOR_MENU_SUBTEXT            = COLOR_PROC(0x414141);
         COLOR_MENU_ACTIVE_TEXT        = COLOR_PROC(0xffffff);
         COLOR_EDGE_NORMAL             = COLOR_PROC(0xC0C0C0);
         COLOR_EDGE_ACTIVE             = COLOR_MAIN_URLTEXT;
