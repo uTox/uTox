@@ -140,7 +140,8 @@ static void drawgroup(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(he
                 // @TODO: separate these colours
                 setcolor(COLOR_STATUS_BUSY);
             } else {
-                setcolor(GRAY(150));
+                // @TODO: separate these colours if needed
+                setcolor(COLOR_MAIN_HINTTEXT);
             }
 
             if(k + w >= (utox_window_width - 32 * SCALE)) {
