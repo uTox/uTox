@@ -72,3 +72,4 @@ jarsigner -sigalg SHA1withRSA -digestalg SHA1 -keystore ./debug.keystore -storep
 mv tmp/tmp2.apk ./utox.apk
 
 rm -r tmp toolchain
+
