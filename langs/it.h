@@ -46,6 +46,9 @@ msgstr("Nuovo trasferimento file")
 msgid(TRANSFER_STARTED)
 msgstr("Trasferimento file iniziato")
 
+msgid(TRANSFER___)
+msgstr("…")
+
 msgid(TRANSFER_PAUSED)
 msgstr("Trasferimento file in pausa")
 
@@ -107,7 +110,7 @@ msgid(AUDIOINPUTDEVICE)
 msgstr("Audio (input)")
 
 msgid(AUDIOFILTERING)
-msgstr("Filtro Audio")
+msgstr("Cancellazione rumore")
 
 msgid(AUDIOOUTPUTDEVICE)
 msgstr("Audio (output)")
@@ -134,7 +137,7 @@ msgid(WARNING)
 msgstr("Cambiando le impostazioni della Rete o del Proxy, verrai temporaneamente disconnesso dalla rete Tox")
 
 msgid(LOGGING)
-msgstr("Salvare i log delle chat?")
+msgstr("Salvare cronologia chat?")
 
 msgid(AUDIONOTIFICATIONS)
 msgstr("Abilita notifiche audio per le chiamate (Suoneria)")
@@ -235,11 +238,26 @@ msgstr("Disattiva")
 msgid(UNMUTE)
 msgstr("Attiva")
 
-msgid(CLEAR_HISTORY)
-msgstr("Cancella cronologia")
-
 msgid(AVATAR_TOO_LARGE_MAX_SIZE_IS)
 msgstr("Avatar troppo grande. Dimensione massima: ")
 
 msgid(CANT_FIND_FILE_OR_EMPTY)
 msgstr("Impossibile trovare il file o il file è vuoto.")
+
+msgid(CLEAR_HISTORY)
+msgstr("Cancella cronologia chat")
+
+msgid(THEME)
+msgstr("Tema")
+
+msgid(THEME_DEFAULT)
+msgstr("Default")
+
+msgid(THEME_LIGHT)
+msgstr("Chiaro")
+
+msgid(THEME_DARK)
+msgstr("Scuro")
+
+msgid(THEME_HIGHCONTRAST)
+msgstr("Alto contrasto")
