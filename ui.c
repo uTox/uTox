@@ -270,7 +270,7 @@ static void drawsettings_content(int UNUSED(x), int y, int UNUSED(w), int UNUSED
 
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 310, LOGGING);
     
-    drawstr(LIST_RIGHT + SCALE * 80, y + SCALE * 310, THEME);
+    drawstr(LIST_RIGHT + SCALE * 75, y + SCALE * 310, THEME);
 
     drawtext(LIST_RIGHT + SCALE * 132, y + SCALE * 290, (uint8_t*)":", 1);
 
@@ -842,7 +842,7 @@ void ui_scale(uint8_t scale)
     
     d_theme = {
         .type = PANEL_DROPDOWN,
-        .x = 80 * SCALE,
+        .x = 75 * SCALE,
         .y = SCALE * 320,
         .height = SCALE * 12,
         .width = SCALE * 40
