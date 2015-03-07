@@ -226,6 +226,7 @@ void flush_file(FILE *file)
 
 int ch_mod(uint8_t *file){
     /* You're probably looking for ./xlib as android isn't working when this was written. */
+    return -1;
 }
 
 void setscale(void)
