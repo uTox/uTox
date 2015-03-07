@@ -18,7 +18,7 @@ void theme_load(char loadtheme)
     COLOR_MAIN_URLTEXT    = COLOR_PROC(0x001fff);
     COLOR_MAIN_HINTTEXT   = COLOR_PROC(0x969696);
 
-    //---- Top & bottom menu colours ----
+    //---- Friend list header and bottom-left buttons ----
     COLOR_MENU_BACKGROUND        = COLOR_PROC(0x1c1c1c);
     COLOR_MENU_TEXT              = COLOR_MAIN_BACKGROUND;
     COLOR_MENU_SUBTEXT           = COLOR_PROC(0xd1d1d1);
