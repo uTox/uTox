@@ -23,6 +23,8 @@ for arg in "$@"; do
 	esac
 done
 
+export ALIAS=utox
+
 export ANDROID_NDK_HOME=/opt/android-ndk
 mkdir toolchain
 cd toolchain
@@ -43,16 +45,16 @@ mkdir ./tmp/java
 mkdir ./tmp/libs
 mkdir ./tmp/libs/armeabi
 
-ls -la ../openal/lib/
-OPENAL_BUILD='-I../openal/include ../openal/lib/libopenal.a -lOpenSLES'
+ls -la ../openal-arm/lib/
+OPENAL_BUILD='-I../openal-arm/include ../openal-arm/lib/libopenal.a -lOpenSLES'
 NATIVE_AUDIO_BUILD='-DNATIVE_ANDROID_AUDIO -lOpenSLES'
 
 arm-linux-androideabi-gcc -Wl,--error-unresolved-symbols \
 		-Wall -Wextra -s -Ofast \
-		-I../freetype/include/freetype2/ -I../toxcore/include/ \
+		-I../freetype-arm/include/freetype2/ -I../toxcore-arm/include/ \
 		./*.c ./png/png.c -llog -landroid -lEGL -lGLESv2 $OPENAL_BUILD \
-		../toxcore/lib/libtoxcore.a ../toxcore/lib/libtoxdns.a ../toxcore/lib/libtoxav.a ../toxcore/lib/libsodium.a \
-		../toxcore/lib/libopus.a ../toxcore/lib/libvpx.a ../freetype/lib/libfreetype.a \
+		../toxcore-arm/lib/libtoxcore.a ../toxcore-arm/lib/libtoxdns.a ../toxcore-arm/lib/libtoxav.a ../toxcore-arm/lib/libsodium.a \
+		../toxcore-arm/lib/libopus.a ../toxcore-arm/lib/libvpx.a ../freetype-arm/lib/libfreetype.a \
 		-lm -lz -ldl -shared -o ./tmp/libs/armeabi/libn.so
 
 $SDK_PATH/build-tools/21.1.2/aapt package -f -M ./android/AndroidManifest.xml -S ./android/res \
@@ -64,3 +66,7 @@ $SDK_PATH/build-tools/21.1.2/dx --dex --output=./tmp/classes.dex ./tmp/java
 
 java -classpath $SDK_PATH/tools/lib/sdklib.jar com.android.sdklib.build.ApkBuilderMain ./tmp/tmp2.apk \
     	-u -z ./tmp/tmp1.apk -f ./tmp/classes.dex -nf ./tmp/libs
+
+jarsigner -sigalg SHA1withRSA -digestalg SHA1 -keystore ./tmp/debug.keystore -storepass $PASSWORD ./tmp/tmp2.apk $ALIAS
+
+mv tmp/tmp2.apk ../utox.apk
