@@ -54,10 +54,10 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
         yy -= scroll_gety(scroll, height);
     }
 
-    // TODO: what is this for?
+    // display an edit hint if there's no text in the field
     if(!edit->length && maybe_i18nal_string_is_valid(&edit->empty_str)) {
         STRING* empty_str_text = maybe_i18nal_string_get(&edit->empty_str);
-        setcolor(COLOR_MAIN_TEXT);
+        setcolor(COLOR_MAIN_HINTTEXT);
         drawtext(x + 2 * SCALE, yy + 2 * SCALE, empty_str_text->str, empty_str_text->length);
     }
 

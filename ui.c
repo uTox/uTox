@@ -60,11 +60,12 @@ void draw_avatar_image(UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, u
 /* Top left self interface Avatar, name, statusmsg, status icon */
 static void drawself(void)
 {
-    setcolor(!button_name.mouseover ? COLOR_MENU_TEXT : COLOR_MENU_ACTIVE_TEXT);
+    setcolor(!button_name.mouseover ? COLOR_MENU_TEXT : COLOR_MENU_SUBTEXT);
     setfont(FONT_SELF_NAME);
     drawtextrange(SELF_NAME_X, SELF_STATUS_X, SELF_NAME_Y, self.name, self.name_length);
 
-    setcolor(!button_statusmsg.mouseover ? COLOR_MENU_TEXT : COLOR_MENU_ACTIVE_TEXT);
+    // @TODO: separate these colours if needed (COLOR_MAIN_HINTTEXT)
+    setcolor(!button_statusmsg.mouseover ? COLOR_MENU_SUBTEXT : COLOR_MAIN_HINTTEXT);
     setfont(FONT_STATUS);
     drawtextrange(SELF_MSG_X, SELF_STATUS_X, SELF_MSG_Y, self.statusmsg, self.statusmsg_length);
 
@@ -72,7 +73,7 @@ static void drawself(void)
     if (self_has_avatar()) {
         draw_avatar_image(self.avatar.image, SELF_AVATAR_X, SELF_AVATAR_Y, self.avatar.width, self.avatar.height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
     } else {
-        drawalpha(BM_CONTACT, SELF_AVATAR_X, SELF_AVATAR_Y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_MAIN_BACKGROUND);
+        drawalpha(BM_CONTACT, SELF_AVATAR_X, SELF_AVATAR_Y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_MENU_TEXT);
     }
 
     drawalpha(BM_STATUSAREA, SELF_STATUS_X, SELF_STATUS_Y, BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT, button_status.mouseover ? COLOR_LIST_HOVER_BACKGROUND : COLOR_LIST_BACKGROUND);
@@ -90,7 +91,7 @@ static void drawfriend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(h
     if (friend_has_avatar(f)) {
         draw_avatar_image(f->avatar.image, LIST_RIGHT + SCALE * 5, SCALE * 5, f->avatar.width, f->avatar.height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
     } else {
-        drawalpha(BM_CONTACT, LIST_RIGHT + SCALE * 5, SCALE * 5, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_LIST_BACKGROUND);
+        drawalpha(BM_CONTACT, LIST_RIGHT + SCALE * 5, SCALE * 5, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_MAIN_TEXT);
     }
 
     setcolor(COLOR_MAIN_TEXT);
@@ -106,7 +107,7 @@ static void drawgroup(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(he
 {
     GROUPCHAT *g = sitem->data;
 
-    drawalpha(BM_GROUP, LIST_RIGHT + SCALE * 5, SCALE * 5, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_LIST_BACKGROUND);
+    drawalpha(BM_GROUP, LIST_RIGHT + SCALE * 5, SCALE * 5, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_MAIN_TEXT);
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_TITLE);
