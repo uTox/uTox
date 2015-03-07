@@ -313,7 +313,7 @@ static void background_draw(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int 
     drawrect(LIST_RIGHT, 0, width, height, COLOR_MAIN_BACKGROUND);
     
     // Chat and chat header separation
-    drawhline(LIST_RIGHT, LIST_Y, width, COLOR_EDGE_NORMAL);
+    drawhline(LIST_RIGHT, LIST_Y - 1, width, COLOR_EDGE_NORMAL);
 }
 
 static _Bool background_mmove(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height), int UNUSED(mx), int UNUSED(my), int UNUSED(dx), int UNUSED(dy))
