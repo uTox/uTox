@@ -46,14 +46,14 @@ static void draw_message_image(UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t 
 void messages_draw(MESSAGES *m, int x, int y, int width, int height)
 {
 
-    // Don't not draw author next to name every message
+    // Do not draw author name next to every message
     uint8_t lastauthor = 0xFF;
 
     // Message iterator
     void **p = m->data->data;
     MSG_IDX i, n = m->data->n;
 
-    // Go throught messages
+    // Go through messages
     for(i = 0; i != n; i++) {
         MESSAGE *msg = *p++;
 
