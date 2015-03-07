@@ -846,7 +846,7 @@ void ui_scale(uint8_t scale)
         .x = 75 * SCALE,
         .y = SCALE * 320,
         .height = SCALE * 12,
-        .width = SCALE * 40
+        .width = SCALE * 45
     }
 
 #ifdef AUDIO_FILTERING
