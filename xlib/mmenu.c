@@ -25,10 +25,58 @@ void run_mmloop()
     g_main_loop_run(mmloop);
 }
 
-// Function called once the user pressed an entry in the MessagingMenu
+// Function called once the user presses an entry in the MessagingMenu
 static void source_activated(MessagingMenuApp *mmapp_, const gchar *source_id, gpointer user_data)
 {
     // TODO
+}
+
+// Sets the user status in the Messaging Menu
+void mm_set_status(int status)
+{
+    switch(status) {
+
+        case 0:
+            messaging_menu_app_set_status(mmapp, MESSAGING_MENU_STATUS_AVAILABLE);
+            break;
+
+        case 1:
+            messaging_menu_app_set_status(mmapp, MESSAGING_MENU_STATUS_AWAY);
+            break;
+
+        case 2:
+            messaging_menu_app_set_status(mmapp, MESSAGING_MENU_STATUS_BUSY);
+            break;
+    }
+}
+
+// Function called once the user changes its status in the MessagingMenu
+static void status_changed(MessagingMenuApp *mmapp_, gint status, gpointer user_data)
+{
+    switch(status) {
+        case MESSAGING_MENU_STATUS_AVAILABLE:
+            self.status = 0;
+            tox_postmessage(TOX_SETSTATUS, 0, 0, NULL);
+            break;
+
+        case MESSAGING_MENU_STATUS_AWAY:
+            self.status = 1;
+            tox_postmessage(TOX_SETSTATUS, 1, 0, NULL);
+            break;
+
+        case MESSAGING_MENU_STATUS_BUSY:
+            self.status = 2;
+            tox_postmessage(TOX_SETSTATUS, 2, 0, NULL);
+            break;
+
+        default:
+            self.status = 1;
+            tox_postmessage(TOX_SETSTATUS, 1, 0, NULL);
+            break;
+    }
+
+    drawalpha(BM_ONLINE + status, SELF_STATUS_X + BM_STATUSAREA_WIDTH / 2 - BM_STATUS_WIDTH / 2, SELF_STATUS_Y + BM_STATUSAREA_HEIGHT / 2 - BM_STATUS_WIDTH / 2, BM_STATUS_WIDTH, BM_STATUS_WIDTH, status_color[status]);
+
 }
 
 // Registers the app in the Unity Messaging Menu
@@ -38,6 +86,7 @@ void mm_register()
     launcher = unity_launcher_entry_get_for_desktop_id("utox.desktop");
     messaging_menu_app_register(mmapp);
     g_signal_connect(mmapp, "activate-source", G_CALLBACK (source_activated), NULL);
+    g_signal_connect(mmapp, "status-changed", G_CALLBACK (status_changed), NULL);
     mmloop = g_main_loop_new(NULL, FALSE);
     thread(run_mmloop, NULL);
 }

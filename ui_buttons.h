@@ -1,5 +1,10 @@
 /* buttons */
 
+#ifdef UNITY
+#include "xlib/mmenu.h"
+extern _Bool unity_running;
+#endif
+
 static void button_setcolors_success(BUTTON *b)
 {
     b->c1 = COLOR_BUTTON_SUCCESS_BACKGROUND;
@@ -307,9 +312,9 @@ static void button_sendfile_onpress(void)
 static void button_sendfile_updatecolor(BUTTON *b)
 {
     FRIEND *f = sitem->data;
-    if (f->online) 
+    if (f->online)
         button_setcolors_success(b);
-     else 
+     else
         button_setcolors_disabled(b);
 }
 
@@ -357,6 +362,12 @@ static void button_status_onpress(void)
     if (self.status == 3) {
         self.status = 0;
     }
+
+    #ifdef UNITY
+    if(unity_running) {
+        mm_set_status(self.status);
+    }
+    #endif
 
     tox_postmessage(TOX_SETSTATUS, self.status, 0, NULL);
 }
