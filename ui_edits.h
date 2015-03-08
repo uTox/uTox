@@ -466,6 +466,7 @@ edit_addmsg = {
     .scroll = &edit_addmsg_scroll,
     .maxlength = sizeof(edit_addmsg_data),
     .data = edit_addmsg_data,
+    .empty_str = { .i18nal = STR_DEFAULT_FRIEND_REQUEST_MESSAGE },
 },
 
 edit_msg = {
