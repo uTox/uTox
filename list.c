@@ -232,7 +232,7 @@ static void selectitem(ITEM *i)
         messages_group.iover = MSG_IDX_MAX;
         messages_group.panel.content_scroll->content_height = g->msg.height;
         messages_group.panel.content_scroll->d = g->msg.scroll;
-        edit_setfocus(&edit_msg);
+        edit_setfocus(&edit_msg_group);
 
         g->msg.id = g - group;
 
