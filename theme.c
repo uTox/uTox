@@ -35,7 +35,7 @@ void theme_load(char loadtheme)
     //---- Text selection ----
     COLOR_SELECTION_BACKGROUND = COLOR_MAIN_TEXT;
     COLOR_SELECTION_TEXT       = COLOR_MAIN_BACKGROUND;
-    COLOR_GROUP_UNUSUAL        = COLOR_MAIN_URLTEXT;
+    COLOR_GROUP_UNUSUAL        = COLOR_MAIN_ACTIONTEXT;
 
     //---- Inputs, dropdowns & tooltips ----
     COLOR_EDGE_NORMAL             = COLOR_PROC(0xC0C0C0);
