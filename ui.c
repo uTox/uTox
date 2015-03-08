@@ -134,14 +134,11 @@ static void drawgroup(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(he
 
             int w = textwidth(buf, name[0] + 2);
             if (i == g->our_peer_number) {
-                // @TODO: separate these colours
-                setcolor(COLOR_STATUS_ONLINE);
+                setcolor(COLOR_GROUP_SELF);
             } else if (time - g->last_recv_audio[i] <= (uint64_t)1 * 1000 * 1000 * 1000) {
-                // @TODO: separate these colours
-                setcolor(COLOR_STATUS_BUSY);
+                setcolor(COLOR_GROUP_AUDIO);
             } else {
-                // @TODO: separate these colours if needed
-                setcolor(COLOR_MAIN_HINTTEXT);
+                setcolor(COLOR_GROUP_PEER);
             }
 
             if(k + w >= (utox_window_width - 32 * SCALE)) {

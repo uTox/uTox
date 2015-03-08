@@ -74,14 +74,14 @@ static void drawitem(ITEM *i, int UNUSED(x), int y)
 
         if (g->muted) {
             color_overide = 1;
-            color = COLOR_GROUP_UNUSUAL;
+            color = COLOR_GROUP_MUTED;
         } else {
             uint64_t time = get_time();
             unsigned int j;
             for (j = 0; j < g->peers; ++j) {
                 if (time - g->last_recv_audio[j] <= (uint64_t)1 * 1000 * 1000 * 1000) {
                     color_overide = 1;
-                    color = C_RED;
+                    color = COLOR_GROUP_AUDIO;
                     break;
                 }
             }

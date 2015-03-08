@@ -32,10 +32,15 @@ void theme_load(char loadtheme)
     COLOR_LIST_TEXT             = COLOR_MENU_TEXT;
     COLOR_LIST_SUBTEXT          = COLOR_MENU_SUBTEXT;
 
+    //---- Groupchat user list and title ----
+    COLOR_GROUP_SELF           = COLOR_PROC(0x6bc260);
+    COLOR_GROUP_PEER           = COLOR_MAIN_HINTTEXT;
+    COLOR_GROUP_AUDIO          = COLOR_PROC(0xc84e4e);
+    COLOR_GROUP_MUTED          = COLOR_MAIN_ACTIONTEXT;
+
     //---- Text selection ----
     COLOR_SELECTION_BACKGROUND = COLOR_MAIN_TEXT;
     COLOR_SELECTION_TEXT       = COLOR_MAIN_BACKGROUND;
-    COLOR_GROUP_UNUSUAL        = COLOR_MAIN_ACTIONTEXT;
 
     //---- Inputs, dropdowns & tooltips ----
     COLOR_EDGE_NORMAL             = COLOR_PROC(0xC0C0C0);
@@ -49,7 +54,7 @@ void theme_load(char loadtheme)
     COLOR_STATUS_AWAY   = COLOR_PROC(0xcebf45);
     COLOR_STATUS_BUSY   = COLOR_PROC(0xc84e4e);
     
-    //---- Buttons ---
+    //---- Buttons ----
     COLOR_BUTTON_SUCCESS_BACKGROUND       = COLOR_STATUS_ONLINE;
     COLOR_BUTTON_SUCCESS_TEXT             = COLOR_MAIN_BACKGROUND;
     COLOR_BUTTON_SUCCESS_HOVER_BACKGROUND = COLOR_PROC(0x76d56a);
@@ -84,7 +89,7 @@ void theme_load(char loadtheme)
         COLOR_MENU_ACTIVE_BACKGROUND          = COLOR_MAIN_TEXT;
         COLOR_SELECTION_BACKGROUND            = COLOR_MAIN_TEXT;
         COLOR_SELECTION_TEXT                  = COLOR_MAIN_BACKGROUND;
-        COLOR_GROUP_UNUSUAL                   = COLOR_MAIN_URLTEXT;
+        COLOR_GROUP_MUTED                     = COLOR_MAIN_URLTEXT;
         COLOR_EDGE_NORMAL                     = COLOR_PROC(0x555555);
         COLOR_EDGE_ACTIVE                     = COLOR_PROC(0x228888);
         COLOR_EDGE_HOVER                      = COLOR_PROC(0x999999);
@@ -149,7 +154,10 @@ void theme_load(char loadtheme)
         COLOR_LIST_SUBTEXT                    = COLOR_MAIN_BACKGROUND;
         COLOR_SELECTION_BACKGROUND            = COLOR_MAIN_TEXT;
         COLOR_SELECTION_TEXT                  = COLOR_MAIN_BACKGROUND;
-        COLOR_GROUP_UNUSUAL                   = COLOR_MAIN_URLTEXT;
+        COLOR_GROUP_SELF                      = COLOR_PROC(0x00ff00);
+        COLOR_GROUP_PEER                      = COLOR_MAIN_HINTTEXT;
+        COLOR_GROUP_AUDIO                     = COLOR_PROC(0xff0000);
+        COLOR_GROUP_MUTED                     = COLOR_MAIN_URLTEXT;
         COLOR_EDGE_NORMAL                     = COLOR_MAIN_TEXT;
         COLOR_EDGE_ACTIVE                     = COLOR_MAIN_TEXT;
         COLOR_EDGE_HOVER                      = COLOR_MAIN_TEXT;
