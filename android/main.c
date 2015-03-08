@@ -41,6 +41,9 @@ static volatile ARect rect;
 
 static volatile _Bool _redraw;
 
+const char* internalPath[512];
+
+
 static int pipefd[2];
 typedef struct {
     uint32_t msg;
@@ -191,12 +194,15 @@ void* loadsavedata(uint32_t *len)
 
 void writesavedata(void *data, uint32_t len)
 {
+    debug("Trying to save data (android)\n");
     FILE *file;
     file = fopen("/data/data/tox.utox/files/tox_save", "wb");
     if(file) {
         fwrite(data, len, 1, file);
         fclose(file);
         debug("Saved data\n");
+    } else {
+        debug("fopen failed\n");
     }
 }
 
@@ -205,14 +211,16 @@ int datapath_old(uint8_t *dest)
     return 0;
 }
 
-int datapath(uint8_t *dest)
-{
-    return 0;
+int datapath(uint8_t *dest){
+    strcpy((char*)dest, "/data/data/tox.utox/files/");
+    debug((char*)dest);
+    debug("^dest^");
+    return 26;
 }
 
-int datapath_subdir(uint8_t *dest, const char *subdir)
-{
-    return 0;
+int datapath_subdir(uint8_t *dest, const char *subdir){
+    strcpy((char*)dest, "/data/data/tox.utox/files/");
+    return 26;
 }
 
 void flush_file(FILE *file)
@@ -394,12 +402,11 @@ void showkeyboard(_Bool show)
     (*vm)->DetachCurrentThread(vm);
 }
 
-static uint32_t getkeychar(int32_t key) /* get a character from an android keycode */
-{
-#define MAP(x,y) case AKEYCODE_##x: return y
-#define MAPS(x,y,z) case AKEYCODE_##x: return ((shift) ? z : y)
-#define MAPC(x) case AKEYCODE_##x: return (#x[0] + ((shift) ? 0 : ('a' - 'A')))
-#define MAPN(x,y) case AKEYCODE_##x: return ((shift) ? y : #x[0])
+static uint32_t getkeychar(int32_t key) /* get a character from an android keycode */{
+    #define MAP(x,y) case AKEYCODE_##x: return y
+    #define MAPS(x,y,z) case AKEYCODE_##x: return ((shift) ? z : y)
+    #define MAPC(x) case AKEYCODE_##x: return (#x[0] + ((shift) ? 0 : ('a' - 'A')))
+    #define MAPN(x,y) case AKEYCODE_##x: return ((shift) ? y : #x[0])
 
     switch(key) {
         MAP(ENTER, KEY_RETURN);
@@ -474,8 +481,8 @@ static uint32_t getkeychar(int32_t key) /* get a character from an android keyco
 
     return 0;
 
-#undef MAP
-#undef MAPC
+    #undef MAP
+    #undef MAPC
 }
 
 void redraw(void)
@@ -495,8 +502,14 @@ void config_osdefaults(UTOX_SAVE *r)
 {
 }
 
-static void android_main(void) /* main thread */
-{
+static void android_main(struct android_app* state){
+
+    // Make sure glue isn't stripped
+
+    // ANativeActivity* nativeActivity = state->activity;
+    // internalPath = nativeActivity->internalDataPath;
+
+
     int lx = 0, ly = 0;
 
     pipe(pipefd);
@@ -508,8 +521,8 @@ static void android_main(void) /* main thread */
 
     initfonts();
 
-    dropdown_dpi.selected = dropdown_dpi.over = 2;
-    ui_scale(3);
+    dropdown_dpi.selected = dropdown_dpi.over = 3;
+    ui_scale(4);
 
     LANG = DEFAULT_LANG;
     dropdown_language.selected = dropdown_language.over = LANG;
@@ -708,7 +721,7 @@ static void android_main(void) /* main thread */
         usleep(1000);
     }
 
-    debug("DESTROYED\n");
+    debug("ANDROID DESTROYED\n");
 }
 
 static void onDestroy(ANativeActivity* act)
