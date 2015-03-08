@@ -127,9 +127,9 @@ void utox_transfer_start_memory(Tox *tox, uint16_t fid, void *pngdata, size_t si
     }
 }
 
-static void resetft(Tox *UNUSED(tox), FILE_T *ft, uint64_t start)
-{
+static void reset_file_transfer(FILE_T *ft, uint64_t start){
     if(start >= ft->total) {
+        debug("Bad data sent when trying to restart file transfer\n");
         return;
     }
 
@@ -257,7 +257,7 @@ static void callback_file_control(Tox *tox, int32_t fid, uint8_t receive_send, u
 
     case TOX_FILECONTROL_RESUME_BROKEN: {
         if(receive_send && length == 8) {
-            resetft(tox, ft, *(uint64_t*)data);
+            reset_file_transfer(ft, *(uint64_t*)data);
             tox_file_send_control(tox, fid, 0, filenumber, TOX_FILECONTROL_ACCEPT, NULL, 0);
             postmessage(FRIEND_FILE_IN_STATUS + receive_send, fid, filenumber, (void*)FILE_OK);
         }
