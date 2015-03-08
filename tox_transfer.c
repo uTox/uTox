@@ -31,7 +31,8 @@ void utox_transfer_start_file(Tox *tox, uint32_t fid, uint8_t *path, uint8_t *na
     debug("Sending: %s\n", path);
 
     if (friend[fid].count_outgoing >= MAX_FILE_TRANSFERS || (file_tend - file_t) >= countof(file_t)) {
-        debug("Maximum outgoing file sending limit reached.\n");
+        debug("Maximum outgoing file sending limit reached(%d/%d) for friend(%d).\n",
+                                        friend[fid].count_outgoing, MAX_FILE_TRANSFERS, fid);
         return;
     }
 
@@ -72,6 +73,8 @@ void utox_transfer_start_file(Tox *tox, uint32_t fid, uint8_t *path, uint8_t *na
 
         postmessage(FRIEND_FILE_OUT_NEW, fid, filenumber, NULL);
         ++friend[fid].count_outgoing;
+        debug("Sending file %d of %d(max) to friend(%d).\n", friend[fid].count_outgoing, MAX_FILE_TRANSFERS, fid);
+
     } else {
         fclose(file);
         debug("tox_new_file_sender() failed\n");
@@ -81,7 +84,8 @@ void utox_transfer_start_file(Tox *tox, uint32_t fid, uint8_t *path, uint8_t *na
 void utox_transfer_start_memory(Tox *tox, uint16_t fid, void *pngdata, size_t size)
 {
     if (friend[fid].count_outgoing >= MAX_FILE_TRANSFERS || (file_tend - file_t) >= countof(file_t)) {
-        debug("Maximum outgoing file sending limit reached.\n");
+        debug("Maximum outgoing file sending limit reached(%d/%d) for friend(%d).\n",
+                                        friend[fid].count_outgoing, MAX_FILE_TRANSFERS, fid);
         return;
     }
 
