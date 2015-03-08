@@ -41,6 +41,9 @@ static volatile ARect rect;
 
 static volatile _Bool _redraw;
 
+const char* internalPath[512];
+
+
 static int pipefd[2];
 typedef struct {
     uint32_t msg;
@@ -209,13 +212,15 @@ int datapath_old(uint8_t *dest)
 }
 
 int datapath(uint8_t *dest){
-    // return "/data/data/tox.utox/files/";
-    return 0;
+    strcpy((char*)dest, "/data/data/tox.utox/files/");
+    debug((char*)dest);
+    debug("^dest^");
+    return 26;
 }
 
-int datapath_subdir(uint8_t *dest, const char *subdir)
-{
-    return 0;
+int datapath_subdir(uint8_t *dest, const char *subdir){
+    strcpy((char*)dest, "/data/data/tox.utox/files/");
+    return 26;
 }
 
 void flush_file(FILE *file)
@@ -497,8 +502,14 @@ void config_osdefaults(UTOX_SAVE *r)
 {
 }
 
-static void android_main(void) /* main thread */
-{
+static void android_main(struct android_app* state){
+
+    // Make sure glue isn't stripped
+
+    // ANativeActivity* nativeActivity = state->activity;
+    // internalPath = nativeActivity->internalDataPath;
+
+
     int lx = 0, ly = 0;
 
     pipe(pipefd);
@@ -510,7 +521,7 @@ static void android_main(void) /* main thread */
 
     initfonts();
 
-    dropdown_dpi.selected = dropdown_dpi.over = 2;
+    dropdown_dpi.selected = dropdown_dpi.over = 3;
     ui_scale(4);
 
     LANG = DEFAULT_LANG;

@@ -50,7 +50,7 @@ OPENAL_BUILD='-I../openal-arm/include ../openal-arm/lib/libopenal.a -lOpenSLES'
 NATIVE_AUDIO_BUILD='-DNATIVE_ANDROID_AUDIO -lOpenSLES'
 
 arm-linux-androideabi-gcc -Wl,--error-unresolved-symbols \
-		-Wall -Wextra -s -Ofast \
+		-Wall -Wextra -s \
 		-I../freetype-arm/include/freetype2/ -I../toxcore-arm/include/ \
 		./*.c ./png/png.c -llog -landroid -lEGL -lGLESv2 $OPENAL_BUILD \
 		../toxcore-arm/lib/libtoxcore.a ../toxcore-arm/lib/libtoxdns.a ../toxcore-arm/lib/libtoxav.a ../toxcore-arm/lib/libsodium.a \
@@ -67,6 +67,8 @@ $SDK_PATH/build-tools/21.1.2/dx --dex --output=./tmp/classes.dex ./tmp/java
 java -classpath $SDK_PATH/tools/lib/sdklib.jar com.android.sdklib.build.ApkBuilderMain ./tmp/tmp2.apk \
     	-u -z ./tmp/tmp1.apk -f ./tmp/classes.dex -nf ./tmp/libs
 
-jarsigner -sigalg SHA1withRSA -digestalg SHA1 -keystore ./tmp/debug.keystore -storepass $PASSWORD ./tmp/tmp2.apk $ALIAS
+jarsigner -sigalg SHA1withRSA -digestalg SHA1 -keystore ./debug.keystore -storepass $PASSWORD ./tmp/tmp2.apk $ALIAS
 
-mv tmp/tmp2.apk ../utox.apk
+mv tmp/tmp2.apk ./utox.apk
+
+rm -r tmp toolchain

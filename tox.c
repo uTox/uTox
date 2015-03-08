@@ -436,6 +436,9 @@ static void write_save(Tox *tox)
     memcpy(path_tmp, path_real, path_len);
     memcpy(path_tmp + (path_len - 1), ".tmp", sizeof(".tmp"));
 
+
+    debug((char*)path_tmp);
+    debug("trying to fopen");
     file = fopen((char*)path_tmp, "wb");
     if(file) {
         fwrite(data, size, 1, file);
@@ -452,7 +455,11 @@ static void write_save(Tox *tox)
         } else {
             debug("Saved data\n");
         }
+    } else {
+        debug("no data saved...");
     }
+
+
     int ch = ch_mod(path_real);
     if(!ch){
         debug("CHMOD: success\n");
