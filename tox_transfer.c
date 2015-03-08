@@ -194,12 +194,13 @@ static void callback_file_control(Tox *tox, int32_t fid, uint8_t receive_send, u
     switch(control) {
     case TOX_FILECONTROL_ACCEPT: {
         ft->status = FT_SEND;
-        debug("FileAccepted %u\n", filenumber);
+        debug("File Accepted %u for friend (%i)\n", filenumber, fid);
         postmessage(FRIEND_FILE_IN_STATUS + receive_send, fid, filenumber, (void*)FILE_OK);
         break;
     }
 
     case TOX_FILECONTROL_KILL: {
+        debug("File Control (File Killed for friend(%d) filenumber(%d)\n", fid, filenumber);
         ft->status = receive_send ? FT_KILL : FT_NONE;
         if(!receive_send) {
             if(ft->data) {
@@ -217,6 +218,7 @@ static void callback_file_control(Tox *tox, int32_t fid, uint8_t receive_send, u
     }
 
     case TOX_FILECONTROL_PAUSE: {
+        debug("File Control (File Paused for friend(%d) filenumber(%d)\n", fid, filenumber);
         if(ft->status == FT_SEND) {
             ft->status = FT_PAUSE;
             postmessage(FRIEND_FILE_IN_STATUS + receive_send, fid, filenumber, (void*)FILE_PAUSED_OTHER);
@@ -229,6 +231,7 @@ static void callback_file_control(Tox *tox, int32_t fid, uint8_t receive_send, u
     }
 
     case TOX_FILECONTROL_FINISHED: {
+        debug("File Control (File Done for friend(%d) filenumber(%d)\n", fid, filenumber);
         if(!receive_send) {
             ft->status = FT_NONE;
             if(ft->inline_png) {
@@ -256,17 +259,16 @@ static void callback_file_control(Tox *tox, int32_t fid, uint8_t receive_send, u
     }
 
     case TOX_FILECONTROL_RESUME_BROKEN: {
+        debug("File Control (File Restarted for friend(%d) filenumber(%d)\n", fid, filenumber);
         if(receive_send && length == 8) {
             reset_file_transfer(ft, *(uint64_t*)data);
             tox_file_send_control(tox, fid, 0, filenumber, TOX_FILECONTROL_ACCEPT, NULL, 0);
             postmessage(FRIEND_FILE_IN_STATUS + receive_send, fid, filenumber, (void*)FILE_OK);
         }
-
         break;
     }
 
     }
-    debug("File Control\n");
 }
 
 static void callback_file_data(Tox *UNUSED(tox), int32_t fid, uint8_t filenumber, const uint8_t *data, uint16_t length, void *UNUSED(userdata))
