@@ -134,13 +134,11 @@ static void drawgroup(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(he
 
             int w = textwidth(buf, name[0] + 2);
             if (i == g->our_peer_number) {
-                // @TODO: separate these colours
-                setcolor(COLOR_STATUS_ONLINE);
+                setcolor(COLOR_GROUP_SELF);
             } else if (time - g->last_recv_audio[i] <= (uint64_t)1 * 1000 * 1000 * 1000) {
-                // @TODO: separate these colours
-                setcolor(COLOR_STATUS_BUSY);
+                setcolor(COLOR_GROUP_AUDIO);
             } else {
-                setcolor(GRAY(150));
+                setcolor(COLOR_GROUP_PEER);
             }
 
             if(k + w >= (utox_window_width - 32 * SCALE)) {
@@ -270,7 +268,7 @@ static void drawsettings_content(int UNUSED(x), int y, int UNUSED(w), int UNUSED
 
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 310, LOGGING);
     
-    drawstr(LIST_RIGHT + SCALE * 80, y + SCALE * 310, THEME);
+    drawstr(LIST_RIGHT + SCALE * 75, y + SCALE * 310, THEME);
 
     drawtext(LIST_RIGHT + SCALE * 132, y + SCALE * 290, (uint8_t*)":", 1);
 
@@ -842,10 +840,10 @@ void ui_scale(uint8_t scale)
     
     d_theme = {
         .type = PANEL_DROPDOWN,
-        .x = 80 * SCALE,
+        .x = 75 * SCALE,
         .y = SCALE * 320,
         .height = SCALE * 12,
-        .width = SCALE * 40
+        .width = SCALE * 45
     }
 
 #ifdef AUDIO_FILTERING

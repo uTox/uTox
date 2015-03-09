@@ -157,5 +157,4 @@ uint8_t SCALE;
 
 /* colors */
 #define C_RED                   RGB(200, 78, 78)
-#define C_GRAY                  GRAY(209)
 #define C_SCROLL                GRAY(209)
