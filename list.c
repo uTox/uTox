@@ -626,7 +626,9 @@ _Bool list_mup(void *UNUSED(n))
                     FRIEND *f = sitem->data;
                     GROUPCHAT *g = nitem->data;
 
-                    tox_postmessage(TOX_GROUPINVITE, (g - group), (f - friend), NULL);
+                    if(f->online) {
+                        tox_postmessage(TOX_GROUPINVITE, (g - group), (f - friend), NULL);
+                    }
                 }
 
             }
