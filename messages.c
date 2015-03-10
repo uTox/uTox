@@ -471,8 +471,10 @@ _Bool messages_mmove(MESSAGES *m, int UNUSED(px), int UNUSED(py), int width, int
                     mx -= BM_FTM_WIDTH + SCALE;
                     if(mx >= 0) {
                         if(my < BM_FTB_HEIGHT + SCALE) {
+                            // mouse is over the upper button (cancel)
                             over = 1;
                         } else if(my >= BM_FTB_HEIGHT + SCALE * 2) {
+                            // mouse is over the lower button (pause / accept)
                             over = 2;
                         }
                     }
