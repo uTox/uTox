@@ -211,14 +211,14 @@ msgstr("Ja")
 msgid(VIDEO_IN_NONE)
 msgstr("keine")
 
+msgid(AUDIO_IN_DEFAULT_LOOPBACK)
+msgstr("Standard Loopback")
+
 msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
 msgstr("Bitte füge mich deiner Kontaktliste hinzu.")
 
 msgid(CONTACTS_FILTER_EDIT_HINT)
 msgstr("Freunde suchen")
-
-msgid(AUDIO_IN_DEFAULT_LOOPBACK)
-msgstr("Standard Loopback")
 
 msgid(WINDOW_TITLE_VIDEO_PREVIEW)
 msgstr("Video Vorschau")
