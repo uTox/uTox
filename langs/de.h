@@ -77,7 +77,7 @@ msgid(MESSAGE)
 msgstr("Nachricht")
 
 msgid(SEARCHFRIENDS)
-msgstr("Suche Freund")
+msgstr("Freunde suchen")
 
 msgid(ADD)
 msgstr("Hinzufügen")
