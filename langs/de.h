@@ -41,22 +41,22 @@ msgid(REQ_NO_MEMORY)
 msgstr("Fehler: Kein Speicher")
 
 msgid(TRANSFER_NEW)
-msgstr("Neue Datenübertragung")
+msgstr("Neue Dateiübertragung")
 
 msgid(TRANSFER_STARTED)
-msgstr("Datenübertragung gestartet")
+msgstr("Dateiübertragung gestartet")
 
 msgid(TRANSFER_PAUSED)
-msgstr("Datenübertragung pausiert")
+msgstr("Dateiübertragung pausiert")
 
 msgid(TRANSFER_BROKEN)
-msgstr("Datenübertragung fehlerhaft")
+msgstr("Dateiübertragung fehlerhaft")
 
 msgid(TRANSFER_CANCELLED)
-msgstr("Datenübertragung abgebrochen")
+msgstr("Dateiübertragung abgebrochen")
 
 msgid(TRANSFER_COMPLETE)
-msgstr("Datenübertragung abgeschlossen")
+msgstr("Dateiübertragung abgeschlossen")
 
 msgid(CALL_CANCELLED)
 msgstr("Anruf abgebrochen")
