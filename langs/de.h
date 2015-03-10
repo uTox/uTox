@@ -136,6 +136,12 @@ msgstr("Akustische Benachrichtigungen einschalten (Klingelton)")
 msgid(IS_TYPING)
 msgstr("schreibt...")
 
+msgid(CLOSE_TO_TRAY)
+msgstr("Zum Infobereich schließen")
+
+msgid(START_IN_TRAY)
+msgstr("Im Infobereich starten")
+
 msgid(COPY)
 msgstr("Kopieren")
 
