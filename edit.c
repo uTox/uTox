@@ -224,6 +224,9 @@ _Bool edit_mright(EDIT *edit)
         contextmenu_new(countof(menu_edit), menu_edit, contextmenu_edit_onselect);
 
         return 1;
+    } else if (active_edit == edit) {
+        edit_resetfocus(); // lose focus if right mouse button is pressed somewhere else
+        return 1; // redraw
     }
 
     return 0;

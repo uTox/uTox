@@ -473,8 +473,10 @@ panel_item[] = {
         .drawfunc = drawgroup,
         .child = (PANEL*[]) {
             (void*)&button_group_audio,
-            (void*)&scroll_group, (void*)&messages_group,
-            (void*)&edit_msg_group, (void*)&button_chat_send,
+            (void*)&edit_msg_group,
+            (void*)&scroll_group,
+            (void*)&messages_group,
+            (void*)&button_chat_send,
             NULL
         }
     },
