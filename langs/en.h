@@ -88,6 +88,9 @@ msgstr("Search friends")
 msgid(ADD)
 msgstr("Add")
 
+msgid(CREATEGROUPCHAT)
+msgstr("Create Groupchat")
+
 msgid(SWITCHPROFILE)
 msgstr("Switch Profile")
 
