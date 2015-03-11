@@ -41,22 +41,22 @@ msgid(REQ_NO_MEMORY)
 msgstr("Fehler: Kein Speicher")
 
 msgid(TRANSFER_NEW)
-msgstr("Neue Datenübertragung")
+msgstr("Neue Dateiübertragung")
 
 msgid(TRANSFER_STARTED)
-msgstr("Datenübertragung gestartet")
+msgstr("Dateiübertragung gestartet")
 
 msgid(TRANSFER_PAUSED)
-msgstr("Datenübertragung pausiert")
+msgstr("Dateiübertragung pausiert")
 
 msgid(TRANSFER_BROKEN)
-msgstr("Datenübertragung fehlerhaft")
+msgstr("Dateiübertragung fehlerhaft")
 
 msgid(TRANSFER_CANCELLED)
-msgstr("Datenübertragung abgebrochen")
+msgstr("Dateiübertragung abgebrochen")
 
 msgid(TRANSFER_COMPLETE)
-msgstr("Datenübertragung abgeschlossen")
+msgstr("Dateiübertragung abgeschlossen")
 
 msgid(CALL_CANCELLED)
 msgstr("Anruf abgebrochen")
@@ -77,7 +77,7 @@ msgid(MESSAGE)
 msgstr("Nachricht")
 
 msgid(SEARCHFRIENDS)
-msgstr("Suche Freund")
+msgstr("Freunde suchen")
 
 msgid(ADD)
 msgstr("Hinzufügen")
@@ -135,6 +135,12 @@ msgstr("Akustische Benachrichtigungen einschalten (Klingelton)")
 
 msgid(IS_TYPING)
 msgstr("schreibt...")
+
+msgid(CLOSE_TO_TRAY)
+msgstr("Zum Infobereich schließen")
+
+msgid(START_IN_TRAY)
+msgstr("Im Infobereich starten")
 
 msgid(COPY)
 msgstr("Kopieren")
@@ -205,14 +211,14 @@ msgstr("Ja")
 msgid(VIDEO_IN_NONE)
 msgstr("keine")
 
+msgid(AUDIO_IN_DEFAULT_LOOPBACK)
+msgstr("Standard Loopback")
+
 msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
 msgstr("Bitte füge mich deiner Kontaktliste hinzu.")
 
 msgid(CONTACTS_FILTER_EDIT_HINT)
 msgstr("Freunde suchen")
-
-msgid(AUDIO_IN_DEFAULT_LOOPBACK)
-msgstr("Standard Loopback")
 
 msgid(WINDOW_TITLE_VIDEO_PREVIEW)
 msgstr("Video Vorschau")
