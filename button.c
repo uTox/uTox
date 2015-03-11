@@ -25,9 +25,9 @@ void button_draw(BUTTON *b, int x, int y, int width, int height)
     if (b->nodraw)
         return;
 
-    // If `updatecolor` function is defined, call it on each draw
-    if (b->updatecolor)
-        b->updatecolor(b);
+    // If `update` function is defined, call it on each draw
+    if (b->update)
+        b->update(b);
 
     // Ensure that font is set before calculating position and width.
     setfont(FONT_SELF_NAME);
