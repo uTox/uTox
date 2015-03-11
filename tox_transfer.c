@@ -31,7 +31,8 @@ void utox_transfer_start_file(Tox *tox, uint32_t fid, uint8_t *path, uint8_t *na
     debug("Sending: %s\n", path);
 
     if (friend[fid].count_outgoing >= MAX_FILE_TRANSFERS || (file_tend - file_t) >= countof(file_t)) {
-        debug("Maximum outgoing file sending limit reached.\n");
+        debug("Maximum outgoing file sending limit reached(%d/%d) for friend(%d).\n",
+                                        friend[fid].count_outgoing, MAX_FILE_TRANSFERS, fid);
         return;
     }
 
@@ -72,6 +73,8 @@ void utox_transfer_start_file(Tox *tox, uint32_t fid, uint8_t *path, uint8_t *na
 
         postmessage(FRIEND_FILE_OUT_NEW, fid, filenumber, NULL);
         ++friend[fid].count_outgoing;
+        debug("Sending file %d of %d(max) to friend(%d).\n", friend[fid].count_outgoing, MAX_FILE_TRANSFERS, fid);
+
     } else {
         fclose(file);
         debug("tox_new_file_sender() failed\n");
@@ -81,7 +84,8 @@ void utox_transfer_start_file(Tox *tox, uint32_t fid, uint8_t *path, uint8_t *na
 void utox_transfer_start_memory(Tox *tox, uint16_t fid, void *pngdata, size_t size)
 {
     if (friend[fid].count_outgoing >= MAX_FILE_TRANSFERS || (file_tend - file_t) >= countof(file_t)) {
-        debug("Maximum outgoing file sending limit reached.\n");
+        debug("Maximum outgoing file sending limit reached(%d/%d) for friend(%d).\n",
+                                        friend[fid].count_outgoing, MAX_FILE_TRANSFERS, fid);
         return;
     }
 
@@ -123,9 +127,9 @@ void utox_transfer_start_memory(Tox *tox, uint16_t fid, void *pngdata, size_t si
     }
 }
 
-static void resetft(Tox *UNUSED(tox), FILE_T *ft, uint64_t start)
-{
+static void reset_file_transfer(FILE_T *ft, uint64_t start){
     if(start >= ft->total) {
+        debug("Bad data sent when trying to restart file transfer\n");
         return;
     }
 
@@ -190,12 +194,13 @@ static void callback_file_control(Tox *tox, int32_t fid, uint8_t receive_send, u
     switch(control) {
     case TOX_FILECONTROL_ACCEPT: {
         ft->status = FT_SEND;
-        debug("FileAccepted %u\n", filenumber);
+        debug("File Accepted %u for friend (%i)\n", filenumber, fid);
         postmessage(FRIEND_FILE_IN_STATUS + receive_send, fid, filenumber, (void*)FILE_OK);
         break;
     }
 
     case TOX_FILECONTROL_KILL: {
+        debug("File Control (File Killed for friend(%d) filenumber(%d)\n", fid, filenumber);
         ft->status = receive_send ? FT_KILL : FT_NONE;
         if(!receive_send) {
             if(ft->data) {
@@ -213,6 +218,7 @@ static void callback_file_control(Tox *tox, int32_t fid, uint8_t receive_send, u
     }
 
     case TOX_FILECONTROL_PAUSE: {
+        debug("File Control (File Paused for friend(%d) filenumber(%d)\n", fid, filenumber);
         if(ft->status == FT_SEND) {
             ft->status = FT_PAUSE;
             postmessage(FRIEND_FILE_IN_STATUS + receive_send, fid, filenumber, (void*)FILE_PAUSED_OTHER);
@@ -225,6 +231,7 @@ static void callback_file_control(Tox *tox, int32_t fid, uint8_t receive_send, u
     }
 
     case TOX_FILECONTROL_FINISHED: {
+        debug("File Control (File Done for friend(%d) filenumber(%d)\n", fid, filenumber);
         if(!receive_send) {
             ft->status = FT_NONE;
             if(ft->inline_png) {
@@ -252,17 +259,16 @@ static void callback_file_control(Tox *tox, int32_t fid, uint8_t receive_send, u
     }
 
     case TOX_FILECONTROL_RESUME_BROKEN: {
+        debug("File Control (File Restarted for friend(%d) filenumber(%d)\n", fid, filenumber);
         if(receive_send && length == 8) {
-            resetft(tox, ft, *(uint64_t*)data);
+            reset_file_transfer(ft, *(uint64_t*)data);
             tox_file_send_control(tox, fid, 0, filenumber, TOX_FILECONTROL_ACCEPT, NULL, 0);
             postmessage(FRIEND_FILE_IN_STATUS + receive_send, fid, filenumber, (void*)FILE_OK);
         }
-
         break;
     }
 
     }
-    debug("File Control\n");
 }
 
 static void callback_file_data(Tox *UNUSED(tox), int32_t fid, uint8_t filenumber, const uint8_t *data, uint16_t length, void *UNUSED(userdata))

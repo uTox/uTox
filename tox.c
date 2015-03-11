@@ -291,7 +291,7 @@ static void set_callbacks(Tox *tox)
 }
 
 /* tries to load avatar from disk for given client id string and set avatar based on saved png data
- *  avatar is avatar to initialize. Will be unset if no file is found on disk or if file is corrupt or too large, 
+ *  avatar is avatar to initialize. Will be unset if no file is found on disk or if file is corrupt or too large,
  *      otherwise will be set to avatar found on disk
  *  id is cid string of whose avatar to find(see also load_avatar in avatar.h)
  *  if png_data_out is not NULL, the png data loaded from disk will be copied to it.
@@ -437,8 +437,7 @@ static void write_save(Tox *tox)
     memcpy(path_tmp + (path_len - 1), ".tmp", sizeof(".tmp"));
 
 
-    debug((char*)path_tmp);
-    debug("trying to fopen");
+    debug("Writing tox_save to: %s\n", (char*)path_tmp);
     file = fopen((char*)path_tmp, "wb");
     if(file) {
         fwrite(data, size, 1, file);
@@ -454,17 +453,15 @@ static void write_save(Tox *tox)
             }
         } else {
             debug("Saved data\n");
+            int ch = ch_mod(path_real);
+            if(!ch){
+                debug("CHMOD: success\n");
+            } else {
+                debug("CHMOD: failure\n");
+            }
         }
     } else {
-        debug("no data saved...");
-    }
-
-
-    int ch = ch_mod(path_real);
-    if(!ch){
-        debug("CHMOD: success\n");
-    } else {
-        debug("CHMOD: failure\n");
+        debug("no data saved...\n");
     }
 
     save_needed = 0;
