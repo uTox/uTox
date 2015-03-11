@@ -12,6 +12,7 @@ static void button_setcolors_success(BUTTON *b)
     b->c3 = COLOR_BUTTON_SUCCESS_HOVER_BACKGROUND;
     b->ct1 = COLOR_BUTTON_SUCCESS_TEXT;
     b->ct2 = COLOR_BUTTON_SUCCESS_HOVER_TEXT;
+    b->disabled = 0;
 }
 
 static void button_setcolors_danger(BUTTON *b)
@@ -21,6 +22,7 @@ static void button_setcolors_danger(BUTTON *b)
     b->c3 = COLOR_BUTTON_DANGER_HOVER_BACKGROUND;
     b->ct1 = COLOR_BUTTON_DANGER_TEXT;
     b->ct2 = COLOR_BUTTON_DANGER_HOVER_TEXT;
+    b->disabled = 0;
 }
 
 static void button_setcolors_warning(BUTTON *b)
@@ -30,6 +32,7 @@ static void button_setcolors_warning(BUTTON *b)
     b->c3 = COLOR_BUTTON_WARNING_HOVER_BACKGROUND;
     b->ct1 = COLOR_BUTTON_WARNING_TEXT;
     b->ct2 = COLOR_BUTTON_WARNING_HOVER_TEXT;
+    b->disabled = 0;
 }
 
 static void button_setcolors_disabled(BUTTON *b)
@@ -39,6 +42,7 @@ static void button_setcolors_disabled(BUTTON *b)
     b->c3 = COLOR_BUTTON_DISABLED_BACKGROUND;
     b->ct1 = COLOR_BUTTON_DISABLED_TEXT;
     b->ct2 = COLOR_BUTTON_DISABLED_TEXT;
+    b->disabled = 1;
 }
 
 static void button_copyid_onpress(void)

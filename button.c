@@ -82,7 +82,10 @@ _Bool button_mmove(BUTTON *b, int UNUSED(x), int UNUSED(y), int width, int heigh
 
     _Bool mouseover = inrect(mx, my, real_x, 0, real_w, height);
     if(mouseover) {
-        cursor = CURSOR_HAND;
+        if(!b->disabled) {
+            cursor = CURSOR_HAND;
+        }
+
         if(maybe_i18nal_string_is_valid(&b->tooltip_text)) {
             tooltip_new(&b->tooltip_text);
         }
