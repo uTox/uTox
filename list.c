@@ -55,7 +55,11 @@ static void drawitem(ITEM *i, int UNUSED(x), int y)
             drawalpha(BM_CONTACT, LIST_AVATAR_X, y + LIST_AVATAR_Y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, (sitem == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
         }
 
-        drawname(i, y, f->name, f->status_message, f->name_length, f->status_length, 0, 0);
+        if(f->alias){
+            drawname(i, y, f->alias, f->status_message, f->alias_length, f->status_length, 0, 0);
+        } else {
+            drawname(i, y, f->name, f->status_message, f->name_length, f->status_length, 0, 0);
+        }
 
         uint8_t status = f->online ? f->status : 3;
         drawalpha(BM_ONLINE + status, LIST_RIGHT - SCALE * 12, y + ITEM_HEIGHT / 2 - BM_STATUS_WIDTH / 2, BM_STATUS_WIDTH, BM_STATUS_WIDTH, status_color[status]);
