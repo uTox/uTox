@@ -88,7 +88,7 @@ rm utox.exe 2> /dev/null
 # Compile
 "$WINDOWS_TOOLCHAIN"-gcc -std=gnu99 $COMPILE_OPT -DAL_LIBTYPE_STATIC -o utox.exe ./*.c     \
 ./png/png.c $AUDIO_FILTERING_BUILD -I ../toxcore/include/ -I                 \
-../openal/include/  ../openal/lib/libOpenAL32.a ../openal/lib/libcommon.a    \
+../openal/include/  ../openal/lib/libOpenAL32.a \
 ../toxcore/lib/libtoxav.a ../toxcore/lib/libtoxdns.a                         \
 ../toxcore/lib/libtoxcore.a ../toxcore/lib/libvpx.a ../toxcore/lib/libopus.a \
 ../toxcore/lib/libsodium.a $MINGW32_LIB_DIR/libwinpthread.a       			 \
