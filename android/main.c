@@ -519,7 +519,15 @@ static void android_main(struct android_app* state){
 */
     list_start();
 
+    uint64_t p_last_down;
+    _Bool p_down;
+
     while(!destroy) {
+        if (p_down && (p_last_down + 500 * 1000 * 1000) < get_time()) {
+            panel_mright(&panel_main);
+            p_down = 0;
+        }
+
         inputQueue = (AInputQueue*)inputQueueNew;
         if(inputQueue != NULL) {
             AInputEvent *event = NULL;
@@ -547,6 +555,8 @@ static void android_main(struct android_app* state){
                            // pointerinput2(pointer_index);
 
                             debug("down %f %f, %u\n", x, y, pointer_index);
+                            p_down = 1;
+                            p_last_down = get_time();
                             break;
                         }
 
@@ -562,17 +572,21 @@ static void android_main(struct android_app* state){
                             //pointerinput(pointer_index);
 
                             debug("up %f %f, %u\n", x, y, pointer_index);
+                            p_down = 0;
                             break;
                         }
 
                         case AMOTION_EVENT_ACTION_MOVE: {
                             panel_mmove(&panel_main, 0, 0, utox_window_width, utox_window_height, x, y, x - lx, y - ly);
-                            lx = x;
-                            ly = y;
+                            if (lx != x && ly != y) {
+                                p_down = 0;
+                                lx = x;
+                                ly = y;
+                                debug("move %f %f, %u\n", x, y, pointer_index);
+                            }
                             //pointer[pointer_index].x = x;
                             //pointer[pointer_index].y = y;
 
-                            debug("move %f %f, %u\n", x, y, pointer_index);
                             break;
                         }
                         }
