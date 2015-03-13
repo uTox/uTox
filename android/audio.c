@@ -250,6 +250,7 @@ void stopRecording(void)
 
     pthread_mutex_lock(&callback_lock);
 
+    unsigned int i;
     for (i = 0; i < frame_count; ++i) {
         free(frames[i]);
         frames[i] = NULL;

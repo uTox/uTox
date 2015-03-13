@@ -255,10 +255,6 @@ void desktopgrab(_Bool video)
 {
 }
 
-void audio_detect(void)
-{
-}
-
 void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height, _Bool resize)
 {
 }
