@@ -546,6 +546,7 @@ static void android_main(struct android_app* state){
 
                            // pointerinput2(pointer_index);
 
+                            debug("down %f %f, %u\n", x, y, pointer_index);
                             break;
                         }
 
@@ -560,6 +561,7 @@ static void android_main(struct android_app* state){
 
                             //pointerinput(pointer_index);
 
+                            debug("up %f %f, %u\n", x, y, pointer_index);
                             break;
                         }
 
@@ -570,6 +572,7 @@ static void android_main(struct android_app* state){
                             //pointer[pointer_index].x = x;
                             //pointer[pointer_index].y = y;
 
+                            debug("move %f %f, %u\n", x, y, pointer_index);
                             break;
                         }
                         }
