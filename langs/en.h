@@ -196,6 +196,9 @@ msgstr("Accept")
 msgid(IGNORE)
 msgstr("Ignore")
 
+msgid(SENDSCREENSHOT)
+msgstr("Send a screenshot")
+
 msgid(CLICKTOSAVE)
 msgstr("Click to save")
 

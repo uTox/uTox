@@ -547,6 +547,7 @@ button_chat1 = {
     .bh = _BM_CI_WIDTH,
     .onpress = button_chat1_onpress,
     .updatecolor = button_chat1_updatecolor,
+    .tooltip_text = { .i18nal = STR_SENDSCREENSHOT },
 },
 
 /* bottom right chat message window button */
