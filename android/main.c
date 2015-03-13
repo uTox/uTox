@@ -578,7 +578,7 @@ static void android_main(struct android_app* state){
 
                         case AMOTION_EVENT_ACTION_MOVE: {
                             panel_mmove(&panel_main, 0, 0, utox_window_width, utox_window_height, x, y, x - lx, y - ly);
-                            if (lx != x && ly != y) {
+                            if (lx != (int)x && ly != (int)y) {
                                 p_down = 0;
                                 lx = x;
                                 ly = y;
