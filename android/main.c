@@ -71,8 +71,22 @@ void image_set_scale(UTOX_NATIVE_IMAGE *image, double scale)
 {
 }
 
-void draw_image(const UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t imgx, uint32_t imgy)
+void draw_image(const UTOX_NATIVE_IMAGE *data, int x, int y, uint32_t width, uint32_t height, uint32_t imgx, uint32_t imgy)
 {
+    GLuint texture = data;
+
+    makequad(&quads[0], x, y, x + width, y + height);
+ 
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    float one[] = {1.0, 1.0, 1.0};
+    float zero[] = {0.0, 0.0, 0.0};
+    glUniform3fv(k, 1, one);
+    glUniform3fv(k2, 1, zero);
+
+    glDrawQuads(0, 1);
+
+    glUniform3fv(k2, 1, one);
 }
 
 
