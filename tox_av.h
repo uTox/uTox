@@ -713,6 +713,9 @@ static void audio_thread(void *args)
             _Bool frame = 0;
             if(device_in == (void*)1) {
                 frame = audio_frame((void*)buf);
+                if (frame) {
+                    sleep = 0;
+                }
             } else {
                 ALint samples;
                 alcGetIntegerv(device_in, ALC_CAPTURE_SAMPLES, sizeof(samples), &samples);

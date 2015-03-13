@@ -298,7 +298,7 @@ void audio_detect(void)
 {
     createEngine();
     createAudioRecorder();
-    postmessage(NEW_AUDIO_IN_DEVICE, STR_AUDIO_IN_ANDROID, 0, (void*)(size_t)1);
+    postmessage(NEW_AUDIO_IN_DEVICE, STR_AUDIO_IN_ANDROID, 1, (void*)(size_t)1);
 }
 
 _Bool audio_init(void *handle)
