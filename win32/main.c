@@ -85,6 +85,7 @@ static _Bool mouse_tracked = 0;
 static _Bool hidden;
 
 _Bool utox_portable;
+char utox_portable_save_path[MAX_PATH];
 
 //WM_COMMAND
 enum
@@ -924,7 +925,8 @@ int datapath(uint8_t *dest)
 {
     if (utox_portable) {
         uint8_t *p = dest;
-        strcpy((char *)p, "Tox"); p += 3;
+        strcpy((char *)p, utox_portable_save_path); p += strlen(utox_portable_save_path);
+        strcpy((char *)p, "\\Tox"); p += 4;
         CreateDirectory((char*)dest, NULL);
         *p++ = '\\';
         return p - dest;
@@ -1256,10 +1258,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
                 HMODULE hModule = GetModuleHandle(NULL);
                 char path[MAX_PATH];
                 int len = GetModuleFileName(hModule, path, MAX_PATH);
-                path[len - 10] = 0;//!
+                unsigned int i;
+                for (i = (len - 1); path[i] != '\\'; --i);
+                path[i] = 0;//!
                 SetCurrentDirectory(path);
                 utox_portable = 1;
-                debug("Starting uTox in portable mode: Data will be saved to tox/ in the current directory\n");
+                strcpy(utox_portable_save_path, path);
+                debug("Starting uTox in portable mode: Data will be saved to tox/ in the current directory: %s\n", utox_portable_save_path);
             } else if(wcscmp(arglist[i], L"--theme") == 0){
                 debug("Searching for theme from argv\n");
                 if(arglist[(i+1)]){
