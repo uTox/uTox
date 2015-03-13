@@ -496,6 +496,7 @@ static void android_main(struct android_app* state){
     pipe(pipefd);
     fcntl(pipefd[0], F_SETFL, O_NONBLOCK);
 
+    UTOX_SAVE *save = config_load();
     theme_load(THEME_DEFAULT);
 
     thread(tox_thread, NULL);

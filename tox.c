@@ -1277,7 +1277,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             list_dropdown_add_localized(&dropdown_audio_in, param1, data);
         }
 
-        if (loaded_audio_in_device == ~0 && param2) {
+        if (loaded_audio_in_device == (uint16_t)~0 && param2) {
             loaded_audio_in_device = (dropdown_audio_in.dropcount - 1);
         }
 
