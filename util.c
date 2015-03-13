@@ -628,6 +628,7 @@ UTOX_SAVE* config_load(void)
     save->audio_filtering_enabled = 1;
     save->proxy_ip[0] = 0;
     save->filter = 0;
+    save->audio_device_in = ~0;
     // save->theme = 0;
 
     config_osdefaults(save);

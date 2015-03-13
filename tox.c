@@ -1277,7 +1277,11 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             list_dropdown_add_localized(&dropdown_audio_in, param1, data);
         }
 
-        if ((loaded_audio_in_device != 0 && (dropdown_audio_in.dropcount - 1) == loaded_audio_in_device) || param2) {
+        if (loaded_audio_in_device == ~0 && param2) {
+            loaded_audio_in_device = (dropdown_audio_in.dropcount - 1);
+        }
+
+        if (loaded_audio_in_device != 0 && (dropdown_audio_in.dropcount - 1) == loaded_audio_in_device) {
             toxaudio_postmessage(AUDIO_SET_INPUT, 0, 0, data);
             dropdown_audio_in.selected = loaded_audio_in_device;
             loaded_audio_in_device = 0;
