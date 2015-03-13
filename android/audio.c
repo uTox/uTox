@@ -187,7 +187,7 @@ void bqRecorderCallback(SLAndroidSimpleBufferQueueItf bq, void *context)
     pthread_mutex_unlock(&callback_lock);
 }
 
-_Bool createAudioRecorder(ToxAv *av)
+_Bool createAudioRecorder(void)
 {
     SLresult result;
 
@@ -223,7 +223,7 @@ _Bool createAudioRecorder(ToxAv *av)
     result = (*recorderBufferQueue)->RegisterCallback(recorderBufferQueue, bqRecorderCallback, NULL);
 
     pthread_mutex_init(&callback_lock, NULL);
-    thread(encoder_thread, av);
+    //thread(encoder_thread, av);
 
     return 1;
 }
@@ -239,6 +239,24 @@ void startRecording(void)
     result = (*recorderBufferQueue)->Enqueue(recorderBufferQueue, &recbuf[960], 960 * 2);
 
     result = (*recorderRecord)->SetRecordState(recorderRecord, SL_RECORDSTATE_RECORDING);
+}
+
+void stopRecording(void)
+{
+    SLresult result;
+
+    result = (*recorderRecord)->SetRecordState(recorderRecord, SL_RECORDSTATE_STOPPED);
+    result = (*recorderBufferQueue)->Clear(recorderBufferQueue);
+
+    pthread_mutex_lock(&callback_lock);
+
+    for (i = 0; i < frame_count; ++i) {
+        free(frames[i]);
+        frames[i] = NULL;
+    }
+
+    frame_count = 0;
+    pthread_mutex_unlock(&callback_lock);
 }
 
 void createEngine(void)
@@ -273,4 +291,49 @@ void audio_begin(int32_t call_index)
 void audio_end(int32_t call_index)
 {
     call[call_index] = 0;
+}
+
+void audio_detect(void)
+{
+    createEngine();
+    createAudioRecorder();
+    postmessage(NEW_AUDIO_IN_DEVICE, STR_AUDIO_IN_ANDROID, 0, (void*)(size_t)1);
+}
+
+_Bool audio_init(void *handle)
+{
+    startRecording();
+    return 1;
+}
+
+_Bool audio_close(void *handle)
+{
+    stopRecording();
+    return 1;
+}
+
+_Bool audio_frame(int16_t *buffer)
+{
+    void *frame;
+    uint8_t c;
+
+    pthread_mutex_lock(&callback_lock);
+
+    c = volatile(frame_count);
+    if(c) {
+        frame = volatile(frames[0]);
+        memmove(&frames[0], &frames[1], (c - 1) * sizeof(void*));
+        frame_count--;
+    }
+
+    pthread_mutex_unlock(&callback_lock);
+
+    _Bool ret = 0;
+    if (c) {
+        memcpy(buffer, frame, 960 * 2);
+        ret = 1;
+    }
+
+    free(frame);
+    return ret;
 }

@@ -259,21 +259,6 @@ void audio_detect(void)
 {
 }
 
-_Bool audio_init(void *handle)
-{
-    return 0;
-}
-
-_Bool audio_close(void *handle)
-{
-    return 0;
-}
-
-_Bool audio_frame(int16_t *buffer)
-{
-    return 0;
-}
-
 void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height, _Bool resize)
 {
 }
@@ -530,11 +515,11 @@ static void android_main(struct android_app* state){
     while(!tox_thread_init) {
         yieldcpu(1);
     }
-
+/*
     createEngine();
     createAudioRecorder(global_av);
     startRecording();
-
+*/
     list_start();
 
     while(!destroy) {
