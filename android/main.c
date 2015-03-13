@@ -520,13 +520,14 @@ static void android_main(struct android_app* state){
     list_start();
 
     uint64_t p_last_down;
-    _Bool p_down;
+    _Bool p_down, already_up;
 
     while(!destroy) {
         if (p_down && (p_last_down + 500 * 1000 * 1000) < get_time()) {
             panel_mup(&panel_main);
             panel_mright(&panel_main);
             p_down = 0;
+            already_up = 1;
         }
 
         inputQueue = (AInputQueue*)inputQueueNew;
@@ -555,6 +556,7 @@ static void android_main(struct android_app* state){
 
                            // pointerinput2(pointer_index);
 
+                            already_up = 0;
                             debug("down %f %f, %u\n", x, y, pointer_index);
                             p_down = 1;
                             p_last_down = get_time();
@@ -564,8 +566,10 @@ static void android_main(struct android_app* state){
                         case AMOTION_EVENT_ACTION_UP:
                         case AMOTION_EVENT_ACTION_POINTER_UP: {
                             //panel_mmove(&panel_main, 0, 0, width, height, x, y, 0);
-                            panel_mup(&panel_main);
-                            panel_mleave(&panel_main);
+                            if (!already_up) {
+                                panel_mup(&panel_main);
+                                panel_mleave(&panel_main);
+                            }
                             //pointer[pointer_index].down = false;
                             //pointer[pointer_index].x = x;
                             //pointer[pointer_index].y = y;
