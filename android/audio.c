@@ -329,12 +329,11 @@ _Bool audio_frame(int16_t *buffer)
 
     pthread_mutex_unlock(&callback_lock);
 
-    _Bool ret = 0;
     if (c) {
         memcpy(buffer, frame, 960 * 2);
-        ret = 1;
+        free(frame);
+        return 1;
     }
 
-    free(frame);
-    return ret;
+    return 0;
 }
