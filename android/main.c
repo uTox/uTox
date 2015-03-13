@@ -524,6 +524,7 @@ static void android_main(struct android_app* state){
 
     while(!destroy) {
         if (p_down && (p_last_down + 500 * 1000 * 1000) < get_time()) {
+            panel_mup(&panel_main);
             panel_mright(&panel_main);
             p_down = 0;
         }
