@@ -35,6 +35,8 @@
 #define MAX_CALLS 16
 #define MAX_BACKLOG_MESSAGES 128
 
+#define TOX_FRIEND_ADDRESS_SIZE TOX_ADDRESS_SIZE
+
 typedef struct
 {
     uint8_t version, scale, enableipv6, disableudp;
@@ -155,7 +157,8 @@ int font_small_lineheight, font_msg_lineheight;
 
 uint16_t video_width, video_height, max_video_width, max_video_height;
 
-Tox_Options options;
+char proxy_address[256];
+extern struct Tox_Options options;
 
 enum
 {

@@ -1,6 +1,11 @@
 /* subdirectory name to save avatars in */
 #define AVATAR_DIRECTORY "avatars"
 
+//TODO: remove
+#define TOX_AVATAR_MAX_DATA_LENGTH (16 * 1024)
+#define TOX_AVATAR_FORMAT_NONE 0
+#define TOX_AVATAR_FORMAT_PNG 1
+
 /* data needed for each avatar in memory */
 typedef struct avatar {
     uint8_t format; /* one of TOX_AVATAR_FORMAT */

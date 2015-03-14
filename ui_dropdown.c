@@ -55,8 +55,8 @@ static void dropdown_proxy_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
 {
     if((i != 0) != (options.proxy_type) || i) {
         options.proxy_type = (i != 0);
-        if(i == 2 && !options.udp_disabled) {
-            options.udp_disabled = 1;
+        if(i == 2 && options.udp_enabled) {
+            options.udp_enabled = 0;
             dropdown_udp.selected = dropdown_udp.over = 1;
         }
         memcpy(options.proxy_address, edit_proxy_ip.data, edit_proxy_ip.length);
@@ -71,16 +71,16 @@ static void dropdown_proxy_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
 
 static void dropdown_ipv6_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
 {
-    if(!i != options.ipv6enabled) {
-        options.ipv6enabled = !i;
+    if(!i != options.ipv6_enabled) {
+        options.ipv6_enabled = !i;
         tox_settingschanged();
     }
 }
 
 static void dropdown_udp_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
 {
-    if(i != options.udp_disabled) {
-        options.udp_disabled = i;
+    if(i == options.udp_enabled) {
+        options.udp_enabled = !i;
         if(!i && dropdown_proxy.selected == 2) {
             dropdown_proxy.selected = dropdown_proxy.over = 1;
         }

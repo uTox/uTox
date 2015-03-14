@@ -46,7 +46,7 @@ void utox_transfer_start_file(Tox *tox, uint32_t fid, uint8_t *path, uint8_t *na
     size = ftello(file);
     fseeko(file, 0, SEEK_SET);
 
-    int filenumber = tox_new_file_sender(tox, fid, size, name, name_length);
+    int filenumber = -1;//TODO tox_new_file_sender(tox, fid, size, name, name_length);
     if(filenumber != -1) {
         FILE_T *ft = &friend[fid].outgoing[filenumber];
         memset(ft, 0, sizeof(FILE_T));
@@ -60,7 +60,7 @@ void utox_transfer_start_file(Tox *tox, uint32_t fid, uint8_t *path, uint8_t *na
         ft->name_length = name_length;
 
         ft->status = FT_PENDING;
-        ft->sendsize = tox_file_data_size(tox, fid);
+        //TODO ft->sendsize = tox_file_data_size(tox, fid);
 
         memcpy(ft->name, name, name_length);
         ft->total = size;
@@ -89,7 +89,7 @@ void utox_transfer_start_memory(Tox *tox, uint16_t fid, void *pngdata, size_t si
         return;
     }
 
-    int filenumber = tox_new_file_sender(tox, fid, size, (uint8_t*)"inline.png", sizeof("inline.png") - 1);
+    int filenumber = -1;//TODO tox_new_file_sender(tox, fid, size, (uint8_t*)"inline.png", sizeof("inline.png") - 1);
     if(filenumber != -1) {
         FILE_T *ft = &friend[fid].outgoing[filenumber];
         memset(ft, 0, sizeof(FILE_T));
@@ -101,7 +101,7 @@ void utox_transfer_start_memory(Tox *tox, uint16_t fid, void *pngdata, size_t si
         ft->inline_png = 1;
 
         ft->status = FT_PENDING;
-        ft->sendsize = tox_file_data_size(tox, fid);
+        //TODO ft->sendsize = tox_file_data_size(tox, fid);
 
         memcpy(ft->name, "inline.png", sizeof("inline.png") - 1);
         ft->name_length = sizeof("inline.png") - 1;
@@ -152,7 +152,7 @@ static void reset_file_transfer(FILE_T *ft, uint64_t start){
 // Tox file callbacks
 
 static void callback_file_send_request(Tox *tox, int32_t fid, uint8_t filenumber, uint64_t filesize, const uint8_t *filename, uint16_t filename_length, void *UNUSED(userdata))
-{
+{/* TODO
     if(filenumber > countof(friend[0].incoming)) {
         tox_file_send_control(tox, fid, 1, filenumber, TOX_FILECONTROL_KILL, NULL, 0);
         return;
@@ -184,11 +184,11 @@ static void callback_file_send_request(Tox *tox, int32_t fid, uint8_t filenumber
         postmessage(FRIEND_FILE_IN_NEW_INLINE, fid, filenumber, NULL);
     } else {
         postmessage(FRIEND_FILE_IN_NEW, fid, filenumber, NULL);
-    }
+    }*/
 }
 
 static void callback_file_control(Tox *tox, int32_t fid, uint8_t receive_send, uint8_t filenumber, uint8_t control, const uint8_t *data, uint16_t length, void *UNUSED(userdata))
-{
+{/*
     FILE_T *ft = (receive_send) ? &friend[fid].outgoing[filenumber] : &friend[fid].incoming[filenumber];
 
     switch(control) {
@@ -268,7 +268,7 @@ static void callback_file_control(Tox *tox, int32_t fid, uint8_t receive_send, u
         break;
     }
 
-    }
+    }*/
 }
 
 static void callback_file_data(Tox *UNUSED(tox), int32_t fid, uint8_t filenumber, const uint8_t *data, uint16_t length, void *UNUSED(userdata))
@@ -295,10 +295,11 @@ static void callback_file_data(Tox *UNUSED(tox), int32_t fid, uint8_t filenumber
 }
 
 void utox_set_callbacks_for_transfer(Tox *tox)
-{
+{/*
     tox_callback_file_send_request(tox, callback_file_send_request, NULL);
     tox_callback_file_control(tox, callback_file_control, NULL);
     tox_callback_file_data(tox, callback_file_data, NULL);
+    */
 }
 
 // Called from tox_thread main loop to do transfer work.
@@ -314,7 +315,7 @@ void utox_thread_work_for_transfers(Tox *tox, uint64_t time)
 
         switch(ft->status) {
         case FT_SEND: {
-            while(tox_file_send_data(tox, ft->fid, ft->filenumber, ft->buffer, ft->buffer_bytes) != -1) {
+            while(/*tox_file_send_data(tox, ft->fid, ft->filenumber, ft->buffer, ft->buffer_bytes) != -1 TODO*/ 0) {
                 if(time - ft->lastupdate >= 1000 * 1000 * 50 || ft->bytes - ft->lastprogress >= 1024 * 1024) {
                     FILE_PROGRESS *fp = malloc(sizeof(FILE_PROGRESS));
                     fp->bytes = ft->bytes;
@@ -326,7 +327,7 @@ void utox_thread_work_for_transfers(Tox *tox, uint64_t time)
                     ft->lastprogress = ft->bytes;
                 }
                 if(ft->finish) {
-                    tox_file_send_control(tox, ft->fid, 0, ft->filenumber, TOX_FILECONTROL_FINISHED, NULL, 0);
+                    //TODO tox_file_send_control(tox, ft->fid, 0, ft->filenumber, TOX_FILECONTROL_FINISHED, NULL, 0);
 
                     memmove(p, p + 1, ((void*)file_tend - (void*)(p + 1)));
                     p--;

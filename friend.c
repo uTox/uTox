@@ -181,7 +181,7 @@ void friend_history_clear(FRIEND *f)
         /* We get the file path of the log file */
         p = path + datapath(path);
 
-        if(countof(path) - (p - path) < TOX_CLIENT_ID_SIZE * 2 + sizeof(LOGFILE_EXT))
+        if(countof(path) - (p - path) < TOX_PUBLIC_KEY_SIZE * 2 + sizeof(LOGFILE_EXT))
         {
             /* We ensure that we have enough space in the buffer,
                if not we fail */
@@ -190,7 +190,7 @@ void friend_history_clear(FRIEND *f)
         }
 
         cid_to_string(p, f->cid);
-        p += TOX_CLIENT_ID_SIZE * 2;
+        p += TOX_PUBLIC_KEY_SIZE * 2;
         memcpy((char*)p, LOGFILE_EXT, sizeof(LOGFILE_EXT));
     }
 

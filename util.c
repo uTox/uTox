@@ -645,8 +645,8 @@ NEXT:
     dropdown_filter.selected = FILTER = save->filter;
     // dropdown_theme_onselect.selected = dropdown_theme_onselect.over = save->theme;
 
-    options.ipv6enabled = save->enableipv6;
-    options.udp_disabled = save->disableudp;
+    options.ipv6_enabled = save->enableipv6;
+    options.udp_enabled = !save->disableudp;
     options.proxy_type = !!save->proxyenable;
     options.proxy_port = save->proxy_port;
     strcpy((char*)options.proxy_address, (char*)save->proxy_ip);
