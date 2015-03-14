@@ -75,8 +75,8 @@ void draw_image(const UTOX_NATIVE_IMAGE *data, int x, int y, uint32_t width, uin
 {
     GLuint texture = data;
 
-    makequad(&quads[0], x, y, x + width, y + height);
- 
+    makequad(&quads[0], x - imgx, y - imgy, x + width, y + height);
+
     glBindTexture(GL_TEXTURE_2D, texture);
 
     float one[] = {1.0, 1.0, 1.0};
