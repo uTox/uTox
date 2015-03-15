@@ -294,12 +294,56 @@ static void callback_file_data(Tox *UNUSED(tox), int32_t fid, uint8_t filenumber
     }
 }
 
+
+/* Function called by core with a new incoming file. */
+static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uint32_t file_number, uint32_t kind,
+                                 uint64_t file_size, const uint8_t *filename, size_t filename_length, void *user_data){
+    debug("FileTransfer:\tNew incoming file from friend(%i)\nFileTransfer:\t\tfilename: %s\n", friendnumber, *filename);
+    //new incoming file
+}
+
+static void incoming_file_callback_control(Tox *tox, uint32_t friendnumber, uint32_t file_number,
+                                                                    TOX_FILE_CONTROL control, void *UNUSED(userdata)){
+    switch(control){
+        case TOX_FILE_CONTROL_RESUME:
+            debug("FileTransfer:\tFriend (%i) has resumed file(%i)\n", friendnumber, filenumber)
+            break;
+        case TOX_FILE_CONTROL_PAUSE:
+            debug("FileTransfer:\tFriend (%i) has paused file(%i)\n", friendnumber, filenumber)
+            break;
+        case TOX_FILE_CONTROL_CANCEL:
+            debug("FileTransfer:\tFriend (%i) has canceled file(%i)\n", friendnumber, filenumber)
+            break;
+    }
+}
+
+static void incoming_file_callback_chunk(Tox *tox, uint32_t friend_number, uint32_t file_number, uint32_t kind,
+                                 uint64_t file_size, const uint8_t *filename, size_t filename_length, void *user_data){
+    //new chunk for existing file
+}
+
+static void outgoing_file_callback_chunk(Tox *tox, uint32_t friend_number, uint32_t file_number, uint64_t position,
+                                                                                        size_t length, void *user_data){
+    //send a chunk of data size of length with
+    //tox_file_send_chunk(Tox *tox, uint32_t friend_number, uint32_t file_number, uint64_t position, const uint8_t *data,
+    //          size_t length, TOX_ERR_FILE_SEND_CHUNK *error)
+}
+
+
 void utox_set_callbacks_for_transfer(Tox *tox)
 {/*
     tox_callback_file_send_request(tox, callback_file_send_request, NULL);
     tox_callback_file_control(tox, callback_file_control, NULL);
-    tox_callback_file_data(tox, callback_file_data, NULL);
-    */
+    tox_callback_file_data(tox, callback_file_data, NULL); */
+    /* Incoming files */
+    /* This is the callback for a new incoming file. */
+    tox_callback_file_recieve(tox, incoming_file_callback_request, NULL);
+    /* This is the callback with friend's actions for a file */
+    tox_callback_file_recv_control(tox, incoming_file_callback_control, NULL);
+    /* This is the callback with a chunk data for a file. */
+    tox_callback_file_recieve_chunk(tox, incoming_file_callback_chunk, NULL)
+    /* Outgoing files */
+    tox_callback_file_request_chunk(tox, outgoing_file_callback_chunk, NULL);
 }
 
 // Called from tox_thread main loop to do transfer work.
