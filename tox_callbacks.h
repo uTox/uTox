@@ -128,23 +128,23 @@ static void callback_connection_status(Tox *tox, uint32_t fid, TOX_CONNECTION st
 #if 0
     if(!status) {
         /* break all file transfers */
-        for(i = 0; i != countof(f->incoming); i++) {
-            if(f->incoming[i].status) {
-                f->incoming[i].status = FT_BROKE;
+        for(i = 0; i != countof(f->file_transfer); i++) {
+            if(f->active_transfer[i].status) {
+                f->active_transfer[i].status = FT_BROKE;
                 postmessage(FRIEND_FILE_IN_STATUS, fid, i, (void*)FILE_BROKEN);
             }
         }
-        for(i = 0; i != countof(f->outgoing); i++) {
-            if(f->outgoing[i].status) {
-                f->outgoing[i].status = FT_BROKE;
+        for(i = 0; i != countof(f->file_transfer); i++) {
+            if(f->active_transfer[i].status) {
+                f->active_transfer[i].status = FT_BROKE;
                 postmessage(FRIEND_FILE_OUT_STATUS, fid, i, (void*)FILE_BROKEN);
             }
         }
     } else {
         /* resume any broken file transfers */
-        for(i = 0; i != countof(f->incoming); i++) {
-            if(f->incoming[i].status == FT_BROKE) {
-                tox_file_send_control(tox, fid, 1, i, TOX_FILECONTROL_RESUME_BROKEN, (void*)&f->incoming[i].bytes, sizeof(uint64_t));
+        for(i = 0; i != countof(f->file_transfer); i++) {
+            if(f->active_transfer[i].status == FT_BROKE) {
+                tox_file_send_control(tox, fid, 1, i, TOX_FILECONTROL_RESUME_BROKEN, (void*)&f->active_transfer[i].bytes, sizeof(uint64_t));
             }
         }
         /* request avatar info (in case it changed) */

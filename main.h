@@ -97,7 +97,7 @@ typedef struct edit_change EDIT_CHANGE;
 #include "messages.h"
 #include "theme.h"
 #include "dns.h"
-#include "transfer.h"
+#include "file_transfers.h"
 #include "friend.h"
 #include "list.h"
 #include "edit.h"

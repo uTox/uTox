@@ -220,20 +220,21 @@ void friend_free(FRIEND *f)
             break;
         }
         case MSG_TYPE_FILE: {
+            // TODO KILL THIS SECTION
             MSG_FILE *file = (void*)msg;
             free(file->path);
-            FILE_T *ft = &f->incoming[file->filenumber];
+            FILE_TRANSFER *ft = &f->active_transfer[file->filenumber];
             if(ft->data) {
-                if(ft->inline_png) {
-                    free(ft->data);
+                if(ft->in_memory) {
+                    // free(ft->data);
                 } else {
-                    fclose(ft->data);
-                    free(ft->path);
+                    // fclose(ft->data);
+                    // free(ft->path);
                 }
             }
 
             if(msg->author) {
-                ft->status = FT_NONE;
+                ft->status = FILE_TRANSFER_STATUS_NONE;
             }
             break;
         }

@@ -179,7 +179,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
             setfont(FONT_MISC);
             setcolor(COLOR_MAIN_BACKGROUND);
 
-            if(file->status == FILE_DONE) {
+            if(file->status == FILE_TRANSFER_STATUS_COMPLETED) {
                 setcolor((mo && m->over) ? COLOR_BUTTON_SUCCESS_HOVER_TEXT : COLOR_BUTTON_SUCCESS_TEXT);
                 drawalpha(BM_FT, xx, y, BM_FT_WIDTH, BM_FT_HEIGHT, (mo && m->over) ? COLOR_BUTTON_SUCCESS_HOVER_BACKGROUND : COLOR_BUTTON_SUCCESS_BACKGROUND);
                 drawalpha(BM_YES, xx + BM_FTM_WIDTH + SCALE + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2, y + SCALE * 4, BM_FB_WIDTH, BM_FB_HEIGHT, (mo && m->over) ? COLOR_BUTTON_SUCCESS_HOVER_TEXT : COLOR_BUTTON_SUCCESS_TEXT);
@@ -188,16 +188,16 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
                 } else {
                     drawstr(xx + 5 * SCALE, y + 17 * SCALE, CLICKTOOPEN);
                 }
-            } else if(file->status == FILE_KILLED) {
+            } else if(file->status == FILE_TRANSFER_STATUS_KILLED) {
                 setcolor(COLOR_BUTTON_DANGER_TEXT);
                 drawalpha(BM_FT, xx, y, BM_FT_WIDTH, BM_FT_HEIGHT, COLOR_BUTTON_DANGER_BACKGROUND);
                 drawalpha(BM_NO, xx + BM_FTM_WIDTH + SCALE + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2, y + SCALE * 4, BM_FB_WIDTH, BM_FB_HEIGHT, COLOR_BUTTON_DANGER_TEXT);
                 drawstr(xx + 5 * SCALE, y + 17 * SCALE, CANCELLED);
             } else {
-                if(file->status == FILE_BROKEN) {
+                if(file->status == FILE_TRANSFER_STATUS_BROKEN) {
                     setcolor(COLOR_BUTTON_DANGER_TEXT);
                     drawalpha(BM_FTM, xx, y, BM_FTM_WIDTH, BM_FT_HEIGHT, COLOR_BUTTON_DANGER_BACKGROUND);
-                } else if(file->status == FILE_OK) {
+                } else if(file->status == FILE_TRANSFER_STATUS_ACTIVE) {
                     setcolor(COLOR_BUTTON_INPROGRESS_TEXT);
                     drawalpha(BM_FTM, xx, y, BM_FTM_WIDTH, BM_FT_HEIGHT, COLOR_BUTTON_INPROGRESS_BACKGROUND);
                 } else {
@@ -209,9 +209,9 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
                 drawalpha(BM_FTB1, xxx, y, BM_FTB_WIDTH, BM_FTB_HEIGHT + SCALE, (mo && m->over == 1) ? COLOR_BUTTON_SUCCESS_HOVER_BACKGROUND : COLOR_BUTTON_SUCCESS_BACKGROUND);
                 drawalpha(BM_NO, xxx + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2, y + SCALE * 4, BM_FB_WIDTH, BM_FB_HEIGHT, (mo && m->over == 1) ? COLOR_BUTTON_SUCCESS_HOVER_TEXT : COLOR_BUTTON_SUCCESS_TEXT);
 
-                uint32_t color = ((msg->author && file->status == FILE_PENDING) || file->status == FILE_BROKEN || file->status == FILE_PAUSED_OTHER) ? COLOR_BUTTON_DISABLED_BACKGROUND: ((mo && m->over == 2) ? COLOR_BUTTON_SUCCESS_HOVER_BACKGROUND : COLOR_BUTTON_SUCCESS_BACKGROUND);
+                uint32_t color = ((msg->author && file->status == FILE_TRANSFER_STATUS_NONE) || file->status == FILE_TRANSFER_STATUS_BROKEN || file->status == FILE_TRANSFER_STATUS_PAUSED_THEM) ? COLOR_BUTTON_DISABLED_BACKGROUND: ((mo && m->over == 2) ? COLOR_BUTTON_SUCCESS_HOVER_BACKGROUND : COLOR_BUTTON_SUCCESS_BACKGROUND);
                 drawalpha(BM_FTB2, xxx, y + BM_FTB_HEIGHT + SCALE * 2, BM_FTB_WIDTH, BM_FTB_HEIGHT, color);
-                drawalpha((!msg->author && file->status ==  FILE_PENDING) ? BM_YES : (file->status == FILE_PAUSED ? BM_RESUME : BM_PAUSE), xxx + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2, y + BM_FTB_HEIGHT + SCALE * 5, BM_FB_WIDTH, BM_FB_HEIGHT, ((msg->author && file->status == FILE_PENDING) || file->status == FILE_BROKEN || file->status == FILE_PAUSED_OTHER) ? COLOR_BUTTON_DISABLED_TRANSFER : ((mo && m->over == 2) ? COLOR_BUTTON_SUCCESS_HOVER_TEXT : COLOR_BUTTON_SUCCESS_TEXT));
+                drawalpha((!msg->author && file->status ==  FILE_TRANSFER_STATUS_NONE) ? BM_YES : (file->status == FILE_TRANSFER_STATUS_PAUSED_US ? BM_RESUME : BM_PAUSE), xxx + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2, y + BM_FTB_HEIGHT + SCALE * 5, BM_FB_WIDTH, BM_FB_HEIGHT, ((msg->author && file->status == FILE_TRANSFER_STATUS_NONE) || file->status == FILE_TRANSFER_STATUS_BROKEN || file->status == FILE_TRANSFER_STATUS_PAUSED_THEM) ? COLOR_BUTTON_DISABLED_TRANSFER : ((mo && m->over == 2) ? COLOR_BUTTON_SUCCESS_HOVER_TEXT : COLOR_BUTTON_SUCCESS_TEXT));
 
 
                 uint64_t progress = file->progress;
@@ -221,11 +221,11 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
 
                 uint32_t w = (file->size == 0) ? 0 : (progress * (uint64_t)106 * SCALE) / file->size;
 
-                color = (file->status == FILE_PENDING || file->status == FILE_PAUSED || file->status == FILE_PAUSED_OTHER) ? COLOR_BUTTON_DISABLED_TRANSFER : (file->status == FILE_BROKEN ? COLOR_BUTTON_DANGER_TEXT : COLOR_BUTTON_INPROGRESS_TEXT);
+                color = (file->status == FILE_TRANSFER_STATUS_NONE || file->status == FILE_TRANSFER_STATUS_PAUSED_US || file->status == FILE_TRANSFER_STATUS_PAUSED_THEM) ? COLOR_BUTTON_DISABLED_TRANSFER : (file->status == FILE_TRANSFER_STATUS_BROKEN ? COLOR_BUTTON_DANGER_TEXT : COLOR_BUTTON_INPROGRESS_TEXT);
                 framerect(xx + 5 * SCALE, y + 17 * SCALE, xx + 111 * SCALE, y + 24 * SCALE, color);
                 drawrectw(xx + 5 * SCALE, y + 17 * SCALE, w, 7 * SCALE, color);
 
-                if(file->status == FILE_OK) {
+                if(file->status == FILE_TRANSFER_STATUS_ACTIVE) {
                     char_t text[16];
                     STRING_IDX len;
 
@@ -520,7 +520,7 @@ _Bool messages_mdown(MESSAGES *m)
             }
 
             switch(file->status) {
-            case FILE_PENDING: {
+            case FILE_TRANSFER_STATUS_NONE: {
                 if(!msg->author) {
                     if(m->over == 2) {
                         savefilerecv(m->data->id, file);
@@ -537,7 +537,7 @@ _Bool messages_mdown(MESSAGES *m)
                 break;
             }
 
-            case FILE_OK: {
+            case FILE_TRANSFER_STATUS_ACTIVE: {
                 if(m->over == 2) {
                     //pause
                     tox_postmessage((msg->author ? TOX_FILE_OUTGOING_PAUSE : TOX_FILE_INCOMING_PAUSE), m->data->id, file->filenumber, NULL);
@@ -548,7 +548,7 @@ _Bool messages_mdown(MESSAGES *m)
                 break;
             }
 
-            case FILE_PAUSED: {
+            case FILE_TRANSFER_STATUS_PAUSED_US: {
                 if(m->over == 2) {
                     //resume
                     tox_postmessage((msg->author ? TOX_FILE_OUTGOING_RESUME : TOX_FILE_INCOMING_RESUME), m->data->id, file->filenumber, NULL);
@@ -559,8 +559,8 @@ _Bool messages_mdown(MESSAGES *m)
                 break;
             }
 
-            case FILE_PAUSED_OTHER:
-            case FILE_BROKEN: {
+            case FILE_TRANSFER_STATUS_PAUSED_THEM:
+            case FILE_TRANSFER_STATUS_BROKEN: {
                 //cancel
                 if(m->over == 1) {
                     tox_postmessage((msg->author ? TOX_FILE_OUTGOING_CANCEL : TOX_FILE_INCOMING_CANCEL), m->data->id, file->filenumber, NULL);
@@ -568,7 +568,7 @@ _Bool messages_mdown(MESSAGES *m)
                 break;
             }
 
-            case FILE_DONE: {
+            case FILE_TRANSFER_STATUS_COMPLETED: {
                 if(m->over) {
                     if(file->inline_png) {
                         savefiledata(file);
