@@ -72,7 +72,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
         if(y >= height + 50 * SCALE) {
             break;
         }
-    
+
         // Draw timestamps
         {
             char timestr[6];
@@ -91,11 +91,11 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
             drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, y, &msg->msg[msg->length] + 1, msg->msg[msg->length]);
         } else {
             FRIEND *f = &friend[m->data->id];
-            
+
             // Always draw name next to action message
             if(msg->msg_type == MSG_TYPE_ACTION_TEXT)
                 lastauthor = 0xFF;
-                
+
             if(msg->author != lastauthor) {
                 // Draw author name
                 // If author is current user
@@ -142,11 +142,11 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
             } else {
                 setcolor(COLOR_MAIN_CHATTEXT);
             }
-            
+
             if (msg->msg_type == MSG_TYPE_ACTION_TEXT) {
                 setcolor(COLOR_MAIN_ACTIONTEXT);
             }
-            
+
             setfont(FONT_TEXT);
             int ny = drawtextmultiline(x + MESSAGES_X, x + width - TIME_WIDTH, y, y, y + msg->height, font_small_lineheight, msg->msg, msg->length, h1, h2 - h1, 1);
             if(ny < y || (uint32_t)(ny - y) + MESSAGES_SPACING != msg->height) {
@@ -526,11 +526,11 @@ _Bool messages_mdown(MESSAGES *m)
                         savefilerecv(m->data->id, file);
                     } else if(m->over == 1) {
                         //decline
-                        tox_postmessage(TOX_FILE_IN_CANCEL, m->data->id, file->filenumber, NULL);
+                        tox_postmessage(TOX_FILE_INCOMING_CANCEL, m->data->id, file->filenumber, NULL);
                     }
                 } else if(m->over == 1) {
                     //cancel
-                    tox_postmessage(TOX_FILE_OUT_CANCEL, m->data->id, file->filenumber, NULL);
+                    tox_postmessage(TOX_FILE_OUTGOING_CANCEL, m->data->id, file->filenumber, NULL);
                 }
 
 
@@ -540,10 +540,10 @@ _Bool messages_mdown(MESSAGES *m)
             case FILE_OK: {
                 if(m->over == 2) {
                     //pause
-                    tox_postmessage((msg->author ? TOX_FILE_OUT_PAUSE : TOX_FILE_IN_PAUSE), m->data->id, file->filenumber, NULL);
+                    tox_postmessage((msg->author ? TOX_FILE_OUTGOING_PAUSE : TOX_FILE_INCOMING_PAUSE), m->data->id, file->filenumber, NULL);
                 } else if(m->over == 1) {
                     //cancel
-                    tox_postmessage((msg->author ? TOX_FILE_OUT_CANCEL : TOX_FILE_IN_CANCEL), m->data->id, file->filenumber, NULL);
+                    tox_postmessage((msg->author ? TOX_FILE_OUTGOING_CANCEL : TOX_FILE_INCOMING_CANCEL), m->data->id, file->filenumber, NULL);
                 }
                 break;
             }
@@ -551,10 +551,10 @@ _Bool messages_mdown(MESSAGES *m)
             case FILE_PAUSED: {
                 if(m->over == 2) {
                     //resume
-                    tox_postmessage((msg->author ? TOX_FILE_OUT_RESUME : TOX_FILE_IN_RESUME), m->data->id, file->filenumber, NULL);
+                    tox_postmessage((msg->author ? TOX_FILE_OUTGOING_RESUME : TOX_FILE_INCOMING_RESUME), m->data->id, file->filenumber, NULL);
                 } else if(m->over == 1) {
                     //cancel
-                    tox_postmessage((msg->author ? TOX_FILE_OUT_CANCEL : TOX_FILE_IN_CANCEL), m->data->id, file->filenumber, NULL);
+                    tox_postmessage((msg->author ? TOX_FILE_OUTGOING_CANCEL : TOX_FILE_INCOMING_CANCEL), m->data->id, file->filenumber, NULL);
                 }
                 break;
             }
@@ -563,7 +563,7 @@ _Bool messages_mdown(MESSAGES *m)
             case FILE_BROKEN: {
                 //cancel
                 if(m->over == 1) {
-                    tox_postmessage((msg->author ? TOX_FILE_OUT_CANCEL : TOX_FILE_IN_CANCEL), m->data->id, file->filenumber, NULL);
+                    tox_postmessage((msg->author ? TOX_FILE_OUTGOING_CANCEL : TOX_FILE_INCOMING_CANCEL), m->data->id, file->filenumber, NULL);
                 }
                 break;
             }

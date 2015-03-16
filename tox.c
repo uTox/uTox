@@ -1100,8 +1100,27 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
         break;
     }
 
-    case TOX_FILE_IN_CANCEL:
-    {
+    case TOX_FILE_INCOMING_RESUME:{
+        /* param1: friend #
+         * param2: file #
+         */
+        TOX_ERR_FILE_CONTROL error;
+                        /*    tox, friend#, file#,      PAUSE_FILE,     error_code */
+        tox_file_send_control(tox, param1, param2, TOX_FILE_CONTROL_RESUME, &error);
+        postmessage(FRIEND_FILE_IN_STATUS, param1, param2, (void*)FILE_OK);
+        break;
+    }
+    case TOX_FILE_INCOMING_PAUSE:{
+        /* param1: friend #
+         * param2: file #
+         */
+        TOX_ERR_FILE_CONTROL error;
+                        /*    tox, friend#, file#,      PAUSE_FILE,     error_code */
+        tox_file_send_control(tox, param1, param2, TOX_FILE_CONTROL_PAUSE, &error);
+        postmessage(FRIEND_FILE_IN_STATUS, param1, param2, (void*)FILE_PAUSED);
+        break;
+    }
+    case TOX_FILE_INCOMING_CANCEL:{
         /* param1: friend #
          * param2: file #
          */
@@ -1116,66 +1135,50 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
         }
 
         ft->status = FT_NONE;
-        //TODO tox_file_send_control(tox, param1, 1, param2, TOX_FILECONTROL_KILL, NULL, 0);
+        TOX_ERR_FILE_CONTROL error;
+                        /*    tox, friend#, file#,      PAUSE_FILE,     error_code */
+        tox_file_send_control(tox, param1, param2, TOX_FILE_CONTROL_CANCEL, &error);
         postmessage(FRIEND_FILE_IN_STATUS, param1, param2, (void*)FILE_KILLED);
         break;
     }
 
-    case TOX_FILE_OUT_CANCEL:
-    {
-        /* param1: friend #
-         * param2: file #
-         */
-        FILE_T *ft = &friend[param1].outgoing[param2];
-        ft->status = FT_KILL;
-        //TODO tox_file_send_control(tox, param1, 0, param2, TOX_FILECONTROL_KILL, NULL, 0);
-        postmessage(FRIEND_FILE_OUT_STATUS, param1, param2, (void*)FILE_KILLED);
-        break;
-    }
-
-    case TOX_FILE_IN_PAUSE:
-    {
-        /* param1: friend #
-         * param2: file #
-         */
-        //TODO tox_file_send_control(tox, param1, 1, param2, TOX_FILECONTROL_PAUSE, NULL, 0);
-        postmessage(FRIEND_FILE_IN_STATUS, param1, param2, (void*)FILE_PAUSED);
-        break;
-    }
-
-    case TOX_FILE_OUT_PAUSE:
-    {
-        /* param1: friend #
-         * param2: file #
-         */
-        FILE_T *ft = &friend[param1].outgoing[param2];
-        ft->status = FT_PAUSE;
-        //TODO tox_file_send_control(tox, param1, 0, param2, TOX_FILECONTROL_PAUSE, NULL, 0);
-        postmessage(FRIEND_FILE_OUT_STATUS, param1, param2, (void*)FILE_PAUSED);
-        break;
-    }
-
-    case TOX_FILE_IN_RESUME:
-    {
-        /* param1: friend #
-         * param2: file #
-         */
-        //TODO tox_file_send_control(tox, param1, 1, param2, TOX_FILECONTROL_ACCEPT, NULL, 0);
-        postmessage(FRIEND_FILE_IN_STATUS, param1, param2, (void*)FILE_OK);
-        break;
-    }
-
-    case TOX_FILE_OUT_RESUME:
-    {
+    case TOX_FILE_OUTGOING_RESUME:{
         /* param1: friend #
          * param2: file #
          */
         FILE_T *ft = &friend[param1].outgoing[param2];
         ft->status = FT_SEND;
-        //TODO tox_file_send_control(tox, param1, 0, param2, TOX_FILECONTROL_ACCEPT, NULL, 0);
+        TOX_ERR_FILE_CONTROL error;
+                        /*    tox, friend#, file#,      PAUSE_FILE,     error_code */
+        tox_file_send_control(tox, param1, param2, TOX_FILE_CONTROL_RESUME, &error);
         postmessage(FRIEND_FILE_OUT_STATUS, param1, param2, (void*)FILE_OK);
         break;
     }
+    case TOX_FILE_OUTGOING_PAUSE:{
+        /* param1: friend #
+         * param2: file #
+         */
+        FILE_T *ft = &friend[param1].outgoing[param2];
+        ft->status = FT_PAUSE;
+        TOX_ERR_FILE_CONTROL error;
+                        /*    tox, friend#, file#,      PAUSE_FILE,     error_code */
+        tox_file_send_control(tox, param1, param2, TOX_FILE_CONTROL_PAUSE, &error);
+        postmessage(FRIEND_FILE_OUT_STATUS, param1, param2, (void*)FILE_PAUSED);
+        break;
+    }
+    case TOX_FILE_OUTGOING_CANCEL:{
+        /* param1: friend #
+         * param2: file #
+         */
+        FILE_T *ft = &friend[param1].outgoing[param2];
+        ft->status = FT_KILL;
+        TOX_ERR_FILE_CONTROL error;
+                        /*    tox, friend#, file#,      CANCEL_FILE,     error_code */
+        tox_file_send_control(tox, param1, param2, TOX_FILE_CONTROL_CANCEL, &error);
+        postmessage(FRIEND_FILE_OUT_STATUS, param1, param2, (void*)FILE_KILLED);
+        break;
+    }
+
 
     }
     save_needed = 1;

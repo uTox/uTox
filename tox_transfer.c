@@ -68,8 +68,8 @@ void utox_transfer_start_file(Tox *tox, uint32_t fid, uint8_t *path, uint8_t *na
         ft->path = (uint8_t*)strdup((char*)path);
 
         ft->data = file;
-        ft->buffer = malloc(ft->sendsize);
-        fillbuffer(ft);
+        // ft->buffer = malloc(ft->sendsize);
+        // fillbuffer(ft);
 
         postmessage(FRIEND_FILE_OUT_NEW, fid, filenumber, NULL);
         ++friend[fid].count_outgoing;
@@ -296,12 +296,12 @@ static void callback_file_data(Tox *UNUSED(tox), int32_t fid, uint8_t filenumber
 
 
 /* Function called by core with a new incoming file. */
-static void incoming_file_callback_request(Tox *tox, uint32_t friendnumber, uint32_t filenumber, uint32_t kind,
+static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uint32_t file_number, uint32_t kind,
                                  uint64_t file_size, const uint8_t *filename, size_t filename_length, void *user_data){
 
     debug("incoming file\n");
-    debug("friend %u\n", friendnumber);
-    debug("file %i\n", filenumber);
+    debug("friend %u\n", friend_number);
+    debug("file %u\n", file_number);
     // file name segfaults debug("name %s\n", *filename);
     debug("\n");
     debug("\n");
@@ -313,7 +313,11 @@ static void incoming_file_callback_control(Tox *tox, uint32_t friend_number, uin
                                                                     TOX_FILE_CONTROL control, void *UNUSED(userdata)){
     switch(control){
         case TOX_FILE_CONTROL_RESUME:
+            // if not started
+            debug("FileTransfer:\tFriend (%i) has accepted file (%i)\n", friend_number, file_number);
+            // else
             debug("FileTransfer:\tFriend (%i) has resumed file (%i)\n", friend_number, file_number);
+
             break;
         case TOX_FILE_CONTROL_PAUSE:
             debug("FileTransfer:\tFriend (%i) has paused file (%i)\n", friend_number, file_number);
@@ -324,37 +328,101 @@ static void incoming_file_callback_control(Tox *tox, uint32_t friend_number, uin
     }
 }
 
-static void incoming_file_callback_chunk(Tox *tox, uint32_t friend_number, uint32_t file_number, uint64_t position,
+static void incoming_file_callback_chunk(Tox *tox, uint32_t friend_id, uint32_t file_number, uint64_t position,
                                                                 const uint8_t *data, size_t length, void *user_data){
     //new chunk for existing file
 }
 
-void outgoing_file_send_new(Tox *tox, uint32_t friend_number, uint8_t *path, const uint8_t *filename, size_t filename_length){
+void outgoing_file_send_new(Tox *tox, uint32_t friend_id, uint8_t *path, const uint8_t *filename, size_t filename_length){
 
-    debug("sending new outgoing file to friend %u, filename, %s", friend_number, filename);
+    debug("FileTransfer:\tStarting outgoing file to friend %u. (filename, %s)\n", friend_id, filename);
+
+    if (friend[friend_id].count_outgoing >= MAX_FILE_TRANSFERS || (file_tend - file_t) >= countof(file_t)) {
+        debug("FileTransfer:\tMaximum outgoing file sending limit reached(%u/%u) for friend(%u). ABORTING!\n",
+                                                    friend[friend_id].count_outgoing, MAX_FILE_TRANSFERS, friend_id);
+        return;
+    }
+
+    FILE *file = fopen((char*)path, "rb");
+    if(!file) {
+        debug("FileTransfer:\tUnable to open file for reading!\n");
+        return;
+    }
 
 
+    TOX_ERR_FILE_SEND error;
     uint64_t file_size = 0;
-    TOX_ERR_FILE_SEND *error;
+    fseeko(file, 0, SEEK_END);
+    file_size = ftello(file);
+    fseeko(file, 0, SEEK_SET);
 
-    tox_file_send(tox, friend_number, TOX_FILE_KIND_DATA, file_size, filename, filename_length, error);
+    int filenumber = tox_file_send(tox, friend_id, TOX_FILE_KIND_DATA, file_size, filename, filename_length, &error);
+
+    if(filenumber != -1) {
+        FILE_T *active_transfer = &friend[friend_id].outgoing[filenumber];
+        memset(active_transfer, 0, sizeof(FILE_T));
+
+        *file_tend++ = active_transfer;
+
+        active_transfer->fid = friend_id;
+        active_transfer->filenumber = filenumber;
+        active_transfer->status = FT_PENDING;
+        //TODO active_transfer->sendsize = tox_file_data_size(tox, fid);
+
+        // name_lenght max size is FILE_T->name.
+        filename_length = filename_length > sizeof(active_transfer->name) ? sizeof(active_transfer->name) : filename_length;
+        active_transfer->name_length = filename_length;
+        memcpy(active_transfer->name, filename, filename_length);
+
+        active_transfer->total = file_size;
+        active_transfer->path = (uint8_t*)strdup((char*)path);
+
+        active_transfer->data = file;
+
+        // TODO We don't need to fill the buffer, until we get the call back.
+        active_transfer->buffer = malloc(active_transfer->sendsize);
+        // fillbuffer(active_transfer);
+
+        postmessage(FRIEND_FILE_OUT_NEW, friend_id, filenumber, NULL);
+        ++friend[friend_id].count_outgoing;
+        debug("Sending file %d of %d(max) to friend(%d).\n", friend[friend_id].count_outgoing, MAX_FILE_TRANSFERS, friend_id);
+    } else {
+        debug("tox_file_send() failed\n");
+    }
 }
 
 static void outgoing_file_callback_chunk(Tox *tox, uint32_t friend_number, uint32_t file_number, uint64_t position,
                                                                                         size_t length, void *user_data){
 
-    debug("chunk requested for friendid %u, and fileid %u", friend_number, file_number);
+    debug("FileTransfer:\tChunk requested for friend_id (%u), and file_id (%u). Start (%u), End (%u).\r",
+                                                                      friend_number, file_number, position, length);
     //send a chunk of data size of length with
-    //tox_file_send_chunk(Tox *tox, uint32_t friend_number, uint32_t file_number, uint64_t position, const uint8_t *data,
-    //          size_t length, TOX_ERR_FILE_SEND_CHUNK *error)
+    const uint8_t *data;
+    uint8_t *buffer;
+    buffer = malloc(length);
+
+    FILE *file = friend[friend_number].outgoing[file_number].data;
+
+    fseeko(file, 0, position);
+    size_t read_size = fread(buffer, 1, length, file);
+    data = buffer;
+
+    if(read_size != length){
+        debug("FileTransfer:\tERROR READING FILE! (%u & %u)\n", friend_number, file_number);
+        tox_postmessage(TOX_FILE_OUTGOING_CANCEL, friend_number, file_number, NULL);
+        return;
+    }
+
+    TOX_ERR_FILE_SEND_CHUNK error;
+    tox_file_send_chunk(tox, friend_number, file_number, position, data, length, &error);
 }
 
 
-void utox_set_callbacks_for_transfer(Tox *tox)
-{/*
+void utox_set_callbacks_for_transfer(Tox *tox){/*
     tox_callback_file_send_request(tox, callback_file_send_request, NULL);
     tox_callback_file_control(tox, callback_file_control, NULL);
     tox_callback_file_data(tox, callback_file_data, NULL); */
+
     /* Incoming files */
     /* This is the callback for a new incoming file. */
     tox_callback_file_receive(tox, incoming_file_callback_request, NULL);
