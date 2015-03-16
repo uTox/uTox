@@ -44,7 +44,7 @@ void friend_sendimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width
     struct TOX_SEND_INLINE_MSG *tsim = malloc(sizeof(struct TOX_SEND_INLINE_MSG));
     tsim->image = png_image;
     tsim->image_size = png_size;
-    tox_postmessage(TOX_SEND_INLINE, f - friend, 0, tsim);
+    tox_postmessage(TOX_SEND_NEW_INLINE, f - friend, 0, tsim);
 }
 
 void friend_recvimage(FRIEND *f, UTOX_PNG_IMAGE png_image, size_t png_size)

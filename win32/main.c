@@ -472,7 +472,7 @@ void openfilesend(void)
     };
 
     if(GetOpenFileName(&ofn)) {
-        tox_postmessage(TOX_SENDFILES, (FRIEND*)sitem->data - friend, ofn.nFileOffset, filepath);
+        tox_postmessage(TOX_SEND_NEW_FILE, (FRIEND*)sitem->data - friend, ofn.nFileOffset, filepath);
     } else {
         debug("GetOpenFileName() failed\n");
     }

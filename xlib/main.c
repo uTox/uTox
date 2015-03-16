@@ -599,7 +599,7 @@ static void pastedata(void *data, Atom type, int len, _Bool select)
     } else if (type == XA_URI_LIST) {
         char *path = malloc(len + 1);
         formaturilist(path, (char*) data, len);
-        tox_postmessage(TOX_SENDFILES, (FRIEND*)sitem->data - friend, 0xFFFF, path);
+        tox_postmessage(TOX_SEND_NEW_FILE, (FRIEND*)sitem->data - friend, 0xFFFF, path);
     } else if(type == XA_UTF8_STRING && edit_active()) {
         edit_paste(data, len, select);
     }

@@ -998,7 +998,7 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
         break;
     }
 
-    case TOX_SENDFILES: {
+    case TOX_SEND_NEW_FILE: {
         /* param1: friend #
          * param2: offset of first file name in data
          * data: file names
@@ -1060,7 +1060,9 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
         break;
     }
 
-    case TOX_SEND_INLINE: {
+    case TOX_SEND_NEW_INLINE: {
+        debug("inline not yet supported!\n");
+        break;
         /* param1: friend id
            data: pointer to a TOX_SEND_INLINE_MSG struct
          */
@@ -1261,7 +1263,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
     }
 
     case SEND_FILES: {
-        tox_postmessage(TOX_SENDFILES, param1, param2, data);
+        tox_postmessage(TOX_SEND_NEW_FILE, param1, param2, data);
         break;
     }
 
