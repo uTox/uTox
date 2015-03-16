@@ -59,8 +59,8 @@ static void dropdown_proxy_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
             options.udp_enabled = 0;
             dropdown_udp.selected = dropdown_udp.over = 1;
         }
-        memcpy(options.proxy_address, edit_proxy_ip.data, edit_proxy_ip.length);
-        options.proxy_address[edit_proxy_ip.length] = 0;
+        memcpy(proxy_address, edit_proxy_ip.data, edit_proxy_ip.length);
+        proxy_address[edit_proxy_ip.length] = 0;
 
         edit_proxy_port.data[edit_proxy_port.length] = 0;
         options.proxy_port = strtol((char*)edit_proxy_port.data, NULL, 0);

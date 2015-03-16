@@ -1,7 +1,7 @@
 #include "main.h"
 #include "tox_bootstrap.h"
 
-struct Tox_Options options = {.proxy_address = proxy_address};
+struct Tox_Options options = {.proxy_host = proxy_address};
 
 typedef struct {
     uint8_t msg;
@@ -376,7 +376,7 @@ static size_t load_save(uint8_t **out_data)
 
 static void tox_after_load(Tox *tox)
 {
-    friends = tox_friend_list_size(tox);
+    friends = tox_self_get_friend_list_size(tox);
 
     uint32_t i = 0;
     while(i != friends) {
@@ -556,7 +556,7 @@ void tox_thread(void *UNUSED(args))
         uint8_t *save_data = NULL;
         size_t save_size = load_save(&save_data);
         // Create main connection
-        debug("new tox object ipv6: %u udp: %u proxy: %u %s %u\n", options.ipv6_enabled, options.udp_enabled, options.proxy_type, options.proxy_address, options.proxy_port);
+        debug("new tox object ipv6: %u udp: %u proxy: %u %s %u\n", options.ipv6_enabled, options.udp_enabled, options.proxy_type, options.proxy_host, options.proxy_port);
         if((tox = tox_new(&options, save_data, save_size, 0)) == NULL) {
             debug("trying without proxy\n");
             if(!options.proxy_type || (options.proxy_type = TOX_PROXY_TYPE_NONE, (tox = tox_new(&options, save_data, save_size, 0)) == NULL)) {

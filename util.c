@@ -649,7 +649,7 @@ NEXT:
     options.udp_enabled = !save->disableudp;
     options.proxy_type = !!save->proxyenable;
     options.proxy_port = save->proxy_port;
-    strcpy((char*)options.proxy_address, (char*)save->proxy_ip);
+    strcpy((char*)proxy_address, (char*)save->proxy_ip);
     edit_proxy_ip.length = strlen((char*)save->proxy_ip);
     strcpy((char*)edit_proxy_ip.data, (char*)save->proxy_ip);
     if(save->proxy_port) {
@@ -701,6 +701,6 @@ void config_save(UTOX_SAVE *save)
 
     debug("Writing uTox Save	::\n");
     fwrite(save, sizeof(*save), 1, file);
-    fwrite(options.proxy_address, strlen(options.proxy_address), 1, file);
+    fwrite(options.proxy_host, strlen(options.proxy_host), 1, file);
     fclose(file);
 }
