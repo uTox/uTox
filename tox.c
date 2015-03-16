@@ -1005,6 +1005,8 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
          */
 
         if(param2 == 0xFFFF) {
+            debug("linux file transfers not supported\n");
+            break; // TODO : linux support
             //paths with line breaks
             uint8_t *name = data, *p = data, *s = name;
             while(*p) {
@@ -1039,8 +1041,12 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
             uint8_t *name = data;
             _Bool multifile = (name[param2 - 1] == 0);
             if(!multifile) {
-                utox_transfer_start_file(tox, param1, data, data + param2, strlen(data) - param2);
+                                    /* tox, Friend, path, filename,      filename_length */
+                outgoing_file_send_new(tox, param1, data, data + param2, strlen(data) - param2);
             } else {
+                // TODO : multi file support
+                debug("multifile not supported yet!\n");
+                break;
                 uint8_t *p = name + param2;
                 name += param2 - 1;
                 if(*(name - 1) != '\\') {

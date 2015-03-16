@@ -70,7 +70,7 @@ void friend_recvimage(FRIEND *f, UTOX_PNG_IMAGE png_image, size_t png_size)
 void friend_notify(FRIEND *f, char_t *str, STRING_IDX str_length, char_t *msg, STRING_IDX msg_length)
 {
     int len = f->name_length + str_length + 3;
-    
+
     char_t title[len + 1], *p = title;
     memcpy(p, str, str_length); p += str_length;
     *p++ = ' ';
