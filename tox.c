@@ -437,9 +437,9 @@ static void write_save(Tox *tox)
     uint8_t path_tmp[512], path_real[512], *p;
     FILE *file;
 
-    size = tox_save_size(tox);
+    size = tox_get_savedata_size(tox);
     data = malloc(size);
-    tox_save(tox, data);
+    tox_get_savedata(tox, data);
 
     p = path_real + datapath(path_real);
     memcpy(p, "tox_save.tox", sizeof("tox_save.tox"));
