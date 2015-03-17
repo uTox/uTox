@@ -11,8 +11,8 @@ enum UTOX_FILE_TRANSFER_STATUS{
     FILE_TRANSFER_STATUS_KILLED,
 };
 
-typedef struct {
-    uint32_t friend, file;
+typedef struct FILE_TRANSFER {
+    uint32_t friend_number, file_number;
     uint8_t status;
     _Bool in_memory, incoming;
     uint8_t *path, *name;

@@ -38,6 +38,28 @@ static void draw_message_image(UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t 
     }
 }
 
+/* Called by new file transfer to add a new message to the msg list */
+MSG_FILE* message_add_type_file(FILE_TRANSFER *file){
+    MSG_FILE *msg = malloc(sizeof(MSG_FILE));
+    msg->author = file->incoming ? 0 : 1;
+    msg->msg_type = MSG_TYPE_FILE;
+    msg->filenumber = file->file_number;
+    msg->status = file->status;
+        // msg->name_length is the max enforce that
+    msg->name_length = (file->name_length > sizeof(msg->name)) ? sizeof(msg->name) : file->name_length;
+    msg->size = file->size;
+    msg->progress = file->size_received;
+    msg->speed = 0;
+    msg->inline_png = file->in_memory;
+    msg->path = NULL;
+    memcpy(msg->name, file->name, msg->name_length);
+
+    FRIEND *f = &friend[file->friend_number];
+    // *str = file_translate_status(*file->status);
+    friend_addmessage(f, msg);
+    return msg;
+}
+
 /** Formats all messages from self and friends, and then call draw functions
  * to write them to the UI.
  *

@@ -1577,27 +1577,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
     case FRIEND_FILE_IN_NEW:
     case FRIEND_FILE_IN_NEW_INLINE: {
         FRIEND *f = &friend[param1];
-        FILE_TRANSFER *ft = &f->active_transfer[param2];
-        _Bool inline_png = (tox_message_id == FRIEND_FILE_IN_NEW_INLINE);
-
-        MSG_FILE *msg = malloc(sizeof(MSG_FILE));
-        msg->author = 0;
-        msg->msg_type = MSG_TYPE_FILE;
-        msg->filenumber = param2;
-        msg->status = (inline_png ? FILE_TRANSFER_STATUS_ACTIVE : FILE_TRANSFER_STATUS_NONE);
-        msg->name_length = (ft->name_length > sizeof(msg->name)) ? sizeof(msg->name) : ft->name_length;
-        msg->size = ft->size;
-        msg->progress = 0;
-        msg->speed = 0;
-        msg->inline_png = inline_png;
-        msg->path = NULL;
-        memcpy(msg->name, ft->name, msg->name_length);
-
-        friend_addmessage(f, msg);
-        // ft->chatdata = msg;
-
-        file_notify(f, msg);
-
+        // file_notify(f, data);
         updatefriend(f);
         break;
     }
@@ -1605,26 +1585,6 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
     case FRIEND_FILE_OUT_NEW:
     case FRIEND_FILE_OUT_NEW_INLINE: {
         FRIEND *f = &friend[param1];
-        FILE_TRANSFER *ft = &f->active_transfer[param2];
-        _Bool inline_png = (tox_message_id == FRIEND_FILE_OUT_NEW_INLINE);
-
-        MSG_FILE *msg = malloc(sizeof(MSG_FILE));
-        msg->author = 1;
-        msg->msg_type = MSG_TYPE_FILE;
-        msg->filenumber = param2;
-        msg->status = FILE_TRANSFER_STATUS_NONE;
-        msg->name_length = (ft->name_length >= sizeof(msg->name)) ? sizeof(msg->name) - 1 : ft->name_length;
-        msg->size = ft->size;
-        msg->progress = 0;
-        msg->speed = 0;
-        msg->inline_png = inline_png;
-        msg->path = NULL;
-        memcpy(msg->name, ft->name, msg->name_length);
-        msg->name[msg->name_length] = 0;
-
-        friend_addmessage(f, msg);
-        // ft->chatdata = msg;
-
         updatefriend(f);
         break;
     }
