@@ -70,7 +70,7 @@ void log_write(Tox *tox, int fid, const uint8_t *message, uint16_t length, _Bool
         } else {
             namelen = tox_friend_get_name_size(tox, fid, 0);
             tox_friend_get_name(tox, fid, name, 0);
-            
+
         }
 
         if (namelen > TOX_MAX_NAME_LENGTH) {
@@ -279,7 +279,6 @@ static void set_callbacks(Tox *tox)
 {
     tox_callback_friend_request(tox, callback_friend_request, NULL);
     tox_callback_friend_message(tox, callback_friend_message, NULL);
-    tox_callback_friend_action(tox, callback_friend_action, NULL);
     tox_callback_friend_name(tox, callback_name_change, NULL);
     tox_callback_friend_status_message(tox, callback_status_message, NULL);
     tox_callback_friend_status(tox, callback_user_status, NULL);
@@ -789,46 +788,32 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
         break;
     }
 
-    case TOX_SENDMESSAGE: {
-        /* param1: friend #
-         * param2: message length
-         * data: message
-         */
-
-        /* write message to friend to logfile */
-        log_write(tox, param1, data, param2, 1, LOG_FILE_MSG_TYPE_TEXT);
-
-        void *p = data;
-        while(param2 > TOX_MAX_MESSAGE_LENGTH) {
-            uint16_t len = TOX_MAX_MESSAGE_LENGTH - utf8_unlen(p + TOX_MAX_MESSAGE_LENGTH);
-            tox_friend_send_message(tox, param1, p, len, 0);
-            param2 -= len;
-            p += len;
-        }
-
-        tox_friend_send_message(tox, param1, p, param2, 0);
-        free(data);
-        break;
-    }
-
+    case TOX_SENDMESSAGE:
     case TOX_SENDACTION: {
         /* param1: friend #
          * param2: message length
          * data: message
          */
 
-        /* write action/emote to friend to logfile */
-        log_write(tox, param1, data, param2, 1, LOG_FILE_MSG_TYPE_ACTION);
-
         void *p = data;
+        TOX_MESSAGE_TYPE type;
+        if(msg == TOX_SENDACTION){
+            type = TOX_MESSAGE_TYPE_ACTION;
+        } else {
+            type = TOX_MESSAGE_TYPE_NORMAL;
+        }
         while(param2 > TOX_MAX_MESSAGE_LENGTH) {
             uint16_t len = TOX_MAX_MESSAGE_LENGTH - utf8_unlen(p + TOX_MAX_MESSAGE_LENGTH);
-            tox_friend_send_action(tox, param1, p, len, 0);
+            tox_friend_send_message(tox, param1, type, p, len, 0);
             param2 -= len;
             p += len;
         }
+        // Send last or only message
+        tox_friend_send_message(tox, param1, type, p, param2, 0);
 
-        tox_friend_send_action(tox, param1, p, param2, 0);
+        /* write message to friend to logfile */
+        log_write(tox, param1, data, param2, 1, LOG_FILE_MSG_TYPE_TEXT);
+
         free(data);
         break;
     }

@@ -55,26 +55,23 @@ static void callback_friend_request(Tox *UNUSED(tox), const uint8_t *id, const u
     postmessage(FRIEND_ACCEPT, (r < 0), (r < 0) ? 0 : r, data);*/
 }
 
-static void callback_friend_message(Tox *tox, uint32_t fid, const uint8_t *message, size_t length, void *UNUSED(userdata))
-{
+static void callback_friend_message(Tox *tox, uint32_t friend_number, TOX_MESSAGE_TYPE type, const uint8_t *message, size_t length, void *UNUSED(userdata)){
     /* send message to UI */
-    postmessage(FRIEND_MESSAGE, fid, 0, copy_message(message, length, MSG_TYPE_TEXT));
-
-    debug("Friend Message (%u): %.*s\n", fid, length, message);
+    switch(type){
+    case TOX_MESSAGE_TYPE_NORMAL:
+        postmessage(FRIEND_MESSAGE, friend_number, 0, copy_message(message, length, MSG_TYPE_TEXT));
+        debug("Friend(%u) Standard Message: %.*s\n", friend_number, length, message);
+        break;
+    case TOX_MESSAGE_TYPE_ACTION:
+        postmessage(FRIEND_MESSAGE, friend_number, 0, copy_message(message, length, MSG_TYPE_ACTION_TEXT));
+        debug("Friend(%u) Action Message: %.*s\n", friend_number, length, message);
+        break;
+    default:
+        debug("Message from Friend(%u) of unsupported type: %.*s\n", friend_number, length, message);
+    }
 
     /* write message to logfile */
-    log_write(tox, fid, message, length, 0, LOG_FILE_MSG_TYPE_TEXT);
-}
-
-static void callback_friend_action(Tox *tox, uint32_t fid, const uint8_t *action, size_t length, void *UNUSED(userdata))
-{
-    /* send action/emote to UI */
-    postmessage(FRIEND_MESSAGE, fid, 0, copy_message(action, length, MSG_TYPE_ACTION_TEXT));
-
-    debug("Friend Action (%u): %.*s\n", fid, length, action);
-
-    /* write action/emote to logfile */
-    log_write(tox, fid, action, length, 0, LOG_FILE_MSG_TYPE_ACTION);
+    log_write(tox, friend_number, message, length, 0, LOG_FILE_MSG_TYPE_TEXT);
 }
 
 static void callback_name_change(Tox *UNUSED(tox), uint32_t fid, const uint8_t *newname, size_t length, void *UNUSED(userdata))
