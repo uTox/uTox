@@ -90,7 +90,7 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
                                 memcmp(filename, "utox-inline.png", filename_length) == 0) {
         file_handle->in_memory = 1;
         file_handle->status = FILE_TRANSFER_STATUS_ACTIVE;
-        file_handle->data = malloc(file_size);
+        file_handle->memory = malloc(file_size);
         tox_file_send_control(tox, friend_number, file_number, TOX_FILE_CONTROL_RESUME, &error);
         postmessage(FRIEND_FILE_IN_NEW_INLINE, friend_number, file_number, NULL);
     } else {
@@ -110,16 +110,15 @@ static void incoming_file_callback_chunk(Tox *tox, uint32_t friend_number, uint3
 
     TOX_ERR_FILE_SEND_CHUNK error;
     FILE_TRANSFER *file_handle = &active_transfer[friend_number][file_number];
-    FILE *file = file_handle->data;
     uint64_t last_bit = position + length;
     // time_t time = time(NULL);
         file_handle->last_chunk_time = time(NULL);
 
     if(file_handle->in_memory) {
-        memcpy(file_handle->data + file_handle->size_received, data, length);
+        memcpy(file_handle->memory + file_handle->size_received, data, length);
     } else {
-        fseeko(file, 0, position);
-        size_t write_size = fwrite(data, 1, length, file);
+        fseeko(file_handle->file, 0, position);
+        size_t write_size = fwrite(data, 1, length, file_handle->file);
         if(write_size != length){
             debug("\n\nFileTransfer:\tERROR WRITING DATA TO FILE! (%u & %u)\n\n", friend_number, file_number);
             tox_postmessage(TOX_FILE_INCOMING_CANCEL, friend_number, file_number, NULL);
@@ -160,12 +159,14 @@ void outgoing_file_send_new(Tox *tox, uint32_t friend_number, uint8_t *path, con
 
 
     TOX_ERR_FILE_SEND error;
+    const uint8_t *file_id;
+
     uint64_t file_size = 0;
     fseeko(file, 0, SEEK_END);
     file_size = ftello(file);
     fseeko(file, 0, SEEK_SET);
 
-    int file_number = tox_file_send(tox, friend_number, TOX_FILE_KIND_DATA, file_size, filename, filename_length, &error);
+    int file_number = tox_file_send(tox, friend_number, TOX_FILE_KIND_DATA, file_size, file_id, filename, filename_length, &error);
 
     if(file_number != -1) {
         FILE_TRANSFER *file_handle = &active_transfer[friend_number][file_number];
@@ -176,6 +177,8 @@ void outgoing_file_send_new(Tox *tox, uint32_t friend_number, uint8_t *path, con
         file_handle->file_number = file_number;
         file_handle->status = FILE_TRANSFER_STATUS_PAUSED_THEM;
         //TODO file_handle->sendsize = tox_file_data_size(tox, fid);
+
+        file_handle->file = file;
 
         file_handle->name = (uint8_t*)strdup((char*)filename);
         file_handle->path = (uint8_t*)strdup((char*)path);
@@ -203,7 +206,7 @@ static void outgoing_file_callback_chunk(Tox *tox, uint32_t friend_number, uint3
     buffer = malloc(length);
 
     FILE_TRANSFER *file_handle = &active_transfer[friend_number][file_number];
-    FILE *file = file_handle->data;
+    FILE *file = file_handle->file;
     uint64_t last_bit = position + length;
 
     fseeko(file, 0, position);
@@ -221,12 +224,13 @@ static void outgoing_file_callback_chunk(Tox *tox, uint32_t friend_number, uint3
     if(last_bit == file_handle->size){
         debug("FileTransfer:\tOutgoing transfer is done (%u & %u)\n", friend_number, file_number);
     }
+    free(buffer);
 }
 
 void utox_file_start_write(uint32_t friend_number, uint32_t file_number, void *filepath){
     FILE_TRANSFER *file_handle = &active_transfer[friend_number][file_number];
-    file_handle->data = fopen(filepath, "wb");
-    if(!file_handle->data) {
+    file_handle->file = fopen(filepath, "wb");
+    if(!file_handle->file) {
         free(filepath);
         file_handle->status = FILE_TRANSFER_STATUS_BROKEN;
         return;

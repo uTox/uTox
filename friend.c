@@ -224,7 +224,7 @@ void friend_free(FRIEND *f)
             MSG_FILE *file = (void*)msg;
             free(file->path);
             FILE_TRANSFER *ft = &f->active_transfer[file->filenumber];
-            if(ft->data) {
+            if(ft->file) {
                 if(ft->in_memory) {
                     // free(ft->data);
                 } else {

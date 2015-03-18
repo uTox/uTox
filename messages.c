@@ -47,12 +47,12 @@ MSG_FILE* message_add_type_file(FILE_TRANSFER *file){
     msg->status = file->status;
         // msg->name_length is the max enforce that
     msg->name_length = (file->name_length > sizeof(msg->name)) ? sizeof(msg->name) : file->name_length;
+    memcpy(msg->name, file->name, msg->name_length);
     msg->size = file->size;
     msg->progress = file->size_received;
     msg->speed = 0;
     msg->inline_png = file->in_memory;
     msg->path = NULL;
-    memcpy(msg->name, file->name, msg->name_length);
 
     FRIEND *f = &friend[file->friend_number];
     // *str = file_translate_status(*file->status);

@@ -13,11 +13,12 @@ enum UTOX_FILE_TRANSFER_STATUS{
 
 typedef struct FILE_TRANSFER {
     uint32_t friend_number, file_number;
-    uint8_t status;
+    uint8_t status, file_id[TOX_FILE_ID_LENGTH];
     _Bool in_memory, incoming;
     uint8_t *path, *name;
     size_t path_length, name_length, size, size_received;
-    void *data;
+    uint8_t *memory;
+    FILE *file;
     time_t request_time, start_time, last_chunk_time, finish_time, pause_time;
 } FILE_TRANSFER;
 

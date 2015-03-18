@@ -1226,9 +1226,9 @@ void config_osdefaults(UTOX_SAVE *r)
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int nCmdShow){
 
     /* if opened with argument, check if uTox is already open and pass the argument to the existing process */
-    CreateMutex(NULL, 0, "uTox");
+    CreateMutex(NULL, 0, TITLE);
     if(GetLastError() == ERROR_ALREADY_EXISTS) {
-        HWND window = FindWindow("uTox", NULL);
+        HWND window = FindWindow(TITLE, NULL);
         SetForegroundWindow(window);
         if (*cmd) {
             COPYDATASTRUCT data = {
