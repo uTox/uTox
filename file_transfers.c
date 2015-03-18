@@ -243,11 +243,11 @@ void utox_file_start_write(uint32_t friend_number, uint32_t file_number, void *f
 void utox_set_callbacks_for_transfer(Tox *tox){/*
     /* Incoming files */
         /* This is the callback for a new incoming file. */
-        tox_callback_file_receive(tox, incoming_file_callback_request, NULL);
+        tox_callback_file_recv(tox, incoming_file_callback_request, NULL);
         /* This is the callback with friend's actions for a file */
         tox_callback_file_recv_control(tox, file_transfer_callback_control, NULL);
         /* This is the callback with a chunk data for a file. */
-        tox_callback_file_receive_chunk(tox, incoming_file_callback_chunk, NULL);
+        tox_callback_file_recv_chunk(tox, incoming_file_callback_chunk, NULL);
     /* Outgoing files */
         /* This is the callback send to request a new file chunk */
         tox_callback_file_request_chunk(tox, outgoing_file_callback_chunk, NULL);
