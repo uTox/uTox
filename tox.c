@@ -624,7 +624,7 @@ void tox_thread(void *UNUSED(args))
             tox_iterate(tox);
 
             // Check currents connection
-            if(!!tox_get_connection_status(tox) != connected) {
+            if(!!tox_self_get_connection_status(tox) != connected) {
                 connected = !connected;
                 postmessage(DHT_CONNECTED, connected, 0, NULL);
 
