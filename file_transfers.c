@@ -39,8 +39,7 @@ void file_transfer_local_control(Tox *tox, uint32_t friend_number, uint32_t file
     }
 }
 
-static void file_transfer_callback_control(Tox *tox, uint32_t friend_number, uint32_t file_number,
-                                                                    TOX_FILE_CONTROL control, void *UNUSED(userdata)){
+static void file_transfer_callback_control(Tox *tox, uint32_t friend_number, uint32_t file_number, TOX_FILE_CONTROL control, void *UNUSED(userdata)){
 
 
     if(file_number > 65536) {
@@ -68,8 +67,7 @@ static void file_transfer_callback_control(Tox *tox, uint32_t friend_number, uin
 }
 
 /* Function called by core with a new incoming file. */
-static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uint32_t file_number, uint32_t kind,
-                                 uint64_t file_size, const uint8_t *filename, size_t filename_length, void *user_data){
+static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uint32_t file_number, uint32_t kind, uint64_t file_size, const uint8_t *filename, size_t filename_length, void *user_data){
     //new incoming file
     // Shift from what toxcore says...
     file_number = (file_number >> 16) - 1;
@@ -121,8 +119,7 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
 }
 
 /* Function called by core with a new incoming file. */
-static void incoming_file_avatar(Tox *tox, uint32_t friend_number, uint32_t file_number, uint32_t kind,
-                                 uint64_t file_size, const uint8_t *filename, size_t filename_length, void *user_data){
+static void incoming_file_avatar(Tox *tox, uint32_t friend_number, uint32_t file_number, uint32_t kind, uint64_t file_size, const uint8_t *filename, size_t filename_length, void *user_data){
     //new incoming file
     // Shift from what toxcore says...
     file_number = (file_number >> 16) - 1;
@@ -159,8 +156,7 @@ static void incoming_file_avatar(Tox *tox, uint32_t friend_number, uint32_t file
     file_handle->ui_data = message_add_type_file(file_handle);
 }
 
-static void incoming_file_callback_chunk(Tox *tox, uint32_t friend_number, uint32_t file_number, uint64_t position,
-                                                                const uint8_t *data, size_t length, void *user_data){
+static void incoming_file_callback_chunk(Tox *tox, uint32_t friend_number, uint32_t file_number, uint64_t position, const uint8_t *data, size_t length, void *user_data){
     file_number = (file_number >> 16) - 1;
     debug("FileTransfer:\tIncoming chunk for friend (%u), and file (%u). Start (%u), End (%u).\r",
                                                                       friend_number, file_number, position, length);
@@ -204,7 +200,6 @@ static void incoming_file_callback_chunk(Tox *tox, uint32_t friend_number, uint3
         postmessage(FRIEND_FILE_IN_PROGRESS, friend_number, file_number, p);
         file_handle->size_transferred = file_handle->size_transferred;
     }
-
 }
 
 void outgoing_file_send_new(Tox *tox, uint32_t friend_number, uint8_t *path, const uint8_t *filename, size_t filename_length){
@@ -262,8 +257,7 @@ void outgoing_file_send_new(Tox *tox, uint32_t friend_number, uint8_t *path, con
     }
 }
 
-static void outgoing_file_callback_chunk(Tox *tox, uint32_t friend_number, uint32_t file_number, uint64_t position,
-                                                                                        size_t length, void *user_data){
+static void outgoing_file_callback_chunk(Tox *tox, uint32_t friend_number, uint32_t file_number, uint64_t position, size_t length, void *user_data){
 
     debug("FileTransfer:\tChunk requested for friend_id (%u), and file_id (%u). Start (%u), End (%u).\r",
                                                                       friend_number, file_number, position, length);
