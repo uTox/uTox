@@ -124,6 +124,8 @@ static void callback_connection_status(Tox *tox, uint32_t fid, TOX_CONNECTION st
     FRIEND *f = &friend[fid];
     int i;
 
+    // todo call avatar sending
+
     postmessage(FRIEND_ONLINE, fid, !!status, NULL);
 #if 0
     if(!status) {
@@ -152,7 +154,11 @@ static void callback_connection_status(Tox *tox, uint32_t fid, TOX_CONNECTION st
     }
 #endif
 
-    debug("Friend Online/Offline (%u): %u\n", fid, status);
+    if(status){
+        debug("Friend (%u):\t Online\n", fid);
+    } else {
+        debug("Friend (%u):\t Offline\n", fid);
+    }
 }
 /*
 void callback_avatar_info(Tox *tox, int fid, uint8_t format, uint8_t *hash, void *UNUSED(userdata))

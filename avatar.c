@@ -45,7 +45,7 @@ int load_avatar(const char_t *id, uint8_t *dest, uint32_t *size_out)
     }
     if (size > TOX_AVATAR_MAX_DATA_LENGTH) {
         free(avatar_data);
-        debug("warning: saved avatar file(%s) too large for tox\n", path);
+        debug("Avatars:\t saved avatar file(%s) too large for tox\n", path);
         return 0;
     }
 
@@ -70,7 +70,7 @@ int save_avatar(const char_t *id, const uint8_t *data, uint32_t size)
         fclose(file);
         return 1;
     } else {
-        debug("error opening avatar file (%s) for writing\n", (char *)path);
+        debug("Avatars:\terror opening avatar file (%s) for writing\n", (char *)path);
         return 0;
     }
 }
@@ -96,7 +96,7 @@ int load_avatar_hash(const char_t *id, uint8_t *dest)
         return 0;
     }
     if (size != TOX_HASH_LENGTH) {
-        debug("warning: saved avatar hash (%s) does not have TOX_HASH_LENGTH bytes\n", path);
+        debug("Avatars:\t saved avatar hash (%s) does not have TOX_HASH_LENGTH bytes\n", path);
         free(hash_data);
         return 0;
     }
@@ -113,13 +113,13 @@ int save_avatar_hash(const char_t *id, const uint8_t *hash)
     get_avatar_hash_location(path, id);
 
     FILE *file = fopen((char*)path, "wb");
-    if (file) {
+    if (file && hash) {
         fwrite(hash, TOX_HASH_LENGTH, 1, file);
         flush_file(file);
         fclose(file);
         return 1;
     } else {
-        debug("error opening avatar hash file (%s) for writing\n", (char *)path);
+        debug("Avatars:\terror opening avatar hash file (%s) for writing\n", (char *)path);
         return 0;
     }
 }
@@ -136,14 +136,14 @@ int delete_avatar_hash(const char_t *id)
 int set_avatar(AVATAR *avatar, const uint8_t *data, uint32_t size, _Bool create_hash)
 {
     if (size > TOX_AVATAR_MAX_DATA_LENGTH) {
-        debug("warning: avatar too large\n");
+        debug("Avatars:\t avatar too large\n");
         return 0;
     }
 
     uint16_t w, h;
     UTOX_NATIVE_IMAGE *image = png_to_image((UTOX_PNG_IMAGE)data, size, &w, &h, 1);
     if(!UTOX_NATIVE_IMAGE_IS_VALID(image)) {
-        debug("warning: avatar is invalid\n");
+        debug("Avatars:\t avatar is invalid\n");
         return 0;
     } else {
 
@@ -193,4 +193,44 @@ void self_remove_avatar()
     unset_avatar(&self.avatar);
     delete_saved_avatar(self.id);
     tox_postmessage(TOX_UNSETAVATAR, 0, 0, NULL);
+}
+
+int utox_avatar_update_friends(Tox *tox){
+    uint32_t i, friend_count, error_count = 0;
+    friend_count = tox_self_get_friend_list_size(tox);
+    uint32_t friend_loop[friend_count];
+    tox_self_get_friend_list(tox, friend_loop);
+
+    uint32_t avatar_size;
+    uint8_t *avatar = malloc(TOX_AVATAR_MAX_DATA_LENGTH);
+    if(!load_avatar(self.id, avatar, &avatar_size)){
+        debug("Avatars:\tUnable to load our avatar for sending!\n");
+        return -1;
+    }
+
+    for(i = 0; i < friend_count; i++){
+        FRIEND *f = &friend[friend_loop[i]];
+        f->has_current_avatar = 0;
+        if(f->online){
+            if(outgoing_file_send_avatar(tox, i, avatar, avatar_size)){ // error
+                error_count++;
+                if(f->has_current_avatar == 0){
+                    // error_count++;
+                    continue;
+                } else {
+                    debug("Avatars:\tERROR SETTING FRIEND(%u) AVATAR STATUS\n", i);
+                    return -1;
+                }
+            } else {
+                f->has_current_avatar = 1;
+                if(f->has_current_avatar == 1){
+                    continue;
+                } else {
+                    debug("Avatars:\tERROR SETTING FRIEND(%u) AVATAR STATUS\n", i);
+                    return -1;
+                }
+            }
+        }
+    }
+    return error_count;
 }

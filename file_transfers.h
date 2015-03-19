@@ -14,7 +14,8 @@ enum UTOX_FILE_TRANSFER_STATUS{
 typedef struct FILE_TRANSFER {
     uint32_t friend_number, file_number;
     uint8_t status;
-    _Bool in_memory, incoming;
+    enum TOX_FILE_KIND kind;
+    _Bool incoming, in_memory, is_avatar;
     uint8_t *path, *name, *file_id;
     size_t path_length, name_length, size, size_transferred;
     uint8_t *memory, *avatar;
@@ -40,6 +41,7 @@ static void file_transfer_callback_control(Tox *tox, uint32_t friend_number, uin
 /* Outgoing files */
     /* Function called by core for outgoing files. */
     void outgoing_file_send_new(Tox *tox, uint32_t friend_number, uint8_t *path, const uint8_t *filename, size_t filename_length);
+    int outgoing_file_send_avatar(Tox *tox, uint32_t friend_number, uint8_t *avatar, size_t avatar_size);
     static void outgoing_file_callback_chunk(Tox *tox, uint32_t friend_number, uint32_t file_number, uint64_t position, size_t length, void *user_data);
 
 /* Helper functions */
@@ -47,12 +49,12 @@ void utox_file_start_write(uint32_t friend_number, uint32_t file_number, void *f
 void utox_set_callbacks_for_transfer(Tox *tox);
 
 static void utox_update_user_file(FILE_TRANSFER *file);
-static void utox_run_file(FILE_TRANSFER *file);
-static void utox_kill_file(FILE_TRANSFER *file);
+static void utox_run_file(FILE_TRANSFER *file, uint8_t us);
+static void utox_kill_file(FILE_TRANSFER *file, uint8_t us);
 static void utox_pause_file(FILE_TRANSFER *file, uint8_t us);
+static void utox_complete_file(FILE_TRANSFER *file);
 
 // Empty
 static void utox_break_file();
-static void utox_complete_file();
 static void utox_resume_broke_file();
 
