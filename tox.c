@@ -1039,7 +1039,7 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
             _Bool multifile = (name[param2 - 1] == 0);
             if(!multifile) {
                                     /* tox, Friend, path, filename,      filename_length */
-                outgoing_file_send_new(tox, param1, name, name + param2, strlen(name - param2));
+                outgoing_file_send_new(tox, param1, name, name + param2, strlen(name + param2));
             } else {
                 // TODO : multi file support
                 debug("multifile not supported yet!\n");

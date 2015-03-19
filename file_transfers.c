@@ -79,6 +79,7 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
     file_handle->friend_number = friend_number;
     file_handle->file_number = file_number;
     file_handle->incoming = 1;
+    file_handle->in_memory = 0;
     file_handle->size = file_size;
 
     // FILE_T->filename_length is our max length, make sure that's enforced!
@@ -101,6 +102,7 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
 
 static void incoming_file_callback_chunk(Tox *tox, uint32_t friend_number, uint32_t file_number, uint64_t position,
                                                                 const uint8_t *data, size_t length, void *user_data){
+    file_number = (file_number >> 16) - 1;
     debug("FileTransfer:\tIncoming chunk for friend (%u), and file (%u). Start (%u), End (%u).\r",
                                                                       friend_number, file_number, position, length);
     if(length == 0){
@@ -111,8 +113,7 @@ static void incoming_file_callback_chunk(Tox *tox, uint32_t friend_number, uint3
     TOX_ERR_FILE_SEND_CHUNK error;
     FILE_TRANSFER *file_handle = &active_transfer[friend_number][file_number];
     uint64_t last_bit = position + length;
-    // time_t time = time(NULL);
-        file_handle->last_chunk_time = time(NULL);
+    time_t time_e = time(NULL);
 
     if(file_handle->in_memory) {
         memcpy(file_handle->memory + file_handle->size_received, data, length);
