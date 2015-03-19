@@ -3,9 +3,9 @@
 enum UTOX_FILE_TRANSFER_STATUS{
     FILE_TRANSFER_STATUS_NONE,
     FILE_TRANSFER_STATUS_ACTIVE,
-    FILE_TRANSFER_STATUS_PAUSED_THEM,
     FILE_TRANSFER_STATUS_PAUSED_US,
     FILE_TRANSFER_STATUS_PAUSED_BOTH,
+    FILE_TRANSFER_STATUS_PAUSED_THEM,
     FILE_TRANSFER_STATUS_BROKEN,
     FILE_TRANSFER_STATUS_COMPLETED,
     FILE_TRANSFER_STATUS_KILLED,
@@ -16,14 +16,15 @@ typedef struct FILE_TRANSFER {
     uint8_t status;
     _Bool in_memory, incoming;
     uint8_t *path, *name, *file_id;
-    size_t path_length, name_length, size, size_received;
+    size_t path_length, name_length, size, size_transferred;
     uint8_t *memory;
     FILE *file;
     time_t request_time, start_time, last_chunk_time, finish_time, pause_time;
+    MSG_FILE *ui_data;
 } FILE_TRANSFER;
 
 typedef struct {
-    uint64_t size_received;
+    uint64_t size_transferred;
     uint32_t speed;
 } FILE_PROGRESS;
 
@@ -43,3 +44,14 @@ static void file_transfer_callback_control(Tox *tox, uint32_t friend_number, uin
 /* Helper functions */
 void utox_file_start_write(uint32_t friend_number, uint32_t file_number, void *filepath);
 void utox_set_callbacks_for_transfer(Tox *tox);
+
+static void utox_update_user_file(FILE_TRANSFER *file);
+static void utox_run_file();
+
+// Empty
+static void utox_kill_file();
+static void utox_break_file();
+static void utox_pause_file();
+static void utox_complete_file();
+static void utox_resume_broke_file();
+

@@ -49,7 +49,7 @@ MSG_FILE* message_add_type_file(FILE_TRANSFER *file){
     msg->name_length = (file->name_length > sizeof(msg->name)) ? sizeof(msg->name) : file->name_length;
     memcpy(msg->name, file->name, msg->name_length);
     msg->size = file->size;
-    msg->progress = file->size_received;
+    msg->progress = file->size_transferred;
     msg->speed = 0;
     msg->inline_png = file->in_memory;
     msg->path = NULL;
@@ -192,89 +192,137 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
         case MSG_TYPE_FILE: {
             MSG_FILE *file = (void*)msg;
             int dx = MESSAGES_X;
-            int xx = x + dx;
+            /* Mouse Positions */
             _Bool mo = (m->iover == i);
+            _Bool mouse_tbtn = (mo && m->over == 1) ? 1 : 0;
+            _Bool mouse_bbtn = (mo && m->over == 2) ? 1 : 0;
+
+            int xx = x + dx;
+            int xxx = xx + BM_FTM_WIDTH + SCALE;
+
+
+            /* File transfer bar */
+            int ftbar_x  = x + dx;
+            int ftbar_y  = y;
+            int ftbar_w  = BM_FT_WIDTH;
+            int ftbar_sw = BM_FTM_WIDTH;
+            int ftbar_h  = BM_FT_HEIGHT;
+            /* Button Background */
+            int btn_bg_x  = ftbar_x + BM_FTM_WIDTH + SCALE;
+            int btn_bg_w  = BM_FTB_WIDTH;
+            /* Button Background heights */
+            int tbtn_bg_y = y;
+            int bbtn_bg_y = y + BM_FTB_HEIGHT + SCALE * 2;
+            int tbtn_bg_h  = BM_FTB_HEIGHT + SCALE;
+            int bbtn_bg_h  = BM_FTB_HEIGHT;
+            /* Top button info */
+            int btnx    = ((x + dx) + BM_FTM_WIDTH + SCALE) + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2;
+            int tbtn_y    = y + SCALE * 4;
+            int bbtn_y    = y + BM_FTB_HEIGHT + SCALE * 5;
+            int btnw    = BM_FB_WIDTH;
+            int btnh    = BM_FB_HEIGHT;
 
             char_t size[16];
             STRING_IDX sizelen = sprint_bytes(size, sizeof(size), file->size);
+            uint64_t progress = file->progress;
+            if(progress > file->size) {
+                progress = file->size;
+            }
+            char_t text[16];
+            STRING_IDX len;
+            len = sprint_bytes(text, sizeof(text), file->speed);
+            text[len++] = '/';
+            text[len++] = 's';
+            uint64_t etasec = 0;
+            if(file->speed) {
+                etasec = (file->size - progress) / file->speed;
+            }
+            STRING_IDX len2 = len;
+            len2 = snprintf((char*)text, sizeof(text), "%us", (uint32_t)etasec);
 
             setfont(FONT_MISC);
             setcolor(COLOR_MAIN_BACKGROUND);
 
-            if(file->status == FILE_TRANSFER_STATUS_COMPLETED) {
-                setcolor((mo && m->over) ? COLOR_BUTTON_SUCCESS_HOVER_TEXT : COLOR_BUTTON_SUCCESS_TEXT);
-                drawalpha(BM_FT, xx, y, BM_FT_WIDTH, BM_FT_HEIGHT, (mo && m->over) ? COLOR_BUTTON_SUCCESS_HOVER_BACKGROUND : COLOR_BUTTON_SUCCESS_BACKGROUND);
-                drawalpha(BM_YES, xx + BM_FTM_WIDTH + SCALE + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2, y + SCALE * 4, BM_FB_WIDTH, BM_FB_HEIGHT, (mo && m->over) ? COLOR_BUTTON_SUCCESS_HOVER_TEXT : COLOR_BUTTON_SUCCESS_TEXT);
-                if(file->inline_png) {
-                    drawstr(xx + 5 * SCALE, y + 17 * SCALE, CLICKTOSAVE);
+            switch (file->status){
+            case FILE_TRANSFER_STATUS_COMPLETED:{
+                /* If mouse over use hover color */
+                setcolor((mouse_bbtn || mouse_tbtn) ? COLOR_BUTTON_SUCCESS_HOVER_TEXT : COLOR_BUTTON_SUCCESS_TEXT);
+                drawalpha(BM_FT, ftbar_x, ftbar_y, ftbar_w, ftbar_h, (mouse_tbtn || mouse_bbtn) ? COLOR_BUTTON_SUCCESS_HOVER_BACKGROUND : COLOR_BUTTON_SUCCESS_BACKGROUND);
+                drawalpha(BM_YES, btnx, bbtn_y, btnw, btnh, (mouse_tbtn || mouse_bbtn) ? COLOR_BUTTON_SUCCESS_HOVER_TEXT : COLOR_BUTTON_SUCCESS_TEXT);
+                if(file->inline_png){
+                    drawstr(x + dx + 5 * SCALE, y + 17 * SCALE, CLICKTOSAVE);
                 } else {
-                    drawstr(xx + 5 * SCALE, y + 17 * SCALE, CLICKTOOPEN);
+                    drawstr(x + dx + 5 * SCALE, y + 17 * SCALE, CLICKTOOPEN);
                 }
-            } else if(file->status == FILE_TRANSFER_STATUS_KILLED) {
-                setcolor(COLOR_BUTTON_DANGER_TEXT);
-                drawalpha(BM_FT, xx, y, BM_FT_WIDTH, BM_FT_HEIGHT, COLOR_BUTTON_DANGER_BACKGROUND);
-                drawalpha(BM_NO, xx + BM_FTM_WIDTH + SCALE + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2, y + SCALE * 4, BM_FB_WIDTH, BM_FB_HEIGHT, COLOR_BUTTON_DANGER_TEXT);
-                drawstr(xx + 5 * SCALE, y + 17 * SCALE, CANCELLED);
-            } else {
-                if(file->status == FILE_TRANSFER_STATUS_BROKEN) {
-                    setcolor(COLOR_BUTTON_DANGER_TEXT);
-                    drawalpha(BM_FTM, xx, y, BM_FTM_WIDTH, BM_FT_HEIGHT, COLOR_BUTTON_DANGER_BACKGROUND);
-                } else if(file->status == FILE_TRANSFER_STATUS_ACTIVE) {
-                    setcolor(COLOR_BUTTON_INPROGRESS_TEXT);
-                    drawalpha(BM_FTM, xx, y, BM_FTM_WIDTH, BM_FT_HEIGHT, COLOR_BUTTON_INPROGRESS_BACKGROUND);
-                } else {
-                    drawalpha(BM_FTM, xx, y, BM_FTM_WIDTH, BM_FT_HEIGHT, COLOR_BUTTON_DISABLED_BACKGROUND);
-                    setcolor(COLOR_BUTTON_DISABLED_TRANSFER);
-                }
-
-                int xxx = xx + BM_FTM_WIDTH + SCALE;
-                drawalpha(BM_FTB1, xxx, y, BM_FTB_WIDTH, BM_FTB_HEIGHT + SCALE, (mo && m->over == 1) ? COLOR_BUTTON_SUCCESS_HOVER_BACKGROUND : COLOR_BUTTON_SUCCESS_BACKGROUND);
-                drawalpha(BM_NO, xxx + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2, y + SCALE * 4, BM_FB_WIDTH, BM_FB_HEIGHT, (mo && m->over == 1) ? COLOR_BUTTON_SUCCESS_HOVER_TEXT : COLOR_BUTTON_SUCCESS_TEXT);
-
-                uint32_t color = ((msg->author && file->status == FILE_TRANSFER_STATUS_NONE) || file->status == FILE_TRANSFER_STATUS_BROKEN || file->status == FILE_TRANSFER_STATUS_PAUSED_THEM) ? COLOR_BUTTON_DISABLED_BACKGROUND: ((mo && m->over == 2) ? COLOR_BUTTON_SUCCESS_HOVER_BACKGROUND : COLOR_BUTTON_SUCCESS_BACKGROUND);
-                drawalpha(BM_FTB2, xxx, y + BM_FTB_HEIGHT + SCALE * 2, BM_FTB_WIDTH, BM_FTB_HEIGHT, color);
-                drawalpha((!msg->author && file->status ==  FILE_TRANSFER_STATUS_NONE) ? BM_YES : (file->status == FILE_TRANSFER_STATUS_PAUSED_US ? BM_RESUME : BM_PAUSE), xxx + (BM_FTB_WIDTH - BM_FB_WIDTH) / 2, y + BM_FTB_HEIGHT + SCALE * 5, BM_FB_WIDTH, BM_FB_HEIGHT, ((msg->author && file->status == FILE_TRANSFER_STATUS_NONE) || file->status == FILE_TRANSFER_STATUS_BROKEN || file->status == FILE_TRANSFER_STATUS_PAUSED_THEM) ? COLOR_BUTTON_DISABLED_TRANSFER : ((mo && m->over == 2) ? COLOR_BUTTON_SUCCESS_HOVER_TEXT : COLOR_BUTTON_SUCCESS_TEXT));
-
-
-                uint64_t progress = file->progress;
-                if(progress > file->size) {
-                    progress = file->size;
-                }
-
-                uint32_t w = (file->size == 0) ? 0 : (progress * (uint64_t)106 * SCALE) / file->size;
-
-                color = (file->status == FILE_TRANSFER_STATUS_NONE || file->status == FILE_TRANSFER_STATUS_PAUSED_US || file->status == FILE_TRANSFER_STATUS_PAUSED_THEM) ? COLOR_BUTTON_DISABLED_TRANSFER : (file->status == FILE_TRANSFER_STATUS_BROKEN ? COLOR_BUTTON_DANGER_TEXT : COLOR_BUTTON_INPROGRESS_TEXT);
-                framerect(xx + 5 * SCALE, y + 17 * SCALE, xx + 111 * SCALE, y + 24 * SCALE, color);
-                drawrectw(xx + 5 * SCALE, y + 17 * SCALE, w, 7 * SCALE, color);
-
-                if(file->status == FILE_TRANSFER_STATUS_ACTIVE) {
-                    char_t text[16];
-                    STRING_IDX len;
-
-                    len = sprint_bytes(text, sizeof(text), file->speed);
-                    text[len++] = '/';
-                    text[len++] = 's';
-
-                    drawtext(xx + 5 * SCALE + 53 * SCALE - textwidth(text, len) / 2, y + 10 * SCALE, text, len);
-
-                    uint64_t etasec = 0;
-                    if(file->speed) {
-                        etasec = (file->size - progress) / file->speed;
-                    }
-
-                    len = snprintf((char*)text, sizeof(text), "%us", (uint32_t)etasec);
-
-                    drawtext(xx + 5 * SCALE + 106 * SCALE - textwidth(text, len), y + 10 * SCALE, text, len);
-                }
+                break;
             }
+            case FILE_TRANSFER_STATUS_KILLED:
+            case FILE_TRANSFER_STATUS_BROKEN: {
+                setcolor(COLOR_BUTTON_DANGER_TEXT);
+                drawalpha(BM_FT, ftbar_x, ftbar_y, ftbar_w, ftbar_h, (mouse_tbtn || mouse_bbtn) ? COLOR_BUTTON_DANGER_BACKGROUND : COLOR_BUTTON_DANGER_BACKGROUND);
+                drawalpha(BM_NO, btnx, tbtn_y, btnw, btnh, COLOR_BUTTON_DANGER_TEXT);
+                drawstr(x + dx + 5 * SCALE, y + 17 * SCALE, CANCELLED);
+                break;
+            }
+            case FILE_TRANSFER_STATUS_NONE:{
+                drawalpha(BM_FTM, ftbar_x, ftbar_y, ftbar_sw, ftbar_h, COLOR_BUTTON_DISABLED_BACKGROUND);
+
+                drawalpha(BM_FTB1, btn_bg_x, tbtn_bg_y, btn_bg_w, tbtn_bg_h, (!mouse_tbtn ? COLOR_BUTTON_SUCCESS_HOVER_BACKGROUND : COLOR_BUTTON_DANGER_BACKGROUND));
+                drawalpha(BM_NO, btnx, tbtn_y, btnw, btnh, (mouse_tbtn ? COLOR_BUTTON_SUCCESS_HOVER_TEXT : COLOR_BUTTON_SUCCESS_TEXT));
+
+                drawalpha(BM_FTB2, btn_bg_x, bbtn_bg_y, btn_bg_w, bbtn_bg_h, (mouse_bbtn ? COLOR_BUTTON_SUCCESS_BACKGROUND : COLOR_BUTTON_SUCCESS_HOVER_BACKGROUND));
+                drawalpha(BM_YES, btnx, bbtn_y, btnw, btnh, (mouse_bbtn ? COLOR_BUTTON_SUCCESS_HOVER_TEXT : COLOR_BUTTON_SUCCESS_TEXT));
+                framerect((x + dx) + 5 * SCALE, y + 17 * SCALE, (x + dx) + 111 * SCALE, y + 24 * SCALE, COLOR_BUTTON_INPROGRESS_TEXT);
+
+                setcolor(COLOR_BUTTON_DISABLED_TRANSFER);
+                break;
+            }
+            case FILE_TRANSFER_STATUS_ACTIVE:{
+                drawalpha(BM_FTM, ftbar_x, ftbar_y, ftbar_sw, ftbar_h, COLOR_BUTTON_INPROGRESS_BACKGROUND);
+                drawalpha(BM_FTB1, btn_bg_x, tbtn_bg_y, btn_bg_w, tbtn_bg_h, (mouse_tbtn ? COLOR_BUTTON_SUCCESS_HOVER_BACKGROUND : COLOR_BUTTON_DANGER_BACKGROUND));
+                drawalpha(BM_NO, btnx, tbtn_y, btnw, btnh, (mouse_tbtn ? COLOR_BUTTON_SUCCESS_HOVER_TEXT : COLOR_BUTTON_SUCCESS_TEXT));
+                drawalpha(BM_FTB2, btn_bg_x, bbtn_bg_y, btn_bg_w, bbtn_bg_h, (mouse_bbtn ? COLOR_BUTTON_SUCCESS_BACKGROUND : COLOR_BUTTON_SUCCESS_HOVER_BACKGROUND));
+                drawalpha(BM_PAUSE, btnx, bbtn_y, btnw, btnh, (mouse_bbtn ? COLOR_BUTTON_SUCCESS_HOVER_TEXT : COLOR_BUTTON_SUCCESS_TEXT));
+
+                setcolor(COLOR_BUTTON_INPROGRESS_TEXT);
+                drawtext(x + dx + 5 * SCALE + 53 * SCALE - textwidth(text, len) / 2, y + 10 * SCALE, text, len);
+                drawtext(x + dx + 5 * SCALE + 106 * SCALE - textwidth(text, len2), y + 10 * SCALE, text, len2);
+                framerect((x + dx) + 5 * SCALE, y + 17 * SCALE, (x + dx) + 111 * SCALE, y + 24 * SCALE, COLOR_BUTTON_INPROGRESS_TEXT);
+                break;
+            }
+            case FILE_TRANSFER_STATUS_PAUSED_US:
+            case FILE_TRANSFER_STATUS_PAUSED_BOTH:
+            case FILE_TRANSFER_STATUS_PAUSED_THEM: {
+                drawalpha(BM_FTM, ftbar_x, ftbar_y, ftbar_sw, ftbar_h, COLOR_BUTTON_DISABLED_BACKGROUND);
+
+                drawalpha(BM_FTB1, btn_bg_x, tbtn_bg_y, btn_bg_w, tbtn_bg_h, (!mouse_tbtn ? COLOR_BUTTON_SUCCESS_HOVER_BACKGROUND : COLOR_BUTTON_DANGER_BACKGROUND));
+                drawalpha(BM_NO, btnx, tbtn_y, btnw, btnh, (mouse_tbtn ? COLOR_BUTTON_SUCCESS_HOVER_TEXT : COLOR_BUTTON_SUCCESS_TEXT));
+                if(file->status <= FILE_TRANSFER_STATUS_PAUSED_BOTH){
+                    /* Paused by at least us */
+                    drawalpha(BM_FTB2, btn_bg_x, bbtn_bg_y, btn_bg_w, bbtn_bg_h, (!mouse_bbtn ? COLOR_BUTTON_DISABLED_BACKGROUND : COLOR_BUTTON_SUCCESS_HOVER_BACKGROUND));
+                    drawalpha(BM_RESUME, btnx, bbtn_y, btnw, btnh, (mouse_bbtn ? COLOR_BUTTON_SUCCESS_HOVER_TEXT : COLOR_BUTTON_SUCCESS_TEXT));
+                } else {
+                    /* Paused only by them */
+                    drawalpha(BM_FTB2, btn_bg_x, bbtn_bg_y, btn_bg_w, bbtn_bg_h, (!mouse_bbtn ? COLOR_BUTTON_SUCCESS_BACKGROUND : COLOR_BUTTON_DISABLED_BACKGROUND));
+                    drawalpha(BM_PAUSE, btnx, bbtn_y, btnw, btnh, (mouse_bbtn ? COLOR_BUTTON_SUCCESS_HOVER_TEXT : COLOR_BUTTON_SUCCESS_TEXT));
+                }
+                framerect((x + dx) + 5 * SCALE, y + 17 * SCALE, (x + dx) + 111 * SCALE, y + 24 * SCALE, COLOR_BUTTON_INPROGRESS_TEXT);
+                break;
+            }
+            }
+            // progress rectangle
+            setcolor(COLOR_BUTTON_INPROGRESS_TEXT);
+            uint32_t w = (file->size == 0) ? 0 : (progress * (uint64_t)106 * SCALE) / file->size;
+
+            drawrectw((x + dx) + 5 * SCALE, y + 17 * SCALE, w, 7 * SCALE, COLOR_BUTTON_INPROGRESS_TEXT);
 
 
-            drawtextwidth(xx + 5 * SCALE, 106 * SCALE, y + 3 * SCALE, file->name, file->name_length);
-            drawtext(xx + 5 * SCALE, y + 10 * SCALE, size, sizelen);
+            drawtext(x + dx + 5 * SCALE, y + 10 * SCALE, size, sizelen);
+            drawtextwidth(x + dx + 5 * SCALE, 106 * SCALE, y + 3 * SCALE, file->name, file->name_length);
 
             y += BM_FT_HEIGHT;
-
             break;
+
         }
         }
 
