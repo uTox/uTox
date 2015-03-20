@@ -312,7 +312,7 @@ void outgoing_file_send_new(Tox *tox, uint32_t friend_number, uint8_t *path, con
 
 
     TOX_ERR_FILE_SEND error;
-    const uint8_t *file_id;
+    const uint8_t *file_id = NULL;
 
     uint64_t file_size = 0;
     fseeko(file, 0, SEEK_END);
@@ -366,12 +366,12 @@ int outgoing_file_send_avatar(Tox *tox, uint32_t friend_number, uint8_t *avatar,
 
     TOX_ERR_FILE_SEND error;
     uint8_t *file_id;
-    file_id = malloc(TOX_HASH_LENGTH * 2);
+    file_id = malloc(TOX_HASH_LENGTH);
     if(!tox_hash(file_id, avatar, avatar_size)){
         debug("Unable to get hash for avatar!\n");
         return 1;
     }
-    int file_number = tox_file_send(tox, friend_number, TOX_FILE_KIND_AVATAR, avatar_size, file_id, file_id, TOX_HASH_LENGTH, &error);
+    int file_number = tox_file_send(tox, friend_number, TOX_FILE_KIND_AVATAR, avatar_size, file_id, NULL, 0, &error);
 
     if(file_number != -1) {
         FILE_TRANSFER *file_handle = &active_transfer[friend_number][file_number];
