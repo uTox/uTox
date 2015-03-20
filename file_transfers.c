@@ -464,17 +464,22 @@ static void utox_pause_file(FILE_TRANSFER *file, uint8_t us){
 }
 
 static void utox_complete_file(FILE_TRANSFER *file){
-    file->status = FILE_TRANSFER_STATUS_COMPLETED;
-    if(!file->in_memory){
-        fclose(file->file);
-    } else if(file->is_avatar && file->incoming)  {
-        // save avatar and hash to disk
-        char_t cid[TOX_PUBLIC_KEY_SIZE * 2];
-        cid_to_string(cid, (char_t*)&friend[file->friend_number].cid);
-        save_avatar_hash(cid, file->name);
-        save_avatar(cid, file->avatar, file->size);
-        set_avatar(&friend[file->friend_number].avatar, file->avatar, file->size, 0);
+    if(file->status == FILE_TRANSFER_STATUS_ACTIVE){
+        if(!file->in_memory){
+            fclose(file->file);
+        } else if(file->is_avatar && file->incoming)  {
+            // save avatar and hash to disk
+            char_t cid[TOX_PUBLIC_KEY_SIZE * 2];
+            cid_to_string(cid, (char_t*)&friend[file->friend_number].cid);
+            save_avatar_hash(cid, file->name);
+            save_avatar(cid, file->avatar, file->size);
+            set_avatar(&friend[file->friend_number].avatar, file->avatar, file->size, 0);
+        }
+        file->status = FILE_TRANSFER_STATUS_COMPLETED;
+    } else {
+        debug("FileTransfer:\tUnable to complete file in non-active state (file:%u)\n", file->file_number);
     }
+
     utox_update_user_file(file);
 }
 
