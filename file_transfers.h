@@ -36,7 +36,6 @@ typedef struct {
  * that.
  */
 void file_transfer_local_control(Tox *tox, uint32_t friend_number, uint32_t file_number, TOX_FILE_CONTROL control);
-
 /** Callback for file transfer changes made by friend.
  *
  * Called via toxcore every time a friend changes file status.

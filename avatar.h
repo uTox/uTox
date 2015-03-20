@@ -99,7 +99,6 @@ int self_set_and_save_avatar(const uint8_t *data, uint32_t size);
 
 /* unsets own avatar and removes it from disk */
 void self_remove_avatar();
-
 /** called once out new avatar is changed to update all of our friends
  *
  * returns 0 if there were no errors sending the avatars to every online friend.

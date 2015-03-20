@@ -13,7 +13,6 @@ static TOX_MSG tox_msg, audio_msg, video_msg, toxav_msg;
 static volatile _Bool tox_thread_msg, audio_thread_msg, video_thread_msg, toxav_thread_msg;
 static volatile _Bool save_needed = 1;
 
-
 /* Writes log filename for fid to dest. returns length written */
 static int log_file_name(uint8_t *dest, size_t size_dest, Tox *tox, int fid)
 {
@@ -1021,6 +1020,7 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
                     }
                     p++;
                 }
+
                 if(strcmp2(name, "file://") == 0) {
                     name += 7;
                 }                   /* tox, friend, path, filename, filename_length */
@@ -1041,8 +1041,8 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
                 outgoing_file_send_new(tox, param1, name, name + param2, strlen(name + param2));
             } else {
                 // TODO : multi file support
-                // debug("multifile not supported yet!\n");
-                // break;
+                debug("multifile not supported yet!\n");
+                break;
                 uint8_t *p = name + param2;
                 name += param2 - 1;
                 if(*(name - 1) != '\\') {
@@ -1068,7 +1068,6 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
          */
         struct TOX_SEND_INLINE_MSG *tsim = data;
         outgoing_file_send_new_inline(tox, param1, tsim->image->png_data, name, len -1);
-        // utox_transfer_start_memory(tox, param1, tsim->image->png_data, tsim->image_size);
         free(tsim);
 
         break;
@@ -1084,7 +1083,9 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
         postmessage(FRIEND_FILE_IN_STATUS, param1, param2, (void*)FILE_TRANSFER_STATUS_ACTIVE);
         break;
     }
+
     case TOX_FILE_INCOMING_RESUME:
+
     case TOX_FILE_OUTGOING_RESUME:{
         /* param1: friend #
          * param2: file #           tox, friend#, file#,       RESUME_FILE */
@@ -1105,6 +1106,8 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
         file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_CANCEL);
         break;
     }
+
+
     }
     save_needed = 1;
 }

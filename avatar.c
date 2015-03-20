@@ -215,7 +215,7 @@ int utox_avatar_update_friends(Tox *tox){
             if(outgoing_file_send_avatar(tox, i, avatar, avatar_size)){ // error
                 error_count++;
                 if(f->has_current_avatar == 0){
-                    // error_count++;
+                    error_count++;
                     continue;
                 } else {
                     debug("Avatars:\tERROR SETTING FRIEND(%u) AVATAR STATUS\n", i);
@@ -229,6 +229,13 @@ int utox_avatar_update_friends(Tox *tox){
                     debug("Avatars:\tERROR SETTING FRIEND(%u) AVATAR STATUS\n", i);
                     return -1;
                 }
+            }
+        } else {
+            if(f->has_current_avatar == 0){
+                continue;
+            } else {
+                debug("ERROR SETTING FRIEND(%u) AVATAR STATUS\n", i);
+                return -1;
             }
         }
     }
