@@ -13,7 +13,6 @@ static TOX_MSG tox_msg, audio_msg, video_msg, toxav_msg;
 static volatile _Bool tox_thread_msg, audio_thread_msg, video_thread_msg, toxav_thread_msg;
 static volatile _Bool save_needed = 1;
 
-#define Legacy(a,b,c) debug("Legacy call:\tYou shouldn't see this, please file a bug report!\nLegacy call:\t\t msg(%s) param1(%s) param2(%s)",a,b,c)
 
 /* Writes log filename for fid to dest. returns length written */
 static int log_file_name(uint8_t *dest, size_t size_dest, Tox *tox, int fid)
@@ -1355,7 +1354,6 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
            data: png data
         Work now done by file callback
         */
-        Legacy(tox_message_id,param1,param2);
         break;
     }
 
@@ -1544,7 +1542,6 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
     case FRIEND_FILE_OUT_DONE:
     case FRIEND_FILE_IN_PROGRESS:
     case FRIEND_FILE_OUT_PROGRESS:{
-        Legacy(tox_message_id, param1, param2);
         break;
     }
 
