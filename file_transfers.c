@@ -350,14 +350,17 @@ static void outgoing_file_callback_chunk(Tox *tox, uint32_t friend_number, uint3
 
     if(read_size != length){
         debug("FileTransfer:\tERROR READING FILE! (%u & %u)\n", friend_number, file_number);
-        chunk = buffer;
         file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
         free(buffer);
         return;
     }
 
     TOX_ERR_FILE_SEND_CHUNK error;
+
+    chunk = buffer;
+
     tox_file_send_chunk(tox, friend_number, file_number, position, chunk, length, &error);
+
     if(last_bit == file_handle->size){
         debug("FileTransfer:\tOutgoing transfer is done (%u & %u)\n", friend_number, file_number);
         utox_complete_file(file_handle);
