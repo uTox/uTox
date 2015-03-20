@@ -45,6 +45,7 @@ static void utox_run_file(FILE_TRANSFER *file, uint8_t us){
 
 static void utox_kill_file(FILE_TRANSFER *file, uint8_t us){
     file->status = FILE_TRANSFER_STATUS_KILLED;
+    if (!us) debug("File was killed by remote");
     utox_update_user_file(file);
 }
 
@@ -172,7 +173,7 @@ static void incoming_file_avatar(Tox *tox, uint32_t friend_number, uint32_t file
 
     if(file_size > TOX_AVATAR_MAX_DATA_LENGTH){
         file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
-        debug("FileTransfer:\tAvatar from friend(%u) rejected, TOO LARGE (%u)\n", friend_number, file_size);
+        debug("FileTransfer:\tAvatar from friend(%u) rejected, TOO LARGE (%llu)\n", friend_number, file_size);
         return;
     }
 
