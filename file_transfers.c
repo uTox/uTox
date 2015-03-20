@@ -347,6 +347,61 @@ void outgoing_file_send_new(Tox *tox, uint32_t friend_number, uint8_t *path, con
     }
 }
 
+void outgoing_file_send_inline(Tox *tox, uint32_t friend_number, uint8_t *path, const uint8_t *filename, size_t filename_length){
+
+    debug("FileTransfer:\tStarting outgoing file to friend %u. (filename, %s)\n", friend_number, filename);
+
+    //     FILE_TRANSFER *file_handle = active_transfer[friend_number][file_number]; TODO
+    if(friend[friend_number].transfer_count >= MAX_FILE_TRANSFERS) {
+        debug("FileTransfer:\tMaximum outgoing file sending limit reached(%u/%u) for friend(%u). ABORTING!\n",
+                                            friend[friend_number].transfer_count, MAX_FILE_TRANSFERS, friend_number);
+        return;
+    }
+
+    FILE *file = fopen((char*)path, "rb");
+    if(!file) {
+        debug("FileTransfer:\tUnable to open file for reading!\n");
+        return;
+    }
+
+
+    TOX_ERR_FILE_SEND error;
+    const uint8_t *file_id;
+
+    uint64_t file_size = 0;
+    fseeko(file, 0, SEEK_END);
+    file_size = ftello(file);
+    fseeko(file, 0, SEEK_SET);
+
+    int file_number = tox_file_send(tox, friend_number, TOX_FILE_KIND_DATA, file_size, file_id, filename, filename_length, &error);
+
+    if(file_number != -1) {
+        FILE_TRANSFER *file_handle = &active_transfer[friend_number][file_number];
+        memset(file_handle, 0, sizeof(FILE_TRANSFER));
+
+
+        file_handle->friend_number = friend_number;
+        file_handle->file_number = file_number;
+        file_handle->status = FILE_TRANSFER_STATUS_PAUSED_THEM;
+        //TODO file_handle->sendsize = tox_file_data_size(tox, fid);
+
+        file_handle->file = file;
+
+        file_handle->name = (uint8_t*)strdup((char*)filename);
+        file_handle->path = (uint8_t*)strdup((char*)path);
+        file_handle->name_length = filename_length;
+
+        file_handle->size = file_size;
+
+        ++friend[friend_number].transfer_count;
+        debug("Sending file %d of %d(max) to friend(%d).\n", friend[friend_number].transfer_count, MAX_FILE_TRANSFERS, friend_number);
+        // Create a new msg for the UI and save it's pointer
+        file_handle->ui_data = message_add_type_file(file_handle);
+    } else {
+        debug("tox_file_send() failed\n");
+    }
+}
+
 int outgoing_file_send_avatar(Tox *tox, uint32_t friend_number, uint8_t *avatar, size_t avatar_size){
 
     debug("FileTransfer:\tStarting outgoing AVATAR file to friend %u.\n", friend_number);

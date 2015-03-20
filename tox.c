@@ -1063,12 +1063,11 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
     }
 
     case TOX_SEND_NEW_INLINE: {
-        debug("inline not yet supported!\n");
-        break;
         /* param1: friend id
            data: pointer to a TOX_SEND_INLINE_MSG struct
          */
         struct TOX_SEND_INLINE_MSG *tsim = data;
+        outgoing_file_send_new_inline(tox, param1, tsim->image->png_data, name, len -1);
         // utox_transfer_start_memory(tox, param1, tsim->image->png_data, tsim->image_size);
         free(tsim);
 
