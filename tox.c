@@ -1042,8 +1042,8 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
                 outgoing_file_send_new(tox, param1, name, name + param2, strlen(name + param2));
             } else {
                 // TODO : multi file support
-                debug("multifile not supported yet!\n");
-                break;
+                // debug("multifile not supported yet!\n");
+                // break;
                 uint8_t *p = name + param2;
                 name += param2 - 1;
                 if(*(name - 1) != '\\') {
@@ -1053,7 +1053,7 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
                     int len = strlen((char*)p) + 1;
                     memmove(name, p, len);
                     p += len;
-                    // utox_transfer_start_file(tox, param1, data, name, len - 1);
+                    outgoing_file_send_new(tox, param1, data, name, len -1);
                 }
             }
         }
