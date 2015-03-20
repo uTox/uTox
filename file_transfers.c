@@ -180,7 +180,8 @@ static void incoming_file_callback_chunk(Tox *tox, uint32_t friend_number, uint3
         }
     }
     file_handle->size_transferred += length;
-    /*
+
+    /* TODO re-implement file transfer speed and time remaining...
     if(time(NULL) - file_handle->last_chunk_time >= 10) {
         debug("FileTransfer:\ttime update running\n");
     // TODO divide total size by total time to get ave speed.
@@ -305,11 +306,9 @@ int outgoing_file_send_avatar(Tox *tox, uint32_t friend_number, uint8_t *avatar,
     return 0;
 }
 
-static void outgoing_file_callback_chunk(Tox *tox, uint32_t friend_number, uint32_t file_number, uint64_t position,
-                                                                                        size_t length, void *user_data){
+static void outgoing_file_callback_chunk(Tox *tox, uint32_t friend_number, uint32_t file_number, uint64_t position, size_t length, void *user_data){
 
-    debug("FileTransfer:\tChunk requested for friend_id (%u), and file_id (%u). Start (%u), End (%u).\r",
-                                                                      friend_number, file_number, position, length);
+    debug("FileTransfer:\tChunk requested for friend_id (%u), and file_id (%u). Start (%u), End (%u).\r", friend_number, file_number, position, length);
     //send a chunk of data size of length with
     const uint8_t *chunk;
     uint8_t *buffer;
@@ -406,6 +405,7 @@ static void utox_update_user_file(FILE_TRANSFER *file){
     msg->path = file->path;
     redraw();
 }
+
 static void utox_run_file(FILE_TRANSFER *file, uint8_t us){
     if(us){
         if(file->status == FILE_TRANSFER_STATUS_PAUSED_US){
@@ -430,10 +430,12 @@ static void utox_run_file(FILE_TRANSFER *file, uint8_t us){
     }
     utox_update_user_file(file);
 }
+
 static void utox_kill_file(FILE_TRANSFER *file, uint8_t us){
     file->status = FILE_TRANSFER_STATUS_KILLED;
     utox_update_user_file(file);
 }
+
 static void utox_pause_file(FILE_TRANSFER *file, uint8_t us){
     if(us){
         if(file->status == FILE_TRANSFER_STATUS_PAUSED_US){
@@ -460,6 +462,7 @@ static void utox_pause_file(FILE_TRANSFER *file, uint8_t us){
     }
     utox_update_user_file(file);
 }
+
 static void utox_complete_file(FILE_TRANSFER *file){
     file->status = FILE_TRANSFER_STATUS_COMPLETED;
     if(!file->in_memory){
@@ -474,5 +477,6 @@ static void utox_complete_file(FILE_TRANSFER *file){
     }
     utox_update_user_file(file);
 }
+
 static void utox_break_file(){}
 static void utox_resume_broken_file(){}

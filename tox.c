@@ -1022,11 +1022,9 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
                     }
                     p++;
                 }
-
                 if(strcmp2(name, "file://") == 0) {
                     name += 7;
-                }
-                                    /* tox, friend, path, filename, filename_length */
+                }                   /* tox, friend, path, filename, filename_length */
                 outgoing_file_send_new(tox, param1, name,        s,           p - s);
                 p++;
                 s = name = p;
@@ -1083,63 +1081,32 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
          * param2: file #
          * data: path to write file */
         utox_file_start_write(param1, param2, data);
-        /*                    tox, friend#, file#,       RESUME_FILE */
+        /*                          tox, friend#, file#,        START_FILE */
         file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_RESUME);
         postmessage(FRIEND_FILE_IN_STATUS, param1, param2, (void*)FILE_TRANSFER_STATUS_ACTIVE);
         break;
     }
-
-    case TOX_FILE_INCOMING_RESUME:{
-        /* param1: friend #
-         * param2: file #
-                                    tox, friend#, file#,       RESUME_FILE */
-        file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_RESUME);
-        postmessage(FRIEND_FILE_IN_STATUS, param1, param2, (void*)FILE_TRANSFER_STATUS_ACTIVE);
-        break;
-    }
-    case TOX_FILE_INCOMING_PAUSE:{
-        /* param1: friend #
-         * param2: file #
-                                    tox, friend#, file#,       PAUSE_FILE */
-        file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_PAUSE);
-        postmessage(FRIEND_FILE_IN_STATUS, param1, param2, (void*)FILE_TRANSFER_STATUS_PAUSED_US);
-        break;
-    }
-    case TOX_FILE_INCOMING_CANCEL:{
-        /* param1: friend #
-         * param2: file #
-                                    tox, friend#, file#,       CANCEL_FILE */
-        file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_CANCEL);
-        postmessage(FRIEND_FILE_IN_STATUS, param1, param2, (void*)FILE_TRANSFER_STATUS_KILLED);
-        break;
-    }
-
+    case TOX_FILE_INCOMING_RESUME:
     case TOX_FILE_OUTGOING_RESUME:{
         /* param1: friend #
-         * param2: file #
-                                    tox, friend#, file#,       RESUME_FILE */
+         * param2: file #           tox, friend#, file#,       RESUME_FILE */
         file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_RESUME);
-        postmessage(FRIEND_FILE_OUT_STATUS, param1, param2, (void*)FILE_TRANSFER_STATUS_ACTIVE);
         break;
     }
+    case TOX_FILE_INCOMING_PAUSE:
     case TOX_FILE_OUTGOING_PAUSE:{
         /* param1: friend #
-         * param2: file #
-                                    tox, friend#, file#,       PAUSE_FILE */
+         * param2: file #           tox, friend#, file#,        PAUSE_FILE */
         file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_PAUSE);
-        postmessage(FRIEND_FILE_OUT_STATUS, param1, param2, (void*)FILE_TRANSFER_STATUS_PAUSED_US);
         break;
     }
+    case TOX_FILE_INCOMING_CANCEL:
     case TOX_FILE_OUTGOING_CANCEL:{
         /* param1: friend #
-         * param2: file #
-                                    tox, friend#, file#,      CANCEL_FILE */
+         * param2: file #           tox, friend#, file#,        CANCEL_FILE */
         file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_CANCEL);
-        postmessage(FRIEND_FILE_OUT_STATUS, param1, param2, (void*)FILE_TRANSFER_STATUS_KILLED);
         break;
     }
-
-
     }
     save_needed = 1;
 }
@@ -1372,8 +1339,8 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         break;
     }
 
-#define updatefriend(fp) redraw();//list_draw(); if(sitem && fp == sitem->data) {ui_drawmain();}
-#define updategroup(gp) redraw();//list_draw(); if(sitem && gp == sitem->data) {ui_drawmain();}
+    #define updatefriend(fp) redraw();//list_draw(); if(sitem && fp == sitem->data) {ui_drawmain();}
+    #define updategroup(gp) redraw();//list_draw(); if(sitem && gp == sitem->data) {ui_drawmain();}
 
     case FRIEND_NAME: {
         FRIEND *f = &friend[param1];
@@ -1386,12 +1353,9 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         /* param1: friend id
            param2: png size
            data: png data
-
         Work now done by file callback
-
         */
-       //Legacy(tox_message_id,param1,param2);
-
+        Legacy(tox_message_id,param1,param2);
         break;
     }
 
@@ -1580,7 +1544,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
     case FRIEND_FILE_OUT_DONE:
     case FRIEND_FILE_IN_PROGRESS:
     case FRIEND_FILE_OUT_PROGRESS:{
-        //Legacy(tox_message_id, param1, param2);
+        Legacy(tox_message_id, param1, param2);
         break;
     }
 
