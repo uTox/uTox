@@ -234,3 +234,19 @@ int utox_avatar_update_friends(Tox *tox){
     }
     return error_count;
 }
+
+void utox_incoming_avatar(uint32_t friend_number, uint8_t *avatar, size_t size, uint8_t *hash){
+    // save avatar and hash to disk
+    FRIEND *f = &friend[friend_number];
+    char_t cid[TOX_PUBLIC_KEY_SIZE * 2];
+    if(size <= 0){
+        cid_to_string(cid, (char_t*)f->cid);
+        delete_saved_avatar(cid);
+        unset_avatar(&f->avatar);
+    } else {
+        cid_to_string(cid, (char_t*)f->cid);
+        save_avatar_hash(cid, hash);
+        save_avatar(cid, avatar, size);
+        set_avatar(&f->avatar, avatar, size, 0);
+    }
+}

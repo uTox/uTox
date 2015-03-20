@@ -4,7 +4,6 @@
 static FILE_TRANSFER active_transfer[MAX_NUM_FRIENDS][MAX_FILE_TRANSFERS];
 
 
-
 /* The following are internal file status helper functions */
 static void utox_update_user_file(FILE_TRANSFER *file){
     MSG_FILE *msg = file->ui_data;
@@ -80,13 +79,8 @@ static void utox_complete_file(FILE_TRANSFER *file){
     if(file->status == FILE_TRANSFER_STATUS_ACTIVE){
         if(!file->in_memory){
             fclose(file->file);
-        } else if(file->is_avatar && file->incoming)  {
-            // save avatar and hash to disk
-            char_t cid[TOX_PUBLIC_KEY_SIZE * 2];
-            cid_to_string(cid, (char_t*)&friend[file->friend_number].cid);
-            save_avatar_hash(cid, file->name);
-            save_avatar(cid, file->avatar, file->size);
-            set_avatar(&friend[file->friend_number].avatar, file->avatar, file->size, 0);
+        } else if(file->is_avatar && file->incoming){
+            utox_incoming_avatar(file->friend_number, file->avatar, file->size, file->name);
         }
         file->status = FILE_TRANSFER_STATUS_COMPLETED;
     } else {
@@ -171,7 +165,12 @@ static void incoming_file_avatar(Tox *tox, uint32_t friend_number, uint32_t file
 
     FILE_TRANSFER *file_handle = &active_transfer[friend_number][file_number];
 
-    if(file_size > TOX_AVATAR_MAX_DATA_LENGTH){
+    if(file_size <= 0){
+        utox_incoming_avatar(file_handle->friend_number, file_handle->avatar, file_handle->size, file_handle->name);
+        file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
+    }
+
+    if(file_size > UTOX_AVATAR_MAX_DATA_LENGTH){
         file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
         debug("FileTransfer:\tAvatar from friend(%u) rejected, TOO LARGE (%llu)\n", friend_number, file_size);
         return;

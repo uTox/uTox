@@ -107,3 +107,9 @@ void self_remove_avatar();
  * returns negitive if any avatar or friend was left in an unknown state.
  */
 int utox_avatar_update_friends(Tox *tox);
+
+/** Colled by incoming file transfers to change the avater.
+ *
+ * If size <=0, we'll unset the avatar, else we'll set and update the friend
+ */
+void utox_incoming_avatar(uint32_t friend_number, uint8_t *avatar, size_t size, uint8_t *hash);
