@@ -41,14 +41,14 @@ void file_transfer_local_control(Tox *tox, uint32_t friend_number, uint32_t file
  *
  * Called via toxcore every time a friend changes file status.
  */
-static void file_transfer_callback_control(Tox *tox, uint32_t friend_number, uint32_t file_number, TOX_FILE_CONTROL control, void *UNUSED(userdata));
+//static void file_transfer_callback_control(Tox *tox, uint32_t friend_number, uint32_t file_number, TOX_FILE_CONTROL control, void *UNUSED(userdata));
 
 /* Incoming files */
   /* Function called by core with a new incoming file. */
-  static void incoming_file_callback_request(Tox *tox, uint32_t friendnumber, uint32_t filenumber, uint32_t kind, uint64_t file_size, const uint8_t *filename, size_t filename_length, void *user_data);
+  //static void incoming_file_callback_request(Tox *tox, uint32_t friendnumber, uint32_t filenumber, uint32_t kind, uint64_t file_size, const uint8_t *filename, size_t filename_length, void *user_data);
   /* Called internally to handle avatar data */
-  static void incoming_file_avatar(Tox *tox, uint32_t friendnumber, uint32_t filenumber, uint32_t kind, uint64_t file_size, const uint8_t *filename, size_t filename_length, void *user_data);
-  static void incoming_file_callback_chunk(Tox *tox, uint32_t friend_number, uint32_t file_number, uint64_t position, const uint8_t *data, size_t length, void *user_data);
+  //static void incoming_file_avatar(Tox *tox, uint32_t friendnumber, uint32_t filenumber, uint32_t kind, uint64_t file_size, const uint8_t *filename, size_t filename_length, void *user_data);
+  //static void incoming_file_callback_chunk(Tox *tox, uint32_t friend_number, uint32_t file_number, uint64_t position, const uint8_t *data, size_t length, void *user_data);
 /* Outgoing files */
   /* Send out a new file.
    *
@@ -57,7 +57,7 @@ static void file_transfer_callback_control(Tox *tox, uint32_t friend_number, uin
   /* Send a newly changed avatar, called by avatar functions. */
   int outgoing_file_send_avatar(Tox *tox, uint32_t friend_number, uint8_t *avatar, size_t avatar_size);
   /* Function called by core to send of next chuck of *length size. */
-  static void outgoing_file_callback_chunk(Tox *tox, uint32_t friend_number, uint32_t file_number, uint64_t position, size_t length, void *user_data);
+  //static void outgoing_file_callback_chunk(Tox *tox, uint32_t friend_number, uint32_t file_number, uint64_t position, size_t length, void *user_data);
 
 /** Helper functions
  *
@@ -72,13 +72,13 @@ void utox_set_callbacks_for_transfer(Tox *tox);
  *
  * Each updates the status from what ever it was to what it should be
  */
-static void utox_update_user_file(FILE_TRANSFER *file);
-static void utox_run_file(FILE_TRANSFER *file, uint8_t us);
-static void utox_kill_file(FILE_TRANSFER *file, uint8_t us);
-static void utox_pause_file(FILE_TRANSFER *file, uint8_t us);
-static void utox_complete_file(FILE_TRANSFER *file);
+//static void utox_update_user_file(FILE_TRANSFER *file);
+//static void utox_run_file(FILE_TRANSFER *file, uint8_t us);
+//static void utox_kill_file(FILE_TRANSFER *file, uint8_t us);
+//static void utox_pause_file(FILE_TRANSFER *file, uint8_t us);
+//static void utox_complete_file(FILE_TRANSFER *file);
 
 // Empty
-static void utox_break_file();
-static void utox_resume_broke_file();
+//static void utox_break_file();
+//static void utox_resume_broke_file();
 
