@@ -303,14 +303,14 @@ static void set_callbacks(Tox *tox)
  *      otherwise will be set to avatar found on disk
  *  id is cid string of whose avatar to find(see also load_avatar in avatar.h)
  *  if png_data_out is not NULL, the png data loaded from disk will be copied to it.
- *      if it is not null, it should be at least TOX_AVATAR_MAX_DATA_LENGTH bytes long
+ *      if it is not null, it should be at least UTOX_AVATAR_MAX_DATA_LENGTH bytes long
  *  if png_size_out is not null, the size of the png data will be stored in it
  *
  *  returns: 1 on successful loading, 0 on failure
  */
 static _Bool init_avatar(AVATAR *avatar, const char_t *id, uint8_t *png_data_out, uint32_t *png_size_out) {
     unset_avatar(avatar);
-    uint8_t avatar_data[TOX_AVATAR_MAX_DATA_LENGTH];
+    uint8_t avatar_data[UTOX_AVATAR_MAX_DATA_LENGTH];
     uint32_t size;
     if (load_avatar(id, avatar_data, &size)) {
         _Bool have_hash = load_avatar_hash(id, avatar->hash);
@@ -587,10 +587,10 @@ void tox_thread(void *UNUSED(args))
         id_to_string(self.id, id);
         debug("Tox ID: %.*s\n", (int)sizeof(self.id), self.id);
 
-        uint8_t avatar_data[TOX_AVATAR_MAX_DATA_LENGTH];
+        uint8_t avatar_data[UTOX_AVATAR_MAX_DATA_LENGTH];
         uint32_t avatar_size;
         if (init_avatar(&self.avatar, self.id, avatar_data, &avatar_size)) {
-            //TODO tox_set_avatar(tox, TOX_AVATAR_FORMAT_PNG, avatar_data, avatar_size); // set avatar before connecting
+            //TODO tox_set_avatar(tox, UTOX_AVATAR_FORMAT_PNG, avatar_data, avatar_size); // set avatar before connecting
 
             char_t hash_string[TOX_HASH_LENGTH * 2];
             hash_to_string(hash_string, self.avatar.hash);

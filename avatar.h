@@ -2,9 +2,9 @@
 #define AVATAR_DIRECTORY "avatars"
 
 //TODO: remove
-#define TOX_AVATAR_MAX_DATA_LENGTH (16 * 1024)
-#define TOX_AVATAR_FORMAT_NONE 0
-#define TOX_AVATAR_FORMAT_PNG 1
+#define UTOX_AVATAR_MAX_DATA_LENGTH (64 * 1024)
+#define UTOX_AVATAR_FORMAT_NONE 0
+#define UTOX_AVATAR_FORMAT_PNG 1
 
 /* data needed for each avatar in memory */
 typedef struct avatar {
@@ -15,9 +15,9 @@ typedef struct avatar {
 }AVATAR;
 
 /* whether user's avatar is set */
-#define self_has_avatar() (self.avatar.format != TOX_AVATAR_FORMAT_NONE)
+#define self_has_avatar() (self.avatar.format != UTOX_AVATAR_FORMAT_NONE)
 /* whether friend f's avatar is set, where f is a pointer to a friend struct */
-#define friend_has_avatar(f) (f->avatar.format != TOX_AVATAR_FORMAT_NONE)
+#define friend_has_avatar(f) (f->avatar.format != UTOX_AVATAR_FORMAT_NONE)
 
 /* gets the avatar location on the disk and puts the result in dest.
  * id is the client id string for given client. To get the cid string from a cid, use cid_to_string
@@ -31,7 +31,7 @@ int get_avatar_location(char_t *dest, const char_t *id);
  * if size_out is not NULL, load_avatar will store the length of the png data there
  *  on success: returns 1
  *  on failure: returns 0
- *  notes: dest should be at least TOX_AVATAR_MAX_DATA_LENGTH bytes long.
+ *  notes: dest should be at least UTOX_AVATAR_MAX_DATA_LENGTH bytes long.
  */
 int load_avatar(const char_t *id, uint8_t *dest, uint32_t *size_out);
 
@@ -78,11 +78,11 @@ int delete_avatar_hash(const char_t *id);
  *  on success: returns 1
  *  on failure: returns 0
  *
- *  notes: fails if given size is larger than TOX_AVATAR_MAX_DATA_LENGTH or data is not valid PNG data
+ *  notes: fails if given size is larger than UTOX_AVATAR_MAX_DATA_LENGTH or data is not valid PNG data
  */
 int set_avatar(AVATAR *avatar, const uint8_t *data, uint32_t size, _Bool create_hash);
 
-/* unsets an avatar by setting its format to TOX_AVATAR_FORMAT_NONE and
+/* unsets an avatar by setting its format to UTOX_AVATAR_FORMAT_NONE and
  * freeing its image */
 void unset_avatar(AVATAR *avatar);
 

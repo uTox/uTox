@@ -504,7 +504,7 @@ void openfileavatar(void)
             void *file_data = file_raw(filepath, &size);
             if (!file_data) {
                 MessageBox(NULL, (const char *)S(CANT_FIND_FILE_OR_EMPTY), NULL, MB_ICONWARNING);
-            } else if (size > TOX_AVATAR_MAX_DATA_LENGTH) {
+            } else if (size > UTOX_AVATAR_MAX_DATA_LENGTH) {
                 free(file_data);
                 char_t message[1024];
                 if (sizeof(message) < SLEN(AVATAR_TOO_LARGE_MAX_SIZE_IS) + 16) {
@@ -513,7 +513,7 @@ void openfileavatar(void)
                 }
                 // create message containing text that selected avatar is too large and what the max size is
                 int len = sprintf((char *)message, "%.*s", SLEN(AVATAR_TOO_LARGE_MAX_SIZE_IS), S(AVATAR_TOO_LARGE_MAX_SIZE_IS));
-                len += sprint_bytes(message+len, sizeof(message)-len, TOX_AVATAR_MAX_DATA_LENGTH);
+                len += sprint_bytes(message+len, sizeof(message)-len, UTOX_AVATAR_MAX_DATA_LENGTH);
                 message[len++] = '\0';
                 MessageBox(NULL, (char *)message, NULL, MB_ICONWARNING);
             } else {

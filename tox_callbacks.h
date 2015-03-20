@@ -165,7 +165,7 @@ void callback_avatar_info(Tox *tox, int fid, uint8_t format, uint8_t *hash, void
 {
     FRIEND *f = &friend[fid];
 
-    if (format != TOX_AVATAR_FORMAT_NONE) {
+    if (format != UTOX_AVATAR_FORMAT_NONE) {
         if (!friend_has_avatar(f) || memcmp(f->avatar.hash, hash, TOX_HASH_LENGTH) != 0) { // check if avatar has changed
             memcpy(f->avatar.hash, hash, TOX_HASH_LENGTH); // set hash pre-emptively so we don't request data twice
 

@@ -43,7 +43,7 @@ int load_avatar(const char_t *id, uint8_t *dest, uint32_t *size_out)
     if (!avatar_data) {
         return 0;
     }
-    if (size > TOX_AVATAR_MAX_DATA_LENGTH) {
+    if (size > UTOX_AVATAR_MAX_DATA_LENGTH) {
         free(avatar_data);
         debug("Avatars:\t saved avatar file(%s) too large for tox\n", path);
         return 0;
@@ -135,7 +135,7 @@ int delete_avatar_hash(const char_t *id)
 
 int set_avatar(AVATAR *avatar, const uint8_t *data, uint32_t size, _Bool create_hash)
 {
-    if (size > TOX_AVATAR_MAX_DATA_LENGTH) {
+    if (size > UTOX_AVATAR_MAX_DATA_LENGTH) {
         debug("Avatars:\t avatar too large\n");
         return 0;
     }
@@ -152,7 +152,7 @@ int set_avatar(AVATAR *avatar, const uint8_t *data, uint32_t size, _Bool create_
         avatar->image = image;
         avatar->width = w;
         avatar->height = h;
-        avatar->format = TOX_AVATAR_FORMAT_PNG;
+        avatar->format = UTOX_AVATAR_FORMAT_PNG;
         if (create_hash) {
             tox_hash(avatar->hash, data, size);
         }
@@ -162,7 +162,7 @@ int set_avatar(AVATAR *avatar, const uint8_t *data, uint32_t size, _Bool create_
 
 void unset_avatar(AVATAR *avatar)
 {
-    avatar->format = TOX_AVATAR_FORMAT_NONE;
+    avatar->format = UTOX_AVATAR_FORMAT_NONE;
     avatar_free_image(avatar);
 }
 
@@ -174,7 +174,7 @@ int self_set_avatar(const uint8_t *data, uint32_t size)
     }
     uint8_t *png_data = malloc(size);
     memcpy(png_data, data, size);
-    tox_postmessage(TOX_SETAVATAR, TOX_AVATAR_FORMAT_PNG, size, png_data);
+    tox_postmessage(TOX_SETAVATAR, UTOX_AVATAR_FORMAT_PNG, size, png_data);
     return 1;
 }
 
@@ -202,7 +202,7 @@ int utox_avatar_update_friends(Tox *tox){
     tox_self_get_friend_list(tox, friend_loop);
 
     uint32_t avatar_size;
-    uint8_t *avatar = malloc(TOX_AVATAR_MAX_DATA_LENGTH);
+    uint8_t *avatar = malloc(UTOX_AVATAR_MAX_DATA_LENGTH);
     if(!load_avatar(self.id, avatar, &avatar_size)){
         debug("Avatars:\tUnable to load our avatar for sending!\n");
         return -1;
