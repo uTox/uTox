@@ -45,6 +45,7 @@ static void utox_kill_file(FILE_TRANSFER *file, uint8_t us){
     file->status = FILE_TRANSFER_STATUS_KILLED;
     if (!us) debug("File was killed by remote");
     utox_update_user_file(file);
+    --friend[file->friend_number].transfer_count;
 }
 
 static void utox_pause_file(FILE_TRANSFER *file, uint8_t us){
@@ -82,15 +83,16 @@ static void utox_complete_file(FILE_TRANSFER *file){
             utox_incoming_avatar(file->friend_number, file->avatar, file->size, file->name);
         }
         file->status = FILE_TRANSFER_STATUS_COMPLETED;
+        utox_update_user_file(file);
+        --friend[file->friend_number].transfer_count;
     } else {
         debug("FileTransfer:\tUnable to complete file in non-active state (file:%u)\n", file->file_number);
     }
-
-    utox_update_user_file(file);
 }
 
 static void utox_break_file(){}
 static void utox_resume_broken_file(){}
+
 void file_transfer_local_control(Tox *tox, uint32_t friend_number, uint32_t file_number, TOX_FILE_CONTROL control){
     TOX_ERR_FILE_CONTROL error = 0;
 
@@ -345,59 +347,70 @@ void outgoing_file_send_new(Tox *tox, uint32_t friend_number, uint8_t *path, con
     }
 }
 
-void outgoing_file_send_inline(Tox *tox, uint32_t friend_number, uint8_t *path, const uint8_t *filename, size_t filename_length){
+void outgoing_file_send_inline(Tox *tox, uint32_t friend_number, uint8_t *image, size_t image_size){
 
-    debug("FileTransfer:\tStarting outgoing file to friend %u. (filename, %s)\n", friend_number, filename);
+    debug("FileTransfer:\tStarting outgoing inline to friend %u.\n", friend_number);
 
-    //     FILE_TRANSFER *file_handle = active_transfer[friend_number][file_number]; TODO
     if(friend[friend_number].transfer_count >= MAX_FILE_TRANSFERS) {
-        debug("FileTransfer:\tMaximum outgoing file sending limit reached(%u/%u) for friend(%u). ABORTING!\n",
-                                            friend[friend_number].transfer_count, MAX_FILE_TRANSFERS, friend_number);
+        debug("FileTransfer:\tMaximum outgoing file limit reached(%u/%u) for friend(%u). ABORTING!\n", friend[friend_number].transfer_count, MAX_FILE_TRANSFERS, friend_number);
         return;
     }
-
-    FILE *file = fopen((char*)path, "rb");
-    if(!file) {
-        debug("FileTransfer:\tUnable to open file for reading!\n");
+    if(!image) {
+        debug("FileTransfer:\tUnable to use *image!\n");
         return;
     }
-
 
     TOX_ERR_FILE_SEND error;
-    const uint8_t *file_id;
+    uint8_t *file_id;
+    uint8_t *filename;
+    size_t filename_length = 0;
+    file_id = malloc(TOX_HASH_LENGTH);
+    if(!tox_hash(file_id, image, image_size)){
+        debug("FileTransfer:\tUnable to get hash for image!\n");
+        return;
+    }
 
-    uint64_t file_size = 0;
-    fseeko(file, 0, SEEK_END);
-    file_size = ftello(file);
-    fseeko(file, 0, SEEK_SET);
+    if( image_size < 1024 * 1024 * 4 ) {
+        filename_length = sizeof("utox-inline-v"VERSION".png");
+        filename = malloc(filename_length + 1);
+        memcpy(filename, "utox-inline-v"VERSION".png", filename_length);
+    } else {
+        filename_length = sizeof("utox-image-v"VERSION".png");
+        filename = malloc(filename_length + 1);
+        memcpy(filename, "utox-image-v"VERSION".png", filename_length);
+    }
 
-    int file_number = tox_file_send(tox, friend_number, TOX_FILE_KIND_DATA, file_size, file_id, filename, filename_length, &error);
+    uint32_t file_number = tox_file_send(tox, friend_number, TOX_FILE_KIND_DATA, image_size, file_id, (const uint8_t*)filename, filename_length, &error);
 
     if(file_number != -1) {
         FILE_TRANSFER *file_handle = &active_transfer[friend_number][file_number];
+        debug("Going to memset in image new, friend %u, file is image size is%u\n", friend_number, image_size);
         memset(file_handle, 0, sizeof(FILE_TRANSFER));
-
 
         file_handle->friend_number = friend_number;
         file_handle->file_number = file_number;
         file_handle->status = FILE_TRANSFER_STATUS_PAUSED_THEM;
-        //TODO file_handle->sendsize = tox_file_data_size(tox, fid);
 
-        file_handle->file = file;
+        file_handle->kind = TOX_FILE_KIND_DATA;
+        file_handle->name = file_id;
+        file_handle->name_length = TOX_HASH_LENGTH;
+        file_handle->size = image_size;
 
-        file_handle->name = (uint8_t*)strdup((char*)filename);
-        file_handle->path = (uint8_t*)strdup((char*)path);
-        file_handle->name_length = filename_length;
+        file_handle->in_memory = 1;
+        file_handle->is_avatar = 0;
 
-        file_handle->size = file_size;
+        file_handle->memory = malloc(image_size);
+        memcpy(file_handle->memory, image, image_size);
 
         ++friend[friend_number].transfer_count;
-        debug("Sending file %d of %d(max) to friend(%d).\n", friend[friend_number].transfer_count, MAX_FILE_TRANSFERS, friend_number);
+        debug("FileTransfer:\tSending image file %d of %d(max) to friend(%d).\n", friend[friend_number].transfer_count, MAX_FILE_TRANSFERS, friend_number);
         // Create a new msg for the UI and save it's pointer
-        file_handle->ui_data = message_add_type_file(file_handle);
     } else {
-        debug("tox_file_send() failed\n");
+        free(image);
+        debug("tox_file_send() failed for image\n");
+        return;
     }
+    return;
 }
 
 int outgoing_file_send_avatar(Tox *tox, uint32_t friend_number, uint8_t *avatar, size_t avatar_size){
@@ -420,7 +433,7 @@ int outgoing_file_send_avatar(Tox *tox, uint32_t friend_number, uint8_t *avatar,
     uint8_t *file_id;
     file_id = malloc(TOX_HASH_LENGTH);
     if(!tox_hash(file_id, avatar, avatar_size)){
-        debug("Unable to get hash for avatar!\n");
+        debug("FileTransfer:\tUnable to get hash for avatar!\n");
         return 1;
     }
     int file_number = tox_file_send(tox, friend_number, TOX_FILE_KIND_AVATAR, avatar_size, file_id, NULL, 0, &error);

@@ -53,6 +53,8 @@ void file_transfer_local_control(Tox *tox, uint32_t friend_number, uint32_t file
    *
    * TODO, support resuming file. */
   void outgoing_file_send_new(Tox *tox, uint32_t friend_number, uint8_t *path, const uint8_t *filename, size_t filename_length);
+  /* Send an inline file/image. */
+  void outgoing_file_send_inline(Tox *tox, uint32_t friend_number, uint8_t *image, size_t image_size);
   /* Send a newly changed avatar, called by avatar functions. */
   int outgoing_file_send_avatar(Tox *tox, uint32_t friend_number, uint8_t *avatar, size_t avatar_size);
   /* Function called by core to send of next chuck of *length size. */
