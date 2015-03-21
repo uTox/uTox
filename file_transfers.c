@@ -77,10 +77,22 @@ static void utox_pause_file(FILE_TRANSFER *file, uint8_t us){
 
 static void utox_complete_file(FILE_TRANSFER *file){
     if(file->status == FILE_TRANSFER_STATUS_ACTIVE){
-        if(!file->in_memory){
-            fclose(file->file);
-        } else if(file->is_avatar && file->incoming){
-            utox_incoming_avatar(file->friend_number, file->avatar, file->size, file->name);
+        if(file->incoming){
+            if(file->in_memory){
+                if(file->is_avatar){
+                    utox_incoming_avatar(file->friend_number, file->avatar, file->size, file->name);
+                } else {
+                    friend_recvimage(&friend[file->friend_number], file->memory, file->size);
+                }
+            } else { // Is a file
+                fclose(file->file);
+            }
+        } else {
+            if(file->in_memory){
+
+            } else { // Is a file
+                fclose(file->file);
+            }
         }
         file->status = FILE_TRANSFER_STATUS_COMPLETED;
         utox_update_user_file(file);
@@ -229,18 +241,19 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
     file_handle->name_length = filename_length;
 
     // If it's a small inline image, just accept it!
-    if( file_size < 1024 * 1024 * 4 && filename_length == sizeof("utox-inline-v"VERSION".png") - 1 &&
-                                memcmp(filename, "utox-inline-v"VERSION".png", filename_length) == 0) {
-        file_handle->in_memory = 1;
-        file_handle->status = FILE_TRANSFER_STATUS_ACTIVE;
-        file_handle->memory = malloc(file_size);
-        file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_RESUME);
-        postmessage(FRIEND_FILE_IN_NEW_INLINE, friend_number, file_number, NULL);
+    if( file_size < 1024 * 1024 * 4 &&
+        filename_length == sizeof("utox-inline-v"VERSION".png") &&
+        memcmp(filename, "utox-inline-v"VERSION".png", filename_length) == 0) {
+            file_handle->in_memory = 1;
+            file_handle->status = FILE_TRANSFER_STATUS_ACTIVE;
+            file_handle->memory = malloc(file_size);
+            file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_RESUME);
+        // postmessage(FRIEND_FILE_IN_NEW_INLINE, friend_number, file_number, NULL);
     } else {
-        postmessage(FRIEND_FILE_IN_NEW, friend_number, file_number, NULL);
+        file_handle->ui_data = message_add_type_file(file_handle);
+        // postmessage(FRIEND_FILE_IN_NEW, friend_number, file_number, NULL);
     }
     // Create a new msg for the UI and save it's pointer
-    file_handle->ui_data = message_add_type_file(file_handle);
 }
 
 static void incoming_file_callback_chunk(Tox *UNUSED(tox), uint32_t friend_number, uint32_t file_number, uint64_t position, const uint8_t *data, size_t length, void *UNUSED(user_data)){
