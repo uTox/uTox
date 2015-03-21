@@ -51,6 +51,12 @@ struct messages {
     MSG_IDX iover, idown;
     // For text messages encodes indices of chars in strings.
     // For non-text messages, encodes various logical parts of them.
+
+    // over in file transfers (iover == 1):
+    //   0  == not hovered
+    //   1  == hover on the upper transfer button
+    //   2  == hover on the lower transfer button
+    //   3  == hover on the rest of the transfer box
     uint32_t over, down;
 
     MSG_DATA *data;
