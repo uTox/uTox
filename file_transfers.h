@@ -62,11 +62,11 @@ void file_transfer_local_control(Tox *tox, uint32_t friend_number, uint32_t file
 
 /** Helper functions
  *
- * utox_file_start_write() opens and sets the file handle on the disk
+ * utox_file_start_write() opens and sets the file handle on the disk (return -1 on failure, 0 on success)
  * utox_set_callbacks_for_transfers() interfaces with toxcore setting the
  *   callbacks for incoming or outgoing transfers
  */
-void utox_file_start_write(uint32_t friend_number, uint32_t file_number, void *filepath);
+int utox_file_start_write(uint32_t friend_number, uint32_t file_number, void *filepath);
 void utox_set_callbacks_for_transfer(Tox *tox);
 
 /** The following functions are called from the local control function

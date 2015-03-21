@@ -5,7 +5,7 @@ struct Tox_Options options = {.proxy_host = proxy_address};
 
 typedef struct {
     uint8_t msg;
-    uint16_t param1, param2;
+    uint32_t param1, param2;
     void *data;
 } TOX_MSG;
 
@@ -211,9 +211,9 @@ void log_read(Tox *tox, int fid)
     fclose(file);
 }
 
-static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, uint16_t param1, uint16_t param2, void *data);
+static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, uint32_t param1, uint32_t param2, void *data);
 
-void tox_postmessage(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
+void tox_postmessage(uint8_t msg, uint32_t param1, uint32_t param2, void *data)
 {
     while(tox_thread_msg) {
         yieldcpu(1);
@@ -227,7 +227,7 @@ void tox_postmessage(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
     tox_thread_msg = 1;
 }
 
-void toxvideo_postmessage(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
+void toxvideo_postmessage(uint8_t msg, uint32_t param1, uint32_t param2, void *data)
 {
     while(video_thread_msg) {
         yieldcpu(1);
@@ -241,7 +241,7 @@ void toxvideo_postmessage(uint8_t msg, uint16_t param1, uint16_t param2, void *d
     video_thread_msg = 1;
 }
 
-void toxav_postmessage(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
+void toxav_postmessage(uint8_t msg, uint32_t param1, uint32_t param2, void *data)
 {
     while(toxav_thread_msg) {
         yieldcpu(1);
@@ -684,7 +684,7 @@ void tox_thread(void *UNUSED(args))
     tox_thread_init = 0;
 }
 
-static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, uint16_t param1, uint16_t param2, void *data)
+static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, uint32_t param1, uint32_t param2, void *data)
 {
     switch(msg) {
     case TOX_SETNAME: {
@@ -1077,10 +1077,13 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
         /* param1: friend #
          * param2: file #
          * data: path to write file */
-        utox_file_start_write(param1, param2, data);
+        if (utox_file_start_write(param1, param2, data) == 0) {
         /*                          tox, friend#, file#,        START_FILE */
-        file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_RESUME);
-        postmessage(FRIEND_FILE_IN_STATUS, param1, param2, (void*)FILE_TRANSFER_STATUS_ACTIVE);
+            file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_RESUME);
+            postmessage(FRIEND_FILE_IN_STATUS, param1, param2, (void*)FILE_TRANSFER_STATUS_ACTIVE);
+        } else {
+            file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_CANCEL);
+        }
         break;
     }
 

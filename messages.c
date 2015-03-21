@@ -464,7 +464,7 @@ _Bool messages_mmove(MESSAGES *m, int UNUSED(px), int UNUSED(py), int width, int
                     }
                 }
 
-                static const uint8_t f[14] = {
+                static const uint8_t f[16] = {
                     0b011,
                     0b001,
 
@@ -473,6 +473,9 @@ _Bool messages_mmove(MESSAGES *m, int UNUSED(px), int UNUSED(py), int width, int
 
                     0b011,
                     0b011,
+
+                    0b001,
+                    0b001,
 
                     0b001,
                     0b001,

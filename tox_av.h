@@ -823,7 +823,7 @@ static void callback_av_audio(void *av, int32_t call_index, const int16_t *data,
     }
 }
 
-void toxaudio_postmessage(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
+void toxaudio_postmessage(uint8_t msg, uint32_t param1, uint32_t param2, void *data)
 {
     while(audio_thread_msg) {
         yieldcpu(1);
@@ -898,7 +898,7 @@ static void audio_thread(void *args)
 {
 }
 
-void toxaudio_postmessage(uint8_t msg, uint16_t param1, uint16_t param2, void *data)
+void toxaudio_postmessage(uint8_t msg, uint32_t param1, uint32_t param2, void *data)
 {
     switch(msg) {
     case AUDIO_SET_INPUT: {;

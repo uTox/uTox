@@ -16,7 +16,6 @@ typedef struct friend {
     AVATAR avatar;
     _Bool has_current_avatar;
 
-    FILE_TRANSFER active_transfer[MAX_FILE_TRANSFERS];
     uint16_t transfer_count;
 } FRIEND;
 

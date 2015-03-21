@@ -223,19 +223,6 @@ void friend_free(FRIEND *f)
             // TODO KILL THIS SECTION
             MSG_FILE *file = (void*)msg;
             free(file->path);
-            FILE_TRANSFER *ft = &f->active_transfer[file->filenumber];
-            if(ft->file) {
-                if(ft->in_memory) {
-                    // free(ft->data);
-                } else {
-                    // fclose(ft->data);
-                    // free(ft->path);
-                }
-            }
-
-            if(msg->author) {
-                ft->status = FILE_TRANSFER_STATUS_NONE;
-            }
             break;
         }
         }

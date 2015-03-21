@@ -167,19 +167,19 @@ void tox_thread(void *args);
 
 /* send a message to the toxcore thread
  */
-void tox_postmessage(uint8_t msg, uint16_t param1, uint16_t param2, void *data);
+void tox_postmessage(uint8_t msg, uint32_t param1, uint32_t param2, void *data);
 
 /* send a message to the audio thread
  */
-void toxaudio_postmessage(uint8_t msg, uint16_t param1, uint16_t param2, void *data);
+void toxaudio_postmessage(uint8_t msg, uint32_t param1, uint32_t param2, void *data);
 
 /* send a message to the video thread
  */
-void toxvideo_postmessage(uint8_t msg, uint16_t param1, uint16_t param2, void *data);
+void toxvideo_postmessage(uint8_t msg, uint32_t param1, uint32_t param2, void *data);
 
 /* send a message to the toxav thread
  */
-void toxav_postmessage(uint8_t msg, uint16_t param1, uint16_t param2, void *data);
+void toxav_postmessage(uint8_t msg, uint32_t param1, uint32_t param2, void *data);
 
 /* read a message sent from the toxcore thread (sent with postmessage())
  */
