@@ -1535,17 +1535,25 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         break;
     }
 
-    case FRIEND_FILE_IN_NEW:
-    case FRIEND_FILE_IN_NEW_INLINE:
-    case FRIEND_FILE_OUT_NEW:
-    case FRIEND_FILE_OUT_NEW_INLINE:
-    case FRIEND_FILE_IN_STATUS:
-    case FRIEND_FILE_OUT_STATUS:
-    case FRIEND_FILE_IN_DONE:
-    case FRIEND_FILE_IN_DONE_INLINE:
-    case FRIEND_FILE_OUT_DONE:
-    case FRIEND_FILE_IN_PROGRESS:
-    case FRIEND_FILE_OUT_PROGRESS:{
+    case FRIEND_FILE_NEW: {
+        FILE_TRANSFER *file_handle = data;
+        file_handle->ui_data = message_add_type_file(file_handle);
+        updatefriend(&friend[file_handle->friend_number]);
+        break;
+    }
+
+    case FRIEND_FILE_UPDATE:{
+        FILE_TRANSFER *file = data;
+        MSG_FILE *msg = file->ui_data;
+        if(!msg){//TODO shove on ui thread
+            return;
+        }
+        msg->status = file->status;
+        msg->progress = file->size_transferred;
+        msg->speed = file->speed;
+        msg->path = file->path;
+        updatefriend(&friend[file->friend_number]);
+        free(file);
         break;
     }
 

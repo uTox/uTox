@@ -39,7 +39,7 @@ static void draw_message_image(UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t 
 }
 
 /* Called by new file transfer to add a new message to the msg list */
-MSG_FILE* message_add_type_file(FILE_TRANSFER *file){
+MSG_FILE* message_add_type_file(FILE_TRANSFER *file){//TODO shove on ui thread
     MSG_FILE *msg = malloc(sizeof(MSG_FILE));
     msg->author = file->incoming ? 0 : 1;
     msg->msg_type = MSG_TYPE_FILE;
@@ -229,17 +229,17 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
             if(progress > file->size) {
                 progress = file->size;
             }
-            char_t text[16];
-            STRING_IDX len;
-            len = sprint_bytes(text, sizeof(text), file->speed);
-            text[len++] = '/';
-            text[len++] = 's';
+            char_t size_text[16];
+            STRING_IDX size_text_len = sprint_bytes(size_text, sizeof(size_text), file->speed);
+            size_text[size_text_len++] = '/';
+            size_text[size_text_len++] = 's';
             uint64_t etasec = 0;
             if(file->speed) {
                 etasec = (file->size - progress) / file->speed;
             }
-            STRING_IDX len2 = len;
-            len2 = snprintf((char*)text, sizeof(text), "%us", (uint32_t)etasec);
+
+            char_t text2[16];
+            STRING_IDX len2 = snprintf((char*)text2, sizeof(text2), "%us", (uint32_t)etasec);
 
             // progress rectangle
             uint32_t w = (file->size == 0) ? 0 : (progress * (uint64_t)106 * SCALE) / file->size;
@@ -298,8 +298,8 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
                 drawalpha(BM_FTB2, btn_bg_x, bbtn_bg_y, btn_bg_w, bbtn_bg_h, (mouse_bbtn ? COLOR_BUTTON_SUCCESS_HOVER_BACKGROUND : COLOR_BUTTON_SUCCESS_BACKGROUND));
                 drawalpha(BM_PAUSE, btnx, bbtn_y, btnw, btnh, (mouse_bbtn ? COLOR_BUTTON_SUCCESS_HOVER_TEXT : COLOR_BUTTON_SUCCESS_TEXT));
 
-                drawtext(x + dx + 5 * SCALE + 53 * SCALE - textwidth(text, len) / 2, y + 10 * SCALE, text, len);
-                drawtext(x + dx + 5 * SCALE + 106 * SCALE - textwidth(text, len2), y + 10 * SCALE, text, len2);
+                drawtext(x + dx + 5 * SCALE + 53 * SCALE - textwidth(size_text, size_text_len) / 2, y + 10 * SCALE, size_text, size_text_len);
+                drawtext(x + dx + 5 * SCALE + 106 * SCALE - textwidth(text2, len2), y + 10 * SCALE, text2, len2);
 
                 framerect((x + dx) + 5 * SCALE, y + 17 * SCALE, (x + dx) + 111 * SCALE, y + 24 * SCALE, COLOR_BUTTON_INPROGRESS_TEXT);
                 drawrectw((x + dx) + 5 * SCALE, y + 17 * SCALE, w, 7 * SCALE, COLOR_BUTTON_INPROGRESS_TEXT);

@@ -29,15 +29,34 @@ FILE_TRANSFER *get_file_transfer(uint32_t friend_number, uint32_t file_number)
 
 /* The following are internal file status helper functions */
 static void utox_update_user_file(FILE_TRANSFER *file){
-    MSG_FILE *msg = file->ui_data;
-    if(!msg){
+    FILE_TRANSFER *file_copy = malloc(sizeof(FILE_TRANSFER));
+
+    memcpy(file_copy, file, sizeof(FILE_TRANSFER));
+    postmessage(FRIEND_FILE_UPDATE, 0, 0, file_copy);
+}
+
+static void calculate_speed(FILE_TRANSFER *file)
+{
+    if ((file->speed) > file->num_packets * 20 * 1371) {
+        ++file->num_packets;
         return;
     }
-    msg->status = file->status;
-    msg->progress = file->size_transferred;
-    msg->speed = 0;
-    msg->path = file->path;
-    redraw();
+
+    file->num_packets = 0;
+
+    uint64_t time = get_time();
+    if (!file->last_check_time) {
+        file->last_check_time = time;
+        return;
+    }
+
+    if(time - file->last_check_time >= 1000 * 1000 * 100) {
+        file->speed = (((double)(file->size_transferred - file->last_check_transferred) * 1000.0 * 1000.0 * 1000.0) / (double)(time - file->last_check_time)) + 0.5;
+        file->last_check_time = time;
+        file->last_check_transferred = file->size_transferred;
+    }
+
+    utox_update_user_file(file);
 }
 
 static void utox_run_file(FILE_TRANSFER *file, uint8_t us){
@@ -276,14 +295,13 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
             file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_RESUME);
         // postmessage(FRIEND_FILE_IN_NEW_INLINE, friend_number, file_number, NULL);
     } else {
-        file_handle->ui_data = message_add_type_file(file_handle);
-        // postmessage(FRIEND_FILE_IN_NEW, friend_number, file_number, NULL);
+        postmessage(FRIEND_FILE_NEW, 0, 0, file_handle);
     }
 }
 
 static void incoming_file_callback_chunk(Tox *UNUSED(tox), uint32_t friend_number, uint32_t file_number, uint64_t position, const uint8_t *data, size_t length, void *UNUSED(user_data)){
-    debug("FileTransfer:\tIncoming chunk for friend (%u), and file (%u). Start (%u), End (%u).\r",
-                                                                      friend_number, file_number, position, length);
+    //debug("FileTransfer:\tIncoming chunk for friend (%u), and file (%u). Start (%u), End (%u).\r",
+    //                                                                  friend_number, file_number, position, length);
 
     TOX_ERR_FILE_SEND_CHUNK error;
     FILE_TRANSFER *file_handle = get_file_transfer(friend_number, file_number);
@@ -313,6 +331,8 @@ static void incoming_file_callback_chunk(Tox *UNUSED(tox), uint32_t friend_numbe
         }
     }
     file_handle->size_transferred += length;
+
+    calculate_speed(file_handle);
 
     /* TODO re-implement file transfer speed and time remaining...
     if(time(NULL) - file_handle->last_chunk_time >= 10) {
@@ -378,7 +398,7 @@ void outgoing_file_send_new(Tox *tox, uint32_t friend_number, uint8_t *path, con
         ++friend[friend_number].transfer_count;
         debug("Sending file %d of %d(max) to friend(%d).\n", friend[friend_number].transfer_count, MAX_FILE_TRANSFERS, friend_number);
         // Create a new msg for the UI and save it's pointer
-        file_handle->ui_data = message_add_type_file(file_handle);
+        postmessage(FRIEND_FILE_NEW, 0, 0, file_handle);
     } else {
         debug("tox_file_send() failed\n");
     }
@@ -507,7 +527,7 @@ int outgoing_file_send_avatar(Tox *tox, uint32_t friend_number, uint8_t *avatar,
 
 static void outgoing_file_callback_chunk(Tox *tox, uint32_t friend_number, uint32_t file_number, uint64_t position, size_t length, void *UNUSED(user_data)){
 
-    debug("FileTransfer:\tChunk requested for friend_id (%u), and file_id (%u). Start (%u), End (%u).\r", friend_number, file_number, position, length);
+    //debug("FileTransfer:\tChunk requested for friend_id (%u), and file_id (%u). Start (%u), End (%u).\r", friend_number, file_number, position, length);
     //send a chunk of data size of length with
 
     FILE_TRANSFER *file_handle = get_file_transfer(friend_number, file_number);
@@ -564,6 +584,10 @@ static void outgoing_file_callback_chunk(Tox *tox, uint32_t friend_number, uint3
     chunk = buffer;
 
     tox_file_send_chunk(tox, friend_number, file_number, position, chunk, length, &error);
+    file_handle->size_transferred += length;
+
+    calculate_speed(file_handle);
+
     free(buffer);
 }
 

@@ -14,20 +14,20 @@ enum UTOX_FILE_TRANSFER_STATUS{
 typedef struct FILE_TRANSFER {
     uint32_t friend_number, file_number;
     uint8_t status;
-    enum TOX_FILE_KIND kind;
+    uint32_t kind;
     _Bool incoming, in_memory, is_avatar;
     uint8_t *path, *name, *file_id;
-    size_t path_length, name_length, size, size_transferred;
+    size_t path_length, name_length;
+    uint64_t size, size_transferred;
     uint8_t *memory, *avatar;
+
+    /* speed + progress calculations. */
+    uint32_t speed, num_packets;
+    uint64_t last_check_time, last_check_transferred;
+
     FILE *file;
-    time_t request_time, start_time, last_chunk_time, finish_time, pause_time;
     MSG_FILE *ui_data;
 } FILE_TRANSFER;
-
-typedef struct {
-    uint64_t size_transferred;
-    uint32_t speed;
-} FILE_PROGRESS;
 
 /** local callback for file transfers
  *
