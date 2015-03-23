@@ -156,6 +156,7 @@ int set_avatar(AVATAR *avatar, const uint8_t *data, uint32_t size, _Bool create_
         if (create_hash) {
             tox_hash(avatar->hash, data, size);
         }
+
         return 1;
     }
 }
@@ -172,6 +173,7 @@ int self_set_avatar(const uint8_t *data, uint32_t size)
     if (!set_avatar(&self.avatar, data, size, 1)) {
         return 0;
     }
+
     uint8_t *png_data = malloc(size);
     memcpy(png_data, data, size);
     tox_postmessage(TOX_SETAVATAR, UTOX_AVATAR_FORMAT_PNG, size, png_data);
@@ -195,50 +197,31 @@ void self_remove_avatar()
     tox_postmessage(TOX_UNSETAVATAR, 0, 0, NULL);
 }
 
+_Bool avatar_on_friend_online(Tox *tox, uint32_t friend_number)
+{
+    uint8_t *avatar_data = self.avatar_data;
+    size_t avatar_size = self.avatar_size;
+
+    if(outgoing_file_send_avatar(tox, friend_number, avatar_data, avatar_size)){ // error
+        debug("Avatars:\tERROR SETTING FRIEND(%u) AVATAR STATUS\n", friend_number);
+        return 0;
+    }
+
+    return 1;
+}
+
 int utox_avatar_update_friends(Tox *tox){
     uint32_t i, friend_count, error_count = 0;
     friend_count = tox_self_get_friend_list_size(tox);
     uint32_t friend_loop[friend_count];
     tox_self_get_friend_list(tox, friend_loop);
 
-    uint32_t avatar_size;
-    uint8_t *avatar = malloc(UTOX_AVATAR_MAX_DATA_LENGTH);
-    if(!load_avatar(self.id, avatar, &avatar_size)){
-        debug("Avatars:\tUnable to load our avatar for sending!\n");
-        return -1;
-    }
-
     for(i = 0; i < friend_count; i++){
-        FRIEND *f = &friend[friend_loop[i]];
-        f->has_current_avatar = 0;
-        if(f->online){
-            if(outgoing_file_send_avatar(tox, i, avatar, avatar_size)){ // error
-                error_count++;
-                if(f->has_current_avatar == 0){
-                    error_count++;
-                    continue;
-                } else {
-                    debug("Avatars:\tERROR SETTING FRIEND(%u) AVATAR STATUS\n", i);
-                    return -1;
-                }
-            } else {
-                f->has_current_avatar = 1;
-                if(f->has_current_avatar == 1){
-                    continue;
-                } else {
-                    debug("Avatars:\tERROR SETTING FRIEND(%u) AVATAR STATUS\n", i);
-                    return -1;
-                }
-            }
-        } else {
-            if(f->has_current_avatar == 0){
-                continue;
-            } else {
-                debug("ERROR SETTING FRIEND(%u) AVATAR STATUS\n", i);
-                return -1;
-            }
+        if (tox_friend_get_connection_status(tox, friend_loop[i], 0)) {
+            error_count += !avatar_on_friend_online(tox, friend_loop[i]);
         }
     }
+
     return error_count;
 }
 

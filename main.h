@@ -278,6 +278,10 @@ struct
     char_t *statusmsg, name[TOX_MAX_NAME_LENGTH];
     char_t id[TOX_FRIEND_ADDRESS_SIZE * 2];
     AVATAR avatar;
+
+    unsigned int avatar_format;
+    uint8_t *avatar_data;
+    size_t avatar_size;
 }self;
 
 //add friend page

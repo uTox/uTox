@@ -14,7 +14,6 @@ typedef struct friend {
     uint16_t edit_history_cur, edit_history_length;
 
     AVATAR avatar;
-    _Bool has_current_avatar;
 
     uint16_t transfer_count;
 } FRIEND;

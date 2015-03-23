@@ -99,6 +99,14 @@ int self_set_and_save_avatar(const uint8_t *data, uint32_t size);
 
 /* unsets own avatar and removes it from disk */
 void self_remove_avatar();
+
+/* Call this every time friend_number goes online from the tox_do thread.
+ *
+ * return 1 on success.
+ * return 0 on failure.
+ */
+_Bool avatar_on_friend_online(Tox *tox, uint32_t friend_number);
+
 /** called once out new avatar is changed to update all of our friends
  *
  * returns 0 if there were no errors sending the avatars to every online friend.

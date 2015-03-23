@@ -701,14 +701,24 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
          * param2: length of avatar data
          * data: raw avatar data (PNG)
          */
+
+        if (self.avatar_data) {
+            free(self.avatar_data);
+        }
+
+        self.avatar_data = data;
+        self.avatar_size = param2;
+        self.avatar_format = param1;
         utox_avatar_update_friends(tox);
-        free(data);
         break;
     }
 
     case TOX_UNSETAVATAR: {
-        //TODO
-        //tox_unset_avatar(tox);
+        free(self.avatar_data);
+        self.avatar_data = NULL;
+        self.avatar_size = 0;
+        self.avatar_format = 0;
+        utox_avatar_update_friends(tox);
         break;
     }
 

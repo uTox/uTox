@@ -127,9 +127,9 @@ static void callback_connection_status(Tox *tox, uint32_t fid, TOX_CONNECTION st
     // todo call avatar sending
 
     postmessage(FRIEND_ONLINE, fid, !!status, NULL);
-#if 0
+
     if(!status) {
-        /* break all file transfers */
+        /* break all file transfers *//*
         for(i = 0; i != countof(f->file_transfer); i++) {
             if(f->active_transfer[i].status) {
                 f->active_transfer[i].status = FT_BROKE;
@@ -141,18 +141,18 @@ static void callback_connection_status(Tox *tox, uint32_t fid, TOX_CONNECTION st
                 f->active_transfer[i].status = FT_BROKE;
                 postmessage(FRIEND_FILE_OUT_STATUS, fid, i, (void*)FILE_BROKEN);
             }
-        }
+        }*/
     } else {
-        /* resume any broken file transfers */
+        /* resume any broken file transfers *//*
         for(i = 0; i != countof(f->file_transfer); i++) {
             if(f->active_transfer[i].status == FT_BROKE) {
                 tox_file_send_control(tox, fid, 1, i, TOX_FILECONTROL_RESUME_BROKEN, (void*)&f->active_transfer[i].bytes, sizeof(uint64_t));
             }
-        }
-        /* request avatar info (in case it changed) */
-        //tox_request_avatar_info(tox, fid);
+        }*/
+        /* resend avatar info (in case it changed) */
+        avatar_on_friend_online(tox, fid);
     }
-#endif
+
 
     if(status){
         debug("Friend (%u):\t Online\n", fid);

@@ -222,8 +222,14 @@ static void incoming_file_avatar(Tox *tox, uint32_t friend_number, uint32_t file
     FILE_TRANSFER *file_handle = get_file_transfer(friend_number, file_number);
 
     if(file_size <= 0){
-        utox_incoming_avatar(file_handle->friend_number, file_handle->avatar, file_handle->size, file_handle->name);
+        utox_incoming_avatar(friend_number, NULL, 0, 0);
         file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
+        return;
+    }
+
+    if (!file_handle) {
+        tox_file_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL, 0);
+        return;
     }
 
     if(file_size > UTOX_AVATAR_MAX_DATA_LENGTH){
@@ -260,6 +266,11 @@ static void incoming_file_avatar(Tox *tox, uint32_t friend_number, uint32_t file
 static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uint32_t file_number, uint32_t kind, uint64_t file_size, const uint8_t *filename, size_t filename_length, void *user_data){
     debug("FileTransfer:\tNew incoming file from friend (%u) file number (%u)\nFileTransfer:\t\tfilename: %s\n", friend_number, file_number, filename);
 
+    if(kind == TOX_FILE_KIND_AVATAR){
+        incoming_file_avatar(tox, friend_number, file_number, kind, file_size, filename, filename_length, user_data);
+        return;
+    }
+
     FILE_TRANSFER *file_handle = get_file_transfer(friend_number, file_number);
 
     if (!file_handle) {
@@ -267,10 +278,6 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
         return;
     }
 
-    if(kind == TOX_FILE_KIND_AVATAR){
-        incoming_file_avatar(tox, friend_number, file_number, kind, file_size, filename, filename_length, user_data);
-        return;
-    }
 
     // Reset the file handle for new data.
     memset(file_handle, 0, sizeof(FILE_TRANSFER));
@@ -480,7 +487,7 @@ int outgoing_file_send_avatar(Tox *tox, uint32_t friend_number, uint8_t *avatar,
         return 1;
     }
 
-    if(!avatar) {
+    if(!avatar && avatar_size) {
         debug("FileTransfer:\tUnable to use *avatar!\n");
         return 1;
     }
@@ -489,10 +496,15 @@ int outgoing_file_send_avatar(Tox *tox, uint32_t friend_number, uint8_t *avatar,
     TOX_ERR_FILE_SEND error;
     uint8_t *file_id;
     file_id = malloc(TOX_HASH_LENGTH);
-    if(!tox_hash(file_id, avatar, avatar_size)){
-        debug("FileTransfer:\tUnable to get hash for avatar!\n");
-        return 1;
+    if (avatar_size) {
+        if(!tox_hash(file_id, avatar, avatar_size)){
+            debug("FileTransfer:\tUnable to get hash for avatar!\n");
+            return 1;
+        }
+    } else {
+        memset(file_id, 0, TOX_HASH_LENGTH);
     }
+
     int file_number = tox_file_send(tox, friend_number, TOX_FILE_KIND_AVATAR, avatar_size, file_id, NULL, 0, &error);
 
     if(file_number != -1) {
