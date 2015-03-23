@@ -51,6 +51,12 @@ struct messages {
     MSG_IDX iover, idown;
     // For text messages encodes indices of chars in strings.
     // For non-text messages, encodes various logical parts of them.
+
+    // over in file transfers (iover == 1):
+    //   0  == not hovered
+    //   1  == hover on the upper transfer button
+    //   2  == hover on the lower transfer button
+    //   3  == hover on the rest of the transfer box
     uint32_t over, down;
 
     MSG_DATA *data;
@@ -98,12 +104,18 @@ typedef struct msg_file {
     uint32_t time;
 
     uint32_t speed;
-    uint8_t filenumber, status, name_length;
+    uint32_t filenumber;
+    uint8_t status, name_length;
     uint64_t size, progress;
     _Bool inline_png;
     uint8_t *path;
     uint8_t name[64];
 } MSG_FILE;
+
+typedef struct FILE_TRANSFER FILE_TRANSFER;
+
+/* Called externally to add a message to the queue */
+MSG_FILE* message_add_type_file(FILE_TRANSFER *file);
 
 void messages_draw(MESSAGES *m, int x, int y, int width, int height);
 _Bool messages_mmove(MESSAGES *m, int x, int y, int width, int height, int mx, int my, int dx, int dy);

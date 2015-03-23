@@ -44,7 +44,7 @@ void friend_sendimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width
     struct TOX_SEND_INLINE_MSG *tsim = malloc(sizeof(struct TOX_SEND_INLINE_MSG));
     tsim->image = png_image;
     tsim->image_size = png_size;
-    tox_postmessage(TOX_SEND_INLINE, f - friend, 0, tsim);
+    tox_postmessage(TOX_SEND_NEW_INLINE, f - friend, 0, tsim);
 }
 
 void friend_recvimage(FRIEND *f, UTOX_PNG_IMAGE png_image, size_t png_size)
@@ -70,7 +70,7 @@ void friend_recvimage(FRIEND *f, UTOX_PNG_IMAGE png_image, size_t png_size)
 void friend_notify(FRIEND *f, char_t *str, STRING_IDX str_length, char_t *msg, STRING_IDX msg_length)
 {
     int len = f->name_length + str_length + 3;
-    
+
     char_t title[len + 1], *p = title;
     memcpy(p, str, str_length); p += str_length;
     *p++ = ' ';
@@ -181,7 +181,7 @@ void friend_history_clear(FRIEND *f)
         /* We get the file path of the log file */
         p = path + datapath(path);
 
-        if(countof(path) - (p - path) < TOX_CLIENT_ID_SIZE * 2 + sizeof(LOGFILE_EXT))
+        if(countof(path) - (p - path) < TOX_PUBLIC_KEY_SIZE * 2 + sizeof(LOGFILE_EXT))
         {
             /* We ensure that we have enough space in the buffer,
                if not we fail */
@@ -190,7 +190,7 @@ void friend_history_clear(FRIEND *f)
         }
 
         cid_to_string(p, f->cid);
-        p += TOX_CLIENT_ID_SIZE * 2;
+        p += TOX_PUBLIC_KEY_SIZE * 2;
         memcpy((char*)p, LOGFILE_EXT, sizeof(LOGFILE_EXT));
     }
 
@@ -220,21 +220,9 @@ void friend_free(FRIEND *f)
             break;
         }
         case MSG_TYPE_FILE: {
+            // TODO KILL THIS SECTION
             MSG_FILE *file = (void*)msg;
             free(file->path);
-            FILE_T *ft = &f->incoming[file->filenumber];
-            if(ft->data) {
-                if(ft->inline_png) {
-                    free(ft->data);
-                } else {
-                    fclose(ft->data);
-                    free(ft->path);
-                }
-            }
-
-            if(msg->author) {
-                ft->status = FT_NONE;
-            }
             break;
         }
         }

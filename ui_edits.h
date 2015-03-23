@@ -404,13 +404,13 @@ static void edit_proxy_ip_port_onlosefocus(EDIT *edit)
     edit_proxy_port.data[edit_proxy_port.length] = 0;
     uint16_t proxy_port = strtol((char*)edit_proxy_port.data, NULL, 0);
 
-    if (memcmp(options.proxy_address, edit_proxy_ip.data, edit_proxy_ip.length) == 0 &&
-        options.proxy_address[edit_proxy_ip.length] == 0 &&
+    if (memcmp(proxy_address, edit_proxy_ip.data, edit_proxy_ip.length) == 0 &&
+        proxy_address[edit_proxy_ip.length] == 0 &&
         options.proxy_port == proxy_port)
             return;
 
-    memcpy(options.proxy_address, edit_proxy_ip.data, edit_proxy_ip.length);
-    options.proxy_address[edit_proxy_ip.length] = 0;
+    memcpy(proxy_address, edit_proxy_ip.data, edit_proxy_ip.length);
+    proxy_address[edit_proxy_ip.length] = 0;
 
     options.proxy_port = proxy_port;
 

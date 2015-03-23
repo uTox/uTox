@@ -77,10 +77,10 @@ static void gtk_openavatarthread(void *UNUSED(args))
             void *message_dialog = gtk_message_dialog_new(dialog, 0, 1, 2, (const char *)S(CANT_FIND_FILE_OR_EMPTY));
             gtk_dialog_run(message_dialog);
             gtk_widget_destroy(message_dialog);
-        } else if (size > TOX_AVATAR_MAX_DATA_LENGTH) {
+        } else if (size > UTOX_AVATAR_MAX_DATA_LENGTH) {
             free(file_data);
             char_t size_str[16];
-            int len = sprint_bytes(size_str, sizeof(size_str), TOX_AVATAR_MAX_DATA_LENGTH);
+            int len = sprint_bytes(size_str, sizeof(size_str), UTOX_AVATAR_MAX_DATA_LENGTH);
             void *message_dialog = gtk_message_dialog_new(dialog, 0, 1, 2, "%s%.*s.", S(AVATAR_TOO_LARGE_MAX_SIZE_IS), len, size_str);
             gtk_dialog_run(message_dialog);
             gtk_widget_destroy(message_dialog);
@@ -144,7 +144,7 @@ static void gtk_savethread(void *args){
             } else {
                 /* write test passed, we're done! */
                 gtk_widget_destroy(dialog);
-                postmessage(SAVE_FILE, fid, file->filenumber, path);
+                postmessage(SAVE_FILE, fid, (file->filenumber >> 16), path);
                 break;
             }
         }

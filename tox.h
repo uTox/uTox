@@ -18,7 +18,7 @@ enum {
     TOX_DELFRIEND,
     TOX_ACCEPTFRIEND,
     TOX_SENDMESSAGE,
-    TOX_SENDACTION,
+    TOX_SENDACTION, //10
     TOX_SENDMESSAGEGROUP,
     TOX_SENDACTIONGROUP,
     TOX_SET_TYPING,
@@ -28,7 +28,7 @@ enum {
     TOX_CALL_VIDEO_OFF,
     TOX_CANCELCALL,
     TOX_ACCEPTCALL,
-    TOX_HANGUP,
+    TOX_HANGUP, //20
     TOX_NEWGROUP,
     TOX_LEAVEGROUP,
     TOX_GROUPINVITE,
@@ -36,15 +36,15 @@ enum {
     TOX_GROUP_AUDIO_START,
     TOX_GROUP_AUDIO_END,
 
-    TOX_SENDFILES,
-    TOX_SEND_INLINE,
-    TOX_ACCEPTFILE,
-    TOX_FILE_IN_CANCEL,
-    TOX_FILE_OUT_CANCEL,
-    TOX_FILE_IN_PAUSE,
-    TOX_FILE_OUT_PAUSE,
-    TOX_FILE_IN_RESUME,
-    TOX_FILE_OUT_RESUME,
+    TOX_SEND_NEW_FILE,
+    TOX_SEND_NEW_INLINE,
+    TOX_ACCEPTFILE, //30
+    TOX_FILE_INCOMING_RESUME,
+    TOX_FILE_INCOMING_PAUSE,
+    TOX_FILE_INCOMING_CANCEL,
+    TOX_FILE_OUTGOING_RESUME,
+    TOX_FILE_OUTGOING_PAUSE,
+    TOX_FILE_OUTGOING_CANCEL,
 };
 
 struct TOX_SEND_INLINE_MSG {
@@ -126,17 +126,8 @@ enum {
     PREVIEW_FRAME_NEW,
 
     /* friend file */
-    FRIEND_FILE_IN_NEW,
-    FRIEND_FILE_IN_NEW_INLINE,
-    FRIEND_FILE_OUT_NEW,
-    FRIEND_FILE_OUT_NEW_INLINE,
-    FRIEND_FILE_IN_STATUS,
-    FRIEND_FILE_OUT_STATUS,
-    FRIEND_FILE_IN_DONE,
-    FRIEND_FILE_IN_DONE_INLINE,
-    FRIEND_FILE_OUT_DONE,
-    FRIEND_FILE_IN_PROGRESS,
-    FRIEND_FILE_OUT_PROGRESS,
+    FRIEND_FILE_NEW,
+    FRIEND_FILE_UPDATE,
 
     /* group */
     GROUP_ADD,
@@ -167,19 +158,19 @@ void tox_thread(void *args);
 
 /* send a message to the toxcore thread
  */
-void tox_postmessage(uint8_t msg, uint16_t param1, uint16_t param2, void *data);
+void tox_postmessage(uint8_t msg, uint32_t param1, uint32_t param2, void *data);
 
 /* send a message to the audio thread
  */
-void toxaudio_postmessage(uint8_t msg, uint16_t param1, uint16_t param2, void *data);
+void toxaudio_postmessage(uint8_t msg, uint32_t param1, uint32_t param2, void *data);
 
 /* send a message to the video thread
  */
-void toxvideo_postmessage(uint8_t msg, uint16_t param1, uint16_t param2, void *data);
+void toxvideo_postmessage(uint8_t msg, uint32_t param1, uint32_t param2, void *data);
 
 /* send a message to the toxav thread
  */
-void toxav_postmessage(uint8_t msg, uint16_t param1, uint16_t param2, void *data);
+void toxav_postmessage(uint8_t msg, uint32_t param1, uint32_t param2, void *data);
 
 /* read a message sent from the toxcore thread (sent with postmessage())
  */

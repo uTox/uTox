@@ -599,7 +599,7 @@ static void pastedata(void *data, Atom type, int len, _Bool select)
     } else if (type == XA_URI_LIST) {
         char *path = malloc(len + 1);
         formaturilist(path, (char*) data, len);
-        tox_postmessage(TOX_SENDFILES, (FRIEND*)sitem->data - friend, 0xFFFF, path);
+        tox_postmessage(TOX_SEND_NEW_FILE, (FRIEND*)sitem->data - friend, 0xFFFF, path);
     } else if(type == XA_UTF8_STRING && edit_active()) {
         edit_paste(data, len, select);
     }
@@ -888,7 +888,7 @@ int main(int argc, char *argv[])
 {
     parse_args_wait_for_theme = 0;
     theme = THEME_DEFAULT;
-    
+
     if (argc > 1)
         for (int i = 1; i < argc; i++) {
             if (parse_args_wait_for_theme) {
@@ -915,7 +915,7 @@ int main(int argc, char *argv[])
                 debug("Please specify correct theme (please check user manual for list of correct values).");
                 return 1;
             }
-            
+
             if(!strcmp(argv[i], "--version")) {
                 debug("%s\n", VERSION);
                 return 0;
@@ -929,7 +929,7 @@ int main(int argc, char *argv[])
             }
             printf("arg %d: %s\n", i, argv[i]);
         }
-        
+
     if (parse_args_wait_for_theme) {
         debug("Expected theme name, but got nothing. -_-\n");
         return 0;
@@ -963,7 +963,7 @@ int main(int argc, char *argv[])
                     PointerMotionMask | StructureNotifyMask | KeyPressMask | KeyReleaseMask | FocusChangeMask |
                     PropertyChangeMask,
     };
-    
+
     theme_load(theme);
 
     /* load save data */

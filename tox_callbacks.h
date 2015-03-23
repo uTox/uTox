@@ -36,7 +36,7 @@ static void* copy_groupmessage(Tox *tox, const uint8_t *str, uint16_t length, ui
     return msg;
 }
 
-static void callback_friend_request(Tox *UNUSED(tox), const uint8_t *id, const uint8_t *msg, uint16_t length, void *UNUSED(userdata))
+static void callback_friend_request(Tox *UNUSED(tox), const uint8_t *id, const uint8_t *msg, size_t length, void *UNUSED(userdata))
 {
     length = utf8_validate(msg, length);
 
@@ -55,29 +55,26 @@ static void callback_friend_request(Tox *UNUSED(tox), const uint8_t *id, const u
     postmessage(FRIEND_ACCEPT, (r < 0), (r < 0) ? 0 : r, data);*/
 }
 
-static void callback_friend_message(Tox *tox, int fid, const uint8_t *message, uint16_t length, void *UNUSED(userdata))
-{
+static void callback_friend_message(Tox *tox, uint32_t friend_number, TOX_MESSAGE_TYPE type, const uint8_t *message, size_t length, void *UNUSED(userdata)){
     /* send message to UI */
-    postmessage(FRIEND_MESSAGE, fid, 0, copy_message(message, length, MSG_TYPE_TEXT));
-
-    debug("Friend Message (%u): %.*s\n", fid, length, message);
+    switch(type){
+    case TOX_MESSAGE_TYPE_NORMAL:
+        postmessage(FRIEND_MESSAGE, friend_number, 0, copy_message(message, length, MSG_TYPE_TEXT));
+        debug("Friend(%u) Standard Message: %.*s\n", friend_number, length, message);
+        break;
+    case TOX_MESSAGE_TYPE_ACTION:
+        postmessage(FRIEND_MESSAGE, friend_number, 0, copy_message(message, length, MSG_TYPE_ACTION_TEXT));
+        debug("Friend(%u) Action Message: %.*s\n", friend_number, length, message);
+        break;
+    default:
+        debug("Message from Friend(%u) of unsupported type: %.*s\n", friend_number, length, message);
+    }
 
     /* write message to logfile */
-    log_write(tox, fid, message, length, 0, LOG_FILE_MSG_TYPE_TEXT);
+    log_write(tox, friend_number, message, length, 0, LOG_FILE_MSG_TYPE_TEXT);
 }
 
-static void callback_friend_action(Tox *tox, int fid, const uint8_t *action, uint16_t length, void *UNUSED(userdata))
-{
-    /* send action/emote to UI */
-    postmessage(FRIEND_MESSAGE, fid, 0, copy_message(action, length, MSG_TYPE_ACTION_TEXT));
-
-    debug("Friend Action (%u): %.*s\n", fid, length, action);
-
-    /* write action/emote to logfile */
-    log_write(tox, fid, action, length, 0, LOG_FILE_MSG_TYPE_ACTION);
-}
-
-static void callback_name_change(Tox *UNUSED(tox), int fid, const uint8_t *newname, uint16_t length, void *UNUSED(userdata))
+static void callback_name_change(Tox *UNUSED(tox), uint32_t fid, const uint8_t *newname, size_t length, void *UNUSED(userdata))
 {
     length = utf8_validate(newname, length);
 
@@ -89,7 +86,7 @@ static void callback_name_change(Tox *UNUSED(tox), int fid, const uint8_t *newna
     debug("Friend Name (%u): %.*s\n", fid, length, newname);
 }
 
-static void callback_status_message(Tox *UNUSED(tox), int fid, const uint8_t *newstatus, uint16_t length, void *UNUSED(userdata))
+static void callback_status_message(Tox *UNUSED(tox), uint32_t fid, const uint8_t *newstatus, size_t length, void *UNUSED(userdata))
 {
     length = utf8_validate(newstatus, length);
 
@@ -101,89 +98,48 @@ static void callback_status_message(Tox *UNUSED(tox), int fid, const uint8_t *ne
     debug("Friend Status Message (%u): %.*s\n", fid, length, newstatus);
 }
 
-static void callback_user_status(Tox *UNUSED(tox), int fid, uint8_t status, void *UNUSED(userdata))
+static void callback_user_status(Tox *UNUSED(tox), uint32_t fid, TOX_USER_STATUS status, void *UNUSED(userdata))
 {
     postmessage(FRIEND_STATUS, fid, status, NULL);
 
     debug("Friend Userstatus (%u): %u\n", fid, status);
 }
 
-static void callback_typing_change(Tox *UNUSED(tox), int fid, uint8_t is_typing, void *UNUSED(userdata))
+static void callback_typing_change(Tox *UNUSED(tox), uint32_t fid, _Bool is_typing, void *UNUSED(userdata))
 {
     postmessage(FRIEND_TYPING, fid, is_typing, NULL);
 
     debug("Friend Typing (%u): %u\n", fid, is_typing);
 }
 
-static void callback_read_receipt(Tox *UNUSED(tox), int fid, uint32_t receipt, void *UNUSED(userdata))
+static void callback_read_receipt(Tox *UNUSED(tox), uint32_t fid, uint32_t receipt, void *UNUSED(userdata))
 {
     //postmessage(FRIEND_RECEIPT, fid, receipt);
 
     debug("Friend Receipt (%u): %u\n", fid, receipt);
 }
 
-static void callback_connection_status(Tox *tox, int fid, uint8_t status, void *UNUSED(userdata))
+static void callback_connection_status(Tox *tox, uint32_t fid, TOX_CONNECTION status, void *UNUSED(userdata))
 {
     FRIEND *f = &friend[fid];
     int i;
 
-    postmessage(FRIEND_ONLINE, fid, status, NULL);
+    // todo call avatar sending
+
+    postmessage(FRIEND_ONLINE, fid, !!status, NULL);
 
     if(!status) {
-        /* break all file transfers */
-        for(i = 0; i != countof(f->incoming); i++) {
-            if(f->incoming[i].status) {
-                f->incoming[i].status = FT_BROKE;
-                postmessage(FRIEND_FILE_IN_STATUS, fid, i, (void*)FILE_BROKEN);
-            }
-        }
-        for(i = 0; i != countof(f->outgoing); i++) {
-            if(f->outgoing[i].status) {
-                f->outgoing[i].status = FT_BROKE;
-                postmessage(FRIEND_FILE_OUT_STATUS, fid, i, (void*)FILE_BROKEN);
-            }
-        }
+        ft_friend_offline(tox, fid);
     } else {
-        /* resume any broken file transfers */
-        for(i = 0; i != countof(f->incoming); i++) {
-            if(f->incoming[i].status == FT_BROKE) {
-                tox_file_send_control(tox, fid, 1, i, TOX_FILECONTROL_RESUME_BROKEN, (void*)&f->incoming[i].bytes, sizeof(uint64_t));
-            }
-        }
-        /* request avatar info (in case it changed) */
-        tox_request_avatar_info(tox, fid);
+        ft_friend_online(tox, fid);
+        /* resend avatar info (in case it changed) */
+        avatar_on_friend_online(tox, fid);
     }
 
-    debug("Friend Online/Offline (%u): %u\n", fid, status);
-}
-
-void callback_avatar_info(Tox *tox, int fid, uint8_t format, uint8_t *hash, void *UNUSED(userdata))
-{
-    FRIEND *f = &friend[fid];
-
-    if (format != TOX_AVATAR_FORMAT_NONE) {
-        if (!friend_has_avatar(f) || memcmp(f->avatar.hash, hash, TOX_HASH_LENGTH) != 0) { // check if avatar has changed
-            memcpy(f->avatar.hash, hash, TOX_HASH_LENGTH); // set hash pre-emptively so we don't request data twice
-
-            char_t hash_string[TOX_HASH_LENGTH * 2];
-            hash_to_string(hash_string, hash);
-            debug("Friend Avatar Hash (%u): %.*s\n", fid, (int)sizeof(hash_string), hash_string);
-
-            tox_request_avatar_data(tox, fid);
-        }
-    } else if (friend_has_avatar(f)) {
-        postmessage(FRIEND_UNSETAVATAR, fid, 0, NULL); // unset avatar if we had one
-    }
-}
-
-void callback_avatar_data(Tox *tox, int fid, uint8_t format, uint8_t *hash, uint8_t *data, uint32_t datalen, void *UNUSED(userdata))
-{
-    FRIEND *f = &friend[fid];
-
-    if (memcmp(f->avatar.hash, hash, TOX_HASH_LENGTH) == 0) { // same hash as in last avatar_info
-        uint8_t *data_out = malloc(datalen);
-        memcpy(data_out, data, datalen);
-        postmessage(FRIEND_SETAVATAR, fid, datalen, data_out);
+    if(status){
+        debug("Friend (%u):\t Online\n", fid);
+    } else {
+        debug("Friend (%u):\t Offline\n", fid);
     }
 }
 

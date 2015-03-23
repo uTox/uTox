@@ -472,7 +472,7 @@ void openfilesend(void)
     };
 
     if(GetOpenFileName(&ofn)) {
-        tox_postmessage(TOX_SENDFILES, (FRIEND*)sitem->data - friend, ofn.nFileOffset, filepath);
+        tox_postmessage(TOX_SEND_NEW_FILE, (FRIEND*)sitem->data - friend, ofn.nFileOffset, filepath);
     } else {
         debug("GetOpenFileName() failed\n");
     }
@@ -504,7 +504,7 @@ void openfileavatar(void)
             void *file_data = file_raw(filepath, &size);
             if (!file_data) {
                 MessageBox(NULL, (const char *)S(CANT_FIND_FILE_OR_EMPTY), NULL, MB_ICONWARNING);
-            } else if (size > TOX_AVATAR_MAX_DATA_LENGTH) {
+            } else if (size > UTOX_AVATAR_MAX_DATA_LENGTH) {
                 free(file_data);
                 char_t message[1024];
                 if (sizeof(message) < SLEN(AVATAR_TOO_LARGE_MAX_SIZE_IS) + 16) {
@@ -513,7 +513,7 @@ void openfileavatar(void)
                 }
                 // create message containing text that selected avatar is too large and what the max size is
                 int len = sprintf((char *)message, "%.*s", SLEN(AVATAR_TOO_LARGE_MAX_SIZE_IS), S(AVATAR_TOO_LARGE_MAX_SIZE_IS));
-                len += sprint_bytes(message+len, sizeof(message)-len, TOX_AVATAR_MAX_DATA_LENGTH);
+                len += sprint_bytes(message+len, sizeof(message)-len, UTOX_AVATAR_MAX_DATA_LENGTH);
                 message[len++] = '\0';
                 MessageBox(NULL, (char *)message, NULL, MB_ICONWARNING);
             } else {
@@ -609,9 +609,9 @@ void ShowContextMenu(void)
 
         InsertMenu(hMenu, -1, MF_BYPOSITION | MF_SEPARATOR, 0, NULL);
 
-        InsertMenu(hMenu, -1, MF_BYPOSITION | ((self.status == TOX_USERSTATUS_NONE) ? MF_CHECKED : 0), TRAY_STATUS_AVAILABLE, "Available");
-        InsertMenu(hMenu, -1, MF_BYPOSITION | ((self.status == TOX_USERSTATUS_AWAY) ? MF_CHECKED : 0), TRAY_STATUS_AWAY, "Away");
-        InsertMenu(hMenu, -1, MF_BYPOSITION | ((self.status == TOX_USERSTATUS_BUSY) ? MF_CHECKED : 0), TRAY_STATUS_BUSY, "Busy");
+        InsertMenu(hMenu, -1, MF_BYPOSITION | ((self.status == TOX_USER_STATUS_NONE) ? MF_CHECKED : 0), TRAY_STATUS_AVAILABLE, "Available");
+        InsertMenu(hMenu, -1, MF_BYPOSITION | ((self.status == TOX_USER_STATUS_AWAY) ? MF_CHECKED : 0), TRAY_STATUS_AWAY, "Away");
+        InsertMenu(hMenu, -1, MF_BYPOSITION | ((self.status == TOX_USER_STATUS_BUSY) ? MF_CHECKED : 0), TRAY_STATUS_BUSY, "Busy");
 
         InsertMenu(hMenu, -1, MF_BYPOSITION | MF_SEPARATOR, 0, NULL);
 
@@ -1226,9 +1226,9 @@ void config_osdefaults(UTOX_SAVE *r)
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int nCmdShow){
 
     /* if opened with argument, check if uTox is already open and pass the argument to the existing process */
-    CreateMutex(NULL, 0, "uTox");
+    CreateMutex(NULL, 0, TITLE);
     if(GetLastError() == ERROR_ALREADY_EXISTS) {
-        HWND window = FindWindow("uTox", NULL);
+        HWND window = FindWindow(TITLE, NULL);
         SetForegroundWindow(window);
         if (*cmd) {
             COPYDATASTRUCT data = {
@@ -1731,17 +1731,17 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
             tox_postmessage(TOX_SETSTATUS, x, 0, NULL); self.status = x; redraw(); }
 
         case TRAY_STATUS_AVAILABLE: {
-            setstatus(TOX_USERSTATUS_NONE);
+            setstatus(TOX_USER_STATUS_NONE);
             break;
         }
 
         case TRAY_STATUS_AWAY: {
-            setstatus(TOX_USERSTATUS_AWAY);
+            setstatus(TOX_USER_STATUS_AWAY);
             break;
         }
 
         case TRAY_STATUS_BUSY: {
-            setstatus(TOX_USERSTATUS_BUSY);
+            setstatus(TOX_USER_STATUS_BUSY);
             break;
         }
         }
