@@ -11,17 +11,6 @@ int get_avatar_location(char_t *dest, const char_t *id)
     return p - dest;
 }
 
-/* gets avatar hash filepath for given client id string and stores it in dest,
- * returns number of chars written */
-int get_avatar_hash_location(char_t *dest, const char_t *id)
-{
-    char_t *p = dest + datapath_subdir(dest, AVATAR_DIRECTORY);
-    memcpy((char *)p, id, TOX_PUBLIC_KEY_SIZE * 2); p += TOX_PUBLIC_KEY_SIZE * 2;
-    strcpy((char *)p, ".hash"); p += sizeof(".hash") - 1;
-
-    return p - dest;
-}
-
 /* frees the image of an avatar, does nothing if image is NULL */
 void avatar_free_image(AVATAR *avatar)
 {

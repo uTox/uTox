@@ -1336,7 +1336,6 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         //char_t cid[TOX_PUBLIC_KEY_SIZE * 2];
         //cid_to_string(cid, f->cid);
         //delete_saved_avatar(cid);
-        //delete_avatar_hash(cid);
 
         friend_free(f);
         friends--;
@@ -1383,7 +1382,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         FRIEND *f = &friend[param1];
         unset_avatar(&f->avatar);
 
-        // remove avatar and hash from disk
+        // remove avatar from disk
         char_t cid[TOX_PUBLIC_KEY_SIZE * 2];
         cid_to_string(cid, f->cid);
         delete_saved_avatar(cid);

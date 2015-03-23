@@ -99,6 +99,7 @@ static void utox_kill_file(FILE_TRANSFER *file, uint8_t us){
     }
 
     file->status = FILE_TRANSFER_STATUS_NONE;
+    //TODO free not freed data.
 }
 
 static void utox_pause_file(FILE_TRANSFER *file, uint8_t us){
@@ -126,6 +127,7 @@ static void utox_pause_file(FILE_TRANSFER *file, uint8_t us){
         }
     }
     utox_update_user_file(file);
+    //TODO free not freed data.
 }
 
 static void utox_complete_file(FILE_TRANSFER *file){
@@ -161,11 +163,12 @@ static void utox_complete_file(FILE_TRANSFER *file){
 
 void ft_friend_online(Tox *tox, uint32_t friend_number)
 {
-    
+    //TODO resuming
 }
 
 void ft_friend_offline(Tox *tox, uint32_t friend_number)
 {
+    //TODO resuming
     unsigned int i;
     for (i = 0; i < MAX_FILE_TRANSFERS; ++i) {
         utox_kill_file(&incoming_transfer[friend_number][i], 0);
