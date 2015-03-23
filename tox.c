@@ -312,17 +312,14 @@ static _Bool init_avatar(AVATAR *avatar, const char_t *id, uint8_t *png_data_out
     uint8_t avatar_data[UTOX_AVATAR_MAX_DATA_LENGTH];
     uint32_t size;
     if (load_avatar(id, avatar_data, &size)) {
-        _Bool have_hash = load_avatar_hash(id, avatar->hash);
-        if (set_avatar(avatar, avatar_data, size, !have_hash)) {
+        if (set_avatar(avatar, avatar_data, size)) {
             if (png_data_out) {
                 memcpy(png_data_out, avatar_data, size);
             }
             if (png_size_out) {
                 *png_size_out = size;
             }
-            if (!have_hash) { // save newly created hash if it wasn't found on disk
-                save_avatar_hash(id, avatar->hash);
-            }
+
             return 1;
         }
     }
@@ -1374,8 +1371,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         FRIEND *f = &friend[param1];
         char_t cid[TOX_PUBLIC_KEY_SIZE * 2];
         cid_to_string(cid, (char_t*)f->cid);
-        set_avatar(&f->avatar, avatar, size, 1);
-        save_avatar_hash(cid, f->avatar.hash);
+        set_avatar(&f->avatar, avatar, size);
         save_avatar(cid, avatar, size);
 
         free(avatar);
@@ -1391,7 +1387,6 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         char_t cid[TOX_PUBLIC_KEY_SIZE * 2];
         cid_to_string(cid, f->cid);
         delete_saved_avatar(cid);
-        delete_avatar_hash(cid);
 
         updatefriend(f);
         break;

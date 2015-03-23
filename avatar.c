@@ -84,56 +84,8 @@ int delete_saved_avatar(const char_t *id)
     return remove((char *)path);
 }
 
-int load_avatar_hash(const char_t *id, uint8_t *dest)
-{
-    char_t path[512];
-    uint32_t size;
 
-    get_avatar_hash_location(path, id);
-
-    uint8_t *hash_data = file_raw((char *)path, &size);
-    if (!hash_data) {
-        return 0;
-    }
-    if (size != TOX_HASH_LENGTH) {
-        debug("Avatars:\t saved avatar hash (%s) does not have TOX_HASH_LENGTH bytes\n", path);
-        free(hash_data);
-        return 0;
-    }
-
-    memcpy(dest, hash_data, TOX_HASH_LENGTH);
-    free(hash_data);
-    return 1;
-}
-
-int save_avatar_hash(const char_t *id, const uint8_t *hash)
-{
-    char_t path[512];
-
-    get_avatar_hash_location(path, id);
-
-    FILE *file = fopen((char*)path, "wb");
-    if (file && hash) {
-        fwrite(hash, TOX_HASH_LENGTH, 1, file);
-        flush_file(file);
-        fclose(file);
-        return 1;
-    } else {
-        debug("Avatars:\terror opening avatar hash file (%s) for writing\n", (char *)path);
-        return 0;
-    }
-}
-
-int delete_avatar_hash(const char_t *id)
-{
-    char_t path[512];
-
-    get_avatar_hash_location(path, id);
-
-    return remove((char *)path);
-}
-
-int set_avatar(AVATAR *avatar, const uint8_t *data, uint32_t size, _Bool create_hash)
+int set_avatar(AVATAR *avatar, const uint8_t *data, uint32_t size)
 {
     if (size > UTOX_AVATAR_MAX_DATA_LENGTH) {
         debug("Avatars:\t avatar too large\n");
@@ -153,9 +105,7 @@ int set_avatar(AVATAR *avatar, const uint8_t *data, uint32_t size, _Bool create_
         avatar->width = w;
         avatar->height = h;
         avatar->format = UTOX_AVATAR_FORMAT_PNG;
-        if (create_hash) {
-            tox_hash(avatar->hash, data, size);
-        }
+        tox_hash(avatar->hash, data, size);
 
         return 1;
     }
@@ -170,7 +120,7 @@ void unset_avatar(AVATAR *avatar)
 /* sets self avatar, see self_set_and_save_avatar */
 int self_set_avatar(const uint8_t *data, uint32_t size)
 {
-    if (!set_avatar(&self.avatar, data, size, 1)) {
+    if (!set_avatar(&self.avatar, data, size)) {
         return 0;
     }
 

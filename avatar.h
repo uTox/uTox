@@ -50,37 +50,17 @@ int save_avatar(const char_t *id, const uint8_t *data, uint32_t size);
  */
 int delete_saved_avatar(const char_t *id);
 
-/* loads avatar hash for given id from disk and copies it into dest
- *  on success: returns 1
- *  on failure: returns 0
- *  notes: dest should be at least TOX_HASH_LENGTH bytes long
- */
-int load_avatar_hash(const char_t *id, uint8_t *dest);
-/* saves avatar hash created by tox_hash for given id on disk
- *  on success: returns 1
- *  on failure: returns 0
- *  notes: hash should be TOX_HASH_LENGTH bytes long
- */
-int save_avatar_hash(const char_t *id, const uint8_t *hash);
-/* deletes saved avatar hash for given id
- *  on success: returns 1
- *  on failure: returns 0
- */
-int delete_avatar_hash(const char_t *id);
-
 /* converts png data given by data to a UTOX_NATIVE_IMAGE and uses that to populate the avatar struct
  *  avatar is pointer to an avatar struct to store result in. Remains unchanged if function fails.
  *  data is pointer to png data to convert
  *  size is size of data
- *  create_hash is whether to create a tox_hash of the given data and store it in avatar->hash
- *               (if 0, avatar->hash remains unchanged)
  *
  *  on success: returns 1
  *  on failure: returns 0
  *
  *  notes: fails if given size is larger than UTOX_AVATAR_MAX_DATA_LENGTH or data is not valid PNG data
  */
-int set_avatar(AVATAR *avatar, const uint8_t *data, uint32_t size, _Bool create_hash);
+int set_avatar(AVATAR *avatar, const uint8_t *data, uint32_t size);
 
 /* unsets an avatar by setting its format to UTOX_AVATAR_FORMAT_NONE and
  * freeing its image */
