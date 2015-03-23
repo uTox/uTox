@@ -327,13 +327,13 @@ static _Bool init_avatar(AVATAR *avatar, const char_t *id, uint8_t *png_data_out
 }
 
 static size_t load_save(uint8_t **out_data){
-    uint8_t path[512], *p;
+    uint8_t path[512], *p, *data;
     uint32_t size;
 
     do{ /* Try the STS compliant save location */
         p = path + datapath(path);
         strcpy((char*)p, "tox_save.tox");
-        void *data = file_raw((char*)path, &size);
+        data = file_raw((char*)path, &size);
         if(data) break; /* We have data, were done here! */
         /* Try filename missing the .tox extension */
         p = path + datapath(path);

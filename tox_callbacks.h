@@ -60,14 +60,14 @@ static void callback_friend_message(Tox *tox, uint32_t friend_number, TOX_MESSAG
     switch(type){
     case TOX_MESSAGE_TYPE_NORMAL:
         postmessage(FRIEND_MESSAGE, friend_number, 0, copy_message(message, length, MSG_TYPE_TEXT));
-        debug("Friend(%u) Standard Message: %.*s\n", friend_number, length, message);
+        debug("Friend(%u) Standard Message: %.*s\n", friend_number, (int)length, message);
         break;
     case TOX_MESSAGE_TYPE_ACTION:
         postmessage(FRIEND_MESSAGE, friend_number, 0, copy_message(message, length, MSG_TYPE_ACTION_TEXT));
-        debug("Friend(%u) Action Message: %.*s\n", friend_number, length, message);
+        debug("Friend(%u) Action Message: %.*s\n", friend_number, (int)length, message);
         break;
     default:
-        debug("Message from Friend(%u) of unsupported type: %.*s\n", friend_number, length, message);
+        debug("Message from Friend(%u) of unsupported type: %.*s\n", friend_number, (int)length, message);
     }
 
     /* write message to logfile */
@@ -83,7 +83,7 @@ static void callback_name_change(Tox *UNUSED(tox), uint32_t fid, const uint8_t *
 
     postmessage(FRIEND_NAME, fid, length, data);
 
-    debug("Friend Name (%u): %.*s\n", fid, length, newname);
+    debug("Friend Name (%u): %.*s\n", fid, (int)length, newname);
 }
 
 static void callback_status_message(Tox *UNUSED(tox), uint32_t fid, const uint8_t *newstatus, size_t length, void *UNUSED(userdata))
@@ -95,7 +95,7 @@ static void callback_status_message(Tox *UNUSED(tox), uint32_t fid, const uint8_
 
     postmessage(FRIEND_STATUS_MESSAGE, fid, length, data);
 
-    debug("Friend Status Message (%u): %.*s\n", fid, length, newstatus);
+    debug("Friend Status Message (%u): %.*s\n", fid, (int)length, newstatus);
 }
 
 static void callback_user_status(Tox *UNUSED(tox), uint32_t fid, TOX_USER_STATUS status, void *UNUSED(userdata))
@@ -119,11 +119,7 @@ static void callback_read_receipt(Tox *UNUSED(tox), uint32_t fid, uint32_t recei
     debug("Friend Receipt (%u): %u\n", fid, receipt);
 }
 
-static void callback_connection_status(Tox *tox, uint32_t fid, TOX_CONNECTION status, void *UNUSED(userdata))
-{
-    FRIEND *f = &friend[fid];
-    int i;
-
+static void callback_connection_status(Tox *tox, uint32_t fid, TOX_CONNECTION status, void *UNUSED(userdata)){
     // todo call avatar sending
 
     postmessage(FRIEND_ONLINE, fid, !!status, NULL);
