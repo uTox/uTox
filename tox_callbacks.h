@@ -129,30 +129,12 @@ static void callback_connection_status(Tox *tox, uint32_t fid, TOX_CONNECTION st
     postmessage(FRIEND_ONLINE, fid, !!status, NULL);
 
     if(!status) {
-        /* break all file transfers *//*
-        for(i = 0; i != countof(f->file_transfer); i++) {
-            if(f->active_transfer[i].status) {
-                f->active_transfer[i].status = FT_BROKE;
-                postmessage(FRIEND_FILE_IN_STATUS, fid, i, (void*)FILE_BROKEN);
-            }
-        }
-        for(i = 0; i != countof(f->file_transfer); i++) {
-            if(f->active_transfer[i].status) {
-                f->active_transfer[i].status = FT_BROKE;
-                postmessage(FRIEND_FILE_OUT_STATUS, fid, i, (void*)FILE_BROKEN);
-            }
-        }*/
+        ft_friend_offline(tox, fid);
     } else {
-        /* resume any broken file transfers *//*
-        for(i = 0; i != countof(f->file_transfer); i++) {
-            if(f->active_transfer[i].status == FT_BROKE) {
-                tox_file_send_control(tox, fid, 1, i, TOX_FILECONTROL_RESUME_BROKEN, (void*)&f->active_transfer[i].bytes, sizeof(uint64_t));
-            }
-        }*/
+        ft_friend_online(tox, fid);
         /* resend avatar info (in case it changed) */
         avatar_on_friend_online(tox, fid);
     }
-
 
     if(status){
         debug("Friend (%u):\t Online\n", fid);
@@ -160,36 +142,6 @@ static void callback_connection_status(Tox *tox, uint32_t fid, TOX_CONNECTION st
         debug("Friend (%u):\t Offline\n", fid);
     }
 }
-/*
-void callback_avatar_info(Tox *tox, int fid, uint8_t format, uint8_t *hash, void *UNUSED(userdata))
-{
-    FRIEND *f = &friend[fid];
-
-    if (format != UTOX_AVATAR_FORMAT_NONE) {
-        if (!friend_has_avatar(f) || memcmp(f->avatar.hash, hash, TOX_HASH_LENGTH) != 0) { // check if avatar has changed
-            memcpy(f->avatar.hash, hash, TOX_HASH_LENGTH); // set hash pre-emptively so we don't request data twice
-
-            char_t hash_string[TOX_HASH_LENGTH * 2];
-            hash_to_string(hash_string, hash);
-            debug("Friend Avatar Hash (%u): %.*s\n", fid, (int)sizeof(hash_string), hash_string);
-
-            tox_request_avatar_data(tox, fid);
-        }
-    } else if (friend_has_avatar(f)) {
-        postmessage(FRIEND_UNSETAVATAR, fid, 0, NULL); // unset avatar if we had one
-    }
-}
-
-void callback_avatar_data(Tox *tox, int fid, uint8_t format, uint8_t *hash, uint8_t *data, uint32_t datalen, void *UNUSED(userdata))
-{
-    FRIEND *f = &friend[fid];
-
-    if (memcmp(f->avatar.hash, hash, TOX_HASH_LENGTH) == 0) { // same hash as in last avatar_info
-        uint8_t *data_out = malloc(datalen);
-        memcpy(data_out, data, datalen);
-        postmessage(FRIEND_SETAVATAR, fid, datalen, data_out);
-    }
-}*/
 
 void callback_av_group_audio(Tox *tox, int groupnumber, int peernumber, const int16_t *pcm, unsigned int samples,
                                     uint8_t channels, unsigned int sample_rate, void *userdata);

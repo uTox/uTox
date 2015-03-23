@@ -69,17 +69,7 @@ void file_transfer_local_control(Tox *tox, uint32_t friend_number, uint32_t file
 int utox_file_start_write(uint32_t friend_number, uint32_t file_number, void *filepath);
 void utox_set_callbacks_for_transfer(Tox *tox);
 
-/** The following functions are called from the local control function
- *
- * Each updates the status from what ever it was to what it should be
+/* Functions called when friend goes online or offline.
  */
-//static void utox_update_user_file(FILE_TRANSFER *file);
-//static void utox_run_file(FILE_TRANSFER *file, uint8_t us);
-//static void utox_kill_file(FILE_TRANSFER *file, uint8_t us);
-//static void utox_pause_file(FILE_TRANSFER *file, uint8_t us);
-//static void utox_complete_file(FILE_TRANSFER *file);
-
-// Empty
-//static void utox_break_file();
-//static void utox_resume_broke_file();
-
+void ft_friend_online(Tox *tox, uint32_t friend_number);
+void ft_friend_offline(Tox *tox, uint32_t friend_number);

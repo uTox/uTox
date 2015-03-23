@@ -1368,6 +1368,18 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
            data: png data
         Work now done by file callback
         */
+        uint8_t *avatar = data;
+        size_t size = param2;
+
+        FRIEND *f = &friend[param1];
+        char_t cid[TOX_PUBLIC_KEY_SIZE * 2];
+        cid_to_string(cid, (char_t*)f->cid);
+        set_avatar(&f->avatar, avatar, size, 1);
+        save_avatar_hash(cid, f->avatar.hash);
+        save_avatar(cid, avatar, size);
+
+        free(avatar);
+        updatefriend(f);
         break;
     }
 
