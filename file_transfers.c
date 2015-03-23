@@ -139,7 +139,7 @@ static void utox_complete_file(FILE_TRANSFER *file){
                     file->avatar = NULL;
                     file->size = 0;
                 } else {
-                    friend_recvimage(&friend[file->friend_number], file->memory, file->size);
+                    friend_recvimage(&friend[file->friend_number], (UTOX_PNG_IMAGE)file->memory, file->size);
                 }
             } else { // Is a file
                 fclose(file->file);
@@ -253,7 +253,7 @@ static void incoming_file_avatar(Tox *tox, uint32_t friend_number, uint32_t file
 
     if(file_size > UTOX_AVATAR_MAX_DATA_LENGTH){
         file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
-        debug("FileTransfer:\tAvatar from friend(%u) rejected, TOO LARGE (%llu)\n", friend_number, file_size);
+        debug("FileTransfer:\tAvatar from friend(%u) rejected, TOO LARGE (%u)\n", friend_number, (uint32_t)file_size);
         return;
     }
 
@@ -331,7 +331,6 @@ static void incoming_file_callback_chunk(Tox *UNUSED(tox), uint32_t friend_numbe
     //debug("FileTransfer:\tIncoming chunk for friend (%u), and file (%u). Start (%u), End (%u).\r",
     //                                                                  friend_number, file_number, position, length);
 
-    TOX_ERR_FILE_SEND_CHUNK error;
     FILE_TRANSFER *file_handle = get_file_transfer(friend_number, file_number);
 
     if(length == 0){
@@ -339,9 +338,6 @@ static void incoming_file_callback_chunk(Tox *UNUSED(tox), uint32_t friend_numbe
         utox_complete_file(file_handle);
         return;
     }
-
-    uint64_t last_bit = position + length;
-    time_t time_e = time(NULL);
 
     if(file_handle->in_memory) {
         if(file_handle->is_avatar){
@@ -361,21 +357,6 @@ static void incoming_file_callback_chunk(Tox *UNUSED(tox), uint32_t friend_numbe
     file_handle->size_transferred += length;
 
     calculate_speed(file_handle);
-
-    /* TODO re-implement file transfer speed and time remaining...
-    if(time(NULL) - file_handle->last_chunk_time >= 10) {
-        debug("FileTransfer:\ttime update running\n");
-    // TODO divide total size by total time to get ave speed.
-    // include last active, and total paused time to exclude paused time.
-        FILE_PROGRESS *p = malloc(sizeof(FILE_PROGRESS));
-        p->size_transferred = file_handle->size_transferred;
-        p->speed = ( (file_handle->size_transferred - file_handle->last_chunk_time) )
-                        / (time(NULL) - file_handle->last_chunk_time);
-        postmessage(FRIEND_FILE_IN_PROGRESS, friend_number, file_number, p);
-        file_handle->size_transferred = file_handle->size_transferred;
-    }
-
-    */
 }
 
 void outgoing_file_send_new(Tox *tox, uint32_t friend_number, uint8_t *path, const uint8_t *filename, size_t filename_length){
@@ -469,7 +450,7 @@ void outgoing_file_send_inline(Tox *tox, uint32_t friend_number, uint8_t *image,
 
     if(file_number != -1) {
         FILE_TRANSFER *file_handle = get_file_transfer(friend_number, file_number);
-        debug("Going to memset in image new, friend %u, file is image size is%u\n", friend_number, image_size);
+        debug("Going to memset in image new, friend %u, file is image size is%u\n", friend_number, (uint32_t)image_size);
         memset(file_handle, 0, sizeof(FILE_TRANSFER));
 
         file_handle->friend_number = friend_number;
@@ -528,7 +509,7 @@ int outgoing_file_send_avatar(Tox *tox, uint32_t friend_number, uint8_t *avatar,
 
     if(file_number != -1) {
         FILE_TRANSFER *file_handle = get_file_transfer(friend_number, file_number);
-        debug("Going to memset in avatar new, friend %u, file is avatar size is%u\n", friend_number, avatar_size);
+        debug("Going to memset in avatar new, friend %u, file is avatar size is%u\n", friend_number, (uint32_t)avatar_size);
         memset(file_handle, 0, sizeof(FILE_TRANSFER));
 
         file_handle->friend_number = friend_number;
@@ -571,8 +552,6 @@ static void outgoing_file_callback_chunk(Tox *tox, uint32_t friend_number, uint3
 
     uint8_t buffer[length];
     size_t read_size;
-
-    uint64_t last_bit = position + length;
 
     if(file_handle->in_memory){
         // Memory
@@ -628,7 +607,7 @@ int utox_file_start_write(uint32_t friend_number, uint32_t file_number, void *fi
     return 0;
 }
 
-void utox_set_callbacks_for_transfer(Tox *tox){/*
+void utox_set_callbacks_for_transfer(Tox *tox){
     /* Incoming files */
         /* This is the callback for a new incoming file. */
         tox_callback_file_recv(tox, incoming_file_callback_request, NULL);

@@ -198,8 +198,8 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
             _Bool mouse_tbtn = (mo && m->over == 1) ? 1 : 0;
             _Bool mouse_bbtn = (mo && m->over == 2) ? 1 : 0;
 
-            int xx = x + dx;
             /* Old var kept for bug hunting
+            int xx = x + dx;
             int xxx = xx + BM_FTM_WIDTH + SCALE; */
 
             /* File transfer bar */
