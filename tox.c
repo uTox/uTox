@@ -326,48 +326,37 @@ static _Bool init_avatar(AVATAR *avatar, const char_t *id, uint8_t *png_data_out
     return 0;
 }
 
-static size_t load_save(uint8_t **out_data)
-{
-    {
-        uint8_t path[512], *p;
-        uint32_t size;
+static size_t load_save(uint8_t **out_data){
+    uint8_t path[512], *p;
+    uint32_t size;
 
-        /* Try the STS compliant save location */
+    do{ /* Try the STS compliant save location */
         p = path + datapath(path);
         strcpy((char*)p, "tox_save.tox");
         void *data = file_raw((char*)path, &size);
-        if(!data) {
-            /* Try filename missing the .tox extension */
-            p = path + datapath(path);
-            strcpy((char*)p, "tox_save");
-            data = file_raw((char*)path, &size);
-            if(!data) {
-                /* That didn't work, do we have a backup? */
-                p = path + datapath(path);
-                strcpy((char*)p, "tox_save.tmp");
-                data = file_raw((char*)path, &size);
-                if(!data){
-                    /* No backup huh? Is it in an old location we support? */
-                    p = path + datapath_old(path);
-                    strcpy((char*)p, "tox_save");
-                    data = file_raw((char*)path, &size);
-                    if (!data) {
-                        /* Well, lets try the current directory... */
-                        data = file_raw("tox_save", &size);
-                        if(!data) {
-                            /* F***it I give up! */
-                            return 0;
-                        }
-                    }
-                }
-            }
-        }
+        if(data) break; /* We have data, were done here! */
+        /* Try filename missing the .tox extension */
+        p = path + datapath(path);
+        strcpy((char*)p, "tox_save");
+        data = file_raw((char*)path, &size);
+        if(data) break;
+        /* That didn't work, do we have a backup? */
+        p = path + datapath(path);
+        strcpy((char*)p, "tox_save.tmp");
+        data = file_raw((char*)path, &size);
+        if(data) break;
+        /* No backup huh? Is it in an old location we support? */
+        p = path + datapath_old(path);
+        strcpy((char*)p, "tox_save");
+        data = file_raw((char*)path, &size);
+        if(data) break;
+        /* Well, lets try the current directory... */
+        data = file_raw("tox_save", &size);
+        if(!data) return 0; /* F***it I give up! */
+    } while(0) /* Only once! */
 
-        *out_data = data;
-        return size;
-    }
-
-    return 1;
+    *out_data = data;
+    return size;
 }
 
 static void tox_after_load(Tox *tox)
