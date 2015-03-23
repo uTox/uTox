@@ -353,7 +353,7 @@ static size_t load_save(uint8_t **out_data){
         /* Well, lets try the current directory... */
         data = file_raw("tox_save", &size);
         if(!data) return 0; /* F***it I give up! */
-    } while(0) /* Only once! */
+    } while(0); /* Only once! */
 
     *out_data = data;
     return size;
