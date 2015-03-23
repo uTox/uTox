@@ -1080,7 +1080,6 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
         if (utox_file_start_write(param1, param2, data) == 0) {
         /*                          tox, friend#, file#,        START_FILE */
             file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_RESUME);
-            postmessage(FRIEND_FILE_IN_STATUS, param1, param2, (void*)FILE_TRANSFER_STATUS_ACTIVE);
         } else {
             file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_CANCEL);
         }
@@ -1209,7 +1208,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
     }
 
     case SAVE_FILE: {
-        tox_postmessage(TOX_ACCEPTFILE, param1, param2, data);
+        tox_postmessage(TOX_ACCEPTFILE, param1, param2 << 16, data);
         break;
     }
 
