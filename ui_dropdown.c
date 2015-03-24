@@ -54,7 +54,7 @@ static void dropdown_filter_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
 static void dropdown_proxy_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
 {
     if((i != 0) != (options.proxy_type) || i) {
-        options.proxy_type = (i != 0);
+        options.proxy_type = (i != 0) ? TOX_PROXY_TYPE_SOCKS5 : TOX_PROXY_TYPE_NONE;
         if(i == 2 && options.udp_enabled) {
             options.udp_enabled = 0;
             dropdown_udp.selected = dropdown_udp.over = 1;

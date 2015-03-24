@@ -647,7 +647,7 @@ NEXT:
 
     options.ipv6_enabled = save->enableipv6;
     options.udp_enabled = !save->disableudp;
-    options.proxy_type = !!save->proxyenable;
+    options.proxy_type = save->proxyenable ? TOX_PROXY_TYPE_SOCKS5 : TOX_PROXY_TYPE_NONE;
     options.proxy_port = save->proxy_port;
     strcpy((char*)proxy_address, (char*)save->proxy_ip);
     edit_proxy_ip.length = strlen((char*)save->proxy_ip);
