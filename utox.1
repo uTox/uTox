@@ -1,4 +1,4 @@
-.TH UTOX "1" "March 2015" "µTox 0.2n" "User Commands"
+.TH UTOX "1" "March 2015" "µTox 0.2.o" "User Commands"
 .SH NAME
 µTox \- Lightweight Tox client
 
@@ -24,10 +24,10 @@ uasge: utox [--portable] [--theme <default|dark|light|highcontrast>]
     Choose a color scheme. Possible options are \fBdefault\fP, \fBdark\fP, \fBlight\fP, or \fBhighcontrast\fP.
 
 \-\-portable
-    run in portable mode
+    Run in portable mode.
 
 \-\-version
-    print version and exit
+    Print version and exit.
 
 .SH FILES
 All files listed below are located in \fB$HOME/.config/tox\fP. If µTox is
@@ -39,9 +39,10 @@ status and contacts. It's compatible with other Tox clients.
 \fButox_save\fP is µTox' binary config file, it contains settings such as
 language, proxy options, DPI or logging.
 .SS avatars
-The \fBavatars\fP directory contains other contacts' avatars along with their
-hashes. Avatars are named [public_key].png, avatar hashes are called
-[public_key].hash.
+The \fBavatars\fP directory contains other contacts' avatars. Files are named
+after contacts' public keys (the first 64 characters of the ID).
+.SS [public key].txt
+Those are friends' chat logs. µTox supports only 1v1 chat logging for now.
 
 .SH CONTRIBUTORS
 Please see the list page:
