@@ -1543,7 +1543,10 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
     case FRIEND_FILE_NEW: {
         FILE_TRANSFER *file_handle = data;
         file_handle->ui_data = message_add_type_file(file_handle);
-        updatefriend(&friend[file_handle->friend_number]);
+        FRIEND *f = &friend[file_handle->friend_number];
+
+        file_notify(f, file_handle->ui_data);
+        updatefriend(f);
         break;
     }
 
@@ -1553,11 +1556,23 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         if(!msg){//TODO shove on ui thread
             return;
         }
-        msg->status = file->status;
+
+        FRIEND *f = &friend[file->friend_number];
+
+        _Bool f_notify = 0;
+        if (msg->status != file->status) {
+            f_notify = 1;
+            msg->status = file->status;
+        }
+
         msg->progress = file->size_transferred;
         msg->speed = file->speed;
         msg->path = file->path;
-        updatefriend(&friend[file->friend_number]);
+        if (f_notify) {
+            file_notify(f, msg);
+        }
+
+        updatefriend(f);
         free(file);
         break;
     }
