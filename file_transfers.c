@@ -85,8 +85,10 @@ static void utox_run_file(FILE_TRANSFER *file, uint8_t us){
 }
 
 static void utox_kill_file(FILE_TRANSFER *file, uint8_t us){
-    if (file->status == FILE_TRANSFER_STATUS_NONE) {
+    if (file->status == FILE_TRANSFER_STATUS_KILLED) {
         debug("File already killed.\n");
+        return;
+    } else if(file->status == FILE_TRANSFER_STATUS_NONE){
         return;
     }
 
@@ -98,7 +100,7 @@ static void utox_kill_file(FILE_TRANSFER *file, uint8_t us){
         --friend[file->friend_number].transfer_count;
     }
 
-    file->status = FILE_TRANSFER_STATUS_NONE;
+    file->status = FILE_TRANSFER_STATUS_KILLED;
     //TODO free not freed data.
 }
 
