@@ -147,7 +147,7 @@ _Bool v4l_init(char *dev_name)
     video_height = fmt.fmt.pix.height;
     dest_fmt.fmt.pix.width = fmt.fmt.pix.width;
     dest_fmt.fmt.pix.height = fmt.fmt.pix.height;
-    debug("Video size: %u %u\n", video_width, video_height);
+    debug_v2(3, "V4L:\t\tVideo size: %u %u\n", video_width, video_height);
 
 
 
