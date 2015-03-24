@@ -1273,6 +1273,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
             if(wcscmp(arglist[i], L"--version") == 0) {
                 debug("uTox version: %s\n", VERSION);
                 return 0;
+            } else if(wcscmp(arglist[i], L"-v") == 0) {
+                verb_level++;
             } else if (wcscmp(arglist[i], L"--portable") == 0) {
                 /* force the working directory if opened with portable command */
                 HMODULE hModule = GetModuleHandle(NULL);

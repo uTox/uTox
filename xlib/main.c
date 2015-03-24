@@ -1035,6 +1035,10 @@ int main(int argc, char *argv[])
             if(!strcmp(argv[i], "--theme")) {
                 parse_args_wait_for_theme = 1;
             }
+            if(!strcmp(argv[i], "-v")){
+                verb_level++;
+            }
+
             printf("arg %d: %s\n", i, argv[i]);
         }
 
