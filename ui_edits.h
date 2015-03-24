@@ -14,10 +14,6 @@ static void edit_name_onenter(EDIT *edit)
     char_t *data = edit->data;
     STRING_IDX length = edit->length;
 
-    if(!length) {
-        return;
-    }
-
     memcpy(self.name, data, length);
     self.name_length = length;
     update_tray();
@@ -30,18 +26,19 @@ static void edit_status_onenter(EDIT *edit)
     char_t *data = edit->data;
     STRING_IDX length = edit->length;
 
-    if(!length) {
-        return;
+    if(length) {
+        void *p = realloc(self.statusmsg, length);
+        if(!p) {
+            return;
+        }
+
+        self.statusmsg = p;
+        memcpy(self.statusmsg, data, length);
+        self.statusmsg_length = length;
+    } else {
+        self.statusmsg_length = length;
     }
 
-    void *p = realloc(self.statusmsg, length);
-    if(!p) {
-        return;
-    }
-
-    self.statusmsg = p;
-    memcpy(self.statusmsg, data, length);
-    self.statusmsg_length = length;
     update_tray();
 
     tox_postmessage(TOX_SETSTATUSMSG, length, 0, self.statusmsg);//!
