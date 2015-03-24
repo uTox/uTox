@@ -68,7 +68,7 @@ static void utox_run_file(FILE_TRANSFER *file, uint8_t us){
         } else if(file->status == FILE_TRANSFER_STATUS_PAUSED_THEM) {
             // Do nothing;
         } else {
-            debug("FileTransfer:\tTried to run a file from an unknown state!\n");
+            debug("FileTransfer:\tTried to run outgoing file from an unknown state!\n");
         }
     } else {
         if(file->status == FILE_TRANSFER_STATUS_PAUSED_US){
@@ -78,7 +78,7 @@ static void utox_run_file(FILE_TRANSFER *file, uint8_t us){
         } else if(file->status == FILE_TRANSFER_STATUS_PAUSED_THEM) {
             file->status = FILE_TRANSFER_STATUS_ACTIVE;
         } else {
-            debug("FileTransfer:\tTried to run a file from an unknown state!\n");
+            debug("FileTransfer:\tTried to run incoming file from an unknown state!\n");
         }
     }
     utox_update_user_file(file);
@@ -185,10 +185,12 @@ void file_transfer_local_control(Tox *tox, uint32_t friend_number, uint32_t file
 
     switch(control){
         case TOX_FILE_CONTROL_RESUME:
-            // if not started
-            debug("FileTransfer:\tWe just accepted file (%u & %u)\n", friend_number, file_number);
+            if(info->size > 0){
+                debug("FileTransfer:\tWe just resumed file (%u & %u)\n", friend_number, file_number);
+            } else {
+                debug("FileTransfer:\tWe just accepted file (%u & %u)\n", friend_number, file_number);
+            }
             // else
-            debug("FileTransfer:\tWe just resumed file (%u & %u)\n", friend_number, file_number);
             utox_run_file(info, 1);
             tox_file_control(tox, friend_number, file_number, control, &error);
             break;
@@ -348,12 +350,22 @@ static void incoming_file_callback_chunk(Tox *UNUSED(tox), uint32_t friend_numbe
             memcpy(file_handle->memory + position, data, length);
         }
     } else {
-        fseeko(file_handle->file, 0, position);
-        size_t write_size = fwrite(data, 1, length, file_handle->file);
-        if(write_size != length){
-            debug("\n\nFileTransfer:\tERROR WRITING DATA TO FILE! (%u & %u)\n\n", friend_number, file_number);
-            tox_postmessage(TOX_FILE_INCOMING_CANCEL, friend_number, file_number, NULL);
-            return;
+        if(file_handle->in_tmp_loc){
+            fseeko(file_handle->tmp_file, 0, position);
+            size_t write_size = fwrite(data, 1, length, file_handle->tmp_file);
+            if(write_size != length){
+                debug("\n\nFileTransfer:\tERROR WRITING DATA TO TEMP FILE! (%u & %u)\n\n", friend_number, file_number);
+                tox_postmessage(TOX_FILE_INCOMING_CANCEL, friend_number, file_number, NULL);
+                return;
+            }
+        } else {
+            fseeko(file_handle->file, 0, position);
+            size_t write_size = fwrite(data, 1, length, file_handle->file);
+            if(write_size != length){
+                debug("\n\nFileTransfer:\tERROR WRITING DATA TO FILE! (%u & %u)\n\n", friend_number, file_number);
+                tox_postmessage(TOX_FILE_INCOMING_CANCEL, friend_number, file_number, NULL);
+                return;
+            }
         }
     }
     file_handle->size_transferred += length;
@@ -606,8 +618,43 @@ int utox_file_start_write(uint32_t friend_number, uint32_t file_number, void *fi
     file_handle->path = filepath;
     file_handle->path_length = strlen(filepath);
     file_handle->status = FILE_TRANSFER_STATUS_ACTIVE;
+    if(file_handle->in_tmp_loc){
+        fseeko(file_handle->tmp_file, 0, SEEK_SET);
+        fwrite(file_handle->tmp_file, 1, file_handle->size_transferred, file_handle->file);
+        fclose(file_handle->tmp_file);
+        file_handle->in_tmp_loc = 0;
+        free(file_handle->tmp_path);
+    }
     return 0;
 }
+
+int utox_file_start_temp_write(uint32_t friend_number, uint32_t file_number){
+    FILE_TRANSFER *file_handle = get_file_transfer(friend_number, file_number);
+    uint8_t path[512], *filepath;
+    size_t path_length;
+
+    path_length = datapath_subdir(path, FILE_TRANSFER_TEMP_PATH);
+    // Subdir for each friend?
+    memcpy(path + path_length, file_handle->name, file_handle->name_length);
+
+    debug("temppath:\t%s\n",path);
+
+    filepath = malloc(path_length + 1 + file_handle->name_length);
+    memcpy(filepath, path, path_length + file_handle->name_length + 1);
+
+    file_handle->tmp_file = fopen(filepath, "wb");
+    if(!file_handle->tmp_file) {
+        free(filepath);
+        file_handle->status = FILE_TRANSFER_STATUS_BROKEN;
+        return -1;
+    }
+    file_handle->in_tmp_loc = 1;
+    file_handle->tmp_path = filepath;
+    file_handle->tmp_path_length = strlen(filepath);
+    file_handle->status = FILE_TRANSFER_STATUS_ACTIVE;
+    return 0;
+}
+
 
 void utox_set_callbacks_for_transfer(Tox *tox){
     /* Incoming files */

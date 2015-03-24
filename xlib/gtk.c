@@ -103,6 +103,10 @@ static void gtk_savethread(void *args){
     uint16_t fid = file->progress;
     file->progress = 0;
 
+    // We're going to save this file somewhere, so we should start the transfer to save time.
+    postmessage(FILE_START_TEMP, fid, (file->filenumber >> 16), file);
+    debug("Saving file to temp dir...\n");
+
     while(1){ //TODO, save current dir, and filename and preload them to gtk dialog if save fails.
         /* Create a GTK save window */
         void *dialog = gtk_file_chooser_dialog_new("Save File", NULL, 1, "gtk-cancel", -6, "gtk-save", -3, NULL);
@@ -118,7 +122,7 @@ static void gtk_savethread(void *args){
         //gtk_file_chooser_set_create_folders(dialog, TRUE);
         int result = gtk_dialog_run(dialog);
         /* If user is ready to save check then pass to utox. */
-        if(result == -3) {
+        if(result == -3) { // -3 == GTK_RESPONSE_ACCEPT
             char *name = gtk_file_chooser_get_filename(dialog);
             char *path = strdup(name);
             //g_free(name)
@@ -147,6 +151,9 @@ static void gtk_savethread(void *args){
                 postmessage(SAVE_FILE, fid, (file->filenumber >> 16), path);
                 break;
             }
+        } else if (-6) { // -6 == GTK_RESPONSE_CANCEL
+            debug("Aborting in progress file...\n");
+            postmessage(FILE_ABORT_TEMP, fid, (file->filenumber >> 16), file);
         }
         /* catch all */
         gtk_widget_destroy(dialog);

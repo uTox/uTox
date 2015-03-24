@@ -1074,6 +1074,15 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
         break;
     }
 
+    case TOX_FILE_START_TEMP:{
+        /* param1: friend #
+         * param2: file # */
+        utox_file_start_temp_write(param1, param2);
+        file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_RESUME);
+        break;
+    }
+
+
     case TOX_ACCEPTFILE: {
         /* param1: friend #
          * param2: file #
@@ -1088,7 +1097,6 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
     }
 
     case TOX_FILE_INCOMING_RESUME:
-
     case TOX_FILE_OUTGOING_RESUME:{
         /* param1: friend #
          * param2: file #           tox, friend#, file#,       RESUME_FILE */
@@ -1220,6 +1228,22 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
 
     case SAVE_FILE: {
         tox_postmessage(TOX_ACCEPTFILE, param1, param2 << 16, data);
+        break;
+    }
+
+    case FILE_START_TEMP:{
+        // Called once the user starts looking for a save location
+            // start ft to a temp directory
+            // start writing data
+        tox_postmessage(TOX_FILE_START_TEMP, param1, param2 << 16, data);
+        break;
+    }
+
+    case FILE_ABORT_TEMP:{
+        // User canceled file saving.
+            // stop/pause ft
+            // kill the file
+            // delete existing data
         break;
     }
 
