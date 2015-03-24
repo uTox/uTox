@@ -130,6 +130,8 @@ volatile _Bool logging_enabled, audible_notifications_enabled, audio_filtering_e
 
 volatile uint16_t loaded_audio_in_device, loaded_audio_out_device;
 
+uint8_t verb_level;
+
 #define MAX_NUM_FRIENDS 256
 #define MAX_NUM_GROUPS 512
 

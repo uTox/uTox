@@ -11,6 +11,8 @@
 #include <errno.h>
 
 #define debug(...) ((void)__android_log_print(ANDROID_LOG_INFO, "utox", __VA_ARGS__))
+#define debug_v2(x, ...) (x <= verb_level) ? debug(__VA_ARGS__) : 0;
+
 
 #define RGB(r, g, b) ((r) | ((g) << 8) | ((b) << 16))
 

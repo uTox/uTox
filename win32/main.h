@@ -16,6 +16,8 @@
 #define KEY_PAGEDOWN VK_NEXT
 
 #define debug(...) printf(__VA_ARGS__); fflush(stdout)
+#define debug_v2(x, ...) (x <= verb_level) ? debug(__VA_ARGS__) : 0;
+
 
 #define KEY(x) (x)
 

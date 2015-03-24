@@ -15,6 +15,8 @@
 #include <errno.h>
 
 #define debug(...) printf(__VA_ARGS__)
+#define debug_v2(x, ...) (x <= verb_level) ? debug(__VA_ARGS__): 0 ;
+
 
 #define RGB(r, g, b) (((r) << 16) | ((g) << 8) | (b))
 
