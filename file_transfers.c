@@ -648,6 +648,7 @@ static void incoming_file_callback_chunk(Tox *UNUSED(tox), uint32_t friend_numbe
     FILE_TRANSFER *file_handle = get_file_transfer(friend_number, file_number);
 
     if(length == 0){
+        debug_v2(1, "\nFileTransfer:\tIncoming transfer is done (%u & %u)\n", friend_number, file_number);
         utox_complete_file(file_handle);
         return;
     }

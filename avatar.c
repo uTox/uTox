@@ -84,7 +84,7 @@ int set_avatar(AVATAR *avatar, const uint8_t *data, uint32_t size)
     uint16_t w, h;
     UTOX_NATIVE_IMAGE *image = png_to_image((UTOX_PNG_IMAGE)data, size, &w, &h, 1);
     if(!UTOX_NATIVE_IMAGE_IS_VALID(image)) {
-        debug("Avatars:\t avatar is invalid\n");
+        debug_v2(1, "Avatars:\t avatar is invalid\n");
         return 0;
     } else {
 

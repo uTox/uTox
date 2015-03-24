@@ -107,7 +107,7 @@ void log_read(Tox *tox, int fid)
 
     file = fopen((char*)path, "rb");
     if(!file) {
-        debug("File not found (%s)\n", path);
+        debug_v2(1, "LogRead:\tFile not found (%s)\n", path);
         p = path + datapath_old(path);
 
         len = log_file_name(p, sizeof(path) - (p - path), tox, fid);
@@ -118,7 +118,7 @@ void log_read(Tox *tox, int fid)
 
         file = fopen((char*) path, "rb");
         if (!file) {
-            debug("File not found (%s)\n", path);
+            debug_v2(1, "LogRead:\tFile not found (%s)\n", path);
             return;
         }
     }
@@ -205,7 +205,7 @@ void log_read(Tox *tox, int fid)
 
         m->data[m->n++] = msg;
 
-        debug("loaded backlog: %d: %.*s\n", fid, msg->length, msg->msg);
+        debug_v2(3, "ToxLoad:\tLoaded Backlog: Friend(%d): %.*s\n", fid, msg->length, msg->msg);
     }
 
     fclose(file);
@@ -432,27 +432,27 @@ static void write_save(Tox *tox)
     memcpy(path_tmp + (path_len - 1), ".tmp", sizeof(".tmp"));
 
 
-    debug("Writing tox_save to: %s\n", (char*)path_tmp);
+    debug_v2(2, "Toxsave:\tWriting tox_save to: %s\n", (char*)path_tmp);
     file = fopen((char*)path_tmp, "wb");
     if(file) {
         fwrite(data, size, 1, file);
         flush_file(file);
         fclose(file);
         if (rename((char*)path_tmp, (char*)path_real) != 0) {
-            debug("Failed to rename file. %s to %s deleting and trying again\n", path_tmp, path_real);
+            debug_v2(0, "Toxsave:\tFailed to rename file. %s to %s deleting and trying again\n", path_tmp, path_real);
             remove((const char *)path_real);
             if (rename((char*)path_tmp, (char*)path_real) != 0) {
-                debug("Saving Failed\n");
+                debug_v2(0, "Toxsave:\tSaving Failed\n");
             } else {
-                debug("Saved data\n");
+                debug_v2(3, "Toxsave:\tSaved data\n");
             }
         } else {
-            debug("Saved data\n");
+            debug_v2(2, "ToxSave:\tSaved data\n");
             int ch = ch_mod(path_real);
             if(!ch){
-                debug("CHMOD: success\n");
+                debug_v2(3, "CHMOD:\tsuccess\n");
             } else {
-                debug("CHMOD: failure\n");
+                debug_v2(0, "CHMOD:\tFailure changing permissions on tox_save\n");
             }
         }
     } else {

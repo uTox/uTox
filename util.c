@@ -8,7 +8,8 @@ void* file_raw(char *path, uint32_t *size)
 
     file = fopen(path, "rb");
     if(!file) {
-        // debug("File not found (%s)\n", path);
+        /* Default debug +2 because this error should be handled elsewhere */
+        debug_v2(2, "RawFile:\tFile not found (%s)\n", path);
         return NULL;
     }
 
@@ -23,7 +24,7 @@ void* file_raw(char *path, uint32_t *size)
     fseek(file, 0, SEEK_SET);
 
     if(fread(data, len, 1, file) != 1) {
-        debug("Read error (%s)\n", path);
+        debug_v2(2, "RawFile:\tRead error (%s)\n", path);
         fclose(file);
         free(data);
         return NULL;
@@ -31,7 +32,8 @@ void* file_raw(char *path, uint32_t *size)
 
     fclose(file);
 
-    // debug("Read %u bytes (%s)\n", len, path);
+    /* debug +3 because this is not an error! */
+    debug_v2(3, "RawFile:\tRead %u bytes (%s)\n", len, path);
 
     if(size) {
         *size = len;
@@ -47,7 +49,7 @@ void* file_text(char *path)
 
     file = fopen(path, "rb");
     if(!file) {
-        debug("File not found (%s)\n", path);
+        debug_v2(2, "TextFile:\tFile not found (%s)\n", path);
         return NULL;
     }
 
@@ -62,7 +64,7 @@ void* file_text(char *path)
     fseek(file, 0, SEEK_SET);
 
     if(fread(data, len, 1, file) != 1) {
-        debug("Read error (%s)\n", path);
+        debug_v2(2, "TextFile:\tRead error (%s)\n", path);
         fclose(file);
         free(data);
         return NULL;
@@ -70,7 +72,7 @@ void* file_text(char *path)
 
     fclose(file);
 
-    debug("Read %u bytes (%s)\n", len, path);
+    debug_v2(3, "TextFile:\tRead %u bytes (%s)\n", len, path);
 
     data[len] = 0;
     return data;
@@ -652,7 +654,7 @@ NEXT:
     dropdown_audible_notification.selected = dropdown_audible_notification.over = !save->audible_notifications_enabled;
     dropdown_audio_filtering.selected = dropdown_audio_filtering.over = !save->audio_filtering_enabled;
     dropdown_filter.selected = FILTER = save->filter;
-    //dropdown_theme_onselect.selected = dropdown_theme_onselect.over = save->theme;
+    // dropdown_theme_onselect.selected = dropdown_theme_onselect.over = save->theme;
 
     options.ipv6_enabled = save->enableipv6;
     options.udp_enabled = !save->disableudp;
@@ -712,7 +714,7 @@ void config_save(UTOX_SAVE *save)
     save->theme = theme;
     memset(save->unused, 0, sizeof(save->unused));
 
-    debug("Writing uTox Save	::\n");
+    debug_v2(3, "CONFIG:\tWriting uTox Save	::\n");
     fwrite(save, sizeof(*save), 1, file);
     fwrite(options.proxy_host, strlen(options.proxy_host), 1, file);
     fclose(file);

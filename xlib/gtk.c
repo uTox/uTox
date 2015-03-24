@@ -240,7 +240,7 @@ void* gtk_load(void)
 {
     void *lib = dlopen(LIBGTK_FILENAME, RTLD_LAZY);
     if(lib) {
-        debug("have GTK\n");
+        debug_v2(2, "Main:\tWe have GTK\n");
 
         gtk_init = dlsym(lib, "gtk_init");
         gtk_main_iteration = dlsym(lib, "gtk_main_iteration");
