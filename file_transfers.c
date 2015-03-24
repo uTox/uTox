@@ -3,7 +3,7 @@
 //static FILE_TRANSFER *file_t[256], **file_tend = file_t;
 static FILE_TRANSFER outgoing_transfer[MAX_NUM_FRIENDS][MAX_FILE_TRANSFERS];
 static FILE_TRANSFER incoming_transfer[MAX_NUM_FRIENDS][MAX_FILE_TRANSFERS];
-static BROKEN_TRANSFERS broken_list[32]; /* TODO De-hardcode this */
+static BROKEN_TRANSFER broken_list[32]; /* TODO De-hardcode this */
 
 FILE_TRANSFER *get_file_transfer(uint32_t friend_number, uint32_t file_number){
     _Bool incoming = 0;
@@ -67,19 +67,22 @@ static _Bool utox_file_alloc_resume(Tox *tox, FILE_TRANSFER *file){
         for(int i = 1; i <= 32; i++){
             if(!broken_list[i].used){
                 broken_list[i].used = 1;
+                broken_list[i].outgoing = !file->incoming;
 
                 broken_list[i].friend_number = file->friend_number;
                 broken_list[i].file_number = file->file_number;
                 broken_list[i].file_id = file->file_id;
 
-                broken_list[i].data = *file;
+                uint8_t *data = malloc(sizeof(FILE_TRANSFER));
+                memcpy(data, file, sizeof(FILE_TRANSFER));
+                broken_list[i].data = data;
 
                 file->resume = i;
                 break;
             }
         }
         if(file->resume){
-            debug("Ready to resume file %.*s, broken number %u\n", TOX_FILE_ID_LENGTH, file->file_id, file->resume);
+            debug("Ready to resume file %.*s, broken number %u\n", (uint32_t)file->name_length, file->name, file->resume);
             return 1;
         } else {
             return 0;
@@ -90,10 +93,11 @@ static _Bool utox_file_alloc_resume(Tox *tox, FILE_TRANSFER *file){
 }
 
 static void utox_file_free_resume(uint8_t i){
-    if(i >= 1 && i <= 32)
-        memset(&broken_list[i], 0, sizeof(BROKEN_TRANSFERS));
+    if(i >= 1 && i <= 32){
+        memset(&broken_list[i], 0, sizeof(BROKEN_TRANSFER));
+        // TODO recurse and free needed allocs
         debug("FileTransfer:\tBroken transfer #%u reset!\n",i);
-
+    }
 }
 
 static void utox_kill_file(FILE_TRANSFER *file, uint8_t us){
@@ -221,9 +225,17 @@ static void utox_complete_file(FILE_TRANSFER *file){
     utox_file_free_resume(file->resume);
 }
 
-void ft_friend_online(Tox *tox, uint32_t friend_number)
-{
-    //TODO resuming
+static void utox_restart_file(Tox *tox, BROKEN_TRANSFER broken, uint8_t broken_number){
+    debug("FileTransfer:\tRestarting File\n");
+    outgoing_file_send_restart(tox, broken.data, broken_number);
+}
+
+void ft_friend_online(Tox *tox, uint32_t friend_number){
+    for(int i = 1; i <= 32; i++){
+        if(broken_list[i].friend_number == friend_number && broken_list[i].outgoing){
+            utox_restart_file(tox, broken_list[i], i);
+        }
+    }
 }
 
 void ft_friend_offline(Tox *tox, uint32_t friend_number)
@@ -478,6 +490,58 @@ void outgoing_file_send_new(Tox *tox, uint32_t friend_number, uint8_t *path, con
 
         ++friend[friend_number].transfer_count;
         debug("Sending file %d of %d(max) to friend(%d).\n", friend[friend_number].transfer_count, MAX_FILE_TRANSFERS, friend_number);
+        // Create a new msg for the UI and save it's pointer
+        postmessage(FRIEND_FILE_NEW, 0, 0, file_handle);
+    } else {
+        debug("tox_file_send() failed\n");
+    }
+}
+
+void outgoing_file_send_restart(Tox *tox, FILE_TRANSFER *broken_data, uint8_t broken_number){
+    debug("FileTransfer:\tRestarting outgoing file to friend %u. (filename, %s)\n", broken_data->friend_number, broken_data->name);
+
+    if(friend[broken_data->friend_number].transfer_count >= MAX_FILE_TRANSFERS) {
+        debug("FileTransfer:\tMaximum outgoing file sending limit reached(%u/%u) for friend(%u). ABORTING!\n",
+                                            friend[broken_data->friend_number].transfer_count, MAX_FILE_TRANSFERS, broken_data->friend_number);
+        utox_file_free_resume(broken_data->resume);
+        return;
+    }
+
+    if(!broken_data->file) {
+        debug("FileTransfer:\tUnable to open file for reading!\n");
+        return;
+    }
+
+
+    TOX_ERR_FILE_SEND error;
+    const uint8_t *file_id = broken_data->file_id;
+
+    int new_file_number = tox_file_send(tox, broken_data->friend_number, TOX_FILE_KIND_DATA, broken_data->size, file_id, broken_data->name, broken_data->name_length, &error);
+
+    if(new_file_number != -1) {
+        FILE_TRANSFER *file_handle = get_file_transfer(broken_data->friend_number, new_file_number);
+        memset(file_handle, 0, sizeof(FILE_TRANSFER));
+
+
+        file_handle->friend_number = broken_data->friend_number;
+        file_handle->file_number = new_file_number;
+        file_handle->status = FILE_TRANSFER_STATUS_PAUSED_THEM;
+
+        file_handle->file = broken_data->file;
+
+        file_handle->name = (uint8_t*)strdup((char*)broken_data->name);
+        file_handle->path = (uint8_t*)strdup((char*)broken_data->path);
+        file_handle->name_length = broken_data->name_length;
+        file_handle->path_length = broken_data->path_length;
+
+        file_handle->size = broken_data->size;
+
+        utox_file_free_resume(broken_number);
+
+        utox_file_alloc_resume(tox, file_handle);
+
+        ++friend[file_handle->friend_number].transfer_count;
+        debug("Resending file %d of %d(max) to friend(%d).\n", friend[file_handle->friend_number].transfer_count, MAX_FILE_TRANSFERS, file_handle->friend_number);
         // Create a new msg for the UI and save it's pointer
         postmessage(FRIEND_FILE_NEW, 0, 0, file_handle);
     } else {

@@ -32,12 +32,12 @@ typedef struct FILE_TRANSFER {
 } FILE_TRANSFER;
 
 typedef struct {
-    _Bool used;
+    _Bool used, outgoing;
     uint32_t friend_number, file_number;
     uint8_t *file_id;
 
-    FILE_TRANSFER data;
-} BROKEN_TRANSFERS;
+    FILE_TRANSFER *data;
+} BROKEN_TRANSFER;
 
 /** local callback for file transfers
  *
@@ -63,6 +63,8 @@ void file_transfer_local_control(Tox *tox, uint32_t friend_number, uint32_t file
    *
    * TODO, support resuming file. */
   void outgoing_file_send_new(Tox *tox, uint32_t friend_number, uint8_t *path, const uint8_t *filename, size_t filename_length);
+  /* Restarts a broken file. */
+  void outgoing_file_send_restart(Tox *tox, FILE_TRANSFER *broken_data, uint8_t broken_number);
   /* Send an inline file/image. */
   void outgoing_file_send_inline(Tox *tox, uint32_t friend_number, uint8_t *image, size_t image_size);
   /* Send a newly changed avatar, called by avatar functions. */
