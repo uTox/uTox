@@ -15,7 +15,7 @@ enum UTOX_FILE_TRANSFER_STATUS{
 
 typedef struct FILE_TRANSFER {
     uint32_t friend_number, file_number;
-    uint8_t status;
+    uint8_t status, resume;
     uint32_t kind;
     _Bool incoming, in_memory, is_avatar, in_tmp_loc;
     uint8_t *path, *name, *tmp_path, *file_id;
@@ -30,6 +30,14 @@ typedef struct FILE_TRANSFER {
     FILE *file, *tmp_file;
     MSG_FILE *ui_data;
 } FILE_TRANSFER;
+
+typedef struct {
+    _Bool used;
+    uint32_t friend_number, file_number;
+    uint8_t *file_id;
+
+    FILE_TRANSFER data;
+} BROKEN_TRANSFERS;
 
 /** local callback for file transfers
  *

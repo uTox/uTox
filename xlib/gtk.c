@@ -104,8 +104,9 @@ static void gtk_savethread(void *args){
     file->progress = 0;
 
     // We're going to save this file somewhere, so we should start the transfer to save time.
-    postmessage(FILE_START_TEMP, fid, (file->filenumber >> 16), file);
-    debug("Saving file to temp dir...\n");
+    // TODO restart this idea
+    // postmessage(FILE_START_TEMP, fid, (file->filenumber >> 16), file);
+    // debug("Saving file to temp dir...\n");
 
     while(1){ //TODO, save current dir, and filename and preload them to gtk dialog if save fails.
         /* Create a GTK save window */
