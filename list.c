@@ -149,6 +149,8 @@ static void selectitem(ITEM *i)
 
     edit_resetfocus();
 
+    // deselect old item
+
     if(sitem->item == ITEM_FRIEND) {
         FRIEND *f = sitem->data;
 
@@ -168,15 +170,15 @@ static void selectitem(ITEM *i)
         GROUPCHAT *g = sitem->data;
 
         free(g->typed);
-        g->typed_length = edit_msg.length;
-        g->typed = malloc(edit_msg.length);
-        memcpy(g->typed, edit_msg.data, edit_msg.length);
+        g->typed_length = edit_msg_group.length;
+        g->typed = malloc(edit_msg_group.length);
+        memcpy(g->typed, edit_msg_group.data, edit_msg_group.length);
 
         g->msg.scroll = messages_group.panel.content_scroll->d;
 
-        g->edit_history = edit_msg.history;
-        g->edit_history_cur = edit_msg.history_cur;
-        g->edit_history_length = edit_msg.history_length;
+        g->edit_history = edit_msg_group.history;
+        g->edit_history_cur = edit_msg_group.history_cur;
+        g->edit_history_length = edit_msg_group.history_length;
     }
 
     if(sitem->item == ITEM_SETTINGS) {
@@ -190,6 +192,8 @@ static void selectitem(ITEM *i)
     if(sitem->item == ITEM_TRANSFER) {
         button_transfer.disabled = 0;
     }
+
+    // select new item
 
     if(i->item == ITEM_FRIEND) {
         FRIEND *f = i->data;
@@ -223,8 +227,8 @@ static void selectitem(ITEM *i)
     if(i->item == ITEM_GROUP) {
         GROUPCHAT *g = i->data;
 
-        memcpy(edit_msg.data, g->typed, g->typed_length);
-        edit_msg.length = g->typed_length;
+        memcpy(edit_msg_group.data, g->typed, g->typed_length);
+        edit_msg_group.length = g->typed_length;
 
         messages_group.data = &g->msg;
         messages_updateheight(&messages_group);
@@ -236,9 +240,9 @@ static void selectitem(ITEM *i)
 
         g->msg.id = g - group;
 
-        edit_msg.history = g->edit_history;
-        edit_msg.history_cur = g->edit_history_cur;
-        edit_msg.history_length = g->edit_history_length;
+        edit_msg_group.history = g->edit_history;
+        edit_msg_group.history_cur = g->edit_history_cur;
+        edit_msg_group.history_length = g->edit_history_length;
     }
 
     if(i->item == ITEM_SETTINGS) {
