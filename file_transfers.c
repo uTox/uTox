@@ -3,7 +3,11 @@
 //static FILE_TRANSFER *file_t[256], **file_tend = file_t;
 static FILE_TRANSFER outgoing_transfer[MAX_NUM_FRIENDS][MAX_FILE_TRANSFERS];
 static FILE_TRANSFER incoming_transfer[MAX_NUM_FRIENDS][MAX_FILE_TRANSFERS];
-static BROKEN_TRANSFER broken_list[32]; /* TODO De-hardcode this */
+static BROKEN_TRANSFER broken_list[32]; /* TODO De-hardcode this
+                                           TODO Save this to file */
+
+// Remove if supported by core
+#define TOX_FILE_KIND_EXISTING 3
 
 FILE_TRANSFER *get_file_transfer(uint32_t friend_number, uint32_t file_number){
     _Bool incoming = 0;
@@ -73,7 +77,7 @@ static _Bool utox_file_alloc_resume(Tox *tox, FILE_TRANSFER *file){
                 broken_list[i].file_number = file->file_number;
                 broken_list[i].file_id = file->file_id;
 
-                uint8_t *data = malloc(sizeof(FILE_TRANSFER));
+                FILE_TRANSFER *data = malloc(sizeof(FILE_TRANSFER));
                 memcpy(data, file, sizeof(FILE_TRANSFER));
                 broken_list[i].data = data;
 
@@ -98,6 +102,16 @@ static void utox_file_free_resume(uint8_t i){
         // TODO recurse and free needed allocs
         debug("FileTransfer:\tBroken transfer #%u reset!\n",i);
     }
+}
+
+static FILE_TRANSFER* utox_file_find_existing(uint8_t *file_id){
+    int i;
+    for(i = 1; i <= 32; i++){
+        if(memcmp(broken_list[i].file_id, file_id, TOX_FILE_ID_LENGTH) == 0){
+            return broken_list[i].data;
+        }
+    }
+    return NULL;
 }
 
 static void utox_kill_file(FILE_TRANSFER *file, uint8_t us){
@@ -227,7 +241,7 @@ static void utox_complete_file(FILE_TRANSFER *file){
 
 static void utox_restart_file(Tox *tox, BROKEN_TRANSFER broken, uint8_t broken_number){
     debug("FileTransfer:\tRestarting File\n");
-    outgoing_file_send_restart(tox, broken.data, broken_number);
+    outgoing_file_send_existing(tox, broken.data, broken_number);
 }
 
 void ft_friend_online(Tox *tox, uint32_t friend_number){
@@ -356,13 +370,77 @@ static void incoming_file_avatar(Tox *tox, uint32_t friend_number, uint32_t file
     file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_RESUME);
 }
 
+static void incoming_file_existing(Tox *tox, uint32_t friend_number, uint32_t file_number, uint32_t kind, uint64_t file_size, const uint8_t *filename, size_t filename_length, void *UNUSED(user_data)){
+    //new incoming file
+    debug("FileTransfer:\tIncoming Existing file from friend (%u) \nFileTransfer:\n", friend_number);
+
+    uint8_t new_id[TOX_FILE_ID_LENGTH] = {0};
+    tox_file_get_file_id(tox, friend_number, file_number, new_id, 0);
+    FILE_TRANSFER *file_new = get_file_transfer(friend_number, file_number);
+
+    uint8_t existing_id[TOX_FILE_ID_LENGTH] = {0};
+    FILE_TRANSFER *file_existing = utox_file_find_existing(new_id);
+
+    if (!file_new) {
+        tox_file_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL, 0);
+        return;
+    }
+
+    if( file_existing->friend_number == friend_number &&
+        file_existing->size == file_size &&
+        memcmp(file_existing->name, filename, filename_length) == 0 ){
+            // DO STUFF
+            TOX_ERR_FILE_SEEK error;
+            uint8_t old_broken_number = file_existing->resume;
+            tox_file_seek(tox, friend_number, file_number, file_existing->size, &error);
+
+            memset(file_new, 0, sizeof(FILE_TRANSFER));
+
+            file_new->friend_number = friend_number;
+            file_new->file_number = file_number;
+
+            file_new->name = (uint8_t*)strdup((char*)filename);
+            file_new->name_length = filename_length;
+            file_new->size = file_size;
+
+            file_new->incoming = 1;
+
+            utox_file_free_resume(old_broken_number);
+            utox_file_alloc_resume(tox, file_new);
+
+            file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_RESUME);
+    } else {
+        debug("Something didn't match, treating as a new file.\n");
+
+        memset(file_new, 0, sizeof(FILE_TRANSFER));
+
+        // Set ids
+        file_new->friend_number = friend_number;
+        file_new->file_number = file_number;
+        file_new->incoming = 1;
+        file_new->in_memory = 0;
+        file_new->size = file_size;
+
+        file_new->name = (uint8_t*)strdup((char*)filename);
+        file_new->name_length = filename_length;
+
+        utox_file_alloc_resume(tox, file_new);
+
+        postmessage(FRIEND_FILE_NEW, 0, 0, file_new);
+    }
+}
+
 /* Function called by core with a new incoming file. */
 static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uint32_t file_number, uint32_t kind, uint64_t file_size, const uint8_t *filename, size_t filename_length, void *user_data){
-    debug("FileTransfer:\tNew incoming file from friend (%u) file number (%u)\nFileTransfer:\t\tfilename: %s\n", friend_number, file_number, filename);
 
     if(kind == TOX_FILE_KIND_AVATAR){
         incoming_file_avatar(tox, friend_number, file_number, kind, file_size, filename, filename_length, user_data);
         return;
+    } else if (kind == TOX_FILE_KIND_EXISTING){
+        incoming_file_existing(tox, friend_number, file_number, kind, file_size, filename, filename_length, user_data);
+        return;
+    } else {
+        debug("FileTransfer:\tNew incoming file from friend (%u) file number (%u)\nFileTransfer:\t\tfilename: %s\n", friend_number, file_number, filename);
     }
 
     FILE_TRANSFER *file_handle = get_file_transfer(friend_number, file_number);
@@ -497,7 +575,7 @@ void outgoing_file_send_new(Tox *tox, uint32_t friend_number, uint8_t *path, con
     }
 }
 
-void outgoing_file_send_restart(Tox *tox, FILE_TRANSFER *broken_data, uint8_t broken_number){
+void outgoing_file_send_existing(Tox *tox, FILE_TRANSFER *broken_data, uint8_t broken_number){
     debug("FileTransfer:\tRestarting outgoing file to friend %u. (filename, %s)\n", broken_data->friend_number, broken_data->name);
 
     if(friend[broken_data->friend_number].transfer_count >= MAX_FILE_TRANSFERS) {
@@ -516,7 +594,7 @@ void outgoing_file_send_restart(Tox *tox, FILE_TRANSFER *broken_data, uint8_t br
     TOX_ERR_FILE_SEND error;
     const uint8_t *file_id = broken_data->file_id;
 
-    int new_file_number = tox_file_send(tox, broken_data->friend_number, TOX_FILE_KIND_DATA, broken_data->size, file_id, broken_data->name, broken_data->name_length, &error);
+    int new_file_number = tox_file_send(tox, broken_data->friend_number, TOX_FILE_KIND_EXISTING, broken_data->size, file_id, broken_data->name, broken_data->name_length, &error);
 
     if(new_file_number != -1) {
         FILE_TRANSFER *file_handle = get_file_transfer(broken_data->friend_number, new_file_number);
