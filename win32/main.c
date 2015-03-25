@@ -431,23 +431,6 @@ uint64_t get_time(void)
     return ((uint64_t)clock() * 1000 * 1000);
 }
 
-void address_to_clipboard(void)
-{
-#define size sizeof(self.id)
-
-    HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, (size + 1) * 2);
-    wchar_t *p = GlobalLock(hMem);
-    utf8tonative(self.id, p, size);
-    p[size] = 0;
-    GlobalUnlock(hMem);
-    OpenClipboard(hwnd);
-    EmptyClipboard();
-    SetClipboardData(CF_UNICODETEXT, hMem);
-    CloseClipboard();
-
-#undef size
-}
-
 void openurl(char_t *str)
 {
     //!convert

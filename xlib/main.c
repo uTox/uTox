@@ -394,15 +394,6 @@ uint64_t get_time(void)
 }
 
 
-void address_to_clipboard(void)
-{
-    memcpy(clipboard.data, self.id, sizeof(self.id));
-    clipboard.len = sizeof(self.id);
-    setclipboard();
-
-    setselection(self.id, sizeof(self.id));
-}
-
 void openurl(char_t *str)
 {
     char *cmd = "xdg-open";

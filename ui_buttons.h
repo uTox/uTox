@@ -43,7 +43,8 @@ static void button_setcolors_disabled(BUTTON *b)
 
 static void button_copyid_onpress(void)
 {
-    address_to_clipboard();
+    edit_setfocus(&edit_toxid);
+    copy(0);
 }
 
 static void button_audiopreview_onpress(void)

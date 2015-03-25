@@ -143,10 +143,6 @@ void paste(void)
 {
 }
 
-void address_to_clipboard(void)
-{
-}
-
 void openurl(char_t *str)
 {
 }

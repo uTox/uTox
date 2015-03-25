@@ -336,7 +336,6 @@ uint64_t get_time(void);
 void copy(int value);
 void paste(void);
 
-void address_to_clipboard(void);
 void openurl(char_t *str);
 void openfilesend(void);
 
