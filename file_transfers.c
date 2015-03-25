@@ -86,7 +86,7 @@ static _Bool utox_file_alloc_resume(Tox *tox, FILE_TRANSFER *file){
             }
         }
         if(file->resume){
-            debug("Ready to resume file %.*s, broken number %u\n", (uint32_t)file->name_length, file->name, file->resume);
+            debug("FileTransfer:\tBroken transfer #%u set; ready to resume file %.*s\n", file->resume, (uint32_t)file->name_length, file->name);
             return 1;
         } else {
             return 0;
@@ -150,28 +150,61 @@ static void utox_break_file(FILE_TRANSFER *file){
 }
 
 static void utox_pause_file(FILE_TRANSFER *file, uint8_t us){
-    if(us){
-        if(file->status == FILE_TRANSFER_STATUS_PAUSED_US){
-            debug("FileTransfer:\tFile already paused by us!\n");
-        } else if (file->status == FILE_TRANSFER_STATUS_PAUSED_THEM) {
-            file->status = FILE_TRANSFER_STATUS_PAUSED_BOTH;
-            debug("FileTransfer:\tFile now paused by both!\n");
-        } else if (file->status == FILE_TRANSFER_STATUS_PAUSED_BOTH) {
-            debug("FileTransfer:\tFile already paused by both!\n");
-        } else {
+    switch(file->status){
+    case FILE_TRANSFER_STATUS_NONE:{
+        debug("FileTransfer:\tWe can't pause an unaccepted file!\n");
+        break;
+    }
+    case FILE_TRANSFER_STATUS_ACTIVE:{
+        if(us){
+            debug("FileTransfer:\tFile now paused by us.\n");
             file->status = FILE_TRANSFER_STATUS_PAUSED_US;
-        }
-    } else {
-        if(file->status == FILE_TRANSFER_STATUS_PAUSED_US){
-            file->status = FILE_TRANSFER_STATUS_PAUSED_BOTH;
-            debug("FileTransfer:\tFile now paused by both!\n");
-        } else if (file->status == FILE_TRANSFER_STATUS_PAUSED_THEM) {
-            debug("FileTransfer:\tFile was already paused by them!\n");
-        } else if (file->status == FILE_TRANSFER_STATUS_PAUSED_BOTH) {
-            debug("FileTransfer:\tFile now paused by them, and still paused by us!\n");
         } else {
+            debug("FileTransfer:\tFile now paused by them.\n");
             file->status = FILE_TRANSFER_STATUS_PAUSED_THEM;
         }
+        break;
+    }
+    case FILE_TRANSFER_STATUS_PAUSED_US:
+    case FILE_TRANSFER_STATUS_PAUSED_BOTH:
+    case FILE_TRANSFER_STATUS_PAUSED_THEM:{
+        if(us){
+            if(file->status == FILE_TRANSFER_STATUS_PAUSED_US){
+                debug("FileTransfer:\tFile already paused by us!\n");
+            } else if (file->status == FILE_TRANSFER_STATUS_PAUSED_THEM) {
+                file->status = FILE_TRANSFER_STATUS_PAUSED_BOTH;
+                debug("FileTransfer:\tFile now paused by both!\n");
+            } else if (file->status == FILE_TRANSFER_STATUS_PAUSED_BOTH) {
+                debug("FileTransfer:\tFile already paused by both!\n");
+            } else {
+                file->status = FILE_TRANSFER_STATUS_PAUSED_US;
+            }
+        } else {
+            if(file->status == FILE_TRANSFER_STATUS_PAUSED_US){
+                file->status = FILE_TRANSFER_STATUS_PAUSED_BOTH;
+                debug("FileTransfer:\tFile now paused by both!\n");
+            } else if (file->status == FILE_TRANSFER_STATUS_PAUSED_THEM) {
+                debug("FileTransfer:\tFile was already paused by them!\n");
+            } else if (file->status == FILE_TRANSFER_STATUS_PAUSED_BOTH) {
+                debug("FileTransfer:\tFile already paused by both!\n");
+            } else {
+                file->status = FILE_TRANSFER_STATUS_PAUSED_THEM;
+            }
+        }
+        break;
+    }
+    case FILE_TRANSFER_STATUS_BROKEN:{
+        debug("FileTransfer:\tCan't pause a broken file;\n");
+        break;
+    }
+    case FILE_TRANSFER_STATUS_COMPLETED:{
+        debug("FileTransfer:\tCan't pause a completed file;\n");
+        break;
+    }
+    case FILE_TRANSFER_STATUS_KILLED:{
+        debug("FileTransfer:\tCan't pause a killed file;\n");
+        break;
+    }
     }
     utox_update_user_file(file);
     //TODO free not freed data.
@@ -603,7 +636,8 @@ void outgoing_file_send_existing(Tox *tox, FILE_TRANSFER *broken_data, uint8_t b
 
         file_handle->friend_number = broken_data->friend_number;
         file_handle->file_number = new_file_number;
-        file_handle->status = FILE_TRANSFER_STATUS_PAUSED_THEM;
+
+
 
         file_handle->file = broken_data->file;
 
