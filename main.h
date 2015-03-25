@@ -55,7 +55,8 @@ typedef struct
     uint8_t audio_filtering_enabled : 1;
     uint8_t close_to_tray : 1;
     uint8_t start_in_tray : 1;
-    uint8_t zero : 2;
+    uint8_t auto_startup : 1;
+    uint8_t zero : 1;
     uint16_t audio_device_in;
     uint16_t audio_device_out;
     uint8_t theme;
@@ -125,7 +126,7 @@ _Bool tox_connected;
 
 _Bool audio_preview, video_preview;
 
-volatile _Bool logging_enabled, audible_notifications_enabled, audio_filtering_enabled, close_to_tray, start_in_tray;
+volatile _Bool logging_enabled, audible_notifications_enabled, audio_filtering_enabled, close_to_tray, start_in_tray, auto_startup;
 
 volatile uint16_t loaded_audio_in_device, loaded_audio_out_device;
 
@@ -230,6 +231,9 @@ enum
 };
 
 #define isdesktop(x) ((size_t)(x) == 1)
+
+// inserts/deletes a value into the registry to launch uTox after boot
+void launch_at_startup(int is_launch_at_startup);
 
 void drawalpha(int bm, int x, int y, int width, int height, uint32_t color);
 void loadalpha(int bm, void *data, int width, int height);
