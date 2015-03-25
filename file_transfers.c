@@ -122,7 +122,7 @@ static void utox_kill_file(FILE_TRANSFER *file, uint8_t us){
     utox_file_free_resume(file->resume);
 }
 
-static void utox_break_file(FILE_TRANSFER *file, uint8_t us){
+static void utox_break_file(FILE_TRANSFER *file){
     if (file->status <= FILE_TRANSFER_STATUS_BROKEN && file->status != FILE_TRANSFER_STATUS_KILLED) {
 
         file->status = FILE_TRANSFER_STATUS_BROKEN;
@@ -131,7 +131,7 @@ static void utox_break_file(FILE_TRANSFER *file, uint8_t us){
         debug("File already killed.\n");
         return;
     } else if(file->status == FILE_TRANSFER_STATUS_NONE){
-        return utox_kill_file(file, us); /* We don't save unstarted files */
+        return utox_kill_file(file, 1); /* We don't save unstarted files */
     }
 }
 
@@ -243,8 +243,8 @@ void ft_friend_offline(Tox *tox, uint32_t friend_number)
     //TODO resuming
     unsigned int i;
     for (i = 0; i < MAX_FILE_TRANSFERS; ++i) {
-        utox_kill_file(&incoming_transfer[friend_number][i], 0);
-        utox_break_file(&outgoing_transfer[friend_number][i], 0);
+        utox_break_file(&incoming_transfer[friend_number][i]);
+        utox_break_file(&outgoing_transfer[friend_number][i]);
     }
 }
 
