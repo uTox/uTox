@@ -407,6 +407,9 @@ panel_settings = {
     .content_scroll = &scroll_settings,
     .child = (PANEL*[]) {
         (void*)&button_copyid,
+#ifdef EMOJI_IDS
+        (void*)&button_change_id_type,
+#endif
         (void*)&button_callpreview, (void*)&button_videopreview,
         (void*)&edit_name, (void*)&edit_status, (void*)&edit_toxid, (void*)&edit_proxy_ip,
         (void*)&edit_proxy_port,
@@ -592,7 +595,15 @@ void ui_scale(uint8_t scale)
         .width = BM_SBUTTON_WIDTH,
         .height = BM_SBUTTON_HEIGHT,
     },
-
+#ifdef EMOJI_IDS
+    b_change_id_type = {
+        .type = PANEL_BUTTON,
+        .x = SCALE * 63,
+        .y = SCALE * 53,
+        .width = BM_SBUTTON_WIDTH,
+        .height = BM_SBUTTON_HEIGHT,
+    },
+#endif
     b_addfriend = {
         .type = PANEL_BUTTON,
         .x = -SCALE * 5 - BM_SBUTTON_WIDTH,
@@ -720,6 +731,9 @@ void ui_scale(uint8_t scale)
     button_transfer.panel = b_transfer;
     button_groups.panel = b_groups;
     button_copyid.panel = b_copyid;
+#ifdef EMOJI_IDS
+    button_change_id_type.panel = b_change_id_type;
+#endif
     button_addfriend.panel = b_addfriend;
     button_call.panel = b_call;
     button_group_audio.panel = b_group_audio;

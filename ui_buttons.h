@@ -47,6 +47,20 @@ static void button_copyid_onpress(void)
     copy(0);
 }
 
+#ifdef EMOJI_IDS
+static void button_change_id_type_onpress(void)
+{
+    edit_resetfocus();
+    if (self.id_buffer_length == TOX_FRIEND_ADDRESS_SIZE * 2) {
+        self.id_buffer_length = bytes_to_emoji_string(self.id_buffer, sizeof(self.id_buffer), self.id_binary, TOX_FRIEND_ADDRESS_SIZE);
+        edit_toxid.length = self.id_buffer_length;
+    } else {
+        id_to_string(self.id_buffer, self.id_binary);
+        self.id_buffer_length = edit_toxid.length = TOX_FRIEND_ADDRESS_SIZE * 2;
+    }
+}
+#endif
+
 static void button_audiopreview_onpress(void)
 {
     if (!audio_preview)
@@ -468,6 +482,15 @@ button_copyid = {
     .updatecolor = button_setcolors_success,
     .onpress = button_copyid_onpress,
 },
+
+#ifdef EMOJI_IDS
+button_change_id_type = {
+    .bm = BM_SBUTTON,
+    //.button_text = { .i18nal = STR_COPY_TOX_ID },
+    .updatecolor = button_setcolors_success,
+    .onpress = button_change_id_type_onpress,
+},
+#endif
 
 button_addfriend = {
     .bm = BM_SBUTTON,

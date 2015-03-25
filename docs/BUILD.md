@@ -18,6 +18,8 @@ or if you built toxcore statically:
 
 For the build to pass you need to install the following from sources: [filteraudio](https://github.com/irungentoo/filter_audio) [libtoxcore](https://github.com/irungentoo/toxcore)
 
+For base emoji ids support you need: [base_emoji](https://github.com/irungentoo/base_emoji)
+
 <a name="win" />
 ## Windows
 

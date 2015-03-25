@@ -21,6 +21,10 @@
 #include <tox/toxav.h>
 #include <vpx/vpx_codec.h>
 
+#ifdef EMOJI_IDS
+#include <base_emoji.h>
+#endif
+
 #define countof(x) (sizeof(x)/sizeof(*(x)))
 #define volatile(x) (*((volatile typeof(x)*)&x))
 

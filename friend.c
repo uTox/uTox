@@ -143,6 +143,13 @@ void friend_add(char_t *name, STRING_IDX length, char_t *msg, STRING_IDX msg_len
         return;
     }
 
+#ifdef EMOJI_IDS
+    uint8_t emo_id[TOX_FRIEND_ADDRESS_SIZE];
+    if (emoji_string_to_bytes(emo_id, TOX_FRIEND_ADDRESS_SIZE, name, length) == TOX_FRIEND_ADDRESS_SIZE) {
+        friend_addid(emo_id, msg, msg_length);
+    }
+#endif
+
     uint8_t name_cleaned[length];
     uint16_t length_cleaned = 0;
 
