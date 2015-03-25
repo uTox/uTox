@@ -32,7 +32,7 @@ typedef struct FILE_TRANSFER {
 } FILE_TRANSFER;
 
 typedef struct {
-    _Bool used, outgoing;
+    _Bool used, incoming;
     uint32_t friend_number, file_number;
     uint8_t *file_id;
 
