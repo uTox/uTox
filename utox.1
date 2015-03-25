@@ -19,29 +19,29 @@ uasge: utox [--portable] [--theme <default|dark|light|highcontrast>]
  * file transfers
 
 .SH OPTIONS
-.SS General Options
-\-\-theme <THEME>
-    Choose a color scheme. Possible options are \fBdefault\fP, \fBdark\fP, \fBlight\fP, or \fBhighcontrast\fP.
+.IP "\fB\-\-theme\fP <THEME>"
+Choose a color scheme. Possible options are \fIdefault\fP, \fIdark\fP,
+\fIlight\fP, or \fIhighcontrast\fP.
 
-\-\-portable
-    Run in portable mode.
+.IP \fB\-\-portable\fP
+Run in portable mode.
 
-\-\-version
-    Print version and exit.
+.IP \fB\-\-version\fP
+Print version and exit.
 
 .SH FILES
 All files listed below are located in \fB$HOME/.config/tox\fP. If µTox is
 running in portable mode, their location will be \fB./tox\fP.
-.SS tox_save.tox
+.IP \fBtox_save.tox\fP
 \fBtox_save.tox\fP is the file that contains the public/private key pair, name,
 status and contacts. It's compatible with other Tox clients.
-.SS utox_save
+.IP \fButox_save\fP
 \fButox_save\fP is µTox' binary config file, it contains settings such as
 language, proxy options, DPI or logging.
-.SS avatars
+.IP \fBavatars\fP
 The \fBavatars\fP directory contains other contacts' avatars. Files are named
 after contacts' public keys (the first 64 characters of the ID).
-.SS [public key].txt
+.IP "\fB[public key].txt\fP"
 Those are friends' chat logs. µTox supports only 1v1 chat logging for now.
 
 .SH CONTRIBUTORS
