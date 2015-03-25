@@ -247,6 +247,9 @@ msgstr("Asztal")
 msgid(AUDIO_IN_DEFAULT_LOOPBACK)
 msgstr("Alapértelmezett Loopback")
 
+msgid(AUDIO_IN_ANDROID)
+msgstr("OpenSL bevitel")
+
 msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
 msgstr("Kérem, fogadja el ezt a partnerkérelmet!")
 
@@ -276,3 +279,18 @@ msgstr("A kiválasztott kép nem található, vagy üres.")
 
 msgid(CLEAR_HISTORY)
 msgstr("Előzmények törlése")
+
+msgid(THEME)
+msgstr("Téma")
+
+msgid(THEME_DEFAULT)
+msgstr("Alapértelmezett")
+
+msgid(THEME_LIGHT)
+msgstr("Világos téma")
+
+msgid(THEME_DARK)
+msgstr("Sötét téma")
+
+msgid(THEME_HIGHCONTRAST)
+msgstr("Feltűnő téma")
