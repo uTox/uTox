@@ -122,7 +122,9 @@ int self_set_avatar(const uint8_t *data, uint32_t size)
 int self_set_and_save_avatar(const uint8_t *data, uint32_t size)
 {
     if (self_set_avatar(data, size)) {
-        save_avatar(self.id, data, size);
+        uint8_t hex_id[TOX_FRIEND_ADDRESS_SIZE * 2];
+        id_to_string(hex_id, self.id_binary);
+        save_avatar(hex_id, data, size);
         return 1;
     } else {
         return 0;
@@ -132,7 +134,9 @@ int self_set_and_save_avatar(const uint8_t *data, uint32_t size)
 void self_remove_avatar()
 {
     unset_avatar(&self.avatar);
-    delete_saved_avatar(self.id);
+    uint8_t hex_id[TOX_FRIEND_ADDRESS_SIZE * 2];
+    id_to_string(hex_id, self.id_binary);
+    delete_saved_avatar(hex_id);
     tox_postmessage(TOX_UNSETAVATAR, 0, 0, NULL);
 }
 

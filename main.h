@@ -276,7 +276,10 @@ struct
     uint8_t status;
     STRING_IDX name_length, statusmsg_length;
     char_t *statusmsg, name[TOX_MAX_NAME_LENGTH];
-    char_t id[TOX_FRIEND_ADDRESS_SIZE * 2];
+    char_t id_buffer[TOX_FRIEND_ADDRESS_SIZE * 4];
+    size_t id_buffer_length;
+
+    uint8_t id_binary[TOX_FRIEND_ADDRESS_SIZE];
     AVATAR avatar;
 
     unsigned int avatar_format;

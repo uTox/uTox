@@ -439,8 +439,8 @@ EDIT edit_name = {
 },
 
 edit_toxid = {
-    .length = sizeof(self.id),
-    .data = self.id,
+    .length = TOX_FRIEND_ADDRESS_SIZE * 2,
+    .data = self.id_buffer,
     .readonly = 1,
     .noborder = 1,
     .select_completely = 1,

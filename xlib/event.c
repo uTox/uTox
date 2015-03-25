@@ -425,7 +425,7 @@ _Bool doevent(XEvent event)
                 .target = ev->target,
                 .time = ev->time
             }
-        };//self.id, sizeof(self.id)
+        };
 
         if(ev->target == XA_UTF8_STRING || ev->target == XA_STRING) {
             if(ev->selection == XA_PRIMARY) {

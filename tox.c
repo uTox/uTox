@@ -569,12 +569,17 @@ void tox_thread(void *UNUSED(args))
 
         // Get tox id, and gets the hex version for utox
         tox_self_get_address(tox, id);
-        id_to_string(self.id, id);
-        debug("Tox ID: %.*s\n", (int)sizeof(self.id), self.id);
+        memcpy(self.id_binary, id, TOX_FRIEND_ADDRESS_SIZE);
+        id_to_string(self.id_buffer, id);
+        self.id_buffer_length = TOX_FRIEND_ADDRESS_SIZE * 2;
+        debug("Tox ID: %.*s\n", (int)self.id_buffer_length, self.id_buffer);
 
         uint8_t avatar_data[UTOX_AVATAR_MAX_DATA_LENGTH];
         uint32_t avatar_size;
-        if (init_avatar(&self.avatar, self.id, avatar_data, &avatar_size)) {
+
+        uint8_t hex_id[TOX_FRIEND_ADDRESS_SIZE * 2];
+        id_to_string(hex_id, self.id_binary);
+        if (init_avatar(&self.avatar, hex_id, avatar_data, &avatar_size)) {
             //TODO tox_set_avatar(tox, UTOX_AVATAR_FORMAT_PNG, avatar_data, avatar_size); // set avatar before connecting
 
             char_t hash_string[TOX_HASH_LENGTH * 2];
