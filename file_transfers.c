@@ -3,7 +3,7 @@
 //static FILE_TRANSFER *file_t[256], **file_tend = file_t;
 static FILE_TRANSFER outgoing_transfer[MAX_NUM_FRIENDS][MAX_FILE_TRANSFERS];
 static FILE_TRANSFER incoming_transfer[MAX_NUM_FRIENDS][MAX_FILE_TRANSFERS];
-static BROKEN_TRANSFER broken_list[32]; /* TODO De-hardcode this
+static BROKEN_TRANSFER broken_list[32] = {0}; /* TODO De-hardcode this
                                            TODO Save this to file */
 
 // Remove if supported by core
@@ -662,7 +662,7 @@ void outgoing_file_send_existing(Tox *tox, FILE_TRANSFER *broken_data, uint8_t b
         ++friend[file_handle->friend_number].transfer_count;
         debug("Resending file %d of %d(max) to friend(%d).\n", friend[file_handle->friend_number].transfer_count, MAX_FILE_TRANSFERS, file_handle->friend_number);
         // Create a new msg for the UI and save it's pointer
-        postmessage(FRIEND_FILE_NEW, 0, 0, file_handle);
+        postmessage(FRIEND_FILE_UPDATE, 0, 0, file_handle);
     } else {
         debug("tox_file_send() failed\n");
     }
