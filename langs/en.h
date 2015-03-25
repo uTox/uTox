@@ -303,3 +303,6 @@ msgstr("Dark theme")
 
 msgid(THEME_HIGHCONTRAST)
 msgstr("High contrast")
+
+msgid(AUTO_STARTUP)
+msgstr("Launch at system startup")
