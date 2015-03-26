@@ -10,6 +10,14 @@ If you're looking for it to "just work" you're going to want [these instructions
 
 ### Xlib
 
+The easy way out is:
+```sh
+cd uTox/
+make
+make install
+```
+
+But if the hard way is more your thing:
 `cc -o uTox.o *.c ./png/png.c -lX11 -lXrender -lXext -ltoxcore -ltoxav -ltoxdns -lopenal -pthread -lresolv -ldl -lm -lfilteraudio -lfontconfig -lv4lconvert -lvpx -I/usr/include/freetype2 -ldbus-1`
 
 or if you built toxcore statically:
