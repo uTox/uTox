@@ -3,7 +3,7 @@
 //static FILE_TRANSFER *file_t[256], **file_tend = file_t;
 static FILE_TRANSFER outgoing_transfer[MAX_NUM_FRIENDS][MAX_FILE_TRANSFERS];
 static FILE_TRANSFER incoming_transfer[MAX_NUM_FRIENDS][MAX_FILE_TRANSFERS];
-static BROKEN_TRANSFER broken_list[32] = {0}; /* TODO De-hardcode this
+static BROKEN_TRANSFER broken_list[33] = {{0}}; /* TODO De-hardcode this. 33 because we can't use 0.
                                            TODO Save this to file */
 
 // Remove if supported by core
