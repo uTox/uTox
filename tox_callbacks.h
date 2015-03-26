@@ -124,14 +124,6 @@ static void callback_connection_status(Tox *tox, uint32_t fid, TOX_CONNECTION st
 
     postmessage(FRIEND_ONLINE, fid, !!status, NULL);
 
-    if(!status) {
-        ft_friend_offline(tox, fid);
-    } else {
-        ft_friend_online(tox, fid);
-        /* resend avatar info (in case it changed) */
-        avatar_on_friend_online(tox, fid);
-    }
-
     if(status){
         debug("Friend (%u):\t Online\n", fid);
     } else {
