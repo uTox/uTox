@@ -1604,7 +1604,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             f_notify = 1;
             msg->status = file->status;
         }
-
+        msg->filenumber = file->file_number;
         msg->progress = file->size_transferred;
         msg->speed = file->speed;
         msg->path = file->path;
