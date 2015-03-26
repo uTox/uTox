@@ -107,7 +107,7 @@ static void utox_file_free_resume(uint8_t i){
 static FILE_TRANSFER* utox_file_find_existing(uint8_t *file_id){
     int i;
     for(i = 1; i <= 32; i++){
-        if(memcmp(broken_list[i].file_id, file_id, TOX_FILE_ID_LENGTH) == 0){
+        if(broken_list[i].used && memcmp(broken_list[i].file_id, file_id, TOX_FILE_ID_LENGTH) == 0){
             return broken_list[i].data;
         }
     }
@@ -117,20 +117,17 @@ static FILE_TRANSFER* utox_file_find_existing(uint8_t *file_id){
 static void utox_kill_file(FILE_TRANSFER *file, uint8_t us){
     if (file->status == FILE_TRANSFER_STATUS_KILLED) {
         debug("File already killed.\n");
-        return;
     } else if(file->status == FILE_TRANSFER_STATUS_COMPLETED){
         debug("File already completed.\n");
-        return;
+    } else {
+        file->status = FILE_TRANSFER_STATUS_KILLED;
     }
 
-    file->status = FILE_TRANSFER_STATUS_KILLED;
     utox_update_user_file(file);
 
     if (!file->incoming) {
         --friend[file->friend_number].transfer_count;
     }
-
-    file->status = FILE_TRANSFER_STATUS_KILLED;
     //TODO free not freed data.
     utox_file_free_resume(file->resume);
 }
@@ -322,7 +319,6 @@ void file_transfer_local_control(Tox *tox, uint32_t friend_number, uint32_t file
         case TOX_FILE_CONTROL_CANCEL:
             debug("FileTransfer:\tWe just killed file (%u & %u)\n", friend_number, file_number);
             tox_file_control(tox, friend_number, file_number, control, &error);
-
             utox_kill_file(info, 1);
             break;
     }
@@ -364,7 +360,7 @@ static void file_transfer_callback_control(Tox *UNUSED(tox), uint32_t friend_num
 /* Function called by core with a new incoming file. */
 static void incoming_file_avatar(Tox *tox, uint32_t friend_number, uint32_t file_number, uint32_t kind, uint64_t file_size, const uint8_t *filename, size_t filename_length, void *UNUSED(user_data)){
     //new incoming file
-    debug("FileTransfer:\tNew Avatar from friend (%u) \nFileTransfer:\n", friend_number);
+    debug("FileTransfer:\tNew Avatar from friend (%u)\n", friend_number);
 
     FILE_TRANSFER *file_handle = get_file_transfer(friend_number, file_number);
 
@@ -425,9 +421,10 @@ static void incoming_file_existing(Tox *tox, uint32_t friend_number, uint32_t fi
         return;
     }
 
-    if( file_existing->friend_number == friend_number &&
-        file_existing->size == file_size &&
-        memcmp(file_existing->name, filename, filename_length) == 0 ){
+    if(file_existing){
+        if( file_existing->friend_number == friend_number &&
+                file_existing->size == file_size &&
+                memcmp(file_existing->name, filename, filename_length) == 0 ){
             // DO STUFF
             TOX_ERR_FILE_SEEK error;
             uint8_t old_broken_number = file_existing->resume;
@@ -437,36 +434,47 @@ static void incoming_file_existing(Tox *tox, uint32_t friend_number, uint32_t fi
 
             file_new->friend_number = friend_number;
             file_new->file_number = file_number;
+            file_new->size = file_size;
+            file_new->incoming = 1;
 
             file_new->name = (uint8_t*)strdup((char*)filename);
             file_new->name_length = filename_length;
-            file_new->size = file_size;
+            file_new->path = (uint8_t*)strdup((char*)file_existing->path);
+            file_new->path_length = file_existing->path_length;
 
-            file_new->incoming = 1;
+            file_new->file = file_existing->file;
+
+            file_new->ui_data = file_existing->ui_data;
 
 
             utox_file_free_resume(old_broken_number);
             utox_file_alloc_resume(tox, file_new);
 
+            utox_run_file(file_new, 1);
+
             file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_RESUME);
+            postmessage(FRIEND_FILE_UPDATE, 0, 0, file_new);
+        } else {
+            debug("Something didn't match, treating as a new file.\n");
+
+            memset(file_new, 0, sizeof(FILE_TRANSFER));
+
+            // Set ids
+            file_new->friend_number = friend_number;
+            file_new->file_number = file_number;
+            file_new->incoming = 1;
+            file_new->in_memory = 0;
+            file_new->size = file_size;
+
+            file_new->name = (uint8_t*)strdup((char*)filename);
+            file_new->name_length = filename_length;
+
+            utox_file_alloc_resume(tox, file_new);
+
+            postmessage(FRIEND_FILE_NEW, 0, 0, file_new);
+        }
     } else {
-        debug("Something didn't match, treating as a new file.\n");
-
-        memset(file_new, 0, sizeof(FILE_TRANSFER));
-
-        // Set ids
-        file_new->friend_number = friend_number;
-        file_new->file_number = file_number;
-        file_new->incoming = 1;
-        file_new->in_memory = 0;
-        file_new->size = file_size;
-
-        file_new->name = (uint8_t*)strdup((char*)filename);
-        file_new->name_length = filename_length;
-
-        utox_file_alloc_resume(tox, file_new);
-
-        postmessage(FRIEND_FILE_NEW, 0, 0, file_new);
+        debug("FileTransfer:\tWe don't know anything about this file, so for safety we're just going to reject it!.\n");
     }
 }
 
@@ -545,12 +553,16 @@ static void incoming_file_callback_chunk(Tox *UNUSED(tox), uint32_t friend_numbe
                 return;
             }
         } else {
-            fseeko(file_handle->file, 0, position);
-            size_t write_size = fwrite(data, 1, length, file_handle->file);
-            if(write_size != length){
-                debug("\n\nFileTransfer:\tERROR WRITING DATA TO FILE! (%u & %u)\n\n", friend_number, file_number);
-                tox_postmessage(TOX_FILE_INCOMING_CANCEL, friend_number, file_number, NULL);
-                return;
+            if(file_handle->file) {
+                fseeko(file_handle->file, 0, position);
+                size_t write_size = fwrite(data, 1, length, file_handle->file);
+                if(write_size != length){
+                    debug("\n\nFileTransfer:\tERROR WRITING DATA TO FILE! (%u & %u)\n\n", friend_number, file_number);
+                    tox_postmessage(TOX_FILE_INCOMING_CANCEL, friend_number, file_number, NULL);
+                    return;
+                }
+            } else {
+                debug("FileTransfer:\tFile Handle failed!\n");
             }
         }
     }
@@ -652,6 +664,8 @@ void outgoing_file_send_existing(Tox *tox, FILE_TRANSFER *broken_data, uint8_t b
         file_handle->path_length = broken_data->path_length;
 
         file_handle->size = broken_data->size;
+
+        file_handle->ui_data = broken_data->ui_data;
 
         utox_pause_file(file_handle, 1);
 
