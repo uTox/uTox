@@ -88,6 +88,9 @@ msgstr("Search friends")
 msgid(ADD)
 msgstr("Add")
 
+msgid(CREATEGROUPCHAT)
+msgstr("Create Groupchat")
+
 msgid(SWITCHPROFILE)
 msgstr("Switch Profile")
 
@@ -192,6 +195,9 @@ msgstr("Accept")
 
 msgid(IGNORE)
 msgstr("Ignore")
+
+msgid(SENDSCREENSHOT)
+msgstr("Send a screenshot")
 
 msgid(CLICKTOSAVE)
 msgstr("Click to save")

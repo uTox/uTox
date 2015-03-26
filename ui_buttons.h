@@ -457,6 +457,7 @@ button_groups = {
     .bh = _BM_ADD_WIDTH,
     .updatecolor = button_bottommenu_updatecolor,
     .onpress = button_groups_onpress,
+    .tooltip_text = { .i18nal = STR_CREATEGROUPCHAT },
 },
 
 button_transfer = {
@@ -465,6 +466,7 @@ button_transfer = {
     .bh = _BM_ADD_WIDTH,
     .updatecolor = button_bottommenu_updatecolor,
     .onpress = button_transfer_onpress,
+    .tooltip_text = { .i18nal = STR_SWITCHPROFILE },
 },
 
 button_settings = {
@@ -473,7 +475,7 @@ button_settings = {
     .bh = _BM_ADD_WIDTH,
     .updatecolor = button_bottommenu_updatecolor,
     .onpress = button_settings_onpress,
-    .tooltip_text = { .i18nal = STR_OTHERSETTINGS },
+    .tooltip_text = { .i18nal = STR_USERSETTINGS },
 },
 
 button_copyid = {
@@ -569,6 +571,7 @@ button_chat1 = {
     .bh = _BM_CI_WIDTH,
     .onpress = button_chat1_onpress,
     .updatecolor = button_chat1_updatecolor,
+    .tooltip_text = { .i18nal = STR_SENDSCREENSHOT },
 },
 
 /* bottom right chat message window button */
