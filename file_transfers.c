@@ -125,7 +125,7 @@ static void utox_kill_file(FILE_TRANSFER *file, uint8_t us){
 
     utox_update_user_file(file);
 
-    if (!file->incoming) {
+    if (!file->incoming && friend[file->friend_number].transfer_count) {
         --friend[file->friend_number].transfer_count;
     }
     //TODO free not freed data.
@@ -262,7 +262,9 @@ static void utox_complete_file(FILE_TRANSFER *file){
                 fclose(file->file);
             }
 
-            --friend[file->friend_number].transfer_count;
+            if(friend[file->friend_number].transfer_count){
+                --friend[file->friend_number].transfer_count;
+            }
         }
         file->status = FILE_TRANSFER_STATUS_COMPLETED;
         utox_update_user_file(file);
