@@ -818,7 +818,7 @@ static void outgoing_file_callback_chunk(Tox *tox, uint32_t friend_number, uint3
     }
 
     uint8_t buffer[length];
-    size_t read_size;
+    size_t read_size = 0;
 
     if(file_handle->in_memory){
         // Memory
