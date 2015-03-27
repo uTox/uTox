@@ -17,10 +17,10 @@ make
 make install
 ```
 
-But if the hard way is more your thing:
-`cc -o uTox.o *.c ./png/png.c -lX11 -lXrender -lXext -ltoxcore -ltoxav -ltoxdns -lopenal -pthread -lresolv -ldl -lm -lfilteraudio -lfontconfig -lv4lconvert -lvpx -I/usr/include/freetype2 -ldbus-1`
+But if the hard way is more your thing, this might work:
+```clang -o utox *.c png/png.c -g -Wall -Wshadow -pthread -std=gnu99 `pkg-config --libs --cflags fontconfig freetype2 libtoxav libtoxcore openal vpx x11 xext xrender dbus-1 libv4lconvert filteraudio` -pthread -lm  -lresolv -ldl```
 
-or if you built toxcore statically:
+or if you built toxcore statically, less likely to work:
 
 `cc -o uTox.o *.c ./png/png.c -lX11 -lXrender -lXext -ltoxcore -ltoxav -ltoxdns -lopenal -lsodium -lopus -lvpx -lm -pthread -lresolv -ldl -lfilteraudio -lfontconfig -lfreetype -lv4lconvert -I/usr/include/freetype2 -ldbus-1`
 
