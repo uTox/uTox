@@ -140,6 +140,8 @@ enum {
     GROUP_AUDIO_START,
     GROUP_AUDIO_END,
     GROUP_UPDATE,
+
+    TOOLTIP_SHOW,
 };
 
 enum

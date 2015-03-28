@@ -2,9 +2,9 @@ typedef struct tooltip {
     int x, y, width, height;
     _Bool visible;
 
-    _Bool timer_running;
     _Bool can_show;
     _Bool mouse_down;
+    _Bool thread;
 
     MAYBE_I18NAL_STRING* tt_text;
 } TOOLTIP;
@@ -20,4 +20,3 @@ _Bool tooltip_mup(void);
 void tooltip_show(void);
 void tooltip_new(MAYBE_I18NAL_STRING* text);
 
-void mouse_pos_check(void *UNUSED(args));

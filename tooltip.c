@@ -25,12 +25,19 @@ static void calculate_pos_and_width(TOOLTIP *b, int *x, int *w) {
     }
 }
 
+volatile _Bool kill_thread;
+
 void tooltip_reset(void)
 {
     TOOLTIP *b = &tooltip;
 
     b->visible = 0;
     b->can_show = 0;
+
+    if (b->thread) {
+        kill_thread = 1;
+        b->thread = 0;
+    }
 }
 
 void tooltip_draw(void)
@@ -66,6 +73,12 @@ _Bool tooltip_mmove(void)
     }
 
     b->visible = 0;
+
+    if (b->thread) {
+        kill_thread = 1;
+        b->thread = 0;
+    }
+
     return 1;
 }
 
@@ -77,6 +90,11 @@ _Bool tooltip_mdown(void)
     b->mouse_down = 1;
     b->visible = 0;
 
+    if (b->thread) {
+        kill_thread = 1;
+        b->thread = 0;
+    }
+
     return 0;
 }
 
@@ -86,12 +104,22 @@ _Bool tooltip_mup(void)
 
     b->can_show = 0;
     b->mouse_down = 0;
+
+    if (b->thread) {
+        kill_thread = 1;
+        b->thread = 0;
+    }
+
     return 0;
 }
 
 void tooltip_show(void)
 {
+    
     TOOLTIP *b = &tooltip;
+
+    if (!b->can_show)
+        return;
 
     b->y = mouse.y + TOOLTIP_YOFFSET;
     b->height = TOOLTIP_HEIGHT;
@@ -103,8 +131,38 @@ void tooltip_show(void)
 
     b->visible = 1;
 
-    // Only needed for Xlib to unblock XNextEvent
-    force_redraw();
+    if (b->thread) {
+        kill_thread = 1;
+        b->thread = 0;
+    }
+
+}
+
+volatile _Bool reset_time;
+
+static void tooltip_thread(void *UNUSED(args))
+{
+    uint64_t last_move_time = ~0;
+    while (1) {debug("tt\n");
+        if (kill_thread) {
+            break;
+        }
+
+        TOOLTIP *b = &tooltip;
+        if (reset_time) {
+            last_move_time = get_time() + 500 * 1000 * 1000;
+            reset_time = 0;
+        }
+
+        if (get_time() > last_move_time) {
+            postmessage(TOOLTIP_SHOW, 0, 0, NULL);
+            last_move_time = ~0;
+        }
+
+        yieldcpu(100);
+    }
+
+    kill_thread = 0;
 }
 
 // This is being called everytime the mouse is moving above a button
@@ -115,38 +173,16 @@ void tooltip_new(MAYBE_I18NAL_STRING* text)
     b->can_show = 1;
     b->tt_text = text;
 
-    if(b->timer_running || b->visible || b->mouse_down) {
+    if(b->visible || b->mouse_down) {
         return;
     }
 
-    b->timer_running = 1;
-    thread(mouse_pos_check,NULL);
-}
-
-void mouse_pos_check(void *UNUSED(args))
-{
-    TOOLTIP *b = &tooltip;
-    int old_x = 0, old_y = 0, tick = 0;
-
-    while(1) {
-        if(mouse.x - old_x == 0 && mouse.y - old_y == 0) {
-            if(tick >= 5) {
-                // ~500ms of not moving, show tooltip
-                if(b->can_show && !b->mouse_down) {
-                    tooltip_show();
-                }
-                break;
-            } else {
-                tick++;
-            }
-            //debug("Mouse stopped. X: %d, Y: %d, OX: %d, OY: %d\n",mouse.x,mouse.y,old_x,old_y);
-        } else {
-            old_x = mouse.x;
-            old_y = mouse.y;
-            tick = 0;
-        }
-        yieldcpu(100);
+    if (!b->thread && !kill_thread) {
+        thread(tooltip_thread, NULL);
+        b->thread = 1;
     }
-    tick = 0;
-    b->timer_running = 0;
+
+    reset_time = 1;
 }
+
+
