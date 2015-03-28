@@ -557,7 +557,7 @@ static void incoming_file_callback_chunk(Tox *UNUSED(tox), uint32_t friend_numbe
         }
     } else {
         if(file_handle->in_tmp_loc){
-            fseeko(file_handle->tmp_file, 0, position);
+            fseeko(file_handle->tmp_file, position, SEEK_SET);
             size_t write_size = fwrite(data, 1, length, file_handle->tmp_file);
             if(write_size != length){
                 debug("\n\nFileTransfer:\tERROR WRITING DATA TO TEMP FILE! (%u & %u)\n\n", friend_number, file_number);
@@ -570,7 +570,7 @@ static void incoming_file_callback_chunk(Tox *UNUSED(tox), uint32_t friend_numbe
                     debug("FileTransfer:\tCan't get lock, sleeping...\n");
                     yieldcpu(10);
                 }
-                fseeko(file_handle->file, 0, position);
+                fseeko(file_handle->file, position, SEEK_SET);
                 size_t write_size = fwrite(data, 1, length, file_handle->file);
                 fflush(file_handle->file);
                 file_unlock(file_handle->file, position, length);
@@ -859,13 +859,14 @@ static void outgoing_file_callback_chunk(Tox *tox, uint32_t friend_number, uint3
         // File
         FILE *file = file_handle->file;
         if(file){
-            fseeko(file, 0, position);
+            fseeko(file, position, SEEK_SET);
             read_size = fread(buffer, 1, length, file);
         }
     }
 
     if(read_size != length){
         debug("FileTransfer:\tERROR READING FILE! (%u & %u)\n", friend_number, file_number);
+        debug("FileTransfer:\t\tSize (%u), Position (%u), Length(%u), Read_size (%u), Size_transferred (%u).\n", file_handle->size, position, length, read_size, file_handle->size_transferred);
         file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
         return;
     }
