@@ -459,7 +459,7 @@ static void incoming_file_existing(Tox *tox, uint32_t friend_number, uint32_t fi
 
             file_new->resume = utox_file_alloc_resume(tox, file_new);
 
-//            tox_file_seek(tox, friend_number, file_number, file_existing->size, &error);
+            tox_file_seek(tox, friend_number, file_number, file_existing->size_transferred, &error);
             file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_RESUME);
             postmessage(FRIEND_FILE_UPDATE, 0, 0, file_new);
         } else {
@@ -587,6 +587,9 @@ static void incoming_file_callback_chunk(Tox *UNUSED(tox), uint32_t friend_numbe
         }
     }
     file_handle->size_transferred += length;
+    // TODO dirty hack, this needs to be replaced
+    broken_list[file_handle->resume].data->size_transferred = file_handle->size_transferred;
+    broken_list[file_handle->resume].data->file = file_handle->file;
 
     calculate_speed(file_handle);
 }
