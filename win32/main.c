@@ -949,13 +949,16 @@ int ch_mod(uint8_t *file){
     return 1;
 }
 
-/** Creates a tray baloon popup with the message, and flashes the main window
- *
- * accepts: char_t *title, title legnth, char_t *msg, msg length;
- * returns void;
- */
-void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_length, FRIEND *f)
-{
+int file_lock(FILE *file, uint64_t start, size_t length){
+    return LockFileExW(file, LOCKFILE_FAIL_IMMEDIATELY, 0, start, start + length, 0);
+}
+
+int file_unlock(FILE *file, uint64_t start, size_t length){
+    return UnlockFileExW(file, 0, start, start + length, 0);
+}
+
+
+void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_length, FRIEND *f){
     if(havefocus) {
         return;
     }

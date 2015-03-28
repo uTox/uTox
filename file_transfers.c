@@ -556,8 +556,14 @@ static void incoming_file_callback_chunk(Tox *UNUSED(tox), uint32_t friend_numbe
             }
         } else {
             if(file_handle->file) {
+                while(!file_lock(file_handle->file, position, length)){
+                    debug("FileTransfer:\tCan't get lock, sleeping...\n");
+                    yieldcpu(10);
+                }
                 fseeko(file_handle->file, 0, position);
                 size_t write_size = fwrite(data, 1, length, file_handle->file);
+                fflush(file_handle->file);
+                file_unlock(file_handle->file, position, length);
                 if(write_size != length){
                     debug("\n\nFileTransfer:\tERROR WRITING DATA TO FILE! (%u & %u)\n\n", friend_number, file_number);
                     tox_postmessage(TOX_FILE_INCOMING_CANCEL, friend_number, file_number, NULL);
