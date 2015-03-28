@@ -1124,7 +1124,7 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
         } else {
             ft_friend_online(tox, param1);
             /* resend avatar info (in case it changed) */
-            avatar_on_friend_online(tox, param1);
+            // TODO enable this, avatar_on_friend_online(tox, param1);
         }
         break;
     }

@@ -133,16 +133,12 @@ static void utox_kill_file(FILE_TRANSFER *file, uint8_t us){
 }
 
 static void utox_break_file(FILE_TRANSFER *file){
-    if (file->status <= FILE_TRANSFER_STATUS_BROKEN && file->status != FILE_TRANSFER_STATUS_KILLED) {
-
-        file->status = FILE_TRANSFER_STATUS_BROKEN;
-        return;
-
-        debug("File already killed.\n");
-        return;
-    } else if(file->status == FILE_TRANSFER_STATUS_NONE){
+    if(file->status == FILE_TRANSFER_STATUS_NONE){
         return utox_kill_file(file, 1); /* We don't save unstarted files */
     }
+
+    file->status = FILE_TRANSFER_STATUS_BROKEN;
+    utox_update_user_file(file);
 }
 
 static void utox_pause_file(FILE_TRANSFER *file, uint8_t us){
@@ -309,7 +305,7 @@ void file_transfer_local_control(Tox *tox, uint32_t friend_number, uint32_t file
                 tox_file_control(tox, friend_number, file_number, control, &error);
                 debug("FileTransfer:\tWe just resumed file (%u & %u)\n", friend_number, file_number);
             } else {
-                debug("FileTransfer:\tWe just accepted file (%u & %u)\n", friend_number, file_number);
+                debug("FileTransfer:\tFile already active (%u & %u)\n", friend_number, file_number);
             }
             utox_run_file(info, 1);
             break;
@@ -441,8 +437,8 @@ static void incoming_file_existing(Tox *tox, uint32_t friend_number, uint32_t fi
 
             file_new->name = (uint8_t*)strdup((char*)filename);
             file_new->name_length = filename_length;
-            file_new->path = (uint8_t*)strdup((char*)file_existing->path);
-            file_new->path_length = file_existing->path_length;
+            // file_new->path = (uint8_t*)strdup((char*)file_existing->path);
+            // file_new->path_length = file_existing->path_length;
 
             file_new->file = file_existing->file;
 
@@ -451,8 +447,6 @@ static void incoming_file_existing(Tox *tox, uint32_t friend_number, uint32_t fi
 
             utox_file_free_resume(old_broken_number);
             utox_file_alloc_resume(tox, file_new);
-
-            utox_run_file(file_new, 1);
 
             file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_RESUME);
             postmessage(FRIEND_FILE_UPDATE, 0, 0, file_new);
@@ -528,8 +522,7 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
 }
 
 static void incoming_file_callback_chunk(Tox *UNUSED(tox), uint32_t friend_number, uint32_t file_number, uint64_t position, const uint8_t *data, size_t length, void *UNUSED(user_data)){
-    //debug("FileTransfer:\tIncoming chunk for friend (%u), and file (%u). Start (%u), End (%u).\r",
-    //                                                                  friend_number, file_number, position, length);
+    // debug("FileTransfer:\tIncoming chunk friend(%u), file(%u), start(%u), end(%u), \n", friend_number, file_number, position, length);
 
     FILE_TRANSFER *file_handle = get_file_transfer(friend_number, file_number);
 
@@ -814,7 +807,7 @@ int outgoing_file_send_avatar(Tox *tox, uint32_t friend_number, uint8_t *avatar,
 
 static void outgoing_file_callback_chunk(Tox *tox, uint32_t friend_number, uint32_t file_number, uint64_t position, size_t length, void *UNUSED(user_data)){
 
-    //debug("FileTransfer:\tChunk requested for friend_id (%u), and file_id (%u). Start (%u), End (%u).\r", friend_number, file_number, position, length);
+    // debug("FileTransfer:\tChunk requested for friend_id (%u), and file_id (%u). Start (%lu), End (%zu).\r", friend_number, file_number, position, length);
     //send a chunk of data size of length with
 
     FILE_TRANSFER *file_handle = get_file_transfer(friend_number, file_number);
