@@ -1582,7 +1582,6 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
 
     case FRIEND_FILE_NEW: {
         FILE_TRANSFER *file_handle = data;
-        file_handle->ui_data = message_add_type_file(file_handle);
         FRIEND *f = &friend[file_handle->friend_number];
 
         file_notify(f, file_handle->ui_data);
@@ -1613,7 +1612,8 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         }
 
         updatefriend(f);
-        free(file);
+        // todo free
+        // free(file);
         break;
     }
 
