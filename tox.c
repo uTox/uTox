@@ -285,8 +285,6 @@ static void set_callbacks(Tox *tox)
     tox_callback_friend_typing(tox, callback_typing_change, NULL);
     tox_callback_friend_read_receipt(tox, callback_read_receipt, NULL);
     tox_callback_friend_connection_status(tox, callback_connection_status, NULL);
-    //TODO tox_callback_avatar_info(tox, callback_avatar_info, NULL);
-    //TODO tox_callback_avatar_data(tox, callback_avatar_data, NULL);
 
     tox_callback_group_invite(tox, callback_group_invite, NULL);
     tox_callback_group_message(tox, callback_group_message, NULL);
@@ -1041,9 +1039,6 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
                                     /* tox, Friend, path, filename,      filename_length */
                 outgoing_file_send_new(tox, param1, name, name + param2, strlen((const char*)(name + param2)));
             } else {
-                // TODO : multi file support
-                debug("multifile not supported yet!\n");
-                break;
                 uint8_t *p = name + param2;
                 name += param2 - 1;
                 if(*(name - 1) != '\\') {
@@ -1124,7 +1119,7 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
         } else {
             ft_friend_online(tox, param1);
             /* resend avatar info (in case it changed) */
-            // TODO enable this, avatar_on_friend_online(tox, param1);
+            avatar_on_friend_online(tox, param1);
         }
         break;
     }

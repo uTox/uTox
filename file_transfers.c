@@ -289,9 +289,7 @@ void ft_friend_online(Tox *tox, uint32_t friend_number){
     }
 }
 
-void ft_friend_offline(Tox *tox, uint32_t friend_number)
-{
-    //TODO resuming
+void ft_friend_offline(Tox *tox, uint32_t friend_number){
     unsigned int i;
     for (i = 0; i < MAX_FILE_TRANSFERS; ++i) {
         utox_break_file(&incoming_transfer[friend_number][i]);

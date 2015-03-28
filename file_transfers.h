@@ -59,9 +59,7 @@ void file_transfer_local_control(Tox *tox, uint32_t friend_number, uint32_t file
   //static void incoming_file_callback_request(Tox *tox, uint32_t friendnumber, uint32_t filenumber, uint32_t kind, uint64_t file_size, const uint8_t *filename, size_t filename_length, void *user_data);
   //static void incoming_file_callback_chunk(Tox *tox, uint32_t friend_number, uint32_t file_number, uint64_t position, const uint8_t *data, size_t length, void *user_data);
 /* Outgoing files */
-  /* Send out a new file.
-   *
-   * TODO, support resuming file. */
+  /* Send out a new file. */
   void outgoing_file_send_new(Tox *tox, uint32_t friend_number, uint8_t *path, const uint8_t *filename, size_t filename_length);
   /* Restarts a broken file. */
   void outgoing_file_send_existing(Tox *tox, FILE_TRANSFER *broken_data, uint8_t broken_number);
