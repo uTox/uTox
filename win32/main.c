@@ -950,11 +950,11 @@ int ch_mod(uint8_t *file){
 }
 
 int file_lock(FILE *file, uint64_t start, size_t length){
-    return LockFileExW(file, LOCKFILE_FAIL_IMMEDIATELY, 0, start, start + length, 0);
+    return LockFileEx(file, LOCKFILE_FAIL_IMMEDIATELY, 0, start, start + length, 0);
 }
 
 int file_unlock(FILE *file, uint64_t start, size_t length){
-    return UnlockFileExW(file, 0, start, start + length, 0);
+    return UnlockFileEx(file, 0, start, start + length, 0);
 }
 
 
