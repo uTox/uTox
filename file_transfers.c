@@ -632,7 +632,7 @@ void outgoing_file_send_new(Tox *tox, uint32_t friend_number, uint8_t *path, con
         FILE_TRANSFER *file_handle = get_file_transfer(friend_number, file_number);
 
         utox_build_file_transfer(file_handle, friend_number, file_number, file_size, 0, 0, 0, filename,
-                                filename_length, path, strlen(path), NULL, tox);
+                                filename_length, path, strlen((char*)path), NULL, tox);
 
         file_handle->ui_data = message_add_type_file(file_handle);
 
@@ -852,7 +852,7 @@ static void outgoing_file_callback_chunk(Tox *tox, uint32_t friend_number, uint3
 
     if(read_size != length){
         debug("FileTransfer:\tERROR READING FILE! (%u & %u)\n", friend_number, file_number);
-        debug("FileTransfer:\t\tSize (%u), Position (%u), Length(%u), Read_size (%u), Size_transferred (%u).\n",
+        debug("FileTransfer:\t\tSize (%lu), Position (%lu), Length(%zu), Read_size (%zu), Size_transferred (%lu).\n",
             file_handle->size, position, length, read_size, file_handle->size_transferred);
         file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
         return;
