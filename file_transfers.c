@@ -362,13 +362,66 @@ static void file_transfer_callback_control(Tox *UNUSED(tox), uint32_t friend_num
     }
 }
 
+static void utox_build_file_transfer(FILE_TRANSFER *ft, uint32_t friend_number, uint32_t file_number, uint64_t file_size,
+                                    _Bool incoming, _Bool in_memory, _Bool is_avatar,
+                                    const uint8_t *name, size_t name_length, const uint8_t *path, size_t path_length,
+                                    const uint8_t *file_id, Tox *tox){
+    FILE_TRANSFER *file = ft;
+
+    memset(file, 0, sizeof(FILE_TRANSFER));
+
+    file->friend_number = friend_number;
+    file->file_number   = file_number;
+    file->size          = file_size;
+
+    file->incoming      = incoming;
+    file->in_memory     = in_memory;
+    file->is_avatar     = is_avatar;
+
+    if(name){
+        file->name        = (uint8_t*)strdup((char*)name);
+        file->name_length = name_length;
+    } else {
+        file->name        = NULL;
+        file->name_length = 0;
+    }
+
+    if(path){
+        file->path        = (uint8_t*)strdup((char*)path);
+        file->path_length = path_length;
+    } else {
+        file->path        = NULL;
+        file->path_length = 0;
+    }
+
+    file->file_id = malloc(TOX_FILE_ID_LENGTH);
+    if(file_id){
+        memcpy(file->file_id, file_id, TOX_FILE_ID_LENGTH);
+    } else {
+        tox_file_get_file_id(tox, friend_number, file_number, file->file_id, 0);
+    }
+
+    // TODO size correction error checking for this...
+    if(incoming && is_avatar && in_memory){
+        file->avatar = calloc(file_size, sizeof(uint8_t));
+    } else if(incoming && in_memory){
+        file->memory = calloc(file_size, sizeof(uint8_t));
+    }
+
+
+}
+
 /* Function called by core with a new incoming file. */
 static void incoming_file_avatar(Tox *tox, uint32_t friend_number, uint32_t file_number, uint32_t kind, uint64_t file_size, const uint8_t *filename, size_t filename_length, void *UNUSED(user_data)){
     debug("FileTransfer:\tNew Avatar from friend (%u)\n", friend_number);
+
+    /* If 0 unset the avatar... TODO! */
     if(file_size <= 0){
         utox_incoming_avatar(friend_number, NULL, 0);
+        debug("FileTransfer:\tAvatar Unset from friend(%u).\n", friend_number);
         file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
         return;
+    /* If incoming avatar is too big, cancel */
     } else if (file_size > UTOX_AVATAR_MAX_DATA_LENGTH){
         file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
         debug("FileTransfer:\tAvatar from friend(%u) rejected, TOO LARGE (%u)\n", friend_number, (uint32_t)file_size);
@@ -390,20 +443,9 @@ static void incoming_file_avatar(Tox *tox, uint32_t friend_number, uint32_t file
         tox_file_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL, 0);
         return;
     }
-    // Reset the file handle for new data.
-    memset(file_handle, 0, sizeof(FILE_TRANSFER));
 
-    // Set ids
-    file_handle->friend_number = friend_number;
-    file_handle->file_number = file_number;
-    file_handle->name = NULL;
-    file_handle->name_length = 0;
-    file_handle->incoming = 1;
-    file_handle->in_memory = 1;
-    file_handle->is_avatar = 1;
-    file_handle->size = file_size;
+    utox_build_file_transfer(file_handle, friend_number, file_number, file_size, 1, 1, 1, NULL, 0, NULL, 0, file_id, tox);
 
-    file_handle->avatar = malloc(file_size);
     file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_RESUME);
 }
 
@@ -428,22 +470,14 @@ static void incoming_file_existing(Tox *tox, uint32_t friend_number, uint32_t fi
             // DO STUFF
             uint8_t old_broken_number = file_existing->resume;
 
-            memset(file_new, 0, sizeof(FILE_TRANSFER));
+            utox_build_file_transfer(file_new, friend_number, file_number, size, 1, 0, 0,
+                                    filename, filename_length, NULL, 0, new_id, tox);
 
-            file_new->friend_number = friend_number;
-            file_new->file_number = file_number;
-
-            file_new->name = (uint8_t*)strdup((char*)filename);
-            file_new->name_length = filename_length;
-
-            file_new->size = size;
-            file_new->Size_transferred = file_existing->size_transferred;
-            file_new->incoming = 1;
-            file_new->in_memory = 0;
+            file_new->size_transferred = file_existing->size_transferred;
 
             file_new->file = file_existing->file;
-            file_new->ui_data = file_existing->ui_data;
 
+            file_new->ui_data = file_existing->ui_data;
 
             utox_file_free_resume(old_broken_number);
 
@@ -459,17 +493,8 @@ static void incoming_file_existing(Tox *tox, uint32_t friend_number, uint32_t fi
         } else {
             debug("Something didn't match, treating as a new file.\n");
 
-            memset(file_new, 0, sizeof(FILE_TRANSFER));
-
-            // Set ids
-            file_new->friend_number = friend_number;
-            file_new->file_number = file_number;
-            file_new->incoming = 1;
-            file_new->in_memory = 0;
-            file_new->size = file_size;
-
-            file_new->name = (uint8_t*)strdup((char*)filename);
-            file_new->name_length = filename_length;
+            utox_build_file_transfer(file_new, friend_number, file_number, size, 1, 0, 0,
+                                    filename, filename_length, NULL, 0, new_id, tox);
 
             file_new->resume = utox_file_alloc_resume(tox, file_new);
 
@@ -500,34 +525,21 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
         return;
     }
 
+    if(file_size < 1024 * 1024 * 4 && filename_length == (sizeof("utox-inline.png") - 1) &&
+                                    memcmp(filename, "utox-inline.png", filename_length) == 0) {
 
-    // Reset the file handle for new data.
-    memset(file_handle, 0, sizeof(FILE_TRANSFER));
+        utox_build_file_transfer(file_handle, friend_number, file_number, file_size, 1, 1, 0, filename, filename_length,
+                                NULL, 0, NULL, tox);
 
-    // Set ids
-    file_handle->friend_number = friend_number;
-    file_handle->file_number = file_number;
-
-    file_handle->name = (uint8_t*)strdup((char*)filename);
-    file_handle->name_length = filename_length;
-
-    file_handle->size = file_size;
-    file_handle->incoming = 1;
-    file_handle->in_memory = 0;
-
-    file_handle->ui_data = message_add_type_file(file_handle);
-
-
-    file_handle->resume = utox_file_alloc_resume(tox, file_handle);
-    // If it's a small inline image, just accept it!
-    if( file_size < 1024 * 1024 * 4 &&
-        filename_length == (sizeof("utox-inline.png") - 1) &&
-        memcmp(filename, "utox-inline.png", filename_length) == 0) {
-            file_handle->in_memory = 1;
-            file_handle->memory = malloc(file_size);
-            file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_RESUME);
-        // postmessage(FRIEND_FILE_IN_NEW_INLINE, friend_number, file_number, NULL);
+        file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_RESUME);
     } else {
+        utox_build_file_transfer(file_handle, friend_number, file_number, file_size, 1, 0, 0, filename, filename_length,
+                                NULL, 0, NULL, tox);
+
+        file_handle->ui_data = message_add_type_file(file_handle);
+
+        file_handle->resume = utox_file_alloc_resume(tox, file_handle);
+
         postmessage(FRIEND_FILE_NEW, 0, 0, file_handle);
     }
 }
@@ -606,7 +618,6 @@ void outgoing_file_send_new(Tox *tox, uint32_t friend_number, uint8_t *path, con
         return;
     }
 
-
     TOX_ERR_FILE_SEND error;
     const uint8_t *file_id = NULL;
 
@@ -619,26 +630,19 @@ void outgoing_file_send_new(Tox *tox, uint32_t friend_number, uint8_t *path, con
 
     if(file_number != -1) {
         FILE_TRANSFER *file_handle = get_file_transfer(friend_number, file_number);
-        memset(file_handle, 0, sizeof(FILE_TRANSFER));
 
-
-        file_handle->friend_number = friend_number;
-        file_handle->file_number = file_number;
-        utox_pause_file(file_handle, 1);
-
-        file_handle->file = file;
-
-        file_handle->name = (uint8_t*)strdup((char*)filename);
-        file_handle->path = (uint8_t*)strdup((char*)path);
-        file_handle->name_length = filename_length;
-
-        file_handle->size = file_size;
+        utox_build_file_transfer(file_handle, friend_number, file_number, file_size, 0, 0, 0, filename,
+                                filename_length, path, strlen(path), NULL, tox);
 
         file_handle->ui_data = message_add_type_file(file_handle);
 
         utox_file_alloc_resume(tox, file_handle);
+
+        // TODO move this to utox_file_run(ish)
         ++friend[friend_number].transfer_count;
+
         debug("Sending file %d of %d(max) to friend(%d).\n", friend[friend_number].transfer_count, MAX_FILE_TRANSFERS, friend_number);
+
         // Create a new msg for the UI and save it's pointer
         postmessage(FRIEND_FILE_NEW, 0, 0, file_handle);
     } else {
@@ -669,22 +673,12 @@ void outgoing_file_send_existing(Tox *tox, FILE_TRANSFER *broken_data, uint8_t b
 
     if(new_file_number != -1) {
         FILE_TRANSFER *file_handle = get_file_transfer(broken_data->friend_number, new_file_number);
-        memset(file_handle, 0, sizeof(FILE_TRANSFER));
 
-
-        file_handle->friend_number = broken_data->friend_number;
-        file_handle->file_number = new_file_number;
+        utox_build_file_transfer(file_handle, broken_data->friend_number, new_file_number, broken_data->size, 0, 0, 0,
+                                broken_data->name, broken_data->name_length, broken_data->path, broken_data->path_length,
+                                file_id, tox);
 
         file_handle->file = broken_data->file;
-
-        file_handle->name = (uint8_t*)strdup((char*)broken_data->name);
-        file_handle->path = (uint8_t*)strdup((char*)broken_data->path);
-        file_handle->name_length = broken_data->name_length;
-        file_handle->path_length = broken_data->path_length;
-
-        file_handle->size = broken_data->size;
-
-        file_handle->ui_data = broken_data->ui_data;
 
         utox_pause_file(file_handle, 1);
 
@@ -693,7 +687,9 @@ void outgoing_file_send_existing(Tox *tox, FILE_TRANSFER *broken_data, uint8_t b
         utox_file_alloc_resume(tox, file_handle);
 
         ++friend[file_handle->friend_number].transfer_count;
+
         debug("Resending file %d of %d(max) to friend(%d).\n", friend[file_handle->friend_number].transfer_count, MAX_FILE_TRANSFERS, file_handle->friend_number);
+
         // Create a new msg for the UI and save it's pointer
         postmessage(FRIEND_FILE_UPDATE, 0, 0, file_handle);
     } else {
@@ -717,7 +713,7 @@ void outgoing_file_send_inline(Tox *tox, uint32_t friend_number, uint8_t *image,
     uint8_t *file_id;
     uint8_t *filename;
     size_t filename_length = 0;
-    file_id = malloc(TOX_HASH_LENGTH);
+    file_id = malloc(TOX_FILE_ID_LENGTH);
     if(!tox_hash(file_id, image, image_size)){
         debug("FileTransfer:\tUnable to get hash for image!\n");
         return;
@@ -737,20 +733,12 @@ void outgoing_file_send_inline(Tox *tox, uint32_t friend_number, uint8_t *image,
 
     if(file_number != -1) {
         FILE_TRANSFER *file_handle = get_file_transfer(friend_number, file_number);
-        memset(file_handle, 0, sizeof(FILE_TRANSFER));
 
-        file_handle->friend_number = friend_number;
-        file_handle->file_number = file_number;
+        utox_build_file_transfer(file_handle, friend_number, file_number, image_size, 0, 1, 0,
+                                file_id, TOX_FILE_ID_LENGTH, NULL, 0, file_id, tox);
 
         file_handle->kind = TOX_FILE_KIND_DATA;
-        file_handle->name = file_id;
-        file_handle->name_length = TOX_HASH_LENGTH;
-        file_handle->size = image_size;
 
-        file_handle->in_memory = 1;
-        file_handle->is_avatar = 0;
-
-        file_handle->memory = malloc(image_size);
         memcpy(file_handle->memory, image, image_size);
 
         utox_pause_file(file_handle, 1);
