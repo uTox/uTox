@@ -59,9 +59,15 @@ static void edit_msg_onenter(EDIT *edit)
 
     command_length = utox_run_command(text, length, &command, &argument, 1);
 
+    if(command_length == 65535){
+        return;
+    }
+
+    debug("cmd %u\n", command_length);
+
     _Bool action = 0, topic = 0;
     if(command_length){
-        length = length - command_length - 1;
+        length = length - command_length - 2; /* first / and then the SPACE */
         text = argument;
         if((command_length == 2) && (!memcmp(command, "me", 2))) {
             if(argument) {
@@ -69,10 +75,13 @@ static void edit_msg_onenter(EDIT *edit)
             } else {
                 return;
             }
-        } else if((command_length == 5) && (!memcmp(command, "topic", 5))) {
-            topic = 1;
+        } else if(command_length == 5){
+            if(memcmp(command, "topic", 5) == 0){
+               topic = 1;
+            } /* Separated as a guide for commands that don't need a separate function */
         }
     }
+
 
     if(!text){
         return;

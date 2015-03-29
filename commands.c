@@ -9,7 +9,7 @@ STRING_IDX utox_run_command(char_t *string, STRING_IDX string_length, char_t **c
     STRING_IDX cmd_length, argument_length;
 
     if (string[0] == '/') { /* Cool it's a command we support! */
-        debug("command found!\n");
+        // debug("command found!\n");
         uint16_t i;
         for (i = 0; i < string_length; ++i) {
             if (string[i] == ' ') {
@@ -32,7 +32,7 @@ STRING_IDX utox_run_command(char_t *string, STRING_IDX string_length, char_t **c
             *cmd = string + 1;
         }
     } else {
-        debug("No command found\n"); /* Sad, we done support this command. */
+        // debug("No command found\n"); /* Sad, we don't support this command. */
         *argument = string;
         cmd = NULL;
         return 0;
@@ -43,9 +43,10 @@ STRING_IDX utox_run_command(char_t *string, STRING_IDX string_length, char_t **c
         if(sitem->item == ITEM_FRIEND) {
             FRIEND *f = sitem->data;
             friend_set_alias(f, *argument, argument_length);
+            cmd_length = -1; /* We'll take care of this, don't return to edit */
         }
     } else {
-        debug("Command unsupported!\n");
+        // debug("Command unsupported!\n");
     }
     return cmd_length;
 }
