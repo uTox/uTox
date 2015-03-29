@@ -582,8 +582,10 @@ static void incoming_file_callback_chunk(Tox *UNUSED(tox), uint32_t friend_numbe
     }
     file_handle->size_transferred += length;
     // TODO dirty hack, this needs to be replaced
-    broken_list[file_handle->resume].data->size_transferred = file_handle->size_transferred;
-    broken_list[file_handle->resume].data->file = file_handle->file;
+    if(file_handle->resume){
+        broken_list[file_handle->resume].data->size_transferred = file_handle->size_transferred;
+        broken_list[file_handle->resume].data->file = file_handle->file;
+    }
 
     calculate_speed(file_handle);
 }
