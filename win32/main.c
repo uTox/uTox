@@ -950,11 +950,19 @@ int ch_mod(uint8_t *file){
 }
 
 int file_lock(FILE *file, uint64_t start, size_t length){
-    return LockFileEx(file, LOCKFILE_FAIL_IMMEDIATELY, 0, start, start + length, 0);
+    OVERLAPPED lock_overlap;
+    lock_overlap.Offset     = start;
+    lock_overlap.OffsetHigh = start+length;
+    lock_overlap.hEvent     = 0;
+    return !LockFileEx(file, LOCKFILE_FAIL_IMMEDIATELY, 0, start, start + length, &lock_overlap);
 }
 
 int file_unlock(FILE *file, uint64_t start, size_t length){
-    return UnlockFileEx(file, 0, start, start + length, 0);
+    OVERLAPPED lock_overlap;
+    lock_overlap.Offset     = start;
+    lock_overlap.OffsetHigh = start+length;
+    lock_overlap.hEvent     = 0;
+    return UnlockFileEx(file, 0, start, start + length, &lock_overlap);
 }
 
 

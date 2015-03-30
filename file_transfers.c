@@ -580,6 +580,7 @@ static void incoming_file_callback_chunk(Tox *UNUSED(tox), uint32_t friend_numbe
                 while(!file_lock(file_handle->file, position, length)){
                     debug("FileTransfer:\tCan't get lock, sleeping...\n");
                     yieldcpu(10);
+                    // If you get a bug report about this hanging utox, just disable it, it's unlikely to be needed!
                 }
                 fseeko(file_handle->file, position, SEEK_SET);
                 size_t write_size = fwrite(data, 1, length, file_handle->file);
