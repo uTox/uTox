@@ -82,7 +82,7 @@ Atom XRedraw;
 
 Atom tray_wm_name;
 
-Pixmap drawbuf;
+Pixmap drawbuf, drawbuf_tray;
 Picture renderpic;
 Picture colorpic;
 
@@ -878,11 +878,6 @@ static int systemlang(void)
 void tray_send_message(Display* dpy, Window tray_w, long message, long data1, long data2, long data3){
     XEvent ev;
 
-    debug("%s\n", display);
-    debug("%u\n", tray_w);
-    debug("%lu\n", message);
-    debug("%lu\n", data1);
-
     memset(&ev, 0, sizeof(ev));
     ev.xclient.type = ClientMessage;
     ev.xclient.window = tray_w;
@@ -1067,17 +1062,40 @@ int main(int argc, char *argv[])
     // tray_wm_hints->flags = IconPixmapHint;
     // XSetWMHints(display, tray_window, tray_wm_hints);
 
+    XWMHints *tray_wm_hints = XAllocWMHints();
+    tray_wm_hints->icon_window = tray_window;
+    tray_wm_hints->flags = IconWindowHint;
+    XSetWMHints(display, tray_window, tray_wm_hints);
+
     uint8_t net_tray_val[8] = "uToxTray";
     tray_wm_name = XInternAtom(display, "_NET_WM_NAME" , False);
     XChangeProperty(display, tray_window, tray_wm_name, XA_STRING, 8, PropModeReplace, net_tray_val, 8);
+    uint8_t net_tray_name[14] = "uTox tray icon";
+    Atom net_wm_icon_name = XInternAtom(display, "_NET_WM_ICON_NAME", False);
+    XChangeProperty(display, tray_window, net_wm_icon_name, XA_STRING, 8, PropModeReplace, net_tray_name, 14);
 
-    XMapWindow(display, tray_window);
-    // tray_send_message(display, systray, SYSTEM_TRAY_REQUEST_DOCK, tray_window ,0,0);
+
+    XGCValues gcval_tray;
+    gcval_tray.foreground = XWhitePixel(display, 0);
+    gcval_tray.function = GXxor;
+    gcval_tray.background = XBlackPixel(display, 0);
+    gcval_tray.plane_mask = gcval_tray.background ^ gcval_tray.foreground;
+    gcval_tray.subwindow_mode = IncludeInferiors;
+
+
+    GC     grabgc_tray = XCreateGC(display, RootWindow(display, screen), GCFunction | GCForeground | GCBackground | GCSubwindowMode, &gcval_tray);
+    Pixmap drawbuf_tray = XCreatePixmap(display, window, DEFAULT_WIDTH, DEFAULT_HEIGHT, depth);
+    // Pixmap icon = XCreateBitmapFromData(display, tray_window, (const unsigned char*)utox_icon128, 128, 128);
+
+    XRenderColor xrcolor_tray = {0};
+    colorpic = XRenderCreateSolidFill(display, &xrcolor_tray);
 
     int length = (2 + (128 * 128));
     Atom net_wm_icon = XInternAtom(display, "_NET_WM_ICON", False);
     XChangeProperty(display, tray_window, net_wm_icon, XA_CARDINAL, 32, PropModeReplace, (const unsigned char*)&utox_icon128, length);
 
+    // XMapWindow(display, tray_window);
+    tray_send_message(display, systray, SYSTEM_TRAY_REQUEST_DOCK, tray_window, 0,0);
 
     /* choose available libraries for optional UI stuff */
     if(!(libgtk = gtk_load())) {

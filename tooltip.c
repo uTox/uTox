@@ -115,7 +115,7 @@ _Bool tooltip_mup(void)
 
 void tooltip_show(void)
 {
-    
+
     TOOLTIP *b = &tooltip;
 
     if (!b->can_show)
@@ -148,7 +148,7 @@ static void tooltip_thread(void *UNUSED(args))
             break;
         }
 
-        TOOLTIP *b = &tooltip;
+        // TOOLTIP *b = &tooltip;
         if (reset_time) {
             last_move_time = get_time() + 500 * 1000 * 1000;
             reset_time = 0;
