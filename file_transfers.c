@@ -362,10 +362,9 @@ static void file_transfer_callback_control(Tox *UNUSED(tox), uint32_t friend_num
     }
 }
 
-static void utox_build_file_transfer(FILE_TRANSFER *ft, uint32_t friend_number, uint32_t file_number, uint64_t file_size,
-                                    _Bool incoming, _Bool in_memory, _Bool is_avatar, uint8_t kind,
-                                    const uint8_t *name, size_t name_length, const uint8_t *path, size_t path_length,
-                                    const uint8_t *file_id, Tox *tox){
+static void utox_build_file_transfer(FILE_TRANSFER *ft, uint32_t friend_number, uint32_t file_number,
+    uint64_t file_size, _Bool incoming, _Bool in_memory, _Bool is_avatar, uint8_t kind, const uint8_t *name,
+    size_t name_length, const uint8_t *path, size_t path_length, const uint8_t *file_id, Tox *tox){
     FILE_TRANSFER *file = ft;
 
     memset(file, 0, sizeof(FILE_TRANSFER));
@@ -403,13 +402,18 @@ static void utox_build_file_transfer(FILE_TRANSFER *ft, uint32_t friend_number, 
     }
 
     // TODO size correction error checking for this...
-    if(incoming && is_avatar && in_memory){
-        file->avatar = calloc(file_size, sizeof(uint8_t));
-    } else if(incoming && in_memory){
-        file->memory = calloc(file_size, sizeof(uint8_t));
+    if(incoming){
+        if(in_memory){
+            file->memory = calloc(file_size, sizeof(uint8_t));
+        } else if (is_avatar){
+            file->avatar = calloc(file_size, sizeof(uint8_t));
+        } else {
+            /* incoming file, eventually we should get the handle for utox! */
+        }
+    } else {
+        /* Outgoing file */
+        utox_pause_file(file, 1);
     }
-
-
 }
 
 /* Function called by core with a new incoming file. */
