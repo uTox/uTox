@@ -103,6 +103,9 @@ msgstr("Sélection des périphériques")
 msgid(AUDIOINPUTDEVICE)
 msgstr("Périphérique d'entrée audio")
 
+msgid(AUDIOFILTERING)
+msgstr("Filtre audio")
+
 msgid(AUDIOOUTPUTDEVICE)
 msgstr("Périphérique de sortie audio")
 
@@ -166,6 +169,9 @@ msgstr("Accepter")
 msgid(IGNORE)
 msgstr("Ignorer")
 
+msgid(SENDSCREENSHOT)
+msgstr("Envoyer une capture d'écran")
+
 msgid(CLICKTOSAVE)
 msgstr("Cliquer pour sauvegarder")
 
@@ -223,5 +229,26 @@ msgstr("Par défaut")
 msgid(WINDOW_TITLE_VIDEO_PREVIEW)
 msgstr("Aperçu vidéo")
 
+msgid(MUTE)
+msgstr("Muet")
+
+msgid(UNMUTE)
+msgstr("Non muet")
+
 msgid(CLEAR_HISTORY)
 msgstr("Nettoyer l'historique")
+
+msgid(THEME)
+msgstr("Thème")
+
+msgid(THEME_DEFAULT)
+msgstr("Défaut")
+
+msgid(THEME_LIGHT)
+msgstr("Thème clair")
+
+msgid(THEME_DARK)
+msgstr("Thème sombre")
+
+msgid(THEME_HIGHCONTRAST)
+msgstr("Contraste élevé")
