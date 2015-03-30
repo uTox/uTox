@@ -52,7 +52,7 @@
 
 Display *display;
 int screen;
-Window window;
+Window window, tray_window;
 GC gc;
 Colormap cmap;
 Visual *visual;
@@ -79,6 +79,8 @@ Atom XA_CLIPBOARD, XA_UTF8_STRING, targets, XA_INCR;
 Atom XdndAware, XdndEnter, XdndLeave, XdndPosition, XdndStatus, XdndDrop, XdndSelection, XdndDATA, XdndActionCopy;
 Atom XA_URI_LIST, XA_PNG_IMG;
 Atom XRedraw;
+
+Atom tray_wm_name;
 
 Pixmap drawbuf;
 Picture renderpic;
@@ -397,9 +399,9 @@ uint64_t get_time(void)
 void openurl(char_t *str)
 {
     char *cmd = "xdg-open";
-#ifdef __APPLE__
+    #ifdef __APPLE__
     cmd = "open";
-#endif
+    #endif
     if(!fork()) {
         execlp(cmd, cmd, str, (char *)0);
         exit(127);
@@ -873,6 +875,80 @@ static int systemlang(void)
     return ui_guess_lang_by_posix_locale(str, DEFAULT_LANG);
 }
 
+void tray_send_message(Display* dpy, Window tray_w, long message, long data1, long data2, long data3){
+    XEvent ev;
+
+    debug("%s\n", display);
+    debug("%u\n", tray_w);
+    debug("%lu\n", message);
+    debug("%lu\n", data1);
+
+    memset(&ev, 0, sizeof(ev));
+    ev.xclient.type = ClientMessage;
+    ev.xclient.window = tray_w;
+    ev.xclient.message_type = XInternAtom (dpy, "_NET_SYSTEM_TRAY_OPCODE", False );
+    ev.xclient.format = 32;
+    ev.xclient.data.l[0] = CurrentTime;
+    ev.xclient.data.l[1] = message;
+    ev.xclient.data.l[2] = data1;
+    ev.xclient.data.l[3] = data2;
+    ev.xclient.data.l[4] = data3;
+
+    // trap_errors();
+    XSendEvent(dpy, tray_w, False, NoEventMask, &ev);
+    XSync(dpy, False);
+    // if (untrap_errors()) {
+    //     debug("XTRAY:\tError of some kind!\n");
+    //     /* Handle failure */
+    // }
+}
+
+static Window search_for_systray_window(Display *disp, Window target_window){
+
+    Atom     net_wm_type = XInternAtom(display, "_NET_WM_WINDOW_TYPE", True);
+    Atom     *type_return;
+    uint32_t format_return, nitems, bytes_after;
+    uint8_t  *prop_return;
+
+    XGetWindowProperty(disp, target_window, net_wm_type, 0, 1,False, XA_ATOM, &type_return, &format_return,
+                            &nitems, &bytes_after, &prop_return);
+
+
+    Atom     search_type = XInternAtom(display, "WM_NAME", True);
+    Atom     *type_return2;
+    uint32_t format_return2, nitems2, bytes_after2;
+    uint8_t  *prop_return2;
+    XGetWindowProperty(disp, target_window, search_type, 0, 40,False, XA_STRING, &type_return2, &format_return2,
+                            &nitems2, &bytes_after2, &prop_return2);
+
+    if(prop_return){
+        if(*prop_return == 96){
+            debug("property number %u\n", prop_return);
+            debug("property nname  %s\n", prop_return2);
+            XFree(prop_return);
+            return target_window;
+        } else {
+            XFree(prop_return);
+        }
+    } else {
+        Window *root_window_return;
+        Window *parent_window_return;
+        Window **children_each_return;
+        Window resulted_window;
+        uint64_t number_children_return = 0;
+        if(XQueryTree(display, target_window, &root_window_return, &parent_window_return, &children_each_return, &number_children_return)){
+            for(uint32_t i = 0; i < number_children_return; i++){
+                resulted_window = search_for_systray_window(display, children_each_return[i]);
+                if(resulted_window){
+                    return resulted_window;
+                }
+            }
+        }
+    }
+
+    return 0;
+}
+
 _Bool parse_args_wait_for_theme;
 
 int main(int argc, char *argv[])
@@ -945,6 +1021,7 @@ int main(int argc, char *argv[])
     visual = DefaultVisual(display, screen);
     gc = DefaultGC(display, screen);
     depth = DefaultDepth(display, screen);
+    // Check color bit here (See github issue);
     scr = DefaultScreenOfDisplay(display);
 
     XSetWindowAttributes attrib = {
@@ -963,6 +1040,34 @@ int main(int argc, char *argv[])
     /* create window */
     window = XCreateWindow(display, RootWindow(display, screen), save->window_x, save->window_y, save->window_width, save->window_height, 0, depth, InputOutput, visual, CWBackPixmap | CWBorderPixel | CWEventMask, &attrib);
 
+    #define SYSTEM_TRAY_REQUEST_DOCK    0
+    #define SYSTEM_TRAY_BEGIN_MESSAGE   1
+    #define SYSTEM_TRAY_CANCEL_MESSAGE  2
+
+    XSetWindowAttributes tray_attrib = {
+        .background_pixel = WhitePixel(display, screen),
+        .border_pixel     = BlackPixel(display, screen),
+        .event_mask       = ExposureMask    | ButtonPressMask   | ButtonReleaseMask   | EnterWindowMask |
+                            LeaveWindowMask | PointerMotionMask | StructureNotifyMask | KeyPressMask    |
+                            KeyReleaseMask  | FocusChangeMask   | PropertyChangeMask,
+    };
+
+    tray_window = XCreateWindow(display, RootWindow(display, screen), 0, 0, 64, 64, 0, depth, InputOutput, visual,
+                                                CWBackPixmap | CWBorderPixel | CWEventMask, &tray_attrib);
+
+    tray_wm_name = XInternAtom (display, "_NET_WM_NAME" , False);
+    uint8_t net_tray_val[8] = "uToxTray";
+    XChangeProperty(display, tray_window, tray_wm_name, XA_STRING, 8, PropModeReplace, net_tray_val, 8);
+
+    XSetStandardProperties(display, tray_window, "uToxTray", "uToxTray", None, NULL, 0, NULL);
+
+    Window systray = search_for_systray_window(display, XDefaultRootWindow(display));
+    tray_send_message(display, systray, SYSTEM_TRAY_REQUEST_DOCK, tray_window ,0,0);
+
+
+    // TODO move these to main.h
+    XMapWindow(display, tray_window);
+
     /* choose available libraries for optional UI stuff */
     if(!(libgtk = gtk_load())) {
         //try Qt
@@ -972,30 +1077,29 @@ int main(int argc, char *argv[])
     thread(tox_thread, NULL);
 
     /* load atoms */
-    wm_protocols = XInternAtom(display, "WM_PROTOCOLS", 0);
+    wm_protocols     = XInternAtom(display, "WM_PROTOCOLS", 0);
     wm_delete_window = XInternAtom(display, "WM_DELETE_WINDOW", 0);
 
-    XA_CLIPBOARD = XInternAtom(display, "CLIPBOARD", 0);
-    XA_UTF8_STRING = XInternAtom(display, "UTF8_STRING", 1);
+    XA_CLIPBOARD     = XInternAtom(display, "CLIPBOARD", 0);
+    XA_UTF8_STRING   = XInternAtom(display, "UTF8_STRING", 1);
     if(XA_UTF8_STRING == None) {
         XA_UTF8_STRING = XA_STRING;
     }
-    targets = XInternAtom(display, "TARGETS", 0);
+    targets         = XInternAtom(display, "TARGETS", 0);
+    XA_INCR         = XInternAtom(display, "INCR", False);
 
-    XA_INCR = XInternAtom(display, "INCR", False);
+    XdndAware       = XInternAtom(display, "XdndAware",      False);
+    XdndEnter       = XInternAtom(display, "XdndEnter",      False);
+    XdndLeave       = XInternAtom(display, "XdndLeave",      False);
+    XdndPosition    = XInternAtom(display, "XdndPosition",   False);
+    XdndStatus      = XInternAtom(display, "XdndStatus",     False);
+    XdndDrop        = XInternAtom(display, "XdndDrop",       False);
+    XdndSelection   = XInternAtom(display, "XdndSelection",  False);
+    XdndDATA        = XInternAtom(display, "XdndDATA",       False);
+    XdndActionCopy  = XInternAtom(display, "XdndActionCopy", False);
 
-    XdndAware = XInternAtom(display, "XdndAware", False);
-    XdndEnter = XInternAtom(display, "XdndEnter", False);
-    XdndLeave = XInternAtom(display, "XdndLeave", False);
-    XdndPosition = XInternAtom(display, "XdndPosition", False);
-    XdndStatus = XInternAtom(display, "XdndStatus", False);
-    XdndDrop = XInternAtom(display, "XdndDrop", False);
-    XdndSelection = XInternAtom(display, "XdndSelection", False);
-    XdndDATA = XInternAtom(display, "XdndDATA", False);
-    XdndActionCopy = XInternAtom(display, "XdndActionCopy", False);
-
-    XA_URI_LIST = XInternAtom(display, "text/uri-list", False);
-    XA_PNG_IMG = XInternAtom(display, "image/png", False);
+    XA_URI_LIST     = XInternAtom(display, "text/uri-list", False);
+    XA_PNG_IMG      = XInternAtom(display, "image/png", False);
 
     XRedraw = XInternAtom(display, "XRedraw", False);
 
