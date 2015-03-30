@@ -1055,18 +1055,29 @@ int main(int argc, char *argv[])
     tray_window = XCreateWindow(display, RootWindow(display, screen), 0, 0, 64, 64, 0, depth, InputOutput, visual,
                                                 CWBackPixmap | CWBorderPixel | CWEventMask, &tray_attrib);
 
-    tray_wm_name = XInternAtom (display, "_NET_WM_NAME" , False);
-    uint8_t net_tray_val[8] = "uToxTray";
-    XChangeProperty(display, tray_window, tray_wm_name, XA_STRING, 8, PropModeReplace, net_tray_val, 8);
+    Window systray = search_for_systray_window(display, XDefaultRootWindow(display));
 
     XSetStandardProperties(display, tray_window, "uToxTray", "uToxTray", None, NULL, 0, NULL);
 
-    Window systray = search_for_systray_window(display, XDefaultRootWindow(display));
-    tray_send_message(display, systray, SYSTEM_TRAY_REQUEST_DOCK, tray_window ,0,0);
+    #include "../icons/utox_icon128.h"
 
+    // Pixmap icon = XCreateBitmapFromData(display, tray_window, (const unsigned char*)utox_icon128, 128, 128);
+    // XWMHints *tray_wm_hints = XAllocWMHints();
+    // tray_wm_hints->icon_pixmap = icon;
+    // tray_wm_hints->flags = IconPixmapHint;
+    // XSetWMHints(display, tray_window, tray_wm_hints);
 
-    // TODO move these to main.h
+    uint8_t net_tray_val[8] = "uToxTray";
+    tray_wm_name = XInternAtom(display, "_NET_WM_NAME" , False);
+    XChangeProperty(display, tray_window, tray_wm_name, XA_STRING, 8, PropModeReplace, net_tray_val, 8);
+
     XMapWindow(display, tray_window);
+    // tray_send_message(display, systray, SYSTEM_TRAY_REQUEST_DOCK, tray_window ,0,0);
+
+    int length = (2 + (128 * 128));
+    Atom net_wm_icon = XInternAtom(display, "_NET_WM_ICON", False);
+    XChangeProperty(display, tray_window, net_wm_icon, XA_CARDINAL, 32, PropModeReplace, (const unsigned char*)&utox_icon128, length);
+
 
     /* choose available libraries for optional UI stuff */
     if(!(libgtk = gtk_load())) {
