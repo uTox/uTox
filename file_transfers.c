@@ -635,6 +635,14 @@ void outgoing_file_send_new(Tox *tox, uint32_t friend_number, uint8_t *path, con
         utox_build_file_transfer(file_handle, friend_number, file_number, file_size, 0, 0, 0, TOX_FILE_KIND_DATA,
                                 filename, filename_length, path, strlen((char*)path), NULL, tox);
 
+        file_handle->file = file;
+        if(!file_handle->file) {
+            debug("FileTransfer:\tUnable to regain file for reading!\n");
+            file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
+            return;
+        }
+
+
         file_handle->ui_data = message_add_type_file(file_handle);
 
         utox_file_alloc_resume(tox, file_handle);
@@ -838,12 +846,13 @@ static void outgoing_file_callback_chunk(Tox *tox, uint32_t friend_number, uint3
         if(file){
             fseeko(file, position, SEEK_SET);
             read_size = fread(buffer, 1, length, file);
+            // debug("File okay\n");
         }
     }
 
     if(read_size != length){
         debug("FileTransfer:\tERROR READING FILE! (%u & %u)\n", friend_number, file_number);
-        debug("FileTransfer:\t\tSize (%u), Position (%u), Length(%u), Read_size (%u), Size_transferred (%u).\n",
+        debug("FileTransfer:\t\tSize (%lu), Position (%lu), Length(%zu), Read_size (%zu), Size_transferred (%zu).\n",
             file_handle->size, position, length, read_size, file_handle->size_transferred);
         file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
         return;
