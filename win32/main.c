@@ -110,9 +110,13 @@ BLENDFUNCTION blend_function = {
  * Retuns: number of chars writen, or 0 on failure.
  *
  */
-static int utf8tonative(char_t *str, wchar_t *out, int length)
-{
+static int utf8tonative(char_t *str, wchar_t *out, int length){
     return MultiByteToWideChar(CP_UTF8, 0, (char*)str, length, out, length);
+}
+
+static int utf8str_to_native(char_t *str, wchar_t *out, int length){
+    /* must be null terminated string                   ↓ */
+    return MultiByteToWideChar(CP_UTF8, 0, (char*)str, -1, out, length);
 }
 
 void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data)
@@ -994,10 +998,10 @@ void redraw(void)
  * creates a win32 NOTIFYICONDATAW struct, sets the tiptab flag, gives *hwnd,
  * sets struct .cbSize, and resets the tibtab to native self.name;
  */
-void update_tray(void)
-{
+void update_tray(void){
     char *tip;
     tip = malloc(128 * sizeof(char)); //128 is the max length of nid.szTip
+
     snprintf(tip, 127*sizeof(char), "%s : %s", self.name, self.statusmsg);
 
     NOTIFYICONDATAW nid = {
@@ -1006,7 +1010,7 @@ void update_tray(void)
         .cbSize = sizeof(nid),
     };
 
-    utf8tonative((char_t *)tip, nid.szTip, strlen(tip));
+    utf8str_to_native((char_t *)tip, nid.szTip, self.name_length + self.statusmsg_length + 3);
 
     Shell_NotifyIconW(NIM_MODIFY, &nid);
 
