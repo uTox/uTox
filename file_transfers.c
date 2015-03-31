@@ -328,7 +328,11 @@ void file_transfer_local_control(Tox *tox, uint32_t friend_number, uint32_t file
             break;
     }
     if(error){
-        debug("FileTransfer:\tThere was an error(%u) sending the command, you probably want to see to that!\n", error);
+        if(error == TOX_ERR_FILE_CONTROL_FRIEND_NOT_CONNECTED){
+            debug("FileTransfer:\tUnable to send command, Friend (%u) offline!\n", info->friend_number);
+        } else {
+            debug("FileTransfer:\tThere was an error(%u) sending the command, you probably want to see to that!\n", error);
+        }
         debug("FileTransfer:\t\tFriend %u, and File %u. \n", friend_number, file_number);
     } else {
         utox_update_user_file(info);
