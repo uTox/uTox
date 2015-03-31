@@ -999,10 +999,12 @@ void redraw(void)
  * sets struct .cbSize, and resets the tibtab to native self.name;
  */
 void update_tray(void){
+    uint32_t tip_length;
     char *tip;
     tip = malloc(128 * sizeof(char)); //128 is the max length of nid.szTip
 
     snprintf(tip, 127*sizeof(char), "%s : %s", self.name, self.statusmsg);
+    tip_length = self.name_length + 3 + self.statusmsg_length;
 
     NOTIFYICONDATAW nid = {
         .uFlags = NIF_TIP,
@@ -1010,7 +1012,7 @@ void update_tray(void){
         .cbSize = sizeof(nid),
     };
 
-    utf8str_to_native((char_t *)tip, nid.szTip, self.name_length + self.statusmsg_length + 3);
+    utf8str_to_native((char_t *)tip, nid.szTip, tip_length);
 
     Shell_NotifyIconW(NIM_MODIFY, &nid);
 
