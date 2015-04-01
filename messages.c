@@ -724,21 +724,13 @@ _Bool messages_dclick(MESSAGES *m, _Bool triclick)
     return 0;
 }
 
-static void contextmenu_messages_onselect(uint8_t i)
-{
-    switch(i) {
-    case 0:
-        copy(1);
-        break;
-    case 1:
-        copy(0);
-        break;
-    }
+static void contextmenu_messages_onselect(uint8_t i){
+    copy(!!i); /* if not 0 force a 1 */
 }
 
 _Bool messages_mright(MESSAGES *m)
 {
-    static UI_STRING_ID menu_copy[] = {STR_COPY, STR_COPYWITHOUTNAMES};
+    static UI_STRING_ID menu_copy[] = {STR_COPY, STR_COPY_WITH_NAMES};
     if(m->iover == MSG_IDX_MAX) {
         return 0;
     }
