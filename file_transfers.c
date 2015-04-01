@@ -879,6 +879,7 @@ int utox_file_start_write(uint32_t friend_number, uint32_t file_number, void *fi
     FILE_TRANSFER *file_handle = get_file_transfer(friend_number, file_number);
     file_handle->file = fopen(filepath, "wb");
     if(!file_handle->file) {
+        debug("FileTransfer:\tThe file we're supposed to write to couldn't be opened\n");
         free(filepath);
         file_handle->status = FILE_TRANSFER_STATUS_BROKEN;
         return -1;
@@ -891,7 +892,8 @@ int utox_file_start_write(uint32_t friend_number, uint32_t file_number, void *fi
         fwrite(file_handle->tmp_file, 1, file_handle->size_transferred, file_handle->file);
         fclose(file_handle->tmp_file);
         file_handle->in_tmp_loc = 0;
-        free(file_handle->tmp_path);
+        // free(file_handle->tmp_path); // Freed by xlib probably...
+        // TODO unlink();
         debug("FileTransfer: Data copied from tmp_file to save_file\n");
     }
     return 0;
@@ -899,27 +901,25 @@ int utox_file_start_write(uint32_t friend_number, uint32_t file_number, void *fi
 
 int utox_file_start_temp_write(uint32_t friend_number, uint32_t file_number){
     FILE_TRANSFER *file_handle = get_file_transfer(friend_number, file_number);
-    uint8_t path[512], *filepath;
+    uint8_t path[512];
     size_t path_length;
 
+    // Subdir for each friend? TODO?
     path_length = datapath_subdir(path, FILE_TRANSFER_TEMP_PATH);
-    // Subdir for each friend?
-    memcpy(path + path_length, file_handle->name, file_handle->name_length);
+    memcpy( (path + path_length), file_handle->name, file_handle->name_length);
+    debug("temppath:\t%.*s\n", (uint32_t)(path_length + file_handle->name_length), path);
 
-    debug("temppath:\t%.*s\n", (uint32_t)(file_handle->name_length + path_length), path);
+    file_handle->tmp_file = fopen((const char*)path, "wb");
 
-    filepath = malloc(path_length + 1 + file_handle->name_length);
-    memcpy(filepath, path, path_length + file_handle->name_length + 1);
-
-    file_handle->tmp_file = fopen((const char*)filepath, "wb");
     if(!file_handle->tmp_file) {
-        free(filepath);
         file_handle->status = FILE_TRANSFER_STATUS_BROKEN;
+        debug("nope\n");
         return -1;
     }
+
     file_handle->in_tmp_loc = 1;
-    file_handle->tmp_path = filepath;
-    file_handle->tmp_path_length = strlen((const char*)filepath);
+    file_handle->tmp_path = path;
+    file_handle->tmp_path_length = strlen((const char*)path);
     return 0;
 }
 

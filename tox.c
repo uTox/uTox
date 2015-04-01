@@ -1072,8 +1072,12 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
     case TOX_FILE_START_TEMP:{
         /* param1: friend #
          * param2: file # */
-        utox_file_start_temp_write(param1, param2);
-        file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_RESUME);
+        if (utox_file_start_temp_write(param1, param2) == 0) {
+        /*                          tox, friend#, file#,        START_FILE */
+            file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_RESUME);
+        } else {
+            file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_CANCEL);
+        }
         break;
     }
 
@@ -1239,6 +1243,8 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             // stop/pause ft
             // kill the file
             // delete existing data
+        // We do want to do something else, but for now this is goodenough™
+        tox_postmessage(TOX_FILE_INCOMING_PAUSE, param1, param2 << 16, data);
         break;
     }
 
