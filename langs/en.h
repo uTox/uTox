@@ -170,7 +170,10 @@ msgid(COPY)
 msgstr("Copy")
 
 msgid(COPYWITHOUTNAMES)
-msgstr("Copy (no names)")
+msgstr("Copy (Without Names)")
+
+msgid(COPY_WITH_NAMES)
+msgstr("Copy (Include Names)")
 
 msgid(CUT)
 msgstr("Cut")
