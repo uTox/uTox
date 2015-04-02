@@ -292,6 +292,7 @@ static void utox_complete_file(FILE_TRANSFER *file){
             }
         }
         file->status = FILE_TRANSFER_STATUS_COMPLETED;
+        file->ui_data->path = file->path;
         utox_update_user_file(file);
         file->status = FILE_TRANSFER_STATUS_NONE;
     } else {
