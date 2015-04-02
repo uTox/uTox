@@ -523,7 +523,7 @@ void savefilerecv(uint32_t fid, MSG_FILE *file)
         .lStructSize = sizeof(OPENFILENAME),
         .hwndOwner = hwnd,
         .lpstrFile = path,
-        .nMaxFile = 256,
+        .nMaxFile = UTOX_FILE_NAME_LENGTH,
         .Flags = OFN_EXPLORER | OFN_NOCHANGEDIR | OFN_NOREADONLYRETURN |OFN_OVERWRITEPROMPT,
     };
 
@@ -536,7 +536,7 @@ void savefilerecv(uint32_t fid, MSG_FILE *file)
 
 void savefiledata(MSG_FILE *file)
 {
-    char *path = malloc(256);
+    char *path = malloc(UTOX_FILE_NAME_LENGTH);
     memcpy(path, file->name, file->name_length);
     path[file->name_length] = 0;
 
@@ -544,7 +544,7 @@ void savefiledata(MSG_FILE *file)
         .lStructSize = sizeof(OPENFILENAME),
         .hwndOwner = hwnd,
         .lpstrFile = path,
-        .nMaxFile = 256,
+        .nMaxFile = UTOX_FILE_NAME_LENGTH,
         .Flags = OFN_EXPLORER | OFN_NOCHANGEDIR,
     };
 

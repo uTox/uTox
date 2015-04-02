@@ -41,7 +41,7 @@ static volatile ARect rect;
 
 static volatile _Bool _redraw;
 
-const char* internalPath[512];
+const char* internalPath[UTOX_FILE_NAME_LENGTH];
 
 
 static int pipefd[2];

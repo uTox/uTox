@@ -35,7 +35,7 @@ typedef struct {
     _Bool used, incoming;
     uint32_t friend_number, file_number;
     uint8_t file_id[TOX_FILE_ID_LENGTH];
-    uint8_t file_path[512];
+    uint8_t file_path[UTOX_FILE_NAME_LENGTH];
 
     FILE_TRANSFER *data;
 } BROKEN_TRANSFER;

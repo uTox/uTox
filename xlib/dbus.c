@@ -11,7 +11,7 @@ static int notify_build_message(DBusMessage* notify_msg, char *title, char *cont
     DBusMessageIter args[4];
     char *app_name = "uTox";
     uint32_t replaces_id = -1;
-    char_t app_icon_data[256];
+    char_t app_icon_data[UTOX_FILE_NAME_LENGTH];
     char *app_icon = "";
     int32_t timeout = 5000;
     dbus_bool_t m = 0;

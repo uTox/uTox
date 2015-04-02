@@ -46,7 +46,7 @@ void log_write(Tox *tox, int fid, const uint8_t *message, uint16_t length, _Bool
         return;
     }
 
-    uint8_t path[512], *p;
+    uint8_t path[UTOX_FILE_NAME_LENGTH], *p;
     uint8_t name[TOX_MAX_NAME_LENGTH];
     size_t namelen;
     FILE *file;
@@ -94,7 +94,7 @@ void log_write(Tox *tox, int fid, const uint8_t *message, uint16_t length, _Bool
 
 void log_read(Tox *tox, int fid)
 {
-    uint8_t path[512], *p;
+    uint8_t path[UTOX_FILE_NAME_LENGTH], *p;
     FILE *file;
 
     p = path + datapath(path);
@@ -325,7 +325,7 @@ static _Bool init_avatar(AVATAR *avatar, const char_t *id, uint8_t *png_data_out
 }
 
 static size_t load_save(uint8_t **out_data){
-    uint8_t path[512], *p, *data;
+    uint8_t path[UTOX_FILE_NAME_LENGTH], *p, *data;
     uint32_t size;
 
     do{ /* Try the STS compliant save location */
@@ -417,7 +417,7 @@ static void write_save(Tox *tox)
 {
     void *data;
     uint32_t size;
-    uint8_t path_tmp[512], path_real[512], *p;
+    uint8_t path_tmp[UTOX_FILE_NAME_LENGTH], path_real[UTOX_FILE_NAME_LENGTH], *p;
     FILE *file;
 
     size = tox_get_savedata_size(tox);

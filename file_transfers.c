@@ -79,7 +79,7 @@ static int utox_file_alloc_resume(Tox *tox, FILE_TRANSFER *file){
                 broken_list[i].file_number = file->file_number;
                 memcpy(broken_list[i].file_id, file->file_id, sizeof(uint8_t) * TOX_FILE_ID_LENGTH);
                 if(file->path){
-                    memcpy(broken_list[i].file_path, file->path, 512);
+                    memcpy(broken_list[i].file_path, file->path, UTOX_FILE_NAME_LENGTH);
                 }
 
                 FILE_TRANSFER *data = malloc(sizeof(FILE_TRANSFER));
@@ -956,7 +956,7 @@ int utox_file_start_write(uint32_t friend_number, uint32_t file_number, void *fi
 
 int utox_file_start_temp_write(uint32_t friend_number, uint32_t file_number){
     FILE_TRANSFER *file_handle = get_file_transfer(friend_number, file_number);
-    uint8_t path[512];
+    uint8_t path[UTOX_FILE_NAME_LENGTH];
     size_t path_length;
 
     // Subdir for each friend? TODO?
@@ -992,7 +992,7 @@ void utox_set_callbacks_for_transfer(Tox *tox){
 }
 
 void utox_file_save_active(void){
-    uint8_t path[512], *p;
+    uint8_t path[UTOX_FILE_NAME_LENGTH], *p;
     FILE *file;
 
     p = path + datapath(path);
@@ -1011,7 +1011,7 @@ void utox_file_save_active(void){
 }
 
 void utox_file_load_active(void){
-    uint8_t path[512], *p;
+    uint8_t path[UTOX_FILE_NAME_LENGTH], *p;
     uint32_t size_read;
 
     p = path + datapath(path);

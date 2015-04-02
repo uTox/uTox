@@ -23,7 +23,7 @@ void avatar_free_image(AVATAR *avatar)
 
 int load_avatar(const char_t *id, uint8_t *dest, uint32_t *size_out)
 {
-    char_t path[512];
+    char_t path[UTOX_FILE_NAME_LENGTH];
     uint32_t size;
 
     get_avatar_location(path, id);
@@ -48,7 +48,7 @@ int load_avatar(const char_t *id, uint8_t *dest, uint32_t *size_out)
 
 int save_avatar(const char_t *id, const uint8_t *data, uint32_t size)
 {
-    char_t path[512];
+    char_t path[UTOX_FILE_NAME_LENGTH];
 
     get_avatar_location(path, id);
 
@@ -66,7 +66,7 @@ int save_avatar(const char_t *id, const uint8_t *data, uint32_t size)
 
 int delete_saved_avatar(const char_t *id)
 {
-    char_t path[512];
+    char_t path[UTOX_FILE_NAME_LENGTH];
 
     get_avatar_location(path, id);
 

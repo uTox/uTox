@@ -41,6 +41,8 @@
 
 #define TOX_FRIEND_ADDRESS_SIZE TOX_ADDRESS_SIZE
 
+#define UTOX_FILE_NAME_LENGTH 512
+
 typedef struct
 {
     uint8_t version, scale, enableipv6, disableudp;
