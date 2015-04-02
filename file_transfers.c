@@ -780,8 +780,12 @@ void outgoing_file_send_existing(Tox *tox, FILE_TRANSFER *broken_data, uint8_t b
             TOX_FILE_KIND_EXISTING, name, p - name, broken_data->path, broken_data->path_length, file_id, tox);
 
         file_handle->file = broken_data->file;
+        if(broken_data->ui_data){
+            file_handle->ui_data = broken_data->ui_data;
+        } else {
+            file_handle->ui_data = message_add_type_file(file_handle);
+        }
         utox_file_free_resume(broken_number);
-        file_handle->ui_data = message_add_type_file(file_handle);
         file_handle->resume = utox_file_alloc_resume(tox, file_handle);
         ++friend[file_handle->friend_number].transfer_count;
         debug("Resending file %d of %d(max) to friend(%d).\n", friend[file_handle->friend_number].transfer_count, MAX_FILE_TRANSFERS, file_handle->friend_number);
@@ -790,7 +794,6 @@ void outgoing_file_send_existing(Tox *tox, FILE_TRANSFER *broken_data, uint8_t b
         debug("tox_file_send() failed\n");
     }
 }
-
 void outgoing_file_send_inline(Tox *tox, uint32_t friend_number, uint8_t *image, size_t image_size){
 
     debug("FileTransfer:\tStarting outgoing inline to friend %u.\n", friend_number);
