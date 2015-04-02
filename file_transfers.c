@@ -490,47 +490,80 @@ static void incoming_file_existing(Tox *tox, uint32_t friend_number, uint32_t fi
     FILE_TRANSFER *file_new = get_file_transfer(friend_number, file_number);
     FILE_TRANSFER *file_existing = utox_file_find_existing(new_id);
 
+    FILE *file;
+    TOX_ERR_FILE_SEEK error = 0;
+
     if (!file_new) {
         tox_file_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL, 0);
         return;
     }
 
     if(file_existing){
+        uint8_t old_broken_number = file_existing->resume;
         if( file_existing->friend_number == friend_number &&
-                file_existing->size == size &&
-                memcmp(file_existing->name, filename, filename_length) == 0 ){
+            file_existing->size == size &&
+            memcmp(file_existing->name, filename, filename_length) == 0 ){
             // DO STUFF
-            uint8_t old_broken_number = file_existing->resume;
 
             utox_build_file_transfer(file_new, friend_number, file_number, size, 1, 0, 0, TOX_FILE_KIND_EXISTING,
-                                    filename, filename_length, NULL, 0, new_id, tox);
+                filename, filename_length, NULL, 0, new_id, tox);
 
             file_new->size_transferred = file_existing->size_transferred;
-
             file_new->file = file_existing->file;
-
             file_new->ui_data = file_existing->ui_data;
-
             utox_file_free_resume(old_broken_number);
-
             file_new->resume = utox_file_alloc_resume(tox, file_new);
 
-            TOX_ERR_FILE_SEEK error = 0;
             tox_file_seek(tox, friend_number, file_number, file_existing->size_transferred, &error);
             if(error){
                 debug("FileTransfer:\tError seeking new file.");
             }
             file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_RESUME);
-            postmessage(FRIEND_FILE_UPDATE, 0, 0, file_new);
         } else {
-            debug("Something didn't match, treating as a new file.\n");
+            debug("FileTransfer:\tSomething didn't match, does that file still exist?\n");
+            file_new->path = file_existing->path;
+            file = fopen((char*)broken_list[old_broken_number].file_path, "rb");
+            uint64_t file_size = 0;
+            if(file){
+                debug("FileTransfer:\tCool file exists, let try to restart it.\n");
+                fseeko(file, 0, SEEK_END);
+                file_size = ftello(file);
+                fseeko(file, 0, SEEK_SET);
+                fclose(file);
+                if(file_size >= size){
+                    // This is a case we don't want to touch... Just abort.
+                    debug("FileTransfer:\tResume size mismatch, aborting!");
+                } else {
+                    file = fopen((const char*)file_new->path, "wb");
+                    if(file){
+                        utox_build_file_transfer(file_new, friend_number, file_number, size, 1, 0, 0,
+                            TOX_FILE_KIND_DATA, filename, filename_length, file_new->path, file_existing->path_length, new_id, tox);
 
-            utox_build_file_transfer(file_new, friend_number, file_number, size, 1, 0, 0, TOX_FILE_KIND_DATA,
-                                    filename, filename_length, NULL, 0, new_id, tox);
+                        file_new->file = file;
+                        file_new->size_transferred = file_size;
+                        file_new->ui_data = message_add_type_file(file_new);
+                        file_new->resume = utox_file_alloc_resume(tox, file_new);
+                        debug("Resume %i\n", file_new->resume);
 
-            file_new->resume = utox_file_alloc_resume(tox, file_new);
+                        tox_file_seek(tox, friend_number, file_number, file_new->size_transferred, &error);
+                        postmessage(FRIEND_FILE_NEW, 0, 0, file_new);
+                        file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_RESUME);
+                    } else {
+                        debug("FileTransfer:\tFile opened for reading, but unable to write.\n");
+                        file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
+                    }
+                }
+            } else {
+                debug("FileTransfer:\tUnable to open that file; treating as new.\n");
+                utox_build_file_transfer(file_new, friend_number, file_number, size, 1, 0, 0, TOX_FILE_KIND_DATA,
+                    filename, filename_length, NULL, 0, new_id, tox);
 
-            postmessage(FRIEND_FILE_NEW, 0, 0, file_new);
+                file_new->ui_data = message_add_type_file(file_new);
+                file_new->resume = utox_file_alloc_resume(tox, file_new);
+
+                postmessage(FRIEND_FILE_NEW, 0, 0, file_new);
+            }
+            utox_file_free_resume(old_broken_number);
         }
     } else {
         debug("FileTransfer:\tWe don't know anything about this file, so for safety we're just going to reject it!.\n");
@@ -957,3 +990,42 @@ void utox_set_callbacks_for_transfer(Tox *tox){
         tox_callback_file_chunk_request(tox, outgoing_file_callback_chunk, NULL);
 }
 
+void utox_file_save_active(void){
+    uint8_t path[512], *p;
+    FILE *file;
+
+    p = path + datapath(path);
+    strcpy((char*)p, "utox_files.data");
+
+    file = fopen((char*)path, "wb");
+    if(!file) {
+        debug("SaveFile:\tUnable to open uTox Save file for File Transfers\n");
+        return;
+    }
+
+    debug("SaveFile:\tWriting uTox Save file for File Transfers \n");
+    fwrite(broken_list, (sizeof(BROKEN_TRANSFER) * 33), 1, file);
+    fclose(file);
+
+}
+
+void utox_file_load_active(void){
+    uint8_t path[512], *p;
+    uint32_t size_read;
+
+    p = path + datapath(path);
+    strcpy((char*)p, "utox_files.data");
+
+    BROKEN_TRANSFER *saved = calloc(33, sizeof(BROKEN_TRANSFER));
+    saved = file_raw((char*)path, &size_read);
+    if(saved && size_read == (sizeof(BROKEN_TRANSFER) * 33)){
+        memcpy(broken_list, saved, (sizeof(BROKEN_TRANSFER) * 33));
+    } else {
+        debug("SaveFile:\tUnable to load uTox Save file for File Transfers\n");
+    }
+    free(saved);
+
+    for(int i = 0 ; i <= 33 ; i++){
+        broken_list[i].data = NULL;
+    }
+}

@@ -115,7 +115,7 @@ _Bool tooltip_mup(void)
 
 void tooltip_show(void)
 {
-    
+
     TOOLTIP *b = &tooltip;
 
     if (!b->can_show)

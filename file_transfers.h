@@ -85,3 +85,8 @@ void utox_set_callbacks_for_transfer(Tox *tox);
  */
 void ft_friend_online(Tox *tox, uint32_t friend_number);
 void ft_friend_offline(Tox *tox, uint32_t friend_number);
+
+/** Functions called to store/load broken_list
+ */
+void utox_file_save_active(void);
+void utox_file_load_active(void);
