@@ -15,13 +15,13 @@ enum UTOX_FILE_TRANSFER_STATUS{
 
 typedef struct FILE_TRANSFER {
     uint32_t friend_number, file_number;
-    uint8_t status, resume;
-    uint32_t kind;
-    _Bool incoming, in_memory, is_avatar, in_tmp_loc;
-    uint8_t *path, *name, *tmp_path, *file_id;
-    size_t path_length, name_length, tmp_path_length;
+    uint8_t  file_id[TOX_FILE_ID_LENGTH];
+    uint8_t  status, resume, kind;
+    _Bool    incoming, in_memory, is_avatar, in_tmp_loc;
+    uint8_t  *path, *name, *tmp_path;
+    size_t   path_length, name_length, tmp_path_length;
     uint64_t size, size_transferred;
-    uint8_t *memory, *avatar;
+    uint8_t  *memory, *avatar;
 
     /* speed + progress calculations. */
     uint32_t speed, num_packets;
@@ -34,7 +34,8 @@ typedef struct FILE_TRANSFER {
 typedef struct {
     _Bool used, incoming;
     uint32_t friend_number, file_number;
-    uint8_t *file_id;
+    uint8_t file_id[TOX_FILE_ID_LENGTH];
+    uint8_t file_path[512];
 
     FILE_TRANSFER *data;
 } BROKEN_TRANSFER;
