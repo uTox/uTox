@@ -3,8 +3,7 @@
 //static FILE_TRANSFER *file_t[256], **file_tend = file_t;
 static FILE_TRANSFER outgoing_transfer[MAX_NUM_FRIENDS][MAX_FILE_TRANSFERS];
 static FILE_TRANSFER incoming_transfer[MAX_NUM_FRIENDS][MAX_FILE_TRANSFERS];
-static BROKEN_TRANSFER broken_list[33] = {{0}}; /* TODO De-hardcode this. 33 because we can't use 0.
-                                           TODO Save this to file */
+static BROKEN_TRANSFER broken_list[MAX_FILE_TRANSFERS] = {{0}};
 
 // Remove if supported by core
 #define TOX_FILE_KIND_EXISTING 3
@@ -69,7 +68,7 @@ static int utox_file_alloc_resume(Tox *tox, FILE_TRANSFER *file){
     resume = tox_file_get_file_id(tox, file->friend_number, file->file_number, file->file_id, &error);
     if (resume){
         file->resume = 0;
-        for(i = 1; i <= 33; i++){
+        for(i = 1; i <= MAX_FILE_TRANSFERS; i++){
             if(!broken_list[i].used){
                 // TODO set an expire time for this.
                 broken_list[i].used = 1;
@@ -88,7 +87,7 @@ static int utox_file_alloc_resume(Tox *tox, FILE_TRANSFER *file){
                 break;
             }
         }
-        if(i >= 1 && i <= 33){
+        if(i >= 1 && i <= MAX_FILE_TRANSFERS){
             debug("FileTransfer:\tBroken transfer #%u set; ready to resume file %.*s\n", i, (uint32_t)file->name_length, file->name);
             return i;
         } else {
@@ -1031,7 +1030,7 @@ void utox_file_save_active(void){
     }
 
     debug("SaveFile:\tWriting uTox Save file for File Transfers \n");
-    fwrite(broken_list, (sizeof(BROKEN_TRANSFER) * 33), 1, file);
+    fwrite(broken_list, (sizeof(BROKEN_TRANSFER) * MAX_FILE_TRANSFERS), 1, file);
     fclose(file);
 
 }
@@ -1043,16 +1042,16 @@ void utox_file_load_active(void){
     p = path + datapath(path);
     strcpy((char*)p, "utox_files.data");
 
-    BROKEN_TRANSFER *saved = calloc(33, sizeof(BROKEN_TRANSFER));
+    BROKEN_TRANSFER *saved = calloc(MAX_FILE_TRANSFERS, sizeof(BROKEN_TRANSFER));
     saved = file_raw((char*)path, &size_read);
-    if(saved && size_read == (sizeof(BROKEN_TRANSFER) * 33)){
-        memcpy(broken_list, saved, (sizeof(BROKEN_TRANSFER) * 33));
+    if(saved && size_read == (sizeof(BROKEN_TRANSFER) * MAX_FILE_TRANSFERS)){
+        memcpy(broken_list, saved, (sizeof(BROKEN_TRANSFER) * MAX_FILE_TRANSFERS));
     } else {
         debug("SaveFile:\tUnable to load uTox Save file for File Transfers\n");
     }
     free(saved);
 
-    for(int i = 0 ; i <= 33 ; i++){
+    for(int i = 0 ; i <= MAX_FILE_TRANSFERS ; i++){
         broken_list[i].data = NULL;
     }
 }
