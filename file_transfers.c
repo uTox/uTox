@@ -68,7 +68,7 @@ static int utox_file_alloc_resume(Tox *tox, FILE_TRANSFER *file){
     resume = tox_file_get_file_id(tox, file->friend_number, file->file_number, file->file_id, &error);
     if (resume){
         file->resume = 0;
-        for(i = 1; i <= MAX_FILE_TRANSFERS; i++){
+        for(i = 1; i < MAX_FILE_TRANSFERS; i++){
             if(!broken_list[i].used){
                 // TODO set an expire time for this.
                 broken_list[i].used = 1;
@@ -101,7 +101,7 @@ static int utox_file_alloc_resume(Tox *tox, FILE_TRANSFER *file){
 }
 
 static void utox_file_free_resume(uint8_t i){
-    if(i >= 1 && i <= 32){
+    if(i >= 1 && i < MAX_FILE_TRANSFERS){
         memset(&broken_list[i], 0, sizeof(BROKEN_TRANSFER));
         // TODO recurse and free needed allocs
         debug("FileTransfer:\tBroken transfer #%u reset!\n",i);
@@ -119,7 +119,7 @@ static FILE_TRANSFER* utox_file_find_existing(uint8_t *file_id){
     if(!file_id){
         return NULL;
     }
-    for(int i = 1; i <= 32; i++){
+    for(int i = 1; i < MAX_FILE_TRANSFERS; i++){
         if(broken_list[i].used && memcmp(broken_list[i].file_id, file_id, TOX_FILE_ID_LENGTH) == 0){
             if(broken_list[i].data){
                 debug("FileTransfer:\tExisting found, list number %u\n", i);
@@ -318,7 +318,7 @@ static void utox_restart_file(Tox *tox, BROKEN_TRANSFER broken, uint8_t broken_n
 }
 
 void ft_friend_online(Tox *tox, uint32_t friend_number){
-    for(int i = 1; i <= 32; i++){
+    for(int i = 1; i < MAX_FILE_TRANSFERS; i++){
         if(broken_list[i].used && broken_list[i].friend_number == friend_number && !broken_list[i].incoming){
             utox_restart_file(tox, broken_list[i], i);
         }
@@ -1051,7 +1051,7 @@ void utox_file_load_active(void){
     }
     free(saved);
 
-    for(int i = 0 ; i <= MAX_FILE_TRANSFERS ; i++){
+    for(int i = 0 ; i < MAX_FILE_TRANSFERS ; i++){
         broken_list[i].data = NULL;
     }
 }
