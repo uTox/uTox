@@ -78,7 +78,7 @@ static int utox_file_alloc_resume(Tox *tox, FILE_TRANSFER *file){
                 broken_list[i].file_number = file->file_number;
                 memcpy(broken_list[i].file_id, file->file_id, sizeof(uint8_t) * TOX_FILE_ID_LENGTH);
                 if(file->path){
-                    memcpy(broken_list[i].file_path, file->path, UTOX_FILE_NAME_LENGTH);
+                    memcpy(broken_list[i].file_path, file->path, file->path_length);
                 }
 
                 FILE_TRANSFER *data = malloc(sizeof(FILE_TRANSFER));
