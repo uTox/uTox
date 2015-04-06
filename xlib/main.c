@@ -878,6 +878,7 @@ _Bool parse_args_wait_for_theme;
 int main(int argc, char *argv[])
 {
     parse_args_wait_for_theme = 0;
+    _Bool theme_was_set_on_argv = 0;
     theme = THEME_DEFAULT;
 
     if (argc > 1)
@@ -886,21 +887,25 @@ int main(int argc, char *argv[])
                 if(!strcmp(argv[i], "default")) {
                     theme = THEME_DEFAULT;
                     parse_args_wait_for_theme = 0;
+                    theme_was_set_on_argv = 1;
                     continue;
                 }
                 if(!strcmp(argv[i], "dark")) {
                     theme = THEME_DARK;
                     parse_args_wait_for_theme = 0;
+                    theme_was_set_on_argv = 1;
                     continue;
                 }
                 if(!strcmp(argv[i], "light")) {
                     theme = THEME_LIGHT;
                     parse_args_wait_for_theme = 0;
+                    theme_was_set_on_argv = 1;
                     continue;
                 }
                 if(!strcmp(argv[i], "highcontrast")) {
                     theme = THEME_HIGHCONTRAST;
                     parse_args_wait_for_theme = 0;
+                    theme_was_set_on_argv = 1;
                     continue;
                 }
                 debug("Please specify correct theme (please check user manual for list of correct values).");
@@ -955,10 +960,13 @@ int main(int argc, char *argv[])
                     PropertyChangeMask,
     };
 
-    theme_load(theme);
-
     /* load save data */
     UTOX_SAVE *save = config_load();
+
+    if (!theme_was_set_on_argv)
+        theme = save->theme;
+    printf("%d\n", theme);
+    theme_load(theme);
 
     /* create window */
     window = XCreateWindow(display, RootWindow(display, screen), save->window_x, save->window_y, save->window_width, save->window_height, 0, depth, InputOutput, visual, CWBackPixmap | CWBorderPixel | CWEventMask, &attrib);
@@ -1152,6 +1160,7 @@ int main(int argc, char *argv[])
         .window_y = y_return < 0 ? 0 : y_return,
         .window_width = width_return,
         .window_height = height_return,
+        .theme = theme,
     };
 
     config_save(&d);

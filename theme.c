@@ -7,6 +7,7 @@ void theme_load(char loadtheme)
 {
     // Update the settings dropdown UI
     dropdown_theme.selected = loadtheme;
+    theme = loadtheme;
 
     // ==== Default theme ====
     //---- Main chat area ----
