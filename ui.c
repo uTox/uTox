@@ -18,7 +18,7 @@ void maybe_i18nal_string_set_plain(MAYBE_I18NAL_STRING *mis, char_t *str, STRING
 void maybe_i18nal_string_set_i18nal(MAYBE_I18NAL_STRING *mis, UI_STRING_ID string_id) {
     mis->plain.str = NULL;
     mis->plain.length = 0;
-    mis->i18nal = string_id; 
+    mis->i18nal = string_id;
 }
 
 STRING* maybe_i18nal_string_get(MAYBE_I18NAL_STRING *mis) {
@@ -267,7 +267,7 @@ static void drawsettings_content(int UNUSED(x), int y, int UNUSED(w), int UNUSED
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 278, PROXY);
 
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 310, LOGGING);
-    
+
     drawstr(LIST_RIGHT + SCALE * 75, y + SCALE * 310, THEME);
 
     drawtext(LIST_RIGHT + SCALE * 132, y + SCALE * 290, (uint8_t*)":", 1);
@@ -309,7 +309,7 @@ static void background_draw(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int 
 
     // Chat background
     drawrect(LIST_RIGHT, 0, width, height, COLOR_MAIN_BACKGROUND);
-    
+
     // Chat and chat header separation
     drawhline(LIST_RIGHT, LIST_Y - 1, width, COLOR_EDGE_NORMAL);
 }
@@ -416,7 +416,7 @@ panel_settings = {
         (void*)&dropdown_audio_in, (void*)&dropdown_audio_out, (void*)&dropdown_video,
         (void*)&dropdown_dpi, (void*)&dropdown_language, (void*)&dropdown_proxy,
         (void*)&dropdown_ipv6, (void*)&dropdown_udp, (void*)&dropdown_logging,
-        (void*)&dropdown_audible_notification, (void*)&dropdown_audio_filtering, 
+        (void*)&dropdown_audible_notification, (void*)&dropdown_audio_filtering,
         (void*)&dropdown_close_to_tray, (void*)&dropdown_start_in_tray,
         (void*)&dropdown_theme,
         NULL
@@ -853,13 +853,13 @@ void ui_scale(uint8_t scale)
         .height = SCALE * 12,
         .width = SCALE * 20
     },
-    
+
     d_theme = {
         .type = PANEL_DROPDOWN,
         .x = 75 * SCALE,
         .y = SCALE * 320,
         .height = SCALE * 12,
-        .width = SCALE * 45
+        .width = SCALE * 60
     }
 
 #ifdef AUDIO_FILTERING

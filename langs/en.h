@@ -303,3 +303,6 @@ msgstr("Dark theme")
 
 msgid(THEME_HIGHCONTRAST)
 msgstr("High contrast")
+
+msgid(THEME_CUSTOM)
+msgstr("Custom (see docs)")
