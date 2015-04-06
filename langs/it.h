@@ -85,6 +85,9 @@ msgstr("Cerca contatti")
 msgid(ADD)
 msgstr("Aggiungi")
 
+msgid(CREATEGROUPCHAT)
+msgstr("Crea chat di gruppo")
+
 msgid(SWITCHPROFILE)
 msgstr("Cambia Profilo")
 
@@ -155,7 +158,10 @@ msgid(COPY)
 msgstr("Copia")
 
 msgid(COPYWITHOUTNAMES)
-msgstr("Copia (senza nome contatto)")
+msgstr("Copia (escludi nome contatto)")
+
+msgid(COPY_WITH_NAMES)
+msgstr("Copia (includi nome contatto)")
 
 msgid(CUT)
 msgstr("Taglia")
@@ -180,6 +186,9 @@ msgstr("Accetta")
 
 msgid(IGNORE)
 msgstr("Ignora")
+
+msgid(SENDSCREENSHOT)
+msgstr("Invia uno screenshot")
 
 msgid(CLICKTOSAVE)
 msgstr("Clicca per salvare")
@@ -261,3 +270,6 @@ msgstr("Scuro")
 
 msgid(THEME_HIGHCONTRAST)
 msgstr("Alto contrasto")
+
+msgid(THEME_CUSTOM)
+msgstr("Personalizzato (vedi documentazione)")
