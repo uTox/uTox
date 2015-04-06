@@ -807,9 +807,9 @@ static void audio_thread(void *args)
         alcCaptureCloseDevice(device_in);
     }
 
-    alcCloseDevice(device_out);
     alcMakeContextCurrent(NULL);
     alcDestroyContext(context);
+    alcCloseDevice(device_out);
 
     audio_thread_msg = 0;
     audio_thread_init = 0;
