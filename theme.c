@@ -307,11 +307,13 @@ void read_custom_theme(const char *path) {
             line++;
         }
 
-        char *colour = buf;
-        strsep(&colour, "=");
+        char *colour = strpbrk(buf, "=");
 
-        if (*buf == 0 || !colour)
+        if (!colour || colour == buf)
             continue;
+
+        *colour++ = 0;
+
         uint32_t *colourp = find_colour_pointer(buf);
         if (!colourp)
             continue;
