@@ -143,7 +143,7 @@ volatile _Bool reset_time;
 static void tooltip_thread(void *UNUSED(args))
 {
     uint64_t last_move_time = ~0;
-    while (1) {debug("tt\n");
+    while (1) {
         if (kill_thread) {
             break;
         }

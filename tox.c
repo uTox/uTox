@@ -1312,6 +1312,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         /* data: pointer to FRIENDREQ structure
          */
         list_addfriendreq(data);
+        redraw();
         break;
     }
 

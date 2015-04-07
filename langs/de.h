@@ -82,6 +82,9 @@ msgstr("Freunde suchen")
 msgid(ADD)
 msgstr("Hinzufügen")
 
+msgid(CREATEGROUPCHAT)
+msgstr("Gruppenchat erstellen")
+
 msgid(SWITCHPROFILE)
 msgstr("Profil wechseln")
 
@@ -110,7 +113,7 @@ msgid(AUDIOOUTPUTDEVICE)
 msgstr("Audioausgabegerät")
 
 msgid(VIDEOINPUTDEVICE)
-msgstr("Videoquelle")
+msgstr("Videoeingabegerät")
 
 msgid(OTHERSETTINGS)
 msgstr("Andere Einstellungen")
@@ -171,6 +174,9 @@ msgstr("Akzeptieren")
 
 msgid(IGNORE)
 msgstr("Ignorieren")
+
+msgid(SENDSCREENSHOT)
+msgstr("Screenshot senden")
 
 msgid(CLICKTOSAVE)
 msgstr("Klicken um zu speichern")
@@ -237,3 +243,18 @@ msgstr("Ausgewählte Datei existiert nicht oder ist leer.")
 
 msgid(CLEAR_HISTORY)
 msgstr("Chatverlauf leeren")
+
+msgid(THEME)
+msgstr("Stil")
+
+msgid(THEME_DEFAULT)
+msgstr("Standard")
+
+msgid(THEME_LIGHT)
+msgstr("Hell")
+
+msgid(THEME_DARK)
+msgstr("Dunkel")
+
+msgid(THEME_HIGHCONTRAST)
+msgstr("Hoher Kontrast")

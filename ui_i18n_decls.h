@@ -89,8 +89,10 @@ enum {
     STR_CLOSE_TO_TRAY,
     STR_START_IN_TRAY,
 
+    // Interact with texts / clipboard
     STR_COPY, STR_COPY_TOX_ID = STR_COPY,
     STR_COPYWITHOUTNAMES,
+    STR_COPY_WITH_NAMES,
     STR_CUT,
     STR_PASTE,
     STR_DELETE,
@@ -145,7 +147,7 @@ enum {
     STR_CANT_FIND_FILE_OR_EMPTY,
 
     STR_CLEAR_HISTORY,
-    
+
     STR_THEME,
     STR_THEME_DEFAULT,
     STR_THEME_LIGHT,
