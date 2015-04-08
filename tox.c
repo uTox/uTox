@@ -479,6 +479,7 @@ void tox_settingschanged(void)
     toxvideo_postmessage(VIDEO_KILL, 0, 0, NULL);
     toxav_postmessage(TOXAV_KILL, 0, 0, NULL);
 
+    // send the reconfig message!
     tox_postmessage(0, 1, 0, NULL);
 
     while(!tox_thread_init) {
@@ -1079,13 +1080,13 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
     case TOX_FILE_START_TEMP:{
         /* param1: friend #
          * param2: file # */
+        break;
         if (utox_file_start_temp_write(param1, param2) == 0) {
         /*                          tox, friend#, file#,        START_FILE */
             file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_RESUME);
         } else {
             file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_CANCEL);
         }
-        break;
     }
 
 

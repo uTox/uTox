@@ -157,7 +157,7 @@ static void utox_kill_file(FILE_TRANSFER *file, uint8_t us){
     if (!file->incoming && friend[file->friend_number].transfer_count) {
         --friend[file->friend_number].transfer_count;
     }
-    //TODO free not freed data.
+    utox_cleanup_file_transfers(file->friend_number, file->file_number);
     utox_file_free_resume(file->resume);
 }
 
@@ -300,6 +300,7 @@ static void utox_complete_file(FILE_TRANSFER *file){
         debug("FileTransfer:\tUnable to complete file in non-active state (file:%u)\n", file->file_number);
     }
     utox_file_free_resume(file->resume);
+    utox_cleanup_file_transfers(file->friend_number, file->file_number);
 }
 
 static void utox_restart_file(Tox *tox, BROKEN_TRANSFER broken, uint8_t broken_number){
@@ -642,35 +643,35 @@ static void incoming_file_callback_chunk(Tox *UNUSED(tox), uint32_t friend_numbe
             memcpy(file_handle->memory + position, data, length);
         }
     } else {
-        if(file_handle->in_tmp_loc){
-            fseeko(file_handle->tmp_file, position, SEEK_SET);
-            size_t write_size = fwrite(data, 1, length, file_handle->tmp_file);
+            // Removed until we can better implement temp files
+            // if(file_handle->in_tmp_loc){
+            //     fseeko(file_handle->tmp_file, position, SEEK_SET);
+            //     size_t write_size = fwrite(data, 1, length, file_handle->tmp_file);
+            //     if(write_size != length){
+            //         debug("\n\nFileTransfer:\tERROR WRITING DATA TO TEMP FILE! (%u & %u)\n\n", friend_number, file_number);
+            //         tox_postmessage(TOX_FILE_INCOMING_CANCEL, friend_number, file_number, NULL);
+            //         return;
+            //     }
+            // }
+        if(file_handle->file) {
+            while(!file_lock(file_handle->file, position, length)){
+                debug("FileTransfer:\tCan't get lock, sleeping...\n");
+                yieldcpu(10);
+                // If you get a bug report about this hanging utox, just disable it, it's unlikely to be needed!
+            }
+            fseeko(file_handle->file, position, SEEK_SET);
+            size_t write_size = fwrite(data, 1, length, file_handle->file);
+            fflush(file_handle->file);
+            file_unlock(file_handle->file, position, length);
             if(write_size != length){
-                debug("\n\nFileTransfer:\tERROR WRITING DATA TO TEMP FILE! (%u & %u)\n\n", friend_number, file_number);
+                debug("\n\nFileTransfer:\tERROR WRITING DATA TO FILE! (%u & %u)\n\n", friend_number, file_number);
                 tox_postmessage(TOX_FILE_INCOMING_CANCEL, friend_number, file_number, NULL);
                 return;
             }
         } else {
-            if(file_handle->file) {
-                while(!file_lock(file_handle->file, position, length)){
-                    debug("FileTransfer:\tCan't get lock, sleeping...\n");
-                    yieldcpu(10);
-                    // If you get a bug report about this hanging utox, just disable it, it's unlikely to be needed!
-                }
-                fseeko(file_handle->file, position, SEEK_SET);
-                size_t write_size = fwrite(data, 1, length, file_handle->file);
-                fflush(file_handle->file);
-                file_unlock(file_handle->file, position, length);
-                if(write_size != length){
-                    debug("\n\nFileTransfer:\tERROR WRITING DATA TO FILE! (%u & %u)\n\n", friend_number, file_number);
-                    tox_postmessage(TOX_FILE_INCOMING_CANCEL, friend_number, file_number, NULL);
-                    return;
-                }
-            } else {
-                debug("FileTransfer:\tFile Handle failed!\n");
-                tox_postmessage(TOX_FILE_INCOMING_CANCEL, friend_number, file_number, NULL);
-                return;
-            }
+            debug("FileTransfer:\tFile Handle failed!\n");
+            tox_postmessage(TOX_FILE_INCOMING_CANCEL, friend_number, file_number, NULL);
+            return;
         }
     }
     file_handle->size_transferred += length;
@@ -796,6 +797,7 @@ void outgoing_file_send_existing(Tox *tox, FILE_TRANSFER *broken_data, uint8_t b
     } else {
         debug("tox_file_send() failed\n");
     }
+    free(broken_data);
 }
 
 void outgoing_file_send_inline(Tox *tox, uint32_t friend_number, uint8_t *image, size_t image_size){
@@ -971,20 +973,21 @@ int utox_file_start_write(uint32_t friend_number, uint32_t file_number, void *fi
     file_handle->path = filepath;
     file_handle->path_length = strlen(filepath);
     memcpy(broken_list[file_handle->resume].file_path, file_handle->path, file_handle->path_length);
-    if(file_handle->in_tmp_loc){
-        fseeko(file_handle->tmp_file, 0, SEEK_SET);
-        fseeko(file_handle->file, 0, SEEK_SET);
-        fwrite(file_handle->tmp_file, 1, file_handle->size_transferred, file_handle->file);
-        fclose(file_handle->tmp_file);
-        file_handle->in_tmp_loc = 0;
-        // free(file_handle->tmp_path); // Freed by xlib probably...
-        // TODO unlink();
-        debug("FileTransfer: Data copied from tmp_file to save_file\n");
-    }
+            // Removed until we can find a better way of working this in;
+            // if(file_handle->in_tmp_loc){
+            //     fseeko(file_handle->tmp_file, 0, SEEK_SET);
+            //     fseeko(file_handle->file, 0, SEEK_SET);
+            //     fwrite(file_handle->tmp_file, 1, file_handle->size_transferred, file_handle->file);
+            //     fclose(file_handle->tmp_file);
+            //     file_handle->in_tmp_loc = 0;
+            //     // free(file_handle->tmp_path); // Freed by xlib probably...
+            //     // TODO unlink();
+            //     debug("FileTransfer: Data copied from tmp_file to save_file\n");
+            // }
     return 0;
 }
 
-int utox_file_start_temp_write(uint32_t friend_number, uint32_t file_number){
+int utox_file_start_temp_write(uint32_t friend_number, uint32_t file_number){/*
     FILE_TRANSFER *file_handle = get_file_transfer(friend_number, file_number);
     uint8_t path[UTOX_FILE_NAME_LENGTH];
     size_t path_length;
@@ -1006,7 +1009,7 @@ int utox_file_start_temp_write(uint32_t friend_number, uint32_t file_number){
     file_handle->tmp_path = path;
     file_handle->tmp_path_length = strlen((const char*)path);
     return 0;
-}
+*/}
 
 void utox_set_callbacks_for_transfer(Tox *tox){
     /* Incoming files */
@@ -1019,6 +1022,21 @@ void utox_set_callbacks_for_transfer(Tox *tox){
     /* Outgoing files */
         /* This is the callback send to request a new file chunk */
         tox_callback_file_chunk_request(tox, outgoing_file_callback_chunk, NULL);
+}
+
+void utox_cleanup_file_transfers(uint32_t friend_number, uint32_t file_number){
+    debug("FileTransfer:\tCleaning up file transfers!\n");
+    FILE_TRANSFER *transfer = get_file_transfer(friend_number, file_number);
+    if(transfer->name)
+        free(transfer->name);
+    if(transfer->path)
+        free(transfer->path);
+    if(transfer->memory)
+        free(transfer->memory);
+    if(transfer->avatar)
+        free(transfer->avatar);
+    if(transfer->ui_data)
+        free(transfer->ui_data);
 }
 
 void utox_file_save_active(void){

@@ -17,9 +17,9 @@ typedef struct FILE_TRANSFER {
     uint32_t friend_number, file_number;
     uint8_t  file_id[TOX_FILE_ID_LENGTH];
     uint8_t  status, resume, kind;
-    _Bool    incoming, in_memory, is_avatar, in_tmp_loc;
-    uint8_t  *path, *name, *tmp_path;
-    size_t   path_length, name_length, tmp_path_length;
+    _Bool    incoming, in_memory, is_avatar; //, in_tmp_loc;
+    uint8_t  *path, *name; //, *tmp_path;
+    size_t   path_length, name_length; //, tmp_path_length;
     uint64_t size, size_transferred;
     uint8_t  *memory, *avatar;
 
@@ -27,7 +27,7 @@ typedef struct FILE_TRANSFER {
     uint32_t speed, num_packets;
     uint64_t last_check_time, last_check_transferred;
 
-    FILE *file, *tmp_file;
+    FILE *file; //, *tmp_file;
     MSG_FILE *ui_data;
 } FILE_TRANSFER;
 
@@ -80,6 +80,7 @@ void file_transfer_local_control(Tox *tox, uint32_t friend_number, uint32_t file
 int utox_file_start_write(uint32_t friend_number, uint32_t file_number, void *filepath);
 int utox_file_start_temp_write(uint32_t friend_number, uint32_t file_number);
 void utox_set_callbacks_for_transfer(Tox *tox);
+void utox_cleanup_file_transfers(void);
 
 /* Functions called when friend goes online or offline.
  */
