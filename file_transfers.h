@@ -80,7 +80,7 @@ void file_transfer_local_control(Tox *tox, uint32_t friend_number, uint32_t file
 int utox_file_start_write(uint32_t friend_number, uint32_t file_number, void *filepath);
 int utox_file_start_temp_write(uint32_t friend_number, uint32_t file_number);
 void utox_set_callbacks_for_transfer(Tox *tox);
-void utox_cleanup_file_transfers(void);
+void utox_cleanup_file_transfers(uint32_t friend_number, uint32_t file_number);
 
 /* Functions called when friend goes online or offline.
  */

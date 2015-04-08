@@ -33,6 +33,7 @@ FILE_TRANSFER *get_file_transfer(uint32_t friend_number, uint32_t file_number){
 /* The following are internal file status helper functions */
 static void utox_update_user_file(FILE_TRANSFER *file){
     FILE_TRANSFER *file_copy = malloc(sizeof(FILE_TRANSFER));
+
     memcpy(file_copy, file, sizeof(FILE_TRANSFER));
     postmessage(FRIEND_FILE_UPDATE, 0, 0, file_copy);
 }
@@ -101,14 +102,12 @@ static int utox_file_alloc_resume(Tox *tox, FILE_TRANSFER *file){
 
 static void utox_file_free_resume(uint8_t i){
     if(i >= 1 && i < MAX_FILE_TRANSFERS){
-        if(broken_list[i].data){
-            free(broken_list[i].data);
-        }
         memset(&broken_list[i], 0, sizeof(BROKEN_TRANSFER));
         // TODO recurse and free needed allocs
         debug("FileTransfer:\tBroken transfer #%u reset!\n",i);
         return;
-    } else {
+    }
+    if ( i != 0 || broken_list[i].used) { // We shouldn't be called for a 0; but either way no error needed!
         debug("FileTransfer:\tBroken transfer #%u unable to be reset! This is bad!\n",i);
     }
 }
@@ -284,23 +283,25 @@ static void utox_complete_file(FILE_TRANSFER *file){
         } else {
             if(file->in_memory){
 
+                // TODO, might want to do something here.
             } else { // Is a file
                 fclose(file->file);
             }
 
             if(friend[file->friend_number].transfer_count){
+                /* Decrement if > 0 this might be better held inside local_control */
                 --friend[file->friend_number].transfer_count;
             }
         }
         file->status = FILE_TRANSFER_STATUS_COMPLETED;
         file->ui_data->path = file->path;
         utox_update_user_file(file);
-        file->status = FILE_TRANSFER_STATUS_NONE;
     } else {
         debug("FileTransfer:\tUnable to complete file in non-active state (file:%u)\n", file->file_number);
     }
     utox_file_free_resume(file->resume);
     utox_cleanup_file_transfers(file->friend_number, file->file_number);
+    file->resume = 0; // We don't need to always be resetting this broken number anymore
 }
 
 static void utox_restart_file(Tox *tox, BROKEN_TRANSFER broken, uint8_t broken_number){
@@ -754,7 +755,6 @@ void outgoing_file_send_existing(Tox *tox, FILE_TRANSFER *broken_data, uint8_t b
             FILE *file = fopen((const char*)broken_data->path, "rb");
             if(file){
                 broken_data->file = file;
-                uint64_t file_size = 0;
                 fseeko(file, 0, SEEK_END);
                 broken_data->size = ftello(file);
                 fseeko(file, 0, SEEK_SET);
@@ -768,7 +768,7 @@ void outgoing_file_send_existing(Tox *tox, FILE_TRANSFER *broken_data, uint8_t b
 
     TOX_ERR_FILE_SEND error;
     const uint8_t *file_id = broken_data->file_id;
-    uint8_t *p = broken_data->path, *name = broken_data->path, *len = name;
+    uint8_t *p = broken_data->path, *name = broken_data->path;
     while(*p != '\0') {
         if(*p == '/' || *p == '\\') {
             name = p + 1;
@@ -799,7 +799,6 @@ void outgoing_file_send_existing(Tox *tox, FILE_TRANSFER *broken_data, uint8_t b
     }
     free(broken_data);
 }
-
 void outgoing_file_send_inline(Tox *tox, uint32_t friend_number, uint8_t *image, size_t image_size){
 
     debug("FileTransfer:\tStarting outgoing inline to friend %u.\n", friend_number);
@@ -1008,8 +1007,9 @@ int utox_file_start_temp_write(uint32_t friend_number, uint32_t file_number){/*
     file_handle->in_tmp_loc = 1;
     file_handle->tmp_path = path;
     file_handle->tmp_path_length = strlen((const char*)path);
+*/
     return 0;
-*/}
+}
 
 void utox_set_callbacks_for_transfer(Tox *tox){
     /* Incoming files */
@@ -1035,8 +1035,6 @@ void utox_cleanup_file_transfers(uint32_t friend_number, uint32_t file_number){
         free(transfer->memory);
     if(transfer->avatar)
         free(transfer->avatar);
-    if(transfer->ui_data)
-        free(transfer->ui_data);
 }
 
 void utox_file_save_active(void){
@@ -1055,6 +1053,7 @@ void utox_file_save_active(void){
     debug("SaveFile:\tWriting uTox Save file for File Transfers \n");
     fwrite(broken_list, (sizeof(BROKEN_TRANSFER) * MAX_FILE_TRANSFERS), 1, file);
     fclose(file);
+
 }
 
 void utox_file_load_active(void){
