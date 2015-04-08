@@ -581,7 +581,8 @@ void tox_thread(void *UNUSED(args))
         uint8_t hex_id[TOX_FRIEND_ADDRESS_SIZE * 2];
         id_to_string(hex_id, self.id_binary);
         if (init_avatar(&self.avatar, hex_id, avatar_data, &avatar_size)) {
-            //TODO tox_set_avatar(tox, UTOX_AVATAR_FORMAT_PNG, avatar_data, avatar_size); // set avatar before connecting
+            // set avatar before connecting
+            // TODO tox_set_avatar(tox, UTOX_AVATAR_FORMAT_PNG, avatar_data, avatar_size);
 
             char_t hash_string[TOX_HASH_LENGTH * 2];
             hash_to_string(hash_string, self.avatar.hash);
@@ -1391,6 +1392,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         FRIEND *f = &friend[param1];
         friend_setname(f, data, param2);
         updatefriend(f);
+        free(data);
         break;
     }
 
@@ -1601,6 +1603,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         FILE_TRANSFER *file = data;
         MSG_FILE *msg = file->ui_data;
         if(!msg){//TODO shove on ui thread
+            free(file);
             return;
         }
 
@@ -1621,7 +1624,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
 
         updatefriend(f);
         // todo free
-        // free(file);
+        free(file);
         break;
     }
 

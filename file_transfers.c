@@ -33,7 +33,6 @@ FILE_TRANSFER *get_file_transfer(uint32_t friend_number, uint32_t file_number){
 /* The following are internal file status helper functions */
 static void utox_update_user_file(FILE_TRANSFER *file){
     FILE_TRANSFER *file_copy = malloc(sizeof(FILE_TRANSFER));
-
     memcpy(file_copy, file, sizeof(FILE_TRANSFER));
     postmessage(FRIEND_FILE_UPDATE, 0, 0, file_copy);
 }
@@ -102,6 +101,9 @@ static int utox_file_alloc_resume(Tox *tox, FILE_TRANSFER *file){
 
 static void utox_file_free_resume(uint8_t i){
     if(i >= 1 && i < MAX_FILE_TRANSFERS){
+        if(broken_list[i].data){
+            free(broken_list[i].data);
+        }
         memset(&broken_list[i], 0, sizeof(BROKEN_TRANSFER));
         // TODO recurse and free needed allocs
         debug("FileTransfer:\tBroken transfer #%u reset!\n",i);
@@ -319,7 +321,9 @@ static void utox_restart_file(Tox *tox, BROKEN_TRANSFER broken, uint8_t broken_n
 
 void ft_friend_online(Tox *tox, uint32_t friend_number){
     for(int i = 1; i < MAX_FILE_TRANSFERS; i++){
-        if(broken_list[i].used && broken_list[i].friend_number == friend_number && !broken_list[i].incoming){
+        if( broken_list[i].used &&
+            broken_list[i].friend_number == friend_number &&
+            broken_list[i].incoming == 0){
             utox_restart_file(tox, broken_list[i], i);
         }
     }
@@ -734,7 +738,7 @@ void outgoing_file_send_new(Tox *tox, uint32_t friend_number, uint8_t *path, con
 }
 
 void outgoing_file_send_existing(Tox *tox, FILE_TRANSFER *broken_data, uint8_t broken_number){
-    debug("FileTransfer:\tRestarting outgoing file to friend %u. (filename, %s)\n", broken_data->friend_number, broken_data->name);
+    debug("FileTransfer:\tRestarting outgoing file to friend %u. (filename, %s)\n", broken_data->friend_number, broken_data->path);
 
     if(friend[broken_data->friend_number].transfer_count >= MAX_FILE_TRANSFERS) {
         debug("FileTransfer:\tMaximum outgoing file sending limit reached(%u/%u) for friend(%u). ABORTING!\n",
@@ -788,11 +792,12 @@ void outgoing_file_send_existing(Tox *tox, FILE_TRANSFER *broken_data, uint8_t b
         file_handle->resume = utox_file_alloc_resume(tox, file_handle);
         ++friend[file_handle->friend_number].transfer_count;
         debug("Resending file %d of %d(max) to friend(%d).\n", friend[file_handle->friend_number].transfer_count, MAX_FILE_TRANSFERS, file_handle->friend_number);
-        postmessage(FRIEND_FILE_UPDATE, 0, 0, file_handle);
+        utox_update_user_file(file_handle);
     } else {
         debug("tox_file_send() failed\n");
     }
 }
+
 void outgoing_file_send_inline(Tox *tox, uint32_t friend_number, uint8_t *image, size_t image_size){
 
     debug("FileTransfer:\tStarting outgoing inline to friend %u.\n", friend_number);
@@ -1032,7 +1037,6 @@ void utox_file_save_active(void){
     debug("SaveFile:\tWriting uTox Save file for File Transfers \n");
     fwrite(broken_list, (sizeof(BROKEN_TRANSFER) * MAX_FILE_TRANSFERS), 1, file);
     fclose(file);
-
 }
 
 void utox_file_load_active(void){
