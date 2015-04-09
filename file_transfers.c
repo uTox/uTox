@@ -475,7 +475,7 @@ static void incoming_file_avatar(Tox *tox, uint32_t friend_number, uint32_t file
     debug("FileTransfer:\tNew Avatar from friend (%u)\n", friend_number);
 
     /* If 0 unset the avatar... TODO! */
-    if(file_size <= 0){
+    if(file_size == 0){
         utox_incoming_avatar(friend_number, NULL, 0);
         debug("FileTransfer:\tAvatar Unset from friend(%u).\n", friend_number);
         file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
