@@ -145,8 +145,10 @@ static FILE_TRANSFER* utox_file_find_existing(uint8_t *file_id){
 static void utox_kill_file(FILE_TRANSFER *file, uint8_t us){
     if (file->status == FILE_TRANSFER_STATUS_KILLED) {
         debug("File already killed.\n");
+        return;
     } else if(file->status == FILE_TRANSFER_STATUS_COMPLETED){
         debug("File already completed.\n");
+        return;
     } else {
         file->status = FILE_TRANSFER_STATUS_KILLED;
     }
@@ -849,6 +851,7 @@ void outgoing_file_send_inline(Tox *tox, uint32_t friend_number, uint8_t *image,
                                 file_id, TOX_FILE_ID_LENGTH, NULL, 0, file_id, tox);
 
         file_handle->kind = TOX_FILE_KIND_DATA;
+        file_handle->resume = 0;
 
         memcpy(file_handle->memory, image, image_size);
 
@@ -900,6 +903,7 @@ int outgoing_file_send_avatar(Tox *tox, uint32_t friend_number, uint8_t *avatar,
 
         file_handle->kind = TOX_FILE_KIND_AVATAR;
         file_handle->status = FILE_TRANSFER_STATUS_PAUSED_THEM;
+        file_handle->resume = 0;
 
         memcpy(file_handle->avatar, avatar, avatar_size);
 
