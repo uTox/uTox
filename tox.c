@@ -46,7 +46,7 @@ void log_write(Tox *tox, int fid, const uint8_t *message, uint16_t length, _Bool
         return;
     }
 
-    uint8_t path[512], *p;
+    uint8_t path[UTOX_FILE_NAME_LENGTH], *p;
     uint8_t name[TOX_MAX_NAME_LENGTH];
     size_t namelen;
     FILE *file;
@@ -94,7 +94,7 @@ void log_write(Tox *tox, int fid, const uint8_t *message, uint16_t length, _Bool
 
 void log_read(Tox *tox, int fid)
 {
-    uint8_t path[512], *p;
+    uint8_t path[UTOX_FILE_NAME_LENGTH], *p;
     FILE *file;
 
     p = path + datapath(path);
@@ -285,8 +285,6 @@ static void set_callbacks(Tox *tox)
     tox_callback_friend_typing(tox, callback_typing_change, NULL);
     tox_callback_friend_read_receipt(tox, callback_read_receipt, NULL);
     tox_callback_friend_connection_status(tox, callback_connection_status, NULL);
-    //TODO tox_callback_avatar_info(tox, callback_avatar_info, NULL);
-    //TODO tox_callback_avatar_data(tox, callback_avatar_data, NULL);
 
     tox_callback_group_invite(tox, callback_group_invite, NULL);
     tox_callback_group_message(tox, callback_group_message, NULL);
@@ -327,7 +325,7 @@ static _Bool init_avatar(AVATAR *avatar, const char_t *id, uint8_t *png_data_out
 }
 
 static size_t load_save(uint8_t **out_data){
-    uint8_t path[512], *p, *data;
+    uint8_t path[UTOX_FILE_NAME_LENGTH], *p, *data;
     uint32_t size;
 
     do{ /* Try the STS compliant save location */
@@ -419,7 +417,7 @@ static void write_save(Tox *tox)
 {
     void *data;
     uint32_t size;
-    uint8_t path_tmp[512], path_real[512], *p;
+    uint8_t path_tmp[UTOX_FILE_NAME_LENGTH], path_real[UTOX_FILE_NAME_LENGTH], *p;
     FILE *file;
 
     size = tox_get_savedata_size(tox);
@@ -481,6 +479,7 @@ void tox_settingschanged(void)
     toxvideo_postmessage(VIDEO_KILL, 0, 0, NULL);
     toxav_postmessage(TOXAV_KILL, 0, 0, NULL);
 
+    // send the reconfig message!
     tox_postmessage(0, 1, 0, NULL);
 
     while(!tox_thread_init) {
@@ -563,6 +562,9 @@ void tox_thread(void *UNUSED(args))
             load_defaults(tox);
         }
 
+        // Load saved file transfers
+        utox_file_load_active();
+
         // Set local info for self
         edit_setstr(&edit_name, self.name, self.name_length);
         edit_setstr(&edit_status, self.statusmsg, self.statusmsg_length);
@@ -580,7 +582,8 @@ void tox_thread(void *UNUSED(args))
         uint8_t hex_id[TOX_FRIEND_ADDRESS_SIZE * 2];
         id_to_string(hex_id, self.id_binary);
         if (init_avatar(&self.avatar, hex_id, avatar_data, &avatar_size)) {
-            //TODO tox_set_avatar(tox, UTOX_AVATAR_FORMAT_PNG, avatar_data, avatar_size); // set avatar before connecting
+            // set avatar before connecting
+            // TODO tox_set_avatar(tox, UTOX_AVATAR_FORMAT_PNG, avatar_data, avatar_size);
 
             char_t hash_string[TOX_HASH_LENGTH * 2];
             hash_to_string(hash_string, self.avatar.hash);
@@ -633,7 +636,10 @@ void tox_thread(void *UNUSED(args))
                 }
                 //save every 10mill.
                 if (save_needed || (time - last_save >= (uint64_t)100 * 1000 * 1000 * 1000)){
+                    // Save tox data
                     write_save(tox);
+                    // Save file transfer data
+                    utox_file_save_active();
                 }
             }
 
@@ -1041,9 +1047,6 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
                                     /* tox, Friend, path, filename,      filename_length */
                 outgoing_file_send_new(tox, param1, name, name + param2, strlen((const char*)(name + param2)));
             } else {
-                // TODO : multi file support
-                debug("multifile not supported yet!\n");
-                break;
                 uint8_t *p = name + param2;
                 name += param2 - 1;
                 if(*(name - 1) != '\\') {
@@ -1074,6 +1077,19 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
         break;
     }
 
+    case TOX_FILE_START_TEMP:{
+        /* param1: friend #
+         * param2: file # */
+        break;
+        if (utox_file_start_temp_write(param1, param2) == 0) {
+        /*                          tox, friend#, file#,        START_FILE */
+            file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_RESUME);
+        } else {
+            file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_CANCEL);
+        }
+    }
+
+
     case TOX_ACCEPTFILE: {
         /* param1: friend #
          * param2: file #
@@ -1088,7 +1104,6 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
     }
 
     case TOX_FILE_INCOMING_RESUME:
-
     case TOX_FILE_OUTGOING_RESUME:{
         /* param1: friend #
          * param2: file #           tox, friend#, file#,       RESUME_FILE */
@@ -1220,6 +1235,24 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
 
     case SAVE_FILE: {
         tox_postmessage(TOX_ACCEPTFILE, param1, param2 << 16, data);
+        break;
+    }
+
+    case FILE_START_TEMP:{
+        // Called once the user starts looking for a save location
+            // start ft to a temp directory
+            // start writing data
+        tox_postmessage(TOX_FILE_START_TEMP, param1, param2 << 16, data);
+        break;
+    }
+
+    case FILE_ABORT_TEMP:{
+        // User canceled file saving.
+            // stop/pause ft
+            // kill the file
+            // delete existing data
+        // We do want to do something else, but for now this is goodenough™
+        tox_postmessage(TOX_FILE_INCOMING_PAUSE, param1, param2 << 16, data);
         break;
     }
 
@@ -1360,6 +1393,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         FRIEND *f = &friend[param1];
         friend_setname(f, data, param2);
         updatefriend(f);
+        free(data);
         break;
     }
 
@@ -1559,7 +1593,6 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
 
     case FRIEND_FILE_NEW: {
         FILE_TRANSFER *file_handle = data;
-        file_handle->ui_data = message_add_type_file(file_handle);
         FRIEND *f = &friend[file_handle->friend_number];
 
         file_notify(f, file_handle->ui_data);
@@ -1571,6 +1604,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         FILE_TRANSFER *file = data;
         MSG_FILE *msg = file->ui_data;
         if(!msg){//TODO shove on ui thread
+            free(file);
             return;
         }
 
@@ -1581,7 +1615,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             f_notify = 1;
             msg->status = file->status;
         }
-
+        msg->filenumber = file->file_number;
         msg->progress = file->size_transferred;
         msg->speed = file->speed;
         msg->path = file->path;
@@ -1590,6 +1624,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         }
 
         updatefriend(f);
+        // todo free
         free(file);
         break;
     }

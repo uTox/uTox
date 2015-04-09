@@ -527,8 +527,8 @@ void savefilerecv(uint32_t fid, MSG_FILE *file)
         .lStructSize = sizeof(OPENFILENAME),
         .hwndOwner = hwnd,
         .lpstrFile = path,
-        .nMaxFile = 256,
-        .Flags = OFN_EXPLORER | OFN_NOCHANGEDIR | OFN_NOREADONLYRETURN | OFN_OVERWRITEPROMPT,
+        .nMaxFile = UTOX_FILE_NAME_LENGTH,
+        .Flags = OFN_EXPLORER | OFN_NOCHANGEDIR | OFN_NOREADONLYRETURN |OFN_OVERWRITEPROMPT,
     };
 
     if(GetSaveFileName(&ofn)) {
@@ -540,7 +540,7 @@ void savefilerecv(uint32_t fid, MSG_FILE *file)
 
 void savefiledata(MSG_FILE *file)
 {
-    char *path = malloc(256);
+    char *path = malloc(UTOX_FILE_NAME_LENGTH);
     memcpy(path, file->name, file->name_length);
     path[file->name_length] = 0;
 
@@ -548,8 +548,8 @@ void savefiledata(MSG_FILE *file)
         .lStructSize = sizeof(OPENFILENAME),
         .hwndOwner = hwnd,
         .lpstrFile = path,
-        .nMaxFile = 256,
-        .Flags = OFN_EXPLORER | OFN_NOCHANGEDIR | OFN_NOREADONLYRETURN | OFN_OVERWRITEPROMPT,
+        .nMaxFile = UTOX_FILE_NAME_LENGTH,
+        .Flags = OFN_EXPLORER | OFN_NOCHANGEDIR,
     };
 
     if(GetSaveFileName(&ofn)) {
@@ -953,13 +953,30 @@ int ch_mod(uint8_t *file){
     return 1;
 }
 
+int file_lock(FILE *file, uint64_t start, size_t length){
+    OVERLAPPED lock_overlap;
+    lock_overlap.Offset     = start;
+    lock_overlap.OffsetHigh = start+length;
+    lock_overlap.hEvent     = 0;
+    return !LockFileEx(file, LOCKFILE_FAIL_IMMEDIATELY, 0, start, start + length, &lock_overlap);
+}
+
+int file_unlock(FILE *file, uint64_t start, size_t length){
+    OVERLAPPED lock_overlap;
+    lock_overlap.Offset     = start;
+    lock_overlap.OffsetHigh = start+length;
+    lock_overlap.hEvent     = 0;
+    return UnlockFileEx(file, 0, start, start + length, &lock_overlap);
+}
+
+
+
 /** Creates a tray baloon popup with the message, and flashes the main window
  *
  * accepts: char_t *title, title legnth, char_t *msg, msg length;
  * returns void;
  */
-void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_length, FRIEND *f)
-{
+void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_length, FRIEND *f){
     if(havefocus) {
         return;
     }

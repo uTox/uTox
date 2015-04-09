@@ -112,10 +112,10 @@ typedef struct msg_file {
     uint8_t name[64];
 } MSG_FILE;
 
-typedef struct FILE_TRANSFER FILE_TRANSFER;
+struct FILE_TRANSFER;
 
 /* Called externally to add a message to the queue */
-MSG_FILE* message_add_type_file(FILE_TRANSFER *file);
+MSG_FILE* message_add_type_file(struct FILE_TRANSFER *file);
 
 void messages_draw(MESSAGES *m, int x, int y, int width, int height);
 _Bool messages_mmove(MESSAGES *m, int x, int y, int width, int height, int mx, int my, int dx, int dy);

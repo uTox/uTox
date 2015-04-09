@@ -261,14 +261,22 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
                 }
                 break;
             }
-            case FILE_TRANSFER_STATUS_KILLED:
-            case FILE_TRANSFER_STATUS_BROKEN: {
-                // TODO separate, BROKEN and KILLED are different
+            case FILE_TRANSFER_STATUS_KILLED:{
                 setcolor(COLOR_BUTTON_DANGER_TEXT);
 
                 drawalpha(BM_FT, ftbar_x, ftbar_y, ftbar_w, ftbar_h, COLOR_BUTTON_DANGER_BACKGROUND);
                 drawalpha(BM_NO, btnx, tbtn_y, btnw, btnh, COLOR_BUTTON_DANGER_TEXT);
-                drawstr(x + dx + 5 * SCALE, y + 17 * SCALE, CANCELLED);
+
+                drawstr(x + dx + 5 * SCALE, y + 17 * SCALE, TRANSFER_CANCELLED);
+                break;
+            }
+            case FILE_TRANSFER_STATUS_BROKEN: {
+                setcolor(COLOR_BUTTON_DANGER_TEXT);
+
+                drawalpha(BM_FT, ftbar_x, ftbar_y, ftbar_w, ftbar_h, COLOR_BUTTON_DANGER_BACKGROUND);
+                drawalpha(BM_NO, btnx, tbtn_y, btnw, btnh, COLOR_BUTTON_DANGER_TEXT);
+
+                drawstr(x + dx + 5 * SCALE, y + 17 * SCALE, TRANSFER_BROKEN);
                 break;
             }
             case FILE_TRANSFER_STATUS_NONE: {
@@ -1103,7 +1111,7 @@ void message_free(MESSAGE *msg)
     }
     case MSG_TYPE_FILE: {
         //already gets free()d
-        //free(((MSG_FILE*)msg)->path);
+        free(((MSG_FILE*)msg)->path);
         break;
     }
     }

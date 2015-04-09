@@ -788,6 +788,38 @@ void setscale(void)
     }
 }
 
+int file_lock(FILE *file, uint64_t start, size_t length){
+    int result = -1;
+    struct flock fl;
+    fl.l_type = F_WRLCK;
+    fl.l_whence = SEEK_SET;
+    fl.l_start = start;
+    fl.l_len = length;
+
+    result = fcntl(fileno(file), F_SETLK, &fl);
+    if(result != -1){
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+int file_unlock(FILE *file, uint64_t start, size_t length){
+    int result = -1;
+    struct flock fl;
+    fl.l_type = F_UNLCK;
+    fl.l_whence = SEEK_SET;
+    fl.l_start = start;
+    fl.l_len = length;
+
+    result = fcntl(fileno(file), F_SETLK, &fl);
+    if(result != -1){
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
 void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_length, FRIEND *f)
 {
     if(havefocus) {

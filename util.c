@@ -574,7 +574,7 @@ typedef struct
 
 UTOX_SAVE* config_load(void)
 {
-    uint8_t path[512], *p;
+    uint8_t path[UTOX_FILE_NAME_LENGTH], *p;
     UTOX_SAVE *save;
 
     p = path + datapath(path);
@@ -669,7 +669,7 @@ NEXT:
 
 void config_save(UTOX_SAVE *save)
 {
-    uint8_t path[512], *p;
+    uint8_t path[UTOX_FILE_NAME_LENGTH], *p;
     FILE *file;
 
     p = path + datapath(path);

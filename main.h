@@ -41,6 +41,8 @@
 
 #define TOX_FRIEND_ADDRESS_SIZE TOX_ADDRESS_SIZE
 
+#define UTOX_FILE_NAME_LENGTH 512
+
 typedef struct
 {
     uint8_t version, scale, enableipv6, disableudp;
@@ -335,10 +337,29 @@ void pushclip(int x, int y, int width, int height);
 void popclip(void);
 void enddraw(int x, int y, int width, int height);
 
+/* OS interface replacements */
+int datapath_old(uint8_t *dest);
+int datapath(uint8_t *dest);
+int datapath_subdir(uint8_t *dest, const char *subdir);
+void flush_file(FILE *file);
+int ch_mod(uint8_t *file);
+int file_lock(FILE *file, uint64_t start, size_t length);
+int file_unlock(FILE *file, uint64_t start, size_t length);
+
+
+/** Creates a tray baloon popup with the message, and flashes the main window
+ *
+ * accepts: char_t *title, title legnth, char_t *msg, msg length;
+ * returns void;
+ */
+void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_length, FRIEND *f);
+
+
 /* other */
 void thread(void func(void*), void *args);
 void yieldcpu(uint32_t ms);
 uint64_t get_time(void);
+
 
 void copy(int value);
 void paste(void);
@@ -351,9 +372,6 @@ void openfileavatar(void);
 void savefilerecv(uint32_t fid, MSG_FILE *file);
 void savefiledata(MSG_FILE *file);
 
-void sysmexit(void);
-void sysmsize(void);
-void sysmmini(void);
 
 void setselection(char_t *data, STRING_IDX length);
 

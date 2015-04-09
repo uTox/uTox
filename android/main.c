@@ -41,7 +41,7 @@ static volatile ARect rect;
 
 static volatile _Bool _redraw;
 
-const char* internalPath[512];
+const char* internalPath[UTOX_FILE_NAME_LENGTH];
 
 
 static int pipefd[2];
@@ -240,11 +240,14 @@ void flush_file(FILE *file)
     fsync(fd);
 }
 
-
-
 int ch_mod(uint8_t *file){
     /* You're probably looking for ./xlib as android isn't working when this was written. */
     return -1;
+}
+
+int file_lock(FILE file, uint64_t start, size_t length){
+    // Unsupported on android
+    return 0;
 }
 
 void setscale(void)
