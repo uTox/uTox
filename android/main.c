@@ -245,7 +245,7 @@ int ch_mod(uint8_t *file){
     return -1;
 }
 
-int file_lock(FILE file, uint64_t start, size_t length){
+int file_lock(FILE *file, uint64_t start, size_t length){
     // Unsupported on android
     return 0;
 }
