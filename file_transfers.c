@@ -163,8 +163,10 @@ static void utox_kill_file(FILE_TRANSFER *file, uint8_t us){
 static void utox_break_file(FILE_TRANSFER *file){
     if(file->status == FILE_TRANSFER_STATUS_NONE && file->resume){
         return utox_kill_file(file, 1); /* We don't save unstarted files */
+    } else if(file->status == FILE_TRANSFER_STATUS_COMPLETED || file->status == FILE_TRANSFER_STATUS_KILLED) {
+        /* We don't touch these files! */
+        return;
     }
-
     file->status = FILE_TRANSFER_STATUS_BROKEN;
     utox_update_user_file(file);
 }
