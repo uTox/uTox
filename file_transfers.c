@@ -425,7 +425,8 @@ static void utox_build_file_transfer(FILE_TRANSFER *ft, uint32_t friend_number, 
     file->kind          = kind;
 
     if(name){
-        file->name        = (uint8_t*)strdup((char*)name);
+        file->name        = malloc(name_length);
+        memcpy(file->name, name, name_length);
         file->name_length = name_length;
     } else {
         file->name        = NULL;
@@ -433,7 +434,8 @@ static void utox_build_file_transfer(FILE_TRANSFER *ft, uint32_t friend_number, 
     }
 
     if(path){
-        file->path        = (uint8_t*)strdup((char*)path);
+        file->path        = malloc(path_length);
+        memcpy(file->path, path, path_length);
         file->path_length = path_length;
     } else {
         file->path        = NULL;
@@ -447,15 +449,13 @@ static void utox_build_file_transfer(FILE_TRANSFER *ft, uint32_t friend_number, 
     }
 
     // TODO size correction error checking for this...
-    if(incoming){
-        if(in_memory){
-            file->memory = calloc(file_size, sizeof(uint8_t));
-        } else if (is_avatar){
-            file->avatar = calloc(file_size, sizeof(uint8_t));
-        } else {
-            /* incoming file, eventually we should get the handle for utox! */
-        }
-    } else {
+    if(in_memory){
+        file->memory = calloc(file_size, sizeof(uint8_t));
+    } else if (is_avatar){
+        file->avatar = calloc(file_size, sizeof(uint8_t));
+    }
+
+    if(!incoming){
         /* Outgoing file */
         utox_pause_file(file, 1);
     }
@@ -813,10 +813,9 @@ void outgoing_file_send_inline(Tox *tox, uint32_t friend_number, uint8_t *image,
     }
 
     TOX_ERR_FILE_SEND error;
-    uint8_t *file_id;
+    uint8_t file_id[TOX_FILE_ID_LENGTH] = {0};
     uint8_t *filename;
     size_t filename_length = 0;
-    file_id = malloc(TOX_FILE_ID_LENGTH);
     if(!tox_hash(file_id, image, image_size)){
         debug("FileTransfer:\tUnable to get hash for image!\n");
         return;
@@ -824,13 +823,14 @@ void outgoing_file_send_inline(Tox *tox, uint32_t friend_number, uint8_t *image,
 
     if( image_size < 1024 * 1024 * 4 ) {
         filename_length = sizeof("utox-inline.png") - 1;
-        filename = malloc(filename_length);
+        filename = malloc(filename_length + 1);
         memcpy(filename, "utox-inline.png", filename_length);
     } else {
         filename_length = sizeof("utox-image.png") - 1;
-        filename = malloc(filename_length);
+        filename = malloc(filename_length + 1);
         memcpy(filename, "utox-image.png", filename_length);
     }
+    filename[filename_length] = 0; // null term for the string // TODO WRAP THIS INTO BUILD
 
     uint32_t file_number = tox_file_send(tox, friend_number, TOX_FILE_KIND_DATA, image_size, file_id, (const uint8_t*)filename, filename_length, &error);
 
@@ -850,9 +850,11 @@ void outgoing_file_send_inline(Tox *tox, uint32_t friend_number, uint8_t *image,
         // Create a new msg for the UI and save it's pointer
     } else {
         free(image);
+        free(filename);
         debug("tox_file_send() failed for image\n");
         return;
     }
+    free(filename);
     return;
 }
 
