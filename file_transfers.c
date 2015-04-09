@@ -158,6 +158,7 @@ static void utox_kill_file(FILE_TRANSFER *file, uint8_t us){
     }
     utox_cleanup_file_transfers(file->friend_number, file->file_number);
     utox_file_free_resume(file->resume);
+    utox_file_save_active();
 }
 
 static void utox_break_file(FILE_TRANSFER *file){
@@ -281,28 +282,28 @@ static void utox_complete_file(FILE_TRANSFER *file){
                 }
             } else { // Is a file
                 fclose(file->file);
+                file->ui_data->path = file->path;
             }
         } else {
             if(file->in_memory){
-
                 // TODO, might want to do something here.
             } else { // Is a file
                 fclose(file->file);
+                file->ui_data->path = file->path;
             }
-
             if(friend[file->friend_number].transfer_count){
                 /* Decrement if > 0 this might be better held inside local_control */
                 --friend[file->friend_number].transfer_count;
             }
         }
         file->status = FILE_TRANSFER_STATUS_COMPLETED;
-        file->ui_data->path = file->path;
         utox_update_user_file(file);
     } else {
         debug("FileTransfer:\tUnable to complete file in non-active state (file:%u)\n", file->file_number);
     }
     utox_file_free_resume(file->resume);
     utox_cleanup_file_transfers(file->friend_number, file->file_number);
+    utox_file_save_active();
     file->resume = 0; // We don't need to always be resetting this broken number anymore
 }
 
@@ -427,18 +428,20 @@ static void utox_build_file_transfer(FILE_TRANSFER *ft, uint32_t friend_number, 
     file->kind          = kind;
 
     if(name){
-        file->name        = malloc(name_length);
+        file->name        = malloc(name_length + 1);
         memcpy(file->name, name, name_length);
         file->name_length = name_length;
+        file->name[file->name_length] = 0;
     } else {
         file->name        = NULL;
         file->name_length = 0;
     }
 
     if(path){
-        file->path        = malloc(path_length);
+        file->path        = malloc(path_length + 1);
         memcpy(file->path, path, path_length);
         file->path_length = path_length;
+        file->path[file->path_length] = 0;
     } else {
         file->path        = NULL;
         file->path_length = 0;
@@ -452,9 +455,11 @@ static void utox_build_file_transfer(FILE_TRANSFER *ft, uint32_t friend_number, 
 
     // TODO size correction error checking for this...
     if(in_memory){
-        file->memory = calloc(file_size, sizeof(uint8_t));
-    } else if (is_avatar){
-        file->avatar = calloc(file_size, sizeof(uint8_t));
+        if (is_avatar){
+            file->avatar = calloc(file_size, sizeof(uint8_t));
+        } else {
+            file->memory = calloc(file_size, sizeof(uint8_t));
+        }
     }
 
     if(!incoming){
@@ -801,6 +806,7 @@ void outgoing_file_send_existing(Tox *tox, FILE_TRANSFER *broken_data, uint8_t b
     }
     free(broken_data);
 }
+
 void outgoing_file_send_inline(Tox *tox, uint32_t friend_number, uint8_t *image, size_t image_size){
 
     debug("FileTransfer:\tStarting outgoing inline to friend %u.\n", friend_number);
