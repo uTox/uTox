@@ -1111,7 +1111,7 @@ void message_free(MESSAGE *msg)
     }
     case MSG_TYPE_FILE: {
         //already gets free()d
-        //free(((MSG_FILE*)msg)->path);
+        free(((MSG_FILE*)msg)->path);
         break;
     }
     }

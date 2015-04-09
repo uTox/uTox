@@ -561,7 +561,7 @@ static void incoming_file_existing(Tox *tox, uint32_t friend_number, uint32_t fi
                     // This is a case we don't want to touch... Just abort.
                     debug("FileTransfer:\tResume size mismatch, aborting!");
                 } else {
-                    file = fopen((const char*)file_new->path, "wb");
+                    file = fopen((const char*)file_new->path, "ab");
                     if(file){
                         utox_build_file_transfer(file_new, friend_number, file_number, size, 1, 0, 0,
                             TOX_FILE_KIND_DATA, filename, filename_length, file_new->path, file_existing->path_length, new_id, tox);
@@ -1043,12 +1043,14 @@ void utox_cleanup_file_transfers(uint32_t friend_number, uint32_t file_number){
     FILE_TRANSFER *transfer = get_file_transfer(friend_number, file_number);
     if(transfer->name)
         free(transfer->name);
-    if(transfer->path)
-        free(transfer->path);
-    if(transfer->memory)
-        free(transfer->memory);
-    if(transfer->avatar)
-        free(transfer->avatar);
+
+    if(transfer->memory){
+        if(transfer->avatar){
+            free(transfer->avatar);
+        } else {
+            free(transfer->memory);
+        }
+    }
 }
 
 void utox_file_save_active(void){
