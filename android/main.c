@@ -250,6 +250,10 @@ int file_lock(FILE *file, uint64_t start, size_t length){
     return 0;
 }
 
+int file_unlock(FILE *file, uint64_t start, size_t length){
+    return 0;
+}
+
 void setscale(void)
 {
     if(window) {
