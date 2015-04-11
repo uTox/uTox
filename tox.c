@@ -540,13 +540,14 @@ void tox_thread(void *UNUSED(args))
         uint8_t *save_data = NULL;
         size_t save_size = load_save(&save_data);
         // Create main connection
+        TOX_ERR_NEW tox_new_err;
         debug("new tox object ipv6: %u udp: %u proxy: %u %s %u\n", options.ipv6_enabled, options.udp_enabled, options.proxy_type, options.proxy_host, options.proxy_port);
-        if((tox = tox_new(&options, save_data, save_size, 0)) == NULL) {
-            debug("trying without proxy\n");
-            if(!options.proxy_type || (options.proxy_type = TOX_PROXY_TYPE_NONE, (tox = tox_new(&options, save_data, save_size, 0)) == NULL)) {
-                debug("trying without ipv6\n");
-                if(!options.ipv6_enabled || (options.ipv6_enabled = 0, (tox = tox_new(&options, save_data, save_size, 0)) == NULL)) {
-                    debug("tox_new() failed\n");
+        if((tox = tox_new(&options, save_data, save_size, &tox_new_err)) == NULL) {
+            debug("trying without proxy, err %u\n", tox_new_err);
+            if(!options.proxy_type || (options.proxy_type = TOX_PROXY_TYPE_NONE, (tox = tox_new(&options, save_data, save_size, &tox_new_err)) == NULL)) {
+                debug("trying without ipv6, err %u\n", tox_new_err);
+                if(!options.ipv6_enabled || (options.ipv6_enabled = 0, (tox = tox_new(&options, save_data, save_size, &tox_new_err)) == NULL)) {
+                    debug("tox_new() failed %u\n", tox_new_err);
                     exit(1);
                 }
                 dropdown_ipv6.selected = dropdown_ipv6.over = 1;
