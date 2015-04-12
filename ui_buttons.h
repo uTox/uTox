@@ -71,7 +71,7 @@ static void button_audiopreview_onpress(void)
     audio_preview = !audio_preview;
 }
 
-static void button_audiopreview_updatecolor(BUTTON *b)
+static void button_audiopreview_update(BUTTON *b)
 {
     if (audio_preview)
         button_setcolors_danger(b);
@@ -94,7 +94,7 @@ static void button_videopreview_onpress(void)
 }
 
 
-static void button_videopreview_updatecolor(BUTTON *b)
+static void button_videopreview_update(BUTTON *b)
 {
     if (video_preview)
         button_setcolors_danger(b);
@@ -138,16 +138,19 @@ static void button_group_audio_onpress(void)
     }
 }
 
-static void button_group_audio_updatecolor(BUTTON *b)
+static void button_group_audio_update(BUTTON *b)
 {
     GROUPCHAT *g = sitem->data;
-    if (g->type == TOX_GROUPCHAT_TYPE_AV)
+    if (g->type == TOX_GROUPCHAT_TYPE_AV) {
+        b->disabled = 0;
         if (g->audio_calling)
             button_setcolors_danger(b);
         else
             button_setcolors_success(b);
-    else
+    } else {
+        b->disabled = 1;
         button_setcolors_disabled(b);
+    }
 }
 
 static void button_call_onpress(void)
@@ -184,23 +187,26 @@ static void button_call_onpress(void)
     }
 }
 
-static void button_call_updatecolor(BUTTON *b)
+static void button_call_update(BUTTON *b)
 {
     FRIEND *f = sitem->data;
 
     switch(f->calling) {
     case CALL_INVITED: {
+        b->disabled = 0;
         button_setcolors_warning(b);
         break;
     }
 
     case CALL_RINGING: {
+        b->disabled = 0;
         button_setcolors_warning(b);
         break;
     }
 
     case CALL_NONE: {
         if (f->online) {
+            b->disabled = 0;
             button_setcolors_success(b);
             break;
         }
@@ -209,12 +215,14 @@ static void button_call_updatecolor(BUTTON *b)
 
     case CALL_RINGING_VIDEO:
     case CALL_INVITED_VIDEO: {
+        b->disabled = 1;
         button_setcolors_disabled(b);
         break;
     }
 
     case CALL_OK:
     case CALL_OK_VIDEO: {
+        b->disabled = 0;
         button_setcolors_danger(b);
         break;
     }
@@ -261,23 +269,26 @@ static void button_video_onpress(void)
     }
 }
 
-static void button_video_updatecolor(BUTTON *b)
+static void button_video_update(BUTTON *b)
 {
     FRIEND *f = sitem->data;
 
     switch(f->calling) {
     case CALL_INVITED_VIDEO: {
+        b->disabled = 0;
         button_setcolors_warning(b);
         break;
     }
 
     case CALL_RINGING_VIDEO: {
+        b->disabled = 0;
         button_setcolors_warning(b);
         break;
     }
 
     case CALL_NONE: {
         if (f->online) {
+            b->disabled = 0;
             button_setcolors_success(b);
             break;
         }
@@ -286,23 +297,26 @@ static void button_video_updatecolor(BUTTON *b)
 
     case CALL_RINGING:
     case CALL_INVITED: {
+        b->disabled = 1;
         button_setcolors_disabled(b);
         break;
     }
 
     case CALL_OK: {
+        b->disabled = 0;
         button_setcolors_success(b);
         break;
     }
 
     case CALL_OK_VIDEO: {
+        b->disabled = 0;
         button_setcolors_danger(b);
         break;
     }
     }
 }
 
-static void button_bottommenu_updatecolor(BUTTON *b)
+static void button_bottommenu_update(BUTTON *b)
 {
     b->c1 = COLOR_MENU_BACKGROUND;
     b->c2 = COLOR_MENU_HOVER_BACKGROUND;
@@ -324,13 +338,16 @@ static void button_sendfile_onpress(void)
     }
 }
 
-static void button_sendfile_updatecolor(BUTTON *b)
+static void button_sendfile_update(BUTTON *b)
 {
     FRIEND *f = sitem->data;
-    if (f->online)
+    if (f->online) {
+        b->disabled = 0;
         button_setcolors_success(b);
-     else
+    } else {
+        b->disabled = 1;
         button_setcolors_disabled(b);
+    }
 }
 
 static void button_acceptfriend_onpress(void)
@@ -396,12 +413,14 @@ static void button_chat1_onpress(void)
     }
 }
 
-static void button_chat1_updatecolor(BUTTON *b)
+static void button_chat1_update(BUTTON *b)
 {
     FRIEND *f = sitem->data;
     if (f->online) {
+        b->disabled = 0;
         button_setcolors_success(b);
     } else {
+        b->disabled = 1;
         button_setcolors_disabled(b);
     }
 }
@@ -426,15 +445,18 @@ static void button_chat_send_onpress(void){
     }
 }
 
-static void button_chat_send_updatecolor(BUTTON *b){
+static void button_chat_send_update(BUTTON *b){
     if (sitem->item == ITEM_FRIEND) {
         FRIEND *f = sitem->data;
         if (f->online) {
+            b->disabled = 0;
             button_setcolors_success(b);
         } else {
+            b->disabled = 1;
             button_setcolors_disabled(b);
         }
     } else {
+        b->disabled = 0;
         button_setcolors_success(b);
     }
 }
@@ -446,7 +468,7 @@ button_add = {
     .bm2 = BM_ADD,
     .bw = _BM_ADD_WIDTH,
     .bh = _BM_ADD_WIDTH,
-    .updatecolor = button_bottommenu_updatecolor,
+    .update = button_bottommenu_update,
     .onpress = button_add_onpress,
     .tooltip_text = { .i18nal = STR_ADDFRIENDS },
 },
@@ -455,7 +477,7 @@ button_groups = {
     .bm2 = BM_GROUPS,
     .bw = _BM_ADD_WIDTH,
     .bh = _BM_ADD_WIDTH,
-    .updatecolor = button_bottommenu_updatecolor,
+    .update = button_bottommenu_update,
     .onpress = button_groups_onpress,
     .tooltip_text = { .i18nal = STR_CREATEGROUPCHAT },
 },
@@ -464,7 +486,7 @@ button_transfer = {
     .bm2 = BM_TRANSFER,
     .bw = _BM_ADD_WIDTH,
     .bh = _BM_ADD_WIDTH,
-    .updatecolor = button_bottommenu_updatecolor,
+    .update = button_bottommenu_update,
     .onpress = button_transfer_onpress,
     .tooltip_text = { .i18nal = STR_SWITCHPROFILE },
 },
@@ -473,7 +495,7 @@ button_settings = {
     .bm2 = BM_SETTINGS,
     .bw = _BM_ADD_WIDTH,
     .bh = _BM_ADD_WIDTH,
-    .updatecolor = button_bottommenu_updatecolor,
+    .update = button_bottommenu_update,
     .onpress = button_settings_onpress,
     .tooltip_text = { .i18nal = STR_USERSETTINGS },
 },
@@ -481,24 +503,27 @@ button_settings = {
 button_copyid = {
     .bm = BM_SBUTTON,
     .button_text = { .i18nal = STR_COPY_TOX_ID },
-    .updatecolor = button_setcolors_success,
+    .update = button_setcolors_success,
     .onpress = button_copyid_onpress,
+    .disabled = 0,
 },
 
 #ifdef EMOJI_IDS
 button_change_id_type = {
     .bm = BM_SBUTTON,
     //.button_text = { .i18nal = STR_COPY_TOX_ID },
-    .updatecolor = button_setcolors_success,
+    .update = button_setcolors_success,
     .onpress = button_change_id_type_onpress,
+    .disabled = 0,
 },
 #endif
 
 button_addfriend = {
     .bm = BM_SBUTTON,
     .button_text = { .i18nal = STR_BUTTON_ADD_FRIEND },
-    .updatecolor = button_setcolors_success,
+    .update = button_setcolors_success,
     .onpress = button_addfriend_onpress,
+    .disabled = 0,
 },
 
 button_call = {
@@ -507,7 +532,7 @@ button_call = {
     .bw = _BM_LBICON_WIDTH,
     .bh = _BM_LBICON_HEIGHT,
     .onpress = button_call_onpress,
-    .updatecolor = button_call_updatecolor,
+    .update = button_call_update,
 },
 
 button_group_audio = {
@@ -516,7 +541,7 @@ button_group_audio = {
     .bw = _BM_LBICON_WIDTH,
     .bh = _BM_LBICON_HEIGHT,
     .onpress = button_group_audio_onpress,
-    .updatecolor = button_group_audio_updatecolor,
+    .update = button_group_audio_update,
 },
 
 button_video = {
@@ -525,7 +550,7 @@ button_video = {
     .bw = _BM_LBICON_WIDTH,
     .bh = _BM_LBICON_HEIGHT,
     .onpress = button_video_onpress,
-    .updatecolor = button_video_updatecolor,
+    .update = button_video_update,
 },
 
 
@@ -535,13 +560,13 @@ button_sendfile = {
     .bw = _BM_LBICON_WIDTH,
     .bh = _BM_LBICON_HEIGHT,
     .onpress = button_sendfile_onpress,
-    .updatecolor = button_sendfile_updatecolor,
+    .update = button_sendfile_update,
 },
 
 button_acceptfriend = {
     .bm = BM_SBUTTON,
     .button_text = { .i18nal = STR_BUTTON_ACCEPT_FRIEND },
-    .updatecolor = button_setcolors_success,
+    .update = button_setcolors_success,
     .onpress = button_acceptfriend_onpress,
 },
 
@@ -551,7 +576,8 @@ button_callpreview = {
     .bw = _BM_LBICON_WIDTH,
     .bh = _BM_LBICON_HEIGHT,
     .onpress = button_audiopreview_onpress,
-    .updatecolor = button_audiopreview_updatecolor,
+    .update = button_audiopreview_update,
+    .disabled = 0,
 },
 
 button_videopreview = {
@@ -560,7 +586,8 @@ button_videopreview = {
     .bw = _BM_LBICON_WIDTH,
     .bh = _BM_LBICON_HEIGHT,
     .onpress = button_videopreview_onpress,
-    .updatecolor = button_videopreview_updatecolor,
+    .update = button_videopreview_update,
+    .disabled = 0,
 },
 
 /* top right chat message window button */
@@ -569,8 +596,8 @@ button_chat1 = {
     .bm2 = BM_CI1,
     .bw = _BM_CI_WIDTH,
     .bh = _BM_CI_WIDTH,
+    .update = button_chat1_update,
     .onpress = button_chat1_onpress,
-    .updatecolor = button_chat1_updatecolor,
     .tooltip_text = { .i18nal = STR_SENDSCREENSHOT },
 },
 
@@ -582,7 +609,8 @@ button_chat2 = {
     // .bw = _BM_ADD_WIDTH,
     // .bh = _BM_ADD_WIDTH,
     .onpress = button_chat2_onpress,
-    .updatecolor = button_setcolors_disabled,
+    .update = button_setcolors_disabled,
+    .disabled = 1,
 },
 
 /* bottom right chat message window button */
@@ -592,7 +620,7 @@ button_chat_send = {
     .bw  = _BM_CHAT_SEND_OVERLAY_WIDTH,
     .bh  = _BM_CHAT_SEND_OVERLAY_WIDTH,
     .onpress = button_chat_send_onpress,
-    .updatecolor = button_chat_send_updatecolor,
+    .update = button_chat_send_update,
 },
 
 button_avatar = {
