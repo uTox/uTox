@@ -562,9 +562,6 @@ void tox_thread(void *UNUSED(args))
             load_defaults(tox);
         }
 
-        // Load saved file transfers
-        utox_file_load_active();
-
         // Set local info for self
         edit_setstr(&edit_name, self.name, self.name_length);
         edit_setstr(&edit_status, self.statusmsg, self.statusmsg_length);
@@ -638,8 +635,6 @@ void tox_thread(void *UNUSED(args))
                 if (save_needed || (time - last_save >= (uint64_t)100 * 1000 * 1000 * 1000)){
                     // Save tox data
                     write_save(tox);
-                    // Save file transfer data
-                    utox_file_save_active();
                 }
             }
 
