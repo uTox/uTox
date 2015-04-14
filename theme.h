@@ -2,7 +2,8 @@ enum {
     THEME_DEFAULT,
     THEME_LIGHT,
     THEME_DARK,
-    THEME_HIGHCONTRAST
+    THEME_HIGHCONTRAST,
+    THEME_CUSTOM, // !!!!
     // @TODO
     // THEME_XRESOURCE
 };
@@ -25,6 +26,13 @@ uint32_t COLOR_LIST_BACKGROUND;
 uint32_t COLOR_LIST_HOVER_BACKGROUND;
 uint32_t COLOR_LIST_TEXT;
 uint32_t COLOR_LIST_SUBTEXT;
+uint32_t COLOR_AUX_BACKGROUND;
+uint32_t COLOR_AUX_EDGE_NORMAL;
+uint32_t COLOR_AUX_EDGE_HOVER;
+uint32_t COLOR_AUX_EDGE_ACTIVE;
+uint32_t COLOR_AUX_TEXT;
+uint32_t COLOR_AUX_ACTIVEOPTION_BACKGROUND;
+uint32_t COLOR_AUX_ACTIVEOPTION_TEXT;
 uint32_t COLOR_GROUP_SELF;
 uint32_t COLOR_GROUP_PEER;
 uint32_t COLOR_GROUP_AUDIO;
@@ -59,7 +67,11 @@ uint32_t COLOR_BUTTON_INPROGRESS_BACKGROUND;
 uint32_t COLOR_BUTTON_INPROGRESS_TEXT;
 
 void theme_load(char loadtheme);
+void read_custom_theme(const char *path);
 
 uint32_t status_color[4];
 
 char theme;
+
+extern const char *COLOUR_NAME_TABLE[];
+extern uint32_t *COLOUR_POINTER_TABLE[];

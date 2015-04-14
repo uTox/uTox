@@ -58,7 +58,9 @@ typedef struct
     uint8_t zero : 2;
     uint16_t audio_device_in;
     uint16_t audio_device_out;
-    uint16_t unused[32];
+    uint8_t theme;
+    uint8_t nothing;
+    uint16_t unused[31];
     uint8_t proxy_ip[0];
 }UTOX_SAVE;
 

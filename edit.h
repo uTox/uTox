@@ -21,6 +21,7 @@ struct edit {
     char_t *data;
 
     MAYBE_I18NAL_STRING empty_str;
+    UI_ELEMENT_STYLE style;
 
     void (*onenter)(EDIT *edit);
     void (*onchange)(EDIT *edit);

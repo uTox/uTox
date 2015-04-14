@@ -35,13 +35,37 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
     edit->width = width -4 * SCALE - (edit->multiline ? SCROLL_WIDTH : 0);
     edit->height = height - 4 * SCALE;
 
-    if(!edit->noborder) {
-        framerect(x, y, x + width, y + height, (edit == active_edit) ? COLOR_EDGE_ACTIVE : (edit->mouseover ? COLOR_EDGE_HOVER : COLOR_EDGE_NORMAL));
+    // load colours for this style
+    uint32_t color_bg,
+             color_border,
+             color_border_h,
+             color_border_a,
+             color_text;
+
+    switch(edit->style) {
+        case AUXILIARY_STYLE:
+            color_bg = COLOR_AUX_BACKGROUND;
+            color_border = COLOR_AUX_EDGE_NORMAL;
+            color_border_h = COLOR_AUX_EDGE_HOVER;
+            color_border_a = COLOR_AUX_EDGE_ACTIVE;
+            color_text = COLOR_AUX_TEXT;
+            break;
+        default:
+            color_bg = COLOR_MAIN_BACKGROUND;
+            color_border = COLOR_EDGE_NORMAL;
+            color_border_h = COLOR_EDGE_HOVER;
+            color_border_a = COLOR_EDGE_ACTIVE;
+            color_text = COLOR_MAIN_TEXT;
+            break;
     }
-    drawrect(x + 1, y + 1, x + width - 1, y + height - 1, COLOR_MAIN_BACKGROUND);
+
+    if(!edit->noborder) {
+        framerect(x, y, x + width, y + height, (edit == active_edit) ? color_border_a : (edit->mouseover ? color_border_h : color_border));
+    }
+    drawrect(x + 1, y + 1, x + width - 1, y + height - 1, color_bg);
 
     setfont(FONT_TEXT);
-    setcolor(COLOR_MAIN_TEXT);
+    setcolor(color_text);
 
     int yy = y;
 

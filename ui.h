@@ -20,6 +20,11 @@ enum
     PANEL_SCROLLABLE,
 };
 
+typedef enum {
+    MAIN_STYLE, // white style, used in right side
+    AUXILIARY_STYLE, // gray style, used on friends side
+} UI_ELEMENT_STYLE;
+
 typedef struct scrollable SCROLLABLE;
 typedef struct edit EDIT;
 typedef struct panel PANEL;
