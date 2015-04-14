@@ -173,12 +173,48 @@ GLYPH* font_getglyph(FONT *f, uint32_t ch)
         }
     }
 
+    int lcd_filter = FC_LCD_DEFAULT;
+    FcPatternGetInteger(f->pattern, FC_LCD_FILTER, 0, &lcd_filter);
+    FT_Library_SetLcdFilter( ftlib, lcd_filter);
+
+    int ft_flags = FT_LOAD_RENDER;
+
+    _Bool hinting = 1, antialias = 1, vertical_layout = 0, autohint = 0;
+    FcPatternGetBool(f->pattern, FC_HINTING, 0, &hinting);
+    FcPatternGetBool(f->pattern, FC_ANTIALIAS, 0, &antialias);
+    FcPatternGetBool(f->pattern, FC_VERTICAL_LAYOUT, 0, &vertical_layout);
+    FcPatternGetBool(f->pattern, FC_AUTOHINT, 0, &autohint);
+
+    int hint_style = FC_HINT_FULL;
+    FcPatternGetInteger(f->pattern, FC_HINT_STYLE, 0, &hint_style);
+
     int weight;
-    FcPatternGetInteger(f->pattern, FC_WEIGHT, 0, &weight);
-    _Bool no_subpixel = (weight <= FC_WEIGHT_LIGHT);
+    //FcPatternGetInteger(f->pattern, FC_WEIGHT, 0, &weight);
+    _Bool no_subpixel = (!hinting || (hint_style == FC_HINT_NONE));
+
+    if (no_subpixel) {
+        ft_flags |= FT_LOAD_NO_HINTING;
+    } else {
+        if (antialias) {
+            if (FC_HINT_NONE < hint_style && hint_style < FC_HINT_FULL)
+            {
+                ft_flags |= FT_LOAD_TARGET_LIGHT;
+            } else {
+                ft_flags |= (ft_vert ? FT_LOAD_TARGET_LCD_V : FT_LOAD_TARGET_LCD);
+            }
+        } else {
+            ft_flags |= FT_LOAD_TARGET_MONO;
+        }
+    }
+
+    if (vertical_layout)
+        ft_flags |= FT_LOAD_VERTICAL_LAYOUT;
+
+    if (autohint)
+        ft_flags |= FT_LOAD_FORCE_AUTOHINT;
 
     g[1].ucs4 = ~0;
-    FT_Load_Char(i->face, ch, FT_LOAD_RENDER | (no_subpixel ? 0 : (ft_vert ? FT_LOAD_TARGET_LCD_V : FT_LOAD_TARGET_LCD)));
+    FT_Load_Char(i->face, ch, ft_flags);
     FT_GlyphSlotRec *p = i->face->glyph;
 
     g->ucs4 = ch;
@@ -309,6 +345,7 @@ static void font_info_open(FONT_INFO *i, FcPattern *pattern)
     debug("Loaded font %s %u %i %i\n", filename, id, PIXELS(i->face->ascender), PIXELS(i->face->descender));
 }
 
+
 static _Bool font_open(FONT *a_font, ...)
 {
     /* add error checks */
@@ -322,7 +359,7 @@ static _Bool font_open(FONT *a_font, ...)
     va_end (va);
 
     FcConfigSubstitute(NULL, pat, FcMatchPattern);
-    default_sub(pat);
+    //default_sub(pat);
     match = FcFontMatch(NULL, pat, &result);
     FcPatternDestroy(pat);
 
@@ -351,18 +388,18 @@ static void loadfonts(void)
     }
 
      #define F(x) (x * SCALE / 2.0)
-     font_open(&font[FONT_TEXT], FC_FAMILY, FcTypeString, "Roboto", FC_PIXEL_SIZE, FcTypeDouble, F(12.0), NULL);
+     font_open(&font[FONT_TEXT], FC_FAMILY, FcTypeString, "Roboto", FC_PIXEL_SIZE, FcTypeDouble, F(12.0), FC_WEIGHT, FcTypeInteger, FC_WEIGHT_NORMAL, FC_SLANT, FcTypeInteger, FC_SLANT_ROMAN, NULL);
 
      font_open(&font[FONT_TITLE], FC_FAMILY, FcTypeString, "Roboto", FC_PIXEL_SIZE, FcTypeDouble, F(12.0), FC_WEIGHT, FcTypeInteger, FC_WEIGHT_BOLD, NULL);
 
      font_open(&font[FONT_SELF_NAME], FC_FAMILY, FcTypeString, "Roboto", FC_PIXEL_SIZE, FcTypeDouble, F(14.0), FC_WEIGHT, FcTypeInteger, FC_WEIGHT_BOLD, NULL);
-     font_open(&font[FONT_STATUS], FC_FAMILY, FcTypeString, "Roboto", FC_PIXEL_SIZE, FcTypeDouble, F(11.0), NULL);
+     font_open(&font[FONT_STATUS], FC_FAMILY, FcTypeString, "Roboto", FC_PIXEL_SIZE, FcTypeDouble, F(11.0), FC_WEIGHT, FcTypeInteger, FC_WEIGHT_NORMAL, FC_SLANT, FcTypeInteger, FC_SLANT_ROMAN, NULL);
 
-     font_open(&font[FONT_LIST_NAME], FC_FAMILY, FcTypeString, "Roboto", FC_PIXEL_SIZE, FcTypeDouble, F(12.0), NULL);
+     font_open(&font[FONT_LIST_NAME], FC_FAMILY, FcTypeString, "Roboto", FC_PIXEL_SIZE, FcTypeDouble, F(12.0), FC_WEIGHT, FcTypeInteger, FC_WEIGHT_NORMAL, FC_SLANT, FcTypeInteger, FC_SLANT_ROMAN, NULL);
 
      //font_open(&font[FONT_MSG], FC_FAMILY, FcTypeString, "Roboto", FC_PIXEL_SIZE, FcTypeDouble, F(11.0), FC_WEIGHT, FcTypeInteger, FC_WEIGHT_LIGHT, NULL);
      //font_open(&font[FONT_MSG_NAME], FC_FAMILY, FcTypeString, "Roboto", FC_PIXEL_SIZE, FcTypeDouble, F(10.0), FC_WEIGHT, FcTypeInteger, FC_WEIGHT_LIGHT, NULL);
-     font_open(&font[FONT_MISC], FC_FAMILY, FcTypeString, "Roboto", FC_PIXEL_SIZE, FcTypeDouble, F(10.0), NULL);
+     font_open(&font[FONT_MISC], FC_FAMILY, FcTypeString, "Roboto", FC_PIXEL_SIZE, FcTypeDouble, F(10.0), FC_WEIGHT, FcTypeInteger, FC_WEIGHT_NORMAL, FC_SLANT, FcTypeInteger, FC_SLANT_ROMAN, NULL);
      //font_open(&font[FONT_MSG_LINK], FC_FAMILY, FcTypeString, "Roboto", FC_PIXEL_SIZE, FcTypeDouble, F(11.0), FC_WEIGHT, FcTypeInteger, FC_WEIGHT_LIGHT, NULL);
     #undef F
 }
