@@ -58,6 +58,7 @@ static void calculate_speed(FILE_TRANSFER *file){
     }
 
     utox_update_user_file(file);
+    utox_file_save_ftinfo(file);
 }
 
 static int utox_file_alloc_ftinfo(FILE_TRANSFER *file){
@@ -81,7 +82,7 @@ static int utox_file_alloc_ftinfo(FILE_TRANSFER *file){
         return 0;
     }
     file->saveinfo = saveinfo;
-    debug("FileTransfer:\t.ftinfo for file %.*s set; ready to resume!", (uint32_t)file->name_length, file->name);
+    debug("FileTransfer:\t.ftinfo for file %.*s set; ready to resume!\n", (uint32_t)file->name_length, file->name);
     return 1;
 }
 
@@ -116,7 +117,7 @@ static void utox_kill_file(FILE_TRANSFER *file, uint8_t us){
     }
     utox_cleanup_file_transfers(file->friend_number, file->file_number);
     utox_file_free_ftinfo(file);
-    utox_file_save_ftinfo(file);
+    // utox_file_save_ftinfo(file);
 }
 
 static void utox_break_file(FILE_TRANSFER *file){
@@ -209,8 +210,10 @@ static void utox_run_file(FILE_TRANSFER *file, uint8_t us){
             file->status = FILE_TRANSFER_STATUS_PAUSED_THEM;
         } else if(file->status == FILE_TRANSFER_STATUS_PAUSED_THEM) {
             // Do nothing;
+        } else if(file->status == FILE_TRANSFER_STATUS_BROKEN) {
+            file->status = FILE_TRANSFER_STATUS_ACTIVE;
         } else {
-            debug("FileTransfer:\tTried to run outgoing file from an unknown state! (%u)\n", file->status);
+            debug("FileTransfer:\tWe tried to run file from an unknown state! (%u)\n", file->status);
         }
     } else {
         if(file->status == FILE_TRANSFER_STATUS_PAUSED_US){
@@ -219,8 +222,10 @@ static void utox_run_file(FILE_TRANSFER *file, uint8_t us){
             file->status = FILE_TRANSFER_STATUS_PAUSED_US;
         } else if(file->status == FILE_TRANSFER_STATUS_PAUSED_THEM) {
             file->status = FILE_TRANSFER_STATUS_ACTIVE;
+        } else if(file->status == FILE_TRANSFER_STATUS_BROKEN) {
+            file->status = FILE_TRANSFER_STATUS_ACTIVE;
         } else {
-            debug("FileTransfer:\tTried to run incoming file from an unknown state! (%u)\n", file->status);
+            debug("FileTransfer:\tThey tried to run incoming file from an unknown state! (%u)\n", file->status);
         }
     }
     utox_update_user_file(file);
@@ -507,45 +512,51 @@ static void incoming_file_existing(Tox *tox, uint32_t friend_number, uint32_t fi
     file_handle->file_number   = file_number;
     memcpy(file_handle->file_id, file_id, TOX_FILE_ID_LENGTH);
     utox_file_load_ftinfo(file_handle);
+    uint64_t seek_size = file_handle->size_transferred;
     if(file_handle->status){
-        /* We found the save info for this file, let's rebuild! */
+        /* We found the save info for this file on disk, let's rebuild! */
         FILE *file = fopen((const char*)file_handle->path, "rb");
         uint64_t file_size = 0;
         if(file){
             debug("FileTransfer:\tCool file exists, let try to restart it.\n");
             fseeko(file, 0, SEEK_END);
             file_size = ftello(file);
-            fseeko(file, 0, SEEK_SET);
             fclose(file);
             if(file_size != size){
-                debug("FileTransfer:\tIncoming size, and size on disk mismatch, aborting!\n");
+                debug("FileTransfer:\tIncoming size (%lu), and size on disk (%lu) mismatch, aborting!\n", size, file_size);
                 file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
                 return;
             }
-            file = fopen((const char*)file_handle->path, "ab");
+            file = fopen((const char*)file_handle->path, "rb+");
+            fseeko(file, 0, SEEK_SET);
             if(file){
                 utox_build_file_transfer(file_handle, friend_number, file_number, size, 1, 0, 0,
                     TOX_FILE_KIND_DATA, filename, filename_length, file_handle->path, file_handle->path_length,
-                    file_handle->file_id, tox);
+                    file_id, tox);
 
                 file_handle->file = file;
+                file_handle->size_transferred = seek_size;
                 file_handle->ui_data = message_add_type_file(file_handle);
                 file_handle->resume = utox_file_alloc_ftinfo(file_handle);
-                tox_file_seek(tox, friend_number, file_number, file_handle->size_transferred, 0);
                 postmessage(FRIEND_FILE_NEW, 0, 0, file_handle);
+                TOX_ERR_FILE_SEEK error = 0;
+                tox_file_seek(tox, friend_number, file_number, seek_size, &error);
+                debug("FileTransfer:\tseek %i\n", error);
                 file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_RESUME);
+                return;
             } else {
                 debug("FileTransfer:\tFile opened for reading, but unable to write.\n");
                 file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
+                return;
             }
         } else {
             debug("FileTransfer:\tUnable to open that file; treating as new.\n");
             utox_build_file_transfer(file_handle, friend_number, file_number, size, 1, 0, 0, TOX_FILE_KIND_DATA,
                 filename, filename_length, NULL, 0, file_id, tox);
-
             file_handle->ui_data = message_add_type_file(file_handle);
             file_handle->resume = utox_file_alloc_ftinfo(file_handle);
             postmessage(FRIEND_FILE_NEW, 0, 0, file_handle);
+            return;
         }
 
         if(file_handle->size != size){
@@ -653,9 +664,9 @@ static void incoming_file_callback_chunk(Tox *UNUSED(tox), uint32_t friend_numbe
     }
     file_handle->size_transferred += length;
     // TODO dirty hack, this needs to be replaced
-    utox_file_save_ftinfo(file_handle);
-
+        // moved it cal_speed() // utox_file_save_ftinfo(file_handle);
     calculate_speed(file_handle);
+
 }
 
 void outgoing_file_send_new(Tox *tox, uint32_t friend_number, uint8_t *path, const uint8_t *filename, size_t filename_length){
@@ -922,7 +933,7 @@ static void outgoing_file_callback_chunk(Tox *tox, uint32_t friend_number, uint3
 
     if(read_size != length){
         debug("FileTransfer:\tERROR READING FILE! (%u & %u)\n", friend_number, file_number);
-        debug("FileTransfer:\t\tSize (%lu), Position (%lu), Length(%zu), Read_size (%zu), Size_transferred (%zu).\n",
+        debug("FileTransfer:\t\tSize (%lu), Position (%lu), Length(%zu), Read_size (%zu), size_transferred (%zu).\n",
             file_handle->size, position, length, read_size, file_handle->size_transferred);
         file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
         return;
@@ -954,7 +965,7 @@ int utox_file_start_write(uint32_t friend_number, uint32_t file_number, void *fi
         return -1;
     }
 
-    file_handle->path = filepath;
+    file_handle->path = (uint8_t*)strdup((const char*)filepath);
     file_handle->path_length = strlen(filepath);
     free(filepath);
             // Removed until we can find a better way of working this in;
@@ -1029,9 +1040,7 @@ void utox_file_save_ftinfo(FILE_TRANSFER *file){
         return;
     }
     fwrite(file, sizeof(*file), 1, file->saveinfo);
-    fwrite("\0\0", sizeof(uint8_t), 2, file->saveinfo);
     fwrite(file->path, sizeof(uint8_t), file->path_length, file->saveinfo);
-    fwrite("\0", sizeof(char_t), 1, file->saveinfo);
     fflush(file->saveinfo);
     fseeko(file->saveinfo, 0, SEEK_SET);
 }
@@ -1055,14 +1064,17 @@ void utox_file_load_ftinfo(FILE_TRANSFER *file){
         return;
     }
 
-    FILE_TRANSFER *info = malloc(sizeof(*info));
+    FILE_TRANSFER *info = calloc(1, sizeof(*info));
     memcpy(info, load, sizeof(*info));
-    info->path_length = (size_read - sizeof(*info) - 2 /* padding */ - 1 /* NULL Term */ );
+    info->path_length = (size_read - sizeof(*info));
     info->path = malloc(info->path_length + 1);
-    memcpy(info->path, load + (sizeof(*info) + (sizeof(char_t) * 2)), info->path_length + 1);
+    memcpy(info->path, load + (sizeof(*info)), info->path_length);
+    info->path[info->path_length] = 0;
 
     info->friend_number = file->friend_number;
     info->file_number   = file->file_number;
+    info->name          = NULL;
+    info->name_length   = 0;
     info->saveinfo = fopen((const char*)path, "wb");
 
     memcpy(file, info, sizeof(*file));

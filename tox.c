@@ -1096,6 +1096,7 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
             file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_CANCEL);
         }
         break;
+        free(data);
     }
 
     case TOX_FILE_INCOMING_RESUME:
@@ -1619,7 +1620,6 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         }
 
         updatefriend(f);
-        // todo free
         free(file);
         break;
     }
