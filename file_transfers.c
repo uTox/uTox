@@ -71,10 +71,18 @@ static int utox_file_alloc_ftinfo(FILE_TRANSFER *file){
     uint8_t path[UTOX_FILE_NAME_LENGTH];
     size_t path_length;
     path_length = datapath(path);
-    uint8_t hex_id[TOX_FILE_ID_LENGTH * 2];
-    fid_to_string(hex_id, file->file_id);
-    memcpy((path + path_length), hex_id, TOX_FILE_ID_LENGTH * 2);
-    strcpy((char*)(path + (path_length + TOX_FILE_ID_LENGTH * 2)), ".ftinfo");
+
+    if(file->incoming){
+        uint8_t hex_id[TOX_FILE_ID_LENGTH * 2];
+        fid_to_string(hex_id, file->file_id);
+        memcpy(path + path_length, hex_id, TOX_FILE_ID_LENGTH * 2);
+        strcpy((char*)path + (path_length + TOX_FILE_ID_LENGTH * 2), ".ftinfo");
+    } else {
+        uint8_t hex_id[TOX_PUBLIC_KEY_SIZE * 2];
+        cid_to_string(hex_id, friend[file->friend_number].cid);
+        memcpy(path + path_length, hex_id, TOX_PUBLIC_KEY_SIZE * 2);
+        sprintf((char*)path + (path_length + TOX_PUBLIC_KEY_SIZE * 2), "%02i.ftinfo", file->file_number % 100);
+    }
 
     FILE *saveinfo = fopen((const char*)path, "wb");
     if(!file) {
@@ -91,10 +99,19 @@ static void utox_file_free_ftinfo(FILE_TRANSFER *file){
         uint8_t path[UTOX_FILE_NAME_LENGTH];
         size_t path_length;
         path_length = datapath(path);
-        uint8_t hex_id[TOX_FILE_ID_LENGTH * 2];
-        fid_to_string(hex_id, file->file_id);
-        memcpy((path + path_length), hex_id, TOX_FILE_ID_LENGTH * 2);
-        strcpy((char*)(path + (path_length + TOX_FILE_ID_LENGTH * 2)), ".ftinfo");
+
+        if(file->incoming){
+            uint8_t hex_id[TOX_FILE_ID_LENGTH * 2];
+            fid_to_string(hex_id, file->file_id);
+            memcpy(path + path_length, hex_id, TOX_FILE_ID_LENGTH * 2);
+            strcpy((char*)path + (path_length + TOX_FILE_ID_LENGTH * 2), ".ftinfo");
+        } else {
+            uint8_t hex_id[TOX_PUBLIC_KEY_SIZE * 2];
+            cid_to_string(hex_id, friend[file->friend_number].cid);
+            memcpy(path + path_length, hex_id, TOX_PUBLIC_KEY_SIZE * 2);
+            sprintf((char*)path + (path_length + TOX_PUBLIC_KEY_SIZE * 2), "%02i.ftinfo", file->file_number % 100);
+        }
+
         remove((const char*)path);
     }
 }
