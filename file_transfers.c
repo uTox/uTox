@@ -81,7 +81,7 @@ static int utox_file_alloc_ftinfo(FILE_TRANSFER *file){
         uint8_t hex_id[TOX_PUBLIC_KEY_SIZE * 2];
         cid_to_string(hex_id, friend[file->friend_number].cid);
         memcpy(path + path_length, hex_id, TOX_PUBLIC_KEY_SIZE * 2);
-        sprintf((char*)path + (path_length + TOX_PUBLIC_KEY_SIZE * 2), "%02i.ftinfo", file->file_number % 100);
+        sprintf((char*)path + (path_length + TOX_PUBLIC_KEY_SIZE * 2), "%02i.ftoutfo", file->file_number % 100);
     }
 
     FILE *saveinfo = fopen((const char*)path, "wb");
@@ -91,6 +91,7 @@ static int utox_file_alloc_ftinfo(FILE_TRANSFER *file){
     }
     file->saveinfo = saveinfo;
     debug("FileTransfer:\t.ftinfo for file %.*s set; ready to resume!\n", (uint32_t)file->name_length, file->name);
+    utox_file_save_ftinfo(file);
     return 1;
 }
 
@@ -109,7 +110,7 @@ static void utox_file_free_ftinfo(FILE_TRANSFER *file){
             uint8_t hex_id[TOX_PUBLIC_KEY_SIZE * 2];
             cid_to_string(hex_id, friend[file->friend_number].cid);
             memcpy(path + path_length, hex_id, TOX_PUBLIC_KEY_SIZE * 2);
-            sprintf((char*)path + (path_length + TOX_PUBLIC_KEY_SIZE * 2), "%02i.ftinfo", file->file_number % 100);
+            sprintf((char*)path + (path_length + TOX_PUBLIC_KEY_SIZE * 2), "%02i.ftoutfo", file->file_number % 100);
         }
 
         remove((const char*)path);
@@ -133,8 +134,8 @@ static void utox_kill_file(FILE_TRANSFER *file, uint8_t us){
         --friend[file->friend_number].transfer_count;
     }
     utox_cleanup_file_transfers(file->friend_number, file->file_number);
+    utox_file_save_ftinfo(file);
     utox_file_free_ftinfo(file);
-    // utox_file_save_ftinfo(file);
 }
 
 static void utox_break_file(FILE_TRANSFER *file){
@@ -281,21 +282,27 @@ static void utox_complete_file(FILE_TRANSFER *file){
     } else {
         debug("FileTransfer:\tUnable to complete file in non-active state (file:%u)\n", file->file_number);
     }
-    utox_file_free_ftinfo(file);
     utox_cleanup_file_transfers(file->friend_number, file->file_number);
     utox_file_save_ftinfo(file);
+    utox_file_free_ftinfo(file);
     file->resume = 0; // We don't need to always be resetting this broken number anymore
 }
 
 void ft_friend_online(Tox *tox, uint32_t friend_number){
-    for(int i = 1; i < MAX_FILE_TRANSFERS; i++){
+    for(int i = 0; i < MAX_FILE_TRANSFERS; i++){
         FILE_TRANSFER *file = &outgoing_transfer[friend_number][i];
 
-        if(file->status > FILE_TRANSFER_STATUS_NONE && file->status < FILE_TRANSFER_STATUS_COMPLETED){
-            if(file->path){
-                /* Hack because sometimes this is true when it shouldn't be TODO find out why! */
+        if(file->status > FILE_TRANSFER_STATUS_NONE && file->status < FILE_TRANSFER_STATUS_COMPLETED && file->path){
+        /* Hack! added `&& file->path` because sometimes this is true when it shouldn't be TODO find out why! */
                 outgoing_file_send_existing(tox, friend_number, i);
-                return;
+        } else {
+            file->friend_number = friend_number;
+            file->file_number   = i;
+            file->incoming = 0;
+            utox_file_load_ftinfo(file);
+            if(file->path){
+                /* If we got a path from utox_file_load we should try to resume! */
+                outgoing_file_send_existing(tox, friend_number, i);
             }
         }
     }
@@ -750,10 +757,11 @@ void outgoing_file_send_existing(Tox *tox, uint32_t friend_number, uint32_t file
         return;
     }
 
+    FILE *file;
     if(!file_handle->file) {
         debug("FileTransfer:\tUnable to open file for reading, trying to re-access!\n");
         if(file_handle->path_length){
-            FILE *file = fopen((const char*)file_handle->path, "rb");
+            file = fopen((const char*)file_handle->path, "rb");
             if(file){
                 file_handle->file = file;
                 fseeko(file, 0, SEEK_END);
@@ -781,17 +789,23 @@ void outgoing_file_send_existing(Tox *tox, uint32_t friend_number, uint32_t file
     if(new_file_number != -1) {
         FILE_TRANSFER *file_handle_new = get_file_transfer(file_handle->friend_number, new_file_number);
 
+        uint64_t tmp_transfer_size = file_handle->size_transferred;
+
         utox_build_file_transfer(file_handle_new, friend_number, new_file_number, file_handle->size, 0, 0, 0,
             TOX_FILE_KIND_EXISTING, name, p - name, file_handle->path, file_handle->path_length, file_id, tox);
 
-        file_handle_new->file = file_handle->file;
+        file_handle_new->file = file;
+        file_handle_new->size_transferred = tmp_transfer_size;
         if(file_handle->ui_data){
             file_handle_new->ui_data = file_handle->ui_data;
         } else {
             file_handle_new->ui_data = message_add_type_file(file_handle_new);
         }
         file_handle_new->resume = utox_file_alloc_ftinfo(file_handle_new);
+
+        // TODO, move into RUN
         ++friend[friend_number].transfer_count;
+
         debug("Resending file %d of %d(max) to friend(%d).\n", friend[friend_number].transfer_count, MAX_FILE_TRANSFERS, friend_number);
         utox_update_user_file(file_handle_new);
     } else {
@@ -1068,15 +1082,25 @@ void utox_file_load_ftinfo(FILE_TRANSFER *file){
     uint32_t size_read;
 
     path_length = datapath(path);
-    uint8_t hex_id[TOX_FILE_ID_LENGTH * 2];
-    fid_to_string(hex_id, file->file_id);
-    memcpy((path + path_length), hex_id, TOX_FILE_ID_LENGTH * 2);
-    strcpy((char*)(path + (path_length + TOX_FILE_ID_LENGTH * 2)), ".ftinfo");
+
+    if(file->incoming){
+        uint8_t hex_id[TOX_FILE_ID_LENGTH * 2];
+        fid_to_string(hex_id, file->file_id);
+        memcpy(path + path_length, hex_id, TOX_FILE_ID_LENGTH * 2);
+        strcpy((char*)path + (path_length + TOX_FILE_ID_LENGTH * 2), ".ftinfo");
+    } else {
+        uint8_t hex_id[TOX_PUBLIC_KEY_SIZE * 2];
+        cid_to_string(hex_id, friend[file->friend_number].cid);
+        memcpy(path + path_length, hex_id, TOX_PUBLIC_KEY_SIZE * 2);
+        sprintf((char*)path + (path_length + TOX_PUBLIC_KEY_SIZE * 2), "%02i.ftoutfo", file->file_number % 100);
+    }
 
     void *load = file_raw((char*)path, &size_read);
 
     if(!load) {
-        debug("FileTransfer:\tUnable to load saved info... uTox can't resume file %.*s\n", (uint32_t)file->name_length, file->name);
+        if(file->incoming){
+            debug("FileTransfer:\tUnable to load saved info... uTox can't resume file %.*s\n", (uint32_t)file->name_length, file->name);
+        }
         file->status = 0;
         return;
     }
@@ -1092,6 +1116,8 @@ void utox_file_load_ftinfo(FILE_TRANSFER *file){
     info->file_number   = file->file_number;
     info->name          = NULL;
     info->name_length   = 0;
+    info->ui_data       = NULL;
+    info->file          = NULL;
     info->saveinfo = fopen((const char*)path, "wb");
 
     memcpy(file, info, sizeof(*file));
