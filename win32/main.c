@@ -41,6 +41,13 @@ extern const CLSID CLSID_NullRenderer;
 #include <shlobj.h>
 
 #include <io.h>
+#include <error.h>
+
+/* mingw64 doesn't provide this def, but it should exist... */
+errno_t _chsize_s(
+   int fd,
+   __int64 size
+);
 
 #undef CLEARTYPE_QUALITY
 #define CLEARTYPE_QUALITY 5
@@ -948,7 +955,7 @@ void flush_file(FILE *file)
 }
 
 int resize_file(FILE *file, uint64_t size){
-    return _ch_size(file, size);
+    return _chsize_s(fileno(file), size);
 }
 
 
