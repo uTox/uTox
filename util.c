@@ -185,8 +185,16 @@ int sprint_bytes(uint8_t *dest, unsigned int size, uint64_t bytes)
 
     r = snprintf((char*)dest, size, "%u", (uint32_t)bytes);
 
-    //missing decimals
-    r += snprintf((char*)dest + r, size - r, "%s", str[i]);
+    if (r >= size) { // truncated
+        r = size - 1;
+    } else {
+        //missing decimals
+        r += snprintf((char*)dest + r, size - r, "%s", str[i]);
+        if (r >= size) { // truncated
+            r = size - 1;
+        }
+    }
+
     return r;
 }
 
@@ -654,6 +662,9 @@ NEXT:
     strcpy((char*)edit_proxy_ip.data, (char*)save->proxy_ip);
     if(save->proxy_port) {
         edit_proxy_port.length = snprintf((char*)edit_proxy_port.data, edit_proxy_port.maxlength + 1, "%u", save->proxy_port);
+        if (edit_proxy_port.length >= edit_proxy_port.maxlength + 1) {
+            edit_proxy_port.length = edit_proxy_port.maxlength;
+        }
     }
 
     logging_enabled = save->logging_enabled;

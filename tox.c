@@ -1633,6 +1633,9 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
     case GROUP_ADD: {
         GROUPCHAT *g = &group[param1];
         g->name_length = snprintf((char*)g->name, sizeof(g->name), "Groupchat #%u", param1);
+        if (g->name_length >= sizeof(g->name)) {
+            g->name_length = sizeof(g->name) - 1;
+        }
         g->topic_length = sizeof("Drag friends to invite them") - 1;
         memcpy(g->topic, "Drag friends to invite them", sizeof("Drag friends to invite them") - 1);
         g->msg.scroll = 1.0;
@@ -1681,6 +1684,9 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         }
 
         g->topic_length = snprintf((char*)g->topic, sizeof(g->topic), "%u users in chat", g->peers);
+        if (g->topic_length >= sizeof(g->topic)) {
+            g->topic_length = sizeof(g->topic) - 1;
+        }
 
         updategroup(g);
 
@@ -1718,6 +1724,9 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         g->peername[param2] = data;
 
         g->topic_length = snprintf((char*)g->topic, sizeof(g->topic), "%u users in chat", g->peers);
+        if (g->topic_length >= sizeof(g->topic)) {
+            g->topic_length = sizeof(g->topic) - 1;
+        }
 
         updategroup(g);
 
