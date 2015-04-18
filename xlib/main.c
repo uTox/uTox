@@ -1000,44 +1000,43 @@ static Window search_for_systray_window(Display *disp, Window target_window){
 }
 
 xcb_window_t utox_xcb_find_systray(xcb_connection_t *conn, xcb_window_t windoww) {
-    xcb_query_tree_cookie_t cookie_tree;
-    xcb_query_tree_reply_t *reply_tree;
     xcb_get_property_cookie_t cookie_prop;
     xcb_get_property_reply_t *reply_prop;
 
-    xcb_atom_t tmp              = 0;
     xcb_atom_t type_atom        = XCB_ATOM_ATOM;
     xcb_atom_t net_wm_type      = ewmh_conn->_NET_WM_WINDOW_TYPE;
-    xcb_atom_t net_wm_type_dock = ewmh_conn->_NET_WM_WINDOW_TYPE_DOCK;
 
     cookie_prop = xcb_get_property(conn, 0, windoww, net_wm_type, type_atom, 0, 1);
     if((reply_prop = xcb_get_property_reply(conn, cookie_prop, NULL))) {
         int len = xcb_get_property_value_length(reply_prop);
         if(len != 0){
-            tmp = *((xcb_atom_t*)xcb_get_property_value(reply_prop));
-        }
-        if(tmp == net_wm_type_dock){
-            debug("got the dock\n\n");
-            free(reply_prop);
-            return windoww;
-        } else {
-            cookie_tree = xcb_query_tree(conn, windoww);
-            if((reply_tree = xcb_query_tree_reply(conn, cookie_tree, NULL))) {
-                xcb_window_t *children = xcb_query_tree_children(reply_tree);
-                // debug("parent = %u\n", reply_tree->parent);
-                for (int i = 0; i < xcb_query_tree_children_length(reply_tree); i++){
-                    xcb_window_t result = utox_xcb_find_systray(conn, children[i]);
-                    if(result){
-                        free(reply_prop);
-                        return result;
+            xcb_atom_t net_wm_type_dock = ewmh_conn->_NET_WM_WINDOW_TYPE_DOCK;
+            xcb_atom_t tmp = *((xcb_atom_t*)xcb_get_property_value(reply_prop));
+            if(tmp == net_wm_type_dock){
+                debug("got the dock\n\n");
+                free(reply_prop);
+                return windoww;
+            } else {
+                xcb_query_tree_cookie_t cookie_tree;
+                xcb_query_tree_reply_t *reply_tree;
+                cookie_tree = xcb_query_tree(conn, windoww);
+                if((reply_tree = xcb_query_tree_reply(conn, cookie_tree, NULL))) {
+                    xcb_window_t *children = xcb_query_tree_children(reply_tree);
+                    for (int i = 0; i < xcb_query_tree_children_length(reply_tree); i++){
+                        xcb_window_t result = utox_xcb_find_systray(conn, children[i]);
+                        if(result){
+                            free(reply_prop);
+                            return result;
+                        }
                     }
                 }
             }
         }
-    } else {
-        debug("NO PROP REPLY BLERG!!!! = %u\n", windoww);
         free(reply_prop);
+        return 0;
     }
+    debug("NO PROP REPLY BLERG!!!! = %u\n", windoww);
+    free(reply_prop);
     return 0;
 }
 
@@ -1088,9 +1087,10 @@ static void utox_create_tray_icon(){
     xcb_void_cookie_t map_cookie = xcb_map_window(xcb_connection, tray_window );
     // We don't actually need to map the window to make it tray... probably
 
-    Window systray = search_for_systray_window(display, XDefaultRootWindow(display));
+    // Xlib version.
+    // Window systray = search_for_systray_window(display, XDefaultRootWindow(display));
 
-    utox_xcb_find_systray(xcb_connection, tray_screen->root);
+    xcb_window_t systray = utox_xcb_find_systray(xcb_connection, tray_screen->root);
 
     utox_send_window_to_systray(tray_window, systray);
 
