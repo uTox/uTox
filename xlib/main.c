@@ -183,7 +183,7 @@ static void setclipboard(void)
 xcb_intern_atom_cookie_t *emwh_cookie;
 xcb_ewmh_connection_t    *ewmh_conn;
 
-xcb_intern_atom_cookie_t tray_atom_cookie;
+xcb_intern_atom_cookie_t tray_opcode_cookie;
 
 static void init_xcb(){
     xcb_connection = xcb_connect(NULL, NULL);
@@ -194,7 +194,7 @@ static void init_xcb(){
     emwh_cookie = xcb_ewmh_init_atoms(xcb_connection, ewmh_conn);
     xcb_ewmh_init_atoms_replies(ewmh_conn, emwh_cookie, (void *)0);
 
-    tray_atom_cookie = xcb_intern_atom(xcb_connection, false, strlen("_NET_SYSTEM_TRAY_S0"), "_NET_SYSTEM_TRAY_S0");
+    tray_opcode_cookie = xcb_intern_atom(xcb_connection, false, strlen("_NET_SYSTEM_TRAY_OPCODE"), "_NET_SYSTEM_TRAY_OPCODE");
 }
 
 void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data)
@@ -912,7 +912,7 @@ void utox_send_window_to_systray(xcb_window_t tray, xcb_window_t dock){
     #define SYSTEM_TRAY_BEGIN_MESSAGE   1
     #define SYSTEM_TRAY_CANCEL_MESSAGE  2
 
-    xcb_intern_atom_reply_t *reply = xcb_intern_atom_reply(xcb_connection, tray_atom_cookie, NULL);
+    xcb_intern_atom_reply_t *reply = xcb_intern_atom_reply(xcb_connection, tray_opcode_cookie, NULL);
 
     /* Call xcb and ask to shove a window into the tray */
     xcb_client_message_event_t *tray_reqest = calloc(1, sizeof(*tray_reqest));
@@ -1095,14 +1095,10 @@ static void utox_create_tray_icon(){
     Atom net_wm_icon = XInternAtom(display, "_NET_WM_ICON", False);
     XChangeProperty(display, tray_window, net_wm_icon, XA_CARDINAL, 32, PropModeReplace, (const unsigned char*)&utox_icon128, length);
 
-
-
-
-    /* Map the window on the screen */
-    xcb_map_window(xcb_connection, tray_window );
-    // We don't actually need to map the window to make it tray... probably
-
     utox_send_window_to_systray(tray_window, systray);
+    /* Map the window on the screen */
+    // xcb_map_window(xcb_connection, tray_window );
+    // We don't actually need to map the window to make it tray... probably
 
     // /* Make sure commands are sent before we pause so that the tray_window gets shown */
     xcb_flush(xcb_connection);
