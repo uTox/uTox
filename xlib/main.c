@@ -9,6 +9,12 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 
+// TODO replace xlib (old slow and broken) with xcb
+#include <xcb/xcb.h>
+#include <xcb/xproto.h>
+#include <xcb/xcb_ewmh.h>
+#include "xembed.h"
+
 #include <X11/extensions/Xrender.h>
 #include <ft2build.h>
 #include <fontconfig/fontconfig.h>
@@ -50,12 +56,18 @@
 #include "mmenu.c"
 #endif
 
+
+// xlib globals
 Display *display;
 int screen;
-Window window, tray_window;
+Window window;
+xcb_window_t tray_window;
 GC gc;
 Colormap cmap;
 Visual *visual;
+
+// xcb globals
+xcb_connection_t *xcb_connection;
 
 Picture bitmap[BM_CI1 + 1];
 
@@ -69,6 +81,7 @@ XSizeHints *xsh;
 
 _Bool havefocus = 0;
 
+// create a window handle for each possible friend.
 Window video_win[MAX_NUM_FRIENDS];
 
 Atom wm_protocols, wm_delete_window;
@@ -164,6 +177,23 @@ static void setclipboard(void)
     //should never happen
     return first;
 }*/
+
+xcb_intern_atom_cookie_t tray_atom_cookie;
+xcb_intern_atom_cookie_t wm_name_atom_cookie;
+xcb_intern_atom_cookie_t *emwh_cookie;
+xcb_ewmh_connection_t    *ewmh_conn;
+
+static void init_xcb(){
+    xcb_connection = xcb_connect(NULL, NULL);
+    // For now we only bind to the first screen's systray, todo allow user to pick the systray screen!
+
+    ewmh_conn = calloc(1, sizeof(*ewmh_conn));
+    emwh_cookie = xcb_ewmh_init_atoms(xcb_connection, ewmh_conn);
+    xcb_ewmh_init_atoms_replies(ewmh_conn, emwh_cookie, (void *)0);
+
+    tray_atom_cookie    = xcb_intern_atom(xcb_connection, false, strlen("_NET_SYSTEM_TRAY_S0"), "_NET_SYSTEM_TRAY_S0");
+    wm_name_atom_cookie = xcb_intern_atom(xcb_connection, false, strlen("WM_NAME"), "WM_NAME");
+}
 
 void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data)
 {
@@ -819,15 +849,15 @@ void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_
     #endif
 }
 
-void showkeyboard(_Bool show)
-{
-
+void showkeyboard(_Bool show){
+    // Used in android, does nothing here.
 }
 
 void redraw(void)
 {
     _redraw = 1;
 }
+
 void force_redraw(void) {
     XEvent ev = {
         .xclient = {
@@ -846,8 +876,8 @@ void force_redraw(void) {
     XFlush(display);
 }
 
-void update_tray(void)
-{
+void update_tray(void){
+    // Coming soon, promise!
 }
 
 #include "event.c"
@@ -875,23 +905,41 @@ static int systemlang(void)
     return ui_guess_lang_by_posix_locale(str, DEFAULT_LANG);
 }
 
-void tray_send_message(Display* dpy, Window tray_w, long message, long data1, long data2, long data3){
+void utox_send_window_to_systray(Window tray_wnd, Window systray){
+    /* Call xcb and ask to shove a window into the tray */
+    // xcb_client_message_event_t tray_reqest;
+    // memset(&tray_reqest, 0, sizeof(tray_reqest));
+    // tray_reqest.response_type = XCB_CLIENT_MESSAGE;
+    // tray_reqest.format = 32;
+    // tray_reqest.window = systray;
+    // tray_reqest.type = m_trayAtom;
+    // tray_reqest.data.data32[0] = XCB_CURRENT_TIME;
+    // tray_reqest.data.data32[1] = SystemTrayRequestDock;
+    // tray_reqest.data.data32[2] = window;
+
+    // xcb_send_event(xcb_connection, 0, m_trayWindow, XCB_EVENT_MASK_NO_EVENT, (const char *)&tray_reqest);
+
+
+    #define SYSTEM_TRAY_REQUEST_DOCK    0
+    #define SYSTEM_TRAY_BEGIN_MESSAGE   1
+    #define SYSTEM_TRAY_CANCEL_MESSAGE  2
+
     XEvent ev;
 
     memset(&ev, 0, sizeof(ev));
     ev.xclient.type = ClientMessage;
-    ev.xclient.window = tray_w;
-    ev.xclient.message_type = XInternAtom (dpy, "_NET_SYSTEM_TRAY_OPCODE", False );
+    ev.xclient.window = systray;
+    ev.xclient.message_type = XInternAtom (display, "_NET_SYSTEM_TRAY_OPCODE", False );
     ev.xclient.format = 32;
     ev.xclient.data.l[0] = CurrentTime;
-    ev.xclient.data.l[1] = message;
-    ev.xclient.data.l[2] = data1;
-    ev.xclient.data.l[3] = data2;
-    ev.xclient.data.l[4] = data3;
+    ev.xclient.data.l[1] = 0;
+    ev.xclient.data.l[2] = tray_wnd;
+    ev.xclient.data.l[3] = 0;
+    ev.xclient.data.l[4] = 0;
 
     // trap_errors();
-    XSendEvent(dpy, tray_w, False, NoEventMask, &ev);
-    XSync(dpy, False);
+    XSendEvent(display, systray, False, NoEventMask, &ev);
+    XSync(display, False);
     // if (untrap_errors()) {
     //     debug("XTRAY:\tError of some kind!\n");
     //     /* Handle failure */
@@ -901,8 +949,10 @@ void tray_send_message(Display* dpy, Window tray_w, long message, long data1, lo
 static Window search_for_systray_window(Display *disp, Window target_window){
 
     Atom     net_wm_type = XInternAtom(display, "_NET_WM_WINDOW_TYPE", True);
-    Atom     *type_return;
-    uint32_t format_return, nitems, bytes_after;
+    Atom     type_return;
+    int32_t format_return;
+    uint64_t nitems;
+    uint64_t bytes_after;
     uint8_t  *prop_return;
 
     XGetWindowProperty(disp, target_window, net_wm_type, 0, 1,False, XA_ATOM, &type_return, &format_return,
@@ -910,31 +960,36 @@ static Window search_for_systray_window(Display *disp, Window target_window){
 
 
     Atom     search_type = XInternAtom(display, "WM_NAME", True);
-    Atom     *type_return2;
-    uint32_t format_return2, nitems2, bytes_after2;
+    Atom     type_return2;
+    int32_t format_return2;
+    uint64_t nitems2;
+    uint64_t bytes_after2;
     uint8_t  *prop_return2;
+
     XGetWindowProperty(disp, target_window, search_type, 0, 40,False, XA_STRING, &type_return2, &format_return2,
                             &nitems2, &bytes_after2, &prop_return2);
 
     if(prop_return){
         if(*prop_return == 96){
-            debug("property number %u\n", prop_return);
-            debug("property nname  %s\n", prop_return2);
+            debug("property number %5s\n", prop_return);
+            debug("property name   %s\n", prop_return2);
+            debug("wind id         %lu\n", target_window);
             XFree(prop_return);
             return target_window;
         } else {
             XFree(prop_return);
         }
     } else {
-        Window *root_window_return;
-        Window *parent_window_return;
-        Window **children_each_return;
+        Window root_window_return;
+        Window parent_window_return;
+        Window *children_each_return;
         Window resulted_window;
-        uint64_t number_children_return = 0;
+        uint32_t number_children_return = 0;
         if(XQueryTree(display, target_window, &root_window_return, &parent_window_return, &children_each_return, &number_children_return)){
             for(uint32_t i = 0; i < number_children_return; i++){
                 resulted_window = search_for_systray_window(display, children_each_return[i]);
                 if(resulted_window){
+                    debug("Resulted win %lu\n", resulted_window);
                     return resulted_window;
                 }
             }
@@ -944,10 +999,131 @@ static Window search_for_systray_window(Display *disp, Window target_window){
     return 0;
 }
 
+xcb_window_t utox_xcb_find_systray(xcb_connection_t *conn, xcb_window_t windoww) {
+    xcb_query_tree_cookie_t cookie_tree;
+    xcb_query_tree_reply_t *reply_tree;
+    xcb_get_property_cookie_t cookie_prop;
+    xcb_get_property_reply_t *reply_prop;
+
+    xcb_atom_t tmp              = 0;
+    xcb_atom_t type_atom        = XCB_ATOM_ATOM;
+    xcb_atom_t net_wm_type      = ewmh_conn->_NET_WM_WINDOW_TYPE;
+    xcb_atom_t net_wm_type_dock = ewmh_conn->_NET_WM_WINDOW_TYPE_DOCK;
+
+    cookie_prop = xcb_get_property(conn, 0, windoww, net_wm_type, type_atom, 0, 1);
+    if((reply_prop = xcb_get_property_reply(conn, cookie_prop, NULL))) {
+        int len = xcb_get_property_value_length(reply_prop);
+        if(len != 0){
+            tmp = *((xcb_atom_t*)xcb_get_property_value(reply_prop));
+        }
+        if(tmp == net_wm_type_dock){
+            debug("got the dock\n\n");
+            free(reply_prop);
+            return windoww;
+        } else {
+            cookie_tree = xcb_query_tree(conn, windoww);
+            if((reply_tree = xcb_query_tree_reply(conn, cookie_tree, NULL))) {
+                xcb_window_t *children = xcb_query_tree_children(reply_tree);
+                // debug("parent = %u\n", reply_tree->parent);
+                for (int i = 0; i < xcb_query_tree_children_length(reply_tree); i++){
+                    xcb_window_t result = utox_xcb_find_systray(conn, children[i]);
+                    if(result){
+                        free(reply_prop);
+                        return result;
+                    }
+                }
+            }
+        }
+    } else {
+        debug("NO PROP REPLY BLERG!!!! = %u\n", windoww);
+        free(reply_prop);
+    }
+    return 0;
+}
+
+void utox_xcb_requests(){
+    // Does nothing yet
+}
+
+void utox_tray_draw(){
+
+    uint32_t size;
+    uint8_t *icon_data = file_raw("./icons/utox-64x64.png", &size);
+    if (!icon_data) {
+        return;
+    }
+
+    uint16_t w, h;
+    UTOX_NATIVE_IMAGE *image = png_to_image((UTOX_PNG_IMAGE)icon_data, size, &w, &h, 1);
+    if(!UTOX_NATIVE_IMAGE_IS_VALID(image)) {
+        draw_image(image, 0, 0, 64, 64, 0, 0); // TODO we'll need to get w&h
+    }
+
+    free(icon_data);
+}
+
+/*
+ * Dev notes about moving to xcb; think of it like a client server model (That's what it is!)
+ * You should make all of your requests as early as you know you want them, then let xcb make the actual request, and
+ * then fetch the responses as you actually need the data. For uTox just throw your request into the provided function:
+ * utox_xcb_requests, then reference your needed information in you real function. Be kind and make sure you comment
+ * where the next dev can find it!
+ */
+
+xcb_void_cookie_t tray_window_cookie;
+
+static void utox_create_tray_icon(){
+    /* Get the first screen */
+    xcb_screen_iterator_t  screen_iter = xcb_setup_roots_iterator(xcb_get_setup(xcb_connection));
+    xcb_screen_t          *tray_screen      = screen_iter.data;
+
+    /* Create the window */
+    tray_window = xcb_generate_id(xcb_connection);
+    tray_window_cookie = xcb_create_window(xcb_connection, depth, tray_window, tray_screen->root, 0, 0, 64, 64, 0,
+                            XCB_WINDOW_CLASS_INPUT_OUTPUT, tray_screen->root_visual, 0, NULL);
+
+    // TODO :: XSetStandardProperties(display, tray_window, "uToxTray", "uToxTray", None, NULL, 0, NULL);
+
+    /* Map the window on the screen */
+    xcb_void_cookie_t map_cookie = xcb_map_window(xcb_connection, tray_window );
+    // We don't actually need to map the window to make it tray... probably
+
+    Window systray = search_for_systray_window(display, XDefaultRootWindow(display));
+
+    utox_xcb_find_systray(xcb_connection, tray_screen->root);
+
+    utox_send_window_to_systray(tray_window, systray);
+
+    #include "../icons/utox_icon128.h"
+    // Pixmap icon = XCreateBitmapFromData(display, tray_window, (const unsigned char*)utox_icon128, 128, 128);
+    // XWMHints *tray_wm_hints = XAllocWMHints();
+    // tray_wm_hints->icon_pixmap = icon;
+    // tray_wm_hints->flags = IconPixmapHint;
+    // XSetWMHints(display, tray_window, tray_wm_hints);
+    int length = (2 + (128 * 128));
+    Atom net_wm_icon = XInternAtom(display, "_NET_WM_ICON", False);
+    XChangeProperty(display, tray_window, net_wm_icon, XA_CARDINAL, 32, PropModeReplace, (const unsigned char*)&utox_icon128, length);
+
+    uint8_t net_tray_val[8] = "uToxTray";
+    tray_wm_name = XInternAtom(display, "_NET_WM_NAME" , False);
+    uint8_t net_tray_name[14] = "uTox tray icon";
+    Atom net_wm_icon_name = XInternAtom(display, "_NET_WM_ICON_NAME", False);
+    XChangeProperty(display, tray_window, tray_wm_name, XA_STRING, 8, PropModeReplace, net_tray_val, 8);
+    XChangeProperty(display, tray_window, net_wm_icon_name, XA_STRING, 8, PropModeReplace, net_tray_name, 14);
+
+
+    /* Make sure commands are sent before we pause so that the tray_window gets shown */
+    xcb_flush(xcb_connection);
+}
+
+
 _Bool parse_args_wait_for_theme;
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]){
+
+    // Call all the xcb init's we'll need.
+    init_xcb();
+
     parse_args_wait_for_theme = 0;
     theme = THEME_DEFAULT;
 
@@ -1034,68 +1210,6 @@ int main(int argc, char *argv[])
 
     /* create window */
     window = XCreateWindow(display, RootWindow(display, screen), save->window_x, save->window_y, save->window_width, save->window_height, 0, depth, InputOutput, visual, CWBackPixmap | CWBorderPixel | CWEventMask, &attrib);
-
-    #define SYSTEM_TRAY_REQUEST_DOCK    0
-    #define SYSTEM_TRAY_BEGIN_MESSAGE   1
-    #define SYSTEM_TRAY_CANCEL_MESSAGE  2
-
-    XSetWindowAttributes tray_attrib = {
-        .background_pixel = WhitePixel(display, screen),
-        .border_pixel     = BlackPixel(display, screen),
-        .event_mask       = ExposureMask    | ButtonPressMask   | ButtonReleaseMask   | EnterWindowMask |
-                            LeaveWindowMask | PointerMotionMask | StructureNotifyMask | KeyPressMask    |
-                            KeyReleaseMask  | FocusChangeMask   | PropertyChangeMask,
-    };
-
-    tray_window = XCreateWindow(display, RootWindow(display, screen), 0, 0, 64, 64, 0, depth, InputOutput, visual,
-                                                CWBackPixmap | CWBorderPixel | CWEventMask, &tray_attrib);
-
-    Window systray = search_for_systray_window(display, XDefaultRootWindow(display));
-
-    XSetStandardProperties(display, tray_window, "uToxTray", "uToxTray", None, NULL, 0, NULL);
-
-    #include "../icons/utox_icon128.h"
-
-    // Pixmap icon = XCreateBitmapFromData(display, tray_window, (const unsigned char*)utox_icon128, 128, 128);
-    // XWMHints *tray_wm_hints = XAllocWMHints();
-    // tray_wm_hints->icon_pixmap = icon;
-    // tray_wm_hints->flags = IconPixmapHint;
-    // XSetWMHints(display, tray_window, tray_wm_hints);
-
-    XWMHints *tray_wm_hints = XAllocWMHints();
-    tray_wm_hints->icon_window = tray_window;
-    tray_wm_hints->flags = IconWindowHint;
-    XSetWMHints(display, tray_window, tray_wm_hints);
-
-    uint8_t net_tray_val[8] = "uToxTray";
-    tray_wm_name = XInternAtom(display, "_NET_WM_NAME" , False);
-    XChangeProperty(display, tray_window, tray_wm_name, XA_STRING, 8, PropModeReplace, net_tray_val, 8);
-    uint8_t net_tray_name[14] = "uTox tray icon";
-    Atom net_wm_icon_name = XInternAtom(display, "_NET_WM_ICON_NAME", False);
-    XChangeProperty(display, tray_window, net_wm_icon_name, XA_STRING, 8, PropModeReplace, net_tray_name, 14);
-
-
-    XGCValues gcval_tray;
-    gcval_tray.foreground = XWhitePixel(display, 0);
-    gcval_tray.function = GXxor;
-    gcval_tray.background = XBlackPixel(display, 0);
-    gcval_tray.plane_mask = gcval_tray.background ^ gcval_tray.foreground;
-    gcval_tray.subwindow_mode = IncludeInferiors;
-
-
-    GC     grabgc_tray = XCreateGC(display, RootWindow(display, screen), GCFunction | GCForeground | GCBackground | GCSubwindowMode, &gcval_tray);
-    Pixmap drawbuf_tray = XCreatePixmap(display, window, DEFAULT_WIDTH, DEFAULT_HEIGHT, depth);
-    // Pixmap icon = XCreateBitmapFromData(display, tray_window, (const unsigned char*)utox_icon128, 128, 128);
-
-    XRenderColor xrcolor_tray = {0};
-    colorpic = XRenderCreateSolidFill(display, &xrcolor_tray);
-
-    int length = (2 + (128 * 128));
-    Atom net_wm_icon = XInternAtom(display, "_NET_WM_ICON", False);
-    XChangeProperty(display, tray_window, net_wm_icon, XA_CARDINAL, 32, PropModeReplace, (const unsigned char*)&utox_icon128, length);
-
-    // XMapWindow(display, tray_window);
-    tray_send_message(display, systray, SYSTEM_TRAY_REQUEST_DOCK, tray_window, 0,0);
 
     /* choose available libraries for optional UI stuff */
     if(!(libgtk = gtk_load())) {
@@ -1232,6 +1346,8 @@ int main(int argc, char *argv[])
         mm_register();
     }
     #endif
+
+    utox_create_tray_icon();
 
     /* set up the contact list */
     list_start();
