@@ -100,6 +100,10 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
             char timestr[6];
             STRING_IDX len;
             len = snprintf(timestr, sizeof(timestr), "%u:%.2u", msg->time / 60, msg->time % 60);
+            if (len >= sizeof(timestr)) {
+                len = sizeof(timestr) - 1;
+            }
+
             setcolor(COLOR_MAIN_SUBTEXT);
             setfont(FONT_MISC);
             drawtext(x + width - TIME_WIDTH, y, (char_t*)timestr, len);
@@ -240,6 +244,9 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
 
             char_t text2[16];
             STRING_IDX len2 = snprintf((char*)text2, sizeof(text2), "%us", (uint32_t)etasec);
+            if (len2 >= sizeof(text2)) {
+                len2 = sizeof(text2) - 1;
+            }
 
             // progress rectangle
             uint32_t w = (file->size == 0) ? 0 : (progress * (uint64_t)106 * SCALE) / file->size;
