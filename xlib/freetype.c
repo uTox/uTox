@@ -33,7 +33,7 @@ _Bool ft_vert, ft_swap_blue_red;
 
 static void font_info_open(FONT_INFO *i, FcPattern *pattern);
 
-Picture loadglyphpic(uint8_t *data, int width, int height, int pitch, _Bool no_subpixel)
+Picture loadglyphpic(uint8_t *data, int width, int height, int pitch, _Bool no_subpixel, _Bool vertical, _Bool swap_blue_red)
 {
     if(!width || !height) {
         return None;
@@ -61,14 +61,25 @@ Picture loadglyphpic(uint8_t *data, int width, int height, int pitch, _Bool no_s
 
         p = rgbx;
         int i = height;
-        do {
-            end = p + width;
-            while(p != end) {
-                *p++ = ft_swap_blue_red ? RGB(data[2], data[1], data[0]) : RGB(data[0], data[1], data[2]);
-                data += 3;
-            }
-            data += pitch - width * 3;
-        } while(--i);
+        if (!vertical) {
+            do {
+                end = p + width;
+                while(p != end) {
+                    *p++ = swap_blue_red ? RGB(data[2], data[1], data[0]) : RGB(data[0], data[1], data[2]);
+                    data += 3;
+                }
+                data += pitch - width * 3;
+            } while(--i);
+        } else {
+            do {
+                end = p + width;
+                while(p != end) {
+                    *p++ = swap_blue_red ? RGB(data[2 * pitch], data[1 * pitch], data[0]) : RGB(data[0], data[1 * pitch], data[2 * pitch]);
+                    data += 1;
+                }
+                data += (pitch - width) + (pitch * 2);
+            } while(--i);
+        }
 
         pixmap = XCreatePixmap(display, window, width, height, 24);
         img = XCreateImage(display, CopyFromParent, 24, ZPixmap, 0, (char*)rgbx, width, height, 32, 0);
@@ -191,6 +202,7 @@ GLYPH* font_getglyph(FONT *f, uint32_t ch)
     int weight;
     //FcPatternGetInteger(f->pattern, FC_WEIGHT, 0, &weight);
     _Bool no_subpixel = (!hinting || (hint_style == FC_HINT_NONE));
+    _Bool vert = ft_vert;
 
     if (no_subpixel) {
         ft_flags |= FT_LOAD_NO_HINTING;
@@ -200,7 +212,7 @@ GLYPH* font_getglyph(FONT *f, uint32_t ch)
             {
                 ft_flags |= FT_LOAD_TARGET_LIGHT;
             } else {
-                ft_flags |= (ft_vert ? FT_LOAD_TARGET_LCD_V : FT_LOAD_TARGET_LCD);
+                ft_flags |= (vert ? FT_LOAD_TARGET_LCD_V : FT_LOAD_TARGET_LCD);
             }
         } else {
             ft_flags |= FT_LOAD_TARGET_MONO;
@@ -243,17 +255,19 @@ GLYPH* font_getglyph(FONT *f, uint32_t ch)
     } else if (p->bitmap.pixel_mode ==  FT_PIXEL_MODE_LCD) {
         g->width = p->bitmap.width / 3;
         no_subpixel = 0;
+        vert = 0;
     } else if (p->bitmap.pixel_mode ==  FT_PIXEL_MODE_LCD_V) {
         g->width = p->bitmap.width;
         g->height = p->bitmap.rows / 3;
         no_subpixel = 0;
+        vert = 1;
     } else {
         g->width = p->bitmap.width;
         no_subpixel = 0;
     }
 
     //debug("%u %u %u %u %C\n", PIXELS(i->face->size->metrics.height), g->width, g->height, p->bitmap.pitch, ch);
-    g->pic = loadglyphpic(p->bitmap.buffer, g->width, g->height, p->bitmap.pitch, no_subpixel);
+    g->pic = loadglyphpic(p->bitmap.buffer, g->width, g->height, p->bitmap.pitch, no_subpixel, vert, ft_swap_blue_red);
 
     return g;
 }
@@ -392,7 +406,7 @@ static void loadfonts(void)
     }
 
     if(render_order == SubPixelVerticalBGR || render_order == SubPixelVerticalRGB) {
-        //ft_vert = 1;
+        ft_vert = 1;
         debug("ft_vert\n");
     }
 
