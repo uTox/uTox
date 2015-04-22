@@ -692,7 +692,8 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags){
 
 int edit_selection(EDIT *edit, char_t *data, int len)
 {
-    memcpy(data, edit->data + edit_sel.start, edit_sel.length);
+    if (data)
+        memcpy(data, edit->data + edit_sel.start, edit_sel.length);
     return edit_sel.length;
 }
 

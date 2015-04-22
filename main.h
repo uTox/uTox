@@ -20,13 +20,14 @@
 #include <tox/tox.h>
 #include <tox/toxav.h>
 #include <vpx/vpx_codec.h>
+#include <vpx/vpx_image.h>
 
 #ifdef EMOJI_IDS
 #include <base_emoji.h>
 #endif
 
 #define countof(x) (sizeof(x)/sizeof(*(x)))
-#define volatile(x) (*((volatile typeof(x)*)&x))
+// #define volatile(x) (*((volatile typeof(x)*)&x))
 
 #define DEFAULT_NAME "Tox User"
 #define DEFAULT_STATUS "Toxing on uTox"
@@ -91,7 +92,11 @@ typedef struct edit_change EDIT_CHANGE;
 #ifdef __ANDROID__
 #include "android/main.h"
 #else
+#ifdef __OBJC__
+#include "cocoa/main.h"
+#else
 #include "xlib/main.h"
+#endif
 #endif
 #endif
 
