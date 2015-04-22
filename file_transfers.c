@@ -1064,6 +1064,10 @@ void utox_cleanup_file_transfers(uint32_t friend_number, uint32_t file_number){
             free(transfer->memory);
         }
     }
+
+    if(transfer->file){
+        fclose(transfer->file);
+    }
 }
 
 void utox_file_save_ftinfo(FILE_TRANSFER *file){
