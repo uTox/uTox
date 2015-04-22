@@ -240,8 +240,15 @@ GLYPH* font_getglyph(FONT *f, uint32_t ch)
     } else if (p->bitmap.pixel_mode == FT_PIXEL_MODE_GRAY) {
         g->width = p->bitmap.width;
         no_subpixel = 1;
-    } else {
+    } else if (p->bitmap.pixel_mode ==  FT_PIXEL_MODE_LCD) {
         g->width = p->bitmap.width / 3;
+        no_subpixel = 0;
+    } else if (p->bitmap.pixel_mode ==  FT_PIXEL_MODE_LCD_V) {
+        g->width = p->bitmap.width;
+        g->height = p->bitmap.rows / 3;
+        no_subpixel = 0;
+    } else {
+        g->width = p->bitmap.width;
         no_subpixel = 0;
     }
 
