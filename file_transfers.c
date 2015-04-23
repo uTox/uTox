@@ -1013,30 +1013,6 @@ int utox_file_start_write(uint32_t friend_number, uint32_t file_number, void *fi
     return 0;
 }
 
-int utox_file_start_temp_write(uint32_t friend_number, uint32_t file_number){/*
-    FILE_TRANSFER *file_handle = get_file_transfer(friend_number, file_number);
-    uint8_t path[UTOX_FILE_NAME_LENGTH];
-    size_t path_length;
-
-    // Subdir for each friend? TODO?
-    path_length = datapath_subdir(path, FILE_TRANSFER_TEMP_PATH);
-    memcpy( (path + path_length), file_handle->name, file_handle->name_length);
-    debug("temppath:\t%.*s\n", (uint32_t)(path_length + file_handle->name_length), path);
-
-    file_handle->tmp_file = fopen((const char*)path, "wb");
-
-    if(!file_handle->tmp_file) {
-        file_handle->status = FILE_TRANSFER_STATUS_BROKEN;
-        debug("nope\n");
-        return -1;
-    }
-
-    file_handle->in_tmp_loc = 1;
-    file_handle->tmp_path = path;
-    file_handle->tmp_path_length = strlen((const char*)path);
-    */
-    return 0;
-}
 
 void utox_set_callbacks_for_transfer(Tox *tox){
     /* Incoming files */

@@ -1076,12 +1076,7 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
         /* param1: friend #
          * param2: file # */
         break;
-        if (utox_file_start_temp_write(param1, param2) == 0) {
-        /*                          tox, friend#, file#,        START_FILE */
-            file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_RESUME);
-        } else {
-            file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_CANCEL);
-        }
+        /* This call currently does nothing, eventually we'd like to start downloading a file before we have its dir */
     }
 
 
