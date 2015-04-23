@@ -568,6 +568,11 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
     tox_file_get_file_id(tox, friend_number, file_number, file_id, 0);
     /* access the correct memory location for this file */
     FILE_TRANSFER *file_handle = get_file_transfer(friend_number, file_number);
+    if(!file_handle) {
+        debug("FileTransfer:\tUnable to get memory handle for transfer, canceling friend/filenumebr (%u/%u)\n", friend_number, file_number);
+        tox_file_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL, 0);
+        return;
+    }
 
 
     switch(kind){
@@ -597,35 +602,18 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
             return;
         }
         /* Avatar size is valid, and it's a new avatar, lets accept it */
-        if (file_handle) {
-            utox_build_file_transfer(file_handle, friend_number, file_number, file_size, 1, 1, 1, TOX_FILE_KIND_AVATAR, NULL, 0, NULL, 0, file_id, tox);
-            file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_RESUME);
-            return;
-        } else {
-            /* We were unable to get a memory handle for this avatar, we have to just reject it! */
-            tox_file_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL, 0);
-            return;
-        }
-        break;
+        utox_build_file_transfer(file_handle, friend_number, file_number, file_size, 1, 1, 1, TOX_FILE_KIND_AVATAR, NULL, 0, NULL, 0, file_id, tox);
+        file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_RESUME);
+        return;
     }
     case TOX_FILE_KIND_EXISTING:{
         debug("FileTransfer:\tIncoming Existing file from friend (%u) \n", friend_number);
+        incoming_file_existing(tox, friend_number, file_number, kind, file_size, filename, filename_length, user_data);
     } /* Last case */
     } /* Switch */
 
 
 
-    if (kind == TOX_FILE_KIND_EXISTING){
-        incoming_file_existing(tox, friend_number, file_number, kind, file_size, filename, filename_length, user_data);
-        return;
-    } else {
-        debug("FileTransfer:\tNew incoming file from friend (%u) file number (%u)\nFileTransfer:\t\tfilename: %s\n", friend_number, file_number, filename);
-    }
-
-    if (!file_handle) {
-        tox_file_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL, 0);
-        return;
-    }
 
     if(file_size < 1024 * 1024 * 4 && filename_length == (sizeof("utox-inline.png") - 1) &&
                                     memcmp(filename, "utox-inline.png", filename_length) == 0) {
