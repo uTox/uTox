@@ -174,7 +174,15 @@ uint64_t get_time(void) {
 
 void openurl(char_t *str) {
     NSString *urls = [[NSString alloc] initWithCString:(char *)str encoding:NSUTF8StringEncoding];
-    NSURL *url = [NSURL fileURLWithPath:urls];
+
+    NSURL *url = NULL;
+    if (!strncasecmp((const char *)str, "http://", 7) ||
+        !strncasecmp((const char *)str, "https://", 8)) {
+        url = [NSURL URLWithString:urls];
+    } else /* it's a path */ {
+        url = [NSURL fileURLWithPath:urls];
+    }
+    
     [[NSWorkspace sharedWorkspace] openURL:url];
     [urls release];
 }
