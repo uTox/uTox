@@ -29,7 +29,6 @@ FILE_TRANSFER *get_file_transfer(uint32_t friend_number, uint32_t file_number){
     return ft;
 }
 
-/* The following are internal file status helper functions */
 static void utox_update_user_file(FILE_TRANSFER *file){
     FILE_TRANSFER *file_copy = malloc(sizeof(FILE_TRANSFER));
 
@@ -444,45 +443,8 @@ static void utox_build_file_transfer(FILE_TRANSFER *ft, uint32_t friend_number, 
 }
 
 /* Function called by core with a new incoming file. */
-static void incoming_file_avatar(Tox *tox, uint32_t friend_number, uint32_t file_number, uint32_t kind, uint64_t file_size, const uint8_t *filename, size_t filename_length, void *UNUSED(user_data)){
-    debug("FileTransfer:\tNew Avatar from friend (%u)\n", friend_number);
-
-    /* If 0 unset the avatar... TODO! */
-    if(file_size == 0){
-        utox_incoming_avatar(friend_number, NULL, 0);
-        debug("FileTransfer:\tAvatar Unset from friend(%u).\n", friend_number);
-        file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
-        return;
-    /* If incoming avatar is too big, cancel */
-    } else if (file_size > UTOX_AVATAR_MAX_DATA_LENGTH){
-        file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
-        debug("FileTransfer:\tAvatar from friend(%u) rejected, TOO LARGE (%u)\n", friend_number, (uint32_t)file_size);
-        return;
-    }
-
-
-    uint8_t file_id[TOX_FILE_ID_LENGTH] = {0};
-    tox_file_get_file_id(tox, friend_number, file_number, file_id, 0);
-    if((friend[friend_number].avatar.format > 0) && memcmp(friend[friend_number].avatar.hash, file_id, TOX_HASH_LENGTH) == 0) {
-        file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
-        debug("FileTransfer:\tAvatar from friend (%u) rejected: Same as Current\n", friend_number);
-        return;
-    }
-
-    FILE_TRANSFER *file_handle = get_file_transfer(friend_number, file_number);
-
-    if (!file_handle) {
-        tox_file_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL, 0);
-        return;
-    }
-
-    utox_build_file_transfer(file_handle, friend_number, file_number, file_size, 1, 1, 1, TOX_FILE_KIND_AVATAR, NULL, 0, NULL, 0, file_id, tox);
-
-    file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_RESUME);
-}
 
 static void incoming_file_existing(Tox *tox, uint32_t friend_number, uint32_t file_number, uint32_t kind, uint64_t size, const uint8_t *filename, size_t filename_length, void *UNUSED(user_data)){
-    debug("FileTransfer:\tIncoming Existing file from friend (%u) \n", friend_number);
 
     FILE_TRANSFER *file_handle = get_file_transfer(friend_number, file_number);
     if (!file_handle) {
@@ -601,18 +563,64 @@ static void incoming_file_existing(Tox *tox, uint32_t friend_number, uint32_t fi
 
 /* Function called by core with a new incoming file. */
 static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uint32_t file_number, uint32_t kind, uint64_t file_size, const uint8_t *filename, size_t filename_length, void *user_data){
+    /* First things first, get the file_id from core */
+    uint8_t file_id[TOX_FILE_ID_LENGTH] = {0};
+    tox_file_get_file_id(tox, friend_number, file_number, file_id, 0);
+    /* access the correct memory location for this file */
+    FILE_TRANSFER *file_handle = get_file_transfer(friend_number, file_number);
 
-    if(kind == TOX_FILE_KIND_AVATAR){
-        incoming_file_avatar(tox, friend_number, file_number, kind, file_size, filename, filename_length, user_data);
-        return;
-    } else if (kind == TOX_FILE_KIND_EXISTING){
+
+    switch(kind){
+    case TOX_FILE_KIND_DATA:{
+        debug("FileTransfer:\tNew incoming file from friend (%u) file number (%u)\nFileTransfer:\t\tfilename: %s\n", friend_number, file_number, filename);
+        break;
+    }
+    case TOX_FILE_KIND_AVATAR:{
+        debug("FileTransfer:\tNew Avatar from friend (%u)\n", friend_number);
+        /* Verify Avatar Size */
+        if(file_size == 0){
+            /* Size is 0, unset the avatar! */
+            utox_incoming_avatar(friend_number, NULL, 0);
+            debug("FileTransfer:\tAvatar Unset from friend(%u).\n", friend_number);
+            file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
+            return;
+        } else if (file_size > UTOX_AVATAR_MAX_DATA_LENGTH){
+            /* If incoming avatar is too big, cancel */
+            file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
+            debug("FileTransfer:\tAvatar from friend(%u) rejected, TOO LARGE (%u)\n", friend_number, (uint32_t)file_size);
+            return;
+        }
+        /* Verify this is a new avatar */
+        if((friend[friend_number].avatar.format > 0) && memcmp(friend[friend_number].avatar.hash, file_id, TOX_HASH_LENGTH) == 0) {
+            debug("FileTransfer:\tAvatar from friend (%u) rejected: Same as Current\n", friend_number);
+            file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
+            return;
+        }
+        /* Avatar size is valid, and it's a new avatar, lets accept it */
+        if (file_handle) {
+            utox_build_file_transfer(file_handle, friend_number, file_number, file_size, 1, 1, 1, TOX_FILE_KIND_AVATAR, NULL, 0, NULL, 0, file_id, tox);
+            file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_RESUME);
+            return;
+        } else {
+            /* We were unable to get a memory handle for this avatar, we have to just reject it! */
+            tox_file_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL, 0);
+            return;
+        }
+        break;
+    }
+    case TOX_FILE_KIND_EXISTING:{
+        debug("FileTransfer:\tIncoming Existing file from friend (%u) \n", friend_number);
+    } /* Last case */
+    } /* Switch */
+
+
+
+    if (kind == TOX_FILE_KIND_EXISTING){
         incoming_file_existing(tox, friend_number, file_number, kind, file_size, filename, filename_length, user_data);
         return;
     } else {
         debug("FileTransfer:\tNew incoming file from friend (%u) file number (%u)\nFileTransfer:\t\tfilename: %s\n", friend_number, file_number, filename);
     }
-
-    FILE_TRANSFER *file_handle = get_file_transfer(friend_number, file_number);
 
     if (!file_handle) {
         tox_file_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL, 0);
