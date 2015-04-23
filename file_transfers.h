@@ -29,54 +29,15 @@ typedef struct FILE_TRANSFER {
     MSG_FILE *ui_data;
 } FILE_TRANSFER;
 
-/** local callback for file transfers
- *
- * Called with a friend & file number, and will update it with control.
- * It will also call the other needed functions for you because it's nice like
- * that.
- */
 void file_transfer_local_control(Tox *tox, uint32_t friend_number, uint32_t file_number, TOX_FILE_CONTROL control);
-/** Callback for file transfer changes made by friend.
- *
- * Called via toxcore every time a friend changes file status.
- */
-//static void file_transfer_callback_control(Tox *tox, uint32_t friend_number, uint32_t file_number, TOX_FILE_CONTROL control, void *UNUSED(userdata));
-
-/* Incoming files */
-  /* Called internally to handle avatar data */
-  //static void incoming_file_avatar(Tox *tox, uint32_t friendnumber, uint32_t filenumber, uint32_t kind, uint64_t file_size, const uint8_t *filename, size_t filename_length, void *user_data);
-  /* Function called by core with a new incoming file. */
-  //static void incoming_file_callback_request(Tox *tox, uint32_t friendnumber, uint32_t filenumber, uint32_t kind, uint64_t file_size, const uint8_t *filename, size_t filename_length, void *user_data);
-  //static void incoming_file_callback_chunk(Tox *tox, uint32_t friend_number, uint32_t file_number, uint64_t position, const uint8_t *data, size_t length, void *user_data);
-
-/* Outgoing files */
-  /* Send out a new file. */
-  void outgoing_file_send_new(Tox *tox, uint32_t friend_number, uint8_t *path, const uint8_t *filename, size_t filename_length);
-  /* Restarts a broken file. */
-  void outgoing_file_send_existing(Tox *tox, uint32_t friend_number, uint32_t file_number);
-  /* Send an inline file/image. */
-  void outgoing_file_send_inline(Tox *tox, uint32_t friend_number, uint8_t *image, size_t image_size);
-  /* Send a newly changed avatar, called by avatar functions. */
-  int outgoing_file_send_avatar(Tox *tox, uint32_t friend_number, uint8_t *avatar, size_t avatar_size);
-  /* Function called by core to send of next chuck of *length size. */
-  //static void outgoing_file_callback_chunk(Tox *tox, uint32_t friend_number, uint32_t file_number, uint64_t position, size_t length, void *user_data);
-
-/** Helper functions
- *
- * utox_file_start_write() opens and sets the file handle on the disk (return -1 on failure, 0 on success)
- * utox_set_callbacks_for_transfers() interfaces with toxcore setting the
- *   callbacks for incoming or outgoing transfers
- */
+void outgoing_file_send_new(Tox *tox, uint32_t friend_number, uint8_t *path, const uint8_t *filename, size_t filename_length);
+void outgoing_file_send_existing(Tox *tox, uint32_t friend_number, uint32_t file_number);
+void outgoing_file_send_inline(Tox *tox, uint32_t friend_number, uint8_t *image, size_t image_size);
+int outgoing_file_send_avatar(Tox *tox, uint32_t friend_number, uint8_t *avatar, size_t avatar_size);
 int utox_file_start_write(uint32_t friend_number, uint32_t file_number, void *filepath);
 void utox_set_callbacks_for_transfer(Tox *tox);
 void utox_cleanup_file_transfers(uint32_t friend_number, uint32_t file_number);
-
-/* Functions called when friend goes online or offline.
- */
 void ft_friend_online(Tox *tox, uint32_t friend_number);
 void ft_friend_offline(Tox *tox, uint32_t friend_number);
-
-/** Functions called to store/load broken_list
- */
 void utox_file_save_ftinfo(FILE_TRANSFER *file);
 void utox_file_load_ftinfo(FILE_TRANSFER *file);
