@@ -356,7 +356,10 @@ void update_tray(void) {
 
 void savefilerecv(uint32_t fid, MSG_FILE *file) {
     NSSavePanel *picker = [NSSavePanel savePanel];
-    picker.message = @"Where do you want to save \"%s\"?";
+    NSString *fname = [[NSString alloc] initWithBytesNoCopy:file->name length:file->name_length encoding:NSUTF8StringEncoding freeWhenDone:NO];
+    picker.message = [NSString stringWithFormat:@"Where do you want to save \"%@\"?", fname];
+    picker.nameFieldStringValue = fname;
+    [fname release];
     int ret = [picker runModal];
 
     if (ret == NSFileHandlingPanelOKButton) {
