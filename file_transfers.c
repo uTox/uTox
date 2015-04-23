@@ -574,10 +574,27 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
         return;
     }
 
-
     switch(kind){
     case TOX_FILE_KIND_DATA:{
         debug("FileTransfer:\tNew incoming file from friend (%u) file number (%u)\nFileTransfer:\t\tfilename: %s\n", friend_number, file_number, filename);
+        /* Auto accept if it's a utox-inline image, with the correct size */
+        if(file_size < 1024 * 1024 * 4
+            && filename_length == (sizeof("utox-inline.png") - 1)
+            && memcmp(filename, "utox-inline.png", filename_length) == 0)
+            {
+            utox_build_file_transfer(file_handle, friend_number, file_number, file_size, 1, 1, 0,
+                TOX_FILE_KIND_DATA, filename, filename_length, NULL, 0, NULL, tox);
+            file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_RESUME);
+        } else {
+            utox_build_file_transfer(file_handle, friend_number, file_number, file_size, 1, 0, 0,
+                TOX_FILE_KIND_DATA, filename, filename_length, NULL, 0, NULL, tox);
+            /* Set UI values */
+            file_handle->ui_data = message_add_type_file(file_handle);
+            /* Set resuming info TODO MOVE TO AFTER FILE IS ACCEPED BY USER */
+            file_handle->resume = utox_file_alloc_ftinfo(file_handle);
+            /* Notify the user! */
+            postmessage(FRIEND_FILE_NEW, 0, 0, file_handle);
+        }
         break;
     }
     case TOX_FILE_KIND_AVATAR:{
@@ -611,26 +628,6 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
         incoming_file_existing(tox, friend_number, file_number, kind, file_size, filename, filename_length, user_data);
     } /* Last case */
     } /* Switch */
-
-
-
-
-    if(file_size < 1024 * 1024 * 4 && filename_length == (sizeof("utox-inline.png") - 1) &&
-                                    memcmp(filename, "utox-inline.png", filename_length) == 0) {
-
-        utox_build_file_transfer(file_handle, friend_number, file_number, file_size, 1, 1, 0, TOX_FILE_KIND_DATA,
-                                filename, filename_length, NULL, 0, NULL, tox);
-
-        file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_RESUME);
-    } else {
-        utox_build_file_transfer(file_handle, friend_number, file_number, file_size, 1, 0, 0, TOX_FILE_KIND_DATA,
-                                filename, filename_length, NULL, 0, NULL, tox);
-
-        file_handle->ui_data = message_add_type_file(file_handle);
-        file_handle->resume = utox_file_alloc_ftinfo(file_handle);
-
-        postmessage(FRIEND_FILE_NEW, 0, 0, file_handle);
-    }
 }
 
 static void incoming_file_callback_chunk(Tox *UNUSED(tox), uint32_t friend_number, uint32_t file_number, uint64_t position, const uint8_t *data, size_t length, void *UNUSED(user_data)){
