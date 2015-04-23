@@ -134,7 +134,7 @@
 
     devices = [[NSMutableDictionary alloc] init];
 
-    postmessage(NEW_VIDEO_DEVICE, STR_VIDEO_IN_DESKTOP, 0, SCREEN_VIDEO_DEVICE_HANDLE);
+    //postmessage(NEW_VIDEO_DEVICE, STR_VIDEO_IN_DESKTOP, 0, SCREEN_VIDEO_DEVICE_HANDLE);
 
     NSArray *vdevIDs = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
     for (int i = 0; i < vdevIDs.count; i++) {
@@ -346,11 +346,12 @@ void* video_detect(void) {
 
 + (NSWindow *)createWindow {
 #define START_RECT (CGRect){0, 0, 100, 100}
-    NSWindow *ret = [[NSWindow alloc] initWithContentRect:START_RECT styleMask:NSFullSizeContentViewWindowMask | NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask backing:NSBackingStoreBuffered defer:YES];
-    ret.titleVisibility = NSWindowTitleHidden;
-    ret.titlebarAppearsTransparent = YES;
-    ret.contentView = [[self alloc] initWithFrame:ret.frame];
-    [ret.contentView release];
+    NSWindow *ret = [[NSPanel alloc] initWithContentRect:START_RECT styleMask:NSHUDWindowMask | NSUtilityWindowMask | NSClosableWindowMask | NSTitledWindowMask backing:NSBackingStoreBuffered defer:YES];
+    //ret.titleVisibility = NSWindowTitleHidden;
+    //ret.titlebarAppearsTransparent = YES;
+    uToxIroncladView *iv = [[self alloc] initWithFrame:ret.frame];
+    ret.contentView = iv;
+    [iv release];
     return ret;
 #undef START_RECT
 }
@@ -358,12 +359,12 @@ void* video_detect(void) {
 - (instancetype)initWithFrame:(NSRect)frameRect {
     self = [super initWithFrame:frameRect];
     if (self) {
-        _blurView = [[NSVisualEffectView alloc] initWithFrame:self.bounds];
-        _blurView.appearance = [NSAppearance appearanceNamed:NSAppearanceNameVibrantDark];
-        _blurView.state = NSVisualEffectStateFollowsWindowActiveState;
-        [self addSubview:_blurView];
+        //_blurView = [[NSVisualEffectView alloc] initWithFrame:self.bounds];
+        //_blurView.appearance = [NSAppearance appearanceNamed:NSAppearanceNameVibrantDark];
+        //_blurView.state = NSVisualEffectStateFollowsWindowActiveState;
+        //[self addSubview:_blurView];
 
-        _videoContent = [[uToxIroncladVideoContent alloc] initWithFrame:(CGRect){10, 10, frameRect.size.width - 20, frameRect.size.height - 42}];
+        _videoContent = [[uToxIroncladVideoContent alloc] initWithFrame:(CGRect){0, 0, frameRect.size.width, frameRect.size.height}];
         _videoContent.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
         [self addSubview:_videoContent];
     }
@@ -396,19 +397,23 @@ void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height
         debug("BUG: video_frame called for bogus Ironclad id %lu", id);
     }
 
+    if (resize) {
+        [win setFrame:(CGRect){win.frame.origin.x, CGRectGetMaxY(win.frame) - height, width, height} display:YES animate:NO];
+    }
+
     uToxIroncladView *view = win.contentView;
     [view displayImage:img_data w:width h:height];
 }
 
 void video_begin(uint32_t id, char_t *name, STRING_IDX name_length, uint16_t width, uint16_t height) {
     NSWindow *video_win = [uToxIroncladView createWindow];
-    video_win.title = [[NSString alloc] initWithBytes:name length:name_length encoding:NSUTF8StringEncoding];
+    video_win.title = [[[NSString alloc] initWithBytes:name length:name_length encoding:NSUTF8StringEncoding] autorelease];
 
     uToxAppDelegate *utoxapp = (uToxAppDelegate *)[NSApp delegate];
     NSWindow *utoxwin = utoxapp.utox_window;
 
-    CGFloat x = width + (20);
-    CGFloat y = height + (20) + 22;
+    CGFloat x = width;
+    CGFloat y = height;
     [video_win setFrame:(CGRect){CGRectGetMaxX(utoxwin.frame), CGRectGetMaxY(utoxwin.frame) - y, x, y} display:YES];
     [utoxapp setIroncladWindow:video_win forID:id];
 

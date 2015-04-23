@@ -61,6 +61,9 @@ struct utox_native_image {
 @interface uToxView : NSView
 @end
 
+@interface uToxView (UserInteraction) /*<NSTextInputClient>*/
+@end
+
 /* Desktop rectangle selector */
 
 @interface uToxStardustView : NSView

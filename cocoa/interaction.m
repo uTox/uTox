@@ -210,6 +210,20 @@ int getbuf(char_t *ptr, size_t len, int value);
 - (void)stopSpeaking:(id)sender {
     [[uToxView sharedSpeechSynthesizer] stopSpeaking];
 }
+// later...
+//#pragma mark - NSTextInputClient
+//
+//- (void)insertText:(id)aString replacementRange:(NSRange)replacementRange {
+//
+//}
+//
+//- (NSArray *)validAttributesForMarkedText {
+//    return @[];
+//}
+//
+//- (NSRange)selectedRange {
+//    return (NSRange){NSNotFound, 0};
+//}
 
 @end
 
@@ -260,7 +274,31 @@ void paste(void) {
             NSBeep();
         }
     } else /* NSImage */ {
-        // FIXME: implement
+
+        // very slow. TODO: figure out why
+        [string_or_img lockFocus];
+        NSBitmapImageRep *bmp = [[NSBitmapImageRep alloc] initWithFocusedViewRect:(CGRect){CGPointZero, [string_or_img size]}];
+        [string_or_img unlockFocus];
+
+        CGImageRef img = CGImageRetain(bmp.CGImage);
+        UTOX_NATIVE_IMAGE *i = malloc(sizeof(UTOX_NATIVE_IMAGE));
+        i->scale = 1.0;
+        i->image = img;
+
+        CFMutableDataRef dat = CFDataCreateMutable(kCFAllocatorDefault, 0);
+        CGImageDestinationRef dest = CGImageDestinationCreateWithData(dat, kUTTypePNG, 1, NULL);
+        CGImageDestinationAddImage(dest, img, NULL);
+        CGImageDestinationFinalize(dest);
+        CFRelease(dest);
+
+        size_t size = CFDataGetLength(dat);
+        uint8_t *owned_ptr = malloc(size);
+        memcpy(owned_ptr, CFDataGetBytePtr(dat), size);
+        CFRelease(dat);
+
+        friend_sendimage(sitem->data, i, CGImageGetWidth(img), CGImageGetHeight(img), (UTOX_PNG_IMAGE)owned_ptr, size);
+
+        [bmp release];
     }
 }
 
@@ -287,8 +325,16 @@ void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_
             size_t w = CGImageGetWidth(im->image) / im->scale,
                    h = CGImageGetHeight(im->image) / im->scale;
             NSImage *i = [[NSImage alloc] initWithCGImage:im->image size:(CGSize){w, h}];
-            [usernotification set_identityImage:i];
-            [usernotification set_identityImageHasBorder:YES];
+            if ([usernotification respondsToSelector:@selector(set_identityImage:)])
+                [usernotification set_identityImage:i];
+            else
+                NSLog(@"WARNING: OS X has broken the private api I use to set notification avatars. "
+                      "If you see this message please update uTox (if you're on latest, file a bug)");
+            if ([usernotification respondsToSelector:@selector(set_identityImageHasBorder:)])
+                [usernotification set_identityImageHasBorder:YES];
+            else
+                NSLog(@"WARNING: OS X has broken the private api I use to set notification avatars. "
+                      "If you see this message please update uTox (if you're on latest, file a bug)");
             [i release];
         }
 
