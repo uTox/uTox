@@ -32,7 +32,7 @@ all: utox
 
 utox: $(OBJ)
 	@echo "  LD    $@"
-	@$(CC) $(CFLAGS) -static -o utox $(OBJ) $(LDFLAGS)
+	@$(CC) $(CFLAGS) -o utox $(OBJ) $(LDFLAGS)
 
 utox-MainMenu.nib:
 	ibtool --compile $@ cocoa/MainMenu.xib
