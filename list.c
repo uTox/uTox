@@ -588,7 +588,7 @@ _Bool list_mright(void *UNUSED(n))
 {
     static UI_STRING_ID menu_friend[] = {STR_REMOVE_FRIEND, STR_CLEAR_HISTORY};
     static UI_STRING_ID menu_group_unmuted[] = {STR_MUTE, STR_CHANGE_GROUP_TOPIC, STR_REMOVE_GROUP};
-    static UI_STRING_ID menu_group_muted[] = {STR_UNMUTE, STR_CHANGE_GROUP_TOPIC, STR_REMOVE_GROUP,};
+    static UI_STRING_ID menu_group_muted[] = {STR_UNMUTE, STR_CHANGE_GROUP_TOPIC, STR_REMOVE_GROUP};
     static UI_STRING_ID menu_group[] = {STR_REMOVE_GROUP, STR_CHANGE_GROUP_TOPIC};
     static UI_STRING_ID menu_request[] = {STR_REQ_ACCEPT, STR_REQ_DECLINE};
 
