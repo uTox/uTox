@@ -201,7 +201,7 @@ int datapath_old(uint8_t *dest) {
 /* it occured to me that we should probably make datapath allocate memory for its caller */
 int datapath(uint8_t *dest) {
     if (utox_portable) {
-        const char *home = NSBundle.mainBundle.bundlePath.UTF8String;
+        const char *home = [NSBundle.mainBundle.bundlePath stringByDeletingLastPathComponent].UTF8String;
         int l = sprintf((char*)dest, "%.238s/tox", home);
         mkdir((char*)dest, 0700);
         dest[l++] = '/';
