@@ -370,7 +370,7 @@ void reload_fonts(void) {
     CFRelease(reg);
     CFRelease(bold);
 
-    font_small_lineheight = CTFontGetBoundingBox(fonts[FONT_TEXT]).size.height - CTFontGetDescent(fonts[FONT_TEXT]);
+    font_small_lineheight = CTFontGetBoundingBox(fonts[FONT_TEXT]).size.height; // - CTFontGetDescent(fonts[FONT_TEXT]);
 }
 
 void setscale(void) {
