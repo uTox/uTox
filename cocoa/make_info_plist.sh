@@ -10,5 +10,6 @@ plist_set CFBundleIdentifier "future.utox"
 plist_set CFBundleExecutable "utox"
 plist_set LSMinimumSystemVersion "10.7"
 plist_set CFBundleName "uTox"
+plist_set CFBundleIconFile "uTox"
 
 mv $TMPFILE "utox-Info.plist"

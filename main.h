@@ -27,7 +27,11 @@
 #endif
 
 #define countof(x) (sizeof(x)/sizeof(*(x)))
-// #define volatile(x) (*((volatile typeof(x)*)&x))
+
+//  fixes compile with apple headers
+#ifndef __OBJC__
+#define volatile(x) (*((volatile typeof(x)*)&x))
+#endif
 
 #define DEFAULT_NAME "Tox User"
 #define DEFAULT_STATUS "Toxing on uTox"

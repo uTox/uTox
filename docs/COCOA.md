@@ -29,6 +29,17 @@ make -f cocoa/Makefile uTox.app
 
 Done!
 
+## How to compile (for your friend)
+
+```bash
+brew install --HEAD libtoxcore
+make -f cocoa/Makefile uTox.dmg
+```
+
+Done! (the DMG target builds a statically linked utox binary 
+for you automatically. It does not depend on anything but system
+libraries. Build just the binary with `make -f cocoa/Makefile utox-static`)
+
 ## How to compile (statically linked for distribution)
 
 idk
