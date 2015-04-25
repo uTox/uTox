@@ -145,6 +145,7 @@ enum {
     GROUP_UPDATE,
 
     TOOLTIP_SHOW,
+    REDRAW,
 };
 
 enum

@@ -1074,6 +1074,7 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
         struct TOX_SEND_INLINE_MSG *tsim = data;
         outgoing_file_send_inline(tox, param1, tsim->image->png_data, tsim->image_size);
         free(tsim);
+        postmessage(REDRAW, 0, 0, NULL);
 
         break;
     }
@@ -1782,5 +1783,10 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         redraw();
         break;
     }
+
+    case REDRAW:
+        // redraw uTox on the main thread.
+        redraw();
+        break;
     }
 }
