@@ -142,6 +142,7 @@ static UI_STRING_ID themedrops[] = {
     STR_THEME_LIGHT,
     STR_THEME_DARK,
     STR_THEME_HIGHCONTRAST,
+    STR_THEME_CUSTOM,
 };
 
 static UI_STRING_ID yesnodrops[] = {STR_YES, STR_NO};
@@ -182,6 +183,7 @@ dropdown_filter = {
     .ondisplay = simple_dropdown_ondisplay,
     .onselect = dropdown_filter_onselect,
     .dropcount = countof(filterdrops),
+    .style = AUXILIARY_STYLE,
     .userdata = filterdrops
 },
 

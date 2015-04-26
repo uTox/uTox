@@ -186,8 +186,16 @@ int sprint_bytes(uint8_t *dest, unsigned int size, uint64_t bytes)
 
     r = snprintf((char*)dest, size, "%u", (uint32_t)bytes);
 
-    //missing decimals
-    r += snprintf((char*)dest + r, size - r, "%s", str[i]);
+    if (r >= size) { // truncated
+        r = size - 1;
+    } else {
+        //missing decimals
+        r += snprintf((char*)dest + r, size - r, "%s", str[i]);
+        if (r >= size) { // truncated
+            r = size - 1;
+        }
+    }
+
     return r;
 }
 
@@ -630,7 +638,7 @@ UTOX_SAVE* config_load(void)
     save->proxy_ip[0] = 0;
     save->filter = 0;
     save->audio_device_in = ~0;
-    // save->theme = 0;
+    save->theme = 0;
 
     config_osdefaults(save);
 NEXT:
@@ -644,7 +652,7 @@ NEXT:
     dropdown_audible_notification.selected = dropdown_audible_notification.over = !save->audible_notifications_enabled;
     dropdown_audio_filtering.selected = dropdown_audio_filtering.over = !save->audio_filtering_enabled;
     dropdown_filter.selected = FILTER = save->filter;
-    // dropdown_theme_onselect.selected = dropdown_theme_onselect.over = save->theme;
+    //dropdown_theme_onselect.selected = dropdown_theme_onselect.over = save->theme;
 
     options.ipv6_enabled = save->enableipv6;
     options.udp_enabled = !save->disableudp;
@@ -655,6 +663,9 @@ NEXT:
     strcpy((char*)edit_proxy_ip.data, (char*)save->proxy_ip);
     if(save->proxy_port) {
         edit_proxy_port.length = snprintf((char*)edit_proxy_port.data, edit_proxy_port.maxlength + 1, "%u", save->proxy_port);
+        if (edit_proxy_port.length >= edit_proxy_port.maxlength + 1) {
+            edit_proxy_port.length = edit_proxy_port.maxlength;
+        }
     }
 
     logging_enabled = save->logging_enabled;
@@ -698,6 +709,7 @@ void config_save(UTOX_SAVE *save)
 
     save->audio_device_in = dropdown_audio_in.selected;
     save->audio_device_out = dropdown_audio_out.selected;
+    save->theme = theme;
     memset(save->unused, 0, sizeof(save->unused));
 
     debug("Writing uTox Save	::\n");

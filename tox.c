@@ -540,13 +540,14 @@ void tox_thread(void *UNUSED(args))
         uint8_t *save_data = NULL;
         size_t save_size = load_save(&save_data);
         // Create main connection
+        TOX_ERR_NEW tox_new_err;
         debug("new tox object ipv6: %u udp: %u proxy: %u %s %u\n", options.ipv6_enabled, options.udp_enabled, options.proxy_type, options.proxy_host, options.proxy_port);
-        if((tox = tox_new(&options, save_data, save_size, 0)) == NULL) {
-            debug("trying without proxy\n");
-            if(!options.proxy_type || (options.proxy_type = TOX_PROXY_TYPE_NONE, (tox = tox_new(&options, save_data, save_size, 0)) == NULL)) {
-                debug("trying without ipv6\n");
-                if(!options.ipv6_enabled || (options.ipv6_enabled = 0, (tox = tox_new(&options, save_data, save_size, 0)) == NULL)) {
-                    debug("tox_new() failed\n");
+        if((tox = tox_new(&options, save_data, save_size, &tox_new_err)) == NULL) {
+            debug("trying without proxy, err %u\n", tox_new_err);
+            if(!options.proxy_type || (options.proxy_type = TOX_PROXY_TYPE_NONE, (tox = tox_new(&options, save_data, save_size, &tox_new_err)) == NULL)) {
+                debug("trying without ipv6, err %u\n", tox_new_err);
+                if(!options.ipv6_enabled || (options.ipv6_enabled = 0, (tox = tox_new(&options, save_data, save_size, &tox_new_err)) == NULL)) {
+                    debug("tox_new() failed %u\n", tox_new_err);
                     exit(1);
                 }
                 dropdown_ipv6.selected = dropdown_ipv6.over = 1;
@@ -1623,6 +1624,9 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
     case GROUP_ADD: {
         GROUPCHAT *g = &group[param1];
         g->name_length = snprintf((char*)g->name, sizeof(g->name), "Groupchat #%u", param1);
+        if (g->name_length >= sizeof(g->name)) {
+            g->name_length = sizeof(g->name) - 1;
+        }
         g->topic_length = sizeof("Drag friends to invite them") - 1;
         memcpy(g->topic, "Drag friends to invite them", sizeof("Drag friends to invite them") - 1);
         g->msg.scroll = 1.0;
@@ -1671,6 +1675,9 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         }
 
         g->topic_length = snprintf((char*)g->topic, sizeof(g->topic), "%u users in chat", g->peers);
+        if (g->topic_length >= sizeof(g->topic)) {
+            g->topic_length = sizeof(g->topic) - 1;
+        }
 
         updategroup(g);
 
@@ -1708,6 +1715,9 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         g->peername[param2] = data;
 
         g->topic_length = snprintf((char*)g->topic, sizeof(g->topic), "%u users in chat", g->peers);
+        if (g->topic_length >= sizeof(g->topic)) {
+            g->topic_length = sizeof(g->topic) - 1;
+        }
 
         updategroup(g);
 

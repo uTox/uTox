@@ -13,6 +13,30 @@ void dropdown_drawactive(void)
         return;
     }
 
+    // load colours for this style
+    uint32_t color_bg,
+             color_border,
+             color_aoptbg,
+             color_aopttext,
+             color_text;
+
+    switch(b->style) {
+        case AUXILIARY_STYLE:
+            color_bg = COLOR_AUX_BACKGROUND;
+            color_border = COLOR_AUX_EDGE_ACTIVE;
+            color_aoptbg = COLOR_AUX_ACTIVEOPTION_BACKGROUND;
+            color_aopttext = COLOR_AUX_ACTIVEOPTION_TEXT;
+            color_text = COLOR_AUX_TEXT;
+            break;
+        default:
+            color_bg = COLOR_MAIN_BACKGROUND;
+            color_border = COLOR_EDGE_ACTIVE;
+            color_aoptbg = COLOR_ACTIVEOPTION_BACKGROUND;
+            color_aopttext = COLOR_ACTIVEOPTION_TEXT;
+            color_text = COLOR_MAIN_TEXT;
+            break;
+    }
+
     int x = active_x, y = active_y, w = active_width, h = active_height;
 
     int i, sign = 1;
@@ -31,8 +55,8 @@ void dropdown_drawactive(void)
         sign = -1;
     }
 
-    drawrect(x, y, x + w, y + h * b->dropcount, COLOR_MAIN_BACKGROUND);
-    framerect(x, y, x + w, y + h * b->dropcount, COLOR_EDGE_ACTIVE);
+    drawrect(x, y, x + w, y + h * b->dropcount, color_bg);
+    framerect(x, y, x + w, y + h * b->dropcount, color_border);
 
     if(sign == -1) {
         y += h * (b->dropcount - 1);
@@ -42,10 +66,10 @@ void dropdown_drawactive(void)
         int j = index(b, i);
         STRING* e = b->ondisplay(j, b);
         if(j == b->over) {
-            drawrectw(x + 1, y + 1, w - 2, h - 2, COLOR_ACTIVEOPTION_BACKGROUND);
-            setcolor(COLOR_ACTIVEOPTION_TEXT);
+            drawrectw(x + 1, y + 1, w - 2, h - 2, color_aoptbg);
+            setcolor(color_aopttext);
         } else {
-            setcolor(COLOR_MAIN_TEXT);
+            setcolor(color_text);
         }
         setfont(FONT_TEXT);
         drawtext(x + 2 * SCALE, y + 2 * SCALE, e->str, e->length);
@@ -58,12 +82,33 @@ void dropdown_drawactive(void)
 void dropdown_draw(DROPDOWN *b, int x, int y, int width, int height)
 {
     if(!b->open) {
-        framerect(x, y, x + width, y + height, (b->mouseover ? COLOR_EDGE_HOVER : COLOR_EDGE_NORMAL));
-        drawrect(x + 1, y + 1, x + width - 1, y + height - 1, COLOR_MAIN_BACKGROUND);
+        // load colours for this style
+        uint32_t color_bg,
+                 color_border,
+                 color_border_h,
+                 color_text;
+
+        switch(b->style) {
+            case AUXILIARY_STYLE:
+                color_bg = COLOR_AUX_BACKGROUND;
+                color_border = COLOR_AUX_EDGE_NORMAL;
+                color_border_h = COLOR_AUX_EDGE_HOVER;
+                color_text = COLOR_AUX_TEXT;
+                break;
+            default:
+                color_bg = COLOR_MAIN_BACKGROUND;
+                color_border = COLOR_EDGE_NORMAL;
+                color_border_h = COLOR_EDGE_HOVER;
+                color_text = COLOR_MAIN_TEXT;
+                break;
+        }
+
+        framerect(x, y, x + width, y + height, (b->mouseover ? color_border_h : color_border));
+        drawrect(x + 1, y + 1, x + width - 1, y + height - 1, color_bg);
 
         if(b->dropcount) {
             setfont(FONT_TEXT);
-            setcolor(COLOR_MAIN_TEXT);
+            setcolor(color_text);
             STRING* e = b->ondisplay(b->selected, b);
             drawtextwidth(x + 2 * SCALE, width - 4 * SCALE, y + 2 * SCALE, e->str, e->length);
         }

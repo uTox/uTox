@@ -1,4 +1,5 @@
 #include "main.h"
+#include "theme_tables.h"
 
 #define COLOR_PROC(a_ulColor) RGB((a_ulColor >> 16) & 0x0000FF, (a_ulColor >> 8) & 0x0000FF, a_ulColor & 0x0000FF)
 
@@ -6,6 +7,7 @@ void theme_load(char loadtheme)
 {
     // Update the settings dropdown UI
     dropdown_theme.selected = loadtheme;
+    theme = loadtheme;
 
     // ==== Default theme ====
     //---- Main chat area ----
@@ -48,12 +50,21 @@ void theme_load(char loadtheme)
     COLOR_EDGE_ACTIVE             = COLOR_PROC(0x4ea6ea);
     COLOR_ACTIVEOPTION_BACKGROUND = COLOR_PROC(0xd1d1d1);
     COLOR_ACTIVEOPTION_TEXT       = COLOR_MAIN_TEXT;
-    
+
+    //---- Auxiliary style (for elements in the friendslist) ----
+    COLOR_AUX_BACKGROUND              = COLOR_PROC(0x313131);
+    COLOR_AUX_EDGE_NORMAL             = COLOR_AUX_BACKGROUND;
+    COLOR_AUX_EDGE_HOVER              = COLOR_PROC(0x999999);
+    COLOR_AUX_EDGE_ACTIVE             = COLOR_PROC(0x1A73B7);
+    COLOR_AUX_TEXT                    = COLOR_LIST_TEXT;
+    COLOR_AUX_ACTIVEOPTION_BACKGROUND = COLOR_LIST_HOVER_BACKGROUND;
+    COLOR_AUX_ACTIVEOPTION_TEXT       = COLOR_AUX_TEXT;
+
     //---- Status circles ----
     COLOR_STATUS_ONLINE = COLOR_PROC(0x6bc260);
     COLOR_STATUS_AWAY   = COLOR_PROC(0xcebf45);
     COLOR_STATUS_BUSY   = COLOR_PROC(0xc84e4e);
-    
+
     //---- Buttons ----
     COLOR_BUTTON_SUCCESS_BACKGROUND       = COLOR_STATUS_ONLINE;
     COLOR_BUTTON_SUCCESS_TEXT             = COLOR_MAIN_BACKGROUND;
@@ -72,7 +83,7 @@ void theme_load(char loadtheme)
     COLOR_BUTTON_DISABLED_TRANSFER        = COLOR_LIST_BACKGROUND;
     COLOR_BUTTON_INPROGRESS_BACKGROUND    = COLOR_PROC(0x4ea6ea);
     COLOR_BUTTON_INPROGRESS_TEXT          = COLOR_MAIN_BACKGROUND;
-    
+
     switch (loadtheme) {
     case THEME_DARK:
         COLOR_MAIN_BACKGROUND                 = COLOR_PROC(0x333333);
@@ -84,9 +95,9 @@ void theme_load(char loadtheme)
         COLOR_MAIN_QUOTETEXT                  = COLOR_PROC(0x55b317);
         COLOR_LIST_BACKGROUND                 = COLOR_PROC(0x222222);
         COLOR_LIST_HOVER_BACKGROUND           = COLOR_PROC(0x151515);
-        COLOR_MENU_BACKGROUND                 = COLOR_LIST_BACKGROUND;
+        COLOR_MENU_BACKGROUND                 = COLOR_PROC(0x171717);
         COLOR_MENU_HOVER_BACKGROUND           = COLOR_LIST_HOVER_BACKGROUND;
-        COLOR_MENU_ACTIVE_BACKGROUND          = COLOR_MAIN_TEXT;
+        COLOR_MENU_ACTIVE_BACKGROUND          = COLOR_LIST_BACKGROUND;
         COLOR_SELECTION_BACKGROUND            = COLOR_MAIN_TEXT;
         COLOR_SELECTION_TEXT                  = COLOR_MAIN_BACKGROUND;
         COLOR_GROUP_MUTED                     = COLOR_MAIN_URLTEXT;
@@ -95,7 +106,11 @@ void theme_load(char loadtheme)
         COLOR_EDGE_HOVER                      = COLOR_PROC(0x999999);
         COLOR_ACTIVEOPTION_BACKGROUND         = COLOR_PROC(0x228888);
         COLOR_ACTIVEOPTION_TEXT               = COLOR_MAIN_TEXT;
-        COLOR_MENU_ACTIVE_TEXT                = COLOR_PROC(0x151515);
+        COLOR_AUX_BACKGROUND                  = COLOR_MENU_BACKGROUND;
+        COLOR_AUX_EDGE_NORMAL                 = COLOR_AUX_BACKGROUND;
+        COLOR_AUX_EDGE_ACTIVE                 = COLOR_EDGE_ACTIVE;
+        COLOR_AUX_ACTIVEOPTION_BACKGROUND     = COLOR_ACTIVEOPTION_BACKGROUND;
+        COLOR_MENU_ACTIVE_TEXT                = COLOR_MAIN_TEXT;
         COLOR_BUTTON_SUCCESS_BACKGROUND       = COLOR_PROC(0x414141);
         COLOR_BUTTON_SUCCESS_TEXT             = COLOR_PROC(0x33a63d);
         COLOR_BUTTON_SUCCESS_HOVER_BACKGROUND = COLOR_PROC(0x455147);
@@ -116,21 +131,28 @@ void theme_load(char loadtheme)
         break;
 
     case THEME_LIGHT:
-        COLOR_LIST_BACKGROUND         = COLOR_PROC(0xf0f0f0);
-        COLOR_LIST_HOVER_BACKGROUND   = COLOR_PROC(0xe0e0e0);
-        COLOR_LIST_TEXT               = COLOR_MAIN_TEXT;
-        COLOR_LIST_SUBTEXT            = COLOR_MAIN_SUBTEXT;
-        COLOR_MENU_BACKGROUND         = COLOR_PROC(0xf0f0f0);
-        COLOR_MENU_HOVER_BACKGROUND   = COLOR_PROC(0xe0e0e0);
-        COLOR_MENU_ACTIVE_BACKGROUND  = COLOR_PROC(0x555555);
-        COLOR_MENU_TEXT               = COLOR_PROC(0x555555);
-        COLOR_MENU_ACTIVE_TEXT        = COLOR_PROC(0xffffff);
-        COLOR_MENU_SUBTEXT            = COLOR_PROC(0x414141);
-        COLOR_EDGE_NORMAL             = COLOR_PROC(0xc0c0c0);
-        COLOR_EDGE_ACTIVE             = COLOR_MAIN_URLTEXT;
-        COLOR_EDGE_HOVER              = COLOR_PROC(0x707070);
-        COLOR_ACTIVEOPTION_BACKGROUND = COLOR_PROC(0xddeeff);
-        COLOR_ACTIVEOPTION_TEXT       = COLOR_MAIN_TEXT;
+        COLOR_LIST_BACKGROUND             = COLOR_PROC(0xf0f0f0);
+        COLOR_LIST_HOVER_BACKGROUND       = COLOR_PROC(0xe0e0e0);
+        COLOR_LIST_TEXT                   = COLOR_MAIN_TEXT;
+        COLOR_LIST_SUBTEXT                = COLOR_MAIN_SUBTEXT;
+        COLOR_MENU_BACKGROUND             = COLOR_PROC(0xf0f0f0);
+        COLOR_MENU_HOVER_BACKGROUND       = COLOR_PROC(0xe0e0e0);
+        COLOR_MENU_ACTIVE_BACKGROUND      = COLOR_PROC(0x555555);
+        COLOR_MENU_TEXT                   = COLOR_PROC(0x555555);
+        COLOR_MENU_ACTIVE_TEXT            = COLOR_PROC(0xffffff);
+        COLOR_MENU_SUBTEXT                = COLOR_PROC(0x414141);
+        COLOR_EDGE_NORMAL                 = COLOR_PROC(0xc0c0c0);
+        COLOR_EDGE_ACTIVE                 = COLOR_MAIN_URLTEXT;
+        COLOR_EDGE_HOVER                  = COLOR_PROC(0x707070);
+        COLOR_ACTIVEOPTION_BACKGROUND     = COLOR_PROC(0xddeeff);
+        COLOR_ACTIVEOPTION_TEXT           = COLOR_MAIN_TEXT;
+        COLOR_AUX_BACKGROUND              = COLOR_PROC(0xe0e0e0);
+        COLOR_AUX_EDGE_NORMAL             = COLOR_AUX_BACKGROUND;
+        COLOR_AUX_EDGE_HOVER              = COLOR_PROC(0x999999);
+        COLOR_AUX_EDGE_ACTIVE             = COLOR_EDGE_ACTIVE;
+        COLOR_AUX_TEXT                    = COLOR_LIST_TEXT;
+        COLOR_AUX_ACTIVEOPTION_BACKGROUND = COLOR_LIST_HOVER_BACKGROUND;
+        COLOR_AUX_ACTIVEOPTION_TEXT       = COLOR_AUX_TEXT;
         break;
 
     case THEME_HIGHCONTRAST:
@@ -183,11 +205,134 @@ void theme_load(char loadtheme)
         COLOR_BUTTON_DISABLED_TRANSFER        = COLOR_MAIN_BACKGROUND;
         COLOR_BUTTON_INPROGRESS_TEXT          = COLOR_BUTTON_DISABLED_TEXT;
         COLOR_BUTTON_INPROGRESS_BACKGROUND    = COLOR_PROC(0x00ffff);
+        COLOR_AUX_BACKGROUND                  = COLOR_MAIN_BACKGROUND;
+        COLOR_AUX_EDGE_NORMAL                 = COLOR_EDGE_NORMAL;
+        COLOR_AUX_EDGE_HOVER                  = COLOR_EDGE_NORMAL;
+        COLOR_AUX_EDGE_ACTIVE                 = COLOR_EDGE_ACTIVE;
+        COLOR_AUX_TEXT                        = COLOR_MAIN_TEXT;
+        COLOR_AUX_ACTIVEOPTION_BACKGROUND     = COLOR_ACTIVEOPTION_BACKGROUND;
+        COLOR_AUX_ACTIVEOPTION_TEXT           = COLOR_ACTIVEOPTION_TEXT;
         break;
+
+    case THEME_CUSTOM: {
+        uint8_t themepath[1024];
+        int len = datapath(themepath);
+        const char *s = "utox_theme.ini";
+        int size = sizeof("utox_theme.ini");
+
+        if (len + size > 1024) {
+            puts("datapath too long, abandoning ship!");
+            break;
+        }
+
+        memcpy(themepath + len, s, size);
+        read_custom_theme((const char *)themepath);
+    }
     }
 
     status_color[0] = COLOR_STATUS_ONLINE;
     status_color[1] = COLOR_STATUS_AWAY;
     status_color[2] = COLOR_STATUS_BUSY;
     status_color[3] = COLOR_STATUS_BUSY;
+}
+
+uint32_t *find_colour_pointer(char *colour) {
+    while (*colour == 0 || *colour == ' ' || *colour == '\t')
+        colour++;
+
+    int l = strlen(colour) - 1;
+    for (; l > 0; --l)
+        if (colour[l] != ' ' && colour[l] != '\t')
+            break;
+
+    colour[l + 1] = '\0';
+    printf("'%s'\n", colour);
+
+    for (int i = 0;; ++i) {
+        const char *s = COLOUR_NAME_TABLE[i];
+        if (!s)
+            break;
+        if (!strcmp(colour, s))
+            return COLOUR_POINTER_TABLE[i];
+    }
+    return NULL;
+}
+
+uint32_t try_parse_hex_colour(char *colour, int *error) {
+    while (*colour == 0 || *colour == ' ' || *colour == '\t')
+        colour++;
+
+    int l = strlen(colour) - 1;
+    for (; l > 0; --l)
+        if (colour[l] != ' ' && colour[l] != '\n')
+            break;
+
+    colour[l++] = '\0';
+
+    printf("'%s'\n", colour);
+    if (l != 6) {
+        *error = 1;
+        return 0;
+    }
+
+    unsigned char red, green, blue;
+    char hex[3] = { 0 };
+
+    memcpy(hex, colour, 2);
+    red = strtol(hex, NULL, 16);
+    memcpy(hex, colour + 2, 2);
+    green = strtol(hex, NULL, 16);
+    memcpy(hex, colour + 4, 2);
+    blue = strtol(hex, NULL, 16);
+
+    return (red << 16) | (green << 8) | blue;
+}
+
+void read_custom_theme(const char *path) {
+    puts("hello");
+    puts(path);
+
+    FILE *f = fopen(path, "r");
+    if (!f) {
+        perror("whad de fug DDD-xx");
+        return;
+    }
+
+    char buf[1024]; // 1024 ought to be enough for anyone
+    while (!feof(f)) {
+        fgets(buf, 1024, f);
+
+        char *line = buf;
+        while (*line != 0) {
+            if (*line == '#') {
+                *line = 0;
+                break;
+            }
+            line++;
+        }
+
+        char *colour = strpbrk(buf, "=");
+
+        if (!colour || colour == buf)
+            continue;
+
+        *colour++ = 0;
+
+        uint32_t *colourp = find_colour_pointer(buf);
+        if (!colourp)
+            continue;
+
+        int err = 0;
+        uint32_t col = try_parse_hex_colour(colour, &err);
+
+        if (err) {
+            puts("error");
+            continue;
+        } else {
+            *colourp = COLOR_PROC(col);
+            puts("set colour...");
+        }
+    }
+
+    return;
 }

@@ -495,6 +495,7 @@ edit_search = {
     .data = edit_search_data,
     .empty_str = { .i18nal = STR_CONTACTS_FILTER_EDIT_HINT },
     .onchange = edit_search_onchange,
+    .style = AUXILIARY_STYLE,
 },
 
 edit_proxy_ip = {

@@ -11,6 +11,7 @@ typedef struct dropdown {
     uint16_t dropcount, selected, over;
     void (*onselect)(uint16_t, const struct dropdown*);
     STRING* (*ondisplay)(uint16_t, const struct dropdown*);
+    UI_ELEMENT_STYLE style;
     void *userdata;
 } DROPDOWN;
 
