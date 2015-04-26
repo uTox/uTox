@@ -29,6 +29,64 @@ FILE_TRANSFER *get_file_transfer(uint32_t friend_number, uint32_t file_number){
     return ft;
 }
 
+static void utox_build_file_transfer(FILE_TRANSFER *ft, uint32_t friend_number, uint32_t file_number,
+    uint64_t file_size, _Bool incoming, _Bool in_memory, _Bool is_avatar, uint8_t kind, const uint8_t *name,
+    size_t name_length, const uint8_t *path, size_t path_length, const uint8_t *file_id, Tox *tox){
+    FILE_TRANSFER *file = ft;
+
+    memset(file, 0, sizeof(FILE_TRANSFER));
+
+    file->friend_number = friend_number;
+    file->file_number   = file_number;
+    file->size          = file_size;
+
+    file->incoming      = incoming;
+    file->in_memory     = in_memory;
+    file->is_avatar     = is_avatar;
+    file->kind          = kind;
+
+    if(name){
+        file->name        = malloc(name_length + 1);
+        memcpy(file->name, name, name_length);
+        file->name_length = name_length;
+        file->name[file->name_length] = 0;
+    } else {
+        file->name        = NULL;
+        file->name_length = 0;
+    }
+
+    if(path){
+        file->path        = malloc(path_length + 1);
+        memcpy(file->path, path, path_length);
+        file->path_length = path_length;
+        file->path[file->path_length] = 0;
+    } else {
+        file->path        = NULL;
+        file->path_length = 0;
+    }
+
+    if(file_id){
+        memcpy(file->file_id, file_id, TOX_FILE_ID_LENGTH);
+    } else {
+        tox_file_get_file_id(tox, friend_number, file_number, file->file_id, 0);
+    }
+
+    // TODO size correction error checking for this...
+    if(in_memory){
+        if (is_avatar){
+            file->avatar = calloc(file_size, sizeof(uint8_t));
+        } else {
+            file->memory = calloc(file_size, sizeof(uint8_t));
+        }
+    }
+
+    if(!incoming){
+        /* Outgoing file */
+        file->status = FILE_TRANSFER_STATUS_PAUSED_THEM;
+    }
+}
+
+
 static void utox_update_user_file(FILE_TRANSFER *file){
     FILE_TRANSFER *file_copy = malloc(sizeof(FILE_TRANSFER));
 
@@ -382,63 +440,6 @@ static void file_transfer_callback_control(Tox *UNUSED(tox), uint32_t friend_num
             utox_kill_file(info, 0);
             break;
         }
-    }
-}
-
-static void utox_build_file_transfer(FILE_TRANSFER *ft, uint32_t friend_number, uint32_t file_number,
-    uint64_t file_size, _Bool incoming, _Bool in_memory, _Bool is_avatar, uint8_t kind, const uint8_t *name,
-    size_t name_length, const uint8_t *path, size_t path_length, const uint8_t *file_id, Tox *tox){
-    FILE_TRANSFER *file = ft;
-
-    memset(file, 0, sizeof(FILE_TRANSFER));
-
-    file->friend_number = friend_number;
-    file->file_number   = file_number;
-    file->size          = file_size;
-
-    file->incoming      = incoming;
-    file->in_memory     = in_memory;
-    file->is_avatar     = is_avatar;
-    file->kind          = kind;
-
-    if(name){
-        file->name        = malloc(name_length + 1);
-        memcpy(file->name, name, name_length);
-        file->name_length = name_length;
-        file->name[file->name_length] = 0;
-    } else {
-        file->name        = NULL;
-        file->name_length = 0;
-    }
-
-    if(path){
-        file->path        = malloc(path_length + 1);
-        memcpy(file->path, path, path_length);
-        file->path_length = path_length;
-        file->path[file->path_length] = 0;
-    } else {
-        file->path        = NULL;
-        file->path_length = 0;
-    }
-
-    if(file_id){
-        memcpy(file->file_id, file_id, TOX_FILE_ID_LENGTH);
-    } else {
-        tox_file_get_file_id(tox, friend_number, file_number, file->file_id, 0);
-    }
-
-    // TODO size correction error checking for this...
-    if(in_memory){
-        if (is_avatar){
-            file->avatar = calloc(file_size, sizeof(uint8_t));
-        } else {
-            file->memory = calloc(file_size, sizeof(uint8_t));
-        }
-    }
-
-    if(!incoming){
-        /* Outgoing file */
-        utox_pause_file(file, 1);
     }
 }
 
