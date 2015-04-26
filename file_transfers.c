@@ -157,25 +157,23 @@ static int utox_file_alloc_ftinfo(FILE_TRANSFER *file){
 
 /* Free/Remove/Unlink the file transfer resume info file. */
 static void utox_file_free_ftinfo(FILE_TRANSFER *file){
-    if(file->saveinfo){
-        uint8_t path[UTOX_FILE_NAME_LENGTH];
-        size_t path_length;
-        path_length = datapath(path);
+    uint8_t path[UTOX_FILE_NAME_LENGTH];
+    size_t path_length;
+    path_length = datapath(path);
 
-        if(file->incoming){
-            uint8_t hex_id[TOX_FILE_ID_LENGTH * 2];
-            fid_to_string(hex_id, file->file_id);
-            memcpy(path + path_length, hex_id, TOX_FILE_ID_LENGTH * 2);
-            strcpy((char*)path + (path_length + TOX_FILE_ID_LENGTH * 2), ".ftinfo");
-        } else {
-            uint8_t hex_id[TOX_PUBLIC_KEY_SIZE * 2];
-            cid_to_string(hex_id, friend[file->friend_number].cid);
-            memcpy(path + path_length, hex_id, TOX_PUBLIC_KEY_SIZE * 2);
-            sprintf((char*)path + (path_length + TOX_PUBLIC_KEY_SIZE * 2), "%02i.ftoutfo", file->file_number % 100);
-        }
-
-        remove((const char*)path);
+    if(file->incoming){
+        uint8_t hex_id[TOX_FILE_ID_LENGTH * 2];
+        fid_to_string(hex_id, file->file_id);
+        memcpy(path + path_length, hex_id, TOX_FILE_ID_LENGTH * 2);
+        strcpy((char*)path + (path_length + TOX_FILE_ID_LENGTH * 2), ".ftinfo");
+    } else {
+        uint8_t hex_id[TOX_PUBLIC_KEY_SIZE * 2];
+        cid_to_string(hex_id, friend[file->friend_number].cid);
+        memcpy(path + path_length, hex_id, TOX_PUBLIC_KEY_SIZE * 2);
+        sprintf((char*)path + (path_length + TOX_PUBLIC_KEY_SIZE * 2), "%02i.ftoutfo", file->file_number % 100);
     }
+
+    remove((const char*)path);
 }
 
 /* Cancel active file. */
@@ -214,6 +212,7 @@ static void utox_break_file(FILE_TRANSFER *file){
     }
     file->status = FILE_TRANSFER_STATUS_BROKEN;
     utox_update_user_file(file);
+    fclose(file->saveinfo);
 }
 
 /* Pause active file. */
@@ -757,7 +756,7 @@ void outgoing_file_send(Tox *tox, uint32_t friend_number, uint8_t *path, uint8_t
         filename        = name;
         filename_length = p - name;
         path        = existing_file_info->path;
-        path_length = strlen(existing_file_info->path);
+        path_length = strlen((const char*)existing_file_info->path);
         transfer_size = existing_file_info->size_transferred;
 
         break;
@@ -796,7 +795,7 @@ void outgoing_file_send(Tox *tox, uint32_t friend_number, uint8_t *path, uint8_t
             file_handle->ui_data = message_add_type_file(file_handle);
             file_handle->resume = utox_file_alloc_ftinfo(file_handle);
             if(kind == TOX_FILE_KIND_EXISTING){
-                // Do stuff!
+                free(path);
             }
             if(transfer_size){
                 file_handle->size_transferred = transfer_size;
@@ -935,8 +934,12 @@ void utox_set_callbacks_for_transfer(Tox *tox){
 void utox_cleanup_file_transfers(uint32_t friend_number, uint32_t file_number){
     debug("FileTransfer:\tCleaning up file transfers! (%u & %u)\n", friend_number, file_number);
     FILE_TRANSFER *transfer = get_file_transfer(friend_number, file_number);
-    if(transfer->name)
+    if(transfer->name){
         free(transfer->name);
+    }
+    if(transfer->path){
+        free(transfer->path);
+    }
 
     if(transfer->memory){
         if(transfer->avatar){
@@ -1005,8 +1008,10 @@ _Bool utox_file_load_ftinfo(FILE_TRANSFER *file){
     info->name_length   = 0;
     info->ui_data       = NULL;
     info->file          = NULL;
-    info->saveinfo = fopen((const char*)path, "wb");
+    info->saveinfo      = fopen((const char*)path, "wb");
 
     memcpy(file, info, sizeof(*file));
+    free(info);
+    free(load);
     return 1;
 }
