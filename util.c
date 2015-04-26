@@ -8,7 +8,7 @@ void* file_raw(char *path, uint32_t *size)
 
     file = fopen(path, "rb");
     if(!file) {
-        debug("File not found (%s)\n", path);
+        // debug("File not found (%s)\n", path);
         return NULL;
     }
 
@@ -31,7 +31,7 @@ void* file_raw(char *path, uint32_t *size)
 
     fclose(file);
 
-    debug("Read %u bytes (%s)\n", len, path);
+    // debug("Read %u bytes (%s)\n", len, path);
 
     if(size) {
         *size = len;
