@@ -753,6 +753,10 @@ void outgoing_file_send(Tox *tox, uint32_t friend_number, uint8_t *path, uint8_t
 
         file_number = tox_file_send(tox, friend_number, TOX_FILE_KIND_EXISTING, file_size, file_id, name, p - name,
             &error);
+
+        filename        = name;
+        filename_length = p - name;
+
         break;
     }
     case TOX_FILE_KIND_AVATAR:{
