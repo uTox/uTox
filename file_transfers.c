@@ -670,7 +670,7 @@ void outgoing_file_send(Tox *tox, uint32_t friend_number, uint8_t *path, uint8_t
     int file_number;
     TOX_ERR_FILE_SEND error;
     uint8_t file_id[TOX_HASH_LENGTH] = {0};
-    uint64_t file_size = 0;
+    uint64_t file_size = 0, transfer_size = 0;
     FILE *file = NULL;
     uint8_t memory = 0, avatar = 0;
     uint8_t *filename;
@@ -758,6 +758,9 @@ void outgoing_file_send(Tox *tox, uint32_t friend_number, uint8_t *path, uint8_t
 
         filename        = name;
         filename_length = p - name;
+        path        = existing_file_info->path;
+        path_length = strlen(existing_file_info->path);
+        transfer_size = existing_file_info->size_transferred;
 
         break;
     }
@@ -794,6 +797,12 @@ void outgoing_file_send(Tox *tox, uint32_t friend_number, uint8_t *path, uint8_t
             file_handle->file = file;
             file_handle->ui_data = message_add_type_file(file_handle);
             file_handle->resume = utox_file_alloc_ftinfo(file_handle);
+            if(kind == TOX_FILE_KIND_EXISTING){
+                // Do stuff!
+            }
+            if(transfer_size){
+                file_handle->size_transferred = transfer_size;
+            }
         } else {
             if(avatar){
                 memcpy(file_handle->avatar, file_data, file_data_size);
