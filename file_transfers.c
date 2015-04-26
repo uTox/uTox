@@ -157,6 +157,9 @@ static int utox_file_alloc_ftinfo(FILE_TRANSFER *file){
 
 /* Free/Remove/Unlink the file transfer resume info file. */
 static void utox_file_free_ftinfo(FILE_TRANSFER *file){
+    if(file->saveinfo){
+        fclose(file->saveinfo);
+    }
     uint8_t path[UTOX_FILE_NAME_LENGTH];
     size_t path_length;
     path_length = datapath(path);
@@ -553,6 +556,7 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
                 if(file_size != size){
                     debug("FileTransfer:\tIncoming size (%lu), and size on disk (%lu) mismatch, aborting!\n", size, file_size);
                     file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
+                    free(file_handle->path);
                     return;
                 }
                 file = fopen((const char*)file_handle->path, "rb+");
@@ -578,6 +582,7 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
                 } else {
                     debug("FileTransfer:\tFile opened for reading, but unable to get write access, canceling file!\n");
                     file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
+                    free(file_handle->path);
                     return;
                 }
             } else {
