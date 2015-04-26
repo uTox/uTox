@@ -215,9 +215,8 @@ static void utox_break_file(FILE_TRANSFER *file){
     }
     file->status = FILE_TRANSFER_STATUS_BROKEN;
     utox_update_user_file(file);
-    if(file->saveinfo){
-        fclose(file->saveinfo);
-    }
+    utox_cleanup_file_transfers(file->friend_number, file->file_number);
+    utox_file_save_ftinfo(file);
 }
 
 /* Pause active file. */
@@ -358,6 +357,7 @@ static void utox_complete_file(FILE_TRANSFER *file){
     utox_file_save_ftinfo(file);
     utox_file_free_ftinfo(file);
     file->resume = 0; // We don't need to always be resetting this broken number anymore
+    debug("\nFileTransfer:\tIncoming transfer is done (%u & %u)\n", friend_number, file_number);
 }
 
 /* Friend has come online, restart our outgoing transfers to this friend. */
@@ -612,7 +612,6 @@ static void incoming_file_callback_chunk(Tox *UNUSED(tox), uint32_t friend_numbe
     FILE_TRANSFER *file_handle = get_file_transfer(friend_number, file_number);
 
     if(length == 0){
-        debug("\nFileTransfer:\tIncoming transfer is done (%u & %u)\n", friend_number, file_number);
         utox_complete_file(file_handle);
         return;
     }
@@ -657,7 +656,7 @@ static void incoming_file_callback_chunk(Tox *UNUSED(tox), uint32_t friend_numbe
     }
     file_handle->size_transferred += length;
     // TODO dirty hack, this needs to be replaced
-        // moved it cal_speed() // utox_file_save_ftinfo(file_handle);
+    // moved it cal_speed() // utox_file_save_ftinfo(file_handle);
     calculate_speed(file_handle);
 }
 
