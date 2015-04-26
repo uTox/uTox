@@ -89,7 +89,7 @@ static void utox_build_file_transfer(FILE_TRANSFER *ft, uint32_t friend_number, 
 
 /* Copy the data from active FILE_TRANSFER, and pass it along to the UI with it's update. */
 static void utox_update_user_file(FILE_TRANSFER *file){
-    FILE_TRANSFER *file_copy = malloc(sizeof(FILE_TRANSFER));
+    FILE_TRANSFER *file_copy = calloc(1, sizeof(FILE_TRANSFER));
 
     memcpy(file_copy, file, sizeof(FILE_TRANSFER));
     postmessage(FRIEND_FILE_UPDATE, 0, 0, file_copy);
@@ -429,7 +429,9 @@ void file_transfer_local_control(Tox *tox, uint32_t friend_number, uint32_t file
             } else {
                 debug("FileTransfer:\tFile already killed (%u & %u)\n", friend_number, file_number);
             }
-            utox_kill_file(info, 1);
+            if(info->status && info->friend_number == friend_number){
+                utox_kill_file(info, 1);
+            }
             break;
     }
     /* Do something with the error! */
@@ -861,7 +863,7 @@ static void outgoing_file_callback_chunk(Tox *tox, uint32_t friend_number, uint3
 
     if(read_size != length){
         debug("FileTransfer:\tERROR READING FILE! (%u & %u)\n", friend_number, file_number);
-        debug("FileTransfer:\t\tSize (%lu), Position (%lu), Length(%zu), Read_size (%zu), size_transferred (%zu).\n",
+        debug("FileTransfer:\t\tSize (%lu), Position (%lu), Length(%lu), Read_size (%lu), size_transferred (%lu).\n",
             file_handle->size, position, length, read_size, file_handle->size_transferred);
         file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
         return;
@@ -924,7 +926,7 @@ void utox_set_callbacks_for_transfer(Tox *tox){
 }
 
 void utox_cleanup_file_transfers(uint32_t friend_number, uint32_t file_number){
-    debug("FileTransfer:\tCleaning up file transfers!\n");
+    debug("FileTransfer:\tCleaning up file transfers! (%u & %u)\n", friend_number, file_number);
     FILE_TRANSFER *transfer = get_file_transfer(friend_number, file_number);
     if(transfer->name)
         free(transfer->name);
