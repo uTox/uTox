@@ -151,6 +151,9 @@ msgstr("Kopieren")
 msgid(COPYWITHOUTNAMES)
 msgstr("Kopieren (ohne Namen)")
 
+msgid(COPY_WITH_NAMES)
+msgstr("Kopieren (mit Namen)")
+
 msgid(CUT)
 msgstr("Ausschneiden")
 
@@ -220,6 +223,9 @@ msgstr("keine")
 msgid(AUDIO_IN_DEFAULT_LOOPBACK)
 msgstr("Standard Loopback")
 
+msgid(AUDIO_IN_ANDROID)
+msgstr("OpenSL Eingang")
+
 msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
 msgstr("Bitte füge mich deiner Kontaktliste hinzu.")
 
@@ -258,3 +264,6 @@ msgstr("Dunkel")
 
 msgid(THEME_HIGHCONTRAST)
 msgstr("Hoher Kontrast")
+
+msgid(THEME_CUSTOM)
+msgstr("Benutzerdefiniert (siehe Dokumentation)")
