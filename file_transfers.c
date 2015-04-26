@@ -208,6 +208,10 @@ static void utox_break_file(FILE_TRANSFER *file){
         /* We don't touch these files! */
         return;
     }
+    if(friend[file->friend_number].transfer_count){
+        /* Decrement if > 0 */
+        --friend[file->friend_number].transfer_count;
+    }
     file->status = FILE_TRANSFER_STATUS_BROKEN;
     utox_update_user_file(file);
 }
@@ -339,7 +343,7 @@ static void utox_complete_file(FILE_TRANSFER *file){
                 file->ui_data->path = file->path;
             }
             if(friend[file->friend_number].transfer_count){
-                /* Decrement if > 0 this might be better held inside local_control */
+                /* Decrement if > 0 */
                 --friend[file->friend_number].transfer_count;
             }
         }
@@ -365,7 +369,9 @@ void ft_friend_online(Tox *tox, uint32_t friend_number){
         if(file->path){
             /* If we got a path from utox_file_load we should try to resume! */
             outgoing_file_send(tox, friend_number, NULL, (uint8_t*)file, sizeof(*file), TOX_FILE_KIND_EXISTING);
+
         }
+        free(file);
     }
     /* Else look in filetransfer info dir; */
 }
@@ -388,7 +394,6 @@ void file_transfer_local_control(Tox *tox, uint32_t friend_number, uint32_t file
             if(info->status != FILE_TRANSFER_STATUS_ACTIVE){
                 if(friend[friend_number].transfer_count < MAX_FILE_TRANSFERS){
                     if(tox_file_control(tox, friend_number, file_number, control, &error)){
-                        ++friend[friend_number].transfer_count;
                         debug("FileTransfer:\tWe just resumed file (%u & %u)\n", friend_number, file_number);
                     } else {
                         debug("FileTransfer:\tToxcore doesn't like us! (%u & %u)\n", friend_number, file_number);
@@ -405,7 +410,6 @@ void file_transfer_local_control(Tox *tox, uint32_t friend_number, uint32_t file
         case TOX_FILE_CONTROL_PAUSE:
             if(info->status != FILE_TRANSFER_STATUS_PAUSED_US || info->status != FILE_TRANSFER_STATUS_PAUSED_BOTH ){
                 if(tox_file_control(tox, friend_number, file_number, control, &error)){
-                    --friend[friend_number].transfer_count;
                     debug("FileTransfer:\tWe just paused file (%u & %u)\n", friend_number, file_number);
                 } else {
                     debug("FileTransfer:\tToxcore doesn't like us! (%u & %u)\n", friend_number, file_number);
@@ -418,7 +422,6 @@ void file_transfer_local_control(Tox *tox, uint32_t friend_number, uint32_t file
         case TOX_FILE_CONTROL_CANCEL:
             if(info->status != FILE_TRANSFER_STATUS_KILLED){
                 if(tox_file_control(tox, friend_number, file_number, control, &error)){
-                    --friend[friend_number].transfer_count;
                     debug("FileTransfer:\tWe just killed file (%u & %u)\n", friend_number, file_number);
                 } else {
                     debug("FileTransfer:\tToxcore doesn't like us! (%u & %u)\n", friend_number, file_number);
@@ -525,7 +528,7 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
             return;
         }
         /* Avatar size is valid, and it's a new avatar, lets accept it */
-        utox_build_file_transfer(file_handle, friend_number, file_number, file_size, 1, 1, 1, TOX_FILE_KIND_AVATAR, NULL, 0, NULL, 0, file_id, tox);
+        utox_build_file_transfer(file_handle, friend_number, file_number, file_size, 1, 1, 1, TOX_FILE_KIND_AVATAR, NULL, 0, NULL, 0, NULL, tox);
         file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_RESUME);
         return;
     }
@@ -559,7 +562,7 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
                     /* We can read and write, build a new file handle to work with! */
                     utox_build_file_transfer(file_handle, friend_number, file_number, size, 1, 0, 0,
                         TOX_FILE_KIND_DATA, filename, filename_length, file_handle->path, file_handle->path_length,
-                        file_id, tox);
+                        NULL, tox);
                     file_handle->file = file;
                     file_handle->size_transferred = seek_size;
                     /* TODO try to re-access the original message box for this file transfer, without segfaulting! */
@@ -580,7 +583,7 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
                 /* The file doesn't exist on disk where we expected, let's prompt the user to accept it as a new file */
                 debug("FileTransfer:\tUnable to open that file; treating as new.\n");
                 utox_build_file_transfer(file_handle, friend_number, file_number, size, 1, 0, 0, TOX_FILE_KIND_DATA,
-                    filename, filename_length, NULL, 0, file_id, tox);
+                    filename, filename_length, NULL, 0, NULL, tox);
                 file_handle->ui_data = message_add_type_file(file_handle);
                 file_handle->resume = utox_file_alloc_ftinfo(file_handle);
                 postmessage(FRIEND_FILE_NEW, 0, 0, file_handle);
@@ -658,6 +661,8 @@ void outgoing_file_send(Tox *tox, uint32_t friend_number, uint8_t *path, uint8_t
         debug("FileTransfer:\tMaximum outgoing file sending limit reached(%u/%u) for friend(%u). ABORTING!\n",
             friend[friend_number].transfer_count, MAX_FILE_TRANSFERS, friend_number);
         return;
+    } else {
+        friend[friend_number].transfer_count++;
     }
     /* Declare vars */
     int file_number;
@@ -687,6 +692,9 @@ void outgoing_file_send(Tox *tox, uint32_t friend_number, uint8_t *path, uint8_t
             debug("FileTransfer:\tStarting outgoing file to friend %u. (filename, %s)\n", friend_number, file_data);
             file_number = tox_file_send(tox, friend_number, TOX_FILE_KIND_DATA, file_size, NULL, file_data,
                 file_data_size, &error);
+
+            filename        = file_data;
+            filename_length = file_data_size;
 
         } else {
             /* It's a file from memory, probably an image. */
@@ -773,7 +781,7 @@ void outgoing_file_send(Tox *tox, uint32_t friend_number, uint8_t *path, uint8_t
         /* Toxcore accepted our file, build internal info. */
         FILE_TRANSFER *file_handle = get_file_transfer(friend_number, file_number);
         utox_build_file_transfer(file_handle, friend_number, file_number, file_size, 0, memory, avatar, kind, filename,
-            filename_length, path, path_length, (const uint8_t*)file_id, tox);
+            filename_length, path, path_length, NULL, tox);
 
         /* Build UI info, and create resume file. */
         if(!memory){
@@ -793,13 +801,14 @@ void outgoing_file_send(Tox *tox, uint32_t friend_number, uint8_t *path, uint8_t
         // Create a new msg for the UI and save it's pointer
         postmessage(FRIEND_FILE_NEW, 0, 0, file_handle);
     } else {
+        debug("tox_file_send() failed\n");
         if(avatar){
             free(file_data);
         } else if(memory){
             free(filename);
             free(file_data);
         }
-        debug("tox_file_send() failed\n");
+        friend[friend_number].transfer_count--;
     }
 }
 
