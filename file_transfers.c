@@ -95,6 +95,13 @@ static void utox_update_user_file(FILE_TRANSFER *file){
     postmessage(FRIEND_FILE_UPDATE, 0, 0, file_copy);
 }
 
+static void utox_new_user_file(FILE_TRANSFER *file){
+    FILE_TRANSFER *file_copy = calloc(1, sizeof(FILE_TRANSFER));
+
+    memcpy(file_copy, file, sizeof(FILE_TRANSFER));
+    postmessage(FRIEND_FILE_NEW, 0, 0, file_copy);
+}
+
 /* Calculate the transfer speed for the UI. */
 static void calculate_speed(FILE_TRANSFER *file){
     if ((file->speed) > file->num_packets * 20 * 1371) {
@@ -176,6 +183,7 @@ static void utox_file_free_ftinfo(FILE_TRANSFER *file){
         sprintf((char*)path + (path_length + TOX_PUBLIC_KEY_SIZE * 2), "%02i.ftoutfo", file->file_number % 100);
     }
 
+    debug("Removing. %s\n", path);
     remove((const char*)path);
 }
 
@@ -508,7 +516,7 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
             /* Set resuming info TODO MOVE TO AFTER FILE IS ACCEPED BY USER */
             file_handle->resume = utox_file_alloc_ftinfo(file_handle);
             /* Notify the user! */
-            postmessage(FRIEND_FILE_NEW, 0, 0, file_handle);
+            utox_new_user_file(file_handle);
         }
         break;
     }
@@ -575,7 +583,7 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
                     /* TODO try to re-access the original message box for this file transfer, without segfaulting! */
                     file_handle->ui_data = message_add_type_file(file_handle);
                     file_handle->resume = utox_file_alloc_ftinfo(file_handle);
-                    postmessage(FRIEND_FILE_NEW, 0, 0, file_handle);
+                    utox_new_user_file(file_handle);
                     TOX_ERR_FILE_SEEK error = 0;
                     tox_file_seek(tox, friend_number, file_number, seek_size, &error);
                     debug("FileTransfer:\tseek %i\n", error);
@@ -594,7 +602,7 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
                     filename, filename_length, NULL, 0, NULL, tox);
                 file_handle->ui_data = message_add_type_file(file_handle);
                 file_handle->resume = utox_file_alloc_ftinfo(file_handle);
-                postmessage(FRIEND_FILE_NEW, 0, 0, file_handle);
+                utox_new_user_file(file_handle);
                 return;
             }
         } else {
@@ -808,6 +816,8 @@ void outgoing_file_send(Tox *tox, uint32_t friend_number, uint8_t *path, uint8_t
             if(transfer_size){
                 file_handle->size_transferred = transfer_size;
             }
+
+            utox_new_user_file(file_handle);
         } else {
             if(avatar){
                 memcpy(file_handle->avatar, file_data, file_data_size);
@@ -818,9 +828,6 @@ void outgoing_file_send(Tox *tox, uint32_t friend_number, uint8_t *path, uint8_t
             file_handle->status = FILE_TRANSFER_STATUS_PAUSED_THEM;
             file_handle->resume = 0;
         }
-
-        // Create a new msg for the UI and save it's pointer
-        postmessage(FRIEND_FILE_NEW, 0, 0, file_handle);
     } else {
         debug("tox_file_send() failed\n");
         if(avatar){

@@ -1588,8 +1588,10 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         FILE_TRANSFER *file_handle = data;
         FRIEND *f = &friend[file_handle->friend_number];
 
+        friend_addmessage(f, file_handle->ui_data);
         file_notify(f, file_handle->ui_data);
         updatefriend(f);
+        free(file_handle);
         break;
     }
 
