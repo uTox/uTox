@@ -729,6 +729,9 @@ static UTOX_NATIVE_IMAGE *create_utox_image(HBITMAP bmp, _Bool has_alpha, uint32
 
 static void sendbitmap(HDC mem, HBITMAP hbm, int width, int height)
 {
+    if (width == 0 || height == 0)
+        return;
+
     BITMAPINFO info = {
         .bmiHeader = {
             .biSize = sizeof(BITMAPINFOHEADER),

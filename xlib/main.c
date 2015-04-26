@@ -464,6 +464,80 @@ void setselection(char_t *data, STRING_IDX length)
     XSetSelectionOwner(display, XA_PRIMARY, window, CurrentTime);
 }
 
+/* Tray icon stuff */
+
+#define SYSTEM_TRAY_REQUEST_DOCK    0
+#define SYSTEM_TRAY_BEGIN_MESSAGE   1
+#define SYSTEM_TRAY_CANCEL_MESSAGE  2
+
+_Bool hidden = 0;
+Window tray_window;
+
+void send_message(
+     Display* dpy, /* display */
+     Window w,     /* sender (tray icon window) */
+     long message, /* message opcode */
+     long data1,    /* message data 1 */
+     long data2,    /* message data 2 */
+     long data3    /* message data 3 */
+){
+    XEvent ev;
+  
+    memset(&ev, 0, sizeof(ev));
+    ev.xclient.type = ClientMessage;
+    ev.xclient.window = w;
+    ev.xclient.message_type = XInternAtom (dpy, "_NET_SYSTEM_TRAY_OPCODE", False );
+    ev.xclient.format = 32;
+    ev.xclient.data.l[0] = CurrentTime;
+    ev.xclient.data.l[1] = message;
+    ev.xclient.data.l[2] = data1;
+    ev.xclient.data.l[3] = data2;
+    ev.xclient.data.l[4] = data3;
+
+    XSendEvent(dpy, w, False, NoEventMask, &ev);
+    XSync(dpy, False);
+}
+
+void create_tray_icon(void)
+{
+    tray_window = XCreateSimpleWindow(display, RootWindow(display, screen), 0, 0, 255, 255, 0, BlackPixel(display, screen), WhitePixel(display, screen));
+    XSelectInput(display, tray_window, ButtonPress);
+    send_message(display, XGetSelectionOwner(display, XInternAtom(display, "_NET_SYSTEM_TRAY_S0", False)), SYSTEM_TRAY_REQUEST_DOCK, tray_window, 0, 0);
+}
+
+void destroy_tray_icon(void)
+{
+    XDestroyWindow(display, tray_window);
+}
+
+/** Toggles the main window to/from hidden to tray/shown. */
+void togglehide(void)
+{
+    static int x, y;
+
+    if(hidden) {
+        XMapWindow(display, window);
+        XMoveWindow(display, window, x, y);
+        redraw();
+        hidden = 0;
+    } else {
+        Window child;
+        XTranslateCoordinates(display, window, RootWindow(display, screen), 0, 0, &x, &y, &child );
+        XUnmapWindow(display, window);
+        hidden = 1;
+    }
+}
+
+void tray_window_event(XEvent event) {
+    if (event.type == ButtonPress) {
+        XButtonEvent *ev = &event.xbutton;
+
+        if (ev->button == Button1) {
+            togglehide();
+        }
+    }
+}
+
 static void pasteprimary(void)
 {
     Window owner = XGetSelectionOwner(display, XA_PRIMARY);
@@ -1138,6 +1212,7 @@ int main(int argc, char *argv[])
         yieldcpu(1);
     }
 
+    create_tray_icon();
     /* Registers the app in the Unity MM */
     #ifdef UNITY
     unity_running = is_unity_running();
@@ -1185,6 +1260,8 @@ int main(int argc, char *argv[])
     if(libgtk) {
 
     }
+
+    destroy_tray_icon();
 
     Window root_return, child_return;
     int x_return, y_return;
