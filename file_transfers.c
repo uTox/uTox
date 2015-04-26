@@ -312,7 +312,7 @@ static void utox_run_file(FILE_TRANSFER *file, uint8_t us){
         }
     }
     utox_update_user_file(file);
-    debug("utox_run_file\n");
+    // debug("utox_run_file\n");
 }
 
 /* Complete active file, (when the whole file transfer is successful). */
@@ -395,6 +395,7 @@ void file_transfer_local_control(Tox *tox, uint32_t friend_number, uint32_t file
         case TOX_FILE_CONTROL_RESUME:
             if(info->status != FILE_TRANSFER_STATUS_ACTIVE){
                 if(tox_file_control(tox, friend_number, file_number, control, &error)){
+                    ++friend[friend_number].transfer_count;
                     debug("FileTransfer:\tWe just resumed file (%u & %u)\n", friend_number, file_number);
                 } else {
                     debug("FileTransfer:\tToxcore doesn't like us! (%u & %u)\n", friend_number, file_number);
@@ -405,26 +406,39 @@ void file_transfer_local_control(Tox *tox, uint32_t friend_number, uint32_t file
             utox_run_file(info, 1);
             break;
         case TOX_FILE_CONTROL_PAUSE:
-            debug("FileTransfer:\tWe just paused file (%u & %u)\n", friend_number, file_number);
+            if(info->status != FILE_TRANSFER_STATUS_PAUSED_US || info->status != FILE_TRANSFER_STATUS_PAUSED_BOTH ){
+                if(tox_file_control(tox, friend_number, file_number, control, &error)){
+                    --friend[friend_number].transfer_count;
+                    debug("FileTransfer:\tWe just paused file (%u & %u)\n", friend_number, file_number);
+                } else {
+                    debug("FileTransfer:\tToxcore doesn't like us! (%u & %u)\n", friend_number, file_number);
+                }
+            } else {
+                debug("FileTransfer:\tFile already paused (%u & %u)\n", friend_number, file_number);
+            }
             utox_pause_file(info, 1);
-            tox_file_control(tox, friend_number, file_number, control, &error);
             break;
         case TOX_FILE_CONTROL_CANCEL:
-            debug("FileTransfer:\tWe just killed file (%u & %u)\n", friend_number, file_number);
-            tox_file_control(tox, friend_number, file_number, control, &error);
-
+            if(info->status != FILE_TRANSFER_STATUS_KILLED){
+                if(tox_file_control(tox, friend_number, file_number, control, &error)){
+                    --friend[friend_number].transfer_count;
+                    debug("FileTransfer:\tWe just killed file (%u & %u)\n", friend_number, file_number);
+                } else {
+                    debug("FileTransfer:\tToxcore doesn't like us! (%u & %u)\n", friend_number, file_number);
+                }
+            } else {
+                debug("FileTransfer:\tFile already killed (%u & %u)\n", friend_number, file_number);
+            }
             utox_kill_file(info, 1);
             break;
     }
+    /* Do something with the error! */
     if(error){
         if(error == TOX_ERR_FILE_CONTROL_FRIEND_NOT_CONNECTED){
             debug("FileTransfer:\tUnable to send command, Friend (%u) offline!\n", info->friend_number);
         } else {
             debug("FileTransfer:\tThere was an error(%u) sending the command, you probably want to see to that!\n", error);
         }
-        debug("FileTransfer:\t\tFriend %u, and File %u. \n", friend_number, file_number);
-    } else {
-        utox_update_user_file(info);
     }
 }
 
@@ -581,8 +595,8 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
             return;
         }
         break; /*We shouldn't reach here, but just in case! */
-    } /* Last case */
-    } /* Switch */
+    } /* last case */
+    } /* switch */
 }
 
 /* Called by toxcore to deliver the next chunk of incoming data. */
@@ -960,7 +974,6 @@ int utox_file_start_write(uint32_t friend_number, uint32_t file_number, void *fi
             // }
     return 0;
 }
-
 
 void utox_set_callbacks_for_transfer(Tox *tox){
     /* Incoming files */
