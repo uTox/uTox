@@ -363,11 +363,11 @@ static void utox_complete_file(FILE_TRANSFER *file){
     } else {
         debug("FileTransfer:\tUnable to complete file in non-active state (file:%u)\n", file->file_number);
     }
+    debug("\nFileTransfer:\tIncoming transfer is done (%u & %u)\n", file->friend_number, file->file_number);
     utox_file_save_ftinfo(file);
     utox_file_free_ftinfo(file);
     utox_cleanup_file_transfers(file->friend_number, file->file_number);
     file->resume = 0; // We don't need to always be resetting this broken number anymore
-    debug("\nFileTransfer:\tIncoming transfer is done (%u & %u)\n", file->friend_number, file->file_number);
 }
 
 /* Friend has come online, restart our outgoing transfers to this friend. */
