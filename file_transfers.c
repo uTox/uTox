@@ -197,13 +197,15 @@ static void utox_kill_file(FILE_TRANSFER *file, uint8_t us){
         --friend[file->friend_number].transfer_count;
     }
     utox_cleanup_file_transfers(file->friend_number, file->file_number);
-    utox_file_save_ftinfo(file);
-    utox_file_free_ftinfo(file);
+    if(file->resume){
+        utox_file_save_ftinfo(file);
+        utox_file_free_ftinfo(file);
+    }
 }
 
 /* Break active file, (when a friend goes offline). */
 static void utox_break_file(FILE_TRANSFER *file){
-    if(file->status == FILE_TRANSFER_STATUS_NONE && file->resume){
+    if(file->status == FILE_TRANSFER_STATUS_NONE){
         return utox_kill_file(file, 1); /* We don't save unstarted files */
     } else if(file->status == FILE_TRANSFER_STATUS_COMPLETED || file->status == FILE_TRANSFER_STATUS_KILLED) {
         /* We don't touch these files! */
@@ -357,7 +359,7 @@ static void utox_complete_file(FILE_TRANSFER *file){
     utox_file_save_ftinfo(file);
     utox_file_free_ftinfo(file);
     file->resume = 0; // We don't need to always be resetting this broken number anymore
-    debug("\nFileTransfer:\tIncoming transfer is done (%u & %u)\n", friend_number, file_number);
+    debug("\nFileTransfer:\tIncoming transfer is done (%u & %u)\n", file->friend_number, file->file_number);
 }
 
 /* Friend has come online, restart our outgoing transfers to this friend. */
