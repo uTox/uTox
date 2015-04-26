@@ -30,14 +30,15 @@ typedef struct FILE_TRANSFER {
 } FILE_TRANSFER;
 
 void file_transfer_local_control(Tox *tox, uint32_t friend_number, uint32_t file_number, TOX_FILE_CONTROL control);
-void outgoing_file_send_new(Tox *tox, uint32_t friend_number, uint8_t *path, const uint8_t *filename, size_t filename_length);
-void outgoing_file_send_existing(Tox *tox, uint32_t friend_number, uint32_t file_number);
-void outgoing_file_send_inline(Tox *tox, uint32_t friend_number, uint8_t *image, size_t image_size);
-int outgoing_file_send_avatar(Tox *tox, uint32_t friend_number, uint8_t *avatar, size_t avatar_size);
+void outgoing_file_send(Tox *tox, uint32_t friend_number, uint8_t *path, uint8_t *filename, size_t filename_length, uint32_t kind);
+
 int utox_file_start_write(uint32_t friend_number, uint32_t file_number, void *filepath);
+
 void utox_set_callbacks_for_transfer(Tox *tox);
 void utox_cleanup_file_transfers(uint32_t friend_number, uint32_t file_number);
+
 void ft_friend_online(Tox *tox, uint32_t friend_number);
 void ft_friend_offline(Tox *tox, uint32_t friend_number);
+
 void utox_file_save_ftinfo(FILE_TRANSFER *file);
 _Bool utox_file_load_ftinfo(FILE_TRANSFER *file);
