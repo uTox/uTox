@@ -332,14 +332,12 @@ static void utox_complete_file(FILE_TRANSFER *file){
                     friend_recvimage(&friend[file->friend_number], (UTOX_PNG_IMAGE)file->memory, file->size);
                 }
             } else { // Is a file
-                fclose(file->file);
                 file->ui_data->path = file->path;
             }
         } else {
             if(file->in_memory){
                 // TODO, might want to do something here.
             } else { // Is a file
-                fclose(file->file);
                 file->ui_data->path = file->path;
             }
             if(friend[file->friend_number].transfer_count){
