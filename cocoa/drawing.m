@@ -367,10 +367,9 @@ void reload_fonts(void) {
 #undef COCOA_BASE_FONT_NEW
 #undef COCOA_BASE_FONT_OLD 
 
+    font_small_lineheight = (CTFontGetBoundingBox(fonts[FONT_TEXT]).size.height - CTFontGetDescent(fonts[FONT_TEXT]));
     CFRelease(reg);
     CFRelease(bold);
-
-    font_small_lineheight = CTFontGetBoundingBox(fonts[FONT_TEXT]).size.height - CTFontGetDescent(fonts[FONT_TEXT]);
 }
 
 void setscale(void) {
