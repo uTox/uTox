@@ -40,4 +40,4 @@ void utox_cleanup_file_transfers(uint32_t friend_number, uint32_t file_number);
 void ft_friend_online(Tox *tox, uint32_t friend_number);
 void ft_friend_offline(Tox *tox, uint32_t friend_number);
 void utox_file_save_ftinfo(FILE_TRANSFER *file);
-void utox_file_load_ftinfo(FILE_TRANSFER *file);
+_Bool utox_file_load_ftinfo(FILE_TRANSFER *file);
