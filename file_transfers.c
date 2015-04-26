@@ -212,7 +212,9 @@ static void utox_break_file(FILE_TRANSFER *file){
     }
     file->status = FILE_TRANSFER_STATUS_BROKEN;
     utox_update_user_file(file);
-    fclose(file->saveinfo);
+    if(file->saveinfo){
+        fclose(file->saveinfo);
+    }
 }
 
 /* Pause active file. */
@@ -331,13 +333,13 @@ static void utox_complete_file(FILE_TRANSFER *file){
                     friend_recvimage(&friend[file->friend_number], (UTOX_PNG_IMAGE)file->memory, file->size);
                 }
             } else { // Is a file
-                file->ui_data->path = file->path;
+                file->ui_data->path = (uint8_t*)strdup((const char*)file->path);
             }
         } else {
             if(file->in_memory){
                 // TODO, might want to do something here.
             } else { // Is a file
-                file->ui_data->path = file->path;
+                file->ui_data->path = (uint8_t*)strdup((const char*)file->path);
             }
             if(friend[file->friend_number].transfer_count){
                 /* Decrement if > 0 */
