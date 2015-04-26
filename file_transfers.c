@@ -785,6 +785,7 @@ void outgoing_file_send(Tox *tox, uint32_t friend_number, uint8_t *path, uint8_t
 
         /* Build UI info, and create resume file. */
         if(!memory){
+            file_handle->file = file;
             file_handle->ui_data = message_add_type_file(file_handle);
             file_handle->resume = utox_file_alloc_ftinfo(file_handle);
         } else {
