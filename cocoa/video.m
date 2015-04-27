@@ -28,7 +28,7 @@
 
         if (video_dev_handle == SCREEN_VIDEO_DEVICE_HANDLE) {
             AVCaptureScreenInput *input = [[AVCaptureScreenInput alloc] initWithDisplayID:desktop_capture_from];
-            input.minFrameDuration = (CMTime){1.0, 30.0, 0, 0}; // 30 fps
+            input.minFrameDuration = (CMTime){1.0, 60.0, 0, 0};
             input.capturesCursor = YES;
             input.capturesMouseClicks = YES;
             input.cropRect = desktop_capture_rect;
@@ -38,8 +38,9 @@
             //_session.sessionPreset = AVCaptureSessionPreset640x480;
             [_session commitConfiguration];
 
-            video_width = 640;
-            video_height = 360;
+            CGRect tr = AVMakeRectWithAspectRatioInsideRect(desktop_capture_rect.size, (CGRect){0, 0, 640, 480});
+            video_width = tr.size.width;
+            video_height = tr.size.height;
 
             [input release];
         } else {
@@ -134,7 +135,7 @@
 
     devices = [[NSMutableDictionary alloc] init];
 
-    //postmessage(NEW_VIDEO_DEVICE, STR_VIDEO_IN_DESKTOP, 0, SCREEN_VIDEO_DEVICE_HANDLE);
+    postmessage(NEW_VIDEO_DEVICE, STR_VIDEO_IN_DESKTOP, 0, SCREEN_VIDEO_DEVICE_HANDLE);
 
     NSArray *vdevIDs = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
     for (int i = 0; i < vdevIDs.count; i++) {
@@ -150,7 +151,7 @@
 
         postmessage(NEW_VIDEO_DEVICE, UI_STRING_ID_INVALID, 1, data);
     }
-    return (void *)MIN(1, vdevIDs.count);
+    return (void *)MIN(2, vdevIDs.count + 2);
 }
 
 - (AVCaptureDevice *)getCaptureDeviceFromHandle:(void *)handle {

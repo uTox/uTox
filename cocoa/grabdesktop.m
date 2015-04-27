@@ -102,3 +102,56 @@ static inline CGRect CGRectCentreInRect(CGRect r1, CGRect r2) {
 }
 
 @end
+
+// do not breakpoint in this function or you're gonna have a fun time
+void desktopgrab(_Bool video) {
+    uToxAppDelegate *ad = (uToxAppDelegate *)[NSApp delegate];
+    NSScreen *target = [ad.utox_window screen];
+
+    NSWindow *window = [uToxStardustView createWindowOnScreen:target];
+    uToxStardustView *v = [[uToxStardustView alloc] initWithFrame:(CGRect){0, 0, window.frame.size.width, window.frame.size.height}];
+    v.video = video;
+    window.contentView = v;
+    [window makeKeyAndOrderFront:ad];
+    [v release];
+}
+
+void utoxshield_display_capping_done(_Bool video, uint32_t ret, NSWindow *window) {
+    uToxStardustView *v = window.contentView;
+    NSScreen *target = window.screen;
+
+    if ((ret & 0xff) == 0) {
+        if (!video) {
+            CGRect rect = [v getRect];
+            rect.origin.y = target.frame.size.height - rect.origin.y - rect.size.height;
+            CGImageRef inliness = CGWindowListCreateImage(rect, kCGWindowListOptionOnScreenOnly, kCGNullWindowID, kCGWindowImageDefault);
+            UTOX_NATIVE_IMAGE *img = malloc(sizeof(UTOX_NATIVE_IMAGE));
+            img->scale = 1.0;
+            img->image = inliness;
+
+            CFMutableDataRef dat = CFDataCreateMutable(kCFAllocatorDefault, 0);
+            CGImageDestinationRef dest = CGImageDestinationCreateWithData(dat, kUTTypePNG, 1, NULL);
+            CGImageDestinationAddImage(dest, inliness, NULL);
+            CGImageDestinationFinalize(dest);
+            CFRelease(dest);
+
+            size_t size = CFDataGetLength(dat);
+            uint8_t *owned_ptr = malloc(size);
+            memcpy(owned_ptr, CFDataGetBytePtr(dat), size);
+            CFRelease(dat);
+
+            friend_sendimage(sitem->data, img, CGImageGetWidth(inliness), CGImageGetHeight(inliness), (UTOX_PNG_IMAGE)owned_ptr, size);
+        } else {
+            desktop_capture_from = (ret >> 8) & 0xffffff;
+            CGRect rect = [v getRect];
+            //rect.origin.y = target.frame.size.height - rect.origin.y - rect.size.height;
+
+            desktop_capture_rect = rect;
+            toxvideo_postmessage(VIDEO_SET, 0, 0, (void*)1);
+        }
+    }
+
+    //dispatch_async(dispatch_get_main_queue(), ^{
+    [window release];
+    //});
+}
