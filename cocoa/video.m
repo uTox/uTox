@@ -17,6 +17,7 @@
 
     CVImageBufferRef _currentFrame;
     pthread_mutex_t _frameLock;
+    BOOL _shouldMangleDimensions;
 }
 
 - (instancetype)initWithHandle:(void *)video_dev_handle {
@@ -38,9 +39,10 @@
             //_session.sessionPreset = AVCaptureSessionPreset640x480;
             [_session commitConfiguration];
 
-            CGRect tr = AVMakeRectWithAspectRatioInsideRect(desktop_capture_rect.size, (CGRect){0, 0, 640, 480});
-            video_width = tr.size.width;
-            video_height = tr.size.height;
+            //CGRect tr = CGRectIntegral(AVMakeRectWithAspectRatioInsideRect(desktop_capture_rect.size, (CGRect){0, 0, 640, 480}));
+            video_width = desktop_capture_rect.size.width;
+            video_height = desktop_capture_rect.size.height;
+            _shouldMangleDimensions = NO;
 
             [input release];
         } else {
@@ -59,6 +61,7 @@
             // but if it doesn't we're going to segfault eventually.
             video_width = 640;
             video_height = 480;
+            _shouldMangleDimensions = YES;
 
             [input release];
             [dev release];
@@ -71,9 +74,12 @@
     _linkerVideo = [[AVCaptureVideoDataOutput alloc] init];
     [_linkerVideo setSampleBufferDelegate:self queue:_processingQueue];
     // TODO possibly get a better pixel format
-    [_linkerVideo setVideoSettings:@{(id)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_32ARGB),
-                                     (id)kCVPixelBufferWidthKey: @640,
-                                     (id)kCVPixelBufferHeightKey: @480}];
+    if (_shouldMangleDimensions)
+        [_linkerVideo setVideoSettings:@{(id)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_32ARGB),
+                                         (id)kCVPixelBufferWidthKey: @640,
+                                         (id)kCVPixelBufferHeightKey: @480}];
+    else
+        [_linkerVideo setVideoSettings:@{(id)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_32ARGB)}];
     [_session addOutput:_linkerVideo];
     [_session startRunning];
 }
@@ -227,22 +233,6 @@ void* video_detect(void) {
 
 // display video
 
-@implementation uToxAppDelegate (IroncladManager)
-
-- (void)setIroncladWindow:(NSWindow *)w forID:(uint32_t)id {
-    ironclad[@(id)] = w;
-}
-
-- (void)releaseIroncladWindowForID:(uint32_t)id {
-    [ironclad removeObjectForKey:@(id)];
-}
-
-- (NSWindow *)ironcladWindowForID:(uint32_t)id {
-    return ironclad[@(id)];
-}
-
-@end
-
 @interface uToxIroncladVideoLayer : CAOpenGLLayer
 @property uint8_t *temporaryLoadTexture;
 @property int temporaryWidth;
@@ -326,6 +316,7 @@ void* video_detect(void) {
 }
 
 - (void)displayImage:(uint8_t *)rgba w:(uint16_t)width h:(uint16_t)height {
+    debug("wants image of %hu %hu", width, height);
     ((uToxIroncladVideoLayer *)self.layer).temporaryLoadTexture = rgba;
     ((uToxIroncladVideoLayer *)self.layer).temporaryWidth = width;
     ((uToxIroncladVideoLayer *)self.layer).temporaryHeight = height;
@@ -345,6 +336,7 @@ void* video_detect(void) {
 @end
 
 @interface uToxIroncladWindow : NSPanel
+@property NSUInteger video_id;
 // useless subclass, why isn't canBecomeKeyWindow assignable??
 - (BOOL)canBecomeKeyWindow;
 - (BOOL)canBecomeMainWindow;
@@ -411,6 +403,41 @@ void* video_detect(void) {
 
 @end
 
+@implementation uToxAppDelegate (IroncladManager)
+
+- (void)setIroncladWindow:(NSWindow *)w forID:(uint32_t)id {
+    ironclad[@(id)] = w;
+    w.delegate = self;
+}
+
+- (void)releaseIroncladWindowForID:(uint32_t)id {
+    [ironclad removeObjectForKey:@(id)];
+}
+
+- (NSWindow *)ironcladWindowForID:(uint32_t)id {
+    return ironclad[@(id)];
+}
+
+- (void)windowWillClose:(NSNotification *)notification {
+    if ([notification.object isKindOfClass:uToxIroncladWindow.class]) {
+        switch (((uToxIroncladWindow *)notification.object).video_id) {
+            case 0:
+                video_preview = 0;
+                video_end(0);
+                toxvideo_postmessage(VIDEO_PREVIEW_END, 0, 0, NULL);
+                break;
+            default: {
+                FRIEND *f = &friend[((uToxIroncladWindow *)notification.object).video_id - 1];
+                tox_postmessage(TOX_HANGUP, f->callid, 0, NULL);
+                break;
+            }
+        }
+        redraw();
+    }
+}
+
+@end
+
 void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height, _Bool resize) {
     uToxAppDelegate *utoxapp = (uToxAppDelegate *)[NSApp delegate];
     NSWindow *win = [utoxapp ironcladWindowForID:id];
@@ -428,8 +455,9 @@ void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height
 }
 
 void video_begin(uint32_t id, char_t *name, STRING_IDX name_length, uint16_t width, uint16_t height) {
-    NSWindow *video_win = [uToxIroncladView createWindow];
+    uToxIroncladWindow *video_win = (uToxIroncladWindow *)[uToxIroncladView createWindow];
     video_win.title = [[[NSString alloc] initWithBytes:name length:name_length encoding:NSUTF8StringEncoding] autorelease];
+    video_win.video_id = id;
 
     uToxAppDelegate *utoxapp = (uToxAppDelegate *)[NSApp delegate];
     NSWindow *utoxwin = utoxapp.utox_window;
