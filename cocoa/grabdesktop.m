@@ -147,8 +147,8 @@ void utoxshield_display_capping_done(_Bool video, uint32_t ret, NSWindow *window
             //rect.origin.y = target.frame.size.height - rect.origin.y - rect.size.height;
 
             desktop_capture_rect = rect;
-            desktop_capture_rect.size.width = (uint32_t)desktop_capture_rect.size.width & 0xfffffffe;
-            desktop_capture_rect.size.height = (uint32_t)desktop_capture_rect.size.height & 0xfffffffe;
+            desktop_capture_rect.size.width -= (uint32_t)desktop_capture_rect.size.width % 8;
+            desktop_capture_rect.size.height -= (uint32_t)desktop_capture_rect.size.height % 8;
             debug("%@", NSStringFromRect(desktop_capture_rect));
             toxvideo_postmessage(VIDEO_SET, 0, 0, (void*)1);
         }
