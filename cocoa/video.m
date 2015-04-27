@@ -54,6 +54,9 @@
             _session.sessionPreset = AVCaptureSessionPreset640x480;
             [_session commitConfiguration];
 
+            // pray here
+            // we make the assumption that AVFoundation will give us 640x480 video here
+            // but if it doesn't we're going to segfault eventually.
             video_width = 640;
             video_height = 480;
 
@@ -67,6 +70,7 @@
 - (void)beginCappingFrames {
     _linkerVideo = [[AVCaptureVideoDataOutput alloc] init];
     [_linkerVideo setSampleBufferDelegate:self queue:_processingQueue];
+    // TODO possibly get a better pixel format
     [_linkerVideo setVideoSettings:@{(id)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_32ARGB),
                                      (id)kCVPixelBufferWidthKey: @640,
                                      (id)kCVPixelBufferHeightKey: @480}];
@@ -111,7 +115,7 @@
     } else if (imageType == CVOpenGLBufferGetTypeID()) {
         // OpenGL pbuffer
     } else if (imageType == CVOpenGLTextureGetTypeID()) {
-        // OpenGL Texture
+        // OpenGL Texture (Do we need to handle these?)
     }
 
     CVPixelBufferRelease(_currentFrame);
@@ -340,6 +344,22 @@ void* video_detect(void) {
 
 @end
 
+@interface uToxIroncladWindow : NSPanel
+// useless subclass, why isn't canBecomeKeyWindow assignable??
+- (BOOL)canBecomeKeyWindow;
+- (BOOL)canBecomeMainWindow;
+@end
+
+@implementation uToxIroncladWindow
+- (BOOL)canBecomeKeyWindow {
+    return NO;
+}
+
+- (BOOL)canBecomeMainWindow {
+    return NO;
+}
+@end
+
 @implementation uToxIroncladView {
     NSVisualEffectView *__strong _blurView;
     uToxIroncladVideoContent *__strong _videoContent;
@@ -347,7 +367,8 @@ void* video_detect(void) {
 
 + (NSWindow *)createWindow {
 #define START_RECT (CGRect){0, 0, 100, 100}
-    NSWindow *ret = [[NSPanel alloc] initWithContentRect:START_RECT styleMask:NSHUDWindowMask | NSUtilityWindowMask | NSClosableWindowMask | NSTitledWindowMask backing:NSBackingStoreBuffered defer:YES];
+    NSWindow *ret = [[uToxIroncladWindow alloc] initWithContentRect:START_RECT styleMask:NSHUDWindowMask | NSUtilityWindowMask | NSClosableWindowMask | NSTitledWindowMask backing:NSBackingStoreBuffered defer:YES];
+    ret.hidesOnDeactivate = NO;
     //ret.titleVisibility = NSWindowTitleHidden;
     //ret.titlebarAppearsTransparent = YES;
     uToxIroncladView *iv = [[self alloc] initWithFrame:ret.frame];
