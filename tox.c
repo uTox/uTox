@@ -577,18 +577,23 @@ void tox_thread(void *UNUSED(args))
         self.id_buffer_length = TOX_FRIEND_ADDRESS_SIZE * 2;
         debug("Tox ID: %.*s\n", (int)self.id_buffer_length, self.id_buffer);
 
-        uint8_t avatar_data[UTOX_AVATAR_MAX_DATA_LENGTH];
-        uint32_t avatar_size;
+        {
+            uint8_t avatar_data[UTOX_AVATAR_MAX_DATA_LENGTH];
+            uint32_t avatar_size;
 
-        uint8_t hex_id[TOX_FRIEND_ADDRESS_SIZE * 2];
-        id_to_string(hex_id, self.id_binary);
-        if (init_avatar(&self.avatar, hex_id, avatar_data, &avatar_size)) {
-            // set avatar before connecting
-            // TODO tox_set_avatar(tox, UTOX_AVATAR_FORMAT_PNG, avatar_data, avatar_size);
-
-            char_t hash_string[TOX_HASH_LENGTH * 2];
-            hash_to_string(hash_string, self.avatar.hash);
-            debug("Tox Avatar Hash: %.*s\n", (int)sizeof(hash_string), hash_string);
+            uint8_t hex_id[TOX_FRIEND_ADDRESS_SIZE * 2];
+            id_to_string(hex_id, self.id_binary);
+            if (init_avatar(&self.avatar, hex_id, avatar_data, &avatar_size)) {
+                self.avatar_data = malloc(avatar_size);
+                if (self.avatar_data) {
+                    memcpy(self.avatar_data, avatar_data, avatar_size);
+                    self.avatar_size = avatar_size;
+                    self.avatar_format = UTOX_AVATAR_FORMAT_PNG;
+                    char_t hash_string[TOX_HASH_LENGTH * 2];
+                    hash_to_string(hash_string, self.avatar.hash);
+                    debug("Tox Avatar Hash: %.*s\n", (int)sizeof(hash_string), hash_string);
+                }
+            }
         }
 
         // Give toxcore the functions to call
