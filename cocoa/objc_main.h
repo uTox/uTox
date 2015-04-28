@@ -22,8 +22,6 @@ extern CGRect desktop_capture_rect;
 #define AT_LEAST_MAVERICKS_DO     if (NSFoundationVersionNumber >= NSFoundationVersionNumber10_9)
 #define AT_LEAST_MOUNTAIN_LION_DO if (NSFoundationVersionNumber >= NSFoundationVersionNumber10_8)
 
-void utoxshield_display_capping_done(_Bool video, uint32_t ret, NSWindow *window);
-
 struct utox_native_image {
     CGImageRef image;
     double scale;

@@ -6,7 +6,7 @@
 
 /* MAJOR TODO: S FOR THIS FILE 
  * - check clean up and error handling with AVFoundation code. 
- * - desktop streaming (!!!!) */
+ */
 
 #define SCREEN_VIDEO_DEVICE_HANDLE ((void *)1)
 
@@ -29,7 +29,6 @@
 
         if (video_dev_handle == SCREEN_VIDEO_DEVICE_HANDLE) {
             AVCaptureScreenInput *input = [[AVCaptureScreenInput alloc] initWithDisplayID:desktop_capture_from];
-            input.minFrameDuration = (CMTime){1.0, 60.0, 0, 0};
             input.capturesCursor = YES;
             input.capturesMouseClicks = YES;
             input.cropRect = desktop_capture_rect;
@@ -166,7 +165,8 @@
 
 - (AVCaptureDevice *)getCaptureDeviceFromHandle:(void *)handle {
     NSString *s = devices[@((uintptr_t)handle)];
-    if (!s) return nil;
+    if (!s)
+        return nil;
     return [AVCaptureDevice deviceWithUniqueID:s];
 }
 
@@ -186,7 +186,7 @@ CGRect            desktop_capture_rect = { 0 };
 #endif
 
 _Bool video_init(void *handle) {
-    NSLog(@"%p", handle);
+    NSLog(@"using video: %p", handle);
 
     if (active_video_session) {
         debug("overlapping video session!");
@@ -242,13 +242,6 @@ void* video_detect(void) {
 @end
 
 @implementation uToxIroncladVideoLayer
-
-- (instancetype)init {
-    self = [super init];
-    if (self) {
-    }
-    return self;
-}
 
 - (void)drawInCGLContext:(CGLContextObj)ctx pixelFormat:(CGLPixelFormatObj)pf forLayerTime:(CFTimeInterval)t displayTime:(const CVTimeStamp *)ts {
 
@@ -316,7 +309,7 @@ void* video_detect(void) {
 }
 
 - (void)displayImage:(uint8_t *)rgba w:(uint16_t)width h:(uint16_t)height {
-    debug("wants image of %hu %hu", width, height);
+    //debug("wants image of %hu %hu", width, height);
     ((uToxIroncladVideoLayer *)self.layer).temporaryLoadTexture = rgba;
     ((uToxIroncladVideoLayer *)self.layer).temporaryWidth = width;
     ((uToxIroncladVideoLayer *)self.layer).temporaryHeight = height;
@@ -353,7 +346,6 @@ void* video_detect(void) {
 @end
 
 @implementation uToxIroncladView {
-    NSVisualEffectView *__strong _blurView;
     uToxIroncladVideoContent *__strong _videoContent;
 }
 
@@ -361,8 +353,6 @@ void* video_detect(void) {
 #define START_RECT (CGRect){0, 0, 100, 100}
     NSWindow *ret = [[uToxIroncladWindow alloc] initWithContentRect:START_RECT styleMask:NSHUDWindowMask | NSUtilityWindowMask | NSClosableWindowMask | NSTitledWindowMask backing:NSBackingStoreBuffered defer:YES];
     ret.hidesOnDeactivate = NO;
-    //ret.titleVisibility = NSWindowTitleHidden;
-    //ret.titlebarAppearsTransparent = YES;
     uToxIroncladView *iv = [[self alloc] initWithFrame:ret.frame];
     ret.contentView = iv;
     [iv release];
@@ -373,11 +363,6 @@ void* video_detect(void) {
 - (instancetype)initWithFrame:(NSRect)frameRect {
     self = [super initWithFrame:frameRect];
     if (self) {
-        //_blurView = [[NSVisualEffectView alloc] initWithFrame:self.bounds];
-        //_blurView.appearance = [NSAppearance appearanceNamed:NSAppearanceNameVibrantDark];
-        //_blurView.state = NSVisualEffectStateFollowsWindowActiveState;
-        //[self addSubview:_blurView];
-
         _videoContent = [[uToxIroncladVideoContent alloc] initWithFrame:(CGRect){0, 0, frameRect.size.width, frameRect.size.height}];
         _videoContent.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
         [self addSubview:_videoContent];
@@ -387,7 +372,6 @@ void* video_detect(void) {
 
 - (void)resizeSubviewsWithOldSize:(NSSize)oldSize {
     [super resizeSubviewsWithOldSize:oldSize];
-    _blurView.frame = self.bounds;
     [_videoContent checkSize];
 }
 
@@ -396,7 +380,6 @@ void* video_detect(void) {
 }
 
 - (void)dealloc {
-    [_blurView release];
     [_videoContent release];
     [super dealloc];
 }

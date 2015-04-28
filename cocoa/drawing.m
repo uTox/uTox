@@ -29,44 +29,30 @@ static struct __global_d_state {
 
 @implementation uToxView {
     NSMutableDictionary *_colorCache;
-    // there is no way this could possibly go wrong
-    NSMutableDictionary *_shadow_edits;
-    NSMutableSet *_will_remain_in_view;
 }
 
 - (instancetype)initWithFrame:(NSRect)frameRect {
     self = [super initWithFrame:frameRect];
     if (self) {
         _colorCache = [[NSMutableDictionary alloc] init];
-        _shadow_edits = [[NSMutableDictionary alloc] init];
         self.autoresizesSubviews = YES;
         self.autoresizingMask = NSViewHeightSizable | NSViewWidthSizable;
         [self addSubview:[[[NSView alloc] initWithFrame:CGRectZero] autorelease]];
-        //self.wantsLayer = YES;
     }
     return self;
 }
 
 - (void)becomeDrawTarget {
     currently_drawing_into_view = self;
-    // _will_remain_in_view = [[NSMutableSet alloc] init];
     CGContextSetTextMatrix([[NSGraphicsContext currentContext] graphicsPort], CGAffineTransformIdentity);
 }
 
 - (void)resignAsDrawTarget {
     currently_drawing_into_view = nil;
-//    [_shadow_edits enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
-//        if (![_will_remain_in_view containsObject:obj])
-//            [obj removeFromSuperview];
-//    }];
-//    [_will_remain_in_view release];
 }
 
 - (void)drawRect:(NSRect)dirtyRect {
     [self becomeDrawTarget];
-
-    //[[NSColor blackColor] set];
-    //NSRectFill(dirtyRect);
 
     panel_draw(&panel_main, 0, 0, utox_window_width, utox_window_height);
 
@@ -91,33 +77,6 @@ static struct __global_d_state {
     }
     return ret;
 }
-
-//- (NSTextField *)shadowEditorForEdit:(EDIT *)edit {
-//    NSTextField *associated = [_shadow_edits objectForKey:@((uintptr_t)edit)];
-//    if (!associated) {
-//        associated = [[NSTextField alloc] initWithFrame:CGRectZero];
-//        if (edit->empty_str.i18nal) {
-//            STRING *placeholder = maybe_i18nal_string_get(&(edit->empty_str));
-//            associated.placeholderString = [[[NSString alloc] initWithBytes:placeholder->str length:placeholder->length encoding:NSUTF8StringEncoding] autorelease];
-//        }
-//        if (!edit->multiline) {
-//            [associated.cell setWraps:NO];
-//        }
-//        associated.stringValue = [[[NSString alloc] initWithBytes:edit->data length:strlen((char *)edit->data) encoding:NSUTF8StringEncoding] autorelease];
-//        associated.bezeled = NO;
-//        associated.focusRingType = NSFocusRingTypeNone;
-//        associated.editable = !edit->readonly;
-//        associated.selectable = YES;
-//        _shadow_edits[@((uintptr_t)edit)] = associated;
-//        [associated release];
-//    }
-//    [self addSubview:associated];
-//    return associated;
-//}
-//
-//- (void)editorWillRemainInView:(NSTextField *)edit {
-//    [_will_remain_in_view addObject:edit];
-//}
 
 @end
 
@@ -250,12 +209,10 @@ void drawtextwidth_right(int x, int width, int y, char_t *str, STRING_IDX length
 }
 
 void drawtextrange(int x, int x2, int y, char_t *str, STRING_IDX length) {
-    //NSLog(@"unimplemented drawtextrange %s", str);
     drawtextwidth(x, x2 - x, y, str, length);
 }
 
 void drawtextrangecut(int x, int x2, int y, char_t *str, STRING_IDX length) {
-    //NSLog(@"unimplemented drawtextrangecut %s", str);
     drawtextwidth(x, x2 - x, y, str, length);
 }
 
@@ -420,7 +377,6 @@ void drawalpha(int bm, int x, int y, int width, int height, uint32_t color) {
     CGContextClipToMask(this, rect, bitmaps[bm]);
     CGContextSetFillColor(this, colour_parts);
     CGContextFillRect(this, rect);
-    //CGContextDrawImage(this, rect, bitmaps[bm]);
 
     [NSGraphicsContext restoreGraphicsState];
 }
@@ -523,7 +479,6 @@ void drawvline(int x, int y, int y2, uint32_t color) {
     [[currently_drawing_into_view color:color] set];
     NSRectFill(rect);
 }
-// #define drawpixel(x, y, color) drawvline(x, y, (y) + 1, color)
 
 void pushclip(int x, int y, int width, int height) {
     DRAW_TARGET_CHK()
@@ -532,7 +487,6 @@ void pushclip(int x, int y, int width, int height) {
 
     CGFloat sz = currently_drawing_into_view.frame.size.height;
     NSRectClip((CGRect){x, sz - y - height, width, height});
-    //debug("pushclip");
 }
 
 void popclip(void) {
@@ -540,11 +494,10 @@ void popclip(void) {
     
     // will work fine as long as nobody does any other weirdness with gstate
     [NSGraphicsContext restoreGraphicsState];
-    //debug("popclip");
 }
 
 void enddraw(int x, int y, int width, int height) {
-    //debug("enddraw");
+
 }
 
 void draw_image(const UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t imgx, uint32_t imgy) {
@@ -565,33 +518,3 @@ void draw_image(const UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, ui
     CGContextRef this = [NSGraphicsContext currentContext].graphicsPort;
     CGContextDrawImage(this, rect, image->image);
 }
-
-#ifdef HAS_CUSTOM_EDIT_DRAW_IMPLEMENTATION
-void edit_draw(EDIT *edit, int x, int y, int width, int height) {
-    DRAW_TARGET_CHK()
-
-    if((width - 4 * SCALE - SCROLL_WIDTH) < 0) {
-        return;
-    }
-
-    if(utox_window_baseline && y > utox_window_baseline - font_small_lineheight - 4 * SCALE) {
-        y = utox_window_baseline - font_small_lineheight - 4 * SCALE;
-    }
-
-    edit->width = width -4 * SCALE - (edit->multiline ? SCROLL_WIDTH : 0);
-    edit->height = height - 4 * SCALE;
-
-    if(!edit->noborder) {
-        framerect(x, y, x + width, y + height, (edit == active_edit) ? COLOR_EDGE_ACTIVE : (edit->mouseover ? COLOR_EDGE_HOVER : COLOR_EDGE_NORMAL));
-    }
-    //drawrect(x + 1, y + 1, x + width - 1, y + height - 1, COLOR_MAIN_BACKGROUND);
-
-    uToxView *use_later = currently_drawing_into_view;
-    CGFloat sz = use_later.frame.size.height;
-    NSTextField *shadow_edit = [use_later shadowEditorForEdit:edit];
-    shadow_edit.frame = (CGRect){x + 1, sz - (y + 1) - (height - 2), width - 2, height - 2};
-    shadow_edit.backgroundColor = [currently_drawing_into_view color:COLOR_MAIN_BACKGROUND];
-    shadow_edit.textColor = [currently_drawing_into_view color:COLOR_MAIN_TEXT];
-    [currently_drawing_into_view editorWillRemainInView:shadow_edit];
-}
-#endif

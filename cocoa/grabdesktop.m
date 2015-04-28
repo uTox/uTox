@@ -1,5 +1,6 @@
 #import "../main.h"
 
+static void stardust_display_capping_done(_Bool video, uint64_t ret, NSWindow *window);
 static inline CGRect CGRectCentreInRect(CGRect r1, CGRect r2) {
     return (CGRect){{(r2.size.width - r1.size.width) / 2.0, (r2.size.height - r1.size.height) / 2.0}, r1.size};
 }
@@ -80,13 +81,15 @@ static inline CGRect CGRectCentreInRect(CGRect r1, CGRect r2) {
 - (void)mouseUp:(NSEvent *)theEvent {
     returnRect = CGRectIntegral(CGRectStandardize(returnRect));
     NSLog(@"%@", NSStringFromRect(returnRect));
-    utoxshield_display_capping_done(self.isVideo, 0, self.window);
+
+    CGDirectDisplayID dispid = [self.window.screen.deviceDescription[@"NSScreenNumber"] unsignedIntegerValue];
+    stardust_display_capping_done(self.isVideo, (uint64_t)dispid << 8, self.window);
 }
 
 - (void)keyDown:(NSEvent *)theEvent {
     switch (theEvent.keyCode) {
         case kVK_Escape:
-            utoxshield_display_capping_done(self.isVideo, 1, self.window);
+            stardust_display_capping_done(self.isVideo, 1, self.window);
             break;
         default:
             break;
@@ -116,15 +119,17 @@ void desktopgrab(_Bool video) {
     [v release];
 }
 
-void utoxshield_display_capping_done(_Bool video, uint32_t ret, NSWindow *window) {
+static void stardust_display_capping_done(_Bool video, uint64_t ret, NSWindow *window) {
     uToxStardustView *v = window.contentView;
     NSScreen *target = window.screen;
 
     if ((ret & 0xff) == 0) {
+        CGDirectDisplayID screen_id = (ret >> 8) & 0xffffffffffffffUL;
+
         if (!video) {
             CGRect rect = [v getRect];
             rect.origin.y = target.frame.size.height - rect.origin.y - rect.size.height;
-            CGImageRef inliness = CGWindowListCreateImage(rect, kCGWindowListOptionOnScreenOnly, kCGNullWindowID, kCGWindowImageDefault);
+            CGImageRef inliness = CGDisplayCreateImageForRect(screen_id, rect);
             UTOX_NATIVE_IMAGE *img = malloc(sizeof(UTOX_NATIVE_IMAGE));
             img->scale = 1.0;
             img->image = inliness;
@@ -142,19 +147,17 @@ void utoxshield_display_capping_done(_Bool video, uint32_t ret, NSWindow *window
 
             friend_sendimage(sitem->data, img, CGImageGetWidth(inliness), CGImageGetHeight(inliness), (UTOX_PNG_IMAGE)owned_ptr, size);
         } else {
-            desktop_capture_from = (ret >> 8) & 0xffffff;
+            desktop_capture_from = screen_id;
             CGRect rect = [v getRect];
-            //rect.origin.y = target.frame.size.height - rect.origin.y - rect.size.height;
 
+            // for video, it must be divisible by 8 or we get distortion
             desktop_capture_rect = rect;
             desktop_capture_rect.size.width -= (uint32_t)desktop_capture_rect.size.width % 8;
             desktop_capture_rect.size.height -= (uint32_t)desktop_capture_rect.size.height % 8;
-            debug("%@", NSStringFromRect(desktop_capture_rect));
             toxvideo_postmessage(VIDEO_SET, 0, 0, (void*)1);
         }
     }
 
-    //dispatch_async(dispatch_get_main_queue(), ^{
+    // CSA false positive: this has a +1 refcount from desktopgrab()
     [window release];
-    //});
 }
