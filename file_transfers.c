@@ -304,6 +304,10 @@ static void utox_run_file(FILE_TRANSFER *file, uint8_t us){
     if(us){
         if(file->status == FILE_TRANSFER_STATUS_NONE){
             file->status = FILE_TRANSFER_STATUS_ACTIVE;
+            /* Set resuming info TODO MOVE TO AFTER FILE IS ACCEPED BY USER */
+            if(file->resume == 0){
+                file->resume = utox_file_alloc_ftinfo(file);
+            }
         } else if(file->status == FILE_TRANSFER_STATUS_PAUSED_US){
             file->status = FILE_TRANSFER_STATUS_ACTIVE;
         } else if(file->status == FILE_TRANSFER_STATUS_PAUSED_BOTH) {
@@ -498,28 +502,6 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
     }
 
     switch(kind){
-    case TOX_FILE_KIND_DATA:{
-        debug("FileTransfer:\tNew incoming file from friend (%u) file number (%u)\nFileTransfer:\t\tfilename: %s\n", friend_number, file_number, filename);
-        /* Auto accept if it's a utox-inline image, with the correct size */
-        if(file_size < 1024 * 1024 * 4
-            && filename_length == (sizeof("utox-inline.png") - 1)
-            && memcmp(filename, "utox-inline.png", filename_length) == 0)
-            {
-            utox_build_file_transfer(file_handle, friend_number, file_number, file_size, 1, 1, 0,
-                TOX_FILE_KIND_DATA, filename, filename_length, NULL, 0, NULL, tox);
-            file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_RESUME);
-        } else {
-            utox_build_file_transfer(file_handle, friend_number, file_number, file_size, 1, 0, 0,
-                TOX_FILE_KIND_DATA, filename, filename_length, NULL, 0, NULL, tox);
-            /* Set UI values */
-            file_handle->ui_data = message_add_type_file(file_handle);
-            /* Set resuming info TODO MOVE TO AFTER FILE IS ACCEPED BY USER */
-            file_handle->resume = utox_file_alloc_ftinfo(file_handle);
-            /* Notify the user! */
-            utox_new_user_file(file_handle);
-        }
-        break;
-    }
     case TOX_FILE_KIND_AVATAR:{
         debug("FileTransfer:\tNew Avatar from friend (%u)\n", friend_number);
         /* Verify Avatar Size */
@@ -546,13 +528,13 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
         file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_RESUME);
         return;
     }
-    case TOX_FILE_KIND_EXISTING:{
-        debug("FileTransfer:\tIncoming Existing file from friend (%u) \n", friend_number);
+    case TOX_FILE_KIND_DATA:{
         /* Load saved information about this file */
         file_handle->friend_number = friend_number;
         file_handle->file_number   = file_number;
         memcpy(file_handle->file_id, file_id, TOX_FILE_ID_LENGTH);
         if(utox_file_load_ftinfo(file_handle)){
+            debug("FileTransfer:\tIncoming Existing file from friend (%u) \n", friend_number);
             /* We were able to load incoming file info from disk; validate date! */
             /* First, backup transfered size, because we're about to overwrite it*/
             uint64_t seek_size = file_handle->size_transferred;
@@ -595,20 +577,26 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
                     free(file_handle->path);
                     return;
                 }
-            } else {
-                /* The file doesn't exist on disk where we expected, let's prompt the user to accept it as a new file */
-                debug("FileTransfer:\tUnable to open that file; treating as new.\n");
-                utox_build_file_transfer(file_handle, friend_number, file_number, size, 1, 0, 0, TOX_FILE_KIND_DATA,
-                    filename, filename_length, NULL, 0, NULL, tox);
-                file_handle->ui_data = message_add_type_file(file_handle);
-                file_handle->resume = utox_file_alloc_ftinfo(file_handle);
-                utox_new_user_file(file_handle);
-                return;
             }
+        }
+        /* The file doesn't exist on disk where we expected, let's prompt the user to accept it as a new file */
+        debug("FileTransfer:\tNew incoming file from friend (%u) file number (%u)\nFileTransfer:\t\tfilename: %s\n", friend_number, file_number, filename);
+        /* Auto accept if it's a utox-inline image, with the correct size */
+        if(file_size < 1024 * 1024 * 4
+            && filename_length == (sizeof("utox-inline.png") - 1)
+            && memcmp(filename, "utox-inline.png", filename_length) == 0)
+            {
+            utox_build_file_transfer(file_handle, friend_number, file_number, file_size, 1, 1, 0,
+                TOX_FILE_KIND_DATA, filename, filename_length, NULL, 0, NULL, tox);
+            file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_RESUME);
         } else {
-            debug("FileTransfer:\tWe don't know anything about this file, so for safety we're just going to reject it!.\n");
-            file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
-            return;
+            utox_build_file_transfer(file_handle, friend_number, file_number, file_size, 1, 0, 0,
+                TOX_FILE_KIND_DATA, filename, filename_length, NULL, 0, NULL, tox);
+            /* Set UI values */
+            file_handle->ui_data = message_add_type_file(file_handle);
+            file_handle->resume = 0;
+            /* Notify the user! */
+            utox_new_user_file(file_handle);
         }
         break; /*We shouldn't reach here, but just in case! */
     } /* last case */
@@ -766,8 +754,7 @@ void outgoing_file_send(Tox *tox, uint32_t friend_number, uint8_t *path, uint8_t
             p++;
         }
 
-        file_number = tox_file_send(tox, friend_number, TOX_FILE_KIND_EXISTING, file_size, file_id, name, p - name,
-            &error);
+        file_number = tox_file_send(tox, friend_number, TOX_FILE_KIND_DATA, file_size, file_id, name, p - name, &error);
 
         filename        = name;
         filename_length = p - name;
