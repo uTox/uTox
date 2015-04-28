@@ -151,12 +151,11 @@ static int utox_file_alloc_ftinfo(FILE_TRANSFER *file){
         sprintf((char*)path + (path_length + TOX_PUBLIC_KEY_SIZE * 2), "%02i.ftoutfo", file->file_number % 100);
     }
 
-    FILE *saveinfo = fopen((const char*)path, "wb");
-    if(!file) {
+    file->saveinfo = fopen((const char*)path, "wb");
+    if(!file->saveinfo) {
         debug("FileTransfer:\tUnable to save file info... uTox can't resume file %.*s\n", (uint32_t)file->name_length, file->name);
         return 0;
     }
-    file->saveinfo = saveinfo;
     debug("FileTransfer:\t.ftinfo for file %.*s set; ready to resume!\n", (uint32_t)file->name_length, file->name);
     utox_file_save_ftinfo(file);
     return 1;
@@ -406,7 +405,7 @@ void file_transfer_local_control(Tox *tox, uint32_t friend_number, uint32_t file
     TOX_ERR_FILE_CONTROL error = 0;
     FILE_TRANSFER *info = get_file_transfer(friend_number, file_number);
     switch(control){
-        case TOX_FILE_CONTROL_RESUME:
+        case TOX_FILE_CONTROL_RESUME:{
             if(info->status != FILE_TRANSFER_STATUS_ACTIVE){
                 if(friend[friend_number].transfer_count < MAX_FILE_TRANSFERS){
                     if(tox_file_control(tox, friend_number, file_number, control, &error)){
@@ -423,6 +422,7 @@ void file_transfer_local_control(Tox *tox, uint32_t friend_number, uint32_t file
             }
             utox_run_file(info, 1);
             break;
+        }
         case TOX_FILE_CONTROL_PAUSE:
             if(info->status != FILE_TRANSFER_STATUS_PAUSED_US || info->status != FILE_TRANSFER_STATUS_PAUSED_BOTH ){
                 if(tox_file_control(tox, friend_number, file_number, control, &error)){
@@ -435,7 +435,7 @@ void file_transfer_local_control(Tox *tox, uint32_t friend_number, uint32_t file
             }
             utox_pause_file(info, 1);
             break;
-        case TOX_FILE_CONTROL_CANCEL:
+        case TOX_FILE_CONTROL_CANCEL:{
             if(info->status != FILE_TRANSFER_STATUS_KILLED){
                 if(tox_file_control(tox, friend_number, file_number, control, &error)){
                     debug("FileTransfer:\tWe just killed file (%u & %u)\n", friend_number, file_number);
@@ -449,6 +449,7 @@ void file_transfer_local_control(Tox *tox, uint32_t friend_number, uint32_t file
                 utox_kill_file(info, 1);
             }
             break;
+        }
     }
     /* Do something with the error! */
     if(error){
