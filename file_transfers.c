@@ -956,6 +956,10 @@ void utox_cleanup_file_transfers(uint32_t friend_number, uint32_t file_number){
         fclose(transfer->file);
     }
 
+    if(transfer->saveinfo){
+        fclose(transfer->saveinfo);
+    }
+
     memset(transfer, 0, sizeof(FILE_TRANSFER));
 }
 
@@ -967,6 +971,7 @@ void utox_file_save_ftinfo(FILE_TRANSFER *file){
     fwrite(file->path, sizeof(uint8_t), file->path_length, file->saveinfo);
     fflush(file->saveinfo);
     fseeko(file->saveinfo, 0, SEEK_SET);
+    fflush(file->saveinfo);
 }
 
 _Bool utox_file_load_ftinfo(FILE_TRANSFER *file){
@@ -1011,7 +1016,6 @@ _Bool utox_file_load_ftinfo(FILE_TRANSFER *file){
     info->name_length   = 0;
     info->ui_data       = NULL;
     info->file          = NULL;
-    info->saveinfo      = fopen((const char*)path, "wb");
 
     memcpy(file, info, sizeof(*file));
     free(info);
