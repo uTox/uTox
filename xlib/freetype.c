@@ -188,7 +188,8 @@ GLYPH* font_getglyph(FONT *f, uint32_t ch)
     FcPatternGetInteger(f->pattern, FC_LCD_FILTER, 0, &lcd_filter);
     FT_Library_SetLcdFilter( ftlib, lcd_filter);
 
-    int ft_flags = FT_LOAD_RENDER;
+    int ft_flags = FT_LOAD_DEFAULT;
+    int ft_render_flags = FT_RENDER_MODE_NORMAL;
 
     _Bool hinting = 1, antialias = 1, vertical_layout = 0, autohint = 0;
     FcPatternGetBool(f->pattern, FC_HINTING, 0, &hinting);
@@ -201,22 +202,31 @@ GLYPH* font_getglyph(FONT *f, uint32_t ch)
 
     int weight;
     //FcPatternGetInteger(f->pattern, FC_WEIGHT, 0, &weight);
-    _Bool no_subpixel = (!hinting || (hint_style == FC_HINT_NONE));
+    int subpixel = FC_RGBA_NONE;
+    FcPatternGetInteger(f->pattern, FC_RGBA, 0, &subpixel); 
+
+    _Bool no_subpixel = (subpixel == FC_RGBA_NONE);
     _Bool vert = ft_vert;
 
     if (no_subpixel) {
-        ft_flags |= FT_LOAD_NO_HINTING;
+        ft_render_flags = FT_RENDER_MODE_NORMAL;
     } else {
-        if (antialias) {
-            if (FC_HINT_NONE < hint_style && hint_style < FC_HINT_FULL)
-            {
-                ft_flags |= FT_LOAD_TARGET_LIGHT;
-            } else {
-                ft_flags |= (vert ? FT_LOAD_TARGET_LCD_V : FT_LOAD_TARGET_LCD);
-            }
+        ft_render_flags |= (vert ? FT_RENDER_MODE_LCD_V : FT_RENDER_MODE_LCD);
+    }
+
+    if (antialias) {
+        if (hint_style == FC_HINT_NONE) {
+            ft_flags |= FT_LOAD_NO_HINTING;
+        } else if (hint_style == FC_HINT_SLIGHT) {
+            ft_flags |= FT_LOAD_TARGET_LIGHT;
+        } else if (hint_style == FC_HINT_FULL && !no_subpixel) {
+            ft_flags |= (vert ? FT_LOAD_TARGET_LCD_V : FT_LOAD_TARGET_LCD);
         } else {
-            ft_flags |= FT_LOAD_TARGET_MONO;
+            ft_flags |= FT_LOAD_TARGET_NORMAL;
         }
+    } else {
+        ft_flags |= FT_LOAD_TARGET_MONO;
+        ft_render_flags = FT_RENDER_MODE_NORMAL;
     }
 
     if (vertical_layout)
@@ -227,6 +237,7 @@ GLYPH* font_getglyph(FONT *f, uint32_t ch)
 
     g[1].ucs4 = ~0;
     FT_Load_Char(i->face, ch, ft_flags);
+    FT_Render_Glyph(i->face->glyph, ft_render_flags);
     FT_GlyphSlotRec *p = i->face->glyph;
 
     g->ucs4 = ch;
