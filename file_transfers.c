@@ -348,8 +348,6 @@ static void decode_inline_png(uint32_t friend_id, uint8_t *data, uint64_t size)
         memcpy(msg + sizeof(uint16_t) * 2, &native_image, sizeof(uint8_t *));
         postmessage(FRIEND_INLINE_IMAGE, friend_id, 0, msg);
     }
-
-    free(data);
 }
 
 /* Complete active file, (when the whole file transfer is successful). */
@@ -363,8 +361,6 @@ static void utox_complete_file(FILE_TRANSFER *file){
                     file->size = 0;
                 } else {
                     decode_inline_png(file->friend_number, file->memory, file->size);
-                    file->memory = NULL;
-                    file->size = 0;
                 }
             } else { // Is a file
                 file->ui_data->path = (uint8_t*)strdup((const char*)file->path);
@@ -826,6 +822,8 @@ void outgoing_file_send(Tox *tox, uint32_t friend_number, uint8_t *path, uint8_t
             if(transfer_size){
                 file_handle->size_transferred = transfer_size;
             }
+
+            utox_new_user_file(file_handle);
         } else {
             if(avatar){
                 memcpy(file_handle->avatar, file_data, file_data_size);
@@ -834,11 +832,12 @@ void outgoing_file_send(Tox *tox, uint32_t friend_number, uint8_t *path, uint8_t
                 file_handle->ui_data = message_add_type_file(file_handle);
                 memcpy(file_handle->memory, file_data, file_data_size);
                 free(filename);
+                utox_new_user_file(file_handle);
             }
             file_handle->status = FILE_TRANSFER_STATUS_PAUSED_THEM;
             file_handle->resume = 0;
         }
-        utox_new_user_file(file_handle);
+
     } else {
         debug("tox_file_send() failed\n");
         if(avatar){
@@ -964,11 +963,8 @@ void utox_cleanup_file_transfers(uint32_t friend_number, uint32_t file_number){
     if(transfer->name){
         free(transfer->name);
     }
-    if(transfer->path){
-        free(transfer->path);
-    }
 
-    if(transfer->memory){
+    if(transfer->in_memory){
         if(transfer->avatar){
             free(transfer->avatar);
         }
