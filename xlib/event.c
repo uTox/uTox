@@ -501,7 +501,12 @@ _Bool doevent(XEvent event)
 
             if(ev->message_type == wm_protocols) {
                 if((Atom)event.xclient.data.l[0] == wm_delete_window) {
-                    return 0;
+                    if(close_to_tray){
+                        debug("Closing to tray.\n");
+                        togglehide();
+                    } else {
+                        return 0;
+                    }
                 }
                 break;
             }

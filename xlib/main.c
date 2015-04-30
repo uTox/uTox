@@ -1184,7 +1184,11 @@ int main(int argc, char *argv[])
     dropdown_language.selected = dropdown_language.over = LANG;
 
     /* make the window visible */
-    XMapWindow(display, window);
+    if (start_in_tray) {
+        togglehide();
+    } else {
+        XMapWindow(display, window);
+    }
 
     if (xim) {
         if((xic = XCreateIC(xim, XNInputStyle, XIMPreeditNothing | XIMStatusNothing, XNClientWindow, window, XNFocusWindow, window, NULL))) {
