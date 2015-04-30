@@ -808,18 +808,19 @@ void outgoing_file_send(Tox *tox, uint32_t friend_number, uint8_t *path, uint8_t
             if(transfer_size){
                 file_handle->size_transferred = transfer_size;
             }
-
-            utox_new_user_file(file_handle);
         } else {
             if(avatar){
                 memcpy(file_handle->avatar, file_data, file_data_size);
             } else {
-                free(filename);
+                /* Allow saving of in-lines */
+                file_handle->ui_data = message_add_type_file(file_handle);
                 memcpy(file_handle->memory, file_data, file_data_size);
+                free(filename);
             }
             file_handle->status = FILE_TRANSFER_STATUS_PAUSED_THEM;
             file_handle->resume = 0;
         }
+        utox_new_user_file(file_handle);
     } else {
         debug("tox_file_send() failed\n");
         if(avatar){
