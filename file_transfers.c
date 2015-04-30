@@ -165,6 +165,7 @@ static int utox_file_alloc_ftinfo(FILE_TRANSFER *file){
 static void utox_file_free_ftinfo(FILE_TRANSFER *file){
     if(file->saveinfo){
         fclose(file->saveinfo);
+        file->saveinfo = NULL;
     }
     uint8_t path[UTOX_FILE_NAME_LENGTH];
     size_t path_length;
@@ -720,6 +721,8 @@ void outgoing_file_send(Tox *tox, uint32_t friend_number, uint8_t *path, uint8_t
             debug("FileTransfer:\tStarting outgoing image to friend %u.\n", friend_number);
             file_number = tox_file_send(tox, friend_number, TOX_FILE_KIND_DATA, file_data_size, NULL, filename,
                 filename_length, &error);
+
+            file_size = file_data_size;
             memory = 1;
         }
         break;
@@ -780,6 +783,7 @@ void outgoing_file_send(Tox *tox, uint32_t friend_number, uint8_t *path, uint8_t
         debug("FileTransfer:\tStarting avatar to friend %u.\n", friend_number);
         file_number = tox_file_send(tox, friend_number, TOX_FILE_KIND_AVATAR, file_data_size, file_id, NULL, 0, &error);
 
+        file_size = file_data_size;
         memory = 1;
         avatar = 1;
         break;
@@ -899,6 +903,7 @@ int utox_file_start_write(uint32_t friend_number, uint32_t file_number, void *fi
         debug("FileTransfer:\tThe file size was unable to be changed!\n");
         free(filepath);
         fclose(file_handle->file);
+        file_handle->file = NULL;
         utox_break_file(file_handle);
         remove(filepath);
         return -1;
