@@ -132,6 +132,7 @@ enum {
     /* friend file */
     FRIEND_FILE_NEW,
     FRIEND_FILE_UPDATE,
+    FRIEND_INLINE_IMAGE,
 
     /* group */
     GROUP_ADD,

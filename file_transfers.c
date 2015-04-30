@@ -336,6 +336,22 @@ static void utox_run_file(FILE_TRANSFER *file, uint8_t us){
     // debug("utox_run_file\n");
 }
 
+static void decode_inline_png(uint32_t friend_id, uint8_t *data, uint64_t size)
+{
+    //TODO: start a new thread and decode the png in it.
+    uint16_t width, height;
+    UTOX_NATIVE_IMAGE *native_image = png_to_image(data, size, &width, &height, 0);
+    if (UTOX_NATIVE_IMAGE_IS_VALID(native_image)) {
+        void *msg = malloc(sizeof(uint16_t) * 2 + sizeof(uint8_t *));
+        memcpy(msg, &width, sizeof(uint16_t));
+        memcpy(msg + sizeof(uint16_t), &height, sizeof(uint16_t));
+        memcpy(msg + sizeof(uint16_t) * 2, &native_image, sizeof(uint8_t *));
+        postmessage(FRIEND_INLINE_IMAGE, friend_id, 0, msg);
+    }
+
+    free(data);
+}
+
 /* Complete active file, (when the whole file transfer is successful). */
 static void utox_complete_file(FILE_TRANSFER *file){
     if(file->status == FILE_TRANSFER_STATUS_ACTIVE){
@@ -346,7 +362,9 @@ static void utox_complete_file(FILE_TRANSFER *file){
                     file->avatar = NULL;
                     file->size = 0;
                 } else {
-                    friend_recvimage(&friend[file->friend_number], (UTOX_PNG_IMAGE)file->memory, file->size);
+                    decode_inline_png(file->friend_number, file->memory, file->size);
+                    file->memory = NULL;
+                    file->size = 0;
                 }
             } else { // Is a file
                 file->ui_data->path = (uint8_t*)strdup((const char*)file->path);

@@ -1632,6 +1632,19 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         break;
     }
 
+    case FRIEND_INLINE_IMAGE: {
+        FRIEND *f = &friend[param1];
+        uint16_t width, height;
+        uint8_t *image;
+        memcpy(&width, data, sizeof(uint16_t));
+        memcpy(&height, data + sizeof(uint16_t), sizeof(uint16_t));
+        memcpy(&image, data + sizeof(uint16_t) * 2, sizeof(uint8_t *));
+        free(data);
+        friend_recvimage(f, image, width, height);
+        redraw();
+        break;
+    }
+
     case GROUP_ADD: {
         GROUPCHAT *g = &group[param1];
         g->name_length = snprintf((char*)g->name, sizeof(g->name), "Groupchat #%u", param1);
