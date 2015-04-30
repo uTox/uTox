@@ -8,7 +8,7 @@ void* file_raw(char *path, uint32_t *size)
 
     file = fopen(path, "rb");
     if(!file) {
-        debug("File not found (%s)\n", path);
+        // debug("File not found (%s)\n", path);
         return NULL;
     }
 
@@ -31,7 +31,7 @@ void* file_raw(char *path, uint32_t *size)
 
     fclose(file);
 
-    debug("Read %u bytes (%s)\n", len, path);
+    // debug("Read %u bytes (%s)\n", len, path);
 
     if(size) {
         *size = len;
@@ -120,18 +120,19 @@ static void to_hex(char_t *a, char_t *p, int size)
     }
 }
 
-void id_to_string(char_t *dest, char_t *src)
-{
+void id_to_string(char_t *dest, char_t *src){
     to_hex(dest, src, TOX_FRIEND_ADDRESS_SIZE);
 }
 
-void cid_to_string(char_t *dest, char_t *src)
-{
+void cid_to_string(char_t *dest, char_t *src){
     to_hex(dest, src, TOX_PUBLIC_KEY_SIZE);
 }
 
-void hash_to_string(char_t *dest, char_t *src)
-{
+void fid_to_string(char_t *dest, char_t *src){
+    to_hex(dest, src, TOX_FILE_ID_LENGTH);
+}
+
+void hash_to_string(char_t *dest, char_t *src){
     to_hex(dest, src, TOX_HASH_LENGTH);
 }
 

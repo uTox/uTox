@@ -17,6 +17,7 @@
 #include <X11/extensions/XShm.h>
 #include <sys/shm.h>
 
+#define _GNU_SOURCE
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/ioctl.h>
@@ -826,6 +827,11 @@ void flush_file(FILE *file)
     int fd = fileno(file);
     fsync(fd);
 }
+
+int resize_file(FILE *file, uint64_t size){
+    return posix_fallocate(fileno(file), 0, size);
+}
+
 
 void setscale(void)
 {

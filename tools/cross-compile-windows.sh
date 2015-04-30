@@ -1,7 +1,7 @@
 #!/bin/bash
 # Script to cross compile utox for win64 from a linux host with ming32
 #
-# Expects build dir to be git root with filter_audio and toxcore libs in ../
+# Expects build dir to be git root with filter_audio and toxcore libs in ./lib/
 #
 # TODO: Add support to -t path/to/libtoxcore; -l path/to/openal; -f path/to/filter_audio
 
@@ -75,9 +75,9 @@ else
 fi
 
 # Build filter_audio
-AUDIO_FILTERING_BUILD="-D AUDIO_FILTERING -I ../filter_audio/ \
-../filter_audio/filter_audio.c ../filter_audio/aec/*.c ../filter_audio/agc/*.c \
-../filter_audio/ns/*.c ../filter_audio/other/*.c"
+AUDIO_FILTERING_BUILD="-D AUDIO_FILTERING -I ./lib/filter_audio/ \
+./lib/filter_audio/filter_audio.c ./lib/filter_audio/aec/*.c ./lib/filter_audio/agc/*.c \
+./lib/filter_audio/ns/*.c ./lib/filter_audio/other/*.c"
 
 # Remove existing
 rm utox.exe 2> /dev/null
@@ -87,10 +87,10 @@ rm utox.exe 2> /dev/null
 
 # Compile
 "$WINDOWS_TOOLCHAIN"-gcc -std=gnu99 $COMPILE_OPT -DAL_LIBTYPE_STATIC -o utox.exe ./*.c     \
-./png/png.c $AUDIO_FILTERING_BUILD -I ../toxcore/include/ -I                 \
-../openal/include/  ../openal/lib/libOpenAL32.a \
-../toxcore/lib/libtoxav.a ../toxcore/lib/libtoxdns.a                         \
-../toxcore/lib/libtoxcore.a ../toxcore/lib/libvpx.a ../toxcore/lib/libopus.a \
-../toxcore/lib/libsodium.a $MINGW32_LIB_DIR/libwinpthread.a       			 \
+./png/png.c $AUDIO_FILTERING_BUILD -I ./lib/toxcore/include/ -I                 \
+./lib/openal/include/  ./lib/openal/lib/libOpenAL32.a \
+./lib/toxcore/lib/libtoxav.a ./lib/toxcore/lib/libtoxdns.a                         \
+./lib/toxcore/lib/libtoxcore.a ./lib/toxcore/lib/libvpx.a ./lib/toxcore/lib/libopus.a \
+./lib/toxcore/lib/libsodium.a $MINGW32_LIB_DIR/libwinpthread.a       			 \
 -liphlpapi -lws2_32 -lgdi32 -lmsimg32 -ldnsapi -lcomdlg32 ./icon.o           \
 -Wl,-subsystem,windows -lwinmm -lole32 -loleaut32 -lstrmiids

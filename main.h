@@ -344,6 +344,7 @@ int datapath_old(uint8_t *dest);
 int datapath(uint8_t *dest);
 int datapath_subdir(uint8_t *dest, const char *subdir);
 void flush_file(FILE *file);
+int resize_file(FILE *file, uint64_t size);
 int ch_mod(uint8_t *file);
 int file_lock(FILE *file, uint64_t start, size_t length);
 int file_unlock(FILE *file, uint64_t start, size_t length);

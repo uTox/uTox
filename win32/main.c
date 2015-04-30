@@ -41,6 +41,13 @@ extern const CLSID CLSID_NullRenderer;
 #include <shlobj.h>
 
 #include <io.h>
+#include <error.h>
+
+/* mingw64 doesn't provide this def, but it should exist... */
+errno_t _chsize_s(
+   int fd,
+   __int64 size
+);
 
 #undef CLEARTYPE_QUALITY
 #define CLEARTYPE_QUALITY 5
@@ -559,7 +566,7 @@ void savefiledata(MSG_FILE *file)
             fclose(fp);
 
             free(file->path);
-            file->path = (uint8_t*)strdup("inline.png");
+            file->path = (uint8_t*)strdup(path);
             file->inline_png = 0;
         }
     } else {
@@ -948,6 +955,10 @@ void flush_file(FILE *file)
     fflush(file);
     int fd = _fileno(file);
     _commit(fd);
+}
+
+int resize_file(FILE *file, uint64_t size){
+    return _chsize_s(fileno(file), size);
 }
 
 
