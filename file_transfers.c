@@ -953,8 +953,6 @@ void utox_cleanup_file_transfers(uint32_t friend_number, uint32_t file_number){
     if(transfer->memory){
         if(transfer->avatar){
             free(transfer->avatar);
-        } else {
-            free(transfer->memory);
         }
     }
 

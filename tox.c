@@ -1613,7 +1613,11 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         msg->filenumber = file->file_number;
         msg->progress = file->size_transferred;
         msg->speed = file->speed;
-        msg->path = file->path;
+        if(file->in_memory){
+            msg->path = file->memory;
+        } else {
+            msg->path = file->path;
+        }
         if (f_notify) {
             file_notify(f, msg);
         }

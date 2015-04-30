@@ -566,7 +566,7 @@ void savefiledata(MSG_FILE *file)
             fclose(fp);
 
             free(file->path);
-            file->path = (uint8_t*)strdup("inline.png");
+            file->path = (uint8_t*)strdup(path);
             file->inline_png = 0;
         }
     } else {
