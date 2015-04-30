@@ -535,7 +535,7 @@ void savefilerecv(uint32_t fid, MSG_FILE *file)
         .hwndOwner = hwnd,
         .lpstrFile = path,
         .nMaxFile = UTOX_FILE_NAME_LENGTH,
-        .Flags = OFN_EXPLORER | OFN_NOCHANGEDIR | OFN_NOREADONLYRETURN |OFN_OVERWRITEPROMPT,
+        .Flags = OFN_EXPLORER | OFN_NOCHANGEDIR | OFN_NOREADONLYRETURN | OFN_OVERWRITEPROMPT,
     };
 
     if(GetSaveFileName(&ofn)) {
@@ -556,7 +556,7 @@ void savefiledata(MSG_FILE *file)
         .hwndOwner = hwnd,
         .lpstrFile = path,
         .nMaxFile = UTOX_FILE_NAME_LENGTH,
-        .Flags = OFN_EXPLORER | OFN_NOCHANGEDIR,
+        .Flags = OFN_EXPLORER | OFN_NOCHANGEDIR | OFN_NOREADONLYRETURN | OFN_OVERWRITEPROMPT,
     };
 
     if(GetSaveFileName(&ofn)) {
