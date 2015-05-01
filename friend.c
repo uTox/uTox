@@ -40,6 +40,7 @@ void friend_sendimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width
     msg->position = 0.0;
 
     message_add(&messages_friend, (void*)msg, &f->msg);
+    redraw();
 
     struct TOX_SEND_INLINE_MSG *tsim = malloc(sizeof(struct TOX_SEND_INLINE_MSG));
     tsim->image = png_image;
@@ -220,19 +221,6 @@ void friend_free(FRIEND *f)
     MSG_IDX i = 0;
     while(i < f->msg.n) {
         MESSAGE *msg = f->msg.data[i];
-        switch(msg->msg_type) {
-        case MSG_TYPE_IMAGE: {
-            //MSG_IMG *img = (void*)msg;
-            //todo: free image
-            break;
-        }
-        case MSG_TYPE_FILE: {
-            // TODO KILL THIS SECTION
-            MSG_FILE *file = (void*)msg;
-            free(file->path);
-            break;
-        }
-        }
         message_free(msg);
         i++;
     }
