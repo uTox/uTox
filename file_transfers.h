@@ -30,7 +30,7 @@ typedef struct FILE_TRANSFER {
 } FILE_TRANSFER;
 
 void file_transfer_local_control(Tox *tox, uint32_t friend_number, uint32_t file_number, TOX_FILE_CONTROL control);
-void outgoing_file_send(Tox *tox, uint32_t friend_number, uint8_t *path, uint8_t *filename, size_t filename_length, uint32_t kind);
+uint32_t outgoing_file_send(Tox *tox, uint32_t friend_number, uint8_t *path, uint8_t *filename, size_t filename_length, uint32_t kind);
 
 int utox_file_start_write(uint32_t friend_number, uint32_t file_number, void *filepath);
 
