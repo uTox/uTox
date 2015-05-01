@@ -38,6 +38,7 @@ _Bool doevent(XEvent event)
     switch(event.type) {
     case Expose: {
         enddraw(0, 0, utox_window_width, utox_window_height);
+        draw_tray_icon();
         debug("expose\n");
         break;
     }
@@ -84,7 +85,7 @@ _Bool doevent(XEvent event)
                 drawheight = ev->height + 10;
 
                 XFreePixmap(display, drawbuf);
-                drawbuf = XCreatePixmap(display, window, drawwidth, drawheight, 24);
+                drawbuf = XCreatePixmap(display, window, drawwidth, drawheight, 24); // TODO get depth from X not code
                 XRenderFreePicture(display, renderpic);
                 renderpic = XRenderCreatePicture(display, drawbuf,XRenderFindStandardFormat(display, PictStandardRGB24), 0, NULL);
             }
