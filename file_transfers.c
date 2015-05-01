@@ -460,7 +460,7 @@ void file_transfer_local_control(Tox *tox, uint32_t friend_number, uint32_t file
             } else {
                 debug("FileTransfer:\tFile already killed (%u & %u)\n", friend_number, file_number);
             }
-            if(info->status && info->friend_number == friend_number){
+            if(info->friend_number == friend_number){
                 utox_kill_file(info, 1);
             }
             break;
