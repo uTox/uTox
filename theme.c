@@ -267,7 +267,7 @@ uint32_t try_parse_hex_colour(char *colour, int *error) {
         if (colour[l] != ' ' && colour[l] != '\n')
             break;
 
-    colour[l++] = '\0';
+    colour[++l] = '\0';
 
     printf("'%s'\n", colour);
     if (l != 6) {
@@ -285,7 +285,7 @@ uint32_t try_parse_hex_colour(char *colour, int *error) {
     memcpy(hex, colour + 4, 2);
     blue = strtol(hex, NULL, 16);
 
-    return (red << 16) | (green << 8) | blue;
+    return RGB(red, green, blue);
 }
 
 void read_custom_theme(const char *path) {
