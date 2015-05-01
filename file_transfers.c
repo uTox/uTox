@@ -604,6 +604,11 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
             {
             utox_build_file_transfer(file_handle, friend_number, file_number, file_size, 1, 1, 0,
                 TOX_FILE_KIND_DATA, filename, filename_length, NULL, 0, NULL, tox);
+
+            file_handle->ui_data = message_add_type_file(file_handle);
+            file_handle->resume = 0;
+            /* Notify the user! */
+            utox_new_user_file(file_handle);
             file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_RESUME);
         } else {
             utox_build_file_transfer(file_handle, friend_number, file_number, file_size, 1, 0, 0,
