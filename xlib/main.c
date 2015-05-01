@@ -544,7 +544,7 @@ void create_tray_icon(void){
     XSelectInput(display, tray_window, ButtonPress);
 
     /* Get ready to draw a tray icon */
-    trayicon_gc        = XCreateGC(display, screen);
+    trayicon_gc        = DefaultGC(display, screen);
     trayicon_drawbuf   = XCreatePixmap(display, tray_window, tray_width, tray_height, 24); // TODO depth != 24, sometimes
     trayicon_renderpic = XRenderCreatePicture(display, trayicon_drawbuf, XRenderFindStandardFormat(display, PictStandardRGB24), 0, NULL);
     /* Send icon to the tray */
