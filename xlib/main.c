@@ -513,17 +513,17 @@ void destroy_tray_icon(void)
 /** Toggles the main window to/from hidden to tray/shown. */
 void togglehide(void)
 {
-    static int x, y;
-
     if(hidden) {
+        Window root;
+        int x, y;
+        unsigned int w, h, border, depth;
+        XGetGeometry(display, window, &root, &x, &y, &w, &h, &border, &depth);
         XMapWindow(display, window);
         XMoveWindow(display, window, x, y);
         redraw();
         hidden = 0;
     } else {
-        Window child;
-        XTranslateCoordinates(display, window, RootWindow(display, screen), 0, 0, &x, &y, &child );
-        XUnmapWindow(display, window);
+        XWithdrawWindow(display, window, screen);
         hidden = 1;
     }
 }
