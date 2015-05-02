@@ -25,6 +25,7 @@ ifeq ($(UNITY), 1)
 endif
 
 UNAME_S := $(shell uname -s)
+ARCH    := $(shell uname -m)
 
 CFLAGS += -g -Wall -Wshadow -pthread -std=gnu99
 CFLAGS += $(shell pkg-config --cflags $(DEPS))
@@ -51,6 +52,12 @@ ifeq ($(UNAME_S), Linux)
     LDFLAGS += -lresolv -ldl
 endif
 
+ifeq ($(ARCH), x86_64)
+    OBJCPY = elf64-x86-64
+else
+	OBJCPY = elf32-i386
+endif
+
 DESTDIR ?=
 PREFIX ?= /usr/local
 
@@ -59,14 +66,14 @@ OBJ = $(SRC:.c=.o)
 
 all: utox
 
-utox: $(OBJ)
+utox: $(OBJ) icons/utox-128x128.o
 	@echo "  LD    $@"
-	@$(CC) $(CFLAGS) -o utox $(OBJ) $(LDFLAGS)
+	@$(CC) $(CFLAGS) -o utox $(OBJ) icons/utox-128x128.o $(LDFLAGS)
 
 install: utox
 	mkdir -p $(DESTDIR)$(PREFIX)/bin
 	install -m 0755 utox $(DESTDIR)$(PREFIX)/bin/utox
-	
+
 	mkdir -p $(DESTDIR)$(PREFIX)/share/icons/hicolor/14x14/apps
 	install -m 644 icons/utox-14x14.png $(DESTDIR)$(PREFIX)/share/icons/hicolor/14x14/apps/utox.png
 	mkdir -p $(DESTDIR)$(PREFIX)/share/icons/hicolor/16x16/apps
@@ -97,11 +104,11 @@ install: utox
 	install -m 644 icons/utox-512x512.png $(DESTDIR)$(PREFIX)/share/icons/hicolor/512x512/apps/utox.png
 	mkdir -p $(DESTDIR)$(PREFIX)/share/icons/hicolor/scalable/apps
 	install -m 644 icons/utox.svg $(DESTDIR)$(PREFIX)/share/icons/hicolor/scalable/apps/utox.svg
-	
+
 	mkdir -p $(DESTDIR)$(PREFIX)/share/applications
 	install -m 644 utox.desktop $(DESTDIR)$(PREFIX)/share/applications/utox.desktop
 	if [ "$UNITY" -eq "1" ]; then echo "X-MessagingMenu-UsesChatSection=true" >> $(DESTDIR)$(PREFIX)/share/applications/utox.desktop; fi
-	
+
 	mkdir -p $(DESTDIR)$(PREFIX)/share/man/man1
 	install -m 644 utox.1 $(DESTDIR)$(PREFIX)/share/man/man1/utox.1
 
@@ -111,7 +118,10 @@ main.o: xlib/main.c xlib/keysym2ucs.c
 	@echo "  CC    $@"
 	@$(CC) $(CFLAGS) -o $@ -c $<
 
+icons/utox-128x128.o:
+	objcopy -I binary -O $(OBJCPY) -B i386 icons/utox-128x128.png icons/utox-128x128.o
+
 clean:
-	rm -f utox *.o png/*.o
+	rm -f utox *.o png/*.o icons/*.o
 
 .PHONY: all clean
