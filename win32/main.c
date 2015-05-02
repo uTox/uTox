@@ -1304,12 +1304,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
                     }
                     argv_theme=1;
                 }
-            } else if(!wcscmp(arglist[i], L"--save")) {
+            } else if(!wcscmp(arglist[i], L"--profile")) {
                 if ( ++i < argc ) {
                     //Arrr, widestrings.
                     char *clear_str=malloc(UTOX_FILE_NAME_LENGTH);
                     wcstombs(clear_str, arglist[i], UTOX_FILE_NAME_LENGTH); //Convert widestring to multibyte string
-                    debug("Save provided: %s\n", clear_str);
+                    debug("Profile provided: %s\n", clear_str);
                     tox_savename=clear_str;
                 }
             }

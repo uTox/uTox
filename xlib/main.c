@@ -1036,9 +1036,9 @@ int main(int argc, char *argv[])
             if(!strcmp(argv[i], "--theme")) {
                 parse_args_wait_for_theme = 1;
             }
-            if(!strcmp(argv[i], "--save")) {
+            if(!strcmp(argv[i], "--profile")) {
             	tox_savename = argv[++i];
-            	debug("Save provided: %s\n", tox_savename);
+            	debug("Profile provided: %s\n", tox_savename);
             }
             printf("arg %d: %s\n", i, argv[i]);
         }
