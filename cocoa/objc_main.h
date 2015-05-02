@@ -7,6 +7,7 @@
 
 extern CGDirectDisplayID desktop_capture_from;
 extern CGRect desktop_capture_rect;
+extern CGFloat desktop_capture_scale;
 
 #define RELEASE_CHK(func, obj) if ((obj)) \
     func((obj));

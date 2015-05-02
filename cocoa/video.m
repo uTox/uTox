@@ -32,6 +32,7 @@
             input.capturesCursor = YES;
             input.capturesMouseClicks = YES;
             input.cropRect = desktop_capture_rect;
+            input.scaleFactor = 1.0 / desktop_capture_scale;
 
             [_session beginConfiguration];
             [_session addInput:input];
@@ -149,7 +150,7 @@
     NSArray *vdevIDs = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
     for (int i = 0; i < vdevIDs.count; i++) {
         AVCaptureDevice *dev = vdevIDs[i];
-        int len = strlen(dev.localizedName.UTF8String);
+        unsigned long len = strlen(dev.localizedName.UTF8String);
         char *data = malloc(sizeof(void *) + len + 1);
         void *ptr = (void *)((uint64_t)i + 2);
         memcpy(data, &ptr, sizeof(void *));
@@ -175,6 +176,7 @@
 static uToxAV *active_video_session = NULL;
 CGDirectDisplayID desktop_capture_from = 0;
 CGRect            desktop_capture_rect = { 0 };
+CGFloat           desktop_capture_scale = 1.0;
 
 #ifdef UTOX_COCOA_BRAVE
 #define AV_SESSION_CHK()

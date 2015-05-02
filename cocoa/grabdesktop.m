@@ -149,6 +149,7 @@ static void stardust_display_capping_done(_Bool video, uint64_t ret, NSWindow *w
         } else {
             desktop_capture_from = screen_id;
             CGRect rect = [v getRect];
+            desktop_capture_scale = [window backingScaleFactor];
 
             // for video, it must be divisible by 8 or we get distortion
             desktop_capture_rect = rect;
