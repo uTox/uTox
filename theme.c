@@ -51,7 +51,7 @@ void theme_load(char loadtheme)
     COLOR_ACTIVEOPTION_BACKGROUND = COLOR_PROC(0xd1d1d1);
     COLOR_ACTIVEOPTION_TEXT       = COLOR_MAIN_TEXT;
 
-    //---- Auxiliary style (for elements in the friendslist) ----
+    //---- Auxiliary style for inputs/dropdowns ("Search friends" bar) ----
     COLOR_AUX_BACKGROUND              = COLOR_PROC(0x313131);
     COLOR_AUX_EDGE_NORMAL             = COLOR_AUX_BACKGROUND;
     COLOR_AUX_EDGE_HOVER              = COLOR_PROC(0x999999);
