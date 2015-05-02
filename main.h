@@ -298,6 +298,8 @@ struct
 //add friend page
 uint8_t addfriend_status;
 
+const char *tox_savename; //Stores current name of tox's savefile
+
 #define BORDER 1
 #define CAPTION 26
 

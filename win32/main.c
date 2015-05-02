@@ -1245,6 +1245,7 @@ void config_osdefaults(UTOX_SAVE *r)
  */
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int nCmdShow){
 
+    _Bool argv_theme=0;
     /* if opened with argument, check if uTox is already open and pass the argument to the existing process */
     CreateMutex(NULL, 0, TITLE);
     if(GetLastError() == ERROR_ALREADY_EXISTS) {
@@ -1263,6 +1264,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     /* Process argc/v the backwards (read: windows) way. */
     LPWSTR *arglist;
     int argc, i;
+    tox_savename = "tox_save";
 
     /* Convert PSTR command line args from windows to argc */
     arglist = CommandLineToArgvW(GetCommandLineW(), &argc);
@@ -1300,15 +1302,28 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
                         debug("Please specify correct theme (please check user manual for list of correct values).");
                         theme = THEME_DEFAULT;
                     }
+                    argv_theme=1;
+                }
+            } else if(!wcscmp(arglist[i], L"--save")) {
+                if ( ++i < argc ) {
+                    //Arrr, widestrings.
+                    char *clear_str=malloc(UTOX_FILE_NAME_LENGTH);
+                    wcstombs(clear_str, arglist[i], UTOX_FILE_NAME_LENGTH); //Convert widestring to multibyte string
+                    debug("Save provided: %s\n", clear_str);
+                    tox_savename=clear_str;
                 }
             }
         }
     }
 
-    theme_load(theme);
-
     // Free memory allocated for CommandLineToArgvW arguments.
     LocalFree(arglist);
+
+    UTOX_SAVE *save = config_load();
+    if (!argv_theme)
+        theme=save->theme;
+    
+    theme_load(theme);
 
     /* */
     MSG msg;
@@ -1359,8 +1374,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     LANG = ui_guess_lang_by_windows_lang_id(langid, DEFAULT_LANG);
 
     dropdown_language.selected = dropdown_language.over = LANG;
-
-    UTOX_SAVE *save = config_load();
 
     char pretitle[128];
     snprintf(pretitle, 128, "%s %s (version : %s)", TITLE, SUB_TITLE, VERSION);
