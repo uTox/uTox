@@ -246,7 +246,7 @@ int file_lock(FILE *file, uint64_t start, size_t length){
     }
 }
 
-int file_unlock(FILE *file, uint64_t start, size_t length){
+int file_unlock(FILE *file, uint64_t start, size_t length) {
     int result = -1;
     struct flock fl;
     fl.l_type = F_UNLCK;
@@ -266,6 +266,23 @@ void flush_file(FILE *file) {
     fflush(file);
     int fd = fileno(file);
     fsync(fd);
+}
+
+int resize_file(FILE *file, uint64_t size) {
+    // https://github.com/trbs/fallocate/blob/master/fallocate/_fallocatemodule.c
+    int fd = fileno(file);
+    fstore_t stuff = {F_ALLOCATECONTIG, F_PEOFPOSMODE, 0, size, 0};
+    int err = fcntl(fd, F_PREALLOCATE, &stuff);
+    if (err == -1) {
+        stuff.fst_flags = F_ALLOCATEALL;
+        err = fcntl(fd, F_PREALLOCATE, &stuff);
+    }
+
+    if (err != -1) {
+        err = ftruncate(fd, size);
+    }
+
+    return err;
 }
 
 void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data) {
