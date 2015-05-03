@@ -1,6 +1,11 @@
+#ifdef _WIN32_WINNT
+#undef _WIN32_WINNT
+#endif
+#define _WIN32_WINNT 0x0600
 
 #include <windows.h>
 #include <windns.h>
+#include <winreg.h>
 
 #define KEY_BACK VK_BACK
 #define KEY_RETURN VK_RETURN

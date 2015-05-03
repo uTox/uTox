@@ -1,8 +1,3 @@
-#ifdef _WIN32_WINNT
-#undef _WIN32_WINNT
-#endif
-#define _WIN32_WINNT 0x500
-
 #ifndef WINVER
 #define WINVER 0x410
 #endif
@@ -42,12 +37,6 @@ extern const CLSID CLSID_NullRenderer;
 
 #include <io.h>
 #include <error.h>
-
-/* mingw64 doesn't provide this def, but it should exist... */
-errno_t _chsize_s(
-   int fd,
-   __int64 size
-);
 
 #undef CLEARTYPE_QUALITY
 #define CLEARTYPE_QUALITY 5
@@ -2517,24 +2506,19 @@ _Bool video_endread(void)
     return 1;
 }
 
-void launch_at_startup(int is_launch_at_startup) 
-{
+void launch_at_startup(int is_launch_at_startup){
     HKEY hKey;
-    const char* run_key_path = "Software\\Microsoft\\Windows\\CurrentVersion\\Run";
-    char path[MAX_PATH];
-    int path_length = 0;
-    int ret = 0;
-    int i;
-    char prev, tmp;
-    
-    if (is_launch_at_startup == 1) 
-    {
-        if (ERROR_SUCCESS == RegOpenKeyA(HKEY_CURRENT_USER, run_key_path, &hKey)) 
-        {
-            path_length = GetModuleFileNameA(NULL, path, MAX_PATH);
+    const wchar_t* run_key_path = L"Software\\Microsoft\\Windows\\CurrentVersion\\Run";
+    wchar_t path[UTOX_FILE_NAME_LENGTH];
+    uint16_t path_length = 0;
+    uint16_t ret = 0;
+    uint16_t i;
+    wchar_t prev, tmp;
+    if(is_launch_at_startup == 1){
+        if(ERROR_SUCCESS == RegOpenKeyW(HKEY_CURRENT_USER, run_key_path, &hKey)){
+            path_length = GetModuleFileNameW(NULL, path, MAX_PATH);
             prev = path[0];
-            for(i = 1; i <= path_length; ++i)
-            {
+            for(i = 1; i <= path_length; ++i){
                 tmp = path[i];
                 path[i] = prev;
                 prev = tmp;
@@ -2543,21 +2527,19 @@ void launch_at_startup(int is_launch_at_startup)
             path[0] = '\"';
             path[path_length-1] = '\"';
             path[path_length] = '\0';
-                        
-            ret = RegSetKeyValueA(hKey, NULL, "uTox", REG_SZ, path, path_length);
-            if (ret == ERROR_SUCCESS) 
+            ret = RegSetKeyValueW(hKey, NULL, "uTox", REG_SZ, path, path_length);
+            if(ret == ERROR_SUCCESS){
                 debug("Successful auto start addition.\n");
+            }
             RegCloseKey(hKey);
         }
     }
-    
-    if (is_launch_at_startup == 0) 
-    {
-        if (ERROR_SUCCESS == RegOpenKeyA(HKEY_CURRENT_USER, run_key_path, &hKey))
-        {
-            ret = RegDeleteKeyValueA(hKey,NULL,"uTox");
-            if ( ret == ERROR_SUCCESS)
+    if(is_launch_at_startup == 0){
+        if(ERROR_SUCCESS == RegOpenKeyW(HKEY_CURRENT_USER, run_key_path, &hKey)){
+            ret = RegDeleteKeyValueW(hKey, NULL, L"uTox");
+            if(ret == ERROR_SUCCESS){
                 debug("Successful auto start deletion.\n");
+            }
             RegCloseKey(hKey);
         }
     }
