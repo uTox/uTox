@@ -9,19 +9,19 @@ DEPS = fontconfig freetype2 libtoxav libtoxcore
 DEPS += openal vpx x11 xext xrender
 
 ifeq ($(DBUS), 1)
-    DEPS += dbus-1
+	DEPS += dbus-1
 endif
 
 ifeq ($(V4LCONVERT), 1)
-    DEPS += libv4lconvert
+	DEPS += libv4lconvert
 endif
 
 ifeq ($(FILTER_AUDIO), 1)
-    DEPS += filteraudio
+	DEPS += filteraudio
 endif
 
 ifeq ($(UNITY), 1)
-    DEPS += messaging-menu unity
+	DEPS += messaging-menu unity
 endif
 
 UNAME_S := $(shell uname -s)
@@ -33,27 +33,27 @@ LDFLAGS = -pthread -lm
 LDFLAGS += $(shell pkg-config --libs $(DEPS))
 
 ifneq ($(DBUS), 1)
-    CFLAGS += -DNO_DBUS
+	CFLAGS += -DNO_DBUS
 endif
 
 ifneq ($(V4LCONVERT), 1)
-    CFLAGS += -DNO_V4LCONVERT
+	CFLAGS += -DNO_V4LCONVERT
 endif
 
 ifeq ($(FILTER_AUDIO), 1)
-    CFLAGS += -DAUDIO_FILTERING
+	CFLAGS += -DAUDIO_FILTERING
 endif
 
 ifeq ($(UNITY), 1)
-    CFLAGS += -DUNITY
+	CFLAGS += -DUNITY
 endif
 
 ifeq ($(UNAME_S), Linux)
-    LDFLAGS += -lresolv -ldl
+	LDFLAGS += -lresolv -ldl
 endif
 
 ifeq ($(ARCH), x86_64)
-    OBJCPY = elf64-x86-64
+	OBJCPY = elf64-x86-64
 else
 	OBJCPY = elf32-i386
 endif
