@@ -1,6 +1,6 @@
 #include "main.h"
 
-void* file_raw(char *path, uint32_t *size)
+void* file_raw(const char *path, uint32_t *size)
 {
     FILE *file;
     char *data;

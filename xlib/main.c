@@ -1037,8 +1037,10 @@ int main(int argc, char *argv[])
                 parse_args_wait_for_theme = 1;
             }
             if(!strcmp(argv[i], "--profile")) {
-            	tox_savename = argv[++i];
-            	debug("Profile provided: %s\n", tox_savename);
+                if ( ++i < argc ) {
+                    tox_savename = argv[i];
+                    debug("Profile provided: %s\n", tox_savename);
+                }
             }
             printf("arg %d: %s\n", i, argv[i]);
         }
