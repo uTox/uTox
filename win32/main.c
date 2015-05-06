@@ -1246,17 +1246,26 @@ void config_osdefaults(UTOX_SAVE *r)
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int nCmdShow){
 
     /* if opened with argument, check if uTox is already open and pass the argument to the existing process */
-    CreateMutex(NULL, 0, TITLE);
+    HANDLE utox_mutex = CreateMutex(NULL, 0, TITLE);
+
+    if (!utox_mutex) {
+        return 0;
+    }
+
     if(GetLastError() == ERROR_ALREADY_EXISTS) {
         HWND window = FindWindow(TITLE, NULL);
-        SetForegroundWindow(window);
-        if (*cmd) {
-            COPYDATASTRUCT data = {
-                .cbData = strlen(cmd),
-                .lpData = cmd
-            };
-            SendMessage(window, WM_COPYDATA, (WPARAM)hInstance, (LPARAM)&data);
+
+        if (window) {
+            SetForegroundWindow(window);
+            if (*cmd) {
+                COPYDATASTRUCT data = {
+                    .cbData = strlen(cmd),
+                    .lpData = cmd
+                };
+                SendMessage(window, WM_COPYDATA, (WPARAM)hInstance, (LPARAM)&data);
+            }
         }
+
         return 0;
     }
 
@@ -1328,6 +1337,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
                 FILE *fp = fopen(path, "rb");
                 if (fp) {
                     fclose(fp);
+                    CloseHandle(utox_mutex);
                     /* This is an updater build not being run by the updater. Run the updater and exit. */
                     ShellExecute(NULL, "open", path, cmd, NULL, SW_SHOW);
                     return 0;
