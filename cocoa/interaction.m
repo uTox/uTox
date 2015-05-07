@@ -2,6 +2,25 @@
 
 int getbuf(char_t *ptr, size_t len, int value);
 
+// below comment applies too
+static inline NSRange uToxRangeFromNSRange(NSRange utf16, NSString *s) {
+    NSInteger start = [[s substringToIndex:utf16.location] lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
+    NSInteger len = [[s substringWithRange:utf16] lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
+    return NSMakeRange(start, len);
+}
+
+static inline void utf8_correct(NSRange *r, char_t *s, size_t len) {
+    while ((s[r->location] >> 6) == 2 && r->location > 0)
+        --r->location;
+
+    int ind = r->location + r->length - 1;
+    while ((s[ind] >> 6) == 2 && ind < len)
+        ++ind;
+    r->length = ind - r->location;
+
+
+}
+
 @implementation uToxView (UserInteraction)
 
 + (NSSpeechSynthesizer *)sharedSpeechSynthesizer {
@@ -80,6 +99,8 @@ int getbuf(char_t *ptr, size_t len, int value);
             default:
                 break;
         }
+    } else if ([theEvent.charactersIgnoringModifiers isEqualToString:@"\\"]) {
+        "break here";
     } else {
         // easier to let MacOS interpret
         [self interpretKeyEvents:@[theEvent]];
@@ -210,20 +231,132 @@ int getbuf(char_t *ptr, size_t len, int value);
 - (void)stopSpeaking:(id)sender {
     [[uToxView sharedSpeechSynthesizer] stopSpeaking];
 }
-// later...
-//#pragma mark - NSTextInputClient
-//
-//- (void)insertText:(id)aString replacementRange:(NSRange)replacementRange {
-//
-//}
-//
-//- (NSArray *)validAttributesForMarkedText {
-//    return @[];
-//}
-//
-//- (NSRange)selectedRange {
-//    return (NSRange){NSNotFound, 0};
-//}
+
+- (NSString *)copyEditContents {
+    NSString *strtocopy;
+    char_t *buf = malloc(65536);
+    int len = getbuf(buf, 65536, 0);
+    strtocopy = [[NSString alloc] initWithBytes:buf length:len encoding:NSUTF8StringEncoding];
+    free(buf);
+    return strtocopy;
+}
+
+#pragma mark - NSTextInputClient
+
+- (void)insertText:(id)aString replacementRange:(NSRange)replacementRange {
+    NSLog(@"insertText %@", NSStringFromRange(replacementRange));
+
+    // Get a valid range
+    if (replacementRange.location == NSNotFound) {
+        NSRange markedRange = self.markedRange;
+        if (markedRange.location != NSNotFound) {
+            replacementRange = markedRange;
+        } else {
+            replacementRange = self.selectedRange;
+        }
+    }
+
+    if ([aString isKindOfClass:[NSAttributedString class]])
+        aString = [aString string];
+
+    edit_setselectedrange(replacementRange.location, replacementRange.length);
+    STRING_IDX insl = [aString lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
+    edit_paste((char_t *)[aString UTF8String], insl, 0);
+
+    [self unmarkText];
+}
+
+- (NSArray *)validAttributesForMarkedText {
+    return @[];
+}
+
+- (BOOL)hasMarkedText {
+    return edit_getmark(NULL, NULL);
+}
+
+- (NSRange)markedRange {
+    STRING_IDX loc, len;
+    BOOL valid = edit_getmark(&loc, &len);
+    if (!valid)
+        return (NSRange){NSNotFound, 0};
+    else
+        return (NSRange){loc, len};
+}
+
+- (void)unmarkText {
+    edit_setmark(0, 0);
+}
+
+- (NSRange)selectedRange {
+    if (!edit_active())
+        return (NSRange){NSNotFound, 0};
+    else
+        return (NSRange){edit_getcursorpos(), edit_selection(edit_get_active(), NULL, 0)};
+}
+
+- (void)setMarkedText:(id)aString selectedRange:(NSRange)selectedRange replacementRange:(NSRange)replacementRange {
+    NSLog(@"%@", NSStringFromRange(replacementRange));
+    STRING_IDX loc, len;
+    BOOL valid;
+    if ((valid = edit_getmark(&loc, &len)) && replacementRange.location != NSNotFound)
+        replacementRange.location += loc;
+    else if (valid)
+        replacementRange = NSMakeRange(loc, len);
+    else
+        replacementRange = NSMakeRange(edit_getcursorpos(), edit_selection(edit_get_active(), NULL, 0));
+
+    if ([aString isKindOfClass:[NSAttributedString class]])
+        aString = [aString string];
+
+    if ([aString length] == 0) {
+        [self unmarkText];
+    }
+
+    edit_setselectedrange(replacementRange.location, replacementRange.length);
+    STRING_IDX insl = [aString lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
+    edit_paste((char_t *)[aString UTF8String], insl, 0);
+    edit_setmark(replacementRange.location, insl);
+
+    NSRange selRanged = uToxRangeFromNSRange(selectedRange, aString);
+    edit_setselectedrange(replacementRange.location + selRanged.location, selRanged.length);
+
+    NSLog(@"%@", NSStringFromRange(selRanged));
+}
+
+- (NSAttributedString *)attributedSubstringForProposedRange:(NSRange)aRange actualRange:(NSRangePointer)actualRange {
+    char_t *buf = malloc(65536);
+    int len = getbuf(buf, 65536, 0);
+
+    if (aRange.location >= len) {
+        free(buf);
+        return nil;
+    }
+
+    if (aRange.location + aRange.length > len)
+        aRange.length = len - aRange.location;
+
+    utf8_correct(&aRange, buf, len);
+
+    if (len == 0) {
+        free(buf);
+        return nil;
+    }
+
+    NSString *s = [[NSString alloc] initWithBytes:buf + aRange.location length:aRange.length encoding:NSUTF8StringEncoding];
+    NSAttributedString *a = [[NSAttributedString alloc] initWithString:s attributes:nil];
+
+    free(buf);
+    [s release];
+    return [a autorelease];
+}
+
+- (NSUInteger)characterIndexForPoint:(NSPoint)aPoint {
+    return 0;
+}
+
+- (NSRect)firstRectForCharacterRange:(NSRange)aRange actualRange:(NSRangePointer)actualRange {
+    return CGRectZero;
+}
 
 @end
 
@@ -274,8 +407,6 @@ void paste(void) {
             NSBeep();
         }
     } else /* NSImage */ {
-
-        // very slow. TODO: figure out why
         [string_or_img lockFocus];
         NSBitmapImageRep *bmp = [[NSBitmapImageRep alloc] initWithFocusedViewRect:(CGRect){CGPointZero, [string_or_img size]}];
         [string_or_img unlockFocus];

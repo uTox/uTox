@@ -5,8 +5,10 @@ static EDIT *active_edit;
 static struct
 {
     STRING_IDX start, length;
-    STRING_IDX p1, p2, pm;
-    //TODO: pm field doesn't seem to be used. Remove?
+    STRING_IDX p1, p2;
+    // IME mark (underline)
+    STRING_IDX ms, ml;
+    //TODO: pm field doesn't seem to be used. Remove? done
 }edit_sel;
 static _Bool edit_select;
 
@@ -87,7 +89,8 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
 
     _Bool a = (edit == active_edit);
     drawtextmultiline(x + 2 * SCALE, x + width - 2 * SCALE - (edit->multiline ? SCROLL_WIDTH : 0), yy + 2 * SCALE, y, y + height, font_small_lineheight, edit->data, edit->length,
-                      a ? edit_sel.start : STRING_IDX_MAX, a ? edit_sel.length : STRING_IDX_MAX, edit->multiline);
+                      a ? edit_sel.start : STRING_IDX_MAX, a ? edit_sel.length : STRING_IDX_MAX,
+                      a ? edit_sel.ms : 0, a ? edit_sel.ml : 0, edit->multiline);
 
     if(edit->multiline) {
         popclip();
@@ -782,6 +785,11 @@ _Bool edit_active(void)
     return (active_edit != NULL);
 }
 
+EDIT *edit_get_active(void)
+{
+    return active_edit;
+}
+
 void edit_setstr(EDIT *edit, char_t *str, STRING_IDX length)
 {
     if(length >= edit->maxlength) {
@@ -807,4 +815,27 @@ void edit_setcursorpos(EDIT *edit, STRING_IDX pos)
 STRING_IDX edit_getcursorpos(void)
 {
     return edit_sel.p1 < edit_sel.p2 ? edit_sel.p1 : edit_sel.p2;
+}
+
+_Bool edit_getmark(STRING_IDX *outloc, STRING_IDX *outlen)
+{
+    if (outloc)
+        *outloc = edit_sel.ms;
+    if (outlen)
+        *outlen = edit_sel.ml;
+
+    return (active_edit && edit_sel.ml)? 1 : 0;
+}
+
+void edit_setmark(STRING_IDX loc, STRING_IDX len)
+{
+    edit_sel.ms = loc;
+    edit_sel.ml = len;
+}
+
+void edit_setselectedrange(STRING_IDX loc, STRING_IDX len)
+{
+    edit_sel.start = edit_sel.p1 = loc;
+    edit_sel.length = len;
+    edit_sel.p2 = loc + len;
 }
