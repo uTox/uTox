@@ -944,11 +944,11 @@ int utox_file_start_write(uint32_t friend_number, uint32_t file_number, void *fi
     }
     if(resize_file(file_handle->file, file_handle->size) != 0){
         debug("FileTransfer:\tThe file size was unable to be changed!\n");
-        free(filepath);
         fclose(file_handle->file);
         file_handle->file = NULL;
         utox_break_file(file_handle);
         remove(filepath);
+        free(filepath);
         return -1;
     }
 
