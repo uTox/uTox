@@ -3,7 +3,8 @@ enum {
     THEME_LIGHT,
     THEME_DARK,
     THEME_HIGHCONTRAST,
-    THEME_CUSTOM, // !!!!
+    THEME_CUSTOM,
+    THEME_ZENBURN, // !!!!
     // @TODO
     // THEME_XRESOURCE
 };
