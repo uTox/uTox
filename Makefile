@@ -4,6 +4,7 @@ DBUS = 1
 V4LCONVERT = 1
 FILTER_AUDIO = 1
 UNITY = 0
+CC=clang
 
 DEPS = fontconfig freetype2 libtoxav libtoxcore
 DEPS += openal vpx x11 xext xrender
@@ -26,9 +27,11 @@ endif
 
 UNAME_S := $(shell uname -s)
 
-CFLAGS += -g -Wall -Wshadow -pthread -std=gnu99
+CFLAGS += -g0 -Wall -Wshadow -pthread -std=gnu99
+CFLAGS += -Ofast -fdata-sections -ffunction-sections
 CFLAGS += $(shell pkg-config --cflags $(DEPS))
 LDFLAGS = -pthread -lm
+LDFLAGS += -Wl,--gc-sections -s
 LDFLAGS += $(shell pkg-config --libs $(DEPS))
 
 ifneq ($(DBUS), 1)
