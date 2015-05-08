@@ -34,7 +34,7 @@
 
 #define TITLE "uTox"
 #define SUB_TITLE "(Alpha)"
-#define VERSION "0.2.q"
+#define VERSION "0.2.r"
 
 #define MAX_CALLS 16
 #define MAX_BACKLOG_MESSAGES 128
