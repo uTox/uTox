@@ -143,6 +143,7 @@ static UI_STRING_ID themedrops[] = {
     STR_THEME_DARK,
     STR_THEME_HIGHCONTRAST,
     STR_THEME_CUSTOM,
+    STR_THEME_ZENBURN,
 };
 
 static UI_STRING_ID yesnodrops[] = {STR_YES, STR_NO};
