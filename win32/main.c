@@ -1306,6 +1306,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
                         theme = THEME_LIGHT;
                     } else if(wcscmp(arglist[(i+1)], L"highcontrast") == 0){
                         theme = THEME_HIGHCONTRAST;
+                    } else if(wcscmp(arglist[(i+1)], L"zenburn") == 0){
+                        theme = THEME_ZENBURN;
                     } else {
                         debug("Please specify correct theme (please check user manual for list of correct values).");
                         theme = THEME_DEFAULT;
