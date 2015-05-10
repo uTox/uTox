@@ -181,8 +181,6 @@ static CGRect find_ui_object_in_window(const PANEL *ui) {
             default:
                 break;
         }
-    } else if ([theEvent.charactersIgnoringModifiers isEqualToString:@"\\"]) {
-        "break here";
     } else {
         // easier to let MacOS interpret
         [self interpretKeyEvents:@[theEvent]];
@@ -271,6 +269,64 @@ static CGRect find_ui_object_in_window(const PANEL *ui) {
     /* TODO: no delete unless stuff is selected */
     if (edit_copy(NULL, 0))
         edit_char(KEY_DEL, YES, FLAGS());
+}
+
+- (void)moveToBeginningOfLine:(id)sender {
+    BEEP_IF_EDIT_NOT_ACTIVE()
+
+    edit_setselectedrange(0, 0);
+    redraw();
+}
+
+- (void)moveToBeginningOfLineAndModifySelection:(id)sender {
+    BEEP_IF_EDIT_NOT_ACTIVE()
+
+    int loc = edit_getcursorpos(), len = edit_copy(NULL, 0);
+    edit_setselectedrange(0, loc + len);
+    redraw();
+}
+
+- (void)moveToEndOfLine:(id)sender {
+    BEEP_IF_EDIT_NOT_ACTIVE()
+
+    edit_setselectedrange(edit_get_active()->length, 0);
+    redraw();
+}
+
+- (void)moveToEndOfLineAndModifySelection:(id)sender {
+    BEEP_IF_EDIT_NOT_ACTIVE()
+
+    int loc = edit_getcursorpos(), len = edit_get_active()->length - loc;
+    edit_setselectedrange(loc, len);
+    redraw();
+}
+
+- (void)moveLeftAndModifySelection:(id)sender {
+    BEEP_IF_EDIT_NOT_ACTIVE()
+
+    if (edit_getcursorpos() == 0)
+        return;
+
+    int loc = edit_getcursorpos() - 1, len = edit_copy(NULL, 0) + 1;
+    while (edit_get_active()->data[loc] >> 6 == 2) {
+        loc -= 1;
+        len += 1;
+    }
+    edit_setselectedrange(loc, len);
+    redraw();
+}
+
+- (void)moveRightAndModifySelection:(id)sender {
+    BEEP_IF_EDIT_NOT_ACTIVE()
+
+    int loc = edit_getcursorpos(), len = edit_copy(NULL, 0);
+    if (loc + len > edit_get_active()->length)
+        return;
+
+    int l = utf8_len(&edit_get_active()->data[loc + len]);
+    len += l;
+    edit_setselectedrange(loc, len);
+    redraw();
 }
 
 #undef FLAGS
