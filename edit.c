@@ -15,6 +15,8 @@ static _Bool edit_select;
 static void setactive(EDIT *edit)
 {
     if(edit != active_edit) {
+        edit_will_deactivate();
+
         if(active_edit && active_edit->onlosefocus) {
             active_edit->onlosefocus(active_edit);
         }
@@ -768,7 +770,6 @@ void edit_paste(char_t *data, int length, _Bool select)
 
 void edit_resetfocus(void)
 {
-    edit_will_deactivate();
     edit_select = 0;
     setactive(NULL);
 }
@@ -778,6 +779,8 @@ void edit_setfocus(EDIT *edit)
     edit_select = 0;
     edit_sel.start = edit_sel.p1 = 0;
     edit_sel.length = edit_sel.p2 = edit->length;
+    edit_sel.ms = 0;
+    edit_sel.ml = 0;
     setactive(edit);
 }
 
