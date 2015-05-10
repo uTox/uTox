@@ -63,6 +63,8 @@ static struct __global_d_state {
     utox_window_width = self.frame.size.width;
     utox_window_height = self.frame.size.height;
     ui_size(utox_window_width, utox_window_height);
+
+    [self.inputContext invalidateCharacterCoordinates];
 }
 
 - (NSColor *)color:(uint32_t)packed {
