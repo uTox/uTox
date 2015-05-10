@@ -768,6 +768,7 @@ void edit_paste(char_t *data, int length, _Bool select)
 
 void edit_resetfocus(void)
 {
+    edit_will_deactivate();
     edit_select = 0;
     setactive(NULL);
 }

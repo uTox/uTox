@@ -28,6 +28,7 @@ struct utox_native_image {
     double scale;
 };
 
+@class uToxView;
 @interface uToxAppDelegate : NSResponder <NSApplicationDelegate, NSWindowDelegate> {
     NSMutableDictionary *devices;
     NSMutableDictionary *ironclad;
@@ -37,6 +38,7 @@ struct utox_native_image {
 @property (retain) NSMenuItem *statusMenuItem;
 @property (retain) NSMenu *dockMenu;
 
+- (uToxView *)mainView;
 - (void)soilWindowContents;
 @end
 

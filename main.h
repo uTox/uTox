@@ -358,6 +358,8 @@ int ch_mod(uint8_t *file);
 int file_lock(FILE *file, uint64_t start, size_t length);
 int file_unlock(FILE *file, uint64_t start, size_t length);
 
+/* OS-specific cleanup function for when edits are defocused. Commit IME state, etc. */
+void edit_will_deactivate(void);
 
 /** Creates a tray baloon popup with the message, and flashes the main window
  *

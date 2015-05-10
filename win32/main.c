@@ -1018,6 +1018,11 @@ void showkeyboard(_Bool show)
 
 }
 
+void edit_will_deactivate(void)
+{
+    
+}
+
 /* Redraws the main UI window */
 void redraw(void)
 {

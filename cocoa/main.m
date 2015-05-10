@@ -407,6 +407,10 @@ void redraw(void) {
     }
 }
 
+- (uToxView *)mainView {
+    return self.utox_window.contentView;
+}
+
 - (void)dealloc {
     [ironclad release];
     [devices release];

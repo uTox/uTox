@@ -17,8 +17,89 @@ static inline void utf8_correct(NSRange *r, char_t *s, size_t len) {
     while ((s[ind] >> 6) == 2 && ind < len)
         ++ind;
     r->length = ind - r->location;
+}
 
+// find a PANEL by bruteforcing the UI tree.
+static int find_ui_object_recursive(const PANEL *root, const PANEL *target, int **outarrayptr, int n) {
+    // if root == target and n == 0 (i.e. you initially called with the same ptr for root and target)
+    // outarrayptr will be undefined, but the return will be 1
+    // root and target being the same is a bug in the caller though, but i thought
+    // you should know this.
+    if (root == target) {
+        // alloc the path at the end so we don't have to know the length first.
+        // we're going to fill in this array backwards
+        *outarrayptr = calloc(n + 1, sizeof(int));
+        // NSLog(@"ALLOCATED IT AT %p %d", *outarrayptr, n);
+        *outarrayptr += n;
+        **outarrayptr = -1; // sentinel
+        return 1;
+    }
 
+    PANEL **child = root->child;
+    if (!child)
+        return 0;
+
+    do {
+        if (!*child) break;
+
+        int ret = find_ui_object_recursive(*child, target, outarrayptr, n + 1);
+        if (ret) {
+            (*outarrayptr)--;
+            // when the initial call returns, *outarrayptr should be the same as the value
+            // we got from calloc above. consider this comment a "soft assertion".
+            **outarrayptr = child - root->child;
+            return ret;
+        }
+    } while (++child);
+
+    return 0;
+}
+
+#define _apply_generic_transform(type, a) { \
+    type *__ = (type *)a; \
+    int relx = (a->x < 0) ? width + a->x : a->x; \
+    int rely = (a->y < 0) ? height + a->y : a->y; \
+    x += relx; \
+    y += rely; \
+    width = (__->width <= 0) ? width + __->width - relx : __->width; \
+    height = (__->height <= 0) ? height + __->height - rely : __->height; \
+}
+
+static CGRect find_ui_object_in_window(const PANEL *ui) {
+    int *path = NULL;
+    CGRect ret = CGRectZero;
+    int did_find = find_ui_object_recursive(&panel_main, ui, &path, 0);
+
+    PANEL *ui_element = &panel_main;
+    if (did_find) {
+        int x = ui_element->x,
+            y = ui_element->y,
+            width = utox_window_width,
+            height = utox_window_height;
+
+        int i = 0;
+        while (path[i] != -1) {
+            //debug("@: %d %d %d %d", x, y, width, height);
+            //debug("%d %d %d %p", i, path[i], ui_element->child[path[i]]->type, ui_element->child[path[i]]->content_scroll);
+
+            ui_element = ui_element->child[path[i]];
+            switch (ui_element->type) {
+                case 6:
+                    _apply_generic_transform(EDIT, ui_element);
+                    break;
+                default:
+                    _apply_generic_transform(PANEL, ui_element);
+                    break;
+            }
+
+            i++;
+        }
+
+        ret = CGRectMake(x, utox_window_height - height - y, width, height);
+    }
+
+    free(path);
+    return ret;
 }
 
 @implementation uToxView (UserInteraction)
@@ -300,22 +381,26 @@ static inline void utf8_correct(NSRange *r, char_t *s, size_t len) {
     BOOL valid;
     if ((valid = edit_getmark(&loc, &len)) && replacementRange.location != NSNotFound)
         replacementRange.location += loc;
-    else if (valid)
-        replacementRange = NSMakeRange(loc, len);
+    else if (valid){
+        replacementRange = NSMakeRange(loc, len); NSLog(@"valid=1 replace %d %d", loc, len); }
     else
         replacementRange = NSMakeRange(edit_getcursorpos(), edit_selection(edit_get_active(), NULL, 0));
 
     if ([aString isKindOfClass:[NSAttributedString class]])
         aString = [aString string];
 
-    if ([aString length] == 0) {
-        [self unmarkText];
-    }
-
     edit_setselectedrange(replacementRange.location, replacementRange.length);
     STRING_IDX insl = [aString lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
-    edit_paste((char_t *)[aString UTF8String], insl, 0);
-    edit_setmark(replacementRange.location, insl);
+    if (!insl)
+        edit_char(KEY_DEL, YES, 0);
+    else
+        edit_paste((char_t *)[aString UTF8String], insl, 0);
+
+    if ([aString length] == 0) {
+        [self unmarkText];
+    } else {
+        edit_setmark(replacementRange.location, insl);
+    }
 
     NSRange selRanged = uToxRangeFromNSRange(selectedRange, aString);
     edit_setselectedrange(replacementRange.location + selRanged.location, selRanged.length);
@@ -351,11 +436,15 @@ static inline void utf8_correct(NSRange *r, char_t *s, size_t len) {
 }
 
 - (NSUInteger)characterIndexForPoint:(NSPoint)aPoint {
+    NSLog(@"WARNING: unimplemented characterIndexForPoint:%@", NSStringFromPoint(aPoint));
+    NSLog(@"If you see this message, file a bug about \"characterIndexForPoint:\" !");
     return 0;
 }
 
 - (NSRect)firstRectForCharacterRange:(NSRange)aRange actualRange:(NSRangePointer)actualRange {
-    return CGRectZero;
+    CGRect loc = find_ui_object_in_window(&edit_get_active()->panel);
+    //NSLog(@"%@", NSStringFromRect(loc));
+    return [self.window convertRectToScreen:loc];
 }
 
 @end
@@ -437,6 +526,12 @@ void showkeyboard(_Bool show) {
 
 }
 
+void edit_will_deactivate(void) {
+    uToxAppDelegate *ad = (uToxAppDelegate *)[NSApplication sharedApplication].delegate;
+    [ad.mainView.inputContext discardMarkedText];
+    [ad.mainView unmarkText];
+}
+
 @interface NSUserNotification (uToxAdditions)
 - (void)set_identityImage:(id)arg1;
 - (void)set_identityImageHasBorder:(BOOL)arg1;
@@ -479,8 +574,8 @@ void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_
 
 void update_tray(void) {
     uToxAppDelegate *ad = (uToxAppDelegate *)[NSApplication sharedApplication].delegate;
-    ad.nameMenuItem.title = [NSString stringWithCString:(char *)self.name encoding:NSUTF8StringEncoding];
-    ad.statusMenuItem.title = [NSString stringWithCString:(char *)self.statusmsg encoding:NSUTF8StringEncoding];
+    ad.nameMenuItem.title = [[[NSString alloc] initWithBytes:self.name length:self.name_length encoding:NSUTF8StringEncoding] autorelease];
+    ad.statusMenuItem.title = [[[NSString alloc] initWithBytes:self.statusmsg length:self.statusmsg_length encoding:NSUTF8StringEncoding] autorelease];
 }
 
 /* file utils */
