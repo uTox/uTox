@@ -18,6 +18,11 @@ typedef struct friend {
     uint16_t transfer_count;
 } FRIEND;
 
+typedef struct friend_data {
+    size_t alias_length
+    uint8_t alias[]
+};
+
 #define MAX_GROUP_PEERS 256
 
 typedef struct groupchat {
