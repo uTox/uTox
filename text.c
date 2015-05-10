@@ -45,8 +45,6 @@ static void drawtexth(int x, int y, char_t *str, STRING_IDX length, int d, int h
 
 static void drawtextmark(int x, int y, char_t *str, STRING_IDX length, int d, int h, int hlen, uint16_t lineheight)
 {
-
-    // Draw cursor
     h -= d;
     if(h + hlen < 0 || h > length || hlen == 0) {
         return;
@@ -64,13 +62,10 @@ static void drawtextmark(int x, int y, char_t *str, STRING_IDX length, int d, in
         hlen = length - h;
     }
 
-    int width;
-
-    width = drawtext_getwidth(x, y, str, h);
+    int width = textwidth(str, h);
 
     int w = textwidth(str + h, hlen);
-    drawhline(x + width, y + lineheight - 1, x + width + w, RGB(0, 255, 0));
-    width += w;
+    drawhline(x + width, y + lineheight - 1, x + width + w, COLOR_MAIN_TEXT);
 }
 
 int drawtextmultiline(int x, int right, int y, int top, int bottom, uint16_t lineheight, char_t *data, STRING_IDX length, STRING_IDX h, STRING_IDX hlen, STRING_IDX mark, STRING_IDX marklen, _Bool multiline)
