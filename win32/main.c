@@ -1240,10 +1240,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     if (!utox_mutex) {
         return 0;
     }
-
     if(GetLastError() == ERROR_ALREADY_EXISTS) {
         HWND window = FindWindow(TITLE, NULL);
-
         if (window) {
             SetForegroundWindow(window);
             if (*cmd) {
@@ -1254,7 +1252,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
                 SendMessage(window, WM_COPYDATA, (WPARAM)hInstance, (LPARAM)&data);
             }
         }
-
         return 0;
     }
 
@@ -1302,12 +1299,37 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
                         theme = THEME_DEFAULT;
                     }
                 }
+            /* Set flags */
+            } else if(wcsncmp(arglist[i], L"--set", 5) == 0){
+                // debug("Set flag on\n");
+                if(wcsncmp(arglist[i], L"--set=", 6) == 0){
+                    if(wcscmp(arglist[i]+6, L"start-on-boot") == 0)
+                        launch_at_startup(1);
+                } else {
+                    if(arglist[i+1]){
+                        if(wcscmp(arglist[i+1], L"start-on-boot") == 0)
+                            launch_at_startup(1);
+                    }
+                }
+            /* Unset flags */
+            } else if(wcsncmp(arglist[i], L"--unset", 7) == 0){
+                // debug("Unset flag on\n");
+                if(wcsncmp(arglist[i], L"--unset=", 8) == 0){
+                    if(wcscmp(arglist[i]+8, L"start-on-boot") == 0)
+                        // debug("unset start\n");
+                        launch_at_startup(0);
+                } else {
+                    if(arglist[i+1]){
+                        if(wcscmp(arglist[i+1], L"start-on-boot") == 0)
+                            // debug("unset start\n");
+                            launch_at_startup(0);
+                    }
+                }
             } else if(wcscmp(arglist[i], L"--no-updater") == 0){
                 no_updater = 1;
             }
         }
     }
-
 #ifdef UPDATER_BUILD
 #define UTOX_EXE "\\uTox.exe"
 #define UTOX_UPDATER_EXE "\\utox_runner.exe"
@@ -2510,25 +2532,16 @@ _Bool video_endread(void)
 void launch_at_startup(int is_launch_at_startup){
     HKEY hKey;
     const wchar_t* run_key_path = L"Software\\Microsoft\\Windows\\CurrentVersion\\Run";
-    wchar_t path[UTOX_FILE_NAME_LENGTH];
-    uint16_t path_length = 0;
-    uint16_t ret = 0;
-    uint16_t i;
-    wchar_t prev, tmp;
+    wchar_t path[UTOX_FILE_NAME_LENGTH*2];
+    uint16_t path_length = 0, ret = 0;
     if(is_launch_at_startup == 1){
         if(ERROR_SUCCESS == RegOpenKeyW(HKEY_CURRENT_USER, run_key_path, &hKey)){
-            path_length = GetModuleFileNameW(NULL, path, MAX_PATH);
-            prev = path[0];
-            for(i = 1; i <= path_length; ++i){
-                tmp = path[i];
-                path[i] = prev;
-                prev = tmp;
-            }
-            path_length += 2;
+            path_length = GetModuleFileNameW(NULL, path+1, UTOX_FILE_NAME_LENGTH*2);
             path[0] = '\"';
-            path[path_length-1] = '\"';
-            path[path_length] = '\0';
-            ret = RegSetKeyValueW(hKey, NULL, "uTox", REG_SZ, path, path_length);
+            path[path_length+1] = '\"';
+            path[path_length+2] = '\0';
+            path_length += 2;
+            ret = RegSetKeyValueW(hKey, NULL, L"uTox", REG_SZ, path, path_length*2); /*2 bytes per wchar */
             if(ret == ERROR_SUCCESS){
                 debug("Successful auto start addition.\n");
             }
