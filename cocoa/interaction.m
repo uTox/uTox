@@ -1,4 +1,16 @@
 #include "../main.h"
+#include "cursor.h"
+
+NSCursor *cursors[8];
+
+void setup_cursors(void) {
+    cursors[CURSOR_NONE] = [NSCursor arrowCursor];
+    cursors[CURSOR_HAND] = [NSCursor pointingHandCursor];
+    cursors[CURSOR_SELECT] = [NSCursor crosshairCursor];
+    cursors[CURSOR_TEXT] = [NSCursor IBeamCursor];
+    cursors[CURSOR_ZOOM_IN] = create_zoom_in_cursor();
+    cursors[CURSOR_ZOOM_OUT] = create_zoom_out_cursor();
+}
 
 int getbuf(char_t *ptr, size_t len, int value);
 
@@ -132,23 +144,30 @@ static CGRect find_ui_object_in_window(const PANEL *ui) {
 }
 
 - (void)mouseMoved:(NSEvent *)theEvent {
+    cursor = 0;
     panel_mmove(&panel_main, 0, 0, utox_window_width, utox_window_height, theEvent.locationInWindow.x, self.frame.size.height - theEvent.locationInWindow.y, theEvent.deltaX, theEvent.deltaY);
+    [cursors[cursor] set];
 }
 
 - (void)mouseDragged:(NSEvent *)theEvent {
+    cursor = 0;
     panel_mmove(&panel_main, 0, 0, utox_window_width, utox_window_height, theEvent.locationInWindow.x, self.frame.size.height - theEvent.locationInWindow.y, theEvent.deltaX, theEvent.deltaY);
+    [cursors[cursor] set];
 }
 
 - (void)rightMouseDragged:(NSEvent *)theEvent {
+    cursor = 0;
     panel_mmove(&panel_main, 0, 0, utox_window_width, utox_window_height, theEvent.locationInWindow.x, self.frame.size.height - theEvent.locationInWindow.y, theEvent.deltaX, theEvent.deltaY);
+    [cursors[cursor] set];
 }
 
 - (void)mouseEntered:(NSEvent *)theEvent {
-    
+    [cursors[0] push];
 }
 
 - (void)mouseExited:(NSEvent *)theEvent {
     panel_mleave(&panel_main);
+    [NSCursor pop];
 }
 
 - (void)scrollWheel:(NSEvent *)theEvent {
