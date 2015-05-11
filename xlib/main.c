@@ -1028,18 +1028,26 @@ int main(int argc, char *argv[])
                 }
                 debug("Please specify correct theme (please check user manual for list of correct values).");
                 return 1;
-            }
-
-            if(!strcmp(argv[i], "--version")) {
+            } else if(!strcmp(argv[i], "--version")) {
                 debug("%s\n", VERSION);
                 return 0;
-            }
-            if(!strcmp(argv[i], "--portable")) {
+            } else if(!strcmp(argv[i], "--portable")) {
                 debug("Launching uTox in portable mode: All data will be saved to the tox folder in the current working directory\n");
                 utox_portable = 1;
-            }
-            if(!strcmp(argv[i], "--theme")) {
+            } else if(!strcmp(argv[i], "--theme")) {
                 parse_args_wait_for_theme = 1;
+            } else if(!strncmp(argv[i], "--set", 5) == 0) {
+                if(strncmp(argv[i]+5, "=", 1) == 0){
+                    if(strcmp(argv[i]+6, "start-on-boot") == 0){
+                        debug("Start on boot not supported on this OS, please use your distro suggested method!\n");
+                    }
+                } else {
+                    if(argv[i+1]){
+                        if(strcmp(argv[i+1], "start-on-boot") == 0){
+                            debug("Start on boot not supported on this OS, please use your distro suggested method!\n");
+                        }
+                    }
+                }
             }
             printf("arg %d: %s\n", i, argv[i]);
         }
