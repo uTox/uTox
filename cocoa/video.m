@@ -49,6 +49,9 @@
             uToxAppDelegate *ad = (uToxAppDelegate *)[NSApp delegate];
             AVCaptureDevice *dev = [[ad getCaptureDeviceFromHandle:video_dev_handle] retain];
 
+            if (!dev)
+               return nil;
+
             NSError *error = NULL;
             AVCaptureInput *input = [[AVCaptureDeviceInput alloc] initWithDevice:dev error:&error];
             [_session beginConfiguration];
@@ -197,7 +200,8 @@ _Bool video_init(void *handle) {
 
     active_video_session = [[uToxAV alloc] initWithHandle:handle];
 
-    return 1;
+    NSLog(@"Video initialization FAILED with handle %p. ", handle);
+    return active_video_session? 1 : 0;
 }
 
 void video_close(void *handle) {
