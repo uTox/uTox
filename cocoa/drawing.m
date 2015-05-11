@@ -505,6 +505,8 @@ void enddraw(int x, int y, int width, int height) {
 void draw_image(const UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t imgx, uint32_t imgy) {
     DRAW_TARGET_CHK()
 
+    //debug("%lu %lu %lf", imgx, imgy, image->scale);
+
     CGFloat sz = currently_drawing_into_view.frame.size.height;
     CGRect rect = {
         .origin = {
@@ -518,5 +520,7 @@ void draw_image(const UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, ui
     };
 
     CGContextRef this = [NSGraphicsContext currentContext].graphicsPort;
-    CGContextDrawImage(this, rect, image->image);
+    CGImageRef di = CGImageCreateWithImageInRect(image->image, (CGRect){imgx, imgy, width / image->scale, height / image->scale});
+    CGContextDrawImage(this, rect, di);
+    CFRelease(di);
 }
