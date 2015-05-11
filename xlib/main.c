@@ -997,7 +997,7 @@ int main(int argc, char *argv[])
 
     if (argc > 1)
         for (int i = 1; i < argc; i++) {
-            if (parse_args_wait_for_theme) {
+            if(parse_args_wait_for_theme) {
                 if(!strcmp(argv[i], "default")) {
                     theme = THEME_DEFAULT;
                     parse_args_wait_for_theme = 0;
@@ -1030,7 +1030,8 @@ int main(int argc, char *argv[])
                 }
                 debug("Please specify correct theme (please check user manual for list of correct values).");
                 return 1;
-            } else if(!strcmp(argv[i], "--version")) {
+            }
+            if(!strcmp(argv[i], "--version")) {
                 debug("%s\n", VERSION);
                 return 0;
             } else if(!strcmp(argv[i], "--portable")) {
@@ -1038,22 +1039,22 @@ int main(int argc, char *argv[])
                 utox_portable = 1;
             } else if(!strcmp(argv[i], "--theme")) {
                 parse_args_wait_for_theme = 1;
-            } else if(!strncmp(argv[i], "--set", 5) == 0) {
+            } else if(strncmp(argv[i], "--set", 5) == 0) {
                 if(strncmp(argv[i]+5, "=", 1) == 0){
                     if(strcmp(argv[i]+6, "start-on-boot") == 0){
                         debug("Start on boot not supported on this OS, please use your distro suggested method!\n");
-                    } else if(strcmp(argv[i]+6, "show-window"){
+                    } else if(strcmp(argv[i]+6, "show-window") == 0){
                         set_show_window = 1;
-                    } else if(strcmp(argv[i]+6, "show-window"){
+                    } else if(strcmp(argv[i]+6, "hide-window") == 0){
                         set_show_window = -1;
                     }
                 } else {
                     if(argv[i+1]){
                         if(strcmp(argv[i+1], "start-on-boot") == 0){
                             debug("Start on boot not supported on this OS, please use your distro suggested method!\n");
-                        } else if(strcmp(argv[i+1], "show-window"){
+                        } else if(strcmp(argv[i+1], "show-window") == 0){
                             set_show_window = 1;
-                        } else if(strcmp(argv[i+1], "hide-window"){
+                        } else if(strcmp(argv[i+1], "hide-window") == 0){
                             set_show_window = -1;
                         }
                     }
@@ -1103,14 +1104,6 @@ int main(int argc, char *argv[])
         theme = save->theme;
     printf("%d\n", theme);
     theme_load(theme);
-
-    if(set_show_window){
-        if(set_show_window == 1){
-            start_in_tray = 0;
-        } else if(set_show_window == -1){
-            start_in_tray = 1;
-        }
-    }
 
     /* create window */
     window = XCreateWindow(display, RootWindow(display, screen), save->window_x, save->window_y, save->window_width, save->window_height, 0, depth, InputOutput, visual, CWBackPixmap | CWBorderPixel | CWEventMask, &attrib);
@@ -1220,6 +1213,14 @@ int main(int argc, char *argv[])
 
     LANG = systemlang();
     dropdown_language.selected = dropdown_language.over = LANG;
+
+    if(set_show_window){
+        if(set_show_window == 1){
+            start_in_tray = 0;
+        } else if(set_show_window == -1){
+            start_in_tray = 1;
+        }
+    }
 
     /* make the window visible */
     if (start_in_tray) {
