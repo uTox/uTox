@@ -992,6 +992,8 @@ int main(int argc, char *argv[])
     parse_args_wait_for_theme = 0;
     _Bool theme_was_set_on_argv = 0;
     theme = THEME_DEFAULT;
+    /* Variables for --set */
+    int32_t set_show_window = 0;
 
     if (argc > 1)
         for (int i = 1; i < argc; i++) {
@@ -1040,11 +1042,19 @@ int main(int argc, char *argv[])
                 if(strncmp(argv[i]+5, "=", 1) == 0){
                     if(strcmp(argv[i]+6, "start-on-boot") == 0){
                         debug("Start on boot not supported on this OS, please use your distro suggested method!\n");
+                    } else if(strcmp(argv[i]+6, "show-window"){
+                        set_show_window = 1;
+                    } else if(strcmp(argv[i]+6, "show-window"){
+                        set_show_window = -1;
                     }
                 } else {
                     if(argv[i+1]){
                         if(strcmp(argv[i+1], "start-on-boot") == 0){
                             debug("Start on boot not supported on this OS, please use your distro suggested method!\n");
+                        } else if(strcmp(argv[i+1], "show-window"){
+                            set_show_window = 1;
+                        } else if(strcmp(argv[i+1], "hide-window"){
+                            set_show_window = -1;
                         }
                     }
                 }
@@ -1093,6 +1103,14 @@ int main(int argc, char *argv[])
         theme = save->theme;
     printf("%d\n", theme);
     theme_load(theme);
+
+    if(set_show_window){
+        if(set_show_window == 1){
+            start_in_tray = 0;
+        } else if(set_show_window == -1){
+            start_in_tray = 1;
+        }
+    }
 
     /* create window */
     window = XCreateWindow(display, RootWindow(display, screen), save->window_x, save->window_y, save->window_width, save->window_height, 0, depth, InputOutput, visual, CWBackPixmap | CWBorderPixel | CWEventMask, &attrib);

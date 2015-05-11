@@ -1182,6 +1182,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     /* Process argc/v the backwards (read: windows) way. */
     LPWSTR *arglist;
     int argc, i;
+    /* Variables for --set */
+    int32_t set_show_window = 0;
+
 
     _Bool no_updater = 0;
     /* Convert PSTR command line args from windows to argc */
@@ -1227,12 +1230,22 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
             } else if(wcsncmp(arglist[i], L"--set", 5) == 0){
                 // debug("Set flag on\n");
                 if(wcsncmp(arglist[i], L"--set=", 6) == 0){
-                    if(wcscmp(arglist[i]+6, L"start-on-boot") == 0)
+                    if(wcscmp(arglist[i]+6, L"start-on-boot") == 0){
                         launch_at_startup(1);
+                    } else if(wcscmp(arglist[i]+6, L"show-window") == 0){
+                        set_show_window = 1;
+                    } else if(wcscmp(arglist[i]+6, L"hide-window") == 0){
+                        set_show_window = -1;
+                    }
                 } else {
                     if(arglist[i+1]){
-                        if(wcscmp(arglist[i+1], L"start-on-boot") == 0)
+                        if(wcscmp(arglist[i+1], L"start-on-boot") == 0){
                             launch_at_startup(1);
+                        } else if(wcscmp(arglist[i+1], L"show-window") == 0){
+                            set_show_window = 1;
+                        } else if(wcscmp(arglist[i+1], L"hide-window") == 0){
+                            set_show_window = -1;
+                        }
                     }
                 }
             /* Unset flags */
@@ -1391,6 +1404,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     draw = 1;
     redraw();
     update_tray();
+
+    /* From --set flag */
+    if(set_show_window){
+        if(set_show_window == 1){
+            start_in_tray = 0;
+        } else if(set_show_window == -1){
+            start_in_tray = 1;
+        }
+    }
 
     if(start_in_tray){
         ShowWindow(hwnd, SW_HIDE);
