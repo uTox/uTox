@@ -1,7 +1,7 @@
 # uTox-cocoa specific notes
 
 * 10.10 SDK is required to build, but the product should be
-  compatible back to 10.7 (10.6 TODO).
+  compatible back to 10.7.
   * Support for Mavericks SDK is TODO (ifdef out 10.10 bits)
   * Please make sure your dependencies are built with the lowest
     `MACOSX_DEPLOYMENT_TARGET` possible
@@ -16,7 +16,7 @@
   release. It will disable some basic sanity checks which should
   always pass if the code is correct.
 * You can instruct uTox to use Yosemite blur as a UI element colour
-  in utox_theme.ini by [instructionos to specify blur here please]
+  in utox_theme.ini by (not implemented currently)
 * When filing issues directly related to uTox-cocoa, please @stal888 in
   your issue so I get notified.
 
@@ -39,10 +39,6 @@ make -f cocoa/Makefile uTox.dmg
 Done! (the DMG target builds a statically linked utox binary 
 for you automatically. It does not depend on anything but system
 libraries. Build just the binary with `make -f cocoa/Makefile utox-static`)
-
-## How to compile (statically linked for distribution)
-
-idk
 
 ## Adding to uTox-cocoa
 
