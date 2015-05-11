@@ -36,7 +36,7 @@ utox: $(OBJ)
 
 utox-static: $(OBJ)
 	@echo "  SL    $@"
-	@$(CC) $(CFLAGS) -o utox-static $(OBJ) $(shell cocoa/find_static.sh $(DEPS)) $(FRAMEWORKS)
+	$(CC) $(CFLAGS) -o utox-static $(OBJ) $(shell cocoa/find_static.sh $(DEPS)) $(FRAMEWORKS)
 
 utox-MainMenu.nib:
 	ibtool --compile $@ cocoa/MainMenu.xib
@@ -63,7 +63,8 @@ uTox.dmg: utox-static uTox.app
 	@$(CC) -xobjective-c $(CFLAGS) -o $@ -c $<
 
 clean:
-	rm -f utox utox-Info.plist utox-MainMenu.nib cocoa/*.o *.o .utox_info_plist.*
+	rm -f utox utox-Info.plist utox-MainMenu.nib cocoa/*.o *.o .utox_info_plist.* utox-static uTox.dmg
+	rm -rf uTox.app utox_dmg.*
 
 print-%:
 	@echo $($*)

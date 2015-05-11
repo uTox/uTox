@@ -298,10 +298,6 @@ void redraw(void) {
 
 @implementation uToxAppDelegate
 
-#undef TITLE
-#define TITLE "µTox"
-#undef SUB_TITLE
-#define SUB_TITLE "(-cocoa alpha)"
 - (void)applicationDidFinishLaunching:(NSNotification *)notification {
     setup_cursors();
     ironclad = [[NSMutableDictionary alloc] init];
