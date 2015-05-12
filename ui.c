@@ -83,7 +83,7 @@ static void drawself(void)
 }
 
 /* Header for friend chat window */
-static void drawfriend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height))
+static void drawfriend(int x, int y, int w, int height)
 {
     FRIEND *f = sitem->data;
 
@@ -101,6 +101,15 @@ static void drawfriend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(h
     setcolor(COLOR_MAIN_SUBTEXT);
     setfont(FONT_STATUS);
     drawtextrange(LIST_RIGHT + 30 * SCALE, utox_window_width - 92 * SCALE, 16 * SCALE, f->status_message, f->status_length);
+
+    if (f->typing) {
+        int typing_y = ((y + height) + MESSAGES_BOTTOM);
+        setfont(FONT_MISC);
+        // @TODO: separate these colours if needed
+        setcolor(COLOR_MAIN_HINTTEXT);
+        drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, typing_y, f->name, f->name_length);
+        drawtextwidth(x + MESSAGES_X, x + w, typing_y, S(IS_TYPING), SLEN(IS_TYPING));
+    }
 }
 
 static void drawgroup(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height))
