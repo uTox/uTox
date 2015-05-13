@@ -1,42 +1,16 @@
-#ifdef __CRT__NO_INLINE
-#undef __CRT__NO_INLINE
-#define DID_UNDEFINE__CRT__NO_INLINE
-#include <dshow.h>
-#ifdef DID_UNDEFINE__CRT__NO_INLINE
-#define __CRT__NO_INLINE
-#endif
-#endif
-
 #include <windows.h>
 #include <windowsx.h>
-#include <strmif.h>
-#include <amvideo.h>
-#include <control.h>
-#include <uuids.h>
-#include <vfwmsgs.h>
-#include <qedit.h>
-#include <audioclient.h>
-#include <mmdeviceapi.h>
-#include <process.h>
-#include <shlobj.h>
-#include <io.h>
-#include <error.h>
 
 #include "audio.c"
 
-#define WM_NOTIFYICON   (WM_APP + 0)
-#define WM_TOX          (WM_APP + 1)
-
-extern const CLSID CLSID_SampleGrabber;
-extern const CLSID CLSID_NullRenderer;
-
-static TRACKMOUSEEVENT tme = {sizeof(TRACKMOUSEEVENT), TME_LEAVE, 0, 0};
-static _Bool mouse_tracked = 0;
-
-float scale = 1.0;
-_Bool draw = 0;
-_Bool connected = 0;
-_Bool havefocus;
+/** Select the true main.c for legacy XP support.
+ *  else default to xlib
+ **/
+#ifdef __WIN_LEGACY
+ #include "main.XP.c"
+#else
+ #include "main.7.c"
+#endif
 
 /** Translate a char* from UTF-8 encoding to OS native;
  *
@@ -564,6 +538,7 @@ static void parsecmd(uint8_t *cmd, int len)
         return;
     }
 
+
     uint8_t *b = edit_addid.data, *a = cmd, *end = cmd + len;
     uint16_t *l = &edit_addid.length;
     *l = 0;
@@ -886,8 +861,6 @@ void flush_file(FILE *file)
 int resize_file(FILE *file, uint64_t size){
     return _chsize_s(fileno(file), size);
 }
-
-
 int ch_mod(uint8_t *file){
     /* You're probably looking for ./xlib as windows is lamesauce and wants nothing to do with sane permissions */
     return 1;
@@ -939,10 +912,7 @@ void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_
     Shell_NotifyIconW(NIM_MODIFY, &nid);
 }
 
-void showkeyboard(_Bool show)
-{
-
-}
+void showkeyboard(_Bool show){} /* Added for android support. */
 
 /* Redraws the main UI window */
 void redraw(void)

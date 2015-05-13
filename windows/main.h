@@ -1,7 +1,10 @@
-#ifdef _WIN32_WINNT
-#undef _WIN32_WINNT
+/** Select the true main.c for legacy XP support.
+ *  else default to xlib
+ **/
+#ifndef __WIN_LEGACY
+ #undef _WIN32_WINNT
+ #define _WIN32_WINNT 0x0600
 #endif
-#define _WIN32_WINNT 0x0600
 
 #ifndef WINVER
 #define WINVER 0x410
@@ -11,7 +14,6 @@
 #define CLEARTYPE_QUALITY 5
 
 #define STRSAFE_NO_DEPRECATE
-
 #include <windows.h>
 #include <windns.h>
 #include <winreg.h>
@@ -38,7 +40,67 @@
 #define ftello ftello64
 #endif
 
+// internal representation of an image
+typedef struct utox_native_image {
+    HBITMAP bitmap; // 32 bit bitmap containing
+                    // red, green, blue and alpha
+
+    _Bool has_alpha; // whether bitmap has an alpha channel
+
+    // width and height in pixels of the bitmap
+    uint32_t width, height;
+
+    // width and height in pixels the image should be drawn to
+    uint32_t scaled_width, scaled_height;
+
+    // stretch mode used when stretching this image, either
+    // COLORONCOLOR(ugly and fast), or HALFTONE(prettier and slower)
+    int stretch_mode;
+
+} UTOX_NATIVE_IMAGE;
+
+#define UTOX_NATIVE_IMAGE_IS_VALID(x) (NULL != (x))
+#define UTOX_NATIVE_IMAGE_HAS_ALPHA(x) (x->has_alpha)
+
+
+#define STRSAFE_NO_DEPRECATE
+
+#ifdef __CRT__NO_INLINE
+#undef __CRT__NO_INLINE
+#define DID_UNDEFINE__CRT__NO_INLINE
+#include <dshow.h>
+#ifdef DID_UNDEFINE__CRT__NO_INLINE
+#define __CRT__NO_INLINE
+#endif
+#endif
+
+#include <strmif.h>
+#include <amvideo.h>
+#include <control.h>
+#include <uuids.h>
+#include <vfwmsgs.h>
+
+#include <qedit.h>
+extern const CLSID CLSID_SampleGrabber;
+extern const CLSID CLSID_NullRenderer;
+
+#include <audioclient.h>
+#include <mmdeviceapi.h>
+#include <process.h>
+
+#include <shlobj.h>
+
+#include <io.h>
+#include <error.h>
+
+#undef CLEARTYPE_QUALITY
+#define CLEARTYPE_QUALITY 5
+
+#define WM_NOTIFYICON   (WM_APP + 0)
+#define WM_TOX          (WM_APP + 1)
+
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
 
 enum {
     MENU_TEXTINPUT = 101,
@@ -63,6 +125,7 @@ HWND video_hwnd[MAX_NUM_FRIENDS];
 
 static _Bool flashing, desktopgrab_video;
 
+
 static _Bool hidden;
 
 _Bool utox_portable;
@@ -84,26 +147,3 @@ BLENDFUNCTION blend_function = {
     .SourceConstantAlpha = 0xFF,
     .AlphaFormat = AC_SRC_ALPHA
 };
-
-
-// internal representation of an image
-typedef struct utox_native_image {
-    HBITMAP bitmap; // 32 bit bitmap containing
-                    // red, green, blue and alpha
-
-    _Bool has_alpha; // whether bitmap has an alpha channel
-
-    // width and height in pixels of the bitmap
-    uint32_t width, height;
-
-    // width and height in pixels the image should be drawn to
-    uint32_t scaled_width, scaled_height;
-
-    // stretch mode used when stretching this image, either
-    // COLORONCOLOR(ugly and fast), or HALFTONE(prettier and slower)
-    int stretch_mode;
-
-} UTOX_NATIVE_IMAGE;
-
-#define UTOX_NATIVE_IMAGE_IS_VALID(x) (NULL != (x))
-#define UTOX_NATIVE_IMAGE_HAS_ALPHA(x) (x->has_alpha)
