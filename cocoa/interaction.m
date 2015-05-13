@@ -127,8 +127,17 @@ static CGRect find_ui_object_in_window(const PANEL *ui) {
 }
 
 - (void)mouseDown:(NSEvent *)theEvent {
-    NSLog(@"mouse down");
+    //NSLog(@"mouse down");
     panel_mdown(&panel_main);
+    int tclk = 0;
+    switch (theEvent.clickCount) {
+        case 3:
+            tclk = 1;
+        case 2:
+            panel_dclick(&panel_main, tclk);
+        default:
+            break;
+    }
 }
 
 - (void)mouseUp:(NSEvent *)theEvent {
