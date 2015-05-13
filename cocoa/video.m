@@ -200,7 +200,8 @@ _Bool video_init(void *handle) {
 
     active_video_session = [[uToxAV alloc] initWithHandle:handle];
 
-    NSLog(@"Video initialization FAILED with handle %p. ", handle);
+    if (!active_video_session)
+        NSLog(@"Video initialization FAILED with handle %p. ", handle);
     return active_video_session? 1 : 0;
 }
 

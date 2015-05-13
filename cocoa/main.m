@@ -313,6 +313,23 @@ void redraw(void) {
         theme = save->theme;
     theme_load(theme);
 
+    char title_name[128];
+    snprintf(title_name, 128, "%s %s (version: %s)", TITLE, SUB_TITLE, VERSION);
+
+#define WINDOW_MASK (NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask | NSResizableWindowMask)
+    self.utox_window = [[NSWindow alloc] initWithContentRect:(NSRect){save->window_x, save->window_y, save->window_width, save->window_height} styleMask:WINDOW_MASK backing:NSBackingStoreBuffered defer:NO screen:[NSScreen mainScreen]];
+    self.utox_window.releasedWhenClosed = NO;
+#undef WINDOW_MASK
+    self.utox_window.delegate = self;
+    self.utox_window.title = @(title_name);
+
+    utox_window_width = self.utox_window.frame.size.width;
+    utox_window_height = self.utox_window.frame.size.height;
+
+    self.utox_window.contentView = [[[uToxView alloc] initWithFrame:(CGRect){0, 0, self.utox_window.frame.size}] autorelease];
+    ui_scale((save->scale + 1) ?: 2);
+    ui_size(utox_window_width, utox_window_height);
+
     /* start the tox thread */
     thread(tox_thread, NULL);
 
@@ -330,21 +347,8 @@ void redraw(void) {
     //[self.nameMenuItem release];
     //[self.statusMenuItem release];
 
-    char title_name[128];
-    snprintf(title_name, 128, "%s %s (version: %s)", TITLE, SUB_TITLE, VERSION);
-
-#define WINDOW_MASK (NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask | NSResizableWindowMask)
-    self.utox_window = [[NSWindow alloc] initWithContentRect:(NSRect){save->window_x, save->window_y, save->window_width, save->window_height} styleMask:WINDOW_MASK backing:NSBackingStoreBuffered defer:NO screen:[NSScreen mainScreen]];
-#undef WINDOW_MASK
-
     max_video_width = [NSScreen mainScreen].frame.size.width;
     max_video_height = [NSScreen mainScreen].frame.size.height;
-    self.utox_window.delegate = self;
-
-    self.utox_window.title = @(title_name);
-    self.utox_window.contentView = [[[uToxView alloc] initWithFrame:(CGRect){0, 0, self.utox_window.frame.size}] autorelease];
-
-    ui_scale(save->scale + 1);
 
     [self.utox_window makeFirstResponder:self.utox_window.contentView];
     [self.utox_window makeKeyAndOrderFront:self];
@@ -393,7 +397,15 @@ void redraw(void) {
 }
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)sender {
-    return YES;
+    if (close_to_tray)
+        return NO;
+    else
+        return YES;
+}
+
+- (BOOL)applicationShouldHandleReopen:(NSApplication *)sender hasVisibleWindows:(BOOL)flag {
+    [self.utox_window makeKeyAndOrderFront:self];
+    return NO;
 }
 
 - (void)windowDidChangeScreen:(NSNotification *)notification {
