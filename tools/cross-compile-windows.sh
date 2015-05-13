@@ -32,6 +32,9 @@ for arg in "$@"; do
 		'debug' | '-d')
 			debug=1
 			;;
+		'legacy' | '-l')
+			legacy=1
+			;;
 		*)
 			usage
 			exit 1
@@ -69,9 +72,14 @@ if [[ $debug  == 1 ]]; then
 	echo "Building with debugging info"
 elif [[ $fast == 1 ]]; then
 	COMPILE_OPT="-s -O0"
-	echo "Quick build; (without optimizations)"
+	echo "Quick build (without optimizations)"
 else
 	COMPILE_OPT="-s -Ofast"
+fi
+
+if [[ $legacy == 1 ]]; then
+	COMPILE_OPT+=" -D __WIN_LEGACY=1"
+	echo "Compiling for windows XP"
 fi
 
 # Build filter_audio
