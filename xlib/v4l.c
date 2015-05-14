@@ -64,7 +64,7 @@ static struct v4l2_format fmt, dest_fmt = {
     //.type = V4L2_BUF_TYPE_VIDEO_CAPTURE,
     .fmt = {
         .pix = {
-            .pixelformat = V4L2_PIX_FMT_YVU420,
+            .pixelformat = V4L2_PIX_FMT_YUV420,
             //.field = V4L2_FIELD_NONE,
         },
     },

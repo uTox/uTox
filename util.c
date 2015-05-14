@@ -423,7 +423,7 @@ char_t* tohtml(char_t *str, STRING_IDX length)
     return out;
 }
 
-void yuv420torgb(const vpx_image_t *img, uint8_t *out)
+void yuv420tobgr(const vpx_image_t *img, uint8_t *out)
 {
     unsigned long int i, j;
     for (i = 0; i < img->d_h; ++i) {
@@ -432,13 +432,15 @@ void yuv420torgb(const vpx_image_t *img, uint8_t *out)
             int y = img->planes[0][((i * img->stride[0]) + j)];
             int u = img->planes[1][(((i / 2) * img->stride[1]) + (j / 2))];
             int v = img->planes[2][(((i / 2) * img->stride[2]) + (j / 2))];
+            y = y < 16 ? 16 : y;
 
             int r = (298 * (y - 16) + 409 * (v - 128) + 128) >> 8;
             int g = (298 * (y - 16) - 100 * (u - 128) - 208 * (v - 128) + 128) >> 8;
             int b = (298 * (y - 16) + 516 * (u - 128) + 128) >> 8;
-            point[0] = r>255? 255 : r<0 ? 0 : r;
+
+            point[2] = r>255? 255 : r<0 ? 0 : r;
             point[1] = g>255? 255 : g<0 ? 0 : g;
-            point[2] = b>255? 255 : b<0 ? 0 : b;
+            point[0] = b>255? 255 : b<0 ? 0 : b;
             point[3] = ~0;
         }
     }
@@ -475,17 +477,17 @@ static uint8_t rgb_to_y(int r, int g, int b)
 
 static uint8_t rgb_to_u(int r, int g, int b)
 {
-    int u = ((-4784 * r + -9437 * g + 14221 * b) >> 15) + 128;
+    int u = ((-5538 * r + -10846 * g + 16351 * b) >> 15) + 128;
     return u>255? 255 : u<0 ? 0 : u;
 }
 
 static uint8_t rgb_to_v(int r, int g, int b)
 {
-    int v = ((20218 * r + -16941 * g + -3277 * b) >> 15) + 128;
+    int v = ((16351 * r + -13697 * g + -2664 * b) >> 15) + 128;
     return v>255? 255 : v<0 ? 0 : v;
 }
 
-void rgbtoyuv420(uint8_t *plane_y, uint8_t *plane_u, uint8_t *plane_v, uint8_t *rgb, uint16_t width, uint16_t height)
+void bgrtoyuv420(uint8_t *plane_y, uint8_t *plane_u, uint8_t *plane_v, uint8_t *rgb, uint16_t width, uint16_t height)
 {
     uint16_t x, y;
     uint8_t *p;
@@ -494,26 +496,26 @@ void rgbtoyuv420(uint8_t *plane_y, uint8_t *plane_u, uint8_t *plane_v, uint8_t *
     for(y = 0; y != height; y += 2) {
         p = rgb;
         for(x = 0; x != width; x++) {
-            r = *rgb++;
-            g = *rgb++;
             b = *rgb++;
+            g = *rgb++;
+            r = *rgb++;
             *plane_y++ = rgb_to_y(r, g, b);
         }
 
         for(x = 0; x != width / 2; x++) {
-            r = *rgb++;
-            g = *rgb++;
             b = *rgb++;
+            g = *rgb++;
+            r = *rgb++;
             *plane_y++ = rgb_to_y(r, g, b);
 
-            r = *rgb++;
-            g = *rgb++;
             b = *rgb++;
+            g = *rgb++;
+            r = *rgb++;
             *plane_y++ = rgb_to_y(r, g, b);
 
-            r = ((int)r + (int)*(rgb - 6) + (int)*p + (int)*(p + 3) + 2) / 4; p++;
+            b = ((int)b + (int)*(rgb - 6) + (int)*p + (int)*(p + 3) + 2) / 4; p++;
             g = ((int)g + (int)*(rgb - 5) + (int)*p + (int)*(p + 3) + 2) / 4; p++;
-            b = ((int)b + (int)*(rgb - 4) + (int)*p + (int)*(p + 3) + 2) / 4; p++;
+            r = ((int)r + (int)*(rgb - 4) + (int)*p + (int)*(p + 3) + 2) / 4; p++;
 
             *plane_u++ = rgb_to_u(r, g, b);
             *plane_v++ = rgb_to_v(r, g, b);
@@ -523,7 +525,7 @@ void rgbtoyuv420(uint8_t *plane_y, uint8_t *plane_u, uint8_t *plane_v, uint8_t *
     }
 }
 
-void rgbxtoyuv420(uint8_t *plane_y, uint8_t *plane_u, uint8_t *plane_v, uint8_t *rgb, uint16_t width, uint16_t height)
+void bgrxtoyuv420(uint8_t *plane_y, uint8_t *plane_u, uint8_t *plane_v, uint8_t *rgb, uint16_t width, uint16_t height)
 {
     uint16_t x, y;
     uint8_t *p;
@@ -532,32 +534,32 @@ void rgbxtoyuv420(uint8_t *plane_y, uint8_t *plane_u, uint8_t *plane_v, uint8_t 
     for(y = 0; y != height; y += 2) {
         p = rgb;
         for(x = 0; x != width; x++) {
-            r = *rgb++;
-            g = *rgb++;
             b = *rgb++;
+            g = *rgb++;
+            r = *rgb++;
             rgb++;
 
             *plane_y++ = rgb_to_y(r, g, b);
         }
 
         for(x = 0; x != width / 2; x++) {
-            r = *rgb++;
-            g = *rgb++;
             b = *rgb++;
+            g = *rgb++;
+            r = *rgb++;
             rgb++;
 
             *plane_y++ = rgb_to_y(r, g, b);
 
-            r = *rgb++;
-            g = *rgb++;
             b = *rgb++;
+            g = *rgb++;
+            r = *rgb++;
             rgb++;
 
             *plane_y++ = rgb_to_y(r, g, b);
 
-            r = ((int)r + (int)*(rgb - 8) + (int)*p + (int)*(p + 4) + 2) / 4; p++;
+            b = ((int)b + (int)*(rgb - 8) + (int)*p + (int)*(p + 4) + 2) / 4; p++;
             g = ((int)g + (int)*(rgb - 7) + (int)*p + (int)*(p + 4) + 2) / 4; p++;
-            b = ((int)b + (int)*(rgb - 6) + (int)*p + (int)*(p + 4) + 2) / 4; p++;
+            r = ((int)r + (int)*(rgb - 6) + (int)*p + (int)*(p + 4) + 2) / 4; p++;
             p++;
 
             *plane_u++ = rgb_to_u(r, g, b);

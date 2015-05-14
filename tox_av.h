@@ -239,7 +239,7 @@ static void video_thread(void *args)
             if(r == 1) {
                 if(preview) {
                     uint8_t *img_data = malloc(input.d_w * input.d_h * 4);
-                    yuv420torgb(&input, img_data);
+                    yuv420tobgr(&input, img_data);
                     postmessage(PREVIEW_FRAME + newinput, input.d_w, input.d_h, img_data);
                     newinput = 0;
                 }
@@ -973,7 +973,7 @@ static void callback_av_video(void *av, int32_t call_index, const vpx_image_t *i
     uint16_t *img_data = malloc(4 + img->d_w * img->d_h * 4);
     img_data[0] = img->d_w;
     img_data[1] = img->d_h;
-    yuv420torgb(img, (void*)&img_data[2]);
+    yuv420tobgr(img, (void*)&img_data[2]);
 
     postmessage(FRIEND_VIDEO_FRAME, toxav_get_peer_id(av, call_index, 0), call_index, img_data);
 }
