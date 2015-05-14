@@ -87,6 +87,7 @@ static inline CGRect CGRectCentreInRect(CGRect r1, CGRect r2) {
 }
 
 - (void)keyDown:(NSEvent *)theEvent {
+    //NSLog(@"%@", theEvent);
     switch (theEvent.keyCode) {
         case kVK_Escape:
             stardust_display_capping_done(self.isVideo, 1, self.window);
@@ -106,18 +107,7 @@ static inline CGRect CGRectCentreInRect(CGRect r1, CGRect r2) {
 
 @end
 
-// do not breakpoint in this function or you're gonna have a fun time
-void desktopgrab(_Bool video) {
-    uToxAppDelegate *ad = (uToxAppDelegate *)[NSApp delegate];
-    NSScreen *target = [ad.utox_window screen];
-
-    NSWindow *window = [uToxStardustView createWindowOnScreen:target];
-    uToxStardustView *v = [[uToxStardustView alloc] initWithFrame:(CGRect){0, 0, window.frame.size.width, window.frame.size.height}];
-    v.video = video;
-    window.contentView = v;
-    [window makeKeyAndOrderFront:ad];
-    [v release];
-}
+stardust_context_t stardust_context = { 0 };
 
 static void stardust_display_capping_done(_Bool video, uint64_t ret, NSWindow *window) {
     uToxStardustView *v = window.contentView;
@@ -161,4 +151,27 @@ static void stardust_display_capping_done(_Bool video, uint64_t ret, NSWindow *w
 
     // CSA false positive: this has a +1 refcount from desktopgrab()
     [window release];
+
+    stardust_context.window = nil;
+    stardust_context.view = nil;
+    stardust_context.finished_callback = NULL;
+}
+
+// do not breakpoint in this function or you're gonna have a fun time
+void desktopgrab(_Bool video) {
+    uToxAppDelegate *ad = (uToxAppDelegate *)[NSApp delegate];
+    NSScreen *target = [ad.utox_window screen];
+
+    NSWindow *window = [uToxStardustView createWindowOnScreen:target];
+    uToxStardustView *v = [[uToxStardustView alloc] initWithFrame:(CGRect){0, 0, window.frame.size.width, window.frame.size.height}];
+    v.video = video;
+    window.contentView = v;
+    [window makeKeyAndOrderFront:ad];
+
+    // dirty hack to get around a first responder issue
+    stardust_context.window = window;
+    stardust_context.view = v;
+    stardust_context.finished_callback = &stardust_display_capping_done;
+
+    [v release];
 }

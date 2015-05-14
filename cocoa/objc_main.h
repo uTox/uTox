@@ -5,9 +5,17 @@
 #import <Foundation/Foundation.h>
 #import <AVFoundation/AVFoundation.h>
 
+@class uToxStardustView;
 extern CGDirectDisplayID desktop_capture_from;
 extern CGRect desktop_capture_rect;
 extern CGFloat desktop_capture_scale;
+typedef struct {
+    NSWindow *window;
+    uToxStardustView *view;
+    void (*finished_callback)(_Bool, uint64_t, NSWindow *);
+} stardust_context_t;
+extern stardust_context_t stardust_context;
+
 void setup_cursors(void);
 
 #define RELEASE_CHK(func, obj) if ((obj)) \

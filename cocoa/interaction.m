@@ -209,6 +209,8 @@ static CGRect find_ui_object_in_window(const PANEL *ui) {
             default:
                 break;
         }
+    } else if (stardust_context.window && theEvent.keyCode == kVK_Escape) {
+        stardust_context.finished_callback(stardust_context.view.isVideo, 1, stardust_context.window);
     } else {
         // easier to let MacOS interpret
         [self interpretKeyEvents:@[theEvent]];
