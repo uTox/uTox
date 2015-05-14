@@ -120,11 +120,11 @@ static void drawgroup(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(he
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_TITLE);
-    drawtext(LIST_RIGHT + 30 * SCALE, 1 * SCALE, g->name, g->name_length);
+    drawtextrange(LIST_RIGHT + 30 * SCALE, utox_window_width - 32 * SCALE, 1 * SCALE, g->name, g->name_length);
 
     setcolor(COLOR_MAIN_SUBTEXT);
     setfont(FONT_STATUS);
-    drawtext(LIST_RIGHT + 30 * SCALE, 8 * SCALE, g->topic, g->topic_length);
+    drawtextrange(LIST_RIGHT + 30 * SCALE, utox_window_width - 32 * SCALE, 8 * SCALE, g->topic, g->topic_length);
 
     uint32_t i = 0;
     int k = LIST_RIGHT + 30 * SCALE;
