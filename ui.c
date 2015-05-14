@@ -699,7 +699,7 @@ void ui_scale(uint8_t scale)
         .type   = PANEL_BUTTON,
         .x      = -5 * SCALE - BM_CHAT_SEND_WIDTH,
         .y      = -40 * SCALE,
-        .height = BM_CHAT_SEND_HEIGHT + SCALE,
+        .height = BM_CHAT_SEND_HEIGHT,
         .width  = BM_CHAT_SEND_WIDTH,
     },
 
