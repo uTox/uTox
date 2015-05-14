@@ -277,7 +277,7 @@ static void drawsettings_content(int UNUSED(x), int y, int UNUSED(w), int UNUSED
 
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 310, LOGGING);
 
-    drawstr(LIST_RIGHT + SCALE * 75, y + SCALE * 310, THEME);
+    drawstr(LIST_RIGHT + SCALE * 95, y + SCALE * 310, THEME);
 
     drawtext(LIST_RIGHT + SCALE * 132, y + SCALE * 290, (uint8_t*)":", 1);
 
@@ -300,7 +300,7 @@ static void drawsettings_content(int UNUSED(x), int y, int UNUSED(w), int UNUSED
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 334, AUDIONOTIFICATIONS);
 
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 357, CLOSE_TO_TRAY);
-    drawstr(LIST_RIGHT + SCALE * 75, y + SCALE * 357, START_IN_TRAY);
+    drawstr(LIST_RIGHT + SCALE * 95, y + SCALE * 357, START_IN_TRAY);
 
 }
 
@@ -607,7 +607,7 @@ void ui_scale(uint8_t scale)
 #ifdef EMOJI_IDS
     b_change_id_type = {
         .type = PANEL_BUTTON,
-        .x = SCALE * 63,
+        .x = SCALE * 80,
         .y = SCALE * 53,
         .width = BM_SBUTTON_WIDTH,
         .height = BM_SBUTTON_HEIGHT,
@@ -857,7 +857,7 @@ void ui_scale(uint8_t scale)
 
     d_start_in_tray = {
         .type = PANEL_DROPDOWN,
-        .x = 75 * SCALE,
+        .x = 95 * SCALE,
         .y = SCALE * 366,
         .height = SCALE * 12,
         .width = SCALE * 20
@@ -865,7 +865,7 @@ void ui_scale(uint8_t scale)
 
     d_theme = {
         .type = PANEL_DROPDOWN,
-        .x = 75 * SCALE,
+        .x = 95 * SCALE,
         .y = SCALE * 320,
         .height = SCALE * 12,
         .width = SCALE * 60
