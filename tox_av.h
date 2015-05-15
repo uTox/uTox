@@ -749,7 +749,7 @@ static void audio_thread(void *args)
                     int16_t buffer[perframe];
                     alcCaptureSamplesLoopback(device_out, buffer, perframe);
                     pass_audio_output(f_a, buffer, perframe);
-                    set_echo_delay_ms(f_a, 5);
+                    set_echo_delay_ms(f_a, av_DefaultSettings.audio_frame_duration);
                     if (samples >= perframe * 2) {
                         sleep = 0;
                     }
