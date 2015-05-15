@@ -507,6 +507,10 @@ static void audio_thread(void *args)
 
     audio_thread_init = 1;
 
+    int16_t *preview_buffer = NULL;
+    unsigned int preview_buffer_index = 0;
+#define PREVIEW_BUFFER_SIZE (av_DefaultSettings.audio_sample_rate / 2)
+
     while(1) {
         if(audio_thread_msg) {
             TOX_MSG *m = &audio_msg;
@@ -584,6 +588,8 @@ static void audio_thread(void *args)
             case AUDIO_PREVIEW_START: {
                 preview = 1;
                 audio_count++;
+                preview_buffer = calloc(PREVIEW_BUFFER_SIZE, 2);
+                preview_buffer_index = 0;
                 if(!record_on) {
                     device_in = alcopencapture(audio_device);
                     if(device_in) {
@@ -626,6 +632,8 @@ static void audio_thread(void *args)
             case AUDIO_PREVIEW_END: {
                 preview = 0;
                 audio_count--;
+                free(preview_buffer);
+                preview_buffer = NULL;
                 if(!audio_count && record_on) {
                     alccapturestop(device_in);
                     alccaptureclose(device_in);
@@ -753,7 +761,12 @@ static void audio_thread(void *args)
                 }
                 #endif
                 if(preview) {
-                    sourceplaybuffer(0, (int16_t*)buf, perframe, av_DefaultSettings.audio_channels, av_DefaultSettings.audio_sample_rate);
+                    if (preview_buffer_index + perframe > PREVIEW_BUFFER_SIZE)
+                        preview_buffer_index = 0;
+
+                    sourceplaybuffer(0, preview_buffer + preview_buffer_index, perframe, av_DefaultSettings.audio_channels, av_DefaultSettings.audio_sample_rate);
+                    memcpy(preview_buffer + preview_buffer_index, buf, perframe * sizeof(int16_t));
+                    preview_buffer_index += perframe;
                 }
 
                 int i;
