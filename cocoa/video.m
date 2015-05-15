@@ -78,11 +78,11 @@
     [_linkerVideo setSampleBufferDelegate:self queue:_processingQueue];
     // TODO possibly get a better pixel format
     if (_shouldMangleDimensions)
-        [_linkerVideo setVideoSettings:@{(id)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_32ARGB),
+        [_linkerVideo setVideoSettings:@{(id)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_32BGRA),
                                          (id)kCVPixelBufferWidthKey: @640,
                                          (id)kCVPixelBufferHeightKey: @480}];
     else
-        [_linkerVideo setVideoSettings:@{(id)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_32ARGB)}];
+        [_linkerVideo setVideoSettings:@{(id)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_32BGRA)}];
     [_session addOutput:_linkerVideo];
     [_session startRunning];
 }
@@ -120,7 +120,7 @@
     CFTypeID imageType = CFGetTypeID(_currentFrame);
     if (imageType == CVPixelBufferGetTypeID()) {
         // TODO maybe handle other formats
-        rgbxtoyuv420(img->planes[0], img->planes[1], img->planes[2], CVPixelBufferGetBaseAddress(_currentFrame) + 1, img->w, img->h);
+        bgrxtoyuv420(img->planes[0], img->planes[1], img->planes[2], CVPixelBufferGetBaseAddress(_currentFrame), img->w, img->h);
     } else if (imageType == CVOpenGLBufferGetTypeID()) {
         // OpenGL pbuffer
     } else if (imageType == CVOpenGLTextureGetTypeID()) {
@@ -265,7 +265,7 @@ void* video_detect(void) {
 
     if (self.temporaryLoadTexture) {
         glBindTexture(GL_TEXTURE_2D, self.texture);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, self.temporaryWidth, self.temporaryHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, self.temporaryLoadTexture);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, self.temporaryWidth, self.temporaryHeight, 0, GL_BGRA, GL_UNSIGNED_BYTE, self.temporaryLoadTexture);
         self.temporaryLoadTexture = NULL;
     }
 
