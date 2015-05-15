@@ -115,6 +115,87 @@ static CGRect find_ui_object_in_window(const PANEL *ui) {
     return ret;
 }
 
+static inline void move_left_to_char(char_t c) {
+    EDIT *edit = edit_get_active();
+    int loc = edit_getcursorpos();
+
+    if (loc == 0)
+        return;
+
+    if (edit->data[loc - 1] == c) {
+        loc--;
+    }
+
+    while(loc != 0 && edit->data[loc - 1] != c) {
+        int move = utf8_unlen(edit->data + loc);
+        loc -= move;
+    }
+
+    edit_setselectedrange(loc, 0);
+    redraw();
+}
+
+static inline void select_left_to_char(char_t c) {
+    EDIT *edit = edit_get_active();
+    int loc = edit_getcursorpos(), len = edit_selection(edit, NULL, 0);
+
+    if (loc == 0)
+        return;
+
+    if (edit->data[loc - 1] == c) {
+        loc--;
+        len++;
+    }
+
+    while(loc != 0 && edit->data[loc - 1] != c) {
+        int move = utf8_unlen(edit->data + loc);
+        loc -= move;
+        len += move;
+    }
+
+    edit_setselectedrange(loc, len);
+    redraw();
+}
+
+static inline void move_right_to_char(char_t c) {
+    EDIT *edit = edit_get_active();
+    int loc = edit_getcursorpos();
+
+    if (loc > edit->length)
+        return;
+
+    if (edit->data[loc] == c) {
+        loc += 1;
+    }
+
+    while(loc != edit->length && edit->data[loc] != c) {
+        loc += utf8_len(&edit->data[loc]);
+    }
+
+    edit_setselectedrange(loc, 0);
+    redraw();
+}
+
+static inline void select_right_to_char(char_t c) {
+    EDIT *edit = edit_get_active();
+    int loc = edit_getcursorpos(), end = loc + edit_selection(edit, NULL, 0);
+
+    if (end > edit->length)
+        return;
+
+    if (edit->data[end] == c) {
+        end += 1;
+    }
+
+    while(end != edit->length && edit->data[end] != c) {
+        int move = utf8_len(edit->data + end);
+        end += move;
+    }
+    
+    edit_setselectedrange(loc, end - loc);
+    redraw();
+}
+
 @implementation uToxView (UserInteraction)
 
 + (NSSpeechSynthesizer *)sharedSpeechSynthesizer {
@@ -301,14 +382,14 @@ static CGRect find_ui_object_in_window(const PANEL *ui) {
         edit_char(KEY_DEL, YES, FLAGS());
 }
 
-- (void)moveToBeginningOfLine:(id)sender {
+- (void)moveToBeginningOfDocument:(id)sender {
     BEEP_IF_EDIT_NOT_ACTIVE()
 
     edit_setselectedrange(0, 0);
     redraw();
 }
 
-- (void)moveToBeginningOfLineAndModifySelection:(id)sender {
+- (void)moveToBeginningOfDocumentAndModifySelection:(id)sender {
     BEEP_IF_EDIT_NOT_ACTIVE()
 
     int loc = edit_getcursorpos(), len = edit_copy(NULL, 0);
@@ -316,19 +397,67 @@ static CGRect find_ui_object_in_window(const PANEL *ui) {
     redraw();
 }
 
-- (void)moveToEndOfLine:(id)sender {
+- (void)moveToEndOfDocument:(id)sender {
     BEEP_IF_EDIT_NOT_ACTIVE()
 
     edit_setselectedrange(edit_get_active()->length, 0);
     redraw();
 }
 
-- (void)moveToEndOfLineAndModifySelection:(id)sender {
+- (void)moveToEndOfDocumentAndModifySelection:(id)sender {
     BEEP_IF_EDIT_NOT_ACTIVE()
 
     int loc = edit_getcursorpos(), len = edit_get_active()->length - loc;
     edit_setselectedrange(loc, len);
     redraw();
+}
+
+- (void)moveToBeginningOfLine:(id)sender {
+    BEEP_IF_EDIT_NOT_ACTIVE()
+    move_left_to_char('\n');
+}
+
+- (void)moveToBeginningOfLineAndModifySelection:(id)sender {
+    BEEP_IF_EDIT_NOT_ACTIVE()
+    select_left_to_char('\n');
+}
+
+- (void)moveToEndOfLine:(id)sender {
+    BEEP_IF_EDIT_NOT_ACTIVE()
+    move_right_to_char('\n');
+}
+
+- (void)moveToEndOfLineAndModifySelection:(id)sender {
+    BEEP_IF_EDIT_NOT_ACTIVE()
+    select_right_to_char('\n');
+}
+
+- (void)moveWordLeft:(id)sender {
+    BEEP_IF_EDIT_NOT_ACTIVE()
+
+    // FIXME: words are not always separated by a space
+    move_left_to_char(' ');
+}
+
+- (void)moveWordLeftAndModifySelection:(id)sender {
+    BEEP_IF_EDIT_NOT_ACTIVE()
+
+    // FIXME: words are not always separated by a space
+    select_left_to_char(' ');
+}
+
+- (void)moveWordRight:(id)sender {
+    BEEP_IF_EDIT_NOT_ACTIVE()
+
+    // FIXME: words are not always separated by a space
+    move_right_to_char(' ');
+}
+
+- (void)moveWordRightAndModifySelection:(id)sender {
+    BEEP_IF_EDIT_NOT_ACTIVE()
+
+    // FIXME: words are not always separated by a space
+    select_right_to_char(' ');
 }
 
 - (void)moveLeftAndModifySelection:(id)sender {
