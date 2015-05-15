@@ -12,26 +12,26 @@ static inline CGImageRef create_zoom_cursor(CGFloat scale, BOOL plus) {
     CGColorSpaceRelease(cs);
 
     CGContextBeginPath(draw);
-    CGContextMoveToPoint(draw, 2., 14.);
-    CGContextAddLineToPoint(draw, 15., 1.);
+    CGContextMoveToPoint(draw, 2. * scale, 14. * scale);
+    CGContextAddLineToPoint(draw, 15. * scale, 1. * scale);
     //CGContextCloseSubpath(draw);
 
     CGContextSetStrokeColorWithColor(draw, black);
-    CGContextSetLineWidth(draw, 3.0);
+    CGContextSetLineWidth(draw, 3.0 * scale);
     CGContextDrawPath(draw, kCGPathStroke);
 
     CGContextBeginPath(draw);
-    CGContextAddEllipseInRect(draw, CGRectInset((CGRect){0, 4, 12, 12}, 0.5, 0.5));
+    CGContextAddEllipseInRect(draw, CGRectInset((CGRect){0, 4 * scale, 12 * scale, 12 * scale}, 0.5, 0.5));
 
-    CGContextSetLineWidth(draw, 1.0);
+    CGContextSetLineWidth(draw, scale);
     CGContextSetFillColorWithColor(draw, white);
     CGContextDrawPath(draw, kCGPathFillStroke);
 
     CGContextBeginPath(draw);
-    CGContextAddRect(draw, (CGRect){3, 9, 6, 2});
+    CGContextAddRect(draw, (CGRect){3 * scale, 9 * scale, 6 * scale, 2 * scale});
 
     if (plus)
-        CGContextAddRect(draw, (CGRect){5, 7, 2, 6});
+        CGContextAddRect(draw, (CGRect){5 * scale, 7 * scale, 2 * scale, 6 * scale});
 
     CGContextSetFillColorWithColor(draw, black);
     CGContextDrawPath(draw, kCGPathFill);
@@ -50,8 +50,9 @@ static inline NSCursor *create_zoom_in_cursor(void) {
     NSBitmapImageRep *b = [[NSBitmapImageRep alloc] initWithCGImage:base];
     NSBitmapImageRep *b2x = [[NSBitmapImageRep alloc] initWithCGImage:base2x];
     NSImage *cur = [[NSImage alloc] initWithSize:(CGSize){16, 16}];
-    [cur addRepresentation:b];
     [cur addRepresentation:b2x];
+    b2x.size = (CGSize){16, 16};
+    [cur addRepresentation:b];
 
     NSCursor *ret = [[NSCursor alloc] initWithImage:cur hotSpot:(CGPoint){6, 6}];
 
@@ -71,8 +72,9 @@ static inline NSCursor *create_zoom_out_cursor(void) {
     NSBitmapImageRep *b = [[NSBitmapImageRep alloc] initWithCGImage:base];
     NSBitmapImageRep *b2x = [[NSBitmapImageRep alloc] initWithCGImage:base2x];
     NSImage *cur = [[NSImage alloc] initWithSize:(CGSize){16, 16}];
-    [cur addRepresentation:b];
     [cur addRepresentation:b2x];
+    b2x.size = (CGSize){16, 16};
+    [cur addRepresentation:b];
 
     NSCursor *ret = [[NSCursor alloc] initWithImage:cur hotSpot:(CGPoint){6, 6}];
 
