@@ -303,7 +303,6 @@ void redraw(void) {
     NSImageView *dock_icon = [[NSImageView alloc] initWithFrame:CGRectZero];
     dock_icon.image = [NSApplication sharedApplication].applicationIconImage;
     [NSApplication sharedApplication].dockTile.contentView = dock_icon;
-    [NSApplication sharedApplication].dockTile.badgeLabel = @"!";
     [dock_icon release];
 
     ironclad = [[NSMutableDictionary alloc] init];

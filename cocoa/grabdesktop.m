@@ -119,7 +119,7 @@ static void stardust_display_capping_done(_Bool video, uint64_t ret, NSWindow *w
         if (!video) {
             CGRect rect = [v getRect];
             rect.origin.y = target.frame.size.height - rect.origin.y - rect.size.height;
-            CGImageRef inliness = CGDisplayCreateImageForRect(screen_id, rect);
+            CGImageRef inliness = CGWindowListCreateImage(rect, kCGWindowListOptionOnScreenBelowWindow, window.windowNumber, kCGWindowImageDefault);
             UTOX_NATIVE_IMAGE *img = malloc(sizeof(UTOX_NATIVE_IMAGE));
             img->scale = 1.0;
             img->image = inliness;

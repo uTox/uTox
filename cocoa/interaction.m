@@ -781,13 +781,16 @@ void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_
         }
 
         [[NSUserNotificationCenter defaultUserNotificationCenter] deliverNotification:usernotification];
-        // bounce icon
-        [[NSApplication sharedApplication] requestUserAttention:NSInformationalRequest];
-        [NSApplication sharedApplication].dockTile.badgeLabel = @"!";
 
         [t release];
         [msg_ release];
         [usernotification release];
+    }
+
+    // bounce icon
+    if ([NSApplication sharedApplication].isActive) {
+        [[NSApplication sharedApplication] requestUserAttention:NSInformationalRequest];
+        [NSApplication sharedApplication].dockTile.badgeLabel = @"!";
     }
 }
 
