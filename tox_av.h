@@ -430,7 +430,11 @@ static void audio_thread(void *args)
     postmessage(NEW_AUDIO_IN_DEVICE, STR_AUDIO_IN_NONE, 0, NULL);
     audio_detect();
 
-    device_list = alcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER);
+    if (alcIsExtensionPresent(NULL, "ALC_ENUMERATE_ALL_EXT"))
+        device_list = alcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER);
+    else
+        device_list = alcGetString(NULL, ALC_DEVICE_SPECIFIER);
+
     if(device_list) {
         output_device = device_list;
         debug("Output Device List:\n");
