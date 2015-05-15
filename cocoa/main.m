@@ -300,6 +300,12 @@ void redraw(void) {
 
 - (void)applicationDidFinishLaunching:(NSNotification *)notification {
     setup_cursors();
+    NSImageView *dock_icon = [[NSImageView alloc] initWithFrame:CGRectZero];
+    dock_icon.image = [NSApplication sharedApplication].applicationIconImage;
+    [NSApplication sharedApplication].dockTile.contentView = dock_icon;
+    [NSApplication sharedApplication].dockTile.badgeLabel = @"!";
+    [dock_icon release];
+
     ironclad = [[NSMutableDictionary alloc] init];
 
     // hold COMMAND to start utox in portable mode
@@ -364,6 +370,16 @@ void redraw(void) {
         [self.dockMenu addItem:self.statusMenuItem];
     }
     return self.dockMenu;
+}
+
+- (void)applicationDidBecomeActive:(NSNotification *)notification {
+    if ([NSUserNotification class]) {
+        // don't clutter up NC with stale messages
+        [[NSUserNotificationCenter defaultUserNotificationCenter] removeAllDeliveredNotifications];
+    }
+
+    // clear badge
+    [NSApplication sharedApplication].dockTile.badgeLabel = nil;
 }
 
 - (void)applicationWillTerminate:(NSNotification *)notification {
