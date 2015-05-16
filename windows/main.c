@@ -1,12 +1,3 @@
-#ifndef WINVER
-#define WINVER 0x410
-#endif
-
-#define STRSAFE_NO_DEPRECATE
-
-#include <windows.h>
-#include <windowsx.h>
-
 #ifdef __CRT__NO_INLINE
 #undef __CRT__NO_INLINE
 #define DID_UNDEFINE__CRT__NO_INLINE
@@ -16,89 +7,36 @@
 #endif
 #endif
 
+#include <windows.h>
+#include <windowsx.h>
 #include <strmif.h>
 #include <amvideo.h>
 #include <control.h>
 #include <uuids.h>
 #include <vfwmsgs.h>
-
 #include <qedit.h>
-extern const CLSID CLSID_SampleGrabber;
-extern const CLSID CLSID_NullRenderer;
-
 #include <audioclient.h>
 #include <mmdeviceapi.h>
-
-#include "audio.c"
-
 #include <process.h>
-
 #include <shlobj.h>
-
 #include <io.h>
 #include <error.h>
 
-#undef CLEARTYPE_QUALITY
-#define CLEARTYPE_QUALITY 5
+#include "audio.c"
 
 #define WM_NOTIFYICON   (WM_APP + 0)
 #define WM_TOX          (WM_APP + 1)
 
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-
-_Bool draw = 0;
-
-float scale = 1.0;
-_Bool connected = 0;
-_Bool havefocus;
-
-enum {
-    MENU_TEXTINPUT = 101,
-    MENU_MESSAGES = 102,
-};
-
-//HBITMAP bitmap[32];
-void *bitmap[BM_CI1 + 1];
-HFONT font[32];
-HCURSOR cursors[8];
-HICON my_icon, unread_messages_icon;
-
-HWND hwnd, capturewnd;
-HINSTANCE hinstance;
-HDC main_hdc, hdc, hdcMem;
-HBRUSH hdc_brush;
-HBITMAP hdc_bm;
-HWND video_hwnd[MAX_NUM_FRIENDS];
-
-
-//static char save_path[280];
-
-static _Bool flashing, desktopgrab_video;
+extern const CLSID CLSID_SampleGrabber;
+extern const CLSID CLSID_NullRenderer;
 
 static TRACKMOUSEEVENT tme = {sizeof(TRACKMOUSEEVENT), TME_LEAVE, 0, 0};
 static _Bool mouse_tracked = 0;
 
-static _Bool hidden;
-
-_Bool utox_portable;
-char utox_portable_save_path[MAX_PATH];
-
-//WM_COMMAND
-enum
-{
-    TRAY_SHOWHIDE,
-    TRAY_EXIT,
-    TRAY_STATUS_AVAILABLE,
-    TRAY_STATUS_AWAY,
-    TRAY_STATUS_BUSY,
-};
-
-BLENDFUNCTION blend_function = {
-    .BlendOp = AC_SRC_OVER,
-    .BlendFlags = 0,
-    .SourceConstantAlpha = 0xFF,
-    .AlphaFormat = AC_SRC_ALPHA
-};
+float scale = 1.0;
+_Bool draw = 0;
+_Bool connected = 0;
+_Bool havefocus;
 
 /** Translate a char* from UTF-8 encoding to OS native;
  *

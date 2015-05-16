@@ -3,6 +3,15 @@
 #endif
 #define _WIN32_WINNT 0x0600
 
+#ifndef WINVER
+#define WINVER 0x410
+#endif
+
+#undef CLEARTYPE_QUALITY
+#define CLEARTYPE_QUALITY 5
+
+#define STRSAFE_NO_DEPRECATE
+
 #include <windows.h>
 #include <windns.h>
 #include <winreg.h>
@@ -28,6 +37,54 @@
 #define fseeko fseeko64
 #define ftello ftello64
 #endif
+
+LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+enum {
+    MENU_TEXTINPUT = 101,
+    MENU_MESSAGES = 102,
+};
+
+//HBITMAP bitmap[32];
+void *bitmap[BM_CI1 + 1];
+HFONT font[32];
+HCURSOR cursors[8];
+HICON my_icon, unread_messages_icon;
+
+HWND hwnd, capturewnd;
+HINSTANCE hinstance;
+HDC main_hdc, hdc, hdcMem;
+HBRUSH hdc_brush;
+HBITMAP hdc_bm;
+HWND video_hwnd[MAX_NUM_FRIENDS];
+
+
+//static char save_path[280];
+
+static _Bool flashing, desktopgrab_video;
+
+static _Bool hidden;
+
+_Bool utox_portable;
+char utox_portable_save_path[MAX_PATH];
+
+//WM_COMMAND
+enum
+{
+    TRAY_SHOWHIDE,
+    TRAY_EXIT,
+    TRAY_STATUS_AVAILABLE,
+    TRAY_STATUS_AWAY,
+    TRAY_STATUS_BUSY,
+};
+
+BLENDFUNCTION blend_function = {
+    .BlendOp = AC_SRC_OVER,
+    .BlendFlags = 0,
+    .SourceConstantAlpha = 0xFF,
+    .AlphaFormat = AC_SRC_ALPHA
+};
+
 
 // internal representation of an image
 typedef struct utox_native_image {
