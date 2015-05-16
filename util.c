@@ -659,6 +659,7 @@ UTOX_SAVE* config_load(void)
     save->filter = 0;
     save->audio_device_in = ~0;
     save->theme = 0;
+    save->no_typing_notifications = 0;
 
     config_osdefaults(save);
 NEXT:
@@ -673,7 +674,9 @@ NEXT:
     dropdown_audio_filtering.selected = dropdown_audio_filtering.over = !save->audio_filtering_enabled;
     dropdown_filter.selected = FILTER = save->filter;
     //dropdown_theme_onselect.selected = dropdown_theme_onselect.over = save->theme;
+    dropdown_typing_notes.selected = save->no_typing_notifications;
 
+    dont_send_typing_notes = save->no_typing_notifications;
     options.ipv6_enabled = save->enableipv6;
     options.udp_enabled = !save->disableudp;
     options.proxy_type = save->proxyenable ? TOX_PROXY_TYPE_SOCKS5 : TOX_PROXY_TYPE_NONE;
@@ -730,6 +733,7 @@ void config_save(UTOX_SAVE *save)
     save->audio_device_in = dropdown_audio_in.selected;
     save->audio_device_out = dropdown_audio_out.selected;
     save->theme = theme;
+    save->no_typing_notifications = dont_send_typing_notes;
     memset(save->unused, 0, sizeof(save->unused));
 
     debug("Writing uTox Save	::\n");

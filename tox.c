@@ -658,8 +658,9 @@ void tox_thread(void *UNUSED(args))
                 tox_thread_msg = 0;
             }
 
-            // Thread active transfers and check if friend is typing
-            utox_thread_work_for_typing_notifications(tox, time);
+            if (!dont_send_typing_notes)
+                // Thread active transfers and check if friend is typing
+                utox_thread_work_for_typing_notifications(tox, time);
 
             // Ask toxcore how many ms to wait, then wait at the most 20ms
             uint32_t interval = tox_iteration_interval(tox);
