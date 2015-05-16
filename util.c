@@ -676,6 +676,7 @@ NEXT:
     //dropdown_theme_onselect.selected = dropdown_theme_onselect.over = save->theme;
     dropdown_typing_notes.selected = save->no_typing_notifications;
 
+    dont_send_typing_notes = save->no_typing_notifications;
     options.ipv6_enabled = save->enableipv6;
     options.udp_enabled = !save->disableudp;
     options.proxy_type = save->proxyenable ? TOX_PROXY_TYPE_SOCKS5 : TOX_PROXY_TYPE_NONE;
