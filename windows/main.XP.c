@@ -10,7 +10,7 @@ void launch_at_startup(int is_launch_at_startup){
             path[path_length+1] = '\"';
             path[path_length+2] = '\0';
             path_length += 2;
-            ret = RegSetValueExW(hKey, NULL, L"uTox", REG_SZ, path, path_length*2); /*2 bytes per wchar */
+            ret = RegSetValueExW(hKey, L"uTox", NULL, REG_SZ, path, path_length*2); /*2 bytes per wchar */
             if(ret == ERROR_SUCCESS){
                 debug("Successful auto start addition.\n");
             }
@@ -19,7 +19,7 @@ void launch_at_startup(int is_launch_at_startup){
     }
     if(is_launch_at_startup == 0){
         if(ERROR_SUCCESS == RegOpenKeyW(HKEY_CURRENT_USER, run_key_path, &hKey)){
-            ret = RegDeleteKeyValueExW(hKey, NULL, L"uTox");
+            ret = RegDeleteKeyValueExW(hKey, L"uTox", NULL);
             if(ret == ERROR_SUCCESS){
                 debug("Successful auto start deletion.\n");
             }
