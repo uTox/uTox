@@ -4,10 +4,6 @@
 
 #include <windows.h>
 
-int resize_file(FILE *file, uint64_t size){
-    return _chsize_s(fileno(file), size);
-}
-
 void launch_at_startup(int is_launch_at_startup){
     HKEY hKey;
     const wchar_t* run_key_path = L"Software\\Microsoft\\Windows\\CurrentVersion\\Run";

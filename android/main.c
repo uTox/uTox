@@ -241,10 +241,6 @@ void flush_file(FILE *file)
     fsync(fd);
 }
 
-int resize_file(FILE *file, uint64_t size){
-    // File transfers unsupported on android TODO
-}
-
 int ch_mod(uint8_t *file){
     /* You're probably looking for ./xlib as android isn't working when this was written. */
     return -1;
@@ -813,6 +809,6 @@ __attribute__ ((externally_visible)) void ANativeActivity_onCreate(ANativeActivi
     pthread_create(&thread, &myattr, (void*(*)(void*))android_main, NULL);
 }
 
-void launch_at_startup(int is_launch_at_startup) 
+void launch_at_startup(int is_launch_at_startup)
 {
 }

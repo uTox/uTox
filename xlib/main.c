@@ -482,7 +482,7 @@ void send_message(
      long data3    /* message data 3 */
 ){
     XEvent ev;
-  
+
     memset(&ev, 0, sizeof(ev));
     ev.xclient.type = ClientMessage;
     ev.xclient.window = w;
@@ -827,11 +827,6 @@ void flush_file(FILE *file)
     int fd = fileno(file);
     fsync(fd);
 }
-
-int resize_file(FILE *file, uint64_t size){
-    return posix_fallocate(fileno(file), 0, size);
-}
-
 
 void setscale(void)
 {
@@ -1571,6 +1566,6 @@ int video_getframe(vpx_image_t *image)
     return v4l_getframe(image);
 }
 
-void launch_at_startup(int is_launch_at_startup) 
+void launch_at_startup(int is_launch_at_startup)
 {
 }
