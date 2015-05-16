@@ -858,9 +858,6 @@ void flush_file(FILE *file)
     _commit(fd);
 }
 
-int resize_file(FILE *file, uint64_t size){
-    return _chsize_s(fileno(file), size);
-}
 int ch_mod(uint8_t *file){
     /* You're probably looking for ./xlib as windows is lamesauce and wants nothing to do with sane permissions */
     return 1;
