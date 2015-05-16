@@ -758,10 +758,19 @@ static void audio_thread(void *args)
             #endif
             #endif
 
-            if(frame) {
+            if (frame) {
+                _Bool voice = 1;
                 #ifdef AUDIO_FILTERING
-                if (f_a && filter_audio(f_a, (int16_t*)buf, perframe) == -1) {
-                    debug("filter audio error\n");
+                if (f_a) {
+                    int ret = filter_audio(f_a, (int16_t*)buf, perframe);
+
+                    if (ret == -1) { 
+                        debug("filter audio error\n");
+                    }
+
+                    if (ret == 0) {
+                        voice = 0;
+                    }
                 }
                 #endif
                 if(preview) {
@@ -769,34 +778,41 @@ static void audio_thread(void *args)
                         preview_buffer_index = 0;
 
                     sourceplaybuffer(0, preview_buffer + preview_buffer_index, perframe, av_DefaultSettings.audio_channels, av_DefaultSettings.audio_sample_rate);
-                    memcpy(preview_buffer + preview_buffer_index, buf, perframe * sizeof(int16_t));
+                    if (voice) {
+                        memcpy(preview_buffer + preview_buffer_index, buf, perframe * sizeof(int16_t));
+                    } else {
+                        memset(preview_buffer + preview_buffer_index, 0, perframe * sizeof(int16_t));
+                    }
+
                     preview_buffer_index += perframe;
                 }
 
-                int i;
-                for(i = 0; i < MAX_CALLS; i++) {
-                    if(call[i]) {
-                        int r;
-                        if((r = toxav_prepare_audio_frame(av, i, dest, sizeof(dest), (void*)buf, perframe)) < 0) {
-                            debug("toxav_prepare_audio_frame error %i\n", r);
-                            continue;
-                        }
+                if (voice) {
+                    int i;
+                    for(i = 0; i < MAX_CALLS; i++) {
+                        if(call[i]) {
+                            int r;
+                            if((r = toxav_prepare_audio_frame(av, i, dest, sizeof(dest), (void*)buf, perframe)) < 0) {
+                                debug("toxav_prepare_audio_frame error %i\n", r);
+                                continue;
+                            }
 
-                        if((r = toxav_send_audio(av, i, dest, r)) < 0) {
-                            debug("toxav_send_audio error %i %s\n", r, strerror(errno));
+                            if((r = toxav_send_audio(av, i, dest, r)) < 0) {
+                                debug("toxav_send_audio error %i %s\n", r, strerror(errno));
+                            }
                         }
                     }
-                }
 
-                Tox *tox = toxav_get_tox(av);
-                uint32_t num_chats = tox_count_chatlist(tox);
+                    Tox *tox = toxav_get_tox(av);
+                    uint32_t num_chats = tox_count_chatlist(tox);
 
-                if (num_chats != 0) {
-                    int32_t chats[num_chats];
-                    uint32_t max = tox_get_chatlist(tox, chats, num_chats);
-                    for (i = 0; i < max; ++i) {
-                        if (groups_audio[chats[i]]) {
-                            toxav_group_send_audio(tox, chats[i], (int16_t *)buf, perframe, av_DefaultSettings.audio_channels, av_DefaultSettings.audio_sample_rate);
+                    if (num_chats != 0) {
+                        int32_t chats[num_chats];
+                        uint32_t max = tox_get_chatlist(tox, chats, num_chats);
+                        for (i = 0; i < max; ++i) {
+                            if (groups_audio[chats[i]]) {
+                                toxav_group_send_audio(tox, chats[i], (int16_t *)buf, perframe, av_DefaultSettings.audio_channels, av_DefaultSettings.audio_sample_rate);
+                            }
                         }
                     }
                 }
