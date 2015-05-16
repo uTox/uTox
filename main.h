@@ -299,8 +299,6 @@ struct
 //add friend page
 uint8_t addfriend_status;
 
-const char *tox_savename; //Stores current name of tox's savefile
-
 _Bool dont_send_typing_notes; //Stores user's preference about typing notifications
 
 #define BORDER 1
