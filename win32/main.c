@@ -626,17 +626,16 @@ static void parsecmd(uint8_t *cmd, int len)
 
     //! lacks max length checks, writes to inputs even on failure, no notice of failure
     //doesnt reset unset inputs
-    if(len < 6)
-    {
+
+    if(len > 6 && memcmp(cmd, "tox://", 6) == 0) {
+        cmd += 6;
+        len -= 6;
+    } else if (len > 4 && memcmp(cmd, "tox:", 4) == 0) {
+        cmd += 4;
+        len -= 4;
+    } else {
         return;
     }
-
-    if(memcmp(cmd, "tox://", 6) != 0) {
-        return;
-    }
-
-    cmd += 6;
-    len -= 6;
 
     uint8_t *b = edit_addid.data, *a = cmd, *end = cmd + len;
     uint16_t *l = &edit_addid.length;
@@ -2488,7 +2487,7 @@ int video_getframe(vpx_image_t *image)
 
             BitBlt(capturedc, 0, 0, video_width, video_height, desktopdc, video_x, video_y, SRCCOPY | CAPTUREBLT);
             GetDIBits(capturedc, capturebitmap, 0, video_height, dibits, &info, DIB_RGB_COLORS);
-            rgbtoyuv420(image->planes[0], image->planes[1], image->planes[2], dibits, video_width, video_height);
+            bgrtoyuv420(image->planes[0], image->planes[1], image->planes[2], dibits, video_width, video_height);
             lasttime = t;
             return 1;
         }
@@ -2497,7 +2496,7 @@ int video_getframe(vpx_image_t *image)
 
     if(newframe) {
         newframe = 0;
-        rgbtoyuv420(image->planes[0], image->planes[1], image->planes[2], frame_data, video_width, video_height);
+        bgrtoyuv420(image->planes[0], image->planes[1], image->planes[2], frame_data, video_width, video_height);
         return 1;
     }
     return 0;

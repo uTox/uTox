@@ -270,6 +270,7 @@ static void do_bootstrap(Tox *tox)
     while(i < 4) {
         struct bootstrap_node *d = &bootstrap_nodes[j % countof(bootstrap_nodes)];
         tox_bootstrap(tox, d->address, d->port, d->key, 0);
+        tox_add_tcp_relay(tox, d->address, d->port, d->key, 0);
         i++;
         j++;
     }

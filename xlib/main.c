@@ -1568,7 +1568,7 @@ int video_getframe(vpx_image_t *image)
         uint64_t t = get_time();
         if(t - lasttime >= (uint64_t)1000 * 1000 * 1000 / 24) {
             XShmGetImage(deskdisplay,RootWindow(deskdisplay, deskscreen), screen_image, video_x, video_y, AllPlanes);
-            rgbxtoyuv420(image->planes[0], image->planes[1], image->planes[2], (uint8_t*)screen_image->data, screen_image->width, screen_image->height);
+            bgrxtoyuv420(image->planes[0], image->planes[1], image->planes[2], (uint8_t*)screen_image->data, screen_image->width, screen_image->height);
             lasttime = t;
             return 1;
         }

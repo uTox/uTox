@@ -239,7 +239,7 @@ static void video_thread(void *args)
             if(r == 1) {
                 if(preview) {
                     uint8_t *img_data = malloc(input.d_w * input.d_h * 4);
-                    yuv420torgb(&input, img_data);
+                    yuv420tobgr(&input, img_data);
                     postmessage(PREVIEW_FRAME + newinput, input.d_w, input.d_h, img_data);
                     newinput = 0;
                 }
@@ -430,7 +430,11 @@ static void audio_thread(void *args)
     postmessage(NEW_AUDIO_IN_DEVICE, STR_AUDIO_IN_NONE, 0, NULL);
     audio_detect();
 
-    device_list = alcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER);
+    if (alcIsExtensionPresent(NULL, "ALC_ENUMERATE_ALL_EXT"))
+        device_list = alcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER);
+    else
+        device_list = alcGetString(NULL, ALC_DEVICE_SPECIFIER);
+
     if(device_list) {
         output_device = device_list;
         debug("Output Device List:\n");
@@ -506,6 +510,10 @@ static void audio_thread(void *args)
     #endif
 
     audio_thread_init = 1;
+
+    int16_t *preview_buffer = NULL;
+    unsigned int preview_buffer_index = 0;
+#define PREVIEW_BUFFER_SIZE (av_DefaultSettings.audio_sample_rate / 2)
 
     while(1) {
         if(audio_thread_msg) {
@@ -584,6 +592,8 @@ static void audio_thread(void *args)
             case AUDIO_PREVIEW_START: {
                 preview = 1;
                 audio_count++;
+                preview_buffer = calloc(PREVIEW_BUFFER_SIZE, 2);
+                preview_buffer_index = 0;
                 if(!record_on) {
                     device_in = alcopencapture(audio_device);
                     if(device_in) {
@@ -626,6 +636,8 @@ static void audio_thread(void *args)
             case AUDIO_PREVIEW_END: {
                 preview = 0;
                 audio_count--;
+                free(preview_buffer);
+                preview_buffer = NULL;
                 if(!audio_count && record_on) {
                     alccapturestop(device_in);
                     alccaptureclose(device_in);
@@ -737,7 +749,7 @@ static void audio_thread(void *args)
                     int16_t buffer[perframe];
                     alcCaptureSamplesLoopback(device_out, buffer, perframe);
                     pass_audio_output(f_a, buffer, perframe);
-                    set_echo_delay_ms(f_a, 5);
+                    set_echo_delay_ms(f_a, av_DefaultSettings.audio_frame_duration);
                     if (samples >= perframe * 2) {
                         sleep = 0;
                     }
@@ -753,7 +765,12 @@ static void audio_thread(void *args)
                 }
                 #endif
                 if(preview) {
-                    sourceplaybuffer(0, (int16_t*)buf, perframe, av_DefaultSettings.audio_channels, av_DefaultSettings.audio_sample_rate);
+                    if (preview_buffer_index + perframe > PREVIEW_BUFFER_SIZE)
+                        preview_buffer_index = 0;
+
+                    sourceplaybuffer(0, preview_buffer + preview_buffer_index, perframe, av_DefaultSettings.audio_channels, av_DefaultSettings.audio_sample_rate);
+                    memcpy(preview_buffer + preview_buffer_index, buf, perframe * sizeof(int16_t));
+                    preview_buffer_index += perframe;
                 }
 
                 int i;
@@ -973,7 +990,7 @@ static void callback_av_video(void *av, int32_t call_index, const vpx_image_t *i
     uint16_t *img_data = malloc(4 + img->d_w * img->d_h * 4);
     img_data[0] = img->d_w;
     img_data[1] = img->d_h;
-    yuv420torgb(img, (void*)&img_data[2]);
+    yuv420tobgr(img, (void*)&img_data[2]);
 
     postmessage(FRIEND_VIDEO_FRAME, toxav_get_peer_id(av, call_index, 0), call_index, img_data);
 }

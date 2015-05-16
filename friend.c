@@ -125,7 +125,6 @@ void friend_addmessage(FRIEND *f, void *data)
 
 void friend_set_typing(FRIEND *f, int typing) {
     f->typing = typing;
-    messages_set_typing(&messages_friend, &f->msg, typing);
 }
 
 void friend_addid(uint8_t *id, char_t *msg, STRING_IDX msg_length)
