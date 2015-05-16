@@ -55,7 +55,8 @@ typedef struct
     uint8_t audio_filtering_enabled : 1;
     uint8_t close_to_tray : 1;
     uint8_t start_in_tray : 1;
-    uint8_t zero : 2;
+    uint8_t no_typing_notifications : 1;
+    uint8_t zero : 1;
     uint16_t audio_device_in;
     uint16_t audio_device_out;
     uint8_t theme;
@@ -298,6 +299,10 @@ struct
 //add friend page
 uint8_t addfriend_status;
 
+const char *tox_savename; //Stores current name of tox's savefile
+
+_Bool dont_send_typing_notes; //Stores user's preference about typing notifications
+
 #define BORDER 1
 #define CAPTION 26
 
@@ -403,5 +408,7 @@ void audio_end(int32_t call_index);
 #define drawstr(x, y, i) drawtext(x, y, S(i), SLEN(i))
 #define drawstr_getwidth(x, y, str) drawtext_getwidth(x, y, (char_t*)str, sizeof(str) - 1)
 #define strwidth(x) textwidth((char_t*)x, sizeof(x) - 1)
+
+#include "override.h"
 
 #endif
