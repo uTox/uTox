@@ -140,10 +140,3 @@ enum
     TRAY_STATUS_AWAY,
     TRAY_STATUS_BUSY,
 };
-
-BLENDFUNCTION blend_function = {
-    .BlendOp = AC_SRC_OVER,
-    .BlendFlags = 0,
-    .SourceConstantAlpha = 0xFF,
-    .AlphaFormat = AC_SRC_ALPHA
-};

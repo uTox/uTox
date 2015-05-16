@@ -3,6 +3,21 @@
 
 #include "audio.c"
 
+static TRACKMOUSEEVENT tme = {sizeof(TRACKMOUSEEVENT), TME_LEAVE, 0, 0};
+static _Bool mouse_tracked = 0;
+_Bool draw = 0;
+float scale = 1.0;
+_Bool connected = 0;
+_Bool havefocus;
+
+
+BLENDFUNCTION blend_function = {
+    .BlendOp = AC_SRC_OVER,
+    .BlendFlags = 0,
+    .SourceConstantAlpha = 0xFF,
+    .AlphaFormat = AC_SRC_ALPHA
+};
+
 /** Select the true main.c for legacy XP support.
  *  else default to xlib
  **/
