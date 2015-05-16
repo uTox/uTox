@@ -407,6 +407,4 @@ void audio_end(int32_t call_index);
 #define drawstr_getwidth(x, y, str) drawtext_getwidth(x, y, (char_t*)str, sizeof(str) - 1)
 #define strwidth(x) textwidth((char_t*)x, sizeof(x) - 1)
 
-#include "override.h"
-
 #endif
