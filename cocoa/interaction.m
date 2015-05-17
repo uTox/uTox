@@ -802,10 +802,12 @@ void update_tray(void) {
 
 /* file utils */
 
+#define NSSTRING_FROM_LOCALIZED(msgid) [[[NSString alloc] initWithBytes:S(msgid) length:SLEN(msgid) encoding:NSUTF8StringEncoding] autorelease]
+
 void savefilerecv(uint32_t fid, MSG_FILE *file) {
     NSSavePanel *picker = [NSSavePanel savePanel];
     NSString *fname = [[NSString alloc] initWithBytesNoCopy:file->name length:file->name_length encoding:NSUTF8StringEncoding freeWhenDone:NO];
-    picker.message = [NSString stringWithFormat:@"Where do you want to save \"%@\"?", fname];
+    picker.message = [NSString stringWithFormat:NSSTRING_FROM_LOCALIZED(WHERE_TO_SAVE_FILE_PROMPT), file->name_length, file->name];
     picker.nameFieldStringValue = fname;
     [fname release];
     int ret = [picker runModal];
@@ -816,11 +818,11 @@ void savefilerecv(uint32_t fid, MSG_FILE *file) {
         tox_postmessage(TOX_ACCEPTFILE, fid, file->filenumber, strdup(destination.path.UTF8String));
     }
 }
-
+//@"Where do you want to save \"%.*s\"?"
 void savefiledata(MSG_FILE *file) {
     NSSavePanel *picker = [NSSavePanel savePanel];
-    NSString *fname = [[NSString alloc] initWithBytesNoCopy:file->name length:file->name_length encoding:NSUTF8StringEncoding freeWhenDone:NO];
-    picker.message = [NSString stringWithFormat:@"Where do you want to save \"%@\"?", fname];
+    NSString *fname = [[NSString alloc] initWithBytes:file->name length:file->name_length encoding:NSUTF8StringEncoding];
+    picker.message = [NSString stringWithFormat:NSSTRING_FROM_LOCALIZED(WHERE_TO_SAVE_FILE_PROMPT), file->name_length, file->name];
     picker.nameFieldStringValue = fname;
     [fname release];
     int ret = [picker runModal];
@@ -835,10 +837,11 @@ void savefiledata(MSG_FILE *file) {
         file->inline_png = 0;
     }
 }
-
+//@"Select one or more files to send."
 void openfilesend(void) {
     NSOpenPanel *picker = [NSOpenPanel openPanel];
-    picker.title = @"Select one or more files to send.";
+    picker.title = NSSTRING_FROM_LOCALIZED(SEND_FILE);
+    picker.message = NSSTRING_FROM_LOCALIZED(SEND_FILE_PROMPT);
     picker.allowsMultipleSelection = YES;
     int ret = [picker runModal];
 
@@ -854,7 +857,8 @@ void openfilesend(void) {
 
 void openfileavatar(void) {
     NSOpenPanel *picker = [NSOpenPanel openPanel];
-    picker.title = @"Select New Avatar";
+
+    picker.title = [[[NSString alloc] initWithBytes:S(SELECT_AVATAR_TITLE) length:SLEN(SELECT_AVATAR_TITLE) encoding:NSUTF8StringEncoding] autorelease];
     picker.allowedFileTypes = @[@"png"];
     int ret = [picker runModal];
 
@@ -863,8 +867,24 @@ void openfileavatar(void) {
         uint32_t fsize = 0;
         void *file_data = file_raw((char *)url.path.UTF8String, &fsize);
         if (fsize > UTOX_AVATAR_MAX_DATA_LENGTH) {
-            debug("avatar too big, show an error here i guess");
             free(file_data);
+
+            char_t size_str[16];
+            int len = sprint_bytes(size_str, sizeof(size_str), UTOX_AVATAR_MAX_DATA_LENGTH);
+
+            NSString *bytess = [[NSString alloc] initWithBytes:size_str length:len encoding:NSUTF8StringEncoding];
+            NSString *title = [[NSString alloc] initWithBytes:S(AVATAR_TOO_LARGE_MAX_SIZE_IS) length:SLEN(AVATAR_TOO_LARGE_MAX_SIZE_IS) encoding:NSUTF8StringEncoding];
+
+            NSString *emsg = [[NSString alloc] initWithFormat:@"%@%@", title, bytess];
+            [title release];
+            [bytess release];
+
+            NSAlert *alert = [[NSAlert alloc] init];
+            alert.alertStyle = NSWarningAlertStyle;
+            alert.messageText = emsg;
+            [emsg release];
+            [alert runModal];
+            [alert release];
         } else {
             postmessage(SET_AVATAR, fsize, 0, file_data);
         }

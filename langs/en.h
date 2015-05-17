@@ -40,6 +40,18 @@ msgstr("Error: Invalid Tox ID (bad nospam value)")
 msgid(REQ_NO_MEMORY)
 msgstr("Error: No memory")
 
+msgid(SEND_FILE)
+msgstr("Send File")
+
+msgid(SAVE_FILE)
+msgstr("Save File")
+
+msgid(WHERE_TO_SAVE_FILE_PROMPT)
+msgstr("Where do you want to save \"%.*s\"?")
+
+msgid(SEND_FILE_PROMPT)
+msgstr("Select one or more files to send.")
+
 msgid(TRANSFER_NEW)
 msgstr("New file transfer")
 
@@ -279,6 +291,9 @@ msgstr("Mute")
 
 msgid(UNMUTE)
 msgstr("Unmute")
+
+msgid(SELECT_AVATAR_TITLE)
+msgstr("Select Avatar")
 
 msgid(AVATAR_TOO_LARGE_MAX_SIZE_IS)
 msgstr("Avatar too large. Maximum size: ")
