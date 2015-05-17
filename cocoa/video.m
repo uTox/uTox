@@ -439,9 +439,9 @@ void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height
     if (resize) {
         CGFloat chrome_metric_w = win.frame.size.width - [win.contentView frame].size.width;
         CGFloat chrome_metric_h = win.frame.size.height - [win.contentView frame].size.height;
-        width += chrome_metric_w;
-        height += chrome_metric_h;
-        [win setFrame:(CGRect){win.frame.origin.x, CGRectGetMaxY(win.frame) - height, width, height} display:YES animate:NO];
+        int rswidth = width + chrome_metric_w;
+        int rsheight = height + chrome_metric_h;
+        [win setFrame:(CGRect){win.frame.origin.x, CGRectGetMaxY(win.frame) - rsheight, rswidth, rsheight} display:YES animate:NO];
     }
 
     uToxIroncladView *view = win.contentView;
