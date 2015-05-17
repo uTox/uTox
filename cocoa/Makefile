@@ -44,11 +44,15 @@ utox-MainMenu.nib:
 utox-Info.plist:
 	sh cocoa/make_info_plist.sh cocoa/Info.plist $@
 
-uTox.app: utox utox-Info.plist utox-MainMenu.nib
+utox.icns:
+	iconutil --convert icns cocoa/utox.iconset -o ./utox.icns
+
+uTox.app: utox utox-Info.plist utox-MainMenu.nib utox.icns
 	mkdir -p uTox.app/Contents/MacOS
 	mkdir -p uTox.app/Contents/Resources
 	install -m 755 utox uTox.app/Contents/MacOS/utox
 	install -m 644 utox-Info.plist uTox.app/Contents/Info.plist
+	install -m 644 utox.icns uTox.app/Contents/Resources/uTox.icns
 	install -m 644 utox-MainMenu.nib uTox.app/Contents/Resources/MainMenu.nib
 
 uTox.dmg: utox-static uTox.app
