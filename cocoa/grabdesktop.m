@@ -150,7 +150,7 @@ static void stardust_display_capping_done(_Bool video, uint64_t ret, NSWindow *w
     }
 
     // CSA false positive: this has a +1 refcount from desktopgrab()
-    [window release];
+    [stardust_context.window release];
 
     stardust_context.window = nil;
     stardust_context.view = nil;
