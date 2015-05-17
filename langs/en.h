@@ -52,6 +52,9 @@ msgstr("Where do you want to save \"%.*s\"?")
 msgid(SEND_FILE_PROMPT)
 msgstr("Select one or more files to send.")
 
+msgid(SCREEN_CAPTURE_PROMPT)
+msgstr("Drag a box around the area of the screen you want to send.")
+
 msgid(TRANSFER_NEW)
 msgstr("New file transfer")
 

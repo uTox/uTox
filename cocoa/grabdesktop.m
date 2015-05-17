@@ -38,7 +38,7 @@ static inline CGRect CGRectCentreInRect(CGRect r1, CGRect r2) {
         NSLog(@"%@", NSStringFromRect(posRect));
 
         self.instruction = [[[NSTextField alloc] initWithFrame:posRect] autorelease];
-        self.instruction.stringValue = @"Drag a box around the area of the screen you want to capture.";
+        self.instruction.stringValue = NSSTRING_FROM_LOCALIZED(SCREEN_CAPTURE_PROMPT);
         self.instruction.textColor = [NSColor whiteColor];
         self.instruction.bezeled = NO;
         self.instruction.drawsBackground = NO;

@@ -802,8 +802,6 @@ void update_tray(void) {
 
 /* file utils */
 
-#define NSSTRING_FROM_LOCALIZED(msgid) [[[NSString alloc] initWithBytes:S(msgid) length:SLEN(msgid) encoding:NSUTF8StringEncoding] autorelease]
-
 void savefilerecv(uint32_t fid, MSG_FILE *file) {
     NSSavePanel *picker = [NSSavePanel savePanel];
     NSString *fname = [[NSString alloc] initWithBytesNoCopy:file->name length:file->name_length encoding:NSUTF8StringEncoding freeWhenDone:NO];

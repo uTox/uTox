@@ -32,6 +32,9 @@ void setup_cursors(void);
 #define AT_LEAST_MAVERICKS_DO     if (NSFoundationVersionNumber >= NSFoundationVersionNumber10_9)
 #define AT_LEAST_MOUNTAIN_LION_DO if (NSFoundationVersionNumber >= NSFoundationVersionNumber10_8)
 
+#define NSSTRING_FROM_LOCALIZED(msgid) [[[NSString alloc] initWithBytes:S(msgid) length:SLEN(msgid) encoding:NSUTF8StringEncoding] autorelease]
+
+
 struct utox_native_image {
     CGImageRef image;
     double scale;
