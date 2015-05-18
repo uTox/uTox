@@ -1279,6 +1279,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     }
 #endif
 
+#ifdef __WIN_LEGACY
+    debug("Legacy windows build\n");
+#else
+    debug("Normal windows build\n");
+#endif
+
     theme_load(theme);
 
     // Free memory allocated for CommandLineToArgvW arguments.
