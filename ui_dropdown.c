@@ -118,6 +118,12 @@ static void dropdown_start_in_tray_onselect(uint16_t i, const DROPDOWN* UNUSED(d
     debug("Start in Tray.   :: %i\n", start_in_tray);
 }
 
+static void dropdown_auto_startup_onselect(uint16_t i, const DROPDOWN* UNUSED(dm)){
+    auto_startup = i;
+    launch_at_startup(auto_startup);
+    debug("Auto startup.   :: %i\n", auto_startup);
+}
+
 static void dropdown_typing_notes_onselect(const uint16_t i, const DROPDOWN* UNUSED(dm)) {
     dont_send_typing_notes = i;
     debug("Typing notifications preference: %hu\n", i);
@@ -238,6 +244,13 @@ dropdown_close_to_tray = {
 dropdown_start_in_tray = {
     .ondisplay = simple_dropdown_ondisplay,
     .onselect = dropdown_start_in_tray_onselect,
+    .dropcount = countof(noyesdrops),
+    .userdata = noyesdrops
+},
+
+dropdown_auto_startup = {
+    .ondisplay = simple_dropdown_ondisplay,
+    .onselect = dropdown_auto_startup_onselect,
     .dropcount = countof(noyesdrops),
     .userdata = noyesdrops
 },

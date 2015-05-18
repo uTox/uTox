@@ -294,3 +294,6 @@ msgstr("Sötét téma")
 
 msgid(THEME_HIGHCONTRAST)
 msgstr("Feltűnő téma")
+
+msgid(AUTO_STARTUP)
+msgstr("Indítás rendszerinduláskor")
