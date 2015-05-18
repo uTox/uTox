@@ -273,3 +273,6 @@ msgstr("Alto contrasto")
 
 msgid(THEME_CUSTOM)
 msgstr("Personalizzato (vedi documentazione)")
+
+msgid(SEND_TYPING_NOTIFICATIONS)
+msgstr("Invia notifica quando sto scrivendo")
