@@ -296,6 +296,26 @@ void redraw(void) {
     [ad soilWindowContents];
 }
 
+void launch_at_startup(int should) {
+    LSSharedFileListRef items = LSSharedFileListCreate(kCFAllocatorDefault, kLSSharedFileListSessionLoginItems, NULL);
+    if (should) {
+        CFRelease(LSSharedFileListInsertItemURL(items, kLSSharedFileListItemLast, NULL, NULL, (__bridge CFURLRef)[NSBundle mainBundle].bundleURL, NULL, NULL));
+    } else {
+        CFArrayRef current_items = LSSharedFileListCopySnapshot(items, NULL);
+        for (int i = 0; i < CFArrayGetCount(current_items); ++i) {
+            LSSharedFileListItemRef it = (void *)CFArrayGetValueAtIndex(current_items, i);
+            CFURLRef urlornull = LSSharedFileListItemCopyResolvedURL(it, 0, NULL);
+            if (urlornull && CFEqual(urlornull, (__bridge CFURLRef)[NSBundle mainBundle].bundleURL)) {
+                // this is ours, remove it.
+                LSSharedFileListItemRemove(items, it);
+                break;
+            }
+        }
+        // we're not in the login items list.
+    }
+    CFRelease(items);
+}
+
 @implementation uToxAppDelegate
 
 - (void)applicationDidFinishLaunching:(NSNotification *)notification {
