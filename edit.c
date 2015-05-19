@@ -823,10 +823,12 @@ STRING_IDX edit_getcursorpos(void)
 
 _Bool edit_getmark(STRING_IDX *outloc, STRING_IDX *outlen)
 {
-    if (outloc)
+    if (outloc) {
         *outloc = edit_sel.mark_start;
-    if (outlen)
+    }
+    if (outlen) {
         *outlen = edit_sel.mark_length;
+    }
 
     return (active_edit && edit_sel.mark_length)? 1 : 0;
 }

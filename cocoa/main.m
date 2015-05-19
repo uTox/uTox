@@ -65,7 +65,7 @@ static BOOL theme_set_on_argv = NO;
 int parse_argv(int argc, char const *argv[]) {
     int parse_args_wait_for_theme = 0;
 
-    if (argc > 1)
+    if (argc > 1) {
         for (int i = 1; i < argc; i++) {
             if (parse_args_wait_for_theme) {
                 if(!strcmp(argv[i], "default")) {
@@ -93,7 +93,6 @@ int parse_argv(int argc, char const *argv[]) {
                     continue;
                 }
                 debug("Please specify correct theme (please check user manual for list of correct values).");
-                return 1;
             }
 
             if(!strcmp(argv[i], "--version")) {
@@ -109,11 +108,8 @@ int parse_argv(int argc, char const *argv[]) {
             }
             printf("arg %d: %s\n", i, argv[i]);
         }
-
-    if (parse_args_wait_for_theme) {
-        debug("Expected theme name, but got nothing. -_-\n");
-        return 0;
     }
+
     return 0;
 }
 
@@ -329,13 +325,15 @@ void launch_at_startup(int should) {
 
     // hold COMMAND to start utox in portable mode
     // unfortunately, OS X doesn't have the luxury of passing argv in the GUI
-    if ([NSEvent modifierFlags] & NSCommandKeyMask)
+    if ([NSEvent modifierFlags] & NSCommandKeyMask) {
         utox_portable = 1;
+    }
 
     /* load save data */
     UTOX_SAVE *save = config_load();
-    if (!theme_set_on_argv)
+    if (!theme_set_on_argv) {
         theme = save->theme;
+    }
     theme_load(theme);
 
     char title_name[128];
@@ -432,10 +430,11 @@ void launch_at_startup(int should) {
 }
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)sender {
-    if (close_to_tray)
+    if (close_to_tray) {
         return NO;
-    else
+    } else {
         return YES;
+    }
 }
 
 - (BOOL)applicationShouldHandleReopen:(NSApplication *)sender hasVisibleWindows:(BOOL)flag {
@@ -467,8 +466,9 @@ int main(int argc, char const *argv[]) {
     theme = THEME_DEFAULT;
 
     int fatal = parse_argv(argc, argv);
-    if (fatal)
+    if (fatal) {
         return fatal;
+    }
 
     setlocale(LC_ALL, "");
 

@@ -263,8 +263,9 @@ int textfit(char_t *str, STRING_IDX length, int width) {
     CFRelease(line);
     CFRelease(attrString);
 
-    if (ind == -1)
+    if (ind == -1) {
         ++ind;
+    }
 
     int ret = [[(NSString *)string substringToIndex:ind] lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
 
@@ -283,8 +284,9 @@ void setfont(int id) {
 uint32_t setcolor(uint32_t color) {
     uint32_t ret = global_text_state._use_font_color;
 
-    if (global_text_state._use_font_color_ref)
+    if (global_text_state._use_font_color_ref) {
         CGColorRelease(global_text_state._use_font_color_ref);
+    }
 
     CGColorSpaceRef cs = CGColorSpace_CREATE();
     float r = ((color >> 16) & 0xFF) / 255.0,
@@ -299,8 +301,9 @@ uint32_t setcolor(uint32_t color) {
 }
 
 void reload_fonts(void) {
-    for (int i = 0; i < sizeof(fonts) / sizeof(CTFontRef); ++i)
+    for (int i = 0; i < sizeof(fonts) / sizeof(CTFontRef); ++i) {
         RELEASE_CHK(CFRelease, fonts[i]);
+    }
 
 #define COCOA_BASE_FONT_OLD "LucidaGrande"
 #define COCOA_BASE_FONT_NEW "HelveticaNeue"
@@ -338,8 +341,9 @@ void setscale(void) {
     // handle OS X retina capability gracefully
     SCALE *= ad.utox_window.backingScaleFactor;
 
-    for (int i = 0; i < (sizeof(bitmaps) / sizeof(CGImageRef)); ++i)
+    for (int i = 0; i < (sizeof(bitmaps) / sizeof(CGImageRef)); ++i) {
         RELEASE_CHK(CGImageRelease, bitmaps[i]);
+    }
 
     svg_draw(1);
     // now we have 2x images, if applicable

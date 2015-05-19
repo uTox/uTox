@@ -49,8 +49,9 @@
             uToxAppDelegate *ad = (uToxAppDelegate *)[NSApp delegate];
             AVCaptureDevice *dev = [[ad getCaptureDeviceFromHandle:video_dev_handle] retain];
 
-            if (!dev)
-               return nil;
+            if (!dev) {
+                return nil;
+            }
 
             NSError *error = NULL;
             AVCaptureInput *input = [[AVCaptureDeviceInput alloc] initWithDevice:dev error:&error];
@@ -77,12 +78,13 @@
     _linkerVideo = [[AVCaptureVideoDataOutput alloc] init];
     [_linkerVideo setSampleBufferDelegate:self queue:_processingQueue];
     // TODO possibly get a better pixel format
-    if (_shouldMangleDimensions)
+    if (_shouldMangleDimensions) {
         [_linkerVideo setVideoSettings:@{(id)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_32BGRA),
                                          (id)kCVPixelBufferWidthKey: @640,
                                          (id)kCVPixelBufferHeightKey: @480}];
-    else
+    } else {
         [_linkerVideo setVideoSettings:@{(id)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_32BGRA)}];
+    }
     [_session addOutput:_linkerVideo];
     [_session startRunning];
 }
@@ -111,8 +113,9 @@
 }
 
 - (BOOL)getCurrentFrameIntoVPXImage:(vpx_image_t *)img {
-    if (!_currentFrame)
+    if (!_currentFrame) {
         return NO;
+    }
 
     pthread_mutex_lock(&_frameLock);
     CFRetain(_currentFrame);
@@ -143,8 +146,9 @@
 @implementation uToxAppDelegate (VideoDevices)
 
 - (void *)storeVideoDevicesList {
-    if (devices)
+    if (devices) {
         [devices release];
+    }
 
     devices = [[NSMutableDictionary alloc] init];
 
@@ -169,8 +173,9 @@
 
 - (AVCaptureDevice *)getCaptureDeviceFromHandle:(void *)handle {
     NSString *s = devices[@((uintptr_t)handle)];
-    if (!s)
+    if (!s) {
         return nil;
+    }
     return [AVCaptureDevice deviceWithUniqueID:s];
 }
 
@@ -200,8 +205,9 @@ _Bool video_init(void *handle) {
 
     active_video_session = [[uToxAV alloc] initWithHandle:handle];
 
-    if (!active_video_session)
+    if (!active_video_session) {
         NSLog(@"Video initialization FAILED with handle %p. ", handle);
+    }
     return active_video_session? 1 : 0;
 }
 

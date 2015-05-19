@@ -482,8 +482,9 @@ static void selectchat_filtered(int index)
         ITEM *it = &item[i];
         FRIEND *f = it->data;
         if (it->item != ITEM_FRIEND ||
-            ((!FILTER || f->online) && (!SEARCH || strstr_case((char*)f->name, (char*)search_data))))
+            ((!FILTER || f->online) && (!SEARCH || strstr_case((char*)f->name, (char*)search_data)))) {
             --index;
+        }
 
         if (index == -1) {
             selectitem(it);
@@ -501,10 +502,11 @@ static void selectchat_notfiltered(int index)
 
 void list_selectchat(int index)
 {
-    if (FILTER || SEARCH)
+    if (FILTER || SEARCH) {
         selectchat_filtered(index);
-    else
+    } else {
         selectchat_notfiltered(index);
+    }
 }
 
 void list_selectsettings(void)

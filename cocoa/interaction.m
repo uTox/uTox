@@ -22,12 +22,14 @@ static inline NSRange uToxRangeFromNSRange(NSRange utf16, NSString *s) {
 }
 
 static inline void utf8_correct(NSRange *r, char_t *s, size_t len) {
-    while ((s[r->location] >> 6) == 2 && r->location > 0)
+    while ((s[r->location] >> 6) == 2 && r->location > 0) {
         --r->location;
+    }
 
     int ind = r->location + r->length - 1;
-    while ((s[ind] >> 6) == 2 && ind < len)
+    while ((s[ind] >> 6) == 2 && ind < len) {
         ++ind;
+    }
     r->length = ind - r->location;
 }
 
@@ -48,11 +50,14 @@ static int find_ui_object_recursive(const PANEL *root, const PANEL *target, int 
     }
 
     PANEL **child = root->child;
-    if (!child)
+    if (!child) {
         return 0;
+    }
 
     do {
-        if (!*child) break;
+        if (!*child) {
+            break;
+        }
 
         int ret = find_ui_object_recursive(*child, target, outarrayptr, n + 1);
         if (ret) {
@@ -119,8 +124,9 @@ static inline void move_left_to_char(char_t c) {
     EDIT *edit = edit_get_active();
     int loc = edit_getcursorpos();
 
-    if (loc == 0)
+    if (loc == 0) {
         return;
+    }
 
     if (edit->data[loc - 1] == c) {
         loc--;
@@ -139,8 +145,9 @@ static inline void select_left_to_char(char_t c) {
     EDIT *edit = edit_get_active();
     int loc = edit_getcursorpos(), len = edit_selection(edit, NULL, 0);
 
-    if (loc == 0)
+    if (loc == 0) {
         return;
+    }
 
     if (edit->data[loc - 1] == c) {
         loc--;
@@ -161,8 +168,9 @@ static inline void move_right_to_char(char_t c) {
     EDIT *edit = edit_get_active();
     int loc = edit_getcursorpos();
 
-    if (loc > edit->length)
+    if (loc > edit->length) {
         return;
+    }
 
     if (edit->data[loc] == c) {
         loc += 1;
@@ -180,8 +188,9 @@ static inline void select_right_to_char(char_t c) {
     EDIT *edit = edit_get_active();
     int loc = edit_getcursorpos(), end = loc + edit_selection(edit, NULL, 0);
 
-    if (end > edit->length)
+    if (end > edit->length) {
         return;
+    }
 
     if (edit->data[end] == c) {
         end += 1;
@@ -306,8 +315,9 @@ static inline void select_right_to_char(char_t c) {
 - (void)insertText:(id)insertString {
     BEEP_IF_EDIT_NOT_ACTIVE() 
 
-    if ([insertString isKindOfClass:NSAttributedString.class])
+    if ([insertString isKindOfClass:NSAttributedString.class]) {
         insertString = [insertString string];
+    }
     edit_paste((char_t *)[insertString UTF8String], [insertString lengthOfBytesUsingEncoding:NSUTF8StringEncoding], NO);
 }
 
@@ -377,9 +387,9 @@ static inline void select_right_to_char(char_t c) {
 - (void)delete:(id)sender {
     BEEP_IF_EDIT_NOT_ACTIVE()
 
-    /* TODO: no delete unless stuff is selected */
-    if (edit_copy(NULL, 0))
+    if (edit_copy(NULL, 0)) {
         edit_char(KEY_DEL, YES, FLAGS());
+    }
 }
 
 - (void)moveToBeginningOfDocument:(id)sender {
@@ -463,8 +473,9 @@ static inline void select_right_to_char(char_t c) {
 - (void)moveLeftAndModifySelection:(id)sender {
     BEEP_IF_EDIT_NOT_ACTIVE()
 
-    if (edit_getcursorpos() == 0)
+    if (edit_getcursorpos() == 0) {
         return;
+    }
 
     int loc = edit_getcursorpos() - 1, len = edit_copy(NULL, 0) + 1;
     while (edit_get_active()->data[loc] >> 6 == 2) {
@@ -479,8 +490,9 @@ static inline void select_right_to_char(char_t c) {
     BEEP_IF_EDIT_NOT_ACTIVE()
 
     int loc = edit_getcursorpos(), len = edit_copy(NULL, 0);
-    if (loc + len > edit_get_active()->length)
+    if (loc + len > edit_get_active()->length) {
         return;
+    }
 
     int l = utf8_len(&edit_get_active()->data[loc + len]);
     len += l;
@@ -553,8 +565,9 @@ static inline void select_right_to_char(char_t c) {
         }
     }
 
-    if ([aString isKindOfClass:[NSAttributedString class]])
+    if ([aString isKindOfClass:[NSAttributedString class]]) {
         aString = [aString string];
+    }
 
     edit_setselectedrange(replacementRange.location, replacementRange.length);
     STRING_IDX insl = [aString lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
@@ -574,10 +587,11 @@ static inline void select_right_to_char(char_t c) {
 - (NSRange)markedRange {
     STRING_IDX loc, len;
     BOOL valid = edit_getmark(&loc, &len);
-    if (!valid)
+    if (!valid) {
         return (NSRange){NSNotFound, 0};
-    else
+    } else {
         return (NSRange){loc, len};
+    }
 }
 
 - (void)unmarkText {
@@ -585,32 +599,36 @@ static inline void select_right_to_char(char_t c) {
 }
 
 - (NSRange)selectedRange {
-    if (!edit_active())
+    if (!edit_active()) {
         return (NSRange){NSNotFound, 0};
-    else
+    } else {
         return (NSRange){edit_getcursorpos(), edit_selection(edit_get_active(), NULL, 0)};
+    }
 }
 
 - (void)setMarkedText:(id)aString selectedRange:(NSRange)selectedRange replacementRange:(NSRange)replacementRange {
     NSLog(@"%@", NSStringFromRange(replacementRange));
     STRING_IDX loc, len;
     BOOL valid;
-    if ((valid = edit_getmark(&loc, &len)) && replacementRange.location != NSNotFound)
+    if ((valid = edit_getmark(&loc, &len)) && replacementRange.location != NSNotFound) {
         replacementRange.location += loc;
-    else if (valid){
-        replacementRange = NSMakeRange(loc, len); NSLog(@"valid=1 replace %d %d", loc, len); }
-    else
+    } else if (valid) {
+        replacementRange = NSMakeRange(loc, len); NSLog(@"valid=1 replace %d %d", loc, len);
+    } else {
         replacementRange = NSMakeRange(edit_getcursorpos(), edit_selection(edit_get_active(), NULL, 0));
+    }
 
-    if ([aString isKindOfClass:[NSAttributedString class]])
+    if ([aString isKindOfClass:[NSAttributedString class]]) {
         aString = [aString string];
+    }
 
     edit_setselectedrange(replacementRange.location, replacementRange.length);
     STRING_IDX insl = [aString lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
-    if (!insl)
+    if (!insl) {
         edit_char(KEY_DEL, YES, 0);
-    else
+    } else {
         edit_paste((char_t *)[aString UTF8String], insl, 0);
+    }
 
     if ([aString length] == 0) {
         [self unmarkText];
@@ -633,8 +651,9 @@ static inline void select_right_to_char(char_t c) {
         return nil;
     }
 
-    if (aRange.location + aRange.length > len)
+    if (aRange.location + aRange.length > len) {
         aRange.length = len - aRange.location;
+    }
 
     utf8_correct(&aRange, buf, len);
 
@@ -729,11 +748,15 @@ void paste(void) {
 
         size_t size = CFDataGetLength(dat);
         uint8_t *owned_ptr = malloc(size);
-        memcpy(owned_ptr, CFDataGetBytePtr(dat), size);
+
+        if (owned_ptr) {
+            memcpy(owned_ptr, CFDataGetBytePtr(dat), size);
+            friend_sendimage(sitem->data, i, CGImageGetWidth(img), CGImageGetHeight(img), (UTOX_PNG_IMAGE)owned_ptr, size);
+        } else {
+            NSLog(@"ran out of memory, we will just do nothing and hope user doesn't notice because we're probably not the only process being screwy");
+        }
+
         CFRelease(dat);
-
-        friend_sendimage(sitem->data, i, CGImageGetWidth(img), CGImageGetHeight(img), (UTOX_PNG_IMAGE)owned_ptr, size);
-
         [bmp release];
     }
 }
@@ -767,16 +790,18 @@ void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_
             size_t w = CGImageGetWidth(im->image) / im->scale,
                    h = CGImageGetHeight(im->image) / im->scale;
             NSImage *i = [[NSImage alloc] initWithCGImage:im->image size:(CGSize){w, h}];
-            if ([usernotification respondsToSelector:@selector(set_identityImage:)])
+            if ([usernotification respondsToSelector:@selector(set_identityImage:)]) {
                 [usernotification set_identityImage:i];
-            else
+            } else {
                 NSLog(@"WARNING: OS X has broken the private api I use to set notification avatars. "
                       "If you see this message please update uTox (if you're on latest, file a bug)");
-            if ([usernotification respondsToSelector:@selector(set_identityImageHasBorder:)])
+            }
+            if ([usernotification respondsToSelector:@selector(set_identityImageHasBorder:)]) {
                 [usernotification set_identityImageHasBorder:YES];
-            else
+            } else {
                 NSLog(@"WARNING: OS X has broken the private api I use to set notification avatars. "
                       "If you see this message please update uTox (if you're on latest, file a bug)");
+            }
             [i release];
         }
 

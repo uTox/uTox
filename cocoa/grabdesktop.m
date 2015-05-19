@@ -74,8 +74,9 @@ static inline CGRect CGRectCentreInRect(CGRect r1, CGRect r2) {
     [self setNeedsDisplayInRect:oldRect];
     [self setNeedsDisplayInRect:CGRectStandardize(returnRect)];
 
-    if ([self.subviews containsObject:self.instruction])
+    if ([self.subviews containsObject:self.instruction]) {
         [self.instruction removeFromSuperview];
+    }
 }
 
 - (void)mouseUp:(NSEvent *)theEvent {
