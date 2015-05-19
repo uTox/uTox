@@ -256,6 +256,9 @@ msgstr("Impossibile trovare il file o il file è vuoto.")
 msgid(CLEAR_HISTORY)
 msgstr("Cancella cronologia chat")
 
+msgid(AUTO_STARTUP)
+msgstr("Esegui all'avvio del sistema")
+
 msgid(THEME)
 msgstr("Tema")
 
