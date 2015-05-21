@@ -84,7 +84,7 @@ fi
 
 GIT_V=`git describe --abbrev=8 --dirty --always --tags`
 echo -n "Git version: "
-git describe --abbrev=4 --dirty --always --tags
+git describe --abbrev=8 --dirty --always --tags
 
 # Build filter_audio
 AUDIO_FILTERING_BUILD="-DAUDIO_FILTERING -I ./lib/filter_audio/ ./lib/filter_audio/filter_audio.c \

@@ -56,7 +56,7 @@ PREFIX ?= /usr/local
 
 SRC = $(wildcard *.c png/png.c)
 OBJ = $(SRC:.c=.o)
-GIT_V = $(shell git describe --abbrev=4 --dirty --always --tags)
+GIT_V = $(shell git describe --abbrev=8 --dirty --always --tags)
 
 all: utox
 
