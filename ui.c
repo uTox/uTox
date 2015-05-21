@@ -239,6 +239,9 @@ static void drawsettings(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UN
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
     drawstr(LIST_RIGHT + SCALE * 5, SCALE * 10, USERSETTINGS);
+    #ifdef GIT_VERSION
+    drawtext(LIST_RIGHT + SCALE * 5, SCALE * 18, (uint8_t*)GIT_VERSION, strlen(GIT_VERSION));
+    #endif
 }
 
 /* draw switch profile top bar */
