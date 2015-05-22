@@ -2477,7 +2477,7 @@ int video_getframe(vpx_image_t *image)
 
             BitBlt(capturedc, 0, 0, video_width, video_height, desktopdc, video_x, video_y, SRCCOPY | CAPTUREBLT);
             GetDIBits(capturedc, capturebitmap, 0, video_height, dibits, &info, DIB_RGB_COLORS);
-            rgbtoyuv420(image->planes[0], image->planes[1], image->planes[2], dibits, video_width, video_height);
+            bgrtoyuv420(image->planes[0], image->planes[1], image->planes[2], dibits, video_width, video_height);
             lasttime = t;
             return 1;
         }
@@ -2486,7 +2486,7 @@ int video_getframe(vpx_image_t *image)
 
     if(newframe) {
         newframe = 0;
-        rgbtoyuv420(image->planes[0], image->planes[1], image->planes[2], frame_data, video_width, video_height);
+        bgrtoyuv420(image->planes[0], image->planes[1], image->planes[2], frame_data, video_width, video_height);
         return 1;
     }
     return 0;
