@@ -235,6 +235,12 @@ msgstr("Muet")
 msgid(UNMUTE)
 msgstr("Non muet")
 
+msgid(AVATAR_TOO_LARGE_MAX_SIZE_IS)
+msgstr("Avatar trop grand. Taille maximum : ")
+
+msgid(CANT_FIND_FILE_OR_EMPTY)
+msgstr("Impossible de trouver le fichier sélectionné ou le fichier sélectionné est vide.")
+
 msgid(CLEAR_HISTORY)
 msgstr("Nettoyer l'historique")
 

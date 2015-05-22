@@ -51,7 +51,7 @@ void theme_load(char loadtheme)
     COLOR_ACTIVEOPTION_BACKGROUND = COLOR_PROC(0xd1d1d1);
     COLOR_ACTIVEOPTION_TEXT       = COLOR_MAIN_TEXT;
 
-    //---- Auxiliary style (for elements in the friendslist) ----
+    //---- Auxiliary style for inputs/dropdowns ("Search friends" bar) ----
     COLOR_AUX_BACKGROUND              = COLOR_PROC(0x313131);
     COLOR_AUX_EDGE_NORMAL             = COLOR_AUX_BACKGROUND;
     COLOR_AUX_EDGE_HOVER              = COLOR_PROC(0x999999);
@@ -135,23 +135,22 @@ void theme_load(char loadtheme)
         COLOR_LIST_HOVER_BACKGROUND       = COLOR_PROC(0xe0e0e0);
         COLOR_LIST_TEXT                   = COLOR_MAIN_TEXT;
         COLOR_LIST_SUBTEXT                = COLOR_MAIN_SUBTEXT;
-        COLOR_MENU_BACKGROUND             = COLOR_PROC(0xf0f0f0);
+        COLOR_MENU_BACKGROUND             = COLOR_LIST_BACKGROUND;
         COLOR_MENU_HOVER_BACKGROUND       = COLOR_PROC(0xe0e0e0);
         COLOR_MENU_ACTIVE_BACKGROUND      = COLOR_PROC(0x555555);
         COLOR_MENU_TEXT                   = COLOR_PROC(0x555555);
         COLOR_MENU_ACTIVE_TEXT            = COLOR_PROC(0xffffff);
         COLOR_MENU_SUBTEXT                = COLOR_PROC(0x414141);
         COLOR_EDGE_NORMAL                 = COLOR_PROC(0xc0c0c0);
-        COLOR_EDGE_ACTIVE                 = COLOR_MAIN_URLTEXT;
         COLOR_EDGE_HOVER                  = COLOR_PROC(0x707070);
-        COLOR_ACTIVEOPTION_BACKGROUND     = COLOR_PROC(0xddeeff);
+        COLOR_ACTIVEOPTION_BACKGROUND     = COLOR_PROC(0xc2e0ff);
         COLOR_ACTIVEOPTION_TEXT           = COLOR_MAIN_TEXT;
         COLOR_AUX_BACKGROUND              = COLOR_PROC(0xe0e0e0);
         COLOR_AUX_EDGE_NORMAL             = COLOR_AUX_BACKGROUND;
         COLOR_AUX_EDGE_HOVER              = COLOR_PROC(0x999999);
         COLOR_AUX_EDGE_ACTIVE             = COLOR_EDGE_ACTIVE;
         COLOR_AUX_TEXT                    = COLOR_LIST_TEXT;
-        COLOR_AUX_ACTIVEOPTION_BACKGROUND = COLOR_LIST_HOVER_BACKGROUND;
+        COLOR_AUX_ACTIVEOPTION_BACKGROUND = COLOR_ACTIVEOPTION_BACKGROUND;
         COLOR_AUX_ACTIVEOPTION_TEXT       = COLOR_AUX_TEXT;
         break;
 
