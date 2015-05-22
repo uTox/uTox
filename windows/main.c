@@ -928,7 +928,7 @@ void showkeyboard(_Bool show){} /* Added for android support. */
 
 void edit_will_deactivate(void)
 {
-    
+
 }
 
 /* Redraws the main UI window */
@@ -2479,50 +2479,4 @@ _Bool video_endread(void)
         return 0;
     }
     return 1;
-}
-
-void launch_at_startup(int is_launch_at_startup) 
-{
-    HKEY hKey;
-    const char* run_key_path = "Software\\Microsoft\\Windows\\CurrentVersion\\Run";
-    char path[MAX_PATH];
-    int path_length = 0;
-    int ret = 0;
-    int i;
-    char prev, tmp;
-    
-    if (is_launch_at_startup == 1) 
-    {
-        if (ERROR_SUCCESS == RegOpenKeyA(HKEY_CURRENT_USER, run_key_path, &hKey)) 
-        {
-            path_length = GetModuleFileNameA(NULL, path, MAX_PATH);
-            prev = path[0];
-            for(i = 1; i <= path_length; ++i)
-            {
-                tmp = path[i];
-                path[i] = prev;
-                prev = tmp;
-            }
-            path_length += 2;
-            path[0] = '\"';
-            path[path_length-1] = '\"';
-            path[path_length] = '\0';
-                        
-            ret = RegSetKeyValueA(hKey, NULL, "uTox", REG_SZ, path, path_length);
-            if (ret == ERROR_SUCCESS) 
-                debug("Successful auto start addition.\n");
-            RegCloseKey(hKey);
-        }
-    }
-    
-    if (is_launch_at_startup == 0) 
-    {
-        if (ERROR_SUCCESS == RegOpenKeyA(HKEY_CURRENT_USER, run_key_path, &hKey))
-        {
-            ret = RegDeleteKeyValueA(hKey,NULL,"uTox");
-            if ( ret == ERROR_SUCCESS)
-                debug("Successful auto start deletion.\n");
-            RegCloseKey(hKey);
-        }
-    }
 }
