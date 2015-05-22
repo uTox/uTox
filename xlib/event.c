@@ -2,6 +2,12 @@ _Bool doevent(XEvent event)
 {
     if(XFilterEvent(&event, None)) return 1;
     if(event.xany.window && event.xany.window != window) {
+
+        if (event.xany.window == tray_window) {
+            tray_window_event(event);
+            return 1;
+        }
+
         if(event.type == ClientMessage) {
             XClientMessageEvent *ev = &event.xclient;
             if((Atom)event.xclient.data.l[0] == wm_delete_window) {
@@ -25,6 +31,7 @@ _Bool doevent(XEvent event)
                 }
             }
         }
+
         return 1;
     }
 

@@ -215,7 +215,7 @@ void theme_load(char loadtheme)
         break;
 
     case THEME_CUSTOM: {
-        uint8_t themepath[1024];
+        uint8_t themepath[UTOX_FILE_NAME_LENGTH];
         int len = datapath(themepath);
         const char *s = "utox_theme.ini";
         int size = sizeof("utox_theme.ini");

@@ -124,8 +124,10 @@ static void callback_connection_status(Tox *tox, uint32_t fid, TOX_CONNECTION st
 
     postmessage(FRIEND_ONLINE, fid, !!status, NULL);
 
-    if(status){
-        debug("Friend (%u):\t Online\n", fid);
+    if(status == TOX_CONNECTION_UDP) {
+        debug("Friend (%u):\t Online (UDP)\n", fid);
+    } else if(status == TOX_CONNECTION_TCP) {
+        debug("Friend (%u):\t Online (TCP)\n", fid);
     } else {
         debug("Friend (%u):\t Offline\n", fid);
     }

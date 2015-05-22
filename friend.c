@@ -180,7 +180,7 @@ void friend_add(char_t *name, STRING_IDX length, char_t *msg, STRING_IDX msg_len
 
 void friend_history_clear(FRIEND *f)
 {
-    uint8_t path[512], *p;
+    uint8_t path[UTOX_FILE_NAME_LENGTH], *p;
 
     message_clear(&messages_friend, &f->msg);
 
