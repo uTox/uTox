@@ -5,14 +5,18 @@ static EDIT *active_edit;
 static struct
 {
     STRING_IDX start, length;
-    STRING_IDX p1, p2, pm;
-    //TODO: pm field doesn't seem to be used. Remove?
+    STRING_IDX p1, p2;
+    // IME mark (underline)
+    STRING_IDX mark_start, mark_length;
+    //TODO: pm field doesn't seem to be used. Remove? done
 }edit_sel;
 static _Bool edit_select;
 
 static void setactive(EDIT *edit)
 {
     if(edit != active_edit) {
+        edit_will_deactivate();
+
         if(active_edit && active_edit->onlosefocus) {
             active_edit->onlosefocus(active_edit);
         }
@@ -87,7 +91,8 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
 
     _Bool a = (edit == active_edit);
     drawtextmultiline(x + 2 * SCALE, x + width - 2 * SCALE - (edit->multiline ? SCROLL_WIDTH : 0), yy + 2 * SCALE, y, y + height, font_small_lineheight, edit->data, edit->length,
-                      a ? edit_sel.start : STRING_IDX_MAX, a ? edit_sel.length : STRING_IDX_MAX, edit->multiline);
+                      a ? edit_sel.start : STRING_IDX_MAX, a ? edit_sel.length : STRING_IDX_MAX,
+                      a ? edit_sel.mark_start : 0, a ? edit_sel.mark_length : 0, edit->multiline);
 
     if(edit->multiline) {
         popclip();
@@ -692,7 +697,8 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags){
 
 int edit_selection(EDIT *edit, char_t *data, int len)
 {
-    memcpy(data, edit->data + edit_sel.start, edit_sel.length);
+    if (data)
+        memcpy(data, edit->data + edit_sel.start, edit_sel.length);
     return edit_sel.length;
 }
 
@@ -773,12 +779,19 @@ void edit_setfocus(EDIT *edit)
     edit_select = 0;
     edit_sel.start = edit_sel.p1 = 0;
     edit_sel.length = edit_sel.p2 = edit->length;
+    edit_sel.mark_start = 0;
+    edit_sel.mark_length = 0;
     setactive(edit);
 }
 
 _Bool edit_active(void)
 {
     return (active_edit != NULL);
+}
+
+EDIT *edit_get_active(void)
+{
+    return active_edit;
 }
 
 void edit_setstr(EDIT *edit, char_t *str, STRING_IDX length)
@@ -806,4 +819,29 @@ void edit_setcursorpos(EDIT *edit, STRING_IDX pos)
 STRING_IDX edit_getcursorpos(void)
 {
     return edit_sel.p1 < edit_sel.p2 ? edit_sel.p1 : edit_sel.p2;
+}
+
+_Bool edit_getmark(STRING_IDX *outloc, STRING_IDX *outlen)
+{
+    if (outloc) {
+        *outloc = edit_sel.mark_start;
+    }
+    if (outlen) {
+        *outlen = edit_sel.mark_length;
+    }
+
+    return (active_edit && edit_sel.mark_length)? 1 : 0;
+}
+
+void edit_setmark(STRING_IDX loc, STRING_IDX len)
+{
+    edit_sel.mark_start = loc;
+    edit_sel.mark_length = len;
+}
+
+void edit_setselectedrange(STRING_IDX loc, STRING_IDX len)
+{
+    edit_sel.start = edit_sel.p1 = loc;
+    edit_sel.length = len;
+    edit_sel.p2 = loc + len;
 }

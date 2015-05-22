@@ -475,6 +475,40 @@ void list_freeall(void)
     }
 }
 
+static void selectchat_filtered(int index)
+{
+    int i;
+    for (i = 0; i < itemcount; ++i) {
+        ITEM *it = &item[i];
+        FRIEND *f = it->data;
+        if (it->item != ITEM_FRIEND ||
+            ((!FILTER || f->online) && (!SEARCH || strstr_case((char*)f->name, (char*)search_data)))) {
+            --index;
+        }
+
+        if (index == -1) {
+            selectitem(it);
+            break;
+        }
+    }
+}
+
+static void selectchat_notfiltered(int index)
+{
+    if (index < itemcount) {
+        selectitem(&item[index]);
+    }
+}
+
+void list_selectchat(int index)
+{
+    if (FILTER || SEARCH) {
+        selectchat_filtered(index);
+    } else {
+        selectchat_notfiltered(index);
+    }
+}
+
 void list_selectsettings(void)
 {
     selectitem(&item_settings);

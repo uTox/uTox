@@ -30,6 +30,7 @@ void list_addfriendreq(FRIENDREQ *f);
 void list_deletesitem(void);
 void list_deleteritem(void);
 
+void list_selectchat(int index);
 void list_selectaddfriend(void);
 void list_selectsettings(void);
 void list_selectswap(void);

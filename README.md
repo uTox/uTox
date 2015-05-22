@@ -8,6 +8,8 @@ Lightweight [Tox](https://github.com/irungentoo/ProjectTox-Core) client.
 
 * Android support is experimental, it lacks important features (accepting/creating file transfers, sending inline images, video)
 
+* Cocoa (OS X without XQuartz) support is also experimental. Please see [the notes](docs/COCOA.md) before building.
+
 ## Screenshots
 
 μTox running on Windows 8

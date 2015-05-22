@@ -20,13 +20,18 @@
 #include <tox/tox.h>
 #include <tox/toxav.h>
 #include <vpx/vpx_codec.h>
+#include <vpx/vpx_image.h>
 
 #ifdef EMOJI_IDS
 #include <base_emoji.h>
 #endif
 
 #define countof(x) (sizeof(x)/sizeof(*(x)))
+
+//  fixes compile with apple headers
+#ifndef __OBJC__
 #define volatile(x) (*((volatile typeof(x)*)&x))
+#endif
 
 // Defaults
 #define DEFAULT_NAME "Tox User"
@@ -171,7 +176,11 @@ enum {
 #ifdef __ANDROID__
 #include "android/main.h"
 #else
+#ifdef __OBJC__
+#include "cocoa/main.h"
+#else
 #include "xlib/main.h"
+#endif
 #endif
 #endif
 
@@ -357,6 +366,8 @@ int ch_mod(uint8_t *file);
 int file_lock(FILE *file, uint64_t start, size_t length);
 int file_unlock(FILE *file, uint64_t start, size_t length);
 
+/* OS-specific cleanup function for when edits are defocused. Commit IME state, etc. */
+void edit_will_deactivate(void);
 
 /** Creates a tray baloon popup with the message, and flashes the main window
  *

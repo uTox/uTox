@@ -51,9 +51,19 @@ int edit_copy(char_t *data, int len);
 void edit_paste(char_t *data, int len, _Bool select);
 
 _Bool edit_active(void);
+EDIT *edit_get_active(void);
 
 void edit_resetfocus(void);
 void edit_setfocus(EDIT *edit);
 void edit_setstr(EDIT *edit, char_t *str, STRING_IDX length);
 void edit_setcursorpos(EDIT *edit, STRING_IDX pos);
 STRING_IDX edit_getcursorpos(void);
+
+// set outloc and outlen to the mark range.
+// returns 1 if the mark range is valid for the current edit,
+// else 0.
+// a mark range is valid when *outlen != 0 and there is an active edit.
+_Bool edit_getmark(STRING_IDX *outloc, STRING_IDX *outlen);
+void edit_setmark(STRING_IDX loc, STRING_IDX len);
+
+void edit_setselectedrange(STRING_IDX loc, STRING_IDX len);

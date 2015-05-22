@@ -929,6 +929,11 @@ void showkeyboard(_Bool show)
 
 }
 
+void edit_will_deactivate(void)
+{
+
+}
+
 void redraw(void)
 {
     _redraw = 1;

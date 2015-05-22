@@ -926,6 +926,11 @@ void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_
 
 void showkeyboard(_Bool show){} /* Added for android support. */
 
+void edit_will_deactivate(void)
+{
+    
+}
+
 /* Redraws the main UI window */
 void redraw(void)
 {
