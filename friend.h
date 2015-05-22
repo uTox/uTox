@@ -18,10 +18,10 @@ typedef struct friend {
     uint16_t transfer_count;
 } FRIEND;
 
-typedef struct friend_data {
-    size_t alias_length
-    uint8_t alias[]
-};
+typedef struct friend_meta_data {
+    size_t alias_length;
+    uint8_t alias[];
+} FRIEND_META_DATA;
 
 #define MAX_GROUP_PEERS 256
 

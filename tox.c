@@ -27,6 +27,21 @@ static int log_file_name(uint8_t *dest, size_t size_dest, Tox *tox, int fid)
     return TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".txt");
 }
 
+/* Writes friend meta data filename for fid to dest. returns length written */
+static int friend_meta_data_file(uint8_t *dest, size_t size_dest, Tox *tox, int fid)
+{
+    if (size_dest < TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".fmetadata")){
+        return -1;
+    }
+
+    uint8_t client_id[TOX_PUBLIC_KEY_SIZE];
+    tox_friend_get_public_key(tox, fid, client_id, 0);
+    cid_to_string(dest, client_id); dest += TOX_PUBLIC_KEY_SIZE * 2;
+    memcpy((char*)dest, ".fmetadata", sizeof(".fmetadata"));
+
+    return TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".fmetadata");
+}
+
 enum {
   LOG_FILE_MSG_TYPE_TEXT = 0,
   LOG_FILE_MSG_TYPE_ACTION = 1,
@@ -211,6 +226,30 @@ void log_read(Tox *tox, int fid)
     fclose(file);
 }
 
+void friend_meta_data_read(Tox *tox, int friend_id)
+{
+    uint8_t path[UTOX_FILE_NAME_LENGTH], *p;
+    p = path + datapath(path);
+
+    int len = friend_meta_data_file(p, sizeof(path) - (p - path), tox, friend_id);
+    if (len == -1) {
+        debug("Error getting meta data file name for friend %d\n", friend_id);
+        return;
+    }
+
+    uint32_t size;
+    void *metadata = file_raw((char*)path, &size);
+    if (!metadata) {
+        debug("Meta Data not found (%s)\n", path);
+        return;
+    }
+    size_t alias_length = 0;
+    memcpy(&alias_length, metadata, sizeof(size_t));
+    if (alias_length) {
+        friend_set_alias(&friend[friend_id], metadata + sizeof(size_t), alias_length);
+    }
+}
+
 static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, uint32_t param1, uint32_t param2, void *data);
 
 void tox_postmessage(uint8_t msg, uint32_t param1, uint32_t param2, void *data)
@@ -387,6 +426,7 @@ static void tox_after_load(Tox *tox)
 
         log_read(tox, i);
 
+        friend_meta_data_read(tox, i);
         i++;
     }
 

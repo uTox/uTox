@@ -40,7 +40,7 @@ void friend_set_alias(FRIEND *f, char_t *alias, STRING_IDX length){
         memcpy(p, alias, length);
 
         friend_addmessage(f, msg);
-        debug("New Alias set for friend %i\n", f->name);
+        debug("New Alias set for friend %s\n", f->name);
     }
 
     free(f->alias);
