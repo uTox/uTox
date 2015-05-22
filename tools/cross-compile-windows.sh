@@ -77,7 +77,7 @@ fi
 # Build filter_audio
 AUDIO_FILTERING_BUILD="-DAUDIO_FILTERING -I ./lib/filter_audio/ \
 ./lib/filter_audio/filter_audio.c ./lib/filter_audio/aec/*.c ./lib/filter_audio/agc/*.c \
-./lib/filter_audio/ns/*.c ./lib/filter_audio/other/*.c ./lib/filter_audio/zam/*.c"
+./lib/filter_audio/ns/*.c ./lib/filter_audio/other/*.c ./lib/filter_audio/vad/*.c ./lib/filter_audio/zam/*.c"
 
 # Remove existing
 rm utox.exe 2> /dev/null

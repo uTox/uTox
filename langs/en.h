@@ -324,3 +324,6 @@ msgstr("Custom (see docs)")
 
 msgid(THEME_ZENBURN)
 msgstr("Zenburn")
+
+msgid(SEND_TYPING_NOTIFICATIONS)
+msgstr("Send typing notifications")

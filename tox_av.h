@@ -430,7 +430,11 @@ static void audio_thread(void *args)
     postmessage(NEW_AUDIO_IN_DEVICE, STR_AUDIO_IN_NONE, 0, NULL);
     audio_detect();
 
-    device_list = alcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER);
+    if (alcIsExtensionPresent(NULL, "ALC_ENUMERATE_ALL_EXT"))
+        device_list = alcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER);
+    else
+        device_list = alcGetString(NULL, ALC_DEVICE_SPECIFIER);
+
     if(device_list) {
         output_device = device_list;
         debug("Output Device List:\n");
@@ -506,6 +510,10 @@ static void audio_thread(void *args)
     #endif
 
     audio_thread_init = 1;
+
+    int16_t *preview_buffer = NULL;
+    unsigned int preview_buffer_index = 0;
+#define PREVIEW_BUFFER_SIZE (av_DefaultSettings.audio_sample_rate / 2)
 
     while(1) {
         if(audio_thread_msg) {
@@ -584,6 +592,8 @@ static void audio_thread(void *args)
             case AUDIO_PREVIEW_START: {
                 preview = 1;
                 audio_count++;
+                preview_buffer = calloc(PREVIEW_BUFFER_SIZE, 2);
+                preview_buffer_index = 0;
                 if(!record_on) {
                     device_in = alcopencapture(audio_device);
                     if(device_in) {
@@ -626,6 +636,8 @@ static void audio_thread(void *args)
             case AUDIO_PREVIEW_END: {
                 preview = 0;
                 audio_count--;
+                free(preview_buffer);
+                preview_buffer = NULL;
                 if(!audio_count && record_on) {
                     alccapturestop(device_in);
                     alccaptureclose(device_in);
@@ -737,7 +749,7 @@ static void audio_thread(void *args)
                     int16_t buffer[perframe];
                     alcCaptureSamplesLoopback(device_out, buffer, perframe);
                     pass_audio_output(f_a, buffer, perframe);
-                    set_echo_delay_ms(f_a, 5);
+                    set_echo_delay_ms(f_a, av_DefaultSettings.audio_frame_duration);
                     if (samples >= perframe * 2) {
                         sleep = 0;
                     }
@@ -746,40 +758,61 @@ static void audio_thread(void *args)
             #endif
             #endif
 
-            if(frame) {
+            if (frame) {
+                _Bool voice = 1;
                 #ifdef AUDIO_FILTERING
-                if (f_a && filter_audio(f_a, (int16_t*)buf, perframe) == -1) {
-                    debug("filter audio error\n");
+                if (f_a) {
+                    int ret = filter_audio(f_a, (int16_t*)buf, perframe);
+
+                    if (ret == -1) { 
+                        debug("filter audio error\n");
+                    }
+
+                    if (ret == 0) {
+                        voice = 0;
+                    }
                 }
                 #endif
                 if(preview) {
-                    sourceplaybuffer(0, (int16_t*)buf, perframe, av_DefaultSettings.audio_channels, av_DefaultSettings.audio_sample_rate);
+                    if (preview_buffer_index + perframe > PREVIEW_BUFFER_SIZE)
+                        preview_buffer_index = 0;
+
+                    sourceplaybuffer(0, preview_buffer + preview_buffer_index, perframe, av_DefaultSettings.audio_channels, av_DefaultSettings.audio_sample_rate);
+                    if (voice) {
+                        memcpy(preview_buffer + preview_buffer_index, buf, perframe * sizeof(int16_t));
+                    } else {
+                        memset(preview_buffer + preview_buffer_index, 0, perframe * sizeof(int16_t));
+                    }
+
+                    preview_buffer_index += perframe;
                 }
 
-                int i;
-                for(i = 0; i < MAX_CALLS; i++) {
-                    if(call[i]) {
-                        int r;
-                        if((r = toxav_prepare_audio_frame(av, i, dest, sizeof(dest), (void*)buf, perframe)) < 0) {
-                            debug("toxav_prepare_audio_frame error %i\n", r);
-                            continue;
-                        }
+                if (voice) {
+                    int i;
+                    for(i = 0; i < MAX_CALLS; i++) {
+                        if(call[i]) {
+                            int r;
+                            if((r = toxav_prepare_audio_frame(av, i, dest, sizeof(dest), (void*)buf, perframe)) < 0) {
+                                debug("toxav_prepare_audio_frame error %i\n", r);
+                                continue;
+                            }
 
-                        if((r = toxav_send_audio(av, i, dest, r)) < 0) {
-                            debug("toxav_send_audio error %i %s\n", r, strerror(errno));
+                            if((r = toxav_send_audio(av, i, dest, r)) < 0) {
+                                debug("toxav_send_audio error %i %s\n", r, strerror(errno));
+                            }
                         }
                     }
-                }
 
-                Tox *tox = toxav_get_tox(av);
-                uint32_t num_chats = tox_count_chatlist(tox);
+                    Tox *tox = toxav_get_tox(av);
+                    uint32_t num_chats = tox_count_chatlist(tox);
 
-                if (num_chats != 0) {
-                    int32_t chats[num_chats];
-                    uint32_t max = tox_get_chatlist(tox, chats, num_chats);
-                    for (i = 0; i < max; ++i) {
-                        if (groups_audio[chats[i]]) {
-                            toxav_group_send_audio(tox, chats[i], (int16_t *)buf, perframe, av_DefaultSettings.audio_channels, av_DefaultSettings.audio_sample_rate);
+                    if (num_chats != 0) {
+                        int32_t chats[num_chats];
+                        uint32_t max = tox_get_chatlist(tox, chats, num_chats);
+                        for (i = 0; i < max; ++i) {
+                            if (groups_audio[chats[i]]) {
+                                toxav_group_send_audio(tox, chats[i], (int16_t *)buf, perframe, av_DefaultSettings.audio_channels, av_DefaultSettings.audio_sample_rate);
+                            }
                         }
                     }
                 }

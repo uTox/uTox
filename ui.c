@@ -302,6 +302,7 @@ static void drawsettings_content(int UNUSED(x), int y, int UNUSED(w), int UNUSED
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 357, CLOSE_TO_TRAY);
     drawstr(LIST_RIGHT + SCALE * 95, y + SCALE * 357, START_IN_TRAY);
 
+    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 380, SEND_TYPING_NOTIFICATIONS);
 }
 
 static void background_draw(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int width, int height)
@@ -428,6 +429,7 @@ panel_settings = {
         (void*)&dropdown_audible_notification, (void*)&dropdown_audio_filtering,
         (void*)&dropdown_close_to_tray, (void*)&dropdown_start_in_tray,
         (void*)&dropdown_theme,
+        (void*)&dropdown_typing_notes,
         NULL
     }
 },
@@ -552,7 +554,7 @@ void ui_scale(uint8_t scale)
     messages_group.panel.width = -SCROLL_WIDTH;
 
     scroll_settings.panel.y = LIST_Y;
-    scroll_settings.content_height = 390 * SCALE;
+    scroll_settings.content_height = 414 * SCALE;
 
     scroll_group.panel.y = LIST_Y;
     scroll_group.panel.height = MESSAGES_BOTTOM;
@@ -863,6 +865,14 @@ void ui_scale(uint8_t scale)
         .width = SCALE * 20
     },
 
+    d_typing_notes = {
+        .type = PANEL_DROPDOWN,
+        .x = 5 * SCALE,
+        .y = SCALE * 389,
+        .height = SCALE * 12,
+        .width = SCALE * 20
+    },
+
     d_theme = {
         .type = PANEL_DROPDOWN,
         .x = 95 * SCALE,
@@ -899,6 +909,7 @@ void ui_scale(uint8_t scale)
 #ifdef AUDIO_FILTERING
     dropdown_audio_filtering.panel = d_audio_filtering;
 #endif
+    dropdown_typing_notes.panel = d_typing_notes;
 
 
     PANEL e_name = {
