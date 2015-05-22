@@ -17,6 +17,7 @@
 #include <X11/extensions/XShm.h>
 #include <sys/shm.h>
 
+#define _GNU_SOURCE
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/ioctl.h>
@@ -512,17 +513,17 @@ void destroy_tray_icon(void)
 /** Toggles the main window to/from hidden to tray/shown. */
 void togglehide(void)
 {
-    static int x, y;
-
     if(hidden) {
+        Window root;
+        int x, y;
+        unsigned int w, h, border, depth;
+        XGetGeometry(display, window, &root, &x, &y, &w, &h, &border, &depth);
         XMapWindow(display, window);
         XMoveWindow(display, window, x, y);
         redraw();
         hidden = 0;
     } else {
-        Window child;
-        XTranslateCoordinates(display, window, RootWindow(display, screen), 0, 0, &x, &y, &child );
-        XUnmapWindow(display, window);
+        XWithdrawWindow(display, window, screen);
         hidden = 1;
     }
 }
@@ -826,6 +827,11 @@ void flush_file(FILE *file)
     int fd = fileno(file);
     fsync(fd);
 }
+
+int resize_file(FILE *file, uint64_t size){
+    return posix_fallocate(fileno(file), 0, size);
+}
+
 
 void setscale(void)
 {
@@ -1184,7 +1190,11 @@ int main(int argc, char *argv[])
     dropdown_language.selected = dropdown_language.over = LANG;
 
     /* make the window visible */
-    XMapWindow(display, window);
+    if (start_in_tray) {
+        togglehide();
+    } else {
+        XMapWindow(display, window);
+    }
 
     if (xim) {
         if((xic = XCreateIC(xim, XNInputStyle, XIMPreeditNothing | XIMStatusNothing, XNClientWindow, window, XNFocusWindow, window, NULL))) {

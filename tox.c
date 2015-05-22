@@ -563,9 +563,6 @@ void tox_thread(void *UNUSED(args))
             load_defaults(tox);
         }
 
-        // Load saved file transfers
-        utox_file_load_active();
-
         // Set local info for self
         edit_setstr(&edit_name, self.name, self.name_length);
         edit_setstr(&edit_status, self.statusmsg, self.statusmsg_length);
@@ -577,18 +574,23 @@ void tox_thread(void *UNUSED(args))
         self.id_buffer_length = TOX_FRIEND_ADDRESS_SIZE * 2;
         debug("Tox ID: %.*s\n", (int)self.id_buffer_length, self.id_buffer);
 
-        uint8_t avatar_data[UTOX_AVATAR_MAX_DATA_LENGTH];
-        uint32_t avatar_size;
+        {
+            uint8_t avatar_data[UTOX_AVATAR_MAX_DATA_LENGTH];
+            uint32_t avatar_size;
 
-        uint8_t hex_id[TOX_FRIEND_ADDRESS_SIZE * 2];
-        id_to_string(hex_id, self.id_binary);
-        if (init_avatar(&self.avatar, hex_id, avatar_data, &avatar_size)) {
-            // set avatar before connecting
-            // TODO tox_set_avatar(tox, UTOX_AVATAR_FORMAT_PNG, avatar_data, avatar_size);
-
-            char_t hash_string[TOX_HASH_LENGTH * 2];
-            hash_to_string(hash_string, self.avatar.hash);
-            debug("Tox Avatar Hash: %.*s\n", (int)sizeof(hash_string), hash_string);
+            uint8_t hex_id[TOX_FRIEND_ADDRESS_SIZE * 2];
+            id_to_string(hex_id, self.id_binary);
+            if (init_avatar(&self.avatar, hex_id, avatar_data, &avatar_size)) {
+                self.avatar_data = malloc(avatar_size);
+                if (self.avatar_data) {
+                    memcpy(self.avatar_data, avatar_data, avatar_size);
+                    self.avatar_size = avatar_size;
+                    self.avatar_format = UTOX_AVATAR_FORMAT_PNG;
+                    char_t hash_string[TOX_HASH_LENGTH * 2];
+                    hash_to_string(hash_string, self.avatar.hash);
+                    debug("Tox Avatar Hash: %.*s\n", (int)sizeof(hash_string), hash_string);
+                }
+            }
         }
 
         // Give toxcore the functions to call
@@ -639,8 +641,6 @@ void tox_thread(void *UNUSED(args))
                 if (save_needed || (time - last_save >= (uint64_t)100 * 1000 * 1000 * 1000)){
                     // Save tox data
                     write_save(tox);
-                    // Save file transfer data
-                    utox_file_save_active();
                 }
             }
 
@@ -1032,7 +1032,7 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
                 if(strcmp2(name, "file://") == 0) {
                     name += 7;
                 }                   /* tox, friend, path, filename, filename_length */
-                outgoing_file_send_new(tox, param1, name,        s,           p - s);
+                outgoing_file_send(tox, param1, name,        s,           p - s, TOX_FILE_KIND_DATA);
                 p++;
                 s = name = p;
 
@@ -1046,7 +1046,7 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
             _Bool multifile = (name[param2 - 1] == 0);
             if(!multifile) {
                                     /* tox, Friend, path, filename,      filename_length */
-                outgoing_file_send_new(tox, param1, name, name + param2, strlen((const char*)(name + param2)));
+                outgoing_file_send(tox, param1, name, name + param2, strlen((const char*)(name + param2)), TOX_FILE_KIND_DATA);
             } else {
                 uint8_t *p = name + param2;
                 name += param2 - 1;
@@ -1057,7 +1057,7 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
                     int len = strlen((char*)p) + 1;
                     memmove(name, p, len);
                     p += len;
-                    outgoing_file_send_new(tox, param1, data, name, len -1);
+                    outgoing_file_send(tox, param1, data, name, len -1, TOX_FILE_KIND_DATA);
                 }
             }
         }
@@ -1072,7 +1072,7 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
            data: pointer to a TOX_SEND_INLINE_MSG struct
          */
         struct TOX_SEND_INLINE_MSG *tsim = data;
-        outgoing_file_send_inline(tox, param1, tsim->image->png_data, tsim->image_size);
+        outgoing_file_send(tox, param1, NULL, tsim->image->png_data, tsim->image_size, TOX_FILE_KIND_DATA);
         free(tsim);
 
         break;
@@ -1082,12 +1082,7 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
         /* param1: friend #
          * param2: file # */
         break;
-        if (utox_file_start_temp_write(param1, param2) == 0) {
-        /*                          tox, friend#, file#,        START_FILE */
-            file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_RESUME);
-        } else {
-            file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_CANCEL);
-        }
+        /* This call currently does nothing, eventually we'd like to start downloading a file before we have its dir */
     }
 
 
@@ -1102,6 +1097,7 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
             file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_CANCEL);
         }
         break;
+        free(data);
     }
 
     case TOX_FILE_INCOMING_RESUME:
@@ -1132,6 +1128,7 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
         } else {
             ft_friend_online(tox, param1);
             /* resend avatar info (in case it changed) */
+            /* Avatars must be sent LAST or they will clobber existing file transfers! */
             avatar_on_friend_online(tox, param1);
         }
         break;
@@ -1596,8 +1593,10 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         FILE_TRANSFER *file_handle = data;
         FRIEND *f = &friend[file_handle->friend_number];
 
+        friend_addmessage(f, file_handle->ui_data);
         file_notify(f, file_handle->ui_data);
         updatefriend(f);
+        free(file_handle);
         break;
     }
 
@@ -1619,14 +1618,30 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         msg->filenumber = file->file_number;
         msg->progress = file->size_transferred;
         msg->speed = file->speed;
-        msg->path = file->path;
+        if(file->in_memory){
+            msg->path = file->memory;
+        } else {
+            msg->path = file->path;
+        }
         if (f_notify) {
             file_notify(f, msg);
         }
 
         updatefriend(f);
-        // todo free
         free(file);
+        break;
+    }
+
+    case FRIEND_INLINE_IMAGE: {
+        FRIEND *f = &friend[param1];
+        uint16_t width, height;
+        uint8_t *image;
+        memcpy(&width, data, sizeof(uint16_t));
+        memcpy(&height, data + sizeof(uint16_t), sizeof(uint16_t));
+        memcpy(&image, data + sizeof(uint16_t) * 2, sizeof(uint8_t *));
+        free(data);
+        friend_recvimage(f, image, width, height);
+        redraw();
         break;
     }
 

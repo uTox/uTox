@@ -8,6 +8,7 @@
 
 #include <GLES2/gl2.h>
 
+#define _GNU_SOURCE
 #include <fcntl.h>
 #include <sys/mman.h>
 
@@ -238,6 +239,10 @@ void flush_file(FILE *file)
     fflush(file);
     int fd = fileno(file);
     fsync(fd);
+}
+
+int resize_file(FILE *file, uint64_t size){
+    // File transfers unsupported on android TODO
 }
 
 int ch_mod(uint8_t *file){

@@ -140,16 +140,11 @@ void self_remove_avatar()
     tox_postmessage(TOX_UNSETAVATAR, 0, 0, NULL);
 }
 
-_Bool avatar_on_friend_online(Tox *tox, uint32_t friend_number)
-{
+_Bool avatar_on_friend_online(Tox *tox, uint32_t friend_number){
     uint8_t *avatar_data = self.avatar_data;
     size_t avatar_size = self.avatar_size;
 
-    if(outgoing_file_send_avatar(tox, friend_number, avatar_data, avatar_size)){ // error
-        debug("Avatars:\tERROR SETTING FRIEND(%u) AVATAR STATUS\n", friend_number);
-        return 0;
-    }
-
+    outgoing_file_send(tox, friend_number, NULL, avatar_data, avatar_size, TOX_FILE_KIND_AVATAR);
     return 1;
 }
 
