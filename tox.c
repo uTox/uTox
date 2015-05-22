@@ -324,33 +324,37 @@ static _Bool init_avatar(AVATAR *avatar, const char_t *id, uint8_t *png_data_out
     }
     return 0;
 }
-
 static size_t load_save(uint8_t **out_data){
     uint8_t path[UTOX_FILE_NAME_LENGTH], *p, *data;
-    uint32_t size;
+    char savename[UTOX_FILE_NAME_LENGTH];
 
+    uint32_t size;
+    const unsigned int tox_savename_len = strlen(tox_savename);
     do{ /* Try the STS compliant save location */
         p = path + datapath(path);
-        strcpy((char*)p, "tox_save.tox");
+        memcpy(savename, tox_savename, tox_savename_len);
+        memcpy(savename+tox_savename_len, ".tox", sizeof(".tox")); /* Add tox extension */
+        memcpy((char*)p, savename, tox_savename_len+sizeof(".tox"));
         data = file_raw((char*)path, &size);
         if(data) break; /* We have data, were done here! */
         /* Try filename missing the .tox extension */
         p = path + datapath(path);
-        strcpy((char*)p, "tox_save");
+        memcpy((char*)p, tox_savename, tox_savename_len+1);
         data = file_raw((char*)path, &size);
         if(data) break;
         /* That didn't work, do we have a backup? */
         p = path + datapath(path);
-        strcpy((char*)p, "tox_save.tmp");
+        memcpy(savename+tox_savename_len, ".tmp", sizeof(".tmp"));
+        memcpy((char*)p, savename, tox_savename_len+sizeof(".tmp"));
         data = file_raw((char*)path, &size);
         if(data) break;
         /* No backup huh? Is it in an old location we support? */
         p = path + datapath_old(path);
-        strcpy((char*)p, "tox_save");
+        memcpy((char*)p, tox_savename, tox_savename_len+1);
         data = file_raw((char*)path, &size);
         if(data) break;
         /* Well, lets try the current directory... */
-        data = file_raw("tox_save", &size);
+        data = file_raw(tox_savename, &size);
         if(!data) return 0; /* F***it I give up! */
     } while(0); /* Only once! */
 
@@ -415,10 +419,12 @@ static void load_defaults(Tox *tox)
 }
 
 static void write_save(Tox *tox)
-{
+{//TO DO: Strings should be preconcatenated
     void *data;
     uint32_t size;
     uint8_t path_tmp[UTOX_FILE_NAME_LENGTH], path_real[UTOX_FILE_NAME_LENGTH], *p;
+    const unsigned int tox_savename_len = strlen(tox_savename);
+
     FILE *file;
 
     size = tox_get_savedata_size(tox);
@@ -426,9 +432,12 @@ static void write_save(Tox *tox)
     tox_get_savedata(tox, data);
 
     p = path_real + datapath(path_real);
-    memcpy(p, "tox_save.tox", sizeof("tox_save.tox"));
+    memcpy(p, tox_savename, tox_savename_len);
+    p+=tox_savename_len;
+    memcpy(p, ".tox", sizeof(".tox"));
+    p+=sizeof(".tox");
 
-    unsigned int path_len = (p - path_real) + sizeof("tox_save.tox");
+    const unsigned int path_len = p - path_real;
     memcpy(path_tmp, path_real, path_len);
     memcpy(path_tmp + (path_len - 1), ".tmp", sizeof(".tmp"));
 

@@ -316,6 +316,8 @@ uint8_t addfriend_status;
 
 _Bool dont_send_typing_notes; //Stores user's preference about typing notifications
 
+const char *tox_savename; //Stores current name of tox's savefile
+
 #define BORDER 1
 #define CAPTION 26
 

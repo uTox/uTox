@@ -992,6 +992,7 @@ int main(int argc, char *argv[])
     parse_args_wait_for_theme = 0;
     _Bool theme_was_set_on_argv = 0;
     theme = THEME_DEFAULT;
+    tox_savename = "tox_save";
 
     if (argc > 1)
         for (int i = 1; i < argc; i++) {
@@ -1040,6 +1041,12 @@ int main(int argc, char *argv[])
             }
             if(!strcmp(argv[i], "--theme")) {
                 parse_args_wait_for_theme = 1;
+            }
+            if(!strcmp(argv[i], "--profile")) {
+                if ( ++i < argc ) {
+                    tox_savename = argv[i];
+                    debug("Profile provided: %s\n", tox_savename);
+                }
             }
             printf("arg %d: %s\n", i, argv[i]);
         }
