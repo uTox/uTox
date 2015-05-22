@@ -1,108 +1,15 @@
-#ifdef _WIN32_WINNT
-#undef _WIN32_WINNT
-#endif
-#define _WIN32_WINNT 0x500
-
-#ifndef WINVER
-#define WINVER 0x410
-#endif
-
-#define STRSAFE_NO_DEPRECATE
-
 #include <windows.h>
 #include <windowsx.h>
 
-#ifdef __CRT__NO_INLINE
-#undef __CRT__NO_INLINE
-#define DID_UNDEFINE__CRT__NO_INLINE
-#include <dshow.h>
-#ifdef DID_UNDEFINE__CRT__NO_INLINE
-#define __CRT__NO_INLINE
-#endif
-#endif
-
-#include <strmif.h>
-#include <amvideo.h>
-#include <control.h>
-#include <uuids.h>
-#include <vfwmsgs.h>
-
-#include <qedit.h>
-extern const CLSID CLSID_SampleGrabber;
-extern const CLSID CLSID_NullRenderer;
-
-#include <audioclient.h>
-#include <mmdeviceapi.h>
-
 #include "audio.c"
 
-#include <process.h>
-
-#include <shlobj.h>
-
-#include <io.h>
-#include <error.h>
-
-/* mingw64 doesn't provide this def, but it should exist... */
-errno_t _chsize_s(
-   int fd,
-   __int64 size
-);
-
-#undef CLEARTYPE_QUALITY
-#define CLEARTYPE_QUALITY 5
-
-#define WM_NOTIFYICON   (WM_APP + 0)
-#define WM_TOX          (WM_APP + 1)
-
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-
+static TRACKMOUSEEVENT tme = {sizeof(TRACKMOUSEEVENT), TME_LEAVE, 0, 0};
+static _Bool mouse_tracked = 0;
 _Bool draw = 0;
-
 float scale = 1.0;
 _Bool connected = 0;
 _Bool havefocus;
 
-enum {
-    MENU_TEXTINPUT = 101,
-    MENU_MESSAGES = 102,
-};
-
-//HBITMAP bitmap[32];
-void *bitmap[BM_CI1 + 1];
-HFONT font[32];
-HCURSOR cursors[8];
-HICON my_icon, unread_messages_icon;
-
-HWND hwnd, capturewnd;
-HINSTANCE hinstance;
-HDC main_hdc, hdc, hdcMem;
-HBRUSH hdc_brush;
-HBITMAP hdc_bm;
-HWND video_hwnd[MAX_NUM_FRIENDS];
-
-
-//static char save_path[280];
-
-static _Bool flashing, desktopgrab_video;
-
-static TRACKMOUSEEVENT tme = {sizeof(TRACKMOUSEEVENT), TME_LEAVE, 0, 0};
-static _Bool mouse_tracked = 0;
-
-static _Bool hidden;
-
-_Bool utox_portable;
-char utox_portable_save_path[MAX_PATH];
-
-//WM_COMMAND
-enum
-{
-    TRAY_SHOWHIDE,
-    TRAY_EXIT,
-    TRAY_STATUS_AVAILABLE,
-    TRAY_STATUS_AWAY,
-    TRAY_STATUS_BUSY,
-};
 
 BLENDFUNCTION blend_function = {
     .BlendOp = AC_SRC_OVER,
@@ -110,6 +17,15 @@ BLENDFUNCTION blend_function = {
     .SourceConstantAlpha = 0xFF,
     .AlphaFormat = AC_SRC_ALPHA
 };
+
+/** Select the true main.c for legacy XP support.
+ *  else default to xlib
+ **/
+#ifdef __WIN_LEGACY
+ #include "main.XP.c"
+#else
+ #include "main.7.c"
+#endif
 
 /** Translate a char* from UTF-8 encoding to OS native;
  *
@@ -611,8 +527,8 @@ void ShowContextMenu(void)
 
         InsertMenu(hMenu, -1, MF_BYPOSITION, TRAY_EXIT, "Exit");
 
-        // note:	must set window to the foreground or the
-        //			menu won't disappear when it should
+        // note:    must set window to the foreground or the
+        //          menu won't disappear when it should
         SetForegroundWindow(hwnd);
 
         TrackPopupMenu(hMenu, TPM_BOTTOMALIGN, pt.x, pt.y, 0, hwnd, NULL);
@@ -636,6 +552,7 @@ static void parsecmd(uint8_t *cmd, int len)
     } else {
         return;
     }
+
 
     uint8_t *b = edit_addid.data, *a = cmd, *end = cmd + len;
     uint16_t *l = &edit_addid.length;
@@ -956,11 +873,6 @@ void flush_file(FILE *file)
     _commit(fd);
 }
 
-int resize_file(FILE *file, uint64_t size){
-    return _chsize_s(fileno(file), size);
-}
-
-
 int ch_mod(uint8_t *file){
     /* You're probably looking for ./xlib as windows is lamesauce and wants nothing to do with sane permissions */
     return 1;
@@ -1012,10 +924,7 @@ void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_
     Shell_NotifyIconW(NIM_MODIFY, &nid);
 }
 
-void showkeyboard(_Bool show)
-{
-
-}
+void showkeyboard(_Bool show){} /* Added for android support. */
 
 void edit_will_deactivate(void)
 {
@@ -1255,10 +1164,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     if (!utox_mutex) {
         return 0;
     }
-
     if(GetLastError() == ERROR_ALREADY_EXISTS) {
         HWND window = FindWindow(TITLE, NULL);
-
         if (window) {
             SetForegroundWindow(window);
             if (*cmd) {
@@ -1269,7 +1176,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
                 SendMessage(window, WM_COPYDATA, (WPARAM)hInstance, (LPARAM)&data);
             }
         }
-
         return 0;
     }
 
@@ -1317,12 +1223,37 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
                         theme = THEME_DEFAULT;
                     }
                 }
+            /* Set flags */
+            } else if(wcsncmp(arglist[i], L"--set", 5) == 0){
+                // debug("Set flag on\n");
+                if(wcsncmp(arglist[i], L"--set=", 6) == 0){
+                    if(wcscmp(arglist[i]+6, L"start-on-boot") == 0)
+                        launch_at_startup(1);
+                } else {
+                    if(arglist[i+1]){
+                        if(wcscmp(arglist[i+1], L"start-on-boot") == 0)
+                            launch_at_startup(1);
+                    }
+                }
+            /* Unset flags */
+            } else if(wcsncmp(arglist[i], L"--unset", 7) == 0){
+                // debug("Unset flag on\n");
+                if(wcsncmp(arglist[i], L"--unset=", 8) == 0){
+                    if(wcscmp(arglist[i]+8, L"start-on-boot") == 0)
+                        // debug("unset start\n");
+                        launch_at_startup(0);
+                } else {
+                    if(arglist[i+1]){
+                        if(wcscmp(arglist[i+1], L"start-on-boot") == 0)
+                            // debug("unset start\n");
+                            launch_at_startup(0);
+                    }
+                }
             } else if(wcscmp(arglist[i], L"--no-updater") == 0){
                 no_updater = 1;
             }
         }
     }
-
 #ifdef UPDATER_BUILD
 #define UTOX_EXE "\\uTox.exe"
 #define UTOX_UPDATER_EXE "\\utox_runner.exe"
@@ -1351,6 +1282,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
             }
         }
     }
+#endif
+
+#ifdef __WIN_LEGACY
+    debug("Legacy windows build\n");
+#else
+    debug("Normal windows build\n");
 #endif
 
     theme_load(theme);
@@ -1493,7 +1430,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     };
     config_save(&d);
 
-    printf("uTox Clean Exit	::\n");
+    printf("uTox Clean Exit    ::\n");
 
     return 0;
 }

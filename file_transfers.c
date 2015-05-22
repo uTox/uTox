@@ -577,13 +577,15 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
             if(file){
                 /* File exist, and is readable, now get current size! */
                 debug("FileTransfer:\tCool file exists, let try to restart it.\n");
+                /* Eventually we want to cancel the file if it's larger than the incoming size, but without an error
+                dialog we'll just wait for now...
                 fseeko(file, 0, SEEK_END); size = ftello(file); fclose(file);
-                if(file_size != size){
+                if(file_size <= size){
                     debug("FileTransfer:\tIncoming size (%lu), and size on disk (%lu) mismatch, aborting!\n", size, file_size);
                     file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
                     free(file_handle->path);
                     return;
-                }
+                }*/
                 file = fopen((const char*)file_handle->path, "rb+");
                 /* We have to open as rb+, so we also need to re-seek to the start! */
                 fseeko(file, 0, SEEK_SET);
@@ -940,15 +942,6 @@ int utox_file_start_write(uint32_t friend_number, uint32_t file_number, void *fi
         debug("FileTransfer:\tThe file we're supposed to write to couldn't be opened\n");
         free(filepath);
         utox_break_file(file_handle);
-        return -1;
-    }
-    if(resize_file(file_handle->file, file_handle->size) != 0){
-        debug("FileTransfer:\tThe file size was unable to be changed!\n");
-        fclose(file_handle->file);
-        file_handle->file = NULL;
-        utox_break_file(file_handle);
-        remove(filepath);
-        free(filepath);
         return -1;
     }
 

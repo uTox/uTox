@@ -94,6 +94,7 @@ enum {
     STR_IS_TYPING,
     STR_CLOSE_TO_TRAY,
     STR_START_IN_TRAY,
+    STR_AUTO_STARTUP,
 
     // Interact with texts / clipboard
     STR_COPY, STR_COPY_TOX_ID = STR_COPY,
