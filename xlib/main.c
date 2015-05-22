@@ -1025,6 +1025,12 @@ int main(int argc, char *argv[])
                     theme_was_set_on_argv = 1;
                     continue;
                 }
+                if(!strcmp(argv[i], "zenburn")) {
+                    theme = THEME_ZENBURN;
+                    parse_args_wait_for_theme = 0;
+                    theme_was_set_on_argv = 1;
+                    continue;
+                }
                 debug("Please specify correct theme (please check user manual for list of correct values).");
                 return 1;
             }

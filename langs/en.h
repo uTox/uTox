@@ -306,3 +306,6 @@ msgstr("High contrast")
 
 msgid(THEME_CUSTOM)
 msgstr("Custom (see docs)")
+
+msgid(THEME_ZENBURN)
+msgstr("Zenburn")
