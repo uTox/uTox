@@ -56,6 +56,7 @@ PREFIX ?= /usr/local
 
 SRC = $(wildcard *.c png/png.c)
 OBJ = $(SRC:.c=.o)
+GIT_V = $(shell git describe --abbrev=8 --dirty --always --tags)
 
 all: utox
 
@@ -66,7 +67,7 @@ utox: $(OBJ)
 install: utox
 	mkdir -p $(DESTDIR)$(PREFIX)/bin
 	install -m 0755 utox $(DESTDIR)$(PREFIX)/bin/utox
-	
+
 	mkdir -p $(DESTDIR)$(PREFIX)/share/icons/hicolor/14x14/apps
 	install -m 644 icons/utox-14x14.png $(DESTDIR)$(PREFIX)/share/icons/hicolor/14x14/apps/utox.png
 	mkdir -p $(DESTDIR)$(PREFIX)/share/icons/hicolor/16x16/apps
@@ -97,11 +98,11 @@ install: utox
 	install -m 644 icons/utox-512x512.png $(DESTDIR)$(PREFIX)/share/icons/hicolor/512x512/apps/utox.png
 	mkdir -p $(DESTDIR)$(PREFIX)/share/icons/hicolor/scalable/apps
 	install -m 644 icons/utox.svg $(DESTDIR)$(PREFIX)/share/icons/hicolor/scalable/apps/utox.svg
-	
+
 	mkdir -p $(DESTDIR)$(PREFIX)/share/applications
 	install -m 644 utox.desktop $(DESTDIR)$(PREFIX)/share/applications/utox.desktop
 	if [ "$UNITY" -eq "1" ]; then echo "X-MessagingMenu-UsesChatSection=true" >> $(DESTDIR)$(PREFIX)/share/applications/utox.desktop; fi
-	
+
 	mkdir -p $(DESTDIR)$(PREFIX)/share/man/man1
 	install -m 644 utox.1 $(DESTDIR)$(PREFIX)/share/man/man1/utox.1
 
@@ -109,7 +110,7 @@ main.o: xlib/main.c xlib/keysym2ucs.c
 
 .c.o:
 	@echo "  CC    $@"
-	@$(CC) $(CFLAGS) -o $@ -c $<
+	@$(CC) $(CFLAGS) -o $@ -c -DGIT_VERSION=\"$(GIT_V)\" $<
 
 clean:
 	rm -f utox *.o png/*.o

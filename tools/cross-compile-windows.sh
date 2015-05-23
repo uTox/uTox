@@ -68,24 +68,28 @@ fi
 
 # Other options
 if [[ $debug  == 1 ]]; then
-	COMPILE_OPT="-g -O0"
+	COMP_OPTs="-g -O0"
 	echo "Building with debugging info"
 elif [[ $fast == 1 ]]; then
-	COMPILE_OPT="-s -O0"
+	COMP_OPTs="-s -O0"
 	echo "Quick build (without optimizations)"
 else
-	COMPILE_OPT="-s -Ofast"
+	COMP_OPTs="-s -Ofast"
 fi
 
 if [[ $legacy == 1 ]]; then
-	COMPILE_OPT+=" -D __WIN_LEGACY=1"
+	COMP_OPTs+=" -D __WIN_LEGACY=1"
 	echo "Compiling for windows XP"
 fi
 
+GIT_V=`git describe --abbrev=8 --dirty --always --tags`
+echo -n "Git version: "
+git describe --abbrev=8 --dirty --always --tags
+
 # Build filter_audio
-AUDIO_FILTERING_BUILD="-DAUDIO_FILTERING -I ./lib/filter_audio/ \
-./lib/filter_audio/filter_audio.c ./lib/filter_audio/aec/*.c ./lib/filter_audio/agc/*.c \
-./lib/filter_audio/ns/*.c ./lib/filter_audio/other/*.c ./lib/filter_audio/vad/*.c ./lib/filter_audio/zam/*.c"
+AUDIO_FILTERING_BUILD="-DAUDIO_FILTERING -I ./lib/filter_audio/ ./lib/filter_audio/filter_audio.c \
+./lib/filter_audio/aec/*.c ./lib/filter_audio/agc/*.c ./lib/filter_audio/ns/*.c ./lib/filter_audio/other/*.c \
+./lib/filter_audio/vad/*.c ./lib/filter_audio/zam/*.c"
 
 # Remove existing
 rm utox.exe 2> /dev/null
@@ -94,11 +98,10 @@ rm utox.exe 2> /dev/null
 "$WINDOWS_TOOLCHAIN"-windres icons/icon.rc -O coff -o icon.o
 
 # Compile
-"$WINDOWS_TOOLCHAIN"-gcc -std=gnu99 $COMPILE_OPT -DAL_LIBTYPE_STATIC -o utox.exe ./*.c     \
-./png/png.c $AUDIO_FILTERING_BUILD -I ./lib/toxcore/include/ -I                 \
-./lib/openal/include/  ./lib/openal/lib/libOpenAL32.a \
-./lib/toxcore/lib/libtoxav.a ./lib/toxcore/lib/libtoxdns.a                         \
-./lib/toxcore/lib/libtoxcore.a ./lib/toxcore/lib/libvpx.a ./lib/toxcore/lib/libopus.a \
-./lib/toxcore/lib/libsodium.a $MINGW32_LIB_DIR/libwinpthread.a       			 \
--liphlpapi -lws2_32 -lgdi32 -lmsimg32 -ldnsapi -lcomdlg32 ./icon.o           \
--Wl,-subsystem,windows -lwinmm -lole32 -loleaut32 -lstrmiids
+"$WINDOWS_TOOLCHAIN"-gcc -o utox.exe $COMP_OPTs -DGIT_VERSION=\"$GIT_V\" -DAL_LIBTYPE_STATIC ./*.c ./png/png.c ./icon.o \
+./lib/toxcore/lib/libtoxcore.a ./lib/toxcore/lib/libtoxdns.a ./lib/toxcore/lib/libtoxav.a \
+./lib/toxcore/lib/libsodium.a $MINGW32_LIB_DIR/libwinpthread.a ./lib/toxcore/lib/libvpx.a ./lib/toxcore/lib/libopus.a \
+./lib/openal/lib/libOpenAL32.a -I ./lib/toxcore/include/ -I ./lib/openal/include/ \
+$AUDIO_FILTERING_BUILD \
+-std=gnu99 -liphlpapi -lws2_32 -lgdi32 -lmsimg32 -ldnsapi -lcomdlg32 -Wl,-subsystem,windows -lwinmm -lole32 -loleaut32 \
+-lstrmiids
