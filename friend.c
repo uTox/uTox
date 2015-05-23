@@ -47,12 +47,15 @@ void friend_set_alias(FRIEND *f, char_t *alias, STRING_IDX length){
     if(length == 0) {
         f->alias = NULL;
         f->alias_length = 0;
+        f->metadata.alias_length = 0;
     } else {
         f->alias = malloc(length + 1);
         memcpy(f->alias, alias, length);
         f->alias_length = length;
+        f->metadata.alias_length = length;
     }
     f->alias[f->alias_length] = 0;
+    utox_write_metadata(f);
 }
 
 void friend_sendimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width, uint16_t height, UTOX_PNG_IMAGE png_image, size_t png_size)

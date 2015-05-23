@@ -717,3 +717,28 @@ void config_save(UTOX_SAVE *save)
     fwrite(options.proxy_host, strlen(options.proxy_host), 1, file);
     fclose(file);
 }
+
+void utox_write_metadata(FRIEND *f){
+    /* data sizes */
+    size_t data_sz = 0, current_sz = 0;
+    size_t alias_sz = strlen((const char*)f->alias);
+    data_sz += alias_sz;
+
+    /* Create path */
+    uint8_t dest[UTOX_FILE_NAME_LENGTH], *dest_p;
+    dest_p = dest + datapath(dest);
+    cid_to_string(dest_p, f->cid);
+    memcpy((char*)dest_p + (TOX_PUBLIC_KEY_SIZE * 2), ".fmetadata", sizeof(".fmetadata"));
+
+    /* Create data */
+    uint8_t *data = malloc(sizeof(FRIEND_META_DATA) + data_sz + 1);
+    memcpy(data, &f->metadata, sizeof(FRIEND_META_DATA));
+    current_sz = sizeof(FRIEND_META_DATA);
+    /* copy the data */
+        /* alias */
+        memcpy(data + current_sz, f->alias, alias_sz);
+        current_sz += alias_sz;
+
+    /* Write */
+    file_write_raw(dest, data, current_sz);
+}

@@ -1,3 +1,8 @@
+typedef struct friend_meta_data {
+    size_t alias_length;
+    uint8_t data[];
+} FRIEND_META_DATA;
+
 typedef struct friend {
     _Bool online, typing, notify;
     uint8_t calling, status;
@@ -16,12 +21,9 @@ typedef struct friend {
     AVATAR avatar;
 
     uint16_t transfer_count;
-} FRIEND;
 
-typedef struct friend_meta_data {
-    size_t alias_length;
-    uint8_t alias[];
-} FRIEND_META_DATA;
+    FRIEND_META_DATA metadata;
+} FRIEND;
 
 #define MAX_GROUP_PEERS 256
 

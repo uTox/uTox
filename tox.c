@@ -228,6 +228,7 @@ void log_read(Tox *tox, int fid)
 
 void friend_meta_data_read(Tox *tox, int friend_id)
 {
+    /* Will need to be rewritten if anything is added to friend's meta data */
     uint8_t path[UTOX_FILE_NAME_LENGTH], *p;
     p = path + datapath(path);
 
@@ -238,15 +239,21 @@ void friend_meta_data_read(Tox *tox, int friend_id)
     }
 
     uint32_t size;
-    void *metadata = file_raw((char*)path, &size);
-    if (!metadata) {
+    void *mdata = file_raw((char*)path, &size);
+    if (!mdata) {
         debug("Meta Data not found (%s)\n", path);
         return;
     }
-    size_t alias_length = 0;
-    memcpy(&alias_length, metadata, sizeof(size_t));
-    if (alias_length) {
-        friend_set_alias(&friend[friend_id], metadata + sizeof(size_t), alias_length);
+    FRIEND_META_DATA *metadata = calloc(1, sizeof(*metadata));
+
+    if (size < sizeof(*metadata)) {
+        debug("Meta Data was incomplete\n");
+        return;
+    }
+
+    memcpy(metadata, mdata, sizeof(*metadata));
+    if (metadata->alias_length) {
+        friend_set_alias(&friend[friend_id], mdata + sizeof(size_t), metadata->alias_length);
     }
 }
 
