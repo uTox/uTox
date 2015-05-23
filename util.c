@@ -31,12 +31,28 @@ void* file_raw(char *path, uint32_t *size)
 
     fclose(file);
 
-    // debug("Read %u bytes (%s)\n", len, path);
+    debug("Read %u bytes (%s)\n", len, path);
 
     if(size) {
         *size = len;
     }
     return data;
+}
+
+void file_write_raw(uint8_t *path, uint8_t *data, size_t size)
+{
+    FILE *file;
+
+    file = fopen((const char*)path, "wb");
+    if(!file) {
+        debug("Cannot open file to write (%s)\n", path);
+        return;
+    }
+
+    fwrite(data, size, 1, file);
+    fflush(file);
+    fclose(file);
+    return;
 }
 
 void* file_text(char *path)
