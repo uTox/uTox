@@ -40,6 +40,21 @@ msgstr("Fehler: Ungültige Tox ID (ungültiger NoSpam-Wert)")
 msgid(REQ_NO_MEMORY)
 msgstr("Fehler: Kein Speicher")
 
+msgid(SEND_FILE)
+msgstr("Datei senden")
+
+msgid(SAVE_FILE)
+msgstr("Datei speichern")
+
+msgid(WHERE_TO_SAVE_FILE_PROMPT)
+msgstr("Wo soll \"%.*s\" gespeichert werden?")
+
+msgid(SEND_FILE_PROMPT)
+msgstr("Wähle eine oder mehrere Dateien zum Senden.")
+
+msgid(SCREEN_CAPTURE_PROMPT)
+msgstr("Ziehe eine Box um den Bereich des Bildschirms, der gesendet werden soll.")
+
 msgid(TRANSFER_NEW)
 msgstr("Neue Dateiübertragung")
 
@@ -241,6 +256,9 @@ msgstr("Stummschalten")
 msgid(UNMUTE)
 msgstr("Stummschaltung aufheben")
 
+msgid(SELECT_AVATAR_TITLE)
+msgstr("Avatar auswählen")
+
 msgid(AVATAR_TOO_LARGE_MAX_SIZE_IS)
 msgstr("Avatar zu groß. Maximale Größe: ")
 
@@ -249,6 +267,9 @@ msgstr("Ausgewählte Datei existiert nicht oder ist leer.")
 
 msgid(CLEAR_HISTORY)
 msgstr("Chatverlauf leeren")
+
+msgid(AUTO_STARTUP)
+msgstr("Automatisch beim Systemstart starten")
 
 msgid(THEME)
 msgstr("Stil")
@@ -267,3 +288,9 @@ msgstr("Hoher Kontrast")
 
 msgid(THEME_CUSTOM)
 msgstr("Benutzerdefiniert (siehe Dokumentation)")
+
+msgid(THEME_ZENBURN)
+msgstr("Zenburn")
+
+msgid(SEND_TYPING_NOTIFICATIONS)
+msgstr("Mitteilen ob getippt wird")
