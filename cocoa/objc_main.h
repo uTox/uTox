@@ -91,7 +91,6 @@ struct utox_native_image {
 
 @interface uToxAV : NSObject <AVCaptureVideoDataOutputSampleBufferDelegate>
 - (instancetype)initWithHandle:(void *)video_dev_handle NS_DESIGNATED_INITIALIZER;
-- (BOOL)getCurrentFrameIntoVPXImage:(vpx_image_t *)img;
 @end
 
 @interface uToxIroncladView : NSView
