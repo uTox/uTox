@@ -423,20 +423,20 @@ char_t* tohtml(char_t *str, STRING_IDX length)
     return out;
 }
 
-void yuv420tobgr(const vpx_image_t *img, uint8_t *out)
+void yuv420tobgr(uint16_t width, uint16_t height, const uint8_t *y, const uint8_t *u, const uint8_t *v, unsigned int ystride, unsigned int ustride, unsigned int vstride, uint8_t *out)
 {
     unsigned long int i, j;
-    for (i = 0; i < img->d_h; ++i) {
-        for (j = 0; j < img->d_w; ++j) {
-            uint8_t *point = out + 4 * ((i * img->d_w) + j);
-            int y = img->planes[0][((i * img->stride[0]) + j)];
-            int u = img->planes[1][(((i / 2) * img->stride[1]) + (j / 2))];
-            int v = img->planes[2][(((i / 2) * img->stride[2]) + (j / 2))];
-            y = y < 16 ? 16 : y;
+    for (i = 0; i < height; ++i) {
+        for (j = 0; j < width; ++j) {
+            uint8_t *point = out + 4 * ((i * width) + j);
+            int t_y = y[((i * ystride) + j)];
+            int t_u = u[(((i / 2) * ustride) + (j / 2))];
+            int t_v = v[(((i / 2) * vstride) + (j / 2))];
+            t_y = t_y < 16 ? 16 : t_y;
 
-            int r = (298 * (y - 16) + 409 * (v - 128) + 128) >> 8;
-            int g = (298 * (y - 16) - 100 * (u - 128) - 208 * (v - 128) + 128) >> 8;
-            int b = (298 * (y - 16) + 516 * (u - 128) + 128) >> 8;
+            int r = (298 * (t_y - 16) + 409 * (t_v - 128) + 128) >> 8;
+            int g = (298 * (t_y - 16) - 100 * (t_u - 128) - 208 * (t_v - 128) + 128) >> 8;
+            int b = (298 * (t_y - 16) + 516 * (t_u - 128) + 128) >> 8;
 
             point[2] = r>255? 255 : r<0 ? 0 : r;
             point[1] = g>255? 255 : g<0 ? 0 : g;
