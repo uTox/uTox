@@ -5,5 +5,3 @@ bin/
 lib/
 debug.keystore
 *.dll
-win32/obj/
-win32/result/
