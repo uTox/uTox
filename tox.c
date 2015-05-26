@@ -551,12 +551,18 @@ void tox_thread(void *UNUSED(args))
         size_t save_size = load_save(&save_data);
         // Create main connection
         TOX_ERR_NEW tox_new_err;
+        if (save_data && save_size) {
+            options.savedata_type = TOX_SAVEDATA_TYPE_TOX_SAVE;
+            options.savedata_data = save_data;
+            options.savedata_length = save_size;
+        }
+
         debug("new tox object ipv6: %u udp: %u proxy: %u %s %u\n", options.ipv6_enabled, options.udp_enabled, options.proxy_type, options.proxy_host, options.proxy_port);
-        if((tox = tox_new(&options, save_data, save_size, &tox_new_err)) == NULL) {
+        if((tox = tox_new(&options, &tox_new_err)) == NULL) {
             debug("trying without proxy, err %u\n", tox_new_err);
-            if(!options.proxy_type || (options.proxy_type = TOX_PROXY_TYPE_NONE, (tox = tox_new(&options, save_data, save_size, &tox_new_err)) == NULL)) {
+            if(!options.proxy_type || (options.proxy_type = TOX_PROXY_TYPE_NONE, (tox = tox_new(&options, &tox_new_err)) == NULL)) {
                 debug("trying without ipv6, err %u\n", tox_new_err);
-                if(!options.ipv6_enabled || (options.ipv6_enabled = 0, (tox = tox_new(&options, save_data, save_size, &tox_new_err)) == NULL)) {
+                if(!options.ipv6_enabled || (options.ipv6_enabled = 0, (tox = tox_new(&options, &tox_new_err)) == NULL)) {
                     debug("tox_new() failed %u\n", tox_new_err);
                     exit(1);
                 }
@@ -667,8 +673,9 @@ void tox_thread(void *UNUSED(args))
                 tox_thread_msg = 0;
             }
 
-            // Thread active transfers and check if friend is typing
-            utox_thread_work_for_typing_notifications(tox, time);
+            if (!dont_send_typing_notes)
+                // Thread active transfers and check if friend is typing
+                utox_thread_work_for_typing_notifications(tox, time);
 
             // Ask toxcore how many ms to wait, then wait at the most 20ms
             uint32_t interval = tox_iteration_interval(tox);

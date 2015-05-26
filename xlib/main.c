@@ -482,7 +482,7 @@ void send_message(
      long data3    /* message data 3 */
 ){
     XEvent ev;
-  
+
     memset(&ev, 0, sizeof(ev));
     ev.xclient.type = ClientMessage;
     ev.xclient.window = w;
@@ -828,11 +828,6 @@ void flush_file(FILE *file)
     fsync(fd);
 }
 
-int resize_file(FILE *file, uint64_t size){
-    return posix_fallocate(fileno(file), 0, size);
-}
-
-
 void setscale(void)
 {
     int i;
@@ -934,6 +929,11 @@ void showkeyboard(_Bool show)
 
 }
 
+void edit_will_deactivate(void)
+{
+
+}
+
 void redraw(void)
 {
     _redraw = 1;
@@ -992,11 +992,15 @@ int main(int argc, char *argv[])
     parse_args_wait_for_theme = 0;
     _Bool theme_was_set_on_argv = 0;
     theme = THEME_DEFAULT;
+
     tox_savename = "tox_save";
+
+    /* Variables for --set */
+    int32_t set_show_window = 0;
 
     if (argc > 1)
         for (int i = 1; i < argc; i++) {
-            if (parse_args_wait_for_theme) {
+            if(parse_args_wait_for_theme) {
                 if(!strcmp(argv[i], "default")) {
                     theme = THEME_DEFAULT;
                     parse_args_wait_for_theme = 0;
@@ -1030,17 +1034,34 @@ int main(int argc, char *argv[])
                 debug("Please specify correct theme (please check user manual for list of correct values).");
                 return 1;
             }
-
             if(!strcmp(argv[i], "--version")) {
                 debug("%s\n", VERSION);
                 return 0;
-            }
-            if(!strcmp(argv[i], "--portable")) {
+            } else if(!strcmp(argv[i], "--portable")) {
                 debug("Launching uTox in portable mode: All data will be saved to the tox folder in the current working directory\n");
                 utox_portable = 1;
-            }
-            if(!strcmp(argv[i], "--theme")) {
+            } else if(!strcmp(argv[i], "--theme")) {
                 parse_args_wait_for_theme = 1;
+            } else if(strncmp(argv[i], "--set", 5) == 0) {
+                if(strncmp(argv[i]+5, "=", 1) == 0){
+                    if(strcmp(argv[i]+6, "start-on-boot") == 0){
+                        debug("Start on boot not supported on this OS, please use your distro suggested method!\n");
+                    } else if(strcmp(argv[i]+6, "show-window") == 0){
+                        set_show_window = 1;
+                    } else if(strcmp(argv[i]+6, "hide-window") == 0){
+                        set_show_window = -1;
+                    }
+                } else {
+                    if(argv[i+1]){
+                        if(strcmp(argv[i+1], "start-on-boot") == 0){
+                            debug("Start on boot not supported on this OS, please use your distro suggested method!\n");
+                        } else if(strcmp(argv[i+1], "show-window") == 0){
+                            set_show_window = 1;
+                        } else if(strcmp(argv[i+1], "hide-window") == 0){
+                            set_show_window = -1;
+                        }
+                    }
+                }
             }
             if(!strcmp(argv[i], "--profile")) {
                 if ( ++i < argc ) {
@@ -1201,6 +1222,14 @@ int main(int argc, char *argv[])
 
     LANG = systemlang();
     dropdown_language.selected = dropdown_language.over = LANG;
+
+    if(set_show_window){
+        if(set_show_window == 1){
+            start_in_tray = 0;
+        } else if(set_show_window == -1){
+            start_in_tray = 1;
+        }
+    }
 
     /* make the window visible */
     if (start_in_tray) {
@@ -1576,4 +1605,8 @@ int video_getframe(vpx_image_t *image)
     }
 
     return v4l_getframe(image);
+}
+
+void launch_at_startup(int is_launch_at_startup)
+{
 }

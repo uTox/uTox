@@ -118,6 +118,17 @@ static void dropdown_start_in_tray_onselect(uint16_t i, const DROPDOWN* UNUSED(d
     debug("Start in Tray.   :: %i\n", start_in_tray);
 }
 
+static void dropdown_auto_startup_onselect(uint16_t i, const DROPDOWN* UNUSED(dm)){
+    auto_startup = i;
+    launch_at_startup(auto_startup);
+    debug("Auto startup.   :: %i\n", auto_startup);
+}
+
+static void dropdown_typing_notes_onselect(const uint16_t i, const DROPDOWN* UNUSED(dm)) {
+    dont_send_typing_notes = i;
+    debug("Typing notifications preference: %hu\n", i);
+}
+
 static UI_STRING_ID dpidrops[] = {
     STR_DPI_TINY,
     STR_DPI_NORMAL,
@@ -237,9 +248,23 @@ dropdown_start_in_tray = {
     .userdata = noyesdrops
 },
 
+dropdown_auto_startup = {
+    .ondisplay = simple_dropdown_ondisplay,
+    .onselect = dropdown_auto_startup_onselect,
+    .dropcount = countof(noyesdrops),
+    .userdata = noyesdrops
+},
+
 dropdown_audible_notification = {
     .ondisplay = simple_dropdown_ondisplay,
     .onselect = dropdown_notifications_onselect,
+    .dropcount = countof(yesnodrops),
+    .userdata = yesnodrops
+},
+
+dropdown_typing_notes = {
+    .ondisplay = simple_dropdown_ondisplay,
+    .onselect = dropdown_typing_notes_onselect,
     .dropcount = countof(yesnodrops),
     .userdata = yesnodrops
 },

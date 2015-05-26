@@ -20,29 +20,42 @@
 #include <tox/tox.h>
 #include <tox/toxav.h>
 #include <vpx/vpx_codec.h>
+#include <vpx/vpx_image.h>
 
 #ifdef EMOJI_IDS
 #include <base_emoji.h>
 #endif
 
 #define countof(x) (sizeof(x)/sizeof(*(x)))
-#define volatile(x) (*((volatile typeof(x)*)&x))
 
+//  fixes compile with apple headers
+#ifndef __OBJC__
+#define volatile(x) (*((volatile typeof(x)*)&x))
+#endif
+
+// Defaults
 #define DEFAULT_NAME "Tox User"
 #define DEFAULT_STATUS "Toxing on uTox"
 #define DEFAULT_SCALE 2
 
+// Versions
 #define TITLE "uTox"
 #define SUB_TITLE "(Alpha)"
-#define VERSION "0.2.s"
+#define VERSION "0.3.0"
 
+// Limits and sizes
 #define MAX_CALLS 16
+#define MAX_NUM_FRIENDS 256
 #define MAX_BACKLOG_MESSAGES 128
 
+#define MAX_NUM_GROUPS 512
 #define TOX_FRIEND_ADDRESS_SIZE TOX_ADDRESS_SIZE
 
 #define UTOX_FILE_NAME_LENGTH 1024
 
+#define isdesktop(x) ((size_t)(x) == 1)
+
+// Structs
 typedef struct
 {
     uint8_t version, scale, enableipv6, disableudp;
@@ -55,7 +68,8 @@ typedef struct
     uint8_t audio_filtering_enabled : 1;
     uint8_t close_to_tray : 1;
     uint8_t start_in_tray : 1;
-    uint8_t zero : 2;
+    uint8_t auto_startup : 1;
+    uint8_t no_typing_notifications : 1;
     uint16_t audio_device_in;
     uint16_t audio_device_out;
     uint8_t theme;
@@ -79,69 +93,7 @@ typedef struct {
 
 typedef struct edit_change EDIT_CHANGE;
 
-#include "unused.h"
-
-#include "png/png.h"
-
-#include "tox.h"
-
-#ifdef __WIN32__
-#include "win32/main.h"
-#else
-#ifdef __ANDROID__
-#include "android/main.h"
-#else
-#include "xlib/main.h"
-#endif
-#endif
-
-#include "sized_string.h"
-#include "ui_i18n_decls.h"
-
-#include "ui.h"
-#include "svg.h"
-
-#include "avatar.h"
-#include "messages.h"
-#include "theme.h"
-#include "dns.h"
-#include "file_transfers.h"
-#include "friend.h"
-#include "list.h"
-#include "edit.h"
-#include "scrollable.h"
-#include "button.h"
-#include "dropdown.h"
-#include "contextmenu.h"
-#include "tooltip.h"
-
-#include "text.h"
-#include "util.h"
-
-#include "ui_dropdown.h"
-
-volatile _Bool tox_thread_init, audio_thread_init, video_thread_init, toxav_thread_init;
-_Bool tox_connected;
-
-_Bool audio_preview, video_preview;
-
-volatile _Bool logging_enabled, audible_notifications_enabled, audio_filtering_enabled, close_to_tray, start_in_tray;
-
-volatile uint16_t loaded_audio_in_device, loaded_audio_out_device;
-
-#define MAX_NUM_FRIENDS 256
-#define MAX_NUM_GROUPS 512
-
-//friends and groups
-//note: assumes array size will always be large enough
-FRIEND friend[MAX_NUM_FRIENDS];
-GROUPCHAT group[MAX_NUM_GROUPS];
-uint32_t friends, groups;
-
-//window
-int utox_window_width, utox_window_height, utox_window_baseline;
-_Bool utox_window_maximized;
-
+// Enums
 enum
 {
     CURSOR_NONE,
@@ -151,25 +103,8 @@ enum
     CURSOR_ZOOM_IN,
     CURSOR_ZOOM_OUT,
 };
-uint8_t cursor;
 
-_Bool mdown;
-
-struct {
-    int x, y;
-} mouse;
-
-//fonts
-//HFONT font_big, font_big2, font_med, font_med2, font_small, font_msg;
-int font_small_lineheight, font_msg_lineheight;
-
-uint16_t video_width, video_height, max_video_width, max_video_height;
-
-char proxy_address[256];
-extern struct Tox_Options options;
-
-enum
-{
+enum {
     FONT_TEXT,
     FONT_TITLE,
 
@@ -185,8 +120,7 @@ enum
 };
 
 //sysmenu icons
-enum
-{
+enum {
     BM_ONLINE = 1,
     BM_AWAY,
     BM_BUSY,
@@ -229,7 +163,89 @@ enum
     BM_CI1
 };
 
-#define isdesktop(x) ((size_t)(x) == 1)
+// µTox includes
+#include "unused.h"
+
+#include "png/png.h"
+
+#include "tox.h"
+
+#ifdef __WIN32__
+#include "windows/main.h"
+#else
+#ifdef __ANDROID__
+#include "android/main.h"
+#else
+#ifdef __OBJC__
+#include "cocoa/main.h"
+#else
+#include "xlib/main.h"
+#endif
+#endif
+#endif
+
+#include "sized_string.h"
+#include "ui_i18n_decls.h"
+
+#include "ui.h"
+#include "svg.h"
+
+#include "avatar.h"
+#include "messages.h"
+#include "theme.h"
+#include "dns.h"
+#include "file_transfers.h"
+#include "friend.h"
+#include "list.h"
+#include "edit.h"
+#include "scrollable.h"
+#include "button.h"
+#include "dropdown.h"
+#include "contextmenu.h"
+#include "tooltip.h"
+
+#include "text.h"
+#include "util.h"
+
+#include "ui_dropdown.h"
+
+volatile _Bool tox_thread_init, audio_thread_init, video_thread_init, toxav_thread_init;
+volatile _Bool logging_enabled, audible_notifications_enabled, audio_filtering_enabled, close_to_tray, start_in_tray, auto_startup;
+volatile uint16_t loaded_audio_in_device, loaded_audio_out_device;
+_Bool tox_connected;
+
+_Bool audio_preview, video_preview;
+
+
+//friends and groups
+//note: assumes array size will always be large enough
+FRIEND friend[MAX_NUM_FRIENDS];
+GROUPCHAT group[MAX_NUM_GROUPS];
+uint32_t friends, groups;
+
+//window
+int utox_window_width, utox_window_height, utox_window_baseline;
+_Bool utox_window_maximized;
+
+uint8_t cursor;
+
+_Bool mdown;
+
+struct {
+    int x, y;
+} mouse;
+
+//fonts
+//HFONT font_big, font_big2, font_med, font_med2, font_small, font_msg;
+int font_small_lineheight, font_msg_lineheight;
+
+uint16_t video_width, video_height, max_video_width, max_video_height;
+
+char proxy_address[256];
+extern struct Tox_Options options;
+
+// inserts/deletes a value into the registry to launch uTox after boot
+void launch_at_startup(int is_launch_at_startup);
 
 void drawalpha(int bm, int x, int y, int width, int height, uint32_t color);
 void loadalpha(int bm, void *data, int width, int height);
@@ -300,6 +316,8 @@ uint8_t addfriend_status;
 
 const char *tox_savename; //Stores current name of tox's savefile
 
+_Bool dont_send_typing_notes; //Stores user's preference about typing notifications
+
 #define BORDER 1
 #define CAPTION 26
 
@@ -346,11 +364,12 @@ int datapath_old(uint8_t *dest);
 int datapath(uint8_t *dest);
 int datapath_subdir(uint8_t *dest, const char *subdir);
 void flush_file(FILE *file);
-int resize_file(FILE *file, uint64_t size);
 int ch_mod(uint8_t *file);
 int file_lock(FILE *file, uint64_t start, size_t length);
 int file_unlock(FILE *file, uint64_t start, size_t length);
 
+/* OS-specific cleanup function for when edits are defocused. Commit IME state, etc. */
+void edit_will_deactivate(void);
 
 /** Creates a tray baloon popup with the message, and flashes the main window
  *

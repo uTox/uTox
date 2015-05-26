@@ -168,6 +168,11 @@ void setselection(char_t *data, STRING_IDX length)
 {
 }
 
+void edit_will_deactivate(void)
+{
+
+}
+
 UTOX_NATIVE_IMAGE *png_to_image(const UTOX_PNG_IMAGE data, size_t size, uint16_t *w, uint16_t *h, _Bool keep_alpha)
 {
     uint8_t *out;
@@ -239,10 +244,6 @@ void flush_file(FILE *file)
     fflush(file);
     int fd = fileno(file);
     fsync(fd);
-}
-
-int resize_file(FILE *file, uint64_t size){
-    // File transfers unsupported on android TODO
 }
 
 int ch_mod(uint8_t *file){
@@ -811,4 +812,8 @@ __attribute__ ((externally_visible)) void ANativeActivity_onCreate(ANativeActivi
     pthread_attr_init(&myattr);
     pthread_attr_setdetachstate(&myattr, PTHREAD_CREATE_DETACHED);
     pthread_create(&thread, &myattr, (void*(*)(void*))android_main, NULL);
+}
+
+void launch_at_startup(int is_launch_at_startup)
+{
 }

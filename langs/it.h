@@ -40,6 +40,21 @@ msgstr("Errore: Tox ID non valido (valore \"nospam\" errato)")
 msgid(REQ_NO_MEMORY)
 msgstr("Errore: Memoria insufficiente")
 
+msgid(SEND_FILE)
+msgstr("Invia file")
+
+msgid(SAVE_FILE)
+msgstr("Salva file")
+
+msgid(WHERE_TO_SAVE_FILE_PROMPT)
+msgstr("Dove vuoi salvare \"%.*s\"?")
+
+msgid(SEND_FILE_PROMPT)
+msgstr("Seleziona uno o più files da inviare.")
+
+msgid(SCREEN_CAPTURE_PROMPT)
+msgstr("Seleziona l'area dello schermo che vuoi inviare.")
+
 msgid(TRANSFER_NEW)
 msgstr("Nuovo trasferimento file")
 
@@ -247,6 +262,9 @@ msgstr("Disattiva")
 msgid(UNMUTE)
 msgstr("Attiva")
 
+msgid(SELECT_AVATAR_TITLE)
+msgstr("Seleziona avatar")
+
 msgid(AVATAR_TOO_LARGE_MAX_SIZE_IS)
 msgstr("Avatar troppo grande. Dimensione massima: ")
 
@@ -255,6 +273,9 @@ msgstr("Impossibile trovare il file o il file è vuoto.")
 
 msgid(CLEAR_HISTORY)
 msgstr("Cancella cronologia chat")
+
+msgid(AUTO_STARTUP)
+msgstr("Esegui all'avvio del sistema")
 
 msgid(THEME)
 msgstr("Tema")
@@ -273,3 +294,6 @@ msgstr("Alto contrasto")
 
 msgid(THEME_CUSTOM)
 msgstr("Personalizzato (vedi documentazione)")
+
+msgid(SEND_TYPING_NOTIFICATIONS)
+msgstr("Invia notifica quando sto scrivendo")

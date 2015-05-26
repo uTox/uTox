@@ -423,20 +423,20 @@ char_t* tohtml(char_t *str, STRING_IDX length)
     return out;
 }
 
-void yuv420tobgr(const vpx_image_t *img, uint8_t *out)
+void yuv420tobgr(uint16_t width, uint16_t height, const uint8_t *y, const uint8_t *u, const uint8_t *v, unsigned int ystride, unsigned int ustride, unsigned int vstride, uint8_t *out)
 {
     unsigned long int i, j;
-    for (i = 0; i < img->d_h; ++i) {
-        for (j = 0; j < img->d_w; ++j) {
-            uint8_t *point = out + 4 * ((i * img->d_w) + j);
-            int y = img->planes[0][((i * img->stride[0]) + j)];
-            int u = img->planes[1][(((i / 2) * img->stride[1]) + (j / 2))];
-            int v = img->planes[2][(((i / 2) * img->stride[2]) + (j / 2))];
-            y = y < 16 ? 16 : y;
+    for (i = 0; i < height; ++i) {
+        for (j = 0; j < width; ++j) {
+            uint8_t *point = out + 4 * ((i * width) + j);
+            int t_y = y[((i * ystride) + j)];
+            int t_u = u[(((i / 2) * ustride) + (j / 2))];
+            int t_v = v[(((i / 2) * vstride) + (j / 2))];
+            t_y = t_y < 16 ? 16 : t_y;
 
-            int r = (298 * (y - 16) + 409 * (v - 128) + 128) >> 8;
-            int g = (298 * (y - 16) - 100 * (u - 128) - 208 * (v - 128) + 128) >> 8;
-            int b = (298 * (y - 16) + 516 * (u - 128) + 128) >> 8;
+            int r = (298 * (t_y - 16) + 409 * (t_v - 128) + 128) >> 8;
+            int g = (298 * (t_y - 16) - 100 * (t_u - 128) - 208 * (t_v - 128) + 128) >> 8;
+            int b = (298 * (t_y - 16) + 516 * (t_u - 128) + 128) >> 8;
 
             point[2] = r>255? 255 : r<0 ? 0 : r;
             point[1] = g>255? 255 : g<0 ? 0 : g;
@@ -653,12 +653,14 @@ UTOX_SAVE* config_load(void)
     save->logging_enabled = 1;
     save->close_to_tray = 0;
     save->start_in_tray = 0;
+    save->auto_startup = 0;
     save->audible_notifications_enabled = 1;
     save->audio_filtering_enabled = 1;
     save->proxy_ip[0] = 0;
     save->filter = 0;
     save->audio_device_in = ~0;
     save->theme = 0;
+    save->no_typing_notifications = 0;
 
     config_osdefaults(save);
 NEXT:
@@ -669,11 +671,14 @@ NEXT:
     dropdown_logging.selected = dropdown_logging.over = save->logging_enabled;
     dropdown_close_to_tray.selected = dropdown_close_to_tray.over = save->close_to_tray;
     dropdown_start_in_tray.selected = dropdown_start_in_tray.over = save->start_in_tray;
+    dropdown_auto_startup.selected = dropdown_auto_startup.over = save->auto_startup;
     dropdown_audible_notification.selected = dropdown_audible_notification.over = !save->audible_notifications_enabled;
     dropdown_audio_filtering.selected = dropdown_audio_filtering.over = !save->audio_filtering_enabled;
     dropdown_filter.selected = FILTER = save->filter;
     //dropdown_theme_onselect.selected = dropdown_theme_onselect.over = save->theme;
+    dropdown_typing_notes.selected = save->no_typing_notifications;
 
+    dont_send_typing_notes = save->no_typing_notifications;
     options.ipv6_enabled = save->enableipv6;
     options.udp_enabled = !save->disableudp;
     options.proxy_type = save->proxyenable ? TOX_PROXY_TYPE_SOCKS5 : TOX_PROXY_TYPE_NONE;
@@ -691,6 +696,7 @@ NEXT:
     logging_enabled = save->logging_enabled;
     close_to_tray = save->close_to_tray;
     start_in_tray = save->start_in_tray;
+    auto_startup = save->auto_startup;
     audible_notifications_enabled = save->audible_notifications_enabled;
     audio_filtering_enabled = save->audio_filtering_enabled;
     loaded_audio_out_device = save->audio_device_out;
@@ -721,6 +727,7 @@ void config_save(UTOX_SAVE *save)
     save->logging_enabled = logging_enabled;
     save->close_to_tray = close_to_tray;
     save->start_in_tray = start_in_tray;
+    save->auto_startup = auto_startup;
     save->audible_notifications_enabled = audible_notifications_enabled;
     save->audio_filtering_enabled = audio_filtering_enabled;
 
@@ -730,6 +737,7 @@ void config_save(UTOX_SAVE *save)
     save->audio_device_in = dropdown_audio_in.selected;
     save->audio_device_out = dropdown_audio_out.selected;
     save->theme = theme;
+    save->no_typing_notifications = dont_send_typing_notes;
     memset(save->unused, 0, sizeof(save->unused));
 
     debug("Writing uTox Save	::\n");

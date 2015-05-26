@@ -43,7 +43,32 @@ static void drawtexth(int x, int y, char_t *str, STRING_IDX length, int d, int h
     drawtext(x + width, y, str + h + hlen, length - (h + hlen));
 }
 
-int drawtextmultiline(int x, int right, int y, int top, int bottom, uint16_t lineheight, char_t *data, STRING_IDX length, STRING_IDX h, STRING_IDX hlen, _Bool multiline)
+static void drawtextmark(int x, int y, char_t *str, STRING_IDX length, int d, int h, int hlen, uint16_t lineheight)
+{
+    h -= d;
+    if(h + hlen < 0 || h > length || hlen == 0) {
+        return;
+    }
+
+    if(h < 0) {
+        hlen += h;
+        h = 0;
+        if(hlen < 0) {
+            hlen = 0;
+        }
+    }
+
+    if(h + hlen > length) {
+        hlen = length - h;
+    }
+
+    int width = textwidth(str, h);
+
+    int w = textwidth(str + h, hlen);
+    drawhline(x + width, y + lineheight - 1, x + width + w, COLOR_MAIN_TEXT);
+}
+
+int drawtextmultiline(int x, int right, int y, int top, int bottom, uint16_t lineheight, char_t *data, STRING_IDX length, STRING_IDX h, STRING_IDX hlen, STRING_IDX mark, STRING_IDX marklen, _Bool multiline)
 {
     uint32_t c1, c2;
     _Bool greentext = 0, link = 0, draw = y + lineheight >= top;
@@ -69,6 +94,7 @@ int drawtextmultiline(int x, int right, int y, int top, int bottom, uint16_t lin
                     int fit = textfit(b, count, right - x);
                     if(draw) {
                         drawtexth(x, y, b, fit, b - data, h, hlen, lineheight);
+                        drawtextmark(x, y, b, fit, b - data, mark, marklen, lineheight);
                     }
                     count -= fit;
                     b += fit;
@@ -78,6 +104,7 @@ int drawtextmultiline(int x, int right, int y, int top, int bottom, uint16_t lin
                     int fit = textfit(b, count, right - x);
                     if(draw) {
                         drawtexth(x, y, b, fit, b - data, h, hlen, lineheight);
+                        drawtextmark(x, y, b, fit, b - data, mark, marklen, lineheight);
                     }
                     return y + lineheight;
                 } else {
@@ -93,6 +120,7 @@ int drawtextmultiline(int x, int right, int y, int top, int bottom, uint16_t lin
 
             if(draw) {
                 drawtexth(x, y, b, count, b - data, h, hlen, lineheight);
+                drawtextmark(x, y, b, count, b - data, mark, marklen, lineheight);
             }
 
             x += w;
