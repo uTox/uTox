@@ -235,11 +235,11 @@ static void video_thread(void *args)
         }
 
         if(video_on) {
-            int r = video_getframe(&input);
+            int r = video_getframe(input.planes[0], input.planes[1], input.planes[2], input.d_w, input.d_h);
             if(r == 1) {
                 if(preview) {
                     uint8_t *img_data = malloc(input.d_w * input.d_h * 4);
-                    yuv420tobgr(input.d_w, input.d_h, input.planes[0], input.planes[1], input.planes[2], input.stride[0], input.stride[1], input.stride[2], img_data);
+                    yuv420tobgr(input.d_w, input.d_h, input.planes[0], input.planes[1], input.planes[2], input.d_w, input.d_w / 2, input.d_w / 2, img_data);
 
                     postmessage(PREVIEW_FRAME + newinput, input.d_w, input.d_h, img_data);
                     newinput = 0;
