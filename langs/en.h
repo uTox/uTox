@@ -208,6 +208,9 @@ msgstr("Remove")
 msgid(LEAVE)
 msgstr("Leave")
 
+msgid(CTOPIC)
+msgstr("Change topic")
+
 msgid(ACCEPT)
 msgstr("Accept")
 
