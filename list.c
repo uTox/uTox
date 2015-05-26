@@ -607,11 +607,11 @@ static void contextmenu_list_onselect(uint8_t i)
             selectitem(ritem);
         }
 
-        char str[g->name_length + 8];
+        char str[g->name_length + 7];
         strcpy(str, "/topic ");
-        strcat(str, g->name);
+        memcpy(str + 7, g->name, g->name_length);
         edit_setfocus(&edit_msg_group);
-        edit_paste(str, strlen(str), 0);
+        edit_paste(str, sizeof(str), 0);
         return;
     }
 
