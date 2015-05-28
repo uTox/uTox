@@ -3,7 +3,7 @@
 µTox \- Lightweight Tox client
 
 .SH SYNOPSIS
-usage: utox [--portable] [--theme <default|dark|light|highcontrast>]
+usage: utox [--portable] [--datapath=<DIR>] [--theme <default|dark|light|highcontrast>]
    or: utox --version
 
 .SH DESCRIPTION
@@ -22,6 +22,12 @@ usage: utox [--portable] [--theme <default|dark|light|highcontrast>]
 .IP "\fB\-\-theme\fP <THEME>"
 Choose a color scheme. Possible options are \fIdefault\fP, \fIdark\fP,
 \fIlight\fP, or \fIhighcontrast\fP, or \fPzenburn\fP.
+
+.IP "\fB\-\-datapath=\fP<DIR>"
+Like portable mode, but let you choose a different location for
+stored files.
+
+IGNORED WHEN "\-\-portable" IS USED
 
 .IP \fB\-\-portable\fP
 Run in portable mode.

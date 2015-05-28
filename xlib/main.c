@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <ctype.h>
+#include <limits.h>
 #include <X11/Xatom.h>
 #include <X11/X.h>
 #include <X11/cursorfont.h>
@@ -50,6 +51,8 @@
 #include <unity.h>
 #include "mmenu.c"
 #endif
+
+char user_datapath[PATH_MAX];
 
 Display *display;
 int screen;
@@ -101,6 +104,7 @@ void *libgtk;
 #include "freetype.c"
 
 _Bool utox_portable;
+_Bool user_defined_datapath;
 
 struct
 {
@@ -163,6 +167,25 @@ static void setclipboard(void)
     //should never happen
     return first;
 }*/
+
+/* Simulate mkdir -p */
+static void mkpath(const char *path, mode_t mode) {
+    char tmp[256];
+    char *p = NULL;
+    size_t len;
+
+    snprintf(tmp, sizeof(tmp), "%s", path);
+    len = strlen(tmp);
+    if (tmp[len - 1] == '/')
+        tmp[len - 1] = 0;
+    for (p = tmp + 1; *p; p++)
+         if (*p == '/') {
+             *p = 0;
+             mkdir(tmp, mode);
+             *p = '/';
+         }
+    mkdir(tmp, mode);
+}
 
 void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data)
 {
@@ -789,14 +812,20 @@ int datapath(uint8_t *dest)
 {
     if (utox_portable) {
         int l = sprintf((char*)dest, "./tox");
-        mkdir((char*)dest, 0700);
+        mkpath((char*)dest, 0700);
+        dest[l++] = '/';
+
+        return l;
+    } else if (user_defined_datapath) {
+        int l = sprintf((char*)dest, "%.230s", user_datapath);
+        mkpath((char*)dest, 0700);
         dest[l++] = '/';
 
         return l;
     } else {
         char *home = getenv("HOME");
         int l = sprintf((char*)dest, "%.230s/.config/tox", home);
-        mkdir((char*)dest, 0700);
+        mkpath((char*)dest, 0700);
         dest[l++] = '/';
 
         return l;
@@ -807,7 +836,7 @@ int datapath_subdir(uint8_t *dest, const char *subdir)
 {
     int l = datapath(dest);
     l += sprintf((char*)(dest+l), "%s", subdir);
-    mkdir((char*)dest, 0700);
+    mkpath((char*)dest, 0700);
     dest[l++] = '/';
 
     return l;
@@ -1037,6 +1066,18 @@ int main(int argc, char *argv[])
             } else if(!strcmp(argv[i], "--portable")) {
                 debug("Launching uTox in portable mode: All data will be saved to the tox folder in the current working directory\n");
                 utox_portable = 1;
+            } else if(strncmp(argv[i], "--datapath", 10) == 0) {
+                if(strncmp(argv[i]+10, "=", 1) == 0) {
+                    user_datapath[0] = '\0';
+                    strncpy(user_datapath, argv[i]+11, PATH_MAX-1);
+                    user_datapath[PATH_MAX-1] = '\0';
+                    if (strlen(user_datapath) > 0) {
+                        user_defined_datapath = 1;
+                        debug("Using \"%s\" as data path\n");
+                    }
+                } else {
+                    debug("Ignoring \"--datapath\" argument\n");
+                }
             } else if(!strcmp(argv[i], "--theme")) {
                 parse_args_wait_for_theme = 1;
             } else if(strncmp(argv[i], "--set", 5) == 0) {
