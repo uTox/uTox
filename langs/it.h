@@ -196,6 +196,9 @@ msgstr("Rimuovi")
 msgid(LEAVE)
 msgstr("Abbandona")
 
+msgid(CTOPIC)
+msgstr("Modifica titolo")
+
 msgid(ACCEPT)
 msgstr("Accetta")
 
