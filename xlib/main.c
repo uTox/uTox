@@ -1048,9 +1048,16 @@ int main(int argc, char *argv[])
                 debug("Launching uTox in portable mode: All data will be saved to the tox folder in the current working directory\n");
                 utox_portable = 1;
             } else if(strncmp(argv[i], "--datapath", 10) == 0) {
-                if(strncmp(argv[i]+10, "=", 1) == 0) {
-                    user_datapath[0] = '\0';
+                user_datapath[0] = '\0';
+                if ((strlen(argv[i]) > 10) && (argv[i][10] == '=')) {
                     strncpy(user_datapath, argv[i]+11, PATH_MAX-1);
+                    user_datapath[PATH_MAX-1] = '\0';
+                    if (strlen(user_datapath) > 0) {
+                        user_defined_datapath = 1;
+                        debug("Using \"%s\" as data path\n");
+                    }
+                } else if((strlen(argv[i]) == 10) && (argc > i+1)) {
+                    strncpy(user_datapath, argv[i+1], PATH_MAX-1);
                     user_datapath[PATH_MAX-1] = '\0';
                     if (strlen(user_datapath) > 0) {
                         user_defined_datapath = 1;
