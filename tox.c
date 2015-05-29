@@ -432,7 +432,7 @@ static void write_save(Tox *tox)
     tox_get_savedata(tox, data);
 
     //In case tox_savename changes, reconcatenate paths again
-    //(by default is_path_done NULL from the start, so function will be called atleast once)
+    //(by default is_path_done NULL from the start, so it will be called atleast once)
     if (is_path_done != tox_savename) {
         debug("Filling path_real, path_tmp in write_save()\n"
               "Pro-tip: If this gets displayed after every "
