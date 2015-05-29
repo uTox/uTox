@@ -1184,11 +1184,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     LPWSTR *arglist;
     int argc, i;
 
-    tox_savename = "tox_save";
-
     /* Variables for --set */
     int32_t set_show_window = 0;
-
 
     _Bool no_updater = 0;
     /* Convert PSTR command line args from windows to argc */
@@ -2434,8 +2431,13 @@ void video_close(void *handle)
     debug("closed webcam\n");
 }
 
-int video_getframe(vpx_image_t *image)
+int video_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, uint16_t height)
 {
+    if (width != video_width || height != video_height) {
+        debug("width/height mismatch %u %u != %u %u\n", width, height, video_width, video_height);
+        return 0;
+    }
+
     if(capturedesktop) {
         static uint64_t lasttime;
         uint64_t t = get_time();
@@ -2453,7 +2455,7 @@ int video_getframe(vpx_image_t *image)
 
             BitBlt(capturedc, 0, 0, video_width, video_height, desktopdc, video_x, video_y, SRCCOPY | CAPTUREBLT);
             GetDIBits(capturedc, capturebitmap, 0, video_height, dibits, &info, DIB_RGB_COLORS);
-            bgrtoyuv420(image->planes[0], image->planes[1], image->planes[2], dibits, video_width, video_height);
+            bgrtoyuv420(y, u, v, dibits, video_width, video_height);
             lasttime = t;
             return 1;
         }
@@ -2462,7 +2464,7 @@ int video_getframe(vpx_image_t *image)
 
     if(newframe) {
         newframe = 0;
-        bgrtoyuv420(image->planes[0], image->planes[1], image->planes[2], frame_data, video_width, video_height);
+        bgrtoyuv420(y, u, v, frame_data, video_width, video_height);
         return 1;
     }
     return 0;

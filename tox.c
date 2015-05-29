@@ -546,6 +546,8 @@ void tox_thread(void *UNUSED(args))
 
     _Bool reconfig;
 
+    if (!tox_savename)
+        tox_savename="tox_save";
     do {
         uint8_t *save_data = NULL;
         size_t save_size = load_save(&save_data);

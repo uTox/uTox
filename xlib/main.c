@@ -993,8 +993,6 @@ int main(int argc, char *argv[])
     _Bool theme_was_set_on_argv = 0;
     theme = THEME_DEFAULT;
 
-    tox_savename = "tox_save";
-
     /* Variables for --set */
     int32_t set_show_window = 0;
 
@@ -1590,21 +1588,26 @@ _Bool video_endread(void)
     return v4l_endread();
 }
 
-int video_getframe(vpx_image_t *image)
+int video_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, uint16_t height)
 {
     if(utox_v4l_fd == -1) {
         static uint64_t lasttime;
         uint64_t t = get_time();
         if(t - lasttime >= (uint64_t)1000 * 1000 * 1000 / 24) {
             XShmGetImage(deskdisplay,RootWindow(deskdisplay, deskscreen), screen_image, video_x, video_y, AllPlanes);
-            bgrxtoyuv420(image->planes[0], image->planes[1], image->planes[2], (uint8_t*)screen_image->data, screen_image->width, screen_image->height);
+            if (width != video_width || height != video_height) {
+                debug("width/height mismatch %u %u != %u %u\n", width, height, screen_image->width, screen_image->height);
+                return 0;
+            }
+
+            bgrxtoyuv420(y, u, v, (uint8_t*)screen_image->data, screen_image->width, screen_image->height);
             lasttime = t;
             return 1;
         }
         return 0;
     }
 
-    return v4l_getframe(image);
+    return v4l_getframe(y, u, v, width, height);
 }
 
 void launch_at_startup(int is_launch_at_startup)
