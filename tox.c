@@ -419,28 +419,39 @@ static void load_defaults(Tox *tox)
 }
 
 static void write_save(Tox *tox)
-{//TO DO: Strings should be preconcatenated
+{
     void *data;
     uint32_t size;
-    uint8_t path_tmp[UTOX_FILE_NAME_LENGTH], path_real[UTOX_FILE_NAME_LENGTH], *p;
-    const unsigned int tox_savename_len = strlen(tox_savename);
-
     FILE *file;
+
+    static uint8_t path_tmp[UTOX_FILE_NAME_LENGTH], path_real[UTOX_FILE_NAME_LENGTH], *is_path_done;
+
 
     size = tox_get_savedata_size(tox);
     data = malloc(size);
     tox_get_savedata(tox, data);
 
-    p = path_real + datapath(path_real);
-    memcpy(p, tox_savename, tox_savename_len);
-    p+=tox_savename_len;
-    memcpy(p, ".tox", sizeof(".tox"));
-    p+=sizeof(".tox");
+    //In case tox_savename changes, reconcatenate paths again
+    //(by default is_path_done NULL from the start, so function will be called atleast once)
+    if (is_path_done != tox_savename) {
+        debug("Filling path_real, path_tmp in write_save()\n"
+              "Pro-tip: If this gets displayed after every "
+              "write_save() call, then something is wrong.\n");
+        const size_t tox_savename_len = strlen(tox_savename);
+        uint8_t *p;
 
-    const unsigned int path_len = p - path_real;
-    memcpy(path_tmp, path_real, path_len);
-    memcpy(path_tmp + (path_len - 1), ".tmp", sizeof(".tmp"));
+        p = path_real + datapath(path_real);
+        memcpy(p, tox_savename, tox_savename_len);
+        p+=tox_savename_len;
+        memcpy(p, ".tox", sizeof(".tox"));
+        p+=sizeof(".tox");
 
+        const size_t path_len = p - path_real;
+
+        memcpy(path_tmp, path_real, path_len);
+        memcpy(path_tmp + (path_len - 1), ".tmp", sizeof(".tmp"));
+        is_path_done=tox_savename;
+    }
 
     debug("Writing tox_save to: %s\n", (char*)path_tmp);
     file = fopen((char*)path_tmp, "wb");
