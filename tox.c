@@ -1030,6 +1030,11 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
          * data: file names
          */
 
+        /* If friend doesn't exist, don't send file. */
+        if (param1 >= MAX_NUM_FRIENDS) {
+            break;
+        }
+
         if(param2 == 0xFFFF) {
             //paths with line breaks
             uint8_t *name = data, *p = data, *s = name;

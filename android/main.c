@@ -314,7 +314,7 @@ _Bool video_endread(void)
     return 1;
 }
 
-int video_getframe(vpx_image_t *image)
+int video_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, uint16_t height)
 {
     return 0;
 }

@@ -406,7 +406,7 @@ void video_end(uint32_t id);
 void* video_detect(void);
 _Bool video_init(void *handle);
 void video_close(void *handle);
-int video_getframe(vpx_image_t *image);
+int video_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, uint16_t height);
 _Bool video_startread(void);
 _Bool video_endread(void);
 

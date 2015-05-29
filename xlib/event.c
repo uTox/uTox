@@ -352,10 +352,10 @@ _Bool doevent(XEvent event)
         if(ev->state & 4) {
             if(sym == 'c') {
                 if(sitem->item == ITEM_FRIEND) {
-                    clipboard.len = messages_selection(&messages_friend, clipboard.data, sizeof(clipboard.data), 1);
+                    clipboard.len = messages_selection(&messages_friend, clipboard.data, sizeof(clipboard.data), 0);
                     setclipboard();
                 } else if(sitem->item == ITEM_GROUP) {
-                    clipboard.len = messages_selection(&messages_group, clipboard.data, sizeof(clipboard.data), 1);
+                    clipboard.len = messages_selection(&messages_group, clipboard.data, sizeof(clipboard.data), 0);
                     setclipboard();
                 }
                 break;

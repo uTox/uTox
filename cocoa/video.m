@@ -112,7 +112,7 @@
     pthread_mutex_unlock(&_frameLock);
 }
 
-- (BOOL)getCurrentFrameIntoVPXImage:(vpx_image_t *)img {
+- (BOOL)getCurrentFrameIntoChannelsY:(uint8_t *)y U:(uint8_t *)u V:(uint8_t *)v :(uint16_t)w :(uint16_t)h {
     if (!_currentFrame) {
         return NO;
     }
@@ -123,7 +123,7 @@
     CFTypeID imageType = CFGetTypeID(_currentFrame);
     if (imageType == CVPixelBufferGetTypeID()) {
         // TODO maybe handle other formats
-        bgrxtoyuv420(img->planes[0], img->planes[1], img->planes[2], CVPixelBufferGetBaseAddress(_currentFrame), img->w, img->h);
+        bgrxtoyuv420(y, u, v, CVPixelBufferGetBaseAddress(_currentFrame), w, h);
     } else if (imageType == CVOpenGLBufferGetTypeID()) {
         // OpenGL pbuffer
     } else if (imageType == CVOpenGLTextureGetTypeID()) {
@@ -233,10 +233,10 @@ _Bool video_endread(void) {
     return 1;
 }
 
-int video_getframe(vpx_image_t *image) {
+int video_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, uint16_t height) {
     AV_SESSION_CHK()
 
-    return [active_video_session getCurrentFrameIntoVPXImage:image];
+    return [active_video_session getCurrentFrameIntoChannelsY:y U:u V:v :width :height];
 }
 
 void* video_detect(void) {

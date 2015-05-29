@@ -289,8 +289,13 @@ _Bool v4l_endread(void)
     return 1;
 }
 
-int v4l_getframe(vpx_image_t *image)
+int v4l_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, uint16_t height)
 {
+    if (width != video_width || height != video_height) {
+        debug("width/height mismatch %u %u != %u %u\n", width, height, video_width, video_height);
+        return 0;
+    }
+
     struct v4l2_buffer buf;
     //unsigned int i;
 
@@ -331,10 +336,10 @@ int v4l_getframe(vpx_image_t *image)
 
     /* assumes planes are continuous memory */
 #ifndef NO_V4LCONVERT
-    v4lconvert_convert(v4lconvert_data, &fmt, &dest_fmt, data, fmt.fmt.pix.sizeimage, image->planes[0], (video_width * video_height * 3) / 2);
+    v4lconvert_convert(v4lconvert_data, &fmt, &dest_fmt, data, fmt.fmt.pix.sizeimage, y, (video_width * video_height * 3) / 2);
 #else
     if(fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_YUYV) {
-        yuv422to420(image->planes[0], image->planes[1], image->planes[2], data, video_width, video_height);
+        yuv422to420(y, u, v, data, video_width, video_height);
     } else {
 
     }
