@@ -127,26 +127,37 @@ static void button_settings_onpress(void)
     list_selectsettings();
 }
 
-extern PANEL panel_settings_utox, panel_settings_network, panel_settings_ui;
+extern PANEL panel_settings_utox, panel_settings_net, panel_settings_ui, panel_settings_av;
 static void button_settings_sub_utox_onpress(void){
     list_selectsettings();
-    panel_settings_utox.disabled    = 0;
-    panel_settings_network.disabled = 1;
-    panel_settings_ui.disabled      = 1;
+    panel_settings_utox.disabled = 0;
+    panel_settings_net.disabled  = 1;
+    panel_settings_ui.disabled   = 1;
+    panel_settings_av.disabled   = 1;
 }
 
 static void button_settings_sub_network_onpress(void){
     list_selectsettings();
-    panel_settings_utox.disabled    = 1;
-    panel_settings_network.disabled = 0;
-    panel_settings_ui.disabled      = 1;
+    panel_settings_utox.disabled = 1;
+    panel_settings_net.disabled  = 0;
+    panel_settings_ui.disabled   = 1;
+    panel_settings_av.disabled   = 1;
 }
 
 static void button_settings_sub_ui_onpress(void){
     list_selectsettings();
-    panel_settings_utox.disabled    = 1;
-    panel_settings_network.disabled = 1;
-    panel_settings_ui.disabled      = 0;
+    panel_settings_utox.disabled = 1;
+    panel_settings_net.disabled  = 1;
+    panel_settings_ui.disabled   = 0;
+    panel_settings_av.disabled   = 1;
+}
+
+static void button_settings_sub_av_onpress(void){
+    list_selectsettings();
+    panel_settings_utox.disabled = 1;
+    panel_settings_net.disabled  = 1;
+    panel_settings_ui.disabled   = 1;
+    panel_settings_av.disabled   = 0;
 }
 
 static void button_group_audio_onpress(void)
@@ -501,6 +512,12 @@ button_settings_sub_ui = {
     .nodraw = 1,
     .onpress = button_settings_sub_ui_onpress,
     .tooltip_text = { .i18nal = STR_USERSETTINGS },
+},
+
+button_settings_sub_av = {
+    .nodraw = 1,
+    .onpress = button_settings_sub_av_onpress,
+    .tooltip_text = { .i18nal = STR_AUDIO_VIDEO },
 },
 
 button_add = {

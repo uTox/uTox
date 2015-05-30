@@ -291,22 +291,24 @@ static void drawsettings_text_ui(int UNUSED(x), int y, int UNUSED(w), int UNUSED
 static void drawsettings_text_av(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)){
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_TEXT);
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 123, AUDIOINPUTDEVICE);
+    drawstr(LIST_RIGHT + SCALE * 5,   y + SCALE * 5,  RINGTONE);
     #ifdef AUDIO_FILTERING
-    drawstr(LIST_RIGHT + SCALE * 190, y + SCALE * 123, AUDIOFILTERING);
+    drawstr(LIST_RIGHT + SCALE * 190, y + SCALE * 5,  AUDIOFILTERING);
     #endif
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 147, AUDIOOUTPUTDEVICE);
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 171, VIDEOINPUTDEVICE);
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 113, DEVICESELECTION);
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 334, AUDIONOTIFICATIONS);
+    drawstr(LIST_RIGHT + SCALE * 5,   y + SCALE * 35, AUDIOINPUTDEVICE);
+    drawstr(LIST_RIGHT + SCALE * 5,   y + SCALE * 60, AUDIOOUTPUTDEVICE);
+    drawstr(LIST_RIGHT + SCALE * 5,   y + SCALE * 85, VIDEOINPUTDEVICE);
+    setfont(FONT_SELF_NAME);
+    drawstr(LIST_RIGHT + SCALE * 5,   y + SCALE * 115, PREVIEW);
 }
 
 static void drawsettings_sub_header(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)){
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 5, USERSETTINGS);
-    drawstr(LIST_RIGHT + SCALE * 70, y + SCALE * 5, NETWORK);
+    drawstr(LIST_RIGHT + SCALE * 5,  y + SCALE * 5, USERSETTINGS);
+    drawstr(LIST_RIGHT + SCALE * 70,  y + SCALE * 5, NETWORK);
     drawstr(LIST_RIGHT + SCALE * 115, y + SCALE * 5, USER_INTERFACE);
+    drawstr(LIST_RIGHT + SCALE * 185, y + SCALE * 5, AUDIO_VIDEO);
 }
 
 static void background_draw(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int width, int height)
@@ -438,7 +440,7 @@ panel_settings_utox = {
     }
 },
 
-panel_settings_network = {
+panel_settings_net = {
     .drawfunc = drawsettings_text_network,
     .content_scroll = &scroll_settings,
     .child = (PANEL*[]) {
@@ -464,7 +466,7 @@ panel_settings_ui = {
     .disabled = 1
 },
 
-panel_settings_audio_video = {
+panel_settings_av = {
     .drawfunc = drawsettings_text_av,
     .content_scroll = &scroll_settings,
     .child = (PANEL*[]) {
@@ -476,7 +478,8 @@ panel_settings_audio_video = {
         (void*)&dropdown_audible_notification,
         (void*)&dropdown_audio_filtering,
         NULL
-    }
+    },
+    .disabled = 1
 },
 
 panel_settings = {
@@ -486,11 +489,12 @@ panel_settings = {
         (void*)&button_settings_sub_utox,
         (void*)&button_settings_sub_network,
         (void*)&button_settings_sub_ui,
+        (void*)&button_settings_sub_av,
         (void*)&scroll_settings,
         (void*)&panel_settings_utox,
-        (void*)&panel_settings_network,
+        (void*)&panel_settings_net,
         (void*)&panel_settings_ui,
-        // (void*)&panel_settings_audio_video,
+        (void*)&panel_settings_av,
         NULL
     }
 },
@@ -599,10 +603,11 @@ void ui_scale(uint8_t scale)
 
     panel_side.x = LIST_RIGHT;
 
-    panel_settings.y = LIST_Y;
+    panel_settings.y      = LIST_Y;
     panel_settings_utox.y = 14 * SCALE;
-    panel_settings_network.y = 14 * SCALE;
-    panel_settings_ui.y = 14 * SCALE;
+    panel_settings_net.y  = 14 * SCALE;
+    panel_settings_ui.y   = 14 * SCALE;
+    panel_settings_av.y   = 14 * SCALE;
 
     panel_list.y = LIST_Y2;
     panel_list.width = LIST_RIGHT + 1;
@@ -690,6 +695,14 @@ void ui_scale(uint8_t scale)
         .type   = PANEL_BUTTON,
         .x      = 115  * SCALE,
         .y      = 5  * SCALE,
+        .width  = 55 * SCALE,
+        .height = 10 * SCALE,
+    },
+
+    b_settings_sub_av = {
+        .type   = PANEL_BUTTON,
+        .x      = 185  * SCALE,
+        .y      = 5  * SCALE,
         .width  = 50 * SCALE,
         .height = 10 * SCALE,
     },
@@ -753,18 +766,18 @@ void ui_scale(uint8_t scale)
     },
 
     b_callpreview = {
-        .type = PANEL_BUTTON,
-        .x = 5 * SCALE,
-        .y = 89 * SCALE,
-        .width = BM_LBUTTON_WIDTH,
+        .type   = PANEL_BUTTON,
+        .x      = 5 * SCALE,
+        .y      = 125 * SCALE,
+        .width  = BM_LBUTTON_WIDTH,
         .height = BM_LBUTTON_HEIGHT,
     },
 
     b_videopreview = {
-        .type = PANEL_BUTTON,
-        .x = 36 * SCALE,
-        .y = 89 * SCALE,
-        .width = BM_LBUTTON_WIDTH,
+        .type   = PANEL_BUTTON,
+        .x      = 36 * SCALE,
+        .y      = 125 * SCALE,
+        .width  = BM_LBUTTON_WIDTH,
         .height = BM_LBUTTON_HEIGHT,
     },
 
@@ -834,6 +847,7 @@ void ui_scale(uint8_t scale)
     button_settings_sub_utox.panel = b_settings_sub_utox;
     button_settings_sub_network.panel = b_settings_sub_network;
     button_settings_sub_ui.panel = b_settings_sub_ui;
+    button_settings_sub_av.panel = b_settings_sub_av;
     #ifdef EMOJI_IDS
     button_change_id_type.panel = b_change_id_type;
     #endif
@@ -853,28 +867,46 @@ void ui_scale(uint8_t scale)
     button_statusmsg.panel = b_statusmsg;
     button_status.panel = b_status;
 
-    PANEL d_audio_in = {
-        .type = PANEL_DROPDOWN,
-        .x = 5 * SCALE,
-        .y = SCALE * 132,
+    PANEL d_notifications = {
+        .type   = PANEL_DROPDOWN,
+        .x      = 5  * SCALE,
+        .y      = 15 * SCALE,
         .height = 12 * SCALE,
-        .width = SCALE * 180
+        .width  = 20 * SCALE
+    },
+
+    #ifdef AUDIO_FILTERING
+    d_audio_filtering = {
+        .type   = PANEL_DROPDOWN,
+        .x      = 190 * SCALE,
+        .y      = 15  * SCALE,
+        .height = 12  * SCALE,
+        .width  = 20  * SCALE
+    },
+    #endif
+
+    d_audio_in = {
+        .type   = PANEL_DROPDOWN,
+        .x      = 5   * SCALE,
+        .y      = 45  * SCALE,
+        .height = 12  * SCALE,
+        .width  = 180 * SCALE
     },
 
     d_audio_out = {
-        .type = PANEL_DROPDOWN,
-        .x = 5 * SCALE,
-        .y = SCALE * 156,
-        .height = 12 * SCALE,
-        .width = SCALE * 180
+        .type   = PANEL_DROPDOWN,
+        .x      = 5   * SCALE,
+        .y      = 70  * SCALE,
+        .height = 12  * SCALE,
+        .width  = 180 * SCALE
     },
 
     d_video = {
-        .type = PANEL_DROPDOWN,
-        .x = 5 * SCALE,
-        .y = SCALE * 180,
+        .type   = PANEL_DROPDOWN,
+        .x      = 5  * SCALE,
+        .y      = 95 * SCALE,
         .height = 12 * SCALE,
-        .width = SCALE * 180
+        .width  = 180 * SCALE
     },
 
     d_dpi = {
@@ -941,14 +973,6 @@ void ui_scale(uint8_t scale)
         .width  = 60 * SCALE
     },
 
-    d_notifications = {
-        .type   = PANEL_DROPDOWN,
-        .x      = 5  * SCALE,
-        .y      = 15 * SCALE,
-        .height = 12 * SCALE,
-        .width  = 20 * SCALE
-    },
-
     d_close_to_tray = {
         .type = PANEL_DROPDOWN,
         .x = 5 * SCALE,
@@ -979,18 +1003,7 @@ void ui_scale(uint8_t scale)
         .y      = 184 * SCALE,
         .height = 12  * SCALE,
         .width  = 20  * SCALE
-    }
-
-    #ifdef AUDIO_FILTERING
-    , d_audio_filtering = {
-        .type = PANEL_DROPDOWN,
-        .x = 190 * SCALE,
-        .y = SCALE * 132,
-        .height = 12 * SCALE,
-        .width = SCALE * 20
-    }
-    #endif
-    ;
+    };
 
     dropdown_audio_in.panel = d_audio_in;
     dropdown_audio_out.panel = d_audio_out;
