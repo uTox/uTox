@@ -127,11 +127,27 @@ static void button_settings_onpress(void)
     list_selectsettings();
 }
 
-static void button_settings_sub_ui_onpress(void)
-{
+extern PANEL panel_settings_utox, panel_settings_network, panel_settings_ui;
+static void button_settings_sub_utox_onpress(void){
     list_selectsettings();
+    panel_settings_utox.disabled    = 0;
+    panel_settings_network.disabled = 1;
+    panel_settings_ui.disabled      = 1;
 }
 
+static void button_settings_sub_network_onpress(void){
+    list_selectsettings();
+    panel_settings_utox.disabled    = 1;
+    panel_settings_network.disabled = 0;
+    panel_settings_ui.disabled      = 1;
+}
+
+static void button_settings_sub_ui_onpress(void){
+    list_selectsettings();
+    panel_settings_utox.disabled    = 1;
+    panel_settings_network.disabled = 1;
+    panel_settings_ui.disabled      = 0;
+}
 
 static void button_group_audio_onpress(void)
 {
@@ -469,16 +485,22 @@ static void button_chat_send_update(BUTTON *b){
 
 BUTTON
 
+button_settings_sub_utox = {
+    .nodraw = 1,
+    .onpress = button_settings_sub_utox_onpress,
+    .tooltip_text = { .i18nal = STR_UTOX_SETTINGS },
+},
+
+button_settings_sub_network = {
+    .nodraw = 1,
+    .onpress = button_settings_sub_network_onpress,
+    .tooltip_text = { .i18nal = STR_NETWORK_SETTINGS },
+},
+
 button_settings_sub_ui = {
     .nodraw = 1,
     .onpress = button_settings_sub_ui_onpress,
     .tooltip_text = { .i18nal = STR_USERSETTINGS },
-},
-button_settings_sub_network = {
-    .nodraw = 1,
-    // TODO!
-    .onpress = button_settings_sub_ui_onpress,
-    .tooltip_text = { .i18nal = STR_NETWORK_SETTINGS },
 },
 
 button_add = {

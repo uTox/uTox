@@ -252,50 +252,9 @@ static void drawtransfer(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UN
 }
 
 /* Text content for settings page */
-static void drawsettings_content(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height))
-{
-    setcolor(COLOR_MAIN_TEXT);
-    setfont(FONT_TEXT);
-
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 123, AUDIOINPUTDEVICE);
-    #ifdef AUDIO_FILTERING
-    drawstr(LIST_RIGHT + SCALE * 190, y + SCALE * 123, AUDIOFILTERING);
-    #endif
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 147, AUDIOOUTPUTDEVICE);
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 171, VIDEOINPUTDEVICE);
-
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 206, DPI);
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 254, NETWORK);
-
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 266, IPV6);
-    drawstr(LIST_RIGHT + SCALE * 5 + 50 * SCALE, y + SCALE * 266, UDP);
-
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 278, PROXY);
 
 
-    drawstr(LIST_RIGHT + SCALE * 95, y + SCALE * 310, THEME);
-
-    drawtext(LIST_RIGHT + SCALE * 132, y + SCALE * 290, (uint8_t*)":", 1);
-
-    setfont(FONT_SELF_NAME);
-
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 76, PREVIEW);
-
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 113, DEVICESELECTION);
-
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 195, OTHERSETTINGS);
-
-    setfont(FONT_MISC);
-    setcolor(C_RED);
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 302, WARNING);
-
-    setcolor(COLOR_MAIN_TEXT);
-    setfont(FONT_TEXT);
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 334, AUDIONOTIFICATIONS);
-
-}
-
-static void drawsettings_content_utox(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)){
+static void drawsettings_text_utox(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)){
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_TEXT);
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 5, NAME);
@@ -311,13 +270,46 @@ static void drawsettings_content_utox(int UNUSED(x), int y, int UNUSED(w), int U
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 174, SEND_TYPING_NOTIFICATIONS);
 }
 
+static void drawsettings_text_network(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)){
+    setfont(FONT_MISC);
+    setcolor(C_RED);
+    drawstr(LIST_RIGHT  + 5   * SCALE, y + 5 * SCALE, WARNING);
+    setcolor(COLOR_MAIN_TEXT);
+    setfont(FONT_TEXT);
+    drawstr(LIST_RIGHT  + 5   * SCALE, y + 15 * SCALE, IPV6);
+    drawstr(LIST_RIGHT  + 55  * SCALE, y + 15 * SCALE, UDP);
+    drawstr(LIST_RIGHT  + 5   * SCALE, y + 30 * SCALE, PROXY);
+    setfont(FONT_SELF_NAME);
+    drawtext(LIST_RIGHT + 132 * SCALE, y + 42 * SCALE, (uint8_t*)":", 1);
+}
+
+static void drawsettings_text_ui(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)){
+    setcolor(COLOR_MAIN_TEXT);
+    setfont(FONT_TEXT);
+    drawstr(LIST_RIGHT + 75 * SCALE, y + 5 * SCALE, DPI);
+    drawstr(LIST_RIGHT + 5  * SCALE, y + 5 * SCALE, THEME);
+}
+
+static void drawsettings_text_av(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)){
+    setcolor(COLOR_MAIN_TEXT);
+    setfont(FONT_TEXT);
+    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 123, AUDIOINPUTDEVICE);
+    #ifdef AUDIO_FILTERING
+    drawstr(LIST_RIGHT + SCALE * 190, y + SCALE * 123, AUDIOFILTERING);
+    #endif
+    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 147, AUDIOOUTPUTDEVICE);
+    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 171, VIDEOINPUTDEVICE);
+    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 113, DEVICESELECTION);
+    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 334, AUDIONOTIFICATIONS);
+}
+
 static void drawsettings_sub_header(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)){
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 5, USER_INTERFACE);
+    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 5, UTOX_SETTINGS);
     drawstr(LIST_RIGHT + SCALE * 65, y + SCALE * 5, NETWORK);
+    drawstr(LIST_RIGHT + SCALE * 105, y + SCALE * 5, USER_INTERFACE);
 }
-
 
 static void background_draw(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int width, int height)
 {
@@ -427,7 +419,7 @@ PANEL panel_list = {
 
 /* Panel to draw settings page */
 panel_settings_utox = {
-    .drawfunc = drawsettings_content_utox,
+    .drawfunc = drawsettings_text_utox,
     .content_scroll = &scroll_settings,
     .child = (PANEL*[]) {
         (void*)&edit_name,
@@ -448,18 +440,8 @@ panel_settings_utox = {
     }
 },
 
-panel_settings_user_interface = {
-    .drawfunc = drawsettings_content,
-    .content_scroll = &scroll_settings,
-    .child = (PANEL*[]) {
-        (void*)&dropdown_dpi,
-        (void*)&dropdown_theme,
-        NULL
-    }
-},
-
 panel_settings_network = {
-    .drawfunc = drawsettings_content,
+    .drawfunc = drawsettings_text_network,
     .content_scroll = &scroll_settings,
     .child = (PANEL*[]) {
         (void*)&edit_proxy_ip,
@@ -468,11 +450,24 @@ panel_settings_network = {
         (void*)&dropdown_ipv6,
         (void*)&dropdown_udp,
         NULL
-    }
+    },
+    /* Disabled by default, enabled by network button */
+    .disabled = 1
+},
+
+panel_settings_ui = {
+    .drawfunc = drawsettings_text_ui,
+    .content_scroll = &scroll_settings,
+    .child = (PANEL*[]) {
+        (void*)&dropdown_dpi,
+        (void*)&dropdown_theme,
+        NULL
+    },
+    .disabled = 1
 },
 
 panel_settings_audio_video = {
-    .drawfunc = drawsettings_content,
+    .drawfunc = drawsettings_text_av,
     .content_scroll = &scroll_settings,
     .child = (PANEL*[]) {
         (void*)&button_callpreview,
@@ -490,12 +485,14 @@ panel_settings = {
     .type = PANEL_NONE,
     .drawfunc = drawsettings_sub_header,
     .child = (PANEL*[]) {
-        (void*)&button_settings_sub_ui,
+        (void*)&button_settings_sub_utox,
         (void*)&button_settings_sub_network,
+        (void*)&button_settings_sub_ui,
         (void*)&scroll_settings,
         (void*)&panel_settings_utox,
+        (void*)&panel_settings_network,
+        (void*)&panel_settings_ui,
         // (void*)&panel_settings_audio_video,
-        // (void*)&panel_settings_user_interface,
         NULL
     }
 },
@@ -606,6 +603,8 @@ void ui_scale(uint8_t scale)
 
     panel_settings.y = LIST_Y;
     panel_settings_utox.y = 14 * SCALE;
+    panel_settings_network.y = 14 * SCALE;
+    panel_settings_ui.y = 14 * SCALE;
 
     panel_list.y = LIST_Y2;
     panel_list.width = LIST_RIGHT + 1;
@@ -673,19 +672,27 @@ void ui_scale(uint8_t scale)
         .height = BM_SBUTTON_HEIGHT,
     },
 
-    b_settings_sub_ui = {
-        .type = PANEL_BUTTON,
-        .x = SCALE * 5,
-        .y = SCALE * 5,
-        .width = 50 * SCALE,
+    b_settings_sub_utox = {
+        .type   = PANEL_BUTTON,
+        .x      = 5  * SCALE,
+        .y      = 5  * SCALE,
+        .width  = 50 * SCALE,
         .height = 10 * SCALE,
     },
 
     b_settings_sub_network = {
-        .type = PANEL_BUTTON,
-        .x = SCALE * 65,
-        .y = SCALE * 5,
-        .width = 50 * SCALE,
+        .type   = PANEL_BUTTON,
+        .x      = 65 * SCALE,
+        .y      = 5  * SCALE,
+        .width  = 30 * SCALE,
+        .height = 10 * SCALE,
+    },
+
+    b_settings_sub_ui = {
+        .type   = PANEL_BUTTON,
+        .x      = 105  * SCALE,
+        .y      = 5  * SCALE,
+        .width  = 50 * SCALE,
         .height = 10 * SCALE,
     },
 
@@ -826,8 +833,9 @@ void ui_scale(uint8_t scale)
     button_transfer.panel = b_transfer;
     button_groups.panel = b_groups;
     button_copyid.panel = b_copyid;
-    button_settings_sub_ui.panel = b_settings_sub_ui;
+    button_settings_sub_utox.panel = b_settings_sub_utox;
     button_settings_sub_network.panel = b_settings_sub_network;
+    button_settings_sub_ui.panel = b_settings_sub_ui;
     #ifdef EMOJI_IDS
     button_change_id_type.panel = b_change_id_type;
     #endif
@@ -851,7 +859,7 @@ void ui_scale(uint8_t scale)
         .type = PANEL_DROPDOWN,
         .x = 5 * SCALE,
         .y = SCALE * 132,
-        .height = SCALE * 12,
+        .height = 12 * SCALE,
         .width = SCALE * 180
     },
 
@@ -859,7 +867,7 @@ void ui_scale(uint8_t scale)
         .type = PANEL_DROPDOWN,
         .x = 5 * SCALE,
         .y = SCALE * 156,
-        .height = SCALE * 12,
+        .height = 12 * SCALE,
         .width = SCALE * 180
     },
 
@@ -867,87 +875,87 @@ void ui_scale(uint8_t scale)
         .type = PANEL_DROPDOWN,
         .x = 5 * SCALE,
         .y = SCALE * 180,
-        .height = SCALE * 12,
+        .height = 12 * SCALE,
         .width = SCALE * 180
     },
 
     d_dpi = {
-        .type = PANEL_DROPDOWN,
-        .x = 5 * SCALE,
-        .y = SCALE * 216,
-        .height = SCALE * 12,
-        .width = SCALE * 100
+        .type   = PANEL_DROPDOWN,
+        .x      = 75   * SCALE,
+        .y      = 15 * SCALE,
+        .height = 12  * SCALE,
+        .width  = 100 * SCALE
     },
 
     d_language = {
-        .type = PANEL_DROPDOWN,
-        .x = 5 * SCALE,
-        .y = SCALE * 84,
-        .height = SCALE * 12,
-        .width = SCALE * 100
+        .type   = PANEL_DROPDOWN,
+        .x      = 5   * SCALE,
+        .y      = 84  * SCALE,
+        .height = 12  * SCALE,
+        .width  = 100 * SCALE
     },
 
     d_filter = {
-        .type = PANEL_DROPDOWN,
-        .x = LIST_RIGHT - SCALE * 25,
-        .y = SEARCH_Y,
+        .type   = PANEL_DROPDOWN,
+        .x      = LIST_RIGHT - SCALE * 25,
+        .y      = SEARCH_Y,
         .height = 12 * SCALE,
-        .width = SCALE * 25,
+        .width  = 25 * SCALE,
     },
 
     d_proxy = {
-        .type = PANEL_DROPDOWN,
-        .x = 5 * SCALE,
-        .y = SCALE * 288,
-        .height = SCALE * 12,
-        .width = SCALE * 60
+        .type   = PANEL_DROPDOWN,
+        .x      = 5  * SCALE,
+        .y      = 40 * SCALE,
+        .height = 12 * SCALE,
+        .width  = 60 * SCALE
     },
 
     d_ipv6 = {
-        .type = PANEL_DROPDOWN,
-        .x = 24 * SCALE,
-        .y = SCALE * 264,
-        .height = SCALE * 12,
-        .width = SCALE * 20
+        .type   = PANEL_DROPDOWN,
+        .x      = 24 * SCALE,
+        .y      = 13 * SCALE,
+        .height = 12 * SCALE,
+        .width  = 20 * SCALE
     },
 
     d_udp = {
-        .type = PANEL_DROPDOWN,
-        .x = 74 * SCALE,
-        .y = SCALE * 264,
-        .height = SCALE * 12,
-        .width = SCALE * 20
+        .type   = PANEL_DROPDOWN,
+        .x      = 74 * SCALE,
+        .y      = 13 * SCALE,
+        .height = 12 * SCALE,
+        .width  = 20 * SCALE
     },
 
     d_logging = {
-        .type = PANEL_DROPDOWN,
-        .x = 5 * SCALE,
-        .y = SCALE * 109,
-        .height = SCALE * 12,
-        .width = SCALE * 20
+        .type   = PANEL_DROPDOWN,
+        .x      = 5   * SCALE,
+        .y      = 109 * SCALE,
+        .height = 12  * SCALE,
+        .width  = 20  * SCALE
     },
 
     d_theme = {
-        .type = PANEL_DROPDOWN,
-        .x = 95 * SCALE,
-        .y = SCALE * 320,
-        .height = SCALE * 12,
-        .width = SCALE * 60
+        .type   = PANEL_DROPDOWN,
+        .x      = 5  * SCALE,
+        .y      = 15 * SCALE,
+        .height = 12 * SCALE,
+        .width  = 60 * SCALE
     },
 
     d_notifications = {
-        .type = PANEL_DROPDOWN,
-        .x = 5 * SCALE,
-        .y = SCALE * 343,
-        .height = SCALE * 12,
-        .width = SCALE * 20
+        .type   = PANEL_DROPDOWN,
+        .x      = 5  * SCALE,
+        .y      = 15 * SCALE,
+        .height = 12 * SCALE,
+        .width  = 20 * SCALE
     },
 
     d_close_to_tray = {
         .type = PANEL_DROPDOWN,
         .x = 5 * SCALE,
         .y = SCALE * 133,
-        .height = SCALE * 12,
+        .height = 12 * SCALE,
         .width = SCALE * 20
     },
 
@@ -955,7 +963,7 @@ void ui_scale(uint8_t scale)
         .type = PANEL_DROPDOWN,
         .x = 95 * SCALE,
         .y = SCALE * 133,
-        .height = SCALE * 12,
+        .height = 12 * SCALE,
         .width = SCALE * 20
     },
 
@@ -963,16 +971,16 @@ void ui_scale(uint8_t scale)
         .type = PANEL_DROPDOWN,
         .x = 5 * SCALE,
         .y = SCALE * 157,
-        .height = SCALE * 12,
+        .height = 12 * SCALE,
         .width = SCALE * 20
     },
 
     d_typing_notes = {
-        .type = PANEL_DROPDOWN,
-        .x = 5 * SCALE,
-        .y = SCALE * 185,
-        .height = SCALE * 12,
-        .width = SCALE * 20
+        .type   = PANEL_DROPDOWN,
+        .x      = 5   * SCALE,
+        .y      = 184 * SCALE,
+        .height = 12  * SCALE,
+        .width  = 20  * SCALE
     }
 
     #ifdef AUDIO_FILTERING
@@ -980,7 +988,7 @@ void ui_scale(uint8_t scale)
         .type = PANEL_DROPDOWN,
         .x = 190 * SCALE,
         .y = SCALE * 132,
-        .height = SCALE * 12,
+        .height = 12 * SCALE,
         .width = SCALE * 20
     }
     #endif
@@ -1012,7 +1020,7 @@ void ui_scale(uint8_t scale)
         .type = PANEL_EDIT,
         .x = 5 * SCALE,
         .y = SCALE * 14,
-        .height = SCALE * 12,
+        .height = 12 * SCALE,
         .width = -SCROLL_WIDTH - 5 * SCALE
     },
 
@@ -1020,7 +1028,7 @@ void ui_scale(uint8_t scale)
         .type = PANEL_EDIT,
         .x = 5 * SCALE,
         .y = SCALE * 38,
-        .height = SCALE * 12,
+        .height = 12 * SCALE,
         .width = -SCROLL_WIDTH - 5 * SCALE
     },
 
@@ -1028,7 +1036,7 @@ void ui_scale(uint8_t scale)
         .type = PANEL_EDIT,
         .x = 3 * SCALE,
         .y = SCALE * 63,
-        .height = SCALE * 12,
+        .height = 12 * SCALE,
         .width = -SCROLL_WIDTH - 5 * SCALE
     },
 
@@ -1036,7 +1044,7 @@ void ui_scale(uint8_t scale)
         .type = PANEL_EDIT,
         .x = 5 * SCALE,
         .y = LIST_Y + SCALE * 14,
-        .height = SCALE * 12,
+        .height = 12 * SCALE,
         .width = -5 * SCALE
     },
 
@@ -1076,19 +1084,19 @@ void ui_scale(uint8_t scale)
     },
 
     e_proxy_ip = {
-        .type = PANEL_EDIT,
-        .x = 70 * SCALE,
-        .y = SCALE * 288,
-        .height = SCALE * 12,
-        .width = SCALE * 60
+        .type   = PANEL_EDIT,
+        .x      = 70 * SCALE,
+        .y      = 40 * SCALE,
+        .height = 12 * SCALE,
+        .width  = 60 * SCALE
     },
 
     e_proxy_port = {
-        .type = PANEL_EDIT,
-        .x = 135 * SCALE,
-        .y = SCALE * 288,
-        .height = SCALE * 12,
-        .width = SCALE * 30
+        .type   = PANEL_EDIT,
+        .x      = 135 * SCALE,
+        .y      = 40  * SCALE,
+        .height = 12  * SCALE,
+        .width  = 30  * SCALE
     };
 
     edit_name.panel = e_name;
