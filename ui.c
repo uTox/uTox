@@ -55,8 +55,6 @@ void draw_avatar_image(UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, u
     image_set_filter(image, FILTER_NEAREST);
 }
 
-
-
 /* Top left self interface Avatar, name, statusmsg, status icon */
 static void drawself(void)
 {
@@ -234,7 +232,7 @@ static void drawadd(int UNUSED(x), int UNUSED(y), int UNUSED(w), int height)
 }
 
 /* Top bar for user settings */
-static void drawsettings(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height))
+static void drawsettings_header(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height))
 {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
@@ -258,19 +256,15 @@ static void drawsettings_content(int UNUSED(x), int y, int UNUSED(w), int UNUSED
 {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_TEXT);
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 5, NAME);
-
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 29, STATUSMESSAGE);
 
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 123, AUDIOINPUTDEVICE);
-#ifdef AUDIO_FILTERING
+    #ifdef AUDIO_FILTERING
     drawstr(LIST_RIGHT + SCALE * 190, y + SCALE * 123, AUDIOFILTERING);
-#endif
+    #endif
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 147, AUDIOOUTPUTDEVICE);
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 171, VIDEOINPUTDEVICE);
 
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 206, DPI);
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 230, LANGUAGE);
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 254, NETWORK);
 
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 266, IPV6);
@@ -278,15 +272,12 @@ static void drawsettings_content(int UNUSED(x), int y, int UNUSED(w), int UNUSED
 
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 278, PROXY);
 
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 310, LOGGING);
 
     drawstr(LIST_RIGHT + SCALE * 95, y + SCALE * 310, THEME);
 
     drawtext(LIST_RIGHT + SCALE * 132, y + SCALE * 290, (uint8_t*)":", 1);
 
     setfont(FONT_SELF_NAME);
-
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 54, TOXID);
 
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 76, PREVIEW);
 
@@ -302,13 +293,30 @@ static void drawsettings_content(int UNUSED(x), int y, int UNUSED(w), int UNUSED
     setfont(FONT_TEXT);
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 334, AUDIONOTIFICATIONS);
 
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 357, CLOSE_TO_TRAY);
-    drawstr(LIST_RIGHT + SCALE * 95, y + SCALE * 357, START_IN_TRAY);
-
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 380, AUTO_STARTUP);
-
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 403, SEND_TYPING_NOTIFICATIONS);
 }
+
+static void drawsettings_content_utox(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)){
+    setcolor(COLOR_MAIN_TEXT);
+    setfont(FONT_TEXT);
+    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 5, NAME);
+    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 29, STATUSMESSAGE);
+    setfont(FONT_SELF_NAME);
+    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 54, TOXID);
+    setfont(FONT_TEXT);
+    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 76, LANGUAGE);
+    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 99, LOGGING);
+    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 123, CLOSE_TO_TRAY);
+    drawstr(LIST_RIGHT + SCALE * 95, y + SCALE * 123, START_IN_TRAY);
+    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 148, AUTO_STARTUP);
+    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 174, SEND_TYPING_NOTIFICATIONS);
+}
+
+static void drawsettings_sub_header(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)){
+    setcolor(COLOR_MAIN_TEXT);
+    setfont(FONT_SELF_NAME);
+    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 5, USER_INTERFACE);
+}
+
 
 static void background_draw(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int width, int height)
 {
@@ -364,7 +372,7 @@ SCROLLABLE scroll_list = {
     .panel = {
         .type = PANEL_SCROLLABLE,
     },
-    .color = 0x1c1c1c,
+    .color = C_SCROLL,
     .x = 2,
     .left = 1,
 },
@@ -374,7 +382,7 @@ scroll_friend = {
     .panel = {
         .type = PANEL_SCROLLABLE,
     },
-    .color = 0xd1d1d1,
+    .color = C_SCROLL,
 },
 
 // ?
@@ -417,25 +425,74 @@ PANEL panel_list = {
 },
 
 /* Panel to draw settings page */
-panel_settings = {
+panel_settings_utox = {
+    .drawfunc = drawsettings_content_utox,
+    .content_scroll = &scroll_settings,
+    .child = (PANEL*[]) {
+        (void*)&edit_name,
+        (void*)&edit_status,
+        // Text: Tox ID
+        (void*)&edit_toxid,
+        (void*)&button_copyid,
+        // User's tox id
+        #ifdef EMOJI_IDS
+        (void*)&button_change_id_type,
+        #endif
+        (void*)&dropdown_language,
+        (void*)&dropdown_logging,
+        (void*)&dropdown_close_to_tray, (void*)&dropdown_start_in_tray,
+        (void*)&dropdown_auto_startup,
+        (void*)&dropdown_typing_notes,
+        NULL
+    }
+},
+
+panel_settings_user_interface = {
     .drawfunc = drawsettings_content,
     .content_scroll = &scroll_settings,
     .child = (PANEL*[]) {
-        (void*)&button_copyid,
-#ifdef EMOJI_IDS
-        (void*)&button_change_id_type,
-#endif
-        (void*)&button_callpreview, (void*)&button_videopreview,
-        (void*)&edit_name, (void*)&edit_status, (void*)&edit_toxid, (void*)&edit_proxy_ip,
-        (void*)&edit_proxy_port,
-        (void*)&dropdown_audio_in, (void*)&dropdown_audio_out, (void*)&dropdown_video,
-        (void*)&dropdown_dpi, (void*)&dropdown_language, (void*)&dropdown_proxy,
-        (void*)&dropdown_ipv6, (void*)&dropdown_udp, (void*)&dropdown_logging,
-        (void*)&dropdown_audible_notification, (void*)&dropdown_audio_filtering,
-        (void*)&dropdown_close_to_tray, (void*)&dropdown_start_in_tray,
+        (void*)&dropdown_dpi,
         (void*)&dropdown_theme,
-        (void*)&dropdown_auto_startup,
-        (void*)&dropdown_typing_notes,
+        NULL
+    }
+},
+
+panel_settings_network = {
+    .drawfunc = drawsettings_content,
+    .content_scroll = &scroll_settings,
+    .child = (PANEL*[]) {
+        (void*)&edit_proxy_ip,
+        (void*)&edit_proxy_port,
+        (void*)&dropdown_proxy,
+        (void*)&dropdown_ipv6,
+        (void*)&dropdown_udp,
+        NULL
+    }
+},
+
+panel_settings_audio_video = {
+    .drawfunc = drawsettings_content,
+    .content_scroll = &scroll_settings,
+    .child = (PANEL*[]) {
+        (void*)&button_callpreview,
+        (void*)&button_videopreview,
+        (void*)&dropdown_audio_in,
+        (void*)&dropdown_audio_out,
+        (void*)&dropdown_video,
+        (void*)&dropdown_audible_notification,
+        (void*)&dropdown_audio_filtering,
+        NULL
+    }
+},
+
+panel_settings = {
+    .type = PANEL_NONE,
+    .drawfunc = drawsettings_sub_header,
+    .child = (PANEL*[]) {
+        (void*)&scroll_settings,
+        (void*)&panel_settings_utox,
+        // (void*)&panel_settings_audio_video,
+        // (void*)&panel_settings_user_interface,
         NULL
     }
 },
@@ -444,7 +501,7 @@ panel_settings = {
 panel_item[] = {
     {
         .type = PANEL_NONE,
-        //.disabled = 1,
+        .disabled = 1,
         .drawfunc = drawadd,
         .child = (PANEL*[]) {
             (void*)&button_addfriend,
@@ -455,10 +512,9 @@ panel_item[] = {
 
     {
         .type = PANEL_NONE,
-        .disabled = 1,
-        .drawfunc = drawsettings,
+        //.disabled = 1,
+        .drawfunc = drawsettings_header,
         .child = (PANEL*[]) {
-            (void*)&scroll_settings,
             &panel_settings,
             NULL
         }
@@ -546,6 +602,7 @@ void ui_scale(uint8_t scale)
     panel_side.x = LIST_RIGHT;
 
     panel_settings.y = LIST_Y;
+    panel_settings_utox.y = 14 * SCALE;
 
     panel_list.y = LIST_Y2;
     panel_list.width = LIST_RIGHT + 1;
@@ -559,8 +616,8 @@ void ui_scale(uint8_t scale)
     messages_group.panel.height = MESSAGES_BOTTOM;
     messages_group.panel.width = -SCROLL_WIDTH;
 
-    scroll_settings.panel.y = LIST_Y;
-    scroll_settings.content_height = 425 * SCALE;
+    scroll_settings.panel.y = 14 * SCALE;
+    scroll_settings.content_height = 225 * SCALE;
 
     scroll_group.panel.y = LIST_Y;
     scroll_group.panel.height = MESSAGES_BOTTOM;
@@ -612,7 +669,7 @@ void ui_scale(uint8_t scale)
         .width = BM_SBUTTON_WIDTH,
         .height = BM_SBUTTON_HEIGHT,
     },
-#ifdef EMOJI_IDS
+    #ifdef EMOJI_IDS
     b_change_id_type = {
         .type = PANEL_BUTTON,
         .x = SCALE * 80,
@@ -620,7 +677,7 @@ void ui_scale(uint8_t scale)
         .width = BM_SBUTTON_WIDTH,
         .height = BM_SBUTTON_HEIGHT,
     },
-#endif
+    #endif
     b_addfriend = {
         .type = PANEL_BUTTON,
         .x = -SCALE * 5 - BM_SBUTTON_WIDTH,
@@ -748,9 +805,9 @@ void ui_scale(uint8_t scale)
     button_transfer.panel = b_transfer;
     button_groups.panel = b_groups;
     button_copyid.panel = b_copyid;
-#ifdef EMOJI_IDS
+    #ifdef EMOJI_IDS
     button_change_id_type.panel = b_change_id_type;
-#endif
+    #endif
     button_addfriend.panel = b_addfriend;
     button_call.panel = b_call;
     button_group_audio.panel = b_group_audio;
@@ -802,7 +859,7 @@ void ui_scale(uint8_t scale)
     d_language = {
         .type = PANEL_DROPDOWN,
         .x = 5 * SCALE,
-        .y = SCALE * 240,
+        .y = SCALE * 84,
         .height = SCALE * 12,
         .width = SCALE * 100
     },
@@ -842,7 +899,7 @@ void ui_scale(uint8_t scale)
     d_logging = {
         .type = PANEL_DROPDOWN,
         .x = 5 * SCALE,
-        .y = SCALE * 320,
+        .y = SCALE * 109,
         .height = SCALE * 12,
         .width = SCALE * 20
     },
@@ -866,7 +923,7 @@ void ui_scale(uint8_t scale)
     d_close_to_tray = {
         .type = PANEL_DROPDOWN,
         .x = 5 * SCALE,
-        .y = SCALE * 366,
+        .y = SCALE * 133,
         .height = SCALE * 12,
         .width = SCALE * 20
     },
@@ -874,7 +931,7 @@ void ui_scale(uint8_t scale)
     d_start_in_tray = {
         .type = PANEL_DROPDOWN,
         .x = 95 * SCALE,
-        .y = SCALE * 366,
+        .y = SCALE * 133,
         .height = SCALE * 12,
         .width = SCALE * 20
     },
@@ -882,7 +939,7 @@ void ui_scale(uint8_t scale)
     d_auto_startup = {
         .type = PANEL_DROPDOWN,
         .x = 5 * SCALE,
-        .y = SCALE * 389,
+        .y = SCALE * 157,
         .height = SCALE * 12,
         .width = SCALE * 20
     },
@@ -890,12 +947,12 @@ void ui_scale(uint8_t scale)
     d_typing_notes = {
         .type = PANEL_DROPDOWN,
         .x = 5 * SCALE,
-        .y = SCALE * 412,
+        .y = SCALE * 185,
         .height = SCALE * 12,
         .width = SCALE * 20
     }
 
-#ifdef AUDIO_FILTERING
+    #ifdef AUDIO_FILTERING
     , d_audio_filtering = {
         .type = PANEL_DROPDOWN,
         .x = 190 * SCALE,
@@ -903,7 +960,7 @@ void ui_scale(uint8_t scale)
         .height = SCALE * 12,
         .width = SCALE * 20
     }
-#endif
+    #endif
     ;
 
     dropdown_audio_in.panel = d_audio_in;
@@ -922,9 +979,9 @@ void ui_scale(uint8_t scale)
     dropdown_theme.panel = d_theme;
     dropdown_auto_startup.panel = d_auto_startup;
 
-#ifdef AUDIO_FILTERING
+    #ifdef AUDIO_FILTERING
     dropdown_audio_filtering.panel = d_audio_filtering;
-#endif
+    #endif
     dropdown_typing_notes.panel = d_typing_notes;
 
 
@@ -1025,7 +1082,10 @@ void ui_scale(uint8_t scale)
     setscale();
 }
 
-/* Use the preprocessor to build functions for all user inactions */
+/* Use the preprocessor to build functions for all user inactions
+    These are functions that are (must be) defined elsewehere. The preprocessor in this case creates the prototypes that
+    will then be used by panel_draw_sub to call the correct function
+*/
 #define FUNC(x, ret, ...) static ret (* x##func[])(void *p, ##__VA_ARGS__) = { \
     (void*)background_##x, \
     (void*)messages_##x, \
@@ -1094,10 +1154,8 @@ static void panel_draw_sub(PANEL *p, int x, int y, int width, int height)
 
     if(p->content_scroll) {
         pushclip(x, y, width, height);
-
         y -= scroll_gety(p->content_scroll, height);
     }
-
 
     if(p->type) {
         drawfunc[p->type - 1](p, x, y, width, height);

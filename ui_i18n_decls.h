@@ -80,7 +80,13 @@ enum {
     STR_AUDIOFILTERING,
     STR_AUDIOOUTPUTDEVICE,
     STR_VIDEOINPUTDEVICE,
+
+    // Setting strings
     STR_OTHERSETTINGS,
+    STR_UI,
+    STR_USER_INTERFACE,
+    STR_UTOX_SETTINGS,
+
     STR_DPI,
     STR_SAVELOCATION,
     STR_LANGUAGE,
@@ -95,6 +101,7 @@ enum {
     STR_CLOSE_TO_TRAY,
     STR_START_IN_TRAY,
     STR_AUTO_STARTUP,
+
 
     // Interact with texts / clipboard
     STR_COPY, STR_COPY_TOX_ID = STR_COPY,

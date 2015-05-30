@@ -142,6 +142,15 @@ msgstr("Video Input Device")
 msgid(OTHERSETTINGS)
 msgstr("Other Settings")
 
+msgid(UI)
+msgstr("UI")
+
+msgid(USER_INTERFACE)
+msgstr("User Interface")
+
+msgid(UTOX_SETTINGS)
+msgstr("uTox Settings")
+
 msgid(DPI)
 msgstr("DPI")
 
