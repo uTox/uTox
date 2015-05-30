@@ -236,9 +236,10 @@ static void drawsettings_header(int UNUSED(x), int UNUSED(y), int UNUSED(width),
 {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(LIST_RIGHT + SCALE * 5, SCALE * 10, USERSETTINGS);
+    drawstr(LIST_RIGHT + SCALE * 5, SCALE * 10, UTOX_SETTINGS);
     #ifdef GIT_VERSION
-    drawtext(LIST_RIGHT + SCALE * 5, SCALE * 18, (uint8_t*)GIT_VERSION, strlen(GIT_VERSION));
+    setfont(FONT_TEXT);
+    drawtext(LIST_RIGHT + SCALE * 60, SCALE * 10, (uint8_t*)GIT_VERSION, strlen(GIT_VERSION));
     #endif
 }
 
@@ -252,11 +253,8 @@ static void drawtransfer(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UN
 }
 
 /* Text content for settings page */
-
-
 static void drawsettings_text_utox(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)){
     setcolor(COLOR_MAIN_TEXT);
-    setfont(FONT_TEXT);
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 5, NAME);
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 29, STATUSMESSAGE);
     setfont(FONT_SELF_NAME);
@@ -306,9 +304,9 @@ static void drawsettings_text_av(int UNUSED(x), int y, int UNUSED(w), int UNUSED
 static void drawsettings_sub_header(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)){
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 5, UTOX_SETTINGS);
-    drawstr(LIST_RIGHT + SCALE * 65, y + SCALE * 5, NETWORK);
-    drawstr(LIST_RIGHT + SCALE * 105, y + SCALE * 5, USER_INTERFACE);
+    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 5, USERSETTINGS);
+    drawstr(LIST_RIGHT + SCALE * 70, y + SCALE * 5, NETWORK);
+    drawstr(LIST_RIGHT + SCALE * 115, y + SCALE * 5, USER_INTERFACE);
 }
 
 static void background_draw(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int width, int height)
@@ -682,7 +680,7 @@ void ui_scale(uint8_t scale)
 
     b_settings_sub_network = {
         .type   = PANEL_BUTTON,
-        .x      = 65 * SCALE,
+        .x      = 70 * SCALE,
         .y      = 5  * SCALE,
         .width  = 30 * SCALE,
         .height = 10 * SCALE,
@@ -690,7 +688,7 @@ void ui_scale(uint8_t scale)
 
     b_settings_sub_ui = {
         .type   = PANEL_BUTTON,
-        .x      = 105  * SCALE,
+        .x      = 115  * SCALE,
         .y      = 5  * SCALE,
         .width  = 50 * SCALE,
         .height = 10 * SCALE,
