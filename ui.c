@@ -315,6 +315,7 @@ static void drawsettings_sub_header(int UNUSED(x), int y, int UNUSED(w), int UNU
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 5, USER_INTERFACE);
+    drawstr(LIST_RIGHT + SCALE * 65, y + SCALE * 5, NETWORK);
 }
 
 
@@ -489,6 +490,8 @@ panel_settings = {
     .type = PANEL_NONE,
     .drawfunc = drawsettings_sub_header,
     .child = (PANEL*[]) {
+        (void*)&button_settings_sub_ui,
+        (void*)&button_settings_sub_network,
         (void*)&scroll_settings,
         (void*)&panel_settings_utox,
         // (void*)&panel_settings_audio_video,
@@ -669,6 +672,23 @@ void ui_scale(uint8_t scale)
         .width = BM_SBUTTON_WIDTH,
         .height = BM_SBUTTON_HEIGHT,
     },
+
+    b_settings_sub_ui = {
+        .type = PANEL_BUTTON,
+        .x = SCALE * 5,
+        .y = SCALE * 5,
+        .width = 50 * SCALE,
+        .height = 10 * SCALE,
+    },
+
+    b_settings_sub_network = {
+        .type = PANEL_BUTTON,
+        .x = SCALE * 65,
+        .y = SCALE * 5,
+        .width = 50 * SCALE,
+        .height = 10 * SCALE,
+    },
+
     #ifdef EMOJI_IDS
     b_change_id_type = {
         .type = PANEL_BUTTON,
@@ -678,6 +698,7 @@ void ui_scale(uint8_t scale)
         .height = BM_SBUTTON_HEIGHT,
     },
     #endif
+
     b_addfriend = {
         .type = PANEL_BUTTON,
         .x = -SCALE * 5 - BM_SBUTTON_WIDTH,
@@ -805,6 +826,8 @@ void ui_scale(uint8_t scale)
     button_transfer.panel = b_transfer;
     button_groups.panel = b_groups;
     button_copyid.panel = b_copyid;
+    button_settings_sub_ui.panel = b_settings_sub_ui;
+    button_settings_sub_network.panel = b_settings_sub_network;
     #ifdef EMOJI_IDS
     button_change_id_type.panel = b_change_id_type;
     #endif

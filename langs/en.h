@@ -151,6 +151,9 @@ msgstr("User Interface")
 msgid(UTOX_SETTINGS)
 msgstr("uTox Settings")
 
+msgid(NETWORK_SETTINGS)
+msgstr("Network Settings")
+
 msgid(DPI)
 msgstr("DPI")
 

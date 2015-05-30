@@ -93,7 +93,6 @@ static void button_videopreview_onpress(void)
     }
 }
 
-
 static void button_videopreview_update(BUTTON *b)
 {
     if (video_preview)
@@ -127,6 +126,12 @@ static void button_settings_onpress(void)
 {
     list_selectsettings();
 }
+
+static void button_settings_sub_ui_onpress(void)
+{
+    list_selectsettings();
+}
+
 
 static void button_group_audio_onpress(void)
 {
@@ -463,6 +468,18 @@ static void button_chat_send_update(BUTTON *b){
 
 
 BUTTON
+
+button_settings_sub_ui = {
+    .nodraw = 1,
+    .onpress = button_settings_sub_ui_onpress,
+    .tooltip_text = { .i18nal = STR_USERSETTINGS },
+},
+button_settings_sub_network = {
+    .nodraw = 1,
+    // TODO!
+    .onpress = button_settings_sub_ui_onpress,
+    .tooltip_text = { .i18nal = STR_NETWORK_SETTINGS },
+},
 
 button_add = {
     .bm2 = BM_ADD,
