@@ -305,7 +305,7 @@ static void drawsettings_text_av(int x, int y, int w, int UNUSED(height)){
     setfont(FONT_TEXT);
     drawstr(LIST_RIGHT + SCALE * 5,   y + SCALE * 5,  RINGTONE);
     #ifdef AUDIO_FILTERING
-    drawstr(LIST_RIGHT + SCALE * 190, y + SCALE * 5,  AUDIOFILTERING);
+    drawstr(LIST_RIGHT + SCALE * 100, y + SCALE * 5,  AUDIOFILTERING);
     #endif
     drawstr(LIST_RIGHT + SCALE * 5,   y + SCALE * 35, AUDIOINPUTDEVICE);
     drawstr(LIST_RIGHT + SCALE * 5,   y + SCALE * 60, AUDIOOUTPUTDEVICE);
@@ -896,7 +896,7 @@ void ui_scale(uint8_t scale)
     #ifdef AUDIO_FILTERING
     d_audio_filtering = {
         .type   = PANEL_DROPDOWN,
-        .x      = 190 * SCALE,
+        .x      = 100 * SCALE,
         .y      = 15  * SCALE,
         .height = 12  * SCALE,
         .width  = 20  * SCALE
