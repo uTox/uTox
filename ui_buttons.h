@@ -128,7 +128,9 @@ static void button_settings_onpress(void)
 }
 
 extern PANEL panel_settings_utox, panel_settings_net, panel_settings_ui, panel_settings_av;
+extern SCROLLABLE scroll_settings;
 static void button_settings_sub_utox_onpress(void){
+    scroll_settings.content_height = 220 * SCALE;
     list_selectsettings();
     panel_settings_utox.disabled = 0;
     panel_settings_net.disabled  = 1;
@@ -137,6 +139,7 @@ static void button_settings_sub_utox_onpress(void){
 }
 
 static void button_settings_sub_network_onpress(void){
+    scroll_settings.content_height = 90 * SCALE;
     list_selectsettings();
     panel_settings_utox.disabled = 1;
     panel_settings_net.disabled  = 0;
@@ -145,6 +148,7 @@ static void button_settings_sub_network_onpress(void){
 }
 
 static void button_settings_sub_ui_onpress(void){
+    scroll_settings.content_height = 50 * SCALE;
     list_selectsettings();
     panel_settings_utox.disabled = 1;
     panel_settings_net.disabled  = 1;
@@ -153,6 +157,7 @@ static void button_settings_sub_ui_onpress(void){
 }
 
 static void button_settings_sub_av_onpress(void){
+    scroll_settings.content_height = 200 * SCALE;
     list_selectsettings();
     panel_settings_utox.disabled = 1;
     panel_settings_net.disabled  = 1;

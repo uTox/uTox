@@ -256,16 +256,16 @@ static void drawtransfer(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UN
 static void drawsettings_text_utox(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)){
     setcolor(COLOR_MAIN_TEXT);
     drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 5, NAME);
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 29, STATUSMESSAGE);
+    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 30, STATUSMESSAGE);
     setfont(FONT_SELF_NAME);
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 54, TOXID);
+    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 55, TOXID);
     setfont(FONT_TEXT);
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 76, LANGUAGE);
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 99, LOGGING);
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 123, CLOSE_TO_TRAY);
-    drawstr(LIST_RIGHT + SCALE * 95, y + SCALE * 123, START_IN_TRAY);
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 148, AUTO_STARTUP);
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 174, SEND_TYPING_NOTIFICATIONS);
+    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 75, LANGUAGE);
+    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 100, LOGGING);
+    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 125, CLOSE_TO_TRAY);
+    drawstr(LIST_RIGHT + SCALE * 95, y + SCALE * 125, START_IN_TRAY);
+    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 150, AUTO_STARTUP);
+    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 175, SEND_TYPING_NOTIFICATIONS);
 }
 
 static void drawsettings_text_network(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)){
@@ -305,7 +305,7 @@ static void drawsettings_text_av(int UNUSED(x), int y, int UNUSED(w), int UNUSED
 static void drawsettings_sub_header(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)){
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(LIST_RIGHT + SCALE * 5,  y + SCALE * 5, USERSETTINGS);
+    drawstr(LIST_RIGHT + SCALE * 5,   y + SCALE * 5, USERSETTINGS);
     drawstr(LIST_RIGHT + SCALE * 70,  y + SCALE * 5, NETWORK);
     drawstr(LIST_RIGHT + SCALE * 115, y + SCALE * 5, USER_INTERFACE);
     drawstr(LIST_RIGHT + SCALE * 185, y + SCALE * 5, AUDIO_VIDEO);
@@ -693,18 +693,18 @@ void ui_scale(uint8_t scale)
 
     b_settings_sub_ui = {
         .type   = PANEL_BUTTON,
-        .x      = 115  * SCALE,
-        .y      = 5  * SCALE,
-        .width  = 55 * SCALE,
-        .height = 10 * SCALE,
+        .x      = 115 * SCALE,
+        .y      = 5   * SCALE,
+        .width  = 55  * SCALE,
+        .height = 10  * SCALE,
     },
 
     b_settings_sub_av = {
         .type   = PANEL_BUTTON,
-        .x      = 185  * SCALE,
-        .y      = 5  * SCALE,
-        .width  = 50 * SCALE,
-        .height = 10 * SCALE,
+        .x      = 185 * SCALE,
+        .y      = 5   * SCALE,
+        .width  = 50  * SCALE,
+        .height = 10  * SCALE,
     },
 
     #ifdef EMOJI_IDS
@@ -767,7 +767,7 @@ void ui_scale(uint8_t scale)
 
     b_callpreview = {
         .type   = PANEL_BUTTON,
-        .x      = 5 * SCALE,
+        .x      = 5   * SCALE,
         .y      = 125 * SCALE,
         .width  = BM_LBUTTON_WIDTH,
         .height = BM_LBUTTON_HEIGHT,
@@ -775,7 +775,7 @@ void ui_scale(uint8_t scale)
 
     b_videopreview = {
         .type   = PANEL_BUTTON,
-        .x      = 36 * SCALE,
+        .x      = 35  * SCALE,
         .y      = 125 * SCALE,
         .width  = BM_LBUTTON_WIDTH,
         .height = BM_LBUTTON_HEIGHT,
@@ -903,16 +903,16 @@ void ui_scale(uint8_t scale)
 
     d_video = {
         .type   = PANEL_DROPDOWN,
-        .x      = 5  * SCALE,
-        .y      = 95 * SCALE,
-        .height = 12 * SCALE,
+        .x      = 5   * SCALE,
+        .y      = 95  * SCALE,
+        .height = 12  * SCALE,
         .width  = 180 * SCALE
     },
 
     d_dpi = {
         .type   = PANEL_DROPDOWN,
-        .x      = 75   * SCALE,
-        .y      = 15 * SCALE,
+        .x      = 75  * SCALE,
+        .y      = 15  * SCALE,
         .height = 12  * SCALE,
         .width  = 100 * SCALE
     },
