@@ -232,8 +232,7 @@ static void drawadd(int UNUSED(x), int UNUSED(y), int UNUSED(w), int height)
 }
 
 /* Top bar for user settings */
-static void drawsettings_header(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height))
-{
+static void drawsettings_header(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height)){
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
     drawstr(LIST_RIGHT + SCALE * 5, SCALE * 10, UTOX_SETTINGS);
@@ -245,8 +244,7 @@ static void drawsettings_header(int UNUSED(x), int UNUSED(y), int UNUSED(width),
 
 /* draw switch profile top bar */
 /* Current TODO */
-static void drawtransfer(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height))
-{
+static void drawtransfer(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height)){
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
     drawstr(LIST_RIGHT + SCALE * 5, SCALE * 10, SWITCHPROFILE);
@@ -254,8 +252,6 @@ static void drawtransfer(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UN
 
 /* Text content for settings page */
 static void drawsettings_text_utox(int x, int y, int w, int h){
-    drawhline(x + 65 * SCALE, y + 1 * SCALE, w * SCALE, COLOR_EDGE_NORMAL);
-
     setcolor(COLOR_MAIN_TEXT);
     drawstr(LIST_RIGHT + SCALE * 5,  y + 5   * SCALE, NAME);
     drawstr(LIST_RIGHT + SCALE * 5,  y + 30  * SCALE, STATUSMESSAGE);
@@ -272,9 +268,6 @@ static void drawsettings_text_utox(int x, int y, int w, int h){
 }
 
 static void drawsettings_text_network(int x, int y, int w, int UNUSED(height)){
-    drawhline(x + 0   * SCALE, y + 1 * SCALE, x +     65 * SCALE, COLOR_EDGE_NORMAL);
-    drawhline(x + 110 * SCALE, y + 1 * SCALE, x + w + 0  * SCALE, COLOR_EDGE_NORMAL);
-
     setfont(FONT_MISC);
     setcolor(C_RED);
     drawstr(LIST_RIGHT  + 5   * SCALE, y + 5 * SCALE, WARNING);
@@ -289,9 +282,6 @@ static void drawsettings_text_network(int x, int y, int w, int UNUSED(height)){
 }
 
 static void drawsettings_text_ui(int x, int y, int w, int UNUSED(height)){
-    drawhline(x + 0   * SCALE, y + 1 * SCALE, x +     110 * SCALE, COLOR_EDGE_NORMAL);
-    drawhline(x + 175 * SCALE, y + 1 * SCALE, x + w + 0   * SCALE, COLOR_EDGE_NORMAL);
-
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_TEXT);
     drawstr(LIST_RIGHT + 75 * SCALE, y + 5 * SCALE, DPI);
@@ -299,8 +289,6 @@ static void drawsettings_text_ui(int x, int y, int w, int UNUSED(height)){
 }
 
 static void drawsettings_text_av(int x, int y, int w, int UNUSED(height)){
-    drawhline(x + 0 * SCALE, y + 1 * SCALE, x + 175 * SCALE, COLOR_EDGE_NORMAL);
-
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_TEXT);
     drawstr(LIST_RIGHT + SCALE * 5,   y + SCALE * 5,  RINGTONE);
@@ -314,19 +302,25 @@ static void drawsettings_text_av(int x, int y, int w, int UNUSED(height)){
     drawstr(LIST_RIGHT + SCALE * 5,   y + SCALE * 115, PREVIEW);
 }
 
-static void drawsettings_sub_header(int x, int y, int UNUSED(w), int UNUSED(height)){
+static void drawsettings_sub_header(int x, int y, int w, int UNUSED(height)){
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(   x + 5   * SCALE,  y + 5 * SCALE, USERSETTINGS);
 
-    drawvline( x + 65  * SCALE,  y + 0 * SCALE, y + 15 * SCALE, COLOR_EDGE_NORMAL);
-    drawstr(   x + 70  * SCALE,  y + 5 * SCALE, NETWORK);
+    drawstr(   x + 5   * SCALE, y + 5 * SCALE, USERSETTINGS);
+    drawhline( x + 0   * SCALE, y + 15 * SCALE, x + 65 * SCALE, COLOR_EDGE_NORMAL);
+    drawvline( x + 65  * SCALE, y + 0 * SCALE, y + 15 * SCALE, COLOR_EDGE_NORMAL);
 
-    drawvline( x + 110 * SCALE,  y + 0 * SCALE, y + 15 * SCALE, COLOR_EDGE_NORMAL);
-    drawstr(   x + 115 * SCALE,  y + 5 * SCALE, USER_INTERFACE);
+    drawstr(   x + 70  * SCALE, y + 5 * SCALE, NETWORK);
+    drawhline( x + 65  * SCALE, y + 15 * SCALE, x + 110 * SCALE, COLOR_EDGE_NORMAL);
+    drawvline( x + 110 * SCALE, y + 0 * SCALE, y + 15  * SCALE, COLOR_EDGE_NORMAL);
 
-    drawvline( x + 175 * SCALE,  y + 0 * SCALE, y + 15 * SCALE, COLOR_EDGE_NORMAL);
-    drawstr(   x + 180 * SCALE,  y + 5 * SCALE, AUDIO_VIDEO);
+    drawstr(   x + 115 * SCALE, y + 5 * SCALE, USER_INTERFACE);
+    drawhline( x + 110 * SCALE, y + 15 * SCALE, x + 175 * SCALE, COLOR_EDGE_NORMAL);
+    drawvline( x + 175 * SCALE, y + 0 * SCALE, y + 15  * SCALE, COLOR_EDGE_NORMAL);
+
+    drawstr(   x + 180 * SCALE, y + 5 * SCALE, AUDIO_VIDEO);
+    drawhline( x + 175 * SCALE, y + 15 * SCALE, x + w + 0 * SCALE, COLOR_EDGE_NORMAL);
+
 }
 
 static void background_draw(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int width, int height)
@@ -622,10 +616,10 @@ void ui_scale(uint8_t scale)
     panel_side.x = LIST_RIGHT;
 
     panel_settings.y      = LIST_Y;
-    panel_settings_utox.y = 14 * SCALE;
-    panel_settings_net.y  = 14 * SCALE;
-    panel_settings_ui.y   = 14 * SCALE;
-    panel_settings_av.y   = 14 * SCALE;
+    panel_settings_utox.y = 16 * SCALE;
+    panel_settings_net.y  = 16 * SCALE;
+    panel_settings_ui.y   = 16 * SCALE;
+    panel_settings_av.y   = 16 * SCALE;
 
     panel_list.y = LIST_Y2;
     panel_list.width = LIST_RIGHT + 1;
@@ -639,7 +633,7 @@ void ui_scale(uint8_t scale)
     messages_group.panel.height = MESSAGES_BOTTOM;
     messages_group.panel.width = -SCROLL_WIDTH;
 
-    scroll_settings.panel.y = 14 * SCALE;
+    scroll_settings.panel.y = 16 * SCALE;
     scroll_settings.content_height = 225 * SCALE;
 
     scroll_group.panel.y = LIST_Y;
