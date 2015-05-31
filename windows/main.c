@@ -1230,7 +1230,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
                 }
             } else if(!wcsncmp(arglist[i], L"--profile", 9)) {
                 LPWSTR word=arglist[i]+10;
-                if ( *(word-1) == L'=' || (++i < argc, word=arglist[i]) ) {
+                if ( *(word-1) == L'=' || (++i < argc && (1, word=arglist[i])) ) {
                     //Arrr, widestrings.
                     char *clear_str=(char*)malloc(UTOX_FILE_NAME_LENGTH);
                     wcstombs(clear_str, word, UTOX_FILE_NAME_LENGTH); //Convert widestring to multibyte string
