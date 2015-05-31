@@ -253,25 +253,32 @@ static void drawtransfer(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UN
 }
 
 /* Text content for settings page */
-static void drawsettings_text_utox(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)){
+static void drawsettings_text_utox(int x, int y, int w, int h){
+    drawhline(x + 65 * SCALE, y + 1 * SCALE, w * SCALE, COLOR_EDGE_NORMAL);
+
     setcolor(COLOR_MAIN_TEXT);
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 5, NAME);
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 30, STATUSMESSAGE);
+    drawstr(LIST_RIGHT + SCALE * 5,  y + 5   * SCALE, NAME);
+    drawstr(LIST_RIGHT + SCALE * 5,  y + 30  * SCALE, STATUSMESSAGE);
     setfont(FONT_SELF_NAME);
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 55, TOXID);
+    drawstr(LIST_RIGHT + SCALE * 5,  y + 55  * SCALE, TOXID);
     setfont(FONT_TEXT);
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 75, LANGUAGE);
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 100, LOGGING);
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 125, CLOSE_TO_TRAY);
-    drawstr(LIST_RIGHT + SCALE * 95, y + SCALE * 125, START_IN_TRAY);
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 150, AUTO_STARTUP);
-    drawstr(LIST_RIGHT + SCALE * 5, y + SCALE * 175, SEND_TYPING_NOTIFICATIONS);
+    drawstr(LIST_RIGHT + SCALE * 5,  y + 75  * SCALE, LANGUAGE);
+    drawstr(LIST_RIGHT + SCALE * 5,  y + 100 * SCALE, LOGGING);
+    drawstr(LIST_RIGHT + SCALE * 5,  y + 125 * SCALE, CLOSE_TO_TRAY);
+    drawstr(LIST_RIGHT + SCALE * 95, y + 125 * SCALE, START_IN_TRAY);
+    drawstr(LIST_RIGHT + SCALE * 5,  y + 150 * SCALE, AUTO_STARTUP);
+    drawstr(LIST_RIGHT + SCALE * 5,  y + 175 * SCALE, SEND_TYPING_NOTIFICATIONS);
+
 }
 
-static void drawsettings_text_network(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)){
+static void drawsettings_text_network(int x, int y, int w, int UNUSED(height)){
+    drawhline(x + 0   * SCALE, y + 1 * SCALE, x +     65 * SCALE, COLOR_EDGE_NORMAL);
+    drawhline(x + 110 * SCALE, y + 1 * SCALE, x + w + 0  * SCALE, COLOR_EDGE_NORMAL);
+
     setfont(FONT_MISC);
     setcolor(C_RED);
     drawstr(LIST_RIGHT  + 5   * SCALE, y + 5 * SCALE, WARNING);
+
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_TEXT);
     drawstr(LIST_RIGHT  + 5   * SCALE, y + 15 * SCALE, IPV6);
@@ -281,14 +288,19 @@ static void drawsettings_text_network(int UNUSED(x), int y, int UNUSED(w), int U
     drawtext(LIST_RIGHT + 132 * SCALE, y + 42 * SCALE, (uint8_t*)":", 1);
 }
 
-static void drawsettings_text_ui(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)){
+static void drawsettings_text_ui(int x, int y, int w, int UNUSED(height)){
+    drawhline(x + 0   * SCALE, y + 1 * SCALE, x +     110 * SCALE, COLOR_EDGE_NORMAL);
+    drawhline(x + 175 * SCALE, y + 1 * SCALE, x + w + 0   * SCALE, COLOR_EDGE_NORMAL);
+
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_TEXT);
     drawstr(LIST_RIGHT + 75 * SCALE, y + 5 * SCALE, DPI);
     drawstr(LIST_RIGHT + 5  * SCALE, y + 5 * SCALE, THEME);
 }
 
-static void drawsettings_text_av(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)){
+static void drawsettings_text_av(int x, int y, int w, int UNUSED(height)){
+    drawhline(x + 0 * SCALE, y + 1 * SCALE, x + 175 * SCALE, COLOR_EDGE_NORMAL);
+
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_TEXT);
     drawstr(LIST_RIGHT + SCALE * 5,   y + SCALE * 5,  RINGTONE);
@@ -302,13 +314,19 @@ static void drawsettings_text_av(int UNUSED(x), int y, int UNUSED(w), int UNUSED
     drawstr(LIST_RIGHT + SCALE * 5,   y + SCALE * 115, PREVIEW);
 }
 
-static void drawsettings_sub_header(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)){
+static void drawsettings_sub_header(int x, int y, int UNUSED(w), int UNUSED(height)){
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(LIST_RIGHT + SCALE * 5,   y + SCALE * 5, USERSETTINGS);
-    drawstr(LIST_RIGHT + SCALE * 70,  y + SCALE * 5, NETWORK);
-    drawstr(LIST_RIGHT + SCALE * 115, y + SCALE * 5, USER_INTERFACE);
-    drawstr(LIST_RIGHT + SCALE * 185, y + SCALE * 5, AUDIO_VIDEO);
+    drawstr(   x + 5   * SCALE,  y + 5 * SCALE, USERSETTINGS);
+
+    drawvline( x + 65  * SCALE,  y + 0 * SCALE, y + 15 * SCALE, COLOR_EDGE_NORMAL);
+    drawstr(   x + 70  * SCALE,  y + 5 * SCALE, NETWORK);
+
+    drawvline( x + 110 * SCALE,  y + 0 * SCALE, y + 15 * SCALE, COLOR_EDGE_NORMAL);
+    drawstr(   x + 115 * SCALE,  y + 5 * SCALE, USER_INTERFACE);
+
+    drawvline( x + 175 * SCALE,  y + 0 * SCALE, y + 15 * SCALE, COLOR_EDGE_NORMAL);
+    drawstr(   x + 180 * SCALE,  y + 5 * SCALE, AUDIO_VIDEO);
 }
 
 static void background_draw(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int width, int height)
