@@ -320,7 +320,6 @@ static void drawsettings_sub_header(int x, int y, int w, int UNUSED(height)){
 
     drawstr(   x + 180 * SCALE, y + 5 * SCALE, AUDIO_VIDEO);
     drawhline( x + 175 * SCALE, y + 15 * SCALE, x + w + 0 * SCALE, COLOR_EDGE_NORMAL);
-
 }
 
 static void background_draw(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int width, int height)
@@ -689,34 +688,34 @@ void ui_scale(uint8_t scale)
 
     b_settings_sub_utox = {
         .type   = PANEL_BUTTON,
-        .x      = 5  * SCALE,
-        .y      = 5  * SCALE,
-        .width  = 50 * SCALE,
-        .height = 10 * SCALE,
+        .x      = 1  * SCALE, /* Nudged 1px as a buffer */
+        .y      = 1  * SCALE,
+        .width  = 64 * SCALE, /* Nudged 1px as a buffer */
+        .height = 14 * SCALE,
     },
 
     b_settings_sub_network = {
         .type   = PANEL_BUTTON,
-        .x      = 70 * SCALE,
-        .y      = 5  * SCALE,
-        .width  = 30 * SCALE,
-        .height = 10 * SCALE,
+        .x      = 66 * SCALE, /* Nudged 1px as a buffer */
+        .y      = 1  * SCALE,
+        .width  = 44 * SCALE,
+        .height = 14 * SCALE,
     },
 
     b_settings_sub_ui = {
         .type   = PANEL_BUTTON,
-        .x      = 115 * SCALE,
-        .y      = 5   * SCALE,
-        .width  = 55  * SCALE,
-        .height = 10  * SCALE,
+        .x      = 111 * SCALE, /* Nudged 1px as a buffer */
+        .y      = 1   * SCALE,
+        .width  = 64  * SCALE, /* Nudged 1px as a buffer */
+        .height = 14  * SCALE,
     },
 
     b_settings_sub_av = {
         .type   = PANEL_BUTTON,
-        .x      = 185 * SCALE,
-        .y      = 5   * SCALE,
-        .width  = 50  * SCALE,
-        .height = 10  * SCALE,
+        .x      = 176 * SCALE, /* Nudged 1px as a buffer */
+        .y      = 1   * SCALE,
+        .width  = 400 * SCALE, /* Fill the rest of the space for this button */
+        .height = 14  * SCALE,
     },
 
     #ifdef EMOJI_IDS
