@@ -413,15 +413,13 @@ static void button_avatar_onright(void)
 }
 
 
-static void button_name_onpress(void)
-{
-    list_selectsettings();
+static void button_name_onpress(void){
+    button_settings_sub_utox_onpress();
     edit_setfocus(&edit_name);
 }
 
-static void button_statusmsg_onpress(void)
-{
-    list_selectsettings();
+static void button_statusmsg_onpress(void){
+    button_settings_sub_utox_onpress();
     edit_setfocus(&edit_status);
 }
 
@@ -499,9 +497,7 @@ static void button_chat_send_update(BUTTON *b){
 }
 
 
-BUTTON
-
-button_settings_sub_utox = {
+BUTTON button_settings_sub_utox = {
     .nodraw = 1,
     .onpress = button_settings_sub_utox_onpress,
     .tooltip_text = { .i18nal = STR_UTOX_SETTINGS },
@@ -614,7 +610,6 @@ button_video = {
     .update = button_video_update,
 },
 
-
 button_sendfile = {
     .bm = BM_LBUTTON,
     .bm2 = BM_FILE,
@@ -674,7 +669,6 @@ button_chat2 = {
     .disabled = 1,
 },
 
-/* bottom right chat message window button */
 button_chat_send = {
     .bm  = BM_CHAT_SEND,
     .bm2 = BM_CHAT_SEND_OVERLAY,
