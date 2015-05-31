@@ -1228,11 +1228,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
                     }
                     argv_theme=1;
                 }
-            } else if(!wcscmp(arglist[i], L"--profile")) {
-                if ( ++i < argc ) {
+            } else if(!wcsncmp(arglist[i], L"--profile", 9)) {
+                LPWSTR word=arglist[i]+10;
+                if ( *(word-1) == L'=' || (++i < argc, word=arglist[i]) ) {
                     //Arrr, widestrings.
-                    char *clear_str=malloc(UTOX_FILE_NAME_LENGTH);
-                    wcstombs(clear_str, arglist[i], UTOX_FILE_NAME_LENGTH); //Convert widestring to multibyte string
+                    char *clear_str=(char*)malloc(UTOX_FILE_NAME_LENGTH);
+                    wcstombs(clear_str, word, UTOX_FILE_NAME_LENGTH); //Convert widestring to multibyte string
                     debug("Profile provided: %s\n", clear_str);
                     tox_savename=clear_str;
                 }

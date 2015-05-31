@@ -1061,9 +1061,10 @@ int main(int argc, char *argv[])
                     }
                 }
             }
-            if(!strcmp(argv[i], "--profile")) {
-                if ( ++i < argc ) {
-                    tox_savename = argv[i];
+            if(!strncmp(argv[i], "--profile", 9)) {
+                char *word=argv[i]+10;
+                if ( *(word-1) == '=' || (++i < argc, word=argv[i]) ) {
+                    tox_savename = word;
                     debug("Profile provided: %s\n", tox_savename);
                 }
             }
