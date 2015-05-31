@@ -270,8 +270,8 @@ void list_start(void)
     ITEM *i = item;
 
     item_add.item = ITEM_ADD;
-    button_add.disabled = 1;
-    edit_setfocus(&edit_addid);
+    // button_add.disabled = 1;
+    // edit_setfocus(&edit_addid);
 
     item_settings.item = ITEM_SETTINGS;
     item_transfer.item = ITEM_TRANSFER;
