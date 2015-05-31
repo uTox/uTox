@@ -1319,8 +1319,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     LocalFree(arglist);
 
     UTOX_SAVE *save = config_load();
-    if (!argv_theme)
+    if (!argv_theme) {
         theme=save->theme;
+    }
     
     theme_load(theme);
 
