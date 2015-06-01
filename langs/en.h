@@ -118,6 +118,9 @@ msgstr("User Settings")
 msgid(NAME)
 msgstr("Name")
 
+msgid(PROFILE)
+msgstr("Profile")
+
 msgid(STATUSMESSAGE)
 msgstr("Status Message")
 

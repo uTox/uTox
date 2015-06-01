@@ -253,18 +253,12 @@ static void drawtransfer(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UN
 /* Text content for settings page */
 static void drawsettings_text_utox(int x, int y, int w, int h){
     setcolor(COLOR_MAIN_TEXT);
-    drawstr(LIST_RIGHT + SCALE * 5,  y + 5   * SCALE, NAME);
-    drawstr(LIST_RIGHT + SCALE * 5,  y + 30  * SCALE, STATUSMESSAGE);
+    drawstr(LIST_RIGHT + SCALE * 5, y + 5   * SCALE, NAME);
+    drawstr(LIST_RIGHT + SCALE * 5, y + 30  * SCALE, STATUSMESSAGE);
     setfont(FONT_SELF_NAME);
-    drawstr(LIST_RIGHT + SCALE * 5,  y + 55  * SCALE, TOXID);
+    drawstr(LIST_RIGHT + SCALE * 5, y + 55  * SCALE, TOXID);
     setfont(FONT_TEXT);
-    drawstr(LIST_RIGHT + SCALE * 5,  y + 75  * SCALE, LANGUAGE);
-    drawstr(LIST_RIGHT + SCALE * 5,  y + 100 * SCALE, LOGGING);
-    drawstr(LIST_RIGHT + SCALE * 5,  y + 125 * SCALE, CLOSE_TO_TRAY);
-    drawstr(LIST_RIGHT + SCALE * 95, y + 125 * SCALE, START_IN_TRAY);
-    drawstr(LIST_RIGHT + SCALE * 5,  y + 150 * SCALE, AUTO_STARTUP);
-    drawstr(LIST_RIGHT + SCALE * 5,  y + 175 * SCALE, SEND_TYPING_NOTIFICATIONS);
-
+    drawstr(LIST_RIGHT + SCALE * 5, y + 75  * SCALE, LANGUAGE);
 }
 
 static void drawsettings_text_network(int x, int y, int w, int UNUSED(height)){
@@ -286,6 +280,11 @@ static void drawsettings_text_ui(int x, int y, int w, int UNUSED(height)){
     setfont(FONT_TEXT);
     drawstr(LIST_RIGHT + 75 * SCALE, y + 5 * SCALE, DPI);
     drawstr(LIST_RIGHT + 5  * SCALE, y + 5 * SCALE, THEME);
+    drawstr(LIST_RIGHT + 5  * SCALE, y + 30 * SCALE, LOGGING);
+    drawstr(LIST_RIGHT + 5  * SCALE, y + 55 * SCALE, CLOSE_TO_TRAY);
+    drawstr(LIST_RIGHT + 75 * SCALE, y + 55 * SCALE, START_IN_TRAY);
+    drawstr(LIST_RIGHT + 5  * SCALE, y + 80 * SCALE, AUTO_STARTUP);
+    drawstr(LIST_RIGHT + 5  * SCALE, y + 105 * SCALE, SEND_TYPING_NOTIFICATIONS);
 }
 
 static void drawsettings_text_av(int x, int y, int w, int UNUSED(height)){
@@ -307,7 +306,7 @@ static void drawsettings_sub_header(int x, int y, int w, int UNUSED(height)){
 
     /* Draw the text and bars for general settings */
     setcolor(!button_settings_sub_utox.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_SUBTEXT);
-    drawstr(   x + 5   * SCALE, y + 5 * SCALE, USERSETTINGS);
+    drawstr(   x + 5   * SCALE, y + 5 * SCALE, PROFILE);
     if (panel_settings_utox.disabled) {
         drawhline( x + 0   * SCALE, y + 15 * SCALE, x + 65 * SCALE, COLOR_EDGE_NORMAL);
     } else {
@@ -474,10 +473,6 @@ panel_settings_utox = {
         (void*)&button_change_id_type,
         #endif
         (void*)&dropdown_language,
-        (void*)&dropdown_logging,
-        (void*)&dropdown_close_to_tray, (void*)&dropdown_start_in_tray,
-        (void*)&dropdown_auto_startup,
-        (void*)&dropdown_typing_notes,
         NULL
     }
 },
@@ -503,6 +498,10 @@ panel_settings_ui = {
     .child = (PANEL*[]) {
         (void*)&dropdown_dpi,
         (void*)&dropdown_theme,
+        (void*)&dropdown_logging,
+        (void*)&dropdown_close_to_tray, (void*)&dropdown_start_in_tray,
+        (void*)&dropdown_auto_startup,
+        (void*)&dropdown_typing_notes,
         NULL
     },
     .disabled = 1
@@ -663,7 +662,7 @@ void ui_scale(uint8_t scale)
     messages_group.panel.width = -SCROLL_WIDTH;
 
     scroll_settings.panel.y = 16 * SCALE;
-    scroll_settings.content_height = 225 * SCALE;
+    scroll_settings.content_height = 150 * SCALE;
 
     scroll_group.panel.y = LIST_Y;
     scroll_group.panel.height = MESSAGES_BOTTOM;
@@ -1001,7 +1000,7 @@ void ui_scale(uint8_t scale)
     d_logging = {
         .type   = PANEL_DROPDOWN,
         .x      = 5   * SCALE,
-        .y      = 109 * SCALE,
+        .y      = 39 * SCALE,
         .height = 12  * SCALE,
         .width  = 20  * SCALE
     },
@@ -1015,33 +1014,33 @@ void ui_scale(uint8_t scale)
     },
 
     d_close_to_tray = {
-        .type = PANEL_DROPDOWN,
-        .x = 5 * SCALE,
-        .y = SCALE * 133,
-        .height = 12 * SCALE,
-        .width = SCALE * 20
+        .type   = PANEL_DROPDOWN,
+        .x      = 5   * SCALE,
+        .y      = 63 * SCALE,
+        .height = 12  * SCALE,
+        .width  = 20  * SCALE
     },
 
     d_start_in_tray = {
-        .type = PANEL_DROPDOWN,
-        .x = 95 * SCALE,
-        .y = SCALE * 133,
+        .type   = PANEL_DROPDOWN,
+        .x      = 75  * SCALE,
+        .y      = 63 * SCALE,
         .height = 12 * SCALE,
-        .width = SCALE * 20
+        .width  = 20 * SCALE
     },
 
     d_auto_startup = {
-        .type = PANEL_DROPDOWN,
-        .x = 5 * SCALE,
-        .y = SCALE * 157,
+        .type   = PANEL_DROPDOWN,
+        .x      = 5  * SCALE,
+        .y      = 87 * SCALE,
         .height = 12 * SCALE,
-        .width = SCALE * 20
+        .width  = 20 * SCALE
     },
 
     d_typing_notes = {
         .type   = PANEL_DROPDOWN,
         .x      = 5   * SCALE,
-        .y      = 184 * SCALE,
+        .y      = 114 * SCALE,
         .height = 12  * SCALE,
         .width  = 20  * SCALE
     };
