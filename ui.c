@@ -235,10 +235,10 @@ static void drawadd(int UNUSED(x), int UNUSED(y), int UNUSED(w), int height)
 static void drawsettings_header(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height)){
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(LIST_RIGHT + SCALE * 5, SCALE * 10, UTOX_SETTINGS);
+    drawstr(LIST_RIGHT + SCALE * 5, SCALE * 5, UTOX_SETTINGS);
     #ifdef GIT_VERSION
-    setfont(FONT_TEXT);
-    drawtext(LIST_RIGHT + SCALE * 60, SCALE * 10, (uint8_t*)GIT_VERSION, strlen(GIT_VERSION));
+        setfont(FONT_TEXT);
+        drawtext(LIST_RIGHT + SCALE * 60, SCALE * 5, (uint8_t*)GIT_VERSION, strlen(GIT_VERSION));
     #endif
 }
 
@@ -346,8 +346,7 @@ static void drawsettings_sub_header(int x, int y, int w, int UNUSED(height)){
     }
 }
 
-static void background_draw(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int width, int height)
-{
+static void background_draw(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int width, int height){
     // Current user avatar & name background
     drawrect(0, 0, LIST_RIGHT, LIST_Y, COLOR_MENU_BACKGROUND);
     // Friend list ('roaster') background
@@ -362,7 +361,12 @@ static void background_draw(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int 
     drawrect(LIST_RIGHT, 0, width, height, COLOR_MAIN_BACKGROUND);
 
     // Chat and chat header separation
-    drawhline(LIST_RIGHT, LIST_Y - 1, width, COLOR_EDGE_NORMAL);
+    extern PANEL panel_settings;
+    if (panel_settings.disabled) {
+        drawhline(LIST_RIGHT, LIST_Y - 1, width, COLOR_EDGE_NORMAL);
+    } else {
+        drawhline(LIST_RIGHT, (LIST_Y / 2) - 1, width, COLOR_EDGE_NORMAL);
+    }
 }
 
 static _Bool background_mmove(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height), int UNUSED(mx), int UNUSED(my), int UNUSED(dx), int UNUSED(dy))
@@ -637,7 +641,7 @@ void ui_scale(uint8_t scale)
 
     panel_side.x = LIST_RIGHT;
 
-    panel_settings.y      = LIST_Y;
+    panel_settings.y      = LIST_Y / 2;
     panel_settings_utox.y = 16 * SCALE;
     panel_settings_net.y  = 16 * SCALE;
     panel_settings_ui.y   = 16 * SCALE;
