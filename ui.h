@@ -34,6 +34,7 @@ struct panel
 {
     uint8_t type;
     _Bool disabled;
+    _Bool mouse_over;
     int x, y, width, height;
     SCROLLABLE *content_scroll;
     void (*drawfunc)(int, int, int, int);

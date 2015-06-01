@@ -303,10 +303,10 @@ static void drawsettings_text_av(int x, int y, int w, int UNUSED(height)){
 }
 
 static void drawsettings_sub_header(int x, int y, int w, int UNUSED(height)){
-    setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
 
     /* Draw the text and bars for general settings */
+    setcolor(!button_settings_sub_utox.mouseover ? COLOR_MENU_TEXT : COLOR_MENU_SUBTEXT);
     drawstr(   x + 5   * SCALE, y + 5 * SCALE, USERSETTINGS);
     if (panel_settings_utox.disabled) {
         drawhline( x + 0   * SCALE, y + 15 * SCALE, x + 65 * SCALE, COLOR_EDGE_NORMAL);
@@ -317,6 +317,7 @@ static void drawsettings_sub_header(int x, int y, int w, int UNUSED(height)){
     drawvline( x + 65  * SCALE, y + 0 * SCALE, y + 15 * SCALE, COLOR_EDGE_NORMAL);
 
     /* Draw the text and bars for network settings */
+    setcolor(!button_settings_sub_net.mouseover ? COLOR_MENU_TEXT : COLOR_MENU_SUBTEXT);
     drawstr(   x + 70  * SCALE, y + 5 * SCALE, NETWORK);
     if (panel_settings_net.disabled) {
         drawhline( x + 65  * SCALE, y + 15 * SCALE, x + 110 * SCALE, COLOR_EDGE_NORMAL);
@@ -327,6 +328,7 @@ static void drawsettings_sub_header(int x, int y, int w, int UNUSED(height)){
     drawvline( x + 110 * SCALE, y + 0 * SCALE, y + 15  * SCALE, COLOR_EDGE_NORMAL);
 
     /* Draw the text and bars for User interface settings */
+    setcolor(!button_settings_sub_ui.mouseover ? COLOR_MENU_TEXT : COLOR_MENU_SUBTEXT);
     drawstr(   x + 115 * SCALE, y + 5 * SCALE, USER_INTERFACE);
     if (panel_settings_ui.disabled) {
         drawhline( x + 110 * SCALE, y + 15 * SCALE, x + 175 * SCALE, COLOR_EDGE_NORMAL);
@@ -337,6 +339,7 @@ static void drawsettings_sub_header(int x, int y, int w, int UNUSED(height)){
     drawvline( x + 175 * SCALE, y + 0 * SCALE, y + 15  * SCALE, COLOR_EDGE_NORMAL);
 
     /* Draw the text and bars for A/V settings */
+    setcolor(!button_settings_sub_av.mouseover ? COLOR_MENU_TEXT : COLOR_MENU_SUBTEXT);
     drawstr(   x + 180 * SCALE, y + 5 * SCALE, AUDIO_VIDEO);
     if (panel_settings_av.disabled) {
         drawhline( x + 175 * SCALE, y + 15 * SCALE, x + w + 0 * SCALE, COLOR_EDGE_NORMAL);
@@ -526,7 +529,7 @@ panel_settings = {
     .drawfunc = drawsettings_sub_header,
     .child = (PANEL*[]) {
         (void*)&button_settings_sub_utox,
-        (void*)&button_settings_sub_network,
+        (void*)&button_settings_sub_net,
         (void*)&button_settings_sub_ui,
         (void*)&button_settings_sub_av,
         (void*)&scroll_settings,
@@ -721,7 +724,7 @@ void ui_scale(uint8_t scale)
         .height = 14 * SCALE,
     },
 
-    b_settings_sub_network = {
+    b_settings_sub_net = {
         .type   = PANEL_BUTTON,
         .x      = 66 * SCALE, /* Nudged 1px as a buffer */
         .y      = 1  * SCALE,
@@ -883,7 +886,7 @@ void ui_scale(uint8_t scale)
     button_groups.panel = b_groups;
     button_copyid.panel = b_copyid;
     button_settings_sub_utox.panel = b_settings_sub_utox;
-    button_settings_sub_network.panel = b_settings_sub_network;
+    button_settings_sub_net.panel = b_settings_sub_net;
     button_settings_sub_ui.panel = b_settings_sub_ui;
     button_settings_sub_av.panel = b_settings_sub_av;
     #ifdef EMOJI_IDS

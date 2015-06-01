@@ -73,10 +73,11 @@ static void button_audiopreview_onpress(void)
 
 static void button_audiopreview_update(BUTTON *b)
 {
-    if (audio_preview)
+    if (audio_preview){
         button_setcolors_danger(b);
-    else
+    } else {
         button_setcolors_success(b);
+    }
 }
 
 static void button_videopreview_onpress(void)
@@ -138,7 +139,7 @@ static void button_settings_sub_utox_onpress(void){
     panel_settings_av.disabled   = 1;
 }
 
-static void button_settings_sub_network_onpress(void){
+static void button_settings_sub_net_onpress(void){
     scroll_settings.content_height = 90 * SCALE;
     list_selectsettings();
     panel_settings_utox.disabled = 1;
@@ -412,7 +413,6 @@ static void button_avatar_onright(void)
     }
 }
 
-
 static void button_name_onpress(void){
     button_settings_sub_utox_onpress();
     edit_setfocus(&edit_name);
@@ -498,26 +498,26 @@ static void button_chat_send_update(BUTTON *b){
 
 
 BUTTON button_settings_sub_utox = {
-    .nodraw = 1,
-    .onpress = button_settings_sub_utox_onpress,
+    .nodraw       = 1,
+    .onpress      = button_settings_sub_utox_onpress,
     .tooltip_text = { .i18nal = STR_UTOX_SETTINGS },
 },
 
-button_settings_sub_network = {
-    .nodraw = 1,
-    .onpress = button_settings_sub_network_onpress,
+button_settings_sub_net = {
+    .nodraw       = 1,
+    .onpress      = button_settings_sub_net_onpress,
     .tooltip_text = { .i18nal = STR_NETWORK_SETTINGS },
 },
 
 button_settings_sub_ui = {
-    .nodraw = 1,
-    .onpress = button_settings_sub_ui_onpress,
+    .nodraw       = 1,
+    .onpress      = button_settings_sub_ui_onpress,
     .tooltip_text = { .i18nal = STR_USERSETTINGS },
 },
 
 button_settings_sub_av = {
-    .nodraw = 1,
-    .onpress = button_settings_sub_av_onpress,
+    .nodraw       = 1,
+    .onpress      = button_settings_sub_av_onpress,
     .tooltip_text = { .i18nal = STR_AUDIO_VIDEO },
 },
 
