@@ -306,7 +306,7 @@ static void drawsettings_sub_header(int x, int y, int w, int UNUSED(height)){
     setfont(FONT_SELF_NAME);
 
     /* Draw the text and bars for general settings */
-    setcolor(!button_settings_sub_utox.mouseover ? COLOR_MENU_TEXT : COLOR_MENU_SUBTEXT);
+    setcolor(!button_settings_sub_utox.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_SUBTEXT);
     drawstr(   x + 5   * SCALE, y + 5 * SCALE, USERSETTINGS);
     if (panel_settings_utox.disabled) {
         drawhline( x + 0   * SCALE, y + 15 * SCALE, x + 65 * SCALE, COLOR_EDGE_NORMAL);
@@ -317,7 +317,7 @@ static void drawsettings_sub_header(int x, int y, int w, int UNUSED(height)){
     drawvline( x + 65  * SCALE, y + 0 * SCALE, y + 15 * SCALE, COLOR_EDGE_NORMAL);
 
     /* Draw the text and bars for network settings */
-    setcolor(!button_settings_sub_net.mouseover ? COLOR_MENU_TEXT : COLOR_MENU_SUBTEXT);
+    setcolor(!button_settings_sub_net.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_SUBTEXT);
     drawstr(   x + 70  * SCALE, y + 5 * SCALE, NETWORK);
     if (panel_settings_net.disabled) {
         drawhline( x + 65  * SCALE, y + 15 * SCALE, x + 110 * SCALE, COLOR_EDGE_NORMAL);
@@ -328,7 +328,7 @@ static void drawsettings_sub_header(int x, int y, int w, int UNUSED(height)){
     drawvline( x + 110 * SCALE, y + 0 * SCALE, y + 15  * SCALE, COLOR_EDGE_NORMAL);
 
     /* Draw the text and bars for User interface settings */
-    setcolor(!button_settings_sub_ui.mouseover ? COLOR_MENU_TEXT : COLOR_MENU_SUBTEXT);
+    setcolor(!button_settings_sub_ui.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_SUBTEXT);
     drawstr(   x + 115 * SCALE, y + 5 * SCALE, USER_INTERFACE);
     if (panel_settings_ui.disabled) {
         drawhline( x + 110 * SCALE, y + 15 * SCALE, x + 175 * SCALE, COLOR_EDGE_NORMAL);
@@ -339,7 +339,7 @@ static void drawsettings_sub_header(int x, int y, int w, int UNUSED(height)){
     drawvline( x + 175 * SCALE, y + 0 * SCALE, y + 15  * SCALE, COLOR_EDGE_NORMAL);
 
     /* Draw the text and bars for A/V settings */
-    setcolor(!button_settings_sub_av.mouseover ? COLOR_MENU_TEXT : COLOR_MENU_SUBTEXT);
+    setcolor(!button_settings_sub_av.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_SUBTEXT);
     drawstr(   x + 180 * SCALE, y + 5 * SCALE, AUDIO_VIDEO);
     if (panel_settings_av.disabled) {
         drawhline( x + 175 * SCALE, y + 15 * SCALE, x + w + 0 * SCALE, COLOR_EDGE_NORMAL);
