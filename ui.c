@@ -365,7 +365,7 @@ static void background_draw(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int 
 
     // Chat and chat header separation
     extern PANEL panel_settings;
-    if (panel_settings.disabled) {
+    if (panel_item[1].disabled) {
         drawhline(LIST_RIGHT, LIST_Y - 1, width, COLOR_EDGE_NORMAL);
     } else {
         drawhline(LIST_RIGHT, (LIST_Y / 2) - 1, width, COLOR_EDGE_NORMAL);
@@ -544,7 +544,7 @@ panel_settings = {
 panel_item[] = {
     {
         .type = PANEL_NONE,
-        .disabled = 1,
+        //.disabled = 1,
         .drawfunc = drawadd,
         .child = (PANEL*[]) {
             (void*)&button_addfriend,
@@ -555,7 +555,7 @@ panel_item[] = {
 
     {
         .type = PANEL_NONE,
-        //.disabled = 1,
+        .disabled = 1,
         .drawfunc = drawsettings_header,
         .child = (PANEL*[]) {
             &panel_settings,
