@@ -5,7 +5,7 @@ msgid(LANG_ENGLISH_NAME)
 msgstr("NORWEGIAN")
 
 msgid(REQ_SENT)
-msgstr("Venneforespørsel er sent. Din venn vil vises som pålogget etter at venneforespørselen er akseptert.")
+msgstr("Venneforespørsel er sent. Din venn vil bli vist som pålogget når venneforespørselen blir godtatt.")
 
 msgid(REQ_RESOLVE)
 msgstr("Forsøker å løse DNS-navnet...")
@@ -17,10 +17,10 @@ msgid(REQ_EMPTY_ID)
 msgstr("Feil: Ingen Tox ID spesifisert")
 
 msgid(REQ_LONG_MSG)
-msgstr("Feil: Meldingen er for lang")
+msgstr("Feil: For lang melding")
 
 msgid(REQ_NO_MSG)
-msgstr("Feil: Meldingen er tom")
+msgstr("Feil: Ingen melding")
 
 msgid(REQ_SELF_ID)
 msgstr("Feil: Tox ID er din ID")
@@ -35,7 +35,7 @@ msgid(REQ_BAD_CHECKSUM)
 msgstr("Feil: Ugyldig Tox ID (dårlig sjekksum)")
 
 msgid(REQ_BAD_NOSPAM)
-msgstr("Feil: Ugyldig Tox ID (dårlig nospam verdi)")
+msgstr("Feil: Ugyldig Tox ID (dårlig antispam verdi)")
 
 msgid(REQ_NO_MEMORY)
 msgstr("Feil: Ingen minne")
@@ -50,7 +50,7 @@ msgid(WHERE_TO_SAVE_FILE_PROMPT)
 msgstr("Hvor vil du lagre \"%.*s\"?")
 
 msgid(SEND_FILE_PROMPT)
-msgstr("Velg en eller flere filer til å sende.")
+msgstr("Velg en eller flere filer du vil sende.")
 
 msgid(SCREEN_CAPTURE_PROMPT)
 msgstr("Dra en boks rundt området av skjermen du vil sende.")
@@ -59,16 +59,13 @@ msgid(TRANSFER_NEW)
 msgstr("Ny filoverføring")
 
 msgid(TRANSFER_STARTED)
-msgstr("Filoverføring har startet")
-
-msgid(TRANSFER___)
-msgstr("...")
+msgstr("Startet filoverføring")
 
 msgid(TRANSFER_PAUSED)
 msgstr("Filoverføring pauset")
 
 msgid(TRANSFER_BROKEN)
-msgstr("Filoverføring ødelagt")
+msgstr("Filoverføring mislyktes")
 
 msgid(TRANSFER_CANCELLED)
 msgstr("Filoverføring avbrutt")
@@ -91,9 +88,6 @@ msgstr("Samtale startet")
 msgid(ADDFRIENDS)
 msgstr("Legg til venner")
 
-msgid(TOXID)
-msgstr("Tox ID")
-
 msgid(MESSAGE)
 msgstr("Melding")
 
@@ -113,7 +107,7 @@ msgid(FRIENDREQUEST)
 msgstr("Venneforespørsel")
 
 msgid(USERSETTINGS)
-msgstr("Brukerinstillinger")
+msgstr("Brukerinnstillinger")
 
 msgid(NAME)
 msgstr("Navn")
@@ -128,7 +122,7 @@ msgid(DEVICESELECTION)
 msgstr("Enhetsvalg")
 
 msgid(AUDIOINPUTDEVICE)
-msgstr("Lydinspillingsenhet")
+msgstr("Lydinnspillingsenhet")
 
 msgid(AUDIOFILTERING)
 msgstr("Filtrer Audio")
@@ -137,16 +131,13 @@ msgid(AUDIOOUTPUTDEVICE)
 msgstr("Lydavspillingsenhet")
 
 msgid(VIDEOINPUTDEVICE)
-msgstr("Videoinnspillingsenhet")
+msgstr("Videoavspillingsenhet")
 
 msgid(OTHERSETTINGS)
-msgstr("Andre Instillinger")
-
-msgid(DPI)
-msgstr("DPI")
+msgstr("Andre Innstillinger")
 
 msgid(SAVELOCATION)
-msgstr("Lagrings Lokasjon")
+msgstr("Lagre Lokasjon")
 
 msgid(LANGUAGE)
 msgstr("Språk")
@@ -154,20 +145,11 @@ msgstr("Språk")
 msgid(NETWORK)
 msgstr("Nettverk")
 
-msgid(IPV6)
-msgstr("IPv6:")
-
-msgid(UDP)
-msgstr("UDP:")
-
-msgid(PROXY)
-msgstr("Proxy (SOCKS 5)")
-
 msgid(WARNING)
-msgstr("Endring av nettverk/Proxy instillinger vil midlertidig frakoble deg fra Tox nettverket")
+msgstr("Endring av nettverks/Proxy instillinger vil midlertidig frakoble deg fra Tox nettverket")
 
 msgid(LOGGING)
-msgstr("Logging")
+msgstr("Lagre logger fra samtaler")
 
 msgid(AUDIONOTIFICATIONS)
 msgstr("Aktiver Lydvarsling (Ringetone)")
@@ -212,7 +194,7 @@ msgid(CTOPIC)
 msgstr("Endre tittel")
 
 msgid(ACCEPT)
-msgstr("Aksepter")
+msgstr("Godta")
 
 msgid(IGNORE)
 msgstr("Ignorer")
@@ -282,12 +264,6 @@ msgstr("Aksepter denne venneforespørselen.")
 
 msgid(CONTACTS_FILTER_EDIT_HINT)
 msgstr("Søk igjennom venner")
-
-msgid(PROXY_EDIT_HINT_IP)
-msgstr("IP")
-
-msgid(PROXY_EDIT_HINT_PORT)
-msgstr("Port")
 
 msgid(WINDOW_TITLE_VIDEO_PREVIEW)
 msgstr("Video Forhåndsvisning")
