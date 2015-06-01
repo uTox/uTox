@@ -306,20 +306,44 @@ static void drawsettings_sub_header(int x, int y, int w, int UNUSED(height)){
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
 
+    /* Draw the text and bars for general settings */
     drawstr(   x + 5   * SCALE, y + 5 * SCALE, USERSETTINGS);
-    drawhline( x + 0   * SCALE, y + 15 * SCALE, x + 65 * SCALE, COLOR_EDGE_NORMAL);
+    if (panel_settings_utox.disabled) {
+        drawhline( x + 0   * SCALE, y + 15 * SCALE, x + 65 * SCALE, COLOR_EDGE_NORMAL);
+    } else {
+        drawhline( x + 0   * SCALE, y + 0, x + 65 * SCALE, COLOR_EDGE_ACTIVE);
+        drawhline( x + 0   * SCALE, y + 1, x + 65 * SCALE, COLOR_EDGE_ACTIVE);
+    }
     drawvline( x + 65  * SCALE, y + 0 * SCALE, y + 15 * SCALE, COLOR_EDGE_NORMAL);
 
+    /* Draw the text and bars for network settings */
     drawstr(   x + 70  * SCALE, y + 5 * SCALE, NETWORK);
-    drawhline( x + 65  * SCALE, y + 15 * SCALE, x + 110 * SCALE, COLOR_EDGE_NORMAL);
+    if (panel_settings_net.disabled) {
+        drawhline( x + 65  * SCALE, y + 15 * SCALE, x + 110 * SCALE, COLOR_EDGE_NORMAL);
+    } else {
+        drawhline( x + 65  * SCALE, y + 0, x + 110 * SCALE, COLOR_EDGE_ACTIVE);
+        drawhline( x + 65  * SCALE, y + 1, x + 110 * SCALE, COLOR_EDGE_ACTIVE);
+    }
     drawvline( x + 110 * SCALE, y + 0 * SCALE, y + 15  * SCALE, COLOR_EDGE_NORMAL);
 
+    /* Draw the text and bars for User interface settings */
     drawstr(   x + 115 * SCALE, y + 5 * SCALE, USER_INTERFACE);
-    drawhline( x + 110 * SCALE, y + 15 * SCALE, x + 175 * SCALE, COLOR_EDGE_NORMAL);
+    if (panel_settings_ui.disabled) {
+        drawhline( x + 110 * SCALE, y + 15 * SCALE, x + 175 * SCALE, COLOR_EDGE_NORMAL);
+    } else {
+        drawhline( x + 110 * SCALE, y + 0, x + 175 * SCALE, COLOR_EDGE_ACTIVE);
+        drawhline( x + 110 * SCALE, y + 1, x + 175 * SCALE, COLOR_EDGE_ACTIVE);
+    }
     drawvline( x + 175 * SCALE, y + 0 * SCALE, y + 15  * SCALE, COLOR_EDGE_NORMAL);
 
+    /* Draw the text and bars for A/V settings */
     drawstr(   x + 180 * SCALE, y + 5 * SCALE, AUDIO_VIDEO);
-    drawhline( x + 175 * SCALE, y + 15 * SCALE, x + w + 0 * SCALE, COLOR_EDGE_NORMAL);
+    if (panel_settings_av.disabled) {
+        drawhline( x + 175 * SCALE, y + 15 * SCALE, x + w + 0 * SCALE, COLOR_EDGE_NORMAL);
+    } else {
+        drawhline( x + 175 * SCALE, y + 0, x + w + 0 * SCALE, COLOR_EDGE_ACTIVE);
+        drawhline( x + 175 * SCALE, y + 1, x + w + 0 * SCALE, COLOR_EDGE_ACTIVE);
+    }
 }
 
 static void background_draw(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int width, int height)
@@ -509,7 +533,6 @@ panel_settings = {
         NULL
     }
 },
-
 
 panel_item[] = {
     {
