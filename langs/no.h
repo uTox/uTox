@@ -5,62 +5,76 @@ msgid(LANG_ENGLISH_NAME)
 msgstr("NORWEGIAN")
 
 msgid(REQ_SENT)
-msgstr("Venne forespørsel sent sent. Vennen din vil bli vist som pålogget når venneforespørselen blir godtatt.")
+msgstr("Venneforespørsel er sent. Din venn vil vises som pålogget etter at venneforespørselen er akseptert.")
 
 msgid(REQ_RESOLVE)
-msgstr("Forsøk på å løse DNS...")
+msgstr("Forsøker å løse DNS-navnet...")
 
 msgid(REQ_INVALID_ID)
-msgstr("Error: Ugyldig Tox ID")
+msgstr("Feil: Ugyldig Tox ID")
 
 msgid(REQ_EMPTY_ID)
-msgstr("Error: Ingen Tox ID spesifisert")
+msgstr("Feil: Ingen Tox ID spesifisert")
 
 msgid(REQ_LONG_MSG)
-msgstr("Error: For lang melding")
+msgstr("Feil: Meldingen er for lang")
 
 msgid(REQ_NO_MSG)
-msgstr("Error: Ingen melding")
+msgstr("Feil: Meldingen er tom")
 
 msgid(REQ_SELF_ID)
-msgstr("Error: Tox ID din ID")
+msgstr("Feil: Tox ID er din ID")
 
 msgid(REQ_ALREADY_FRIENDS)
-msgstr("Error: Tox ID er allerede på vennelisten din")
+msgstr("Feil: Tox ID er allerede i vennelisten din")
 
 msgid(REQ_UNKNOWN)
-msgstr("Error: Ukjent")
+msgstr("Feil: Ukjent")
 
 msgid(REQ_BAD_CHECKSUM)
-msgstr("Error: Ugyldig Tox ID (dårlig checksum)")
+msgstr("Feil: Ugyldig Tox ID (dårlig sjekksum)")
 
 msgid(REQ_BAD_NOSPAM)
-msgstr("Error: Ugyldig Tox ID (dårlig antispam verdi)")
+msgstr("Feil: Ugyldig Tox ID (dårlig nospam verdi)")
 
 msgid(REQ_NO_MEMORY)
-msgstr("Error: Ingen minne")
+msgstr("Feil: Ingen minne")
+
+msgid(SEND_FILE)
+msgstr("Send Fil")
+
+msgid(SAVE_FILE)
+msgstr("Lagre Fil")
+
+msgid(WHERE_TO_SAVE_FILE_PROMPT)
+msgstr("Hvor vil du lagre \"%.*s\"?")
+
+msgid(SEND_FILE_PROMPT)
+msgstr("Velg en eller flere filer til å sende.")
+
+msgid(SCREEN_CAPTURE_PROMPT)
+msgstr("Dra en boks rundt området av skjermen du vil sende.")
 
 msgid(TRANSFER_NEW)
 msgstr("Ny filoverføring")
 
 msgid(TRANSFER_STARTED)
-msgstr("Startet filoverføring")
+msgstr("Filoverføring har startet")
 
-//TODO: Same as in English? Localize or remove.
-//msgid(TRANSFER___)
-//msgstr("...")
+msgid(TRANSFER___)
+msgstr("...")
 
 msgid(TRANSFER_PAUSED)
 msgstr("Filoverføring pauset")
 
 msgid(TRANSFER_BROKEN)
-msgstr("Filoverføring  mislyktes")
+msgstr("Filoverføring ødelagt")
 
 msgid(TRANSFER_CANCELLED)
 msgstr("Filoverføring avbrutt")
 
 msgid(TRANSFER_COMPLETE)
-msgstr("Filoverføring ferdig")
+msgstr("Filoverføring fullført")
 
 msgid(CALL_CANCELLED)
 msgstr("Samtale avbrutt")
@@ -77,33 +91,35 @@ msgstr("Samtale startet")
 msgid(ADDFRIENDS)
 msgstr("Legg til venner")
 
-//TODO: Same as in English? Localize or remove.
-//msgid(TOXID)
-//msgstr("Tox ID")
+msgid(TOXID)
+msgstr("Tox ID")
 
 msgid(MESSAGE)
 msgstr("Melding")
 
 msgid(SEARCHFRIENDS)
-msgstr("Søk etter venner")
+msgstr("Søk igjennom venner")
 
 msgid(ADD)
 msgstr("Legg til")
 
+msgid(CREATEGROUPCHAT)
+msgstr("Lag Gruppesamtale")
+
 msgid(SWITCHPROFILE)
-msgstr("bytt profil")
+msgstr("Bytt Profil")
 
 msgid(FRIENDREQUEST)
 msgstr("Venneforespørsel")
 
 msgid(USERSETTINGS)
-msgstr("Brukerinnstillinger")
+msgstr("Brukerinstillinger")
 
 msgid(NAME)
 msgstr("Navn")
 
 msgid(STATUSMESSAGE)
-msgstr("Status beskjed")
+msgstr("Statusmelding")
 
 msgid(PREVIEW)
 msgstr("Forhåndsvisning")
@@ -112,57 +128,67 @@ msgid(DEVICESELECTION)
 msgstr("Enhetsvalg")
 
 msgid(AUDIOINPUTDEVICE)
-msgstr("Lydinnspillingsenhet")
+msgstr("Lydinspillingsenhet")
+
+msgid(AUDIOFILTERING)
+msgstr("Filtrer Audio")
 
 msgid(AUDIOOUTPUTDEVICE)
 msgstr("Lydavspillingsenhet")
 
 msgid(VIDEOINPUTDEVICE)
-msgstr("Videoavspillingsenhet")
+msgstr("Videoinnspillingsenhet")
 
 msgid(OTHERSETTINGS)
-msgstr("Andre innstillinger")
+msgstr("Andre Instillinger")
 
-//TODO: Same as in English? Localize or remove.
-//msgid(DPI)
-//msgstr("DPI")
+msgid(DPI)
+msgstr("DPI")
 
 msgid(SAVELOCATION)
-msgstr("Lagre lokasjon ")
+msgstr("Lagrings Lokasjon")
 
 msgid(LANGUAGE)
 msgstr("Språk")
 
 msgid(NETWORK)
-msgstr("Netverk")
+msgstr("Nettverk")
 
-//TODO: Same as in English? Localize or remove.
-//msgid(IPV6)
-//msgstr("IPv6:")
+msgid(IPV6)
+msgstr("IPv6:")
 
-//TODO: Same as in English? Localize or remove.
-//msgid(UDP)
-//msgstr("UDP:")
+msgid(UDP)
+msgstr("UDP:")
 
-//TODO: Same as in English? Localize or remove.
-//msgid(PROXY)
-//msgstr("Proxy (SOCKS 5)")
+msgid(PROXY)
+msgstr("Proxy (SOCKS 5)")
 
 msgid(WARNING)
-msgstr("å bytte nettverks/Proxy innstillinger vill frakoble deg fra Tux nettverket")
+msgstr("Endring av nettverk/Proxy instillinger vil midlertidig frakoble deg fra Tox nettverket")
 
 msgid(LOGGING)
-msgstr("Lagre logger fra chatt")
+msgstr("Logging")
 
-//TODO: Same as in English? Localize or remove.
-//msgid(IS_TYPING)
-//msgstr("is typing...")
+msgid(AUDIONOTIFICATIONS)
+msgstr("Aktiver Lydvarsling (Ringetone)")
+
+msgid(IS_TYPING)
+msgstr("skriver...")
+
+msgid(CLOSE_TO_TRAY)
+msgstr("Lukk Til Statusfeltet")
+
+msgid(START_IN_TRAY)
+msgstr("Start i Statusfeltet")
 
 msgid(COPY)
 msgstr("Kopier")
 
 msgid(COPYWITHOUTNAMES)
-msgstr("Kopier (ingen navn)")
+msgstr("Kopier (Uten Navn)")
+
+msgid(COPY_WITH_NAMES)
+msgstr("Kopier (Inkluder Navn)")
 
 msgid(CUT)
 msgstr("Klipp ut")
@@ -182,11 +208,17 @@ msgstr("Fjern")
 msgid(LEAVE)
 msgstr("Forlat")
 
+msgid(CTOPIC)
+msgstr("Endre tittel")
+
 msgid(ACCEPT)
-msgstr("Godta")
+msgstr("Aksepter")
 
 msgid(IGNORE)
 msgstr("Ignorer")
+
+msgid(SENDSCREENSHOT)
+msgstr("Send et skjermbilde")
 
 msgid(CLICKTOSAVE)
 msgstr("Klikk for å lagre")
@@ -197,86 +229,110 @@ msgstr("Klikk for å åpne")
 msgid(CANCELLED)
 msgstr("Avbrutt")
 
-//TODO: Localize or remove.
-//msgid(DPI_TINY)
-//msgstr("Tiny (50%)")
+msgid(DPI_TINY)
+msgstr("Liten (50%)")
 
-//TODO: Localize or remove.
-//msgid(DPI_NORMAL)
-//msgstr("Normal (100%)")
+msgid(DPI_NORMAL)
+msgstr("Normal (100%)")
 
-//TODO: Localize or remove.
-//msgid(DPI_BIG)
-//msgstr("Big (150%)")
+msgid(DPI_BIG)
+msgstr("Stor (150%)")
 
-//TODO: Localize or remove.
-//msgid(DPI_LARGE)
-//msgstr("Large (200%)")
+msgid(DPI_LARGE)
+msgstr("Større (200%)")
 
-//TODO: Localize or remove.
-//msgid(DPI_HUGE)
-//msgstr("Huge (250%)")
+msgid(DPI_HUGE)
+msgstr("Enorm (250%)")
 
-//TODO: Localize or remove.
-//msgid(CONTACTS_FILTER_ALL)
-//msgstr("All")
+msgid(CONTACTS_FILTER_ALL)
+msgstr("Alle")
 
-//TODO: Localize or remove.
-//msgid(CONTACTS_FILTER_ONLINE)
-//msgstr("Online")
+msgid(CONTACTS_FILTER_ONLINE)
+msgstr("Pålogget")
 
-//TODO: Localize or remove.
-//msgid(PROXY_DISABLED)
-//msgstr("Disabled")
+msgid(PROXY_DISABLED)
+msgstr("Deaktivert")
 
-//TODO: Localize or remove.
-//msgid(PROXY_FALLBACK)
-//msgstr("Fallback")
+msgid(PROXY_FALLBACK)
+msgstr("Reserve")
 
-//TODO: Localize or remove.
-//msgid(PROXY_ALWAYS_USE)
-//msgstr("Always use")
+msgid(PROXY_ALWAYS_USE)
+msgstr("Alltid bruk")
 
-//TODO: Localize or remove.
-//msgid(NO)
-//msgstr("No")
+msgid(NO)
+msgstr("Nei")
 
-//TODO: Localize or remove.
-//msgid(YES)
-//msgstr("Yes")
+msgid(YES)
+msgstr("Ja")
 
-//TODO: Localize or remove.
-//msgid(VIDEO_IN_NONE)
-//msgstr("None")
+msgid(VIDEO_IN_NONE)
+msgstr("Ingen")
 
-//TODO: Localize or remove.
-//msgid(VIDEO_IN_DESKTOP)
-//msgstr("Desktop")
+msgid(VIDEO_IN_DESKTOP)
+msgstr("Skrivebord")
 
-//TODO: Localize or remove.
-//msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
-//msgstr("Please accept this friend request.")
+msgid(AUDIO_IN_DEFAULT_LOOPBACK)
+msgstr("Standard Loopback")
 
-//TODO: Localize or remove.
-//msgid(CONTACTS_FILTER_EDIT_HINT)
-//msgstr("Search friends")
+msgid(AUDIO_IN_ANDROID)
+msgstr("OpenSL Inspilling")
 
-//TODO: Localize or remove.
-//msgid(PROXY_EDIT_HINT_IP)
-//msgstr("IP")
+msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
+msgstr("Aksepter denne venneforespørselen.")
 
-//TODO: Localize or remove.
-//msgid(PROXY_EDIT_HINT_PORT)
-//msgstr("Port")
+msgid(CONTACTS_FILTER_EDIT_HINT)
+msgstr("Søk igjennom venner")
 
-//TODO: Localize or remove.
-//msgid(AUDIO_IN_DEFAULT_LOOPBACK)
-//msgstr("Default Loopback")
+msgid(PROXY_EDIT_HINT_IP)
+msgstr("IP")
 
-//TODO: Localize or remove.
-//msgid(WINDOW_TITLE_VIDEO_PREVIEW)
-//msgstr("Video Preview")
+msgid(PROXY_EDIT_HINT_PORT)
+msgstr("Port")
 
-//TODO: Localize or remove.
-//msgid(AUDIONOTIFICATIONS)
-//msgstr("Enable Audible Notification (Ringtone)")
+msgid(WINDOW_TITLE_VIDEO_PREVIEW)
+msgstr("Video Forhåndsvisning")
+
+msgid(MUTE)
+msgstr("Slå av")
+
+msgid(UNMUTE)
+msgstr("Slå på")
+
+msgid(SELECT_AVATAR_TITLE)
+msgstr("Velg Avatar")
+
+msgid(AVATAR_TOO_LARGE_MAX_SIZE_IS)
+msgstr("Avataren er for stor. Maksimum størrelse: ")
+
+msgid(CANT_FIND_FILE_OR_EMPTY)
+msgstr("Finner ikke valgt fil eller filen er tom.")
+
+msgid(CLEAR_HISTORY)
+msgstr("Fjern historikk")
+
+msgid(AUTO_STARTUP)
+msgstr("Start ved systemoppstart")
+
+msgid(THEME)
+msgstr("Tema")
+
+msgid(THEME_DEFAULT)
+msgstr("Standard")
+
+msgid(THEME_LIGHT)
+msgstr("Lyst tema")
+
+msgid(THEME_DARK)
+msgstr("Mørkt tema")
+
+msgid(THEME_HIGHCONTRAST)
+msgstr("Høy kontrast")
+
+msgid(THEME_CUSTOM)
+msgstr("Brukerdefinert (se dokumentasjon)")
+
+msgid(THEME_ZENBURN)
+msgstr("Zenburn")
+
+msgid(SEND_TYPING_NOTIFICATIONS)
+msgstr("Send skrive notifikasjon")
