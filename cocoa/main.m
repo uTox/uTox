@@ -1,6 +1,7 @@
 #include "../main.h"
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/syslimits.h>
 #include <pthread.h>
 #include <libgen.h>
 #import <Foundation/Foundation.h>
@@ -10,6 +11,8 @@
 #define DEFAULT_HEIGHT (320 * DEFAULT_SCALE)
 
 static _Bool utox_portable = 0;
+static _Bool user_defined_datapath = 0;
+char user_datapath[PATH_MAX];
 
 void debug(const char *fmt, ...) {
     va_list l;
@@ -96,6 +99,27 @@ int parse_argv(int argc, char const *argv[]) {
             if(!strcmp(argv[i], "--portable")) {
                 debug("Launching uTox in portable mode: All data will be saved to the tox folder in the current working directory\n");
                 utox_portable = 1;
+            }
+            if(strncmp(argv[i], "--datapath", 10) == 0) {
+                user_datapath[0] = '\0';
+                if ((strlen(argv[i]) > 10) && (argv[i][10] == '=')) {
+                    strncpy(user_datapath, argv[i]+11, PATH_MAX-1);
+                    user_datapath[PATH_MAX-1] = '\0';
+                    if (strlen(user_datapath) > 0) {
+                        user_defined_datapath = 1;
+                        debug("Using \"%s\" as data path\n");
+                    }
+                } else if((strlen(argv[i]) == 10) && (argc > i+1)) {
+                    i += 1;
+                    strncpy(user_datapath, argv[i], PATH_MAX-1);
+                    user_datapath[PATH_MAX-1] = '\0';
+                    if (strlen(user_datapath) > 0) {
+                        user_defined_datapath = 1;
+                        debug("Using \"%s\" as data path\n");
+                    }
+                } else {
+                    debug("Ignoring \"--datapath\" argument\n");
+                }
             }
             if(!strcmp(argv[i], "--theme")) {
                 parse_args_wait_for_theme = 1;
@@ -225,6 +249,12 @@ int datapath(uint8_t *dest) {
         const char *home = [NSBundle.mainBundle.bundlePath stringByDeletingLastPathComponent].UTF8String;
         int l = sprintf((char*)dest, "%.238s/tox", home);
         ensure_directory_r((char*)dest, 0700);
+        dest[l++] = '/';
+
+        return l;
+    } else if (user_defined_datapath) {
+        int l = sprintf((char*)dest, "%.230s", user_datapath);
+        mkdir((char*)dest, 0700);
         dest[l++] = '/';
 
         return l;

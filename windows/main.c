@@ -9,6 +9,8 @@ _Bool draw = 0;
 float scale = 1.0;
 _Bool connected = 0;
 _Bool havefocus;
+char user_datapath[MAX_PATH];
+_Bool user_defined_datapath;
 
 
 BLENDFUNCTION blend_function = {
@@ -842,6 +844,11 @@ int datapath(uint8_t *dest)
         CreateDirectory((char*)dest, NULL);
         *p++ = '\\';
         return p - dest;
+    } else if (user_defined_datapath) {
+        uint8_t *p = dest + strlen((char*)dest);
+        CreateDirectory((char*)dest, NULL);
+	*p++ = '\\';
+        return p - dest;
     } else {
         if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, (char*)dest))) {
             uint8_t *p = dest + strlen((char*)dest);
@@ -1204,6 +1211,30 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
                 utox_portable = 1;
                 strcpy(utox_portable_save_path, path);
                 debug("Starting uTox in portable mode: Data will be saved to tox/ in the current directory: %s\n", utox_portable_save_path);
+            } else if(wcsncmp(arglist[i], L"--datapath", 10) == 0) {
+                user_datapath[0] = '\0';
+                if ((strlen(arglist[i]) > 10) && (arglist[i][10] == L'=')) {
+                    char clean_arg[MAX_PATH];
+		    wcstombs(clean_arg, arglist[i], strlen(arglist[i]));
+                    strncpy(user_datapath, clean_arg+11, MAX_PATH-1);
+                    user_datapath[MAX_PATH-1] = '\0';
+                    if (strlen(user_datapath) > 0) {
+                        user_defined_datapath = 1;
+                        debug("Using \"%s\" as data path\n");
+                    }
+                } else if((strlen(arglist[i]) == 10) && (argc > i+1)) {
+                    ++i;
+                    char clean_arg[MAX_PATH];
+		    wcstombs(clean_arg, arglist[i], strlen(arglist[i]));
+                    strncpy(user_datapath, clean_arg, MAX_PATH-1);
+                    user_datapath[MAX_PATH-1] = '\0';
+                    if (strlen(user_datapath) > 0) {
+                        user_defined_datapath = 1;
+                        debug("Using \"%s\" as data path\n");
+                    }
+                } else {
+                    debug("Ignoring \"--datapath\" argument\n");
+                }
             } else if(wcscmp(arglist[i], L"--theme") == 0){
                 debug("Searching for theme from argv\n");
                 if(arglist[(i+1)]){

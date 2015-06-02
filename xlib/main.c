@@ -1057,7 +1057,8 @@ int main(int argc, char *argv[])
                         debug("Using \"%s\" as data path\n");
                     }
                 } else if((strlen(argv[i]) == 10) && (argc > i+1)) {
-                    strncpy(user_datapath, argv[i+1], PATH_MAX-1);
+                    ++i;
+                    strncpy(user_datapath, argv[i], PATH_MAX-1);
                     user_datapath[PATH_MAX-1] = '\0';
                     if (strlen(user_datapath) > 0) {
                         user_defined_datapath = 1;
