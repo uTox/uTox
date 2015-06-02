@@ -1,5 +1,6 @@
 #include <windows.h>
 #include <windowsx.h>
+#include <io.h>
 
 #include "audio.c"
 
@@ -1218,7 +1219,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
 		    wcstombs(clean_arg, arglist[i], strlen(arglist[i]));
                     strncpy(user_datapath, clean_arg+11, MAX_PATH-1);
                     user_datapath[MAX_PATH-1] = '\0';
-                    if (strlen(user_datapath) > 0) {
+                    if ((strlen(user_datapath) > 0) && (_access_s(user_datapath, 6) == 0)) {
                         user_defined_datapath = 1;
                         debug("Using \"%s\" as data path\n");
                     }
@@ -1228,7 +1229,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
 		    wcstombs(clean_arg, arglist[i], strlen(arglist[i]));
                     strncpy(user_datapath, clean_arg, MAX_PATH-1);
                     user_datapath[MAX_PATH-1] = '\0';
-                    if (strlen(user_datapath) > 0) {
+                    if ((strlen(user_datapath) > 0) && (_access_s(user_datapath, 6) == 0)) {
                         user_defined_datapath = 1;
                         debug("Using \"%s\" as data path\n");
                     }

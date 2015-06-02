@@ -4,6 +4,7 @@
 #include <sys/syslimits.h>
 #include <pthread.h>
 #include <libgen.h>
+#include <unistd.h>
 #import <Foundation/Foundation.h>
 #import <AppKit/AppKit.h>
 
@@ -105,7 +106,7 @@ int parse_argv(int argc, char const *argv[]) {
                 if ((strlen(argv[i]) > 10) && (argv[i][10] == '=')) {
                     strncpy(user_datapath, argv[i]+11, PATH_MAX-1);
                     user_datapath[PATH_MAX-1] = '\0';
-                    if (strlen(user_datapath) > 0) {
+                    if ((strlen(user_datapath) > 0) && (access(user_datapath, R_OK|W_OK)) == 0) {
                         user_defined_datapath = 1;
                         debug("Using \"%s\" as data path\n");
                     }
@@ -113,7 +114,7 @@ int parse_argv(int argc, char const *argv[]) {
                     i += 1;
                     strncpy(user_datapath, argv[i], PATH_MAX-1);
                     user_datapath[PATH_MAX-1] = '\0';
-                    if (strlen(user_datapath) > 0) {
+                    if ((strlen(user_datapath) > 0) && (access(user_datapath, R_OK|W_OK)) == 0) {
                         user_defined_datapath = 1;
                         debug("Using \"%s\" as data path\n");
                     }
