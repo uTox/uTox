@@ -5,37 +5,37 @@ msgid(LANG_ENGLISH_NAME)
 msgstr("PORTUGUESE")
 
 msgid(REQ_SENT)
-msgstr("Pedido de amizade enviado. O seu amigo aparecerá assim que o pedido seja aceite.")
+msgstr("Pedido de amizade enviado. Assim que seja aceite, o seu amigo aparecerá online.")
 
 msgid(REQ_RESOLVE)
 msgstr("Tentando resolver o DNS...") //TODO
 
 msgid(REQ_INVALID_ID)
-msgstr("Error: Identidade Tox invalida")
+msgstr("Error: ID Tox invalida")
 
 msgid(REQ_EMPTY_ID)
-msgstr("Erro: Nenhuma identidade Tox especificada")
+msgstr("Erro: Nenhuma ID Tox especificada")
 
 msgid(REQ_LONG_MSG)
-msgstr("Erro: Mensagem é demasiado longa")
+msgstr("Erro: Mensagem demasiado longa")
 
 msgid(REQ_NO_MSG)
 msgstr("Erro: Mensagem em branco")
 
 msgid(REQ_SELF_ID)
-msgstr("Erro: Identidade Tox é a identidade do próprio")
+msgstr("Erro: Este é o seu próprio ID Tox")
 
 msgid(REQ_ALREADY_FRIENDS)
-msgstr("Erro: Identidade Tox já se encontra na lista de amigos")
+msgstr("Erro: ID Tox já se encontra na lista de amigos")
 
 msgid(REQ_UNKNOWN)
 msgstr("Erro: Desconhecido")
 
 msgid(REQ_BAD_CHECKSUM)
-msgstr("Erro: Identidade Tox invalida (verificação de conteúdo invalida)") //TODO
+msgstr("Erro: ID Tox invalida (verificação de conteúdo invalida)") //TODO
 
 msgid(REQ_BAD_NOSPAM)
-msgstr("Erro: Identidade Tox invalida (valor nospam invalido)")
+msgstr("Erro: ID Tox invalida (valor nospam invalido)")
 
 msgid(REQ_NO_MEMORY)
 msgstr("Erro: Sem memoria disponivel")
@@ -68,7 +68,7 @@ msgid(TRANSFER_PAUSED)
 msgstr("Transferência de ficheiros em pausa")
 
 msgid(TRANSFER_BROKEN)
-msgstr("Transferência de ficheiros quebrada")
+msgstr("Transferência de ficheiros interrompida")
 
 msgid(TRANSFER_CANCELLED)
 msgstr("Transferência de ficheiros cancelada")
@@ -80,7 +80,7 @@ msgid(CALL_CANCELLED)
 msgstr("Chamada cancelada")
 
 msgid(CALL_INVITED)
-msgstr("Chamada convidada") //TODO
+msgstr("Chamada enviada") //TODO
 
 msgid(CALL_RINGING)
 msgstr("A chamar")
@@ -92,7 +92,7 @@ msgid(ADDFRIENDS)
 msgstr("Adicionar Amigos")
 
 msgid(TOXID)
-msgstr("Identidade Tox")
+msgstr("ID Tox")
 
 msgid(MESSAGE)
 msgstr("Mensagem")
@@ -125,7 +125,7 @@ msgid(PREVIEW)
 msgstr("Pré-visualização")
 
 msgid(DEVICESELECTION)
-msgstr("Seleção de Dispositivo")
+msgstr("Seleção de Dispositivos")
 
 msgid(AUDIOINPUTDEVICE)
 msgstr("Dispositivo de Entrada de Áudio")
@@ -167,7 +167,7 @@ msgid(WARNING)
 msgstr("Alterar as configurações de Rede/Proxy irá temporariamente desconecta-lo da rede Tox")
 
 msgid(LOGGING)
-msgstr("Registos")
+msgstr("Registos de Conversação")
 
 msgid(AUDIONOTIFICATIONS)
 msgstr("Ativar Notificação Auditiva (Toque de Chamada)")
@@ -176,10 +176,10 @@ msgid(IS_TYPING)
 msgstr("está a escrever...")
 
 msgid(CLOSE_TO_TRAY)
-msgstr("Fechar Para Barra de Ferramentas")
+msgstr("Fechar na Tray")
 
 msgid(START_IN_TRAY)
-msgstr("Inicializar na Barra de Ferramentas")
+msgstr("Inicializar na Tray")
 
 msgid(COPY)
 msgstr("Copiar")
@@ -278,19 +278,13 @@ msgid(AUDIO_IN_ANDROID)
 msgstr("Entrada OpenSL")
 
 msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
-msgstr("Por favor aceite este pedido de amizade.")
+msgstr("Por favor, aceite este pedido de amizade.")
 
 msgid(CONTACTS_FILTER_EDIT_HINT)
 msgstr("Procurar amigos")
 
-msgid(PROXY_EDIT_HINT_IP)
-msgstr("IP")
-
-msgid(PROXY_EDIT_HINT_PORT)
-msgstr("Port")
-
 msgid(WINDOW_TITLE_VIDEO_PREVIEW)
-msgstr("Pré-visualização de Video")
+msgstr("Pré-visualização de Vídeo")
 
 msgid(MUTE)
 msgstr("Silenciar")
@@ -302,7 +296,7 @@ msgid(SELECT_AVATAR_TITLE)
 msgstr("Selecionar Avatar")
 
 msgid(AVATAR_TOO_LARGE_MAX_SIZE_IS)
-msgstr("Avatar demasiado grande. Tamanho maximo: ")
+msgstr("Avatar demasiado grande. Tamanho máximo: ")
 
 msgid(CANT_FIND_FILE_OR_EMPTY)
 msgstr("Ficheiro não encontrado ou em branco.")
@@ -314,10 +308,10 @@ msgid(AUTO_STARTUP)
 msgstr("Inicializar ao arranque de sistema")
 
 msgid(THEME)
-msgstr("Tema")
+msgstr("Aparência")
 
 msgid(THEME_DEFAULT)
-msgstr("Pré-definido")
+msgstr("Tema Pré-definido")
 
 msgid(THEME_LIGHT)
 msgstr("Tema claro")

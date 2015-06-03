@@ -186,3 +186,11 @@ LANG_WINDOWS_ID(0x040E)
 #include "langs/en.h" //fallback to English for untranslated things
 #include "langs/hu.h"
 #undef _LANG_ID
+
+//"PORTUGUESE" "Português de Portugal"
+#define _LANG_ID LANG_PT
+LANG_POSIX_LOCALE("pt_PT")
+LANG_WINDOWS_ID(0x0816)
+#include "langs/en.h" //fallback to English for untranslated things
+#include "langs/pt.h"
+#undef _LANG_ID
