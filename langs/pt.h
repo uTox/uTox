@@ -1,158 +1,158 @@
 msgid(LANG_NATIVE_NAME)
-msgstr("English")
+msgstr("Português")
 
 msgid(LANG_ENGLISH_NAME)
-msgstr("ENGLISH")
+msgstr("PORTUGUESE")
 
 msgid(REQ_SENT)
-msgstr("Friend request sent. Your friend will appear online after the request is accepted.")
+msgstr("Pedido de amizade enviado. O seu amigo aparecerá assim que o pedido seja aceite.")
 
 msgid(REQ_RESOLVE)
-msgstr("Attempting to resolve DNS name...")
+msgstr("Tentando resolver o DNS...") //TODO
 
 msgid(REQ_INVALID_ID)
-msgstr("Error: Invalid Tox ID")
+msgstr("Error: Identidade Tox invalida")
 
 msgid(REQ_EMPTY_ID)
-msgstr("Error: No Tox ID specified")
+msgstr("Erro: Nenhuma identidade Tox especificada")
 
 msgid(REQ_LONG_MSG)
-msgstr("Error: Message is too long")
+msgstr("Erro: Mensagem é demasiado longa")
 
 msgid(REQ_NO_MSG)
-msgstr("Error: Empty message")
+msgstr("Erro: Mensagem em branco")
 
 msgid(REQ_SELF_ID)
-msgstr("Error: Tox ID is self ID")
+msgstr("Erro: Identidade Tox é a identidade do próprio")
 
 msgid(REQ_ALREADY_FRIENDS)
-msgstr("Error: Tox ID is already in friend list")
+msgstr("Erro: Identidade Tox já se encontra na lista de amigos")
 
 msgid(REQ_UNKNOWN)
-msgstr("Error: Unknown")
+msgstr("Erro: Desconhecido")
 
 msgid(REQ_BAD_CHECKSUM)
-msgstr("Error: Invalid Tox ID (bad checksum)")
+msgstr("Erro: Identidade Tox invalida (verificação de conteúdo invalida)") //TODO
 
 msgid(REQ_BAD_NOSPAM)
-msgstr("Error: Invalid Tox ID (bad nospam value)")
+msgstr("Erro: Identidade Tox invalida (valor nospam invalido)")
 
 msgid(REQ_NO_MEMORY)
-msgstr("Error: No memory")
+msgstr("Erro: Sem memoria disponivel")
 
 msgid(SEND_FILE)
-msgstr("Send File")
+msgstr("Enviar Ficheiro")
 
 msgid(SAVE_FILE)
-msgstr("Save File")
+msgstr("Guardar Ficheiro")
 
 msgid(WHERE_TO_SAVE_FILE_PROMPT)
-msgstr("Where do you want to save \"%.*s\"?")
+msgstr("Onde deseja guardar \"%.*s\"?")
 
 msgid(SEND_FILE_PROMPT)
-msgstr("Select one or more files to send.")
+msgstr("Selecione um ou mais ficheiros para envio.")
 
 msgid(SCREEN_CAPTURE_PROMPT)
-msgstr("Drag a box around the area of the screen you want to send.")
+msgstr("Arraste a caixa em volta da área do ecrã que deseja enviar.")
 
 msgid(TRANSFER_NEW)
-msgstr("New file transfer")
+msgstr("Nova transferência de ficheiros")
 
 msgid(TRANSFER_STARTED)
-msgstr("File transfer started")
+msgstr("Transferência de ficheiros iniciada")
 
 msgid(TRANSFER___)
 msgstr("...")
 
 msgid(TRANSFER_PAUSED)
-msgstr("File transfer paused")
+msgstr("Transferência de ficheiros em pausa")
 
 msgid(TRANSFER_BROKEN)
-msgstr("File transfer broken")
+msgstr("Transferência de ficheiros quebrada")
 
 msgid(TRANSFER_CANCELLED)
-msgstr("File transfer canceled")
+msgstr("Transferência de ficheiros cancelada")
 
 msgid(TRANSFER_COMPLETE)
-msgstr("File transfer complete")
+msgstr("Transferência de ficheiros completa")
 
 msgid(CALL_CANCELLED)
-msgstr("Call canceled")
+msgstr("Chamada cancelada")
 
 msgid(CALL_INVITED)
-msgstr("Call invited")
+msgstr("Chamada convidada") //TODO
 
 msgid(CALL_RINGING)
-msgstr("Call ringing")
+msgstr("A chamar")
 
 msgid(CALL_STARTED)
-msgstr("Call started")
+msgstr("Chamada iniciada")
 
 msgid(ADDFRIENDS)
-msgstr("Add Friends")
+msgstr("Adicionar Amigos")
 
 msgid(TOXID)
-msgstr("Tox ID")
+msgstr("Identidade Tox")
 
 msgid(MESSAGE)
-msgstr("Message")
+msgstr("Mensagem")
 
 msgid(SEARCHFRIENDS)
-msgstr("Search friends")
+msgstr("Procurar Amigos")
 
 msgid(ADD)
-msgstr("Add")
+msgstr("Adicionar")
 
 msgid(CREATEGROUPCHAT)
-msgstr("Create Groupchat")
+msgstr("Criar Conversa de Grupo")
 
 msgid(SWITCHPROFILE)
-msgstr("Switch Profile")
+msgstr("Trocar de Perfil")
 
 msgid(FRIENDREQUEST)
-msgstr("Friend Request")
+msgstr("Pedido de Amizade")
 
 msgid(USERSETTINGS)
-msgstr("User Settings")
+msgstr("Configurações de Utilizador")
 
 msgid(NAME)
-msgstr("Name")
+msgstr("Nome")
 
 msgid(STATUSMESSAGE)
-msgstr("Status Message")
+msgstr("Mensagem de Estado")
 
 msgid(PREVIEW)
-msgstr("Preview")
+msgstr("Pré-visualização")
 
 msgid(DEVICESELECTION)
-msgstr("Device Selection")
+msgstr("Seleção de Dispositivo")
 
 msgid(AUDIOINPUTDEVICE)
-msgstr("Audio Input Device")
+msgstr("Dispositivo de Entrada de Áudio")
 
 msgid(AUDIOFILTERING)
-msgstr("Filter Audio")
+msgstr("Filtrar Audio")
 
 msgid(AUDIOOUTPUTDEVICE)
-msgstr("Audio Output Device")
+msgstr("Dispositivo de Saída de Áudio")
 
 msgid(VIDEOINPUTDEVICE)
-msgstr("Video Input Device")
+msgstr("Dispositivo de Entrada de Vídeo")
 
 msgid(OTHERSETTINGS)
-msgstr("Other Settings")
+msgstr("Outras Configurações")
 
 msgid(DPI)
 msgstr("DPI")
 
 msgid(SAVELOCATION)
-msgstr("Save Location")
+msgstr("Local de Gravação")
 
 msgid(LANGUAGE)
-msgstr("Language")
+msgstr("Linguagem")
 
 msgid(NETWORK)
-msgstr("Network")
+msgstr("Rede")
 
 msgid(IPV6)
 msgstr("IPv6:")
@@ -164,124 +164,124 @@ msgid(PROXY)
 msgstr("Proxy (SOCKS 5)")
 
 msgid(WARNING)
-msgstr("Changing Network/Proxy settings will temporarily disconnect you from the Tox network")
+msgstr("Alterar as configurações de Rede/Proxy irá temporariamente desconecta-lo da rede Tox")
 
 msgid(LOGGING)
-msgstr("Logging")
+msgstr("Registos")
 
 msgid(AUDIONOTIFICATIONS)
-msgstr("Enable Audible Notification (Ringtone)")
+msgstr("Ativar Notificação Auditiva (Toque de Chamada)")
 
 msgid(IS_TYPING)
-msgstr("is typing...")
+msgstr("está a escrever...")
 
 msgid(CLOSE_TO_TRAY)
-msgstr("Close To Tray")
+msgstr("Fechar Para Barra de Ferramentas")
 
 msgid(START_IN_TRAY)
-msgstr("Start In Tray")
+msgstr("Inicializar na Barra de Ferramentas")
 
 msgid(COPY)
-msgstr("Copy")
+msgstr("Copiar")
 
 msgid(COPYWITHOUTNAMES)
-msgstr("Copy (Without Names)")
+msgstr("Copiar (Excluindo Nomes)")
 
 msgid(COPY_WITH_NAMES)
-msgstr("Copy (Include Names)")
+msgstr("Copiar (Incluindo Nomes)")
 
 msgid(CUT)
-msgstr("Cut")
+msgstr("Cortar")
 
 msgid(PASTE)
-msgstr("Paste")
+msgstr("Colar")
 
 msgid(DELETE)
-msgstr("Delete")
+msgstr("Apagar")
 
 msgid(SELECTALL)
-msgstr("Select All")
+msgstr("Selecionar Tudo")
 
 msgid(REMOVE)
-msgstr("Remove")
+msgstr("Remover")
 
 msgid(LEAVE)
-msgstr("Leave")
+msgstr("Sair")
 
 msgid(CTOPIC)
-msgstr("Change topic")
+msgstr("Mudar topico")
 
 msgid(ACCEPT)
-msgstr("Accept")
+msgstr("Aceitar")
 
 msgid(IGNORE)
-msgstr("Ignore")
+msgstr("Ignorar")
 
 msgid(SENDSCREENSHOT)
-msgstr("Send a screenshot")
+msgstr("Enviar captura de ecrã")
 
 msgid(CLICKTOSAVE)
-msgstr("Click to save")
+msgstr("Clicar para gravar")
 
 msgid(CLICKTOOPEN)
-msgstr("Click to open")
+msgstr("Clicar para abrir")
 
 msgid(CANCELLED)
-msgstr("Cancelled")
+msgstr("Cancelado")
 
 msgid(DPI_TINY)
-msgstr("Tiny (50%)")
+msgstr("Pequeno (50%)")
 
 msgid(DPI_NORMAL)
 msgstr("Normal (100%)")
 
 msgid(DPI_BIG)
-msgstr("Big (150%)")
+msgstr("Grande (150%)")
 
 msgid(DPI_LARGE)
-msgstr("Large (200%)")
+msgstr("Largo (200%)")
 
 msgid(DPI_HUGE)
-msgstr("Huge (250%)")
+msgstr("Gigante (250%)")
 
 msgid(CONTACTS_FILTER_ALL)
-msgstr("All")
+msgstr("Todos")
 
 msgid(CONTACTS_FILTER_ONLINE)
 msgstr("Online")
 
 msgid(PROXY_DISABLED)
-msgstr("Disabled")
+msgstr("Desactivado")
 
 msgid(PROXY_FALLBACK)
-msgstr("Fallback")
+msgstr("Reserva")
 
 msgid(PROXY_ALWAYS_USE)
-msgstr("Always use")
+msgstr("Usar sempre")
 
 msgid(NO)
-msgstr("No")
+msgstr("Não")
 
 msgid(YES)
-msgstr("Yes")
+msgstr("Sim")
 
 msgid(VIDEO_IN_NONE)
-msgstr("None")
+msgstr("Nenhum")
 
 msgid(VIDEO_IN_DESKTOP)
-msgstr("Desktop")
+msgstr("Ambiente de Trabalho")
 
 msgid(AUDIO_IN_DEFAULT_LOOPBACK)
-msgstr("Default Loopback")
+msgstr("Loopback Pré-definido")
 
 msgid(AUDIO_IN_ANDROID)
-msgstr("OpenSL Input")
+msgstr("Entrada OpenSL")
 
 msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
-msgstr("Please accept this friend request.")
+msgstr("Por favor aceite este pedido de amizade.")
 
 msgid(CONTACTS_FILTER_EDIT_HINT)
-msgstr("Search friends")
+msgstr("Procurar amigos")
 
 msgid(PROXY_EDIT_HINT_IP)
 msgstr("IP")
@@ -290,49 +290,49 @@ msgid(PROXY_EDIT_HINT_PORT)
 msgstr("Port")
 
 msgid(WINDOW_TITLE_VIDEO_PREVIEW)
-msgstr("Video Preview")
+msgstr("Pré-visualização de Video")
 
 msgid(MUTE)
-msgstr("Mute")
+msgstr("Silenciar")
 
 msgid(UNMUTE)
-msgstr("Unmute")
+msgstr("Com som") //TODO
 
 msgid(SELECT_AVATAR_TITLE)
-msgstr("Select Avatar")
+msgstr("Selecionar Avatar")
 
 msgid(AVATAR_TOO_LARGE_MAX_SIZE_IS)
-msgstr("Avatar too large. Maximum size: ")
+msgstr("Avatar demasiado grande. Tamanho maximo: ")
 
 msgid(CANT_FIND_FILE_OR_EMPTY)
-msgstr("Cannot find selected file or selected file is empty.")
+msgstr("Ficheiro não encontrado ou em branco.")
 
 msgid(CLEAR_HISTORY)
-msgstr("Clear history")
+msgstr("Limpar historico")
 
 msgid(AUTO_STARTUP)
-msgstr("Launch at system startup")
+msgstr("Inicializar ao arranque de sistema")
 
 msgid(THEME)
-msgstr("Theme")
+msgstr("Tema")
 
 msgid(THEME_DEFAULT)
-msgstr("Default")
+msgstr("Pré-definido")
 
 msgid(THEME_LIGHT)
-msgstr("Light theme")
+msgstr("Tema claro")
 
 msgid(THEME_DARK)
-msgstr("Dark theme")
+msgstr("Tema escuro")
 
 msgid(THEME_HIGHCONTRAST)
-msgstr("High contrast")
+msgstr("Alto contraste")
 
 msgid(THEME_CUSTOM)
-msgstr("Custom (see docs)")
+msgstr("Customizado (ver documentação)")
 
 msgid(THEME_ZENBURN)
 msgstr("Zenburn")
 
 msgid(SEND_TYPING_NOTIFICATIONS)
-msgstr("Send typing notifications")
+msgstr("Alertar amigo quando escreve") //TODO
