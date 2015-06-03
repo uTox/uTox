@@ -8,7 +8,7 @@ msgid(REQ_SENT)
 msgstr("Pedido de amizade enviado. Assim que seja aceite, o seu amigo aparecerá online.")
 
 msgid(REQ_RESOLVE)
-msgstr("Tentando resolver o DNS...") //TODO
+msgstr("A resolver o DNS...")
 
 msgid(REQ_INVALID_ID)
 msgstr("Error: ID Tox invalida")
@@ -32,7 +32,7 @@ msgid(REQ_UNKNOWN)
 msgstr("Erro: Desconhecido")
 
 msgid(REQ_BAD_CHECKSUM)
-msgstr("Erro: ID Tox invalida (verificação de conteúdo invalida)") //TODO
+msgstr("Erro: ID Tox invalida (verificação de conteúdo invalida)")
 
 msgid(REQ_BAD_NOSPAM)
 msgstr("Erro: ID Tox invalida (valor nospam invalido)")
@@ -80,7 +80,7 @@ msgid(CALL_CANCELLED)
 msgstr("Chamada cancelada")
 
 msgid(CALL_INVITED)
-msgstr("Chamada enviada") //TODO
+msgstr("Chamada enviada")
 
 msgid(CALL_RINGING)
 msgstr("A chamar")
@@ -290,8 +290,7 @@ msgid(MUTE)
 msgstr("Silenciar")
 
 msgid(UNMUTE)
-msgstr("Com som") //TODO
-
+msgstr("Com som")
 msgid(SELECT_AVATAR_TITLE)
 msgstr("Selecionar Avatar")
 
@@ -329,4 +328,4 @@ msgid(THEME_ZENBURN)
 msgstr("Zenburn")
 
 msgid(SEND_TYPING_NOTIFICATIONS)
-msgstr("Alertar amigo quando escreve") //TODO
+msgstr("Alertar amigo quando escreve")
