@@ -27,6 +27,8 @@ PREFIX ?= /usr/local
 
 SRC = $(wildcard *.c cocoa/*.m)
 OBJ = $(SRC:=.o)
+GIT_V = $(shell git describe --abbrev=8 --dirty --always --tags)
+CFLAGS += -DGIT_VERSION=\"$(GIT_V)\"
 
 all: utox
 

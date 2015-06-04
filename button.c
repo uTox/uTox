@@ -26,12 +26,13 @@ void button_draw(BUTTON *b, int x, int y, int width, int height)
         return;
 
     // If `update` function is defined, call it on each draw
-    if (b->update)
+    if (b->update) {
         b->update(b);
+    }
 
     // Ensure that font is set before calculating position and width.
     setfont(FONT_SELF_NAME);
-    
+
     // Button contents colour
     uint32_t color_text = b->mousedown ? b->ct2 : (b->mouseover ? b->ct2 : b->ct1);
     setcolor(color_text);
@@ -41,7 +42,7 @@ void button_draw(BUTTON *b, int x, int y, int width, int height)
 
     // Button background colour
     uint32_t color_background = b->mousedown ? b->c3 : (b->mouseover ? b->c2 : b->c1);
-    
+
     if(b->bm) {
         drawalpha(b->bm, x, y, width, height, color_background);
     } else {

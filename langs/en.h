@@ -118,6 +118,9 @@ msgstr("User Settings")
 msgid(NAME)
 msgstr("Name")
 
+msgid(PROFILE)
+msgstr("Profile")
+
 msgid(STATUSMESSAGE)
 msgstr("Status Message")
 
@@ -141,6 +144,21 @@ msgstr("Video Input Device")
 
 msgid(OTHERSETTINGS)
 msgstr("Other Settings")
+
+msgid(UI)
+msgstr("UI")
+
+msgid(USER_INTERFACE)
+msgstr("User Interface")
+
+msgid(UTOX_SETTINGS)
+msgstr("uTox Settings")
+
+msgid(NETWORK_SETTINGS)
+msgstr("Network Settings")
+
+msgid(AUDIO_VIDEO)
+msgstr("Audio/Video")
 
 msgid(DPI)
 msgstr("DPI")
@@ -171,6 +189,9 @@ msgstr("Logging")
 
 msgid(AUDIONOTIFICATIONS)
 msgstr("Enable Audible Notification (Ringtone)")
+
+msgid(RINGTONE)
+msgstr("Ringtone")
 
 msgid(IS_TYPING)
 msgstr("is typing...")
@@ -264,6 +285,12 @@ msgstr("No")
 
 msgid(YES)
 msgstr("Yes")
+
+msgid(OFF)
+msgstr("Off")
+
+msgid(ON)
+msgstr("On")
 
 msgid(VIDEO_IN_NONE)
 msgstr("None")

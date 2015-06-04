@@ -100,12 +100,12 @@ static void dropdown_theme_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
 
 static void dropdown_notifications_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
 {
-    audible_notifications_enabled = !i;
+    audible_notifications_enabled = !!i;
 }
 
 static void dropdown_audio_filtering_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
 {
-    audio_filtering_enabled = !i;
+    audio_filtering_enabled = !!i;
 }
 
 static void dropdown_close_to_tray_onselect(uint16_t i, const DROPDOWN* UNUSED(dm)){
@@ -161,9 +161,9 @@ static UI_STRING_ID yesnodrops[] = {STR_YES, STR_NO};
 
 static UI_STRING_ID noyesdrops[] = {STR_NO, STR_YES};
 
-DROPDOWN
+static UI_STRING_ID offondrops[] = {STR_OFF, STR_ON};
 
-dropdown_audio_in = {
+DROPDOWN dropdown_audio_in = {
     .ondisplay = list_dropdown_ondisplay,
     .onselect = dropdown_audio_in_onselect
 },
@@ -258,8 +258,8 @@ dropdown_auto_startup = {
 dropdown_audible_notification = {
     .ondisplay = simple_dropdown_ondisplay,
     .onselect = dropdown_notifications_onselect,
-    .dropcount = countof(yesnodrops),
-    .userdata = yesnodrops
+    .dropcount = countof(offondrops),
+    .userdata = offondrops
 },
 
 dropdown_typing_notes = {
@@ -272,6 +272,6 @@ dropdown_typing_notes = {
 dropdown_audio_filtering = {
     .ondisplay = simple_dropdown_ondisplay,
     .onselect = dropdown_audio_filtering_onselect,
-    .dropcount = countof(yesnodrops),
-    .userdata = yesnodrops
+    .dropcount = countof(offondrops),
+    .userdata = offondrops
 };

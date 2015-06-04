@@ -73,10 +73,11 @@ static void button_audiopreview_onpress(void)
 
 static void button_audiopreview_update(BUTTON *b)
 {
-    if (audio_preview)
+    if (audio_preview){
         button_setcolors_danger(b);
-    else
+    } else {
         button_setcolors_success(b);
+    }
 }
 
 static void button_videopreview_onpress(void)
@@ -92,7 +93,6 @@ static void button_videopreview_onpress(void)
         video_preview = 1;
     }
 }
-
 
 static void button_videopreview_update(BUTTON *b)
 {
@@ -126,6 +126,44 @@ static void button_transfer_onpress(void)
 static void button_settings_onpress(void)
 {
     list_selectsettings();
+}
+
+extern PANEL panel_settings_utox, panel_settings_net, panel_settings_ui, panel_settings_av;
+extern SCROLLABLE scroll_settings;
+static void button_settings_sub_utox_onpress(void){
+    scroll_settings.content_height = 130 * SCALE;
+    list_selectsettings();
+    panel_settings_utox.disabled = 0;
+    panel_settings_net.disabled  = 1;
+    panel_settings_ui.disabled   = 1;
+    panel_settings_av.disabled   = 1;
+}
+
+static void button_settings_sub_net_onpress(void){
+    scroll_settings.content_height = 90 * SCALE;
+    list_selectsettings();
+    panel_settings_utox.disabled = 1;
+    panel_settings_net.disabled  = 0;
+    panel_settings_ui.disabled   = 1;
+    panel_settings_av.disabled   = 1;
+}
+
+static void button_settings_sub_ui_onpress(void){
+    scroll_settings.content_height = 140 * SCALE;
+    list_selectsettings();
+    panel_settings_utox.disabled = 1;
+    panel_settings_net.disabled  = 1;
+    panel_settings_ui.disabled   = 0;
+    panel_settings_av.disabled   = 1;
+}
+
+static void button_settings_sub_av_onpress(void){
+    scroll_settings.content_height = 150 * SCALE;
+    list_selectsettings();
+    panel_settings_utox.disabled = 1;
+    panel_settings_net.disabled  = 1;
+    panel_settings_ui.disabled   = 1;
+    panel_settings_av.disabled   = 0;
 }
 
 static void button_group_audio_onpress(void)
@@ -375,16 +413,13 @@ static void button_avatar_onright(void)
     }
 }
 
-
-static void button_name_onpress(void)
-{
-    list_selectsettings();
+static void button_name_onpress(void){
+    button_settings_sub_utox_onpress();
     edit_setfocus(&edit_name);
 }
 
-static void button_statusmsg_onpress(void)
-{
-    list_selectsettings();
+static void button_statusmsg_onpress(void){
+    button_settings_sub_utox_onpress();
     edit_setfocus(&edit_status);
 }
 
@@ -462,7 +497,29 @@ static void button_chat_send_update(BUTTON *b){
 }
 
 
-BUTTON
+BUTTON button_settings_sub_utox = {
+    .nodraw       = 1,
+    .onpress      = button_settings_sub_utox_onpress,
+    .tooltip_text = { .i18nal = STR_UTOX_SETTINGS },
+},
+
+button_settings_sub_net = {
+    .nodraw       = 1,
+    .onpress      = button_settings_sub_net_onpress,
+    .tooltip_text = { .i18nal = STR_NETWORK_SETTINGS },
+},
+
+button_settings_sub_ui = {
+    .nodraw       = 1,
+    .onpress      = button_settings_sub_ui_onpress,
+    .tooltip_text = { .i18nal = STR_USERSETTINGS },
+},
+
+button_settings_sub_av = {
+    .nodraw       = 1,
+    .onpress      = button_settings_sub_av_onpress,
+    .tooltip_text = { .i18nal = STR_AUDIO_VIDEO },
+},
 
 button_add = {
     .bm2 = BM_ADD,
@@ -553,7 +610,6 @@ button_video = {
     .update = button_video_update,
 },
 
-
 button_sendfile = {
     .bm = BM_LBUTTON,
     .bm2 = BM_FILE,
@@ -613,7 +669,6 @@ button_chat2 = {
     .disabled = 1,
 },
 
-/* bottom right chat message window button */
 button_chat_send = {
     .bm  = BM_CHAT_SEND,
     .bm2 = BM_CHAT_SEND_OVERLAY,

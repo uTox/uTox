@@ -26,15 +26,17 @@ static void drawitembox(ITEM *i, int y)
 
 static void drawname(ITEM *i, int y, char_t *name, char_t *msg, STRING_IDX name_length, STRING_IDX msg_length, _Bool color_overide, uint32_t color)
 {
-    if (!color_overide)
+    if (!color_overide) {
         color = (sitem == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT;
+    }
 
     setcolor(color);
     setfont(FONT_LIST_NAME);
     drawtextwidth(LIST_NAME_X, LIST_RIGHT - LIST_NAME_X - SCALE * 16, y + LIST_NAME_Y, name, name_length);
 
-    if (!color_overide)
+    if (!color_overide) {
         color = (sitem == i) ? COLOR_MAIN_SUBTEXT : COLOR_LIST_SUBTEXT;
+    }
 
     setcolor(color);
     setfont(FONT_STATUS);
