@@ -115,6 +115,9 @@ msgstr("Impostazioni")
 msgid(NAME)
 msgstr("Nome")
 
+msgid(PROFILE)
+msgstr("Profilo")
+
 msgid(STATUSMESSAGE)
 msgstr("Messaggio di stato")
 
@@ -138,6 +141,21 @@ msgstr("Video (input)")
 
 msgid(OTHERSETTINGS)
 msgstr("Altro")
+
+msgid(UI)
+msgstr("UI")
+
+msgid(USER_INTERFACE)
+msgstr("Interfaccia Utente")
+
+msgid(UTOX_SETTINGS)
+msgstr("Impostazioni uTox")
+
+msgid(NETWORK_SETTINGS)
+msgstr("Impostazioni Rete")
+
+msgid(AUDIO_VIDEO)
+msgstr("Audio/Video")
 
 msgid(DPI)
 msgstr("Dimensione Caratteri")
