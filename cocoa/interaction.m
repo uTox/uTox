@@ -813,7 +813,7 @@ void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_
     }
 
     // bounce icon
-    if ([NSApplication sharedApplication].isActive) {
+    if (![NSApplication sharedApplication].isActive) {
         [[NSApplication sharedApplication] requestUserAttention:NSInformationalRequest];
         [NSApplication sharedApplication].dockTile.badgeLabel = @"!";
     }
