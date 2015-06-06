@@ -109,6 +109,9 @@ msgstr("Freundschaftsanfrage")
 msgid(USERSETTINGS)
 msgstr("Benutzereinstellungen")
 
+msgid(PROFILE)
+msgstr("Profil")
+
 msgid(STATUSMESSAGE)
 msgstr("Statusnachricht")
 
@@ -133,6 +136,18 @@ msgstr("Videoeingabegerät")
 msgid(OTHERSETTINGS)
 msgstr("Andere Einstellungen")
 
+msgid(UI)
+msgstr("Benutzeroberfläche") 
+
+msgid(USER_INTERFACE)
+msgstr("Oberfläche") // "Benutzeroberfläche" doesn't fit into tab header (Settings)
+
+msgid(UTOX_SETTINGS)
+msgstr("Einstellungen") // "uTox Einstellungen" would overlap with version (Settings)
+
+msgid(NETWORK_SETTINGS)
+msgstr("Netzwerkeinstellungen")
+
 msgid(SAVELOCATION)
 msgstr("Speichere Standorteinstellung")
 
@@ -151,11 +166,14 @@ msgstr("Chatverläufe speichern")
 msgid(AUDIONOTIFICATIONS)
 msgstr("Akustische Benachrichtigungen einschalten (Klingelton)")
 
+msgid(RINGTONE)
+msgstr("Klingelton")
+
 msgid(IS_TYPING)
 msgstr("schreibt...")
 
 msgid(CLOSE_TO_TRAY)
-msgstr("Zum Infobereich schließen")
+msgstr("Zum Infobereich schließen") // TODO: overlaps with translation of START_IN_TRAY (Settings > UI)
 
 msgid(START_IN_TRAY)
 msgstr("Im Infobereich starten")
@@ -186,6 +204,9 @@ msgstr("Entfernen")
 
 msgid(LEAVE)
 msgstr("Verlassen")
+
+msgid(CTOPIC)
+msgstr("Thema ändern")
 
 msgid(ACCEPT)
 msgstr("Akzeptieren")
@@ -231,6 +252,12 @@ msgstr("Nein")
 
 msgid(YES)
 msgstr("Ja")
+
+msgid(OFF)
+msgstr("Aus")
+
+msgid(ON)
+msgstr("An")
 
 msgid(VIDEO_IN_NONE)
 msgstr("keine")
@@ -288,9 +315,6 @@ msgstr("Hoher Kontrast")
 
 msgid(THEME_CUSTOM)
 msgstr("Benutzerdefiniert (siehe Dokumentation)")
-
-msgid(THEME_ZENBURN)
-msgstr("Zenburn")
 
 msgid(SEND_TYPING_NOTIFICATIONS)
 msgstr("Mitteilen ob getippt wird")
