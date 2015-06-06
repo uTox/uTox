@@ -340,8 +340,5 @@ msgstr("Высококонтрастная")
 msgid(THEME_CUSTOM)
 msgstr("Своя (см. документацию)")
 
-msgid(THEME_ZENBURN)
-msgstr("Zenburn")
-
 msgid(SEND_TYPING_NOTIFICATIONS)
 msgstr("Посылать уведомления о наборе текста")
