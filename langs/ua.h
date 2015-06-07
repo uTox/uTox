@@ -40,11 +40,29 @@ msgstr("Помилка: Невірний Tox ID (антиспам)")
 msgid(REQ_NO_MEMORY)
 msgstr("Помилка: Недостатньо пам'яті")
 
+msgid(SEND_FILE)
+msgstr("Надсилання файла")
+
+msgid(SAVE_FILE)
+msgstr("Збереження файла")
+
+msgid(WHERE_TO_SAVE_FILE_PROMPT)
+msgstr("Оберіть місце для збереження\"%.*s\"")
+
+msgid(SEND_FILE_PROMPT)
+msgstr("Оберіть файл(и) для надсилання.")
+
+msgid(SCREEN_CAPTURE_PROMPT)
+msgstr("Позначте область екрана для надсилання.")
+
 msgid(TRANSFER_NEW)
 msgstr("Передача файлу")
 
 msgid(TRANSFER_STARTED)
 msgstr("Розпочато передачу файлу")
+
+msgid(TRANSFER___)
+msgstr("...")
 
 msgid(TRANSFER_PAUSED)
 msgstr("Призупинено передачу файлу")
@@ -85,6 +103,9 @@ msgstr("Пошук друзів")
 msgid(ADD)
 msgstr("Додати")
 
+msgid(CREATEGROUPCHAT)
+msgstr("Створити групову бесіду")
+
 msgid(SWITCHPROFILE)
 msgstr("Перемкнути профіль")
 
@@ -96,6 +117,9 @@ msgstr("Налаштування")
 
 msgid(NAME)
 msgstr("Ім'я")
+
+msgid(PROFILE)
+msgstr("Профіль")
 
 msgid(STATUSMESSAGE)
 msgstr("Статус")
@@ -120,6 +144,21 @@ msgstr("Пристрій захоплення відео")
 
 msgid(OTHERSETTINGS)
 msgstr("Інші налаштування")
+
+msgid(UI)
+msgstr("Інтерфейс")
+
+msgid(USER_INTERFACE)
+msgstr("Інтерфейс")
+
+msgid(UTOX_SETTINGS)
+msgstr("Налаштування uTox")
+
+msgid(NETWORK_SETTINGS)
+msgstr("Налаштування мережі")
+
+msgid(AUDIO_VIDEO)
+msgstr("Аудіо/Відео")
 
 msgid(DPI)
 msgstr("Масштаб")
@@ -151,6 +190,9 @@ msgstr("Зберігати історію чату")
 msgid(AUDIONOTIFICATIONS)
 msgstr("Ввімкнути звукове сповіщення (рингтон)")
 
+msgid(RINGTONE)
+msgstr("Сигнал") // Мелодія?
+
 msgid(IS_TYPING)
 msgstr("набирає повідомлення...")
 
@@ -165,6 +207,9 @@ msgstr("Копіювати")
 
 msgid(COPYWITHOUTNAMES)
 msgstr("Копіювати (без імені)")
+
+msgid(COPY_WITH_NAMES)
+msgstr("Копіювати (з іменем)")
 
 msgid(CUT)
 msgstr("Вирізати")
@@ -184,11 +229,17 @@ msgstr("Видалити")
 msgid(LEAVE)
 msgstr("Вийти")
 
+msgid(CTOPIC)
+msgstr("Змінити тему")
+
 msgid(ACCEPT)
 msgstr("Прийняти")
 
 msgid(IGNORE)
 msgstr("Ігнорувати")
+
+msgid(SENDSCREENSHOT)
+msgstr("Надіслати знімок екрану")
 
 msgid(CLICKTOSAVE)
 msgstr("Натисніть для збереження")
@@ -235,6 +286,12 @@ msgstr("Ні")
 msgid(YES)
 msgstr("Так")
 
+msgid(OFF)
+msgstr("Ні") // Вимк.?
+
+msgid(ON)
+msgstr("Так") // Увімк.?
+
 msgid(VIDEO_IN_NONE)
 msgstr("Не вибрано")
 
@@ -243,6 +300,9 @@ msgstr("Стільниця")
 
 msgid(AUDIO_IN_DEFAULT_LOOPBACK)
 msgstr("Стандартна петля") // Check the correctness
+
+msgid(AUDIO_IN_ANDROID)
+msgstr("Ввід OpenSL")
 
 msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
 msgstr("Будь ласка, додайте мене в свій список друзів.")
@@ -265,11 +325,41 @@ msgstr("Заглушити")
 msgid(UNMUTE)
 msgstr("Відновити")
 
+msgid(SELECT_AVATAR_TITLE)
+msgstr("Обрати аватару")
+
 msgid(AVATAR_TOO_LARGE_MAX_SIZE_IS)
-msgstr("Аватар надто великий. Максимальний розмір: ")
+msgstr("Аватара надто велика. Максимальний розмір: ")
 
 msgid(CANT_FIND_FILE_OR_EMPTY)
 msgstr("Не вдається знайти вибраний файл або він порожній.")
 
 msgid(CLEAR_HISTORY)
 msgstr("Очистити історію")
+
+msgid(AUTO_STARTUP)
+msgstr("Запускати автоматично")
+
+msgid(THEME)
+msgstr("Оформлення")
+
+msgid(THEME_DEFAULT)
+msgstr("Базове")  // (оформлення)
+
+msgid(THEME_LIGHT)
+msgstr("Світле")
+
+msgid(THEME_DARK)
+msgstr("Темне")
+
+msgid(THEME_HIGHCONTRAST)
+msgstr("Контрастне")
+
+msgid(THEME_CUSTOM)
+msgstr("Власне (див. докум.)")
+
+msgid(THEME_ZENBURN)
+msgstr("Zenburn")
+
+msgid(SEND_TYPING_NOTIFICATIONS)
+msgstr("Повідомляти про набір відповіді")
