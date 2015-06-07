@@ -590,12 +590,12 @@ static void contextmenu_list_onselect(uint8_t i)
         return;
     }
 
-    if (ritem->item == ITEM_FRIEND && i == 1) {
+    if (ritem->item == ITEM_FRIEND && i == 0) {
         friend_history_clear((FRIEND*)ritem->data);
         return;
     }
 
-    if (ritem->item == ITEM_GROUP && i == 0) {
+    if (ritem->item == ITEM_GROUP && i == 1) {
         GROUPCHAT *g = ritem->data;
         if (g->type == TOX_GROUPCHAT_TYPE_AV) {
             g->muted = !g->muted;
@@ -603,7 +603,7 @@ static void contextmenu_list_onselect(uint8_t i)
         }
     }
 
-    if (ritem->item == ITEM_GROUP && i == 1) {
+    if (ritem->item == ITEM_GROUP && i == 0) {
         GROUPCHAT *g = ritem->data;
         if(ritem != sitem) {
             selectitem(ritem);
@@ -622,10 +622,10 @@ static void contextmenu_list_onselect(uint8_t i)
 
 _Bool list_mright(void *UNUSED(n))
 {
-    static UI_STRING_ID menu_friend[] = {STR_REMOVE_FRIEND, STR_CLEAR_HISTORY};
-    static UI_STRING_ID menu_group_unmuted[] = {STR_MUTE, STR_CHANGE_GROUP_TOPIC, STR_REMOVE_GROUP};
-    static UI_STRING_ID menu_group_muted[] = {STR_UNMUTE, STR_CHANGE_GROUP_TOPIC, STR_REMOVE_GROUP};
-    static UI_STRING_ID menu_group[] = {STR_REMOVE_GROUP, STR_CHANGE_GROUP_TOPIC};
+    static UI_STRING_ID menu_friend[] = {STR_CLEAR_HISTORY, STR_REMOVE_FRIEND};
+    static UI_STRING_ID menu_group_unmuted[] = {STR_CHANGE_GROUP_TOPIC, STR_MUTE, STR_REMOVE_GROUP};
+    static UI_STRING_ID menu_group_muted[] = {STR_CHANGE_GROUP_TOPIC, STR_UNMUTE, STR_REMOVE_GROUP};
+    static UI_STRING_ID menu_group[] = {STR_CHANGE_GROUP_TOPIC, STR_REMOVE_GROUP};
     static UI_STRING_ID menu_request[] = {STR_REQ_ACCEPT, STR_REQ_DECLINE};
 
     if(mitem) {
