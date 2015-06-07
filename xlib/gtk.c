@@ -32,7 +32,7 @@ static void gtk_opensendthread(void *args)
 {
     uint16_t fid = (size_t)args;
 
-    void *dialog = gtk_file_chooser_dialog_new("Open File", NULL, 0, "gtk-cancel", -6, "gtk-open", -3, NULL);
+    void *dialog = gtk_file_chooser_dialog_new(S(SEND_FILE), NULL, 0, "gtk-cancel", -6, "gtk-open", -3, NULL);
     gtk_file_chooser_set_select_multiple(dialog, 1);
     int result = gtk_dialog_run(dialog);
     if(result == -3) {
@@ -62,7 +62,7 @@ static void gtk_opensendthread(void *args)
 
 static void gtk_openavatarthread(void *UNUSED(args))
 {
-    void *dialog = gtk_file_chooser_dialog_new("Open Avatar", NULL, 0, "gtk-cancel", -6, "gtk-open", -3, NULL);
+    void *dialog = gtk_file_chooser_dialog_new(S(SELECT_AVATAR_TITLE), NULL, 0, "gtk-cancel", -6, "gtk-open", -3, NULL);
     void *filter = gtk_file_filter_new();
     gtk_file_filter_add_mime_type(filter, "image/png");
     gtk_file_chooser_set_filter(dialog, filter);
@@ -113,7 +113,7 @@ static void gtk_savethread(void *args){
 
     while(1){ //TODO, save current dir, and filename and preload them to gtk dialog if save fails.
         /* Create a GTK save window */
-        void *dialog = gtk_file_chooser_dialog_new("Save File", NULL, 1, "gtk-cancel", -6, "gtk-save", -3, NULL);
+        void *dialog = gtk_file_chooser_dialog_new(S(SAVE_FILE), NULL, 1, "gtk-cancel", -6, "gtk-save", -3, NULL);
         /* Get incoming file name*/
         char buf[sizeof(file->name) + 1];
         memcpy(buf, file->name, file->name_length);
@@ -174,7 +174,7 @@ static void gtk_savethread(void *args){
 static void gtk_savedatathread(void *args)
 {
     MSG_FILE *file = args;
-    void *dialog = gtk_file_chooser_dialog_new("Save File", NULL, 1, "gtk-cancel", -6, "gtk-save", -3, NULL);
+    void *dialog = gtk_file_chooser_dialog_new(S(SAVE_FILE), NULL, 1, "gtk-cancel", -6, "gtk-save", -3, NULL);
     gtk_file_chooser_set_current_name(dialog, "inline.png");
     int result = gtk_dialog_run(dialog);
     if(result == -3) {

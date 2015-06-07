@@ -40,6 +40,21 @@ msgstr("Ошибка: Неправильный Tox ID (неверное знач
 msgid(REQ_NO_MEMORY)
 msgstr("Ошибка: Не хватает памяти")
 
+msgid(SEND_FILE)
+msgstr("Отправить файл")
+
+msgid(SAVE_FILE)
+msgstr("Сохранить файл")
+
+msgid(WHERE_TO_SAVE_FILE_PROMPT)
+msgstr("Где вы хотите сохранить \"%.*s\"?")
+
+msgid(SEND_FILE_PROMPT)
+msgstr("Выберите файл(ы) для отправки.")
+
+msgid(SCREEN_CAPTURE_PROMPT)
+msgstr("Выделите область экрана, которую вы хотите отправить.")
+
 msgid(TRANSFER_NEW)
 msgstr("Передача нового файла")
 
@@ -82,6 +97,9 @@ msgstr("Поиск друзей")
 msgid(ADD)
 msgstr("Добавить")
 
+msgid(CREATEGROUPCHAT)
+msgstr("Создать групповой чат")
+
 msgid(SWITCHPROFILE)
 msgstr("Переключить профиль")
 
@@ -93,6 +111,9 @@ msgstr("Настройки")
 
 msgid(NAME)
 msgstr("Имя")
+
+msgid(PROFILE)
+msgstr("Учётная запись")
 
 msgid(STATUSMESSAGE)
 msgstr("Статус")
@@ -107,7 +128,7 @@ msgid(AUDIOINPUTDEVICE)
 msgstr("Устройство ввода звука")
 
 msgid(AUDIOFILTERING)
-msgstr("Фильтр аудио")
+msgstr("Фильтр звука")
 
 msgid(AUDIOOUTPUTDEVICE)
 msgstr("Устройство вывода звука")
@@ -117,6 +138,18 @@ msgstr("Устройство захвата видео")
 
 msgid(OTHERSETTINGS)
 msgstr("Другие настройки")
+
+msgid(USER_INTERFACE)
+msgstr("Пользовательский интерфейс")
+
+msgid(UTOX_SETTINGS)
+msgstr("Настройки uTox")
+
+msgid(NETWORK_SETTINGS)
+msgstr("Настройки сети")
+
+msgid(AUDIO_VIDEO)
+msgstr("Звук/Изображение")
 
 msgid(DPI)
 msgstr("Разрешение, точек/дюйм")
@@ -140,7 +173,10 @@ msgid(LOGGING)
 msgstr("Сохранять историю чата")
 
 msgid(AUDIONOTIFICATIONS)
-msgstr("Включить звуковое уведомление (мелодия звонка)")
+msgstr("Включить звонок (звуковое уведомление)")
+
+msgid(RINGTONE)
+msgstr("Звонок")
 
 msgid(IS_TYPING)
 msgstr("печатает...")
@@ -155,7 +191,10 @@ msgid(COPY)
 msgstr("Копировать")
 
 msgid(COPYWITHOUTNAMES)
-msgstr("Копировать (без имени)")
+msgstr("Копировать (без имён)")
+
+msgid(COPY_WITH_NAMES)
+msgstr("Копировать (с именами)")
 
 msgid(CUT)
 msgstr("Вырезать")
@@ -175,11 +214,17 @@ msgstr("Удалить")
 msgid(LEAVE)
 msgstr("Выйти")
 
+msgid(CTOPIC)
+msgstr("Сменить тему")
+
 msgid(ACCEPT)
 msgstr("Принять")
 
 msgid(IGNORE)
 msgstr("Игнорировать")
+
+msgid(SENDSCREENSHOT)
+msgstr("Послать снимок экрана")
 
 msgid(CLICKTOSAVE)
 msgstr("Сохранить")
@@ -226,6 +271,12 @@ msgstr("Нет")
 msgid(YES)
 msgstr("Да")
 
+msgid(OFF)
+msgstr("Выкл")
+
+msgid(ON)
+msgstr("Вкл")
+
 msgid(VIDEO_IN_NONE)
 msgstr("Не выбрано")
 
@@ -233,7 +284,10 @@ msgid(VIDEO_IN_DESKTOP)
 msgstr("Рабочий стол")
 
 msgid(AUDIO_IN_DEFAULT_LOOPBACK)
-msgstr("Стандартная петля")
+msgstr("По умолчанию")
+
+msgid(AUDIO_IN_ANDROID)
+msgstr("OpenSL")
 
 msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
 msgstr("Пожалуйста, добавьте меня в свой список друзей.")
@@ -253,6 +307,9 @@ msgstr("Заглушить")
 msgid(UNMUTE)
 msgstr("Включить")
 
+msgid(SELECT_AVATAR_TITLE)
+msgstr("Выбрать изображение")
+
 msgid(AVATAR_TOO_LARGE_MAX_SIZE_IS)
 msgstr("Изображение слишком большое. Максимальный размер: ")
 
@@ -261,3 +318,27 @@ msgstr("Невозможно найти выбранный файл или вы�
 
 msgid(CLEAR_HISTORY)
 msgstr("Очистить историю")
+
+msgid(AUTO_STARTUP)
+msgstr("Запускать при загрузке системы")
+
+msgid(THEME)
+msgstr("Тема")
+
+msgid(THEME_DEFAULT)
+msgstr("По умолчанию")
+
+msgid(THEME_LIGHT)
+msgstr("Светлая")
+
+msgid(THEME_DARK)
+msgstr("Тёмная")
+
+msgid(THEME_HIGHCONTRAST)
+msgstr("Высококонтрастная")
+
+msgid(THEME_CUSTOM)
+msgstr("Своя (см. документацию)")
+
+msgid(SEND_TYPING_NOTIFICATIONS)
+msgstr("Посылать уведомления о наборе текста")
