@@ -2,15 +2,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <pthread.h>
+#include <libgen.h>
 #import <Foundation/Foundation.h>
 #import <AppKit/AppKit.h>
-    
-#ifdef MAKEFILE
-#include "interaction.m"
-#include "drawing.m"
-#include "video.m"
-#include "grabdesktop.m"
-#endif
 
 #define DEFAULT_WIDTH (382 * DEFAULT_SCALE)
 #define DEFAULT_HEIGHT (320 * DEFAULT_SCALE)
@@ -194,19 +188,50 @@ int datapath_old(uint8_t *dest) {
     return 0;
 }
 
+void ensure_directory_r(char *path, int perm) {
+    if ((strcmp(path, "/") == 0) || (strcmp(path, ".") == 0))
+        return;
+
+    struct stat finfo;
+    if (stat(path, &finfo) != 0) {
+        if (errno != ENOENT) {
+            printf("stat(%s): %s", path, strerror(errno));
+            abort();
+        }
+    } else {
+        return; // already exists
+    }
+
+    const char *parent = dirname(path);
+    if (!parent)
+        abort();
+
+    char *parent_copy = strdup(parent);
+    if (!parent_copy)
+        abort();
+
+    ensure_directory_r(parent_copy, perm);
+    free(parent_copy);
+
+    if (mkdir(path, perm) != 0 && errno != EEXIST) {
+        debug("ensure_directory_r(%s): %s", path, strerror(errno));
+        abort();
+    }
+}
+
 /* it occured to me that we should probably make datapath allocate memory for its caller */
 int datapath(uint8_t *dest) {
     if (utox_portable) {
         const char *home = [NSBundle.mainBundle.bundlePath stringByDeletingLastPathComponent].UTF8String;
         int l = sprintf((char*)dest, "%.238s/tox", home);
-        mkdir((char*)dest, 0700);
+        ensure_directory_r((char*)dest, 0700);
         dest[l++] = '/';
 
         return l;
     } else {
         const char *home = NSHomeDirectory().UTF8String;
         int l = sprintf((char*)dest, "%.230s/.config/tox", home);
-        mkdir((char*)dest, 0700);
+        ensure_directory_r((char*)dest, 0700);
         dest[l++] = '/';
 
         return l;
