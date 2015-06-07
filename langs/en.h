@@ -226,11 +226,20 @@ msgstr("Select All")
 msgid(REMOVE)
 msgstr("Remove")
 
+msgid(REMOVE_FRIEND)
+msgstr("Remove Friend")
+
+msgid(REMOVE_GROUP)
+msgstr("Remove Group")
+
 msgid(LEAVE)
 msgstr("Leave")
 
+msgid(LEAVE_GROUP)
+msgstr("Leave Group")
+
 msgid(CTOPIC)
-msgstr("Change topic")
+msgstr("Change Topic")
 
 msgid(ACCEPT)
 msgstr("Accept")
