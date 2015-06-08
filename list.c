@@ -13,14 +13,16 @@ static _Bool sitem_mousedown;
 
 static int sitem_dy;
 
-static void drawitembox(ITEM *i, int y)
-{
-    if(sitem == i) {
-        drawrect(LIST_X + 1, y + 1, LIST_RIGHT + 1, y + ITEM_HEIGHT, COLOR_MAIN_BACKGROUND);
-
-        //drawrectw(LIST_X + 5 * SCALE / 2, y + 5 * SCALE / 2, 40, 40, COLOR_LIST_BACKGROUND);
-    } else if(mitem == i) {
-        drawrect(LIST_X + 1, y + 1, LIST_RIGHT, y + ITEM_HEIGHT, COLOR_LIST_HOVER_BACKGROUND);
+static void drawitembox(ITEM *i, int y){
+    FRIEND *f = i->data;
+    if (f->callid || f->calling) { /* If this friend is in a call, highlight */
+        drawrect(LIST_X + 1, y + 1, LIST_RIGHT + 1, y + ITEM_HEIGHT, COLOR_STATUS_ONLINE);
+    } else { /* Else change on active, or mouse over */
+        if(sitem == i) {
+            drawrect(LIST_X + 1, y + 1, LIST_RIGHT + 1, y + ITEM_HEIGHT, COLOR_MAIN_BACKGROUND);
+        } else if(mitem == i) {
+            drawrect(LIST_X + 1, y + 1, LIST_RIGHT, y + ITEM_HEIGHT, COLOR_LIST_HOVER_BACKGROUND);
+        }
     }
 }
 
