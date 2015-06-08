@@ -290,15 +290,16 @@ static void drawsettings_text_ui(int x, int y, int w, int UNUSED(height)){
 static void drawsettings_text_av(int x, int y, int w, int UNUSED(height)){
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_TEXT);
-    drawstr(LIST_RIGHT + SCALE * 5,   y + SCALE * 5,  RINGTONE);
+    drawstr(LIST_RIGHT + 5   * SCALE, y + 5  * SCALE,  RINGTONE);
+    drawstr(LIST_RIGHT + 60  * SCALE, y + 5  * SCALE,  PUSH_TO_TALK);
     #ifdef AUDIO_FILTERING
-    drawstr(LIST_RIGHT + SCALE * 100, y + SCALE * 5,  AUDIOFILTERING);
+    drawstr(LIST_RIGHT + 120 * SCALE, y + 5  * SCALE,  AUDIOFILTERING);
     #endif
-    drawstr(LIST_RIGHT + SCALE * 5,   y + SCALE * 35, AUDIOINPUTDEVICE);
-    drawstr(LIST_RIGHT + SCALE * 5,   y + SCALE * 60, AUDIOOUTPUTDEVICE);
-    drawstr(LIST_RIGHT + SCALE * 5,   y + SCALE * 85, VIDEOINPUTDEVICE);
+    drawstr(LIST_RIGHT + 5   * SCALE, y + 35  * SCALE, AUDIOINPUTDEVICE);
+    drawstr(LIST_RIGHT + 5   * SCALE, y + 60  * SCALE, AUDIOOUTPUTDEVICE);
+    drawstr(LIST_RIGHT + 5   * SCALE, y + 85  * SCALE, VIDEOINPUTDEVICE);
     setfont(FONT_SELF_NAME);
-    drawstr(LIST_RIGHT + SCALE * 5,   y + SCALE * 115, PREVIEW);
+    drawstr(LIST_RIGHT + 5   * SCALE, y + 115 * SCALE, PREVIEW);
 }
 
 static void drawsettings_sub_header(int x, int y, int w, int UNUSED(height)){
@@ -511,13 +512,14 @@ panel_settings_av = {
     .drawfunc = drawsettings_text_av,
     .content_scroll = &scroll_settings,
     .child = (PANEL*[]) {
+        (void*)&dropdown_audible_notification,
+        (void*)&dropdown_push_to_talk,
+        (void*)&dropdown_audio_filtering,
         (void*)&button_callpreview,
         (void*)&button_videopreview,
         (void*)&dropdown_audio_in,
         (void*)&dropdown_audio_out,
         (void*)&dropdown_video,
-        (void*)&dropdown_audible_notification,
-        (void*)&dropdown_audio_filtering,
         NULL
     },
     .disabled = 1
@@ -915,10 +917,18 @@ void ui_scale(uint8_t scale)
         .width  = 20 * SCALE
     },
 
+    d_push_to_talk = {
+        .type   = PANEL_DROPDOWN,
+        .x      = 60 * SCALE,
+        .y      = 15 * SCALE,
+        .height = 12 * SCALE,
+        .width  = 20 * SCALE
+    },
+
     #ifdef AUDIO_FILTERING
     d_audio_filtering = {
         .type   = PANEL_DROPDOWN,
-        .x      = 100 * SCALE,
+        .x      = 120 * SCALE,
         .y      = 15  * SCALE,
         .height = 12  * SCALE,
         .width  = 20  * SCALE
@@ -1045,6 +1055,11 @@ void ui_scale(uint8_t scale)
         .width  = 20  * SCALE
     };
 
+    dropdown_audible_notification.panel = d_notifications;
+    dropdown_push_to_talk.panel = d_push_to_talk;
+    #ifdef AUDIO_FILTERING
+    dropdown_audio_filtering.panel = d_audio_filtering;
+    #endif
     dropdown_audio_in.panel = d_audio_in;
     dropdown_audio_out.panel = d_audio_out;
     dropdown_video.panel = d_video;
@@ -1055,15 +1070,11 @@ void ui_scale(uint8_t scale)
     dropdown_ipv6.panel = d_ipv6;
     dropdown_udp.panel = d_udp;
     dropdown_logging.panel = d_logging;
-    dropdown_audible_notification.panel = d_notifications;
     dropdown_close_to_tray.panel = d_close_to_tray;
     dropdown_start_in_tray.panel = d_start_in_tray;
     dropdown_theme.panel = d_theme;
     dropdown_auto_startup.panel = d_auto_startup;
 
-    #ifdef AUDIO_FILTERING
-    dropdown_audio_filtering.panel = d_audio_filtering;
-    #endif
     dropdown_typing_notes.panel = d_typing_notes;
 
 
