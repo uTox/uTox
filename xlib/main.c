@@ -208,10 +208,10 @@ _Bool get_ptt(void){
     fclose(keyboard);
 
     if (keyb & mask){
-        // debug("PTT down\n");
+        // debug("PTT key is down\n");
         return 1;
     } else {
-        // debug("PTT up\n");
+        // debug("PTT key is up\n");
         return 0;
     }
 }
