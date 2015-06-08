@@ -148,7 +148,6 @@ static void tooltip_thread(void *UNUSED(args))
             break;
         }
 
-        TOOLTIP *b = &tooltip;
         if (reset_time) {
             last_move_time = get_time() + 500 * 1000 * 1000;
             reset_time = 0;
