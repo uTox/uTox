@@ -198,6 +198,11 @@ _Bool get_ptt(void){
     strcpy((char*)p, "ptt-kbd");
 
     FILE *keyboard = fopen((uint8_t*)path, "r");
+    if (!keyboard) {
+        debug("Unable to access keyboard, you need to read the manual on how to enable\nutox to have access to your key"
+              "board.\nDisable push to talk to suppress this message.\n");
+        return 0;
+    }
 
     char key_map[KEY_MAX/8 + 1];                                  // Create a byte array the size of the number of keys
     memset(key_map, 0, sizeof(key_map));
