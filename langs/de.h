@@ -202,8 +202,17 @@ msgstr("Alle auswählen")
 msgid(REMOVE)
 msgstr("Entfernen")
 
+msgid(REMOVE_FRIEND)
+msgstr("Freund entfernen")
+
+msgid(REMOVE_GROUP)
+msgstr("Gruppe entfernen")
+
 msgid(LEAVE)
 msgstr("Verlassen")
+
+msgid(LEAVE_GROUP)
+msgstr("Gruppe verlassen")
 
 msgid(CTOPIC)
 msgstr("Thema ändern")
