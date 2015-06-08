@@ -495,9 +495,8 @@ void setselection(char_t *data, STRING_IDX length)
 }
 
 /** Toggles the main window to/from hidden to tray/shown. */
-void togglehide(void)
-{
-    if(hidden) {
+void togglehide(int show){
+    if ( hidden || show ) {
         ShowWindow(hwnd, SW_RESTORE);
         SetForegroundWindow(hwnd);
         redraw();
@@ -1167,14 +1166,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     if(GetLastError() == ERROR_ALREADY_EXISTS) {
         HWND window = FindWindow(TITLE, NULL);
         if (window) {
-            SetForegroundWindow(window);
-            if (*cmd) {
-                COPYDATASTRUCT data = {
-                    .cbData = strlen(cmd),
-                    .lpData = cmd
-                };
-                SendMessage(window, WM_COPYDATA, (WPARAM)hInstance, (LPARAM)&data);
-            }
+            COPYDATASTRUCT data = {
+                .cbData = strlen(cmd),
+                .lpData = cmd
+            };
+            SendMessage(window, WM_COPYDATA, (WPARAM)hInstance, (LPARAM)&data);
         }
         return 0;
     }
@@ -1498,7 +1494,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_DESTROY: {
         if(close_to_tray){
             debug("Closing to tray.\n");
-            togglehide();
+            togglehide(0);
             return 1;
         } else {
             PostQuitMessage(0);
@@ -1745,7 +1741,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
 
         switch(menu) {
         case TRAY_SHOWHIDE: {
-            togglehide();
+            togglehide(0);
             break;
         }
 
@@ -1784,9 +1780,12 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
             break;
         }
 
-        case WM_LBUTTONDOWN:
+        case WM_LBUTTONDOWN:{
+            togglehide(0);
+            break;
+        }
         case WM_LBUTTONDBLCLK: {
-            togglehide();
+            togglehide(1);
             break;
         }
 
@@ -1810,8 +1809,12 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     }
 
     case WM_COPYDATA: {
+        togglehide(1);
+        SetForegroundWindow(hwn);
         COPYDATASTRUCT *data = (void*)lParam;
-        parsecmd(data->lpData, data->cbData);
+        if (data->lpData){
+            parsecmd(data->lpData, data->cbData);
+        }
         return 0;
     }
 
