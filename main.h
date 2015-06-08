@@ -209,8 +209,9 @@ enum {
 
 #include "ui_dropdown.h"
 
+/* Super global vars */
 volatile _Bool tox_thread_init, audio_thread_init, video_thread_init, toxav_thread_init;
-volatile _Bool logging_enabled, audible_notifications_enabled, audio_filtering_enabled, close_to_tray, start_in_tray, auto_startup;
+volatile _Bool logging_enabled, audible_notifications_enabled, audio_filtering_enabled, close_to_tray, start_in_tray, auto_startup, push_to_talk;
 volatile uint16_t loaded_audio_in_device, loaded_audio_out_device;
 _Bool tox_connected;
 
@@ -328,6 +329,9 @@ _Bool dont_send_typing_notes; //Stores user's preference about typing notificati
 #define strcpy2(x, y) (memcpy(x, y, sizeof(y) - 1))
 
 void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data);
+
+/** returns 0 if push to talk is enabled, and the button is up, else returns 1. */
+_Bool get_ptt(void);
 
 /* draw functions*/
 void drawtext(int x, int y, char_t *str, STRING_IDX length);

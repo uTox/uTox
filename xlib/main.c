@@ -184,6 +184,38 @@ void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data)
     XFlush(display);
 }
 
+
+#include <linux/input.h>
+_Bool get_ptt(void){
+    if (!push_to_talk) {
+        // debug("PTT is disabled\n");
+        return 1; /* If push to talk is disabled, return true. */
+    }
+
+    int key = KEY_LEFTCTRL;                                       // TODO allow user to change this...
+    uint8_t path[UTOX_FILE_NAME_LENGTH], *p;
+    p = path + datapath(path);
+    strcpy((char*)p, "ptt-kbd");
+
+    FILE *keyboard = fopen((uint8_t*)path, "r");
+
+    char key_map[KEY_MAX/8 + 1];                                  // Create a byte array the size of the number of keys
+    memset(key_map, 0, sizeof(key_map));
+    ioctl(fileno(keyboard), EVIOCGKEY(sizeof(key_map)), key_map); // Fill the keymap with the current keyboard state
+    int keyb = key_map[key/8];                                    // The key we want (and the seven others around it)
+    int mask = 1 << (key % 8);                                    // Put 1 in the same column as our key state
+
+    fclose(keyboard);
+
+    if (keyb & mask){
+        // debug("PTT down\n");
+        return 1;
+    } else {
+        // debug("PTT up\n");
+        return 0;
+    }
+}
+
 void image_set_scale(UTOX_NATIVE_IMAGE *image, double scale)
 {
     uint32_t r = (uint32_t)(65536.0 / scale);
