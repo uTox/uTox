@@ -4,7 +4,7 @@
 #include <pthread.h>
 #import <Foundation/Foundation.h>
 #import <AppKit/AppKit.h>
-    
+
 #ifdef MAKEFILE
 #include "interaction.m"
 #include "drawing.m"
@@ -178,7 +178,7 @@ void openurl(char_t *str) {
     } else /* it's a path */ {
         url = [NSURL fileURLWithPath:urls];
     }
-    
+
     [[NSWorkspace sharedWorkspace] openURL:url];
     [urls release];
 }
@@ -218,7 +218,7 @@ int datapath_subdir(uint8_t *dest, const char *subdir) {
     l += sprintf((char*)(dest+l), "%s", subdir);
     mkdir((char*)dest, 0700);
     dest[l++] = '/';
-    
+
     return l;
 }
 
@@ -285,6 +285,10 @@ void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data) {
     dispatch_async(dispatch_get_main_queue(), ^{
         tox_message(msg, param1, param2, data);
     });
+}
+
+_Bool get_ptt(void){
+    return 1; // @stal888 this is you job mate
 }
 
 void redraw(void) {

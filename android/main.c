@@ -64,6 +64,10 @@ void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data)
     write(pipefd[1], &piping, sizeof(PIPING));
 }
 
+_Bool get_ptt(void){
+    return 1;
+}
+
 void image_set_filter(UTOX_NATIVE_IMAGE *image, uint8_t filter)
 {
 }
