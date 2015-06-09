@@ -384,19 +384,19 @@ static void dns_thread(void *data)
         pt = answer + sizeof(HEADER);
 
         if((len = dn_expand(answer, answend, pt, host, sizeof(host))) < 0) {
-            printf("^dn_expand failed\n");
+            debug("^dn_expand failed\n");
             goto FAIL;
         }
 
         pt += len;
         if(pt > answend - 4) {
-            printf("^Bad (too short) DNS reply\n");
+            debug("^Bad (too short) DNS reply\n");
             goto FAIL;
         }
 
         GETSHORT(type, pt);
         if(type != T_TXT) {
-            printf("^Broken DNS reply.\n");
+            debug("^Broken DNS reply.\n");
             goto FAIL;
         }
 
@@ -405,13 +405,13 @@ static void dns_thread(void *data)
         do { /* recurse through CNAME rr's */
             pt += size;
             if((len = dn_expand(answer, answend, pt, host, sizeof(host))) < 0) {
-                printf("^second dn_expand failed\n");
+                debug("^second dn_expand failed\n");
                 goto FAIL;
             }
-            printf("^Host: %s\n", host);
+            debug("^Host: %s\n", host);
             pt += len;
             if(pt > answend-10) {
-                printf("^Bad (too short) DNS reply\n");
+                debug("^Bad (too short) DNS reply\n");
                 goto FAIL;
             }
             GETSHORT(type, pt);
@@ -419,18 +419,18 @@ static void dns_thread(void *data)
             pt += 4;//GETLONG(cttl, pt);
             GETSHORT(size, pt);
             if(pt + size < answer || pt + size > answend) {
-                printf("^DNS rr overflow\n");
+                debug("^DNS rr overflow\n");
                 goto FAIL;
             }
         } while(type == T_CNAME);
 
         if(type != T_TXT) {
-            printf("^Not a TXT record\n");
+            debug("^Not a TXT record\n");
             goto FAIL;
         }
 
         if(!size || (txtlen = *pt) >= size || !txtlen) {
-            printf("^Broken TXT record (txtlen = %d, size = %d)\n", txtlen, size);
+            debug("^Broken TXT record (txtlen = %d, size = %d)\n", txtlen, size);
             goto FAIL;
         }
 

@@ -305,7 +305,7 @@ uint32_t *find_colour_pointer(char *colour) {
             break;
 
     colour[l + 1] = '\0';
-    printf("'%s'\n", colour);
+    debug("'%s'\n", colour);
 
     for (int i = 0;; ++i) {
         const char *s = COLOUR_NAME_TABLE[i];
@@ -328,7 +328,7 @@ uint32_t try_parse_hex_colour(char *colour, int *error) {
 
     colour[++l] = '\0';
 
-    printf("'%s'\n", colour);
+    debug("'%s'\n", colour);
     if (l != 6) {
         *error = 1;
         return 0;

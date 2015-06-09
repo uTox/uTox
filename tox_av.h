@@ -422,7 +422,7 @@ static void audio_thread(void *args)
         audio_device = (void*)device_list;
         debug("Input Device List:\n");
         while(*device_list) {
-            printf("%s\n", device_list);
+            debug("%s\n", device_list);
             postmessage(NEW_AUDIO_IN_DEVICE, UI_STRING_ID_INVALID, 0, (void*)device_list);
             device_list += strlen(device_list) + 1;
         }
@@ -440,7 +440,7 @@ static void audio_thread(void *args)
         output_device = device_list;
         debug("Output Device List:\n");
         while(*device_list) {
-            printf("%s\n", device_list);
+            debug("%s\n", device_list);
             postmessage(NEW_AUDIO_OUT_DEVICE, 0, 0, (void*)device_list);
             device_list += strlen(device_list) + 1;
         }
@@ -448,7 +448,7 @@ static void audio_thread(void *args)
 
     device_out = alcOpenDevice(output_device);
     if(!device_out) {
-        printf("alcOpenDevice() failed\n");
+        debug("alcOpenDevice() failed\n");
         return;
     }
 
@@ -457,7 +457,7 @@ static void audio_thread(void *args)
 
     context = alcCreateContext(device_out, attrlist);
     if(!alcMakeContextCurrent(context)) {
-        printf("alcMakeContextCurrent() failed\n");
+        debug("alcMakeContextCurrent() failed\n");
         alcCloseDevice(device_out);
         return;
     }
@@ -551,13 +551,13 @@ static void audio_thread(void *args)
 
                 ALCdevice *device = alcOpenDevice(output_device);
                 if(!device) {
-                    printf("alcOpenDevice() failed\n");
+                    debug("alcOpenDevice() failed\n");
                     break;
                 }
 
                 ALCcontext *con = alcCreateContext(device, NULL);
                 if(!alcMakeContextCurrent(con)) {
-                    printf("alcMakeContextCurrent() failed\n");
+                    debug("alcMakeContextCurrent() failed\n");
                     alcCloseDevice(device);
                     break;
                 }
