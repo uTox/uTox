@@ -238,7 +238,7 @@ static void drawsettings_header(int UNUSED(x), int UNUSED(y), int UNUSED(width),
     drawstr(LIST_RIGHT + SCALE * 5, SCALE * 5, UTOX_SETTINGS);
     #ifdef GIT_VERSION
         setfont(FONT_TEXT);
-        drawtext(LIST_RIGHT + SCALE * 60, SCALE * 5, (uint8_t*)GIT_VERSION, strlen(GIT_VERSION));
+        drawtext(LIST_RIGHT + SLEN(UTOX_SETTINGS) * 3.3 * SCALE, SCALE * 5, (uint8_t*)GIT_VERSION, strlen(GIT_VERSION));
     #endif
 }
 
@@ -282,7 +282,7 @@ static void drawsettings_text_ui(int x, int y, int w, int UNUSED(height)){
     drawstr(LIST_RIGHT + 5  * SCALE, y + 5 * SCALE, THEME);
     drawstr(LIST_RIGHT + 5  * SCALE, y + 30 * SCALE, LOGGING);
     drawstr(LIST_RIGHT + 5  * SCALE, y + 55 * SCALE, CLOSE_TO_TRAY);
-    drawstr(LIST_RIGHT + 75 * SCALE, y + 55 * SCALE, START_IN_TRAY);
+    drawstr(LIST_RIGHT + SLEN(CLOSE_TO_TRAY) * 2.3 * SCALE, y + 55 * SCALE, START_IN_TRAY);
     drawstr(LIST_RIGHT + 5  * SCALE, y + 80 * SCALE, AUTO_STARTUP);
     drawstr(LIST_RIGHT + 5  * SCALE, y + 105 * SCALE, SEND_TYPING_NOTIFICATIONS);
 }
@@ -306,45 +306,52 @@ static void drawsettings_sub_header(int x, int y, int w, int UNUSED(height)){
 
     /* Draw the text and bars for general settings */
     setcolor(!button_settings_sub_utox.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_SUBTEXT);
-    drawstr(   x + 5   * SCALE, y + 5 * SCALE, PROFILE);
+    int x2 = x + SLEN(PROFILE) * 3 * SCALE;
+    drawstr( x + 3 * SCALE, y + 5 * SCALE, PROFILE);
     if (panel_settings_utox.disabled) {
-        drawhline( x + 0   * SCALE, y + 15 * SCALE, x + 65 * SCALE, COLOR_EDGE_NORMAL);
+        drawhline( x, y + 15 * SCALE, x2, COLOR_EDGE_NORMAL);
     } else {
-        drawhline( x + 0   * SCALE, y + 0, x + 65 * SCALE, COLOR_EDGE_ACTIVE);
-        drawhline( x + 0   * SCALE, y + 1, x + 65 * SCALE, COLOR_EDGE_ACTIVE);
+        drawhline( x, y + 0, x2, COLOR_EDGE_ACTIVE);
+        drawhline( x, y + 1, x2, COLOR_EDGE_ACTIVE);
     }
-    drawvline( x + 65  * SCALE, y + 0 * SCALE, y + 15 * SCALE, COLOR_EDGE_NORMAL);
+    drawvline( x2, y + 0 * SCALE, y + 15 * SCALE, COLOR_EDGE_NORMAL);
 
     /* Draw the text and bars for network settings */
     setcolor(!button_settings_sub_net.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_SUBTEXT);
-    drawstr(   x + 70  * SCALE, y + 5 * SCALE, NETWORK);
+    x = x2;
+    x2 = x2 + SLEN(NETWORK) * 3 * SCALE;
+    drawstr( x + 3 * SCALE, y + 5 * SCALE, NETWORK);
     if (panel_settings_net.disabled) {
-        drawhline( x + 65  * SCALE, y + 15 * SCALE, x + 110 * SCALE, COLOR_EDGE_NORMAL);
+        drawhline( x, y + 15 * SCALE, x2, COLOR_EDGE_NORMAL);
     } else {
-        drawhline( x + 65  * SCALE, y + 0, x + 110 * SCALE, COLOR_EDGE_ACTIVE);
-        drawhline( x + 65  * SCALE, y + 1, x + 110 * SCALE, COLOR_EDGE_ACTIVE);
+        drawhline( x, y + 0, x2, COLOR_EDGE_ACTIVE);
+        drawhline( x, y + 1, x2, COLOR_EDGE_ACTIVE);
     }
-    drawvline( x + 110 * SCALE, y + 0 * SCALE, y + 15  * SCALE, COLOR_EDGE_NORMAL);
+    drawvline( x2, y + 0 * SCALE, y + 15  * SCALE, COLOR_EDGE_NORMAL);
 
     /* Draw the text and bars for User interface settings */
     setcolor(!button_settings_sub_ui.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_SUBTEXT);
-    drawstr(   x + 115 * SCALE, y + 5 * SCALE, USER_INTERFACE);
+    x = x2;
+    x2 = x2 + SLEN(USER_INTERFACE) * 3 * SCALE;
+    drawstr( x + 3 * SCALE, y + 5 * SCALE, USER_INTERFACE);
     if (panel_settings_ui.disabled) {
-        drawhline( x + 110 * SCALE, y + 15 * SCALE, x + 175 * SCALE, COLOR_EDGE_NORMAL);
+        drawhline( x, y + 15 * SCALE, x2, COLOR_EDGE_NORMAL);
     } else {
-        drawhline( x + 110 * SCALE, y + 0, x + 175 * SCALE, COLOR_EDGE_ACTIVE);
-        drawhline( x + 110 * SCALE, y + 1, x + 175 * SCALE, COLOR_EDGE_ACTIVE);
+        drawhline( x, y + 0, x2, COLOR_EDGE_ACTIVE);
+        drawhline( x, y + 1, x2, COLOR_EDGE_ACTIVE);
     }
-    drawvline( x + 175 * SCALE, y + 0 * SCALE, y + 15  * SCALE, COLOR_EDGE_NORMAL);
+    drawvline( x2, y + 0 * SCALE, y + 15  * SCALE, COLOR_EDGE_NORMAL);
 
     /* Draw the text and bars for A/V settings */
     setcolor(!button_settings_sub_av.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_SUBTEXT);
-    drawstr(   x + 180 * SCALE, y + 5 * SCALE, AUDIO_VIDEO);
+    x = x2;
+    x2 = x2 + SLEN(AUDIO_VIDEO) * 3 * SCALE;
+    drawstr( x + 3 * SCALE, y + 5 * SCALE, AUDIO_VIDEO);
     if (panel_settings_av.disabled) {
-        drawhline( x + 175 * SCALE, y + 15 * SCALE, x + w + 0 * SCALE, COLOR_EDGE_NORMAL);
+        drawhline( x, y + 15 * SCALE, x2, COLOR_EDGE_NORMAL);
     } else {
-        drawhline( x + 175 * SCALE, y + 0, x + w + 0 * SCALE, COLOR_EDGE_ACTIVE);
-        drawhline( x + 175 * SCALE, y + 1, x + w + 0 * SCALE, COLOR_EDGE_ACTIVE);
+        drawhline( x, y + 0, x2, COLOR_EDGE_ACTIVE);
+        drawhline( x, y + 1, x2, COLOR_EDGE_ACTIVE);
     }
 }
 
@@ -719,29 +726,29 @@ void ui_scale(uint8_t scale)
         .type   = PANEL_BUTTON,
         .x      = 1  * SCALE, /* Nudged 1px as a buffer */
         .y      = 1  * SCALE,
-        .width  = 64 * SCALE, /* Nudged 1px as a buffer */
+        .width  = (SLEN(PROFILE) * 3 - 1) * SCALE, /* Nudged 1px as a buffer */
         .height = 14 * SCALE,
     },
 
     b_settings_sub_net = {
         .type   = PANEL_BUTTON,
-        .x      = 66 * SCALE, /* Nudged 1px as a buffer */
+        .x      = (SLEN(PROFILE) * 3 + 1) * SCALE, /* Nudged 1px as a buffer */
         .y      = 1  * SCALE,
-        .width  = 44 * SCALE,
+        .width  = (SLEN(NETWORK) * 3 - 1) * SCALE, /* Nudged 1px as a buffer */
         .height = 14 * SCALE,
     },
 
     b_settings_sub_ui = {
         .type   = PANEL_BUTTON,
-        .x      = 111 * SCALE, /* Nudged 1px as a buffer */
+        .x      = ((SLEN(PROFILE) + SLEN(NETWORK)) * 3 + 2) * SCALE, /* Nudged 1px as a buffer */
         .y      = 1   * SCALE,
-        .width  = 64  * SCALE, /* Nudged 1px as a buffer */
+        .width  = (SLEN(USER_INTERFACE) * 3 - 1) * SCALE, /* Nudged 1px as a buffer */
         .height = 14  * SCALE,
     },
 
     b_settings_sub_av = {
         .type   = PANEL_BUTTON,
-        .x      = 176 * SCALE, /* Nudged 1px as a buffer */
+        .x      = ((SLEN(PROFILE) + SLEN(NETWORK) + SLEN(USER_INTERFACE)) * 3 + 3) * SCALE, /* Nudged 1px as a buffer */
         .y      = 1   * SCALE,
         .width  = 400 * SCALE, /* Fill the rest of the space for this button */
         .height = 14  * SCALE,
@@ -1023,7 +1030,7 @@ void ui_scale(uint8_t scale)
 
     d_start_in_tray = {
         .type   = PANEL_DROPDOWN,
-        .x      = 75  * SCALE,
+        .x      = SLEN(CLOSE_TO_TRAY) * 2.3 * SCALE,
         .y      = 63 * SCALE,
         .height = 12 * SCALE,
         .width  = 20 * SCALE
