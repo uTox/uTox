@@ -519,6 +519,9 @@ static void android_main(struct android_app* state){
     pipe(pipefd);
     fcntl(pipefd[0], F_SETFL, O_NONBLOCK);
 
+    LANG = DEFAULT_LANG;
+    dropdown_language.selected = dropdown_language.over = LANG;
+
     UTOX_SAVE *save = config_load();
     theme_load(THEME_DEFAULT);
 
@@ -528,9 +531,6 @@ static void android_main(struct android_app* state){
 
     dropdown_dpi.selected = dropdown_dpi.over = 3;
     ui_scale(4);
-
-    LANG = DEFAULT_LANG;
-    dropdown_language.selected = dropdown_language.over = LANG;
 
     while(!tox_thread_init) {
         yieldcpu(1);
