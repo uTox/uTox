@@ -53,45 +53,38 @@ static void edit_msg_onenter(EDIT *edit)
         return;
     }
 
-    STRING_IDX command_length = 0;
-    char_t *command = NULL;
+    STRING_IDX command_length = 0, argument_length = 0;
+    char_t *command = NULL, *argument = NULL;
 
-    STRING_IDX argument_length = 0;
-    char_t *argument = NULL;
 
-    if (text[0] == '/') {
-        unsigned int i;
-        for (i = 0; i < length; ++i) {
-            if (text[i] == ' ') {
-                command_length = i;
-                break;
+    command_length = utox_run_command(text, length, &command, &argument, 1);
+
+    if(command_length == 65535){
+        return;
+    }
+
+    debug("cmd %u\n", command_length);
+
+    _Bool action = 0, topic = 0;
+    if(command_length){
+        length = length - command_length - 2; /* first / and then the SPACE */
+        text = argument;
+        if((command_length == 2) && (!memcmp(command, "me", 2))) {
+            if(argument) {
+                action = 1;
+            } else {
+                return;
             }
-        }
-
-        ++i;
-        for (; i < length; ++i) {
-            if (text[i] != ' ') {
-                argument_length = length - i;
-                argument = text + i;
-                break;
-            }
-        }
-
-        if (command_length) {
-            --command_length;
-            command = text + 1;
+        } else if(command_length == 5){
+            if(memcmp(command, "topic", 5) == 0){
+               topic = 1;
+            } /* Separated as a guide for commands that don't need a separate function */
         }
     }
 
-    _Bool action = 0;
-    if ((command_length == 2) && (!memcmp(command, "me", 2))) {
-        if (!argument) {
-            return;
-        }
 
-        action = 1;
-        length = argument_length;
-        text = argument;
+    if(!text){
+        return;
     }
 
     if(sitem->item == ITEM_FRIEND) {
@@ -113,14 +106,12 @@ static void edit_msg_onenter(EDIT *edit)
         memcpy(d, text, length);
 
         tox_postmessage((action ? TOX_SENDACTION : TOX_SENDMESSAGE), (f - friend), length, d);
-    } else {
+    } else if(sitem->item == ITEM_GROUP) {
         GROUPCHAT *g = sitem->data;
-
-        if ((command_length == 5) && (!memcmp(command, "topic", 5))) {
-            void *d = malloc(argument_length);
-            memcpy(d, argument, argument_length);
-
-            tox_postmessage(TOX_GROUPCHANGETOPIC, (g - group), argument_length, d);
+        if(topic){
+            void *d = malloc(length);
+            memcpy(d, text, length);
+            tox_postmessage(TOX_GROUPCHANGETOPIC, (g - group), length, d);
         } else {
             void *d = malloc(length);
             memcpy(d, text, length);

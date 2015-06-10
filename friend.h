@@ -1,3 +1,8 @@
+typedef struct friend_meta_data {
+    size_t alias_length;
+    uint8_t data[];
+} FRIEND_META_DATA;
+
 typedef struct friend {
     _Bool online, typing, notify;
     uint8_t calling, status;
@@ -5,8 +10,8 @@ typedef struct friend {
     uint16_t call_width, call_height;
 
     uint8_t cid[TOX_PUBLIC_KEY_SIZE], tooltip[8];
-    STRING_IDX name_length, status_length, typed_length;
-    char_t *name, *status_message, *typed;
+    char_t *name, *alias, *status_message, *typed;
+    STRING_IDX name_length, alias_length, status_length, typed_length;
 
     MSG_DATA msg;
 
@@ -16,6 +21,8 @@ typedef struct friend {
     AVATAR avatar;
 
     uint16_t transfer_count;
+
+    FRIEND_META_DATA metadata;
 } FRIEND;
 
 #define MAX_GROUP_PEERS 256
@@ -42,6 +49,7 @@ typedef struct groupchat {
 #define friend_id(f) (f -  friend)
 
 void friend_setname(FRIEND *f, char_t *name, STRING_IDX length);
+void friend_set_alias(FRIEND *f, char_t *alias, STRING_IDX length);
 void friend_addmessage(FRIEND *f, void *data);
 void friend_sendimage(FRIEND *f, UTOX_NATIVE_IMAGE *, uint16_t width, uint16_t height, UTOX_PNG_IMAGE, size_t png_size);
 void friend_recvimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width, uint16_t height);

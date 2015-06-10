@@ -469,6 +469,7 @@ static void button_chat_send_onpress(void){
     if (sitem->item == ITEM_FRIEND) {
         FRIEND *f = sitem->data;
         if (f->online) {
+            // TODO clear the chat bar with a /slash command
             edit_msg_onenter(&edit_msg);
             // reset focus to the chat window on send to prevent segfault. May break on android.
             edit_setfocus(&edit_msg);

@@ -6,6 +6,11 @@
  */
 void* file_raw(char *path, uint32_t *size);
 
+/*
+ * Write *data, of size, to path on disk.
+ */
+void file_write_raw(uint8_t *path, uint8_t *data, size_t size);
+
 //add null terminator to data
 void* file_text(char *path);
 
@@ -91,3 +96,9 @@ void scale_rgbx_image(uint8_t *old_rgbx, uint16_t old_width, uint16_t old_height
  */
 UTOX_SAVE* config_load(void);
 void config_save(UTOX_SAVE *save);
+
+
+/*
+ Saves user meta data to disk
+ */
+void utox_write_metadata(FRIEND *f);

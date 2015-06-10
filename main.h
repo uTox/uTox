@@ -203,6 +203,7 @@ enum {
 #include "dropdown.h"
 #include "contextmenu.h"
 #include "tooltip.h"
+#include "commands.h"
 
 #include "text.h"
 #include "util.h"
