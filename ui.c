@@ -306,52 +306,52 @@ static void drawsettings_sub_header(int x, int y, int w, int UNUSED(height)){
 
     /* Draw the text and bars for general settings */
     setcolor(!button_settings_sub_utox.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_SUBTEXT);
-    int x2 = x + SLEN(PROFILE) * 3 * SCALE;
+    int x_right_edge = x + SLEN(PROFILE) * 3 * SCALE;
     drawstr( x + 3 * SCALE, y + 5 * SCALE, PROFILE);
     if (panel_settings_utox.disabled) {
-        drawhline( x, y + 15 * SCALE, x2, COLOR_EDGE_NORMAL);
+        drawhline( x, y + 15 * SCALE, x_right_edge, COLOR_EDGE_NORMAL);
     } else {
-        drawhline( x, y + 0, x2, COLOR_EDGE_ACTIVE);
-        drawhline( x, y + 1, x2, COLOR_EDGE_ACTIVE);
+        drawhline( x, y + 0, x_right_edge, COLOR_EDGE_ACTIVE);
+        drawhline( x, y + 1, x_right_edge, COLOR_EDGE_ACTIVE);
     }
-    drawvline( x2, y + 0 * SCALE, y + 15 * SCALE, COLOR_EDGE_NORMAL);
+    drawvline( x_right_edge, y + 0 * SCALE, y + 15 * SCALE, COLOR_EDGE_NORMAL);
 
     /* Draw the text and bars for network settings */
     setcolor(!button_settings_sub_net.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_SUBTEXT);
-    x = x2;
-    x2 = x2 + SLEN(NETWORK) * 3 * SCALE;
+    x = x_right_edge;
+    x_right_edge = x_right_edge + SLEN(NETWORK) * 3 * SCALE;
     drawstr( x + 3 * SCALE, y + 5 * SCALE, NETWORK);
     if (panel_settings_net.disabled) {
-        drawhline( x, y + 15 * SCALE, x2, COLOR_EDGE_NORMAL);
+        drawhline( x, y + 15 * SCALE, x_right_edge, COLOR_EDGE_NORMAL);
     } else {
-        drawhline( x, y + 0, x2, COLOR_EDGE_ACTIVE);
-        drawhline( x, y + 1, x2, COLOR_EDGE_ACTIVE);
+        drawhline( x, y + 0, x_right_edge, COLOR_EDGE_ACTIVE);
+        drawhline( x, y + 1, x_right_edge, COLOR_EDGE_ACTIVE);
     }
-    drawvline( x2, y + 0 * SCALE, y + 15  * SCALE, COLOR_EDGE_NORMAL);
+    drawvline( x_right_edge, y + 0 * SCALE, y + 15  * SCALE, COLOR_EDGE_NORMAL);
 
     /* Draw the text and bars for User interface settings */
     setcolor(!button_settings_sub_ui.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_SUBTEXT);
-    x = x2;
-    x2 = x2 + SLEN(USER_INTERFACE) * 3 * SCALE;
+    x = x_right_edge;
+    x_right_edge = x_right_edge + SLEN(USER_INTERFACE) * 3 * SCALE;
     drawstr( x + 3 * SCALE, y + 5 * SCALE, USER_INTERFACE);
     if (panel_settings_ui.disabled) {
-        drawhline( x, y + 15 * SCALE, x2, COLOR_EDGE_NORMAL);
+        drawhline( x, y + 15 * SCALE, x_right_edge, COLOR_EDGE_NORMAL);
     } else {
-        drawhline( x, y + 0, x2, COLOR_EDGE_ACTIVE);
-        drawhline( x, y + 1, x2, COLOR_EDGE_ACTIVE);
+        drawhline( x, y + 0, x_right_edge, COLOR_EDGE_ACTIVE);
+        drawhline( x, y + 1, x_right_edge, COLOR_EDGE_ACTIVE);
     }
-    drawvline( x2, y + 0 * SCALE, y + 15  * SCALE, COLOR_EDGE_NORMAL);
+    drawvline( x_right_edge, y + 0 * SCALE, y + 15  * SCALE, COLOR_EDGE_NORMAL);
 
     /* Draw the text and bars for A/V settings */
     setcolor(!button_settings_sub_av.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_SUBTEXT);
-    x = x2;
-    x2 = x2 + SLEN(AUDIO_VIDEO) * 3 * SCALE;
+    x = x_right_edge;
+    x_right_edge = x_right_edge + SLEN(AUDIO_VIDEO) * 3 * SCALE;
     drawstr( x + 3 * SCALE, y + 5 * SCALE, AUDIO_VIDEO);
     if (panel_settings_av.disabled) {
-        drawhline( x, y + 15 * SCALE, x2, COLOR_EDGE_NORMAL);
+        drawhline( x, y + 15 * SCALE, x_right_edge, COLOR_EDGE_NORMAL);
     } else {
-        drawhline( x, y + 0, x2, COLOR_EDGE_ACTIVE);
-        drawhline( x, y + 1, x2, COLOR_EDGE_ACTIVE);
+        drawhline( x, y + 0, x_right_edge, COLOR_EDGE_ACTIVE);
+        drawhline( x, y + 1, x_right_edge, COLOR_EDGE_ACTIVE);
     }
 }
 
