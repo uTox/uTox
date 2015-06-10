@@ -306,8 +306,8 @@ static void drawsettings_sub_header(int x, int y, int w, int UNUSED(height)){
 
     /* Draw the text and bars for general settings */
     setcolor(!button_settings_sub_utox.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_SUBTEXT);
-    int x_right_edge = x + SLEN(PROFILE) * 3 * SCALE;
-    drawstr( x + 3 * SCALE, y + 5 * SCALE, PROFILE);
+    int x_right_edge = x + 5 * SCALE + UTOX_STR_WIDTH(PROFILE) + 5 * SCALE;
+    drawstr( x + 5 * SCALE, y + 5 * SCALE, PROFILE);
     if (panel_settings_utox.disabled) {
         drawhline( x, y + 15 * SCALE, x_right_edge, COLOR_EDGE_NORMAL);
     } else {
@@ -319,8 +319,8 @@ static void drawsettings_sub_header(int x, int y, int w, int UNUSED(height)){
     /* Draw the text and bars for network settings */
     setcolor(!button_settings_sub_net.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_SUBTEXT);
     x = x_right_edge;
-    x_right_edge = x_right_edge + SLEN(NETWORK) * 3 * SCALE;
-    drawstr( x + 3 * SCALE, y + 5 * SCALE, NETWORK);
+    x_right_edge = x_right_edge + 5 * SCALE + UTOX_STR_WIDTH(NETWORK) + 5 * SCALE;
+    drawstr( x + 5 * SCALE, y + 5 * SCALE, NETWORK);
     if (panel_settings_net.disabled) {
         drawhline( x, y + 15 * SCALE, x_right_edge, COLOR_EDGE_NORMAL);
     } else {
@@ -332,8 +332,8 @@ static void drawsettings_sub_header(int x, int y, int w, int UNUSED(height)){
     /* Draw the text and bars for User interface settings */
     setcolor(!button_settings_sub_ui.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_SUBTEXT);
     x = x_right_edge;
-    x_right_edge = x_right_edge + SLEN(USER_INTERFACE) * 3 * SCALE;
-    drawstr( x + 3 * SCALE, y + 5 * SCALE, USER_INTERFACE);
+    x_right_edge = x_right_edge + 5 * SCALE + UTOX_STR_WIDTH(USER_INTERFACE) + 5 * SCALE;
+    drawstr( x + 5 * SCALE, y + 5 * SCALE, USER_INTERFACE);
     if (panel_settings_ui.disabled) {
         drawhline( x, y + 15 * SCALE, x_right_edge, COLOR_EDGE_NORMAL);
     } else {
@@ -345,8 +345,8 @@ static void drawsettings_sub_header(int x, int y, int w, int UNUSED(height)){
     /* Draw the text and bars for A/V settings */
     setcolor(!button_settings_sub_av.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_SUBTEXT);
     x = x_right_edge;
-    x_right_edge = x_right_edge + SLEN(AUDIO_VIDEO) * 3 * SCALE;
-    drawstr( x + 3 * SCALE, y + 5 * SCALE, AUDIO_VIDEO);
+    x_right_edge = x_right_edge + 5 * SCALE + UTOX_STR_WIDTH(AUDIO_VIDEO) + 400 * SCALE; /* stretch to end of window */
+    drawstr( x + 5 * SCALE, y + 5 * SCALE, AUDIO_VIDEO);
     if (panel_settings_av.disabled) {
         drawhline( x, y + 15 * SCALE, x_right_edge, COLOR_EDGE_NORMAL);
     } else {
@@ -681,6 +681,7 @@ void ui_scale(uint8_t scale)
     scroll_list.panel.width = LIST_RIGHT + 1;
     scroll_list.panel.height = LIST_BOTTOM;
 
+    setfont(FONT_SELF_NAME);
 
     PANEL b_add = {
         .type = PANEL_BUTTON,
@@ -722,33 +723,35 @@ void ui_scale(uint8_t scale)
         .height = BM_SBUTTON_HEIGHT,
     },
 
+    /* setfont(FONT_SELF_NAME); needed for the next 4 buttons */
     b_settings_sub_utox = {
         .type   = PANEL_BUTTON,
         .x      = 1  * SCALE, /* Nudged 1px as a buffer */
         .y      = 1  * SCALE,
-        .width  = (SLEN(PROFILE) * 3 - 1) * SCALE, /* Nudged 1px as a buffer */
+        .width  = 9  * SCALE + UTOX_STR_WIDTH(PROFILE) * SCALE, /* Nudged 1px as a buffer */
         .height = 14 * SCALE,
     },
 
     b_settings_sub_net = {
         .type   = PANEL_BUTTON,
-        .x      = (SLEN(PROFILE) * 3 + 1) * SCALE, /* Nudged 1px as a buffer */
+        .x      = 11 * SCALE + UTOX_STR_WIDTH(PROFILE) * SCALE,  /* Nudged 1px as a buffer */
         .y      = 1  * SCALE,
-        .width  = (SLEN(NETWORK) * 3 - 1) * SCALE, /* Nudged 1px as a buffer */
+        .width  = 8  * SCALE + UTOX_STR_WIDTH(NETWORK) * SCALE,  /* Nudged 1px as a buffer */
         .height = 14 * SCALE,
     },
 
     b_settings_sub_ui = {
         .type   = PANEL_BUTTON,
-        .x      = ((SLEN(PROFILE) + SLEN(NETWORK)) * 3 + 2) * SCALE, /* Nudged 1px as a buffer */
-        .y      = 1   * SCALE,
-        .width  = (SLEN(USER_INTERFACE) * 3 - 1) * SCALE, /* Nudged 1px as a buffer */
-        .height = 14  * SCALE,
+        .x      = 21 * SCALE + (UTOX_STR_WIDTH(PROFILE) + UTOX_STR_WIDTH(NETWORK)) * SCALE, /* Nudged 1px as a buffer */
+        .y      = 1  * SCALE,
+        .width  = 7  * SCALE + UTOX_STR_WIDTH(USER_INTERFACE) * SCALE,                      /* Nudged 1px as a buffer */
+        .height = 14 * SCALE,
     },
 
     b_settings_sub_av = {
         .type   = PANEL_BUTTON,
-        .x      = ((SLEN(PROFILE) + SLEN(NETWORK) + SLEN(USER_INTERFACE)) * 3 + 3) * SCALE, /* Nudged 1px as a buffer */
+        .x      = 29  * SCALE + /* Nudged 1px as a buffer */
+                  (UTOX_STR_WIDTH(PROFILE) + UTOX_STR_WIDTH(NETWORK) + UTOX_STR_WIDTH(USER_INTERFACE)) * SCALE,
         .y      = 1   * SCALE,
         .width  = 400 * SCALE, /* Fill the rest of the space for this button */
         .height = 14  * SCALE,

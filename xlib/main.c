@@ -849,6 +849,7 @@ void setscale(void)
         XFree(xsh);
     }
 
+    // TODO, fork this to a function
     xsh = XAllocSizeHints();
     xsh->flags = PMinSize;
     xsh->min_width = 320 * SCALE;
@@ -995,7 +996,7 @@ int main(int argc, char *argv[])
     /* Variables for --set */
     int32_t set_show_window = 0;
 
-    if (argc > 1)
+    if (argc > 1) {
         for (int i = 1; i < argc; i++) {
             if(parse_args_wait_for_theme) {
                 if(!strcmp(argv[i], "default")) {
@@ -1062,6 +1063,7 @@ int main(int argc, char *argv[])
             }
             printf("arg %d: %s\n", i, argv[i]);
         }
+    }
 
     if (parse_args_wait_for_theme) {
         debug("Expected theme name, but got nothing. -_-\n");
@@ -1103,8 +1105,9 @@ int main(int argc, char *argv[])
     /* load save data */
     UTOX_SAVE *save = config_load();
 
-    if (!theme_was_set_on_argv)
+    if (!theme_was_set_on_argv) {
         theme = save->theme;
+    }
     printf("%d\n", theme);
     theme_load(theme);
 
@@ -1176,7 +1179,13 @@ int main(int argc, char *argv[])
     /* initialize fontconfig */
     initfonts();
 
+    /* Set the default font so we don't segfault on ui_scale() when it goes looking for fonts. */
+    loadfonts();
+    setfont(FONT_TEXT);
+
     /* load fonts and scalable bitmaps */
+    ui_scale(save->scale);
+    /* We needed to load the vars from ui_scale before setscale(), but we need setscale to size the vars in ui_scale */
     ui_scale(save->scale + 1);
 
     /* done with save */
