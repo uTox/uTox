@@ -62,7 +62,7 @@ static void drawself(void)
     setfont(FONT_SELF_NAME);
     drawtextrange(SELF_NAME_X, SELF_STATUS_X, SELF_NAME_Y, self.name, self.name_length);
 
-    // @TODO: separate these colours if needed (COLOR_MAIN_HINTTEXT)
+    // @TODO: separate these colors if needed (COLOR_MAIN_HINTTEXT)
     setcolor(!button_statusmsg.mouseover ? COLOR_MENU_SUBTEXT : COLOR_MAIN_HINTTEXT);
     setfont(FONT_STATUS);
     drawtextrange(SELF_MSG_X, SELF_STATUS_X, SELF_MSG_Y, self.statusmsg, self.statusmsg_length);
@@ -103,7 +103,7 @@ static void drawfriend(int x, int y, int w, int height)
     if (f->typing) {
         int typing_y = ((y + height) + MESSAGES_BOTTOM);
         setfont(FONT_MISC);
-        // @TODO: separate these colours if needed
+        // @TODO: separate these colors if needed
         setcolor(COLOR_MAIN_HINTTEXT);
         drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, typing_y, f->name, f->name_length);
         drawtextwidth(x + MESSAGES_X, x + w, typing_y, S(IS_TYPING), SLEN(IS_TYPING));
@@ -428,7 +428,7 @@ scroll_group = {
     .color = C_SCROLL,
 },
 
-// Colour is not used for settings
+// Color is not used for settings
 // @TODO
 scroll_settings = {
     .panel = {

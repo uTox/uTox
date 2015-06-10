@@ -33,14 +33,14 @@ void button_draw(BUTTON *b, int x, int y, int width, int height)
     // Ensure that font is set before calculating position and width.
     setfont(FONT_SELF_NAME);
 
-    // Button contents colour
+    // Button contents color
     uint32_t color_text = b->mousedown ? b->ct2 : (b->mouseover ? b->ct2 : b->ct1);
     setcolor(color_text);
 
     int w = width;
     calculate_pos_and_width(b, &x, &w);
 
-    // Button background colour
+    // Button background color
     uint32_t color_background = b->mousedown ? b->c3 : (b->mouseover ? b->c2 : b->c1);
 
     if(b->bm) {

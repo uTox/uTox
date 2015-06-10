@@ -815,7 +815,7 @@ int datapath_subdir(uint8_t *dest, const char *subdir)
 
 /** Sets file system permissions to something slightly safer.
  *
- * returns 0 and 1 on sucess and failure.
+ * returns 0 and 1 on success and failure.
  */
 int ch_mod(uint8_t *file){
     return chmod((char*)file, S_IRUSR | S_IWUSR);
