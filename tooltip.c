@@ -165,7 +165,7 @@ static void tooltip_thread(void *UNUSED(args))
     kill_thread = 0;
 }
 
-// This is being called everytime the mouse is moving above a button
+// This is being called every time the mouse is moving above a button
 void tooltip_new(MAYBE_I18NAL_STRING* text)
 {
     TOOLTIP *b = &tooltip;

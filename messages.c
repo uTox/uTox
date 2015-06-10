@@ -96,7 +96,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
 
         // Draw the names for groups or friends
         if(m->type) {
-            // Group message authors are all the same colour
+            // Group message authors are all the same color
             setcolor(COLOR_MAIN_CHATTEXT);
             setfont(FONT_TEXT);
             drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, y, &msg->msg[msg->length] + 1, msg->msg[msg->length]);
@@ -973,7 +973,7 @@ void message_updateheight(MESSAGES *m, MESSAGE *msg, MSG_DATA *p)
 /** Appends a messages from self or firend to the message list;
  * will realloc or trim messages as needed;
  *
- * also handels auto scrolling selections with messages
+ * also handles auto scrolling selections with messages
  *
  * accepts: MESSAGES *pointer, MESSAGE *pointer, MSG_DATA *pointer
  */
@@ -984,7 +984,7 @@ void message_add(MESSAGES *m, MESSAGE *msg, MSG_DATA *p)
     time(&rawtime);
     ti = localtime(&rawtime);
 
-    // Set the time this message was recived by utox
+    // Set the time this message was received by utox
     msg->time = ti->tm_hour * 60 + ti->tm_min;
 
     if(p->n < MAX_BACKLOG_MESSAGES) {

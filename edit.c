@@ -39,7 +39,7 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
     edit->width = width -4 * SCALE - (edit->multiline ? SCROLL_WIDTH : 0);
     edit->height = height - 4 * SCALE;
 
-    // load colours for this style
+    // load colors for this style
     uint32_t color_bg,
              color_border,
              color_border_h,

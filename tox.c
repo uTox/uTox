@@ -524,10 +524,10 @@ static void utox_thread_work_for_typing_notifications(Tox *tox, uint64_t time)
 
 /** void tox_thread(void)
  *
- * Main tox function, starts a new toxcore for utox to use, and then spwans it's
+ * Main tox function, starts a new toxcore for utox to use, and then spawns its
  * threads.
  *
- * Accepts and retuns nothing.
+ * Accepts and returns nothing.
  */
 void tox_thread(void *UNUSED(args))
 {
@@ -603,7 +603,7 @@ void tox_thread(void *UNUSED(args))
         // Give toxcore the functions to call
         set_callbacks(tox);
 
-        // Connect to bootstraped nodes in "tox_bootstrap.h"
+        // Connect to bootstrapped nodes in "tox_bootstrap.h"
         do_bootstrap(tox);
 
         // Start the tox av session.
