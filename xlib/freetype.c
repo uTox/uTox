@@ -203,7 +203,7 @@ GLYPH* font_getglyph(FONT *f, uint32_t ch)
     int weight;
     //FcPatternGetInteger(f->pattern, FC_WEIGHT, 0, &weight);
     int subpixel = FC_RGBA_NONE;
-    FcPatternGetInteger(f->pattern, FC_RGBA, 0, &subpixel); 
+    FcPatternGetInteger(f->pattern, FC_RGBA, 0, &subpixel);
 
     _Bool no_subpixel = (subpixel == FC_RGBA_NONE);
     _Bool vert = ft_vert;

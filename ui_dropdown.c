@@ -39,6 +39,10 @@ static void dropdown_dpi_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
 static void dropdown_language_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
 {
     LANG = (UI_LANG_ID)i;
+    /* The draw functions need the fonts' and scale to be reset when changing languages. */
+    int savescale = SCALE;
+    ui_scale(1);
+    ui_scale(savescale);
 }
 static STRING* dropdown_language_ondisplay(uint16_t i, const DROPDOWN* UNUSED(dm))
 {
