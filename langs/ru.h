@@ -140,7 +140,7 @@ msgid(OTHERSETTINGS)
 msgstr("Другие настройки")
 
 msgid(USER_INTERFACE)
-msgstr("Пользовательский интерфейс")
+msgstr("Интерфейс")
 
 msgid(UTOX_SETTINGS)
 msgstr("Настройки uTox")

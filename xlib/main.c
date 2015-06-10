@@ -1082,6 +1082,9 @@ int main(int argc, char *argv[])
         printf("Cannot open input method\n");
     }
 
+    LANG = systemlang();
+    dropdown_language.selected = dropdown_language.over = LANG;
+
     screen = DefaultScreen(display);
     cmap = DefaultColormap(display, screen);
     visual = DefaultVisual(display, screen);
@@ -1210,9 +1213,6 @@ int main(int argc, char *argv[])
     xrcolor.blue = 0x0;
     xrcolor.alpha = 0xffff;
     XftColorAllocValue(display, visual, cmap, &xrcolor, &xftcolor);*/
-
-    LANG = systemlang();
-    dropdown_language.selected = dropdown_language.over = LANG;
 
     if(set_show_window){
         if(set_show_window == 1){
