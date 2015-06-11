@@ -838,17 +838,16 @@ int datapath_old(uint8_t *dest)
 
 int datapath(uint8_t *dest)
 {
-    if (utox_portable) {
+    if (user_defined_datapath) {
+        uint8_t *p = dest + strlen((char*)dest);
+	*p++ = '\\';
+        return p - dest;
+    } else if (utox_portable) {
         uint8_t *p = dest;
         strcpy((char *)p, utox_portable_save_path); p += strlen(utox_portable_save_path);
         strcpy((char *)p, "\\Tox"); p += 4;
         CreateDirectory((char*)dest, NULL);
         *p++ = '\\';
-        return p - dest;
-    } else if (user_defined_datapath) {
-        uint8_t *p = dest + strlen((char*)dest);
-        CreateDirectory((char*)dest, NULL);
-	*p++ = '\\';
         return p - dest;
     } else {
         if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, (char*)dest))) {

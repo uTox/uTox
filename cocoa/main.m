@@ -246,16 +246,15 @@ void ensure_directory_r(char *path, int perm) {
 
 /* it occured to me that we should probably make datapath allocate memory for its caller */
 int datapath(uint8_t *dest) {
-    if (utox_portable) {
-        const char *home = [NSBundle.mainBundle.bundlePath stringByDeletingLastPathComponent].UTF8String;
-        int l = sprintf((char*)dest, "%.238s/tox", home);
-        ensure_directory_r((char*)dest, 0700);
+    if (user_defined_datapath) {
+        int l = sprintf((char*)dest, "%.230s", user_datapath);
         dest[l++] = '/';
 
         return l;
-    } else if (user_defined_datapath) {
-        int l = sprintf((char*)dest, "%.230s", user_datapath);
-        mkdir((char*)dest, 0700);
+    } else if (utox_portable) {
+        const char *home = [NSBundle.mainBundle.bundlePath stringByDeletingLastPathComponent].UTF8String;
+        int l = sprintf((char*)dest, "%.238s/tox", home);
+        ensure_directory_r((char*)dest, 0700);
         dest[l++] = '/';
 
         return l;

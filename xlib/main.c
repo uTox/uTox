@@ -791,14 +791,13 @@ int datapath_old(uint8_t *dest)
 
 int datapath(uint8_t *dest)
 {
-    if (utox_portable) {
-        int l = sprintf((char*)dest, "./tox");
-        mkdir((char*)dest, 0700);
+    if (user_defined_datapath) {
+        int l = sprintf((char*)dest, "%.230s", user_datapath);
         dest[l++] = '/';
 
         return l;
-    } else if (user_defined_datapath) {
-        int l = sprintf((char*)dest, "%.230s", user_datapath);
+    } else if (utox_portable) {
+        int l = sprintf((char*)dest, "./tox");
         mkdir((char*)dest, 0700);
         dest[l++] = '/';
 
