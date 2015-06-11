@@ -253,6 +253,7 @@ void loadalpha(int bm, void *data, int width, int height);
 void desktopgrab(_Bool video);
 void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_length, FRIEND *f);
 void setscale(void);
+void setscale_fonts(void);
 
 enum {
     FILTER_NEAREST, // ugly and quick filtering

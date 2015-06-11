@@ -1603,4 +1603,3 @@ _Bool panel_mleave(PANEL *p)
 
     return draw;
 }
-
