@@ -506,6 +506,44 @@ static void audio_thread(void *args)
             alSourcei(ringSrc[i], AL_BUFFER, RingBuffer);
         }
     }
+
+    static ALuint beepSrc[1];
+    alGenSources(1, beepSrc);
+
+    /* Create buffer to store samples */
+    ALuint BeepBuffer;
+    alGenBuffers(1, &BeepBuffer);
+
+    {
+        float frequency = 441.f;
+
+        float seconds = 0.4f;
+        unsigned sample_rate = 22050;
+        size_t buf_size = seconds * sample_rate * 2; //16 bit (2 bytes per sample)
+        int16_t *samples = malloc(buf_size * sizeof(int16_t));
+        if (!samples)
+            return;
+
+        /*Generate an electronic ringer sound that quickly alternates between two frequencies*/
+        int index = 0;
+        for (index = 0; index < buf_size; ++index) {
+                samples[index] = 5000
+                        * sin(
+                                (2.0 * 3.1415926 * frequency) / sample_rate
+                                        * index);
+        }
+
+        alBufferData(BeepBuffer, AL_FORMAT_MONO16, samples, buf_size,
+                sample_rate);
+        free(samples);
+    }
+
+    {
+        alSourcei(beepSrc[0], AL_BUFFER, BeepBuffer);
+
+    }
+
+
     #ifdef AUDIO_FILTERING
     Filter_Audio *f_a = NULL;
     #endif
@@ -684,6 +722,15 @@ static void audio_thread(void *args)
                 }
 
                 alSourcePlay(ringSrc[m->param1]);
+                break;
+            }
+
+            case AUDIO_PLAY_MESSAGE_BEEP: {
+                if(!audible_notifications_enabled) {
+                    break;
+                }
+
+                alSourcePlay(beepSrc[0]);
                 break;
             }
 

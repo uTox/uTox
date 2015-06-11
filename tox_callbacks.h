@@ -60,6 +60,7 @@ static void callback_friend_message(Tox *tox, uint32_t friend_number, TOX_MESSAG
     switch(type){
     case TOX_MESSAGE_TYPE_NORMAL:
         postmessage(FRIEND_MESSAGE, friend_number, 0, copy_message(message, length, MSG_TYPE_TEXT));
+        toxaudio_postmessage(AUDIO_PLAY_MESSAGE_BEEP, 0, 0, NULL);
         debug("Friend(%u) Standard Message: %.*s\n", friend_number, (int)length, message);
         break;
     case TOX_MESSAGE_TYPE_ACTION:
