@@ -641,532 +641,537 @@ void ui_scale(uint8_t scale)
 
     list_scale();
 
-    panel_side.x = LIST_RIGHT;
-
-    panel_settings.y      = LIST_Y / 2;
-    panel_settings_utox.y = 16 * SCALE;
-    panel_settings_net.y  = 16 * SCALE;
-    panel_settings_ui.y   = 16 * SCALE;
-    panel_settings_av.y   = 16 * SCALE;
-
-    panel_list.y = LIST_Y2;
-    panel_list.width = LIST_RIGHT + 1;
-    panel_list.height = LIST_BOTTOM;
-
-    messages_friend.panel.y = LIST_Y;
-    messages_friend.panel.height = MESSAGES_BOTTOM;
-    messages_friend.panel.width = -SCROLL_WIDTH;
-
-    messages_group.panel.y = LIST_Y;
-    messages_group.panel.height = MESSAGES_BOTTOM;
-    messages_group.panel.width = -SCROLL_WIDTH;
-
-    scroll_settings.panel.y = 16 * SCALE;
-    scroll_settings.content_height = 150 * SCALE;
-
-    scroll_group.panel.y = LIST_Y;
-    scroll_group.panel.height = MESSAGES_BOTTOM;
-
-    scroll_friend.panel.y = LIST_Y;
-    scroll_friend.panel.height = MESSAGES_BOTTOM;
-
-    scroll_list.panel.y = LIST_Y2;
-    scroll_list.panel.width = LIST_RIGHT + 1;
-    scroll_list.panel.height = LIST_BOTTOM;
-
-
-    PANEL b_add = {
-        .type = PANEL_BUTTON,
-        .x = 0,
-        .y = LIST_BOTTOM,
-        .width = SCALE * 27,
-        .height = -LIST_BOTTOM,
-    },
-
-    b_groups = {
-        .type = PANEL_BUTTON,
-        .x = SCALE * 28 * 1,
-        .y = LIST_BOTTOM,
-        .width = SCALE * 27,
-        .height = -LIST_BOTTOM,
-    },
-
-    b_transfer = {
-        .type = PANEL_BUTTON,
-        .x = SCALE * 28 * 2,
-        .y = LIST_BOTTOM,
-        .width = SCALE * 27,
-        .height = -LIST_BOTTOM,
-    },
-
-    b_settings = {
-        .type = PANEL_BUTTON,
-        .x = SCALE * 28 * 3,
-        .y = LIST_BOTTOM,
-        .width = SCALE * 27,
-        .height = -LIST_BOTTOM,
-    },
-
-    b_copyid = {
-        .type = PANEL_BUTTON,
-        .x = SCALE * 33,
-        .y = SCALE * 53,
-        .width = BM_SBUTTON_WIDTH,
-        .height = BM_SBUTTON_HEIGHT,
-    },
-
-    b_settings_sub_utox = {
-        .type   = PANEL_BUTTON,
-        .x      = 1  * SCALE, /* Nudged 1px as a buffer */
-        .y      = 1  * SCALE,
-        .width  = 64 * SCALE, /* Nudged 1px as a buffer */
-        .height = 14 * SCALE,
-    },
-
-    b_settings_sub_net = {
-        .type   = PANEL_BUTTON,
-        .x      = 66 * SCALE, /* Nudged 1px as a buffer */
-        .y      = 1  * SCALE,
-        .width  = 44 * SCALE,
-        .height = 14 * SCALE,
-    },
-
-    b_settings_sub_ui = {
-        .type   = PANEL_BUTTON,
-        .x      = 111 * SCALE, /* Nudged 1px as a buffer */
-        .y      = 1   * SCALE,
-        .width  = 64  * SCALE, /* Nudged 1px as a buffer */
-        .height = 14  * SCALE,
-    },
-
-    b_settings_sub_av = {
-        .type   = PANEL_BUTTON,
-        .x      = 176 * SCALE, /* Nudged 1px as a buffer */
-        .y      = 1   * SCALE,
-        .width  = 400 * SCALE, /* Fill the rest of the space for this button */
-        .height = 14  * SCALE,
-    },
-
-    #ifdef EMOJI_IDS
-    b_change_id_type = {
-        .type = PANEL_BUTTON,
-        .x = SCALE * 80,
-        .y = SCALE * 53,
-        .width = BM_SBUTTON_WIDTH,
-        .height = BM_SBUTTON_HEIGHT,
-    },
-    #endif
-
-    b_addfriend = {
-        .type = PANEL_BUTTON,
-        .x = -SCALE * 5 - BM_SBUTTON_WIDTH,
-        .y = LIST_Y + SCALE * 84,
-        .width = BM_SBUTTON_WIDTH,
-        .height = BM_SBUTTON_HEIGHT,
-    },
-
-    b_call = {
-        .type = PANEL_BUTTON,
-        .x = -62 * SCALE,
-        .y = 5 * SCALE,
-        .width = BM_LBUTTON_WIDTH,
-        .height = BM_LBUTTON_HEIGHT,
-    },
-
-    b_group_audio = {
-        .type = PANEL_BUTTON,
-        .x = -31 * SCALE,
-        .y = 5 * SCALE,
-        .width = BM_LBUTTON_WIDTH,
-        .height = BM_LBUTTON_HEIGHT,
-    },
-
-    b_video = {
-        .type = PANEL_BUTTON,
-        .x = -31 * SCALE,
-        .y = 5 * SCALE,
-        .width = BM_LBUTTON_WIDTH,
-        .height = BM_LBUTTON_HEIGHT,
-    },
-
-    b_sendfile = {
-        .type = PANEL_BUTTON,
-        .x = -93 * SCALE,
-        .y = 5 * SCALE,
-        .width = BM_LBUTTON_WIDTH,
-        .height = BM_LBUTTON_HEIGHT,
-    },
-
-    b_acceptfriend = {
-        .type = PANEL_BUTTON,
-        .x = SCALE * 5,
-        .y = LIST_Y + SCALE * 5,
-        .width = BM_SBUTTON_WIDTH,
-        .height = BM_SBUTTON_HEIGHT,
-    },
-
-    b_callpreview = {
-        .type   = PANEL_BUTTON,
-        .x      = 5   * SCALE,
-        .y      = 125 * SCALE,
-        .width  = BM_LBUTTON_WIDTH,
-        .height = BM_LBUTTON_HEIGHT,
-    },
-
-    b_videopreview = {
-        .type   = PANEL_BUTTON,
-        .x      = 35  * SCALE,
-        .y      = 125 * SCALE,
-        .width  = BM_LBUTTON_WIDTH,
-        .height = BM_LBUTTON_HEIGHT,
-    },
-
-    /* top right chat message window button */
-    b_chat1 = {
-        .type = PANEL_BUTTON,
-        .x = -40 * SCALE - BM_CHAT_BUTTON_WIDTH,
-        .y = -40 * SCALE,
-        .height = BM_CHAT_BUTTON_HEIGHT,
-        .width = BM_CHAT_BUTTON_WIDTH,
-    },
-
-    /* bottom right chat message window button */
-    b_chat2 = {
-        .type = PANEL_BUTTON,
-        .x = -40 * SCALE - BM_CHAT_BUTTON_WIDTH,
-        .y = -40 * SCALE + BM_CHAT_BUTTON_HEIGHT + SCALE,
-        .height = BM_CHAT_BUTTON_HEIGHT + SCALE,
-        .width = BM_CHAT_BUTTON_WIDTH,
-    },
-
-    b_chat_send = {
-        .type   = PANEL_BUTTON,
-        .x      = -5 * SCALE - BM_CHAT_SEND_WIDTH,
-        .y      = -40 * SCALE,
-        .height = BM_CHAT_SEND_HEIGHT,
-        .width  = BM_CHAT_SEND_WIDTH,
-    },
-
-    b_avatar = {
-        .type = PANEL_BUTTON,
-        .x = SELF_AVATAR_X,
-        .y = SELF_AVATAR_Y,
-        .width = BM_CONTACT_WIDTH,
-        .height = BM_CONTACT_WIDTH,
-    },
-
-    b_name = {
-        .type = PANEL_BUTTON,
-        .x = SELF_NAME_X,
-        .y = SELF_NAME_Y + 2 * SCALE,
-        .width = SELF_STATUS_X - SELF_NAME_X,
-        .height = SELF_MSG_Y - SELF_NAME_Y,
-    },
-
-    b_statusmsg = {
-        .type = PANEL_BUTTON,
-        .x = SELF_MSG_X,
-        .y = SELF_MSG_Y + 2 * SCALE,
-        .width = SELF_STATUS_X - SELF_MSG_X,
-        .height = 6 * SCALE,
-    },
-
-    b_status = {
-        .type = PANEL_BUTTON,
-        .x = SELF_STATUS_X,
-        .y = SELF_STATUS_Y,
-        .width = BM_STATUSAREA_WIDTH,
-        .height = BM_STATUSAREA_HEIGHT,
-    };
-
-    button_add.panel = b_add;
-    button_settings.panel = b_settings;
-    button_transfer.panel = b_transfer;
-    button_groups.panel = b_groups;
-    button_copyid.panel = b_copyid;
-    button_settings_sub_utox.panel = b_settings_sub_utox;
-    button_settings_sub_net.panel = b_settings_sub_net;
-    button_settings_sub_ui.panel = b_settings_sub_ui;
-    button_settings_sub_av.panel = b_settings_sub_av;
-    #ifdef EMOJI_IDS
-    button_change_id_type.panel = b_change_id_type;
-    #endif
-    button_addfriend.panel = b_addfriend;
-    button_call.panel = b_call;
-    button_group_audio.panel = b_group_audio;
-    button_video.panel = b_video;
-    button_sendfile.panel = b_sendfile;
-    button_acceptfriend.panel = b_acceptfriend;
-    button_callpreview.panel = b_callpreview;
-    button_videopreview.panel = b_videopreview;
-    button_chat1.panel = b_chat1;
-    button_chat2.panel = b_chat2;
-    button_chat_send.panel = b_chat_send;
-    button_avatar.panel = b_avatar;
-    button_name.panel = b_name;
-    button_statusmsg.panel = b_statusmsg;
-    button_status.panel = b_status;
-
-    PANEL d_notifications = {
-        .type   = PANEL_DROPDOWN,
-        .x      = 5  * SCALE,
-        .y      = 15 * SCALE,
-        .height = 12 * SCALE,
-        .width  = 20 * SCALE
-    },
-
-    #ifdef AUDIO_FILTERING
-    d_audio_filtering = {
-        .type   = PANEL_DROPDOWN,
-        .x      = 100 * SCALE,
-        .y      = 15  * SCALE,
-        .height = 12  * SCALE,
-        .width  = 20  * SCALE
-    },
-    #endif
-
-    d_audio_in = {
-        .type   = PANEL_DROPDOWN,
-        .x      = 5   * SCALE,
-        .y      = 45  * SCALE,
-        .height = 12  * SCALE,
-        .width  = 180 * SCALE
-    },
-
-    d_audio_out = {
-        .type   = PANEL_DROPDOWN,
-        .x      = 5   * SCALE,
-        .y      = 70  * SCALE,
-        .height = 12  * SCALE,
-        .width  = 180 * SCALE
-    },
-
-    d_video = {
-        .type   = PANEL_DROPDOWN,
-        .x      = 5   * SCALE,
-        .y      = 95  * SCALE,
-        .height = 12  * SCALE,
-        .width  = 180 * SCALE
-    },
-
-    d_dpi = {
-        .type   = PANEL_DROPDOWN,
-        .x      = 75  * SCALE,
-        .y      = 15  * SCALE,
-        .height = 12  * SCALE,
-        .width  = 100 * SCALE
-    },
-
-    d_language = {
-        .type   = PANEL_DROPDOWN,
-        .x      = 5   * SCALE,
-        .y      = 84  * SCALE,
-        .height = 12  * SCALE,
-        .width  = 100 * SCALE
-    },
-
-    d_filter = {
-        .type   = PANEL_DROPDOWN,
-        .x      = LIST_RIGHT - SCALE * 25,
-        .y      = SEARCH_Y,
-        .height = 12 * SCALE,
-        .width  = 25 * SCALE,
-    },
-
-    d_proxy = {
-        .type   = PANEL_DROPDOWN,
-        .x      = 5  * SCALE,
-        .y      = 40 * SCALE,
-        .height = 12 * SCALE,
-        .width  = 60 * SCALE
-    },
-
-    d_ipv6 = {
-        .type   = PANEL_DROPDOWN,
-        .x      = 24 * SCALE,
-        .y      = 13 * SCALE,
-        .height = 12 * SCALE,
-        .width  = 20 * SCALE
-    },
-
-    d_udp = {
-        .type   = PANEL_DROPDOWN,
-        .x      = 74 * SCALE,
-        .y      = 13 * SCALE,
-        .height = 12 * SCALE,
-        .width  = 20 * SCALE
-    },
-
-    d_logging = {
-        .type   = PANEL_DROPDOWN,
-        .x      = 5   * SCALE,
-        .y      = 39 * SCALE,
-        .height = 12  * SCALE,
-        .width  = 20  * SCALE
-    },
-
-    d_theme = {
-        .type   = PANEL_DROPDOWN,
-        .x      = 5  * SCALE,
-        .y      = 15 * SCALE,
-        .height = 12 * SCALE,
-        .width  = 60 * SCALE
-    },
-
-    d_close_to_tray = {
-        .type   = PANEL_DROPDOWN,
-        .x      = 5   * SCALE,
-        .y      = 63 * SCALE,
-        .height = 12  * SCALE,
-        .width  = 20  * SCALE
-    },
-
-    d_start_in_tray = {
-        .type   = PANEL_DROPDOWN,
-        .x      = 75  * SCALE,
-        .y      = 63 * SCALE,
-        .height = 12 * SCALE,
-        .width  = 20 * SCALE
-    },
-
-    d_auto_startup = {
-        .type   = PANEL_DROPDOWN,
-        .x      = 5  * SCALE,
-        .y      = 87 * SCALE,
-        .height = 12 * SCALE,
-        .width  = 20 * SCALE
-    },
-
-    d_typing_notes = {
-        .type   = PANEL_DROPDOWN,
-        .x      = 5   * SCALE,
-        .y      = 114 * SCALE,
-        .height = 12  * SCALE,
-        .width  = 20  * SCALE
-    };
-
-    dropdown_audio_in.panel = d_audio_in;
-    dropdown_audio_out.panel = d_audio_out;
-    dropdown_video.panel = d_video;
-    dropdown_dpi.panel = d_dpi;
-    dropdown_language.panel = d_language;
-    dropdown_filter.panel = d_filter;
-    dropdown_proxy.panel = d_proxy;
-    dropdown_ipv6.panel = d_ipv6;
-    dropdown_udp.panel = d_udp;
-    dropdown_logging.panel = d_logging;
-    dropdown_audible_notification.panel = d_notifications;
-    dropdown_close_to_tray.panel = d_close_to_tray;
-    dropdown_start_in_tray.panel = d_start_in_tray;
-    dropdown_theme.panel = d_theme;
-    dropdown_auto_startup.panel = d_auto_startup;
-
-    #ifdef AUDIO_FILTERING
-    dropdown_audio_filtering.panel = d_audio_filtering;
-    #endif
-    dropdown_typing_notes.panel = d_typing_notes;
-
-
-    PANEL e_name = {
-        .type = PANEL_EDIT,
-        .x = 5 * SCALE,
-        .y = SCALE * 14,
-        .height = 12 * SCALE,
-        .width = -SCROLL_WIDTH - 5 * SCALE
-    },
-
-    e_status = {
-        .type = PANEL_EDIT,
-        .x = 5 * SCALE,
-        .y = SCALE * 38,
-        .height = 12 * SCALE,
-        .width = -SCROLL_WIDTH - 5 * SCALE
-    },
-
-    e_toxid = {
-        .type = PANEL_EDIT,
-        .x = 3 * SCALE,
-        .y = SCALE * 63,
-        .height = 12 * SCALE,
-        .width = -SCROLL_WIDTH - 5 * SCALE
-    },
-
-    e_addid = {
-        .type = PANEL_EDIT,
-        .x = 5 * SCALE,
-        .y = LIST_Y + SCALE * 14,
-        .height = 12 * SCALE,
-        .width = -5 * SCALE
-    },
-
-    e_addmsg = {
-        .type = PANEL_EDIT,
-        .x = 5 * SCALE,
-        .y = LIST_Y + SCALE * 38,
-        .height = SCALE * 42,
-        .width = -5 * SCALE,
-    },
-
-    /* Message entry box for friends and groups */
-    e_msg = {
-        .type   = PANEL_EDIT,
-        .x      = 5 * SCALE,
-        .y      = -40 * SCALE,
-        // a text line is 8 high. 32 / 8 = 4 lines of text.
-        .height = 32 * SCALE,
-        .width  = -40 * SCALE - BM_CHAT_BUTTON_WIDTH,
-    },
-
-    e_msg_group = {
-        .type   = PANEL_EDIT,
-        .x      = 5 * SCALE,
-        .y      = -40 * SCALE,
-        // a text line is 8 high. 32 / 8 = 4 lines of text.
-        .height = 32 * SCALE,
-        .width  = -10 * SCALE - BM_CHAT_SEND_WIDTH,
-    },
-
-    e_search = {
-        .type = PANEL_EDIT,
-        .x = 0,
-        .y = SEARCH_Y,
-        .height = 12 * SCALE,
-        .width = LIST_RIGHT - SCALE * 25,
-    },
-
-    e_proxy_ip = {
-        .type   = PANEL_EDIT,
-        .x      = 70 * SCALE,
-        .y      = 40 * SCALE,
-        .height = 12 * SCALE,
-        .width  = 60 * SCALE
-    },
-
-    e_proxy_port = {
-        .type   = PANEL_EDIT,
-        .x      = 135 * SCALE,
-        .y      = 40  * SCALE,
-        .height = 12  * SCALE,
-        .width  = 30  * SCALE
-    };
-
-    edit_name.panel = e_name;
-    edit_status.panel = e_status;
-    edit_toxid.panel = e_toxid;
-    edit_addid.panel = e_addid;
-    edit_addmsg.panel = e_addmsg;
-    edit_msg.panel = e_msg;
-    edit_msg_group.panel = e_msg_group;
-    edit_search.panel = e_search;
-    edit_proxy_ip.panel = e_proxy_ip;
-    edit_proxy_port.panel = e_proxy_port;
+    /* DEFAULT positions */
+        panel_side.x = LIST_RIGHT;
+
+        panel_settings.y      = LIST_Y / 2;
+        panel_settings_utox.y = 16 * SCALE;
+        panel_settings_net.y  = 16 * SCALE;
+        panel_settings_ui.y   = 16 * SCALE;
+        panel_settings_av.y   = 16 * SCALE;
+
+        panel_list.y = LIST_Y2;
+        panel_list.width = LIST_RIGHT + 1;
+        panel_list.height = LIST_BOTTOM;
+
+        messages_friend.panel.y = LIST_Y;
+        messages_friend.panel.height = MESSAGES_BOTTOM;
+        messages_friend.panel.width = -SCROLL_WIDTH;
+
+        messages_group.panel.y = LIST_Y;
+        messages_group.panel.height = MESSAGES_BOTTOM;
+        messages_group.panel.width = -SCROLL_WIDTH;
+
+        scroll_settings.panel.y = 16 * SCALE;
+        scroll_settings.content_height = 150 * SCALE;
+
+        scroll_group.panel.y = LIST_Y;
+        scroll_group.panel.height = MESSAGES_BOTTOM;
+
+        scroll_friend.panel.y = LIST_Y;
+        scroll_friend.panel.height = MESSAGES_BOTTOM;
+
+        scroll_list.panel.y = LIST_Y2;
+        scroll_list.panel.width = LIST_RIGHT + 1;
+        scroll_list.panel.height = LIST_BOTTOM;
+
+    /* Button Structs  */
+        PANEL b_add = {
+            .type = PANEL_BUTTON,
+            .x = 0,
+            .y = LIST_BOTTOM,
+            .width = SCALE * 27,
+            .height = -LIST_BOTTOM,
+        },
+
+        b_groups = {
+            .type = PANEL_BUTTON,
+            .x = SCALE * 28 * 1,
+            .y = LIST_BOTTOM,
+            .width = SCALE * 27,
+            .height = -LIST_BOTTOM,
+        },
+
+        b_transfer = {
+            .type = PANEL_BUTTON,
+            .x = SCALE * 28 * 2,
+            .y = LIST_BOTTOM,
+            .width = SCALE * 27,
+            .height = -LIST_BOTTOM,
+        },
+
+        b_settings = {
+            .type = PANEL_BUTTON,
+            .x = SCALE * 28 * 3,
+            .y = LIST_BOTTOM,
+            .width = SCALE * 27,
+            .height = -LIST_BOTTOM,
+        },
+
+        b_copyid = {
+            .type = PANEL_BUTTON,
+            .x = SCALE * 33,
+            .y = SCALE * 53,
+            .width = BM_SBUTTON_WIDTH,
+            .height = BM_SBUTTON_HEIGHT,
+        },
+
+        b_settings_sub_utox = {
+            .type   = PANEL_BUTTON,
+            .x      = 1  * SCALE, /* Nudged 1px as a buffer */
+            .y      = 1  * SCALE,
+            .width  = 64 * SCALE, /* Nudged 1px as a buffer */
+            .height = 14 * SCALE,
+        },
+
+        b_settings_sub_net = {
+            .type   = PANEL_BUTTON,
+            .x      = 66 * SCALE, /* Nudged 1px as a buffer */
+            .y      = 1  * SCALE,
+            .width  = 44 * SCALE,
+            .height = 14 * SCALE,
+        },
+
+        b_settings_sub_ui = {
+            .type   = PANEL_BUTTON,
+            .x      = 111 * SCALE, /* Nudged 1px as a buffer */
+            .y      = 1   * SCALE,
+            .width  = 64  * SCALE, /* Nudged 1px as a buffer */
+            .height = 14  * SCALE,
+        },
+
+        b_settings_sub_av = {
+            .type   = PANEL_BUTTON,
+            .x      = 176 * SCALE, /* Nudged 1px as a buffer */
+            .y      = 1   * SCALE,
+            .width  = 400 * SCALE, /* Fill the rest of the space for this button */
+            .height = 14  * SCALE,
+        },
+
+        #ifdef EMOJI_IDS
+        b_change_id_type = {
+            .type = PANEL_BUTTON,
+            .x = SCALE * 80,
+            .y = SCALE * 53,
+            .width = BM_SBUTTON_WIDTH,
+            .height = BM_SBUTTON_HEIGHT,
+        },
+        #endif
+
+        b_addfriend = {
+            .type = PANEL_BUTTON,
+            .x = -SCALE * 5 - BM_SBUTTON_WIDTH,
+            .y = LIST_Y + SCALE * 84,
+            .width = BM_SBUTTON_WIDTH,
+            .height = BM_SBUTTON_HEIGHT,
+        },
+
+        b_call = {
+            .type = PANEL_BUTTON,
+            .x = -62 * SCALE,
+            .y = 5 * SCALE,
+            .width = BM_LBUTTON_WIDTH,
+            .height = BM_LBUTTON_HEIGHT,
+        },
+
+        b_group_audio = {
+            .type = PANEL_BUTTON,
+            .x = -31 * SCALE,
+            .y = 5 * SCALE,
+            .width = BM_LBUTTON_WIDTH,
+            .height = BM_LBUTTON_HEIGHT,
+        },
+
+        b_video = {
+            .type = PANEL_BUTTON,
+            .x = -31 * SCALE,
+            .y = 5 * SCALE,
+            .width = BM_LBUTTON_WIDTH,
+            .height = BM_LBUTTON_HEIGHT,
+        },
+
+        b_sendfile = {
+            .type = PANEL_BUTTON,
+            .x = -93 * SCALE,
+            .y = 5 * SCALE,
+            .width = BM_LBUTTON_WIDTH,
+            .height = BM_LBUTTON_HEIGHT,
+        },
+
+        b_acceptfriend = {
+            .type = PANEL_BUTTON,
+            .x = SCALE * 5,
+            .y = LIST_Y + SCALE * 5,
+            .width = BM_SBUTTON_WIDTH,
+            .height = BM_SBUTTON_HEIGHT,
+        },
+
+        b_callpreview = {
+            .type   = PANEL_BUTTON,
+            .x      = 5   * SCALE,
+            .y      = 125 * SCALE,
+            .width  = BM_LBUTTON_WIDTH,
+            .height = BM_LBUTTON_HEIGHT,
+        },
+
+        b_videopreview = {
+            .type   = PANEL_BUTTON,
+            .x      = 35  * SCALE,
+            .y      = 125 * SCALE,
+            .width  = BM_LBUTTON_WIDTH,
+            .height = BM_LBUTTON_HEIGHT,
+        },
+
+        /* top right chat message window button */
+        b_chat1 = {
+            .type = PANEL_BUTTON,
+            .x = -40 * SCALE - BM_CHAT_BUTTON_WIDTH,
+            .y = -40 * SCALE,
+            .height = BM_CHAT_BUTTON_HEIGHT,
+            .width = BM_CHAT_BUTTON_WIDTH,
+        },
+
+        /* bottom right chat message window button */
+        b_chat2 = {
+            .type = PANEL_BUTTON,
+            .x = -40 * SCALE - BM_CHAT_BUTTON_WIDTH,
+            .y = -40 * SCALE + BM_CHAT_BUTTON_HEIGHT + SCALE,
+            .height = BM_CHAT_BUTTON_HEIGHT + SCALE,
+            .width = BM_CHAT_BUTTON_WIDTH,
+        },
+
+        b_chat_send = {
+            .type   = PANEL_BUTTON,
+            .x      = -5 * SCALE - BM_CHAT_SEND_WIDTH,
+            .y      = -40 * SCALE,
+            .height = BM_CHAT_SEND_HEIGHT,
+            .width  = BM_CHAT_SEND_WIDTH,
+        },
+
+        b_avatar = {
+            .type = PANEL_BUTTON,
+            .x = SELF_AVATAR_X,
+            .y = SELF_AVATAR_Y,
+            .width = BM_CONTACT_WIDTH,
+            .height = BM_CONTACT_WIDTH,
+        },
+
+        b_name = {
+            .type = PANEL_BUTTON,
+            .x = SELF_NAME_X,
+            .y = SELF_NAME_Y + 2 * SCALE,
+            .width = SELF_STATUS_X - SELF_NAME_X,
+            .height = SELF_MSG_Y - SELF_NAME_Y,
+        },
+
+        b_statusmsg = {
+            .type = PANEL_BUTTON,
+            .x = SELF_MSG_X,
+            .y = SELF_MSG_Y + 2 * SCALE,
+            .width = SELF_STATUS_X - SELF_MSG_X,
+            .height = 6 * SCALE,
+        },
+
+        b_status = {
+            .type = PANEL_BUTTON,
+            .x = SELF_STATUS_X,
+            .y = SELF_STATUS_Y,
+            .width = BM_STATUSAREA_WIDTH,
+            .height = BM_STATUSAREA_HEIGHT,
+        };
+
+    /* Set the button panels */
+        button_add.panel = b_add;
+        button_settings.panel = b_settings;
+        button_transfer.panel = b_transfer;
+        button_groups.panel = b_groups;
+        button_copyid.panel = b_copyid;
+        button_settings_sub_utox.panel = b_settings_sub_utox;
+        button_settings_sub_net.panel = b_settings_sub_net;
+        button_settings_sub_ui.panel = b_settings_sub_ui;
+        button_settings_sub_av.panel = b_settings_sub_av;
+        #ifdef EMOJI_IDS
+        button_change_id_type.panel = b_change_id_type;
+        #endif
+        button_addfriend.panel = b_addfriend;
+        button_call.panel = b_call;
+        button_group_audio.panel = b_group_audio;
+        button_video.panel = b_video;
+        button_sendfile.panel = b_sendfile;
+        button_acceptfriend.panel = b_acceptfriend;
+        button_callpreview.panel = b_callpreview;
+        button_videopreview.panel = b_videopreview;
+        button_chat1.panel = b_chat1;
+        button_chat2.panel = b_chat2;
+        button_chat_send.panel = b_chat_send;
+        button_avatar.panel = b_avatar;
+        button_name.panel = b_name;
+        button_statusmsg.panel = b_statusmsg;
+        button_status.panel = b_status;
+
+    /* Drop down structs */
+        PANEL d_notifications = {
+            .type   = PANEL_DROPDOWN,
+            .x      = 5  * SCALE,
+            .y      = 15 * SCALE,
+            .height = 12 * SCALE,
+            .width  = 20 * SCALE
+        },
+
+        #ifdef AUDIO_FILTERING
+        d_audio_filtering = {
+            .type   = PANEL_DROPDOWN,
+            .x      = 100 * SCALE,
+            .y      = 15  * SCALE,
+            .height = 12  * SCALE,
+            .width  = 20  * SCALE
+        },
+        #endif
+
+        d_audio_in = {
+            .type   = PANEL_DROPDOWN,
+            .x      = 5   * SCALE,
+            .y      = 45  * SCALE,
+            .height = 12  * SCALE,
+            .width  = 180 * SCALE
+        },
+
+        d_audio_out = {
+            .type   = PANEL_DROPDOWN,
+            .x      = 5   * SCALE,
+            .y      = 70  * SCALE,
+            .height = 12  * SCALE,
+            .width  = 180 * SCALE
+        },
+
+        d_video = {
+            .type   = PANEL_DROPDOWN,
+            .x      = 5   * SCALE,
+            .y      = 95  * SCALE,
+            .height = 12  * SCALE,
+            .width  = 180 * SCALE
+        },
+
+        d_dpi = {
+            .type   = PANEL_DROPDOWN,
+            .x      = 75  * SCALE,
+            .y      = 15  * SCALE,
+            .height = 12  * SCALE,
+            .width  = 100 * SCALE
+        },
+
+        d_language = {
+            .type   = PANEL_DROPDOWN,
+            .x      = 5   * SCALE,
+            .y      = 84  * SCALE,
+            .height = 12  * SCALE,
+            .width  = 100 * SCALE
+        },
+
+        d_filter = {
+            .type   = PANEL_DROPDOWN,
+            .x      = LIST_RIGHT - SCALE * 25,
+            .y      = SEARCH_Y,
+            .height = 12 * SCALE,
+            .width  = 25 * SCALE,
+        },
+
+        d_proxy = {
+            .type   = PANEL_DROPDOWN,
+            .x      = 5  * SCALE,
+            .y      = 40 * SCALE,
+            .height = 12 * SCALE,
+            .width  = 60 * SCALE
+        },
+
+        d_ipv6 = {
+            .type   = PANEL_DROPDOWN,
+            .x      = 24 * SCALE,
+            .y      = 13 * SCALE,
+            .height = 12 * SCALE,
+            .width  = 20 * SCALE
+        },
+
+        d_udp = {
+            .type   = PANEL_DROPDOWN,
+            .x      = 74 * SCALE,
+            .y      = 13 * SCALE,
+            .height = 12 * SCALE,
+            .width  = 20 * SCALE
+        },
+
+        d_logging = {
+            .type   = PANEL_DROPDOWN,
+            .x      = 5   * SCALE,
+            .y      = 39 * SCALE,
+            .height = 12  * SCALE,
+            .width  = 20  * SCALE
+        },
+
+        d_theme = {
+            .type   = PANEL_DROPDOWN,
+            .x      = 5  * SCALE,
+            .y      = 15 * SCALE,
+            .height = 12 * SCALE,
+            .width  = 60 * SCALE
+        },
+
+        d_close_to_tray = {
+            .type   = PANEL_DROPDOWN,
+            .x      = 5   * SCALE,
+            .y      = 63 * SCALE,
+            .height = 12  * SCALE,
+            .width  = 20  * SCALE
+        },
+
+        d_start_in_tray = {
+            .type   = PANEL_DROPDOWN,
+            .x      = 75  * SCALE,
+            .y      = 63 * SCALE,
+            .height = 12 * SCALE,
+            .width  = 20 * SCALE
+        },
+
+        d_auto_startup = {
+            .type   = PANEL_DROPDOWN,
+            .x      = 5  * SCALE,
+            .y      = 87 * SCALE,
+            .height = 12 * SCALE,
+            .width  = 20 * SCALE
+        },
+
+        d_typing_notes = {
+            .type   = PANEL_DROPDOWN,
+            .x      = 5   * SCALE,
+            .y      = 114 * SCALE,
+            .height = 12  * SCALE,
+            .width  = 20  * SCALE
+        };
+
+    /* Drop down panels */
+        dropdown_audio_in.panel = d_audio_in;
+        dropdown_audio_out.panel = d_audio_out;
+        dropdown_video.panel = d_video;
+        dropdown_dpi.panel = d_dpi;
+        dropdown_language.panel = d_language;
+        dropdown_filter.panel = d_filter;
+        dropdown_proxy.panel = d_proxy;
+        dropdown_ipv6.panel = d_ipv6;
+        dropdown_udp.panel = d_udp;
+        dropdown_logging.panel = d_logging;
+        dropdown_audible_notification.panel = d_notifications;
+        dropdown_close_to_tray.panel = d_close_to_tray;
+        dropdown_start_in_tray.panel = d_start_in_tray;
+        dropdown_theme.panel = d_theme;
+        dropdown_auto_startup.panel = d_auto_startup;
+
+        #ifdef AUDIO_FILTERING
+        dropdown_audio_filtering.panel = d_audio_filtering;
+        #endif
+        dropdown_typing_notes.panel = d_typing_notes;
+
+    /* Text entry boxes */
+        PANEL e_name = {
+            .type = PANEL_EDIT,
+            .x = 5 * SCALE,
+            .y = SCALE * 14,
+            .height = 12 * SCALE,
+            .width = -SCROLL_WIDTH - 5 * SCALE
+        },
+
+        e_status = {
+            .type = PANEL_EDIT,
+            .x = 5 * SCALE,
+            .y = SCALE * 38,
+            .height = 12 * SCALE,
+            .width = -SCROLL_WIDTH - 5 * SCALE
+        },
+
+        e_toxid = {
+            .type = PANEL_EDIT,
+            .x = 3 * SCALE,
+            .y = SCALE * 63,
+            .height = 12 * SCALE,
+            .width = -SCROLL_WIDTH - 5 * SCALE
+        },
+
+        e_addid = {
+            .type = PANEL_EDIT,
+            .x = 5 * SCALE,
+            .y = LIST_Y + SCALE * 14,
+            .height = 12 * SCALE,
+            .width = -5 * SCALE
+        },
+
+        e_addmsg = {
+            .type = PANEL_EDIT,
+            .x = 5 * SCALE,
+            .y = LIST_Y + SCALE * 38,
+            .height = SCALE * 42,
+            .width = -5 * SCALE,
+        },
+
+        /* Message entry box for friends and groups */
+        e_msg = {
+            .type   = PANEL_EDIT,
+            .x      = 5 * SCALE,
+            .y      = -40 * SCALE,
+            // a text line is 8 high. 32 / 8 = 4 lines of text.
+            .height = 32 * SCALE,
+            .width  = -40 * SCALE - BM_CHAT_BUTTON_WIDTH,
+        },
+
+        e_msg_group = {
+            .type   = PANEL_EDIT,
+            .x      = 5 * SCALE,
+            .y      = -40 * SCALE,
+            // a text line is 8 high. 32 / 8 = 4 lines of text.
+            .height = 32 * SCALE,
+            .width  = -10 * SCALE - BM_CHAT_SEND_WIDTH,
+        },
+
+        e_search = {
+            .type = PANEL_EDIT,
+            .x = 0,
+            .y = SEARCH_Y,
+            .height = 12 * SCALE,
+            .width = LIST_RIGHT - SCALE * 25,
+        },
+
+        e_proxy_ip = {
+            .type   = PANEL_EDIT,
+            .x      = 70 * SCALE,
+            .y      = 40 * SCALE,
+            .height = 12 * SCALE,
+            .width  = 60 * SCALE
+        },
+
+        e_proxy_port = {
+            .type   = PANEL_EDIT,
+            .x      = 135 * SCALE,
+            .y      = 40  * SCALE,
+            .height = 12  * SCALE,
+            .width  = 30  * SCALE
+        };
+
+    /* Text entry panels */
+        edit_name.panel = e_name;
+        edit_status.panel = e_status;
+        edit_toxid.panel = e_toxid;
+        edit_addid.panel = e_addid;
+        edit_addmsg.panel = e_addmsg;
+        edit_msg.panel = e_msg;
+        edit_msg_group.panel = e_msg_group;
+        edit_search.panel = e_search;
+        edit_proxy_ip.panel = e_proxy_ip;
+        edit_proxy_port.panel = e_proxy_port;
 
     setscale();
 }
 
-/* Use the preprocessor to build functions for all user inactions
-    These are functions that are (must be) defined elsewehere. The preprocessor in this case creates the prototypes that
-    will then be used by panel_draw_sub to call the correct function
+/* Use the preprocessor to build functions for all user interactions
+ * These are functions that are (must be) defined elsewehere. The preprocessor in this case creates the prototypes that
+ * will then be used by panel_draw_sub to call the correct function
 */
 #define FUNC(x, ret, ...) static ret (* x##func[])(void *p, ##__VA_ARGS__) = { \
     (void*)background_##x, \
