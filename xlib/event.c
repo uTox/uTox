@@ -268,20 +268,11 @@ _Bool doevent(XEvent event)
     case KeyRelease: {
         XKeyEvent *ev = &event.xkey;
         KeySym sym = XLookupKeysym(ev, 0);
-        if (sym == XK_Control_L && ptt_button_down) {
-            ptt_button_down = 0;
-            debug("Button up\n");
-        }
         break;
     }
     case KeyPress: {
         XKeyEvent *ev = &event.xkey;
         KeySym sym = XLookupKeysym(ev, 0);//XKeycodeToKeysym(display, ev->keycode, 0)
-
-        if (sym == XK_Control_L ) {
-            ptt_button_down = 1;
-            debug("Button down\n");
-        }
 
         wchar_t buffer[16];
         int len;
