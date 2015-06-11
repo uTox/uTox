@@ -1,6 +1,8 @@
 _Bool doevent(XEvent event)
 {
-    if(XFilterEvent(&event, None)) return 1;
+    if ( XFilterEvent(&event, None) ) {
+        return 1;
+    }
     if(event.xany.window && event.xany.window != window) {
 
         if (event.xany.window == tray_window) {
@@ -263,9 +265,23 @@ _Bool doevent(XEvent event)
         break;
     }
 
+    case KeyRelease: {
+        XKeyEvent *ev = &event.xkey;
+        KeySym sym = XLookupKeysym(ev, 0);
+        if (sym == XK_Control_L && ptt_button_down) {
+            ptt_button_down = 0;
+            debug("Button up\n");
+        }
+        break;
+    }
     case KeyPress: {
         XKeyEvent *ev = &event.xkey;
         KeySym sym = XLookupKeysym(ev, 0);//XKeycodeToKeysym(display, ev->keycode, 0)
+
+        if (sym == XK_Control_L ) {
+            ptt_button_down = 1;
+            debug("Button down\n");
+        }
 
         wchar_t buffer[16];
         int len;

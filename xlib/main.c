@@ -191,34 +191,57 @@ _Bool get_ptt(void){
         // debug("PTT is disabled\n");
         return 1; /* If push to talk is disabled, return true. */
     }
+    int ptt_key;
 
-    int key = KEY_LEFTCTRL;                                       // TODO allow user to change this...
+    /* First, we try for direct access to the keyboard. */
+    ptt_key = KEY_LEFTCTRL;                                       // TODO allow user to change this...
     uint8_t path[UTOX_FILE_NAME_LENGTH], *p;
     p = path + datapath(path);
     strcpy((char*)p, "ptt-kbd");
 
-    FILE *keyboard = fopen((uint8_t*)path, "r");
-    if (!keyboard) {
-        debug("Unable to access keyboard, you need to read the manual on how to enable\nutox to have access to your key"
-              "board.\nDisable push to talk to suppress this message.\n");
-        return 0;
+    FILE *keyboard = fopen((const char*)path, "r");
+    if (keyboard) {
+        /* Nice! we have direct access to the keyboard! */
+        char key_map[KEY_MAX/8 + 1];                                  // Create a byte array the size of the number of keys
+        memset(key_map, 0, sizeof(key_map));
+        ioctl(fileno(keyboard), EVIOCGKEY(sizeof(key_map)), key_map); // Fill the keymap with the current keyboard state
+        int keyb = key_map[ptt_key/8];                                // The key we want (and the seven others around it)
+        int mask = 1 << (ptt_key % 8);                                // Put 1 in the same column as our key state
+
+        fclose(keyboard);
+
+        if (keyb & mask){
+            // debug("PTT key is down\n");
+            return 1;
+        } else {
+            // debug("PTT key is up\n");
+            return 0;
+        }
     }
-
-    char key_map[KEY_MAX/8 + 1];                                  // Create a byte array the size of the number of keys
-    memset(key_map, 0, sizeof(key_map));
-    ioctl(fileno(keyboard), EVIOCGKEY(sizeof(key_map)), key_map); // Fill the keymap with the current keyboard state
-    int keyb = key_map[key/8];                                    // The key we want (and the seven others around it)
-    int mask = 1 << (key % 8);                                    // Put 1 in the same column as our key state
-
-    fclose(keyboard);
-
-    if (keyb & mask){
-        // debug("PTT key is down\n");
-        return 1;
-    } else {
-        // debug("PTT key is up\n");
-        return 0;
+    /* Okay nope, lets' fallback to xinput... *pouts*
+     * Fall back to Querying the X for the current keymap. */
+    XSynchronize(display, TRUE);
+    ptt_key = XKeysymToKeycode(display, XK_Control_L);
+    char keys[32] = {0};
+    /* We need our own connection, so that we don't block the main display... No idea why... */
+    Display *ptt_display = XOpenDisplay(0);
+    if ( XQueryKeymap(ptt_display, keys) ) {
+        if (keys[ptt_key/8] & (0x1 << ( ptt_key % 8 ))) {
+            // debug("PTT key is down (according to XQueryKeymap\n");
+            XCloseDisplay(ptt_display);
+            return 1;
+        } else {
+            // debug("PTT key is up (according to XQueryKeymap\n");
+            XCloseDisplay(ptt_display);
+            return 0;
+        }
     }
+    XCloseDisplay(ptt_display);
+    /* Couldn't access the keyboard directly, and XQuery failed, this is really bad! */
+    debug("Unable to access keyboard, you need to read the manual on how to enable utox to\nhave access to your key"
+          "board.\nDisable push to talk to suppress this message.\n");
+    return 0;
+
 }
 
 void image_set_scale(UTOX_NATIVE_IMAGE *image, double scale)
@@ -1032,7 +1055,7 @@ int main(int argc, char *argv[])
     /* Variables for --set */
     int32_t set_show_window = 0;
 
-    if (argc > 1)
+    if (argc > 1) {
         for (int i = 1; i < argc; i++) {
             if(parse_args_wait_for_theme) {
                 if(!strcmp(argv[i], "default")) {
@@ -1099,6 +1122,7 @@ int main(int argc, char *argv[])
             }
             printf("arg %d: %s\n", i, argv[i]);
         }
+    }
 
     if (parse_args_wait_for_theme) {
         debug("Expected theme name, but got nothing. -_-\n");
