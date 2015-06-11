@@ -1061,7 +1061,7 @@ int main(int argc, char *argv[])
                     }
                 }
             }
-            if(!strncmp(argv[i], "--profile", 9)) {
+            else if(!strncmp(argv[i], "--profile", 9)) {
                 char *word=argv[i]+10;
                 if ( *(word-1) == '=' || (++i < argc && (1, word=argv[i])) ) {
                     tox_savename = word;
