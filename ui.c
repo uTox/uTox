@@ -238,7 +238,7 @@ static void drawsettings_header(int UNUSED(x), int UNUSED(y), int UNUSED(width),
     drawstr(LIST_RIGHT + SCALE * 5, SCALE * 5, UTOX_SETTINGS);
     #ifdef GIT_VERSION
         setfont(FONT_TEXT);
-        drawtext(LIST_RIGHT + SLEN(UTOX_SETTINGS) * 3.3 * SCALE, SCALE * 5, (uint8_t*)GIT_VERSION, strlen(GIT_VERSION));
+        drawtext(LIST_RIGHT + UTOX_STR_WIDTH(UTOX_SETTINGS) * SCALE, SCALE * 5, (uint8_t*)GIT_VERSION, strlen(GIT_VERSION));
     #endif
 }
 
