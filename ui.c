@@ -237,8 +237,9 @@ static void drawsettings_header(int UNUSED(x), int UNUSED(y), int UNUSED(width),
     setfont(FONT_SELF_NAME);
     drawstr(LIST_RIGHT + SCALE * 5, SCALE * 5, UTOX_SETTINGS);
     #ifdef GIT_VERSION
+        int x = LIST_RIGHT + 5 * SCALE + UTOX_STR_WIDTH(UTOX_SETTINGS) + 5 * SCALE;
         setfont(FONT_TEXT);
-        drawtext(LIST_RIGHT + UTOX_STR_WIDTH(UTOX_SETTINGS) * SCALE, SCALE * 5, (uint8_t*)GIT_VERSION, strlen(GIT_VERSION));
+        drawtext(x, SCALE * 5, (uint8_t*)GIT_VERSION, strlen(GIT_VERSION));
     #endif
 }
 
@@ -282,7 +283,7 @@ static void drawsettings_text_ui(int x, int y, int w, int UNUSED(height)){
     drawstr(LIST_RIGHT + 5  * SCALE, y + 5 * SCALE, THEME);
     drawstr(LIST_RIGHT + 5  * SCALE, y + 30 * SCALE, LOGGING);
     drawstr(LIST_RIGHT + 5  * SCALE, y + 55 * SCALE, CLOSE_TO_TRAY);
-    drawstr(LIST_RIGHT + SLEN(CLOSE_TO_TRAY) * 2.3 * SCALE, y + 55 * SCALE, START_IN_TRAY);
+    drawstr(LIST_RIGHT + 5  * SCALE + UTOX_STR_WIDTH(CLOSE_TO_TRAY) + 10 * SCALE, y + 55 * SCALE, START_IN_TRAY);
     drawstr(LIST_RIGHT + 5  * SCALE, y + 80 * SCALE, AUTO_STARTUP);
     drawstr(LIST_RIGHT + 5  * SCALE, y + 105 * SCALE, SEND_TYPING_NOTIFICATIONS);
 }
@@ -640,11 +641,9 @@ panel_main = {
 
 void ui_scale(uint8_t scale)
 {
-    if(SCALE == scale) {
-        return;
+    if(SCALE != scale) {
+        SCALE = scale;
     }
-
-    SCALE = scale;
 
     list_scale();
 
@@ -680,6 +679,8 @@ void ui_scale(uint8_t scale)
     scroll_list.panel.y = LIST_Y2;
     scroll_list.panel.width = LIST_RIGHT + 1;
     scroll_list.panel.height = LIST_BOTTOM;
+
+    setscale_fonts();
 
     setfont(FONT_SELF_NAME);
 
@@ -728,30 +729,30 @@ void ui_scale(uint8_t scale)
         .type   = PANEL_BUTTON,
         .x      = 1  * SCALE, /* Nudged 1px as a buffer */
         .y      = 1  * SCALE,
-        .width  = 9  * SCALE + UTOX_STR_WIDTH(PROFILE) * SCALE, /* Nudged 1px as a buffer */
+        .width  = 9  * SCALE + UTOX_STR_WIDTH(PROFILE), /* Nudged 1px as a buffer */
         .height = 14 * SCALE,
     },
 
     b_settings_sub_net = {
         .type   = PANEL_BUTTON,
-        .x      = 11 * SCALE + UTOX_STR_WIDTH(PROFILE) * SCALE,  /* Nudged 1px as a buffer */
+        .x      = 11 * SCALE + UTOX_STR_WIDTH(PROFILE),  /* Nudged 1px as a buffer */
         .y      = 1  * SCALE,
-        .width  = 8  * SCALE + UTOX_STR_WIDTH(NETWORK) * SCALE,  /* Nudged 1px as a buffer */
+        .width  = 9  * SCALE + UTOX_STR_WIDTH(NETWORK),  /* Nudged 1px as a buffer */
         .height = 14 * SCALE,
     },
 
     b_settings_sub_ui = {
         .type   = PANEL_BUTTON,
-        .x      = 21 * SCALE + (UTOX_STR_WIDTH(PROFILE) + UTOX_STR_WIDTH(NETWORK)) * SCALE, /* Nudged 1px as a buffer */
+        .x      = 21 * SCALE + UTOX_STR_WIDTH(PROFILE) + UTOX_STR_WIDTH(NETWORK), /* Nudged 1px as a buffer */
         .y      = 1  * SCALE,
-        .width  = 7  * SCALE + UTOX_STR_WIDTH(USER_INTERFACE) * SCALE,                      /* Nudged 1px as a buffer */
+        .width  = 9  * SCALE + UTOX_STR_WIDTH(USER_INTERFACE),                      /* Nudged 1px as a buffer */
         .height = 14 * SCALE,
     },
 
     b_settings_sub_av = {
         .type   = PANEL_BUTTON,
-        .x      = 29  * SCALE + /* Nudged 1px as a buffer */
-                  (UTOX_STR_WIDTH(PROFILE) + UTOX_STR_WIDTH(NETWORK) + UTOX_STR_WIDTH(USER_INTERFACE)) * SCALE,
+        .x      = 31  * SCALE + /* Nudged 1px as a buffer */
+                  UTOX_STR_WIDTH(PROFILE) + UTOX_STR_WIDTH(NETWORK) + UTOX_STR_WIDTH(USER_INTERFACE),
         .y      = 1   * SCALE,
         .width  = 400 * SCALE, /* Fill the rest of the space for this button */
         .height = 14  * SCALE,
@@ -917,6 +918,8 @@ void ui_scale(uint8_t scale)
     button_statusmsg.panel = b_statusmsg;
     button_status.panel = b_status;
 
+    setfont(FONT_TEXT);
+
     PANEL d_notifications = {
         .type   = PANEL_DROPDOWN,
         .x      = 5  * SCALE,
@@ -1026,14 +1029,14 @@ void ui_scale(uint8_t scale)
     d_close_to_tray = {
         .type   = PANEL_DROPDOWN,
         .x      = 5   * SCALE,
-        .y      = 63 * SCALE,
+        .y      = 63  * SCALE,
         .height = 12  * SCALE,
         .width  = 20  * SCALE
     },
 
     d_start_in_tray = {
         .type   = PANEL_DROPDOWN,
-        .x      = SLEN(CLOSE_TO_TRAY) * 2.3 * SCALE,
+        .x      = 5   * SCALE + UTOX_STR_WIDTH(CLOSE_TO_TRAY) + 10 * SCALE,
         .y      = 63 * SCALE,
         .height = 12 * SCALE,
         .width  = 20 * SCALE

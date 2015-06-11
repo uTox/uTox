@@ -839,12 +839,6 @@ void setscale(void)
 
     svg_draw(0);
 
-    freefonts();
-    loadfonts();
-
-    font_small_lineheight = (font[FONT_TEXT].info[0].face->size->metrics.height + (1 << 5)) >> 6;
-    //font_msg_lineheight = (font[FONT_MSG].info[0].face->size->metrics.height + (1 << 5)) >> 6;
-
     if(xsh) {
         XFree(xsh);
     }
@@ -862,6 +856,15 @@ void setscale(void)
         /* wont get a resize event, call this manually */
         ui_size(utox_window_width, utox_window_height);
     }
+}
+
+void setscale_fonts(void)
+{
+    freefonts();
+    loadfonts();
+
+    font_small_lineheight = (font[FONT_TEXT].info[0].face->size->metrics.height + (1 << 5)) >> 6;
+    //font_msg_lineheight = (font[FONT_MSG].info[0].face->size->metrics.height + (1 << 5)) >> 6;
 }
 
 int file_lock(FILE *file, uint64_t start, size_t length){
@@ -1184,8 +1187,6 @@ int main(int argc, char *argv[])
     setfont(FONT_TEXT);
 
     /* load fonts and scalable bitmaps */
-    ui_scale(save->scale);
-    /* We needed to load the vars from ui_scale before setscale(), but we need setscale to size the vars in ui_scale */
     ui_scale(save->scale + 1);
 
     /* done with save */
