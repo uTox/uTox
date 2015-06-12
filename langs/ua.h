@@ -61,8 +61,8 @@ msgstr("Передача файлу")
 msgid(TRANSFER_STARTED)
 msgstr("Розпочато передачу файлу")
 
-msgid(TRANSFER___)
-msgstr("...")
+//msgid(TRANSFER___)
+//msgstr("...")
 
 msgid(TRANSFER_PAUSED)
 msgstr("Призупинено передачу файлу")
@@ -358,8 +358,8 @@ msgstr("Контрастне")
 msgid(THEME_CUSTOM)
 msgstr("Власне (див. докум.)")
 
-msgid(THEME_ZENBURN)
-msgstr("Zenburn")
+//msgid(THEME_ZENBURN)
+//msgstr("Zenburn")
 
 msgid(SEND_TYPING_NOTIFICATIONS)
 msgstr("Повідомляти про набір відповіді")
