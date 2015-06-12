@@ -839,7 +839,8 @@ int datapath_old(uint8_t *dest)
 int datapath(uint8_t *dest)
 {
     if (user_defined_datapath) {
-        uint8_t *p = dest + strlen((char*)dest);
+        uint8_t *p = dest;
+       	strcpy((char *)p, user_datapath); p += strlen(user_datapath);
 	*p++ = '\\';
         return p - dest;
     } else if (utox_portable) {

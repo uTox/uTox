@@ -792,7 +792,7 @@ int datapath_old(uint8_t *dest)
 int datapath(uint8_t *dest)
 {
     if (user_defined_datapath) {
-        int l = sprintf((char*)dest, "%.230s", user_datapath);
+        int l = sprintf((char*)dest, "%s", user_datapath);
         dest[l++] = '/';
 
         return l;

@@ -247,7 +247,7 @@ void ensure_directory_r(char *path, int perm) {
 /* it occured to me that we should probably make datapath allocate memory for its caller */
 int datapath(uint8_t *dest) {
     if (user_defined_datapath) {
-        int l = sprintf((char*)dest, "%.230s", user_datapath);
+        int l = sprintf((char*)dest, "%s", user_datapath);
         dest[l++] = '/';
 
         return l;
