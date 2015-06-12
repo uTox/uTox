@@ -353,7 +353,7 @@ static void draw_background(int UNUSED(x), int UNUSED(y), int width, int height)
 
     // Current user avatar & name
     // TODO move to it's own panel? (probably)
-    // draw_user_badge();
+    //draw_user_badge();
 
     // Chat background
     drawrect(LIST_RIGHT, 0, width, height, COLOR_MAIN_BACKGROUND);
@@ -452,7 +452,7 @@ PANEL panel_root,
 
 /* Root panel, hold all the other panels */
 PANEL panel_root = {
-    .type = PANEL_MAIN,
+    .type = PANEL_NONE,
     .drawfunc = draw_background,
     .disabled = 0,
     .child = (PANEL*[]) {
@@ -479,7 +479,8 @@ panel_side_bar = {
         .disabled = 0,
         .drawfunc = draw_user_badge,
         .child = (PANEL*[]) {
-            (void*)&button_avatar, (void*)&button_name, (void*)&button_statusmsg, (void*)&button_status,
+            (void*)&button_avatar, (void*)&button_name,       (void*)&button_status,
+                                   (void*)&button_statusmsg,
             NULL
         }
     },
@@ -514,7 +515,7 @@ panel_side_bar = {
 /* Main panel, holds the overhead/settings, or the friend/group containers */
 panel_main = {
     .type = PANEL_NONE,
-    .disabled = 1,
+    .disabled = 0,
     .child = (PANEL*[]) {
         NULL
     }
@@ -599,7 +600,7 @@ panel_main = {
 
         panel_settings_master = {
             .type = PANEL_NONE,
-            .disabled = 1,
+            .disabled = 0,
             .drawfunc = draw_settings_header,
             .child = (PANEL*[]) {
                 (void*)&panel_settings_subheader,
@@ -609,7 +610,7 @@ panel_main = {
 
             panel_settings_subheader = {
                 .type = PANEL_NONE,
-                .disabled = 1,
+                .disabled = 0,
                 .drawfunc = draw_settings_sub_header,
                 .child = (PANEL*[]) {
                     (void*)&button_settings_sub_profile,
@@ -706,7 +707,19 @@ void ui_scale(uint8_t scale)
     list_scale();
 
     /* DEFAULT positions */
-        panel_side_bar.x = LIST_RIGHT;
+        panel_side_bar.width = Y_SIDEBAR_RIGHT;
+
+        scrollbar_roster.panel.y = LIST_Y2;
+        scrollbar_roster.panel.width = LIST_RIGHT + 1;
+        scrollbar_roster.panel.height = LIST_BOTTOM;
+
+        panel_roster_list.x = 0;
+        panel_roster_list.y = Y_ROSTER_TOP;
+        panel_roster_list.width = LIST_RIGHT + 1;
+        panel_roster_list.height = LIST_BOTTOM;
+
+        scrollbar_settings.panel.y = 16 * SCALE;
+        scrollbar_settings.content_height = 150 * SCALE;
 
         panel_settings_master.y = LIST_Y / 2;
         panel_settings_profile.y   = 16 * SCALE;
@@ -714,30 +727,19 @@ void ui_scale(uint8_t scale)
         panel_settings_ui.y     = 16 * SCALE;
         panel_settings_av.y     = 16 * SCALE;
 
-        panel_side_bar.y = LIST_Y2;
-        panel_side_bar.width = LIST_RIGHT + 1;
-        panel_side_bar.height = LIST_BOTTOM;
+        scrollbar_friend.panel.y = LIST_Y;
+        scrollbar_friend.panel.height = MESSAGES_BOTTOM;
 
         messages_friend.panel.y = LIST_Y;
         messages_friend.panel.height = MESSAGES_BOTTOM;
         messages_friend.panel.width = -SCROLL_WIDTH;
 
-        messages_group.panel.y = LIST_Y;
-        messages_group.panel.height = MESSAGES_BOTTOM;
-        messages_group.panel.width = -SCROLL_WIDTH;
-
-        scrollbar_settings.panel.y = 16 * SCALE;
-        scrollbar_settings.content_height = 150 * SCALE;
-
         scrollbar_group.panel.y = LIST_Y;
         scrollbar_group.panel.height = MESSAGES_BOTTOM;
 
-        scrollbar_friend.panel.y = LIST_Y;
-        scrollbar_friend.panel.height = MESSAGES_BOTTOM;
-
-        scrollbar_roster.panel.y = LIST_Y2;
-        scrollbar_roster.panel.width = LIST_RIGHT + 1;
-        scrollbar_roster.panel.height = LIST_BOTTOM;
+        messages_group.panel.y = LIST_Y;
+        messages_group.panel.height = MESSAGES_BOTTOM;
+        messages_group.panel.width = -SCROLL_WIDTH;
 
     /* Button Structs  */
         PANEL b_add = {
@@ -1257,8 +1259,13 @@ FUNC(mleave, _Bool);
 
 #undef FUNC
 
-/* Use the preprocessor to add code to adjust the x,y cords for panels or sub panels. */
-#define FUNC() {\
+/* Use the preprocessor to add code to adjust the x,y cords for panels or sub panels.
+ * If neg value place x/y from the right/bottom of panel.
+ *
+ * change the relative
+ *
+ * if w/h <0 use parent panel width (maybe?)    */
+#define FIX_XY_CORDS_FOR_SUBPANELS() {\
     int relx = (p->x < 0) ? width + p->x : p->x;\
     int rely = (p->y < 0) ? height + p->y : p->y;\
     x += relx; \
@@ -1268,7 +1275,7 @@ FUNC(mleave, _Bool);
 
 static void panel_update(PANEL *p, int x, int y, int width, int height)
 {
-    FUNC();
+    FIX_XY_CORDS_FOR_SUBPANELS();
 
     if(p->type == PANEL_MESSAGES) {
         MESSAGES *m = (void*)p;
@@ -1301,38 +1308,38 @@ void ui_mouseleave(void)
 
 static void panel_draw_sub(PANEL *p, int x, int y, int width, int height)
 {
-    FUNC();
+    FIX_XY_CORDS_FOR_SUBPANELS();
 
-    if(p->content_scroll) {
+    if (p->content_scroll) {
         pushclip(x, y, width, height);
         y -= scroll_gety(p->content_scroll, height);
     }
 
-    if(p->type) {
+    if (p->type) {
         drawfunc[p->type - 1](p, x, y, width, height);
     } else {
-        if(p->drawfunc) {
+        if (p->drawfunc) {
             p->drawfunc(x, y, width, height);
         }
     }
 
     PANEL **pp = p->child, *subp;
-    if(pp) {
+    if (pp) {
         while((subp = *pp++)) {
-            if(!subp->disabled) {
+            if (!subp->disabled) {
                 panel_draw_sub(subp, x, y, width, height);
             }
         }
     }
 
-    if(p->content_scroll) {
+    if (p->content_scroll) {
         popclip();
     }
 }
 
 void panel_draw(PANEL *p, int x, int y, int width, int height)
 {
-    FUNC();
+    FIX_XY_CORDS_FOR_SUBPANELS();
 
     //pushclip(x, y, width, height);
 
@@ -1371,7 +1378,7 @@ _Bool panel_mmove(PANEL *p, int x, int y, int width, int height, int mx, int my,
 
     mx -= (p->x < 0) ? width + p->x : p->x;
     my -= (p->y < 0) ? height + p->y : p->y;
-    FUNC();
+    FIX_XY_CORDS_FOR_SUBPANELS();
 
     int mmy = my;
 
@@ -1506,7 +1513,7 @@ _Bool panel_mright(PANEL *p)
 
 _Bool panel_mwheel(PANEL *p, int x, int y, int width, int height, double d)
 {
-    FUNC();
+    FIX_XY_CORDS_FOR_SUBPANELS();
 
     _Bool draw = p->type ? mwheelfunc[p->type - 1](p, height, d) : 0;
     PANEL **pp = p->child, *subp;
