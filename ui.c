@@ -56,8 +56,7 @@ void draw_avatar_image(UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, u
 }
 
 /* Top left self interface Avatar, name, statusmsg, status icon */
-static void drawself(void)
-{
+static void draw_user_badge(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height)){
     setcolor(!button_name.mouseover ? COLOR_MENU_TEXT : COLOR_MENU_SUBTEXT);
     setfont(FONT_SELF_NAME);
     drawtextrange(SELF_NAME_X, SELF_STATUS_X, SELF_NAME_Y, self.name, self.name_length);
@@ -81,8 +80,7 @@ static void drawself(void)
 }
 
 /* Header for friend chat window */
-static void drawfriend(int x, int y, int w, int height)
-{
+static void draw_friend(int x, int y, int w, int height){
     FRIEND *f = sitem->data;
 
     // draw avatar or default image
@@ -110,8 +108,7 @@ static void drawfriend(int x, int y, int w, int height)
     }
 }
 
-static void drawgroup(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height))
-{
+static void draw_group(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height)){
     GROUPCHAT *g = sitem->data;
 
     drawalpha(BM_GROUP, LIST_RIGHT + SCALE * 5, SCALE * 5, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_MAIN_TEXT);
@@ -167,8 +164,7 @@ static void drawgroup(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(he
 }
 
 /* Draw an invite to be a friend window */
-static void drawfriendreq(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height))
-{
+static void draw_friend_request(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height)){
     FRIENDREQ *req = sitem->data;
 
     setcolor(COLOR_MAIN_TEXT);
@@ -181,8 +177,7 @@ static void drawfriendreq(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSE
 }
 
 /* Draw add a friend window */
-static void drawadd(int UNUSED(x), int UNUSED(y), int UNUSED(w), int height)
-{
+static void draw_add_friend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int height){
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
     drawstr(LIST_RIGHT + SCALE * 5, SCALE * 10, ADDFRIENDS);
@@ -193,7 +188,7 @@ static void drawadd(int UNUSED(x), int UNUSED(y), int UNUSED(w), int height)
 
     drawstr(LIST_RIGHT + SCALE * 5, LIST_Y + SCALE * 29, MESSAGE);
 
-    if(addfriend_status) {
+    if (addfriend_status) {
         setfont(FONT_MISC);
         setcolor(C_RED);
 
@@ -232,7 +227,7 @@ static void drawadd(int UNUSED(x), int UNUSED(y), int UNUSED(w), int height)
 }
 
 /* Top bar for user settings */
-static void drawsettings_header(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height)){
+static void draw_settings_header(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height)){
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
     drawstr(LIST_RIGHT + SCALE * 5, SCALE * 5, UTOX_SETTINGS);
@@ -244,14 +239,14 @@ static void drawsettings_header(int UNUSED(x), int UNUSED(y), int UNUSED(width),
 
 /* draw switch profile top bar */
 /* Current TODO */
-static void drawtransfer(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height)){
+static void draw_transfer(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height)){
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
     drawstr(LIST_RIGHT + SCALE * 5, SCALE * 10, SWITCHPROFILE);
 }
 
 /* Text content for settings page */
-static void drawsettings_text_utox(int x, int y, int w, int h){
+static void draw_settings_text_profile(int x, int y, int w, int h){
     setcolor(COLOR_MAIN_TEXT);
     drawstr(LIST_RIGHT + SCALE * 5, y + 5   * SCALE, NAME);
     drawstr(LIST_RIGHT + SCALE * 5, y + 30  * SCALE, STATUSMESSAGE);
@@ -261,7 +256,7 @@ static void drawsettings_text_utox(int x, int y, int w, int h){
     drawstr(LIST_RIGHT + SCALE * 5, y + 75  * SCALE, LANGUAGE);
 }
 
-static void drawsettings_text_network(int x, int y, int w, int UNUSED(height)){
+static void draw_settings_text_network(int x, int y, int w, int UNUSED(height)){
     setfont(FONT_MISC);
     setcolor(C_RED);
     drawstr(LIST_RIGHT  + 5   * SCALE, y + 5 * SCALE, WARNING);
@@ -275,7 +270,7 @@ static void drawsettings_text_network(int x, int y, int w, int UNUSED(height)){
     drawtext(LIST_RIGHT + 132 * SCALE, y + 42 * SCALE, (uint8_t*)":", 1);
 }
 
-static void drawsettings_text_ui(int x, int y, int w, int UNUSED(height)){
+static void draw_settings_text_ui(int x, int y, int w, int UNUSED(height)){
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_TEXT);
     drawstr(LIST_RIGHT + 75 * SCALE, y + 5 * SCALE, DPI);
@@ -287,7 +282,7 @@ static void drawsettings_text_ui(int x, int y, int w, int UNUSED(height)){
     drawstr(LIST_RIGHT + 5  * SCALE, y + 105 * SCALE, SEND_TYPING_NOTIFICATIONS);
 }
 
-static void drawsettings_text_av(int x, int y, int w, int UNUSED(height)){
+static void draw_settings_text_av(int x, int y, int w, int UNUSED(height)){
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_TEXT);
     drawstr(LIST_RIGHT + SCALE * 5,   y + SCALE * 5,  RINGTONE);
@@ -301,13 +296,13 @@ static void drawsettings_text_av(int x, int y, int w, int UNUSED(height)){
     drawstr(LIST_RIGHT + SCALE * 5,   y + SCALE * 115, PREVIEW);
 }
 
-static void drawsettings_sub_header(int x, int y, int w, int UNUSED(height)){
+static void draw_settings_sub_header(int x, int y, int w, int UNUSED(height)){
     setfont(FONT_SELF_NAME);
 
     /* Draw the text and bars for general settings */
-    setcolor(!button_settings_sub_utox.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_SUBTEXT);
+    setcolor(!button_settings_sub_profile.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_SUBTEXT);
     drawstr(   x + 5   * SCALE, y + 5 * SCALE, PROFILE);
-    if (panel_settings_utox.disabled) {
+    if (panel_settings_profile.disabled) {
         drawhline( x + 0   * SCALE, y + 15 * SCALE, x + 65 * SCALE, COLOR_EDGE_NORMAL);
     } else {
         drawhline( x + 0   * SCALE, y + 0, x + 65 * SCALE, COLOR_EDGE_ACTIVE);
@@ -348,61 +343,42 @@ static void drawsettings_sub_header(int x, int y, int w, int UNUSED(height)){
     }
 }
 
-static void background_draw(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int width, int height){
+static void draw_background(int UNUSED(x), int UNUSED(y), int width, int height){
     // Current user avatar & name background
     drawrect(0, 0, LIST_RIGHT, LIST_Y, COLOR_MENU_BACKGROUND);
-    // Friend list ('roaster') background
+    // Friend list (roster) background
     drawrect(0, LIST_Y, LIST_RIGHT, height + LIST_BOTTOM, COLOR_LIST_BACKGROUND);
     // Bottom icons menu background
     drawrect(0, height + LIST_BOTTOM, LIST_RIGHT, height, COLOR_MENU_BACKGROUND);
 
     // Current user avatar & name
-    drawself();
+    // TODO move to it's own panel? (probably)
+    // draw_user_badge();
 
     // Chat background
     drawrect(LIST_RIGHT, 0, width, height, COLOR_MAIN_BACKGROUND);
 
     // Chat and chat header separation
-    extern PANEL panel_settings;
-    if (panel_item[1].disabled) {
+    extern PANEL panel_settings_master;
+    if (panel_settings_master.disabled) {
         drawhline(LIST_RIGHT, LIST_Y - 1, width, COLOR_EDGE_NORMAL);
     } else {
         drawhline(LIST_RIGHT, (LIST_Y / 2) - 1, width, COLOR_EDGE_NORMAL);
     }
 }
 
-static _Bool background_mmove(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height), int UNUSED(mx), int UNUSED(my), int UNUSED(dx), int UNUSED(dy))
-{
-    return 0;
-}
 
-static _Bool background_mdown(PANEL *UNUSED(p))
-{
-    return 0;
-}
-
-static _Bool background_mright(PANEL *UNUSED(p))
-{
-    return 0;
-}
-
-static _Bool background_mwheel(PANEL *UNUSED(p), int UNUSED(height), double UNUSED(d))
-{
-    return 0;
-}
-
-static _Bool background_mup(PANEL *UNUSED(p))
-{
-    return 0;
-}
-
-static _Bool background_mleave(PANEL *UNUSED(p))
-{
-    return 0;
-}
+/* These remain for legacy reasons, PANEL_MAIN calls these by default when not given it's own function to call */
+static void  background_draw(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int width, int height){ return; }
+static _Bool background_mmove(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height), int UNUSED(mx), int UNUSED(my), int UNUSED(dx), int UNUSED(dy)) { return 0; }
+static _Bool background_mdown(PANEL *UNUSED(p)) { return 0; }
+static _Bool background_mright(PANEL *UNUSED(p)) { return 0; }
+static _Bool background_mwheel(PANEL *UNUSED(p), int UNUSED(height), double UNUSED(d)) { return 0; }
+static _Bool background_mup(PANEL *UNUSED(p)) { return 0; }
+static _Bool background_mleave(PANEL *UNUSED(p)) { return 0; }
 
 // Scrollbar or friend list
-SCROLLABLE scroll_list = {
+SCROLLABLE scrollbar_roster = {
     .panel = {
         .type = PANEL_SCROLLABLE,
     },
@@ -412,16 +388,14 @@ SCROLLABLE scroll_list = {
 },
 
 // Scrollbar in chat window
-scroll_friend = {
+scrollbar_friend = {
     .panel = {
         .type = PANEL_SCROLLABLE,
     },
     .color = C_SCROLL,
 },
 
-// ?
-// @TODO
-scroll_group = {
+scrollbar_group = {
     .panel = {
         .type = PANEL_SCROLLABLE,
     },
@@ -430,7 +404,7 @@ scroll_group = {
 
 // Color is not used for settings
 // @TODO
-scroll_settings = {
+scrollbar_settings = {
     .panel = {
         .type = PANEL_SCROLLABLE,
     },
@@ -441,195 +415,285 @@ scroll_settings = {
 MESSAGES messages_friend = {
     .panel = {
         .type = PANEL_MESSAGES,
-        .content_scroll = &scroll_friend,
+        .content_scroll = &scrollbar_friend,
     }
 },
 
 messages_group = {
     .panel = {
         .type = PANEL_MESSAGES,
-        .content_scroll = &scroll_group,
+        .content_scroll = &scrollbar_group,
     },
     .type = 1
 };
 
-PANEL panel_list = {
-    .type = PANEL_LIST,
-    .content_scroll = &scroll_list,
-},
+/* uTox panel draw hierarchy. */
+PANEL panel_root,
+        panel_side_bar,
+            panel_self,
+            panel_roster,
+                panel_roster_list,
+            panel_lower_buttons,
+        panel_main,
+            panel_chat,
+                panel_group_chat,
+                panel_friend_chat,
+                panel_friend_request,
+            panel_overhead_master,
+                panel_add_friend,
+                panel_change_user,
+                panel_settings_master,
+                    panel_settings_subheader,
+                    panel_settings_profile,
+                    panel_settings_net,
+                    panel_settings_ui,
+                    panel_settings_av;
 
-/* Panel to draw settings page */
-panel_settings_utox = {
-    .drawfunc = drawsettings_text_utox,
-    .content_scroll = &scroll_settings,
-    .child = (PANEL*[]) {
-        (void*)&edit_name,
-        (void*)&edit_status,
-        // Text: Tox ID
-        (void*)&edit_toxid,
-        (void*)&button_copyid,
-        // User's tox id
-        #ifdef EMOJI_IDS
-        (void*)&button_change_id_type,
-        #endif
-        (void*)&dropdown_language,
-        NULL
-    }
-},
 
-panel_settings_net = {
-    .drawfunc = drawsettings_text_network,
-    .content_scroll = &scroll_settings,
-    .child = (PANEL*[]) {
-        (void*)&edit_proxy_ip,
-        (void*)&edit_proxy_port,
-        (void*)&dropdown_proxy,
-        (void*)&dropdown_ipv6,
-        (void*)&dropdown_udp,
-        NULL
-    },
-    /* Disabled by default, enabled by network button */
-    .disabled = 1
-},
-
-panel_settings_ui = {
-    .drawfunc = drawsettings_text_ui,
-    .content_scroll = &scroll_settings,
-    .child = (PANEL*[]) {
-        (void*)&dropdown_dpi,
-        (void*)&dropdown_theme,
-        (void*)&dropdown_logging,
-        (void*)&dropdown_close_to_tray, (void*)&dropdown_start_in_tray,
-        (void*)&dropdown_auto_startup,
-        (void*)&dropdown_typing_notes,
-        NULL
-    },
-    .disabled = 1
-},
-
-panel_settings_av = {
-    .drawfunc = drawsettings_text_av,
-    .content_scroll = &scroll_settings,
-    .child = (PANEL*[]) {
-        (void*)&button_callpreview,
-        (void*)&button_videopreview,
-        (void*)&dropdown_audio_in,
-        (void*)&dropdown_audio_out,
-        (void*)&dropdown_video,
-        (void*)&dropdown_audible_notification,
-        (void*)&dropdown_audio_filtering,
-        NULL
-    },
-    .disabled = 1
-},
-
-panel_settings = {
-    .type = PANEL_NONE,
-    .drawfunc = drawsettings_sub_header,
-    .child = (PANEL*[]) {
-        (void*)&button_settings_sub_utox,
-        (void*)&button_settings_sub_net,
-        (void*)&button_settings_sub_ui,
-        (void*)&button_settings_sub_av,
-        (void*)&scroll_settings,
-        (void*)&panel_settings_utox,
-        (void*)&panel_settings_net,
-        (void*)&panel_settings_ui,
-        (void*)&panel_settings_av,
-        NULL
-    }
-},
-
-panel_item[] = {
-    {
-        .type = PANEL_NONE,
-        //.disabled = 1,
-        .drawfunc = drawadd,
-        .child = (PANEL*[]) {
-            (void*)&button_addfriend,
-            (void*)&edit_addid, (void*)&edit_addmsg,
-            NULL
-        }
-    },
-
-    {
-        .type = PANEL_NONE,
-        .disabled = 1,
-        .drawfunc = drawsettings_header,
-        .child = (PANEL*[]) {
-            &panel_settings,
-            NULL
-        }
-    },
-
-    {
-        .type = PANEL_NONE,
-        .disabled = 1,
-        .drawfunc = drawtransfer,
-        .child = (PANEL*[]) {
-            NULL
-        }
-    },
-
-    {
-        .type = PANEL_NONE,
-        .disabled = 1,
-        .drawfunc = drawfriend,
-        .child = (PANEL*[]) {
-            (void*)&button_call, (void*)&button_video, (void*)&button_sendfile,
-            (void*)&button_chat1, (void*)&button_chat2, (void*)&button_chat_send,
-            (void*)&edit_msg,
-            (void*)&scroll_friend,
-            (void*)&messages_friend,
-            NULL
-        }
-    },
-
-    {
-        .type = PANEL_NONE,
-        .disabled = 1,
-        .drawfunc = drawgroup,
-        .child = (PANEL*[]) {
-            (void*)&button_group_audio,
-            (void*)&edit_msg_group,
-            (void*)&scroll_group,
-            (void*)&messages_group,
-            (void*)&button_chat_send,
-            NULL
-        }
-    },
-
-    {
-        .type = PANEL_NONE,
-        .disabled = 1,
-        .drawfunc = drawfriendreq,
-        .child = (PANEL*[]) {
-            (void*)&button_acceptfriend,
-            NULL
-        }
-    },
-},
-
-/* Side panel probably the chat window */
-panel_side = {
-    .type = PANEL_NONE,
-    .child = (PANEL*[]) {
-        &panel_item[0], &panel_item[1], &panel_item[2], &panel_item[3], &panel_item[4], &panel_item[5], NULL
-    }
-},
-
-/* Main window structure */
-panel_main = {
+/* Root panel, hold all the other panels */
+PANEL panel_root = {
     .type = PANEL_MAIN,
+    .drawfunc = draw_background,
+    .disabled = 0,
     .child = (PANEL*[]) {
-        (void*)&button_add, (void*)&button_groups, (void*)&button_transfer, (void*)&button_settings,
-        (void*)&button_avatar, (void*)&button_name, (void*)&button_statusmsg, (void*)&button_status,
-        &panel_list, &panel_side,
-        (void*)&scroll_list,
-        (void*)&edit_search, (void*)&dropdown_filter,
+        &panel_side_bar, &panel_main,
         NULL
     }
-};
+},
+
+/* Left side bar, holds the user, the roster, and the setting buttons */
+panel_side_bar = {
+    .type = PANEL_NONE,
+    .disabled = 0,
+    .child = (PANEL*[]) {
+        &panel_self,
+        &panel_roster,
+        &panel_lower_buttons,
+        NULL
+    }
+},
+
+    /* The user badge and buttons */
+    panel_self = {
+        .type = PANEL_NONE,
+        .disabled = 0,
+        .drawfunc = draw_user_badge,
+        .child = (PANEL*[]) {
+            (void*)&button_avatar, (void*)&button_name, (void*)&button_statusmsg, (void*)&button_status,
+            NULL
+        }
+    },
+
+    /* The friends and group was called list */
+    panel_roster = {
+        .type = PANEL_NONE,
+        .disabled = 0,
+        .child = (PANEL*[]) {
+            // TODO rename these
+            (void*)&edit_search, (void*)&dropdown_filter,
+            (void*)&panel_roster_list,
+            (void*)&scrollbar_roster,
+            NULL
+        }
+    },
+
+        panel_roster_list = {
+            .type = PANEL_LIST,
+            .content_scroll = &scrollbar_roster,
+        },
+
+    panel_lower_buttons = {
+        .type = PANEL_NONE,
+        .disabled = 0,
+        .child = (PANEL*[]) {
+            (void*)&button_add, (void*)&button_groups, (void*)&button_transfer, (void*)&button_settings,
+            NULL
+        }
+    },
+
+/* Main panel, holds the overhead/settings, or the friend/group containers */
+panel_main = {
+    .type = PANEL_NONE,
+    .disabled = 1,
+    .child = (PANEL*[]) {
+        NULL
+    }
+},
+
+    /* Chat panel, friend or group, depending on what's selected */
+    panel_chat = {
+        .type = PANEL_NONE,
+        .disabled = 1,
+        .child = (PANEL*[]) {
+            NULL
+        }
+    },
+
+        panel_group_chat = {
+            .type = PANEL_NONE,
+            .disabled = 1,
+            .drawfunc = draw_group,
+            .child = (PANEL*[]) {
+                (void*)&button_group_audio,
+                (void*)&edit_msg_group,
+                (void*)&scrollbar_group,
+                (void*)&messages_group,
+                (void*)&button_chat_send,
+                NULL
+            }
+        },
+
+        panel_friend_chat ={
+            .type = PANEL_NONE,
+            .disabled = 1,
+            .drawfunc = draw_friend,
+            .child = (PANEL*[]) {
+                (void*)&button_call, (void*)&button_video, (void*)&button_sendfile,
+                (void*)&button_chat1, (void*)&button_chat2, (void*)&button_chat_send,
+                (void*)&edit_msg,
+                (void*)&scrollbar_friend,
+                (void*)&messages_friend,
+                NULL
+            }
+        },
+
+        panel_friend_request = {
+            .type = PANEL_NONE,
+            .disabled = 1,
+            .drawfunc = draw_friend_request,
+            .child = (PANEL*[]) {
+                (void*)&button_accept_friend,
+                NULL
+            }
+        },
+
+    /* Settings master panel, holds the lower level settings */
+    panel_overhead_master = {
+        .type = PANEL_NONE,
+        .disabled = 1,
+        .child = (PANEL*[]) {
+            NULL
+        }
+    },
+
+        panel_add_friend = {
+            .type = PANEL_NONE,
+            .disabled = 1,
+            .drawfunc = draw_add_friend,
+            .child = (PANEL*[]) {
+                (void*)&button_add_friend,
+                (void*)&edit_add_id, (void*)&edit_add_msg,
+                NULL
+            }
+        },
+
+        panel_change_user = {
+            .type = PANEL_NONE,
+            .disabled = 1,
+            //.drawfunc = draw_change_user,
+            .child = (PANEL*[]) {
+                /* Does nothing for now... sorry about that */
+                NULL
+            }
+        },
+
+        panel_settings_master = {
+            .type = PANEL_NONE,
+            .disabled = 1,
+            .drawfunc = draw_settings_header,
+            .child = (PANEL*[]) {
+                (void*)&panel_settings_subheader,
+                NULL
+            }
+        },
+
+            panel_settings_subheader = {
+                .type = PANEL_NONE,
+                .disabled = 1,
+                .drawfunc = draw_settings_sub_header,
+                .child = (PANEL*[]) {
+                    (void*)&button_settings_sub_profile,
+                    (void*)&button_settings_sub_net,
+                    (void*)&button_settings_sub_ui,
+                    (void*)&button_settings_sub_av,
+                    (void*)&scrollbar_settings,
+                    (void*)&panel_settings_profile,
+                    (void*)&panel_settings_net,
+                    (void*)&panel_settings_ui,
+                    (void*)&panel_settings_av,
+                    NULL
+                }
+            },
+
+            /* Panel to draw settings page */
+            panel_settings_profile = {
+                .type = PANEL_NONE,
+                .disabled = 0,
+                .drawfunc = draw_settings_text_profile,
+                .content_scroll = &scrollbar_settings,
+                .child = (PANEL*[]) {
+                    (void*)&edit_name,
+                    (void*)&edit_status,
+                    // Text: Tox ID
+                    (void*)&edit_toxid,
+                    (void*)&button_copyid,
+                    // User's tox id
+                    #ifdef EMOJI_IDS
+                    (void*)&button_change_id_type,
+                    #endif
+                    (void*)&dropdown_language,
+                    NULL
+                }
+            },
+
+            panel_settings_net = {
+                .type = PANEL_NONE,
+                /* Disabled by default, enabled by network button */
+                .disabled = 1,
+                .drawfunc = draw_settings_text_network,
+                .content_scroll = &scrollbar_settings,
+                .child = (PANEL*[]) {
+                    (void*)&edit_proxy_ip,
+                    (void*)&edit_proxy_port,
+                    (void*)&dropdown_proxy,
+                    (void*)&dropdown_ipv6,
+                    (void*)&dropdown_udp,
+                    NULL
+                }
+            },
+
+            panel_settings_ui = {
+                .type = PANEL_NONE,
+                .drawfunc = draw_settings_text_ui,
+                .disabled = 1,
+                .content_scroll = &scrollbar_settings,
+                .child = (PANEL*[]) {
+                    (void*)&dropdown_dpi,
+                    (void*)&dropdown_theme,
+                    (void*)&dropdown_logging,
+                    (void*)&dropdown_close_to_tray, (void*)&dropdown_start_in_tray,
+                    (void*)&dropdown_auto_startup,
+                    (void*)&dropdown_typing_notes,
+                    NULL
+                }
+            },
+
+            panel_settings_av = {
+                .type = PANEL_NONE,
+                .disabled = 1,
+                .drawfunc = draw_settings_text_av,
+                .content_scroll = &scrollbar_settings,
+                .child = (PANEL*[]) {
+                    (void*)&button_callpreview,
+                    (void*)&button_videopreview,
+                    (void*)&dropdown_audio_in,
+                    (void*)&dropdown_audio_out,
+                    (void*)&dropdown_video,
+                    (void*)&dropdown_audible_notification,
+                    (void*)&dropdown_audio_filtering,
+                    NULL
+                }
+            };
 
 void ui_scale(uint8_t scale)
 {
@@ -642,17 +706,17 @@ void ui_scale(uint8_t scale)
     list_scale();
 
     /* DEFAULT positions */
-        panel_side.x = LIST_RIGHT;
+        panel_side_bar.x = LIST_RIGHT;
 
-        panel_settings.y      = LIST_Y / 2;
-        panel_settings_utox.y = 16 * SCALE;
-        panel_settings_net.y  = 16 * SCALE;
-        panel_settings_ui.y   = 16 * SCALE;
-        panel_settings_av.y   = 16 * SCALE;
+        panel_settings_master.y = LIST_Y / 2;
+        panel_settings_profile.y   = 16 * SCALE;
+        panel_settings_net.y    = 16 * SCALE;
+        panel_settings_ui.y     = 16 * SCALE;
+        panel_settings_av.y     = 16 * SCALE;
 
-        panel_list.y = LIST_Y2;
-        panel_list.width = LIST_RIGHT + 1;
-        panel_list.height = LIST_BOTTOM;
+        panel_side_bar.y = LIST_Y2;
+        panel_side_bar.width = LIST_RIGHT + 1;
+        panel_side_bar.height = LIST_BOTTOM;
 
         messages_friend.panel.y = LIST_Y;
         messages_friend.panel.height = MESSAGES_BOTTOM;
@@ -662,18 +726,18 @@ void ui_scale(uint8_t scale)
         messages_group.panel.height = MESSAGES_BOTTOM;
         messages_group.panel.width = -SCROLL_WIDTH;
 
-        scroll_settings.panel.y = 16 * SCALE;
-        scroll_settings.content_height = 150 * SCALE;
+        scrollbar_settings.panel.y = 16 * SCALE;
+        scrollbar_settings.content_height = 150 * SCALE;
 
-        scroll_group.panel.y = LIST_Y;
-        scroll_group.panel.height = MESSAGES_BOTTOM;
+        scrollbar_group.panel.y = LIST_Y;
+        scrollbar_group.panel.height = MESSAGES_BOTTOM;
 
-        scroll_friend.panel.y = LIST_Y;
-        scroll_friend.panel.height = MESSAGES_BOTTOM;
+        scrollbar_friend.panel.y = LIST_Y;
+        scrollbar_friend.panel.height = MESSAGES_BOTTOM;
 
-        scroll_list.panel.y = LIST_Y2;
-        scroll_list.panel.width = LIST_RIGHT + 1;
-        scroll_list.panel.height = LIST_BOTTOM;
+        scrollbar_roster.panel.y = LIST_Y2;
+        scrollbar_roster.panel.width = LIST_RIGHT + 1;
+        scrollbar_roster.panel.height = LIST_BOTTOM;
 
     /* Button Structs  */
         PANEL b_add = {
@@ -716,7 +780,7 @@ void ui_scale(uint8_t scale)
             .height = BM_SBUTTON_HEIGHT,
         },
 
-        b_settings_sub_utox = {
+        b_settings_sub_profile = {
             .type   = PANEL_BUTTON,
             .x      = 1  * SCALE, /* Nudged 1px as a buffer */
             .y      = 1  * SCALE,
@@ -758,7 +822,7 @@ void ui_scale(uint8_t scale)
         },
         #endif
 
-        b_addfriend = {
+        b_add_friend = {
             .type = PANEL_BUTTON,
             .x = -SCALE * 5 - BM_SBUTTON_WIDTH,
             .y = LIST_Y + SCALE * 84,
@@ -798,7 +862,7 @@ void ui_scale(uint8_t scale)
             .height = BM_LBUTTON_HEIGHT,
         },
 
-        b_acceptfriend = {
+        b_accept_friend = {
             .type = PANEL_BUTTON,
             .x = SCALE * 5,
             .y = LIST_Y + SCALE * 5,
@@ -886,19 +950,19 @@ void ui_scale(uint8_t scale)
         button_transfer.panel = b_transfer;
         button_groups.panel = b_groups;
         button_copyid.panel = b_copyid;
-        button_settings_sub_utox.panel = b_settings_sub_utox;
+        button_settings_sub_profile.panel = b_settings_sub_profile;
         button_settings_sub_net.panel = b_settings_sub_net;
         button_settings_sub_ui.panel = b_settings_sub_ui;
         button_settings_sub_av.panel = b_settings_sub_av;
         #ifdef EMOJI_IDS
         button_change_id_type.panel = b_change_id_type;
         #endif
-        button_addfriend.panel = b_addfriend;
+        button_add_friend.panel = b_add_friend;
         button_call.panel = b_call;
         button_group_audio.panel = b_group_audio;
         button_video.panel = b_video;
         button_sendfile.panel = b_sendfile;
-        button_acceptfriend.panel = b_acceptfriend;
+        button_accept_friend.panel = b_accept_friend;
         button_callpreview.panel = b_callpreview;
         button_videopreview.panel = b_videopreview;
         button_chat1.panel = b_chat1;
@@ -1095,7 +1159,7 @@ void ui_scale(uint8_t scale)
             .width = -SCROLL_WIDTH - 5 * SCALE
         },
 
-        e_addid = {
+        e_add_id = {
             .type = PANEL_EDIT,
             .x = 5 * SCALE,
             .y = LIST_Y + SCALE * 14,
@@ -1103,7 +1167,7 @@ void ui_scale(uint8_t scale)
             .width = -5 * SCALE
         },
 
-        e_addmsg = {
+        e_add_msg = {
             .type = PANEL_EDIT,
             .x = 5 * SCALE,
             .y = LIST_Y + SCALE * 38,
@@ -1158,8 +1222,8 @@ void ui_scale(uint8_t scale)
         edit_name.panel = e_name;
         edit_status.panel = e_status;
         edit_toxid.panel = e_toxid;
-        edit_addid.panel = e_addid;
-        edit_addmsg.panel = e_addmsg;
+        edit_add_id.panel = e_add_id;
+        edit_add_msg.panel = e_add_msg;
         edit_msg.panel = e_msg;
         edit_msg_group.panel = e_msg_group;
         edit_search.panel = e_search;
@@ -1169,7 +1233,7 @@ void ui_scale(uint8_t scale)
     setscale();
 }
 
-/* Use the preprocessor to build functions for all user interactions
+/* Use the preprocessor to build function prototypes for all user interactions
  * These are functions that are (must be) defined elsewehere. The preprocessor in this case creates the prototypes that
  * will then be used by panel_draw_sub to call the correct function
 */
@@ -1224,13 +1288,13 @@ static void panel_update(PANEL *p, int x, int y, int width, int height)
 
 void ui_size(int width, int height)
 {
-    panel_update(&panel_main, 0, 0, width, height);
+    panel_update(&panel_root, 0, 0, width, height);
     tooltip_reset();
 }
 
 void ui_mouseleave(void)
 {
-    panel_mleave(&panel_main);
+    panel_mleave(&panel_root);
     tooltip_reset();
     redraw();
 }
@@ -1300,7 +1364,7 @@ void panel_draw(PANEL *p, int x, int y, int width, int height)
 
 _Bool panel_mmove(PANEL *p, int x, int y, int width, int height, int mx, int my, int dx, int dy)
 {
-    if(p == &panel_main) {
+    if (p == &panel_root) {
         mouse.x = mx;
         mouse.y = my;
     }
@@ -1326,7 +1390,7 @@ _Bool panel_mmove(PANEL *p, int x, int y, int width, int height, int mx, int my,
 
     _Bool draw = p->type ? mmovefunc[p->type - 1](p, x, y, width, height, mx, mmy, dx, dy) : 0;
     // Has to be called before children mmove
-    if(p == &panel_main) {
+    if (p == &panel_root) {
         draw |= tooltip_mmove();
     }
     PANEL **pp = p->child, *subp;
@@ -1338,7 +1402,7 @@ _Bool panel_mmove(PANEL *p, int x, int y, int width, int height, int mx, int my,
         }
     }
 
-    if(p == &panel_main) {
+    if (p == &panel_root) {
         draw |= contextmenu_mmove(mx, my, dx, dy);
         if(draw) {
             redraw();
@@ -1414,7 +1478,7 @@ _Bool panel_dclick(PANEL *p, _Bool triclick)
         }
     }
 
-    if(draw && p == &panel_main) {
+    if ( draw && p == &panel_root ) {
         redraw();
     }
 
@@ -1433,7 +1497,7 @@ _Bool panel_mright(PANEL *p)
         }
     }
 
-    if(draw && p == &panel_main) {
+    if ( draw && p == &panel_root ) {
         redraw();
     }
 
@@ -1454,7 +1518,7 @@ _Bool panel_mwheel(PANEL *p, int x, int y, int width, int height, double d)
         }
     }
 
-    if(draw && p == &panel_main) {
+    if ( draw && p == &panel_root ) {
         redraw();
     }
 
@@ -1473,7 +1537,7 @@ _Bool panel_mup(PANEL *p)
         }
     }
 
-    if(p == &panel_main) {
+    if (p == &panel_root) {
         draw |= contextmenu_mup();
         tooltip_mup();
         if(draw) {
@@ -1496,7 +1560,7 @@ _Bool panel_mleave(PANEL *p)
         }
     }
 
-    if(p == &panel_main) {
+    if (p == &panel_root) {
         draw |= contextmenu_mleave();
         if(draw) {
             redraw();

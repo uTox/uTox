@@ -102,9 +102,9 @@ static void button_videopreview_update(BUTTON *b)
         button_setcolors_success(b);
 }
 
-static void button_addfriend_onpress(void)
+static void button_add_friend_onpress(void)
 {
-    friend_add(edit_addid_data, edit_addid.length, edit_addmsg.data, edit_addmsg.length);
+    friend_add(edit_add_id.data, edit_add_id.length, edit_add_msg.data, edit_add_msg.length);
     edit_resetfocus();
 }
 
@@ -128,39 +128,39 @@ static void button_settings_onpress(void)
     list_selectsettings();
 }
 
-extern PANEL panel_settings_utox, panel_settings_net, panel_settings_ui, panel_settings_av;
-extern SCROLLABLE scroll_settings;
-static void button_settings_sub_utox_onpress(void){
-    scroll_settings.content_height = 130 * SCALE;
+extern PANEL panel_settings_profile, panel_settings_net, panel_settings_ui, panel_settings_av;
+extern SCROLLABLE scrollbar_settings;
+static void button_settings_sub_profile_onpress(void){
+    scrollbar_settings.content_height = 130 * SCALE;
     list_selectsettings();
-    panel_settings_utox.disabled = 0;
+    panel_settings_profile.disabled = 0;
     panel_settings_net.disabled  = 1;
     panel_settings_ui.disabled   = 1;
     panel_settings_av.disabled   = 1;
 }
 
 static void button_settings_sub_net_onpress(void){
-    scroll_settings.content_height = 90 * SCALE;
+    scrollbar_settings.content_height = 90 * SCALE;
     list_selectsettings();
-    panel_settings_utox.disabled = 1;
+    panel_settings_profile.disabled = 1;
     panel_settings_net.disabled  = 0;
     panel_settings_ui.disabled   = 1;
     panel_settings_av.disabled   = 1;
 }
 
 static void button_settings_sub_ui_onpress(void){
-    scroll_settings.content_height = 140 * SCALE;
+    scrollbar_settings.content_height = 140 * SCALE;
     list_selectsettings();
-    panel_settings_utox.disabled = 1;
+    panel_settings_profile.disabled = 1;
     panel_settings_net.disabled  = 1;
     panel_settings_ui.disabled   = 0;
     panel_settings_av.disabled   = 1;
 }
 
 static void button_settings_sub_av_onpress(void){
-    scroll_settings.content_height = 150 * SCALE;
+    scrollbar_settings.content_height = 150 * SCALE;
     list_selectsettings();
-    panel_settings_utox.disabled = 1;
+    panel_settings_profile.disabled = 1;
     panel_settings_net.disabled  = 1;
     panel_settings_ui.disabled   = 1;
     panel_settings_av.disabled   = 0;
@@ -388,7 +388,7 @@ static void button_sendfile_update(BUTTON *b)
     }
 }
 
-static void button_acceptfriend_onpress(void)
+static void button_accept_friend_onpress(void)
 {
     FRIENDREQ *req = sitem->data;
     tox_postmessage(TOX_ACCEPTFRIEND, 0, 0, req);
@@ -414,12 +414,12 @@ static void button_avatar_onright(void)
 }
 
 static void button_name_onpress(void){
-    button_settings_sub_utox_onpress();
+    button_settings_sub_profile_onpress();
     edit_setfocus(&edit_name);
 }
 
 static void button_statusmsg_onpress(void){
-    button_settings_sub_utox_onpress();
+    button_settings_sub_profile_onpress();
     edit_setfocus(&edit_status);
 }
 
@@ -498,9 +498,9 @@ static void button_chat_send_update(BUTTON *b){
 }
 
 
-BUTTON button_settings_sub_utox = {
+BUTTON button_settings_sub_profile = {
     .nodraw       = 1,
-    .onpress      = button_settings_sub_utox_onpress,
+    .onpress      = button_settings_sub_profile_onpress,
     .tooltip_text = { .i18nal = STR_UTOX_SETTINGS },
 },
 
@@ -576,11 +576,11 @@ button_change_id_type = {
 },
 #endif
 
-button_addfriend = {
+button_add_friend = {
     .bm = BM_SBUTTON,
     .button_text = { .i18nal = STR_BUTTON_ADD_FRIEND },
     .update = button_setcolors_success,
-    .onpress = button_addfriend_onpress,
+    .onpress = button_add_friend_onpress,
     .disabled = 0,
 },
 
@@ -620,11 +620,11 @@ button_sendfile = {
     .update = button_sendfile_update,
 },
 
-button_acceptfriend = {
+button_accept_friend = {
     .bm = BM_SBUTTON,
     .button_text = { .i18nal = STR_BUTTON_ACCEPT_FRIEND },
     .update = button_setcolors_success,
-    .onpress = button_acceptfriend_onpress,
+    .onpress = button_accept_friend_onpress,
 },
 
 button_callpreview = {

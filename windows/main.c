@@ -553,8 +553,8 @@ static void parsecmd(uint8_t *cmd, int len)
     }
 
 
-    uint8_t *b = edit_addid.data, *a = cmd, *end = cmd + len;
-    uint16_t *l = &edit_addid.length;
+    uint8_t *b = edit_add_id.data, *a = cmd, *end = cmd + len;
+    uint16_t *l = &edit_add_id.length;
     *l = 0;
     while(a != end)
     {
@@ -582,12 +582,12 @@ static void parsecmd(uint8_t *cmd, int len)
             case '?':
             case '&':
             {
-                a++;
+                a++;        /* Anyone know what pin is used for? */
                 if(end - a >= 4 && memcmp(a, "pin=", 4) == 0)
                 {
 
-                    l = &edit_addid.length;
-                    b = edit_addid.data + *l;
+                    l = &edit_add_id.length;
+                    b = edit_add_id.data + *l;
                     *b++ = ':';
                     *l = *l + 1;
                     a += 3;
@@ -595,8 +595,8 @@ static void parsecmd(uint8_t *cmd, int len)
                 }
                 else if(end - a >= 8 && memcmp(a, "message=", 8) == 0)
                 {
-                    b = edit_addmsg.data;
-                    l = &edit_addmsg.length;
+                    b = edit_add_msg.data;
+                    l = &edit_add_msg.length;
                     *l = 0;
                     a += 7;
                     break;
@@ -933,7 +933,7 @@ void edit_will_deactivate(void)
 /* Redraws the main UI window */
 void redraw(void)
 {
-    panel_draw(&panel_main, 0, 0, utox_window_width, utox_window_height);
+    panel_draw(&panel_root, 0, 0, utox_window_width, utox_window_height);
 }
 
 /**
@@ -1654,7 +1654,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     }
 
     case WM_MOUSEWHEEL: {
-        panel_mwheel(&panel_main, 0, 0, utox_window_width, utox_window_height, (double)((int16_t)HIWORD(wParam)) / (double)(WHEEL_DELTA));
+        panel_mwheel(&panel_root, 0, 0, utox_window_width, utox_window_height, (double)((int16_t)HIWORD(wParam)) / (double)(WHEEL_DELTA));
         return 0;
     }
 
@@ -1670,7 +1670,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
         my = y;
 
         cursor = 0;
-        panel_mmove(&panel_main, 0, 0, utox_window_width, utox_window_height, x, y, dx, dy);
+        panel_mmove(&panel_root, 0, 0, utox_window_width, utox_window_height, x, y, dx, dy);
 
         SetCursor(cursors[cursor]);
 
@@ -1690,15 +1690,15 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
         y = GET_Y_LPARAM(lParam);
 
         if(x != mx || y != my) {
-            panel_mmove(&panel_main, 0, 0, utox_window_width, utox_window_height, x, y, x - mx, y - my);
+            panel_mmove(&panel_root, 0, 0, utox_window_width, utox_window_height, x, y, x - mx, y - my);
             mx = x;
             my = y;
         }
 
         //double redraw>
-        panel_mdown(&panel_main);
+        panel_mdown(&panel_root);
         if(msg == WM_LBUTTONDBLCLK) {
-            panel_dclick(&panel_main, 0);
+            panel_dclick(&panel_root, 0);
         }
 
         SetCapture(hwn);
@@ -1707,7 +1707,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     }
 
     case WM_RBUTTONDOWN: {
-        panel_mright(&panel_main);
+        panel_mright(&panel_root);
         break;
     }
 
@@ -1722,7 +1722,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
 
     case WM_CAPTURECHANGED: {
         if (mdown) {
-            panel_mup(&panel_main);
+            panel_mup(&panel_root);
             mdown = 0;
         }
 

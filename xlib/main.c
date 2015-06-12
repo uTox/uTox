@@ -1262,7 +1262,7 @@ int main(int argc, char *argv[])
     list_start();
 
     /* draw */
-    panel_draw(&panel_main, 0, 0, utox_window_width, utox_window_height);
+    panel_draw(&panel_root, 0, 0, utox_window_width, utox_window_height);
 
     /* event loop */
     while(1) {
@@ -1282,7 +1282,7 @@ int main(int argc, char *argv[])
         }
 
         if(_redraw) {
-            panel_draw(&panel_main, 0, 0, utox_window_width, utox_window_height);
+            panel_draw(&panel_root, 0, 0, utox_window_width, utox_window_height);
             _redraw = 0;
         }
     }

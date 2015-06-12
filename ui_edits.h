@@ -444,12 +444,12 @@ edit_status = {
     .onlosefocus = edit_status_onenter,
 },
 
-edit_addid = {
+edit_add_id = {
     .maxlength = sizeof(edit_addid_data),
     .data = edit_addid_data,
 },
 
-edit_addmsg = {
+edit_add_msg = {
     .multiline = 1,
     .scroll = &edit_addmsg_scroll,
     .maxlength = sizeof(edit_addmsg_data),

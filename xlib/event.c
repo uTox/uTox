@@ -129,7 +129,7 @@ _Bool doevent(XEvent event)
         my = ev->y;
 
         cursor = CURSOR_NONE;
-        panel_mmove(&panel_main, 0, 0, utox_window_width, utox_window_height, ev->x, ev->y, dx, dy);
+        panel_mmove(&panel_root, 0, 0, utox_window_width, utox_window_height, ev->x, ev->y, dx, dy);
 
         XDefineCursor(display, window, cursors[cursor]);
 
@@ -143,8 +143,8 @@ _Bool doevent(XEvent event)
         XButtonEvent *ev = &event.xbutton;
         switch(ev->button) {
         case Button2: {
-            panel_mdown(&panel_main);
-            panel_mup(&panel_main);
+            panel_mdown(&panel_root);
+            panel_mup(&panel_root);
 
             pasteprimary();
             break;
@@ -162,11 +162,11 @@ _Bool doevent(XEvent event)
 
             //todo: better double/triple click detect
             static Time lastclick, lastclick2;
-            panel_mmove(&panel_main, 0, 0, utox_window_width, utox_window_height, ev->x, ev->y, 0, 0);
-            panel_mdown(&panel_main);
+            panel_mmove(&panel_root, 0, 0, utox_window_width, utox_window_height, ev->x, ev->y, 0, 0);
+            panel_mdown(&panel_root);
             if(ev->time - lastclick < 300) {
                 _Bool triclick = (ev->time - lastclick2 < 600);
-                panel_dclick(&panel_main, triclick);
+                panel_dclick(&panel_root, triclick);
                 if(triclick) {
                     lastclick = 0;
                 }
@@ -178,17 +178,17 @@ _Bool doevent(XEvent event)
         }
 
         case Button3: {
-            panel_mright(&panel_main);
+            panel_mright(&panel_root);
             break;
         }
 
         case Button4: {
-            panel_mwheel(&panel_main, 0, 0, utox_window_width, utox_window_height, 1.0);
+            panel_mwheel(&panel_root, 0, 0, utox_window_width, utox_window_height, 1.0);
             break;
         }
 
         case Button5: {
-            panel_mwheel(&panel_main, 0, 0, utox_window_width, utox_window_height, -1.0);
+            panel_mwheel(&panel_root, 0, 0, utox_window_width, utox_window_height, -1.0);
             break;
         }
 
@@ -254,7 +254,7 @@ _Bool doevent(XEvent event)
                 }
                 pointergrab = 0;
             } else {
-                panel_mup(&panel_main);
+                panel_mup(&panel_root);
                 mdown = 0;
             }
             break;

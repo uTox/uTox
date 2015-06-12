@@ -114,13 +114,13 @@ static ITEM* newitem(void)
 {
     ITEM *i = &item[itemcount++];
     //TODO: ..
-    scroll_list.content_height = searchcount * ITEM_HEIGHT;
+    scrollbar_roster.content_height = searchcount * ITEM_HEIGHT;
     return i;
 }
 
 void list_scale(void)
 {
-    scroll_list.content_height = searchcount * ITEM_HEIGHT;
+    scrollbar_roster.content_height = searchcount * ITEM_HEIGHT;
 }
 
 static ITEM* item_hit(int mx, int my, int UNUSED(height))
@@ -150,8 +150,9 @@ static ITEM* item_hit(int mx, int my, int UNUSED(height))
 
 static void selectitem(ITEM *i)
 {
-    panel_item[sitem->item - 1].disabled = 1;
-    panel_item[i->item - 1].disabled = 0;
+    // TODO!!
+    // panel_item[sitem->item - 1].disabled = 1;
+    // panel_item[i->item - 1].disabled = 0;
 
     edit_resetfocus();
 
@@ -257,7 +258,7 @@ static void selectitem(ITEM *i)
 
     if(i->item == ITEM_ADD) {
         button_add.disabled = 1;
-        edit_setfocus(&edit_addid);
+        edit_setfocus(&edit_add_id);
     }
 
     if(i->item == ITEM_TRANSFER) {
@@ -277,7 +278,7 @@ void list_start(void)
 
     item_add.item = ITEM_ADD;
     button_add.disabled = 1;
-    edit_setfocus(&edit_addid);
+    edit_setfocus(&edit_add_id);
 
     item_settings.item = ITEM_SETTINGS;
     item_transfer.item = ITEM_TRANSFER;
@@ -293,7 +294,7 @@ void list_start(void)
 
     itemcount = i - item;
 
-    scroll_list.content_height = itemcount * ITEM_HEIGHT;
+    scrollbar_roster.content_height = itemcount * ITEM_HEIGHT;
 }
 
 void list_addfriend(FRIEND *f)
@@ -309,8 +310,8 @@ void list_addfriend2(FRIEND *f, FRIENDREQ *req)
     while(i < itemcount) {
         if(item[i].data == req) {
             if(&item[i] == sitem) {
-                panel_item[sitem->item - 1].disabled = 1;
-                panel_item[ITEM_FRIEND - 1].disabled = 0;
+                // panel_item[sitem->item - 1].disabled = 1;
+                // panel_item[ITEM_FRIEND - 1].disabled = 0;
 
                 messages_friend.data = &f->msg;
                 messages_friend.iover = MSG_IDX_MAX;
@@ -373,7 +374,7 @@ void list_draw(void *UNUSED(n), int UNUSED(x), int y, int UNUSED(width), int UNU
     }
 
     searchcount = j;
-    scroll_list.content_height = searchcount * ITEM_HEIGHT;
+    scrollbar_roster.content_height = searchcount * ITEM_HEIGHT;
 
     if(mi) {
         drawitem(mi, LIST_X, my);
@@ -437,7 +438,7 @@ static void deleteitem(ITEM *i)
     }
 
     itemcount--;
-    scroll_list.content_height = itemcount * ITEM_HEIGHT;
+    scrollbar_roster.content_height = itemcount * ITEM_HEIGHT;
 
     int size = (&item[itemcount] - i) * sizeof(ITEM);
     memmove(i, i + 1, size);

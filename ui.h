@@ -57,10 +57,10 @@ enum
     ADDF_NOMEM, //if increasing the friend list size fails.
 };
 
-extern PANEL panel_main, panel_item[];
+extern PANEL panel_root;
 extern MESSAGES messages_friend, messages_group;
-extern EDIT edit_name, edit_status, edit_addid, edit_addmsg, edit_msg, edit_msg_group, edit_search, edit_proxy_ip, edit_proxy_port;
-extern SCROLLABLE scroll_list;
+extern EDIT edit_name, edit_status, edit_add_id, edit_add_msg, edit_msg, edit_msg_group, edit_search, edit_proxy_ip, edit_proxy_port;
+extern SCROLLABLE scrollbar_roster;
 extern BUTTON button_add, button_settings, button_transfer;
 
 typedef struct {
