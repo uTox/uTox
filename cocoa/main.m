@@ -287,13 +287,18 @@ void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data) {
     });
 }
 
-void init_ptt(void){ push_to_talk = 0; /* OSX is unsupported */ }
-
-_Bool check_ptt_key(void){
-    return 1; // @stal888 this is your job mate, good luck!
+void init_ptt(void) {
+    push_to_talk = 1;
 }
 
-void exit_ptt(void){ push_to_talk = 0; /* OSX is unsupported */ }
+static _Bool is_ctrl_down = 0;
+_Bool check_ptt_key(void){
+    return push_to_talk? is_ctrl_down : 1;
+}
+
+void exit_ptt(void) {
+    push_to_talk = 0;
+}
 
 void redraw(void) {
     uToxAppDelegate *ad = (uToxAppDelegate *)[NSApp delegate];
@@ -320,7 +325,10 @@ void launch_at_startup(int should) {
     CFRelease(items);
 }
 
-@implementation uToxAppDelegate
+@implementation uToxAppDelegate {
+    id global_event_listener;
+    id  local_event_listener;
+}
 
 - (void)applicationDidFinishLaunching:(NSNotification *)notification {
     setup_cursors();
@@ -328,6 +336,15 @@ void launch_at_startup(int should) {
     dock_icon.image = [NSApplication sharedApplication].applicationIconImage;
     [NSApplication sharedApplication].dockTile.contentView = dock_icon;
     [dock_icon release];
+
+    global_event_listener = [NSEvent addGlobalMonitorForEventsMatchingMask:NSFlagsChangedMask handler:^(NSEvent *e) {
+        is_ctrl_down = e.modifierFlags & NSControlKeyMask;
+    }];
+
+    local_event_listener = [NSEvent addLocalMonitorForEventsMatchingMask:NSFlagsChangedMask handler:^NSEvent *(NSEvent *e) {
+        is_ctrl_down = e.modifierFlags & NSControlKeyMask;
+        return e;
+    }];
 
     ironclad = [[NSMutableDictionary alloc] init];
 
@@ -423,6 +440,9 @@ void launch_at_startup(int should) {
     };
 
     config_save(&d);
+
+    [NSEvent removeMonitor:global_event_listener];
+    [NSEvent removeMonitor:local_event_listener];
 
     /* wait for threads to exit */
     while(tox_thread_init) {
