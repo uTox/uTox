@@ -716,7 +716,9 @@ NEXT:
     audio_filtering_enabled       = save->audio_filtering_enabled;
     loaded_audio_out_device       = save->audio_device_out;
     loaded_audio_in_device        = save->audio_device_in;
-    push_to_talk                  = save->push_to_talk;
+    if ( save->push_to_talk ) {
+        init_ptt();
+    }
 
     dont_send_typing_notes        = save->no_typing_notifications;
 

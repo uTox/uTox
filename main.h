@@ -332,9 +332,11 @@ _Bool dont_send_typing_notes; //Stores user's preference about typing notificati
 void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data);
 
 /** returns 0 if push to talk is enabled, and the button is up, else returns 1. */
+void  init_ptt(void);
 _Bool get_ptt_key(void);
 _Bool set_ptt_key(void);
 _Bool check_ptt_key(void);
+void  exit_ptt(void);
 
 /* draw functions*/
 void drawtext(int x, int y, char_t *str, STRING_IDX length);
