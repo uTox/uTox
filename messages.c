@@ -1035,9 +1035,9 @@ void message_add(MESSAGES *m, MESSAGE *msg, MSG_DATA *p)
 _Bool messages_char(uint32_t ch)
 {
     MESSAGES *m;
-    if(sitem->item == ITEM_FRIEND) {
+    if(selected_item->item == ITEM_FRIEND) {
         m = &messages_friend;
-    } else if(sitem->item == ITEM_GROUP) {
+    } else if(selected_item->item == ITEM_GROUP) {
         m = &messages_group;
     } else {
         return 0;

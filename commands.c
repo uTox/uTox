@@ -40,8 +40,8 @@ STRING_IDX utox_run_command(char_t *string, STRING_IDX string_length, char_t **c
 
     /* Start accepting actions */
     if ((cmd_length == 5) && (memcmp(*cmd, "alias", 5) == 0) && *argument ) {
-        if(sitem->item == ITEM_FRIEND) {
-            FRIEND *f = sitem->data;
+        if(selected_item->item == ITEM_FRIEND) {
+            FRIEND *f = selected_item->data;
             friend_set_alias(f, *argument, argument_length);
             cmd_length = -1; /* We'll take care of this, don't return to edit */
         }

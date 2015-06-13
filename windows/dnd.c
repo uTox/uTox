@@ -60,7 +60,7 @@ HRESULT __stdcall dnd_Drop(IDropTarget *lpMyObj, IDataObject * pDataObject, DWOR
     *pdwEffect = DROPEFFECT_COPY;
     debug("droppped!\n");
 
-    if(sitem->item != ITEM_FRIEND) {
+    if(selected_item->item != ITEM_FRIEND) {
         return S_OK;
     }
 
@@ -87,7 +87,7 @@ HRESULT __stdcall dnd_Drop(IDropTarget *lpMyObj, IDataObject * pDataObject, DWOR
                 *p++ = '\n';
             }
 
-            tox_postmessage(TOX_SEND_NEW_FILE, (FRIEND*)sitem->data - friend, 0xFFFF, paths);
+            tox_postmessage(TOX_SEND_NEW_FILE, (FRIEND*)selected_item->data - friend, 0xFFFF, paths);
         }
 
         ReleaseStgMedium(&medium);

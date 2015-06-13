@@ -81,7 +81,7 @@ static void draw_user_badge(int UNUSED(x), int UNUSED(y), int UNUSED(width), int
 
 /* Header for friend chat window */
 static void draw_friend(int x, int y, int w, int height){
-    FRIEND *f = sitem->data;
+    FRIEND *f = selected_item->data;
 
     // draw avatar or default image
     if (friend_has_avatar(f)) {
@@ -109,7 +109,7 @@ static void draw_friend(int x, int y, int w, int height){
 }
 
 static void draw_group(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height)){
-    GROUPCHAT *g = sitem->data;
+    GROUPCHAT *g = selected_item->data;
 
     drawalpha(BM_GROUP, LIST_RIGHT + SCALE * 5, SCALE * 5, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_MAIN_TEXT);
 
@@ -165,7 +165,7 @@ static void draw_group(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(h
 
 /* Draw an invite to be a friend window */
 static void draw_friend_request(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height)){
-    FRIENDREQ *req = sitem->data;
+    FRIENDREQ *req = selected_item->data;
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);

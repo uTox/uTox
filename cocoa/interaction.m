@@ -695,7 +695,7 @@ int getbuf(char_t *ptr, size_t len, int value) {
     if (edit_active()) {
         // FIXME: asfasg
         ret = edit_copy(ptr, len);
-    } else if(sitem->item == ITEM_FRIEND) {
+    } else if(selected_item->item == ITEM_FRIEND) {
         ret = messages_selection(&messages_friend, ptr, len, value);
     } else {
         ret = messages_selection(&messages_group, ptr, len, value);
@@ -751,7 +751,7 @@ void paste(void) {
 
         if (owned_ptr) {
             memcpy(owned_ptr, CFDataGetBytePtr(dat), size);
-            friend_sendimage(sitem->data, i, CGImageGetWidth(img), CGImageGetHeight(img), (UTOX_PNG_IMAGE)owned_ptr, size);
+            friend_sendimage(selected_item->data, i, CGImageGetWidth(img), CGImageGetHeight(img), (UTOX_PNG_IMAGE)owned_ptr, size);
         } else {
             NSLog(@"ran out of memory, we will just do nothing and hope user doesn't notice because we're probably not the only process being screwy");
         }
@@ -874,7 +874,7 @@ void openfilesend(void) {
         for (NSURL *url in urls) {
             [s appendFormat:@"%@\n", url.path];
         }
-        tox_postmessage(TOX_SEND_NEW_FILE, (FRIEND*)sitem->data - friend, 0xFFFF, strdup(s.UTF8String));
+        tox_postmessage(TOX_SEND_NEW_FILE, (FRIEND*)selected_item->data - friend, 0xFFFF, strdup(s.UTF8String));
     }
 }
 

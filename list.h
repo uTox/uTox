@@ -19,7 +19,7 @@ typedef struct
     void *data;
 }ITEM;
 
-extern ITEM *sitem;
+extern ITEM *selected_item;
 ITEM *ritem;
 
 void list_start(void);

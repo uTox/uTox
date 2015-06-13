@@ -1445,8 +1445,8 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         break;
     }
 
-    #define updatefriend(fp) redraw();//list_draw(); if(sitem && fp == sitem->data) {ui_drawmain();}
-    #define updategroup(gp) redraw();//list_draw(); if(sitem && gp == sitem->data) {ui_drawmain();}
+    #define updatefriend(fp) redraw();
+    #define updategroup(gp) redraw();
 
     case FRIEND_NAME: {
         FRIEND *f = &friend[param1];
@@ -1726,7 +1726,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
 
         message_add(&messages_group, data, &g->msg);
 
-        if(sitem && g == sitem->data) {
+        if(selected_item && g == selected_item->data) {
             redraw();//ui_drawmain();
         }
 

@@ -222,8 +222,8 @@ _Bool doevent(XEvent event)
                 XDrawRectangle(display, RootWindow(display, screen), grabgc, grabx, graby, grabpx, grabpy);
                 XUngrabPointer(display, CurrentTime);
                 if(pointergrab == 1) {
-                    FRIEND *f = sitem->data;
-                    if(sitem->item == ITEM_FRIEND && f->online) {
+                    FRIEND *f = selected_item->data;
+                    if(selected_item->item == ITEM_FRIEND && f->online) {
                         XImage *img = XGetImage(display, RootWindow(display, screen), grabx, graby, grabpx, grabpy, XAllPlanes(), ZPixmap);
                         if(img) {
                             uint8_t *out;
@@ -351,10 +351,10 @@ _Bool doevent(XEvent event)
 
         if(ev->state & 4) {
             if(sym == 'c') {
-                if(sitem->item == ITEM_FRIEND) {
+                if(selected_item->item == ITEM_FRIEND) {
                     clipboard.len = messages_selection(&messages_friend, clipboard.data, sizeof(clipboard.data), 0);
                     setclipboard();
-                } else if(sitem->item == ITEM_GROUP) {
+                } else if(selected_item->item == ITEM_GROUP) {
                     clipboard.len = messages_selection(&messages_group, clipboard.data, sizeof(clipboard.data), 0);
                     setclipboard();
                 }
@@ -363,7 +363,7 @@ _Bool doevent(XEvent event)
         }
 
         if(sym == XK_Delete) {
-            list_deletesitem();
+            list_deleteselected_item();
         }
 
         break;
@@ -398,7 +398,7 @@ _Bool doevent(XEvent event)
         } else if(ev->property == XdndDATA) {
             char *path = malloc(len + 1);
             formaturilist(path, (char*)data, len);
-            tox_postmessage(TOX_SEND_NEW_FILE, (FRIEND*)sitem->data - friend, 0xFFFF, path);
+            tox_postmessage(TOX_SEND_NEW_FILE, (FRIEND*)selected_item->data - friend, 0xFFFF, path);
         } else if (type == XA_INCR) {
             if (pastebuf.data) {
                 /* already pasting something, give up on that */

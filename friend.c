@@ -125,7 +125,7 @@ void friend_addmessage_notify(FRIEND *f, char_t *data, STRING_IDX length)
 
     message_add(&messages_friend, msg, &f->msg);
 
-    if(sitem->data != f) {
+    if(selected_item->data != f) {
         f->notify = 1;
     }
 }
@@ -148,7 +148,7 @@ void friend_addmessage(FRIEND *f, void *data)
     }
     }
 
-    if(sitem->data != f) {
+    if(selected_item->data != f) {
         f->notify = 1;
     }
 }

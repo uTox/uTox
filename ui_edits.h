@@ -87,8 +87,8 @@ static void edit_msg_onenter(EDIT *edit)
         return;
     }
 
-    if(sitem->item == ITEM_FRIEND) {
-        FRIEND *f = sitem->data;
+    if(selected_item->item == ITEM_FRIEND) {
+        FRIEND *f = selected_item->data;
 
         if(!f->online) {
             return;
@@ -106,8 +106,8 @@ static void edit_msg_onenter(EDIT *edit)
         memcpy(d, text, length);
 
         tox_postmessage((action ? TOX_SENDACTION : TOX_SENDMESSAGE), (f - friend), length, d);
-    } else if(sitem->item == ITEM_GROUP) {
-        GROUPCHAT *g = sitem->data;
+    } else if(selected_item->item == ITEM_GROUP) {
+        GROUPCHAT *g = selected_item->data;
         if(topic){
             void *d = malloc(length);
             memcpy(d, text, length);
@@ -164,7 +164,7 @@ static uint8_t nick_completion_search(EDIT *edit, char_t *found_nick, int direct
     char_t *nick;
     _Bool found = 0;
     static char_t *dedup[65536];
-    GROUPCHAT *g = sitem->data;
+    GROUPCHAT *g = selected_item->data;
 
     peers = peers_deduplicate(dedup, g->peername, g->peers);
 
@@ -264,7 +264,7 @@ static void edit_msg_ontab(EDIT *edit)
     char_t *text = edit->data;
     STRING_IDX length = edit->length;
 
-    if (sitem->item == ITEM_GROUP) {
+    if (selected_item->item == ITEM_GROUP) {
         char_t nick[130];
         uint8_t nick_length;
 
@@ -275,7 +275,7 @@ static void edit_msg_ontab(EDIT *edit)
         if (!completion.active) {
             if ((length == 6 && !memcmp(text, "/topic", 6))
                     || (length == 7 && !memcmp(text, "/topic ", 7))) {
-                GROUPCHAT *g = sitem->data;
+                GROUPCHAT *g = selected_item->data;
 
                 text[6] = ' ';
                 memcpy(text + 7, g->name, g->name_length);
@@ -318,7 +318,7 @@ static void edit_msg_onshifttab(EDIT *edit)
 {
     char_t *text = edit->data;
 
-    if (sitem->item == ITEM_GROUP) {
+    if (selected_item->item == ITEM_GROUP) {
         char_t nick[130];
         uint8_t nick_length;
 
@@ -350,8 +350,8 @@ static void edit_msg_onlosefocus(EDIT *edit)
 
 static void edit_msg_onchange(EDIT *edit)
 {
-    if(sitem->item == ITEM_FRIEND) {
-        FRIEND *f = sitem->data;
+    if(selected_item->item == ITEM_FRIEND) {
+        FRIEND *f = selected_item->data;
 
         if(!f->online) {
             return;

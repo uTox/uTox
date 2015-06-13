@@ -6,16 +6,16 @@ extern _Bool unity_running;
 
 static ITEM item_add, item_settings, item_transfer;
 static ITEM item[1024], *mitem, *nitem;
-ITEM *sitem = &item_add;
+ITEM *selected_item = &item_add;
 static uint32_t itemcount, searchcount;
 
-static _Bool sitem_mousedown;
+static _Bool selected_item_mousedown;
 
-static int sitem_dy;
+static int selected_item_dy;
 
 static void drawitembox(ITEM *i, int y)
 {
-    if(sitem == i) {
+    if(selected_item == i) {
         drawrect(LIST_X + 1, y + 1, LIST_RIGHT + 1, y + ITEM_HEIGHT, COLOR_MAIN_BACKGROUND);
 
         //drawrectw(LIST_X + 5 * SCALE / 2, y + 5 * SCALE / 2, 40, 40, COLOR_LIST_BACKGROUND);
@@ -27,7 +27,7 @@ static void drawitembox(ITEM *i, int y)
 static void drawname(ITEM *i, int y, char_t *name, char_t *msg, STRING_IDX name_length, STRING_IDX msg_length, _Bool color_overide, uint32_t color)
 {
     if (!color_overide) {
-        color = (sitem == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT;
+        color = (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT;
     }
 
     setcolor(color);
@@ -35,7 +35,7 @@ static void drawname(ITEM *i, int y, char_t *name, char_t *msg, STRING_IDX name_
     drawtextwidth(LIST_NAME_X, LIST_RIGHT - LIST_NAME_X - SCALE * 16, y + LIST_NAME_Y, name, name_length);
 
     if (!color_overide) {
-        color = (sitem == i) ? COLOR_MAIN_SUBTEXT : COLOR_LIST_SUBTEXT;
+        color = (selected_item == i) ? COLOR_MAIN_SUBTEXT : COLOR_LIST_SUBTEXT;
     }
 
     setcolor(color);
@@ -54,7 +54,7 @@ static void drawitem(ITEM *i, int UNUSED(x), int y)
         if (friend_has_avatar(f)) {
             draw_avatar_image(f->avatar.image, LIST_AVATAR_X, y + LIST_AVATAR_Y, f->avatar.width, f->avatar.height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
         } else {
-            drawalpha(BM_CONTACT, LIST_AVATAR_X, y + LIST_AVATAR_Y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, (sitem == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
+            drawalpha(BM_CONTACT, LIST_AVATAR_X, y + LIST_AVATAR_Y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
         }
 
         if(f->alias){
@@ -74,7 +74,7 @@ static void drawitem(ITEM *i, int UNUSED(x), int y)
 
     case ITEM_GROUP: {
         GROUPCHAT *g = i->data;
-        drawalpha(BM_GROUP, LIST_AVATAR_X, y + LIST_AVATAR_Y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, (sitem == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
+        drawalpha(BM_GROUP, LIST_AVATAR_X, y + LIST_AVATAR_Y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
         _Bool color_overide = 0;
         uint32_t color = 0;
 
@@ -103,7 +103,7 @@ static void drawitem(ITEM *i, int UNUSED(x), int y)
         char_t name[TOX_FRIEND_ADDRESS_SIZE * 2];
         id_to_string(name, f->id);
 
-        drawalpha(BM_CONTACT, LIST_AVATAR_X, y + LIST_AVATAR_Y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, (sitem == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
+        drawalpha(BM_CONTACT, LIST_AVATAR_X, y + LIST_AVATAR_Y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
         drawname(i, y, name, f->msg, sizeof(name), f->length, 0, 0);
         break;
     }
@@ -151,15 +151,15 @@ static ITEM* item_hit(int mx, int my, int UNUSED(height))
 static void selectitem(ITEM *i)
 {
     // TODO!!
-    // panel_item[sitem->item - 1].disabled = 1;
+    // panel_item[selected_item->item - 1].disabled = 1;
     // panel_item[i->item - 1].disabled = 0;
 
     edit_resetfocus();
 
     // deselect old item
 
-    if(sitem->item == ITEM_FRIEND) {
-        FRIEND *f = sitem->data;
+    if(selected_item->item == ITEM_FRIEND) {
+        FRIEND *f = selected_item->data;
 
         free(f->typed);
         f->typed_length = edit_msg.length;
@@ -171,10 +171,12 @@ static void selectitem(ITEM *i)
         f->edit_history = edit_msg.history;
         f->edit_history_cur = edit_msg.history_cur;
         f->edit_history_length = edit_msg.history_length;
+
+        panel_friend_chat.disabled = 1;
     }
 
-    if(sitem->item == ITEM_GROUP) {
-        GROUPCHAT *g = sitem->data;
+    if(selected_item->item == ITEM_GROUP) {
+        GROUPCHAT *g = selected_item->data;
 
         free(g->typed);
         g->typed_length = edit_msg_group.length;
@@ -186,17 +188,19 @@ static void selectitem(ITEM *i)
         g->edit_history = edit_msg_group.history;
         g->edit_history_cur = edit_msg_group.history_cur;
         g->edit_history_length = edit_msg_group.history_length;
+
+        panel_group_chat.disabled = 1;
     }
 
-    if(sitem->item == ITEM_SETTINGS) {
+    if(selected_item->item == ITEM_SETTINGS) {
         button_settings.disabled = 0;
     }
 
-    if(sitem->item == ITEM_ADD) {
+    if(selected_item->item == ITEM_ADD) {
         button_add.disabled = 0;
     }
 
-    if(sitem->item == ITEM_TRANSFER) {
+    if(selected_item->item == ITEM_TRANSFER) {
         button_transfer.disabled = 0;
     }
 
@@ -265,7 +269,7 @@ static void selectitem(ITEM *i)
         button_transfer.disabled = 1;
     }
 
-    sitem = i;
+    selected_item = i;
 
     addfriend_status = 0;
 
@@ -282,7 +286,7 @@ void list_start(void)
 
     item_settings.item = ITEM_SETTINGS;
     item_transfer.item = ITEM_TRANSFER;
-    //sitem = &item_settings;
+    //selected_item = &item_settings;
 
     FRIEND *f = friend, *end = f + friends;
     while(f != end) {
@@ -309,8 +313,8 @@ void list_addfriend2(FRIEND *f, FRIENDREQ *req)
     uint32_t i = 0;
     while(i < itemcount) {
         if(item[i].data == req) {
-            if(&item[i] == sitem) {
-                // panel_item[sitem->item - 1].disabled = 1;
+            if(&item[i] == selected_item) {
+                // panel_item[selected_item->item - 1].disabled = 1;
                 // panel_item[ITEM_FRIEND - 1].disabled = 0;
 
                 messages_friend.data = &f->msg;
@@ -356,9 +360,9 @@ void list_draw(void *UNUSED(n), int UNUSED(x), int y, int UNUSED(width), int UNU
         f = i->data;
         if(i->item != ITEM_FRIEND ||
            ((!FILTER || f->online) && (!SEARCH || strstr_case((char*)f->name, (char*)search_data)))) {
-            if(i == sitem && (sitem_dy >= 5 || sitem_dy <= -5)) {
+            if(i == selected_item && (selected_item_dy >= 5 || selected_item_dy <= -5)) {
                 mi = i;
-                my = y + sitem_dy;
+                my = y + selected_item_dy;
             } else {
                 drawitem(i, LIST_X, y);
             }
@@ -387,7 +391,7 @@ static void deleteitem(ITEM *i)
 {
     ritem = NULL;
 
-    if(i == sitem) {
+    if(i == selected_item) {
         if(i == &item[itemcount] - 1) {
             if(i == item) {
                 selectitem(&item_add);
@@ -443,8 +447,8 @@ static void deleteitem(ITEM *i)
     int size = (&item[itemcount] - i) * sizeof(ITEM);
     memmove(i, i + 1, size);
 
-    if(i != sitem && sitem > i && sitem >= item && sitem < item + countof(item)) {
-        sitem--;
+    if(i != selected_item && selected_item > i && selected_item >= item && selected_item < item + countof(item)) {
+        selected_item--;
     }
 
     redraw();//list_draw();
@@ -452,8 +456,8 @@ static void deleteitem(ITEM *i)
 
 void list_deletesitem(void)
 {
-    if(sitem >= item && sitem < item + countof(item)) {
-        deleteitem(sitem);
+    if(selected_item >= item && selected_item < item + countof(item)) {
+        deleteitem(selected_item);
     }
 }
 
@@ -543,17 +547,17 @@ _Bool list_mmove(void *UNUSED(n), int UNUSED(x), int UNUSED(y), int UNUSED(width
         draw = 1;
     }
 
-    if(sitem_mousedown) {
-        sitem_dy += dy;
+    if(selected_item_mousedown) {
+        selected_item_dy += dy;
         nitem = NULL;
-        if(abs(sitem_dy) >= ITEM_HEIGHT / 2) {
+        if(abs(selected_item_dy) >= ITEM_HEIGHT / 2) {
             int d;
-            if(sitem_dy > 0) {
-                d = (sitem_dy + ITEM_HEIGHT / 2) / ITEM_HEIGHT;
+            if(selected_item_dy > 0) {
+                d = (selected_item_dy + ITEM_HEIGHT / 2) / ITEM_HEIGHT;
             } else {
-                d = (sitem_dy - ITEM_HEIGHT / 2) / ITEM_HEIGHT;
+                d = (selected_item_dy - ITEM_HEIGHT / 2) / ITEM_HEIGHT;
             }
-            int index = (sitem - item) + search_unset[sitem - item] + d;
+            int index = (selected_item - item) + search_unset[selected_item - item] + d;
             int offset = search_offset[index];
             if(offset != INT_MAX) {
                 index += offset;
@@ -576,12 +580,12 @@ _Bool list_mdown(void *UNUSED(n))
     _Bool draw = 0;
     tooltip_mdown(); /* may need to return on true */
     if(mitem) {
-        if(mitem != sitem) {
+        if(mitem != selected_item) {
             selectitem(mitem);
             draw = 1;
         }
 
-        sitem_mousedown = 1;
+        selected_item_mousedown = 1;
     }
 
     return draw;
@@ -610,7 +614,7 @@ static void contextmenu_list_onselect(uint8_t i)
 
     if (ritem->item == ITEM_GROUP && i == 0) {
         GROUPCHAT *g = ritem->data;
-        if(ritem != sitem) {
+        if(ritem != selected_item) {
             selectitem(ritem);
         }
 
@@ -668,21 +672,21 @@ _Bool list_mup(void *UNUSED(n))
 {
     _Bool draw = 0;
     tooltip_mup(); /* may need to return one true */
-    if(sitem_mousedown && abs(sitem_dy) >= 5) {
+    if(selected_item_mousedown && abs(selected_item_dy) >= 5) {
         if(nitem) {
-            if(sitem->item == ITEM_FRIEND) {
+            if(selected_item->item == ITEM_FRIEND) {
                 if(nitem->item == ITEM_FRIEND) {
                     ITEM temp;
 
-                    temp = *sitem;
-                    *sitem = *nitem;
+                    temp = *selected_item;
+                    *selected_item = *nitem;
                     *nitem = temp;
 
-                    sitem = nitem;
+                    selected_item = nitem;
                 }
 
                 if(nitem->item == ITEM_GROUP) {
-                    FRIEND *f = sitem->data;
+                    FRIEND *f = selected_item->data;
                     GROUPCHAT *g = nitem->data;
 
                     if(f->online) {
@@ -692,15 +696,15 @@ _Bool list_mup(void *UNUSED(n))
 
             }
 
-            if(sitem->item == ITEM_GROUP) {
+            if(selected_item->item == ITEM_GROUP) {
                 if(nitem->item == ITEM_FRIEND || nitem->item == ITEM_GROUP) {
                     ITEM temp;
 
-                    temp = *sitem;
-                    *sitem = *nitem;
+                    temp = *selected_item;
+                    *selected_item = *nitem;
                     *nitem = temp;
 
-                    sitem = nitem;
+                    selected_item = nitem;
                 }
             }
 
@@ -711,8 +715,8 @@ _Bool list_mup(void *UNUSED(n))
         draw = 1;
     }
 
-    sitem_mousedown = 0;
-    sitem_dy = 0;
+    selected_item_mousedown = 0;
+    selected_item_dy = 0;
 
     return draw;
 }

@@ -551,7 +551,7 @@ void copy(int value)
     int len;
     if(edit_active()) {
         len = edit_copy(clipboard.data, sizeof(clipboard.data));
-    } else if(sitem->item == ITEM_FRIEND) {
+    } else if(selected_item->item == ITEM_FRIEND) {
         len = messages_selection(&messages_friend, clipboard.data, sizeof(clipboard.data), value);
     } else {
         len = messages_selection(&messages_group, clipboard.data, sizeof(clipboard.data), value);
@@ -660,12 +660,12 @@ static void pastedata(void *data, Atom type, int len, _Bool select)
 
             UTOX_PNG_IMAGE png_image = malloc(size);
             memcpy(png_image, data, size);
-            friend_sendimage((FRIEND*)sitem->data, native_image, width, height, png_image, size);
+            friend_sendimage((FRIEND*)selected_item->data, native_image, width, height, png_image, size);
         }
     } else if (type == XA_URI_LIST) {
         char *path = malloc(len + 1);
         formaturilist(path, (char*) data, len);
-        tox_postmessage(TOX_SEND_NEW_FILE, (FRIEND*)sitem->data - friend, 0xFFFF, path);
+        tox_postmessage(TOX_SEND_NEW_FILE, (FRIEND*)selected_item->data - friend, 0xFFFF, path);
     } else if(type == XA_UTF8_STRING && edit_active()) {
         edit_paste(data, len, select);
     }

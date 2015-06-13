@@ -382,7 +382,7 @@ void openfilesend(void)
     };
 
     if(GetOpenFileName(&ofn)) {
-        tox_postmessage(TOX_SEND_NEW_FILE, (FRIEND*)sitem->data - friend, ofn.nFileOffset, filepath);
+        tox_postmessage(TOX_SEND_NEW_FILE, (FRIEND*)selected_item->data - friend, ofn.nFileOffset, filepath);
     } else {
         debug("GetOpenFileName() failed\n");
     }
@@ -682,7 +682,7 @@ static void sendbitmap(HDC mem, HBITMAP hbm, int width, int height)
     free(bits);
 
     UTOX_NATIVE_IMAGE *image = create_utox_image(hbm, 0, width, height);
-    friend_sendimage(sitem->data, image, width, height, (UTOX_PNG_IMAGE)out, size);
+    friend_sendimage(selected_item->data, image, width, height, (UTOX_PNG_IMAGE)out, size);
 }
 
 void copy(int value)
@@ -693,9 +693,9 @@ void copy(int value)
     if(edit_active()) {
         len = edit_copy(data, 32767);
         data[len] = 0;
-    } else if(sitem->item == ITEM_FRIEND) {
+    } else if(selected_item->item == ITEM_FRIEND) {
         len = messages_selection(&messages_friend, data, 32768, value);
-    } else if(sitem->item == ITEM_GROUP) {
+    } else if(selected_item->item == ITEM_GROUP) {
         len = messages_selection(&messages_group, data, 32768, value);
     } else {
         return;
@@ -717,7 +717,7 @@ void paste(void)
     HANDLE h = GetClipboardData(CF_UNICODETEXT);
     if(!h) {
         h = GetClipboardData(CF_BITMAP);
-        if(h && sitem->item == ITEM_FRIEND) {
+        if(h && selected_item->item == ITEM_FRIEND) {
             HBITMAP copy;
             BITMAP bm;
             HDC tempdc;
@@ -1057,8 +1057,8 @@ LRESULT CALLBACK GrabProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
             toxvideo_postmessage(VIDEO_SET, 0, 0, (void*)1);
             DestroyWindow(window);
         } else {
-            FRIEND *f = sitem->data;
-            if(sitem->item == ITEM_FRIEND && f->online) {
+            FRIEND *f = selected_item->data;
+            if(selected_item->item == ITEM_FRIEND && f->online) {
                 DestroyWindow(window);
                 HWND dwnd = GetDesktopWindow();
                 HDC ddc = GetDC(dwnd);
