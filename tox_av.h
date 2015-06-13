@@ -776,7 +776,7 @@ static void audio_thread(void *args)
                 #endif
 
                 /* If push to talk, we don't have to do anything */
-                if (!get_ptt()) {
+                if (!check_ptt_key()) {
                     voice = 0; //PTT is up, send nothing.
                 }
 

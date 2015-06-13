@@ -287,8 +287,8 @@ void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data) {
     });
 }
 
-_Bool get_ptt(void){
-    return 1; // @stal888 this is you job mate
+_Bool check_ptt_key(void){
+    return 1; // @stal888 this is your job mate, good luck!
 }
 
 void redraw(void) {

@@ -266,8 +266,8 @@ _Bool doevent(XEvent event)
     }
 
     case KeyRelease: {
-        XKeyEvent *ev = &event.xkey;
-        KeySym sym = XLookupKeysym(ev, 0);
+        // XKeyEvent *ev = &event.xkey;
+        // KeySym sym = XLookupKeysym(ev, 0);
         break;
     }
     case KeyPress: {

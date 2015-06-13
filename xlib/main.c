@@ -186,7 +186,7 @@ void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data)
 
 
 #include <linux/input.h>
-_Bool get_ptt(void){
+_Bool check_ptt_key(void){
     if (!push_to_talk) {
         // debug("PTT is disabled\n");
         return 1; /* If push to talk is disabled, return true. */

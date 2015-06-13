@@ -64,7 +64,7 @@ void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data)
     write(pipefd[1], &piping, sizeof(PIPING));
 }
 
-_Bool get_ptt(void){
+_Bool check_ptt_key(void){
     return 1;
 }
 
