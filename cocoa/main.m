@@ -287,9 +287,13 @@ void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data) {
     });
 }
 
+void init_ptt(void){ push_to_talk = 0; /* OSX is unsupported */ }
+
 _Bool check_ptt_key(void){
     return 1; // @stal888 this is your job mate, good luck!
 }
+
+void exit_ptt(void){ push_to_talk = 0; /* OSX is unsupported */ }
 
 void redraw(void) {
     uToxAppDelegate *ad = (uToxAppDelegate *)[NSApp delegate];

@@ -47,6 +47,8 @@ void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data)
     PostMessage(hwnd, WM_TOX + (msg), ((param1) << 16) | (param2), (LPARAM)data);
 }
 
+void init_ptt(void){ push_to_talk = 1; }
+
 _Bool check_ptt_key(void){
     if (!push_to_talk) {
         // debug("PTT is disabled\n");
@@ -61,6 +63,8 @@ _Bool check_ptt_key(void){
         return 0;
     }
 }
+
+void exit_ptt(void){ push_to_talk = 0; }
 
 void drawalpha(int bm, int x, int y, int width, int height, uint32_t color)
 {
