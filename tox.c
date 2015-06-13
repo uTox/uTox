@@ -220,7 +220,7 @@ void log_read(Tox *tox, int fid)
 
         m->data[m->n++] = msg;
 
-        debug("loaded backlog: %d: %.*s\n", fid, msg->length, msg->msg);
+        // debug("loaded backlog: %d: %.*s\n", fid, msg->length, msg->msg);
     }
 
     fclose(file);
