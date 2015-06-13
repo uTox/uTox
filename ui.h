@@ -120,7 +120,9 @@ uint8_t SCALE;
 #define LIST_Y2 (43 * SCALE)
 #define LIST_BOTTOM (-18 * SCALE)
 
-#define Y_SIDEBAR_RIGHT (111 * SCALE)
+#define X_SIDEBAR_RIGHT (111 * SCALE)
+
+#define X_MAIN_LEFT ((111 * SCALE) + 1)
 
 #define X_ROSTER_LEFT (8 * SCALE)
 #define Y_ROSTER_TOP (43 * SCALE)

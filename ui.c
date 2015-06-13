@@ -439,9 +439,9 @@ PANEL panel_root,
                 panel_group_chat,
                 panel_friend_chat,
                 panel_friend_request,
-            panel_overhead_master,
+            panel_overhead,
                 panel_add_friend,
-                panel_change_user,
+                panel_change_profile,
                 panel_settings_master,
                     panel_settings_subheader,
                     panel_settings_profile,
@@ -517,6 +517,8 @@ panel_main = {
     .type = PANEL_NONE,
     .disabled = 0,
     .child = (PANEL*[]) {
+        (void*)&panel_chat,
+        (void*)&panel_overhead,
         NULL
     }
 },
@@ -569,10 +571,13 @@ panel_main = {
         },
 
     /* Settings master panel, holds the lower level settings */
-    panel_overhead_master = {
+    panel_overhead = {
         .type = PANEL_NONE,
-        .disabled = 1,
+        .disabled = 0,
         .child = (PANEL*[]) {
+            (void*)&panel_add_friend,
+            (void*)&panel_change_profile,
+            (void*)&panel_settings_master,
             NULL
         }
     },
@@ -588,7 +593,7 @@ panel_main = {
             }
         },
 
-        panel_change_user = {
+        panel_change_profile = {
             .type = PANEL_NONE,
             .disabled = 1,
             //.drawfunc = draw_change_user,
@@ -707,7 +712,9 @@ void ui_scale(uint8_t scale)
     list_scale();
 
     /* DEFAULT positions */
-        panel_side_bar.width = Y_SIDEBAR_RIGHT;
+        panel_side_bar.x = 0;
+        panel_side_bar.y = 0;
+        panel_side_bar.width = X_SIDEBAR_RIGHT;
 
         scrollbar_roster.panel.y = LIST_Y2;
         scrollbar_roster.panel.width = LIST_RIGHT + 1;
@@ -718,14 +725,17 @@ void ui_scale(uint8_t scale)
         panel_roster_list.width = LIST_RIGHT + 1;
         panel_roster_list.height = LIST_BOTTOM;
 
+        panel_main.x = X_MAIN_LEFT;
+        panel_main.y = 0;
+
         scrollbar_settings.panel.y = 16 * SCALE;
         scrollbar_settings.content_height = 150 * SCALE;
 
-        panel_settings_master.y = LIST_Y / 2;
-        panel_settings_profile.y   = 16 * SCALE;
-        panel_settings_net.y    = 16 * SCALE;
-        panel_settings_ui.y     = 16 * SCALE;
-        panel_settings_av.y     = 16 * SCALE;
+        panel_settings_master.y  = LIST_Y / 2;
+        panel_settings_profile.y = 16 * SCALE;
+        panel_settings_net.y     = 16 * SCALE;
+        panel_settings_ui.y      = 16 * SCALE;
+        panel_settings_av.y      = 16 * SCALE;
 
         scrollbar_friend.panel.y = LIST_Y;
         scrollbar_friend.panel.height = MESSAGES_BOTTOM;
