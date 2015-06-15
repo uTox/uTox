@@ -1221,7 +1221,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
                     user_datapath[MAX_PATH-1] = '\0';
                     if ((strlen(user_datapath) > 0) && (_access_s(user_datapath, 6) == 0)) {
                         user_defined_datapath = 1;
-                        debug("Using \"%s\" as data path\n");
+                        debug("Using \"%s\" as data path\n", user_datapath);
                     }
                 } else if((strlen(arglist[i]) == 10) && (argc > i+1)) {
                     ++i;
@@ -1231,10 +1231,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
                     user_datapath[MAX_PATH-1] = '\0';
                     if ((strlen(user_datapath) > 0) && (_access_s(user_datapath, 6) == 0)) {
                         user_defined_datapath = 1;
-                        debug("Using \"%s\" as data path\n");
+                        debug("Using \"%s\" as data path\n", user_datapath);
                     }
                 } else {
-                    debug("Ignoring \"--datapath\" argument\n");
+                    debug("Error processing \"--datapath\" argument\n");
+                    return 6;
                 }
             } else if(wcscmp(arglist[i], L"--theme") == 0){
                 debug("Searching for theme from argv\n");

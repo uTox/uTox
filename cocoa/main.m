@@ -108,7 +108,7 @@ int parse_argv(int argc, char const *argv[]) {
                     user_datapath[PATH_MAX-1] = '\0';
                     if ((strlen(user_datapath) > 0) && (access(user_datapath, R_OK|W_OK)) == 0) {
                         user_defined_datapath = 1;
-                        debug("Using \"%s\" as data path\n");
+                        debug("Using \"%s\" as data path\n", user_datapath);
                     }
                 } else if((strlen(argv[i]) == 10) && (argc > i+1)) {
                     i += 1;
@@ -116,10 +116,11 @@ int parse_argv(int argc, char const *argv[]) {
                     user_datapath[PATH_MAX-1] = '\0';
                     if ((strlen(user_datapath) > 0) && (access(user_datapath, R_OK|W_OK)) == 0) {
                         user_defined_datapath = 1;
-                        debug("Using \"%s\" as data path\n");
+                        debug("Using \"%s\" as data path\n", user_datapath);
                     }
                 } else {
-                    debug("Ignoring \"--datapath\" argument\n");
+                    debug("Error processing \"--datapath\" argument\n");
+                    exit(6);
                 }
             }
             if(!strcmp(argv[i], "--theme")) {
