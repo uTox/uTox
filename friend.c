@@ -78,8 +78,6 @@ void friend_sendimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width
     tox_postmessage(TOX_SEND_NEW_INLINE, f - friend, 0, tsim);
 }
 
-
-
 void friend_recvimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width, uint16_t height)
 {
     if(!UTOX_NATIVE_IMAGE_IS_VALID(native_image)) {
@@ -111,7 +109,6 @@ void friend_notify(FRIEND *f, char_t *str, STRING_IDX str_length, char_t *msg, S
     *p = 0;
 
     notify(title, len, msg, msg_length, f);
-
 }
 
 void friend_addmessage_notify(FRIEND *f, char_t *data, STRING_IDX length)

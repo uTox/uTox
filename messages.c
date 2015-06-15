@@ -896,7 +896,7 @@ static int msgheight(MESSAGE *msg, int width)
     switch(msg->msg_type) {
     case MSG_TYPE_TEXT:
     case MSG_TYPE_ACTION_TEXT: {
-        int theight = text_height(width - MESSAGES_X - TIME_WIDTH, font_small_lineheight, msg->msg, msg->length);
+        int theight = text_height(abs(width - MESSAGES_X - TIME_WIDTH), font_small_lineheight, msg->msg, msg->length);
         return (theight == 0) ? 0 : theight + MESSAGES_SPACING;
     }
 

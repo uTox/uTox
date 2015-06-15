@@ -58,6 +58,8 @@ enum
 };
 
 extern PANEL panel_root;
+extern PANEL panel_chat, panel_friend_chat, panel_group_chat;
+extern PANEL panel_overhead, panel_add_friend, panel_settings_master, panel_change_profile;
 extern MESSAGES messages_friend, messages_group;
 extern EDIT edit_name, edit_status, edit_add_id, edit_add_msg, edit_msg, edit_msg_group, edit_search, edit_proxy_ip, edit_proxy_port;
 extern SCROLLABLE scrollbar_roster;
@@ -113,6 +115,17 @@ char search_data[128];
  */
 uint8_t SCALE;
 
+/* These are the new defines to help align UI elements, the new ones start with either the x_/y_ prefix and the
+ * _top/_bottom/_left/_right post fix, and should be used to replace the originals whenever possible. If you're able to
+ * replace an original, please replace all occurrences, and delete the define. */
+#define X_SIDEBAR_RIGHT (111 * SCALE)
+
+#define X_MAIN_LEFT ((111 * SCALE) + 1)
+
+#define X_ROSTER_LEFT (8 * SCALE)
+#define Y_ROSTER_TOP (43 * SCALE)
+
+
 /* side */
 #define LIST_X (8 * SCALE)
 #define LIST_RIGHT (111 * SCALE)
@@ -120,12 +133,6 @@ uint8_t SCALE;
 #define LIST_Y2 (43 * SCALE)
 #define LIST_BOTTOM (-18 * SCALE)
 
-#define X_SIDEBAR_RIGHT (111 * SCALE)
-
-#define X_MAIN_LEFT ((111 * SCALE) + 1)
-
-#define X_ROSTER_LEFT (8 * SCALE)
-#define Y_ROSTER_TOP (43 * SCALE)
 
 #define LIST_NAME_X (37 * SCALE)
 #define LIST_NAME_Y (6 * SCALE)

@@ -528,6 +528,8 @@ panel_main = {
         .type = PANEL_NONE,
         .disabled = 1,
         .child = (PANEL*[]) {
+            (void*)&panel_group_chat,
+            (void*)&panel_friend_chat,
             NULL
         }
     },

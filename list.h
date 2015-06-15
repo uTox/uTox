@@ -1,6 +1,8 @@
 /* list: the contact list
  */
 
+
+/* non-exhaustive list of panels we to select from, it's probably better to replace this but I don't know with what. */
 enum
 {
     ITEM_NONE,

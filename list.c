@@ -4,14 +4,14 @@
 extern _Bool unity_running;
 #endif
 
-static ITEM item_add, item_settings, item_transfer;
-static ITEM item[1024], *mitem, *nitem;
+static ITEM item_add, item_settings, item_transfer; /* I think these are pointers to the panel's they're named after. */
+static ITEM item[1024], *mouseover_item, *nitem;
 ITEM *selected_item = &item_add;
 static uint32_t itemcount, searchcount;
 
 static _Bool selected_item_mousedown;
 
-static int selected_item_dy;
+static int selected_item_dy; // selected_item_delta-y??
 
 static void drawitembox(ITEM *i, int y)
 {
@@ -19,7 +19,7 @@ static void drawitembox(ITEM *i, int y)
         drawrect(LIST_X + 1, y + 1, LIST_RIGHT + 1, y + ITEM_HEIGHT, COLOR_MAIN_BACKGROUND);
 
         //drawrectw(LIST_X + 5 * SCALE / 2, y + 5 * SCALE / 2, 40, 40, COLOR_LIST_BACKGROUND);
-    } else if(mitem == i) {
+    } else if(mouseover_item == i) {
         drawrect(LIST_X + 1, y + 1, LIST_RIGHT, y + ITEM_HEIGHT, COLOR_LIST_HOVER_BACKGROUND);
     }
 }
@@ -148,17 +148,18 @@ static ITEM* item_hit(int mx, int my, int UNUSED(height))
     return i;
 }
 
-static void selectitem(ITEM *i)
-{
+
+// TODO move this out of here!
+static void show_page(ITEM *i){
     // TODO!!
     // panel_item[selected_item->item - 1].disabled = 1;
     // panel_item[i->item - 1].disabled = 0;
 
     edit_resetfocus();
 
-    // deselect old item
-
-    if(selected_item->item == ITEM_FRIEND) {
+    /* First things first, we need to deselect and store the old data. */
+    switch (selected_item->item){
+    case ITEM_FRIEND: {
         FRIEND *f = selected_item->data;
 
         free(f->typed);
@@ -172,10 +173,12 @@ static void selectitem(ITEM *i)
         f->edit_history_cur = edit_msg.history_cur;
         f->edit_history_length = edit_msg.history_length;
 
-        panel_friend_chat.disabled = 1;
-    }
 
-    if(selected_item->item == ITEM_GROUP) {
+        panel_chat.disabled        = 1;
+        panel_friend_chat.disabled = 1;
+        break;
+    }
+    case ITEM_GROUP: {
         GROUPCHAT *g = selected_item->data;
 
         free(g->typed);
@@ -189,28 +192,37 @@ static void selectitem(ITEM *i)
         g->edit_history_cur = edit_msg_group.history_cur;
         g->edit_history_length = edit_msg_group.history_length;
 
+        panel_chat.disabled       = 1;
         panel_group_chat.disabled = 1;
+        break;
+    }
+    case ITEM_SETTINGS: {
+        button_settings.disabled       = 0;
+        panel_settings_master.disabled = 1;
+        panel_overhead.disabled        = 1;
+        break;
+    }
+    case ITEM_ADD: {
+        button_add.disabled       = 0;
+        panel_add_friend.disabled = 1;
+        break;
     }
 
-    if(selected_item->item == ITEM_SETTINGS) {
-        button_settings.disabled = 0;
-    }
+    case ITEM_TRANSFER: {
+        button_transfer.disabled      = 0;
+        panel_change_profile.disabled = 1;
+        break;
+    } /* End of last case */
+    } /* End of switch    */
 
-    if(selected_item->item == ITEM_ADD) {
-        button_add.disabled = 0;
-    }
 
-    if(selected_item->item == ITEM_TRANSFER) {
-        button_transfer.disabled = 0;
-    }
-
-    // select new item
-
-    if(i->item == ITEM_FRIEND) {
+    /* Now we activate/select the new page, and load stored data */
+    switch (i->item) {
+    case ITEM_FRIEND: {
         FRIEND *f = i->data;
 
         #ifdef UNITY
-        if(unity_running) {
+        if (unity_running) {
             mm_rm_entry(f->cid);
         }
         #endif
@@ -233,9 +245,12 @@ static void selectitem(ITEM *i)
         edit_msg.history_cur = f->edit_history_cur;
         edit_msg.history_length = f->edit_history_length;
         edit_setfocus(&edit_msg);
-    }
 
-    if(i->item == ITEM_GROUP) {
+        panel_chat.disabled        = 0;
+        panel_friend_chat.disabled = 0;
+        break;
+    }
+    case ITEM_GROUP: {
         GROUPCHAT *g = i->data;
 
         memcpy(edit_msg_group.data, g->typed, g->typed_length);
@@ -254,26 +269,42 @@ static void selectitem(ITEM *i)
         edit_msg_group.history = g->edit_history;
         edit_msg_group.history_cur = g->edit_history_cur;
         edit_msg_group.history_length = g->edit_history_length;
-    }
 
-    if(i->item == ITEM_SETTINGS) {
-        button_settings.disabled = 1;
+        panel_chat.disabled       = 0;
+        panel_group_chat.disabled = 0;
+        break;
     }
+    case ITEM_SETTINGS: {
+        button_settings.disabled        = 1;
 
-    if(i->item == ITEM_ADD) {
-        button_add.disabled = 1;
+        panel_overhead.disabled         = 0;
+        panel_settings_master.disabled  = 0;
+        break;
+    }
+    case ITEM_ADD: {
+        button_add.disabled       = 1;
+
+        panel_overhead.disabled   = 0;
+        panel_add_friend.disabled = 0;
         edit_setfocus(&edit_add_id);
+        break;
     }
+    case ITEM_TRANSFER: {
+        button_transfer.disabled      = 1;
 
-    if(i->item == ITEM_TRANSFER) {
-        button_transfer.disabled = 1;
-    }
+        panel_overhead.disabled       = 0;
+        panel_change_profile.disabled = 0;
+        break;
+    } // Last case
+    } // Switch
 
     selected_item = i;
 
     addfriend_status = 0;
 
-    redraw();
+    // I think we shouldn't call this just here, redrawing should only be done when panel_draw is called, and now, we
+    // don't even need to call the root tree, we can call subtrees/roots and should be able to increase performance.
+    // redraw();
 }
 
 void list_start(void)
@@ -394,16 +425,16 @@ static void deleteitem(ITEM *i)
     if(i == selected_item) {
         if(i == &item[itemcount] - 1) {
             if(i == item) {
-                selectitem(&item_add);
+                show_page(&item_add);
             } else {
-                selectitem(i - 1);
+                show_page(i - 1);
             }
         } else {
-            selectitem(i + 1);
+            show_page(i + 1);
         }
     }
 
-    switch(i->item) {
+    switch (i->item) {
     case ITEM_FRIEND: {
         FRIEND *f = i->data;
         tox_postmessage(TOX_DELFRIEND, (f - friend), 0, f);
@@ -486,8 +517,7 @@ void list_freeall(void)
     }
 }
 
-static void selectchat_filtered(int index)
-{
+static void selectchat_filtered(int index){
     int i;
     for (i = 0; i < itemcount; ++i) {
         ITEM *it = &item[i];
@@ -498,21 +528,19 @@ static void selectchat_filtered(int index)
         }
 
         if (index == -1) {
-            selectitem(it);
+            show_page(it);
             break;
         }
     }
 }
 
-static void selectchat_notfiltered(int index)
-{
-    if (index < itemcount) {
-        selectitem(&item[index]);
+static void selectchat_notfiltered(int index){
+   if (index < itemcount) {
+        show_page(&item[index]);
     }
 }
 
-void list_selectchat(int index)
-{
+void list_selectchat(int index){
     if (FILTER || SEARCH) {
         selectchat_filtered(index);
     } else {
@@ -520,19 +548,16 @@ void list_selectchat(int index)
     }
 }
 
-void list_selectsettings(void)
-{
-    selectitem(&item_settings);
+void list_selectsettings(void){
+    show_page(&item_settings);
 }
 
-void list_selectaddfriend(void)
-{
-    selectitem(&item_add);
+void list_selectaddfriend(void){
+    show_page(&item_add);
 }
 
-void list_selectswap(void)
-{
-    selectitem(&item_transfer);
+void list_selectswap(void){
+    show_page(&item_transfer);
 }
 
 
@@ -542,8 +567,8 @@ _Bool list_mmove(void *UNUSED(n), int UNUSED(x), int UNUSED(y), int UNUSED(width
 
     _Bool draw = 0;
 
-    if(i != mitem) {
-        mitem = i;
+    if(i != mouseover_item) {
+        mouseover_item = i;
         draw = 1;
     }
 
@@ -579,9 +604,9 @@ _Bool list_mdown(void *UNUSED(n))
 {
     _Bool draw = 0;
     tooltip_mdown(); /* may need to return on true */
-    if(mitem) {
-        if(mitem != selected_item) {
-            selectitem(mitem);
+    if(mouseover_item) {
+        if(mouseover_item != selected_item) {
+            show_page(mouseover_item);
             draw = 1;
         }
 
@@ -591,8 +616,7 @@ _Bool list_mdown(void *UNUSED(n))
     return draw;
 }
 
-static void contextmenu_list_onselect(uint8_t i)
-{
+static void contextmenu_list_onselect(uint8_t i){
     if(ritem->item == ITEM_FRIEND_ADD && i == 0) {
         FRIENDREQ *req = ritem->data;
         tox_postmessage(TOX_ACCEPTFRIEND, 0, 0, req);
@@ -615,7 +639,7 @@ static void contextmenu_list_onselect(uint8_t i)
     if (ritem->item == ITEM_GROUP && i == 0) {
         GROUPCHAT *g = ritem->data;
         if(ritem != selected_item) {
-            selectitem(ritem);
+            show_page(ritem);
         }
 
         char str[g->name_length + 7];
@@ -637,12 +661,12 @@ _Bool list_mright(void *UNUSED(n))
     static UI_STRING_ID menu_group[] = {STR_CHANGE_GROUP_TOPIC, STR_REMOVE_GROUP};
     static UI_STRING_ID menu_request[] = {STR_REQ_ACCEPT, STR_REQ_DECLINE};
 
-    if(mitem) {
-        ritem = mitem;
-        if(mitem->item == ITEM_FRIEND) {
+    if(mouseover_item) {
+        ritem = mouseover_item;
+        if(mouseover_item->item == ITEM_FRIEND) {
             contextmenu_new(countof(menu_friend), menu_friend, contextmenu_list_onselect);
-        } else if(mitem->item == ITEM_GROUP) {
-            GROUPCHAT *g = mitem->data;
+        } else if(mouseover_item->item == ITEM_GROUP) {
+            GROUPCHAT *g = mouseover_item->data;
 
             if (g->type == TOX_GROUPCHAT_TYPE_AV) {
                 if (g->muted) {
@@ -657,7 +681,7 @@ _Bool list_mright(void *UNUSED(n))
             contextmenu_new(countof(menu_request), menu_request, contextmenu_list_onselect);
         }
         return 1;
-        //listpopup(mitem->item);
+        //listpopup(mouseover_item->item);
     }
 
     return 0;
@@ -721,11 +745,9 @@ _Bool list_mup(void *UNUSED(n))
     return draw;
 }
 
-_Bool list_mleave(void *UNUSED(n))
-{
-    if(mitem) {
-        mitem = NULL;
-
+_Bool list_mleave(void *UNUSED(n)){
+    if (mouseover_item) {
+        mouseover_item = NULL;
         return 1;
     }
 
