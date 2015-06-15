@@ -648,7 +648,7 @@ static void contextmenu_list_onselect(uint8_t i){
         strcpy(str, "/topic ");
         memcpy(str + 7, g->name, g->name_length);
         edit_setfocus(&edit_msg_group);
-        edit_paste(str, sizeof(str), 0);
+        edit_paste((char_t*)str, sizeof(str), 0);
         return;
     }
 

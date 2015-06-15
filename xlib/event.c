@@ -363,7 +363,7 @@ _Bool doevent(XEvent event)
         }
 
         if(sym == XK_Delete) {
-            list_deleteselected_item();
+            list_deletesitem();
         }
 
         break;

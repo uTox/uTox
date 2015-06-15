@@ -239,7 +239,7 @@ static void draw_settings_header(int UNUSED(x), int UNUSED(y), int UNUSED(width)
 
 /* draw switch profile top bar */
 /* Current TODO */
-static void draw_transfer(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height)){
+static void draw_change_profile(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height)){
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
     drawstr(LIST_RIGHT + SCALE * 5, SCALE * 10, SWITCHPROFILE);
@@ -598,7 +598,7 @@ panel_main = {
         panel_change_profile = {
             .type = PANEL_NONE,
             .disabled = 1,
-            //.drawfunc = draw_change_user,
+            .drawfunc = draw_change_profile,
             .child = (PANEL*[]) {
                 /* Does nothing for now... sorry about that */
                 NULL
