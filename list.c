@@ -312,12 +312,14 @@ void list_start(void)
     ITEM *i = item;
 
     item_add.item = ITEM_ADD;
-    button_add.disabled = 1;
-    edit_setfocus(&edit_add_id);
-
     item_settings.item = ITEM_SETTINGS;
     item_transfer.item = ITEM_TRANSFER;
-    //selected_item = &item_settings;
+
+
+    button_settings.disabled = 1;
+    selected_item = &item_settings;
+    // edit_setfocus(&edit_add_id);
+
 
     FRIEND *f = friend, *end = f + friends;
     while(f != end) {
