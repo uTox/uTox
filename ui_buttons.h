@@ -698,4 +698,8 @@ button_statusmsg = {
 button_status = {
     .nodraw = 1,
     .onpress = button_status_onpress,
+},
+
+button_move_window = {
+    .nodraw = 1,
 };

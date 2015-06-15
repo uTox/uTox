@@ -225,7 +225,7 @@ GROUPCHAT group[MAX_NUM_GROUPS];
 uint32_t friends, groups;
 
 //window
-int utox_window_width, utox_window_height, utox_window_baseline;
+int utox_window_x, utox_window_y, utox_window_width, utox_window_height, utox_window_baseline;
 _Bool utox_window_maximized;
 
 uint8_t cursor;

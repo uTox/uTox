@@ -1530,7 +1530,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
         }
         }
 
-        int w, h;
+        int x, y, w, h;
 
         w = GET_X_LPARAM(lParam);
         h = GET_Y_LPARAM(lParam);
@@ -1538,13 +1538,17 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
         if(w != 0) {
             RECT r;
             GetClientRect(hwn, &r);
+            x = r.left;
+            y = r.top;
             w = r.right;
             h = r.bottom;
 
+            utox_window_x = x;
+            utox_window_y = y;
             utox_window_width = w;
             utox_window_height = h;
 
-            debug("%u %u\n", w, h);
+            debug("x %u & y %u @ %ux%u\n", x, y, w, h);
 
             ui_scale(dropdown_dpi.selected + 1);
             ui_size(w, h);
