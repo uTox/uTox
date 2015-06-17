@@ -4,7 +4,7 @@
  *
  * TODO, make sure the file exists.
  */
-void slash_send_file(FRIEND *friend_handle, const uint8_t *filepath);
+int slash_send_file(FRIEND *friend_handle, const uint8_t *filepath);
 
 /** utox_run_command()
  *

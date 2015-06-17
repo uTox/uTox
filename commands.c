@@ -1,8 +1,10 @@
 #include "main.h"
 
-void slash_send_file(FRIEND *friend_handle, const uint8_t *filepath){
+int slash_send_file(FRIEND *friend_handle, const uint8_t *filepath){
     debug("Slash:\tFile path is: %s\n", filepath);
-    tox_postmessage(TOX_SEND_NEW_FILE_SLASH, friend_handle - friend, 0xFFFF, filepath);
+    // todo error check on the file
+        tox_postmessage(TOX_SEND_NEW_FILE_SLASH, friend_handle - friend, 0xFFFF, filepath);
+    return 1;
 }
 
 STRING_IDX utox_run_command(char_t *string, STRING_IDX string_length, char_t **cmd, char_t **argument, int trusted){
@@ -51,10 +53,13 @@ STRING_IDX utox_run_command(char_t *string, STRING_IDX string_length, char_t **c
             cmd_length = -1; /* We'll take care of this, don't return to edit */
         }
     } else if ((cmd_length == 8) && (memcmp(*cmd, "sendfile", 8) == 0)){
-        if(sitem->item == ITEM_FRIEND) {
-            FRIEND *f = sitem->data;
-            slash_send_file(f, *argument);
-            cmd_length = -1; /* We'll take care of this, don't return to edit */
+        if(selected_item->item == ITEM_FRIEND) {
+            FRIEND *f = selected_item->data;
+            if (slash_send_file(f, *argument)) {
+                cmd_length = -1; /* We'll take care of this, don't return to edit */
+            } else {
+                return 0;
+            }
         }
     } else {
         // debug("Command unsupported!\n");
