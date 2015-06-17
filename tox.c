@@ -27,6 +27,21 @@ static int log_file_name(uint8_t *dest, size_t size_dest, Tox *tox, int fid)
     return TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".txt");
 }
 
+/* Writes friend meta data filename for fid to dest. returns length written */
+static int friend_meta_data_file(uint8_t *dest, size_t size_dest, Tox *tox, int fid)
+{
+    if (size_dest < TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".fmetadata")){
+        return -1;
+    }
+
+    uint8_t client_id[TOX_PUBLIC_KEY_SIZE];
+    tox_friend_get_public_key(tox, fid, client_id, 0);
+    cid_to_string(dest, client_id); dest += TOX_PUBLIC_KEY_SIZE * 2;
+    memcpy((char*)dest, ".fmetadata", sizeof(".fmetadata"));
+
+    return TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".fmetadata");
+}
+
 enum {
   LOG_FILE_MSG_TYPE_TEXT = 0,
   LOG_FILE_MSG_TYPE_ACTION = 1,
@@ -205,10 +220,41 @@ void log_read(Tox *tox, int fid)
 
         m->data[m->n++] = msg;
 
-        debug("loaded backlog: %d: %.*s\n", fid, msg->length, msg->msg);
+        // debug("loaded backlog: %d: %.*s\n", fid, msg->length, msg->msg);
     }
 
     fclose(file);
+}
+
+void friend_meta_data_read(Tox *tox, int friend_id)
+{
+    /* Will need to be rewritten if anything is added to friend's meta data */
+    uint8_t path[UTOX_FILE_NAME_LENGTH], *p;
+    p = path + datapath(path);
+
+    int len = friend_meta_data_file(p, sizeof(path) - (p - path), tox, friend_id);
+    if (len == -1) {
+        debug("Error getting meta data file name for friend %d\n", friend_id);
+        return;
+    }
+
+    uint32_t size;
+    void *mdata = file_raw((char*)path, &size);
+    if (!mdata) {
+        debug("Meta Data not found (%s)\n", path);
+        return;
+    }
+    FRIEND_META_DATA *metadata = calloc(1, sizeof(*metadata));
+
+    if (size < sizeof(*metadata)) {
+        debug("Meta Data was incomplete\n");
+        return;
+    }
+
+    memcpy(metadata, mdata, sizeof(*metadata));
+    if (metadata->alias_length) {
+        friend_set_alias(&friend[friend_id], mdata + sizeof(size_t), metadata->alias_length);
+    }
 }
 
 static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, uint32_t param1, uint32_t param2, void *data);
@@ -388,6 +434,7 @@ static void tox_after_load(Tox *tox)
 
         log_read(tox, i);
 
+        friend_meta_data_read(tox, i);
         i++;
     }
 
@@ -524,10 +571,10 @@ static void utox_thread_work_for_typing_notifications(Tox *tox, uint64_t time)
 
 /** void tox_thread(void)
  *
- * Main tox function, starts a new toxcore for utox to use, and then spwans it's
+ * Main tox function, starts a new toxcore for utox to use, and then spawns its
  * threads.
  *
- * Accepts and retuns nothing.
+ * Accepts and returns nothing.
  */
 void tox_thread(void *UNUSED(args))
 {
@@ -603,7 +650,7 @@ void tox_thread(void *UNUSED(args))
         // Give toxcore the functions to call
         set_callbacks(tox);
 
-        // Connect to bootstraped nodes in "tox_bootstrap.h"
+        // Connect to bootstrapped nodes in "tox_bootstrap.h"
         do_bootstrap(tox);
 
         // Start the tox av session.
@@ -1220,7 +1267,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
          * data: resolved tox id (if successful)
          */
         if(param1) {
-            friend_addid(data, edit_addmsg.data, edit_addmsg.length);
+            friend_addid(data, edit_add_msg.data, edit_add_msg.length);
         } else {
             addfriend_status = ADDF_BADNAME;
         }
@@ -1337,8 +1384,8 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             addfriend_status = param2;
         } else {
             /* friend was added */
-            edit_addid.length = 0;
-            edit_addmsg.length = 0;
+            edit_add_id.length = 0;
+            edit_add_msg.length = 0;
 
             FRIEND *f = &friend[param2];
             friends++;
@@ -1398,8 +1445,8 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         break;
     }
 
-    #define updatefriend(fp) redraw();//list_draw(); if(sitem && fp == sitem->data) {ui_drawmain();}
-    #define updategroup(gp) redraw();//list_draw(); if(sitem && gp == sitem->data) {ui_drawmain();}
+    #define updatefriend(fp) redraw();
+    #define updategroup(gp) redraw();
 
     case FRIEND_NAME: {
         FRIEND *f = &friend[param1];
@@ -1679,7 +1726,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
 
         message_add(&messages_group, data, &g->msg);
 
-        if(sitem && g == sitem->data) {
+        if(selected_item && g == selected_item->data) {
             redraw();//ui_drawmain();
         }
 

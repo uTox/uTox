@@ -203,6 +203,7 @@ enum {
 #include "dropdown.h"
 #include "contextmenu.h"
 #include "tooltip.h"
+#include "commands.h"
 
 #include "text.h"
 #include "util.h"
@@ -372,7 +373,7 @@ void edit_will_deactivate(void);
 
 /** Creates a tray baloon popup with the message, and flashes the main window
  *
- * accepts: char_t *title, title legnth, char_t *msg, msg length;
+ * accepts: char_t *title, title length, char_t *msg, msg length;
  * returns void;
  */
 void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_length, FRIEND *f);

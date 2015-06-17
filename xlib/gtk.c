@@ -205,7 +205,7 @@ void gtk_openfilesend(void)
         return;
     }
     gtk_open = 1;
-    thread(gtk_opensendthread, (void*)(size_t)((FRIEND*)sitem->data - friend));
+    thread(gtk_opensendthread, (void*)(size_t)((FRIEND*)selected_item->data - friend));
 }
 
 void gtk_openfileavatar(void)

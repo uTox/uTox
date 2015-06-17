@@ -129,7 +129,7 @@ _Bool doevent(XEvent event)
         my = ev->y;
 
         cursor = CURSOR_NONE;
-        panel_mmove(&panel_main, 0, 0, utox_window_width, utox_window_height, ev->x, ev->y, dx, dy);
+        panel_mmove(&panel_root, 0, 0, utox_window_width, utox_window_height, ev->x, ev->y, dx, dy);
 
         XDefineCursor(display, window, cursors[cursor]);
 
@@ -143,8 +143,8 @@ _Bool doevent(XEvent event)
         XButtonEvent *ev = &event.xbutton;
         switch(ev->button) {
         case Button2: {
-            panel_mdown(&panel_main);
-            panel_mup(&panel_main);
+            panel_mdown(&panel_root);
+            panel_mup(&panel_root);
 
             pasteprimary();
             break;
@@ -162,11 +162,11 @@ _Bool doevent(XEvent event)
 
             //todo: better double/triple click detect
             static Time lastclick, lastclick2;
-            panel_mmove(&panel_main, 0, 0, utox_window_width, utox_window_height, ev->x, ev->y, 0, 0);
-            panel_mdown(&panel_main);
+            panel_mmove(&panel_root, 0, 0, utox_window_width, utox_window_height, ev->x, ev->y, 0, 0);
+            panel_mdown(&panel_root);
             if(ev->time - lastclick < 300) {
                 _Bool triclick = (ev->time - lastclick2 < 600);
-                panel_dclick(&panel_main, triclick);
+                panel_dclick(&panel_root, triclick);
                 if(triclick) {
                     lastclick = 0;
                 }
@@ -178,17 +178,17 @@ _Bool doevent(XEvent event)
         }
 
         case Button3: {
-            panel_mright(&panel_main);
+            panel_mright(&panel_root);
             break;
         }
 
         case Button4: {
-            panel_mwheel(&panel_main, 0, 0, utox_window_width, utox_window_height, 1.0);
+            panel_mwheel(&panel_root, 0, 0, utox_window_width, utox_window_height, 1.0);
             break;
         }
 
         case Button5: {
-            panel_mwheel(&panel_main, 0, 0, utox_window_width, utox_window_height, -1.0);
+            panel_mwheel(&panel_root, 0, 0, utox_window_width, utox_window_height, -1.0);
             break;
         }
 
@@ -222,8 +222,8 @@ _Bool doevent(XEvent event)
                 XDrawRectangle(display, RootWindow(display, screen), grabgc, grabx, graby, grabpx, grabpy);
                 XUngrabPointer(display, CurrentTime);
                 if(pointergrab == 1) {
-                    FRIEND *f = sitem->data;
-                    if(sitem->item == ITEM_FRIEND && f->online) {
+                    FRIEND *f = selected_item->data;
+                    if(selected_item->item == ITEM_FRIEND && f->online) {
                         XImage *img = XGetImage(display, RootWindow(display, screen), grabx, graby, grabpx, grabpy, XAllPlanes(), ZPixmap);
                         if(img) {
                             uint8_t *out;
@@ -254,7 +254,7 @@ _Bool doevent(XEvent event)
                 }
                 pointergrab = 0;
             } else {
-                panel_mup(&panel_main);
+                panel_mup(&panel_root);
                 mdown = 0;
             }
             break;
@@ -351,10 +351,10 @@ _Bool doevent(XEvent event)
 
         if(ev->state & 4) {
             if(sym == 'c') {
-                if(sitem->item == ITEM_FRIEND) {
+                if(selected_item->item == ITEM_FRIEND) {
                     clipboard.len = messages_selection(&messages_friend, clipboard.data, sizeof(clipboard.data), 0);
                     setclipboard();
-                } else if(sitem->item == ITEM_GROUP) {
+                } else if(selected_item->item == ITEM_GROUP) {
                     clipboard.len = messages_selection(&messages_group, clipboard.data, sizeof(clipboard.data), 0);
                     setclipboard();
                 }
@@ -398,7 +398,7 @@ _Bool doevent(XEvent event)
         } else if(ev->property == XdndDATA) {
             char *path = malloc(len + 1);
             formaturilist(path, (char*)data, len);
-            tox_postmessage(TOX_SEND_NEW_FILE, (FRIEND*)sitem->data - friend, 0xFFFF, path);
+            tox_postmessage(TOX_SEND_NEW_FILE, (FRIEND*)selected_item->data - friend, 0xFFFF, path);
         } else if (type == XA_INCR) {
             if (pastebuf.data) {
                 /* already pasting something, give up on that */

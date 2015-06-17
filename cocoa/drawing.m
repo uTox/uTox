@@ -54,7 +54,7 @@ static struct __global_d_state {
 - (void)drawRect:(NSRect)dirtyRect {
     [self becomeDrawTarget];
 
-    panel_draw(&panel_main, 0, 0, utox_window_width, utox_window_height);
+    panel_draw(&panel_root, 0, 0, utox_window_width, utox_window_height);
 
     [self resignAsDrawTarget];
 }
@@ -327,7 +327,7 @@ void reload_fonts(void) {
     fonts[FONT_MISC] = CTFontCreateWithNameAndOptions(bold, 10.0 * SCALE, NULL, kCTFontOptionsDefault);
 #undef SCALE
 #undef COCOA_BASE_FONT_NEW
-#undef COCOA_BASE_FONT_OLD 
+#undef COCOA_BASE_FONT_OLD
 
     font_small_lineheight = (CTFontGetBoundingBox(fonts[FONT_TEXT]).size.height - CTFontGetDescent(fonts[FONT_TEXT]));
     CFRelease(reg);
@@ -497,7 +497,7 @@ void pushclip(int x, int y, int width, int height) {
 
 void popclip(void) {
     DRAW_TARGET_CHK()
-    
+
     // will work fine as long as nobody does any other weirdness with gstate
     [NSGraphicsContext restoreGraphicsState];
 }

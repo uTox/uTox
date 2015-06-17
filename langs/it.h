@@ -206,13 +206,22 @@ msgid(DELETE)
 msgstr("Cancella")
 
 msgid(SELECTALL)
-msgstr("Seleziona Tutto")
+msgstr("Seleziona tutto")
 
 msgid(REMOVE)
 msgstr("Rimuovi")
 
+msgid(REMOVE_FRIEND)
+msgstr("Rimuovi contatto")
+
+msgid(REMOVE_GROUP)
+msgstr("Rimuovi gruppo")
+
 msgid(LEAVE)
 msgstr("Abbandona")
+
+msgid(LEAVE_GROUP)
+msgstr("Abbandona gruppo")
 
 msgid(CTOPIC)
 msgstr("Modifica titolo")

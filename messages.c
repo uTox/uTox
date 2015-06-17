@@ -96,7 +96,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
 
         // Draw the names for groups or friends
         if(m->type) {
-            // Group message authors are all the same colour
+            // Group message authors are all the same color
             setcolor(COLOR_MAIN_CHATTEXT);
             setfont(FONT_TEXT);
             drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, y, &msg->msg[msg->length] + 1, msg->msg[msg->length]);
@@ -896,7 +896,7 @@ static int msgheight(MESSAGE *msg, int width)
     switch(msg->msg_type) {
     case MSG_TYPE_TEXT:
     case MSG_TYPE_ACTION_TEXT: {
-        int theight = text_height(width - MESSAGES_X - TIME_WIDTH, font_small_lineheight, msg->msg, msg->length);
+        int theight = text_height(abs(width - MESSAGES_X - TIME_WIDTH), font_small_lineheight, msg->msg, msg->length);
         return (theight == 0) ? 0 : theight + MESSAGES_SPACING;
     }
 
@@ -973,7 +973,7 @@ void message_updateheight(MESSAGES *m, MESSAGE *msg, MSG_DATA *p)
 /** Appends a messages from self or firend to the message list;
  * will realloc or trim messages as needed;
  *
- * also handels auto scrolling selections with messages
+ * also handles auto scrolling selections with messages
  *
  * accepts: MESSAGES *pointer, MESSAGE *pointer, MSG_DATA *pointer
  */
@@ -984,7 +984,7 @@ void message_add(MESSAGES *m, MESSAGE *msg, MSG_DATA *p)
     time(&rawtime);
     ti = localtime(&rawtime);
 
-    // Set the time this message was recived by utox
+    // Set the time this message was received by utox
     msg->time = ti->tm_hour * 60 + ti->tm_min;
 
     if(p->n < MAX_BACKLOG_MESSAGES) {
@@ -1035,9 +1035,9 @@ void message_add(MESSAGES *m, MESSAGE *msg, MSG_DATA *p)
 _Bool messages_char(uint32_t ch)
 {
     MESSAGES *m;
-    if(sitem->item == ITEM_FRIEND) {
+    if(selected_item->item == ITEM_FRIEND) {
         m = &messages_friend;
-    } else if(sitem->item == ITEM_GROUP) {
+    } else if(selected_item->item == ITEM_GROUP) {
         m = &messages_group;
     } else {
         return 0;

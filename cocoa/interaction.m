@@ -85,9 +85,9 @@ static int find_ui_object_recursive(const PANEL *root, const PANEL *target, int 
 static CGRect find_ui_object_in_window(const PANEL *ui) {
     int *path = NULL;
     CGRect ret = CGRectZero;
-    int did_find = find_ui_object_recursive(&panel_main, ui, &path, 0);
+    int did_find = find_ui_object_recursive(&panel_root, ui, &path, 0);
 
-    PANEL *ui_element = &panel_main;
+    PANEL *ui_element = &panel_root;
     if (did_find) {
         int x = ui_element->x,
             y = ui_element->y,
@@ -200,7 +200,7 @@ static inline void select_right_to_char(char_t c) {
         int move = utf8_len(edit->data + end);
         end += move;
     }
-    
+
     edit_setselectedrange(loc, end - loc);
     redraw();
 }
@@ -218,45 +218,45 @@ static inline void select_right_to_char(char_t c) {
 
 - (void)mouseDown:(NSEvent *)theEvent {
     //NSLog(@"mouse down");
-    panel_mdown(&panel_main);
+    panel_mdown(&panel_root);
     int tclk = 0;
     switch (theEvent.clickCount) {
         case 3:
             tclk = 1;
         case 2:
-            panel_dclick(&panel_main, tclk);
+            panel_dclick(&panel_root, tclk);
         default:
             break;
     }
 }
 
 - (void)mouseUp:(NSEvent *)theEvent {
-    panel_mup(&panel_main);
+    panel_mup(&panel_root);
 }
 
 - (void)rightMouseDown:(NSEvent *)theEvent {
-    panel_mright(&panel_main);
+    panel_mright(&panel_root);
 }
 
 - (void)rightMouseUp:(NSEvent *)theEvent {
-    panel_mup(&panel_main);
+    panel_mup(&panel_root);
 }
 
 - (void)mouseMoved:(NSEvent *)theEvent {
     cursor = 0;
-    panel_mmove(&panel_main, 0, 0, utox_window_width, utox_window_height, theEvent.locationInWindow.x, self.frame.size.height - theEvent.locationInWindow.y, theEvent.deltaX, theEvent.deltaY);
+    panel_mmove(&panel_root, 0, 0, utox_window_width, utox_window_height, theEvent.locationInWindow.x, self.frame.size.height - theEvent.locationInWindow.y, theEvent.deltaX, theEvent.deltaY);
     [cursors[cursor] set];
 }
 
 - (void)mouseDragged:(NSEvent *)theEvent {
     cursor = 0;
-    panel_mmove(&panel_main, 0, 0, utox_window_width, utox_window_height, theEvent.locationInWindow.x, self.frame.size.height - theEvent.locationInWindow.y, theEvent.deltaX, theEvent.deltaY);
+    panel_mmove(&panel_root, 0, 0, utox_window_width, utox_window_height, theEvent.locationInWindow.x, self.frame.size.height - theEvent.locationInWindow.y, theEvent.deltaX, theEvent.deltaY);
     [cursors[cursor] set];
 }
 
 - (void)rightMouseDragged:(NSEvent *)theEvent {
     cursor = 0;
-    panel_mmove(&panel_main, 0, 0, utox_window_width, utox_window_height, theEvent.locationInWindow.x, self.frame.size.height - theEvent.locationInWindow.y, theEvent.deltaX, theEvent.deltaY);
+    panel_mmove(&panel_root, 0, 0, utox_window_width, utox_window_height, theEvent.locationInWindow.x, self.frame.size.height - theEvent.locationInWindow.y, theEvent.deltaX, theEvent.deltaY);
     [cursors[cursor] set];
 }
 
@@ -265,12 +265,12 @@ static inline void select_right_to_char(char_t c) {
 }
 
 - (void)mouseExited:(NSEvent *)theEvent {
-    panel_mleave(&panel_main);
+    panel_mleave(&panel_root);
     [NSCursor pop];
 }
 
 - (void)scrollWheel:(NSEvent *)theEvent {
-    panel_mwheel(&panel_main, 0, 0, utox_window_width, utox_window_height, theEvent.deltaY);
+    panel_mwheel(&panel_root, 0, 0, utox_window_width, utox_window_height, theEvent.deltaY);
 }
 
 - (void)updateTrackingAreas {
@@ -313,7 +313,7 @@ static inline void select_right_to_char(char_t c) {
 }
 
 - (void)insertText:(id)insertString {
-    BEEP_IF_EDIT_NOT_ACTIVE() 
+    BEEP_IF_EDIT_NOT_ACTIVE()
 
     if ([insertString isKindOfClass:NSAttributedString.class]) {
         insertString = [insertString string];
@@ -695,12 +695,12 @@ int getbuf(char_t *ptr, size_t len, int value) {
     if (edit_active()) {
         // FIXME: asfasg
         ret = edit_copy(ptr, len);
-    } else if(sitem->item == ITEM_FRIEND) {
+    } else if(selected_item->item == ITEM_FRIEND) {
         ret = messages_selection(&messages_friend, ptr, len, value);
     } else {
         ret = messages_selection(&messages_group, ptr, len, value);
     }
-    
+
     return ret;
 }
 
@@ -751,7 +751,7 @@ void paste(void) {
 
         if (owned_ptr) {
             memcpy(owned_ptr, CFDataGetBytePtr(dat), size);
-            friend_sendimage(sitem->data, i, CGImageGetWidth(img), CGImageGetHeight(img), (UTOX_PNG_IMAGE)owned_ptr, size);
+            friend_sendimage(selected_item->data, i, CGImageGetWidth(img), CGImageGetHeight(img), (UTOX_PNG_IMAGE)owned_ptr, size);
         } else {
             NSLog(@"ran out of memory, we will just do nothing and hope user doesn't notice because we're probably not the only process being screwy");
         }
@@ -874,7 +874,7 @@ void openfilesend(void) {
         for (NSURL *url in urls) {
             [s appendFormat:@"%@\n", url.path];
         }
-        tox_postmessage(TOX_SEND_NEW_FILE, (FRIEND*)sitem->data - friend, 0xFFFF, strdup(s.UTF8String));
+        tox_postmessage(TOX_SEND_NEW_FILE, (FRIEND*)selected_item->data - friend, 0xFFFF, strdup(s.UTF8String));
     }
 }
 

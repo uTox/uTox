@@ -5,7 +5,7 @@ static int active_x, active_y, active_width, active_height;
 
 #define index(b, i) (i == 0 ? b->selected : ((i > b->selected) ? i : i - 1))
 
-// Draw background recktangles for a dropdown
+// Draw background rectangles for a dropdown
 void dropdown_drawactive(void)
 {
     DROPDOWN *b = active;
@@ -13,7 +13,7 @@ void dropdown_drawactive(void)
         return;
     }
 
-    // load colours for this style
+    // load colors for this style
     uint32_t color_bg,
              color_border,
              color_aoptbg,
@@ -82,7 +82,7 @@ void dropdown_drawactive(void)
 void dropdown_draw(DROPDOWN *b, int x, int y, int width, int height)
 {
     if(!b->open) {
-        // load colours for this style
+        // load colors for this style
         uint32_t color_bg,
                  color_border,
                  color_border_h,

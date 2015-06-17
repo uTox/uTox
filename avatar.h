@@ -91,7 +91,7 @@ _Bool avatar_on_friend_online(Tox *tox, uint32_t friend_number);
  *
  * returns 0 if there were no errors sending the avatars to every online friend.
  * returns +1 for each friend we could not send to.
- * returns negitive if any avatar or friend was left in an unknown state.
+ * returns negative if any avatar or friend was left in an unknown state.
  */
 int utox_avatar_update_friends(Tox *tox);
 

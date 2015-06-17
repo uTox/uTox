@@ -53,49 +53,42 @@ static void edit_msg_onenter(EDIT *edit)
         return;
     }
 
-    STRING_IDX command_length = 0;
-    char_t *command = NULL;
+    STRING_IDX command_length = 0, argument_length = 0;
+    char_t *command = NULL, *argument = NULL;
 
-    STRING_IDX argument_length = 0;
-    char_t *argument = NULL;
 
-    if (text[0] == '/') {
-        unsigned int i;
-        for (i = 0; i < length; ++i) {
-            if (text[i] == ' ') {
-                command_length = i;
-                break;
-            }
-        }
+    command_length = utox_run_command(text, length, &command, &argument, 1);
 
-        ++i;
-        for (; i < length; ++i) {
-            if (text[i] != ' ') {
-                argument_length = length - i;
-                argument = text + i;
-                break;
-            }
-        }
-
-        if (command_length) {
-            --command_length;
-            command = text + 1;
-        }
+    if(command_length == 65535){
+        return;
     }
 
-    _Bool action = 0;
-    if ((command_length == 2) && (!memcmp(command, "me", 2))) {
-        if (!argument) {
-            return;
-        }
+    debug("cmd %u\n", command_length);
 
-        action = 1;
-        length = argument_length;
+    _Bool action = 0, topic = 0;
+    if(command_length){
+        length = length - command_length - 2; /* first / and then the SPACE */
         text = argument;
+        if((command_length == 2) && (!memcmp(command, "me", 2))) {
+            if(argument) {
+                action = 1;
+            } else {
+                return;
+            }
+        } else if(command_length == 5){
+            if(memcmp(command, "topic", 5) == 0){
+               topic = 1;
+            } /* Separated as a guide for commands that don't need a separate function */
+        }
     }
 
-    if(sitem->item == ITEM_FRIEND) {
-        FRIEND *f = sitem->data;
+
+    if(!text){
+        return;
+    }
+
+    if(selected_item->item == ITEM_FRIEND) {
+        FRIEND *f = selected_item->data;
 
         if(!f->online) {
             return;
@@ -113,14 +106,12 @@ static void edit_msg_onenter(EDIT *edit)
         memcpy(d, text, length);
 
         tox_postmessage((action ? TOX_SENDACTION : TOX_SENDMESSAGE), (f - friend), length, d);
-    } else {
-        GROUPCHAT *g = sitem->data;
-
-        if ((command_length == 5) && (!memcmp(command, "topic", 5))) {
-            void *d = malloc(argument_length);
-            memcpy(d, argument, argument_length);
-
-            tox_postmessage(TOX_GROUPCHANGETOPIC, (g - group), argument_length, d);
+    } else if(selected_item->item == ITEM_GROUP) {
+        GROUPCHAT *g = selected_item->data;
+        if(topic){
+            void *d = malloc(length);
+            memcpy(d, text, length);
+            tox_postmessage(TOX_GROUPCHANGETOPIC, (g - group), length, d);
         } else {
             void *d = malloc(length);
             memcpy(d, text, length);
@@ -173,7 +164,7 @@ static uint8_t nick_completion_search(EDIT *edit, char_t *found_nick, int direct
     char_t *nick;
     _Bool found = 0;
     static char_t *dedup[65536];
-    GROUPCHAT *g = sitem->data;
+    GROUPCHAT *g = selected_item->data;
 
     peers = peers_deduplicate(dedup, g->peername, g->peers);
 
@@ -273,7 +264,7 @@ static void edit_msg_ontab(EDIT *edit)
     char_t *text = edit->data;
     STRING_IDX length = edit->length;
 
-    if (sitem->item == ITEM_GROUP) {
+    if (selected_item->item == ITEM_GROUP) {
         char_t nick[130];
         uint8_t nick_length;
 
@@ -284,7 +275,7 @@ static void edit_msg_ontab(EDIT *edit)
         if (!completion.active) {
             if ((length == 6 && !memcmp(text, "/topic", 6))
                     || (length == 7 && !memcmp(text, "/topic ", 7))) {
-                GROUPCHAT *g = sitem->data;
+                GROUPCHAT *g = selected_item->data;
 
                 text[6] = ' ';
                 memcpy(text + 7, g->name, g->name_length);
@@ -327,7 +318,7 @@ static void edit_msg_onshifttab(EDIT *edit)
 {
     char_t *text = edit->data;
 
-    if (sitem->item == ITEM_GROUP) {
+    if (selected_item->item == ITEM_GROUP) {
         char_t nick[130];
         uint8_t nick_length;
 
@@ -359,8 +350,8 @@ static void edit_msg_onlosefocus(EDIT *edit)
 
 static void edit_msg_onchange(EDIT *edit)
 {
-    if(sitem->item == ITEM_FRIEND) {
-        FRIEND *f = sitem->data;
+    if(selected_item->item == ITEM_FRIEND) {
+        FRIEND *f = selected_item->data;
 
         if(!f->online) {
             return;
@@ -453,12 +444,12 @@ edit_status = {
     .onlosefocus = edit_status_onenter,
 },
 
-edit_addid = {
+edit_add_id = {
     .maxlength = sizeof(edit_addid_data),
     .data = edit_addid_data,
 },
 
-edit_addmsg = {
+edit_add_msg = {
     .multiline = 1,
     .scroll = &edit_addmsg_scroll,
     .maxlength = sizeof(edit_addmsg_data),

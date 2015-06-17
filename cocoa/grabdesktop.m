@@ -136,7 +136,7 @@ static void stardust_display_capping_done(_Bool video, uint64_t ret, NSWindow *w
             memcpy(owned_ptr, CFDataGetBytePtr(dat), size);
             CFRelease(dat);
 
-            friend_sendimage(sitem->data, img, CGImageGetWidth(inliness), CGImageGetHeight(inliness), (UTOX_PNG_IMAGE)owned_ptr, size);
+            friend_sendimage(selected_item->data, img, CGImageGetWidth(inliness), CGImageGetHeight(inliness), (UTOX_PNG_IMAGE)owned_ptr, size);
         } else {
             desktop_capture_from = screen_id;
             CGRect rect = [v getRect];

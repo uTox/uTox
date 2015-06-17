@@ -30,7 +30,7 @@ BLENDFUNCTION blend_function = {
 /** Translate a char* from UTF-8 encoding to OS native;
  *
  * Accepts char_t pointer, native array pointer, length of input;
- * Retuns: number of chars writen, or 0 on failure.
+ * Returns: number of chars writen, or 0 on failure.
  *
  */
 static int utf8tonative(char_t *str, wchar_t *out, int length){
@@ -64,7 +64,7 @@ void drawalpha(int bm, int x, int y, int width, int height, uint32_t color)
         }
     };
 
-    // create pointer to begining and end of the alpha-channel-only bitmap
+    // create pointer to beginning and end of the alpha-channel-only bitmap
     uint8_t *alpha_pixel = bitmap[bm], *end = alpha_pixel + width * height;
 
 
@@ -382,7 +382,7 @@ void openfilesend(void)
     };
 
     if(GetOpenFileName(&ofn)) {
-        tox_postmessage(TOX_SEND_NEW_FILE, (FRIEND*)sitem->data - friend, ofn.nFileOffset, filepath);
+        tox_postmessage(TOX_SEND_NEW_FILE, (FRIEND*)selected_item->data - friend, ofn.nFileOffset, filepath);
     } else {
         debug("GetOpenFileName() failed\n");
     }
@@ -553,8 +553,8 @@ static void parsecmd(uint8_t *cmd, int len)
     }
 
 
-    uint8_t *b = edit_addid.data, *a = cmd, *end = cmd + len;
-    uint16_t *l = &edit_addid.length;
+    uint8_t *b = edit_add_id.data, *a = cmd, *end = cmd + len;
+    uint16_t *l = &edit_add_id.length;
     *l = 0;
     while(a != end)
     {
@@ -582,12 +582,12 @@ static void parsecmd(uint8_t *cmd, int len)
             case '?':
             case '&':
             {
-                a++;
+                a++;        /* Anyone know what pin is used for? */
                 if(end - a >= 4 && memcmp(a, "pin=", 4) == 0)
                 {
 
-                    l = &edit_addid.length;
-                    b = edit_addid.data + *l;
+                    l = &edit_add_id.length;
+                    b = edit_add_id.data + *l;
                     *b++ = ':';
                     *l = *l + 1;
                     a += 3;
@@ -595,8 +595,8 @@ static void parsecmd(uint8_t *cmd, int len)
                 }
                 else if(end - a >= 8 && memcmp(a, "message=", 8) == 0)
                 {
-                    b = edit_addmsg.data;
-                    l = &edit_addmsg.length;
+                    b = edit_add_msg.data;
+                    l = &edit_add_msg.length;
                     *l = 0;
                     a += 7;
                     break;
@@ -682,7 +682,7 @@ static void sendbitmap(HDC mem, HBITMAP hbm, int width, int height)
     free(bits);
 
     UTOX_NATIVE_IMAGE *image = create_utox_image(hbm, 0, width, height);
-    friend_sendimage(sitem->data, image, width, height, (UTOX_PNG_IMAGE)out, size);
+    friend_sendimage(selected_item->data, image, width, height, (UTOX_PNG_IMAGE)out, size);
 }
 
 void copy(int value)
@@ -693,9 +693,9 @@ void copy(int value)
     if(edit_active()) {
         len = edit_copy(data, 32767);
         data[len] = 0;
-    } else if(sitem->item == ITEM_FRIEND) {
+    } else if(selected_item->item == ITEM_FRIEND) {
         len = messages_selection(&messages_friend, data, 32768, value);
-    } else if(sitem->item == ITEM_GROUP) {
+    } else if(selected_item->item == ITEM_GROUP) {
         len = messages_selection(&messages_group, data, 32768, value);
     } else {
         return;
@@ -717,7 +717,7 @@ void paste(void)
     HANDLE h = GetClipboardData(CF_UNICODETEXT);
     if(!h) {
         h = GetClipboardData(CF_BITMAP);
-        if(h && sitem->item == ITEM_FRIEND) {
+        if(h && selected_item->item == ITEM_FRIEND) {
             HBITMAP copy;
             BITMAP bm;
             HDC tempdc;
@@ -897,7 +897,7 @@ int file_unlock(FILE *file, uint64_t start, size_t length){
 
 /** Creates a tray baloon popup with the message, and flashes the main window
  *
- * accepts: char_t *title, title legnth, char_t *msg, msg length;
+ * accepts: char_t *title, title length, char_t *msg, msg length;
  * returns void;
  */
 void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_length, FRIEND *f){
@@ -933,7 +933,7 @@ void edit_will_deactivate(void)
 /* Redraws the main UI window */
 void redraw(void)
 {
-    panel_draw(&panel_main, 0, 0, utox_window_width, utox_window_height);
+    panel_draw(&panel_root, 0, 0, utox_window_width, utox_window_height);
 }
 
 /**
@@ -1057,8 +1057,8 @@ LRESULT CALLBACK GrabProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
             toxvideo_postmessage(VIDEO_SET, 0, 0, (void*)1);
             DestroyWindow(window);
         } else {
-            FRIEND *f = sitem->data;
-            if(sitem->item == ITEM_FRIEND && f->online) {
+            FRIEND *f = selected_item->data;
+            if(selected_item->item == ITEM_FRIEND && f->online) {
                 DestroyWindow(window);
                 HWND dwnd = GetDesktopWindow();
                 HDC ddc = GetDC(dwnd);
@@ -1151,7 +1151,7 @@ void config_osdefaults(UTOX_SAVE *r)
  *
  * Main thread
  * generates settings, loads settings from save file, generates main UI, starts
- * tox, generates tray icon, handels client messages. Cleans up, and exits.
+ * tox, generates tray icon, handles client messages. Cleans up, and exits.
  *
  * also handles call from other apps.
  */
@@ -1453,9 +1453,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     return 0;
 }
 
-/** Handels all callback requests from winmain();
+/** Handles all callback requests from winmain();
  *
- * handels the window functions internally, and ships off the tox calls to tox
+ * handles the window functions internally, and ships off the tox calls to tox
  */
 LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -1654,7 +1654,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     }
 
     case WM_MOUSEWHEEL: {
-        panel_mwheel(&panel_main, 0, 0, utox_window_width, utox_window_height, (double)((int16_t)HIWORD(wParam)) / (double)(WHEEL_DELTA));
+        panel_mwheel(&panel_root, 0, 0, utox_window_width, utox_window_height, (double)((int16_t)HIWORD(wParam)) / (double)(WHEEL_DELTA));
         return 0;
     }
 
@@ -1670,7 +1670,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
         my = y;
 
         cursor = 0;
-        panel_mmove(&panel_main, 0, 0, utox_window_width, utox_window_height, x, y, dx, dy);
+        panel_mmove(&panel_root, 0, 0, utox_window_width, utox_window_height, x, y, dx, dy);
 
         SetCursor(cursors[cursor]);
 
@@ -1690,15 +1690,15 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
         y = GET_Y_LPARAM(lParam);
 
         if(x != mx || y != my) {
-            panel_mmove(&panel_main, 0, 0, utox_window_width, utox_window_height, x, y, x - mx, y - my);
+            panel_mmove(&panel_root, 0, 0, utox_window_width, utox_window_height, x, y, x - mx, y - my);
             mx = x;
             my = y;
         }
 
         //double redraw>
-        panel_mdown(&panel_main);
+        panel_mdown(&panel_root);
         if(msg == WM_LBUTTONDBLCLK) {
-            panel_dclick(&panel_main, 0);
+            panel_dclick(&panel_root, 0);
         }
 
         SetCapture(hwn);
@@ -1707,7 +1707,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     }
 
     case WM_RBUTTONDOWN: {
-        panel_mright(&panel_main);
+        panel_mright(&panel_root);
         break;
     }
 
@@ -1722,7 +1722,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
 
     case WM_CAPTURECHANGED: {
         if (mdown) {
-            panel_mup(&panel_main);
+            panel_mup(&panel_root);
             mdown = 0;
         }
 

@@ -1,7 +1,6 @@
 #include "main.h"
 
-void friend_setname(FRIEND *f, char_t *name, STRING_IDX length)
-{
+void friend_setname(FRIEND *f, char_t *name, STRING_IDX length){
     if(f->name && (length != f->name_length || memcmp(f->name, name, length) != 0)) {
         MESSAGE *msg = malloc(sizeof(MESSAGE) + sizeof(" is now known as ") - 1 + f->name_length + length);
         msg->author = 0;
@@ -28,6 +27,37 @@ void friend_setname(FRIEND *f, char_t *name, STRING_IDX length)
     f->name[f->name_length] = 0;
 }
 
+void friend_set_alias(FRIEND *f, char_t *alias, STRING_IDX length){
+    debug("setting new alias\n");
+    if((length != f->alias_length || memcmp(f->alias, alias, length) != 0)) {
+        MESSAGE *msg = malloc(sizeof(MESSAGE) + sizeof("has a new alias of: ") - 1 + f->alias_length + length);
+        msg->author = 0;
+        msg->msg_type = MSG_TYPE_ACTION_TEXT;
+        msg->length = sizeof("has a new alias of: ") - 1 + f->alias_length + length;
+        char_t *p = msg->msg;
+        memcpy(p, f->alias, f->alias_length); p += f->alias_length;
+        memcpy(p, "has a new alias of: ", sizeof("has a new alias of: ") - 1); p += sizeof("has a new alias of: ") - 1;
+        memcpy(p, alias, length);
+
+        friend_addmessage(f, msg);
+        debug("New Alias set for friend %s\n", f->name);
+    }
+
+    free(f->alias);
+    if(length == 0) {
+        f->alias = NULL;
+        f->alias_length = 0;
+        f->metadata.alias_length = 0;
+    } else {
+        f->alias = malloc(length + 1);
+        memcpy(f->alias, alias, length);
+        f->alias_length = length;
+        f->metadata.alias_length = length;
+    }
+    f->alias[f->alias_length] = 0;
+    utox_write_metadata(f);
+}
+
 void friend_sendimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width, uint16_t height, UTOX_PNG_IMAGE png_image, size_t png_size)
 {
     MSG_IMG *msg = malloc(sizeof(MSG_IMG));
@@ -47,8 +77,6 @@ void friend_sendimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width
     tsim->image_size = png_size;
     tox_postmessage(TOX_SEND_NEW_INLINE, f - friend, 0, tsim);
 }
-
-
 
 void friend_recvimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width, uint16_t height)
 {
@@ -81,7 +109,6 @@ void friend_notify(FRIEND *f, char_t *str, STRING_IDX str_length, char_t *msg, S
     *p = 0;
 
     notify(title, len, msg, msg_length, f);
-
 }
 
 void friend_addmessage_notify(FRIEND *f, char_t *data, STRING_IDX length)
@@ -95,7 +122,7 @@ void friend_addmessage_notify(FRIEND *f, char_t *data, STRING_IDX length)
 
     message_add(&messages_friend, msg, &f->msg);
 
-    if(sitem->data != f) {
+    if(selected_item->data != f) {
         f->notify = 1;
     }
 }
@@ -118,7 +145,7 @@ void friend_addmessage(FRIEND *f, void *data)
     }
     }
 
-    if(sitem->data != f) {
+    if(selected_item->data != f) {
         f->notify = 1;
     }
 }
