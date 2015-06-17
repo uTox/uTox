@@ -547,8 +547,8 @@ static void android_main(struct android_app* state){
 
     while(!destroy) {
         if (p_down && (p_last_down + 500 * 1000 * 1000) < get_time()) {
-            panel_mup(&panel_main);
-            panel_mright(&panel_main);
+            panel_mup(&panel_root);
+            panel_mright(&panel_root);
             p_down = 0;
             already_up = 1;
         }
@@ -571,8 +571,8 @@ static void android_main(struct android_app* state){
                         case AMOTION_EVENT_ACTION_POINTER_DOWN: {
                             lx = x;
                             ly = y;
-                            panel_mmove(&panel_main, 0, 0, utox_window_width, utox_window_height, x, y, 0, 0);
-                            panel_mdown(&panel_main);
+                            panel_mmove(&panel_root, 0, 0, utox_window_width, utox_window_height, x, y, 0, 0);
+                            panel_mdown(&panel_root);
                             //pointer[pointer_index].down = true;
                             //pointer[pointer_index].x = x;
                             //pointer[pointer_index].y = y;
@@ -588,10 +588,10 @@ static void android_main(struct android_app* state){
 
                         case AMOTION_EVENT_ACTION_UP:
                         case AMOTION_EVENT_ACTION_POINTER_UP: {
-                            //panel_mmove(&panel_main, 0, 0, width, height, x, y, 0);
+                            //panel_mmove(&panel_root, 0, 0, width, height, x, y, 0);
                             if (!already_up) {
-                                panel_mup(&panel_main);
-                                panel_mleave(&panel_main);
+                                panel_mup(&panel_root);
+                                panel_mleave(&panel_root);
                             }
                             //pointer[pointer_index].down = false;
                             //pointer[pointer_index].x = x;
@@ -605,7 +605,7 @@ static void android_main(struct android_app* state){
                         }
 
                         case AMOTION_EVENT_ACTION_MOVE: {
-                            panel_mmove(&panel_main, 0, 0, utox_window_width, utox_window_height, x, y, x - lx, y - ly);
+                            panel_mmove(&panel_root, 0, 0, utox_window_width, utox_window_height, x, y, x - lx, y - ly);
                             if (lx != (int)x || ly != (int)y) {
                                 p_down = 0;
                                 lx = x;
@@ -741,7 +741,7 @@ static void android_main(struct android_app* state){
 
             if(_redraw) {
                 _redraw = 0;
-                panel_draw(&panel_main, 0, 0, utox_window_width, utox_window_height);
+                panel_draw(&panel_root, 0, 0, utox_window_width, utox_window_height);
             }
         }
 

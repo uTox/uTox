@@ -102,9 +102,9 @@ static void button_videopreview_update(BUTTON *b)
         button_setcolors_success(b);
 }
 
-static void button_addfriend_onpress(void)
+static void button_add_friend_onpress(void)
 {
-    friend_add(edit_addid_data, edit_addid.length, edit_addmsg.data, edit_addmsg.length);
+    friend_add(edit_add_id.data, edit_add_id.length, edit_add_msg.data, edit_add_msg.length);
     edit_resetfocus();
 }
 
@@ -128,39 +128,39 @@ static void button_settings_onpress(void)
     list_selectsettings();
 }
 
-extern PANEL panel_settings_utox, panel_settings_net, panel_settings_ui, panel_settings_av;
-extern SCROLLABLE scroll_settings;
-static void button_settings_sub_utox_onpress(void){
-    scroll_settings.content_height = 130 * SCALE;
+extern PANEL panel_settings_profile, panel_settings_net, panel_settings_ui, panel_settings_av;
+extern SCROLLABLE scrollbar_settings;
+static void button_settings_sub_profile_onpress(void){
+    scrollbar_settings.content_height = 130 * SCALE;
     list_selectsettings();
-    panel_settings_utox.disabled = 0;
+    panel_settings_profile.disabled = 0;
     panel_settings_net.disabled  = 1;
     panel_settings_ui.disabled   = 1;
     panel_settings_av.disabled   = 1;
 }
 
 static void button_settings_sub_net_onpress(void){
-    scroll_settings.content_height = 90 * SCALE;
+    scrollbar_settings.content_height = 90 * SCALE;
     list_selectsettings();
-    panel_settings_utox.disabled = 1;
+    panel_settings_profile.disabled = 1;
     panel_settings_net.disabled  = 0;
     panel_settings_ui.disabled   = 1;
     panel_settings_av.disabled   = 1;
 }
 
 static void button_settings_sub_ui_onpress(void){
-    scroll_settings.content_height = 140 * SCALE;
+    scrollbar_settings.content_height = 140 * SCALE;
     list_selectsettings();
-    panel_settings_utox.disabled = 1;
+    panel_settings_profile.disabled = 1;
     panel_settings_net.disabled  = 1;
     panel_settings_ui.disabled   = 0;
     panel_settings_av.disabled   = 1;
 }
 
 static void button_settings_sub_av_onpress(void){
-    scroll_settings.content_height = 150 * SCALE;
+    scrollbar_settings.content_height = 150 * SCALE;
     list_selectsettings();
-    panel_settings_utox.disabled = 1;
+    panel_settings_profile.disabled = 1;
     panel_settings_net.disabled  = 1;
     panel_settings_ui.disabled   = 1;
     panel_settings_av.disabled   = 0;
@@ -168,7 +168,7 @@ static void button_settings_sub_av_onpress(void){
 
 static void button_group_audio_onpress(void)
 {
-    GROUPCHAT *g = sitem->data;
+    GROUPCHAT *g = selected_item->data;
     if (g->audio_calling) {
         tox_postmessage(TOX_GROUP_AUDIO_END, (g - group), 0, NULL);
     } else {
@@ -178,7 +178,7 @@ static void button_group_audio_onpress(void)
 
 static void button_group_audio_update(BUTTON *b)
 {
-    GROUPCHAT *g = sitem->data;
+    GROUPCHAT *g = selected_item->data;
     if (g->type == TOX_GROUPCHAT_TYPE_AV) {
         b->disabled = 0;
         if (g->audio_calling)
@@ -193,7 +193,7 @@ static void button_group_audio_update(BUTTON *b)
 
 static void button_call_onpress(void)
 {
-    FRIEND *f = sitem->data;
+    FRIEND *f = selected_item->data;
 
     switch(f->calling) {
     case CALL_INVITED: {
@@ -227,7 +227,7 @@ static void button_call_onpress(void)
 
 static void button_call_update(BUTTON *b)
 {
-    FRIEND *f = sitem->data;
+    FRIEND *f = selected_item->data;
 
     switch(f->calling) {
     case CALL_INVITED: {
@@ -269,7 +269,7 @@ static void button_call_update(BUTTON *b)
 
 static void button_video_onpress(void)
 {
-    FRIEND *f = sitem->data;
+    FRIEND *f = selected_item->data;
 
     switch(f->calling) {
     case CALL_INVITED_VIDEO: {
@@ -309,7 +309,7 @@ static void button_video_onpress(void)
 
 static void button_video_update(BUTTON *b)
 {
-    FRIEND *f = sitem->data;
+    FRIEND *f = selected_item->data;
 
     switch(f->calling) {
     case CALL_INVITED_VIDEO: {
@@ -370,7 +370,7 @@ static void button_bottommenu_update(BUTTON *b)
 
 static void button_sendfile_onpress(void)
 {
-    FRIEND *f = sitem->data;
+    FRIEND *f = selected_item->data;
     if (f->online) {
         openfilesend();
     }
@@ -378,7 +378,7 @@ static void button_sendfile_onpress(void)
 
 static void button_sendfile_update(BUTTON *b)
 {
-    FRIEND *f = sitem->data;
+    FRIEND *f = selected_item->data;
     if (f->online) {
         b->disabled = 0;
         button_setcolors_success(b);
@@ -388,9 +388,9 @@ static void button_sendfile_update(BUTTON *b)
     }
 }
 
-static void button_acceptfriend_onpress(void)
+static void button_accept_friend_onpress(void)
 {
-    FRIENDREQ *req = sitem->data;
+    FRIENDREQ *req = selected_item->data;
     tox_postmessage(TOX_ACCEPTFRIEND, 0, 0, req);
 }
 
@@ -414,12 +414,12 @@ static void button_avatar_onright(void)
 }
 
 static void button_name_onpress(void){
-    button_settings_sub_utox_onpress();
+    button_settings_sub_profile_onpress();
     edit_setfocus(&edit_name);
 }
 
 static void button_statusmsg_onpress(void){
-    button_settings_sub_utox_onpress();
+    button_settings_sub_profile_onpress();
     edit_setfocus(&edit_status);
 }
 
@@ -442,7 +442,7 @@ static void button_status_onpress(void)
 /* top right chat message window button */
 static void button_chat1_onpress(void)
 {
-    FRIEND *f = sitem->data;
+    FRIEND *f = selected_item->data;
     if (f->online) {
         desktopgrab(0);
     }
@@ -450,7 +450,7 @@ static void button_chat1_onpress(void)
 
 static void button_chat1_update(BUTTON *b)
 {
-    FRIEND *f = sitem->data;
+    FRIEND *f = selected_item->data;
     if (f->online) {
         b->disabled = 0;
         button_setcolors_success(b);
@@ -466,8 +466,8 @@ static void button_chat2_onpress(void){
 
 /* Button to send chat message */
 static void button_chat_send_onpress(void){
-    if (sitem->item == ITEM_FRIEND) {
-        FRIEND *f = sitem->data;
+    if (selected_item->item == ITEM_FRIEND) {
+        FRIEND *f = selected_item->data;
         if (f->online) {
             // TODO clear the chat bar with a /slash command
             edit_msg_onenter(&edit_msg);
@@ -482,8 +482,8 @@ static void button_chat_send_onpress(void){
 }
 
 static void button_chat_send_update(BUTTON *b){
-    if (sitem->item == ITEM_FRIEND) {
-        FRIEND *f = sitem->data;
+    if (selected_item->item == ITEM_FRIEND) {
+        FRIEND *f = selected_item->data;
         if (f->online) {
             b->disabled = 0;
             button_setcolors_success(b);
@@ -498,9 +498,9 @@ static void button_chat_send_update(BUTTON *b){
 }
 
 
-BUTTON button_settings_sub_utox = {
+BUTTON button_settings_sub_profile = {
     .nodraw       = 1,
-    .onpress      = button_settings_sub_utox_onpress,
+    .onpress      = button_settings_sub_profile_onpress,
     .tooltip_text = { .i18nal = STR_UTOX_SETTINGS },
 },
 
@@ -576,11 +576,11 @@ button_change_id_type = {
 },
 #endif
 
-button_addfriend = {
+button_add_friend = {
     .bm = BM_SBUTTON,
     .button_text = { .i18nal = STR_BUTTON_ADD_FRIEND },
     .update = button_setcolors_success,
-    .onpress = button_addfriend_onpress,
+    .onpress = button_add_friend_onpress,
     .disabled = 0,
 },
 
@@ -620,11 +620,11 @@ button_sendfile = {
     .update = button_sendfile_update,
 },
 
-button_acceptfriend = {
+button_accept_friend = {
     .bm = BM_SBUTTON,
     .button_text = { .i18nal = STR_BUTTON_ACCEPT_FRIEND },
     .update = button_setcolors_success,
-    .onpress = button_acceptfriend_onpress,
+    .onpress = button_accept_friend_onpress,
 },
 
 button_callpreview = {
