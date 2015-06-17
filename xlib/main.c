@@ -1182,6 +1182,8 @@ int main(int argc, char *argv[])
     /* initialize fontconfig */
     initfonts();
 
+    setscale_fonts();
+
     /* Set the default font so we don't segfault on ui_scale() when it goes looking for fonts. */
     loadfonts();
     setfont(FONT_TEXT);

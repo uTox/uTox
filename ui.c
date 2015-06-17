@@ -722,6 +722,8 @@ void ui_scale(uint8_t scale)
 
     SCALE = scale;
 
+    setscale_fonts();
+
     list_scale();
 
     /* DEFAULT positions */
@@ -1002,7 +1004,7 @@ void ui_scale(uint8_t scale)
         button_statusmsg.panel = b_statusmsg;
         button_status.panel = b_status;
 
-        setfont(FONT_TEXT);         
+        setfont(FONT_TEXT);
 
     /* Drop down structs */
         PANEL d_notifications = {
