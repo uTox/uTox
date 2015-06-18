@@ -1366,7 +1366,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     /* needed if/when the uTox becomes a muTox */
     //wmemmove(title, title+1, wcslen(title));
 
-    hwnd = CreateWindowExW(0, classname, title, WS_OVERLAPPEDWINDOW, save->window_x, save->window_y, MAIN_WIDTH, MAIN_HEIGHT, NULL, NULL, hInstance, NULL);
+
+    hwnd = CreateWindowExW( WS_EX_APPWINDOW, classname, title,
+                            WS_POPUP | WS_VISIBLE,
+                            save->window_x, save->window_y, MAIN_WIDTH, MAIN_HEIGHT,
+                            NULL, NULL, hinstance, NULL);
+
+    // hwnd = CreateWindowExW(  0, classname, title, WS_OVERLAPPEDWINDOW, save->window_x, save->window_y,
+    //                          MAIN_WIDTH, MAIN_HEIGHT, NULL, NULL, hInstance, NULL);
 
     free(save);
 
