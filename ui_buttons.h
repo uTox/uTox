@@ -388,11 +388,11 @@ static void button_sendfile_update(BUTTON *b)
     }
 }
 
-static void button_accept_friend_onpress(void)
-{
+static void button_accept_friend_onpress(void){
     FRIENDREQ *req = selected_item->data;
     tox_postmessage(TOX_ACCEPTFRIEND, 0, 0, req);
-    list_reselect_current();
+    panel_friend_request.disabled = 1;
+    // list_reselect_current();
 }
 
 static void button_avatar_onpress(void)
