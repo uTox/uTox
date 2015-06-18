@@ -34,6 +34,7 @@ void list_deleteritem(void);
 
 void list_selectchat(int index);
 void list_selectaddfriend(void);
+void list_reselect_current(void);
 void list_selectsettings(void);
 void list_selectswap(void);
 

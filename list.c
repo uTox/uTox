@@ -174,8 +174,11 @@ static void show_page(ITEM *i){
         f->edit_history_length = edit_msg.history_length;
 
 
-        panel_chat.disabled        = 1;
         panel_friend_chat.disabled = 1;
+    }
+    case ITEM_FRIEND_ADD: {
+        panel_chat.disabled           = 1;
+        panel_friend_request.disabled = 1;
         break;
     }
     case ITEM_GROUP: {
@@ -218,6 +221,11 @@ static void show_page(ITEM *i){
 
     /* Now we activate/select the new page, and load stored data */
     switch (i->item) {
+    case ITEM_FRIEND_ADD: {
+        panel_chat.disabled           = 0;
+        panel_friend_request.disabled = 0;
+        break;
+    }
     case ITEM_FRIEND: {
         FRIEND *f = i->data;
 
@@ -548,6 +556,10 @@ void list_selectchat(int index){
     } else {
         selectchat_notfiltered(index);
     }
+}
+
+void list_reselect_current(void){
+    show_page(selected_item);
 }
 
 void list_selectsettings(void){

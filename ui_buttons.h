@@ -392,6 +392,7 @@ static void button_accept_friend_onpress(void)
 {
     FRIENDREQ *req = selected_item->data;
     tox_postmessage(TOX_ACCEPTFRIEND, 0, 0, req);
+    list_reselect_current();
 }
 
 static void button_avatar_onpress(void)

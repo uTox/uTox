@@ -58,7 +58,7 @@ enum
 };
 
 extern PANEL panel_root;
-extern PANEL panel_chat, panel_friend_chat, panel_group_chat;
+extern PANEL panel_chat, panel_friend_chat, panel_friend_request, panel_group_chat;
 extern PANEL panel_overhead, panel_add_friend, panel_settings_master, panel_change_profile;
 extern MESSAGES messages_friend, messages_group;
 extern EDIT edit_name, edit_status, edit_add_id, edit_add_msg, edit_msg, edit_msg_group, edit_search, edit_proxy_ip, edit_proxy_port;

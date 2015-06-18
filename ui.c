@@ -530,6 +530,7 @@ panel_main = {
         .child = (PANEL*[]) {
             (void*)&panel_group_chat,
             (void*)&panel_friend_chat,
+            (void*)&panel_friend_request,
             NULL
         }
     },
