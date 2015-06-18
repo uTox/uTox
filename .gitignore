@@ -2,6 +2,6 @@
 utox
 utox.exe
 bin/
-lib/
+libs/
 debug.keystore
 *.dll

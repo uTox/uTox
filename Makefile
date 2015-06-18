@@ -54,7 +54,7 @@ endif
 DESTDIR ?=
 PREFIX ?= /usr/local
 
-SRC = $(wildcard *.c png/png.c)
+SRC = $(wildcard src/*.c png/png.c)
 OBJ = $(SRC:.c=.o)
 GIT_V = $(shell git describe --abbrev=8 --dirty --always --tags)
 
@@ -106,7 +106,7 @@ install: utox
 	mkdir -p $(DESTDIR)$(PREFIX)/share/man/man1
 	install -m 644 utox.1 $(DESTDIR)$(PREFIX)/share/man/man1/utox.1
 
-main.o: xlib/main.c xlib/keysym2ucs.c
+main.o: src/xlib/main.c src/xlib/keysym2ucs.c
 
 .c.o:
 	@echo "  CC    $@"
