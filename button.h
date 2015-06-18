@@ -23,6 +23,7 @@ struct button {
 
     void (*onright)(void); // called when right mouse button goes down
     void (*onpress)(void);
+    void (*onpressdown)(void);
     void (*update)(BUTTON *b);
 };
 

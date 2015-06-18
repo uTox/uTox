@@ -4,11 +4,11 @@
 
 #include <windows.h>
 
-void os_window_interactions(int type, int delta_x, int delta_y){
-    debug("delta x == %i\n", delta_x);
-    debug("delta y == %i\n", delta_y);
-    utox_window_y += delta_y;
-    SetWindowPos(hwnd, 0, 0, utox_window_y, utox_window_width, utox_window_height, SWP_NOSIZE | SWP_NOZORDER | SWP_NOREDRAW);
+void os_window_interactions(int type, int x, int y){
+    // debug("delta x == %i\n", delta_x);
+    utox_window.x += x;
+    utox_window.y += y;
+    SetWindowPos(hwnd, 0, utox_window.x, utox_window.y, utox_window.w, utox_window.h, SWP_NOSIZE | SWP_NOZORDER | SWP_NOREDRAW);
 }
 
 void launch_at_startup(int is_launch_at_startup){

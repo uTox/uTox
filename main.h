@@ -225,6 +225,12 @@ GROUPCHAT group[MAX_NUM_GROUPS];
 uint32_t friends, groups;
 
 //window
+struct {
+    int x, y, w, h;
+} utox_window;
+
+
+/* deproceated, please replace with above! */
 int utox_window_x, utox_window_y, utox_window_width, utox_window_height, utox_window_baseline;
 _Bool utox_window_maximized;
 
@@ -234,6 +240,8 @@ _Bool mdown;
 
 struct {
     int x, y;
+    int start_x, start_y;
+    _Bool down;
 } mouse;
 
 //fonts

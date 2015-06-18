@@ -104,6 +104,9 @@ _Bool button_mdown(BUTTON *b)
 {
     if(!b->mousedown && b->mouseover) {
         b->mousedown = 1;
+        if (b->onpressdown){
+            b->onpressdown();
+        }
         return 1;
     }
 

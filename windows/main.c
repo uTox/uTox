@@ -9,6 +9,7 @@ _Bool draw = 0;
 float scale = 1.0;
 _Bool connected = 0;
 _Bool havefocus;
+_Bool moving_window_with_mouse = 0;
 
 
 BLENDFUNCTION blend_function = {
@@ -1673,6 +1674,10 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
         mx = x;
         my = y;
 
+        if (moving_window_with_mouse && mouse.down){
+            os_window_interactions(0, x - mouse.start_x, y - mouse.start_y);
+        }
+
         cursor = 0;
         panel_mmove(&panel_root, 0, 0, utox_window_width, utox_window_height, x, y, dx, dy);
 
@@ -1707,6 +1712,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
 
         SetCapture(hwn);
         mdown = 1;
+        mouse.down = 1;
         break;
     }
 
@@ -1720,6 +1726,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     }
 
     case WM_LBUTTONUP: {
+        moving_window_with_mouse = 0;
         ReleaseCapture();
         break;
     }
@@ -1728,6 +1735,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
         if (mdown) {
             panel_mup(&panel_root);
             mdown = 0;
+            mouse.down = 0;
         }
 
         break;

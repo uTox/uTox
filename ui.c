@@ -379,9 +379,10 @@ static _Bool background_mleave(PANEL *UNUSED(p)) { return 0; }
 
 
 static void mmove_window(BUTTON *b, int x, int y, int w, int h, int mx, int my, int dx, int dy){
-    if (b->mouseover && b->mousedown ){
+    if ( b->mouseover && b->mousedown ){
         if( dx || dy) {
-            os_window_interactions(1, dx, dy);
+            // debug("mm mouse dy = %i\n", dy);
+            // os_window_interactions(1, dx, dy > 0 ? 2 : dy < 0 ? -2 : 0 );
 
         }
     }
@@ -976,7 +977,6 @@ void ui_scale(uint8_t scale)
             .y = SELF_STATUS_Y,
             .width = 100 * SCALE,
             .height = 50 * SCALE,
-            .mmovefunc = mmove_window,
         };
 
     /* Set the button panels */
@@ -1432,9 +1432,6 @@ _Bool panel_mmove(PANEL *p, int x, int y, int width, int height, int mx, int my,
 
     _Bool draw = p->type ? mmovefunc[p->type - 1](p, x, y, width, height, mx, mmy, dx, dy) : 0;
 
-    if (p->mmovefunc) {
-        p->mmovefunc(p, x, y, width, height, mx, mmy, dx, dy);
-    }
     // Has to be called before children mmove
     if (p == &panel_root) {
         draw |= tooltip_mmove();

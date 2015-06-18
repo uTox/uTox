@@ -37,7 +37,6 @@ struct panel
     int x, y, width, height;
     SCROLLABLE *content_scroll;
     void (*drawfunc)(int, int, int, int);
-    void (*mmovefunc)(void*, int, int, int, int, int, int, int, int);
     PANEL **child;
 };
 
