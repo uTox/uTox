@@ -726,7 +726,7 @@ static void audio_thread(void *args)
             }
 
             case AUDIO_PLAY_MESSAGE_BEEP: {
-                if(!audible_notifications_enabled) {
+                if(!audible_notifications_enabled_messages) {
                     break;
                 }
 

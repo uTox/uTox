@@ -611,6 +611,7 @@ typedef struct
     uint8_t proxyenable;
     uint8_t logging_enabled : 1;
     uint8_t audible_notifications_enabled : 1;
+    uint8_t audible_notifications_enabled_messages: 1;
     uint8_t filter : 1;
     uint8_t audio_filtering_enabled : 1;
     uint8_t zero : 4;
@@ -671,6 +672,7 @@ UTOX_SAVE* config_load(void)
     save->start_in_tray = 0;
     save->auto_startup = 0;
     save->audible_notifications_enabled = 1;
+    save->audible_notifications_enabled_messages = 0;
     save->audio_filtering_enabled = 1;
     save->proxy_ip[0] = 0;
     save->filter = 0;
@@ -689,6 +691,7 @@ NEXT:
     dropdown_start_in_tray.selected = dropdown_start_in_tray.over = save->start_in_tray;
     dropdown_auto_startup.selected = dropdown_auto_startup.over = save->auto_startup;
     dropdown_audible_notification.selected = dropdown_audible_notification.over = save->audible_notifications_enabled;
+    dropdown_audible_notification_messages.selected = dropdown_audible_notification_messages.over = save->audible_notifications_enabled_messages;
     dropdown_audio_filtering.selected = dropdown_audio_filtering.over = save->audio_filtering_enabled;
     dropdown_filter.selected = FILTER = save->filter;
     //dropdown_theme_onselect.selected = dropdown_theme_onselect.over = save->theme;
@@ -709,14 +712,15 @@ NEXT:
         }
     }
 
-    logging_enabled               = save->logging_enabled;
-    close_to_tray                 = save->close_to_tray;
-    start_in_tray                 = save->start_in_tray;
-    auto_startup                  = save->auto_startup;
-    audible_notifications_enabled = save->audible_notifications_enabled;
-    audio_filtering_enabled       = save->audio_filtering_enabled;
-    loaded_audio_out_device       = save->audio_device_out;
-    loaded_audio_in_device        = save->audio_device_in;
+    logging_enabled                         = save->logging_enabled;
+    close_to_tray                           = save->close_to_tray;
+    start_in_tray                           = save->start_in_tray;
+    auto_startup                            = save->auto_startup;
+    audible_notifications_enabled           = save->audible_notifications_enabled;
+    audible_notifications_enabled_messages  = save->audible_notifications_enabled_messages;
+    audio_filtering_enabled                 = save->audio_filtering_enabled;
+    loaded_audio_out_device                 = save->audio_device_out;
+    loaded_audio_in_device                  = save->audio_device_in;
 
     return save;
 }
@@ -745,6 +749,7 @@ void config_save(UTOX_SAVE *save)
     save->start_in_tray = start_in_tray;
     save->auto_startup = auto_startup;
     save->audible_notifications_enabled = audible_notifications_enabled;
+    save->audible_notifications_enabled_messages = audible_notifications_enabled_messages;
     save->audio_filtering_enabled = audio_filtering_enabled;
 
     save->filter = FILTER;
