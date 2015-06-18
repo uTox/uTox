@@ -66,39 +66,43 @@ int parse_argv(int argc, char const *argv[]) {
                     theme = THEME_DEFAULT;
                     parse_args_wait_for_theme = 0;
                     theme_set_on_argv = YES;
-                    continue;
                 }
-                if(!strcmp(argv[i], "dark")) {
+                else if(!strcmp(argv[i], "dark")) {
                     theme = THEME_DARK;
                     parse_args_wait_for_theme = 0;
                     theme_set_on_argv = YES;
-                    continue;
                 }
-                if(!strcmp(argv[i], "light")) {
+                else if(!strcmp(argv[i], "light")) {
                     theme = THEME_LIGHT;
                     parse_args_wait_for_theme = 0;
                     theme_set_on_argv = YES;
-                    continue;
                 }
-                if(!strcmp(argv[i], "highcontrast")) {
+                else if(!strcmp(argv[i], "highcontrast")) {
                     theme = THEME_HIGHCONTRAST;
                     parse_args_wait_for_theme = 0;
                     theme_set_on_argv = YES;
-                    continue;
                 }
-                debug("Please specify correct theme (please check user manual for list of correct values).");
+                else {
+                    debug("Please specify correct theme (please check user manual for list of correct values).");
+                }
             }
-
-            if(!strcmp(argv[i], "--version")) {
+            else if(!strcmp(argv[i], "--version")) {
                 debug("%s\n", VERSION);
                 return 1;
             }
-            if(!strcmp(argv[i], "--portable")) {
+            else if(!strcmp(argv[i], "--portable")) {
                 debug("Launching uTox in portable mode: All data will be saved to the tox folder in the current working directory\n");
                 utox_portable = 1;
             }
-            if(!strcmp(argv[i], "--theme")) {
+            else if(!strcmp(argv[i], "--theme")) {
                 parse_args_wait_for_theme = 1;
+            }
+            else if(!strncmp(argv[i], "--profile", 9)) {
+                char *word=argv[i]+10;
+                if ( *(word-1) == '=' || (++i < argc && (1, word=argv[i])) ) {
+                    tox_savename = word;
+                    debug("Profile provided: %s\n", tox_savename);
+                }
             }
             printf("arg %d: %s\n", i, argv[i]);
         }

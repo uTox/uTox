@@ -992,6 +992,7 @@ int main(int argc, char *argv[])
     parse_args_wait_for_theme = 0;
     _Bool theme_was_set_on_argv = 0;
     theme = THEME_DEFAULT;
+
     /* Variables for --set */
     int32_t set_show_window = 0;
 
@@ -1058,6 +1059,13 @@ int main(int argc, char *argv[])
                             set_show_window = -1;
                         }
                     }
+                }
+            }
+            else if(!strncmp(argv[i], "--profile", 9)) {
+                char *word=argv[i]+10;
+                if ( *(word-1) == '=' || (++i < argc && (1, word=argv[i])) ) {
+                    tox_savename = word;
+                    debug("Profile provided: %s\n", tox_savename);
                 }
             }
             printf("arg %d: %s\n", i, argv[i]);

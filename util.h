@@ -4,7 +4,7 @@
  *  on success: returns pointer to data (must be free()'d later), writes size of data to *size if size is not NULL
  *  on failure: returns NULL
  */
-void* file_raw(char *path, uint32_t *size);
+void* file_raw(const char *path, uint32_t *size);
 
 /*
  * Write *data, of size, to path on disk.
