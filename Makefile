@@ -54,7 +54,7 @@ endif
 DESTDIR ?=
 PREFIX ?= /usr/local
 
-SRC = $(wildcard src/*.c png/png.c)
+SRC = $(wildcard src/*.c src/png/png.c)
 OBJ = $(SRC:.c=.o)
 GIT_V = $(shell git describe --abbrev=8 --dirty --always --tags)
 
@@ -100,11 +100,11 @@ install: utox
 	install -m 644 icons/utox.svg $(DESTDIR)$(PREFIX)/share/icons/hicolor/scalable/apps/utox.svg
 
 	mkdir -p $(DESTDIR)$(PREFIX)/share/applications
-	install -m 644 utox.desktop $(DESTDIR)$(PREFIX)/share/applications/utox.desktop
+	install -m 644 res/utox.desktop $(DESTDIR)$(PREFIX)/share/applications/utox.desktop
 	if [ "$(UNITY)" -eq "1" ]; then echo "X-MessagingMenu-UsesChatSection=true" >> $(DESTDIR)$(PREFIX)/share/applications/utox.desktop; fi
 
 	mkdir -p $(DESTDIR)$(PREFIX)/share/man/man1
-	install -m 644 utox.1 $(DESTDIR)$(PREFIX)/share/man/man1/utox.1
+	install -m 644 res/utox.1 $(DESTDIR)$(PREFIX)/share/man/man1/utox.1
 
 main.o: src/xlib/main.c src/xlib/keysym2ucs.c
 
@@ -113,6 +113,6 @@ main.o: src/xlib/main.c src/xlib/keysym2ucs.c
 	@$(CC) $(CFLAGS) -o $@ -c -DGIT_VERSION=\"$(GIT_V)\" $<
 
 clean:
-	rm -f utox *.o png/*.o
+	rm -f utox src/*.o src/png/*.o
 
 .PHONY: all clean
