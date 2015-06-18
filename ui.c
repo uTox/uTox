@@ -996,6 +996,15 @@ void ui_scale(uint8_t scale)
             .width  = 20 * SCALE
         },
 
+        d_notifications_messages = {
+            .type   = PANEL_DROPDOWN,
+            .x      = 50  * SCALE,
+            .y      = 15  * SCALE,
+            .height = 12  * SCALE,
+            .width  = 20  * SCALE
+        },
+
+
         #ifdef AUDIO_FILTERING
         d_audio_filtering = {
             .type   = PANEL_DROPDOWN,

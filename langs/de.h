@@ -166,6 +166,9 @@ msgstr("Chatverläufe speichern")
 msgid(AUDIONOTIFICATIONS)
 msgstr("Akustische Benachrichtigungen einschalten (Klingelton)")
 
+msgid(AUDIONOTIFICATIONS_MESSAGES)
+msgstr("Nachrichtenton")
+
 msgid(RINGTONE)
 msgstr("Klingelton")
 

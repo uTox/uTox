@@ -98,6 +98,11 @@ static void dropdown_theme_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
     theme_load(i);
 }
 
+static void dropdown_notifications_messages_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
+{
+    audible_notifications_enabled_messages = !!i;
+}
+
 static void dropdown_notifications_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
 {
     audible_notifications_enabled = !!i;
@@ -258,6 +263,13 @@ dropdown_auto_startup = {
 dropdown_audible_notification = {
     .ondisplay = simple_dropdown_ondisplay,
     .onselect = dropdown_notifications_onselect,
+    .dropcount = countof(offondrops),
+    .userdata = offondrops
+},
+
+dropdown_audible_notification_messages = {
+    .ondisplay = simple_dropdown_ondisplay,
+    .onselect = dropdown_notifications_messages_onselect,
     .dropcount = countof(offondrops),
     .userdata = offondrops
 },

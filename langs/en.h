@@ -190,6 +190,9 @@ msgstr("Logging")
 msgid(AUDIONOTIFICATIONS)
 msgstr("Enable Audible Notification (Ringtone)")
 
+msgid(AUDIONOTIFICATIONS_MESSAGES)
+msgstr("Message beep")
+
 msgid(RINGTONE)
 msgstr("Ringtone")
 

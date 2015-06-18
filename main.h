@@ -64,6 +64,7 @@ typedef struct
     uint8_t proxyenable;
     uint8_t logging_enabled : 1;
     uint8_t audible_notifications_enabled : 1;
+    uint8_t audible_notifications_enabled_messages: 1;
     uint8_t filter : 1;
     uint8_t audio_filtering_enabled : 1;
     uint8_t close_to_tray : 1;
@@ -211,7 +212,7 @@ enum {
 #include "ui_dropdown.h"
 
 volatile _Bool tox_thread_init, audio_thread_init, video_thread_init, toxav_thread_init;
-volatile _Bool logging_enabled, audible_notifications_enabled, audio_filtering_enabled, close_to_tray, start_in_tray, auto_startup;
+volatile _Bool logging_enabled, audible_notifications_enabled, audible_notifications_enabled_messages, audio_filtering_enabled, close_to_tray, start_in_tray, auto_startup;
 volatile uint16_t loaded_audio_in_device, loaded_audio_out_device;
 _Bool tox_connected;
 
