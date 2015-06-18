@@ -611,7 +611,6 @@ typedef struct
     uint8_t proxyenable;
     uint8_t logging_enabled : 1;
     uint8_t audible_notifications_enabled : 1;
-    uint8_t audible_notifications_enabled_messages: 1;
     uint8_t filter : 1;
     uint8_t audio_filtering_enabled : 1;
     uint8_t zero : 4;

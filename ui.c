@@ -285,7 +285,8 @@ static void draw_settings_text_ui(int x, int y, int w, int UNUSED(height)){
 static void draw_settings_text_av(int x, int y, int w, int UNUSED(height)){
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_TEXT);
-    drawstr(LIST_RIGHT + SCALE * 5,   y + SCALE * 5,  RINGTONE);
+    drawstr(LIST_RIGHT + SCALE * 5,    y + SCALE * 5,  RINGTONE);
+    drawstr(LIST_RIGHT + SCALE * 50,   y + SCALE * 5,  AUDIONOTIFICATIONS_MESSAGES);
     #ifdef AUDIO_FILTERING
     drawstr(LIST_RIGHT + SCALE * 100, y + SCALE * 5,  AUDIOFILTERING);
     #endif
@@ -698,6 +699,7 @@ panel_main = {
                     (void*)&dropdown_audio_out,
                     (void*)&dropdown_video,
                     (void*)&dropdown_audible_notification,
+                    (void*)&dropdown_audible_notification_messages,
                     (void*)&dropdown_audio_filtering,
                     NULL
                 }
@@ -1147,6 +1149,7 @@ void ui_scale(uint8_t scale)
         dropdown_udp.panel = d_udp;
         dropdown_logging.panel = d_logging;
         dropdown_audible_notification.panel = d_notifications;
+        dropdown_audible_notification_messages.panel = d_notifications_messages;
         dropdown_close_to_tray.panel = d_close_to_tray;
         dropdown_start_in_tray.panel = d_start_in_tray;
         dropdown_theme.panel = d_theme;

@@ -64,7 +64,6 @@ typedef struct
     uint8_t proxyenable;
     uint8_t logging_enabled : 1;
     uint8_t audible_notifications_enabled : 1;
-    uint8_t audible_notifications_enabled_messages: 1;
     uint8_t filter : 1;
     uint8_t audio_filtering_enabled : 1;
     uint8_t close_to_tray : 1;
@@ -74,7 +73,9 @@ typedef struct
     uint16_t audio_device_in;
     uint16_t audio_device_out;
     uint8_t theme;
-    uint8_t nothing;
+    uint8_t push_to_talk : 1; /* Exists in PTT PR, this will cause a merge conflict. You can probably use this one. */
+    uint8_t audible_notifications_enabled_messages : 1;
+    uint8_t zero : 6;
     uint16_t unused[31];
     uint8_t proxy_ip[0];
 }UTOX_SAVE;
