@@ -424,7 +424,8 @@ static void write_save(Tox *tox)
     uint32_t size;
     FILE *file;
 
-    static uint8_t path_tmp[UTOX_FILE_NAME_LENGTH], path_real[UTOX_FILE_NAME_LENGTH], *is_path_done;
+    static uint8_t path_tmp[UTOX_FILE_NAME_LENGTH], path_real[UTOX_FILE_NAME_LENGTH];
+    static char *is_path_done;
 
 
     size = tox_get_savedata_size(tox);
@@ -559,6 +560,14 @@ void tox_thread(void *UNUSED(args))
 
     if (!tox_savename) {
         tox_savename="tox_save";
+    } else {
+        //Check if tox_savename was given with .tox extension
+        //Omit extension, if it was found
+        const char ext[]=".tox";
+        const size_t pos=strlen(tox_savename) - (sizeof(ext)-1);
+        if (!memcmp(tox_savename+pos, ext, sizeof(ext))) {
+            tox_savename[pos]=0;
+        }
     }
 
     do {
