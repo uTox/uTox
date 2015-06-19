@@ -6,6 +6,7 @@ void friend_setname(FRIEND *f, char_t *name, STRING_IDX length){
         msg->author = 0;
         msg->msg_type = MSG_TYPE_ACTION_TEXT;
         msg->length = sizeof(" is now known as ") - 1 + f->name_length + length;
+
         char_t *p = msg->msg;
         memcpy(p, f->name, f->name_length); p += f->name_length;
         memcpy(p, " is now known as ", sizeof(" is now known as ") - 1); p += sizeof(" is now known as ") - 1;
@@ -30,13 +31,17 @@ void friend_setname(FRIEND *f, char_t *name, STRING_IDX length){
 void friend_set_alias(FRIEND *f, char_t *alias, STRING_IDX length){
     debug("setting new alias\n");
     if((length != f->alias_length || memcmp(f->alias, alias, length) != 0)) {
-        MESSAGE *msg = malloc(sizeof(MESSAGE) + sizeof("has a new alias of: ") - 1 + f->alias_length + length);
+        char_t *last_name           = (f->alias ? f->alias : f->name);
+        STRING_IDX last_name_length = (f->alias ? f->alias_length : f->name_length);
+
+        MESSAGE *msg = malloc(sizeof(MESSAGE) + sizeof(" has a new alias of ") - 1 + last_name_length + length);
         msg->author = 0;
         msg->msg_type = MSG_TYPE_ACTION_TEXT;
-        msg->length = sizeof("has a new alias of: ") - 1 + f->alias_length + length;
+        msg->length = sizeof(" has a new alias of ") - 1 + last_name_length + length;
+
         char_t *p = msg->msg;
-        memcpy(p, f->alias, f->alias_length); p += f->alias_length;
-        memcpy(p, "has a new alias of: ", sizeof("has a new alias of: ") - 1); p += sizeof("has a new alias of: ") - 1;
+        memcpy(p, last_name, last_name_length); p += last_name_length;
+        memcpy(p, " has a new alias of ", sizeof(" has a new alias of ") - 1); p += sizeof(" has a new alias of ") - 1;
         memcpy(p, alias, length);
 
         friend_addmessage(f, msg);
