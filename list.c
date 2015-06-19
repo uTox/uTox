@@ -637,7 +637,7 @@ static void contextmenu_list_onselect(uint8_t i){
         return;
     }
 
-    if (ritem->item == ITEM_FRIEND && i == 0) {
+    if (ritem->item == ITEM_FRIEND && i == 1) {
         friend_history_clear((FRIEND*)ritem->data);
         return;
     }
@@ -648,6 +648,20 @@ static void contextmenu_list_onselect(uint8_t i){
             g->muted = !g->muted;
             return;
         }
+    }
+
+    if (ritem->item == ITEM_FRIEND && i == 0) {
+        FRIEND *f = ritem->data;
+        if(ritem != selected_item) {
+            show_page(ritem);
+        }
+
+        char str[f->name_length + 7];
+        strcpy(str, "/alias ");
+        memcpy(str + 7, f->name, f->name_length);
+        edit_setfocus(&edit_msg);
+        edit_paste((char_t*)str, sizeof(str), 0);
+        return;
     }
 
     if (ritem->item == ITEM_GROUP && i == 0) {
@@ -669,7 +683,7 @@ static void contextmenu_list_onselect(uint8_t i){
 
 _Bool list_mright(void *UNUSED(n))
 {
-    static UI_STRING_ID menu_friend[] = {STR_CLEAR_HISTORY, STR_REMOVE_FRIEND};
+    static UI_STRING_ID menu_friend[] = {STR_SET_ALIAS, STR_CLEAR_HISTORY, STR_REMOVE_FRIEND};
     static UI_STRING_ID menu_group_unmuted[] = {STR_CHANGE_GROUP_TOPIC, STR_MUTE, STR_REMOVE_GROUP};
     static UI_STRING_ID menu_group_muted[] = {STR_CHANGE_GROUP_TOPIC, STR_UNMUTE, STR_REMOVE_GROUP};
     static UI_STRING_ID menu_group[] = {STR_CHANGE_GROUP_TOPIC, STR_REMOVE_GROUP};

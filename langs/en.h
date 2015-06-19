@@ -247,6 +247,9 @@ msgstr("Accept")
 msgid(IGNORE)
 msgstr("Ignore")
 
+msgid(SET_ALIAS)
+msgstr("Set alias")
+
 msgid(SENDSCREENSHOT)
 msgstr("Send a screenshot")
 
