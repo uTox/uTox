@@ -658,7 +658,7 @@ static void contextmenu_list_onselect(uint8_t i){
 
         char str[f->name_length + 7];
         strcpy(str, "/alias ");
-        memcpy(str + 7, f->name, f->name_length);
+        memcpy(str + 7, (f->alias ? f->alias : f->name), (f->alias ? f->alias_length + 1 : f->name_length));
         edit_setfocus(&edit_msg);
         edit_paste((char_t*)str, sizeof(str), 0);
         return;
