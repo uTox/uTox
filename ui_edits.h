@@ -292,11 +292,9 @@ static void edit_msg_ontab(EDIT *edit)
                     memcpy(text + 7, last_name, last_name_length);
                     edit->length = last_name_length + 7;
                     edit_setcursorpos(edit, edit->length);
-
-                    return;
-                } else {
-                    return;
                 }
+
+                return;
             }
 
             if ((length == 6 && !memcmp(text, "/topic", 6))
