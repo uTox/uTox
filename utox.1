@@ -1,4 +1,4 @@
-.TH UTOX "1" "March 2015" "µTox 0.2.o"
+.TH UTOX "1" "June 2015" "µTox 0.3.2"
 .SH NAME
 µTox \- Lightweight Tox client
 
@@ -31,6 +31,9 @@ Print version and exit.
 
 .SH CHAT COMMANDS
 These commands can be used in the chat window.
+.IP "\fB/alias\fP <alias>"
+Sets selected friend's alias to <alias>. It will be displayed instead of that
+friend's name.
 .IP "\fB/topic\fP <topic>"
 Changes current groupchat's name/topic to <topic>. This command can also be
 used to edit the current topic by typing /topic and pressing the tab key.
@@ -52,6 +55,8 @@ The \fBavatars\fP directory contains other contacts' avatars. Files are named
 after contacts' public keys (the first 64 characters of the ID).
 .IP "\fB[public key].txt\fP"
 Those are friends' chat logs. µTox supports only 1v1 chat logging for now.
+.IP "\fB[public key].fmetadata\fP"
+Friend metadata file, currently used for storing aliases.
 .IP "\fB[public key][file number].ftoutfo\fP"
 Current outgoing file transfers' state. Used for resuming transfers across
 client restarts.
