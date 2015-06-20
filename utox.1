@@ -1,9 +1,9 @@
-.TH UTOX "1" "March 2015" "µTox 0.2.o" "User Commands"
+.TH UTOX "1" "June 2015" "µTox 0.3.2"
 .SH NAME
 µTox \- Lightweight Tox client
 
 .SH SYNOPSIS
-usage: utox [--portable] [--theme <default|dark|light|highcontrast>]
+usage: utox [--portable] [--theme <default|dark|light|highcontrast|zenburn>]
    or: utox --version
 
 .SH DESCRIPTION
@@ -21,7 +21,7 @@ usage: utox [--portable] [--theme <default|dark|light|highcontrast>]
 .SH OPTIONS
 .IP "\fB\-\-theme\fP <THEME>"
 Choose a color scheme. Possible options are \fIdefault\fP, \fIdark\fP,
-\fIlight\fP, or \fIhighcontrast\fP, or \fPzenburn\fP.
+\fIlight\fP, \fIhighcontrast\fP, or \fPzenburn\fP.
 
 .IP \fB\-\-portable\fP
 Run in portable mode.
@@ -31,11 +31,15 @@ Print version and exit.
 
 .SH CHAT COMMANDS
 These commands can be used in the chat window.
+.IP "\fB/alias\fP <alias>"
+Sets selected friend's alias to <alias>. It will be displayed instead of that
+friend's name.
 .IP "\fB/topic\fP <topic>"
 Changes current groupchat's name/topic to <topic>. This command can also be
 used to edit the current topic by typing /topic and pressing the tab key.
 .IP "\fB/me\fP <action>"
-Sends an message/action in the format <name> <action>, for example: ToxUser says hi
+Sends an message/action in the format <name> <action>, for example: Tox User
+says hi
 
 .SH FILES
 All files listed below are located in \fB$HOME/.config/tox\fP. If µTox is
@@ -51,6 +55,11 @@ The \fBavatars\fP directory contains other contacts' avatars. Files are named
 after contacts' public keys (the first 64 characters of the ID).
 .IP "\fB[public key].txt\fP"
 Those are friends' chat logs. µTox supports only 1v1 chat logging for now.
+.IP "\fB[public key].fmetadata\fP"
+Friend metadata file, currently used for storing aliases.
+.IP "\fB[public key][file number].ftoutfo\fP"
+Current outgoing file transfers' state. Used for resuming transfers across
+client restarts.
 
 .SH CONTRIBUTORS
 Please see the list page:
