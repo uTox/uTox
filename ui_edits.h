@@ -264,7 +264,7 @@ static void edit_msg_ontab(EDIT *edit)
     char_t *text = edit->data;
     STRING_IDX length = edit->length;
 
-    if (selected_item->item == ITEM_GROUP) {
+    if ((selected_item->item == ITEM_FRIEND) || (selected_item->item == ITEM_GROUP)) {
         char_t nick[130];
         uint8_t nick_length;
 
@@ -273,6 +273,32 @@ static void edit_msg_ontab(EDIT *edit)
         }
 
         if (!completion.active) {
+            if (selected_item->item == ITEM_FRIEND) {
+                if ((length == 6 && !memcmp(text, "/alias", 6))
+                    || (length == 7 && !memcmp(text, "/alias ", 7))) {
+                    FRIEND *f = selected_item->data;
+                    char_t *last_name;
+                    STRING_IDX last_name_length;
+
+                    if (f->alias) {
+                        last_name = f->alias;
+                        last_name_length = f->alias_length;
+                    } else {
+                        last_name = f->name;
+                        last_name_length = f->name_length;
+                    }
+
+                    text[6] = ' ';
+                    memcpy(text + 7, last_name, last_name_length);
+                    edit->length = last_name_length + 7;
+                    edit_setcursorpos(edit, edit->length);
+
+                    return;
+                } else {
+                    return;
+                }
+            }
+
             if ((length == 6 && !memcmp(text, "/topic", 6))
                     || (length == 7 && !memcmp(text, "/topic ", 7))) {
                 GROUPCHAT *g = selected_item->data;
