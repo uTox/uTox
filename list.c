@@ -638,13 +638,17 @@ static void contextmenu_list_onselect(uint8_t i)
             show_page(ritem);
         }
 
-        char str[f->name_length + 7];
-        strcpy(str, "/alias ");
         if(f->alias) {
+            char str[f->name_length + 7];
+            strcpy(str, "/alias ");
             memcpy(str + 7, f->alias, f->alias_length + 1);
+            edit_setfocus(&edit_msg);
+            edit_paste((char_t*)str, sizeof(str), 0);
+        } else {
+            char str[7] = "/alias ";
+            edit_setfocus(&edit_msg);
+            edit_paste((char_t*)str, sizeof(str), 0);
         }
-        edit_setfocus(&edit_msg);
-        edit_paste((char_t*)str, sizeof(str), 0);
         return;
     }
 
