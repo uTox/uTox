@@ -764,9 +764,11 @@ void config_save(UTOX_SAVE *save)
 
 void utox_write_metadata(FRIEND *f){
     /* data sizes */
-    size_t data_sz = 0, current_sz = 0;
-    size_t alias_sz = strlen((const char*)f->alias);
-    data_sz += alias_sz;
+    size_t data_sz = 0, current_sz = 0, alias_sz = 0;
+    if(f->alias) {
+        alias_sz = strlen((const char*)f->alias);
+        data_sz += alias_sz;
+    }
 
     /* Create path */
     uint8_t dest[UTOX_FILE_NAME_LENGTH], *dest_p;
