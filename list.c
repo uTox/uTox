@@ -527,7 +527,7 @@ void list_freeall(void)
     }
 }
 
-static void selectchat_filtered(int index){
+static void selectchat_filtered(int index) {
     int i;
     for (i = 0; i < itemcount; ++i) {
         ITEM *it = &item[i];
@@ -544,13 +544,13 @@ static void selectchat_filtered(int index){
     }
 }
 
-static void selectchat_notfiltered(int index){
+static void selectchat_notfiltered(int index) {
    if (index < itemcount) {
         show_page(&item[index]);
     }
 }
 
-void list_selectchat(int index){
+void list_selectchat(int index) {
     if (FILTER || SEARCH) {
         selectchat_filtered(index);
     } else {
@@ -558,19 +558,19 @@ void list_selectchat(int index){
     }
 }
 
-void list_reselect_current(void){
+void list_reselect_current(void) {
     show_page(selected_item);
 }
 
-void list_selectsettings(void){
+void list_selectsettings(void) {
     show_page(&item_settings);
 }
 
-void list_selectaddfriend(void){
+void list_selectaddfriend(void) {
     show_page(&item_add);
 }
 
-void list_selectswap(void){
+void list_selectswap(void) {
     show_page(&item_transfer);
 }
 
@@ -630,26 +630,8 @@ _Bool list_mdown(void *UNUSED(n))
     return draw;
 }
 
-static void contextmenu_list_onselect(uint8_t i){
-    if(ritem->item == ITEM_FRIEND_ADD && i == 0) {
-        FRIENDREQ *req = ritem->data;
-        tox_postmessage(TOX_ACCEPTFRIEND, 0, 0, req);
-        return;
-    }
-
-    if (ritem->item == ITEM_FRIEND && i == 1) {
-        friend_history_clear((FRIEND*)ritem->data);
-        return;
-    }
-
-    if (ritem->item == ITEM_GROUP && i == 1) {
-        GROUPCHAT *g = ritem->data;
-        if (g->type == TOX_GROUPCHAT_TYPE_AV) {
-            g->muted = !g->muted;
-            return;
-        }
-    }
-
+static void contextmenu_list_onselect(uint8_t i)
+{
     if (ritem->item == ITEM_FRIEND && i == 0) {
         FRIEND *f = ritem->data;
         if(ritem != selected_item) {
@@ -678,6 +660,25 @@ static void contextmenu_list_onselect(uint8_t i){
         edit_setfocus(&edit_msg_group);
         edit_paste((char_t*)str, sizeof(str), 0);
         return;
+    }
+
+    if(ritem->item == ITEM_FRIEND_ADD && i == 0) {
+        FRIENDREQ *req = ritem->data;
+        tox_postmessage(TOX_ACCEPTFRIEND, 0, 0, req);
+        return;
+    }
+
+    if (ritem->item == ITEM_FRIEND && i == 1) {
+        friend_history_clear((FRIEND*)ritem->data);
+        return;
+    }
+
+    if (ritem->item == ITEM_GROUP && i == 1) {
+        GROUPCHAT *g = ritem->data;
+        if (g->type == TOX_GROUPCHAT_TYPE_AV) {
+            g->muted = !g->muted;
+            return;
+        }
     }
 
     list_deleteritem();
