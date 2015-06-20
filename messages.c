@@ -124,12 +124,10 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
 
                 if (msg->author) {
                     drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, y, self.name, self.name_length);
+                } else if (f->alias) {
+                    drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, y, f->alias, f->alias_length);
                 } else {
-                    if (f->alias) {
-                        drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, y, f->alias, f->alias_length);
-                    } else {
-                        drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, y, f->name, f->name_length);
-                    }
+                    drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, y, f->name, f->name_length);
                 }
 
                 lastauthor = msg->author;
