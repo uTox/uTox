@@ -257,6 +257,8 @@ void friend_meta_data_read(Tox *tox, int friend_id)
     } else {
         friend_set_alias(&friend[friend_id], NULL, 0); /* uTox depends on this being 0/NULL if there's no alias. */
     }
+    free(metadata);
+    free(mdata);
 }
 
 static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, uint32_t param1, uint32_t param2, void *data);

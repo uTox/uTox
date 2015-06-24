@@ -684,7 +684,6 @@ panel_main = {
                 .content_scroll = &scrollbar_settings,
                 .child = (PANEL*[]) {
                     (void*)&dropdown_dpi,
-                    (void*)&dropdown_push_to_talk,
                     (void*)&dropdown_theme,
                     (void*)&dropdown_logging,
                     (void*)&dropdown_close_to_tray, (void*)&dropdown_start_in_tray,
@@ -701,6 +700,7 @@ panel_main = {
                 .content_scroll = &scrollbar_settings,
                 .child = (PANEL*[]) {
                     (void*)&button_callpreview,
+                    (void*)&dropdown_push_to_talk,
                     (void*)&button_videopreview,
                     (void*)&dropdown_audio_in,
                     (void*)&dropdown_audio_out,
@@ -1004,13 +1004,13 @@ void ui_scale(uint8_t scale)
             .width  = 20 * SCALE
         },
 
-    d_push_to_talk = {
-        .type   = PANEL_DROPDOWN,
-        .x      = 60 * SCALE,
-        .y      = 15 * SCALE,
-        .height = 12 * SCALE,
-        .width  = 20 * SCALE
-    },
+        d_push_to_talk = {
+            .type   = PANEL_DROPDOWN,
+            .x      = 60 * SCALE,
+            .y      = 15 * SCALE,
+            .height = 12 * SCALE,
+            .width  = 20 * SCALE
+        },
 
         #ifdef AUDIO_FILTERING
         d_audio_filtering = {
@@ -1154,6 +1154,7 @@ void ui_scale(uint8_t scale)
         dropdown_udp.panel = d_udp;
         dropdown_logging.panel = d_logging;
         dropdown_audible_notification.panel = d_notifications;
+        dropdown_push_to_talk.panel = d_push_to_talk;
         dropdown_close_to_tray.panel = d_close_to_tray;
         dropdown_start_in_tray.panel = d_start_in_tray;
         dropdown_theme.panel = d_theme;

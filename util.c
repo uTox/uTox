@@ -810,4 +810,5 @@ void utox_write_metadata(FRIEND *f){
 
     /* Write */
     file_write_raw(dest, data, current_sz);
+    free(data);
 }
