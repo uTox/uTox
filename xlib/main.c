@@ -915,16 +915,11 @@ void setscale(void)
 
     svg_draw(0);
 
-    freefonts();
-    loadfonts();
-
-    font_small_lineheight = (font[FONT_TEXT].info[0].face->size->metrics.height + (1 << 5)) >> 6;
-    //font_msg_lineheight = (font[FONT_MSG].info[0].face->size->metrics.height + (1 << 5)) >> 6;
-
     if(xsh) {
         XFree(xsh);
     }
 
+    // TODO, fork this to a function
     xsh = XAllocSizeHints();
     xsh->flags = PMinSize;
     xsh->min_width = 320 * SCALE;
@@ -937,6 +932,15 @@ void setscale(void)
         /* wont get a resize event, call this manually */
         ui_size(utox_window_width, utox_window_height);
     }
+}
+
+void setscale_fonts(void)
+{
+    freefonts();
+    loadfonts();
+
+    font_small_lineheight = (font[FONT_TEXT].info[0].face->size->metrics.height + (1 << 5)) >> 6;
+    //font_msg_lineheight = (font[FONT_MSG].info[0].face->size->metrics.height + (1 << 5)) >> 6;
 }
 
 int file_lock(FILE *file, uint64_t start, size_t length){
@@ -1159,6 +1163,9 @@ int main(int argc, char *argv[])
         printf("Cannot open input method\n");
     }
 
+    LANG = systemlang();
+    dropdown_language.selected = dropdown_language.over = LANG;
+
     screen = DefaultScreen(display);
     cmap = DefaultColormap(display, screen);
     visual = DefaultVisual(display, screen);
@@ -1177,8 +1184,9 @@ int main(int argc, char *argv[])
     /* load save data */
     UTOX_SAVE *save = config_load();
 
-    if (!theme_was_set_on_argv)
+    if (!theme_was_set_on_argv) {
         theme = save->theme;
+    }
     printf("%d\n", theme);
     theme_load(theme);
 
@@ -1250,6 +1258,10 @@ int main(int argc, char *argv[])
     /* initialize fontconfig */
     initfonts();
 
+    /* Set the default font so we don't segfault on ui_scale() when it goes looking for fonts. */
+    loadfonts();
+    setfont(FONT_TEXT);
+
     /* load fonts and scalable bitmaps */
     ui_scale(save->scale + 1);
 
@@ -1287,9 +1299,6 @@ int main(int argc, char *argv[])
     xrcolor.blue = 0x0;
     xrcolor.alpha = 0xffff;
     XftColorAllocValue(display, visual, cmap, &xrcolor, &xftcolor);*/
-
-    LANG = systemlang();
-    dropdown_language.selected = dropdown_language.over = LANG;
 
     if(set_show_window){
         if(set_show_window == 1){

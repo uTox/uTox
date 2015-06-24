@@ -237,8 +237,9 @@ static void draw_settings_header(int UNUSED(x), int UNUSED(y), int UNUSED(width)
     setfont(FONT_SELF_NAME);
     drawstr(LIST_RIGHT + SCALE * 5, SCALE * 5, UTOX_SETTINGS);
     #ifdef GIT_VERSION
+        int x = LIST_RIGHT + 5 * SCALE + UTOX_STR_WIDTH(UTOX_SETTINGS) + 5 * SCALE;
         setfont(FONT_TEXT);
-        drawtext(LIST_RIGHT + SCALE * 60, SCALE * 5, (uint8_t*)GIT_VERSION, strlen(GIT_VERSION));
+        drawtext(x, SCALE * 5, (uint8_t*)GIT_VERSION, strlen(GIT_VERSION));
     #endif
 }
 
@@ -282,7 +283,7 @@ static void draw_settings_text_ui(int x, int y, int w, int UNUSED(height)){
     drawstr(LIST_RIGHT + 5  * SCALE, y + 5 * SCALE, THEME);
     drawstr(LIST_RIGHT + 5  * SCALE, y + 30 * SCALE, LOGGING);
     drawstr(LIST_RIGHT + 5  * SCALE, y + 55 * SCALE, CLOSE_TO_TRAY);
-    drawstr(LIST_RIGHT + 75 * SCALE, y + 55 * SCALE, START_IN_TRAY);
+    drawstr(LIST_RIGHT + 5  * SCALE + UTOX_STR_WIDTH(CLOSE_TO_TRAY) + 10 * SCALE, y + 55 * SCALE, START_IN_TRAY);
     drawstr(LIST_RIGHT + 5  * SCALE, y + 80 * SCALE, AUTO_STARTUP);
     drawstr(LIST_RIGHT + 5  * SCALE, y + 105 * SCALE, SEND_TYPING_NOTIFICATIONS);
 }
@@ -307,45 +308,52 @@ static void draw_settings_sub_header(int x, int y, int w, int UNUSED(height)){
 
     /* Draw the text and bars for general settings */
     setcolor(!button_settings_sub_profile.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_SUBTEXT);
-    drawstr(   x + 5   * SCALE, y + 5 * SCALE, PROFILE);
+    int x_right_edge = x + 5 * SCALE + UTOX_STR_WIDTH(PROFILE) + 5 * SCALE;
+    drawstr( x + 5 * SCALE, y + 5 * SCALE, PROFILE);
     if (panel_settings_profile.disabled) {
-        drawhline( x + 0   * SCALE, y + 15 * SCALE, x + 65 * SCALE, COLOR_EDGE_NORMAL);
+        drawhline( x, y + 15 * SCALE, x_right_edge, COLOR_EDGE_NORMAL);
     } else {
-        drawhline( x + 0   * SCALE, y + 0, x + 65 * SCALE, COLOR_EDGE_ACTIVE);
-        drawhline( x + 0   * SCALE, y + 1, x + 65 * SCALE, COLOR_EDGE_ACTIVE);
+        drawhline( x, y + 0, x_right_edge, COLOR_EDGE_ACTIVE);
+        drawhline( x, y + 1, x_right_edge, COLOR_EDGE_ACTIVE);
     }
-    drawvline( x + 65  * SCALE, y + 0 * SCALE, y + 15 * SCALE, COLOR_EDGE_NORMAL);
+    drawvline( x_right_edge, y + 0 * SCALE, y + 15 * SCALE, COLOR_EDGE_NORMAL);
 
     /* Draw the text and bars for network settings */
     setcolor(!button_settings_sub_net.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_SUBTEXT);
-    drawstr(   x + 70  * SCALE, y + 5 * SCALE, NETWORK);
+    x = x_right_edge;
+    x_right_edge = x_right_edge + 5 * SCALE + UTOX_STR_WIDTH(NETWORK) + 5 * SCALE;
+    drawstr( x + 5 * SCALE, y + 5 * SCALE, NETWORK);
     if (panel_settings_net.disabled) {
-        drawhline( x + 65  * SCALE, y + 15 * SCALE, x + 110 * SCALE, COLOR_EDGE_NORMAL);
+        drawhline( x, y + 15 * SCALE, x_right_edge, COLOR_EDGE_NORMAL);
     } else {
-        drawhline( x + 65  * SCALE, y + 0, x + 110 * SCALE, COLOR_EDGE_ACTIVE);
-        drawhline( x + 65  * SCALE, y + 1, x + 110 * SCALE, COLOR_EDGE_ACTIVE);
+        drawhline( x, y + 0, x_right_edge, COLOR_EDGE_ACTIVE);
+        drawhline( x, y + 1, x_right_edge, COLOR_EDGE_ACTIVE);
     }
-    drawvline( x + 110 * SCALE, y + 0 * SCALE, y + 15  * SCALE, COLOR_EDGE_NORMAL);
+    drawvline( x_right_edge, y + 0 * SCALE, y + 15  * SCALE, COLOR_EDGE_NORMAL);
 
     /* Draw the text and bars for User interface settings */
     setcolor(!button_settings_sub_ui.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_SUBTEXT);
-    drawstr(   x + 115 * SCALE, y + 5 * SCALE, USER_INTERFACE);
+    x = x_right_edge;
+    x_right_edge = x_right_edge + 5 * SCALE + UTOX_STR_WIDTH(USER_INTERFACE) + 5 * SCALE;
+    drawstr( x + 5 * SCALE, y + 5 * SCALE, USER_INTERFACE);
     if (panel_settings_ui.disabled) {
-        drawhline( x + 110 * SCALE, y + 15 * SCALE, x + 175 * SCALE, COLOR_EDGE_NORMAL);
+        drawhline( x, y + 15 * SCALE, x_right_edge, COLOR_EDGE_NORMAL);
     } else {
-        drawhline( x + 110 * SCALE, y + 0, x + 175 * SCALE, COLOR_EDGE_ACTIVE);
-        drawhline( x + 110 * SCALE, y + 1, x + 175 * SCALE, COLOR_EDGE_ACTIVE);
+        drawhline( x, y + 0, x_right_edge, COLOR_EDGE_ACTIVE);
+        drawhline( x, y + 1, x_right_edge, COLOR_EDGE_ACTIVE);
     }
-    drawvline( x + 175 * SCALE, y + 0 * SCALE, y + 15  * SCALE, COLOR_EDGE_NORMAL);
+    drawvline( x_right_edge, y + 0 * SCALE, y + 15  * SCALE, COLOR_EDGE_NORMAL);
 
     /* Draw the text and bars for A/V settings */
     setcolor(!button_settings_sub_av.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_SUBTEXT);
-    drawstr(   x + 180 * SCALE, y + 5 * SCALE, AUDIO_VIDEO);
+    x = x_right_edge;
+    x_right_edge = x_right_edge + 5 * SCALE + UTOX_STR_WIDTH(AUDIO_VIDEO) + 400 * SCALE; /* stretch to end of window */
+    drawstr( x + 5 * SCALE, y + 5 * SCALE, AUDIO_VIDEO);
     if (panel_settings_av.disabled) {
-        drawhline( x + 175 * SCALE, y + 15 * SCALE, x + w + 0 * SCALE, COLOR_EDGE_NORMAL);
+        drawhline( x, y + 15 * SCALE, x_right_edge, COLOR_EDGE_NORMAL);
     } else {
-        drawhline( x + 175 * SCALE, y + 0, x + w + 0 * SCALE, COLOR_EDGE_ACTIVE);
-        drawhline( x + 175 * SCALE, y + 1, x + w + 0 * SCALE, COLOR_EDGE_ACTIVE);
+        drawhline( x, y + 0, x_right_edge, COLOR_EDGE_ACTIVE);
+        drawhline( x, y + 1, x_right_edge, COLOR_EDGE_ACTIVE);
     }
 }
 
@@ -713,11 +721,9 @@ panel_main = {
 
 void ui_scale(uint8_t scale)
 {
-    if(SCALE == scale) {
-        return;
+    if(SCALE != scale) {
+        SCALE = scale;
     }
-
-    SCALE = scale;
 
     list_scale();
 
@@ -761,6 +767,10 @@ void ui_scale(uint8_t scale)
         messages_group.panel.height = MESSAGES_BOTTOM;
         messages_group.panel.width = -SCROLL_WIDTH;
 
+    setscale_fonts();
+
+    setfont(FONT_SELF_NAME);
+
     /* Button Structs  */
         PANEL b_add = {
             .type = PANEL_BUTTON,
@@ -802,33 +812,35 @@ void ui_scale(uint8_t scale)
             .height = BM_SBUTTON_HEIGHT,
         },
 
+        /* setfont(FONT_SELF_NAME); needed for the next 4 buttons */
         b_settings_sub_profile = {
             .type   = PANEL_BUTTON,
-            .x      = 1  * SCALE, /* Nudged 1px as a buffer */
+            .x      = 1  * SCALE,                           /* Nudged 1px as a buffer */
             .y      = 1  * SCALE,
-            .width  = 64 * SCALE, /* Nudged 1px as a buffer */
+            .width  = 9  * SCALE + UTOX_STR_WIDTH(PROFILE), /* Nudged 1px as a buffer */
             .height = 14 * SCALE,
         },
 
         b_settings_sub_net = {
             .type   = PANEL_BUTTON,
-            .x      = 66 * SCALE, /* Nudged 1px as a buffer */
+            .x      = 11 * SCALE + UTOX_STR_WIDTH(PROFILE), /* Nudged 1px as a buffer */
             .y      = 1  * SCALE,
-            .width  = 44 * SCALE,
+            .width  = 9  * SCALE + UTOX_STR_WIDTH(NETWORK), /* Nudged 1px as a buffer */
             .height = 14 * SCALE,
         },
 
         b_settings_sub_ui = {
             .type   = PANEL_BUTTON,
-            .x      = 111 * SCALE, /* Nudged 1px as a buffer */
-            .y      = 1   * SCALE,
-            .width  = 64  * SCALE, /* Nudged 1px as a buffer */
-            .height = 14  * SCALE,
+            .x      = 21 * SCALE + UTOX_STR_WIDTH(PROFILE) + UTOX_STR_WIDTH(NETWORK), /* Nudged 1px as a buffer */
+            .y      = 1  * SCALE,
+            .width  = 9  * SCALE + UTOX_STR_WIDTH(USER_INTERFACE),                    /* Nudged 1px as a buffer */
+            .height = 14 * SCALE,
         },
 
         b_settings_sub_av = {
             .type   = PANEL_BUTTON,
-            .x      = 176 * SCALE, /* Nudged 1px as a buffer */
+            .x      = 31  * SCALE + /* Nudged 1px as a buffer */
+                      UTOX_STR_WIDTH(PROFILE) + UTOX_STR_WIDTH(NETWORK) + UTOX_STR_WIDTH(USER_INTERFACE),
             .y      = 1   * SCALE,
             .width  = 400 * SCALE, /* Fill the rest of the space for this button */
             .height = 14  * SCALE,
@@ -996,12 +1008,14 @@ void ui_scale(uint8_t scale)
         button_status.panel = b_status;
 
     /* Drop down structs */
+        setfont(FONT_TEXT);
+
         PANEL d_notifications = {
             .type   = PANEL_DROPDOWN,
-            .x      = 5  * SCALE,
-            .y      = 15 * SCALE,
-            .height = 12 * SCALE,
-            .width  = 20 * SCALE
+            .x      = 5   * SCALE,
+            .y      = 15  * SCALE,
+            .height = 12  * SCALE,
+            .width  = 20  * SCALE
         },
 
         d_push_to_talk = {
@@ -1066,72 +1080,72 @@ void ui_scale(uint8_t scale)
             .type   = PANEL_DROPDOWN,
             .x      = LIST_RIGHT - SCALE * 25,
             .y      = SEARCH_Y,
-            .height = 12 * SCALE,
-            .width  = 25 * SCALE,
+            .height = 12  * SCALE,
+            .width  = 25  * SCALE,
         },
 
         d_proxy = {
             .type   = PANEL_DROPDOWN,
-            .x      = 5  * SCALE,
-            .y      = 40 * SCALE,
-            .height = 12 * SCALE,
-            .width  = 60 * SCALE
+            .x      = 5   * SCALE,
+            .y      = 40  * SCALE,
+            .height = 12  * SCALE,
+            .width  = 60  * SCALE
         },
 
         d_ipv6 = {
             .type   = PANEL_DROPDOWN,
-            .x      = 24 * SCALE,
-            .y      = 13 * SCALE,
-            .height = 12 * SCALE,
-            .width  = 20 * SCALE
+            .x      = 24  * SCALE,
+            .y      = 13  * SCALE,
+            .height = 12  * SCALE,
+            .width  = 20  * SCALE
         },
 
         d_udp = {
             .type   = PANEL_DROPDOWN,
-            .x      = 74 * SCALE,
-            .y      = 13 * SCALE,
-            .height = 12 * SCALE,
-            .width  = 20 * SCALE
+            .x      = 74  * SCALE,
+            .y      = 13  * SCALE,
+            .height = 12  * SCALE,
+            .width  = 20  * SCALE
         },
 
         d_logging = {
             .type   = PANEL_DROPDOWN,
             .x      = 5   * SCALE,
-            .y      = 39 * SCALE,
+            .y      = 39  * SCALE,
             .height = 12  * SCALE,
             .width  = 20  * SCALE
         },
 
         d_theme = {
             .type   = PANEL_DROPDOWN,
-            .x      = 5  * SCALE,
-            .y      = 15 * SCALE,
-            .height = 12 * SCALE,
-            .width  = 60 * SCALE
+            .x      = 5   * SCALE,
+            .y      = 15  * SCALE,
+            .height = 12  * SCALE,
+            .width  = 60  * SCALE
         },
 
         d_close_to_tray = {
             .type   = PANEL_DROPDOWN,
             .x      = 5   * SCALE,
-            .y      = 63 * SCALE,
+            .y      = 63  * SCALE,
             .height = 12  * SCALE,
             .width  = 20  * SCALE
         },
 
         d_start_in_tray = {
             .type   = PANEL_DROPDOWN,
-            .x      = 75  * SCALE,
-            .y      = 63 * SCALE,
-            .height = 12 * SCALE,
-            .width  = 20 * SCALE
+            .x      = 5   * SCALE + UTOX_STR_WIDTH(CLOSE_TO_TRAY) + 10 * SCALE,
+            .y      = 63  * SCALE,
+            .height = 12  * SCALE,
+            .width  = 20  * SCALE
         },
 
         d_auto_startup = {
             .type   = PANEL_DROPDOWN,
-            .x      = 5  * SCALE,
-            .y      = 87 * SCALE,
-            .height = 12 * SCALE,
-            .width  = 20 * SCALE
+            .x      = 5   * SCALE,
+            .y      = 87  * SCALE,
+            .height = 12  * SCALE,
+            .width  = 20  * SCALE
         },
 
         d_typing_notes = {
