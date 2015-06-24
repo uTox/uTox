@@ -60,6 +60,7 @@ static void edit_msg_onenter(EDIT *edit)
     command_length = utox_run_command(text, length, &command, &argument, 1);
 
     if(command_length == 65535){
+        edit->length = 0;
         return;
     }
 

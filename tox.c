@@ -1065,7 +1065,8 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
         break;
     }
 
-    case TOX_SEND_NEW_FILE: {
+    case TOX_SEND_NEW_FILE:
+    case TOX_SEND_NEW_FILE_SLASH:{
         /* param1: friend #
          * param2: offset of first file name in data
          * data: file names
@@ -1127,7 +1128,9 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
             }
         }
 
-        free(data);
+        if(msg != TOX_SEND_NEW_FILE_SLASH){
+            free(data);
+        }
 
         break;
     }
