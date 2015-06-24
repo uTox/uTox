@@ -92,7 +92,12 @@ static void draw_friend(int x, int y, int w, int height){
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_TITLE);
-    drawtextrange(LIST_RIGHT + 30 * SCALE, utox_window_width - 92 * SCALE, 9 * SCALE, f->name, f->name_length);
+
+    if (f->alias) {
+        drawtextrange(LIST_RIGHT + 30 * SCALE, utox_window_width - 92 * SCALE, 9 * SCALE, f->alias, f->alias_length);
+    } else {
+        drawtextrange(LIST_RIGHT + 30 * SCALE, utox_window_width - 92 * SCALE, 9 * SCALE, f->name, f->name_length);
+    }
 
     setcolor(COLOR_MAIN_SUBTEXT);
     setfont(FONT_STATUS);

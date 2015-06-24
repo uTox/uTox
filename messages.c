@@ -95,7 +95,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
         }
 
         // Draw the names for groups or friends
-        if(m->type) {
+        if (m->type) {
             // Group message authors are all the same color
             setcolor(COLOR_MAIN_CHATTEXT);
             setfont(FONT_TEXT);
@@ -104,24 +104,32 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
             FRIEND *f = &friend[m->data->id];
 
             // Always draw name next to action message
-            if(msg->msg_type == MSG_TYPE_ACTION_TEXT)
+            if (msg->msg_type == MSG_TYPE_ACTION_TEXT) {
                 lastauthor = 0xFF;
+            }
 
-            if(msg->author != lastauthor) {
+            if (msg->author != lastauthor) {
                 // Draw author name
                 // If author is current user
                 setfont(FONT_TEXT);
-                if(msg->msg_type == MSG_TYPE_ACTION_TEXT)
+                if (msg->msg_type == MSG_TYPE_ACTION_TEXT) {
                     setcolor(COLOR_MAIN_ACTIONTEXT);
-                else
-                    if(msg->author)
+                } else {
+                    if (msg->author) {
                         setcolor(COLOR_MAIN_SUBTEXT);
-                    else
+                    } else {
                         setcolor(COLOR_MAIN_CHATTEXT);
-                if(msg->author)
+                    }
+                }
+
+                if (msg->author) {
                     drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, y, self.name, self.name_length);
-                else
+                } else if (f->alias) {
+                    drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, y, f->alias, f->alias_length);
+                } else {
                     drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, y, f->name, f->name_length);
+                }
+
                 lastauthor = msg->author;
             }
         }
