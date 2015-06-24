@@ -254,6 +254,8 @@ void friend_meta_data_read(Tox *tox, int friend_id)
     memcpy(metadata, mdata, sizeof(*metadata));
     if (metadata->alias_length) {
         friend_set_alias(&friend[friend_id], mdata + sizeof(size_t), metadata->alias_length);
+    } else {
+        friend_set_alias(&friend[friend_id], NULL, 0); /* uTox depends on this being 0/NULL if there's no alias. */
     }
 }
 
