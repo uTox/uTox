@@ -1,6 +1,8 @@
 _Bool doevent(XEvent event)
 {
-    if(XFilterEvent(&event, None)) return 1;
+    if ( XFilterEvent(&event, None) ) {
+        return 1;
+    }
     if(event.xany.window && event.xany.window != window) {
 
         if (event.xany.window == tray_window) {
@@ -263,6 +265,11 @@ _Bool doevent(XEvent event)
         break;
     }
 
+    case KeyRelease: {
+        // XKeyEvent *ev = &event.xkey;
+        // KeySym sym = XLookupKeysym(ev, 0);
+        break;
+    }
     case KeyPress: {
         XKeyEvent *ev = &event.xkey;
         KeySym sym = XLookupKeysym(ev, 0);//XKeycodeToKeysym(display, ev->keycode, 0)

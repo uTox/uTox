@@ -39,7 +39,7 @@ MSG_FILE* message_add_type_file(FILE_TRANSFER *file){//TODO shove on ui thread
     msg->inline_png = file->in_memory;
     msg->path = NULL;
 
-    FRIEND *f = &friend[file->friend_number];
+    // FRIEND *f = &friend[file->friend_number];
     // *str = file_translate_status(*file->status);
 
     return msg;

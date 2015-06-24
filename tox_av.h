@@ -765,7 +765,7 @@ static void audio_thread(void *args)
                 if (f_a) {
                     int ret = filter_audio(f_a, (int16_t*)buf, perframe);
 
-                    if (ret == -1) { 
+                    if (ret == -1) {
                         debug("filter audio error\n");
                     }
 
@@ -774,6 +774,12 @@ static void audio_thread(void *args)
                     }
                 }
                 #endif
+
+                /* If push to talk, we don't have to do anything */
+                if (!check_ptt_key()) {
+                    voice = 0; //PTT is up, send nothing.
+                }
+
                 if(preview) {
                     if (preview_buffer_index + perframe > PREVIEW_BUFFER_SIZE)
                         preview_buffer_index = 0;

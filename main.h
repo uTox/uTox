@@ -41,7 +41,7 @@
 // Versions
 #define TITLE "uTox"
 #define SUB_TITLE "(Alpha)"
-#define VERSION "0.3.2"
+#define VERSION "0.3.3"
 
 // Limits and sizes
 #define MAX_CALLS 16
@@ -73,7 +73,8 @@ typedef struct
     uint16_t audio_device_in;
     uint16_t audio_device_out;
     uint8_t theme;
-    uint8_t nothing;
+    uint8_t push_to_talk : 1;
+    uint8_t zero : 7;
     uint16_t unused[31];
     uint8_t proxy_ip[0];
 }UTOX_SAVE;
@@ -210,8 +211,9 @@ enum {
 
 #include "ui_dropdown.h"
 
+/* Super global vars */
 volatile _Bool tox_thread_init, audio_thread_init, video_thread_init, toxav_thread_init;
-volatile _Bool logging_enabled, audible_notifications_enabled, audio_filtering_enabled, close_to_tray, start_in_tray, auto_startup;
+volatile _Bool logging_enabled, audible_notifications_enabled, audio_filtering_enabled, close_to_tray, start_in_tray, auto_startup, push_to_talk;
 volatile uint16_t loaded_audio_in_device, loaded_audio_out_device;
 _Bool tox_connected;
 
@@ -329,6 +331,13 @@ _Bool dont_send_typing_notes; //Stores user's preference about typing notificati
 #define strcpy2(x, y) (memcpy(x, y, sizeof(y) - 1))
 
 void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data);
+
+/** returns 0 if push to talk is enabled, and the button is up, else returns 1. */
+void  init_ptt(void);
+_Bool get_ptt_key(void);
+_Bool set_ptt_key(void);
+_Bool check_ptt_key(void);
+void  exit_ptt(void);
 
 /* draw functions*/
 void drawtext(int x, int y, char_t *str, STRING_IDX length);

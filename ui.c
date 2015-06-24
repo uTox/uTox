@@ -290,15 +290,16 @@ static void draw_settings_text_ui(int x, int y, int w, int UNUSED(height)){
 static void draw_settings_text_av(int x, int y, int w, int UNUSED(height)){
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_TEXT);
-    drawstr(LIST_RIGHT + SCALE * 5,   y + SCALE * 5,  RINGTONE);
+    drawstr(LIST_RIGHT + 5   * SCALE, y + 5  * SCALE,  RINGTONE);
+    drawstr(LIST_RIGHT + 60  * SCALE, y + 5  * SCALE,  PUSH_TO_TALK);
     #ifdef AUDIO_FILTERING
-    drawstr(LIST_RIGHT + SCALE * 100, y + SCALE * 5,  AUDIOFILTERING);
+    drawstr(LIST_RIGHT + 120 * SCALE, y + 5  * SCALE,  AUDIOFILTERING);
     #endif
-    drawstr(LIST_RIGHT + SCALE * 5,   y + SCALE * 35, AUDIOINPUTDEVICE);
-    drawstr(LIST_RIGHT + SCALE * 5,   y + SCALE * 60, AUDIOOUTPUTDEVICE);
-    drawstr(LIST_RIGHT + SCALE * 5,   y + SCALE * 85, VIDEOINPUTDEVICE);
+    drawstr(LIST_RIGHT + 5   * SCALE, y + 35  * SCALE, AUDIOINPUTDEVICE);
+    drawstr(LIST_RIGHT + 5   * SCALE, y + 60  * SCALE, AUDIOOUTPUTDEVICE);
+    drawstr(LIST_RIGHT + 5   * SCALE, y + 85  * SCALE, VIDEOINPUTDEVICE);
     setfont(FONT_SELF_NAME);
-    drawstr(LIST_RIGHT + SCALE * 5,   y + SCALE * 115, PREVIEW);
+    drawstr(LIST_RIGHT + 5   * SCALE, y + 115 * SCALE, PREVIEW);
 }
 
 static void draw_settings_sub_header(int x, int y, int w, int UNUSED(height)){
@@ -683,6 +684,7 @@ panel_main = {
                 .content_scroll = &scrollbar_settings,
                 .child = (PANEL*[]) {
                     (void*)&dropdown_dpi,
+                    (void*)&dropdown_push_to_talk,
                     (void*)&dropdown_theme,
                     (void*)&dropdown_logging,
                     (void*)&dropdown_close_to_tray, (void*)&dropdown_start_in_tray,
@@ -1002,10 +1004,18 @@ void ui_scale(uint8_t scale)
             .width  = 20 * SCALE
         },
 
+    d_push_to_talk = {
+        .type   = PANEL_DROPDOWN,
+        .x      = 60 * SCALE,
+        .y      = 15 * SCALE,
+        .height = 12 * SCALE,
+        .width  = 20 * SCALE
+    },
+
         #ifdef AUDIO_FILTERING
         d_audio_filtering = {
             .type   = PANEL_DROPDOWN,
-            .x      = 100 * SCALE,
+            .x      = 120 * SCALE,
             .y      = 15  * SCALE,
             .height = 12  * SCALE,
             .width  = 20  * SCALE

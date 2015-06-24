@@ -129,6 +129,15 @@ static void dropdown_typing_notes_onselect(const uint16_t i, const DROPDOWN* UNU
     debug("Typing notifications preference: %hu\n", i);
 }
 
+static void dropdown_push_to_talk_onselect(const uint16_t i, const DROPDOWN* UNUSED(dm)) {
+    if (i) {
+        // TODO, push this onto the start and end call fxn?
+        init_ptt();
+    } else {
+        exit_ptt();
+    }
+}
+
 static UI_STRING_ID dpidrops[] = {
     STR_DPI_TINY,
     STR_DPI_NORMAL,
@@ -274,4 +283,11 @@ dropdown_audio_filtering = {
     .onselect = dropdown_audio_filtering_onselect,
     .dropcount = countof(offondrops),
     .userdata = offondrops
+},
+
+dropdown_push_to_talk = {
+    .ondisplay = simple_dropdown_ondisplay,
+    .onselect  = dropdown_push_to_talk_onselect,
+    .dropcount = countof(offondrops),
+    .userdata  = offondrops
 };
