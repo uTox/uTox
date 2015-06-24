@@ -123,11 +123,6 @@ static void button_transfer_onpress(void)
     list_selectswap();
 }
 
-static void button_settings_onpress(void)
-{
-    list_selectsettings();
-}
-
 extern PANEL panel_settings_profile, panel_settings_net, panel_settings_ui, panel_settings_av;
 extern SCROLLABLE scrollbar_settings;
 static void button_settings_sub_profile_onpress(void){
@@ -548,14 +543,63 @@ button_transfer = {
     .update = button_bottommenu_update,
     .onpress = button_transfer_onpress,
     .tooltip_text = { .i18nal = STR_SWITCHPROFILE },
-},
+};
 
-button_settings = {
+static void button_settings_poison_mup(void){
+    list_selectsettings();
+}
+
+BUTTON button_settings_poison = {
     .bm2 = BM_SETTINGS,
     .bw = _BM_ADD_WIDTH,
     .bh = _BM_ADD_WIDTH,
     .update = button_bottommenu_update,
-    .onpress = button_settings_onpress,
+    .onpress = button_settings_poison_mup,
+    .tooltip_text = { .i18nal = STR_USERSETTINGS },
+};
+
+static void button_show_all_friends_update(BUTTON *b){
+
+}
+
+static void button_show_all_friends_mup(void){
+    FILTER = 0;
+}
+
+BUTTON button_show_all_friends = {
+    .bm2 = BM_SETTINGS,
+    .bw = _BM_ADD_WIDTH,
+    .bh = _BM_ADD_WIDTH,
+    .update = button_show_all_friends_update,
+    .onpress = button_show_all_friends_mup,
+};
+
+static void button_show_online_friends_update(BUTTON *b){
+
+}
+
+static void button_show_online_friends_mup(void){
+    FILTER = 1;
+}
+
+BUTTON button_show_online_friends = {
+    .bm2 = BM_SETTINGS,
+    .bw = _BM_ADD_WIDTH,
+    .bh = _BM_ADD_WIDTH,
+    .update = button_show_online_friends_update,
+    .onpress = button_show_online_friends_mup,
+};
+
+static void button_settings_mup(void){
+    list_selectsettings();
+}
+
+BUTTON button_settings = {
+    .bm2 = BM_SETTINGS,
+    .bw = _BM_ADD_WIDTH,
+    .bh = _BM_ADD_WIDTH,
+    .update = button_bottommenu_update,
+    .onpress = button_settings_mup,
     .tooltip_text = { .i18nal = STR_USERSETTINGS },
 },
 

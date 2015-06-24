@@ -489,6 +489,14 @@ edit_search = {
     .style = AUXILIARY_STYLE,
 },
 
+edit_search_friends_poison = {
+    .maxlength = sizeof(edit_search_data),
+    .data = edit_search_data,
+    .empty_str = { .i18nal = STR_CONTACTS_FILTER_EDIT_HINT },
+    .onchange = edit_search_onchange,
+    .style = AUXILIARY_STYLE,
+},
+
 edit_proxy_ip = {
     .maxlength = sizeof(edit_proxy_ip_data) - 1,
     .data = edit_proxy_ip_data,

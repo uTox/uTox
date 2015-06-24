@@ -367,7 +367,6 @@ static void draw_background(int UNUSED(x), int UNUSED(y), int width, int height)
     }
 }
 
-
 /* These remain for legacy reasons, PANEL_MAIN calls these by default when not given it's own function to call */
 static void  background_draw(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int width, int height){ return; }
 static _Bool background_mmove(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height), int UNUSED(mx), int UNUSED(my), int UNUSED(dx), int UNUSED(dy)) { return 0; }
@@ -428,7 +427,8 @@ messages_group = {
 };
 
 /* uTox default theme panel draw hierarchy. */
-PANEL panel_root,
+PANEL panel_root;
+PANEL panel_default_layout,
         panel_side_bar,
             panel_self,
             panel_roster,
@@ -448,262 +448,511 @@ PANEL panel_root,
                     panel_settings_net,
                     panel_settings_ui,
                     panel_settings_av;
+PANEL panel_poison_layout,
+        panel_side_bar,
+            panel_top_ui,
+            panel_friend_roster,
+                panel_roster_list,
+            panel_self,
+        panel_main,
+            panel_chat,
+                panel_group_chat,
+                panel_friend_chat,
+                panel_friend_request,
+            panel_overhead,
+                panel_add_friend,
+                panel_change_profile,
+                panel_settings_master,
+                    panel_settings_subheader,
+                    panel_settings_profile,
+                    panel_settings_net,
+                    panel_settings_ui,
+                    panel_settings_av;
 
-PANEL panel_root = panel_default_layout;
 
-/* Root panel, hold all the other panels */
-PANEL panel_default_layout = {
-    .type = PANEL_NONE,
-    .drawfunc = draw_background,
-    .disabled = 0,
-    .child = (PANEL*[]) {
-        &panel_side_bar, &panel_main,
-        NULL
-    }
-},
 
-/* Left side bar, holds the user, the roster, and the setting buttons */
-panel_side_bar = {
-    .type = PANEL_NONE,
-    .disabled = 0,
-    .child = (PANEL*[]) {
-        &panel_self,
-        &panel_roster,
-        &panel_lower_buttons,
-        NULL
-    }
-},
+void ui_init_layout(UI_LAYOUT layout){
+    active_layout = layout;
+    switch (layout){
+    case DEFAULT_UTOX_LAYOUT:{
 
-    /* The user badge and buttons */
-    panel_self = {
-        .type = PANEL_NONE,
-        .disabled = 0,
-        .drawfunc = draw_user_badge,
-        .child = (PANEL*[]) {
-            (void*)&button_avatar, (void*)&button_name,       (void*)&button_status,
-                                   (void*)&button_statusmsg,
-            NULL
-        }
-    },
-
-    /* The friends and group was called list */
-    panel_roster = {
-        .type = PANEL_NONE,
-        .disabled = 0,
-        .child = (PANEL*[]) {
-            // TODO rename these
-            (void*)&edit_search, (void*)&dropdown_filter,
-            (void*)&panel_roster_list,
-            (void*)&scrollbar_roster,
-            NULL
-        }
-    },
-
-        panel_roster_list = {
-            .type = PANEL_LIST,
-            .content_scroll = &scrollbar_roster,
-        },
-
-    panel_lower_buttons = {
-        .type = PANEL_NONE,
-        .disabled = 0,
-        .child = (PANEL*[]) {
-            (void*)&button_add, (void*)&button_groups, (void*)&button_transfer, (void*)&button_settings,
-            NULL
-        }
-    },
-
-/* Main panel, holds the overhead/settings, or the friend/group containers */
-panel_main = {
-    .type = PANEL_NONE,
-    .disabled = 0,
-    .child = (PANEL*[]) {
-        (void*)&panel_chat,
-        (void*)&panel_overhead,
-        NULL
-    }
-},
-
-    /* Chat panel, friend or group, depending on what's selected */
-    panel_chat = {
-        .type = PANEL_NONE,
-        .disabled = 1,
-        .child = (PANEL*[]) {
-            (void*)&panel_group_chat,
-            (void*)&panel_friend_chat,
-            (void*)&panel_friend_request,
-            NULL
-        }
-    },
-
-        panel_group_chat = {
+        PANEL panel_root = {
             .type = PANEL_NONE,
-            .disabled = 1,
-            .drawfunc = draw_group,
-            .child = (PANEL*[]) {
-                (void*)&button_group_audio,
-                (void*)&edit_msg_group,
-                (void*)&scrollbar_group,
-                (void*)&messages_group,
-                (void*)&button_chat_send,
-                NULL
-            }
-        },
-
-        panel_friend_chat ={
-            .type = PANEL_NONE,
-            .disabled = 1,
-            .drawfunc = draw_friend,
-            .child = (PANEL*[]) {
-                (void*)&button_call, (void*)&button_video, (void*)&button_sendfile,
-                (void*)&button_chat1, (void*)&button_chat2, (void*)&button_chat_send,
-                (void*)&edit_msg,
-                (void*)&scrollbar_friend,
-                (void*)&messages_friend,
-                NULL
-            }
-        },
-
-        panel_friend_request = {
-            .type = PANEL_NONE,
-            .disabled = 1,
-            .drawfunc = draw_friend_request,
-            .child = (PANEL*[]) {
-                (void*)&button_accept_friend,
-                NULL
-            }
-        },
-
-    /* Settings master panel, holds the lower level settings */
-    panel_overhead = {
-        .type = PANEL_NONE,
-        .disabled = 0,
-        .child = (PANEL*[]) {
-            (void*)&panel_add_friend,
-            (void*)&panel_change_profile,
-            (void*)&panel_settings_master,
-            NULL
-        }
-    },
-
-        panel_add_friend = {
-            .type = PANEL_NONE,
-            .disabled = 1,
-            .drawfunc = draw_add_friend,
-            .child = (PANEL*[]) {
-                (void*)&button_add_friend,
-                (void*)&edit_add_id, (void*)&edit_add_msg,
-                NULL
-            }
-        },
-
-        panel_change_profile = {
-            .type = PANEL_NONE,
-            .disabled = 1,
-            .drawfunc = draw_change_profile,
-            .child = (PANEL*[]) {
-                /* Does nothing for now... sorry about that */
-                NULL
-            }
-        },
-
-        panel_settings_master = {
-            .type = PANEL_NONE,
+            .drawfunc = draw_background,
             .disabled = 0,
-            .drawfunc = draw_settings_header,
             .child = (PANEL*[]) {
-                (void*)&panel_settings_subheader,
+                &panel_side_bar, &panel_main,
                 NULL
             }
         },
-
-            panel_settings_subheader = {
+            /* Left side bar, holds the user, the roster, and the setting buttons */
+            panel_side_bar = {
                 .type = PANEL_NONE,
                 .disabled = 0,
-                .drawfunc = draw_settings_sub_header,
                 .child = (PANEL*[]) {
-                    (void*)&button_settings_sub_profile,
-                    (void*)&button_settings_sub_net,
-                    (void*)&button_settings_sub_ui,
-                    (void*)&button_settings_sub_av,
-                    (void*)&scrollbar_settings,
-                    (void*)&panel_settings_profile,
-                    (void*)&panel_settings_net,
-                    (void*)&panel_settings_ui,
-                    (void*)&panel_settings_av,
+                    &panel_self,
+                    &panel_roster,
+                    &panel_lower_buttons,
                     NULL
                 }
             },
-
-            /* Panel to draw settings page */
-            panel_settings_profile = {
+                /* The user badge and buttons */
+                panel_self = {
+                    .type = PANEL_NONE,
+                    .disabled = 0,
+                    .drawfunc = draw_user_badge,
+                    .child = (PANEL*[]) {
+                        (void*)&button_avatar, (void*)&button_name,       (void*)&button_status,
+                                               (void*)&button_statusmsg,
+                        NULL
+                    }
+                },
+                /* The friends and group was called list */
+                panel_roster = {
+                    .type = PANEL_NONE,
+                    .disabled = 0,
+                    .child = (PANEL*[]) {
+                        // TODO rename these
+                        (void*)&edit_search, (void*)&dropdown_filter,
+                        (void*)&panel_roster_list,
+                        (void*)&scrollbar_roster,
+                        NULL
+                    }
+                },
+                    panel_roster_list = {
+                        .type = PANEL_LIST,
+                        .content_scroll = &scrollbar_roster,
+                    },
+                panel_lower_buttons = {
+                    .type = PANEL_NONE,
+                    .disabled = 0,
+                    .child = (PANEL*[]) {
+                        (void*)&button_add, (void*)&button_groups, (void*)&button_transfer, (void*)&button_settings,
+                        NULL
+                    }
+                },
+            /* Main panel, holds the overhead/settings, or the friend/group containers */
+            panel_main = {
                 .type = PANEL_NONE,
                 .disabled = 0,
-                .drawfunc = draw_settings_text_profile,
-                .content_scroll = &scrollbar_settings,
                 .child = (PANEL*[]) {
-                    (void*)&edit_name,
-                    (void*)&edit_status,
-                    // Text: Tox ID
-                    (void*)&edit_toxid,
-                    (void*)&button_copyid,
-                    // User's tox id
-                    #ifdef EMOJI_IDS
-                    (void*)&button_change_id_type,
-                    #endif
-                    (void*)&dropdown_language,
+                    (void*)&panel_chat,
+                    (void*)&panel_overhead,
                     NULL
                 }
             },
-
-            panel_settings_net = {
+                /* Chat panel, friend or group, depending on what's selected */
+                panel_chat = {
+                    .type = PANEL_NONE,
+                    .disabled = 1,
+                    .child = (PANEL*[]) {
+                        (void*)&panel_group_chat,
+                        (void*)&panel_friend_chat,
+                        (void*)&panel_friend_request,
+                        NULL
+                    }
+                },
+                    panel_group_chat = {
+                        .type = PANEL_NONE,
+                        .disabled = 1,
+                        .drawfunc = draw_group,
+                        .child = (PANEL*[]) {
+                            (void*)&button_group_audio,
+                            (void*)&edit_msg_group,
+                            (void*)&scrollbar_group,
+                            (void*)&messages_group,
+                            (void*)&button_chat_send,
+                            NULL
+                        }
+                    },
+                    panel_friend_chat ={
+                        .type = PANEL_NONE,
+                        .disabled = 1,
+                        .drawfunc = draw_friend,
+                        .child = (PANEL*[]) {
+                            (void*)&button_call, (void*)&button_video, (void*)&button_sendfile,
+                            (void*)&button_chat1, (void*)&button_chat2, (void*)&button_chat_send,
+                            (void*)&edit_msg,
+                            (void*)&scrollbar_friend,
+                            (void*)&messages_friend,
+                            NULL
+                        }
+                    },
+                    panel_friend_request = {
+                        .type = PANEL_NONE,
+                        .disabled = 1,
+                        .drawfunc = draw_friend_request,
+                        .child = (PANEL*[]) {
+                            (void*)&button_accept_friend,
+                            NULL
+                        }
+                    },
+                /* Settings master panel, holds the lower level settings */
+                panel_overhead = {
+                    .type = PANEL_NONE,
+                    .disabled = 0,
+                    .child = (PANEL*[]) {
+                        (void*)&panel_add_friend,
+                        (void*)&panel_change_profile,
+                        (void*)&panel_settings_master,
+                        NULL
+                    }
+                },
+                    panel_add_friend = {
+                        .type = PANEL_NONE,
+                        .disabled = 1,
+                        .drawfunc = draw_add_friend,
+                        .child = (PANEL*[]) {
+                            (void*)&button_add_friend,
+                            (void*)&edit_add_id, (void*)&edit_add_msg,
+                            NULL
+                        }
+                    },
+                    panel_change_profile = {
+                        .type = PANEL_NONE,
+                        .disabled = 1,
+                        .drawfunc = draw_change_profile,
+                        .child = (PANEL*[]) {
+                            /* Does nothing for now... sorry about that */
+                            NULL
+                        }
+                    },
+                    panel_settings_master = {
+                        .type = PANEL_NONE,
+                        .disabled = 0,
+                        .drawfunc = draw_settings_header,
+                        .child = (PANEL*[]) {
+                            (void*)&panel_settings_subheader,
+                            NULL
+                        }
+                    },
+                        panel_settings_subheader = {
+                            .type = PANEL_NONE,
+                            .disabled = 0,
+                            .drawfunc = draw_settings_sub_header,
+                            .child = (PANEL*[]) {
+                                (void*)&button_settings_sub_profile,
+                                (void*)&button_settings_sub_net,
+                                (void*)&button_settings_sub_ui,
+                                (void*)&button_settings_sub_av,
+                                (void*)&scrollbar_settings,
+                                (void*)&panel_settings_profile,
+                                (void*)&panel_settings_net,
+                                (void*)&panel_settings_ui,
+                                (void*)&panel_settings_av,
+                                NULL
+                            }
+                        },
+                        /* Panel to draw settings page */
+                        panel_settings_profile = {
+                            .type = PANEL_NONE,
+                            .disabled = 0,
+                            .drawfunc = draw_settings_text_profile,
+                            .content_scroll = &scrollbar_settings,
+                            .child = (PANEL*[]) {
+                                (void*)&edit_name,
+                                (void*)&edit_status,
+                                // Text: Tox ID
+                                (void*)&edit_toxid,
+                                (void*)&button_copyid,
+                                // User's tox id
+                                #ifdef EMOJI_IDS
+                                (void*)&button_change_id_type,
+                                #endif
+                                (void*)&dropdown_language,
+                                NULL
+                            }
+                        },
+                        panel_settings_net = {
+                            .type = PANEL_NONE,
+                            /* Disabled by default, enabled by network button */
+                            .disabled = 1,
+                            .drawfunc = draw_settings_text_network,
+                            .content_scroll = &scrollbar_settings,
+                            .child = (PANEL*[]) {
+                                (void*)&edit_proxy_ip,
+                                (void*)&edit_proxy_port,
+                                (void*)&dropdown_proxy,
+                                (void*)&dropdown_ipv6,
+                                (void*)&dropdown_udp,
+                                NULL
+                            }
+                        },
+                        panel_settings_ui = {
+                            .type = PANEL_NONE,
+                            .drawfunc = draw_settings_text_ui,
+                            .disabled = 1,
+                            .content_scroll = &scrollbar_settings,
+                            .child = (PANEL*[]) {
+                                (void*)&dropdown_dpi,
+                                (void*)&dropdown_theme,
+                                (void*)&dropdown_logging,
+                                (void*)&dropdown_close_to_tray, (void*)&dropdown_start_in_tray,
+                                (void*)&dropdown_auto_startup,
+                                (void*)&dropdown_typing_notes,
+                                NULL
+                            }
+                        },
+                        panel_settings_av = {
+                            .type = PANEL_NONE,
+                            .disabled = 1,
+                            .drawfunc = draw_settings_text_av,
+                            .content_scroll = &scrollbar_settings,
+                            .child = (PANEL*[]) {
+                                (void*)&button_callpreview,
+                                (void*)&button_videopreview,
+                                (void*)&dropdown_audio_in,
+                                (void*)&dropdown_audio_out,
+                                (void*)&dropdown_video,
+                                (void*)&dropdown_audible_notification,
+                                (void*)&dropdown_audio_filtering,
+                                NULL
+                            }
+                        };
+        break;
+    }
+    case POISON_LAYOUT:{
+        PANEL panel_root = {
+            .type = PANEL_NONE,
+            .drawfunc = draw_background,
+            .disabled = 0,
+            .child = (PANEL*[]) {
+                &panel_side_bar, &panel_main,
+                NULL
+            }
+        },
+            /* Left side bar, holds the user, the roster, and the setting buttons */
+            panel_side_bar = {
                 .type = PANEL_NONE,
-                /* Disabled by default, enabled by network button */
-                .disabled = 1,
-                .drawfunc = draw_settings_text_network,
-                .content_scroll = &scrollbar_settings,
+                .disabled = 0,
                 .child = (PANEL*[]) {
-                    (void*)&edit_proxy_ip,
-                    (void*)&edit_proxy_port,
-                    (void*)&dropdown_proxy,
-                    (void*)&dropdown_ipv6,
-                    (void*)&dropdown_udp,
+                    &panel_top_ui,
+                    &panel_friend_roster,
+                    &panel_self,
                     NULL
                 }
             },
-
-            panel_settings_ui = {
+                panel_top_ui = {
+                    .type = PANEL_NONE,
+                    .disabled = 0,
+                    .child = (PANEL*[]) {
+                        (void*)&edit_search_friends_poison,
+                        (void*)&button_show_all_friends, (void*)&button_show_online_friends, (void*)&button_settings_poison,
+                        NULL
+                    }
+                },
+                /* The friends and group was called list */
+                panel_friend_roster = {
+                    .type = PANEL_NONE,
+                    .disabled = 0,
+                    .child = (PANEL*[]) {
+                        // TODO rename these
+                        (void*)&dropdown_filter,
+                        (void*)&panel_roster_list,
+                        (void*)&scrollbar_roster,
+                        NULL
+                    }
+                },
+                    panel_roster_list = {
+                        .type = PANEL_LIST,
+                        .content_scroll = &scrollbar_roster,
+                    },
+                /* The user badge and buttons */
+                panel_self = {
+                    .type = PANEL_NONE,
+                    .disabled = 0,
+                    .drawfunc = draw_user_badge,
+                    .child = (PANEL*[]) {
+                        (void*)&button_avatar, (void*)&button_name,       (void*)&button_status,
+                                               (void*)&button_statusmsg,
+                        NULL
+                    }
+                },
+            /* Main panel, holds the overhead/settings, or the friend/group containers */
+            panel_main = {
                 .type = PANEL_NONE,
-                .drawfunc = draw_settings_text_ui,
-                .disabled = 1,
-                .content_scroll = &scrollbar_settings,
+                .disabled = 0,
                 .child = (PANEL*[]) {
-                    (void*)&dropdown_dpi,
-                    (void*)&dropdown_theme,
-                    (void*)&dropdown_logging,
-                    (void*)&dropdown_close_to_tray, (void*)&dropdown_start_in_tray,
-                    (void*)&dropdown_auto_startup,
-                    (void*)&dropdown_typing_notes,
+                    (void*)&panel_chat,
+                    (void*)&panel_overhead,
                     NULL
                 }
             },
-
-            panel_settings_av = {
-                .type = PANEL_NONE,
-                .disabled = 1,
-                .drawfunc = draw_settings_text_av,
-                .content_scroll = &scrollbar_settings,
-                .child = (PANEL*[]) {
-                    (void*)&button_callpreview,
-                    (void*)&button_videopreview,
-                    (void*)&dropdown_audio_in,
-                    (void*)&dropdown_audio_out,
-                    (void*)&dropdown_video,
-                    (void*)&dropdown_audible_notification,
-                    (void*)&dropdown_audio_filtering,
-                    NULL
-                }
-            };
+                /* Chat panel, friend or group, depending on what's selected */
+                panel_chat = {
+                    .type = PANEL_NONE,
+                    .disabled = 1,
+                    .child = (PANEL*[]) {
+                        (void*)&panel_group_chat,
+                        (void*)&panel_friend_chat,
+                        (void*)&panel_friend_request,
+                        NULL
+                    }
+                },
+                    panel_group_chat = {
+                        .type = PANEL_NONE,
+                        .disabled = 1,
+                        .drawfunc = draw_group,
+                        .child = (PANEL*[]) {
+                            (void*)&button_group_audio,
+                            (void*)&edit_msg_group,
+                            (void*)&scrollbar_group,
+                            (void*)&messages_group,
+                            (void*)&button_chat_send,
+                            NULL
+                        }
+                    },
+                    panel_friend_chat ={
+                        .type = PANEL_NONE,
+                        .disabled = 1,
+                        .drawfunc = draw_friend,
+                        .child = (PANEL*[]) {
+                            (void*)&button_call, (void*)&button_video, (void*)&button_sendfile,
+                            (void*)&button_chat1, (void*)&button_chat2, (void*)&button_chat_send,
+                            (void*)&edit_msg,
+                            (void*)&scrollbar_friend,
+                            (void*)&messages_friend,
+                            NULL
+                        }
+                    },
+                    panel_friend_request = {
+                        .type = PANEL_NONE,
+                        .disabled = 1,
+                        .drawfunc = draw_friend_request,
+                        .child = (PANEL*[]) {
+                            (void*)&button_accept_friend,
+                            NULL
+                        }
+                    },
+                /* Settings master panel, holds the lower level settings */
+                panel_overhead = {
+                    .type = PANEL_NONE,
+                    .disabled = 0,
+                    .child = (PANEL*[]) {
+                        (void*)&panel_add_friend,
+                        (void*)&panel_change_profile,
+                        (void*)&panel_settings_master,
+                        NULL
+                    }
+                },
+                    panel_add_friend = {
+                        .type = PANEL_NONE,
+                        .disabled = 1,
+                        .drawfunc = draw_add_friend,
+                        .child = (PANEL*[]) {
+                            (void*)&button_add_friend,
+                            (void*)&edit_add_id, (void*)&edit_add_msg,
+                            NULL
+                        }
+                    },
+                    panel_change_profile = {
+                        .type = PANEL_NONE,
+                        .disabled = 1,
+                        .drawfunc = draw_change_profile,
+                        .child = (PANEL*[]) {
+                            /* Does nothing for now... sorry about that */
+                            NULL
+                        }
+                    },
+                    panel_settings_master = {
+                        .type = PANEL_NONE,
+                        .disabled = 0,
+                        .drawfunc = draw_settings_header,
+                        .child = (PANEL*[]) {
+                            (void*)&panel_settings_subheader,
+                            NULL
+                        }
+                    },
+                        panel_settings_subheader = {
+                            .type = PANEL_NONE,
+                            .disabled = 0,
+                            .drawfunc = draw_settings_sub_header,
+                            .child = (PANEL*[]) {
+                                (void*)&button_settings_sub_profile,
+                                (void*)&button_settings_sub_net,
+                                (void*)&button_settings_sub_ui,
+                                (void*)&button_settings_sub_av,
+                                (void*)&scrollbar_settings,
+                                (void*)&panel_settings_profile,
+                                (void*)&panel_settings_net,
+                                (void*)&panel_settings_ui,
+                                (void*)&panel_settings_av,
+                                NULL
+                            }
+                        },
+                        /* Panel to draw settings page */
+                        panel_settings_profile = {
+                            .type = PANEL_NONE,
+                            .disabled = 0,
+                            .drawfunc = draw_settings_text_profile,
+                            .content_scroll = &scrollbar_settings,
+                            .child = (PANEL*[]) {
+                                (void*)&edit_name,
+                                (void*)&edit_status,
+                                // Text: Tox ID
+                                (void*)&edit_toxid,
+                                (void*)&button_copyid,
+                                // User's tox id
+                                #ifdef EMOJI_IDS
+                                (void*)&button_change_id_type,
+                                #endif
+                                (void*)&dropdown_language,
+                                NULL
+                            }
+                        },
+                        panel_settings_net = {
+                            .type = PANEL_NONE,
+                            /* Disabled by default, enabled by network button */
+                            .disabled = 1,
+                            .drawfunc = draw_settings_text_network,
+                            .content_scroll = &scrollbar_settings,
+                            .child = (PANEL*[]) {
+                                (void*)&edit_proxy_ip,
+                                (void*)&edit_proxy_port,
+                                (void*)&dropdown_proxy,
+                                (void*)&dropdown_ipv6,
+                                (void*)&dropdown_udp,
+                                NULL
+                            }
+                        },
+                        panel_settings_ui = {
+                            .type = PANEL_NONE,
+                            .drawfunc = draw_settings_text_ui,
+                            .disabled = 1,
+                            .content_scroll = &scrollbar_settings,
+                            .child = (PANEL*[]) {
+                                (void*)&dropdown_dpi,
+                                (void*)&dropdown_theme,
+                                (void*)&dropdown_logging,
+                                (void*)&dropdown_close_to_tray, (void*)&dropdown_start_in_tray,
+                                (void*)&dropdown_auto_startup,
+                                (void*)&dropdown_typing_notes,
+                                NULL
+                            }
+                        },
+                        panel_settings_av = {
+                            .type = PANEL_NONE,
+                            .disabled = 1,
+                            .drawfunc = draw_settings_text_av,
+                            .content_scroll = &scrollbar_settings,
+                            .child = (PANEL*[]) {
+                                (void*)&button_callpreview,
+                                (void*)&button_videopreview,
+                                (void*)&dropdown_audio_in,
+                                (void*)&dropdown_audio_out,
+                                (void*)&dropdown_video,
+                                (void*)&dropdown_audible_notification,
+                                (void*)&dropdown_audio_filtering,
+                                NULL
+                            }
+                        };
+        break;
+    }
+    case TOX_BETA_LAYOUT:{
+        break;
+    } /* Last case     */
+    } /* End of switch */
+}
 
 static void ui_generate_button_panels(void){
     /* Button Structs  */
@@ -736,6 +985,30 @@ static void ui_generate_button_panels(void){
         .x = SCALE * 28 * 3,
         .y = LIST_BOTTOM,
         .width = SCALE * 27,
+        .height = -LIST_BOTTOM,
+    },
+
+    b_settings_poison = {
+        .type   = PANEL_BUTTON,
+        .x      = 28 * SCALE * 3,
+        .y      = 28 * SCALE,
+        .width  = SCALE * 27,
+        .height = -LIST_BOTTOM,
+    },
+
+    b_show_all_friends = {
+        .type   = PANEL_BUTTON,
+        .x      = 1 * SCALE * 3,
+        .y      = 28 * SCALE,
+        .width  = SCALE * 27,
+        .height = -LIST_BOTTOM,
+    },
+
+    b_show_online_friends = {
+        .type   = PANEL_BUTTON,
+        .x      = 20 * SCALE * 3,
+        .y      = 28 * SCALE,
+        .width  = SCALE * 27,
         .height = -LIST_BOTTOM,
     },
 
@@ -914,6 +1187,9 @@ static void ui_generate_button_panels(void){
     /* Set the button panels */
     button_add.panel = b_add;
     button_settings.panel = b_settings;
+    button_settings_poison.panel = b_settings_poison;
+    button_show_online_friends.panel = b_show_online_friends;
+    button_show_all_friends.panel = b_show_all_friends;
     button_transfer.panel = b_transfer;
     button_groups.panel = b_groups;
     button_copyid.panel = b_copyid;
@@ -1173,6 +1449,14 @@ static void ui_generate_textbox_panels(void){
         .width = LIST_RIGHT - SCALE * 25,
     },
 
+    e_search_friends_poison = {
+        .type = PANEL_EDIT,
+        .x = 0,
+        .y = SEARCH_Y,
+        .height = 12 * SCALE,
+        .width = LIST_RIGHT - SCALE * 25,
+    },
+
     e_proxy_ip = {
         .type   = PANEL_EDIT,
         .x      = 70 * SCALE,
@@ -1198,6 +1482,7 @@ static void ui_generate_textbox_panels(void){
     edit_msg.panel = e_msg;
     edit_msg_group.panel = e_msg_group;
     edit_search.panel = e_search;
+    edit_search_friends_poison.panel = e_search_friends_poison;
     edit_proxy_ip.panel = e_proxy_ip;
     edit_proxy_port.panel = e_proxy_port;
 }
@@ -1256,6 +1541,10 @@ void ui_scale(uint8_t scale){
     ui_generate_textbox_panels();
 
     setscale();
+
+    ui_init_layout(1);
+
+    panel_root = panel_poison_layout;
 }
 
 /* Use the preprocessor to build function prototypes for all user interactions

@@ -1176,6 +1176,8 @@ int main(int argc, char *argv[])
     /* load fonts and scalable bitmaps */
     ui_scale(save->scale + 1);
 
+    ui_init_layout();
+
     /* done with save */
     free(save);
 

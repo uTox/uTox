@@ -25,11 +25,18 @@ typedef enum {
     AUXILIARY_STYLE, // gray style, used on friends side
 } UI_ELEMENT_STYLE;
 
+typedef enum {
+    DEFAULT_UTOX_LAYOUT,
+    POISON_LAYOUT,
+    TOX_BETA_LAYOUT,
+} UI_LAYOUT;
+
 typedef struct scrollable SCROLLABLE;
 typedef struct edit EDIT;
 typedef struct panel PANEL;
 typedef struct button BUTTON;
 typedef struct messages MESSAGES;
+
 struct panel
 {
     uint8_t type;
@@ -114,6 +121,7 @@ char search_data[128];
 /* metrics
  */
 uint8_t SCALE;
+uint8_t active_layout;
 
 /* These are the new defines to help align UI elements, the new ones start with either the x_/y_ prefix and the
  * _top/_bottom/_left/_right post fix, and should be used to replace the originals whenever possible. If you're able to
