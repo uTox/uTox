@@ -573,6 +573,10 @@ static void utox_thread_work_for_typing_notifications(Tox *tox, uint64_t time)
     }
 }
 
+void* testfxn(void){
+    debug("it works\n\n\n\n\n\n");
+}
+
 /** void tox_thread(void)
  *
  * Main tox function, starts a new toxcore for utox to use, and then spawns its
@@ -673,6 +677,8 @@ void tox_thread(void *UNUSED(args))
 
         /* Start the time_master thread */
         thread(timemaster_thread, NULL);
+
+        timemaster_add_callback_at(testfxn, 1000);
 
         //
         _Bool connected = 0;

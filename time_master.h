@@ -9,9 +9,9 @@ typedef struct timemaster_action {
     /* Type of time action. */
     _Bool callback, update, tween, repeating, complete;
     /* Scheduled time */
-    uint32_t next_run, last_run, interval;
+    uint32_t next_run, last_run, interval, steps;
     /* Update variables. */
-    void *target, *new_val, *steps;
+    void *target, *new_val;
     /* Call back function. */
     void (*function)(void);
 
@@ -19,3 +19,5 @@ typedef struct timemaster_action {
 
 /** the primary function, the thread_worker it self. */
 void timemaster_thread(void);
+/** trigger a function callback after millisecs */
+void timemaster_add_callback_at(void *function, uint32_t millisecs);

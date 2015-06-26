@@ -13,9 +13,15 @@ TIMEMSTR_ACTION **timemaster_list;
 static void timemaster_init(void){
     /* Get some memory to hold our brain.  (start with 10 because why not!) */
     timemaster_list = calloc(sizeof(**timemaster_list), 10);
+    if (timemaster_list) {
+        timemaster_size = 10;
+        timemaster_count = 0;
+    } else {
+        debug("cant' start timemaster\n");
+    }
 }
 
-static void timemaster_resize(void){
+static _Bool timemaster_resize(void){
     /* check for space at end of array
      * NULL vars that have expired
      * Move vars into empty spaces
@@ -121,10 +127,32 @@ void timemaster_thread(void){
     timemaster_alive = 0;
 }
 
-/*void timemaster_add_callback_at(function, millisecs){
-
+static TIMEMSTR_ACTION* timemaster_first_free(){
+    do {
+        for (uint32_t i = 0 ; timemaster_size; i++) {
+            if ( timemaster_list[i] ) {
+                continue;
+            } else {
+                return timemaster_list[i];
+            }
+        }
+    } while (timemaster_resize());
+    return NULL;
 }
-void timemaster_add_callback_after(function, millisecs){
+
+void timemaster_add_callback_at(void *function, uint32_t millisecs){
+    TIMEMSTR_ACTION *slot = timemaster_first_free();
+    if (!slot) {
+        debug("Couldn't set timer\n");
+        return;
+    }
+
+    memset(slot, 0, sizeof(*slot));
+    slot->callback = 1;
+    slot->function = function;
+    slot->next_run = millisecs;
+}
+/*void timemaster_add_callback_after(function, millisecs){
 
 }
 void timemaster_add_callback_every(function, millisecs){
