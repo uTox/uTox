@@ -671,6 +671,9 @@ void tox_thread(void *UNUSED(args))
         thread(video_thread, av);
         thread(toxav_thread, av);
 
+        /* Start the time_master thread */
+        thread(timemaster_thread, NULL);
+
         //
         _Bool connected = 0;
         uint64_t last_save = get_time(), time;

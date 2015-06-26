@@ -205,6 +205,7 @@ enum {
 #include "contextmenu.h"
 #include "tooltip.h"
 #include "commands.h"
+#include "time_master.h"
 
 #include "text.h"
 #include "util.h"
