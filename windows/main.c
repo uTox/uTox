@@ -1105,15 +1105,15 @@ LRESULT CALLBACK GrabProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
     return DefWindowProcW(window, msg, wParam, lParam);
 }
 
-void setscale(void)
-{
-    int i;
-    for(i = 0; i != countof(font); i++) {
+void freefonts(){
+    for(int i = 0; i != countof(font); i++) {
         if(font[i]) {
             DeleteObject(font[i]);
         }
     }
+}
 
+void loadfonts(){
     LOGFONT lf = {
         .lfWeight = FW_NORMAL,
         //.lfCharSet = ANSI_CHARSET,
@@ -1142,7 +1142,6 @@ void setscale(void)
     font[FONT_MSG] = CreateFontIndirect(&lf);
     lf.lfUnderline = 1;
     font[FONT_MSG_LINK] = CreateFontIndirect(&lf);*/
-
     #undef F
 
     TEXTMETRIC tm;
@@ -1153,6 +1152,14 @@ void setscale(void)
     //GetTextMetrics(hdc, &tm);
     //font_msg_lineheight = tm.tmHeight + tm.tmExternalLeading;
 
+}
+
+void setscale_fonts(void){
+    freefonts();
+    loadfonts();
+}
+
+void setscale(void){
     svg_draw(1);
 }
 
