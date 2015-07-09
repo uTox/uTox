@@ -946,8 +946,8 @@ void toxaudio_postmessage(uint8_t msg, uint32_t param1, uint32_t param2, void *d
     }
 }
 
-static void callback_av_audio(ToxAv *av, int32_t call_index, int16_t *data, int length, void *userdata)
-{
+static void callback_av_audio(ToxAv *av, int32_t friend_number, int16_t *pcm,
+                              size_t sample_count, uint8_t channels, uint32_t sampling_rate, void *userdata){
     ToxAvCSettings dest;
     if(toxav_get_peer_csettings(av, call_index, 0, &dest) == 0) {
         audio_play(call_index, data, length, dest.audio_channels);
@@ -983,15 +983,20 @@ static void toxav_thread(void *args)
     toxav_thread_init = 0;
 }
 
-static void callback_av_video(void *av, int32_t call_index, const vpx_image_t *img, void *UNUSED(userdata))
-{
+
+
+static void callback_av_video(ToxAV *toxAV, uint32_t friend_number,
+                              uint16_t width, uint16_t height,
+                              const uint8_t *y, const uint8_t *u, const uint8_t *v,
+                              int32_t ystride, int32_t ustride, int32_t vstride, void *user_data){
     /* copy the vpx_image */
-    uint16_t *img_data = malloc(4 + img->d_w * img->d_h * 4);
+    /* 4 bits for the H*W, then a pixel for each color * size */
+    uint16_t *img_data = malloc(4 + width * height * 4);
     img_data[0] = img->d_w;
     img_data[1] = img->d_h;
-    yuv420tobgr(img->d_w, img->d_h, img->planes[0], img->planes[1], img->planes[2], img->stride[0], img->stride[1], img->stride[2], (void*)&img_data[2]);
+    yuv420tobgr(width, height, y, u, v, ystride, ustride, vstride, (void*)&img_data[2]);
 
-    postmessage(FRIEND_VIDEO_FRAME, toxav_get_peer_id(av, call_index, 0), call_index, img_data);
+    postmessage(FRIEND_VIDEO_FRAME, friend_number, call_index, img_data);
 }
 
 
@@ -1024,7 +1029,6 @@ static void utox_callback_av_change_state(ToxAv *av, uint32_t friend_number, uin
         // start video
         // stop video
     }
-
 }
 
 static void set_av_callbacks(ToxAv *av){
@@ -1041,6 +1045,7 @@ static void set_av_callbacks(ToxAv *av){
     // toxav_register_callstate_callback(av, callback_av_selfmediachange, av_OnSelfCSChange, NULL);
     // toxav_register_callstate_callback(av, callback_av_peermediachange, av_OnPeerCSChange, NULL);
 
-    toxav_register_audio_callback(av, callback_av_audio, NULL);
+    // toxav_register_audio_callback(av, callback_av_audio, NULL);
+    toxav_callback_audio_receive_frame(av, utox_av_incoming_frame_a, NULL);
     toxav_register_video_callback(av, callback_av_video, NULL);
 }
