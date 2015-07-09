@@ -4,8 +4,8 @@
 #import <OpenGL/gl.h>
 #import <OpenGL/glext.h>
 
-/* MAJOR TODO: S FOR THIS FILE 
- * - check clean up and error handling with AVFoundation code. 
+/* MAJOR TODO: S FOR THIS FILE
+ * - check clean up and error handling with AVFoundation code.
  */
 
 #define SCREEN_VIDEO_DEVICE_HANDLE ((void *)1)
@@ -213,7 +213,7 @@ _Bool video_init(void *handle) {
 
 void video_close(void *handle) {
     [active_video_session release];
-    
+
     active_video_session = nil;
 }
 
@@ -424,7 +424,7 @@ void* video_detect(void) {
                 break;
             default: {
                 FRIEND *f = &friend[((uToxIroncladWindow *)notification.object).video_id - 1];
-                tox_postmessage(TOX_HANGUP, f->callid, 0, NULL);
+                tox_postmessage(TOX_HANGUP, f->number, 0, NULL);
                 break;
             }
         }

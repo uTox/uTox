@@ -49,12 +49,11 @@ static void utox_av_end(ToxAv *av, int32_t friend_number){
     toxaudio_postmessage(AUDIO_STOP_RINGTONE, friend_number, 0, NULL);
 }
 
-static void callback_av_ringing(void *arg, int32_t friend_number, void *UNUSED(userdata))
-{
+static void callback_av_ringing(ToxAv *av, int32_t friend_number){
     debug("A/V Ringing (%i)\n", friend_number);
 }
 
-static void callback_av_requesttimeout(void *arg, int32_t friend_number, void *UNUSED(userdata)){
+static void callback_av_requesttimeout(ToxAv *av, int32_t friend_number){
     debug("A/V ReqTimeout (%i)\n", friend_number);
 
     int TOXAV_CALL_CONTROL_CANCEL = 2;
@@ -63,7 +62,7 @@ static void callback_av_requesttimeout(void *arg, int32_t friend_number, void *U
     toxaudio_postmessage(AUDIO_STOP_RINGTONE, friend_number, 0, NULL);
 }
 
-static void callback_av_peertimeout(void *arg, int32_t friend_number, void *UNUSED(userdata)){
+static void callback_av_peertimeout(ToxAv *av, int32_t friend_number){
     debug("A/V PeerTimeout (%i)\n", friend_number);
 
     int TOXAV_CALL_CONTROL_CANCEL = 2;
@@ -1033,14 +1032,14 @@ static void set_av_callbacks(ToxAv *av){
 
     toxav_callback_call_state(av, utox_callback_av_change_state, NULL);
 
-    toxav_register_callstate_callback(av, callback_av_start, av_OnStart, NULL);
+    // toxav_register_callstate_callback(av, callback_av_start, av_OnStart, NULL);
 
-    toxav_register_callstate_callback(av, callback_av_ringing, av_OnRinging, NULL);
+    // toxav_register_callstate_callback(av, callback_av_ringing, av_OnRinging, NULL);
 
-    toxav_register_callstate_callback(av, callback_av_requesttimeout, av_OnRequestTimeout, NULL);
-    toxav_register_callstate_callback(av, callback_av_peertimeout, av_OnPeerTimeout, NULL);
-    toxav_register_callstate_callback(av, callback_av_selfmediachange, av_OnSelfCSChange, NULL);
-    toxav_register_callstate_callback(av, callback_av_peermediachange, av_OnPeerCSChange, NULL);
+    // toxav_register_callstate_callback(av, callback_av_requesttimeout, av_OnRequestTimeout, NULL);
+    // toxav_register_callstate_callback(av, callback_av_peertimeout, av_OnPeerTimeout, NULL);
+    // toxav_register_callstate_callback(av, callback_av_selfmediachange, av_OnSelfCSChange, NULL);
+    // toxav_register_callstate_callback(av, callback_av_peermediachange, av_OnPeerCSChange, NULL);
 
     toxav_register_audio_callback(av, callback_av_audio, NULL);
     toxav_register_video_callback(av, callback_av_video, NULL);

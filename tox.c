@@ -1553,17 +1553,15 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
          */
         FRIEND *f = &friend[param1];
         uint8_t status = (size_t)data;
-        if(status == CALL_NONE && (f->calling == CALL_OK || f->calling == CALL_OK_VIDEO)) {
+        /* TODO, do something here?
+         if(status == CALL_NONE && (f->calling == CALL_OK || f->calling == CALL_OK_VIDEO)) {
             toxaudio_postmessage(AUDIO_CALL_END, param2, 0, NULL);
             if(f->calling == CALL_OK_VIDEO) {
                 toxvideo_postmessage(VIDEO_CALL_END, param2, 0, NULL);
             }
 
             video_end(param1 + 1);
-        }
-
-        f->calling = status;
-        f->callid = param2;
+        }*/
 
         if(status == CALL_OK) {
             toxaudio_postmessage(AUDIO_CALL_START, param2, 0, NULL);
@@ -1580,15 +1578,13 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
            param2: call id
          */
         FRIEND *f = &friend[param1];
-        f->calling = CALL_OK_VIDEO;
-        f->callid = param2;
         updatefriend(f);
 
         toxvideo_postmessage(VIDEO_CALL_START, param2, 0, NULL);
         toxaudio_postmessage(AUDIO_CALL_START, param2, 0, NULL);
 
-        f->call_width = 640;
-        f->call_height = 480;
+        f->video_width = 640;
+        f->video_height = 480;
 
         video_begin(param1 + 1, f->name, f->name_length, 640, 480);
 
@@ -1607,8 +1603,8 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         if(!data) {
             video_end(param1 + 1);
         } else {
-            f->call_width = 640;
-            f->call_height = 480;
+            f->video_width = 640;
+            f->video_height = 480;
 
             video_begin(param1 + 1, f->name, f->name_length, 640, 480);
         }
@@ -1620,11 +1616,12 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
            param2: call id
          */
         FRIEND *f = &friend[param1];
+        /* TODO do something here!
         if(f->calling == CALL_OK) {
             f->calling = CALL_OK_VIDEO;
             toxvideo_postmessage(VIDEO_CALL_START, param2, 0, NULL);
             updatefriend(f);
-        }
+        }*/
         break;
     }
 
@@ -1633,11 +1630,12 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
            param2: call id
          */
         FRIEND *f = &friend[param1];
+        /* TODO do something here!
         if(f->calling == CALL_OK_VIDEO) {
             f->calling = CALL_OK;
             toxvideo_postmessage(VIDEO_CALL_END, param2, 0, NULL);
             updatefriend(f);
-        }
+        }*/
         break;
     }
 
@@ -1649,10 +1647,10 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         uint16_t *image = data;
         FRIEND *f = &friend[param1];
 
-        _Bool b = (image[0] != f->call_width || image[1] != f->call_height);
+        _Bool b = (image[0] != f->video_width || image[1] != f->video_height);
         if(b) {
-            f->call_width = image[0];
-            f->call_height = image[1];
+            f->video_width = image[0];
+            f->video_height = image[1];
         }
         video_frame(param1 + 1, (void*)&image[2], image[0], image[1], b);
         free(image);

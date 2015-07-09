@@ -191,166 +191,104 @@ static void button_group_audio_update(BUTTON *b)
     }
 }
 
-static void button_call_onpress(void)
-{
+static void button_call_onpress(void){
     FRIEND *f = selected_item->data;
 
-    switch(f->calling) {
-    case CALL_INVITED: {
-        tox_postmessage(TOX_ACCEPTCALL, f->callid, 0, NULL);
-        debug("Accept Call: %u\n", f->callid);
-        break;
-    }
-
-    case CALL_NONE: {
+    if (f->call_state) {
+        if (!f->call_state_friend) {
+            tox_postmessage(TOX_CANCELCALL, f->number, f - friend, NULL);
+            debug("Cancelling call: id = %u, friend = %d\n", f->number, (int)(f - friend));
+        } else {
+            tox_postmessage(TOX_HANGUP, f->number, 0, NULL);
+            debug("Ending call: %u\n", f->number);
+        }
+    } else if (f->call_state_friend) {
+        if (!f->call_state) {
+            tox_postmessage(TOX_ACCEPTCALL, f->number, 0, NULL);
+            debug("Accept Call: %u\n", f->number);
+        }
+    } else {
         if (f->online) {
             tox_postmessage(TOX_CALL, f - friend, 0, NULL);
             debug("Calling friend: %u\n", (uint32_t)(f - friend));
         }
-        break;
-    }
-
-    case CALL_RINGING: {
-        tox_postmessage(TOX_CANCELCALL, f->callid, f - friend, NULL);
-        debug("Cancelling call: id = %u, friend = %d\n", f->callid, (int)(f - friend));
-        break;
-    }
-
-    case CALL_OK:
-    case CALL_OK_VIDEO: {
-        tox_postmessage(TOX_HANGUP, f->callid, 0, NULL);
-        debug("Ending call: %u\n", f->callid);
-        break;
-    }
     }
 }
 
-static void button_call_update(BUTTON *b)
-{
+static void button_call_update(BUTTON *b){
     FRIEND *f = selected_item->data;
 
-    switch(f->calling) {
-    case CALL_INVITED: {
-        b->disabled = 0;
-        button_setcolors_warning(b);
-        break;
-    }
-
-    case CALL_RINGING: {
-        b->disabled = 0;
-        button_setcolors_warning(b);
-        break;
-    }
-
-    case CALL_NONE: {
-        if (f->online) {
-            b->disabled = 0;
-            button_setcolors_success(b);
-            break;
+    if (f->call_state) {
+        if (!f->call_state_friend) {
+            button_setcolors_warning(b);
+        } else {
+            button_setcolors_danger(b);
         }
-        /* fall through */
-    }
-
-    case CALL_RINGING_VIDEO:
-    case CALL_INVITED_VIDEO: {
-        b->disabled = 1;
-        button_setcolors_disabled(b);
-        break;
-    }
-
-    case CALL_OK:
-    case CALL_OK_VIDEO: {
         b->disabled = 0;
-        button_setcolors_danger(b);
-        break;
-    }
+    } else if (f->call_state_friend) {
+        if (!f->call_state) {
+            button_setcolors_warning(b);
+        }
+        b->disabled = 0;
+    } else {
+        if (f->online) {
+            button_setcolors_success(b);
+            b->disabled = 0;
+        } else {
+            b->disabled = 1;
+        }
     }
 }
 
-static void button_video_onpress(void)
-{
+static void button_video_onpress(void){
     FRIEND *f = selected_item->data;
-
-    switch(f->calling) {
-    case CALL_INVITED_VIDEO: {
-        tox_postmessage(TOX_ACCEPTCALL, f->callid, 1, NULL);
-        debug("Accept Call: %u\n", f->callid);
-        break;
-    }
-
-    case CALL_NONE: {
+    if (f->call_state) {
+        if (!f->call_state_friend) {
+            tox_postmessage(TOX_CANCELCALL, f->number, f - friend, NULL);
+            debug("Cancelling call: id = %u, friend = %d\n", f->number, (int)(f - friend));
+        } else {
+            tox_postmessage(TOX_HANGUP, f->number, 0, NULL);
+            debug("Ending call: %u\n", f->number);
+            tox_postmessage(TOX_CALL_VIDEO_OFF, f - friend, f->number, NULL);
+            debug("stop sending video\n");
+        }
+    } else if (f->call_state_friend) {
+        if (!f->call_state) {
+            tox_postmessage(TOX_ACCEPTCALL, f->number, 0, NULL);
+            debug("Accept Call: %u\n", f->number);
+            tox_postmessage(TOX_CALL_VIDEO_ON, f - friend, f->number, NULL);
+            debug("start sending video\n");
+        }
+    } else {
         if (f->online) {
             tox_postmessage(TOX_CALL_VIDEO, f - friend, 0, NULL);
-            debug("Calling friend: %u\n", (uint32_t)(f - friend));
+            debug("Video calling friend: %u\n", (uint32_t)(f - friend));
         }
-        break;
-    }
-
-    case CALL_RINGING_VIDEO: {
-        tox_postmessage(TOX_CANCELCALL, f->callid, f - friend, NULL);
-        debug("Cancelling call: id = %u, friend = %d\n", f->callid, (int)(f - friend));
-        break;
-    }
-
-
-    case CALL_OK: {
-        tox_postmessage(TOX_CALL_VIDEO_ON, f - friend, f->callid, NULL);
-        debug("start sending video\n");
-        break;
-    }
-
-    case CALL_OK_VIDEO: {
-        tox_postmessage(TOX_CALL_VIDEO_OFF, f - friend, f->callid, NULL);
-        debug("stop sending video\n");
-        break;
-    }
     }
 }
 
-static void button_video_update(BUTTON *b)
-{
+static void button_video_update(BUTTON *b){
     FRIEND *f = selected_item->data;
 
-    switch(f->calling) {
-    case CALL_INVITED_VIDEO: {
-        b->disabled = 0;
-        button_setcolors_warning(b);
-        break;
-    }
-
-    case CALL_RINGING_VIDEO: {
-        b->disabled = 0;
-        button_setcolors_warning(b);
-        break;
-    }
-
-    case CALL_NONE: {
-        if (f->online) {
-            b->disabled = 0;
-            button_setcolors_success(b);
-            break;
+    if (f->call_state) {
+        if (!f->call_state_friend) {
+            button_setcolors_warning(b);
+        } else {
+            button_setcolors_danger(b);
         }
-        /* fall through */
-    }
-
-    case CALL_RINGING:
-    case CALL_INVITED: {
-        b->disabled = 1;
-        button_setcolors_disabled(b);
-        break;
-    }
-
-    case CALL_OK: {
         b->disabled = 0;
-        button_setcolors_success(b);
-        break;
-    }
-
-    case CALL_OK_VIDEO: {
+    } else if (f->call_state_friend) {
+        if (!f->call_state) {
+            button_setcolors_warning(b);
+        }
         b->disabled = 0;
-        button_setcolors_danger(b);
-        break;
-    }
+    } else {
+        if (f->online) {
+            button_setcolors_success(b);
+            b->disabled = 0;
+        } else {
+            b->disabled = 1;
+        }
     }
 }
 

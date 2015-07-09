@@ -1502,7 +1502,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
             for(i = 0; i != countof(friend); i++) {
                 if(video_hwnd[i + 1] == hwn) {
                     FRIEND *f = &friend[i];
-                    tox_postmessage(TOX_HANGUP, f->callid, 0, NULL);
+                    tox_postmessage(TOX_HANGUP, f->number, 0, NULL);
                     break;
                 }
             }
