@@ -1,5 +1,4 @@
-static void av_start(int32_t call_index, void *arg)
-{
+static void av_start(int32_t call_index, void *arg){
     ToxAvCSettings peer_settings;
 
     int fid = toxav_get_peer_id(arg, call_index, 0);
@@ -34,76 +33,56 @@ static void callback_av_invite(void *arg, int32_t call_index, void *UNUSED(userd
     debug("A/V Invite (%i)\n", call_index);
 }
 
-static void callback_av_start(void *arg, int32_t call_index, void *UNUSED(userdata))
-{
+static void callback_av_start(void *arg, int32_t call_index, void *UNUSED(userdata)){
     av_start(call_index, arg);
     toxaudio_postmessage(AUDIO_STOP_RINGTONE, call_index, 0, NULL);
 
     debug("A/V Start (%i)\n", call_index);
 }
 
-#define endcall() \
-    int fid = toxav_get_peer_id(arg, call_index, 0); \
-    postmessage(FRIEND_CALL_STATUS, fid, call_index, (void*)(size_t)CALL_NONE); \
-    toxaudio_postmessage(AUDIO_STOP_RINGTONE, call_index, 0, NULL);
+static void utox_av_end(ToxAv *av, int32_t friend_number){
+    debug("A/V End (%i)\n", friend_number);
 
-#define stopcall() \
-    toxav_kill_transmission(arg, call_index); \
-    endcall();
-
-static void callback_av_cancel(void *arg, int32_t call_index, void *UNUSED(userdata))
-{
-    stopcall();
-
-    debug("A/V Cancel (%i)\n", call_index);
+    int TOXAV_CALL_CONTROL_CANCEL = 2;
+    toxav_call_control(av, friend_number, TOXAV_CALL_CONTROL_CANCEL);
+    postmessage(FRIEND_CALL_STATUS, friend_number, 0, (void*)(size_t)CALL_NONE);
+    toxaudio_postmessage(AUDIO_STOP_RINGTONE, friend_number, 0, NULL);
 }
 
-static void callback_av_reject(void *arg, int32_t call_index, void *UNUSED(userdata))
+static void callback_av_ringing(void *arg, int32_t friend_number, void *UNUSED(userdata))
 {
-    endcall();
-
-    debug("A/V Reject (%i)\n", call_index);
+    debug("A/V Ringing (%i)\n", friend_number);
 }
 
-static void callback_av_end(void *arg, int32_t call_index, void *UNUSED(userdata))
-{
-    stopcall();
+static void callback_av_requesttimeout(void *arg, int32_t friend_number, void *UNUSED(userdata)){
+    debug("A/V ReqTimeout (%i)\n", friend_number);
 
-    debug("A/V End (%i)\n", call_index);
+    int TOXAV_CALL_CONTROL_CANCEL = 2;
+    toxav_call_control(av, friend_number, TOXAV_CALL_CONTROL_CANCEL);
+    postmessage(FRIEND_CALL_STATUS, friend_number, 0, (void*)(size_t)CALL_NONE);
+    toxaudio_postmessage(AUDIO_STOP_RINGTONE, friend_number, 0, NULL);
 }
 
-static void callback_av_ringing(void *arg, int32_t call_index, void *UNUSED(userdata))
-{
-    debug("A/V Ringing (%i)\n", call_index);
+static void callback_av_peertimeout(void *arg, int32_t friend_number, void *UNUSED(userdata)){
+    debug("A/V PeerTimeout (%i)\n", friend_number);
+
+    int TOXAV_CALL_CONTROL_CANCEL = 2;
+    toxav_call_control(av, friend_number, TOXAV_CALL_CONTROL_CANCEL);
+    postmessage(FRIEND_CALL_STATUS, friend_number, 0, (void*)(size_t)CALL_NONE);
+    toxaudio_postmessage(AUDIO_STOP_RINGTONE, friend_number, 0, NULL);
 }
 
-static void callback_av_requesttimeout(void *arg, int32_t call_index, void *UNUSED(userdata))
-{
-    endcall();
-
-    debug("A/V ReqTimeout (%i)\n", call_index);
+static void callback_av_selfmediachange(void *arg, int32_t friend_number, void *UNUSED(userdata)){
+    debug("A/V SelfMediachange (%i)\n", friend_number);
 }
 
-static void callback_av_peertimeout(void *arg, int32_t call_index, void *UNUSED(userdata))
-{
-    stopcall();
-
-    debug("A/V PeerTimeout (%i)\n", call_index);
-}
-
-static void callback_av_selfmediachange(void *arg, int32_t call_index, void *UNUSED(userdata))
-{
-    debug("A/V SelfMediachange (%i)\n", call_index);
-}
-
-static void callback_av_peermediachange(void *arg, int32_t call_index, void *UNUSED(userdata))
-{
+static void callback_av_peermediachange(void *arg, int32_t friend_number, void *UNUSED(userdata)){
     ToxAvCSettings settings;
-    toxav_get_peer_csettings(arg, call_index, 0, &settings);
-    int fid = toxav_get_peer_id(arg, call_index, 0);
+    toxav_get_peer_csettings(arg, friend_number, 0, &settings);
+    int fid = toxav_get_peer_id(arg, friend_number, 0);
 
-    postmessage(FRIEND_CALL_MEDIACHANGE, fid, call_index, (settings.call_type == av_TypeVideo) ? (void*)1 : NULL);
-    debug("A/V PeerMediachange (%i)\n", call_index);
+    postmessage(FRIEND_CALL_MEDIACHANGE, fid, friend_number, (settings.call_type == av_TypeVideo) ? (void*)1 : NULL);
+    debug("A/V PeerMediachange (%i)\n", friend_number);
 }
 
 uint8_t lbuffer[800 * 600 * 4]; //needs to be always large enough for encoded frames
@@ -285,27 +264,25 @@ static void video_thread(void *args)
 }
 
 #ifndef NATIVE_ANDROID_AUDIO
-#ifdef __APPLE__
-#include <OpenAL/al.h>
-#include <OpenAL/alc.h>
-#else
-#include <AL/al.h>
-#include <AL/alc.h>
+    #ifdef __APPLE__
+        #include <OpenAL/al.h>
+        #include <OpenAL/alc.h>
+    #else
+        #include <AL/al.h>
+        #include <AL/alc.h>
 
-#ifdef AUDIO_FILTERING
-#include <AL/alext.h>
-#endif
+        #ifdef AUDIO_FILTERING
+            #include <AL/alext.h>
+        #endif
+        /* include for compatibility with older versions of OpenAL */
+        #ifndef ALC_ALL_DEVICES_SPECIFIER
+            #include <AL/alext.h>
+        #endif
+    #endif
 
-/* include for compatibility with older versions of OpenAL */
-#ifndef ALC_ALL_DEVICES_SPECIFIER
-#include <AL/alext.h>
-#endif
-
-#endif
-
-#ifdef AUDIO_FILTERING
-#include <filter_audio.h>
-#endif
+    #ifdef AUDIO_FILTERING
+        #include <filter_audio.h>
+    #endif
 
 static ALCdevice *device_out, *device_in;
 static ALCcontext *context;
@@ -998,7 +975,7 @@ static void toxav_thread(void *args)
             toxav_thread_msg = 0;
         }
 
-        toxav_do(av);
+        toxav_iterate(av);
         yieldcpu(toxav_do_interval(av));
     }
 
@@ -1018,13 +995,45 @@ static void callback_av_video(void *av, int32_t call_index, const vpx_image_t *i
     postmessage(FRIEND_VIDEO_FRAME, toxav_get_peer_id(av, call_index, 0), call_index, img_data);
 }
 
-static void set_av_callbacks(ToxAv *av)
-{
-    toxav_register_callstate_callback(av, callback_av_invite, av_OnInvite, NULL);
+
+static void utox_callback_av_change_state(ToxAv *av, uint32_t friend_number, uint32_t state, void *userdata){
+    if ( state == 1 ) {
+        // handle error
+        utox_av_end(av, friend_number);
+        debug("ToxAv:\tChange state error, send bug report\n");
+        return;
+    } else if ( state == 2 ) {
+        utox_av_end(av, friend_number);
+        debug("ToxAv:\tCall ended with friend_number %u.\n", friend_number);
+    }
+
+    int TOXAV_FRIEND_CALL_STATE_SENDING_A = 4;
+    int TOXAV_FRIEND_CALL_STATE_SENDING_V = 8;
+    int TOXAV_FRIEND_CALL_STATE_RECIVING_A = 16;
+    int TOXAV_FRIEND_CALL_STATE_RECIVING_V = 32;
+
+    int state_audio = (state | (TOXAV_FRIEND_CALL_STATE_SENDING_A | TOXAV_FRIEND_CALL_STATE_RECIVING_A));
+    int state_video = (state | (TOXAV_FRIEND_CALL_STATE_SENDING_V | TOXAV_FRIEND_CALL_STATE_RECIVING_V));
+
+    if (friend[friend_number].call_state ^ state_audio) {
+        // do change
+        // start audio
+        // stop audio
+    }
+
+    if (friend[friend_number].call_state ^ state_video) {
+        // start video
+        // stop video
+    }
+
+}
+
+static void set_av_callbacks(ToxAv *av){
+    toxav_callback_call(av, callback_av_invite, NULL);
+
+    toxav_callback_call_state(av, utox_callback_av_change_state, NULL);
+
     toxav_register_callstate_callback(av, callback_av_start, av_OnStart, NULL);
-    toxav_register_callstate_callback(av, callback_av_cancel, av_OnCancel, NULL);
-    toxav_register_callstate_callback(av, callback_av_reject, av_OnReject, NULL);
-    toxav_register_callstate_callback(av, callback_av_end, av_OnEnd, NULL);
 
     toxav_register_callstate_callback(av, callback_av_ringing, av_OnRinging, NULL);
 

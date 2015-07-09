@@ -416,6 +416,7 @@ static void tox_after_load(Tox *tox)
     while(i != friends) {
         int size;
         FRIEND *f = &friend[i];
+        f->number = i;
         uint8_t name[TOX_MAX_NAME_LENGTH];
 
         f->msg.scroll = 1.0;
@@ -997,7 +998,12 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
     case TOX_HANGUP: {
         /* param1: call #
          */
-        toxav_hangup(av, param1);
+        int error;
+        int TOXAV_CALL_CONTROL_CANCEL = 2;
+        toxav_call_control(av, param1, TOXAV_CALL_CONTROL_CANCEL, &error);
+        if (error) {
+            // TODO Handle this error!
+        }
         break;
     }
 
@@ -1005,7 +1011,12 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
         /* param1: call #
          * param2: friend #
          */
-        toxav_cancel(av, param1, param2, "Call canceled by friend");
+        int error;
+        int TOXAV_CALL_CONTROL_CANCEL = 2;
+        toxav_call_control(av, param1, TOXAV_CALL_CONTROL_CANCEL, &error);
+        if (error) {
+            // TODO Handle this error!
+        }
         postmessage(FRIEND_CALL_STATUS, param2, param1, (void*)(size_t)CALL_NONE);
         break;
     }

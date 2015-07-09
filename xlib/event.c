@@ -24,7 +24,7 @@ _Bool doevent(XEvent event)
                 for(i = 0; i != countof(friend); i++) {
                     if(video_win[i + 1] == ev->window) {
                         FRIEND *f = &friend[i];
-                        tox_postmessage(TOX_HANGUP, f->callid, 0, NULL);
+                        tox_postmessage(TOX_HANGUP, f->number, 0, NULL);
                         break;
                     }
                 }
