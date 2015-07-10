@@ -261,7 +261,7 @@ void friend_meta_data_read(Tox *tox, int friend_id)
     free(mdata);
 }
 
-static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, uint32_t param1, uint32_t param2, void *data);
+static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, uint32_t param1, uint32_t param2, void *data);
 
 void tox_postmessage(uint8_t msg, uint32_t param1, uint32_t param2, void *data)
 {
@@ -584,7 +584,7 @@ static void utox_thread_work_for_typing_notifications(Tox *tox, uint64_t time)
 void tox_thread(void *UNUSED(args))
 {
     Tox *tox;
-    ToxAv *av;
+    ToxAV *av;
     uint8_t id[TOX_FRIEND_ADDRESS_SIZE];
 
     _Bool reconfig;
@@ -659,7 +659,8 @@ void tox_thread(void *UNUSED(args))
         do_bootstrap(tox);
 
         // Start the tox av session.
-        av = toxav_new(tox, MAX_CALLS);
+        TOXAV_ERR_NEW toxav_error;
+        av = toxav_new(tox, &toxav_error);
 
         // Give toxcore the av functions to call
         set_av_callbacks(av);
@@ -743,7 +744,7 @@ void tox_thread(void *UNUSED(args))
     tox_thread_init = 0;
 }
 
-static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, uint32_t param1, uint32_t param2, void *data)
+static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, uint32_t param1, uint32_t param2, void *data)
 {
     switch(msg) {
     case TOX_SETNAME: {
@@ -937,7 +938,7 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
         /* param1: friend #
          */
         int32_t id;
-        toxav_call(av, &id, param1, &av_DefaultSettings, 10);
+        //toxav_call(av, &id, param1, &av_DefaultSettings, 10);
 
         postmessage(FRIEND_CALL_STATUS, param1, id, (void*)CALL_RINGING);
         break;
@@ -946,13 +947,13 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
     case TOX_CALL_VIDEO: {
         /* param1: friend #
          */
-        ToxAvCSettings settings = av_DefaultSettings;
+        /*ToxAVCSettings settings = av_DefaultSettings;
         settings.call_type = av_TypeVideo;
         settings.max_video_width = max_video_width;
-        settings.max_video_height = max_video_height;
+        settings.max_video_height = max_video_height;*/
 
         int32_t id;
-        toxav_call(av, &id, param1, &settings, 10);
+        //toxav_call(av, &id, param1, &settings, 10);
 
         postmessage(FRIEND_CALL_STATUS, param1, id, (void*)CALL_RINGING_VIDEO);
         break;
@@ -962,12 +963,12 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
         /* param1: friend #
          * param2: call #
          */
-        ToxAvCSettings settings = av_DefaultSettings;
+        /*ToxAVCSettings settings = av_DefaultSettings;
         settings.call_type = av_TypeVideo;
         settings.max_video_width = max_video_width;
-        settings.max_video_height = max_video_height;
+        settings.max_video_height = max_video_height;*/
 
-        toxav_change_settings(av, param2, &settings);
+        //toxav_change_settings(av, param2, &settings);
         postmessage(FRIEND_CALL_START_VIDEO, param1, param2, NULL);
         break;
     }
@@ -976,7 +977,7 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
         /* param1: friend #
          * param2: call #
          */
-        toxav_change_settings(av, param2, &av_DefaultSettings);
+        //toxav_change_settings(av, param2, &av_DefaultSettings);
         postmessage(FRIEND_CALL_STOP_VIDEO, param1, param2, NULL);
         break;
     }
@@ -984,22 +985,21 @@ static void tox_thread_message(Tox *tox, ToxAv *av, uint64_t time, uint8_t msg, 
     case TOX_ACCEPTCALL: {
         /* param1: call #
          */
-        ToxAvCSettings settings = av_DefaultSettings;
+        /*ToxAVCSettings settings = av_DefaultSettings;
         if(param2) {
             settings.call_type = av_TypeVideo;
             settings.max_video_width = max_video_width;
             settings.max_video_height = max_video_height;
         }
 
-        toxav_answer(av, param1, &settings);
+        toxav_answer(av, param1, &settings);*/
         break;
     }
 
     case TOX_HANGUP: {
         /* param1: call #
          */
-        int error;
-        int TOXAV_CALL_CONTROL_CANCEL = 2;
+        TOXAV_ERR_CALL_CONTROL error;
         toxav_call_control(av, param1, TOXAV_CALL_CONTROL_CANCEL, &error);
         if (error) {
             // TODO Handle this error!

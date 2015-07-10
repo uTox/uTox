@@ -53,7 +53,7 @@ static void edit_msg_onenter(EDIT *edit)
         return;
     }
 
-    STRING_IDX command_length = 0, argument_length = 0;
+    STRING_IDX command_length = 0;//, argument_length = 0;
     char_t *command = NULL, *argument = NULL;
 
 
