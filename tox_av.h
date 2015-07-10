@@ -1,3 +1,45 @@
+// TODO replace this with something else.
+struct _utox_av_settings {
+    uint32_t v_bitrate, max_v_w, max_v_h;
+    uint32_t a_bitrate, a_frame_duration, a_sample_rate, a_channels;
+};
+
+struct _utox_av_settings utox_av_settings = {
+    500, 1280, 720, 32000, 20, 48000, 1
+};
+
+enum TOXAV_FRIEND_CALL_STATE {
+    /**
+    * Set by the AV core if an error occurred on the remote end or if friend
+    * timed out. This is the final state after which no more state
+    * transitions can occur for the call. This call state will never be triggered
+    * in combination with other call states.
+    */
+    TOXAV_FRIEND_CALL_STATE_ERROR = 1,
+    /**
+    * The call has finished. This is the final state after which no more state
+    * transitions can occur for the call. This call state will never be
+    * triggered in combination with other call states.
+    */
+    TOXAV_FRIEND_CALL_STATE_FINISHED = 2,
+    /**
+    * The flag that marks that friend is sending audio.
+    */
+    TOXAV_FRIEND_CALL_STATE_SENDING_A = 4,
+    /**
+    * The flag that marks that friend is sending video.
+    */
+    TOXAV_FRIEND_CALL_STATE_SENDING_V = 8,
+    /**
+    * The flag that marks that friend is receiving audio.
+    */
+    TOXAV_FRIEND_CALL_STATE_RECEIVING_A = 16,
+    /**
+    * The flag that marks that friend is receiving video.
+    */
+ TOXAV_FRIEND_CALL_STATE_RECEIVING_V = 32,
+};
+
 static void av_start(int32_t call_index, void *arg){
     ToxAvCSettings peer_settings;
 
@@ -153,8 +195,8 @@ static void video_thread(void *args)
                 }
 
                 video = openvideodevice(video_device);
-                if(video) {
-                    if(video_count) {
+                if (video) {
+                    if (video_count) {
                         video_on = video_startread();
                     }
                 } else {
@@ -168,7 +210,7 @@ static void video_thread(void *args)
             case VIDEO_PREVIEW_START: {
                 preview = 1;
                 video_count++;
-                if(video && !video_on) {
+                if (video && !video_on) {
                     video_on = video_startread();
                 }
                 break;
@@ -177,7 +219,7 @@ static void video_thread(void *args)
             case VIDEO_CALL_START: {
                 call[m->param1] = 1;
                 video_count++;
-                if(video && !video_on) {
+                if (video && !video_on) {
                     video_on = video_startread();
                 }
                 break;
@@ -188,7 +230,7 @@ static void video_thread(void *args)
                 debug("preview end %u\n", video_count);
                 preview = 0;
                 video_count--;
-                if(!video_count && video_on) {
+                if (!video_count && video_on) {
                     video_endread();
                     video_on = 0;
                 }
@@ -196,12 +238,12 @@ static void video_thread(void *args)
             }
 
             case VIDEO_CALL_END: {
-                if(!call[m->param1]) {
+                if (!call[m->param1]) {
                     break;
                 }
                 call[m->param1] = 0;
                 video_count--;
-                if(!video_count && video_on) {
+                if (!video_count && video_on) {
                     video_endread();
                     video_on = 0;
                 }
@@ -212,7 +254,7 @@ static void video_thread(void *args)
             video_thread_msg = 0;
         }
 
-        if(video_on) {
+        if (video_on) {
             int r = video_getframe(input.planes[0], input.planes[1], input.planes[2], input.d_w, input.d_h);
             if(r == 1) {
                 if(preview) {
@@ -225,17 +267,21 @@ static void video_thread(void *args)
 
                 int i;
                 for(i = 0; i < MAX_CALLS; i++) {
-                    if(call[i]) {
-                        int rr, len;
-                        if((len = toxav_prepare_video_frame(av, i, lbuffer, sizeof(lbuffer), &input)) < 0) {
+                    if( (friend[i].call_state        | TOXAV_FRIEND_CALL_STATE_SENDING_V   ) &&
+                        (friend[i].call_state_friend | TOXAV_FRIEND_CALL_STATE_RECEIVING_V )) {
+                        toxav_prepare_video_frame(av, i, lbuffer, sizeof(lbuffer), &input)) < 0) {
                             debug("toxav_prepare_video_frame error %i\n", len);
                             continue;
                         }
+                        // TODO get the yuv from utox?
+                        TOXAV_ERR_SEND_FRAME error = 0;
+                        toxav_video_send_frame(av, friend[i].number, width, height, *y, *u, *v, &error);
+                        // bool toxav_video_send_frame(ToxAV *toxAV, uint32_t friend_number,
+                        // uint16_t width, uint16_t height, const uint8_t *y, const uint8_t *u, const uint8_t *v, *error);
 
-                        debug("%u\n", len);
-
-                        if((rr = toxav_send_video(av, i, (void*)lbuffer, len)) < 0) {
-                            debug("toxav_send_video error %i %s\n", rr, strerror(errno));
+                            av, i, (void*)lbuffer, len)) < 0)
+                        if (error) {
+                            debug("toxav_send_video error %i %s\n", friend[i].number, error);
                         }
                     }
                 }
@@ -250,11 +296,11 @@ static void video_thread(void *args)
         yieldcpu(5);
     }
 
-    if(video_on) {
+    if (video_on) {
         video_endread();
     }
 
-    if(video) {
+    if (video) {
         closevideodevice(video_device);
     }
 
@@ -297,11 +343,8 @@ static ALCdevice* alcopencapture(void *handle)
         return handle;
     }
 
-    if (av_DefaultSettings.audio_channels == 1) {
-        return alcCaptureOpenDevice(handle, av_DefaultSettings.audio_sample_rate, AL_FORMAT_MONO16, (av_DefaultSettings.audio_frame_duration * av_DefaultSettings.audio_sample_rate * 4) / 1000);
-    } else {
-        return alcCaptureOpenDevice(handle, av_DefaultSettings.audio_sample_rate, AL_FORMAT_STEREO16, ((av_DefaultSettings.audio_frame_duration * av_DefaultSettings.audio_sample_rate * 4) / 1000) * av_DefaultSettings.audio_channels);
-    }
+    return alcCaptureOpenDevice(handle, utox_av_settings.a_sample_rate, AL_FORMAT_STEREO16, (utox_av_settings.a_frame_duration * utox_av_settings.a_sample_rate * 4) / 1000);
+    // return alcCaptureOpenDevice(handle, av_DefaultSettings.audio_sample_rate, AL_FORMAT_MONO16, ((av_DefaultSettings.audio_frame_duration * av_DefaultSettings.audio_sample_rate * 4) / 1000) * av_DefaultSettings.audio_channels);
 }
 
 static void alccapturestart(void *handle)
@@ -377,8 +420,8 @@ static void audio_thread(void *args)
     _Bool call[MAX_CALLS] = {0}, preview = 0;
     _Bool groups_audio[MAX_NUM_GROUPS] = {0};
 
-    int perframe = (av_DefaultSettings.audio_frame_duration * av_DefaultSettings.audio_sample_rate) / 1000;
-    uint8_t buf[perframe * 2 * av_DefaultSettings.audio_channels], dest[perframe * 2 * av_DefaultSettings.audio_channels];
+    int perframe = (utox_av_settings.a_frame_duration * utox_av_settings.a_sample_rate) / 1000;
+    uint8_t buf[perframe * 2 * utox_av_settings.a_channels], dest[perframe * 2 * utox_av_settings.a_channels];
     memset(buf, 0, sizeof(buf));
 
     uint8_t audio_count = 0;
@@ -428,7 +471,7 @@ static void audio_thread(void *args)
         return;
     }
 
-    int attrlist[] = {  ALC_FREQUENCY, av_DefaultSettings.audio_sample_rate,
+    int attrlist[] = {  ALC_FREQUENCY, utox_av_settings.a_sample_rate,
                         ALC_INVALID };
 
     context = alcCreateContext(device_out, attrlist);
@@ -488,7 +531,7 @@ static void audio_thread(void *args)
 
     int16_t *preview_buffer = NULL;
     unsigned int preview_buffer_index = 0;
-    #define PREVIEW_BUFFER_SIZE (av_DefaultSettings.audio_sample_rate / 2)
+    #define PREVIEW_BUFFER_SIZE (utox_av_settings.a_sample_rate / 2)
 
     while(1) {
         if(audio_thread_msg) {
@@ -678,7 +721,7 @@ static void audio_thread(void *args)
         // TODO move this code to filter_audio.c
         #ifdef AUDIO_FILTERING
             if (!f_a && audio_filtering_enabled) {
-                f_a = new_filter_audio(av_DefaultSettings.audio_sample_rate);
+                f_a = new_filter_audio(utox_av_settings.a_sample_rate);
                 if (!f_a) {
                     audio_filtering_enabled = 0;
                     debug("filter audio failed\n");
@@ -726,7 +769,7 @@ static void audio_thread(void *args)
                     int16_t buffer[perframe];
                     alcCaptureSamplesLoopback(device_out, buffer, perframe);
                     pass_audio_output(f_a, buffer, perframe);
-                    set_echo_delay_ms(f_a, av_DefaultSettings.audio_frame_duration);
+                    set_echo_delay_ms(f_a, utox_av_settings.a_frame_duration);
                     if (samples >= perframe * 2) {
                         sleep = 0;
                     }
@@ -761,7 +804,7 @@ static void audio_thread(void *args)
                         preview_buffer_index = 0;
                     }
 
-                    sourceplaybuffer(0, preview_buffer + preview_buffer_index, perframe, av_DefaultSettings.audio_channels, av_DefaultSettings.audio_sample_rate);
+                    sourceplaybuffer(0, preview_buffer + preview_buffer_index, perframe, utox_av_settings.a_channels, utox_av_settings.a_sample_rate);
                     if (voice) {
                         memcpy(preview_buffer + preview_buffer_index, buf, perframe * sizeof(int16_t));
                     } else {
@@ -774,15 +817,12 @@ static void audio_thread(void *args)
                 if (voice) {
                     int i;
                     for(i = 0; i < MAX_CALLS; i++) {
-                        if(call[i]) {
-                            int r;
-                            if((r = toxav_prepare_audio_frame(av, i, dest, sizeof(dest), (void*)buf, perframe)) < 0) {
-                                debug("toxav_prepare_audio_frame error %i\n", r);
-                                continue;
-                            }
-
-                            if((r = toxav_send_audio(av, i, dest, r)) < 0) {
-                                debug("toxav_send_audio error %i %s\n", r, strerror(errno));
+                        if((friend[i].call_state | TOXAV_FRIEND_CALL_STATE_SENDING_V) && (friend[i].call_state_friend | TOXAV_FRIEND_CALL_STATE_RECEIVING_V)) {
+                            TOXAV_ERR_SEND_FRAME error = 0;
+                            // bool toxav_audio_send_frame(ToxAV *toxAV, uint32_t friend_number, const int16_t *pcm, size_t sample_count, uint8_t channels, uint32_t sampling_rate, TOXAV_ERR_SEND_FRAME *error);
+                            toxav_audio_send_frame(av, friend[i].number, buf, samples, utox_av_settings.a_channels, perframe, &error);
+                            if (error) {
+                                debug("toxav_send_audio error %i %i\n", friend[i].number, error);
                             }
                         }
                     }
@@ -795,7 +835,7 @@ static void audio_thread(void *args)
                         uint32_t max = tox_get_chatlist(tox, chats, num_chats);
                         for (i = 0; i < max; ++i) {
                             if (groups_audio[chats[i]]) {
-                                toxav_group_send_audio(tox, chats[i], (int16_t *)buf, perframe, av_DefaultSettings.audio_channels, av_DefaultSettings.audio_sample_rate);
+                                toxav_group_send_audio(tox, chats[i], (int16_t *)buf, perframe, utox_av_settings.a_channels, utox_av_settings.a_sample_rate);
                             }
                         }
                     }
@@ -830,13 +870,6 @@ static void audio_thread(void *args)
     audio_thread_init = 0;
 }
 
-static void callback_av_audio(void *av, int32_t call_index, const int16_t *data, uint16_t samples, void *UNUSED(userdata))
-{
-    ToxAvCSettings dest;
-    if(toxav_get_peer_csettings(av, call_index, 0, &dest) == 0) {
-        sourceplaybuffer(call_index + 1, data, samples, dest.audio_channels, dest.audio_sample_rate);
-    }
-}
 
 void toxaudio_postmessage(uint8_t msg, uint32_t param1, uint32_t param2, void *data)
 {
@@ -909,49 +942,39 @@ void group_av_peer_remove(GROUPCHAT *g, int peernumber)
 }
 
 #else
-static void audio_thread(void *args)
-{
-}
+    /* android audio functions */
+    static void audio_thread(void *args){}
 
-void toxaudio_postmessage(uint8_t msg, uint32_t param1, uint32_t param2, void *data)
-{
-    switch(msg) {
-    case AUDIO_SET_INPUT: {;
-        break;
-    }
+    void toxaudio_postmessage(uint8_t msg, uint32_t param1, uint32_t param2, void *data)    {
+        switch(msg) {
+        case AUDIO_SET_INPUT: {;
+            break;
+        }
 
-    case AUDIO_SET_OUTPUT: {
-        break;
-    }
+        case AUDIO_SET_OUTPUT: {
+            break;
+        }
 
-    case AUDIO_PREVIEW_START: {
-        break;
-    }
+        case AUDIO_PREVIEW_START: {
+            break;
+        }
 
-    case AUDIO_CALL_START: {
-        audio_begin(param1);
-        break;
-    }
+        case AUDIO_CALL_START: {
+            audio_begin(param1);
+            break;
+        }
 
-    case AUDIO_PREVIEW_END: {
-        break;
-    }
+        case AUDIO_PREVIEW_END: {
+            break;
+        }
 
-    case AUDIO_CALL_END: {
-        audio_end(param1);
-        break;
-    }
+        case AUDIO_CALL_END: {
+            audio_end(param1);
+            break;
+        }
 
+        }
     }
-}
-
-static void utox_av_incoming_frame_a(ToxAv *av, int32_t friend_number, int16_t *pcm,
-                                        size_t sample_count, uint8_t channels, uint32_t sampling_rate, void *userdata){
-    ToxAvCSettings dest;
-    if(toxav_get_peer_csettings(av, call_index, 0, &dest) == 0) {
-        audio_play(friend_number, data, length, dest.audio_channels);
-    }
-}
 #endif
 
 static void toxav_thread(void *args)
@@ -982,22 +1005,36 @@ static void toxav_thread(void *args)
     toxav_thread_init = 0;
 }
 
+/** responds to a audio frame call back from toxav
+ *
+ * Moving this here might break Android, if you know this commit compiles and runs on android, remove this line!
+ */
+static void utox_av_incoming_frame_a(ToxAv *av, int32_t friend_number, int16_t *pcm, size_t sample_count,
+                                     uint8_t channels, uint32_t sample_rate, void *userdata){
+    #ifndef NATIVE_ANDROID_AUDIO
+    audio_play(friend_number, pcm, sample_count, channels);
+    #else
+    sourceplaybuffer(friend_number, pcm, sample_count, channels, sample_rate);
+    #endif
+}
 
 
-static void utox_av_incoming_frame_v(ToxAV *toxAV, uint32_t friend_number, uint16_t width, uint16_t height,
+static void utox_av_incoming_frame_v(ToxAv *toxAV, uint32_t friend_number, uint16_t width, uint16_t height,
                                         const uint8_t *y, const uint8_t *u, const uint8_t *v,
                                         int32_t ystride, int32_t ustride, int32_t vstride, void *user_data){
     /* copy the vpx_image */
     /* 4 bits for the H*W, then a pixel for each color * size */
     uint16_t *img_data = malloc(4 + width * height * 4);
-    img_data[0] = img->d_w;
-    img_data[1] = img->d_h;
+    img_data[0] = width;
+    img_data[1] = height;
     yuv420tobgr(width, height, y, u, v, ystride, ustride, vstride, (void*)&img_data[2]);
 
-    postmessage(FRIEND_VIDEO_FRAME, friend_number, call_index, img_data);
+    postmessage(FRIEND_VIDEO_FRAME, friend_number, friend_number, img_data);
 }
 
 
+
+/** respond to a Audio Video state change call back from toxav */
 static void utox_callback_av_change_state(ToxAv *av, uint32_t friend_number, uint32_t state, void *userdata){
     if ( state == 1 ) {
         // handle error
@@ -1044,7 +1081,7 @@ static void set_av_callbacks(ToxAv *av){
     // toxav_register_callstate_callback(av, callback_av_peermediachange, av_OnPeerCSChange, NULL);
 
     // toxav_register_audio_callback(av, callback_av_audio, NULL);
-    tox_callback_audio_receive_frame(av, utox_av_incoming_frame_a, NULL);
     // toxav_register_video_callback(av, callback_av_video, NULL);
+    toxav_callback_audio_receive_frame(av, utox_av_incoming_frame_a, NULL);
     toxav_callback_video_receive_frame(av, utox_av_incoming_frame_v, NULL);
 }
