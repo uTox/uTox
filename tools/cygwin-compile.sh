@@ -98,18 +98,10 @@ rm utox.exe 2> /dev/null
 "$WINDOWS_TOOLCHAIN"-windres icons/icon.rc -O coff -o icon.o
 
 # Compile
-"$WINDOWS_TOOLCHAIN"-gcc -o utox.exe $COMP_OPTs -DGIT_VERSION=\"$GIT_V\" -DAL_LIBTYPE_STATIC \
-./*.c ./png/png.c ./icon.o       \
-../toxcore/build/.libs/libtoxcore.a   \
-../toxcore/build/.libs/libtoxdns.a    \
-../toxcore/build/.libs/libtoxav.a     \
-./lib/toxcore/lib/libsodium.a    \
-./lib/toxcore/lib/libvpx.a       \
-./lib/toxcore/lib/libopus.a      \
-./lib/openal/lib/libOpenAL32.a   \
--I ./lib/toxcore/include/ 		 \
--I ./lib/openal/include/         \
-$MINGW32_LIB_DIR/libwinpthread.a \
-$AUDIO_FILTERING_BUILD           \
+"$WINDOWS_TOOLCHAIN"-gcc -o utox.exe $COMP_OPTs -DGIT_VERSION=\"$GIT_V\" -DAL_LIBTYPE_STATIC ./*.c ./png/png.c ./icon.o \
+./lib/toxcore/lib/libtoxcore.a ./lib/toxcore/lib/libtoxdns.a ./lib/toxcore/lib/libtoxav.a \
+./lib/toxcore/lib/libsodium.a $MINGW32_LIB_DIR/libwinpthread.a ./lib/toxcore/lib/libvpx.a ./lib/toxcore/lib/libopus.a \
+./lib/openal/lib/libOpenAL32.a -I ./lib/toxcore/include/ -I ./lib/openal/include/ \
+$AUDIO_FILTERING_BUILD \
 -std=gnu99 -liphlpapi -lws2_32 -lgdi32 -lmsimg32 -ldnsapi -lcomdlg32 -Wl,-subsystem,windows -lwinmm -lole32 -loleaut32 \
 -lstrmiids
