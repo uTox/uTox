@@ -937,7 +937,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
     case TOX_CALL: {
         /* param1: friend #
          */
-        int32_t id;
+        int32_t id = 0;
         //toxav_call(av, &id, param1, &av_DefaultSettings, 10);
 
         postmessage(FRIEND_CALL_STATUS, param1, id, (void*)CALL_RINGING);
@@ -952,7 +952,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
         settings.max_video_width = max_video_width;
         settings.max_video_height = max_video_height;*/
 
-        int32_t id;
+        int32_t id = 0;
         //toxav_call(av, &id, param1, &settings, 10);
 
         postmessage(FRIEND_CALL_STATUS, param1, id, (void*)CALL_RINGING_VIDEO);
@@ -1011,8 +1011,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
         /* param1: call #
          * param2: friend #
          */
-        int error;
-        int TOXAV_CALL_CONTROL_CANCEL = 2;
+        TOXAV_ERR_CALL_CONTROL error;
         toxav_call_control(av, param1, TOXAV_CALL_CONTROL_CANCEL, &error);
         if (error) {
             // TODO Handle this error!

@@ -30,7 +30,8 @@ static void av_start(int32_t call_index, void *arg){
     }
 */}
 
-static void *utox_av_incoming_call(ToxAV *av, int32_t friend_number, bool audio, bool video, void *UNUSED(userdata)){
+static void utox_av_incoming_call(ToxAV *av, uint32_t friend_number, bool audio, bool video, void *UNUSED(userdata)){
+    debug("A/V Invite (%u)\n", friend_number);
     /*int fid = toxav_get_peer_id(arg, call_index, 0);
 
     ToxAVCSettings peer_settings;
@@ -40,7 +41,6 @@ static void *utox_av_incoming_call(ToxAV *av, int32_t friend_number, bool audio,
     postmessage(FRIEND_CALL_STATUS, friend_number, friend_number, (void*)(size_t)(video ? CALL_INVITED_VIDEO : CALL_INVITED));
     toxaudio_postmessage(AUDIO_PLAY_RINGTONE, friend_number, 0, NULL);
 
-    debug("A/V Invite (%u)\n", friend_number);
 }
 
 static void callback_av_start(void *arg, int32_t call_index, void *UNUSED(userdata)){
@@ -1036,9 +1036,9 @@ static void utox_callback_av_change_state(ToxAV *av, uint32_t friend_number, uin
 }
 
 static void set_av_callbacks(ToxAV *av){
-    toxav_callback_call(av, utox_av_incoming_call, NULL);
+    toxav_callback_call(av, &utox_av_incoming_call, NULL);
 
-    toxav_callback_call_state(av, utox_callback_av_change_state, NULL);
+    toxav_callback_call_state(av, &utox_callback_av_change_state, NULL);
 
     // toxav_register_callstate_callback(av, callback_av_start, av_OnStart, NULL);
 
@@ -1051,6 +1051,6 @@ static void set_av_callbacks(ToxAV *av){
 
     // toxav_register_audio_callback(av, callback_av_audio, NULL);
     // toxav_register_video_callback(av, callback_av_video, NULL);
-    toxav_callback_audio_receive_frame(av, utox_av_incoming_frame_a, NULL);
-    toxav_callback_video_receive_frame(av, utox_av_incoming_frame_v, NULL);
+    toxav_callback_audio_receive_frame(av, &utox_av_incoming_frame_a, NULL);
+    toxav_callback_video_receive_frame(av, &utox_av_incoming_frame_v, NULL);
 }
