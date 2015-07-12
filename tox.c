@@ -938,7 +938,8 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
         /* param1: friend #
          */
         int32_t id = 0;
-        //toxav_call(av, &id, param1, &av_DefaultSettings, 10);
+        debug("Going to call now");
+        //toxav_call(av, &id, param1, , 10);
 
         postmessage(FRIEND_CALL_STATUS, param1, id, (void*)CALL_RINGING);
         break;

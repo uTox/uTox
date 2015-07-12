@@ -248,7 +248,7 @@ static void video_thread(void *args)
                 int i;
                 for(i = 0; i < MAX_CALLS; i++) {
                     if( (friend[i].call_state        | TOXAV_FRIEND_CALL_STATE_SENDING_V   ) &&
-                        (friend[i].call_state_friend | TOXAV_FRIEND_CALL_STATE_RECEIVING_V )) {
+                        (friend[i].call_state_friend | TOXAV_FRIEND_CALL_STATE_ACCEPTING_V )) {
                         // TODO get the yuv from utox?
                         TOXAV_ERR_SEND_FRAME error = 0;
                         toxav_video_send_frame(av, friend[i].number, width, height, y, u, v, &error);
@@ -786,7 +786,7 @@ static void audio_thread(void *args){
                 if (voice) {
                     int i;
                     for(i = 0; i < MAX_CALLS; i++) {
-                        if((friend[i].call_state | TOXAV_FRIEND_CALL_STATE_SENDING_V) && (friend[i].call_state_friend | TOXAV_FRIEND_CALL_STATE_RECEIVING_V)) {
+                        if((friend[i].call_state | TOXAV_FRIEND_CALL_STATE_SENDING_V) && (friend[i].call_state_friend | TOXAV_FRIEND_CALL_STATE_ACCEPTING_V)) {
                             TOXAV_ERR_SEND_FRAME error = 0;
                             // bool toxav_audio_send_frame(ToxAV *toxAV, uint32_t friend_number, const int16_t *pcm, size_t sample_count, uint8_t channels, uint32_t sampling_rate, TOXAV_ERR_SEND_FRAME *error);
                             toxav_audio_send_frame(av, friend[i].number, (const uint16_t *)buf, samples, utox_av_settings.a_channels, perframe, &error);
