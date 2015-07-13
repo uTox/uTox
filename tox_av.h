@@ -774,13 +774,18 @@ static void audio_thread(void *args){
 
                 if (voice) {
                     int i;
-                    for(i = 0; i < MAX_CALLS; i++) {
+                    for(i = 0; i < MAX_CALLS;) {
                         if((friend[i].call_state | TOXAV_FRIEND_CALL_STATE_SENDING_V) && (friend[i].call_state_friend | TOXAV_FRIEND_CALL_STATE_ACCEPTING_V)) {
                             TOXAV_ERR_SEND_FRAME error = 0;
                             // bool toxav_audio_send_frame(ToxAV *toxAV, uint32_t friend_number, const int16_t *pcm, size_t sample_count, uint8_t channels, uint32_t sampling_rate, TOXAV_ERR_SEND_FRAME *error);
                             toxav_audio_send_frame(av, friend[i].number, (const uint16_t *)buf, samples, UTOX_DEFAULT_AUDIO_CHANNELS, perframe, &error);
                             if (error) {
                                 debug("toxav_send_audio error %i %i\n", friend[i].number, error);
+                            } else {
+                                i++;
+                            }
+                            if (i >= UTOX_MAX_NUM_FRIENDS) {
+                                break;
                             }
                         }
                     }

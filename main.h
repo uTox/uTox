@@ -44,14 +44,19 @@
 #define VERSION "0.3.3"
 
 // Limits and sizes
-#define MAX_CALLS 16
-#define MAX_NUM_FRIENDS 256
-#define MAX_BACKLOG_MESSAGES 128
+#define UTOX_MAX_CALLS 16
+#define UTOX_MAX_NUM_FRIENDS 256 /* Deprecated; Avoid Use */
+#define UTOX_MAX_BACKLOG_MESSAGES 128
+#define UTOX_MAX_NUM_GROUPS 512
+#define UTOX_FILE_NAME_LENGTH 1024
 
-#define MAX_NUM_GROUPS 512
+
+#define MAX_CALLS UTOX_MAX_CALLS                        /* Deprecated; Avoid Use */
+#define MAX_NUM_FRIENDS UTOX_MAX_NUM_FRIENDS            /* Deprecated; Avoid Use */
+#define MAX_BACKLOG_MESSAGES UTOX_MAX_BACKLOG_MESSAGES  /* Deprecated; Avoid Use */
+#define MAX_NUM_GROUPS UTOX_MAX_NUM_GROUPS              /* Deprecated; Avoid Use */
 #define TOX_FRIEND_ADDRESS_SIZE TOX_ADDRESS_SIZE
 
-#define UTOX_FILE_NAME_LENGTH 1024
 
 #define isdesktop(x) ((size_t)(x) == 1)
 
