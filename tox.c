@@ -938,10 +938,15 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
         /* param1: friend #
          */
         int32_t id = 0;
-        debug("Going to call now");
-        //toxav_call(av, &id, param1, , 10);
-
-        postmessage(FRIEND_CALL_STATUS, param1, id, (void*)CALL_RINGING);
+        debug("Going to call now\n");
+        TOXAV_ERR_CALL error = 0;
+        toxav_call(av, param1, UTOX_DEFAULT_AUDIO_BITRATE, UTOX_DEFAULT_VIDEO_BITRATE, &error);
+        if (error) {
+            debug("Error making call to %u, error num is %i.\n", param1, error);
+        } else {
+            debug("Call is ringing\n");
+            postmessage(FRIEND_CALL_STATUS, param1, id, (void*)CALL_RINGING);
+        }
         break;
     }
 

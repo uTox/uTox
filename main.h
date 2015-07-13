@@ -170,7 +170,8 @@ enum {
 #include "png/png.h"
 
 #include "tox.h"
-#include "filter_audio_wrappers.h"
+#include "audio.h"
+#include "video.h"
 
 #ifdef __WIN32__
 #include "windows/main.h"
