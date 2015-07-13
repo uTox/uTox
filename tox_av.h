@@ -1,24 +1,3 @@
-static void av_start(int32_t call_index, void *arg){
-/*    ToxAVCSettings peer_settings;
-
-    int fid = toxav_get_peer_id(arg, call_index, 0);
-    toxav_get_peer_csettings(arg, call_index, 0, &peer_settings);
-
-    _Bool video = (peer_settings.call_type == av_TypeVideo);
-
-    debug("video for this call: %u\n", video);
-
-    if(toxav_prepare_transmission(arg, call_index, 1) == 0) {
-        if(video) {
-            postmessage(FRIEND_CALL_VIDEO, fid, call_index, (void*)(640 | (size_t)480 << 16));
-        } else {
-            postmessage(FRIEND_CALL_STATUS, fid, call_index, (void*)CALL_OK);
-        }
-    } else {
-        debug("A/V FAIL!\n");
-    }
-*/}
-
 static void utox_av_incoming_call(ToxAV *av, uint32_t friend_number, bool audio, bool video, void *UNUSED(userdata)){
     debug("A/V Invite (%u)\n", friend_number);
     FRIEND *f = &friend[friend_number];
@@ -27,13 +6,6 @@ static void utox_av_incoming_call(ToxAV *av, uint32_t friend_number, bool audio,
     f->call_state_friend = ( audio << 2 | video << 3 );
     postmessage(FRIEND_CALL_STATUS, friend_number, friend_number, (void*)(size_t)(video ? CALL_INVITED_VIDEO : CALL_INVITED));
     toxaudio_postmessage(AUDIO_PLAY_RINGTONE, friend_number, 0, NULL);
-}
-
-static void callback_av_start(void *arg, int32_t call_index, void *UNUSED(userdata)){
-    av_start(call_index, arg);
-    toxaudio_postmessage(AUDIO_STOP_RINGTONE, call_index, 0, NULL);
-
-    debug("A/V Start (%i)\n", call_index);
 }
 
 static void utox_av_end(ToxAV *av, int32_t friend_number){
@@ -47,10 +19,7 @@ static void utox_av_end(ToxAV *av, int32_t friend_number){
     postmessage(FRIEND_CALL_STATUS, friend_number, 0, (void*)(size_t)CALL_NONE);
 }
 
-static void callback_av_ringing(ToxAV *av, int32_t friend_number){
-    debug("A/V Ringing (%i)\n", friend_number);
-}
-
+/*
 static void callback_av_requesttimeout(ToxAV *av, int32_t friend_number){
     debug("A/V ReqTimeout (%i)\n", friend_number);
 
@@ -85,9 +54,9 @@ static void callback_av_peermediachange(void *arg, int32_t friend_number, void *
     int fid = toxav_get_peer_id(arg, friend_number, 0);
 
     postmessage(FRIEND_CALL_MEDIACHANGE, fid, friend_number, (settings.call_type == av_TypeVideo) ? (void*)1 : NULL);
-    debug("A/V PeerMediachange (%i)\n", friend_number);*/
+    debug("A/V PeerMediachange (%i)\n", friend_number);* /
 }
-
+*/
 uint8_t lbuffer[800 * 600 * 4]; //needs to be always large enough for encoded frames
 
 static vpx_image_t input;
@@ -376,7 +345,7 @@ static void audio_thread(void *args){
     _Bool groups_audio[MAX_NUM_GROUPS] = {0};
 
     int perframe = (UTOX_DEFAULT_AUDIO_FRAME_DURATION * UTOX_DEFAULT_AUDIO_SAMPLE_RATE) / 1000;
-    uint8_t buf[perframe * 2 * UTOX_DEFAULT_AUDIO_CHANNELS], dest[perframe * 2 * UTOX_DEFAULT_AUDIO_CHANNELS];
+    uint8_t buf[perframe * 2 * UTOX_DEFAULT_AUDIO_CHANNELS]; //, dest[perframe * 2 * UTOX_DEFAULT_AUDIO_CHANNELS];
     memset(buf, 0, sizeof(buf));
 
     uint8_t audio_count = 0;
@@ -771,13 +740,14 @@ static void audio_thread(void *args){
                 if (voice) {
                     int i;
                     for(i = 0; i < MAX_CALLS;) {
-                        if((friend[i].call_state | TOXAV_FRIEND_CALL_STATE_SENDING_V) && (friend[i].call_state_friend | TOXAV_FRIEND_CALL_STATE_ACCEPTING_V)) {
+                        if((friend[i].call_state | TOXAV_FRIEND_CALL_STATE_SENDING_A) && (friend[i].call_state_friend | TOXAV_FRIEND_CALL_STATE_ACCEPTING_A)) {
                             TOXAV_ERR_SEND_FRAME error = 0;
                             // bool toxav_audio_send_frame(ToxAV *toxAV, uint32_t friend_number, const int16_t *pcm, size_t sample_count, uint8_t channels, uint32_t sampling_rate, TOXAV_ERR_SEND_FRAME *error);
                             toxav_audio_send_frame(av, friend[i].number, (const int16_t *)buf, samples, UTOX_DEFAULT_AUDIO_CHANNELS, perframe, &error);
                             if (error) {
                                 debug("toxav_send_audio error %i %i\n", friend[i].number, error);
                             } else {
+                                debug("Sent an audio frame to peer!\n");
                                 i++;
                             }
                             if (i >= UTOX_MAX_NUM_FRIENDS) {
@@ -970,6 +940,7 @@ static void toxav_thread(void *args)
  */
 static void utox_av_incoming_frame_a(ToxAV *av, uint32_t friend_number, const int16_t *pcm, size_t sample_count,
                                      uint8_t channels, uint32_t sample_rate, void *userdata){
+    debug("Incoming audio frame for friend %u", friend_number);
     #ifdef NATIVE_ANDROID_AUDIO
     audio_play(friend_number, pcm, sample_count, channels);
     #else

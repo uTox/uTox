@@ -142,7 +142,8 @@ static void callback_group_invite(Tox *tox, int fid, uint8_t type, const uint8_t
     if (type == TOX_GROUPCHAT_TYPE_TEXT) {
         gid = tox_join_groupchat(tox, fid, data, length);
     } else if (type == TOX_GROUPCHAT_TYPE_AV) {
-        gid = toxav_join_av_groupchat(tox, fid, data, length, &callback_av_group_audio, NULL);
+        // TODO FIX THIS AFTER NEW GROUP API IS RELEASED
+        // gid = toxav_join_av_groupchat(tox, fid, data, length, &callback_av_group_audio, NULL);
     }
 
     if(gid != -1) {

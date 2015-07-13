@@ -1041,7 +1041,8 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
          */
         int g = -1;
         if (param1) {
-            g = toxav_add_av_groupchat(tox, &callback_av_group_audio, NULL);
+            // TODO FIX THIS AFTER NEW GROUP API
+            // g = toxav_add_av_groupchat(tox, &callback_av_group_audio, NULL);
         } else {
             g = tox_add_groupchat(tox);
         }
