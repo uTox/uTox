@@ -270,8 +270,8 @@ static ALCdevice* alcopencapture(void *handle){
         return handle;
     }
 
-    return alcCaptureOpenDevice(handle, UTOX_DEFAULT_AUDIO_SAMPLE_RATE, AL_FORMAT_STEREO16, (UTOX_DEFAULT_AUDIO_FRAME_DURATION * UTOX_DEFAULT_AUDIO_SAMPLE_RATE * 4) / 1000);
-    // return alcCaptureOpenDevice(handle, av_DefaultSettings.audio_sample_rate, AL_FORMAT_MONO16, ((av_DefaultSettings.audio_frame_duration * av_DefaultSettings.audio_sample_rate * 4) / 1000) * av_DefaultSettings.audio_channels);
+    return alcCaptureOpenDevice(handle, UTOX_DEFAULT_AUDIO_SAMPLE_RATE, AL_FORMAT_MONO16, (UTOX_DEFAULT_AUDIO_FRAME_DURATION * UTOX_DEFAULT_AUDIO_SAMPLE_RATE * 4) / 1000);
+    // return alcCaptureOpenDevice(handle, av_DefaultSettings.audio_sample_rate, AL_FORMAT_STERIO16, ((av_DefaultSettings.audio_frame_duration * av_DefaultSettings.audio_sample_rate * 4) / 1000) * av_DefaultSettings.audio_channels);
 }
 
 static void alccapturestart(void *handle){
@@ -740,7 +740,8 @@ static void audio_thread(void *args){
                 if (voice) {
                     int i;
                     for(i = 0; i < MAX_CALLS;) {
-                        if((friend[i].call_state | TOXAV_FRIEND_CALL_STATE_SENDING_A) && (friend[i].call_state_friend | TOXAV_FRIEND_CALL_STATE_ACCEPTING_A)) {
+                        if( (friend[i].call_state        & TOXAV_FRIEND_CALL_STATE_SENDING_A  )  &&
+                            (friend[i].call_state_friend & TOXAV_FRIEND_CALL_STATE_ACCEPTING_A) ) {
                             TOXAV_ERR_SEND_FRAME error = 0;
                             // bool toxav_audio_send_frame(ToxAV *toxAV, uint32_t friend_number, const int16_t *pcm, size_t sample_count, uint8_t channels, uint32_t sampling_rate, TOXAV_ERR_SEND_FRAME *error);
                             toxav_audio_send_frame(av, friend[i].number, (const int16_t *)buf, samples, UTOX_DEFAULT_AUDIO_CHANNELS, perframe, &error);
