@@ -988,39 +988,33 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
         break;
     }
 
-    case TOX_ACCEPTCALL: {
-        /* param1: call #
+    case TOX_CALL_ANSWER: {
+        /* param1: Friend_number #
+         * param2: Accept Video? #
          */
-        /*ToxAVCSettings settings = av_DefaultSettings;
-        if(param2) {
-            settings.call_type = av_TypeVideo;
-            settings.max_video_width = max_video_width;
-            settings.max_video_height = max_video_height;
+        int v_bitrate = UTOX_DEFAULT_VIDEO_BITRATE;
+        if (param2) {
+            int v_bitrate = NULL;
         }
-
-        toxav_answer(av, param1, &settings);*/
-        break;
-    }
-
-    case TOX_HANGUP: {
-        /* param1: call #
-         */
-        TOXAV_ERR_CALL_CONTROL error;
-        toxav_call_control(av, param1, TOXAV_CALL_CONTROL_CANCEL, &error);
+        TOXAV_ERR_ANSWER error = 0;
+        toxav_answer(av, param1, UTOX_DEFAULT_AUDIO_BITRATE, v_bitrate, &error);
         if (error) {
-            // TODO Handle this error!
+            debug("Error trying to toxav_answer error (%i)\n", error);
+        } else {
+            debug("call running \n");
         }
         break;
     }
 
-    case TOX_CANCELCALL: {
+    case TOX_CALL_CANCEL: /* Deprecated, avoid use! */
+    case TOX_CALL_DISCONNECT: {
         /* param1: call #
          * param2: friend #
          */
         TOXAV_ERR_CALL_CONTROL error;
         toxav_call_control(av, param1, TOXAV_CALL_CONTROL_CANCEL, &error);
         if (error) {
-            // TODO Handle this error!
+            debug("Error disconnecting call.\n");
         }
         postmessage(FRIEND_CALL_STATUS, param2, param1, (void*)(size_t)CALL_NONE);
         break;

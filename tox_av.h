@@ -1,14 +1,3 @@
-// TODO replace this with something else.
-struct _utox_av_settings {
-    uint32_t v_bitrate, max_v_w, max_v_h;
-    uint32_t a_bitrate, a_frame_duration, a_sample_rate, a_channels;
-};
-
-struct _utox_av_settings utox_av_settings = {
-    500, 1280, 720, 32000, 20, 48000, 1
-};
-
-
 static void av_start(int32_t call_index, void *arg){
 /*    ToxAVCSettings peer_settings;
 
@@ -316,7 +305,7 @@ static ALCdevice* alcopencapture(void *handle){
         return handle;
     }
 
-    return alcCaptureOpenDevice(handle, utox_av_settings.a_sample_rate, AL_FORMAT_STEREO16, (utox_av_settings.a_frame_duration * utox_av_settings.a_sample_rate * 4) / 1000);
+    return alcCaptureOpenDevice(handle, UTOX_DEFAULT_AUDIO_SAMPLE_RATE, AL_FORMAT_STEREO16, (UTOX_DEFAULT_AUDIO_FRAME_DURATION * UTOX_DEFAULT_AUDIO_SAMPLE_RATE * 4) / 1000);
     // return alcCaptureOpenDevice(handle, av_DefaultSettings.audio_sample_rate, AL_FORMAT_MONO16, ((av_DefaultSettings.audio_frame_duration * av_DefaultSettings.audio_sample_rate * 4) / 1000) * av_DefaultSettings.audio_channels);
 }
 
@@ -390,8 +379,8 @@ static void audio_thread(void *args){
     _Bool call[MAX_CALLS] = {0}, preview = 0;
     _Bool groups_audio[MAX_NUM_GROUPS] = {0};
 
-    int perframe = (utox_av_settings.a_frame_duration * utox_av_settings.a_sample_rate) / 1000;
-    uint8_t buf[perframe * 2 * utox_av_settings.a_channels], dest[perframe * 2 * utox_av_settings.a_channels];
+    int perframe = (UTOX_DEFAULT_AUDIO_FRAME_DURATION * UTOX_DEFAULT_AUDIO_SAMPLE_RATE) / 1000;
+    uint8_t buf[perframe * 2 * UTOX_DEFAULT_AUDIO_CHANNELS], dest[perframe * 2 * UTOX_DEFAULT_AUDIO_CHANNELS];
     memset(buf, 0, sizeof(buf));
 
     uint8_t audio_count = 0;
@@ -441,7 +430,7 @@ static void audio_thread(void *args){
         return;
     }
 
-    int attrlist[] = {  ALC_FREQUENCY, utox_av_settings.a_sample_rate,
+    int attrlist[] = {  ALC_FREQUENCY, UTOX_DEFAULT_AUDIO_SAMPLE_RATE,
                         ALC_INVALID };
 
     context = alcCreateContext(device_out, attrlist);
@@ -501,7 +490,7 @@ static void audio_thread(void *args){
 
     int16_t *preview_buffer = NULL;
     unsigned int preview_buffer_index = 0;
-    #define PREVIEW_BUFFER_SIZE (utox_av_settings.a_sample_rate / 2)
+    #define PREVIEW_BUFFER_SIZE (UTOX_DEFAULT_AUDIO_SAMPLE_RATE / 2)
 
     while(1) {
         if(audio_thread_msg) {
@@ -691,7 +680,7 @@ static void audio_thread(void *args){
         // TODO move this code to filter_audio.c
         #ifdef AUDIO_FILTERING
             if (!f_a && audio_filtering_enabled) {
-                f_a = new_filter_audio(utox_av_settings.a_sample_rate);
+                f_a = new_filter_audio(UTOX_DEFAULT_AUDIO_SAMPLE_RATE);
                 if (!f_a) {
                     audio_filtering_enabled = 0;
                     debug("filter audio failed\n");
@@ -738,7 +727,7 @@ static void audio_thread(void *args){
                     int16_t buffer[perframe];
                     alcCaptureSamplesLoopback(device_out, buffer, perframe);
                     pass_audio_output(f_a, buffer, perframe);
-                    set_echo_delay_ms(f_a, utox_av_settings.a_frame_duration);
+                    set_echo_delay_ms(f_a, UTOX_DEFAULT_AUDIO_FRAME_DURATION);
                     if (samples >= perframe * 2) {
                         sleep = 0;
                     }
@@ -773,7 +762,7 @@ static void audio_thread(void *args){
                         preview_buffer_index = 0;
                     }
 
-                    sourceplaybuffer(0, preview_buffer + preview_buffer_index, perframe, utox_av_settings.a_channels, utox_av_settings.a_sample_rate);
+                    sourceplaybuffer(0, preview_buffer + preview_buffer_index, perframe, UTOX_DEFAULT_AUDIO_CHANNELS, UTOX_DEFAULT_AUDIO_SAMPLE_RATE);
                     if (voice) {
                         memcpy(preview_buffer + preview_buffer_index, buf, perframe * sizeof(int16_t));
                     } else {
@@ -789,7 +778,7 @@ static void audio_thread(void *args){
                         if((friend[i].call_state | TOXAV_FRIEND_CALL_STATE_SENDING_V) && (friend[i].call_state_friend | TOXAV_FRIEND_CALL_STATE_ACCEPTING_V)) {
                             TOXAV_ERR_SEND_FRAME error = 0;
                             // bool toxav_audio_send_frame(ToxAV *toxAV, uint32_t friend_number, const int16_t *pcm, size_t sample_count, uint8_t channels, uint32_t sampling_rate, TOXAV_ERR_SEND_FRAME *error);
-                            toxav_audio_send_frame(av, friend[i].number, (const uint16_t *)buf, samples, utox_av_settings.a_channels, perframe, &error);
+                            toxav_audio_send_frame(av, friend[i].number, (const uint16_t *)buf, samples, UTOX_DEFAULT_AUDIO_CHANNELS, perframe, &error);
                             if (error) {
                                 debug("toxav_send_audio error %i %i\n", friend[i].number, error);
                             }
@@ -804,7 +793,7 @@ static void audio_thread(void *args){
                         uint32_t max = tox_get_chatlist(tox, chats, num_chats);
                         for (i = 0; i < max; ++i) {
                             if (groups_audio[chats[i]]) {
-                                toxav_group_send_audio(tox, chats[i], (int16_t *)buf, perframe, utox_av_settings.a_channels, utox_av_settings.a_sample_rate);
+                                toxav_group_send_audio(tox, chats[i], (int16_t *)buf, perframe, UTOX_DEFAULT_AUDIO_CHANNELS, UTOX_DEFAULT_AUDIO_SAMPLE_RATE);
                             }
                         }
                     }
@@ -1000,7 +989,6 @@ static void utox_av_incoming_frame_v(ToxAV *toxAV, uint32_t friend_number, uint1
 
     postmessage(FRIEND_VIDEO_FRAME, friend_number, friend_number, img_data);
 }
-
 
 
 /** respond to a Audio Video state change call back from toxav */

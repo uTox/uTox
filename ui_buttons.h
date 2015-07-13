@@ -166,8 +166,7 @@ static void button_settings_sub_av_onpress(void){
     panel_settings_av.disabled   = 0;
 }
 
-static void button_group_audio_onpress(void)
-{
+static void button_group_audio_onpress(void){
     GROUPCHAT *g = selected_item->data;
     if (g->audio_calling) {
         tox_postmessage(TOX_GROUP_AUDIO_END, (g - group), 0, NULL);
@@ -176,8 +175,7 @@ static void button_group_audio_onpress(void)
     }
 }
 
-static void button_group_audio_update(BUTTON *b)
-{
+static void button_group_audio_update(BUTTON *b){
     GROUPCHAT *g = selected_item->data;
     if (g->type == TOX_GROUPCHAT_TYPE_AV) {
         b->disabled = 0;
@@ -196,15 +194,15 @@ static void button_call_onpress(void){
 
     if (f->call_state) {
         if (!f->call_state_friend) {
-            tox_postmessage(TOX_CANCELCALL, f->number, f - friend, NULL);
+            tox_postmessage(TOX_CALL_DISCONNECT, f->number, f - friend, NULL);
             debug("Cancelling call: id = %u, friend = %d\n", f->number, (int)(f - friend));
         } else {
-            tox_postmessage(TOX_HANGUP, f->number, 0, NULL);
+            tox_postmessage(TOX_CALL_DISCONNECT, f->number, 0, NULL);
             debug("Ending call: %u\n", f->number);
         }
     } else if (f->call_state_friend) {
         if (!f->call_state) {
-            tox_postmessage(TOX_ACCEPTCALL, f->number, 0, NULL);
+            tox_postmessage(TOX_CALL_ANSWER, f->number, 0, NULL);
             debug("Accept Call: %u\n", f->number);
         }
     } else {
@@ -244,17 +242,17 @@ static void button_video_onpress(void){
     FRIEND *f = selected_item->data;
     if (f->call_state) {
         if (!f->call_state_friend) {
-            tox_postmessage(TOX_CANCELCALL, f->number, f - friend, NULL);
+            tox_postmessage(TOX_CALL_DISCONNECT, f->number, f - friend, NULL);
             debug("Cancelling call: id = %u, friend = %d\n", f->number, (int)(f - friend));
         } else {
-            tox_postmessage(TOX_HANGUP, f->number, 0, NULL);
+            tox_postmessage(TOX_CALL_DISCONNECT, f->number, 0, NULL);
             debug("Ending call: %u\n", f->number);
             tox_postmessage(TOX_CALL_VIDEO_OFF, f - friend, f->number, NULL);
             debug("stop sending video\n");
         }
     } else if (f->call_state_friend) {
         if (!f->call_state) {
-            tox_postmessage(TOX_ACCEPTCALL, f->number, 0, NULL);
+            tox_postmessage(TOX_CALL_ANSWER, f->number, 0, NULL);
             debug("Accept Call: %u\n", f->number);
             tox_postmessage(TOX_CALL_VIDEO_ON, f - friend, f->number, NULL);
             debug("start sending video\n");
