@@ -424,7 +424,7 @@ void* video_detect(void) {
                 break;
             default: {
                 FRIEND *f = &friend[((uToxIroncladWindow *)notification.object).video_id - 1];
-                tox_postmessage(TOX_HANGUP, f->number, 0, NULL);
+                tox_postmessage(TOX_CALL_DISCONNECT, f->number, 0, NULL);
                 break;
             }
         }
