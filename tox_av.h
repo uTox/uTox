@@ -21,15 +21,12 @@ static void av_start(int32_t call_index, void *arg){
 
 static void utox_av_incoming_call(ToxAV *av, uint32_t friend_number, bool audio, bool video, void *UNUSED(userdata)){
     debug("A/V Invite (%u)\n", friend_number);
-    /*int fid = toxav_get_peer_id(arg, call_index, 0);
+    FRIEND *f = &friend[friend_number];
 
-    ToxAVCSettings peer_settings;
-    toxav_get_peer_csettings(arg, call_index, 0, &peer_settings);
-    _Bool video = (peer_settings.call_type == av_TypeVideo);
-    */
+    f->call_state = 0;
+    f->call_state_friend = ( audio << 2 | video << 3 );
     postmessage(FRIEND_CALL_STATUS, friend_number, friend_number, (void*)(size_t)(video ? CALL_INVITED_VIDEO : CALL_INVITED));
     toxaudio_postmessage(AUDIO_PLAY_RINGTONE, friend_number, 0, NULL);
-
 }
 
 static void callback_av_start(void *arg, int32_t call_index, void *UNUSED(userdata)){
@@ -778,7 +775,7 @@ static void audio_thread(void *args){
                         if((friend[i].call_state | TOXAV_FRIEND_CALL_STATE_SENDING_V) && (friend[i].call_state_friend | TOXAV_FRIEND_CALL_STATE_ACCEPTING_V)) {
                             TOXAV_ERR_SEND_FRAME error = 0;
                             // bool toxav_audio_send_frame(ToxAV *toxAV, uint32_t friend_number, const int16_t *pcm, size_t sample_count, uint8_t channels, uint32_t sampling_rate, TOXAV_ERR_SEND_FRAME *error);
-                            toxav_audio_send_frame(av, friend[i].number, (const uint16_t *)buf, samples, UTOX_DEFAULT_AUDIO_CHANNELS, perframe, &error);
+                            toxav_audio_send_frame(av, friend[i].number, (const int16_t *)buf, samples, UTOX_DEFAULT_AUDIO_CHANNELS, perframe, &error);
                             if (error) {
                                 debug("toxav_send_audio error %i %i\n", friend[i].number, error);
                             } else {
@@ -972,7 +969,7 @@ static void toxav_thread(void *args)
  *
  * Moving this here might break Android, if you know this commit compiles and runs on android, remove this line!
  */
-static void utox_av_incoming_frame_a(ToxAV *av, int32_t friend_number, int16_t *pcm, size_t sample_count,
+static void utox_av_incoming_frame_a(ToxAV *av, uint32_t friend_number, const int16_t *pcm, size_t sample_count,
                                      uint8_t channels, uint32_t sample_rate, void *userdata){
     #ifdef NATIVE_ANDROID_AUDIO
     audio_play(friend_number, pcm, sample_count, channels);

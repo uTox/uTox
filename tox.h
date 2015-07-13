@@ -57,8 +57,7 @@ struct TOX_SEND_INLINE_MSG {
 
 /* toxav thread messages (sent from the client thread)
  */
-enum
-{
+enum {
     AUDIO_KILL,
     AUDIO_SET_INPUT,
     AUDIO_SET_OUTPUT,
@@ -72,8 +71,7 @@ enum
     GROUP_AUDIO_CALL_END,
 };
 
-enum
-{
+enum {
     VIDEO_KILL,
     VIDEO_SET,
     VIDEO_PREVIEW_START,
@@ -83,8 +81,7 @@ enum
 };
 
 
-enum
-{
+enum {
     TOXAV_KILL,
 };
 /* client thread messages (recieved by the client thread)
@@ -122,7 +119,11 @@ enum {
 
     /* friend a/v */
     FRIEND_CALL_STATUS,
+    FRIEND_CALL_AUDIO_CONNECTED,
+    FRIEND_CALL_AUDIO_DISCONNECTED,
     FRIEND_CALL_VIDEO,
+    FRIEND_CALL_VIDEO_CONNECTED,
+    FRIEND_CALL_VIDEO_DISCONNECTED,
     FRIEND_CALL_MEDIACHANGE,
     FRIEND_CALL_START_VIDEO,
     FRIEND_CALL_STOP_VIDEO,

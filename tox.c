@@ -994,7 +994,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
          */
         int v_bitrate = UTOX_DEFAULT_VIDEO_BITRATE;
         if (param2) {
-            int v_bitrate = NULL;
+            v_bitrate = 0;
         }
         TOXAV_ERR_ANSWER error = 0;
         toxav_answer(av, param1, UTOX_DEFAULT_AUDIO_BITRATE, v_bitrate, &error);
@@ -1550,25 +1550,20 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
            param2: call id
            data: integer call status
          */
-        FRIEND *f = &friend[param1];
-        uint8_t status = (size_t)data;
-        /* TODO, do something here?
-         if(status == CALL_NONE && (f->calling == CALL_OK || f->calling == CALL_OK_VIDEO)) {
-            toxaudio_postmessage(AUDIO_CALL_END, param2, 0, NULL);
-            if(f->calling == CALL_OK_VIDEO) {
-                toxvideo_postmessage(VIDEO_CALL_END, param2, 0, NULL);
-            }
+        break;
+    }
+    // TODO: these two probably don't need to be here, we can make these changes with the API's callbacks
+    case FRIEND_CALL_AUDIO_CONNECTED: {
+        toxaudio_postmessage(AUDIO_CALL_START, param1, 0, NULL);
+        call_notify(&friend[param1], CALL_OK);
+        updatefriend(&friend[param1]);
+        break;
+    }
 
-            video_end(param1 + 1);
-        }*/
-
-        if(status == CALL_OK) {
-            toxaudio_postmessage(AUDIO_CALL_START, param2, 0, NULL);
-        }
-
-        call_notify(f, status);
-
-        updatefriend(f);
+    case FRIEND_CALL_AUDIO_DISCONNECTED: {
+        toxaudio_postmessage(AUDIO_CALL_END, param1, 0, NULL);
+        call_notify(&friend[param1], CALL_NONE);
+        updatefriend(&friend[param1]);
         break;
     }
 
@@ -1614,7 +1609,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         /* param1: friend id
            param2: call id
          */
-        FRIEND *f = &friend[param1];
+        //FRIEND *f = &friend[param1];
         /* TODO do something here!
         if(f->calling == CALL_OK) {
             f->calling = CALL_OK_VIDEO;
@@ -1628,7 +1623,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         /* param1: friend id
            param2: call id
          */
-        FRIEND *f = &friend[param1];
+        //FRIEND *f = &friend[param1];
         /* TODO do something here!
         if(f->calling == CALL_OK_VIDEO) {
             f->calling = CALL_OK;

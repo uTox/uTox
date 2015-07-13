@@ -215,24 +215,18 @@ static void button_call_onpress(void){
 
 static void button_call_update(BUTTON *b){
     FRIEND *f = selected_item->data;
-
     if (f->call_state) {
-        if (!f->call_state_friend) {
-            button_setcolors_warning(b);
-        } else {
-            button_setcolors_danger(b);
-        }
+        button_setcolors_danger(b);
         b->disabled = 0;
     } else if (f->call_state_friend) {
-        if (!f->call_state) {
-            button_setcolors_warning(b);
-        }
+        button_setcolors_warning(b);
         b->disabled = 0;
     } else {
         if (f->online) {
             button_setcolors_success(b);
             b->disabled = 0;
         } else {
+            button_setcolors_disabled(b);
             b->disabled = 1;
         }
     }
