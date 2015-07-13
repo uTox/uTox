@@ -194,12 +194,11 @@ static void button_call_onpress(void){
 
     if (f->call_state) {
         if (!f->call_state_friend) {
-            tox_postmessage(TOX_CALL_DISCONNECT, f->number, f - friend, NULL);
-            debug("Cancelling call: id = %u, friend = %d\n", f->number, (int)(f - friend));
+            debug("Canceling call: friend = %d\n", f->number);
         } else {
-            tox_postmessage(TOX_CALL_DISCONNECT, f->number, 0, NULL);
             debug("Ending call: %u\n", f->number);
         }
+        tox_postmessage(TOX_CALL_DISCONNECT, f->number, 0, NULL);
     } else if (f->call_state_friend) {
         if (!f->call_state) {
             tox_postmessage(TOX_CALL_ANSWER, f->number, 0, NULL);
@@ -207,8 +206,8 @@ static void button_call_onpress(void){
         }
     } else {
         if (f->online) {
-            tox_postmessage(TOX_CALL, f - friend, 0, NULL);
-            debug("Calling friend: %u\n", (uint32_t)(f - friend));
+            tox_postmessage(TOX_CALL, f->number, 0, NULL);
+            debug("Calling friend: %u\n", f->number);
         }
     }
 }

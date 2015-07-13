@@ -992,17 +992,24 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
         /* param1: Friend_number #
          * param2: Accept Video? #
          */
+        FRIEND *f = &friend[param1];
+        TOXAV_ERR_ANSWER error = 0;
         int v_bitrate = UTOX_DEFAULT_VIDEO_BITRATE;
-        if (param2) {
+
+        if (!param2) {
             v_bitrate = 0;
         }
-        TOXAV_ERR_ANSWER error = 0;
+
+        toxaudio_postmessage(AUDIO_STOP_RINGTONE, param1, 0, NULL);
         toxav_answer(av, param1, UTOX_DEFAULT_AUDIO_BITRATE, v_bitrate, &error);
+
         if (error) {
             debug("Error trying to toxav_answer error (%i)\n", error);
         } else {
             debug("call running \n");
+            f->call_state = ( TOXAV_FRIEND_CALL_STATE_SENDING_A | TOXAV_FRIEND_CALL_STATE_ACCEPTING_A );
         }
+
         break;
     }
 
@@ -1011,12 +1018,21 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
         /* param1: call #
          * param2: friend #
          */
+        FRIEND *f = &friend[param1];
         TOXAV_ERR_CALL_CONTROL error;
+
+        toxaudio_postmessage(AUDIO_STOP_RINGTONE, param1, 0, NULL);
         toxav_call_control(av, param1, TOXAV_CALL_CONTROL_CANCEL, &error);
+
         if (error) {
             debug("Error disconnecting call.\n");
         }
+
+        f->call_state = 0;
+        f->call_state_friend = 0;
+
         postmessage(FRIEND_CALL_STATUS, param2, param1, (void*)(size_t)CALL_NONE);
+
         break;
     }
 

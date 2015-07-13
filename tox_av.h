@@ -45,7 +45,6 @@ static void utox_av_end(ToxAV *av, int32_t friend_number){
         debug("unhanded error in utox_av_end\n");
     }
     postmessage(FRIEND_CALL_STATUS, friend_number, 0, (void*)(size_t)CALL_NONE);
-    toxaudio_postmessage(AUDIO_STOP_RINGTONE, friend_number, 0, NULL);
 }
 
 static void callback_av_ringing(ToxAV *av, int32_t friend_number){
