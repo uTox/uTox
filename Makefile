@@ -40,10 +40,12 @@ ifeq ($(UNAME_S), Linux)
 		CFLAGS += -DNO_DBUS
 	endif
 
-	CFLAGS += $(shell pkg-config --cflags $(DEPS))
+	PKG_CONFIG = pkg-config
+
+	CFLAGS += $(shell $(PKG_CONFIG) --cflags $(DEPS))
 
 	LDFLAGS += -lresolv -ldl
-	LDFLAGS += $(shell pkg-config --libs $(DEPS))
+	LDFLAGS += $(shell $(PKG_CONFIG) --libs $(DEPS))
 
 	OS_SRC = $(wildcard src/xlib/*.c)
 	OS_OBJ = $(OS_SRC:.c=.o)
@@ -56,8 +58,9 @@ else ifeq ($(UNAME_O), Cygwin)
 	CFLAGS  += -static
 	LDFLAGS += /usr/x86_64-w64-mingw32/sys-root/mingw/lib/libwinpthread.a
 
-	CFLAGS  += $(shell x86_64-w64-mingw32-pkg-config --cflags $(DEPS))
-	LDFLAGS += $(shell x86_64-w64-mingw32-pkg-config --libs   $(DEPS))
+	PKG_CONFIG = x86_64-w64-mingw32-pkg-config
+	CFLAGS  += $(shell $(PKG_CONFIG) --cflags $(DEPS))
+	LDFLAGS += $(shell $(PKG_CONFIG) --libs   $(DEPS))
 
 	LDFLAGS += -liphlpapi -lws2_32 -lgdi32 -lmsimg32 -ldnsapi -lcomdlg32
 	LDFLAGS += -Wl,-subsystem,windows -lwinmm -lole32 -loleaut32 -lstrmiids
