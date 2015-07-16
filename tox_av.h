@@ -332,7 +332,7 @@ static void sourceplaybuffer(int i, const int16_t *data, int samples, uint8_t ch
     alGetSourcei(source[i], AL_SOURCE_STATE, &state);
     if(state != AL_PLAYING) {
         alSourcePlay(source[i]);
-        debug("Starting source %u\n", i);
+        // debug("Starting source %u\n", i);
     }
 }
 
@@ -541,7 +541,7 @@ static void audio_thread(void *args){
                     if(device_in) {
                         alccapturestart(device_in);
                         record_on = 1;
-                        debug("start\n");
+                        debug("Starting Audio Preview\n");
                     }
                 }
                 break;
@@ -555,7 +555,7 @@ static void audio_thread(void *args){
                     if(device_in) {
                         alccapturestart(device_in);
                         record_on = 1;
-                        debug("start\n");
+                        debug("Starting Audio Call\n");
                     }
                 }
                 break;
@@ -569,7 +569,7 @@ static void audio_thread(void *args){
                     if(device_in) {
                         alccapturestart(device_in);
                         record_on = 1;
-                        debug("start\n");
+                        debug("Starting Audio GroupCall\n");
                     }
                 }
                 break;
@@ -584,7 +584,7 @@ static void audio_thread(void *args){
                     alccapturestop(device_in);
                     alccaptureclose(device_in);
                     record_on = 0;
-                    debug("stop\n");
+                    debug("Audio Preview Stopped\n");
                 }
                 break;
             }
@@ -722,7 +722,7 @@ static void audio_thread(void *args){
                     voice = 0; //PTT is up, send nothing.
                 }
 
-                if(preview) {
+                if (preview) {
                     if (preview_buffer_index + perframe > PREVIEW_BUFFER_SIZE) {
                         preview_buffer_index = 0;
                     }
@@ -733,15 +733,15 @@ static void audio_thread(void *args){
                     } else {
                         memset(preview_buffer + preview_buffer_index, 0, perframe * sizeof(int16_t));
                     }
-
                     preview_buffer_index += perframe;
                 }
 
                 if (voice) {
-                    int i;
-                    for(i = 0; i < MAX_CALLS;) {
-                        if( (friend[i].call_state        & TOXAV_FRIEND_CALL_STATE_SENDING_A  )  &&
-                            (friend[i].call_state_friend & TOXAV_FRIEND_CALL_STATE_ACCEPTING_A) ) {
+                    int i, active_call_count;
+                    for(i = 0; i < UTOX_MAX_NUM_FRIENDS; i++) {
+                        debug("%i\r", i);
+                        if( (friend[i].call_state        & TOXAV_FRIEND_CALL_STATE_SENDING_A   )  &&
+                            (friend[i].call_state_friend & TOXAV_FRIEND_CALL_STATE_ACCEPTING_A ) ) {
                             TOXAV_ERR_SEND_FRAME error = 0;
                             // bool toxav_audio_send_frame(ToxAV *toxAV, uint32_t friend_number, const int16_t *pcm, size_t sample_count, uint8_t channels, uint32_t sampling_rate, TOXAV_ERR_SEND_FRAME *error);
                             toxav_audio_send_frame(av, friend[i].number, (const int16_t *)buf, samples, UTOX_DEFAULT_AUDIO_CHANNELS, perframe, &error);
@@ -749,10 +749,10 @@ static void audio_thread(void *args){
                                 debug("toxav_send_audio error %i %i\n", friend[i].number, error);
                             } else {
                                 debug("Sent an audio frame to peer!\n");
-                                i++;
-                            }
-                            if (i >= UTOX_MAX_NUM_FRIENDS) {
-                                break;
+                                active_call_count++;
+                                if (i >= UTOX_MAX_CALLS) {
+                                    break;
+                                }
                             }
                         }
                     }
