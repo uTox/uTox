@@ -946,6 +946,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
         } else {
             debug("Call is ringing\n");
             postmessage(FRIEND_CALL_STATUS, param1, id, (void*)CALL_RINGING);
+            friend[param1].call_state = 4 + 16; /* Sending audio & accepting audio */
         }
         break;
     }
@@ -1567,6 +1568,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
            param2: call id
            data: integer call status
          */
+        // Do some stuff here...
         break;
     }
     // TODO: these two probably don't need to be here, we can make these changes with the API's callbacks

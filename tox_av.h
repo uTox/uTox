@@ -754,6 +754,8 @@ static void audio_thread(void *args){
                                     break;
                                 }
                             }
+                        } else {
+                            debug("self %i || them %i (%i)\n", friend[i].call_state, friend[i].call_state_friend, i);
                         }
                     }
 
@@ -941,7 +943,7 @@ static void toxav_thread(void *args)
  */
 static void utox_av_incoming_frame_a(ToxAV *av, uint32_t friend_number, const int16_t *pcm, size_t sample_count,
                                      uint8_t channels, uint32_t sample_rate, void *userdata){
-    debug("Incoming audio frame for friend %u", friend_number);
+    debug("Incoming audio frame for friend %u \n", friend_number);
     #ifdef NATIVE_ANDROID_AUDIO
     audio_play(friend_number, pcm, sample_count, channels);
     #else
