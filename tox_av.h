@@ -2,7 +2,7 @@ static void utox_av_incoming_call(ToxAV *av, uint32_t friend_number, bool audio,
     debug("A/V Invite (%u)\n", friend_number);
     FRIEND *f = &friend[friend_number];
 
-    f->call_state = 0;
+    f->call_state_self = 0;
     f->call_state_friend = ( audio << 2 | video << 3 );
     postmessage(FRIEND_CALL_STATUS, friend_number, friend_number, (void*)(size_t)(video ? CALL_INVITED_VIDEO : CALL_INVITED));
     toxaudio_postmessage(AUDIO_PLAY_RINGTONE, friend_number, 0, NULL);
@@ -201,7 +201,7 @@ static void video_thread(void *args)
 
                 int i;
                 for(i = 0; i < MAX_CALLS; i++) {
-                    if( (friend[i].call_state        | TOXAV_FRIEND_CALL_STATE_SENDING_V   ) &&
+                    if( (friend[i].call_state_self   | TOXAV_FRIEND_CALL_STATE_SENDING_V   ) &&
                         (friend[i].call_state_friend | TOXAV_FRIEND_CALL_STATE_ACCEPTING_V )) {
                         // TODO get the yuv from utox?
                         TOXAV_ERR_SEND_FRAME error = 0;
@@ -740,7 +740,7 @@ static void audio_thread(void *args){
                     int i, active_call_count;
                     for(i = 0; i < UTOX_MAX_NUM_FRIENDS; i++) {
                         debug("%i\r", i);
-                        if( (friend[i].call_state        & TOXAV_FRIEND_CALL_STATE_SENDING_A   )  &&
+                        if( (friend[i].call_state_self   & TOXAV_FRIEND_CALL_STATE_SENDING_A   )  &&
                             (friend[i].call_state_friend & TOXAV_FRIEND_CALL_STATE_ACCEPTING_A ) ) {
                             TOXAV_ERR_SEND_FRAME error = 0;
                             // bool toxav_audio_send_frame(ToxAV *toxAV, uint32_t friend_number, const int16_t *pcm, size_t sample_count, uint8_t channels, uint32_t sampling_rate, TOXAV_ERR_SEND_FRAME *error);
@@ -755,7 +755,7 @@ static void audio_thread(void *args){
                                 }
                             }
                         } else {
-                            debug("self %i || them %i (%i)\n", friend[i].call_state, friend[i].call_state_friend, i);
+                            debug("self %i || them %i (%i)\n", friend[i].call_state_self, friend[i].call_state_friend, i);
                         }
                     }
 
@@ -986,16 +986,18 @@ static void utox_callback_av_change_state(ToxAV *av, uint32_t friend_number, uin
     int state_audio = (state | (TOXAV_FRIEND_CALL_STATE_SENDING_A | TOXAV_FRIEND_CALL_STATE_RECIVING_A));
     int state_video = (state | (TOXAV_FRIEND_CALL_STATE_SENDING_V | TOXAV_FRIEND_CALL_STATE_RECIVING_V));
 
-    if (friend[friend_number].call_state ^ state_audio) {
+    if (friend[friend_number].call_state_self ^ state_audio) {
         // do change
         // start audio
         // stop audio
     }
 
-    if (friend[friend_number].call_state ^ state_video) {
+    if (friend[friend_number].call_state_self ^ state_video) {
         // start video
         // stop video
     }
+
+    debug("Call state change, %i %i\n", state, friend_number);
 }
 
 static void set_av_callbacks(ToxAV *av){

@@ -946,7 +946,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
         } else {
             debug("Call is ringing\n");
             postmessage(FRIEND_CALL_STATUS, param1, id, (void*)CALL_RINGING);
-            friend[param1].call_state = 4 + 16; /* Sending audio & accepting audio */
+            friend[param1].call_state_self = 4 + 16; /* Sending audio & accepting audio */
         }
         break;
     }
@@ -1008,7 +1008,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             debug("Error trying to toxav_answer error (%i)\n", error);
         } else {
             debug("call running \n");
-            f->call_state = ( TOXAV_FRIEND_CALL_STATE_SENDING_A | TOXAV_FRIEND_CALL_STATE_ACCEPTING_A );
+            f->call_state_self = ( TOXAV_FRIEND_CALL_STATE_SENDING_A | TOXAV_FRIEND_CALL_STATE_ACCEPTING_A );
         }
 
         break;
@@ -1029,7 +1029,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             debug("Error disconnecting call.\n");
         }
 
-        f->call_state = 0;
+        f->call_state_self = 0;
         f->call_state_friend = 0;
 
         postmessage(FRIEND_CALL_STATUS, param2, param1, (void*)(size_t)CALL_NONE);

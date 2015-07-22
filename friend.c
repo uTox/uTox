@@ -246,7 +246,7 @@ void friend_free(FRIEND *f)
 
     free(f->msg.data);
 
-    if(f->call_state) {
+    if(f->call_state_self) {
         toxaudio_postmessage(AUDIO_CALL_END, f->number, 0, NULL);
         /* TODO end a video call too!
         if(f->calling == CALL_OK_VIDEO) {

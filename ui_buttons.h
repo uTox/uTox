@@ -193,7 +193,7 @@ static void button_group_audio_update(BUTTON *b){
 static void button_call_onpress(void){
     FRIEND *f = selected_item->data;
 
-    if (f->call_state) {
+    if (f->call_state_self) {
         if (!f->call_state_friend) {
             debug("Canceling call: friend = %d\n", f->number);
         } else {
@@ -201,7 +201,7 @@ static void button_call_onpress(void){
         }
         tox_postmessage(TOX_CALL_DISCONNECT, f->number, 0, NULL);
     } else if (f->call_state_friend) {
-        if (!f->call_state) {
+        if (!f->call_state_self) {
             tox_postmessage(TOX_CALL_ANSWER, f->number, 0, NULL);
             debug("Accept Call: %u\n", f->number);
         }
@@ -215,7 +215,7 @@ static void button_call_onpress(void){
 
 static void button_call_update(BUTTON *b){
     FRIEND *f = selected_item->data;
-    if (f->call_state) {
+    if (f->call_state_self) {
         button_setcolors_danger(b);
         b->disabled = 0;
     } else if (f->call_state_friend) {
@@ -234,7 +234,7 @@ static void button_call_update(BUTTON *b){
 
 static void button_video_onpress(void){
     FRIEND *f = selected_item->data;
-    if (f->call_state) {
+    if (f->call_state_self) {
         if (!f->call_state_friend) {
             tox_postmessage(TOX_CALL_DISCONNECT, f->number, f - friend, NULL);
             debug("Cancelling call: id = %u, friend = %d\n", f->number, (int)(f - friend));
@@ -245,7 +245,7 @@ static void button_video_onpress(void){
             debug("stop sending video\n");
         }
     } else if (f->call_state_friend) {
-        if (!f->call_state) {
+        if (!f->call_state_self) {
             tox_postmessage(TOX_CALL_ANSWER, f->number, 0, NULL);
             debug("Accept Call: %u\n", f->number);
             tox_postmessage(TOX_CALL_VIDEO_ON, f - friend, f->number, NULL);
@@ -262,7 +262,7 @@ static void button_video_onpress(void){
 static void button_video_update(BUTTON *b){
     FRIEND *f = selected_item->data;
 
-    if (f->call_state) {
+    if (f->call_state_self) {
         if (!f->call_state_friend) {
             button_setcolors_warning(b);
         } else {
@@ -270,7 +270,7 @@ static void button_video_update(BUTTON *b){
         }
         b->disabled = 0;
     } else if (f->call_state_friend) {
-        if (!f->call_state) {
+        if (!f->call_state_self) {
             button_setcolors_warning(b);
         }
         b->disabled = 0;
