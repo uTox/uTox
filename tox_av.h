@@ -693,6 +693,7 @@ static void audio_thread(void *args){
                             if (error) {
                                 debug("toxav_send_audio error friend == %i, error ==  %i\n", i, error);
                             } else {
+                                // debug("Send a frame to friend %i\n",i);
                                 if (i >= UTOX_MAX_CALLS) {
                                     debug("We're calling more peers than allowed by UTOX_MAX_CALLS, This is a bug\n");
                                         break;
@@ -884,7 +885,7 @@ static void utox_av_incoming_call(ToxAV *av, uint32_t friend_number, bool audio,
     FRIEND *f = &friend[friend_number];
 
     f->call_state_self = 0;
-    f->call_state_friend = ( audio << 2 | video << 3 );
+    f->call_state_friend = ( audio << 2 | video << 3 | audio << 4 | video << 5 );
     postmessage(FRIEND_CALL_STATUS, friend_number, friend_number, (void*)(size_t)(video ? CALL_INVITED_VIDEO : CALL_INVITED));
     toxaudio_postmessage(AUDIO_PLAY_RINGTONE, friend_number, 0, NULL);
 }

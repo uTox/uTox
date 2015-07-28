@@ -261,7 +261,6 @@ static void button_video_onpress(void){
 
 static void button_video_update(BUTTON *b){
     FRIEND *f = selected_item->data;
-
     if (f->call_state_self) {
         if (!f->call_state_friend) {
             button_setcolors_warning(b);
