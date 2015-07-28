@@ -578,7 +578,6 @@ static void audio_thread(void *args){
                 if(state == AL_PLAYING) {
                     alSourceStop(ringSrc[m->param1]);
                 }
-
                 break;
             }
             }
@@ -887,13 +886,10 @@ static void utox_av_incoming_call(ToxAV *av, uint32_t friend_number, bool audio,
 
     f->call_state_self = 0;
     f->call_state_friend = ( audio << 2 | video << 3 | audio << 4 | video << 5 );
-    postmessage(FRIEND_CALL_STATUS, friend_number, friend_number, (void*)(size_t)(video ? CALL_INVITED_VIDEO : CALL_INVITED));
     toxaudio_postmessage(AUDIO_PLAY_RINGTONE, friend_number, 0, NULL);
 }
 
 static void utox_av_end(ToxAV *av, int32_t friend_number){
-    debug("A/V End (%i)\n", friend_number);
-
     TOXAV_ERR_CALL_CONTROL error = 0;
     toxav_call_control(av, friend_number, TOXAV_CALL_CONTROL_CANCEL, &error);
     if (error) {
@@ -907,7 +903,7 @@ static void utox_av_end(ToxAV *av, int32_t friend_number){
  * Moving this here might break Android, if you know this commit compiles and runs on android, remove this line!
  */
 static void utox_av_incoming_frame_a(ToxAV *av, uint32_t friend_number, const int16_t *pcm, size_t sample_count,
-                                     uint8_t channels, uint32_t sample_rate, void *userdata){
+                                    uint8_t channels, uint32_t sample_rate, void *userdata){
     // debug("Incoming audio frame for friend %u \n", friend_number);
     #ifdef NATIVE_ANDROID_AUDIO
     audio_play(friend_number, pcm, sample_count, channels);

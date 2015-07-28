@@ -995,27 +995,15 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
         break;
     }
 
-    case TOX_CALL_CANCEL: /* Deprecated, avoid use! */
+    case TOX_CALL_CANCEL: /* Deprecated, avoid cancel, use disconnect! */
     case TOX_CALL_DISCONNECT: {
-        /* param1: call #
-         * param2: friend #
+        /* param1: friend_number
          */
-        FRIEND *f = &friend[param1];
-        TOXAV_ERR_CALL_CONTROL error;
-
         toxaudio_postmessage(AUDIO_STOP_RINGTONE, param1, 0, NULL);
         toxaudio_postmessage(AUDIO_CALL_END, param1, 0, NULL);
-        toxav_call_control(av, param1, TOXAV_CALL_CONTROL_CANCEL, &error);
-
-        if (error) {
-            debug("Error disconnecting call.\n");
-        }
-
+        FRIEND *f = &friend[param1];
         f->call_state_self = 0;
         f->call_state_friend = 0;
-
-        postmessage(FRIEND_CALL_STATUS, param2, param1, (void*)(size_t)CALL_NONE);
-
         break;
     }
 
@@ -1539,7 +1527,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
            param2: call id
            data: integer call status
          */
-        // Do some stuff here...
+        tox_postmessage(TOX_CALL_DISCONNECT, param1, 0, NULL);
         break;
     }
 
