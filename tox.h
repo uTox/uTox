@@ -161,6 +161,19 @@ enum
     CALL_RINGING_VIDEO,
     CALL_OK_VIDEO,
 };
+
+/** [log_read description] */
+void log_read(Tox *tox, int fid);
+
+/** [friend_meta_data_read description] */
+void friend_meta_data_read(Tox *tox, int friend_id);
+
+/** [init_avatar description]
+ *
+ * TODO move this to avatar.h
+ */
+//_Bool init_avatar(AVATAR *avatar, const char_t *id, uint8_t *png_data_out, uint32_t *png_size_out);
+
 /* toxcore thread
  */
 void tox_thread(void *args);

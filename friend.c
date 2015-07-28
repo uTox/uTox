@@ -1,5 +1,44 @@
 #include "main.h"
 
+void utox_friend_init(Tox *tox, uint32_t friend_number){
+        int size;
+        // get friend pointer
+        FRIEND *f = &friend[friend_number];
+        uint8_t name[TOX_MAX_NAME_LENGTH];
+
+        // Set scroll position to bottom of window.
+        f->msg.scroll = 1.0;
+
+        // Get and set the public key for this friend number and set it.
+        tox_friend_get_public_key(tox, friend_number, f->cid, 0);
+
+        // Set the friend number we got from toxcore
+        f->number = friend_number;
+
+        // Get and set friend name and length
+        size = tox_friend_get_name_size(tox, friend_number, 0);
+        tox_friend_get_name(tox, friend_number, name, 0);
+        // Set the name for utox as well
+        friend_setname(f, name, size);
+
+        // Get and set the status message
+        size = tox_friend_get_status_message_size(tox, friend_number, 0);
+        f->status_message = malloc(size);
+        tox_friend_get_status_message(tox, friend_number, f->status_message, 0);
+        f->status_length = size;
+
+        // Get the hex version of this friends ID
+        char_t cid[TOX_PUBLIC_KEY_SIZE * 2];
+        cid_to_string(cid, f->cid);
+        init_avatar(&f->avatar, cid, NULL, NULL);
+
+        // Get the chat backlog
+        log_read(tox, friend_number);
+
+        // Load the meta data, if it exists.
+        friend_meta_data_read(tox, friend_number);
+}
+
 void friend_setname(FRIEND *f, char_t *name, STRING_IDX length){
     if(f->name && (length != f->name_length || memcmp(f->name, name, length) != 0)) {
         MESSAGE *msg = malloc(sizeof(MESSAGE) + sizeof(" is now known as ") - 1 + f->name_length + length);

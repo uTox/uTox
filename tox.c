@@ -346,7 +346,7 @@ static void set_callbacks(Tox *tox)
     utox_set_callbacks_for_transfer(tox);
 }
 
-/* tries to load avatar from disk for given client id string and set avatar based on saved png data
+/** tries to load avatar from disk for given client id string and set avatar based on saved png data
  *  avatar is avatar to initialize. Will be unset if no file is found on disk or if file is corrupt or too large,
  *      otherwise will be set to avatar found on disk
  *  id is cid string of whose avatar to find(see also load_avatar in avatar.h)
@@ -355,8 +355,10 @@ static void set_callbacks(Tox *tox)
  *  if png_size_out is not null, the size of the png data will be stored in it
  *
  *  returns: 1 on successful loading, 0 on failure
+ *
+ * TODO: move this function into avatar.c
  */
-static _Bool init_avatar(AVATAR *avatar, const char_t *id, uint8_t *png_data_out, uint32_t *png_size_out) {
+_Bool init_avatar(AVATAR *avatar, const char_t *id, uint8_t *png_data_out, uint32_t *png_size_out) {
     unset_avatar(avatar);
     uint8_t avatar_data[UTOX_AVATAR_MAX_DATA_LENGTH];
     uint32_t size;
@@ -414,32 +416,7 @@ static void tox_after_load(Tox *tox)
 
     uint32_t i = 0;
     while(i != friends) {
-        int size;
-        FRIEND *f = &friend[i];
-        f->number = i;
-        uint8_t name[TOX_MAX_NAME_LENGTH];
-
-        f->msg.scroll = 1.0;
-
-        tox_friend_get_public_key(tox, i, f->cid, 0);
-
-        size = tox_friend_get_name_size(tox, i, 0);
-        tox_friend_get_name(tox, i, name, 0);
-
-        friend_setname(f, name, size);
-
-        size = tox_friend_get_status_message_size(tox, i, 0);
-        f->status_message = malloc(size);
-        tox_friend_get_status_message(tox, i, f->status_message, 0);
-        f->status_length = size;
-
-        char_t cid[TOX_PUBLIC_KEY_SIZE * 2];
-        cid_to_string(cid, f->cid);
-        init_avatar(&f->avatar, cid, NULL, NULL);
-
-        log_read(tox, i);
-
-        friend_meta_data_read(tox, i);
+        utox_friend_init(tox, i);
         i++;
     }
 
@@ -833,6 +810,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             }
             postmessage(FRIEND_ADD, 1, addf_error, data);
         } else {
+            utox_friend_init(tox, fid);
             postmessage(FRIEND_ADD, 0, fid, data);
         }
         break;
@@ -946,6 +924,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
         } else {
             debug("Call is ringing\n");
             postmessage(FRIEND_CALL_STATUS, param1, id, (void*)CALL_RINGING);
+            toxaudio_postmessage(AUDIO_CALL_START, param1, 0, NULL); // TODO, do we really want this to be HERE?
             friend[param1].call_state_self = 4 + 16; /* Sending audio & accepting audio */
         }
         break;
@@ -1002,6 +981,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
         }
 
         toxaudio_postmessage(AUDIO_STOP_RINGTONE, param1, 0, NULL);
+        toxaudio_postmessage(AUDIO_CALL_START, param1, 0, NULL);
         toxav_answer(av, param1, UTOX_DEFAULT_AUDIO_BITRATE, v_bitrate, &error);
 
         if (error) {
@@ -1023,6 +1003,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
         TOXAV_ERR_CALL_CONTROL error;
 
         toxaudio_postmessage(AUDIO_STOP_RINGTONE, param1, 0, NULL);
+        toxaudio_postmessage(AUDIO_CALL_END, param1, 0, NULL);
         toxav_call_control(av, param1, TOXAV_CALL_CONTROL_CANCEL, &error);
 
         if (error) {
@@ -1424,17 +1405,10 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
 
             FRIEND *f = &friend[param2];
             friends++;
-
-            f->msg.scroll = 1.0;
-
             memcpy(f->cid, data, sizeof(f->cid));
-
-            friend_setname(f, NULL, 0);
-
             list_addfriend(f);
 
             addfriend_status = ADDF_SENT;
-
         }
 
         free(data);
@@ -1448,10 +1422,6 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             FRIEND *f = &friend[param2];
             FRIENDREQ *req = data;
             friends++;
-
-            memcpy(f->cid, req->id, sizeof(f->cid));
-            friend_setname(f, NULL, 0);
-
             list_addfriend2(f, req);
             redraw();
         }
@@ -1571,7 +1541,9 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         // Do some stuff here...
         break;
     }
+
     // TODO: these two probably don't need to be here, we can make these changes with the API's callbacks
+    // These need to be renamed, they can then be used to connect and disconnect the handle on the audio device.
     case FRIEND_CALL_AUDIO_CONNECTED: {
         toxaudio_postmessage(AUDIO_CALL_START, param1, 0, NULL);
         call_notify(&friend[param1], CALL_OK);

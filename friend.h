@@ -50,6 +50,8 @@ typedef struct groupchat {
 
 #define friend_id(f) (f -  friend)
 
+void utox_friend_init(Tox *tox, uint32_t friend_number);
+
 void friend_setname(FRIEND *f, char_t *name, STRING_IDX length);
 void friend_set_alias(FRIEND *f, char_t *alias, STRING_IDX length);
 void friend_addmessage(FRIEND *f, void *data);

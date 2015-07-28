@@ -302,7 +302,7 @@ static void audio_thread(void *args){
     debug("frame size: %u\n", perframe);
 
     device_list = alcGetString(NULL, ALC_CAPTURE_DEVICE_SPECIFIER);
-    if(device_list) {
+    if (device_list) {
         audio_device = (void*)device_list;
         debug("Input Device List:\n");
         while(*device_list) {
@@ -315,10 +315,11 @@ static void audio_thread(void *args){
     postmessage(NEW_AUDIO_IN_DEVICE, STR_AUDIO_IN_NONE, 0, NULL);
     audio_detect();
 
-    if (alcIsExtensionPresent(NULL, "ALC_ENUMERATE_ALL_EXT"))
+    if (alcIsExtensionPresent(NULL, "ALC_ENUMERATE_ALL_EXT")) {
         device_list = alcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER);
-    else
+    } else {
         device_list = alcGetString(NULL, ALC_DEVICE_SPECIFIER);
+    }
 
     if(device_list) {
         output_device = device_list;
@@ -489,7 +490,6 @@ static void audio_thread(void *args){
             }
 
             case AUDIO_CALL_START: {
-                call[m->param1] = 1;
                 audio_count++;
                 if(!record_on) {
                     device_in = alcopencapture(audio_device);
@@ -611,9 +611,12 @@ static void audio_thread(void *args){
         if(record_on) {
             ALint samples;
             _Bool frame = 0;
-            if(device_in == (void*)1) {
+            /* If we have a device_in we're on linux so we can just call OpenAL, otherwise we're on something else so
+             * we'll need to call audio_frame() to add to the buffer for us. */
+            if (device_in == (void*)1) {
                 frame = audio_frame((void*)buf);
                 if (frame) {
+                    /* We have an audio frame to use, continue without sleeping. */
                     sleep = 0;
                 }
             } else {
@@ -682,23 +685,19 @@ static void audio_thread(void *args){
                 if (voice) {
                     int i, active_call_count = 0;
                     for(i = 0; i < UTOX_MAX_NUM_FRIENDS; i++) {
-                        debug("%i\r", i);
                         if( (friend[i].call_state_self   & TOXAV_FRIEND_CALL_STATE_SENDING_A   )  &&
                             (friend[i].call_state_friend & TOXAV_FRIEND_CALL_STATE_ACCEPTING_A ) ) {
+                            active_call_count++;
                             TOXAV_ERR_SEND_FRAME error = 0;
-                            // bool toxav_audio_send_frame(ToxAV *toxAV, uint32_t friend_number, const int16_t *pcm, size_t sample_count, uint8_t channels, uint32_t sampling_rate, TOXAV_ERR_SEND_FRAME *error);
-                            toxav_audio_send_frame(av, friend[i].number, (const int16_t *)buf, samples, UTOX_DEFAULT_AUDIO_CHANNELS, perframe, &error);
+                            toxav_audio_send_frame(av, friend[i].number, (const int16_t *)buf, perframe, UTOX_DEFAULT_AUDIO_CHANNELS, UTOX_DEFAULT_AUDIO_SAMPLE_RATE, &error);
                             if (error) {
-                                debug("toxav_send_audio error %i %i\n", friend[i].number, error);
+                                debug("toxav_send_audio error friend == %i, error ==  %i\n", i, error);
                             } else {
-                                debug("Sent an audio frame to peer!\n");
-                                active_call_count++;
                                 if (i >= UTOX_MAX_CALLS) {
-                                    break;
+                                    debug("We're calling more peers than allowed by UTOX_MAX_CALLS, This is a bug\n");
+                                        break;
                                 }
                             }
-                        } else {
-                            debug("self %i || them %i (%i)\n", friend[i].call_state_self, friend[i].call_state_friend, i);
                         }
                     }
 
@@ -747,8 +746,7 @@ static void audio_thread(void *args){
 }
 
 
-void toxaudio_postmessage(uint8_t msg, uint32_t param1, uint32_t param2, void *data)
-{
+void toxaudio_postmessage(uint8_t msg, uint32_t param1, uint32_t param2, void *data) {
     while(audio_thread_msg) {
         yieldcpu(1);
     }
@@ -941,16 +939,11 @@ static void utox_callback_av_change_state(ToxAV *av, uint32_t friend_number, uin
         debug("ToxAV:\tCall ended with friend_number %u.\n", friend_number);
     }
 
-    int TOXAV_FRIEND_CALL_STATE_SENDING_A = 4;
-    int TOXAV_FRIEND_CALL_STATE_SENDING_V = 8;
-    int TOXAV_FRIEND_CALL_STATE_RECIVING_A = 16;
-    int TOXAV_FRIEND_CALL_STATE_RECIVING_V = 32;
-
-    int state_audio = (state | (TOXAV_FRIEND_CALL_STATE_SENDING_A | TOXAV_FRIEND_CALL_STATE_RECIVING_A));
-    int state_video = (state | (TOXAV_FRIEND_CALL_STATE_SENDING_V | TOXAV_FRIEND_CALL_STATE_RECIVING_V));
+    int state_audio = (state | (TOXAV_FRIEND_CALL_STATE_SENDING_A | TOXAV_FRIEND_CALL_STATE_ACCEPTING_A));
+    int state_video = (state | (TOXAV_FRIEND_CALL_STATE_SENDING_V | TOXAV_FRIEND_CALL_STATE_ACCEPTING_V));
 
     if (friend[friend_number].call_state_friend ^ state_audio) {
-        debug("Audio state change %i\n", state);
+        debug("Audio state change %i for %u\n", state, friend_number);
         friend[friend_number].call_state_friend = state;
         // do change
         // start audio
@@ -958,7 +951,7 @@ static void utox_callback_av_change_state(ToxAV *av, uint32_t friend_number, uin
     }
 
     if (friend[friend_number].call_state_friend ^ state_video) {
-        debug("Video state change %i\n", state);
+        debug("Video state change %i for %u\n", state, friend_number);
         friend[friend_number].call_state_friend = state;
         // start video
         // stop video
