@@ -830,6 +830,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
         FRIENDREQ *req = data;
         TOX_ERR_FRIEND_ADD f_err;
         uint32_t fid = tox_friend_add_norequest(tox, req->id, &f_err);
+        utox_friend_init(tox, fid);
         postmessage(FRIEND_ACCEPT, (f_err != TOX_ERR_FRIEND_ADD_OK), (f_err != TOX_ERR_FRIEND_ADD_OK) ? 0 : fid, req);
         break;
     }

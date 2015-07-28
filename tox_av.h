@@ -242,8 +242,7 @@ static void alccaptureclose(void *handle)
     alcCaptureCloseDevice(handle);
 }
 
-static void sourceplaybuffer(int i, const int16_t *data, int samples, uint8_t channels, unsigned int sample_rate)
-{
+static void sourceplaybuffer(int i, const int16_t *data, int samples, uint8_t channels, unsigned int sample_rate) {
     if(!channels || channels > 2) {
         return;
     }
@@ -268,6 +267,8 @@ static void sourceplaybuffer(int i, const int16_t *data, int samples, uint8_t ch
 
     alBufferData(bufid, (channels == 1) ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16, data, samples * 2 * channels, sample_rate);
     alSourceQueueBuffers(source[i], 1, &bufid);
+
+    // debug("audio frame || samples == %i channels == %u rate == %u \n", samples, channels, sample_rate);
 
     ALint state;
     alGetSourcei(source[i], AL_SOURCE_STATE, &state);
@@ -907,7 +908,7 @@ static void utox_av_end(ToxAV *av, int32_t friend_number){
  */
 static void utox_av_incoming_frame_a(ToxAV *av, uint32_t friend_number, const int16_t *pcm, size_t sample_count,
                                      uint8_t channels, uint32_t sample_rate, void *userdata){
-    debug("Incoming audio frame for friend %u \n", friend_number);
+    // debug("Incoming audio frame for friend %u \n", friend_number);
     #ifdef NATIVE_ANDROID_AUDIO
     audio_play(friend_number, pcm, sample_count, channels);
     #else
