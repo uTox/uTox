@@ -11,10 +11,10 @@ msgid(REQ_RESOLVE)
 msgstr("Intentando resolver nombre DNS...")
 
 msgid(REQ_INVALID_ID)
-msgstr("Error: ID de Tox inválida")
+msgstr("Error: Tox ID inválida")
 
 msgid(REQ_EMPTY_ID)
-msgstr("Error: ID de Tox no especificada")
+msgstr("Error: Tox ID no especificada")
 
 msgid(REQ_LONG_MSG)
 msgstr("Error: El mensaje es demasiado largo")
@@ -23,19 +23,19 @@ msgid(REQ_NO_MSG)
 msgstr("Error: Mensaje vacío")
 
 msgid(REQ_SELF_ID)
-msgstr("Error: La ID de Tox es tu ID propia")
+msgstr("Error: La Tox ID es tu propia ID")
 
 msgid(REQ_ALREADY_FRIENDS)
-msgstr("Error: La ID de Tox ya está en la lista de amigos")
+msgstr("Error: La Tox ID ya está en la lista de amigos")
 
 msgid(REQ_UNKNOWN)
 msgstr("Error: Desconocido")
 
 msgid(REQ_BAD_CHECKSUM)
-msgstr("Error: ID de Tox inválida (checksum incorrecto)")
+msgstr("Error: Tox ID inválida (checksum incorrecto)")
 
 msgid(REQ_BAD_NOSPAM)
-msgstr("Error: ID de Tox inválida (valor nospam incorrecto)")
+msgstr("Error: Tox ID inválida (valor nospam incorrecto)")
 
 msgid(REQ_NO_MEMORY)
 msgstr("Error: No hay memoria suficiente")
@@ -92,7 +92,7 @@ msgid(ADDFRIENDS)
 msgstr("Añadir Amigos")
 
 msgid(TOXID)
-msgstr("ID de Tox")
+msgstr("Tox ID")
 
 msgid(MESSAGE)
 msgstr("Mensaje")
@@ -269,7 +269,7 @@ msgid(DPI_BIG)
 msgstr("Grande (150%)")
 
 msgid(DPI_LARGE)
-msgstr("Más grande (200%)")
+msgstr("Muy grande (200%)")
 
 msgid(DPI_HUGE)
 msgstr("Enorme (250%)")
@@ -287,7 +287,7 @@ msgid(PROXY_FALLBACK)
 msgstr("Sólo si no se puede conectar normalmente")
 
 msgid(PROXY_ALWAYS_USE)
-msgstr("Siempre usar")
+msgstr("Usar siempre")
 
 msgid(NO)
 msgstr("No")
@@ -311,7 +311,7 @@ msgid(AUDIO_IN_DEFAULT_LOOPBACK)
 msgstr("Loopback")
 
 msgid(AUDIO_IN_ANDROID)
-msgstr("Entrade de OpenSL")
+msgstr("Entrada de OpenSL")
 
 msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
 msgstr("Por favor, acepta esta solicitud de amistad.")
