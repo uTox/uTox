@@ -916,17 +916,15 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
     case TOX_CALL: {
         /* param1: friend #
          */
-        int32_t id = 0;
         debug("Going to call now\n");
         TOXAV_ERR_CALL error = 0;
         toxav_call(av, param1, UTOX_DEFAULT_AUDIO_BITRATE, UTOX_DEFAULT_VIDEO_BITRATE, &error);
         if (error) {
             debug("Error making call to %u, error num is %i.\n", param1, error);
         } else {
-            debug("Call is ringing\n");
-            postmessage(FRIEND_CALL_STATUS, param1, id, (void*)CALL_RINGING);
+            debug("uToxAV:\tCall is ringing\n");
+            friend[param1].call_state_self = ( TOXAV_FRIEND_CALL_STATE_SENDING_A | TOXAV_FRIEND_CALL_STATE_ACCEPTING_A );
             toxaudio_postmessage(AUDIO_CALL_START, param1, 0, NULL); // TODO, do we really want this to be HERE?
-            friend[param1].call_state_self = 4 + 16; /* Sending audio & accepting audio */
         }
         break;
     }
@@ -939,10 +937,9 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
         settings.max_video_width = max_video_width;
         settings.max_video_height = max_video_height;*/
 
-        int32_t id = 0;
         //toxav_call(av, &id, param1, &settings, 10);
 
-        postmessage(FRIEND_CALL_STATUS, param1, id, (void*)CALL_RINGING_VIDEO);
+        postmessage(FRIEND_AV_STATUS_CHANGE, param1, 0, NULL);
         break;
     }
 
@@ -1231,25 +1228,26 @@ static void file_notify(FRIEND *f, MSG_FILE *msg)
     friend_notify(f, str->str, str->length, msg->name, msg->name_length);
 }
 
-static void call_notify(FRIEND *f, uint8_t status)
-{
+static void call_notify(FRIEND *f, uint8_t status) {
     STRING *str;
 
     switch(status) {
-    case CALL_INVITED:
-    case CALL_INVITED_VIDEO:
+    case UTOX_AV_INVITE: {
         str = SPTR(CALL_INVITED);
         break;
-    case CALL_RINGING:
-    case CALL_RINGING_VIDEO:
-        str = SPTR(CALL_RINGING); break;
-    case CALL_OK:
-    case CALL_OK_VIDEO:
+    }
+    case UTOX_AV_RINGING: {
+        str = SPTR(CALL_RINGING);
+        break;
+    }
+    case UTOX_AV_STARTED: {
         str = SPTR(CALL_STARTED);
         break;
-    case CALL_NONE:
-    default: //render unknown status as "call cancelled"
-        str = SPTR(CALL_CANCELLED); break;
+    }
+    default: {//render unknown status as "call canceled"
+        str = SPTR(CALL_CANCELLED);
+        break;
+    }
     }
 
     friend_notify(f, str->str, str->length, (uint8_t*)"", 0);
@@ -1522,7 +1520,22 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         break;
     }
 
-    case FRIEND_CALL_STATUS: {
+    case FRIEND_AV_STATUS_CHANGE: {
+        /* param1: friend id */
+        // FRIEND *f = &friend[param1];
+        redraw();
+        break;
+    }
+
+    case FRIEND_AV_INCOMING:{
+        /* param1: friend id */
+        // FRIEND *f = &friend[param1];
+        redraw();
+
+        break;
+    }
+
+    case FRIEND_AV_DISCONNECT: {
         /* param1: friend id
            param2: call id
            data: integer call status
@@ -1535,14 +1548,14 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
     // These need to be renamed, they can then be used to connect and disconnect the handle on the audio device.
     case FRIEND_CALL_AUDIO_CONNECTED: {
         toxaudio_postmessage(AUDIO_CALL_START, param1, 0, NULL);
-        call_notify(&friend[param1], CALL_OK);
-        updatefriend(&friend[param1]);
+        call_notify(&friend[param1], UTOX_AV_STARTED);
+        redraw();
         break;
     }
 
     case FRIEND_CALL_AUDIO_DISCONNECTED: {
         toxaudio_postmessage(AUDIO_CALL_END, param1, 0, NULL);
-        call_notify(&friend[param1], CALL_NONE);
+        call_notify(&friend[param1], UTOX_AV_NONE);
         updatefriend(&friend[param1]);
         break;
     }
@@ -1562,7 +1575,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
 
         video_begin(param1 + 1, f->name, f->name_length, 640, 480);
 
-        call_notify(f, CALL_OK_VIDEO);
+        call_notify(f, UTOX_AV_STARTED);
 
         break;
     }

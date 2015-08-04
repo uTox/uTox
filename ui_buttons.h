@@ -192,7 +192,6 @@ static void button_group_audio_update(BUTTON *b){
 
 static void button_call_onpress(void){
     FRIEND *f = selected_item->data;
-
     if (f->call_state_self) {
         if (!f->call_state_friend) {
             debug("Canceling call: friend = %d\n", f->number);
@@ -262,22 +261,17 @@ static void button_video_onpress(void){
 static void button_video_update(BUTTON *b){
     FRIEND *f = selected_item->data;
     if (f->call_state_self) {
-        if (!f->call_state_friend) {
-            button_setcolors_warning(b);
-        } else {
-            button_setcolors_danger(b);
-        }
+        button_setcolors_danger(b);
         b->disabled = 0;
     } else if (f->call_state_friend) {
-        if (!f->call_state_self) {
-            button_setcolors_warning(b);
-        }
+        button_setcolors_warning(b);
         b->disabled = 0;
     } else {
         if (f->online) {
             button_setcolors_success(b);
             b->disabled = 0;
         } else {
+            button_setcolors_disabled(b);
             b->disabled = 1;
         }
     }

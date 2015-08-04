@@ -118,7 +118,9 @@ enum {
     FRIEND_ONLINE,
 
     /* friend a/v */
-    FRIEND_CALL_STATUS,
+    FRIEND_AV_STATUS_CHANGE,
+    FRIEND_AV_INCOMING,
+    FRIEND_AV_DISCONNECT,
     FRIEND_CALL_AUDIO_CONNECTED,
     FRIEND_CALL_AUDIO_DISCONNECTED,
     FRIEND_CALL_VIDEO,
@@ -150,16 +152,12 @@ enum {
     TOOLTIP_SHOW,
 };
 
-enum
-{
-    CALL_NONE,
-    CALL_INVITED,
-    CALL_RINGING,
-    CALL_OK,
-    CALL_NONE_VIDEO, //not used
-    CALL_INVITED_VIDEO,
-    CALL_RINGING_VIDEO,
-    CALL_OK_VIDEO,
+/* AV STATUS LIST */
+enum {
+    UTOX_AV_NONE,
+    UTOX_AV_INVITE,
+    UTOX_AV_RINGING,
+    UTOX_AV_STARTED,
 };
 
 /** [log_read description] */
