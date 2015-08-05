@@ -62,9 +62,7 @@ static void video_thread(void *args) {
                 if(video_device == NULL) {
                     video = 0;
                     video_on = 0;
-                    if(m->param1) {
-                        goto VIDEO_PREVIEW_END;
-                    } else {
+                    if (!m->param1) {
                         break;
                     }
                 }
@@ -84,15 +82,10 @@ static void video_thread(void *args) {
 
             case VIDEO_PREVIEW_START: {
                 preview = 1;
-                video_count++;
-                if (video && !video_on) {
-                    video_on = video_startread();
-                }
-                break;
             }
-
             case VIDEO_CALL_START: {
-                call[m->param1] = 1;
+                STRING *s = SPTR(WINDOW_TITLE_VIDEO_PREVIEW);
+                video_begin(m->param1 + 1, s->str, s->length, video_width, video_height);
                 video_count++;
                 if (video && !video_on) {
                     video_on = video_startread();
@@ -100,7 +93,6 @@ static void video_thread(void *args) {
                 break;
             }
 
-            VIDEO_PREVIEW_END:
             case VIDEO_PREVIEW_END: {
                 debug("preview end %u\n", video_count);
                 preview = 0;

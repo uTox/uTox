@@ -918,7 +918,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
          */
         debug("Going to call now\n");
         TOXAV_ERR_CALL error = 0;
-        toxav_call(av, param1, UTOX_DEFAULT_AUDIO_BITRATE, UTOX_DEFAULT_VIDEO_BITRATE, &error);
+        toxav_call(av, param1, UTOX_DEFAULT_AUDIO_BITRATE, 0, &error);
         if (error) {
             debug("Error making call to %u, error num is %i.\n", param1, error);
         } else {
@@ -932,13 +932,9 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
     case TOX_CALL_VIDEO: {
         /* param1: friend #
          */
-        /*ToxAVCSettings settings = av_DefaultSettings;
-        settings.call_type = av_TypeVideo;
-        settings.max_video_width = max_video_width;
-        settings.max_video_height = max_video_height;*/
-
-        //toxav_call(av, &id, param1, &settings, 10);
-
+        debug("Tox:\tStarting video call\n");
+        TOXAV_ERR_CALL error = 0;
+        toxav_call(av, friend[param1].number, UTOX_DEFAULT_AUDIO_BITRATE, UTOX_DEFAULT_VIDEO_BITRATE, &error);
         postmessage(FRIEND_AV_STATUS_CHANGE, param1, 0, NULL);
         break;
     }
