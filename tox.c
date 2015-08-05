@@ -75,11 +75,11 @@ void log_write(Tox *tox, int fid, const uint8_t *message, uint16_t length, _Bool
     p += len;
 
     file = fopen((char*)path, "ab");
-    if(file) {
+    if (file) {
         time_t rawtime;
         time(&rawtime);
 
-        if(author) {
+        if (author) {
             namelen = tox_self_get_name_size(tox);
             tox_self_get_name(tox, name);
         } else {
@@ -1602,13 +1602,14 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         /* param1: friend id
            param2: call id
          */
-        //FRIEND *f = &friend[param1];
-        /* TODO do something here!
-        if(f->calling == CALL_OK) {
-            f->calling = CALL_OK_VIDEO;
+        FRIEND *f = &friend[param1];
+        /* TODO do something here! */
+        if ( (f->call_state_friend | TOXAV_FRIEND_CALL_STATE_SENDING_V) ) {
+            f->call_state_self = (f->call_state_self | TOXAV_FRIEND_CALL_STATE_ACCEPTING_V);
             toxvideo_postmessage(VIDEO_CALL_START, param2, 0, NULL);
             updatefriend(f);
-        }*/
+        }
+        debug("FRIEND_CALL_START_VIDEO\n");
         break;
     }
 
@@ -1616,13 +1617,14 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         /* param1: friend id
            param2: call id
          */
-        //FRIEND *f = &friend[param1];
-        /* TODO do something here!
-        if(f->calling == CALL_OK_VIDEO) {
-            f->calling = CALL_OK;
+        FRIEND *f = &friend[param1];
+        /* TODO do something here! */
+        if ( (f->call_state_friend | TOXAV_FRIEND_CALL_STATE_SENDING_V) ) {
+            f->call_state_self &= ~TOXAV_FRIEND_CALL_STATE_ACCEPTING_V;
             toxvideo_postmessage(VIDEO_CALL_END, param2, 0, NULL);
             updatefriend(f);
-        }*/
+        }
+        debug("FRIEND_CALL_STOP_VIDEO\n");
         break;
     }
 

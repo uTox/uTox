@@ -1067,8 +1067,7 @@ static int systemlang(void)
 
 _Bool parse_args_wait_for_theme;
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     parse_args_wait_for_theme = 0;
     _Bool theme_was_set_on_argv = 0;
     theme = THEME_DEFAULT;
@@ -1194,7 +1193,7 @@ int main(int argc, char *argv[])
     window = XCreateWindow(display, RootWindow(display, screen), save->window_x, save->window_y, save->window_width, save->window_height, 0, depth, InputOutput, visual, CWBackPixmap | CWBorderPixel | CWEventMask, &attrib);
 
     /* choose available libraries for optional UI stuff */
-    if(!(libgtk = gtk_load())) {
+    if (!(libgtk = gtk_load())) {
         //try Qt
     }
 
@@ -1436,14 +1435,13 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height, _Bool resize)
-{
-    if(!video_win[id]) {
+void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height, _Bool resize) {
+    if (!video_win[id]) {
         debug("frame for null window\n");
         return;
     }
 
-    if(resize) {
+    if (resize) {
         XWindowChanges changes = {
             .width = width,
             .height = height
@@ -1472,7 +1470,7 @@ void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height
 
     /* scale image if needed */
     uint8_t *new_data = malloc(attrs.width * attrs.height * 4);
-    if(new_data && (attrs.width != width || attrs.height != height)) {
+    if (new_data && (attrs.width != width || attrs.height != height)) {
         scale_rgbx_image(img_data, width, height, new_data, attrs.width, attrs.height);
         image.data = (char*)new_data;
     }
@@ -1667,15 +1665,14 @@ _Bool video_endread(void)
     return v4l_endread();
 }
 
-int video_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, uint16_t height)
-{
+int video_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, uint16_t height) {
     if(utox_v4l_fd == -1) {
         static uint64_t lasttime;
         uint64_t t = get_time();
         if(t - lasttime >= (uint64_t)1000 * 1000 * 1000 / 24) {
             XShmGetImage(deskdisplay,RootWindow(deskdisplay, deskscreen), screen_image, video_x, video_y, AllPlanes);
             if (width != video_width || height != video_height) {
-                debug("width/height mismatch %u %u != %u %u\n", width, height, screen_image->width, screen_image->height);
+                debug("uTox:\twidth/height mismatch %u %u != %u %u\n", width, height, screen_image->width, screen_image->height);
                 return 0;
             }
 

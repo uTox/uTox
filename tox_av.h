@@ -1,6 +1,7 @@
 uint8_t lbuffer[800 * 600 * 4]; //needs to be always large enough for encoded frames
 
 static vpx_image_t input;
+static utox_av_video_frame utox_video_frame;
 
 static _Bool openvideodevice(void *handle) {
     if(!video_init(handle)) {
@@ -8,6 +9,11 @@ static _Bool openvideodevice(void *handle) {
         return 0;
     }
     vpx_img_alloc(&input, VPX_IMG_FMT_I420, video_width, video_height, 1);
+    utox_video_frame.y = input.planes[0];
+    utox_video_frame.u = input.planes[1];
+    utox_video_frame.v = input.planes[2];
+    utox_video_frame.w = input.d_w;
+    utox_video_frame.h = input.d_h;
     return 1;
 }
 
@@ -16,8 +22,7 @@ static void closevideodevice(void *handle) {
     vpx_img_free(&input);
 }
 
-static void video_thread(void *args)
-{
+static void video_thread(void *args) {
     ToxAV *av = args;
 
     void *video_device;
@@ -125,30 +130,35 @@ static void video_thread(void *args)
         }
 
         if (video_on) {
-            uint16_t width = 0, height = 0;
-            uint8_t *y = NULL, *u = NULL, *v = NULL;
-            int r = video_getframe(y, u, v, width, height);
+            int r = video_getframe(utox_video_frame.y, utox_video_frame.u, utox_video_frame.v, utox_video_frame.w, utox_video_frame.h);
             if(r == 1) {
                 if(preview) {
                     /* Make a copy of the video frame for uTox to display */
-                    uint8_t *img_data = malloc(width * height * 4);
-                    yuv420tobgr(width, height, y, u, v, width, width / 2, width / 2, img_data);
+                    uint8_t *img_data = malloc(utox_video_frame.w * utox_video_frame.h * 4);
+                    yuv420tobgr(utox_video_frame.w, utox_video_frame.h, utox_video_frame.y, utox_video_frame.u,
+                                utox_video_frame.v, utox_video_frame.w, utox_video_frame.w / 2, utox_video_frame.w / 2,
+                                img_data);
 
-                    postmessage(PREVIEW_FRAME + newinput, width, height, img_data);
+                    postmessage(PREVIEW_FRAME + newinput, utox_video_frame.w, utox_video_frame.h, img_data);
                     newinput = 0;
                 }
 
-                int i;
-                for(i = 0; i < MAX_CALLS; i++) {
-                    if( (friend[i].call_state_self   | TOXAV_FRIEND_CALL_STATE_SENDING_V   ) &&
-                        (friend[i].call_state_friend | TOXAV_FRIEND_CALL_STATE_ACCEPTING_V )) {
-                        // TODO get the yuv from utox?
+                int i, active_video_count = 0;
+                for(i = 0; i < UTOX_MAX_NUM_FRIENDS; i++) {
+                    if( (friend[i].call_state_self   & TOXAV_FRIEND_CALL_STATE_SENDING_V   ) &&
+                        (friend[i].call_state_friend & TOXAV_FRIEND_CALL_STATE_ACCEPTING_V )) {
+                        active_video_count++;
                         TOXAV_ERR_SEND_FRAME error = 0;
-                        toxav_video_send_frame(av, friend[i].number, width, height, y, u, v, &error);
+                        toxav_video_send_frame(av, friend[i].number, utox_video_frame.w, utox_video_frame.h, utox_video_frame.y, utox_video_frame.u, utox_video_frame.v, &error);
                         // bool toxav_video_send_frame(ToxAV *toxAV, uint32_t friend_number,
                         // uint16_t width, uint16_t height, const uint8_t *y, const uint8_t *u, const uint8_t *v, *error);
                         if (error) {
                             debug("toxav_send_video error %i %u\n", friend[i].number, error);
+                        } else {
+                            if (i >= UTOX_MAX_CALLS){
+                                debug("Trying to send video frame to too many peers. Please report this bug!\n");
+                                break;
+                            }
                         }
                     }
                 }
@@ -878,7 +888,7 @@ static void toxav_thread(void *args)
     toxav_thread_init = 0;
 }
 
-static void utox_av_incoming_call(ToxAV *av, uint32_t friend_number, bool audio, bool video, void *UNUSED(userdata)){
+static void utox_av_incoming_call(ToxAV *av, uint32_t friend_number, bool audio, bool video, void *UNUSED(userdata)) {
     debug("A/V Invite (%u)\n", friend_number);
     FRIEND *f = &friend[friend_number];
 
@@ -887,7 +897,7 @@ static void utox_av_incoming_call(ToxAV *av, uint32_t friend_number, bool audio,
     toxaudio_postmessage(AUDIO_PLAY_RINGTONE, friend_number, 0, NULL);
 }
 
-static void utox_av_disconnect(ToxAV *av, int32_t friend_number){
+static void utox_av_disconnect(ToxAV *av, int32_t friend_number) {
     TOXAV_ERR_CALL_CONTROL error = 0;
     toxav_call_control(av, friend_number, TOXAV_CALL_CONTROL_CANCEL, &error);
     if (error) {
@@ -901,7 +911,7 @@ static void utox_av_disconnect(ToxAV *av, int32_t friend_number){
  * Moving this here might break Android, if you know this commit compiles and runs on android, remove this line!
  */
 static void utox_av_incoming_frame_a(ToxAV *av, uint32_t friend_number, const int16_t *pcm, size_t sample_count,
-                                    uint8_t channels, uint32_t sample_rate, void *userdata){
+                                    uint8_t channels, uint32_t sample_rate, void *userdata) {
     // debug("Incoming audio frame for friend %u \n", friend_number);
     #ifdef NATIVE_ANDROID_AUDIO
     audio_play(friend_number, pcm, sample_count, channels);
@@ -912,7 +922,7 @@ static void utox_av_incoming_frame_a(ToxAV *av, uint32_t friend_number, const in
 
 static void utox_av_incoming_frame_v(ToxAV *toxAV, uint32_t friend_number, uint16_t width, uint16_t height,
                                         const uint8_t *y, const uint8_t *u, const uint8_t *v,
-                                        int32_t ystride, int32_t ustride, int32_t vstride, void *user_data){
+                                        int32_t ystride, int32_t ustride, int32_t vstride, void *user_data) {
     /* copy the vpx_image */
     /* 4 bits for the H*W, then a pixel for each color * size */
     uint16_t *img_data = malloc(4 + width * height * 4);
@@ -924,7 +934,7 @@ static void utox_av_incoming_frame_v(ToxAV *toxAV, uint32_t friend_number, uint1
 }
 
 /** respond to a Audio Video state change call back from toxav */
-static void utox_callback_av_change_state(ToxAV *av, uint32_t friend_number, uint32_t state, void *userdata){
+static void utox_callback_av_change_state(ToxAV *av, uint32_t friend_number, uint32_t state, void *userdata) {
     if ( state == 1 ) {
         // handle error
         debug("ToxAV:\tChange state error, send bug report\n");
@@ -954,17 +964,21 @@ static void utox_callback_av_change_state(ToxAV *av, uint32_t friend_number, uin
     }
 }
 
-void utox_incoming_rate_change_audio(ToxAV *toxAV, uint32_t friend_number, bool stable, uint32_t bit_rate, void *user_data){
+void utox_incoming_rate_change_audio(ToxAV *toxAV, uint32_t friend_number, bool stable, uint32_t bit_rate, void *user_data) {
+    debug("Incoming audio rate change, please debug me!\n");
+    debug("Incoming audio rate change, please debug me!\n");
     debug("Incoming audio rate change, please debug me!\n");
     return;
 }
 
-void utox_incoming_rate_change_video(ToxAV *toxAV, uint32_t friend_number, bool stable, uint32_t bit_rate, void *user_data){
+void utox_incoming_rate_change_video(ToxAV *toxAV, uint32_t friend_number, bool stable, uint32_t bit_rate, void *user_data) {
+    debug("Incoming video rate change, please debug me!\n");
+    debug("Incoming video rate change, please debug me!\n");
     debug("Incoming video rate change, please debug me!\n");
     return;
 }
 
-static void set_av_callbacks(ToxAV *av){
+static void set_av_callbacks(ToxAV *av) {
     /* Friend update callbacks */
     toxav_callback_call(av, &utox_av_incoming_call, NULL);
     toxav_callback_call_state(av, &utox_callback_av_change_state, NULL);
