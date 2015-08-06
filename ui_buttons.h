@@ -230,8 +230,7 @@ static void button_video_onpress(void){
     } else if (UTOX_ACCEPTING_VIDEO(f->number)) {
         if (!UTOX_SENDING_VIDEO(f->number)) {
             debug("Accept Call (video): %u\n", f->number);
-            tox_postmessage(TOX_CALL_ANSWER,   f->number, 1, NULL);
-            tox_postmessage(TOX_CALL_VIDEO_ON, f->number, 1, NULL);
+            tox_postmessage(TOX_CALL_ANSWER_VIDEO, f->number, 1, NULL);
         }
     } else {
         if (f->online) {
@@ -260,8 +259,7 @@ static void button_video_update(BUTTON *b){
     }
 }
 
-static void button_bottommenu_update(BUTTON *b)
-{
+static void button_bottommenu_update(BUTTON *b) {
     b->c1 = COLOR_MENU_BACKGROUND;
     b->c2 = COLOR_MENU_HOVER_BACKGROUND;
     b->c3 = COLOR_MENU_ACTIVE_BACKGROUND;
@@ -274,16 +272,14 @@ static void button_bottommenu_update(BUTTON *b)
     b->cd = COLOR_MENU_ACTIVE_BACKGROUND;
 }
 
-static void button_sendfile_onpress(void)
-{
+static void button_sendfile_onpress(void) {
     FRIEND *f = selected_item->data;
     if (f->online) {
         openfilesend();
     }
 }
 
-static void button_sendfile_update(BUTTON *b)
-{
+static void button_sendfile_update(BUTTON *b) {
     FRIEND *f = selected_item->data;
     if (f->online) {
         b->disabled = 0;
@@ -301,19 +297,16 @@ static void button_accept_friend_onpress(void){
     // list_reselect_current();
 }
 
-static void button_avatar_onpress(void)
-{
+static void button_avatar_onpress(void) {
     openfileavatar();
 }
 
-static void contextmenu_avatar_onselect(uint8_t i)
-{
+static void contextmenu_avatar_onselect(uint8_t i) {
     if (i == 0)
         self_remove_avatar();
 }
 
-static void button_avatar_onright(void)
-{
+static void button_avatar_onright(void) {
     if (self_has_avatar()) {
         static UI_STRING_ID menu[] = {STR_REMOVE};
         contextmenu_new(countof(menu), menu, contextmenu_avatar_onselect);
@@ -330,8 +323,7 @@ static void button_statusmsg_onpress(void){
     edit_setfocus(&edit_status);
 }
 
-static void button_status_onpress(void)
-{
+static void button_status_onpress(void) {
     self.status++;
     if (self.status == 3) {
         self.status = 0;
