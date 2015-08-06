@@ -724,501 +724,477 @@ void tox_thread(void *UNUSED(args))
 static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, uint32_t param1, uint32_t param2, void *data)
 {
     switch(msg) {
-    case TOX_SETNAME: {
-        /* param1: name length
-         * data: name
-         */
-        tox_self_set_name(tox, data, param1, 0);
-        break;
-    }
-
-    case TOX_SETAVATAR: {
-        /*
-         * param1: avatar format
-         * param2: length of avatar data
-         * data: raw avatar data (PNG)
-         */
-
-        if (self.avatar_data) {
-            free(self.avatar_data);
+        /* Change Self in core */
+        case TOX_SELF_SET_NAME: {
+            /* param1: name length
+             * data: name
+             */
+            tox_self_set_name(tox, data, param1, 0);
+            break;
         }
-
-        self.avatar_data = data;
-        self.avatar_size = param2;
-        self.avatar_format = param1;
-        utox_avatar_update_friends(tox);
-        break;
-    }
-
-    case TOX_UNSETAVATAR: {
-        free(self.avatar_data);
-        self.avatar_data = NULL;
-        self.avatar_size = 0;
-        self.avatar_format = 0;
-        utox_avatar_update_friends(tox);
-        break;
-    }
-
-    case TOX_SETSTATUSMSG: {
-        /* param1: status length
-         * data: status message
-         */
-        tox_self_set_status_message(tox, data, param1, 0);
-        break;
-    }
-
-    case TOX_SETSTATUS: {
-        /* param1: status
-         */
-        tox_self_set_status(tox, param1);
-        break;
-    }
-
-    case TOX_ADDFRIEND: {
-        /* param1: length of message
-         * data: friend id + message
-         */
-        uint32_t fid;
-        TOX_ERR_FRIEND_ADD f_err;
-
-        if(!param1) {
-            STRING* default_add_msg = SPTR(DEFAULT_FRIEND_REQUEST_MESSAGE);
-            fid = tox_friend_add(tox, data, default_add_msg->str, default_add_msg->length, &f_err);
-        } else {
-            fid = tox_friend_add(tox, data, data + TOX_FRIEND_ADDRESS_SIZE, param1, &f_err);
+        case TOX_SELF_SET_STATUS: {
+            /* param1: status length
+             * data: status message
+             */
+            tox_self_set_status_message(tox, data, param1, 0);
+            break;
         }
-
-        if(f_err != TOX_ERR_FRIEND_ADD_OK) {
-            uint8_t addf_error;
-            switch(f_err) {
-            case TOX_ERR_FRIEND_ADD_TOO_LONG:
-                addf_error = ADDF_TOOLONG; break;
-            case TOX_ERR_FRIEND_ADD_NO_MESSAGE:
-                addf_error = ADDF_NOMESSAGE; break;
-            case TOX_ERR_FRIEND_ADD_OWN_KEY:
-                addf_error = ADDF_OWNKEY; break;
-            case TOX_ERR_FRIEND_ADD_ALREADY_SENT:
-                addf_error = ADDF_ALREADYSENT; break;
-            case TOX_ERR_FRIEND_ADD_BAD_CHECKSUM:
-                addf_error = ADDF_BADCHECKSUM; break;
-            case TOX_ERR_FRIEND_ADD_SET_NEW_NOSPAM:
-                addf_error = ADDF_SETNEWNOSPAM; break;
-            case TOX_ERR_FRIEND_ADD_MALLOC:
-                addf_error = ADDF_NOMEM; break;
-            default:
-                addf_error = ADDF_UNKNOWN; break;
-            }
-            postmessage(FRIEND_ADD, 1, addf_error, data);
-        } else {
-            utox_friend_init(tox, fid);
-            postmessage(FRIEND_ADD, 0, fid, data);
-        }
-        break;
-    }
-
-    case TOX_DELFRIEND: {
-        /* param1: friend #
-         */
-        tox_friend_delete(tox, param1, 0);
-        postmessage(FRIEND_DEL, 0, 0, data);
-        break;
-    }
-
-    case TOX_ACCEPTFRIEND: {
-        /* data: FRIENDREQ
-         */
-        FRIENDREQ *req = data;
-        TOX_ERR_FRIEND_ADD f_err;
-        uint32_t fid = tox_friend_add_norequest(tox, req->id, &f_err);
-        utox_friend_init(tox, fid);
-        postmessage(FRIEND_ACCEPT, (f_err != TOX_ERR_FRIEND_ADD_OK), (f_err != TOX_ERR_FRIEND_ADD_OK) ? 0 : fid, req);
-        break;
-    }
-
-    case TOX_SENDMESSAGE:
-    case TOX_SENDACTION: {
-        /* param1: friend #
-         * param2: message length
-         * data: message
-         */
-
-        void *p = data;
-        TOX_MESSAGE_TYPE type;
-        if(msg == TOX_SENDACTION){
-            type = TOX_MESSAGE_TYPE_ACTION;
-        } else {
-            type = TOX_MESSAGE_TYPE_NORMAL;
-        }
-        while(param2 > TOX_MAX_MESSAGE_LENGTH) {
-            uint16_t len = TOX_MAX_MESSAGE_LENGTH - utf8_unlen(p + TOX_MAX_MESSAGE_LENGTH);
-            tox_friend_send_message(tox, param1, type, p, len, 0);
-            param2 -= len;
-            p += len;
-        }
-        // Send last or only message
-        tox_friend_send_message(tox, param1, type, p, param2, 0);
-
-        /* write message to friend to logfile */
-        log_write(tox, param1, data, param2, 1, LOG_FILE_MSG_TYPE_TEXT);
-
-        free(data);
-        break;
-    }
-
-    case TOX_SENDMESSAGEGROUP: {
-        /* param1: group #
-         * param2: message length
-         * data: message
-         */
-        tox_group_message_send(tox, param1, data, param2);
-        free(data);
-        break;
-    }
-
-    case TOX_SENDACTIONGROUP: {
-        /* param1: group #
-         * param2: message length
-         * data: message
-         */
-        tox_group_action_send(tox, param1, data, param2);
-        free(data);
-        break;
-    }
-
-    case TOX_SET_TYPING: {
-        /* param1: friend #
-         */
-
-        // Check if user has switched to another friend window chat.
-        // Take care not to react on obsolete data from old Tox instance.
-        _Bool need_resetting = (typing_state.tox == tox) &&
-            (typing_state.friendnumber != param1) &&
-            (typing_state.sent_value);
-
-        if(need_resetting) {
-            // Tell previous friend that he's betrayed.
-            tox_self_set_typing(tox, typing_state.friendnumber, 0, 0);
-            // Mark that new friend doesn't know that we're typing yet.
-            typing_state.sent_value = 0;
-        }
-
-        // Mark us as typing to this friend at the moment.
-        // utox_thread_work_for_typing_notifications() will
-        // send a notification if it deems necessary.
-        typing_state.tox = tox;
-        typing_state.friendnumber = param1;
-        typing_state.time = time;
-
-        //debug("Set typing state for friend (%d): %d\n", typing_state.friendnumber, typing_state.sent_value);
-        break;
-    }
-
-    case TOX_CALL: {
-        /* param1: friend #
-         */
-        debug("Going to call now\n");
-        TOXAV_ERR_CALL error = 0;
-        toxav_call(av, param1, UTOX_DEFAULT_AUDIO_BITRATE, 0, &error);
-        if (error) {
-            debug("Error making call to %u, error num is %i.\n", param1, error);
-        } else {
-            debug("uToxAV:\tCall is ringing\n");
-            friend[param1].call_state_self = ( TOXAV_FRIEND_CALL_STATE_SENDING_A | TOXAV_FRIEND_CALL_STATE_ACCEPTING_A );
-            toxaudio_postmessage(AUDIO_CALL_START, param1, 0, NULL); // TODO, do we really want this to be HERE?
-        }
-        break;
-    }
-
-    case TOX_CALL_VIDEO: {
-        /* param1: friend #
-         */
-        debug("Tox:\tStarting video call\n");
-        TOXAV_ERR_CALL error = 0;
-        toxav_call(av, friend[param1].number, UTOX_DEFAULT_AUDIO_BITRATE, UTOX_DEFAULT_VIDEO_BITRATE, &error);
-        postmessage(FRIEND_AV_STATUS_CHANGE, param1, 0, NULL);
-        break;
-    }
-
-    case TOX_CALL_VIDEO_ON: {
-        /* param1: friend #
-         * param2: call #
-         */
-        /*ToxAVCSettings settings = av_DefaultSettings;
-        settings.call_type = av_TypeVideo;
-        settings.max_video_width = max_video_width;
-        settings.max_video_height = max_video_height;*/
-
-        //toxav_change_settings(av, param2, &settings);
-        postmessage(FRIEND_CALL_START_VIDEO, param1, param2, NULL);
-        break;
-    }
-
-    case TOX_CALL_VIDEO_OFF: {
-        /* param1: friend #
-         * param2: call #
-         */
-        //toxav_change_settings(av, param2, &av_DefaultSettings);
-        postmessage(FRIEND_CALL_STOP_VIDEO, param1, param2, NULL);
-        break;
-    }
-
-    case TOX_CALL_ANSWER: {
-        /* param1: Friend_number #
-         * param2: Accept Video? #
-         */
-        FRIEND *f = &friend[param1];
-        TOXAV_ERR_ANSWER error = 0;
-        int v_bitrate = UTOX_DEFAULT_VIDEO_BITRATE;
-
-        if (!param2) {
-            v_bitrate = 0;
-        }
-
-        toxaudio_postmessage(AUDIO_STOP_RINGTONE, param1, 0, NULL);
-        toxaudio_postmessage(AUDIO_CALL_START, param1, 0, NULL);
-        toxav_answer(av, param1, UTOX_DEFAULT_AUDIO_BITRATE, v_bitrate, &error);
-
-        if (error) {
-            debug("Error trying to toxav_answer error (%i)\n", error);
-        } else {
-            debug("call running \n");
-            f->call_state_self = ( TOXAV_FRIEND_CALL_STATE_SENDING_A | TOXAV_FRIEND_CALL_STATE_ACCEPTING_A );
-        }
-
-        break;
-    }
-
-    case TOX_CALL_CANCEL: /* Deprecated, avoid cancel, use disconnect! */
-    case TOX_CALL_DISCONNECT: {
-        /* param1: friend_number
-         */
-        toxaudio_postmessage(AUDIO_STOP_RINGTONE, param1, 0, NULL);
-        toxaudio_postmessage(AUDIO_CALL_END, param1, 0, NULL);
-        FRIEND *f = &friend[param1];
-        f->call_state_self = 0;
-        f->call_state_friend = 0;
-        break;
-    }
-
-    case TOX_NEWGROUP: {
-        /*
-         */
-        int g = -1;
-        if (param1) {
-            // TODO FIX THIS AFTER NEW GROUP API
-            // g = toxav_add_av_groupchat(tox, &callback_av_group_audio, NULL);
-        } else {
-            g = tox_add_groupchat(tox);
-        }
-        if(g != -1) {
-            postmessage(GROUP_ADD, g, 0, tox);
-        }
-
-        break;
-    }
-
-    case TOX_LEAVEGROUP: {
-        /* param1: group #
-         */
-        tox_del_groupchat(tox, param1);
-        break;
-    }
-
-    case TOX_GROUPINVITE: {
-        /* param1: group #
-         * param2: friend #
-         */
-        tox_invite_friend(tox, param2, param1);
-        break;
-    }
-
-    case TOX_GROUPCHANGETOPIC: {
-        /* param1: group #
-         * param2: topic length
-         * data: topic
-         */
-        tox_group_set_title(tox, param1, data, param2);
-        postmessage(GROUP_TITLE, param1, param2, data);
-        break;
-    }
-
-    case TOX_GROUP_AUDIO_START:{
-        /* param1: group #
-         */
-        postmessage(GROUP_AUDIO_START, param1, 0, NULL);
-        break;
-    }
-
-    case TOX_GROUP_AUDIO_END:{
-        /* param1: group #
-         */
-        postmessage(GROUP_AUDIO_END, param1, 0, NULL);
-        break;
-    }
-
-    case TOX_SEND_NEW_FILE:
-    case TOX_SEND_NEW_FILE_SLASH:{
-        /* param1: friend #
-         * param2: offset of first file name in data
-         * data: file names
-         */
-
-        /* If friend doesn't exist, don't send file. */
-        if (param1 >= MAX_NUM_FRIENDS) {
+        case TOX_SELF_SET_STATE: {
+            /* param1: status
+             */
+            tox_self_set_status(tox, param1);
             break;
         }
 
-        if(param2 == 0xFFFF) {
-            //paths with line breaks
-            uint8_t *name = data, *p = data, *s = name;
-            while(*p) {
-                _Bool end = 1;
+        /* Avatar status */
+        case TOX_SETAVATAR: {
+            /* param1: avatar format
+             * param2: length of avatar data
+             * data: raw avatar data (PNG)
+             */
+
+            if (self.avatar_data) {
+                free(self.avatar_data);
+            }
+
+            self.avatar_data = data;
+            self.avatar_size = param2;
+            self.avatar_format = param1;
+            utox_avatar_update_friends(tox);
+            break;
+        }
+        case TOX_UNSETAVATAR: {
+            free(self.avatar_data);
+            self.avatar_data = NULL;
+            self.avatar_size = 0;
+            self.avatar_format = 0;
+            utox_avatar_update_friends(tox);
+            break;
+        }
+
+        /* Interact with contacts */
+        case TOX_FRIEND_NEW: {
+            /* param1: length of message
+             * data: friend id + message
+             */
+            uint32_t fid;
+            TOX_ERR_FRIEND_ADD f_err;
+
+            if(!param1) {
+                STRING* default_add_msg = SPTR(DEFAULT_FRIEND_REQUEST_MESSAGE);
+                fid = tox_friend_add(tox, data, default_add_msg->str, default_add_msg->length, &f_err);
+            } else {
+                fid = tox_friend_add(tox, data, data + TOX_FRIEND_ADDRESS_SIZE, param1, &f_err);
+            }
+
+            if(f_err != TOX_ERR_FRIEND_ADD_OK) {
+                uint8_t addf_error;
+                switch(f_err) {
+                case TOX_ERR_FRIEND_ADD_TOO_LONG:
+                    addf_error = ADDF_TOOLONG; break;
+                case TOX_ERR_FRIEND_ADD_NO_MESSAGE:
+                    addf_error = ADDF_NOMESSAGE; break;
+                case TOX_ERR_FRIEND_ADD_OWN_KEY:
+                    addf_error = ADDF_OWNKEY; break;
+                case TOX_ERR_FRIEND_ADD_ALREADY_SENT:
+                    addf_error = ADDF_ALREADYSENT; break;
+                case TOX_ERR_FRIEND_ADD_BAD_CHECKSUM:
+                    addf_error = ADDF_BADCHECKSUM; break;
+                case TOX_ERR_FRIEND_ADD_SET_NEW_NOSPAM:
+                    addf_error = ADDF_SETNEWNOSPAM; break;
+                case TOX_ERR_FRIEND_ADD_MALLOC:
+                    addf_error = ADDF_NOMEM; break;
+                default:
+                    addf_error = ADDF_UNKNOWN; break;
+                }
+                postmessage(FRIEND_ADD, 1, addf_error, data);
+            } else {
+                utox_friend_init(tox, fid);
+                postmessage(FRIEND_ADD, 0, fid, data);
+            }
+            break;
+        }
+        case TOX_FRIEND_ACCEPT: {
+            /* data: FRIENDREQ
+             */
+            FRIENDREQ *req = data;
+            TOX_ERR_FRIEND_ADD f_err;
+            uint32_t fid = tox_friend_add_norequest(tox, req->id, &f_err);
+            utox_friend_init(tox, fid);
+            postmessage(FRIEND_ACCEPT, (f_err != TOX_ERR_FRIEND_ADD_OK), (f_err != TOX_ERR_FRIEND_ADD_OK) ? 0 : fid, req);
+            break;
+        }
+        case TOX_FRIEND_DELETE: {
+            /* param1: friend #
+             */
+            tox_friend_delete(tox, param1, 0);
+            postmessage(FRIEND_DEL, 0, 0, data);
+            break;
+        }
+        case TOX_FRIEND_ONLINE: {
+            if(!param2) {
+                ft_friend_offline(tox, param1);
+            } else {
+                ft_friend_online(tox, param1);
+                /* resend avatar info (in case it changed) */
+                /* Avatars must be sent LAST or they will clobber existing file transfers! */
+                avatar_on_friend_online(tox, param1);
+            }
+            break;
+        }
+
+        /* Default actions */
+        case TOX_SEND_MESSAGE:
+        case TOX_SEND_ACTION: {
+            /* param1: friend #
+             * param2: message length
+             * data: message
+             */
+            void *p = data;
+            TOX_MESSAGE_TYPE type;
+            if(msg == TOX_SENDACTION){
+                type = TOX_MESSAGE_TYPE_ACTION;
+            } else {
+                type = TOX_MESSAGE_TYPE_NORMAL;
+            }
+            while(param2 > TOX_MAX_MESSAGE_LENGTH) {
+                uint16_t len = TOX_MAX_MESSAGE_LENGTH - utf8_unlen(p + TOX_MAX_MESSAGE_LENGTH);
+                tox_friend_send_message(tox, param1, type, p, len, 0);
+                param2 -= len;
+                p += len;
+            }
+            // Send last or only message
+            tox_friend_send_message(tox, param1, type, p, param2, 0);
+
+            /* write message to friend to logfile */
+            log_write(tox, param1, data, param2, 1, LOG_FILE_MSG_TYPE_TEXT);
+
+            free(data);
+            break;
+        }
+        case TOX_SEND_TYPING: {
+            /* param1: friend #
+             */
+
+            // Check if user has switched to another friend window chat.
+            // Take care not to react on obsolete data from old Tox instance.
+            _Bool need_resetting = (typing_state.tox == tox) &&
+                (typing_state.friendnumber != param1) &&
+                (typing_state.sent_value);
+
+            if(need_resetting) {
+                // Tell previous friend that he's betrayed.
+                tox_self_set_typing(tox, typing_state.friendnumber, 0, 0);
+                // Mark that new friend doesn't know that we're typing yet.
+                typing_state.sent_value = 0;
+            }
+
+            // Mark us as typing to this friend at the moment.
+            // utox_thread_work_for_typing_notifications() will
+            // send a notification if it deems necessary.
+            typing_state.tox = tox;
+            typing_state.friendnumber = param1;
+            typing_state.time = time;
+
+            //debug("Set typing state for friend (%d): %d\n", typing_state.friendnumber, typing_state.sent_value);
+            break;
+        }
+
+        /* File transfers are so in right now. */
+        case TOX_FILE_SEND_NEW:
+        case TOX_FILE_SEND_NEW_SLASH:{
+            /* param1: friend #
+             * param2: offset of first file name in data
+             * data: file names
+             */
+
+            /* If friend doesn't exist, don't send file. */
+            if (param1 >= MAX_NUM_FRIENDS) {
+                break;
+            }
+
+            if(param2 == 0xFFFF) {
+                //paths with line breaks
+                uint8_t *name = data, *p = data, *s = name;
                 while(*p) {
-                    if(*p == '\n') {
-                        *p = 0;
-                        end = 0;
+                    _Bool end = 1;
+                    while(*p) {
+                        if(*p == '\n') {
+                            *p = 0;
+                            end = 0;
+                            break;
+                        }
+
+                        if(*p == '/' || *p == '\\') {
+                            s = p + 1;
+                        }
+                        p++;
+                    }
+
+                    if(strcmp2(name, "file://") == 0) {
+                        name += 7;
+                    }                   /* tox, friend, path, filename, filename_length */
+                    outgoing_file_send(tox, param1, name,        s,           p - s, TOX_FILE_KIND_DATA);
+                    p++;
+                    s = name = p;
+
+                    if(end) {
                         break;
                     }
-
-                    if(*p == '/' || *p == '\\') {
-                        s = p + 1;
-                    }
-                    p++;
                 }
-
-                if(strcmp2(name, "file://") == 0) {
-                    name += 7;
-                }                   /* tox, friend, path, filename, filename_length */
-                outgoing_file_send(tox, param1, name,        s,           p - s, TOX_FILE_KIND_DATA);
-                p++;
-                s = name = p;
-
-                if(end) {
-                    break;
-                }
-            }
-        } else {
-            //windows path list
-            uint8_t *name = data;
-            _Bool multifile = (name[param2 - 1] == 0);
-            if(!multifile) {
-                                    /* tox, Friend, path, filename,      filename_length */
-                outgoing_file_send(tox, param1, name, name + param2, strlen((const char*)(name + param2)), TOX_FILE_KIND_DATA);
             } else {
-                uint8_t *p = name + param2;
-                name += param2 - 1;
-                if(*(name - 1) != '\\') {
-                    *name++ = '\\';
-                }
-                while(*p) {
-                    int len = strlen((char*)p) + 1;
-                    memmove(name, p, len);
-                    p += len;
-                    outgoing_file_send(tox, param1, data, name, len -1, TOX_FILE_KIND_DATA);
+                //windows path list
+                uint8_t *name = data;
+                _Bool multifile = (name[param2 - 1] == 0);
+                if(!multifile) {
+                                        /* tox, Friend, path, filename,      filename_length */
+                    outgoing_file_send(tox, param1, name, name + param2, strlen((const char*)(name + param2)), TOX_FILE_KIND_DATA);
+                } else {
+                    uint8_t *p = name + param2;
+                    name += param2 - 1;
+                    if(*(name - 1) != '\\') {
+                        *name++ = '\\';
+                    }
+                    while(*p) {
+                        int len = strlen((char*)p) + 1;
+                        memmove(name, p, len);
+                        p += len;
+                        outgoing_file_send(tox, param1, data, name, len -1, TOX_FILE_KIND_DATA);
+                    }
                 }
             }
-        }
 
-        if(msg != TOX_SEND_NEW_FILE_SLASH){
+            if(msg != TOX_SEND_NEW_FILE_SLASH){
+                free(data);
+            }
+
+            break;
+        }
+        case TOX_FILE_SEND_NEW_INLINE: {
+            /* param1: friend id
+               data: pointer to a TOX_SEND_INLINE_MSG struct
+             */
+            struct TOX_SEND_INLINE_MSG *tsim = data;
+            outgoing_file_send(tox, param1, NULL, tsim->image->png_data, tsim->image_size, TOX_FILE_KIND_DATA);
+            free(tsim);
+
+            break;
+        }
+        case TOX_FILE_ACCEPT: {
+            /* param1: friend #
+             * param2: file #
+             * data: path to write file */
+            if (utox_file_start_write(param1, param2, data) == 0) {
+            /*                          tox, friend#, file#,        START_FILE */
+                file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_RESUME);
+            } else {
+                file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_CANCEL);
+            }
+            break;
             free(data);
         }
-
-        break;
-    }
-
-    case TOX_SEND_NEW_INLINE: {
-        /* param1: friend id
-           data: pointer to a TOX_SEND_INLINE_MSG struct
-         */
-        struct TOX_SEND_INLINE_MSG *tsim = data;
-        outgoing_file_send(tox, param1, NULL, tsim->image->png_data, tsim->image_size, TOX_FILE_KIND_DATA);
-        free(tsim);
-
-        break;
-    }
-
-    case TOX_FILE_START_TEMP:{
-        /* param1: friend #
-         * param2: file # */
-        break;
-        /* This call currently does nothing, eventually we'd like to start downloading a file before we have its dir */
-    }
-
-
-    case TOX_ACCEPTFILE: {
-        /* param1: friend #
-         * param2: file #
-         * data: path to write file */
-        if (utox_file_start_write(param1, param2, data) == 0) {
-        /*                          tox, friend#, file#,        START_FILE */
+        case TOX_FILE_RESUME:{
+            /* param1: friend #
+             * param2: file #           tox, friend#, file#,       RESUME_FILE */
             file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_RESUME);
-        } else {
+            break;
+        }
+        case TOX_FILE_PAUSE:{
+            /* param1: friend #
+             * param2: file #           tox, friend#, file#,        PAUSE_FILE */
+            file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_PAUSE);
+            break;
+        }
+        case TOX_FILE_CANCEL:{
+            /* param1: friend #
+             * param2: file #           tox, friend#, file#,        CANCEL_FILE */
             file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_CANCEL);
+            break;
         }
-        break;
-        free(data);
-    }
 
-    case TOX_FILE_INCOMING_RESUME:
-    case TOX_FILE_OUTGOING_RESUME:{
-        /* param1: friend #
-         * param2: file #           tox, friend#, file#,       RESUME_FILE */
-        file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_RESUME);
-        break;
-    }
-    case TOX_FILE_INCOMING_PAUSE:
-    case TOX_FILE_OUTGOING_PAUSE:{
-        /* param1: friend #
-         * param2: file #           tox, friend#, file#,        PAUSE_FILE */
-        file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_PAUSE);
-        break;
-    }
-    case TOX_FILE_INCOMING_CANCEL:
-    case TOX_FILE_OUTGOING_CANCEL:{
-        /* param1: friend #
-         * param2: file #           tox, friend#, file#,        CANCEL_FILE */
-        file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_CANCEL);
-        break;
-    }
-
-    case TOX_FRIEND_ONLINE: {
-        if(!param2) {
-            ft_friend_offline(tox, param1);
-        } else {
-            ft_friend_online(tox, param1);
-            /* resend avatar info (in case it changed) */
-            /* Avatars must be sent LAST or they will clobber existing file transfers! */
-            avatar_on_friend_online(tox, param1);
+        /* Audio & Video */
+        case TOX_CALL_SEND: {
+            /* param1: friend #
+             */
+            debug("Going to call now\n");
+            TOXAV_ERR_CALL error = 0;
+            toxav_call(av, param1, UTOX_DEFAULT_AUDIO_BITRATE, 0, &error);
+            if (error) {
+                debug("Error making call to %u, error num is %i.\n", param1, error);
+            } else {
+                debug("uToxAV:\tCall is ringing\n");
+                friend[param1].call_state_self = ( TOXAV_FRIEND_CALL_STATE_SENDING_A | TOXAV_FRIEND_CALL_STATE_ACCEPTING_A );
+                toxaudio_postmessage(AUDIO_CALL_START, param1, 0, NULL); // TODO, do we really want this to be HERE?
+            }
+            break;
         }
-        break;
-    }
+        case TOX_CALL_INCOMING:{
+            break;
+        }
+        case TOX_CALL_ANSWER: {
+            /* param1: Friend_number #
+             * param2: Accept Video? #
+             */
+            FRIEND *f = &friend[param1];
+            TOXAV_ERR_ANSWER error = 0;
+            int v_bitrate = UTOX_DEFAULT_VIDEO_BITRATE;
 
-    }
+            if (!param2) {
+                v_bitrate = 0;
+            }
+
+            toxaudio_postmessage(AUDIO_STOP_RINGTONE, param1, 0, NULL);
+            toxaudio_postmessage(AUDIO_CALL_START, param1, 0, NULL);
+            toxav_answer(av, param1, UTOX_DEFAULT_AUDIO_BITRATE, v_bitrate, &error);
+
+            if (error) {
+                debug("Error trying to toxav_answer error (%i)\n", error);
+            } else {
+                debug("call running \n");
+                f->call_state_self = ( TOXAV_FRIEND_CALL_STATE_SENDING_A | TOXAV_FRIEND_CALL_STATE_ACCEPTING_A );
+            }
+
+            break;
+        }
+        case TOX_CALL_ANSWER_VIDEO: {
+            /* param1: friend #
+             */
+            debug("Tox:\tStarting video call\n");
+            TOXAV_ERR_CALL error = 0;
+            toxav_call(av, friend[param1].number, UTOX_DEFAULT_AUDIO_BITRATE, UTOX_DEFAULT_VIDEO_BITRATE, &error);
+            postmessage(FRIEND_AV_STATUS_CHANGE, param1, 0, NULL);
+            break;
+        }
+        case TOX_CALL_PAUSE_AUDIO: {
+            /* param1: friend #
+             * param2: call #
+             */
+            /*ToxAVCSettings settings = av_DefaultSettings;
+            settings.call_type = av_TypeVideo;
+            settings.max_video_width = max_video_width;
+            settings.max_video_height = max_video_height;*/
+
+            //toxav_change_settings(av, param2, &settings);
+            postmessage(FRIEND_CALL_START_VIDEO, param1, param2, NULL);
+            break;
+        }
+        case TOX_CALL_PAUSE_VIDEO: {
+            /* param1: friend #
+             * param2: call #
+             */
+            //toxav_change_settings(av, param2, &av_DefaultSettings);
+            postmessage(FRIEND_CALL_STOP_VIDEO, param1, param2, NULL);
+            break;
+        }
+        case TOX_CALL_DISCONNECT: {
+            /* param1: friend_number
+             */
+            toxaudio_postmessage(AUDIO_STOP_RINGTONE, param1, 0, NULL);
+            toxaudio_postmessage(AUDIO_CALL_END, param1, 0, NULL);
+            FRIEND *f = &friend[param1];
+            f->call_state_self = 0;
+            f->call_state_friend = 0;
+            break;
+        }
+
+        /* Groups are broken while we await the new GCs getting merged. */
+        case TOX_GROUP_CREATE: {
+            int g = -1;
+            if (param1) {
+                // TODO FIX THIS AFTER NEW GROUP API
+                // g = toxav_add_av_groupchat(tox, &callback_av_group_audio, NULL);
+            } else {
+                g = tox_add_groupchat(tox);
+            }
+            if(g != -1) {
+                postmessage(GROUP_ADD, g, 0, tox);
+            }
+
+            break;
+        }
+        case TOX_GROUP_EXIT: {
+            /* param1: group #
+             */
+            tox_del_groupchat(tox, param1);
+            break;
+        }
+        case TOX_GROUP_SEND_INVITE: {
+            /* param1: group #
+             * param2: friend #
+             */
+            tox_invite_friend(tox, param2, param1);
+            break;
+        }
+        case TOX_GROUP_SET_TOPIC: {
+            /* param1: group #
+             * param2: topic length
+             * data: topic
+             */
+            tox_group_set_title(tox, param1, data, param2);
+            postmessage(GROUP_TITLE, param1, param2, data);
+            break;
+        }
+        case TOX_GROUP_SEND_MESSAGE: {
+            /* param1: group #
+             * param2: message length
+             * data: message
+             */
+            tox_group_message_send(tox, param1, data, param2);
+            free(data);
+            break;
+        }
+        case TOX_GROUP_SEND_ACTION: {
+            /* param1: group #
+             * param2: message length
+             * data: message
+             */
+            tox_group_action_send(tox, param1, data, param2);
+            free(data);
+            break;
+        }
+        case TOX_GROUP_AUDIO_START:{
+            /* param1: group #
+             */
+            postmessage(GROUP_AUDIO_START, param1, 0, NULL);
+            break;
+        }
+        case TOX_GROUP_AUDIO_END:{
+            /* param1: group #
+             */
+            postmessage(GROUP_AUDIO_END, param1, 0, NULL);
+            break;
+        }
+    } // End of switch.
     save_needed = 1;
 }
 
 /** Translates status code to text then sends back to the user */
-static void file_notify(FRIEND *f, MSG_FILE *msg)
-{
+static void file_notify(FRIEND *f, MSG_FILE *msg) {
     STRING *str;
-
     switch(msg->status) {
-    case FILE_TRANSFER_STATUS_NONE:
-        str = SPTR(TRANSFER_NEW); break;
-    case FILE_TRANSFER_STATUS_ACTIVE:
-        str = SPTR(TRANSFER_STARTED); break;
-    case FILE_TRANSFER_STATUS_PAUSED_BOTH:
-        str = SPTR(TRANSFER___); break;
-    case FILE_TRANSFER_STATUS_PAUSED_US:
-    case FILE_TRANSFER_STATUS_PAUSED_THEM:
-        str = SPTR(TRANSFER_PAUSED); break;
-    case FILE_TRANSFER_STATUS_KILLED:
-        str = SPTR(TRANSFER_CANCELLED); break;
-    case FILE_TRANSFER_STATUS_COMPLETED:
-        str = SPTR(TRANSFER_COMPLETE); break;
-    case FILE_TRANSFER_STATUS_BROKEN:
-    default: //render unknown status as "transfer broken"
-        str = SPTR(TRANSFER_BROKEN); break;
+        case FILE_TRANSFER_STATUS_NONE: {
+            str = SPTR(TRANSFER_NEW); break;
+        }
+        case FILE_TRANSFER_STATUS_ACTIVE: {
+            str = SPTR(TRANSFER_STARTED); break;
+        }
+        case FILE_TRANSFER_STATUS_PAUSED_BOTH: {
+            str = SPTR(TRANSFER___); break;
+        }
+        case FILE_TRANSFER_STATUS_PAUSED_US:
+        case FILE_TRANSFER_STATUS_PAUSED_THEM: {
+            str = SPTR(TRANSFER_PAUSED); break;
+        }
+        case FILE_TRANSFER_STATUS_KILLED: {
+            str = SPTR(TRANSFER_CANCELLED); break;
+        }
+        case FILE_TRANSFER_STATUS_COMPLETED: {
+            str = SPTR(TRANSFER_COMPLETE); break;
+        }
+        case FILE_TRANSFER_STATUS_BROKEN:
+        default: { //render unknown status as "transfer broken"
+            str = SPTR(TRANSFER_BROKEN); break;
+        }
     }
 
     friend_notify(f, str->str, str->length, msg->name, msg->name_length);
