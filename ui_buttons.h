@@ -192,15 +192,15 @@ static void button_group_audio_update(BUTTON *b){
 
 static void button_call_onpress(void){
     FRIEND *f = selected_item->data;
-    if (f->call_state_self) {
-        if (!f->call_state_friend) {
+    if (UTOX_SENDING_AUDIO(f->number)) {
+        if (UTOX_ACCEPTING_AUDIO(f->number)) {
             debug("Canceling call: friend = %d\n", f->number);
         } else {
             debug("Ending call: %u\n", f->number);
         }
         tox_postmessage(TOX_CALL_DISCONNECT, f->number, 0, NULL);
-    } else if (f->call_state_friend) {
-        if (!f->call_state_self) {
+    } else if (UTOX_ACCEPTING_AUDIO(f->number)) {
+        if (!UTOX_SENDING_AUDIO(f->number)) {
             tox_postmessage(TOX_CALL_ANSWER, f->number, 0, NULL);
             debug("Accept Call: %u\n", f->number);
         }
@@ -245,7 +245,7 @@ static void button_video_onpress(void){
         }
     } else if (UTOX_ACCEPTING_VIDEO(f->number)) {
         if (!UTOX_SENDING_VIDEO(f->number)) {
-            tox_postmessage(TOX_CALL_ANSWER, f->number, 0, NULL);
+            tox_postmessage(TOX_CALL_ANSWER, f->number, 1, NULL);
             debug("Accept Call: %u\n", f->number);
             tox_postmessage(TOX_CALL_VIDEO_ON, f - friend, f->number, NULL);
             debug("start sending video\n");
