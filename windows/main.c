@@ -1907,9 +1907,9 @@ void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height
     }
 }
 
-void video_begin(uint32_t id, char_t *name, STRING_IDX name_length, uint16_t width, uint16_t height)
-{
+void video_begin(uint32_t id, char_t *name, STRING_IDX name_length, uint16_t width, uint16_t height) {
     if(video_hwnd[id]) {
+        debug("Win Video:\tvideo_hwnd exists\n");
         return;
     }
 

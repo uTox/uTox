@@ -5,8 +5,7 @@
 extern _Bool unity_running;
 #endif
 
-static void button_setcolors_success(BUTTON *b)
-{
+static void button_setcolors_success(BUTTON *b) {
     b->c1 = COLOR_BUTTON_SUCCESS_BACKGROUND;
     b->c2 = COLOR_BUTTON_SUCCESS_HOVER_BACKGROUND;
     b->c3 = COLOR_BUTTON_SUCCESS_HOVER_BACKGROUND;
@@ -14,8 +13,7 @@ static void button_setcolors_success(BUTTON *b)
     b->ct2 = COLOR_BUTTON_SUCCESS_HOVER_TEXT;
 }
 
-static void button_setcolors_danger(BUTTON *b)
-{
+static void button_setcolors_danger(BUTTON *b) {
     b->c1 = COLOR_BUTTON_DANGER_BACKGROUND;
     b->c2 = COLOR_BUTTON_DANGER_HOVER_BACKGROUND;
     b->c3 = COLOR_BUTTON_DANGER_HOVER_BACKGROUND;
@@ -23,8 +21,7 @@ static void button_setcolors_danger(BUTTON *b)
     b->ct2 = COLOR_BUTTON_DANGER_HOVER_TEXT;
 }
 
-static void button_setcolors_warning(BUTTON *b)
-{
+static void button_setcolors_warning(BUTTON *b) {
     b->c1 = COLOR_BUTTON_WARNING_BACKGROUND;
     b->c2 = COLOR_BUTTON_WARNING_HOVER_BACKGROUND;
     b->c3 = COLOR_BUTTON_WARNING_HOVER_BACKGROUND;
@@ -32,8 +29,7 @@ static void button_setcolors_warning(BUTTON *b)
     b->ct2 = COLOR_BUTTON_WARNING_HOVER_TEXT;
 }
 
-static void button_setcolors_disabled(BUTTON *b)
-{
+static void button_setcolors_disabled(BUTTON *b) {
     b->c1 = COLOR_BUTTON_DISABLED_BACKGROUND;
     b->c2 = COLOR_BUTTON_DISABLED_BACKGROUND;
     b->c3 = COLOR_BUTTON_DISABLED_BACKGROUND;
@@ -41,15 +37,13 @@ static void button_setcolors_disabled(BUTTON *b)
     b->ct2 = COLOR_BUTTON_DISABLED_TEXT;
 }
 
-static void button_copyid_onpress(void)
-{
+static void button_copyid_onpress(void) {
     edit_setfocus(&edit_toxid);
     copy(0);
 }
 
 #ifdef EMOJI_IDS
-static void button_change_id_type_onpress(void)
-{
+static void button_change_id_type_onpress(void) {
     edit_resetfocus();
     if (self.id_buffer_length == TOX_FRIEND_ADDRESS_SIZE * 2) {
         self.id_buffer_length = bytes_to_emoji_string(self.id_buffer, sizeof(self.id_buffer), self.id_binary, TOX_FRIEND_ADDRESS_SIZE);
@@ -61,7 +55,7 @@ static void button_change_id_type_onpress(void)
 }
 #endif
 
-static void button_audiopreview_onpress(void){
+static void button_audiopreview_onpress(void) {
     if (!audio_preview) {
         debug("Going to start Audio Preview\n");
         toxaudio_postmessage(AUDIO_PREVIEW_START, 0, 0, NULL);
@@ -72,8 +66,7 @@ static void button_audiopreview_onpress(void){
     audio_preview = !audio_preview;
 }
 
-static void button_audiopreview_update(BUTTON *b)
-{
+static void button_audiopreview_update(BUTTON *b) {
     if (audio_preview){
         button_setcolors_danger(b);
     } else {
@@ -81,41 +74,33 @@ static void button_audiopreview_update(BUTTON *b)
     }
 }
 
-static void button_videopreview_onpress(void)
-{
+static void button_videopreview_onpress(void) {
     if (video_preview) {
         video_preview = 0;
-        video_end(0);
         toxvideo_postmessage(VIDEO_PREVIEW_END, 0, 0, NULL);
     } else if (video_width) {
-        STRING *s = SPTR(WINDOW_TITLE_VIDEO_PREVIEW);
-        video_begin(0, s->str, s->length, video_width, video_height);
-        toxvideo_postmessage(VIDEO_PREVIEW_START, 0, 0, NULL);
         video_preview = 1;
+        toxvideo_postmessage(VIDEO_PREVIEW_START, 0, 0, NULL);
     }
 }
 
-static void button_videopreview_update(BUTTON *b)
-{
+static void button_videopreview_update(BUTTON *b) {
     if (video_preview)
         button_setcolors_danger(b);
     else
         button_setcolors_success(b);
 }
 
-static void button_add_friend_onpress(void)
-{
+static void button_add_friend_onpress(void) {
     friend_add(edit_add_id.data, edit_add_id.length, edit_add_msg.data, edit_add_msg.length);
     edit_resetfocus();
 }
 
-static void button_add_onpress(void)
-{
+static void button_add_onpress(void) {
     list_selectaddfriend();
 }
 
-static void button_groups_onpress(void)
-{
+static void button_groups_onpress(void) {
     tox_postmessage(TOX_NEWGROUP, 1, 0, NULL);
 }
 
@@ -192,15 +177,15 @@ static void button_group_audio_update(BUTTON *b){
 
 static void button_call_onpress(void){
     FRIEND *f = selected_item->data;
-    if (UTOX_SENDING_AUDIO(f->number)) {
-        if (UTOX_ACCEPTING_AUDIO(f->number)) {
+    if (f->call_state_self) {
+        if (!f->call_state_friend) {
             debug("Canceling call: friend = %d\n", f->number);
         } else {
             debug("Ending call: %u\n", f->number);
         }
         tox_postmessage(TOX_CALL_DISCONNECT, f->number, 0, NULL);
-    } else if (UTOX_ACCEPTING_AUDIO(f->number)) {
-        if (!UTOX_SENDING_AUDIO(f->number)) {
+    } else if (f->call_state_friend) {
+        if (!f->call_state_self) {
             tox_postmessage(TOX_CALL_ANSWER, f->number, 0, NULL);
             debug("Accept Call: %u\n", f->number);
         }
@@ -235,25 +220,23 @@ static void button_video_onpress(void){
     FRIEND *f = selected_item->data;
     if (f->call_state_self) {
         if (UTOX_SENDING_VIDEO(f->number)) {
-            tox_postmessage(TOX_CALL_DISCONNECT, f->number, f - friend, NULL);
-            debug("Cancelling call: id = %u, friend = %d\n", f->number, (int)(f - friend));
+            debug("Canceling call (video): %u\n", f->number);
+            tox_postmessage(TOX_CALL_DISCONNECT,  f->number, 1, NULL);
         } else {
-            tox_postmessage(TOX_CALL_DISCONNECT, f->number, 0, NULL);
-            debug("Ending call: %u\n", f->number);
-            tox_postmessage(TOX_CALL_VIDEO_OFF, f - friend, f->number, NULL);
-            debug("stop sending video\n");
+            debug("Ending call (video): %u\n",   f->number);
+            tox_postmessage(TOX_CALL_DISCONNECT, f->number, 1, NULL);
+            tox_postmessage(TOX_CALL_VIDEO_OFF,  f->number, 1, NULL);
         }
     } else if (UTOX_ACCEPTING_VIDEO(f->number)) {
         if (!UTOX_SENDING_VIDEO(f->number)) {
-            tox_postmessage(TOX_CALL_ANSWER, f->number, 1, NULL);
-            debug("Accept Call: %u\n", f->number);
-            tox_postmessage(TOX_CALL_VIDEO_ON, f - friend, f->number, NULL);
-            debug("start sending video\n");
+            debug("Accept Call (video): %u\n", f->number);
+            tox_postmessage(TOX_CALL_ANSWER,   f->number, 1, NULL);
+            tox_postmessage(TOX_CALL_VIDEO_ON, f->number, 1, NULL);
         }
     } else {
         if (f->online) {
-            tox_postmessage(TOX_CALL_VIDEO, f - friend, 0, NULL);
-            debug("Video calling friend: %u\n", (uint32_t)(f - friend));
+            tox_postmessage(TOX_CALL_VIDEO, f->number, 1, NULL);
+            debug("Calling friend (video): %u\n", f->number);
         }
     }
 }

@@ -1600,8 +1600,8 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
          */
         FRIEND *f = &friend[param1];
         /* TODO do something here! */
-        if ( (f->call_state_friend | TOXAV_FRIEND_CALL_STATE_SENDING_V) ) {
-            f->call_state_self = (f->call_state_self | TOXAV_FRIEND_CALL_STATE_ACCEPTING_V);
+        if ( (f->call_state_friend & TOXAV_FRIEND_CALL_STATE_SENDING_V) ) {
+            f->call_state_self |= TOXAV_FRIEND_CALL_STATE_ACCEPTING_V;
             toxvideo_postmessage(VIDEO_CALL_START, param2, 0, NULL);
             updatefriend(f);
         }

@@ -82,6 +82,7 @@ static void video_thread(void *args) {
 
             case VIDEO_PREVIEW_START: {
                 preview = 1;
+                m->param1--;
             }
             case VIDEO_CALL_START: {
                 STRING *s = SPTR(WINDOW_TITLE_VIDEO_PREVIEW);
@@ -101,6 +102,7 @@ static void video_thread(void *args) {
                     video_endread();
                     video_on = 0;
                 }
+                video_end(0);
                 break;
             }
 
