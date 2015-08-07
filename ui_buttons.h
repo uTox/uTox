@@ -178,16 +178,18 @@ static void button_group_audio_update(BUTTON *b){
 static void button_call_onpress(void){
     FRIEND *f = selected_item->data;
     if (f->call_state_self) {
-        if (!f->call_state_friend) {
-            debug("Canceling call: friend = %d\n", f->number);
-        } else {
+        if (UTOX_SENDING_VIDEO(f->number)) {
             debug("Ending call: %u\n", f->number);
+            tox_postmessage(TOX_CALL_DISCONNECT,  f->number, 0, NULL);
+        } else {
+            debug("Canceling call: friend = %d\n", f->number);
+            tox_postmessage(TOX_CALL_DISCONNECT,  f->number, 0, NULL);
         }
         tox_postmessage(TOX_CALL_DISCONNECT, f->number, 0, NULL);
-    } else if (f->call_state_friend) {
-        if (!f->call_state_self) {
-            tox_postmessage(TOX_CALL_ANSWER, f->number, 0, NULL);
+    } else if (UTOX_ACCEPTING_VIDEO(f->number) || UTOX_ACCEPTING_AUDIO(f->number) ) {
+        if (!UTOX_SENDING_VIDEO(f->number) || UTOX_SENDING_AUDIO(f->number) ) {
             debug("Accept Call: %u\n", f->number);
+            tox_postmessage(TOX_CALL_ANSWER, f->number, 0, NULL);
         }
     } else {
         if (f->online) {
@@ -202,7 +204,7 @@ static void button_call_update(BUTTON *b){
     if (f->call_state_self) {
         button_setcolors_danger(b);
         b->disabled = 0;
-    } else if (f->call_state_friend) {
+    } else if (UTOX_SENDING_AUDIO(f->number)) {
         button_setcolors_warning(b);
         b->disabled = 0;
     } else {
@@ -227,7 +229,7 @@ static void button_video_onpress(void){
             tox_postmessage(TOX_CALL_DISCONNECT, f->number, 1, NULL);
             tox_postmessage(TOX_CALL_PAUSE_VIDEO,  f->number, 1, NULL);
         }
-    } else if (UTOX_ACCEPTING_VIDEO(f->number)) {
+    } else if (UTOX_ACCEPTING_VIDEO(f->number) || UTOX_ACCEPTING_AUDIO(f->number) ) {
         if (!UTOX_SENDING_VIDEO(f->number)) {
             debug("Accept Call (video): %u\n", f->number);
             tox_postmessage(TOX_CALL_ANSWER, f->number, 1, NULL);
@@ -245,7 +247,7 @@ static void button_video_update(BUTTON *b){
     if (f->call_state_self) {
         button_setcolors_danger(b);
         b->disabled = 0;
-    } else if (f->call_state_friend) {
+    } else if (UTOX_SENDING_VIDEO(f->number)) {
         button_setcolors_warning(b);
         b->disabled = 0;
     } else {

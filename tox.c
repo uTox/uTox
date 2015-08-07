@@ -1221,8 +1221,7 @@ static void call_notify(FRIEND *f, uint8_t status) {
     friend_addmessage_notify(f, str->str, str->length);
 }
 
-void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void *data)
-{
+void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void *data) {
     switch(tox_message_id) {
     case DHT_CONNECTED: {
         /* param1: connection status (1 = connected, 0 = disconnected)
