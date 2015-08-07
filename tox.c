@@ -747,7 +747,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
         }
 
         /* Avatar status */
-        case TOX_SETAVATAR: {
+        case TOX_AVATAR_SET: {
             /* param1: avatar format
              * param2: length of avatar data
              * data: raw avatar data (PNG)
@@ -763,7 +763,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             utox_avatar_update_friends(tox);
             break;
         }
-        case TOX_UNSETAVATAR: {
+        case TOX_AVATAR_UNSET: {
             free(self.avatar_data);
             self.avatar_data = NULL;
             self.avatar_size = 0;
@@ -852,7 +852,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
              */
             void *p = data;
             TOX_MESSAGE_TYPE type;
-            if(msg == TOX_SENDACTION){
+            if(msg == TOX_SEND_ACTION){
                 type = TOX_MESSAGE_TYPE_ACTION;
             } else {
                 type = TOX_MESSAGE_TYPE_NORMAL;
@@ -964,7 +964,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
                 }
             }
 
-            if(msg != TOX_SEND_NEW_FILE_SLASH){
+            if(msg != TOX_FILE_SEND_NEW_SLASH){
                 free(data);
             }
 
@@ -1037,10 +1037,14 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
              */
             FRIEND *f = &friend[param1];
             TOXAV_ERR_ANSWER error = 0;
-            int v_bitrate = UTOX_DEFAULT_VIDEO_BITRATE;
+            int v_bitrate = 0;
 
             if (!param2) {
                 v_bitrate = 0;
+                debug("Tox:\tAnswering video call.\n");
+            } else {
+                v_bitrate = UTOX_DEFAULT_VIDEO_BITRATE;
+                debug("Tox:\tAnswering audio call.\n");
             }
 
             toxaudio_postmessage(AUDIO_STOP_RINGTONE, param1, 0, NULL);
@@ -1054,15 +1058,6 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
                 f->call_state_self = ( TOXAV_FRIEND_CALL_STATE_SENDING_A | TOXAV_FRIEND_CALL_STATE_ACCEPTING_A );
             }
 
-            break;
-        }
-        case TOX_CALL_ANSWER_VIDEO: {
-            /* param1: friend #
-             */
-            debug("Tox:\tStarting video call\n");
-            TOXAV_ERR_CALL error = 0;
-            toxav_call(av, friend[param1].number, UTOX_DEFAULT_AUDIO_BITRATE, UTOX_DEFAULT_VIDEO_BITRATE, &error);
-            postmessage(FRIEND_AV_STATUS_CHANGE, param1, 0, NULL);
             break;
         }
         case TOX_CALL_PAUSE_AUDIO: {
@@ -1263,20 +1258,16 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
     }
 
     case SEND_FILES: {
-        tox_postmessage(TOX_SEND_NEW_FILE, param1, param2, data);
+        tox_postmessage(TOX_FILE_SEND_NEW, param1, param2, data);
         break;
     }
 
     case SAVE_FILE: {
-        tox_postmessage(TOX_ACCEPTFILE, param1, param2 << 16, data);
+        tox_postmessage(TOX_FILE_ACCEPT, param1, param2 << 16, data);
         break;
     }
 
     case FILE_START_TEMP:{
-        // Called once the user starts looking for a save location
-            // start ft to a temp directory
-            // start writing data
-        tox_postmessage(TOX_FILE_START_TEMP, param1, param2 << 16, data);
         break;
     }
 
@@ -1286,7 +1277,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             // kill the file
             // delete existing data
         // We do want to do something else, but for now this is goodenough™
-        tox_postmessage(TOX_FILE_INCOMING_PAUSE, param1, param2 << 16, data);
+        tox_postmessage(TOX_FILE_PAUSE, param1, param2 << 16, data);
         break;
     }
 

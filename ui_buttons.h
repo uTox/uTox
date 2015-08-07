@@ -101,7 +101,7 @@ static void button_add_onpress(void) {
 }
 
 static void button_groups_onpress(void) {
-    tox_postmessage(TOX_NEWGROUP, 1, 0, NULL);
+    tox_postmessage(TOX_GROUP_CREATE, 1, 0, NULL);
 }
 
 static void button_transfer_onpress(void)
@@ -191,7 +191,7 @@ static void button_call_onpress(void){
         }
     } else {
         if (f->online) {
-            tox_postmessage(TOX_CALL, f->number, 0, NULL);
+            tox_postmessage(TOX_CALL_SEND, f->number, 0, NULL);
             debug("Calling friend: %u\n", f->number);
         }
     }
@@ -225,16 +225,16 @@ static void button_video_onpress(void){
         } else {
             debug("Ending call (video): %u\n",   f->number);
             tox_postmessage(TOX_CALL_DISCONNECT, f->number, 1, NULL);
-            tox_postmessage(TOX_CALL_VIDEO_OFF,  f->number, 1, NULL);
+            tox_postmessage(TOX_CALL_PAUSE_VIDEO,  f->number, 1, NULL);
         }
     } else if (UTOX_ACCEPTING_VIDEO(f->number)) {
         if (!UTOX_SENDING_VIDEO(f->number)) {
             debug("Accept Call (video): %u\n", f->number);
-            tox_postmessage(TOX_CALL_ANSWER_VIDEO, f->number, 1, NULL);
+            tox_postmessage(TOX_CALL_ANSWER, f->number, 1, NULL);
         }
     } else {
         if (f->online) {
-            tox_postmessage(TOX_CALL_VIDEO, f->number, 1, NULL);
+            tox_postmessage(TOX_CALL_SEND, f->number, 1, NULL);
             debug("Calling friend (video): %u\n", f->number);
         }
     }
@@ -292,7 +292,7 @@ static void button_sendfile_update(BUTTON *b) {
 
 static void button_accept_friend_onpress(void){
     FRIENDREQ *req = selected_item->data;
-    tox_postmessage(TOX_ACCEPTFRIEND, 0, 0, req);
+    tox_postmessage(TOX_FRIEND_ACCEPT, 0, 0, req);
     panel_friend_request.disabled = 1;
     // list_reselect_current();
 }
@@ -335,7 +335,7 @@ static void button_status_onpress(void) {
     }
     #endif
 
-    tox_postmessage(TOX_SETSTATUS, self.status, 0, NULL);
+    tox_postmessage(TOX_SELF_SET_STATE, self.status, 0, NULL);
 }
 
 /* top right chat message window button */

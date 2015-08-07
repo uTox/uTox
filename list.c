@@ -447,14 +447,14 @@ static void deleteitem(ITEM *i)
     switch (i->item) {
     case ITEM_FRIEND: {
         FRIEND *f = i->data;
-        tox_postmessage(TOX_DELFRIEND, (f - friend), 0, f);
+        tox_postmessage(TOX_FRIEND_DELETE, (f - friend), 0, f);
         break;
     }
 
     case ITEM_GROUP: {
         GROUPCHAT *g = i->data;
 
-        tox_postmessage(TOX_LEAVEGROUP, (g - group), 0, NULL);
+        tox_postmessage(TOX_GROUP_EXIT, (g - group), 0, NULL);
 
         unsigned int j;
         for (j = 0; j < g->peers; ++j) {
@@ -668,7 +668,7 @@ static void contextmenu_list_onselect(uint8_t i)
 
     if(ritem->item == ITEM_FRIEND_ADD && i == 0) {
         FRIENDREQ *req = ritem->data;
-        tox_postmessage(TOX_ACCEPTFRIEND, 0, 0, req);
+        tox_postmessage(TOX_FRIEND_ACCEPT, 0, 0, req);
         return;
     }
 
@@ -749,7 +749,7 @@ _Bool list_mup(void *UNUSED(n))
                     GROUPCHAT *g = nitem->data;
 
                     if(f->online) {
-                        tox_postmessage(TOX_GROUPINVITE, (g - group), (f - friend), NULL);
+                        tox_postmessage(TOX_GROUP_SEND_INVITE, (g - group), (f - friend), NULL);
                     }
                 }
 

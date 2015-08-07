@@ -507,7 +507,7 @@ void savefilerecv(uint32_t fid, MSG_FILE *file)
         memcpy(path, file->name, file->name_length);
         path[file->name_length] = 0;
 
-        tox_postmessage(TOX_ACCEPTFILE, fid, file->filenumber, path);
+        tox_postmessage(TOX_FILE_ACCEPT, fid, file->filenumber, path);
     }
 }
 
@@ -741,7 +741,7 @@ static void pastedata(void *data, Atom type, int len, _Bool select)
     } else if (type == XA_URI_LIST) {
         char *path = malloc(len + 1);
         formaturilist(path, (char*) data, len);
-        tox_postmessage(TOX_SEND_NEW_FILE, (FRIEND*)selected_item->data - friend, 0xFFFF, path);
+        tox_postmessage(TOX_FILE_SEND_NEW, (FRIEND*)selected_item->data - friend, 0xFFFF, path);
     } else if(type == XA_UTF8_STRING && edit_active()) {
         edit_paste(data, len, select);
     }
