@@ -1,28 +1,8 @@
+#include "main.h"
+
 uint8_t lbuffer[800 * 600 * 4]; //needs to be always large enough for encoded frames
 
-static vpx_image_t input;
-static utox_av_video_frame utox_video_frame;
-
-static _Bool openvideodevice(void *handle) {
-    if(!video_init(handle)) {
-        debug("video_init() failed\n");
-        return 0;
-    }
-    vpx_img_alloc(&input, VPX_IMG_FMT_I420, video_width, video_height, 1);
-    utox_video_frame.y = input.planes[0];
-    utox_video_frame.u = input.planes[1];
-    utox_video_frame.v = input.planes[2];
-    utox_video_frame.w = input.d_w;
-    utox_video_frame.h = input.d_h;
-    return 1;
-}
-
-static void closevideodevice(void *handle) {
-    video_close(handle);
-    vpx_img_free(&input);
-}
-
-static void video_thread(void *args) {
+void video_thread(void *args) {
     ToxAV *av = args;
 
     void *video_device;
@@ -280,7 +260,7 @@ static void sourceplaybuffer(int i, const int16_t *data, int samples, uint8_t ch
     }
 }
 
-static void audio_thread(void *args){
+void audio_thread(void *args){
     ToxAV *av = args;
     const char *device_list, *output_device = NULL;
     void *audio_device = NULL;
@@ -854,8 +834,7 @@ void group_av_peer_remove(GROUPCHAT *g, int peernumber)
     }
 #endif
 
-static void toxav_thread(void *args)
-{
+void toxav_thread(void *args) {
     ToxAV *av = args;
 
     toxav_thread_init = 1;
@@ -972,7 +951,7 @@ void utox_incoming_rate_change_video(ToxAV *toxAV, uint32_t friend_number, bool 
     return;
 }
 
-static void set_av_callbacks(ToxAV *av) {
+void set_av_callbacks(ToxAV *av) {
     /* Friend update callbacks */
     toxav_callback_call(av, &utox_av_incoming_call, NULL);
     toxav_callback_call_state(av, &utox_callback_av_change_state, NULL);

@@ -3,19 +3,10 @@
 
 struct Tox_Options options = {.proxy_host = proxy_address};
 
-typedef struct {
-    uint8_t msg;
-    uint32_t param1, param2;
-    void *data;
-} TOX_MSG;
-
-static TOX_MSG tox_msg, audio_msg, video_msg, toxav_msg;
-static volatile _Bool tox_thread_msg, audio_thread_msg, video_thread_msg, toxav_thread_msg;
 static volatile _Bool save_needed = 1;
 
 /* Writes log filename for fid to dest. returns length written */
-static int log_file_name(uint8_t *dest, size_t size_dest, Tox *tox, int fid)
-{
+static int log_file_name(uint8_t *dest, size_t size_dest, Tox *tox, int fid) {
     if (size_dest < TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".txt"))
         return -1;
 
@@ -28,8 +19,7 @@ static int log_file_name(uint8_t *dest, size_t size_dest, Tox *tox, int fid)
 }
 
 /* Writes friend meta data filename for fid to dest. returns length written */
-static int friend_meta_data_file(uint8_t *dest, size_t size_dest, Tox *tox, int fid)
-{
+static int friend_meta_data_file(uint8_t *dest, size_t size_dest, Tox *tox, int fid) {
     if (size_dest < TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".fmetadata")){
         return -1;
     }
@@ -306,7 +296,7 @@ void toxav_postmessage(uint8_t msg, uint32_t param1, uint32_t param2, void *data
 }
 
 #include "tox_callbacks.h"
-#include "tox_av.h"
+#include "utox_av.h"
 
 /* bootstrap to dht with bootstrap_nodes */
 static void do_bootstrap(Tox *tox)
@@ -1016,7 +1006,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
         case TOX_CALL_SEND: {
             /* param1: friend #
              */
-            debug("Going to call now\n");
+            debug("Tox:\tSending call to friend %u\n", param1);
             TOXAV_ERR_CALL error = 0;
             toxav_call(av, param1, UTOX_DEFAULT_AUDIO_BITRATE, 0, &error);
             if (error) {
@@ -1718,7 +1708,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         if (g->type == TOX_GROUPCHAT_TYPE_AV) {
             g->last_recv_audio[param2] = g->last_recv_audio[g->peers];
             g->last_recv_audio[g->peers] = 0;
-            group_av_peer_remove(g, param2);
+            // REMOVED UNTIL AFTER NEW GCs group_av_peer_remove(g, param2);
             g->source[param2] = g->source[g->peers];
         }
 
@@ -1749,7 +1739,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
 
         if(tox_message_id == GROUP_PEER_ADD) {
             if (g->type == TOX_GROUPCHAT_TYPE_AV) {
-                group_av_peer_add(g, param2);
+                // REMOVED UNTIL AFTER NEW GCs group_av_peer_add(g, param2);
             }
 
             if (tox_group_peernumber_is_ours(data, param1, param2)) {

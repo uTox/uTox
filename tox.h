@@ -4,8 +4,13 @@
 
 /* details about messages and their (param1, param2, data) values are in the message handlers in tox.c*/
 
-/* toxcore thread messages (sent from the client thread)
- */
+typedef struct {
+    uint8_t msg;
+    uint32_t param1, param2;
+    void *data;
+} TOX_MSG;
+
+/* toxcore thread messages (sent from the client thread) */
 enum {
     /* SHUTDOWNEVERYTHING! */
     TOX_KILL,
@@ -63,8 +68,7 @@ struct TOX_SEND_INLINE_MSG {
     UTOX_PNG_IMAGE image;
 };
 
-/* toxav thread messages (sent from the client thread)
- */
+/* toxav thread messages (sent from the client thread) */
 enum {
     AUDIO_KILL,
     AUDIO_SET_INPUT,
@@ -92,8 +96,7 @@ enum {
 enum {
     TOXAV_KILL,
 };
-/* client thread messages (recieved by the client thread)
- */
+/* client thread messages (received by the client thread) */
 enum {
     /* general messages */
     TOX_DONE,
@@ -167,6 +170,10 @@ enum {
     UTOX_AV_RINGING,
     UTOX_AV_STARTED,
 };
+
+/* Inter-thread communication vars. */
+TOX_MSG tox_msg, audio_msg, video_msg, toxav_msg;
+volatile _Bool tox_thread_msg, audio_thread_msg, video_thread_msg, toxav_thread_msg;
 
 /** [log_read description] */
 void log_read(Tox *tox, int fid);

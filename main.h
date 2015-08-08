@@ -177,6 +177,7 @@ enum {
 #include "tox.h"
 #include "audio.h"
 #include "video.h"
+#include "utox_av.h"
 
 #ifdef __WIN32__
 #include "windows/main.h"

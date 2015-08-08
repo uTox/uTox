@@ -9,3 +9,8 @@ typedef struct UTOX_AV_VIDEO_FRAME {
     uint8_t  *y, *u, *v;
     uint16_t w, h;
 } utox_av_video_frame;
+
+utox_av_video_frame utox_video_frame;
+
+_Bool openvideodevice(void *handle);
+void closevideodevice(void *handle);
