@@ -77,9 +77,8 @@
 - (void)beginCappingFrames {
     _linkerVideo = [[AVCaptureVideoDataOutput alloc] init];
     [_linkerVideo setSampleBufferDelegate:self queue:_processingQueue];
-    // TODO possibly get a better pixel format
     if (_shouldMangleDimensions) {
-        [_linkerVideo setVideoSettings:@{(id)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_32BGRA),
+        [_linkerVideo setVideoSettings:@{(id)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_420YpCbCr8Planar),
                                          (id)kCVPixelBufferWidthKey: @640,
                                          (id)kCVPixelBufferHeightKey: @480}];
     } else {
@@ -123,7 +122,17 @@
     CFTypeID imageType = CFGetTypeID(_currentFrame);
     if (imageType == CVPixelBufferGetTypeID()) {
         // TODO maybe handle other formats
-        bgrxtoyuv420(y, u, v, CVPixelBufferGetBaseAddress(_currentFrame), w, h);
+        if (CVPixelBufferGetPixelFormatType(_currentFrame) == kCVPixelFormatType_420YpCbCr8Planar) {
+            uint8_t *yPlane = CVPixelBufferGetBaseAddressOfPlane(_currentFrame, 0);
+            uint8_t *uPlane = CVPixelBufferGetBaseAddressOfPlane(_currentFrame, 1);
+            uint8_t *vPlane = CVPixelBufferGetBaseAddressOfPlane(_currentFrame, 2);
+
+            memcpy(y, yPlane, h * w);
+            memcpy(u, uPlane, h * w / 4);
+            memcpy(v, vPlane, h * w / 4);
+        } else {
+            bgrxtoyuv420(y, u, v, CVPixelBufferGetBaseAddress(_currentFrame), w, h);
+        }
     } else if (imageType == CVOpenGLBufferGetTypeID()) {
         // OpenGL pbuffer
     } else if (imageType == CVOpenGLTextureGetTypeID()) {
@@ -454,24 +463,29 @@ void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height
     [view displayImage:img_data w:width h:height];
 }
 
-void video_begin(uint32_t id, char_t *name, STRING_IDX name_length, uint16_t width, uint16_t height) {
-    uToxIroncladWindow *video_win = (uToxIroncladWindow *)[uToxIroncladView createWindow];
-    video_win.title = [[[NSString alloc] initWithBytes:name length:name_length encoding:NSUTF8StringEncoding] autorelease];
-    video_win.video_id = id;
+void video_begin(uint32_t _id, char_t *name, STRING_IDX name_length, uint16_t width, uint16_t height) {
+    dispatch_sync(dispatch_get_main_queue(), ^{
+        uToxIroncladWindow *video_win = (uToxIroncladWindow *)[uToxIroncladView createWindow];
+        video_win.title = [[[NSString alloc] initWithBytes:name length:name_length encoding:NSUTF8StringEncoding] autorelease];
+        //video_win.title = @"Lel";
+        video_win.video_id = _id;
 
-    uToxAppDelegate *utoxapp = (uToxAppDelegate *)[NSApp delegate];
-    NSWindow *utoxwin = utoxapp.utox_window;
+        uToxAppDelegate *utoxapp = (uToxAppDelegate *)[NSApp delegate];
+        NSWindow *utoxwin = utoxapp.utox_window;
 
-    CGFloat x = width;
-    CGFloat y = height;
-    [video_win setFrame:(CGRect){CGRectGetMaxX(utoxwin.frame), CGRectGetMaxY(utoxwin.frame) - y, x, y} display:YES];
-    [utoxapp setIroncladWindow:video_win forID:id];
+        CGFloat x = width;
+        CGFloat y = height;
+        [video_win setFrame:(CGRect){CGRectGetMaxX(utoxwin.frame), CGRectGetMaxY(utoxwin.frame) - y, x, y} display:YES];
+        [utoxapp setIroncladWindow:video_win forID:_id];
 
-    [video_win makeKeyAndOrderFront:utoxapp];
-    [video_win release];
+        [video_win makeKeyAndOrderFront:utoxapp];
+        [video_win release];
+    });
 }
 
 void video_end(uint32_t id) {
-    uToxAppDelegate *utoxapp = (uToxAppDelegate *)[NSApp delegate];
-    [utoxapp releaseIroncladWindowForID:id];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        uToxAppDelegate *utoxapp = (uToxAppDelegate *)[NSApp delegate];
+        [utoxapp releaseIroncladWindowForID:id];
+    });
 }
