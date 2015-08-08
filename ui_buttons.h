@@ -180,6 +180,7 @@ static void button_call_onpress(void){
     if (f->call_state_self) {
         if (UTOX_SENDING_VIDEO(f->number)) {
             debug("Ending call: %u\n", f->number);
+            /* var 3/4 = bool send video */
             tox_postmessage(TOX_CALL_DISCONNECT,  f->number, 0, NULL);
         } else {
             debug("Canceling call: friend = %d\n", f->number);
@@ -204,7 +205,7 @@ static void button_call_update(BUTTON *b){
     if (f->call_state_self) {
         button_setcolors_danger(b);
         b->disabled = 0;
-    } else if (UTOX_SENDING_AUDIO(f->number)) {
+    } else if (UTOX_ACCEPTING_AUDIO(f->number)) {
         button_setcolors_warning(b);
         b->disabled = 0;
     } else {
@@ -247,7 +248,7 @@ static void button_video_update(BUTTON *b){
     if (f->call_state_self) {
         button_setcolors_danger(b);
         b->disabled = 0;
-    } else if (UTOX_SENDING_VIDEO(f->number)) {
+    } else if (UTOX_ACCEPTING_VIDEO(f->number)) {
         button_setcolors_warning(b);
         b->disabled = 0;
     } else {
