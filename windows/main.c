@@ -401,7 +401,7 @@ void openfilesend(void)
     };
 
     if(GetOpenFileName(&ofn)) {
-        tox_postmessage(TOX_SEND_NEW_FILE, (FRIEND*)selected_item->data - friend, ofn.nFileOffset, filepath);
+        tox_postmessage(TOX_FILE_SEND_NEW, (FRIEND*)selected_item->data - friend, ofn.nFileOffset, filepath);
     } else {
         debug("GetOpenFileName() failed\n");
     }
@@ -474,7 +474,7 @@ void savefilerecv(uint32_t fid, MSG_FILE *file)
     };
 
     if(GetSaveFileName(&ofn)) {
-        tox_postmessage(TOX_ACCEPTFILE, fid, file->filenumber, path);
+        tox_postmessage(TOX_FILE_ACCEPT, fid, file->filenumber, path);
     } else {
         debug("GetSaveFileName() failed\n");
     }
@@ -1777,7 +1777,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
         }
 
 #define setstatus(x) if(self.status != x) { \
-            tox_postmessage(TOX_SETSTATUS, x, 0, NULL); self.status = x; redraw(); }
+            tox_postmessage(TOX_SELF_SET_STATE, x, 0, NULL); self.status = x; redraw(); }
 
         case TRAY_STATUS_AVAILABLE: {
             setstatus(TOX_USER_STATUS_NONE);
