@@ -5,6 +5,7 @@ const char *COLOUR_NAME_TABLE[] = {
     "MAIN_SUBTEXT",
     "MAIN_ACTIONTEXT",
     "MAIN_QUOTETEXT",
+    "MAIN_REDTEXT",
     "MAIN_URLTEXT",
     "MAIN_HINTTEXT",
 
