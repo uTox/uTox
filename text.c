@@ -88,13 +88,12 @@ int drawtextmultiline(int x, int right, int y, int top, int bottom, uint16_t lin
 
             if(a == data || *(a - 1) == '\n') {
                 char_t *r = a;
-                while (r <= end) {
-                    if ((r == end || *r == '\n') && (*(r - 1) == '<')) {
-                        c1 = setcolor(COLOR_MAIN_REDTEXT);
-                        greentext = 1;
-                        break;
-                    }
+                while (r != end && *r != '\n') {
                     r++;
+                }
+                if (*(r - 1) == '<') {
+                    c1 = setcolor(COLOR_MAIN_REDTEXT);
+                    greentext = 1;
                 }
             }
         }
