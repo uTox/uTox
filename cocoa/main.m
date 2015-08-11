@@ -370,11 +370,11 @@ void launch_at_startup(int should) {
     [dock_icon release];
 
     global_event_listener = [NSEvent addGlobalMonitorForEventsMatchingMask:NSFlagsChangedMask handler:^(NSEvent *e) {
-        is_ctrl_down = e.modifierFlags & NSControlKeyMask;
+        is_ctrl_down = e.modifierFlags & NSFunctionKeyMask;
     }];
 
     local_event_listener = [NSEvent addLocalMonitorForEventsMatchingMask:NSFlagsChangedMask handler:^NSEvent *(NSEvent *e) {
-        is_ctrl_down = e.modifierFlags & NSControlKeyMask;
+        is_ctrl_down = e.modifierFlags & NSFunctionKeyMask;
         return e;
     }];
 
