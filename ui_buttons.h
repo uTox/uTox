@@ -342,16 +342,14 @@ static void button_status_onpress(void) {
 }
 
 /* top right chat message window button */
-static void button_chat1_onpress(void)
-{
+static void button_chat1_onpress(void) {
     FRIEND *f = selected_item->data;
     if (f->online) {
         desktopgrab(0);
     }
 }
 
-static void button_chat1_update(BUTTON *b)
-{
+static void button_chat1_update(BUTTON *b) {
     FRIEND *f = selected_item->data;
     if (f->online) {
         b->disabled = 0;
