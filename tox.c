@@ -296,6 +296,7 @@ void toxav_postmessage(uint8_t msg, uint32_t param1, uint32_t param2, void *data
 }
 
 #include "tox_callbacks.h"
+
 /* bootstrap to dht with bootstrap_nodes */
 static void do_bootstrap(Tox *tox)
 {
@@ -1052,12 +1053,12 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             TOXAV_ERR_ANSWER error = 0;
             int v_bitrate = 0;
 
-            if (!param2) {
-                v_bitrate = 0;
-                debug("Tox:\tAnswering video call.\n");
-            } else {
+            if (param2) {
                 v_bitrate = UTOX_DEFAULT_VIDEO_BITRATE;
                 debug("Tox:\tAnswering audio call.\n");
+            } else {
+                v_bitrate = 0;
+                debug("Tox:\tAnswering video call.\n");
             }
 
             toxaudio_postmessage(AUDIO_STOP_RINGTONE, param1, 0, NULL);
@@ -1067,7 +1068,6 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
                 toxvideo_postmessage(VIDEO_START, param1, 0, NULL);
                 friend[param1].call_state_self |= (TOXAV_FRIEND_CALL_STATE_SENDING_V | TOXAV_FRIEND_CALL_STATE_ACCEPTING_V);
             }
-
             toxav_answer(av, param1, UTOX_DEFAULT_AUDIO_BITRATE, v_bitrate, &error);
 
             if (error) {
@@ -1076,6 +1076,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
                 debug("call running \n");
                 f->call_state_self = ( TOXAV_FRIEND_CALL_STATE_SENDING_A | TOXAV_FRIEND_CALL_STATE_ACCEPTING_A );
             }
+
             break;
         }
         case TOX_CALL_PAUSE_AUDIO: {
