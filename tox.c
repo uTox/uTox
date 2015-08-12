@@ -1034,6 +1034,9 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             } else {
                 debug("uToxAV:\tCall is ringing\n");
                 friend[param1].call_state_self = ( TOXAV_FRIEND_CALL_STATE_SENDING_A | TOXAV_FRIEND_CALL_STATE_ACCEPTING_A );
+                if (param2) {
+                    friend[param1].call_state_self |= (TOXAV_FRIEND_CALL_STATE_SENDING_V | TOXAV_FRIEND_CALL_STATE_ACCEPTING_V);
+                }
                 toxaudio_postmessage(AUDIO_CALL_START, param1, 0, NULL); // TODO, do we really want this to be HERE?
             }
             break;
