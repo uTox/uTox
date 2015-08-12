@@ -187,7 +187,7 @@ static void button_call_onpress(void){
             tox_postmessage(TOX_CALL_DISCONNECT,  f->number, 0, NULL);
         }
         tox_postmessage(TOX_CALL_DISCONNECT, f->number, 0, NULL);
-    } else if (UTOX_ACCEPTING_VIDEO(f->number) || UTOX_ACCEPTING_AUDIO(f->number) ) {
+    } else if (UTOX_ACCEPTING_VIDEO(f->number) || UTOX_ACCEPTING_AUDIO(f->number)) {
         if (!UTOX_SENDING_VIDEO(f->number) || UTOX_SENDING_AUDIO(f->number) ) {
             debug("Accept Call: %u\n", f->number);
             tox_postmessage(TOX_CALL_ANSWER, f->number, 0, NULL);

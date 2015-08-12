@@ -867,6 +867,7 @@ static void utox_av_incoming_call(ToxAV *av, uint32_t friend_number, bool audio,
 
     f->call_state_self = 0;
     f->call_state_friend = ( audio << 2 | video << 3 | audio << 4 | video << 5 );
+    debug("uTox AV:\tcall friend (%u) state for incoming call: %i\n", f->call_state_friend);
     toxaudio_postmessage(AUDIO_PLAY_RINGTONE, friend_number, 0, NULL);
 }
 
