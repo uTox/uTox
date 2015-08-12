@@ -1545,6 +1545,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             utox_frame_pkg *frame = data;
             video_frame(param1, frame->img, frame->w, frame->h, 0); //TODO re-enable the resize option, disabled for reasons
             free(frame->img);
+            free(data);
         }
 
         /* Commented out until new group chats...

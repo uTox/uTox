@@ -103,12 +103,16 @@ void video_thread(void *args) {
             if (r == 1) {
                 if (preview) {
                     /* Make a copy of the video frame for uTox to display */
-                    uint8_t *img_data = malloc(utox_video_frame.w * utox_video_frame.h * 4);
+                    utox_frame_pkg *frame = malloc(sizeof(*frame));
+                    frame->w   = utox_video_frame.w;
+                    frame->h   = utox_video_frame.h;
+                    frame->img = malloc(utox_video_frame.w * utox_video_frame.h * 4);
+
                     yuv420tobgr(utox_video_frame.w, utox_video_frame.h,
                                 utox_video_frame.y, utox_video_frame.u, utox_video_frame.v,
-                                utox_video_frame.w, utox_video_frame.w / 2, utox_video_frame.h / 2,
-                                img_data);
-                    video_frame(0, img_data, utox_video_frame.w, utox_video_frame.h, 0);
+                                utox_video_frame.w, (utox_video_frame.w / 2), (utox_video_frame.w / 2), frame->img);
+
+                    postmessage(VIDEO_FRAME, 0, 0, (void*)frame);
                     newinput = 0;
                 }
 
@@ -898,7 +902,7 @@ static void utox_av_incoming_frame_v(ToxAV *toxAV, uint32_t friend_number, uint1
     f->video_width = width;
     f->video_height = height;
 
-    utox_frame_pkg *frame;
+    utox_frame_pkg *frame = malloc(sizeof(*frame));
     frame->w = width;
     frame->h = height;
     frame->img = malloc(width * height * 4);
