@@ -76,7 +76,7 @@ enum {
     VIDEO_IN_DEVICE,
 
     /* Client/User Interface messages. */
-    SEND_REDRAW,
+    REDRAW,
     TOOLTIP_SHOW,
     SELF_AVATAR_SET,
 
@@ -120,31 +120,6 @@ struct TOX_SEND_INLINE_MSG {
     size_t image_size;
     UTOX_PNG_IMAGE image;
 };
-
-/* toxav thread messages (sent from the client thread) */
-enum {
-    AUDIO_KILL,
-    AUDIO_SET_INPUT,
-    AUDIO_SET_OUTPUT,
-    AUDIO_PREVIEW_START,
-    AUDIO_PREVIEW_END,
-    AUDIO_CALL_START,
-    AUDIO_CALL_END,
-    AUDIO_PLAY_RINGTONE,
-    AUDIO_STOP_RINGTONE,
-    GROUP_AUDIO_CALL_START,
-    GROUP_AUDIO_CALL_END,
-};
-
-enum {
-    VIDEO_KILL,
-    VIDEO_SET,
-    VIDEO_PREVIEW_START,
-    VIDEO_PREVIEW_END,
-    VIDEO_CALL_START,
-    VIDEO_CALL_END,
-};
-
 
 enum {
     TOXAV_KILL,

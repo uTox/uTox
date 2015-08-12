@@ -296,8 +296,6 @@ void toxav_postmessage(uint8_t msg, uint32_t param1, uint32_t param2, void *data
 }
 
 #include "tox_callbacks.h"
-#include "utox_av.h"
-
 /* bootstrap to dht with bootstrap_nodes */
 static void do_bootstrap(Tox *tox)
 {
@@ -1034,10 +1032,12 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             } else {
                 debug("uToxAV:\tCall is ringing\n");
                 friend[param1].call_state_self = ( TOXAV_FRIEND_CALL_STATE_SENDING_A | TOXAV_FRIEND_CALL_STATE_ACCEPTING_A );
+                toxaudio_postmessage(AUDIO_START, param1, 0, NULL); // TODO, do we really want this to be HERE?
+
                 if (param2) {
+                    toxvideo_postmessage(VIDEO_START, param1, 0, NULL);
                     friend[param1].call_state_self |= (TOXAV_FRIEND_CALL_STATE_SENDING_V | TOXAV_FRIEND_CALL_STATE_ACCEPTING_V);
                 }
-                toxaudio_postmessage(AUDIO_CALL_START, param1, 0, NULL); // TODO, do we really want this to be HERE?
             }
             break;
         }
@@ -1061,7 +1061,13 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             }
 
             toxaudio_postmessage(AUDIO_STOP_RINGTONE, param1, 0, NULL);
-            toxaudio_postmessage(AUDIO_CALL_START, param1, 0, NULL);
+            toxaudio_postmessage(AUDIO_START, param1, 0, NULL);
+
+            if (param2) {
+                toxvideo_postmessage(VIDEO_START, param1, 0, NULL);
+                friend[param1].call_state_self |= (TOXAV_FRIEND_CALL_STATE_SENDING_V | TOXAV_FRIEND_CALL_STATE_ACCEPTING_V);
+            }
+
             toxav_answer(av, param1, UTOX_DEFAULT_AUDIO_BITRATE, v_bitrate, &error);
 
             if (error) {
@@ -1070,7 +1076,6 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
                 debug("call running \n");
                 f->call_state_self = ( TOXAV_FRIEND_CALL_STATE_SENDING_A | TOXAV_FRIEND_CALL_STATE_ACCEPTING_A );
             }
-
             break;
         }
         case TOX_CALL_PAUSE_AUDIO: {
@@ -1091,7 +1096,10 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             /* param1: friend_number
              */
             toxaudio_postmessage(AUDIO_STOP_RINGTONE, param1, 0, NULL);
-            toxaudio_postmessage(AUDIO_CALL_END, param1, 0, NULL);
+            toxaudio_postmessage(AUDIO_END, param1, 0, NULL);
+            if (param2) {
+                toxvideo_postmessage(VIDEO_END, param1, 0, NULL);
+            }
             FRIEND *f = &friend[param1];
             f->call_state_self = 0;
             f->call_state_friend = 0;
@@ -1312,7 +1320,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         }
 
         /* Client/User Interface messages. */
-        case SEND_REDRAW:{
+        case REDRAW:{
             redraw();
             break;
         }

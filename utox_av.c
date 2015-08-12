@@ -24,109 +24,106 @@ void video_thread(void *args) {
     while(1) {
         if(video_thread_msg) {
             TOX_MSG *m = &video_msg;
-            if(!m->msg) {
+            if (!m->msg) {
                 break;
             }
-
             switch(m->msg) {
-            case VIDEO_SET: {
-                if(video_on) {
-                    video_endread();
-                }
-
-                if(video) {
-                    closevideodevice(video_device);
-                }
-
-                video_device = m->data;
-                if(video_device == NULL) {
-                    video = 0;
-                    video_on = 0;
-                    if (!m->param1) {
-                        break;
+                case VIDEO_SET: {
+                    if(video_on) {
+                        video_endread();
                     }
-                }
 
-                video = openvideodevice(video_device);
-                if (video) {
-                    if (video_count) {
-                        video_on = video_startread();
+                    if(video) {
+                        closevideodevice(video_device);
                     }
-                } else {
-                    video_on = 0;
-                }
 
-                newinput = 1;
-                break;
-            }
+                    video_device = m->data;
+                    if(video_device == NULL) {
+                        video = 0;
+                        video_on = 0;
+                        if (!m->param1) {
+                            break;
+                        }
+                    }
 
-            case VIDEO_PREVIEW_START: {
-                preview = 1;
-                m->param1--;
-            }
-            case VIDEO_CALL_START: {
-                STRING *s = SPTR(WINDOW_TITLE_VIDEO_PREVIEW);
-                video_begin(m->param1 + 1, s->str, s->length, video_width, video_height);
-                video_count++;
-                if (video && !video_on) {
-                    video_on = video_startread();
-                }
-                break;
-            }
+                    video = openvideodevice(video_device);
+                    if (video) {
+                        if (video_count) {
+                            video_on = video_startread();
+                        }
+                    } else {
+                        video_on = 0;
+                    }
 
-            case VIDEO_PREVIEW_END: {
-                debug("preview end %u\n", video_count);
-                preview = 0;
-                video_count--;
-                if (!video_count && video_on) {
-                    video_endread();
-                    video_on = 0;
-                }
-                video_end(0);
-                break;
-            }
-
-            case VIDEO_CALL_END: {
-                if (!call[m->param1]) {
+                    newinput = 1;
                     break;
                 }
-                call[m->param1] = 0;
-                video_count--;
-                if (!video_count && video_on) {
-                    video_endread();
-                    video_on = 0;
+                case VIDEO_PREVIEW_START: {
+                    preview = 1;
+                    m->param1--;
                 }
-                break;
+                case VIDEO_START: {
+                    STRING *s = SPTR(WINDOW_TITLE_VIDEO_PREVIEW);
+                    video_begin(m->param1 + 1, s->str, s->length, video_width, video_height);
+                    video_count++;
+                    if (video && !video_on) {
+                        video_on = video_startread();
+                    }
+                    break;
+                }
+                case VIDEO_PREVIEW_END: {
+                    debug("preview end %u\n", video_count);
+                    preview = 0;
+                    video_count--;
+                    if (!video_count && video_on) {
+                        video_endread();
+                        video_on = 0;
+                    }
+                    video_end(0);
+                    break;
+                }
+                case VIDEO_END: {
+                    if (!call[m->param1]) {
+                        break;
+                    }
+                    call[m->param1] = 0;
+                    video_count--;
+                    if (!video_count && video_on) {
+                        video_endread();
+                        video_on = 0;
+                    }
+                    break;
+                }
             }
-            }
-
             video_thread_msg = 0;
         }
 
         if (video_on) {
             int r = video_getframe(utox_video_frame.y, utox_video_frame.u, utox_video_frame.v, utox_video_frame.w, utox_video_frame.h);
-            if(r == 1) {
-                if(preview) {
+            if (r == 1) {
+                if (preview) {
                     /* Make a copy of the video frame for uTox to display */
                     uint8_t *img_data = malloc(utox_video_frame.w * utox_video_frame.h * 4);
-                    yuv420tobgr(utox_video_frame.w, utox_video_frame.h, utox_video_frame.y, utox_video_frame.u,
-                                utox_video_frame.v, utox_video_frame.w, utox_video_frame.w / 2, utox_video_frame.w / 2,
+                    yuv420tobgr(utox_video_frame.w, utox_video_frame.h,
+                                utox_video_frame.y, utox_video_frame.u, utox_video_frame.v,
+                                utox_video_frame.w, utox_video_frame.w / 2, utox_video_frame.h / 2,
                                 img_data);
                     video_frame(0, img_data, utox_video_frame.w, utox_video_frame.h, 0);
                     newinput = 0;
                 }
 
                 int i, active_video_count = 0;
-                for(i = 0; i < UTOX_MAX_NUM_FRIENDS; i++) {
-                    if( (friend[i].call_state_self   & TOXAV_FRIEND_CALL_STATE_SENDING_V   ) &&
-                        (friend[i].call_state_friend & TOXAV_FRIEND_CALL_STATE_ACCEPTING_V )) {
+                for (i = 0; i < UTOX_MAX_NUM_FRIENDS; i++) {
+                    if (UTOX_SEND_VIDEO(i)) {
                         active_video_count++;
                         TOXAV_ERR_SEND_FRAME error = 0;
                         toxav_video_send_frame(av, friend[i].number, utox_video_frame.w, utox_video_frame.h, utox_video_frame.y, utox_video_frame.u, utox_video_frame.v, &error);
-                        // bool toxav_video_send_frame(ToxAV *toxAV, uint32_t friend_number,
-                        // uint16_t width, uint16_t height, const uint8_t *y, const uint8_t *u, const uint8_t *v, *error);
+
                         if (error) {
                             debug("toxav_send_video error %i %u\n", friend[i].number, error);
+                            if (error == 4) {
+                                debug("w and h %u and %u\n", utox_video_frame.w, utox_video_frame.h);
+                            }
                         } else {
                             if (i >= UTOX_MAX_CALLS){
                                 debug("Trying to send video frame to too many peers. Please report this bug!\n");
@@ -471,7 +468,7 @@ void audio_thread(void *args){
                 break;
             }
 
-            case AUDIO_CALL_START: {
+            case AUDIO_START: {
                 audio_count++;
                 if(!record_on) {
                     device_in = alcopencapture(audio_device);
@@ -513,7 +510,7 @@ void audio_thread(void *args){
                 break;
             }
 
-            case AUDIO_CALL_END: {
+            case AUDIO_END: {
                 if(!call[m->param1]) {
                     break;
                 }
@@ -666,8 +663,7 @@ void audio_thread(void *args){
                 if (voice) {
                     int i, active_call_count = 0;
                     for(i = 0; i < UTOX_MAX_NUM_FRIENDS; i++) {
-                        if( (friend[i].call_state_self   & TOXAV_FRIEND_CALL_STATE_SENDING_A   )  &&
-                            (friend[i].call_state_friend & TOXAV_FRIEND_CALL_STATE_ACCEPTING_A ) ) {
+                        if( UTOX_SEND_AUDIO(i) ) {
                             active_call_count++;
                             TOXAV_ERR_SEND_FRAME error = 0;
                             toxav_audio_send_frame(av, friend[i].number, (const int16_t *)buf, perframe, UTOX_DEFAULT_AUDIO_CHANNELS, UTOX_DEFAULT_AUDIO_SAMPLE_RATE, &error);
@@ -904,6 +900,7 @@ static void utox_av_incoming_frame_v(ToxAV *toxAV, uint32_t friend_number, uint1
     void *img_data = malloc(width * height * 4);
     yuv420tobgr(width, height, y, u, v, ystride, ustride, vstride, img_data);
     video_frame(friend_number + 1, img_data, width, height, 0); //TODO re-enable the resize option, disabled for reasons
+    postmessage(REDRAW,0,0,NULL);
 }
 
 /** respond to a Audio Video state change call back from toxav */

@@ -6,6 +6,12 @@
 #define UTOX_SENDING_AUDIO(f_number)   ( !!(friend[f_number].call_state_self   & TOXAV_FRIEND_CALL_STATE_SENDING_A   ))
 #define UTOX_ACCEPTING_AUDIO(f_number) ( !!(friend[f_number].call_state_friend & TOXAV_FRIEND_CALL_STATE_ACCEPTING_A ))
 
+#define UTOX_SEND_AUDIO(f_number)   ( !!(friend[f_number].call_state_self   & TOXAV_FRIEND_CALL_STATE_SENDING_A  ) && \
+                                      !!(friend[f_number].call_state_friend & TOXAV_FRIEND_CALL_STATE_ACCEPTING_A) )
+
+#define UTOX_ACCEPT_AUDIO(f_number) ( !!(friend[f_number].call_state_self   & TOXAV_FRIEND_CALL_STATE_ACCEPTING_A ) && \
+                                      !!(friend[f_number].call_state_friend & TOXAV_FRIEND_CALL_STATE_SENDING_A)  )
+
 #ifndef AUDIO_FILTERING
     typedef uint8_t Filter_Audio;
 #endif
