@@ -112,8 +112,7 @@ void video_thread(void *args) {
                     yuv420tobgr(utox_video_frame.w, utox_video_frame.h, utox_video_frame.y, utox_video_frame.u,
                                 utox_video_frame.v, utox_video_frame.w, utox_video_frame.w / 2, utox_video_frame.w / 2,
                                 img_data);
-
-                    postmessage(PREVIEW_FRAME + newinput, utox_video_frame.w, utox_video_frame.h, img_data);
+                    video_frame(0, img_data, utox_video_frame.w, utox_video_frame.h, 0);
                     newinput = 0;
                 }
 
@@ -899,12 +898,12 @@ static void utox_av_incoming_frame_v(ToxAV *toxAV, uint32_t friend_number, uint1
                                         int32_t ystride, int32_t ustride, int32_t vstride, void *user_data) {
     /* copy the vpx_image */
     /* 4 bits for the H*W, then a pixel for each color * size */
-    uint16_t *img_data = malloc(4 + width * height * 4);
-    img_data[0] = width;
-    img_data[1] = height;
-    yuv420tobgr(width, height, y, u, v, ystride, ustride, vstride, (void*)&img_data[2]);
-
-    postmessage(FRIEND_VIDEO_FRAME, friend_number, friend_number, img_data);
+    FRIEND *f = &friend[friend_number];
+    f->video_width = width;
+    f->video_height = height;
+    void *img_data = malloc(width * height * 4);
+    yuv420tobgr(width, height, y, u, v, ystride, ustride, vstride, img_data);
+    video_frame(friend_number + 1, img_data, width, height, 0); //TODO re-enable the resize option, disabled for reasons
 }
 
 /** respond to a Audio Video state change call back from toxav */
