@@ -36,8 +36,7 @@ static void* copy_groupmessage(Tox *tox, const uint8_t *str, uint16_t length, ui
     return msg;
 }
 
-static void callback_friend_request(Tox *UNUSED(tox), const uint8_t *id, const uint8_t *msg, size_t length, void *UNUSED(userdata))
-{
+static void callback_friend_request(Tox *UNUSED(tox), const uint8_t *id, const uint8_t *msg, size_t length, void *UNUSED(userdata)) {
     length = utf8_validate(msg, length);
 
     FRIENDREQ *req = malloc(sizeof(FRIENDREQ) + length);
@@ -47,12 +46,6 @@ static void callback_friend_request(Tox *UNUSED(tox), const uint8_t *id, const u
     memcpy(req->msg, msg, length);
 
     postmessage(FRIEND_REQUEST, 0, 0, req);
-
-    /*int r = tox_add_friend_norequest(tox, id);
-    void *data = malloc(TOX_FRIEND_ADDRESS_SIZE);
-    memcpy(data, id, TOX_FRIEND_ADDRESS_SIZE);
-
-    postmessage(FRIEND_ACCEPT, (r < 0), (r < 0) ? 0 : r, data);*/
 }
 
 static void callback_friend_message(Tox *tox, uint32_t friend_number, TOX_MESSAGE_TYPE type, const uint8_t *message, size_t length, void *UNUSED(userdata)){
@@ -74,49 +67,35 @@ static void callback_friend_message(Tox *tox, uint32_t friend_number, TOX_MESSAG
     log_write(tox, friend_number, message, length, 0, LOG_FILE_MSG_TYPE_TEXT);
 }
 
-static void callback_name_change(Tox *UNUSED(tox), uint32_t fid, const uint8_t *newname, size_t length, void *UNUSED(userdata))
-{
+static void callback_name_change(Tox *UNUSED(tox), uint32_t fid, const uint8_t *newname, size_t length, void *UNUSED(userdata)) {
     length = utf8_validate(newname, length);
-
     void *data = malloc(length);
     memcpy(data, newname, length);
-
     postmessage(FRIEND_NAME, fid, length, data);
-
-    debug("Friend Name (%u): %.*s\n", fid, (int)length, newname);
+    debug("Friend:\t%u Name: %.*s\n", fid, (int)length, newname);
 }
 
-static void callback_status_message(Tox *UNUSED(tox), uint32_t fid, const uint8_t *newstatus, size_t length, void *UNUSED(userdata))
-{
+static void callback_status_message(Tox *UNUSED(tox), uint32_t fid, const uint8_t *newstatus, size_t length, void *UNUSED(userdata)) {
     length = utf8_validate(newstatus, length);
-
     void *data = malloc(length);
     memcpy(data, newstatus, length);
-
     postmessage(FRIEND_STATUS_MESSAGE, fid, length, data);
-
-    debug("Friend Status Message (%u): %.*s\n", fid, (int)length, newstatus);
+    debug("Friend:\t%u Status Message: %.*s\n", fid, (int)length, newstatus);
 }
 
-static void callback_user_status(Tox *UNUSED(tox), uint32_t fid, TOX_USER_STATUS status, void *UNUSED(userdata))
-{
-    postmessage(FRIEND_STATUS, fid, status, NULL);
-
-    debug("Friend Userstatus (%u): %u\n", fid, status);
+static void callback_user_status(Tox *UNUSED(tox), uint32_t fid, TOX_USER_STATUS status, void *UNUSED(userdata)) {
+    postmessage(FRIEND_STATE, fid, status, NULL);
+    debug("Friend:\t%u State:%u\n", fid, status);
 }
 
-static void callback_typing_change(Tox *UNUSED(tox), uint32_t fid, _Bool is_typing, void *UNUSED(userdata))
-{
+static void callback_typing_change(Tox *UNUSED(tox), uint32_t fid, _Bool is_typing, void *UNUSED(userdata)) {
     postmessage(FRIEND_TYPING, fid, is_typing, NULL);
-
-    debug("Friend Typing (%u): %u\n", fid, is_typing);
+    debug("Friend:\t%u Typing: %u\n", fid, is_typing);
 }
 
-static void callback_read_receipt(Tox *UNUSED(tox), uint32_t fid, uint32_t receipt, void *UNUSED(userdata))
-{
+static void callback_read_receipt(Tox *UNUSED(tox), uint32_t fid, uint32_t receipt, void *UNUSED(userdata)) {
     //postmessage(FRIEND_RECEIPT, fid, receipt);
-
-    debug("Friend Receipt (%u): %u\n", fid, receipt);
+    debug("Friend:\t%u Receipt: %u\n", fid, receipt);
 }
 
 static void callback_connection_status(Tox *tox, uint32_t fid, TOX_CONNECTION status, void *UNUSED(userdata)){
@@ -125,11 +104,11 @@ static void callback_connection_status(Tox *tox, uint32_t fid, TOX_CONNECTION st
     postmessage(FRIEND_ONLINE, fid, !!status, NULL);
 
     if(status == TOX_CONNECTION_UDP) {
-        debug("Friend (%u):\t Online (UDP)\n", fid);
+        debug("Friend:\t%u \t Online (UDP)\n", fid);
     } else if(status == TOX_CONNECTION_TCP) {
-        debug("Friend (%u):\t Online (TCP)\n", fid);
+        debug("Friend:\t%u \t Online (TCP)\n", fid);
     } else {
-        debug("Friend (%u):\t Offline\n", fid);
+        debug("Friend:\t%u \t Offline\n", fid);
     }
 }
 
