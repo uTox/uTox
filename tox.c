@@ -1006,11 +1006,32 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
         case TOX_CALL_SEND: {
             /* param1: friend #
              */
-            debug("Tox:\tSending call to friend %u\n", param1);
+
+            /* Set the video bitrate, if we're starting a video call. */
+            int v_bitrate = 0;
+            if (!param2) {
+                v_bitrate = 0;
+                debug("Tox:\tSending call to friend %u\n", param1);
+            } else {
+                v_bitrate = UTOX_DEFAULT_VIDEO_BITRATE;
+                debug("Tox:\tSending video call to friend %u\n", param1);
+            }
+
             TOXAV_ERR_CALL error = 0;
             toxav_call(av, param1, UTOX_DEFAULT_AUDIO_BITRATE, 0, &error);
             if (error) {
-                debug("Error making call to %u, error num is %i.\n", param1, error);
+                switch(error) {
+                    case TOXAV_ERR_CALL_FRIEND_ALREADY_IN_CALL: {
+                        /* This shouldn't happen, but just in case toxav gets a call before uTox gets this message */
+                        debug("Tox:\tError making call to friend %u; Already in call.\n", param1);
+                        debug("Tox:\tForwarding and accepting call!\n");
+                        tox_postmessage(TOX_CALL_ANSWER, param1, param2, data);
+                        break;
+                    }
+                    default: {
+                        debug("Error making call to %u, error num is %i.\n", param1, error);
+                    }
+                }
             } else {
                 debug("uToxAV:\tCall is ringing\n");
                 friend[param1].call_state_self = ( TOXAV_FRIEND_CALL_STATE_SENDING_A | TOXAV_FRIEND_CALL_STATE_ACCEPTING_A );

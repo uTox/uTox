@@ -13,4 +13,3 @@ void callback_av_group_audio(Tox *tox, int groupnumber, int peernumber, const in
 
 // void group_av_peer_add(GROUPCHAT *g, int peernumber);
 // void group_av_peer_remove(GROUPCHAT *g, int peernumber);
-
