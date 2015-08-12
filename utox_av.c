@@ -897,10 +897,15 @@ static void utox_av_incoming_frame_v(ToxAV *toxAV, uint32_t friend_number, uint1
     FRIEND *f = &friend[friend_number];
     f->video_width = width;
     f->video_height = height;
-    void *img_data = malloc(width * height * 4);
-    yuv420tobgr(width, height, y, u, v, ystride, ustride, vstride, img_data);
-    video_frame(friend_number + 1, img_data, width, height, 0); //TODO re-enable the resize option, disabled for reasons
-    postmessage(REDRAW,0,0,NULL);
+
+    utox_frame_pkg *frame;
+    frame->w = width;
+    frame->h = height;
+    frame->img = malloc(width * height * 4);
+
+    yuv420tobgr(width, height, y, u, v, ystride, ustride, vstride, frame->img);
+
+    postmessage(VIDEO_FRAME, friend_number, 0, (void*)frame);
 }
 
 /** respond to a Audio Video state change call back from toxav */

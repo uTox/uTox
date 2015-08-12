@@ -104,6 +104,9 @@ enum {
     FRIEND_SEND_REQUEST,
     FRIEND_REMOVE,
 
+    /* Audio & Video calls, */
+    VIDEO_FRAME,
+
     /* Group interactions, commented out for the new groupchats (coming soon maybe?) */
     GROUP_ADD,
     GROUP_MESSAGE,

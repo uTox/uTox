@@ -1537,6 +1537,16 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             break;
         }
 
+        case VIDEO_FRAME: {
+            /* param1: video handle to send frame to (friend id or 0 for preview)
+               param2: unused
+               data: packaged frame data */
+
+            utox_frame_pkg *frame = data;
+            video_frame(param1, frame->img, frame->w, frame->h, 0); //TODO re-enable the resize option, disabled for reasons
+            free(frame->img);
+        }
+
         /* Commented out until new group chats...
         case GROUP_ADD: {
             GROUPCHAT *g = &group[param1];

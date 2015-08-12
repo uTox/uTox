@@ -17,6 +17,11 @@ typedef struct UTOX_AV_VIDEO_FRAME {
     uint16_t w, h;
 } utox_av_video_frame;
 
+typedef struct UTOX_FRAME_PKG {
+    uint16_t w, h;
+    void *img;
+} utox_frame_pkg;
+
 utox_av_video_frame utox_video_frame;
 
 _Bool openvideodevice(void *handle);
