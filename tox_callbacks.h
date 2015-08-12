@@ -45,7 +45,7 @@ static void callback_friend_request(Tox *UNUSED(tox), const uint8_t *id, const u
     memcpy(req->id, id, sizeof(req->id));
     memcpy(req->msg, msg, length);
 
-    postmessage(FRIEND_REQUEST, 0, 0, req);
+    postmessage(FRIEND_INCOMING_REQUEST, 0, 0, req);
 }
 
 static void callback_friend_message(Tox *tox, uint32_t friend_number, TOX_MESSAGE_TYPE type, const uint8_t *message, size_t length, void *UNUSED(userdata)){

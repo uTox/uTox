@@ -92,14 +92,14 @@ static void utox_update_user_file(FILE_TRANSFER *file){
     FILE_TRANSFER *file_copy = calloc(1, sizeof(FILE_TRANSFER));
 
     memcpy(file_copy, file, sizeof(FILE_TRANSFER));
-    postmessage(FRIEND_FILE_UPDATE, 0, 0, file_copy);
+    postmessage(FILE_UPDATE_STATUS, 0, 0, file_copy);
 }
 
 static void utox_new_user_file(FILE_TRANSFER *file){
     FILE_TRANSFER *file_copy = calloc(1, sizeof(FILE_TRANSFER));
 
     memcpy(file_copy, file, sizeof(FILE_TRANSFER));
-    postmessage(FRIEND_FILE_NEW, 0, 0, file_copy);
+    postmessage(FILE_SEND_NEW, 0, 0, file_copy);
 }
 
 /* Calculate the transfer speed for the UI. */
@@ -359,7 +359,7 @@ static void decode_inline_png(uint32_t friend_id, uint8_t *data, uint64_t size)
         memcpy(msg, &width, sizeof(uint16_t));
         memcpy(msg + sizeof(uint16_t), &height, sizeof(uint16_t));
         memcpy(msg + sizeof(uint16_t) * 2, &native_image, sizeof(uint8_t *));
-        postmessage(FRIEND_INLINE_IMAGE, friend_id, 0, msg);
+        postmessage(FILE_INLINE_IMAGE, friend_id, 0, msg);
     }
 }
 

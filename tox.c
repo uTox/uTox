@@ -711,8 +711,7 @@ void tox_thread(void *UNUSED(args))
     tox_thread_init = 0;
 }
 
-static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, uint32_t param1, uint32_t param2, void *data)
-{
+static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, uint32_t param1, uint32_t param2, void *data) {
     switch(msg) {
         /* Change Self in core */
         case TOX_SELF_SET_NAME: {
@@ -797,10 +796,10 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
                 default:
                     addf_error = ADDF_UNKNOWN; break;
                 }
-                postmessage(FRIEND_ADD, 1, addf_error, data);
+                postmessage(FRIEND_SEND_REQUEST, 1, addf_error, data);
             } else {
                 utox_friend_init(tox, fid);
-                postmessage(FRIEND_ADD, 0, fid, data);
+                postmessage(FRIEND_SEND_REQUEST, 0, fid, data);
             }
             break;
         }
@@ -811,14 +810,14 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             TOX_ERR_FRIEND_ADD f_err;
             uint32_t fid = tox_friend_add_norequest(tox, req->id, &f_err);
             utox_friend_init(tox, fid);
-            postmessage(FRIEND_ACCEPT, (f_err != TOX_ERR_FRIEND_ADD_OK), (f_err != TOX_ERR_FRIEND_ADD_OK) ? 0 : fid, req);
+            postmessage(FRIEND_ACCEPT_REQUEST, (f_err != TOX_ERR_FRIEND_ADD_OK), (f_err != TOX_ERR_FRIEND_ADD_OK) ? 0 : fid, req);
             break;
         }
         case TOX_FRIEND_DELETE: {
             /* param1: friend #
              */
             tox_friend_delete(tox, param1, 0);
-            postmessage(FRIEND_DEL, 0, 0, data);
+            postmessage(FRIEND_REMOVE, 0, 0, data);
             break;
         }
         case TOX_FRIEND_ONLINE: {
@@ -1075,21 +1074,14 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             /* param1: friend #
              * param2: call #
              */
-            /*ToxAVCSettings settings = av_DefaultSettings;
-            settings.call_type = av_TypeVideo;
-            settings.max_video_width = max_video_width;
-            settings.max_video_height = max_video_height;*/
-
-            //toxav_change_settings(av, param2, &settings);
-            postmessage(FRIEND_CALL_START_VIDEO, param1, param2, NULL);
+            debug("TODO bug, please report!!\n");
             break;
         }
         case TOX_CALL_PAUSE_VIDEO: {
             /* param1: friend #
              * param2: call #
              */
-            //toxav_change_settings(av, param2, &av_DefaultSettings);
-            postmessage(FRIEND_CALL_STOP_VIDEO, param1, param2, NULL);
+            debug("TODO bug, please report!!\n");
             break;
         }
         case TOX_CALL_DISCONNECT: {
@@ -1234,607 +1226,451 @@ static void call_notify(FRIEND *f, uint8_t status) {
 
 void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void *data) {
     switch(tox_message_id) {
-    case DHT_CONNECTED: {
-        /* param1: connection status (1 = connected, 0 = disconnected)
-         */
-        tox_connected = param1;
-        redraw();
-        break;
-    }
-
-    case DNS_RESULT: {
-        /* param1: result (0 = failure, 1 = success)
-         * data: resolved tox id (if successful)
-         */
-        if(param1) {
-            friend_addid(data, edit_add_msg.data, edit_add_msg.length);
-        } else {
-            addfriend_status = ADDF_BADNAME;
+        /* General core and networking messages */
+        case TOX_DONE: {
+            /* Does nothing. */
+            break;
         }
-        free(data);
-
-        redraw();
-        break;
-    }
-
-    case SET_AVATAR: {
-        /* param1: size of data
-         * data: png data
-         */
-        self_set_and_save_avatar(data, param1);
-        free(data);
-        redraw();
-        break;
-    }
-
-    case SEND_FILES: {
-        tox_postmessage(TOX_FILE_SEND_NEW, param1, param2, data);
-        break;
-    }
-
-    case SAVE_FILE: {
-        tox_postmessage(TOX_FILE_ACCEPT, param1, param2 << 16, data);
-        break;
-    }
-
-    case FILE_START_TEMP:{
-        break;
-    }
-
-    case FILE_ABORT_TEMP:{
-        // User canceled file saving.
-            // stop/pause ft
-            // kill the file
-            // delete existing data
-        // We do want to do something else, but for now this is goodenough™
-        tox_postmessage(TOX_FILE_PAUSE, param1, param2 << 16, data);
-        break;
-    }
-
-    case NEW_AUDIO_IN_DEVICE: {
-        /* param1: string
-         * param2: default device?
-         * data: device identifier.
-         */
-        if(UI_STRING_ID_INVALID == param1) {
-            list_dropdown_add_hardcoded(&dropdown_audio_in, data, data);
-        } else {
-            list_dropdown_add_localized(&dropdown_audio_in, param1, data);
-        }
-
-        if (loaded_audio_in_device == (uint16_t)~0 && param2) {
-            loaded_audio_in_device = (dropdown_audio_in.dropcount - 1);
-        }
-
-        if (loaded_audio_in_device != 0 && (dropdown_audio_in.dropcount - 1) == loaded_audio_in_device) {
-            toxaudio_postmessage(AUDIO_SET_INPUT, 0, 0, data);
-            dropdown_audio_in.selected = loaded_audio_in_device;
-            loaded_audio_in_device = 0;
-        }
-
-        break;
-    }
-
-    case NEW_AUDIO_OUT_DEVICE: {
-        list_dropdown_add_hardcoded(&dropdown_audio_out, data, data);
-
-        if (loaded_audio_out_device != 0 && (dropdown_audio_out.dropcount - 1) == loaded_audio_out_device) {
-            toxaudio_postmessage(AUDIO_SET_OUTPUT, 0, 0, data);
-            dropdown_audio_out.selected = loaded_audio_out_device;
-            loaded_audio_out_device = 0;
-        }
-
-        break;
-    }
-
-    case NEW_VIDEO_DEVICE: {
-        if(UI_STRING_ID_INVALID == param1) {
-            // Device name is a hardcoded string.
-            // data is a pointer to a buffer, that contains device handle pointer,
-            // followed by device name string.
-            list_dropdown_add_hardcoded(&dropdown_video, data + sizeof(void*), *(void**)data);
-        } else {
-            // Device name is localized with param1 containing UI_STRING_ID.
-            // data is device handle pointer.
-            list_dropdown_add_localized(&dropdown_video, param1, data);
-        }
-        //param2 == true, if this device will be chosen by video detecting code.
-        if(param2) {
-            dropdown_video.selected = dropdown_video.over = (dropdown_video.dropcount - 1);
-        }
-        break;
-    }
-
-    case FRIEND_REQUEST: {
-        /* data: pointer to FRIENDREQ structure
-         */
-        list_addfriendreq(data);
-        redraw();
-        break;
-    }
-
-    case FRIEND_ADD: {
-        /* confirmation that friend has been added to friend list (add) */
-        if(param1) {
-            /* friend was not added */
-            addfriend_status = param2;
-        } else {
-            /* friend was added */
-            edit_add_id.length = 0;
-            edit_add_msg.length = 0;
-
-            FRIEND *f = &friend[param2];
-            friends++;
-            memcpy(f->cid, data, sizeof(f->cid));
-            list_addfriend(f);
-
-            addfriend_status = ADDF_SENT;
-        }
-
-        free(data);
-        redraw();
-        break;
-    }
-
-    case FRIEND_ACCEPT: {
-        /* confirmation that friend has been added to friend list (accept) */
-        if(!param1) {
-            FRIEND *f = &friend[param2];
-            FRIENDREQ *req = data;
-            friends++;
-            list_addfriend2(f, req);
+        case DHT_CONNECTED: {
+            /* param1: connection status (1 = connected, 0 = disconnected) */
+            tox_connected = param1;
+            if (tox_connected) {
+                debug("uTox:\tConnected to DHT!\n");
+            } else {
+                debug("uTox:\tDisconnected from DHT!\n");
+            }
             redraw();
+            break;
         }
-
-        free(data);
-        break;
-    }
-
-    case FRIEND_DEL: {
-        FRIEND *f = data;
-
-        // commented out incase you have multiple clients in the same data dir and remove one as friend from the other
-        //   (it would remove his avatar locally too otherwise)
-        //char_t cid[TOX_PUBLIC_KEY_SIZE * 2];
-        //cid_to_string(cid, f->cid);
-        //delete_saved_avatar(cid);
-
-        friend_free(f);
-        friends--;
-        break;
-    }
-
-    case FRIEND_MESSAGE: {
-        friend_addmessage(&friend[param1], data);
-        redraw();
-        break;
-    }
-
-    #define updatefriend(fp) redraw();
-    #define updategroup(gp) redraw();
-
-    case FRIEND_NAME: {
-        FRIEND *f = &friend[param1];
-        friend_setname(f, data, param2);
-        updatefriend(f);
-        free(data);
-        break;
-    }
-
-    case FRIEND_SETAVATAR: {
-        /* param1: friend id
-           param2: png size
-           data: png data
-        Work now done by file callback
-        */
-        uint8_t *avatar = data;
-        size_t size = param2;
-
-        FRIEND *f = &friend[param1];
-        char_t cid[TOX_PUBLIC_KEY_SIZE * 2];
-        cid_to_string(cid, (char_t*)f->cid);
-        set_avatar(&f->avatar, avatar, size);
-        save_avatar(cid, avatar, size);
-
-        free(avatar);
-        updatefriend(f);
-        break;
-    }
-
-    case FRIEND_UNSETAVATAR: {
-        FRIEND *f = &friend[param1];
-        unset_avatar(&f->avatar);
-
-        // remove avatar from disk
-        char_t cid[TOX_PUBLIC_KEY_SIZE * 2];
-        cid_to_string(cid, f->cid);
-        delete_saved_avatar(cid);
-
-        updatefriend(f);
-        break;
-    }
-
-    case FRIEND_STATUS_MESSAGE: {
-        FRIEND *f = &friend[param1];
-        free(f->status_message);
-        f->status_length = param2;
-        f->status_message = data;
-        updatefriend(f);
-        break;
-    }
-
-    case FRIEND_STATUS: {
-        FRIEND *f = &friend[param1];
-        f->status = param2;
-        updatefriend(f);
-        break;
-    }
-
-    case FRIEND_TYPING: {
-        FRIEND *f = &friend[param1];
-        friend_set_typing(f, param2);
-        updatefriend(f);
-        break;
-    }
-
-    case FRIEND_ONLINE: {
-        FRIEND *f = &friend[param1];
-
-        if (f->online == param2) {
+        case DNS_RESULT: {
+            /* param1: result (0 = failure, 1 = success)
+             * data: resolved tox id (if successful)
+             */
+            if (param1) {
+                friend_addid(data, edit_add_msg.data, edit_add_msg.length);
+            } else {
+                addfriend_status = ADDF_BADNAME;
+            }
+            free(data);
+            redraw();
             break;
         }
 
-        f->online = param2;
-        if(!f->online) {
-            friend_set_typing(f, 0);
-        }
-        updatefriend(f);
-        tox_postmessage(TOX_FRIEND_ONLINE, param1, param2, data);
-        break;
-    }
-
-    case FRIEND_AV_STATUS_CHANGE: {
-        /* param1: friend id */
-        // FRIEND *f = &friend[param1];
-        redraw();
-        break;
-    }
-
-    case FRIEND_AV_INCOMING:{
-        /* param1: friend id */
-        // FRIEND *f = &friend[param1];
-        redraw();
-
-        break;
-    }
-
-    case FRIEND_AV_DISCONNECT: {
-        /* param1: friend id
-           param2: call id
-           data: integer call status
-         */
-        tox_postmessage(TOX_CALL_DISCONNECT, param1, 0, NULL);
-        break;
-    }
-
-    // TODO: these two probably don't need to be here, we can make these changes with the API's callbacks
-    // These need to be renamed, they can then be used to connect and disconnect the handle on the audio device.
-    case FRIEND_CALL_AUDIO_CONNECTED: {
-        toxaudio_postmessage(AUDIO_CALL_START, param1, 0, NULL);
-        call_notify(&friend[param1], UTOX_AV_STARTED);
-        redraw();
-        break;
-    }
-
-    case FRIEND_CALL_AUDIO_DISCONNECTED: {
-        toxaudio_postmessage(AUDIO_CALL_END, param1, 0, NULL);
-        call_notify(&friend[param1], UTOX_AV_NONE);
-        updatefriend(&friend[param1]);
-        break;
-    }
-
-    case FRIEND_CALL_VIDEO: {
-        /* param1: friend id
-           param2: call id
-         */
-        FRIEND *f = &friend[param1];
-        updatefriend(f);
-
-        toxvideo_postmessage(VIDEO_CALL_START, param2, 0, NULL);
-        toxaudio_postmessage(AUDIO_CALL_START, param2, 0, NULL);
-
-        f->video_width = 640;
-        f->video_height = 480;
-
-        video_begin(param1 + 1, f->name, f->name_length, 640, 480);
-
-        call_notify(f, UTOX_AV_STARTED);
-
-        break;
-    }
-
-    case FRIEND_CALL_MEDIACHANGE: {
-        /* param1: friend id
-           param2: call id
-           data: zero = audio, nonzero = audio/video
-         */
-        FRIEND *f = &friend[param1];
-
-        if(!data) {
-            video_end(param1 + 1);
-        } else {
-            f->video_width = 640;
-            f->video_height = 480;
-
-            video_begin(param1 + 1, f->name, f->name_length, 640, 480);
-        }
-        break;
-    }
-
-    case FRIEND_CALL_START_VIDEO: {
-        /* param1: friend id
-           param2: call id
-         */
-        FRIEND *f = &friend[param1];
-        /* TODO do something here! */
-        if ( (f->call_state_friend & TOXAV_FRIEND_CALL_STATE_SENDING_V) ) {
-            f->call_state_self |= TOXAV_FRIEND_CALL_STATE_ACCEPTING_V;
-            toxvideo_postmessage(VIDEO_CALL_START, param2, 0, NULL);
-            updatefriend(f);
-        }
-        debug("FRIEND_CALL_START_VIDEO\n");
-        break;
-    }
-
-    case FRIEND_CALL_STOP_VIDEO: {
-        /* param1: friend id
-           param2: call id
-         */
-        FRIEND *f = &friend[param1];
-        /* TODO do something here! */
-        if ( (f->call_state_friend | TOXAV_FRIEND_CALL_STATE_SENDING_V) ) {
-            f->call_state_self &= ~TOXAV_FRIEND_CALL_STATE_ACCEPTING_V;
-            toxvideo_postmessage(VIDEO_CALL_END, param2, 0, NULL);
-            updatefriend(f);
-        }
-        debug("FRIEND_CALL_STOP_VIDEO\n");
-        break;
-    }
-
-    case FRIEND_VIDEO_FRAME: {
-        /* param1: friend id
-           param2: call id
-           data: frame data
-         */
-        uint16_t *image = data;
-        FRIEND *f = &friend[param1];
-
-        _Bool b = (image[0] != f->video_width || image[1] != f->video_height);
-        if(b) {
-            f->video_width = image[0];
-            f->video_height = image[1];
-        }
-        video_frame(param1 + 1, (void*)&image[2], image[0], image[1], b);
-        free(image);
-        break;
-    }
-
-    case PREVIEW_FRAME_NEW:
-    case PREVIEW_FRAME: {
-        if(video_preview) {
-            video_frame(0, data, param1, param2, tox_message_id == PREVIEW_FRAME_NEW);
-        }
-        free(data);
-        break;
-    }
-
-    case FRIEND_FILE_NEW: {
-        FILE_TRANSFER *file_handle = data;
-        FRIEND *f = &friend[file_handle->friend_number];
-
-        friend_addmessage(f, file_handle->ui_data);
-        file_notify(f, file_handle->ui_data);
-        updatefriend(f);
-        free(file_handle);
-        break;
-    }
-
-    case FRIEND_FILE_UPDATE:{
-        FILE_TRANSFER *file = data;
-        MSG_FILE *msg = file->ui_data;
-        if(!msg){//TODO shove on ui thread
-            free(file);
-            return;
-        }
-
-        FRIEND *f = &friend[file->friend_number];
-
-        _Bool f_notify = 0;
-        if (msg->status != file->status) {
-            f_notify = 1;
-            msg->status = file->status;
-        }
-        msg->filenumber = file->file_number;
-        msg->progress = file->size_transferred;
-        msg->speed = file->speed;
-        if(file->in_memory){
-            msg->path = file->memory;
-        } else {
-            msg->path = file->path;
-        }
-        if (f_notify) {
-            file_notify(f, msg);
-        }
-
-        updatefriend(f);
-        free(file);
-        break;
-    }
-
-    case FRIEND_INLINE_IMAGE: {
-        FRIEND *f = &friend[param1];
-        uint16_t width, height;
-        uint8_t *image;
-        memcpy(&width, data, sizeof(uint16_t));
-        memcpy(&height, data + sizeof(uint16_t), sizeof(uint16_t));
-        memcpy(&image, data + sizeof(uint16_t) * 2, sizeof(uint8_t *));
-        free(data);
-        friend_recvimage(f, image, width, height);
-        redraw();
-        break;
-    }
-
-    case GROUP_ADD: {
-        GROUPCHAT *g = &group[param1];
-        g->name_length = snprintf((char*)g->name, sizeof(g->name), "Groupchat #%u", param1);
-        if (g->name_length >= sizeof(g->name)) {
-            g->name_length = sizeof(g->name) - 1;
-        }
-        g->topic_length = sizeof("Drag friends to invite them") - 1;
-        memcpy(g->topic, "Drag friends to invite them", sizeof("Drag friends to invite them") - 1);
-        g->msg.scroll = 1.0;
-        g->type = tox_group_get_type(data, param1);
-        list_addgroup(g);
-        redraw();
-        break;
-    }
-
-    case GROUP_MESSAGE: {
-        GROUPCHAT *g = &group[param1];
-
-        message_add(&messages_group, data, &g->msg);
-
-        if(selected_item && g == selected_item->data) {
-            redraw();//ui_drawmain();
-        }
-
-        break;
-    }
-
-    case GROUP_PEER_DEL: {
-        GROUPCHAT *g = &group[param1];
-
-        if (param2 > MAX_GROUP_PEERS) //TODO: dynamic arrays.
-            break;
-
-        if(g->peername[param2]) {
-            free(g->peername[param2]);
-            g->peername[param2] = NULL;
-        }
-
-        g->peers--;
-        g->peername[param2] = g->peername[g->peers];
-        g->peername[g->peers] = NULL;
-
-        if (g->type == TOX_GROUPCHAT_TYPE_AV) {
-            g->last_recv_audio[param2] = g->last_recv_audio[g->peers];
-            g->last_recv_audio[g->peers] = 0;
-            // REMOVED UNTIL AFTER NEW GCs group_av_peer_remove(g, param2);
-            g->source[param2] = g->source[g->peers];
-        }
-
-        if (g->peers == g->our_peer_number) {
-            g->our_peer_number = param2;
-        }
-
-        g->topic_length = snprintf((char*)g->topic, sizeof(g->topic), "%u users in chat", g->peers);
-        if (g->topic_length >= sizeof(g->topic)) {
-            g->topic_length = sizeof(g->topic) - 1;
-        }
-
-        updategroup(g);
-
-        break;
-    }
-
-    case GROUP_PEER_ADD:
-    case GROUP_PEER_NAME: {
-        GROUPCHAT *g = &group[param1];
-
-        if (param2 > MAX_GROUP_PEERS) //TODO: dynamic arrays.
-            break;
-
-        if(g->peername[param2]) {
-            free(g->peername[param2]);
-        }
-
-        if(tox_message_id == GROUP_PEER_ADD) {
-            if (g->type == TOX_GROUPCHAT_TYPE_AV) {
-                // REMOVED UNTIL AFTER NEW GCs group_av_peer_add(g, param2);
+        /* OS interaction/integration messages */
+        case AUDIO_IN_DEVICE: {
+            /* param1: string
+             * param2: default device?
+             * data: device identifier.
+             */
+            if(UI_STRING_ID_INVALID == param1) {
+                list_dropdown_add_hardcoded(&dropdown_audio_in, data, data);
+            } else {
+                list_dropdown_add_localized(&dropdown_audio_in, param1, data);
             }
 
-            if (tox_group_peernumber_is_ours(data, param1, param2)) {
+            if (loaded_audio_in_device == (uint16_t)~0 && param2) {
+                loaded_audio_in_device = (dropdown_audio_in.dropcount - 1);
+            }
+
+            if (loaded_audio_in_device != 0 && (dropdown_audio_in.dropcount - 1) == loaded_audio_in_device) {
+                toxaudio_postmessage(AUDIO_SET_INPUT, 0, 0, data);
+                dropdown_audio_in.selected = loaded_audio_in_device;
+                loaded_audio_in_device = 0;
+            }
+            break;
+        }
+        case AUDIO_OUT_DEVICE: {
+            list_dropdown_add_hardcoded(&dropdown_audio_out, data, data);
+
+            if (loaded_audio_out_device != 0 && (dropdown_audio_out.dropcount - 1) == loaded_audio_out_device) {
+                toxaudio_postmessage(AUDIO_SET_OUTPUT, 0, 0, data);
+                dropdown_audio_out.selected = loaded_audio_out_device;
+                loaded_audio_out_device = 0;
+            }
+
+            break;
+        }
+        case VIDEO_IN_DEVICE: {
+            if(UI_STRING_ID_INVALID == param1) {
+                // Device name is a hardcoded string.
+                // data is a pointer to a buffer, that contains device handle pointer,
+                // followed by device name string.
+                list_dropdown_add_hardcoded(&dropdown_video, data + sizeof(void*), *(void**)data);
+            } else {
+                // Device name is localized with param1 containing UI_STRING_ID.
+                // data is device handle pointer.
+                list_dropdown_add_localized(&dropdown_video, param1, data);
+            }
+            //param2 == true, if this device will be chosen by video detecting code.
+            if(param2) {
+                dropdown_video.selected = dropdown_video.over = (dropdown_video.dropcount - 1);
+            }
+            break;
+        }
+
+        /* Client/User Interface messages. */
+        case SEND_REDRAW:{
+            redraw();
+            break;
+        }
+        case TOOLTIP_SHOW: {
+            tooltip_show();
+            redraw();
+            break;
+        }
+        case SELF_AVATAR_SET: {
+            /* param1: size of data
+             * data: png data
+             */
+            self_set_and_save_avatar(data, param1);
+            free(data);
+            redraw();
+            break;
+        }
+
+        /* File transfer messages */
+        case FILE_SEND_NEW: {
+            tox_postmessage(TOX_FILE_SEND_NEW, param1, param2, data);
+            break;
+        }
+        case FILE_INCOMING_NEW: {
+            FILE_TRANSFER *file_handle = data;
+            FRIEND *f = &friend[file_handle->friend_number];
+
+            friend_addmessage(f, file_handle->ui_data);
+            file_notify(f, file_handle->ui_data);
+            redraw();
+            free(file_handle);
+            break;
+        }
+        case FILE_INCOMING_ACCEPT: {
+            tox_postmessage(TOX_FILE_ACCEPT, param1, param2 << 16, data);
+            break;
+        }
+        case FILE_UPDATE_STATUS:{
+            FILE_TRANSFER *file = data;
+            MSG_FILE *msg = file->ui_data;
+            if(!msg){//TODO shove on ui thread
+                free(file);
+                return;
+            }
+
+            FRIEND *f = &friend[file->friend_number];
+
+            _Bool f_notify = 0;
+            if (msg->status != file->status) {
+                f_notify = 1;
+                msg->status = file->status;
+            }
+            msg->filenumber = file->file_number;
+            msg->progress = file->size_transferred;
+            msg->speed = file->speed;
+            if(file->in_memory){
+                msg->path = file->memory;
+            } else {
+                msg->path = file->path;
+            }
+            if (f_notify) {
+                file_notify(f, msg);
+            }
+
+            redraw();
+            free(file);
+            break;
+        }
+        case FILE_INLINE_IMAGE: {
+            FRIEND *f = &friend[param1];
+            uint16_t width, height;
+            uint8_t *image;
+            memcpy(&width, data, sizeof(uint16_t));
+            memcpy(&height, data + sizeof(uint16_t), sizeof(uint16_t));
+            memcpy(&image, data + sizeof(uint16_t) * 2, sizeof(uint8_t *));
+            free(data);
+            friend_recvimage(f, image, width, height);
+            redraw();
+            break;
+        }
+
+        /* Friend interaction messages. */
+            /* Handshake */
+        case FRIEND_ONLINE: {
+            FRIEND *f = &friend[param1];
+
+            if (f->online == param2) {
+                break;
+            }
+
+            f->online = param2;
+            if(!f->online) {
+                friend_set_typing(f, 0);
+            }
+            redraw();
+            tox_postmessage(TOX_FRIEND_ONLINE, param1, param2, data);
+            break;
+        }
+        case FRIEND_NAME: {
+            FRIEND *f = &friend[param1];
+            friend_setname(f, data, param2);
+            redraw();
+            free(data);
+            break;
+        }
+        case FRIEND_STATUS_MESSAGE: {
+            FRIEND *f = &friend[param1];
+            free(f->status_message);
+            f->status_length = param2;
+            f->status_message = data;
+            redraw();
+            break;
+        }
+        case FRIEND_STATE: {
+            FRIEND *f = &friend[param1];
+            f->status = param2;
+            redraw();
+            break;
+        }
+        case FRIEND_AVATAR_SET: {
+            /* param1: friend id
+               param2: png size
+               data: png data
+            */
+            /* Work now done by file callback */
+            uint8_t *avatar = data;
+            size_t size = param2;
+
+            FRIEND *f = &friend[param1];
+            char_t cid[TOX_PUBLIC_KEY_SIZE * 2];
+            cid_to_string(cid, (char_t*)f->cid);
+            set_avatar(&f->avatar, avatar, size);
+            save_avatar(cid, avatar, size);
+
+            free(avatar);
+            redraw();
+            break;
+        }
+        case FRIEND_AVATAR_UNSET: {
+            FRIEND *f = &friend[param1];
+            unset_avatar(&f->avatar);
+            // remove avatar from disk
+            char_t cid[TOX_PUBLIC_KEY_SIZE * 2];
+            cid_to_string(cid, f->cid);
+            delete_saved_avatar(cid);
+
+            redraw();
+            break;
+        }
+        /* Interactions */
+        case FRIEND_TYPING: {
+            FRIEND *f = &friend[param1];
+            friend_set_typing(f, param2);
+            redraw();
+            break;
+        }
+        case FRIEND_MESSAGE: {
+            friend_addmessage(&friend[param1], data);
+            redraw();
+            break;
+        }
+        /* Adding and deleting */
+        case FRIEND_INCOMING_REQUEST: {
+            /* data: pointer to FRIENDREQ structure
+             */
+            list_addfriendreq(data);
+            redraw();
+            break;
+        }
+        case FRIEND_ACCEPT_REQUEST: {
+            /* confirmation that friend has been added to friend list (accept) */
+            if(!param1) {
+                FRIEND *f = &friend[param2];
+                FRIENDREQ *req = data;
+                friends++;
+                list_addfriend2(f, req);
+                redraw();
+            }
+
+            free(data);
+            break;
+        }
+        case FRIEND_SEND_REQUEST: {
+            /* confirmation that friend has been added to friend list (add) */
+            if(param1) {
+                /* friend was not added */
+                addfriend_status = param2;
+            } else {
+                /* friend was added */
+                edit_add_id.length = 0;
+                edit_add_msg.length = 0;
+
+                FRIEND *f = &friend[param2];
+                friends++;
+                memcpy(f->cid, data, sizeof(f->cid));
+                list_addfriend(f);
+
+                addfriend_status = ADDF_SENT;
+            }
+            free(data);
+            redraw();
+            break;
+        }
+        case FRIEND_REMOVE: {
+            FRIEND *f = data;
+            // commented out incase you have multiple clients in the same data dir and remove one as friend from the other
+            //   (it would remove his avatar locally too otherwise)
+            //char_t cid[TOX_PUBLIC_KEY_SIZE * 2];
+            //cid_to_string(cid, f->cid);
+            //delete_saved_avatar(cid);
+            friend_free(f);
+            friends--;
+            break;
+        }
+
+        /* Commented out until new group chats...
+        case GROUP_ADD: {
+            GROUPCHAT *g = &group[param1];
+            g->name_length = snprintf((char*)g->name, sizeof(g->name), "Groupchat #%u", param1);
+            if (g->name_length >= sizeof(g->name)) {
+                g->name_length = sizeof(g->name) - 1;
+            }
+            g->topic_length = sizeof("Drag friends to invite them") - 1;
+            memcpy(g->topic, "Drag friends to invite them", sizeof("Drag friends to invite them") - 1);
+            g->msg.scroll = 1.0;
+            g->type = tox_group_get_type(data, param1);
+            list_addgroup(g);
+            redraw();
+            break;
+        }
+
+        case GROUP_MESSAGE: {
+            GROUPCHAT *g = &group[param1];
+
+            message_add(&messages_group, data, &g->msg);
+
+            if(selected_item && g == selected_item->data) {
+                redraw();//ui_drawmain();
+            }
+
+            break;
+        }
+
+        case GROUP_PEER_DEL: {
+            GROUPCHAT *g = &group[param1];
+
+            if (param2 > MAX_GROUP_PEERS) //TODO: dynamic arrays.
+                break;
+
+            if(g->peername[param2]) {
+                free(g->peername[param2]);
+                g->peername[param2] = NULL;
+            }
+
+            g->peers--;
+            g->peername[param2] = g->peername[g->peers];
+            g->peername[g->peers] = NULL;
+
+            if (g->type == TOX_GROUPCHAT_TYPE_AV) {
+                g->last_recv_audio[param2] = g->last_recv_audio[g->peers];
+                g->last_recv_audio[g->peers] = 0;
+                // REMOVED UNTIL AFTER NEW GCs group_av_peer_remove(g, param2);
+                g->source[param2] = g->source[g->peers];
+            }
+
+            if (g->peers == g->our_peer_number) {
                 g->our_peer_number = param2;
             }
 
-            uint8_t *n = malloc(10);
-            n[0] = 9;
-            memcpy(n + 1, "<unknown>", 9);
-            data = n;
-            g->peers++;
+            g->topic_length = snprintf((char*)g->topic, sizeof(g->topic), "%u users in chat", g->peers);
+            if (g->topic_length >= sizeof(g->topic)) {
+                g->topic_length = sizeof(g->topic) - 1;
+            }
 
-        }
-
-        g->peername[param2] = data;
-
-        g->topic_length = snprintf((char*)g->topic, sizeof(g->topic), "%u users in chat", g->peers);
-        if (g->topic_length >= sizeof(g->topic)) {
-            g->topic_length = sizeof(g->topic) - 1;
-        }
-
-        updategroup(g);
-
-        break;
-    }
-
-    case GROUP_TITLE: {
-        GROUPCHAT *g = &group[param1];
-
-        if (param2 > sizeof(g->name)) {
-            memcpy(g->name, data, sizeof(g->name));
-            g->name_length = sizeof(g->name);
-        } else {
-            memcpy(g->name, data, param2);
-            g->name_length = param2;
-        }
-
-        free(data);
-        updategroup(g);
-        break;
-    }
-
-    case GROUP_AUDIO_START: {
-        GROUPCHAT *g = &group[param1];
-
-        if (g->type == TOX_GROUPCHAT_TYPE_AV) {
-            g->audio_calling = 1;
-            toxaudio_postmessage(GROUP_AUDIO_CALL_START, param1, 0, NULL);
             updategroup(g);
-        }
-        break;
-    }
-    case GROUP_AUDIO_END: {
-        GROUPCHAT *g = &group[param1];
 
-        if (g->type == TOX_GROUPCHAT_TYPE_AV) {
-            g->audio_calling = 0;
-            toxaudio_postmessage(GROUP_AUDIO_CALL_END, param1, 0, NULL);
+            break;
+        }
+
+        case GROUP_PEER_ADD:
+        case GROUP_PEER_NAME: {
+            GROUPCHAT *g = &group[param1];
+
+            if (param2 > MAX_GROUP_PEERS) //TODO: dynamic arrays.
+                break;
+
+            if(g->peername[param2]) {
+                free(g->peername[param2]);
+            }
+
+            if(tox_message_id == GROUP_PEER_ADD) {
+                if (g->type == TOX_GROUPCHAT_TYPE_AV) {
+                    // REMOVED UNTIL AFTER NEW GCs group_av_peer_add(g, param2);
+                }
+
+                if (tox_group_peernumber_is_ours(data, param1, param2)) {
+                    g->our_peer_number = param2;
+                }
+
+                uint8_t *n = malloc(10);
+                n[0] = 9;
+                memcpy(n + 1, "<unknown>", 9);
+                data = n;
+                g->peers++;
+
+            }
+
+            g->peername[param2] = data;
+
+            g->topic_length = snprintf((char*)g->topic, sizeof(g->topic), "%u users in chat", g->peers);
+            if (g->topic_length >= sizeof(g->topic)) {
+                g->topic_length = sizeof(g->topic) - 1;
+            }
+
             updategroup(g);
+
+            break;
         }
-        break;
-    }
 
-    case GROUP_UPDATE: {
-        //GROUPCHAT *g = &group[param1];
-        updategroup(g);
+        case GROUP_TITLE: {
+            GROUPCHAT *g = &group[param1];
 
-        break;
-    }
+            if (param2 > sizeof(g->name)) {
+                memcpy(g->name, data, sizeof(g->name));
+                g->name_length = sizeof(g->name);
+            } else {
+                memcpy(g->name, data, param2);
+                g->name_length = param2;
+            }
 
-    case TOOLTIP_SHOW: {
-        tooltip_show();
-        redraw();
-        break;
-    }
+            free(data);
+            updategroup(g);
+            break;
+        }
+
+        case GROUP_AUDIO_START: {
+            GROUPCHAT *g = &group[param1];
+
+            if (g->type == TOX_GROUPCHAT_TYPE_AV) {
+                g->audio_calling = 1;
+                toxaudio_postmessage(GROUP_AUDIO_CALL_START, param1, 0, NULL);
+                updategroup(g);
+            }
+            break;
+        }
+        case GROUP_AUDIO_END: {
+            GROUPCHAT *g = &group[param1];
+
+            if (g->type == TOX_GROUPCHAT_TYPE_AV) {
+                g->audio_calling = 0;
+                toxaudio_postmessage(GROUP_AUDIO_CALL_END, param1, 0, NULL);
+                updategroup(g);
+            }
+            break;
+        }
+
+        case GROUP_UPDATE: {
+            //GROUPCHAT *g = &group[param1];
+            updategroup(g);
+
+            break;
+        }*/
     }
 }

@@ -167,8 +167,8 @@ void utox_incoming_avatar(uint32_t friend_number, uint8_t *avatar, size_t size){
     // save avatar and hash to disk
 
     if(size <= 0){
-        postmessage(FRIEND_UNSETAVATAR, friend_number, 0, NULL);
+        postmessage(FRIEND_AVATAR_UNSET, friend_number, 0, NULL);
     } else {
-        postmessage(FRIEND_SETAVATAR, friend_number, size, avatar);
+        postmessage(FRIEND_AVATAR_SET, friend_number, size, avatar);
     }
 }

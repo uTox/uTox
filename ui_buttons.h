@@ -228,7 +228,6 @@ static void button_video_onpress(void){
         } else {
             debug("Ending call (video): %u\n",   f->number);
             tox_postmessage(TOX_CALL_DISCONNECT, f->number, 1, NULL);
-            tox_postmessage(TOX_CALL_PAUSE_VIDEO,  f->number, 1, NULL);
         }
     } else if (UTOX_ACCEPTING_VIDEO(f->number) || UTOX_ACCEPTING_AUDIO(f->number) ) {
         if (!UTOX_SENDING_VIDEO(f->number)) {

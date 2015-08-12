@@ -63,6 +63,59 @@ enum {
     TOX_GROUP_AUDIO_END,
 };
 
+/* uTox client thread messages (received by the client thread) */
+enum {
+    /* General core and networking messages */
+    TOX_DONE,
+    DHT_CONNECTED,
+    DNS_RESULT,
+
+    /* OS interaction/integration messages*/
+    AUDIO_IN_DEVICE,
+    AUDIO_OUT_DEVICE,
+    VIDEO_IN_DEVICE,
+
+    /* Client/User Interface messages. */
+    SEND_REDRAW,
+    TOOLTIP_SHOW,
+    SELF_AVATAR_SET,
+
+    /* File transfer messages */
+    FILE_SEND_NEW,
+    FILE_INCOMING_NEW,
+    FILE_INCOMING_ACCEPT,
+    FILE_UPDATE_STATUS,
+    FILE_INLINE_IMAGE,
+
+    /* Friend interaction messages. */
+    /* Handshake */
+    FRIEND_ONLINE,
+    FRIEND_NAME,
+    FRIEND_STATUS_MESSAGE,
+    FRIEND_STATE,
+    FRIEND_AVATAR_SET,
+    FRIEND_AVATAR_UNSET,
+    /* Interactions */
+    FRIEND_TYPING,
+    FRIEND_MESSAGE,
+    /* Adding and deleting */
+    FRIEND_INCOMING_REQUEST,
+    FRIEND_ACCEPT_REQUEST,
+    FRIEND_SEND_REQUEST,
+    FRIEND_REMOVE,
+
+    /* Group interactions, commented out for the new groupchats (coming soon maybe?) */
+    GROUP_ADD,
+    GROUP_MESSAGE,
+    GROUP_PEER_ADD,
+    GROUP_PEER_DEL,
+    GROUP_PEER_NAME,
+    GROUP_TITLE,
+    GROUP_AUDIO_START,
+    GROUP_AUDIO_END,
+    GROUP_UPDATE,
+};
+
 struct TOX_SEND_INLINE_MSG {
     size_t image_size;
     UTOX_PNG_IMAGE image;
@@ -95,72 +148,6 @@ enum {
 
 enum {
     TOXAV_KILL,
-};
-/* client thread messages (received by the client thread) */
-enum {
-    /* general messages */
-    TOX_DONE,
-    DHT_CONNECTED,
-    DNS_RESULT,
-
-    SET_AVATAR,
-
-    SEND_FILES,
-    SAVE_FILE,
-    FILE_START_TEMP,
-    FILE_ABORT_TEMP,
-
-    NEW_AUDIO_IN_DEVICE,
-    NEW_AUDIO_OUT_DEVICE,
-    NEW_VIDEO_DEVICE,
-
-    /* friend related */
-    FRIEND_REQUEST,
-    FRIEND_ACCEPT,
-    FRIEND_ADD,
-    FRIEND_DEL,
-    FRIEND_MESSAGE,
-    FRIEND_NAME,
-    FRIEND_SETAVATAR,
-    FRIEND_UNSETAVATAR,
-    FRIEND_STATUS_MESSAGE,
-    FRIEND_STATUS,
-    FRIEND_TYPING,
-    FRIEND_ONLINE,
-
-    /* friend a/v */
-    FRIEND_AV_STATUS_CHANGE,
-    FRIEND_AV_INCOMING,
-    FRIEND_AV_DISCONNECT,
-    FRIEND_CALL_AUDIO_CONNECTED,
-    FRIEND_CALL_AUDIO_DISCONNECTED,
-    FRIEND_CALL_VIDEO,
-    FRIEND_CALL_VIDEO_CONNECTED,
-    FRIEND_CALL_VIDEO_DISCONNECTED,
-    FRIEND_CALL_MEDIACHANGE,
-    FRIEND_CALL_START_VIDEO,
-    FRIEND_CALL_STOP_VIDEO,
-    FRIEND_VIDEO_FRAME,
-    PREVIEW_FRAME,
-    PREVIEW_FRAME_NEW,
-
-    /* friend file */
-    FRIEND_FILE_NEW,
-    FRIEND_FILE_UPDATE,
-    FRIEND_INLINE_IMAGE,
-
-    /* group */
-    GROUP_ADD,
-    GROUP_MESSAGE,
-    GROUP_PEER_ADD,
-    GROUP_PEER_DEL,
-    GROUP_PEER_NAME,
-    GROUP_TITLE,
-    GROUP_AUDIO_START,
-    GROUP_AUDIO_END,
-    GROUP_UPDATE,
-
-    TOOLTIP_SHOW,
 };
 
 /* AV STATUS LIST */

@@ -12,7 +12,7 @@ void video_thread(void *args) {
     _Bool call[MAX_CALLS] = {0}, preview = 0, newinput = 1;
 
     // Add always-present null video input device.
-    postmessage(NEW_VIDEO_DEVICE, STR_VIDEO_IN_NONE, 1, NULL);
+    postmessage(VIDEO_IN_DEVICE, STR_VIDEO_IN_NONE, 1, NULL);
 
     video_device = video_detect();
     if(video_device) {
@@ -289,12 +289,12 @@ void audio_thread(void *args){
         debug("Input Device List:\n");
         while(*device_list) {
             debug("%s\n", device_list);
-            postmessage(NEW_AUDIO_IN_DEVICE, UI_STRING_ID_INVALID, 0, (void*)device_list);
+            postmessage(AUDIO_IN_DEVICE, UI_STRING_ID_INVALID, 0, (void*)device_list);
             device_list += strlen(device_list) + 1;
         }
     }
 
-    postmessage(NEW_AUDIO_IN_DEVICE, STR_AUDIO_IN_NONE, 0, NULL);
+    postmessage(AUDIO_IN_DEVICE, STR_AUDIO_IN_NONE, 0, NULL);
     audio_detect();
 
     if (alcIsExtensionPresent(NULL, "ALC_ENUMERATE_ALL_EXT")) {
@@ -308,7 +308,7 @@ void audio_thread(void *args){
         debug("Output Device List:\n");
         while(*device_list) {
             debug("%s\n", device_list);
-            postmessage(NEW_AUDIO_OUT_DEVICE, 0, 0, (void*)device_list);
+            postmessage(AUDIO_OUT_DEVICE, 0, 0, (void*)device_list);
             device_list += strlen(device_list) + 1;
         }
     }
@@ -866,7 +866,7 @@ static void utox_av_incoming_call(ToxAV *av, uint32_t friend_number, bool audio,
 
     f->call_state_self = 0;
     f->call_state_friend = ( audio << 2 | video << 3 | audio << 4 | video << 5 );
-    debug("uTox AV:\tcall friend (%u) state for incoming call: %i\n", f->call_state_friend);
+    debug("uTox AV:\tcall friend (%u) state for incoming call: %i\n", friend_number, f->call_state_friend);
     toxaudio_postmessage(AUDIO_PLAY_RINGTONE, friend_number, 0, NULL);
 }
 
