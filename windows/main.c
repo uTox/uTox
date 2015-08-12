@@ -446,7 +446,7 @@ void openfileavatar(void)
                 message[len++] = '\0';
                 MessageBox(NULL, (char *)message, NULL, MB_ICONWARNING);
             } else {
-                postmessage(SET_AVATAR, size, 0, file_data);
+                postmessage(SELF_AVATAR_SET, size, 0, file_data);
                 break;
             }
         } else {
@@ -2137,7 +2137,7 @@ IBaseFilter *pNullF = NULL;
 void* video_detect(void)
 {
     // Indicate that we support desktop capturing.
-    postmessage(NEW_VIDEO_DEVICE, STR_VIDEO_IN_DESKTOP, 0, (void*)1);
+    postmessage(VIDEO_IN_DEVICE, STR_VIDEO_IN_DESKTOP, 0, (void*)1);
 
     max_video_width = GetSystemMetrics(SM_CXVIRTUALSCREEN);
     max_video_height = GetSystemMetrics(SM_CYVIRTUALSCREEN);
@@ -2237,7 +2237,7 @@ void* video_detect(void)
                 void *data = malloc(sizeof(void*) + len * 3 / 2);
                 WideCharToMultiByte(CP_UTF8, 0, varName.bstrVal, -1, data + sizeof(void*), len * 3 / 2, NULL, 0);
                 memcpy(data, &temp, sizeof(pFilter));
-                postmessage(NEW_VIDEO_DEVICE, UI_STRING_ID_INVALID, 1, data);
+                postmessage(VIDEO_IN_DEVICE, UI_STRING_ID_INVALID, 1, data);
             }
 
             // Now add the filter to the graph.
