@@ -910,7 +910,7 @@ static void utox_av_incoming_frame_v(ToxAV *toxAV, uint32_t friend_number, uint1
 static void utox_callback_av_change_state(ToxAV *av, uint32_t friend_number, uint32_t state, void *userdata) {
     if ( state == 1 ) {
         // handle error
-        debug("ToxAV:\tChange state error, send bug report\n");
+        debug("ToxAV:\tChange state with an error, this should never happen. Please send bug report!\n");
         utox_av_disconnect(av, friend_number);
         return;
     } else if ( state == 2 ) {

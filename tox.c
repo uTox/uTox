@@ -1008,16 +1008,16 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
 
             /* Set the video bitrate, if we're starting a video call. */
             int v_bitrate = 0;
-            if (!param2) {
-                v_bitrate = 0;
-                debug("Tox:\tSending call to friend %u\n", param1);
-            } else {
+            if (param2) {
                 v_bitrate = UTOX_DEFAULT_VIDEO_BITRATE;
                 debug("Tox:\tSending video call to friend %u\n", param1);
+            } else {
+                v_bitrate = 0;
+                debug("Tox:\tSending call to friend %u\n", param1);
             }
 
             TOXAV_ERR_CALL error = 0;
-            toxav_call(av, param1, UTOX_DEFAULT_AUDIO_BITRATE, 0, &error);
+            toxav_call(av, param1, UTOX_DEFAULT_AUDIO_BITRATE, v_bitrate, &error);
             if (error) {
                 switch(error) {
                     case TOXAV_ERR_CALL_FRIEND_ALREADY_IN_CALL: {
