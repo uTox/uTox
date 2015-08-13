@@ -48,7 +48,7 @@ static void gtk_opensendthread(void *args) {
         debug("files: %s\n", out);
 
         //dont call this from this thread
-        postmessage(FILE_SEND_NEW, fid, 0xFFFF, out);
+        tox_postmessage(TOX_FILE_SEND_NEW, fid, 0xFFFF, out);
     }
 
     gtk_widget_destroy(dialog);

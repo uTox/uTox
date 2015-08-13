@@ -9,7 +9,7 @@ void video_thread(void *args) {
     _Bool video = 0;
     uint8_t video_count = 0;
     _Bool video_on = 0;
-    _Bool call[MAX_CALLS] = {0}, preview = 0, newinput = 1;
+    _Bool preview = 0, newinput = 1;
 
     // Add always-present null video input device.
     postmessage(VIDEO_IN_DEVICE, STR_VIDEO_IN_NONE, 1, NULL);
@@ -83,15 +83,12 @@ void video_thread(void *args) {
                     break;
                 }
                 case VIDEO_END: {
-                    if (!call[m->param1]) {
-                        break;
-                    }
-                    call[m->param1] = 0;
                     video_count--;
                     if (!video_count && video_on) {
                         video_endread();
                         video_on = 0;
                     }
+                    video_end(m->param1 + 1);
                     break;
                 }
             }

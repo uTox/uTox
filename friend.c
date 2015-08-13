@@ -90,8 +90,7 @@ void friend_set_alias(FRIEND *f, char_t *alias, STRING_IDX length){
     utox_write_metadata(f);
 }
 
-void friend_sendimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width, uint16_t height, UTOX_PNG_IMAGE png_image, size_t png_size)
-{
+void friend_sendimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width, uint16_t height, UTOX_PNG_IMAGE png_image, size_t png_size) {
     MSG_IMG *msg = malloc(sizeof(MSG_IMG));
     msg->author = 1;
     msg->msg_type = MSG_TYPE_IMAGE;
@@ -110,8 +109,7 @@ void friend_sendimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width
     tox_postmessage(TOX_FILE_SEND_NEW_INLINE, f - friend, 0, tsim);
 }
 
-void friend_recvimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width, uint16_t height)
-{
+void friend_recvimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width, uint16_t height) {
     if(!UTOX_NATIVE_IMAGE_IS_VALID(native_image)) {
         return;
     }
@@ -128,8 +126,7 @@ void friend_recvimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width
     message_add(&messages_friend, (void*)msg, &f->msg);
 }
 
-void friend_notify(FRIEND *f, char_t *str, STRING_IDX str_length, char_t *msg, STRING_IDX msg_length)
-{
+void friend_notify(FRIEND *f, char_t *str, STRING_IDX str_length, char_t *msg, STRING_IDX msg_length) {
     int len = f->name_length + str_length + 3;
 
     char_t title[len + 1], *p = title;
@@ -159,8 +156,7 @@ void friend_addmessage_notify(FRIEND *f, char_t *data, STRING_IDX length)
     }
 }
 
-void friend_addmessage(FRIEND *f, void *data)
-{
+void friend_addmessage(FRIEND *f, void *data) {
     MESSAGE *msg = data;
 
     message_add(&messages_friend, data, &f->msg);

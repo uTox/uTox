@@ -1212,24 +1212,23 @@ static void file_notify(FRIEND *f, MSG_FILE *msg) {
 
 static void call_notify(FRIEND *f, uint8_t status) {
     STRING *str;
-
     switch(status) {
-    case UTOX_AV_INVITE: {
-        str = SPTR(CALL_INVITED);
-        break;
-    }
-    case UTOX_AV_RINGING: {
-        str = SPTR(CALL_RINGING);
-        break;
-    }
-    case UTOX_AV_STARTED: {
-        str = SPTR(CALL_STARTED);
-        break;
-    }
-    default: {//render unknown status as "call canceled"
-        str = SPTR(CALL_CANCELLED);
-        break;
-    }
+        case UTOX_AV_INVITE: {
+            str = SPTR(CALL_INVITED);
+            break;
+        }
+        case UTOX_AV_RINGING: {
+            str = SPTR(CALL_RINGING);
+            break;
+        }
+        case UTOX_AV_STARTED: {
+            str = SPTR(CALL_STARTED);
+            break;
+        }
+        default: {//render unknown status as "call canceled"
+            str = SPTR(CALL_CANCELLED);
+            break;
+        }
     }
 
     friend_notify(f, str->str, str->length, (uint8_t*)"", 0);
@@ -1342,7 +1341,13 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
 
         /* File transfer messages */
         case FILE_SEND_NEW: {
-            tox_postmessage(TOX_FILE_SEND_NEW, param1, param2, data);
+            FILE_TRANSFER *file_handle = data;
+            FRIEND *f = &friend[file_handle->friend_number];
+
+            friend_addmessage(f, file_handle->ui_data);
+            file_notify(f, file_handle->ui_data);
+            redraw();
+            free(file_handle);
             break;
         }
         case FILE_INCOMING_NEW: {
@@ -1398,7 +1403,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             memcpy(&height, data + sizeof(uint16_t), sizeof(uint16_t));
             memcpy(&image, data + sizeof(uint16_t) * 2, sizeof(uint8_t *));
             free(data);
-            friend_recvimage(f, image, width, height);
+            friend_recvimage(f, (UTOX_NATIVE_IMAGE*)image, width, height);
             redraw();
             break;
         }

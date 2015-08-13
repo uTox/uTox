@@ -66,7 +66,7 @@ enum {
 /* uTox client thread messages (received by the client thread) */
 enum {
     /* General core and networking messages */
-    TOX_DONE,
+    TOX_DONE, // 0
     DHT_CONNECTED,
     DNS_RESULT,
 
@@ -82,7 +82,7 @@ enum {
 
     /* File transfer messages */
     FILE_SEND_NEW,
-    FILE_INCOMING_NEW,
+    FILE_INCOMING_NEW, // 10
     FILE_INCOMING_ACCEPT,
     FILE_UPDATE_STATUS,
     FILE_INLINE_IMAGE,
@@ -96,7 +96,7 @@ enum {
     FRIEND_AVATAR_SET,
     FRIEND_AVATAR_UNSET,
     /* Interactions */
-    FRIEND_TYPING,
+    FRIEND_TYPING, // 20
     FRIEND_MESSAGE,
     /* Adding and deleting */
     FRIEND_INCOMING_REQUEST,
@@ -111,7 +111,7 @@ enum {
     GROUP_ADD,
     GROUP_MESSAGE,
     GROUP_PEER_ADD,
-    GROUP_PEER_DEL,
+    GROUP_PEER_DEL, // 30
     GROUP_PEER_NAME,
     GROUP_TITLE,
     GROUP_AUDIO_START,
