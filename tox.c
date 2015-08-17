@@ -305,37 +305,6 @@ static void set_callbacks(Tox *tox)
     utox_set_callbacks_for_transfer(tox);
 }
 
-/** tries to load avatar from disk for given client id string and set avatar based on saved png data
- *  avatar is avatar to initialize. Will be unset if no file is found on disk or if file is corrupt or too large,
- *      otherwise will be set to avatar found on disk
- *  id is cid string of whose avatar to find(see also load_avatar in avatar.h)
- *  if png_data_out is not NULL, the png data loaded from disk will be copied to it.
- *      if it is not null, it should be at least UTOX_AVATAR_MAX_DATA_LENGTH bytes long
- *  if png_size_out is not null, the size of the png data will be stored in it
- *
- *  returns: 1 on successful loading, 0 on failure
- *
- * TODO: move this function into avatar.c
- */
-_Bool init_avatar(AVATAR *avatar, const char_t *id, uint8_t *png_data_out, uint32_t *png_size_out) {
-    unset_avatar(avatar);
-    uint8_t avatar_data[UTOX_AVATAR_MAX_DATA_LENGTH];
-    uint32_t size;
-    if (load_avatar(id, avatar_data, &size)) {
-        if (set_avatar(avatar, avatar_data, size)) {
-            if (png_data_out) {
-                memcpy(png_data_out, avatar_data, size);
-            }
-            if (png_size_out) {
-                *png_size_out = size;
-            }
-
-            return 1;
-        }
-    }
-    return 0;
-}
-
 static size_t load_save(uint8_t **out_data){
     uint8_t path[UTOX_FILE_NAME_LENGTH], *p, *data;
     uint32_t size;
@@ -1508,7 +1477,19 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             break;
         }
 
-        case VIDEO_FRAME: {
+        case AV_CALL_INCOMING: {
+            call_notify(&friend[param1], UTOX_AV_INVITE);
+            break;
+        }
+        case AV_CALL_ACCEPTED: {
+            call_notify(&friend[param1], UTOX_AV_STARTED);
+            break;
+        }
+        case AV_CALL_DISCONNECTED: {
+            call_notify(&friend[param1], UTOX_AV_NONE);
+            break;
+        }
+        case AV_VIDEO_FRAME: {
             /* param1: video handle to send frame to (friend id or 0 for preview)
                param2: unused
                data: packaged frame data */

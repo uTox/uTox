@@ -103,7 +103,7 @@ static void utox_av_incoming_frame_v(ToxAV *toxAV, uint32_t friend_number, uint1
 
     yuv420tobgr(width, height, y, u, v, ystride, ustride, vstride, frame->img);
 
-    postmessage(VIDEO_FRAME, friend_number + 1, 0, (void*)frame);
+    postmessage(AV_VIDEO_FRAME, friend_number + 1, 0, (void*)frame);
 }
 
 /** respond to a Audio Video state change call back from toxav */

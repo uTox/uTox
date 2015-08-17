@@ -141,7 +141,7 @@ void video_thread(void *args) {
                                 utox_video_frame.y, utox_video_frame.u, utox_video_frame.v,
                                 utox_video_frame.w, (utox_video_frame.w / 2), (utox_video_frame.w / 2), frame->img);
 
-                    postmessage(VIDEO_FRAME, 0, 0, (void*)frame);
+                    postmessage(AV_VIDEO_FRAME, 0, 0, (void*)frame);
                     newinput = 0;
                 }
 

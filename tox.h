@@ -105,13 +105,16 @@ enum {
     FRIEND_REMOVE,
 
     /* Audio & Video calls, */
-    VIDEO_FRAME,
+    AV_CALL_INCOMING,
+    AV_CALL_ACCEPTED,
+    AV_CALL_DISCONNECTED,
+    AV_VIDEO_FRAME,
 
     /* Group interactions, commented out for the new groupchats (coming soon maybe?) */
-    GROUP_ADD,
+    GROUP_ADD, // 30
     GROUP_MESSAGE,
     GROUP_PEER_ADD,
-    GROUP_PEER_DEL, // 30
+    GROUP_PEER_DEL,
     GROUP_PEER_NAME,
     GROUP_TITLE,
     GROUP_AUDIO_START,
