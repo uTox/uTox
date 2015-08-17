@@ -1,7 +1,5 @@
 #include "main.h"
 
-uint8_t lbuffer[800 * 600 * 4]; //needs to be always large enough for encoded frames
-
 #ifndef NATIVE_ANDROID_AUDIO
     #ifdef __APPLE__
         #include <OpenAL/al.h>
