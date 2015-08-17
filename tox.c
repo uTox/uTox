@@ -759,6 +759,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
         case TOX_FRIEND_ONLINE: {
             if(!param2) {
                 ft_friend_offline(tox, param1);
+                utox_av_local_disconnect(av, param1);
             } else {
                 ft_friend_online(tox, param1);
                 /* resend avatar info (in case it changed) */
@@ -1358,7 +1359,6 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
                 friend_set_typing(f, 0);
             }
             redraw();
-            tox_postmessage(TOX_FRIEND_ONLINE, param1, param2, data);
             break;
         }
         case FRIEND_NAME: {

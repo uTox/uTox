@@ -72,7 +72,7 @@ static void callback_name_change(Tox *UNUSED(tox), uint32_t fid, const uint8_t *
     void *data = malloc(length);
     memcpy(data, newname, length);
     postmessage(FRIEND_NAME, fid, length, data);
-    debug("Friend:\t%u Name: %.*s\n", fid, (int)length, newname);
+    debug("Friend-%u Name:\t%.*s\n", fid, (int)length, newname);
 }
 
 static void callback_status_message(Tox *UNUSED(tox), uint32_t fid, const uint8_t *newstatus, size_t length, void *UNUSED(userdata)) {
@@ -80,35 +80,37 @@ static void callback_status_message(Tox *UNUSED(tox), uint32_t fid, const uint8_
     void *data = malloc(length);
     memcpy(data, newstatus, length);
     postmessage(FRIEND_STATUS_MESSAGE, fid, length, data);
-    debug("Friend:\t%u Status Message: %.*s\n", fid, (int)length, newstatus);
+    debug("Friend-%u Status Message:\t%.*s\n", fid, (int)length, newstatus);
 }
 
 static void callback_user_status(Tox *UNUSED(tox), uint32_t fid, TOX_USER_STATUS status, void *UNUSED(userdata)) {
     postmessage(FRIEND_STATE, fid, status, NULL);
-    debug("Friend:\t%u State:%u\n", fid, status);
+    debug("Friend-%u State:\t%u\n", fid, status);
 }
 
 static void callback_typing_change(Tox *UNUSED(tox), uint32_t fid, _Bool is_typing, void *UNUSED(userdata)) {
     postmessage(FRIEND_TYPING, fid, is_typing, NULL);
-    debug("Friend:\t%u Typing: %u\n", fid, is_typing);
+    debug("Friend-%u Typing:\t%u\n", fid, is_typing);
 }
 
 static void callback_read_receipt(Tox *UNUSED(tox), uint32_t fid, uint32_t receipt, void *UNUSED(userdata)) {
     //postmessage(FRIEND_RECEIPT, fid, receipt);
-    debug("Friend:\t%u Receipt: %u\n", fid, receipt);
+    debug("Friend-%u Receipt:\t%u\n", fid, receipt);
 }
 
-static void callback_connection_status(Tox *tox, uint32_t fid, TOX_CONNECTION status, void *UNUSED(userdata)){
+static void callback_connection_status(Tox *tox, uint32_t fid, TOX_CONNECTION status, void *UNUSED(userdata) ){
     // todo call avatar sending
 
     postmessage(FRIEND_ONLINE, fid, !!status, NULL);
+    tox_postmessage(TOX_FRIEND_ONLINE, fid, !!status, NULL);
+
 
     if(status == TOX_CONNECTION_UDP) {
-        debug("Friend:\t%u \t Online (UDP)\n", fid);
+        debug("Friend-%u:\tOnline (UDP)\n", fid);
     } else if(status == TOX_CONNECTION_TCP) {
-        debug("Friend:\t%u \t Online (TCP)\n", fid);
+        debug("Friend-%u:\tOnline (TCP)\n", fid);
     } else {
-        debug("Friend:\t%u \t Offline\n", fid);
+        debug("Friend-%u:\tOffline\n", fid);
     }
 }
 

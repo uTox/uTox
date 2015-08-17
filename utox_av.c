@@ -121,6 +121,9 @@ static void utox_callback_av_change_state(ToxAV *av, uint32_t friend_number, uin
     } else if ( state == 2 ) {
         debug("ToxAV:\tCall ended with friend_number %u.\n", friend_number);
         utox_av_remote_disconnect(av, friend_number);
+    } else if (!UTOX_SENDING_VIDEO(friend_number) || !UTOX_SENDING_AUDIO(friend_number)) {
+        /* First accepted call back */
+        postmessage(AV_CALL_ACCEPTED, friend_number, 0, NULL);
     }
 
     int state_audio = (state | (TOXAV_FRIEND_CALL_STATE_SENDING_A | TOXAV_FRIEND_CALL_STATE_ACCEPTING_A));
