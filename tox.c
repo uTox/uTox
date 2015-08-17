@@ -1040,7 +1040,9 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             if (param2) {
                 toxvideo_postmessage(VIDEO_END, param1, 0, NULL);
             }
-            utox_av_local_disconnect(av, param1);
+            if (friend[param1].call_state_self || friend[param1].call_state_friend) {
+                utox_av_local_disconnect(av, param1);
+            }
             break;
         }
 

@@ -52,15 +52,14 @@ static void utox_av_incoming_call(ToxAV *av, uint32_t friend_number, bool audio,
 }
 
 static void utox_av_remote_disconnect(ToxAV *av, int32_t friend_number) {
-    TOXAV_ERR_CALL_CONTROL error = 0;
-    if (error) {
-        debug("unhanded error in utox_av_end\n");
-    }
-    if (UTOX_SENDING_VIDEO(friend_number) | UTOX_ACCEPTING_VIDEO(friend_number)) {
+    if (UTOX_SENDING_VIDEO(friend_number) || UTOX_ACCEPTING_VIDEO(friend_number)) {
         tox_postmessage(TOX_CALL_DISCONNECT, friend_number, 1, NULL);
     } else {
         tox_postmessage(TOX_CALL_DISCONNECT, friend_number, 0, NULL);
     }
+    friend[friend_number].call_state_self = 0;
+    friend[friend_number].call_state_friend = 0;
+    postmessage(AV_CALL_DISCONNECTED, friend_number, 0, NULL);
 }
 
 void utox_av_local_disconnect(ToxAV *av, int32_t friend_number) {
@@ -69,12 +68,12 @@ void utox_av_local_disconnect(ToxAV *av, int32_t friend_number) {
     if (error) {
         if (error == 2) {
             return;
+        } else {
+            debug("ToxAV:\tunhanded error in utox_av_end (%i)\n", error);
         }
-        debug("ToxAV:\tunhanded error in utox_av_end (%i)\n", error);
     }
-    FRIEND *f = &friend[friend_number];
-    f->call_state_self = 0;
-    f->call_state_friend = 0;
+    friend[friend_number].call_state_self = 0;
+    friend[friend_number].call_state_friend = 0;
     postmessage(AV_CALL_DISCONNECTED, friend_number, 0, NULL);
 }
 
