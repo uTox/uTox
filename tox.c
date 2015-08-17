@@ -216,8 +216,7 @@ void log_read(Tox *tox, int fid)
     fclose(file);
 }
 
-void friend_meta_data_read(Tox *tox, int friend_id)
-{
+void friend_meta_data_read(Tox *tox, int friend_id) {
     /* Will need to be rewritten if anything is added to friend's meta data */
     uint8_t path[UTOX_FILE_NAME_LENGTH], *p;
     p = path + datapath(path);
@@ -253,8 +252,7 @@ void friend_meta_data_read(Tox *tox, int friend_id)
 
 static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, uint32_t param1, uint32_t param2, void *data);
 
-void tox_postmessage(uint8_t msg, uint32_t param1, uint32_t param2, void *data)
-{
+void tox_postmessage(uint8_t msg, uint32_t param1, uint32_t param2, void *data) {
     while(tox_thread_msg) {
         yieldcpu(1);
     }
