@@ -67,7 +67,10 @@ void utox_av_local_disconnect(ToxAV *av, int32_t friend_number) {
     TOXAV_ERR_CALL_CONTROL error = 0;
     toxav_call_control(av, friend_number, TOXAV_CALL_CONTROL_CANCEL, &error);
     if (error) {
-        debug("unhanded error in utox_av_end (%i)\n", error);
+        if (error == 2) {
+            return;
+        }
+        debug("ToxAV:\tunhanded error in utox_av_end (%i)\n", error);
     }
     FRIEND *f = &friend[friend_number];
     f->call_state_self = 0;
