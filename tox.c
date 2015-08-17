@@ -1013,7 +1013,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
                 debug("call running \n");
                 f->call_state_self = ( TOXAV_FRIEND_CALL_STATE_SENDING_A | TOXAV_FRIEND_CALL_STATE_ACCEPTING_A );
             }
-
+            postmessage(AV_CALL_ACCEPTED, param1, 0, NULL);
             break;
         }
         case TOX_CALL_PAUSE_AUDIO: {
@@ -1479,14 +1479,17 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
 
         case AV_CALL_INCOMING: {
             call_notify(&friend[param1], UTOX_AV_INVITE);
+            redraw();
             break;
         }
         case AV_CALL_ACCEPTED: {
             call_notify(&friend[param1], UTOX_AV_STARTED);
+            redraw();
             break;
         }
         case AV_CALL_DISCONNECTED: {
             call_notify(&friend[param1], UTOX_AV_NONE);
+            redraw();
             break;
         }
         case AV_VIDEO_FRAME: {
@@ -1498,6 +1501,8 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             video_frame(param1, frame->img, frame->w, frame->h, 0); //TODO re-enable the resize option, disabled for reasons
             free(frame->img);
             free(data);
+            redraw();
+            break;
         }
 
         /* Commented out until new group chats...

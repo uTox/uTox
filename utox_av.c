@@ -47,6 +47,7 @@ static void utox_av_incoming_call(ToxAV *av, uint32_t friend_number, bool audio,
     f->call_state_self = 0;
     f->call_state_friend = ( audio << 2 | video << 3 | audio << 4 | video << 5 );
     debug("uTox AV:\tcall friend (%u) state for incoming call: %i\n", friend_number, f->call_state_friend);
+    postmessage(AV_CALL_INCOMING, friend_number, video, NULL);
     toxaudio_postmessage(AUDIO_PLAY_RINGTONE, friend_number, 0, NULL);
 }
 
@@ -68,6 +69,7 @@ void utox_av_local_disconnect(ToxAV *av, int32_t friend_number) {
     FRIEND *f = &friend[friend_number];
     f->call_state_self = 0;
     f->call_state_friend = 0;
+    postmessage(AV_CALL_DISCONNECTED, friend_number, 0, NULL);
     if (error) {
         debug("unhanded error in utox_av_end\n");
     }
