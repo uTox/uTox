@@ -852,7 +852,7 @@ void toxav_thread(void *args) {
         yieldcpu(toxav_iteration_interval(av));
     }
 
-    debug("Toxav thread die\n");
+    debug("Toxav:\tClean thread exit!\n");
     toxav_thread_msg = 0;
     toxav_thread_init = 0;
 }
@@ -867,13 +867,24 @@ static void utox_av_incoming_call(ToxAV *av, uint32_t friend_number, bool audio,
     toxaudio_postmessage(AUDIO_PLAY_RINGTONE, friend_number, 0, NULL);
 }
 
-static void utox_av_disconnect(ToxAV *av, int32_t friend_number) {
+static void utox_av_remote_disconnect(ToxAV *av, int32_t friend_number) {
+    TOXAV_ERR_CALL_CONTROL error = 0;
+    if (error) {
+        debug("unhanded error in utox_av_end\n");
+    }
+    if (UTOX_SENDING_VIDEO(friend_number) | UTOX_ACCEPTING_VIDEO(friend_number)) {
+        tox_postmessage(TOX_CALL_DISCONNECT, friend_number, 1, NULL);
+    } else {
+        tox_postmessage(TOX_CALL_DISCONNECT, friend_number, 0, NULL);
+    }
+}
+
+void utox_av_local_disconnect(ToxAV *av, int32_t friend_number) {
     TOXAV_ERR_CALL_CONTROL error = 0;
     toxav_call_control(av, friend_number, TOXAV_CALL_CONTROL_CANCEL, &error);
     if (error) {
         debug("unhanded error in utox_av_end\n");
     }
-    tox_postmessage(TOX_CALL_DISCONNECT, friend_number, 0, NULL);
 }
 
 /** responds to a audio frame call back from toxav
@@ -914,11 +925,11 @@ static void utox_callback_av_change_state(ToxAV *av, uint32_t friend_number, uin
     if ( state == 1 ) {
         // handle error
         debug("ToxAV:\tChange state with an error, this should never happen. Please send bug report!\n");
-        utox_av_disconnect(av, friend_number);
+        utox_av_remote_disconnect(av, friend_number);
         return;
     } else if ( state == 2 ) {
         debug("ToxAV:\tCall ended with friend_number %u.\n", friend_number);
-        utox_av_disconnect(av, friend_number);
+        utox_av_remote_disconnect(av, friend_number);
     }
 
     int state_audio = (state | (TOXAV_FRIEND_CALL_STATE_SENDING_A | TOXAV_FRIEND_CALL_STATE_ACCEPTING_A));
@@ -941,16 +952,12 @@ static void utox_callback_av_change_state(ToxAV *av, uint32_t friend_number, uin
 }
 
 void utox_incoming_rate_change_audio(ToxAV *toxAV, uint32_t friend_number, bool stable, uint32_t bit_rate, void *user_data) {
-    debug("Incoming audio rate change, please debug me!\n");
-    debug("Incoming audio rate change, please debug me!\n");
-    debug("Incoming audio rate change, please debug me!\n");
+    debug("ToxAV:\tIncoming audio rate change, please debug me!\n\tIncoming audio rate change, please debug me!\n\tIncoming audio rate change, please debug me!\n");
     return;
 }
 
 void utox_incoming_rate_change_video(ToxAV *toxAV, uint32_t friend_number, bool stable, uint32_t bit_rate, void *user_data) {
-    debug("Incoming video rate change, please debug me!\n");
-    debug("Incoming video rate change, please debug me!\n");
-    debug("Incoming video rate change, please debug me!\n");
+    debug("ToxAV:\tIncoming Video rate change, please debug me!\n\tIncoming Video rate change, please debug me!\n\tIncoming Video rate change, please debug me!\n");
     return;
 }
 
