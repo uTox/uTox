@@ -462,8 +462,6 @@ static void deleteitem(ITEM *i)
                 free(g->peername[j]);
                 g->peername[j] = NULL;
             }
-
-            group_av_peer_remove(g, j);
         }
 
         toxaudio_postmessage(GROUP_AUDIO_CALL_END, (g - group), 0, NULL);

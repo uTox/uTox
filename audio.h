@@ -15,3 +15,7 @@
 #ifndef AUDIO_FILTERING
     typedef uint8_t Filter_Audio;
 #endif
+
+void sourceplaybuffer(int i, const int16_t *data, int samples, uint8_t channels, unsigned int sample_rate);
+
+void audio_thread(void *args);
