@@ -47,8 +47,8 @@ static void utox_av_incoming_call(ToxAV *av, uint32_t friend_number, bool audio,
     f->call_state_self = 0;
     f->call_state_friend = ( audio << 2 | video << 3 | audio << 4 | video << 5 );
     debug("uTox AV:\tcall friend (%u) state for incoming call: %i\n", friend_number, f->call_state_friend);
-    postmessage(AV_CALL_INCOMING, friend_number, video, NULL);
     toxaudio_postmessage(AUDIO_PLAY_RINGTONE, friend_number, 0, NULL);
+    postmessage(AV_CALL_INCOMING, friend_number, video, NULL);
 }
 
 static void utox_av_remote_disconnect(ToxAV *av, int32_t friend_number) {
@@ -56,6 +56,11 @@ static void utox_av_remote_disconnect(ToxAV *av, int32_t friend_number) {
         tox_postmessage(TOX_CALL_DISCONNECT, friend_number, 1, NULL);
     } else {
         tox_postmessage(TOX_CALL_DISCONNECT, friend_number, 0, NULL);
+    }
+    toxaudio_postmessage(AUDIO_STOP_RINGTONE, friend_number, 0, NULL);
+    toxaudio_postmessage(AUDIO_END, friend_number, 0, NULL);
+    if (UTOX_SENDING_VIDEO(friend_number) || UTOX_ACCEPTING_VIDEO(friend_number)) {
+        toxvideo_postmessage(VIDEO_END, friend_number, 0, NULL);
     }
     friend[friend_number].call_state_self = 0;
     friend[friend_number].call_state_friend = 0;
@@ -71,6 +76,11 @@ void utox_av_local_disconnect(ToxAV *av, int32_t friend_number) {
         } else {
             debug("ToxAV:\tunhanded error in utox_av_end (%i)\n", error);
         }
+    }
+    toxaudio_postmessage(AUDIO_STOP_RINGTONE, friend_number, 0, NULL);
+    toxaudio_postmessage(AUDIO_END, friend_number, 0, NULL);
+    if (UTOX_SENDING_VIDEO(friend_number) || UTOX_ACCEPTING_VIDEO(friend_number)) {
+        toxvideo_postmessage(VIDEO_END, friend_number, 0, NULL);
     }
     friend[friend_number].call_state_self = 0;
     friend[friend_number].call_state_friend = 0;
@@ -114,14 +124,16 @@ static void utox_av_incoming_frame_v(ToxAV *toxAV, uint32_t friend_number, uint1
 static void utox_callback_av_change_state(ToxAV *av, uint32_t friend_number, uint32_t state, void *userdata) {
     if ( state == 1 ) {
         // handle error
-        debug("ToxAV:\tChange state with an error, this should never happen. Please send bug report!\n");
+        debug("uToxAV:\tChange state with an error, this should never happen. Please send bug report!\n");
         utox_av_remote_disconnect(av, friend_number);
         return;
     } else if ( state == 2 ) {
-        debug("ToxAV:\tCall ended with friend_number %u.\n", friend_number);
+        debug("uToxAV:\tCall ended with friend_number %u.\n", friend_number);
         utox_av_remote_disconnect(av, friend_number);
-    } else if (!UTOX_SENDING_VIDEO(friend_number) || !UTOX_SENDING_AUDIO(friend_number)) {
+    } else if (!friend[friend_number].call_state_friend) {
         /* First accepted call back */
+        debug("uToxAV:\tFriend accepted state change\n");
+        friend[friend_number].call_state_friend = state;
         postmessage(AV_CALL_ACCEPTED, friend_number, 0, NULL);
     }
 
@@ -129,7 +141,7 @@ static void utox_callback_av_change_state(ToxAV *av, uint32_t friend_number, uin
     int state_video = (state | (TOXAV_FRIEND_CALL_STATE_SENDING_V | TOXAV_FRIEND_CALL_STATE_ACCEPTING_V));
 
     if ((friend[friend_number].call_state_friend ^ state_audio)) {
-        debug("Audio state change %i for %u\n", state, friend_number);
+        debug("uToxAV:\tAudio state change %i for %u\n", state, friend_number);
         friend[friend_number].call_state_friend = state;
         // do change
         // start audio
@@ -137,7 +149,7 @@ static void utox_callback_av_change_state(ToxAV *av, uint32_t friend_number, uin
     }
 
     if ((friend[friend_number].call_state_friend ^ state_video)) {
-        debug("Video state change %i for %u\n", state, friend_number);
+        debug("uToxAV:\tVideo state change %i for %u\n", state, friend_number);
         friend[friend_number].call_state_friend = state;
         // start video
         // stop video

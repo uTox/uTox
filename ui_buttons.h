@@ -1,5 +1,4 @@
 /* buttons */
-
 #ifdef UNITY
 #include "xlib/mmenu.h"
 extern _Bool unity_running;
