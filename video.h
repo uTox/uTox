@@ -24,5 +24,4 @@ typedef struct UTOX_FRAME_PKG {
 
 utox_av_video_frame utox_video_frame;
 
-_Bool openvideodevice(void *handle);
-void closevideodevice(void *handle);
+void video_thread(void *args);
