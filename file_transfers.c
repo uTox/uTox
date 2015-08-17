@@ -976,9 +976,9 @@ void utox_set_callbacks_for_transfer(Tox *tox){
 }
 
 void utox_cleanup_file_transfers(uint32_t friend_number, uint32_t file_number){
-    debug("FileTransfer:\tCleaning up file transfers! (%u & %u)\n", friend_number, file_number);
     FILE_TRANSFER *transfer = get_file_transfer(friend_number, file_number);
     if(transfer->name){
+        debug("FileTransfer:\tCleaning up file transfers! (%u & %u)\n", friend_number, file_number);
         free(transfer->name);
     }
 

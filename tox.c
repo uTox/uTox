@@ -371,8 +371,7 @@ static void load_defaults(Tox *tox)
     memcpy(self.statusmsg, status, status_len);
 }
 
-static void write_save(Tox *tox)
-{
+static void write_save(Tox *tox) {
     void *data;
     uint32_t size;
     uint8_t path_tmp[UTOX_FILE_NAME_LENGTH], path_real[UTOX_FILE_NAME_LENGTH], *p;
@@ -390,22 +389,22 @@ static void write_save(Tox *tox)
     memcpy(path_tmp + (path_len - 1), ".tmp", sizeof(".tmp"));
 
 
-    debug("Writing tox_save to: %s\n", (char*)path_tmp);
+    debug("Writing tox_save to: %s ... ", (char*)path_tmp);
     file = fopen((char*)path_tmp, "wb");
     if(file) {
         fwrite(data, size, 1, file);
         flush_file(file);
         fclose(file);
         if (rename((char*)path_tmp, (char*)path_real) != 0) {
-            debug("Failed to rename file. %s to %s deleting and trying again\n", path_tmp, path_real);
+            debug("\nFailed to rename file. %s to %s deleting and trying again ... ", path_tmp, path_real);
             remove((const char *)path_real);
             if (rename((char*)path_tmp, (char*)path_real) != 0) {
-                debug("Saving Failed\n");
+                debug("\nSaving Failed!!\n");
             } else {
                 debug("Saved data\n");
             }
         } else {
-            debug("Saved data\n");
+            debug("Saved data ... trying to secure ... ");
             int ch = ch_mod(path_real);
             if(!ch){
                 debug("CHMOD: success\n");
@@ -587,12 +586,9 @@ void tox_thread(void *UNUSED(args)) {
             if(!!tox_self_get_connection_status(tox) != connected) {
                 connected = !connected;
                 postmessage(DHT_CONNECTED, connected, 0, NULL);
-
-                debug("Connected to DHT: %u\n", connected);
             }
 
             time = get_time();
-
             // Wait 1million ticks then reconnect if needed and write save
             if(time - last_save >= (uint64_t)10 * 1000 * 1000 * 1000) {
                 last_save = time;
@@ -761,10 +757,13 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
                 ft_friend_offline(tox, param1);
                 utox_av_local_disconnect(av, param1);
             } else {
-                ft_friend_online(tox, param1);
-                /* resend avatar info (in case it changed) */
-                /* Avatars must be sent LAST or they will clobber existing file transfers! */
-                avatar_on_friend_online(tox, param1);
+                if (!friend[param1].online) {
+                    ft_friend_online(tox, param1);
+                    /* resend avatar info (in case it changed) */
+                    /* Avatars must be sent LAST or they will clobber existing file transfers! */
+                    avatar_on_friend_online(tox, param1);
+                    friend[param1].online = 1;
+                }
             }
             break;
         }
