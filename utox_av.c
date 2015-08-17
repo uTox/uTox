@@ -66,13 +66,13 @@ static void utox_av_remote_disconnect(ToxAV *av, int32_t friend_number) {
 void utox_av_local_disconnect(ToxAV *av, int32_t friend_number) {
     TOXAV_ERR_CALL_CONTROL error = 0;
     toxav_call_control(av, friend_number, TOXAV_CALL_CONTROL_CANCEL, &error);
+    if (error) {
+        debug("unhanded error in utox_av_end (%i)\n", error);
+    }
     FRIEND *f = &friend[friend_number];
     f->call_state_self = 0;
     f->call_state_friend = 0;
     postmessage(AV_CALL_DISCONNECTED, friend_number, 0, NULL);
-    if (error) {
-        debug("unhanded error in utox_av_end\n");
-    }
 }
 
 /** responds to a audio frame call back from toxav

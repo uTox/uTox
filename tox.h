@@ -106,12 +106,13 @@ enum {
 
     /* Audio & Video calls, */
     AV_CALL_INCOMING,
+    AV_CALL_RINGING,
     AV_CALL_ACCEPTED,
     AV_CALL_DISCONNECTED,
-    AV_VIDEO_FRAME,
+    AV_VIDEO_FRAME, // 30
 
     /* Group interactions, commented out for the new groupchats (coming soon maybe?) */
-    GROUP_ADD, // 30
+    GROUP_ADD,
     GROUP_MESSAGE,
     GROUP_PEER_ADD,
     GROUP_PEER_DEL,
