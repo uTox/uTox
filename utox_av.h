@@ -31,6 +31,7 @@ void audio_thread(void *args);
 
 void toxav_thread(void *args);
 
+void utox_av_local_disconnect(ToxAV *av, int32_t friend_number);
 
 void callback_av_group_audio(Tox *tox, int groupnumber, int peernumber, const int16_t *pcm, unsigned int samples,
                                     uint8_t channels, unsigned int sample_rate, void *userdata);

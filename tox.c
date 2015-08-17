@@ -1101,10 +1101,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             if (param2) {
                 toxvideo_postmessage(VIDEO_END, param1, 0, NULL);
             }
-            utox_av_disconnect(av, param1);
-            FRIEND *f = &friend[param1];
-            f->call_state_self = 0;
-            f->call_state_friend = 0;
+            utox_av_local_disconnect(av, param1);
             break;
         }
 
