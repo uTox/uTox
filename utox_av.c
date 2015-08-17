@@ -1,16 +1,16 @@
 #include "main.h"
 
-void toxaudio_postmessage(uint8_t msg, uint32_t param1, uint32_t param2, void *data) {
-    while(audio_thread_msg) {
+void toxav_postmessage(uint8_t msg, uint32_t param1, uint32_t param2, void *data) {
+    while(toxav_thread_msg) {
         yieldcpu(1);
     }
 
-    audio_msg.msg = msg;
-    audio_msg.param1 = param1;
-    audio_msg.param2 = param2;
-    audio_msg.data = data;
+    toxav_msg.msg = msg;
+    toxav_msg.param1 = param1;
+    toxav_msg.param2 = param2;
+    toxav_msg.data = data;
 
-    audio_thread_msg = 1;
+    toxav_thread_msg = 1;
 }
 
 void toxav_thread(void *args) {

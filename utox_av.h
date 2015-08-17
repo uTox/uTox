@@ -22,8 +22,7 @@ enum {
     VIDEO_PREVIEW_END,
 };
 
-
-void toxaudio_postmessage(uint8_t msg, uint32_t param1, uint32_t param2, void *data);
+void toxav_postmessage(uint8_t msg, uint32_t param1, uint32_t param2, void *data);
 
 void toxav_thread(void *args);
 

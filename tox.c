@@ -267,34 +267,6 @@ void tox_postmessage(uint8_t msg, uint32_t param1, uint32_t param2, void *data)
     tox_thread_msg = 1;
 }
 
-void toxvideo_postmessage(uint8_t msg, uint32_t param1, uint32_t param2, void *data)
-{
-    while(video_thread_msg) {
-        yieldcpu(1);
-    }
-
-    video_msg.msg = msg;
-    video_msg.param1 = param1;
-    video_msg.param2 = param2;
-    video_msg.data = data;
-
-    video_thread_msg = 1;
-}
-
-void toxav_postmessage(uint8_t msg, uint32_t param1, uint32_t param2, void *data)
-{
-    while(toxav_thread_msg) {
-        yieldcpu(1);
-    }
-
-    toxav_msg.msg = msg;
-    toxav_msg.param1 = param1;
-    toxav_msg.param2 = param2;
-    toxav_msg.data = data;
-
-    toxav_thread_msg = 1;
-}
-
 #include "tox_callbacks.h"
 
 /* bootstrap to dht with bootstrap_nodes */
@@ -522,8 +494,7 @@ static struct {
         .sent_value = 0,
 };
 
-static void utox_thread_work_for_typing_notifications(Tox *tox, uint64_t time)
-{
+static void utox_thread_work_for_typing_notifications(Tox *tox, uint64_t time) {
     if(typing_state.tox != tox) {
         // Guard against Tox engine restarts.
         return;
@@ -547,8 +518,7 @@ static void utox_thread_work_for_typing_notifications(Tox *tox, uint64_t time)
  *
  * Accepts and returns nothing.
  */
-void tox_thread(void *UNUSED(args))
-{
+void tox_thread(void *UNUSED(args)) {
     Tox *tox;
     ToxAV *av;
     uint8_t id[TOX_FRIEND_ADDRESS_SIZE];

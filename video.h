@@ -24,4 +24,6 @@ typedef struct UTOX_FRAME_PKG {
 
 utox_av_video_frame utox_video_frame;
 
+void toxvideo_postmessage(uint8_t msg, uint32_t param1, uint32_t param2, void *data);
+
 void video_thread(void *args);
