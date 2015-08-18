@@ -993,10 +993,10 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
 
             if (param2) {
                 v_bitrate = UTOX_DEFAULT_VIDEO_BITRATE;
-                debug("uTox:\tAnswering audio call.\n");
+                debug("uTox:\tAnswering video call.\n");
             } else {
                 v_bitrate = 0;
-                debug("uTox:\tAnswering video call.\n");
+                debug("uTox:\tAnswering audio call.\n");
             }
 
             toxaudio_postmessage(AUDIO_STOP_RINGTONE, param1, 0, NULL);

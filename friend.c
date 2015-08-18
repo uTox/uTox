@@ -68,7 +68,6 @@ void friend_setname(FRIEND *f, char_t *name, STRING_IDX length){
 }
 
 void friend_set_alias(FRIEND *f, char_t *alias, STRING_IDX length){
-    debug("setting new alias\n");
     if (alias && (length != f->alias_length || memcmp(f->alias, alias, length) != 0)) {
         debug("New Alias set for friend %s\n", f->name);
     } else {

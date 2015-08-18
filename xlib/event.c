@@ -40,7 +40,7 @@ _Bool doevent(XEvent event)
     switch(event.type) {
     case Expose: {
         enddraw(0, 0, utox_window_width, utox_window_height);
-        debug("expose\n");
+        // debug("expose\n");
         break;
     }
 
@@ -79,7 +79,7 @@ _Bool doevent(XEvent event)
     case ConfigureNotify: {
         XConfigureEvent *ev = &event.xconfigure;
         if(utox_window_width != ev->width || utox_window_height != ev->height) {
-            debug("resize\n");
+            // debug("resize\n");
 
             if(ev->width > drawwidth || ev->height > drawheight) {
                 drawwidth = ev->width + 10;

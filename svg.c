@@ -610,7 +610,7 @@ _Bool svg_draw(_Bool needmemory)
     p += BM_CI_WIDTH * BM_CI_WIDTH;
 
     if(p - svg_data != size) {
-        debug("something went wrong\n");
+        debug("SVG:\tSVG data size mismatch...\n");
     }
 
     if(!needmemory) {
