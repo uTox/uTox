@@ -201,7 +201,7 @@ static void button_call_onpress(void){
 
 static void button_call_update(BUTTON *b){
     FRIEND *f = selected_item->data;
-    if (f->call_state_self) {
+    if (UTOX_SENDING_AUDIO(f->number)) {
         button_setcolors_danger(b);
         b->disabled = 0;
     } else if (UTOX_ACCEPTING_AUDIO(f->number)) {
@@ -243,7 +243,7 @@ static void button_video_onpress(void){
 
 static void button_video_update(BUTTON *b){
     FRIEND *f = selected_item->data;
-    if (f->call_state_self) {
+    if (UTOX_SENDING_VIDEO(f->number)) {
         button_setcolors_danger(b);
         b->disabled = 0;
     } else if (UTOX_ACCEPTING_VIDEO(f->number)) {
