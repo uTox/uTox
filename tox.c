@@ -650,6 +650,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
              * data: name
              */
             tox_self_set_name(tox, data, param1, 0);
+            save_needed = 1;
             break;
         }
         case TOX_SELF_SET_STATUS: {
@@ -657,12 +658,14 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
              * data: status message
              */
             tox_self_set_status_message(tox, data, param1, 0);
+            save_needed = 1;
             break;
         }
         case TOX_SELF_SET_STATE: {
             /* param1: status
              */
             tox_self_set_status(tox, param1);
+            save_needed = 1;
             break;
         }
 
@@ -681,6 +684,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             self.avatar_size = param2;
             self.avatar_format = param1;
             utox_avatar_update_friends(tox);
+            save_needed = 1;
             break;
         }
         case TOX_AVATAR_UNSET: {
@@ -689,6 +693,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             self.avatar_size = 0;
             self.avatar_format = 0;
             utox_avatar_update_friends(tox);
+            save_needed = 1;
             break;
         }
 
@@ -732,6 +737,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
                 utox_friend_init(tox, fid);
                 postmessage(FRIEND_SEND_REQUEST, 0, fid, data);
             }
+            save_needed = 1;
             break;
         }
         case TOX_FRIEND_ACCEPT: {
@@ -742,6 +748,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             uint32_t fid = tox_friend_add_norequest(tox, req->id, &f_err);
             utox_friend_init(tox, fid);
             postmessage(FRIEND_ACCEPT_REQUEST, (f_err != TOX_ERR_FRIEND_ADD_OK), (f_err != TOX_ERR_FRIEND_ADD_OK) ? 0 : fid, req);
+            save_needed = 1;
             break;
         }
         case TOX_FRIEND_DELETE: {
@@ -749,6 +756,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
              */
             tox_friend_delete(tox, param1, 0);
             postmessage(FRIEND_REMOVE, 0, 0, data);
+            save_needed = 1;
             break;
         }
         case TOX_FRIEND_ONLINE: {
@@ -1050,13 +1058,14 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             if(g != -1) {
                 postmessage(GROUP_ADD, g, 0, tox);
             }
-
+            save_needed = 1;
             break;
         }
         case TOX_GROUP_EXIT: {
             /* param1: group #
              */
             tox_del_groupchat(tox, param1);
+            save_needed = 1;
             break;
         }
         case TOX_GROUP_SEND_INVITE: {
@@ -1064,6 +1073,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
              * param2: friend #
              */
             tox_invite_friend(tox, param2, param1);
+            save_needed = 1;
             break;
         }
         case TOX_GROUP_SET_TOPIC: {
@@ -1073,6 +1083,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
              */
             tox_group_set_title(tox, param1, data, param2);
             postmessage(GROUP_TITLE, param1, param2, data);
+            save_needed = 1;
             break;
         }
         case TOX_GROUP_SEND_MESSAGE: {
@@ -1106,7 +1117,6 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             break;
         }
     } // End of switch.
-    save_needed = 1;
 }
 
 /** Translates status code to text then sends back to the user */
