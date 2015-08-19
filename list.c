@@ -428,6 +428,8 @@ void list_draw(void *UNUSED(n), int UNUSED(x), int y, int UNUSED(width), int UNU
 
 void group_av_peer_remove(GROUPCHAT *g, int peernumber);
 
+
+// TODO removing multiple items without moving the mouse causes asan neg-size-param error on memmove!
 static void deleteitem(ITEM *i)
 {
     ritem = NULL;

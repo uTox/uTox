@@ -116,23 +116,43 @@ char search_data[128];
  */
 uint8_t SCALE;
 
-/* These are the new defines to help align UI elements, the new ones start with either the x_/y_ prefix and the
- * _top/_bottom/_left/_right post fix, and should be used to replace the originals whenever possible. If you're able to
- * replace an original, please replace all occurrences, and delete the define. */
-#define X_SIDEBAR_RIGHT (111 * SCALE)
+/* These are the new defines to help align UI elements, the new ones must use a _top/_bottom/ or _left/_right or
+ * _width/_height postfix, and should be used to replace the originals whenever possible.
+ * If you're able to replace an original, replace all occurrences, and delete the define. */
+
+/* Left sidebar defines */
+#define SIDEBAR_WIDTH (111 * SCALE)
+
+#define SIDEBAR_BUTTON_TOP    (43 * SCALE)
+#define SIDEBAR_BUTTON_HEIGHT (18 * SCALE)
+#define SIDEBAR_BUTTON_WIDTH  (27 * SCALE)
+
+#define ROSTER_TOP (61 * SCALE)
+#define ROSTER_LEFT (8 * SCALE)
+#define ROSTER_BOTTOM (-1 * SCALE)
+
+#define SELF_NAME_X (32 * SCALE)
+#define SELF_NAME_Y (8 * SCALE)
+
+#define SELF_MSG_X (32 * SCALE)
+#define SELF_MSG_Y (15 * SCALE)
+
+#define SELF_AVATAR_X (5 * SCALE)
+#define SELF_AVATAR_Y (5 * SCALE)
+
+#define SELF_STATUS_X (96 * SCALE)
+#define SELF_STATUS_Y (5 * SCALE)
+
+
+
 
 #define X_MAIN_LEFT ((111 * SCALE) + 1)
 
-#define X_ROSTER_LEFT (8 * SCALE)
-#define Y_ROSTER_TOP (43 * SCALE)
-
-
-/* side */
+/* Roster defines */
 #define LIST_X (8 * SCALE)
 #define LIST_RIGHT (111 * SCALE)
 #define LIST_Y (31 * SCALE)
 #define LIST_Y2 (43 * SCALE)
-#define LIST_BOTTOM (-18 * SCALE)
 
 
 #define LIST_NAME_X (37 * SCALE)
@@ -150,17 +170,6 @@ uint8_t SCALE;
 
 #define SCROLL_WIDTH (4 * SCALE) //must be divisible by 2
 
-#define SELF_NAME_X (32 * SCALE)
-#define SELF_NAME_Y (8 * SCALE)
-
-#define SELF_MSG_X (32 * SCALE)
-#define SELF_MSG_Y (15 * SCALE)
-
-#define SELF_AVATAR_X (5 * SCALE)
-#define SELF_AVATAR_Y (5 * SCALE)
-
-#define SELF_STATUS_X (96 * SCALE)
-#define SELF_STATUS_Y (5 * SCALE)
 
 #define MESSAGES_SPACING (SCALE * 2)
 #define MESSAGES_X (55 * SCALE)

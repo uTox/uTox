@@ -361,9 +361,9 @@ static void draw_background(int UNUSED(x), int UNUSED(y), int width, int height)
     // Current user avatar & name background
     drawrect(0, 0, LIST_RIGHT, LIST_Y, COLOR_MENU_BACKGROUND);
     // Friend list (roster) background
-    drawrect(0, LIST_Y, LIST_RIGHT, height + LIST_BOTTOM, COLOR_LIST_BACKGROUND);
+    drawrect(0, LIST_Y, LIST_RIGHT, height + ROSTER_BOTTOM, COLOR_LIST_BACKGROUND);
     // Bottom icons menu background
-    drawrect(0, height + LIST_BOTTOM, LIST_RIGHT, height, COLOR_MENU_BACKGROUND);
+    drawrect(0, height + ROSTER_BOTTOM, LIST_RIGHT, height, COLOR_MENU_BACKGROUND);
 
     // Current user avatar & name
     // TODO move to it's own panel? (probably)
@@ -481,8 +481,8 @@ panel_side_bar = {
     .disabled = 0,
     .child = (PANEL*[]) {
         &panel_self,
-        &panel_roster,
         &panel_lower_buttons,
+        &panel_roster,
         NULL
     }
 },
@@ -499,6 +499,15 @@ panel_side_bar = {
         }
     },
 
+    panel_lower_buttons = {
+        .type = PANEL_NONE,
+        .disabled = 0,
+        .child = (PANEL*[]) {
+            (void*)&button_add, (void*)&button_groups, (void*)&button_transfer, (void*)&button_settings,
+            NULL
+        }
+    },
+
     /* The friends and group was called list */
     panel_roster = {
         .type = PANEL_NONE,
@@ -511,20 +520,11 @@ panel_side_bar = {
             NULL
         }
     },
-
         panel_roster_list = {
             .type = PANEL_LIST,
             .content_scroll = &scrollbar_roster,
         },
 
-    panel_lower_buttons = {
-        .type = PANEL_NONE,
-        .disabled = 0,
-        .child = (PANEL*[]) {
-            (void*)&button_add, (void*)&button_groups, (void*)&button_transfer, (void*)&button_settings,
-            NULL
-        }
-    },
 
 /* Main panel, holds the overhead/settings, or the friend/group containers */
 panel_main = {
@@ -730,16 +730,16 @@ void ui_scale(uint8_t scale)
     /* DEFAULT positions */
         panel_side_bar.x = 0;
         panel_side_bar.y = 0;
-        panel_side_bar.width = X_SIDEBAR_RIGHT;
+        panel_side_bar.width = SIDEBAR_WIDTH;
 
-        scrollbar_roster.panel.y = LIST_Y2;
+        scrollbar_roster.panel.y = ROSTER_TOP;
         scrollbar_roster.panel.width = LIST_RIGHT + 1;
-        scrollbar_roster.panel.height = LIST_BOTTOM;
+        scrollbar_roster.panel.height = ROSTER_BOTTOM;
 
         panel_roster_list.x = 0;
-        panel_roster_list.y = Y_ROSTER_TOP;
+        panel_roster_list.y = ROSTER_TOP;
         panel_roster_list.width = LIST_RIGHT + 1;
-        panel_roster_list.height = LIST_BOTTOM;
+        panel_roster_list.height = ROSTER_BOTTOM;
 
         panel_main.x = X_MAIN_LEFT;
         panel_main.y = 0;
@@ -775,33 +775,33 @@ void ui_scale(uint8_t scale)
         PANEL b_add = {
             .type = PANEL_BUTTON,
             .x = 0,
-            .y = LIST_BOTTOM,
-            .width = SCALE * 27,
-            .height = -LIST_BOTTOM,
+            .y = SIDEBAR_BUTTON_TOP,
+            .width = SIDEBAR_BUTTON_WIDTH,
+            .height = SIDEBAR_BUTTON_HEIGHT,
         },
 
         b_groups = {
             .type = PANEL_BUTTON,
             .x = SCALE * 28 * 1,
-            .y = LIST_BOTTOM,
-            .width = SCALE * 27,
-            .height = -LIST_BOTTOM,
+            .y = SIDEBAR_BUTTON_TOP,
+            .width = SIDEBAR_BUTTON_WIDTH,
+            .height = SIDEBAR_BUTTON_HEIGHT,
         },
 
         b_transfer = {
             .type = PANEL_BUTTON,
             .x = SCALE * 28 * 2,
-            .y = LIST_BOTTOM,
-            .width = SCALE * 27,
-            .height = -LIST_BOTTOM,
+            .y = SIDEBAR_BUTTON_TOP,
+            .width = SIDEBAR_BUTTON_WIDTH,
+            .height = SIDEBAR_BUTTON_HEIGHT,
         },
 
         b_settings = {
             .type = PANEL_BUTTON,
             .x = SCALE * 28 * 3,
-            .y = LIST_BOTTOM,
-            .width = SCALE * 27,
-            .height = -LIST_BOTTOM,
+            .y = SIDEBAR_BUTTON_TOP,
+            .width = SIDEBAR_BUTTON_WIDTH,
+            .height = SIDEBAR_BUTTON_HEIGHT,
         },
 
         b_copyid = {
