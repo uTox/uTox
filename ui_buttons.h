@@ -108,6 +108,10 @@ static void button_add_friend_onpress(void)
     edit_resetfocus();
 }
 
+static void button_filter_friends_mdown(void) {
+        FILTER = !FILTER;
+}
+
 static void button_add_onpress(void)
 {
     list_selectaddfriend();
@@ -516,6 +520,12 @@ button_settings_sub_av = {
     .nodraw       = 1,
     .onpress      = button_settings_sub_av_onpress,
     .tooltip_text = { .i18nal = STR_AUDIO_VIDEO },
+},
+
+button_filter_friends = {
+    .nodraw       = 1,
+    .onpress      = button_filter_friends_mdown,
+    .tooltip_text = { .i18nal = STR_FILTER_TO_ONLINE },
 },
 
 button_add = {

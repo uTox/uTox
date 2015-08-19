@@ -57,26 +57,40 @@ void draw_avatar_image(UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, u
 
 /* Top left self interface Avatar, name, statusmsg, status icon */
 static void draw_user_badge(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height)){
+    /*draw avatar or default image */
+    if (self_has_avatar()) {
+        draw_avatar_image(self.avatar.image, SIDEBAR_AVATAR_LEFT, SIDEBAR_AVATAR_TOP,
+                          self.avatar.width, self.avatar.height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
+    } else {
+        drawalpha(BM_CONTACT, SIDEBAR_AVATAR_LEFT, SIDEBAR_AVATAR_TOP,
+                  BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_MENU_TEXT);
+    }
+    /* Draw name */
     setcolor(!button_name.mouseover ? COLOR_MENU_TEXT : COLOR_MENU_SUBTEXT);
     setfont(FONT_SELF_NAME);
     drawtextrange(SIDEBAR_NAME_LEFT, SIDEBAR_NAME_WIDTH, SIDEBAR_NAME_TOP, self.name, self.name_length);
 
-    // @TODO: separate these colors if needed (COLOR_MAIN_HINTTEXT)
+    /*&Draw current status message
+    @TODO: separate these colors if needed (COLOR_MAIN_HINTTEXT) */
     setcolor(!button_statusmsg.mouseover ? COLOR_MENU_SUBTEXT : COLOR_MAIN_HINTTEXT);
     setfont(FONT_STATUS);
-    drawtextrange(SIDEBAR_STATUSMSG_LEFT, SIDEBAR_STATUSMSG_WIDTH, SIDEBAR_STATUSMSG_TOP, self.statusmsg, self.statusmsg_length);
+    drawtextrange(SIDEBAR_STATUSMSG_LEFT, SIDEBAR_STATUSMSG_WIDTH, SIDEBAR_STATUSMSG_TOP,
+                  self.statusmsg, self.statusmsg_length);
 
-    // draw avatar or default image
-    if (self_has_avatar()) {
-        draw_avatar_image(self.avatar.image, SIDEBAR_AVATAR_LEFT, SIDEBAR_AVATAR_TOP, self.avatar.width, self.avatar.height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
-    } else {
-        drawalpha(BM_CONTACT, SIDEBAR_AVATAR_LEFT, SIDEBAR_AVATAR_TOP, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_MENU_TEXT);
-    }
-
-    drawalpha(BM_STATUSAREA, SELF_STATUS_X, SELF_STATUS_Y, BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT, button_status.mouseover ? COLOR_LIST_HOVER_BACKGROUND : COLOR_LIST_BACKGROUND);
-
+    /* Draw status button icon */
+    drawalpha(BM_STATUSAREA, SELF_STATUS_X, SELF_STATUS_Y, BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT,
+              button_status.mouseover ? COLOR_LIST_HOVER_BACKGROUND : COLOR_LIST_BACKGROUND);
     uint8_t status = tox_connected ? self.status : 3;
-    drawalpha(BM_ONLINE + status, SELF_STATUS_X + BM_STATUSAREA_WIDTH / 2 - BM_STATUS_WIDTH / 2, SELF_STATUS_Y + BM_STATUSAREA_HEIGHT / 2 - BM_STATUS_WIDTH / 2, BM_STATUS_WIDTH, BM_STATUS_WIDTH, status_color[status]);
+    drawalpha(BM_ONLINE + status, SELF_STATUS_X + BM_STATUSAREA_WIDTH / 2 - BM_STATUS_WIDTH / 2,
+              SELF_STATUS_Y + BM_STATUSAREA_HEIGHT / 2 - BM_STATUS_WIDTH / 2, BM_STATUS_WIDTH, BM_STATUS_WIDTH,
+              status_color[status]);
+
+    /* Draw online/all friends filter text. */
+    setcolor(!button_filter_friends.mouseover ? COLOR_MENU_SUBTEXT : COLOR_MAIN_HINTTEXT);
+    setfont(FONT_STATUS);
+    drawtextrange(SIDEBAR_FILTER_FRIENDS_LEFT, SIDEBAR_FILTER_FRIENDS_WIDTH, SIDEBAR_FILTER_FRIENDS_TOP,
+                  FILTER ? S(FILTER_ALL)    : S(FILTER_ONLINE),
+                  FILTER ? SLEN(FILTER_ALL) : SLEN(FILTER_ONLINE) );
 }
 
 /* Header for friend chat window */
@@ -487,6 +501,8 @@ panel_side_bar = {
         .child = (PANEL*[]) {
             (void*)&button_avatar, (void*)&button_name,       (void*)&button_status,
                                    (void*)&button_statusmsg,
+            (void*)&button_filter_friends,
+            (void*)&edit_search,
             NULL
         }
     },
@@ -506,7 +522,6 @@ panel_side_bar = {
         .disabled = 0,
         .child = (PANEL*[]) {
             // TODO rename these
-            (void*)&edit_search, (void*)&dropdown_filter,
             (void*)&panel_roster_list,
             (void*)&scrollbar_roster,
             NULL
@@ -694,8 +709,7 @@ panel_main = {
                 }
             };
 
-void ui_scale(uint8_t scale)
-{
+void ui_scale(uint8_t scale) {
     if(SCALE != scale) {
         SCALE = scale;
     }
@@ -781,27 +795,35 @@ void ui_scale(uint8_t scale)
         },
 
         /* Buttons */
+        b_filter_friends = {
+            .type   = PANEL_BUTTON,
+            .x      = SIDEBAR_FILTER_FRIENDS_LEFT,
+            .y      = SIDEBAR_FILTER_FRIENDS_TOP,
+            .width  = SIDEBAR_FILTER_FRIENDS_WIDTH,
+            .height = SIDEBAR_FILTER_FRIENDS_HEIGHT,
+        },
+
         b_add = {
-            .type = PANEL_BUTTON,
-            .x = 0,
-            .y = SIDEBAR_BUTTON_TOP,
-            .width = SIDEBAR_BUTTON_WIDTH,
+            .type   = PANEL_BUTTON,
+            .y      = SIDEBAR_BUTTON_TOP,
+            .x      = SIDEBAR_BUTTON_LEFT * 0,
+            .width  = SIDEBAR_BUTTON_WIDTH,
             .height = SIDEBAR_BUTTON_HEIGHT,
         },
 
         b_groups = {
-            .type = PANEL_BUTTON,
-            .x = SCALE * 28 * 1,
-            .y = SIDEBAR_BUTTON_TOP,
-            .width = SIDEBAR_BUTTON_WIDTH,
+            .type   = PANEL_BUTTON,
+            .y      = SIDEBAR_BUTTON_TOP,
+            .x      = SIDEBAR_BUTTON_LEFT * 1,
+            .width  = SIDEBAR_BUTTON_WIDTH,
             .height = SIDEBAR_BUTTON_HEIGHT,
         },
 
         b_settings = {
             .type = PANEL_BUTTON,
-            .x = SCALE * 28 * 3,
-            .y = SIDEBAR_BUTTON_TOP,
-            .width = SIDEBAR_BUTTON_WIDTH,
+            .y      = SIDEBAR_FILTER_FRIENDS_TOP,
+            .x      = SIDEBAR_BUTTON_LEFT * 3,
+            .width  = SIDEBAR_BUTTON_WIDTH,
             .height = SIDEBAR_BUTTON_HEIGHT,
         },
 
@@ -949,6 +971,7 @@ void ui_scale(uint8_t scale)
 
     /* Set the button panels */
         button_add.panel = b_add;
+        button_filter_friends.panel = b_filter_friends;
         button_settings.panel = b_settings;
         button_groups.panel = b_groups;
         button_copyid.panel = b_copyid;
@@ -1044,14 +1067,6 @@ void ui_scale(uint8_t scale)
             .width  = 100 * SCALE
         },
 
-        d_filter = {
-            .type   = PANEL_DROPDOWN,
-            .x      = LIST_RIGHT - SCALE * 25,
-            .y      = SEARCH_Y,
-            .height = 12  * SCALE,
-            .width  = 25  * SCALE,
-        },
-
         d_proxy = {
             .type   = PANEL_DROPDOWN,
             .x      = 5   * SCALE,
@@ -1130,7 +1145,6 @@ void ui_scale(uint8_t scale)
         dropdown_video.panel = d_video;
         dropdown_dpi.panel = d_dpi;
         dropdown_language.panel = d_language;
-        dropdown_filter.panel = d_filter;
         dropdown_proxy.panel = d_proxy;
         dropdown_ipv6.panel = d_ipv6;
         dropdown_udp.panel = d_udp;
@@ -1208,11 +1222,11 @@ void ui_scale(uint8_t scale)
         },
 
         e_search = {
-            .type = PANEL_EDIT,
-            .x = 0,
-            .y = SEARCH_Y,
-            .height = 12 * SCALE,
-            .width = LIST_RIGHT - SCALE * 25,
+            .type   = PANEL_EDIT,
+            .y      = SIDEBAR_SEARCH_TOP,
+            .x      = SIDEBAR_SEARCH_LEFT,
+            .width  = SIDEBAR_SEARCH_WIDTH,
+            .height = SIDEBAR_SEARCH_HEIGHT,
         },
 
         e_proxy_ip = {

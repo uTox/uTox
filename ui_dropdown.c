@@ -48,11 +48,6 @@ static STRING* dropdown_language_ondisplay(uint16_t i, const DROPDOWN* UNUSED(dm
     return SPTRFORLANG(l, STR_LANG_NATIVE_NAME);
 }
 
-static void dropdown_filter_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
-{
-    FILTER = !!i;
-}
-
 static void dropdown_proxy_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
 {
     if((i != 0) != (options.proxy_type) || i) {
@@ -148,11 +143,6 @@ static UI_STRING_ID dpidrops[] = {
     STR_DPI_HUGE,
 };
 
-static UI_STRING_ID filterdrops[] = {
-    STR_CONTACTS_FILTER_ALL,
-    STR_CONTACTS_FILTER_ONLINE,
-};
-
 static UI_STRING_ID proxydrops[] = {
     STR_PROXY_DISABLED,
     STR_PROXY_FALLBACK,
@@ -200,14 +190,6 @@ dropdown_language = {
     .ondisplay = dropdown_language_ondisplay,
     .onselect = dropdown_language_onselect,
     .dropcount = LANGS_MAX+1,
-},
-
-dropdown_filter = {
-    .ondisplay = simple_dropdown_ondisplay,
-    .onselect = dropdown_filter_onselect,
-    .dropcount = countof(filterdrops),
-    .style = AUXILIARY_STYLE,
-    .userdata = filterdrops
 },
 
 dropdown_proxy = {

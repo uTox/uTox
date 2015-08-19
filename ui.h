@@ -123,24 +123,34 @@ uint8_t SCALE;
 /* Left sidebar defines */
 #define SIDEBAR_WIDTH (111 * SCALE)
 
-#define SIDEBAR_BUTTON_TOP    (43 * SCALE)
-#define SIDEBAR_BUTTON_HEIGHT (18 * SCALE)
+
+#define SIDEBAR_AVATAR_TOP            (5   * SCALE)
+#define SIDEBAR_AVATAR_LEFT           (5   * SCALE)
+#define SIDEBAR_AVATAR_WIDTH          (5   * SCALE)
+#define SIDEBAR_AVATAR_HEIGHT         (5   * SCALE)
+#define SIDEBAR_NAME_TOP              (8   * SCALE)
+#define SIDEBAR_NAME_LEFT             (32  * SCALE)
+#define SIDEBAR_NAME_WIDTH            (95  * SCALE)
+#define SIDEBAR_NAME_HEIGHT           (9   * SCALE)
+#define SIDEBAR_STATUSMSG_TOP         (16  * SCALE)
+#define SIDEBAR_STATUSMSG_LEFT        (32  * SCALE)
+#define SIDEBAR_STATUSMSG_WIDTH       (95  * SCALE)
+#define SIDEBAR_STATUSMSG_HEIGHT      (6   * SCALE)
+#define SIDEBAR_SEARCH_TOP            (38  * SCALE)
+#define SIDEBAR_SEARCH_LEFT           (0   * SCALE)
+#define SIDEBAR_SEARCH_WIDTH          (84  * SCALE)
+#define SIDEBAR_SEARCH_HEIGHT         (12 * SCALE)
+#define SIDEBAR_FILTER_FRIENDS_TOP    (31  * SCALE)
+#define SIDEBAR_FILTER_FRIENDS_LEFT   (2   * SCALE)
+#define SIDEBAR_FILTER_FRIENDS_WIDTH  (84  * SCALE)
+#define SIDEBAR_FILTER_FRIENDS_HEIGHT (6   * SCALE)
+
+#define SIDEBAR_BUTTON_TOP    (51 * SCALE)
+#define SIDEBAR_BUTTON_LEFT   (28 * SCALE)
 #define SIDEBAR_BUTTON_WIDTH  (27 * SCALE)
+#define SIDEBAR_BUTTON_HEIGHT (18 * SCALE)
 
-#define SIDEBAR_AVATAR_TOP       (5  * SCALE)
-#define SIDEBAR_AVATAR_LEFT      (5  * SCALE)
-#define SIDEBAR_AVATAR_WIDTH     (5  * SCALE)
-#define SIDEBAR_AVATAR_HEIGHT    (5  * SCALE)
-#define SIDEBAR_NAME_TOP         (8  * SCALE)
-#define SIDEBAR_NAME_LEFT        (32 * SCALE)
-#define SIDEBAR_NAME_WIDTH       (95 * SCALE)
-#define SIDEBAR_NAME_HEIGHT      (9  * SCALE)
-#define SIDEBAR_STATUSMSG_TOP    (16 * SCALE)
-#define SIDEBAR_STATUSMSG_LEFT   (32 * SCALE)
-#define SIDEBAR_STATUSMSG_WIDTH  (95 * SCALE)
-#define SIDEBAR_STATUSMSG_HEIGHT (6  * SCALE)
-
-#define ROSTER_TOP    (61 * SCALE)
+#define ROSTER_TOP    (69 * SCALE)
 #define ROSTER_LEFT   (8  * SCALE)
 #define ROSTER_BOTTOM (-1 * SCALE)
 
@@ -181,7 +191,6 @@ uint8_t SCALE;
 
 #define MESSAGES_BOTTOM (-47 * SCALE)
 
-#define SEARCH_Y (31 * SCALE) - 1
 
 /* main */
 //#define MAIN_X
