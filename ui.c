@@ -59,18 +59,18 @@ void draw_avatar_image(UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, u
 static void draw_user_badge(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height)){
     setcolor(!button_name.mouseover ? COLOR_MENU_TEXT : COLOR_MENU_SUBTEXT);
     setfont(FONT_SELF_NAME);
-    drawtextrange(SELF_NAME_X, SELF_STATUS_X, SELF_NAME_Y, self.name, self.name_length);
+    drawtextrange(SIDEBAR_NAME_LEFT, SIDEBAR_NAME_WIDTH, SIDEBAR_NAME_TOP, self.name, self.name_length);
 
     // @TODO: separate these colors if needed (COLOR_MAIN_HINTTEXT)
     setcolor(!button_statusmsg.mouseover ? COLOR_MENU_SUBTEXT : COLOR_MAIN_HINTTEXT);
     setfont(FONT_STATUS);
-    drawtextrange(SELF_MSG_X, SELF_STATUS_X, SELF_MSG_Y, self.statusmsg, self.statusmsg_length);
+    drawtextrange(SIDEBAR_STATUSMSG_LEFT, SIDEBAR_STATUSMSG_WIDTH, SIDEBAR_STATUSMSG_TOP, self.statusmsg, self.statusmsg_length);
 
     // draw avatar or default image
     if (self_has_avatar()) {
-        draw_avatar_image(self.avatar.image, SELF_AVATAR_X, SELF_AVATAR_Y, self.avatar.width, self.avatar.height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
+        draw_avatar_image(self.avatar.image, SIDEBAR_AVATAR_LEFT, SIDEBAR_AVATAR_TOP, self.avatar.width, self.avatar.height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
     } else {
-        drawalpha(BM_CONTACT, SELF_AVATAR_X, SELF_AVATAR_Y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_MENU_TEXT);
+        drawalpha(BM_CONTACT, SIDEBAR_AVATAR_LEFT, SIDEBAR_AVATAR_TOP, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_MENU_TEXT);
     }
 
     drawalpha(BM_STATUSAREA, SELF_STATUS_X, SELF_STATUS_Y, BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT, button_status.mouseover ? COLOR_LIST_HOVER_BACKGROUND : COLOR_LIST_BACKGROUND);
@@ -486,7 +486,6 @@ panel_side_bar = {
         NULL
     }
 },
-
     /* The user badge and buttons */
     panel_self = {
         .type = PANEL_NONE,
@@ -524,8 +523,6 @@ panel_side_bar = {
             .type = PANEL_LIST,
             .content_scroll = &scrollbar_roster,
         },
-
-
 /* Main panel, holds the overhead/settings, or the friend/group containers */
 panel_main = {
     .type = PANEL_NONE,
@@ -536,7 +533,6 @@ panel_main = {
         NULL
     }
 },
-
     /* Chat panel, friend or group, depending on what's selected */
     panel_chat = {
         .type = PANEL_NONE,
@@ -548,7 +544,6 @@ panel_main = {
             NULL
         }
     },
-
         panel_group_chat = {
             .type = PANEL_NONE,
             .disabled = 1,
@@ -562,7 +557,6 @@ panel_main = {
                 NULL
             }
         },
-
         panel_friend_chat ={
             .type = PANEL_NONE,
             .disabled = 1,
@@ -576,7 +570,6 @@ panel_main = {
                 NULL
             }
         },
-
         panel_friend_request = {
             .type = PANEL_NONE,
             .disabled = 1,
@@ -586,7 +579,6 @@ panel_main = {
                 NULL
             }
         },
-
     /* Settings master panel, holds the lower level settings */
     panel_overhead = {
         .type = PANEL_NONE,
@@ -741,7 +733,7 @@ void ui_scale(uint8_t scale)
         panel_roster_list.width = LIST_RIGHT + 1;
         panel_roster_list.height = ROSTER_BOTTOM;
 
-        panel_main.x = X_MAIN_LEFT;
+        panel_main.x = MAIN_LEFT;
         panel_main.y = 0;
 
         scrollbar_settings.panel.y = 16 * SCALE;
@@ -947,27 +939,27 @@ void ui_scale(uint8_t scale)
         },
 
         b_avatar = {
-            .type = PANEL_BUTTON,
-            .x = SELF_AVATAR_X,
-            .y = SELF_AVATAR_Y,
-            .width = BM_CONTACT_WIDTH,
+            .type   = PANEL_BUTTON,
+            .x      = SIDEBAR_AVATAR_LEFT,
+            .y      = SIDEBAR_AVATAR_TOP,
+            .width  = BM_CONTACT_WIDTH,
             .height = BM_CONTACT_WIDTH,
         },
 
         b_name = {
-            .type = PANEL_BUTTON,
-            .x = SELF_NAME_X,
-            .y = SELF_NAME_Y + 2 * SCALE,
-            .width = SELF_STATUS_X - SELF_NAME_X,
-            .height = SELF_MSG_Y - SELF_NAME_Y,
+            .type   = PANEL_BUTTON,
+            .x      = SIDEBAR_NAME_LEFT,
+            .y      = SIDEBAR_NAME_TOP,
+            .width  = SIDEBAR_NAME_WIDTH,
+            .height = SIDEBAR_NAME_HEIGHT,
         },
 
         b_statusmsg = {
-            .type = PANEL_BUTTON,
-            .x = SELF_MSG_X,
-            .y = SELF_MSG_Y + 2 * SCALE,
-            .width = SELF_STATUS_X - SELF_MSG_X,
-            .height = 6 * SCALE,
+            .type   = PANEL_BUTTON,
+            .x      = SIDEBAR_STATUSMSG_LEFT,
+            .y      = SIDEBAR_STATUSMSG_TOP,
+            .width  = SIDEBAR_STATUSMSG_WIDTH,
+            .height = SIDEBAR_STATUSMSG_HEIGHT,
         },
 
         b_status = {

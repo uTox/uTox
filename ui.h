@@ -127,26 +127,29 @@ uint8_t SCALE;
 #define SIDEBAR_BUTTON_HEIGHT (18 * SCALE)
 #define SIDEBAR_BUTTON_WIDTH  (27 * SCALE)
 
-#define ROSTER_TOP (61 * SCALE)
-#define ROSTER_LEFT (8 * SCALE)
+#define SIDEBAR_AVATAR_TOP       (5  * SCALE)
+#define SIDEBAR_AVATAR_LEFT      (5  * SCALE)
+#define SIDEBAR_AVATAR_WIDTH     (5  * SCALE)
+#define SIDEBAR_AVATAR_HEIGHT    (5  * SCALE)
+#define SIDEBAR_NAME_TOP         (8  * SCALE)
+#define SIDEBAR_NAME_LEFT        (32 * SCALE)
+#define SIDEBAR_NAME_WIDTH       (95 * SCALE)
+#define SIDEBAR_NAME_HEIGHT      (9  * SCALE)
+#define SIDEBAR_STATUSMSG_TOP    (16 * SCALE)
+#define SIDEBAR_STATUSMSG_LEFT   (32 * SCALE)
+#define SIDEBAR_STATUSMSG_WIDTH  (95 * SCALE)
+#define SIDEBAR_STATUSMSG_HEIGHT (6  * SCALE)
+
+#define ROSTER_TOP    (61 * SCALE)
+#define ROSTER_LEFT   (8  * SCALE)
 #define ROSTER_BOTTOM (-1 * SCALE)
 
-#define SELF_NAME_X (32 * SCALE)
-#define SELF_NAME_Y (8 * SCALE)
-
-#define SELF_MSG_X (32 * SCALE)
-#define SELF_MSG_Y (15 * SCALE)
-
-#define SELF_AVATAR_X (5 * SCALE)
-#define SELF_AVATAR_Y (5 * SCALE)
-
 #define SELF_STATUS_X (96 * SCALE)
-#define SELF_STATUS_Y (5 * SCALE)
+#define SELF_STATUS_Y (5  * SCALE)
 
 
-
-
-#define X_MAIN_LEFT ((111 * SCALE) + 1)
+/* Main panel defines */
+#define MAIN_LEFT ((111 * SCALE) + 1)
 
 /* Roster defines */
 #define LIST_X (8 * SCALE)
