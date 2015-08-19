@@ -118,11 +118,6 @@ static void button_groups_onpress(void)
     tox_postmessage(TOX_NEWGROUP, 1, 0, NULL);
 }
 
-static void button_transfer_onpress(void)
-{
-    list_selectswap();
-}
-
 static void button_settings_onpress(void)
 {
     list_selectsettings();
@@ -539,15 +534,6 @@ button_groups = {
     .update = button_bottommenu_update,
     .onpress = button_groups_onpress,
     .tooltip_text = { .i18nal = STR_CREATEGROUPCHAT },
-},
-
-button_transfer = {
-    .bm2 = BM_TRANSFER,
-    .bw = _BM_ADD_WIDTH,
-    .bh = _BM_ADD_WIDTH,
-    .update = button_bottommenu_update,
-    .onpress = button_transfer_onpress,
-    .tooltip_text = { .i18nal = STR_SWITCHPROFILE },
 },
 
 button_settings = {

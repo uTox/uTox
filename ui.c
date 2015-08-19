@@ -244,13 +244,6 @@ static void draw_settings_header(int UNUSED(x), int UNUSED(y), int UNUSED(width)
 }
 
 /* draw switch profile top bar */
-/* Current TODO */
-static void draw_change_profile(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height)){
-    setcolor(COLOR_MAIN_TEXT);
-    setfont(FONT_SELF_NAME);
-    drawstr(LIST_RIGHT + SCALE * 5, SCALE * 10, SWITCHPROFILE);
-}
-
 /* Text content for settings page */
 static void draw_settings_text_profile(int x, int y, int w, int h){
     setcolor(COLOR_MAIN_TEXT);
@@ -502,7 +495,7 @@ panel_side_bar = {
         .type = PANEL_NONE,
         .disabled = 0,
         .child = (PANEL*[]) {
-            (void*)&button_add, (void*)&button_groups, (void*)&button_transfer, (void*)&button_settings,
+            (void*)&button_add, (void*)&button_groups, (void*)&button_settings,
             NULL
         }
     },
@@ -598,16 +591,6 @@ panel_main = {
             .child = (PANEL*[]) {
                 (void*)&button_add_friend,
                 (void*)&edit_add_id, (void*)&edit_add_msg,
-                NULL
-            }
-        },
-
-        panel_change_profile = {
-            .type = PANEL_NONE,
-            .disabled = 1,
-            .drawfunc = draw_change_profile,
-            .child = (PANEL*[]) {
-                /* Does nothing for now... sorry about that */
                 NULL
             }
         },
@@ -764,7 +747,41 @@ void ui_scale(uint8_t scale)
     setfont(FONT_SELF_NAME);
 
     /* Button Structs  */
-        PANEL b_add = {
+        /* Self badge box*/
+        PANEL b_avatar = {
+            .type   = PANEL_BUTTON,
+            .x      = SIDEBAR_AVATAR_LEFT,
+            .y      = SIDEBAR_AVATAR_TOP,
+            .width  = BM_CONTACT_WIDTH,
+            .height = BM_CONTACT_WIDTH,
+        },
+
+        b_name = {
+            .type   = PANEL_BUTTON,
+            .x      = SIDEBAR_NAME_LEFT,
+            .y      = SIDEBAR_NAME_TOP,
+            .width  = SIDEBAR_NAME_WIDTH,
+            .height = SIDEBAR_NAME_HEIGHT,
+        },
+
+        b_statusmsg = {
+            .type   = PANEL_BUTTON,
+            .x      = SIDEBAR_STATUSMSG_LEFT,
+            .y      = SIDEBAR_STATUSMSG_TOP,
+            .width  = SIDEBAR_STATUSMSG_WIDTH,
+            .height = SIDEBAR_STATUSMSG_HEIGHT,
+        },
+
+        b_status = {
+            .type = PANEL_BUTTON,
+            .x = SELF_STATUS_X,
+            .y = SELF_STATUS_Y,
+            .width = BM_STATUSAREA_WIDTH,
+            .height = BM_STATUSAREA_HEIGHT,
+        },
+
+        /* Buttons */
+        b_add = {
             .type = PANEL_BUTTON,
             .x = 0,
             .y = SIDEBAR_BUTTON_TOP,
@@ -775,14 +792,6 @@ void ui_scale(uint8_t scale)
         b_groups = {
             .type = PANEL_BUTTON,
             .x = SCALE * 28 * 1,
-            .y = SIDEBAR_BUTTON_TOP,
-            .width = SIDEBAR_BUTTON_WIDTH,
-            .height = SIDEBAR_BUTTON_HEIGHT,
-        },
-
-        b_transfer = {
-            .type = PANEL_BUTTON,
-            .x = SCALE * 28 * 2,
             .y = SIDEBAR_BUTTON_TOP,
             .width = SIDEBAR_BUTTON_WIDTH,
             .height = SIDEBAR_BUTTON_HEIGHT,
@@ -936,44 +945,11 @@ void ui_scale(uint8_t scale)
             .y      = -40 * SCALE,
             .height = BM_CHAT_SEND_HEIGHT,
             .width  = BM_CHAT_SEND_WIDTH,
-        },
-
-        b_avatar = {
-            .type   = PANEL_BUTTON,
-            .x      = SIDEBAR_AVATAR_LEFT,
-            .y      = SIDEBAR_AVATAR_TOP,
-            .width  = BM_CONTACT_WIDTH,
-            .height = BM_CONTACT_WIDTH,
-        },
-
-        b_name = {
-            .type   = PANEL_BUTTON,
-            .x      = SIDEBAR_NAME_LEFT,
-            .y      = SIDEBAR_NAME_TOP,
-            .width  = SIDEBAR_NAME_WIDTH,
-            .height = SIDEBAR_NAME_HEIGHT,
-        },
-
-        b_statusmsg = {
-            .type   = PANEL_BUTTON,
-            .x      = SIDEBAR_STATUSMSG_LEFT,
-            .y      = SIDEBAR_STATUSMSG_TOP,
-            .width  = SIDEBAR_STATUSMSG_WIDTH,
-            .height = SIDEBAR_STATUSMSG_HEIGHT,
-        },
-
-        b_status = {
-            .type = PANEL_BUTTON,
-            .x = SELF_STATUS_X,
-            .y = SELF_STATUS_Y,
-            .width = BM_STATUSAREA_WIDTH,
-            .height = BM_STATUSAREA_HEIGHT,
         };
 
     /* Set the button panels */
         button_add.panel = b_add;
         button_settings.panel = b_settings;
-        button_transfer.panel = b_transfer;
         button_groups.panel = b_groups;
         button_copyid.panel = b_copyid;
         button_settings_sub_profile.panel = b_settings_sub_profile;
