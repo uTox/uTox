@@ -388,15 +388,14 @@ static void write_save(Tox *tox) {
     memcpy(path_tmp, path_real, path_len);
     memcpy(path_tmp + (path_len - 1), ".tmp", sizeof(".tmp"));
 
-
-    debug("Writing tox_save to: %s ... ", (char*)path_tmp);
+    debug("Writing tox_save to: '%s': ", (char*)path_tmp);
     file = fopen((char*)path_tmp, "wb");
     if(file) {
         fwrite(data, size, 1, file);
         flush_file(file);
         fclose(file);
         if (rename((char*)path_tmp, (char*)path_real) != 0) {
-            debug("\nFailed to rename file. %s to %s deleting and trying again ... ", path_tmp, path_real);
+            debug("\nFailed to rename file %s to %s; deleting and trying again: ", path_tmp, path_real);
             remove((const char *)path_real);
             if (rename((char*)path_tmp, (char*)path_real) != 0) {
                 debug("\nSaving Failed!!\n");
@@ -404,12 +403,12 @@ static void write_save(Tox *tox) {
                 debug("Saved data\n");
             }
         } else {
-            debug("Saved data ... trying to secure ... ");
+            debug("Saved data! Trying to chmod: ");
             int ch = ch_mod(path_real);
             if(!ch){
-                debug("CHMOD: success\n");
+                debug("success!\n");
             } else {
-                debug("CHMOD: failure\n");
+                debug("failed!\n");
             }
         }
     } else {

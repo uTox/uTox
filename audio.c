@@ -144,9 +144,9 @@ void audio_thread(void *args){
     device_list = alcGetString(NULL, ALC_CAPTURE_DEVICE_SPECIFIER);
     if (device_list) {
         audio_device = (void*)device_list;
-        debug("Input Device List:\n");
+        debug("uTox audio input device list:\n");
         while(*device_list) {
-            debug("%s\n", device_list);
+            debug("\t%s\n", device_list);
             postmessage(AUDIO_IN_DEVICE, UI_STRING_ID_INVALID, 0, (void*)device_list);
             device_list += strlen(device_list) + 1;
         }
@@ -163,9 +163,9 @@ void audio_thread(void *args){
 
     if(device_list) {
         output_device = device_list;
-        debug("Output Device List:\n");
+        debug("uTox audio output device list:\n");
         while(*device_list) {
-            debug("%s\n", device_list);
+            debug("\t%s\n", device_list);
             postmessage(AUDIO_OUT_DEVICE, 0, 0, (void*)device_list);
             device_list += strlen(device_list) + 1;
         }
