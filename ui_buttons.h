@@ -547,10 +547,10 @@ button_groups = {
 },
 
 button_settings = {
-    .bm2 = BM_SETTINGS,
-    .bw = _BM_ADD_WIDTH,
-    .bh = _BM_ADD_WIDTH,
-    .update = button_bottommenu_update,
+    .bm2     = BM_SETTINGS_THREE_BAR,
+    .bw      = _BM_THREE_BAR_WIDTH,
+    .bh      = _BM_THREE_BAR_WIDTH,
+    .update  = button_bottommenu_update,
     .onpress = button_settings_onpress,
     .tooltip_text = { .i18nal = STR_USERSETTINGS },
 },

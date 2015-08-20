@@ -122,73 +122,77 @@ uint8_t SCALE;
 /* Left sidebar defines */
 #define SIDEBAR_WIDTH (111 * SCALE)
 
+/* User badge */
+#define SIDEBAR_AVATAR_TOP              (5  * SCALE)
+#define SIDEBAR_AVATAR_LEFT             (5  * SCALE)
+#define SIDEBAR_AVATAR_WIDTH            (5  * SCALE)
+#define SIDEBAR_AVATAR_HEIGHT           (5  * SCALE)
+#define SIDEBAR_NAME_TOP                (8  * SCALE)
+#define SIDEBAR_NAME_LEFT               (32 * SCALE)
+#define SIDEBAR_NAME_WIDTH              (95 * SCALE)
+#define SIDEBAR_NAME_HEIGHT             (9  * SCALE)
+#define SIDEBAR_STATUSMSG_TOP           (16 * SCALE)
+#define SIDEBAR_STATUSMSG_LEFT          (32 * SCALE)
+#define SIDEBAR_STATUSMSG_WIDTH         (95 * SCALE)
+#define SIDEBAR_STATUSMSG_HEIGHT        (6  * SCALE)
 
-#define SIDEBAR_AVATAR_TOP            (5   * SCALE)
-#define SIDEBAR_AVATAR_LEFT           (5   * SCALE)
-#define SIDEBAR_AVATAR_WIDTH          (5   * SCALE)
-#define SIDEBAR_AVATAR_HEIGHT         (5   * SCALE)
-#define SIDEBAR_NAME_TOP              (8   * SCALE)
-#define SIDEBAR_NAME_LEFT             (32  * SCALE)
-#define SIDEBAR_NAME_WIDTH            (95  * SCALE)
-#define SIDEBAR_NAME_HEIGHT           (9   * SCALE)
-#define SIDEBAR_STATUSMSG_TOP         (16  * SCALE)
-#define SIDEBAR_STATUSMSG_LEFT        (32  * SCALE)
-#define SIDEBAR_STATUSMSG_WIDTH       (95  * SCALE)
-#define SIDEBAR_STATUSMSG_HEIGHT      (6   * SCALE)
-#define SIDEBAR_SEARCH_TOP            (38  * SCALE)
-#define SIDEBAR_SEARCH_LEFT           (0   * SCALE)
-#define SIDEBAR_SEARCH_WIDTH          (84  * SCALE)
-#define SIDEBAR_SEARCH_HEIGHT         (12 * SCALE)
-#define SIDEBAR_FILTER_FRIENDS_TOP    (31  * SCALE)
-#define SIDEBAR_FILTER_FRIENDS_LEFT   (2   * SCALE)
-#define SIDEBAR_FILTER_FRIENDS_WIDTH  (84  * SCALE)
-#define SIDEBAR_FILTER_FRIENDS_HEIGHT (6   * SCALE)
+#define SIDEBAR_FILTER_FRIENDS_TOP      (31 * SCALE)
+#define SIDEBAR_FILTER_FRIENDS_LEFT     (23 * SCALE)
+#define SIDEBAR_FILTER_FRIENDS_WIDTH    (84 * SCALE)
+#define SIDEBAR_FILTER_FRIENDS_HEIGHT   (6  * SCALE)
 
-#define SIDEBAR_BUTTON_TOP    (51 * SCALE)
-#define SIDEBAR_BUTTON_LEFT   (28 * SCALE)
-#define SIDEBAR_BUTTON_WIDTH  (27 * SCALE)
-#define SIDEBAR_BUTTON_HEIGHT (18 * SCALE)
+#define SIDEBAR_SEARCH_TOP              (38 * SCALE)
+#define SIDEBAR_SEARCH_LEFT             (28 * SCALE)
+#define SIDEBAR_SEARCH_WIDTH            (84 * SCALE)
+#define SIDEBAR_SEARCH_HEIGHT           (12 * SCALE)
 
-#define ROSTER_TOP    (69 * SCALE)
-#define ROSTER_LEFT   (8  * SCALE)
-#define ROSTER_BOTTOM (-1 * SCALE)
+#define SIDEBAR_MENU_BUTTON_TOP         (31 * SCALE)
+#define SIDEBAR_MENU_BUTTON_LEFT        (0  * SCALE)
+#define SIDEBAR_MENU_BUTTON_WIDTH       (27 * SCALE)
+#define SIDEBAR_MEND_BUTTON_HEIGHT      (18 * SCALE)
 
-#define SELF_STATUS_X (96 * SCALE)
-#define SELF_STATUS_Y (5  * SCALE)
+#define SIDEBAR_BUTTON_TOP              (31 * SCALE)
+#define SIDEBAR_BUTTON_LEFT             (0  * SCALE)
+#define SIDEBAR_BUTTON_WIDTH            (27 * SCALE)
+#define SIDEBAR_BUTTON_HEIGHT           (18 * SCALE)
+
+#define ROSTER_TOP                      (69 * SCALE)
+#define ROSTER_LEFT                     (8  * SCALE)
+#define ROSTER_BOTTOM                   (-1 * SCALE)
+
+#define SELF_STATUS_X                   (96 * SCALE)
+#define SELF_STATUS_Y                   (5  * SCALE)
 
 
 /* Main panel defines */
-#define MAIN_LEFT ((111 * SCALE) + 1)
+#define MAIN_LEFT                       (111 * SCALE) + 1
 
 /* Roster defines */
-#define LIST_X (8 * SCALE)
-#define LIST_RIGHT (111 * SCALE)
-#define LIST_Y (31 * SCALE)
-#define LIST_Y2 (43 * SCALE)
+#define LIST_X                          (8 * SCALE)
+#define LIST_RIGHT                      (111 * SCALE)
+#define LIST_Y                          (31 * SCALE)
+#define LIST_Y2                         (43 * SCALE)
 
+#define LIST_NAME_X                     (37 * SCALE)
+#define LIST_NAME_Y                     (6 * SCALE)
 
-#define LIST_NAME_X (37 * SCALE)
-#define LIST_NAME_Y (6 * SCALE)
+#define LIST_STATUS_X                   (37 * SCALE)
+#define LIST_STATUS_Y                   (13 * SCALE)
 
-#define LIST_STATUS_X (37 * SCALE)
-#define LIST_STATUS_Y (13 * SCALE)
+#define LIST_AVATAR_X                   (LIST_X + 5 * SCALE / 2)
+#define LIST_AVATAR_Y                   (5 * SCALE / 2)
 
-#define LIST_AVATAR_X (LIST_X + 5 * SCALE / 2)
-#define LIST_AVATAR_Y (5 * SCALE / 2)
+#define LIST_BUTTON_Y                   (-13 * SCALE)
+#define ITEM_HEIGHT                     (25 * SCALE)
 
-#define LIST_BUTTON_Y (-13 * SCALE)
+#define SCROLL_WIDTH                    (4 * SCALE) //must be divisible by 2
 
-#define ITEM_HEIGHT (25 * SCALE)
+#define MESSAGES_SPACING                (SCALE * 2)
+#define MESSAGES_X                      (55 * SCALE)
+#define TIME_WIDTH                      (16 * SCALE)
+#define NAME_OFFSET                     (7 * SCALE)
 
-#define SCROLL_WIDTH (4 * SCALE) //must be divisible by 2
-
-
-#define MESSAGES_SPACING (SCALE * 2)
-#define MESSAGES_X (55 * SCALE)
-#define TIME_WIDTH (16 * SCALE)
-#define NAME_OFFSET (7 * SCALE)
-
-#define MESSAGES_BOTTOM (-47 * SCALE)
+#define MESSAGES_BOTTOM                 (-47 * SCALE)
 
 
 /* main */

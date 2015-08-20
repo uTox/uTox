@@ -6,8 +6,7 @@ static int active_x, active_y, active_width, active_height;
 #define index(b, i) (i == 0 ? b->selected : ((i > b->selected) ? i : i - 1))
 
 // Draw background rectangles for a dropdown
-void dropdown_drawactive(void)
-{
+void dropdown_drawactive(void) {
     DROPDOWN *b = active;
     if(!b) {
         return;
@@ -79,8 +78,7 @@ void dropdown_drawactive(void)
 }
 
 // Draw collapsed dropdown
-void dropdown_draw(DROPDOWN *b, int x, int y, int width, int height)
-{
+void dropdown_draw(DROPDOWN *b, int x, int y, int width, int height) {
     if(!b->open) {
         // load colors for this style
         uint32_t color_bg,
