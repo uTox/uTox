@@ -155,7 +155,7 @@ uint8_t SCALE;
 #define SIDEBAR_BUTTON_WIDTH            (27 * SCALE)
 #define SIDEBAR_BUTTON_HEIGHT           (18 * SCALE)
 
-#define ROSTER_TOP                      (69 * SCALE)
+#define ROSTER_TOP                      (51 * SCALE)
 #define ROSTER_LEFT                     (8  * SCALE)
 #define ROSTER_BOTTOM                   (-1 * SCALE)
 
