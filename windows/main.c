@@ -912,8 +912,6 @@ int file_unlock(FILE *file, uint64_t start, size_t length){
     return UnlockFileEx(file, 0, start, start + length, &lock_overlap);
 }
 
-
-
 /** Creates a tray baloon popup with the message, and flashes the main window
  *
  * accepts: char_t *title, title length, char_t *msg, msg length;
@@ -944,14 +942,10 @@ void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_
 
 void showkeyboard(_Bool show){} /* Added for android support. */
 
-void edit_will_deactivate(void)
-{
-
-}
+void edit_will_deactivate(void){}
 
 /* Redraws the main UI window */
-void redraw(void)
-{
+void redraw(void) {
     panel_draw(&panel_root, 0, 0, utox_window_width, utox_window_height);
 }
 
