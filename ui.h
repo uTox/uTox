@@ -1,4 +1,3 @@
-
 /* draws an image in the style of an avatar at within rect (x,y,targetwidth,targetheight)
  * this means: resize the image while keeping proportion so that the dimension(width or height) that has the smallest rational difference to the targetdimension becomes exactly targetdimension, then
  * crop the image so it fits in the (x,y,targetwidth,targetheight) rect, and

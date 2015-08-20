@@ -365,19 +365,12 @@ static void draw_settings_sub_header(int x, int y, int w, int UNUSED(height)){
 }
 
 static void draw_background(int UNUSED(x), int UNUSED(y), int width, int height){
-    // Current user avatar & name background
-    drawrect(0, 0, LIST_RIGHT, LIST_Y, COLOR_MENU_BACKGROUND);
-    // Friend list (roster) background
-    drawrect(0, LIST_Y, LIST_RIGHT, height + ROSTER_BOTTOM, COLOR_LIST_BACKGROUND);
-    // Bottom icons menu background
-    drawrect(0, height + ROSTER_BOTTOM, LIST_RIGHT, height, COLOR_MENU_BACKGROUND);
-
-    // Current user avatar & name
-    // TODO move to it's own panel? (probably)
-    //draw_user_badge();
-
-    // Chat background
-    drawrect(LIST_RIGHT, 0, width, height, COLOR_MAIN_BACKGROUND);
+    /* Default background */
+    drawrect(0, 0, width, height, COLOR_MAIN_BACKGROUND);
+    /* Friend list (roster) background */
+    drawrect(0, 0, SIDEBAR_WIDTH, height, COLOR_LIST_BACKGROUND);
+    /* Current user badge background */
+    drawrect(0, 0, LIST_RIGHT, ROSTER_TOP, COLOR_MENU_BACKGROUND);
 
     // Chat and chat header separation
     extern PANEL panel_settings_master;
