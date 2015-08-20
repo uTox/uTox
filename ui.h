@@ -62,7 +62,7 @@ extern PANEL panel_overhead, panel_add_friend, panel_settings_master, panel_chan
 extern MESSAGES messages_friend, messages_group;
 extern EDIT edit_name, edit_status, edit_add_id, edit_add_msg, edit_msg, edit_msg_group, edit_search, edit_proxy_ip, edit_proxy_port;
 extern SCROLLABLE scrollbar_roster;
-extern BUTTON button_add, button_settings, button_transfer;
+extern BUTTON button_add_new_contact, button_settings, button_transfer;
 
 typedef struct {
   STRING plain;
@@ -137,19 +137,18 @@ uint8_t SCALE;
 #define SIDEBAR_STATUSMSG_HEIGHT        (6  * SCALE)
 
 #define SIDEBAR_FILTER_FRIENDS_TOP      (31 * SCALE)
-#define SIDEBAR_FILTER_FRIENDS_LEFT     (23 * SCALE)
+#define SIDEBAR_FILTER_FRIENDS_LEFT     (21 * SCALE)
 #define SIDEBAR_FILTER_FRIENDS_WIDTH    (84 * SCALE)
 #define SIDEBAR_FILTER_FRIENDS_HEIGHT   (6  * SCALE)
-
 #define SIDEBAR_SEARCH_TOP              (38 * SCALE)
-#define SIDEBAR_SEARCH_LEFT             (28 * SCALE)
-#define SIDEBAR_SEARCH_WIDTH            (84 * SCALE)
+#define SIDEBAR_SEARCH_LEFT             (21 * SCALE)
+#define SIDEBAR_SEARCH_WIDTH            (83 * SCALE)
 #define SIDEBAR_SEARCH_HEIGHT           (12 * SCALE)
 
 #define SIDEBAR_MENU_BUTTON_TOP         (31 * SCALE)
 #define SIDEBAR_MENU_BUTTON_LEFT        (0  * SCALE)
-#define SIDEBAR_MENU_BUTTON_WIDTH       (27 * SCALE)
-#define SIDEBAR_MEND_BUTTON_HEIGHT      (18 * SCALE)
+#define SIDEBAR_MENU_BUTTON_WIDTH       (20 * SCALE)
+#define SIDEBAR_MENU_BUTTON_HEIGHT      (18 * SCALE)
 
 #define SIDEBAR_BUTTON_TOP              (31 * SCALE)
 #define SIDEBAR_BUTTON_LEFT             (0  * SCALE)

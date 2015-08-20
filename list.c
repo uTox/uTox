@@ -200,8 +200,8 @@ static void show_page(ITEM *i) {
             break;
         }
         case ITEM_ADD: {
-            button_add.disabled       = 0;
-            panel_add_friend.disabled = 1;
+            button_add_new_contact.disabled = 0;
+            panel_add_friend.disabled       = 1;
             break;
         } /* End of last case */
     } /* End of switch    */
@@ -278,10 +278,9 @@ static void show_page(ITEM *i) {
             break;
         }
         case ITEM_ADD: {
-            button_add.disabled       = 1;
-
-            panel_overhead.disabled   = 0;
-            panel_add_friend.disabled = 0;
+            button_add_new_contact.disabled = 1;
+            panel_overhead.disabled         = 0;
+            panel_add_friend.disabled       = 0;
             edit_setfocus(&edit_add_id);
             break;
         }

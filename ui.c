@@ -445,6 +445,9 @@ messages_group = {
 PANEL panel_root,
         panel_side_bar,
             panel_self,
+            panel_jump_buttons,
+                panel_search_filter,
+                panel_quick_buttons,
             panel_roster,
                 panel_roster_list,
             panel_lower_buttons,
@@ -481,7 +484,7 @@ panel_side_bar = {
     .disabled = 0,
     .child = (PANEL*[]) {
         &panel_self,
-        &panel_lower_buttons,
+        &panel_jump_buttons,
         &panel_roster,
         NULL
     }
@@ -494,21 +497,41 @@ panel_side_bar = {
         .child = (PANEL*[]) {
             (void*)&button_avatar, (void*)&button_name,       (void*)&button_status,
                                    (void*)&button_statusmsg,
-            (void*)&button_filter_friends,
-            (void*)&edit_search,
             NULL
         }
     },
-
-    panel_lower_buttons = {
+    /* Left sided toggles */
+    panel_jump_buttons = {
         .type = PANEL_NONE,
         .disabled = 0,
         .child = (PANEL*[]) {
-            (void*)&button_add, (void*)&button_groups, (void*)&button_settings,
+            (void*)&button_menu,
+            &panel_search_filter,
+            &panel_quick_buttons,
             NULL
         }
     },
-
+        panel_search_filter = {
+            .type = PANEL_NONE,
+            .disabled = 0,
+            .drawfunc = draw_user_badge,
+            .child = (PANEL*[]) {
+                (void*)&button_filter_friends,
+                (void*)&edit_search,
+                NULL
+            }
+        },
+        panel_quick_buttons = {
+            .type = PANEL_NONE,
+            .disabled = 1,
+            .drawfunc = draw_user_badge,
+            .child = (PANEL*[]) {
+                (void*)&button_add_new_contact,
+                (void*)&button_create_group,
+                (void*)&button_settings,
+                NULL
+            }
+        },
     /* The friends and group was called list */
     panel_roster = {
         .type = PANEL_NONE,
@@ -597,7 +620,7 @@ panel_main = {
             .disabled = 1,
             .drawfunc = draw_add_friend,
             .child = (PANEL*[]) {
-                (void*)&button_add_friend,
+                (void*)&button_send_friend_request,
                 (void*)&edit_add_id, (void*)&edit_add_msg,
                 NULL
             }
@@ -779,24 +802,34 @@ void ui_scale(uint8_t scale) {
             .height = SIDEBAR_STATUSMSG_HEIGHT,
         },
 
-        b_status = {
-            .type = PANEL_BUTTON,
-            .x = SELF_STATUS_X,
-            .y = SELF_STATUS_Y,
-            .width = BM_STATUSAREA_WIDTH,
+        b_status_button = {
+            .type   = PANEL_BUTTON,
+            .x      = SELF_STATUS_X,
+            .y      = SELF_STATUS_Y,
+            .width  = BM_STATUSAREA_WIDTH,
             .height = BM_STATUSAREA_HEIGHT,
         },
 
         /* Buttons */
+        b_menu_button = {
+            .type   = PANEL_BUTTON,
+            .y      = SIDEBAR_MENU_BUTTON_TOP,
+            .x      = SIDEBAR_MENU_BUTTON_LEFT,
+            .width  = SIDEBAR_MENU_BUTTON_WIDTH,
+            .height = SIDEBAR_MENU_BUTTON_HEIGHT,
+        },
+
+
         b_filter_friends = {
             .type   = PANEL_BUTTON,
-            .x      = SIDEBAR_FILTER_FRIENDS_LEFT,
             .y      = SIDEBAR_FILTER_FRIENDS_TOP,
+            .x      = SIDEBAR_FILTER_FRIENDS_LEFT,
             .width  = SIDEBAR_FILTER_FRIENDS_WIDTH,
             .height = SIDEBAR_FILTER_FRIENDS_HEIGHT,
         },
 
-        b_add = {
+
+        b_add_new_contact = {
             .type   = PANEL_BUTTON,
             .y      = SIDEBAR_BUTTON_TOP,
             .x      = SIDEBAR_BUTTON_LEFT * 0,
@@ -804,7 +837,7 @@ void ui_scale(uint8_t scale) {
             .height = SIDEBAR_BUTTON_HEIGHT,
         },
 
-        b_groups = {
+        b_create_group = {
             .type   = PANEL_BUTTON,
             .y      = SIDEBAR_BUTTON_TOP,
             .x      = SIDEBAR_BUTTON_LEFT * 1,
@@ -872,7 +905,7 @@ void ui_scale(uint8_t scale) {
         },
         #endif
 
-        b_add_friend = {
+        b_send_friend_request = {
             .type = PANEL_BUTTON,
             .x = -SCALE * 5 - BM_SBUTTON_WIDTH,
             .y = LIST_Y + SCALE * 84,
@@ -963,10 +996,19 @@ void ui_scale(uint8_t scale) {
         };
 
     /* Set the button panels */
-        button_add.panel = b_add;
+        button_avatar.panel = b_avatar;
+        button_name.panel = b_name;
+        button_statusmsg.panel = b_statusmsg;
+        button_status.panel = b_status_button;
+
+        button_menu.panel = b_menu_button;
+
         button_filter_friends.panel = b_filter_friends;
+
+        button_add_new_contact.panel = b_add_new_contact;
         button_settings.panel = b_settings;
-        button_groups.panel = b_groups;
+        button_create_group.panel = b_create_group;
+
         button_copyid.panel = b_copyid;
         button_settings_sub_profile.panel = b_settings_sub_profile;
         button_settings_sub_net.panel = b_settings_sub_net;
@@ -975,7 +1017,7 @@ void ui_scale(uint8_t scale) {
         #ifdef EMOJI_IDS
         button_change_id_type.panel = b_change_id_type;
         #endif
-        button_add_friend.panel = b_add_friend;
+        button_send_friend_request.panel = b_send_friend_request;
         button_call.panel = b_call;
         button_group_audio.panel = b_group_audio;
         button_video.panel = b_video;
@@ -986,10 +1028,6 @@ void ui_scale(uint8_t scale) {
         button_chat1.panel = b_chat1;
         button_chat2.panel = b_chat2;
         button_chat_send.panel = b_chat_send;
-        button_avatar.panel = b_avatar;
-        button_name.panel = b_name;
-        button_statusmsg.panel = b_statusmsg;
-        button_status.panel = b_status;
 
     /* Drop down structs */
         setfont(FONT_TEXT);
