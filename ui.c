@@ -401,7 +401,7 @@ SCROLLABLE scrollbar_roster = {
     .color = C_SCROLL,
     .x = 2,
     .left = 1,
-    .width = 2,
+    .small = 1,
 },
 
 // Scrollbar in chat window

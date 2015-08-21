@@ -5,8 +5,8 @@ void scroll_draw(SCROLLABLE *s, int x, int y, int width, int height)
     uint32_t c = s->content_height;
     uint32_t h = height, m, dy;
     int scroll_width = 0;
-    if (s->width) {
-        scroll_width = s->width * SCALE;
+    if (s->small) {
+        scroll_width = SCROLL_WIDTH / 2;
     } else {
         scroll_width = SCROLL_WIDTH;
     }
@@ -28,7 +28,7 @@ void scroll_draw(SCROLLABLE *s, int x, int y, int width, int height)
         x += width - scroll_width;
     }
 
-    drawalpha(s->width ? BM_SCROLLHALFTOP_SMALL : BM_SCROLLHALFTOP, x, y, scroll_width, scroll_width /2, s->color);
+    drawalpha(s->small ? BM_SCROLLHALFTOP_SMALL : BM_SCROLLHALFTOP, x, y, scroll_width, scroll_width /2, s->color);
 
     y += scroll_width / 2;
     int y2 = y + m - scroll_width;
@@ -37,7 +37,7 @@ void scroll_draw(SCROLLABLE *s, int x, int y, int width, int height)
     }
     drawrect(x, y, x + scroll_width, y2, s->color);
 
-    drawalpha(s->width ? BM_SCROLLHALFBOT_SMALL : BM_SCROLLHALFBOT, x, y2, scroll_width, scroll_width /2, s->color);
+    drawalpha(s->small ? BM_SCROLLHALFBOT_SMALL : BM_SCROLLHALFBOT, x, y2, scroll_width, scroll_width /2, s->color);
 }
 
 int scroll_gety(SCROLLABLE *s, int height)
