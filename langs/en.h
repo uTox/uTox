@@ -106,6 +106,9 @@ msgstr("Online Contacts")
 msgid(FILTER_ONLINE)
 msgstr("All Contacts")
 
+msgid(FILTER_CONTACT_TOGGLE)
+msgstr("Toggle filtering of offline contacts.")
+
 msgid(FILTER_TO_ALL)
 msgstr("Show all contacts!")
 

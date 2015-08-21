@@ -552,7 +552,7 @@ button_menu = {
 button_filter_friends = {
     .nodraw       = 1,
     .onpress      = button_filter_friends_mdown,
-    .tooltip_text = { .i18nal = STR_FILTER_TO_ONLINE },
+    .tooltip_text = { .i18nal = STR_FILTER_CONTACT_TOGGLE },
 },
 
 button_add_new_contact = {
