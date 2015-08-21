@@ -82,7 +82,6 @@ static void button_status_onpress(void) {
 }
 
 static void button_jump_button_switch_onpress(void) {
-    extern PANEL panel_search_filter, panel_quick_buttons;
     panel_quick_buttons.disabled = !panel_quick_buttons.disabled;
     panel_search_filter.disabled = !panel_search_filter.disabled;
 }

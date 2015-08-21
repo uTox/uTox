@@ -451,10 +451,10 @@ _Bool svg_draw(_Bool needmemory) {
     loadalpha(BM_SETTINGS, p, BM_ADD_WIDTH, BM_ADD_WIDTH);
     p += BM_ADD_WIDTH * BM_ADD_WIDTH;
 
-    /* Settings 3 line bitmap          width              height                   x                                                y               width                  height   radius */
-    drawrectroundedsub(p, BM_THREE_BAR_WIDTH, BM_THREE_BAR_WIDTH, BM_THREE_BAR_WIDTH, BM_THREE_BAR_WIDTH /6 - BM_THREE_BAR_WIDTH   /8, BM_THREE_BAR_WIDTH, (BM_THREE_BAR_WIDTH /8), 2);
-    drawrectroundedsub(p, BM_THREE_BAR_WIDTH, BM_THREE_BAR_WIDTH, BM_THREE_BAR_WIDTH, BM_THREE_BAR_WIDTH /2 - BM_THREE_BAR_WIDTH   /8, BM_THREE_BAR_WIDTH, (BM_THREE_BAR_WIDTH /8), 2);
-    drawrectroundedsub(p, BM_THREE_BAR_WIDTH, BM_THREE_BAR_WIDTH, BM_THREE_BAR_WIDTH, BM_THREE_BAR_WIDTH /1 - BM_THREE_BAR_WIDTH *2/8, BM_THREE_BAR_WIDTH, (BM_THREE_BAR_WIDTH /8), 2);
+    /* Settings 3 line bitmap          width              height                         x                                                y                    width                  height   radius */
+    drawrectroundedsub(p, BM_THREE_BAR_WIDTH, BM_THREE_BAR_WIDTH, BM_THREE_BAR_WIDTH * .15, BM_THREE_BAR_WIDTH /6 - BM_THREE_BAR_WIDTH   /8, BM_THREE_BAR_WIDTH * .7, (BM_THREE_BAR_WIDTH /8), 2);
+    drawrectroundedsub(p, BM_THREE_BAR_WIDTH, BM_THREE_BAR_WIDTH, BM_THREE_BAR_WIDTH * .15, BM_THREE_BAR_WIDTH /2 - BM_THREE_BAR_WIDTH   /8, BM_THREE_BAR_WIDTH * .7, (BM_THREE_BAR_WIDTH /8), 2);
+    drawrectroundedsub(p, BM_THREE_BAR_WIDTH, BM_THREE_BAR_WIDTH, BM_THREE_BAR_WIDTH * .15, BM_THREE_BAR_WIDTH /1 - BM_THREE_BAR_WIDTH *2/8, BM_THREE_BAR_WIDTH * .7, (BM_THREE_BAR_WIDTH /8), 2);
     loadalpha(BM_SETTINGS_THREE_BAR, p, BM_THREE_BAR_WIDTH, BM_THREE_BAR_WIDTH);
     p += BM_THREE_BAR_WIDTH * BM_THREE_BAR_WIDTH;
 

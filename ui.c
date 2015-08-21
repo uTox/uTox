@@ -86,11 +86,13 @@ static void draw_user_badge(int UNUSED(x), int UNUSED(y), int UNUSED(width), int
               status_color[status]);
 
     /* Draw online/all friends filter text. */
-    setcolor(!button_filter_friends.mouseover ? COLOR_MENU_SUBTEXT : COLOR_MAIN_HINTTEXT);
-    setfont(FONT_STATUS);
-    drawtextrange(SIDEBAR_FILTER_FRIENDS_LEFT, SIDEBAR_FILTER_FRIENDS_WIDTH, SIDEBAR_FILTER_FRIENDS_TOP,
-                  FILTER ? S(FILTER_ALL)    : S(FILTER_ONLINE),
-                  FILTER ? SLEN(FILTER_ALL) : SLEN(FILTER_ONLINE) );
+    if (!panel_search_filter.disabled) {
+        setcolor(!button_filter_friends.mouseover ? COLOR_MENU_SUBTEXT : COLOR_MAIN_HINTTEXT);
+        setfont(FONT_STATUS);
+        drawtextrange(SIDEBAR_FILTER_FRIENDS_LEFT, SIDEBAR_FILTER_FRIENDS_WIDTH, SIDEBAR_FILTER_FRIENDS_TOP,
+                      FILTER ? S(FILTER_ALL)    : S(FILTER_ONLINE),
+                      FILTER ? SLEN(FILTER_ALL) : SLEN(FILTER_ONLINE) );
+    }
 }
 
 /* Header for friend chat window */
@@ -832,7 +834,7 @@ void ui_scale(uint8_t scale) {
         b_add_new_contact = {
             .type   = PANEL_BUTTON,
             .y      = SIDEBAR_BUTTON_TOP,
-            .x      = SIDEBAR_BUTTON_LEFT * 0,
+            .x      = SIDEBAR_BUTTON_LEFT * 1,
             .width  = SIDEBAR_BUTTON_WIDTH,
             .height = SIDEBAR_BUTTON_HEIGHT,
         },
@@ -840,14 +842,14 @@ void ui_scale(uint8_t scale) {
         b_create_group = {
             .type   = PANEL_BUTTON,
             .y      = SIDEBAR_BUTTON_TOP,
-            .x      = SIDEBAR_BUTTON_LEFT * 1,
+            .x      = SIDEBAR_BUTTON_LEFT * 2,
             .width  = SIDEBAR_BUTTON_WIDTH,
             .height = SIDEBAR_BUTTON_HEIGHT,
         },
 
         b_settings = {
             .type = PANEL_BUTTON,
-            .y      = SIDEBAR_FILTER_FRIENDS_TOP,
+            .y      = SIDEBAR_BUTTON_TOP,
             .x      = SIDEBAR_BUTTON_LEFT * 3,
             .width  = SIDEBAR_BUTTON_WIDTH,
             .height = SIDEBAR_BUTTON_HEIGHT,

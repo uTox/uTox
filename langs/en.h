@@ -89,7 +89,7 @@ msgid(CALL_STARTED)
 msgstr("Call started")
 
 msgid(ADDFRIENDS)
-msgstr("Add Friends")
+msgstr("Add New Contact")
 
 msgid(TOXID)
 msgstr("Tox ID")

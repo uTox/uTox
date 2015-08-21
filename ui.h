@@ -56,7 +56,7 @@ enum
     ADDF_NOMEM, //if increasing the friend list size fails.
 };
 
-extern PANEL panel_root;
+extern PANEL panel_root, panel_search_filter, panel_quick_buttons;
 extern PANEL panel_chat, panel_friend_chat, panel_friend_request, panel_group_chat;
 extern PANEL panel_overhead, panel_add_friend, panel_settings_master, panel_change_profile;
 extern MESSAGES messages_friend, messages_group;
@@ -151,7 +151,7 @@ uint8_t SCALE;
 #define SIDEBAR_MENU_BUTTON_HEIGHT      (18 * SCALE)
 
 #define SIDEBAR_BUTTON_TOP              (31 * SCALE)
-#define SIDEBAR_BUTTON_LEFT             (0  * SCALE)
+#define SIDEBAR_BUTTON_LEFT             (27 * SCALE)
 #define SIDEBAR_BUTTON_WIDTH            (27 * SCALE)
 #define SIDEBAR_BUTTON_HEIGHT           (18 * SCALE)
 
