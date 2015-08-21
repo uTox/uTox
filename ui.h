@@ -168,7 +168,7 @@ uint8_t SCALE;
 #define ROSTER_AVATAR_LEFT              (4  + 5 * SCALE / 2)
 
 /* Global UI size settings... */
-#define SCROLL_WIDTH                    (2  * SCALE) //must be divisible by 2
+#define SCROLL_WIDTH                    (4  * SCALE) //must be divisible by 2
 
 /* Legacy defines, instead of using these, you should replace them with something more descriptive */
 /* Main panel defines */

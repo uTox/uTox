@@ -387,7 +387,7 @@ _Bool svg_draw(_Bool needmemory) {
     }
 
     /* Build what we expect the size to be. */
-    size = SCROLL_WIDTH * SCROLL_WIDTH +
+    size = SCROLL_WIDTH * SCROLL_WIDTH + SCROLL_WIDTH * SCROLL_WIDTH /2 +
         BM_STATUSAREA_WIDTH * BM_STATUSAREA_HEIGHT +
         /* Panel buttons */
         BM_ADD_WIDTH * BM_ADD_WIDTH * 4 +
@@ -417,10 +417,18 @@ _Bool svg_draw(_Bool needmemory) {
 
     p = svg_data;
 
+    /* Scroll bars top bottom halves */
     drawcircle(p, SCROLL_WIDTH);
-    loadalpha(BM_SCROLLHALFTOP, p, SCROLL_WIDTH, SCROLL_WIDTH / 2);
-    loadalpha(BM_SCROLLHALFBOT, p + SCROLL_WIDTH * SCROLL_WIDTH / 2, SCROLL_WIDTH, SCROLL_WIDTH / 2);
+    loadalpha(BM_SCROLLHALFTOP, p,                                  SCROLL_WIDTH, SCROLL_WIDTH /2);
+    loadalpha(BM_SCROLLHALFBOT, p + SCROLL_WIDTH * SCROLL_WIDTH /2, SCROLL_WIDTH, SCROLL_WIDTH /2);
     p += SCROLL_WIDTH * SCROLL_WIDTH;
+
+
+    /* Scroll bars top bottom halves (small)*/
+    drawcircle(p, SCROLL_WIDTH /2);
+    loadalpha(BM_SCROLLHALFTOP_SMALL, p,                                     SCROLL_WIDTH /2, SCROLL_WIDTH /4);
+    loadalpha(BM_SCROLLHALFBOT_SMALL, p + SCROLL_WIDTH /2 * SCROLL_WIDTH /4, SCROLL_WIDTH /2, SCROLL_WIDTH /4);
+    p += SCROLL_WIDTH * SCROLL_WIDTH /2;
 
     drawrectrounded(p, BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT, SCALE * 2);
     loadalpha(BM_STATUSAREA, p, BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT);

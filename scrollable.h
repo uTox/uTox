@@ -1,10 +1,9 @@
 
-struct scrollable
-{
+struct scrollable {
     PANEL panel;
 
     uint32_t color;
-    int x;
+    int x, width;
 
     double d;
     _Bool left, mousedown, mouseover, mouseover2;
