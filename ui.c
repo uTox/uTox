@@ -101,23 +101,23 @@ static void draw_friend(int x, int y, int w, int height){
 
     // draw avatar or default image
     if (friend_has_avatar(f)) {
-        draw_avatar_image(f->avatar.image, LIST_RIGHT + SCALE * 5, SCALE * 5, f->avatar.width, f->avatar.height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
+        draw_avatar_image(f->avatar.image, MAIN_LEFT + SCALE * 5, SCALE * 5, f->avatar.width, f->avatar.height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
     } else {
-        drawalpha(BM_CONTACT, LIST_RIGHT + SCALE * 5, SCALE * 5, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_MAIN_TEXT);
+        drawalpha(BM_CONTACT, MAIN_LEFT + SCALE * 5, SCALE * 5, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_MAIN_TEXT);
     }
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_TITLE);
 
     if (f->alias) {
-        drawtextrange(LIST_RIGHT + 30 * SCALE, utox_window_width - 92 * SCALE, 9 * SCALE, f->alias, f->alias_length);
+        drawtextrange(MAIN_LEFT + 30 * SCALE, utox_window_width - 92 * SCALE, 9 * SCALE, f->alias, f->alias_length);
     } else {
-        drawtextrange(LIST_RIGHT + 30 * SCALE, utox_window_width - 92 * SCALE, 9 * SCALE, f->name, f->name_length);
+        drawtextrange(MAIN_LEFT + 30 * SCALE, utox_window_width - 92 * SCALE, 9 * SCALE, f->name, f->name_length);
     }
 
     setcolor(COLOR_MAIN_SUBTEXT);
     setfont(FONT_STATUS);
-    drawtextrange(LIST_RIGHT + 30 * SCALE, utox_window_width - 92 * SCALE, 16 * SCALE, f->status_message, f->status_length);
+    drawtextrange(MAIN_LEFT + 30 * SCALE, utox_window_width - 92 * SCALE, 16 * SCALE, f->status_message, f->status_length);
 
     if (f->typing) {
         int typing_y = ((y + height) + MESSAGES_BOTTOM);
@@ -132,18 +132,18 @@ static void draw_friend(int x, int y, int w, int height){
 static void draw_group(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height)){
     GROUPCHAT *g = selected_item->data;
 
-    drawalpha(BM_GROUP, LIST_RIGHT + SCALE * 5, SCALE * 5, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_MAIN_TEXT);
+    drawalpha(BM_GROUP, MAIN_LEFT + SCALE * 5, SCALE * 5, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_MAIN_TEXT);
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_TITLE);
-    drawtextrange(LIST_RIGHT + 30 * SCALE, utox_window_width - 32 * SCALE, 1 * SCALE, g->name, g->name_length);
+    drawtextrange(MAIN_LEFT + 30 * SCALE, utox_window_width - 32 * SCALE, 1 * SCALE, g->name, g->name_length);
 
     setcolor(COLOR_MAIN_SUBTEXT);
     setfont(FONT_STATUS);
-    drawtextrange(LIST_RIGHT + 30 * SCALE, utox_window_width - 32 * SCALE, 8 * SCALE, g->topic, g->topic_length);
+    drawtextrange(MAIN_LEFT + 30 * SCALE, utox_window_width - 32 * SCALE, 8 * SCALE, g->topic, g->topic_length);
 
     uint32_t i = 0;
-    int k = LIST_RIGHT + 30 * SCALE;
+    int k = MAIN_LEFT + 30 * SCALE;
 
     uint64_t time = get_time();
 
@@ -169,7 +169,7 @@ static void draw_group(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(h
             if(k + w >= (utox_window_width - 32 * SCALE)) {
                 if (pos_y == 15) {
                     pos_y += 6;
-                    k = LIST_RIGHT + 30 * SCALE;
+                    k = MAIN_LEFT + 30 * SCALE;
                 } else {
                     drawtext(k, pos_y * SCALE, (uint8_t*)"...", 3);
                     break;
@@ -190,24 +190,24 @@ static void draw_friend_request(int UNUSED(x), int UNUSED(y), int UNUSED(w), int
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(LIST_RIGHT + SCALE * 5, SCALE * 10, FRIENDREQUEST);
+    drawstr(MAIN_LEFT + SCALE * 5, SCALE * 10, FRIENDREQUEST);
 
     setcolor(COLOR_MAIN_SUBTEXT);
     setfont(FONT_STATUS);
-    drawtextrange(LIST_RIGHT + 5 * SCALE, utox_window_width, 20 * SCALE, req->msg, req->length);
+    drawtextrange(MAIN_LEFT + 5 * SCALE, utox_window_width, 20 * SCALE, req->msg, req->length);
 }
 
 /* Draw add a friend window */
 static void draw_add_friend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int height){
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(LIST_RIGHT + SCALE * 5, SCALE * 10, ADDFRIENDS);
+    drawstr(MAIN_LEFT + SCALE * 5, SCALE * 10, ADDFRIENDS);
 
     setcolor(COLOR_MAIN_SUBTEXT);
     setfont(FONT_TEXT);
-    drawstr(LIST_RIGHT + SCALE * 5, LIST_Y + SCALE * 5, TOXID);
+    drawstr(MAIN_LEFT + SCALE * 5, LIST_Y + SCALE * 5, TOXID);
 
-    drawstr(LIST_RIGHT + SCALE * 5, LIST_Y + SCALE * 29, MESSAGE);
+    drawstr(MAIN_LEFT + SCALE * 5, LIST_Y + SCALE * 29, MESSAGE);
 
     if (addfriend_status) {
         setfont(FONT_MISC);
@@ -243,7 +243,7 @@ static void draw_add_friend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int hei
             str = SPTR(REQ_UNKNOWN); break;
         }
 
-        drawtextmultiline(LIST_RIGHT + SCALE * 5, utox_window_width - BM_SBUTTON_WIDTH - 5 * SCALE, LIST_Y + SCALE * 83, 0, height, font_small_lineheight, str->str, str->length, 0xFFFF, 0, 0, 0, 1);
+        drawtextmultiline(MAIN_LEFT + SCALE * 5, utox_window_width - BM_SBUTTON_WIDTH - 5 * SCALE, LIST_Y + SCALE * 83, 0, height, font_small_lineheight, str->str, str->length, 0xFFFF, 0, 0, 0, 1);
     }
 }
 
@@ -251,9 +251,9 @@ static void draw_add_friend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int hei
 static void draw_settings_header(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height)){
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(LIST_RIGHT + SCALE * 5, SCALE * 5, UTOX_SETTINGS);
+    drawstr(MAIN_LEFT + SCALE * 5, SCALE * 5, UTOX_SETTINGS);
     #ifdef GIT_VERSION
-        int x = LIST_RIGHT + 5 * SCALE + UTOX_STR_WIDTH(UTOX_SETTINGS) + 5 * SCALE;
+        int x = MAIN_LEFT + 5 * SCALE + UTOX_STR_WIDTH(UTOX_SETTINGS) + 5 * SCALE;
         setfont(FONT_TEXT);
         drawtext(x, SCALE * 5, (uint8_t*)GIT_VERSION, strlen(GIT_VERSION));
     #endif
@@ -263,53 +263,53 @@ static void draw_settings_header(int UNUSED(x), int UNUSED(y), int UNUSED(width)
 /* Text content for settings page */
 static void draw_settings_text_profile(int x, int y, int w, int h){
     setcolor(COLOR_MAIN_TEXT);
-    drawstr(LIST_RIGHT + SCALE * 5, y + 5   * SCALE, NAME);
-    drawstr(LIST_RIGHT + SCALE * 5, y + 30  * SCALE, STATUSMESSAGE);
+    drawstr(MAIN_LEFT + SCALE * 5, y + 5   * SCALE, NAME);
+    drawstr(MAIN_LEFT + SCALE * 5, y + 30  * SCALE, STATUSMESSAGE);
     setfont(FONT_SELF_NAME);
-    drawstr(LIST_RIGHT + SCALE * 5, y + 55  * SCALE, TOXID);
+    drawstr(MAIN_LEFT + SCALE * 5, y + 55  * SCALE, TOXID);
     setfont(FONT_TEXT);
-    drawstr(LIST_RIGHT + SCALE * 5, y + 75  * SCALE, LANGUAGE);
+    drawstr(MAIN_LEFT + SCALE * 5, y + 75  * SCALE, LANGUAGE);
 }
 
 static void draw_settings_text_network(int x, int y, int w, int UNUSED(height)){
     setfont(FONT_MISC);
     setcolor(C_RED);
-    drawstr(LIST_RIGHT  + 5   * SCALE, y + 5 * SCALE, WARNING);
+    drawstr(MAIN_LEFT  + 5   * SCALE, y + 5 * SCALE, WARNING);
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_TEXT);
-    drawstr(LIST_RIGHT  + 5   * SCALE, y + 15 * SCALE, IPV6);
-    drawstr(LIST_RIGHT  + 55  * SCALE, y + 15 * SCALE, UDP);
-    drawstr(LIST_RIGHT  + 5   * SCALE, y + 30 * SCALE, PROXY);
+    drawstr(MAIN_LEFT  + 5   * SCALE, y + 15 * SCALE, IPV6);
+    drawstr(MAIN_LEFT  + 55  * SCALE, y + 15 * SCALE, UDP);
+    drawstr(MAIN_LEFT  + 5   * SCALE, y + 30 * SCALE, PROXY);
     setfont(FONT_SELF_NAME);
-    drawtext(LIST_RIGHT + 132 * SCALE, y + 42 * SCALE, (uint8_t*)":", 1);
+    drawtext(MAIN_LEFT + 132 * SCALE, y + 42 * SCALE, (uint8_t*)":", 1);
 }
 
 static void draw_settings_text_ui(int x, int y, int w, int UNUSED(height)){
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_TEXT);
-    drawstr(LIST_RIGHT + 75 * SCALE, y + 5 * SCALE, DPI);
-    drawstr(LIST_RIGHT + 5  * SCALE, y + 5 * SCALE, THEME);
-    drawstr(LIST_RIGHT + 5  * SCALE, y + 30 * SCALE, LOGGING);
-    drawstr(LIST_RIGHT + 5  * SCALE, y + 55 * SCALE, CLOSE_TO_TRAY);
-    drawstr(LIST_RIGHT + 5  * SCALE + UTOX_STR_WIDTH(CLOSE_TO_TRAY) + 10 * SCALE, y + 55 * SCALE, START_IN_TRAY);
-    drawstr(LIST_RIGHT + 5  * SCALE, y + 80 * SCALE, AUTO_STARTUP);
-    drawstr(LIST_RIGHT + 5  * SCALE, y + 105 * SCALE, SEND_TYPING_NOTIFICATIONS);
+    drawstr(MAIN_LEFT + 75 * SCALE, y + 5 * SCALE, DPI);
+    drawstr(MAIN_LEFT + 5  * SCALE, y + 5 * SCALE, THEME);
+    drawstr(MAIN_LEFT + 5  * SCALE, y + 30 * SCALE, LOGGING);
+    drawstr(MAIN_LEFT + 5  * SCALE, y + 55 * SCALE, CLOSE_TO_TRAY);
+    drawstr(MAIN_LEFT + 5  * SCALE + UTOX_STR_WIDTH(CLOSE_TO_TRAY) + 10 * SCALE, y + 55 * SCALE, START_IN_TRAY);
+    drawstr(MAIN_LEFT + 5  * SCALE, y + 80 * SCALE, AUTO_STARTUP);
+    drawstr(MAIN_LEFT + 5  * SCALE, y + 105 * SCALE, SEND_TYPING_NOTIFICATIONS);
 }
 
 static void draw_settings_text_av(int x, int y, int w, int UNUSED(height)){
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_TEXT);
-    drawstr(LIST_RIGHT + 5   * SCALE, y + 5  * SCALE,  RINGTONE);
-    drawstr(LIST_RIGHT + 60  * SCALE, y + 5  * SCALE,  PUSH_TO_TALK);
+    drawstr(MAIN_LEFT + 5   * SCALE, y + 5  * SCALE,  RINGTONE);
+    drawstr(MAIN_LEFT + 60  * SCALE, y + 5  * SCALE,  PUSH_TO_TALK);
     #ifdef AUDIO_FILTERING
-    drawstr(LIST_RIGHT + 120 * SCALE, y + 5  * SCALE,  AUDIOFILTERING);
+    drawstr(MAIN_LEFT + 120 * SCALE, y + 5  * SCALE,  AUDIOFILTERING);
     #endif
-    drawstr(LIST_RIGHT + 5   * SCALE, y + 35  * SCALE, AUDIOINPUTDEVICE);
-    drawstr(LIST_RIGHT + 5   * SCALE, y + 60  * SCALE, AUDIOOUTPUTDEVICE);
-    drawstr(LIST_RIGHT + 5   * SCALE, y + 85  * SCALE, VIDEOINPUTDEVICE);
+    drawstr(MAIN_LEFT + 5   * SCALE, y + 35  * SCALE, AUDIOINPUTDEVICE);
+    drawstr(MAIN_LEFT + 5   * SCALE, y + 60  * SCALE, AUDIOOUTPUTDEVICE);
+    drawstr(MAIN_LEFT + 5   * SCALE, y + 85  * SCALE, VIDEOINPUTDEVICE);
     setfont(FONT_SELF_NAME);
-    drawstr(LIST_RIGHT + 5   * SCALE, y + 115 * SCALE, PREVIEW);
+    drawstr(MAIN_LEFT + 5   * SCALE, y + 115 * SCALE, PREVIEW);
 }
 
 static void draw_settings_sub_header(int x, int y, int w, int UNUSED(height)){
@@ -372,14 +372,14 @@ static void draw_background(int UNUSED(x), int UNUSED(y), int width, int height)
     /* Friend list (roster) background */
     drawrect(0, 0, SIDEBAR_WIDTH, height, COLOR_LIST_BACKGROUND);
     /* Current user badge background */
-    drawrect(0, 0, LIST_RIGHT, ROSTER_TOP, COLOR_MENU_BACKGROUND);
+    drawrect(0, 0, MAIN_LEFT, ROSTER_TOP, COLOR_MENU_BACKGROUND);
 
     // Chat and chat header separation
     extern PANEL panel_settings_master;
     if (panel_settings_master.disabled) {
-        drawhline(LIST_RIGHT, LIST_Y - 1, width, COLOR_EDGE_NORMAL);
+        drawhline(MAIN_LEFT, LIST_Y - 1, width, COLOR_EDGE_NORMAL);
     } else {
-        drawhline(LIST_RIGHT, (LIST_Y / 2) - 1, width, COLOR_EDGE_NORMAL);
+        drawhline(MAIN_LEFT, (LIST_Y / 2) - 1, width, COLOR_EDGE_NORMAL);
     }
 }
 
@@ -740,12 +740,12 @@ void ui_scale(uint8_t scale) {
         panel_side_bar.width = SIDEBAR_WIDTH;
 
         scrollbar_roster.panel.y = ROSTER_TOP;
-        scrollbar_roster.panel.width = LIST_RIGHT + 1;
+        scrollbar_roster.panel.width = MAIN_LEFT;
         scrollbar_roster.panel.height = ROSTER_BOTTOM;
 
         panel_roster_list.x = 0;
         panel_roster_list.y = ROSTER_TOP;
-        panel_roster_list.width = LIST_RIGHT + 1;
+        panel_roster_list.width = MAIN_LEFT;
         panel_roster_list.height = ROSTER_BOTTOM;
 
         panel_main.x = MAIN_LEFT;

@@ -120,7 +120,7 @@ uint8_t SCALE;
  * If you're able to replace an original, replace all occurrences, and delete the define. */
 
 /* Left sidebar defines */
-#define SIDEBAR_WIDTH (111 * SCALE)
+#define SIDEBAR_WIDTH                   (111 * SCALE)
 
 /* User badge */
 #define SIDEBAR_AVATAR_TOP              (5  * SCALE)
@@ -135,7 +135,10 @@ uint8_t SCALE;
 #define SIDEBAR_STATUSMSG_LEFT          (32 * SCALE)
 #define SIDEBAR_STATUSMSG_WIDTH         (95 * SCALE)
 #define SIDEBAR_STATUSMSG_HEIGHT        (6  * SCALE)
+#define SELF_STATUS_X                   (96 * SCALE)
+#define SELF_STATUS_Y                   (5  * SCALE)
 
+/* Sidebar buttons and settings */
 #define SIDEBAR_FILTER_FRIENDS_TOP      (31 * SCALE)
 #define SIDEBAR_FILTER_FRIENDS_LEFT     (21 * SCALE)
 #define SIDEBAR_FILTER_FRIENDS_WIDTH    (84 * SCALE)
@@ -155,20 +158,22 @@ uint8_t SCALE;
 #define SIDEBAR_BUTTON_WIDTH            (27 * SCALE)
 #define SIDEBAR_BUTTON_HEIGHT           (18 * SCALE)
 
+/* Roster defines */
 #define ROSTER_TOP                      (51 * SCALE)
 #define ROSTER_LEFT                     (8  * SCALE)
 #define ROSTER_BOTTOM                   (-1 * SCALE)
+#define ROSTER_BOX_LEFT                 (4  * SCALE)
+#define ROSTER_BOX_HEIGHT               (25 * SCALE)
+#define ROSTER_AVATAR_TOP               (5  * SCALE / 2)
+#define ROSTER_AVATAR_LEFT              (4  + 5 * SCALE / 2)
 
-#define SELF_STATUS_X                   (96 * SCALE)
-#define SELF_STATUS_Y                   (5  * SCALE)
+/* Global UI size settings... */
+#define SCROLL_WIDTH                    (2  * SCALE) //must be divisible by 2
 
-
+/* Legacy defines, instead of using these, you should replace them with something more descriptive */
 /* Main panel defines */
 #define MAIN_LEFT                       (111 * SCALE) + 1
 
-/* Roster defines */
-#define LIST_X                          (8 * SCALE)
-#define LIST_RIGHT                      (111 * SCALE)
 #define LIST_Y                          (31 * SCALE)
 #define LIST_Y2                         (43 * SCALE)
 
@@ -178,13 +183,9 @@ uint8_t SCALE;
 #define LIST_STATUS_X                   (37 * SCALE)
 #define LIST_STATUS_Y                   (13 * SCALE)
 
-#define LIST_AVATAR_X                   (LIST_X + 5 * SCALE / 2)
-#define LIST_AVATAR_Y                   (5 * SCALE / 2)
 
 #define LIST_BUTTON_Y                   (-13 * SCALE)
-#define ITEM_HEIGHT                     (25 * SCALE)
 
-#define SCROLL_WIDTH                    (4 * SCALE) //must be divisible by 2
 
 #define MESSAGES_SPACING                (SCALE * 2)
 #define MESSAGES_X                      (55 * SCALE)

@@ -15,11 +15,11 @@ static int selected_item_dy; // selected_item_delta-y??
 
 static void drawitembox(ITEM *i, int y) {
     if(selected_item == i) {
-        drawrect(LIST_X + 1, y + 1, LIST_RIGHT + 1, y + ITEM_HEIGHT, COLOR_MAIN_BACKGROUND);
+        drawrect(ROSTER_BOX_LEFT, y + 1, SIDEBAR_WIDTH, y + ROSTER_BOX_HEIGHT, COLOR_MAIN_BACKGROUND);
 
-        //drawrectw(LIST_X + 5 * SCALE / 2, y + 5 * SCALE / 2, 40, 40, COLOR_LIST_BACKGROUND);
+        //drawrectw(ROSTER_BOX_LEFT + 5 * SCALE / 2, y + 5 * SCALE / 2, 40, 40, COLOR_LIST_BACKGROUND);
     } else if(mouseover_item == i) {
-        drawrect(LIST_X + 1, y + 1, LIST_RIGHT, y + ITEM_HEIGHT, COLOR_LIST_HOVER_BACKGROUND);
+        drawrect(ROSTER_BOX_LEFT, y + 1, SIDEBAR_WIDTH, y + ROSTER_BOX_HEIGHT, COLOR_LIST_HOVER_BACKGROUND);
     }
 }
 
@@ -30,7 +30,7 @@ static void drawname(ITEM *i, int y, char_t *name, char_t *msg, STRING_IDX name_
 
     setcolor(color);
     setfont(FONT_LIST_NAME);
-    drawtextwidth(LIST_NAME_X, LIST_RIGHT - LIST_NAME_X - SCALE * 16, y + LIST_NAME_Y, name, name_length);
+    drawtextwidth(LIST_NAME_X, SIDEBAR_WIDTH - LIST_NAME_X - SCALE * 16, y + LIST_NAME_Y, name, name_length);
 
     if (!color_overide) {
         color = (selected_item == i) ? COLOR_MAIN_SUBTEXT : COLOR_LIST_SUBTEXT;
@@ -38,7 +38,7 @@ static void drawname(ITEM *i, int y, char_t *name, char_t *msg, STRING_IDX name_
 
     setcolor(color);
     setfont(FONT_STATUS);
-    drawtextwidth(LIST_STATUS_X, LIST_RIGHT - LIST_STATUS_X - SCALE * 16, y + LIST_STATUS_Y,  msg, msg_length);
+    drawtextwidth(LIST_STATUS_X, SIDEBAR_WIDTH - LIST_STATUS_X - SCALE * 16, y + LIST_STATUS_Y,  msg, msg_length);
 }
 
 static void drawitem(ITEM *i, int UNUSED(x), int y) {
@@ -49,9 +49,9 @@ static void drawitem(ITEM *i, int UNUSED(x), int y) {
 
         // draw avatar or default image
         if (friend_has_avatar(f)) {
-            draw_avatar_image(f->avatar.image, LIST_AVATAR_X, y + LIST_AVATAR_Y, f->avatar.width, f->avatar.height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
+            draw_avatar_image(f->avatar.image, ROSTER_AVATAR_LEFT, y + ROSTER_AVATAR_TOP, f->avatar.width, f->avatar.height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
         } else {
-            drawalpha(BM_CONTACT, LIST_AVATAR_X, y + LIST_AVATAR_Y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
+            drawalpha(BM_CONTACT, ROSTER_AVATAR_LEFT, y + ROSTER_AVATAR_TOP, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
         }
 
         if(f->alias){
@@ -61,9 +61,9 @@ static void drawitem(ITEM *i, int UNUSED(x), int y) {
         }
 
         uint8_t status = f->online ? f->status : 3;
-        drawalpha(BM_ONLINE + status, LIST_RIGHT - SCALE * 12, y + ITEM_HEIGHT / 2 - BM_STATUS_WIDTH / 2, BM_STATUS_WIDTH, BM_STATUS_WIDTH, status_color[status]);
+        drawalpha(BM_ONLINE + status, SIDEBAR_WIDTH - SCALE * 12, y + ROSTER_BOX_HEIGHT / 2 - BM_STATUS_WIDTH / 2, BM_STATUS_WIDTH, BM_STATUS_WIDTH, status_color[status]);
         if(f->notify) {
-            drawalpha(BM_STATUS_NOTIFY, LIST_RIGHT - SCALE * 13, y + ITEM_HEIGHT / 2 - BM_STATUS_NOTIFY_WIDTH / 2, BM_STATUS_NOTIFY_WIDTH, BM_STATUS_NOTIFY_WIDTH, status_color[status]);
+            drawalpha(BM_STATUS_NOTIFY, SIDEBAR_WIDTH - SCALE * 13, y + ROSTER_BOX_HEIGHT / 2 - BM_STATUS_NOTIFY_WIDTH / 2, BM_STATUS_NOTIFY_WIDTH, BM_STATUS_NOTIFY_WIDTH, status_color[status]);
         }
         // tooltip_new(utf8tonative(snprint_t(f->name, sizeof(char_t)*8));
         break;
@@ -71,7 +71,7 @@ static void drawitem(ITEM *i, int UNUSED(x), int y) {
 
     case ITEM_GROUP: {
         GROUPCHAT *g = i->data;
-        drawalpha(BM_GROUP, LIST_AVATAR_X, y + LIST_AVATAR_Y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
+        drawalpha(BM_GROUP, ROSTER_AVATAR_LEFT, y + ROSTER_AVATAR_TOP, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
         _Bool color_overide = 0;
         uint32_t color = 0;
 
@@ -100,7 +100,7 @@ static void drawitem(ITEM *i, int UNUSED(x), int y) {
         char_t name[TOX_FRIEND_ADDRESS_SIZE * 2];
         id_to_string(name, f->id);
 
-        drawalpha(BM_CONTACT, LIST_AVATAR_X, y + LIST_AVATAR_Y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
+        drawalpha(BM_CONTACT, ROSTER_AVATAR_LEFT, y + ROSTER_AVATAR_TOP, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
         drawname(i, y, name, f->msg, sizeof(name), f->length, 0, 0);
         break;
     }
@@ -110,17 +110,17 @@ static void drawitem(ITEM *i, int UNUSED(x), int y) {
 static ITEM* newitem(void) {
     ITEM *i = &item[itemcount++];
     //TODO: ..
-    scrollbar_roster.content_height = searchcount * ITEM_HEIGHT;
+    scrollbar_roster.content_height = searchcount * ROSTER_BOX_HEIGHT;
     return i;
 }
 
 void list_scale(void) {
-    scrollbar_roster.content_height = searchcount * ITEM_HEIGHT;
+    scrollbar_roster.content_height = searchcount * ROSTER_BOX_HEIGHT;
 }
 
 static ITEM* item_hit(int mx, int my, int UNUSED(height)) {
     /* Mouse is outsite the list */
-    if(mx < LIST_X || mx >= LIST_RIGHT) {
+    if(mx < ROSTER_BOX_LEFT || mx >= SIDEBAR_WIDTH) {
         return NULL;
     }
 
@@ -130,7 +130,7 @@ static ITEM* item_hit(int mx, int my, int UNUSED(height)) {
     }
 
     uint32_t item_idx = my;
-    item_idx /= ITEM_HEIGHT;
+    item_idx /= ROSTER_BOX_HEIGHT;
 
     if(item_idx >= searchcount) {
         return NULL;
@@ -316,7 +316,7 @@ void list_start(void) {
 
     itemcount = i - item;
 
-    scrollbar_roster.content_height = itemcount * ITEM_HEIGHT;
+    scrollbar_roster.content_height = itemcount * ROSTER_BOX_HEIGHT;
 }
 
 void list_addfriend(FRIEND *f) {
@@ -377,12 +377,12 @@ void list_draw(void *UNUSED(n), int UNUSED(x), int y, int UNUSED(width), int UNU
                 mi = i;
                 my = y + selected_item_dy;
             } else {
-                drawitem(i, LIST_X, y);
+                drawitem(i, ROSTER_BOX_LEFT, y);
             }
             search_offset[j] = k - j;
             search_unset[k] = j - k;
             j++;
-            y += ITEM_HEIGHT;
+            y += ROSTER_BOX_HEIGHT;
         } else {
             search_offset[j] = INT_MAX;
         }
@@ -391,10 +391,10 @@ void list_draw(void *UNUSED(n), int UNUSED(x), int y, int UNUSED(width), int UNU
     }
 
     searchcount = j;
-    scrollbar_roster.content_height = searchcount * ITEM_HEIGHT;
+    scrollbar_roster.content_height = searchcount * ROSTER_BOX_HEIGHT;
 
     if(mi) {
-        drawitem(mi, LIST_X, my);
+        drawitem(mi, ROSTER_BOX_LEFT, my);
     }
 }
 
@@ -456,7 +456,7 @@ static void deleteitem(ITEM *i) {
     }
 
     itemcount--;
-    scrollbar_roster.content_height = itemcount * ITEM_HEIGHT;
+    scrollbar_roster.content_height = itemcount * ROSTER_BOX_HEIGHT;
 
     int size = (&item[itemcount] - i) * sizeof(ITEM);
     memmove(i, i + 1, size);
@@ -557,12 +557,12 @@ _Bool list_mmove(void *UNUSED(n), int UNUSED(x), int UNUSED(y), int UNUSED(width
     if(selected_item_mousedown) {
         selected_item_dy += dy;
         nitem = NULL;
-        if(abs(selected_item_dy) >= ITEM_HEIGHT / 2) {
+        if(abs(selected_item_dy) >= ROSTER_BOX_HEIGHT / 2) {
             int d;
             if(selected_item_dy > 0) {
-                d = (selected_item_dy + ITEM_HEIGHT / 2) / ITEM_HEIGHT;
+                d = (selected_item_dy + ROSTER_BOX_HEIGHT / 2) / ROSTER_BOX_HEIGHT;
             } else {
-                d = (selected_item_dy - ITEM_HEIGHT / 2) / ITEM_HEIGHT;
+                d = (selected_item_dy - ROSTER_BOX_HEIGHT / 2) / ROSTER_BOX_HEIGHT;
             }
             int index = (selected_item - item) + search_unset[selected_item - item] + d;
             int offset = search_offset[index];
