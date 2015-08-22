@@ -86,13 +86,11 @@ static void draw_user_badge(int UNUSED(x), int UNUSED(y), int UNUSED(width), int
               status_color[status]);
 
     /* Draw online/all friends filter text. */
-    if (!panel_search_filter.disabled) {
-        setcolor(!button_filter_friends.mouseover ? COLOR_MENU_SUBTEXT : COLOR_MAIN_HINTTEXT);
-        setfont(FONT_STATUS);
-        drawtextrange(SIDEBAR_FILTER_FRIENDS_LEFT, SIDEBAR_FILTER_FRIENDS_WIDTH, SIDEBAR_FILTER_FRIENDS_TOP,
-                      FILTER ? S(FILTER_ALL)    : S(FILTER_ONLINE),
-                      FILTER ? SLEN(FILTER_ALL) : SLEN(FILTER_ONLINE) );
-    }
+    setcolor(!button_filter_friends.mouseover ? COLOR_MENU_SUBTEXT : COLOR_MAIN_HINTTEXT);
+    setfont(FONT_STATUS);
+    drawtextrange(SIDEBAR_FILTER_FRIENDS_LEFT, SIDEBAR_FILTER_FRIENDS_WIDTH, SIDEBAR_FILTER_FRIENDS_TOP,
+                  FILTER ? S(FILTER_ALL)    : S(FILTER_ONLINE),
+                  FILTER ? SLEN(FILTER_ALL) : SLEN(FILTER_ONLINE) );
 }
 
 /* Header for friend chat window */
@@ -509,6 +507,7 @@ panel_side_bar = {
         .disabled = 0,
         .child = (PANEL*[]) {
             (void*)&button_menu,
+            (void*)&button_filter_friends,
             &panel_search_filter,
             &panel_quick_buttons,
             NULL
@@ -519,7 +518,6 @@ panel_side_bar = {
             .disabled = 0,
             .drawfunc = draw_user_badge,
             .child = (PANEL*[]) {
-                (void*)&button_filter_friends,
                 (void*)&edit_search,
                 NULL
             }

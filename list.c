@@ -30,7 +30,7 @@ static void drawname(ITEM *i, int y, char_t *name, char_t *msg, STRING_IDX name_
 
     setcolor(color);
     setfont(FONT_LIST_NAME);
-    drawtextwidth(LIST_NAME_X, SIDEBAR_WIDTH - LIST_NAME_X - SCALE * 16, y + LIST_NAME_Y, name, name_length);
+    drawtextwidth(ROSTER_NAME_LEFT, SIDEBAR_WIDTH - ROSTER_NAME_LEFT - SCALE * 16, y + ROSTER_NAME_TOP, name, name_length);
 
     if (!color_overide) {
         color = (selected_item == i) ? COLOR_MAIN_SUBTEXT : COLOR_LIST_SUBTEXT;
@@ -38,7 +38,7 @@ static void drawname(ITEM *i, int y, char_t *name, char_t *msg, STRING_IDX name_
 
     setcolor(color);
     setfont(FONT_STATUS);
-    drawtextwidth(LIST_STATUS_X, SIDEBAR_WIDTH - LIST_STATUS_X - SCALE * 16, y + LIST_STATUS_Y,  msg, msg_length);
+    drawtextwidth(ROSTER_NAME_LEFT, SIDEBAR_WIDTH - ROSTER_NAME_LEFT - SCALE * 16, y + ROSTER_STATUS_MSG_TOP, msg, msg_length);
 }
 
 static void drawitem(ITEM *i, int UNUSED(x), int y) {

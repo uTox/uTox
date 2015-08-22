@@ -139,33 +139,39 @@ uint8_t SCALE;
 #define SELF_STATUS_Y                   (5  * SCALE)
 
 /* Sidebar buttons and settings */
-#define SIDEBAR_FILTER_FRIENDS_TOP      (31 * SCALE)
-#define SIDEBAR_FILTER_FRIENDS_LEFT     (21 * SCALE)
-#define SIDEBAR_FILTER_FRIENDS_WIDTH    (84 * SCALE)
-#define SIDEBAR_FILTER_FRIENDS_HEIGHT   (6  * SCALE)
-#define SIDEBAR_SEARCH_TOP              (38 * SCALE)
+#define SIDEBAR_SEARCH_TOP              (30 * SCALE)
 #define SIDEBAR_SEARCH_LEFT             (21 * SCALE)
 #define SIDEBAR_SEARCH_WIDTH            (83 * SCALE)
 #define SIDEBAR_SEARCH_HEIGHT           (12 * SCALE)
 
-#define SIDEBAR_MENU_BUTTON_TOP         (31 * SCALE)
+#define SIDEBAR_FILTER_FRIENDS_TOP      (48 * SCALE)
+#define SIDEBAR_FILTER_FRIENDS_LEFT     (5  * SCALE)
+#define SIDEBAR_FILTER_FRIENDS_WIDTH    (84 * SCALE)
+#define SIDEBAR_FILTER_FRIENDS_HEIGHT   (6  * SCALE)
+
+#define SIDEBAR_MENU_BUTTON_TOP         (30 * SCALE)
 #define SIDEBAR_MENU_BUTTON_LEFT        (0  * SCALE)
 #define SIDEBAR_MENU_BUTTON_WIDTH       (20 * SCALE)
-#define SIDEBAR_MENU_BUTTON_HEIGHT      (18 * SCALE)
+#define SIDEBAR_MENU_BUTTON_HEIGHT      (16 * SCALE)
 
-#define SIDEBAR_BUTTON_TOP              (31 * SCALE)
+#define SIDEBAR_BUTTON_TOP              (30 * SCALE)
 #define SIDEBAR_BUTTON_LEFT             (27 * SCALE)
 #define SIDEBAR_BUTTON_WIDTH            (27 * SCALE)
-#define SIDEBAR_BUTTON_HEIGHT           (18 * SCALE)
+#define SIDEBAR_BUTTON_HEIGHT           (16 * SCALE)
 
 /* Roster defines */
-#define ROSTER_TOP                      (51 * SCALE)
+#define ROSTER_TOP                      (57 * SCALE)
 #define ROSTER_LEFT                     (8  * SCALE)
 #define ROSTER_BOTTOM                   (-1 * SCALE)
 #define ROSTER_BOX_LEFT                 (4  * SCALE)
 #define ROSTER_BOX_HEIGHT               (25 * SCALE)
 #define ROSTER_AVATAR_TOP               (5  * SCALE / 2)
 #define ROSTER_AVATAR_LEFT              (4  + 5 * SCALE / 2)
+
+#define ROSTER_NAME_TOP                 (6  * SCALE)
+#define ROSTER_NAME_LEFT                (30 * SCALE)
+#define ROSTER_STATUS_MSG_TOP           (13 * SCALE)
+
 
 /* Global UI size settings... */
 #define SCROLL_WIDTH                    (4  * SCALE) //must be divisible by 2
@@ -174,14 +180,8 @@ uint8_t SCALE;
 /* Main panel defines */
 #define MAIN_LEFT                       (111 * SCALE) + 1
 
-#define LIST_Y                          (31 * SCALE)
+#define LIST_Y                          (30 * SCALE)
 #define LIST_Y2                         (43 * SCALE)
-
-#define LIST_NAME_X                     (37 * SCALE)
-#define LIST_NAME_Y                     (6 * SCALE)
-
-#define LIST_STATUS_X                   (37 * SCALE)
-#define LIST_STATUS_Y                   (13 * SCALE)
 
 
 #define LIST_BUTTON_Y                   (-13 * SCALE)
