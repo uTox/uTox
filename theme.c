@@ -9,9 +9,18 @@ void theme_load(char loadtheme)
     dropdown_theme.selected = loadtheme;
     theme = loadtheme;
 
-    // ==== Default theme ====
-    //---- Main chat area ----
-    COLOR_BACKGROUND_MAIN = COLOR_PROC(0xffffff);
+    // ==== Default theme     ====
+    // ---- Background Colors ----
+    COLOR_BACKGROUND_MAIN        = COLOR_PROC(0xffffff);
+    COLOR_BACKGROUND_ALT         = COLOR_PROC(0xaaaaaa);
+    COLOR_BACKGROUND_AUX         = COLOR_PROC(0x313131);
+    COLOR_BACKGROUND_LIST        = COLOR_PROC(0x414141);
+    COLOR_BACKGROUND_LIST_HOVER  = COLOR_PROC(0x505050);
+    COLOR_BACKGROUND_MENU        = COLOR_PROC(0x1c1c1c);
+    COLOR_BACKGROUND_MENU_HOVER  = COLOR_PROC(0x282828);
+    COLOR_BACKGROUND_MENU_ACTIVE = COLOR_PROC(0x414141);
+
+    /* ---- Text Colors --- */
     COLOR_MAIN_TEXT       = COLOR_PROC(0x333333);
     COLOR_MAIN_CHATTEXT   = COLOR_PROC(0x000000);
     COLOR_MAIN_SUBTEXT    = COLOR_PROC(0x414141);
@@ -22,16 +31,11 @@ void theme_load(char loadtheme)
     COLOR_MAIN_HINTTEXT   = COLOR_PROC(0x969696);
 
     //---- Friend list header and bottom-left buttons ----
-    COLOR_BACKGROUND_MENU        = COLOR_PROC(0x1c1c1c);
     COLOR_MENU_TEXT              = COLOR_BACKGROUND_MAIN;
     COLOR_MENU_SUBTEXT           = COLOR_PROC(0xd1d1d1);
-    COLOR_BACKGROUND_MENU_HOVER  = COLOR_PROC(0x282828);
-    COLOR_BACKGROUND_MENU_ACTIVE = COLOR_PROC(0x414141);
     COLOR_MENU_ACTIVE_TEXT       = COLOR_BACKGROUND_MAIN;
 
     //---- Friend list  ----
-    COLOR_BACKGROUND_LIST       = COLOR_PROC(0x414141);
-    COLOR_BACKGROUND_LIST_HOVER = COLOR_PROC(0x505050);
     COLOR_LIST_TEXT             = COLOR_MENU_TEXT;
     COLOR_LIST_SUBTEXT          = COLOR_MENU_SUBTEXT;
 
@@ -53,7 +57,6 @@ void theme_load(char loadtheme)
     COLOR_ACTIVEOPTION_TEXT       = COLOR_MAIN_TEXT;
 
     //---- Auxiliary style for inputs/dropdowns ("Search friends" bar) ----
-    COLOR_BACKGROUND_AUX              = COLOR_PROC(0x313131);
     COLOR_AUX_EDGE_NORMAL             = COLOR_BACKGROUND_AUX;
     COLOR_AUX_EDGE_HOVER              = COLOR_PROC(0x999999);
     COLOR_AUX_EDGE_ACTIVE             = COLOR_PROC(0x1A73B7);
@@ -88,17 +91,18 @@ void theme_load(char loadtheme)
     switch (loadtheme) {
     case THEME_DARK:
         COLOR_BACKGROUND_MAIN                 = COLOR_PROC(0x333333);
+        COLOR_BACKGROUND_AUX                  = COLOR_BACKGROUND_MENU;
+        COLOR_BACKGROUND_LIST                 = COLOR_PROC(0x222222);
+        COLOR_BACKGROUND_LIST_HOVER           = COLOR_PROC(0x151515);
+        COLOR_BACKGROUND_MENU                 = COLOR_PROC(0x171717);
+        COLOR_BACKGROUND_MENU_HOVER           = COLOR_BACKGROUND_LIST_HOVER;
+        COLOR_BACKGROUND_MENU_ACTIVE          = COLOR_BACKGROUND_LIST;
         COLOR_MAIN_TEXT                       = COLOR_PROC(0xdfdfdf);
         COLOR_MAIN_CHATTEXT                   = COLOR_PROC(0xffffff);
         COLOR_MAIN_SUBTEXT                    = COLOR_PROC(0xbbbbbb);
         COLOR_MAIN_ACTIONTEXT                 = COLOR_PROC(0x27a9bc);
         COLOR_MAIN_URLTEXT                    = COLOR_MAIN_ACTIONTEXT;
         COLOR_MAIN_QUOTETEXT                  = COLOR_PROC(0x55b317);
-        COLOR_BACKGROUND_LIST                 = COLOR_PROC(0x222222);
-        COLOR_BACKGROUND_LIST_HOVER           = COLOR_PROC(0x151515);
-        COLOR_BACKGROUND_MENU                 = COLOR_PROC(0x171717);
-        COLOR_BACKGROUND_MENU_HOVER           = COLOR_BACKGROUND_LIST_HOVER;
-        COLOR_BACKGROUND_MENU_ACTIVE          = COLOR_BACKGROUND_LIST;
         COLOR_SELECTION_BACKGROUND            = COLOR_MAIN_TEXT;
         COLOR_SELECTION_TEXT                  = COLOR_BACKGROUND_MAIN;
         COLOR_GROUP_MUTED                     = COLOR_MAIN_URLTEXT;
@@ -107,7 +111,6 @@ void theme_load(char loadtheme)
         COLOR_EDGE_HOVER                      = COLOR_PROC(0x999999);
         COLOR_ACTIVEOPTION_BACKGROUND         = COLOR_PROC(0x228888);
         COLOR_ACTIVEOPTION_TEXT               = COLOR_MAIN_TEXT;
-        COLOR_BACKGROUND_AUX                  = COLOR_BACKGROUND_MENU;
         COLOR_AUX_EDGE_NORMAL                 = COLOR_BACKGROUND_AUX;
         COLOR_AUX_EDGE_ACTIVE                 = COLOR_EDGE_ACTIVE;
         COLOR_AUX_ACTIVEOPTION_BACKGROUND     = COLOR_ACTIVEOPTION_BACKGROUND;
@@ -134,11 +137,11 @@ void theme_load(char loadtheme)
     case THEME_LIGHT:
         COLOR_BACKGROUND_LIST             = COLOR_PROC(0xf0f0f0);
         COLOR_BACKGROUND_LIST_HOVER       = COLOR_PROC(0xe0e0e0);
-        COLOR_LIST_TEXT                   = COLOR_MAIN_TEXT;
-        COLOR_LIST_SUBTEXT                = COLOR_MAIN_SUBTEXT;
         COLOR_BACKGROUND_MENU             = COLOR_BACKGROUND_LIST;
         COLOR_BACKGROUND_MENU_HOVER       = COLOR_PROC(0xe0e0e0);
         COLOR_BACKGROUND_MENU_ACTIVE      = COLOR_PROC(0x555555);
+        COLOR_LIST_TEXT                   = COLOR_MAIN_TEXT;
+        COLOR_LIST_SUBTEXT                = COLOR_MAIN_SUBTEXT;
         COLOR_MENU_TEXT                   = COLOR_PROC(0x555555);
         COLOR_MENU_ACTIVE_TEXT            = COLOR_PROC(0xffffff);
         COLOR_MENU_SUBTEXT                = COLOR_PROC(0x414141);
@@ -157,6 +160,12 @@ void theme_load(char loadtheme)
 
     case THEME_HIGHCONTRAST:
         COLOR_BACKGROUND_MAIN                 = COLOR_PROC(0xffffff);
+        COLOR_BACKGROUND_AUX                  = COLOR_BACKGROUND_MAIN;
+        COLOR_BACKGROUND_LIST                 = COLOR_PROC(0x444444);
+        COLOR_BACKGROUND_LIST_HOVER           = COLOR_MAIN_TEXT;
+        COLOR_BACKGROUND_MENU                 = COLOR_BACKGROUND_MAIN;
+        COLOR_BACKGROUND_MENU_HOVER           = COLOR_BACKGROUND_MAIN;
+        COLOR_BACKGROUND_MENU_ACTIVE          = COLOR_MAIN_TEXT;
         COLOR_MAIN_TEXT                       = COLOR_PROC(0x000001);
         COLOR_MAIN_CHATTEXT                   = COLOR_MAIN_TEXT;
         COLOR_MAIN_SUBTEXT                    = COLOR_MAIN_TEXT;
@@ -164,14 +173,9 @@ void theme_load(char loadtheme)
         COLOR_MAIN_QUOTETEXT                  = COLOR_PROC(0x00ff00);
         COLOR_MAIN_URLTEXT                    = COLOR_MAIN_ACTIONTEXT;
         COLOR_MAIN_HINTTEXT                   = COLOR_MAIN_TEXT;
-        COLOR_BACKGROUND_MENU                 = COLOR_BACKGROUND_MAIN;
         COLOR_MENU_TEXT                       = COLOR_MAIN_TEXT;
         COLOR_MENU_SUBTEXT                    = COLOR_MAIN_TEXT;
-        COLOR_BACKGROUND_MENU_HOVER           = COLOR_BACKGROUND_MAIN;
-        COLOR_BACKGROUND_MENU_ACTIVE          = COLOR_MAIN_TEXT;
         COLOR_MENU_ACTIVE_TEXT                = COLOR_BACKGROUND_MAIN;
-        COLOR_BACKGROUND_LIST                 = COLOR_PROC(0x444444);
-        COLOR_BACKGROUND_LIST_HOVER           = COLOR_MAIN_TEXT;
         COLOR_LIST_TEXT                       = COLOR_BACKGROUND_MAIN;
         COLOR_LIST_SUBTEXT                    = COLOR_BACKGROUND_MAIN;
         COLOR_GROUP_SELF                      = COLOR_PROC(0x00ff00);
@@ -205,7 +209,6 @@ void theme_load(char loadtheme)
         COLOR_BUTTON_DISABLED_TRANSFER        = COLOR_BACKGROUND_MAIN;
         COLOR_BUTTON_INPROGRESS_TEXT          = COLOR_BUTTON_DISABLED_TEXT;
         COLOR_BUTTON_INPROGRESS_BACKGROUND    = COLOR_PROC(0x00ffff);
-        COLOR_BACKGROUND_AUX                  = COLOR_BACKGROUND_MAIN;
         COLOR_AUX_EDGE_NORMAL                 = COLOR_EDGE_NORMAL;
         COLOR_AUX_EDGE_HOVER                  = COLOR_EDGE_NORMAL;
         COLOR_AUX_EDGE_ACTIVE                 = COLOR_EDGE_ACTIVE;
@@ -216,6 +219,12 @@ void theme_load(char loadtheme)
 
     case THEME_ZENBURN:
         COLOR_BACKGROUND_MAIN                  = COLOR_PROC(0x3f3f3f);
+        COLOR_BACKGROUND_AUX                   = COLOR_BACKGROUND_MAIN;
+        COLOR_BACKGROUND_LIST                  = COLOR_PROC(0x5f5f5f);
+        COLOR_BACKGROUND_LIST_HOVER            = COLOR_PROC(0x7f7f7f);
+        COLOR_BACKGROUND_MENU                  = COLOR_BACKGROUND_MAIN;
+        COLOR_BACKGROUND_MENU_HOVER            = COLOR_MAIN_QUOTETEXT;
+        COLOR_BACKGROUND_MENU_ACTIVE           = COLOR_MAIN_QUOTETEXT;
         COLOR_MAIN_TEXT                        = COLOR_PROC(0xdcdccc);
         COLOR_MAIN_CHATTEXT                    = COLOR_MAIN_TEXT;
         COLOR_MAIN_SUBTEXT                     = COLOR_MAIN_TEXT;
@@ -223,17 +232,11 @@ void theme_load(char loadtheme)
         COLOR_MAIN_QUOTETEXT                   = COLOR_PROC(0x7f9f7f);
         COLOR_MAIN_URLTEXT                     = COLOR_PROC(0x6ca0a3);
         COLOR_MAIN_HINTTEXT                    = COLOR_MAIN_TEXT;
-        COLOR_BACKGROUND_MENU                  = COLOR_BACKGROUND_MAIN;
         COLOR_MENU_TEXT                        = COLOR_MAIN_TEXT;
         COLOR_MENU_SUBTEXT                     = COLOR_MAIN_TEXT;
-        COLOR_BACKGROUND_MENU_HOVER            = COLOR_MAIN_QUOTETEXT;
-        COLOR_BACKGROUND_MENU_ACTIVE           = COLOR_MAIN_QUOTETEXT;
         COLOR_MENU_ACTIVE_TEXT                 = COLOR_MAIN_TEXT;
-        COLOR_BACKGROUND_LIST                  = COLOR_PROC(0x5f5f5f);
-        COLOR_BACKGROUND_LIST_HOVER            = COLOR_PROC(0x7f7f7f);
         COLOR_LIST_TEXT                        = COLOR_MAIN_TEXT;
         COLOR_LIST_SUBTEXT                     = COLOR_MAIN_TEXT;
-        COLOR_BACKGROUND_AUX                   = COLOR_BACKGROUND_MAIN;
         COLOR_AUX_EDGE_NORMAL                  = COLOR_BACKGROUND_LIST;
         COLOR_AUX_EDGE_HOVER                   = COLOR_MAIN_QUOTETEXT;
         COLOR_AUX_EDGE_ACTIVE                  = COLOR_MAIN_TEXT;
