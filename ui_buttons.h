@@ -87,16 +87,16 @@ static void button_jump_button_switch_onpress(void) {
 }
 
 static void button_menu_update(BUTTON *b) {
-    b->c1 = COLOR_MENU_BACKGROUND;
-    b->c2 = COLOR_MENU_HOVER_BACKGROUND;
-    b->c3 = COLOR_MENU_ACTIVE_BACKGROUND;
+    b->c1 = COLOR_BACKGROUND_MENU;
+    b->c2 = COLOR_BACKGROUND_MENU_HOVER;
+    b->c3 = COLOR_BACKGROUND_MENU_ACTIVE;
     b->ct1 = COLOR_MENU_TEXT;
     b->ct2 = COLOR_MENU_TEXT;
     if (b->mousedown || b->disabled) {
         b->ct1 = COLOR_MENU_ACTIVE_TEXT;
         b->ct2 = COLOR_MENU_ACTIVE_TEXT;
     }
-    b->cd = COLOR_MENU_ACTIVE_BACKGROUND;
+    b->cd = COLOR_BACKGROUND_MENU_ACTIVE;
 }
 
 static void button_add_new_contact_onpress(void) {
@@ -406,16 +406,16 @@ static void button_video_update(BUTTON *b)
 
 static void button_bottommenu_update(BUTTON *b)
 {
-    b->c1 = COLOR_MENU_BACKGROUND;
-    b->c2 = COLOR_MENU_HOVER_BACKGROUND;
-    b->c3 = COLOR_MENU_ACTIVE_BACKGROUND;
+    b->c1 = COLOR_BACKGROUND_MENU;
+    b->c2 = COLOR_BACKGROUND_MENU_HOVER;
+    b->c3 = COLOR_BACKGROUND_MENU_ACTIVE;
     b->ct1 = COLOR_MENU_TEXT;
     b->ct2 = COLOR_MENU_TEXT;
     if (b->mousedown || b->disabled) {
         b->ct1 = COLOR_MENU_ACTIVE_TEXT;
         b->ct2 = COLOR_MENU_ACTIVE_TEXT;
     }
-    b->cd = COLOR_MENU_ACTIVE_BACKGROUND;
+    b->cd = COLOR_BACKGROUND_MENU_ACTIVE;
 }
 
 static void button_sendfile_onpress(void)

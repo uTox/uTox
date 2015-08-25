@@ -21,14 +21,14 @@ void dropdown_drawactive(void) {
 
     switch(b->style) {
         case AUXILIARY_STYLE:
-            color_bg = COLOR_AUX_BACKGROUND;
+            color_bg = COLOR_BACKGROUND_AUX;
             color_border = COLOR_AUX_EDGE_ACTIVE;
             color_aoptbg = COLOR_AUX_ACTIVEOPTION_BACKGROUND;
             color_aopttext = COLOR_AUX_ACTIVEOPTION_TEXT;
             color_text = COLOR_AUX_TEXT;
             break;
         default:
-            color_bg = COLOR_MAIN_BACKGROUND;
+            color_bg = COLOR_BACKGROUND_MAIN;
             color_border = COLOR_EDGE_ACTIVE;
             color_aoptbg = COLOR_ACTIVEOPTION_BACKGROUND;
             color_aopttext = COLOR_ACTIVEOPTION_TEXT;
@@ -88,13 +88,13 @@ void dropdown_draw(DROPDOWN *b, int x, int y, int width, int height) {
 
         switch(b->style) {
             case AUXILIARY_STYLE:
-                color_bg = COLOR_AUX_BACKGROUND;
+                color_bg = COLOR_BACKGROUND_AUX;
                 color_border = COLOR_AUX_EDGE_NORMAL;
                 color_border_h = COLOR_AUX_EDGE_HOVER;
                 color_text = COLOR_AUX_TEXT;
                 break;
             default:
-                color_bg = COLOR_MAIN_BACKGROUND;
+                color_bg = COLOR_BACKGROUND_MAIN;
                 color_border = COLOR_EDGE_NORMAL;
                 color_border_h = COLOR_EDGE_HOVER;
                 color_text = COLOR_MAIN_TEXT;

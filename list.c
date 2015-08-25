@@ -15,11 +15,11 @@ static int selected_item_dy; // selected_item_delta-y??
 
 static void drawitembox(ITEM *i, int y) {
     if(selected_item == i) {
-        drawrect(ROSTER_BOX_LEFT, y + 1, SIDEBAR_WIDTH, y + ROSTER_BOX_HEIGHT, COLOR_MAIN_BACKGROUND);
+        drawrect(ROSTER_BOX_LEFT, y + 1, SIDEBAR_WIDTH, y + ROSTER_BOX_HEIGHT, COLOR_BACKGROUND_MAIN);
 
-        //drawrectw(ROSTER_BOX_LEFT + 5 * SCALE / 2, y + 5 * SCALE / 2, 40, 40, COLOR_LIST_BACKGROUND);
+        //drawrectw(ROSTER_BOX_LEFT + 5 * SCALE / 2, y + 5 * SCALE / 2, 40, 40, COLOR_BACKGROUND_LIST);
     } else if(mouseover_item == i) {
-        drawrect(ROSTER_BOX_LEFT, y + 1, SIDEBAR_WIDTH, y + ROSTER_BOX_HEIGHT, COLOR_LIST_HOVER_BACKGROUND);
+        drawrect(ROSTER_BOX_LEFT, y + 1, SIDEBAR_WIDTH, y + ROSTER_BOX_HEIGHT, COLOR_BACKGROUND_LIST_HOVER);
     }
 }
 

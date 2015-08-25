@@ -79,7 +79,7 @@ static void draw_user_badge(int UNUSED(x), int UNUSED(y), int UNUSED(width), int
 
     /* Draw status button icon */
     drawalpha(BM_STATUSAREA, SELF_STATUS_X, SELF_STATUS_Y, BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT,
-              button_status.mouseover ? COLOR_LIST_HOVER_BACKGROUND : COLOR_LIST_BACKGROUND);
+              button_status.mouseover ? COLOR_BACKGROUND_LIST_HOVER : COLOR_BACKGROUND_LIST);
     uint8_t status = tox_connected ? self.status : 3;
     drawalpha(BM_ONLINE + status, SELF_STATUS_X + BM_STATUSAREA_WIDTH / 2 - BM_STATUS_WIDTH / 2,
               SELF_STATUS_Y + BM_STATUSAREA_HEIGHT / 2 - BM_STATUS_WIDTH / 2, BM_STATUS_WIDTH, BM_STATUS_WIDTH,
@@ -366,11 +366,11 @@ static void draw_settings_sub_header(int x, int y, int w, int UNUSED(height)){
 
 static void draw_background(int UNUSED(x), int UNUSED(y), int width, int height){
     /* Default background */
-    drawrect(0, 0, width, height, COLOR_MAIN_BACKGROUND);
+    drawrect(0, 0, width, height, COLOR_BACKGROUND_MAIN);
     /* Friend list (roster) background */
-    drawrect(0, 0, SIDEBAR_WIDTH, height, COLOR_LIST_BACKGROUND);
+    drawrect(0, 0, SIDEBAR_WIDTH, height, COLOR_BACKGROUND_LIST);
     /* Current user badge background */
-    drawrect(0, 0, MAIN_LEFT, ROSTER_TOP, COLOR_MENU_BACKGROUND);
+    drawrect(0, 0, MAIN_LEFT, ROSTER_TOP, COLOR_BACKGROUND_MENU);
 
     // Chat and chat header separation
     extern PANEL panel_settings_master;
