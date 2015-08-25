@@ -174,7 +174,8 @@ uint8_t SCALE;
 
 
 /* Global UI size settings... */
-#define SCROLL_WIDTH                    (4  * SCALE) //must be divisible by 2
+#define SCROLL_WIDTH                    (4   * SCALE) //must be divisible by 2
+#define CHAT_BOX_TOP                    (-26 * SCALE) /* size of the bottom message box */
 
 /* Legacy defines, instead of using these, you should replace them with something more descriptive */
 /* Main panel defines */
@@ -192,7 +193,6 @@ uint8_t SCALE;
 #define TIME_WIDTH                      (16 * SCALE)
 #define NAME_OFFSET                     (7 * SCALE)
 
-#define MESSAGES_BOTTOM                 (-47 * SCALE)
 
 
 /* main */

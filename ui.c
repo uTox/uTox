@@ -118,7 +118,7 @@ static void draw_friend(int x, int y, int w, int height){
     drawtextrange(MAIN_LEFT + 30 * SCALE, utox_window_width - 92 * SCALE, 16 * SCALE, f->status_message, f->status_length);
 
     if (f->typing) {
-        int typing_y = ((y + height) + MESSAGES_BOTTOM);
+        int typing_y = ((y + height) + CHAT_BOX_TOP);
         setfont(FONT_MISC);
         // @TODO: separate these colors if needed
         setcolor(COLOR_MAIN_HINTTEXT);
@@ -365,15 +365,19 @@ static void draw_settings_sub_header(int x, int y, int w, int UNUSED(height)){
 }
 
 static void draw_background(int UNUSED(x), int UNUSED(y), int width, int height){
-    /* Default background */
+    /* Default background                */
     drawrect(0, 0, width, height, COLOR_BACKGROUND_MAIN);
-    /* Friend list (roster) background */
+    /* Frame for the chat text entry box */
+    if (!panel_chat.disabled){
+        drawrect(0, height, width, height + CHAT_BOX_TOP, COLOR_BACKGROUND_ALT);
+    }
+    /* Friend list (roster) background   */
     drawrect(0, 0, SIDEBAR_WIDTH, height, COLOR_BACKGROUND_LIST);
-    /* Current user badge background */
+    /* Current user badge background     */
     drawrect(0, 0, MAIN_LEFT, ROSTER_TOP, COLOR_BACKGROUND_MENU);
 
+
     // Chat and chat header separation
-    extern PANEL panel_settings_master;
     if (panel_settings_master.disabled) {
         drawhline(MAIN_LEFT, LIST_Y - 1, width, COLOR_EDGE_NORMAL);
     } else {
@@ -760,17 +764,17 @@ void ui_scale(uint8_t scale) {
         panel_settings_av.y      = 16 * SCALE;
 
         scrollbar_friend.panel.y = LIST_Y;
-        scrollbar_friend.panel.height = MESSAGES_BOTTOM;
+        scrollbar_friend.panel.height = CHAT_BOX_TOP;
 
         messages_friend.panel.y = LIST_Y;
-        messages_friend.panel.height = MESSAGES_BOTTOM;
+        messages_friend.panel.height = CHAT_BOX_TOP;
         messages_friend.panel.width = -SCROLL_WIDTH;
 
         scrollbar_group.panel.y = LIST_Y;
-        scrollbar_group.panel.height = MESSAGES_BOTTOM;
+        scrollbar_group.panel.height = CHAT_BOX_TOP;
 
         messages_group.panel.y = LIST_Y;
-        messages_group.panel.height = MESSAGES_BOTTOM;
+        messages_group.panel.height = CHAT_BOX_TOP;
         messages_group.panel.width = -SCROLL_WIDTH;
 
     setscale_fonts();
@@ -1237,20 +1241,19 @@ void ui_scale(uint8_t scale) {
         /* Message entry box for friends and groups */
         e_msg = {
             .type   = PANEL_EDIT,
-            .x      = 5 * SCALE,
-            .y      = -40 * SCALE,
-            // a text line is 8 high. 32 / 8 = 4 lines of text.
-            .height = 32 * SCALE,
+            .x      =   3 * SCALE,
+            .y      = -23 * SCALE,
             .width  = -40 * SCALE - BM_CHAT_BUTTON_WIDTH,
+            .height =  20 * SCALE,
+            // text is 8 high. 8 * 2.5 = 20.
         },
 
         e_msg_group = {
             .type   = PANEL_EDIT,
-            .x      = 5 * SCALE,
-            .y      = -40 * SCALE,
-            // a text line is 8 high. 32 / 8 = 4 lines of text.
-            .height = 32 * SCALE,
+            .x      =   3 * SCALE,
+            .y      = -23 * SCALE,
             .width  = -10 * SCALE - BM_CHAT_SEND_WIDTH,
+            .height =  20 * SCALE,
         },
 
         e_search = {
