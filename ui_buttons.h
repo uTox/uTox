@@ -696,19 +696,8 @@ button_videopreview = {
     .disabled = 0,
 },
 
-/* top right chat message window button */
-button_chat1 = {
-    .bm = BM_CB1,
-    .bm2 = BM_CI1,
-    .bw = _BM_CI_WIDTH,
-    .bh = _BM_CI_WIDTH,
-    .update = button_chat1_update,
-    .onpress = button_chat1_onpress,
-    .tooltip_text = { .i18nal = STR_SENDSCREENSHOT },
-},
-
-/* bottom right chat message window button */
-button_chat2 = {
+/* left chat message window button */
+button_chat_left = {
     .bm = BM_CB2,
     // @TODO: replace with something useful
     // .bm2 = BM_ADD,
@@ -719,11 +708,23 @@ button_chat2 = {
     .disabled = 1,
 },
 
+/* right chat message window button */
+button_chat_right = {
+    .bm = BM_CB1,
+    .bm2 = BM_CI1,
+    .bw = _BM_CI_WIDTH,
+    .bh = _BM_CI_WIDTH,
+    .update = button_chat1_update,
+    .onpress = button_chat1_onpress,
+    .tooltip_text = { .i18nal = STR_SENDSCREENSHOT },
+},
+
+
 button_chat_send = {
     .bm  = BM_CHAT_SEND,
     .bm2 = BM_CHAT_SEND_OVERLAY,
     .bw  = _BM_CHAT_SEND_OVERLAY_WIDTH,
-    .bh  = _BM_CHAT_SEND_OVERLAY_WIDTH,
+    .bh  = _BM_CHAT_SEND_OVERLAY_HEIGHT,
     .onpress = button_chat_send_onpress,
     .update = button_chat_send_update,
 };

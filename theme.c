@@ -91,6 +91,7 @@ void theme_load(char loadtheme)
     switch (loadtheme) {
     case THEME_DARK:
         COLOR_BACKGROUND_MAIN                 = COLOR_PROC(0x333333);
+        COLOR_BACKGROUND_ALT                  = COLOR_PROC(0x000000);
         COLOR_BACKGROUND_AUX                  = COLOR_BACKGROUND_MENU;
         COLOR_BACKGROUND_LIST                 = COLOR_PROC(0x222222);
         COLOR_BACKGROUND_LIST_HOVER           = COLOR_PROC(0x151515);

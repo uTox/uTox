@@ -62,10 +62,10 @@ static void drawrectrounded(uint8_t *data, int width, int height, int radius) {
 }
 
 static void drawrectroundedex(uint8_t *data, int width, int height, int radius, uint8_t flags) {
-    _Bool c1 = ((flags & 1) != 0);
-    _Bool c2 = ((flags & 2) != 0);
-    _Bool c3 = ((flags & 4) != 0);
-    _Bool c4 = ((flags & 8) != 0);
+    _Bool c1 = ((flags & 1) != 0); /* left   */
+    _Bool c2 = ((flags & 2) != 0); /* right  */
+    _Bool c3 = ((flags & 4) != 0); /* top    */
+    _Bool c4 = ((flags & 8) != 0); /* bottom */
 
     int x, y;
     double hw = (double)radius - 0.5;
@@ -386,7 +386,9 @@ _Bool svg_draw(_Bool needmemory) {
         free(svg_data);
     }
 
-    /* Build what we expect the size to be. */
+    /* Build what we expect the size to be.
+     * This section uses unnamed shortcuts, so it really serves no purpose and makes it harder to debug, it needs to be
+     * fixed, without shortcuts, and proper comments... TODO FIXME */
     size = SCROLL_WIDTH * SCROLL_WIDTH + SCROLL_WIDTH * SCROLL_WIDTH /2 +
         BM_STATUSAREA_WIDTH * BM_STATUSAREA_HEIGHT +
         /* Panel buttons */
@@ -403,11 +405,10 @@ _Bool svg_draw(_Bool needmemory) {
         (BM_FTB_WIDTH * (BM_FTB_HEIGHT + SCALE) + BM_FTB_WIDTH * BM_FTB_HEIGHT) +
         BM_FB_WIDTH * BM_FB_HEIGHT * 4 +
         /* Chat Buttons */
-        BM_CHAT_BUTTON_WIDTH * (BM_CHAT_BUTTON_HEIGHT + SCALE) * 2 + // Chat button 1, 2
-        BM_CHAT_SEND_WIDTH * BM_CHAT_SEND_HEIGHT +
+        BM_CHAT_BUTTON_WIDTH * BM_CHAT_BUTTON_HEIGHT * 2 + // Chat button 1, 2
+        BM_CHAT_SEND_WIDTH   * BM_CHAT_SEND_HEIGHT +
         BM_CHAT_SEND_OVERLAY_WIDTH * BM_CHAT_SEND_OVERLAY_HEIGHT +
         BM_CI_WIDTH * BM_CI_WIDTH;
-
 
     svg_data = calloc(1, size);
 
@@ -584,13 +585,14 @@ _Bool svg_draw(_Bool needmemory) {
     loadalpha(BM_YES, p, BM_FB_WIDTH, BM_FB_HEIGHT);
     p += s;
 
-    drawrectroundedex(p, BM_CHAT_BUTTON_WIDTH, BM_CHAT_BUTTON_HEIGHT, SCALE * 2, 6);
+    /* the two small chat buttons... */
+    drawrectroundedex(p, BM_CHAT_BUTTON_WIDTH, BM_CHAT_BUTTON_HEIGHT, SCALE * 2, 14);
     loadalpha(BM_CB1, p, BM_CHAT_BUTTON_WIDTH, BM_CHAT_BUTTON_HEIGHT);
     p += BM_CHAT_BUTTON_WIDTH * BM_CHAT_BUTTON_HEIGHT;
 
-    drawrectroundedex(p, BM_CHAT_BUTTON_WIDTH, BM_CHAT_BUTTON_HEIGHT + SCALE, SCALE * 2, 10);
-    loadalpha(BM_CB2, p, BM_CHAT_BUTTON_WIDTH, BM_CHAT_BUTTON_HEIGHT + SCALE);
-    p += BM_CHAT_BUTTON_WIDTH * (BM_CHAT_BUTTON_HEIGHT + SCALE);
+    drawrectroundedex(p, BM_CHAT_BUTTON_WIDTH, BM_CHAT_BUTTON_HEIGHT, SCALE * 2, 13);
+    loadalpha(BM_CB2, p, BM_CHAT_BUTTON_WIDTH, BM_CHAT_BUTTON_HEIGHT);
+    p += BM_CHAT_BUTTON_WIDTH * BM_CHAT_BUTTON_HEIGHT;
 
     /* Draw chat send button */
     drawrectrounded(p, BM_CHAT_SEND_WIDTH, BM_CHAT_SEND_HEIGHT, 4 * SCALE);
@@ -598,8 +600,8 @@ _Bool svg_draw(_Bool needmemory) {
     p += BM_CHAT_SEND_WIDTH * BM_CHAT_SEND_HEIGHT;
 
     /* Draw chat send overlay */
-    drawnewcircle(p, BM_CHAT_SEND_OVERLAY_WIDTH, BM_CHAT_SEND_OVERLAY_HEIGHT, 10 * SCALE, 9 * SCALE, 15 * SCALE);
-    drawtri(p, BM_CHAT_SEND_OVERLAY_WIDTH, BM_CHAT_SEND_OVERLAY_HEIGHT, 14 * SCALE, 14 * SCALE, 5 * SCALE, 0);
+    drawnewcircle(p, BM_CHAT_SEND_OVERLAY_WIDTH, BM_CHAT_SEND_OVERLAY_HEIGHT, 10 * SCALE,  7 * SCALE, 13 * SCALE);
+    drawtri(      p, BM_CHAT_SEND_OVERLAY_WIDTH, BM_CHAT_SEND_OVERLAY_HEIGHT, 15 * SCALE, 11 * SCALE,  6 * SCALE, 0);
     loadalpha(BM_CHAT_SEND_OVERLAY, p, BM_CHAT_SEND_OVERLAY_WIDTH, BM_CHAT_SEND_OVERLAY_HEIGHT);
     p += BM_CHAT_SEND_OVERLAY_WIDTH * BM_CHAT_SEND_OVERLAY_HEIGHT;
 

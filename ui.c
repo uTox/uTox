@@ -369,7 +369,7 @@ static void draw_background(int UNUSED(x), int UNUSED(y), int width, int height)
     drawrect(0, 0, width, height, COLOR_BACKGROUND_MAIN);
     /* Frame for the chat text entry box */
     if (!panel_chat.disabled){
-        drawrect(0, height, width, height + CHAT_BOX_TOP, COLOR_BACKGROUND_ALT);
+        drawrect(0, height + CHAT_BOX_TOP, width, height, COLOR_BACKGROUND_ALT);
     }
     /* Friend list (roster) background   */
     drawrect(0, 0, SIDEBAR_WIDTH, height, COLOR_BACKGROUND_LIST);
@@ -591,11 +591,10 @@ panel_main = {
             .disabled = 1,
             .drawfunc = draw_friend,
             .child = (PANEL*[]) {
-                (void*)&button_call, (void*)&button_video, (void*)&button_sendfile,
-                (void*)&button_chat1, (void*)&button_chat2, (void*)&button_chat_send,
-                (void*)&edit_msg,
                 (void*)&scrollbar_friend,
                 (void*)&messages_friend,
+                (void*)&button_call, (void*)&button_video, (void*)&button_sendfile,
+                (void*)&button_chat_left, (void*)&edit_msg, (void*)&button_chat_right, (void*)&button_chat_send,
                 NULL
             }
         },
@@ -975,29 +974,29 @@ void ui_scale(uint8_t scale) {
         },
 
         /* top right chat message window button */
-        b_chat1 = {
-            .type = PANEL_BUTTON,
-            .x = -40 * SCALE - BM_CHAT_BUTTON_WIDTH,
-            .y = -40 * SCALE,
+        b_chat_left = {
+            .type   = PANEL_BUTTON,
+            .x      =   3 * SCALE,
+            .y      = -23 * SCALE,
+            .width  = BM_CHAT_BUTTON_WIDTH,
             .height = BM_CHAT_BUTTON_HEIGHT,
-            .width = BM_CHAT_BUTTON_WIDTH,
         },
 
         /* bottom right chat message window button */
-        b_chat2 = {
-            .type = PANEL_BUTTON,
-            .x = -40 * SCALE - BM_CHAT_BUTTON_WIDTH,
-            .y = -40 * SCALE + BM_CHAT_BUTTON_HEIGHT + SCALE,
-            .height = BM_CHAT_BUTTON_HEIGHT + SCALE,
-            .width = BM_CHAT_BUTTON_WIDTH,
+        b_chat_right = {
+            .type   = PANEL_BUTTON,
+            .x      = -40 * SCALE - BM_CHAT_BUTTON_WIDTH,
+            .y      = -23 * SCALE,
+            .width  = BM_CHAT_BUTTON_WIDTH,
+            .height = BM_CHAT_BUTTON_HEIGHT,
         },
 
         b_chat_send = {
             .type   = PANEL_BUTTON,
-            .x      = -5 * SCALE - BM_CHAT_SEND_WIDTH,
-            .y      = -40 * SCALE,
-            .height = BM_CHAT_SEND_HEIGHT,
+            .x      =  -3 * SCALE - BM_CHAT_SEND_WIDTH,
+            .y      = -23 * SCALE,
             .width  = BM_CHAT_SEND_WIDTH,
+            .height = BM_CHAT_SEND_HEIGHT,
         };
 
     /* Set the button panels */
@@ -1023,16 +1022,16 @@ void ui_scale(uint8_t scale) {
         button_change_id_type.panel = b_change_id_type;
         #endif
         button_send_friend_request.panel = b_send_friend_request;
-        button_call.panel = b_call;
-        button_group_audio.panel = b_group_audio;
-        button_video.panel = b_video;
-        button_sendfile.panel = b_sendfile;
-        button_accept_friend.panel = b_accept_friend;
-        button_callpreview.panel = b_callpreview;
-        button_videopreview.panel = b_videopreview;
-        button_chat1.panel = b_chat1;
-        button_chat2.panel = b_chat2;
-        button_chat_send.panel = b_chat_send;
+        button_call.panel                = b_call;
+        button_group_audio.panel         = b_group_audio;
+        button_video.panel               = b_video;
+        button_sendfile.panel            = b_sendfile;
+        button_accept_friend.panel       = b_accept_friend;
+        button_callpreview.panel         = b_callpreview;
+        button_videopreview.panel        = b_videopreview;
+        button_chat_left.panel           = b_chat_left;
+        button_chat_right.panel          = b_chat_right;
+        button_chat_send.panel           = b_chat_send;
 
     /* Drop down structs */
         setfont(FONT_TEXT);
@@ -1241,9 +1240,9 @@ void ui_scale(uint8_t scale) {
         /* Message entry box for friends and groups */
         e_msg = {
             .type   = PANEL_EDIT,
-            .x      =   3 * SCALE,
+            .x      =   3 * SCALE + BM_CHAT_BUTTON_WIDTH, /* Make space for the left button  */
             .y      = -23 * SCALE,
-            .width  = -40 * SCALE - BM_CHAT_BUTTON_WIDTH,
+            .width  = -40 * SCALE - BM_CHAT_BUTTON_WIDTH, /* Make space for the right button */
             .height =  20 * SCALE,
             // text is 8 high. 8 * 2.5 = 20.
         },
