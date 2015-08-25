@@ -139,7 +139,7 @@ uint8_t SCALE;
 #define SELF_STATUS_Y                   (5  * SCALE)
 
 /* Sidebar buttons and settings */
-#define SIDEBAR_SEARCH_TOP              (30 * SCALE)
+#define SIDEBAR_SEARCH_TOP              (31 * SCALE)
 #define SIDEBAR_SEARCH_LEFT             (21 * SCALE)
 #define SIDEBAR_SEARCH_WIDTH            (83 * SCALE)
 #define SIDEBAR_SEARCH_HEIGHT           (12 * SCALE)

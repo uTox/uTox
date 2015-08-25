@@ -86,11 +86,11 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
     if(!edit->length && maybe_i18nal_string_is_valid(&edit->empty_str)) {
         STRING* empty_str_text = maybe_i18nal_string_get(&edit->empty_str);
         setcolor(COLOR_MAIN_HINTTEXT);
-        drawtext(x + 2 * SCALE, yy + 2 * SCALE, empty_str_text->str, empty_str_text->length);
+        drawtext(x + 2 * SCALE, yy + 3 * SCALE, empty_str_text->str, empty_str_text->length);
     }
 
     _Bool a = (edit == active_edit);
-    drawtextmultiline(x + 2 * SCALE, x + width - 2 * SCALE - (edit->multiline ? SCROLL_WIDTH : 0), yy + 2 * SCALE, y, y + height, font_small_lineheight, edit->data, edit->length,
+    drawtextmultiline(x + 2 * SCALE, x + width - 2 * SCALE - (edit->multiline ? SCROLL_WIDTH : 0), yy + 3 * SCALE, y, y + height, font_small_lineheight, edit->data, edit->length,
                       a ? edit_sel.start : STRING_IDX_MAX, a ? edit_sel.length : STRING_IDX_MAX,
                       a ? edit_sel.mark_start : 0, a ? edit_sel.mark_length : 0, edit->multiline);
 
