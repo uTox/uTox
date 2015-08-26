@@ -160,11 +160,12 @@ enum {
     BM_SCROLLHALFBOT_SMALL,
     BM_STATUSAREA,
 
-    BM_CB1,
-    BM_CB2,
+    BM_CHAT_BUTTON,
+    BM_CHAT_BUTTON_OVERLAY,
     BM_CHAT_SEND,
     BM_CHAT_SEND_OVERLAY,
-    BM_CI1
+    BM_CB2,
+    BM_CI1,
 };
 
 // µTox includes

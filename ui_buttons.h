@@ -710,12 +710,12 @@ button_chat_left = {
 
 /* right chat message window button */
 button_chat_right = {
-    .bm = BM_CB1,
-    .bm2 = BM_CI1,
-    .bw = _BM_CI_WIDTH,
-    .bh = _BM_CI_WIDTH,
-    .update = button_chat1_update,
-    .onpress = button_chat1_onpress,
+    .bm  = BM_CHAT_BUTTON,
+    .bm2 = BM_CHAT_BUTTON_OVERLAY,
+    .bw  = _BM_CHAT_BUTTON_OVERLAY_WIDTH,
+    .bh  = _BM_CHAT_BUTTON_OVERLAY_HEIGHT,
+    .update       = button_chat1_update,
+    .onpress      = button_chat1_onpress,
     .tooltip_text = { .i18nal = STR_SENDSCREENSHOT },
 },
 

@@ -5,9 +5,9 @@
 #define  BM_STATUSAREA_WIDTH (10 * SCALE)
 #define  BM_STATUSAREA_HEIGHT (20 * SCALE)
 /* Text button on the add a new friend page */
-#define _BM_ADD_WIDTH 			9
-#define  BM_ADD_WIDTH 			(9 * SCALE)
-#define  BM_STATUS_WIDTH   		(5 * SCALE)
+#define _BM_ADD_WIDTH           9
+#define  BM_ADD_WIDTH           (9 * SCALE)
+#define  BM_STATUS_WIDTH        (5 * SCALE)
 #define  BM_STATUS_NOTIFY_WIDTH (7 * SCALE)
 #define  BM_NMSG_WIDTH          (9 * SCALE)
 /* Search and buttons toggle switch */
@@ -37,8 +37,13 @@
 #define  BM_FB_HEIGHT     (5 * SCALE)
 
 /* small button placements */
-#define  BM_CHAT_BUTTON_WIDTH  (20 * SCALE)
-#define  BM_CHAT_BUTTON_HEIGHT (20 * SCALE)
+#define  BM_CHAT_BUTTON_WIDTH          (20 * SCALE)
+#define  BM_CHAT_BUTTON_HEIGHT         (20 * SCALE)
+/* camera box */
+#define _BM_CHAT_BUTTON_OVERLAY_WIDTH  (18        )
+#define  BM_CHAT_BUTTON_OVERLAY_WIDTH  (18 * SCALE)
+#define _BM_CHAT_BUTTON_OVERLAY_HEIGHT (18        )
+#define  BM_CHAT_BUTTON_OVERLAY_HEIGHT (18 * SCALE)
 /* Large chat button */
 #define  BM_CHAT_SEND_WIDTH    (32 * SCALE)
 #define  BM_CHAT_SEND_HEIGHT   (20 * SCALE)

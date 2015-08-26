@@ -408,7 +408,7 @@ _Bool svg_draw(_Bool needmemory) {
         BM_CHAT_BUTTON_WIDTH * BM_CHAT_BUTTON_HEIGHT * 2 + // Chat button 1, 2
         BM_CHAT_SEND_WIDTH   * BM_CHAT_SEND_HEIGHT +
         BM_CHAT_SEND_OVERLAY_WIDTH * BM_CHAT_SEND_OVERLAY_HEIGHT +
-        BM_CI_WIDTH * BM_CI_WIDTH;
+        BM_CHAT_BUTTON_OVERLAY_WIDTH * BM_CHAT_BUTTON_OVERLAY_HEIGHT;
 
     svg_data = calloc(1, size);
 
@@ -587,7 +587,7 @@ _Bool svg_draw(_Bool needmemory) {
 
     /* the two small chat buttons... */
     drawrectroundedex(p, BM_CHAT_BUTTON_WIDTH, BM_CHAT_BUTTON_HEIGHT, SCALE * 2, 14);
-    loadalpha(BM_CB1, p, BM_CHAT_BUTTON_WIDTH, BM_CHAT_BUTTON_HEIGHT);
+    loadalpha(BM_CHAT_BUTTON, p, BM_CHAT_BUTTON_WIDTH, BM_CHAT_BUTTON_HEIGHT);
     p += BM_CHAT_BUTTON_WIDTH * BM_CHAT_BUTTON_HEIGHT;
 
     drawrectroundedex(p, BM_CHAT_BUTTON_WIDTH, BM_CHAT_BUTTON_HEIGHT, SCALE * 2, 13);
@@ -600,15 +600,22 @@ _Bool svg_draw(_Bool needmemory) {
     p += BM_CHAT_SEND_WIDTH * BM_CHAT_SEND_HEIGHT;
 
     /* Draw chat send overlay */
-    drawnewcircle(p, BM_CHAT_SEND_OVERLAY_WIDTH, BM_CHAT_SEND_OVERLAY_HEIGHT, 10 * SCALE,  7 * SCALE, 13 * SCALE);
-    drawtri(      p, BM_CHAT_SEND_OVERLAY_WIDTH, BM_CHAT_SEND_OVERLAY_HEIGHT, 15 * SCALE, 11 * SCALE,  6 * SCALE, 0);
+    drawnewcircle(p, BM_CHAT_SEND_OVERLAY_WIDTH, BM_CHAT_SEND_OVERLAY_HEIGHT, 10 * SCALE, 7 * SCALE, 13 * SCALE);
+    drawtri(      p, BM_CHAT_SEND_OVERLAY_WIDTH, BM_CHAT_SEND_OVERLAY_HEIGHT, 15 * SCALE, 9 * SCALE,  6 * SCALE, 0);
     loadalpha(BM_CHAT_SEND_OVERLAY, p, BM_CHAT_SEND_OVERLAY_WIDTH, BM_CHAT_SEND_OVERLAY_HEIGHT);
     p += BM_CHAT_SEND_OVERLAY_WIDTH * BM_CHAT_SEND_OVERLAY_HEIGHT;
 
-    drawrectrounded(p, BM_CI_WIDTH, BM_CI_WIDTH, SCALE * 2);
-    drawrectroundedneg(p, BM_CI_WIDTH, BM_CI_WIDTH, SCALE, SCALE, (_BM_CI_WIDTH - 2) * SCALE, (_BM_CI_WIDTH - 2) * SCALE, 1 * SCALE);
-    loadalpha(BM_CI1, p, BM_CI_WIDTH, BM_CI_WIDTH);
-    p += BM_CI_WIDTH * BM_CI_WIDTH;
+    /* screen shot button overlay */
+    drawrectroundedsub(p, BM_CHAT_BUTTON_OVERLAY_WIDTH, BM_CHAT_BUTTON_OVERLAY_HEIGHT,
+                       1 * SCALE, 1 * SCALE,
+                       BM_CHAT_BUTTON_OVERLAY_WIDTH - (2 * SCALE), BM_CHAT_BUTTON_OVERLAY_HEIGHT - (3 * SCALE), SCALE * 2);
+    drawrectroundedneg(p, BM_CHAT_BUTTON_OVERLAY_WIDTH, BM_CHAT_BUTTON_OVERLAY_HEIGHT, /* width, height */
+                       1 * SCALE, 1 * SCALE, /* start x, y */
+                       BM_CHAT_BUTTON_OVERLAY_WIDTH - (3 * SCALE), BM_CHAT_BUTTON_OVERLAY_HEIGHT - (3 * SCALE), 1 * SCALE);
+    drawnewcircle(p, BM_CHAT_BUTTON_OVERLAY_WIDTH, BM_CHAT_BUTTON_OVERLAY_HEIGHT, BM_CHAT_BUTTON_OVERLAY_WIDTH * 0.75, BM_CHAT_BUTTON_OVERLAY_HEIGHT * 0.75, 5 * SCALE);
+    drawsubcircle(p, BM_CHAT_BUTTON_OVERLAY_WIDTH, BM_CHAT_BUTTON_OVERLAY_HEIGHT, BM_CHAT_BUTTON_OVERLAY_WIDTH * 0.75, BM_CHAT_BUTTON_OVERLAY_HEIGHT * 0.75, 2 * SCALE);
+    loadalpha(BM_CHAT_BUTTON_OVERLAY, p, BM_CHAT_BUTTON_OVERLAY_WIDTH, BM_CHAT_BUTTON_OVERLAY_HEIGHT);
+    p += BM_CHAT_BUTTON_OVERLAY_WIDTH * BM_CHAT_BUTTON_OVERLAY_HEIGHT;
 
     if(p - svg_data != size) {
         debug("something went wrong\n");
