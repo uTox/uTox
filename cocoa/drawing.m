@@ -9,7 +9,7 @@
 }
 #endif
 
-CGImageRef bitmaps[BM_CI1 + 1]  = { NULL };
+CGImageRef bitmaps[BM_ENDMARKER + 1]  = { NULL };
 CTFontRef  fonts[FONT_MISC + 1] = { NULL };
 static uToxView *__unsafe_unretained currently_drawing_into_view;
 static struct __global_d_state {

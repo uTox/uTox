@@ -418,26 +418,6 @@ static void button_bottommenu_update(BUTTON *b)
     b->cd = COLOR_BACKGROUND_MENU_ACTIVE;
 }
 
-static void button_sendfile_onpress(void)
-{
-    FRIEND *f = selected_item->data;
-    if (f->online) {
-        openfilesend();
-    }
-}
-
-static void button_sendfile_update(BUTTON *b)
-{
-    FRIEND *f = selected_item->data;
-    if (f->online) {
-        b->disabled = 0;
-        button_setcolors_success(b);
-    } else {
-        b->disabled = 1;
-        button_setcolors_disabled(b);
-    }
-}
-
 static void button_accept_friend_onpress(void){
     FRIENDREQ *req = selected_item->data;
     tox_postmessage(TOX_ACCEPTFRIEND, 0, 0, req);
@@ -460,17 +440,15 @@ static void button_avatar_onright(void)
     }
 }
 
-/* top right chat message window button */
-static void button_chat1_onpress(void)
-{
+/* bottom left chat message window button */
+static void button_chat_left_onpress(void) {
     FRIEND *f = selected_item->data;
     if (f->online) {
-        desktopgrab(0);
+        openfilesend();
     }
 }
 
-static void button_chat1_update(BUTTON *b)
-{
+static void button_chat_left_update(BUTTON *b) {
     FRIEND *f = selected_item->data;
     if (f->online) {
         b->disabled = 0;
@@ -482,8 +460,24 @@ static void button_chat1_update(BUTTON *b)
 }
 
 /* bottom right chat message window button */
-static void button_chat2_onpress(void){
+static void button_chat_right_onpress(void) {
+    FRIEND *f = selected_item->data;
+    if (f->online) {
+        desktopgrab(0);
+    }
 }
+
+static void button_chat_right_update(BUTTON *b) {
+    FRIEND *f = selected_item->data;
+    if (f->online) {
+        b->disabled = 0;
+        button_setcolors_success(b);
+    } else {
+        b->disabled = 1;
+        button_setcolors_disabled(b);
+    }
+}
+
 
 /* Button to send chat message */
 static void button_chat_send_onpress(void){
@@ -660,15 +654,6 @@ button_video = {
     .update = button_video_update,
 },
 
-button_sendfile = {
-    .bm = BM_LBUTTON,
-    .bm2 = BM_FILE,
-    .bw = _BM_LBICON_WIDTH,
-    .bh = _BM_LBICON_HEIGHT,
-    .onpress = button_sendfile_onpress,
-    .update = button_sendfile_update,
-},
-
 button_accept_friend = {
     .bm = BM_SBUTTON,
     .button_text = { .i18nal = STR_BUTTON_ACCEPT_FRIEND },
@@ -687,35 +672,34 @@ button_callpreview = {
 },
 
 button_videopreview = {
-    .bm = BM_LBUTTON,
+    .bm  = BM_LBUTTON,
     .bm2 = BM_VIDEO,
-    .bw = _BM_LBICON_WIDTH,
-    .bh = _BM_LBICON_HEIGHT,
-    .onpress = button_videopreview_onpress,
-    .update = button_videopreview_update,
+    .bw  = _BM_LBICON_WIDTH,
+    .bh  = _BM_LBICON_HEIGHT,
+    .onpress  = button_videopreview_onpress,
+    .update   = button_videopreview_update,
     .disabled = 0,
 },
 
 /* left chat message window button */
 button_chat_left = {
-    .bm = BM_CB2,
-    // @TODO: replace with something useful
-    // .bm2 = BM_ADD,
-    // .bw = _BM_ADD_WIDTH,
-    // .bh = _BM_ADD_WIDTH,
-    .onpress = button_chat2_onpress,
-    .update = button_setcolors_disabled,
+    .bm  = BM_CHAT_BUTTON_LEFT,
+    .bm2 = BM_FILE,
+    .bw  = _BM_FILE_WIDTH,
+    .bh  = _BM_FILE_HEIGHT,
+    .onpress = button_chat_left_onpress,
+    .update  = button_chat_left_update,
     .disabled = 1,
 },
 
 /* right chat message window button */
 button_chat_right = {
-    .bm  = BM_CHAT_BUTTON,
-    .bm2 = BM_CHAT_BUTTON_OVERLAY,
+    .bm  = BM_CHAT_BUTTON_RIGHT,
+    .bm2 = BM_CHAT_BUTTON_OVERLAY_SCREENSHOT,
     .bw  = _BM_CHAT_BUTTON_OVERLAY_WIDTH,
     .bh  = _BM_CHAT_BUTTON_OVERLAY_HEIGHT,
-    .update       = button_chat1_update,
-    .onpress      = button_chat1_onpress,
+    .update       = button_chat_right_update,
+    .onpress      = button_chat_right_onpress,
     .tooltip_text = { .i18nal = STR_SENDSCREENSHOT },
 },
 

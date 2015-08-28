@@ -593,8 +593,8 @@ panel_main = {
             .child = (PANEL*[]) {
                 (void*)&scrollbar_friend,
                 (void*)&messages_friend,
-                (void*)&button_call, (void*)&button_video, (void*)&button_sendfile,
-                (void*)&button_chat_left, (void*)&edit_msg, (void*)&button_chat_right, (void*)&button_chat_send,
+                (void*)&button_call, (void*)&button_video,
+                (void*)&button_chat_left, (void*)&button_chat_right, (void*)&edit_msg, (void*)&button_chat_send,
                 NULL
             }
         },
@@ -941,14 +941,6 @@ void ui_scale(uint8_t scale) {
             .height = BM_LBUTTON_HEIGHT,
         },
 
-        b_sendfile = {
-            .type = PANEL_BUTTON,
-            .x = -93 * SCALE,
-            .y = 5 * SCALE,
-            .width = BM_LBUTTON_WIDTH,
-            .height = BM_LBUTTON_HEIGHT,
-        },
-
         b_accept_friend = {
             .type = PANEL_BUTTON,
             .x = SCALE * 5,
@@ -985,7 +977,7 @@ void ui_scale(uint8_t scale) {
         /* bottom right chat message window button */
         b_chat_right = {
             .type   = PANEL_BUTTON,
-            .x      = -40 * SCALE - BM_CHAT_BUTTON_WIDTH,
+            .x      =   4 * SCALE + BM_CHAT_BUTTON_WIDTH,
             .y      = -23 * SCALE,
             .width  = BM_CHAT_BUTTON_WIDTH,
             .height = BM_CHAT_BUTTON_HEIGHT,
@@ -1025,7 +1017,6 @@ void ui_scale(uint8_t scale) {
         button_call.panel                = b_call;
         button_group_audio.panel         = b_group_audio;
         button_video.panel               = b_video;
-        button_sendfile.panel            = b_sendfile;
         button_accept_friend.panel       = b_accept_friend;
         button_callpreview.panel         = b_callpreview;
         button_videopreview.panel        = b_videopreview;
@@ -1240,9 +1231,9 @@ void ui_scale(uint8_t scale) {
         /* Message entry box for friends and groups */
         e_msg = {
             .type   = PANEL_EDIT,
-            .x      =   3 * SCALE + BM_CHAT_BUTTON_WIDTH, /* Make space for the left button  */
+            .x      =   5 * SCALE + BM_CHAT_BUTTON_WIDTH * 2, /* Make space for the left button  */
             .y      = -23 * SCALE,
-            .width  = -40 * SCALE - BM_CHAT_BUTTON_WIDTH, /* Make space for the right button */
+            .width  = -40 * SCALE,
             .height =  20 * SCALE,
             // text is 8 high. 8 * 2.5 = 20.
         },

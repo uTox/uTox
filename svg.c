@@ -613,13 +613,14 @@ _Bool svg_draw(_Bool needmemory) {
     p += s;
 
     /* the two small chat buttons... */
-    drawrectroundedex(p, BM_CHAT_BUTTON_WIDTH, BM_CHAT_BUTTON_HEIGHT, SCALE * 2, 14);
-    loadalpha(BM_CHAT_BUTTON, p, BM_CHAT_BUTTON_WIDTH, BM_CHAT_BUTTON_HEIGHT);
+    drawrectroundedex(p, BM_CHAT_BUTTON_WIDTH, BM_CHAT_BUTTON_HEIGHT, SCALE * 2, 13);
+    loadalpha(BM_CHAT_BUTTON_LEFT, p, BM_CHAT_BUTTON_WIDTH, BM_CHAT_BUTTON_HEIGHT);
     p += BM_CHAT_BUTTON_WIDTH * BM_CHAT_BUTTON_HEIGHT;
 
-    drawrectroundedex(p, BM_CHAT_BUTTON_WIDTH, BM_CHAT_BUTTON_HEIGHT, SCALE * 2, 13);
-    loadalpha(BM_CB2, p, BM_CHAT_BUTTON_WIDTH, BM_CHAT_BUTTON_HEIGHT);
+    drawrectroundedex(p, BM_CHAT_BUTTON_WIDTH, BM_CHAT_BUTTON_HEIGHT, SCALE * 2, 0);
+    loadalpha(BM_CHAT_BUTTON_RIGHT, p, BM_CHAT_BUTTON_WIDTH, BM_CHAT_BUTTON_HEIGHT);
     p += BM_CHAT_BUTTON_WIDTH * BM_CHAT_BUTTON_HEIGHT;
+
 
     /* Draw chat send button */
     drawrectrounded(p, BM_CHAT_SEND_WIDTH, BM_CHAT_SEND_HEIGHT, 4 * SCALE);
@@ -651,12 +652,18 @@ _Bool svg_draw(_Bool needmemory) {
                      2 * SCALE);
     /* shutter lines */
     svgdraw_line_neg(p,      BM_CHAT_BUTTON_OVERLAY_WIDTH,        BM_CHAT_BUTTON_OVERLAY_HEIGHT,
-                             BM_CHAT_BUTTON_OVERLAY_WIDTH * 0.75,  BM_CHAT_BUTTON_OVERLAY_HEIGHT * 0.75,
-                             5 * SCALE, 0.1);
+                             BM_CHAT_BUTTON_OVERLAY_WIDTH * 0.80, BM_CHAT_BUTTON_OVERLAY_HEIGHT * 0.65,
+                             2 * SCALE, 0.1);
+    svgdraw_line_neg(p,      BM_CHAT_BUTTON_OVERLAY_WIDTH,        BM_CHAT_BUTTON_OVERLAY_HEIGHT,
+                             BM_CHAT_BUTTON_OVERLAY_WIDTH * 0.73, BM_CHAT_BUTTON_OVERLAY_HEIGHT * 0.87,
+                             2 * SCALE, 0.1);
     svgdraw_line_down_neg(p, BM_CHAT_BUTTON_OVERLAY_WIDTH,        BM_CHAT_BUTTON_OVERLAY_HEIGHT,
-                             BM_CHAT_BUTTON_OVERLAY_WIDTH * 0.75,  BM_CHAT_BUTTON_OVERLAY_HEIGHT * 0.75,
-                             5 * SCALE, 0.1);
-    loadalpha(BM_CHAT_BUTTON_OVERLAY, p, BM_CHAT_BUTTON_OVERLAY_WIDTH, BM_CHAT_BUTTON_OVERLAY_HEIGHT);
+                             BM_CHAT_BUTTON_OVERLAY_WIDTH * 0.65, BM_CHAT_BUTTON_OVERLAY_HEIGHT * 0.70,
+                             2 * SCALE, 0.1);
+    svgdraw_line_down_neg(p, BM_CHAT_BUTTON_OVERLAY_WIDTH,        BM_CHAT_BUTTON_OVERLAY_HEIGHT,
+                             BM_CHAT_BUTTON_OVERLAY_WIDTH * 0.85, BM_CHAT_BUTTON_OVERLAY_HEIGHT * 0.81,
+                             2 * SCALE, 0.1);
+    loadalpha(BM_CHAT_BUTTON_OVERLAY_SCREENSHOT, p, BM_CHAT_BUTTON_OVERLAY_WIDTH, BM_CHAT_BUTTON_OVERLAY_HEIGHT);
     p += BM_CHAT_BUTTON_OVERLAY_WIDTH * BM_CHAT_BUTTON_OVERLAY_HEIGHT;
 
     if(p - svg_data != size) {

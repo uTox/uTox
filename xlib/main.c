@@ -58,7 +58,7 @@ GC gc;
 Colormap cmap;
 Visual *visual;
 
-Picture bitmap[BM_CI1 + 1];
+Picture bitmap[BM_ENDMARKER + 1];
 
 Cursor cursors[8];
 

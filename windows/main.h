@@ -108,7 +108,7 @@ enum {
 };
 
 //HBITMAP bitmap[32];
-void *bitmap[BM_CI1 + 1];
+void *bitmap[BM_ENDMARKER + 1];
 HFONT font[32];
 HCURSOR cursors[8];
 HICON my_icon, unread_messages_icon;

@@ -32,7 +32,7 @@
 #define  BM_LBICON_WIDTH (11 * SCALE)
 #define _BM_LBICON_HEIGHT 10
 #define  BM_LBICON_HEIGHT (10 * SCALE)
-/* no idea */
+/* small file transfer button maybe? */
 #define  BM_FB_WIDTH      (6 * SCALE)
 #define  BM_FB_HEIGHT     (5 * SCALE)
 
@@ -40,10 +40,10 @@
 #define  BM_CHAT_BUTTON_WIDTH          (20 * SCALE)
 #define  BM_CHAT_BUTTON_HEIGHT         (20 * SCALE)
 /* camera box */
-#define _BM_CHAT_BUTTON_OVERLAY_WIDTH  (18        )
-#define  BM_CHAT_BUTTON_OVERLAY_WIDTH  (18 * SCALE)
-#define _BM_CHAT_BUTTON_OVERLAY_HEIGHT (18        )
-#define  BM_CHAT_BUTTON_OVERLAY_HEIGHT (18 * SCALE)
+#define _BM_CHAT_BUTTON_OVERLAY_WIDTH  (14        )
+#define  BM_CHAT_BUTTON_OVERLAY_WIDTH  (14 * SCALE)
+#define _BM_CHAT_BUTTON_OVERLAY_HEIGHT (14        )
+#define  BM_CHAT_BUTTON_OVERLAY_HEIGHT (14 * SCALE)
 /* Large chat button */
 #define  BM_CHAT_SEND_WIDTH    (32 * SCALE)
 #define  BM_CHAT_SEND_HEIGHT   (20 * SCALE)
@@ -53,8 +53,10 @@
 #define _BM_CHAT_SEND_OVERLAY_HEIGHT (16        )
 #define  BM_CHAT_SEND_OVERLAY_HEIGHT (16 * SCALE)
 
-#define _BM_CHAT_WIDTH 10
-#define  BM_CHAT_WIDTH (10 * SCALE)
+#define _BM_FILE_WIDTH  (11        )
+#define  BM_FILE_WIDTH  (11 * SCALE)
+#define _BM_FILE_HEIGHT (10        )
+#define  BM_FILE_HEIGHT (10 * SCALE)
 
 #define _BM_CI_WIDTH 10
 #define  BM_CI_WIDTH (10 * SCALE)
