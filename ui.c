@@ -108,14 +108,14 @@ static void draw_friend(int x, int y, int w, int height){
     setfont(FONT_TITLE);
 
     if (f->alias) {
-        drawtextrange(MAIN_LEFT + 30 * SCALE, utox_window_width - 92 * SCALE, 9 * SCALE, f->alias, f->alias_length);
+        drawtextrange(MAIN_LEFT + 30 * SCALE, utox_window_width - 64 * SCALE, 9 * SCALE, f->alias, f->alias_length);
     } else {
-        drawtextrange(MAIN_LEFT + 30 * SCALE, utox_window_width - 92 * SCALE, 9 * SCALE, f->name, f->name_length);
+        drawtextrange(MAIN_LEFT + 30 * SCALE, utox_window_width - 64 * SCALE, 9 * SCALE, f->name, f->name_length);
     }
 
     setcolor(COLOR_MAIN_SUBTEXT);
     setfont(FONT_STATUS);
-    drawtextrange(MAIN_LEFT + 30 * SCALE, utox_window_width - 92 * SCALE, 16 * SCALE, f->status_message, f->status_length);
+    drawtextrange(MAIN_LEFT + 30 * SCALE, utox_window_width - 64 * SCALE, 16 * SCALE, f->status_message, f->status_length);
 
     if (f->typing) {
         int typing_y = ((y + height) + CHAT_BOX_TOP);
