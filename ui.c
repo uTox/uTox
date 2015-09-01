@@ -794,16 +794,16 @@ void ui_scale(uint8_t scale) {
             .type   = PANEL_BUTTON,
             .x      = SIDEBAR_NAME_LEFT,
             .y      = SIDEBAR_NAME_TOP,
-            .width  = SIDEBAR_NAME_WIDTH,
-            .height = SIDEBAR_NAME_HEIGHT,
+            .width  = textwidth(self.name, self.name_length) - 4 * SCALE,
+            .height = SIDEBAR_NAME_HEIGHT - 1 * SCALE,
         },
 
         b_statusmsg = {
             .type   = PANEL_BUTTON,
             .x      = SIDEBAR_STATUSMSG_LEFT,
             .y      = SIDEBAR_STATUSMSG_TOP,
-            .width  = SIDEBAR_STATUSMSG_WIDTH,
-            .height = SIDEBAR_STATUSMSG_HEIGHT,
+            .width  = textwidth(self.statusmsg, self.statusmsg_length) - 4 * SCALE,
+            .height = SIDEBAR_STATUSMSG_HEIGHT - 1 * SCALE,
         },
 
         b_status_button = {
