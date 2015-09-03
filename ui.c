@@ -146,11 +146,9 @@ static void draw_group(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(h
     uint64_t time = get_time();
 
     unsigned int pos_y = 15;
-    while(i < g->peers)
-    {
+    while (i < g->peers) {
         uint8_t *name = g->peername[i];
-        if(name)
-        {
+        if (name) {
             uint8_t buf[134];
             memcpy(buf, name + 1, name[0]);
             memcpy(buf + name[0], ", ", 2);
@@ -164,7 +162,7 @@ static void draw_group(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(h
                 setcolor(COLOR_GROUP_PEER);
             }
 
-            if(k + w >= (utox_window_width - 32 * SCALE)) {
+            if (k + w >= (utox_window_width - 32 * SCALE)) {
                 if (pos_y == 15) {
                     pos_y += 6;
                     k = MAIN_LEFT + 30 * SCALE;
