@@ -172,10 +172,13 @@ uint8_t SCALE;
 #define ROSTER_NAME_LEFT                (30 * SCALE)
 #define ROSTER_STATUS_MSG_TOP           (13 * SCALE)
 
+/* Main box/Chat box size settings */
+#define CHAT_BOX_TOP                    (-26 * SCALE) /* size of the bottom message box */
+#define MAIN_TOP_FRAME_THIN             ( 15 * SCALE)
+#define MAIN_TOP_FRAME_THICK            ( 30 * SCALE)
 
 /* Global UI size settings... */
 #define SCROLL_WIDTH                    (4   * SCALE) //must be divisible by 2
-#define CHAT_BOX_TOP                    (-26 * SCALE) /* size of the bottom message box */
 
 /* Legacy defines, instead of using these, you should replace them with something more descriptive */
 /* Main panel defines */
