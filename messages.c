@@ -245,7 +245,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height)
             uint32_t w = (file->size == 0) ? 0 : (progress * (uint64_t)106 * SCALE) / file->size;
 
             setfont(FONT_MISC);
-            setcolor(COLOR_MAIN_BACKGROUND);
+            setcolor(COLOR_BACKGROUND_MAIN);
 
             switch (file->status){
             case FILE_TRANSFER_STATUS_COMPLETED: {

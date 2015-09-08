@@ -58,7 +58,7 @@ GC gc;
 Colormap cmap;
 Visual *visual;
 
-Picture bitmap[BM_CI1 + 1];
+Picture bitmap[BM_ENDMARKER + 1];
 
 Cursor cursors[8];
 
@@ -640,6 +640,16 @@ void copy(int value)
 
 }
 
+int hold_x11s_hand(Display *d, XErrorEvent *event) {
+    debug("X11 err:\tX11 tried to kill itself, so I hit him with a shovel.\n");
+    debug("    err:\tResource: %lu || Serial %lu\n", event->resourceid, event->serial);
+    debug("    err:\tError code: %u || Request: %u || Minor: %u \n",
+          event->error_code, event->request_code, event->minor_code);
+    debug("uTox:\tThis would be a great time to submit a bug!\n");
+
+    return 0;
+}
+
 void paste(void)
 {
     Window owner = XGetSelectionOwner(display, XA_CLIPBOARD);
@@ -665,12 +675,17 @@ void paste(void)
     }
 }
 
-static void pastebestformat(const Atom atoms[], int len, Atom selection)
-{
+static void pastebestformat(const Atom atoms[], int len, Atom selection) {
+    XSetErrorHandler(hold_x11s_hand);
     const Atom supported[] = {XA_PNG_IMG, XA_URI_LIST, XA_UTF8_STRING};
     int i, j;
     for (i = 0; i < len; i++) {
-        debug("Supported type: %s\n", XGetAtomName(display, atoms[i]));
+        char *name = XGetAtomName(display, atoms[i]);
+        if (name) {
+            debug("Supported type: %s\n", name);
+        } else {
+            debug("Unsupported type!!: Likely a bug, please report!\n");
+        }
     }
 
     for (i = 0; i < len; i++) {
@@ -1154,6 +1169,8 @@ int main(int argc, char *argv[]) {
         printf("Cannot open display\n");
         return 1;
     }
+
+    XSetErrorHandler(hold_x11s_hand);
 
     XIM xim;
     setlocale(LC_ALL, "");

@@ -4,6 +4,12 @@ void scroll_draw(SCROLLABLE *s, int x, int y, int width, int height)
 {
     uint32_t c = s->content_height;
     uint32_t h = height, m, dy;
+    int scroll_width = 0;
+    if (s->small) {
+        scroll_width = SCROLL_WIDTH / 2;
+    } else {
+        scroll_width = SCROLL_WIDTH;
+    }
 
     if(h >= c) {
         // If h(eight) > c(ontent height), don't draw anything.
@@ -17,20 +23,21 @@ void scroll_draw(SCROLLABLE *s, int x, int y, int width, int height)
     y += dy;
     x += s->x;
 
+
     if(!s->left) {
-        x += width - SCROLL_WIDTH;
+        x += width - scroll_width;
     }
 
-    drawalpha(BM_SCROLLHALFTOP, x, y, SCROLL_WIDTH, SCROLL_WIDTH / 2, s->color);
+    drawalpha(s->small ? BM_SCROLLHALFTOP_SMALL : BM_SCROLLHALFTOP, x, y, scroll_width, scroll_width /2, s->color);
 
-    y += SCROLL_WIDTH / 2;
-    int y2 = y + m - SCROLL_WIDTH;
-    if(SCROLL_WIDTH > m) {
+    y += scroll_width / 2;
+    int y2 = y + m - scroll_width;
+    if(scroll_width > m) {
         y2 = y;
     }
-    drawrect(x, y, x + SCROLL_WIDTH, y2, s->color);
+    drawrect(x, y, x + scroll_width, y2, s->color);
 
-    drawalpha(BM_SCROLLHALFBOT, x, y2, SCROLL_WIDTH, SCROLL_WIDTH / 2, s->color);
+    drawalpha(s->small ? BM_SCROLLHALFBOT_SMALL : BM_SCROLLHALFBOT, x, y2, scroll_width, scroll_width /2, s->color);
 }
 
 int scroll_gety(SCROLLABLE *s, int height)

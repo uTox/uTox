@@ -701,12 +701,11 @@ NEXT:
 
     dropdown_audible_notification.selected = dropdown_audible_notification.over = save->audible_notifications_enabled;
     dropdown_audio_filtering.selected = dropdown_audio_filtering.over = save->audio_filtering_enabled;
-    dropdown_filter.selected = FILTER = save->filter; /* Audio filtering */
     dropdown_push_to_talk.selected = dropdown_push_to_talk.over = save->push_to_talk;
-
     //dropdown_theme_onselect.selected = dropdown_theme_onselect.over = save->theme;
     dropdown_typing_notes.selected = save->no_typing_notifications;
 
+    FILTER = save->filter; /* roster list filtering */
 
     options.ipv6_enabled = save->enableipv6;
     options.udp_enabled = !save->disableudp;

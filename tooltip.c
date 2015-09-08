@@ -54,7 +54,7 @@ void tooltip_draw(void)
     int x, w;
     calculate_pos_and_width(b, &x, &w);
 
-    drawrectw(x, b->y, w, b->height, COLOR_MAIN_BACKGROUND);
+    drawrectw(x, b->y, w, b->height, COLOR_BACKGROUND_MAIN);
 
     STRING* s = maybe_i18nal_string_get(b->tt_text);
     drawtext(x + SCALE * 2, b->y + SCALE * 2, s->str, s->length);

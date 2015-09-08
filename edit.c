@@ -48,14 +48,14 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
 
     switch(edit->style) {
         case AUXILIARY_STYLE:
-            color_bg = COLOR_AUX_BACKGROUND;
+            color_bg = COLOR_BACKGROUND_AUX;
             color_border = COLOR_AUX_EDGE_NORMAL;
             color_border_h = COLOR_AUX_EDGE_HOVER;
             color_border_a = COLOR_AUX_EDGE_ACTIVE;
             color_text = COLOR_AUX_TEXT;
             break;
         default:
-            color_bg = COLOR_MAIN_BACKGROUND;
+            color_bg = COLOR_BACKGROUND_MAIN;
             color_border = COLOR_EDGE_NORMAL;
             color_border_h = COLOR_EDGE_HOVER;
             color_border_a = COLOR_EDGE_ACTIVE;
@@ -86,11 +86,11 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
     if(!edit->length && maybe_i18nal_string_is_valid(&edit->empty_str)) {
         STRING* empty_str_text = maybe_i18nal_string_get(&edit->empty_str);
         setcolor(COLOR_MAIN_HINTTEXT);
-        drawtext(x + 2 * SCALE, yy + 2 * SCALE, empty_str_text->str, empty_str_text->length);
+        drawtext(x + 2 * SCALE, yy + 3 * SCALE, empty_str_text->str, empty_str_text->length);
     }
 
     _Bool a = (edit == active_edit);
-    drawtextmultiline(x + 2 * SCALE, x + width - 2 * SCALE - (edit->multiline ? SCROLL_WIDTH : 0), yy + 2 * SCALE, y, y + height, font_small_lineheight, edit->data, edit->length,
+    drawtextmultiline(x + 2 * SCALE, x + width - 2 * SCALE - (edit->multiline ? SCROLL_WIDTH : 0), yy + 3 * SCALE, y, y + height, font_small_lineheight, edit->data, edit->length,
                       a ? edit_sel.start : STRING_IDX_MAX, a ? edit_sel.length : STRING_IDX_MAX,
                       a ? edit_sel.mark_start : 0, a ? edit_sel.mark_length : 0, edit->multiline);
 

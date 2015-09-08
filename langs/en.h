@@ -89,7 +89,7 @@ msgid(CALL_STARTED)
 msgstr("Call started")
 
 msgid(ADDFRIENDS)
-msgstr("Add Friends")
+msgstr("Add New Contact")
 
 msgid(TOXID)
 msgstr("Tox ID")
@@ -98,7 +98,22 @@ msgid(MESSAGE)
 msgstr("Message")
 
 msgid(SEARCHFRIENDS)
-msgstr("Search friends")
+msgstr("Search contacts")
+
+msgid(FILTER_ALL)
+msgstr("Online Contacts")
+
+msgid(FILTER_ONLINE)
+msgstr("All Contacts")
+
+msgid(FILTER_CONTACT_TOGGLE)
+msgstr("Toggle filtering of offline contacts.")
+
+msgid(FILTER_TO_ALL)
+msgstr("Show all contacts!")
+
+msgid(FILTER_TO_ONLINE)
+msgstr("Show online contacts only!")
 
 msgid(ADD)
 msgstr("Add")
