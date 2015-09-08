@@ -386,14 +386,6 @@ static void button_chat_left_update(BUTTON *b) {
         b->disabled = 1;
         button_setcolors_disabled(b);
     }
-
-    #ifdef UNITY
-    if(unity_running) {
-        mm_set_status(self.status);
-    }
-    #endif
-
-    tox_postmessage(TOX_SELF_SET_STATE, self.status, 0, NULL);
 }
 
 /* bottom right chat message window button */
