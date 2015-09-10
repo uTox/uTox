@@ -609,7 +609,7 @@ typedef struct
     uint16_t window_x, window_y, window_width, window_height;
     uint16_t proxy_port;
     uint8_t proxyenable;
-    uint8_t logging_enabled : 1;
+    uint8_t logging_enabled : 0;
     uint8_t audible_notifications_enabled : 1;
     uint8_t filter : 1;
     uint8_t audio_filtering_enabled : 1;
@@ -666,7 +666,7 @@ UTOX_SAVE* config_load(void)
     save->disableudp = 0;
     save->proxy_port = 0;
     save->proxyenable = 0;
-    save->logging_enabled = 1;
+    save->logging_enabled = 0;
     save->close_to_tray = 0;
     save->start_in_tray = 0;
     save->auto_startup = 0;
