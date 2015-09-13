@@ -98,7 +98,7 @@ static void gtk_openavatarthread(void *UNUSED(args))
     gtk_open = 0;
 }
 
-static void gtk_savethread(void *args){
+static void gtk_savethread(void *args) {
     MSG_FILE *file = args;
 
     //WHY?!
@@ -150,6 +150,7 @@ static void gtk_savethread(void *args){
                     debug("Unknown file write error...\n");
                 }
             } else {
+                fclose(fp);
                 /* write test passed, we're done! */
                 gtk_widget_destroy(dialog);
                 postmessage(SAVE_FILE, fid, (file->filenumber >> 16), path);
@@ -171,8 +172,7 @@ static void gtk_savethread(void *args){
     gtk_open = 0;
 }
 
-static void gtk_savedatathread(void *args)
-{
+static void gtk_savedatathread(void *args) {
     MSG_FILE *file = args;
     void *dialog = gtk_file_chooser_dialog_new(S(SAVE_FILE), NULL, 1, "gtk-cancel", -6, "gtk-save", -3, NULL);
     gtk_file_chooser_set_current_name(dialog, "inline.png");
@@ -199,8 +199,7 @@ static void gtk_savedatathread(void *args)
     gtk_open = 0;
 }
 
-void gtk_openfilesend(void)
-{
+void gtk_openfilesend(void) {
     if(gtk_open) {
         return;
     }
@@ -208,8 +207,7 @@ void gtk_openfilesend(void)
     thread(gtk_opensendthread, (void*)(size_t)((FRIEND*)selected_item->data - friend));
 }
 
-void gtk_openfileavatar(void)
-{
+void gtk_openfileavatar(void) {
     if(gtk_open) {
         return;
     }
@@ -227,8 +225,7 @@ void gtk_savefilerecv(uint32_t fid, MSG_FILE *file)
     thread(gtk_savethread, file);
 }
 
-void gtk_savefiledata(MSG_FILE *file)
-{
+void gtk_savefiledata(MSG_FILE *file) {
     if(gtk_open) {
         return;
     }
@@ -236,8 +233,7 @@ void gtk_savefiledata(MSG_FILE *file)
     thread(gtk_savedatathread, file);
 }
 
-void* gtk_load(void)
-{
+void* gtk_load(void) {
     void *lib = dlopen(LIBGTK_FILENAME, RTLD_LAZY);
     if(lib) {
         debug("have GTK\n");
