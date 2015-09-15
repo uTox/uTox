@@ -153,6 +153,8 @@ static void gtk_savethread(void *args) {
                 fclose(fp);
                 /* write test passed, we're done! */
                 gtk_widget_destroy(dialog);
+                gtk_main_iteration();
+                gtk_widget_destroy(dialog);
                 postmessage(SAVE_FILE, fid, (file->filenumber >> 16), path);
                 break;
             }
