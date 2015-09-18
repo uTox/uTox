@@ -86,7 +86,7 @@ _Bool doevent(XEvent event)
                 drawheight = ev->height + 10;
 
                 XFreePixmap(display, drawbuf);
-                drawbuf = XCreatePixmap(display, window, drawwidth, drawheight, 24);
+                drawbuf = XCreatePixmap(display, window, drawwidth, drawheight, depth);
                 XRenderFreePicture(display, renderpic);
                 renderpic = XRenderCreatePicture(display, drawbuf,XRenderFindStandardFormat(display, PictStandardRGB24), 0, NULL);
             }

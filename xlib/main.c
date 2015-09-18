@@ -589,7 +589,7 @@ void togglehide(void)
     if(hidden) {
         Window root;
         int x, y;
-        unsigned int w, h, border, depth;
+        uint32_t w, h, border;
         XGetGeometry(display, window, &root, &x, &y, &w, &h, &border, &depth);
         XMapWindow(display, window);
         XMoveWindow(display, window, x, y);
@@ -841,7 +841,7 @@ UTOX_NATIVE_IMAGE *png_to_image(const UTOX_PNG_IMAGE data, size_t size, uint16_t
         *target |= (green | (green << 8) | (green << 16) | (green << 24)) & visual->green_mask;
     }
 
-    XImage *img = XCreateImage(display, visual, 24, ZPixmap, 0, (char*)out, width, height, 32, width * 4);
+    XImage *img = XCreateImage(display, visual, depth, ZPixmap, 0, (char*)out, width, height, 32, width * 4);
 
     Picture rgb = ximage_to_picture(img, NULL);
     Picture alpha = (keep_alpha) ? generate_alpha_bitmask(rgba_data, width, height, rgba_size) : None;
@@ -1053,10 +1053,6 @@ void update_tray(void)
 }
 
 #include "event.c"
-
-int depth;
-Screen *scr;
-
 void config_osdefaults(UTOX_SAVE *r)
 {
     r->window_x = 0;
@@ -1165,6 +1161,7 @@ int main(int argc, char *argv[])
 
     if((display = XOpenDisplay(NULL)) == NULL) {
         printf("Cannot open display\n");
+
         return 1;
     }
 
@@ -1493,7 +1490,7 @@ void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height
 
 
     GC default_gc = DefaultGC(display, screen);
-    Pixmap pixmap = XCreatePixmap(display, window, attrs.width, attrs.height, 24);
+    Pixmap pixmap = XCreatePixmap(display, window, attrs.width, attrs.height, depth);
     XPutImage(display, pixmap, default_gc, &image, 0, 0, 0, 0, attrs.width, attrs.height);
     XCopyArea(display, pixmap, video_win[id], default_gc, 0, 0, attrs.width, attrs.height, 0, 0);
     XFreePixmap(display, pixmap);

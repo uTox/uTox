@@ -1,5 +1,3 @@
-
-
 #include <X11/Xutil.h>
 
 #include <netinet/in.h>
@@ -43,3 +41,6 @@ typedef struct utox_native_image {
 
 #define UTOX_NATIVE_IMAGE_IS_VALID(x) (None != (x))
 #define UTOX_NATIVE_IMAGE_HAS_ALPHA(x) (None != (x->alpha))
+
+int depth;
+Screen *scr;
