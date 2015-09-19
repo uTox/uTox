@@ -102,20 +102,17 @@ void *libgtk;
 
 _Bool utox_portable;
 
-struct
-{
+struct {
     int len;
     char_t data[65536]; //TODO: De-hardcode this value.
-}clipboard;
+} clipboard;
 
-struct
-{
+struct {
     int len;
     char_t data[65536]; //TODO: De-hardcode this value.
-}primary;
+} primary;
 
-struct
-{
+struct {
     int len, left;
     Atom type;
     void *data;
