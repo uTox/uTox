@@ -57,6 +57,7 @@ Window root, window;
 int screen;
 GC gc;
 Colormap cmap;
+XRenderPictFormat *pictformat;
 
 Picture bitmap[BM_ENDMARKER + 1];
 
@@ -1299,7 +1300,7 @@ int main(int argc, char *argv[])
     XWindowAttributes attr;
     XGetWindowAttributes(display, root, &attr);
 
-    XRenderPictFormat *pictformat = XRenderFindVisualFormat(display, attr.visual);
+    pictformat = XRenderFindVisualFormat(display, attr.visual);
     // XRenderPictFormat *pictformat = XRenderFindStandardFormat(display, PictStandardA8);
 
     /* Xft draw context/color */

@@ -88,7 +88,7 @@ _Bool doevent(XEvent event)
                 XFreePixmap(display, drawbuf);
                 drawbuf = XCreatePixmap(display, window, drawwidth, drawheight, depth);
                 XRenderFreePicture(display, renderpic);
-                renderpic = XRenderCreatePicture(display, drawbuf,XRenderFindStandardFormat(display, PictStandardRGB24), 0, NULL);
+                renderpic = XRenderCreatePicture(display, drawbuf, pictformat, 0, NULL);
             }
 
             utox_window_width = ev->width;
