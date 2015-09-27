@@ -53,10 +53,15 @@
 #define _BM_CHAT_SEND_OVERLAY_HEIGHT (16        )
 #define  BM_CHAT_SEND_OVERLAY_HEIGHT (16 * SCALE)
 
-#define _BM_FILE_WIDTH  (11        )
-#define  BM_FILE_WIDTH  (11 * SCALE)
-#define _BM_FILE_HEIGHT (10        )
-#define  BM_FILE_HEIGHT (10 * SCALE)
+#define _BM_FILE_WIDTH      (11        )
+#define  BM_FILE_WIDTH      (11 * SCALE)
+#define _BM_FILE_HEIGHT     (10        )
+#define  BM_FILE_HEIGHT     (10 * SCALE)
+
+#define _BM_FILE_BIG_WIDTH  (22        )
+#define  BM_FILE_BIG_WIDTH  (22 * SCALE)
+#define _BM_FILE_BIG_HEIGHT (20        )
+#define  BM_FILE_BIG_HEIGHT (20 * SCALE)
 
 #define _BM_CI_WIDTH 10
 #define  BM_CI_WIDTH (10 * SCALE)

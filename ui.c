@@ -1234,7 +1234,7 @@ void ui_scale(uint8_t scale) {
             .type   = PANEL_EDIT,
             .x      =   5 * SCALE + BM_CHAT_BUTTON_WIDTH * 2, /* Make space for the left button  */
             .y      = -23 * SCALE,
-            .width  = -40 * SCALE,
+            .width  = -32 * SCALE,
             .height =  20 * SCALE,
             // text is 8 high. 8 * 2.5 = 20.
         },
@@ -1344,8 +1344,7 @@ static void panel_update(PANEL *p, int x, int y, int width, int height)
     }
 }
 
-void ui_size(int width, int height)
-{
+void ui_size(int width, int height) {
     panel_update(&panel_root, 0, 0, width, height);
     tooltip_reset();
 }

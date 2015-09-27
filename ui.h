@@ -179,6 +179,7 @@ uint8_t SCALE;
 
 /* Global UI size settings... */
 #define SCROLL_WIDTH                    (4   * SCALE) //must be divisible by 2
+#define FILE_TRANSFER_BOX_HEIGHT        (26  * SCALE)
 
 /* Legacy defines, instead of using these, you should replace them with something more descriptive */
 /* Main panel defines */
