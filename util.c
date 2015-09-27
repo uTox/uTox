@@ -186,8 +186,7 @@ _Bool string_to_id(char_t *w, char_t *a)
     return 1;
 }
 
-int sprint_bytes(uint8_t *dest, unsigned int size, uint64_t bytes)
-{
+int sprint_humanread_bytes(uint8_t *dest, unsigned int size, uint64_t bytes) {
     char *str[] = {"B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB"};
     int max_id = countof(str) - 1;
     int i = 0;
