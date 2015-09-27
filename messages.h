@@ -3,8 +3,7 @@
 typedef uint32_t MSG_IDX;
 #define MSG_IDX_MAX (UINT32_MAX)
 
-typedef struct
-{
+typedef struct {
     uint32_t width, height;
 
     // Tox friendnumber/groupnumber
