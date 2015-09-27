@@ -358,9 +358,10 @@ int textfit_near(char_t *str, STRING_IDX length, int width);
 //TODO: Seems to be unused. Remove?
 int text_drawline(int x, int right, int y, uint8_t *str, int i, int length, int highlight, int hlen, uint16_t lineheight);
 
-void framerect(int x, int y, int right, int bottom, uint32_t color);
+
 void drawrect(int x, int y, int right, int bottom, uint32_t color);
-void drawrectw(int x, int y, int width, int height, uint32_t color);
+void draw_rect_frame(int x, int y, int width, int height, uint32_t color);
+void draw_rect_fill(int x, int y, int width, int height, uint32_t color);
 
 void drawhline(int x, int y, int x2, uint32_t color);
 void drawvline(int x, int y, int y2, uint32_t color);

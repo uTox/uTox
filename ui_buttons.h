@@ -703,7 +703,6 @@ button_chat_right = {
     .tooltip_text = { .i18nal = STR_SENDSCREENSHOT },
 },
 
-
 button_chat_send = {
     .bm  = BM_CHAT_SEND,
     .bm2 = BM_CHAT_SEND_OVERLAY,

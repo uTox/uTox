@@ -45,7 +45,7 @@
 #define _BM_CHAT_BUTTON_OVERLAY_HEIGHT (14        )
 #define  BM_CHAT_BUTTON_OVERLAY_HEIGHT (14 * SCALE)
 /* Large chat button */
-#define  BM_CHAT_SEND_WIDTH    (32 * SCALE)
+#define  BM_CHAT_SEND_WIDTH    (28 * SCALE)
 #define  BM_CHAT_SEND_HEIGHT   (20 * SCALE)
 /* Chat speech bubble */
 #define _BM_CHAT_SEND_OVERLAY_WIDTH  (20        )

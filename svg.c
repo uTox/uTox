@@ -62,10 +62,10 @@ static void drawrectrounded(uint8_t *data, int width, int height, int radius) {
 }
 
 static void drawrectroundedex(uint8_t *data, int width, int height, int radius, uint8_t flags) {
-    _Bool c1 = ((flags & 1) != 0); /* left   */
-    _Bool c2 = ((flags & 2) != 0); /* right  */
-    _Bool c3 = ((flags & 4) != 0); /* top    */
-    _Bool c4 = ((flags & 8) != 0); /* bottom */
+    _Bool c1 = ((flags & 1) != 0); /* left   0001 */
+    _Bool c2 = ((flags & 2) != 0); /* right  0010 */
+    _Bool c3 = ((flags & 4) != 0); /* top    0100 */
+    _Bool c4 = ((flags & 8) != 0); /* bottom 1000 */
 
     int x, y;
     double hw = (double)radius - 0.5;

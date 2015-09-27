@@ -342,10 +342,9 @@ static int _drawtext(int x, int xmax, int y, char_t *str, STRING_IDX length)
 
 #include "../shared/freetype-text.c"
 
-void framerect(int x, int y, int right, int bottom, uint32_t color)
-{
+void draw_rect_frame(int x, int y, int width, int height, uint32_t color) {
     XSetForeground(display, gc, color);
-    XDrawRectangle(display, drawbuf, gc, x, y, right - x - 1, bottom - y - 1);
+    XDrawRectangle(display, drawbuf, gc, x, y, width - 1, height - 1);
 }
 
 void drawrect(int x, int y, int right, int bottom, uint32_t color)
@@ -354,8 +353,7 @@ void drawrect(int x, int y, int right, int bottom, uint32_t color)
     XFillRectangle(display, drawbuf, gc, x, y, right - x, bottom - y);
 }
 
-void drawrectw(int x, int y, int width, int height, uint32_t color)
-{
+void draw_rect_fill(int x, int y, int width, int height, uint32_t color) {
     XSetForeground(display, gc, color);
     XFillRectangle(display, drawbuf, gc, x, y, width, height);
 }

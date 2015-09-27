@@ -3,8 +3,7 @@
 
 #define COLOR_PROC(a_ulColor) RGB((a_ulColor >> 16) & 0x0000FF, (a_ulColor >> 8) & 0x0000FF, a_ulColor & 0x0000FF)
 
-void theme_load(char loadtheme)
-{
+void theme_load(char loadtheme) {
     // Update the settings dropdown UI
     dropdown_theme.selected = loadtheme;
     theme = loadtheme;

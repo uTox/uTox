@@ -64,9 +64,9 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
     }
 
     if(!edit->noborder) {
-        framerect(x, y, x + width, y + height, (edit == active_edit) ? color_border_a : (edit->mouseover ? color_border_h : color_border));
+        draw_rect_frame(x, y, width, height, (edit == active_edit) ? color_border_a : (edit->mouseover ? color_border_h : color_border));
     }
-    drawrect(x + 1, y + 1, x + width - 1, y + height - 1, color_bg);
+    draw_rect_fill(x + 1, y + 1, width - 1 * SCALE, height - 1 * SCALE, color_bg);
 
     setfont(FONT_TEXT);
     setcolor(color_text);
