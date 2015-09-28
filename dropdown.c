@@ -54,8 +54,8 @@ void dropdown_drawactive(void) {
         sign = -1;
     }
 
-    drawrect(x, y, x + w, y + h * b->dropcount, color_bg);
-    framerect(x, y, x + w, y + h * b->dropcount, color_border);
+    draw_rect_fill (x, y, w, h * b->dropcount, color_bg);
+    draw_rect_frame(x, y, w, h * b->dropcount, color_border);
 
     if(sign == -1) {
         y += h * (b->dropcount - 1);
@@ -65,7 +65,7 @@ void dropdown_drawactive(void) {
         int j = index(b, i);
         STRING* e = b->ondisplay(j, b);
         if(j == b->over) {
-            drawrectw(x + 1, y + 1, w - 2, h - 2, color_aoptbg);
+            draw_rect_fill(x + 1, y + 1, w - 2, h - 2, color_aoptbg);
             setcolor(color_aopttext);
         } else {
             setcolor(color_text);
@@ -101,8 +101,8 @@ void dropdown_draw(DROPDOWN *b, int x, int y, int width, int height) {
                 break;
         }
 
-        framerect(x, y, x + width, y + height, (b->mouseover ? color_border_h : color_border));
-        drawrect(x + 1, y + 1, x + width - 1, y + height - 1, color_bg);
+        draw_rect_frame(x, y, width, height, (b->mouseover ? color_border_h : color_border));
+        draw_rect_fill(x + 1, y + 1, width - 1 * SCALE, height - 1 * SCALE, color_bg);
 
         if(b->dropcount) {
             setfont(FONT_TEXT);

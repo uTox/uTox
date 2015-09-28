@@ -34,7 +34,7 @@ static void drawtexth(int x, int y, char_t *str, STRING_IDX length, int d, int h
     uint32_t color = setcolor(COLOR_SELECTION_TEXT);
 
     int w = textwidth(str + h, hlen);
-    drawrectw(x + width, y, w, lineheight, COLOR_SELECTION_BACKGROUND);
+    draw_rect_fill(x + width, y, w, lineheight, COLOR_SELECTION_BACKGROUND);
     drawtext(x + width, y, str + h, hlen);
     width += w;
 

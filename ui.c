@@ -365,21 +365,24 @@ static void draw_settings_sub_header(int x, int y, int w, int UNUSED(height)){
 static void draw_background(int UNUSED(x), int UNUSED(y), int width, int height){
     /* Default background                */
     drawrect(0, 0, width, height, COLOR_BACKGROUND_MAIN);
-    /* Frame for the chat text entry box */
-    if (!panel_chat.disabled){
-        drawrect(0, height + CHAT_BOX_TOP, width, height, COLOR_BACKGROUND_ALT);
-    }
     /* Friend list (roster) background   */
     drawrect(0, 0, SIDEBAR_WIDTH, height, COLOR_BACKGROUND_LIST);
     /* Current user badge background     */
     drawrect(0, 0, MAIN_LEFT, ROSTER_TOP, COLOR_BACKGROUND_MENU);
 
-
+    if (!panel_chat.disabled){
+        /* Top frame for main chat panel */
+        drawrect (MAIN_LEFT, 0,                         width, MAIN_TOP_FRAME_THICK, COLOR_BACKGROUND_ALT);
+        drawhline(MAIN_LEFT, MAIN_TOP_FRAME_THICK - 1,  width,                       COLOR_EDGE_NORMAL);
+        /* Frame for the bottom chat text entry box */
+        drawrect (MAIN_LEFT, height + CHAT_BOX_TOP,     width, height, COLOR_BACKGROUND_ALT);
+        drawhline(MAIN_LEFT, height + CHAT_BOX_TOP,     width,         COLOR_EDGE_NORMAL);
+    }
     // Chat and chat header separation
     if (panel_settings_master.disabled) {
-        drawhline(MAIN_LEFT, LIST_Y - 1, width, COLOR_EDGE_NORMAL);
+        drawhline(MAIN_LEFT, MAIN_TOP_FRAME_THICK - 1, width, COLOR_EDGE_NORMAL);
     } else {
-        drawhline(MAIN_LEFT, (LIST_Y / 2) - 1, width, COLOR_EDGE_NORMAL);
+        drawhline(MAIN_LEFT, MAIN_TOP_FRAME_THIN  - 1, width, COLOR_EDGE_NORMAL);
     }
 }
 
@@ -1231,7 +1234,7 @@ void ui_scale(uint8_t scale) {
             .type   = PANEL_EDIT,
             .x      =   5 * SCALE + BM_CHAT_BUTTON_WIDTH * 2, /* Make space for the left button  */
             .y      = -23 * SCALE,
-            .width  = -40 * SCALE,
+            .width  = -32 * SCALE,
             .height =  20 * SCALE,
             // text is 8 high. 8 * 2.5 = 20.
         },
@@ -1341,8 +1344,7 @@ static void panel_update(PANEL *p, int x, int y, int width, int height)
     }
 }
 
-void ui_size(int width, int height)
-{
+void ui_size(int width, int height) {
     panel_update(&panel_root, 0, 0, width, height);
     tooltip_reset();
 }

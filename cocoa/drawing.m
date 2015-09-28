@@ -418,7 +418,7 @@ void framerectw(int x, int y, int width, int height, uint32_t color) {
     [[NSBezierPath bezierPathWithRect:rect] stroke];
 }
 
-void drawrectw(int x, int y, int width, int height, uint32_t color) {
+void draw_rect_fill(int x, int y, int width, int height, uint32_t color) {
     DRAW_TARGET_CHK()
 
     CGFloat sz = currently_drawing_into_view.frame.size.height;
@@ -437,12 +437,12 @@ void drawrectw(int x, int y, int width, int height, uint32_t color) {
     NSRectFill(rect);
 }
 
-void framerect(int x, int y, int right, int bottom, uint32_t color) {
+void draw_rect_frame(int x, int y, int right, int bottom, uint32_t color) {
     framerectw(x, y, right - x, bottom - y, color);
 }
 
 void drawrect(int x, int y, int right, int bottom, uint32_t color) {
-    drawrectw(x, y, right - x, bottom - y, color);
+    draw_rect_fill(x, y, right - x, bottom - y, color);
 }
 
 void drawhline(int x, int y, int x2, uint32_t color) {

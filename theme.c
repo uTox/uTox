@@ -3,8 +3,7 @@
 
 #define COLOR_PROC(a_ulColor) RGB((a_ulColor >> 16) & 0x0000FF, (a_ulColor >> 8) & 0x0000FF, a_ulColor & 0x0000FF)
 
-void theme_load(char loadtheme)
-{
+void theme_load(char loadtheme) {
     // Update the settings dropdown UI
     dropdown_theme.selected = loadtheme;
     theme = loadtheme;
@@ -91,7 +90,7 @@ void theme_load(char loadtheme)
     switch (loadtheme) {
     case THEME_DARK:
         COLOR_BACKGROUND_MAIN                 = COLOR_PROC(0x333333);
-        COLOR_BACKGROUND_ALT                  = COLOR_PROC(0x000000);
+        COLOR_BACKGROUND_ALT                  = COLOR_PROC(0x151515);
         COLOR_BACKGROUND_AUX                  = COLOR_BACKGROUND_MENU;
         COLOR_BACKGROUND_LIST                 = COLOR_PROC(0x222222);
         COLOR_BACKGROUND_LIST_HOVER           = COLOR_PROC(0x151515);

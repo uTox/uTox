@@ -62,10 +62,10 @@ static void drawrectrounded(uint8_t *data, int width, int height, int radius) {
 }
 
 static void drawrectroundedex(uint8_t *data, int width, int height, int radius, uint8_t flags) {
-    _Bool c1 = ((flags & 1) != 0); /* left   */
-    _Bool c2 = ((flags & 2) != 0); /* right  */
-    _Bool c3 = ((flags & 4) != 0); /* top    */
-    _Bool c4 = ((flags & 8) != 0); /* bottom */
+    _Bool c1 = ((flags & 1) != 0); /* left   0001 */
+    _Bool c2 = ((flags & 2) != 0); /* right  0010 */
+    _Bool c3 = ((flags & 4) != 0); /* top    0100 */
+    _Bool c4 = ((flags & 8) != 0); /* bottom 1000 */
 
     int x, y;
     double hw = (double)radius - 0.5;
@@ -423,7 +423,8 @@ _Bool svg_draw(_Bool needmemory) {
         BM_ADD_WIDTH * BM_ADD_WIDTH * 4 +
         BM_THREE_BAR_WIDTH * BM_THREE_BAR_WIDTH +
         BM_CONTACT_WIDTH * BM_CONTACT_WIDTH * 2 +
-        BM_LBICON_WIDTH * BM_LBICON_HEIGHT * 3 + // file, call, video
+        BM_LBICON_WIDTH * BM_LBICON_HEIGHT * 2 + // call, video
+        BM_FILE_WIDTH * BM_FILE_HEIGHT + BM_FILE_BIG_WIDTH * BM_FILE_BIG_HEIGHT + // file small and big
         BM_STATUS_WIDTH * BM_STATUS_WIDTH * 4 +
         BM_STATUS_NOTIFY_WIDTH * BM_STATUS_NOTIFY_WIDTH +
         BM_LBUTTON_WIDTH * BM_LBUTTON_HEIGHT +
@@ -508,13 +509,22 @@ _Bool svg_draw(_Bool needmemory) {
     p += BM_CONTACT_WIDTH * BM_CONTACT_WIDTH;
 
     /* Draw button icon overlays. */
-    drawlineround(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, 5.5 * SCALE, 5 * SCALE, 1 * SCALE, 3.85 * SCALE, 6.6 * SCALE, 0);
-    drawlineroundempty(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, 5.5 * SCALE, 5 * SCALE, 1 * SCALE, 2.4 * SCALE, 4.5 * SCALE);
-    drawsubcircle(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, 6.0 * SCALE, 8.1 * SCALE, 2.5 * SCALE);
-    drawlineround(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, 7.0 * SCALE, 5.40 * SCALE, 0.5 * SCALE, 2.2 * SCALE, 3.75 * SCALE, 1);
-    drawlineroundempty(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, 7.25 * SCALE, 5.15 * SCALE, 0.75 * SCALE, 0.75 * SCALE, 1.5 * SCALE);
-    loadalpha(BM_FILE, p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT);
-    p += BM_LBICON_WIDTH * BM_LBICON_HEIGHT;
+    drawlineround(p, BM_FILE_WIDTH, BM_FILE_HEIGHT, 5.5 * SCALE, 5 * SCALE, 1 * SCALE, 3.85 * SCALE, 6.6 * SCALE, 0);
+    drawlineroundempty(p, BM_FILE_WIDTH, BM_FILE_HEIGHT, 5.5 * SCALE, 5 * SCALE, 1 * SCALE, 2.4 * SCALE, 4.5 * SCALE);
+    drawsubcircle(p, BM_FILE_WIDTH, BM_FILE_HEIGHT, 6.0 * SCALE, 8.1 * SCALE, 2.5 * SCALE);
+    drawlineround(p, BM_FILE_WIDTH, BM_FILE_HEIGHT, 7.0 * SCALE, 5.40 * SCALE, 0.5 * SCALE, 2.2 * SCALE, 3.75 * SCALE, 1);
+    drawlineroundempty(p, BM_FILE_WIDTH, BM_FILE_HEIGHT, 7.25 * SCALE, 5.15 * SCALE, 0.75 * SCALE, 0.75 * SCALE, 1.5 * SCALE);
+    loadalpha(BM_FILE, p, BM_FILE_WIDTH, BM_FILE_HEIGHT);
+    p += BM_FILE_WIDTH * BM_FILE_HEIGHT;
+    /* and the big one... */
+    // TODO convert the *2 hack
+    drawlineround(p, BM_FILE_BIG_WIDTH, BM_FILE_BIG_HEIGHT, 5.5 * SCALE * 2, 5 * SCALE * 2, 1 * SCALE * 2, 3.85 * SCALE * 2, 6.6 * SCALE * 2, 0);
+    drawlineroundempty(p, BM_FILE_BIG_WIDTH, BM_FILE_BIG_HEIGHT, 5.5 * SCALE * 2, 5 * SCALE * 2, 1 * SCALE * 2, 2.4 * SCALE * 2, 4.5 * SCALE * 2);
+    drawsubcircle(p, BM_FILE_BIG_WIDTH, BM_FILE_BIG_HEIGHT, 6.0 * SCALE * 2, 8.1 * SCALE * 2, 2.5 * SCALE * 2);
+    drawlineround(p, BM_FILE_BIG_WIDTH, BM_FILE_BIG_HEIGHT, 7.0 * SCALE * 2, 5.40 * SCALE * 2, 0.5 * SCALE * 2, 2.2 * SCALE * 2, 3.75 * SCALE * 2, 1);
+    drawlineroundempty(p, BM_FILE_BIG_WIDTH, BM_FILE_BIG_HEIGHT, 7.25 * SCALE * 2, 5.15 * SCALE * 2, 0.75 * SCALE * 2, 0.75 * SCALE * 2, 1.5 * SCALE * 2);
+    loadalpha(BM_FILE_BIG, p, BM_FILE_BIG_WIDTH, BM_FILE_BIG_HEIGHT);
+    p += BM_FILE_BIG_WIDTH * BM_FILE_BIG_HEIGHT;
 
     drawnewcircle(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, SCALE, 0, 19 * SCALE);
     drawsubcircle(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, SCALE, 0, 15 * SCALE);
@@ -623,7 +633,7 @@ _Bool svg_draw(_Bool needmemory) {
 
 
     /* Draw chat send button */
-    drawrectrounded(p, BM_CHAT_SEND_WIDTH, BM_CHAT_SEND_HEIGHT, 4 * SCALE);
+    drawrectroundedex(p, BM_CHAT_SEND_WIDTH, BM_CHAT_SEND_HEIGHT, 4 * SCALE, 14);
     loadalpha(BM_CHAT_SEND, p, BM_CHAT_SEND_WIDTH, BM_CHAT_SEND_HEIGHT);
     p += BM_CHAT_SEND_WIDTH * BM_CHAT_SEND_HEIGHT;
 
