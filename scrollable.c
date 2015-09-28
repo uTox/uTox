@@ -40,12 +40,10 @@ void scroll_draw(SCROLLABLE *s, int x, int y, int width, int height)
     drawalpha(s->small ? BM_SCROLLHALFBOT_SMALL : BM_SCROLLHALFBOT, x, y2, scroll_width, scroll_width /2, s->color);
 }
 
-int scroll_gety(SCROLLABLE *s, int height)
-{
+int scroll_gety(SCROLLABLE *s, int height) {
     int c = s->content_height;
 
-    if(c > height)
-    {
+    if (c > height) {
         return (s->d * (double)(c - height)) + 0.5;
     }
 

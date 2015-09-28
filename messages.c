@@ -165,8 +165,11 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height) {
             }
 
             setfont(FONT_TEXT);
-            int ny = drawtextmultiline(x + MESSAGES_X, x + width - TIME_WIDTH, y, LIST_Y, y + msg->height,
-                                       font_small_lineheight, msg->msg, msg->length, h1, h2 - h1, 0, 0, 1);
+            int ny = drawtextmultiline(x + MESSAGES_X, x + width - TIME_WIDTH,
+                                                    y,                 LIST_Y,
+                                       y + msg->height, font_small_lineheight,
+                                       msg->msg, msg->length, h1, h2 - h1, 0, 0, 1);
+
             if(ny < y || (uint32_t)(ny - y) + MESSAGES_SPACING != msg->height) {
                 debug("error101 %u %u\n", ny -y, msg->height - MESSAGES_SPACING);
             }
@@ -249,8 +252,8 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height) {
             setfont(FONT_MISC);
             setcolor(COLOR_BACKGROUND_MAIN);
 
-
-            #define draw_ft_rect(color) draw_rect_fill (dx, y, d_width, FILE_TRANSFER_BOX_HEIGHT, color)
+            /* Draw macros added, to reduce future line edits. */
+            #define draw_ft_rect(color) draw_rect_fill (x, y, width, FILE_TRANSFER_BOX_HEIGHT, color)
             #define draw_ft_prog(color) draw_rect_frame(dx + 5 * SCALE, y + 17 * SCALE, prog_box, 7 * SCALE, color);\
                                         draw_rect_fill (dx + 5 * SCALE, y + 17 * SCALE, prog_bar, 7 * SCALE, color)
 
@@ -258,9 +261,6 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height) {
             case FILE_TRANSFER_STATUS_COMPLETED: {
                 /* If mouse over use hover color */
                 setcolor((mouse_over) ? COLOR_BUTTON_SUCCESS_HOVER_TEXT : COLOR_BUTTON_SUCCESS_TEXT);
-
-                // drawalpha(BM_FT, ftbar_x, ftbar_y, ftbar_w, ftbar_h,
-                // (mouse_over) ? COLOR_BUTTON_SUCCESS_HOVER_BACKGROUND : COLOR_BUTTON_SUCCESS_BACKGROUND);
                 draw_ft_rect(mouse_over ? COLOR_BUTTON_SUCCESS_HOVER_BACKGROUND : COLOR_BUTTON_SUCCESS_BACKGROUND);
 
                 drawalpha(BM_YES, btnx, tbtn_y, btnw, btnh,
@@ -311,7 +311,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height) {
                 drawalpha(BM_FTB1, btn_bg_x, tbtn_bg_y, btn_bg_w, tbtn_bg_h,
                           (mouse_tbtn ? COLOR_BUTTON_SUCCESS_HOVER_BACKGROUND : COLOR_BUTTON_SUCCESS_BACKGROUND));
                 drawalpha(BM_NO, btnx, tbtn_y, btnw, btnh,
-                          (mouse_tbtn ? COLOR_BUTTON_SUCCESS_HOVER_TEXT : COLOR_BUTTON_SUCCESS_TEXT));
+                          (mouse_tbtn ? COLOR_BUTTON_DANGER_HOVER_TEXT : COLOR_BUTTON_DANGER_TEXT));
 
                 drawalpha(BM_FTB2, btn_bg_x, bbtn_bg_y, btn_bg_w, bbtn_bg_h,
                           (mouse_bbtn ? COLOR_BUTTON_SUCCESS_HOVER_BACKGROUND : COLOR_BUTTON_SUCCESS_BACKGROUND));
@@ -336,7 +336,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height) {
                 drawalpha(BM_FTB1, btn_bg_x, tbtn_bg_y, btn_bg_w, tbtn_bg_h,
                           (mouse_tbtn ? COLOR_BUTTON_SUCCESS_HOVER_BACKGROUND : COLOR_BUTTON_SUCCESS_BACKGROUND));
                 drawalpha(BM_NO, btnx, tbtn_y, btnw, btnh,
-                          (mouse_tbtn ? COLOR_BUTTON_SUCCESS_HOVER_TEXT : COLOR_BUTTON_SUCCESS_TEXT));
+                          (mouse_tbtn ? COLOR_BUTTON_DANGER_HOVER_TEXT : COLOR_BUTTON_DANGER_TEXT));
 
                 if(file->status <= FILE_TRANSFER_STATUS_PAUSED_BOTH){
                     /* Paused by at least us */
@@ -363,7 +363,6 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height) {
 
             y += BM_FT_HEIGHT;
             break;
-
         }
         }
 
@@ -1009,7 +1008,7 @@ void message_updateheight(MESSAGES *m, MESSAGE *msg, MSG_DATA *p)
     }
 }
 
-/** Appends a messages from self or firend to the message list;
+/** Appends a messages from self or friend to the message list;
  * will realloc or trim messages as needed;
  *
  * also handles auto scrolling selections with messages
