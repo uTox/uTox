@@ -52,11 +52,12 @@
 #endif
 
 Display *display;
+Visual *visual;
+Window root, window;
 int screen;
-Window window;
 GC gc;
 Colormap cmap;
-Visual *visual;
+XRenderPictFormat *pictformat;
 
 Picture bitmap[BM_ENDMARKER];
 
@@ -582,13 +583,11 @@ void destroy_tray_icon(void)
 }
 
 /** Toggles the main window to/from hidden to tray/shown. */
-void togglehide(void)
-{
+void togglehide(void) {
     if(hidden) {
-        Window root;
         int x, y;
-        unsigned int w, h, border, depth;
-        XGetGeometry(display, window, &root, &x, &y, &w, &h, &border, &depth);
+        uint32_t w, h, border;
+        XGetGeometry(display, window, &root, &x, &y, &w, &h, &border, (uint*)&depth);
         XMapWindow(display, window);
         XMoveWindow(display, window, x, y);
         redraw();
@@ -839,7 +838,7 @@ UTOX_NATIVE_IMAGE *png_to_image(const UTOX_PNG_IMAGE data, size_t size, uint16_t
         *target |= (green | (green << 8) | (green << 16) | (green << 24)) & visual->green_mask;
     }
 
-    XImage *img = XCreateImage(display, visual, 24, ZPixmap, 0, (char*)out, width, height, 32, width * 4);
+    XImage *img = XCreateImage(display, visual, depth, ZPixmap, 0, (char*)out, width, height, 32, width * 4);
 
     Picture rgb = ximage_to_picture(img, NULL);
     Picture alpha = (keep_alpha) ? generate_alpha_bitmask(rgba_data, width, height, rgba_size) : None;
@@ -1051,10 +1050,6 @@ void update_tray(void)
 }
 
 #include "event.c"
-
-int depth;
-Screen *scr;
-
 void config_osdefaults(UTOX_SAVE *r)
 {
     r->window_x = 0;
@@ -1163,6 +1158,7 @@ int main(int argc, char *argv[])
 
     if((display = XOpenDisplay(NULL)) == NULL) {
         printf("Cannot open display\n");
+
         return 1;
     }
 
@@ -1178,12 +1174,13 @@ int main(int argc, char *argv[])
     LANG = systemlang();
     dropdown_language.selected = dropdown_language.over = LANG;
 
-    screen = DefaultScreen(display);
-    cmap = DefaultColormap(display, screen);
-    visual = DefaultVisual(display, screen);
-    gc = DefaultGC(display, screen);
-    depth = DefaultDepth(display, screen);
-    scr = DefaultScreenOfDisplay(display);
+    screen  = DefaultScreen(display);
+    cmap    = DefaultColormap(display, screen);
+    visual  = DefaultVisual(display, screen);
+    gc      = DefaultGC(display, screen);
+    depth   = DefaultDepth(display, screen);
+    scr     = DefaultScreenOfDisplay(display);
+    root    = RootWindow(display, screen);
 
     XSetWindowAttributes attrib = {
         .background_pixel = WhitePixel(display, screen),
@@ -1203,7 +1200,7 @@ int main(int argc, char *argv[])
     theme_load(theme);
 
     /* create window */
-    window = XCreateWindow(display, RootWindow(display, screen), save->window_x, save->window_y, save->window_width, save->window_height, 0, depth, InputOutput, visual, CWBackPixmap | CWBorderPixel | CWEventMask, &attrib);
+    window = XCreateWindow(display, root, save->window_x, save->window_y, save->window_width, save->window_height, 0, depth, InputOutput, visual, CWBackPixmap | CWBorderPixel | CWEventMask, &attrib);
 
     /* choose available libraries for optional UI stuff */
     if(!(libgtk = gtk_load())) {
@@ -1226,20 +1223,20 @@ int main(int argc, char *argv[])
 
     XA_INCR = XInternAtom(display, "INCR", False);
 
-    XdndAware = XInternAtom(display, "XdndAware", False);
-    XdndEnter = XInternAtom(display, "XdndEnter", False);
-    XdndLeave = XInternAtom(display, "XdndLeave", False);
-    XdndPosition = XInternAtom(display, "XdndPosition", False);
-    XdndStatus = XInternAtom(display, "XdndStatus", False);
-    XdndDrop = XInternAtom(display, "XdndDrop", False);
-    XdndSelection = XInternAtom(display, "XdndSelection", False);
-    XdndDATA = XInternAtom(display, "XdndDATA", False);
-    XdndActionCopy = XInternAtom(display, "XdndActionCopy", False);
+    XdndAware       = XInternAtom(display, "XdndAware", False);
+    XdndEnter       = XInternAtom(display, "XdndEnter", False);
+    XdndLeave       = XInternAtom(display, "XdndLeave", False);
+    XdndPosition    = XInternAtom(display, "XdndPosition", False);
+    XdndStatus      = XInternAtom(display, "XdndStatus", False);
+    XdndDrop        = XInternAtom(display, "XdndDrop", False);
+    XdndSelection   = XInternAtom(display, "XdndSelection", False);
+    XdndDATA        = XInternAtom(display, "XdndDATA", False);
+    XdndActionCopy  = XInternAtom(display, "XdndActionCopy", False);
 
-    XA_URI_LIST = XInternAtom(display, "text/uri-list", False);
-    XA_PNG_IMG = XInternAtom(display, "image/png", False);
+    XA_URI_LIST     = XInternAtom(display, "text/uri-list", False);
+    XA_PNG_IMG      = XInternAtom(display, "image/png", False);
 
-    XRedraw = XInternAtom(display, "XRedraw", False);
+    XRedraw         = XInternAtom(display, "XRedraw", False);
 
     /* create the draw buffer */
     drawbuf = XCreatePixmap(display, window, DEFAULT_WIDTH, DEFAULT_HEIGHT, depth);
@@ -1298,8 +1295,14 @@ int main(int argc, char *argv[])
 
     grabgc = XCreateGC(display, RootWindow(display, screen), GCFunction | GCForeground | GCBackground | GCSubwindowMode, &gcval);
 
+    XWindowAttributes attr;
+    XGetWindowAttributes(display, root, &attr);
+
+    pictformat = XRenderFindVisualFormat(display, attr.visual);
+    // XRenderPictFormat *pictformat = XRenderFindStandardFormat(display, PictStandardA8);
+
     /* Xft draw context/color */
-    renderpic = XRenderCreatePicture (display, drawbuf, XRenderFindStandardFormat(display, PictStandardRGB24), 0, NULL);
+    renderpic = XRenderCreatePicture (display, drawbuf, pictformat, 0, NULL);
 
     XRenderColor xrcolor = {0};
     colorpic = XRenderCreateSolidFill(display, &xrcolor);
@@ -1491,7 +1494,7 @@ void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height
 
 
     GC default_gc = DefaultGC(display, screen);
-    Pixmap pixmap = XCreatePixmap(display, window, attrs.width, attrs.height, 24);
+    Pixmap pixmap = XCreatePixmap(display, window, attrs.width, attrs.height, depth);
     XPutImage(display, pixmap, default_gc, &image, 0, 0, 0, 0, attrs.width, attrs.height);
     XCopyArea(display, pixmap, video_win[id], default_gc, 0, 0, attrs.width, attrs.height, 0, 0);
     XFreePixmap(display, pixmap);
