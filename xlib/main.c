@@ -783,6 +783,8 @@ void loadalpha(int bm, void *data, int width, int height)
     // NOTE: the XImage made earlier should really be freed, but calling XDestroyImage on it will also
     // automatically free the data it's pointing to(which we don't want), so there's no easy way to destroy them currently
     bitmap[bm] = ximage_to_picture(img, XRenderFindStandardFormat(display, PictStandardA8));
+                                        /* A8 seems to work fine for this format, but me might want to consider
+                                           switching to pictformat instead. (Maybe to improve performance?) */
 }
 
 
@@ -801,6 +803,7 @@ static Picture generate_alpha_bitmask(const uint8_t *rgba_data, uint16_t width, 
     // create 1-byte-per-pixel image and convert it to a Alpha-format Picture
     XImage *img = XCreateImage(display, CopyFromParent, 8, ZPixmap, 0, (char*)out, width, height, 8, width);
     Picture picture = ximage_to_picture(img, XRenderFindStandardFormat(display, PictStandardA8));
+                                             /* See above comment for load alpha */
 
     XDestroyImage(img);
 

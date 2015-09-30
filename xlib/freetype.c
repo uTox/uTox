@@ -89,7 +89,7 @@ Picture loadglyphpic(uint8_t *data, int width, int height, int pitch, _Bool no_s
 
 
         XRenderPictureAttributes attr = {.component_alpha = 1};
-        picture = XRenderCreatePicture(display, pixmap, XRenderFindStandardFormat(display, PictStandardRGB24), CPComponentAlpha, &attr);
+        picture = XRenderCreatePicture(display, pixmap, pictformat, CPComponentAlpha, &attr);
 
         free(rgbx);
     }
