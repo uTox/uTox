@@ -25,8 +25,8 @@ before_script:
   - cd ..
   #installing libopus, needed for audio encoding/decoding
   - wget http://downloads.xiph.org/releases/opus/opus-1.1.tar.gz > /dev/null
-  - tar xzf opus-1.0.3.tar.gz > /dev/null
-  - cd opus-1.0.3
+  - tar xzf opus-1.1.tar.gz > /dev/null
+  - cd opus-1.1
   - ./configure > /dev/null
   - make -j3 > /dev/null
   - sudo make install > /dev/null
@@ -53,11 +53,7 @@ before_script:
   - cd ..
 
 script:
-  - autoreconf -i
-  - CFLAGS="-Ofast -Wall -Wextra" ./configure --enable-daemon --enable-ntox
-  - make -j3
-  - make check
-  - make dist
+  - make
 
 notifications:
   email: false
