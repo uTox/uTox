@@ -10,9 +10,9 @@ addons:
     packages:
     - yasm
     - check
-    - libsodium13
-    - libopus-dev
-    - libvpx-dev
+    - libsodium
+    - libopus
+    - libvpx2
 
 before_script:
   #installing libconfig, needed for DHT_bootstrap_daemon
