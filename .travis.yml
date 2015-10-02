@@ -12,7 +12,7 @@ addons:
     - check
     - libsodium13
     - libopus-dev
-    - libvpx
+    - libvpx-dev
 
 before_script:
   #installing libconfig, needed for DHT_bootstrap_daemon
