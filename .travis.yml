@@ -3,7 +3,7 @@ compiler:
   - gcc
   - clang
 
-sudo:false
+sudo: false
 
 addons:
   apt:
