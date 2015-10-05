@@ -437,8 +437,8 @@ void draw_rect_fill(int x, int y, int width, int height, uint32_t color) {
     NSRectFill(rect);
 }
 
-void draw_rect_frame(int x, int y, int right, int bottom, uint32_t color) {
-    framerectw(x, y, right - x, bottom - y, color);
+void draw_rect_frame(int x, int y, int width, int height, uint32_t color) {
+    framerectw(x, y, width, height, color);
 }
 
 void drawrect(int x, int y, int right, int bottom, uint32_t color) {
