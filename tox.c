@@ -667,8 +667,9 @@ void tox_thread(void *UNUSED(args))
         tox_thread_init = 1;
 
         // Start the treads
-        thread(audio_thread, av);
         thread(video_thread, av);
+        while(!video_thread_init) yieldcpu(1);
+        thread(audio_thread, av);
         thread(toxav_thread, av);
 
         //
