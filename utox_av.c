@@ -156,13 +156,8 @@ static void utox_callback_av_change_state(ToxAV *av, uint32_t friend_number, uin
     }
 }
 
-static void utox_incoming_rate_change_audio(ToxAV *toxAV, uint32_t friend_number, bool stable, uint32_t bit_rate, void *user_data) {
-    debug("ToxAV:\tIncoming audio rate change, please debug me!\n\tIncoming audio rate change, please debug me!\n\tIncoming audio rate change, please debug me!\n");
-    return;
-}
-
-static void utox_incoming_rate_change_video(ToxAV *toxAV, uint32_t friend_number, bool stable, uint32_t bit_rate, void *user_data) {
-    debug("ToxAV:\tIncoming Video rate change, please debug me!\n\tIncoming Video rate change, please debug me!\n\tIncoming Video rate change, please debug me!\n");
+static void utox_incoming_rate_change(ToxAV *toxAV, uint32_t friend_number, uint32_t a_bit_rate, uint32_t v_bit_rate, void *user_data) {
+    debug("ToxAV:\tIncoming audio and/or video rate change, please debug me!\n\tIncoming audio rate change, please debug me!\n\tIncoming audio rate change, please debug me!\n");
     return;
 }
 
@@ -176,8 +171,7 @@ void set_av_callbacks(ToxAV *av) {
     toxav_callback_video_receive_frame(av, &utox_av_incoming_frame_v, NULL);
 
     /* Data type change callbacks. */
-    toxav_callback_audio_bit_rate_status(av, &utox_incoming_rate_change_audio, NULL);
-    toxav_callback_video_bit_rate_status(av, &utox_incoming_rate_change_video, NULL);
+    toxav_callback_bit_rate_status(av, &utox_incoming_rate_change, NULL);
 }
 // TODO
 
