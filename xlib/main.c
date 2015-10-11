@@ -61,21 +61,21 @@ Visual   *visual;
 Pixmap   drawbuf;
 Picture  renderpic;
 Picture  colorpic;
+_Bool    hidden = 0;
 XRenderPictFormat *pictformat;
 
-_Bool    hidden = 0;
 
 /* Tray icon window */
-Window  tray_window;
-Pixmap  trayicon_drawbuf;
-Picture trayicon_renderpic;
-GC      trayicon_gc;
-int tray_width = 32, tray_height = 32;
+Window   tray_window;
+Pixmap   trayicon_drawbuf;
+Picture  trayicon_renderpic;
+GC       trayicon_gc;
+uint32_t tray_width = 32, tray_height = 32;
 
 Picture bitmap[BM_ENDMARKER];
-
 Cursor cursors[8];
 
+/* Screen grab vars */
 uint8_t pointergrab;
 int grabx, graby, grabpx, grabpy;
 GC grabgc;
@@ -94,7 +94,6 @@ Atom XA_CLIPBOARD, XA_UTF8_STRING, targets, XA_INCR;
 Atom XdndAware, XdndEnter, XdndLeave, XdndPosition, XdndStatus, XdndDrop, XdndSelection, XdndDATA, XdndActionCopy;
 Atom XA_URI_LIST, XA_PNG_IMG;
 Atom XRedraw;
-
 
 _Bool _redraw;
 
@@ -584,7 +583,6 @@ void draw_tray_icon(void){
     UTOX_NATIVE_IMAGE *icon = png_to_image(icon_data, icon_size, &width, &height, 1);
     if(UTOX_NATIVE_IMAGE_IS_VALID(icon)) {
         /* Get tray window size */
-        Window root;
         int32_t x_r, y_r;
         uint32_t border_r, depth_r;
         XGetGeometry(display, tray_window, &root, &x_r, &y_r, &tray_width, &tray_height, &border_r, &depth_r);
@@ -603,6 +601,9 @@ void draw_tray_icon(void){
         image_set_filter(icon, FILTER_BILINEAR);
 
         /* Draw the image and copy to the window */
+        XSetForeground(display, trayicon_gc, 0xFFFFFF);
+        XFillRectangle(display, trayicon_drawbuf, trayicon_gc, 0, 0, tray_width, tray_height);
+        /* TODO: copy method of grabbing background for tray from tray.c:tray_update_root_bg_pmap() (stalonetray) */
         XRenderComposite(display, PictOpOver, icon->rgb, icon->alpha, trayicon_renderpic, 0, 0, 0, 0, 0, 0, tray_width, tray_height);
         XCopyArea(display, trayicon_drawbuf, tray_window, trayicon_gc, 0, 0, tray_width, tray_height, 0, 0);
 
@@ -617,18 +618,18 @@ void create_tray_icon(void){
     XSelectInput(display, tray_window, ButtonPress);
 
     /* Get ready to draw a tray icon */
-    trayicon_gc        = DefaultGC(display, screen);
-    trayicon_drawbuf   = XCreatePixmap(display, tray_window, tray_width, tray_height, 24); // TODO depth != 24, sometimes
-    trayicon_renderpic = XRenderCreatePicture(display, trayicon_drawbuf, XRenderFindStandardFormat(display, PictStandardRGB24), 0, NULL);
+    trayicon_gc        = XCreateGC(display, root, 0, 0);
+    trayicon_drawbuf   = XCreatePixmap(display, tray_window, tray_width, tray_height, depth);
+    trayicon_renderpic = XRenderCreatePicture(display, trayicon_drawbuf, pictformat, 0, NULL);
     /* Send icon to the tray */
     send_message(display, XGetSelectionOwner(display, XInternAtom(display, "_NET_SYSTEM_TRAY_S0", False)), SYSTEM_TRAY_REQUEST_DOCK, tray_window, 0, 0);
     /* Draw the tray */
     draw_tray_icon();
     /* Reset the tray draw/picture buffers with the new tray size */
     XFreePixmap(display, trayicon_drawbuf);
-    trayicon_drawbuf = XCreatePixmap(display, tray_window, tray_width, tray_height, 24); // TODO get depth from X not code
+    trayicon_drawbuf = XCreatePixmap(display, tray_window, tray_width, tray_height, depth);
     XRenderFreePicture(display, trayicon_renderpic);
-    trayicon_renderpic = XRenderCreatePicture(display, trayicon_drawbuf,XRenderFindStandardFormat(display, PictStandardRGB24), 0, NULL);
+    trayicon_renderpic = XRenderCreatePicture(display, trayicon_drawbuf, pictformat, 0, NULL);
     /* Redraw the tray one last time! */
     draw_tray_icon();
 }
@@ -659,7 +660,7 @@ void tray_window_event(XEvent event) {
     case ConfigureNotify: {
         XConfigureEvent *ev = &event.xconfigure;
         if(tray_width != ev->width || tray_height != ev->height) {
-            debug("Tray resized w:%i h:%i\n" ev->width, ev->height);
+            debug("Tray resized w:%i h:%i\n", ev->width, ev->height);
 
             if(ev->width > tray_width || ev->height > tray_height) {
                 tray_width = ev->width;
