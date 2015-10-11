@@ -898,7 +898,7 @@ void openfileavatar(void) {
             free(file_data);
 
             char_t size_str[16];
-            int len = sprint_bytes(size_str, sizeof(size_str), UTOX_AVATAR_MAX_DATA_LENGTH);
+            int len = sprint_humanread_bytes(size_str, sizeof(size_str), UTOX_AVATAR_MAX_DATA_LENGTH);
 
             NSString *bytess = [[NSString alloc] initWithBytes:size_str length:len encoding:NSUTF8StringEncoding];
             NSString *title = [[NSString alloc] initWithBytes:S(AVATAR_TOO_LARGE_MAX_SIZE_IS) length:SLEN(AVATAR_TOO_LARGE_MAX_SIZE_IS) encoding:NSUTF8StringEncoding];

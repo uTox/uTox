@@ -47,13 +47,13 @@ msgid(SAVE_FILE)
 msgstr("Guardar archivo")
 
 msgid(WHERE_TO_SAVE_FILE_PROMPT)
-msgstr("¿Donde quieres guardar \"%.*s\"?")
+msgstr("¿Dónde quieres guardar \"%.*s\"?")
 
 msgid(SEND_FILE_PROMPT)
 msgstr("Selecciona uno o más archivos para enviar.")
 
 msgid(SCREEN_CAPTURE_PROMPT)
-msgstr("Arrastra el cursor para hacer una caja alrededor del área de la pantalla que quieres enviar.")
+msgstr("Arrastra el cursor para hacer una caja alrededor del área de la pantalla que quieras enviar.")
 
 msgid(TRANSFER_NEW)
 msgstr("Nueva transferencia de archivos")
@@ -125,7 +125,7 @@ msgid(STATUSMESSAGE)
 msgstr("Mensaje de Estado")
 
 msgid(PREVIEW)
-msgstr("Vista preliminar")
+msgstr("Vista previa")
 
 msgid(DEVICESELECTION)
 msgstr("Selección de Dispositivo")
@@ -140,7 +140,7 @@ msgid(AUDIOOUTPUTDEVICE)
 msgstr("Dispositivo de Salida de Audio")
 
 msgid(VIDEOINPUTDEVICE)
-msgstr("Dispositivo de Entrada de Vídeo")
+msgstr("Dispositivo de Entrada de Video")
 
 msgid(OTHERSETTINGS)
 msgstr("Más Ajustes")
@@ -158,7 +158,7 @@ msgid(NETWORK_SETTINGS)
 msgstr("Ajustes de Red")
 
 msgid(AUDIO_VIDEO)
-msgstr("Audio/Vídeo")
+msgstr("Audio/Video")
 
 msgid(DPI)
 msgstr("DPI")
@@ -167,7 +167,7 @@ msgid(SAVELOCATION)
 msgstr("Guardar Ubicación")
 
 msgid(LANGUAGE)
-msgstr("Lenguaje")
+msgstr("Idioma")
 
 msgid(NETWORK)
 msgstr("Red")
@@ -326,13 +326,13 @@ msgid(PROXY_EDIT_HINT_PORT)
 msgstr("Puerto")
 
 msgid(WINDOW_TITLE_VIDEO_PREVIEW)
-msgstr("Vista preliminar del vídeo")
+msgstr("Vista previa del video")
 
 msgid(MUTE)
 msgstr("Silenciar")
 
 msgid(UNMUTE)
-msgstr("Desilenciar")
+msgstr("Reactivar sonido")
 
 msgid(SELECT_AVATAR_TITLE)
 msgstr("Seleccionar imagen de perfil")
@@ -341,7 +341,7 @@ msgid(AVATAR_TOO_LARGE_MAX_SIZE_IS)
 msgstr("Imagen de perfil demasiado grande. Tamaño máximo: ")
 
 msgid(CANT_FIND_FILE_OR_EMPTY)
-msgstr("No se pudo encontrar el archivo seleccionado, o el archivo está vacío.")
+msgstr("No se ha encontrado el archivo seleccionado, o el archivo está vacío.")
 
 msgid(CLEAR_HISTORY)
 msgstr("Limpiar historial")
