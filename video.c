@@ -61,11 +61,11 @@ void video_thread(void *args) {
             }
             switch(m->msg) {
                 case VIDEO_SET: {
-                    if(video_on) {
+                    if (video_on) {
                         video_endread();
                     }
 
-                    if(video) {
+                    if (video) {
                         closevideodevice(video_device);
                     }
 

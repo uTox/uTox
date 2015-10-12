@@ -1018,18 +1018,17 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             }
 
             toxaudio_postmessage(AUDIO_STOP_RINGTONE, param1, 0, NULL);
-            toxaudio_postmessage(AUDIO_START, param1, 0, NULL);
-
-            if (param2) {
-                toxvideo_postmessage(VIDEO_START, param1, 0, NULL);
-                friend[param1].call_state_self |= (TOXAV_FRIEND_CALL_STATE_SENDING_V | TOXAV_FRIEND_CALL_STATE_ACCEPTING_V);
-            }
             toxav_answer(av, param1, UTOX_DEFAULT_AUDIO_BITRATE, v_bitrate, &error);
 
             if (error) {
                 debug("uTox:\tError trying to toxav_answer error (%i)\n", error);
             } else {
+                toxaudio_postmessage(AUDIO_START, param1, 0, NULL);
                 f->call_state_self = ( TOXAV_FRIEND_CALL_STATE_SENDING_A | TOXAV_FRIEND_CALL_STATE_ACCEPTING_A );
+                if (param2) {
+                    toxvideo_postmessage(VIDEO_START, param1, 0, NULL);
+                    f->call_state_self |= (TOXAV_FRIEND_CALL_STATE_SENDING_V | TOXAV_FRIEND_CALL_STATE_ACCEPTING_V);
+                }
             }
             postmessage(AV_CALL_ACCEPTED, param1, 0, NULL);
             break;

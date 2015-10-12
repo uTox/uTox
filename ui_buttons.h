@@ -176,7 +176,6 @@ static void button_send_friend_request_onpress(void) {
     edit_resetfocus();
 }
 
-
 static void button_settings_sub_net_onpress(void){
     scrollbar_settings.content_height = 90 * SCALE;
     list_selectsettings();
