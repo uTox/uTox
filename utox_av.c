@@ -70,12 +70,28 @@ static void utox_av_remote_disconnect(ToxAV *av, int32_t friend_number) {
 void utox_av_local_disconnect(ToxAV *av, int32_t friend_number) {
     TOXAV_ERR_CALL_CONTROL error = 0;
     toxav_call_control(av, friend_number, TOXAV_CALL_CONTROL_CANCEL, &error);
-    if (error) {
-        if (error == 2) {
-            return;
-        } else {
-            debug("ToxAV:\tunhanded error in utox_av_end (%i)\n", error);
+    switch (error) {
+        case TOXAV_ERR_CALL_CONTROL_OK: {
+            debug("uToxAV:\tToxAV has disconnected!\n");
+            break;
         }
+        case TOXAV_ERR_CALL_CONTROL_SYNC: {
+            debug("uToxAV:\tToxAV sync error!\n");
+            break;
+        }
+        case TOXAV_ERR_CALL_CONTROL_FRIEND_NOT_FOUND: {
+            debug("uToxAV:\tToxAV friend #%i not found.\n", friend_number);
+            break;
+        }
+        case TOXAV_ERR_CALL_CONTROL_FRIEND_NOT_IN_CALL: {
+            debug("uToxAV:\tToxAV no existing call for friend #%i.\n", friend_number);
+            break;
+        }
+        case TOXAV_ERR_CALL_CONTROL_INVALID_TRANSITION: {
+            debug("uToxAV:\tCall already paused, or already running.\n");
+            break;
+        }
+
     }
     toxaudio_postmessage(AUDIO_STOP_RINGTONE, friend_number, 0, NULL);
     toxaudio_postmessage(AUDIO_END, friend_number, 0, NULL);

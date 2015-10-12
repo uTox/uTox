@@ -963,6 +963,10 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             toxav_call(av, param1, UTOX_DEFAULT_AUDIO_BITRATE, v_bitrate, &error);
             if (error) {
                 switch(error) {
+                    case TOXAV_ERR_CALL_MALLOC: {
+                        debug("Tox:\tError making call to friend %u; Unable to malloc for this call.\n", param1);
+                        break;
+                    }
                     case TOXAV_ERR_CALL_FRIEND_ALREADY_IN_CALL: {
                         /* This shouldn't happen, but just in case toxav gets a call before uTox gets this message */
                         debug("Tox:\tError making call to friend %u; Already in call.\n", param1);
@@ -971,7 +975,14 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
                         break;
                     }
                     default: {
+                        /* Un-handled errors
+                        TOXAV_ERR_CALL_SYNC,
+                        TOXAV_ERR_CALL_FRIEND_NOT_FOUND,
+                        TOXAV_ERR_CALL_FRIEND_NOT_CONNECTED,
+                        TOXAV_ERR_CALL_FRIEND_ALREADY_IN_CALL,
+                        TOXAV_ERR_CALL_INVALID_BIT_RATE,*/
                         debug("Error making call to %u, error num is %i.\n", param1, error);
+                        break;
                     }
                 }
             } else {

@@ -114,12 +114,6 @@ static void button_filter_friends_mdown(void) {
         FILTER = !FILTER;
 }
 
-
-
-
-
-
-
 static void button_copyid_onpress(void) {
     edit_setfocus(&edit_toxid);
     copy(0);
