@@ -1627,13 +1627,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
             }
         } else {
             messages_char(wParam);
-
-            switch(wParam) {
-            case VK_DELETE: {
-                list_deletesitem();
-                return 0;
-            }
-            }
+            return 0;
         }
 
         return 0;
