@@ -250,7 +250,8 @@ void friend_meta_data_read(Tox *tox, int friend_id) {
     free(mdata);
 }
 
-static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, uint32_t param1, uint32_t param2, void *data);
+static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
+                               uint32_t param1, uint32_t param2, void *data);
 
 void tox_postmessage(uint8_t msg, uint32_t param1, uint32_t param2, void *data) {
     while(tox_thread_msg) {
@@ -501,12 +502,18 @@ void tox_thread(void *UNUSED(args)) {
             options.savedata_length = save_size;
         }
 
-        debug("new tox object ipv6: %u udp: %u proxy: %u %s %u\n", options.ipv6_enabled, options.udp_enabled, options.proxy_type, options.proxy_host, options.proxy_port);
+        debug("new tox object ipv6: %u udp: %u proxy: %u %s %u\n", options.ipv6_enabled,
+                                                                   options.udp_enabled,
+                                                                   options.proxy_type,
+                                                                   options.proxy_host,
+                                                                   options.proxy_port);
         if((tox = tox_new(&options, &tox_new_err)) == NULL) {
             debug("trying without proxy, err %u\n", tox_new_err);
-            if(!options.proxy_type || (options.proxy_type = TOX_PROXY_TYPE_NONE, (tox = tox_new(&options, &tox_new_err)) == NULL)) {
+            if(!options.proxy_type ||
+               (options.proxy_type = TOX_PROXY_TYPE_NONE, (tox = tox_new(&options, &tox_new_err)) == NULL)) {
                 debug("trying without ipv6, err %u\n", tox_new_err);
-                if(!options.ipv6_enabled || (options.ipv6_enabled = 0, (tox = tox_new(&options, &tox_new_err)) == NULL)) {
+                if(!options.ipv6_enabled ||
+                   (options.ipv6_enabled = 0, (tox = tox_new(&options, &tox_new_err)) == NULL)) {
                     debug("tox_new() failed %u\n", tox_new_err);
                     exit(1);
                 }
@@ -642,7 +649,8 @@ void tox_thread(void *UNUSED(args)) {
     tox_thread_init = 0;
 }
 
-static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, uint32_t param1, uint32_t param2, void *data) {
+static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
+                               uint32_t param1, uint32_t param2, void *data) {
     switch(msg) {
         /* Change Self in core */
         case TOX_SELF_SET_NAME: {
@@ -747,7 +755,8 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             TOX_ERR_FRIEND_ADD f_err;
             uint32_t fid = tox_friend_add_norequest(tox, req->id, &f_err);
             utox_friend_init(tox, fid);
-            postmessage(FRIEND_ACCEPT_REQUEST, (f_err != TOX_ERR_FRIEND_ADD_OK), (f_err != TOX_ERR_FRIEND_ADD_OK) ? 0 : fid, req);
+            postmessage(FRIEND_ACCEPT_REQUEST, (f_err != TOX_ERR_FRIEND_ADD_OK),
+                                               (f_err != TOX_ERR_FRIEND_ADD_OK) ? 0 : fid, req);
             save_needed = 1;
             break;
         }
@@ -880,7 +889,12 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
                 _Bool multifile = (name[param2 - 1] == 0);
                 if(!multifile) {
                                         /* tox, Friend, path, filename,      filename_length */
-                    outgoing_file_send(tox, param1, name, name + param2, strlen((const char*)(name + param2)), TOX_FILE_KIND_DATA);
+                    outgoing_file_send(tox,                                     /* tox              */
+                                       param1,                                  /* friend number    */
+                                       name,                                    /* file path        */
+                                       name + param2,                           /* file name        */
+                                       strlen((const char*)(name + param2)),    /* file name length */
+                                       TOX_FILE_KIND_DATA);                     /* data type (file) */
                 } else {
                     uint8_t *p = name + param2;
                     name += param2 - 1;
@@ -986,14 +1000,16 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
                     }
                 }
             } else {
-                friend[param1].call_state_self = ( TOXAV_FRIEND_CALL_STATE_SENDING_A | TOXAV_FRIEND_CALL_STATE_ACCEPTING_A );
+                friend[param1].call_state_self = ( TOXAV_FRIEND_CALL_STATE_SENDING_A |
+                                                    TOXAV_FRIEND_CALL_STATE_ACCEPTING_A );
                 toxaudio_postmessage(AUDIO_START, param1, 0, NULL); // TODO, do we really want this to be HERE?
                 debug("uToxAV:\tCall is ringing\n");
                 postmessage(AV_CALL_RINGING, param1, 0, NULL);
 
                 if (param2) {
                     toxvideo_postmessage(VIDEO_START, param1, 0, NULL);
-                    friend[param1].call_state_self |= (TOXAV_FRIEND_CALL_STATE_SENDING_V | TOXAV_FRIEND_CALL_STATE_ACCEPTING_V);
+                    friend[param1].call_state_self |= (TOXAV_FRIEND_CALL_STATE_SENDING_V |
+                                                       TOXAV_FRIEND_CALL_STATE_ACCEPTING_V);
                 }
             }
             break;
@@ -1482,7 +1498,8 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         }
         case FRIEND_REMOVE: {
             FRIEND *f = data;
-            // commented out incase you have multiple clients in the same data dir and remove one as friend from the other
+            // commented out incase you have multiple clients in the same data dir
+            // and remove one as friend from the other
             //   (it would remove his avatar locally too otherwise)
             //char_t cid[TOX_PUBLIC_KEY_SIZE * 2];
             //cid_to_string(cid, f->cid);
@@ -1518,7 +1535,8 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
                data: packaged frame data */
 
             utox_frame_pkg *frame = data;
-            video_frame(param1, frame->img, frame->w, frame->h, 0); //TODO re-enable the resize option, disabled for reasons
+            video_frame(param1, frame->img, frame->w, frame->h, 0); // TODO re-enable the resize option, disabled for
+                                                                    // reasons
             free(frame->img);
             free(data);
             redraw();
