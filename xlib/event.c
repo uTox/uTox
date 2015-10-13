@@ -369,10 +369,6 @@ _Bool doevent(XEvent event)
             }
         }
 
-        if(sym == XK_Delete) {
-            list_deletesitem();
-        }
-
         break;
     }
 
