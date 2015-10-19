@@ -327,24 +327,6 @@ static void button_bottommenu_update(BUTTON *b) {
     b->cd = COLOR_BACKGROUND_MENU_ACTIVE;
 }
 
-static void button_sendfile_onpress(void) {
-    FRIEND *f = selected_item->data;
-    if (f->online) {
-        openfilesend();
-    }
-}
-
-static void button_sendfile_update(BUTTON *b) {
-    FRIEND *f = selected_item->data;
-    if (f->online) {
-        b->disabled = 0;
-        button_setcolors_success(b);
-    } else {
-        b->disabled = 1;
-        button_setcolors_disabled(b);
-    }
-}
-
 static void button_accept_friend_onpress(void) {
     FRIENDREQ *req = selected_item->data;
     tox_postmessage(TOX_FRIEND_ACCEPT, 0, 0, req);
