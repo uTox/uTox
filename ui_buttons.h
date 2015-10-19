@@ -254,7 +254,7 @@ static void button_call_audio_update(BUTTON *b) {
     if (UTOX_SENDING_AUDIO(f->number)) {
         button_setcolors_danger(b);
         b->disabled = 0;
-    } else if ( !UTOX_ACCEPTING_AUDIO(f->number) && UTOX_AVAILABLE_AUDIO(f->number)) {
+    } else if (UTOX_AVAILABLE_AUDIO(f->number)) {
         button_setcolors_warning(b);
         b->disabled = 0;
     } else {
