@@ -2,9 +2,13 @@
 #define UTOX_DEFAULT_VIDEO_WIDTH   1280
 #define UTOX_DEFAULT_VIDEO_HEIGHT  720
 
-#define UTOX_SENDING_VIDEO(f_number)   ( !!(friend[f_number].call_state_self   & TOXAV_FRIEND_CALL_STATE_SENDING_V   ))
-#define UTOX_ACCEPTING_VIDEO(f_number) ( !!(friend[f_number].call_state_friend & TOXAV_FRIEND_CALL_STATE_ACCEPTING_V ))
+/* Check self */
+#define UTOX_SENDING_VIDEO(f_number)   ( !!(friend[f_number].call_state_self & TOXAV_FRIEND_CALL_STATE_SENDING_V   ))
+#define UTOX_ACCEPTING_VIDEO(f_number) ( !!(friend[f_number].call_state_self & TOXAV_FRIEND_CALL_STATE_ACCEPTING_V ))
+/* Check friend */
+#define UTOX_AVAILABLE_VIDEO(f_number) ( !!(friend[f_number].call_state_friend & TOXAV_FRIEND_CALL_STATE_SENDING_V ))
 
+/* Check both */
 #define UTOX_SEND_VIDEO(f_number)   ( !!(friend[f_number].call_state_self   & TOXAV_FRIEND_CALL_STATE_SENDING_V  ) && \
                                       !!(friend[f_number].call_state_friend & TOXAV_FRIEND_CALL_STATE_ACCEPTING_V) )
 

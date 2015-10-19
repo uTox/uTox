@@ -647,6 +647,7 @@ void tox_thread(void *UNUSED(args)) {
     } while(reconfig);
 
     tox_thread_init = 0;
+    debug("Tox tread:\tClean exit!\n");
 }
 
 static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
@@ -771,7 +772,9 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
         case TOX_FRIEND_ONLINE: {
             if(!param2) {
                 ft_friend_offline(tox, param1);
-                utox_av_local_disconnect(av, param1);
+                if (friend[param1].call_state_self) {
+                    utox_av_local_disconnect(av, param1);
+                }
             } else {
                 if (!friend[param1].online) {
                     ft_friend_online(tox, param1);
@@ -1050,17 +1053,26 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
             break;
         }
         case TOX_CALL_PAUSE_AUDIO: {
-            /* param1: friend #
-             * param2: call #
-             */
+            /* param1: friend # */
             debug("TODO bug, please report!!\n");
             break;
         }
         case TOX_CALL_PAUSE_VIDEO: {
-            /* param1: friend #
-             * param2: call #
-             */
+            /* param1: friend # */
             debug("TODO bug, please report!!\n");
+            debug("Tox:\tEnding video for active call!\n");
+            break;
+        }
+        case TOX_CALL_RESUME_AUDIO: {
+            /* param1: friend # */
+            debug("TODO bug, please report!!\n");
+            break;
+        }
+        case TOX_CALL_RESUME_VIDEO: {
+            /* param1: friend # */
+            debug("Tox:\tStarting video for active call!\n");
+            utox_av_local_call_control(av, param1, TOXAV_CALL_CONTROL_SHOW_VIDEO);
+            friend[param1].call_state_self |= TOXAV_FRIEND_CALL_STATE_SENDING_V;
             break;
         }
         case TOX_CALL_DISCONNECT: {

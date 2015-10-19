@@ -35,9 +35,10 @@ void toxav_thread(void *args) {
         yieldcpu(toxav_iteration_interval(av));
     }
 
-    debug("Toxav:\tClean thread exit!\n");
     toxav_thread_msg = 0;
     toxav_thread_init = 0;
+    debug("UTOXAV:\tClean thread exit!\n");
+    return;
 }
 
 static void utox_av_incoming_call(ToxAV *av, uint32_t friend_number, bool audio, bool video, void *UNUSED(userdata)) {
@@ -101,6 +102,35 @@ void utox_av_local_disconnect(ToxAV *av, int32_t friend_number) {
     friend[friend_number].call_state_self = 0;
     friend[friend_number].call_state_friend = 0;
     postmessage(AV_CALL_DISCONNECTED, friend_number, 0, NULL);
+}
+
+void utox_av_local_call_control(ToxAV *av, uint32_t friend_number, TOXAV_CALL_CONTROL control) {
+    TOXAV_ERR_CALL_CONTROL error = 0;
+    toxav_call_control(av, friend_number, control, &error);
+    if (error) {
+        debug("uToxAV:\tLocal call control error!\n");
+    } else {
+        switch (control) {
+            case TOXAV_CALL_CONTROL_HIDE_VIDEO: {
+                toxvideo_postmessage(VIDEO_END, friend_number, 0, NULL);
+                break;
+            }
+            case TOXAV_CALL_CONTROL_SHOW_VIDEO: {
+                toxvideo_postmessage(VIDEO_START, friend_number, 0, NULL);
+                break;
+            }
+            default: {
+                debug("uToxAV:\tUnhandled local call control\n");
+            }
+            // TODO
+            // TOXAV_CALL_CONTROL_RESUME,
+            // TOXAV_CALL_CONTROL_PAUSE,
+            // TOXAV_CALL_CONTROL_CANCEL,
+            // TOXAV_CALL_CONTROL_MUTE_AUDIO,
+            // TOXAV_CALL_CONTROL_UNMUTE_AUDIO,
+        }
+    }
+    return;
 }
 
 /** responds to a audio frame call back from toxav

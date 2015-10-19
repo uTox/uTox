@@ -186,4 +186,5 @@ void video_thread(void *args) {
 
     video_thread_msg = 0;
     video_thread_init = 0;
+    debug("UTOX VIDEO:\tClean thread exit!\n");
 }

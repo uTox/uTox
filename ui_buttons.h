@@ -226,7 +226,7 @@ static void button_group_audio_update(BUTTON *b) {
     }
 }
 
-static void button_call_onpress(void) {
+static void button_call_audio_onpress(void) {
     FRIEND *f = selected_item->data;
     if (f->call_state_self) {
         if (UTOX_SENDING_VIDEO(f->number)) {
@@ -238,11 +238,9 @@ static void button_call_onpress(void) {
             tox_postmessage(TOX_CALL_DISCONNECT,  f->number, 0, NULL);
         }
         tox_postmessage(TOX_CALL_DISCONNECT, f->number, 0, NULL);
-    } else if (UTOX_ACCEPTING_VIDEO(f->number) || UTOX_ACCEPTING_AUDIO(f->number)) {
-        if (!UTOX_SENDING_VIDEO(f->number) || UTOX_SENDING_AUDIO(f->number) ) {
-            debug("Accept Call: %u\n", f->number);
-            tox_postmessage(TOX_CALL_ANSWER, f->number, 0, NULL);
-        }
+    } else if (UTOX_AVAILABLE_AUDIO(f->number)) {
+        debug("Accept Call: %u\n", f->number);
+        tox_postmessage(TOX_CALL_ANSWER, f->number, 0, NULL);
     } else {
         if (f->online) {
             tox_postmessage(TOX_CALL_SEND, f->number, 0, NULL);
@@ -251,12 +249,12 @@ static void button_call_onpress(void) {
     }
 }
 
-static void button_call_update(BUTTON *b) {
+static void button_call_audio_update(BUTTON *b) {
     FRIEND *f = selected_item->data;
     if (UTOX_SENDING_AUDIO(f->number)) {
         button_setcolors_danger(b);
         b->disabled = 0;
-    } else if (UTOX_ACCEPTING_AUDIO(f->number)) {
+    } else if ( !UTOX_ACCEPTING_AUDIO(f->number) && UTOX_AVAILABLE_AUDIO(f->number)) {
         button_setcolors_warning(b);
         b->disabled = 0;
     } else {
@@ -270,18 +268,21 @@ static void button_call_update(BUTTON *b) {
     }
 }
 
-static void button_video_onpress(void) {
+static void button_call_video_onpress(void) {
     FRIEND *f = selected_item->data;
     if (f->call_state_self) {
         if (UTOX_SENDING_VIDEO(f->number)) {
             debug("Canceling call (video): %u\n", f->number);
             tox_postmessage(TOX_CALL_DISCONNECT,  f->number, 1, NULL);
+        } else if (UTOX_SENDING_AUDIO(f->number)) {
+            debug("Audio call inprogress, adding video\n");
+            tox_postmessage(TOX_CALL_RESUME_VIDEO, f->number, 1, NULL);
         } else {
             debug("Ending call (video): %u\n",   f->number);
             tox_postmessage(TOX_CALL_DISCONNECT, f->number, 1, NULL);
         }
-    } else if (UTOX_ACCEPTING_VIDEO(f->number) || UTOX_ACCEPTING_AUDIO(f->number) ) {
-        if (!UTOX_SENDING_VIDEO(f->number)) {
+    } else if (f->call_state_friend) {
+        if (UTOX_AVAILABLE_VIDEO(f->number)) {
             debug("Accept Call (video): %u\n", f->number);
             tox_postmessage(TOX_CALL_ANSWER, f->number, 1, NULL);
         }
@@ -293,12 +294,13 @@ static void button_video_onpress(void) {
     }
 }
 
-static void button_video_update(BUTTON *b) {
+static void button_call_video_update(BUTTON *b) {
     FRIEND *f = selected_item->data;
     if (UTOX_SENDING_VIDEO(f->number)) {
         button_setcolors_danger(b);
         b->disabled = 0;
-    } else if (UTOX_ACCEPTING_VIDEO(f->number)) {
+    } else if ( (!UTOX_ACCEPTING_VIDEO(f->number) && UTOX_AVAILABLE_VIDEO(f->number))
+                 && UTOX_AVAILABLE_AUDIO(f->number)) {
         button_setcolors_warning(b);
         b->disabled = 0;
     } else {
@@ -549,13 +551,22 @@ button_send_friend_request = {
     .disabled = 0,
 },
 
-button_call = {
+button_call_audio = {
     .bm = BM_LBUTTON,
     .bm2 = BM_CALL,
     .bw = _BM_LBICON_WIDTH,
     .bh = _BM_LBICON_HEIGHT,
-    .onpress = button_call_onpress,
-    .update = button_call_update,
+    .onpress = button_call_audio_onpress,
+    .update = button_call_audio_update,
+},
+
+button_call_video = {
+    .bm = BM_LBUTTON,
+    .bm2 = BM_VIDEO,
+    .bw = _BM_LBICON_WIDTH,
+    .bh = _BM_LBICON_HEIGHT,
+    .onpress = button_call_video_onpress,
+    .update = button_call_video_update,
 },
 
 button_group_audio = {
@@ -565,15 +576,6 @@ button_group_audio = {
     .bh = _BM_LBICON_HEIGHT,
     .onpress = button_group_audio_onpress,
     .update = button_group_audio_update,
-},
-
-button_video = {
-    .bm = BM_LBUTTON,
-    .bm2 = BM_VIDEO,
-    .bw = _BM_LBICON_WIDTH,
-    .bh = _BM_LBICON_HEIGHT,
-    .onpress = button_video_onpress,
-    .update = button_video_update,
 },
 
 button_accept_friend = {

@@ -594,7 +594,7 @@ panel_main = {
             .child = (PANEL*[]) {
                 (void*)&scrollbar_friend,
                 (void*)&messages_friend,
-                (void*)&button_call, (void*)&button_video,
+                (void*)&button_call_audio, (void*)&button_call_video,
                 (void*)&button_chat_left, (void*)&button_chat_right, (void*)&edit_msg, (void*)&button_chat_send,
                 NULL
             }
@@ -918,7 +918,7 @@ void ui_scale(uint8_t scale) {
             .height = BM_SBUTTON_HEIGHT,
         },
 
-        b_call = {
+        b_call_audio = {
             .type = PANEL_BUTTON,
             .x = -62 * SCALE,
             .y = 5 * SCALE,
@@ -926,7 +926,7 @@ void ui_scale(uint8_t scale) {
             .height = BM_LBUTTON_HEIGHT,
         },
 
-        b_group_audio = {
+        b_call_video = {
             .type = PANEL_BUTTON,
             .x = -31 * SCALE,
             .y = 5 * SCALE,
@@ -934,7 +934,7 @@ void ui_scale(uint8_t scale) {
             .height = BM_LBUTTON_HEIGHT,
         },
 
-        b_video = {
+        b_group_audio = {
             .type = PANEL_BUTTON,
             .x = -31 * SCALE,
             .y = 5 * SCALE,
@@ -1015,9 +1015,9 @@ void ui_scale(uint8_t scale) {
         button_change_id_type.panel = b_change_id_type;
         #endif
         button_send_friend_request.panel = b_send_friend_request;
-        button_call.panel                = b_call;
+        button_call_audio.panel          = b_call_audio;
+        button_call_video.panel          = b_call_video;
         button_group_audio.panel         = b_group_audio;
-        button_video.panel               = b_video;
         button_accept_friend.panel       = b_accept_friend;
         button_callpreview.panel         = b_callpreview;
         button_videopreview.panel        = b_videopreview;

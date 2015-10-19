@@ -582,6 +582,7 @@ void audio_thread(void *args){
 
     audio_thread_msg = 0;
     audio_thread_init = 0;
+    debug("UTOX AUDIO:\tClean thread exit!\n");
 }
 
 // COMMENTED OUT FOR NEW GC

@@ -1445,7 +1445,7 @@ int main(int argc, char *argv[]) {
         yieldcpu(1);
     }
 
-    debug("clean exit\n");
+    debug("XLIB main:\tClean exit\n");
 
     return 0;
 }
