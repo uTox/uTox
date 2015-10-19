@@ -163,6 +163,15 @@ void video_thread(void *args) {
                                 break;
                             }
                         }
+                    } else if (UTOX_SENDING_VIDEO(i) && !UTOX_AVAILABLE_VIDEO(i)) {
+                        utox_frame_pkg *frame = malloc(sizeof(*frame));
+                        frame->w = utox_video_frame.w;
+                        frame->h = utox_video_frame.h;
+                        frame->img = malloc(frame->w * frame->h * 4);
+                        yuv420tobgr(utox_video_frame.w, utox_video_frame.h,
+                                utox_video_frame.y, utox_video_frame.u, utox_video_frame.v,
+                                utox_video_frame.w, (utox_video_frame.w / 2), (utox_video_frame.w / 2), frame->img);
+                        postmessage(AV_VIDEO_FRAME, i + 1, 1, (void*)frame);
                     }
                 }
             } else if(r == -1) {
