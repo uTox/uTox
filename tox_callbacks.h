@@ -117,8 +117,7 @@ static void callback_connection_status(Tox *tox, uint32_t fid, TOX_CONNECTION st
 void callback_av_group_audio(Tox *tox, int groupnumber, int peernumber, const int16_t *pcm, unsigned int samples,
                                     uint8_t channels, unsigned int sample_rate, void *userdata);
 
-static void callback_group_invite(Tox *tox, int fid, uint8_t type, const uint8_t *data, uint16_t length, void *UNUSED(userdata))
-{
+static void callback_group_invite(Tox *tox, int fid, uint8_t type, const uint8_t *data, uint16_t length, void *UNUSED(userdata)) {
     int gid = -1;
     if (type == TOX_GROUPCHAT_TYPE_TEXT) {
         gid = tox_join_groupchat(tox, fid, data, length);
@@ -178,7 +177,7 @@ static void callback_group_namelist_change(Tox *tox, int gid, int pid, uint8_t c
     debug("Group Namelist Change (%u, %u): %u\n", gid, pid, change);
 }
 
-static void callback_group_title(Tox *tox, int gid, int pid, const uint8_t *title, uint8_t length, void *UNUSED(userdata))
+static void callback_group_topic(Tox *tox, int gid, int pid, const uint8_t *title, uint8_t length, void *UNUSED(userdata))
 {
     length = utf8_validate(title, length);
     if (!length)
@@ -189,7 +188,7 @@ static void callback_group_title(Tox *tox, int gid, int pid, const uint8_t *titl
         return;
 
     memcpy(copy_title, title, length);
-    postmessage(GROUP_TITLE, gid, length, copy_title);
+    postmessage(GROUP_TOPIC, gid, length, copy_title);
 
     debug("Group Title (%u, %u): %.*s\n", gid, pid, length, title);
 }

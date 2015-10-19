@@ -427,7 +427,7 @@ static void deleteitem(ITEM *i) {
     case ITEM_GROUP: {
         GROUPCHAT *g = i->data;
 
-        tox_postmessage(TOX_GROUP_EXIT, (g - group), 0, NULL);
+        tox_postmessage(TOX_GROUP_PART, (g - group), 0, NULL);
 
         unsigned int j;
         for (j = 0; j < g->peers; ++j) {

@@ -301,7 +301,7 @@ static void set_callbacks(Tox *tox)
     tox_callback_group_message(tox, callback_group_message, NULL);
     tox_callback_group_action(tox, callback_group_action, NULL);
     tox_callback_group_namelist_change(tox, callback_group_namelist_change, NULL);
-    tox_callback_group_title(tox, callback_group_title, NULL);
+    tox_callback_group_title(tox, callback_group_topic, NULL);
 
     utox_set_callbacks_for_transfer(tox);
 }
@@ -1086,21 +1086,33 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
         }
 
         /* Groups are broken while we await the new GCs getting merged. */
+/*    TOX_GROUP_JOIN,
+    TOX_GROUP_PART, // 30
+    TOX_GROUP_INVITE,
+    TOX_GROUP_SET_TOPIC,
+    TOX_GROUP_SEND_MESSAGE,
+    TOX_GROUP_SEND_ACTION,
+    TOX_GROUP_AUDIO_START, // 35
+    TOX_GROUP_AUDIO_END,*/
+
         case TOX_GROUP_CREATE: {
             int g = -1;
             if (param1) {
                 // TODO FIX THIS AFTER NEW GROUP API
                 // g = toxav_add_av_groupchat(tox, &callback_av_group_audio, NULL);
+                g = tox_add_groupchat(tox);
             } else {
                 g = tox_add_groupchat(tox);
             }
-            if(g != -1) {
+
+            if (g != -1) {
                 postmessage(GROUP_ADD, g, 0, tox);
             }
             save_needed = 1;
             break;
         }
-        case TOX_GROUP_EXIT: {
+        case TOX_GROUP_JOIN: {}
+        case TOX_GROUP_PART: {
             /* param1: group #
              */
             tox_del_groupchat(tox, param1);
@@ -1121,7 +1133,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
              * data: topic
              */
             tox_group_set_title(tox, param1, data, param2);
-            postmessage(GROUP_TITLE, param1, param2, data);
+            postmessage(GROUP_TOPIC, param1, param2, data);
             save_needed = 1;
             break;
         }
@@ -1143,17 +1155,19 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
             free(data);
             break;
         }
+        /* Disabled */
         case TOX_GROUP_AUDIO_START:{
             /* param1: group #
              */
-            postmessage(GROUP_AUDIO_START, param1, 0, NULL);
             break;
+            postmessage(GROUP_AUDIO_START, param1, 0, NULL);
         }
+        /* Disabled */
         case TOX_GROUP_AUDIO_END:{
             /* param1: group #
              */
-            postmessage(GROUP_AUDIO_END, param1, 0, NULL);
             break;
+            postmessage(GROUP_AUDIO_END, param1, 0, NULL);
         }
     } // End of switch.
 }
@@ -1558,7 +1572,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             break;
         }
 
-        /* Commented out until new group chats...
+        /* Group chat functions */
         case GROUP_ADD: {
             GROUPCHAT *g = &group[param1];
             g->name_length = snprintf((char*)g->name, sizeof(g->name), "Groupchat #%u", param1);
@@ -1573,7 +1587,6 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             redraw();
             break;
         }
-
         case GROUP_MESSAGE: {
             GROUPCHAT *g = &group[param1];
 
@@ -1585,7 +1598,6 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
 
             break;
         }
-
         case GROUP_PEER_DEL: {
             GROUPCHAT *g = &group[param1];
 
@@ -1617,11 +1629,10 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
                 g->topic_length = sizeof(g->topic) - 1;
             }
 
-            updategroup(g);
+            redraw();
 
             break;
         }
-
         case GROUP_PEER_ADD:
         case GROUP_PEER_NAME: {
             GROUPCHAT *g = &group[param1];
@@ -1657,12 +1668,12 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
                 g->topic_length = sizeof(g->topic) - 1;
             }
 
-            updategroup(g);
+            redraw();
 
             break;
         }
 
-        case GROUP_TITLE: {
+        case GROUP_TOPIC: {
             GROUPCHAT *g = &group[param1];
 
             if (param2 > sizeof(g->name)) {
@@ -1674,17 +1685,16 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             }
 
             free(data);
-            updategroup(g);
+            redraw();
             break;
         }
-
         case GROUP_AUDIO_START: {
             GROUPCHAT *g = &group[param1];
 
             if (g->type == TOX_GROUPCHAT_TYPE_AV) {
                 g->audio_calling = 1;
                 toxaudio_postmessage(GROUP_AUDIO_CALL_START, param1, 0, NULL);
-                updategroup(g);
+                redraw();
             }
             break;
         }
@@ -1694,16 +1704,14 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             if (g->type == TOX_GROUPCHAT_TYPE_AV) {
                 g->audio_calling = 0;
                 toxaudio_postmessage(GROUP_AUDIO_CALL_END, param1, 0, NULL);
-                updategroup(g);
+                redraw();
             }
             break;
         }
 
         case GROUP_UPDATE: {
-            //GROUPCHAT *g = &group[param1];
-            updategroup(g);
-
+            redraw();
             break;
-        }*/
+        }
     }
 }

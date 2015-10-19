@@ -103,7 +103,7 @@ static void button_add_new_contact_onpress(void) {
 }
 
 static void button_create_group_onpress(void) {
-    tox_postmessage(TOX_GROUP_CREATE, 1, 0, NULL);
+    tox_postmessage(TOX_GROUP_CREATE, 0, 0, NULL);
 }
 
 static void button_settings_onpress(void) {
