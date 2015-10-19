@@ -300,7 +300,7 @@ static void button_call_video_update(BUTTON *b) {
         button_setcolors_danger(b);
         b->disabled = 0;
     } else if ( (!UTOX_ACCEPTING_VIDEO(f->number) && UTOX_AVAILABLE_VIDEO(f->number))
-                 && UTOX_AVAILABLE_AUDIO(f->number)) {
+                 && UTOX_ACCEPTING_AUDIO(f->number)) {
         button_setcolors_warning(b);
         b->disabled = 0;
     } else {

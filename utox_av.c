@@ -178,7 +178,7 @@ static void utox_callback_av_change_state(ToxAV *av, uint32_t friend_number, uin
         utox_av_remote_disconnect(av, friend_number);
     } else if (!friend[friend_number].call_state_friend) {
         /* First accepted call back */
-        debug("uToxAV:\tFriend accepted state change\n");
+        debug("uToxAV:\tFriend accepted call\n");
         friend[friend_number].call_state_friend = state;
         postmessage(AV_CALL_ACCEPTED, friend_number, 0, NULL);
     }
