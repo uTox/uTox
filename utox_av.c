@@ -105,17 +105,20 @@ void utox_av_local_disconnect(ToxAV *av, int32_t friend_number) {
 }
 
 void utox_av_local_call_control(ToxAV *av, uint32_t friend_number, TOXAV_CALL_CONTROL control) {
-    TOXAV_ERR_CALL_CONTROL error = 0;
-    toxav_call_control(av, friend_number, control, &error);
-    if (error) {
+    TOXAV_ERR_CALL_CONTROL err = 0;
+    toxav_call_control(av, friend_number, control, &err);
+    if (err) {
         debug("uToxAV:\tLocal call control error!\n");
     } else {
+        TOXAV_ERR_BIT_RATE_SET bitrate_err = 0;
         switch (control) {
             case TOXAV_CALL_CONTROL_HIDE_VIDEO: {
+                toxav_bit_rate_set(av, friend_number, -1, 0, &bitrate_err);
                 toxvideo_postmessage(VIDEO_END, friend_number, 0, NULL);
                 break;
             }
             case TOXAV_CALL_CONTROL_SHOW_VIDEO: {
+                toxav_bit_rate_set(av, friend_number, -1, UTOX_DEFAULT_BITRATE_V, &bitrate_err);
                 toxvideo_postmessage(VIDEO_START, friend_number, 0, NULL);
                 break;
             }
@@ -129,7 +132,11 @@ void utox_av_local_call_control(ToxAV *av, uint32_t friend_number, TOXAV_CALL_CO
             // TOXAV_CALL_CONTROL_MUTE_AUDIO,
             // TOXAV_CALL_CONTROL_UNMUTE_AUDIO,
         }
+        if (bitrate_err) {
+            debug("uToxAV:\tError setting/changing video bitrate\n");
+        }
     }
+
     return;
 }
 

@@ -969,7 +969,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
             /* Set the video bitrate, if we're starting a video call. */
             int v_bitrate = 0;
             if (param2) {
-                v_bitrate = UTOX_DEFAULT_VIDEO_BITRATE;
+                v_bitrate = UTOX_DEFAULT_BITRATE_V;
                 debug("Tox:\tSending video call to friend %u\n", param1);
             } else {
                 v_bitrate = 0;
@@ -977,7 +977,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
             }
 
             TOXAV_ERR_CALL error = 0;
-            toxav_call(av, param1, UTOX_DEFAULT_AUDIO_BITRATE, v_bitrate, &error);
+            toxav_call(av, param1, UTOX_DEFAULT_BITRATE_A, v_bitrate, &error);
             if (error) {
                 switch(error) {
                     case TOXAV_ERR_CALL_MALLOC: {
@@ -1029,7 +1029,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
             int v_bitrate = 0;
 
             if (param2) {
-                v_bitrate = UTOX_DEFAULT_VIDEO_BITRATE;
+                v_bitrate = UTOX_DEFAULT_BITRATE_V;
                 debug("uTox:\tAnswering video call.\n");
             } else {
                 v_bitrate = 0;
@@ -1037,7 +1037,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
             }
 
             toxaudio_postmessage(AUDIO_STOP_RINGTONE, param1, 0, NULL);
-            toxav_answer(av, param1, UTOX_DEFAULT_AUDIO_BITRATE, v_bitrate, &error);
+            toxav_answer(av, param1, UTOX_DEFAULT_BITRATE_A, v_bitrate, &error);
 
             if (error) {
                 debug("uTox:\tError trying to toxav_answer error (%i)\n", error);

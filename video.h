@@ -1,6 +1,6 @@
-#define UTOX_DEFAULT_VIDEO_BITRATE 3000
-#define UTOX_DEFAULT_VIDEO_WIDTH   1280
-#define UTOX_DEFAULT_VIDEO_HEIGHT  720
+#define UTOX_DEFAULT_BITRATE_V  3000
+#define UTOX_DEFAULT_VID_WIDTH  1280
+#define UTOX_DEFAULT_VID_HEIGHT 720
 
 /* Check self */
 #define UTOX_SENDING_VIDEO(f_number)   ( !!(friend[f_number].call_state_self & TOXAV_FRIEND_CALL_STATE_SENDING_V   ))
