@@ -1590,6 +1590,10 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         case GROUP_MESSAGE: {
             GROUPCHAT *g = &group[param1];
 
+            if (selected_item->data != g) {
+                g->notify = 1;
+            }
+
             message_add(&messages_group, data, &g->msg);
 
             if(selected_item && g == selected_item->data) {
@@ -1646,7 +1650,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
 
             if(tox_message_id == GROUP_PEER_ADD) {
                 if (g->type == TOX_GROUPCHAT_TYPE_AV) {
-                    // REMOVED UNTIL AFTER NEW GCs group_av_peer_add(g, param2);
+                    group_av_peer_add(g, param2);
                 }
 
                 if (tox_group_peernumber_is_ours(data, param1, param2)) {
@@ -1658,7 +1662,6 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
                 memcpy(n + 1, "<unknown>", 9);
                 data = n;
                 g->peers++;
-
             }
 
             g->peername[param2] = data;
@@ -1666,6 +1669,10 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             g->topic_length = snprintf((char*)g->topic, sizeof(g->topic), "%u users in chat", g->peers);
             if (g->topic_length >= sizeof(g->topic)) {
                 g->topic_length = sizeof(g->topic) - 1;
+            }
+
+            if(selected_item->data != f) {
+                f->notify = 1;
             }
 
             redraw();

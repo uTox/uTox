@@ -25,26 +25,6 @@ typedef struct friend {
     FRIEND_META_DATA metadata;
 } FRIEND;
 
-#define MAX_GROUP_PEERS 256
-
-typedef struct groupchat {
-    uint32_t peers;
-    uint32_t our_peer_number;
-    uint8_t type;
-    _Bool audio_calling;
-    volatile _Bool muted;
-    STRING_IDX name_length, topic_length, typed_length;
-    char_t name[128], topic[128]; //static sizes for now
-    char_t *typed;
-    char_t *peername[MAX_GROUP_PEERS];
-    unsigned int source[MAX_GROUP_PEERS];
-    volatile uint64_t last_recv_audio[MAX_GROUP_PEERS]; /* TODO: thread safety (This should work fine but it isn't very clean.) */
-
-    EDIT_CHANGE **edit_history;
-    uint16_t edit_history_cur, edit_history_length;
-
-    MSG_DATA msg;
-} GROUPCHAT;
 
 #define friend_id(f) (f -  friend)
 
@@ -67,4 +47,3 @@ void friend_add(char_t *name, STRING_IDX length, char_t *msg, STRING_IDX msg_len
 void friend_history_clear(FRIEND *f);
 
 void friend_free(FRIEND *f);
-void group_free(GROUPCHAT *g);
