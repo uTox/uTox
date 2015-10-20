@@ -227,6 +227,14 @@ _Bool doevent(XEvent event)
                     grabpy = w;
                 }
 
+                /* enforce min size */
+
+                if ( grabpx * grabpy < 100 ) {
+                    pointergrab = 0;
+                    XUngrabPointer(display, CurrentTime);
+                    break;
+                }
+
                 XDrawRectangle(display, RootWindow(display, screen), grabgc, grabx, graby, grabpx, grabpy);
                 XUngrabPointer(display, CurrentTime);
                 if(pointergrab == 1) {
