@@ -208,9 +208,10 @@ static void draw_add_friend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int hei
     drawstr(MAIN_LEFT + SCALE * 5, LIST_Y + SCALE * 29, MESSAGE);
 
     if (options.proxy_type) {
+        int push = UTOX_STR_WIDTH(TOXID);
         setfont(FONT_MISC);
         setcolor(C_RED);
-        drawstr(MAIN_LEFT + SCALE * 5 + SCALE * UTOX_STR_WIDTH(TOXID), LIST_Y + SCALE * 6, DNS_DISABLED);
+        drawstr(MAIN_LEFT + SCALE * 10 + push, LIST_Y + SCALE * 6, DNS_DISABLED);
     }
 
     if (addfriend_status) {
