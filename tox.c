@@ -507,13 +507,13 @@ void tox_thread(void *UNUSED(args)) {
                                                                    options.proxy_type,
                                                                    options.proxy_host,
                                                                    options.proxy_port);
-        if((tox = tox_new(&options, &tox_new_err)) == NULL) {
+        if ((tox = tox_new(&options, &tox_new_err)) == NULL) {
             debug("trying without proxy, err %u\n", tox_new_err);
-            if(!options.proxy_type ||
-               (options.proxy_type = TOX_PROXY_TYPE_NONE, (tox = tox_new(&options, &tox_new_err)) == NULL)) {
+            options.proxy_type = TOX_PROXY_TYPE_NONE;
+            if (!options.proxy_type || ((tox = tox_new(&options, &tox_new_err)) == NULL)) {
                 debug("trying without ipv6, err %u\n", tox_new_err);
-                if(!options.ipv6_enabled ||
-                   (options.ipv6_enabled = 0, (tox = tox_new(&options, &tox_new_err)) == NULL)) {
+                options.ipv6_enabled = 0;
+                if (!options.ipv6_enabled || ((tox = tox_new(&options, &tox_new_err)) == NULL)) {
                     debug("tox_new() failed %u\n", tox_new_err);
                     exit(1);
                 }

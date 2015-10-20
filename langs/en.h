@@ -10,6 +10,9 @@ msgstr("Friend request sent. Your friend will appear online after the request is
 msgid(REQ_RESOLVE)
 msgstr("Attempting to resolve DNS name...")
 
+msgid(DNS_DISABLED)
+msgstr("DNS name resolution disabled while using a proxy!")
+
 msgid(REQ_INVALID_ID)
 msgstr("Error: Invalid Tox ID")
 
