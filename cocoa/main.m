@@ -345,7 +345,12 @@ void launch_at_startup(int should) {
         CFArrayRef current_items = LSSharedFileListCopySnapshot(items, NULL);
         for (int i = 0; i < CFArrayGetCount(current_items); ++i) {
             LSSharedFileListItemRef it = (void *)CFArrayGetValueAtIndex(current_items, i);
-            CFURLRef urlornull = LSSharedFileListItemCopyResolvedURL(it, 0, NULL);
+            CFURLRef urlornull;
+#if MAC_OS_X_VERSION_MIN_REQUIRED < 101000
+            LSSharedFileListItemResolve(it, 0, &urlornull, NULL);
+#else
+            urlornull = LSSharedFileListItemCopyResolvedURL(it, 0, NULL);
+#endif
             if (urlornull && CFEqual(urlornull, (__bridge CFURLRef)[NSBundle mainBundle].bundleURL)) {
                 // this is ours, remove it.
                 LSSharedFileListItemRemove(items, it);
