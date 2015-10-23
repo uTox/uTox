@@ -1390,7 +1390,7 @@ int main(int argc, char *argv[]) {
 
     toxaudio_postmessage(AUDIO_KILL, 0, 0, NULL);
     toxvideo_postmessage(VIDEO_KILL, 0, 0, NULL);
-    toxav_postmessage(TOXAV_KILL, 0, 0, NULL);
+    toxav_postmessage(UTOXAV_KILL, 0, 0, NULL);
     tox_postmessage(TOX_KILL, 0, 0, NULL);
 
     /* free client thread stuff */

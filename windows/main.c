@@ -1444,7 +1444,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     /* kill threads */
     toxaudio_postmessage(AUDIO_KILL, 0, 0, NULL);
     toxvideo_postmessage(VIDEO_KILL, 0, 0, NULL);
-    toxav_postmessage(TOXAV_KILL, 0, 0, NULL);
+    toxav_postmessage(UTOXAV_KILL, 0, 0, NULL);
     tox_postmessage(TOX_KILL, 0, 0, NULL);
 
     /* cleanup */

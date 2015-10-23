@@ -131,8 +131,11 @@ struct TOX_SEND_INLINE_MSG {
     UTOX_PNG_IMAGE image;
 };
 
+/* utox av thread commands */
 enum {
-    TOXAV_KILL,
+    UTOXAV_KILL,
+    UTOXAV_START_CALL,
+    UTOXAV_END_CALL,
 };
 
 /* AV STATUS LIST */

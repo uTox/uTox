@@ -88,12 +88,14 @@ void video_thread(void *args) {
                     }
 
                     newinput = 1;
+                    debug("uToxVID:\tChanged video input device\n");
                     break;
                 }
                 case VIDEO_PREVIEW_START: {
                     video_count++;
                     preview = 1;
                     m->param1--;
+                    debug("uToxVID:\tStarting video preview\n");
                 }
                 case VIDEO_START: {
                     if ( video_width && video_height ) {
@@ -106,6 +108,7 @@ void video_thread(void *args) {
                     } else {
                         debug("uTox Vid:\tCan't start video for a 0 by 0 frame\n");
                     }
+                    debug("uToxVID:\tStarting video feed\n");
                     break;
                 }
                 case VIDEO_PREVIEW_END: {
@@ -116,6 +119,7 @@ void video_thread(void *args) {
                         video_on = 0;
                     }
                     video_end(0);
+                    debug("uToxVID:\tClosing video preview\n");
                     break;
                 }
                 case VIDEO_END: {
@@ -125,6 +129,7 @@ void video_thread(void *args) {
                         video_on = 0;
                     }
                     video_end(m->param1 + 1);
+                    debug("uToxVID:\tClosing video feed\n");
                     break;
                 }
             }

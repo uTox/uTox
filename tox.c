@@ -434,7 +434,7 @@ void tox_settingschanged(void)
 
     toxaudio_postmessage(AUDIO_KILL, 0, 0, NULL);
     toxvideo_postmessage(VIDEO_KILL, 0, 0, NULL);
-    toxav_postmessage(TOXAV_KILL, 0, 0, NULL);
+    toxav_postmessage(UTOXAV_KILL, 0, 0, NULL);
 
     // send the reconfig message!
     tox_postmessage(0, 1, 0, NULL);
@@ -965,8 +965,6 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
         case TOX_CALL_SEND: {
             /* param1: friend #
              */
-            FRIEND *f = &friend[param1];
-
             /* Set the video bitrate, if we're starting a video call. */
             int v_bitrate = 0;
             if (param2) {
@@ -998,12 +996,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
                         if (error) {
                             debug("uTox:\tError trying to toxav_answer error (%i)\n", error);
                         } else {
-                            toxaudio_postmessage(AUDIO_START, param1, 0, NULL);
-                            f->call_state_self = ( TOXAV_FRIEND_CALL_STATE_SENDING_A | TOXAV_FRIEND_CALL_STATE_ACCEPTING_A );
-                            if (param2) {
-                                toxvideo_postmessage(VIDEO_START, param1, 0, NULL);
-                                f->call_state_self |= (TOXAV_FRIEND_CALL_STATE_SENDING_V | TOXAV_FRIEND_CALL_STATE_ACCEPTING_V);
-                            }
+                            toxav_postmessage(UTOXAV_START_CALL, param1, param2, NULL);
                         }
                         postmessage(AV_CALL_ACCEPTED, param1, 0, NULL);
 
@@ -1021,17 +1014,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
                     }
                 }
             } else {
-                f->call_state_self = ( TOXAV_FRIEND_CALL_STATE_SENDING_A |
-                                       TOXAV_FRIEND_CALL_STATE_ACCEPTING_A );
-                toxaudio_postmessage(AUDIO_START, param1, 0, NULL); // TODO, do we really want this to be HERE?
-                debug("uToxAV:\tCall is ringing\n");
-                postmessage(AV_CALL_RINGING, param1, 0, NULL);
-
-                if (param2) {
-                    toxvideo_postmessage(VIDEO_START, param1, 0, NULL);
-                    f->call_state_self |= (TOXAV_FRIEND_CALL_STATE_SENDING_V |
-                                           TOXAV_FRIEND_CALL_STATE_ACCEPTING_V);
-                }
+                toxav_postmessage(UTOXAV_START_CALL, param1, param2, NULL);
             }
             break;
         }
@@ -1042,7 +1025,6 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
             /* param1: Friend_number #
              * param2: Accept Video? #
              */
-            FRIEND *f = &friend[param1];
             TOXAV_ERR_ANSWER error = 0;
             int v_bitrate = 0;
 
@@ -1060,12 +1042,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
             if (error) {
                 debug("uTox:\tError trying to toxav_answer error (%i)\n", error);
             } else {
-                toxaudio_postmessage(AUDIO_START, param1, 0, NULL);
-                f->call_state_self = ( TOXAV_FRIEND_CALL_STATE_SENDING_A | TOXAV_FRIEND_CALL_STATE_ACCEPTING_A );
-                if (param2) {
-                    toxvideo_postmessage(VIDEO_START, param1, 0, NULL);
-                    f->call_state_self |= (TOXAV_FRIEND_CALL_STATE_SENDING_V | TOXAV_FRIEND_CALL_STATE_ACCEPTING_V);
-                }
+                toxav_postmessage(UTOXAV_START_CALL, param1, param2, NULL);
             }
             postmessage(AV_CALL_ACCEPTED, param1, 0, NULL);
             break;
@@ -1098,7 +1075,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
             /* param1: friend_number
              */
             if (friend[param1].call_state_self || friend[param1].call_state_friend) {
-                utox_av_local_disconnect(av, param1);
+                toxav_postmessage(UTOXAV_END_CALL, param1, param2, NULL);
             }
             break;
         }
