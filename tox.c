@@ -965,6 +965,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
         case TOX_CALL_SEND: {
             /* param1: friend #
              */
+            FRIEND *f = &friend[param1];
 
             /* Set the video bitrate, if we're starting a video call. */
             int v_bitrate = 0;
@@ -988,7 +989,24 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
                         /* This shouldn't happen, but just in case toxav gets a call before uTox gets this message */
                         debug("Tox:\tError making call to friend %u; Already in call.\n", param1);
                         debug("Tox:\tForwarding and accepting call!\n");
-                        tox_postmessage(TOX_CALL_ANSWER, param1, param2, data);
+
+                        TOXAV_ERR_ANSWER ans_error = 0;
+
+                        toxaudio_postmessage(AUDIO_STOP_RINGTONE, param1, 0, NULL);
+                        toxav_answer(av, param1, UTOX_DEFAULT_BITRATE_A, v_bitrate, &ans_error);
+
+                        if (error) {
+                            debug("uTox:\tError trying to toxav_answer error (%i)\n", error);
+                        } else {
+                            toxaudio_postmessage(AUDIO_START, param1, 0, NULL);
+                            f->call_state_self = ( TOXAV_FRIEND_CALL_STATE_SENDING_A | TOXAV_FRIEND_CALL_STATE_ACCEPTING_A );
+                            if (param2) {
+                                toxvideo_postmessage(VIDEO_START, param1, 0, NULL);
+                                f->call_state_self |= (TOXAV_FRIEND_CALL_STATE_SENDING_V | TOXAV_FRIEND_CALL_STATE_ACCEPTING_V);
+                            }
+                        }
+                        postmessage(AV_CALL_ACCEPTED, param1, 0, NULL);
+
                         break;
                     }
                     default: {
@@ -1003,16 +1021,16 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
                     }
                 }
             } else {
-                friend[param1].call_state_self = ( TOXAV_FRIEND_CALL_STATE_SENDING_A |
-                                                    TOXAV_FRIEND_CALL_STATE_ACCEPTING_A );
+                f->call_state_self = ( TOXAV_FRIEND_CALL_STATE_SENDING_A |
+                                       TOXAV_FRIEND_CALL_STATE_ACCEPTING_A );
                 toxaudio_postmessage(AUDIO_START, param1, 0, NULL); // TODO, do we really want this to be HERE?
                 debug("uToxAV:\tCall is ringing\n");
                 postmessage(AV_CALL_RINGING, param1, 0, NULL);
 
                 if (param2) {
                     toxvideo_postmessage(VIDEO_START, param1, 0, NULL);
-                    friend[param1].call_state_self |= (TOXAV_FRIEND_CALL_STATE_SENDING_V |
-                                                       TOXAV_FRIEND_CALL_STATE_ACCEPTING_V);
+                    f->call_state_self |= (TOXAV_FRIEND_CALL_STATE_SENDING_V |
+                                           TOXAV_FRIEND_CALL_STATE_ACCEPTING_V);
                 }
             }
             break;
