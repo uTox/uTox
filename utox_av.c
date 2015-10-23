@@ -53,11 +53,6 @@ static void utox_av_incoming_call(ToxAV *av, uint32_t friend_number, bool audio,
 }
 
 static void utox_av_remote_disconnect(ToxAV *av, int32_t friend_number) {
-    if (UTOX_SENDING_VIDEO(friend_number) || UTOX_ACCEPTING_VIDEO(friend_number)) {
-        tox_postmessage(TOX_CALL_DISCONNECT, friend_number, 1, NULL);
-    } else {
-        tox_postmessage(TOX_CALL_DISCONNECT, friend_number, 0, NULL);
-    }
     toxaudio_postmessage(AUDIO_STOP_RINGTONE, friend_number, 0, NULL);
     toxaudio_postmessage(AUDIO_END, friend_number, 0, NULL);
     if (UTOX_SENDING_VIDEO(friend_number) || UTOX_ACCEPTING_VIDEO(friend_number)) {
