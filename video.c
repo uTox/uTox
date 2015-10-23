@@ -124,7 +124,7 @@ void video_thread(void *args) {
                 }
                 case VIDEO_END: {
                     video_count--;
-                    if (!video_count && video_on) {
+                    if (!video_count || video_on) {
                         video_endread();
                         video_on = 0;
                     }
