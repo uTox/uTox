@@ -28,7 +28,7 @@ UNAME_S := $(shell uname -s)
 
 CFLAGS += -g -Wall -Wshadow -pthread -std=gnu99
 CFLAGS += $(shell pkg-config --cflags $(DEPS))
-LDFLAGS = -pthread -lm
+LDFLAGS += -pthread -lm
 LDFLAGS += $(shell pkg-config --libs $(DEPS))
 
 ifneq ($(DBUS), 1)
