@@ -1562,7 +1562,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
                data: packaged frame data */
 
             utox_frame_pkg *frame = data;
-            if ( UTOX_ACCEPTING_VIDEO(param1 - 1) || (param2 && UTOX_SENDING_VIDEO(param1 - 1))) {
+            if ( UTOX_ACCEPTING_VIDEO(param1 - 1) || param2 ) {
                 video_frame(param1, frame->img, frame->w, frame->h, 0);
                 // TODO re-enable the resize option, disabled for reasons
             }
