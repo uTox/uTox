@@ -96,11 +96,15 @@ void video_thread(void *args) {
                     m->param1--;
                 }
                 case VIDEO_START: {
-                    video_count++;
-                    STRING *s = SPTR(WINDOW_TITLE_VIDEO_PREVIEW);
-                    video_begin(m->param1 + 1, s->str, s->length, video_width, video_height);
-                    if (video && !video_on) {
-                        video_on = video_startread();
+                    if ( video_width && video_height ) {
+                        video_count++;
+                        STRING *s = SPTR(WINDOW_TITLE_VIDEO_PREVIEW);
+                        video_begin(m->param1 + 1, s->str, s->length, video_width, video_height);
+                        if (video && !video_on) {
+                            video_on = video_startread();
+                        }
+                    } else {
+                        debug("uTox Vid:\tCan't start video for a 0 by 0 frame\n");
                     }
                     break;
                 }
