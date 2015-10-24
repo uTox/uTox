@@ -199,7 +199,6 @@ static void utox_callback_av_change_state(ToxAV *av, uint32_t friend_number, uin
         debug("uToxAV:\tFriend accepted call\n");
         friend[friend_number].call_state_friend = state;
         if ( UTOX_SENDING_VIDEO(friend_number) && !UTOX_AVAILABLE_VIDEO(friend_number)) {
-            toxvideo_postmessage(VIDEO_END, friend_number, 0, NULL);
             utox_av_local_call_control(av, friend_number, TOXAV_CALL_CONTROL_HIDE_VIDEO);
             friend[friend_number].call_state_self ^= TOXAV_FRIEND_CALL_STATE_SENDING_V;
         }
