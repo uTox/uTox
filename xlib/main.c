@@ -77,7 +77,7 @@ Atom wm_protocols, wm_delete_window;
 
 uint32_t scolor;
 
-Atom XA_CLIPBOARD, XA_UTF8_STRING, targets, XA_INCR;
+Atom XA_CLIPBOARD, XA_NET_NAME, XA_UTF8_STRING, targets, XA_INCR;
 Atom XdndAware, XdndEnter, XdndLeave, XdndPosition, XdndStatus, XdndDrop, XdndSelection, XdndDATA, XdndActionCopy;
 Atom XA_URI_LIST, XA_PNG_IMG;
 Atom XRedraw;
@@ -1210,11 +1210,12 @@ int main(int argc, char *argv[]) {
     thread(tox_thread, NULL);
 
     /* load atoms */
-    wm_protocols = XInternAtom(display, "WM_PROTOCOLS", 0);
+    wm_protocols     = XInternAtom(display, "WM_PROTOCOLS", 0);
     wm_delete_window = XInternAtom(display, "WM_DELETE_WINDOW", 0);
+    XA_CLIPBOARD     = XInternAtom(display, "CLIPBOARD", 0);
+    XA_NET_NAME      = XInternAtom(display, "_NET_WM_NAME", 0),
+    XA_UTF8_STRING   = XInternAtom(display, "UTF8_STRING", 1);
 
-    XA_CLIPBOARD = XInternAtom(display, "CLIPBOARD", 0);
-    XA_UTF8_STRING = XInternAtom(display, "UTF8_STRING", 1);
     if(XA_UTF8_STRING == None) {
         XA_UTF8_STRING = XA_STRING;
     }

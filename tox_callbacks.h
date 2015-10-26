@@ -99,11 +99,20 @@ static void callback_read_receipt(Tox *UNUSED(tox), uint32_t fid, uint32_t recei
 }
 
 static void callback_connection_status(Tox *tox, uint32_t fid, TOX_CONNECTION status, void *UNUSED(userdata) ){
-    // todo call avatar sending
-
+    if (friend[fid].online && !status) {
+        ft_friend_offline(tox, fid);
+        if (friend[fid].call_state_self) {
+            utox_av_local_disconnect(NULL, fid); /* TODO HACK, toxav doesn't supply a toxav_get_toxav_from_otx() yet. */
+        }
+        friend[fid].online = 0;
+    } else if (!friend[fid].online && !!status) {
+        ft_friend_online(tox, fid);
+        /* resend avatar info (in case it changed) */
+        /* Avatars must be sent LAST or they will clobber existing file transfers! */
+        avatar_on_friend_online(tox, fid);
+        friend[fid].online = 1;
+    }
     postmessage(FRIEND_ONLINE, fid, !!status, NULL);
-    tox_postmessage(TOX_FRIEND_ONLINE, fid, !!status, NULL);
-
 
     if(status == TOX_CONNECTION_UDP) {
         debug("Friend-%u:\tOnline (UDP)\n", fid);

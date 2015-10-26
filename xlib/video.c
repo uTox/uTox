@@ -53,16 +53,14 @@ void video_begin(uint32_t id, char_t *name, STRING_IDX name_length, uint16_t wid
         return;
     }
 
-    *win = XCreateSimpleWindow(display, RootWindow(display, screen), 0, 0, width, height, 0, BlackPixel(display, screen), WhitePixel(display, screen));
+    *win = XCreateSimpleWindow(display, RootWindow(display, screen),
+                               0, 0, width, height, 0,
+                               BlackPixel(display, screen), WhitePixel(display, screen));
 
     // Fallback name in ISO8859-1.
     XStoreName(display, *win, "Video Preview");
     // UTF-8 name for those WMs that can display it.
-    XChangeProperty(display, *win,
-                    XInternAtom(display, "_NET_WM_NAME", False),
-                    XInternAtom(display, "UTF8_STRING", False),
-                    8, PropModeReplace, name, name_length);
-
+    XChangeProperty(display, *win, XA_NET_NAME, XA_UTF8_STRING, 8, PropModeReplace, name, name_length);
     XSetWMProtocols(display, *win, &wm_delete_window, 1);
 
     /* set WM_CLASS */

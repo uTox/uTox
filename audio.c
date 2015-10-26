@@ -336,7 +336,8 @@ void audio_thread(void *args){
                     if(device_in) {
                         alccapturestart(device_in);
                         record_on = 1;
-                        debug("Starting Audio Call\n");
+                        debug("Listening to audio\n");
+                        yieldcpu(20);
                     }
                 }
                 break;

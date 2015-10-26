@@ -577,9 +577,9 @@ void tox_thread(void *UNUSED(args)) {
         tox_thread_init = 1;
 
         // Start the treads
+        thread(toxav_thread, av);
         thread(audio_thread, av);
         thread(video_thread, av);
-        thread(toxav_thread, av);
 
         //
         _Bool connected = 0;
@@ -650,6 +650,15 @@ void tox_thread(void *UNUSED(args)) {
     debug("Tox tread:\tClean exit!\n");
 }
 
+/** General recommendations for working with threads in uTox
+ *
+ * There are two main threads, the tox worker thread, that interacts with Toxcore, and receives the callbacks. The other
+ * is the 'uTox' thread that interacts with the user, (rather sends information to the GUI.) The tox thread and the uTox
+ * thread may interact with each other, as you see fit. However the Toxcore thread has child threads that are a bit
+ * temperamental. The ToxAV thread is a child of the Toxcore thread, and therefor will ideally only be called by the tox
+ * thread. The ToxAV thread also has two children of it's own, an audio and a video thread. Both a & v threads should
+ * only be called by the ToxAV thread to avoid deadlocks.
+ */
 static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
                                uint32_t param1, uint32_t param2, void *data) {
     switch(msg) {
@@ -770,20 +779,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
             break;
         }
         case TOX_FRIEND_ONLINE: {
-            if(!param2) {
-                ft_friend_offline(tox, param1);
-                if (friend[param1].call_state_self) {
-                    utox_av_local_disconnect(av, param1);
-                }
-            } else {
-                if (!friend[param1].online) {
-                    ft_friend_online(tox, param1);
-                    /* resend avatar info (in case it changed) */
-                    /* Avatars must be sent LAST or they will clobber existing file transfers! */
-                    avatar_on_friend_online(tox, param1);
-                    friend[param1].online = 1;
-                }
-            }
+            /* Moved to the call back... */
             break;
         }
 
@@ -984,18 +980,19 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
                         break;
                     }
                     case TOXAV_ERR_CALL_FRIEND_ALREADY_IN_CALL: {
-                        /* This shouldn't happen, but just in case toxav gets a call before uTox gets this message */
+                        /* This shouldn't happen, but just in case toxav gets a call before uTox gets this message we
+                         * can just pretend like we're answering a call... */
                         debug("Tox:\tError making call to friend %u; Already in call.\n", param1);
                         debug("Tox:\tForwarding and accepting call!\n");
 
                         TOXAV_ERR_ANSWER ans_error = 0;
-
-                        toxaudio_postmessage(AUDIO_STOP_RINGTONE, param1, 0, NULL);
                         toxav_answer(av, param1, UTOX_DEFAULT_BITRATE_A, v_bitrate, &ans_error);
-
                         if (error) {
                             debug("uTox:\tError trying to toxav_answer error (%i)\n", error);
                         } else {
+                            if (param2) {
+                                postmessage(AV_OPEN_WINDOW, param1, 0, NULL);
+                            }
                             toxav_postmessage(UTOXAV_START_CALL, param1, param2, NULL);
                         }
                         postmessage(AV_CALL_ACCEPTED, param1, 0, NULL);
@@ -1014,11 +1011,15 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
                     }
                 }
             } else {
+                if (param2) {
+                    postmessage(AV_OPEN_WINDOW, param1, 0, NULL);
+                }
                 toxav_postmessage(UTOXAV_START_CALL, param1, param2, NULL);
+                postmessage(AV_CALL_RINGING, param1, param2, NULL);
             }
             break;
         }
-        case TOX_CALL_INCOMING:{
+        case TOX_CALL_INCOMING:{ /* This is a call back, todo remove */
             break;
         }
         case TOX_CALL_ANSWER: {
@@ -1036,12 +1037,14 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
                 debug("uTox:\tAnswering audio call.\n");
             }
 
-            toxaudio_postmessage(AUDIO_STOP_RINGTONE, param1, 0, NULL);
             toxav_answer(av, param1, UTOX_DEFAULT_BITRATE_A, v_bitrate, &error);
 
             if (error) {
                 debug("uTox:\tError trying to toxav_answer error (%i)\n", error);
             } else {
+                if (param2) {
+                    postmessage(AV_OPEN_WINDOW, param1, 0, NULL);
+                }
                 toxav_postmessage(UTOXAV_START_CALL, param1, param2, NULL);
             }
             postmessage(AV_CALL_ACCEPTED, param1, 0, NULL);
@@ -1074,9 +1077,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
         case TOX_CALL_DISCONNECT: {
             /* param1: friend_number
              */
-            if (friend[param1].call_state_self || friend[param1].call_state_friend) {
-                toxav_postmessage(UTOXAV_END_CALL, param1, param2, NULL);
-            }
+            utox_av_local_disconnect(av, param1);
             break;
         }
 
@@ -1557,7 +1558,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
                data: packaged frame data */
 
             utox_frame_pkg *frame = data;
-            if ( UTOX_ACCEPTING_VIDEO(param1 - 1) || param2 ) {
+            if (UTOX_ACCEPTING_VIDEO(param1 - 1) || param2) {
                 video_frame(param1, frame->img, frame->w, frame->h, 0);
                 // TODO re-enable the resize option, disabled for reasons
             }
@@ -1566,7 +1567,21 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             redraw();
             break;
         }
-
+        case AV_OPEN_WINDOW: {
+            if (video_width && video_height) {
+                STRING *s = SPTR(WINDOW_TITLE_VIDEO_PREVIEW);
+                video_begin(param1 + 1, s->str, s->length, video_width, video_height);
+                debug("uTox:\tCreating Video Frame\n");
+            } else {
+                debug("uTox:\tCan't create video frame for a 0 by 0 image\n");
+            }
+            break;
+        }
+        case AV_CLOSE_WINDOW: {
+            video_end(param1 + 1);
+            debug("uTox:\tClosing video feed\n");
+            break;
+        }
         /* Group chat functions */
         case GROUP_ADD: {
             GROUPCHAT *g = &group[param1];

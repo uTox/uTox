@@ -153,22 +153,22 @@ static void button_audiopreview_update(BUTTON *b) {
 
 static void button_videopreview_onpress(void) {
     if (video_preview) {
-        video_preview = 0;
-        video_end(0);
-        toxvideo_postmessage(VIDEO_PREVIEW_END, 0, 0, NULL);
+        postmessage(AV_CLOSE_WINDOW, 0, 0, NULL);
+        toxvideo_postmessage(VIDEO_PREVIEW_STOP, 0, 0, NULL);
     } else if (video_width) {
-        STRING *s = SPTR(WINDOW_TITLE_VIDEO_PREVIEW);
-        video_begin(0, s->str, s->length, video_width, video_height);
+        postmessage(AV_OPEN_WINDOW, 0, 0, NULL);
         toxvideo_postmessage(VIDEO_PREVIEW_START, 0, 0, NULL);
-        video_preview = 1;
+    } else {
+        debug("Button:\t video_width = 0, can't preview\n");
     }
 }
 
 static void button_videopreview_update(BUTTON *b) {
-    if (video_preview)
+    if (video_preview) {
         button_setcolors_danger(b);
-    else
+    } else {
         button_setcolors_success(b);
+    }
 }
 
 static void button_send_friend_request_onpress(void) {

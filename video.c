@@ -38,108 +38,97 @@ void video_thread(void *args) {
     ToxAV *av = args;
 
     void *video_device;
-    _Bool video = 0;
-    uint8_t video_count = 0;
-    _Bool video_on = 0;
-    _Bool preview = 0, newinput = 1;
+    _Bool video_device_ready = 0,
+          video_active = 0;
+    uint16_t video_count = 0;
 
     // Add always-present null video input device.
     postmessage(VIDEO_IN_DEVICE, STR_VIDEO_IN_NONE, 1, NULL);
 
     video_device = video_detect();
-    if(video_device) {
-        video = openvideodevice(video_device);
+    if (video_device) {
+        video_device_ready = openvideodevice(video_device);
     }
 
     video_thread_init = 1;
 
-    while(1) {
-        if(video_thread_msg) {
+    while (1) {
+        if (video_thread_msg) {
             TOX_MSG *m = &video_msg;
             if (!m->msg) {
                 break;
             }
-            switch(m->msg) {
+            switch (m->msg) {
                 case VIDEO_SET: {
-                    if (video_on) {
+                    if (video_active) {
                         video_endread();
                     }
 
-                    if (video) {
+                    if (video_device_ready) {
                         closevideodevice(video_device);
                     }
 
                     video_device = m->data;
                     if(video_device == NULL) {
-                        video = 0;
-                        video_on = 0;
+                        video_device_ready = 0;
+                        video_active = 0;
                         if (!m->param1) {
                             break;
                         }
                     }
 
-                    video = openvideodevice(video_device);
-                    if (video) {
+                    video_device_ready = openvideodevice(video_device);
+                    if (video_device_ready) {
                         if (video_count) {
-                            video_on = video_startread();
+                            video_active = video_startread();
                         }
                     } else {
-                        video_on = 0;
+                        video_active = 0;
+                        video_count  = 0;
                     }
 
-                    newinput = 1;
                     debug("uToxVID:\tChanged video input device\n");
                     break;
                 }
                 case VIDEO_PREVIEW_START: {
-                    video_count++;
-                    preview = 1;
-                    m->param1--;
                     debug("uToxVID:\tStarting video preview\n");
+                    video_preview = 1;
                 }
-                case VIDEO_START: {
+                case VIDEO_RECORD_START: {
                     if ( video_width && video_height ) {
                         video_count++;
-                        STRING *s = SPTR(WINDOW_TITLE_VIDEO_PREVIEW);
-                        video_begin(m->param1 + 1, s->str, s->length, video_width, video_height);
-                        if (video && !video_on) {
-                            video_on = video_startread();
+                        if (video_count && !video_active) {
+                            video_active = video_startread();
                         }
                     } else {
                         debug("uTox Vid:\tCan't start video for a 0 by 0 frame\n");
                     }
-                    debug("uToxVID:\tStarting video feed\n");
+                    debug("uToxVID:\tStarting video feed (%i)\n", video_count);
                     break;
                 }
-                case VIDEO_PREVIEW_END: {
-                    video_count--;
-                    preview = 0;
-                    if (!video_count && video_on) {
-                        video_endread();
-                        video_on = 0;
-                    }
-                    video_end(0);
+                case VIDEO_PREVIEW_STOP: {
                     debug("uToxVID:\tClosing video preview\n");
-                    break;
+                    video_preview = 0;
                 }
-                case VIDEO_END: {
+                case VIDEO_RECORD_STOP: {
                     video_count--;
-                    if (!video_count || video_on) {
+                    debug("uToxVID:\tEnd of video record... (%i)\n", video_count);
+                    if (!video_count && video_active) {
+                        debug("uToxVID:\tLast video feed close, ending read.\n");
                         video_endread();
-                        video_on = 0;
+                        video_active = 0;
+
                     }
-                    video_end(m->param1 + 1);
-                    debug("uToxVID:\tClosing video feed\n");
                     break;
                 }
             }
             video_thread_msg = 0;
         }
 
-        if (video_on) {
+        if (video_active) {
             int r = video_getframe(utox_video_frame.y, utox_video_frame.u, utox_video_frame.v, utox_video_frame.w, utox_video_frame.h);
             if (r == 1) {
-                if (preview) {
+                if (video_preview) {
                     /* Make a copy of the video frame for uTox to display */
                     utox_frame_pkg *frame = malloc(sizeof(*frame));
                     frame->w   = utox_video_frame.w;
@@ -151,7 +140,6 @@ void video_thread(void *args) {
                                 utox_video_frame.w, (utox_video_frame.w / 2), (utox_video_frame.w / 2), frame->img);
 
                     postmessage(AV_VIDEO_FRAME, 0, 1, (void*)frame);
-                    newinput = 0;
                 }
 
                 int i, active_video_count = 0;
@@ -184,8 +172,8 @@ void video_thread(void *args) {
                     }
                 }
             } else if(r == -1) {
-                video_on = 0;
-                video = 0;
+                video_active = 0;
+                video_device_ready = 0;
                 video_endread();
                 closevideodevice(video_device);
             }
@@ -194,11 +182,11 @@ void video_thread(void *args) {
         yieldcpu(5);
     }
 
-    if (video_on) {
+    if (video_active) {
         video_endread();
     }
 
-    if (video) {
+    if (video_device_ready) {
         closevideodevice(video_device);
     }
 

@@ -1,4 +1,15 @@
-/* toxav thread messages (sent from the client thread) */
+/* toxav thread messages (sent from the client thread to the audio or video thread) */
+
+/* utox av thread commands */
+enum {
+    UTOXAV_KILL,
+    UTOXAV_START_CALL,
+    UTOXAV_END_CALL,
+    UTOXAV_START_PREVIEW,
+    UTOXAV_END_PREVIEW,
+
+};
+
 enum {
     AUDIO_KILL,
     AUDIO_START,
@@ -15,11 +26,11 @@ enum {
 
 enum {
     VIDEO_KILL,
-    VIDEO_START,
-    VIDEO_END,
+    VIDEO_RECORD_START,
+    VIDEO_RECORD_STOP,
     VIDEO_SET,
     VIDEO_PREVIEW_START,
-    VIDEO_PREVIEW_END,
+    VIDEO_PREVIEW_STOP,
 };
 
 void toxav_postmessage(uint8_t msg, uint32_t param1, uint32_t param2, void *data);

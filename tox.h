@@ -113,6 +113,8 @@ enum {
     AV_CALL_ACCEPTED,
     AV_CALL_DISCONNECTED,
     AV_VIDEO_FRAME, // 30
+    AV_OPEN_WINDOW,
+    AV_CLOSE_WINDOW,
 
     /* Group interactions, commented out for the new groupchats (coming soon maybe?) */
     GROUP_ADD,
@@ -129,13 +131,6 @@ enum {
 struct TOX_SEND_INLINE_MSG {
     size_t image_size;
     UTOX_PNG_IMAGE image;
-};
-
-/* utox av thread commands */
-enum {
-    UTOXAV_KILL,
-    UTOXAV_START_CALL,
-    UTOXAV_END_CALL,
 };
 
 /* AV STATUS LIST */
