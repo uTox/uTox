@@ -72,6 +72,8 @@ void video_thread(void *args) {
                     if(video_device == NULL) {
                         video_device_ready = 0;
                         video_active = 0;
+                        video_width = 0;
+                        video_height = 0;
                         if (!m->param1) {
                             break;
                         }
@@ -109,6 +111,7 @@ void video_thread(void *args) {
                 case VIDEO_PREVIEW_STOP: {
                     debug("uToxVID:\tClosing video preview\n");
                     video_preview = 0;
+                    postmessage(AV_CLOSE_WINDOW, 0, 0, NULL);
                 }
                 case VIDEO_RECORD_STOP: {
                     video_count--;
@@ -160,15 +163,6 @@ void video_thread(void *args) {
                                 break;
                             }
                         }
-                    } else if (UTOX_SENDING_VIDEO(i) && !UTOX_AVAILABLE_VIDEO(i)) {
-                        utox_frame_pkg *frame = malloc(sizeof(*frame));
-                        frame->w = utox_video_frame.w;
-                        frame->h = utox_video_frame.h;
-                        frame->img = malloc(frame->w * frame->h * 4);
-                        yuv420tobgr(utox_video_frame.w, utox_video_frame.h,
-                                utox_video_frame.y, utox_video_frame.u, utox_video_frame.v,
-                                utox_video_frame.w, (utox_video_frame.w / 2), (utox_video_frame.w / 2), frame->img);
-                        postmessage(AV_VIDEO_FRAME, i + 1, 1, (void*)frame);
                     }
                 }
             } else if(r == -1) {

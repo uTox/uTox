@@ -1,6 +1,6 @@
 void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height, _Bool resize) {
     if (!video_win[id]) {
-        debug("frame for null window\n");
+        debug("frame for null window %u\n", id);
         return;
     }
 
@@ -72,6 +72,7 @@ void video_begin(uint32_t id, char_t *name, STRING_IDX name_length, uint16_t wid
     XSetClassHint(display, *win, &hint);
 
     XMapWindow(display, *win);
+    debug("new window %u\n", id);
 }
 
 void video_end(uint32_t id) {
@@ -81,6 +82,7 @@ void video_end(uint32_t id) {
 
     XDestroyWindow(display, video_win[id]);
     video_win[id] = None;
+    debug("killed window %u\n", id);
 }
 
 Display *deskdisplay;

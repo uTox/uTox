@@ -153,11 +153,9 @@ static void button_audiopreview_update(BUTTON *b) {
 
 static void button_videopreview_onpress(void) {
     if (video_preview) {
-        postmessage(AV_CLOSE_WINDOW, 0, 0, NULL);
-        toxvideo_postmessage(VIDEO_PREVIEW_STOP, 0, 0, NULL);
-    } else if (video_width) {
-        postmessage(AV_OPEN_WINDOW, 0, 0, NULL);
-        toxvideo_postmessage(VIDEO_PREVIEW_START, 0, 0, NULL);
+        toxav_postmessage(UTOXAV_END_PREVIEW, 0, 0, NULL);
+    } else if (video_width && video_height) {
+        toxav_postmessage(UTOXAV_START_PREVIEW, 0, 0, NULL);
     } else {
         debug("Button:\t video_width = 0, can't preview\n");
     }

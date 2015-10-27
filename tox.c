@@ -990,9 +990,6 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
                         if (error) {
                             debug("uTox:\tError trying to toxav_answer error (%i)\n", error);
                         } else {
-                            if (param2) {
-                                postmessage(AV_OPEN_WINDOW, param1, 0, NULL);
-                            }
                             toxav_postmessage(UTOXAV_START_CALL, param1, param2, NULL);
                         }
                         postmessage(AV_CALL_ACCEPTED, param1, 0, NULL);
@@ -1011,9 +1008,6 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
                     }
                 }
             } else {
-                if (param2) {
-                    postmessage(AV_OPEN_WINDOW, param1, 0, NULL);
-                }
                 toxav_postmessage(UTOXAV_START_CALL, param1, param2, NULL);
                 postmessage(AV_CALL_RINGING, param1, param2, NULL);
             }
@@ -1042,9 +1036,6 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
             if (error) {
                 debug("uTox:\tError trying to toxav_answer error (%i)\n", error);
             } else {
-                if (param2) {
-                    postmessage(AV_OPEN_WINDOW, param1, 0, NULL);
-                }
                 toxav_postmessage(UTOXAV_START_CALL, param1, param2, NULL);
             }
             postmessage(AV_CALL_ACCEPTED, param1, 0, NULL);
@@ -1559,6 +1550,8 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
 
             utox_frame_pkg *frame = data;
             if (UTOX_ACCEPTING_VIDEO(param1 - 1) || param2) {
+                STRING *s = SPTR(WINDOW_TITLE_VIDEO_PREVIEW);
+                video_begin(param1, s->str, s->length, frame->w, frame->h);
                 video_frame(param1, frame->img, frame->w, frame->h, 0);
                 // TODO re-enable the resize option, disabled for reasons
             }
@@ -1567,18 +1560,8 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             redraw();
             break;
         }
-        case AV_OPEN_WINDOW: {
-            if (video_width && video_height) {
-                STRING *s = SPTR(WINDOW_TITLE_VIDEO_PREVIEW);
-                video_begin(param1 + 1, s->str, s->length, video_width, video_height);
-                debug("uTox:\tCreating Video Frame\n");
-            } else {
-                debug("uTox:\tCan't create video frame for a 0 by 0 image\n");
-            }
-            break;
-        }
         case AV_CLOSE_WINDOW: {
-            video_end(param1 + 1);
+            video_end(param1);
             debug("uTox:\tClosing video feed\n");
             break;
         }

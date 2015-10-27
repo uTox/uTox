@@ -48,9 +48,11 @@ void toxav_thread(void *args) {
                     break;
                 }
                 case UTOXAV_START_PREVIEW: {
+                    toxvideo_postmessage(VIDEO_PREVIEW_START, 0, 0, NULL);
                     break;
                 }
                 case UTOXAV_END_PREVIEW: {
+                    toxvideo_postmessage(VIDEO_PREVIEW_STOP, 0, 0, NULL);
                     break;
                 }
             }
@@ -82,7 +84,7 @@ static void utox_av_remote_disconnect(ToxAV *av, int32_t friend_number) {
     toxav_postmessage(UTOXAV_END_CALL, friend_number, 0, NULL);
     friend[friend_number].call_state_self = 0;
     friend[friend_number].call_state_friend = 0;
-    postmessage(AV_CLOSE_WINDOW, friend_number, 0, NULL);
+    postmessage(AV_CLOSE_WINDOW, friend_number + 1, 0, NULL);
     postmessage(AV_CALL_DISCONNECTED, friend_number, 0, NULL);
 }
 
@@ -117,7 +119,7 @@ void utox_av_local_disconnect(ToxAV *av, int32_t friend_number) {
     toxav_postmessage(UTOXAV_END_CALL, friend_number, 0, NULL);
     friend[friend_number].call_state_self   = 0;
     friend[friend_number].call_state_friend = 0;
-    postmessage(AV_CLOSE_WINDOW, friend_number, 0, NULL);
+    postmessage(AV_CLOSE_WINDOW, friend_number + 1, 0, NULL);
     postmessage(AV_CALL_DISCONNECTED, friend_number, 0, NULL);
 }
 
