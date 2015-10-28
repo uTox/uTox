@@ -227,7 +227,7 @@ static void button_group_audio_update(BUTTON *b) {
 static void button_call_audio_onpress(void) {
     FRIEND *f = selected_item->data;
     if (f->call_state_self) {
-        if (UTOX_SENDING_VIDEO(f->number)) {
+        if (UTOX_SENDING_AUDIO(f->number)) {
             debug("Ending call: %u\n", f->number);
             /* var 3/4 = bool send video */
             tox_postmessage(TOX_CALL_DISCONNECT,  f->number, 0, NULL);
@@ -269,7 +269,7 @@ static void button_call_audio_update(BUTTON *b) {
 static void button_call_video_onpress(void) {
     FRIEND *f = selected_item->data;
     if (f->call_state_self) {
-        if (UTOX_SENDING_VIDEO(f->number)) {
+        if (SELF_ACCEPT_VIDEO(f->number)) {
             debug("Canceling call (video): %u\n", f->number);
             tox_postmessage(TOX_CALL_DISCONNECT,  f->number, 1, NULL);
         } else if (UTOX_SENDING_AUDIO(f->number)) {
@@ -280,9 +280,11 @@ static void button_call_video_onpress(void) {
             tox_postmessage(TOX_CALL_DISCONNECT, f->number, 1, NULL);
         }
     } else if (f->call_state_friend) {
-        if (UTOX_AVAILABLE_VIDEO(f->number)) {
+        if (FRIEND_SENDING_VIDEO(f->number)) {
             debug("Accept Call (video): %u\n", f->number);
             tox_postmessage(TOX_CALL_ANSWER, f->number, 1, NULL);
+        } else {
+            debug("Friend, but not good\n");
         }
     } else {
         if (f->online) {
@@ -294,10 +296,10 @@ static void button_call_video_onpress(void) {
 
 static void button_call_video_update(BUTTON *b) {
     FRIEND *f = selected_item->data;
-    if (UTOX_SENDING_VIDEO(f->number)) {
+    if (SELF_SEND_VIDEO(f->number)) {
         button_setcolors_danger(b);
         b->disabled = 0;
-    } else if (UTOX_AVAILABLE_VIDEO(f->number)) {
+    } else if (FRIEND_SENDING_VIDEO(f->number)) {
         button_setcolors_warning(b);
         b->disabled = 0;
     } else {

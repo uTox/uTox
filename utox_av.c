@@ -134,11 +134,13 @@ void utox_av_local_call_control(ToxAV *av, uint32_t friend_number, TOXAV_CALL_CO
             case TOXAV_CALL_CONTROL_HIDE_VIDEO: {
                 toxav_bit_rate_set(av, friend_number, -1, 0, &bitrate_err);
                 toxvideo_postmessage(VIDEO_RECORD_STOP, friend_number, 0, NULL);
+                friend[friend_number].call_state_self &= (0xFF ^ TOXAV_FRIEND_CALL_STATE_SENDING_V);
                 break;
             }
             case TOXAV_CALL_CONTROL_SHOW_VIDEO: {
                 toxav_bit_rate_set(av, friend_number, -1, UTOX_DEFAULT_BITRATE_V, &bitrate_err);
                 toxvideo_postmessage(VIDEO_RECORD_START, friend_number, 0, NULL);
+                friend[friend_number].call_state_self |= TOXAV_FRIEND_CALL_STATE_SENDING_V;
                 break;
             }
             default: {
@@ -206,34 +208,46 @@ static void utox_callback_av_change_state(ToxAV *av, uint32_t friend_number, uin
         /* First accepted call back */
         debug("uToxAV:\tFriend accepted call\n");
         friend[friend_number].call_state_friend = state;
-        if ( UTOX_SENDING_VIDEO(friend_number) && !UTOX_AVAILABLE_VIDEO(friend_number)) {
+        if (SELF_SEND_VIDEO(friend_number) && !FRIEND_ACCEPTING_VIDEO(friend_number)) {
             utox_av_local_call_control(av, friend_number, TOXAV_CALL_CONTROL_HIDE_VIDEO);
-            friend[friend_number].call_state_self ^= TOXAV_FRIEND_CALL_STATE_SENDING_V;
         }
         postmessage(AV_CALL_ACCEPTED, friend_number, 0, NULL);
     }
 
-    int state_audio = (state | (TOXAV_FRIEND_CALL_STATE_SENDING_A | TOXAV_FRIEND_CALL_STATE_ACCEPTING_A));
-    int state_video = (state | (TOXAV_FRIEND_CALL_STATE_SENDING_V | TOXAV_FRIEND_CALL_STATE_ACCEPTING_V));
-
-    if ((friend[friend_number].call_state_friend ^ state_audio)) {
-        debug("uToxAV:\tAudio state change %i for %u\n", state, friend_number);
-        friend[friend_number].call_state_friend = state;
-        // do change
-        // start audio
-        // stop audio
+    if (friend[friend_number].call_state_friend ^ (state & TOXAV_FRIEND_CALL_STATE_SENDING_A)) {
+        if (state & TOXAV_FRIEND_CALL_STATE_SENDING_A) {
+            debug("uToxAV:\tFriend %u is now sending audio.\n", friend_number);
+        } else {
+            debug("uToxAV:\tFriend %u is no longer sending audio.\n", friend_number);
+        }
+    }
+    if (friend[friend_number].call_state_friend ^ (state & TOXAV_FRIEND_CALL_STATE_SENDING_V)) {
+        if (state & TOXAV_FRIEND_CALL_STATE_SENDING_V) {
+            debug("uToxAV:\tFriend %u is now sending video.\n", friend_number);
+        } else {
+            debug("uToxAV:\tFriend %u is no longer sending video.\n", friend_number);
+        }
+    }
+    if (friend[friend_number].call_state_friend ^ (state & TOXAV_FRIEND_CALL_STATE_ACCEPTING_A)) {
+        if (state & TOXAV_FRIEND_CALL_STATE_ACCEPTING_A) {
+            debug("uToxAV:\tFriend %u is now accepting audio.\n", friend_number);
+        } else {
+            debug("uToxAV:\tFriend %u is no longer accepting audio.\n", friend_number);
+        }
+    }
+    if (friend[friend_number].call_state_friend ^ (state & TOXAV_FRIEND_CALL_STATE_ACCEPTING_V)) {
+        if (state & TOXAV_FRIEND_CALL_STATE_ACCEPTING_V) {
+            debug("uToxAV:\tFriend %u is now accepting video.\n", friend_number);
+        } else {
+            debug("uToxAV:\tFriend %u is no longer accepting video.\n", friend_number);
+        }
     }
 
-    if ((friend[friend_number].call_state_friend ^ state_video)) {
-        debug("uToxAV:\tVideo state change %i for %u\n", state, friend_number);
-        friend[friend_number].call_state_friend = state;
-        // start video
-        // stop video
-    }
+    friend[friend_number].call_state_friend = state;
 }
 
-static void utox_incoming_rate_change(ToxAV *toxAV, uint32_t friend_number, uint32_t a_bit_rate, uint32_t v_bit_rate, void *user_data) {
-    debug("ToxAV:\tIncoming audio and/or video rate change, please debug me!\n\tIncoming audio rate change, please debug me!\n\tIncoming audio rate change, please debug me!\n");
+static void utox_incoming_rate_change(ToxAV *toxAV, uint32_t friend_number, uint32_t a_bitrate, uint32_t v_bitrate, void *user_data) {
+    debug("ToxAV:\tNew suggested bitrates: Audio: %u, Video: %u!\n", a_bitrate, v_bitrate);
     return;
 }
 

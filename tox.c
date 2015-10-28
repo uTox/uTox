@@ -1549,7 +1549,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
                data: packaged frame data */
 
             utox_frame_pkg *frame = data;
-            if (UTOX_ACCEPTING_VIDEO(param1 - 1) || param2) {
+            if (ACCEPT_VIDEO_FRAME(param1 - 1) || param2) {
                 STRING *s = SPTR(WINDOW_TITLE_VIDEO_PREVIEW);
                 video_begin(param1, s->str, s->length, frame->w, frame->h);
                 video_frame(param1, frame->img, frame->w, frame->h, 0);

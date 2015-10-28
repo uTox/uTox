@@ -3,17 +3,18 @@
 #define UTOX_DEFAULT_VID_HEIGHT 720
 
 /* Check self */
-#define UTOX_SENDING_VIDEO(f_number)   ( !!(friend[f_number].call_state_self & TOXAV_FRIEND_CALL_STATE_SENDING_V   ))
-#define UTOX_ACCEPTING_VIDEO(f_number) ( !!(friend[f_number].call_state_self & TOXAV_FRIEND_CALL_STATE_ACCEPTING_V ))
+#define SELF_SEND_VIDEO(f_number)        (!!(friend[f_number].call_state_self   & TOXAV_FRIEND_CALL_STATE_SENDING_V  ))
+#define SELF_ACCEPT_VIDEO(f_number)      (!!(friend[f_number].call_state_self   & TOXAV_FRIEND_CALL_STATE_ACCEPTING_V))
 /* Check friend */
-#define UTOX_AVAILABLE_VIDEO(f_number) ( !!(friend[f_number].call_state_friend & TOXAV_FRIEND_CALL_STATE_SENDING_V ))
+#define FRIEND_SENDING_VIDEO(f_number)   (!!(friend[f_number].call_state_friend & TOXAV_FRIEND_CALL_STATE_SENDING_V  ))
+#define FRIEND_ACCEPTING_VIDEO(f_number) (!!(friend[f_number].call_state_friend & TOXAV_FRIEND_CALL_STATE_ACCEPTING_V))
 
 /* Check both */
-#define UTOX_SEND_VIDEO(f_number)   ( !!(friend[f_number].call_state_self   & TOXAV_FRIEND_CALL_STATE_SENDING_V  ) && \
-                                      !!(friend[f_number].call_state_friend & TOXAV_FRIEND_CALL_STATE_ACCEPTING_V) )
+#define SEND_VIDEO_FRAME(f_number)   (!!(friend[f_number].call_state_self   & TOXAV_FRIEND_CALL_STATE_SENDING_V  ) && \
+                                      !!(friend[f_number].call_state_friend & TOXAV_FRIEND_CALL_STATE_ACCEPTING_V)    )
 
-#define UTOX_ACCEPT_VIDEO(f_number) ( !!(friend[f_number].call_state_self   & TOXAV_FRIEND_CALL_STATE_ACCEPTING_V ) && \
-                                      !!(friend[f_number].call_state_friend & TOXAV_FRIEND_CALL_STATE_SENDING_V)  )
+#define ACCEPT_VIDEO_FRAME(f_number) (!!(friend[f_number].call_state_self   & TOXAV_FRIEND_CALL_STATE_ACCEPTING_V) && \
+                                      !!(friend[f_number].call_state_friend & TOXAV_FRIEND_CALL_STATE_SENDING_V)      )
 
 
 typedef struct UTOX_AV_VIDEO_FRAME {

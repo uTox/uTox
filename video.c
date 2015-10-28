@@ -116,6 +116,10 @@ void video_thread(void *args) {
                 case VIDEO_RECORD_STOP: {
                     video_count--;
                     debug("uToxVID:\tEnd of video record... (%i)\n", video_count);
+                    if (video_count > UTOX_MAX_CALLS) {
+                        debug("uToxVID:\tExceeded max calls, abort abort!!");
+                        video_count = 0;
+                    }
                     if (!video_count && video_active) {
                         debug("uToxVID:\tLast video feed close, ending read.\n");
                         video_endread();
@@ -147,15 +151,19 @@ void video_thread(void *args) {
 
                 int i, active_video_count = 0;
                 for (i = 0; i < UTOX_MAX_NUM_FRIENDS; i++) {
-                    if (UTOX_SEND_VIDEO(i)) {
+                    if (SEND_VIDEO_FRAME(i)) {
                         active_video_count++;
                         TOXAV_ERR_SEND_FRAME error = 0;
                         toxav_video_send_frame(av, friend[i].number, utox_video_frame.w, utox_video_frame.h, utox_video_frame.y, utox_video_frame.u, utox_video_frame.v, &error);
 
                         if (error) {
-                            debug("toxav_send_video error %i %u\n", friend[i].number, error);
-                            if (error == 4) {
-                                debug("w and h %u and %u\n", utox_video_frame.w, utox_video_frame.h);
+                            if (error == TOXAV_ERR_SEND_FRAME_SYNC) {
+                                debug("Vid Frame sync error: w=%u h=%u\n", utox_video_frame.w, utox_video_frame.h);
+                            } else if (error == TOXAV_ERR_SEND_FRAME_PAYLOAD_TYPE_DISABLED) {
+                                debug("ToxAV disagrees with our AV state for friend %u, self %u, friend %u\n",
+                                      i, friend[i].call_state_self, friend[i].call_state_friend);
+                            } else {
+                                debug("toxav_send_video error friend: %i error: %u\n", friend[i].number, error);
                             }
                         } else {
                             if (i >= UTOX_MAX_CALLS){
