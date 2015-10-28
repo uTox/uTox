@@ -81,6 +81,7 @@ static void utox_av_incoming_call(ToxAV *av, uint32_t friend_number, bool audio,
 }
 
 static void utox_av_remote_disconnect(ToxAV *av, int32_t friend_number) {
+    debug("uToxAV:\tRemote disconnect from friend %u\n", friend_number);
     toxav_postmessage(UTOXAV_END_CALL, friend_number, 0, NULL);
     friend[friend_number].call_state_self = 0;
     friend[friend_number].call_state_friend = 0;
@@ -204,6 +205,7 @@ static void utox_callback_av_change_state(ToxAV *av, uint32_t friend_number, uin
     } else if ( state == 2 ) {
         debug("uToxAV:\tCall ended with friend_number %u.\n", friend_number);
         utox_av_remote_disconnect(av, friend_number);
+        return;
     } else if (!friend[friend_number].call_state_friend) {
         /* First accepted call back */
         debug("uToxAV:\tFriend accepted call\n");

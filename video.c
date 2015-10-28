@@ -117,7 +117,7 @@ void video_thread(void *args) {
                     video_count--;
                     debug("uToxVID:\tEnd of video record... (%i)\n", video_count);
                     if (video_count > UTOX_MAX_CALLS) {
-                        debug("uToxVID:\tExceeded max calls, abort abort!!");
+                        debug("uToxVID:\tExceeded max calls, abort abort!!\n");
                         video_count = 0;
                     }
                     if (!video_count && video_active) {

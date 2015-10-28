@@ -280,12 +280,8 @@ static void button_call_video_onpress(void) {
             tox_postmessage(TOX_CALL_DISCONNECT, f->number, 1, NULL);
         }
     } else if (f->call_state_friend) {
-        if (FRIEND_SENDING_VIDEO(f->number)) {
-            debug("Accept Call (video): %u\n", f->number);
-            tox_postmessage(TOX_CALL_ANSWER, f->number, 1, NULL);
-        } else {
-            debug("Friend, but not good\n");
-        }
+        debug("Accept Call (video): %u %u\n", f->number, f->call_state_friend);
+        tox_postmessage(TOX_CALL_ANSWER, f->number, 1, NULL);
     } else {
         if (f->online) {
             tox_postmessage(TOX_CALL_SEND, f->number, 1, NULL);

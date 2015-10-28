@@ -428,6 +428,7 @@ void ft_friend_online(Tox *tox, uint32_t friend_number){
 
 /* Friend has gone offline, break our outgoing transfers to this friend. */
 void ft_friend_offline(Tox *tox, uint32_t friend_number){
+    debug("FileTransfer:\tFriend %u has gone offline, breaking transfers\n", friend_number);
     unsigned int i;
     for (i = 0; i < MAX_FILE_TRANSFERS; ++i) {
         utox_break_file(&incoming_transfer[friend_number][i]);
