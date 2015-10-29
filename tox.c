@@ -1643,7 +1643,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
 
             if(tox_message_id == GROUP_PEER_ADD) {
                 if (g->type == TOX_GROUPCHAT_TYPE_AV) {
-                    group_av_peer_add(g, param2);
+                    // todo fix group_av_peer_add(g, param2);
                 }
 
                 if (tox_group_peernumber_is_ours(data, param1, param2)) {
@@ -1664,8 +1664,8 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
                 g->topic_length = sizeof(g->topic) - 1;
             }
 
-            if(selected_item->data != f) {
-                f->notify = 1;
+            if(selected_item->data != g) {
+                g->notify = 1;
             }
 
             redraw();
