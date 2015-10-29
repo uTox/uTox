@@ -78,6 +78,8 @@ _Bool maybe_i18nal_string_is_valid(MAYBE_I18NAL_STRING*);
 #define S(x) (ui_gettext(LANG, (STR_##x))->str)
 #define SLEN(x) (ui_gettext(LANG, (STR_##x))->length)
 #define SPTR(x) (ui_gettext(LANG, (STR_##x)))
+/* if UTOX_STR_WIDTH, is giving you a bad size you've probably changed setfont() from the string you're trying to get
+ * the size of. Either store the size before changing, or swap it -> run UTOX_STR_WIDTH() -> swap back. */
 #define UTOX_STR_WIDTH(x) (textwidth((ui_gettext(LANG, (STR_##x))->str), (ui_gettext(LANG, (STR_##x))->length)))
 #define SPTRFORLANG(l,x) (ui_gettext((l), (x)))
 // Application-wide language setting

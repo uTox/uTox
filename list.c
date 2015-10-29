@@ -91,6 +91,11 @@ static void drawitem(ITEM *i, int UNUSED(x), int y) {
         }
 
         drawname(i, y, g->name, g->topic, g->name_length, g->topic_length, color_overide, color);
+
+        drawalpha(BM_ONLINE, SIDEBAR_WIDTH - SCALE * 12, y + ROSTER_BOX_HEIGHT / 2 - BM_STATUS_WIDTH / 2, BM_STATUS_WIDTH, BM_STATUS_WIDTH, status_color[0]);
+        if (g->notify) {
+            drawalpha(BM_STATUS_NOTIFY, SIDEBAR_WIDTH - SCALE * 13, y + ROSTER_BOX_HEIGHT / 2 - BM_STATUS_NOTIFY_WIDTH / 2, BM_STATUS_NOTIFY_WIDTH, BM_STATUS_NOTIFY_WIDTH, status_color[0]);
+        }
         break;
     }
 
@@ -261,6 +266,8 @@ static void show_page(ITEM *i) {
             edit_setfocus(&edit_msg_group);
 
             g->msg.id = g - group;
+
+            g->notify = 0;
 
             edit_msg_group.history = g->edit_history;
             edit_msg_group.history_cur = g->edit_history_cur;

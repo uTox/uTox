@@ -507,13 +507,13 @@ void tox_thread(void *UNUSED(args)) {
                                                                    options.proxy_type,
                                                                    options.proxy_host,
                                                                    options.proxy_port);
-        if((tox = tox_new(&options, &tox_new_err)) == NULL) {
+        if ((tox = tox_new(&options, &tox_new_err)) == NULL) {
             debug("trying without proxy, err %u\n", tox_new_err);
-            if(!options.proxy_type ||
-               (options.proxy_type = TOX_PROXY_TYPE_NONE, (tox = tox_new(&options, &tox_new_err)) == NULL)) {
+            options.proxy_type = TOX_PROXY_TYPE_NONE;
+            if (!options.proxy_type || ((tox = tox_new(&options, &tox_new_err)) == NULL)) {
                 debug("trying without ipv6, err %u\n", tox_new_err);
-                if(!options.ipv6_enabled ||
-                   (options.ipv6_enabled = 0, (tox = tox_new(&options, &tox_new_err)) == NULL)) {
+                options.ipv6_enabled = 0;
+                if (!options.ipv6_enabled || ((tox = tox_new(&options, &tox_new_err)) == NULL)) {
                     debug("tox_new() failed %u\n", tox_new_err);
                     exit(1);
                 }
@@ -1583,6 +1583,10 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         case GROUP_MESSAGE: {
             GROUPCHAT *g = &group[param1];
 
+            if (selected_item->data != g) {
+                g->notify = 1;
+            }
+
             message_add(&messages_group, data, &g->msg);
 
             if(selected_item && g == selected_item->data) {
@@ -1639,7 +1643,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
 
             if(tox_message_id == GROUP_PEER_ADD) {
                 if (g->type == TOX_GROUPCHAT_TYPE_AV) {
-                    // REMOVED UNTIL AFTER NEW GCs group_av_peer_add(g, param2);
+                    group_av_peer_add(g, param2);
                 }
 
                 if (tox_group_peernumber_is_ours(data, param1, param2)) {
@@ -1651,7 +1655,6 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
                 memcpy(n + 1, "<unknown>", 9);
                 data = n;
                 g->peers++;
-
             }
 
             g->peername[param2] = data;
@@ -1659,6 +1662,10 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             g->topic_length = snprintf((char*)g->topic, sizeof(g->topic), "%u users in chat", g->peers);
             if (g->topic_length >= sizeof(g->topic)) {
                 g->topic_length = sizeof(g->topic) - 1;
+            }
+
+            if(selected_item->data != f) {
+                f->notify = 1;
             }
 
             redraw();

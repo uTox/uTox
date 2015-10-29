@@ -917,7 +917,7 @@ int file_unlock(FILE *file, uint64_t start, size_t length){
  * returns void;
  */
 void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_length, FRIEND *f){
-    if(havefocus) {
+    if( havefocus || self.status == 2 ) {
         return;
     }
 

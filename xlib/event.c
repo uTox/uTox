@@ -178,6 +178,12 @@ _Bool doevent(XEvent event)
         }
 
         case Button3: {
+            if(pointergrab) {
+                XUngrabPointer(display, CurrentTime);
+                pointergrab = 0;
+                break;
+            }
+
             panel_mright(&panel_root);
             break;
         }
@@ -217,6 +223,14 @@ _Bool doevent(XEvent event)
                     int w = graby - grabpy;
                     graby = grabpy;
                     grabpy = w;
+                }
+
+                /* enforce min size */
+
+                if ( grabpx * grabpy < 100 ) {
+                    pointergrab = 0;
+                    XUngrabPointer(display, CurrentTime);
+                    break;
                 }
 
                 XDrawRectangle(display, RootWindow(display, screen), grabgc, grabx, graby, grabpx, grabpy);
@@ -271,6 +285,12 @@ _Bool doevent(XEvent event)
     case KeyPress: {
         XKeyEvent *ev = &event.xkey;
         KeySym sym = XLookupKeysym(ev, 0);//XKeycodeToKeysym(display, ev->keycode, 0)
+
+        if(pointergrab && sym == XK_Escape) {
+            XUngrabPointer(display, CurrentTime);
+            pointergrab = 0;
+            break;
+        }
 
         wchar_t buffer[16];
         int len;

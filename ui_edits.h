@@ -44,6 +44,10 @@ static void edit_status_onenter(EDIT *edit)
     tox_postmessage(TOX_SELF_SET_STATUS, length, 0, self.statusmsg);//!
 }
 
+static void edit_add_new_contact(EDIT *edit) {
+    friend_add(edit_add_id.data, edit_add_id.length, edit_add_msg.data, edit_add_msg.length);
+}
+
 static void edit_msg_onenter(EDIT *edit)
 {
     char_t *text = edit->data;
@@ -472,6 +476,7 @@ edit_status = {
 edit_add_id = {
     .maxlength = sizeof(edit_addid_data),
     .data = edit_addid_data,
+    .onenter = edit_add_new_contact,
 },
 
 edit_add_msg = {

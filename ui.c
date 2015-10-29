@@ -203,7 +203,16 @@ static void draw_add_friend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int hei
     setfont(FONT_TEXT);
     drawstr(MAIN_LEFT + SCALE * 5, LIST_Y + SCALE * 5, TOXID);
 
+
+
     drawstr(MAIN_LEFT + SCALE * 5, LIST_Y + SCALE * 29, MESSAGE);
+
+    if (options.proxy_type) {
+        int push = UTOX_STR_WIDTH(TOXID);
+        setfont(FONT_MISC);
+        setcolor(C_RED);
+        drawstr(MAIN_LEFT + SCALE * 10 + push, LIST_Y + SCALE * 6, DNS_DISABLED);
+    }
 
     if (addfriend_status) {
         setfont(FONT_MISC);
@@ -520,7 +529,7 @@ panel_side_bar = {
     },
         panel_search_filter = {
             .type = PANEL_NONE,
-            .disabled = 0,
+            .disabled = 1,
             .drawfunc = draw_user_badge,
             .child = (PANEL*[]) {
                 (void*)&edit_search,
@@ -529,7 +538,7 @@ panel_side_bar = {
         },
         panel_quick_buttons = {
             .type = PANEL_NONE,
-            .disabled = 1,
+            .disabled = 0,
             .drawfunc = draw_user_badge,
             .child = (PANEL*[]) {
                 (void*)&button_add_new_contact,
@@ -619,7 +628,6 @@ panel_main = {
             NULL
         }
     },
-
         panel_add_friend = {
             .type = PANEL_NONE,
             .disabled = 1,
@@ -630,7 +638,6 @@ panel_main = {
                 NULL
             }
         },
-
         panel_settings_master = {
             .type = PANEL_NONE,
             .disabled = 0,
@@ -640,7 +647,6 @@ panel_main = {
                 NULL
             }
         },
-
             panel_settings_subheader = {
                 .type = PANEL_NONE,
                 .disabled = 0,
