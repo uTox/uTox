@@ -764,9 +764,13 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
             FRIENDREQ *req = data;
             TOX_ERR_FRIEND_ADD f_err;
             uint32_t fid = tox_friend_add_norequest(tox, req->id, &f_err);
-            utox_friend_init(tox, fid);
-            postmessage(FRIEND_ACCEPT_REQUEST, (f_err != TOX_ERR_FRIEND_ADD_OK),
-                                               (f_err != TOX_ERR_FRIEND_ADD_OK) ? 0 : fid, req);
+            if (!f_err) {
+                utox_friend_init(tox, fid);
+                postmessage(FRIEND_ACCEPT_REQUEST, (f_err != TOX_ERR_FRIEND_ADD_OK),
+                                                   (f_err != TOX_ERR_FRIEND_ADD_OK) ? 0 : fid, req);
+            } else {
+                debug("uTox:\tUnable to accept friend %u, error num = %i\n", req->id, fid);
+            }
             save_needed = 1;
             break;
         }
@@ -1483,6 +1487,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
                 FRIENDREQ *req = data;
                 friends++;
                 list_addfriend2(f, req);
+                list_reselect_current();
                 redraw();
             }
 

@@ -25,6 +25,11 @@ typedef struct friend {
     FRIEND_META_DATA metadata;
 } FRIEND;
 
+typedef struct {
+    uint16_t length;
+    uint8_t id[TOX_FRIEND_ADDRESS_SIZE], msg[0];
+} FRIENDREQ;
+
 
 #define friend_id(f) (f -  friend)
 

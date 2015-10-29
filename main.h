@@ -87,11 +87,6 @@ typedef struct {
 // Structs
 
 typedef struct {
-    uint16_t length;
-    uint8_t id[TOX_FRIEND_ADDRESS_SIZE], msg[0];
-} FRIENDREQ;
-
-typedef struct {
     // Castless wrapper for lodepng data arguments.
     unsigned char png_data[0];
 } *UTOX_PNG_IMAGE;

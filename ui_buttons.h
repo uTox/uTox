@@ -326,7 +326,6 @@ static void button_accept_friend_onpress(void) {
     FRIENDREQ *req = selected_item->data;
     tox_postmessage(TOX_FRIEND_ACCEPT, 0, 0, req);
     panel_friend_request.disabled = 1;
-    // list_reselect_current();
 }
 
 static void contextmenu_avatar_onselect(uint8_t i) {
