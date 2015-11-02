@@ -1485,7 +1485,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
             if(hwn == video_hwnd[0]) {
                 if(video_preview) {
                     video_preview = 0;
-                    toxvideo_postmessage(VIDEO_PREVIEW_END, 0, 0, NULL);
+                    toxvideo_postmessage(VIDEO_PREVIEW_STOP, 0, 0, NULL);
                 }
 
                 return 0;
