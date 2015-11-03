@@ -179,7 +179,7 @@ void openurl(char_t *str) {
     } else /* it's a path */ {
         url = [NSURL fileURLWithPath:urls];
     }
-    
+
     [[NSWorkspace sharedWorkspace] openURL:url];
     [urls release];
 }
@@ -250,7 +250,7 @@ int datapath_subdir(uint8_t *dest, const char *subdir) {
     l += sprintf((char*)(dest+l), "%s", subdir);
     mkdir((char*)dest, 0700);
     dest[l++] = '/';
-    
+
     return l;
 }
 
@@ -464,7 +464,7 @@ void launch_at_startup(int should) {
 - (void)applicationWillTerminate:(NSNotification *)notification {
     toxaudio_postmessage(AUDIO_KILL, 0, 0, NULL);
     toxvideo_postmessage(VIDEO_KILL, 0, 0, NULL);
-    toxav_postmessage(TOXAV_KILL, 0, 0, NULL);
+    toxav_postmessage(UTOXAV_KILL, 0, 0, NULL);
     tox_postmessage(TOX_KILL, 0, 0, NULL);
 
     UTOX_SAVE d = {

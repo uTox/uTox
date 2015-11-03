@@ -14,9 +14,7 @@ _Bool doevent(XEvent event)
             XClientMessageEvent *ev = &event.xclient;
             if((Atom)event.xclient.data.l[0] == wm_delete_window) {
                 if(ev->window == video_win[0]) {
-                    video_end(0);
-                    video_preview = 0;
-                    toxvideo_postmessage(VIDEO_PREVIEW_END, 0, 0, NULL);
+                    toxav_postmessage(UTOXAV_END_PREVIEW, 0, 0, NULL);
                     return 1;
                 }
 
@@ -24,7 +22,7 @@ _Bool doevent(XEvent event)
                 for(i = 0; i != countof(friend); i++) {
                     if(video_win[i + 1] == ev->window) {
                         FRIEND *f = &friend[i];
-                        tox_postmessage(TOX_HANGUP, f->callid, 0, NULL);
+                        tox_postmessage(TOX_CALL_DISCONNECT, f->number, 0, NULL);
                         break;
                     }
                 }
@@ -40,7 +38,7 @@ _Bool doevent(XEvent event)
     switch(event.type) {
     case Expose: {
         enddraw(0, 0, utox_window_width, utox_window_height);
-        debug("expose\n");
+        // debug("expose\n");
         break;
     }
 
@@ -79,7 +77,7 @@ _Bool doevent(XEvent event)
     case ConfigureNotify: {
         XConfigureEvent *ev = &event.xconfigure;
         if(utox_window_width != ev->width || utox_window_height != ev->height) {
-            debug("resize\n");
+            // debug("resize\n");
 
             if(ev->width > drawwidth || ev->height > drawheight) {
                 drawwidth = ev->width + 10;
@@ -180,6 +178,12 @@ _Bool doevent(XEvent event)
         }
 
         case Button3: {
+            if(pointergrab) {
+                XUngrabPointer(display, CurrentTime);
+                pointergrab = 0;
+                break;
+            }
+
             panel_mright(&panel_root);
             break;
         }
@@ -219,6 +223,14 @@ _Bool doevent(XEvent event)
                     int w = graby - grabpy;
                     graby = grabpy;
                     grabpy = w;
+                }
+
+                /* enforce min size */
+
+                if ( grabpx * grabpy < 100 ) {
+                    pointergrab = 0;
+                    XUngrabPointer(display, CurrentTime);
+                    break;
                 }
 
                 XDrawRectangle(display, RootWindow(display, screen), grabgc, grabx, graby, grabpx, grabpy);
@@ -273,6 +285,12 @@ _Bool doevent(XEvent event)
     case KeyPress: {
         XKeyEvent *ev = &event.xkey;
         KeySym sym = XLookupKeysym(ev, 0);//XKeycodeToKeysym(display, ev->keycode, 0)
+
+        if(pointergrab && sym == XK_Escape) {
+            XUngrabPointer(display, CurrentTime);
+            pointergrab = 0;
+            break;
+        }
 
         wchar_t buffer[16];
         int len;
@@ -401,7 +419,7 @@ _Bool doevent(XEvent event)
         } else if(ev->property == XdndDATA) {
             char *path = malloc(len + 1);
             formaturilist(path, (char*)data, len);
-            tox_postmessage(TOX_SEND_NEW_FILE, (FRIEND*)selected_item->data - friend, 0xFFFF, path);
+            tox_postmessage(TOX_FILE_SEND_NEW, (FRIEND*)selected_item->data - friend, 0xFFFF, path);
         } else if (type == XA_INCR) {
             if (pastebuf.data) {
                 /* already pasting something, give up on that */

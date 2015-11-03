@@ -400,7 +400,7 @@ void openfilesend(void)
     };
 
     if(GetOpenFileName(&ofn)) {
-        tox_postmessage(TOX_SEND_NEW_FILE, (FRIEND*)selected_item->data - friend, ofn.nFileOffset, filepath);
+        tox_postmessage(TOX_FILE_SEND_NEW, (FRIEND*)selected_item->data - friend, ofn.nFileOffset, filepath);
     } else {
         debug("GetOpenFileName() failed\n");
     }
@@ -445,7 +445,7 @@ void openfileavatar(void)
                 message[len++] = '\0';
                 MessageBox(NULL, (char *)message, NULL, MB_ICONWARNING);
             } else {
-                postmessage(SET_AVATAR, size, 0, file_data);
+                postmessage(SELF_AVATAR_SET, size, 0, file_data);
                 break;
             }
         } else {
@@ -473,7 +473,7 @@ void savefilerecv(uint32_t fid, MSG_FILE *file)
     };
 
     if(GetSaveFileName(&ofn)) {
-        tox_postmessage(TOX_ACCEPTFILE, fid, file->filenumber, path);
+        tox_postmessage(TOX_FILE_ACCEPT, fid, file->filenumber, path);
     } else {
         debug("GetSaveFileName() failed\n");
     }
@@ -911,15 +911,13 @@ int file_unlock(FILE *file, uint64_t start, size_t length){
     return UnlockFileEx(file, 0, start, start + length, &lock_overlap);
 }
 
-
-
 /** Creates a tray baloon popup with the message, and flashes the main window
  *
  * accepts: char_t *title, title length, char_t *msg, msg length;
  * returns void;
  */
 void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_length, FRIEND *f){
-    if(havefocus) {
+    if( havefocus || self.status == 2 ) {
         return;
     }
 
@@ -943,14 +941,10 @@ void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_
 
 void showkeyboard(_Bool show){} /* Added for android support. */
 
-void edit_will_deactivate(void)
-{
-
-}
+void edit_will_deactivate(void){}
 
 /* Redraws the main UI window */
-void redraw(void)
-{
+void redraw(void) {
     panel_draw(&panel_root, 0, 0, utox_window_width, utox_window_height);
 }
 
@@ -1450,7 +1444,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     /* kill threads */
     toxaudio_postmessage(AUDIO_KILL, 0, 0, NULL);
     toxvideo_postmessage(VIDEO_KILL, 0, 0, NULL);
-    toxav_postmessage(TOXAV_KILL, 0, 0, NULL);
+    toxav_postmessage(UTOXAV_KILL, 0, 0, NULL);
     tox_postmessage(TOX_KILL, 0, 0, NULL);
 
     /* cleanup */
@@ -1491,7 +1485,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
             if(hwn == video_hwnd[0]) {
                 if(video_preview) {
                     video_preview = 0;
-                    toxvideo_postmessage(VIDEO_PREVIEW_END, 0, 0, NULL);
+                    toxvideo_postmessage(VIDEO_PREVIEW_STOP, 0, 0, NULL);
                 }
 
                 return 0;
@@ -1501,7 +1495,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
             for(i = 0; i != countof(friend); i++) {
                 if(video_hwnd[i + 1] == hwn) {
                     FRIEND *f = &friend[i];
-                    tox_postmessage(TOX_HANGUP, f->callid, 0, NULL);
+                    tox_postmessage(TOX_CALL_DISCONNECT, f->number, 0, NULL);
                     break;
                 }
             }
@@ -1770,7 +1764,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
         }
 
 #define setstatus(x) if(self.status != x) { \
-            tox_postmessage(TOX_SETSTATUS, x, 0, NULL); self.status = x; redraw(); }
+            tox_postmessage(TOX_SELF_SET_STATE, x, 0, NULL); self.status = x; redraw(); }
 
         case TRAY_STATUS_AVAILABLE: {
             setstatus(TOX_USER_STATUS_NONE);
@@ -1900,9 +1894,9 @@ void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height
     }
 }
 
-void video_begin(uint32_t id, char_t *name, STRING_IDX name_length, uint16_t width, uint16_t height)
-{
+void video_begin(uint32_t id, char_t *name, STRING_IDX name_length, uint16_t width, uint16_t height) {
     if(video_hwnd[id]) {
+        debug("Win Video:\tvideo_hwnd exists\n");
         return;
     }
 
@@ -2130,7 +2124,7 @@ IBaseFilter *pNullF = NULL;
 void* video_detect(void)
 {
     // Indicate that we support desktop capturing.
-    postmessage(NEW_VIDEO_DEVICE, STR_VIDEO_IN_DESKTOP, 0, (void*)1);
+    postmessage(VIDEO_IN_DEVICE, STR_VIDEO_IN_DESKTOP, 0, (void*)1);
 
     max_video_width = GetSystemMetrics(SM_CXVIRTUALSCREEN);
     max_video_height = GetSystemMetrics(SM_CYVIRTUALSCREEN);
@@ -2230,7 +2224,7 @@ void* video_detect(void)
                 void *data = malloc(sizeof(void*) + len * 3 / 2);
                 WideCharToMultiByte(CP_UTF8, 0, varName.bstrVal, -1, data + sizeof(void*), len * 3 / 2, NULL, 0);
                 memcpy(data, &temp, sizeof(pFilter));
-                postmessage(NEW_VIDEO_DEVICE, UI_STRING_ID_INVALID, 1, data);
+                postmessage(VIDEO_IN_DEVICE, UI_STRING_ID_INVALID, 1, data);
             }
 
             // Now add the filter to the graph.

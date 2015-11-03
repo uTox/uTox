@@ -4,50 +4,127 @@
 
 /* details about messages and their (param1, param2, data) values are in the message handlers in tox.c*/
 
-/* toxcore thread messages (sent from the client thread)
- */
+typedef struct {
+    uint8_t msg;
+    uint32_t param1, param2;
+    void *data;
+} TOX_MSG;
+
+/* toxcore thread messages (sent from the client thread) */
 enum {
+    /* SHUTDOWNEVERYTHING! */
     TOX_KILL,
 
-    TOX_SETNAME,
-    TOX_SETAVATAR,
-    TOX_UNSETAVATAR,
-    TOX_SETSTATUSMSG,
-    TOX_SETSTATUS,
-    TOX_ADDFRIEND,
-    TOX_DELFRIEND,
-    TOX_ACCEPTFRIEND,
-    TOX_SENDMESSAGE,
-    TOX_SENDACTION, //10
-    TOX_SENDMESSAGEGROUP,
-    TOX_SENDACTIONGROUP,
-    TOX_SET_TYPING,
-    TOX_CALL,
-    TOX_CALL_VIDEO,
-    TOX_CALL_VIDEO_ON,
-    TOX_CALL_VIDEO_OFF,
-    TOX_CANCELCALL,
-    TOX_ACCEPTCALL,
-    TOX_HANGUP, //20
-    TOX_NEWGROUP,
-    TOX_LEAVEGROUP,
-    TOX_GROUPINVITE,
-    TOX_GROUPCHANGETOPIC,
-    TOX_GROUP_AUDIO_START,
-    TOX_GROUP_AUDIO_END,
+    /* Change our settings in core */
+    TOX_SELF_SET_NAME,
+    TOX_SELF_SET_STATUS,
+    TOX_SELF_SET_STATE,
 
-    TOX_SEND_NEW_FILE,
-    TOX_SEND_NEW_FILE_SLASH,
-    TOX_SEND_NEW_INLINE,
-    TOX_ACCEPTFILE, //30
-    TOX_FILE_START_TEMP,
-    TOX_FILE_INCOMING_RESUME,
-    TOX_FILE_INCOMING_PAUSE,
-    TOX_FILE_INCOMING_CANCEL,
-    TOX_FILE_OUTGOING_RESUME,
-    TOX_FILE_OUTGOING_PAUSE,
-    TOX_FILE_OUTGOING_CANCEL,
+    /* Wooo pixturs */
+    TOX_AVATAR_SET,
+    TOX_AVATAR_UNSET, // 5
+
+    /* Interact with contacts */
+    TOX_FRIEND_NEW,
+    TOX_FRIEND_ACCEPT,
+    TOX_FRIEND_DELETE,
     TOX_FRIEND_ONLINE,
+
+    /* Default actions */
+    TOX_SEND_MESSAGE, // 10
+    TOX_SEND_ACTION, /* Should we deprecate this, now that core uses a single function? */
+    TOX_SEND_TYPING,
+
+    /* File Transfers */
+    TOX_FILE_ACCEPT,
+    TOX_FILE_SEND_NEW,
+    TOX_FILE_SEND_NEW_INLINE, // 15
+    TOX_FILE_SEND_NEW_SLASH,
+
+    TOX_FILE_RESUME,
+    TOX_FILE_PAUSE,
+    TOX_FILE_CANCEL,
+
+    /* Audio/Video Calls */
+    TOX_CALL_SEND, // 20
+    TOX_CALL_INCOMING,
+    TOX_CALL_ANSWER,
+    TOX_CALL_PAUSE_AUDIO,
+    TOX_CALL_PAUSE_VIDEO,
+    TOX_CALL_RESUME_AUDIO, // 25
+    TOX_CALL_RESUME_VIDEO,
+    TOX_CALL_DISCONNECT,
+
+    TOX_GROUP_CREATE,
+    TOX_GROUP_JOIN,
+    TOX_GROUP_PART, // 30
+    TOX_GROUP_SEND_INVITE,
+    TOX_GROUP_SET_TOPIC,
+    TOX_GROUP_SEND_MESSAGE,
+    TOX_GROUP_SEND_ACTION,
+    TOX_GROUP_AUDIO_START, // 35
+    TOX_GROUP_AUDIO_END,
+};
+
+/* uTox client thread messages (received by the client thread) */
+enum {
+    /* General core and networking messages */
+    TOX_DONE, // 0
+    DHT_CONNECTED,
+    DNS_RESULT,
+
+    /* OS interaction/integration messages*/
+    AUDIO_IN_DEVICE,
+    AUDIO_OUT_DEVICE,
+    VIDEO_IN_DEVICE,
+
+    /* Client/User Interface messages. */
+    REDRAW,
+    TOOLTIP_SHOW,
+    SELF_AVATAR_SET,
+
+    /* File transfer messages */
+    FILE_SEND_NEW,
+    FILE_INCOMING_NEW, // 10
+    FILE_INCOMING_ACCEPT,
+    FILE_UPDATE_STATUS,
+    FILE_INLINE_IMAGE,
+
+    /* Friend interaction messages. */
+    /* Handshake */
+    FRIEND_ONLINE,
+    FRIEND_NAME,
+    FRIEND_STATUS_MESSAGE,
+    FRIEND_STATE,
+    FRIEND_AVATAR_SET,
+    FRIEND_AVATAR_UNSET,
+    /* Interactions */
+    FRIEND_TYPING, // 20
+    FRIEND_MESSAGE,
+    /* Adding and deleting */
+    FRIEND_INCOMING_REQUEST,
+    FRIEND_ACCEPT_REQUEST,
+    FRIEND_SEND_REQUEST,
+    FRIEND_REMOVE,
+
+    /* Audio & Video calls, */
+    AV_CALL_INCOMING,
+    AV_CALL_RINGING,
+    AV_CALL_ACCEPTED,
+    AV_CALL_DISCONNECTED,
+    AV_VIDEO_FRAME, // 30
+    AV_CLOSE_WINDOW,
+
+    /* Group interactions, commented out for the new groupchats (coming soon maybe?) */
+    GROUP_ADD,
+    GROUP_MESSAGE,
+    GROUP_PEER_ADD,
+    GROUP_PEER_DEL,
+    GROUP_PEER_NAME,
+    GROUP_TOPIC,
+    GROUP_AUDIO_START,
+    GROUP_AUDIO_END,
+    GROUP_UPDATE,
 };
 
 struct TOX_SEND_INLINE_MSG {
@@ -55,111 +132,30 @@ struct TOX_SEND_INLINE_MSG {
     UTOX_PNG_IMAGE image;
 };
 
-/* toxav thread messages (sent from the client thread)
- */
-enum
-{
-    AUDIO_KILL,
-    AUDIO_SET_INPUT,
-    AUDIO_SET_OUTPUT,
-    AUDIO_PREVIEW_START,
-    AUDIO_PREVIEW_END,
-    AUDIO_CALL_START,
-    AUDIO_CALL_END,
-    AUDIO_PLAY_RINGTONE,
-    AUDIO_STOP_RINGTONE,
-    GROUP_AUDIO_CALL_START,
-    GROUP_AUDIO_CALL_END,
-};
-
-enum
-{
-    VIDEO_KILL,
-    VIDEO_SET,
-    VIDEO_PREVIEW_START,
-    VIDEO_PREVIEW_END,
-    VIDEO_CALL_START,
-    VIDEO_CALL_END,
-};
-
-
-enum
-{
-    TOXAV_KILL,
-};
-/* client thread messages (recieved by the client thread)
- */
+/* AV STATUS LIST */
 enum {
-    /* general messages */
-    TOX_DONE,
-    DHT_CONNECTED,
-    DNS_RESULT,
-
-    SET_AVATAR,
-
-    SEND_FILES,
-    SAVE_FILE,
-    FILE_START_TEMP,
-    FILE_ABORT_TEMP,
-
-    NEW_AUDIO_IN_DEVICE,
-    NEW_AUDIO_OUT_DEVICE,
-    NEW_VIDEO_DEVICE,
-
-    /* friend related */
-    FRIEND_REQUEST,
-    FRIEND_ACCEPT,
-    FRIEND_ADD,
-    FRIEND_DEL,
-    FRIEND_MESSAGE,
-    FRIEND_NAME,
-    FRIEND_SETAVATAR,
-    FRIEND_UNSETAVATAR,
-    FRIEND_STATUS_MESSAGE,
-    FRIEND_STATUS,
-    FRIEND_TYPING,
-    FRIEND_ONLINE,
-
-    /* friend a/v */
-    FRIEND_CALL_STATUS,
-    FRIEND_CALL_VIDEO,
-    FRIEND_CALL_MEDIACHANGE,
-    FRIEND_CALL_START_VIDEO,
-    FRIEND_CALL_STOP_VIDEO,
-    FRIEND_VIDEO_FRAME,
-    PREVIEW_FRAME,
-    PREVIEW_FRAME_NEW,
-
-    /* friend file */
-    FRIEND_FILE_NEW,
-    FRIEND_FILE_UPDATE,
-    FRIEND_INLINE_IMAGE,
-
-    /* group */
-    GROUP_ADD,
-    GROUP_MESSAGE,
-    GROUP_PEER_ADD,
-    GROUP_PEER_DEL,
-    GROUP_PEER_NAME,
-    GROUP_TITLE,
-    GROUP_AUDIO_START,
-    GROUP_AUDIO_END,
-    GROUP_UPDATE,
-
-    TOOLTIP_SHOW,
+    UTOX_AV_NONE,
+    UTOX_AV_INVITE,
+    UTOX_AV_RINGING,
+    UTOX_AV_STARTED,
 };
 
-enum
-{
-    CALL_NONE,
-    CALL_INVITED,
-    CALL_RINGING,
-    CALL_OK,
-    CALL_NONE_VIDEO, //not used
-    CALL_INVITED_VIDEO,
-    CALL_RINGING_VIDEO,
-    CALL_OK_VIDEO,
-};
+/* Inter-thread communication vars. */
+TOX_MSG tox_msg, audio_msg, video_msg, toxav_msg;
+volatile _Bool tox_thread_msg, audio_thread_msg, video_thread_msg, toxav_thread_msg;
+
+/** [log_read description] */
+void log_read(Tox *tox, int fid);
+
+/** [friend_meta_data_read description] */
+void friend_meta_data_read(Tox *tox, int friend_id);
+
+/** [init_avatar description]
+ *
+ * TODO move this to avatar.h
+ */
+//_Bool init_avatar(AVATAR *avatar, const char_t *id, uint8_t *png_data_out, uint32_t *png_size_out);
+
 /* toxcore thread
  */
 void tox_thread(void *args);

@@ -1,5 +1,36 @@
 #include "main.h"
 
+/** tries to load avatar from disk for given client id string and set avatar based on saved png data
+ *  avatar is avatar to initialize. Will be unset if no file is found on disk or if file is corrupt or too large,
+ *      otherwise will be set to avatar found on disk
+ *  id is cid string of whose avatar to find(see also load_avatar in avatar.h)
+ *  if png_data_out is not NULL, the png data loaded from disk will be copied to it.
+ *      if it is not null, it should be at least UTOX_AVATAR_MAX_DATA_LENGTH bytes long
+ *  if png_size_out is not null, the size of the png data will be stored in it
+ *
+ *  returns: 1 on successful loading, 0 on failure
+ *
+ * TODO: move this function into avatar.c
+ */
+_Bool init_avatar(AVATAR *avatar, const char_t *id, uint8_t *png_data_out, uint32_t *png_size_out) {
+    unset_avatar(avatar);
+    uint8_t avatar_data[UTOX_AVATAR_MAX_DATA_LENGTH];
+    uint32_t size;
+    if (load_avatar(id, avatar_data, &size)) {
+        if (set_avatar(avatar, avatar_data, size)) {
+            if (png_data_out) {
+                memcpy(png_data_out, avatar_data, size);
+            }
+            if (png_size_out) {
+                *png_size_out = size;
+            }
+
+            return 1;
+        }
+    }
+    return 0;
+}
+
 /* gets avatar filepath for given client id string and stores it in dest,
  * returns number of chars written */
 int get_avatar_location(char_t *dest, const char_t *id)
@@ -115,7 +146,7 @@ int self_set_avatar(const uint8_t *data, uint32_t size)
 
     uint8_t *png_data = malloc(size);
     memcpy(png_data, data, size);
-    tox_postmessage(TOX_SETAVATAR, UTOX_AVATAR_FORMAT_PNG, size, png_data);
+    tox_postmessage(TOX_AVATAR_SET, UTOX_AVATAR_FORMAT_PNG, size, png_data);
     return 1;
 }
 
@@ -137,7 +168,7 @@ void self_remove_avatar()
     uint8_t hex_id[TOX_FRIEND_ADDRESS_SIZE * 2];
     id_to_string(hex_id, self.id_binary);
     delete_saved_avatar(hex_id);
-    tox_postmessage(TOX_UNSETAVATAR, 0, 0, NULL);
+    tox_postmessage(TOX_AVATAR_UNSET, 0, 0, NULL);
 }
 
 _Bool avatar_on_friend_online(Tox *tox, uint32_t friend_number){
@@ -167,8 +198,8 @@ void utox_incoming_avatar(uint32_t friend_number, uint8_t *avatar, size_t size){
     // save avatar and hash to disk
 
     if(size <= 0){
-        postmessage(FRIEND_UNSETAVATAR, friend_number, 0, NULL);
+        postmessage(FRIEND_AVATAR_UNSET, friend_number, 0, NULL);
     } else {
-        postmessage(FRIEND_SETAVATAR, friend_number, size, avatar);
+        postmessage(FRIEND_AVATAR_SET, friend_number, size, avatar);
     }
 }

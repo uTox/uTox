@@ -31,7 +31,7 @@ void* file_raw(char *path, uint32_t *size)
 
     fclose(file);
 
-    debug("Read %u bytes (%s)\n", len, path);
+    // debug("Read %u bytes (%s)\n", len, path);
 
     if(size) {
         *size = len;

@@ -91,6 +91,11 @@ static void drawitem(ITEM *i, int UNUSED(x), int y) {
         }
 
         drawname(i, y, g->name, g->topic, g->name_length, g->topic_length, color_overide, color);
+
+        drawalpha(BM_ONLINE, SIDEBAR_WIDTH - SCALE * 12, y + ROSTER_BOX_HEIGHT / 2 - BM_STATUS_WIDTH / 2, BM_STATUS_WIDTH, BM_STATUS_WIDTH, status_color[0]);
+        if (g->notify) {
+            drawalpha(BM_STATUS_NOTIFY, SIDEBAR_WIDTH - SCALE * 13, y + ROSTER_BOX_HEIGHT / 2 - BM_STATUS_NOTIFY_WIDTH / 2, BM_STATUS_NOTIFY_WIDTH, BM_STATUS_NOTIFY_WIDTH, status_color[0]);
+        }
         break;
     }
 
@@ -262,6 +267,8 @@ static void show_page(ITEM *i) {
 
             g->msg.id = g - group;
 
+            g->notify = 0;
+
             edit_msg_group.history = g->edit_history;
             edit_msg_group.history_cur = g->edit_history_cur;
             edit_msg_group.history_length = g->edit_history_length;
@@ -420,14 +427,14 @@ static void deleteitem(ITEM *i) {
     switch (i->item) {
     case ITEM_FRIEND: {
         FRIEND *f = i->data;
-        tox_postmessage(TOX_DELFRIEND, (f - friend), 0, f);
+        tox_postmessage(TOX_FRIEND_DELETE, (f - friend), 0, f);
         break;
     }
 
     case ITEM_GROUP: {
         GROUPCHAT *g = i->data;
 
-        tox_postmessage(TOX_LEAVEGROUP, (g - group), 0, NULL);
+        tox_postmessage(TOX_GROUP_PART, (g - group), 0, NULL);
 
         unsigned int j;
         for (j = 0; j < g->peers; ++j) {
@@ -435,8 +442,6 @@ static void deleteitem(ITEM *i) {
                 free(g->peername[j]);
                 g->peername[j] = NULL;
             }
-
-            group_av_peer_remove(g, j);
         }
 
         toxaudio_postmessage(GROUP_AUDIO_CALL_END, (g - group), 0, NULL);
@@ -634,7 +639,7 @@ static void contextmenu_list_onselect(uint8_t i) {
 
     if(ritem->item == ITEM_FRIEND_ADD && i == 0) {
         FRIENDREQ *req = ritem->data;
-        tox_postmessage(TOX_ACCEPTFRIEND, 0, 0, req);
+        tox_postmessage(TOX_FRIEND_ACCEPT, 0, 0, req);
         return;
     }
 
@@ -712,7 +717,7 @@ _Bool list_mup(void *UNUSED(n)) {
                     GROUPCHAT *g = nitem->data;
 
                     if(f->online) {
-                        tox_postmessage(TOX_GROUPINVITE, (g - group), (f - friend), NULL);
+                        tox_postmessage(TOX_GROUP_SEND_INVITE, (g - group), (f - friend), NULL);
                     }
                 }
 
