@@ -354,7 +354,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height) {
             }
             }
 
-            drawalpha(BM_FILE_BIG, x + 7 * SCALE, y + 2 * SCALE, BM_FILE_BIG_WIDTH * 2, BM_FILE_BIG_HEIGHT * 2,
+            drawalpha(BM_FILE_BIG, x + 7 * SCALE, y + 2 * SCALE, BM_FILE_BIG_WIDTH, BM_FILE_BIG_HEIGHT,
                       COLOR_BUTTON_DISABLED_TRANSFER);
 
             drawtext(dx + 5 * SCALE, y + 10 * SCALE, text_size, text_size_len);
