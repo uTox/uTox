@@ -914,7 +914,7 @@ void openfileavatar(void) {
             [alert runModal];
             [alert release];
         } else {
-            postmessage(SET_AVATAR, fsize, 0, file_data);
+            postmessage(TOX_AVATAR_SET, fsize, 0, file_data);
         }
     }
 }

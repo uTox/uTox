@@ -161,7 +161,7 @@
 
     devices = [[NSMutableDictionary alloc] init];
 
-    postmessage(NEW_VIDEO_DEVICE, STR_VIDEO_IN_DESKTOP, 0, SCREEN_VIDEO_DEVICE_HANDLE);
+    postmessage(VIDEO_IN_DEVICE, STR_VIDEO_IN_DESKTOP, 0, SCREEN_VIDEO_DEVICE_HANDLE);
 
     NSArray *vdevIDs = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
     for (int i = 0; i < vdevIDs.count; i++) {
@@ -175,7 +175,7 @@
 
         devices[@(i + 2)] = dev.uniqueID;
 
-        postmessage(NEW_VIDEO_DEVICE, UI_STRING_ID_INVALID, 1, data);
+        postmessage(VIDEO_IN_DEVICE, UI_STRING_ID_INVALID, 1, data);
     }
     return (void *)MIN(2, vdevIDs.count + 2);
 }
@@ -429,7 +429,7 @@ void* video_detect(void) {
             case 0:
                 video_preview = 0;
                 video_end(0);
-                toxvideo_postmessage(VIDEO_PREVIEW_END, 0, 0, NULL);
+                toxvideo_postmessage(VIDEO_PREVIEW_STOP, 0, 0, NULL);
                 break;
             default: {
                 FRIEND *f = &friend[((uToxIroncladWindow *)notification.object).video_id - 1];
@@ -451,7 +451,9 @@ void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height
         debug("BUG: video_frame called for bogus Ironclad id %lu", id);
     }
 
-    if (resize) {
+    CGSize s = [win.contentView frame].size;
+    if (resize || s.width != width || s.height != height) {
+        debug("frame size changed, if this happens too often file a bug");
         CGFloat chrome_metric_w = win.frame.size.width - [win.contentView frame].size.width;
         CGFloat chrome_metric_h = win.frame.size.height - [win.contentView frame].size.height;
         int rswidth = width + chrome_metric_w;
@@ -464,28 +466,27 @@ void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height
 }
 
 void video_begin(uint32_t _id, char_t *name, STRING_IDX name_length, uint16_t width, uint16_t height) {
-    dispatch_sync(dispatch_get_main_queue(), ^{
-        uToxIroncladWindow *video_win = (uToxIroncladWindow *)[uToxIroncladView createWindow];
-        video_win.title = [[[NSString alloc] initWithBytes:name length:name_length encoding:NSUTF8StringEncoding] autorelease];
-        //video_win.title = @"Lel";
-        video_win.video_id = _id;
+    if ([(uToxAppDelegate *)[NSApp delegate] ironcladWindowForID:_id])
+        return;
 
-        uToxAppDelegate *utoxapp = (uToxAppDelegate *)[NSApp delegate];
-        NSWindow *utoxwin = utoxapp.utox_window;
+    uToxIroncladWindow *video_win = (uToxIroncladWindow *)[uToxIroncladView createWindow];
+    video_win.title = [[[NSString alloc] initWithBytes:name length:name_length encoding:NSUTF8StringEncoding] autorelease];
+    //video_win.title = @"Lel";
+    video_win.video_id = _id;
 
-        CGFloat x = width;
-        CGFloat y = height;
-        [video_win setFrame:(CGRect){CGRectGetMaxX(utoxwin.frame), CGRectGetMaxY(utoxwin.frame) - y, x, y} display:YES];
-        [utoxapp setIroncladWindow:video_win forID:_id];
+    uToxAppDelegate *utoxapp = (uToxAppDelegate *)[NSApp delegate];
+    NSWindow *utoxwin = utoxapp.utox_window;
 
-        [video_win makeKeyAndOrderFront:utoxapp];
-        [video_win release];
-    });
+    CGFloat x = width;
+    CGFloat y = height;
+    [video_win setFrame:(CGRect){CGRectGetMaxX(utoxwin.frame), CGRectGetMaxY(utoxwin.frame) - y, x, y} display:YES];
+    [utoxapp setIroncladWindow:video_win forID:_id];
+
+    [video_win makeKeyAndOrderFront:utoxapp];
+    [video_win release];
 }
 
 void video_end(uint32_t id) {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        uToxAppDelegate *utoxapp = (uToxAppDelegate *)[NSApp delegate];
-        [utoxapp releaseIroncladWindowForID:id];
-    });
+    uToxAppDelegate *utoxapp = (uToxAppDelegate *)[NSApp delegate];
+    [utoxapp releaseIroncladWindowForID:id];
 }
