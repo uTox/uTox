@@ -6,8 +6,7 @@ static int active_x, active_y, active_width, active_height;
 #define index(b, i) (i == 0 ? b->selected : ((i > b->selected) ? i : i - 1))
 
 // Draw background rectangles for a dropdown
-void dropdown_drawactive(void)
-{
+void dropdown_drawactive(void) {
     DROPDOWN *b = active;
     if(!b) {
         return;
@@ -22,14 +21,14 @@ void dropdown_drawactive(void)
 
     switch(b->style) {
         case AUXILIARY_STYLE:
-            color_bg = COLOR_AUX_BACKGROUND;
+            color_bg = COLOR_BACKGROUND_AUX;
             color_border = COLOR_AUX_EDGE_ACTIVE;
             color_aoptbg = COLOR_AUX_ACTIVEOPTION_BACKGROUND;
             color_aopttext = COLOR_AUX_ACTIVEOPTION_TEXT;
             color_text = COLOR_AUX_TEXT;
             break;
         default:
-            color_bg = COLOR_MAIN_BACKGROUND;
+            color_bg = COLOR_BACKGROUND_MAIN;
             color_border = COLOR_EDGE_ACTIVE;
             color_aoptbg = COLOR_ACTIVEOPTION_BACKGROUND;
             color_aopttext = COLOR_ACTIVEOPTION_TEXT;
@@ -55,8 +54,8 @@ void dropdown_drawactive(void)
         sign = -1;
     }
 
-    drawrect(x, y, x + w, y + h * b->dropcount, color_bg);
-    framerect(x, y, x + w, y + h * b->dropcount, color_border);
+    draw_rect_fill (x, y, w, h * b->dropcount, color_bg);
+    draw_rect_frame(x, y, w, h * b->dropcount, color_border);
 
     if(sign == -1) {
         y += h * (b->dropcount - 1);
@@ -66,7 +65,7 @@ void dropdown_drawactive(void)
         int j = index(b, i);
         STRING* e = b->ondisplay(j, b);
         if(j == b->over) {
-            drawrectw(x + 1, y + 1, w - 2, h - 2, color_aoptbg);
+            draw_rect_fill(x + 1, y + 1, w - 2, h - 2, color_aoptbg);
             setcolor(color_aopttext);
         } else {
             setcolor(color_text);
@@ -79,8 +78,7 @@ void dropdown_drawactive(void)
 }
 
 // Draw collapsed dropdown
-void dropdown_draw(DROPDOWN *b, int x, int y, int width, int height)
-{
+void dropdown_draw(DROPDOWN *b, int x, int y, int width, int height) {
     if(!b->open) {
         // load colors for this style
         uint32_t color_bg,
@@ -90,21 +88,21 @@ void dropdown_draw(DROPDOWN *b, int x, int y, int width, int height)
 
         switch(b->style) {
             case AUXILIARY_STYLE:
-                color_bg = COLOR_AUX_BACKGROUND;
+                color_bg = COLOR_BACKGROUND_AUX;
                 color_border = COLOR_AUX_EDGE_NORMAL;
                 color_border_h = COLOR_AUX_EDGE_HOVER;
                 color_text = COLOR_AUX_TEXT;
                 break;
             default:
-                color_bg = COLOR_MAIN_BACKGROUND;
+                color_bg = COLOR_BACKGROUND_MAIN;
                 color_border = COLOR_EDGE_NORMAL;
                 color_border_h = COLOR_EDGE_HOVER;
                 color_text = COLOR_MAIN_TEXT;
                 break;
         }
 
-        framerect(x, y, x + width, y + height, (b->mouseover ? color_border_h : color_border));
-        drawrect(x + 1, y + 1, x + width - 1, y + height - 1, color_bg);
+        draw_rect_frame(x, y, width, height, (b->mouseover ? color_border_h : color_border));
+        draw_rect_fill(x + 1, y + 1, width - 1 * SCALE, height - 1 * SCALE, color_bg);
 
         if(b->dropcount) {
             setfont(FONT_TEXT);

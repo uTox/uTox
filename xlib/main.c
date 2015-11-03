@@ -52,13 +52,14 @@
 #endif
 
 Display *display;
+Visual *visual;
+Window root, window;
 int screen;
-Window window;
 GC gc;
 Colormap cmap;
-Visual *visual;
+XRenderPictFormat *pictformat;
 
-Picture bitmap[BM_CI1 + 1];
+Picture bitmap[BM_ENDMARKER];
 
 Cursor cursors[8];
 
@@ -76,7 +77,7 @@ Atom wm_protocols, wm_delete_window;
 
 uint32_t scolor;
 
-Atom XA_CLIPBOARD, XA_UTF8_STRING, targets, XA_INCR;
+Atom XA_CLIPBOARD, XA_NET_NAME, XA_UTF8_STRING, targets, XA_INCR;
 Atom XdndAware, XdndEnter, XdndLeave, XdndPosition, XdndStatus, XdndDrop, XdndSelection, XdndDATA, XdndActionCopy;
 Atom XA_URI_LIST, XA_PNG_IMG;
 Atom XRedraw;
@@ -102,20 +103,17 @@ void *libgtk;
 
 _Bool utox_portable;
 
-struct
-{
+struct {
     int len;
     char_t data[65536]; //TODO: De-hardcode this value.
-}clipboard;
+} clipboard;
 
-struct
-{
+struct {
     int len;
     char_t data[65536]; //TODO: De-hardcode this value.
-}primary;
+} primary;
 
-struct
-{
+struct {
     int len, left;
     Atom type;
     void *data;
@@ -182,6 +180,82 @@ void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data)
 
     XSendEvent(display, window, False, 0, &event);
     XFlush(display);
+}
+
+
+#include <linux/input.h>
+FILE *ptt_keyboard_handle;
+Display *ptt_display;
+void init_ptt(void){
+    push_to_talk = 1;
+    uint8_t path[UTOX_FILE_NAME_LENGTH], *p;
+    p = path + datapath(path);
+    strcpy((char*)p, "ptt-kbd");
+
+    ptt_keyboard_handle = fopen((const char*)path, "r");
+    if (!ptt_keyboard_handle){
+        debug("Could not access ptt-kbd in data directory\n");
+        ptt_display = XOpenDisplay(0);
+        XSynchronize(ptt_display, TRUE);
+    }
+
+}
+
+_Bool check_ptt_key(void){
+    if (!push_to_talk) {
+        // debug("PTT is disabled\n");
+        return 1; /* If push to talk is disabled, return true. */
+    }
+    int ptt_key;
+
+    /* First, we try for direct access to the keyboard. */
+    ptt_key = KEY_LEFTCTRL;                                      // TODO allow user to change this...
+    if (ptt_keyboard_handle) {
+        /* Nice! we have direct access to the keyboard! */
+        char key_map[KEY_MAX/8 + 1];                             // Create a byte array the size of the number of keys
+        memset(key_map, 0, sizeof(key_map));
+        ioctl(fileno(ptt_keyboard_handle), EVIOCGKEY(sizeof(key_map)), key_map); // Fill the keymap with the current keyboard state
+        int keyb = key_map[ptt_key/8];                           // The key we want (and the seven others around it)
+        int mask = 1 << (ptt_key % 8);                           // Put 1 in the same column as our key state
+
+        if (keyb & mask){
+            // debug("PTT key is down\n");
+            return 1;
+        } else {
+            // debug("PTT key is up\n");
+            return 0;
+        }
+    }
+    /* Okay nope, lets' fallback to xinput... *pouts*
+     * Fall back to Querying the X for the current keymap. */
+    ptt_key = XKeysymToKeycode(display, XK_Control_L);
+    char keys[32] = {0};
+    /* We need our own connection, so that we don't block the main display... No idea why... */
+    if ( ptt_display ) {
+        XQueryKeymap(ptt_display, keys);
+        if (keys[ptt_key/8] & (0x1 << ( ptt_key % 8 ))) {
+            // debug("PTT key is down (according to XQueryKeymap\n");
+            return 1;
+        } else {
+            // debug("PTT key is up (according to XQueryKeymap\n");
+            return 0;
+        }
+    }
+    /* Couldn't access the keyboard directly, and XQuery failed, this is really bad! */
+    debug("Unable to access keyboard, you need to read the manual on how to enable utox to\nhave access to your key"
+          "board.\nDisable push to talk to suppress this message.\n");
+    return 0;
+
+}
+
+void exit_ptt(void){
+    if (ptt_keyboard_handle){
+        fclose(ptt_keyboard_handle);
+    }
+    if (ptt_display) {
+        XCloseDisplay(ptt_display);
+    }
+    push_to_talk = 0;
 }
 
 void image_set_scale(UTOX_NATIVE_IMAGE *image, double scale)
@@ -269,10 +343,9 @@ static int _drawtext(int x, int xmax, int y, char_t *str, STRING_IDX length)
 
 #include "../shared/freetype-text.c"
 
-void framerect(int x, int y, int right, int bottom, uint32_t color)
-{
+void draw_rect_frame(int x, int y, int width, int height, uint32_t color) {
     XSetForeground(display, gc, color);
-    XDrawRectangle(display, drawbuf, gc, x, y, right - x - 1, bottom - y - 1);
+    XDrawRectangle(display, drawbuf, gc, x, y, width - 1, height - 1);
 }
 
 void drawrect(int x, int y, int right, int bottom, uint32_t color)
@@ -281,8 +354,7 @@ void drawrect(int x, int y, int right, int bottom, uint32_t color)
     XFillRectangle(display, drawbuf, gc, x, y, right - x, bottom - y);
 }
 
-void drawrectw(int x, int y, int width, int height, uint32_t color)
-{
+void draw_rect_fill(int x, int y, int width, int height, uint32_t color) {
     XSetForeground(display, gc, color);
     XFillRectangle(display, drawbuf, gc, x, y, width, height);
 }
@@ -431,7 +503,7 @@ void savefilerecv(uint32_t fid, MSG_FILE *file)
         memcpy(path, file->name, file->name_length);
         path[file->name_length] = 0;
 
-        tox_postmessage(TOX_ACCEPTFILE, fid, file->filenumber, path);
+        tox_postmessage(TOX_FILE_ACCEPT, fid, file->filenumber, path);
     }
 }
 
@@ -511,13 +583,11 @@ void destroy_tray_icon(void)
 }
 
 /** Toggles the main window to/from hidden to tray/shown. */
-void togglehide(void)
-{
+void togglehide(void) {
     if(hidden) {
-        Window root;
         int x, y;
-        unsigned int w, h, border, depth;
-        XGetGeometry(display, window, &root, &x, &y, &w, &h, &border, &depth);
+        uint32_t w, h, border;
+        XGetGeometry(display, window, &root, &x, &y, &w, &h, &border, (uint*)&depth);
         XMapWindow(display, window);
         XMoveWindow(display, window, x, y);
         redraw();
@@ -564,6 +634,16 @@ void copy(int value)
 
 }
 
+int hold_x11s_hand(Display *d, XErrorEvent *event) {
+    debug("X11 err:\tX11 tried to kill itself, so I hit him with a shovel.\n");
+    debug("    err:\tResource: %lu || Serial %lu\n", event->resourceid, event->serial);
+    debug("    err:\tError code: %u || Request: %u || Minor: %u \n",
+          event->error_code, event->request_code, event->minor_code);
+    debug("uTox:\tThis would be a great time to submit a bug!\n");
+
+    return 0;
+}
+
 void paste(void)
 {
     Window owner = XGetSelectionOwner(display, XA_CLIPBOARD);
@@ -589,12 +669,17 @@ void paste(void)
     }
 }
 
-static void pastebestformat(const Atom atoms[], int len, Atom selection)
-{
+static void pastebestformat(const Atom atoms[], int len, Atom selection) {
+    XSetErrorHandler(hold_x11s_hand);
     const Atom supported[] = {XA_PNG_IMG, XA_URI_LIST, XA_UTF8_STRING};
     int i, j;
     for (i = 0; i < len; i++) {
-        debug("Supported type: %s\n", XGetAtomName(display, atoms[i]));
+        char *name = XGetAtomName(display, atoms[i]);
+        if (name) {
+            debug("Supported type: %s\n", name);
+        } else {
+            debug("Unsupported type!!: Likely a bug, please report!\n");
+        }
     }
 
     for (i = 0; i < len; i++) {
@@ -665,7 +750,7 @@ static void pastedata(void *data, Atom type, int len, _Bool select)
     } else if (type == XA_URI_LIST) {
         char *path = malloc(len + 1);
         formaturilist(path, (char*) data, len);
-        tox_postmessage(TOX_SEND_NEW_FILE, (FRIEND*)selected_item->data - friend, 0xFFFF, path);
+        tox_postmessage(TOX_FILE_SEND_NEW, (FRIEND*)selected_item->data - friend, 0xFFFF, path);
     } else if(type == XA_UTF8_STRING && edit_active()) {
         edit_paste(data, len, select);
     }
@@ -753,7 +838,7 @@ UTOX_NATIVE_IMAGE *png_to_image(const UTOX_PNG_IMAGE data, size_t size, uint16_t
         *target |= (green | (green << 8) | (green << 16) | (green << 24)) & visual->green_mask;
     }
 
-    XImage *img = XCreateImage(display, visual, 24, ZPixmap, 0, (char*)out, width, height, 32, width * 4);
+    XImage *img = XCreateImage(display, visual, depth, ZPixmap, 0, (char*)out, width, height, 32, width * 4);
 
     Picture rgb = ximage_to_picture(img, NULL);
     Picture alpha = (keep_alpha) ? generate_alpha_bitmask(rgba_data, width, height, rgba_size) : None;
@@ -839,16 +924,11 @@ void setscale(void)
 
     svg_draw(0);
 
-    freefonts();
-    loadfonts();
-
-    font_small_lineheight = (font[FONT_TEXT].info[0].face->size->metrics.height + (1 << 5)) >> 6;
-    //font_msg_lineheight = (font[FONT_MSG].info[0].face->size->metrics.height + (1 << 5)) >> 6;
-
     if(xsh) {
         XFree(xsh);
     }
 
+    // TODO, fork this to a function
     xsh = XAllocSizeHints();
     xsh->flags = PMinSize;
     xsh->min_width = 320 * SCALE;
@@ -861,6 +941,15 @@ void setscale(void)
         /* wont get a resize event, call this manually */
         ui_size(utox_window_width, utox_window_height);
     }
+}
+
+void setscale_fonts(void)
+{
+    freefonts();
+    loadfonts();
+
+    font_small_lineheight = (font[FONT_TEXT].info[0].face->size->metrics.height + (1 << 5)) >> 6;
+    //font_msg_lineheight = (font[FONT_MSG].info[0].face->size->metrics.height + (1 << 5)) >> 6;
 }
 
 int file_lock(FILE *file, uint64_t start, size_t length){
@@ -961,10 +1050,6 @@ void update_tray(void)
 }
 
 #include "event.c"
-
-int depth;
-Screen *scr;
-
 void config_osdefaults(UTOX_SAVE *r)
 {
     r->window_x = 0;
@@ -987,15 +1072,14 @@ static int systemlang(void)
 
 _Bool parse_args_wait_for_theme;
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     parse_args_wait_for_theme = 0;
     _Bool theme_was_set_on_argv = 0;
     theme = THEME_DEFAULT;
     /* Variables for --set */
     int32_t set_show_window = 0;
 
-    if (argc > 1)
+    if (argc > 1) {
         for (int i = 1; i < argc; i++) {
             if(parse_args_wait_for_theme) {
                 if(!strcmp(argv[i], "default")) {
@@ -1062,6 +1146,7 @@ int main(int argc, char *argv[])
             }
             printf("arg %d: %s\n", i, argv[i]);
         }
+    }
 
     if (parse_args_wait_for_theme) {
         debug("Expected theme name, but got nothing. -_-\n");
@@ -1072,8 +1157,11 @@ int main(int argc, char *argv[])
 
     if((display = XOpenDisplay(NULL)) == NULL) {
         printf("Cannot open display\n");
+
         return 1;
     }
+
+    XSetErrorHandler(hold_x11s_hand);
 
     XIM xim;
     setlocale(LC_ALL, "");
@@ -1082,12 +1170,16 @@ int main(int argc, char *argv[])
         printf("Cannot open input method\n");
     }
 
-    screen = DefaultScreen(display);
-    cmap = DefaultColormap(display, screen);
-    visual = DefaultVisual(display, screen);
-    gc = DefaultGC(display, screen);
-    depth = DefaultDepth(display, screen);
-    scr = DefaultScreenOfDisplay(display);
+    LANG = systemlang();
+    dropdown_language.selected = dropdown_language.over = LANG;
+
+    screen  = DefaultScreen(display);
+    cmap    = DefaultColormap(display, screen);
+    visual  = DefaultVisual(display, screen);
+    gc      = DefaultGC(display, screen);
+    depth   = DefaultDepth(display, screen);
+    scr     = DefaultScreenOfDisplay(display);
+    root    = RootWindow(display, screen);
 
     XSetWindowAttributes attrib = {
         .background_pixel = WhitePixel(display, screen),
@@ -1100,16 +1192,17 @@ int main(int argc, char *argv[])
     /* load save data */
     UTOX_SAVE *save = config_load();
 
-    if (!theme_was_set_on_argv)
+    if (!theme_was_set_on_argv) {
         theme = save->theme;
+    }
     printf("%d\n", theme);
     theme_load(theme);
 
     /* create window */
-    window = XCreateWindow(display, RootWindow(display, screen), save->window_x, save->window_y, save->window_width, save->window_height, 0, depth, InputOutput, visual, CWBackPixmap | CWBorderPixel | CWEventMask, &attrib);
+    window = XCreateWindow(display, root, save->window_x, save->window_y, save->window_width, save->window_height, 0, depth, InputOutput, visual, CWBackPixmap | CWBorderPixel | CWEventMask, &attrib);
 
     /* choose available libraries for optional UI stuff */
-    if(!(libgtk = gtk_load())) {
+    if (!(libgtk = gtk_load())) {
         //try Qt
     }
 
@@ -1117,11 +1210,12 @@ int main(int argc, char *argv[])
     thread(tox_thread, NULL);
 
     /* load atoms */
-    wm_protocols = XInternAtom(display, "WM_PROTOCOLS", 0);
+    wm_protocols     = XInternAtom(display, "WM_PROTOCOLS", 0);
     wm_delete_window = XInternAtom(display, "WM_DELETE_WINDOW", 0);
+    XA_CLIPBOARD     = XInternAtom(display, "CLIPBOARD", 0);
+    XA_NET_NAME      = XInternAtom(display, "_NET_WM_NAME", 0),
+    XA_UTF8_STRING   = XInternAtom(display, "UTF8_STRING", 1);
 
-    XA_CLIPBOARD = XInternAtom(display, "CLIPBOARD", 0);
-    XA_UTF8_STRING = XInternAtom(display, "UTF8_STRING", 1);
     if(XA_UTF8_STRING == None) {
         XA_UTF8_STRING = XA_STRING;
     }
@@ -1129,20 +1223,20 @@ int main(int argc, char *argv[])
 
     XA_INCR = XInternAtom(display, "INCR", False);
 
-    XdndAware = XInternAtom(display, "XdndAware", False);
-    XdndEnter = XInternAtom(display, "XdndEnter", False);
-    XdndLeave = XInternAtom(display, "XdndLeave", False);
-    XdndPosition = XInternAtom(display, "XdndPosition", False);
-    XdndStatus = XInternAtom(display, "XdndStatus", False);
-    XdndDrop = XInternAtom(display, "XdndDrop", False);
-    XdndSelection = XInternAtom(display, "XdndSelection", False);
-    XdndDATA = XInternAtom(display, "XdndDATA", False);
-    XdndActionCopy = XInternAtom(display, "XdndActionCopy", False);
+    XdndAware       = XInternAtom(display, "XdndAware", False);
+    XdndEnter       = XInternAtom(display, "XdndEnter", False);
+    XdndLeave       = XInternAtom(display, "XdndLeave", False);
+    XdndPosition    = XInternAtom(display, "XdndPosition", False);
+    XdndStatus      = XInternAtom(display, "XdndStatus", False);
+    XdndDrop        = XInternAtom(display, "XdndDrop", False);
+    XdndSelection   = XInternAtom(display, "XdndSelection", False);
+    XdndDATA        = XInternAtom(display, "XdndDATA", False);
+    XdndActionCopy  = XInternAtom(display, "XdndActionCopy", False);
 
-    XA_URI_LIST = XInternAtom(display, "text/uri-list", False);
-    XA_PNG_IMG = XInternAtom(display, "image/png", False);
+    XA_URI_LIST     = XInternAtom(display, "text/uri-list", False);
+    XA_PNG_IMG      = XInternAtom(display, "image/png", False);
 
-    XRedraw = XInternAtom(display, "XRedraw", False);
+    XRedraw         = XInternAtom(display, "XRedraw", False);
 
     /* create the draw buffer */
     drawbuf = XCreatePixmap(display, window, DEFAULT_WIDTH, DEFAULT_HEIGHT, depth);
@@ -1173,6 +1267,10 @@ int main(int argc, char *argv[])
     /* initialize fontconfig */
     initfonts();
 
+    /* Set the default font so we don't segfault on ui_scale() when it goes looking for fonts. */
+    loadfonts();
+    setfont(FONT_TEXT);
+
     /* load fonts and scalable bitmaps */
     ui_scale(save->scale + 1);
 
@@ -1197,8 +1295,14 @@ int main(int argc, char *argv[])
 
     grabgc = XCreateGC(display, RootWindow(display, screen), GCFunction | GCForeground | GCBackground | GCSubwindowMode, &gcval);
 
+    XWindowAttributes attr;
+    XGetWindowAttributes(display, root, &attr);
+
+    pictformat = XRenderFindVisualFormat(display, attr.visual);
+    // XRenderPictFormat *pictformat = XRenderFindStandardFormat(display, PictStandardA8);
+
     /* Xft draw context/color */
-    renderpic = XRenderCreatePicture (display, drawbuf, XRenderFindStandardFormat(display, PictStandardRGB24), 0, NULL);
+    renderpic = XRenderCreatePicture (display, drawbuf, pictformat, 0, NULL);
 
     XRenderColor xrcolor = {0};
     colorpic = XRenderCreateSolidFill(display, &xrcolor);
@@ -1210,9 +1314,6 @@ int main(int argc, char *argv[])
     xrcolor.blue = 0x0;
     xrcolor.alpha = 0xffff;
     XftColorAllocValue(display, visual, cmap, &xrcolor, &xftcolor);*/
-
-    LANG = systemlang();
-    dropdown_language.selected = dropdown_language.over = LANG;
 
     if(set_show_window){
         if(set_show_window == 1){
@@ -1290,7 +1391,7 @@ int main(int argc, char *argv[])
 
     toxaudio_postmessage(AUDIO_KILL, 0, 0, NULL);
     toxvideo_postmessage(VIDEO_KILL, 0, 0, NULL);
-    toxav_postmessage(TOXAV_KILL, 0, 0, NULL);
+    toxav_postmessage(UTOXAV_KILL, 0, 0, NULL);
     tox_postmessage(TOX_KILL, 0, 0, NULL);
 
     /* free client thread stuff */
@@ -1345,264 +1446,13 @@ int main(int argc, char *argv[])
         yieldcpu(1);
     }
 
-    debug("clean exit\n");
+    debug("XLIB main:\tClean exit\n");
 
     return 0;
 }
 
-void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height, _Bool resize)
-{
-    if(!video_win[id]) {
-        debug("frame for null window\n");
-        return;
-    }
+#include "video.c"
 
-    if(resize) {
-        XWindowChanges changes = {
-            .width = width,
-            .height = height
-        };
-        XConfigureWindow(display, video_win[id], CWWidth | CWHeight, &changes);
-    }
-
-    XWindowAttributes attrs;
-    XGetWindowAttributes(display, video_win[id], &attrs);
-
-    XImage image = {
-        .width = attrs.width,
-        .height = attrs.height,
-        .depth = 24,
-        .bits_per_pixel = 32,
-        .format = ZPixmap,
-        .byte_order = LSBFirst,
-        .bitmap_unit = 8,
-        .bitmap_bit_order = LSBFirst,
-        .bytes_per_line = attrs.width * 4,
-        .red_mask = 0xFF0000,
-        .green_mask = 0xFF00,
-        .blue_mask = 0xFF,
-        .data = (char*)img_data
-    };
-
-    /* scale image if needed */
-    uint8_t *new_data = malloc(attrs.width * attrs.height * 4);
-    if(new_data && (attrs.width != width || attrs.height != height)) {
-        scale_rgbx_image(img_data, width, height, new_data, attrs.width, attrs.height);
-        image.data = (char*)new_data;
-    }
-
-
-    GC default_gc = DefaultGC(display, screen);
-    Pixmap pixmap = XCreatePixmap(display, window, attrs.width, attrs.height, 24);
-    XPutImage(display, pixmap, default_gc, &image, 0, 0, 0, 0, attrs.width, attrs.height);
-    XCopyArea(display, pixmap, video_win[id], default_gc, 0, 0, attrs.width, attrs.height, 0, 0);
-    XFreePixmap(display, pixmap);
-    free(new_data);
-}
-
-void video_begin(uint32_t id, char_t *name, STRING_IDX name_length, uint16_t width, uint16_t height)
-{
-    Window *win = &video_win[id];
-    if(*win) {
-        return;
-    }
-
-    *win = XCreateSimpleWindow(display, RootWindow(display, screen), 0, 0, width, height, 0, BlackPixel(display, screen), WhitePixel(display, screen));
-
-    // Fallback name in ISO8859-1.
-    XStoreName(display, *win, "Video Preview");
-    // UTF-8 name for those WMs that can display it.
-    XChangeProperty(display, *win,
-                    XInternAtom(display, "_NET_WM_NAME", False),
-                    XInternAtom(display, "UTF8_STRING", False),
-                    8, PropModeReplace, name, name_length);
-
-    XSetWMProtocols(display, *win, &wm_delete_window, 1);
-
-    /* set WM_CLASS */
-    XClassHint hint = {
-        .res_name = "utoxvideo",
-        .res_class = "utoxvideo"
-    };
-
-    XSetClassHint(display, *win, &hint);
-
-    XMapWindow(display, *win);
-}
-
-void video_end(uint32_t id)
-{
-    if(!video_win[id]) {
-        return;
-    }
-
-    XDestroyWindow(display, video_win[id]);
-    video_win[id] = None;
-}
-
-Display *deskdisplay;
-int deskscreen;
-
-XShmSegmentInfo shminfo;
-
-void initshm(void)
-{
-    deskdisplay = XOpenDisplay(NULL);
-    deskscreen = DefaultScreen(deskdisplay);
-    debug("desktop: %u %u\n", scr->width, scr->height);
-    max_video_width = scr->width;
-    max_video_height = scr->height;
-}
-
-void* video_detect(void)
-{
-    char dev_name[] = "/dev/videoXX", *first = NULL;
-
-    // Indicate that we support desktop capturing.
-    postmessage(NEW_VIDEO_DEVICE, STR_VIDEO_IN_DESKTOP, 0, (void*)1);
-
-    #ifdef __APPLE__
-    #else
-    int i;
-    for(i = 0; i != 64; i++) {
-        snprintf(dev_name + 10, sizeof(dev_name) - 10, "%i", i);
-
-        struct stat st;
-        if (-1 == stat(dev_name, &st)) {
-            continue;
-            //debug("Cannot identify '%s': %d, %s\n", dev_name, errno, strerror(errno));
-            //return 0;
-        }
-
-        if (!S_ISCHR(st.st_mode)) {
-            continue;
-            //debug("%s is no device\n", dev_name);
-            //return 0;
-        }
-
-        void *p = malloc(sizeof(void*) + sizeof(dev_name)), *pp = p + sizeof(void*);
-        memcpy(p, &pp, sizeof(void*));
-        memcpy(p + sizeof(void*), dev_name, sizeof(dev_name));
-        if(!first) {
-            first = pp;
-            postmessage(NEW_VIDEO_DEVICE, UI_STRING_ID_INVALID, 1, p);
-        } else {
-            postmessage(NEW_VIDEO_DEVICE, UI_STRING_ID_INVALID, 0, p);
-        }
-
-    }
-    #endif
-
-    initshm();
-
-    return first;
-}
-
-void desktopgrab(_Bool video)
-{
-    pointergrab = 1 + video;
-    XGrabPointer(display, window, False, Button1MotionMask | ButtonPressMask | ButtonReleaseMask, GrabModeAsync, GrabModeAsync, None, cursors[CURSOR_SELECT], CurrentTime);
-}
-
-static uint16_t video_x, video_y;
-
-_Bool video_init(void *handle)
-{
-    if(isdesktop(handle)) {
-        utox_v4l_fd = -1;
-
-        video_x = volatile(grabx);
-        video_y = volatile(graby);
-        video_width = volatile(grabpx);
-        video_height = volatile(grabpy);
-
-        if(video_width & 1) {
-            if(video_x & 1) {
-                video_x--;
-            }
-            video_width++;
-        }
-
-        if(video_height & 1) {
-            if(video_y & 1) {
-                video_y--;
-            }
-            video_height++;
-        }
-
-        if(!(screen_image = XShmCreateImage(deskdisplay, DefaultVisual(deskdisplay, deskscreen), DefaultDepth(deskdisplay, deskscreen), ZPixmap, NULL, &shminfo, video_width, video_height))) {
-            return 0;
-        }
-
-        if((shminfo.shmid = shmget(IPC_PRIVATE, screen_image->bytes_per_line * screen_image->height, IPC_CREAT | 0777)) < 0) {
-            return 0;
-        }
-
-        if((shminfo.shmaddr = screen_image->data = (char*)shmat(shminfo.shmid, 0, 0)) == (char*)-1) {
-            return 0;
-        }
-
-        shminfo.readOnly = False;
-        if(!XShmAttach(deskdisplay, &shminfo)) {
-            return 0;
-        }
-
-        return 1;
-    }
-
-    return v4l_init(handle);
-}
-
-void video_close(void *handle)
-{
-    if(isdesktop(handle)) {
-        XShmDetach(deskdisplay, &shminfo);
-        return;
-    }
-
-    v4l_close();
-}
-
-_Bool video_startread(void)
-{
-    if(utox_v4l_fd == -1) {
-        return 1;
-    }
-
-    return v4l_startread();
-}
-
-_Bool video_endread(void)
-{
-    if(utox_v4l_fd == -1) {
-        return 1;
-    }
-
-    return v4l_endread();
-}
-
-int video_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, uint16_t height)
-{
-    if(utox_v4l_fd == -1) {
-        static uint64_t lasttime;
-        uint64_t t = get_time();
-        if(t - lasttime >= (uint64_t)1000 * 1000 * 1000 / 24) {
-            XShmGetImage(deskdisplay,RootWindow(deskdisplay, deskscreen), screen_image, video_x, video_y, AllPlanes);
-            if (width != video_width || height != video_height) {
-                debug("width/height mismatch %u %u != %u %u\n", width, height, screen_image->width, screen_image->height);
-                return 0;
-            }
-
-            bgrxtoyuv420(y, u, v, (uint8_t*)screen_image->data, screen_image->width, screen_image->height);
-            lasttime = t;
-            return 1;
-        }
-        return 0;
-    }
-
-    return v4l_getframe(y, u, v, width, height);
-}
-
-void launch_at_startup(int is_launch_at_startup)
-{
-}
+/* Dummy functions used in other systems... */
+/* Used in windows only... */
+void launch_at_startup(int is_launch_at_startup) {}

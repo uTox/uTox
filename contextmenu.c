@@ -36,9 +36,9 @@ void contextmenu_draw(void)
     int x, w, active_h;
     calculate_pos_and_width(b, &x, &w);
 
-    drawrectw(x, b->y, w, b->height, COLOR_MAIN_BACKGROUND);
+    draw_rect_fill(x, b->y, w, b->height, COLOR_BACKGROUND_MAIN);
     active_h = b->y + b->over * CONTEXT_HEIGHT;
-    drawrectw(x, active_h, w, CONTEXT_HEIGHT, COLOR_ACTIVEOPTION_BACKGROUND);
+    draw_rect_fill(x, active_h, w, CONTEXT_HEIGHT, COLOR_ACTIVEOPTION_BACKGROUND);
 
     int i;
     for(i = 0; i != b->count; i++) {
@@ -49,7 +49,7 @@ void contextmenu_draw(void)
         drawtext(x + SCALE * 2, b->y + SCALE * 2 + i * CONTEXT_HEIGHT, name->str, name->length);
     }
 
-    framerect(x, b->y, x + w, b->y + b->height, COLOR_EDGE_ACTIVE);
+    draw_rect_frame(x, b->y, w, b->height, COLOR_EDGE_ACTIVE);
 }
 
 _Bool contextmenu_mmove(int mx, int my, int UNUSED(dx), int UNUSED(dy))
@@ -64,7 +64,7 @@ _Bool contextmenu_mmove(int mx, int my, int UNUSED(dx), int UNUSED(dy))
 
     // Ensure that font is set before calculating position and width.
     setfont(FONT_TEXT);
-    setcolor(COLOR_MAIN_BACKGROUND);
+    setcolor(COLOR_BACKGROUND_MAIN);
 
     int x, w;
     calculate_pos_and_width(b, &x, &w);

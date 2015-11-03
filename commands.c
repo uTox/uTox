@@ -1,5 +1,12 @@
 #include "main.h"
 
+int slash_send_file(FRIEND *friend_handle, const uint8_t *filepath){
+    debug("Slash:\tFile path is: %s\n", filepath);
+    // todo error check on the file
+        tox_postmessage(TOX_FILE_SEND_NEW_SLASH, friend_handle - friend, 0xFFFF, (void*)filepath);
+    return 1;
+}
+
 STRING_IDX utox_run_command(char_t *string, STRING_IDX string_length, char_t **cmd, char_t **argument, int trusted){
     if(trusted == 0){
         return 0; /* We don't currently support commands from non-trusted sources, before you run commands from friends
@@ -39,11 +46,25 @@ STRING_IDX utox_run_command(char_t *string, STRING_IDX string_length, char_t **c
     }
 
     /* Start accepting actions */
-    if ((cmd_length == 5) && (memcmp(*cmd, "alias", 5) == 0) && *argument ) {
+    if ((cmd_length == 5) && (memcmp(*cmd, "alias", 5) == 0)) {
         if(selected_item->item == ITEM_FRIEND) {
             FRIEND *f = selected_item->data;
-            friend_set_alias(f, *argument, argument_length);
+            if (*argument) {
+                friend_set_alias(f, *argument, argument_length);
+            } else {
+                friend_set_alias(f, NULL, 0);
+            }
+
             cmd_length = -1; /* We'll take care of this, don't return to edit */
+        }
+    } else if ((cmd_length == 8) && (memcmp(*cmd, "sendfile", 8) == 0)){
+        if(selected_item->item == ITEM_FRIEND) {
+            FRIEND *f = selected_item->data;
+            if (slash_send_file(f, *argument)) {
+                cmd_length = -1; /* We'll take care of this, don't return to edit */
+            } else {
+                return 0;
+            }
         }
     } else {
         // debug("Command unsupported!\n");

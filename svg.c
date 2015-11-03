@@ -43,8 +43,7 @@ static uint8_t pixelmax(double d, uint8_t p) {
     }
 }
 
-static void drawrectrounded(uint8_t *data, int width, int height, int radius)
-{
+static void drawrectrounded(uint8_t *data, int width, int height, int radius) {
     int x, y;
     double hw = (double)radius - 0.5;
     for(y = 0; y != height; y++) {
@@ -62,12 +61,11 @@ static void drawrectrounded(uint8_t *data, int width, int height, int radius)
     }
 }
 
-static void drawrectroundedex(uint8_t *data, int width, int height, int radius, uint8_t flags)
-{
-    _Bool c1 = ((flags & 1) != 0);
-    _Bool c2 = ((flags & 2) != 0);
-    _Bool c3 = ((flags & 4) != 0);
-    _Bool c4 = ((flags & 8) != 0);
+static void drawrectroundedex(uint8_t *data, int width, int height, int radius, uint8_t flags) {
+    _Bool c1 = ((flags & 1) != 0); /* left   0001 */
+    _Bool c2 = ((flags & 2) != 0); /* right  0010 */
+    _Bool c3 = ((flags & 4) != 0); /* top    0100 */
+    _Bool c4 = ((flags & 8) != 0); /* bottom 1000 */
 
     int x, y;
     double hw = (double)radius - 0.5;
@@ -86,8 +84,7 @@ static void drawrectroundedex(uint8_t *data, int width, int height, int radius, 
     }
 }
 
-static void drawrectroundedsub(uint8_t *p, int width, int height, int sx, int sy, int sw, int sh, int radius)
-{
+static void drawrectroundedsub(uint8_t *p, int width, int height, int sx, int sy, int sw, int sh, int radius) {
     int x, y;
     double hw = (double)radius - 0.5;
     for(y = sy; y != sy + sh; y++) {
@@ -112,8 +109,7 @@ static void drawrectroundedsub(uint8_t *p, int width, int height, int sx, int sy
     }
 }
 
-static void drawrectroundedneg(uint8_t *p, int width, int height, int sx, int sy, int sw, int sh, int radius)
-{
+static void drawrectroundedneg(uint8_t *p, int width, int height, int sx, int sy, int sw, int sh, int radius) {
     int x, y;
     double hw = (double)radius - 0.5;
     for(y = sy; y != sy + sh; y++) {
@@ -138,8 +134,7 @@ static void drawrectroundedneg(uint8_t *p, int width, int height, int sx, int sy
     }
 }
 
-static void drawcircle(uint8_t *data, int width)
-{
+static void drawcircle(uint8_t *data, int width) {
     int x, y;
     double hw = (double)width / 2.0 - 0.5;
     for(y = 0; y != width; y++) {
@@ -151,8 +146,7 @@ static void drawcircle(uint8_t *data, int width)
     }
 }
 
-static void drawnewcircle(uint8_t *data, int width, int height, double cx, double cy, double subwidth)
-{
+static void drawnewcircle(uint8_t *data, int width, int height, double cx, double cy, double subwidth) {
     int x, y;
     double hw = cx - 0.5, vw = cy - 0.5, sw = (double)subwidth / 2.0;
 
@@ -165,8 +159,7 @@ static void drawnewcircle(uint8_t *data, int width, int height, double cx, doubl
     }
 }
 
-static void drawnewcircle2(uint8_t *data, int width, int height, double cx, double cy, double subwidth, uint8_t flags)
-{
+static void drawnewcircle2(uint8_t *data, int width, int height, double cx, double cy, double subwidth, uint8_t flags) {
     int x, y;
     double hw = cx - 0.5, vw = cy - 0.5, sw = (double)subwidth / 2.0;
     _Bool b = (flags & 1) != 0;
@@ -194,8 +187,7 @@ static void drawnewcircle2(uint8_t *data, int width, int height, double cx, doub
     }
 }
 
-static void drawhead(uint8_t *data, int width, double cx, double cy, double subwidth)
-{
+static void drawhead(uint8_t *data, int width, double cx, double cy, double subwidth) {
     int x, y;
     double hw = (double)cx - 0.5, vw = (double)cy - 0.5, sw = (double)subwidth / 2.0;
 
@@ -211,8 +203,7 @@ static void drawhead(uint8_t *data, int width, double cx, double cy, double subw
     }
 }
 
-static void drawsubcircle(uint8_t *data, int width, int height, double cx, double cy, double subwidth)
-{
+static void drawsubcircle(uint8_t *data, int width, int height, double cx, double cy, double subwidth) {
     int x, y;
     double hw = cx - 0.5, vw = cy - 0.5, sw = subwidth / 2.0;
 
@@ -225,8 +216,7 @@ static void drawsubcircle(uint8_t *data, int width, int height, double cx, doubl
     }
 }
 
-static void drawcross(uint8_t *data, int width)
-{
+static void drawcross(uint8_t *data, int width) {
     int x, y;
     double hw = 0.5 * (double)(width - 1);
     double w = 0.0625 * (double)width;
@@ -239,12 +229,11 @@ static void drawcross(uint8_t *data, int width)
     }
 }
 
-static void drawxcross(uint8_t *data, int width, int height, int radius)
-{
+static void drawxcross(uint8_t *data, int width, int height, int radius) {
     int x, y;
-    double cx = 0.5 * (double)(width - 1);
-    double cy = 0.5 * (double)(height - 1);
-    double w = 0.0625 * (double)radius;
+    double cx = 0.5    * (double)(width - 1);
+    double cy = 0.5    * (double)(height - 1);
+    double w  = 0.0625 * (double)radius;
     for(y = 0; y != height; y++) {
         for(x = 0; x != width; x++) {
             double dx = (double)x - cx, dy = (double)y - cy;
@@ -256,8 +245,7 @@ static void drawxcross(uint8_t *data, int width, int height, int radius)
     }
 }
 
-static void drawline(uint8_t *data, int width, int height, double sx, double sy, double span, double radius)
-{
+static void drawline(uint8_t *data, int width, int height, double sx, double sy, double span, double radius) {
     int x, y;
     double cx = sx - 0.5, cy = sy - 0.5;
 
@@ -271,8 +259,7 @@ static void drawline(uint8_t *data, int width, int height, double sx, double sy,
     }
 }
 
-static void drawlinedown(uint8_t *data, int width, int height, double sx, double sy, double span, double radius)
-{
+static void drawlinedown(uint8_t *data, int width, int height, double sx, double sy, double span, double radius) {
     int x, y;
     double cx = sx - 0.5, cy = sy - 0.5;
 
@@ -286,8 +273,35 @@ static void drawlinedown(uint8_t *data, int width, int height, double sx, double
     }
 }
 
-static void drawlinevert(uint8_t *data, int width, int height, double sx, double w)
-{
+static void svgdraw_line_neg(uint8_t *data, int width, int height, double sx, double sy, double span, double radius) {
+    int x, y;
+    double cx = sx - 0.5, cy = sy - 0.5;
+
+    for(y = 0; y != height; y++) {
+        for(x = 0; x != width; x++) {
+            double dx = (double)x - cx, dy = (double)y - cy;
+            double d = (SQRT2 / 2.0) * fabs(dx + dy) - radius;
+            d = fmax(fabs(dx) + fabs(dy) - (SQRT2 / 2.0) * (double)span - radius, d);
+            *data = pixelmin(d, *data); data++;
+        }
+    }
+}
+
+static void svgdraw_line_down_neg(uint8_t *data, int width, int height, double sx, double sy, double span, double radius) {
+    int x, y;
+    double cx = sx - 0.5, cy = sy - 0.5;
+
+    for(y = 0; y != height; y++) {
+        for(x = 0; x != width; x++) {
+            double dx = (double)x - cx, dy = (double)y - cy;
+            double d = (SQRT2 / 2.0) * fabs(dx - dy) - radius;
+            d = fmax(fabs(dx) + fabs(dy) - (SQRT2 / 2.0) * (double)span - radius, d);
+            *data = pixelmin(d, *data); data++;
+        }
+    }
+}
+
+static void drawlinevert(uint8_t *data, int width, int height, double sx, double w) {
     int x, y;
     double cx = sx + w / 2.0 - 0.5;
 
@@ -299,8 +313,7 @@ static void drawlinevert(uint8_t *data, int width, int height, double sx, double
     }
 }
 
-static void drawtri(uint8_t *data, int width, int height, double sx, double sy, double size, uint8_t dir)
-{
+static void drawtri(uint8_t *data, int width, int height, double sx, double sy, double size, uint8_t dir) {
     int x, y;
     double cx = sx - 0.5, cy = sy - 0.5;
 
@@ -323,8 +336,7 @@ static void drawtri(uint8_t *data, int width, int height, double sx, double sy, 
     }
 }
 
-static void drawlineround(uint8_t *data, int width, int height, double sx, double sy, double span, double radius, double subwidth, uint8_t flags)
-{
+static void drawlineround(uint8_t *data, int width, int height, double sx, double sy, double span, double radius, double subwidth, uint8_t flags) {
     int x, y;
     double cx = sx - 0.5, cy = sy - 0.5, sw = (double)subwidth / 2.0;
 
@@ -353,8 +365,7 @@ static void drawlineround(uint8_t *data, int width, int height, double sx, doubl
     }
 }
 
-static void drawlineroundempty(uint8_t *data, int width, int height, double sx, double sy, double span, double radius, double subwidth)
-{
+static void drawlineroundempty(uint8_t *data, int width, int height, double sx, double sy, double span, double radius, double subwidth) {
     int x, y;
     double cx = sx - 0.5, cy = sy - 0.5, sw = (double)subwidth / 2.0;
 
@@ -380,8 +391,7 @@ static void drawlineroundempty(uint8_t *data, int width, int height, double sx, 
 }
 
 
-static void drawgroup(uint8_t *data, int width)
-{
+static void drawgroup(uint8_t *data, int width) {
     double s = (double)width / BM_CONTACT_WIDTH;
     drawnewcircle(data, width, s * 9 * SCALE, s * 5 * SCALE, s * 9 * SCALE, s * 7.5 * SCALE);
     drawnewcircle(data, width, s * 9 * SCALE, s * 15 * SCALE, s * 9 * SCALE, s * 7.5 * SCALE);
@@ -396,8 +406,7 @@ static void drawgroup(uint8_t *data, int width)
     drawhead(data, width, s * 10 * SCALE, s * 8 * SCALE, s * 7.5 * SCALE);
 }
 
-_Bool svg_draw(_Bool needmemory)
-{
+_Bool svg_draw(_Bool needmemory) {
     int size, s;
     void *p;
 
@@ -405,13 +414,17 @@ _Bool svg_draw(_Bool needmemory)
         free(svg_data);
     }
 
-    /* Build what we expect the size to be. */
-    size = SCROLL_WIDTH * SCROLL_WIDTH +
+    /* Build what we expect the size to be.
+     * This section uses unnamed shortcuts, so it really serves no purpose and makes it harder to debug, it needs to be
+     * fixed, without shortcuts, and proper comments... TODO FIXME */
+    size = SCROLL_WIDTH * SCROLL_WIDTH + SCROLL_WIDTH * SCROLL_WIDTH /2 +
         BM_STATUSAREA_WIDTH * BM_STATUSAREA_HEIGHT +
         /* Panel buttons */
         BM_ADD_WIDTH * BM_ADD_WIDTH * 4 +
+        BM_THREE_BAR_WIDTH * BM_THREE_BAR_WIDTH +
         BM_CONTACT_WIDTH * BM_CONTACT_WIDTH * 2 +
-        BM_LBICON_WIDTH * BM_LBICON_HEIGHT * 3 + // file, call, video
+        BM_LBICON_WIDTH * BM_LBICON_HEIGHT * 2 + // call, video
+        BM_FILE_WIDTH * BM_FILE_HEIGHT + BM_FILE_BIG_WIDTH * BM_FILE_BIG_HEIGHT + // file small and big
         BM_STATUS_WIDTH * BM_STATUS_WIDTH * 4 +
         BM_STATUS_NOTIFY_WIDTH * BM_STATUS_NOTIFY_WIDTH +
         BM_LBUTTON_WIDTH * BM_LBUTTON_HEIGHT +
@@ -421,11 +434,10 @@ _Bool svg_draw(_Bool needmemory)
         (BM_FTB_WIDTH * (BM_FTB_HEIGHT + SCALE) + BM_FTB_WIDTH * BM_FTB_HEIGHT) +
         BM_FB_WIDTH * BM_FB_HEIGHT * 4 +
         /* Chat Buttons */
-        BM_CHAT_BUTTON_WIDTH * (BM_CHAT_BUTTON_HEIGHT + SCALE) * 2 + // Chat button 1, 2
-        BM_CHAT_SEND_WIDTH * BM_CHAT_SEND_HEIGHT +
+        BM_CHAT_BUTTON_WIDTH * BM_CHAT_BUTTON_HEIGHT * 2 + // Chat button 1, 2
+        BM_CHAT_SEND_WIDTH   * BM_CHAT_SEND_HEIGHT +
         BM_CHAT_SEND_OVERLAY_WIDTH * BM_CHAT_SEND_OVERLAY_HEIGHT +
-        BM_CI_WIDTH * BM_CI_WIDTH;
-
+        BM_CHAT_BUTTON_OVERLAY_WIDTH * BM_CHAT_BUTTON_OVERLAY_HEIGHT;
 
     svg_data = calloc(1, size);
 
@@ -435,71 +447,96 @@ _Bool svg_draw(_Bool needmemory)
 
     p = svg_data;
 
+    /* Scroll bars top bottom halves */
     drawcircle(p, SCROLL_WIDTH);
-    loadalpha(BM_SCROLLHALFTOP, p, SCROLL_WIDTH, SCROLL_WIDTH / 2);
-    loadalpha(BM_SCROLLHALFBOT, p + SCROLL_WIDTH * SCROLL_WIDTH / 2, SCROLL_WIDTH, SCROLL_WIDTH / 2);
+    loadalpha(BM_SCROLLHALFTOP, p,                                  SCROLL_WIDTH, SCROLL_WIDTH /2);
+    loadalpha(BM_SCROLLHALFBOT, p + SCROLL_WIDTH * SCROLL_WIDTH /2, SCROLL_WIDTH, SCROLL_WIDTH /2);
     p += SCROLL_WIDTH * SCROLL_WIDTH;
+
+
+    /* Scroll bars top bottom halves (small)*/
+    drawcircle(p, SCROLL_WIDTH /2);
+    loadalpha(BM_SCROLLHALFTOP_SMALL, p,                                     SCROLL_WIDTH /2, SCROLL_WIDTH /4);
+    loadalpha(BM_SCROLLHALFBOT_SMALL, p + SCROLL_WIDTH /2 * SCROLL_WIDTH /4, SCROLL_WIDTH /2, SCROLL_WIDTH /4);
+    p += SCROLL_WIDTH * SCROLL_WIDTH /2;
 
     drawrectrounded(p, BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT, SCALE * 2);
     loadalpha(BM_STATUSAREA, p, BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT);
     p += BM_STATUSAREA_WIDTH * BM_STATUSAREA_HEIGHT;
 
     /* Draw panel Buttons */
-    s = BM_ADD_WIDTH * BM_ADD_WIDTH;
     drawcross(p, BM_ADD_WIDTH);
     loadalpha(BM_ADD, p, BM_ADD_WIDTH, BM_ADD_WIDTH);
-    p += s;
+    p += BM_ADD_WIDTH * BM_ADD_WIDTH;
 
+    /* New group bitmap */
     drawgroup(p, BM_ADD_WIDTH);
     loadalpha(BM_GROUPS, p, BM_ADD_WIDTH, BM_ADD_WIDTH);
-    p += s;
+    p += BM_ADD_WIDTH * BM_ADD_WIDTH;
 
     drawline(p, BM_ADD_WIDTH, BM_ADD_WIDTH, SCALE * 3, SCALE * 3, SCALE * 5, 0.75 * SCALE);
     drawline(p, BM_ADD_WIDTH, BM_ADD_WIDTH, SCALE * 6, SCALE * 6, SCALE * 5, 0.75 * SCALE);
     drawtri(p, BM_ADD_WIDTH, BM_ADD_WIDTH, 6 * SCALE, 0, 4 * SCALE, 0);
     drawtri(p, BM_ADD_WIDTH, BM_ADD_WIDTH, 3 * SCALE, 9 * SCALE, 4 * SCALE, 1);
     loadalpha(BM_TRANSFER, p, BM_ADD_WIDTH, BM_ADD_WIDTH);
-    p += s;
+    p += BM_ADD_WIDTH * BM_ADD_WIDTH;
 
+    /* Settings gear bitmap */
     drawcross(p, BM_ADD_WIDTH);
     drawxcross(p, BM_ADD_WIDTH, BM_ADD_WIDTH, BM_ADD_WIDTH);
     drawnewcircle(p, BM_ADD_WIDTH, BM_ADD_WIDTH, 0.5 * BM_ADD_WIDTH, 0.5 * BM_ADD_WIDTH, 7 * SCALE);
     drawsubcircle(p, BM_ADD_WIDTH, BM_ADD_WIDTH, 0.5 * BM_ADD_WIDTH, 0.5 * BM_ADD_WIDTH, 3 * SCALE);
     loadalpha(BM_SETTINGS, p, BM_ADD_WIDTH, BM_ADD_WIDTH);
-    p += s;
+    p += BM_ADD_WIDTH * BM_ADD_WIDTH;
 
-    s = BM_CONTACT_WIDTH * BM_CONTACT_WIDTH;
+    /* Settings 3 line bitmap          width              height                         x                                                y                    width                  height   radius */
+    drawrectroundedsub(p, BM_THREE_BAR_WIDTH, BM_THREE_BAR_WIDTH, BM_THREE_BAR_WIDTH * .15, BM_THREE_BAR_WIDTH /4 - BM_THREE_BAR_WIDTH   /8, BM_THREE_BAR_WIDTH * .7, (BM_THREE_BAR_WIDTH /8), 2);
+    drawrectroundedsub(p, BM_THREE_BAR_WIDTH, BM_THREE_BAR_WIDTH, BM_THREE_BAR_WIDTH * .15, BM_THREE_BAR_WIDTH /2 - BM_THREE_BAR_WIDTH   /8, BM_THREE_BAR_WIDTH * .7, (BM_THREE_BAR_WIDTH /8), 2);
+    drawrectroundedsub(p, BM_THREE_BAR_WIDTH, BM_THREE_BAR_WIDTH, BM_THREE_BAR_WIDTH * .15, BM_THREE_BAR_WIDTH /1 - BM_THREE_BAR_WIDTH *3/8, BM_THREE_BAR_WIDTH * .7, (BM_THREE_BAR_WIDTH /8), 2);
+    loadalpha(BM_SETTINGS_THREE_BAR, p, BM_THREE_BAR_WIDTH, BM_THREE_BAR_WIDTH);
+    p += BM_THREE_BAR_WIDTH * BM_THREE_BAR_WIDTH;
 
+    /* Contact avatar default bitmap */
     drawnewcircle(p, BM_CONTACT_WIDTH, 18 * SCALE, 10 * SCALE, 18 * SCALE, 14 * SCALE);
     drawsubcircle(p, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, 10 * SCALE, 10 * SCALE, 6 * SCALE);
     drawhead(p, BM_CONTACT_WIDTH, 10 * SCALE, 6 * SCALE, 8 * SCALE);
     loadalpha(BM_CONTACT, p, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
-    p += s;
+    p += BM_CONTACT_WIDTH * BM_CONTACT_WIDTH;
 
+    /* Group heads default bitmap */
     drawgroup(p, BM_CONTACT_WIDTH);
     loadalpha(BM_GROUP, p, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
-    p += s;
+    p += BM_CONTACT_WIDTH * BM_CONTACT_WIDTH;
 
     /* Draw button icon overlays. */
-    s = BM_LBICON_WIDTH * BM_LBICON_HEIGHT;
-
-    drawlineround(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, 5.5 * SCALE, 5 * SCALE, 1 * SCALE, 3.85 * SCALE, 6.6 * SCALE, 0);
-    drawlineroundempty(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, 5.5 * SCALE, 5 * SCALE, 1 * SCALE, 2.4 * SCALE, 4.5 * SCALE);
-    drawsubcircle(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, 6.0 * SCALE, 8.1 * SCALE, 2.5 * SCALE);
-    drawlineround(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, 7.0 * SCALE, 5.40 * SCALE, 0.5 * SCALE, 2.2 * SCALE, 3.75 * SCALE, 1);
-    drawlineroundempty(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, 7.25 * SCALE, 5.15 * SCALE, 0.75 * SCALE, 0.75 * SCALE, 1.5 * SCALE);
-    loadalpha(BM_FILE, p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT);
-    p += s;
+    drawlineround(p, BM_FILE_WIDTH, BM_FILE_HEIGHT, 5.5 * SCALE, 5 * SCALE, 1 * SCALE, 3.85 * SCALE, 6.6 * SCALE, 0);
+    drawlineroundempty(p, BM_FILE_WIDTH, BM_FILE_HEIGHT, 5.5 * SCALE, 5 * SCALE, 1 * SCALE, 2.4 * SCALE, 4.5 * SCALE);
+    drawsubcircle(p, BM_FILE_WIDTH, BM_FILE_HEIGHT, 6.0 * SCALE, 8.1 * SCALE, 2.5 * SCALE);
+    drawlineround(p, BM_FILE_WIDTH, BM_FILE_HEIGHT, 7.0 * SCALE, 5.40 * SCALE, 0.5 * SCALE, 2.2 * SCALE, 3.75 * SCALE, 1);
+    drawlineroundempty(p, BM_FILE_WIDTH, BM_FILE_HEIGHT, 7.25 * SCALE, 5.15 * SCALE, 0.75 * SCALE, 0.75 * SCALE, 1.5 * SCALE);
+    loadalpha(BM_FILE, p, BM_FILE_WIDTH, BM_FILE_HEIGHT);
+    p += BM_FILE_WIDTH * BM_FILE_HEIGHT;
+    /* and the big one... */
+    // TODO convert the *2 hack
+    drawlineround(p, BM_FILE_BIG_WIDTH, BM_FILE_BIG_HEIGHT, 5.5 * SCALE * 2, 5 * SCALE * 2, 1 * SCALE * 2, 3.85 * SCALE * 2, 6.6 * SCALE * 2, 0);
+    drawlineroundempty(p, BM_FILE_BIG_WIDTH, BM_FILE_BIG_HEIGHT, 5.5 * SCALE * 2, 5 * SCALE * 2, 1 * SCALE * 2, 2.4 * SCALE * 2, 4.5 * SCALE * 2);
+    drawsubcircle(p, BM_FILE_BIG_WIDTH, BM_FILE_BIG_HEIGHT, 6.0 * SCALE * 2, 8.1 * SCALE * 2, 2.5 * SCALE * 2);
+    drawlineround(p, BM_FILE_BIG_WIDTH, BM_FILE_BIG_HEIGHT, 7.0 * SCALE * 2, 5.40 * SCALE * 2, 0.5 * SCALE * 2, 2.2 * SCALE * 2, 3.75 * SCALE * 2, 1);
+    drawlineroundempty(p, BM_FILE_BIG_WIDTH, BM_FILE_BIG_HEIGHT, 7.25 * SCALE * 2, 5.15 * SCALE * 2, 0.75 * SCALE * 2, 0.75 * SCALE * 2, 1.5 * SCALE * 2);
+    loadalpha(BM_FILE_BIG, p, BM_FILE_BIG_WIDTH, BM_FILE_BIG_HEIGHT);
+    p += BM_FILE_BIG_WIDTH * BM_FILE_BIG_HEIGHT;
 
     drawnewcircle(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, SCALE, 0, 19 * SCALE);
     drawsubcircle(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, SCALE, 0, 15 * SCALE);
     drawnewcircle2(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, 9 * SCALE, 2 * SCALE, 3 * SCALE, 0);
     drawnewcircle2(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, 3 * SCALE, 8 * SCALE, 3 * SCALE, 1);
     loadalpha(BM_CALL, p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT);
-    p += s;
+    p += BM_LBICON_WIDTH * BM_LBICON_HEIGHT;
 
+    /* Video start end bitmap */
     int x, y;
     uint8_t *data = p;
+    /* left triangle lens thing */
     for(y = 0; y != BM_LBICON_HEIGHT; y++) {
         for(x = 0; x != SCALE * 4; x++) {
             double d = fabs(y - 4.5 * SCALE) - 0.66 * (SCALE * 4 - x);
@@ -509,7 +546,7 @@ _Bool svg_draw(_Bool needmemory)
     }
     drawrectroundedsub(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, 4 * SCALE, SCALE, 7 * SCALE, 7 * SCALE, SCALE);
     loadalpha(BM_VIDEO, p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT);
-    p += s;
+    p += BM_LBICON_WIDTH * BM_LBICON_HEIGHT;
 
     /* Draw user status Buttons */
     s = BM_STATUS_WIDTH * BM_STATUS_WIDTH;
@@ -573,10 +610,10 @@ _Bool svg_draw(_Bool needmemory)
     loadalpha(BM_PAUSE, p, BM_FB_WIDTH, BM_FB_HEIGHT);
     p += s;
 
-    drawline(p, BM_FB_WIDTH, BM_FB_HEIGHT, SCALE * 1.75, SCALE * 3.5, SCALE * 2.5, 0.5 * SCALE);
-    drawline(p, BM_FB_WIDTH, BM_FB_HEIGHT, SCALE * 4, SCALE * 3.5, SCALE * 2.5, 0.5 * SCALE);
+    drawline(p,     BM_FB_WIDTH, BM_FB_HEIGHT, SCALE * 1.75, SCALE * 3.5,  SCALE * 2.5, 0.5 * SCALE);
+    drawline(p,     BM_FB_WIDTH, BM_FB_HEIGHT, SCALE * 4,    SCALE * 3.5,  SCALE * 2.5, 0.5 * SCALE);
     drawlinedown(p, BM_FB_WIDTH, BM_FB_HEIGHT, SCALE * 1.75, SCALE * 1.75, SCALE * 2.5, 0.5 * SCALE);
-    drawlinedown(p, BM_FB_WIDTH, BM_FB_HEIGHT, SCALE * 4, SCALE * 1.75, SCALE * 2.5, 0.5 * SCALE);
+    drawlinedown(p, BM_FB_WIDTH, BM_FB_HEIGHT, SCALE * 4,    SCALE * 1.75, SCALE * 2.5, 0.5 * SCALE);
     loadalpha(BM_RESUME, p, BM_FB_WIDTH, BM_FB_HEIGHT);
     p += s;
 
@@ -585,32 +622,62 @@ _Bool svg_draw(_Bool needmemory)
     loadalpha(BM_YES, p, BM_FB_WIDTH, BM_FB_HEIGHT);
     p += s;
 
-    drawrectroundedex(p, BM_CHAT_BUTTON_WIDTH, BM_CHAT_BUTTON_HEIGHT, SCALE * 2, 6);
-    loadalpha(BM_CB1, p, BM_CHAT_BUTTON_WIDTH, BM_CHAT_BUTTON_HEIGHT);
+    /* the two small chat buttons... */
+    drawrectroundedex(p, BM_CHAT_BUTTON_WIDTH, BM_CHAT_BUTTON_HEIGHT, SCALE * 2, 13);
+    loadalpha(BM_CHAT_BUTTON_LEFT, p, BM_CHAT_BUTTON_WIDTH, BM_CHAT_BUTTON_HEIGHT);
     p += BM_CHAT_BUTTON_WIDTH * BM_CHAT_BUTTON_HEIGHT;
 
-    drawrectroundedex(p, BM_CHAT_BUTTON_WIDTH, BM_CHAT_BUTTON_HEIGHT + SCALE, SCALE * 2, 10);
-    loadalpha(BM_CB2, p, BM_CHAT_BUTTON_WIDTH, BM_CHAT_BUTTON_HEIGHT + SCALE);
-    p += BM_CHAT_BUTTON_WIDTH * (BM_CHAT_BUTTON_HEIGHT + SCALE);
+    drawrectroundedex(p, BM_CHAT_BUTTON_WIDTH, BM_CHAT_BUTTON_HEIGHT, SCALE * 2, 0);
+    loadalpha(BM_CHAT_BUTTON_RIGHT, p, BM_CHAT_BUTTON_WIDTH, BM_CHAT_BUTTON_HEIGHT);
+    p += BM_CHAT_BUTTON_WIDTH * BM_CHAT_BUTTON_HEIGHT;
+
 
     /* Draw chat send button */
-    drawrectrounded(p, BM_CHAT_SEND_WIDTH, BM_CHAT_SEND_HEIGHT, 4 * SCALE);
+    drawrectroundedex(p, BM_CHAT_SEND_WIDTH, BM_CHAT_SEND_HEIGHT, 4 * SCALE, 14);
     loadalpha(BM_CHAT_SEND, p, BM_CHAT_SEND_WIDTH, BM_CHAT_SEND_HEIGHT);
     p += BM_CHAT_SEND_WIDTH * BM_CHAT_SEND_HEIGHT;
 
     /* Draw chat send overlay */
-    drawnewcircle(p, BM_CHAT_SEND_OVERLAY_WIDTH, BM_CHAT_SEND_OVERLAY_HEIGHT, 10 * SCALE, 9 * SCALE, 15 * SCALE);
-    drawtri(p, BM_CHAT_SEND_OVERLAY_WIDTH, BM_CHAT_SEND_OVERLAY_HEIGHT, 14 * SCALE, 14 * SCALE, 5 * SCALE, 0);
+    drawnewcircle(p, BM_CHAT_SEND_OVERLAY_WIDTH, BM_CHAT_SEND_OVERLAY_HEIGHT, 10 * SCALE, 7 * SCALE, 13 * SCALE);
+    drawtri(      p, BM_CHAT_SEND_OVERLAY_WIDTH, BM_CHAT_SEND_OVERLAY_HEIGHT, 15 * SCALE, 9 * SCALE,  6 * SCALE, 0);
     loadalpha(BM_CHAT_SEND_OVERLAY, p, BM_CHAT_SEND_OVERLAY_WIDTH, BM_CHAT_SEND_OVERLAY_HEIGHT);
     p += BM_CHAT_SEND_OVERLAY_WIDTH * BM_CHAT_SEND_OVERLAY_HEIGHT;
 
-    drawrectrounded(p, BM_CI_WIDTH, BM_CI_WIDTH, SCALE * 2);
-    drawrectroundedneg(p, BM_CI_WIDTH, BM_CI_WIDTH, SCALE, SCALE, (_BM_CI_WIDTH - 2) * SCALE, (_BM_CI_WIDTH - 2) * SCALE, 1 * SCALE);
-    loadalpha(BM_CI1, p, BM_CI_WIDTH, BM_CI_WIDTH);
-    p += BM_CI_WIDTH * BM_CI_WIDTH;
+    /* screen shot button overlay */
+    /* Rounded frame */
+    drawrectroundedsub(p, BM_CHAT_BUTTON_OVERLAY_WIDTH,               BM_CHAT_BUTTON_OVERLAY_HEIGHT,
+                          1 * SCALE,                                  1 * SCALE,
+                          BM_CHAT_BUTTON_OVERLAY_WIDTH - (4 * SCALE), BM_CHAT_BUTTON_OVERLAY_HEIGHT - (4 * SCALE),
+                          1 * SCALE);
+    drawrectroundedneg(p, BM_CHAT_BUTTON_OVERLAY_WIDTH,               BM_CHAT_BUTTON_OVERLAY_HEIGHT, /* width, height */
+                          2 * SCALE,                                  2 * SCALE,                     /* start x, y */
+                          BM_CHAT_BUTTON_OVERLAY_WIDTH - (6 * SCALE), BM_CHAT_BUTTON_OVERLAY_HEIGHT - (6 * SCALE),
+                          1 * SCALE);
+    /* camera shutter circle */
+    drawnewcircle(p, BM_CHAT_BUTTON_OVERLAY_WIDTH,        BM_CHAT_BUTTON_OVERLAY_HEIGHT,
+                     BM_CHAT_BUTTON_OVERLAY_WIDTH * 0.75, BM_CHAT_BUTTON_OVERLAY_HEIGHT * 0.75,
+                     6  * SCALE);
+    drawsubcircle(p, BM_CHAT_BUTTON_OVERLAY_WIDTH,        BM_CHAT_BUTTON_OVERLAY_HEIGHT,
+                     BM_CHAT_BUTTON_OVERLAY_WIDTH * 0.75, BM_CHAT_BUTTON_OVERLAY_HEIGHT * 0.75,
+                     2 * SCALE);
+    /* shutter lines */
+    svgdraw_line_neg(p,      BM_CHAT_BUTTON_OVERLAY_WIDTH,        BM_CHAT_BUTTON_OVERLAY_HEIGHT,
+                             BM_CHAT_BUTTON_OVERLAY_WIDTH * 0.80, BM_CHAT_BUTTON_OVERLAY_HEIGHT * 0.65,
+                             2 * SCALE, 0.1);
+    svgdraw_line_neg(p,      BM_CHAT_BUTTON_OVERLAY_WIDTH,        BM_CHAT_BUTTON_OVERLAY_HEIGHT,
+                             BM_CHAT_BUTTON_OVERLAY_WIDTH * 0.73, BM_CHAT_BUTTON_OVERLAY_HEIGHT * 0.87,
+                             2 * SCALE, 0.1);
+    svgdraw_line_down_neg(p, BM_CHAT_BUTTON_OVERLAY_WIDTH,        BM_CHAT_BUTTON_OVERLAY_HEIGHT,
+                             BM_CHAT_BUTTON_OVERLAY_WIDTH * 0.65, BM_CHAT_BUTTON_OVERLAY_HEIGHT * 0.70,
+                             2 * SCALE, 0.1);
+    svgdraw_line_down_neg(p, BM_CHAT_BUTTON_OVERLAY_WIDTH,        BM_CHAT_BUTTON_OVERLAY_HEIGHT,
+                             BM_CHAT_BUTTON_OVERLAY_WIDTH * 0.85, BM_CHAT_BUTTON_OVERLAY_HEIGHT * 0.81,
+                             2 * SCALE, 0.1);
+    loadalpha(BM_CHAT_BUTTON_OVERLAY_SCREENSHOT, p, BM_CHAT_BUTTON_OVERLAY_WIDTH, BM_CHAT_BUTTON_OVERLAY_HEIGHT);
+    p += BM_CHAT_BUTTON_OVERLAY_WIDTH * BM_CHAT_BUTTON_OVERLAY_HEIGHT;
 
     if(p - svg_data != size) {
-        debug("something went wrong\n");
+        debug("SVG:\tSVG data size mismatch...\n");
     }
 
     if(!needmemory) {

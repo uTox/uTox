@@ -31,7 +31,7 @@ void* file_raw(char *path, uint32_t *size)
 
     fclose(file);
 
-    debug("Read %u bytes (%s)\n", len, path);
+    // debug("Read %u bytes (%s)\n", len, path);
 
     if(size) {
         *size = len;
@@ -186,8 +186,7 @@ _Bool string_to_id(char_t *w, char_t *a)
     return 1;
 }
 
-int sprint_bytes(uint8_t *dest, unsigned int size, uint64_t bytes)
-{
+int sprint_humanread_bytes(uint8_t *dest, unsigned int size, uint64_t bytes) {
     char *str[] = {"B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB"};
     int max_id = countof(str) - 1;
     int i = 0;
@@ -662,39 +661,51 @@ UTOX_SAVE* config_load(void)
     save = malloc(sizeof(UTOX_SAVE) + 1);
     save->version = 1;
     save->scale = DEFAULT_SCALE - 1;
+
     save->enableipv6 = 1;
     save->disableudp = 0;
     save->proxy_port = 0;
     save->proxyenable = 0;
+    save->proxy_ip[0] = 0;
+
     save->logging_enabled = 1;
+
     save->close_to_tray = 0;
     save->start_in_tray = 0;
     save->auto_startup = 0;
+
     save->audible_notifications_enabled = 1;
-    save->audio_filtering_enabled = 1;
-    save->proxy_ip[0] = 0;
-    save->filter = 0;
     save->audio_device_in = ~0;
+    save->audio_filtering_enabled = 1;
+    save->filter = 0;
+    save->push_to_talk = 0;
+
     save->theme = 0;
+
     save->no_typing_notifications = 0;
 
     config_osdefaults(save);
 NEXT:
     dropdown_dpi.selected = dropdown_dpi.over = save->scale;
+
     dropdown_ipv6.selected = dropdown_ipv6.over = !save->enableipv6;
     dropdown_udp.selected = dropdown_udp.over = (save->disableudp != 0);
     dropdown_proxy.selected = dropdown_proxy.over = save->proxyenable <= 2 ? save->proxyenable : 2;
+
     dropdown_logging.selected = dropdown_logging.over = save->logging_enabled;
+
     dropdown_close_to_tray.selected = dropdown_close_to_tray.over = save->close_to_tray;
     dropdown_start_in_tray.selected = dropdown_start_in_tray.over = save->start_in_tray;
     dropdown_auto_startup.selected = dropdown_auto_startup.over = save->auto_startup;
+
     dropdown_audible_notification.selected = dropdown_audible_notification.over = save->audible_notifications_enabled;
     dropdown_audio_filtering.selected = dropdown_audio_filtering.over = save->audio_filtering_enabled;
-    dropdown_filter.selected = FILTER = save->filter;
+    dropdown_push_to_talk.selected = dropdown_push_to_talk.over = save->push_to_talk;
     //dropdown_theme_onselect.selected = dropdown_theme_onselect.over = save->theme;
     dropdown_typing_notes.selected = save->no_typing_notifications;
 
-    dont_send_typing_notes = save->no_typing_notifications;
+    FILTER = save->filter; /* roster list filtering */
+
     options.ipv6_enabled = save->enableipv6;
     options.udp_enabled = !save->disableudp;
     options.proxy_type = save->proxyenable ? TOX_PROXY_TYPE_SOCKS5 : TOX_PROXY_TYPE_NONE;
@@ -710,13 +721,20 @@ NEXT:
     }
 
     logging_enabled               = save->logging_enabled;
+
     close_to_tray                 = save->close_to_tray;
     start_in_tray                 = save->start_in_tray;
     auto_startup                  = save->auto_startup;
+
     audible_notifications_enabled = save->audible_notifications_enabled;
     audio_filtering_enabled       = save->audio_filtering_enabled;
     loaded_audio_out_device       = save->audio_device_out;
     loaded_audio_in_device        = save->audio_device_in;
+    if ( save->push_to_talk ) {
+        init_ptt();
+    }
+
+    dont_send_typing_notes        = save->no_typing_notifications;
 
     return save;
 }
@@ -735,25 +753,28 @@ void config_save(UTOX_SAVE *save)
         return;
     }
 
-    save->version = SAVE_VERSION;
-    save->scale = SCALE - 1;
-    save->enableipv6 = !dropdown_ipv6.selected;
-    save->disableudp = dropdown_udp.selected;
-    save->proxyenable = dropdown_proxy.selected;
-    save->logging_enabled = logging_enabled;
-    save->close_to_tray = close_to_tray;
-    save->start_in_tray = start_in_tray;
-    save->auto_startup = auto_startup;
+    save->version                       = SAVE_VERSION;
+    save->scale                         = SCALE - 1;
+    save->enableipv6                    = !dropdown_ipv6.selected;
+    save->disableudp                    = dropdown_udp.selected;
+    save->proxyenable                   = dropdown_proxy.selected;
+    save->logging_enabled               = logging_enabled;
+    save->close_to_tray                 = close_to_tray;
+    save->start_in_tray                 = start_in_tray;
+    save->auto_startup                  = auto_startup;
     save->audible_notifications_enabled = audible_notifications_enabled;
-    save->audio_filtering_enabled = audio_filtering_enabled;
+    save->audio_filtering_enabled       = audio_filtering_enabled;
 
-    save->filter = FILTER;
-    save->proxy_port = options.proxy_port;
+    save->filter                        = FILTER;
+    save->proxy_port                    = options.proxy_port;
 
-    save->audio_device_in = dropdown_audio_in.selected;
-    save->audio_device_out = dropdown_audio_out.selected;
-    save->theme = theme;
-    save->no_typing_notifications = dont_send_typing_notes;
+    save->audio_device_in               = dropdown_audio_in.selected;
+    save->audio_device_out              = dropdown_audio_out.selected;
+    save->theme                         = theme;
+
+    save->push_to_talk                  = push_to_talk;
+
+    save->no_typing_notifications       = dont_send_typing_notes;
     memset(save->unused, 0, sizeof(save->unused));
 
     debug("Writing uTox Save	::\n");
@@ -764,9 +785,11 @@ void config_save(UTOX_SAVE *save)
 
 void utox_write_metadata(FRIEND *f){
     /* data sizes */
-    size_t data_sz = 0, current_sz = 0;
-    size_t alias_sz = strlen((const char*)f->alias);
-    data_sz += alias_sz;
+    size_t data_sz = 0, current_sz = 0, alias_sz = 0;
+    if (f->alias) {
+        alias_sz = strlen((const char*)f->alias);
+        data_sz += alias_sz;
+    }
 
     /* Create path */
     uint8_t dest[UTOX_FILE_NAME_LENGTH], *dest_p;
@@ -785,4 +808,5 @@ void utox_write_metadata(FRIEND *f){
 
     /* Write */
     file_write_raw(dest, data, current_sz);
+    free(data);
 }

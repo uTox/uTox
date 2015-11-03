@@ -9,7 +9,7 @@
 }
 #endif
 
-CGImageRef bitmaps[BM_CI1 + 1]  = { NULL };
+CGImageRef bitmaps[BM_ENDMARKER + 1]  = { NULL };
 CTFontRef  fonts[FONT_MISC + 1] = { NULL };
 static uToxView *__unsafe_unretained currently_drawing_into_view;
 static struct __global_d_state {
@@ -222,11 +222,11 @@ int textwidth(char_t *str, STRING_IDX length) {
     CFStringRef string = CFStringCreateWithBytes(kCFAllocatorDefault, str, length, kCFStringEncodingUTF8, NO);
     CTFontRef font = global_text_state._use_font;
 
-    CFStringRef keys[] = { kCTFontAttributeName, kCTForegroundColorAttributeName };
-    CFTypeRef values[] = { font, global_text_state._use_font_color_ref };
+    CFStringRef keys[] = { kCTFontAttributeName };
+    CFTypeRef values[] = { font };
 
     CFDictionaryRef attributes = CFDictionaryCreate(kCFAllocatorDefault, (const void**)&keys,
-                                                    (const void**)&values, 2,
+                                                    (const void**)&values, 1,
                                                     &kCFTypeDictionaryKeyCallBacks,
                                                     &kCFTypeDictionaryValueCallBacks);
 
@@ -300,7 +300,7 @@ uint32_t setcolor(uint32_t color) {
     return ret;
 }
 
-void reload_fonts(void) {
+void setscale_fonts(void) {
     for (int i = 0; i < sizeof(fonts) / sizeof(CTFontRef); ++i) {
         RELEASE_CHK(CFRelease, fonts[i]);
     }
@@ -348,9 +348,6 @@ void setscale(void) {
     svg_draw(1);
     // now we have 2x images, if applicable
     SCALE = old_scale;
-
-    // CT fonts automatically obey scale
-    reload_fonts();
 }
 
 void cgdataprovider_is_finished(void *info, const void *data, size_t size) {
@@ -402,7 +399,7 @@ void loadalpha(int bm, void *data, int width, int height) {
     CGColorSpaceRelease(cs);
 }
 
-void framerectw(int x, int y, int width, int height, uint32_t color) {
+void draw_rect_frame(int x, int y, int width, int height, uint32_t color) {
     DRAW_TARGET_CHK()
 
     CGFloat sz = currently_drawing_into_view.frame.size.height;
@@ -421,7 +418,7 @@ void framerectw(int x, int y, int width, int height, uint32_t color) {
     [[NSBezierPath bezierPathWithRect:rect] stroke];
 }
 
-void drawrectw(int x, int y, int width, int height, uint32_t color) {
+void draw_rect_fill(int x, int y, int width, int height, uint32_t color) {
     DRAW_TARGET_CHK()
 
     CGFloat sz = currently_drawing_into_view.frame.size.height;
@@ -440,12 +437,8 @@ void drawrectw(int x, int y, int width, int height, uint32_t color) {
     NSRectFill(rect);
 }
 
-void framerect(int x, int y, int right, int bottom, uint32_t color) {
-    framerectw(x, y, right - x, bottom - y, color);
-}
-
 void drawrect(int x, int y, int right, int bottom, uint32_t color) {
-    drawrectw(x, y, right - x, bottom - y, color);
+    draw_rect_fill(x, y, right - x, bottom - y, color);
 }
 
 void drawhline(int x, int y, int x2, uint32_t color) {

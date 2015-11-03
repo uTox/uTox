@@ -18,7 +18,7 @@ static void edit_name_onenter(EDIT *edit)
     self.name_length = length;
     update_tray();
 
-    tox_postmessage(TOX_SETNAME, length, 0, self.name);//!
+    tox_postmessage(TOX_SELF_SET_NAME, length, 0, self.name);//!
 }
 
 static void edit_status_onenter(EDIT *edit)
@@ -41,7 +41,11 @@ static void edit_status_onenter(EDIT *edit)
 
     update_tray();
 
-    tox_postmessage(TOX_SETSTATUSMSG, length, 0, self.statusmsg);//!
+    tox_postmessage(TOX_SELF_SET_STATUS, length, 0, self.statusmsg);//!
+}
+
+static void edit_add_new_contact(EDIT *edit) {
+    friend_add(edit_add_id.data, edit_add_id.length, edit_add_msg.data, edit_add_msg.length);
 }
 
 static void edit_msg_onenter(EDIT *edit)
@@ -53,13 +57,14 @@ static void edit_msg_onenter(EDIT *edit)
         return;
     }
 
-    STRING_IDX command_length = 0, argument_length = 0;
+    STRING_IDX command_length = 0;//, argument_length = 0;
     char_t *command = NULL, *argument = NULL;
 
 
     command_length = utox_run_command(text, length, &command, &argument, 1);
 
     if(command_length == 65535){
+        edit->length = 0;
         return;
     }
 
@@ -105,18 +110,18 @@ static void edit_msg_onenter(EDIT *edit)
         void *d = malloc(length);
         memcpy(d, text, length);
 
-        tox_postmessage((action ? TOX_SENDACTION : TOX_SENDMESSAGE), (f - friend), length, d);
+        tox_postmessage((action ? TOX_SEND_ACTION : TOX_SEND_MESSAGE), (f - friend), length, d);
     } else if(selected_item->item == ITEM_GROUP) {
         GROUPCHAT *g = selected_item->data;
         if(topic){
             void *d = malloc(length);
             memcpy(d, text, length);
-            tox_postmessage(TOX_GROUPCHANGETOPIC, (g - group), length, d);
+            tox_postmessage(TOX_GROUP_SET_TOPIC, (g - group), length, d);
         } else {
             void *d = malloc(length);
             memcpy(d, text, length);
 
-            tox_postmessage((action ? TOX_SENDACTIONGROUP : TOX_SENDMESSAGEGROUP), (g - group), length, d);
+            tox_postmessage((action ? TOX_GROUP_SEND_ACTION : TOX_GROUP_SEND_MESSAGE), (g - group), length, d);
         }
     }
 
@@ -264,7 +269,7 @@ static void edit_msg_ontab(EDIT *edit)
     char_t *text = edit->data;
     STRING_IDX length = edit->length;
 
-    if (selected_item->item == ITEM_GROUP) {
+    if ((selected_item->item == ITEM_FRIEND) || (selected_item->item == ITEM_GROUP)) {
         char_t nick[130];
         uint8_t nick_length;
 
@@ -273,6 +278,30 @@ static void edit_msg_ontab(EDIT *edit)
         }
 
         if (!completion.active) {
+            if (selected_item->item == ITEM_FRIEND) {
+                if ((length == 6 && !memcmp(text, "/alias", 6))
+                    || (length == 7 && !memcmp(text, "/alias ", 7))) {
+                    FRIEND *f = selected_item->data;
+                    char_t *last_name;
+                    STRING_IDX last_name_length;
+
+                    if (f->alias) {
+                        last_name = f->alias;
+                        last_name_length = f->alias_length;
+                    } else {
+                        last_name = f->name;
+                        last_name_length = f->name_length;
+                    }
+
+                    text[6] = ' ';
+                    memcpy(text + 7, last_name, last_name_length);
+                    edit->length = last_name_length + 7;
+                    edit_setcursorpos(edit, edit->length);
+                }
+
+                return;
+            }
+
             if ((length == 6 && !memcmp(text, "/topic", 6))
                     || (length == 7 && !memcmp(text, "/topic ", 7))) {
                 GROUPCHAT *g = selected_item->data;
@@ -357,7 +386,7 @@ static void edit_msg_onchange(EDIT *edit)
             return;
         }
 
-        tox_postmessage(TOX_SET_TYPING, (f - friend), 0, NULL);
+        tox_postmessage(TOX_SEND_TYPING, (f - friend), 0, NULL);
     }
 
     if (completion.edited) {
@@ -447,6 +476,7 @@ edit_status = {
 edit_add_id = {
     .maxlength = sizeof(edit_addid_data),
     .data = edit_addid_data,
+    .onenter = edit_add_new_contact,
 },
 
 edit_add_msg = {

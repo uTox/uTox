@@ -150,16 +150,14 @@ void drawrect(int x, int y, int right, int bottom, uint32_t color)
     glDrawQuads(0, 1);
 }
 
-void drawrectw(int x, int y, int width, int height, uint32_t color)
-{
+void draw_rect_fill(int x, int y, int width, int height, uint32_t color) {
     drawrect(x, y, x + width, y + height, color);
 }
 
-void framerect(int x, int y, int right, int bottom, uint32_t color)
-{
+void draw_rect_frame(int x, int y, int width, int height, uint32_t color) {
     set_color(color);
     glBindTexture(GL_TEXTURE_2D, white);
-    makequad(&quads[0], x, y, right, bottom);
+    makequad(&quads[0], x, y, x + width, y + height);
     glDrawArrays(GL_LINE_LOOP, 0, 4);
 }
 

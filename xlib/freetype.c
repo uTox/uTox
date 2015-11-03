@@ -81,8 +81,8 @@ Picture loadglyphpic(uint8_t *data, int width, int height, int pitch, _Bool no_s
             } while(--i);
         }
 
-        pixmap = XCreatePixmap(display, window, width, height, 24);
-        img = XCreateImage(display, CopyFromParent, 24, ZPixmap, 0, (char*)rgbx, width, height, 32, 0);
+        pixmap = XCreatePixmap(display, window, width, height, depth);
+        img = XCreateImage(display, CopyFromParent, depth, ZPixmap, 0, (char*)rgbx, width, height, 32, 0);
         legc = XCreateGC(display, pixmap, 0, NULL);
         XPutImage(display, pixmap, legc, img, 0, 0, 0, 0, width, height);
 
@@ -192,18 +192,18 @@ GLYPH* font_getglyph(FONT *f, uint32_t ch)
     int ft_render_flags = FT_RENDER_MODE_NORMAL;
 
     _Bool hinting = 1, antialias = 1, vertical_layout = 0, autohint = 0;
-    FcPatternGetBool(f->pattern, FC_HINTING, 0, &hinting);
-    FcPatternGetBool(f->pattern, FC_ANTIALIAS, 0, &antialias);
-    FcPatternGetBool(f->pattern, FC_VERTICAL_LAYOUT, 0, &vertical_layout);
-    FcPatternGetBool(f->pattern, FC_AUTOHINT, 0, &autohint);
+    FcPatternGetBool(f->pattern, FC_HINTING, 0, (int *)&hinting);
+    FcPatternGetBool(f->pattern, FC_ANTIALIAS, 0, (int *)&antialias);
+    FcPatternGetBool(f->pattern, FC_VERTICAL_LAYOUT, 0, (int *)&vertical_layout);
+    FcPatternGetBool(f->pattern, FC_AUTOHINT, 0, (int *)&autohint);
 
     int hint_style = FC_HINT_FULL;
-    FcPatternGetInteger(f->pattern, FC_HINT_STYLE, 0, &hint_style);
+    FcPatternGetInteger(f->pattern, FC_HINT_STYLE, 0, (int *)&hint_style);
 
-    int weight;
-    //FcPatternGetInteger(f->pattern, FC_WEIGHT, 0, &weight);
+    // int weight;
+    // FcPatternGetInteger(f->pattern, FC_WEIGHT, 0, (int *)&weight);
     int subpixel = FC_RGBA_NONE;
-    FcPatternGetInteger(f->pattern, FC_RGBA, 0, &subpixel); 
+    FcPatternGetInteger(f->pattern, FC_RGBA, 0, (int *)&subpixel);
 
     _Bool no_subpixel = (subpixel == FC_RGBA_NONE);
     _Bool vert = ft_vert;
@@ -301,7 +301,7 @@ static void initfonts(void)
     FcPatternDestroy(pat);
 }
 
-static void default_sub(FcPattern *pattern)
+/*static void default_sub(FcPattern *pattern)
 {
     //this is actually mostly useless
     //FcValue	v;
@@ -339,7 +339,7 @@ static void default_sub(FcPattern *pattern)
 	//FcPatternAddInteger (pattern, XFT_MAX_GLYPH_MEMORY, XftDefaultGetInteger (dpy, XFT_MAX_GLYPH_MEMORY, screen, XFT_FONT_MAX_GLYPH_MEMORY));
 
 	FcDefaultSubstitute (pattern);
-}
+}*/
 
 static void font_info_open(FONT_INFO *i, FcPattern *pattern)
 {
@@ -376,7 +376,7 @@ static void font_info_open(FONT_INFO *i, FcPattern *pattern)
         return;
     }
 
-    debug("Loaded font %s %u %i %i\n", filename, id, PIXELS(i->face->ascender), PIXELS(i->face->descender));
+    // debug("Loaded font %s %u %i %i\n", filename, id, PIXELS(i->face->ascender), PIXELS(i->face->descender));
 }
 
 

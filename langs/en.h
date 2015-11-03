@@ -10,6 +10,9 @@ msgstr("Friend request sent. Your friend will appear online after the request is
 msgid(REQ_RESOLVE)
 msgstr("Attempting to resolve DNS name...")
 
+msgid(DNS_DISABLED)
+msgstr("DNS name resolution disabled while using a proxy!")
+
 msgid(REQ_INVALID_ID)
 msgstr("Error: Invalid Tox ID")
 
@@ -89,7 +92,7 @@ msgid(CALL_STARTED)
 msgstr("Call started")
 
 msgid(ADDFRIENDS)
-msgstr("Add Friends")
+msgstr("Add New Contact")
 
 msgid(TOXID)
 msgstr("Tox ID")
@@ -98,7 +101,22 @@ msgid(MESSAGE)
 msgstr("Message")
 
 msgid(SEARCHFRIENDS)
-msgstr("Search friends")
+msgstr("Search contacts")
+
+msgid(FILTER_ALL)
+msgstr("Online Contacts")
+
+msgid(FILTER_ONLINE)
+msgstr("All Contacts")
+
+msgid(FILTER_CONTACT_TOGGLE)
+msgstr("Toggle filtering of offline contacts.")
+
+msgid(FILTER_TO_ALL)
+msgstr("Show all contacts!")
+
+msgid(FILTER_TO_ONLINE)
+msgstr("Show online contacts only!")
 
 msgid(ADD)
 msgstr("Add")
@@ -134,13 +152,16 @@ msgid(AUDIOINPUTDEVICE)
 msgstr("Audio Input Device")
 
 msgid(AUDIOFILTERING)
-msgstr("Filter Audio")
+msgstr("Audio Filtering")
 
 msgid(AUDIOOUTPUTDEVICE)
 msgstr("Audio Output Device")
 
 msgid(VIDEOINPUTDEVICE)
 msgstr("Video Input Device")
+
+msgid(PUSH_TO_TALK)
+msgstr("Push To Talk")
 
 msgid(OTHERSETTINGS)
 msgstr("Other Settings")
@@ -246,6 +267,9 @@ msgstr("Accept")
 
 msgid(IGNORE)
 msgstr("Ignore")
+
+msgid(SET_ALIAS)
+msgstr("Set alias")
 
 msgid(SENDSCREENSHOT)
 msgstr("Send a screenshot")

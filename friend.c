@@ -1,11 +1,51 @@
 #include "main.h"
 
+void utox_friend_init(Tox *tox, uint32_t friend_number){
+        int size;
+        // get friend pointer
+        FRIEND *f = &friend[friend_number];
+        uint8_t name[TOX_MAX_NAME_LENGTH];
+
+        // Set scroll position to bottom of window.
+        f->msg.scroll = 1.0;
+
+        // Get and set the public key for this friend number and set it.
+        tox_friend_get_public_key(tox, friend_number, f->cid, 0);
+
+        // Set the friend number we got from toxcore
+        f->number = friend_number;
+
+        // Get and set friend name and length
+        size = tox_friend_get_name_size(tox, friend_number, 0);
+        tox_friend_get_name(tox, friend_number, name, 0);
+        // Set the name for utox as well
+        friend_setname(f, name, size);
+
+        // Get and set the status message
+        size = tox_friend_get_status_message_size(tox, friend_number, 0);
+        f->status_message = malloc(size);
+        tox_friend_get_status_message(tox, friend_number, f->status_message, 0);
+        f->status_length = size;
+
+        // Get the hex version of this friends ID
+        char_t cid[TOX_PUBLIC_KEY_SIZE * 2];
+        cid_to_string(cid, f->cid);
+        init_avatar(&f->avatar, cid, NULL, NULL);
+
+        // Get the chat backlog
+        log_read(tox, friend_number);
+
+        // Load the meta data, if it exists.
+        friend_meta_data_read(tox, friend_number);
+}
+
 void friend_setname(FRIEND *f, char_t *name, STRING_IDX length){
     if(f->name && (length != f->name_length || memcmp(f->name, name, length) != 0)) {
         MESSAGE *msg = malloc(sizeof(MESSAGE) + sizeof(" is now known as ") - 1 + f->name_length + length);
         msg->author = 0;
         msg->msg_type = MSG_TYPE_ACTION_TEXT;
         msg->length = sizeof(" is now known as ") - 1 + f->name_length + length;
+
         char_t *p = msg->msg;
         memcpy(p, f->name, f->name_length); p += f->name_length;
         memcpy(p, " is now known as ", sizeof(" is now known as ") - 1); p += sizeof(" is now known as ") - 1;
@@ -28,19 +68,10 @@ void friend_setname(FRIEND *f, char_t *name, STRING_IDX length){
 }
 
 void friend_set_alias(FRIEND *f, char_t *alias, STRING_IDX length){
-    debug("setting new alias\n");
-    if((length != f->alias_length || memcmp(f->alias, alias, length) != 0)) {
-        MESSAGE *msg = malloc(sizeof(MESSAGE) + sizeof("has a new alias of: ") - 1 + f->alias_length + length);
-        msg->author = 0;
-        msg->msg_type = MSG_TYPE_ACTION_TEXT;
-        msg->length = sizeof("has a new alias of: ") - 1 + f->alias_length + length;
-        char_t *p = msg->msg;
-        memcpy(p, f->alias, f->alias_length); p += f->alias_length;
-        memcpy(p, "has a new alias of: ", sizeof("has a new alias of: ") - 1); p += sizeof("has a new alias of: ") - 1;
-        memcpy(p, alias, length);
-
-        friend_addmessage(f, msg);
+    if (alias && (length != f->alias_length || memcmp(f->alias, alias, length) != 0)) {
         debug("New Alias set for friend %s\n", f->name);
+    } else {
+        debug("Alias for friend %s unset\n", f->name);
     }
 
     free(f->alias);
@@ -53,13 +84,12 @@ void friend_set_alias(FRIEND *f, char_t *alias, STRING_IDX length){
         memcpy(f->alias, alias, length);
         f->alias_length = length;
         f->metadata.alias_length = length;
+        f->alias[f->alias_length] = 0;
     }
-    f->alias[f->alias_length] = 0;
     utox_write_metadata(f);
 }
 
-void friend_sendimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width, uint16_t height, UTOX_PNG_IMAGE png_image, size_t png_size)
-{
+void friend_sendimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width, uint16_t height, UTOX_PNG_IMAGE png_image, size_t png_size) {
     MSG_IMG *msg = malloc(sizeof(MSG_IMG));
     msg->author = 1;
     msg->msg_type = MSG_TYPE_IMAGE;
@@ -75,11 +105,10 @@ void friend_sendimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width
     struct TOX_SEND_INLINE_MSG *tsim = malloc(sizeof(struct TOX_SEND_INLINE_MSG));
     tsim->image = png_image;
     tsim->image_size = png_size;
-    tox_postmessage(TOX_SEND_NEW_INLINE, f - friend, 0, tsim);
+    tox_postmessage(TOX_FILE_SEND_NEW_INLINE, f - friend, 0, tsim);
 }
 
-void friend_recvimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width, uint16_t height)
-{
+void friend_recvimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width, uint16_t height) {
     if(!UTOX_NATIVE_IMAGE_IS_VALID(native_image)) {
         return;
     }
@@ -96,8 +125,7 @@ void friend_recvimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width
     message_add(&messages_friend, (void*)msg, &f->msg);
 }
 
-void friend_notify(FRIEND *f, char_t *str, STRING_IDX str_length, char_t *msg, STRING_IDX msg_length)
-{
+void friend_notify(FRIEND *f, char_t *str, STRING_IDX str_length, char_t *msg, STRING_IDX msg_length) {
     int len = f->name_length + str_length + 3;
 
     char_t title[len + 1], *p = title;
@@ -127,8 +155,7 @@ void friend_addmessage_notify(FRIEND *f, char_t *data, STRING_IDX length)
     }
 }
 
-void friend_addmessage(FRIEND *f, void *data)
-{
+void friend_addmessage(FRIEND *f, void *data) {
     MESSAGE *msg = data;
 
     message_add(&messages_friend, data, &f->msg);
@@ -160,7 +187,7 @@ void friend_addid(uint8_t *id, char_t *msg, STRING_IDX msg_length)
     memcpy(data, id, TOX_FRIEND_ADDRESS_SIZE);
     memcpy(data + TOX_FRIEND_ADDRESS_SIZE, msg, msg_length * sizeof(char_t));
 
-    tox_postmessage(TOX_ADDFRIEND, msg_length, 0, data);
+    tox_postmessage(TOX_FRIEND_NEW, msg_length, 0, data);
 }
 
 void friend_add(char_t *name, STRING_IDX length, char_t *msg, STRING_IDX msg_length)
@@ -253,42 +280,13 @@ void friend_free(FRIEND *f)
 
     free(f->msg.data);
 
-    if(f->calling) {
-        toxaudio_postmessage(AUDIO_CALL_END, f->callid, 0, NULL);
+    if(f->call_state_self) {
+        toxaudio_postmessage(AUDIO_END, f->number, 0, NULL);
+        /* TODO end a video call too!
         if(f->calling == CALL_OK_VIDEO) {
-            toxvideo_postmessage(VIDEO_CALL_END, f->callid, 0, NULL);
-        }
+            toxvideo_postmessage(VIDEO_CALL_END, f->number, 0, NULL);
+        }*/
     }
 
     memset(f, 0, sizeof(FRIEND));//
-}
-
-void group_free(GROUPCHAT *g)
-{
-    uint16_t i = 0;
-    while(i != g->edit_history_length) {
-        free(g->edit_history[i]);
-        i++;
-    }
-    free(g->edit_history);
-
-    char_t **np = g->peername;
-    uint32_t j = 0;
-    while(j < g->peers) {
-        char_t *n = *np++;
-        if(n) {
-            free(n);
-        }
-        j++;
-    }
-
-    MSG_IDX k = 0;
-    while(k < g->msg.n) {
-        free(g->msg.data[k]);
-        k++;
-    }
-
-    free(g->msg.data);
-
-    memset(g, 0, sizeof(GROUPCHAT));//
 }

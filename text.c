@@ -34,7 +34,7 @@ static void drawtexth(int x, int y, char_t *str, STRING_IDX length, int d, int h
     uint32_t color = setcolor(COLOR_SELECTION_TEXT);
 
     int w = textwidth(str + h, hlen);
-    drawrectw(x + width, y, w, lineheight, COLOR_SELECTION_BACKGROUND);
+    draw_rect_fill(x + width, y, w, lineheight, COLOR_SELECTION_BACKGROUND);
     drawtext(x + width, y, str + h, hlen);
     width += w;
 
@@ -84,6 +84,17 @@ int drawtextmultiline(int x, int right, int y, int top, int bottom, uint16_t lin
             if((a == data || *(a - 1) == '\n' || *(a - 1) == ' ') && ((end - a >= 7 && memcmp(a, "http://", 7) == 0) || (end - a >= 8 && memcmp(a, "https://", 8) == 0))) {
                 c2 = setcolor(COLOR_MAIN_URLTEXT);
                 link = 1;
+            }
+
+            if(a == data || *(a - 1) == '\n') {
+                char_t *r = a;
+                while (r != end && *r != '\n') {
+                    r++;
+                }
+                if (*(r - 1) == '<') {
+                    c1 = setcolor(COLOR_MAIN_REDTEXT);
+                    greentext = 1;
+                }
             }
         }
 

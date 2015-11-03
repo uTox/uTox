@@ -12,6 +12,7 @@ enum UTOX_FILE_TRANSFER_STATUS{
 };
 
 typedef struct FILE_TRANSFER {
+    _Bool    in_use;
     uint32_t friend_number, file_number;
     uint8_t  file_id[TOX_FILE_ID_LENGTH];
     uint8_t  status, resume, kind;

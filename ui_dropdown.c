@@ -39,16 +39,13 @@ static void dropdown_dpi_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
 static void dropdown_language_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
 {
     LANG = (UI_LANG_ID)i;
+    /* The draw functions need the fonts' and scale to be reset when changing languages. */
+    ui_scale(SCALE);
 }
 static STRING* dropdown_language_ondisplay(uint16_t i, const DROPDOWN* UNUSED(dm))
 {
     UI_LANG_ID l = (UI_LANG_ID)i;
     return SPTRFORLANG(l, STR_LANG_NATIVE_NAME);
-}
-
-static void dropdown_filter_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
-{
-    FILTER = !!i;
 }
 
 static void dropdown_proxy_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
@@ -129,17 +126,21 @@ static void dropdown_typing_notes_onselect(const uint16_t i, const DROPDOWN* UNU
     debug("Typing notifications preference: %hu\n", i);
 }
 
+static void dropdown_push_to_talk_onselect(const uint16_t i, const DROPDOWN* UNUSED(dm)) {
+    if (i) {
+        // TODO, push this onto the start and end call fxn?
+        init_ptt();
+    } else {
+        exit_ptt();
+    }
+}
+
 static UI_STRING_ID dpidrops[] = {
     STR_DPI_TINY,
     STR_DPI_NORMAL,
     STR_DPI_BIG,
     STR_DPI_LARGE,
     STR_DPI_HUGE,
-};
-
-static UI_STRING_ID filterdrops[] = {
-    STR_CONTACTS_FILTER_ALL,
-    STR_CONTACTS_FILTER_ONLINE,
 };
 
 static UI_STRING_ID proxydrops[] = {
@@ -189,14 +190,6 @@ dropdown_language = {
     .ondisplay = dropdown_language_ondisplay,
     .onselect = dropdown_language_onselect,
     .dropcount = LANGS_MAX+1,
-},
-
-dropdown_filter = {
-    .ondisplay = simple_dropdown_ondisplay,
-    .onselect = dropdown_filter_onselect,
-    .dropcount = countof(filterdrops),
-    .style = AUXILIARY_STYLE,
-    .userdata = filterdrops
 },
 
 dropdown_proxy = {
@@ -274,4 +267,11 @@ dropdown_audio_filtering = {
     .onselect = dropdown_audio_filtering_onselect,
     .dropcount = countof(offondrops),
     .userdata = offondrops
+},
+
+dropdown_push_to_talk = {
+    .ondisplay = simple_dropdown_ondisplay,
+    .onselect  = dropdown_push_to_talk_onselect,
+    .dropcount = countof(offondrops),
+    .userdata  = offondrops
 };

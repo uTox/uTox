@@ -6,6 +6,13 @@
 #import <Foundation/Foundation.h>
 #import <AppKit/AppKit.h>
 
+#ifdef MAKEFILE
+#include "interaction.m"
+#include "drawing.m"
+#include "video.m"
+#include "grabdesktop.m"
+#endif
+
 #define DEFAULT_WIDTH (382 * DEFAULT_SCALE)
 #define DEFAULT_HEIGHT (320 * DEFAULT_SCALE)
 
@@ -172,7 +179,7 @@ void openurl(char_t *str) {
     } else /* it's a path */ {
         url = [NSURL fileURLWithPath:urls];
     }
-    
+
     [[NSWorkspace sharedWorkspace] openURL:url];
     [urls release];
 }
@@ -243,7 +250,7 @@ int datapath_subdir(uint8_t *dest, const char *subdir) {
     l += sprintf((char*)(dest+l), "%s", subdir);
     mkdir((char*)dest, 0700);
     dest[l++] = '/';
-    
+
     return l;
 }
 
@@ -312,6 +319,19 @@ void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data) {
     });
 }
 
+void init_ptt(void) {
+    push_to_talk = 1;
+}
+
+static _Bool is_ctrl_down = 0;
+_Bool check_ptt_key(void){
+    return push_to_talk? is_ctrl_down : 1;
+}
+
+void exit_ptt(void) {
+    push_to_talk = 0;
+}
+
 void redraw(void) {
     uToxAppDelegate *ad = (uToxAppDelegate *)[NSApp delegate];
     [ad soilWindowContents];
@@ -325,7 +345,12 @@ void launch_at_startup(int should) {
         CFArrayRef current_items = LSSharedFileListCopySnapshot(items, NULL);
         for (int i = 0; i < CFArrayGetCount(current_items); ++i) {
             LSSharedFileListItemRef it = (void *)CFArrayGetValueAtIndex(current_items, i);
-            CFURLRef urlornull = LSSharedFileListItemCopyResolvedURL(it, 0, NULL);
+            CFURLRef urlornull;
+#if MAC_OS_X_VERSION_MIN_REQUIRED < 101000
+            LSSharedFileListItemResolve(it, 0, &urlornull, NULL);
+#else
+            urlornull = LSSharedFileListItemCopyResolvedURL(it, 0, NULL);
+#endif
             if (urlornull && CFEqual(urlornull, (__bridge CFURLRef)[NSBundle mainBundle].bundleURL)) {
                 // this is ours, remove it.
                 LSSharedFileListItemRemove(items, it);
@@ -337,7 +362,10 @@ void launch_at_startup(int should) {
     CFRelease(items);
 }
 
-@implementation uToxAppDelegate
+@implementation uToxAppDelegate {
+    id global_event_listener;
+    id  local_event_listener;
+}
 
 - (void)applicationDidFinishLaunching:(NSNotification *)notification {
     setup_cursors();
@@ -345,6 +373,15 @@ void launch_at_startup(int should) {
     dock_icon.image = [NSApplication sharedApplication].applicationIconImage;
     [NSApplication sharedApplication].dockTile.contentView = dock_icon;
     [dock_icon release];
+
+    global_event_listener = [NSEvent addGlobalMonitorForEventsMatchingMask:NSFlagsChangedMask handler:^(NSEvent *e) {
+        is_ctrl_down = e.modifierFlags & NSFunctionKeyMask;
+    }];
+
+    local_event_listener = [NSEvent addLocalMonitorForEventsMatchingMask:NSFlagsChangedMask handler:^NSEvent *(NSEvent *e) {
+        is_ctrl_down = e.modifierFlags & NSFunctionKeyMask;
+        return e;
+    }];
 
     ironclad = [[NSMutableDictionary alloc] init];
 
@@ -427,7 +464,7 @@ void launch_at_startup(int should) {
 - (void)applicationWillTerminate:(NSNotification *)notification {
     toxaudio_postmessage(AUDIO_KILL, 0, 0, NULL);
     toxvideo_postmessage(VIDEO_KILL, 0, 0, NULL);
-    toxav_postmessage(TOXAV_KILL, 0, 0, NULL);
+    toxav_postmessage(UTOXAV_KILL, 0, 0, NULL);
     tox_postmessage(TOX_KILL, 0, 0, NULL);
 
     UTOX_SAVE d = {
@@ -440,6 +477,9 @@ void launch_at_startup(int should) {
     };
 
     config_save(&d);
+
+    [NSEvent removeMonitor:global_event_listener];
+    [NSEvent removeMonitor:local_event_listener];
 
     /* wait for threads to exit */
     while(tox_thread_init) {

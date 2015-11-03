@@ -57,26 +57,40 @@ void draw_avatar_image(UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, u
 
 /* Top left self interface Avatar, name, statusmsg, status icon */
 static void draw_user_badge(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height)){
+    /*draw avatar or default image */
+    if (self_has_avatar()) {
+        draw_avatar_image(self.avatar.image, SIDEBAR_AVATAR_LEFT, SIDEBAR_AVATAR_TOP,
+                          self.avatar.width, self.avatar.height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
+    } else {
+        drawalpha(BM_CONTACT, SIDEBAR_AVATAR_LEFT, SIDEBAR_AVATAR_TOP,
+                  BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_MENU_TEXT);
+    }
+    /* Draw name */
     setcolor(!button_name.mouseover ? COLOR_MENU_TEXT : COLOR_MENU_SUBTEXT);
     setfont(FONT_SELF_NAME);
-    drawtextrange(SELF_NAME_X, SELF_STATUS_X, SELF_NAME_Y, self.name, self.name_length);
+    drawtextrange(SIDEBAR_NAME_LEFT, SIDEBAR_NAME_WIDTH, SIDEBAR_NAME_TOP, self.name, self.name_length);
 
-    // @TODO: separate these colors if needed (COLOR_MAIN_HINTTEXT)
+    /*&Draw current status message
+    @TODO: separate these colors if needed (COLOR_MAIN_HINTTEXT) */
     setcolor(!button_statusmsg.mouseover ? COLOR_MENU_SUBTEXT : COLOR_MAIN_HINTTEXT);
     setfont(FONT_STATUS);
-    drawtextrange(SELF_MSG_X, SELF_STATUS_X, SELF_MSG_Y, self.statusmsg, self.statusmsg_length);
+    drawtextrange(SIDEBAR_STATUSMSG_LEFT, SIDEBAR_STATUSMSG_WIDTH, SIDEBAR_STATUSMSG_TOP,
+                  self.statusmsg, self.statusmsg_length);
 
-    // draw avatar or default image
-    if (self_has_avatar()) {
-        draw_avatar_image(self.avatar.image, SELF_AVATAR_X, SELF_AVATAR_Y, self.avatar.width, self.avatar.height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
-    } else {
-        drawalpha(BM_CONTACT, SELF_AVATAR_X, SELF_AVATAR_Y, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_MENU_TEXT);
-    }
-
-    drawalpha(BM_STATUSAREA, SELF_STATUS_X, SELF_STATUS_Y, BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT, button_status.mouseover ? COLOR_LIST_HOVER_BACKGROUND : COLOR_LIST_BACKGROUND);
-
+    /* Draw status button icon */
+    drawalpha(BM_STATUSAREA, SELF_STATUS_X, SELF_STATUS_Y, BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT,
+              button_status.mouseover ? COLOR_BACKGROUND_LIST_HOVER : COLOR_BACKGROUND_LIST);
     uint8_t status = tox_connected ? self.status : 3;
-    drawalpha(BM_ONLINE + status, SELF_STATUS_X + BM_STATUSAREA_WIDTH / 2 - BM_STATUS_WIDTH / 2, SELF_STATUS_Y + BM_STATUSAREA_HEIGHT / 2 - BM_STATUS_WIDTH / 2, BM_STATUS_WIDTH, BM_STATUS_WIDTH, status_color[status]);
+    drawalpha(BM_ONLINE + status, SELF_STATUS_X + BM_STATUSAREA_WIDTH / 2 - BM_STATUS_WIDTH / 2,
+              SELF_STATUS_Y + BM_STATUSAREA_HEIGHT / 2 - BM_STATUS_WIDTH / 2, BM_STATUS_WIDTH, BM_STATUS_WIDTH,
+              status_color[status]);
+
+    /* Draw online/all friends filter text. */
+    setcolor(!button_filter_friends.mouseover ? COLOR_MENU_SUBTEXT : COLOR_MAIN_HINTTEXT);
+    setfont(FONT_STATUS);
+    drawtextrange(SIDEBAR_FILTER_FRIENDS_LEFT, SIDEBAR_FILTER_FRIENDS_WIDTH, SIDEBAR_FILTER_FRIENDS_TOP,
+                  FILTER ? S(FILTER_ALL)    : S(FILTER_ONLINE),
+                  FILTER ? SLEN(FILTER_ALL) : SLEN(FILTER_ONLINE) );
 }
 
 /* Header for friend chat window */
@@ -85,21 +99,26 @@ static void draw_friend(int x, int y, int w, int height){
 
     // draw avatar or default image
     if (friend_has_avatar(f)) {
-        draw_avatar_image(f->avatar.image, LIST_RIGHT + SCALE * 5, SCALE * 5, f->avatar.width, f->avatar.height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
+        draw_avatar_image(f->avatar.image, MAIN_LEFT + SCALE * 5, SCALE * 5, f->avatar.width, f->avatar.height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
     } else {
-        drawalpha(BM_CONTACT, LIST_RIGHT + SCALE * 5, SCALE * 5, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_MAIN_TEXT);
+        drawalpha(BM_CONTACT, MAIN_LEFT + SCALE * 5, SCALE * 5, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_MAIN_TEXT);
     }
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_TITLE);
-    drawtextrange(LIST_RIGHT + 30 * SCALE, utox_window_width - 92 * SCALE, 9 * SCALE, f->name, f->name_length);
+
+    if (f->alias) {
+        drawtextrange(MAIN_LEFT + 30 * SCALE, utox_window_width - 64 * SCALE, 9 * SCALE, f->alias, f->alias_length);
+    } else {
+        drawtextrange(MAIN_LEFT + 30 * SCALE, utox_window_width - 64 * SCALE, 9 * SCALE, f->name, f->name_length);
+    }
 
     setcolor(COLOR_MAIN_SUBTEXT);
     setfont(FONT_STATUS);
-    drawtextrange(LIST_RIGHT + 30 * SCALE, utox_window_width - 92 * SCALE, 16 * SCALE, f->status_message, f->status_length);
+    drawtextrange(MAIN_LEFT + 30 * SCALE, utox_window_width - 64 * SCALE, 16 * SCALE, f->status_message, f->status_length);
 
     if (f->typing) {
-        int typing_y = ((y + height) + MESSAGES_BOTTOM);
+        int typing_y = ((y + height) + CHAT_BOX_TOP);
         setfont(FONT_MISC);
         // @TODO: separate these colors if needed
         setcolor(COLOR_MAIN_HINTTEXT);
@@ -111,27 +130,25 @@ static void draw_friend(int x, int y, int w, int height){
 static void draw_group(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height)){
     GROUPCHAT *g = selected_item->data;
 
-    drawalpha(BM_GROUP, LIST_RIGHT + SCALE * 5, SCALE * 5, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_MAIN_TEXT);
+    drawalpha(BM_GROUP, MAIN_LEFT + SCALE * 5, SCALE * 5, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_MAIN_TEXT);
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_TITLE);
-    drawtextrange(LIST_RIGHT + 30 * SCALE, utox_window_width - 32 * SCALE, 1 * SCALE, g->name, g->name_length);
+    drawtextrange(MAIN_LEFT + 30 * SCALE, utox_window_width - 32 * SCALE, 1 * SCALE, g->name, g->name_length);
 
     setcolor(COLOR_MAIN_SUBTEXT);
     setfont(FONT_STATUS);
-    drawtextrange(LIST_RIGHT + 30 * SCALE, utox_window_width - 32 * SCALE, 8 * SCALE, g->topic, g->topic_length);
+    drawtextrange(MAIN_LEFT + 30 * SCALE, utox_window_width - 32 * SCALE, 8 * SCALE, g->topic, g->topic_length);
 
     uint32_t i = 0;
-    int k = LIST_RIGHT + 30 * SCALE;
+    int k = MAIN_LEFT + 30 * SCALE;
 
     uint64_t time = get_time();
 
     unsigned int pos_y = 15;
-    while(i < g->peers)
-    {
+    while (i < g->peers) {
         uint8_t *name = g->peername[i];
-        if(name)
-        {
+        if (name) {
             uint8_t buf[134];
             memcpy(buf, name + 1, name[0]);
             memcpy(buf + name[0], ", ", 2);
@@ -145,10 +162,10 @@ static void draw_group(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(h
                 setcolor(COLOR_GROUP_PEER);
             }
 
-            if(k + w >= (utox_window_width - 32 * SCALE)) {
+            if (k + w >= (utox_window_width - 32 * SCALE)) {
                 if (pos_y == 15) {
                     pos_y += 6;
-                    k = LIST_RIGHT + 30 * SCALE;
+                    k = MAIN_LEFT + 30 * SCALE;
                 } else {
                     drawtext(k, pos_y * SCALE, (uint8_t*)"...", 3);
                     break;
@@ -169,24 +186,33 @@ static void draw_friend_request(int UNUSED(x), int UNUSED(y), int UNUSED(w), int
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(LIST_RIGHT + SCALE * 5, SCALE * 10, FRIENDREQUEST);
+    drawstr(MAIN_LEFT + SCALE * 5, SCALE * 10, FRIENDREQUEST);
 
     setcolor(COLOR_MAIN_SUBTEXT);
     setfont(FONT_STATUS);
-    drawtextrange(LIST_RIGHT + 5 * SCALE, utox_window_width, 20 * SCALE, req->msg, req->length);
+    drawtextrange(MAIN_LEFT + 5 * SCALE, utox_window_width, 20 * SCALE, req->msg, req->length);
 }
 
 /* Draw add a friend window */
 static void draw_add_friend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int height){
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(LIST_RIGHT + SCALE * 5, SCALE * 10, ADDFRIENDS);
+    drawstr(MAIN_LEFT + SCALE * 5, SCALE * 10, ADDFRIENDS);
 
     setcolor(COLOR_MAIN_SUBTEXT);
     setfont(FONT_TEXT);
-    drawstr(LIST_RIGHT + SCALE * 5, LIST_Y + SCALE * 5, TOXID);
+    drawstr(MAIN_LEFT + SCALE * 5, LIST_Y + SCALE * 5, TOXID);
 
-    drawstr(LIST_RIGHT + SCALE * 5, LIST_Y + SCALE * 29, MESSAGE);
+
+
+    drawstr(MAIN_LEFT + SCALE * 5, LIST_Y + SCALE * 29, MESSAGE);
+
+    if (options.proxy_type) {
+        int push = UTOX_STR_WIDTH(TOXID);
+        setfont(FONT_MISC);
+        setcolor(C_RED);
+        drawstr(MAIN_LEFT + SCALE * 10 + push, LIST_Y + SCALE * 6, DNS_DISABLED);
+    }
 
     if (addfriend_status) {
         setfont(FONT_MISC);
@@ -222,7 +248,7 @@ static void draw_add_friend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int hei
             str = SPTR(REQ_UNKNOWN); break;
         }
 
-        drawtextmultiline(LIST_RIGHT + SCALE * 5, utox_window_width - BM_SBUTTON_WIDTH - 5 * SCALE, LIST_Y + SCALE * 83, 0, height, font_small_lineheight, str->str, str->length, 0xFFFF, 0, 0, 0, 1);
+        drawtextmultiline(MAIN_LEFT + SCALE * 5, utox_window_width - BM_SBUTTON_WIDTH - 5 * SCALE, LIST_Y + SCALE * 83, 0, height, font_small_lineheight, str->str, str->length, 0xFFFF, 0, 0, 0, 1);
     }
 }
 
@@ -230,70 +256,65 @@ static void draw_add_friend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int hei
 static void draw_settings_header(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height)){
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(LIST_RIGHT + SCALE * 5, SCALE * 5, UTOX_SETTINGS);
+    drawstr(MAIN_LEFT + SCALE * 5, SCALE * 5, UTOX_SETTINGS);
     #ifdef GIT_VERSION
+        int x = MAIN_LEFT + 5 * SCALE + UTOX_STR_WIDTH(UTOX_SETTINGS) + 5 * SCALE;
         setfont(FONT_TEXT);
-        drawtext(LIST_RIGHT + SCALE * 60, SCALE * 5, (uint8_t*)GIT_VERSION, strlen(GIT_VERSION));
+        drawtext(x, SCALE * 5, (uint8_t*)GIT_VERSION, strlen(GIT_VERSION));
     #endif
 }
 
 /* draw switch profile top bar */
-/* Current TODO */
-static void draw_change_profile(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height)){
-    setcolor(COLOR_MAIN_TEXT);
-    setfont(FONT_SELF_NAME);
-    drawstr(LIST_RIGHT + SCALE * 5, SCALE * 10, SWITCHPROFILE);
-}
-
 /* Text content for settings page */
 static void draw_settings_text_profile(int x, int y, int w, int h){
     setcolor(COLOR_MAIN_TEXT);
-    drawstr(LIST_RIGHT + SCALE * 5, y + 5   * SCALE, NAME);
-    drawstr(LIST_RIGHT + SCALE * 5, y + 30  * SCALE, STATUSMESSAGE);
+    drawstr(MAIN_LEFT + SCALE * 5, y + 5   * SCALE, NAME);
+    drawstr(MAIN_LEFT + SCALE * 5, y + 30  * SCALE, STATUSMESSAGE);
     setfont(FONT_SELF_NAME);
-    drawstr(LIST_RIGHT + SCALE * 5, y + 55  * SCALE, TOXID);
+    drawstr(MAIN_LEFT + SCALE * 5, y + 55  * SCALE, TOXID);
     setfont(FONT_TEXT);
-    drawstr(LIST_RIGHT + SCALE * 5, y + 75  * SCALE, LANGUAGE);
+    drawstr(MAIN_LEFT + SCALE * 5, y + 75  * SCALE, LANGUAGE);
 }
 
 static void draw_settings_text_network(int x, int y, int w, int UNUSED(height)){
     setfont(FONT_MISC);
     setcolor(C_RED);
-    drawstr(LIST_RIGHT  + 5   * SCALE, y + 5 * SCALE, WARNING);
+    drawstr(MAIN_LEFT  + 5   * SCALE, y + 5 * SCALE, WARNING);
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_TEXT);
-    drawstr(LIST_RIGHT  + 5   * SCALE, y + 15 * SCALE, IPV6);
-    drawstr(LIST_RIGHT  + 55  * SCALE, y + 15 * SCALE, UDP);
-    drawstr(LIST_RIGHT  + 5   * SCALE, y + 30 * SCALE, PROXY);
+    drawstr(MAIN_LEFT  + 5   * SCALE, y + 15 * SCALE, IPV6);
+    drawstr(MAIN_LEFT  + 55  * SCALE, y + 15 * SCALE, UDP);
+    drawstr(MAIN_LEFT  + 5   * SCALE, y + 30 * SCALE, PROXY);
     setfont(FONT_SELF_NAME);
-    drawtext(LIST_RIGHT + 132 * SCALE, y + 42 * SCALE, (uint8_t*)":", 1);
+    drawtext(MAIN_LEFT + 132 * SCALE, y + 42 * SCALE, (uint8_t*)":", 1);
 }
 
 static void draw_settings_text_ui(int x, int y, int w, int UNUSED(height)){
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_TEXT);
-    drawstr(LIST_RIGHT + 75 * SCALE, y + 5 * SCALE, DPI);
-    drawstr(LIST_RIGHT + 5  * SCALE, y + 5 * SCALE, THEME);
-    drawstr(LIST_RIGHT + 5  * SCALE, y + 30 * SCALE, LOGGING);
-    drawstr(LIST_RIGHT + 5  * SCALE, y + 55 * SCALE, CLOSE_TO_TRAY);
-    drawstr(LIST_RIGHT + 75 * SCALE, y + 55 * SCALE, START_IN_TRAY);
-    drawstr(LIST_RIGHT + 5  * SCALE, y + 80 * SCALE, AUTO_STARTUP);
-    drawstr(LIST_RIGHT + 5  * SCALE, y + 105 * SCALE, SEND_TYPING_NOTIFICATIONS);
+    drawstr(MAIN_LEFT + 75 * SCALE, y + 5 * SCALE, DPI);
+    drawstr(MAIN_LEFT + 5  * SCALE, y + 5 * SCALE, THEME);
+    drawstr(MAIN_LEFT + 5  * SCALE, y + 30 * SCALE, LOGGING);
+    drawstr(MAIN_LEFT + 5  * SCALE, y + 55 * SCALE, CLOSE_TO_TRAY);
+    drawstr(MAIN_LEFT + 5  * SCALE + UTOX_STR_WIDTH(CLOSE_TO_TRAY) + 10 * SCALE, y + 55 * SCALE, START_IN_TRAY);
+    drawstr(MAIN_LEFT + 5  * SCALE, y + 80 * SCALE, AUTO_STARTUP);
+    drawstr(MAIN_LEFT + 5  * SCALE, y + 105 * SCALE, SEND_TYPING_NOTIFICATIONS);
 }
 
 static void draw_settings_text_av(int x, int y, int w, int UNUSED(height)){
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_TEXT);
-    drawstr(LIST_RIGHT + SCALE * 5,   y + SCALE * 5,  RINGTONE);
+    drawstr(MAIN_LEFT + 5   * SCALE, y + 5  * SCALE,  RINGTONE);
+    drawstr(MAIN_LEFT + 60  * SCALE, y + 5  * SCALE,  PUSH_TO_TALK);
     #ifdef AUDIO_FILTERING
-    drawstr(LIST_RIGHT + SCALE * 100, y + SCALE * 5,  AUDIOFILTERING);
+    drawstr(MAIN_LEFT + 120 * SCALE, y + 5  * SCALE,  AUDIOFILTERING);
     #endif
-    drawstr(LIST_RIGHT + SCALE * 5,   y + SCALE * 35, AUDIOINPUTDEVICE);
-    drawstr(LIST_RIGHT + SCALE * 5,   y + SCALE * 60, AUDIOOUTPUTDEVICE);
-    drawstr(LIST_RIGHT + SCALE * 5,   y + SCALE * 85, VIDEOINPUTDEVICE);
+    drawstr(MAIN_LEFT + 5   * SCALE, y + 35  * SCALE, AUDIOINPUTDEVICE);
+    drawstr(MAIN_LEFT + 5   * SCALE, y + 60  * SCALE, AUDIOOUTPUTDEVICE);
+    drawstr(MAIN_LEFT + 5   * SCALE, y + 85  * SCALE, VIDEOINPUTDEVICE);
     setfont(FONT_SELF_NAME);
-    drawstr(LIST_RIGHT + SCALE * 5,   y + SCALE * 115, PREVIEW);
+    drawstr(MAIN_LEFT + 5   * SCALE, y + 115 * SCALE, PREVIEW);
 }
 
 static void draw_settings_sub_header(int x, int y, int w, int UNUSED(height)){
@@ -301,69 +322,76 @@ static void draw_settings_sub_header(int x, int y, int w, int UNUSED(height)){
 
     /* Draw the text and bars for general settings */
     setcolor(!button_settings_sub_profile.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_SUBTEXT);
-    drawstr(   x + 5   * SCALE, y + 5 * SCALE, PROFILE);
+    int x_right_edge = x + 5 * SCALE + UTOX_STR_WIDTH(PROFILE) + 5 * SCALE;
+    drawstr( x + 5 * SCALE, y + 5 * SCALE, PROFILE);
     if (panel_settings_profile.disabled) {
-        drawhline( x + 0   * SCALE, y + 15 * SCALE, x + 65 * SCALE, COLOR_EDGE_NORMAL);
+        drawhline( x, y + 15 * SCALE, x_right_edge, COLOR_EDGE_NORMAL);
     } else {
-        drawhline( x + 0   * SCALE, y + 0, x + 65 * SCALE, COLOR_EDGE_ACTIVE);
-        drawhline( x + 0   * SCALE, y + 1, x + 65 * SCALE, COLOR_EDGE_ACTIVE);
+        drawhline( x, y + 0, x_right_edge, COLOR_EDGE_ACTIVE);
+        drawhline( x, y + 1, x_right_edge, COLOR_EDGE_ACTIVE);
     }
-    drawvline( x + 65  * SCALE, y + 0 * SCALE, y + 15 * SCALE, COLOR_EDGE_NORMAL);
+    drawvline( x_right_edge, y + 0 * SCALE, y + 15 * SCALE, COLOR_EDGE_NORMAL);
 
     /* Draw the text and bars for network settings */
     setcolor(!button_settings_sub_net.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_SUBTEXT);
-    drawstr(   x + 70  * SCALE, y + 5 * SCALE, NETWORK);
+    x = x_right_edge;
+    x_right_edge = x_right_edge + 5 * SCALE + UTOX_STR_WIDTH(NETWORK) + 5 * SCALE;
+    drawstr( x + 5 * SCALE, y + 5 * SCALE, NETWORK);
     if (panel_settings_net.disabled) {
-        drawhline( x + 65  * SCALE, y + 15 * SCALE, x + 110 * SCALE, COLOR_EDGE_NORMAL);
+        drawhline( x, y + 15 * SCALE, x_right_edge, COLOR_EDGE_NORMAL);
     } else {
-        drawhline( x + 65  * SCALE, y + 0, x + 110 * SCALE, COLOR_EDGE_ACTIVE);
-        drawhline( x + 65  * SCALE, y + 1, x + 110 * SCALE, COLOR_EDGE_ACTIVE);
+        drawhline( x, y + 0, x_right_edge, COLOR_EDGE_ACTIVE);
+        drawhline( x, y + 1, x_right_edge, COLOR_EDGE_ACTIVE);
     }
-    drawvline( x + 110 * SCALE, y + 0 * SCALE, y + 15  * SCALE, COLOR_EDGE_NORMAL);
+    drawvline( x_right_edge, y + 0 * SCALE, y + 15  * SCALE, COLOR_EDGE_NORMAL);
 
     /* Draw the text and bars for User interface settings */
     setcolor(!button_settings_sub_ui.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_SUBTEXT);
-    drawstr(   x + 115 * SCALE, y + 5 * SCALE, USER_INTERFACE);
+    x = x_right_edge;
+    x_right_edge = x_right_edge + 5 * SCALE + UTOX_STR_WIDTH(USER_INTERFACE) + 5 * SCALE;
+    drawstr( x + 5 * SCALE, y + 5 * SCALE, USER_INTERFACE);
     if (panel_settings_ui.disabled) {
-        drawhline( x + 110 * SCALE, y + 15 * SCALE, x + 175 * SCALE, COLOR_EDGE_NORMAL);
+        drawhline( x, y + 15 * SCALE, x_right_edge, COLOR_EDGE_NORMAL);
     } else {
-        drawhline( x + 110 * SCALE, y + 0, x + 175 * SCALE, COLOR_EDGE_ACTIVE);
-        drawhline( x + 110 * SCALE, y + 1, x + 175 * SCALE, COLOR_EDGE_ACTIVE);
+        drawhline( x, y + 0, x_right_edge, COLOR_EDGE_ACTIVE);
+        drawhline( x, y + 1, x_right_edge, COLOR_EDGE_ACTIVE);
     }
-    drawvline( x + 175 * SCALE, y + 0 * SCALE, y + 15  * SCALE, COLOR_EDGE_NORMAL);
+    drawvline( x_right_edge, y + 0 * SCALE, y + 15  * SCALE, COLOR_EDGE_NORMAL);
 
     /* Draw the text and bars for A/V settings */
     setcolor(!button_settings_sub_av.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_SUBTEXT);
-    drawstr(   x + 180 * SCALE, y + 5 * SCALE, AUDIO_VIDEO);
+    x = x_right_edge;
+    x_right_edge = x_right_edge + 5 * SCALE + UTOX_STR_WIDTH(AUDIO_VIDEO) + 400 * SCALE; /* stretch to end of window */
+    drawstr( x + 5 * SCALE, y + 5 * SCALE, AUDIO_VIDEO);
     if (panel_settings_av.disabled) {
-        drawhline( x + 175 * SCALE, y + 15 * SCALE, x + w + 0 * SCALE, COLOR_EDGE_NORMAL);
+        drawhline( x, y + 15 * SCALE, x_right_edge, COLOR_EDGE_NORMAL);
     } else {
-        drawhline( x + 175 * SCALE, y + 0, x + w + 0 * SCALE, COLOR_EDGE_ACTIVE);
-        drawhline( x + 175 * SCALE, y + 1, x + w + 0 * SCALE, COLOR_EDGE_ACTIVE);
+        drawhline( x, y + 0, x_right_edge, COLOR_EDGE_ACTIVE);
+        drawhline( x, y + 1, x_right_edge, COLOR_EDGE_ACTIVE);
     }
 }
 
 static void draw_background(int UNUSED(x), int UNUSED(y), int width, int height){
-    // Current user avatar & name background
-    drawrect(0, 0, LIST_RIGHT, LIST_Y, COLOR_MENU_BACKGROUND);
-    // Friend list (roster) background
-    drawrect(0, LIST_Y, LIST_RIGHT, height + LIST_BOTTOM, COLOR_LIST_BACKGROUND);
-    // Bottom icons menu background
-    drawrect(0, height + LIST_BOTTOM, LIST_RIGHT, height, COLOR_MENU_BACKGROUND);
+    /* Default background                */
+    drawrect(0, 0, width, height, COLOR_BACKGROUND_MAIN);
+    /* Friend list (roster) background   */
+    drawrect(0, 0, SIDEBAR_WIDTH, height, COLOR_BACKGROUND_LIST);
+    /* Current user badge background     */
+    drawrect(0, 0, MAIN_LEFT, ROSTER_TOP, COLOR_BACKGROUND_MENU);
 
-    // Current user avatar & name
-    // TODO move to it's own panel? (probably)
-    //draw_user_badge();
-
-    // Chat background
-    drawrect(LIST_RIGHT, 0, width, height, COLOR_MAIN_BACKGROUND);
-
+    if (!panel_chat.disabled){
+        /* Top frame for main chat panel */
+        drawrect (MAIN_LEFT, 0,                         width, MAIN_TOP_FRAME_THICK, COLOR_BACKGROUND_ALT);
+        drawhline(MAIN_LEFT, MAIN_TOP_FRAME_THICK - 1,  width,                       COLOR_EDGE_NORMAL);
+        /* Frame for the bottom chat text entry box */
+        drawrect (MAIN_LEFT, height + CHAT_BOX_TOP,     width, height, COLOR_BACKGROUND_ALT);
+        drawhline(MAIN_LEFT, height + CHAT_BOX_TOP,     width,         COLOR_EDGE_NORMAL);
+    }
     // Chat and chat header separation
-    extern PANEL panel_settings_master;
     if (panel_settings_master.disabled) {
-        drawhline(LIST_RIGHT, LIST_Y - 1, width, COLOR_EDGE_NORMAL);
+        drawhline(MAIN_LEFT, MAIN_TOP_FRAME_THICK - 1, width, COLOR_EDGE_NORMAL);
     } else {
-        drawhline(LIST_RIGHT, (LIST_Y / 2) - 1, width, COLOR_EDGE_NORMAL);
+        drawhline(MAIN_LEFT, MAIN_TOP_FRAME_THIN  - 1, width, COLOR_EDGE_NORMAL);
     }
 }
 
@@ -385,6 +413,7 @@ SCROLLABLE scrollbar_roster = {
     .color = C_SCROLL,
     .x = 2,
     .left = 1,
+    .small = 1,
 },
 
 // Scrollbar in chat window
@@ -431,6 +460,9 @@ messages_group = {
 PANEL panel_root,
         panel_side_bar,
             panel_self,
+            panel_jump_buttons,
+                panel_search_filter,
+                panel_quick_buttons,
             panel_roster,
                 panel_roster_list,
             panel_lower_buttons,
@@ -467,12 +499,11 @@ panel_side_bar = {
     .disabled = 0,
     .child = (PANEL*[]) {
         &panel_self,
+        &panel_jump_buttons,
         &panel_roster,
-        &panel_lower_buttons,
         NULL
     }
 },
-
     /* The user badge and buttons */
     panel_self = {
         .type = PANEL_NONE,
@@ -484,34 +515,53 @@ panel_side_bar = {
             NULL
         }
     },
-
+    /* Left sided toggles */
+    panel_jump_buttons = {
+        .type = PANEL_NONE,
+        .disabled = 0,
+        .child = (PANEL*[]) {
+            (void*)&button_menu,
+            (void*)&button_filter_friends,
+            &panel_search_filter,
+            &panel_quick_buttons,
+            NULL
+        }
+    },
+        panel_search_filter = {
+            .type = PANEL_NONE,
+            .disabled = 1,
+            .drawfunc = draw_user_badge,
+            .child = (PANEL*[]) {
+                (void*)&edit_search,
+                NULL
+            }
+        },
+        panel_quick_buttons = {
+            .type = PANEL_NONE,
+            .disabled = 0,
+            .drawfunc = draw_user_badge,
+            .child = (PANEL*[]) {
+                (void*)&button_add_new_contact,
+                (void*)&button_create_group,
+                (void*)&button_settings,
+                NULL
+            }
+        },
     /* The friends and group was called list */
     panel_roster = {
         .type = PANEL_NONE,
         .disabled = 0,
         .child = (PANEL*[]) {
             // TODO rename these
-            (void*)&edit_search, (void*)&dropdown_filter,
             (void*)&panel_roster_list,
             (void*)&scrollbar_roster,
             NULL
         }
     },
-
         panel_roster_list = {
             .type = PANEL_LIST,
             .content_scroll = &scrollbar_roster,
         },
-
-    panel_lower_buttons = {
-        .type = PANEL_NONE,
-        .disabled = 0,
-        .child = (PANEL*[]) {
-            (void*)&button_add, (void*)&button_groups, (void*)&button_transfer, (void*)&button_settings,
-            NULL
-        }
-    },
-
 /* Main panel, holds the overhead/settings, or the friend/group containers */
 panel_main = {
     .type = PANEL_NONE,
@@ -522,7 +572,6 @@ panel_main = {
         NULL
     }
 },
-
     /* Chat panel, friend or group, depending on what's selected */
     panel_chat = {
         .type = PANEL_NONE,
@@ -534,7 +583,6 @@ panel_main = {
             NULL
         }
     },
-
         panel_group_chat = {
             .type = PANEL_NONE,
             .disabled = 1,
@@ -548,21 +596,18 @@ panel_main = {
                 NULL
             }
         },
-
         panel_friend_chat ={
             .type = PANEL_NONE,
             .disabled = 1,
             .drawfunc = draw_friend,
             .child = (PANEL*[]) {
-                (void*)&button_call, (void*)&button_video, (void*)&button_sendfile,
-                (void*)&button_chat1, (void*)&button_chat2, (void*)&button_chat_send,
-                (void*)&edit_msg,
                 (void*)&scrollbar_friend,
                 (void*)&messages_friend,
+                (void*)&button_call_audio, (void*)&button_call_video,
+                (void*)&button_chat_left, (void*)&button_chat_right, (void*)&edit_msg, (void*)&button_chat_send,
                 NULL
             }
         },
-
         panel_friend_request = {
             .type = PANEL_NONE,
             .disabled = 1,
@@ -572,7 +617,6 @@ panel_main = {
                 NULL
             }
         },
-
     /* Settings master panel, holds the lower level settings */
     panel_overhead = {
         .type = PANEL_NONE,
@@ -584,28 +628,16 @@ panel_main = {
             NULL
         }
     },
-
         panel_add_friend = {
             .type = PANEL_NONE,
             .disabled = 1,
             .drawfunc = draw_add_friend,
             .child = (PANEL*[]) {
-                (void*)&button_add_friend,
+                (void*)&button_send_friend_request,
                 (void*)&edit_add_id, (void*)&edit_add_msg,
                 NULL
             }
         },
-
-        panel_change_profile = {
-            .type = PANEL_NONE,
-            .disabled = 1,
-            .drawfunc = draw_change_profile,
-            .child = (PANEL*[]) {
-                /* Does nothing for now... sorry about that */
-                NULL
-            }
-        },
-
         panel_settings_master = {
             .type = PANEL_NONE,
             .disabled = 0,
@@ -615,7 +647,6 @@ panel_main = {
                 NULL
             }
         },
-
             panel_settings_subheader = {
                 .type = PANEL_NONE,
                 .disabled = 0,
@@ -694,6 +725,7 @@ panel_main = {
                 .content_scroll = &scrollbar_settings,
                 .child = (PANEL*[]) {
                     (void*)&button_callpreview,
+                    (void*)&dropdown_push_to_talk,
                     (void*)&button_videopreview,
                     (void*)&dropdown_audio_in,
                     (void*)&dropdown_audio_out,
@@ -704,31 +736,28 @@ panel_main = {
                 }
             };
 
-void ui_scale(uint8_t scale)
-{
-    if(SCALE == scale) {
-        return;
+void ui_scale(uint8_t scale) {
+    if(SCALE != scale) {
+        SCALE = scale;
     }
-
-    SCALE = scale;
 
     list_scale();
 
     /* DEFAULT positions */
         panel_side_bar.x = 0;
         panel_side_bar.y = 0;
-        panel_side_bar.width = X_SIDEBAR_RIGHT;
+        panel_side_bar.width = SIDEBAR_WIDTH;
 
-        scrollbar_roster.panel.y = LIST_Y2;
-        scrollbar_roster.panel.width = LIST_RIGHT + 1;
-        scrollbar_roster.panel.height = LIST_BOTTOM;
+        scrollbar_roster.panel.y = ROSTER_TOP;
+        scrollbar_roster.panel.width = MAIN_LEFT;
+        scrollbar_roster.panel.height = ROSTER_BOTTOM;
 
         panel_roster_list.x = 0;
-        panel_roster_list.y = Y_ROSTER_TOP;
-        panel_roster_list.width = LIST_RIGHT + 1;
-        panel_roster_list.height = LIST_BOTTOM;
+        panel_roster_list.y = ROSTER_TOP;
+        panel_roster_list.width = MAIN_LEFT;
+        panel_roster_list.height = ROSTER_BOTTOM;
 
-        panel_main.x = X_MAIN_LEFT;
+        panel_main.x = MAIN_LEFT;
         panel_main.y = 0;
 
         scrollbar_settings.panel.y = 16 * SCALE;
@@ -741,50 +770,98 @@ void ui_scale(uint8_t scale)
         panel_settings_av.y      = 16 * SCALE;
 
         scrollbar_friend.panel.y = LIST_Y;
-        scrollbar_friend.panel.height = MESSAGES_BOTTOM;
+        scrollbar_friend.panel.height = CHAT_BOX_TOP;
 
         messages_friend.panel.y = LIST_Y;
-        messages_friend.panel.height = MESSAGES_BOTTOM;
+        messages_friend.panel.height = CHAT_BOX_TOP;
         messages_friend.panel.width = -SCROLL_WIDTH;
 
         scrollbar_group.panel.y = LIST_Y;
-        scrollbar_group.panel.height = MESSAGES_BOTTOM;
+        scrollbar_group.panel.height = CHAT_BOX_TOP;
 
         messages_group.panel.y = LIST_Y;
-        messages_group.panel.height = MESSAGES_BOTTOM;
+        messages_group.panel.height = CHAT_BOX_TOP;
         messages_group.panel.width = -SCROLL_WIDTH;
 
+    setscale_fonts();
+
+    setfont(FONT_SELF_NAME);
+
     /* Button Structs  */
-        PANEL b_add = {
-            .type = PANEL_BUTTON,
-            .x = 0,
-            .y = LIST_BOTTOM,
-            .width = SCALE * 27,
-            .height = -LIST_BOTTOM,
+        /* Self badge box*/
+        PANEL b_avatar = {
+            .type   = PANEL_BUTTON,
+            .x      = SIDEBAR_AVATAR_LEFT,
+            .y      = SIDEBAR_AVATAR_TOP,
+            .width  = BM_CONTACT_WIDTH,
+            .height = BM_CONTACT_WIDTH,
         },
 
-        b_groups = {
-            .type = PANEL_BUTTON,
-            .x = SCALE * 28 * 1,
-            .y = LIST_BOTTOM,
-            .width = SCALE * 27,
-            .height = -LIST_BOTTOM,
+        b_name = {
+            .type   = PANEL_BUTTON,
+            .x      = SIDEBAR_NAME_LEFT,
+            .y      = SIDEBAR_NAME_TOP,
+            .width  = textwidth(self.name, self.name_length) - 4 * SCALE,
+            .height = SIDEBAR_NAME_HEIGHT - 1 * SCALE,
         },
 
-        b_transfer = {
-            .type = PANEL_BUTTON,
-            .x = SCALE * 28 * 2,
-            .y = LIST_BOTTOM,
-            .width = SCALE * 27,
-            .height = -LIST_BOTTOM,
+        b_statusmsg = {
+            .type   = PANEL_BUTTON,
+            .x      = SIDEBAR_STATUSMSG_LEFT,
+            .y      = SIDEBAR_STATUSMSG_TOP,
+            .width  = textwidth(self.statusmsg, self.statusmsg_length) - 4 * SCALE,
+            .height = SIDEBAR_STATUSMSG_HEIGHT - 1 * SCALE,
+        },
+
+        b_status_button = {
+            .type   = PANEL_BUTTON,
+            .x      = SELF_STATUS_X,
+            .y      = SELF_STATUS_Y,
+            .width  = BM_STATUSAREA_WIDTH,
+            .height = BM_STATUSAREA_HEIGHT,
+        },
+
+        /* Buttons */
+        b_menu_button = {
+            .type   = PANEL_BUTTON,
+            .y      = SIDEBAR_MENU_BUTTON_TOP,
+            .x      = SIDEBAR_MENU_BUTTON_LEFT,
+            .width  = SIDEBAR_MENU_BUTTON_WIDTH,
+            .height = SIDEBAR_MENU_BUTTON_HEIGHT,
+        },
+
+
+        b_filter_friends = {
+            .type   = PANEL_BUTTON,
+            .y      = SIDEBAR_FILTER_FRIENDS_TOP,
+            .x      = SIDEBAR_FILTER_FRIENDS_LEFT,
+            .width  = SIDEBAR_FILTER_FRIENDS_WIDTH,
+            .height = SIDEBAR_FILTER_FRIENDS_HEIGHT,
+        },
+
+
+        b_add_new_contact = {
+            .type   = PANEL_BUTTON,
+            .y      = SIDEBAR_BUTTON_TOP,
+            .x      = SIDEBAR_BUTTON_LEFT * 1,
+            .width  = SIDEBAR_BUTTON_WIDTH,
+            .height = SIDEBAR_BUTTON_HEIGHT,
+        },
+
+        b_create_group = {
+            .type   = PANEL_BUTTON,
+            .y      = SIDEBAR_BUTTON_TOP,
+            .x      = SIDEBAR_BUTTON_LEFT * 2,
+            .width  = SIDEBAR_BUTTON_WIDTH,
+            .height = SIDEBAR_BUTTON_HEIGHT,
         },
 
         b_settings = {
             .type = PANEL_BUTTON,
-            .x = SCALE * 28 * 3,
-            .y = LIST_BOTTOM,
-            .width = SCALE * 27,
-            .height = -LIST_BOTTOM,
+            .y      = SIDEBAR_BUTTON_TOP,
+            .x      = SIDEBAR_BUTTON_LEFT * 3,
+            .width  = SIDEBAR_BUTTON_WIDTH,
+            .height = SIDEBAR_BUTTON_HEIGHT,
         },
 
         b_copyid = {
@@ -795,33 +872,35 @@ void ui_scale(uint8_t scale)
             .height = BM_SBUTTON_HEIGHT,
         },
 
+        /* setfont(FONT_SELF_NAME); needed for the next 4 buttons */
         b_settings_sub_profile = {
             .type   = PANEL_BUTTON,
-            .x      = 1  * SCALE, /* Nudged 1px as a buffer */
+            .x      = 1  * SCALE,                           /* Nudged 1px as a buffer */
             .y      = 1  * SCALE,
-            .width  = 64 * SCALE, /* Nudged 1px as a buffer */
+            .width  = 9  * SCALE + UTOX_STR_WIDTH(PROFILE), /* Nudged 1px as a buffer */
             .height = 14 * SCALE,
         },
 
         b_settings_sub_net = {
             .type   = PANEL_BUTTON,
-            .x      = 66 * SCALE, /* Nudged 1px as a buffer */
+            .x      = 11 * SCALE + UTOX_STR_WIDTH(PROFILE), /* Nudged 1px as a buffer */
             .y      = 1  * SCALE,
-            .width  = 44 * SCALE,
+            .width  = 9  * SCALE + UTOX_STR_WIDTH(NETWORK), /* Nudged 1px as a buffer */
             .height = 14 * SCALE,
         },
 
         b_settings_sub_ui = {
             .type   = PANEL_BUTTON,
-            .x      = 111 * SCALE, /* Nudged 1px as a buffer */
-            .y      = 1   * SCALE,
-            .width  = 64  * SCALE, /* Nudged 1px as a buffer */
-            .height = 14  * SCALE,
+            .x      = 21 * SCALE + UTOX_STR_WIDTH(PROFILE) + UTOX_STR_WIDTH(NETWORK), /* Nudged 1px as a buffer */
+            .y      = 1  * SCALE,
+            .width  = 9  * SCALE + UTOX_STR_WIDTH(USER_INTERFACE),                    /* Nudged 1px as a buffer */
+            .height = 14 * SCALE,
         },
 
         b_settings_sub_av = {
             .type   = PANEL_BUTTON,
-            .x      = 176 * SCALE, /* Nudged 1px as a buffer */
+            .x      = 31  * SCALE + /* Nudged 1px as a buffer */
+                      UTOX_STR_WIDTH(PROFILE) + UTOX_STR_WIDTH(NETWORK) + UTOX_STR_WIDTH(USER_INTERFACE),
             .y      = 1   * SCALE,
             .width  = 400 * SCALE, /* Fill the rest of the space for this button */
             .height = 14  * SCALE,
@@ -837,7 +916,7 @@ void ui_scale(uint8_t scale)
         },
         #endif
 
-        b_add_friend = {
+        b_send_friend_request = {
             .type = PANEL_BUTTON,
             .x = -SCALE * 5 - BM_SBUTTON_WIDTH,
             .y = LIST_Y + SCALE * 84,
@@ -845,9 +924,17 @@ void ui_scale(uint8_t scale)
             .height = BM_SBUTTON_HEIGHT,
         },
 
-        b_call = {
+        b_call_audio = {
             .type = PANEL_BUTTON,
             .x = -62 * SCALE,
+            .y = 5 * SCALE,
+            .width = BM_LBUTTON_WIDTH,
+            .height = BM_LBUTTON_HEIGHT,
+        },
+
+        b_call_video = {
+            .type = PANEL_BUTTON,
+            .x = -31 * SCALE,
             .y = 5 * SCALE,
             .width = BM_LBUTTON_WIDTH,
             .height = BM_LBUTTON_HEIGHT,
@@ -856,22 +943,6 @@ void ui_scale(uint8_t scale)
         b_group_audio = {
             .type = PANEL_BUTTON,
             .x = -31 * SCALE,
-            .y = 5 * SCALE,
-            .width = BM_LBUTTON_WIDTH,
-            .height = BM_LBUTTON_HEIGHT,
-        },
-
-        b_video = {
-            .type = PANEL_BUTTON,
-            .x = -31 * SCALE,
-            .y = 5 * SCALE,
-            .width = BM_LBUTTON_WIDTH,
-            .height = BM_LBUTTON_HEIGHT,
-        },
-
-        b_sendfile = {
-            .type = PANEL_BUTTON,
-            .x = -93 * SCALE,
             .y = 5 * SCALE,
             .width = BM_LBUTTON_WIDTH,
             .height = BM_LBUTTON_HEIGHT,
@@ -902,68 +973,45 @@ void ui_scale(uint8_t scale)
         },
 
         /* top right chat message window button */
-        b_chat1 = {
-            .type = PANEL_BUTTON,
-            .x = -40 * SCALE - BM_CHAT_BUTTON_WIDTH,
-            .y = -40 * SCALE,
+        b_chat_left = {
+            .type   = PANEL_BUTTON,
+            .x      =   3 * SCALE,
+            .y      = -23 * SCALE,
+            .width  = BM_CHAT_BUTTON_WIDTH,
             .height = BM_CHAT_BUTTON_HEIGHT,
-            .width = BM_CHAT_BUTTON_WIDTH,
         },
 
         /* bottom right chat message window button */
-        b_chat2 = {
-            .type = PANEL_BUTTON,
-            .x = -40 * SCALE - BM_CHAT_BUTTON_WIDTH,
-            .y = -40 * SCALE + BM_CHAT_BUTTON_HEIGHT + SCALE,
-            .height = BM_CHAT_BUTTON_HEIGHT + SCALE,
-            .width = BM_CHAT_BUTTON_WIDTH,
+        b_chat_right = {
+            .type   = PANEL_BUTTON,
+            .x      =   4 * SCALE + BM_CHAT_BUTTON_WIDTH,
+            .y      = -23 * SCALE,
+            .width  = BM_CHAT_BUTTON_WIDTH,
+            .height = BM_CHAT_BUTTON_HEIGHT,
         },
 
         b_chat_send = {
             .type   = PANEL_BUTTON,
-            .x      = -5 * SCALE - BM_CHAT_SEND_WIDTH,
-            .y      = -40 * SCALE,
-            .height = BM_CHAT_SEND_HEIGHT,
+            .x      =  -3 * SCALE - BM_CHAT_SEND_WIDTH,
+            .y      = -23 * SCALE,
             .width  = BM_CHAT_SEND_WIDTH,
-        },
-
-        b_avatar = {
-            .type = PANEL_BUTTON,
-            .x = SELF_AVATAR_X,
-            .y = SELF_AVATAR_Y,
-            .width = BM_CONTACT_WIDTH,
-            .height = BM_CONTACT_WIDTH,
-        },
-
-        b_name = {
-            .type = PANEL_BUTTON,
-            .x = SELF_NAME_X,
-            .y = SELF_NAME_Y + 2 * SCALE,
-            .width = SELF_STATUS_X - SELF_NAME_X,
-            .height = SELF_MSG_Y - SELF_NAME_Y,
-        },
-
-        b_statusmsg = {
-            .type = PANEL_BUTTON,
-            .x = SELF_MSG_X,
-            .y = SELF_MSG_Y + 2 * SCALE,
-            .width = SELF_STATUS_X - SELF_MSG_X,
-            .height = 6 * SCALE,
-        },
-
-        b_status = {
-            .type = PANEL_BUTTON,
-            .x = SELF_STATUS_X,
-            .y = SELF_STATUS_Y,
-            .width = BM_STATUSAREA_WIDTH,
-            .height = BM_STATUSAREA_HEIGHT,
+            .height = BM_CHAT_SEND_HEIGHT,
         };
 
     /* Set the button panels */
-        button_add.panel = b_add;
+        button_avatar.panel = b_avatar;
+        button_name.panel = b_name;
+        button_statusmsg.panel = b_statusmsg;
+        button_status.panel = b_status_button;
+
+        button_menu.panel = b_menu_button;
+
+        button_filter_friends.panel = b_filter_friends;
+
+        button_add_new_contact.panel = b_add_new_contact;
         button_settings.panel = b_settings;
-        button_transfer.panel = b_transfer;
-        button_groups.panel = b_groups;
+        button_create_group.panel = b_create_group;
+
         button_copyid.panel = b_copyid;
         button_settings_sub_profile.panel = b_settings_sub_profile;
         button_settings_sub_net.panel = b_settings_sub_net;
@@ -972,26 +1020,31 @@ void ui_scale(uint8_t scale)
         #ifdef EMOJI_IDS
         button_change_id_type.panel = b_change_id_type;
         #endif
-        button_add_friend.panel = b_add_friend;
-        button_call.panel = b_call;
-        button_group_audio.panel = b_group_audio;
-        button_video.panel = b_video;
-        button_sendfile.panel = b_sendfile;
-        button_accept_friend.panel = b_accept_friend;
-        button_callpreview.panel = b_callpreview;
-        button_videopreview.panel = b_videopreview;
-        button_chat1.panel = b_chat1;
-        button_chat2.panel = b_chat2;
-        button_chat_send.panel = b_chat_send;
-        button_avatar.panel = b_avatar;
-        button_name.panel = b_name;
-        button_statusmsg.panel = b_statusmsg;
-        button_status.panel = b_status;
+        button_send_friend_request.panel = b_send_friend_request;
+        button_call_audio.panel          = b_call_audio;
+        button_call_video.panel          = b_call_video;
+        button_group_audio.panel         = b_group_audio;
+        button_accept_friend.panel       = b_accept_friend;
+        button_callpreview.panel         = b_callpreview;
+        button_videopreview.panel        = b_videopreview;
+        button_chat_left.panel           = b_chat_left;
+        button_chat_right.panel          = b_chat_right;
+        button_chat_send.panel           = b_chat_send;
 
     /* Drop down structs */
+        setfont(FONT_TEXT);
+
         PANEL d_notifications = {
             .type   = PANEL_DROPDOWN,
-            .x      = 5  * SCALE,
+            .x      = 5   * SCALE,
+            .y      = 15  * SCALE,
+            .height = 12  * SCALE,
+            .width  = 20  * SCALE
+        },
+
+        d_push_to_talk = {
+            .type   = PANEL_DROPDOWN,
+            .x      = 60 * SCALE,
             .y      = 15 * SCALE,
             .height = 12 * SCALE,
             .width  = 20 * SCALE
@@ -1000,7 +1053,7 @@ void ui_scale(uint8_t scale)
         #ifdef AUDIO_FILTERING
         d_audio_filtering = {
             .type   = PANEL_DROPDOWN,
-            .x      = 100 * SCALE,
+            .x      = 120 * SCALE,
             .y      = 15  * SCALE,
             .height = 12  * SCALE,
             .width  = 20  * SCALE
@@ -1047,76 +1100,68 @@ void ui_scale(uint8_t scale)
             .width  = 100 * SCALE
         },
 
-        d_filter = {
-            .type   = PANEL_DROPDOWN,
-            .x      = LIST_RIGHT - SCALE * 25,
-            .y      = SEARCH_Y,
-            .height = 12 * SCALE,
-            .width  = 25 * SCALE,
-        },
-
         d_proxy = {
             .type   = PANEL_DROPDOWN,
-            .x      = 5  * SCALE,
-            .y      = 40 * SCALE,
-            .height = 12 * SCALE,
-            .width  = 60 * SCALE
+            .x      = 5   * SCALE,
+            .y      = 40  * SCALE,
+            .height = 12  * SCALE,
+            .width  = 60  * SCALE
         },
 
         d_ipv6 = {
             .type   = PANEL_DROPDOWN,
-            .x      = 24 * SCALE,
-            .y      = 13 * SCALE,
-            .height = 12 * SCALE,
-            .width  = 20 * SCALE
+            .x      = 24  * SCALE,
+            .y      = 13  * SCALE,
+            .height = 12  * SCALE,
+            .width  = 20  * SCALE
         },
 
         d_udp = {
             .type   = PANEL_DROPDOWN,
-            .x      = 74 * SCALE,
-            .y      = 13 * SCALE,
-            .height = 12 * SCALE,
-            .width  = 20 * SCALE
+            .x      = 74  * SCALE,
+            .y      = 13  * SCALE,
+            .height = 12  * SCALE,
+            .width  = 20  * SCALE
         },
 
         d_logging = {
             .type   = PANEL_DROPDOWN,
             .x      = 5   * SCALE,
-            .y      = 39 * SCALE,
+            .y      = 39  * SCALE,
             .height = 12  * SCALE,
             .width  = 20  * SCALE
         },
 
         d_theme = {
             .type   = PANEL_DROPDOWN,
-            .x      = 5  * SCALE,
-            .y      = 15 * SCALE,
-            .height = 12 * SCALE,
-            .width  = 60 * SCALE
+            .x      = 5   * SCALE,
+            .y      = 15  * SCALE,
+            .height = 12  * SCALE,
+            .width  = 60  * SCALE
         },
 
         d_close_to_tray = {
             .type   = PANEL_DROPDOWN,
             .x      = 5   * SCALE,
-            .y      = 63 * SCALE,
+            .y      = 63  * SCALE,
             .height = 12  * SCALE,
             .width  = 20  * SCALE
         },
 
         d_start_in_tray = {
             .type   = PANEL_DROPDOWN,
-            .x      = 75  * SCALE,
-            .y      = 63 * SCALE,
-            .height = 12 * SCALE,
-            .width  = 20 * SCALE
+            .x      = 5   * SCALE + UTOX_STR_WIDTH(CLOSE_TO_TRAY) + 10 * SCALE,
+            .y      = 63  * SCALE,
+            .height = 12  * SCALE,
+            .width  = 20  * SCALE
         },
 
         d_auto_startup = {
             .type   = PANEL_DROPDOWN,
-            .x      = 5  * SCALE,
-            .y      = 87 * SCALE,
-            .height = 12 * SCALE,
-            .width  = 20 * SCALE
+            .x      = 5   * SCALE,
+            .y      = 87  * SCALE,
+            .height = 12  * SCALE,
+            .width  = 20  * SCALE
         },
 
         d_typing_notes = {
@@ -1133,12 +1178,12 @@ void ui_scale(uint8_t scale)
         dropdown_video.panel = d_video;
         dropdown_dpi.panel = d_dpi;
         dropdown_language.panel = d_language;
-        dropdown_filter.panel = d_filter;
         dropdown_proxy.panel = d_proxy;
         dropdown_ipv6.panel = d_ipv6;
         dropdown_udp.panel = d_udp;
         dropdown_logging.panel = d_logging;
         dropdown_audible_notification.panel = d_notifications;
+        dropdown_push_to_talk.panel = d_push_to_talk;
         dropdown_close_to_tray.panel = d_close_to_tray;
         dropdown_start_in_tray.panel = d_start_in_tray;
         dropdown_theme.panel = d_theme;
@@ -1193,28 +1238,27 @@ void ui_scale(uint8_t scale)
         /* Message entry box for friends and groups */
         e_msg = {
             .type   = PANEL_EDIT,
-            .x      = 5 * SCALE,
-            .y      = -40 * SCALE,
-            // a text line is 8 high. 32 / 8 = 4 lines of text.
-            .height = 32 * SCALE,
-            .width  = -40 * SCALE - BM_CHAT_BUTTON_WIDTH,
+            .x      =   5 * SCALE + BM_CHAT_BUTTON_WIDTH * 2, /* Make space for the left button  */
+            .y      = -23 * SCALE,
+            .width  = -32 * SCALE,
+            .height =  20 * SCALE,
+            // text is 8 high. 8 * 2.5 = 20.
         },
 
         e_msg_group = {
             .type   = PANEL_EDIT,
-            .x      = 5 * SCALE,
-            .y      = -40 * SCALE,
-            // a text line is 8 high. 32 / 8 = 4 lines of text.
-            .height = 32 * SCALE,
+            .x      =   3 * SCALE,
+            .y      = -23 * SCALE,
             .width  = -10 * SCALE - BM_CHAT_SEND_WIDTH,
+            .height =  20 * SCALE,
         },
 
         e_search = {
-            .type = PANEL_EDIT,
-            .x = 0,
-            .y = SEARCH_Y,
-            .height = 12 * SCALE,
-            .width = LIST_RIGHT - SCALE * 25,
+            .type   = PANEL_EDIT,
+            .y      = SIDEBAR_SEARCH_TOP,
+            .x      = SIDEBAR_SEARCH_LEFT,
+            .width  = SIDEBAR_SEARCH_WIDTH,
+            .height = SIDEBAR_SEARCH_HEIGHT,
         },
 
         e_proxy_ip = {
@@ -1306,8 +1350,7 @@ static void panel_update(PANEL *p, int x, int y, int width, int height)
     }
 }
 
-void ui_size(int width, int height)
-{
+void ui_size(int width, int height) {
     panel_update(&panel_root, 0, 0, width, height);
     tooltip_reset();
 }

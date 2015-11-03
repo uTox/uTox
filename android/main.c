@@ -64,6 +64,14 @@ void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data)
     write(pipefd[1], &piping, sizeof(PIPING));
 }
 
+void init_ptt(void){ push_to_talk = 0 /* android is unsupported */ }
+
+_Bool check_ptt_key(void){
+    return 1;
+}
+
+void exit_ptt(void){ push_to_talk = 0 /* android is unsupported */ }
+
 void image_set_filter(UTOX_NATIVE_IMAGE *image, uint8_t filter)
 {
 }
@@ -519,6 +527,9 @@ static void android_main(struct android_app* state){
     pipe(pipefd);
     fcntl(pipefd[0], F_SETFL, O_NONBLOCK);
 
+    LANG = DEFAULT_LANG;
+    dropdown_language.selected = dropdown_language.over = LANG;
+
     UTOX_SAVE *save = config_load();
     theme_load(THEME_DEFAULT);
 
@@ -528,9 +539,6 @@ static void android_main(struct android_app* state){
 
     dropdown_dpi.selected = dropdown_dpi.over = 3;
     ui_scale(4);
-
-    LANG = DEFAULT_LANG;
-    dropdown_language.selected = dropdown_language.over = LANG;
 
     while(!tox_thread_init) {
         yieldcpu(1);

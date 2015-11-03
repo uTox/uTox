@@ -19,6 +19,8 @@ typedef struct avatar {
 /* whether friend f's avatar is set, where f is a pointer to a friend struct */
 #define friend_has_avatar(f) (f->avatar.format != UTOX_AVATAR_FORMAT_NONE)
 
+_Bool init_avatar(AVATAR *avatar, const char_t *id, uint8_t *png_data_out, uint32_t *png_size_out);
+
 /* gets the avatar location on the disk and puts the result in dest.
  * id is the client id string for given client. To get the cid string from a cid, use cid_to_string
  *  returns the number of chars written

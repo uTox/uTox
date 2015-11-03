@@ -8,7 +8,7 @@ msgid(REQ_SENT)
 msgstr("Freundschaftsanfrage verschickt. Dein Freund wird online erscheinen, sobald er deine Anfrage akzeptiert hat.")
 
 msgid(REQ_RESOLVE)
-msgstr("Versuche DNS-Namen aufzulösen...")
+msgstr("Versuche DNS-Namen aufzulösen ...")
 
 msgid(REQ_INVALID_ID)
 msgstr("Fehler: Ungültige Tox ID")
@@ -53,7 +53,7 @@ msgid(SEND_FILE_PROMPT)
 msgstr("Wähle eine oder mehrere Dateien zum Senden.")
 
 msgid(SCREEN_CAPTURE_PROMPT)
-msgstr("Ziehe eine Box um den Bereich des Bildschirms, der gesendet werden soll.")
+msgstr("Markiere den Bereich des Bildschirms, der gesendet werden soll.")
 
 msgid(TRANSFER_NEW)
 msgstr("Neue Dateiübertragung")
@@ -86,13 +86,13 @@ msgid(CALL_STARTED)
 msgstr("Anruf gestartet")
 
 msgid(ADDFRIENDS)
-msgstr("Freunde hinzufügen")
+msgstr("Neuen Kontakt hinzufügen")
 
 msgid(MESSAGE)
 msgstr("Nachricht")
 
 msgid(SEARCHFRIENDS)
-msgstr("Freunde suchen")
+msgstr("Kontakte suchen")
 
 msgid(ADD)
 msgstr("Hinzufügen")
@@ -158,7 +158,7 @@ msgid(NETWORK)
 msgstr("Netzwerk")
 
 msgid(WARNING)
-msgstr("Das Verändern von Netzwerk/Proxy-Einstellungen unterbricht die Verbindung zum Tox-Netzwerk.")
+msgstr("Das Verändern von Netzwerk-/Proxy-Einstellungen unterbricht die Verbindung zum Tox-Netzwerk.")
 
 msgid(LOGGING)
 msgstr("Chatverläufe speichern")
@@ -170,10 +170,10 @@ msgid(RINGTONE)
 msgstr("Klingelton")
 
 msgid(IS_TYPING)
-msgstr("schreibt...")
+msgstr("schreibt ...")
 
 msgid(CLOSE_TO_TRAY)
-msgstr("Zum Infobereich schließen") // TODO: overlaps with translation of START_IN_TRAY (Settings > UI)
+msgstr("In den Infobereich schließen") // TODO: overlaps with translation of START_IN_TRAY (Settings > UI)
 
 msgid(START_IN_TRAY)
 msgstr("Im Infobereich starten")
@@ -224,7 +224,7 @@ msgid(IGNORE)
 msgstr("Ignorieren")
 
 msgid(SENDSCREENSHOT)
-msgstr("Screenshot senden")
+msgstr("Bildschirmaufnahme senden")
 
 msgid(CLICKTOSAVE)
 msgstr("Klicken um zu speichern")
@@ -269,13 +269,13 @@ msgid(ON)
 msgstr("An")
 
 msgid(VIDEO_IN_NONE)
-msgstr("keine")
+msgstr("keines")
 
 msgid(AUDIO_IN_DEFAULT_LOOPBACK)
 msgstr("Standard Loopback")
 
 msgid(AUDIO_IN_ANDROID)
-msgstr("OpenSL Eingang")
+msgstr("OpenSL-Eingang")
 
 msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
 msgstr("Bitte füge mich deiner Kontaktliste hinzu.")
@@ -284,7 +284,7 @@ msgid(CONTACTS_FILTER_EDIT_HINT)
 msgstr("Freunde suchen")
 
 msgid(WINDOW_TITLE_VIDEO_PREVIEW)
-msgstr("Video Vorschau")
+msgstr("Videovorschau")
 
 msgid(MUTE)
 msgstr("Stummschalten")
@@ -326,4 +326,4 @@ msgid(THEME_CUSTOM)
 msgstr("Benutzerdefiniert (siehe Dokumentation)")
 
 msgid(SEND_TYPING_NOTIFICATIONS)
-msgstr("Mitteilen ob getippt wird")
+msgstr("Mitteilen, ob getippt wird")

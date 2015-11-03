@@ -36,8 +36,7 @@ static void* copy_groupmessage(Tox *tox, const uint8_t *str, uint16_t length, ui
     return msg;
 }
 
-static void callback_friend_request(Tox *UNUSED(tox), const uint8_t *id, const uint8_t *msg, size_t length, void *UNUSED(userdata))
-{
+static void callback_friend_request(Tox *UNUSED(tox), const uint8_t *id, const uint8_t *msg, size_t length, void *UNUSED(userdata)) {
     length = utf8_validate(msg, length);
 
     FRIENDREQ *req = malloc(sizeof(FRIENDREQ) + length);
@@ -46,13 +45,7 @@ static void callback_friend_request(Tox *UNUSED(tox), const uint8_t *id, const u
     memcpy(req->id, id, sizeof(req->id));
     memcpy(req->msg, msg, length);
 
-    postmessage(FRIEND_REQUEST, 0, 0, req);
-
-    /*int r = tox_add_friend_norequest(tox, id);
-    void *data = malloc(TOX_FRIEND_ADDRESS_SIZE);
-    memcpy(data, id, TOX_FRIEND_ADDRESS_SIZE);
-
-    postmessage(FRIEND_ACCEPT, (r < 0), (r < 0) ? 0 : r, data);*/
+    postmessage(FRIEND_INCOMING_REQUEST, 0, 0, req);
 }
 
 static void callback_friend_message(Tox *tox, uint32_t friend_number, TOX_MESSAGE_TYPE type, const uint8_t *message, size_t length, void *UNUSED(userdata)){
@@ -74,75 +67,72 @@ static void callback_friend_message(Tox *tox, uint32_t friend_number, TOX_MESSAG
     log_write(tox, friend_number, message, length, 0, LOG_FILE_MSG_TYPE_TEXT);
 }
 
-static void callback_name_change(Tox *UNUSED(tox), uint32_t fid, const uint8_t *newname, size_t length, void *UNUSED(userdata))
-{
+static void callback_name_change(Tox *UNUSED(tox), uint32_t fid, const uint8_t *newname, size_t length, void *UNUSED(userdata)) {
     length = utf8_validate(newname, length);
-
     void *data = malloc(length);
     memcpy(data, newname, length);
-
     postmessage(FRIEND_NAME, fid, length, data);
-
-    debug("Friend Name (%u): %.*s\n", fid, (int)length, newname);
+    debug("Friend-%u Name:\t%.*s\n", fid, (int)length, newname);
 }
 
-static void callback_status_message(Tox *UNUSED(tox), uint32_t fid, const uint8_t *newstatus, size_t length, void *UNUSED(userdata))
-{
+static void callback_status_message(Tox *UNUSED(tox), uint32_t fid, const uint8_t *newstatus, size_t length, void *UNUSED(userdata)) {
     length = utf8_validate(newstatus, length);
-
     void *data = malloc(length);
     memcpy(data, newstatus, length);
-
     postmessage(FRIEND_STATUS_MESSAGE, fid, length, data);
-
-    debug("Friend Status Message (%u): %.*s\n", fid, (int)length, newstatus);
+    debug("Friend-%u Status Message:\t%.*s\n", fid, (int)length, newstatus);
 }
 
-static void callback_user_status(Tox *UNUSED(tox), uint32_t fid, TOX_USER_STATUS status, void *UNUSED(userdata))
-{
-    postmessage(FRIEND_STATUS, fid, status, NULL);
-
-    debug("Friend Userstatus (%u): %u\n", fid, status);
+static void callback_user_status(Tox *UNUSED(tox), uint32_t fid, TOX_USER_STATUS status, void *UNUSED(userdata)) {
+    postmessage(FRIEND_STATE, fid, status, NULL);
+    debug("Friend-%u State:\t%u\n", fid, status);
 }
 
-static void callback_typing_change(Tox *UNUSED(tox), uint32_t fid, _Bool is_typing, void *UNUSED(userdata))
-{
+static void callback_typing_change(Tox *UNUSED(tox), uint32_t fid, _Bool is_typing, void *UNUSED(userdata)) {
     postmessage(FRIEND_TYPING, fid, is_typing, NULL);
-
-    debug("Friend Typing (%u): %u\n", fid, is_typing);
+    debug("Friend-%u Typing:\t%u\n", fid, is_typing);
 }
 
-static void callback_read_receipt(Tox *UNUSED(tox), uint32_t fid, uint32_t receipt, void *UNUSED(userdata))
-{
+static void callback_read_receipt(Tox *UNUSED(tox), uint32_t fid, uint32_t receipt, void *UNUSED(userdata)) {
     //postmessage(FRIEND_RECEIPT, fid, receipt);
-
-    debug("Friend Receipt (%u): %u\n", fid, receipt);
+    debug("Friend-%u Receipt:\t%u\n", fid, receipt);
 }
 
-static void callback_connection_status(Tox *tox, uint32_t fid, TOX_CONNECTION status, void *UNUSED(userdata)){
-    // todo call avatar sending
-
+static void callback_connection_status(Tox *tox, uint32_t fid, TOX_CONNECTION status, void *UNUSED(userdata) ){
+    if (friend[fid].online && !status) {
+        ft_friend_offline(tox, fid);
+        if (friend[fid].call_state_self || friend[fid].call_state_friend) {
+            utox_av_local_disconnect(NULL, fid); /* TODO HACK, toxav doesn't supply a toxav_get_toxav_from_otx() yet. */
+        }
+        friend[fid].online = 0;
+    } else if (!friend[fid].online && !!status) {
+        ft_friend_online(tox, fid);
+        /* resend avatar info (in case it changed) */
+        /* Avatars must be sent LAST or they will clobber existing file transfers! */
+        avatar_on_friend_online(tox, fid);
+        friend[fid].online = 1;
+    }
     postmessage(FRIEND_ONLINE, fid, !!status, NULL);
 
     if(status == TOX_CONNECTION_UDP) {
-        debug("Friend (%u):\t Online (UDP)\n", fid);
+        debug("Friend-%u:\tOnline (UDP)\n", fid);
     } else if(status == TOX_CONNECTION_TCP) {
-        debug("Friend (%u):\t Online (TCP)\n", fid);
+        debug("Friend-%u:\tOnline (TCP)\n", fid);
     } else {
-        debug("Friend (%u):\t Offline\n", fid);
+        debug("Friend-%u:\tOffline\n", fid);
     }
 }
 
 void callback_av_group_audio(Tox *tox, int groupnumber, int peernumber, const int16_t *pcm, unsigned int samples,
                                     uint8_t channels, unsigned int sample_rate, void *userdata);
 
-static void callback_group_invite(Tox *tox, int fid, uint8_t type, const uint8_t *data, uint16_t length, void *UNUSED(userdata))
-{
+static void callback_group_invite(Tox *tox, int fid, uint8_t type, const uint8_t *data, uint16_t length, void *UNUSED(userdata)) {
     int gid = -1;
     if (type == TOX_GROUPCHAT_TYPE_TEXT) {
         gid = tox_join_groupchat(tox, fid, data, length);
     } else if (type == TOX_GROUPCHAT_TYPE_AV) {
-        gid = toxav_join_av_groupchat(tox, fid, data, length, &callback_av_group_audio, NULL);
+        // TODO FIX THIS AFTER NEW GROUP API IS RELEASED
+        // gid = toxav_join_av_groupchat(tox, fid, data, length, &callback_av_group_audio, NULL);
     }
 
     if(gid != -1) {
@@ -196,7 +186,7 @@ static void callback_group_namelist_change(Tox *tox, int gid, int pid, uint8_t c
     debug("Group Namelist Change (%u, %u): %u\n", gid, pid, change);
 }
 
-static void callback_group_title(Tox *tox, int gid, int pid, const uint8_t *title, uint8_t length, void *UNUSED(userdata))
+static void callback_group_topic(Tox *tox, int gid, int pid, const uint8_t *title, uint8_t length, void *UNUSED(userdata))
 {
     length = utf8_validate(title, length);
     if (!length)
@@ -207,7 +197,7 @@ static void callback_group_title(Tox *tox, int gid, int pid, const uint8_t *titl
         return;
 
     memcpy(copy_title, title, length);
-    postmessage(GROUP_TITLE, gid, length, copy_title);
+    postmessage(GROUP_TOPIC, gid, length, copy_title);
 
     debug("Group Title (%u, %u): %.*s\n", gid, pid, length, title);
 }

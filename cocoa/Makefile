@@ -1,7 +1,7 @@
 ## OPTIONS ##
 # set to anything else to disable them
 COCOA = 1
-FILTER_AUDIO = 1
+FILTER_AUDIO = 0
 
 CFLAGS ?= ""
 LDFLAGS ?= ""
