@@ -588,10 +588,10 @@ panel_main = {
             .disabled = 1,
             .drawfunc = draw_group,
             .child = (PANEL*[]) {
-                (void*)&edit_msg_group, // this needs to be one of the first, to get events before the others
-                (void*)&button_group_audio,
                 (void*)&scrollbar_group,
+                (void*)&edit_msg_group, // this needs to be one of the first, to get events before the others
                 (void*)&messages_group,
+                (void*)&button_group_audio,
                 (void*)&button_chat_send,
                 NULL
             }
@@ -601,8 +601,8 @@ panel_main = {
             .disabled = 1,
             .drawfunc = draw_friend,
             .child = (PANEL*[]) {
-                (void*)&edit_msg, // this needs to be one of the first, to get events before the others
                 (void*)&scrollbar_friend,
+                (void*)&edit_msg, // this needs to be one of the first, to get events before the others
                 (void*)&messages_friend,
                 (void*)&button_call_audio, (void*)&button_call_video,
                 (void*)&button_chat_left, (void*)&button_chat_right, (void*)&button_chat_send,
