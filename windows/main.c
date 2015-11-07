@@ -1,5 +1,6 @@
 #include <windows.h>
 #include <windowsx.h>
+#include <io.h>
 
 #include "audio.c"
 
@@ -9,6 +10,8 @@ _Bool draw = 0;
 float scale = 1.0;
 _Bool connected = 0;
 _Bool havefocus;
+char user_datapath[MAX_PATH];
+_Bool user_defined_datapath;
 
 
 BLENDFUNCTION blend_function = {
@@ -835,7 +838,12 @@ int datapath_old(uint8_t *dest)
 
 int datapath(uint8_t *dest)
 {
-    if (utox_portable) {
+    if (user_defined_datapath) {
+        uint8_t *p = dest;
+       	strcpy((char *)p, user_datapath); p += strlen(user_datapath);
+	*p++ = '\\';
+        return p - dest;
+    } else if (utox_portable) {
         uint8_t *p = dest;
         strcpy((char *)p, utox_portable_save_path); p += strlen(utox_portable_save_path);
         strcpy((char *)p, "\\Tox"); p += 4;
@@ -1204,6 +1212,31 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
                 utox_portable = 1;
                 strcpy(utox_portable_save_path, path);
                 debug("Starting uTox in portable mode: Data will be saved to tox/ in the current directory: %s\n", utox_portable_save_path);
+            } else if(wcsncmp(arglist[i], L"--datapath", 10) == 0) {
+                user_datapath[0] = '\0';
+                if ((strlen(arglist[i]) > 10) && (arglist[i][10] == L'=')) {
+                    char clean_arg[MAX_PATH];
+		    wcstombs(clean_arg, arglist[i], strlen(arglist[i]));
+                    strncpy(user_datapath, clean_arg+11, MAX_PATH-1);
+                    user_datapath[MAX_PATH-1] = '\0';
+                    if ((strlen(user_datapath) > 0) && (_access_s(user_datapath, 6) == 0)) {
+                        user_defined_datapath = 1;
+                        debug("Using \"%s\" as data path\n", user_datapath);
+                    }
+                } else if((strlen(arglist[i]) == 10) && (argc > i+1)) {
+                    ++i;
+                    char clean_arg[MAX_PATH];
+		    wcstombs(clean_arg, arglist[i], strlen(arglist[i]));
+                    strncpy(user_datapath, clean_arg, MAX_PATH-1);
+                    user_datapath[MAX_PATH-1] = '\0';
+                    if ((strlen(user_datapath) > 0) && (_access_s(user_datapath, 6) == 0)) {
+                        user_defined_datapath = 1;
+                        debug("Using \"%s\" as data path\n", user_datapath);
+                    }
+                } else {
+                    debug("Error processing \"--datapath\" argument\n");
+                    return 6;
+                }
             } else if(wcscmp(arglist[i], L"--theme") == 0){
                 debug("Searching for theme from argv\n");
                 if(arglist[(i+1)]){
