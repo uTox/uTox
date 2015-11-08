@@ -110,8 +110,9 @@ static void button_settings_onpress(void) {
     list_selectsettings();
 }
 
-static void button_filter_friends_mdown(void) {
-        FILTER = !FILTER;
+static void button_filter_friends_onpress(void) {
+    list_set_filter(!list_get_filter()); // this only works because right now there are only 2 filters
+                                         // (none or online), basically a bool
 }
 
 static void button_copyid_onpress(void) {
@@ -445,7 +446,7 @@ button_menu = {
 
 button_filter_friends = {
     .nodraw       = 1,
-    .onpress      = button_filter_friends_mdown,
+    .onpress      = button_filter_friends_onpress,
     .tooltip_text = { .i18nal = STR_FILTER_CONTACT_TOGGLE },
 },
 

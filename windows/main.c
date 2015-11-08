@@ -1628,6 +1628,14 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
             return 0;
         }
 
+        if(control) {
+            if ((wParam == VK_TAB && shift) || wParam == VK_PRIOR) {
+                previous_tab();
+            } else if (wParam == VK_TAB || wParam == VK_NEXT) {
+                next_tab();
+            }
+        }
+
         if(edit_active()) {
             if(control) {
                 switch(wParam) {

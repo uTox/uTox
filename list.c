@@ -5,9 +5,25 @@ extern _Bool unity_running;
 #endif
 
 static ITEM item_add, item_settings, item_transfer; /* I think these are pointers to the panel's they're named after. */
-static ITEM item[1024], *mouseover_item, *nitem;
+
+static ITEM item[1024]; // full list of friends and group chats
+static uint32_t itemcount;
+
+static uint32_t shown_list[1024]; // list of chats actually shown in the GUI after filtering(actually indices pointing to chats in the chats array)
+static uint32_t showncount;
+
+// search and filter stuff
+static char* search_string;
+static uint8_t filter;
+
+
+// TODO: Update shown list function
+// TODO: Filter function
+// TODO: Search function
+// TODO: comment it all
+
+static ITEM *mouseover_item, *nitem;
 ITEM *selected_item = &item_add;
-static uint32_t itemcount, searchcount;
 
 static _Bool selected_item_mousedown;
 
@@ -112,17 +128,36 @@ static void drawitem(ITEM *i, int UNUSED(x), int y) {
     }
 }
 
+static void update_shown_list(void) {
+    FRIEND *f;
+    int i, j;
+    for (i = j = 0; i < itemcount; i++) {
+        ITEM *it = &item[i];
+        f = it->data;
+        if(it->item != ITEM_FRIEND ||
+                ((!filter || f->online) && (!search_string || strstr_case((char*)f->name, (char*)search_string)))) {
+            shown_list[j++] = i;
+        }
+    }
+
+    showncount = j;
+    scrollbar_roster.content_height = showncount * ROSTER_BOX_HEIGHT;
+}
+
+
 static ITEM* newitem(void) {
     ITEM *i = &item[itemcount++];
     //TODO: ..
-    scrollbar_roster.content_height = searchcount * ROSTER_BOX_HEIGHT;
+    update_shown_list();
+    scrollbar_roster.content_height = showncount * ROSTER_BOX_HEIGHT;
     return i;
 }
 
 void list_scale(void) {
-    scrollbar_roster.content_height = searchcount * ROSTER_BOX_HEIGHT;
+    scrollbar_roster.content_height = showncount * ROSTER_BOX_HEIGHT;
 }
 
+// return item that the user is mousing over
 static ITEM* item_hit(int mx, int my, int UNUSED(height)) {
     /* Mouse is outsite the list */
     if(mx < ROSTER_BOX_LEFT || mx >= SIDEBAR_WIDTH) {
@@ -137,14 +172,44 @@ static ITEM* item_hit(int mx, int my, int UNUSED(height)) {
     uint32_t item_idx = my;
     item_idx /= ROSTER_BOX_HEIGHT;
 
-    if(item_idx >= searchcount) {
+    if(item_idx >= showncount) {
         return NULL;
     }
 
     ITEM *i;
 
-    i = &item[item_idx + search_offset[item_idx]];
+    i = &item[shown_list[item_idx]];
     return i;
+}
+
+uint8_t list_get_filter(void) {
+    return filter;
+}
+
+void list_set_filter(uint8_t new_filter) {
+    filter = new_filter;
+    update_shown_list();
+}
+
+void list_search(char *str) {
+    search_string = str;
+    update_shown_list();
+}
+
+void previous_tab(void) {
+    if (selected_item->item == ITEM_FRIEND ||
+        selected_item->item == ITEM_GROUP) {
+        list_selectchat(0);
+        redraw();// not here
+    }
+}
+
+void next_tab(void) {
+    if (selected_item->item == ITEM_FRIEND ||
+        selected_item->item == ITEM_GROUP) {
+        list_selectchat(1);
+        redraw();// not here
+    }
 }
 
 
@@ -322,6 +387,7 @@ void list_start(void) {
     }
 
     itemcount = i - item;
+    update_shown_list();
 
     scrollbar_roster.content_height = itemcount * ROSTER_BOX_HEIGHT;
 }
@@ -369,36 +435,20 @@ void list_addfriendreq(FRIENDREQ *f) {
 }
 
 void list_draw(void *UNUSED(n), int UNUSED(x), int y, int UNUSED(width), int UNUSED(height)) {
-    int my, j, k;
 
-    ITEM *i = item, *mi = NULL;
-    FRIEND *f;
-    j = 0;
-    k = 0;
-    //TODO: only draw visible
-    while(i != &item[itemcount]) {
-        f = i->data;
-        if(i->item != ITEM_FRIEND ||
-           ((!FILTER || f->online) && (!SEARCH || strstr_case((char*)f->name, (char*)search_data)))) {
-            if(i == selected_item && (selected_item_dy >= 5 || selected_item_dy <= -5)) {
-                mi = i;
-                my = y + selected_item_dy;
-            } else {
-                drawitem(i, ROSTER_BOX_LEFT, y);
-            }
-            search_offset[j] = k - j;
-            search_unset[k] = j - k;
-            j++;
-            y += ROSTER_BOX_HEIGHT;
+    ITEM *mi = NULL; // item being dragged
+    int my; // y of item being dragged
+
+    for (int i = 0; i < showncount; i++) {
+        ITEM *it = &item[shown_list[i]];
+        if(it == selected_item && (selected_item_dy >= 5 || selected_item_dy <= -5)) {
+            mi = it;
+            my = y + selected_item_dy;
         } else {
-            search_offset[j] = INT_MAX;
+            drawitem(it, ROSTER_BOX_LEFT, y);
         }
-        k++;
-        i++;
+        y += ROSTER_BOX_HEIGHT;
     }
-
-    searchcount = j;
-    scrollbar_roster.content_height = searchcount * ROSTER_BOX_HEIGHT;
 
     if(mi) {
         drawitem(mi, ROSTER_BOX_LEFT, my);
@@ -470,6 +520,7 @@ static void deleteitem(ITEM *i) {
         selected_item--;
     }
 
+    update_shown_list();
     redraw();//list_draw();
 }
 
@@ -502,34 +553,9 @@ void list_freeall(void) {
     }
 }
 
-static void selectchat_filtered(int index) {
-    int i;
-    for (i = 0; i < itemcount; ++i) {
-        ITEM *it = &item[i];
-        FRIEND *f = it->data;
-        if (it->item != ITEM_FRIEND ||
-            ((!FILTER || f->online) && (!SEARCH || strstr_case((char*)f->name, (char*)search_data)))) {
-            --index;
-        }
-
-        if (index == -1) {
-            show_page(it);
-            break;
-        }
-    }
-}
-
-static void selectchat_notfiltered(int index) {
-   if (index < itemcount) {
-        show_page(&item[index]);
-    }
-}
-
 void list_selectchat(int index) {
-    if (FILTER || SEARCH) {
-        selectchat_filtered(index);
-    } else {
-        selectchat_notfiltered(index);
+    if (index > 0 && index < showncount) {
+        show_page(&item[shown_list[index]]);
     }
 }
 
@@ -559,6 +585,7 @@ _Bool list_mmove(void *UNUSED(n), int UNUSED(x), int UNUSED(y), int UNUSED(width
         draw = 1;
     }
 
+/* TODO: re-add this. Make it not use search_unset etc.
     if(selected_item_mousedown) {
         selected_item_dy += dy;
         nitem = NULL;
@@ -580,7 +607,7 @@ _Bool list_mmove(void *UNUSED(n), int UNUSED(x), int UNUSED(y), int UNUSED(width
         }
 
         draw = 1;
-    } else {
+    } else*/ {
         tooltip_draw();
     }
 

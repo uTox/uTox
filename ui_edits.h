@@ -402,8 +402,6 @@ static void edit_search_onchange(EDIT *edit)
     STRING_IDX length = edit->length;
 
     if(!length) {
-        memset(search_offset, 0, sizeof(search_offset));
-        memset(search_unset, 0, sizeof(search_unset));
         SEARCH = 0;
     } else {
         SEARCH = 1;

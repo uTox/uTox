@@ -300,8 +300,27 @@ _Bool doevent(XEvent event)
         } else {
             len = XLookupString(ev, (char *)buffer, sizeof(buffer), &sym, NULL);
         }
+
+        // XK_ISO_Left_Tab = Shift+Tab, but we just look at whether shift is pressed
+        if (sym == XK_ISO_Left_Tab) {
+            sym = XK_Tab;
+        }
+
+        // NOTE: Don't use keys like KEY_TAB, KEY_PAGEUP, etc. from xlib/main.h here, they're
+        // overwritten by linux header linux/input.h, so they'll be different
+
+        if (ev->state & ControlMask) {
+            if ((sym == XK_Tab && (ev->state & ShiftMask)) || sym == XK_Page_Up) {
+                previous_tab();
+                break;
+            } else if (sym == XK_Tab || sym == XK_Page_Down) {
+                next_tab();
+                break;
+            }
+        }
+
         if(edit_active()) {
-            if(ev->state & 4) {
+            if(ev->state & ControlMask) {
                 switch(sym) {
                 case 'v':
                     paste();
@@ -334,10 +353,6 @@ _Bool doevent(XEvent event)
 
             if (sym == XK_KP_Enter){
                 sym = XK_Return;
-            }
-
-            if (sym == XK_ISO_Left_Tab) {
-                sym = XK_Tab;
             }
 
             if (sym == XK_Return && (ev->state & 1)) {

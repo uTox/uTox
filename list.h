@@ -1,6 +1,14 @@
 /* list: the contact list
  */
 
+void previous_tab(void);
+void next_tab(void);
+
+uint8_t list_get_filter(void);
+void list_set_filter(uint8_t filter);
+void list_search(char *str);
+
+
 
 /* non-exhaustive list of panels we to select from, it's probably better to replace this but I don't know with what. */
 enum
