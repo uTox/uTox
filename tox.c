@@ -769,7 +769,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
                 postmessage(FRIEND_ACCEPT_REQUEST, (f_err != TOX_ERR_FRIEND_ADD_OK),
                                                    (f_err != TOX_ERR_FRIEND_ADD_OK) ? 0 : fid, req);
             } else {
-                debug("uTox:\tUnable to accept friend %u, error num = %i\n", req->id, fid);
+                debug("uTox:\tUnable to accept friend %u, error num = %i\n", *req->id, fid);
             }
             save_needed = 1;
             break;
