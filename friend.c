@@ -177,6 +177,22 @@ void friend_addmessage(FRIEND *f, void *data) {
     }
 }
 
+_Bool friend_set_online(FRIEND *f, _Bool online) {
+    if (f->online == online) {
+        return false;
+    }
+
+    f->online = online;
+    if(!f->online) {
+        friend_set_typing(f, 0);
+    }
+
+    update_shown_list(); // update the contact list
+
+    return true;
+}
+
+
 void friend_set_typing(FRIEND *f, int typing) {
     f->typing = typing;
 }

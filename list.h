@@ -4,6 +4,8 @@
 void previous_tab(void);
 void next_tab(void);
 
+void update_shown_list(void);
+
 uint8_t list_get_filter(void);
 void list_set_filter(uint8_t filter);
 void list_search(char *str);

@@ -16,12 +16,6 @@ static uint32_t showncount;
 static char* search_string;
 static uint8_t filter;
 
-
-// TODO: Update shown list function
-// TODO: Filter function
-// TODO: Search function
-// TODO: comment it all
-
 static ITEM *mouseover_item, *nitem;
 ITEM *selected_item = &item_add;
 
@@ -128,9 +122,10 @@ static void drawitem(ITEM *i, int UNUSED(x), int y) {
     }
 }
 
-static void update_shown_list(void) {
+void update_shown_list(void) {
     FRIEND *f;
-    int i, j;
+    uint32_t i; // index in item array
+    uint32_t j; // index in shown_list array
     for (i = j = 0; i < itemcount; i++) {
         ITEM *it = &item[i];
         f = it->data;
@@ -149,7 +144,6 @@ static ITEM* newitem(void) {
     ITEM *i = &item[itemcount++];
     //TODO: ..
     update_shown_list();
-    scrollbar_roster.content_height = showncount * ROSTER_BOX_HEIGHT;
     return i;
 }
 
@@ -387,9 +381,10 @@ void list_start(void) {
     }
 
     itemcount = i - item;
+
+    search_string = NULL;
     update_shown_list();
 
-    scrollbar_roster.content_height = itemcount * ROSTER_BOX_HEIGHT;
 }
 
 void list_addfriend(FRIEND *f) {
@@ -511,7 +506,6 @@ static void deleteitem(ITEM *i) {
     }
 
     itemcount--;
-    scrollbar_roster.content_height = itemcount * ROSTER_BOX_HEIGHT;
 
     int size = (&item[itemcount] - i) * sizeof(ITEM);
     memmove(i, i + 1, size);
@@ -554,7 +548,7 @@ void list_freeall(void) {
 }
 
 void list_selectchat(int index) {
-    if (index > 0 && index < showncount) {
+    if (index >= 0 && index < showncount) {
         show_page(&item[shown_list[index]]);
     }
 }
