@@ -118,7 +118,7 @@ static void draw_friend(int x, int y, int w, int height){
     drawtextrange(MAIN_LEFT + 30 * SCALE, utox_window_width - 64 * SCALE, 16 * SCALE, f->status_message, f->status_length);
 
     if (f->typing) {
-        int typing_y = ((y + height) + CHAT_BOX_TOP);
+        int typing_y = ((y + height) + CHAT_BOX_TOP - 5 * SCALE);
         setfont(FONT_MISC);
         // @TODO: separate these colors if needed
         setcolor(COLOR_MAIN_HINTTEXT);
@@ -749,40 +749,38 @@ void ui_scale(uint8_t scale) {
         panel_side_bar.y = 0;
         panel_side_bar.width = SIDEBAR_WIDTH;
 
-        scrollbar_roster.panel.y = ROSTER_TOP;
-        scrollbar_roster.panel.width = MAIN_LEFT;
-        scrollbar_roster.panel.height = ROSTER_BOTTOM;
+        scrollbar_roster.panel.y        = ROSTER_TOP;
+        scrollbar_roster.panel.width    = MAIN_LEFT;
+        scrollbar_roster.panel.height   = ROSTER_BOTTOM;
 
-        panel_roster_list.x = 0;
-        panel_roster_list.y = ROSTER_TOP;
-        panel_roster_list.width = MAIN_LEFT;
-        panel_roster_list.height = ROSTER_BOTTOM;
+        panel_roster_list.x         = 0;
+        panel_roster_list.y         = ROSTER_TOP;
+        panel_roster_list.width     = MAIN_LEFT;
+        panel_roster_list.height    = ROSTER_BOTTOM;
 
         panel_main.x = MAIN_LEFT;
         panel_main.y = 0;
 
-        scrollbar_settings.panel.y = 16 * SCALE;
+        scrollbar_settings.panel.y        = 16 * SCALE;
         scrollbar_settings.content_height = 150 * SCALE;
 
-        panel_settings_master.y  = LIST_Y / 2;
+        panel_settings_master.y  = MAIN_TOP_FRAME_THIN;
         panel_settings_profile.y = 16 * SCALE;
         panel_settings_net.y     = 16 * SCALE;
         panel_settings_ui.y      = 16 * SCALE;
         panel_settings_av.y      = 16 * SCALE;
 
-        scrollbar_friend.panel.y = LIST_Y;
-        scrollbar_friend.panel.height = CHAT_BOX_TOP;
+        scrollbar_friend.panel.y        = LIST_Y;
+        scrollbar_friend.panel.height   = CHAT_BOX_TOP;
+        messages_friend.panel.y         = LIST_Y;
+        messages_friend.panel.height    = CHAT_BOX_TOP - 5 * SCALE;
+        messages_friend.panel.width     = -SCROLL_WIDTH;
 
-        messages_friend.panel.y = LIST_Y;
-        messages_friend.panel.height = CHAT_BOX_TOP;
-        messages_friend.panel.width = -SCROLL_WIDTH;
-
-        scrollbar_group.panel.y = LIST_Y;
-        scrollbar_group.panel.height = CHAT_BOX_TOP;
-
-        messages_group.panel.y = LIST_Y;
-        messages_group.panel.height = CHAT_BOX_TOP;
-        messages_group.panel.width = -SCROLL_WIDTH;
+        scrollbar_group.panel.y         = LIST_Y;
+        scrollbar_group.panel.height    = CHAT_BOX_TOP;
+        messages_group.panel.y          = LIST_Y;
+        messages_group.panel.height     = CHAT_BOX_TOP;
+        messages_group.panel.width      = -SCROLL_WIDTH;
 
     setscale_fonts();
 

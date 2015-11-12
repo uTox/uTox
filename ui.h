@@ -7,8 +7,7 @@
  */
 void draw_avatar_image(UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t targetwidth, uint32_t targetheight);
 
-enum
-{
+enum {
     PANEL_NONE,
     PANEL_MAIN,
     PANEL_MESSAGES,
@@ -39,8 +38,7 @@ struct panel
     PANEL **child;
 };
 
-enum
-{
+enum {
     ADDF_NONE,
     ADDF_SENT,
     ADDF_DISCOVER,
@@ -182,6 +180,8 @@ uint8_t SCALE;
 /* Global UI size settings... */
 #define SCROLL_WIDTH                    (4   * SCALE) //must be divisible by 2
 #define FILE_TRANSFER_BOX_HEIGHT        (26  * SCALE)
+
+
 
 /* Legacy defines, instead of using these, you should replace them with something more descriptive */
 /* Main panel defines */
