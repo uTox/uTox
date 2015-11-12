@@ -204,7 +204,7 @@ enum {
 #include "file_transfers.h"
 #include "friend.h"
 #include "groups.h"
-#include "list.h"
+#include "roster.h"
 #include "edit.h"
 #include "scrollable.h"
 #include "button.h"
