@@ -446,6 +446,7 @@ void tox_settingschanged(void)
     list_start();
 }
 
+/* 6 seconds */
 #define UTOX_TYPING_NOTIFICATION_TIMEOUT (6ul*1000*1000*1000)
 
 static struct {
