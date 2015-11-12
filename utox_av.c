@@ -248,8 +248,15 @@ static void utox_callback_av_change_state(ToxAV *av, uint32_t friend_number, uin
     friend[friend_number].call_state_friend = state;
 }
 
-static void utox_incoming_rate_change(ToxAV *toxAV, uint32_t friend_number, uint32_t a_bitrate, uint32_t v_bitrate, void *user_data) {
+static void utox_incoming_rate_change(ToxAV *AV, uint32_t f_num, uint32_t a_bitrate, uint32_t v_bitrate, void *ud) {
     debug("ToxAV:\tNew suggested bitrates: Audio: %u, Video: %u!\n", a_bitrate, v_bitrate);
+
+    /* Just accept what toxav wants the bitrate to be... */
+    TOXAV_ERR_BIT_RATE_SET error = 0;
+    toxav_bit_rate_set(AV, f_num, -1, v_bitrate, &error);
+    if (error) {
+        debug("ToxAV:\tSetting new Video bitrate has failed with error #%u\n", error);
+    }
     return;
 }
 
@@ -266,38 +273,3 @@ void set_av_callbacks(ToxAV *av) {
     toxav_callback_bit_rate_status(av, &utox_incoming_rate_change, NULL);
 }
 // TODO
-
-/**
- * Set the audio bit rate to be used in subsequent audio frames. If the passed
- * bit rate is the same as the current bit rate this function will return true
- * without calling a callback. If there is an active non forceful setup with the
- * passed audio bit rate and the new set request is forceful, the bit rate is
- * forcefully set and the previous non forceful request is cancelled. The active
- * non forceful setup will be canceled in favour of new non forceful setup.
- *
- * @param friend_number The friend number of the friend for which to set the
- * audio bit rate.
- * @param audio_bit_rate The new audio bit rate in Kb/sec. Set to 0 to disable
- * audio sending.
- * @param force True if the bit rate change is forceful.
- *
-bool toxav_audio_bit_rate_set(ToxAV *toxAV, uint32_t friend_number, uint32_t audio_bit_rate, bool force, TOXAV_ERR_SET_BIT_RATE *error);
- */
-
-/**
- * Set the video bit rate to be used in subsequent video frames. If the passed
- * bit rate is the same as the current bit rate this function will return true
- * without calling a callback. If there is an active non forceful setup with the
- * passed video bit rate and the new set request is forceful, the bit rate is
- * forcefully set and the previous non forceful request is cancelled. The active
- * non forceful setup will be canceled in favour of new non forceful setup.
- *
- * @param friend_number The friend number of the friend for which to set the
- * video bit rate.
- * @param audio_bit_rate The new video bit rate in Kb/sec. Set to 0 to disable
- * video sending.
- * @param force True if the bit rate change is forceful.
- *
-bool toxav_video_bit_rate_set(ToxAV *toxAV, uint32_t friend_number, uint32_t audio_bit_rate, bool force, TOXAV_ERR_SET_BIT_RATE *error);
- */
-
