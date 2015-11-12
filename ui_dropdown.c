@@ -48,9 +48,8 @@ static STRING* dropdown_language_ondisplay(uint16_t i, const DROPDOWN* UNUSED(dm
     return SPTRFORLANG(l, STR_LANG_NATIVE_NAME);
 }
 
-static void dropdown_proxy_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
-{
-    if((i != 0) != (options.proxy_type) || i) {
+static void dropdown_proxy_onselect(uint16_t i, const DROPDOWN* UNUSED(dm)) {
+    if ( (i != 0) != (options.proxy_type) || i) {
         options.proxy_type = (i != 0) ? TOX_PROXY_TYPE_SOCKS5 : TOX_PROXY_TYPE_NONE;
         if(i == 2 && options.udp_enabled) {
             options.udp_enabled = 0;
