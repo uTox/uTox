@@ -1199,7 +1199,7 @@ int main(int argc, char *argv[]) {
     theme_load(theme);
 
     /* create window */
-    window = XCreateWindow(display, root, save->window_x, save->window_y, save->window_width, save->window_height, 0, depth, InputOutput, visual, CWBackPixmap | CWBorderPixel | CWEventMask, &attrib);
+    window = XCreateWindow(display, root, save->window_x, save->window_y, utox_window_width, utox_window_height, 0, depth, InputOutput, visual, CWBackPixmap | CWBorderPixel | CWEventMask, &attrib);
 
     /* choose available libraries for optional UI stuff */
     if (!(libgtk = gtk_load())) {
@@ -1239,7 +1239,7 @@ int main(int argc, char *argv[]) {
     XRedraw         = XInternAtom(display, "XRedraw", False);
 
     /* create the draw buffer */
-    drawbuf = XCreatePixmap(display, window, DEFAULT_WIDTH, DEFAULT_HEIGHT, depth);
+    drawbuf = XCreatePixmap(display, window, utox_window_width, utox_window_height, depth);
 
     /* catch WM_DELETE_WINDOW */
     XSetWMProtocols(display, window, &wm_delete_window, 1);
@@ -1341,8 +1341,6 @@ int main(int argc, char *argv[]) {
     }
 
     /* set the width/height of the drawing region */
-    utox_window_width = DEFAULT_WIDTH;
-    utox_window_height = DEFAULT_HEIGHT;
     ui_size(utox_window_width, utox_window_height);
 
     /* wait for the tox thread to finish initializing */

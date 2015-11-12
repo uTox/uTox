@@ -662,17 +662,17 @@ UTOX_SAVE* config_load(void)
     save->version = 1;
     save->scale = DEFAULT_SCALE - 1;
 
-    save->enableipv6 = 1;
-    save->disableudp = 0;
-    save->proxy_port = 0;
-    save->proxyenable = 0;
-    save->proxy_ip[0] = 0;
+    save->enableipv6      = 1;
+    save->disableudp      = 0;
+    save->proxy_port      = 0;
+    save->proxyenable     = 0;
+    save->proxy_ip[0]     = 0;
 
     save->logging_enabled = 1;
 
-    save->close_to_tray = 0;
-    save->start_in_tray = 0;
-    save->auto_startup = 0;
+    save->close_to_tray   = 0;
+    save->start_in_tray   = 0;
+    save->auto_startup    = 0;
 
     save->audible_notifications_enabled = 1;
     save->audio_device_in = ~0;
@@ -735,6 +735,9 @@ NEXT:
     }
 
     dont_send_typing_notes        = save->no_typing_notifications;
+
+    utox_window_width  = save->window_width;
+    utox_window_height = save->window_height;
 
     return save;
 }
