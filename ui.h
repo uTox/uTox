@@ -119,58 +119,55 @@ uint8_t SCALE;
  * _width/_height postfix, and should be used to replace the originals whenever possible.
  * If you're able to replace an original, replace all occurrences, and delete the define. */
 
-/* Left sidebar defines */
-#define SIDEBAR_WIDTH                   (111 * SCALE)
 
+/* Left sidebar defines */
+#define SIDEBAR_WIDTH                      (115 * SCALE)
 /* User badge */
-#define SIDEBAR_AVATAR_TOP              (5  * SCALE)
-#define SIDEBAR_AVATAR_LEFT             (5  * SCALE)
-#define SIDEBAR_AVATAR_WIDTH            (5  * SCALE)
-#define SIDEBAR_AVATAR_HEIGHT           (5  * SCALE)
-#define SIDEBAR_NAME_TOP                (8  * SCALE)
-#define SIDEBAR_NAME_LEFT               (32 * SCALE)
-#define SIDEBAR_NAME_WIDTH              (95 * SCALE)
-#define SIDEBAR_NAME_HEIGHT             (9  * SCALE)
-#define SIDEBAR_STATUSMSG_TOP           (16 * SCALE)
-#define SIDEBAR_STATUSMSG_LEFT          (32 * SCALE)
-#define SIDEBAR_STATUSMSG_WIDTH         (95 * SCALE)
-#define SIDEBAR_STATUSMSG_HEIGHT        (6  * SCALE)
-#define SELF_STATUS_X                   (96 * SCALE)
-#define SELF_STATUS_Y                   (5  * SCALE)
+    #define SIDEBAR_AVATAR_TOP              (5  * SCALE)
+    #define SIDEBAR_AVATAR_LEFT             (5  * SCALE)
+    #define SIDEBAR_AVATAR_WIDTH            (5  * SCALE)
+    #define SIDEBAR_AVATAR_HEIGHT           (5  * SCALE)
+    #define SIDEBAR_NAME_TOP                (8  * SCALE)
+    #define SIDEBAR_NAME_LEFT               (32 * SCALE)
+    #define SIDEBAR_NAME_WIDTH              (95 * SCALE)
+    #define SIDEBAR_NAME_HEIGHT             (9  * SCALE)
+    #define SIDEBAR_STATUSMSG_TOP           (16 * SCALE)
+    #define SIDEBAR_STATUSMSG_LEFT          (32 * SCALE)
+    #define SIDEBAR_STATUSMSG_WIDTH         (95 * SCALE)
+    #define SIDEBAR_STATUSMSG_HEIGHT        (6  * SCALE)
+    #define SELF_STATUS_ICON_LEFT           (96 * SCALE)
+    #define SELF_STATUS_ICON_TOP            (5  * SCALE)
 
 /* Sidebar buttons and settings */
-#define SIDEBAR_SEARCH_TOP              (31 * SCALE)
-#define SIDEBAR_SEARCH_LEFT             (21 * SCALE)
-#define SIDEBAR_SEARCH_WIDTH            (83 * SCALE)
-#define SIDEBAR_SEARCH_HEIGHT           (12 * SCALE)
-
-#define SIDEBAR_FILTER_FRIENDS_TOP      (48 * SCALE)
-#define SIDEBAR_FILTER_FRIENDS_LEFT     (5  * SCALE)
-#define SIDEBAR_FILTER_FRIENDS_WIDTH    (84 * SCALE)
-#define SIDEBAR_FILTER_FRIENDS_HEIGHT   (6  * SCALE)
-
-#define SIDEBAR_MENU_BUTTON_TOP         (30 * SCALE)
-#define SIDEBAR_MENU_BUTTON_LEFT        (0  * SCALE)
-#define SIDEBAR_MENU_BUTTON_WIDTH       (20 * SCALE)
-#define SIDEBAR_MENU_BUTTON_HEIGHT      (16 * SCALE)
-
-#define SIDEBAR_BUTTON_TOP              (30 * SCALE)
-#define SIDEBAR_BUTTON_LEFT             (27 * SCALE)
-#define SIDEBAR_BUTTON_WIDTH            (27 * SCALE)
-#define SIDEBAR_BUTTON_HEIGHT           (16 * SCALE)
+    #define SIDEBAR_FILTER_FRIENDS_TOP      (30 * SCALE)
+    #define SIDEBAR_FILTER_FRIENDS_LEFT     ( 5 * SCALE)
+    #define SIDEBAR_FILTER_FRIENDS_WIDTH    (84 * SCALE)
+    #define SIDEBAR_FILTER_FRIENDS_HEIGHT   ( 6 * SCALE)
 
 /* Roster defines */
-#define ROSTER_TOP                      (57 * SCALE)
-#define ROSTER_LEFT                     (8  * SCALE)
-#define ROSTER_BOTTOM                   (-1 * SCALE)
-#define ROSTER_BOX_LEFT                 (4  * SCALE)
-#define ROSTER_BOX_HEIGHT               (25 * SCALE)
-#define ROSTER_AVATAR_TOP               (5  * SCALE / 2)
-#define ROSTER_AVATAR_LEFT              (4  + 5 * SCALE / 2)
+    #define ROSTER_TOP                      ( 36 * SCALE)
+    #define ROSTER_LEFT                     (  8 * SCALE)
+    #define ROSTER_BOTTOM                   (-15 * SCALE)
+    #define ROSTER_BOX_LEFT                 (  4 * SCALE)
+    #define ROSTER_BOX_HEIGHT               ( 25 * SCALE)
+    #define ROSTER_AVATAR_TOP               (  5 * SCALE / 2)
+    #define ROSTER_AVATAR_LEFT              (  4 + 5 * SCALE / 2)
 
-#define ROSTER_NAME_TOP                 (6  * SCALE)
-#define ROSTER_NAME_LEFT                (30 * SCALE)
-#define ROSTER_STATUS_MSG_TOP           (13 * SCALE)
+    #define ROSTER_NAME_TOP                 (6  * SCALE)
+    #define ROSTER_NAME_LEFT                (30 * SCALE)
+    #define ROSTER_STATUS_MSG_TOP           (13 * SCALE)
+
+/* Sidebar Lower search box and setting button */
+    #define SIDEBAR_SEARCH_TOP              (-15 * SCALE)
+    #define SIDEBAR_SEARCH_LEFT             (  0 * SCALE)
+    #define SIDEBAR_SEARCH_WIDTH            (100 * SCALE)
+    #define SIDEBAR_SEARCH_HEIGHT           ( 15 * SCALE)
+
+    #define SIDEBAR_BUTTON_TOP              (-15 * SCALE)
+    #define SIDEBAR_BUTTON_LEFT             (100 * SCALE)
+    #define SIDEBAR_BUTTON_WIDTH            ( 15 * SCALE)
+    #define SIDEBAR_BUTTON_HEIGHT           ( 15 * SCALE)
+
 
 /* Main box/Chat box size settings */
 #define CHAT_BOX_TOP                    (-26 * SCALE) /* size of the bottom message box */
@@ -183,17 +180,13 @@ uint8_t SCALE;
 
 
 
-/* Legacy defines, instead of using these, you should replace them with something more descriptive */
 /* Main panel defines */
-#define MAIN_LEFT                       (111 * SCALE) + 1
+#define MAIN_LEFT                       (115 * SCALE) + 1
+#define MAIN_TOP                        ( 30 * SCALE)
 
-#define LIST_Y                          (30 * SCALE)
+/* Legacy defines, instead of using these, you should replace them with something more descriptive */
 #define LIST_Y2                         (43 * SCALE)
-
-
 #define LIST_BUTTON_Y                   (-13 * SCALE)
-
-
 #define MESSAGES_SPACING                (SCALE * 2)
 #define MESSAGES_X                      (55 * SCALE)
 #define TIME_WIDTH                      (16 * SCALE)

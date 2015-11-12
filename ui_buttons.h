@@ -80,11 +80,6 @@ static void button_status_onpress(void) {
     tox_postmessage(TOX_SELF_SET_STATE, self.status, 0, NULL);
 }
 
-static void button_jump_button_switch_onpress(void) {
-    panel_quick_buttons.disabled = !panel_quick_buttons.disabled;
-    panel_search_filter.disabled = !panel_search_filter.disabled;
-}
-
 static void button_menu_update(BUTTON *b) {
     b->c1 = COLOR_BACKGROUND_MENU;
     b->c2 = COLOR_BACKGROUND_MENU_HOVER;
@@ -432,15 +427,6 @@ button_statusmsg = {
 button_status = {
     .nodraw = 1,
     .onpress = button_status_onpress,
-},
-
-button_menu = {
-    .bm2     = BM_SETTINGS_THREE_BAR,
-    .bw      = _BM_THREE_BAR_WIDTH,
-    .bh      = _BM_THREE_BAR_WIDTH,
-    .update  = button_menu_update,
-    .onpress = button_jump_button_switch_onpress,
-    .tooltip_text = { .i18nal = STR_USERSETTINGS },
 },
 
 button_filter_friends = {

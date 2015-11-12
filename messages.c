@@ -166,7 +166,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height) {
 
             setfont(FONT_TEXT);
             int ny = drawtextmultiline(x + MESSAGES_X, x + width - TIME_WIDTH,
-                                                    y,                 LIST_Y,
+                                                    y,               MAIN_TOP,
                                        y + msg->height, font_small_lineheight,
                                        msg->msg, msg->length, h1, h2 - h1, 0, 0, 1);
 
