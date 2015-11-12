@@ -249,13 +249,17 @@ static void utox_callback_av_change_state(ToxAV *av, uint32_t friend_number, uin
 }
 
 static void utox_incoming_rate_change(ToxAV *AV, uint32_t f_num, uint32_t a_bitrate, uint32_t v_bitrate, void *ud) {
-    debug("ToxAV:\tNew suggested bitrates: Audio: %u, Video: %u!\n", a_bitrate, v_bitrate);
-
     /* Just accept what toxav wants the bitrate to be... */
-    TOXAV_ERR_BIT_RATE_SET error = 0;
-    toxav_bit_rate_set(AV, f_num, -1, v_bitrate, &error);
-    if (error) {
-        debug("ToxAV:\tSetting new Video bitrate has failed with error #%u\n", error);
+    if (v_bitrate > (uint32_t)UTOX_MIN_BITRATE_VIDEO) {
+        TOXAV_ERR_BIT_RATE_SET error = 0;
+        toxav_bit_rate_set(AV, f_num, -1, v_bitrate, &error);
+        if (error) {
+            debug("ToxAV:\tSetting new Video bitrate has failed with error #%u\n", error);
+        } else {
+            debug("uToxAV:\t\tVideo bitrate changed to %u\n", v_bitrate);
+        }
+    } else {
+        debug("uToxAV:\t\tVideo bitrate unchanged %u is less than %u\n", v_bitrate, UTOX_MIN_BITRATE_VIDEO);
     }
     return;
 }
