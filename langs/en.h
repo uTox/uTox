@@ -343,6 +343,9 @@ msgstr("Please accept this friend request.")
 msgid(CONTACTS_FILTER_EDIT_HINT)
 msgstr("Search friends")
 
+msgid(CONTACT_SEARCH_ADD_HINT)
+msgstr("Search/Add Friends")
+
 msgid(PROXY_EDIT_HINT_IP)
 msgstr("IP")
 

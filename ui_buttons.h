@@ -436,11 +436,13 @@ button_filter_friends = {
 },
 
 button_add_new_contact = {
-    .bm2 = BM_ADD,
-    .bw = _BM_ADD_WIDTH,
-    .bh = _BM_ADD_WIDTH,
-    .update = button_menu_update,
-    .onpress = button_add_new_contact_onpress,
+    .bm2          = BM_ADD,
+    .bw           = _BM_ADD_WIDTH,
+    .bh           = _BM_ADD_WIDTH,
+    .update       = button_menu_update,
+    .onpress      = button_add_new_contact_onpress,
+    .disabled     = 1,
+    .nodraw       = 1,
     .tooltip_text = { .i18nal = STR_ADDFRIENDS },
 },
 

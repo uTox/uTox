@@ -10,6 +10,7 @@ enum
     ITEM_SETTINGS,
     ITEM_FRIEND,
     ITEM_GROUP,
+    ITEM_CREATE_GROUP,
     ITEM_FRIEND_ADD,
 };
 

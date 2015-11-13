@@ -1,6 +1,12 @@
 /* edits */
-static char_t edit_name_data[128], edit_status_data[128], edit_addid_data[TOX_FRIEND_ADDRESS_SIZE * 4], edit_addmsg_data[1024], edit_msg_data[65535], edit_search_data[127],
-    edit_proxy_ip_data[256], edit_proxy_port_data[8];
+static char_t   edit_name_data[128],
+                edit_status_data[128],
+                edit_search_data[TOX_FRIEND_ADDRESS_SIZE * 4],
+                edit_addid_data[TOX_FRIEND_ADDRESS_SIZE * 4],
+                edit_addmsg_data[1024],
+                edit_msg_data[65535],
+                edit_proxy_ip_data[256],
+                edit_proxy_port_data[8];
 
 static struct {
     STRING_IDX start, end, cursorpos;
@@ -396,21 +402,34 @@ static void edit_msg_onchange(EDIT *edit)
     }
 }
 
-static void edit_search_onchange(EDIT *edit)
-{
+static void edit_search_onchange(EDIT *edit) {
     char_t *data = edit->data;
     STRING_IDX length = edit->length;
 
     if(!length) {
+        SEARCH = 0;
         memset(search_offset, 0, sizeof(search_offset));
         memset(search_unset, 0, sizeof(search_unset));
-        SEARCH = 0;
+        button_add_new_contact.panel.disabled = 1;
+        button_add_new_contact.nodraw   = 1;
+        button_settings.panel.disabled = 0;
+        button_settings.nodraw   = 0;
     } else {
         SEARCH = 1;
         memcpy(search_data, data, length);
         search_data[length] = 0;
+        memcpy(edit_addid_data, data, length);
+        edit_addid_data[length] = 0;
+        edit_add_id.length = length;
+        button_add_new_contact.panel.disabled = 0;
+        button_add_new_contact.nodraw   = 0;
+        button_settings.panel.disabled = 1;
+        button_settings.nodraw   = 1;
     }
 
+    memcpy(edit_addid_data, data, length);
+    edit_addid_data[length] = 0;
+    edit_add_id.length = length;
     redraw();
     return;
 }
@@ -477,6 +496,7 @@ edit_add_id = {
     .maxlength = sizeof(edit_addid_data),
     .data = edit_addid_data,
     .onenter = edit_add_new_contact,
+    .empty_str = { .i18nal = STR_TOXID },
 },
 
 edit_add_msg = {
@@ -514,9 +534,9 @@ edit_msg_group = {
 edit_search = {
     .maxlength = sizeof(edit_search_data),
     .data = edit_search_data,
-    .empty_str = { .i18nal = STR_CONTACTS_FILTER_EDIT_HINT },
     .onchange = edit_search_onchange,
     .style = AUXILIARY_STYLE,
+    .empty_str = { .i18nal = STR_CONTACT_SEARCH_ADD_HINT },
 },
 
 edit_proxy_ip = {

@@ -603,60 +603,61 @@ _Bool list_mdown(void *UNUSED(n)) {
 }
 
 static void contextmenu_list_onselect(uint8_t i) {
-    if (ritem->item == ITEM_FRIEND && i == 0) {
-        FRIEND *f = ritem->data;
-        if(ritem != selected_item) {
-            show_page(ritem);
+    switch (ritem->item) {
+        case ITEM_FRIEND:{
+            if (i == 0) {
+                FRIEND *f = ritem->data;
+                if(ritem != selected_item) {
+                    show_page(ritem);
+                }
+
+                if (f->alias) {
+                    char str[f->alias_length + 7];
+                    strcpy(str, "/alias ");
+                    memcpy(str + 7, f->alias, f->alias_length + 1);
+                    edit_setfocus(&edit_msg);
+                    edit_paste((char_t*)str, sizeof(str), 0);
+                } else {
+                    char str[8] = "/alias ";
+                    edit_setfocus(&edit_msg);
+                    edit_paste((char_t*)str, sizeof(str), 0);
+                }
+                return;
+            } else if (i == 1) {
+                friend_history_clear((FRIEND*)ritem->data);
+                return;
+            } else {
+                list_deleteritem();
+            }
         }
+        case ITEM_GROUP: {
+            if (i == 0) {
+                GROUPCHAT *g = ritem->data;
+                if(ritem != selected_item) {
+                    show_page(ritem);
+                }
 
-        if (f->alias) {
-            char str[f->alias_length + 7];
-            strcpy(str, "/alias ");
-            memcpy(str + 7, f->alias, f->alias_length + 1);
-            edit_setfocus(&edit_msg);
-            edit_paste((char_t*)str, sizeof(str), 0);
-        } else {
-            char str[8] = "/alias ";
-            edit_setfocus(&edit_msg);
-            edit_paste((char_t*)str, sizeof(str), 0);
+                char str[g->name_length + 7];
+                strcpy(str, "/topic ");
+                memcpy(str + 7, g->name, g->name_length);
+                edit_setfocus(&edit_msg_group);
+                edit_paste((char_t*)str, sizeof(str), 0);
+            } else if (i == 1) {
+                GROUPCHAT *g = ritem->data;
+                if (g->type == TOX_GROUPCHAT_TYPE_AV) {
+                    g->muted = !g->muted;
+                }
+            } else {
+                list_deleteritem();
+            }
         }
-        return;
-    }
-
-    if (ritem->item == ITEM_GROUP && i == 0) {
-        GROUPCHAT *g = ritem->data;
-        if(ritem != selected_item) {
-            show_page(ritem);
-        }
-
-        char str[g->name_length + 7];
-        strcpy(str, "/topic ");
-        memcpy(str + 7, g->name, g->name_length);
-        edit_setfocus(&edit_msg_group);
-        edit_paste((char_t*)str, sizeof(str), 0);
-        return;
-    }
-
-    if(ritem->item == ITEM_FRIEND_ADD && i == 0) {
-        FRIENDREQ *req = ritem->data;
-        tox_postmessage(TOX_FRIEND_ACCEPT, 0, 0, req);
-        return;
-    }
-
-    if (ritem->item == ITEM_FRIEND && i == 1) {
-        friend_history_clear((FRIEND*)ritem->data);
-        return;
-    }
-
-    if (ritem->item == ITEM_GROUP && i == 1) {
-        GROUPCHAT *g = ritem->data;
-        if (g->type == TOX_GROUPCHAT_TYPE_AV) {
-            g->muted = !g->muted;
-            return;
+        case ITEM_FRIEND_ADD: {
+            if(i == 0) {
+                FRIENDREQ *req = ritem->data;
+                tox_postmessage(TOX_FRIEND_ACCEPT, 0, 0, req);
+            }
         }
     }
-
-    list_deleteritem();
 }
 
 _Bool list_mright(void *UNUSED(n)) {

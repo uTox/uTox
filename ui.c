@@ -377,7 +377,7 @@ static void draw_background(int UNUSED(x), int UNUSED(y), int width, int height)
     /* Friend list (roster) background   */
     drawrect(0, 0, SIDEBAR_WIDTH, height, COLOR_BACKGROUND_LIST);
     /* Current user badge background     */
-    drawrect(0, 0, MAIN_LEFT, ROSTER_TOP, COLOR_BACKGROUND_MENU);
+    drawrect(0, 0, SIDEBAR_WIDTH, ROSTER_TOP, COLOR_BACKGROUND_MENU);
 
     if (!panel_chat.disabled){
         /* Top frame for main chat panel */
