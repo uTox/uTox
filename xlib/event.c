@@ -312,9 +312,11 @@ _Bool doevent(XEvent event)
         if (ev->state & ControlMask) {
             if ((sym == XK_Tab && (ev->state & ShiftMask)) || sym == XK_Page_Up) {
                 previous_tab();
+                redraw();
                 break;
             } else if (sym == XK_Tab || sym == XK_Page_Down) {
                 next_tab();
+                redraw();
                 break;
             }
         }

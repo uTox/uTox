@@ -123,6 +123,23 @@ static void drawitem(ITEM *i, int UNUSED(x), int y) {
     }
 }
 
+// find index of given item in shown_list, or INT_MAX if it can't be found
+static int find_item_shown_index(ITEM *it) {
+    int i = 0;
+    while (i < showncount) {
+        if (shown_list[i] == it - item) { // (it - item) returns the index of the item in the full items list
+            return i;
+        }
+        i++;
+    }
+    return INT_MAX; // can't be found!
+}
+
+void list_scale(void) {
+    scrollbar_roster.content_height = showncount * ROSTER_BOX_HEIGHT;
+}
+
+
 void update_shown_list(void) {
     FRIEND *f;
     uint32_t i; // index in item array
@@ -137,7 +154,7 @@ void update_shown_list(void) {
     }
 
     showncount = j;
-    scrollbar_roster.content_height = showncount * ROSTER_BOX_HEIGHT;
+    list_scale();
 }
 
 
@@ -146,10 +163,6 @@ static ITEM* newitem(void) {
     //TODO: ..
     update_shown_list();
     return i;
-}
-
-void list_scale(void) {
-    scrollbar_roster.content_height = showncount * ROSTER_BOX_HEIGHT;
 }
 
 // return item that the user is mousing over
@@ -191,20 +204,23 @@ void list_search(char *str) {
     update_shown_list();
 }
 
-void previous_tab(void) {
+void change_tab(int offset) {
     if (selected_item->item == ITEM_FRIEND ||
         selected_item->item == ITEM_GROUP) {
-        list_selectchat(0);
-        redraw();// not here
+        int index = find_item_shown_index(selected_item);
+        if (index != INT_MAX) {
+            // list_selectchat will check if out of bounds
+            list_selectchat((index + offset + showncount) % showncount);
+        }
     }
 }
 
+void previous_tab(void) {
+    change_tab(-1);
+}
+
 void next_tab(void) {
-    if (selected_item->item == ITEM_FRIEND ||
-        selected_item->item == ITEM_GROUP) {
-        list_selectchat(1);
-        redraw();// not here
-    }
+    change_tab(1);
 }
 
 
@@ -568,18 +584,6 @@ void list_selectaddfriend(void) {
 
 void list_selectswap(void) {
     show_page(&item_transfer);
-}
-
-// find index of given item in shown_list, or INT_MAX if it can't be found
-static int find_item_shown_index(ITEM *it) {
-    int i = 0;
-    while (i < showncount) {
-        if (shown_list[i] == it - item) { // (it - item) returns the index of the item in the full items list
-            return i;
-        }
-        i++;
-    }
-    return INT_MAX; // can't be found!
 }
 
 _Bool list_mmove(void *UNUSED(n), int UNUSED(x), int UNUSED(y), int UNUSED(width), int height, int mx, int my, int UNUSED(dx), int dy) {

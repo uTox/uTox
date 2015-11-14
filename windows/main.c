@@ -1631,8 +1631,10 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
         if(control) {
             if ((wParam == VK_TAB && shift) || wParam == VK_PRIOR) {
                 previous_tab();
+                redraw();
             } else if (wParam == VK_TAB || wParam == VK_NEXT) {
                 next_tab();
+                redraw();
             }
         }
 
