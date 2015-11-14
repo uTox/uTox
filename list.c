@@ -16,12 +16,13 @@ static uint32_t showncount;
 static char* search_string;
 static uint8_t filter;
 
-static ITEM *mouseover_item, *nitem;
+static ITEM *mouseover_item;
+static ITEM *nitem; // item that selected_item is being dragged over
 ITEM *selected_item = &item_add;
 
 static _Bool selected_item_mousedown;
 
-static int selected_item_dy; // selected_item_delta-y??
+static int selected_item_dy; // y offset of selected item being dragged from its original position
 
 static void drawitembox(ITEM *i, int y) {
     if(selected_item == i) {
@@ -569,6 +570,18 @@ void list_selectswap(void) {
     show_page(&item_transfer);
 }
 
+// find index of given item in shown_list, or INT_MAX if it can't be found
+static int find_item_shown_index(ITEM *it) {
+    int i = 0;
+    while (i < showncount) {
+        if (shown_list[i] == it - item) { // (it - item) returns the index of the item in the full items list
+            return i;
+        }
+        i++;
+    }
+    return INT_MAX; // can't be found!
+}
+
 _Bool list_mmove(void *UNUSED(n), int UNUSED(x), int UNUSED(y), int UNUSED(width), int height, int mx, int my, int UNUSED(dx), int dy) {
     ITEM *i = item_hit(mx, my, height);
 
@@ -579,29 +592,30 @@ _Bool list_mmove(void *UNUSED(n), int UNUSED(x), int UNUSED(y), int UNUSED(width
         draw = 1;
     }
 
-/* TODO: re-add this. Make it not use search_unset etc.
     if(selected_item_mousedown) {
+        // drag item
         selected_item_dy += dy;
         nitem = NULL;
         if(abs(selected_item_dy) >= ROSTER_BOX_HEIGHT / 2) {
-            int d;
+            int d; // offset, in number of items, of where the dragged item is compared to where it started
             if(selected_item_dy > 0) {
                 d = (selected_item_dy + ROSTER_BOX_HEIGHT / 2) / ROSTER_BOX_HEIGHT;
             } else {
                 d = (selected_item_dy - ROSTER_BOX_HEIGHT / 2) / ROSTER_BOX_HEIGHT;
             }
-            int index = (selected_item - item) + search_unset[selected_item - item] + d;
-            int offset = search_offset[index];
-            if(offset != INT_MAX) {
-                index += offset;
+            int index = find_item_shown_index(selected_item);
+            if (index != INT_MAX) { // selected_item was found in shown list
+                index += d; // get item being dragged over
+
+                // set item being dragged over
                 if(index >= 0 && ((uint32_t) index) < itemcount) {
-                    nitem = item + index;
+                    nitem = &item[shown_list[index]];
                 }
             }
         }
 
         draw = 1;
-    } else*/ {
+    } else {
         tooltip_draw();
     }
 
