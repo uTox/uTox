@@ -13,7 +13,7 @@ static uint32_t shown_list[1024]; // list of chats actually shown in the GUI aft
 static uint32_t showncount;
 
 // search and filter stuff
-static char* search_string;
+static char_t* search_string;
 static uint8_t filter;
 
 static ITEM *mouseover_item;
@@ -199,12 +199,13 @@ void list_set_filter(uint8_t new_filter) {
     update_shown_list();
 }
 
-void list_search(char *str) {
+void list_search(char_t *str) {
     search_string = str;
     update_shown_list();
 }
 
-void change_tab(int offset) {
+// change the selected item by [offset] items in the shown list
+static void change_tab(int offset) {
     if (selected_item->item == ITEM_FRIEND ||
         selected_item->item == ITEM_GROUP) {
         int index = find_item_shown_index(selected_item);

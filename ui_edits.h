@@ -406,7 +406,7 @@ static void edit_search_onchange(EDIT *edit)
     } else {
         memcpy(search_data, data, length);
         search_data[length] = 0;
-        list_search(search_data);
+        list_search((char_t*)search_data);
     }
 
     redraw();

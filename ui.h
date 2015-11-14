@@ -104,8 +104,6 @@ _Bool panel_mleave(PANEL *p);
 
 #define BLACK 0
 
-/* search
- */
 char search_data[128];
 
 /* metrics
