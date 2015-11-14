@@ -1060,7 +1060,10 @@ void config_osdefaults(UTOX_SAVE *r)
 
 static int systemlang(void)
 {
-    char *str = getenv("LC_MESSAGES");
+    char *str = getenv("LC_ALL");
+    if(!str) {
+        str = getenv("LC_MESSAGES");
+    }
     if(!str) {
         str = getenv("LANG");
     }
