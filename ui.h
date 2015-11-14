@@ -106,7 +106,6 @@ _Bool panel_mleave(PANEL *p);
 
 /* search
  */
-uint8_t SEARCH;
 char search_data[128];
 
 /* metrics

@@ -402,11 +402,11 @@ static void edit_search_onchange(EDIT *edit)
     STRING_IDX length = edit->length;
 
     if(!length) {
-        SEARCH = 0;
+        list_search(NULL);
     } else {
-        SEARCH = 1;
         memcpy(search_data, data, length);
         search_data[length] = 0;
+        list_search(search_data);
     }
 
     redraw();

@@ -65,6 +65,8 @@ void friend_setname(FRIEND *f, char_t *name, STRING_IDX length){
         f->name_length = length;
     }
     f->name[f->name_length] = 0;
+
+    update_shown_list();
 }
 
 void friend_set_alias(FRIEND *f, char_t *alias, STRING_IDX length){
@@ -187,7 +189,7 @@ _Bool friend_set_online(FRIEND *f, _Bool online) {
         friend_set_typing(f, 0);
     }
 
-    update_shown_list(); // update the contact list
+    update_shown_list();
 
     return true;
 }
