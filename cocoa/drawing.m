@@ -305,13 +305,16 @@ void setscale_fonts(void) {
         RELEASE_CHK(CFRelease, fonts[i]);
     }
 
-#define COCOA_BASE_FONT_OLD "LucidaGrande"
-#define COCOA_BASE_FONT_NEW "HelveticaNeue"
+#define COCOA_BASE_FONT_OLD       "LucidaGrande"
+#define COCOA_BASE_FONT_YOSEMITE  "HelveticaNeue"
+// San Francisco
+#define COCOA_BASE_FONT_ELCAPITAN ".SFNSText"
 
     const char *fontname;
-    AT_LEAST_YOSEMITE_DO {
-        // yosemite, use HelveticaNeue
-        fontname = COCOA_BASE_FONT_NEW;
+    AT_LEAST_ELCAPITAN_DO {
+        fontname = COCOA_BASE_FONT_ELCAPITAN;
+    } else AT_LEAST_YOSEMITE_DO {
+        fontname = COCOA_BASE_FONT_YOSEMITE;
     } else {
         fontname = COCOA_BASE_FONT_OLD;
     }
@@ -329,7 +332,14 @@ void setscale_fonts(void) {
 #undef COCOA_BASE_FONT_NEW
 #undef COCOA_BASE_FONT_OLD
 
-    font_small_lineheight = (CTFontGetBoundingBox(fonts[FONT_TEXT]).size.height - CTFontGetDescent(fonts[FONT_TEXT]));
+    AT_LEAST_ELCAPITAN_DO {
+        font_small_lineheight = CTFontGetBoundingBox(fonts[FONT_TEXT]).size.height;
+    } else {
+        font_small_lineheight = (CTFontGetBoundingBox(fonts[FONT_TEXT]).size.height - CTFontGetDescent(fonts[FONT_TEXT]));
+    }
+    font_small_lineheight += CTFontGetLeading(fonts[FONT_TEXT]);
+    printf("font_small_lineheight: %d %d scale: %d\n", 0, font_small_lineheight, SCALE);
+
     CFRelease(reg);
     CFRelease(bold);
 }
