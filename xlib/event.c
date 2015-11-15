@@ -304,17 +304,22 @@ _Bool doevent(XEvent event)
             if(ev->state & 4) {
                 switch(sym) {
                 case 'v':
+                case 'V':
                     paste();
                     return 1;
                 case 'c':
+                case 'C':
                 case XK_Insert:
                     copy(0);
                     return 1;
                 case 'x':
+                case 'X':
                     copy(0);
                     edit_char(KEY_DEL, 1, 0);
                     return 1;
                 case 'w':
+                case 'W':
+                    /* Sent ctrl + backspace to active edit */
                     edit_char(KEY_BACK, 1, 4);
                     return 1;
                 }
