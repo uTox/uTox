@@ -68,7 +68,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height) {
         }
 
         //! NOTE: should not be constant 0
-        if(y + msg->height <= 0) {
+        if (y + msg->height <= 0) {
             y += msg->height;
             continue;
         }
