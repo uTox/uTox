@@ -338,7 +338,6 @@ void setscale_fonts(void) {
         font_small_lineheight = (CTFontGetBoundingBox(fonts[FONT_TEXT]).size.height - CTFontGetDescent(fonts[FONT_TEXT]));
     }
     font_small_lineheight += CTFontGetLeading(fonts[FONT_TEXT]);
-    printf("font_small_lineheight: %d %d scale: %d\n", 0, font_small_lineheight, SCALE);
 
     CFRelease(reg);
     CFRelease(bold);
