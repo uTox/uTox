@@ -252,7 +252,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height) {
             setcolor(COLOR_BACKGROUND_MAIN);
 
             /* Draw macros added, to reduce future line edits. */
-            #define draw_ft_rect(color) draw_rect_fill (x, y, width, FILE_TRANSFER_BOX_HEIGHT, color)
+            #define draw_ft_rect(color) draw_rect_fill (dx, y, d_width, FILE_TRANSFER_BOX_HEIGHT, color)
             #define draw_ft_prog(color) draw_rect_frame(dx + 5 * SCALE, y + 17 * SCALE, prog_box, 7 * SCALE, color);\
                                         draw_rect_fill (dx + 5 * SCALE, y + 17 * SCALE, prog_bar, 7 * SCALE, color)
 
@@ -354,7 +354,8 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height) {
             }
             }
 
-            drawalpha(BM_FILE_BIG, x + 7 * SCALE, y + 2 * SCALE, BM_FILE_BIG_WIDTH, BM_FILE_BIG_HEIGHT,
+            drawalpha(BM_FILE, x + 7 * SCALE, y + 2 * SCALE,
+                      BM_FILE_WIDTH, BM_FILE_HEIGHT,
                       COLOR_BUTTON_DISABLED_TRANSFER);
 
             drawtext(dx + 5 * SCALE, y + 10 * SCALE, text_size, text_size_len);
