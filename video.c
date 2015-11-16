@@ -90,9 +90,8 @@ void video_thread(void *args) {
                         video_active = 0;
                         video_width = 0;
                         video_height = 0;
-                        if (!m->param1) {
-                            break;
-                        }
+                        debug("uToxVID:\tChanged video input to NONE\n");
+                        break;
                     }
 
                     // directly open new device if any calls/previews are currently active
