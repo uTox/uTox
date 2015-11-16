@@ -222,10 +222,10 @@ msgstr("Större (200%)")
 msgid(DPI_HUGE)
 msgstr("Enorm (250%)")
 
-msgid(CONTACTS_FILTER_ALL)
+msgid(FILTER_ALL)
 msgstr("Alla")
 
-msgid(CONTACTS_FILTER_ONLINE)
+msgid(FILTER_ONLINE)
 msgstr("Online")
 
 msgid(PROXY_DISABLED)
@@ -254,9 +254,6 @@ msgstr("Standard Loopback")
 
 msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
 msgstr("Var god och acceptera min vänskapsbegäran.")
-
-msgid(CONTACTS_FILTER_EDIT_HINT)
-msgstr("Sök vänner")
 
 msgid(PROXY_EDIT_HINT_IP)
 msgstr("IP")

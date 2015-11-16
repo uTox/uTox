@@ -605,7 +605,7 @@ panel_main = {
                 (void*)&edit_msg, // this needs to be one of the first, to get events before the others
                 (void*)&messages_friend,
                 (void*)&button_call_audio, (void*)&button_call_video,
-                (void*)&button_chat_left, (void*)&button_chat_right, (void*)&button_chat_send,
+                (void*)&button_send_file, (void*)&button_send_screenshot, (void*)&button_chat_send,
                 NULL
             }
         },
@@ -973,8 +973,8 @@ void ui_scale(uint8_t scale) {
             .height = BM_LBUTTON_HEIGHT,
         },
 
-        /* top right chat message window button */
-        b_chat_left = {
+        /* bottom left button in chat */
+        b_send_file = {
             .type   = PANEL_BUTTON,
             .x      =   3 * SCALE,
             .y      = -23 * SCALE,
@@ -982,8 +982,8 @@ void ui_scale(uint8_t scale) {
             .height = BM_CHAT_BUTTON_HEIGHT,
         },
 
-        /* bottom right chat message window button */
-        b_chat_right = {
+        /* button to the right of b_chat_left */
+        b_send_screenshot = {
             .type   = PANEL_BUTTON,
             .x      =   4 * SCALE + BM_CHAT_BUTTON_WIDTH,
             .y      = -23 * SCALE,
@@ -1028,8 +1028,8 @@ void ui_scale(uint8_t scale) {
         button_accept_friend.panel       = b_accept_friend;
         button_callpreview.panel         = b_callpreview;
         button_videopreview.panel        = b_videopreview;
-        button_chat_left.panel           = b_chat_left;
-        button_chat_right.panel          = b_chat_right;
+        button_send_file.panel           = b_send_file;
+        button_send_screenshot.panel     = b_send_screenshot;
         button_chat_send.panel           = b_chat_send;
 
     /* Drop down structs */

@@ -340,15 +340,14 @@ static void button_avatar_onright(void) {
     }
 }
 
-/* bottom left chat message window button */
-static void button_chat_left_onpress(void) {
+static void button_send_file_onpress(void) {
     FRIEND *f = selected_item->data;
     if (f->online) {
         openfilesend();
     }
 }
 
-static void button_chat_left_update(BUTTON *b) {
+static void button_send_file_update(BUTTON *b) {
     FRIEND *f = selected_item->data;
     if (f->online) {
         b->disabled = 0;
@@ -359,15 +358,14 @@ static void button_chat_left_update(BUTTON *b) {
     }
 }
 
-/* bottom right chat message window button */
-static void button_chat_right_onpress(void) {
+static void button_send_screenshot_onpress(void) {
     FRIEND *f = selected_item->data;
     if (f->online) {
         desktopgrab(0);
     }
 }
 
-static void button_chat_right_update(BUTTON *b) {
+static void button_send_screenshot_update(BUTTON *b) {
     FRIEND *f = selected_item->data;
     if (f->online) {
         b->disabled = 0;
@@ -432,6 +430,7 @@ button_statusmsg = {
 button_status = {
     .nodraw = 1,
     .onpress = button_status_onpress,
+    .tooltip_text = { .i18nal = STR_STATUS },
 },
 
 button_menu = {
@@ -440,7 +439,7 @@ button_menu = {
     .bh      = _BM_THREE_BAR_WIDTH,
     .update  = button_menu_update,
     .onpress = button_jump_button_switch_onpress,
-    .tooltip_text = { .i18nal = STR_USERSETTINGS },
+    .tooltip_text = { .i18nal = STR_SEARCHFRIENDS },
 },
 
 button_filter_friends = {
@@ -521,7 +520,7 @@ button_change_id_type = {
 
 button_send_friend_request = {
     .bm = BM_SBUTTON,
-    .button_text = { .i18nal = STR_BUTTON_ADD_FRIEND },
+    .button_text = { .i18nal = STR_ADD },
     .update = button_setcolors_success,
     .onpress = button_send_friend_request_onpress,
     .disabled = 0,
@@ -534,6 +533,7 @@ button_call_audio = {
     .bh = _BM_LBICON_HEIGHT,
     .onpress = button_call_audio_onpress,
     .update = button_call_audio_update,
+    .tooltip_text = { .i18nal = STR_START_AUDIO_CALL },
 },
 
 button_call_video = {
@@ -543,6 +543,7 @@ button_call_video = {
     .bh = _BM_LBICON_HEIGHT,
     .onpress = button_call_video_onpress,
     .update = button_call_video_update,
+    .tooltip_text = { .i18nal = STR_START_VIDEO_CALL },
 },
 
 button_group_audio = {
@@ -552,11 +553,12 @@ button_group_audio = {
     .bh = _BM_LBICON_HEIGHT,
     .onpress = button_group_audio_onpress,
     .update = button_group_audio_update,
+    .tooltip_text = { .i18nal = STR_GROUPCHAT_JOIN_AUDIO },
 },
 
 button_accept_friend = {
     .bm = BM_SBUTTON,
-    .button_text = { .i18nal = STR_BUTTON_ACCEPT_FRIEND },
+    .button_text = { .i18nal = STR_ADD },
     .update = button_setcolors_success,
     .onpress = button_accept_friend_onpress,
 },
@@ -581,25 +583,24 @@ button_videopreview = {
     .disabled = 0,
 },
 
-/* left chat message window button */
-button_chat_left = {
+button_send_file = {
     .bm  = BM_CHAT_BUTTON_LEFT,
     .bm2 = BM_FILE,
     .bw  = _BM_FILE_WIDTH,
     .bh  = _BM_FILE_HEIGHT,
-    .onpress = button_chat_left_onpress,
-    .update  = button_chat_left_update,
+    .onpress = button_send_file_onpress,
+    .update  = button_send_file_update,
     .disabled = 1,
+    .tooltip_text = { .i18nal = STR_SEND_FILE },
 },
 
-/* right chat message window button */
-button_chat_right = {
+button_send_screenshot = {
     .bm  = BM_CHAT_BUTTON_RIGHT,
     .bm2 = BM_CHAT_BUTTON_OVERLAY_SCREENSHOT,
     .bw  = _BM_CHAT_BUTTON_OVERLAY_WIDTH,
     .bh  = _BM_CHAT_BUTTON_OVERLAY_HEIGHT,
-    .update       = button_chat_right_update,
-    .onpress      = button_chat_right_onpress,
+    .update       = button_send_screenshot_update,
+    .onpress      = button_send_screenshot_onpress,
     .tooltip_text = { .i18nal = STR_SENDSCREENSHOT },
 },
 
@@ -610,4 +611,5 @@ button_chat_send = {
     .bh  = _BM_CHAT_SEND_OVERLAY_HEIGHT,
     .onpress = button_chat_send_onpress,
     .update = button_chat_send_update,
+    .tooltip_text = { .i18nal = STR_SENDMESSAGE },
 };

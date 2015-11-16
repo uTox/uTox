@@ -205,10 +205,10 @@ msgstr("Maior (200%)")
 msgid(DPI_HUGE)
 msgstr("Imenso (250%)")
 
-msgid(CONTACTS_FILTER_ALL)
+msgid(FILTER_ALL)
 msgstr("Todos")
 
-msgid(CONTACTS_FILTER_ONLINE)
+msgid(FILTER_ONLINE)
 msgstr("Online")
 
 msgid(PROXY_DISABLED)
@@ -234,9 +234,6 @@ msgstr("Área de trabalho")
 
 msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
 msgstr("Por favor, aceite este pedido de amizade.")
-
-msgid(CONTACTS_FILTER_EDIT_HINT)
-msgstr("Buscar amigo(s)")
 
 //msgid(PROXY_EDIT_HINT_IP)
 //msgstr("IP")

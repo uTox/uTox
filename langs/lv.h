@@ -190,10 +190,10 @@ msgstr("Ļoti liels (200%)")
 msgid(DPI_HUGE)
 msgstr("Milzīgs (250%)")
 
-msgid(CONTACTS_FILTER_ALL)
+msgid(FILTER_ALL)
 msgstr("Viss")
 
-msgid(CONTACTS_FILTER_ONLINE)
+msgid(FILTER_ONLINE)
 msgstr("Tiešsaistē")
 
 msgid(PROXY_DISABLED)
@@ -219,9 +219,6 @@ msgstr("Galddators")
 
 msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
 msgstr("Lūdzu, pieņemiet šo drauga pieprasījumu.")
-
-msgid(CONTACTS_FILTER_EDIT_HINT)
-msgstr("Meklēt draugus")
 
 msgid(PROXY_EDIT_HINT_PORT)
 msgstr("Ports")
