@@ -25,11 +25,17 @@ enum {
 };
 
 enum {
+    // kill the video thread
     VIDEO_KILL,
+    // start a video call
     VIDEO_RECORD_START,
+    // end a video call
     VIDEO_RECORD_STOP,
+    // set a new video device
     VIDEO_SET,
+    // start a video preview
     VIDEO_PREVIEW_START,
+    // stop a video preview
     VIDEO_PREVIEW_STOP,
 };
 
