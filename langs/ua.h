@@ -265,10 +265,10 @@ msgstr("Великий (200%)")
 msgid(DPI_HUGE)
 msgstr("Дуже великий (250%)")
 
-msgid(CONTACTS_FILTER_ALL)
+msgid(FILTER_ALL)
 msgstr("Всі")
 
-msgid(CONTACTS_FILTER_ONLINE)
+msgid(FILTER_ONLINE)
 msgstr("В мережі")
 
 msgid(PROXY_DISABLED)
@@ -306,9 +306,6 @@ msgstr("Ввід OpenSL")
 
 msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
 msgstr("Будь ласка, додайте мене в свій список друзів.")
-
-msgid(CONTACTS_FILTER_EDIT_HINT)
-msgstr("Пошук друзів")
 
 msgid(PROXY_EDIT_HINT_IP)
 msgstr("IP")

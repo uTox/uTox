@@ -216,11 +216,11 @@ msgstr("キャンセルしました")
 //msgstr("Huge (250%)")
 
 //TODO: Localize or remove.
-//msgid(CONTACTS_FILTER_ALL)
+//msgid(FILTER_ALL)
 //msgstr("All")
 
 //TODO: Localize or remove.
-//msgid(CONTACTS_FILTER_ONLINE)
+//msgid(FILTER_ONLINE)
 //msgstr("Online")
 
 //TODO: Localize or remove.
@@ -254,10 +254,6 @@ msgstr("キャンセルしました")
 //TODO: Localize or remove.
 //msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
 //msgstr("Please accept this friend request.")
-
-//TODO: Localize or remove.
-//msgid(CONTACTS_FILTER_EDIT_HINT)
-//msgstr("Search friends")
 
 //TODO: Localize or remove.
 //msgid(PROXY_EDIT_HINT_IP)

@@ -244,10 +244,10 @@ msgstr("Largo (200%)")
 msgid(DPI_HUGE)
 msgstr("Gigante (250%)")
 
-msgid(CONTACTS_FILTER_ALL)
+msgid(FILTER_ALL)
 msgstr("Todos")
 
-msgid(CONTACTS_FILTER_ONLINE)
+msgid(FILTER_ONLINE)
 msgstr("Online")
 
 msgid(PROXY_DISABLED)
@@ -279,9 +279,6 @@ msgstr("Entrada OpenSL")
 
 msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
 msgstr("Por favor, aceite este pedido de amizade.")
-
-msgid(CONTACTS_FILTER_EDIT_HINT)
-msgstr("Procurar amigos")
 
 msgid(WINDOW_TITLE_VIDEO_PREVIEW)
 msgstr("Pré-visualização de Vídeo")

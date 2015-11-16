@@ -274,10 +274,10 @@ msgstr("Muy grande (200%)")
 msgid(DPI_HUGE)
 msgstr("Enorme (250%)")
 
-msgid(CONTACTS_FILTER_ALL)
+msgid(FILTER_ALL)
 msgstr("Todos")
 
-msgid(CONTACTS_FILTER_ONLINE)
+msgid(FILTER_ONLINE)
 msgstr("Conectados")
 
 msgid(PROXY_DISABLED)
@@ -315,9 +315,6 @@ msgstr("Entrada de OpenSL")
 
 msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
 msgstr("Por favor, acepta esta solicitud de amistad.")
-
-msgid(CONTACTS_FILTER_EDIT_HINT)
-msgstr("Buscar amigos")
 
 msgid(PROXY_EDIT_HINT_IP)
 msgstr("IP")

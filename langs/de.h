@@ -247,7 +247,7 @@ msgstr("Größer (200%)")
 msgid(DPI_HUGE)
 msgstr("Sehr groß (250%)")
 
-msgid(CONTACTS_FILTER_ALL)
+msgid(FILTER_ALL)
 msgstr("Alle")
 
 msgid(PROXY_DISABLED)
@@ -279,9 +279,6 @@ msgstr("OpenSL-Eingang")
 
 msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
 msgstr("Bitte füge mich deiner Kontaktliste hinzu.")
-
-msgid(CONTACTS_FILTER_EDIT_HINT)
-msgstr("Freunde suchen")
 
 msgid(WINDOW_TITLE_VIDEO_PREVIEW)
 msgstr("Videovorschau")

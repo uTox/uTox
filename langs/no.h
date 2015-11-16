@@ -226,10 +226,10 @@ msgstr("Større (200%)")
 msgid(DPI_HUGE)
 msgstr("Enorm (250%)")
 
-msgid(CONTACTS_FILTER_ALL)
+msgid(FILTER_ALL)
 msgstr("Alle")
 
-msgid(CONTACTS_FILTER_ONLINE)
+msgid(FILTER_ONLINE)
 msgstr("Pålogget")
 
 msgid(PROXY_DISABLED)
@@ -261,9 +261,6 @@ msgstr("OpenSL Inspilling")
 
 msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
 msgstr("Aksepter denne venneforespørselen.")
-
-msgid(CONTACTS_FILTER_EDIT_HINT)
-msgstr("Søk igjennom venner")
 
 msgid(WINDOW_TITLE_VIDEO_PREVIEW)
 msgstr("Video Forhåndsvisning")

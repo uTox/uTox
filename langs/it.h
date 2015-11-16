@@ -259,7 +259,7 @@ msgstr("Più grande (200%)")
 msgid(DPI_HUGE)
 msgstr("Enorme (250%)")
 
-msgid(CONTACTS_FILTER_ALL)
+msgid(FILTER_ALL)
 msgstr("Tutti")
 
 msgid(PROXY_DISABLED)
@@ -276,9 +276,6 @@ msgstr("Disabilitato")
 
 msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
 msgstr("Per favore accetta questa richiesta d'amicizia.")
-
-msgid(CONTACTS_FILTER_EDIT_HINT)
-msgstr("Cerca tra i contatti")
 
 msgid(PROXY_EDIT_HINT_PORT)
 msgstr("Porta")
