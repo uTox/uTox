@@ -301,9 +301,12 @@ _Bool doevent(XEvent event)
             len = XLookupString(ev, (char *)buffer, sizeof(buffer), &sym, NULL);
         }
 
-        // XK_ISO_Left_Tab = Shift+Tab, but we just look at whether shift is pressed
         if (sym == XK_ISO_Left_Tab) {
+            // XK_ISO_Left_Tab == Shift+Tab, but we just look at whether shift is pressed
             sym = XK_Tab;
+        } else if (sym >= XK_KP_0 && sym <= XK_KP_9) {
+            // normalize keypad and non-keypad numbers
+            sym = sym - XK_KP_0 + XK_0;
         }
 
         // NOTE: Don't use keys like KEY_TAB, KEY_PAGEUP, etc. from xlib/main.h here, they're
@@ -316,6 +319,19 @@ _Bool doevent(XEvent event)
                 break;
             } else if (sym == XK_Tab || sym == XK_Page_Down) {
                 next_tab();
+                redraw();
+                break;
+            }
+        }
+
+
+        if (ev->state & ControlMask || ev->state & Mod1Mask) { // Mod1Mask == alt
+            if (sym >= XK_1 && sym <= XK_9) {
+                list_selectchat(sym - XK_1);
+                redraw();
+                break;
+            } else if (sym == XK_0) {
+                list_selectchat(9);
                 redraw();
                 break;
             }
