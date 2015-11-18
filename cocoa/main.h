@@ -29,8 +29,6 @@
 #define KEY_PAGEUP   kVK_PageUp
 #define KEY_PAGEDOWN kVK_PageDown
 
-#define KEY(k) (k)
-
 #define RGB(r, g, b) (((r) << 16) | ((g) << 8) | (b))
 
 void debug(const char *fmt, ...);

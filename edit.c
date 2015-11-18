@@ -228,7 +228,8 @@ static void contextmenu_edit_onselect(uint8_t i)
         edit_char(KEY_DEL, 1, 0);
         break;
     case 4:
-        edit_char(KEY('A'), 1, 4);
+        /* Send a ctrl + a to the active edit */
+        edit_char('A', 1, 4);
         break;
     }
 }
@@ -584,7 +585,8 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags){
             break;
         }
 
-        case KEY('A'): {
+        case 'a':
+        case 'A': {
             edit_sel.p1 = 0;
             edit_sel.p2 = active_edit->length;
             edit_sel.start = 0;
@@ -593,7 +595,8 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags){
             break;
         }
 
-        case KEY('Z'): {
+        case 'z':
+        case 'Z': {
             if(!(flags & 1)) {
                 STRING_IDX p = edit_undo(edit);
                 if(p != STRING_IDX_MAX) {
@@ -609,7 +612,8 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags){
             }
         }
 
-        case KEY('Y'): {
+        case 'y':
+        case 'Y': {
             STRING_IDX p = edit_redo(edit);
             if(p != STRING_IDX_MAX) {
                 edit_sel.p1 = p;
