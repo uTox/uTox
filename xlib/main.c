@@ -11,6 +11,7 @@
 
 #include <X11/extensions/Xrender.h>
 #include <ft2build.h>
+#include FT_LCD_FILTER_H
 #include <fontconfig/fontconfig.h>
 #include <fontconfig/fcfreetype.h>
 
@@ -196,7 +197,7 @@ void init_ptt(void){
     if (!ptt_keyboard_handle){
         debug("Could not access ptt-kbd in data directory\n");
         ptt_display = XOpenDisplay(0);
-        XSynchronize(ptt_display, TRUE);
+        XSynchronize(ptt_display, True);
     }
 
 }
