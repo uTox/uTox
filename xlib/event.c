@@ -380,7 +380,7 @@ _Bool doevent(XEvent event)
         messages_char(sym);
 
         if(ev->state & 4) {
-            if(sym == 'c') {
+            if(sym == 'c' || sym == 'C') {
                 if(selected_item->item == ITEM_FRIEND) {
                     clipboard.len = messages_selection(&messages_friend, clipboard.data, sizeof(clipboard.data), 0);
                     setclipboard();
