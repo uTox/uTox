@@ -41,7 +41,7 @@
 // Versions
 #define TITLE "uTox"
 #define SUB_TITLE "(Alpha)"
-#define VERSION "0.4.3"
+#define VERSION "0.4.4"
 
 // Limits and sizes
 #define UTOX_MAX_CALLS 16
