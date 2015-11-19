@@ -88,6 +88,7 @@ void video_thread(void *args) {
                         // reset if no device is selected
                         video_device_open = 0;
                         video_active = 0;
+                        video_count = 0;
                         video_width = 0;
                         video_height = 0;
                         debug("uToxVID:\tChanged video input to NONE\n");
@@ -103,6 +104,8 @@ void video_thread(void *args) {
                             // reset if opening failed
                             video_active = 0;
                             video_count  = 0;
+                            debug("uToxVID:\tChanging video input device failed: unable to open device.\n");
+                            break;
                         }
                     } else {
                         // open the video device to get some info e.g. frame size
