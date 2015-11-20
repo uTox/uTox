@@ -5,10 +5,10 @@ FILTER_AUDIO = 0
 
 CFLAGS ?= ""
 LDFLAGS ?= ""
-FRAMEWORKS = -framework AppKit -framework CoreGraphics -framework OpenAL -framework Foundation \
-    -framework CoreText -framework CoreFoundation -framework AVFoundation \
-    -framework CoreVideo -framework CoreMedia -framework OpenGL -framework QuartzCore \
-    -lresolv
+FRAMEWORKS = -framework AppKit -framework ApplicationServices -framework CoreGraphics \
+    -framework OpenAL -framework Foundation -framework CoreText -framework CoreFoundation \
+    -framework AVFoundation -framework CoreVideo -framework CoreMedia -framework OpenGL \
+    -framework QuartzCore -lresolv
 DEPS = libtoxcore libtoxav vpx libsodium
 
 ifeq ($(FILTER_AUDIO), 1)
