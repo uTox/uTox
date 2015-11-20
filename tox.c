@@ -1396,19 +1396,15 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         }
 
         /* Friend interaction messages. */
-            /* Handshake */
+            /* Handshake
+             * param1: friend id
+             * param2: new online status(bool) */
         case FRIEND_ONLINE: {
             FRIEND *f = &friend[param1];
 
-            if (f->online == param2) {
-                break;
+            if (friend_set_online(f, param2)) {
+                redraw();
             }
-
-            f->online = param2;
-            if(!f->online) {
-                friend_set_typing(f, 0);
-            }
-            redraw();
             break;
         }
         case FRIEND_NAME: {

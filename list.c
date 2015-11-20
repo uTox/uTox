@@ -5,13 +5,24 @@ extern _Bool unity_running;
 #endif
 
 static ITEM item_add, item_settings, item_transfer; /* I think these are pointers to the panel's they're named after. */
-static ITEM item[1024], *mouseover_item, *nitem;
+
+static ITEM item[1024]; // full list of friends and group chats
+static uint32_t itemcount;
+
+static uint32_t shown_list[1024]; // list of chats actually shown in the GUI after filtering(actually indices pointing to chats in the chats array)
+static uint32_t showncount;
+
+// search and filter stuff
+static char_t* search_string;
+static uint8_t filter;
+
+static ITEM *mouseover_item;
+static ITEM *nitem; // item that selected_item is being dragged over
 ITEM *selected_item = &item_add;
-static uint32_t itemcount, searchcount;
 
 static _Bool selected_item_mousedown;
 
-static int selected_item_dy; // selected_item_delta-y??
+static int selected_item_dy; // y offset of selected item being dragged from its original position
 
 static void drawitembox(ITEM *i, int y) {
     if(selected_item == i) {
@@ -112,17 +123,49 @@ static void drawitem(ITEM *i, int UNUSED(x), int y) {
     }
 }
 
-static ITEM* newitem(void) {
-    ITEM *i = &item[itemcount++];
-    //TODO: ..
-    scrollbar_roster.content_height = searchcount * ROSTER_BOX_HEIGHT;
-    return i;
+// find index of given item in shown_list, or INT_MAX if it can't be found
+static int find_item_shown_index(ITEM *it) {
+    int i = 0;
+    while (i < showncount) {
+        if (shown_list[i] == it - item) { // (it - item) returns the index of the item in the full items list
+            return i;
+        }
+        i++;
+    }
+    return INT_MAX; // can't be found!
 }
 
 void list_scale(void) {
-    scrollbar_roster.content_height = searchcount * ROSTER_BOX_HEIGHT;
+    scrollbar_roster.content_height = showncount * ROSTER_BOX_HEIGHT;
 }
 
+
+void update_shown_list(void) {
+    FRIEND *f;
+    uint32_t i; // index in item array
+    uint32_t j; // index in shown_list array
+    for (i = j = 0; i < itemcount; i++) {
+        ITEM *it = &item[i];
+        f = it->data;
+        if(it->item != ITEM_FRIEND ||
+                ((!filter || f->online) && (!search_string || strstr_case((char*)f->name, (char*)search_string)))) {
+            shown_list[j++] = i;
+        }
+    }
+
+    showncount = j;
+    list_scale();
+}
+
+
+static ITEM* newitem(void) {
+    ITEM *i = &item[itemcount++];
+    //TODO: ..
+    update_shown_list();
+    return i;
+}
+
+// return item that the user is mousing over
 static ITEM* item_hit(int mx, int my, int UNUSED(height)) {
     /* Mouse is outsite the list */
     if(mx < ROSTER_BOX_LEFT || mx >= SIDEBAR_WIDTH) {
@@ -137,14 +180,48 @@ static ITEM* item_hit(int mx, int my, int UNUSED(height)) {
     uint32_t item_idx = my;
     item_idx /= ROSTER_BOX_HEIGHT;
 
-    if(item_idx >= searchcount) {
+    if(item_idx >= showncount) {
         return NULL;
     }
 
     ITEM *i;
 
-    i = &item[item_idx + search_offset[item_idx]];
+    i = &item[shown_list[item_idx]];
     return i;
+}
+
+uint8_t list_get_filter(void) {
+    return filter;
+}
+
+void list_set_filter(uint8_t new_filter) {
+    filter = new_filter;
+    update_shown_list();
+}
+
+void list_search(char_t *str) {
+    search_string = str;
+    update_shown_list();
+}
+
+// change the selected item by [offset] items in the shown list
+static void change_tab(int offset) {
+    if (selected_item->item == ITEM_FRIEND ||
+        selected_item->item == ITEM_GROUP) {
+        int index = find_item_shown_index(selected_item);
+        if (index != INT_MAX) {
+            // list_selectchat will check if out of bounds
+            list_selectchat((index + offset + showncount) % showncount);
+        }
+    }
+}
+
+void previous_tab(void) {
+    change_tab(-1);
+}
+
+void next_tab(void) {
+    change_tab(1);
 }
 
 
@@ -323,7 +400,9 @@ void list_start(void) {
 
     itemcount = i - item;
 
-    scrollbar_roster.content_height = itemcount * ROSTER_BOX_HEIGHT;
+    search_string = NULL;
+    update_shown_list();
+
 }
 
 void list_addfriend(FRIEND *f) {
@@ -369,36 +448,20 @@ void list_addfriendreq(FRIENDREQ *f) {
 }
 
 void list_draw(void *UNUSED(n), int UNUSED(x), int y, int UNUSED(width), int UNUSED(height)) {
-    int my, j, k;
 
-    ITEM *i = item, *mi = NULL;
-    FRIEND *f;
-    j = 0;
-    k = 0;
-    //TODO: only draw visible
-    while(i != &item[itemcount]) {
-        f = i->data;
-        if(i->item != ITEM_FRIEND ||
-           ((!FILTER || f->online) && (!SEARCH || strstr_case((char*)f->name, (char*)search_data)))) {
-            if(i == selected_item && (selected_item_dy >= 5 || selected_item_dy <= -5)) {
-                mi = i;
-                my = y + selected_item_dy;
-            } else {
-                drawitem(i, ROSTER_BOX_LEFT, y);
-            }
-            search_offset[j] = k - j;
-            search_unset[k] = j - k;
-            j++;
-            y += ROSTER_BOX_HEIGHT;
+    ITEM *mi = NULL; // item being dragged
+    int my; // y of item being dragged
+
+    for (int i = 0; i < showncount; i++) {
+        ITEM *it = &item[shown_list[i]];
+        if(it == selected_item && (selected_item_dy >= 5 || selected_item_dy <= -5)) {
+            mi = it;
+            my = y + selected_item_dy;
         } else {
-            search_offset[j] = INT_MAX;
+            drawitem(it, ROSTER_BOX_LEFT, y);
         }
-        k++;
-        i++;
+        y += ROSTER_BOX_HEIGHT;
     }
-
-    searchcount = j;
-    scrollbar_roster.content_height = searchcount * ROSTER_BOX_HEIGHT;
 
     if(mi) {
         drawitem(mi, ROSTER_BOX_LEFT, my);
@@ -461,7 +524,6 @@ static void deleteitem(ITEM *i) {
     }
 
     itemcount--;
-    scrollbar_roster.content_height = itemcount * ROSTER_BOX_HEIGHT;
 
     int size = (&item[itemcount] - i) * sizeof(ITEM);
     memmove(i, i + 1, size);
@@ -470,6 +532,7 @@ static void deleteitem(ITEM *i) {
         selected_item--;
     }
 
+    update_shown_list();
     redraw();//list_draw();
 }
 
@@ -502,34 +565,9 @@ void list_freeall(void) {
     }
 }
 
-static void selectchat_filtered(int index) {
-    int i;
-    for (i = 0; i < itemcount; ++i) {
-        ITEM *it = &item[i];
-        FRIEND *f = it->data;
-        if (it->item != ITEM_FRIEND ||
-            ((!FILTER || f->online) && (!SEARCH || strstr_case((char*)f->name, (char*)search_data)))) {
-            --index;
-        }
-
-        if (index == -1) {
-            show_page(it);
-            break;
-        }
-    }
-}
-
-static void selectchat_notfiltered(int index) {
-   if (index < itemcount) {
-        show_page(&item[index]);
-    }
-}
-
 void list_selectchat(int index) {
-    if (FILTER || SEARCH) {
-        selectchat_filtered(index);
-    } else {
-        selectchat_notfiltered(index);
+    if (index >= 0 && index < showncount) {
+        show_page(&item[shown_list[index]]);
     }
 }
 
@@ -560,21 +598,23 @@ _Bool list_mmove(void *UNUSED(n), int UNUSED(x), int UNUSED(y), int UNUSED(width
     }
 
     if(selected_item_mousedown) {
+        // drag item
         selected_item_dy += dy;
         nitem = NULL;
         if(abs(selected_item_dy) >= ROSTER_BOX_HEIGHT / 2) {
-            int d;
+            int d; // offset, in number of items, of where the dragged item is compared to where it started
             if(selected_item_dy > 0) {
                 d = (selected_item_dy + ROSTER_BOX_HEIGHT / 2) / ROSTER_BOX_HEIGHT;
             } else {
                 d = (selected_item_dy - ROSTER_BOX_HEIGHT / 2) / ROSTER_BOX_HEIGHT;
             }
-            int index = (selected_item - item) + search_unset[selected_item - item] + d;
-            int offset = search_offset[index];
-            if(offset != INT_MAX) {
-                index += offset;
+            int index = find_item_shown_index(selected_item);
+            if (index != INT_MAX) { // selected_item was found in shown list
+                index += d; // get item being dragged over
+
+                // set item being dragged over
                 if(index >= 0 && ((uint32_t) index) < itemcount) {
-                    nitem = item + index;
+                    nitem = &item[shown_list[index]];
                 }
             }
         }

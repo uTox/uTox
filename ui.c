@@ -89,8 +89,8 @@ static void draw_user_badge(int UNUSED(x), int UNUSED(y), int UNUSED(width), int
     setcolor(!button_filter_friends.mouseover ? COLOR_MENU_SUBTEXT : COLOR_MAIN_HINTTEXT);
     setfont(FONT_STATUS);
     drawtextrange(SIDEBAR_FILTER_FRIENDS_LEFT, SIDEBAR_FILTER_FRIENDS_WIDTH, SIDEBAR_FILTER_FRIENDS_TOP,
-                  FILTER ? S(FILTER_ALL)    : S(FILTER_ONLINE),
-                  FILTER ? SLEN(FILTER_ALL) : SLEN(FILTER_ONLINE) );
+                  list_get_filter() ? S(FILTER_ALL)    : S(FILTER_ONLINE),
+                  list_get_filter() ? SLEN(FILTER_ALL) : SLEN(FILTER_ONLINE) );
 }
 
 /* Header for friend chat window */

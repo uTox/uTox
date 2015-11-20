@@ -300,8 +300,45 @@ _Bool doevent(XEvent event)
         } else {
             len = XLookupString(ev, (char *)buffer, sizeof(buffer), &sym, NULL);
         }
+
+        if (sym == XK_ISO_Left_Tab) {
+            // XK_ISO_Left_Tab == Shift+Tab, but we just look at whether shift is pressed
+            sym = XK_Tab;
+        } else if (sym >= XK_KP_0 && sym <= XK_KP_9) {
+            // normalize keypad and non-keypad numbers
+            sym = sym - XK_KP_0 + XK_0;
+        }
+
+        // NOTE: Don't use keys like KEY_TAB, KEY_PAGEUP, etc. from xlib/main.h here, they're
+        // overwritten by linux header linux/input.h, so they'll be different
+
+        if (ev->state & ControlMask) {
+            if ((sym == XK_Tab && (ev->state & ShiftMask)) || sym == XK_Page_Up) {
+                previous_tab();
+                redraw();
+                break;
+            } else if (sym == XK_Tab || sym == XK_Page_Down) {
+                next_tab();
+                redraw();
+                break;
+            }
+        }
+
+
+        if (ev->state & ControlMask || ev->state & Mod1Mask) { // Mod1Mask == alt
+            if (sym >= XK_1 && sym <= XK_9) {
+                list_selectchat(sym - XK_1);
+                redraw();
+                break;
+            } else if (sym == XK_0) {
+                list_selectchat(9);
+                redraw();
+                break;
+            }
+        }
+
         if(edit_active()) {
-            if(ev->state & 4) {
+            if(ev->state & ControlMask) {
                 switch(sym) {
                 case 'v':
                 case 'V':
@@ -339,10 +376,6 @@ _Bool doevent(XEvent event)
 
             if (sym == XK_KP_Enter){
                 sym = XK_Return;
-            }
-
-            if (sym == XK_ISO_Left_Tab) {
-                sym = XK_Tab;
             }
 
             if (sym == XK_Return && (ev->state & 1)) {

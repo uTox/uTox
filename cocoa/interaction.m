@@ -285,7 +285,6 @@ static inline void select_right_to_char(char_t c) {
     char n = 0;
     if (theEvent.charactersIgnoringModifiers.length == 1 && (theEvent.modifierFlags & NSDeviceIndependentModifierFlagsMask) == NSControlKeyMask) {
         switch (n = [theEvent.charactersIgnoringModifiers characterAtIndex:0]) {
-            case '0':
             case '1':
             case '2':
             case '3':
@@ -295,7 +294,11 @@ static inline void select_right_to_char(char_t c) {
             case '7':
             case '8':
             case '9':
-                list_selectchat(n - '0');
+                list_selectchat(n - '1');
+                redraw();
+                break;
+            case '0':
+                list_selectchat(9);
                 redraw();
                 break;
             default:

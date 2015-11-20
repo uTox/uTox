@@ -1619,13 +1619,44 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
         return 0;
     }
 
+    case WM_SYSKEYDOWN: // called instead of WM_KEYDOWN when ALT is down or F10 is pressed
     case WM_KEYDOWN: {
         _Bool control = ((GetKeyState(VK_CONTROL) & 0x80) != 0);
         _Bool shift = ((GetKeyState(VK_SHIFT) & 0x80) != 0);
+        _Bool alt = ((GetKeyState(VK_MENU) & 0x80) != 0);
+
+        if (wParam >= VK_NUMPAD0 && wParam <= VK_NUMPAD9) {
+            // normalize keypad and non-keypad numbers
+            wParam = wParam - VK_NUMPAD0 + '0';
+        }
 
         if(control && wParam == 'C') {
             copy(1);
             return 0;
+        }
+
+        if(control) {
+            if ((wParam == VK_TAB && shift) || wParam == VK_PRIOR) {
+                previous_tab();
+                redraw();
+                return 0;
+            } else if (wParam == VK_TAB || wParam == VK_NEXT) {
+                next_tab();
+                redraw();
+                return 0;
+            }
+        }
+
+        if (control || alt) {
+            if (wParam >= '1' && wParam <= '9') {
+                list_selectchat(wParam - '1');
+                redraw();
+                return 0;
+            } else if (wParam == '0') {
+                list_selectchat(9);
+                redraw();
+                return 0;
+            }
         }
 
         if(edit_active()) {

@@ -704,7 +704,7 @@ NEXT:
     //dropdown_theme_onselect.selected = dropdown_theme_onselect.over = save->theme;
     dropdown_typing_notes.selected = save->no_typing_notifications;
 
-    FILTER = save->filter; /* roster list filtering */
+    list_set_filter(save->filter); /* roster list filtering */
 
     options.ipv6_enabled = save->enableipv6;
     options.udp_enabled = !save->disableudp;
@@ -768,7 +768,7 @@ void config_save(UTOX_SAVE *save)
     save->audible_notifications_enabled = audible_notifications_enabled;
     save->audio_filtering_enabled       = audio_filtering_enabled;
 
-    save->filter                        = FILTER;
+    save->filter                        = list_get_filter();
     save->proxy_port                    = options.proxy_port;
 
     save->audio_device_in               = dropdown_audio_in.selected;

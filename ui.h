@@ -104,13 +104,6 @@ _Bool panel_mleave(PANEL *p);
 
 #define BLACK 0
 
-/* search
- */
-
-uint8_t SEARCH;
-uint8_t FILTER;
-int search_offset[1024];
-int search_unset[1024];
 char search_data[128];
 
 /* metrics
