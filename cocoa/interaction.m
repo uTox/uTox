@@ -531,6 +531,16 @@ static inline void select_right_to_char(char_t c) {
     tox_postmessage(TOX_GROUP_CREATE, 1, 0, NULL);
 }
 
+- (void)tabPrevFriend:(id)sender {
+    previous_tab();
+    redraw();
+}
+
+- (void)tabNextFriend:(id)sender {
+    next_tab();
+    redraw();
+}
+
 - (void)startSpeaking:(id)sender {
     char_t *buf = malloc(65536);
     int len = getbuf(buf, 65536, 0);
