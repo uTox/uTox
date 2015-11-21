@@ -480,8 +480,6 @@ _Bool doevent(XEvent event)
     case SelectionRequest: {
         XSelectionRequestEvent *ev = &event.xselectionrequest;
 
-        debug("SelectionRequest\n");
-
         XEvent resp = {
             .xselection = {
                 .type = SelectionNotify,
@@ -495,7 +493,6 @@ _Bool doevent(XEvent event)
 
         if(ev->target == XA_UTF8_STRING || ev->target == XA_STRING) {
             if(ev->selection == XA_PRIMARY) {
-                debug("%u\n", primary.len);
                 XChangeProperty(display, ev->requestor, ev->property, ev->target, 8, PropModeReplace, primary.data, primary.len);
             } else {
                 XChangeProperty(display, ev->requestor, ev->property, ev->target, 8, PropModeReplace, clipboard.data, clipboard.len);
