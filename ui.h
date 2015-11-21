@@ -145,7 +145,7 @@ uint8_t SCALE;
     #define SIDEBAR_FILTER_FRIENDS_HEIGHT   ( 6 * SCALE)
 
 /* Roster defines */
-    #define ROSTER_TOP                      ( 36 * SCALE)
+    #define ROSTER_TOP                      ( 39 * SCALE)
     #define ROSTER_LEFT                     (  8 * SCALE)
     #define ROSTER_BOTTOM                   (-15 * SCALE)
     #define ROSTER_BOX_LEFT                 (  4 * SCALE)
