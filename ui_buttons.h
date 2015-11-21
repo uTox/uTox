@@ -94,6 +94,8 @@ static void button_menu_update(BUTTON *b) {
 }
 
 static void button_add_new_contact_onpress(void) {
+    edit_setstr(&edit_add_id, (char_t *)edit_search.data, edit_search.length);
+    edit_setstr(&edit_search, (char_t *)"", 0);
     list_selectaddfriend();
 }
 
