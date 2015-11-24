@@ -211,11 +211,11 @@ msgstr("Wielkie (200%)")
 msgid(DPI_HUGE)
 msgstr("Ogromne (250%)")
 
-msgid(CONTACTS_FILTER_ALL)
+msgid(FILTER_ALL)
 msgstr("Wszyscy")
 
 //TODO: Localize or remove.
-//msgid(CONTACTS_FILTER_ONLINE)
+//msgid(FILTER_ONLINE)
 //msgstr("Online")
 
 msgid(PROXY_DISABLED)
@@ -242,10 +242,6 @@ msgstr("Ekran")
 //TODO: Localize or remove.
 //msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
 //msgstr("Please accept this friend request.")
-
-//TODO: Localize or remove.
-//msgid(CONTACTS_FILTER_EDIT_HINT)
-//msgstr("Search friends")
 
 //TODO: Localize or remove.
 //msgid(PROXY_EDIT_HINT_IP)

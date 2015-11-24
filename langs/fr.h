@@ -190,10 +190,10 @@ msgstr("Grand (150%)")
 msgid(DPI_HUGE)
 msgstr("Très large (250%)")
 
-msgid(CONTACTS_FILTER_ALL)
+msgid(FILTER_ALL)
 msgstr("Tout")
 
-msgid(CONTACTS_FILTER_ONLINE)
+msgid(FILTER_ONLINE)
 msgstr("En ligne")
 
 msgid(PROXY_DISABLED)
@@ -219,9 +219,6 @@ msgstr("Ecran")
 
 msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
 msgstr("Veuillez accepter cette requête d'ami.")
-
-msgid(CONTACTS_FILTER_EDIT_HINT)
-msgstr("Recherche d'ami")
 
 msgid(AUDIO_IN_DEFAULT_LOOPBACK)
 msgstr("Par défaut")

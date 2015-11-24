@@ -217,10 +217,10 @@ msgstr("Nagyobb (200%)")
 msgid(DPI_HUGE)
 msgstr("Legnagyobb (250%)")
 
-msgid(CONTACTS_FILTER_ALL)
+msgid(FILTER_ALL)
 msgstr("Összes")
 
-msgid(CONTACTS_FILTER_ONLINE)
+msgid(FILTER_ONLINE)
 msgstr("Elérhető")
 
 msgid(PROXY_DISABLED)
@@ -252,9 +252,6 @@ msgstr("OpenSL bevitel")
 
 msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
 msgstr("Kérem, fogadja el ezt a partnerkérelmet!")
-
-msgid(CONTACTS_FILTER_EDIT_HINT)
-msgstr("Partnerek keresése")
 
 msgid(PROXY_EDIT_HINT_IP)
 msgstr("IP")

@@ -31,7 +31,7 @@ void setup_cursors(void);
 
 //#define HAS_CUSTOM_EDIT_DRAW_IMPLEMENTATION
 
-#if MAC_OS_X_VERSION_MIN_REQUIRED < 101000
+#if MAC_OS_X_VERSION_MAX_ALLOWED < 101000
 typedef struct {
     NSInteger majorVersion;
     NSInteger minorVersion;

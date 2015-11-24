@@ -18,17 +18,15 @@ static void dropdown_video_onselect(uint16_t i, const DROPDOWN* dm)
 {
     DROP_ELEMENT *e = &((DROP_ELEMENT*) dm->userdata)[i];
     void *handle = e->handle;
-    uint16_t b = 0;
     if(!handle && video_preview) {
+        // if no device is selected while previewing, close the preview window
         video_end(0);
         video_preview = 0;
-        b = 1; //tell video thread to stop preview too
     } else if((size_t)handle == 1) {
         desktopgrab(1);
         return;
     }
-
-    toxvideo_postmessage(VIDEO_SET, b, 0, handle);
+    toxvideo_postmessage(VIDEO_SET, 0, 0, handle);
 }
 
 static void dropdown_dpi_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))

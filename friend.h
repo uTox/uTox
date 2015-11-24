@@ -44,6 +44,10 @@ void friend_recvimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width
 void friend_notify(FRIEND *f, char_t *str, STRING_IDX str_length, char_t *msg, STRING_IDX msg_length);
 #define friend_notifystr(f, str, msg, mlen) friend_notify(f, (char_t*)str, sizeof(str) - 1, msg, mlen)
 void friend_addmessage_notify(FRIEND *f, char_t *data, STRING_IDX length);
+
+/* set friend online status. Returns: true if status changed, false otherwise */
+_Bool friend_set_online(FRIEND *f, _Bool online);
+
 void friend_set_typing(FRIEND *f, int typing);
 
 void friend_addid(uint8_t *id, char_t *msg, STRING_IDX msg_length);

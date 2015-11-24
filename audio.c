@@ -28,7 +28,9 @@ static void utox_filter_audio_kill(Filter_Audio *filter_audio_handle){
 
 static ALCdevice *device_out, *device_in;
 static ALCcontext *context;
-static ALuint source[MAX_CALLS];
+/* TODO hacky fix. This source list should be a VLA with a way to link sources to friends.
+ * NO SRSLY don't leave this like this! */
+static ALuint source[UTOX_MAX_NUM_FRIENDS];
 
 static ALCdevice* alcopencapture(void *handle) {
     if(!handle) {
@@ -188,15 +190,16 @@ void audio_thread(void *args){
     }
 
     alGenSources(countof(source), source);
-
-    static ALuint ringSrc[MAX_CALLS];
-    alGenSources(MAX_CALLS, ringSrc);
+    /* TODO hacky fix. This source list should be a VLA with a way to link sources to friends.
+     * NO SRSLY don't leave this like this! */
+    static ALuint ringSrc[UTOX_MAX_NUM_FRIENDS];
+    alGenSources(UTOX_MAX_NUM_FRIENDS, ringSrc);
 
     /* Create buffer to store samples */
     ALuint RingBuffer;
     alGenBuffers(1, &RingBuffer);
 
-    {
+    { /* wrapped to keep this data on the stack... I think... */
         float frequency1 = 441.f;
         float frequency2 = 882.f;
         int seconds = 4;
@@ -226,7 +229,7 @@ void audio_thread(void *args){
 
     {
         unsigned int i;
-        for (i = 0; i < MAX_CALLS; ++i) {
+        for (i = 0; i < UTOX_MAX_NUM_FRIENDS; ++i) {
             alSourcei(ringSrc[i], AL_LOOPING, AL_TRUE);
             alSourcei(ringSrc[i], AL_BUFFER, RingBuffer);
         }
@@ -407,7 +410,6 @@ void audio_thread(void *args){
                 if(!audible_notifications_enabled) {
                     break;
                 }
-
                 alSourcePlay(ringSrc[m->param1]);
                 break;
             }
@@ -533,9 +535,9 @@ void audio_thread(void *args){
                                 debug("toxav_send_audio error friend == %i, error ==  %i\n", i, error);
                             } else {
                                 // debug("Send a frame to friend %i\n",i);
-                                if (i >= UTOX_MAX_CALLS) {
+                                if (active_call_count >= UTOX_MAX_CALLS) {
                                     debug("We're calling more peers than allowed by UTOX_MAX_CALLS, This is a bug\n");
-                                        break;
+                                    break;
                                 }
                             }
                         }

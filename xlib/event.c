@@ -300,21 +300,63 @@ _Bool doevent(XEvent event)
         } else {
             len = XLookupString(ev, (char *)buffer, sizeof(buffer), &sym, NULL);
         }
+
+        if (sym == XK_ISO_Left_Tab) {
+            // XK_ISO_Left_Tab == Shift+Tab, but we just look at whether shift is pressed
+            sym = XK_Tab;
+        } else if (sym >= XK_KP_0 && sym <= XK_KP_9) {
+            // normalize keypad and non-keypad numbers
+            sym = sym - XK_KP_0 + XK_0;
+        }
+
+        // NOTE: Don't use keys like KEY_TAB, KEY_PAGEUP, etc. from xlib/main.h here, they're
+        // overwritten by linux header linux/input.h, so they'll be different
+
+        if (ev->state & ControlMask) {
+            if ((sym == XK_Tab && (ev->state & ShiftMask)) || sym == XK_Page_Up) {
+                previous_tab();
+                redraw();
+                break;
+            } else if (sym == XK_Tab || sym == XK_Page_Down) {
+                next_tab();
+                redraw();
+                break;
+            }
+        }
+
+
+        if (ev->state & ControlMask || ev->state & Mod1Mask) { // Mod1Mask == alt
+            if (sym >= XK_1 && sym <= XK_9) {
+                list_selectchat(sym - XK_1);
+                redraw();
+                break;
+            } else if (sym == XK_0) {
+                list_selectchat(9);
+                redraw();
+                break;
+            }
+        }
+
         if(edit_active()) {
-            if(ev->state & 4) {
+            if(ev->state & ControlMask) {
                 switch(sym) {
                 case 'v':
+                case 'V':
                     paste();
                     return 1;
                 case 'c':
+                case 'C':
                 case XK_Insert:
                     copy(0);
                     return 1;
                 case 'x':
+                case 'X':
                     copy(0);
                     edit_char(KEY_DEL, 1, 0);
                     return 1;
                 case 'w':
+                case 'W':
+                    /* Sent ctrl + backspace to active edit */
                     edit_char(KEY_BACK, 1, 4);
                     return 1;
                 }
@@ -334,10 +376,6 @@ _Bool doevent(XEvent event)
 
             if (sym == XK_KP_Enter){
                 sym = XK_Return;
-            }
-
-            if (sym == XK_ISO_Left_Tab) {
-                sym = XK_Tab;
             }
 
             if (sym == XK_Return && (ev->state & 1)) {
@@ -375,7 +413,7 @@ _Bool doevent(XEvent event)
         messages_char(sym);
 
         if(ev->state & 4) {
-            if(sym == 'c') {
+            if(sym == 'c' || sym == 'C') {
                 if(selected_item->item == ITEM_FRIEND) {
                     clipboard.len = messages_selection(&messages_friend, clipboard.data, sizeof(clipboard.data), 0);
                     setclipboard();
@@ -442,8 +480,6 @@ _Bool doevent(XEvent event)
     case SelectionRequest: {
         XSelectionRequestEvent *ev = &event.xselectionrequest;
 
-        debug("SelectionRequest\n");
-
         XEvent resp = {
             .xselection = {
                 .type = SelectionNotify,
@@ -457,7 +493,6 @@ _Bool doevent(XEvent event)
 
         if(ev->target == XA_UTF8_STRING || ev->target == XA_STRING) {
             if(ev->selection == XA_PRIMARY) {
-                debug("%u\n", primary.len);
                 XChangeProperty(display, ev->requestor, ev->property, ev->target, 8, PropModeReplace, primary.data, primary.len);
             } else {
                 XChangeProperty(display, ev->requestor, ev->property, ev->target, 8, PropModeReplace, clipboard.data, clipboard.len);

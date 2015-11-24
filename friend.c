@@ -65,6 +65,8 @@ void friend_setname(FRIEND *f, char_t *name, STRING_IDX length){
         f->name_length = length;
     }
     f->name[f->name_length] = 0;
+
+    update_shown_list();
 }
 
 void friend_set_alias(FRIEND *f, char_t *alias, STRING_IDX length){
@@ -176,6 +178,22 @@ void friend_addmessage(FRIEND *f, void *data) {
         f->notify = 1;
     }
 }
+
+_Bool friend_set_online(FRIEND *f, _Bool online) {
+    if (f->online == online) {
+        return false;
+    }
+
+    f->online = online;
+    if(!f->online) {
+        friend_set_typing(f, 0);
+    }
+
+    update_shown_list();
+
+    return true;
+}
+
 
 void friend_set_typing(FRIEND *f, int typing) {
     f->typing = typing;

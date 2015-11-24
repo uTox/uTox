@@ -104,13 +104,11 @@ static void callback_connection_status(Tox *tox, uint32_t fid, TOX_CONNECTION st
         if (friend[fid].call_state_self || friend[fid].call_state_friend) {
             utox_av_local_disconnect(NULL, fid); /* TODO HACK, toxav doesn't supply a toxav_get_toxav_from_otx() yet. */
         }
-        friend[fid].online = 0;
     } else if (!friend[fid].online && !!status) {
         ft_friend_online(tox, fid);
         /* resend avatar info (in case it changed) */
         /* Avatars must be sent LAST or they will clobber existing file transfers! */
         avatar_on_friend_online(tox, fid);
-        friend[fid].online = 1;
     }
     postmessage(FRIEND_ONLINE, fid, !!status, NULL);
 
