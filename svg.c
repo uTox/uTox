@@ -677,7 +677,7 @@ _Bool svg_draw(_Bool needmemory) {
     p += BM_CHAT_BUTTON_OVERLAY_WIDTH * BM_CHAT_BUTTON_OVERLAY_HEIGHT;
 
     if(p - svg_data != size) {
-        debug("something went wrong\n");
+        debug("SVG:\tSVG data size mismatch...\n");
     }
 
     if(!needmemory) {

@@ -179,7 +179,7 @@ void openurl(char_t *str) {
     } else /* it's a path */ {
         url = [NSURL fileURLWithPath:urls];
     }
-    
+
     [[NSWorkspace sharedWorkspace] openURL:url];
     [urls release];
 }
@@ -250,7 +250,7 @@ int datapath_subdir(uint8_t *dest, const char *subdir) {
     l += sprintf((char*)(dest+l), "%s", subdir);
     mkdir((char*)dest, 0700);
     dest[l++] = '/';
-    
+
     return l;
 }
 
@@ -345,7 +345,12 @@ void launch_at_startup(int should) {
         CFArrayRef current_items = LSSharedFileListCopySnapshot(items, NULL);
         for (int i = 0; i < CFArrayGetCount(current_items); ++i) {
             LSSharedFileListItemRef it = (void *)CFArrayGetValueAtIndex(current_items, i);
-            CFURLRef urlornull = LSSharedFileListItemCopyResolvedURL(it, 0, NULL);
+            CFURLRef urlornull;
+#if MAC_OS_X_VERSION_MIN_REQUIRED < 101000
+            LSSharedFileListItemResolve(it, 0, &urlornull, NULL);
+#else
+            urlornull = LSSharedFileListItemCopyResolvedURL(it, 0, NULL);
+#endif
             if (urlornull && CFEqual(urlornull, (__bridge CFURLRef)[NSBundle mainBundle].bundleURL)) {
                 // this is ours, remove it.
                 LSSharedFileListItemRemove(items, it);
@@ -459,7 +464,7 @@ void launch_at_startup(int should) {
 - (void)applicationWillTerminate:(NSNotification *)notification {
     toxaudio_postmessage(AUDIO_KILL, 0, 0, NULL);
     toxvideo_postmessage(VIDEO_KILL, 0, 0, NULL);
-    toxav_postmessage(TOXAV_KILL, 0, 0, NULL);
+    toxav_postmessage(UTOXAV_KILL, 0, 0, NULL);
     tox_postmessage(TOX_KILL, 0, 0, NULL);
 
     UTOX_SAVE d = {

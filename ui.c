@@ -89,8 +89,8 @@ static void draw_user_badge(int UNUSED(x), int UNUSED(y), int UNUSED(width), int
     setcolor(!button_filter_friends.mouseover ? COLOR_MENU_SUBTEXT : COLOR_MAIN_HINTTEXT);
     setfont(FONT_STATUS);
     drawtextrange(SIDEBAR_FILTER_FRIENDS_LEFT, SIDEBAR_FILTER_FRIENDS_WIDTH, SIDEBAR_FILTER_FRIENDS_TOP,
-                  FILTER ? S(FILTER_ALL)    : S(FILTER_ONLINE),
-                  FILTER ? SLEN(FILTER_ALL) : SLEN(FILTER_ONLINE) );
+                  list_get_filter() ? S(FILTER_ALL)    : S(FILTER_ONLINE),
+                  list_get_filter() ? SLEN(FILTER_ALL) : SLEN(FILTER_ONLINE) );
 }
 
 /* Header for friend chat window */
@@ -203,7 +203,16 @@ static void draw_add_friend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int hei
     setfont(FONT_TEXT);
     drawstr(MAIN_LEFT + SCALE * 5, LIST_Y + SCALE * 5, TOXID);
 
+
+
     drawstr(MAIN_LEFT + SCALE * 5, LIST_Y + SCALE * 29, MESSAGE);
+
+    if (options.proxy_type && !options.udp_enabled) {
+        int push = UTOX_STR_WIDTH(TOXID);
+        setfont(FONT_MISC);
+        setcolor(C_RED);
+        drawstr(MAIN_LEFT + SCALE * 10 + push, LIST_Y + SCALE * 6, DNS_DISABLED);
+    }
 
     if (addfriend_status) {
         setfont(FONT_MISC);
@@ -520,7 +529,7 @@ panel_side_bar = {
     },
         panel_search_filter = {
             .type = PANEL_NONE,
-            .disabled = 0,
+            .disabled = 1,
             .drawfunc = draw_user_badge,
             .child = (PANEL*[]) {
                 (void*)&edit_search,
@@ -529,7 +538,7 @@ panel_side_bar = {
         },
         panel_quick_buttons = {
             .type = PANEL_NONE,
-            .disabled = 1,
+            .disabled = 0,
             .drawfunc = draw_user_badge,
             .child = (PANEL*[]) {
                 (void*)&button_add_new_contact,
@@ -579,10 +588,10 @@ panel_main = {
             .disabled = 1,
             .drawfunc = draw_group,
             .child = (PANEL*[]) {
-                (void*)&button_group_audio,
-                (void*)&edit_msg_group,
                 (void*)&scrollbar_group,
+                (void*)&edit_msg_group, // this needs to be one of the first, to get events before the others
                 (void*)&messages_group,
+                (void*)&button_group_audio,
                 (void*)&button_chat_send,
                 NULL
             }
@@ -593,9 +602,10 @@ panel_main = {
             .drawfunc = draw_friend,
             .child = (PANEL*[]) {
                 (void*)&scrollbar_friend,
+                (void*)&edit_msg, // this needs to be one of the first, to get events before the others
                 (void*)&messages_friend,
-                (void*)&button_call, (void*)&button_video,
-                (void*)&button_chat_left, (void*)&button_chat_right, (void*)&edit_msg, (void*)&button_chat_send,
+                (void*)&button_call_audio, (void*)&button_call_video,
+                (void*)&button_send_file, (void*)&button_send_screenshot, (void*)&button_chat_send,
                 NULL
             }
         },
@@ -619,7 +629,6 @@ panel_main = {
             NULL
         }
     },
-
         panel_add_friend = {
             .type = PANEL_NONE,
             .disabled = 1,
@@ -630,7 +639,6 @@ panel_main = {
                 NULL
             }
         },
-
         panel_settings_master = {
             .type = PANEL_NONE,
             .disabled = 0,
@@ -640,7 +648,6 @@ panel_main = {
                 NULL
             }
         },
-
             panel_settings_subheader = {
                 .type = PANEL_NONE,
                 .disabled = 0,
@@ -918,7 +925,7 @@ void ui_scale(uint8_t scale) {
             .height = BM_SBUTTON_HEIGHT,
         },
 
-        b_call = {
+        b_call_audio = {
             .type = PANEL_BUTTON,
             .x = -62 * SCALE,
             .y = 5 * SCALE,
@@ -926,7 +933,7 @@ void ui_scale(uint8_t scale) {
             .height = BM_LBUTTON_HEIGHT,
         },
 
-        b_group_audio = {
+        b_call_video = {
             .type = PANEL_BUTTON,
             .x = -31 * SCALE,
             .y = 5 * SCALE,
@@ -934,7 +941,7 @@ void ui_scale(uint8_t scale) {
             .height = BM_LBUTTON_HEIGHT,
         },
 
-        b_video = {
+        b_group_audio = {
             .type = PANEL_BUTTON,
             .x = -31 * SCALE,
             .y = 5 * SCALE,
@@ -966,8 +973,8 @@ void ui_scale(uint8_t scale) {
             .height = BM_LBUTTON_HEIGHT,
         },
 
-        /* top right chat message window button */
-        b_chat_left = {
+        /* bottom left button in chat */
+        b_send_file = {
             .type   = PANEL_BUTTON,
             .x      =   3 * SCALE,
             .y      = -23 * SCALE,
@@ -975,8 +982,8 @@ void ui_scale(uint8_t scale) {
             .height = BM_CHAT_BUTTON_HEIGHT,
         },
 
-        /* bottom right chat message window button */
-        b_chat_right = {
+        /* button to the right of b_chat_left */
+        b_send_screenshot = {
             .type   = PANEL_BUTTON,
             .x      =   4 * SCALE + BM_CHAT_BUTTON_WIDTH,
             .y      = -23 * SCALE,
@@ -1015,14 +1022,14 @@ void ui_scale(uint8_t scale) {
         button_change_id_type.panel = b_change_id_type;
         #endif
         button_send_friend_request.panel = b_send_friend_request;
-        button_call.panel                = b_call;
+        button_call_audio.panel          = b_call_audio;
+        button_call_video.panel          = b_call_video;
         button_group_audio.panel         = b_group_audio;
-        button_video.panel               = b_video;
         button_accept_friend.panel       = b_accept_friend;
         button_callpreview.panel         = b_callpreview;
         button_videopreview.panel        = b_videopreview;
-        button_chat_left.panel           = b_chat_left;
-        button_chat_right.panel          = b_chat_right;
+        button_send_file.panel           = b_send_file;
+        button_send_screenshot.panel     = b_send_screenshot;
         button_chat_send.panel           = b_chat_send;
 
     /* Drop down structs */

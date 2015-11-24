@@ -10,6 +10,9 @@ msgstr("Friend request sent. Your friend will appear online after the request is
 msgid(REQ_RESOLVE)
 msgstr("Attempting to resolve DNS name...")
 
+msgid(DNS_DISABLED)
+msgstr("DNS name resolution disabled while using a proxy without UDP!")
+
 msgid(REQ_INVALID_ID)
 msgstr("Error: Invalid Tox ID")
 
@@ -75,6 +78,15 @@ msgstr("File transfer canceled")
 
 msgid(TRANSFER_COMPLETE)
 msgstr("File transfer complete")
+
+msgid(GROUPCHAT_JOIN_AUDIO)
+msgstr("Join audio chat")
+
+msgid(START_AUDIO_CALL)
+msgstr("Start call")
+
+msgid(START_VIDEO_CALL)
+msgstr("Start video call")
 
 msgid(CALL_CANCELLED)
 msgstr("Call canceled")
@@ -159,6 +171,18 @@ msgstr("Video Input Device")
 
 msgid(PUSH_TO_TALK)
 msgstr("Push To Talk")
+
+msgid(STATUS)
+msgstr("Status")
+
+msgid(STATUS_ONLINE)
+msgstr("Online")
+
+msgid(STATUS_AWAY)
+msgstr("Away")
+
+msgid(STATUS_BUSY)
+msgstr("Busy")
 
 msgid(OTHERSETTINGS)
 msgstr("Other Settings")
@@ -268,6 +292,9 @@ msgstr("Ignore")
 msgid(SET_ALIAS)
 msgstr("Set alias")
 
+msgid(SENDMESSAGE)
+msgstr("Send message")
+
 msgid(SENDSCREENSHOT)
 msgstr("Send a screenshot")
 
@@ -294,12 +321,6 @@ msgstr("Large (200%)")
 
 msgid(DPI_HUGE)
 msgstr("Huge (250%)")
-
-msgid(CONTACTS_FILTER_ALL)
-msgstr("All")
-
-msgid(CONTACTS_FILTER_ONLINE)
-msgstr("Online")
 
 msgid(PROXY_DISABLED)
 msgstr("Disabled")
@@ -336,9 +357,6 @@ msgstr("OpenSL Input")
 
 msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
 msgstr("Please accept this friend request.")
-
-msgid(CONTACTS_FILTER_EDIT_HINT)
-msgstr("Search friends")
 
 msgid(PROXY_EDIT_HINT_IP)
 msgstr("IP")

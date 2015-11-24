@@ -1,5 +1,4 @@
 /* buttons */
-
 #ifdef UNITY
 #include "xlib/mmenu.h"
 extern _Bool unity_running;
@@ -78,7 +77,7 @@ static void button_status_onpress(void) {
     }
     #endif
 
-    tox_postmessage(TOX_SETSTATUS, self.status, 0, NULL);
+    tox_postmessage(TOX_SELF_SET_STATE, self.status, 0, NULL);
 }
 
 static void button_jump_button_switch_onpress(void) {
@@ -104,33 +103,25 @@ static void button_add_new_contact_onpress(void) {
 }
 
 static void button_create_group_onpress(void) {
-    tox_postmessage(TOX_NEWGROUP, 1, 0, NULL);
+    tox_postmessage(TOX_GROUP_CREATE, 0, 0, NULL);
 }
 
 static void button_settings_onpress(void) {
     list_selectsettings();
 }
 
-static void button_filter_friends_mdown(void) {
-        FILTER = !FILTER;
+static void button_filter_friends_onpress(void) {
+    list_set_filter(!list_get_filter()); // this only works because right now there are only 2 filters
+                                         // (none or online), basically a bool
 }
-
-
-
-
-
-
 
 static void button_copyid_onpress(void) {
     edit_setfocus(&edit_toxid);
     copy(0);
 }
 
-
-
 #ifdef EMOJI_IDS
-static void button_change_id_type_onpress(void)
-{
+static void button_change_id_type_onpress(void) {
     edit_resetfocus();
     if (self.id_buffer_length == TOX_FRIEND_ADDRESS_SIZE * 2) {
         self.id_buffer_length = bytes_to_emoji_string(self.id_buffer, sizeof(self.id_buffer), self.id_binary, TOX_FRIEND_ADDRESS_SIZE);
@@ -142,18 +133,18 @@ static void button_change_id_type_onpress(void)
 }
 #endif
 
-static void button_audiopreview_onpress(void)
-{
-    if (!audio_preview)
+static void button_audiopreview_onpress(void) {
+    if (!audio_preview) {
+        debug("Going to start Audio Preview\n");
         toxaudio_postmessage(AUDIO_PREVIEW_START, 0, 0, NULL);
-    else
+    } else {
+        debug("Going to stop Audio Preview\n");
         toxaudio_postmessage(AUDIO_PREVIEW_END, 0, 0, NULL);
-
+    }
     audio_preview = !audio_preview;
 }
 
-static void button_audiopreview_update(BUTTON *b)
-{
+static void button_audiopreview_update(BUTTON *b) {
     if (audio_preview){
         button_setcolors_danger(b);
     } else {
@@ -161,33 +152,28 @@ static void button_audiopreview_update(BUTTON *b)
     }
 }
 
-static void button_videopreview_onpress(void)
-{
+static void button_videopreview_onpress(void) {
     if (video_preview) {
-        video_preview = 0;
-        video_end(0);
-        toxvideo_postmessage(VIDEO_PREVIEW_END, 0, 0, NULL);
-    } else if (video_width) {
-        STRING *s = SPTR(WINDOW_TITLE_VIDEO_PREVIEW);
-        video_begin(0, s->str, s->length, video_width, video_height);
-        toxvideo_postmessage(VIDEO_PREVIEW_START, 0, 0, NULL);
-        video_preview = 1;
+        toxav_postmessage(UTOXAV_END_PREVIEW, 0, 0, NULL);
+    } else if (video_width && video_height) {
+        toxav_postmessage(UTOXAV_START_PREVIEW, 0, 0, NULL);
+    } else {
+        debug("Button:\t video_width = 0, can't preview\n");
     }
 }
 
-static void button_videopreview_update(BUTTON *b)
-{
-    if (video_preview)
+static void button_videopreview_update(BUTTON *b) {
+    if (video_preview) {
         button_setcolors_danger(b);
-    else
+    } else {
         button_setcolors_success(b);
+    }
 }
 
 static void button_send_friend_request_onpress(void) {
     friend_add(edit_add_id.data, edit_add_id.length, edit_add_msg.data, edit_add_msg.length);
     edit_resetfocus();
 }
-
 
 static void button_settings_sub_net_onpress(void){
     scrollbar_settings.content_height = 90 * SCALE;
@@ -216,8 +202,7 @@ static void button_settings_sub_av_onpress(void){
     panel_settings_av.disabled   = 0;
 }
 
-static void button_group_audio_onpress(void)
-{
+static void button_group_audio_onpress(void) {
     GROUPCHAT *g = selected_item->data;
     if (g->audio_calling) {
         tox_postmessage(TOX_GROUP_AUDIO_END, (g - group), 0, NULL);
@@ -226,8 +211,7 @@ static void button_group_audio_onpress(void)
     }
 }
 
-static void button_group_audio_update(BUTTON *b)
-{
+static void button_group_audio_update(BUTTON *b) {
     GROUPCHAT *g = selected_item->data;
     if (g->type == TOX_GROUPCHAT_TYPE_AV) {
         b->disabled = 0;
@@ -241,171 +225,92 @@ static void button_group_audio_update(BUTTON *b)
     }
 }
 
-static void button_call_onpress(void)
-{
+static void button_call_audio_onpress(void) {
     FRIEND *f = selected_item->data;
-
-    switch(f->calling) {
-    case CALL_INVITED: {
-        tox_postmessage(TOX_ACCEPTCALL, f->callid, 0, NULL);
-        debug("Accept Call: %u\n", f->callid);
-        break;
-    }
-
-    case CALL_NONE: {
-        if (f->online) {
-            tox_postmessage(TOX_CALL, f - friend, 0, NULL);
-            debug("Calling friend: %u\n", (uint32_t)(f - friend));
+    if (f->call_state_self) {
+        if (UTOX_SENDING_AUDIO(f->number)) {
+            debug("Ending call: %u\n", f->number);
+            /* var 3/4 = bool send video */
+            tox_postmessage(TOX_CALL_DISCONNECT,  f->number, 0, NULL);
+        } else {
+            debug("Canceling call: friend = %d\n", f->number);
+            tox_postmessage(TOX_CALL_DISCONNECT,  f->number, 0, NULL);
         }
-        break;
-    }
-
-    case CALL_RINGING: {
-        tox_postmessage(TOX_CANCELCALL, f->callid, f - friend, NULL);
-        debug("Cancelling call: id = %u, friend = %d\n", f->callid, (int)(f - friend));
-        break;
-    }
-
-    case CALL_OK:
-    case CALL_OK_VIDEO: {
-        tox_postmessage(TOX_HANGUP, f->callid, 0, NULL);
-        debug("Ending call: %u\n", f->callid);
-        break;
-    }
+        tox_postmessage(TOX_CALL_DISCONNECT, f->number, 0, NULL);
+    } else if (UTOX_AVAILABLE_AUDIO(f->number)) {
+        debug("Accept Call: %u\n", f->number);
+        tox_postmessage(TOX_CALL_ANSWER, f->number, 0, NULL);
+    } else {
+        if (f->online) {
+            tox_postmessage(TOX_CALL_SEND, f->number, 0, NULL);
+            debug("Calling friend: %u\n", f->number);
+        }
     }
 }
 
-static void button_call_update(BUTTON *b)
-{
+static void button_call_audio_update(BUTTON *b) {
     FRIEND *f = selected_item->data;
-
-    switch(f->calling) {
-    case CALL_INVITED: {
-        b->disabled = 0;
-        button_setcolors_warning(b);
-        break;
-    }
-
-    case CALL_RINGING: {
-        b->disabled = 0;
-        button_setcolors_warning(b);
-        break;
-    }
-
-    case CALL_NONE: {
-        if (f->online) {
-            b->disabled = 0;
-            button_setcolors_success(b);
-            break;
-        }
-        /* fall through */
-    }
-
-    case CALL_RINGING_VIDEO:
-    case CALL_INVITED_VIDEO: {
-        b->disabled = 1;
-        button_setcolors_disabled(b);
-        break;
-    }
-
-    case CALL_OK:
-    case CALL_OK_VIDEO: {
-        b->disabled = 0;
+    if (UTOX_SENDING_AUDIO(f->number)) {
         button_setcolors_danger(b);
-        break;
-    }
-    }
-}
-
-static void button_video_onpress(void)
-{
-    FRIEND *f = selected_item->data;
-
-    switch(f->calling) {
-    case CALL_INVITED_VIDEO: {
-        tox_postmessage(TOX_ACCEPTCALL, f->callid, 1, NULL);
-        debug("Accept Call: %u\n", f->callid);
-        break;
-    }
-
-    case CALL_NONE: {
-        if (f->online) {
-            tox_postmessage(TOX_CALL_VIDEO, f - friend, 0, NULL);
-            debug("Calling friend: %u\n", (uint32_t)(f - friend));
-        }
-        break;
-    }
-
-    case CALL_RINGING_VIDEO: {
-        tox_postmessage(TOX_CANCELCALL, f->callid, f - friend, NULL);
-        debug("Cancelling call: id = %u, friend = %d\n", f->callid, (int)(f - friend));
-        break;
-    }
-
-
-    case CALL_OK: {
-        tox_postmessage(TOX_CALL_VIDEO_ON, f - friend, f->callid, NULL);
-        debug("start sending video\n");
-        break;
-    }
-
-    case CALL_OK_VIDEO: {
-        tox_postmessage(TOX_CALL_VIDEO_OFF, f - friend, f->callid, NULL);
-        debug("stop sending video\n");
-        break;
-    }
-    }
-}
-
-static void button_video_update(BUTTON *b)
-{
-    FRIEND *f = selected_item->data;
-
-    switch(f->calling) {
-    case CALL_INVITED_VIDEO: {
         b->disabled = 0;
+    } else if (UTOX_AVAILABLE_AUDIO(f->number)) {
         button_setcolors_warning(b);
-        break;
-    }
-
-    case CALL_RINGING_VIDEO: {
         b->disabled = 0;
-        button_setcolors_warning(b);
-        break;
-    }
-
-    case CALL_NONE: {
+    } else {
         if (f->online) {
-            b->disabled = 0;
             button_setcolors_success(b);
-            break;
+            b->disabled = 0;
+        } else {
+            button_setcolors_disabled(b);
+            b->disabled = 1;
         }
-        /* fall through */
-    }
-
-    case CALL_RINGING:
-    case CALL_INVITED: {
-        b->disabled = 1;
-        button_setcolors_disabled(b);
-        break;
-    }
-
-    case CALL_OK: {
-        b->disabled = 0;
-        button_setcolors_success(b);
-        break;
-    }
-
-    case CALL_OK_VIDEO: {
-        b->disabled = 0;
-        button_setcolors_danger(b);
-        break;
-    }
     }
 }
 
-static void button_bottommenu_update(BUTTON *b)
-{
+static void button_call_video_onpress(void) {
+    FRIEND *f = selected_item->data;
+    if (f->call_state_self) {
+        if (SELF_ACCEPT_VIDEO(f->number)) {
+            debug("Canceling call (video): %u\n", f->number);
+            tox_postmessage(TOX_CALL_DISCONNECT,  f->number, 1, NULL);
+        } else if (UTOX_SENDING_AUDIO(f->number)) {
+            debug("Audio call inprogress, adding video\n");
+            tox_postmessage(TOX_CALL_RESUME_VIDEO, f->number, 1, NULL);
+        } else {
+            debug("Ending call (video): %u\n",   f->number);
+            tox_postmessage(TOX_CALL_DISCONNECT, f->number, 1, NULL);
+        }
+    } else if (f->call_state_friend) {
+        debug("Accept Call (video): %u %u\n", f->number, f->call_state_friend);
+        tox_postmessage(TOX_CALL_ANSWER, f->number, 1, NULL);
+    } else {
+        if (f->online) {
+            tox_postmessage(TOX_CALL_SEND, f->number, 1, NULL);
+            debug("Calling friend (video): %u\n", f->number);
+        }
+    }
+}
+
+static void button_call_video_update(BUTTON *b) {
+    FRIEND *f = selected_item->data;
+    if (SELF_SEND_VIDEO(f->number)) {
+        button_setcolors_danger(b);
+        b->disabled = 0;
+    } else if (FRIEND_SENDING_VIDEO(f->number)) {
+        button_setcolors_warning(b);
+        b->disabled = 0;
+    } else {
+        if (f->online) {
+            button_setcolors_success(b);
+            b->disabled = 0;
+        } else {
+            button_setcolors_disabled(b);
+            b->disabled = 1;
+        }
+    }
+}
+
+static void button_bottommenu_update(BUTTON *b) {
     b->c1 = COLOR_BACKGROUND_MENU;
     b->c2 = COLOR_BACKGROUND_MENU_HOVER;
     b->c3 = COLOR_BACKGROUND_MENU_ACTIVE;
@@ -418,37 +323,32 @@ static void button_bottommenu_update(BUTTON *b)
     b->cd = COLOR_BACKGROUND_MENU_ACTIVE;
 }
 
-static void button_accept_friend_onpress(void){
+static void button_accept_friend_onpress(void) {
     FRIENDREQ *req = selected_item->data;
-    tox_postmessage(TOX_ACCEPTFRIEND, 0, 0, req);
+    tox_postmessage(TOX_FRIEND_ACCEPT, 0, 0, req);
     panel_friend_request.disabled = 1;
-    // list_reselect_current();
 }
 
-
-static void contextmenu_avatar_onselect(uint8_t i)
-{
+static void contextmenu_avatar_onselect(uint8_t i) {
     if (i == 0)
         self_remove_avatar();
 }
 
-static void button_avatar_onright(void)
-{
+static void button_avatar_onright(void) {
     if (self_has_avatar()) {
         static UI_STRING_ID menu[] = {STR_REMOVE};
         contextmenu_new(countof(menu), menu, contextmenu_avatar_onselect);
     }
 }
 
-/* bottom left chat message window button */
-static void button_chat_left_onpress(void) {
+static void button_send_file_onpress(void) {
     FRIEND *f = selected_item->data;
     if (f->online) {
         openfilesend();
     }
 }
 
-static void button_chat_left_update(BUTTON *b) {
+static void button_send_file_update(BUTTON *b) {
     FRIEND *f = selected_item->data;
     if (f->online) {
         b->disabled = 0;
@@ -459,15 +359,14 @@ static void button_chat_left_update(BUTTON *b) {
     }
 }
 
-/* bottom right chat message window button */
-static void button_chat_right_onpress(void) {
+static void button_send_screenshot_onpress(void) {
     FRIEND *f = selected_item->data;
     if (f->online) {
         desktopgrab(0);
     }
 }
 
-static void button_chat_right_update(BUTTON *b) {
+static void button_send_screenshot_update(BUTTON *b) {
     FRIEND *f = selected_item->data;
     if (f->online) {
         b->disabled = 0;
@@ -532,6 +431,7 @@ button_statusmsg = {
 button_status = {
     .nodraw = 1,
     .onpress = button_status_onpress,
+    .tooltip_text = { .i18nal = STR_STATUS },
 },
 
 button_menu = {
@@ -540,12 +440,12 @@ button_menu = {
     .bh      = _BM_THREE_BAR_WIDTH,
     .update  = button_menu_update,
     .onpress = button_jump_button_switch_onpress,
-    .tooltip_text = { .i18nal = STR_USERSETTINGS },
+    .tooltip_text = { .i18nal = STR_SEARCHFRIENDS },
 },
 
 button_filter_friends = {
     .nodraw       = 1,
-    .onpress      = button_filter_friends_mdown,
+    .onpress      = button_filter_friends_onpress,
     .tooltip_text = { .i18nal = STR_FILTER_CONTACT_TOGGLE },
 },
 
@@ -621,19 +521,30 @@ button_change_id_type = {
 
 button_send_friend_request = {
     .bm = BM_SBUTTON,
-    .button_text = { .i18nal = STR_BUTTON_ADD_FRIEND },
+    .button_text = { .i18nal = STR_ADD },
     .update = button_setcolors_success,
     .onpress = button_send_friend_request_onpress,
     .disabled = 0,
 },
 
-button_call = {
+button_call_audio = {
     .bm = BM_LBUTTON,
     .bm2 = BM_CALL,
     .bw = _BM_LBICON_WIDTH,
     .bh = _BM_LBICON_HEIGHT,
-    .onpress = button_call_onpress,
-    .update = button_call_update,
+    .onpress = button_call_audio_onpress,
+    .update = button_call_audio_update,
+    .tooltip_text = { .i18nal = STR_START_AUDIO_CALL },
+},
+
+button_call_video = {
+    .bm = BM_LBUTTON,
+    .bm2 = BM_VIDEO,
+    .bw = _BM_LBICON_WIDTH,
+    .bh = _BM_LBICON_HEIGHT,
+    .onpress = button_call_video_onpress,
+    .update = button_call_video_update,
+    .tooltip_text = { .i18nal = STR_START_VIDEO_CALL },
 },
 
 button_group_audio = {
@@ -643,20 +554,12 @@ button_group_audio = {
     .bh = _BM_LBICON_HEIGHT,
     .onpress = button_group_audio_onpress,
     .update = button_group_audio_update,
-},
-
-button_video = {
-    .bm = BM_LBUTTON,
-    .bm2 = BM_VIDEO,
-    .bw = _BM_LBICON_WIDTH,
-    .bh = _BM_LBICON_HEIGHT,
-    .onpress = button_video_onpress,
-    .update = button_video_update,
+    .tooltip_text = { .i18nal = STR_GROUPCHAT_JOIN_AUDIO },
 },
 
 button_accept_friend = {
     .bm = BM_SBUTTON,
-    .button_text = { .i18nal = STR_BUTTON_ACCEPT_FRIEND },
+    .button_text = { .i18nal = STR_ADD },
     .update = button_setcolors_success,
     .onpress = button_accept_friend_onpress,
 },
@@ -681,25 +584,24 @@ button_videopreview = {
     .disabled = 0,
 },
 
-/* left chat message window button */
-button_chat_left = {
+button_send_file = {
     .bm  = BM_CHAT_BUTTON_LEFT,
     .bm2 = BM_FILE,
     .bw  = _BM_FILE_WIDTH,
     .bh  = _BM_FILE_HEIGHT,
-    .onpress = button_chat_left_onpress,
-    .update  = button_chat_left_update,
+    .onpress = button_send_file_onpress,
+    .update  = button_send_file_update,
     .disabled = 1,
+    .tooltip_text = { .i18nal = STR_SEND_FILE },
 },
 
-/* right chat message window button */
-button_chat_right = {
+button_send_screenshot = {
     .bm  = BM_CHAT_BUTTON_RIGHT,
     .bm2 = BM_CHAT_BUTTON_OVERLAY_SCREENSHOT,
     .bw  = _BM_CHAT_BUTTON_OVERLAY_WIDTH,
     .bh  = _BM_CHAT_BUTTON_OVERLAY_HEIGHT,
-    .update       = button_chat_right_update,
-    .onpress      = button_chat_right_onpress,
+    .update       = button_send_screenshot_update,
+    .onpress      = button_send_screenshot_onpress,
     .tooltip_text = { .i18nal = STR_SENDSCREENSHOT },
 },
 
@@ -710,4 +612,5 @@ button_chat_send = {
     .bh  = _BM_CHAT_SEND_OVERLAY_HEIGHT,
     .onpress = button_chat_send_onpress,
     .update = button_chat_send_update,
+    .tooltip_text = { .i18nal = STR_SENDMESSAGE },
 };

@@ -5,6 +5,14 @@
 #import <Foundation/Foundation.h>
 #import <AVFoundation/AVFoundation.h>
 
+#ifndef NS_DESIGNATED_INITIALIZER
+#if __has_attribute(objc_designated_initializer)
+#define NS_DESIGNATED_INITIALIZER __attribute__((objc_designated_initializer))
+#else
+#define NS_DESIGNATED_INITIALIZER
+#endif
+#endif
+
 @class uToxStardustView;
 extern CGDirectDisplayID desktop_capture_from;
 extern CGRect desktop_capture_rect;
@@ -22,6 +30,14 @@ void setup_cursors(void);
     func((obj));
 
 //#define HAS_CUSTOM_EDIT_DRAW_IMPLEMENTATION
+
+#if MAC_OS_X_VERSION_MAX_ALLOWED < 101000
+typedef struct {
+    NSInteger majorVersion;
+    NSInteger minorVersion;
+    NSInteger patchVersion;
+} NSOperatingSystemVersion;
+#endif
 
 #define MAC_OS_AT_LEAST_DO(a, b, c) \
     if ([[NSProcessInfo processInfo] respondsToSelector:@selector(isOperatingSystemAtLeastVersion:)] && \

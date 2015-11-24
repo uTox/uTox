@@ -273,8 +273,7 @@ static _Bool parserecord(uint8_t *dest, uint8_t *src, uint32_t pin, void *dns3)
     return 1;
 }
 
-static void dns_thread(void *data)
-{
+static void dns_thread(void *data) {
     uint16_t length = *(uint16_t*)data;
     uint8_t result[256];
     _Bool success = 0;
@@ -457,8 +456,12 @@ static void dns_thread(void *data)
     postmessage(DNS_RESULT, success, 0, data);
 }
 
-void dns_request(char_t *name, uint16_t length)
-{
+void dns_request(char_t *name, uint16_t length) {
+    if (options.proxy_type && !options.udp_enabled) {
+        debug("uTox DNS:\tUnable to do DNS lookup, because we're are using a proxy without UDP!\n");
+        return;
+    }
+
     void *data = malloc((2u + length < TOX_FRIEND_ADDRESS_SIZE) ? TOX_FRIEND_ADDRESS_SIZE : 2u + length * sizeof(char_t));
     memcpy(data, &length, 2);
     memcpy(data + 2, name, length * sizeof(char_t));

@@ -399,7 +399,7 @@ void loadalpha(int bm, void *data, int width, int height) {
     CGColorSpaceRelease(cs);
 }
 
-void framerectw(int x, int y, int width, int height, uint32_t color) {
+void draw_rect_frame(int x, int y, int width, int height, uint32_t color) {
     DRAW_TARGET_CHK()
 
     CGFloat sz = currently_drawing_into_view.frame.size.height;
@@ -435,10 +435,6 @@ void draw_rect_fill(int x, int y, int width, int height, uint32_t color) {
 
     [[currently_drawing_into_view color:color] set];
     NSRectFill(rect);
-}
-
-void draw_rect_frame(int x, int y, int right, int bottom, uint32_t color) {
-    framerectw(x, y, right - x, bottom - y, color);
 }
 
 void drawrect(int x, int y, int right, int bottom, uint32_t color) {

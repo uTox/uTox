@@ -1,6 +1,24 @@
 /* list: the contact list
  */
 
+// call to switch to previous or next friend in list
+void previous_tab(void);
+void next_tab(void);
+
+// update the shown list, should be called whenever something relevant to the filters is done
+// (like changing name, going online, etc.)
+void update_shown_list(void);
+
+// set or get current list filter. Updates list afterwards
+uint8_t list_get_filter(void);
+void list_set_filter(uint8_t filter);
+
+// set the search string in the list. Disable search by setting it to NULL. Updates list afterwards
+// warning: list will just remember the pointer, it will assume you won't deallocate the memory, and it
+// won't deallocate it after setting to NULL. The string should be NULL-terminated.
+void list_search(char_t *str);
+
+
 
 /* non-exhaustive list of panels we to select from, it's probably better to replace this but I don't know with what. */
 enum

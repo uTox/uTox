@@ -41,17 +41,22 @@
 // Versions
 #define TITLE "uTox"
 #define SUB_TITLE "(Alpha)"
-#define VERSION "0.3.3"
+#define VERSION "0.4.4"
 
 // Limits and sizes
-#define MAX_CALLS 16
-#define MAX_NUM_FRIENDS 256
-#define MAX_BACKLOG_MESSAGES 128
+#define UTOX_MAX_CALLS 16
+#define UTOX_MAX_NUM_FRIENDS 256 /* Deprecated; Avoid Use */
+#define UTOX_MAX_BACKLOG_MESSAGES 128
+#define UTOX_MAX_NUM_GROUPS 512
+#define UTOX_FILE_NAME_LENGTH 1024
 
-#define MAX_NUM_GROUPS 512
+
+#define MAX_CALLS UTOX_MAX_CALLS                        /* Deprecated; Avoid Use */
+#define MAX_NUM_FRIENDS UTOX_MAX_NUM_FRIENDS            /* Deprecated; Avoid Use */
+#define MAX_BACKLOG_MESSAGES UTOX_MAX_BACKLOG_MESSAGES  /* Deprecated; Avoid Use */
+#define MAX_NUM_GROUPS UTOX_MAX_NUM_GROUPS              /* Deprecated; Avoid Use */
 #define TOX_FRIEND_ADDRESS_SIZE TOX_ADDRESS_SIZE
 
-#define UTOX_FILE_NAME_LENGTH 1024
 
 #define isdesktop(x) ((size_t)(x) == 1)
 
@@ -80,11 +85,6 @@ typedef struct {
 } UTOX_SAVE;
 
 // Structs
-
-typedef struct {
-    uint16_t length;
-    uint8_t id[TOX_FRIEND_ADDRESS_SIZE], msg[0];
-} FRIENDREQ;
 
 typedef struct {
     // Castless wrapper for lodepng data arguments.
@@ -173,6 +173,9 @@ enum {
 #include "png/png.h"
 
 #include "tox.h"
+#include "audio.h"
+#include "video.h"
+#include "utox_av.h"
 
 #ifdef __WIN32__
 #include "windows/main.h"
@@ -200,6 +203,7 @@ enum {
 #include "dns.h"
 #include "file_transfers.h"
 #include "friend.h"
+#include "groups.h"
 #include "list.h"
 #include "edit.h"
 #include "scrollable.h"
@@ -428,7 +432,7 @@ _Bool audio_init(void *handle);
 _Bool audio_close(void *handle);
 _Bool audio_frame(int16_t *buffer);
 
-ToxAv* global_av;
+ToxAV* global_av;
 
 void audio_play(int32_t call_index, const int16_t *data, int length, uint8_t channels);
 void audio_begin(int32_t call_index);

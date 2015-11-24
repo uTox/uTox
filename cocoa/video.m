@@ -4,8 +4,8 @@
 #import <OpenGL/gl.h>
 #import <OpenGL/glext.h>
 
-/* MAJOR TODO: S FOR THIS FILE 
- * - check clean up and error handling with AVFoundation code. 
+/* MAJOR TODO: S FOR THIS FILE
+ * - check clean up and error handling with AVFoundation code.
  */
 
 #define SCREEN_VIDEO_DEVICE_HANDLE ((void *)1)
@@ -77,9 +77,8 @@
 - (void)beginCappingFrames {
     _linkerVideo = [[AVCaptureVideoDataOutput alloc] init];
     [_linkerVideo setSampleBufferDelegate:self queue:_processingQueue];
-    // TODO possibly get a better pixel format
     if (_shouldMangleDimensions) {
-        [_linkerVideo setVideoSettings:@{(id)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_32BGRA),
+        [_linkerVideo setVideoSettings:@{(id)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_420YpCbCr8Planar),
                                          (id)kCVPixelBufferWidthKey: @640,
                                          (id)kCVPixelBufferHeightKey: @480}];
     } else {
@@ -123,7 +122,17 @@
     CFTypeID imageType = CFGetTypeID(_currentFrame);
     if (imageType == CVPixelBufferGetTypeID()) {
         // TODO maybe handle other formats
-        bgrxtoyuv420(y, u, v, CVPixelBufferGetBaseAddress(_currentFrame), w, h);
+        if (CVPixelBufferGetPixelFormatType(_currentFrame) == kCVPixelFormatType_420YpCbCr8Planar) {
+            uint8_t *yPlane = CVPixelBufferGetBaseAddressOfPlane(_currentFrame, 0);
+            uint8_t *uPlane = CVPixelBufferGetBaseAddressOfPlane(_currentFrame, 1);
+            uint8_t *vPlane = CVPixelBufferGetBaseAddressOfPlane(_currentFrame, 2);
+
+            memcpy(y, yPlane, h * w);
+            memcpy(u, uPlane, h * w / 4);
+            memcpy(v, vPlane, h * w / 4);
+        } else {
+            bgrxtoyuv420(y, u, v, CVPixelBufferGetBaseAddress(_currentFrame), w, h);
+        }
     } else if (imageType == CVOpenGLBufferGetTypeID()) {
         // OpenGL pbuffer
     } else if (imageType == CVOpenGLTextureGetTypeID()) {
@@ -152,7 +161,7 @@
 
     devices = [[NSMutableDictionary alloc] init];
 
-    postmessage(NEW_VIDEO_DEVICE, STR_VIDEO_IN_DESKTOP, 0, SCREEN_VIDEO_DEVICE_HANDLE);
+    postmessage(VIDEO_IN_DEVICE, STR_VIDEO_IN_DESKTOP, 0, SCREEN_VIDEO_DEVICE_HANDLE);
 
     NSArray *vdevIDs = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
     for (int i = 0; i < vdevIDs.count; i++) {
@@ -166,7 +175,7 @@
 
         devices[@(i + 2)] = dev.uniqueID;
 
-        postmessage(NEW_VIDEO_DEVICE, UI_STRING_ID_INVALID, 1, data);
+        postmessage(VIDEO_IN_DEVICE, UI_STRING_ID_INVALID, 1, data);
     }
     return (void *)MIN(2, vdevIDs.count + 2);
 }
@@ -213,7 +222,7 @@ _Bool video_init(void *handle) {
 
 void video_close(void *handle) {
     [active_video_session release];
-    
+
     active_video_session = nil;
 }
 
@@ -420,11 +429,11 @@ void* video_detect(void) {
             case 0:
                 video_preview = 0;
                 video_end(0);
-                toxvideo_postmessage(VIDEO_PREVIEW_END, 0, 0, NULL);
+                toxvideo_postmessage(VIDEO_PREVIEW_STOP, 0, 0, NULL);
                 break;
             default: {
                 FRIEND *f = &friend[((uToxIroncladWindow *)notification.object).video_id - 1];
-                tox_postmessage(TOX_HANGUP, f->callid, 0, NULL);
+                tox_postmessage(TOX_CALL_DISCONNECT, f->number, 0, NULL);
                 break;
             }
         }
@@ -442,7 +451,9 @@ void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height
         debug("BUG: video_frame called for bogus Ironclad id %lu", id);
     }
 
-    if (resize) {
+    CGSize s = [win.contentView frame].size;
+    if (resize || s.width != width || s.height != height) {
+        debug("frame size changed, if this happens too often file a bug");
         CGFloat chrome_metric_w = win.frame.size.width - [win.contentView frame].size.width;
         CGFloat chrome_metric_h = win.frame.size.height - [win.contentView frame].size.height;
         int rswidth = width + chrome_metric_w;
@@ -454,10 +465,14 @@ void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height
     [view displayImage:img_data w:width h:height];
 }
 
-void video_begin(uint32_t id, char_t *name, STRING_IDX name_length, uint16_t width, uint16_t height) {
+void video_begin(uint32_t _id, char_t *name, STRING_IDX name_length, uint16_t width, uint16_t height) {
+    if ([(uToxAppDelegate *)[NSApp delegate] ironcladWindowForID:_id])
+        return;
+
     uToxIroncladWindow *video_win = (uToxIroncladWindow *)[uToxIroncladView createWindow];
     video_win.title = [[[NSString alloc] initWithBytes:name length:name_length encoding:NSUTF8StringEncoding] autorelease];
-    video_win.video_id = id;
+    //video_win.title = @"Lel";
+    video_win.video_id = _id;
 
     uToxAppDelegate *utoxapp = (uToxAppDelegate *)[NSApp delegate];
     NSWindow *utoxwin = utoxapp.utox_window;
@@ -465,7 +480,7 @@ void video_begin(uint32_t id, char_t *name, STRING_IDX name_length, uint16_t wid
     CGFloat x = width;
     CGFloat y = height;
     [video_win setFrame:(CGRect){CGRectGetMaxX(utoxwin.frame), CGRectGetMaxY(utoxwin.frame) - y, x, y} display:YES];
-    [utoxapp setIroncladWindow:video_win forID:id];
+    [utoxapp setIroncladWindow:video_win forID:_id];
 
     [video_win makeKeyAndOrderFront:utoxapp];
     [video_win release];

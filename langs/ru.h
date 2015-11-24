@@ -250,10 +250,10 @@ msgstr("Большое (200%)")
 msgid(DPI_HUGE)
 msgstr("Очень большое (250%)")
 
-msgid(CONTACTS_FILTER_ALL)
+msgid(FILTER_ALL)
 msgstr("Все")
 
-msgid(CONTACTS_FILTER_ONLINE)
+msgid(FILTER_ONLINE)
 msgstr("Онлайн")
 
 msgid(PROXY_DISABLED)
@@ -291,9 +291,6 @@ msgstr("OpenSL")
 
 msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
 msgstr("Пожалуйста, добавьте меня в свой список друзей.")
-
-msgid(CONTACTS_FILTER_EDIT_HINT)
-msgstr("Найти друга")
 
 msgid(PROXY_EDIT_HINT_PORT)
 msgstr("Порт")

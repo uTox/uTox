@@ -285,7 +285,6 @@ static inline void select_right_to_char(char_t c) {
     char n = 0;
     if (theEvent.charactersIgnoringModifiers.length == 1 && (theEvent.modifierFlags & NSDeviceIndependentModifierFlagsMask) == NSControlKeyMask) {
         switch (n = [theEvent.charactersIgnoringModifiers characterAtIndex:0]) {
-            case '0':
             case '1':
             case '2':
             case '3':
@@ -295,7 +294,11 @@ static inline void select_right_to_char(char_t c) {
             case '7':
             case '8':
             case '9':
-                list_selectchat(n - '0');
+                list_selectchat(n - '1');
+                redraw();
+                break;
+            case '0':
+                list_selectchat(9);
                 redraw();
                 break;
             default:
@@ -525,7 +528,17 @@ static inline void select_right_to_char(char_t c) {
 }
 
 - (void)createGroupchat:(id)sender {
-    tox_postmessage(TOX_NEWGROUP, 1, 0, NULL);
+    tox_postmessage(TOX_GROUP_CREATE, 1, 0, NULL);
+}
+
+- (void)tabPrevFriend:(id)sender {
+    previous_tab();
+    redraw();
+}
+
+- (void)tabNextFriend:(id)sender {
+    next_tab();
+    redraw();
 }
 
 - (void)startSpeaking:(id)sender {
@@ -843,7 +856,7 @@ void savefilerecv(uint32_t fid, MSG_FILE *file) {
     if (ret == NSFileHandlingPanelOKButton) {
         NSURL *destination = picker.URL;
         // FIXME: might be leaking
-        tox_postmessage(TOX_ACCEPTFILE, fid, file->filenumber, strdup(destination.path.UTF8String));
+        tox_postmessage(TOX_FILE_ACCEPT, fid, file->filenumber, strdup(destination.path.UTF8String));
     }
 }
 //@"Where do you want to save \"%.*s\"?"
@@ -879,7 +892,7 @@ void openfilesend(void) {
         for (NSURL *url in urls) {
             [s appendFormat:@"%@\n", url.path];
         }
-        tox_postmessage(TOX_SEND_NEW_FILE, (FRIEND*)selected_item->data - friend, 0xFFFF, strdup(s.UTF8String));
+        tox_postmessage(TOX_FILE_SEND_NEW, (FRIEND*)selected_item->data - friend, 0xFFFF, strdup(s.UTF8String));
     }
 }
 
@@ -914,7 +927,7 @@ void openfileavatar(void) {
             [alert runModal];
             [alert release];
         } else {
-            postmessage(SET_AVATAR, fsize, 0, file_data);
+            postmessage(TOX_AVATAR_SET, fsize, 0, file_data);
         }
     }
 }

@@ -29,11 +29,10 @@ void (*g_free_utox)(void*); // this can't be called g_free because it causes seg
 
 volatile _Bool gtk_open;
 
-static void gtk_opensendthread(void *args)
-{
+static void gtk_opensendthread(void *args) {
     uint16_t fid = (size_t)args;
 
-    void *dialog = gtk_file_chooser_dialog_new(S(SEND_FILE), NULL, 0, "gtk-cancel", -6, "gtk-open", -3, NULL);
+    void *dialog = gtk_file_chooser_dialog_new((const char *)S(SEND_FILE), NULL, 0, "gtk-cancel", -6, "gtk-open", -3, NULL);
     gtk_file_chooser_set_select_multiple(dialog, 1);
     int result = gtk_dialog_run(dialog);
     if(result == -3) {
@@ -50,7 +49,7 @@ static void gtk_opensendthread(void *args)
         debug("files: %s\n", out);
 
         //dont call this from this thread
-        postmessage(SEND_FILES, fid, 0xFFFF, out);
+        tox_postmessage(TOX_FILE_SEND_NEW, fid, 0xFFFF, out);
     }
 
     gtk_widget_destroy(dialog);
@@ -61,9 +60,8 @@ static void gtk_opensendthread(void *args)
     gtk_open = 0;
 }
 
-static void gtk_openavatarthread(void *UNUSED(args))
-{
-    void *dialog = gtk_file_chooser_dialog_new(S(SELECT_AVATAR_TITLE), NULL, 0, "gtk-cancel", -6, "gtk-open", -3, NULL);
+static void gtk_openavatarthread(void *UNUSED(args)) {
+    void *dialog = gtk_file_chooser_dialog_new((const char *)S(SELECT_AVATAR_TITLE), NULL, 0, "gtk-cancel", -6, "gtk-open", -3, NULL);
     void *filter = gtk_file_filter_new();
     gtk_file_filter_add_mime_type(filter, "image/png");
     gtk_file_chooser_set_filter(dialog, filter);
@@ -86,7 +84,7 @@ static void gtk_openavatarthread(void *UNUSED(args))
             gtk_dialog_run(message_dialog);
             gtk_widget_destroy(message_dialog);
         } else {
-            postmessage(SET_AVATAR, size, 0, file_data);
+            postmessage(SELF_AVATAR_SET, size, 0, file_data);
             break;
         }
     }
@@ -107,14 +105,9 @@ static void gtk_savethread(void *args) {
     file->progress = 0;
     //WHY?!
 
-    // We're going to save this file somewhere, so we should start the transfer to save time.
-    // TODO restart this idea
-    // postmessage(FILE_START_TEMP, fid, (file->filenumber >> 16), file);
-    // debug("GTK:\tSaving file to temp dir...(%u & %u)\n", fid, file->filenumber);
-
     while(1){ //TODO, save current dir, and filename and preload them to gtk dialog if save fails.
         /* Create a GTK save window */
-        void *dialog = gtk_file_chooser_dialog_new(S(SAVE_FILE), NULL, 1, "gtk-cancel", -6, "gtk-save", -3, NULL);
+        void *dialog = gtk_file_chooser_dialog_new((const char *)S(SAVE_FILE), NULL, 1, "gtk-cancel", -6, "gtk-save", -3, NULL);
         /* Get incoming file name*/
         char buf[sizeof(file->name) + 1];
         memcpy(buf, file->name, file->name_length);
@@ -156,12 +149,11 @@ static void gtk_savethread(void *args) {
                 gtk_widget_destroy(dialog);
                 gtk_main_iteration();
                 gtk_widget_destroy(dialog);
-                postmessage(SAVE_FILE, fid, (file->filenumber >> 16), path);
+                postmessage(FILE_INCOMING_ACCEPT, fid, (file->filenumber >> 16), path);
                 break;
             }
         } else if (-6) { // -6 == GTK_RESPONSE_CANCEL
             debug("Aborting in progress file...\n");
-            postmessage(FILE_ABORT_TEMP, fid, (file->filenumber >> 16), file);
         }
         /* catch all */
         gtk_widget_destroy(dialog);
@@ -177,7 +169,7 @@ static void gtk_savethread(void *args) {
 
 static void gtk_savedatathread(void *args) {
     MSG_FILE *file = args;
-    void *dialog = gtk_file_chooser_dialog_new(S(SAVE_FILE), NULL, 1, "gtk-cancel", -6, "gtk-save", -3, NULL);
+    void *dialog = gtk_file_chooser_dialog_new((const char *)S(SAVE_FILE), NULL, 1, "gtk-cancel", -6, "gtk-save", -3, NULL);
     gtk_file_chooser_set_current_name(dialog, "inline.png");
     int result = gtk_dialog_run(dialog);
     if(result == -3) {

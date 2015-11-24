@@ -33,8 +33,6 @@
 
 #define debug(...) printf(__VA_ARGS__); fflush(stdout)
 
-#define KEY(x) (x)
-
 #ifdef __MINGW32__
 #define fseeko fseeko64
 #define ftello ftello64

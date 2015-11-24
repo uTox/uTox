@@ -292,7 +292,7 @@ _Bool v4l_endread(void)
 int v4l_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, uint16_t height)
 {
     if (width != video_width || height != video_height) {
-        debug("width/height mismatch %u %u != %u %u\n", width, height, video_width, video_height);
+        debug("V4L:\twidth/height mismatch %u %u != %u %u\n", width, height, video_width, video_height);
         return 0;
     }
 

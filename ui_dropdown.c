@@ -18,17 +18,15 @@ static void dropdown_video_onselect(uint16_t i, const DROPDOWN* dm)
 {
     DROP_ELEMENT *e = &((DROP_ELEMENT*) dm->userdata)[i];
     void *handle = e->handle;
-    uint16_t b = 0;
     if(!handle && video_preview) {
+        // if no device is selected while previewing, close the preview window
         video_end(0);
         video_preview = 0;
-        b = 1; //tell video thread to stop preview too
     } else if((size_t)handle == 1) {
         desktopgrab(1);
         return;
     }
-
-    toxvideo_postmessage(VIDEO_SET, b, 0, handle);
+    toxvideo_postmessage(VIDEO_SET, 0, 0, handle);
 }
 
 static void dropdown_dpi_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
@@ -48,9 +46,8 @@ static STRING* dropdown_language_ondisplay(uint16_t i, const DROPDOWN* UNUSED(dm
     return SPTRFORLANG(l, STR_LANG_NATIVE_NAME);
 }
 
-static void dropdown_proxy_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
-{
-    if((i != 0) != (options.proxy_type) || i) {
+static void dropdown_proxy_onselect(uint16_t i, const DROPDOWN* UNUSED(dm)) {
+    if ( (i != 0) != (options.proxy_type) || i) {
         options.proxy_type = (i != 0) ? TOX_PROXY_TYPE_SOCKS5 : TOX_PROXY_TYPE_NONE;
         if(i == 2 && options.udp_enabled) {
             options.udp_enabled = 0;

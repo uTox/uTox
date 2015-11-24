@@ -376,7 +376,7 @@ static void font_info_open(FONT_INFO *i, FcPattern *pattern)
         return;
     }
 
-    debug("Loaded font %s %u %i %i\n", filename, id, PIXELS(i->face->ascender), PIXELS(i->face->descender));
+    // debug("Loaded font %s %u %i %i\n", filename, id, PIXELS(i->face->ascender), PIXELS(i->face->descender));
 }
 
 

@@ -30,8 +30,6 @@
 #define KEY_PAGEUP XK_Page_Up
 #define KEY_PAGEDOWN XK_Page_Down
 
-#define KEY(x) (x + 'a' - 'A')
-
 typedef struct utox_native_image {
     // This is really a Picture, but it is just a typedef for XID, and I didn't
     // want to clutter namespace with #include <X11/extensions/Xrender.h> for it.

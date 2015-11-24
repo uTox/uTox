@@ -18,7 +18,7 @@ static void edit_name_onenter(EDIT *edit)
     self.name_length = length;
     update_tray();
 
-    tox_postmessage(TOX_SETNAME, length, 0, self.name);//!
+    tox_postmessage(TOX_SELF_SET_NAME, length, 0, self.name);//!
 }
 
 static void edit_status_onenter(EDIT *edit)
@@ -41,7 +41,11 @@ static void edit_status_onenter(EDIT *edit)
 
     update_tray();
 
-    tox_postmessage(TOX_SETSTATUSMSG, length, 0, self.statusmsg);//!
+    tox_postmessage(TOX_SELF_SET_STATUS, length, 0, self.statusmsg);//!
+}
+
+static void edit_add_new_contact(EDIT *edit) {
+    friend_add(edit_add_id.data, edit_add_id.length, edit_add_msg.data, edit_add_msg.length);
 }
 
 static void edit_msg_onenter(EDIT *edit)
@@ -53,7 +57,7 @@ static void edit_msg_onenter(EDIT *edit)
         return;
     }
 
-    STRING_IDX command_length = 0, argument_length = 0;
+    STRING_IDX command_length = 0;//, argument_length = 0;
     char_t *command = NULL, *argument = NULL;
 
 
@@ -106,18 +110,18 @@ static void edit_msg_onenter(EDIT *edit)
         void *d = malloc(length);
         memcpy(d, text, length);
 
-        tox_postmessage((action ? TOX_SENDACTION : TOX_SENDMESSAGE), (f - friend), length, d);
+        tox_postmessage((action ? TOX_SEND_ACTION : TOX_SEND_MESSAGE), (f - friend), length, d);
     } else if(selected_item->item == ITEM_GROUP) {
         GROUPCHAT *g = selected_item->data;
         if(topic){
             void *d = malloc(length);
             memcpy(d, text, length);
-            tox_postmessage(TOX_GROUPCHANGETOPIC, (g - group), length, d);
+            tox_postmessage(TOX_GROUP_SET_TOPIC, (g - group), length, d);
         } else {
             void *d = malloc(length);
             memcpy(d, text, length);
 
-            tox_postmessage((action ? TOX_SENDACTIONGROUP : TOX_SENDMESSAGEGROUP), (g - group), length, d);
+            tox_postmessage((action ? TOX_GROUP_SEND_ACTION : TOX_GROUP_SEND_MESSAGE), (g - group), length, d);
         }
     }
 
@@ -382,7 +386,7 @@ static void edit_msg_onchange(EDIT *edit)
             return;
         }
 
-        tox_postmessage(TOX_SET_TYPING, (f - friend), 0, NULL);
+        tox_postmessage(TOX_SEND_TYPING, (f - friend), 0, NULL);
     }
 
     if (completion.edited) {
@@ -398,13 +402,11 @@ static void edit_search_onchange(EDIT *edit)
     STRING_IDX length = edit->length;
 
     if(!length) {
-        memset(search_offset, 0, sizeof(search_offset));
-        memset(search_unset, 0, sizeof(search_unset));
-        SEARCH = 0;
+        list_search(NULL);
     } else {
-        SEARCH = 1;
         memcpy(search_data, data, length);
         search_data[length] = 0;
+        list_search((char_t*)search_data);
     }
 
     redraw();
@@ -472,6 +474,7 @@ edit_status = {
 edit_add_id = {
     .maxlength = sizeof(edit_addid_data),
     .data = edit_addid_data,
+    .onenter = edit_add_new_contact,
 },
 
 edit_add_msg = {
@@ -509,7 +512,7 @@ edit_msg_group = {
 edit_search = {
     .maxlength = sizeof(edit_search_data),
     .data = edit_search_data,
-    .empty_str = { .i18nal = STR_CONTACTS_FILTER_EDIT_HINT },
+    .empty_str = { .i18nal = STR_SEARCHFRIENDS },
     .onchange = edit_search_onchange,
     .style = AUXILIARY_STYLE,
 },
