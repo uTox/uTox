@@ -1,4 +1,4 @@
-# μTox
+# μTox [![Build Status](https://travis-ci.org/GrayHatter/uTox.svg?branch=develop)](https://travis-ci.org/GrayHatter/uTox)
 
 Lightweight [Tox](https://github.com/irungentoo/ProjectTox-Core) client.
 
@@ -19,7 +19,6 @@ Lightweight [Tox](https://github.com/irungentoo/ProjectTox-Core) client.
 μTox running on lubuntu:
 
 ![μTox on *nix](https://raw.github.com/notsecure/uTox/master/images/uTox-xlib.png "μTox running on lubuntu")
-
 
 ## Installing
 

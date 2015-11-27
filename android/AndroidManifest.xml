@@ -22,8 +22,8 @@
         <activity android:name="android.app.NativeActivity"
                 android:label="μTox"
                 android:configChanges="orientation"
-                android:screenOrientation="landscape"
-                android:theme="@android:style/Theme.NoTitleBar">
+                android:screenOrientation="sensorLandscape"
+                android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
             <!-- Tell NativeActivity the name of or .so -->
             <meta-data android:name="android.app.lib_name"
                     android:value="uTox" />
