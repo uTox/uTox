@@ -1,5 +1,5 @@
 /* edits */
-static char_t edit_name_data[128], edit_status_data[128], edit_addid_data[TOX_FRIEND_ADDRESS_SIZE * 4], edit_addmsg_data[1024], edit_msg_data[65535], edit_search_data[127],
+static char_t edit_name_data[128], edit_status_data[128], edit_addid_data[TOX_FRIEND_ADDRESS_SIZE * 4], edit_profile_passphrase_data[65535], edit_addmsg_data[1024], edit_msg_data[65535], edit_search_data[127],
     edit_proxy_ip_data[256], edit_proxy_port_data[8];
 
 static struct {
@@ -46,6 +46,10 @@ static void edit_status_onenter(EDIT *edit)
 
 static void edit_add_new_contact(EDIT *edit) {
     friend_add(edit_add_id.data, edit_add_id.length, edit_add_msg.data, edit_add_msg.length);
+}
+
+static void edit_profile_passphrase_onenter(EDIT *edit) {
+    debug("edit_profile_passphrase\n");
 }
 
 static void edit_msg_onenter(EDIT *edit)
@@ -413,7 +417,6 @@ static void edit_search_onchange(EDIT *edit)
     return;
 }
 
-
 static void edit_proxy_ip_port_onlosefocus(EDIT *edit)
 {
     edit_proxy_port.data[edit_proxy_port.length] = 0;
@@ -483,6 +486,12 @@ edit_add_msg = {
     .maxlength = sizeof(edit_addmsg_data),
     .data = edit_addmsg_data,
     .empty_str = { .i18nal = STR_DEFAULT_FRIEND_REQUEST_MESSAGE },
+},
+
+edit_profile_passphrase = {
+    .maxlength = sizeof(edit_profile_passphrase_data),
+    .data = edit_profile_passphrase_data,
+    .onenter = edit_profile_passphrase_onenter,
 },
 
 edit_msg = {

@@ -100,6 +100,9 @@ msgstr("Call ringing")
 msgid(CALL_STARTED)
 msgstr("Call started")
 
+msgid(PROFILE_SETTINGS)
+msgstr("Profile Settings")
+
 msgid(ADDFRIENDS)
 msgstr("Add New Contact")
 

@@ -252,6 +252,17 @@ static void draw_add_friend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int hei
     }
 }
 
+/* Draw add a friend window */
+static void draw_profile_passphrase(int UNUSED(x), int UNUSED(y), int UNUSED(w), int height){
+    setcolor(COLOR_MAIN_TEXT);
+    setfont(FONT_SELF_NAME);
+    drawstr(MAIN_LEFT + SCALE * 5, SCALE * 10, PROFILE_SETTINGS);
+
+    setcolor(COLOR_MAIN_SUBTEXT);
+    setfont(FONT_TEXT);
+    drawstr(MAIN_LEFT + SCALE * 5, LIST_Y + SCALE * 5, ADD);
+}
+
 /* Top bar for user settings */
 static void draw_settings_header(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height)){
     setcolor(COLOR_MAIN_TEXT);
@@ -473,7 +484,7 @@ PANEL panel_root,
                 panel_friend_request,
             panel_overhead,
                 panel_add_friend,
-                panel_change_profile,
+                panel_toxprofile_settings,
                 panel_settings_master,
                     panel_settings_subheader,
                     panel_settings_profile,
@@ -624,7 +635,7 @@ panel_main = {
         .disabled = 0,
         .child = (PANEL*[]) {
             (void*)&panel_add_friend,
-            (void*)&panel_change_profile,
+            (void*)&panel_toxprofile_settings,
             (void*)&panel_settings_master,
             NULL
         }
@@ -639,9 +650,18 @@ panel_main = {
                 NULL
             }
         },
-        panel_settings_master = {
+        panel_toxprofile_settings = {
             .type = PANEL_NONE,
             .disabled = 0,
+            .drawfunc = draw_profile_passphrase,
+            .child = (PANEL*[]) {
+                (void*)&edit_profile_passphrase,
+                NULL
+            }
+        },
+        panel_settings_master = {
+            .type = PANEL_NONE,
+            .disabled = 1,
             .drawfunc = draw_settings_header,
             .child = (PANEL*[]) {
                 (void*)&panel_settings_subheader,
@@ -1236,6 +1256,14 @@ void ui_scale(uint8_t scale) {
             .width = -5 * SCALE,
         },
 
+        e_profile_passphrase = {
+            .type = PANEL_EDIT,
+            .x = 5 * SCALE,
+            .y = LIST_Y + SCALE * 14,
+            .height = 12 * SCALE,
+            .width = -5 * SCALE
+        },
+
         /* Message entry box for friends and groups */
         e_msg = {
             .type   = PANEL_EDIT,
@@ -1284,6 +1312,7 @@ void ui_scale(uint8_t scale) {
         edit_toxid.panel = e_toxid;
         edit_add_id.panel = e_add_id;
         edit_add_msg.panel = e_add_msg;
+        edit_profile_passphrase.panel = e_profile_passphrase;
         edit_msg.panel = e_msg;
         edit_msg_group.panel = e_msg_group;
         edit_search.panel = e_search;
