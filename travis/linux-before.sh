@@ -1,53 +1,22 @@
 #!/bin/sh
 
-sudo apt-get update
-sudo apt-get install yasm check libopenal-dev libdbus-1-dev libv4l-dev
-#installing libsodium, needed for Core
-git clone git://github.com/jedisct1/libsodium.git > /dev/null
-cd libsodium
-git checkout tags/1.0.3 > /dev/null
-./autogen.sh > /dev/null
-./configure > /dev/null
-make check -j3 > /dev/null
-sudo make install >/dev/null
-cd ..
-#installing libconfig, needed for DHT_bootstrap_daemon
-wget http://www.hyperrealm.com/libconfig/libconfig-1.4.9.tar.gz > /dev/null
-tar -xvzf libconfig-1.4.9.tar.gz > /dev/null
-cd libconfig-1.4.9
-./configure > /dev/null
-make -j3 > /dev/null
-sudo make install > /dev/null
-cd ..
-#installing libopus, needed for audio encoding/decoding
-wget http://downloads.xiph.org/releases/opus/opus-1.1.tar.gz > /dev/null
-tar xzf opus-1.1.tar.gz > /dev/null
-cd opus-1.1
-./configure > /dev/null
-make -j3 > /dev/null
-sudo make install > /dev/null
-cd ..
-#installing vpx
-git clone https://chromium.googlesource.com/webm/libvpx > /dev/null
-cd libvpx
-git checkout tags/v1.3.0
-./configure --enable-shared > /dev/null
-make -j3 >/dev/null
-sudo make install > /dev/null
-cd ..
-#creating libraries links and updating cache
-#- sudo ldconfig > /dev/null
-#installing toxcore, so THEN we can compile utox...
-git clone https://github.com/irungentoo/toxcore
-cd toxcore
-./autogen.sh
-./configure --disable-ntox --disable-tests --disable-testing --disable-shared --enable-static
-make -j3 >/dev/null
-sudo make install
-cd ..
+get() {
+    mkdir -p TRAVIS_PREFIX
+    curl "$1" | tar -C TRAVIS_PREFIX -xJ
+}
 
-git clone https://github.com/irungentoo/filter_audio
-cd filter_audio
-make -j3 >/dev/null
-sudo make install
-cd ..
+#installing libsodium, needed for Core
+
+get https://build.tox.chat/view/libsodium/job/libsodium_build_linux_x86-64_static_release/lastSuccessfulBuild/artifact/libsodium.tar.xz
+get https://build.tox.chat/job/libvpx_build_linux_x86-64_static_release/lastSuccessfulBuild/artifact/libvpx.tar.xz
+get https://build.tox.chat/job/libtoxcore_build_linux_x86-64_static_release/lastSuccessfulBuild/artifact/libtoxcore.tar.xz
+get https://build.tox.chat/job/libfilteraudio_build_linux_x86-64_mixed_release/lastSuccessfulBuild/artifact/libfilteraudio.tar.xz
+get https://build.tox.chat/job/libopus_build_linux_x86-64_static_release/lastSuccessfulBuild/artifact/libopus.tar.xz
+
+NEW_PREFIX="$(pwd)/TRAVIS_PREFIX"
+find TRAVIS_PREFIX -name "*.pc" | while read FILENAME; do
+    T=$(cat $FILENAME | sed -E 's|^prefix=.*|prefix='$NEW_PREFIX'|')
+    echo $T > $FILENAME
+done
+
+export PKG_CONFIG_PATH="TRAVIS_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"

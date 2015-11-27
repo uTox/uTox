@@ -8,7 +8,14 @@ compiler:
   - gcc
   - clang
 
-sudo: required
+addons:
+  apt:
+    packages:
+      - yasm
+      - check
+      - libopenal-dev
+      - libdbus-1-dev
+      - libv4l-dev
 
 matrix:
   exclude:
