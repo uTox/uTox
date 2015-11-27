@@ -800,6 +800,7 @@ static void onContentRectChanged(ANativeActivity* activity, const ARect* r)
 
 __attribute__ ((externally_visible)) void ANativeActivity_onCreate(ANativeActivity* act, void* savedState, size_t savedStateSize)
 {
+    app_dummy();
     if(!act) {
         return;
     }
