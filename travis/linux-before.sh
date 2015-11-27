@@ -1,7 +1,7 @@
 #!/bin/sh
 
 sudo apt-get update
-sudo apt-get install yasm check libopenal-dev libdbus-1-dev
+sudo apt-get install yasm check libopenal-dev libdbus-1-dev libv4l-dev
 #installing libsodium, needed for Core
 git clone git://github.com/jedisct1/libsodium.git > /dev/null
 cd libsodium
@@ -42,6 +42,12 @@ git clone https://github.com/irungentoo/toxcore
 cd toxcore
 ./autogen.sh
 ./configure --disable-ntox --disable-tests --disable-testing --disable-shared --enable-static
+make -j3 >/dev/null
+sudo make install
+cd ..
+
+git clone https://github.com/irungentoo/filter_audio
+cd filter_audio
 make -j3 >/dev/null
 sudo make install
 cd ..
