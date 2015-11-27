@@ -223,7 +223,7 @@ void audio_thread(void *args){
             }
         }
 
-        alBufferData(RingBuffer, AL_FORMAT_MONO16, samples, buf_size, sample_rate);
+        //alBufferData(RingBuffer, AL_FORMAT_MONO16, samples, buf_size, sample_rate);
         free(samples);
     }
 
