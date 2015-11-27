@@ -8,6 +8,8 @@ compiler:
   - gcc
   - clang
 
+sudo: required
+
 matrix:
   exclude:
     - os: osx
