@@ -9,7 +9,7 @@
     <uses-sdk android:minSdkVersion="9"/>
     <application android:label="μTox" android:icon="@drawable/i">
         <activity android:label="μTox" android:name="android.app.NativeActivity" android:screenOrientation="landscape" android:configChanges="orientation" android:theme="@android:style/Theme.NoTitleBar">
-            <meta-data android:name="android.app.lib_name" android:value="n"/>
+            <meta-data android:name="android.app.lib_name" android:value="uTox"/>
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
