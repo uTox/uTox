@@ -268,14 +268,18 @@ int file_unlock(FILE *file, uint64_t start, size_t length){
     return 0;
 }
 
-void setscale(void)
-{
+void setscale_fonts(void) {
+    freefonts();
+    loadfonts();
+
+}
+
+
+void setscale(void) {
     if(window) {
         svg_draw(0);
-
-        freefonts();
-        loadfonts();
     }
+    setscale_fonts();
 }
 
 void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_length, FRIEND *f)
@@ -800,7 +804,6 @@ static void onContentRectChanged(ANativeActivity* activity, const ARect* r)
 
 __attribute__ ((externally_visible)) void ANativeActivity_onCreate(ANativeActivity* act, void* savedState, size_t savedStateSize)
 {
-    app_dummy();
     if(!act) {
         return;
     }
