@@ -5,6 +5,8 @@ get() {
     curl "$1" | tar -C TRAVIS_PREFIX -xJ
 }
 
+sudo apt-get install yasm check libopenal-dev libdbus-1-dev libv4l-dev
+
 #installing libsodium, needed for Core
 
 get https://build.tox.chat/view/libsodium/job/libsodium_build_linux_x86-64_static_release/lastSuccessfulBuild/artifact/libsodium.tar.xz
@@ -15,8 +17,8 @@ get https://build.tox.chat/job/libopus_build_linux_x86-64_static_release/lastSuc
 
 NEW_PREFIX="$(pwd)/TRAVIS_PREFIX"
 find TRAVIS_PREFIX -name "*.pc" | while read FILENAME; do
-    T=$(cat $FILENAME | sed -E 's|^prefix=.*|prefix='$NEW_PREFIX'|')
-    echo $T > $FILENAME
+    sed -E -e 's|^prefix=.*|prefix='$NEW_PREFIX'|' -i $FILENAME
 done
 
-export PKG_CONFIG_PATH="TRAVIS_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
+#find TRAVIS_PREFIX
+
