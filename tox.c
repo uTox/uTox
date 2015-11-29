@@ -530,28 +530,28 @@ void tox_thread(void *UNUSED(args)) {
         size_t save_size = load_save(&save_raw);
 
         /* Check if we're loading a saved profile */
-        save_is_encrypted = tox_is_data_encrypted(save_raw);
+        if (save_raw && save_size) {
+            save_is_encrypted = tox_is_data_encrypted(save_raw);
 
-        if (save_is_encrypted) {
-            debug("Using encrypted data\n\n");
-            size_t clear_length = save_size - TOX_PASS_ENCRYPTION_EXTRA_LENGTH;
-            uint8_t clear_save[clear_length];
+            if (save_is_encrypted) {
+                debug("Using encrypted data\n\n");
+                size_t clear_length = save_size - TOX_PASS_ENCRYPTION_EXTRA_LENGTH;
+                uint8_t clear_save[clear_length];
 
-            // TODO CHANGE THIS PASSWORD
-            utox_decrypt_data(save_raw, save_size, "password", 8, clear_save);
+                // TODO CHANGE THIS PASSWORD
+                utox_decrypt_data(save_raw, save_size, "password", 8, clear_save);
 
-            if (clear_save && clear_length) {
-                options.savedata_type = TOX_SAVEDATA_TYPE_TOX_SAVE;
-                options.savedata_data = clear_save;
-                options.savedata_length = clear_length;
-            }
-        } else {
-            debug("Using plain text data\n\n");
-            TOX_ERR_NEW tox_new_err;
-            if (save_raw && save_size) {
-                options.savedata_type = TOX_SAVEDATA_TYPE_TOX_SAVE;
-                options.savedata_data = save_raw;
-                options.savedata_length = save_size;
+                if (clear_save && clear_length) {
+                    options.savedata_type = TOX_SAVEDATA_TYPE_TOX_SAVE;
+                    options.savedata_data = clear_save;
+                    options.savedata_length = clear_length;
+                }
+            } else {
+                debug("Using plain text data\n\n");
+                TOX_ERR_NEW tox_new_err;
+                    options.savedata_type = TOX_SAVEDATA_TYPE_TOX_SAVE;
+                    options.savedata_data = save_raw;
+                    options.savedata_length = save_size;
             }
         }
 
