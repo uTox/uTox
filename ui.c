@@ -260,7 +260,7 @@ static void draw_profile_passphrase(int UNUSED(x), int UNUSED(y), int UNUSED(w),
 
     setcolor(COLOR_MAIN_SUBTEXT);
     setfont(FONT_TEXT);
-    drawstr(MAIN_LEFT + SCALE * 5, LIST_Y + SCALE * 5, ADD);
+    drawstr(MAIN_LEFT + SCALE * 5, LIST_Y + SCALE * 5, NAME);
 }
 
 /* Top bar for user settings */
