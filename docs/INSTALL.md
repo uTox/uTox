@@ -65,7 +65,7 @@ https://aur.archlinux.org/packages/utox-git/
 
 No one is currently providing binaries for OSX yet... Sorry Apple people... you should ask @stal888 to do something about that!
 
-[I guess I'll try to build it](docs/BUILD.md#OSX).
+[I guess I'll try to build it](BUILD.md#OSX).
 
 <a name="windows" />
 ## Windows
