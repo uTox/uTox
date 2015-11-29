@@ -82,6 +82,12 @@ if [[ $legacy == 1 ]]; then
     echo "Compiling for windows XP"
 fi
 
+LIBTOXCORE="./lib/toxcore"
+LIBNACL="./lib/libsodium"
+LIBVPX="./lib/vpx"
+LIBOPUS="./lib/opus"
+LIBOPENAL="./lib/openal"
+
 GIT_V=`git describe --abbrev=8 --dirty --always --tags`
 echo -n "Git version: "
 git describe --abbrev=8 --dirty --always --tags
@@ -99,18 +105,17 @@ rm utox.exe 2> /dev/null
 
 # Compile
 "$WINDOWS_TOOLCHAIN"-gcc -o utox.exe  $COMP_OPTs                         \
-    -I ./lib/toxcore/include/                                            \
-    -I ./lib/openal/include/                                             \
+    -I $LIBTOXCORE/include/                                              \
     -DGIT_VERSION=\"$GIT_V\" -DAL_LIBTYPE_STATIC                         \
     ./*.c ./png/png.c ./icon.o                                           \
-    ./lib/toxcore/lib/libtoxcore.a                                       \
-    ./lib/toxcore/lib/libtoxav.a                                         \
-    ./lib/toxcore/lib/libtoxdns.a                                        \
-    ./lib/toxcore/lib/libtoxencryptsave.a                                \
-    ./lib/toxcore/lib/libsodium.a                                        \
-    ./lib/toxcore/lib/libvpx.a                                           \
-    ./lib/toxcore/lib/libopus.a                                          \
-    ./lib/openal/lib/libOpenAL32.a                                       \
+    $LIBTOXCORE/lib/libtoxcore.a                                         \
+    $LIBTOXCORE/lib/libtoxav.a                                           \
+    $LIBTOXCORE/lib/libtoxdns.a                                          \
+    $LIBTOXCORE/lib/libtoxencryptsave.a                                  \
+    $LIBNACL/lib/libsodium.a             -I $LIBNACL/include/            \
+    $LIBVPX/lib/libvpx.a                 -I $LIBVPX/include/             \
+    $LIBOPUS/lib/libopus.a               -I $LIBOPUS/include/            \
+    $LIBOPENAL/lib/libOpenAL32.a         -I $LIBOPENAL/include/          \
     $MINGW32_LIB_DIR/libwinpthread.a                                     \
     $AUDIO_FILTERING_BUILD                                               \
     -std=gnu99 -liphlpapi -lws2_32 -lgdi32 -lmsimg32 -ldnsapi -lcomdlg32 \
