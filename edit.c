@@ -812,6 +812,10 @@ void edit_setstr(EDIT *edit, char_t *str, STRING_IDX length)
 
     edit->length = length;
     memcpy(edit->data, str, length);
+
+    if(edit->onchange) {
+        edit->onchange(edit);
+    }
 }
 
 void edit_setcursorpos(EDIT *edit, STRING_IDX pos)
