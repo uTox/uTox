@@ -110,6 +110,8 @@ struct utox_native_image {
 @end
 
 @interface uToxIroncladView : NSView
+@property CGSize videoSize;
+
 + (NSWindow *)createWindow;
 
 - (void)displayImage:(uint8_t *)rgba w:(uint16_t)width h:(uint16_t)height;
