@@ -266,6 +266,33 @@ void tox_postmessage(uint8_t msg, uint32_t param1, uint32_t param2, void *data) 
     tox_thread_msg = 1;
 }
 
+static void utox_encrypt_data(void *clear_text, size_t clear_length,
+                              void *passphrase,  size_t passphrase_length,
+                              uint8_t *cypher_text) {
+    TOX_ERR_ENCRYPTION err = 0;
+    tox_pass_encrypt((uint8_t*)clear_text, clear_length,
+                     (uint8_t*)passphrase, passphrase_length,
+                     cypher_text, &err);
+    if (err) {
+        debug("Fatal Error; unable to encrypt data!\n");
+        exit(10);
+    }
+}
+
+static void utox_decrypt_data(void *cypher_text, size_t cypher_length,
+                              void *passphrase,  size_t passphrase_length,
+                              uint8_t *clear_text) {
+    TOX_ERR_DECRYPTION err = 0;
+    tox_pass_decrypt((uint8_t*)cypher_text, cypher_length,
+                     (uint8_t*)passphrase, passphrase_length,
+                     clear_text, &err);
+    if (err) {
+        debug("Fatal Error; unable to decrypt data! %u\n", err);
+        exit(10);
+    }
+
+}
+
 #include "tox_callbacks.h"
 
 /* bootstrap to dht with bootstrap_nodes */
@@ -382,6 +409,12 @@ static void write_save(Tox *tox) {
     data = malloc(size);
     tox_get_savedata(tox, data);
 
+    size_t encrypted_length = size + TOX_PASS_ENCRYPTION_EXTRA_LENGTH;
+    uint8_t cypher_save[encrypted_length];
+
+    debug("Encrypting Data with default password!\n");
+    utox_encrypt_data(data, size, "password", 8, cypher_save);
+
     p = path_real + datapath(path_real);
     memcpy(p, "tox_save.tox", sizeof("tox_save.tox"));
 
@@ -392,7 +425,7 @@ static void write_save(Tox *tox) {
     debug("Writing tox_save to: '%s': ", (char*)path_tmp);
     file = fopen((char*)path_tmp, "wb");
     if(file) {
-        fwrite(data, size, 1, file);
+        fwrite(cypher_save, encrypted_length, 1, file);
         flush_file(file);
         fclose(file);
         if (rename((char*)path_tmp, (char*)path_real) != 0) {
@@ -488,25 +521,48 @@ void tox_thread(void *UNUSED(args)) {
     Tox *tox;
     ToxAV *av;
     uint8_t id[TOX_FRIEND_ADDRESS_SIZE];
+    _Bool save_is_encrypted;
 
     _Bool reconfig;
 
     do {
-        uint8_t *save_data = NULL;
-        size_t save_size = load_save(&save_data);
-        // Create main connection
-        TOX_ERR_NEW tox_new_err;
-        if (save_data && save_size) {
-            options.savedata_type = TOX_SAVEDATA_TYPE_TOX_SAVE;
-            options.savedata_data = save_data;
-            options.savedata_length = save_size;
+        uint8_t *save_raw = NULL;
+        size_t save_size = load_save(&save_raw);
+
+        /* Check if we're loading a saved profile */
+        save_is_encrypted = tox_is_data_encrypted(save_raw);
+
+        if (save_is_encrypted) {
+            debug("Using encrypted data\n\n");
+            size_t clear_length = save_size - TOX_PASS_ENCRYPTION_EXTRA_LENGTH;
+            uint8_t clear_save[clear_length];
+
+            // TODO CHANGE THIS PASSWORD
+            utox_decrypt_data(save_raw, save_size, "password", 8, clear_save);
+
+            if (clear_save && clear_length) {
+                options.savedata_type = TOX_SAVEDATA_TYPE_TOX_SAVE;
+                options.savedata_data = clear_save;
+                options.savedata_length = clear_length;
+            }
+        } else {
+            debug("Using plain text data\n\n");
+            TOX_ERR_NEW tox_new_err;
+            if (save_raw && save_size) {
+                options.savedata_type = TOX_SAVEDATA_TYPE_TOX_SAVE;
+                options.savedata_data = save_raw;
+                options.savedata_length = save_size;
+            }
         }
 
+        // Create main connection
         debug("new tox object ipv6: %u udp: %u proxy: %u %s %u\n", options.ipv6_enabled,
                                                                    options.udp_enabled,
                                                                    options.proxy_type,
                                                                    options.proxy_host,
                                                                    options.proxy_port);
+
+        TOX_ERR_NEW tox_new_err;
         if ((tox = tox_new(&options, &tox_new_err)) == NULL) {
             debug("trying without proxy, err %u\n", tox_new_err);
             options.proxy_type = TOX_PROXY_TYPE_NONE;
@@ -524,7 +580,7 @@ void tox_thread(void *UNUSED(args)) {
 
         if (save_size) {
             tox_after_load(tox);
-            free(save_data);
+            free(save_raw);
         } else {
             debug("No save file, using defaults\n");
             load_defaults(tox);
