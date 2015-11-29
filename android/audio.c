@@ -144,14 +144,9 @@ void encoder_thread(void *arg)
                     int r;
                     uint8_t dest[960 * 2];
 
-                    if((r = toxav_prepare_audio_frame(arg, i, dest, sizeof(dest), frame, 960)) < 0) {
-                        debug("toxav_prepare_audio_frame error %i\n", r);
-                        continue;
-                    }
+                    debug("audio disabled in this build... sorry mate!\n");
 
-                    if((r = toxav_send_audio(arg, i, dest, r)) < 0) {
-                        debug("toxav_send_audio error %i %s\n", r, strerror(errno));
-                    }
+
                 }
             }
 

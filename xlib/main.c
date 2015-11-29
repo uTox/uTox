@@ -1147,6 +1147,15 @@ int main(int argc, char *argv[]) {
                         }
                     }
                 }
+            } else if(strncmp(argv[i], "--help", 6) == 0) {
+                printf("µTox - Lightweight Tox client version %s.\n\n", VERSION);
+                printf("The following options are available:\n\n");
+                printf("  --theme=<theme-name>  Specify a UI theme, where <theme-name> can be one of default, dark, light, highcontrast, zenburn.\n");
+                printf("  --portable            Launch in portable mode: All data will be saved to the tox folder in the current working directory.\n");
+                printf("  --set=<option>        Set an option: start-on-boot, show-window, hide-window.\n");
+                printf("  --version             Print the version and exit.\n");
+                printf("  --help                Shows this help text.\n\n");
+                return 0;
             }
             printf("arg %d: %s\n", i, argv[i]);
         }
@@ -1154,7 +1163,7 @@ int main(int argc, char *argv[]) {
 
     if (parse_args_wait_for_theme) {
         debug("Expected theme name, but got nothing. -_-\n");
-        return 0;
+        return 1;
     }
 
     XInitThreads();

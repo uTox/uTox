@@ -53,9 +53,14 @@ arm-linux-androideabi-gcc -Wl,--error-unresolved-symbols \
 		-Wall -Wextra -s \
 		-I../freetype-arm/include/freetype2/ -I../toxcore-arm/include/ \
 		./*.c ./png/png.c -llog -landroid -lEGL -lGLESv2 $OPENAL_BUILD \
-		../toxcore-arm/lib/libtoxcore.a ../toxcore-arm/lib/libtoxdns.a ../toxcore-arm/lib/libtoxav.a ../toxcore-arm/lib/libsodium.a \
-		../toxcore-arm/lib/libopus.a ../toxcore-arm/lib/libvpx.a ../freetype-arm/lib/libfreetype.a \
-		-lm -lz -ldl -shared -o ./tmp/libs/armeabi/libn.so
+		../toxcore-arm/lib/libtoxcore.a                                \
+		../toxcore-arm/lib/libtoxdns.a \
+		../toxcore-arm/lib/libtoxav.a \
+		../toxcore-arm/lib/libsodium.a \
+		../toxcore-arm/lib/libopus.a \
+		../toxcore-arm/lib/libvpx.a \
+		../freetype-arm/lib/libfreetype.a \
+		-lm -lz -ldl -shared -o ./tmp/libs/armeabi/libuTox.so
 
 $SDK_PATH/build-tools/21.1.2/aapt package -f -M ./android/AndroidManifest.xml -S ./android/res \
 		-I $SDK_PATH/platforms/android-21/android.jar -F ./tmp/tmp1.apk -J ./tmp/java

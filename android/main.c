@@ -64,13 +64,13 @@ void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data)
     write(pipefd[1], &piping, sizeof(PIPING));
 }
 
-void init_ptt(void){ push_to_talk = 0 /* android is unsupported */ }
+void init_ptt(void){ push_to_talk = 0; /* android is unsupported */ }
 
 _Bool check_ptt_key(void){
     return 1;
 }
 
-void exit_ptt(void){ push_to_talk = 0 /* android is unsupported */ }
+void exit_ptt(void){ push_to_talk = 0; /* android is unsupported */ }
 
 void image_set_filter(UTOX_NATIVE_IMAGE *image, uint8_t filter)
 {
@@ -268,14 +268,18 @@ int file_unlock(FILE *file, uint64_t start, size_t length){
     return 0;
 }
 
-void setscale(void)
-{
+void setscale_fonts(void) {
+    freefonts();
+    loadfonts();
+
+}
+
+
+void setscale(void) {
     if(window) {
         svg_draw(0);
-
-        freefonts();
-        loadfonts();
     }
+    setscale_fonts();
 }
 
 void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_length, FRIEND *f)

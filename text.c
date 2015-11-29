@@ -92,8 +92,12 @@ int drawtextmultiline(int x, int right, int y, int top, int bottom, uint16_t lin
                     r++;
                 }
                 if (*(r - 1) == '<') {
-                    c1 = setcolor(COLOR_MAIN_REDTEXT);
-                    greentext = 1;
+                    if (greentext) {
+                        setcolor(COLOR_MAIN_REDTEXT);
+                    } else {
+                        greentext = 1;
+                        c1 = setcolor(COLOR_MAIN_REDTEXT);
+                    }
                 }
             }
         }

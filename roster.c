@@ -139,6 +139,11 @@ void list_scale(void) {
     scrollbar_roster.content_height = showncount * ROSTER_BOX_HEIGHT;
 }
 
+_Bool friend_matches_search_string(FRIEND *f, char_t *str) {
+    return !str ||
+            strstr_case((char*)f->name, (char*)str) ||
+            (f->alias && strstr_case((char*)f->alias, (char*)str));
+}
 
 void update_shown_list(void) {
     FRIEND *f;
@@ -148,7 +153,7 @@ void update_shown_list(void) {
         ITEM *it = &item[i];
         f = it->data;
         if(it->item != ITEM_FRIEND ||
-                ((!filter || f->online) && (!search_string || strstr_case((char*)f->name, (char*)search_string)))) {
+                ((!filter || f->online) && friend_matches_search_string(f, search_string))) {
             shown_list[j++] = i;
         }
     }
