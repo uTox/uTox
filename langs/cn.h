@@ -148,7 +148,7 @@ msgid(PROXY)
 msgstr("代理 (SOCKS 5)")
 
 msgid(WARNING)
-msgstr("修改网络或代理设置将会断开tox网络连接")
+msgstr("修改网络或代理设置将会断开Tox网络连接")
 
 msgid(LOGGING)
 msgstr("记录")
