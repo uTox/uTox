@@ -127,9 +127,8 @@ msgstr("其他设置")
 //msgid(DPI)
 //msgstr("DPI")
 
-//TODO: Same as in English? Localize or remove.
-//msgid(SAVELOCATION)
-//msgstr("Save Location")
+msgid(SAVELOCATION)
+msgstr("保存位置")
 
 msgid(LANGUAGE)
 msgstr("语言")
@@ -149,15 +148,13 @@ msgid(PROXY)
 msgstr("代理 (SOCKS 5)")
 
 msgid(WARNING)
-msgstr("修改网络或代理设置将会断开tox网络连接")
+msgstr("修改网络或代理设置将会断开Tox网络连接")
 
-//TODO: Same as in English? Localize or remove.
-//msgid(LOGGING)
-//msgstr("Logging")
+msgid(LOGGING)
+msgstr("记录")
 
-//TODO: Same as in English? Localize or remove.
-//msgid(IS_TYPING)
-//msgstr("is typing...")
+msgid(IS_TYPING)
+msgstr("正在输入...")
 
 msgid(COPY)
 msgstr("复制")
@@ -198,37 +195,29 @@ msgstr("点击打开")
 msgid(CANCELLED)
 msgstr("取消")
 
-//TODO: Localize or remove.
-//msgid(DPI_TINY)
-//msgstr("Tiny (50%)")
+msgid(DPI_TINY)
+msgstr("小 (50%)")
 
-//TODO: Localize or remove.
-//msgid(DPI_NORMAL)
-//msgstr("Normal (100%)")
+msgid(DPI_NORMAL)
+msgstr("正常 (100%)")
 
-//TODO: Localize or remove.
-//msgid(DPI_BIG)
-//msgstr("Big (150%)")
+msgid(DPI_BIG)
+msgstr("大 (150%)")
 
-//TODO: Localize or remove.
-//msgid(DPI_LARGE)
-//msgstr("Large (200%)")
+msgid(DPI_LARGE)
+msgstr("较大 (200%)")
 
-//TODO: Localize or remove.
-//msgid(DPI_HUGE)
-//msgstr("Huge (250%)")
+msgid(DPI_HUGE)
+msgstr("极大 (250%)")
 
-//TODO: Localize or remove.
-//msgid(FILTER_ALL)
-//msgstr("All")
+msgid(FILTER_ALL)
+msgstr("全部")
 
-//TODO: Localize or remove.
-//msgid(FILTER_ONLINE)
-//msgstr("Online")
+msgid(FILTER_ONLINE)
+msgstr("在线")
 
-//TODO: Localize or remove.
-//msgid(PROXY_DISABLED)
-//msgstr("Disabled")
+msgid(PROXY_DISABLED)
+msgstr("已禁用")
 
 //TODO: Localize or remove.
 //msgid(PROXY_FALLBACK)
@@ -238,42 +227,35 @@ msgstr("取消")
 //msgid(PROXY_ALWAYS_USE)
 //msgstr("Always use")
 
-//TODO: Localize or remove.
-//msgid(NO)
-//msgstr("No")
+msgid(NO)
+msgstr("否")
 
-//TODO: Localize or remove.
-//msgid(YES)
-//msgstr("Yes")
+msgid(YES)
+msgstr("是")
 
-//TODO: Localize or remove.
-//msgid(VIDEO_IN_NONE)
-//msgstr("None")
+msgid(VIDEO_IN_NONE)
+msgstr("无")
 
 //TODO: Localize or remove.
 //msgid(VIDEO_IN_DESKTOP)
 //msgstr("Desktop")
 
-//TODO: Localize or remove.
-//msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
-//msgstr("Please accept this friend request.")
+msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
+msgstr("请接受这条好友请求.")
 
 //TODO: Localize or remove.
 //msgid(PROXY_EDIT_HINT_IP)
 //msgstr("IP")
 
-//TODO: Localize or remove.
-//msgid(PROXY_EDIT_HINT_PORT)
-//msgstr("Port")
+msgid(PROXY_EDIT_HINT_PORT)
+msgstr("端口")
 
 //TODO: Localize or remove.
 //msgid(AUDIO_IN_DEFAULT_LOOPBACK)
 //msgstr("Default Loopback")
 
-//TODO: Localize or remove.
-//msgid(WINDOW_TITLE_VIDEO_PREVIEW)
-//msgstr("Video Preview")
+msgid(WINDOW_TITLE_VIDEO_PREVIEW)
+msgstr("视频预览")
 
-//TODO: Localize or remove.
-//msgid(AUDIONOTIFICATIONS)
-//msgstr("Enable Audible Notification (Ringtone)")
+msgid(AUDIONOTIFICATIONS)
+msgstr("启用声音通知 (铃声)")
