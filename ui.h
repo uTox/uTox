@@ -169,7 +169,7 @@ uint8_t SCALE;
 
 /* Global UI size settings... */
 #define SCROLL_WIDTH                    (4   * SCALE) //must be divisible by 2
-#define FILE_TRANSFER_BOX_HEIGHT        (26  * SCALE)
+#define FILE_TRANSFER_BOX_HEIGHT        (14  * SCALE)
 
 
 
@@ -182,7 +182,8 @@ uint8_t SCALE;
 #define LIST_BUTTON_Y                   (-13 * SCALE)
 #define MESSAGES_SPACING                (SCALE * 2)
 #define MESSAGES_X                      (55 * SCALE)
-#define TIME_WIDTH                      (16 * SCALE)
+#define TIME_WIDTH                      (20 * SCALE)
+#define ACTUAL_TIME_WIDTH               (16 * SCALE)
 #define NAME_OFFSET                     (7 * SCALE)
 
 

@@ -430,7 +430,9 @@ _Bool svg_draw(_Bool needmemory) {
         BM_LBUTTON_WIDTH * BM_LBUTTON_HEIGHT +
         BM_SBUTTON_WIDTH * BM_SBUTTON_HEIGHT +
         /* File transfer */
-        BM_FT_WIDTH * BM_FT_HEIGHT + BM_FTM_WIDTH * BM_FT_HEIGHT +
+        BM_FT_CAP_WIDTH * BM_FTB_HEIGHT +
+        BM_FT_WIDTH * BM_FT_HEIGHT +
+        BM_FTM_WIDTH * BM_FT_HEIGHT +
         (BM_FTB_WIDTH * (BM_FTB_HEIGHT + SCALE) + BM_FTB_WIDTH * BM_FTB_HEIGHT) +
         BM_FB_WIDTH * BM_FB_HEIGHT * 4 +
         /* Chat Buttons */
@@ -578,11 +580,15 @@ _Bool svg_draw(_Bool needmemory) {
     loadalpha(BM_LBUTTON, p, BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
     p += BM_LBUTTON_WIDTH * BM_LBUTTON_HEIGHT;
 
-    drawrectrounded(p, BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT, SCALE);
+    drawrectrounded(p, BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT, SCALE * 2);
     loadalpha(BM_SBUTTON, p, BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
     p += BM_SBUTTON_WIDTH * BM_SBUTTON_HEIGHT;
 
     /* Draw file transfer buttons */
+    drawrectroundedex(p, BM_FT_CAP_WIDTH, BM_FTB_HEIGHT, SCALE * 2, 13);
+    loadalpha(BM_FT_CAP, p, BM_FT_CAP_WIDTH, BM_FTB_HEIGHT);
+    p += BM_FT_CAP_WIDTH * BM_FTB_HEIGHT;
+
     drawrectrounded(p, BM_FT_WIDTH, BM_FT_HEIGHT, SCALE * 2);
     loadalpha(BM_FT, p, BM_FT_WIDTH, BM_FT_HEIGHT);
     p += BM_FT_WIDTH * BM_FT_HEIGHT;
@@ -591,11 +597,11 @@ _Bool svg_draw(_Bool needmemory) {
     loadalpha(BM_FTM, p, BM_FTM_WIDTH, BM_FT_HEIGHT);
     p += BM_FTM_WIDTH * BM_FT_HEIGHT;
 
-    drawrectroundedex(p, BM_FTB_WIDTH, BM_FTB_HEIGHT + SCALE, SCALE * 2, 6);
+    drawrectroundedex(p, BM_FTB_WIDTH, BM_FTB_HEIGHT + SCALE, SCALE * 2, 0);
     loadalpha(BM_FTB1, p, BM_FTB_WIDTH, BM_FTB_HEIGHT + SCALE);
     p += BM_FTB_WIDTH * (BM_FTB_HEIGHT + SCALE);
 
-    drawrectroundedex(p, BM_FTB_WIDTH, BM_FTB_HEIGHT, SCALE * 2, 10);
+    drawrectroundedex(p, BM_FTB_WIDTH, BM_FTB_HEIGHT, SCALE * 2, 14);
     loadalpha(BM_FTB2, p, BM_FTB_WIDTH, BM_FTB_HEIGHT);
     p += BM_FTB_WIDTH * BM_FTB_HEIGHT;
 
