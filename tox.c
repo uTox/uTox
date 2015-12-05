@@ -268,22 +268,22 @@ void tox_postmessage(uint8_t msg, uint32_t param1, uint32_t param2, void *data) 
 
 static void utox_encrypt_data(void *clear_text, size_t clear_length,
                               void *passphrase,  size_t passphrase_length,
-                              uint8_t *cypher_text) {
+                              uint8_t *cypher_data) {
     TOX_ERR_ENCRYPTION err = 0;
     tox_pass_encrypt((uint8_t*)clear_text, clear_length,
                      (uint8_t*)passphrase, passphrase_length,
-                     cypher_text, &err);
+                     cypher_data, &err);
     if (err) {
         debug("Fatal Error; unable to encrypt data!\n");
         exit(10);
     }
 }
 
-static void utox_decrypt_data(void *cypher_text, size_t cypher_length,
+static void utox_decrypt_data(void *cypher_data, size_t cypher_length,
                               void *passphrase,  size_t passphrase_length,
                               uint8_t *clear_text) {
     TOX_ERR_DECRYPTION err = 0;
-    tox_pass_decrypt((uint8_t*)cypher_text, cypher_length,
+    tox_pass_decrypt((uint8_t*)cypher_data, cypher_length,
                      (uint8_t*)passphrase, passphrase_length,
                      clear_text, &err);
     if (err) {
@@ -400,57 +400,53 @@ static void load_defaults(Tox *tox)
 }
 
 static void write_save(Tox *tox) {
-    void *data;
-    uint32_t size;
     uint8_t path_tmp[UTOX_FILE_NAME_LENGTH], path_real[UTOX_FILE_NAME_LENGTH], *p;
-    FILE *file;
 
-    size = tox_get_savedata_size(tox);
-    data = malloc(size);
+    /* Get toxsave info from tox*/
+    size_t clear_size = tox_get_savedata_size(tox);
+    uint8_t data[clear_size];
     tox_get_savedata(tox, data);
+    debug("Data size %u!\n", clear_size);
 
-    size_t encrypted_length = size + TOX_PASS_ENCRYPTION_EXTRA_LENGTH;
-    uint8_t cypher_save[encrypted_length];
+    /* create encrypted data buffer */
+    size_t encrypted_length = clear_size + TOX_PASS_ENCRYPTION_EXTRA_LENGTH;
+    uint8_t encrypted_data[encrypted_length];
+    debug("encrypt size %u!\n", encrypted_length);
 
+    /* encrypt data */
     debug("Encrypting Data with default password!\n");
-    utox_encrypt_data(data, size, "password", 8, cypher_save);
+    utox_encrypt_data(data, clear_size, "password", 8, encrypted_data);
 
+    /* Get save path! */
     p = path_real + datapath(path_real);
     memcpy(p, "tox_save.tox", sizeof("tox_save.tox"));
 
-    unsigned int path_len = (p - path_real) + sizeof("tox_save.tox");
+    /* use atomic save! */
+    size_t path_len = (p - path_real) + sizeof("tox_save.tox");
     memcpy(path_tmp, path_real, path_len);
     memcpy(path_tmp + (path_len - 1), ".tmp", sizeof(".tmp"));
 
-    debug("Writing tox_save to: '%s': ", (char*)path_tmp);
-    file = fopen((char*)path_tmp, "wb");
-    if(file) {
-        fwrite(cypher_save, encrypted_length, 1, file);
-        flush_file(file);
-        fclose(file);
+    debug("Writing tox_save to: '%s'\n", (char*)path_tmp);
+    file_write_raw(path_tmp, encrypted_data, encrypted_length);
+    if (rename((char*)path_tmp, (char*)path_real) != 0) {
+        debug("Failed to rename file %s to %s; deleting and trying again: ", path_tmp, path_real);
+        remove((const char *)path_real);
         if (rename((char*)path_tmp, (char*)path_real) != 0) {
-            debug("\nFailed to rename file %s to %s; deleting and trying again: ", path_tmp, path_real);
-            remove((const char *)path_real);
-            if (rename((char*)path_tmp, (char*)path_real) != 0) {
-                debug("\nSaving Failed!!\n");
-            } else {
-                debug("Saved data\n");
-            }
+            debug("Saving Failed!!\n");
         } else {
-            debug("Saved data! Trying to chmod: ");
-            int ch = ch_mod(path_real);
-            if(!ch){
-                debug("success!\n");
-            } else {
-                debug("failed!\n");
-            }
+            debug("Saved data\n");
         }
     } else {
-        debug("no data saved...\n");
+        debug("Saved data! Trying to chmod: ");
+        int ch = ch_mod(path_real);
+        if(!ch){
+            debug("success!\n");
+        } else {
+            debug("failed!\n");
+        }
     }
 
     save_needed = 0;
-    free(data);
 }
 
 void tox_settingschanged(void)
@@ -521,37 +517,36 @@ void tox_thread(void *UNUSED(args)) {
     Tox *tox;
     ToxAV *av;
     uint8_t id[TOX_FRIEND_ADDRESS_SIZE];
-    _Bool save_is_encrypted;
 
     _Bool reconfig;
 
     do {
-        uint8_t *save_raw = NULL;
-        size_t save_size = load_save(&save_raw);
+        uint8_t *raw_data = NULL;
+        size_t raw_size = load_save(&raw_data);
+        debug("loading save, raw size %u", raw_size);
 
         /* Check if we're loading a saved profile */
-        if (save_raw && save_size) {
-            save_is_encrypted = tox_is_data_encrypted(save_raw);
-
-            if (save_is_encrypted) {
+        if (raw_data && raw_size) {
+            if (tox_is_data_encrypted(raw_data)) {
                 debug("Using encrypted data\n\n");
-                size_t clear_length = save_size - TOX_PASS_ENCRYPTION_EXTRA_LENGTH;
-                uint8_t clear_save[clear_length];
+                size_t cleartext_size = raw_size - TOX_PASS_ENCRYPTION_EXTRA_LENGTH;
+                debug("loading save, cleartext size %u", cleartext_size);
+                uint8_t clear_data[cleartext_size];
 
                 // TODO CHANGE THIS PASSWORD
-                utox_decrypt_data(save_raw, save_size, "password", 8, clear_save);
+                utox_decrypt_data(raw_data, raw_size, "password", 8, clear_data);
 
-                if (clear_save && clear_length) {
+                if (clear_data && cleartext_size) {
                     options.savedata_type = TOX_SAVEDATA_TYPE_TOX_SAVE;
-                    options.savedata_data = clear_save;
-                    options.savedata_length = clear_length;
+                    options.savedata_data = clear_data;
+                    options.savedata_length = cleartext_size;
                 }
             } else {
                 debug("Using plain text data\n\n");
                 TOX_ERR_NEW tox_new_err;
                     options.savedata_type = TOX_SAVEDATA_TYPE_TOX_SAVE;
-                    options.savedata_data = save_raw;
-                    options.savedata_length = save_size;
+                    options.savedata_data = raw_data;
+                    options.savedata_length = raw_size;
             }
         }
 
@@ -578,9 +573,9 @@ void tox_thread(void *UNUSED(args)) {
             dropdown_proxy.selected = dropdown_proxy.over = 0;
         }
 
-        if (save_size) {
+        if (raw_size) {
             tox_after_load(tox);
-            free(save_raw);
+            free(raw_data);
         } else {
             debug("No save file, using defaults\n");
             load_defaults(tox);
