@@ -770,7 +770,7 @@ _Bool messages_mright(MESSAGES *m)
     return 0;
 }
 
-_Bool messages_mwheel(MESSAGES *UNUSED(m), int UNUSED(height), double UNUSED(d))
+_Bool messages_mwheel(MESSAGES *UNUSED(m), int UNUSED(height), double UNUSED(d), _Bool UNUSED(smooth))
 {
     return 0;
 }

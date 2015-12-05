@@ -270,7 +270,7 @@ static inline void select_right_to_char(char_t c) {
 }
 
 - (void)scrollWheel:(NSEvent *)theEvent {
-    panel_mwheel(&panel_root, 0, 0, utox_window_width, utox_window_height, theEvent.deltaY);
+    panel_mwheel(&panel_root, 0, 0, utox_window_width, utox_window_height, theEvent.deltaY, theEvent.hasPreciseScrollingDeltas);
 }
 
 - (void)updateTrackingAreas {

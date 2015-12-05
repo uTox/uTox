@@ -1698,7 +1698,8 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     }
 
     case WM_MOUSEWHEEL: {
-        panel_mwheel(&panel_root, 0, 0, utox_window_width, utox_window_height, (double)((int16_t)HIWORD(wParam)) / (double)(WHEEL_DELTA));
+        // FIXME: if there is a way to determine whether deltas are precise on windows, do it
+        panel_mwheel(&panel_root, 0, 0, utox_window_width, utox_window_height, (double)((int16_t)HIWORD(wParam)) / (double)(WHEEL_DELTA), 0);
         return 0;
     }
 

@@ -738,7 +738,7 @@ _Bool list_mright(void *UNUSED(n)) {
     return 0;
 }
 
-_Bool list_mwheel(void *UNUSED(n), int UNUSED(height), double UNUSED(d)) {
+_Bool list_mwheel(void *UNUSED(n), int UNUSED(height), double UNUSED(d), _Bool UNUSED(smooth)) {
     return 0;
 }
 

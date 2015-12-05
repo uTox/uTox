@@ -274,10 +274,10 @@ void edit_press(void)
     edit_sel.length = 0;
 }
 
-_Bool edit_mwheel(EDIT *edit, int height, double d)
+_Bool edit_mwheel(EDIT *edit, int height, double d, _Bool smooth)
 {
     if(edit->multiline) {
-        return scroll_mwheel(edit->scroll, height - SCALE * 4, d);
+        return scroll_mwheel(edit->scroll, height - SCALE * 4, d, smooth);
     }
     return 0;
 }
