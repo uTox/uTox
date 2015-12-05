@@ -147,6 +147,7 @@ enum {
     BM_FTM,
     BM_FTB1,
     BM_FTB2,
+    BM_FT_CAP,
 
     BM_NO,
     BM_PAUSE,

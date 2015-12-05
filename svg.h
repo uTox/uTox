@@ -23,8 +23,9 @@
 #define  BM_FT_WIDTH   (125 * SCALE)
 #define  BM_FT_HEIGHT  (26 * SCALE)
 #define  BM_FTM_WIDTH  (113 * SCALE)
-#define  BM_FTB_WIDTH  (11 * SCALE)
-#define  BM_FTB_HEIGHT (12 * SCALE)
+#define  BM_FTB_WIDTH  (13 * SCALE)
+#define  BM_FTB_HEIGHT (14 * SCALE)
+#define  BM_FT_CAP_WIDTH (15 * SCALE)
 /* something to do with contacts? */
 #define  BM_CONTACT_WIDTH (20 * SCALE)
 /* no idea */
