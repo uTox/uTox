@@ -57,6 +57,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height) {
     // Message iterator
     void **p = m->data->data;
     MSG_IDX i, n = m->data->n;
+    y += 0;//2 * SCALE;
 
     // Go through messages
     for(i = 0; i != n; i++) {
@@ -89,7 +90,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height) {
 
             setcolor(COLOR_MAIN_SUBTEXT);
             setfont(FONT_MISC);
-            drawtext(x + width - TIME_WIDTH, y, (char_t*)timestr, len);
+            drawtext(x + width - ACTUAL_TIME_WIDTH, y, (char_t*)timestr, len);
         }
 
         // Draw the names for groups or friends
@@ -228,8 +229,11 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height) {
                 file_percent = 1.0;
             }
 
-            uint8_t    text_size[32];
-            STRING_IDX text_size_len = sprint_humanread_bytes(text_size, sizeof(text_size), file_size);
+            uint8_t    text_name_and_size[file->name_length + 33];
+            memcpy(text_name_and_size, file->name, file->name_length);
+            text_name_and_size[file->name_length] = ' ';
+            STRING_IDX text_name_and_size_len = file->name_length + 1;
+            text_name_and_size_len += sprint_humanread_bytes(text_name_and_size + file->name_length + 1, 32, file_size);
 
             uint8_t    text_speed[32];
             STRING_IDX text_speed_len = sprint_humanread_bytes(text_speed, sizeof(text_speed), file_speed);
@@ -239,13 +243,13 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height) {
             }
 
             uint8_t    text_ttc[32];
-            STRING_IDX text_ttc_len = snprintf((char*)text_ttc, sizeof(text_ttc), "%lus", file_ttc);
+            STRING_IDX text_ttc_len = snprintf((char*)text_ttc, sizeof(text_ttc), "%llus", file_ttc);
             if (text_ttc_len >= sizeof(text_ttc)) {
                 text_ttc_len = sizeof(text_ttc) - 1;
             }
 
             // progress rectangle
-            uint32_t prog_box = d_width - 10 * SCALE;
+            uint32_t prog_box = d_width; // - 10 * SCALE;
             uint32_t prog_bar = (file->size == 0) ? 0 : ((long double)prog_box * file_percent);
 
             setfont(FONT_MISC);
@@ -253,8 +257,15 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height) {
 
             /* Draw macros added, to reduce future line edits. */
             #define draw_ft_rect(color) draw_rect_fill (dx, y, d_width, FILE_TRANSFER_BOX_HEIGHT, color)
-            #define draw_ft_prog(color) draw_rect_frame(dx + 5 * SCALE, y + 17 * SCALE, prog_box, 7 * SCALE, color);\
-                                        draw_rect_fill (dx + 5 * SCALE, y + 17 * SCALE, prog_bar, 7 * SCALE, color)
+            #define draw_ft_prog(color) draw_rect_fill (dx, y, prog_bar, FILE_TRANSFER_BOX_HEIGHT, color)
+
+            // #define draw_ft_prog(color) draw_rect_frame(dx + 5 * SCALE, y + 17 * SCALE, prog_box, 7 * SCALE, color);\
+            //                            draw_rect_fill (dx + 5 * SCALE, y + 17 * SCALE, prog_bar, 7 * SCALE, color)
+
+            int wbound = dx + d_width - 3 * SCALE;
+
+            #define draw_ft_text_right(str, len) do { wbound -= (textwidth(str, len) + (6 * SCALE)); drawtext(wbound, y + 3 * SCALE, str, len); } while (0)
+            #define drawstr_ft_right(t) draw_ft_text_right(S(t), SLEN(t))
 
             switch (file->status){
             case FILE_TRANSFER_STATUS_COMPLETED: {
@@ -265,9 +276,9 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height) {
                 drawalpha(BM_YES, btnx, tbtn_y, btnw, btnh,
                           (mouse_over) ? COLOR_BUTTON_SUCCESS_HOVER_TEXT : COLOR_BUTTON_SUCCESS_TEXT);
                 if (file->inline_png) {
-                    drawstr(dx + 5 * SCALE, y + 17 * SCALE, CLICKTOSAVE);
+                    drawstr_ft_right(CLICKTOSAVE);
                 } else {
-                    drawstr(dx + 5 * SCALE, y + 17 * SCALE, CLICKTOOPEN);
+                    drawstr_ft_right(CLICKTOOPEN);
                 }
                 break;
             }
@@ -275,14 +286,14 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height) {
                 setcolor(COLOR_BUTTON_DANGER_TEXT);
                 draw_ft_rect(COLOR_BUTTON_DANGER_BACKGROUND);
                 drawalpha(BM_NO, btnx, tbtn_y, btnw, btnh, COLOR_BUTTON_DANGER_TEXT);
-                drawstr(dx + 5 * SCALE, y + 17 * SCALE, TRANSFER_CANCELLED);
+                drawstr_ft_right(TRANSFER_CANCELLED);
                 break;
             }
             case FILE_TRANSFER_STATUS_BROKEN: {
                 setcolor(COLOR_BUTTON_DANGER_TEXT);
                 draw_ft_rect(COLOR_BUTTON_DANGER_BACKGROUND);
                 drawalpha(BM_NO, btnx, tbtn_y, btnw, btnh, COLOR_BUTTON_DANGER_TEXT);
-                drawstr(dx + 5 * SCALE, y + 17 * SCALE, TRANSFER_BROKEN);
+                drawstr_ft_right(TRANSFER_BROKEN);
                 break;
             }
             case FILE_TRANSFER_STATUS_NONE: {
@@ -300,7 +311,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height) {
                 drawalpha(BM_YES, btnx, bbtn_y, btnw, btnh,
                           (mouse_bbtn ? COLOR_BUTTON_SUCCESS_HOVER_TEXT : COLOR_BUTTON_SUCCESS_TEXT));
 
-                draw_ft_prog(COLOR_BUTTON_DISABLED_TRANSFER);
+                draw_ft_prog(COLOR_BUTTON_DISABLED_FOREGROUND);
                 break;
             }
             case FILE_TRANSFER_STATUS_ACTIVE: {
@@ -317,12 +328,9 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height) {
                 drawalpha(BM_PAUSE, btnx, bbtn_y, btnw, btnh,
                           (mouse_bbtn ? COLOR_BUTTON_SUCCESS_HOVER_TEXT : COLOR_BUTTON_SUCCESS_TEXT));
 
-                drawtext(dx + 5 * SCALE + 53 * SCALE - textwidth(text_speed, text_speed_len) / 2, y + 10 * SCALE,
-                         text_speed, text_speed_len);
-                drawtext(dx + 5 * SCALE + 106 * SCALE - textwidth(text_ttc, text_ttc_len), y + 10 * SCALE,
-                         text_ttc, text_ttc_len);
-
-                draw_ft_prog(COLOR_BUTTON_INPROGRESS_TEXT);
+                draw_ft_prog(COLOR_BUTTON_INPROGRESS_FOREGROUND);
+                draw_ft_text_right(text_ttc, text_ttc_len);
+                draw_ft_text_right(text_speed, text_speed_len);
                 break;
             }
             case FILE_TRANSFER_STATUS_PAUSED_US:
@@ -349,7 +357,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height) {
                     drawalpha(BM_PAUSE, btnx, bbtn_y, btnw, btnh, COLOR_BUTTON_DISABLED_TRANSFER);
                 }
 
-                draw_ft_prog(COLOR_BUTTON_DISABLED_TRANSFER);
+                draw_ft_prog(COLOR_BUTTON_DISABLED_FOREGROUND);
                 break;
             }
             }
@@ -358,8 +366,10 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height) {
                       BM_FILE_WIDTH, BM_FILE_HEIGHT,
                       COLOR_BUTTON_DISABLED_TRANSFER);
 
-            drawtext(dx + 5 * SCALE, y + 10 * SCALE, text_size, text_size_len);
-            drawtextwidth(dx + 5 * SCALE, 106 * SCALE, y + 3 * SCALE, file->name, file->name_length);
+            // textwidth()
+            // drawtextwidth_right(dx + 5 * SCALE, y + 10 * SCALE, text_size, text_size_len);
+            drawtextrange(dx + 5 * SCALE, wbound - 5 * SCALE, y + 3 * SCALE, text_name_and_size, text_name_and_size_len);
+            //drawtext(os + 3 * SCALE, y + 3 * SCALE, text_size, text_size_len);
 
             y += BM_FT_HEIGHT;
             break;
