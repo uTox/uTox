@@ -88,3 +88,4 @@ java -classpath $SDK_PATH/tools/lib/sdklib.jar com.android.sdklib.build.ApkBuild
 jarsigner -sigalg SHA1withRSA -digestalg SHA1 -keystore ./tmp/debug.keystore -storepass $PASSWORD ./tmp/tmp2.apk $ALIAS
 ```
 
+Come to think of it, this section is woahfully out of date. The android build script in tools/ is likely to be more helpful at this point. Or come to #tox-dev and ask for grayhatter. If you're interested in working on android. He'll get you a build enviroment set up!
