@@ -20,6 +20,10 @@
     BOOL _shouldMangleDimensions;
 }
 
+- (instancetype)init {
+    abort(); // never called, this is here to suppress a warning.
+}
+
 - (instancetype)initWithHandle:(void *)video_dev_handle {
     self = [super init];
     if (self) {
@@ -373,7 +377,7 @@ void* video_detect(void) {
 
 + (NSWindow *)createWindow {
 #define START_RECT (CGRect){0, 0, 100, 100}
-    NSWindow *ret = [[uToxIroncladWindow alloc] initWithContentRect:START_RECT styleMask:NSHUDWindowMask | NSUtilityWindowMask | NSClosableWindowMask | NSTitledWindowMask backing:NSBackingStoreBuffered defer:YES];
+    NSWindow *ret = [[uToxIroncladWindow alloc] initWithContentRect:START_RECT styleMask:NSHUDWindowMask | NSUtilityWindowMask | NSClosableWindowMask | NSTitledWindowMask | NSResizableWindowMask backing:NSBackingStoreBuffered defer:YES];
     ret.hidesOnDeactivate = NO;
     uToxIroncladView *iv = [[self alloc] initWithFrame:ret.frame];
     ret.contentView = iv;
@@ -446,22 +450,25 @@ void* video_detect(void) {
 void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height, _Bool resize) {
     uToxAppDelegate *utoxapp = (uToxAppDelegate *)[NSApp delegate];
     NSWindow *win = [utoxapp ironcladWindowForID:id];
+    uToxIroncladView *view = win.contentView;
 
     if (!win) {
         debug("BUG: video_frame called for bogus Ironclad id %lu", id);
     }
 
-    CGSize s = [win.contentView frame].size;
+    CGSize s = view.videoSize;
     if (resize || s.width != width || s.height != height) {
         debug("frame size changed, if this happens too often file a bug");
+
         CGFloat chrome_metric_w = win.frame.size.width - [win.contentView frame].size.width;
         CGFloat chrome_metric_h = win.frame.size.height - [win.contentView frame].size.height;
         int rswidth = width + chrome_metric_w;
         int rsheight = height + chrome_metric_h;
         [win setFrame:(CGRect){win.frame.origin.x, CGRectGetMaxY(win.frame) - rsheight, rswidth, rsheight} display:YES animate:NO];
+        win.contentAspectRatio = (CGSize){width, height};
+        view.videoSize = (CGSize){width, height};
     }
 
-    uToxIroncladView *view = win.contentView;
     [view displayImage:img_data w:width h:height];
 }
 
@@ -477,9 +484,14 @@ void video_begin(uint32_t _id, char_t *name, STRING_IDX name_length, uint16_t wi
     uToxAppDelegate *utoxapp = (uToxAppDelegate *)[NSApp delegate];
     NSWindow *utoxwin = utoxapp.utox_window;
 
-    CGFloat x = width;
-    CGFloat y = height;
-    [video_win setFrame:(CGRect){CGRectGetMaxX(utoxwin.frame), CGRectGetMaxY(utoxwin.frame) - y, x, y} display:YES];
+    CGFloat chrome_metric_w = video_win.frame.size.width - [video_win.contentView frame].size.width;
+    CGFloat chrome_metric_h = video_win.frame.size.height - [video_win.contentView frame].size.height;
+    int rswidth = width + chrome_metric_w;
+    int rsheight = height + chrome_metric_h;
+
+    [video_win setFrame:(CGRect){CGRectGetMaxX(utoxwin.frame), CGRectGetMaxY(utoxwin.frame) - rsheight, rswidth, rsheight} display:YES];
+    ((uToxIroncladView *)video_win.contentView).videoSize = (CGSize){width, height};
+    video_win.contentAspectRatio = (CGSize){width, height};
     [utoxapp setIroncladWindow:video_win forID:_id];
 
     [video_win makeKeyAndOrderFront:utoxapp];
