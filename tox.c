@@ -276,6 +276,7 @@ static int utox_encrypt_data(void *clear_text, size_t clear_length,
         debug("Fatal Error; unable to encrypt data!\n");
         exit(10);
     }
+    return err;
 }
 
 static int utox_decrypt_data(void *cypher_data, size_t cypher_length,
@@ -419,7 +420,7 @@ static void write_save(Tox *tox) {
     }
 
     if (rename((char*)path_tmp, (char*)path_real) != 0) {
-        debug("Simple rename failed, deleting and trying again: ", path_tmp, path_real);
+        debug("Simple rename failed, deleting and trying again: ");
         remove((const char *)path_real);
         if (rename((char*)path_tmp, (char*)path_real) != 0) {
             debug("Saving Failed!!\n");
@@ -524,20 +525,18 @@ static int load_toxcore_save(void){
             }
         } else {
             debug("Using unencrypted save file; this is insecure!\n\n");
-            TOX_ERR_NEW tox_new_err;
-                options.savedata_type   = TOX_SAVEDATA_TYPE_TOX_SAVE;
-                options.savedata_data   = raw_data;
-                options.savedata_length = raw_length;
+            options.savedata_type   = TOX_SAVEDATA_TYPE_TOX_SAVE;
+            options.savedata_data   = raw_data;
+            options.savedata_length = raw_length;
 
-                panel_profile_password.disabled = 1;
-                panel_settings_master.disabled  = 0;
-                postmessage(REDRAW, 0, 0, NULL);
-                return 0;
+            panel_profile_password.disabled = 1;
+            panel_settings_master.disabled  = 0;
+            postmessage(REDRAW, 0, 0, NULL);
+            return 0;
         }
-    } else {
-        /* No save file at all, create new profile! */
-        return -2;
     }
+    /* No save file at all, create new profile! */
+    return -2;
 }
 
 static int init_toxcore(Tox **tox) {
