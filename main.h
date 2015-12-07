@@ -19,6 +19,7 @@
 #include <sys/types.h>
 #include <tox/tox.h>
 #include <tox/toxav.h>
+#include <tox/toxencryptsave.h>
 #include <vpx/vpx_codec.h>
 #include <vpx/vpx_image.h>
 

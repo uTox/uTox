@@ -1403,15 +1403,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     //start tox thread (hwnd needs to be set first)
     thread(tox_thread, NULL);
 
-    //wait for tox_thread init
-    while(!tox_thread_init) {
-        Sleep(1);
-    }
-
-    list_start();
-
-    if(*cmd)
-    {
+    if (*cmd) {
         int len = strlen(cmd);
         parsecmd((uint8_t*)cmd, len);
     }

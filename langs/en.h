@@ -100,6 +100,9 @@ msgstr("Call ringing")
 msgid(CALL_STARTED)
 msgstr("Call started")
 
+msgid(PROFILE_SETTINGS)
+msgstr("Profile Settings")
+
 msgid(ADDFRIENDS)
 msgstr("Add New Contact")
 
@@ -198,6 +201,9 @@ msgstr("uTox Settings")
 
 msgid(NETWORK_SETTINGS)
 msgstr("Network Settings")
+
+msgid(PROFILE_PASSWORD)
+msgstr("Profile password")
 
 msgid(AUDIO_VIDEO)
 msgstr("Audio/Video")

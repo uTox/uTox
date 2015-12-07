@@ -1,6 +1,13 @@
 /* edits */
-static char_t edit_name_data[128], edit_status_data[128], edit_addid_data[TOX_FRIEND_ADDRESS_SIZE * 4], edit_addmsg_data[1024], edit_msg_data[65535], edit_search_data[127],
-    edit_proxy_ip_data[256], edit_proxy_port_data[8];
+static char_t edit_name_data[128],
+              edit_status_data[128],
+              edit_addid_data[TOX_FRIEND_ADDRESS_SIZE * 4],
+              edit_addmsg_data[1024],
+              edit_msg_data[65535],
+              edit_search_data[127],
+              edit_proxy_ip_data[256],
+              edit_proxy_port_data[8],
+              edit_profile_password_data[65535];
 
 static struct {
     STRING_IDX start, end, cursorpos;
@@ -421,7 +428,6 @@ static void edit_search_onchange(EDIT *edit)
     return;
 }
 
-
 static void edit_proxy_ip_port_onlosefocus(EDIT *edit)
 {
     edit_proxy_port.data[edit_proxy_port.length] = 0;
@@ -439,6 +445,12 @@ static void edit_proxy_ip_port_onlosefocus(EDIT *edit)
 
     if (options.proxy_type)
         tox_settingschanged();
+}
+
+static void edit_profile_password_update(EDIT *edit) {
+    if (tox_thread_init) {
+        save_needed = 1;
+    }
 }
 
 SCROLLABLE edit_addmsg_scroll = {
@@ -538,4 +550,11 @@ edit_proxy_port = {
     .data = edit_proxy_port_data,
     .onlosefocus = edit_proxy_ip_port_onlosefocus,
     .empty_str = { .i18nal = STR_PROXY_EDIT_HINT_PORT },
+},
+
+edit_profile_password = {
+    .maxlength   = sizeof(edit_profile_password) - 1,
+    .data        = edit_profile_password_data,
+    .onchange    = edit_profile_password_update,
+    .onlosefocus = edit_profile_password_update,
 };

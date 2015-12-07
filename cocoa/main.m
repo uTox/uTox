@@ -314,6 +314,8 @@ int resize_file(FILE *file, uint64_t size) {
 }
 
 void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data) {
+    /* If you notice any data races, or interesting bugs that appear in OSX but not xlib,
+     * replace async( with sync( */
     dispatch_async(dispatch_get_main_queue(), ^{
         tox_message(msg, param1, param2, data);
     });
@@ -417,14 +419,6 @@ void launch_at_startup(int should) {
 
     /* start the tox thread */
     thread(tox_thread, NULL);
-
-    /* wait for the tox thread to finish initializing */
-    while(!tox_thread_init) {
-        yieldcpu(1);
-    }
-
-    /* set up the contact list */
-    list_start();
 
     self.nameMenuItem = [[[NSMenuItem alloc] initWithTitle:@"j" action:NULL keyEquivalent:@""] autorelease];
     self.statusMenuItem = [[[NSMenuItem alloc] initWithTitle:@"j" action:NULL keyEquivalent:@""] autorelease];
