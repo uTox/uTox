@@ -1370,9 +1370,6 @@ int main(int argc, char *argv[]) {
     }
     #endif
 
-    /* set up the contact list */
-    list_start();
-
     /* draw */
     panel_draw(&panel_root, 0, 0, utox_window_width, utox_window_height);
 

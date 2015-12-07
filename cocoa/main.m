@@ -423,9 +423,6 @@ void launch_at_startup(int should) {
         yieldcpu(1);
     }
 
-    /* set up the contact list */
-    list_start();
-
     self.nameMenuItem = [[[NSMenuItem alloc] initWithTitle:@"j" action:NULL keyEquivalent:@""] autorelease];
     self.statusMenuItem = [[[NSMenuItem alloc] initWithTitle:@"j" action:NULL keyEquivalent:@""] autorelease];
     update_tray();

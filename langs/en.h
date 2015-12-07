@@ -202,6 +202,9 @@ msgstr("uTox Settings")
 msgid(NETWORK_SETTINGS)
 msgstr("Network Settings")
 
+msgid(PROFILE_PASSWORD)
+msgstr("Profile password")
+
 msgid(AUDIO_VIDEO)
 msgstr("Audio/Video")
 

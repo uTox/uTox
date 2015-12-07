@@ -51,8 +51,8 @@ void file_write_raw(uint8_t *path, uint8_t *data, size_t size)
 
     size_t outsize;
     outsize = fwrite(data, sizeof(uint8_t), size, file);
-    debug("File write raw size in  %u\n", size);
-    debug("File write raw size out %u\n", outsize);
+    // debug("File write raw size in  %u\n", size);
+    // debug("File write raw size out %u\n", outsize);
     fflush(file);
     fclose(file);
     return;

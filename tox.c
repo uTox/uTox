@@ -2,8 +2,7 @@
 #include "tox_bootstrap.h"
 
 struct Tox_Options options = {.proxy_host = proxy_address};
-
-static volatile _Bool save_needed = 1;
+volatile _Bool save_needed = 1;
 
 /* Writes log filename for fid to dest. returns length written */
 static int log_file_name(uint8_t *dest, size_t size_dest, Tox *tox, int fid) {
@@ -266,7 +265,7 @@ void tox_postmessage(uint8_t msg, uint32_t param1, uint32_t param2, void *data) 
     tox_thread_msg = 1;
 }
 
-static void utox_encrypt_data(void *clear_text, size_t clear_length,
+static int utox_encrypt_data(void *clear_text, size_t clear_length,
                               void *passphrase,  size_t passphrase_length,
                               uint8_t *cypher_data) {
     TOX_ERR_ENCRYPTION err = 0;
@@ -279,7 +278,7 @@ static void utox_encrypt_data(void *clear_text, size_t clear_length,
     }
 }
 
-static void utox_decrypt_data(void *cypher_data, size_t cypher_length,
+static int utox_decrypt_data(void *cypher_data, size_t cypher_length,
                               void *passphrase,  size_t passphrase_length,
                               uint8_t *clear_text) {
     TOX_ERR_DECRYPTION err = 0;
@@ -288,16 +287,15 @@ static void utox_decrypt_data(void *cypher_data, size_t cypher_length,
                      clear_text, &err);
     if (err) {
         debug("Fatal Error; unable to decrypt data! %u\n", err);
-        exit(10);
+        return err;
     }
-
+    return 0;
 }
 
 #include "tox_callbacks.h"
 
 /* bootstrap to dht with bootstrap_nodes */
-static void do_bootstrap(Tox *tox)
-{
+static void toxcore_bootstrap(Tox *tox) {
     static unsigned int j = 0;
 
     if (j == 0)
@@ -313,8 +311,7 @@ static void do_bootstrap(Tox *tox)
     }
 }
 
-static void set_callbacks(Tox *tox)
-{
+static void set_callbacks(Tox *tox) {
     tox_callback_friend_request(tox, callback_friend_request, NULL);
     tox_callback_friend_message(tox, callback_friend_message, NULL);
     tox_callback_friend_name(tox, callback_name_change, NULL);
@@ -333,7 +330,7 @@ static void set_callbacks(Tox *tox)
     utox_set_callbacks_for_transfer(tox);
 }
 
-static size_t load_save(uint8_t **out_data){
+static size_t load_save_data(uint8_t **out_data){
     uint8_t path[UTOX_FILE_NAME_LENGTH], *p, *data;
     uint32_t size;
 
@@ -366,8 +363,7 @@ static size_t load_save(uint8_t **out_data){
     return size;
 }
 
-static void tox_after_load(Tox *tox)
-{
+static void tox_after_load(Tox *tox) {
     friends = tox_self_get_friend_list_size(tox);
 
     uint32_t i = 0;
@@ -384,57 +380,51 @@ static void tox_after_load(Tox *tox)
     self.status = tox_self_get_status(tox);
 }
 
-static void load_defaults(Tox *tox)
-{
+static void load_defaults(Tox *tox) {
     uint8_t *name = (uint8_t*)DEFAULT_NAME, *status = (uint8_t*)DEFAULT_STATUS;
     uint16_t name_len = sizeof(DEFAULT_NAME) - 1, status_len = sizeof(DEFAULT_STATUS) - 1;
 
     tox_self_set_name(tox, name, name_len, 0);
     tox_self_set_status_message(tox, status, status_len, 0);
-
-    self.name_length = name_len;
-    memcpy(self.name, name, name_len);
-    self.statusmsg_length = status_len;
-    self.statusmsg = malloc(status_len);
-    memcpy(self.statusmsg, status, status_len);
 }
 
 static void write_save(Tox *tox) {
     uint8_t path_tmp[UTOX_FILE_NAME_LENGTH], path_real[UTOX_FILE_NAME_LENGTH], *p;
-
     /* Get toxsave info from tox*/
-    size_t clear_size = tox_get_savedata_size(tox);
-    uint8_t data[clear_size];
-    tox_get_savedata(tox, data);
-    debug("Data size %u!\n", clear_size);
+    size_t clear_length = tox_get_savedata_size(tox);
+    uint8_t data[clear_length];
 
     /* create encrypted data buffer */
-    size_t encrypted_length = clear_size + TOX_PASS_ENCRYPTION_EXTRA_LENGTH;
+    size_t encrypted_length = clear_length + TOX_PASS_ENCRYPTION_EXTRA_LENGTH;
     uint8_t encrypted_data[encrypted_length];
-    debug("encrypt size %u!\n", encrypted_length);
 
-    /* encrypt data */
-    debug("Encrypting Data with default password!\n");
-    utox_encrypt_data(data, clear_size, "password", 8, encrypted_data);
+    tox_get_savedata(tox, data);
 
     /* Get save path! */
     p = path_real + datapath(path_real);
     memcpy(p, "tox_save.tox", sizeof("tox_save.tox"));
-
-    /* use atomic save! */
+    /* Use atomic save! */
     size_t path_len = (p - path_real) + sizeof("tox_save.tox");
     memcpy(path_tmp, path_real, path_len);
     memcpy(path_tmp + (path_len - 1), ".tmp", sizeof(".tmp"));
-
     debug("Writing tox_save to: '%s'\n", (char*)path_tmp);
-    file_write_raw(path_tmp, encrypted_data, encrypted_length);
+
+    if (edit_profile_password.length > 3) {
+        /* encrypt data */
+        utox_encrypt_data(data, clear_length, edit_profile_password.data, edit_profile_password.length, encrypted_data);
+        file_write_raw(path_tmp, encrypted_data, encrypted_length);
+        debug("Save encrypted!\n");
+    } else {
+        file_write_raw(path_tmp, data, clear_length);
+    }
+
     if (rename((char*)path_tmp, (char*)path_real) != 0) {
-        debug("Failed to rename file %s to %s; deleting and trying again: ", path_tmp, path_real);
+        debug("Simple rename failed, deleting and trying again: ", path_tmp, path_real);
         remove((const char *)path_real);
         if (rename((char*)path_tmp, (char*)path_real) != 0) {
             debug("Saving Failed!!\n");
         } else {
-            debug("Saved data\n");
+            debug("Saved data!!\n");
         }
     } else {
         debug("Saved data! Trying to chmod: ");
@@ -449,8 +439,7 @@ static void write_save(Tox *tox) {
     save_needed = 0;
 }
 
-void tox_settingschanged(void)
-{
+void tox_settingschanged(void) {
     //free everything
     tox_connected = 0;
     list_freeall();
@@ -461,8 +450,8 @@ void tox_settingschanged(void)
 
     tox_thread_init = 0;
 
-    toxaudio_postmessage(AUDIO_KILL, 0, 0, NULL);
     toxvideo_postmessage(VIDEO_KILL, 0, 0, NULL);
+    toxaudio_postmessage(AUDIO_KILL, 0, 0, NULL);
     toxav_postmessage(UTOXAV_KILL, 0, 0, NULL);
 
     // send the reconfig message!
@@ -471,8 +460,6 @@ void tox_settingschanged(void)
     while(!tox_thread_init) {
         yieldcpu(1);
     }
-
-    list_start();
 }
 
 #define UTOX_TYPING_NOTIFICATION_TIMEOUT (1ul*1000*1000*1000)
@@ -506,6 +493,144 @@ static void utox_thread_work_for_typing_notifications(Tox *tox, uint64_t time) {
     }
 }
 
+static int load_toxcore_save(void){
+    uint8_t *raw_data = NULL;
+    size_t raw_length = load_save_data(&raw_data);
+    size_t cleartext_length = raw_length - TOX_PASS_ENCRYPTION_EXTRA_LENGTH;
+    uint8_t *clear_data = malloc(cleartext_length);
+
+    /* Check if we're loading a saved profile */
+    if (raw_data && raw_length) {
+        if (tox_is_data_encrypted(raw_data)) {
+            debug("Using encrypted data\n\n");
+
+            // TODO CHANGE THIS PASSWORD
+            if (utox_decrypt_data(raw_data, raw_length, edit_profile_password.data, edit_profile_password.length, clear_data) == 5){
+                debug("Toxcore decrypt, badpassword\n");
+                panel_profile_password.disabled = 0;
+                postmessage(REDRAW, 0, 0, NULL);
+                return -1;
+            }
+
+            if (clear_data && cleartext_length) {
+                options.savedata_type   = TOX_SAVEDATA_TYPE_TOX_SAVE;
+                options.savedata_data   = clear_data;
+                options.savedata_length = cleartext_length;
+
+                panel_profile_password.disabled = 1;
+                panel_settings_master.disabled  = 0;
+                postmessage(REDRAW, 0, 0, NULL);
+                return 0;
+            }
+        } else {
+            debug("Using unencrypted save file; this is insecure!\n\n");
+            TOX_ERR_NEW tox_new_err;
+                options.savedata_type   = TOX_SAVEDATA_TYPE_TOX_SAVE;
+                options.savedata_data   = raw_data;
+                options.savedata_length = raw_length;
+
+                panel_profile_password.disabled = 1;
+                panel_settings_master.disabled  = 0;
+                postmessage(REDRAW, 0, 0, NULL);
+                return 0;
+        }
+    } else {
+        /* No save file at all, create new profile! */
+        return -2;
+    }
+}
+
+static int init_toxcore(Tox **tox) {
+    int save_status = 0;
+    save_status = load_toxcore_save();
+
+    if (save_status == -1) {
+        /* Save file exist, couldn't decrypt, don't start a tox instance
+        TODO: throw an error to the UI! */
+        return -1;
+    }
+
+    // Create main connection
+    debug("CORE:\tCreating New Toxcore instance.\n"
+          "\t\tIPv6 : %u\n"
+          "\t\tUDP  : %u\n"
+          "\t\tProxy: %u %s %u\n",
+          options.ipv6_enabled,
+          options.udp_enabled,
+          options.proxy_type,
+          options.proxy_host,
+          options.proxy_port);
+
+    TOX_ERR_NEW tox_new_err = 0;
+    *tox = tox_new(&options, &tox_new_err);
+
+    if (*tox == NULL) {
+        debug("\t\tTrying without proxy, err %u\n", tox_new_err);
+
+        options.proxy_type = TOX_PROXY_TYPE_NONE;
+        dropdown_proxy.selected = dropdown_proxy.over = 0;
+        *tox = tox_new(&options, &tox_new_err);
+
+        if (!options.proxy_type || *tox == NULL) {
+            debug("\t\tTrying without IPv6, err %u\n", tox_new_err);
+
+            options.ipv6_enabled = 0;
+            dropdown_ipv6.selected = dropdown_ipv6.over = 1;
+            *tox = tox_new(&options, &tox_new_err);
+
+            if (!options.ipv6_enabled || *tox == NULL) {
+                debug("\t\tERR: tox_new() failed %u\n", tox_new_err);
+                return -2;
+            }
+        }
+    }
+
+    /* Give toxcore the functions to call */
+    set_callbacks(*tox);
+
+    /* Connect to bootstrapped nodes in "tox_bootstrap.h" */
+    toxcore_bootstrap(*tox);
+
+    if (save_status == -1) {
+        debug("No save file, using defaults\n");
+        load_defaults(*tox);
+    }
+    tox_after_load(*tox);
+
+    return 0;
+}
+
+static void init_self(Tox *tox) {
+    uint8_t id[TOX_FRIEND_ADDRESS_SIZE];
+    /* Set local info for self */
+    edit_setstr(&edit_name, self.name, self.name_length);
+    edit_setstr(&edit_status, self.statusmsg, self.statusmsg_length);
+
+    /* Get tox id, and gets the hex version for utox */
+    tox_self_get_address(tox, id);
+    memcpy(self.id_binary, id, TOX_FRIEND_ADDRESS_SIZE);
+    id_to_string(self.id_buffer, id);
+    self.id_buffer_length = TOX_FRIEND_ADDRESS_SIZE * 2;
+    debug("Tox ID: %.*s\n", (int)self.id_buffer_length, self.id_buffer);
+
+    uint8_t avatar_data[UTOX_AVATAR_MAX_DATA_LENGTH];
+    uint32_t avatar_size;
+
+    uint8_t hex_id[TOX_FRIEND_ADDRESS_SIZE * 2];
+    id_to_string(hex_id, self.id_binary);
+    if (init_avatar(&self.avatar, hex_id, avatar_data, &avatar_size)) {
+        self.avatar_data = malloc(avatar_size);
+        if (self.avatar_data) {
+            memcpy(self.avatar_data, avatar_data, avatar_size);
+            self.avatar_size = avatar_size;
+            self.avatar_format = UTOX_AVATAR_FORMAT_PNG;
+            char_t hash_string[TOX_HASH_LENGTH * 2];
+            hash_to_string(hash_string, self.avatar.hash);
+            debug("Tox Avatar Hash: %.*s\n", (int)sizeof(hash_string), hash_string);
+        }
+    }
+}
+
 /** void tox_thread(void)
  *
  * Main tox function, starts a new toxcore for utox to use, and then spawns its
@@ -514,127 +639,48 @@ static void utox_thread_work_for_typing_notifications(Tox *tox, uint64_t time) {
  * Accepts and returns nothing.
  */
 void tox_thread(void *UNUSED(args)) {
-    Tox *tox;
-    ToxAV *av;
-    uint8_t id[TOX_FRIEND_ADDRESS_SIZE];
+    Tox  *tox = NULL;
+    ToxAV *av = NULL;
+    _Bool reconfig = 1;
+    int toxcore_init_err = 0;
 
-    _Bool reconfig;
+    while (reconfig) {
+        reconfig = 0;
 
-    do {
-        uint8_t *raw_data = NULL;
-        size_t raw_size = load_save(&raw_data);
-        debug("loading save, raw size %u", raw_size);
-
-        /* Check if we're loading a saved profile */
-        if (raw_data && raw_size) {
-            if (tox_is_data_encrypted(raw_data)) {
-                debug("Using encrypted data\n\n");
-                size_t cleartext_size = raw_size - TOX_PASS_ENCRYPTION_EXTRA_LENGTH;
-                debug("loading save, cleartext size %u", cleartext_size);
-                uint8_t clear_data[cleartext_size];
-
-                // TODO CHANGE THIS PASSWORD
-                utox_decrypt_data(raw_data, raw_size, "password", 8, clear_data);
-
-                if (clear_data && cleartext_size) {
-                    options.savedata_type = TOX_SAVEDATA_TYPE_TOX_SAVE;
-                    options.savedata_data = clear_data;
-                    options.savedata_length = cleartext_size;
-                }
-            } else {
-                debug("Using plain text data\n\n");
-                TOX_ERR_NEW tox_new_err;
-                    options.savedata_type = TOX_SAVEDATA_TYPE_TOX_SAVE;
-                    options.savedata_data = raw_data;
-                    options.savedata_length = raw_size;
-            }
-        }
-
-        // Create main connection
-        debug("new tox object ipv6: %u udp: %u proxy: %u %s %u\n", options.ipv6_enabled,
-                                                                   options.udp_enabled,
-                                                                   options.proxy_type,
-                                                                   options.proxy_host,
-                                                                   options.proxy_port);
-
-        TOX_ERR_NEW tox_new_err;
-        if ((tox = tox_new(&options, &tox_new_err)) == NULL) {
-            debug("trying without proxy, err %u\n", tox_new_err);
-            options.proxy_type = TOX_PROXY_TYPE_NONE;
-            if (!options.proxy_type || ((tox = tox_new(&options, &tox_new_err)) == NULL)) {
-                debug("trying without ipv6, err %u\n", tox_new_err);
-                options.ipv6_enabled = 0;
-                if (!options.ipv6_enabled || ((tox = tox_new(&options, &tox_new_err)) == NULL)) {
-                    debug("tox_new() failed %u\n", tox_new_err);
-                    exit(1);
-                }
-                dropdown_ipv6.selected = dropdown_ipv6.over = 1;
-            }
-            dropdown_proxy.selected = dropdown_proxy.over = 0;
-        }
-
-        if (raw_size) {
-            tox_after_load(tox);
-            free(raw_data);
+        toxcore_init_err = init_toxcore(&tox);
+        if (toxcore_init_err) {
+            /* Couldn't init toxcore, probably waiting for user password */
+            yieldcpu(5000);
+            tox_thread_init = 0;
+            reconfig = 1;
+            continue;
         } else {
-            debug("No save file, using defaults\n");
-            load_defaults(tox);
+            init_self(tox);
+
+            // Start the tox av session.
+            TOXAV_ERR_NEW toxav_error;
+            av = toxav_new(tox, &toxav_error);
+
+            // Give toxcore the av functions to call
+            set_av_callbacks(av);
+
+            global_av = av;
+            tox_thread_init = 1;
+
+            /* init the friends list. */
+            list_start();
+
+            // Start the treads
+            thread(toxav_thread, av);
+            thread(audio_thread, av);
+            thread(video_thread, av);
         }
 
-        // Set local info for self
-        edit_setstr(&edit_name, self.name, self.name_length);
-        edit_setstr(&edit_status, self.statusmsg, self.statusmsg_length);
-
-        // Get tox id, and gets the hex version for utox
-        tox_self_get_address(tox, id);
-        memcpy(self.id_binary, id, TOX_FRIEND_ADDRESS_SIZE);
-        id_to_string(self.id_buffer, id);
-        self.id_buffer_length = TOX_FRIEND_ADDRESS_SIZE * 2;
-        debug("Tox ID: %.*s\n", (int)self.id_buffer_length, self.id_buffer);
-
-        {
-            uint8_t avatar_data[UTOX_AVATAR_MAX_DATA_LENGTH];
-            uint32_t avatar_size;
-
-            uint8_t hex_id[TOX_FRIEND_ADDRESS_SIZE * 2];
-            id_to_string(hex_id, self.id_binary);
-            if (init_avatar(&self.avatar, hex_id, avatar_data, &avatar_size)) {
-                self.avatar_data = malloc(avatar_size);
-                if (self.avatar_data) {
-                    memcpy(self.avatar_data, avatar_data, avatar_size);
-                    self.avatar_size = avatar_size;
-                    self.avatar_format = UTOX_AVATAR_FORMAT_PNG;
-                    char_t hash_string[TOX_HASH_LENGTH * 2];
-                    hash_to_string(hash_string, self.avatar.hash);
-                    debug("Tox Avatar Hash: %.*s\n", (int)sizeof(hash_string), hash_string);
-                }
-            }
-        }
-
-        // Give toxcore the functions to call
-        set_callbacks(tox);
-
-        // Connect to bootstrapped nodes in "tox_bootstrap.h"
-        do_bootstrap(tox);
-
-        // Start the tox av session.
-        TOXAV_ERR_NEW toxav_error;
-        av = toxav_new(tox, &toxav_error);
-
-        // Give toxcore the av functions to call
-        set_av_callbacks(av);
-
-        global_av = av;
-        tox_thread_init = 1;
-
-        // Start the treads
-        thread(toxav_thread, av);
-        thread(audio_thread, av);
-        thread(video_thread, av);
-
-        //
         _Bool connected = 0;
-        uint64_t last_save = get_time(), time;
+        uint64_t last_save       = get_time(),
+                 last_connection = get_time(),
+                 time;
+
         while(1) {
             // Put toxcore to work
             tox_iterate(tox);
@@ -645,18 +691,19 @@ void tox_thread(void *UNUSED(args)) {
                 postmessage(DHT_CONNECTED, connected, 0, NULL);
             }
 
+            /* Wait 10 Billion ticks then verify connection. */
             time = get_time();
-            // Wait 1million ticks then reconnect if needed and write save
-            if(time - last_save >= (uint64_t)10 * 1000 * 1000 * 1000) {
-                last_save = time;
-
-                if(!connected) {
-                    do_bootstrap(tox);
+            if(time - last_connection >= (uint64_t)10 * 1000 * 1000 * 1000) {
+                last_connection = time;
+                if (!connected) {
+                    toxcore_bootstrap(tox);
                 }
-                //save every 10mill.
-                if (save_needed || (time - last_save >= (uint64_t)100 * 1000 * 1000 * 1000)){
+
+                //save every 1000.
+                if (save_needed || (time - last_save >= (uint64_t)1000 * 1000 * 1000 * 1000)){
                     // Save tox data
                     write_save(tox);
+                    last_save = time;
                 }
             }
 
@@ -678,7 +725,7 @@ void tox_thread(void *UNUSED(args)) {
                 utox_thread_work_for_typing_notifications(tox, time);
             }
 
-            // Ask toxcore how many ms to wait, then wait at the most 20ms
+            /* Ask toxcore how many ms to wait, then wait at the most 20ms */
             uint32_t interval = tox_iteration_interval(tox);
             yieldcpu((interval > 20) ? 20 : interval);
         }
@@ -695,10 +742,10 @@ void tox_thread(void *UNUSED(args)) {
         toxav_kill(av);
         tox_kill(tox);
 
-    } while(reconfig);
+    }
 
     tox_thread_init = 0;
-    debug("Tox tread:\tClean exit!\n");
+    debug("Tox thread:\tClean exit!\n");
 }
 
 /** General recommendations for working with threads in uTox
@@ -1358,7 +1405,8 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         }
 
         /* Client/User Interface messages. */
-        case REDRAW:{
+        case REDRAW: {
+            ui_scale(SCALE);
             redraw();
             break;
         }
