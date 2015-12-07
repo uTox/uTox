@@ -253,8 +253,13 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
                                uint32_t param1, uint32_t param2, void *data);
 
 void tox_postmessage(uint8_t msg, uint32_t param1, uint32_t param2, void *data) {
-    while(tox_thread_msg) {
+    while (tox_thread_msg) {
         yieldcpu(1);
+    }
+
+    if (!tox_thread_init) {
+        /* Tox is not yet active, drop message (Probably a mistake) */
+        return;
     }
 
     tox_msg.msg = msg;

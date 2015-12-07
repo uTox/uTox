@@ -252,7 +252,7 @@ static void draw_add_friend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int hei
     }
 }
 
-/* Draw add a friend window */
+/* Draw the text for profile password window */
 static void draw_profile_password(int UNUSED(x), int UNUSED(y), int UNUSED(w), int height){
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
