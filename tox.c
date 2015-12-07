@@ -331,7 +331,7 @@ static void set_callbacks(Tox *tox) {
     utox_set_callbacks_for_transfer(tox);
 }
 
-static size_t load_save_data(uint8_t **out_data){
+static size_t get_savefile_data(uint8_t **out_data){
     uint8_t path[UTOX_FILE_NAME_LENGTH], *p, *data;
     uint32_t size;
 
@@ -496,7 +496,7 @@ static void utox_thread_work_for_typing_notifications(Tox *tox, uint64_t time) {
 
 static int load_toxcore_save(void){
     uint8_t *raw_data = NULL;
-    size_t raw_length = load_save_data(&raw_data);
+    size_t raw_length = get_savefile_data(&raw_data);
     size_t cleartext_length = raw_length - TOX_PASS_ENCRYPTION_EXTRA_LENGTH;
     uint8_t *clear_data = malloc(cleartext_length);
 
