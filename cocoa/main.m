@@ -418,11 +418,6 @@ void launch_at_startup(int should) {
     /* start the tox thread */
     thread(tox_thread, NULL);
 
-    /* wait for the tox thread to finish initializing */
-    while(!tox_thread_init) {
-        yieldcpu(1);
-    }
-
     self.nameMenuItem = [[[NSMenuItem alloc] initWithTitle:@"j" action:NULL keyEquivalent:@""] autorelease];
     self.statusMenuItem = [[[NSMenuItem alloc] initWithTitle:@"j" action:NULL keyEquivalent:@""] autorelease];
     update_tray();
