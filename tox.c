@@ -546,6 +546,8 @@ static int load_toxcore_save(void){
         }
     }
     /* No save file at all, create new profile! */
+    panel_profile_password.disabled = 1;
+    panel_settings_master.disabled  = 0;
     return -2;
 }
 
@@ -600,7 +602,7 @@ static int init_toxcore(Tox **tox) {
     /* Connect to bootstrapped nodes in "tox_bootstrap.h" */
     toxcore_bootstrap(*tox);
 
-    if (save_status == -1) {
+    if (save_status == -2) {
         debug("No save file, using defaults\n");
         load_defaults(*tox);
     }
