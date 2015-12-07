@@ -548,6 +548,7 @@ static int load_toxcore_save(void){
     /* No save file at all, create new profile! */
     panel_profile_password.disabled = 1;
     panel_settings_master.disabled  = 0;
+    postmessage(REDRAW, 0, 0, NULL);
     return -2;
 }
 
