@@ -292,7 +292,6 @@ static int utox_decrypt_data(void *cypher_data, size_t cypher_length,
                      (uint8_t*)passphrase, passphrase_length,
                      clear_text, &err);
     if (err) {
-        debug("Fatal Error; unable to decrypt data! %u\n", err);
         return err;
     }
     return 0;
@@ -508,11 +507,17 @@ static int load_toxcore_save(void){
     /* Check if we're loading a saved profile */
     if (raw_data && raw_length) {
         if (tox_is_data_encrypted(raw_data)) {
-            debug("Using encrypted data\n\n");
+            debug("Using encrypted data, trying password: ");
 
-            // TODO CHANGE THIS PASSWORD
-            if (utox_decrypt_data(raw_data, raw_length, edit_profile_password.data, edit_profile_password.length, clear_data) == 5){
-                debug("Toxcore decrypt, badpassword\n");
+            int decrypt_err = utox_decrypt_data(raw_data, raw_length,
+                                                edit_profile_password.data, edit_profile_password.length,
+                                                clear_data);
+            if (decrypt_err) {
+                if (decrypt_err == 5){
+                    debug("decrypt reports bad password!\n");
+                } else {
+                    debug("Unknown error, please file a bug report!");
+                }
                 panel_profile_password.disabled = 0;
                 postmessage(REDRAW, 0, 0, NULL);
                 return -1;
@@ -654,7 +659,7 @@ void tox_thread(void *UNUSED(args)) {
         toxcore_init_err = init_toxcore(&tox);
         if (toxcore_init_err) {
             /* Couldn't init toxcore, probably waiting for user password */
-            yieldcpu(5000);
+            yieldcpu(100);
             tox_thread_init = 0;
             reconfig = 1;
             continue;
