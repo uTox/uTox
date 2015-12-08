@@ -40,18 +40,19 @@ struct panel
 
 enum {
     ADDF_NONE,
-    ADDF_SENT,
+    ADDF_SENT,         // friend request was sent, this is good!
     ADDF_DISCOVER,
     ADDF_BADNAME,
-    ADDF_NONAME,
-    ADDF_TOOLONG, //if message length is too long.
-    ADDF_NOMESSAGE, //if no message (message length must be >= 1 byte).
-    ADDF_OWNKEY, //if user's own key.
-    ADDF_ALREADYSENT, //if friend request already sent or already a friend.
-    ADDF_UNKNOWN, //for unknown error.
-    ADDF_BADCHECKSUM, //if bad checksum in address.
-    ADDF_SETNEWNOSPAM, //if the friend was already there but the nospam was different.
-    ADDF_NOMEM, //if increasing the friend list size fails.
+    ADDF_NONAME,       // add_id was 0
+    ADDF_TOOLONG,      // message length is too long.
+    ADDF_MSG_TOO_LONG, // message length is too long.
+    ADDF_NOMESSAGE,    // no message (message length must be >= 1 byte).
+    ADDF_OWNKEY,       // user's own key.
+    ADDF_ALREADYSENT,  // friend request already sent or already a friend.
+    ADDF_UNKNOWN,      // for unknown error.
+    ADDF_BADCHECKSUM,  // bad checksum in address.
+    ADDF_SETNEWNOSPAM, // the friend was already there but the nospam was different.
+    ADDF_NOMEM,        // increasing the friend list size fails.
 };
 
 extern PANEL panel_root, panel_search_filter, panel_quick_buttons;

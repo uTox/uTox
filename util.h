@@ -41,7 +41,7 @@ void hash_to_string(char_t *dest, char_t *src);
  *  on failure: returns 0
  *  notes: dest must be TOX_FRIEND_ADDRESS_SIZE bytes large, some data may be written to dest even on failure
  */
-_Bool string_to_id(char_t *dest, char_t *src);
+_Bool string_to_id(char_t *dest, char_t *src, size_t size);
 
 /** convert number of bytes to human readable string
  *  returns number of characters written

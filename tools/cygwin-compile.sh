@@ -82,7 +82,7 @@ if [[ $legacy == 1 ]]; then
     echo "Compiling for windows XP"
 fi
 
-LIBTOXCORE="./lib/toxcore"
+LIBTOXCORE="../toxcore/build/.libs/"
 LIBNACL="./lib/libsodium"
 LIBVPX="./lib/vpx"
 LIBOPUS="./lib/opus"
@@ -105,13 +105,13 @@ rm utox.exe 2> /dev/null
 
 # Compile
 "$WINDOWS_TOOLCHAIN"-gcc -o utox.exe  $COMP_OPTs                         \
-    -I $LIBTOXCORE/include/                                              \
+    -I /usr/local/include/                                               \
     -DGIT_VERSION=\"$GIT_V\" -DAL_LIBTYPE_STATIC                         \
     ./*.c ./png/png.c ./icon.o                                           \
-    $LIBTOXCORE/lib/libtoxcore.a                                         \
-    $LIBTOXCORE/lib/libtoxav.a                                           \
-    $LIBTOXCORE/lib/libtoxdns.a                                          \
-    $LIBTOXCORE/lib/libtoxencryptsave.a                                  \
+    $LIBTOXCORE/libtoxcore.a                                             \
+    $LIBTOXCORE/libtoxav.a                                               \
+    $LIBTOXCORE/libtoxdns.a                                              \
+    $LIBTOXCORE/libtoxencryptsave.a                                      \
     $LIBNACL/lib/libsodium.a             -I $LIBNACL/include/            \
     $LIBVPX/lib/libvpx.a                 -I $LIBVPX/include/             \
     $LIBOPUS/lib/libopus.a               -I $LIBOPUS/include/            \

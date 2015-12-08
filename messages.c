@@ -98,7 +98,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height) {
             // Group message authors are all the same color
             setcolor(COLOR_MAIN_CHATTEXT);
             setfont(FONT_TEXT);
-            drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, y, &msg->msg[msg->length] + 1, msg->msg[msg->length]);
+            drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, y, &msg->msg[msg->length], msg->name_length);
         } else {
             FRIEND *f = &friend[m->data->id];
 

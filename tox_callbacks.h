@@ -11,31 +11,6 @@ static void* copy_message(const uint8_t *str, uint16_t length, uint8_t msg_type)
     return msg;
 }
 
-static void* copy_groupmessage(Tox *tox, const uint8_t *str, uint16_t length, uint8_t msg_type, int gid, int pid)
-{
-    uint8_t name[TOX_MAX_NAME_LENGTH];
-    int namelen = tox_group_peername(tox, gid, pid, name);
-    if(namelen == 0 || namelen == -1) {
-        memcpy(name, "<unknown>", 9);
-        namelen = 9;
-    }
-
-    length = utf8_validate(str, length);
-    namelen = utf8_validate(name, namelen);
-
-
-    MESSAGE *msg = malloc(sizeof(MESSAGE) + 1 + length + namelen);
-    msg->author = 0;
-    msg->msg_type = msg_type;
-    msg->length = length;
-    memcpy(msg->msg, str, length);
-
-    msg->msg[length] = (char_t)namelen;
-    memcpy(&msg->msg[length] + 1, name, namelen);
-
-    return msg;
-}
-
 static void callback_friend_request(Tox *UNUSED(tox), const uint8_t *id, const uint8_t *msg, size_t length, void *UNUSED(userdata)) {
     length = utf8_validate(msg, length);
 
@@ -119,83 +94,4 @@ static void callback_connection_status(Tox *tox, uint32_t fid, TOX_CONNECTION st
     } else {
         debug("Friend-%u:\tOffline\n", fid);
     }
-}
-
-void callback_av_group_audio(Tox *tox, int groupnumber, int peernumber, const int16_t *pcm, unsigned int samples,
-                                    uint8_t channels, unsigned int sample_rate, void *userdata);
-
-static void callback_group_invite(Tox *tox, int fid, uint8_t type, const uint8_t *data, uint16_t length, void *UNUSED(userdata)) {
-    int gid = -1;
-    if (type == TOX_GROUPCHAT_TYPE_TEXT) {
-        gid = tox_join_groupchat(tox, fid, data, length);
-    } else if (type == TOX_GROUPCHAT_TYPE_AV) {
-        // TODO FIX THIS AFTER NEW GROUP API IS RELEASED
-        // gid = toxav_join_av_groupchat(tox, fid, data, length, &callback_av_group_audio, NULL);
-    }
-
-    if(gid != -1) {
-        postmessage(GROUP_ADD, gid, 0, tox);
-    }
-
-    debug("Group Invite (%i,f:%i) type %u\n", gid, fid, type);
-}
-
-static void callback_group_message(Tox *tox, int gid, int pid, const uint8_t *message, uint16_t length, void *UNUSED(userdata))
-{
-    postmessage(GROUP_MESSAGE, gid, 0, copy_groupmessage(tox, message, length, MSG_TYPE_TEXT, gid, pid));
-
-    debug("Group Message (%u, %u): %.*s\n", gid, pid, length, message);
-}
-
-static void callback_group_action(Tox *tox, int gid, int pid, const uint8_t *action, uint16_t length, void *UNUSED(userdata))
-{
-    postmessage(GROUP_MESSAGE, gid, 0, copy_groupmessage(tox, action, length, MSG_TYPE_ACTION_TEXT, gid, pid));
-
-    debug("Group Action (%u, %u): %.*s\n", gid, pid, length, action);
-}
-
-static void callback_group_namelist_change(Tox *tox, int gid, int pid, uint8_t change, void *UNUSED(userdata))
-{
-    switch(change) {
-    case TOX_CHAT_CHANGE_PEER_ADD: {
-        postmessage(GROUP_PEER_ADD, gid, pid, tox);
-        break;
-    }
-
-    case TOX_CHAT_CHANGE_PEER_DEL: {
-        postmessage(GROUP_PEER_DEL, gid, pid, tox);
-        break;
-    }
-
-    case TOX_CHAT_CHANGE_PEER_NAME: {
-        uint8_t name[TOX_MAX_NAME_LENGTH];
-        int len = tox_group_peername(tox, gid, pid, name);
-
-        len = utf8_validate(name, len);
-
-        uint8_t *data = malloc(len + 1);
-        data[0] = len;
-        memcpy(data + 1, name, len);
-
-        postmessage(GROUP_PEER_NAME, gid, pid, data);
-        break;
-    }
-    }
-    debug("Group Namelist Change (%u, %u): %u\n", gid, pid, change);
-}
-
-static void callback_group_topic(Tox *tox, int gid, int pid, const uint8_t *title, uint8_t length, void *UNUSED(userdata))
-{
-    length = utf8_validate(title, length);
-    if (!length)
-        return;
-
-    uint8_t *copy_title = malloc(length);
-    if (!copy_title)
-        return;
-
-    memcpy(copy_title, title, length);
-    postmessage(GROUP_TOPIC, gid, length, copy_title);
-
-    debug("Group Title (%u, %u): %.*s\n", gid, pid, length, title);
 }

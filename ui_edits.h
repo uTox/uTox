@@ -128,7 +128,7 @@ static void edit_msg_onenter(EDIT *edit)
             void *d = malloc(length);
             memcpy(d, text, length);
 
-            tox_postmessage((action ? TOX_GROUP_SEND_ACTION : TOX_GROUP_SEND_MESSAGE), (g - group), length, d);
+            tox_postmessage(TOX_GROUP_SEND_MESSAGE, (g - group), length, d);
         }
     }
 
@@ -209,6 +209,10 @@ static uint8_t nick_completion_search(EDIT *edit, char_t *found_nick, int direct
         }
 
         nick = dedup[i];
+
+        if (!nick) {
+            return 0;
+        }
 
         if (nick[0] >= compsize
                 && !memcmp_case(nick + 1, text + completion.start, compsize)) {

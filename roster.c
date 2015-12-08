@@ -165,7 +165,6 @@ void update_shown_list(void) {
 
 static ITEM* newitem(void) {
     ITEM *i = &item[itemcount++];
-    //TODO: ..
     update_shown_list();
     return i;
 }
@@ -512,8 +511,6 @@ static void deleteitem(ITEM *i) {
             }
         }
 
-        toxaudio_postmessage(GROUP_AUDIO_CALL_END, (g - group), 0, NULL);
-
         group_free(g);
         break;
     }
@@ -687,11 +684,6 @@ static void contextmenu_list_onselect(uint8_t i) {
                 memcpy(str + 7, g->name, g->name_length);
                 edit_setfocus(&edit_msg_group);
                 edit_paste((char_t*)str, sizeof(str), 0);
-            } else if (i == 1) {
-                GROUPCHAT *g = ritem->data;
-                if (g->type == TOX_GROUPCHAT_TYPE_AV) {
-                    g->muted = !g->muted;
-                }
             } else {
                 list_deleteritem();
             }
@@ -706,33 +698,23 @@ static void contextmenu_list_onselect(uint8_t i) {
 }
 
 _Bool list_mright(void *UNUSED(n)) {
-    static UI_STRING_ID menu_friend[] = {STR_SET_ALIAS, STR_CLEAR_HISTORY, STR_REMOVE_FRIEND};
-    static UI_STRING_ID menu_group_unmuted[] = {STR_CHANGE_GROUP_TOPIC, STR_MUTE, STR_REMOVE_GROUP};
-    static UI_STRING_ID menu_group_muted[] = {STR_CHANGE_GROUP_TOPIC, STR_UNMUTE, STR_REMOVE_GROUP};
-    static UI_STRING_ID menu_group[] = {STR_CHANGE_GROUP_TOPIC, STR_REMOVE_GROUP};
-    static UI_STRING_ID menu_request[] = {STR_REQ_ACCEPT, STR_REQ_DECLINE};
+    static UI_STRING_ID menu_friend[]  = {STR_SET_ALIAS,          STR_CLEAR_HISTORY, STR_REMOVE_FRIEND};
+    static UI_STRING_ID menu_group[]   = {STR_CHANGE_GROUP_TOPIC, STR_REMOVE_GROUP};
+    static UI_STRING_ID menu_request[] = {STR_REQ_ACCEPT,         STR_REQ_DECLINE};
+    static UI_STRING_ID menu_no_item[] = {STR_YES,                STR_NO};
 
     if(mouseover_item) {
         ritem = mouseover_item;
         if(mouseover_item->item == ITEM_FRIEND) {
             contextmenu_new(countof(menu_friend), menu_friend, contextmenu_list_onselect);
         } else if(mouseover_item->item == ITEM_GROUP) {
-            GROUPCHAT *g = mouseover_item->data;
-
-            if (g->type == TOX_GROUPCHAT_TYPE_AV) {
-                if (g->muted) {
-                    contextmenu_new(countof(menu_group_muted), menu_group_muted, contextmenu_list_onselect);
-                } else {
-                    contextmenu_new(countof(menu_group_unmuted), menu_group_unmuted, contextmenu_list_onselect);
-                }
-            } else {
-                contextmenu_new(countof(menu_group), menu_group, contextmenu_list_onselect);
-            }
+            contextmenu_new(countof(menu_group), menu_group, contextmenu_list_onselect);
         } else {
             contextmenu_new(countof(menu_request), menu_request, contextmenu_list_onselect);
         }
         return 1;
-        //listpopup(mouseover_item->item);
+    } else {
+        /* Not over any item, do something! */
     }
 
     return 0;

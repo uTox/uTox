@@ -211,16 +211,16 @@ static void button_group_audio_onpress(void) {
 
 static void button_group_audio_update(BUTTON *b) {
     GROUPCHAT *g = selected_item->data;
-    if (g->type == TOX_GROUPCHAT_TYPE_AV) {
-        b->disabled = 0;
-        if (g->audio_calling)
-            button_setcolors_danger(b);
-        else
-            button_setcolors_success(b);
-    } else {
+    // if (g->type == TOX_GROUPCHAT_TYPE_AV) {
+    //     b->disabled = 0;
+    //     if (g->audio_calling)
+    //         button_setcolors_danger(b);
+    //     else
+    //         button_setcolors_success(b);
+    // } else {
         b->disabled = 1;
         button_setcolors_disabled(b);
-    }
+    // }
 }
 
 static void button_call_audio_onpress(void) {

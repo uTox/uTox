@@ -155,13 +155,12 @@ void hash_to_string(char_t *dest, char_t *src){
     to_hex(dest, src, TOX_HASH_LENGTH);
 }
 
-_Bool string_to_id(char_t *w, char_t *a)
-{
-    char_t *end = w + TOX_FRIEND_ADDRESS_SIZE;
-    while(w != end) {
+_Bool string_to_id(char_t *dest, char_t *src, size_t size) {
+    char_t *end = dest + size;
+    while(dest != end) {
         char_t c, v;
 
-        c = *a++;
+        c = *src++;
         if(c >= '0' && c <= '9') {
             v = (c - '0') << 4;
         } else if(c >= 'A' && c <= 'F') {
@@ -172,7 +171,7 @@ _Bool string_to_id(char_t *w, char_t *a)
             return 0;
         }
 
-        c = *a++;
+        c = *src++;
         if(c >= '0' && c <= '9') {
             v |= (c - '0');
         } else if(c >= 'A' && c <= 'F') {
@@ -183,7 +182,7 @@ _Bool string_to_id(char_t *w, char_t *a)
             return 0;
         }
 
-        *w++ = v;
+        *dest++ = v;
     }
 
     return 1;

@@ -76,8 +76,9 @@ typedef struct {
     uint32_t height;
     uint32_t time;
 
-    STRING_IDX length;
-    char_t msg[0];
+    size_t length;
+    size_t name_length;
+    uint8_t msg[0];
 } MESSAGE;
 
 typedef struct {

@@ -215,17 +215,17 @@ void friend_add(char_t *name, STRING_IDX length, char_t *msg, STRING_IDX msg_len
         return;
     }
 
-#ifdef EMOJI_IDS
+    #ifdef EMOJI_IDS
     uint8_t emo_id[TOX_FRIEND_ADDRESS_SIZE];
     if (emoji_string_to_bytes(emo_id, TOX_FRIEND_ADDRESS_SIZE, name, length) == TOX_FRIEND_ADDRESS_SIZE) {
         friend_addid(emo_id, msg, msg_length);
     }
-#endif
+    #endif
 
     uint8_t name_cleaned[length];
     uint16_t length_cleaned = 0;
 
-    unsigned int i;
+    uint32_t i;
     for (i = 0; i < length; ++i) {
         if (name[i] != ' ') {
             name_cleaned[length_cleaned] = name[i];
@@ -233,14 +233,19 @@ void friend_add(char_t *name, STRING_IDX length, char_t *msg, STRING_IDX msg_len
         }
     }
 
+    uint8_t fid[TOX_FRIEND_ADDRESS_SIZE];
+    uint8_t gid[TOX_GROUP_CHAT_ID_SIZE];
     if(!length_cleaned) {
         addfriend_status = ADDF_NONAME;
         return;
-    }
-
-    uint8_t id[TOX_FRIEND_ADDRESS_SIZE];
-    if(length_cleaned == TOX_FRIEND_ADDRESS_SIZE * 2 && string_to_id(id, name_cleaned)) {
-        friend_addid(id, msg, msg_length);
+    } else if (length_cleaned == TOX_GROUP_CHAT_ID_SIZE * 2
+        && string_to_id(gid, name_cleaned, TOX_GROUP_CHAT_ID_SIZE)) {
+        uint8_t *id = malloc(TOX_GROUP_CHAT_ID_SIZE);
+        memcpy(id, gid, TOX_GROUP_CHAT_ID_SIZE);
+        tox_postmessage(TOX_GROUP_JOIN, 0, 0, id);
+    } else if (length_cleaned == TOX_FRIEND_ADDRESS_SIZE * 2
+        && string_to_id(fid, name_cleaned, TOX_FRIEND_ADDRESS_SIZE)) {
+        friend_addid(fid, msg, msg_length);
     } else {
         /* not a regular id, try DNS discovery */
         addfriend_status = ADDF_DISCOVER;
