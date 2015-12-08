@@ -2,7 +2,7 @@
 #include "tox_bootstrap.h"
 
 struct Tox_Options options = {.proxy_host = proxy_address};
-volatile _Bool save_needed = 1;
+save_needed = 1;
 
 /* Writes log filename for fid to dest. returns length written */
 static int log_file_name(uint8_t *dest, size_t size_dest, Tox *tox, int fid) {
