@@ -452,9 +452,7 @@ static void edit_proxy_ip_port_onlosefocus(EDIT *edit)
 }
 
 static void edit_profile_password_update(EDIT *edit) {
-    if (tox_thread_init) {
-        save_needed = 1;
-    }
+    tox_postmessage(TOX_SAVE, 0, 0, NULL);
 }
 
 SCROLLABLE edit_addmsg_scroll = {

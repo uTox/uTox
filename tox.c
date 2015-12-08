@@ -2,7 +2,7 @@
 #include "tox_bootstrap.h"
 
 struct Tox_Options options = {.proxy_host = proxy_address};
-save_needed = 1;
+static volatile _Bool save_needed = 1;
 
 /* Writes log filename for fid to dest. returns length written */
 static int log_file_name(uint8_t *dest, size_t size_dest, Tox *tox, int fid) {
@@ -769,6 +769,12 @@ void tox_thread(void *UNUSED(args)) {
 static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
                                uint32_t param1, uint32_t param2, void *data) {
     switch(msg) {
+        case TOX_SAVE: {
+            if (tox_thread_init) {
+                save_needed = 1;
+            }
+            break;
+        }
         /* Change Self in core */
         case TOX_SELF_SET_NAME: {
             /* param1: name length
