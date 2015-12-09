@@ -112,31 +112,26 @@ static void utox_group_self_join_cb(Tox *tox, uint32_t groupnumber, void *UNUSED
 }
 
 static void utox_group_join_fail_cb(Tox *tox, uint32_t groupnumber, TOX_GROUP_JOIN_FAIL fail_type, void *UNUSED(user_data)) {
-    debug("newGC:\tgroup join failed!!\n");
-    /*typedef enum TOX_GROUP_JOIN_FAIL {
-
-        /**
-         * You are using the same nickname as someone who is already in the group.
-         * /
-        TOX_GROUP_JOIN_FAIL_NAME_TAKEN,
-
-        /**
-         * The group peer limit has been reached.
-         * /
-        TOX_GROUP_JOIN_FAIL_PEER_LIMIT,
-
-        *
-         * You have supplied an invalid password.
-
-        TOX_GROUP_JOIN_FAIL_INVALID_PASSWORD,
-
-        /**
-         * The join attempt failed due to an unspecified error. This often occurs when the group is
-         * not found in the DHT.
-         * /
-        TOX_GROUP_JOIN_FAIL_UNKNOWN,
-
-    } TOX_GROUP_JOIN_FAIL; */
+    debug("newGC:\tgroup join failed! Groupnumber is %u\n", groupnumber);
+    switch (fail_type) {
+        case TOX_GROUP_JOIN_FAIL_NAME_TAKEN: {
+            debug("\t\tName taken\n");
+            break;
+        }
+        case TOX_GROUP_JOIN_FAIL_PEER_LIMIT: {
+            debug("\t\tPeer limit\n");
+            break;
+        }
+        case TOX_GROUP_JOIN_FAIL_INVALID_PASSWORD: {
+            debug("\t\tInvalid Password\n");
+            break;
+        }
+        case TOX_GROUP_JOIN_FAIL_UNKNOWN: {
+            debug("\t\tUnknown error -- auto-leaving group!\n");
+            tox_group_leave(tox, groupnumber, "error, auto leaving group!", 26, NULL);
+            break;
+        }
+    }
 }
 
 
