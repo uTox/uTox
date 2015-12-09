@@ -55,6 +55,7 @@ DESTDIR ?=
 PREFIX ?= /usr/local
 
 SRC = $(wildcard *.c png/png.c)
+HEADERS = $(wildcard *.h */*.h)
 OBJ = $(SRC:.c=.o)
 GIT_V = $(shell git describe --abbrev=8 --dirty --always --tags)
 
@@ -108,7 +109,7 @@ install: utox
 
 main.o: xlib/main.c xlib/keysym2ucs.c
 
-.c.o:
+$(OBJ): %.o: %.c $(HEADERS)
 	@echo "  CC    $@"
 	@$(CC) $(CFLAGS) -o $@ -c -DGIT_VERSION=\"$(GIT_V)\" $<
 
