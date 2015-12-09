@@ -471,9 +471,6 @@ uint64_t get_time(void)
 void openurl(char_t *str)
 {
     char *cmd = "xdg-open";
-#ifdef __APPLE__
-    cmd = "open";
-#endif
     if(!fork()) {
         execlp(cmd, cmd, str, (char *)0);
         exit(127);

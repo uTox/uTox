@@ -189,12 +189,14 @@ _Bool doevent(XEvent event)
         }
 
         case Button4: {
-            panel_mwheel(&panel_root, 0, 0, utox_window_width, utox_window_height, 1.0);
+            // FIXME: determine precise deltas if possible
+            panel_mwheel(&panel_root, 0, 0, utox_window_width, utox_window_height, 1.0, 0);
             break;
         }
 
         case Button5: {
-            panel_mwheel(&panel_root, 0, 0, utox_window_width, utox_window_height, -1.0);
+            // FIXME: determine precise deltas if possible
+            panel_mwheel(&panel_root, 0, 0, utox_window_width, utox_window_height, -1.0, 0);
             break;
         }
 

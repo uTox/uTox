@@ -413,7 +413,7 @@ static void  background_draw(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int
 static _Bool background_mmove(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height), int UNUSED(mx), int UNUSED(my), int UNUSED(dx), int UNUSED(dy)) { return 0; }
 static _Bool background_mdown(PANEL *UNUSED(p)) { return 0; }
 static _Bool background_mright(PANEL *UNUSED(p)) { return 0; }
-static _Bool background_mwheel(PANEL *UNUSED(p), int UNUSED(height), double UNUSED(d)) { return 0; }
+static _Bool background_mwheel(PANEL *UNUSED(p), int UNUSED(height), double UNUSED(d), _Bool UNUSED(smooth)) { return 0; }
 static _Bool background_mup(PANEL *UNUSED(p)) { return 0; }
 static _Bool background_mleave(PANEL *UNUSED(p)) { return 0; }
 
@@ -1564,7 +1564,7 @@ _Bool panel_mright(PANEL *p)
     return draw;
 }
 
-_Bool panel_mwheel(PANEL *p, int x, int y, int width, int height, double d)
+_Bool panel_mwheel(PANEL *p, int x, int y, int width, int height, double d, _Bool smooth)
 {
     FIX_XY_CORDS_FOR_SUBPANELS();
 
@@ -1573,7 +1573,7 @@ _Bool panel_mwheel(PANEL *p, int x, int y, int width, int height, double d)
     if(pp) {
         while((subp = *pp++)) {
             if(!subp->disabled) {
-                draw |= panel_mwheel(subp, x, y, width, height, d);
+                draw |= panel_mwheel(subp, x, y, width, height, d, smooth);
             }
         }
     }

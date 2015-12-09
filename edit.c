@@ -274,10 +274,10 @@ void edit_press(void)
     edit_sel.length = 0;
 }
 
-_Bool edit_mwheel(EDIT *edit, int height, double d)
+_Bool edit_mwheel(EDIT *edit, int height, double d, _Bool smooth)
 {
     if(edit->multiline) {
-        return scroll_mwheel(edit->scroll, height - SCALE * 4, d);
+        return scroll_mwheel(edit->scroll, height - SCALE * 4, d, smooth);
     }
     return 0;
 }
@@ -774,6 +774,8 @@ void edit_paste(char_t *data, int length, _Bool select)
 
     edit_sel.p1 = edit_sel.start;
     edit_sel.p2 = edit_sel.start + edit_sel.length;
+
+    active_edit->onchange(active_edit);
 
     edit_redraw();
 }
