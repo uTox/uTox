@@ -94,7 +94,7 @@ _Bool panel_mmove(PANEL *p, int x, int y, int width, int height, int mx, int my,
 void panel_mdown(PANEL *p);
 _Bool panel_dclick(PANEL *p, _Bool triclick);
 _Bool panel_mright(PANEL *p);
-_Bool panel_mwheel(PANEL *p, int x, int y, int width, int height, double d);
+_Bool panel_mwheel(PANEL *p, int x, int y, int width, int height, double d, _Bool smooth);
 _Bool panel_mup(PANEL *p);
 _Bool panel_mleave(PANEL *p);
 

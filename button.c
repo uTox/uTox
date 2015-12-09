@@ -120,7 +120,7 @@ _Bool button_mright(BUTTON *b)
     return 0;
 }
 
-_Bool button_mwheel(BUTTON *UNUSED(b), int UNUSED(height), double UNUSED(d))
+_Bool button_mwheel(BUTTON *UNUSED(b), int UNUSED(height), double UNUSED(d), _Bool UNUSED(smooth))
 {
     return 0;
 }
