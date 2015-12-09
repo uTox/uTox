@@ -80,11 +80,6 @@ static void button_status_onpress(void) {
     tox_postmessage(TOX_SELF_SET_STATE, self.status, 0, NULL);
 }
 
-static void button_jump_button_switch_onpress(void) {
-    panel_quick_buttons.disabled = !panel_quick_buttons.disabled;
-    panel_search_filter.disabled = !panel_search_filter.disabled;
-}
-
 static void button_menu_update(BUTTON *b) {
     b->c1 = COLOR_BACKGROUND_MENU;
     b->c2 = COLOR_BACKGROUND_MENU_HOVER;
@@ -99,7 +94,10 @@ static void button_menu_update(BUTTON *b) {
 }
 
 static void button_add_new_contact_onpress(void) {
+    edit_setstr(&edit_add_id, (char_t *)edit_search.data, edit_search.length);
+    edit_setstr(&edit_search, (char_t *)"", 0);
     list_selectaddfriend();
+    edit_setfocus(&edit_add_msg);
 }
 
 static void button_create_group_onpress(void) {
@@ -434,15 +432,6 @@ button_status = {
     .tooltip_text = { .i18nal = STR_STATUS },
 },
 
-button_menu = {
-    .bm2     = BM_SETTINGS_THREE_BAR,
-    .bw      = _BM_THREE_BAR_WIDTH,
-    .bh      = _BM_THREE_BAR_WIDTH,
-    .update  = button_menu_update,
-    .onpress = button_jump_button_switch_onpress,
-    .tooltip_text = { .i18nal = STR_SEARCHFRIENDS },
-},
-
 button_filter_friends = {
     .nodraw       = 1,
     .onpress      = button_filter_friends_onpress,
@@ -450,11 +439,13 @@ button_filter_friends = {
 },
 
 button_add_new_contact = {
-    .bm2 = BM_ADD,
-    .bw = _BM_ADD_WIDTH,
-    .bh = _BM_ADD_WIDTH,
-    .update = button_menu_update,
-    .onpress = button_add_new_contact_onpress,
+    .bm2          = BM_ADD,
+    .bw           = _BM_ADD_WIDTH,
+    .bh           = _BM_ADD_WIDTH,
+    .update       = button_menu_update,
+    .onpress      = button_add_new_contact_onpress,
+    .disabled     = 1,
+    .nodraw       = 1,
     .tooltip_text = { .i18nal = STR_ADDFRIENDS },
 },
 

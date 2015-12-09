@@ -82,15 +82,21 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
         yy -= scroll_gety(scroll, height);
     }
 
+    /* because the search field has a padding of 3.5 SCALEs */
+    float top_offset = 2.0;
+    if (edit->vcentered && !edit->multiline) {
+        top_offset = (height - font_small_lineheight) / (2.0 * SCALE);
+    }
+
     // display an edit hint if there's no text in the field
     if(!edit->length && maybe_i18nal_string_is_valid(&edit->empty_str)) {
         STRING* empty_str_text = maybe_i18nal_string_get(&edit->empty_str);
         setcolor(COLOR_MAIN_HINTTEXT);
-        drawtext(x + 2 * SCALE, yy + 3 * SCALE, empty_str_text->str, empty_str_text->length);
+        drawtext(x + 2 * SCALE, yy + top_offset * SCALE, empty_str_text->str, empty_str_text->length);
     }
 
     _Bool a = (edit == active_edit);
-    drawtextmultiline(x + 2 * SCALE, x + width - 2 * SCALE - (edit->multiline ? SCROLL_WIDTH : 0), yy + 3 * SCALE, y, y + height, font_small_lineheight, edit->data, edit->length,
+    drawtextmultiline(x + 2 * SCALE, x + width - 2 * SCALE - (edit->multiline ? SCROLL_WIDTH : 0), yy + top_offset * SCALE, y, y + height, font_small_lineheight, edit->data, edit->length,
                       a ? edit_sel.start : STRING_IDX_MAX, a ? edit_sel.length : STRING_IDX_MAX,
                       a ? edit_sel.mark_start : 0, a ? edit_sel.mark_length : 0, edit->multiline);
 
@@ -268,10 +274,10 @@ void edit_press(void)
     edit_sel.length = 0;
 }
 
-_Bool edit_mwheel(EDIT *edit, int height, double d)
+_Bool edit_mwheel(EDIT *edit, int height, double d, _Bool smooth)
 {
     if(edit->multiline) {
-        return scroll_mwheel(edit->scroll, height - SCALE * 4, d);
+        return scroll_mwheel(edit->scroll, height - SCALE * 4, d, smooth);
     }
     return 0;
 }
@@ -769,6 +775,8 @@ void edit_paste(char_t *data, int length, _Bool select)
     edit_sel.p1 = edit_sel.start;
     edit_sel.p2 = edit_sel.start + edit_sel.length;
 
+    active_edit->onchange(active_edit);
+
     edit_redraw();
 }
 
@@ -806,6 +814,10 @@ void edit_setstr(EDIT *edit, char_t *str, STRING_IDX length)
 
     edit->length = length;
     memcpy(edit->data, str, length);
+
+    if(edit->onchange) {
+        edit->onchange(edit);
+    }
 }
 
 void edit_setcursorpos(EDIT *edit, STRING_IDX pos)
