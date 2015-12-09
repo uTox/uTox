@@ -107,26 +107,27 @@ _Bool scroll_mright(SCROLLABLE *UNUSED(s))
     return 0;
 }
 
-_Bool scroll_mwheel(SCROLLABLE *s, int height, double d)
+_Bool scroll_mwheel(SCROLLABLE *s, int height, double delta, _Bool smooth)
 {
     if(s->mouseover2)
     {
-        uint32_t c = s->content_height;
-        uint32_t h = height;
+        uint32_t content_height = s->content_height;
+        uint32_t port_height = height;
 
-        if(c > h)
-        {
-            uint32_t m = (h * h) / c;
-            double dd = (h - m);
-
-            s->d -= 16.0 * d / dd;;
-
-            if(s->d < 0.0)
-            {
-                s->d = 0.0;
+        if (content_height > port_height) {
+            if (smooth) {
+                // this seems to be the magic equation that makes it scroll at the same speed
+                // regardless of how big the port is compared to the content.
+                s->d -= (delta * (32.0 * port_height / content_height) / content_height);
+            } else {
+                uint32_t magic = (port_height * port_height) / content_height;
+                double fred = (port_height - magic);
+                s->d -= 16.0 * delta / fred;
             }
-            else if(s->d >= 1.0)
-            {
+
+            if (s->d < 0.0) {
+                s->d = 0.0;
+            } else if (s->d >= 1.0) {
                 s->d = 1.0;
             }
 

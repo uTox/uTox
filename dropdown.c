@@ -159,7 +159,7 @@ _Bool dropdown_mright(DROPDOWN *UNUSED(b))
     return 0;
 }
 
-_Bool dropdown_mwheel(DROPDOWN *UNUSED(b), int UNUSED(height), double UNUSED(d))
+_Bool dropdown_mwheel(DROPDOWN *UNUSED(b), int UNUSED(height), double UNUSED(d), _Bool UNUSED(smooth))
 {
     return 0;
 }
