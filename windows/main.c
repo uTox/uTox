@@ -1660,7 +1660,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
         }
 
         if(edit_active()) {
-            if(control) {
+            if (control) {
                 switch(wParam) {
                 case 'V':
                     paste();
