@@ -120,12 +120,6 @@ HWND video_hwnd[MAX_NUM_FRIENDS];
 
 
 //static char save_path[280];
-
-static _Bool flashing, desktopgrab_video;
-
-
-static _Bool hidden;
-
 _Bool utox_portable;
 char utox_portable_save_path[MAX_PATH];
 
