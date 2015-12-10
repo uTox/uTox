@@ -3,6 +3,10 @@
 
 #include "audio.c"
 
+static _Bool flashing, desktopgrab_video;
+static _Bool hidden;
+
+
 static TRACKMOUSEEVENT tme = {sizeof(TRACKMOUSEEVENT), TME_LEAVE, 0, 0};
 static _Bool mouse_tracked = 0;
 _Bool draw = 0;

@@ -326,7 +326,7 @@ static inline void select_right_to_char(char_t c) {
     }
     EDIT *target = edit_get_active();
     edit_paste((char_t *)[insertString UTF8String], [insertString lengthOfBytesUsingEncoding:NSUTF8StringEncoding], NO);
-    if (target->onchange) {
+    if (target && target->onchange) {
         target->onchange(target);
     }
 }
@@ -575,8 +575,6 @@ static inline void select_right_to_char(char_t c) {
 #pragma mark - NSTextInputClient
 
 - (void)insertText:(id)aString replacementRange:(NSRange)replacementRange {
-    NSLog(@"insertText %@", NSStringFromRange(replacementRange));
-
     // Get a valid range
     if (replacementRange.location == NSNotFound) {
         NSRange markedRange = self.markedRange;
@@ -596,7 +594,7 @@ static inline void select_right_to_char(char_t c) {
     edit_paste((char_t *)[aString UTF8String], insl, 0);
 
     EDIT *target = edit_get_active();
-    if (target->onchange) {
+    if (target && target->onchange) {
         target->onchange(target);
     }
 
