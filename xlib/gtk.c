@@ -2,11 +2,7 @@
 #include <stdlib.h>
 #include <dlfcn.h>
 
-#ifdef __APPLE__
-#define LIBGTK_FILENAME "libgtk-3.dylib"
-#else
 #define LIBGTK_FILENAME "libgtk-3.so.0"
-#endif
 
 #define GTK_FILE_CHOOSER_ACTION_OPEN 0
 #define GTK_FILE_CHOOSER_ACTION_SAVE 1
