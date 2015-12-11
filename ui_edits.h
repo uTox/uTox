@@ -556,4 +556,5 @@ edit_profile_password = {
     .data        = edit_profile_password_data,
     .onchange    = edit_profile_password_update,
     .onlosefocus = edit_profile_password_update,
+    .password    = 1,
 };

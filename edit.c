@@ -89,10 +89,19 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
         drawtext(x + 2 * SCALE, yy + 3 * SCALE, empty_str_text->str, empty_str_text->length);
     }
 
-    _Bool a = (edit == active_edit);
-    drawtextmultiline(x + 2 * SCALE, x + width - 2 * SCALE - (edit->multiline ? SCROLL_WIDTH : 0), yy + 3 * SCALE, y, y + height, font_small_lineheight, edit->data, edit->length,
-                      a ? edit_sel.start : STRING_IDX_MAX, a ? edit_sel.length : STRING_IDX_MAX,
-                      a ? edit_sel.mark_start : 0, a ? edit_sel.mark_length : 0, edit->multiline);
+    _Bool is_active = (edit == active_edit);
+    if (!is_active && edit->password) {
+        /* Generate the stars for this password */
+        uint8_t star[edit->length];
+        memset(star, '*', edit->length);
+        drawtextmultiline(x + 2 * SCALE, x + width - 2 * SCALE - (edit->multiline ? SCROLL_WIDTH : 0), yy + 3 * SCALE, y, y + height, font_small_lineheight, star, edit->length,
+                          is_active ? edit_sel.start : STRING_IDX_MAX, is_active ? edit_sel.length : STRING_IDX_MAX,
+                          is_active ? edit_sel.mark_start : 0, is_active ? edit_sel.mark_length : 0, edit->multiline);
+    } else {
+        drawtextmultiline(x + 2 * SCALE, x + width - 2 * SCALE - (edit->multiline ? SCROLL_WIDTH : 0), yy + 3 * SCALE, y, y + height, font_small_lineheight, edit->data, edit->length,
+                          is_active ? edit_sel.start : STRING_IDX_MAX, is_active ? edit_sel.length : STRING_IDX_MAX,
+                          is_active ? edit_sel.mark_start : 0, is_active ? edit_sel.mark_length : 0, edit->multiline);
+    }
 
     if(edit->multiline) {
         popclip();
