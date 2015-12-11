@@ -428,13 +428,14 @@ static void write_save(Tox *tox) {
     memcpy(path_tmp + (path_len - 1), ".tmp", sizeof(".tmp"));
     debug("Writing tox_save to: '%s'\n", (char*)path_tmp);
 
-    if (edit_profile_password.length > 3) {
-        /* encrypt data */
-        utox_encrypt_data(data, clear_length, encrypted_data);
+    UTOX_ENC_ERR enc_err = utox_encrypt_data(data, clear_length, encrypted_data);
+    if (enc_err) {
+        /* encryption failed, write clear text data */
+        file_write_raw(path_tmp, data, clear_length);
+        debug("\n\n\t\tWARNING UTOX WAS UNABLE TO ENCRYPT DATA!\n\t\tDATA WRITTEN IN CLEAR TEXT!\n\n");
+    } else {
         file_write_raw(path_tmp, encrypted_data, encrypted_length);
         debug("Save encrypted!\n");
-    } else {
-        file_write_raw(path_tmp, data, clear_length);
     }
 
     if (rename((char*)path_tmp, (char*)path_real) != 0) {
