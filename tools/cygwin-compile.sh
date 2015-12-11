@@ -9,6 +9,7 @@ usage() {
     echo "Cross compile script to build windows uTox from a ~unix enviroment."
     echo
     echo "Usage: $0 [32|64] [win|unix] [fast|debug]"
+    echo
     return 0
 }
 
@@ -82,7 +83,7 @@ if [[ $legacy == 1 ]]; then
     echo "Compiling for windows XP"
 fi
 
-LIBTOXCORE="../toxcore/build/.libs/"
+LIBTOXCORE="../toxcore_groups/build/.libs/"
 LIBNACL="./lib/libsodium"
 LIBVPX="./lib/vpx"
 LIBOPUS="./lib/opus"
@@ -93,9 +94,14 @@ echo -n "Git version: "
 git describe --abbrev=8 --dirty --always --tags
 
 # Build filter_audio
-AUDIO_FILTERING_BUILD="-DAUDIO_FILTERING -I ./lib/filter_audio/ ./lib/filter_audio/filter_audio.c \
-./lib/filter_audio/aec/*.c ./lib/filter_audio/agc/*.c ./lib/filter_audio/ns/*.c ./lib/filter_audio/other/*.c \
-./lib/filter_audio/vad/*.c ./lib/filter_audio/zam/*.c"
+AUDIO_FILTERING_BUILD="-DAUDIO_FILTERING -I ./lib/filter_audio/ \
+        ./lib/filter_audio/filter_audio.c \
+        ./lib/filter_audio/aec/*.c        \
+        ./lib/filter_audio/agc/*.c        \
+        ./lib/filter_audio/ns/*.c         \
+        ./lib/filter_audio/vad/*.c        \
+        ./lib/filter_audio/zam/*.c        \
+        ./lib/filter_audio/other/*.c "
 
 # Remove existing
 rm utox.exe 2> /dev/null

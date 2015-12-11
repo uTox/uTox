@@ -9,6 +9,7 @@ static char_t edit_name_data[128],
               edit_proxy_port_data[8],
               edit_profile_password_data[65535];
 
+/* TODO make this not a global! */
 static struct {
     STRING_IDX start, end, cursorpos;
     uint32_t length, spacing;
@@ -178,8 +179,11 @@ static uint8_t nick_completion_search(EDIT *edit, char_t *found_nick, int direct
     static char_t *dedup[65536];
     GROUPCHAT *g = selected_item->data;
 
+    /* Dump all the peers into dedup so we can work with them.
+     * peers is the number of peers we hove to work with */
     peers = peers_deduplicate(dedup, g->peername, g->peers);
 
+    /* first round search for the nick we want */
     i = 0;
     while (!found) {
         if (i >= peers) {
@@ -196,6 +200,7 @@ static uint8_t nick_completion_search(EDIT *edit, char_t *found_nick, int direct
         }
     }
 
+    /* Second search? case insensitive this time. if found return a pointer to the nick */
     prev_index = i;
     found = 0;
     do {
@@ -346,6 +351,7 @@ static void edit_msg_ontab(EDIT *edit)
                     && !memcmp(nick, text + completion.start, nick_length))) {
                 nick_completion_replace(edit, nick, nick_length);
             }
+            /* TODO: NO GLOBALS! */
             edit_setcursorpos(edit, completion.end);
             completion.cursorpos = edit_getcursorpos();
         }

@@ -1760,10 +1760,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         case GROUP_PEER_DEL: {
             GROUPCHAT *g = &group[param1];
 
-            if (param2 > MAX_GROUP_PEERS) //TODO: dynamic arrays.
-                break;
-
-            if(g->peername[param2]) {
+            if (g->peername[param2]) {
                 free(g->peername[param2]);
                 g->peername[param2] = NULL;
             }
@@ -1771,13 +1768,6 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             g->peers--;
             g->peername[param2] = g->peername[g->peers];
             g->peername[g->peers] = NULL;
-
-            // if (g->type == TOX_GROUPCHAT_TYPE_AV) {
-            //     g->last_recv_audio[param2] = g->last_recv_audio[g->peers];
-            //     g->last_recv_audio[g->peers] = 0;
-            //     // REMOVED UNTIL AFTER NEW GCs group_av_peer_remove(g, param2);
-            //     g->source[param2] = g->source[g->peers];
-            // }
 
             if (g->peers == g->our_peer_number) {
                 g->our_peer_number = param2;
@@ -1793,45 +1783,28 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             break;
         }
         case GROUP_PEER_ADD:
-        case GROUP_PEER_NAME: {
+        case GROUP_PEER_NAME_CHANGE: {
             GROUPCHAT *g = &group[param1];
 
-            if (param2 > MAX_GROUP_PEERS) //TODO: dynamic arrays.
-                break;
-
-            if(g->peername[param2]) {
+            if (g->peername[param2]) {
                 free(g->peername[param2]);
             }
 
-            if(tox_message_id == GROUP_PEER_ADD) {
-                // if (g->type == TOX_GROUPCHAT_TYPE_AV) {
-                //     // todo fix group_av_peer_add(g, param2);
-                // }
-
-                // if (tox_group_peernumber_is_ours(data, param1, param2)) {
-                //     g->our_peer_number = param2;
-                // }
-
-                uint8_t *n = malloc(10);
-                n[0] = 9;
-                memcpy(n + 1, "<unknown>", 9);
-                data = n;
-                g->peers++;
-            }
+            // if (tox_message_id == GROUP_PEER_ADD) {
+            //     uint8_t *n = malloc(10);
+            //     n[0] = 9;
+            //     memcpy(n + 1, "<unknown>", 9);
+            //     data = n;
+            //     g->peers++;
+            // }
 
             g->peername[param2] = data;
 
-            g->topic_length = snprintf((char*)g->topic, sizeof(g->topic), "%u users in chat", g->peers);
-            if (g->topic_length >= sizeof(g->topic)) {
-                g->topic_length = sizeof(g->topic) - 1;
-            }
-
-            if(selected_item->data != g) {
+            if (selected_item->data != g) {
                 g->notify = 1;
             }
 
             redraw();
-
             break;
         }
 

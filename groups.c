@@ -82,13 +82,23 @@ static void utox_group_invite_cb(Tox *tox, uint32_t friend_number, const uint8_t
 static void utox_group_peer_join_cb(Tox *tox, uint32_t groupnumber, uint32_t peer_id, void *UNUSED(user_data)) {
     debug("newGC:\tpeer join group %u, peer %u\n", groupnumber, peer_id);
 
+    /* Get and store name for this group, used by other functions */
     uint32_t name_length = tox_group_peer_get_name_size(tox, groupnumber, peer_id, NULL);
-    uint8_t name[name_length + 21];
-    snprintf(name, 21, "New peer has joined: ");
-    tox_group_peer_get_name(tox, groupnumber, peer_id, name + 21, NULL);
-    group_append_mesage(0, 0, groupnumber, name_length + 21, name, 8, "<SERVER>");
+    uint8_t *name = malloc(name_length + 1); /* add and extra bit to store name size */
+    *name = name_length; /* store the name size as the first byte */
+    TOX_ERR_GROUP_PEER_QUERY err = 0;
+    tox_group_peer_get_name(tox, groupnumber, peer_id, name + 1, &err);
+    if (err) {
+        debug("newGC:\tError getting peer %u name! (%u)\n", peer_id, err);
+    }
+    debug("new peer name size %u string %.*s\n", name_length, name_length, name + 1);
 
-    postmessage(GROUP_PEER_ADD, groupnumber, peer_id, tox);
+    /* create the message that goes to the user */
+    uint8_t name_msg[21 + name_length];
+    snprintf(name_msg, 21 + name_length, "New peer has joined: %.*s", name_length, name + 1);
+    group_append_mesage(0, 0, groupnumber, name_length + 21, name_msg, 8, "<SERVER>");
+
+    postmessage(GROUP_PEER_ADD, groupnumber, peer_id, name);
 }
 
 
