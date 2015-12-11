@@ -532,9 +532,10 @@ edit_msg_group = {
 edit_search = {
     .maxlength = sizeof(edit_search_data),
     .data = edit_search_data,
-    .empty_str = { .i18nal = STR_SEARCHFRIENDS },
     .onchange = edit_search_onchange,
     .style = AUXILIARY_STYLE,
+    .empty_str = { .i18nal = STR_CONTACT_SEARCH_ADD_HINT },
+    .vcentered = 1
 },
 
 edit_proxy_ip = {

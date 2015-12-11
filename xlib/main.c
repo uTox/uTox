@@ -471,9 +471,6 @@ uint64_t get_time(void)
 void openurl(char_t *str)
 {
     char *cmd = "xdg-open";
-#ifdef __APPLE__
-    cmd = "open";
-#endif
     if(!fork()) {
         execlp(cmd, cmd, str, (char *)0);
         exit(127);
@@ -1305,6 +1302,7 @@ int main(int argc, char *argv[]) {
     gcval.plane_mask = gcval.background ^ gcval.foreground;
     gcval.subwindow_mode = IncludeInferiors;
 
+    /* GC for the */
     grabgc = XCreateGC(display, RootWindow(display, screen), GCFunction | GCForeground | GCBackground | GCSubwindowMode, &gcval);
 
     XWindowAttributes attr;

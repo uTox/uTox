@@ -10,7 +10,14 @@ struct edit_change
 struct edit {
     PANEL panel;
 
-    _Bool multiline, mouseover, noborder, readonly, select_completely, password;
+    _Bool multiline,
+    mouseover,
+    noborder,
+    readonly,
+    select_completely,
+    vcentered
+    password;
+
     STRING_IDX mouseover_char, length, maxlength;
     uint16_t width, height;
 
@@ -36,7 +43,7 @@ _Bool edit_mmove(EDIT *edit, int x, int y, int width, int height, int mx, int my
 _Bool edit_mdown(EDIT *edit);
 _Bool edit_dclick(EDIT *edit, _Bool triclick);
 _Bool edit_mright(EDIT *edit);
-_Bool edit_mwheel(EDIT *edit, int height, double d);
+_Bool edit_mwheel(EDIT *edit, int height, double d, _Bool smooth);
 _Bool edit_mup(EDIT *edit);
 _Bool edit_mleave(EDIT *edit);
 

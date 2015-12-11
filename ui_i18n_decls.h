@@ -105,6 +105,7 @@ enum {
     STR_STATUS_AWAY,
     STR_STATUS_BUSY,
 
+
     // Setting strings
     STR_OTHERSETTINGS,
     STR_UI,
@@ -164,6 +165,8 @@ enum {
     STR_DPI_BIG,
     STR_DPI_LARGE,
     STR_DPI_HUGE,
+
+    STR_CONTACT_SEARCH_ADD_HINT,
 
     STR_PROXY_DISABLED,
     STR_PROXY_FALLBACK,

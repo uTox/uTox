@@ -42,7 +42,7 @@
 // Versions
 #define TITLE "uTox"
 #define SUB_TITLE "(Alpha)"
-#define VERSION "0.4.4"
+#define VERSION "0.4.5"
 
 // Limits and sizes
 #define UTOX_MAX_CALLS 16
@@ -147,6 +147,7 @@ enum {
     BM_FTM,
     BM_FTB1,
     BM_FTB2,
+    BM_FT_CAP,
 
     BM_NO,
     BM_PAUSE,
@@ -204,7 +205,7 @@ enum {
 #include "file_transfers.h"
 #include "friend.h"
 #include "groups.h"
-#include "list.h"
+#include "roster.h"
 #include "edit.h"
 #include "scrollable.h"
 #include "button.h"

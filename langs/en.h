@@ -334,6 +334,9 @@ msgstr("Large (200%)")
 msgid(DPI_HUGE)
 msgstr("Huge (250%)")
 
+msgid(FILTER_ALL)
+msgstr("All")
+
 msgid(PROXY_DISABLED)
 msgstr("Disabled")
 
@@ -369,6 +372,9 @@ msgstr("OpenSL Input")
 
 msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
 msgstr("Please accept this friend request.")
+
+msgid(CONTACT_SEARCH_ADD_HINT)
+msgstr("Search/Add Friends")
 
 msgid(PROXY_EDIT_HINT_IP)
 msgstr("IP")
