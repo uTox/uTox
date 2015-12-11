@@ -565,6 +565,7 @@ static int load_toxcore_save(void){
 }
 
 static int init_toxcore(Tox **tox) {
+    tox_thread_init = 0;
     int save_status = 0;
     save_status = load_toxcore_save();
 

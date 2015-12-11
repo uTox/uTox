@@ -108,7 +108,9 @@ static void button_create_group_onpress(void) {
 }
 
 static void button_settings_onpress(void) {
-    list_selectsettings();
+    if (tox_thread_init) {
+        list_selectsettings();
+    }
 }
 
 static void button_filter_friends_onpress(void) {

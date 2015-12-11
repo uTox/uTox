@@ -109,7 +109,6 @@ static void drawitem(ITEM *i, int UNUSED(x), int y) {
         }
         break;
     }
-
     case ITEM_FRIEND_ADD: {
         FRIENDREQ *f = i->data;
 
@@ -281,9 +280,11 @@ static void show_page(ITEM *i) {
             break;
         }
         case ITEM_SETTINGS: {
-            button_settings.disabled       = 0;
-            panel_settings_master.disabled = 1;
-            panel_overhead.disabled        = 1;
+            if (panel_profile_password.disabled) {
+                button_settings.disabled       = 0;
+                panel_settings_master.disabled = 1;
+                panel_overhead.disabled        = 1;
+            }
             break;
         }
         case ITEM_ADD: {
@@ -360,10 +361,11 @@ static void show_page(ITEM *i) {
             break;
         }
         case ITEM_SETTINGS: {
-            button_settings.disabled        = 1;
-
-            panel_overhead.disabled         = 0;
-            panel_settings_master.disabled  = 0;
+            if (panel_profile_password.disabled) {
+                button_settings.disabled        = 1;
+                panel_overhead.disabled         = 0;
+                panel_settings_master.disabled  = 0;
+            }
             break;
         }
         case ITEM_ADD: {
@@ -567,6 +569,8 @@ void list_freeall(void) {
         }
         i->item = ITEM_NONE;
     }
+    itemcount  = 0;
+    showncount = 0;
 }
 
 void list_selectchat(int index) {
