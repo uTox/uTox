@@ -15,7 +15,7 @@ struct edit {
     noborder,
     readonly,
     select_completely,
-    vcentered
+    vcentered,
     password;
 
     STRING_IDX mouseover_char, length, maxlength;
