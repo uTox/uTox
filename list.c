@@ -392,8 +392,6 @@ void list_start(void) {
 
     button_settings.disabled = 1;
     selected_item = &item_settings;
-    // edit_setfocus(&edit_add_id);
-
 
     FRIEND *f = friend, *end = f + friends;
     while(f != end) {
@@ -567,6 +565,7 @@ void list_freeall(void) {
             free(i->data);
             break;
         }
+        i->item = ITEM_NONE;
     }
 }
 

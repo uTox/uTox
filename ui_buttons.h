@@ -377,7 +377,6 @@ static void button_send_screenshot_update(BUTTON *b) {
     }
 }
 
-
 /* Button to send chat message */
 static void button_chat_send_onpress(void){
     if (selected_item->item == ITEM_FRIEND) {
@@ -395,7 +394,7 @@ static void button_chat_send_onpress(void){
     }
 }
 
-static void button_chat_send_update(BUTTON *b){
+static void button_chat_send_update(BUTTON *b) {
     if (selected_item->item == ITEM_FRIEND) {
         FRIEND *f = selected_item->data;
         if (f->online) {
@@ -411,6 +410,14 @@ static void button_chat_send_update(BUTTON *b){
     }
 }
 
+static void button_lock_uTox_onpress(void) {
+    if (tox_thread_init && edit_profile_password.length > 3) {
+        list_selectsettings();
+        panel_profile_password.disabled = 0;
+        panel_settings_master.disabled  = 1;
+        tox_settingschanged();
+    }
+}
 
 BUTTON button_avatar = {
     .nodraw = 1,
@@ -613,4 +620,12 @@ button_chat_send = {
     .onpress = button_chat_send_onpress,
     .update = button_chat_send_update,
     .tooltip_text = { .i18nal = STR_SENDMESSAGE },
+},
+
+button_lock_uTox = {
+    .bm           = BM_SBUTTON,
+    .update       = button_setcolors_success,
+    .onpress      = button_lock_uTox_onpress,
+    .button_text  = { .i18nal = STR_LOCK      },
+    .tooltip_text = { .i18nal = STR_LOCK_UTOX },
 };

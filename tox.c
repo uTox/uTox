@@ -453,8 +453,6 @@ void tox_settingschanged(void) {
     list_dropdown_clear(&dropdown_audio_out);
     list_dropdown_clear(&dropdown_video);
 
-    tox_thread_init = 0;
-
     toxvideo_postmessage(VIDEO_KILL, 0, 0, NULL);
     toxaudio_postmessage(AUDIO_KILL, 0, 0, NULL);
     toxav_postmessage(UTOXAV_KILL, 0, 0, NULL);
@@ -516,7 +514,7 @@ static int load_toxcore_save(void){
                 if (decrypt_err == 5){
                     debug("decrypt reports bad password!\n");
                 } else {
-                    debug("Unknown error, please file a bug report!");
+                    debug("Unknown error, please file a bug report!\n");
                 }
                 panel_profile_password.disabled = 0;
                 postmessage(REDRAW, 0, 0, NULL);
@@ -662,7 +660,7 @@ void tox_thread(void *UNUSED(args)) {
         toxcore_init_err = init_toxcore(&tox);
         if (toxcore_init_err) {
             /* Couldn't init toxcore, probably waiting for user password */
-            yieldcpu(100);
+            yieldcpu(300);
             tox_thread_init = 0;
             reconfig = 1;
             continue;
@@ -724,8 +722,9 @@ void tox_thread(void *UNUSED(args)) {
                 TOX_MSG *msg = &tox_msg;
                 // If msg->msg is 0, reconfig if needed and break from tox_do
                 if (!msg->msg) {
-                    reconfig = msg->param1;
-                    tox_thread_msg = 0;
+                    reconfig        = msg->param1;
+                    tox_thread_msg  = 0;
+                    tox_thread_init = 0;
                     break;
                 }
                 tox_thread_message(tox, av, time, msg->msg, msg->param1, msg->param2, msg->data);
@@ -742,7 +741,9 @@ void tox_thread(void *UNUSED(args)) {
             yieldcpu((interval > 20) ? 20 : interval);
         }
 
+        /* If for anyreason, we exit, write the save, and clear the password */
         write_save(tox);
+        edit_setstr(&edit_profile_password, (char_t *)"", 0);
 
         // Wait for all a/v threads to return 0
         while(audio_thread_init || video_thread_init || toxav_thread_init) {

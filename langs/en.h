@@ -205,6 +205,12 @@ msgstr("Network Settings")
 msgid(PROFILE_PASSWORD)
 msgstr("Profile password")
 
+msgid(LOCK_UTOX)
+msgstr("Disconnects from Toxcore, and locks profile")
+
+msgid(LOCK)
+msgstr("Lock")
+
 msgid(AUDIO_VIDEO)
 msgstr("Audio/Video")
 

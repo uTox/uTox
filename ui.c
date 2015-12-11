@@ -714,6 +714,7 @@ panel_main = {
                     #endif
                     (void*)&dropdown_language,
                     (void*)&edit_profile_password,
+                    (void*)&button_lock_uTox,
                     NULL
                 }
             },
@@ -1028,6 +1029,14 @@ void ui_scale(uint8_t scale) {
             .y      = -23 * SCALE,
             .width  = BM_CHAT_SEND_WIDTH,
             .height = BM_CHAT_SEND_HEIGHT,
+        },
+
+        b_lock_uTox = {
+            .type   = PANEL_BUTTON,
+            .x      =   5 * SCALE,
+            .y      = 125 * SCALE,
+            .width  = BM_SBUTTON_WIDTH,
+            .height = BM_SBUTTON_HEIGHT,
         };
 
     /* Set the button panels */
@@ -1062,6 +1071,7 @@ void ui_scale(uint8_t scale) {
         button_send_file.panel           = b_send_file;
         button_send_screenshot.panel     = b_send_screenshot;
         button_chat_send.panel           = b_chat_send;
+        button_lock_uTox.panel           = b_lock_uTox;
 
     /* Drop down structs */
         setfont(FONT_TEXT);

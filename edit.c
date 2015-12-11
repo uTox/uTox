@@ -338,7 +338,7 @@ void edit_do(EDIT *edit, STRING_IDX start, STRING_IDX length, _Bool remove)
     EDIT_CHANGE *new, **history;
 
     new = malloc(sizeof(EDIT_CHANGE) + length);
-    if(!new) {
+    if (!new) {
         return;
     }
 
@@ -357,8 +357,8 @@ void edit_do(EDIT *edit, STRING_IDX start, STRING_IDX length, _Bool remove)
     }
 
     history = realloc(edit->history, (edit->history_cur + 1) * sizeof(void*));
-    if(!history) {
-        //
+    if (!history) {
+        // Do something?
     }
 
     history[edit->history_cur] = new;
