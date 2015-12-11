@@ -10,6 +10,14 @@ typedef struct {
     void *data;
 } TOX_MSG;
 
+typedef enum UTOX_ENC_ERR {
+    UTOX_ENC_ERR_NONE,
+    UTOX_ENC_ERR_LENGTH,
+    UTOX_ENC_ERR_BAD_PASS,
+    UTOX_ENC_ERR_BAD_DATA,
+    UTOX_ENC_ERR_UNKNOWN
+} UTOX_ENC_ERR;
+
 /* toxcore thread messages (sent from the client thread) */
 enum {
     /* SHUTDOWNEVERYTHING! */

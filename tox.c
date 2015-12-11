@@ -44,9 +44,8 @@ typedef struct {
     uint8_t zeroes[2];
 } LOG_FILE_MSG_HEADER;
 
-void log_write(Tox *tox, int fid, const uint8_t *message, uint16_t length, _Bool author, uint8_t msg_type)
-{
-    if(!logging_enabled) {
+void log_write(Tox *tox, int fid, const uint8_t *message, uint16_t length, _Bool author, uint8_t msg_type) {
+    if (!logging_enabled) {
         return;
     }
 
@@ -96,8 +95,7 @@ void log_write(Tox *tox, int fid, const uint8_t *message, uint16_t length, _Bool
     }
 }
 
-void log_read(Tox *tox, int fid)
-{
+void log_read(Tox *tox, int fid) {
     uint8_t path[UTOX_FILE_NAME_LENGTH], *p;
     FILE *file;
 
@@ -128,12 +126,12 @@ void log_read(Tox *tox, int fid)
     }
 
     LOG_FILE_MSG_HEADER header;
-    off_t rewinds[MAX_BACKLOG_MESSAGES] = {};
+    off_t rewinds[UTOX_MAX_BACKLOG_MESSAGES] = {};
     size_t records_count = 0;
 
-    /* todo: some checks to avoid crashes with corrupted log files */
-    /* first find the last MAX_BACKLOG_MESSAGES messages in the log */
-    while(1 == fread(&header, sizeof(LOG_FILE_MSG_HEADER), 1, file)) {
+    /* TODO: some checks to avoid crashes with corrupted log files
+     * first find the last UTOX_MAX_BACKLOG_MESSAGES messages in the log */
+    while (1 == fread(&header, sizeof(LOG_FILE_MSG_HEADER), 1, file)) {
         fseeko(file, header.namelen + header.length, SEEK_CUR);
 
         rewinds[records_count % countof(rewinds)] =
@@ -141,7 +139,7 @@ void log_read(Tox *tox, int fid)
         records_count++;
     }
 
-    if(ferror(file) || !feof(file)) {
+    if (ferror(file) || !feof(file)) {
         // TODO: consider removing or truncating the log file.
         // If !feof() this means that the file has an incomplete record,
         // which would prevent it from loading forever, even though
@@ -151,7 +149,7 @@ void log_read(Tox *tox, int fid)
         return;
     }
 
-    // Backtrack to read last MAX_BACKLOG_MESSAGES in full.
+    // Backtrack to read last UTOX_MAX_BACKLOG_MESSAGES in full.
     off_t rewind = 0;
     MSG_IDX i;
     for(i = 0; (i < records_count) && (i < countof(rewinds)); i++) {
@@ -270,27 +268,43 @@ void tox_postmessage(uint8_t msg, uint32_t param1, uint32_t param2, void *data) 
     tox_thread_msg = 1;
 }
 
-static int utox_encrypt_data(void *clear_text, size_t clear_length,
-                              void *passphrase,  size_t passphrase_length,
-                              uint8_t *cypher_data) {
+static int utox_encrypt_data(void *clear_text, size_t clear_length, uint8_t *cypher_data) {
+    size_t passphrase_length = edit_profile_password.length;
+
+    if (passphrase_length < 4) {
+        return UTOX_ENC_ERR_LENGTH;
+    }
+
+    uint8_t passphrase[passphrase_length];
+    memcpy(passphrase, edit_profile_password.data, passphrase_length);
     TOX_ERR_ENCRYPTION err = 0;
+
     tox_pass_encrypt((uint8_t*)clear_text, clear_length,
                      (uint8_t*)passphrase, passphrase_length,
                      cypher_data, &err);
+
     if (err) {
         debug("Fatal Error; unable to encrypt data!\n");
         exit(10);
     }
+
     return err;
 }
 
-static int utox_decrypt_data(void *cypher_data, size_t cypher_length,
-                              void *passphrase,  size_t passphrase_length,
-                              uint8_t *clear_text) {
+static int utox_decrypt_data(void *cypher_data, size_t cypher_length, uint8_t *clear_text) {
+    size_t passphrase_length = edit_profile_password.length;
+
+    if (passphrase_length < 4) {
+        return UTOX_ENC_ERR_LENGTH;
+    }
+
+    uint8_t passphrase[passphrase_length];
+    memcpy(passphrase, edit_profile_password.data, passphrase_length);
     TOX_ERR_DECRYPTION err = 0;
     tox_pass_decrypt((uint8_t*)cypher_data, cypher_length,
                      (uint8_t*)passphrase, passphrase_length,
                      clear_text, &err);
+
     if (err) {
         return err;
     }
@@ -416,7 +430,7 @@ static void write_save(Tox *tox) {
 
     if (edit_profile_password.length > 3) {
         /* encrypt data */
-        utox_encrypt_data(data, clear_length, edit_profile_password.data, edit_profile_password.length, encrypted_data);
+        utox_encrypt_data(data, clear_length, encrypted_data);
         file_write_raw(path_tmp, encrypted_data, encrypted_length);
         debug("Save encrypted!\n");
     } else {
@@ -507,9 +521,7 @@ static int load_toxcore_save(void){
         if (tox_is_data_encrypted(raw_data)) {
             debug("Using encrypted data, trying password: ");
 
-            int decrypt_err = utox_decrypt_data(raw_data, raw_length,
-                                                edit_profile_password.data, edit_profile_password.length,
-                                                clear_data);
+            UTOX_ENC_ERR decrypt_err = utox_decrypt_data(raw_data, raw_length, clear_data);
             if (decrypt_err) {
                 if (decrypt_err == 5){
                     debug("decrypt reports bad password!\n");

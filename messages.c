@@ -1021,14 +1021,14 @@ void message_add(MESSAGES *m, MESSAGE *msg, MSG_DATA *p)
     // Set the time this message was received by utox
     msg->time = ti->tm_hour * 60 + ti->tm_min;
 
-    if(p->n < MAX_BACKLOG_MESSAGES) {
+    if(p->n < UTOX_MAX_BACKLOG_MESSAGES) {
         p->data = realloc(p->data, (p->n + 1) * sizeof(void*));
         p->data[p->n++] = msg;
     } else {
         p->height -= ((MESSAGE*)p->data[0])->height;
         message_free(p->data[0]);
-        memmove(p->data, p->data + 1, (MAX_BACKLOG_MESSAGES - 1) * sizeof(void*));
-        p->data[MAX_BACKLOG_MESSAGES - 1] = msg;
+        memmove(p->data, p->data + 1, (UTOX_MAX_BACKLOG_MESSAGES - 1) * sizeof(void*));
+        p->data[UTOX_MAX_BACKLOG_MESSAGES - 1] = msg;
 
         // Scroll selection up so that it stays over the same messages.
         if (p->istart != MSG_IDX_MAX) {
