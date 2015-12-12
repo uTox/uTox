@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <ctype.h>
+#include <limits.h>
 #include <X11/Xatom.h>
 #include <X11/X.h>
 #include <X11/cursorfont.h>
@@ -51,6 +52,8 @@
 #include <unity.h>
 #include "mmenu.c"
 #endif
+
+char user_datapath[PATH_MAX];
 
 Display *display;
 Visual *visual;
@@ -103,6 +106,7 @@ void *libgtk;
 #include "freetype.c"
 
 _Bool utox_portable;
+_Bool user_defined_datapath;
 
 struct {
     int len;
@@ -870,7 +874,12 @@ int datapath_old(uint8_t *dest)
 
 int datapath(uint8_t *dest)
 {
-    if (utox_portable) {
+    if (user_defined_datapath) {
+        int l = sprintf((char*)dest, "%s", user_datapath);
+        dest[l++] = '/';
+
+        return l;
+    } else if (utox_portable) {
         int l = sprintf((char*)dest, "./tox");
         mkdir((char*)dest, 0700);
         dest[l++] = '/';
@@ -1122,6 +1131,27 @@ int main(int argc, char *argv[]) {
             } else if(!strcmp(argv[i], "--portable")) {
                 debug("Launching uTox in portable mode: All data will be saved to the tox folder in the current working directory\n");
                 utox_portable = 1;
+            } else if(strncmp(argv[i], "--datapath", 10) == 0) {
+                user_datapath[0] = '\0';
+                if ((strlen(argv[i]) > 10) && (argv[i][10] == '=')) {
+                    strncpy(user_datapath, argv[i]+11, PATH_MAX-1);
+                    user_datapath[PATH_MAX-1] = '\0';
+                    if ((strlen(user_datapath) > 0) && (access(user_datapath, R_OK|W_OK)) == 0) {
+                        user_defined_datapath = 1;
+                        debug("Using \"%s\" as data path\n", user_datapath);
+                    }
+                } else if((strlen(argv[i]) == 10) && (argc > i+1)) {
+                    ++i;
+                    strncpy(user_datapath, argv[i], PATH_MAX-1);
+                    user_datapath[PATH_MAX-1] = '\0';
+                    if ((strlen(user_datapath) > 0) && (access(user_datapath, R_OK|W_OK)) == 0) {
+                        user_defined_datapath = 1;
+                        debug("Using \"%s\" as data path\n", user_datapath);
+                    }
+                } else {
+                    debug("Error processing \"--datapath\" argument\n");
+                    return 6;
+                }
             } else if(!strcmp(argv[i], "--theme")) {
                 parse_args_wait_for_theme = 1;
             } else if(strncmp(argv[i], "--set", 5) == 0) {

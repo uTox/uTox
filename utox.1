@@ -24,11 +24,17 @@ usage: utox [--portable] [--theme <default|dark|light|highcontrast|zenburn>] [--
 Choose a color scheme. Possible options are \fIdefault\fP, \fIdark\fP,
 \fIlight\fP, \fIhighcontrast\fP, or \fPzenburn\fP.
 
+.IP "\fB\-\-datapath\fP <DIR>"
+Like portable mode, but let you choose a different location for
+stored files. The directory structure must already exists.
+
 .IP \fB\-\-portable\fP
 Run in portable mode. All data will be saved to the tox folder in the current working directory, see FILES for more details.
 
 .IP \fB\-\-set=<OPTION>\fP
 Set an option. The available options are "start-on-boot", "show-window" and "hide-window".
+
+IGNORED WHEN "\-\-datapath" IS USED
 
 .IP \fB\-\-version\fP
 Print version and exit.
