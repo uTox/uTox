@@ -42,8 +42,8 @@ static void gtk_opensendthread(void *args) {
 
     void *dialog = gtk_file_chooser_dialog_new((const char *)S(SEND_FILE), NULL,
             GTK_FILE_CHOOSER_ACTION_OPEN,
-            "Cancel", GTK_RESPONSE_CANCEL,
-            "Open", GTK_RESPONSE_ACCEPT,
+            "_Cancel", GTK_RESPONSE_CANCEL,
+            "_Open", GTK_RESPONSE_ACCEPT,
             NULL);
     gtk_file_chooser_set_select_multiple(dialog, true);
     int result = gtk_dialog_run(dialog);
@@ -75,8 +75,8 @@ static void gtk_opensendthread(void *args) {
 static void gtk_openavatarthread(void *UNUSED(args)) {
     void *dialog = gtk_file_chooser_dialog_new((const char *)S(SELECT_AVATAR_TITLE), NULL,
             GTK_FILE_CHOOSER_ACTION_OPEN,
-            "Cancel", GTK_RESPONSE_CANCEL,
-            "Open", GTK_RESPONSE_ACCEPT,
+            "_Cancel", GTK_RESPONSE_CANCEL,
+            "_Open", GTK_RESPONSE_ACCEPT,
             NULL);
     void *filter = gtk_file_filter_new();
     gtk_file_filter_add_mime_type(filter, "image/png");
@@ -125,8 +125,8 @@ static void gtk_savethread(void *args) {
         /* Create a GTK save window */
         void *dialog = gtk_file_chooser_dialog_new((const char *)S(SELECT_AVATAR_TITLE), NULL,
                 GTK_FILE_CHOOSER_ACTION_SAVE,
-                "Cancel", GTK_RESPONSE_CANCEL,
-                "Open", GTK_RESPONSE_ACCEPT,
+                "_Cancel", GTK_RESPONSE_CANCEL,
+                "_Open", GTK_RESPONSE_ACCEPT,
                 NULL);
         /* Get incoming file name*/
         char buf[sizeof(file->name) + 1];
@@ -191,8 +191,8 @@ static void gtk_savedatathread(void *args) {
     MSG_FILE *file = args;
     void *dialog = gtk_file_chooser_dialog_new((const char *)S(SAVE_FILE), NULL,
             GTK_FILE_CHOOSER_ACTION_SAVE,
-            "Cancel", GTK_RESPONSE_CANCEL,
-            "Save", GTK_RESPONSE_ACCEPT,
+            "_Cancel", GTK_RESPONSE_CANCEL,
+            "_Save", GTK_RESPONSE_ACCEPT,
             NULL);
     gtk_file_chooser_set_current_name(dialog, "inline.png");
     int result = gtk_dialog_run(dialog);
