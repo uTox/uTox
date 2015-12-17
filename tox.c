@@ -1783,7 +1783,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             break;
         }
         case GROUP_PEER_ADD:
-        case GROUP_PEER_NAME_CHANGE: {
+        case GROUP_PEER_NAME: {
             GROUPCHAT *g = &group[param1];
 
             if (g->peername[param2]) {
