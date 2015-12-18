@@ -1,8 +1,10 @@
+#ifndef __WIN_LEGACY
+
 #ifndef _WIN32_WINNT
  #define _WIN32_WINNT 0x0600
 #endif
 
-#include <windows.h>
+#include "../main.h"
 
 void launch_at_startup(int is_launch_at_startup){
     HKEY hKey;
@@ -33,3 +35,5 @@ void launch_at_startup(int is_launch_at_startup){
         }
     }
 }
+
+#endif

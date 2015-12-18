@@ -1,7 +1,6 @@
+#include "../main.h"
 #include <windows.h>
 #include <windowsx.h>
-
-#include "audio.c"
 
 static _Bool flashing, desktopgrab_video;
 static _Bool hidden;
@@ -21,15 +20,6 @@ BLENDFUNCTION blend_function = {
     .SourceConstantAlpha = 0xFF,
     .AlphaFormat = AC_SRC_ALPHA
 };
-
-/** Select the true main.c for legacy XP support.
- *  else default to xlib
- **/
-#ifdef __WIN_LEGACY
- #include "main.XP.c"
-#else
- #include "main.7.c"
-#endif
 
 /** Translate a char* from UTF-8 encoding to OS native;
  *
@@ -1167,8 +1157,6 @@ void config_osdefaults(UTOX_SAVE *r)
     r->window_width = MAIN_WIDTH;
     r->window_height = MAIN_HEIGHT;
 }
-
-#include "dnd.c"
 
 /** client main()
  *
