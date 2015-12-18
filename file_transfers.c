@@ -930,8 +930,8 @@ static void outgoing_file_callback_chunk(Tox *tox, uint32_t friend_number, uint3
 
     if(read_size != length){
         debug("FileTransfer:\tERROR READING FILE! (%u & %u)\n", friend_number, file_number);
-        debug("FileTransfer:\t\tSize (%lu), Position (%lu), Length(%lu), Read_size (%lu), size_transferred (%lu).\n",
-            file_handle->size, position, length, read_size, file_handle->size_transferred);
+        //debug("FileTransfer:\t\tSize (%lu), Position (%lu), Length(%lu), Read_size (%lu), size_transferred (%lu).\n",
+        //    file_handle->size, position, length, read_size, file_handle->size_transferred);
         file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
         return;
     }
