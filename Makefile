@@ -142,6 +142,6 @@ tray-icon:
 	$(TRAY_GEN)
 
 clean:
-	rm -f utox *.o png/*.o icons/*.o windows/*.o
+	rm -f $(OUT_FILE) *.o png/*.o icons/*.o windows/*.o
 
 .PHONY: all clean
