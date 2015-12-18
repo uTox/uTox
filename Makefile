@@ -19,6 +19,12 @@ ifeq ($(FILTER_AUDIO), 1)
 	CFLAGS += -DAUDIO_FILTERING
 endif
 
+ifeq ($(ARCH), x86_64)
+	OBJCPY = elf64-x86-64
+else
+	OBJCPY = elf32-i386
+endif
+
 ifeq ($(UNAME_S), Linux)
 	OUT_FILE = utox
 
@@ -46,6 +52,8 @@ ifeq ($(UNAME_S), Linux)
 	LDFLAGS += -lresolv -ldl
 	LDFLAGS += $(shell pkg-config --libs $(DEPS))
 
+	TRAY_GEN = objcopy -I binary -O $(OBJCPY) -B i386 icons/utox-128x128.png icons/utox-128x128.o
+	TRAY_OBJ = icons/utox-128x128.o
 else ifeq ($(UNAME_O), Cygwin)
 	OUT_FILE = utox.exe
 
@@ -60,14 +68,11 @@ else ifeq ($(UNAME_O), Cygwin)
 
 	OS_SRC = $(wildcard windows/*.c)
 	OS_OBJ = $(OS_SRC:.c=.o)
+
+	TRAY_GEN = x86_64-w64-mingw32-windres icons/icon.rc -O coff -o icon.o
+	TRAY_OBJ = icon.o
 endif
 
-
-ifeq ($(ARCH), x86_64)
-	OBJCPY = elf64-x86-64
-else
-	OBJCPY = elf32-i386
-endif
 
 DESTDIR ?=
 PREFIX ?= /usr/local
@@ -79,9 +84,9 @@ GIT_V = $(shell git describe --abbrev=8 --dirty --always --tags)
 
 all: utox
 
-utox: $(OBJ) $(OS_OBJ) icons/utox-128x128.o
+utox: $(OBJ) $(OS_OBJ) tray-icon
 	@echo "  LD    $@"
-	@$(CC) $(CFLAGS) -o $(OUT_FILE) $(OBJ) $(OS_OBJ) icons/utox-128x128.o $(LDFLAGS)
+	@$(CC) $(CFLAGS) -o $(OUT_FILE) $(OBJ) $(OS_OBJ) $(TRAY_OBJ) $(LDFLAGS)
 
 install: utox
 	mkdir -p $(DESTDIR)$(PREFIX)/bin
@@ -133,8 +138,8 @@ $(OS_OBJ): %.o: %.c $(HEADERS)
 	@echo "  CC    $@"
 	@$(CC) $(CFLAGS) -o $@ -c -DGIT_VERSION=\"$(GIT_V)\" $<
 
-icons/utox-128x128.o:
-	objcopy -I binary -O $(OBJCPY) -B i386 icons/utox-128x128.png icons/utox-128x128.o
+tray-icon:
+	$(TRAY_GEN)
 
 clean:
 	rm -f utox *.o png/*.o icons/*.o windows/*.o
