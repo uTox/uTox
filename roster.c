@@ -690,9 +690,9 @@ static void contextmenu_list_onselect(uint8_t i) {
                 GROUPCHAT *g = ritem->data;
                 if (g->type == TOX_GROUPCHAT_TYPE_AV) {
                     g->muted = !g->muted;
+                } else {
+                    list_deleteritem();
                 }
-            } else {
-                list_deleteritem();
             }
             break;
         }
