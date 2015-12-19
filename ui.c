@@ -118,7 +118,7 @@ static void draw_friend(int x, int y, int w, int height){
     drawtextrange(MAIN_LEFT + 30 * SCALE, utox_window_width - 64 * SCALE, 16 * SCALE, f->status_message, f->status_length);
 
     if (f->typing) {
-        int typing_y = ((y + height) + CHAT_BOX_TOP - 5 * SCALE);
+        int typing_y = ((y + height) + CHAT_BOX_TOP - 7 * SCALE);
         setfont(FONT_MISC);
         // @TODO: separate these colors if needed
         setcolor(COLOR_MAIN_HINTTEXT);
