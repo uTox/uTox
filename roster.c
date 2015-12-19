@@ -667,13 +667,12 @@ static void contextmenu_list_onselect(uint8_t i) {
                     edit_setfocus(&edit_msg);
                     edit_paste((char_t*)str, sizeof(str), 0);
                 }
-                return;
             } else if (i == 1) {
                 friend_history_clear((FRIEND*)ritem->data);
-                return;
             } else {
                 list_deleteritem();
             }
+            break;
         }
         case ITEM_GROUP: {
             if (i == 0) {
@@ -695,12 +694,14 @@ static void contextmenu_list_onselect(uint8_t i) {
             } else {
                 list_deleteritem();
             }
+            break;
         }
         case ITEM_FRIEND_ADD: {
             if(i == 0) {
                 FRIENDREQ *req = ritem->data;
                 tox_postmessage(TOX_FRIEND_ACCEPT, 0, 0, req);
             }
+            break;
         }
     }
 }
