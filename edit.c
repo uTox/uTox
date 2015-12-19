@@ -96,7 +96,7 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
     }
 
     _Bool is_active = (edit == active_edit);
-    if (!is_active && edit->password) {
+    if (edit->password) {
         /* Generate the stars for this password */
         uint8_t star[edit->length];
         memset(star, '*', edit->length);
