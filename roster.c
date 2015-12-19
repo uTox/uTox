@@ -648,57 +648,69 @@ _Bool list_mdown(void *UNUSED(n)) {
 }
 
 static void contextmenu_list_onselect(uint8_t i) {
-    switch (right_mouse_item->item) {
-        case ITEM_FRIEND:{
-            if (i == 0) {
-                FRIEND *f = right_mouse_item->data;
-                if(right_mouse_item != selected_item) {
-                    show_page(right_mouse_item);
-                }
+    if (right_mouse_item) {
+        switch (right_mouse_item->item) {
+            case ITEM_FRIEND:{
+                if (i == 0) {
+                    FRIEND *f = right_mouse_item->data;
+                    if(right_mouse_item != selected_item) {
+                        show_page(right_mouse_item);
+                    }
 
-                if (f->alias) {
-                    char str[f->alias_length + 7];
-                    strcpy(str, "/alias ");
-                    memcpy(str + 7, f->alias, f->alias_length + 1);
-                    edit_setfocus(&edit_msg);
-                    edit_paste((char_t*)str, sizeof(str), 0);
+                    if (f->alias) {
+                        char str[f->alias_length + 7];
+                        strcpy(str, "/alias ");
+                        memcpy(str + 7, f->alias, f->alias_length + 1);
+                        edit_setfocus(&edit_msg);
+                        edit_paste((char_t*)str, sizeof(str), 0);
+                    } else {
+                        char str[8] = "/alias ";
+                        edit_setfocus(&edit_msg);
+                        edit_paste((char_t*)str, sizeof(str), 0);
+                    }
+                } else if (i == 1) {
+                    friend_history_clear((FRIEND*)right_mouse_item->data);
                 } else {
-                    char str[8] = "/alias ";
-                    edit_setfocus(&edit_msg);
-                    edit_paste((char_t*)str, sizeof(str), 0);
+                    roster_delete_rmouse_item();
                 }
-            } else if (i == 1) {
-                friend_history_clear((FRIEND*)right_mouse_item->data);
-            } else {
-                roster_delete_rmouse_item();
+                return;
             }
-            return;
-        }
-        case ITEM_GROUP: {
-            GROUPCHAT *g = right_mouse_item->data;
-            if (i == 0) {
-                if(right_mouse_item != selected_item) {
-                    show_page(right_mouse_item);
-                }
+            case ITEM_GROUP: {
+                GROUPCHAT *g = right_mouse_item->data;
+                if (i == 0) {
+                    if(right_mouse_item != selected_item) {
+                        show_page(right_mouse_item);
+                    }
 
-                char str[g->name_length + 7];
-                strcpy(str, "/topic ");
-                memcpy(str + 7, g->name, g->name_length);
-                edit_setfocus(&edit_msg_group);
-                edit_paste((char_t*)str, sizeof(str), 0);
-            } else if (i == 1 && g->type == TOX_GROUPCHAT_TYPE_AV) {
-                g->muted = !g->muted;
-            } else {
-                roster_delete_rmouse_item();
+                    char str[g->name_length + 7];
+                    strcpy(str, "/topic ");
+                    memcpy(str + 7, g->name, g->name_length);
+                    edit_setfocus(&edit_msg_group);
+                    edit_paste((char_t*)str, sizeof(str), 0);
+                } else if (i == 1 && g->type == TOX_GROUPCHAT_TYPE_AV) {
+                    g->muted = !g->muted;
+                } else {
+                    roster_delete_rmouse_item();
+                }
+                return;
             }
-            return;
+            case ITEM_FRIEND_ADD: {
+                if(i == 0) {
+                    FRIENDREQ *req = right_mouse_item->data;
+                    tox_postmessage(TOX_FRIEND_ACCEPT, 0, 0, req);
+                }
+                return;
+            }
+            default: {
+                debug("blerg\n");
+                return;
+            }
         }
-        case ITEM_FRIEND_ADD: {
-            if(i == 0) {
-                FRIENDREQ *req = right_mouse_item->data;
-                tox_postmessage(TOX_FRIEND_ACCEPT, 0, 0, req);
-            }
-            return;
+    } else {
+        if (i) {
+            tox_postmessage(TOX_GROUP_CREATE, 0, 0, NULL);
+        } else {
+            show_page(&item_add);
         }
     }
 }
@@ -709,6 +721,7 @@ _Bool list_mright(void *UNUSED(n)) {
     static UI_STRING_ID menu_group_muted[] = {STR_CHANGE_GROUP_TOPIC, STR_UNMUTE, STR_REMOVE_GROUP};
     static UI_STRING_ID menu_group[] = {STR_CHANGE_GROUP_TOPIC, STR_REMOVE_GROUP};
     static UI_STRING_ID menu_request[] = {STR_REQ_ACCEPT, STR_REQ_DECLINE};
+    static UI_STRING_ID menu_none[] = {STR_ADDFRIENDS, STR_CREATEGROUPCHAT};
 
     if(mouseover_item) {
         right_mouse_item = mouseover_item;
@@ -731,8 +744,10 @@ _Bool list_mright(void *UNUSED(n)) {
         }
         return 1;
         //listpopup(mouseover_item->item);
+    } else {
+        contextmenu_new(countof(menu_none), menu_none, contextmenu_list_onselect);
+        return 1;
     }
-
     return 0;
 }
 
