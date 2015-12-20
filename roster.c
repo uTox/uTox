@@ -751,6 +751,8 @@ _Bool list_mright(void *UNUSED(n)) {
         return 1;
         //listpopup(mouseover_item->item);
     } else if (mouse_in_list) {
+        right_mouse_item = NULL; /* Unset right_mouse_item so that we don't interact with the incorrect context menu
+                                  * I'm not sure if this belongs here or in list_mmove, or maybe item_hit. */
         contextmenu_new(countof(menu_none), menu_none, contextmenu_list_onselect);
         return 1;
     }
