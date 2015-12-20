@@ -531,6 +531,7 @@ static int load_toxcore_save(void){
                     debug("Unknown error, please file a bug report!\n");
                 }
                 panel_profile_password.disabled = 0;
+                edit_setfocus(&edit_profile_password);
                 postmessage(REDRAW, 0, 0, NULL);
                 return -1;
             }
@@ -542,6 +543,7 @@ static int load_toxcore_save(void){
 
                 panel_profile_password.disabled = 1;
                 panel_settings_master.disabled  = 0;
+                edit_resetfocus();
                 postmessage(REDRAW, 0, 0, NULL);
                 return 0;
             }
@@ -553,6 +555,7 @@ static int load_toxcore_save(void){
 
             panel_profile_password.disabled = 1;
             panel_settings_master.disabled  = 0;
+            edit_resetfocus();
             postmessage(REDRAW, 0, 0, NULL);
             return 0;
         }

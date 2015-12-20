@@ -555,7 +555,7 @@ edit_proxy_port = {
 edit_profile_password = {
     .maxlength   = sizeof(edit_profile_password) - 1,
     .data        = edit_profile_password_data,
-    .onchange    = edit_profile_password_update,
+    // .onchange    = edit_profile_password_update,
     .onlosefocus = edit_profile_password_update,
     .password    = 1,
 };
