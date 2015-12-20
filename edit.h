@@ -10,7 +10,14 @@ struct edit_change
 struct edit {
     PANEL panel;
 
-    _Bool multiline, mouseover, noborder, readonly, select_completely, vcentered;
+    _Bool multiline,
+    mouseover,
+    noborder,
+    readonly,
+    select_completely,
+    vcentered,
+    password;
+
     STRING_IDX mouseover_char, length, maxlength;
     uint16_t width, height;
 

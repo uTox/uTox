@@ -100,6 +100,15 @@ msgstr("Call ringing")
 msgid(CALL_STARTED)
 msgstr("Call started")
 
+msgid(PROFILE_SETTINGS)
+msgstr("Profile Settings")
+
+msgid(PROFILE_PW_WARNING)
+msgstr("WARNING: µTox will automatically start encrypting with this password.")
+
+msgid(PROFILE_PW_NO_RECOVER)
+msgstr("There is no way to recover lost passwords.")
+
 msgid(ADDFRIENDS)
 msgstr("Add New Contact")
 
@@ -198,6 +207,15 @@ msgstr("uTox Settings")
 
 msgid(NETWORK_SETTINGS)
 msgstr("Network Settings")
+
+msgid(PROFILE_PASSWORD)
+msgstr("Profile password")
+
+msgid(LOCK_UTOX)
+msgstr("Disconnects from Toxcore, and locks profile")
+
+msgid(LOCK)
+msgstr("Lock")
 
 msgid(AUDIO_VIDEO)
 msgstr("Audio/Video")

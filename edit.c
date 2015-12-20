@@ -89,18 +89,27 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
     }
 
     // display an edit hint if there's no text in the field
-    if(!edit->length && maybe_i18nal_string_is_valid(&edit->empty_str)) {
+    if (!edit->length && maybe_i18nal_string_is_valid(&edit->empty_str)) {
         STRING* empty_str_text = maybe_i18nal_string_get(&edit->empty_str);
         setcolor(COLOR_MAIN_HINTTEXT);
         drawtext(x + 2 * SCALE, yy + top_offset * SCALE, empty_str_text->str, empty_str_text->length);
     }
 
-    _Bool a = (edit == active_edit);
-    drawtextmultiline(x + 2 * SCALE, x + width - 2 * SCALE - (edit->multiline ? SCROLL_WIDTH : 0), yy + top_offset * SCALE, y, y + height, font_small_lineheight, edit->data, edit->length,
-                      a ? edit_sel.start : STRING_IDX_MAX, a ? edit_sel.length : STRING_IDX_MAX,
-                      a ? edit_sel.mark_start : 0, a ? edit_sel.mark_length : 0, edit->multiline);
+    _Bool is_active = (edit == active_edit);
+    if (edit->password) {
+        /* Generate the stars for this password */
+        uint8_t star[edit->length];
+        memset(star, '*', edit->length);
+        drawtextmultiline(x + 2 * SCALE, x + width - 2 * SCALE - (edit->multiline ? SCROLL_WIDTH : 0), yy + top_offset, y, y + height, font_small_lineheight, star, edit->length,
+                          is_active ? edit_sel.start : STRING_IDX_MAX, is_active ? edit_sel.length : STRING_IDX_MAX,
+                          is_active ? edit_sel.mark_start : 0, is_active ? edit_sel.mark_length : 0, edit->multiline);
+    } else {
+        drawtextmultiline(x + 2 * SCALE, x + width - 2 * SCALE - (edit->multiline ? SCROLL_WIDTH : 0), yy + top_offset, y, y + height, font_small_lineheight, edit->data, edit->length,
+                          is_active ? edit_sel.start : STRING_IDX_MAX, is_active ? edit_sel.length : STRING_IDX_MAX,
+                          is_active ? edit_sel.mark_start : 0, is_active ? edit_sel.mark_length : 0, edit->multiline);
+    }
 
-    if(edit->multiline) {
+    if (edit->multiline) {
         popclip();
     }
 }
@@ -335,7 +344,7 @@ void edit_do(EDIT *edit, STRING_IDX start, STRING_IDX length, _Bool remove)
     EDIT_CHANGE *new, **history;
 
     new = malloc(sizeof(EDIT_CHANGE) + length);
-    if(!new) {
+    if (!new) {
         return;
     }
 
@@ -354,8 +363,8 @@ void edit_do(EDIT *edit, STRING_IDX start, STRING_IDX length, _Bool remove)
     }
 
     history = realloc(edit->history, (edit->history_cur + 1) * sizeof(void*));
-    if(!history) {
-        //
+    if (!history) {
+        // Do something?
     }
 
     history[edit->history_cur] = new;
@@ -790,6 +799,9 @@ void edit_resetfocus(void)
 
 void edit_setfocus(EDIT *edit)
 {
+    if (active_edit == edit) {
+        return;
+    }
     edit_select = 0;
     edit_sel.start = edit_sel.p1 = 0;
     edit_sel.length = edit_sel.p2 = edit->length;

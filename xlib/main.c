@@ -1240,7 +1240,6 @@ int main(int argc, char *argv[]) {
 
     if((display = XOpenDisplay(NULL)) == NULL) {
         printf("Cannot open display\n");
-
         return 1;
     }
 
@@ -1427,11 +1426,6 @@ int main(int argc, char *argv[]) {
     /* set the width/height of the drawing region */
     ui_size(utox_window_width, utox_window_height);
 
-    /* wait for the tox thread to finish initializing */
-    while(!tox_thread_init) {
-        yieldcpu(1);
-    }
-
     create_tray_icon();
     /* Registers the app in the Unity MM */
     #ifdef UNITY
@@ -1440,9 +1434,6 @@ int main(int argc, char *argv[]) {
         mm_register();
     }
     #endif
-
-    /* set up the contact list */
-    list_start();
 
     /* draw */
     panel_draw(&panel_root, 0, 0, utox_window_width, utox_window_height);

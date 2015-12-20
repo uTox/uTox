@@ -57,40 +57,50 @@ void draw_avatar_image(UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, u
 
 /* Top left self interface Avatar, name, statusmsg, status icon */
 static void draw_user_badge(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height)){
-    /*draw avatar or default image */
-    if (self_has_avatar()) {
-        draw_avatar_image(self.avatar.image, SIDEBAR_AVATAR_LEFT, SIDEBAR_AVATAR_TOP,
-                          self.avatar.width, self.avatar.height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
+    if (tox_thread_init) {
+        /* Only draw the user badge if toxcore is running */
+        /*draw avatar or default image */
+        if (self_has_avatar()) {
+            draw_avatar_image(self.avatar.image, SIDEBAR_AVATAR_LEFT, SIDEBAR_AVATAR_TOP,
+                              self.avatar.width, self.avatar.height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
+        } else {
+            drawalpha(BM_CONTACT, SIDEBAR_AVATAR_LEFT, SIDEBAR_AVATAR_TOP,
+                      BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_MENU_TEXT);
+        }
+        /* Draw name */
+        setcolor(!button_name.mouseover ? COLOR_MENU_TEXT : COLOR_MENU_SUBTEXT);
+        setfont(FONT_SELF_NAME);
+        drawtextrange(SIDEBAR_NAME_LEFT, SIDEBAR_NAME_WIDTH, SIDEBAR_NAME_TOP, self.name, self.name_length);
+
+        /*&Draw current status message
+        @TODO: separate these colors if needed (COLOR_MAIN_HINTTEXT) */
+        setcolor(!button_statusmsg.mouseover ? COLOR_MENU_SUBTEXT : COLOR_MAIN_HINTTEXT);
+        setfont(FONT_STATUS);
+        drawtextrange(SIDEBAR_STATUSMSG_LEFT, SIDEBAR_STATUSMSG_WIDTH, SIDEBAR_STATUSMSG_TOP,
+                      self.statusmsg, self.statusmsg_length);
+
+        /* Draw status button icon */
+        drawalpha(BM_STATUSAREA, SELF_STATUS_ICON_LEFT, SELF_STATUS_ICON_TOP, BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT,
+                  button_status.mouseover ? COLOR_BACKGROUND_LIST_HOVER : COLOR_BACKGROUND_LIST);
+        uint8_t status = tox_connected ? self.status : 3;
+        drawalpha(BM_ONLINE + status, SELF_STATUS_ICON_LEFT + BM_STATUSAREA_WIDTH / 2 - BM_STATUS_WIDTH / 2,
+                  SELF_STATUS_ICON_TOP + BM_STATUSAREA_HEIGHT / 2 - BM_STATUS_WIDTH / 2, BM_STATUS_WIDTH, BM_STATUS_WIDTH,
+                  status_color[status]);
+
+        /* Draw online/all friends filter text. */
+        setcolor(!button_filter_friends.mouseover ? COLOR_MENU_SUBTEXT : COLOR_MAIN_HINTTEXT);
+        setfont(FONT_STATUS);
+        drawtextrange(SIDEBAR_FILTER_FRIENDS_LEFT, SIDEBAR_FILTER_FRIENDS_WIDTH, SIDEBAR_FILTER_FRIENDS_TOP,
+                      list_get_filter() ? S(FILTER_ALL)    : S(FILTER_ONLINE),
+                      list_get_filter() ? SLEN(FILTER_ALL) : SLEN(FILTER_ONLINE) );
     } else {
         drawalpha(BM_CONTACT, SIDEBAR_AVATAR_LEFT, SIDEBAR_AVATAR_TOP,
                   BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_MENU_TEXT);
+
+        setcolor(!button_name.mouseover ? COLOR_MENU_TEXT : COLOR_MENU_SUBTEXT);
+        setfont(FONT_SELF_NAME);
+        drawtextrange(SIDEBAR_NAME_LEFT, SIDEBAR_NAME_WIDTH, SIDEBAR_NAME_TOP, "Not connected!", 14);
     }
-    /* Draw name */
-    setcolor(!button_name.mouseover ? COLOR_MENU_TEXT : COLOR_MENU_SUBTEXT);
-    setfont(FONT_SELF_NAME);
-    drawtextrange(SIDEBAR_NAME_LEFT, SIDEBAR_NAME_WIDTH, SIDEBAR_NAME_TOP, self.name, self.name_length);
-
-    /*&Draw current status message
-    @TODO: separate these colors if needed (COLOR_MAIN_HINTTEXT) */
-    setcolor(!button_statusmsg.mouseover ? COLOR_MENU_SUBTEXT : COLOR_MAIN_HINTTEXT);
-    setfont(FONT_STATUS);
-    drawtextrange(SIDEBAR_STATUSMSG_LEFT, SIDEBAR_STATUSMSG_WIDTH, SIDEBAR_STATUSMSG_TOP,
-                  self.statusmsg, self.statusmsg_length);
-
-    /* Draw status button icon */
-    drawalpha(BM_STATUSAREA, SELF_STATUS_ICON_LEFT, SELF_STATUS_ICON_TOP, BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT,
-              button_status.mouseover ? COLOR_BACKGROUND_LIST_HOVER : COLOR_BACKGROUND_LIST);
-    uint8_t status = tox_connected ? self.status : 3;
-    drawalpha(BM_ONLINE + status, SELF_STATUS_ICON_LEFT + BM_STATUSAREA_WIDTH / 2 - BM_STATUS_WIDTH / 2,
-              SELF_STATUS_ICON_TOP + BM_STATUSAREA_HEIGHT / 2 - BM_STATUS_WIDTH / 2, BM_STATUS_WIDTH, BM_STATUS_WIDTH,
-              status_color[status]);
-
-    /* Draw online/all friends filter text. */
-    setcolor(!button_filter_friends.mouseover ? COLOR_MENU_SUBTEXT : COLOR_MAIN_HINTTEXT);
-    setfont(FONT_STATUS);
-    drawtextrange(SIDEBAR_FILTER_FRIENDS_LEFT, SIDEBAR_FILTER_FRIENDS_WIDTH, SIDEBAR_FILTER_FRIENDS_TOP,
-                  list_get_filter() ? S(FILTER_ALL)    : S(FILTER_ONLINE),
-                  list_get_filter() ? SLEN(FILTER_ALL) : SLEN(FILTER_ONLINE) );
 }
 
 /* Header for friend chat window */
@@ -252,6 +262,17 @@ static void draw_add_friend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int hei
     }
 }
 
+/* Draw the text for profile password window */
+static void draw_profile_password(int UNUSED(x), int UNUSED(y), int UNUSED(w), int height){
+    setcolor(COLOR_MAIN_TEXT);
+    setfont(FONT_SELF_NAME);
+    drawstr(MAIN_LEFT + SCALE * 5, SCALE * 10, PROFILE_PASSWORD);
+
+    setcolor(COLOR_MAIN_SUBTEXT);
+    setfont(FONT_TEXT);
+    drawstr(MAIN_LEFT + SCALE * 5, MAIN_TOP + SCALE * 5, PROFILE_PASSWORD);
+}
+
 /* Top bar for user settings */
 static void draw_settings_header(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height)){
     setcolor(COLOR_MAIN_TEXT);
@@ -268,12 +289,18 @@ static void draw_settings_header(int UNUSED(x), int UNUSED(y), int UNUSED(width)
 /* Text content for settings page */
 static void draw_settings_text_profile(int x, int y, int w, int h){
     setcolor(COLOR_MAIN_TEXT);
-    drawstr(MAIN_LEFT + SCALE * 5, y + 5   * SCALE, NAME);
-    drawstr(MAIN_LEFT + SCALE * 5, y + 30  * SCALE, STATUSMESSAGE);
+    drawstr(MAIN_LEFT + 5 * SCALE, y + 5   * SCALE, NAME);
+    drawstr(MAIN_LEFT + 5 * SCALE, y + 30  * SCALE, STATUSMESSAGE);
     setfont(FONT_SELF_NAME);
-    drawstr(MAIN_LEFT + SCALE * 5, y + 55  * SCALE, TOXID);
+    drawstr(MAIN_LEFT + 5 * SCALE, y + 55  * SCALE, TOXID);
     setfont(FONT_TEXT);
-    drawstr(MAIN_LEFT + SCALE * 5, y + 75  * SCALE, LANGUAGE);
+    drawstr(MAIN_LEFT + 5 * SCALE, y + 75  * SCALE, LANGUAGE);
+    drawstr(MAIN_LEFT + 5 * SCALE, y + 100 * SCALE, PROFILE_PASSWORD);
+
+    setfont(FONT_MISC);
+    setcolor(C_RED);
+    drawstr(MAIN_LEFT + 40 * SCALE, y + 123 * SCALE, PROFILE_PW_WARNING);
+    drawstr(MAIN_LEFT + 40 * SCALE, y + 130 * SCALE, PROFILE_PW_NO_RECOVER);
 }
 
 static void draw_settings_text_network(int x, int y, int w, int UNUSED(height)){
@@ -470,15 +497,14 @@ PANEL panel_root,
                 panel_friend_chat,
                 panel_friend_request,
             panel_overhead,
+                panel_profile_password,
                 panel_add_friend,
-                panel_change_profile,
                 panel_settings_master,
                     panel_settings_subheader,
                     panel_settings_profile,
                     panel_settings_net,
                     panel_settings_ui,
                     panel_settings_av;
-
 
 /* Root panel, hold all the other panels */
 PANEL panel_root = {
@@ -602,12 +628,21 @@ panel_main = {
         .type = PANEL_NONE,
         .disabled = 0,
         .child = (PANEL*[]) {
+            (void*)&panel_profile_password,
             (void*)&panel_add_friend,
-            (void*)&panel_change_profile,
             (void*)&panel_settings_master,
             NULL
         }
     },
+        panel_profile_password = {
+            .type = PANEL_NONE,
+            .disabled = 0,
+            .drawfunc = draw_profile_password,
+            .child = (PANEL*[]) {
+                (void*)&edit_profile_password,
+                NULL
+            }
+        },
         panel_add_friend = {
             .type = PANEL_NONE,
             .disabled = 1,
@@ -620,7 +655,7 @@ panel_main = {
         },
         panel_settings_master = {
             .type = PANEL_NONE,
-            .disabled = 0,
+            .disabled = 1,
             .drawfunc = draw_settings_header,
             .child = (PANEL*[]) {
                 (void*)&panel_settings_subheader,
@@ -662,6 +697,8 @@ panel_main = {
                     (void*)&button_change_id_type,
                     #endif
                     (void*)&dropdown_language,
+                    (void*)&edit_profile_password,
+                    (void*)&button_lock_uTox,
                     NULL
                 }
             },
@@ -965,6 +1002,14 @@ void ui_scale(uint8_t scale) {
             .y      = -23 * SCALE,
             .width  = BM_CHAT_SEND_WIDTH,
             .height = BM_CHAT_SEND_HEIGHT,
+        },
+
+        b_lock_uTox = {
+            .type   = PANEL_BUTTON,
+            .x      =   5 * SCALE,
+            .y      = 125 * SCALE,
+            .width  = BM_SBUTTON_WIDTH,
+            .height = BM_SBUTTON_HEIGHT,
         };
 
     /* Set the button panels */
@@ -997,6 +1042,7 @@ void ui_scale(uint8_t scale) {
         button_send_file.panel           = b_send_file;
         button_send_screenshot.panel     = b_send_screenshot;
         button_chat_send.panel           = b_chat_send;
+        button_lock_uTox.panel           = b_lock_uTox;
 
     /* Drop down structs */
         setfont(FONT_TEXT);
@@ -1163,43 +1209,51 @@ void ui_scale(uint8_t scale) {
 
     /* Text entry boxes */
         PANEL e_name = {
-            .type = PANEL_EDIT,
-            .x = 5 * SCALE,
-            .y = SCALE * 14,
+            .type   = PANEL_EDIT,
+            .x      = 5  * SCALE,
+            .y      = 14 * SCALE,
             .height = 12 * SCALE,
-            .width = -SCROLL_WIDTH - 5 * SCALE
+            .width  = -5 * SCALE
         },
 
         e_status = {
-            .type = PANEL_EDIT,
-            .x = 5 * SCALE,
-            .y = SCALE * 38,
+            .type   = PANEL_EDIT,
+            .x      = 5  * SCALE,
+            .y      = 38 * SCALE,
             .height = 12 * SCALE,
-            .width = -SCROLL_WIDTH - 5 * SCALE
+            .width  = -5 * SCALE
         },
 
         e_toxid = {
-            .type = PANEL_EDIT,
-            .x = 3 * SCALE,
-            .y = SCALE * 63,
+            .type   = PANEL_EDIT,
+            .x      = 3  * SCALE,
+            .y      = 63 * SCALE,
             .height = 12 * SCALE,
-            .width = -SCROLL_WIDTH - 5 * SCALE
+            .width  = -5 * SCALE
         },
 
         e_add_id = {
-            .type = PANEL_EDIT,
-            .x = 5 * SCALE,
-            .y = MAIN_TOP + SCALE * 14,
+            .type   = PANEL_EDIT,
+            .x      = 5  * SCALE,
+            .y      = 14 * SCALE + MAIN_TOP,
             .height = 12 * SCALE,
-            .width = -5 * SCALE
+            .width  = -5 * SCALE,
         },
 
         e_add_msg = {
-            .type = PANEL_EDIT,
-            .x = 5 * SCALE,
-            .y = MAIN_TOP + SCALE * 38,
-            .height = SCALE * 42,
-            .width = -5 * SCALE,
+            .type   = PANEL_EDIT,
+            .x      = 5  * SCALE,
+            .y      = 38 * SCALE + MAIN_TOP,
+            .height = 42 * SCALE,
+            .width  = -5 * SCALE,
+        },
+
+        e_profile_password = {
+            .type   = PANEL_EDIT,
+            .x      = 5  * SCALE,  /* move the edit depending on what page! */
+            .y      = 44 * SCALE + (65 * SCALE * panel_profile_password.disabled),
+            .height = 12 * SCALE,
+            .width  = -5 * SCALE,
         },
 
         /* Message entry box for friends and groups */
@@ -1209,7 +1263,7 @@ void ui_scale(uint8_t scale) {
             .y      = -23 * SCALE,
             .width  = -32 * SCALE,
             .height =  20 * SCALE,
-            // text is 8 high. 8 * 2.5 = 20.
+            /* text is 8 high. 8 * 2.5 = 20. */
         },
 
         e_msg_group = {
@@ -1250,6 +1304,7 @@ void ui_scale(uint8_t scale) {
         edit_toxid.panel = e_toxid;
         edit_add_id.panel = e_add_id;
         edit_add_msg.panel = e_add_msg;
+        edit_profile_password.panel = e_profile_password;
         edit_msg.panel = e_msg;
         edit_msg_group.panel = e_msg_group;
         edit_search.panel = e_search;

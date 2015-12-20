@@ -39,7 +39,8 @@ static void button_setcolors_disabled(BUTTON *b) {
 
 /* On-press functions followed by the update functions when needed... */
 static void button_avatar_onpress(void) {
-    openfileavatar();
+    if (tox_thread_init)
+        openfileavatar();
 }
 
 /* TODO this is placed here (out of use order) for the following function, todo; create an external function to switch to the correct
@@ -94,10 +95,13 @@ static void button_menu_update(BUTTON *b) {
 }
 
 static void button_add_new_contact_onpress(void) {
-    edit_setstr(&edit_add_id, (char_t *)edit_search.data, edit_search.length);
-    edit_setstr(&edit_search, (char_t *)"", 0);
-    list_selectaddfriend();
-    edit_setfocus(&edit_add_msg);
+    if (tox_thread_init) {
+        /* Only change if we're logged in! */
+        edit_setstr(&edit_add_id, (char_t *)edit_search.data, edit_search.length);
+        edit_setstr(&edit_search, (char_t *)"", 0);
+        list_selectaddfriend();
+        edit_setfocus(&edit_add_msg);
+    }
 }
 
 static void button_create_group_onpress(void) {
@@ -105,7 +109,9 @@ static void button_create_group_onpress(void) {
 }
 
 static void button_settings_onpress(void) {
-    list_selectsettings();
+    if (tox_thread_init) {
+        list_selectsettings();
+    }
 }
 
 static void button_filter_friends_onpress(void) {
@@ -375,7 +381,6 @@ static void button_send_screenshot_update(BUTTON *b) {
     }
 }
 
-
 /* Button to send chat message */
 static void button_chat_send_onpress(void){
     if (selected_item->item == ITEM_FRIEND) {
@@ -393,7 +398,7 @@ static void button_chat_send_onpress(void){
     }
 }
 
-static void button_chat_send_update(BUTTON *b){
+static void button_chat_send_update(BUTTON *b) {
     if (selected_item->item == ITEM_FRIEND) {
         FRIEND *f = selected_item->data;
         if (f->online) {
@@ -409,6 +414,14 @@ static void button_chat_send_update(BUTTON *b){
     }
 }
 
+static void button_lock_uTox_onpress(void) {
+    if (tox_thread_init && edit_profile_password.length > 3) {
+        list_selectsettings();
+        panel_profile_password.disabled = 0;
+        panel_settings_master.disabled  = 1;
+        tox_settingschanged();
+    }
+}
 
 BUTTON button_avatar = {
     .nodraw = 1,
@@ -604,4 +617,12 @@ button_chat_send = {
     .onpress = button_chat_send_onpress,
     .update = button_chat_send_update,
     .tooltip_text = { .i18nal = STR_SENDMESSAGE },
+},
+
+button_lock_uTox = {
+    .bm           = BM_SBUTTON,
+    .update       = button_setcolors_success,
+    .onpress      = button_lock_uTox_onpress,
+    .button_text  = { .i18nal = STR_LOCK      },
+    .tooltip_text = { .i18nal = STR_LOCK_UTOX },
 };

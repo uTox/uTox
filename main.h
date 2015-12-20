@@ -19,6 +19,7 @@
 #include <sys/types.h>
 #include <tox/tox.h>
 #include <tox/toxav.h>
+#include <tox/toxencryptsave.h>
 #include <vpx/vpx_codec.h>
 #include <vpx/vpx_image.h>
 
@@ -53,7 +54,6 @@
 
 #define MAX_CALLS UTOX_MAX_CALLS                        /* Deprecated; Avoid Use */
 #define MAX_NUM_FRIENDS UTOX_MAX_NUM_FRIENDS            /* Deprecated; Avoid Use */
-#define MAX_BACKLOG_MESSAGES UTOX_MAX_BACKLOG_MESSAGES  /* Deprecated; Avoid Use */
 #define MAX_NUM_GROUPS UTOX_MAX_NUM_GROUPS              /* Deprecated; Avoid Use */
 #define TOX_FRIEND_ADDRESS_SIZE TOX_ADDRESS_SIZE
 

@@ -110,7 +110,6 @@ static void drawitem(ITEM *i, int UNUSED(x), int y) {
         }
         break;
     }
-
     case ITEM_FRIEND_ADD: {
         FRIENDREQ *f = i->data;
 
@@ -236,7 +235,8 @@ void next_tab(void) {
 }
 
 
-// TODO move this out of here!
+/* TODO: move this out of here!
+ * maybe to ui.c ? */
 static void show_page(ITEM *i) {
     // TODO!!
     // panel_item[selected_item->item - 1].disabled = 1;
@@ -287,9 +287,11 @@ static void show_page(ITEM *i) {
             break;
         }
         case ITEM_SETTINGS: {
-            button_settings.disabled       = 0;
-            panel_settings_master.disabled = 1;
-            panel_overhead.disabled        = 1;
+            if (panel_profile_password.disabled) {
+                button_settings.disabled       = 0;
+                panel_settings_master.disabled = 1;
+                panel_overhead.disabled        = 1;
+            }
             break;
         }
         case ITEM_ADD: {
@@ -366,10 +368,11 @@ static void show_page(ITEM *i) {
             break;
         }
         case ITEM_SETTINGS: {
-            button_settings.disabled        = 1;
-
-            panel_overhead.disabled         = 0;
-            panel_settings_master.disabled  = 0;
+            if (panel_profile_password.disabled) {
+                button_settings.disabled        = 1;
+                panel_overhead.disabled         = 0;
+                panel_settings_master.disabled  = 0;
+            }
             break;
         }
         case ITEM_ADD: {
@@ -398,8 +401,6 @@ void list_start(void) {
 
     button_settings.disabled = 1;
     selected_item = &item_settings;
-    // edit_setfocus(&edit_add_id);
-
 
     FRIEND *f = friend, *end = f + friends;
     while(f != end) {
@@ -573,7 +574,10 @@ void list_freeall(void) {
             free(i->data);
             break;
         }
+        i->item = ITEM_NONE;
     }
+    itemcount  = 0;
+    showncount = 0;
 }
 
 void list_selectchat(int index) {
