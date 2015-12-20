@@ -324,11 +324,8 @@ static inline void select_right_to_char(char_t c) {
     if ([insertString isKindOfClass:NSAttributedString.class]) {
         insertString = [insertString string];
     }
-    EDIT *target = edit_get_active();
+
     edit_paste((char_t *)[insertString UTF8String], [insertString lengthOfBytesUsingEncoding:NSUTF8StringEncoding], NO);
-    if (target && target->onchange) {
-        target->onchange(target);
-    }
 }
 
 // TODO: NSTextInputClient
@@ -592,11 +589,6 @@ static inline void select_right_to_char(char_t c) {
     edit_setselectedrange(replacementRange.location, replacementRange.length);
     STRING_IDX insl = [aString lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
     edit_paste((char_t *)[aString UTF8String], insl, 0);
-
-    EDIT *target = edit_get_active();
-    if (target && target->onchange) {
-        target->onchange(target);
-    }
 
     [self unmarkText];
 }
