@@ -775,7 +775,9 @@ void edit_paste(char_t *data, int length, _Bool select)
     edit_sel.p1 = edit_sel.start;
     edit_sel.p2 = edit_sel.start + edit_sel.length;
 
-    active_edit->onchange(active_edit);
+    if (active_edit->onchange) {
+        active_edit->onchange(active_edit);
+    }
 
     edit_redraw();
 }
