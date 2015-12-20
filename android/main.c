@@ -318,49 +318,6 @@ static _Bool init_display(void) {
     return gl_init();
 }
 
-void showkeyboard(_Bool show) {
-    JavaVM* vm = activity->vm;
-    JNIEnv* env = activity->env;
-
-    JavaVMAttachArgs lJavaVMAttachArgs;
-    lJavaVMAttachArgs.version = JNI_VERSION_1_6;
-    lJavaVMAttachArgs.name = "NativeThread";
-    lJavaVMAttachArgs.group = NULL;
-
-    (*vm)->AttachCurrentThread(vm, &env,&lJavaVMAttachArgs); //error check
-
-    jobject lNativeActivity     = activity->clazz;
-    jclass  ClassNativeActivity = (*env)->GetObjectClass(env, lNativeActivity);
-
-    jclass   ClassInputMethodManager = (*env)->FindClass(env, "android/view/inputmethod/InputMethodManager");
-    jfieldID fid                     = (*env)->GetFieldID(env, ClassNativeActivity, "mIMM", "Landroid/view/inputmethod/InputMethodManager;");
-    jobject  lInputMethodManager     = (*env)->GetObjectField(env, lNativeActivity, fid);
-
-    jmethodID MethodGetWindow    = (*env)->GetMethodID(env, ClassNativeActivity, "getWindow", "()Landroid/view/Window;");
-    jobject   lWindow            = (*env)->CallObjectMethod(env, lNativeActivity, MethodGetWindow);
-    jclass    ClassWindow        = (*env)->FindClass(env, "android/view/Window");
-    jmethodID MethodGetDecorView = (*env)->GetMethodID(env, ClassWindow, "getDecorView", "()Landroid/view/View;");
-    jobject   lDecorView         = (*env)->CallObjectMethod(env, lWindow, MethodGetDecorView);
-
-
-    if (show) {
-        jmethodID MethodShowSoftInput = (*env)->GetMethodID(env, ClassInputMethodManager, "showSoftInput", "(Landroid/view/View;I)Z");
-        jboolean  lResult             = (*env)->CallBooleanMethod(env, lInputMethodManager, MethodShowSoftInput, lDecorView, 0);
-    } else {
-        jclass    ClassView            = (*env)->FindClass(env, "android/view/View");
-        jmethodID MethodGetWindowToken = (*env)->GetMethodID(env, ClassView, "getWindowToken", "()Landroid/os/IBinder;");
-        jobject   lBinder              = (*env)->CallObjectMethod(env, lDecorView, MethodGetWindowToken);
-
-        jmethodID MethodHideSoftInput = (*env)->GetMethodID(env, ClassInputMethodManager, "hideSoftInputFromWindow", "(Landroid/os/IBinder;I)Z");
-        jboolean  lRes                = (*env)->CallBooleanMethod(env, lInputMethodManager, MethodHideSoftInput, lBinder, 0);
-    }
-
-    /*jmethodID MethodToggle = (*env)->GetMethodID(env, ClassInputMethodManager, "toggleSoftInput", "(II)V");
-    (*env)->CallVoidMethod(env, lInputMethodManager, MethodToggle, 0, 0);*/
-
-    (*vm)->DetachCurrentThread(vm);
-}
-
 static uint32_t getkeychar(int32_t key) /* get a character from an android keycode */{
     #define MAP(x,y) case AKEYCODE_##x: return y
     #define MAPS(x,y,z) case AKEYCODE_##x: return ((shift) ? z : y)
@@ -452,6 +409,35 @@ void force_redraw(void) {
 void update_tray(void) {}
 
 void config_osdefaults(UTOX_SAVE *r) {}
+
+void utox_android_redraw_window() {
+    int32_t new_width, new_height;
+    eglQuerySurface(display, surface, EGL_WIDTH, &new_width);
+    eglQuerySurface(display, surface, EGL_HEIGHT, &new_height);
+
+    if(new_width != utox_window_width || new_height != utox_window_height) {
+        utox_window_width  = new_width;
+        utox_window_height = new_height;
+
+        float vec[4];
+        vec[0] = -(float)utox_window_width / 2.0;
+        vec[1] = -(float)utox_window_height / 2.0;
+        vec[2] = 2.0 / (float)utox_window_width;
+        vec[3] = -2.0 / (float)utox_window_height;
+        glUniform4fv(matrix, 1, vec);
+
+        ui_size(utox_window_width, utox_window_height);
+
+        glViewport(0, 0, utox_window_width, utox_window_height);
+
+        _redraw = 1;
+    }
+
+    if(_redraw) {
+        _redraw = 0;
+        panel_draw(&panel_root, 0, 0, utox_window_width, utox_window_height);
+    }
+}
 
 int lx = 0, ly = 0;
 uint64_t p_last_down;
@@ -655,39 +641,57 @@ static void android_main(struct android_app* state){
         }
 
         if(window != NULL && focused) {
-            int32_t new_width, new_height;
-
-            eglQuerySurface(display, surface, EGL_WIDTH, &new_width);
-            eglQuerySurface(display, surface, EGL_HEIGHT, &new_height);
-
-            if(new_width != utox_window_width || new_height != utox_window_height) {
-                utox_window_width  = new_width;
-                utox_window_height = new_height;
-
-                float vec[4];
-                vec[0] = -(float)utox_window_width / 2.0;
-                vec[1] = -(float)utox_window_height / 2.0;
-                vec[2] = 2.0 / (float)utox_window_width;
-                vec[3] = -2.0 / (float)utox_window_height;
-                glUniform4fv(matrix, 1, vec);
-
-                ui_size(utox_window_width, utox_window_height);
-
-                glViewport(0, 0, utox_window_width, utox_window_height);
-
-                _redraw = 1;
-            }
-
-            if(_redraw) {
-                _redraw = 0;
-                panel_draw(&panel_root, 0, 0, utox_window_width, utox_window_height);
-            }
+            utox_android_redraw_window();
         }
 
         usleep(1000);
     }
 
     debug("ANDROID DESTROYED\n");
+}
+
+void showkeyboard(_Bool show) {
+    JavaVM* vm = activity->vm;
+    JNIEnv* env = activity->env;
+
+    JavaVMAttachArgs lJavaVMAttachArgs;
+    lJavaVMAttachArgs.version = JNI_VERSION_1_6;
+    lJavaVMAttachArgs.name = "NativeThread";
+    lJavaVMAttachArgs.group = NULL;
+
+    (*vm)->AttachCurrentThread(vm, &env,&lJavaVMAttachArgs); //error check
+
+    jobject lNativeActivity     = activity->clazz;
+    jclass  ClassNativeActivity = (*env)->GetObjectClass(env, lNativeActivity);
+
+    jclass   ClassInputMethodManager = (*env)->FindClass(env, "android/view/inputmethod/InputMethodManager");
+    jfieldID fid                     = (*env)->GetFieldID(env, ClassNativeActivity, "mIMM", "Landroid/view/inputmethod/InputMethodManager;");
+    jobject  lInputMethodManager     = (*env)->GetObjectField(env, lNativeActivity, fid);
+
+    jmethodID MethodGetWindow    = (*env)->GetMethodID(env, ClassNativeActivity, "getWindow", "()Landroid/view/Window;");
+    jobject   lWindow            = (*env)->CallObjectMethod(env, lNativeActivity, MethodGetWindow);
+    jclass    ClassWindow        = (*env)->FindClass(env, "android/view/Window");
+    jmethodID MethodGetDecorView = (*env)->GetMethodID(env, ClassWindow, "getDecorView", "()Landroid/view/View;");
+    jobject   lDecorView         = (*env)->CallObjectMethod(env, lWindow, MethodGetDecorView);
+
+
+    if (show) {
+        jmethodID MethodShowSoftInput = (*env)->GetMethodID(env, ClassInputMethodManager, "showSoftInput", "(Landroid/view/View;I)Z");
+        jboolean  lResult             = (*env)->CallBooleanMethod(env, lInputMethodManager, MethodShowSoftInput, lDecorView, 0);
+        utox_android_redraw_window();
+    } else {
+        jclass    ClassView            = (*env)->FindClass(env, "android/view/View");
+        jmethodID MethodGetWindowToken = (*env)->GetMethodID(env, ClassView, "getWindowToken", "()Landroid/os/IBinder;");
+        jobject   lBinder              = (*env)->CallObjectMethod(env, lDecorView, MethodGetWindowToken);
+
+        jmethodID MethodHideSoftInput = (*env)->GetMethodID(env, ClassInputMethodManager, "hideSoftInputFromWindow", "(Landroid/os/IBinder;I)Z");
+        jboolean  lRes                = (*env)->CallBooleanMethod(env, lInputMethodManager, MethodHideSoftInput, lBinder, 0);
+    }
+
+    /*jmethodID MethodToggle = (*env)->GetMethodID(env, ClassInputMethodManager, "toggleSoftInput", "(II)V");
+    (*env)->CallVoidMethod(env, lInputMethodManager, MethodToggle, 0, 0);*/
+
+    (*vm)->DetachCurrentThread(vm);
 }
 
 static void onDestroy(ANativeActivity* act)
