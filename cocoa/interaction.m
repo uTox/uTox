@@ -270,7 +270,7 @@ static inline void select_right_to_char(char_t c) {
 }
 
 - (void)scrollWheel:(NSEvent *)theEvent {
-    panel_mwheel(&panel_root, 0, 0, utox_window_width, utox_window_height, theEvent.deltaY);
+    panel_mwheel(&panel_root, 0, 0, utox_window_width, utox_window_height, theEvent.deltaY, theEvent.hasPreciseScrollingDeltas);
 }
 
 - (void)updateTrackingAreas {
@@ -324,6 +324,7 @@ static inline void select_right_to_char(char_t c) {
     if ([insertString isKindOfClass:NSAttributedString.class]) {
         insertString = [insertString string];
     }
+
     edit_paste((char_t *)[insertString UTF8String], [insertString lengthOfBytesUsingEncoding:NSUTF8StringEncoding], NO);
 }
 
@@ -571,8 +572,6 @@ static inline void select_right_to_char(char_t c) {
 #pragma mark - NSTextInputClient
 
 - (void)insertText:(id)aString replacementRange:(NSRange)replacementRange {
-    NSLog(@"insertText %@", NSStringFromRange(replacementRange));
-
     // Get a valid range
     if (replacementRange.location == NSNotFound) {
         NSRange markedRange = self.markedRange;
@@ -771,6 +770,7 @@ void paste(void) {
             memcpy(owned_ptr, CFDataGetBytePtr(dat), size);
             friend_sendimage(selected_item->data, i, CGImageGetWidth(img), CGImageGetHeight(img), (UTOX_PNG_IMAGE)owned_ptr, size);
         } else {
+            free(i);
             NSLog(@"ran out of memory, we will just do nothing and hope user doesn't notice because we're probably not the only process being screwy");
         }
 

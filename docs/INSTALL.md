@@ -29,8 +29,8 @@ Dependencies:
     ```
 
 If make/install really isn't your thing, you can try some precomplied binaries.
-- [amd64](https://jenkins.libtoxcore.so/view/Clients/job/uTox_linux_amd64/) [[.tar.xz]](https://jenkins.libtoxcore.so/view/Clients/job/uTox_linux_amd64/lastSuccessfulBuild/artifact/utox/utox_linux_amd64.tar.xz)
-- [i686](https://jenkins.libtoxcore.so/view/Clients/job/uTox_linux_i686/) [[.tar.xz]](https://jenkins.libtoxcore.so/view/Clients/job/uTox_linux_i686/lastSuccessfulBuild/artifact/utox/utox_linux_i686.tar.xz)
+- [amd64](https://build.tox.chat/job/uTox_build_linux_x86-64_release/lastSuccessfulBuild/artifact/utox_linux_x86-64.tar.xz)
+- [i686](https://build.tox.chat/job/uTox_build_linux_x86_release/lastSuccessfulBuild/artifact/utox_linux_x86.tar.xz) 
 
 ### Adding a desktop launcher
 
@@ -63,23 +63,23 @@ https://aur.archlinux.org/packages/utox-git/
 <a name="osx" />
 ## OS X
 
-No one is currently providing binaries for OSX yet... Sorry Apple people...
+No one is currently providing binaries for OSX yet... Sorry Apple people... you should ask @stal888 to do something about that!
 
-[I guess I'll try to build it](docs/BUILD.md#OSX).
+[I guess I'll try to build it](BUILD.md#OSX).
 
 <a name="windows" />
 ## Windows
 
 Installing on windows isn't really a thing yet... you can download the nighties. They should just work.
 
-  - [32-bit](https://jenkins.libtoxcore.so/view/Clients/job/uTox_win32/) [[.zip]](https://jenkins.libtoxcore.so/view/Clients/job/uTox_win32/lastSuccessfulBuild/artifact/utox/utox_win32.zip)
-  - [64-bit](https://jenkins.libtoxcore.so/view/Clients/job/uTox_win64/) [[.zip]](https://jenkins.libtoxcore.so/view/Clients/job/uTox_win64/lastSuccessfulBuild/artifact/utox/utox_win64.zip)
-  - [Updater](https://jenkins.libtoxcore.so/view/Clients/job/utox_update_win32/) (32-bit) [[.zip]](https://jenkins.libtoxcore.so/view/Clients/job/utox_update_win32/lastSuccessfulBuild/artifact/utox-updater.zip)
+  - [32-bit](https://build.tox.chat/job/uTox_build_windows_x86_release/lastSuccessfulBuild/artifact/utox_windows_x86.zip)
+  - [64-bit](https://build.tox.chat/job/uTox_build_windows_x86-64_release/lastSuccessfulBuild/artifact/utox_windows_x86-64.zip)
+  - Updater (delayed, ask grayhatter for it, and it'll happen)
 
 <a name="android" />
 ## Android
 
-μTox on android has been neglected too long, so we're not currently providing binaries.
+[uTox.apk](https://build.tox.chat/job/uTox_build_android_armhf_release/lastSuccessfulBuild/artifact/uTox.apk)
 
 # Meta
-[Jenkins](https://jenkins.libtoxcore.so) offers automatically compiled binaries. All files below link to the last successful build. [See which changes are in which Jenkins build of uTox](https://jenkins.libtoxcore.so/job/Sync%20uTox/changes).
+[Jenkins](https://build.tox.chat) offers automatically compiled binaries. All files below link to the last successful build.

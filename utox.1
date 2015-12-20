@@ -1,10 +1,11 @@
-.TH UTOX "1" "June 2015" "µTox 0.3.2"
+.TH UTOX "1" "November 2015" "µTox 0.4.3"
 .SH NAME
 µTox \- Lightweight Tox client
 
 .SH SYNOPSIS
-usage: utox [--portable] [--theme <default|dark|light|highcontrast|zenburn>]
+usage: utox [--portable] [--theme <default|dark|light|highcontrast|zenburn>] [--set=<start-on-boot|show-window|hide-window>]
    or: utox --version
+   or: utox --help
 
 .SH DESCRIPTION
 µTox is a free software lighweight X.org graphical Tox client.
@@ -24,10 +25,16 @@ Choose a color scheme. Possible options are \fIdefault\fP, \fIdark\fP,
 \fIlight\fP, \fIhighcontrast\fP, or \fPzenburn\fP.
 
 .IP \fB\-\-portable\fP
-Run in portable mode.
+Run in portable mode. All data will be saved to the tox folder in the current working directory, see FILES for more details.
+
+.IP \fB\-\-set=<OPTION>\fP
+Set an option. The available options are "start-on-boot", "show-window" and "hide-window".
 
 .IP \fB\-\-version\fP
 Print version and exit.
+
+.IP \fB\-\-help\fP
+Print a short description of available options.
 
 .SH CHAT COMMANDS
 These commands can be used in the chat window.
@@ -63,15 +70,15 @@ client restarts.
 
 .SH CONTRIBUTORS
 Please see the list page:
-.I https://github.com/notsecure/uTox/graphs/contributors
+.I https://github.com/GrayHatter/uTox/graphs/contributors
 
 .SH BUGS
 Please report bugs on
-.I https://github.com/notsecure/uTox/issues
+.I https://github.com/GrayHatter/uTox/issues
 
 The website for
 .B µTox
 can be found at
 .I http://utox.org/
 and source code can be found at
-.I https://github.com/notsecure/uTox
+.I https://github.com/GrayHatter/uTox

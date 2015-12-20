@@ -1,6 +1,13 @@
 /* edits */
-static char_t edit_name_data[128], edit_status_data[128], edit_addid_data[TOX_FRIEND_ADDRESS_SIZE * 4], edit_addmsg_data[1024], edit_msg_data[65535], edit_search_data[127],
-    edit_proxy_ip_data[256], edit_proxy_port_data[8];
+static char_t edit_name_data[128],
+              edit_status_data[128],
+              edit_addid_data[TOX_FRIEND_ADDRESS_SIZE * 4],
+              edit_addmsg_data[1024],
+              edit_msg_data[65535],
+              edit_search_data[127],
+              edit_proxy_ip_data[256],
+              edit_proxy_port_data[8],
+              edit_profile_password_data[65535];
 
 static struct {
     STRING_IDX start, end, cursorpos;
@@ -402,17 +409,24 @@ static void edit_search_onchange(EDIT *edit)
     STRING_IDX length = edit->length;
 
     if(!length) {
+        button_add_new_contact.panel.disabled = 1;
+        button_add_new_contact.nodraw   = 1;
+        button_settings.panel.disabled = 0;
+        button_settings.nodraw   = 0;
         list_search(NULL);
     } else {
         memcpy(search_data, data, length);
         search_data[length] = 0;
         list_search((char_t*)search_data);
+        button_add_new_contact.panel.disabled = 0;
+        button_add_new_contact.nodraw   = 0;
+        button_settings.panel.disabled = 1;
+        button_settings.nodraw   = 1;
     }
 
     redraw();
     return;
 }
-
 
 static void edit_proxy_ip_port_onlosefocus(EDIT *edit)
 {
@@ -431,6 +445,12 @@ static void edit_proxy_ip_port_onlosefocus(EDIT *edit)
 
     if (options.proxy_type)
         tox_settingschanged();
+}
+
+static void edit_profile_password_update(EDIT *edit) {
+    if (tox_thread_init) {
+        save_needed = 1;
+    }
 }
 
 SCROLLABLE edit_addmsg_scroll = {
@@ -512,9 +532,10 @@ edit_msg_group = {
 edit_search = {
     .maxlength = sizeof(edit_search_data),
     .data = edit_search_data,
-    .empty_str = { .i18nal = STR_SEARCHFRIENDS },
     .onchange = edit_search_onchange,
     .style = AUXILIARY_STYLE,
+    .empty_str = { .i18nal = STR_CONTACT_SEARCH_ADD_HINT },
+    .vcentered = 1
 },
 
 edit_proxy_ip = {
@@ -529,4 +550,12 @@ edit_proxy_port = {
     .data = edit_proxy_port_data,
     .onlosefocus = edit_proxy_ip_port_onlosefocus,
     .empty_str = { .i18nal = STR_PROXY_EDIT_HINT_PORT },
+},
+
+edit_profile_password = {
+    .maxlength   = sizeof(edit_profile_password) - 1,
+    .data        = edit_profile_password_data,
+    // .onchange    = edit_profile_password_update,
+    .onlosefocus = edit_profile_password_update,
+    .password    = 1,
 };

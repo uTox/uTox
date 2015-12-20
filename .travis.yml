@@ -20,7 +20,7 @@ before_script:
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then ./travis/osx-before.sh; fi
 
 script:
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then CFLAGS="-I/usr/include/freetype2" make; fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then PKG_CONFIG_PATH="$(pwd)/TRAVIS_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH" CFLAGS="-I/usr/include/freetype2" make; fi
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then make -f cocoa/Makefile utox; fi
 
 notifications:

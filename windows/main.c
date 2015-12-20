@@ -1,7 +1,10 @@
+#include "../main.h"
 #include <windows.h>
 #include <windowsx.h>
 
-#include "audio.c"
+static _Bool flashing, desktopgrab_video;
+static _Bool hidden;
+
 
 static TRACKMOUSEEVENT tme = {sizeof(TRACKMOUSEEVENT), TME_LEAVE, 0, 0};
 static _Bool mouse_tracked = 0;
@@ -17,15 +20,6 @@ BLENDFUNCTION blend_function = {
     .SourceConstantAlpha = 0xFF,
     .AlphaFormat = AC_SRC_ALPHA
 };
-
-/** Select the true main.c for legacy XP support.
- *  else default to xlib
- **/
-#ifdef __WIN_LEGACY
- #include "main.XP.c"
-#else
- #include "main.7.c"
-#endif
 
 /** Translate a char* from UTF-8 encoding to OS native;
  *
@@ -1164,8 +1158,6 @@ void config_osdefaults(UTOX_SAVE *r)
     r->window_height = MAIN_HEIGHT;
 }
 
-#include "dnd.c"
-
 /** client main()
  *
  * Main thread
@@ -1403,15 +1395,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     //start tox thread (hwnd needs to be set first)
     thread(tox_thread, NULL);
 
-    //wait for tox_thread init
-    while(!tox_thread_init) {
-        Sleep(1);
-    }
-
-    list_start();
-
-    if(*cmd)
-    {
+    if (*cmd) {
         int len = strlen(cmd);
         parsecmd((uint8_t*)cmd, len);
     }
@@ -1660,7 +1644,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
         }
 
         if(edit_active()) {
-            if(control) {
+            if (control) {
                 switch(wParam) {
                 case 'V':
                     paste();
@@ -1698,7 +1682,14 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     }
 
     case WM_MOUSEWHEEL: {
-        panel_mwheel(&panel_root, 0, 0, utox_window_width, utox_window_height, (double)((int16_t)HIWORD(wParam)) / (double)(WHEEL_DELTA));
+        /* Important  Do not use the LOWORD or HIWORD macros to extract the x- and y- coordinates of the cursor position
+         * because these macros return incorrect results on systems with multiple monitors. Systems with multiple
+         * monitors can have negative x- and y- coordinates, and LOWORD and HIWORD treat the coordinates as unsigned
+         * quantities.
+         *
+         * FIXME: if there is a way to determine whether deltas are precise on windows, do it
+         */
+        panel_mwheel(&panel_root, 0, 0, utox_window_width, utox_window_height, (double)((int16_t)HIWORD(wParam)) / (double)(WHEEL_DELTA), 1);
         return 0;
     }
 

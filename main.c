@@ -4,7 +4,7 @@
  *  else default to xlib
  **/
 #ifdef __WIN32__
-#include "windows/main.c"
+//#include "windows/main.c"
 #else
 #ifdef __ANDROID__
 #include "android/main.c"

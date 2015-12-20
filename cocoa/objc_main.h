@@ -43,6 +43,7 @@ typedef struct {
     if ([[NSProcessInfo processInfo] respondsToSelector:@selector(isOperatingSystemAtLeastVersion:)] && \
         [[NSProcessInfo processInfo] isOperatingSystemAtLeastVersion:(NSOperatingSystemVersion){a, b, c}])
 #define AT_LEAST_YOSEMITE_DO      MAC_OS_AT_LEAST_DO(10, 10, 0)
+#define AT_LEAST_ELCAPITAN_DO     MAC_OS_AT_LEAST_DO(10, 11, 0)
 
 // gotta use the old version checker here
 #define AT_LEAST_MAVERICKS_DO     if (NSFoundationVersionNumber >= NSFoundationVersionNumber10_9)
@@ -110,6 +111,8 @@ struct utox_native_image {
 @end
 
 @interface uToxIroncladView : NSView
+@property CGSize videoSize;
+
 + (NSWindow *)createWindow;
 
 - (void)displayImage:(uint8_t *)rgba w:(uint16_t)width h:(uint16_t)height;

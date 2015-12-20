@@ -552,6 +552,7 @@ static void android_main(struct android_app* state){
     createAudioRecorder(global_av);
     startRecording();
 */
+    /* Code has been changed, this probably should be moved! */
     list_start();
 
     uint64_t p_last_down;

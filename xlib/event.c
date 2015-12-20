@@ -1,6 +1,6 @@
 _Bool doevent(XEvent event)
 {
-    if ( XFilterEvent(&event, None) ) {
+    if (XFilterEvent(&event, None)) {
         return 1;
     }
     if(event.xany.window && event.xany.window != window) {
@@ -38,6 +38,7 @@ _Bool doevent(XEvent event)
     switch(event.type) {
     case Expose: {
         enddraw(0, 0, utox_window_width, utox_window_height);
+        draw_tray_icon();
         // debug("expose\n");
         break;
     }
@@ -189,12 +190,14 @@ _Bool doevent(XEvent event)
         }
 
         case Button4: {
-            panel_mwheel(&panel_root, 0, 0, utox_window_width, utox_window_height, 1.0);
+            // FIXME: determine precise deltas if possible
+            panel_mwheel(&panel_root, 0, 0, utox_window_width, utox_window_height, 1.0, 0);
             break;
         }
 
         case Button5: {
-            panel_mwheel(&panel_root, 0, 0, utox_window_width, utox_window_height, -1.0);
+            // FIXME: determine precise deltas if possible
+            panel_mwheel(&panel_root, 0, 0, utox_window_width, utox_window_height, -1.0, 0);
             break;
         }
 

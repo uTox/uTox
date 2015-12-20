@@ -10,6 +10,14 @@ typedef struct {
     void *data;
 } TOX_MSG;
 
+typedef enum UTOX_ENC_ERR {
+    UTOX_ENC_ERR_NONE,
+    UTOX_ENC_ERR_LENGTH,
+    UTOX_ENC_ERR_BAD_PASS,
+    UTOX_ENC_ERR_BAD_DATA,
+    UTOX_ENC_ERR_UNKNOWN
+} UTOX_ENC_ERR;
+
 /* toxcore thread messages (sent from the client thread) */
 enum {
     /* SHUTDOWNEVERYTHING! */
@@ -143,6 +151,7 @@ enum {
 /* Inter-thread communication vars. */
 TOX_MSG tox_msg, audio_msg, video_msg, toxav_msg;
 volatile _Bool tox_thread_msg, audio_thread_msg, video_thread_msg, toxav_thread_msg;
+volatile _Bool save_needed;
 
 /** [log_read description] */
 void log_read(Tox *tox, int fid);
