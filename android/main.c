@@ -453,6 +453,9 @@ void update_tray(void) {}
 
 void config_osdefaults(UTOX_SAVE *r) {}
 
+int lx = 0, ly = 0;
+uint64_t p_last_down;
+_Bool p_down, already_up;
 static void utox_andoid_input (AInputQueue *in_queue, AInputEvent *event) {
     if (AInputQueue_preDispatchEvent(inputQueue, event) == 0) {
         int32_t handled = 1;
@@ -574,8 +577,6 @@ static void android_main(struct android_app* state){
     // ANativeActivity* nativeActivity = state->activity;
     // internalPath = nativeActivity->internalDataPath;
 
-    int lx = 0, ly = 0;
-
     pipe(pipefd);
     fcntl(pipefd[0], F_SETFL, O_NONBLOCK);
 
@@ -603,9 +604,6 @@ static void android_main(struct android_app* state){
 
     /* Code has been changed, this probably should be moved! */
     list_start();
-
-    uint64_t p_last_down;
-    _Bool p_down, already_up;
 
     while(!destroy) {
         if (p_down && (p_last_down + 500 * 1000 * 1000) < get_time()) {
