@@ -1205,14 +1205,14 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
         }
 
         /* Groups are broken while we await the new GCs getting merged. */
-/*    TOX_GROUP_JOIN,
-    TOX_GROUP_PART, // 30
-    TOX_GROUP_INVITE,
-    TOX_GROUP_SET_TOPIC,
-    TOX_GROUP_SEND_MESSAGE,
-    TOX_GROUP_SEND_ACTION,
-    TOX_GROUP_AUDIO_START, // 35
-    TOX_GROUP_AUDIO_END,*/
+    /*  TOX_GROUP_JOIN,
+        TOX_GROUP_PART, // 30
+        TOX_GROUP_INVITE,
+        TOX_GROUP_SET_TOPIC,
+        TOX_GROUP_SEND_MESSAGE,
+        TOX_GROUP_SEND_ACTION,
+        TOX_GROUP_AUDIO_START, // 35
+        TOX_GROUP_AUDIO_END,*/
 
         case TOX_GROUP_CREATE: {
             int g = -1;

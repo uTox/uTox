@@ -1,3 +1,5 @@
+#ifdef __WIN_LEGACY
+
 void launch_at_startup(int is_launch_at_startup){
     HKEY hKey;
     const wchar_t* run_key_path = L"Software\\Microsoft\\Windows\\CurrentVersion\\Run";
@@ -31,3 +33,5 @@ void launch_at_startup(int is_launch_at_startup){
         }
     }
 }
+
+#endif

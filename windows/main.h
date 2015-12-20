@@ -38,29 +38,6 @@
 #define ftello ftello64
 #endif
 
-// internal representation of an image
-typedef struct utox_native_image {
-    HBITMAP bitmap; // 32 bit bitmap containing
-                    // red, green, blue and alpha
-
-    _Bool has_alpha; // whether bitmap has an alpha channel
-
-    // width and height in pixels of the bitmap
-    uint32_t width, height;
-
-    // width and height in pixels the image should be drawn to
-    uint32_t scaled_width, scaled_height;
-
-    // stretch mode used when stretching this image, either
-    // COLORONCOLOR(ugly and fast), or HALFTONE(prettier and slower)
-    int stretch_mode;
-
-} UTOX_NATIVE_IMAGE;
-
-#define UTOX_NATIVE_IMAGE_IS_VALID(x) (NULL != (x))
-#define UTOX_NATIVE_IMAGE_HAS_ALPHA(x) (x->has_alpha)
-
-
 #define STRSAFE_NO_DEPRECATE
 
 #ifdef __CRT__NO_INLINE
@@ -71,6 +48,8 @@ typedef struct utox_native_image {
 #define __CRT__NO_INLINE
 #endif
 #endif
+
+#include <initguid.h>
 
 #include <strmif.h>
 #include <amvideo.h>
@@ -118,6 +97,27 @@ HBRUSH hdc_brush;
 HBITMAP hdc_bm;
 HWND video_hwnd[MAX_NUM_FRIENDS];
 
+// internal representation of an image
+typedef struct utox_native_image {
+    HBITMAP bitmap; // 32 bit bitmap containing
+                    // red, green, blue and alpha
+
+    _Bool has_alpha; // whether bitmap has an alpha channel
+
+    // width and height in pixels of the bitmap
+    uint32_t width, height;
+
+    // width and height in pixels the image should be drawn to
+    uint32_t scaled_width, scaled_height;
+
+    // stretch mode used when stretching this image, either
+    // COLORONCOLOR(ugly and fast), or HALFTONE(prettier and slower)
+    int stretch_mode;
+
+} UTOX_NATIVE_IMAGE;
+
+#define UTOX_NATIVE_IMAGE_IS_VALID(x) (NULL != (x))
+#define UTOX_NATIVE_IMAGE_HAS_ALPHA(x) (x->has_alpha)
 
 //static char save_path[280];
 _Bool utox_portable;

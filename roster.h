@@ -40,7 +40,7 @@ typedef struct
 }ITEM;
 
 extern ITEM *selected_item;
-ITEM *ritem;
+ITEM *right_mouse_item;
 
 void list_start(void);
 void list_addfriend(FRIEND *f);
@@ -48,7 +48,7 @@ void list_addfriend2(FRIEND *f, FRIENDREQ *req);
 void list_addgroup(GROUPCHAT *g);
 void list_addfriendreq(FRIENDREQ *f);
 void list_deletesitem(void);
-void list_deleteritem(void);
+void list_deleteright_mouse_item(void);
 
 void list_selectchat(int index);
 void list_selectaddfriend(void);

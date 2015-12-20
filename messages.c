@@ -258,7 +258,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height) {
             #define draw_ft_cap(bg, fg) do { drawalpha(BM_FT_CAP, dx - room_for_clip, y, BM_FT_CAP_WIDTH, BM_FTB_HEIGHT, bg); \
                                              drawalpha(BM_FILE, dx - room_for_clip + SCALE * 2, y + 2 * SCALE, BM_FILE_WIDTH, BM_FILE_HEIGHT, fg); } while (0)
 
-            // #define draw_ft_prog(color) draw_rect_frame(dx + 5 * SCALE, y + 17 * SCALE, prog_box, 7 * SCALE, color);\
+            // #define draw_ft_prog(color) draw_rect_frame(dx + 5 * SCALE, y + 17 * SCALE, prog_box, 7 * SCALE, color);
             //                            draw_rect_fill (dx + 5 * SCALE, y + 17 * SCALE, prog_bar, 7 * SCALE, color)
 
             int wbound = dx + d_width - 3 * SCALE;

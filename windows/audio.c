@@ -1,3 +1,4 @@
+#include "../main.h"
 
 // REFERENCE_TIME time units per second and per millisecond
 #define REFTIMES_PER_SEC  10000000

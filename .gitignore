@@ -5,3 +5,4 @@ bin/
 lib/
 debug.keystore
 *.dll
+Tox/

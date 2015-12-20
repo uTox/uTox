@@ -20,7 +20,8 @@ static ITEM *mouseover_item;
 static ITEM *nitem; // item that selected_item is being dragged over
 ITEM *selected_item = &item_add;
 
-static _Bool selected_item_mousedown;
+static _Bool mouse_in_list,
+             selected_item_mousedown;
 
 static int selected_item_dy; // y offset of selected item being dragged from its original position
 
@@ -173,24 +174,29 @@ static ITEM* newitem(void) {
 static ITEM* item_hit(int mx, int my, int UNUSED(height)) {
     /* Mouse is outsite the list */
     if(mx < ROSTER_BOX_LEFT || mx >= SIDEBAR_WIDTH) {
+        mouse_in_list = 0;
         return NULL;
     }
 
     /* Mouse is above the list */
     if(my < 0) {
+        mouse_in_list = 0;
         return NULL;
     }
 
     uint32_t item_idx = my;
     item_idx /= ROSTER_BOX_HEIGHT;
 
+    /* mouse is below the last item */
     if(item_idx >= showncount) {
+        mouse_in_list = 1;
         return NULL;
     }
 
     ITEM *i;
 
     i = &item[shown_list[item_idx]];
+    mouse_in_list = 1;
     return i;
 }
 
@@ -478,7 +484,7 @@ void group_av_peer_remove(GROUPCHAT *g, int peernumber);
 
 // TODOjjj removing multiple items without moving the mouse causes asan neg-size-param error on memmove!
 static void deleteitem(ITEM *i) {
-    ritem = NULL;
+    right_mouse_item = NULL;
 
     if(i == selected_item) {
         if(i == &item[itemcount] - 1) {
@@ -493,39 +499,39 @@ static void deleteitem(ITEM *i) {
     }
 
     switch (i->item) {
-    case ITEM_FRIEND: {
-        FRIEND *f = i->data;
-        tox_postmessage(TOX_FRIEND_DELETE, (f - friend), 0, f);
-        break;
-    }
-
-    case ITEM_GROUP: {
-        GROUPCHAT *g = i->data;
-
-        tox_postmessage(TOX_GROUP_PART, (g - group), 0, NULL);
-
-        unsigned int j;
-        for (j = 0; j < g->peers; ++j) {
-            if(g->peername[j]) {
-                free(g->peername[j]);
-                g->peername[j] = NULL;
-            }
+        case ITEM_FRIEND: {
+            FRIEND *f = i->data;
+            tox_postmessage(TOX_FRIEND_DELETE, (f - friend), 0, f);
+            break;
         }
 
-        toxaudio_postmessage(GROUP_AUDIO_CALL_END, (g - group), 0, NULL);
+        case ITEM_GROUP: {
+            GROUPCHAT *g = i->data;
 
-        group_free(g);
-        break;
-    }
+            tox_postmessage(TOX_GROUP_PART, (g - group), 0, NULL);
 
-    case ITEM_FRIEND_ADD: {
-        free(i->data);
-        break;
-    }
+            unsigned int j;
+            for (j = 0; j < g->peers; ++j) {
+                if(g->peername[j]) {
+                    free(g->peername[j]);
+                    g->peername[j] = NULL;
+                }
+            }
 
-    default: {
-        return;
-    }
+            toxaudio_postmessage(GROUP_AUDIO_CALL_END, (g - group), 0, NULL);
+
+            group_free(g);
+            break;
+        }
+
+        case ITEM_FRIEND_ADD: {
+            free(i->data);
+            break;
+        }
+
+        default: {
+            return;
+        }
     }
 
     itemcount--;
@@ -547,9 +553,9 @@ void list_deletesitem(void) {
     }
 }
 
-void list_deleteritem(void) {
-    if(ritem >= item && ritem < item + countof(item)) {
-        deleteitem(ritem);
+void roster_delete_rmouse_item(void) {
+    if(right_mouse_item >= item && right_mouse_item < item + countof(item)) {
+        deleteitem(right_mouse_item);
     }
 }
 
@@ -651,59 +657,69 @@ _Bool list_mdown(void *UNUSED(n)) {
 }
 
 static void contextmenu_list_onselect(uint8_t i) {
-    switch (ritem->item) {
-        case ITEM_FRIEND:{
-            if (i == 0) {
-                FRIEND *f = ritem->data;
-                if(ritem != selected_item) {
-                    show_page(ritem);
-                }
+    if (right_mouse_item) {
+        switch (right_mouse_item->item) {
+            case ITEM_FRIEND:{
+                if (i == 0) {
+                    FRIEND *f = right_mouse_item->data;
+                    if(right_mouse_item != selected_item) {
+                        show_page(right_mouse_item);
+                    }
 
-                if (f->alias) {
-                    char str[f->alias_length + 7];
-                    strcpy(str, "/alias ");
-                    memcpy(str + 7, f->alias, f->alias_length + 1);
-                    edit_setfocus(&edit_msg);
-                    edit_paste((char_t*)str, sizeof(str), 0);
+                    if (f->alias) {
+                        char str[f->alias_length + 7];
+                        strcpy(str, "/alias ");
+                        memcpy(str + 7, f->alias, f->alias_length + 1);
+                        edit_setfocus(&edit_msg);
+                        edit_paste((char_t*)str, sizeof(str), 0);
+                    } else {
+                        char str[8] = "/alias ";
+                        edit_setfocus(&edit_msg);
+                        edit_paste((char_t*)str, sizeof(str), 0);
+                    }
+                } else if (i == 1) {
+                    friend_history_clear((FRIEND*)right_mouse_item->data);
                 } else {
-                    char str[8] = "/alias ";
-                    edit_setfocus(&edit_msg);
-                    edit_paste((char_t*)str, sizeof(str), 0);
+                    roster_delete_rmouse_item();
                 }
                 return;
-            } else if (i == 1) {
-                friend_history_clear((FRIEND*)ritem->data);
-                return;
-            } else {
-                list_deleteritem();
             }
-        }
-        case ITEM_GROUP: {
-            if (i == 0) {
-                GROUPCHAT *g = ritem->data;
-                if(ritem != selected_item) {
-                    show_page(ritem);
-                }
+            case ITEM_GROUP: {
+                GROUPCHAT *g = right_mouse_item->data;
+                if (i == 0) {
+                    if(right_mouse_item != selected_item) {
+                        show_page(right_mouse_item);
+                    }
 
-                char str[g->name_length + 7];
-                strcpy(str, "/topic ");
-                memcpy(str + 7, g->name, g->name_length);
-                edit_setfocus(&edit_msg_group);
-                edit_paste((char_t*)str, sizeof(str), 0);
-            } else if (i == 1) {
-                GROUPCHAT *g = ritem->data;
-                if (g->type == TOX_GROUPCHAT_TYPE_AV) {
+                    char str[g->name_length + 7];
+                    strcpy(str, "/topic ");
+                    memcpy(str + 7, g->name, g->name_length);
+                    edit_setfocus(&edit_msg_group);
+                    edit_paste((char_t*)str, sizeof(str), 0);
+                } else if (i == 1 && g->type == TOX_GROUPCHAT_TYPE_AV) {
                     g->muted = !g->muted;
+                } else {
+                    roster_delete_rmouse_item();
                 }
-            } else {
-                list_deleteritem();
+                return;
+            }
+            case ITEM_FRIEND_ADD: {
+                if(i == 0) {
+                    FRIENDREQ *req = right_mouse_item->data;
+                    tox_postmessage(TOX_FRIEND_ACCEPT, 0, 0, req);
+                }
+                return;
+            }
+            default: {
+                debug("blerg\n");
+                return;
             }
         }
-        case ITEM_FRIEND_ADD: {
-            if(i == 0) {
-                FRIENDREQ *req = ritem->data;
-                tox_postmessage(TOX_FRIEND_ACCEPT, 0, 0, req);
-            }
+    } else {
+        if (i) {
+            tox_postmessage(TOX_GROUP_CREATE, 0, 0, NULL);
+        } else {
+            show_page(&item_add);
         }
     }
 }
@@ -714,9 +730,10 @@ _Bool list_mright(void *UNUSED(n)) {
     static UI_STRING_ID menu_group_muted[] = {STR_CHANGE_GROUP_TOPIC, STR_UNMUTE, STR_REMOVE_GROUP};
     static UI_STRING_ID menu_group[] = {STR_CHANGE_GROUP_TOPIC, STR_REMOVE_GROUP};
     static UI_STRING_ID menu_request[] = {STR_REQ_ACCEPT, STR_REQ_DECLINE};
+    static UI_STRING_ID menu_none[] = {STR_ADDFRIENDS, STR_CREATEGROUPCHAT};
 
     if(mouseover_item) {
-        ritem = mouseover_item;
+        right_mouse_item = mouseover_item;
         if(mouseover_item->item == ITEM_FRIEND) {
             contextmenu_new(countof(menu_friend), menu_friend, contextmenu_list_onselect);
         } else if(mouseover_item->item == ITEM_GROUP) {
@@ -736,8 +753,12 @@ _Bool list_mright(void *UNUSED(n)) {
         }
         return 1;
         //listpopup(mouseover_item->item);
+    } else if (mouse_in_list) {
+        right_mouse_item = NULL; /* Unset right_mouse_item so that we don't interact with the incorrect context menu
+                                  * I'm not sure if this belongs here or in list_mmove, or maybe item_hit. */
+        contextmenu_new(countof(menu_none), menu_none, contextmenu_list_onselect);
+        return 1;
     }
-
     return 0;
 }
 

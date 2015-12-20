@@ -353,12 +353,17 @@ void launch_at_startup(int should) {
 #else
             urlornull = LSSharedFileListItemCopyResolvedURL(it, 0, NULL);
 #endif
-            if (urlornull && CFEqual(urlornull, (__bridge CFURLRef)[NSBundle mainBundle].bundleURL)) {
-                // this is ours, remove it.
-                LSSharedFileListItemRemove(items, it);
-                break;
+            if (urlornull) {
+                if (CFEqual(urlornull, (__bridge CFURLRef)[NSBundle mainBundle].bundleURL)) {
+                    // this is ours, remove it.
+                    LSSharedFileListItemRemove(items, it);
+                    CFRelease(urlornull);
+                    break;
+                }
+                CFRelease(urlornull);
             }
         }
+        CFRelease(current_items);
         // we're not in the login items list.
     }
     CFRelease(items);

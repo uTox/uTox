@@ -1,4 +1,4 @@
-
+#include "../main.h"
 typedef struct {
     IDropTarget dt;
     LONG ref;
@@ -98,8 +98,7 @@ HRESULT __stdcall dnd_Drop(IDropTarget *lpMyObj, IDataObject * pDataObject, DWOR
     return S_OK;
 }
 
-static void dnd_init(HWND window)
-{
+void dnd_init(HWND window) {
     my_IDropTarget *p;
     p = malloc(sizeof(my_IDropTarget));
     p->dt.lpVtbl = malloc(sizeof(*(p->dt.lpVtbl)));
