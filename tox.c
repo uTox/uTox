@@ -305,10 +305,19 @@ static int utox_decrypt_data(void *cypher_data, size_t cypher_length, uint8_t *c
                      (uint8_t*)passphrase, passphrase_length,
                      clear_text, &err);
 
-    if (err) {
-        return err;
+    switch (err) {
+        case TOX_ERR_DECRYPTION_OK:
+            return 0;
+        case TOX_ERR_DECRYPTION_NULL:
+        case TOX_ERR_DECRYPTION_INVALID_LENGTH:
+        case TOX_ERR_DECRYPTION_BAD_FORMAT:
+            return UTOX_ENC_ERR_BAD_DATA;
+        case TOX_ERR_DECRYPTION_KEY_DERIVATION_FAILED:
+            return UTOX_ENC_ERR_UNKNOWN;
+        case TOX_ERR_DECRYPTION_FAILED:
+            return UTOX_ENC_ERR_BAD_PASS;
     }
-    return 0;
+    return -1;
 }
 
 #include "tox_callbacks.h"
@@ -525,12 +534,15 @@ static int load_toxcore_save(void){
 
             UTOX_ENC_ERR decrypt_err = utox_decrypt_data(raw_data, raw_length, clear_data);
             if (decrypt_err) {
-                if (decrypt_err == 5){
-                    debug("decrypt reports bad password!\n");
+                if (decrypt_err == UTOX_ENC_ERR_LENGTH){
+                    debug("Password too short!\r");
+                } else if (decrypt_err == UTOX_ENC_ERR_LENGTH){
+                    debug("Couldn't decrypt, wrong password?\r");
                 } else {
                     debug("Unknown error, please file a bug report!\n");
                 }
                 panel_profile_password.disabled = 0;
+                panel_settings_master.disabled  = 1;
                 edit_setfocus(&edit_profile_password);
                 postmessage(REDRAW, 0, 0, NULL);
                 return -1;

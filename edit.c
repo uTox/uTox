@@ -797,6 +797,9 @@ void edit_resetfocus(void)
 
 void edit_setfocus(EDIT *edit)
 {
+    if (active_edit == edit) {
+        return;
+    }
     edit_select = 0;
     edit_sel.start = edit_sel.p1 = 0;
     edit_sel.length = edit_sel.p2 = edit->length;
