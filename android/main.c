@@ -680,7 +680,7 @@ static void android_main(struct android_app* state){
 
             if(_redraw) {
                 _redraw = 0;
-                panel_draw(&panel_root, 0, 0, utox_window_width, utox_window_height - utox_window_baseline);
+                panel_draw(&panel_root, 0, 0, utox_window_width, utox_window_height);
             }
         }
 
