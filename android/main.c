@@ -1,20 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
-
 #include <pthread.h>
 
 #include <android/native_activity.h>
 
 #include <GLES2/gl2.h>
-
 #define _GNU_SOURCE
 #include <fcntl.h>
 #include <sys/mman.h>
-
-
 #include <EGL/egl.h>
-
 #include <SLES/OpenSLES.h>
 #include <SLES/OpenSLES_Android.h>
 
@@ -30,20 +25,16 @@ static volatile _Bool destroy, focused;
 
 static _Bool shift;
 
-
-
-static ANativeActivity *activity;
-static ANativeWindow *window;
-static volatile ANativeWindow *windowN;
-static AInputQueue *inputQueue;
-static volatile AInputQueue *inputQueueNew;
+static          ANativeActivity *activity;
+static          ANativeWindow   *window;
+static volatile ANativeWindow   *windowN;
+static          AInputQueue     *inputQueue;
+static volatile AInputQueue     *inputQueueNew;
 
 static volatile ARect rect;
-
 static volatile _Bool _redraw;
 
 const char* internalPath[UTOX_FILE_NAME_LENGTH];
-
 
 static int pipefd[2];
 typedef struct {
@@ -72,13 +63,8 @@ _Bool check_ptt_key(void){
 
 void exit_ptt(void){ push_to_talk = 0; /* android is unsupported */ }
 
-void image_set_filter(UTOX_NATIVE_IMAGE *image, uint8_t filter)
-{
-}
-
-void image_set_scale(UTOX_NATIVE_IMAGE *image, double scale)
-{
-}
+void image_set_filter(UTOX_NATIVE_IMAGE *image, uint8_t filter){}
+void image_set_scale(UTOX_NATIVE_IMAGE *image, double scale){}
 
 void draw_image(const UTOX_NATIVE_IMAGE *data, int x, int y, uint32_t width, uint32_t height, uint32_t imgx, uint32_t imgy)
 {
@@ -144,42 +130,23 @@ uint64_t get_time(void)
     return ((uint64_t)ts.tv_sec * (1000 * 1000 * 1000)) + (uint64_t)ts.tv_nsec;
 }
 
-void copy(int value)
-{
-}
+void copy(int value){}
 
-void paste(void)
-{
-}
+void paste(void){}
 
-void openurl(char_t *str)
-{
-}
+void openurl(char_t *str){}
 
-void openfilesend(void)
-{
-}
+void openfilesend(void){}
 
-void openfileavatar(void)
-{
-}
+void openfileavatar(void){}
 
-void savefilerecv(uint32_t fid, MSG_FILE *file)
-{
-}
+void savefilerecv(uint32_t fid, MSG_FILE *file){}
 
-void savefiledata(MSG_FILE *file)
-{
-}
+void savefiledata(MSG_FILE *file){}
 
-void setselection(char_t *data, STRING_IDX length)
-{
-}
+void setselection(char_t *data, STRING_IDX length){}
 
-void edit_will_deactivate(void)
-{
-
-}
+void edit_will_deactivate(void){}
 
 UTOX_NATIVE_IMAGE *png_to_image(const UTOX_PNG_IMAGE data, size_t size, uint16_t *w, uint16_t *h, _Bool keep_alpha)
 {
@@ -271,7 +238,6 @@ int file_unlock(FILE *file, uint64_t start, size_t length){
 void setscale_fonts(void) {
     freefonts();
     loadfonts();
-
 }
 
 
@@ -282,58 +248,36 @@ void setscale(void) {
     setscale_fonts();
 }
 
-void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_length, FRIEND *f)
-{
-}
+void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_length, FRIEND *f){}
 
-void desktopgrab(_Bool video)
-{
-}
+void desktopgrab(_Bool video){}
 
-void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height, _Bool resize)
-{
-}
+void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height, _Bool resize){}
 
-void video_begin(uint32_t id, char_t *name, STRING_IDX name_length, uint16_t width, uint16_t height)
-{
-}
+void video_begin(uint32_t id, char_t *name, STRING_IDX name_length, uint16_t width, uint16_t height){}
 
-void video_end(uint32_t id)
-{
-}
+void video_end(uint32_t id){}
 
-void* video_detect(void)
-{
-    return NULL;
-}
+void* video_detect(void){ return NULL; }
 
-_Bool video_init(void *handle)
-{
-    return 0;
-}
+_Bool video_init(void *handle) { return 0; }
 
-void video_close(void *handle)
-{
-}
+void video_close(void *handle){}
 
-_Bool video_startread(void)
-{
+_Bool video_startread(void){
     return 1;
 }
 
-_Bool video_endread(void)
-{
+_Bool video_endread(void){
     return 1;
 }
 
-int video_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, uint16_t height)
-{
+int video_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, uint16_t height){
     return 0;
 }
 
 /* gl initialization with EGL */
-static _Bool init_display(void)
-{
+static _Bool init_display(void) {
     const EGLint attrib_list[] = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE};
 
     const EGLint attribs[] = {
@@ -360,7 +304,7 @@ static _Bool init_display(void)
     surface = eglCreateWindowSurface(display, config, window, NULL);
     context = eglCreateContext(display, config, NULL, attrib_list);
 
-    if(eglMakeCurrent(display, surface, surface, context) == EGL_FALSE) {
+    if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE) {
         return 0;
     }
 
@@ -374,8 +318,7 @@ static _Bool init_display(void)
     return gl_init();
 }
 
-void showkeyboard(_Bool show)
-{
+void showkeyboard(_Bool show) {
     JavaVM* vm = activity->vm;
     JNIEnv* env = activity->env;
 
@@ -386,30 +329,30 @@ void showkeyboard(_Bool show)
 
     (*vm)->AttachCurrentThread(vm, &env,&lJavaVMAttachArgs); //error check
 
-    jobject lNativeActivity = activity->clazz;
-    jclass ClassNativeActivity = (*env)->GetObjectClass(env, lNativeActivity);
+    jobject lNativeActivity     = activity->clazz;
+    jclass  ClassNativeActivity = (*env)->GetObjectClass(env, lNativeActivity);
 
-    jclass ClassInputMethodManager = (*env)->FindClass(env, "android/view/inputmethod/InputMethodManager");
-    jfieldID fid = (*env)->GetFieldID(env, ClassNativeActivity, "mIMM", "Landroid/view/inputmethod/InputMethodManager;");
-    jobject lInputMethodManager = (*env)->GetObjectField(env, lNativeActivity, fid);
+    jclass   ClassInputMethodManager = (*env)->FindClass(env, "android/view/inputmethod/InputMethodManager");
+    jfieldID fid                     = (*env)->GetFieldID(env, ClassNativeActivity, "mIMM", "Landroid/view/inputmethod/InputMethodManager;");
+    jobject  lInputMethodManager     = (*env)->GetObjectField(env, lNativeActivity, fid);
 
-    jmethodID MethodGetWindow = (*env)->GetMethodID(env, ClassNativeActivity, "getWindow", "()Landroid/view/Window;");
-    jobject lWindow = (*env)->CallObjectMethod(env, lNativeActivity, MethodGetWindow);
-    jclass ClassWindow = (*env)->FindClass(env, "android/view/Window");
+    jmethodID MethodGetWindow    = (*env)->GetMethodID(env, ClassNativeActivity, "getWindow", "()Landroid/view/Window;");
+    jobject   lWindow            = (*env)->CallObjectMethod(env, lNativeActivity, MethodGetWindow);
+    jclass    ClassWindow        = (*env)->FindClass(env, "android/view/Window");
     jmethodID MethodGetDecorView = (*env)->GetMethodID(env, ClassWindow, "getDecorView", "()Landroid/view/View;");
-    jobject lDecorView = (*env)->CallObjectMethod(env, lWindow, MethodGetDecorView);
+    jobject   lDecorView         = (*env)->CallObjectMethod(env, lWindow, MethodGetDecorView);
 
 
-    if(show) {
+    if (show) {
         jmethodID MethodShowSoftInput = (*env)->GetMethodID(env, ClassInputMethodManager, "showSoftInput", "(Landroid/view/View;I)Z");
-        jboolean lResult = (*env)->CallBooleanMethod(env, lInputMethodManager, MethodShowSoftInput, lDecorView, 0);
+        jboolean  lResult             = (*env)->CallBooleanMethod(env, lInputMethodManager, MethodShowSoftInput, lDecorView, 0);
     } else {
-        jclass ClassView = (*env)->FindClass(env, "android/view/View");
+        jclass    ClassView            = (*env)->FindClass(env, "android/view/View");
         jmethodID MethodGetWindowToken = (*env)->GetMethodID(env, ClassView, "getWindowToken", "()Landroid/os/IBinder;");
-        jobject lBinder = (*env)->CallObjectMethod(env, lDecorView, MethodGetWindowToken);
+        jobject   lBinder              = (*env)->CallObjectMethod(env, lDecorView, MethodGetWindowToken);
 
         jmethodID MethodHideSoftInput = (*env)->GetMethodID(env, ClassInputMethodManager, "hideSoftInputFromWindow", "(Landroid/os/IBinder;I)Z");
-        jboolean lRes = (*env)->CallBooleanMethod(env, lInputMethodManager, MethodHideSoftInput, lBinder, 0);
+        jboolean  lRes                = (*env)->CallBooleanMethod(env, lInputMethodManager, MethodHideSoftInput, lBinder, 0);
     }
 
     /*jmethodID MethodToggle = (*env)->GetMethodID(env, ClassInputMethodManager, "toggleSoftInput", "(II)V");
@@ -492,39 +435,144 @@ static uint32_t getkeychar(int32_t key) /* get a character from an android keyco
         break;
     }
     }
-
-
-
     return 0;
 
     #undef MAP
     #undef MAPC
 }
 
-void redraw(void)
-{
+void redraw(void) {
     _redraw = 1;
 }
-void force_redraw(void)
-{
+
+void force_redraw(void) {
     redraw();
 }
 
-void update_tray(void)
-{
-}
+void update_tray(void) {}
 
-void config_osdefaults(UTOX_SAVE *r)
-{
+void config_osdefaults(UTOX_SAVE *r) {}
+
+static void utox_andoid_input (AInputQueue *in_queue, AInputEvent *event) {
+    if (AInputQueue_preDispatchEvent(inputQueue, event) == 0) {
+        int32_t handled = 1;
+
+        int32_t type = AInputEvent_getType(event);
+        if (type == AINPUT_EVENT_TYPE_MOTION) {
+            int32_t action        = AMotionEvent_getAction(event);
+            int32_t pointer_index = ((action & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK) >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT);
+            int32_t action_bits   = (action & AMOTION_EVENT_ACTION_MASK);
+
+            float x = AMotionEvent_getX(event, pointer_index);
+            float y = AMotionEvent_getY(event, pointer_index);
+
+            switch (action_bits) {
+                case AMOTION_EVENT_ACTION_DOWN:
+                case AMOTION_EVENT_ACTION_POINTER_DOWN: {
+                    lx = x;
+                    ly = y;
+                    panel_mmove(&panel_root, 0, 0, utox_window_width, utox_window_height, x, y, 0, 0);
+                    panel_mdown(&panel_root);
+                    //pointer[pointer_index].down = true;
+                    //pointer[pointer_index].x = x;
+                    //pointer[pointer_index].y = y;
+
+                   // pointerinput2(pointer_index);
+
+                    already_up = 0;
+                    debug("down %f %f, %u\n", x, y, pointer_index);
+                    p_down = 1;
+                    p_last_down = get_time();
+                    break;
+                }
+
+                case AMOTION_EVENT_ACTION_UP:
+                case AMOTION_EVENT_ACTION_POINTER_UP: {
+                    //panel_mmove(&panel_root, 0, 0, width, height, x, y, 0);
+                    if (!already_up) {
+                        panel_mup(&panel_root);
+                        panel_mleave(&panel_root);
+                    }
+                    //pointer[pointer_index].down = false;
+                    //pointer[pointer_index].x = x;
+                    //pointer[pointer_index].y = y;
+
+                    //pointerinput(pointer_index);
+
+                    debug("up %f %f, %u\n", x, y, pointer_index);
+                    p_down = 0;
+                    break;
+                }
+
+                case AMOTION_EVENT_ACTION_MOVE: {
+                    panel_mmove(&panel_root, 0, 0, utox_window_width, utox_window_height, x, y, x - lx, y - ly);
+                    if (lx != (int)x || ly != (int)y) {
+                        p_down = 0;
+                        lx = x;
+                        ly = y;
+                        debug("move %f %f, %u\n", x, y, pointer_index);
+                    }
+                    //pointer[pointer_index].x = x;
+                    //pointer[pointer_index].y = y;
+
+                    break;
+                }
+            }
+        } else if(type == AINPUT_EVENT_TYPE_KEY) {
+            int32_t action = AMotionEvent_getAction(event);
+            int32_t key = AKeyEvent_getKeyCode(event);
+
+            if(action == AKEY_EVENT_ACTION_DOWN) {
+                switch(key) {
+                    case AKEYCODE_VOLUME_UP:
+                    case AKEYCODE_VOLUME_DOWN: {
+                        handled = 0;
+                        break;
+                    }
+
+                    case AKEYCODE_MENU: {
+                        //open menu
+                        break;
+                    }
+
+                    case AKEYCODE_SHIFT_LEFT:
+                    case AKEYCODE_SHIFT_RIGHT: {
+                        shift = 1;
+                        break;
+                    }
+
+                    case AKEYCODE_BACK: {
+                        //ANativeActivity_finish(activity);
+                        break;
+                    }
+
+
+                    default: {
+                        uint32_t c = getkeychar(key);
+                        if(c != 0) {
+                            if(edit_active()) {
+                                //debug("%u\n", c);
+                                edit_char(c, 0, 0);
+                            }
+                            //inputchar(c);
+                        }
+                        break;
+                    }
+                }
+            } else if(action == AKEY_EVENT_ACTION_UP) {
+                if(key == AKEYCODE_SHIFT_LEFT || key == AKEYCODE_SHIFT_RIGHT) {
+                    shift = 0;
+                }
+            }
+        }
+        AInputQueue_finishEvent(inputQueue, event, handled);
+    }
 }
 
 static void android_main(struct android_app* state){
-
     // Make sure glue isn't stripped
-
     // ANativeActivity* nativeActivity = state->activity;
     // internalPath = nativeActivity->internalDataPath;
-
 
     int lx = 0, ly = 0;
 
@@ -547,11 +595,12 @@ static void android_main(struct android_app* state){
     while(!tox_thread_init) {
         yieldcpu(1);
     }
-/*
+    /*
     createEngine();
     createAudioRecorder(global_av);
     startRecording();
-*/
+    */
+
     /* Code has been changed, this probably should be moved! */
     list_start();
 
@@ -570,128 +619,7 @@ static void android_main(struct android_app* state){
         if(inputQueue != NULL) {
             AInputEvent *event = NULL;
             while(AInputQueue_hasEvents(inputQueue) && AInputQueue_getEvent(inputQueue, &event) >= 0) {
-                if(AInputQueue_preDispatchEvent(inputQueue, event) == 0) {
-                    int32_t handled = 1;
-
-                    int32_t type = AInputEvent_getType(event);
-                    if(type == AINPUT_EVENT_TYPE_MOTION) {
-                        int32_t action = AMotionEvent_getAction(event);
-                        int32_t pointer_index = ((action & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK) >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT), action_bits = (action & AMOTION_EVENT_ACTION_MASK);
-
-                        float x = AMotionEvent_getX(event, pointer_index), y = AMotionEvent_getY(event, pointer_index);
-                        switch(action_bits) {
-                        case AMOTION_EVENT_ACTION_DOWN:
-                        case AMOTION_EVENT_ACTION_POINTER_DOWN: {
-                            lx = x;
-                            ly = y;
-                            panel_mmove(&panel_root, 0, 0, utox_window_width, utox_window_height, x, y, 0, 0);
-                            panel_mdown(&panel_root);
-                            //pointer[pointer_index].down = true;
-                            //pointer[pointer_index].x = x;
-                            //pointer[pointer_index].y = y;
-
-                           // pointerinput2(pointer_index);
-
-                            already_up = 0;
-                            debug("down %f %f, %u\n", x, y, pointer_index);
-                            p_down = 1;
-                            p_last_down = get_time();
-                            break;
-                        }
-
-                        case AMOTION_EVENT_ACTION_UP:
-                        case AMOTION_EVENT_ACTION_POINTER_UP: {
-                            //panel_mmove(&panel_root, 0, 0, width, height, x, y, 0);
-                            if (!already_up) {
-                                panel_mup(&panel_root);
-                                panel_mleave(&panel_root);
-                            }
-                            //pointer[pointer_index].down = false;
-                            //pointer[pointer_index].x = x;
-                            //pointer[pointer_index].y = y;
-
-                            //pointerinput(pointer_index);
-
-                            debug("up %f %f, %u\n", x, y, pointer_index);
-                            p_down = 0;
-                            break;
-                        }
-
-                        case AMOTION_EVENT_ACTION_MOVE: {
-                            panel_mmove(&panel_root, 0, 0, utox_window_width, utox_window_height, x, y, x - lx, y - ly);
-                            if (lx != (int)x || ly != (int)y) {
-                                p_down = 0;
-                                lx = x;
-                                ly = y;
-                                debug("move %f %f, %u\n", x, y, pointer_index);
-                            }
-                            //pointer[pointer_index].x = x;
-                            //pointer[pointer_index].y = y;
-
-                            break;
-                        }
-                        }
-                    } else if(type == AINPUT_EVENT_TYPE_KEY) {
-                        int32_t action = AMotionEvent_getAction(event);
-                        int32_t key = AKeyEvent_getKeyCode(event);
-
-                        if(action == AKEY_EVENT_ACTION_DOWN) {
-                            switch(key) {
-                            case AKEYCODE_VOLUME_UP:
-                            case AKEYCODE_VOLUME_DOWN: {
-                                handled = 0;
-                                break;
-                            }
-
-                            case AKEYCODE_MENU: {
-                                //open menu
-                                break;
-                            }
-
-                            case AKEYCODE_SHIFT_LEFT:
-                            case AKEYCODE_SHIFT_RIGHT: {
-                                shift = 1;
-                                break;
-                            }
-
-                            case AKEYCODE_BACK: {
-                                //ANativeActivity_finish(activity);
-                                break;
-                            }
-
-
-                            default: {
-                                uint32_t c = getkeychar(key);
-                                if(c != 0) {
-                                    if(edit_active()) {
-                                        //debug("%u\n", c);
-                                        edit_char(c, 0, 0);
-                                    }
-                                    //inputchar(c);
-                                }
-                                break;
-                            }
-                            }
-
-
-                            /*debug("%u\n", key);
-                            char c = toUnicode(key);
-                            if(c != 0)
-                            {
-                                inputchar(c);
-                            }*/
-                        } else if(action == AKEY_EVENT_ACTION_UP) {
-                            if(key == AKEYCODE_SHIFT_LEFT || key == AKEYCODE_SHIFT_RIGHT) {
-                                shift = 0;
-                            }
-                        }
-                    }
-
-                    //Handle input event
-
-                    AInputQueue_finishEvent(inputQueue, event, handled);
-                }
-
+                utox_andoid_input(inputQueue, event);
             }
         }
 
@@ -720,7 +648,7 @@ static void android_main(struct android_app* state){
 
             window = win;
 
-            if(window != NULL) {
+            if (window != NULL) {
                 if(!init_display()) {
                     ANativeActivity_finish(activity);
                     break;
@@ -735,7 +663,7 @@ static void android_main(struct android_app* state){
             eglQuerySurface(display, surface, EGL_HEIGHT, &new_height);
 
             if(new_width != utox_window_width || new_height != utox_window_height) {
-                utox_window_width = new_width;
+                utox_window_width  = new_width;
                 utox_window_height = new_height;
 
                 float vec[4];
@@ -754,7 +682,7 @@ static void android_main(struct android_app* state){
 
             if(_redraw) {
                 _redraw = 0;
-                panel_draw(&panel_root, 0, 0, utox_window_width, utox_window_height);
+                panel_draw(&panel_root, 0, 0, utox_window_width, utox_window_height - utox_window_baseline);
             }
         }
 
