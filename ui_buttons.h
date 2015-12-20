@@ -39,7 +39,8 @@ static void button_setcolors_disabled(BUTTON *b) {
 
 /* On-press functions followed by the update functions when needed... */
 static void button_avatar_onpress(void) {
-    openfileavatar();
+    if (tox_thread_init)
+        openfileavatar();
 }
 
 /* TODO this is placed here (out of use order) for the following function, todo; create an external function to switch to the correct

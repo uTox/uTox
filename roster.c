@@ -235,7 +235,8 @@ void next_tab(void) {
 }
 
 
-// TODO move this out of here!
+/* TODO: move this out of here!
+ * maybe to ui.c ? */
 static void show_page(ITEM *i) {
     // TODO!!
     // panel_item[selected_item->item - 1].disabled = 1;
