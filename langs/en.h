@@ -103,6 +103,12 @@ msgstr("Call started")
 msgid(PROFILE_SETTINGS)
 msgstr("Profile Settings")
 
+msgid(PROFILE_PW_WARNING)
+msgstr("WARNING: µTox will automatically start encrypting with this password.")
+
+msgid(PROFILE_PW_NO_RECOVER)
+msgstr("There is no way to recover lost passwords.")
+
 msgid(ADDFRIENDS)
 msgstr("Add New Contact")
 

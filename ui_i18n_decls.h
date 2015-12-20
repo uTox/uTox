@@ -73,6 +73,8 @@ enum {
 
     /* Settings strings */
     STR_PROFILE_SETTINGS,
+    STR_PROFILE_PW_WARNING,
+    STR_PROFILE_PW_NO_RECOVER,
 
     STR_ADDFRIENDS,
     STR_TOXID,

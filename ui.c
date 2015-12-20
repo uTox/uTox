@@ -289,13 +289,18 @@ static void draw_settings_header(int UNUSED(x), int UNUSED(y), int UNUSED(width)
 /* Text content for settings page */
 static void draw_settings_text_profile(int x, int y, int w, int h){
     setcolor(COLOR_MAIN_TEXT);
-    drawstr(MAIN_LEFT + SCALE * 5, y + 5   * SCALE, NAME);
-    drawstr(MAIN_LEFT + SCALE * 5, y + 30  * SCALE, STATUSMESSAGE);
+    drawstr(MAIN_LEFT + 5 * SCALE, y + 5   * SCALE, NAME);
+    drawstr(MAIN_LEFT + 5 * SCALE, y + 30  * SCALE, STATUSMESSAGE);
     setfont(FONT_SELF_NAME);
-    drawstr(MAIN_LEFT + SCALE * 5, y + 55  * SCALE, TOXID);
+    drawstr(MAIN_LEFT + 5 * SCALE, y + 55  * SCALE, TOXID);
     setfont(FONT_TEXT);
-    drawstr(MAIN_LEFT + SCALE * 5, y + 75  * SCALE, LANGUAGE);
-    drawstr(MAIN_LEFT + SCALE * 5, y + 100 * SCALE, PROFILE_PASSWORD);
+    drawstr(MAIN_LEFT + 5 * SCALE, y + 75  * SCALE, LANGUAGE);
+    drawstr(MAIN_LEFT + 5 * SCALE, y + 100 * SCALE, PROFILE_PASSWORD);
+
+    setfont(FONT_MISC);
+    setcolor(C_RED);
+    drawstr(MAIN_LEFT + 40 * SCALE, y + 123 * SCALE, PROFILE_PW_WARNING);
+    drawstr(MAIN_LEFT + 40 * SCALE, y + 130 * SCALE, PROFILE_PW_NO_RECOVER);
 }
 
 static void draw_settings_text_network(int x, int y, int w, int UNUSED(height)){
