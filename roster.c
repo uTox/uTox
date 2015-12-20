@@ -20,7 +20,8 @@ static ITEM *mouseover_item;
 static ITEM *nitem; // item that selected_item is being dragged over
 ITEM *selected_item = &item_add;
 
-static _Bool selected_item_mousedown;
+static _Bool mouse_in_list,
+             selected_item_mousedown;
 
 static int selected_item_dy; // y offset of selected item being dragged from its original position
 
@@ -174,24 +175,29 @@ static ITEM* newitem(void) {
 static ITEM* item_hit(int mx, int my, int UNUSED(height)) {
     /* Mouse is outsite the list */
     if(mx < ROSTER_BOX_LEFT || mx >= SIDEBAR_WIDTH) {
+        mouse_in_list = 0;
         return NULL;
     }
 
     /* Mouse is above the list */
     if(my < 0) {
+        mouse_in_list = 0;
         return NULL;
     }
 
     uint32_t item_idx = my;
     item_idx /= ROSTER_BOX_HEIGHT;
 
+    /* mouse is below the last item */
     if(item_idx >= showncount) {
+        mouse_in_list = 1;
         return NULL;
     }
 
     ITEM *i;
 
     i = &item[shown_list[item_idx]];
+    mouse_in_list = 1;
     return i;
 }
 
@@ -744,7 +750,7 @@ _Bool list_mright(void *UNUSED(n)) {
         }
         return 1;
         //listpopup(mouseover_item->item);
-    } else {
+    } else if (mouse_in_list) {
         contextmenu_new(countof(menu_none), menu_none, contextmenu_list_onselect);
         return 1;
     }
