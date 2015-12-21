@@ -66,7 +66,7 @@ else ifeq ($(UNAME_O), Cygwin)
 	LDFLAGS += -liphlpapi -lws2_32 -lgdi32 -lmsimg32 -ldnsapi -lcomdlg32
 	LDFLAGS += -Wl,-subsystem,windows -lwinmm -lole32 -loleaut32 -lstrmiids
 
-	OS_SRC = $(wildcard windows/*.c)
+	OS_SRC = $(wildcard src/windows/*.c)
 	OS_OBJ = $(OS_SRC:.c=.o)
 
 	TRAY_OBJ = icons/icon.o
@@ -77,8 +77,8 @@ endif
 DESTDIR ?=
 PREFIX ?= /usr/local
 
-SRC = $(wildcard *.c png/png.c)
-HEADERS = $(wildcard *.h */*.h)
+SRC = $(wildcard src/*.c src/png/png.c)
+HEADERS = $(wildcard src/*.h src/*/*.h)
 OBJ = $(SRC:.c=.o)
 GIT_V = $(shell git describe --abbrev=8 --dirty --always --tags)
 
@@ -124,11 +124,11 @@ install: utox
 	install -m 644 icons/utox.svg $(DESTDIR)$(PREFIX)/share/icons/hicolor/scalable/apps/utox.svg
 
 	mkdir -p $(DESTDIR)$(PREFIX)/share/applications
-	install -m 644 utox.desktop $(DESTDIR)$(PREFIX)/share/applications/utox.desktop
+	install -m 644 src/utox.desktop $(DESTDIR)$(PREFIX)/share/applications/utox.desktop
 	if [ "$(UNITY)" -eq "1" ]; then echo "X-MessagingMenu-UsesChatSection=true" >> $(DESTDIR)$(PREFIX)/share/applications/utox.desktop; fi
 
 	mkdir -p $(DESTDIR)$(PREFIX)/share/man/man1
-	install -m 644 utox.1 $(DESTDIR)$(PREFIX)/share/man/man1/utox.1
+	install -m 644 src/utox.1 $(DESTDIR)$(PREFIX)/share/man/man1/utox.1
 
 $(OBJ): %.o: %.c $(HEADERS)
 	@echo "  CC    $@"
@@ -142,6 +142,6 @@ $(TRAY_OBJ):
 	$(TRAY_GEN) $(TRAY_OBJ)
 
 clean:
-	rm -f $(OUT_FILE) *.o png/*.o icons/*.o windows/*.o
+	rm -f $(OUT_FILE) src/*.o src/png/*.o src/icons/*.o src/windows/*.o
 
 .PHONY: all clean
