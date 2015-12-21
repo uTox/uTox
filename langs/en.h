@@ -196,6 +196,9 @@ msgstr("Away")
 msgid(STATUS_BUSY)
 msgstr("Busy")
 
+msgid(NOT_CONNECTED)
+msgstr("Not Connected")
+
 msgid(OTHERSETTINGS)
 msgstr("Other Settings")
 

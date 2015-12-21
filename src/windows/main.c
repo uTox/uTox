@@ -1208,9 +1208,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
                 HMODULE hModule = GetModuleHandle(NULL);
                 char path[MAX_PATH];
                 int len = GetModuleFileName(hModule, path, MAX_PATH);
-                unsigned int i;
-                for (i = (len - 1); path[i] != '\\'; --i);
-                path[i] = 0;//!
+                unsigned int sub_i;
+                for (sub_i = (len - 1); path[sub_i] != '\\'; --sub_i);
+                path[sub_i] = 0;//!
                 SetCurrentDirectory(path);
                 utox_portable = 1;
                 strcpy(utox_portable_save_path, path);
@@ -1274,12 +1274,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
             }
         }
     }
+
+    if (!no_updater) {
 #ifdef UPDATER_BUILD
 #define UTOX_EXE "\\uTox.exe"
 #define UTOX_UPDATER_EXE "\\utox_runner.exe"
 #define UTOX_VERSION_FILE "\\version"
-
-    if (!no_updater) {
         char path[MAX_PATH + 20];
         int len = GetModuleFileName(NULL, path, MAX_PATH);
 
@@ -1301,8 +1301,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
                 }
             }
         }
-    }
 #endif
+    }
 
 #ifdef __WIN_LEGACY
     debug("Legacy windows build\n");

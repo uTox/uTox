@@ -108,6 +108,8 @@ enum {
     STR_STATUS_AWAY,
     STR_STATUS_BUSY,
 
+    // Status strings
+    STR_NOT_CONNECTED,
 
     // Setting strings
     STR_OTHERSETTINGS,
