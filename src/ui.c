@@ -1,9 +1,5 @@
 #include "main.h"
 
-#include "ui_edits.h"
-#include "ui_buttons.h"
-#include "ui_dropdown.h"
-
 // Application-wide language setting
 UI_LANG_ID LANG;
 
@@ -422,7 +418,6 @@ static void draw_background(int UNUSED(x), int UNUSED(y), int width, int height)
     }
 }
 
-
 /* These remain for legacy reasons, PANEL_MAIN calls these by default when not given it's own function to call */
 static void  background_draw(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int width, int height){ return; }
 static _Bool background_mmove(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height), int UNUSED(mx), int UNUSED(my), int UNUSED(dx), int UNUSED(dy)) { return 0; }
@@ -482,35 +477,6 @@ messages_group = {
     },
     .type = 1
 };
-
-/* uTox panel draw hierarchy. */
-PANEL panel_root,
-        panel_side_bar,
-            panel_self,
-            panel_quick_buttons,
-            panel_roster,
-                panel_roster_list,
-            panel_lower_buttons,
-        panel_main,
-            panel_chat,
-                panel_group,
-                    panel_group_chat,
-                    panel_group_video,
-                    panel_group_settings,
-                panel_friend,
-                    panel_friend_chat,
-                    panel_friend_video,
-                    panel_friend_settings,
-                panel_friend_request,
-            panel_overhead,
-                panel_profile_password,
-                panel_add_friend,
-                panel_settings_master,
-                    panel_settings_subheader,
-                    panel_settings_profile,
-                    panel_settings_net,
-                    panel_settings_ui,
-                    panel_settings_av;
 
 /* Root panel, hold all the other panels */
 PANEL panel_root = {
@@ -1376,6 +1342,7 @@ void ui_scale(uint8_t scale) {
 #define FUNC(x, ret, ...) static ret (* x##func[])(void *p, ##__VA_ARGS__) = { \
     (void*)background_##x, \
     (void*)messages_##x, \
+    (void*)inline_video_##x, \
     (void*)list_##x, \
     (void*)button_##x, \
     (void*)dropdown_##x, \

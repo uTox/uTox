@@ -197,27 +197,32 @@ enum {
 
 #include "ui.h"
 #include "svg.h"
-
 #include "avatar.h"
-#include "messages.h"
 #include "theme.h"
-#include "dns.h"
-#include "file_transfers.h"
+#include "text.h"
+
+#include "messages.h"
 #include "friend.h"
 #include "groups.h"
 #include "roster.h"
-#include "edit.h"
-#include "scrollable.h"
+#include "inline_video.h"
 #include "button.h"
 #include "dropdown.h"
+#include "edit.h"
+#include "scrollable.h"
+
 #include "contextmenu.h"
 #include "tooltip.h"
 #include "commands.h"
 
-#include "text.h"
 #include "util.h"
+#include "dns.h"
+#include "file_transfers.h"
 
+#include "ui_edits.h"
+#include "ui_buttons.h"
 #include "ui_dropdown.h"
+
 
 /* Super global vars */
 volatile _Bool tox_thread_init, audio_thread_init, video_thread_init, utox_av_ctrl_init;

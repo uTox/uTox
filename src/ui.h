@@ -11,6 +11,7 @@ enum {
     PANEL_NONE,
     PANEL_MAIN,
     PANEL_MESSAGES,
+    PANEL_INLINE_VIDEO,
     PANEL_LIST,
     PANEL_BUTTON,
     PANEL_DROPDOWN,
@@ -28,6 +29,7 @@ typedef struct edit EDIT;
 typedef struct panel PANEL;
 typedef struct button BUTTON;
 typedef struct messages MESSAGES;
+
 struct panel
 {
     uint8_t type;
@@ -54,22 +56,36 @@ enum {
     ADDF_NOMEM, //if increasing the friend list size fails.
 };
 
+/* uTox panel draw hierarchy. */
 extern PANEL panel_root,
-             panel_search_filter,
-             panel_quick_buttons,
-             panel_chat,
-             panel_friend,
-             panel_friend_chat, panel_friend_video, panel_friend_settings,
-             panel_friend_request,
-             panel_group,
-             panel_group_chat, panel_group_video, panel_group_settings,
-             panel_overhead,
-             panel_add_friend,
-             panel_settings_master,
-             panel_change_profile,
-             panel_profile_password;
+                panel_side_bar,
+                    panel_self,
+                    panel_quick_buttons,
+                    panel_roster,
+                        panel_roster_list,
+                    panel_lower_buttons,
+                panel_main,
+                    panel_chat,
+                        panel_group,
+                            panel_group_chat,
+                            panel_group_video,
+                            panel_group_settings,
+                        panel_friend,
+                            panel_friend_chat,
+                            panel_friend_video,
+                            panel_friend_settings,
+                        panel_friend_request,
+                    panel_overhead,
+                        panel_profile_password,
+                        panel_add_friend,
+                        panel_settings_master,
+                            panel_settings_subheader,
+                            panel_settings_profile,
+                            panel_settings_net,
+                            panel_settings_ui,
+                            panel_settings_av;
+
 extern MESSAGES messages_friend, messages_group;
-extern EDIT edit_name, edit_status, edit_add_id, edit_add_msg, edit_msg, edit_msg_group, edit_search, edit_proxy_ip, edit_proxy_port, edit_profile_password;
 extern SCROLLABLE scrollbar_roster;
 extern BUTTON button_add_new_contact, button_settings, button_transfer;
 

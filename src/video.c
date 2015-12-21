@@ -1,7 +1,6 @@
 #include "main.h"
 
 static vpx_image_t input;
-
 static _Bool openvideodevice(void *handle) {
     // initialize video (will populate video_width and video_height)
     if(!video_init(handle)) {

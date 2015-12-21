@@ -1,4 +1,3 @@
-
 //Type for indexing into MSG_DATA->data array of messages
 typedef uint32_t MSG_IDX;
 #define MSG_IDX_MAX (UINT32_MAX)
