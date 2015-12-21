@@ -54,9 +54,20 @@ enum {
     ADDF_NOMEM, //if increasing the friend list size fails.
 };
 
-extern PANEL panel_root, panel_search_filter, panel_quick_buttons;
-extern PANEL panel_chat, panel_friend_chat, panel_friend_request, panel_group_chat;
-extern PANEL panel_overhead, panel_add_friend, panel_settings_master, panel_change_profile, panel_profile_password;
+extern PANEL panel_root,
+             panel_search_filter,
+             panel_quick_buttons,
+             panel_chat,
+             panel_friend,
+             panel_friend_chat, panel_friend_video, panel_friend_settings,
+             panel_friend_request,
+             panel_group,
+             panel_group_chat, panel_group_video, panel_group_settings,
+             panel_overhead,
+             panel_add_friend,
+             panel_settings_master,
+             panel_change_profile,
+             panel_profile_password;
 extern MESSAGES messages_friend, messages_group;
 extern EDIT edit_name, edit_status, edit_add_id, edit_add_msg, edit_msg, edit_msg_group, edit_search, edit_proxy_ip, edit_proxy_port, edit_profile_password;
 extern SCROLLABLE scrollbar_roster;

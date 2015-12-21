@@ -151,6 +151,9 @@ msgstr("Friend Request")
 msgid(USERSETTINGS)
 msgstr("User Settings")
 
+msgid(FRIEND_SETTINGS)
+msgstr("Friend Settings")
+
 msgid(NAME)
 msgstr("Name")
 

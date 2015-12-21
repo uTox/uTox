@@ -261,7 +261,12 @@ static void show_page(ITEM *i) {
             f->edit_history_length = edit_msg.history_length;
 
 
-            panel_friend_chat.disabled = 1;
+            panel_chat.disabled            = 1;
+            panel_friend.disabled          = 1;
+            panel_friend_chat.disabled     = 1;
+            panel_friend_video.disabled    = 1;
+            panel_friend_settings.disabled = 1;
+            break;
         }
         case ITEM_FRIEND_ADD: {
             panel_chat.disabled           = 1;
@@ -282,8 +287,8 @@ static void show_page(ITEM *i) {
             g->edit_history_cur = edit_msg_group.history_cur;
             g->edit_history_length = edit_msg_group.history_length;
 
-            panel_chat.disabled       = 1;
-            panel_group_chat.disabled = 1;
+            panel_chat.disabled  = 1;
+            panel_group.disabled = 1;
             break;
         }
         case ITEM_SETTINGS: {
@@ -337,8 +342,11 @@ static void show_page(ITEM *i) {
             edit_msg.history_length = f->edit_history_length;
             edit_setfocus(&edit_msg);
 
-            panel_chat.disabled        = 0;
-            panel_friend_chat.disabled = 0;
+            panel_chat.disabled            = 0;
+            panel_friend.disabled          = 0;
+            panel_friend_chat.disabled     = 0;
+            panel_friend_video.disabled    = 1;
+            panel_friend_settings.disabled = 1;
             break;
         }
         case ITEM_GROUP: {
@@ -363,8 +371,11 @@ static void show_page(ITEM *i) {
             edit_msg_group.history_cur = g->edit_history_cur;
             edit_msg_group.history_length = g->edit_history_length;
 
-            panel_chat.disabled       = 0;
-            panel_group_chat.disabled = 0;
+            panel_chat.disabled           = 0;
+            panel_group.disabled          = 0;
+            panel_group_chat.disabled     = 0;
+            panel_group_video.disabled    = 1;
+            panel_group_settings.disabled = 1;
             break;
         }
         case ITEM_SETTINGS: {
@@ -646,11 +657,8 @@ _Bool list_mdown(void *UNUSED(n)) {
     _Bool draw = 0;
     tooltip_mdown(); /* may need to return on true */
     if(mouseover_item) {
-        if(mouseover_item != selected_item) {
-            show_page(mouseover_item);
-            draw = 1;
-        }
-
+        show_page(mouseover_item);
+        draw = 1;
         selected_item_mousedown = 1;
     }
 
@@ -661,6 +669,9 @@ static void contextmenu_list_onselect(uint8_t i) {
     if (right_mouse_item) {
         switch (right_mouse_item->item) {
             case ITEM_FRIEND:{
+                panel_friend_chat.disabled     = 0;
+                panel_friend_video.disabled    = 1;
+                panel_friend_settings.disabled = 1;
                 if (i == 0) {
                     FRIEND *f = right_mouse_item->data;
                     if(right_mouse_item != selected_item) {
@@ -680,12 +691,17 @@ static void contextmenu_list_onselect(uint8_t i) {
                     }
                 } else if (i == 1) {
                     friend_history_clear((FRIEND*)right_mouse_item->data);
+                } else if (i == 2) {
+                    panel_friend_chat.disabled     = 1;
+                    panel_friend_video.disabled    = 1;
+                    panel_friend_settings.disabled = 0;
                 } else {
                     roster_delete_rmouse_item();
                 }
                 return;
             }
             case ITEM_GROUP: {
+                panel_group_chat.disabled = 0;
                 GROUPCHAT *g = right_mouse_item->data;
                 if (i == 0) {
                     if(right_mouse_item != selected_item) {
@@ -726,7 +742,7 @@ static void contextmenu_list_onselect(uint8_t i) {
 }
 
 _Bool list_mright(void *UNUSED(n)) {
-    static UI_STRING_ID menu_friend[] = {STR_SET_ALIAS, STR_CLEAR_HISTORY, STR_REMOVE_FRIEND};
+    static UI_STRING_ID menu_friend[] = {STR_SET_ALIAS, STR_CLEAR_HISTORY, STR_FRIEND_SETTINGS, STR_REMOVE_FRIEND};
     static UI_STRING_ID menu_group_unmuted[] = {STR_CHANGE_GROUP_TOPIC, STR_MUTE, STR_REMOVE_GROUP};
     static UI_STRING_ID menu_group_muted[] = {STR_CHANGE_GROUP_TOPIC, STR_UNMUTE, STR_REMOVE_GROUP};
     static UI_STRING_ID menu_group[] = {STR_CHANGE_GROUP_TOPIC, STR_REMOVE_GROUP};
@@ -735,6 +751,7 @@ _Bool list_mright(void *UNUSED(n)) {
 
     if(mouseover_item) {
         right_mouse_item = mouseover_item;
+        show_page(mouseover_item);
         if(mouseover_item->item == ITEM_FRIEND) {
             contextmenu_new(countof(menu_friend), menu_friend, contextmenu_list_onselect);
         } else if(mouseover_item->item == ITEM_GROUP) {

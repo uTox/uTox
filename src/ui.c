@@ -493,8 +493,14 @@ PANEL panel_root,
             panel_lower_buttons,
         panel_main,
             panel_chat,
-                panel_group_chat,
-                panel_friend_chat,
+                panel_group,
+                    panel_group_chat,
+                    panel_group_video,
+                    panel_group_settings,
+                panel_friend,
+                    panel_friend_chat,
+                    panel_friend_video,
+                    panel_friend_settings,
                 panel_friend_request,
             panel_overhead,
                 panel_profile_password,
@@ -582,38 +588,87 @@ panel_main = {
         .type = PANEL_NONE,
         .disabled = 1,
         .child = (PANEL*[]) {
-            (void*)&panel_group_chat,
-            (void*)&panel_friend_chat,
+            (void*)&panel_group,
+            (void*)&panel_friend,
             (void*)&panel_friend_request,
             NULL
         }
     },
-        panel_group_chat = {
+        panel_group = {
             .type = PANEL_NONE,
             .disabled = 1,
-            .drawfunc = draw_group,
             .child = (PANEL*[]) {
-                (void*)&scrollbar_group,
-                (void*)&edit_msg_group, // this needs to be one of the first, to get events before the others
-                (void*)&messages_group,
-                (void*)&button_group_audio,
-                (void*)&button_chat_send,
+                (void*)&panel_group_chat,
+                (void*)&panel_group_video,
+                (void*)&panel_group_settings,
                 NULL
             }
         },
-        panel_friend_chat ={
+            panel_group_chat = {
+                .type = PANEL_NONE,
+                .disabled = 0,
+                .drawfunc = draw_group,
+                .child = (PANEL*[]) {
+                    (void*)&scrollbar_group,
+                    (void*)&edit_msg_group, // this needs to be one of the first, to get events before the others
+                    (void*)&messages_group,
+                    (void*)&button_group_audio,
+                    (void*)&button_chat_send,
+                    NULL
+                }
+            },
+            panel_group_video = {
+                .type = PANEL_NONE,
+                .disabled = 1,
+                .child = (PANEL*[]) {
+                    NULL
+                }
+            },
+            panel_group_settings = {
+                .type = PANEL_NONE,
+                .disabled = 1,
+                .child = (PANEL*[]) {
+                    NULL
+                }
+            },
+        panel_friend = {
             .type = PANEL_NONE,
             .disabled = 1,
-            .drawfunc = draw_friend,
             .child = (PANEL*[]) {
-                (void*)&scrollbar_friend,
-                (void*)&edit_msg, // this needs to be one of the first, to get events before the others
-                (void*)&messages_friend,
-                (void*)&button_call_audio, (void*)&button_call_video,
-                (void*)&button_send_file, (void*)&button_send_screenshot, (void*)&button_chat_send,
+                (void*)&panel_friend_chat,
+                (void*)&panel_friend_video,
+                (void*)&panel_friend_settings,
                 NULL
             }
         },
+            panel_friend_chat = {
+                .type = PANEL_NONE,
+                .disabled = 0,
+                .drawfunc = draw_friend,
+                .child = (PANEL*[]) {
+                    (void*)&scrollbar_friend,
+                    (void*)&edit_msg, // this needs to be one of the first, to get events before the others
+                    (void*)&messages_friend,
+                    (void*)&button_call_audio, (void*)&button_call_video,
+                    (void*)&button_send_file, (void*)&button_send_screenshot, (void*)&button_chat_send,
+                    NULL
+                }
+            },
+            panel_friend_video = {
+                .type = PANEL_NONE,
+                .disabled = 1,
+                .child = (PANEL*[]) {
+                    NULL
+                }
+            },
+            panel_friend_settings = {
+                .type = PANEL_NONE,
+                .disabled = 1,
+                .drawfunc = draw_friend,
+                .child = (PANEL*[]) {
+                    NULL
+                }
+            },
         panel_friend_request = {
             .type = PANEL_NONE,
             .disabled = 1,
