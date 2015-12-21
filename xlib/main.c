@@ -510,7 +510,7 @@ void savefilerecv(uint32_t fid, MSG_FILE *file)
         memcpy(path, file->name, file->name_length);
         path[file->name_length] = 0;
 
-        tox_postmessage(TOX_FILE_ACCEPT, fid, file->filenumber, path);
+        postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->filenumber, path);
     }
 }
 
@@ -830,7 +830,7 @@ static void pastedata(void *data, Atom type, int len, _Bool select)
     } else if (type == XA_URI_LIST) {
         char *path = malloc(len + 1);
         formaturilist(path, (char*) data, len);
-        tox_postmessage(TOX_FILE_SEND_NEW, (FRIEND*)selected_item->data - friend, 0xFFFF, path);
+        postmessage_toxcore(TOX_FILE_SEND_NEW, (FRIEND*)selected_item->data - friend, 0xFFFF, path);
     } else if(type == XA_UTF8_STRING && edit_active()) {
         edit_paste(data, len, select);
     }
@@ -1289,7 +1289,7 @@ int main(int argc, char *argv[]) {
     }
 
     /* start the tox thread */
-    thread(tox_thread, NULL);
+    thread(toxcore_thread, NULL);
 
     /* load atoms */
     wm_protocols     = XInternAtom(display, "WM_PROTOCOLS", 0);
@@ -1462,10 +1462,10 @@ int main(int argc, char *argv[]) {
     }
     BREAK:
 
-    toxaudio_postmessage(AUDIO_KILL, 0, 0, NULL);
-    toxvideo_postmessage(VIDEO_KILL, 0, 0, NULL);
-    toxav_postmessage(UTOXAV_KILL, 0, 0, NULL);
-    tox_postmessage(TOX_KILL, 0, 0, NULL);
+    postmessage_audio(AUDIO_KILL, 0, 0, NULL);
+    postmessage_video(VIDEO_KILL, 0, 0, NULL);
+    postmessage_utoxav(UTOXAV_KILL, 0, 0, NULL);
+    postmessage_toxcore(TOX_KILL, 0, 0, NULL);
 
     /* free client thread stuff */
     if(libgtk) {

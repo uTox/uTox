@@ -167,23 +167,11 @@ void friend_meta_data_read(Tox *tox, int friend_id);
 
 /* toxcore thread
  */
-void tox_thread(void *args);
+void toxcore_thread(void *args);
 
 /* send a message to the toxcore thread
  */
-void tox_postmessage(uint8_t msg, uint32_t param1, uint32_t param2, void *data);
-
-/* send a message to the audio thread
- */
-void toxaudio_postmessage(uint8_t msg, uint32_t param1, uint32_t param2, void *data);
-
-/* send a message to the video thread
- */
-void toxvideo_postmessage(uint8_t msg, uint32_t param1, uint32_t param2, void *data);
-
-/* send a message to the toxav thread
- */
-void toxav_postmessage(uint8_t msg, uint32_t param1, uint32_t param2, void *data);
+void postmessage_toxcore(uint8_t msg, uint32_t param1, uint32_t param2, void *data);
 
 /* read a message sent from the toxcore thread (sent with postmessage())
  */

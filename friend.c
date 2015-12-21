@@ -107,7 +107,7 @@ void friend_sendimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width
     struct TOX_SEND_INLINE_MSG *tsim = malloc(sizeof(struct TOX_SEND_INLINE_MSG));
     tsim->image = png_image;
     tsim->image_size = png_size;
-    tox_postmessage(TOX_FILE_SEND_NEW_INLINE, f - friend, 0, tsim);
+    postmessage_toxcore(TOX_FILE_SEND_NEW_INLINE, f - friend, 0, tsim);
 }
 
 void friend_recvimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width, uint16_t height) {
@@ -205,7 +205,7 @@ void friend_addid(uint8_t *id, char_t *msg, STRING_IDX msg_length)
     memcpy(data, id, TOX_FRIEND_ADDRESS_SIZE);
     memcpy(data + TOX_FRIEND_ADDRESS_SIZE, msg, msg_length * sizeof(char_t));
 
-    tox_postmessage(TOX_FRIEND_NEW, msg_length, 0, data);
+    postmessage_toxcore(TOX_FRIEND_NEW, msg_length, 0, data);
 }
 
 void friend_add(char_t *name, STRING_IDX length, char_t *msg, STRING_IDX msg_length)
@@ -299,10 +299,10 @@ void friend_free(FRIEND *f)
     free(f->msg.data);
 
     if(f->call_state_self) {
-        toxaudio_postmessage(AUDIO_END, f->number, 0, NULL);
+        postmessage_audio(AUDIO_END, f->number, 0, NULL);
         /* TODO end a video call too!
         if(f->calling == CALL_OK_VIDEO) {
-            toxvideo_postmessage(VIDEO_CALL_END, f->number, 0, NULL);
+            postmessage_video(VIDEO_CALL_END, f->number, 0, NULL);
         }*/
     }
 

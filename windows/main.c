@@ -394,7 +394,7 @@ void openfilesend(void)
     };
 
     if(GetOpenFileName(&ofn)) {
-        tox_postmessage(TOX_FILE_SEND_NEW, (FRIEND*)selected_item->data - friend, ofn.nFileOffset, filepath);
+        postmessage_toxcore(TOX_FILE_SEND_NEW, (FRIEND*)selected_item->data - friend, ofn.nFileOffset, filepath);
     } else {
         debug("GetOpenFileName() failed\n");
     }
@@ -467,7 +467,7 @@ void savefilerecv(uint32_t fid, MSG_FILE *file)
     };
 
     if(GetSaveFileName(&ofn)) {
-        tox_postmessage(TOX_FILE_ACCEPT, fid, file->filenumber, path);
+        postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->filenumber, path);
     } else {
         debug("GetSaveFileName() failed\n");
     }
@@ -1005,7 +1005,7 @@ void desktopgrab(_Bool video)
     //SetCapture(hwnd);
     //grabbing = 1;
 
-    //toxvideo_postmessage(VIDEO_SET, 0, 0, (void*)1);
+    //postmessage_video(VIDEO_SET, 0, 0, (void*)1);
 }
 
 LRESULT CALLBACK GrabProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -1060,7 +1060,7 @@ LRESULT CALLBACK GrabProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
         }
 
         if(desktopgrab_video) {
-            toxvideo_postmessage(VIDEO_SET, 0, 0, (void*)1);
+            postmessage_video(VIDEO_SET, 0, 0, (void*)1);
             DestroyWindow(window);
         } else {
             FRIEND *f = selected_item->data;
@@ -1393,7 +1393,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     dnd_init(hwnd);
 
     //start tox thread (hwnd needs to be set first)
-    thread(tox_thread, NULL);
+    thread(toxcore_thread, NULL);
 
     if (*cmd) {
         int len = strlen(cmd);
@@ -1426,10 +1426,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     }
 
     /* kill threads */
-    toxaudio_postmessage(AUDIO_KILL, 0, 0, NULL);
-    toxvideo_postmessage(VIDEO_KILL, 0, 0, NULL);
-    toxav_postmessage(UTOXAV_KILL, 0, 0, NULL);
-    tox_postmessage(TOX_KILL, 0, 0, NULL);
+    postmessage_audio(AUDIO_KILL, 0, 0, NULL);
+    postmessage_video(VIDEO_KILL, 0, 0, NULL);
+    postmessage_utoxav(UTOXAV_KILL, 0, 0, NULL);
+    postmessage_toxcore(TOX_KILL, 0, 0, NULL);
 
     /* cleanup */
 
@@ -1469,7 +1469,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
             if(hwn == video_hwnd[0]) {
                 if(video_preview) {
                     video_preview = 0;
-                    toxvideo_postmessage(VIDEO_PREVIEW_STOP, 0, 0, NULL);
+                    postmessage_video(VIDEO_PREVIEW_STOP, 0, 0, NULL);
                 }
 
                 return 0;
@@ -1479,7 +1479,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
             for(i = 0; i != countof(friend); i++) {
                 if(video_hwnd[i + 1] == hwn) {
                     FRIEND *f = &friend[i];
-                    tox_postmessage(TOX_CALL_DISCONNECT, f->number, 0, NULL);
+                    postmessage_toxcore(TOX_CALL_DISCONNECT, f->number, 0, NULL);
                     break;
                 }
             }
@@ -1786,7 +1786,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
         }
 
 #define setstatus(x) if(self.status != x) { \
-            tox_postmessage(TOX_SELF_SET_STATE, x, 0, NULL); self.status = x; redraw(); }
+            postmessage_toxcore(TOX_SELF_SET_STATE, x, 0, NULL); self.status = x; redraw(); }
 
         case TRAY_STATUS_AVAILABLE: {
             setstatus(TOX_USER_STATUS_NONE);

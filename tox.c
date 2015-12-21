@@ -250,7 +250,7 @@ void friend_meta_data_read(Tox *tox, int friend_id) {
 static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
                                uint32_t param1, uint32_t param2, void *data);
 
-void tox_postmessage(uint8_t msg, uint32_t param1, uint32_t param2, void *data) {
+void postmessage_toxcore(uint8_t msg, uint32_t param1, uint32_t param2, void *data) {
     while (tox_thread_msg) {
         yieldcpu(1);
     }
@@ -477,12 +477,12 @@ void tox_settingschanged(void) {
     list_dropdown_clear(&dropdown_audio_out);
     list_dropdown_clear(&dropdown_video);
 
-    toxvideo_postmessage(VIDEO_KILL, 0, 0, NULL);
-    toxaudio_postmessage(AUDIO_KILL, 0, 0, NULL);
-    toxav_postmessage(UTOXAV_KILL, 0, 0, NULL);
+    postmessage_video(VIDEO_KILL, 0, 0, NULL);
+    postmessage_audio(AUDIO_KILL, 0, 0, NULL);
+    postmessage_utoxav(UTOXAV_KILL, 0, 0, NULL);
 
     // send the reconfig message!
-    tox_postmessage(0, 1, 0, NULL);
+    postmessage_toxcore(0, 1, 0, NULL);
 
     while(!tox_thread_init) {
         yieldcpu(1);
@@ -671,14 +671,14 @@ static void init_self(Tox *tox) {
     }
 }
 
-/** void tox_thread(void)
+/** void toxcore_thread(void)
  *
  * Main tox function, starts a new toxcore for utox to use, and then spawns its
  * threads.
  *
  * Accepts and returns nothing.
  */
-void tox_thread(void *UNUSED(args)) {
+void toxcore_thread(void *UNUSED(args)) {
     Tox  *tox = NULL;
     ToxAV *av = NULL;
     _Bool reconfig = 1;
@@ -711,9 +711,9 @@ void tox_thread(void *UNUSED(args)) {
             list_start();
 
             // Start the treads
-            thread(toxav_thread, av);
-            thread(audio_thread, av);
-            thread(video_thread, av);
+            thread(utox_av_ctrl_thread, av);
+            thread(utox_audio_thread, av);
+            thread(utox_video_thread, av);
         }
 
         _Bool connected = 0;
@@ -776,7 +776,7 @@ void tox_thread(void *UNUSED(args)) {
         edit_setstr(&edit_profile_password, (char_t *)"", 0);
 
         // Wait for all a/v threads to return 0
-        while(audio_thread_init || video_thread_init || toxav_thread_init) {
+        while(audio_thread_init || video_thread_init || utox_av_ctrl_init) {
             yieldcpu(1);
         }
 
@@ -1137,7 +1137,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
                         if (error) {
                             debug("uTox:\tError trying to toxav_answer error (%i)\n", error);
                         } else {
-                            toxav_postmessage(UTOXAV_START_CALL, param1, param2, NULL);
+                            postmessage_utoxav(UTOXAV_START_CALL, param1, param2, NULL);
                         }
                         postmessage(AV_CALL_ACCEPTED, param1, 0, NULL);
 
@@ -1155,7 +1155,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
                     }
                 }
             } else {
-                toxav_postmessage(UTOXAV_START_CALL, param1, param2, NULL);
+                postmessage_utoxav(UTOXAV_START_CALL, param1, param2, NULL);
                 postmessage(AV_CALL_RINGING, param1, param2, NULL);
             }
             break;
@@ -1183,7 +1183,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
             if (error) {
                 debug("uTox:\tError trying to toxav_answer error (%i)\n", error);
             } else {
-                toxav_postmessage(UTOXAV_START_CALL, param1, param2, NULL);
+                postmessage_utoxav(UTOXAV_START_CALL, param1, param2, NULL);
             }
             postmessage(AV_CALL_ACCEPTED, param1, 0, NULL);
             break;
@@ -1412,7 +1412,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             }
 
             if (loaded_audio_in_device != 0 && (dropdown_audio_in.dropcount - 1) == loaded_audio_in_device) {
-                toxaudio_postmessage(AUDIO_SET_INPUT, 0, 0, data);
+                postmessage_utoxav(AUDIO_SET_INPUT, 0, 0, data);
                 dropdown_audio_in.selected = loaded_audio_in_device;
                 loaded_audio_in_device = 0;
             }
@@ -1422,7 +1422,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             list_dropdown_add_hardcoded(&dropdown_audio_out, data, data);
 
             if (loaded_audio_out_device != 0 && (dropdown_audio_out.dropcount - 1) == loaded_audio_out_device) {
-                toxaudio_postmessage(AUDIO_SET_OUTPUT, 0, 0, data);
+                postmessage_utoxav(AUDIO_SET_OUTPUT, 0, 0, data);
                 dropdown_audio_out.selected = loaded_audio_out_device;
                 loaded_audio_out_device = 0;
             }
@@ -1490,7 +1490,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             break;
         }
         case FILE_INCOMING_ACCEPT: {
-            tox_postmessage(TOX_FILE_ACCEPT, param1, param2 << 16, data);
+            postmessage_toxcore(TOX_FILE_ACCEPT, param1, param2 << 16, data);
             break;
         }
         case FILE_UPDATE_STATUS:{
@@ -1838,7 +1838,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
 
             if (g->type == TOX_GROUPCHAT_TYPE_AV) {
                 g->audio_calling = 1;
-                toxaudio_postmessage(GROUP_AUDIO_CALL_START, param1, 0, NULL);
+                postmessage_utoxav(GROUP_AUDIO_CALL_START, param1, 0, NULL);
                 redraw();
             }
             break;
@@ -1848,7 +1848,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
 
             if (g->type == TOX_GROUPCHAT_TYPE_AV) {
                 g->audio_calling = 0;
-                toxaudio_postmessage(GROUP_AUDIO_CALL_END, param1, 0, NULL);
+                postmessage_utoxav(GROUP_AUDIO_CALL_END, param1, 0, NULL);
                 redraw();
             }
             break;

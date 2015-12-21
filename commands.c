@@ -3,7 +3,7 @@
 int slash_send_file(FRIEND *friend_handle, const uint8_t *filepath){
     debug("Slash:\tFile path is: %s\n", filepath);
     // todo error check on the file
-        tox_postmessage(TOX_FILE_SEND_NEW_SLASH, friend_handle - friend, 0xFFFF, (void*)filepath);
+        postmessage_toxcore(TOX_FILE_SEND_NEW_SLASH, friend_handle - friend, 0xFFFF, (void*)filepath);
     return 1;
 }
 

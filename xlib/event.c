@@ -14,7 +14,7 @@ _Bool doevent(XEvent event)
             XClientMessageEvent *ev = &event.xclient;
             if((Atom)event.xclient.data.l[0] == wm_delete_window) {
                 if(ev->window == video_win[0]) {
-                    toxav_postmessage(UTOXAV_END_PREVIEW, 0, 0, NULL);
+                    postmessage_utoxav(UTOXAV_END_PREVIEW, 0, 0, NULL);
                     return 1;
                 }
 
@@ -22,7 +22,7 @@ _Bool doevent(XEvent event)
                 for(i = 0; i != countof(friend); i++) {
                     if(video_win[i + 1] == ev->window) {
                         FRIEND *f = &friend[i];
-                        tox_postmessage(TOX_CALL_DISCONNECT, f->number, 0, NULL);
+                        postmessage_toxcore(TOX_CALL_DISCONNECT, f->number, 0, NULL);
                         break;
                     }
                 }
@@ -267,7 +267,7 @@ _Bool doevent(XEvent event)
                         }
                     }
                 } else {
-                    toxvideo_postmessage(VIDEO_SET, 0, 0, (void*)1);
+                    postmessage_video(VIDEO_SET, 0, 0, (void*)1);
                 }
                 pointergrab = 0;
             } else {
@@ -460,7 +460,7 @@ _Bool doevent(XEvent event)
         } else if(ev->property == XdndDATA) {
             char *path = malloc(len + 1);
             formaturilist(path, (char*)data, len);
-            tox_postmessage(TOX_FILE_SEND_NEW, (FRIEND*)selected_item->data - friend, 0xFFFF, path);
+            postmessage_toxcore(TOX_FILE_SEND_NEW, (FRIEND*)selected_item->data - friend, 0xFFFF, path);
         } else if (type == XA_INCR) {
             if (pastebuf.data) {
                 /* already pasting something, give up on that */

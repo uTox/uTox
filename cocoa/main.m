@@ -423,7 +423,7 @@ void launch_at_startup(int should) {
     ui_size(utox_window_width, utox_window_height);
 
     /* start the tox thread */
-    thread(tox_thread, NULL);
+    thread(toxcore_thread, NULL);
 
     self.nameMenuItem = [[[NSMenuItem alloc] initWithTitle:@"j" action:NULL keyEquivalent:@""] autorelease];
     self.statusMenuItem = [[[NSMenuItem alloc] initWithTitle:@"j" action:NULL keyEquivalent:@""] autorelease];
@@ -461,10 +461,10 @@ void launch_at_startup(int should) {
 }
 
 - (void)applicationWillTerminate:(NSNotification *)notification {
-    toxaudio_postmessage(AUDIO_KILL, 0, 0, NULL);
-    toxvideo_postmessage(VIDEO_KILL, 0, 0, NULL);
-    toxav_postmessage(UTOXAV_KILL, 0, 0, NULL);
-    tox_postmessage(TOX_KILL, 0, 0, NULL);
+    postmessage_audio(AUDIO_KILL, 0, 0, NULL);
+    postmessage_video(VIDEO_KILL, 0, 0, NULL);
+    postmessage_utoxav(UTOXAV_KILL, 0, 0, NULL);
+    postmessage_toxcore(TOX_KILL, 0, 0, NULL);
 
     UTOX_SAVE d = {
         // from bottom of screen

@@ -682,11 +682,11 @@ _Bool messages_mdown(MESSAGES *m) {
                         savefilerecv(m->data->id, file);
                     } else if(m->over == 1) {
                         //decline
-                        tox_postmessage(TOX_FILE_CANCEL, m->data->id, file->filenumber, NULL);
+                        postmessage_toxcore(TOX_FILE_CANCEL, m->data->id, file->filenumber, NULL);
                     }
                 } else if(m->over == 1) {
                     //cancel
-                    tox_postmessage(TOX_FILE_CANCEL, m->data->id, file->filenumber, NULL);
+                    postmessage_toxcore(TOX_FILE_CANCEL, m->data->id, file->filenumber, NULL);
                 }
 
 
@@ -696,10 +696,10 @@ _Bool messages_mdown(MESSAGES *m) {
             case FILE_TRANSFER_STATUS_ACTIVE: {
                 if(m->over == 2) {
                     //pause
-                    tox_postmessage(TOX_FILE_PAUSE, m->data->id, file->filenumber, NULL);
+                    postmessage_toxcore(TOX_FILE_PAUSE, m->data->id, file->filenumber, NULL);
                 } else if(m->over == 1) {
                     //cancel
-                    tox_postmessage(TOX_FILE_CANCEL, m->data->id, file->filenumber, NULL);
+                    postmessage_toxcore(TOX_FILE_CANCEL, m->data->id, file->filenumber, NULL);
                 }
                 break;
             }
@@ -707,10 +707,10 @@ _Bool messages_mdown(MESSAGES *m) {
             case FILE_TRANSFER_STATUS_PAUSED_US: {
                 if(m->over == 2) {
                     //resume
-                    tox_postmessage(TOX_FILE_RESUME, m->data->id, file->filenumber, NULL);
+                    postmessage_toxcore(TOX_FILE_RESUME, m->data->id, file->filenumber, NULL);
                 } else if(m->over == 1) {
                     //cancel
-                    tox_postmessage(TOX_FILE_CANCEL, m->data->id, file->filenumber, NULL);
+                    postmessage_toxcore(TOX_FILE_CANCEL, m->data->id, file->filenumber, NULL);
                 }
                 break;
             }
@@ -719,7 +719,7 @@ _Bool messages_mdown(MESSAGES *m) {
             case FILE_TRANSFER_STATUS_BROKEN: {
                 //cancel
                 if(m->over == 1) {
-                    tox_postmessage(TOX_FILE_CANCEL, m->data->id, file->filenumber, NULL);
+                    postmessage_toxcore(TOX_FILE_CANCEL, m->data->id, file->filenumber, NULL);
                 }
                 break;
             }

@@ -502,14 +502,14 @@ static void deleteitem(ITEM *i) {
     switch (i->item) {
         case ITEM_FRIEND: {
             FRIEND *f = i->data;
-            tox_postmessage(TOX_FRIEND_DELETE, (f - friend), 0, f);
+            postmessage_toxcore(TOX_FRIEND_DELETE, (f - friend), 0, f);
             break;
         }
 
         case ITEM_GROUP: {
             GROUPCHAT *g = i->data;
 
-            tox_postmessage(TOX_GROUP_PART, (g - group), 0, NULL);
+            postmessage_toxcore(TOX_GROUP_PART, (g - group), 0, NULL);
 
             unsigned int j;
             for (j = 0; j < g->peers; ++j) {
@@ -519,7 +519,7 @@ static void deleteitem(ITEM *i) {
                 }
             }
 
-            toxaudio_postmessage(GROUP_AUDIO_CALL_END, (g - group), 0, NULL);
+            postmessage_audio(GROUP_AUDIO_CALL_END, (g - group), 0, NULL);
 
             group_free(g);
             break;
@@ -707,7 +707,7 @@ static void contextmenu_list_onselect(uint8_t i) {
             case ITEM_FRIEND_ADD: {
                 if(i == 0) {
                     FRIENDREQ *req = right_mouse_item->data;
-                    tox_postmessage(TOX_FRIEND_ACCEPT, 0, 0, req);
+                    postmessage_toxcore(TOX_FRIEND_ACCEPT, 0, 0, req);
                 }
                 return;
             }
@@ -718,7 +718,7 @@ static void contextmenu_list_onselect(uint8_t i) {
         }
     } else {
         if (i) {
-            tox_postmessage(TOX_GROUP_CREATE, 0, 0, NULL);
+            postmessage_toxcore(TOX_GROUP_CREATE, 0, 0, NULL);
         } else {
             show_page(&item_add);
         }
@@ -788,7 +788,7 @@ _Bool list_mup(void *UNUSED(n)) {
                     GROUPCHAT *g = nitem->data;
 
                     if(f->online) {
-                        tox_postmessage(TOX_GROUP_SEND_INVITE, (g - group), (f - friend), NULL);
+                        postmessage_toxcore(TOX_GROUP_SEND_INVITE, (g - group), (f - friend), NULL);
                     }
                 }
 

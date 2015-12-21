@@ -22,7 +22,7 @@ static void closevideodevice(void *handle) {
     vpx_img_free(&input);
 }
 
-void toxvideo_postmessage(uint8_t msg, uint32_t param1, uint32_t param2, void *data) {
+void postmessage_video(uint8_t msg, uint32_t param1, uint32_t param2, void *data) {
     while(video_thread_msg) {
         yieldcpu(1);
     }
@@ -35,7 +35,7 @@ void toxvideo_postmessage(uint8_t msg, uint32_t param1, uint32_t param2, void *d
     video_thread_msg = 1;
 }
 
-void video_thread(void *args) {
+void utox_video_thread(void *args) {
     ToxAV *av = args;
 
     // holds the currently selected video device

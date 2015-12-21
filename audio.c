@@ -106,7 +106,7 @@ void sourceplaybuffer(int i, const int16_t *data, int samples, uint8_t channels,
     }
 }
 
-void toxaudio_postmessage(uint8_t msg, uint32_t param1, uint32_t param2, void *data) {
+void postmessage_audio(uint8_t msg, uint32_t param1, uint32_t param2, void *data) {
     while(audio_thread_msg) {
         yieldcpu(1);
     }
@@ -119,7 +119,7 @@ void toxaudio_postmessage(uint8_t msg, uint32_t param1, uint32_t param2, void *d
     audio_thread_msg = 1;
 }
 
-void audio_thread(void *args){
+void utox_audio_thread(void *args){
     ToxAV *av = args;
     const char *device_list, *output_device = NULL;
     void *audio_device = NULL;

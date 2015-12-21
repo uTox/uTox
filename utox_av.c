@@ -1,6 +1,6 @@
 #include "main.h"
 
-void toxav_postmessage(uint8_t msg, uint32_t param1, uint32_t param2, void *data) {
+void postmessage_utoxav(uint8_t msg, uint32_t param1, uint32_t param2, void *data) {
     while(toxav_thread_msg) {
         yieldcpu(1);
     }
@@ -13,10 +13,10 @@ void toxav_postmessage(uint8_t msg, uint32_t param1, uint32_t param2, void *data
     toxav_thread_msg = 1;
 }
 
-void toxav_thread(void *args) {
+void utox_av_ctrl_thread(void *args) {
     ToxAV *av = args;
 
-    toxav_thread_init = 1;
+    utox_av_ctrl_init = 1;
 
     debug("Toxav thread init\n");
     while (1) {
@@ -29,30 +29,30 @@ void toxav_thread(void *args) {
             switch(msg->msg) {
                 case UTOXAV_START_CALL: {
                     FRIEND *f = &friend[msg->param1];
-                    toxaudio_postmessage(AUDIO_STOP_RINGTONE, msg->param1, 0, NULL);
-                    toxaudio_postmessage(AUDIO_START, msg->param1, 0, NULL);
+                    postmessage_audio(AUDIO_STOP_RINGTONE, msg->param1, 0, NULL);
+                    postmessage_audio(AUDIO_START, msg->param1, 0, NULL);
                     f->call_state_self = ( TOXAV_FRIEND_CALL_STATE_SENDING_A | TOXAV_FRIEND_CALL_STATE_ACCEPTING_A );
                     if (msg->param2) {
-                        toxvideo_postmessage(VIDEO_RECORD_START, msg->param1, 0, NULL);
+                        postmessage_video(VIDEO_RECORD_START, msg->param1, 0, NULL);
                         f->call_state_self |= (TOXAV_FRIEND_CALL_STATE_SENDING_V | TOXAV_FRIEND_CALL_STATE_ACCEPTING_V);
                     }
                     break;
                 }
                 case UTOXAV_END_CALL: {
                     FRIEND *f = &friend[msg->param1];
-                    toxaudio_postmessage(AUDIO_STOP_RINGTONE, msg->param1, 0, NULL);
-                    toxaudio_postmessage(AUDIO_END, msg->param1, 0, NULL);
+                    postmessage_audio(AUDIO_STOP_RINGTONE, msg->param1, 0, NULL);
+                    postmessage_audio(AUDIO_END, msg->param1, 0, NULL);
                     if ((f->call_state_self | TOXAV_FRIEND_CALL_STATE_SENDING_V | TOXAV_FRIEND_CALL_STATE_ACCEPTING_V)){
-                        toxvideo_postmessage(VIDEO_RECORD_STOP, msg->param1, 0, NULL);
+                        postmessage_video(VIDEO_RECORD_STOP, msg->param1, 0, NULL);
                     }
                     break;
                 }
                 case UTOXAV_START_PREVIEW: {
-                    toxvideo_postmessage(VIDEO_PREVIEW_START, 0, 0, NULL);
+                    postmessage_video(VIDEO_PREVIEW_START, 0, 0, NULL);
                     break;
                 }
                 case UTOXAV_END_PREVIEW: {
-                    toxvideo_postmessage(VIDEO_PREVIEW_STOP, 0, 0, NULL);
+                    postmessage_video(VIDEO_PREVIEW_STOP, 0, 0, NULL);
                     break;
                 }
             }
@@ -64,7 +64,7 @@ void toxav_thread(void *args) {
     }
 
     toxav_thread_msg = 0;
-    toxav_thread_init = 0;
+    utox_av_ctrl_init = 0;
     debug("UTOXAV:\tClean thread exit!\n");
     return;
 }
@@ -76,13 +76,13 @@ static void utox_av_incoming_call(ToxAV *av, uint32_t friend_number, bool audio,
     f->call_state_self = 0;
     f->call_state_friend = ( audio << 2 | video << 3 | audio << 4 | video << 5 );
     debug("uTox AV:\tcall friend (%u) state for incoming call: %i\n", friend_number, f->call_state_friend);
-    toxaudio_postmessage(AUDIO_PLAY_RINGTONE, friend_number, 0, NULL); /* TODO add this to toxav thread */
+    postmessage_audio(AUDIO_PLAY_RINGTONE, friend_number, 0, NULL); /* TODO add this to toxav thread */
     postmessage(AV_CALL_INCOMING, friend_number, video, NULL);
 }
 
 static void utox_av_remote_disconnect(ToxAV *av, int32_t friend_number) {
     debug("uToxAV:\tRemote disconnect from friend %u\n", friend_number);
-    toxav_postmessage(UTOXAV_END_CALL, friend_number, 0, NULL);
+    postmessage_utoxav(UTOXAV_END_CALL, friend_number, 0, NULL);
     friend[friend_number].call_state_self = 0;
     friend[friend_number].call_state_friend = 0;
     postmessage(AV_CLOSE_WINDOW, friend_number + 1, 0, NULL);
@@ -117,7 +117,7 @@ void utox_av_local_disconnect(ToxAV *av, int32_t friend_number) {
         }
 
     }
-    toxav_postmessage(UTOXAV_END_CALL, friend_number, 0, NULL);
+    postmessage_utoxav(UTOXAV_END_CALL, friend_number, 0, NULL);
     friend[friend_number].call_state_self   = 0;
     friend[friend_number].call_state_friend = 0;
     postmessage(AV_CLOSE_WINDOW, friend_number + 1, 0, NULL);
@@ -134,13 +134,13 @@ void utox_av_local_call_control(ToxAV *av, uint32_t friend_number, TOXAV_CALL_CO
         switch (control) {
             case TOXAV_CALL_CONTROL_HIDE_VIDEO: {
                 toxav_bit_rate_set(av, friend_number, -1, 0, &bitrate_err);
-                toxvideo_postmessage(VIDEO_RECORD_STOP, friend_number, 0, NULL);
+                postmessage_video(VIDEO_RECORD_STOP, friend_number, 0, NULL);
                 friend[friend_number].call_state_self &= (0xFF ^ TOXAV_FRIEND_CALL_STATE_SENDING_V);
                 break;
             }
             case TOXAV_CALL_CONTROL_SHOW_VIDEO: {
                 toxav_bit_rate_set(av, friend_number, -1, UTOX_DEFAULT_BITRATE_V, &bitrate_err);
-                toxvideo_postmessage(VIDEO_RECORD_START, friend_number, 0, NULL);
+                postmessage_video(VIDEO_RECORD_START, friend_number, 0, NULL);
                 friend[friend_number].call_state_self |= TOXAV_FRIEND_CALL_STATE_SENDING_V;
                 break;
             }

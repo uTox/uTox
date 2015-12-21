@@ -146,7 +146,7 @@ int self_set_avatar(const uint8_t *data, uint32_t size)
 
     uint8_t *png_data = malloc(size);
     memcpy(png_data, data, size);
-    tox_postmessage(TOX_AVATAR_SET, UTOX_AVATAR_FORMAT_PNG, size, png_data);
+    postmessage_toxcore(TOX_AVATAR_SET, UTOX_AVATAR_FORMAT_PNG, size, png_data);
     return 1;
 }
 
@@ -168,7 +168,7 @@ void self_remove_avatar()
     uint8_t hex_id[TOX_FRIEND_ADDRESS_SIZE * 2];
     id_to_string(hex_id, self.id_binary);
     delete_saved_avatar(hex_id);
-    tox_postmessage(TOX_AVATAR_UNSET, 0, 0, NULL);
+    postmessage_toxcore(TOX_AVATAR_UNSET, 0, 0, NULL);
 }
 
 _Bool avatar_on_friend_online(Tox *tox, uint32_t friend_number){

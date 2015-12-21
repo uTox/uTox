@@ -78,7 +78,7 @@ static void button_status_onpress(void) {
     }
     #endif
 
-    tox_postmessage(TOX_SELF_SET_STATE, self.status, 0, NULL);
+    postmessage_toxcore(TOX_SELF_SET_STATE, self.status, 0, NULL);
 }
 
 static void button_menu_update(BUTTON *b) {
@@ -105,7 +105,7 @@ static void button_add_new_contact_onpress(void) {
 }
 
 static void button_create_group_onpress(void) {
-    tox_postmessage(TOX_GROUP_CREATE, 0, 0, NULL);
+    postmessage_toxcore(TOX_GROUP_CREATE, 0, 0, NULL);
 }
 
 static void button_settings_onpress(void) {
@@ -140,10 +140,10 @@ static void button_change_id_type_onpress(void) {
 static void button_audiopreview_onpress(void) {
     if (!audio_preview) {
         debug("Going to start Audio Preview\n");
-        toxaudio_postmessage(AUDIO_PREVIEW_START, 0, 0, NULL);
+        postmessage_audio(AUDIO_PREVIEW_START, 0, 0, NULL);
     } else {
         debug("Going to stop Audio Preview\n");
-        toxaudio_postmessage(AUDIO_PREVIEW_END, 0, 0, NULL);
+        postmessage_audio(AUDIO_PREVIEW_END, 0, 0, NULL);
     }
     audio_preview = !audio_preview;
 }
@@ -158,9 +158,9 @@ static void button_audiopreview_update(BUTTON *b) {
 
 static void button_videopreview_onpress(void) {
     if (video_preview) {
-        toxav_postmessage(UTOXAV_END_PREVIEW, 0, 0, NULL);
+        postmessage_utoxav(UTOXAV_END_PREVIEW, 0, 0, NULL);
     } else if (video_width && video_height) {
-        toxav_postmessage(UTOXAV_START_PREVIEW, 0, 0, NULL);
+        postmessage_utoxav(UTOXAV_START_PREVIEW, 0, 0, NULL);
     } else {
         debug("Button:\t video_width = 0, can't preview\n");
     }
@@ -209,9 +209,9 @@ static void button_settings_sub_av_onpress(void){
 static void button_group_audio_onpress(void) {
     GROUPCHAT *g = selected_item->data;
     if (g->audio_calling) {
-        tox_postmessage(TOX_GROUP_AUDIO_END, (g - group), 0, NULL);
+        postmessage_toxcore(TOX_GROUP_AUDIO_END, (g - group), 0, NULL);
     } else {
-        tox_postmessage(TOX_GROUP_AUDIO_START, (g - group), 0, NULL);
+        postmessage_toxcore(TOX_GROUP_AUDIO_START, (g - group), 0, NULL);
     }
 }
 
@@ -235,18 +235,18 @@ static void button_call_audio_onpress(void) {
         if (UTOX_SENDING_AUDIO(f->number)) {
             debug("Ending call: %u\n", f->number);
             /* var 3/4 = bool send video */
-            tox_postmessage(TOX_CALL_DISCONNECT,  f->number, 0, NULL);
+            postmessage_toxcore(TOX_CALL_DISCONNECT,  f->number, 0, NULL);
         } else {
             debug("Canceling call: friend = %d\n", f->number);
-            tox_postmessage(TOX_CALL_DISCONNECT,  f->number, 0, NULL);
+            postmessage_toxcore(TOX_CALL_DISCONNECT,  f->number, 0, NULL);
         }
-        tox_postmessage(TOX_CALL_DISCONNECT, f->number, 0, NULL);
+        postmessage_toxcore(TOX_CALL_DISCONNECT, f->number, 0, NULL);
     } else if (UTOX_AVAILABLE_AUDIO(f->number)) {
         debug("Accept Call: %u\n", f->number);
-        tox_postmessage(TOX_CALL_ANSWER, f->number, 0, NULL);
+        postmessage_toxcore(TOX_CALL_ANSWER, f->number, 0, NULL);
     } else {
         if (f->online) {
-            tox_postmessage(TOX_CALL_SEND, f->number, 0, NULL);
+            postmessage_toxcore(TOX_CALL_SEND, f->number, 0, NULL);
             debug("Calling friend: %u\n", f->number);
         }
     }
@@ -276,20 +276,20 @@ static void button_call_video_onpress(void) {
     if (f->call_state_self) {
         if (SELF_ACCEPT_VIDEO(f->number)) {
             debug("Canceling call (video): %u\n", f->number);
-            tox_postmessage(TOX_CALL_DISCONNECT,  f->number, 1, NULL);
+            postmessage_toxcore(TOX_CALL_DISCONNECT,  f->number, 1, NULL);
         } else if (UTOX_SENDING_AUDIO(f->number)) {
             debug("Audio call inprogress, adding video\n");
-            tox_postmessage(TOX_CALL_RESUME_VIDEO, f->number, 1, NULL);
+            postmessage_toxcore(TOX_CALL_RESUME_VIDEO, f->number, 1, NULL);
         } else {
             debug("Ending call (video): %u\n",   f->number);
-            tox_postmessage(TOX_CALL_DISCONNECT, f->number, 1, NULL);
+            postmessage_toxcore(TOX_CALL_DISCONNECT, f->number, 1, NULL);
         }
     } else if (f->call_state_friend) {
         debug("Accept Call (video): %u %u\n", f->number, f->call_state_friend);
-        tox_postmessage(TOX_CALL_ANSWER, f->number, 1, NULL);
+        postmessage_toxcore(TOX_CALL_ANSWER, f->number, 1, NULL);
     } else {
         if (f->online) {
-            tox_postmessage(TOX_CALL_SEND, f->number, 1, NULL);
+            postmessage_toxcore(TOX_CALL_SEND, f->number, 1, NULL);
             debug("Calling friend (video): %u\n", f->number);
         }
     }
@@ -329,7 +329,7 @@ static void button_bottommenu_update(BUTTON *b) {
 
 static void button_accept_friend_onpress(void) {
     FRIENDREQ *req = selected_item->data;
-    tox_postmessage(TOX_FRIEND_ACCEPT, 0, 0, req);
+    postmessage_toxcore(TOX_FRIEND_ACCEPT, 0, 0, req);
     panel_friend_request.disabled = 1;
 }
 

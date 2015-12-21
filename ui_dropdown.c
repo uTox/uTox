@@ -4,14 +4,14 @@ static void dropdown_audio_in_onselect(uint16_t i, const DROPDOWN* dm)
 {
     DROP_ELEMENT *e = &((DROP_ELEMENT*) dm->userdata)[i];
     void *handle = e->handle;
-    toxaudio_postmessage(AUDIO_SET_INPUT, 0, 0, handle);
+    postmessage_audio(AUDIO_SET_INPUT, 0, 0, handle);
 }
 
 static void dropdown_audio_out_onselect(uint16_t i, const DROPDOWN* dm)
 {
     DROP_ELEMENT *e = &((DROP_ELEMENT*) dm->userdata)[i];
     void *handle = e->handle;
-    toxaudio_postmessage(AUDIO_SET_OUTPUT, 0, 0, handle);
+    postmessage_audio(AUDIO_SET_OUTPUT, 0, 0, handle);
 }
 
 static void dropdown_video_onselect(uint16_t i, const DROPDOWN* dm)
@@ -26,7 +26,7 @@ static void dropdown_video_onselect(uint16_t i, const DROPDOWN* dm)
         desktopgrab(1);
         return;
     }
-    toxvideo_postmessage(VIDEO_SET, 0, 0, handle);
+    postmessage_utoxav(VIDEO_SET, 0, 0, handle);
 }
 
 static void dropdown_dpi_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))

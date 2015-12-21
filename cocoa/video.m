@@ -433,11 +433,11 @@ void* video_detect(void) {
             case 0:
                 video_preview = 0;
                 video_end(0);
-                toxvideo_postmessage(VIDEO_PREVIEW_STOP, 0, 0, NULL);
+                postmessage_video(VIDEO_PREVIEW_STOP, 0, 0, NULL);
                 break;
             default: {
                 FRIEND *f = &friend[((uToxIroncladWindow *)notification.object).video_id - 1];
-                tox_postmessage(TOX_CALL_DISCONNECT, f->number, 0, NULL);
+                postmessage_toxcore(TOX_CALL_DISCONNECT, f->number, 0, NULL);
                 break;
             }
         }

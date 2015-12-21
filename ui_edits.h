@@ -25,7 +25,7 @@ static void edit_name_onenter(EDIT *edit)
     self.name_length = length;
     update_tray();
 
-    tox_postmessage(TOX_SELF_SET_NAME, length, 0, self.name);//!
+    postmessage_toxcore(TOX_SELF_SET_NAME, length, 0, self.name);//!
 }
 
 static void edit_status_onenter(EDIT *edit)
@@ -48,7 +48,7 @@ static void edit_status_onenter(EDIT *edit)
 
     update_tray();
 
-    tox_postmessage(TOX_SELF_SET_STATUS, length, 0, self.statusmsg);//!
+    postmessage_toxcore(TOX_SELF_SET_STATUS, length, 0, self.statusmsg);//!
 }
 
 static void edit_add_new_contact(EDIT *edit) {
@@ -117,18 +117,18 @@ static void edit_msg_onenter(EDIT *edit)
         void *d = malloc(length);
         memcpy(d, text, length);
 
-        tox_postmessage((action ? TOX_SEND_ACTION : TOX_SEND_MESSAGE), (f - friend), length, d);
+        postmessage_toxcore((action ? TOX_SEND_ACTION : TOX_SEND_MESSAGE), (f - friend), length, d);
     } else if(selected_item->item == ITEM_GROUP) {
         GROUPCHAT *g = selected_item->data;
         if(topic){
             void *d = malloc(length);
             memcpy(d, text, length);
-            tox_postmessage(TOX_GROUP_SET_TOPIC, (g - group), length, d);
+            postmessage_toxcore(TOX_GROUP_SET_TOPIC, (g - group), length, d);
         } else {
             void *d = malloc(length);
             memcpy(d, text, length);
 
-            tox_postmessage((action ? TOX_GROUP_SEND_ACTION : TOX_GROUP_SEND_MESSAGE), (g - group), length, d);
+            postmessage_toxcore((action ? TOX_GROUP_SEND_ACTION : TOX_GROUP_SEND_MESSAGE), (g - group), length, d);
         }
     }
 
@@ -393,7 +393,7 @@ static void edit_msg_onchange(EDIT *edit)
             return;
         }
 
-        tox_postmessage(TOX_SEND_TYPING, (f - friend), 0, NULL);
+        postmessage_toxcore(TOX_SEND_TYPING, (f - friend), 0, NULL);
     }
 
     if (completion.edited) {
