@@ -52,8 +52,8 @@ ifeq ($(UNAME_S), Linux)
 	LDFLAGS += -lresolv -ldl
 	LDFLAGS += $(shell pkg-config --libs $(DEPS))
 
-	TRAY_GEN = objcopy -I binary -O $(OBJCPY) -B i386 icons/utox-128x128.png icons/utox-128x128.o
 	TRAY_OBJ = icons/utox-128x128.o
+	TRAY_GEN = objcopy -I binary -O $(OBJCPY) -B i386 icons/utox-128x128.png
 else ifeq ($(UNAME_O), Cygwin)
 	OUT_FILE = utox.exe
 
@@ -69,8 +69,8 @@ else ifeq ($(UNAME_O), Cygwin)
 	OS_SRC = $(wildcard windows/*.c)
 	OS_OBJ = $(OS_SRC:.c=.o)
 
-	TRAY_GEN = x86_64-w64-mingw32-windres icons/icon.rc -O coff -o icon.o
-	TRAY_OBJ = icon.o
+	TRAY_OBJ = icons/icon.o
+	TRAY_GEN = x86_64-w64-mingw32-windres icons/icon.rc -O coff -o
 endif
 
 
@@ -84,7 +84,7 @@ GIT_V = $(shell git describe --abbrev=8 --dirty --always --tags)
 
 all: utox
 
-utox: $(OBJ) $(OS_OBJ) tray-icon
+utox: $(OBJ) $(OS_OBJ) $(TRAY_OBJ)
 	@echo "  LD    $@"
 	@$(CC) $(CFLAGS) -o $(OUT_FILE) $(OBJ) $(OS_OBJ) $(TRAY_OBJ) $(LDFLAGS)
 
@@ -138,8 +138,8 @@ $(OS_OBJ): %.o: %.c $(HEADERS)
 	@echo "  CC    $@"
 	@$(CC) $(CFLAGS) -o $@ -c -DGIT_VERSION=\"$(GIT_V)\" $<
 
-tray-icon:
-	$(TRAY_GEN)
+$(TRAY_OBJ):
+	$(TRAY_GEN) $(TRAY_OBJ)
 
 clean:
 	rm -f $(OUT_FILE) *.o png/*.o icons/*.o windows/*.o

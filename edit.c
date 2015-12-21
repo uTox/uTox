@@ -100,11 +100,13 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
         /* Generate the stars for this password */
         uint8_t star[edit->length];
         memset(star, '*', edit->length);
-        drawtextmultiline(x + 2 * SCALE, x + width - 2 * SCALE - (edit->multiline ? SCROLL_WIDTH : 0), yy + top_offset, y, y + height, font_small_lineheight, star, edit->length,
+        drawtextmultiline(x + 2 * SCALE, x + width - 2 * SCALE - (edit->multiline ? SCROLL_WIDTH : 0),
+                          yy + top_offset * SCALE, y, y + height, font_small_lineheight, star, edit->length,
                           is_active ? edit_sel.start : STRING_IDX_MAX, is_active ? edit_sel.length : STRING_IDX_MAX,
                           is_active ? edit_sel.mark_start : 0, is_active ? edit_sel.mark_length : 0, edit->multiline);
     } else {
-        drawtextmultiline(x + 2 * SCALE, x + width - 2 * SCALE - (edit->multiline ? SCROLL_WIDTH : 0), yy + top_offset, y, y + height, font_small_lineheight, edit->data, edit->length,
+        drawtextmultiline(x + 2 * SCALE, x + width - 2 * SCALE - (edit->multiline ? SCROLL_WIDTH : 0),
+                          yy + top_offset * SCALE, y, y + height, font_small_lineheight, edit->data, edit->length,
                           is_active ? edit_sel.start : STRING_IDX_MAX, is_active ? edit_sel.length : STRING_IDX_MAX,
                           is_active ? edit_sel.mark_start : 0, is_active ? edit_sel.mark_length : 0, edit->multiline);
     }
