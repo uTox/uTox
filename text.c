@@ -2,7 +2,6 @@
 
 static void drawtexth(int x, int y, char_t *str, STRING_IDX length, int d, int h, int hlen, uint16_t lineheight)
 {
-
     // Draw cursor
     h -= d;
     if(h + hlen < 0 || h > length) {

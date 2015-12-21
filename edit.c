@@ -48,18 +48,18 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
 
     switch(edit->style) {
         case AUXILIARY_STYLE:
-            color_bg = COLOR_BACKGROUND_AUX;
-            color_border = COLOR_AUX_EDGE_NORMAL;
+            color_bg       = COLOR_BACKGROUND_AUX;
+            color_border   = COLOR_AUX_EDGE_NORMAL;
             color_border_h = COLOR_AUX_EDGE_HOVER;
             color_border_a = COLOR_AUX_EDGE_ACTIVE;
-            color_text = COLOR_AUX_TEXT;
+            color_text     = COLOR_AUX_TEXT;
             break;
         default:
-            color_bg = COLOR_BACKGROUND_MAIN;
-            color_border = COLOR_EDGE_NORMAL;
+            color_bg       = COLOR_BACKGROUND_MAIN;
+            color_border   = COLOR_EDGE_NORMAL;
             color_border_h = COLOR_EDGE_HOVER;
             color_border_a = COLOR_EDGE_ACTIVE;
-            color_text = COLOR_MAIN_TEXT;
+            color_text     = COLOR_MAIN_TEXT;
             break;
     }
 
