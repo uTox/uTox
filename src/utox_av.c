@@ -24,11 +24,7 @@ void utox_av_ctrl_thread(void *args) {
 
     _Bool audio_in_device_open  = 0;
     _Bool audio_in_device_listening  = 0;
-
     _Bool audio_out_device_open = 0;
-    _Bool audio_out_device_playing = 0;
-
-    int32_t device_in, device_out, device =0;
 
     debug("Toxav thread init\n");
     while (1) {
@@ -76,64 +72,57 @@ void utox_av_ctrl_thread(void *args) {
                         audio_count++;
                         // groups_audio[m->param1] = 1;
                         // if(!record_on) {
-                            // device_in = alcopencapture(audio_device);
-                            if(device_in) {
-                                // alccapturestart(device_in);
-                                // record_on = 1;
-                                debug("Starting Audio GroupCall\n");
-                            }
+                        // device_in = alcopencapture(audio_device);
+                        // alccapturestart(device_in);
+                        // record_on = 1;
+                        debug("Starting Audio GroupCall\n");
                         // }
                     }
                     break;
                 }
 
                 case UTOXAV_START_AUDIO: {
-                    audio_count++;
-                    // if(!record_on) {
-                        // device_in = alcopencapture(audio_device);
-                        if(device_in) {
-                            // alccapturestart(device_in);
-                            record_on = 1;
-                            debug("Listening to audio\n");
-                            yieldcpu(20);
+                    if (!audio_count) {
+                        if (!audio_in_device_open) {
+                            utox_audio_in_device_open();
+                            audio_in_device_open = 1;
                         }
-                    // }
 
-                    if (msg->param1) {
-                        /* Start audio preview */
+                        if (!audio_in_device_listening) {
+                            utox_audio_in_listen();
+                            audio_in_device_listening = 1;
+                        }
+                    }
+                    audio_count++;
+
+                    if (msg->param1) { /* Start audio preview */
                         debug("uToxAV:\tStarting Audio Preview\n");
                         postmessage_audio(AUDIO_START_PREVIEW, 0, 0, NULL);
-                        // if(!record_on) {
-
-                            // device_in = alcopencapture(audio_device);
-                        // }
                     }
                     break;
                 }
                 case UTOXAV_STOP_AUDIO: {
+                    if (!audio_count) {
+                        debug("uToxAV:\tWARNING, trying to stop audio while already closed!\nThis is bad!\n");
+                        break;
+                    }
                     audio_count--;
-                    // if(!call[msg->param1]) {
-                        // break;
-                    // }
-                    // call[msg->param1] = 0;
-                    // if(!audio_count && record_on) {
-                        // alccapturestop(device_in);
-                        // alccaptureclose(device_in);
-                        // record_on = 0;
-                        debug("stop\n");
-                    // }
 
-                    if (msg->param1) {
-                        /* Stop preview */
+                    if (msg->param1) { /* Stop preview */
                         debug("uToxAV:\tStopping Audio Preview\n");
                         postmessage_audio(AUDIO_STOP_PREVIEW, 0, 0, NULL);
-                        // free(preview_buffer);
-                        // preview_buffer = NULL;
-                        // if(!audio_count && record_on) {
-                            // alccapturestop(device_in);
-                            // alccaptureclose(device_in);
-                            // record_on = 0;
-                        // }
+                    }
+
+                    if (audio_count == 0){
+                        if (audio_in_device_listening) {
+                            utox_audio_in_ignore();
+                            audio_in_device_listening = 0;
+                        }
+
+                        if (audio_in_device_open) {
+                            utox_audio_in_device_close();
+                            audio_in_device_open = 0;
+                        }
                     }
                     break;
                 }
@@ -155,8 +144,6 @@ void utox_av_ctrl_thread(void *args) {
 
                 case UTOXAV_SET_AUDIO_IN: {
                     debug("uToxAV:\tSet audio in\n");
-                    msg->data;
-
                     if (audio_in_device_listening) {
                         utox_audio_in_ignore();
                     }
@@ -168,8 +155,10 @@ void utox_av_ctrl_thread(void *args) {
                     utox_audio_in_device_set(msg->data);
 
                     if (msg->data != utox_audio_in_device_get()) {
+                        debug("uToxAV:\tError changing audio in\n");
                         audio_in_device_open      = 0;
                         audio_in_device_listening = 0;
+                        audio_count               = 0;
                         break;
                     }
 
@@ -183,50 +172,24 @@ void utox_av_ctrl_thread(void *args) {
                     break;
                 }
                 case UTOXAV_SET_AUDIO_OUT: {
-                    // output_device = msg->data;
+                    debug("uToxAV:\tSet audio out\n");
+                    if (audio_out_device_open) {
+                        utox_audio_out_device_close();
+                    }
 
-                    // ALCdevice *device = alcOpenDevice(output_device);
-                    if(!device) {
-                        debug("alcOpenDevice() failed\n");
+                    utox_audio_out_device_set(msg->data);
+
+                    if (msg->data != utox_audio_out_device_get()) {
+                        debug("uToxAV:\tError changing audio out\n");
+                        audio_out_device_open = 0;
                         break;
                     }
 
-                    // ALCcontext *con = alcCreateContext(device, NULL);
-                    // if(!alcMakeContextCurrent(con)) {
-                        // debug("alcMakeContextCurrent() failed\n");
-                        // alcCloseDevice(device);
-                        // break;
-                    // }
-
-                    // alcDestroyContext(context);
-                    // alcCloseDevice(device_out);
-                    // context = con;
-                    device_out = device;
-
-                    // alGenSources(countof(source), source);
-                    // alGenSources(MAX_CALLS, ringSrc);
-
-                    Tox *tox = toxav_get_tox(av);
-                    uint32_t num_chats = tox_count_chatlist(tox);
-
-                    if (num_chats != 0) {
-                        int32_t chats[num_chats];
-                        uint32_t max = tox_get_chatlist(tox, chats, num_chats);
-
-                        unsigned int i;
-                        for (i = 0; i < max; ++i) {
-                            if (tox_group_get_type(tox, chats[i]) == TOX_GROUPCHAT_TYPE_AV) {
-                                // GROUPCHAT *g = &group[chats[i]];
-                                // alGenSources(g->peers, g->source);
-                            }
-                        }
+                    if (audio_out_device_open) {
+                        utox_audio_out_device_open();
                     }
-
-                    debug("set audio out\n");
-
                     break;
                 }
-
 
                 case UTOXAV_SET_VIDEO_IN: {
                     break;
@@ -235,8 +198,6 @@ void utox_av_ctrl_thread(void *args) {
                 case UTOXAV_SET_VIDEO_OUT: {
                     break;
                 }
-
-
             }
         }
 

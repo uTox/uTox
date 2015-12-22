@@ -104,7 +104,7 @@ void audio_detect(void)
 
     debug("Windows:\tAudio frame count %u && Samples/s %lu\n", bufferFrameCount, pwfx->nSamplesPerSec);
 
-    postmessage(AUDIO_IN_DEVICE, STR_AUDIO_IN_DEFAULT_LOOPBACK, 0, (void*)(size_t)1);
+    //postmessage(AUDIO_IN_DEVICE, STR_AUDIO_IN_DEFAULT_LOOPBACK, 0, (void*)(size_t)1);
     return;
 
 Exit:

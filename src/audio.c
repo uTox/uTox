@@ -17,8 +17,8 @@ void utox_audio_in_device_open(void) {
     if (!audio_in_device) {
         return;
     }
-
     if (audio_in_device == (void*)1) {
+        audio_in_handle = (void*)1;
         return;
     }
 
@@ -30,7 +30,8 @@ void utox_audio_in_device_open(void) {
 void utox_audio_in_device_close(void) {
     if (audio_in_handle) {
         if (audio_in_handle == (void*)1) {
-            microphone_on = 0;
+            audio_in_handle = NULL;
+            microphone_on   = 0;
             return;
         }
         if (microphone_on) {
@@ -38,12 +39,13 @@ void utox_audio_in_device_close(void) {
         }
     alcCaptureCloseDevice(audio_in_handle);
     }
-    microphone_on = 0;
+    audio_in_handle = NULL;
+    microphone_on   = 0;
 }
 
 void utox_audio_in_listen(void) {
     if (audio_in_handle) {
-        if (audio_in_handle == (void*)1) {
+        if (audio_in_device == (void*)1) {
             audio_init(audio_in_handle);
             return;
         }
@@ -78,11 +80,22 @@ void utox_audio_in_ignore(void) {
 }
 
 void utox_audio_in_device_set(ALCdevice *new_device) {
-    audio_in_device = new_device;
+    if (new_device) {
+        audio_in_device = new_device;
+        debug("uTox Audio:\tDevice changed.\n");
+    } else {
+        audio_in_device = NULL;
+        audio_in_handle = NULL;
+        debug("uTox Audio:\tDevice set to null.\n");
+    }
 }
 
 ALCdevice* utox_audio_in_device_get(void) {
-    return audio_in_device;
+    if (audio_in_handle) {
+        return audio_in_device;
+    } else {
+        return NULL;
+    }
 }
 
 static ALCcontext *context;
