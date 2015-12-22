@@ -84,7 +84,7 @@ GIT_V = $(shell git describe --abbrev=8 --dirty --always --tags)
 
 all: utox
 
-utox: $(OBJ) $(OS_OBJ) tray-icon
+utox: $(OBJ) $(OS_OBJ) $(TRAY_OBJ)
 	@echo "  LD    $@"
 	@$(CC) $(CFLAGS) -o $(OUT_FILE) $(OBJ) $(OS_OBJ) $(TRAY_OBJ) $(LDFLAGS)
 
@@ -138,7 +138,7 @@ $(OS_OBJ): %.o: %.c $(HEADERS)
 	@echo "  CC    $@"
 	@$(CC) $(CFLAGS) -o $@ -c -DGIT_VERSION=\"$(GIT_V)\" $<
 
-tray-icon:
+$(TRAY_OBJ):
 	$(TRAY_GEN)
 
 clean:
