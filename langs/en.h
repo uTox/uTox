@@ -121,10 +121,10 @@ msgstr("Message")
 msgid(SEARCHFRIENDS)
 msgstr("Search contacts")
 
-msgid(FILTER_ALL)
+msgid(FILTER_ONLINE)
 msgstr("Online Contacts")
 
-msgid(FILTER_ONLINE)
+msgid(FILTER_ALL)
 msgstr("All Contacts")
 
 msgid(FILTER_CONTACT_TOGGLE)
@@ -339,9 +339,6 @@ msgstr("Large (200%)")
 
 msgid(DPI_HUGE)
 msgstr("Huge (250%)")
-
-msgid(FILTER_ALL)
-msgstr("All")
 
 msgid(PROXY_DISABLED)
 msgstr("Disabled")
