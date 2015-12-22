@@ -52,13 +52,8 @@ Don't forget to add -32 if you'd rather build the 32bit version.
 
 <a name="osx" />
 ## OSX
-You need XQuartz on 10.8+, no video yet.
 
-`cc -o uTox.o *.c png/png.c -I/opt/X11/include -L/opt/X11/lib -lX11 -lXrender -lXext -ltoxcore -ltoxav -ltoxdns -framework OpenAL -pthread -lresolv -ldl -lm -lfontconfig -lfreetype -lvpx -I/opt/X11/include/freetype2`
-
-If you are relying on Homebrew to provide libraries and headers, you can use the following line instead to save you the trouble:
-
-`cc -o uTox.o *.c png/png.c -L/usr/local/lib -I/usr/local/include -I/opt/X11/include -L/opt/X11/lib -lX11 -lXrender -lXext -ltoxcore -ltoxav -ltoxdns -framework OpenAL -pthread -lresolv -ldl -lm -lfontconfig -lfreetype -lvpx -I/opt/X11/include/freetype2`
+See [COCOA.md](COCOA.md).
 
 <a name="and" />
 ## Android
