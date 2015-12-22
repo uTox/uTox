@@ -3,25 +3,34 @@
 /* utox av thread commands */
 enum {
     UTOXAV_KILL,
+
     UTOXAV_START_CALL,
     UTOXAV_END_CALL,
-    UTOXAV_START_PREVIEW,
-    UTOXAV_END_PREVIEW,
 
+    UTOXAV_START_AUDIO,
+    UTOXAV_STOP_AUDIO,
+
+    UTOXAV_START_VIDEO,
+    UTOXAV_STOP_VIDEO,
+
+    UTOXAV_SET_AUDIO_IN,
+    UTOXAV_SET_AUDIO_OUT,
+
+    UTOXAV_SET_VIDEO_IN,
+    UTOXAV_SET_VIDEO_OUT,
 };
 
 enum {
+    // kill the audio thread
     AUDIO_KILL,
-    AUDIO_START,
-    AUDIO_END,
-    AUDIO_SET_INPUT,
-    AUDIO_SET_OUTPUT,
-    AUDIO_PREVIEW_START,
-    AUDIO_PREVIEW_END,
+    // start a AUDIO preview
+    AUDIO_START_PREVIEW,
+    // stop a AUDIO preview
+    AUDIO_STOP_PREVIEW,
+    // play ringtone
     AUDIO_PLAY_RINGTONE,
+    // play ringtone
     AUDIO_STOP_RINGTONE,
-    GROUP_AUDIO_CALL_START,
-    GROUP_AUDIO_CALL_END,
 };
 
 enum {

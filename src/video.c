@@ -59,7 +59,7 @@ void utox_video_thread(void *args) {
         }
     }
 
-    video_thread_init = 1;
+    utox_video_thread_init = 1;
 
     while (1) {
         if (video_thread_msg) {
@@ -236,6 +236,6 @@ void utox_video_thread(void *args) {
     }
 
     video_thread_msg = 0;
-    video_thread_init = 0;
+    utox_video_thread_init = 0;
     debug("UTOX VIDEO:\tClean thread exit!\n");
 }

@@ -140,11 +140,9 @@ static void button_change_id_type_onpress(void) {
 
 static void button_audiopreview_onpress(void) {
     if (!audio_preview) {
-        debug("Going to start Audio Preview\n");
-        postmessage_audio(AUDIO_PREVIEW_START, 0, 0, NULL);
+        postmessage_utoxav(UTOXAV_START_AUDIO, 1, 0, NULL);
     } else {
-        debug("Going to stop Audio Preview\n");
-        postmessage_audio(AUDIO_PREVIEW_END, 0, 0, NULL);
+        postmessage_utoxav(UTOXAV_STOP_AUDIO, 1, 0, NULL);
     }
     audio_preview = !audio_preview;
 }
@@ -159,11 +157,11 @@ static void button_audiopreview_update(BUTTON *b) {
 
 static void button_videopreview_onpress(void) {
     if (video_preview) {
-        postmessage_utoxav(UTOXAV_END_PREVIEW, 0, 0, NULL);
+        postmessage_utoxav(UTOXAV_STOP_VIDEO, 1, 0, NULL);
     } else if (video_width && video_height) {
-        postmessage_utoxav(UTOXAV_START_PREVIEW, 0, 0, NULL);
+        postmessage_utoxav(UTOXAV_START_VIDEO, 1, 0, NULL);
     } else {
-        debug("Button:\t video_width = 0, can't preview\n");
+        debug("Button ERR:\tVideo_width = 0, can't preview\n");
     }
 }
 

@@ -477,8 +477,6 @@ void tox_settingschanged(void) {
     list_dropdown_clear(&dropdown_audio_out);
     list_dropdown_clear(&dropdown_video);
 
-    postmessage_video(VIDEO_KILL, 0, 0, NULL);
-    postmessage_audio(AUDIO_KILL, 0, 0, NULL);
     postmessage_utoxav(UTOXAV_KILL, 0, 0, NULL);
 
     // send the reconfig message!
@@ -776,7 +774,7 @@ void toxcore_thread(void *UNUSED(args)) {
         edit_setstr(&edit_profile_password, (char_t *)"", 0);
 
         // Wait for all a/v threads to return 0
-        while(audio_thread_init || video_thread_init || utox_av_ctrl_init) {
+        while(utox_audio_thread_init || utox_video_thread_init || utox_av_ctrl_init) {
             yieldcpu(1);
         }
 
@@ -1412,7 +1410,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             }
 
             if (loaded_audio_in_device != 0 && (dropdown_audio_in.dropcount - 1) == loaded_audio_in_device) {
-                postmessage_utoxav(AUDIO_SET_INPUT, 0, 0, data);
+                postmessage_utoxav(UTOXAV_SET_AUDIO_IN, 0, 0, data);
                 dropdown_audio_in.selected = loaded_audio_in_device;
                 loaded_audio_in_device = 0;
             }
@@ -1422,7 +1420,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             list_dropdown_add_hardcoded(&dropdown_audio_out, data, data);
 
             if (loaded_audio_out_device != 0 && (dropdown_audio_out.dropcount - 1) == loaded_audio_out_device) {
-                postmessage_utoxav(AUDIO_SET_OUTPUT, 0, 0, data);
+                postmessage_utoxav(UTOXAV_SET_AUDIO_OUT, 0, 0, data);
                 dropdown_audio_out.selected = loaded_audio_out_device;
                 loaded_audio_out_device = 0;
             }
@@ -1838,7 +1836,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
 
             if (g->type == TOX_GROUPCHAT_TYPE_AV) {
                 g->audio_calling = 1;
-                postmessage_utoxav(GROUP_AUDIO_CALL_START, param1, 0, NULL);
+                postmessage_utoxav(UTOXAV_START_CALL, 0, param1, NULL);
                 redraw();
             }
             break;
@@ -1848,7 +1846,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
 
             if (g->type == TOX_GROUPCHAT_TYPE_AV) {
                 g->audio_calling = 0;
-                postmessage_utoxav(GROUP_AUDIO_CALL_END, param1, 0, NULL);
+                postmessage_utoxav(UTOXAV_END_CALL, 0, param1, NULL);
                 redraw();
             }
             break;

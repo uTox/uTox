@@ -530,7 +530,7 @@ static void deleteitem(ITEM *i) {
                 }
             }
 
-            postmessage_audio(GROUP_AUDIO_CALL_END, (g - group), 0, NULL);
+            postmessage_utoxav(UTOXAV_END_CALL, 0, (g - group), NULL);
 
             group_free(g);
             break;

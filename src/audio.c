@@ -1,73 +1,123 @@
 #include "main.h"
 
-#ifdef __APPLE__
-    #include <OpenAL/al.h>
-    #include <OpenAL/alc.h>
-#else
-    #include <AL/al.h>
-    #include <AL/alc.h>
-
-    #ifdef AUDIO_FILTERING
-        #include <AL/alext.h>
-    #endif
-    /* include for compatibility with older versions of OpenAL */
-    #ifndef ALC_ALL_DEVICES_SPECIFIER
-        #include <AL/alext.h>
-    #endif
-#endif
-
-#ifdef AUDIO_FILTERING
-    #include <filter_audio.h>
-#endif
-
 static void utox_filter_audio_kill(Filter_Audio *filter_audio_handle){
     #ifdef AUDIO_FILTERING
     kill_filter_audio(filter_audio_handle);
     #endif
 }
 
-static ALCdevice *device_out, *device_in;
-static ALCcontext *context;
+static ALCdevice *audio_out_handle, *audio_in_handle;
+static void      *audio_out_device, *audio_in_device;
+static _Bool      speakers_on, microphone_on;
 /* TODO hacky fix. This source list should be a VLA with a way to link sources to friends.
  * NO SRSLY don't leave this like this! */
 static ALuint source[UTOX_MAX_NUM_FRIENDS];
 
-static ALCdevice* alcopencapture(void *handle) {
-    if(!handle) {
-        return NULL;
-    }
-
-    if(handle == (void*)1) {
-        return handle;
-    }
-
-    return alcCaptureOpenDevice(handle, UTOX_DEFAULT_SAMPLE_RATE_A, AL_FORMAT_MONO16, (UTOX_DEFAULT_FRAME_A * UTOX_DEFAULT_SAMPLE_RATE_A * 4) / 1000);
-    // return alcCaptureOpenDevice(handle, av_DefaultSettings.audio_sample_rate, AL_FORMAT_STERIO16, ((av_DefaultSettings.audio_frame_duration * av_DefaultSettings.audio_sample_rate * 4) / 1000) * av_DefaultSettings.audio_channels);
-}
-
-static void alccapturestart(void *handle) {
-    if(handle == (void*)1) {
-        audio_init(handle);
-        return;
-    }
-    alcCaptureStart(handle);
-}
-
-static void alccapturestop(void *handle) {
-    if(handle == (void*)1) {
-        audio_close(handle);
+void utox_audio_in_device_open(void) {
+    if (!audio_in_device) {
         return;
     }
 
-    alcCaptureStop(handle);
-}
-
-static void alccaptureclose(void *handle) {
-    if(handle == (void*)1) {
+    if (audio_in_device == (void*)1) {
         return;
     }
 
-    alcCaptureCloseDevice(handle);
+    audio_in_handle = alcCaptureOpenDevice(audio_in_device, UTOX_DEFAULT_SAMPLE_RATE_A, AL_FORMAT_MONO16,
+                                                            (UTOX_DEFAULT_FRAME_A * UTOX_DEFAULT_SAMPLE_RATE_A * 4)
+                                                            / 1000);
+}
+
+void utox_audio_in_device_close(void) {
+    if (audio_in_handle) {
+        if (audio_in_handle == (void*)1) {
+            microphone_on = 0;
+            return;
+        }
+        if (microphone_on) {
+            alcCaptureStop(audio_in_handle);
+        }
+    alcCaptureCloseDevice(audio_in_handle);
+    }
+    microphone_on = 0;
+}
+
+void utox_audio_in_listen(void) {
+    if (audio_in_handle) {
+        if (audio_in_handle == (void*)1) {
+            audio_init(audio_in_handle);
+            return;
+        }
+        alcCaptureStart(audio_in_handle);
+    } else if (audio_in_device) {
+        /* Unable to get handle, try to open it again. */
+        utox_audio_in_device_open();
+        if (audio_in_handle) {
+            alcCaptureStart(audio_in_handle);
+        } else {
+            debug("uTox Audio:\tUnable to listen to device!\n");
+        }
+    }
+
+    if (audio_in_handle) {
+        microphone_on = 1;
+    } else {
+        microphone_on = 0;
+    }
+}
+
+void utox_audio_in_ignore(void) {
+    if (audio_in_handle) {
+        if (audio_in_handle == (void*)1) {
+            audio_close(audio_in_handle);
+            microphone_on = 0;
+            return;
+        }
+    alcCaptureStop(audio_in_handle);
+    }
+    microphone_on = 0;
+}
+
+void utox_audio_in_device_set(ALCdevice *new_device) {
+    audio_in_device = new_device;
+}
+
+ALCdevice* utox_audio_in_device_get(void) {
+    return audio_in_device;
+}
+
+static ALCcontext *context;
+void utox_audio_out_device_open(void) {
+    audio_out_handle = alcOpenDevice(audio_out_device);
+    if (!audio_out_handle) {
+        debug("alcOpenDevice() failed\n");
+        speakers_on = 0;
+        return;
+    }
+
+    int attrlist[] = { ALC_FREQUENCY, UTOX_DEFAULT_SAMPLE_RATE_A, ALC_INVALID };
+    context = alcCreateContext(audio_out_handle, attrlist);
+    if (!alcMakeContextCurrent(context)) {
+        debug("alcMakeContextCurrent() failed\n");
+        alcCloseDevice(audio_out_handle);
+        speakers_on = 0;
+        return;
+    }
+    speakers_on = 1;
+}
+
+void utox_audio_out_device_close(void) {
+    alcMakeContextCurrent(NULL);
+    alcDestroyContext(context);
+    alcCloseDevice(audio_out_handle);
+    speakers_on = 0;
+}
+
+void utox_audio_out_device_set(ALCdevice *new_device) {
+
+}
+
+ALCdevice* utox_audio_out_device_get(void) {
+
 }
 
 void sourceplaybuffer(int i, const int16_t *data, int samples, uint8_t channels, unsigned int sample_rate) {
@@ -106,6 +156,41 @@ void sourceplaybuffer(int i, const int16_t *data, int samples, uint8_t channels,
     }
 }
 
+static void utox_init_audio_in(void) {
+    const char *audio_in_device_list;
+    audio_in_device_list = alcGetString(NULL, ALC_CAPTURE_DEVICE_SPECIFIER);
+    if (audio_in_device_list) {
+        audio_in_device = (void*)audio_in_device_list;
+        debug("uTox Audio:\tinput device list:\n");
+        while(*audio_in_device_list) {
+            debug("\t%s\n", audio_in_device_list);
+            postmessage(AUDIO_IN_DEVICE, UI_STRING_ID_INVALID, 0, (void*)audio_in_device_list);
+            audio_in_device_list += strlen(audio_in_device_list) + 1;
+        }
+    }
+    postmessage(AUDIO_IN_DEVICE, STR_AUDIO_IN_NONE, 0, NULL);
+    audio_detect(); /* Get audio devices for windows */
+}
+
+static void utox_init_audio_out(void) {
+    const char *audio_out_device_list;
+    if (alcIsExtensionPresent(NULL, "ALC_ENUMERATE_ALL_EXT")) {
+        audio_out_device_list = alcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER);
+    } else {
+        audio_out_device_list = alcGetString(NULL, ALC_DEVICE_SPECIFIER);
+    }
+
+    if(audio_out_device_list) {
+        audio_out_device = audio_out_device_list;
+        debug("uTox Audio:\toutput device list:\n");
+        while(*audio_out_device_list) {
+            debug("\t%s\n", audio_out_device_list);
+            postmessage(AUDIO_OUT_DEVICE, 0, 0, (void*)audio_out_device_list);
+            audio_out_device_list += strlen(audio_out_device_list) + 1;
+        }
+    }
+}
+
 void postmessage_audio(uint8_t msg, uint32_t param1, uint32_t param2, void *data) {
     while(audio_thread_msg) {
         yieldcpu(1);
@@ -121,73 +206,33 @@ void postmessage_audio(uint8_t msg, uint32_t param1, uint32_t param2, void *data
 
 void utox_audio_thread(void *args){
     ToxAV *av = args;
-    const char *device_list, *output_device = NULL;
-    void *audio_device = NULL;
 
-    _Bool call[MAX_CALLS] = {0}, preview = 0;
-    _Bool groups_audio[MAX_NUM_GROUPS] = {0};
-
-    int perframe = (UTOX_DEFAULT_FRAME_A * UTOX_DEFAULT_SAMPLE_RATE_A) / 1000;
-    uint8_t buf[perframe * 2 * UTOX_DEFAULT_AUDIO_CHANNELS]; //, dest[perframe * 2 * UTOX_DEFAULT_AUDIO_CHANNELS];
-    memset(buf, 0, sizeof(buf));
-
-    uint8_t audio_count = 0;
-    _Bool record_on = 0;
     #ifdef AUDIO_FILTERING
-    debug("Audio Filtering");
+    debug("uTox Audio:\tAudio Filtering");
     #ifdef ALC_LOOPBACK_CAPTURE_SAMPLES
     debug(" and Echo cancellation");
     #endif
     debug(" enabled in this build\n");
     #endif
+    //_Bool call[MAX_CALLS] = {0}, preview = 0;
+    //_Bool groups_audio[MAX_NUM_GROUPS] = {0};
 
-    debug("frame size: %u\n", perframe);
+    int perframe = (UTOX_DEFAULT_FRAME_A * UTOX_DEFAULT_SAMPLE_RATE_A) / 1000;
+    uint8_t buf[perframe * 2 * UTOX_DEFAULT_AUDIO_CHANNELS]; //, dest[perframe * 2 * UTOX_DEFAULT_AUDIO_CHANNELS];
+    memset(buf, 0, sizeof(buf));
+    debug("uTox Audio:\tframe size: %u\n", perframe);
 
-    device_list = alcGetString(NULL, ALC_CAPTURE_DEVICE_SPECIFIER);
-    if (device_list) {
-        audio_device = (void*)device_list;
-        debug("uTox audio input device list:\n");
-        while(*device_list) {
-            debug("\t%s\n", device_list);
-            postmessage(AUDIO_IN_DEVICE, UI_STRING_ID_INVALID, 0, (void*)device_list);
-            device_list += strlen(device_list) + 1;
-        }
-    }
+    /* init Microphone */
+    utox_init_audio_in();
 
-    postmessage(AUDIO_IN_DEVICE, STR_AUDIO_IN_NONE, 0, NULL);
-    audio_detect();
+    utox_audio_in_device_open();
+    utox_audio_in_listen();
 
-    if (alcIsExtensionPresent(NULL, "ALC_ENUMERATE_ALL_EXT")) {
-        device_list = alcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER);
-    } else {
-        device_list = alcGetString(NULL, ALC_DEVICE_SPECIFIER);
-    }
+    /* init Speakers */
+    utox_init_audio_out();
 
-    if(device_list) {
-        output_device = device_list;
-        debug("uTox audio output device list:\n");
-        while(*device_list) {
-            debug("\t%s\n", device_list);
-            postmessage(AUDIO_OUT_DEVICE, 0, 0, (void*)device_list);
-            device_list += strlen(device_list) + 1;
-        }
-    }
+    utox_audio_out_device_open();
 
-    device_out = alcOpenDevice(output_device);
-    if(!device_out) {
-        debug("alcOpenDevice() failed\n");
-        return;
-    }
-
-    int attrlist[] = {  ALC_FREQUENCY, UTOX_DEFAULT_SAMPLE_RATE_A,
-                        ALC_INVALID };
-
-    context = alcCreateContext(device_out, attrlist);
-    if(!alcMakeContextCurrent(context)) {
-        debug("alcMakeContextCurrent() failed\n");
-        alcCloseDevice(device_out);
-        return;
-    }
 
     alGenSources(countof(source), source);
     /* TODO hacky fix. This source list should be a VLA with a way to link sources to friends.
@@ -236,11 +281,15 @@ void utox_audio_thread(void *args){
     }
     Filter_Audio *f_a = NULL;
 
-    audio_thread_init = 1;
+    utox_audio_thread_init = 1;
 
     int16_t *preview_buffer = NULL;
     unsigned int preview_buffer_index = 0;
+    _Bool preview_on = 0;
     #define PREVIEW_BUFFER_SIZE (UTOX_DEFAULT_SAMPLE_RATE_A / 2)
+
+    preview_buffer = calloc(PREVIEW_BUFFER_SIZE, 2);
+    preview_buffer_index = 0;
 
     while(1) {
         if(audio_thread_msg) {
@@ -249,181 +298,31 @@ void utox_audio_thread(void *args){
                 break;
             }
 
-            switch(m->msg) {
-            case AUDIO_SET_INPUT: {
-                audio_device = m->data;
-
-                if(record_on) {
-                    alccapturestop(device_in);
-                    alccaptureclose(device_in);
-                }
-
-                if(audio_count) {
-                    device_in = alcopencapture(audio_device);
-                    if(!device_in) {
-                        record_on = 0;
-                    } else {
-                        alccapturestart(device_in);
-                        record_on = 1;
-                    }
-                }
-
-                debug("set audio in\n");
-                break;
-            }
-
-            case AUDIO_SET_OUTPUT: {
-                output_device = m->data;
-
-                ALCdevice *device = alcOpenDevice(output_device);
-                if(!device) {
-                    debug("alcOpenDevice() failed\n");
+            switch (m->msg){
+                case AUDIO_START_PREVIEW: {
+                    preview_on = 1;
                     break;
                 }
-
-                ALCcontext *con = alcCreateContext(device, NULL);
-                if(!alcMakeContextCurrent(con)) {
-                    debug("alcMakeContextCurrent() failed\n");
-                    alcCloseDevice(device);
+                case AUDIO_STOP_PREVIEW: {
+                    preview_on = 0;
                     break;
                 }
-
-                alcDestroyContext(context);
-                alcCloseDevice(device_out);
-                context = con;
-                device_out = device;
-
-                alGenSources(countof(source), source);
-                alGenSources(MAX_CALLS, ringSrc);
-
-                Tox *tox = toxav_get_tox(av);
-                uint32_t num_chats = tox_count_chatlist(tox);
-
-                if (num_chats != 0) {
-                    int32_t chats[num_chats];
-                    uint32_t max = tox_get_chatlist(tox, chats, num_chats);
-
-                    unsigned int i;
-                    for (i = 0; i < max; ++i) {
-                        if (tox_group_get_type(tox, chats[i]) == TOX_GROUPCHAT_TYPE_AV) {
-                            GROUPCHAT *g = &group[chats[i]];
-                            alGenSources(g->peers, g->source);
-                        }
+                case AUDIO_PLAY_RINGTONE: {
+                    if(!audible_notifications_enabled) {
+                        break;
                     }
-                }
-
-                debug("set audio out\n");
-                break;
-            }
-
-            case AUDIO_PREVIEW_START: {
-                preview = 1;
-                audio_count++;
-                preview_buffer = calloc(PREVIEW_BUFFER_SIZE, 2);
-                preview_buffer_index = 0;
-                if(!record_on) {
-                    device_in = alcopencapture(audio_device);
-                    if(device_in) {
-                        alccapturestart(device_in);
-                        record_on = 1;
-                        debug("Starting Audio Preview\n");
-                    }
-                }
-                break;
-            }
-
-            case AUDIO_START: {
-                audio_count++;
-                if(!record_on) {
-                    device_in = alcopencapture(audio_device);
-                    if(device_in) {
-                        alccapturestart(device_in);
-                        record_on = 1;
-                        debug("Listening to audio\n");
-                        yieldcpu(20);
-                    }
-                }
-                break;
-            }
-
-            case GROUP_AUDIO_CALL_START: {
-                break; // TODO, new groups API
-                audio_count++;
-                groups_audio[m->param1] = 1;
-                if(!record_on) {
-                    device_in = alcopencapture(audio_device);
-                    if(device_in) {
-                        alccapturestart(device_in);
-                        record_on = 1;
-                        debug("Starting Audio GroupCall\n");
-                    }
-                }
-                break;
-            }
-
-            case AUDIO_PREVIEW_END: {
-                preview = 0;
-                audio_count--;
-                free(preview_buffer);
-                preview_buffer = NULL;
-                if(!audio_count && record_on) {
-                    alccapturestop(device_in);
-                    alccaptureclose(device_in);
-                    record_on = 0;
-                    debug("Audio Preview Stopped\n");
-                }
-                break;
-            }
-
-            case AUDIO_END: {
-                if(!call[m->param1]) {
+                    alSourcePlay(ringSrc[m->param1]);
                     break;
                 }
-                call[m->param1] = 0;
-                audio_count--;
-                if(!audio_count && record_on) {
-                    alccapturestop(device_in);
-                    alccaptureclose(device_in);
-                    record_on = 0;
-                    debug("stop\n");
-                }
-                break;
-            }
-
-            case GROUP_AUDIO_CALL_END: {
-                break; // TODO, new groups API
-                if(!groups_audio[m->param1]) {
+                case AUDIO_STOP_RINGTONE: {
+                    ALint state;
+                    alGetSourcei(ringSrc[m->param1], AL_SOURCE_STATE, &state);
+                    if(state == AL_PLAYING) {
+                        alSourceStop(ringSrc[m->param1]);
+                    }
                     break;
                 }
-                audio_count--;
-                groups_audio[m->param1] = 0;
-                if(!audio_count && record_on) {
-                    alccapturestop(device_in);
-                    alccaptureclose(device_in);
-                    record_on = 0;
-                    debug("stop\n");
-                }
-                break;
             }
-
-            case AUDIO_PLAY_RINGTONE: {
-                if(!audible_notifications_enabled) {
-                    break;
-                }
-                alSourcePlay(ringSrc[m->param1]);
-                break;
-            }
-
-            case AUDIO_STOP_RINGTONE: {
-                ALint state;
-                alGetSourcei(ringSrc[m->param1], AL_SOURCE_STATE, &state);
-                if(state == AL_PLAYING) {
-                    alSourceStop(ringSrc[m->param1]);
-                }
-                break;
-            }
-            }
-
             audio_thread_msg = 0;
         }
 
@@ -450,21 +349,21 @@ void utox_audio_thread(void *args){
 
         _Bool sleep = 1;
 
-        if(record_on) {
+        if (microphone_on) {
             ALint samples;
             _Bool frame = 0;
             /* If we have a device_in we're on linux so we can just call OpenAL, otherwise we're on something else so
              * we'll need to call audio_frame() to add to the buffer for us. */
-            if (device_in == (void*)1) {
+            if (audio_in_handle == (void*)1) {
                 frame = audio_frame((void*)buf);
                 if (frame) {
                     /* We have an audio frame to use, continue without sleeping. */
                     sleep = 0;
                 }
             } else {
-                alcGetIntegerv(device_in, ALC_CAPTURE_SAMPLES, sizeof(samples), &samples);
+                alcGetIntegerv(audio_in_handle, ALC_CAPTURE_SAMPLES, sizeof(samples), &samples);
                 if(samples >= perframe) {
-                    alcCaptureSamples(device_in, buf, perframe);
+                    alcCaptureSamples(audio_in_handle, buf, perframe);
                     frame = 1;
                     if (samples >= perframe * 2) {
                         sleep = 0;
@@ -478,7 +377,7 @@ void utox_audio_thread(void *args){
                 alcGetIntegerv(device_out, ALC_LOOPBACK_CAPTURE_SAMPLES, sizeof(samples), &samples);
                 if(samples >= perframe) {
                     int16_t buffer[perframe];
-                    alcCaptureSamplesLoopback(device_out, buffer, perframe);
+                    alcCaptureSamplesLoopback(audio_out_handle, buffer, perframe);
                     pass_audio_output(f_a, buffer, perframe);
                     set_echo_delay_ms(f_a, UTOX_DEFAULT_FRAME_A);
                     if (samples >= perframe * 2) {
@@ -510,11 +409,10 @@ void utox_audio_thread(void *args){
                     voice = 0; //PTT is up, send nothing.
                 }
 
-                if (preview) {
+                if (preview_on) {
                     if (preview_buffer_index + perframe > PREVIEW_BUFFER_SIZE) {
                         preview_buffer_index = 0;
                     }
-
                     sourceplaybuffer(0, preview_buffer + preview_buffer_index, perframe, UTOX_DEFAULT_AUDIO_CHANNELS, UTOX_DEFAULT_SAMPLE_RATE_A);
                     if (voice) {
                         memcpy(preview_buffer + preview_buffer_index, buf, perframe * sizeof(int16_t));
@@ -572,19 +470,19 @@ void utox_audio_thread(void *args){
     alDeleteSources(countof(source), source);
     alDeleteBuffers(1, &RingBuffer);
 
-    if(device_in) {
-        if(record_on) {
-            alcCaptureStop(device_in);
-        }
-        alcCaptureCloseDevice(device_in);
-    }
+    // if(device_in) {
+    //     if(record_on) {
+    //         alcCaptureStop(device_in);
+    //     }
+    //     alcCaptureCloseDevice(device_in);
+    // }
 
-    alcMakeContextCurrent(NULL);
-    alcDestroyContext(context);
-    alcCloseDevice(device_out);
+    utox_audio_in_device_close();
+    utox_audio_out_device_close();
+
 
     audio_thread_msg = 0;
-    audio_thread_init = 0;
+    utox_audio_thread_init = 0;
     debug("UTOX AUDIO:\tClean thread exit!\n");
 }
 

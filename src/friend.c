@@ -299,7 +299,7 @@ void friend_free(FRIEND *f)
     free(f->msg.data);
 
     if(f->call_state_self) {
-        postmessage_audio(AUDIO_END, f->number, 0, NULL);
+        // postmessage_audio(AUDIO_END, f->number, 0, NULL);
         /* TODO end a video call too!
         if(f->calling == CALL_OK_VIDEO) {
             postmessage_video(VIDEO_CALL_END, f->number, 0, NULL);

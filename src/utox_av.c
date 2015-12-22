@@ -18,6 +18,18 @@ void utox_av_ctrl_thread(void *args) {
 
     utox_av_ctrl_init = 1;
 
+    uint32_t audio_count = 0,
+             video_count = 0,
+             record_on;
+
+    _Bool audio_in_device_open  = 0;
+    _Bool audio_in_device_listening  = 0;
+
+    _Bool audio_out_device_open = 0;
+    _Bool audio_out_device_playing = 0;
+
+    int32_t device_in, device_out, device =0;
+
     debug("Toxav thread init\n");
     while (1) {
         if(toxav_thread_msg) {
@@ -28,33 +40,203 @@ void utox_av_ctrl_thread(void *args) {
 
             switch(msg->msg) {
                 case UTOXAV_START_CALL: {
-                    FRIEND *f = &friend[msg->param1];
-                    postmessage_audio(AUDIO_STOP_RINGTONE, msg->param1, 0, NULL);
-                    postmessage_audio(AUDIO_START, msg->param1, 0, NULL);
-                    f->call_state_self = ( TOXAV_FRIEND_CALL_STATE_SENDING_A | TOXAV_FRIEND_CALL_STATE_ACCEPTING_A );
-                    if (msg->param2) {
-                        postmessage_video(VIDEO_RECORD_START, msg->param1, 0, NULL);
-                        f->call_state_self |= (TOXAV_FRIEND_CALL_STATE_SENDING_V | TOXAV_FRIEND_CALL_STATE_ACCEPTING_V);
+                    if (msg->param1) {
+                        FRIEND *f = &friend[msg->param1];
+                        // postmessage_audio(AUDIO_STOP_RINGTONE, msg->param1, 0, NULL);
+                        // postmessage_audio(AUDIO_START, msg->param1, 0, NULL);
+                        f->call_state_self = ( TOXAV_FRIEND_CALL_STATE_SENDING_A | TOXAV_FRIEND_CALL_STATE_ACCEPTING_A );
+                        if (msg->param2) {
+                            // postmessage_video(VIDEO_RECORD_START, msg->param1, 0, NULL);
+                            f->call_state_self |= (TOXAV_FRIEND_CALL_STATE_SENDING_V | TOXAV_FRIEND_CALL_STATE_ACCEPTING_V);
+                        }
+                    } else if (msg->param2) {
+                        // if(!groups_audio[m->param1]) {
+                            // break;
+                        // }
+                        audio_count--;
+                        // groups_audio[m->param1] = 0;
+                        // if(!audio_count && record_on) {
+                            // alccapturestop(device_in);
+                            // alccaptureclose(device_in);
+                            // record_on = 0;
+                            debug("stop\n");
+                        // }
                     }
                     break;
                 }
                 case UTOXAV_END_CALL: {
-                    FRIEND *f = &friend[msg->param1];
-                    postmessage_audio(AUDIO_STOP_RINGTONE, msg->param1, 0, NULL);
-                    postmessage_audio(AUDIO_END, msg->param1, 0, NULL);
-                    if ((f->call_state_self | TOXAV_FRIEND_CALL_STATE_SENDING_V | TOXAV_FRIEND_CALL_STATE_ACCEPTING_V)){
-                        postmessage_video(VIDEO_RECORD_STOP, msg->param1, 0, NULL);
+                    if (msg->param1) {
+                        FRIEND *f = &friend[msg->param1];
+                        // postmessage_audio(AUDIO_STOP_RINGTONE, msg->param1, 0, NULL);
+                        // postmessage_audio(AUDIO_END, msg->param1, 0, NULL);
+                        if ((f->call_state_self | TOXAV_FRIEND_CALL_STATE_SENDING_V | TOXAV_FRIEND_CALL_STATE_ACCEPTING_V)){
+                            // postmessage_video(VIDEO_RECORD_STOP, msg->param1, 0, NULL);
+                        }
+                    } else if (msg->param2) {
+                        audio_count++;
+                        // groups_audio[m->param1] = 1;
+                        // if(!record_on) {
+                            // device_in = alcopencapture(audio_device);
+                            if(device_in) {
+                                // alccapturestart(device_in);
+                                // record_on = 1;
+                                debug("Starting Audio GroupCall\n");
+                            }
+                        // }
                     }
                     break;
                 }
-                case UTOXAV_START_PREVIEW: {
-                    postmessage_video(VIDEO_PREVIEW_START, 0, 0, NULL);
+
+                case UTOXAV_START_AUDIO: {
+                    audio_count++;
+                    // if(!record_on) {
+                        // device_in = alcopencapture(audio_device);
+                        if(device_in) {
+                            // alccapturestart(device_in);
+                            record_on = 1;
+                            debug("Listening to audio\n");
+                            yieldcpu(20);
+                        }
+                    // }
+
+                    if (msg->param1) {
+                        /* Start audio preview */
+                        debug("uToxAV:\tStarting Audio Preview\n");
+                        postmessage_audio(AUDIO_START_PREVIEW, 0, 0, NULL);
+                        // if(!record_on) {
+
+                            // device_in = alcopencapture(audio_device);
+                        // }
+                    }
                     break;
                 }
-                case UTOXAV_END_PREVIEW: {
-                    postmessage_video(VIDEO_PREVIEW_STOP, 0, 0, NULL);
+                case UTOXAV_STOP_AUDIO: {
+                    audio_count--;
+                    // if(!call[msg->param1]) {
+                        // break;
+                    // }
+                    // call[msg->param1] = 0;
+                    // if(!audio_count && record_on) {
+                        // alccapturestop(device_in);
+                        // alccaptureclose(device_in);
+                        // record_on = 0;
+                        debug("stop\n");
+                    // }
+
+                    if (msg->param1) {
+                        /* Stop preview */
+                        debug("uToxAV:\tStopping Audio Preview\n");
+                        postmessage_audio(AUDIO_STOP_PREVIEW, 0, 0, NULL);
+                        // free(preview_buffer);
+                        // preview_buffer = NULL;
+                        // if(!audio_count && record_on) {
+                            // alccapturestop(device_in);
+                            // alccaptureclose(device_in);
+                            // record_on = 0;
+                        // }
+                    }
                     break;
                 }
+
+                case UTOXAV_START_VIDEO: {
+                    video_count++;
+                    if (msg->param1) {
+                        //is preview
+                    }
+                    break;
+                }
+                case UTOXAV_STOP_VIDEO: {
+                    video_count--;
+                    if (msg->param1) {
+                        //is preview
+                    }
+                    break;
+                }
+
+                case UTOXAV_SET_AUDIO_IN: {
+                    debug("uToxAV:\tSet audio in\n");
+                    msg->data;
+
+                    if (audio_in_device_listening) {
+                        utox_audio_in_ignore();
+                    }
+
+                    if (audio_in_device_open) {
+                        utox_audio_in_device_close();
+                    }
+
+                    utox_audio_in_device_set(msg->data);
+
+                    if (msg->data != utox_audio_in_device_get()) {
+                        audio_in_device_open      = 0;
+                        audio_in_device_listening = 0;
+                        break;
+                    }
+
+                    if (audio_in_device_open) {
+                        utox_audio_in_device_open();
+                    }
+
+                    if (audio_in_device_listening) {
+                        utox_audio_in_listen();
+                    }
+                    break;
+                }
+                case UTOXAV_SET_AUDIO_OUT: {
+                    // output_device = msg->data;
+
+                    // ALCdevice *device = alcOpenDevice(output_device);
+                    if(!device) {
+                        debug("alcOpenDevice() failed\n");
+                        break;
+                    }
+
+                    // ALCcontext *con = alcCreateContext(device, NULL);
+                    // if(!alcMakeContextCurrent(con)) {
+                        // debug("alcMakeContextCurrent() failed\n");
+                        // alcCloseDevice(device);
+                        // break;
+                    // }
+
+                    // alcDestroyContext(context);
+                    // alcCloseDevice(device_out);
+                    // context = con;
+                    device_out = device;
+
+                    // alGenSources(countof(source), source);
+                    // alGenSources(MAX_CALLS, ringSrc);
+
+                    Tox *tox = toxav_get_tox(av);
+                    uint32_t num_chats = tox_count_chatlist(tox);
+
+                    if (num_chats != 0) {
+                        int32_t chats[num_chats];
+                        uint32_t max = tox_get_chatlist(tox, chats, num_chats);
+
+                        unsigned int i;
+                        for (i = 0; i < max; ++i) {
+                            if (tox_group_get_type(tox, chats[i]) == TOX_GROUPCHAT_TYPE_AV) {
+                                // GROUPCHAT *g = &group[chats[i]];
+                                // alGenSources(g->peers, g->source);
+                            }
+                        }
+                    }
+
+                    debug("set audio out\n");
+
+                    break;
+                }
+
+
+                case UTOXAV_SET_VIDEO_IN: {
+                    break;
+                }
+
+                case UTOXAV_SET_VIDEO_OUT: {
+                    break;
+                }
+
+
             }
         }
 
@@ -76,7 +258,7 @@ static void utox_av_incoming_call(ToxAV *av, uint32_t friend_number, bool audio,
     f->call_state_self = 0;
     f->call_state_friend = ( audio << 2 | video << 3 | audio << 4 | video << 5 );
     debug("uTox AV:\tcall friend (%u) state for incoming call: %i\n", friend_number, f->call_state_friend);
-    postmessage_audio(AUDIO_PLAY_RINGTONE, friend_number, 0, NULL); /* TODO add this to toxav thread */
+    // postmessage_audio(AUDIO_PLAY_RINGTONE, friend_number, 0, NULL); /* TODO add this to toxav thread */
     postmessage(AV_CALL_INCOMING, friend_number, video, NULL);
 }
 
