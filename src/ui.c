@@ -91,8 +91,8 @@ static void draw_user_badge(int UNUSED(x), int UNUSED(y), int UNUSED(width), int
         setcolor(!button_filter_friends.mouseover ? COLOR_MENU_SUBTEXT : COLOR_MAIN_HINTTEXT);
         setfont(FONT_STATUS);
         drawtextrange(SIDEBAR_FILTER_FRIENDS_LEFT, SIDEBAR_FILTER_FRIENDS_WIDTH, SIDEBAR_FILTER_FRIENDS_TOP,
-                      list_get_filter() ? S(FILTER_ALL)    : S(FILTER_ONLINE),
-                      list_get_filter() ? SLEN(FILTER_ALL) : SLEN(FILTER_ONLINE) );
+                      list_get_filter() ? S(FILTER_ONLINE)    : S(FILTER_ALL),
+                      list_get_filter() ? SLEN(FILTER_ONLINE) : SLEN(FILTER_ALL) );
     } else {
         drawalpha(BM_CONTACT, SIDEBAR_AVATAR_LEFT, SIDEBAR_AVATAR_TOP,
                   BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_MENU_TEXT);
