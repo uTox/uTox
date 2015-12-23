@@ -54,7 +54,7 @@ volatile bool gtk_open;
 
 static void update_image_preview(void *filechooser, void *image) {
     char *filename = gtk_file_chooser_get_preview_filename(filechooser);
-    void *pixbuf = gdk_pixbuf_new_from_file_at_size(filename, 128, 128, NULL);
+    void *pixbuf = gdk_pixbuf_new_from_file_at_size(filename, 256, 256, NULL);
     g_free_utox(filename);
     gtk_image_set_from_pixbuf(image, pixbuf);
     bool have_preview = false;
