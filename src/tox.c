@@ -709,6 +709,7 @@ void toxcore_thread(void *UNUSED(args)) {
 
             /* init the friends list. */
             list_start();
+            postmessage(UPDATE_TRAY, 0, 0, NULL);
 
             // Start the treads
             thread(utox_av_ctrl_thread, av);
@@ -1465,6 +1466,10 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             self_set_and_save_avatar(data, param1);
             free(data);
             redraw();
+            break;
+        }
+        case UPDATE_TRAY: {
+            update_tray();
             break;
         }
 
