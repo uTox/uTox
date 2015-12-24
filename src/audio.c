@@ -12,6 +12,8 @@ static _Bool      speakers_on, microphone_on;
 /* TODO hacky fix. This source list should be a VLA with a way to link sources to friends.
  * NO SRSLY don't leave this like this! */
 static ALuint source[UTOX_MAX_NUM_FRIENDS];
+static ALuint ringtone;
+static ALuint RingBuffer;
 
 void utox_audio_in_device_open(void) {
     if (!audio_in_device) {
@@ -100,6 +102,7 @@ ALCdevice* utox_audio_in_device_get(void) {
 
 static ALCcontext *context;
 void utox_audio_out_device_open(void) {
+    debug("opening device!\n");
     audio_out_handle = alcOpenDevice(audio_out_device);
     if (!audio_out_handle) {
         debug("alcOpenDevice() failed\n");
@@ -107,24 +110,33 @@ void utox_audio_out_device_open(void) {
         return;
     }
 
-    int attrlist[] = { ALC_FREQUENCY, UTOX_DEFAULT_SAMPLE_RATE_A, ALC_INVALID };
-    context = alcCreateContext(audio_out_handle, attrlist);
+    context = alcCreateContext(audio_out_handle, NULL);
     if (!alcMakeContextCurrent(context)) {
         debug("alcMakeContextCurrent() failed\n");
         alcCloseDevice(audio_out_handle);
+        audio_out_handle = NULL;
         speakers_on = 0;
         return;
     }
-
-    alGenSources(countof(source), source);
-
     speakers_on = 1;
+
+    /* Create the buffers for incoming audio */
+    alGenSources(countof(source), source);
+    /* Create the buffers for the ringtone */
+    alGenSources(1, &ringtone);
 }
 
 void utox_audio_out_device_close(void) {
+    debug("closing device!\n");
+    if (!audio_out_handle) {
+        return;
+    }
+    alDeleteSources(countof(source), source);
+    alDeleteSources(1, &ringtone);
     alcMakeContextCurrent(NULL);
     alcDestroyContext(context);
     alcCloseDevice(audio_out_handle);
+    audio_out_handle = NULL;
     speakers_on = 0;
 }
 
@@ -216,6 +228,11 @@ static void utox_init_audio_out(void) {
             audio_out_device_list += strlen(audio_out_device_list) + 1;
         }
     }
+
+    /* Create the buffers for incoming audio */
+    alGenSources(countof(source), source);
+    /* Create the buffers for the ringtone */
+    alGenSources(1, &ringtone);
 }
 
 void postmessage_audio(uint8_t msg, uint32_t param1, uint32_t param2, void *data) {
@@ -244,9 +261,10 @@ void utox_audio_thread(void *args){
     //_Bool call[MAX_CALLS] = {0}, preview = 0;
     //_Bool groups_audio[MAX_NUM_GROUPS] = {0};
 
-    int perframe = (UTOX_DEFAULT_FRAME_A * UTOX_DEFAULT_SAMPLE_RATE_A) / 1000;
+    int     perframe = (UTOX_DEFAULT_FRAME_A * UTOX_DEFAULT_SAMPLE_RATE_A) / 1000;
     uint8_t buf[perframe * 2 * UTOX_DEFAULT_AUDIO_CHANNELS]; //, dest[perframe * 2 * UTOX_DEFAULT_AUDIO_CHANNELS];
     memset(buf, 0, sizeof(buf));
+
     debug("uTox Audio:\tframe size: %u\n", perframe);
 
     /* init Microphone */
@@ -258,33 +276,28 @@ void utox_audio_thread(void *args){
     utox_init_audio_out();
     utox_audio_out_device_open();
 
-    /* TODO hacky fix. This source list should be a VLA with a way to link sources to friends.
-     * NO SRSLY don't leave this like this! */
-    static ALuint ringSrc[UTOX_MAX_NUM_FRIENDS];
-    alGenSources(UTOX_MAX_NUM_FRIENDS, ringSrc);
-
-    /* Create buffer to store samples */
-    ALuint RingBuffer;
-    alGenBuffers(1, &RingBuffer);
+    alGenBuffers((ALuint)1, &RingBuffer);
 
     { /* wrapped to keep this data on the stack... I think... */
-        float frequency1 = 441.f;
-        float frequency2 = 882.f;
-        int seconds = 4;
+        float    frequency1  = 441.f;
+        float    frequency2  = 882.f;
+        int      seconds     = 4;
         unsigned sample_rate = 22050;
-        size_t buf_size = seconds * sample_rate * 2; //16 bit (2 bytes per sample)
+        size_t   buf_size    = seconds * sample_rate * 2; //16 bit (2 bytes per sample)
         int16_t *samples = malloc(buf_size * sizeof(int16_t));
-        if (!samples)
+
+        if (!samples) {
+            debug("uTox Audio:\tUnable to generate ringtone buffer!\n");
             return;
+        }
 
         /*Generate an electronic ringer sound that quickly alternates between two frequencies*/
-        int index = 0;
-        for(index = 0; index < buf_size; ++index) {
+        for (int index = 0; index < buf_size; ++index) {
             if ((index / (sample_rate)) % 4 < 2 ) {//4 second ring cycle, first 2 secondsring, the rest(2 seconds) is silence
-                if((index / 1000) % 2 == 1) {
-                    samples[index] = 5000 * sin((2.0 * 3.1415926 * frequency1) / sample_rate * index); //5000=amplitude(volume level). It can be from zero to 32700
+                if ((index / 1000) % 2 == 1) {
+                    samples[index] = 15000 * sin((2.0 * 3.1415926 * frequency1) / sample_rate * index); //5000=amplitude(volume level). It can be from zero to 32700
                 } else {
-                    samples[index] = 5000 * sin((2.0 * 3.1415926 * frequency2) / sample_rate * index);
+                    samples[index] = 15000 * sin((2.0 * 3.1415926 * frequency2) / sample_rate * index);
                 }
             } else {
                 samples[index] = 0;
@@ -295,25 +308,20 @@ void utox_audio_thread(void *args){
         free(samples);
     }
 
-    {
-        unsigned int i;
-        for (i = 0; i < UTOX_MAX_NUM_FRIENDS; ++i) {
-            alSourcei(ringSrc[i], AL_LOOPING, AL_TRUE);
-            alSourcei(ringSrc[i], AL_BUFFER, RingBuffer);
-        }
-    }
+    alSourcei(ringtone, AL_LOOPING, AL_TRUE);
+    alSourcei(ringtone, AL_BUFFER,  RingBuffer);
+
     Filter_Audio *f_a = NULL;
 
-    utox_audio_thread_init = 1;
-
-    int16_t *preview_buffer = NULL;
+    int16_t     *preview_buffer = NULL;
     unsigned int preview_buffer_index = 0;
-    _Bool preview_on = 0;
+    _Bool        preview_on = 0;
     #define PREVIEW_BUFFER_SIZE (UTOX_DEFAULT_SAMPLE_RATE_A / 2)
 
     preview_buffer = calloc(PREVIEW_BUFFER_SIZE, 2);
     preview_buffer_index = 0;
 
+    utox_audio_thread_init = 1;
     while(1) {
         if(audio_thread_msg) {
             TOX_MSG *m = &audio_msg;
@@ -331,17 +339,20 @@ void utox_audio_thread(void *args){
                     break;
                 }
                 case AUDIO_PLAY_RINGTONE: {
-                    if(!audible_notifications_enabled) {
-                        break;
+                    if (audible_notifications_enabled) {
+                        debug("starting ringtone!\n");
+                        alGenSources(1, &ringtone);
+                        alSourcei(ringtone, AL_LOOPING, AL_TRUE);
+                        alSourcei(ringtone, AL_BUFFER,  RingBuffer);
+                        alSourcePlay(ringtone);
                     }
-                    alSourcePlay(ringSrc[m->param1]);
                     break;
                 }
                 case AUDIO_STOP_RINGTONE: {
                     ALint state;
-                    alGetSourcei(ringSrc[m->param1], AL_SOURCE_STATE, &state);
+                    alGetSourcei(ringtone, AL_SOURCE_STATE, &state);
                     if(state == AL_PLAYING) {
-                        alSourceStop(ringSrc[m->param1]);
+                        alSourceStop(ringtone);
                     }
                     break;
                 }
@@ -489,20 +500,12 @@ void utox_audio_thread(void *args){
     utox_filter_audio_kill(f_a);
 
     //missing some cleanup ?
-    alDeleteSources(MAX_CALLS, ringSrc);
+    alDeleteSources(1, &ringtone);
     alDeleteSources(countof(source), source);
     alDeleteBuffers(1, &RingBuffer);
 
-    // if(device_in) {
-    //     if(record_on) {
-    //         alcCaptureStop(device_in);
-    //     }
-    //     alcCaptureCloseDevice(device_in);
-    // }
-
     utox_audio_in_device_close();
     utox_audio_out_device_close();
-
 
     audio_thread_msg = 0;
     utox_audio_thread_init = 0;

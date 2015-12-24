@@ -34,11 +34,19 @@ void utox_av_ctrl_thread(void *args) {
                 break;
             }
 
+            if (!utox_audio_thread_init) {
+                yieldcpu(10);
+            }
+
             switch(msg->msg) {
+                case UTOXAV_INCOMING_CALL: {
+                    postmessage_audio(AUDIO_PLAY_RINGTONE, msg->param1, msg->param2, NULL);
+                    break;
+                }
                 case UTOXAV_START_CALL: {
                     if (msg->param1) {
                         FRIEND *f = &friend[msg->param1];
-                        // postmessage_audio(AUDIO_STOP_RINGTONE, msg->param1, 0, NULL);
+                        postmessage_audio(AUDIO_STOP_RINGTONE, msg->param1, 0, NULL);
                         // postmessage_audio(AUDIO_START, msg->param1, 0, NULL);
                         f->call_state_self = ( TOXAV_FRIEND_CALL_STATE_SENDING_A | TOXAV_FRIEND_CALL_STATE_ACCEPTING_A );
                         if (msg->param2) {
@@ -153,7 +161,6 @@ void utox_av_ctrl_thread(void *args) {
                     }
 
                     utox_audio_in_device_set(msg->data);
-                    debug("setting in device %s\n", msg->data);
 
                     if (msg->data != utox_audio_in_device_get()) {
                         debug("uToxAV:\tError changing audio in\n");
@@ -179,7 +186,7 @@ void utox_av_ctrl_thread(void *args) {
                     }
 
                     utox_audio_out_device_set(msg->data);
-                    debug("setting out device %s\n", msg->data);
+                    utox_audio_out_device_open();
 
                     if (msg->data != utox_audio_out_device_get()) {
                         debug("uToxAV:\tError changing audio out\n");
@@ -187,10 +194,6 @@ void utox_av_ctrl_thread(void *args) {
                         break;
                     } else {
                         audio_out_device_open = 1;
-                    }
-
-                    if (audio_out_device_open) {
-                        utox_audio_out_device_open();
                     }
                     break;
                 }
@@ -223,7 +226,7 @@ static void utox_av_incoming_call(ToxAV *av, uint32_t friend_number, bool audio,
     f->call_state_self = 0;
     f->call_state_friend = ( audio << 2 | video << 3 | audio << 4 | video << 5 );
     debug("uTox AV:\tcall friend (%u) state for incoming call: %i\n", friend_number, f->call_state_friend);
-    // postmessage_audio(AUDIO_PLAY_RINGTONE, friend_number, 0, NULL); /* TODO add this to toxav thread */
+    postmessage_utoxav(UTOXAV_INCOMING_CALL, friend_number, 0, NULL);
     postmessage(AV_CALL_INCOMING, friend_number, video, NULL);
 }
 
