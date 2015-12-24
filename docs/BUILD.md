@@ -62,6 +62,8 @@ git clone git://github.com/GrayHatter/uTox.git
 cd uTox/
 make
 make install
+
+ldconfig
 ```
 
 Have fun!
