@@ -82,11 +82,11 @@ void utox_audio_in_ignore(void) {
 void utox_audio_in_device_set(ALCdevice *new_device) {
     if (new_device) {
         audio_in_device = new_device;
-        debug("uTox Audio:\tDevice changed.\n");
+        debug("uTox Audio:\tAudio in device changed.\n");
     } else {
         audio_in_device = NULL;
         audio_in_handle = NULL;
-        debug("uTox Audio:\tDevice set to null.\n");
+        debug("uTox Audio:\tAudio out device set to null.\n");
     }
 }
 
@@ -115,6 +115,9 @@ void utox_audio_out_device_open(void) {
         speakers_on = 0;
         return;
     }
+
+    alGenSources(countof(source), source);
+
     speakers_on = 1;
 }
 
@@ -126,11 +129,22 @@ void utox_audio_out_device_close(void) {
 }
 
 void utox_audio_out_device_set(ALCdevice *new_device) {
-
+    if (new_device) {
+        audio_out_device = new_device;
+        debug("uTox Audio:\tAudio out device changed.\n");
+    } else {
+        audio_out_device = NULL;
+        audio_out_handle = NULL;
+        debug("uTox Audio:\tAudio in device set to null.\n");
+    }
 }
 
 ALCdevice* utox_audio_out_device_get(void) {
-
+    if (audio_out_handle) {
+        return audio_out_device;
+    } else {
+        return NULL;
+    }
 }
 
 void sourceplaybuffer(int i, const int16_t *data, int samples, uint8_t channels, unsigned int sample_rate) {
@@ -237,17 +251,13 @@ void utox_audio_thread(void *args){
 
     /* init Microphone */
     utox_init_audio_in();
-
     utox_audio_in_device_open();
     utox_audio_in_listen();
 
     /* init Speakers */
     utox_init_audio_out();
-
     utox_audio_out_device_open();
 
-
-    alGenSources(countof(source), source);
     /* TODO hacky fix. This source list should be a VLA with a way to link sources to friends.
      * NO SRSLY don't leave this like this! */
     static ALuint ringSrc[UTOX_MAX_NUM_FRIENDS];

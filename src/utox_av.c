@@ -22,9 +22,9 @@ void utox_av_ctrl_thread(void *args) {
              video_count = 0,
              record_on;
 
-    _Bool audio_in_device_open  = 0;
-    _Bool audio_in_device_listening  = 0;
-    _Bool audio_out_device_open = 0;
+    _Bool audio_in_device_open      = 1;
+    _Bool audio_in_device_listening = 1;
+    _Bool audio_out_device_open     = 1;
 
     debug("Toxav thread init\n");
     while (1) {
@@ -153,6 +153,7 @@ void utox_av_ctrl_thread(void *args) {
                     }
 
                     utox_audio_in_device_set(msg->data);
+                    debug("setting in device %s\n", msg->data);
 
                     if (msg->data != utox_audio_in_device_get()) {
                         debug("uToxAV:\tError changing audio in\n");
@@ -178,11 +179,14 @@ void utox_av_ctrl_thread(void *args) {
                     }
 
                     utox_audio_out_device_set(msg->data);
+                    debug("setting out device %s\n", msg->data);
 
                     if (msg->data != utox_audio_out_device_get()) {
                         debug("uToxAV:\tError changing audio out\n");
                         audio_out_device_open = 0;
                         break;
+                    } else {
+                        audio_out_device_open = 1;
                     }
 
                     if (audio_out_device_open) {
