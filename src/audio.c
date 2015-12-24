@@ -58,7 +58,7 @@ void utox_audio_in_listen(void) {
         if (audio_in_handle) {
             alcCaptureStart(audio_in_handle);
         } else {
-            debug("uTox Audio:\tUnable to listen to device!\n");
+            debug("uToxAudio:\tUnable to listen to device!\n");
         }
     }
 
@@ -84,11 +84,11 @@ void utox_audio_in_ignore(void) {
 void utox_audio_in_device_set(ALCdevice *new_device) {
     if (new_device) {
         audio_in_device = new_device;
-        debug("uTox Audio:\tAudio in device changed.\n");
+        debug("uToxAudio:\tAudio in device changed.\n");
     } else {
         audio_in_device = NULL;
         audio_in_handle = NULL;
-        debug("uTox Audio:\tAudio out device set to null.\n");
+        debug("uToxAudio:\tAudio out device set to null.\n");
     }
 }
 
@@ -102,7 +102,6 @@ ALCdevice* utox_audio_in_device_get(void) {
 
 static ALCcontext *context;
 void utox_audio_out_device_open(void) {
-    debug("opening device!\n");
     audio_out_handle = alcOpenDevice(audio_out_device);
     if (!audio_out_handle) {
         debug("alcOpenDevice() failed\n");
@@ -120,14 +119,13 @@ void utox_audio_out_device_open(void) {
     }
     speakers_on = 1;
 
-    /* Create the buffers for incoming audio */
-    alGenSources(countof(source), source);
     /* Create the buffers for the ringtone */
     alGenSources(1, &ringtone);
+    /* Create the buffers for incoming audio */
+    alGenSources(countof(source), source);
 }
 
 void utox_audio_out_device_close(void) {
-    debug("closing device!\n");
     if (!audio_out_handle) {
         return;
     }
@@ -143,11 +141,11 @@ void utox_audio_out_device_close(void) {
 void utox_audio_out_device_set(ALCdevice *new_device) {
     if (new_device) {
         audio_out_device = new_device;
-        debug("uTox Audio:\tAudio out device changed.\n");
+        debug("uToxAudio:\tAudio out device changed.\n");
     } else {
         audio_out_device = NULL;
         audio_out_handle = NULL;
-        debug("uTox Audio:\tAudio in device set to null.\n");
+        debug("uToxAudio:\tAudio in device set to null.\n");
     }
 }
 
@@ -200,7 +198,7 @@ static void utox_init_audio_in(void) {
     audio_in_device_list = alcGetString(NULL, ALC_CAPTURE_DEVICE_SPECIFIER);
     if (audio_in_device_list) {
         audio_in_device = (void*)audio_in_device_list;
-        debug("uTox Audio:\tinput device list:\n");
+        debug("uToxAudio:\tinput device list:\n");
         while(*audio_in_device_list) {
             debug("\t%s\n", audio_in_device_list);
             postmessage(AUDIO_IN_DEVICE, UI_STRING_ID_INVALID, 0, (void*)audio_in_device_list);
@@ -221,7 +219,7 @@ static void utox_init_audio_out(void) {
 
     if(audio_out_device_list) {
         audio_out_device = audio_out_device_list;
-        debug("uTox Audio:\toutput device list:\n");
+        debug("uToxAudio:\toutput device list:\n");
         while(*audio_out_device_list) {
             debug("\t%s\n", audio_out_device_list);
             postmessage(AUDIO_OUT_DEVICE, 0, 0, (void*)audio_out_device_list);
@@ -229,10 +227,35 @@ static void utox_init_audio_out(void) {
         }
     }
 
-    /* Create the buffers for incoming audio */
+    audio_out_handle = alcOpenDevice(audio_out_device);
+    if (!audio_out_handle) {
+        debug("alcOpenDevice() failed\n");
+        return;
+    }
+
+    int attrlist[] = {  ALC_FREQUENCY, UTOX_DEFAULT_SAMPLE_RATE_A, ALC_INVALID };
+
+    context = alcCreateContext(audio_out_handle, attrlist);
+    if(!alcMakeContextCurrent(context)) {
+        debug("alcMakeContextCurrent() failed\n");
+        alcCloseDevice(audio_out_handle);
+        return;
+    }
+
+    ALint error;
+    alGetError(); /* clear errors */
+
+    alGenSources((ALuint)1, &ringtone);
+    if ((error = alGetError()) != AL_NO_ERROR) {
+        debug("uToxAudio:\tError generating source with err %x\n", error);
+        return;
+    }
+
     alGenSources(countof(source), source);
-    /* Create the buffers for the ringtone */
-    alGenSources(1, &ringtone);
+    if ((error = alGetError()) != AL_NO_ERROR) {
+        debug("uToxAudio:\tError generating source with err %x\n", error);
+        return;
+    }
 }
 
 void postmessage_audio(uint8_t msg, uint32_t param1, uint32_t param2, void *data) {
@@ -252,7 +275,7 @@ void utox_audio_thread(void *args){
     ToxAV *av = args;
 
     #ifdef AUDIO_FILTERING
-    debug("uTox Audio:\tAudio Filtering");
+    debug("uToxAudio:\tAudio Filtering");
     #ifdef ALC_LOOPBACK_CAPTURE_SAMPLES
     debug(" and Echo cancellation");
     #endif
@@ -265,7 +288,7 @@ void utox_audio_thread(void *args){
     uint8_t buf[perframe * 2 * UTOX_DEFAULT_AUDIO_CHANNELS]; //, dest[perframe * 2 * UTOX_DEFAULT_AUDIO_CHANNELS];
     memset(buf, 0, sizeof(buf));
 
-    debug("uTox Audio:\tframe size: %u\n", perframe);
+    debug("uToxAudio:\tframe size: %u\n", perframe);
 
     /* init Microphone */
     utox_init_audio_in();
@@ -287,7 +310,7 @@ void utox_audio_thread(void *args){
         int16_t *samples = malloc(buf_size * sizeof(int16_t));
 
         if (!samples) {
-            debug("uTox Audio:\tUnable to generate ringtone buffer!\n");
+            debug("uToxAudio:\tUnable to generate ringtone buffer!\n");
             return;
         }
 
@@ -308,8 +331,17 @@ void utox_audio_thread(void *args){
         free(samples);
     }
 
-    alSourcei(ringtone, AL_LOOPING, AL_TRUE);
-    alSourcei(ringtone, AL_BUFFER,  RingBuffer);
+    if (ringtone) {
+        debug("uToxAudio:\tFirst ringtone is good, going to queue buffers\n");
+        if (RingBuffer) {
+            alSourcei(ringtone, AL_LOOPING, AL_TRUE);
+            alSourcei(ringtone, AL_BUFFER,  RingBuffer);
+        } else {
+            debug("uToxAudio:\tNo buffer to queue!\n");
+        }
+    } else {
+        debug("uToxAudio:\tFirst ringtone failed... can't queue buffers\n");
+    }
 
     Filter_Audio *f_a = NULL;
 
@@ -341,9 +373,6 @@ void utox_audio_thread(void *args){
                 case AUDIO_PLAY_RINGTONE: {
                     if (audible_notifications_enabled) {
                         debug("starting ringtone!\n");
-                        alGenSources(1, &ringtone);
-                        alSourcei(ringtone, AL_LOOPING, AL_TRUE);
-                        alSourcei(ringtone, AL_BUFFER,  RingBuffer);
                         alSourcePlay(ringtone);
                     }
                     break;
@@ -509,7 +538,7 @@ void utox_audio_thread(void *args){
 
     audio_thread_msg = 0;
     utox_audio_thread_init = 0;
-    debug("UTOX AUDIO:\tClean thread exit!\n");
+    debug("UTOXAUDIO:\tClean thread exit!\n");
 }
 
 // COMMENTED OUT FOR NEW GC

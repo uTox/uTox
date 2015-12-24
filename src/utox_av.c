@@ -47,7 +47,6 @@ void utox_av_ctrl_thread(void *args) {
                     if (msg->param1) {
                         FRIEND *f = &friend[msg->param1];
                         postmessage_audio(AUDIO_STOP_RINGTONE, msg->param1, 0, NULL);
-                        // postmessage_audio(AUDIO_START, msg->param1, 0, NULL);
                         f->call_state_self = ( TOXAV_FRIEND_CALL_STATE_SENDING_A | TOXAV_FRIEND_CALL_STATE_ACCEPTING_A );
                         if (msg->param2) {
                             // postmessage_video(VIDEO_RECORD_START, msg->param1, 0, NULL);
@@ -60,9 +59,6 @@ void utox_av_ctrl_thread(void *args) {
                         audio_count--;
                         // groups_audio[m->param1] = 0;
                         // if(!audio_count && record_on) {
-                            // alccapturestop(device_in);
-                            // alccaptureclose(device_in);
-                            // record_on = 0;
                             debug("stop\n");
                         // }
                     }
