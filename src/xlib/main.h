@@ -27,8 +27,6 @@
 #include <locale.h>
 #include <dlfcn.h>
 
-#include "keysym2ucs.h"
-
 #ifdef __APPLE__
 #include <mach/clock.h>
 #include <mach/mach.h>
@@ -126,7 +124,6 @@ uint16_t drawwidth, drawheight;
 
 Window video_win[MAX_NUM_FRIENDS];
 XImage *screen_image;
-XIC xic = NULL;
 
 int utox_v4l_fd;
 
@@ -152,3 +149,5 @@ struct {
     Atom type;
     void *data;
 } pastebuf;
+
+Picture ximage_to_picture(XImage *img, const XRenderPictFormat *format);

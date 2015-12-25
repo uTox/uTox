@@ -2,6 +2,7 @@
 
 _Bool    hidden = 0;
 uint32_t tray_width = 32, tray_height = 32;
+XIC xic = NULL;
 
 void setclipboard(void)
 {
@@ -712,7 +713,7 @@ void pastedata(void *data, Atom type, int len, _Bool select)
 
 // converts an XImage to a Picture usable by XRender, uses XRenderPictFormat given by
 // 'format', uses the default format if it is NULL
-static Picture ximage_to_picture(XImage *img, const XRenderPictFormat *format)
+Picture ximage_to_picture(XImage *img, const XRenderPictFormat *format)
 {
     Pixmap pixmap = XCreatePixmap(display, window, img->width, img->height, img->depth);
     GC legc = XCreateGC(display, pixmap, 0, NULL);
@@ -994,7 +995,6 @@ void force_redraw(void) {
 
 void update_tray(void) {}
 
-#include "event.c"
 void config_osdefaults(UTOX_SAVE *r) {
     r->window_x = 0;
     r->window_y = 0;
@@ -1397,8 +1397,6 @@ int main(int argc, char *argv[]) {
 
     return 0;
 }
-
-#include "video.c"
 
 /* Dummy functions used in other systems... */
 /* Used in windows only... */
