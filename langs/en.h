@@ -325,83 +325,80 @@ msgstr("Click to open")
 msgid(CANCELLED)
 msgstr("Cancelled")
 
-msgid(DPI_050)
-msgstr("DPI is at 50%")
-
 msgid(DPI_060)
-msgstr("DPI is at 60%")
+msgstr("Custom DPI 60%")
 
 msgid(DPI_070)
-msgstr("DPI is at 70%")
+msgstr("Custom DPI 70%")
 
 msgid(DPI_080)
-msgstr("DPI is at 80%")
+msgstr("Custom DPI 80%")
 
 msgid(DPI_090)
-msgstr("DPI is at 90%")
+msgstr("Custom DPI 90%")
 
 msgid(DPI_100)
-msgstr("DPI is at 100%")
+msgstr("Custom DPI 100%")
 
 msgid(DPI_110)
-msgstr("DPI is at 110%")
+msgstr("Custom DPI 110%")
 
 msgid(DPI_120)
-msgstr("DPI is at 120%")
+msgstr("Custom DPI 120%")
 
 msgid(DPI_130)
-msgstr("DPI is at 130%")
+msgstr("Custom DPI 130%")
 
 msgid(DPI_140)
-msgstr("DPI is at 140%")
+msgstr("Custom DPI 140%")
 
 msgid(DPI_150)
-msgstr("DPI is at 150%")
+msgstr("Custom DPI 150%")
 
 msgid(DPI_160)
-msgstr("DPI is at 160%")
+msgstr("Custom DPI 160%")
 
 msgid(DPI_170)
-msgstr("DPI is at 170%")
+msgstr("Custom DPI 170%")
 
 msgid(DPI_180)
-msgstr("DPI is at 180%")
+msgstr("Custom DPI 180%")
 
 msgid(DPI_190)
-msgstr("DPI is at 190%")
+msgstr("Custom DPI 190%")
 
 msgid(DPI_200)
-msgstr("DPI is at 200%")
+msgstr("Custom DPI 200%")
 
 msgid(DPI_210)
-msgstr("DPI is at 210%")
+msgstr("Custom DPI 210%")
 
 msgid(DPI_220)
-msgstr("DPI is at 220%")
+msgstr("Custom DPI 220%")
 
 msgid(DPI_230)
-msgstr("DPI is at 230%")
+msgstr("Custom DPI 230%")
 
 msgid(DPI_240)
-msgstr("DPI is at 240%")
+msgstr("Custom DPI 240%")
 
 msgid(DPI_250)
-msgstr("DPI is at 250%")
+msgstr("Custom DPI 250%")
 
 msgid(DPI_260)
-msgstr("DPI is at 260%")
+msgstr("Custom DPI 260%")
 
 msgid(DPI_270)
-msgstr("DPI is at 270%")
+msgstr("Custom DPI 270%")
 
 msgid(DPI_280)
-msgstr("DPI is at 280%")
+msgstr("Custom DPI 280%")
 
 msgid(DPI_290)
-msgstr("DPI is at 290%")
+msgstr("Custom DPI 290%")
 
 msgid(DPI_300)
-msgstr("DPI is at 300%")
+msgstr("Custom DPI 300%")
 
 msgid(DPI_TINY)
 msgstr("Tiny (50%)")

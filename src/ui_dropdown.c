@@ -133,27 +133,27 @@ static void dropdown_push_to_talk_onselect(const uint16_t i, const DROPDOWN* UNU
 }
 
 static UI_STRING_ID dpidrops[] = {
-    STR_DPI_050,
+    STR_DPI_TINY,
     STR_DPI_060,
     STR_DPI_070,
     STR_DPI_080,
     STR_DPI_090,
-    STR_DPI_100,
+    STR_DPI_NORMAL,
     STR_DPI_110,
     STR_DPI_120,
     STR_DPI_130,
     STR_DPI_140,
-    STR_DPI_150,
+    STR_DPI_BIG,
     STR_DPI_160,
     STR_DPI_170,
     STR_DPI_180,
     STR_DPI_190,
-    STR_DPI_200,
+    STR_DPI_LARGE,
     STR_DPI_210,
     STR_DPI_220,
     STR_DPI_230,
     STR_DPI_240,
-    STR_DPI_250,
+    STR_DPI_HUGE,
 };
 
 static UI_STRING_ID proxydrops[] = {
