@@ -52,6 +52,9 @@ ifeq ($(UNAME_S), Linux)
 	LDFLAGS += -lresolv -ldl
 	LDFLAGS += $(shell pkg-config --libs $(DEPS))
 
+	OS_SRC = $(wildcard src/xlib/*.c)
+	OS_OBJ = $(OS_SRC:.c=.o)
+
 	TRAY_OBJ = icons/utox-128x128.o
 	TRAY_GEN = objcopy -I binary -O $(OBJCPY) -B i386 icons/utox-128x128.png
 else ifeq ($(UNAME_O), Cygwin)

@@ -1,5 +1,6 @@
+#include "../main.h"
 
-static int utox_v4l_fd = -1;
+int utox_v4l_fd = -1;
 
 #ifdef __APPLE__
 _Bool v4l_init(char *dev_name)

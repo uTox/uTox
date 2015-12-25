@@ -1,4 +1,41 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdint.h>
+#include <string.h>
+#include <ctype.h>
+
+#include <X11/Xatom.h>
+#include <X11/X.h>
+#include <X11/cursorfont.h>
+#include <X11/Xlib.h>
 #include <X11/Xutil.h>
+
+#include <X11/extensions/Xrender.h>
+
+#include "freetype.h"
+
+#include <X11/extensions/XShm.h>
+#include <sys/shm.h>
+
+#define _GNU_SOURCE
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/ioctl.h>
+
+#include <pthread.h>
+#include <unistd.h>
+#include <locale.h>
+#include <dlfcn.h>
+
+#include "keysym2ucs.h"
+
+#ifdef __APPLE__
+#include <mach/clock.h>
+#include <mach/mach.h>
+#endif
+
+#define DEFAULT_WIDTH (382 * DEFAULT_SCALE)
+#define DEFAULT_HEIGHT (320 * DEFAULT_SCALE)
 
 #include <netinet/in.h>
 
@@ -40,5 +77,78 @@ typedef struct utox_native_image {
 #define UTOX_NATIVE_IMAGE_IS_VALID(x) (None != (x))
 #define UTOX_NATIVE_IMAGE_HAS_ALPHA(x) (None != (x->alpha))
 
-int depth;
+
+/* Main window */
+Display  *display;
+int      screen;
+int		 depth;
+Window   root, window;
+GC       gc;
+Colormap cmap;
+Visual   *visual;
+Pixmap   drawbuf;
+Picture  renderpic;
+Picture  colorpic;
+_Bool    hidden;
+XRenderPictFormat *pictformat;
+
+/* Tray icon window */
+Window   tray_window;
+Pixmap   trayicon_drawbuf;
+Picture  trayicon_renderpic;
+GC       trayicon_gc;
+uint32_t tray_width, tray_height;
+
+Picture bitmap[BM_ENDMARKER];
+Cursor cursors[8];
+
+Atom wm_protocols, wm_delete_window;
+
+uint32_t scolor;
+
+Atom XA_CLIPBOARD, XA_NET_NAME, XA_UTF8_STRING, targets, XA_INCR;
+Atom XdndAware, XdndEnter, XdndLeave, XdndPosition, XdndStatus, XdndDrop, XdndSelection, XdndDATA, XdndActionCopy;
+Atom XA_URI_LIST, XA_PNG_IMG;
+Atom XRedraw;
+
 Screen *scr;
+
+/* Screen grab vars */
+uint8_t pointergrab;
+int grabx, graby, grabpx, grabpy;
+GC grabgc;
+
+XSizeHints *xsh;
+
+_Bool havefocus;
+_Bool _redraw;
+uint16_t drawwidth, drawheight;
+
+Window video_win[MAX_NUM_FRIENDS];
+XImage *screen_image;
+XIC xic = NULL;
+
+int utox_v4l_fd;
+
+/* dynamiclly load libgtk */
+void *libgtk;
+
+
+/* pointers to dynamically loaded libs */
+_Bool utox_portable;
+
+struct {
+    int len;
+    char data[65536]; //TODO: De-hardcode this value.
+} clipboard;
+
+struct {
+    int len;
+    char data[65536]; //TODO: De-hardcode this value.
+} primary;
+
+struct {
+    int len, left;
+    Atom type;
+    void *data;
+} pastebuf;
