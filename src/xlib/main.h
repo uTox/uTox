@@ -27,8 +27,6 @@
 #include <locale.h>
 #include <dlfcn.h>
 
-#include "keysym2ucs.h"
-
 #ifdef __APPLE__
 #include <mach/clock.h>
 #include <mach/mach.h>

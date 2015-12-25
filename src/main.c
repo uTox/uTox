@@ -12,7 +12,7 @@
 #ifdef __OBJC__
 // #include "cocoa/main.m"
 #else
-#include "xlib/main.c"
+// #include "xlib/main.c"
 #endif
 #endif
 #endif
