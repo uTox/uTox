@@ -1,4 +1,5 @@
 #include "../main.h"
+#include "keysym2ucs.h"
 
 _Bool doevent(XEvent event)
 {

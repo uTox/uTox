@@ -994,7 +994,6 @@ void force_redraw(void) {
 
 void update_tray(void) {}
 
-#include "event.c"
 void config_osdefaults(UTOX_SAVE *r) {
     r->window_x = 0;
     r->window_y = 0;
