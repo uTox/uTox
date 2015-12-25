@@ -149,3 +149,5 @@ struct {
     Atom type;
     void *data;
 } pastebuf;
+
+Picture ximage_to_picture(XImage *img, const XRenderPictFormat *format);
