@@ -2,31 +2,6 @@
 
 int utox_v4l_fd = -1;
 
-#ifdef __APPLE__
-_Bool v4l_init(char *dev_name)
-{
-    return 0;
-}
-
-void v4l_close(void)
-{
-}
-
-_Bool v4l_startread(void)
-{
-    return 0;
-}
-
-_Bool v4l_endread(void)
-{
-    return 0;
-}
-
-_Bool v4l_getframe(vpx_image_t *image)
-{
-    return 0;
-}
-#else
 #include <sys/mman.h>
 #ifdef __OpenBSD__
 #include <sys/videoio.h>
@@ -352,4 +327,3 @@ int v4l_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, uint16_t he
 
     return 1;
 }
-#endif

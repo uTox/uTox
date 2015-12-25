@@ -27,21 +27,12 @@
 #include <locale.h>
 #include <dlfcn.h>
 
-#ifdef __APPLE__
-#include <mach/clock.h>
-#include <mach/mach.h>
-#endif
-
 #define DEFAULT_WIDTH (382 * DEFAULT_SCALE)
 #define DEFAULT_HEIGHT (320 * DEFAULT_SCALE)
 
 #include <netinet/in.h>
 
-#ifdef __APPLE__
-#include <arpa/nameser_compat.h>
-#else
 #include <arpa/nameser.h>
-#endif
 
 #include <resolv.h>
 

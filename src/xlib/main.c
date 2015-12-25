@@ -342,14 +342,6 @@ uint64_t get_time(void)
     struct timespec ts;
     #ifdef CLOCK_MONOTONIC_RAW
     clock_gettime(CLOCK_MONOTONIC_RAW, &ts);
-    #elif defined(__APPLE__)
-    clock_serv_t muhclock;
-    mach_timespec_t machtime;
-    host_get_clock_service(mach_host_self(), SYSTEM_CLOCK, &muhclock);
-    clock_get_time(muhclock, &machtime);
-    mach_port_deallocate(mach_task_self(), muhclock);
-    ts.tv_sec = machtime.tv_sec;
-    ts.tv_nsec = machtime.tv_nsec;
     #else
     clock_gettime(CLOCK_MONOTONIC, &ts);
     #endif
