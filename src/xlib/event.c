@@ -1,3 +1,5 @@
+#include "../main.h"
+
 _Bool doevent(XEvent event)
 {
     if (XFilterEvent(&event, None)) {

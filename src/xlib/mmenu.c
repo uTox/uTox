@@ -1,3 +1,9 @@
+#include "../main.h"
+
+#ifdef UNITY
+#include <messaging-menu/messaging-menu.h>
+#include <unity.h>
+
 MessagingMenuApp *mmapp;
 UnityLauncherEntry *launcher;
 GMainLoop *mmloop;
@@ -166,3 +172,5 @@ void mm_rm_entry(uint8_t *f_id)
         g_idle_add(remove_source, NULL);
     }
 }
+
+#endif

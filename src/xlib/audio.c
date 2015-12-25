@@ -1,3 +1,4 @@
+#include "../main.h"
 
 void audio_detect(void)
 {

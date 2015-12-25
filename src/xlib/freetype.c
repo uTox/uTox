@@ -1,35 +1,4 @@
-
-//FcFreeTypeCharIndex (face, ucs4);
-
-#define PIXELS(x) (((x) + 32) / 64)
-
-typedef struct
-{
-    uint32_t ucs4;
-    int16_t x, y;
-    uint16_t width, height, xadvance, xxxx;
-    Picture pic;
-} GLYPH;
-
-typedef struct
-{
-    FT_Face face;
-    FcCharSet *cs;
-} FONT_INFO;
-
-typedef struct
-{
-    FcPattern *pattern;
-    FONT_INFO *info;
-    GLYPH *glyphs[128];
-} FONT;
-
-FT_Library ftlib;
-FONT font[16], *sfont;
-FcCharSet *charset;
-FcFontSet *fs;
-
-_Bool ft_vert, ft_swap_blue_red;
+#include "../main.h"
 
 static void font_info_open(FONT_INFO *i, FcPattern *pattern);
 
@@ -283,8 +252,7 @@ GLYPH* font_getglyph(FONT *f, uint32_t ch)
     return g;
 }
 
-static void initfonts(void)
-{
+void initfonts(void) {
     if(!FcInit()) {
         //error
     }
@@ -380,8 +348,7 @@ static void font_info_open(FONT_INFO *i, FcPattern *pattern)
 }
 
 
-static _Bool font_open(FONT *a_font, ...)
-{
+static _Bool font_open(FONT *a_font, ...) {
     /* add error checks */
     va_list	    va;
     FcPattern	    *pat;
@@ -408,8 +375,7 @@ static _Bool font_open(FONT *a_font, ...)
     return 1;
 }
 
-static void loadfonts(void)
-{
+void loadfonts(void) {
     int render_order = XRenderQuerySubpixelOrder (display, screen);
     if(render_order == SubPixelHorizontalBGR || render_order == SubPixelVerticalBGR) {
         ft_swap_blue_red = 1;
@@ -446,8 +412,7 @@ static void loadfonts(void)
     #undef F
 }
 
-static void freefonts(void)
-{
+void freefonts(void) {
     int i;
     for(i = 0; i != countof(font); i++) {
         FONT *f = &font[i];
