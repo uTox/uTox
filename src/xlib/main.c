@@ -713,7 +713,7 @@ void pastedata(void *data, Atom type, int len, _Bool select)
 
 // converts an XImage to a Picture usable by XRender, uses XRenderPictFormat given by
 // 'format', uses the default format if it is NULL
-static Picture ximage_to_picture(XImage *img, const XRenderPictFormat *format)
+Picture ximage_to_picture(XImage *img, const XRenderPictFormat *format)
 {
     Pixmap pixmap = XCreatePixmap(display, window, img->width, img->height, img->depth);
     GC legc = XCreateGC(display, pixmap, 0, NULL);
@@ -1397,8 +1397,6 @@ int main(int argc, char *argv[]) {
 
     return 0;
 }
-
-#include "video.c"
 
 /* Dummy functions used in other systems... */
 /* Used in windows only... */
