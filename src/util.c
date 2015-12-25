@@ -763,7 +763,7 @@ void config_save(UTOX_SAVE *save)
     }
 
     save->version                       = SAVE_VERSION;
-    save->scale                         = SCALE - 1;
+    save->scale                         = ui_scale - 1;
     save->enableipv6                    = !dropdown_ipv6.selected;
     save->disableudp                    = dropdown_udp.selected;
     save->proxyenable                   = dropdown_proxy.selected;

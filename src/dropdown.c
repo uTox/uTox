@@ -43,7 +43,7 @@ void dropdown_drawactive(void) {
     // Increase width if needed, so that all menu items fit.
     for(i = 0; i != b->dropcount; i++) {
         STRING* e = b->ondisplay(i, b);
-        int needed_w = textwidth(e->str, e->length) + 4 * SCALE;
+        int needed_w = textwidth(e->str, e->length) + UTOX_SCALE(4 );
         if(w < needed_w) {
             w = needed_w;
         }
@@ -71,7 +71,7 @@ void dropdown_drawactive(void) {
             setcolor(color_text);
         }
         setfont(FONT_TEXT);
-        drawtext(x + 2 * SCALE, y + 2 * SCALE, e->str, e->length);
+        drawtext(x + UTOX_SCALE(2 ), y + UTOX_SCALE(2 ), e->str, e->length);
 
         y += sign * h;
     }
@@ -102,13 +102,13 @@ void dropdown_draw(DROPDOWN *b, int x, int y, int width, int height) {
         }
 
         draw_rect_frame(x, y, width, height, (b->mouseover ? color_border_h : color_border));
-        draw_rect_fill(x + 1, y + 1, width - 1 * SCALE, height - 1 * SCALE, color_bg);
+        draw_rect_fill(x + 1, y + 1, width - UTOX_SCALE(1 ), height - UTOX_SCALE(1 ), color_bg);
 
         if(b->dropcount) {
             setfont(FONT_TEXT);
             setcolor(color_text);
             STRING* e = b->ondisplay(b->selected, b);
-            drawtextwidth(x + 2 * SCALE, width - 4 * SCALE, y + 2 * SCALE, e->str, e->length);
+            drawtextwidth(x + UTOX_SCALE(2 ), width - UTOX_SCALE(4 ), y + UTOX_SCALE(2 ), e->str, e->length);
         }
     } else {
         active_x = x;

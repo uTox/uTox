@@ -2,8 +2,8 @@
 
 static TOOLTIP tooltip;
 
-#define TOOLTIP_WIDTH (SCALE * 12)
-#define TOOLTIP_HEIGHT (SCALE * 12)
+#define TOOLTIP_WIDTH (UTOX_SCALE(12))
+#define TOOLTIP_HEIGHT (UTOX_SCALE(12))
 #define TOOLTIP_YOFFSET 12
 
 static void calculate_pos_and_width(TOOLTIP *b, int *x, int *w) {
@@ -13,7 +13,7 @@ static void calculate_pos_and_width(TOOLTIP *b, int *x, int *w) {
     // Increase width if needed, so that tooltip text fits.
     if(maybe_i18nal_string_is_valid(b->tt_text)) {
         STRING* s = maybe_i18nal_string_get(b->tt_text);
-        int needed_w = textwidth(s->str, s->length) + 4 * SCALE;
+        int needed_w = textwidth(s->str, s->length) + UTOX_SCALE(4 );
         if(*w < needed_w) {
             *w = needed_w;
         }
@@ -57,7 +57,7 @@ void tooltip_draw(void)
     draw_rect_fill(x, b->y, w, b->height, COLOR_BACKGROUND_MAIN);
 
     STRING* s = maybe_i18nal_string_get(b->tt_text);
-    drawtext(x + SCALE * 2, b->y + SCALE * 2, s->str, s->length);
+    drawtext(x + UTOX_SCALE(2), b->y + UTOX_SCALE(2), s->str, s->length);
 
     draw_rect_frame(x, b->y, w, b->height, COLOR_EDGE_NORMAL);
 }

@@ -421,7 +421,7 @@ static void loadfonts(void)
         debug("ft_vert\n");
     }
 
-     #define F(x) (x * SCALE / 2.0)
+     #define F(x) (UTOX_SCALE(x) / 2.0)
      font_open(&font[FONT_TEXT],       FC_FAMILY, FcTypeString, "Roboto", FC_PIXEL_SIZE, FcTypeDouble, F(12.0),
                 FC_WEIGHT, FcTypeInteger, FC_WEIGHT_NORMAL, FC_SLANT, FcTypeInteger, FC_SLANT_ROMAN, NULL);
 

@@ -28,16 +28,16 @@ static void setactive(EDIT *edit)
 
 void edit_draw(EDIT *edit, int x, int y, int width, int height)
 {
-    if((width - 4 * SCALE - SCROLL_WIDTH) < 0) {
+    if((width - UTOX_SCALE(4 ) - SCROLL_WIDTH) < 0) {
         return;
     }
 
-    if(utox_window_baseline && y > utox_window_baseline - font_small_lineheight - 4 * SCALE) {
-        y = utox_window_baseline - font_small_lineheight - 4 * SCALE;
+    if(utox_window_baseline && y > utox_window_baseline - font_small_lineheight - UTOX_SCALE(4 )) {
+        y = utox_window_baseline - font_small_lineheight - UTOX_SCALE(4 );
     }
 
-    edit->width = width -4 * SCALE - (edit->multiline ? SCROLL_WIDTH : 0);
-    edit->height = height - 4 * SCALE;
+    edit->width = width -UTOX_SCALE(4 ) - (edit->multiline ? SCROLL_WIDTH : 0);
+    edit->height = height - UTOX_SCALE(4 );
 
     // load colors for this style
     uint32_t color_bg,
@@ -66,7 +66,7 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
     if(!edit->noborder) {
         draw_rect_frame(x, y, width, height, (edit == active_edit) ? color_border_a : (edit->mouseover ? color_border_h : color_border));
     }
-    draw_rect_fill(x + 1, y + 1, width - 1 * SCALE, height - 1 * SCALE, color_bg);
+    draw_rect_fill(x + 1, y + 1, width - UTOX_SCALE(1 ), height - UTOX_SCALE(1 ), color_bg);
 
     setfont(FONT_TEXT);
     setcolor(color_text);
@@ -77,7 +77,7 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
         pushclip(x + 1, y + 1, width - 2, height - 2);
 
         SCROLLABLE *scroll = edit->scroll;
-        scroll->content_height = text_height(width - 4 * SCALE - SCROLL_WIDTH, font_small_lineheight, edit->data, edit->length) + 4 * SCALE;
+        scroll->content_height = text_height(width - UTOX_SCALE(4 ) - SCROLL_WIDTH, font_small_lineheight, edit->data, edit->length) + UTOX_SCALE(4 );
         scroll_draw(scroll, x, y, width, height);
         yy -= scroll_gety(scroll, height);
     }
@@ -85,14 +85,14 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
     /* because the search field has a padding of 3.5 SCALEs */
     float top_offset = 2.0;
     if (edit->vcentered && !edit->multiline) {
-        top_offset = (height - font_small_lineheight) / (2.0 * SCALE);
+        top_offset = (height - font_small_lineheight) / (UTOX_SCALE(2.0));
     }
 
     // display an edit hint if there's no text in the field
     if (!edit->length && maybe_i18nal_string_is_valid(&edit->empty_str)) {
         STRING* empty_str_text = maybe_i18nal_string_get(&edit->empty_str);
         setcolor(COLOR_MAIN_HINTTEXT);
-        drawtext(x + 2 * SCALE, yy + top_offset * SCALE, empty_str_text->str, empty_str_text->length);
+        drawtext(x + UTOX_SCALE(2), yy + UTOX_SCALE(top_offset), empty_str_text->str, empty_str_text->length);
     }
 
     _Bool is_active = (edit == active_edit);
@@ -100,13 +100,13 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
         /* Generate the stars for this password */
         uint8_t star[edit->length];
         memset(star, '*', edit->length);
-        drawtextmultiline(x + 2 * SCALE, x + width - 2 * SCALE - (edit->multiline ? SCROLL_WIDTH : 0),
-                          yy + top_offset * SCALE, y, y + height, font_small_lineheight, star, edit->length,
+        drawtextmultiline(x + UTOX_SCALE(2 ), x + width - UTOX_SCALE(2 ) - (edit->multiline ? SCROLL_WIDTH : 0),
+                          yy + UTOX_SCALE(top_offset), y, y + height, font_small_lineheight, star, edit->length,
                           is_active ? edit_sel.start : STRING_IDX_MAX, is_active ? edit_sel.length : STRING_IDX_MAX,
                           is_active ? edit_sel.mark_start : 0, is_active ? edit_sel.mark_length : 0, edit->multiline);
     } else {
-        drawtextmultiline(x + 2 * SCALE, x + width - 2 * SCALE - (edit->multiline ? SCROLL_WIDTH : 0),
-                          yy + top_offset * SCALE, y, y + height, font_small_lineheight, edit->data, edit->length,
+        drawtextmultiline(x + UTOX_SCALE(2 ), x + width - UTOX_SCALE(2 ) - (edit->multiline ? SCROLL_WIDTH : 0),
+                          yy + UTOX_SCALE(top_offset), y, y + height, font_small_lineheight, edit->data, edit->length,
                           is_active ? edit_sel.start : STRING_IDX_MAX, is_active ? edit_sel.length : STRING_IDX_MAX,
                           is_active ? edit_sel.mark_start : 0, is_active ? edit_sel.mark_length : 0, edit->multiline);
     }
@@ -118,9 +118,9 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
 
 _Bool edit_mmove(EDIT *edit, int px, int py, int width, int height, int x, int y, int dx, int dy)
 {
-    if(utox_window_baseline && py > utox_window_baseline - font_small_lineheight - 4 * SCALE) {
-        y += py - (utox_window_baseline - font_small_lineheight - 4 * SCALE);
-        py = utox_window_baseline - font_small_lineheight - 4 * SCALE;
+    if(utox_window_baseline && py > utox_window_baseline - font_small_lineheight - UTOX_SCALE(4 )) {
+        y += py - (utox_window_baseline - font_small_lineheight - UTOX_SCALE(4 ));
+        py = utox_window_baseline - font_small_lineheight - UTOX_SCALE(4 );
     }
 
     _Bool need_redraw = 0;
@@ -149,7 +149,7 @@ _Bool edit_mmove(EDIT *edit, int px, int py, int width, int height, int x, int y
         }
 
         setfont(FONT_TEXT);
-        edit_sel.p2 = hittextmultiline(x - 2 * SCALE, width - 4 * SCALE - (edit->multiline ? SCROLL_WIDTH : 0), y - 2 * SCALE, INT_MAX, font_small_lineheight, edit->data, edit->length, edit->multiline);
+        edit_sel.p2 = hittextmultiline(x - UTOX_SCALE(2 ), width - UTOX_SCALE(4 ) - (edit->multiline ? SCROLL_WIDTH : 0), y - UTOX_SCALE(2 ), INT_MAX, font_small_lineheight, edit->data, edit->length, edit->multiline);
 
         STRING_IDX start, length;
         if(edit_sel.p2 > edit_sel.p1) {
@@ -167,7 +167,7 @@ _Bool edit_mmove(EDIT *edit, int px, int py, int width, int height, int x, int y
         }
     } else if(mouseover) {
         setfont(FONT_TEXT);
-        edit->mouseover_char = hittextmultiline(x - 2 * SCALE, width - 4 * SCALE - (edit->multiline ? SCROLL_WIDTH : 0), y - 2 * SCALE, INT_MAX, font_small_lineheight, edit->data, edit->length, edit->multiline);
+        edit->mouseover_char = hittextmultiline(x - UTOX_SCALE(2 ), width - UTOX_SCALE(4 ) - (edit->multiline ? SCROLL_WIDTH : 0), y - UTOX_SCALE(2 ), INT_MAX, font_small_lineheight, edit->data, edit->length, edit->multiline);
     }
 
     return need_redraw;
@@ -288,7 +288,7 @@ void edit_press(void)
 _Bool edit_mwheel(EDIT *edit, int height, double d, _Bool smooth)
 {
     if(edit->multiline) {
-        return scroll_mwheel(edit->scroll, height - SCALE * 4, d, smooth);
+        return scroll_mwheel(edit->scroll, height - UTOX_SCALE(4), d, smooth);
     }
     return 0;
 }

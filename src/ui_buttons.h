@@ -48,7 +48,7 @@ static void button_avatar_onpress(void) {
 extern PANEL panel_settings_profile, panel_settings_net, panel_settings_ui, panel_settings_av;
 extern SCROLLABLE scrollbar_settings;
 static void button_settings_sub_profile_onpress(void){
-    scrollbar_settings.content_height = 130 * SCALE;
+    scrollbar_settings.content_height = UTOX_SCALE(130 );
     list_selectsettings();
     panel_settings_profile.disabled = 0;
     panel_settings_net.disabled  = 1;
@@ -180,7 +180,7 @@ static void button_send_friend_request_onpress(void) {
 }
 
 static void button_settings_sub_net_onpress(void){
-    scrollbar_settings.content_height = 90 * SCALE;
+    scrollbar_settings.content_height = UTOX_SCALE(90 );
     list_selectsettings();
     panel_settings_profile.disabled = 1;
     panel_settings_net.disabled  = 0;
@@ -189,7 +189,7 @@ static void button_settings_sub_net_onpress(void){
 }
 
 static void button_settings_sub_ui_onpress(void){
-    scrollbar_settings.content_height = 140 * SCALE;
+    scrollbar_settings.content_height = UTOX_SCALE(140 );
     list_selectsettings();
     panel_settings_profile.disabled = 1;
     panel_settings_net.disabled  = 1;
@@ -198,7 +198,7 @@ static void button_settings_sub_ui_onpress(void){
 }
 
 static void button_settings_sub_av_onpress(void){
-    scrollbar_settings.content_height = 150 * SCALE;
+    scrollbar_settings.content_height = UTOX_SCALE(150 );
     list_selectsettings();
     panel_settings_profile.disabled = 1;
     panel_settings_net.disabled  = 1;

@@ -1450,7 +1450,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
 
         /* Client/User Interface messages. */
         case REDRAW: {
-            ui_scale(SCALE);
+            ui_set_scale(ui_scale);
             redraw();
             break;
         }

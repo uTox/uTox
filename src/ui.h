@@ -83,7 +83,7 @@ _Bool maybe_i18nal_string_is_valid(MAYBE_I18NAL_STRING*);
 // Application-wide language setting
 extern UI_LANG_ID LANG;
 
-void ui_scale(uint8_t scale);
+void ui_set_scale(uint8_t scale);
 void ui_size(int width, int height);
 
 void ui_mouseleave(void);
@@ -106,7 +106,7 @@ char search_data[128];
 
 /* metrics
  */
-uint8_t SCALE;
+float ui_scale;
 
 /* These are the new defines to help align UI elements, the new ones must use a _top/_bottom/ or _left/_right or
  * _width/_height postfix, and should be used to replace the originals whenever possible.
@@ -114,77 +114,77 @@ uint8_t SCALE;
 
 
 /* Left sidebar defines */
-#define SIDEBAR_WIDTH                      (115 * SCALE)
+#define SIDEBAR_WIDTH                      (UTOX_SCALE(115 ))
 /* User badge */
-    #define SIDEBAR_AVATAR_TOP              (5  * SCALE)
-    #define SIDEBAR_AVATAR_LEFT             (5  * SCALE)
-    #define SIDEBAR_AVATAR_WIDTH            (5  * SCALE)
-    #define SIDEBAR_AVATAR_HEIGHT           (5  * SCALE)
-    #define SIDEBAR_NAME_TOP                (8  * SCALE)
-    #define SIDEBAR_NAME_LEFT               (32 * SCALE)
-    #define SIDEBAR_NAME_WIDTH              (95 * SCALE)
-    #define SIDEBAR_NAME_HEIGHT             (9  * SCALE)
-    #define SIDEBAR_STATUSMSG_TOP           (16 * SCALE)
-    #define SIDEBAR_STATUSMSG_LEFT          (32 * SCALE)
-    #define SIDEBAR_STATUSMSG_WIDTH         (95 * SCALE)
-    #define SIDEBAR_STATUSMSG_HEIGHT        (6  * SCALE)
-    #define SELF_STATUS_ICON_LEFT           (96 * SCALE)
-    #define SELF_STATUS_ICON_TOP            (5  * SCALE)
+    #define SIDEBAR_AVATAR_TOP              (UTOX_SCALE(5  ))
+    #define SIDEBAR_AVATAR_LEFT             (UTOX_SCALE(5  ))
+    #define SIDEBAR_AVATAR_WIDTH            (UTOX_SCALE(5  ))
+    #define SIDEBAR_AVATAR_HEIGHT           (UTOX_SCALE(5  ))
+    #define SIDEBAR_NAME_TOP                (UTOX_SCALE(8  ))
+    #define SIDEBAR_NAME_LEFT               (UTOX_SCALE(32 ))
+    #define SIDEBAR_NAME_WIDTH              (UTOX_SCALE(95 ))
+    #define SIDEBAR_NAME_HEIGHT             (UTOX_SCALE(9  ))
+    #define SIDEBAR_STATUSMSG_TOP           (UTOX_SCALE(16 ))
+    #define SIDEBAR_STATUSMSG_LEFT          (UTOX_SCALE(32 ))
+    #define SIDEBAR_STATUSMSG_WIDTH         (UTOX_SCALE(95 ))
+    #define SIDEBAR_STATUSMSG_HEIGHT        (UTOX_SCALE(6  ))
+    #define SELF_STATUS_ICON_LEFT           (UTOX_SCALE(96 ))
+    #define SELF_STATUS_ICON_TOP            (UTOX_SCALE(5  ))
 
 /* Sidebar buttons and settings */
-    #define SIDEBAR_FILTER_FRIENDS_TOP      (30 * SCALE)
-    #define SIDEBAR_FILTER_FRIENDS_LEFT     ( 5 * SCALE)
-    #define SIDEBAR_FILTER_FRIENDS_WIDTH    (84 * SCALE)
-    #define SIDEBAR_FILTER_FRIENDS_HEIGHT   ( 6 * SCALE)
+    #define SIDEBAR_FILTER_FRIENDS_TOP      (UTOX_SCALE(30 ))
+    #define SIDEBAR_FILTER_FRIENDS_LEFT     ( UTOX_SCALE(5 ))
+    #define SIDEBAR_FILTER_FRIENDS_WIDTH    (UTOX_SCALE(84 ))
+    #define SIDEBAR_FILTER_FRIENDS_HEIGHT   ( UTOX_SCALE(6 ))
 
 /* Roster defines */
-    #define ROSTER_TOP                      ( 39 * SCALE)
-    #define ROSTER_LEFT                     (  8 * SCALE)
-    #define ROSTER_BOTTOM                   (-15 * SCALE)
-    #define ROSTER_BOX_LEFT                 (  4 * SCALE)
-    #define ROSTER_BOX_HEIGHT               ( 25 * SCALE)
-    #define ROSTER_AVATAR_TOP               (  5 * SCALE / 2)
-    #define ROSTER_AVATAR_LEFT              (  4 + 5 * SCALE / 2)
+    #define ROSTER_TOP                      ( UTOX_SCALE(39 ))
+    #define ROSTER_LEFT                     (  UTOX_SCALE(8 ))
+    #define ROSTER_BOTTOM                   (-UTOX_SCALE(15 ))
+    #define ROSTER_BOX_LEFT                 (  UTOX_SCALE(4 ))
+    #define ROSTER_BOX_HEIGHT               ( UTOX_SCALE(25 ))
+    #define ROSTER_AVATAR_TOP               (  UTOX_SCALE(5 ) / 2)
+    #define ROSTER_AVATAR_LEFT              (  4 + UTOX_SCALE(5 ) / 2)
 
-    #define ROSTER_NAME_TOP                 (6  * SCALE)
-    #define ROSTER_NAME_LEFT                (30 * SCALE)
-    #define ROSTER_STATUS_MSG_TOP           (13 * SCALE)
+    #define ROSTER_NAME_TOP                 (UTOX_SCALE(6  ))
+    #define ROSTER_NAME_LEFT                (UTOX_SCALE(30 ))
+    #define ROSTER_STATUS_MSG_TOP           (UTOX_SCALE(13 ))
 
 /* Sidebar Lower search box and setting button */
-    #define SIDEBAR_SEARCH_TOP              (-15 * SCALE)
-    #define SIDEBAR_SEARCH_LEFT             (  0 * SCALE)
-    #define SIDEBAR_SEARCH_WIDTH            (100 * SCALE)
-    #define SIDEBAR_SEARCH_HEIGHT           ( 15 * SCALE)
+    #define SIDEBAR_SEARCH_TOP              (-UTOX_SCALE(15 ))
+    #define SIDEBAR_SEARCH_LEFT             (  UTOX_SCALE(0 ))
+    #define SIDEBAR_SEARCH_WIDTH            (UTOX_SCALE(100 ))
+    #define SIDEBAR_SEARCH_HEIGHT           ( UTOX_SCALE(15 ))
 
-    #define SIDEBAR_BUTTON_TOP              (-15 * SCALE)
-    #define SIDEBAR_BUTTON_LEFT             (100 * SCALE)
-    #define SIDEBAR_BUTTON_WIDTH            ( 15 * SCALE)
-    #define SIDEBAR_BUTTON_HEIGHT           ( 15 * SCALE)
+    #define SIDEBAR_BUTTON_TOP              (-UTOX_SCALE(15 ))
+    #define SIDEBAR_BUTTON_LEFT             (UTOX_SCALE(100 ))
+    #define SIDEBAR_BUTTON_WIDTH            ( UTOX_SCALE(15 ))
+    #define SIDEBAR_BUTTON_HEIGHT           ( UTOX_SCALE(15 ))
 
 
 /* Main box/Chat box size settings */
-#define CHAT_BOX_TOP                    (-26 * SCALE) /* size of the bottom message box */
-#define MAIN_TOP_FRAME_THIN             ( 15 * SCALE)
-#define MAIN_TOP_FRAME_THICK            ( 30 * SCALE)
+#define CHAT_BOX_TOP                    (-UTOX_SCALE(26 )) /* size of the bottom message box */
+#define MAIN_TOP_FRAME_THIN             ( UTOX_SCALE(15 ))
+#define MAIN_TOP_FRAME_THICK            ( UTOX_SCALE(30 ))
 
 /* Global UI size settings... */
-#define SCROLL_WIDTH                    (4   * SCALE) //must be divisible by 2
-#define FILE_TRANSFER_BOX_HEIGHT        (14  * SCALE)
+#define SCROLL_WIDTH                    (UTOX_SCALE(4   )) //must be divisible by 2
+#define FILE_TRANSFER_BOX_HEIGHT        (UTOX_SCALE(14  ))
 
 
 
 /* Main panel defines */
-#define MAIN_LEFT                       (115 * SCALE) + 1
-#define MAIN_TOP                        ( 30 * SCALE)
+#define MAIN_LEFT                       (UTOX_SCALE(115 )) + 1
+#define MAIN_TOP                        ( UTOX_SCALE(30 ))
 
 /* Legacy defines, instead of using these, you should replace them with something more descriptive */
-#define LIST_Y2                         (43 * SCALE)
-#define LIST_BUTTON_Y                   (-13 * SCALE)
-#define MESSAGES_SPACING                (SCALE * 2)
-#define MESSAGES_X                      (55 * SCALE)
-#define TIME_WIDTH                      (20 * SCALE)
-#define ACTUAL_TIME_WIDTH               (16 * SCALE)
-#define NAME_OFFSET                     (7 * SCALE)
+#define LIST_Y2                         (UTOX_SCALE(43 ))
+#define LIST_BUTTON_Y                   (-UTOX_SCALE(13 ))
+#define MESSAGES_SPACING                (UTOX_SCALE(2))
+#define MESSAGES_X                      (UTOX_SCALE(55 ))
+#define TIME_WIDTH                      (UTOX_SCALE(20 ))
+#define ACTUAL_TIME_WIDTH               (UTOX_SCALE(16 ))
+#define NAME_OFFSET                     (UTOX_SCALE(7 ))
 
 
 

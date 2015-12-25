@@ -57,8 +57,19 @@
 #define MAX_NUM_GROUPS UTOX_MAX_NUM_GROUPS              /* Deprecated; Avoid Use */
 #define TOX_FRIEND_ADDRESS_SIZE TOX_ADDRESS_SIZE
 
+#define BORDER 1
+#define CAPTION 26
+#define MAIN_WIDTH 800
+#define MAIN_HEIGHT 600
+
+#define inrect(x, y, rx, ry, width, height) ((x) >= (rx) && (y) >= (ry) && (x) < ((rx) + (width)) && (y) < ((ry) + (height)))
+
+#define strcmp2(x, y) (memcmp(x, y, sizeof(y) - 1))
+#define strcpy2(x, y) (memcpy(x, y, sizeof(y) - 1))
 
 #define isdesktop(x) ((size_t)(x) == 1)
+
+#define UTOX_SCALE(x) (int)((float)ui_scale * (float)(x))
 
 /* House keeping for uTox save file. */
 #define SAVE_VERSION 3
@@ -327,17 +338,6 @@ struct
 uint8_t addfriend_status;
 
 _Bool dont_send_typing_notes; //Stores user's preference about typing notifications
-
-#define BORDER 1
-#define CAPTION 26
-
-#define MAIN_WIDTH 800
-#define MAIN_HEIGHT 600
-
-#define inrect(x, y, rx, ry, width, height) ((x) >= (rx) && (y) >= (ry) && (x) < ((rx) + (width)) && (y) < ((ry) + (height)))
-
-#define strcmp2(x, y) (memcmp(x, y, sizeof(y) - 1))
-#define strcpy2(x, y) (memcpy(x, y, sizeof(y) - 1))
 
 void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data);
 

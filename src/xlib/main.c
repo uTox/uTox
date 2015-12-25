@@ -337,7 +337,7 @@ static int _drawtext(int x, int xmax, int y, char_t *str, STRING_IDX length)
 
         g = font_getglyph(sfont, ch);
         if(g) {
-            if(x + g->xadvance + SCALE * 5 > xmax && length) {
+            if(x + g->xadvance + UTOX_SCALE(5) > xmax && length) {
                 return -x;
             }
 
@@ -1011,12 +1011,12 @@ void setscale(void)
     // TODO, fork this to a function
     xsh = XAllocSizeHints();
     xsh->flags = PMinSize;
-    xsh->min_width = 320 * SCALE;
-    xsh->min_height = 160 * SCALE;
+    xsh->min_width = UTOX_SCALE(320 );
+    xsh->min_height = UTOX_SCALE(160 );
 
     XSetWMNormalHints(display, window, xsh);
 
-    if(utox_window_width > 320 * SCALE && utox_window_height > 160 * SCALE)
+    if(utox_window_width > UTOX_SCALE(320 ) && utox_window_height > UTOX_SCALE(160 ))
     {
         /* wont get a resize event, call this manually */
         ui_size(utox_window_width, utox_window_height);
@@ -1349,12 +1349,12 @@ int main(int argc, char *argv[]) {
     /* initialize fontconfig */
     initfonts();
 
-    /* Set the default font so we don't segfault on ui_scale() when it goes looking for fonts. */
+    /* Set the default font so we don't segfault on ui_set_scale() when it goes looking for fonts. */
     loadfonts();
     setfont(FONT_TEXT);
 
     /* load fonts and scalable bitmaps */
-    ui_scale(save->scale + 1);
+    ui_set_scale(save->scale + 1);
 
     /* done with save */
     free(save);

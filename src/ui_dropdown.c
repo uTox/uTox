@@ -31,14 +31,14 @@ static void dropdown_video_onselect(uint16_t i, const DROPDOWN* dm)
 
 static void dropdown_dpi_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
 {
-    ui_scale(i + 1);
+    ui_set_scale(i + 1);
 }
 
 static void dropdown_language_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
 {
     LANG = (UI_LANG_ID)i;
     /* The draw functions need the fonts' and scale to be reset when changing languages. */
-    ui_scale(SCALE);
+    ui_set_scale(ui_scale);
 }
 static STRING* dropdown_language_ondisplay(uint16_t i, const DROPDOWN* UNUSED(dm))
 {
