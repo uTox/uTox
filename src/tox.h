@@ -90,6 +90,7 @@ enum {
     REDRAW,
     TOOLTIP_SHOW,
     SELF_AVATAR_SET,
+    UPDATE_TRAY,
 
     /* File transfer messages */
     FILE_SEND_NEW,

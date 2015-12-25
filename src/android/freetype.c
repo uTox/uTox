@@ -111,7 +111,7 @@ static _Bool font_open(FONT *f, double size, uint8_t weight)
 
 static void loadfonts(void)
 {
-    #define F(x) (x * SCALE / 2.0)
+    #define F(x) (UTOX_SCALE(x) / 2.0)
     font_open(&font[FONT_TEXT], F(12.0), 0);
 
     font_open(&font[FONT_TITLE], F(12.0), 1);

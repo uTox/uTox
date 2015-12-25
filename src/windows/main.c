@@ -1109,7 +1109,7 @@ void loadfonts(){
         .lfFaceName = "DejaVu Sans",
     };
 
-    #define F(x) ((-x * SCALE - 1) / 2)
+    #define F(x) ((UTOX_SCALE(-x) - 1) / 2)
     lf.lfHeight = F(12);
     font[FONT_TEXT] = CreateFontIndirect(&lf);
 
@@ -1376,7 +1376,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     /* needed if/when the uTox becomes a muTox */
     //wmemmove(title, title+1, wcslen(title));
 
-    hwnd = CreateWindowExW(0, classname, title, WS_OVERLAPPEDWINDOW, save->window_x, save->window_y, MAIN_WIDTH, MAIN_HEIGHT, NULL, NULL, hInstance, NULL);
+    hwnd = CreateWindowExW(0, classname, title, WS_OVERLAPPEDWINDOW,
+                            save->window_x, save->window_y,
+                            save->window_width, save->window_height,
+                            NULL, NULL, hInstance, NULL);
 
     free(save);
 
@@ -1436,7 +1439,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
 
     /* wait for threads to exit */
     while(tox_thread_init) {
-        yieldcpu(1);
+        yieldcpu(10);
     }
 
     RECT wndrect = {0};
@@ -1493,6 +1496,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_QUIT:
     case WM_CLOSE:
     case WM_DESTROY: {
+        debug("quit msg\n");
         if(close_to_tray){
             debug("Closing to tray.\n");
             togglehide(0);
@@ -1504,7 +1508,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     }
 
     case WM_GETMINMAXINFO: {
-        POINT min = {320 * SCALE, 160 * SCALE};
+        POINT min = {UTOX_SCALE(320), UTOX_SCALE(160)};
         ((MINMAXINFO*)lParam)->ptMinTrackSize = min;
 
         break;
@@ -1545,9 +1549,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
             utox_window_width = w;
             utox_window_height = h;
 
-            debug("%u %u\n", w, h);
-
-            ui_scale(dropdown_dpi.selected + 1);
+            ui_set_scale(dropdown_dpi.selected + 6);
             ui_size(w, h);
 
             if(hdc_bm) {
@@ -1659,10 +1661,10 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
             }
         } else {
             messages_char(wParam);
-            return 0;
+            break;
         }
 
-        return 0;
+        break;
     }
 
     case WM_CHAR: {

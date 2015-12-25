@@ -640,8 +640,8 @@ UTOX_SAVE* config_load(void)
     if(save || (save = file_text("utox_save"))) {
         if(save->version == SAVE_VERSION) {
             /* validate values */
-            if(save->scale > 4) {
-                save->scale = 4;
+            if(save->scale > 40) {
+                save->scale = 40;
             }
             goto NEXT;
         } else if (save->version == 2) {
@@ -651,8 +651,8 @@ UTOX_SAVE* config_load(void)
             memcpy(save, save_v2, sizeof(UTOX_SAVE_V2));
             save->version = SAVE_VERSION;
 
-            if(save->scale > 4) {
-                save->scale = 4;
+            if(save->scale > 40) {
+                save->scale = 40;
             }
 
             strcpy((char*)save->proxy_ip, (char*)save_v2->proxy_ip);
@@ -691,22 +691,26 @@ UTOX_SAVE* config_load(void)
 
     config_osdefaults(save);
 NEXT:
-    dropdown_dpi.selected = dropdown_dpi.over = save->scale;
+    dropdown_dpi.selected                  = dropdown_dpi.over                  = save->scale - 6;
+    ui_set_scale(save->scale);
 
-    dropdown_ipv6.selected = dropdown_ipv6.over = !save->enableipv6;
-    dropdown_udp.selected = dropdown_udp.over = (save->disableudp != 0);
-    dropdown_proxy.selected = dropdown_proxy.over = save->proxyenable <= 2 ? save->proxyenable : 2;
+    dropdown_ipv6.selected                 = dropdown_ipv6.over                 = !save->enableipv6;
+    dropdown_udp.selected                  = dropdown_udp.over                  = (save->disableudp != 0);
+    dropdown_proxy.selected                = dropdown_proxy.over                = save->proxyenable <= 2 ? save->proxyenable : 2;
 
-    dropdown_logging.selected = dropdown_logging.over = save->logging_enabled;
+    dropdown_logging.selected              = dropdown_logging.over              = save->logging_enabled;
 
-    dropdown_close_to_tray.selected = dropdown_close_to_tray.over = save->close_to_tray;
-    dropdown_start_in_tray.selected = dropdown_start_in_tray.over = save->start_in_tray;
-    dropdown_auto_startup.selected = dropdown_auto_startup.over = save->auto_startup;
+    dropdown_close_to_tray.selected        = dropdown_close_to_tray.over        = save->close_to_tray;
+    dropdown_start_in_tray.selected        = dropdown_start_in_tray.over        = save->start_in_tray;
+    dropdown_auto_startup.selected         = dropdown_auto_startup.over         = save->auto_startup;
 
     dropdown_audible_notification.selected = dropdown_audible_notification.over = save->audible_notifications_enabled;
-    dropdown_audio_filtering.selected = dropdown_audio_filtering.over = save->audio_filtering_enabled;
-    dropdown_push_to_talk.selected = dropdown_push_to_talk.over = save->push_to_talk;
-    //dropdown_theme_onselect.selected = dropdown_theme_onselect.over = save->theme;
+    dropdown_audio_filtering.selected      = dropdown_audio_filtering.over      = save->audio_filtering_enabled;
+    dropdown_push_to_talk.selected         = dropdown_push_to_talk.over         = save->push_to_talk;
+
+    dropdown_theme.selected = dropdown_theme.over = save->theme;
+    theme_load(save->theme);
+
     dropdown_typing_notes.selected = save->no_typing_notifications;
 
     list_set_filter(save->filter); /* roster list filtering */
@@ -757,12 +761,12 @@ void config_save(UTOX_SAVE *save)
 
     file = fopen((char*)path, "wb");
     if(!file) {
-        debug("Unable to open uTox Save	::\n");
+        debug("Unable to open uTox Save ::\n");
         return;
     }
 
     save->version                       = SAVE_VERSION;
-    save->scale                         = SCALE - 1;
+    save->scale                         = ui_scale;
     save->enableipv6                    = !dropdown_ipv6.selected;
     save->disableudp                    = dropdown_udp.selected;
     save->proxyenable                   = dropdown_proxy.selected;
@@ -785,7 +789,7 @@ void config_save(UTOX_SAVE *save)
     save->no_typing_notifications       = dont_send_typing_notes;
     memset(save->unused, 0, sizeof(save->unused));
 
-    debug("Writing uTox Save	::\n");
+    debug("Writing uTox Save    ::\n");
     fwrite(save, sizeof(*save), 1, file);
     fwrite(options.proxy_host, strlen(options.proxy_host), 1, file);
     fclose(file);

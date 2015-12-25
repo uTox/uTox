@@ -25,7 +25,7 @@ LDFLAGS += $(shell pkg-config --libs $(DEPS))
 DESTDIR ?=
 PREFIX ?= /usr/local
 
-SRC = $(wildcard *.c cocoa/*.m)
+SRC = $(wildcard src/*.c src/cocoa/*.m)
 OBJ = $(SRC:=.o)
 GIT_V = $(shell git describe --abbrev=8 --dirty --always --tags)
 CFLAGS += -DGIT_VERSION=\"$(GIT_V)\"
@@ -38,16 +38,16 @@ utox: $(OBJ)
 
 utox-static: $(OBJ)
 	@echo "  SL    $@"
-	$(CC) $(CFLAGS) -o utox-static $(OBJ) $(shell cocoa/find_static.sh $(DEPS)) $(FRAMEWORKS)
+	$(CC) $(CFLAGS) -o utox-static $(OBJ) $(shell src/cocoa/find_static.sh $(DEPS)) $(FRAMEWORKS)
 
 utox-MainMenu.nib:
-	ibtool --compile $@ cocoa/MainMenu.xib
+	ibtool --compile $@ src/cocoa/MainMenu.xib
 
 utox-Info.plist:
-	sh cocoa/make_info_plist.sh cocoa/Info.plist $@
+	sh src/cocoa/make_info_plist.sh src/cocoa/Info.plist $@
 
 utox.icns:
-	iconutil --convert icns cocoa/utox.iconset -o ./utox.icns
+	iconutil --convert icns src/cocoa/utox.iconset -o ./utox.icns
 
 uTox.app: utox utox-Info.plist utox-MainMenu.nib utox.icns
 	mkdir -p uTox.app/Contents/MacOS
@@ -58,7 +58,7 @@ uTox.app: utox utox-Info.plist utox-MainMenu.nib utox.icns
 	install -m 644 utox-MainMenu.nib uTox.app/Contents/Resources/MainMenu.nib
 
 uTox.dmg: utox-static uTox.app
-	sh cocoa/make_dmg.sh
+	sh src/cocoa/make_dmg.sh
 
 %.m.o: %.m
 	@echo "  OBJC  $@"
@@ -69,7 +69,7 @@ uTox.dmg: utox-static uTox.app
 	@$(CC) -xobjective-c $(CFLAGS) -o $@ -c $<
 
 clean:
-	rm -f utox utox-Info.plist utox-MainMenu.nib cocoa/*.o *.o .utox_info_plist.* utox-static uTox.dmg
+	rm -f utox utox-Info.plist utox-MainMenu.nib src/cocoa/*.o src/*.o .utox_info_plist.* utox-static uTox.dmg
 	rm -rf uTox.app utox_dmg.*
 
 print-%:

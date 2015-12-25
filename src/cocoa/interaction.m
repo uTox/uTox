@@ -103,7 +103,7 @@ static CGRect find_ui_object_in_window(const PANEL *ui) {
             switch (ui_element->type) {
                 case 6:
                     _apply_generic_transform(EDIT, ui_element);
-                    height += 4 * SCALE; // seems to be the magic number
+                    height += UTOX_SCALE(4 ); // seems to be the magic number
                     break;
                 default:
                     _apply_generic_transform(PANEL, ui_element);

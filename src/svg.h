@@ -2,70 +2,70 @@
 #define  BM_SCROLLHALF_WIDTH SCROLL_WIDTH
 #define  BM_SCROLLHALF_HEIGHT (SCROLL_WIDTH / 2)
 /* No idea */
-#define  BM_STATUSAREA_WIDTH (10 * SCALE)
-#define  BM_STATUSAREA_HEIGHT (20 * SCALE)
+#define  BM_STATUSAREA_WIDTH (UTOX_SCALE(10 ))
+#define  BM_STATUSAREA_HEIGHT (UTOX_SCALE(20 ))
 /* Text button on the add a new friend page */
 #define _BM_ADD_WIDTH           9
-#define  BM_ADD_WIDTH           (9 * SCALE)
-#define  BM_STATUS_WIDTH        (5 * SCALE)
-#define  BM_STATUS_NOTIFY_WIDTH (7 * SCALE)
-#define  BM_NMSG_WIDTH          (9 * SCALE)
+#define  BM_ADD_WIDTH           (UTOX_SCALE(9 ))
+#define  BM_STATUS_WIDTH        (UTOX_SCALE(5 ))
+#define  BM_STATUS_NOTIFY_WIDTH (UTOX_SCALE(7 ))
+#define  BM_NMSG_WIDTH          (UTOX_SCALE(9 ))
 /* Search and buttons toggle switch */
 #define _BM_THREE_BAR_WIDTH 14
-#define  BM_THREE_BAR_WIDTH (14 * SCALE)
+#define  BM_THREE_BAR_WIDTH (UTOX_SCALE(14 ))
 /* Standard large size button */
-#define  BM_LBUTTON_WIDTH  (26 * SCALE)
-#define  BM_LBUTTON_HEIGHT (20 * SCALE)
+#define  BM_LBUTTON_WIDTH  (UTOX_SCALE(26 ))
+#define  BM_LBUTTON_HEIGHT (UTOX_SCALE(20 ))
 /* Standard small size button */
-#define  BM_SBUTTON_WIDTH  (26 * SCALE)
-#define  BM_SBUTTON_HEIGHT (10 * SCALE)
+#define  BM_SBUTTON_WIDTH  (UTOX_SCALE(26 ))
+#define  BM_SBUTTON_HEIGHT (UTOX_SCALE(10 ))
 /* File transfer buttons */
-#define  BM_FT_WIDTH   (125 * SCALE)
-#define  BM_FT_HEIGHT  (26 * SCALE)
-#define  BM_FTM_WIDTH  (113 * SCALE)
-#define  BM_FTB_WIDTH  (13 * SCALE)
-#define  BM_FTB_HEIGHT (14 * SCALE)
-#define  BM_FT_CAP_WIDTH (15 * SCALE)
+#define  BM_FT_WIDTH   (UTOX_SCALE(125 ))
+#define  BM_FT_HEIGHT  (UTOX_SCALE(26 ))
+#define  BM_FTM_WIDTH  (UTOX_SCALE(113 ))
+#define  BM_FTB_WIDTH  (UTOX_SCALE(13 ))
+#define  BM_FTB_HEIGHT (UTOX_SCALE(14 ))
+#define  BM_FT_CAP_WIDTH (UTOX_SCALE(15 ))
 /* something to do with contacts? */
-#define  BM_CONTACT_WIDTH (20 * SCALE)
+#define  BM_CONTACT_WIDTH (UTOX_SCALE(20 ))
 /* no idea */
 #define _BM_LBICON_WIDTH  11
-#define  BM_LBICON_WIDTH (11 * SCALE)
+#define  BM_LBICON_WIDTH (UTOX_SCALE(11 ))
 #define _BM_LBICON_HEIGHT 10
-#define  BM_LBICON_HEIGHT (10 * SCALE)
+#define  BM_LBICON_HEIGHT (UTOX_SCALE(10 ))
 /* small file transfer button maybe? */
-#define  BM_FB_WIDTH      (6 * SCALE)
-#define  BM_FB_HEIGHT     (5 * SCALE)
+#define  BM_FB_WIDTH      (UTOX_SCALE(6 ))
+#define  BM_FB_HEIGHT     (UTOX_SCALE(5 ))
 
 /* small button placements */
-#define  BM_CHAT_BUTTON_WIDTH          (20 * SCALE)
-#define  BM_CHAT_BUTTON_HEIGHT         (20 * SCALE)
+#define  BM_CHAT_BUTTON_WIDTH          (UTOX_SCALE(20 ))
+#define  BM_CHAT_BUTTON_HEIGHT         (UTOX_SCALE(20 ))
 /* camera box */
 #define _BM_CHAT_BUTTON_OVERLAY_WIDTH  (14        )
-#define  BM_CHAT_BUTTON_OVERLAY_WIDTH  (14 * SCALE)
+#define  BM_CHAT_BUTTON_OVERLAY_WIDTH  (UTOX_SCALE(14 ))
 #define _BM_CHAT_BUTTON_OVERLAY_HEIGHT (14        )
-#define  BM_CHAT_BUTTON_OVERLAY_HEIGHT (14 * SCALE)
+#define  BM_CHAT_BUTTON_OVERLAY_HEIGHT (UTOX_SCALE(14 ))
 /* Large chat button */
-#define  BM_CHAT_SEND_WIDTH    (28 * SCALE)
-#define  BM_CHAT_SEND_HEIGHT   (20 * SCALE)
+#define  BM_CHAT_SEND_WIDTH    (UTOX_SCALE(28 ))
+#define  BM_CHAT_SEND_HEIGHT   (UTOX_SCALE(20 ))
 /* Chat speech bubble */
 #define _BM_CHAT_SEND_OVERLAY_WIDTH  (20        )
-#define  BM_CHAT_SEND_OVERLAY_WIDTH  (20 * SCALE)
+#define  BM_CHAT_SEND_OVERLAY_WIDTH  (UTOX_SCALE(20 ))
 #define _BM_CHAT_SEND_OVERLAY_HEIGHT (16        )
-#define  BM_CHAT_SEND_OVERLAY_HEIGHT (16 * SCALE)
+#define  BM_CHAT_SEND_OVERLAY_HEIGHT (UTOX_SCALE(16 ))
 
 #define _BM_FILE_WIDTH      (11        )
-#define  BM_FILE_WIDTH      (11 * SCALE)
+#define  BM_FILE_WIDTH      (UTOX_SCALE(11 ))
 #define _BM_FILE_HEIGHT     (10        )
-#define  BM_FILE_HEIGHT     (10 * SCALE)
+#define  BM_FILE_HEIGHT     (UTOX_SCALE(10 ))
 
 #define _BM_FILE_BIG_WIDTH  (22        )
-#define  BM_FILE_BIG_WIDTH  (22 * SCALE)
+#define  BM_FILE_BIG_WIDTH  (UTOX_SCALE(22 ))
 #define _BM_FILE_BIG_HEIGHT (20        )
-#define  BM_FILE_BIG_HEIGHT (20 * SCALE)
+#define  BM_FILE_BIG_HEIGHT (UTOX_SCALE(20 ))
 
 #define _BM_CI_WIDTH 10
-#define  BM_CI_WIDTH (10 * SCALE)
+#define  BM_CI_WIDTH (UTOX_SCALE(10 ))
 
 void *svg_data;
 

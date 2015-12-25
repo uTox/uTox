@@ -31,14 +31,14 @@ static void dropdown_video_onselect(uint16_t i, const DROPDOWN* dm)
 
 static void dropdown_dpi_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
 {
-    ui_scale(i + 1);
+    ui_set_scale(i + 6);
 }
 
 static void dropdown_language_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
 {
     LANG = (UI_LANG_ID)i;
     /* The draw functions need the fonts' and scale to be reset when changing languages. */
-    ui_scale(SCALE);
+    ui_set_scale(ui_scale);
 }
 static STRING* dropdown_language_ondisplay(uint16_t i, const DROPDOWN* UNUSED(dm))
 {
@@ -134,9 +134,25 @@ static void dropdown_push_to_talk_onselect(const uint16_t i, const DROPDOWN* UNU
 
 static UI_STRING_ID dpidrops[] = {
     STR_DPI_TINY,
+    STR_DPI_060,
+    STR_DPI_070,
+    STR_DPI_080,
+    STR_DPI_090,
     STR_DPI_NORMAL,
+    STR_DPI_110,
+    STR_DPI_120,
+    STR_DPI_130,
+    STR_DPI_140,
     STR_DPI_BIG,
+    STR_DPI_160,
+    STR_DPI_170,
+    STR_DPI_180,
+    STR_DPI_190,
     STR_DPI_LARGE,
+    STR_DPI_210,
+    STR_DPI_220,
+    STR_DPI_230,
+    STR_DPI_240,
     STR_DPI_HUGE,
 };
 

@@ -358,14 +358,14 @@ void setscale_fonts(void) {
     CFStringRef reg = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%s-Regular"), fontname);
     CFStringRef bold = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%s-Bold"), fontname);
 
-#define SCALE (SCALE / 2.0)
-    fonts[FONT_TEXT] = CTFontCreateWithNameAndOptions(reg, 12.0 * SCALE, NULL, kCTFontOptionsDefault);
-    fonts[FONT_STATUS] = CTFontCreateWithNameAndOptions(reg, 11.0 * SCALE, NULL, kCTFontOptionsDefault);
-    fonts[FONT_LIST_NAME] = CTFontCreateWithNameAndOptions(reg, 12.0 * SCALE, NULL, kCTFontOptionsDefault);
-    fonts[FONT_TITLE] = CTFontCreateWithNameAndOptions(bold, 12.0 * SCALE, NULL, kCTFontOptionsDefault);
-    fonts[FONT_SELF_NAME] = CTFontCreateWithNameAndOptions(bold, 14.0 * SCALE, NULL, kCTFontOptionsDefault);
-    fonts[FONT_MISC] = CTFontCreateWithNameAndOptions(bold, 10.0 * SCALE, NULL, kCTFontOptionsDefault);
-#undef SCALE
+#define LOCAL_SCALE(x) (UTOX_SCALE(x) / 2.0)
+    fonts[FONT_TEXT] = CTFontCreateWithNameAndOptions(reg, LOCAL_SCALE(12.0 ), NULL, kCTFontOptionsDefault);
+    fonts[FONT_STATUS] = CTFontCreateWithNameAndOptions(reg, LOCAL_SCALE(11.0 ), NULL, kCTFontOptionsDefault);
+    fonts[FONT_LIST_NAME] = CTFontCreateWithNameAndOptions(reg, LOCAL_SCALE(12.0 ), NULL, kCTFontOptionsDefault);
+    fonts[FONT_TITLE] = CTFontCreateWithNameAndOptions(bold, LOCAL_SCALE(12.0 ), NULL, kCTFontOptionsDefault);
+    fonts[FONT_SELF_NAME] = CTFontCreateWithNameAndOptions(bold, LOCAL_SCALE(14.0 ), NULL, kCTFontOptionsDefault);
+    fonts[FONT_MISC] = CTFontCreateWithNameAndOptions(bold, LOCAL_SCALE(10.0 ), NULL, kCTFontOptionsDefault);
+#undef LOCAL_SCALE
 #undef COCOA_BASE_FONT_NEW
 #undef COCOA_BASE_FONT_OLD
 
@@ -381,11 +381,11 @@ void setscale_fonts(void) {
 }
 
 void setscale(void) {
-    debug("%d", SCALE);
+    debug("%d", ui_scale);
     uToxAppDelegate *ad = (uToxAppDelegate *)[NSApplication sharedApplication].delegate;
-    uint8_t old_scale = SCALE;
+    float old_scale = ui_scale;
     // handle OS X retina capability gracefully
-    SCALE *= ad.utox_window.backingScaleFactor;
+    ui_scale *= ad.utox_window.backingScaleFactor;
 
     for (int i = 0; i < (sizeof(bitmaps) / sizeof(CGImageRef)); ++i) {
         RELEASE_CHK(CGImageRelease, bitmaps[i]);
@@ -393,7 +393,7 @@ void setscale(void) {
 
     svg_draw(1);
     // now we have 2x images, if applicable
-    SCALE = old_scale;
+    ui_scale = old_scale;
 }
 
 void cgdataprovider_is_finished(void *info, const void *data, size_t size) {
