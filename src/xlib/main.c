@@ -2,6 +2,7 @@
 
 _Bool    hidden = 0;
 uint32_t tray_width = 32, tray_height = 32;
+XIC xic = NULL;
 
 void setclipboard(void)
 {

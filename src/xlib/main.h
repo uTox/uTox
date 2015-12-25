@@ -124,7 +124,6 @@ uint16_t drawwidth, drawheight;
 
 Window video_win[MAX_NUM_FRIENDS];
 XImage *screen_image;
-XIC xic = NULL;
 
 int utox_v4l_fd;
 
