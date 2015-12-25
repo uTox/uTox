@@ -325,6 +325,84 @@ msgstr("Click to open")
 msgid(CANCELLED)
 msgstr("Cancelled")
 
+msgid(DPI_050)
+msgstr("DPI is at 50%")
+
+msgid(DPI_060)
+msgstr("DPI is at 60%")
+
+msgid(DPI_070)
+msgstr("DPI is at 70%")
+
+msgid(DPI_080)
+msgstr("DPI is at 80%")
+
+msgid(DPI_090)
+msgstr("DPI is at 90%")
+
+msgid(DPI_100)
+msgstr("DPI is at 100%")
+
+msgid(DPI_110)
+msgstr("DPI is at 110%")
+
+msgid(DPI_120)
+msgstr("DPI is at 120%")
+
+msgid(DPI_130)
+msgstr("DPI is at 130%")
+
+msgid(DPI_140)
+msgstr("DPI is at 140%")
+
+msgid(DPI_150)
+msgstr("DPI is at 150%")
+
+msgid(DPI_160)
+msgstr("DPI is at 160%")
+
+msgid(DPI_170)
+msgstr("DPI is at 170%")
+
+msgid(DPI_180)
+msgstr("DPI is at 180%")
+
+msgid(DPI_190)
+msgstr("DPI is at 190%")
+
+msgid(DPI_200)
+msgstr("DPI is at 200%")
+
+msgid(DPI_210)
+msgstr("DPI is at 210%")
+
+msgid(DPI_220)
+msgstr("DPI is at 220%")
+
+msgid(DPI_230)
+msgstr("DPI is at 230%")
+
+msgid(DPI_240)
+msgstr("DPI is at 240%")
+
+msgid(DPI_250)
+msgstr("DPI is at 250%")
+
+msgid(DPI_260)
+msgstr("DPI is at 260%")
+
+msgid(DPI_270)
+msgstr("DPI is at 270%")
+
+msgid(DPI_280)
+msgstr("DPI is at 280%")
+
+msgid(DPI_290)
+msgstr("DPI is at 290%")
+
+msgid(DPI_300)
+msgstr("DPI is at 300%")
+
 msgid(DPI_TINY)
 msgstr("Tiny (50%)")
 

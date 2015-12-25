@@ -37,7 +37,7 @@
 // Defaults
 #define DEFAULT_NAME "Tox User"
 #define DEFAULT_STATUS "Toxing on uTox"
-#define DEFAULT_SCALE 2
+#define DEFAULT_SCALE 6
 
 // Versions
 #define TITLE "uTox"
@@ -69,30 +69,33 @@
 
 #define isdesktop(x) ((size_t)(x) == 1)
 
-#define UTOX_SCALE(x) (int)((float)ui_scale * (float)(x))
+/* UTOX_SCALE is used as the default so that we have a lot of options for scale size.
+ * When ever you see UTOX_SCALE(x) double the size, and use SCALE instead!           */
+#define UTOX_SCALE(x) (((int)( ((float)ui_scale * 2 / 10.0) * (float)(x) )) ? : 1 )
+#define      SCALE(x) (((int)( ((float)ui_scale / 10.0) * (float)(x) )) ? : 1 )
 
 /* House keeping for uTox save file. */
 #define SAVE_VERSION 3
 typedef struct {
-    uint8_t version, scale, enableipv6, disableudp;
+    uint8_t  version, scale, enableipv6, disableudp;
     uint16_t window_x, window_y, window_width, window_height;
     uint16_t proxy_port;
-    uint8_t proxyenable;
-    uint8_t logging_enabled : 1;
-    uint8_t audible_notifications_enabled : 1;
-    uint8_t filter : 1;
-    uint8_t audio_filtering_enabled : 1;
-    uint8_t close_to_tray : 1;
-    uint8_t start_in_tray : 1;
-    uint8_t auto_startup : 1;
-    uint8_t no_typing_notifications : 1;
+    uint8_t  proxyenable;
+    uint8_t  logging_enabled : 1;
+    uint8_t  audible_notifications_enabled : 1;
+    uint8_t  filter : 1;
+    uint8_t  audio_filtering_enabled : 1;
+    uint8_t  close_to_tray : 1;
+    uint8_t  start_in_tray : 1;
+    uint8_t  auto_startup : 1;
+    uint8_t  no_typing_notifications : 1;
     uint16_t audio_device_in;
     uint16_t audio_device_out;
-    uint8_t theme;
-    uint8_t push_to_talk : 1;
-    uint8_t zero : 7;
+    uint8_t  theme;
+    uint8_t  push_to_talk : 1;
+    uint8_t  zero : 7;
     uint16_t unused[31];
-    uint8_t proxy_ip[0];
+    uint8_t  proxy_ip[0];
 } UTOX_SAVE;
 
 // Structs
