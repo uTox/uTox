@@ -1,3 +1,8 @@
+#include "../main.h"
+#include "keysym2ucs.h"
+
+extern XIC xic;
+
 _Bool doevent(XEvent event)
 {
     if (XFilterEvent(&event, None)) {

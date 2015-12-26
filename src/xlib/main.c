@@ -1,135 +1,16 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdint.h>
-#include <string.h>
-#include <ctype.h>
-#include <X11/Xatom.h>
-#include <X11/X.h>
-#include <X11/cursorfont.h>
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
+#include "../main.h"
 
-#include <X11/extensions/Xrender.h>
-#include <ft2build.h>
-#include FT_LCD_FILTER_H
-#include <fontconfig/fontconfig.h>
-#include <fontconfig/fcfreetype.h>
-
-#include <X11/extensions/XShm.h>
-#include <sys/shm.h>
-
-#define _GNU_SOURCE
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <sys/ioctl.h>
-
-#include <pthread.h>
-#include <unistd.h>
-#include <locale.h>
-#include <dlfcn.h>
-
-#include "audio.c"
-#include "v4l.c"
-
-#if !(defined(__APPLE__) || defined(NO_DBUS))
-#define HAVE_DBUS
-#include "dbus.c"
-#endif
-
-#include "keysym2ucs.c"
-
-#ifdef __APPLE__
-#include <mach/clock.h>
-#include <mach/mach.h>
-#endif
-
-#define DEFAULT_WIDTH (382 * DEFAULT_SCALE)
-#define DEFAULT_HEIGHT (320 * DEFAULT_SCALE)
-
-#ifdef UNITY
-#include <messaging-menu/messaging-menu.h>
-#include <unity.h>
-#include "mmenu.c"
-#endif
-
-/* Main window */
-Display  *display;
-int      screen;
-Window   root, window;
-GC       gc;
-Colormap cmap;
-Visual   *visual;
-Pixmap   drawbuf;
-Picture  renderpic;
-Picture  colorpic;
 _Bool    hidden = 0;
-XRenderPictFormat *pictformat;
-
-
-/* Tray icon window */
-Window   tray_window;
-Pixmap   trayicon_drawbuf;
-Picture  trayicon_renderpic;
-GC       trayicon_gc;
 uint32_t tray_width = 32, tray_height = 32;
-
-Picture bitmap[BM_ENDMARKER];
-Cursor cursors[8];
-
-/* Screen grab vars */
-uint8_t pointergrab;
-int grabx, graby, grabpx, grabpy;
-GC grabgc;
-
-XSizeHints *xsh;
-
-_Bool havefocus = 0;
-
-Window video_win[MAX_NUM_FRIENDS];
-
-Atom wm_protocols, wm_delete_window;
-
-uint32_t scolor;
-
-Atom XA_CLIPBOARD, XA_NET_NAME, XA_UTF8_STRING, targets, XA_INCR;
-Atom XdndAware, XdndEnter, XdndLeave, XdndPosition, XdndStatus, XdndDrop, XdndSelection, XdndDATA, XdndActionCopy;
-Atom XA_URI_LIST, XA_PNG_IMG;
-Atom XRedraw;
-
-_Bool _redraw;
-
-uint16_t drawwidth, drawheight;
-
 XIC xic = NULL;
 
-XImage *screen_image;
+void* gtk_load(void);
+void gtk_openfilesend(void);
+void gtk_openfileavatar(void);
+void gtk_savefilerecv(uint32_t fid, MSG_FILE *file);
+void gtk_savefiledata(MSG_FILE *file);
 
-
-/* pointers to dynamically loaded libs */
-void *libgtk;
-#include "gtk.c"
-
-#include "freetype.c"
-
-_Bool utox_portable;
-
-struct {
-    int len;
-    char_t data[65536]; //TODO: De-hardcode this value.
-} clipboard;
-
-struct {
-    int len;
-    char_t data[65536]; //TODO: De-hardcode this value.
-} primary;
-
-struct {
-    int len, left;
-    Atom type;
-    void *data;
-} pastebuf;
-
-static void setclipboard(void)
+void setclipboard(void)
 {
     XSetSelectionOwner(display, XA_CLIPBOARD, window, CurrentTime);
 }
@@ -688,7 +569,7 @@ void tray_window_event(XEvent event) {
     }
 }
 
-static void pasteprimary(void)
+void pasteprimary(void)
 {
     Window owner = XGetSelectionOwner(display, XA_PRIMARY);
     if(owner) {
@@ -749,7 +630,7 @@ void paste(void)
     }
 }
 
-static void pastebestformat(const Atom atoms[], int len, Atom selection) {
+void pastebestformat(const Atom atoms[], int len, Atom selection) {
     XSetErrorHandler(hold_x11s_hand);
     const Atom supported[] = {XA_PNG_IMG, XA_URI_LIST, XA_UTF8_STRING};
     int i, j;
@@ -786,7 +667,7 @@ static char hexdecode(char upper, char lower)
         (lower >= 'A' ? lower - 'A' + 10 : lower - '0');
 }
 
-static void formaturilist(char *out, const char *in, int len) {
+void formaturilist(char *out, const char *in, int len) {
     int i, removed = 0, start = 0;
 
     for (i = 0; i < len; i++) {
@@ -810,7 +691,7 @@ static void formaturilist(char *out, const char *in, int len) {
     //out[len - removed - 1] = '\n';
 }
 
-static void pastedata(void *data, Atom type, int len, _Bool select)
+void pastedata(void *data, Atom type, int len, _Bool select)
 {
    if (0 > len) {
        return; // Let my conscience be clear about signed->unsigned casts.
@@ -838,7 +719,7 @@ static void pastedata(void *data, Atom type, int len, _Bool select)
 
 // converts an XImage to a Picture usable by XRender, uses XRenderPictFormat given by
 // 'format', uses the default format if it is NULL
-static Picture ximage_to_picture(XImage *img, const XRenderPictFormat *format)
+Picture ximage_to_picture(XImage *img, const XRenderPictFormat *format)
 {
     Pixmap pixmap = XCreatePixmap(display, window, img->width, img->height, img->depth);
     GC legc = XCreateGC(display, pixmap, 0, NULL);
@@ -1120,7 +1001,6 @@ void force_redraw(void) {
 
 void update_tray(void) {}
 
-#include "event.c"
 void config_osdefaults(UTOX_SAVE *r) {
     r->window_x = 0;
     r->window_y = 0;
@@ -1523,8 +1403,6 @@ int main(int argc, char *argv[]) {
 
     return 0;
 }
-
-#include "video.c"
 
 /* Dummy functions used in other systems... */
 /* Used in windows only... */
