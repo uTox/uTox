@@ -690,7 +690,6 @@ UTOX_SAVE* config_load(void)
     config_osdefaults(save);
 NEXT:
     dropdown_dpi.selected                  = dropdown_dpi.over                  = save->scale - 6;
-    ui_set_scale(save->scale);
 
     dropdown_ipv6.selected                 = dropdown_ipv6.over                 = !save->enableipv6;
     dropdown_udp.selected                  = dropdown_udp.over                  = (save->disableudp != 0);
