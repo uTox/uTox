@@ -1143,9 +1143,6 @@ int main(int argc, char *argv[]) {
                     PropertyChangeMask,
     };
 
-    /* initialize fontconfig */
-    initfonts();
-
     /* load save data */
     UTOX_SAVE *save = config_load();
 
@@ -1220,6 +1217,9 @@ int main(int argc, char *argv[]) {
     //memmove(title_name, title_name+1, strlen(title_name))
     /* set the window name */
     XSetStandardProperties(display, window, title_name, "uTox", None, argv, argc, None);
+
+    /* initialize fontconfig */
+    initfonts();
 
     /* Set the default font so we don't segfault on ui_set_scale() when it goes looking for fonts. */
     loadfonts();
