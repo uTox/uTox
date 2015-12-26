@@ -106,8 +106,6 @@ void* video_detect(void) {
     // Indicate that we support desktop capturing.
     postmessage(VIDEO_IN_DEVICE, STR_VIDEO_IN_DESKTOP, 0, (void*)1);
 
-    #ifdef __APPLE__
-    #else
     int i;
     for(i = 0; i != 64; i++) {
         snprintf(dev_name + 10, sizeof(dev_name) - 10, "%i", i);
@@ -136,7 +134,6 @@ void* video_detect(void) {
         }
 
     }
-    #endif
 
     initshm();
 

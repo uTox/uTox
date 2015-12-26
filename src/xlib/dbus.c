@@ -1,6 +1,6 @@
 #include "../main.h"
 
-#if !(defined(__APPLE__) || defined(NO_DBUS))
+#ifndef NO_DBUS
 #define HAVE_DBUS
 
 #include <dbus/dbus.h>
