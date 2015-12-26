@@ -52,7 +52,7 @@ void utox_audio_out_device_close(void);
 void utox_audio_out_device_set(ALCdevice *new_device);
 ALCdevice* utox_audio_out_device_get(void);
 
-void sourceplaybuffer(int i, const int16_t *data, int samples, uint8_t channels, unsigned int sample_rate);
+void sourceplaybuffer(unsigned int i, const int16_t *data, int samples, uint8_t channels, unsigned int sample_rate);
 
 /* send a message to the audio thread
  */

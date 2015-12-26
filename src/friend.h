@@ -6,8 +6,11 @@ typedef struct friend_meta_data {
 typedef struct friend {
     _Bool online, typing, notify;
     uint8_t number, status;
-    int32_t call_state_self, call_state_friend;
+
+    /* A/V calls */
+    int32_t  call_state_self, call_state_friend;
     uint16_t video_width, video_height;
+    ALuint   audio_dest;
 
     uint8_t cid[TOX_PUBLIC_KEY_SIZE], tooltip[8];
     char_t *name, *alias, *status_message, *typed;

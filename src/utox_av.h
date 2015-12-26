@@ -5,6 +5,8 @@ enum {
     UTOXAV_KILL,
 
     UTOXAV_INCOMING_CALL,
+    UTOXAV_INCOMING_CALL_ANSWER,
+    UTOXAV_INCOMING_CALL_REJECT,
     UTOXAV_START_CALL,
     UTOXAV_END_CALL,
 
@@ -24,13 +26,14 @@ enum {
 enum {
     // kill the audio thread
     AUDIO_KILL,
-    // start a AUDIO preview
+
+    AUDIO_START_FRIEND,
+    AUDIO_STOP_FRIEND,
+
     AUDIO_START_PREVIEW,
-    // stop a AUDIO preview
     AUDIO_STOP_PREVIEW,
-    // play ringtone
+
     AUDIO_PLAY_RINGTONE,
-    // play ringtone
     AUDIO_STOP_RINGTONE,
 };
 

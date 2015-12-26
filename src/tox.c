@@ -711,8 +711,6 @@ void toxcore_thread(void *UNUSED(args)) {
 
             // Start the treads
             thread(utox_av_ctrl_thread, av);
-            thread(utox_audio_thread, av);
-            thread(utox_video_thread, av);
         }
 
         _Bool connected = 0;
@@ -1182,7 +1180,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
             if (error) {
                 debug("uTox:\tError trying to toxav_answer error (%i)\n", error);
             } else {
-                postmessage_utoxav(UTOXAV_START_CALL, param1, param2, NULL);
+                postmessage_utoxav(UTOXAV_INCOMING_CALL_ANSWER, param1, param2, NULL);
             }
             postmessage(AV_CALL_ACCEPTED, param1, 0, NULL);
             break;
