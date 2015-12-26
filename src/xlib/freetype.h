@@ -35,3 +35,6 @@ _Bool ft_vert, ft_swap_blue_red;
 
 Picture loadglyphpic(uint8_t *data, int width, int height, int pitch, _Bool no_subpixel, _Bool vertical, _Bool swap_blue_red);
 GLYPH* font_getglyph(FONT *f, uint32_t ch);
+void initfonts(void);
+void loadfonts(void);
+void freefonts(void);

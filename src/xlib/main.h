@@ -125,7 +125,7 @@ uint16_t drawwidth, drawheight;
 Window video_win[MAX_NUM_FRIENDS];
 XImage *screen_image;
 
-int utox_v4l_fd;
+extern int utox_v4l_fd;
 
 /* dynamiclly load libgtk */
 void *libgtk;
@@ -151,3 +151,22 @@ struct {
 } pastebuf;
 
 Picture ximage_to_picture(XImage *img, const XRenderPictFormat *format);
+
+_Bool doevent(XEvent event);
+
+void tray_window_event(XEvent event);
+void draw_tray_icon(void);
+void togglehide(void);
+
+void pasteprimary(void);
+void setclipboard(void);
+void pastebestformat(const Atom atoms[], int len, Atom selection);
+void formaturilist(char *out, const char *in, int len);
+void pastedata(void *data, Atom type, int len, _Bool select);
+
+// video4linux
+_Bool v4l_init(char *dev_name);
+void v4l_close(void);
+_Bool v4l_startread(void);
+_Bool v4l_endread(void);
+int v4l_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, uint16_t height);

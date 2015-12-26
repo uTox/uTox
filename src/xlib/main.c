@@ -4,6 +4,12 @@ _Bool    hidden = 0;
 uint32_t tray_width = 32, tray_height = 32;
 XIC xic = NULL;
 
+void* gtk_load(void);
+void gtk_openfilesend(void);
+void gtk_openfileavatar(void);
+void gtk_savefilerecv(uint32_t fid, MSG_FILE *file);
+void gtk_savefiledata(MSG_FILE *file);
+
 void setclipboard(void)
 {
     XSetSelectionOwner(display, XA_CLIPBOARD, window, CurrentTime);
