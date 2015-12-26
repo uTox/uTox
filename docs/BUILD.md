@@ -32,7 +32,7 @@ For base emoji ids support you need: [base_emoji](https://github.com/irungentoo/
 ## Ubuntu
 #Tested on Ubuntu 15.10
 ```bash
-sudo apt-get install build-essential libtool autotools-dev automake checkinstall check git yasm libopus-dev libvpx-dev pkg-config libfontconfig1-dev libdbus-1-dev lib4vl-dev libxrender-dev libopenal-dev libxext-dev
+sudo apt-get install build-essential libtool autotools-dev automake checkinstall check git yasm libopus-dev libvpx-dev pkg-config libfontconfig1-dev libdbus-1-dev libv4l-dev libxrender-dev libopenal-dev libxext-dev
 
 git clone git://github.com/jedisct1/libsodium.git
 cd libsodium
@@ -61,9 +61,9 @@ cd..
 git clone git://github.com/GrayHatter/uTox.git
 cd uTox/
 make
-make install
+sudo make install
 
-ldconfig
+sudo ldconfig
 ```
 
 Have fun!
