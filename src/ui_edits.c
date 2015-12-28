@@ -8,7 +8,8 @@ static char_t edit_name_data[128],
               edit_search_data[127],
               edit_proxy_ip_data[256],
               edit_proxy_port_data[8],
-              edit_profile_password_data[65535];
+              edit_profile_password_data[65535],
+              edit_friend_alias_data[128];
 
 static void edit_name_onenter(EDIT *edit)
 {
@@ -47,6 +48,12 @@ static void edit_status_onenter(EDIT *edit)
 
 static void edit_add_new_contact(EDIT *edit) {
     friend_add(edit_add_id.data, edit_add_id.length, edit_add_msg.data, edit_add_msg.length);
+}
+
+static void edit_friend_alias_onenter(EDIT *edit) {
+    FRIEND *f = selected_item->data;
+
+    friend_set_alias(f, edit_friend_alias.data, edit_friend_alias.length);
 }
 
 static struct {
@@ -554,4 +561,11 @@ edit_profile_password = {
     // .onchange    = edit_profile_password_update,
     .onlosefocus = edit_profile_password_update,
     .password    = 1,
+},
+
+edit_friend_alias = {
+    .maxlength = 128,
+    .data = edit_friend_alias_data,
+    .onenter = edit_friend_alias_onenter,
+    .onlosefocus = edit_friend_alias_onenter,
 };

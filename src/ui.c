@@ -394,6 +394,12 @@ static void draw_settings_sub_header(int x, int y, int w, int UNUSED(height)){
     }
 }
 
+static void draw_friend_settings(int UNUSED(x), int y, int width, int height) {
+    setcolor(COLOR_MAIN_TEXT);
+    drawstr(MAIN_LEFT + UTOX_SCALE(5), y + UTOX_SCALE(35), ALIAS);
+    drawstr(MAIN_LEFT + UTOX_SCALE(5), y + UTOX_SCALE(55), FRIEND_AUTOACCEPT);
+}
+
 static void draw_background(int UNUSED(x), int UNUSED(y), int width, int height){
     /* Default background                */
     drawrect(0, 0, width, height, COLOR_BACKGROUND_MAIN);
@@ -630,8 +636,10 @@ panel_main = {
             panel_friend_settings = {
                 .type = PANEL_NONE,
                 .disabled = 1,
-                .drawfunc = draw_friend,
+                .drawfunc = draw_friend_settings,
                 .child = (PANEL*[]) {
+                    (void*)&edit_friend_alias,
+                    (void*)&dropdown_friend_autoaccept,
                     NULL
                 }
             },
@@ -1204,6 +1212,14 @@ void ui_set_scale(uint8_t scale) {
             .y      = UTOX_SCALE(114 ),
             .height = UTOX_SCALE(12  ),
             .width  = UTOX_SCALE(20  )
+        },
+
+        d_friend_autoaccept = {
+            .type   = PANEL_DROPDOWN,
+            .x      = UTOX_SCALE(5   ),
+            .y      = UTOX_SCALE(64  ),
+            .height = UTOX_SCALE(12  ),
+            .width  = UTOX_SCALE(20  )
         };
 
     /* Drop down panels */
@@ -1222,6 +1238,7 @@ void ui_set_scale(uint8_t scale) {
         dropdown_start_in_tray.panel = d_start_in_tray;
         dropdown_theme.panel = d_theme;
         dropdown_auto_startup.panel = d_auto_startup;
+        dropdown_friend_autoaccept.panel = d_friend_autoaccept;
 
         #ifdef AUDIO_FILTERING
         dropdown_audio_filtering.panel = d_audio_filtering;
@@ -1317,6 +1334,14 @@ void ui_set_scale(uint8_t scale) {
             .y      = UTOX_SCALE(40  ),
             .height = UTOX_SCALE(12  ),
             .width  = UTOX_SCALE(30  )
+        },
+
+        e_friend_alias = {
+            .type   = PANEL_EDIT,
+            .x      = UTOX_SCALE(5   ),
+            .y      = UTOX_SCALE(44  ),
+            .height = UTOX_SCALE(12  ),
+            .width  = UTOX_SCALE(64  )
         };
 
     /* Text entry panels */
@@ -1331,6 +1356,7 @@ void ui_set_scale(uint8_t scale) {
         edit_search.panel = e_search;
         edit_proxy_ip.panel = e_proxy_ip;
         edit_proxy_port.panel = e_proxy_port;
+        edit_friend_alias.panel = e_friend_alias;
 
     setscale();
 }

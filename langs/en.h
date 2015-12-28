@@ -316,6 +316,12 @@ msgstr("Ignore")
 msgid(SET_ALIAS)
 msgstr("Set alias")
 
+msgid(ALIAS)
+msgstr("Alias")
+
+msgid(FRIEND_AUTOACCEPT)
+msgstr("Accept incoming file transfers without confirmation")
+
 msgid(SENDMESSAGE)
 msgstr("Send message")
 
