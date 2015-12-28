@@ -640,6 +640,8 @@ UTOX_SAVE* config_load(void)
             /* validate values */
             if(save->scale > 40) {
                 save->scale = 40;
+            } else if (save->scale < 5) {
+                save->scale = 10;
             }
             goto NEXT;
         } else if (save->version == 2) {
