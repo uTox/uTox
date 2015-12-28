@@ -1341,7 +1341,7 @@ void ui_set_scale(uint8_t scale) {
             .x      = UTOX_SCALE(5   ),
             .y      = UTOX_SCALE(44  ),
             .height = UTOX_SCALE(12  ),
-            .width  = UTOX_SCALE(64  )
+            .width  = -UTOX_SCALE(5 )
         };
 
     /* Text entry panels */
