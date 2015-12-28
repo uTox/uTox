@@ -692,9 +692,13 @@ static void contextmenu_list_onselect(uint8_t i) {
                 } else if (i == 1) {
                     friend_history_clear((FRIEND*)right_mouse_item->data);
                 } else if (i == 2) {
+                    FRIEND *f = right_mouse_item->data;
+
                     panel_friend_chat.disabled     = 1;
                     panel_friend_video.disabled    = 1;
                     panel_friend_settings.disabled = 0;
+
+                    edit_setstr(&edit_friend_alias, f->alias, f->alias_length);
                 } else {
                     roster_delete_rmouse_item();
                 }
