@@ -674,31 +674,14 @@ static void contextmenu_list_onselect(uint8_t i) {
                 panel_friend_settings.disabled = 1;
                 if (i == 0) {
                     FRIEND *f = right_mouse_item->data;
-                    if(right_mouse_item != selected_item) {
-                        show_page(right_mouse_item);
-                    }
-
-                    if (f->alias) {
-                        char str[f->alias_length + 7];
-                        strcpy(str, "/alias ");
-                        memcpy(str + 7, f->alias, f->alias_length + 1);
-                        edit_setfocus(&edit_msg);
-                        edit_paste((char_t*)str, sizeof(str), 0);
-                    } else {
-                        char str[8] = "/alias ";
-                        edit_setfocus(&edit_msg);
-                        edit_paste((char_t*)str, sizeof(str), 0);
-                    }
-                } else if (i == 1) {
-                    friend_history_clear((FRIEND*)right_mouse_item->data);
-                } else if (i == 2) {
-                    FRIEND *f = right_mouse_item->data;
 
                     panel_friend_chat.disabled     = 1;
                     panel_friend_video.disabled    = 1;
                     panel_friend_settings.disabled = 0;
 
                     edit_setstr(&edit_friend_alias, f->alias, f->alias_length);
+                } else if (i == 1) {
+                    friend_history_clear((FRIEND*)right_mouse_item->data);
                 } else {
                     roster_delete_rmouse_item();
                 }
@@ -746,7 +729,7 @@ static void contextmenu_list_onselect(uint8_t i) {
 }
 
 _Bool list_mright(void *UNUSED(n)) {
-    static UI_STRING_ID menu_friend[] = {STR_SET_ALIAS, STR_CLEAR_HISTORY, STR_FRIEND_SETTINGS, STR_REMOVE_FRIEND};
+    static UI_STRING_ID menu_friend[] = {STR_FRIEND_SETTINGS, STR_CLEAR_HISTORY, STR_REMOVE_FRIEND};
     static UI_STRING_ID menu_group_unmuted[] = {STR_CHANGE_GROUP_TOPIC, STR_MUTE, STR_REMOVE_GROUP};
     static UI_STRING_ID menu_group_muted[] = {STR_CHANGE_GROUP_TOPIC, STR_UNMUTE, STR_REMOVE_GROUP};
     static UI_STRING_ID menu_group[] = {STR_CHANGE_GROUP_TOPIC, STR_REMOVE_GROUP};
