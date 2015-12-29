@@ -679,8 +679,7 @@ static void contextmenu_list_onselect(uint8_t i) {
                     panel_friend_video.disabled    = 1;
                     panel_friend_settings.disabled = 0;
 
-                    edit_friend_alias.empty_str.plain.str = f->name;
-                    edit_friend_alias.empty_str.plain.length = f->name_length;
+                    maybe_i18nal_string_set_plain(&edit_friend_alias.empty_str, f->name, f->name_length);
                     edit_setstr(&edit_friend_alias, f->alias, f->alias_length);
                 } else if (i == 1) {
                     friend_history_clear((FRIEND*)right_mouse_item->data);
