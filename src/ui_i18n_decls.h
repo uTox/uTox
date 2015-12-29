@@ -24,7 +24,7 @@ enum {
     LANG_HU,
     LANG_PT,
 
-    N_LANGS // add langs before this line
+    NUM_LANGS // add langs before this line
 };
 
 enum {
@@ -239,7 +239,7 @@ enum {
     STR_LANG_NATIVE_NAME,
     STR_LANG_ENGLISH_NAME,
 
-    N_STRS // add strings before this line
+    NUM_STRS // add strings before this line
 };
 
 typedef uint8_t UI_LANG_ID;

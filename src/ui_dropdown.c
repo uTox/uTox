@@ -202,7 +202,7 @@ dropdown_dpi = {
 dropdown_language = {
     .ondisplay = dropdown_language_ondisplay,
     .onselect = dropdown_language_onselect,
-    .dropcount = N_LANGS,
+    .dropcount = NUM_LANGS,
 },
 
 dropdown_proxy = {
