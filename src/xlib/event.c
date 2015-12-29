@@ -14,7 +14,7 @@ _Bool doevent(XEvent event)
             XClientMessageEvent *ev = &event.xclient;
             if((Atom)event.xclient.data.l[0] == wm_delete_window) {
                 if(ev->window == video_win[0]) {
-                    postmessage_utoxav(UTOXAV_END_PREVIEW, 0, 0, NULL);
+                    postmessage_utoxav(UTOXAV_STOP_VIDEO, 1, 0, NULL);
                     return 1;
                 }
 
@@ -267,7 +267,7 @@ _Bool doevent(XEvent event)
                         }
                     }
                 } else {
-                    postmessage_video(VIDEO_SET, 0, 0, (void*)1);
+                    postmessage_utoxav(UTOXAV_SET_VIDEO_IN, 0, 0, (void*)1);
                 }
                 pointergrab = 0;
             } else {
