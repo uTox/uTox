@@ -30,7 +30,7 @@ STRING* maybe_i18nal_string_get(MAYBE_I18NAL_STRING *mis) {
 }
 
 _Bool maybe_i18nal_string_is_valid(MAYBE_I18NAL_STRING *mis) {
-    return (mis->plain.str || ((UI_STRING_ID_INVALID != mis->i18nal) && (mis->i18nal <= STRS_MAX)));
+    return (mis->plain.str || ((UI_STRING_ID_INVALID != mis->i18nal) && (mis->i18nal < N_STRS)));
 }
 
 /***** MAYBE_I18NAL_STRING helpers end *****/
