@@ -23,6 +23,7 @@ enum {
     LANG_SV,
     LANG_HU,
     LANG_PT,
+    LANG_EO,
 
     NUM_LANGS // add langs before this line
 };
