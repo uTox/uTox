@@ -37,7 +37,7 @@
 // Defaults
 #define DEFAULT_NAME "Tox User"
 #define DEFAULT_STATUS "Toxing on uTox"
-#define DEFAULT_SCALE 6
+#define DEFAULT_SCALE 11
 
 // Versions
 #define TITLE "uTox"
