@@ -32,12 +32,12 @@
 
 static STRING canary = STRING_INIT("BUG. PLEASE REPORT.");
 
-static void init_strings(STRING (*localized_strings)[STRS_MAX+1]) {
+static void init_strings(STRING (*localized_strings)[NUM_STRS]) {
     UI_LANG_ID i;
     UI_STRING_ID j;
 
-    for(i = 0; i <= LANGS_MAX; i++) {
-        for(j = 0; j <= STRS_MAX; j++) {
+    for(i = 0; i < NUM_LANGS; i++) {
+        for(j = 0; j < NUM_STRS; j++) {
             localized_strings[i][j] = canary;
         }
     }
@@ -55,7 +55,7 @@ static void init_strings(STRING (*localized_strings)[STRS_MAX+1]) {
 #undef msgid
 
 STRING* ui_gettext(UI_LANG_ID lang, UI_STRING_ID string_id) {
-    static STRING localized_strings[LANGS_MAX+1][STRS_MAX+1];
+    static STRING localized_strings[NUM_LANGS][NUM_STRS];
     static int ready = 0;
 
     if(!ready) {
@@ -63,7 +63,7 @@ STRING* ui_gettext(UI_LANG_ID lang, UI_STRING_ID string_id) {
         ready = 1;
     }
 
-    if((lang > LANGS_MAX) || (string_id > STRS_MAX)) {
+    if((lang >= NUM_LANGS) || (string_id >= NUM_STRS)) {
         return &canary;
     }
 
@@ -91,8 +91,8 @@ static void init_posix_locales(const char* posix_locales[], int8_t priorities[])
 #undef msgid
 
 UI_LANG_ID ui_guess_lang_by_posix_locale(const char* locale, UI_LANG_ID deflt) {
-    static const char* posix_locales[LANGS_MAX+1];
-    static int8_t priorities[LANGS_MAX+1];
+    static const char* posix_locales[NUM_LANGS];
+    static int8_t priorities[NUM_LANGS];
     static int ready = 0;
 
     if(!ready) {
@@ -105,7 +105,7 @@ UI_LANG_ID ui_guess_lang_by_posix_locale(const char* locale, UI_LANG_ID deflt) {
     int8_t found_prio = INT8_MAX;
 
     // Try detecting by full prefix match first.
-    for(i = 0; i <= LANGS_MAX; i++) {
+    for(i = 0; i < NUM_LANGS; i++) {
         const char* l = posix_locales[i];
         if(!l) continue;
 
@@ -124,7 +124,7 @@ UI_LANG_ID ui_guess_lang_by_posix_locale(const char* locale, UI_LANG_ID deflt) {
     // It appears we haven't found exact language_territory 
     // match (e.g. zh_TW) for given locale. ,
     // Try stripping territory off and search only by language part.
-    for(i = 0; i <= LANGS_MAX; i++) {
+    for(i = 0; i < NUM_LANGS; i++) {
         const char* l = posix_locales[i];
         if(!l) continue;
 
@@ -163,8 +163,8 @@ static void init_windows_lang_ids(uint16_t windows_lang_ids[], int8_t priorities
 #undef msgid
 
 UI_LANG_ID ui_guess_lang_by_windows_lang_id(uint16_t lang_id, UI_LANG_ID deflt) {
-    static uint16_t windows_lang_ids[LANGS_MAX+1];
-    static int8_t priorities[LANGS_MAX+1];
+    static uint16_t windows_lang_ids[NUM_LANGS];
+    static int8_t priorities[NUM_LANGS];
     static int ready = 0;
 
     if(!ready) {
@@ -177,7 +177,7 @@ UI_LANG_ID ui_guess_lang_by_windows_lang_id(uint16_t lang_id, UI_LANG_ID deflt) 
     int8_t found_prio = INT8_MAX;
 
     // Try detecting by full match first, including sublanguage part.
-    for(i = 0; i <= LANGS_MAX; i++) {
+    for(i = 0; i < NUM_LANGS; i++) {
         uint16_t l = windows_lang_ids[i];
         if(!l) continue;
 
@@ -195,7 +195,7 @@ UI_LANG_ID ui_guess_lang_by_windows_lang_id(uint16_t lang_id, UI_LANG_ID deflt) 
 
     // It appears we haven't found exact id match.
     // Try matching by the lower 8 bits, which contain language family part.
-    for(i = 0; i <= LANGS_MAX; i++) {
+    for(i = 0; i < NUM_LANGS; i++) {
         uint16_t l = windows_lang_ids[i];
         if(!l) continue;
 
