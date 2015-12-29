@@ -9,7 +9,6 @@ DEPS = libtoxav libtoxcore openal vpx libsodium
 
 UNAME_S := $(shell uname -s)
 UNAME_O := $(shell uname -o)
-ARCH    := $(shell uname -m)
 
 CFLAGS += -g -Wall -Wshadow -pthread -std=gnu99
 LDFLAGS += -pthread -lm
@@ -17,12 +16,6 @@ LDFLAGS += -pthread -lm
 ifeq ($(FILTER_AUDIO), 1)
 	DEPS += filteraudio
 	CFLAGS += -DAUDIO_FILTERING
-endif
-
-ifeq ($(ARCH), x86_64)
-	OBJCPY = elf64-x86-64
-else
-	OBJCPY = elf32-i386
 endif
 
 ifeq ($(UNAME_S), Linux)
@@ -56,7 +49,7 @@ ifeq ($(UNAME_S), Linux)
 	OS_OBJ = $(OS_SRC:.c=.o)
 
 	TRAY_OBJ = icons/utox-128x128.o
-	TRAY_GEN = objcopy -I binary -O $(OBJCPY) -B i386 icons/utox-128x128.png
+	TRAY_GEN = $(LD) -r -b binary icons/utox-128x128.png -o
 else ifeq ($(UNAME_O), Cygwin)
 	OUT_FILE = utox.exe
 
