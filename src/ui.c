@@ -396,8 +396,8 @@ static void draw_settings_sub_header(int x, int y, int w, int UNUSED(height)){
 
 static void draw_friend_settings(int UNUSED(x), int y, int width, int height) {
     setcolor(COLOR_MAIN_TEXT);
-    drawstr(MAIN_LEFT + UTOX_SCALE(5), y + UTOX_SCALE(35), ALIAS);
-    drawstr(MAIN_LEFT + UTOX_SCALE(5), y + UTOX_SCALE(55), FRIEND_AUTOACCEPT);
+    drawstr(MAIN_LEFT + UTOX_SCALE(5), y + MAIN_TOP + UTOX_SCALE(6), ALIAS);
+    drawstr(MAIN_LEFT + UTOX_SCALE(5), y + MAIN_TOP + UTOX_SCALE(26), FRIEND_AUTOACCEPT);
 }
 
 static void draw_background(int UNUSED(x), int UNUSED(y), int width, int height){

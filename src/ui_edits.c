@@ -568,5 +568,5 @@ edit_friend_alias = {
     .data = edit_friend_alias_data,
     .onenter = edit_friend_alias_onenter,
     .onlosefocus = edit_friend_alias_onenter,
-    .empty_str.plain = STRING_INIT(""),
+    .empty_str.plain = STRING_INIT(""), // set dynamically to the friend's name
 };
