@@ -83,10 +83,10 @@ void parseArgs(int argc, char *argv[], _Bool *theme_was_set_on_argv, int32_t *la
             case 'h':
                 printf("µTox - Lightweight Tox client version %s.\n\n", VERSION);
                 printf("The following options are available:\n\n");
-                printf("  -t --theme <theme-name>  Specify a UI theme, where <theme-name> can be one of default, dark, light, highcontrast, zenburn.\n");
+                printf("  -t --theme=<theme-name>  Specify a UI theme, where <theme-name> can be one of default, dark, light, highcontrast, zenburn.\n");
                 printf("  -p --portable            Launch in portable mode: All data will be saved to the tox folder in the current working directory.\n");
-                printf("  -s --set <option>        Set an option: start-on-boot, show-window, hide-window.\n");
-                printf("  -u --unset <option>      Unset an option: start-on-boot.\n");
+                printf("  -s --set=<option>        Set an option: start-on-boot, show-window, hide-window.\n");
+                printf("  -u --unset=<option>      Unset an option: start-on-boot.\n");
                 printf("  -n --no-updater          Disable the updater.\n");
                 printf("  -v --version             Print the version and exit.\n");
                 printf("  -h --help                Shows this help text.\n\n");
