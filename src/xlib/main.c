@@ -1016,18 +1016,18 @@ static int systemlang(void)
 }
 
 int main(int argc, char *argv[]) {
-    _Bool theme_was_set_on_argv;
+    bool theme_was_set_on_argv;
     int8_t launch_at_startup;
     int8_t set_show_window;
-    _Bool no_updater;
+    bool no_updater;
     
-    parseArgs(argc, argv, &theme_was_set_on_argv, &launch_at_startup, &set_show_window, &no_updater);
+    parse_args(argc, argv, &theme_was_set_on_argv, &launch_at_startup, &set_show_window, &no_updater);
     
     if (launch_at_startup == 1 || launch_at_startup == -1) {
         debug("Start on boot not supported on this OS, please use your distro suggested method!\n");
     }
     
-    if (no_updater == 1) {
+    if (no_updater == true) {
         debug("Disabling the updater is not supported on this OS. Updates are managed by your distro's package manager.\n");
     }
     

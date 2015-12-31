@@ -1279,14 +1279,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
         return 1;
     }
     
-    _Bool theme_was_set_on_argv;
+    bool theme_was_set_on_argv;
     int8_t launch_at_startup;
     int8_t set_show_window;
-    _Bool no_updater;
+    bool no_updater;
     
     parseArgs(argc, argv, &theme_was_set_on_argv, &launch_at_startup, &set_show_window, &no_updater);
     
-    if (utox_portable == 1) {
+    if (utox_portable == true) {
         /* force the working directory if opened with portable command */
         HMODULE hModule = GetModuleHandle(NULL);
         char path[MAX_PATH];

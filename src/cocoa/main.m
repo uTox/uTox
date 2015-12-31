@@ -474,10 +474,10 @@ void launch_at_startup(int should) {
 @end
 
 int main(int argc, char const *argv[]) {
-    _Bool theme_was_set_on_argv;
+    bool theme_was_set_on_argv;
     int8_t launch_at_startup;
     int8_t set_show_window;
-    _Bool no_updater;
+    bool no_updater;
     
     parseArgs(argc, argv, &theme_was_set_on_argv, &launch_at_startup, &set_show_window, &no_updater);
     
@@ -489,7 +489,7 @@ int main(int argc, char const *argv[]) {
         debug("Showing/hiding windows not supported on this OS!\n");
     }
     
-    if (no_updater == 1) {
+    if (no_updater == true) {
         debug("Disabling the updater is not supported on this OS. Updates are managed by the app store.\n");
     }
 

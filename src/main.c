@@ -2,23 +2,23 @@
 #include <getopt.h>
 
 /* Shared function between all four platforms */
-void parseArgs(int argc, char *argv[], _Bool *theme_was_set_on_argv, int8_t *launch_at_startup, int8_t *set_show_window, _Bool *no_updater) {
+void parse_args(int argc, char *argv[], bool *theme_was_set_on_argv, int8_t *launch_at_startup, int8_t *set_show_window, bool *no_updater) {
     // set default options
     theme = THEME_DEFAULT; // global declaration
-    utox_portable = 0; // global declaration
-    *theme_was_set_on_argv = 0;
+    utox_portable = false; // global declaration
+    *theme_was_set_on_argv = false;
     *launch_at_startup = 0;
     *set_show_window = 0;
-    *no_updater = 0;
+    *no_updater = false;
     
     static struct option long_options[] = {
-        {"theme",         required_argument,   NULL,  't'},
-        {"portable",      no_argument,            NULL,  'p'},
-        {"set",              required_argument,   NULL,  's'},
-        {"unset",          required_argument,   NULL,  'u'},
-        {"no-updater", no_argument,            NULL,  'n'},
-        {"version",       no_argument,            NULL,  'v'},
-        {"help",            no_argument,            NULL,  'h'},
+        {"theme",      required_argument,   NULL,  't'},
+        {"portable",   no_argument,         NULL,  'p'},
+        {"set",        required_argument,   NULL,  's'},
+        {"unset",      required_argument,   NULL,  'u'},
+        {"no-updater", no_argument,         NULL,  'n'},
+        {"version",    no_argument,         NULL,  'v'},
+        {"help",       no_argument,         NULL,  'h'},
         {0, 0, 0, 0}
     };
     
@@ -82,14 +82,14 @@ void parseArgs(int argc, char *argv[], _Bool *theme_was_set_on_argv, int8_t *lau
                 
             case 'h':
                 printf("µTox - Lightweight Tox client version %s.\n\n", VERSION);
-                printf("The following options are available:\n\n");
-                printf("  -t --theme=<theme-name>  Specify a UI theme, where <theme-name> can be one of default, dark, light, highcontrast, zenburn.\n");
-                printf("  -p --portable            Launch in portable mode: All data will be saved to the tox folder in the current working directory.\n");
-                printf("  -s --set=<option>        Set an option: start-on-boot, show-window, hide-window.\n");
-                printf("  -u --unset=<option>      Unset an option: start-on-boot.\n");
-                printf("  -n --no-updater          Disable the updater.\n");
-                printf("  -v --version             Print the version and exit.\n");
-                printf("  -h --help                Shows this help text.\n\n");
+                puts("The following options are available:\n");
+                puts("  -t --theme=<theme-name>  Specify a UI theme, where <theme-name> can be one of default, dark, light, highcontrast, zenburn.");
+                puts("  -p --portable            Launch in portable mode: All data will be saved to the tox folder in the current working directory.");
+                puts("  -s --set=<option>        Set an option: start-on-boot, show-window, hide-window.");
+                puts("  -u --unset=<option>      Unset an option: start-on-boot.");
+                puts("  -n --no-updater          Disable the updater.");
+                puts("  -v --version             Print the version and exit.");
+                puts("  -h --help                Shows this help text.");
                 exit(EXIT_SUCCESS);
                 break;
                 
