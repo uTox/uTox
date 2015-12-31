@@ -30,7 +30,7 @@ For base emoji ids support you need: [base_emoji](https://github.com/irungentoo/
 
 <a name="ubuntu15_10">
 ## Ubuntu
-#Tested on Ubuntu 15.10
+###Tested on Ubuntu 15.10
 ```bash
 sudo apt-get install build-essential libtool autotools-dev automake checkinstall check git yasm libopus-dev libvpx-dev pkg-config libfontconfig1-dev libdbus-1-dev libv4l-dev libxrender-dev libopenal-dev libxext-dev
 
@@ -68,7 +68,7 @@ sudo ldconfig
 
 Have fun!
 
-
+If you're looking for a good IDE, Netbeans is very easy to setup for uTox, in fact, you can just create a new project from the existing sources and everything should work fine.
 <a name="win" />
 ## Windows
 
