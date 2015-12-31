@@ -2,12 +2,12 @@
 #include <getopt.h>
 
 /* Shared function between all four platforms */
-void parse_args(int argc, char *argv[], bool *theme_was_set_on_argv, int8_t *launch_at_startup, int8_t *set_show_window, bool *no_updater) {
+void parse_args(int argc, char *argv[], bool *theme_was_set_on_argv, int8_t *should_launch_at_startup, int8_t *set_show_window, bool *no_updater) {
     // set default options
     theme = THEME_DEFAULT; // global declaration
     utox_portable = false; // global declaration
     *theme_was_set_on_argv = false;
-    *launch_at_startup = 0;
+    *should_launch_at_startup = 0;
     *set_show_window = 0;
     *no_updater = false;
     
@@ -51,7 +51,7 @@ void parse_args(int argc, char *argv[], bool *theme_was_set_on_argv, int8_t *lau
                 
             case 's':
                 if (!strcmp(optarg, "start-on-boot")) {
-                    *launch_at_startup = 1;
+                    *should_launch_at_startup = 1;
                 } else if (!strcmp(optarg, "show-window")) {
                     *set_show_window = 1;
                 } else if (!strcmp(optarg, "hide-window")) {
@@ -64,7 +64,7 @@ void parse_args(int argc, char *argv[], bool *theme_was_set_on_argv, int8_t *lau
                 
             case 'u':
                 if (!strcmp(optarg, "start-on-boot")) {
-                    *launch_at_startup = -1;
+                    *should_launch_at_startup = -1;
                 } else {
                     debug("Please specify a correct unset option (please check user manual for list of correct values).");
                     exit(EXIT_FAILURE);

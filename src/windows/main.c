@@ -1158,7 +1158,7 @@ void config_osdefaults(UTOX_SAVE *r)
     r->window_height = MAIN_HEIGHT;
 }
 
-/* 
+/*
  * CommandLineToArgvA implementation since CommandLineToArgvA doesn't exist in win32 api
  * Limitation: nested quotation marks are not handled
  * Credit: http://alter.org.ua/docs/win/args
@@ -1273,19 +1273,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     PCHAR *argv;
     int argc;
     argv = CommandLineToArgvA(GetCommandLineA(), &argc);
-    
+
     if (NULL == argv) {
         debug("CommandLineToArgvW failed\n");
         return 1;
     }
-    
+
     bool theme_was_set_on_argv;
-    int8_t launch_at_startup;
+    int8_t should_launch_at_startup;
     int8_t set_show_window;
     bool no_updater;
-    
-    parseArgs(argc, argv, &theme_was_set_on_argv, &launch_at_startup, &set_show_window, &no_updater);
-    
+
+    parse_args(argc, argv, &theme_was_set_on_argv, &should_launch_at_startup, &set_show_window, &no_updater);
+
     if (utox_portable == true) {
         /* force the working directory if opened with portable command */
         HMODULE hModule = GetModuleHandle(NULL);
@@ -1297,10 +1297,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
         SetCurrentDirectory(path);
         strcpy(utox_portable_save_path, path);
     }
-    
-    if (launch_at_startup == 1) {
+
+    if (should_launch_at_startup == 1) {
         launch_at_startup(1);
-    } else if (launch_at_startup == -1) {
+    } else if (should_launch_at_startup == -1) {
         launch_at_startup(0);
     }
 

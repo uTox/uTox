@@ -269,7 +269,7 @@ uint16_t video_width, video_height, max_video_width, max_video_height;
 char proxy_address[256];
 extern struct Tox_Options options;
 
-void parse_args(int argc, char *argv[], _Bool *theme_was_set_on_argv, int8_t *launch_at_startup, int8_t *set_show_window, _Bool *no_updater);
+void parse_args(int argc, char *argv[], _Bool *theme_was_set_on_argv, int8_t *should_launch_at_startup, int8_t *set_show_window, _Bool *no_updater);
 
 // inserts/deletes a value into the registry to launch uTox after boot
 void launch_at_startup(int is_launch_at_startup);

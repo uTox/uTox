@@ -520,20 +520,20 @@ void config_osdefaults(UTOX_SAVE *r)
 
 static void android_main(struct android_app* state){
     bool theme_was_set_on_argv;
-    int8_t launch_at_startup;
+    int8_t should_launch_at_startup;
     int8_t set_show_window;
     bool no_updater;
-    
-    parseArgs(NULL, NULL, &theme_was_set_on_argv, &launch_at_startup, &set_show_window, &no_updater);
-    
-    if (launch_at_startup == 1 || launch_at_startup == -1) {
+
+    parse_args(NULL, NULL, &theme_was_set_on_argv, &should_launch_at_startup, &set_show_window, &no_updater);
+
+    if (should_launch_at_startup == 1 || should_launch_at_startup == -1) {
         debug("Start on boot not supported on this OS!\n");
     }
-    
+
     if (set_show_window == 1 || set_show_window == -1) {
         debug("Showing/hiding windows not supported on this OS!\n");
     }
-    
+
     if (no_updater == true) {
         debug("Disabling the updater is not supported on this OS.\n");
     }
