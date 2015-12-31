@@ -4,9 +4,9 @@
 
 void parseArgs(int argc, char *argv[], _Bool *theme_was_set_on_argv, int32_t *launch_at_startup, int32_t *set_show_window, _Bool *no_updater) {
     // set default options
-    theme = THEME_DEFAULT; // global declaration, used by OS X, only default, dark, light, highcontrast
-    utox_portable = 0; // global declaration, used by OS X
-    *theme_was_set_on_argv = 0; // used by OS X
+    theme = THEME_DEFAULT; // global declaration
+    utox_portable = 0; // global declaration
+    *theme_was_set_on_argv = 0;
     *launch_at_startup = 0;
     *set_show_window = 0;
     *no_updater = 0;

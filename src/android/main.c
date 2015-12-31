@@ -519,6 +519,24 @@ void config_osdefaults(UTOX_SAVE *r)
 }
 
 static void android_main(struct android_app* state){
+    _Bool theme_was_set_on_argv;
+    int32_t launch_at_startup;
+    int32_t set_show_window;
+    _Bool no_updater;
+    
+    parseArgs(NULL, NULL, &theme_was_set_on_argv, &launch_at_startup, &set_show_window, &no_updater);
+    
+    if (launch_at_startup == 1 || launch_at_startup == -1) {
+        debug("Start on boot not supported on this OS!\n");
+    }
+    
+    if (set_show_window == 1 || set_show_window == -1) {
+        debug("Showing/hiding windows not supported on this OS!\n");
+    }
+    
+    if (no_updater == 1) {
+        debug("Disabling the updater is not supported on this OS. Updates are managed by the play store.\n");
+    }
 
     // Make sure glue isn't stripped
 
