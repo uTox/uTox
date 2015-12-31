@@ -1015,99 +1015,22 @@ static int systemlang(void)
     return ui_guess_lang_by_posix_locale(str, DEFAULT_LANG);
 }
 
-_Bool parse_args_wait_for_theme;
-
 int main(int argc, char *argv[]) {
-    parse_args_wait_for_theme = 0;
-    _Bool theme_was_set_on_argv = 0;
-    theme = THEME_DEFAULT;
-    /* Variables for --set */
-    int32_t set_show_window = 0;
-
-    if (argc > 1) {
-        for (int i = 1; i < argc; i++) {
-            if (parse_args_wait_for_theme) {
-                if(!strcmp(argv[i], "default")) {
-                    theme = THEME_DEFAULT;
-                    parse_args_wait_for_theme = 0;
-                    theme_was_set_on_argv = 1;
-                    continue;
-                }
-                if(!strcmp(argv[i], "dark")) {
-                    theme = THEME_DARK;
-                    parse_args_wait_for_theme = 0;
-                    theme_was_set_on_argv = 1;
-                    continue;
-                }
-                if(!strcmp(argv[i], "light")) {
-                    theme = THEME_LIGHT;
-                    parse_args_wait_for_theme = 0;
-                    theme_was_set_on_argv = 1;
-                    continue;
-                }
-                if(!strcmp(argv[i], "highcontrast")) {
-                    theme = THEME_HIGHCONTRAST;
-                    parse_args_wait_for_theme = 0;
-                    theme_was_set_on_argv = 1;
-                    continue;
-                }
-                if(!strcmp(argv[i], "zenburn")) {
-                    theme = THEME_ZENBURN;
-                    parse_args_wait_for_theme = 0;
-                    theme_was_set_on_argv = 1;
-                    continue;
-                }
-                debug("Please specify correct theme (please check user manual for list of correct values).");
-                return 1;
-            }
-
-            if(!strcmp(argv[i], "--version")) {
-                debug("%s\n", VERSION);
-                return 0;
-            } else if(!strcmp(argv[i], "--portable")) {
-                debug("Launching uTox in portable mode: All data will be saved to the tox folder in the current working directory\n");
-                utox_portable = 1;
-            } else if(!strcmp(argv[i], "--theme")) {
-                parse_args_wait_for_theme = 1;
-            } else if(strncmp(argv[i], "--set", 5) == 0) {
-                if(strncmp(argv[i]+5, "=", 1) == 0){
-                    if(strcmp(argv[i]+6, "start-on-boot") == 0){
-                        debug("Start on boot not supported on this OS, please use your distro suggested method!\n");
-                    } else if(strcmp(argv[i]+6, "show-window") == 0){
-                        set_show_window = 1;
-                    } else if(strcmp(argv[i]+6, "hide-window") == 0){
-                        set_show_window = -1;
-                    }
-                } else {
-                    if(argv[i+1]){
-                        if(strcmp(argv[i+1], "start-on-boot") == 0){
-                            debug("Start on boot not supported on this OS, please use your distro suggested method!\n");
-                        } else if(strcmp(argv[i+1], "show-window") == 0){
-                            set_show_window = 1;
-                        } else if(strcmp(argv[i+1], "hide-window") == 0){
-                            set_show_window = -1;
-                        }
-                    }
-                }
-            } else if(strncmp(argv[i], "--help", 6) == 0) {
-                printf("µTox - Lightweight Tox client version %s.\n\n", VERSION);
-                printf("The following options are available:\n\n");
-                printf("  --theme=<theme-name>  Specify a UI theme, where <theme-name> can be one of default, dark, light, highcontrast, zenburn.\n");
-                printf("  --portable            Launch in portable mode: All data will be saved to the tox folder in the current working directory.\n");
-                printf("  --set=<option>        Set an option: start-on-boot, show-window, hide-window.\n");
-                printf("  --version             Print the version and exit.\n");
-                printf("  --help                Shows this help text.\n\n");
-                return 0;
-            }
-            printf("arg %d: %s\n", i, argv[i]);
-        }
+    _Bool theme_was_set_on_argv;
+    int32_t launch_at_startup;
+    int32_t set_show_window;
+    _Bool no_updater;
+    
+    parseArgs(argc, argv, &theme_was_set_on_argv, &launch_at_startup, &set_show_window, &no_updater);
+    
+    if (launch_at_startup == 1 || launch_at_startup == -1) {
+        debug("Start on boot not supported on this OS, please use your distro suggested method!\n");
     }
-
-    if (parse_args_wait_for_theme) {
-        debug("Expected theme name, but got nothing. -_-\n");
-        return 1;
+    
+    if (no_updater == 1) {
+        debug("Disabling the updater is not supported on this OS. Updates are managed by your distro's package manager.\n");
     }
-
+    
     XInitThreads();
 
     if((display = XOpenDisplay(NULL)) == NULL) {

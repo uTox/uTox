@@ -1187,93 +1187,40 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     }
 
     /* Process argc/v the backwards (read: windows) way. */
-    LPWSTR *arglist;
-    int argc, i;
-    /* Variables for --set */
-    int32_t set_show_window = 0;
-
-
-    _Bool no_updater = 0;
-    /* Convert PSTR command line args from windows to argc */
-    arglist = CommandLineToArgvW(GetCommandLineW(), &argc);
-    if( NULL == arglist ){
-      debug("CommandLineToArgvW failed\n");
-    } else {
-        for( i=0; i < argc; i++) {
-            if(wcscmp(arglist[i], L"--version") == 0) {
-                debug("uTox version: %s\n", VERSION);
-                return 0;
-            } else if (wcscmp(arglist[i], L"--portable") == 0) {
-                /* force the working directory if opened with portable command */
-                HMODULE hModule = GetModuleHandle(NULL);
-                char path[MAX_PATH];
-                int len = GetModuleFileName(hModule, path, MAX_PATH);
-                unsigned int i;
-                for (i = (len - 1); path[i] != '\\'; --i);
-                path[i] = 0;//!
-                SetCurrentDirectory(path);
-                utox_portable = 1;
-                strcpy(utox_portable_save_path, path);
-                debug("Starting uTox in portable mode: Data will be saved to tox/ in the current directory: %s\n", utox_portable_save_path);
-            } else if(wcscmp(arglist[i], L"--theme") == 0){
-                debug("Searching for theme from argv\n");
-                if(arglist[(i+1)]){
-                    if(wcscmp(arglist[(i+1)], L"default") == 0){
-                        theme = THEME_DEFAULT;
-                    } else if(wcscmp(arglist[(i+1)], L"dark") == 0){
-                        theme = THEME_DARK;
-                    } else if(wcscmp(arglist[(i+1)], L"light") == 0){
-                        theme = THEME_LIGHT;
-                    } else if(wcscmp(arglist[(i+1)], L"highcontrast") == 0){
-                        theme = THEME_HIGHCONTRAST;
-                    } else if(wcscmp(arglist[(i+1)], L"zenburn") == 0){
-                        theme = THEME_ZENBURN;
-                    } else {
-                        debug("Please specify correct theme (please check user manual for list of correct values).");
-                        theme = THEME_DEFAULT;
-                    }
-                }
-            /* Set flags */
-            } else if(wcsncmp(arglist[i], L"--set", 5) == 0){
-                // debug("Set flag on\n");
-                if(wcsncmp(arglist[i], L"--set=", 6) == 0){
-                    if(wcscmp(arglist[i]+6, L"start-on-boot") == 0){
-                        launch_at_startup(1);
-                    } else if(wcscmp(arglist[i]+6, L"show-window") == 0){
-                        set_show_window = 1;
-                    } else if(wcscmp(arglist[i]+6, L"hide-window") == 0){
-                        set_show_window = -1;
-                    }
-                } else {
-                    if(arglist[i+1]){
-                        if(wcscmp(arglist[i+1], L"start-on-boot") == 0){
-                            launch_at_startup(1);
-                        } else if(wcscmp(arglist[i+1], L"show-window") == 0){
-                            set_show_window = 1;
-                        } else if(wcscmp(arglist[i+1], L"hide-window") == 0){
-                            set_show_window = -1;
-                        }
-                    }
-                }
-            /* Unset flags */
-            } else if(wcsncmp(arglist[i], L"--unset", 7) == 0){
-                // debug("Unset flag on\n");
-                if(wcsncmp(arglist[i], L"--unset=", 8) == 0){
-                    if(wcscmp(arglist[i]+8, L"start-on-boot") == 0)
-                        // debug("unset start\n");
-                        launch_at_startup(0);
-                } else {
-                    if(arglist[i+1]){
-                        if(wcscmp(arglist[i+1], L"start-on-boot") == 0)
-                            // debug("unset start\n");
-                            launch_at_startup(0);
-                    }
-                }
-            } else if(wcscmp(arglist[i], L"--no-updater") == 0){
-                no_updater = 1;
-            }
-        }
+    LPWSTR *argv;
+    int argc;
+    argv = CommandLineToArgvW(GetCommandLineW(), &argc);
+    
+    if (NULL == argv) {
+        debug("CommandLineToArgvW failed\n");
+        return 1;
     }
+    
+    _Bool theme_was_set_on_argv;
+    int32_t launch_at_startup;
+    int32_t set_show_window;
+    _Bool no_updater;
+    
+    parseArgs(argc, argv, &theme_was_set_on_argv, &launch_at_startup, &set_show_window, &no_updater);
+    
+    if (utox_portable == 1) {
+        /* force the working directory if opened with portable command */
+        HMODULE hModule = GetModuleHandle(NULL);
+        char path[MAX_PATH];
+        int len = GetModuleFileName(hModule, path, MAX_PATH);
+        unsigned int i;
+        for (i = (len - 1); path[i] != '\\'; --i);
+        path[i] = 0;//!
+        SetCurrentDirectory(path);
+        strcpy(utox_portable_save_path, path);
+    }
+    
+    if (launch_at_startup == 1) {
+        launch_at_startup(1);
+    } else if (launch_at_startup == -1) {
+        launch_at_startup(0);
+    }
+
 #ifdef UPDATER_BUILD
 #define UTOX_EXE "\\uTox.exe"
 #define UTOX_UPDATER_EXE "\\utox_runner.exe"
