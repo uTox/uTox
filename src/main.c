@@ -1,7 +1,7 @@
 #include "main.h"
+#include <getopt.h>
 
 /* Shared function between all four platforms */
-
 void parseArgs(int argc, char *argv[], _Bool *theme_was_set_on_argv, int32_t *launch_at_startup, int32_t *set_show_window, _Bool *no_updater) {
     // set default options
     theme = THEME_DEFAULT; // global declaration
@@ -11,8 +11,20 @@ void parseArgs(int argc, char *argv[], _Bool *theme_was_set_on_argv, int32_t *la
     *set_show_window = 0;
     *no_updater = 0;
     
-    int opt;
-    while ((opt = getopt(argc, argv, "t:ps:u:nvh")) != -1 ) { // loop through each option; ":" after each option means an argument is required
+    static struct option long_options[] = {
+        {"theme",         required_argument,   NULL,  't'},
+        {"portable",      no_argument,            NULL,  'p'},
+        {"set",              required_argument,   NULL,  's'},
+        {"unset",          required_argument,   NULL,  'u'},
+        {"no-updater", no_argument,            NULL,  'n'},
+        {"version",       no_argument,            NULL,  'v'},
+        {"help",            no_argument,            NULL,  'h'},
+        {0, 0, 0, 0}
+    };
+    
+    int opt, long_index =0;
+    while ((opt = getopt_long(argc, argv,"t:ps:u:nvh", long_options, &long_index )) != -1) {
+        // loop through each option; ":" after each option means an argument is required
         switch (opt) {
             case 't':
                 if (!strcmp(optarg, "default")) {
