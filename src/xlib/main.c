@@ -1017,8 +1017,8 @@ static int systemlang(void)
 
 int main(int argc, char *argv[]) {
     _Bool theme_was_set_on_argv;
-    int32_t launch_at_startup;
-    int32_t set_show_window;
+    int8_t launch_at_startup;
+    int8_t set_show_window;
     _Bool no_updater;
     
     parseArgs(argc, argv, &theme_was_set_on_argv, &launch_at_startup, &set_show_window, &no_updater);

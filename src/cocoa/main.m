@@ -16,8 +16,6 @@
 #define DEFAULT_WIDTH (382 * DEFAULT_SCALE)
 #define DEFAULT_HEIGHT (320 * DEFAULT_SCALE)
 
-static _Bool utox_portable = 0;
-
 void debug(const char *fmt, ...) {
     va_list l;
     va_start(l, fmt);
@@ -477,8 +475,8 @@ void launch_at_startup(int should) {
 
 int main(int argc, char const *argv[]) {
     _Bool theme_was_set_on_argv;
-    int32_t launch_at_startup;
-    int32_t set_show_window;
+    int8_t launch_at_startup;
+    int8_t set_show_window;
     _Bool no_updater;
     
     parseArgs(argc, argv, &theme_was_set_on_argv, &launch_at_startup, &set_show_window, &no_updater);

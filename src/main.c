@@ -2,7 +2,7 @@
 #include <getopt.h>
 
 /* Shared function between all four platforms */
-void parseArgs(int argc, char *argv[], _Bool *theme_was_set_on_argv, int32_t *launch_at_startup, int32_t *set_show_window, _Bool *no_updater) {
+void parseArgs(int argc, char *argv[], _Bool *theme_was_set_on_argv, int8_t *launch_at_startup, int8_t *set_show_window, _Bool *no_updater) {
     // set default options
     theme = THEME_DEFAULT; // global declaration
     utox_portable = 0; // global declaration
