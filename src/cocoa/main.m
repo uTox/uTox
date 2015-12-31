@@ -479,7 +479,7 @@ int main(int argc, char const *argv[]) {
     int8_t set_show_window;
     bool no_updater;
     
-    parseArgs(argc, argv, &theme_was_set_on_argv, &launch_at_startup, &set_show_window, &no_updater);
+    parse_args(argc, argv, &theme_was_set_on_argv, &launch_at_startup, &set_show_window, &no_updater);
     
     if (launch_at_startup == 1 || launch_at_startup == -1) {
         debug("Start on boot not supported on this OS!\n");
