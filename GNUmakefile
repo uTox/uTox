@@ -23,6 +23,8 @@ ifeq ($(UNAME_S), Linux)
 
 	DEPS += fontconfig freetype2 x11 xext xrender
 
+	CFLAGS += -DLINUX_IO
+
 	ifeq ($(V4LCONVERT), 1)
 		DEPS += libv4lconvert
 	else
