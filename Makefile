@@ -80,6 +80,10 @@ ifeq ($(UNITY), 1)
 	CFLAGS += -DUNITY
 endif
 
+ifeq ($V, )
+ECHO := @
+endif
+
 CFLAGS += $(shell $(PKG_CONFIG) --cflags $(DEPS))
 LDFLAGS += $(shell $(PKG_CONFIG) --libs $(DEPS))
 
@@ -96,7 +100,7 @@ all: utox
 
 utox: $(OBJ) $(OS_OBJ) $(TRAY_OBJ)
 	@echo "  LD    $@"
-	@$(CC) $(CFLAGS) -o $(OUT_FILE) $(OBJ) $(OS_OBJ) $(TRAY_OBJ) $(LDFLAGS)
+	$(ECHO)$(CC) $(CFLAGS) -o $(OUT_FILE) $(OBJ) $(OS_OBJ) $(TRAY_OBJ) $(LDFLAGS)
 
 install: utox
 	mkdir -p $(DESTDIR)$(PREFIX)/bin
@@ -142,11 +146,11 @@ install: utox
 
 $(OBJ): %.o: %.c $(HEADERS)
 	@echo "  CC    $@"
-	@$(CC) $(CFLAGS) -o $@ -c -DGIT_VERSION=\"$(GIT_V)\" $<
+	$(ECHO)$(CC) $(CFLAGS) -o $@ -c -DGIT_VERSION=\"$(GIT_V)\" $<
 
 $(OS_OBJ): %.o: %.c $(HEADERS)
 	@echo "  CC    $@"
-	@$(CC) $(CFLAGS) -o $@ -c -DGIT_VERSION=\"$(GIT_V)\" $<
+	$(ECHO)$(CC) $(CFLAGS) -o $@ -c -DGIT_VERSION=\"$(GIT_V)\" $<
 
 $(TRAY_OBJ):
 	$(TRAY_GEN) $(TRAY_OBJ)
