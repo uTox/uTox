@@ -5,59 +5,48 @@ V4LCONVERT = 1
 FILTER_AUDIO = 0
 UNITY = 0
 
+PKG_CONFIG ?= pkg-config
+
+OUT_FILE = utox
+
 DEPS = libtoxav libtoxcore openal vpx libsodium
 
-UNAME_S := $(shell uname -s)
-UNAME_O := $(shell uname -o)
+UNAME_S != uname -s 2>/dev/null
+UNAME_O != uname -o 2>/dev/null
 
-CFLAGS += -g -Wall -Wshadow -pthread -std=gnu99
+CFLAGS ?= -g -Wall -Wshadow
+CFLAGS += -pthread -std=gnu99
 LDFLAGS += -pthread -lm
 
-ifeq ($(FILTER_AUDIO), 1)
-	DEPS += filteraudio
-	CFLAGS += -DAUDIO_FILTERING
-endif
+DEPS += fontconfig freetype2 x11 xext xrender
+
+OS_SRC = $(wildcard src/xlib/*.c)
+OS_OBJ = $(OS_SRC:.c=.o)
+
+TRAY_OBJ = icons/utox-128x128.o
+TRAY_GEN = $(LD) -r -b binary icons/utox-128x128.png -o
 
 ifeq ($(UNAME_S), Linux)
-	OUT_FILE = utox
+CFLAGS += -DLINUX_IO
+LDFLAGS += -ldl
+endif
 
-	DEPS += fontconfig freetype2 x11 xext xrender
+ifneq ($(UNAME_S), OpenBSD)
+LDFLAGS += -lresolv
+endif
 
-	ifeq ($(V4LCONVERT), 1)
-		DEPS += libv4lconvert
-	else
-		CFLAGS += -DNO_V4LCONVERT
-	endif
+ifeq ($(UNAME_O), Cygwin)
+	DBUS = 0
+	V4LCONVERT = 0
+	FILTER_AUDIO = 0
+	UNITY = 0
 
-	ifeq ($(UNITY), 1)
-		DEPS += messaging-menu unity
-		CFLAGS += -DUNITY
-	endif
+	PKG_CONFIG := x86_64-w64-mingw32-pkg-config
 
-	ifeq ($(DBUS), 1)
-		DEPS += dbus-1
-	else
-		CFLAGS += -DNO_DBUS
-	endif
-
-	CFLAGS += $(shell pkg-config --cflags $(DEPS))
-
-	LDFLAGS += -lresolv -ldl
-	LDFLAGS += $(shell pkg-config --libs $(DEPS))
-
-	OS_SRC = $(wildcard src/xlib/*.c)
-	OS_OBJ = $(OS_SRC:.c=.o)
-
-	TRAY_OBJ = icons/utox-128x128.o
-	TRAY_GEN = $(LD) -r -b binary icons/utox-128x128.png -o
-else ifeq ($(UNAME_O), Cygwin)
 	OUT_FILE = utox.exe
 
 	CFLAGS  += -static
-	LDFLAGS += /usr/x86_64-w64-mingw32/sys-root/mingw/lib/libwinpthread.a
-
-	CFLAGS  += $(shell x86_64-w64-mingw32-pkg-config --cflags $(DEPS))
-	LDFLAGS += $(shell x86_64-w64-mingw32-pkg-config --libs   $(DEPS))
+	LDFLAGS := /usr/x86_64-w64-mingw32/sys-root/mingw/lib/libwinpthread.a
 
 	LDFLAGS += -liphlpapi -lws2_32 -lgdi32 -lmsimg32 -ldnsapi -lcomdlg32
 	LDFLAGS += -Wl,-subsystem,windows -lwinmm -lole32 -loleaut32 -lstrmiids
@@ -69,9 +58,38 @@ else ifeq ($(UNAME_O), Cygwin)
 	TRAY_GEN = x86_64-w64-mingw32-windres icons/icon.rc -O coff -o
 endif
 
+ifeq ($(DBUS), 1)
+	DEPS += dbus-1
+else
+	CFLAGS += -DNO_DBUS
+endif
+
+ifeq ($(FILTER_AUDIO), 1)
+	DEPS += filteraudio
+	CFLAGS += -DAUDIO_FILTERING
+endif
+
+ifeq ($(V4LCONVERT), 1)
+	DEPS += libv4lconvert
+else
+	CFLAGS += -DNO_V4LCONVERT
+endif
+
+ifeq ($(UNITY), 1)
+	DEPS += messaging-menu unity
+	CFLAGS += -DUNITY
+endif
+
+ifeq ($V, )
+ECHO := @
+endif
+
+CFLAGS += $(shell $(PKG_CONFIG) --cflags $(DEPS))
+LDFLAGS += $(shell $(PKG_CONFIG) --libs $(DEPS))
 
 DESTDIR ?=
 PREFIX ?= /usr/local
+MANPREFIX ?= $(PREFIX)/share/man
 
 SRC = $(wildcard src/*.c src/png/png.c)
 HEADERS = $(wildcard src/*.h src/*/*.h)
@@ -82,7 +100,7 @@ all: utox
 
 utox: $(OBJ) $(OS_OBJ) $(TRAY_OBJ)
 	@echo "  LD    $@"
-	@$(CC) $(CFLAGS) -o $(OUT_FILE) $(OBJ) $(OS_OBJ) $(TRAY_OBJ) $(LDFLAGS)
+	$(ECHO)$(CC) $(CFLAGS) -o $(OUT_FILE) $(OBJ) $(OS_OBJ) $(TRAY_OBJ) $(LDFLAGS)
 
 install: utox
 	mkdir -p $(DESTDIR)$(PREFIX)/bin
@@ -124,15 +142,15 @@ install: utox
 	if [ "$(UNITY)" -eq "1" ]; then echo "X-MessagingMenu-UsesChatSection=true" >> $(DESTDIR)$(PREFIX)/share/applications/utox.desktop; fi
 
 	mkdir -p $(DESTDIR)$(PREFIX)/share/man/man1
-	install -m 644 src/utox.1 $(DESTDIR)$(PREFIX)/share/man/man1/utox.1
+	install -m 644 src/utox.1 $(DESTDIR)$(MANPREFIX)/man1/utox.1
 
 $(OBJ): %.o: %.c $(HEADERS)
 	@echo "  CC    $@"
-	@$(CC) $(CFLAGS) -o $@ -c -DGIT_VERSION=\"$(GIT_V)\" $<
+	$(ECHO)$(CC) $(CFLAGS) -o $@ -c -DGIT_VERSION=\"$(GIT_V)\" $<
 
 $(OS_OBJ): %.o: %.c $(HEADERS)
 	@echo "  CC    $@"
-	@$(CC) $(CFLAGS) -o $@ -c -DGIT_VERSION=\"$(GIT_V)\" $<
+	$(ECHO)$(CC) $(CFLAGS) -o $@ -c -DGIT_VERSION=\"$(GIT_V)\" $<
 
 $(TRAY_OBJ):
 	$(TRAY_GEN) $(TRAY_OBJ)
