@@ -43,10 +43,10 @@ sudo make install
 cd ..
 
 
-git clone git//github.com/irungentoo/filter_audio.git
+git clone git://github.com/irungentoo/filter_audio.git
 cd filter_audio
 make
-sudo make install
+sudo checkinstall
 cd ..
 
 
@@ -61,7 +61,7 @@ cd..
 git clone git://github.com/GrayHatter/uTox.git
 cd uTox/
 make
-sudo make install
+sudo checkinstall
 
 sudo ldconfig
 ```
