@@ -1275,7 +1275,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     argv = CommandLineToArgvA(GetCommandLineA(), &argc);
 
     if (NULL == argv) {
-        debug("CommandLineToArgvW failed\n");
+        debug("CommandLineToArgvA failed\n");
         return 1;
     }
 
@@ -1342,8 +1342,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
 
     theme_load(theme);
 
-    // Free memory allocated for CommandLineToArgvW arguments.
-    LocalFree(arglist);
+    // Free memory allocated by CommandLineToArgvA
+    GlobalFree(argv);
 
     /* */
     MSG msg;
