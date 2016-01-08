@@ -56,7 +56,7 @@ autoreconf -i
 ./configure
 make
 sudo make install
-cd ..
+cd..
 
 git clone git://github.com/GrayHatter/uTox.git
 cd uTox/
