@@ -32,6 +32,9 @@ CFLAGS ?=		-g -Wall -Wextra
 CFLAGS +=		-std=gnu99
 LDFLAGS +=		-pthread -lm
 
+GIT_V !=		git describe --abbrev=8 --dirty --always --tags
+CFLAGS +=		-DGIT_VERSION=\"${GIT_V}\"
+
 # OS-dependent linker flags
 
 OS !=			uname -s
