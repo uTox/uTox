@@ -339,3 +339,96 @@ msgstr("Своя (см. документацию)")
 
 msgid(SEND_TYPING_NOTIFICATIONS)
 msgstr("Посылать уведомления о наборе текста")
+
+msgid(DNS_DISABLED)
+msgstr("Разрешение DNS-имён отключено при использовании прокси без UDP!")
+
+msgid(TRANSFER___)
+msgstr("...")
+
+msgid(GROUPCHAT_JOIN_AUDIO)
+msgstr("Присоединиться к аудиочату")
+
+msgid(START_AUDIO_CALL)
+msgstr("Начать звонок")
+
+msgid(START_VIDEO_CALL)
+msgstr("Начать видеозвонок")
+
+msgid(PROFILE_SETTINGS)
+msgstr("Настройки профиля")
+
+msgid(PROFILE_PW_WARNING)
+msgstr("ПРЕДУПРЕЖДЕНИЕ: µTox начнет шифрование с заданным паролем автоматически.")
+
+msgid(PROFILE_PW_NO_RECOVER)
+msgstr("Восстановление забытого пароля не поддерживается.")
+
+msgid(TOXID)
+msgstr("Tox ID")
+
+msgid(FILTER_CONTACT_TOGGLE)
+msgstr("Скрыть/Показать контакты, находящиеся не в сети.")
+
+msgid(FILTER_TO_ALL)
+msgstr("Показать все контакты!")
+
+msgid(FILTER_TO_ONLINE)
+msgstr("Показать только контакты в сети!")
+
+msgid(PUSH_TO_TALK)
+msgstr("Push To Talk")
+
+msgid(STATUS)
+msgstr("Статус")
+
+msgid(STATUS_ONLINE)
+msgstr("Online")
+
+msgid(STATUS_AWAY)
+msgstr("Away")
+
+msgid(STATUS_BUSY)
+msgstr("Busy")
+
+msgid(UI)
+msgstr("UI")
+
+msgid(PROFILE_PASSWORD)
+msgstr("Пароль профиля")
+
+msgid(LOCK_UTOX)
+msgstr("Отключиться от Toxcore и зашифровать профиль")
+
+msgid(LOCK)
+msgstr("Ввод")
+
+msgid(IPV6)
+msgstr("IPv6:")
+
+msgid(UDP)
+msgstr("UDP:")
+
+msgid(REMOVE_FRIEND)
+msgstr("Удалить друга")
+
+msgid(REMOVE_GROUP)
+msgstr("Покинуть группу")
+
+msgid(LEAVE_GROUP)
+msgstr("Покинуть группу")
+
+msgid(SET_ALIAS)
+msgstr("Изменить никнейм")
+
+msgid(SENDMESSAGE)
+msgstr("Отправить сообщение")
+
+msgid(CONTACT_SEARCH_ADD_HINT)
+msgstr("Найти/Добавить друзей")
+
+msgid(PROXY_EDIT_HINT_IP)
+msgstr("IP")
+
+msgid(THEME_ZENBURN)
+msgstr("Zenburn")
