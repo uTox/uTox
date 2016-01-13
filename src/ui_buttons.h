@@ -370,6 +370,16 @@ static void button_send_screenshot_onpress(void) {
     }
 }
 
+void togglehide(void);
+
+static void button_send_screenshot_onright(void) {
+    FRIEND *f = selected_item->data;
+    if (f->online) {
+        togglehide();
+        desktopgrab(0);
+    }
+}
+
 static void button_send_screenshot_update(BUTTON *b) {
     FRIEND *f = selected_item->data;
     if (f->online) {
@@ -606,6 +616,7 @@ button_send_screenshot = {
     .bh  = _BM_CHAT_BUTTON_OVERLAY_HEIGHT,
     .update       = button_send_screenshot_update,
     .onpress      = button_send_screenshot_onpress,
+    .onright      = button_send_screenshot_onright,
     .tooltip_text = { .i18nal = STR_SENDSCREENSHOT },
 },
 
