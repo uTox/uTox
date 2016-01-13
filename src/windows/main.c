@@ -507,8 +507,8 @@ void setselection(char_t *data, STRING_IDX length)
 }
 
 /** Toggles the main window to/from hidden to tray/shown. */
-void togglehide(){
-    if (hidden) {
+void togglehide(int show){
+    if ( hidden || show ) {
         ShowWindow(hwnd, SW_RESTORE);
         SetForegroundWindow(hwnd);
         redraw();
@@ -730,10 +730,6 @@ void paste(void)
     if(!h) {
         h = GetClipboardData(CF_BITMAP);
         if(h && selected_item->item == ITEM_FRIEND) {
-            FRIEND *f = selected_item->data;
-            if (!f->online){
-                return;
-            }
             HBITMAP copy;
             BITMAP bm;
             HDC tempdc;
@@ -1008,6 +1004,7 @@ void desktopgrab(_Bool video)
 
     //SetCapture(hwnd);
     //grabbing = 1;
+
     //postmessage_video(VIDEO_SET, 0, 0, (void*)1);
 }
 
@@ -1030,6 +1027,7 @@ LRESULT CALLBACK GrabProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
             BitBlt(dc, grabx, graby, grabpx - grabx, grabpy - graby, dc, grabx, graby, WHITENESS);
             ReleaseDC(window, dc);
         }
+
         return 0;
     }
 
@@ -1082,9 +1080,8 @@ LRESULT CALLBACK GrabProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
                 DeleteDC(mem);
             }
         }
-        if (hidden){
-            togglehide();
-        }
+
+
         return 0;
     }
 
@@ -1504,7 +1501,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
         debug("quit msg\n");
         if(close_to_tray){
             debug("Closing to tray.\n");
-            togglehide();
+            togglehide(0);
             return 1;
         } else {
             PostQuitMessage(0);
@@ -1636,7 +1633,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
             }
         }
 
-        if (control) {
+        if (control || alt) {
             if (wParam >= '1' && wParam <= '9') {
                 list_selectchat(wParam - '1');
                 redraw();
@@ -1652,7 +1649,6 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
             if (control) {
                 switch(wParam) {
                 case 'V':
-                    
                     paste();
                     return 0;
                 case 'X':
@@ -1782,7 +1778,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
 
         switch(menu) {
         case TRAY_SHOWHIDE: {
-            togglehide();
+            togglehide(0);
             break;
         }
 
@@ -1822,11 +1818,11 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
         }
 
         case WM_LBUTTONDOWN:{
-            togglehide();
+            togglehide(0);
             break;
         }
         case WM_LBUTTONDBLCLK: {
-            togglehide();
+            togglehide(1);
             break;
         }
 
@@ -1850,7 +1846,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     }
 
     case WM_COPYDATA: {
-        togglehide();
+        togglehide(1);
         SetForegroundWindow(hwn);
         COPYDATASTRUCT *data = (void*)lParam;
         if (data->lpData){
