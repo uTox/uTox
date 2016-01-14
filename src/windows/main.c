@@ -2,10 +2,6 @@
 #include <windows.h>
 #include <windowsx.h>
 
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#define STB_IMAGE_WRITE_STATIC
-#include "../stb_image_write.h"
-
 static _Bool flashing, desktopgrab_video;
 static _Bool hidden;
 
@@ -697,7 +693,7 @@ static void sendbitmap(HDC mem, HBITMAP hbm, int width, int height)
     free(bits);
 
     UTOX_NATIVE_IMAGE *image = create_utox_image(hbm, 0, width, height);
-    friend_sendimage(selected_item->data, image, width, height, (UTOX_PNG_IMAGE)out, size);
+    friend_sendimage(selected_item->data, image, width, height, (UTOX_IMAGE)out, size);
 }
 
 void copy(int value)
@@ -762,7 +758,7 @@ void paste(void)
     CloseClipboard();
 }
 
-UTOX_NATIVE_IMAGE *png_to_image(const UTOX_PNG_IMAGE data, size_t size, uint16_t *w, uint16_t *h, _Bool keep_alpha)
+UTOX_NATIVE_IMAGE *decode_image(const UTOX_IMAGE data, size_t size, uint16_t *w, uint16_t *h, _Bool keep_alpha)
 {
     unsigned width, height, bpp;
     uint8_t *rgba_data = stbi_load_from_memory(data, size, &width, &height, &bpp, 4);

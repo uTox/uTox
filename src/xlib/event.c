@@ -1,10 +1,6 @@
 #include "../main.h"
 #include "keysym2ucs.h"
 
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#define STB_IMAGE_WRITE_STATIC
-#include "../stb_image_write.h"
-
 extern XIC xic;
 
 _Bool doevent(XEvent event)
@@ -271,7 +267,7 @@ _Bool doevent(XEvent event)
                             UTOX_NATIVE_IMAGE *image = malloc(sizeof(UTOX_NATIVE_IMAGE));
                             image->rgb = ximage_to_picture(img, NULL);
                             image->alpha = None;
-                            friend_sendimage(f, image, w, h, (UTOX_PNG_IMAGE)out, size);
+                            friend_sendimage(f, image, w, h, (UTOX_IMAGE)out, size);
                         }
                     }
                 } else {

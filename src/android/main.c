@@ -181,7 +181,7 @@ void edit_will_deactivate(void)
 
 }
 
-UTOX_NATIVE_IMAGE *png_to_image(const UTOX_PNG_IMAGE data, size_t size, uint16_t *w, uint16_t *h, _Bool keep_alpha)
+UTOX_NATIVE_IMAGE *decode_image(const UTOX_IMAGE data, size_t size, uint16_t *w, uint16_t *h, _Bool keep_alpha)
 {
     unsigned width, height, bpp;
     uint8_t *out = stbi_load_from_memory(data, size, &width, &height, &bpp, 3);

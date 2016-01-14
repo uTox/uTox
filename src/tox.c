@@ -1074,7 +1074,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
                data: pointer to a TOX_SEND_INLINE_MSG struct
              */
             struct TOX_SEND_INLINE_MSG *tsim = data;
-            outgoing_file_send(tox, param1, NULL, tsim->image->png_data, tsim->image_size, TOX_FILE_KIND_DATA);
+            outgoing_file_send(tox, param1, NULL, tsim->image, tsim->image_size, TOX_FILE_KIND_DATA);
             free(tsim);
 
             break;

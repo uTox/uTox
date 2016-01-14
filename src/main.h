@@ -181,11 +181,9 @@ enum {
 #include "unused.h"
 
 #include "stb_image.h"
-
-typedef struct {
-    uint8_t png_data[0];
-} *UTOX_PNG_IMAGE;
-
+#include "stb_image_write.h"
+extern unsigned char *stbi_write_png_to_mem(unsigned char *pixels, int stride_bytes, int x, int y, int n, int *out_len);
+typedef uint8_t *UTOX_IMAGE;
 
 #include "tox.h"
 #include "audio.h"
@@ -296,9 +294,9 @@ void image_set_scale(UTOX_NATIVE_IMAGE *image, double scale);
 void draw_image(const UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t imgx, uint32_t imgy);
 
 /* converts a png to a UTOX_NATIVE_IMAGE, returns a pointer to it, keeping alpha channel only if keep_alpha is 1 */
-UTOX_NATIVE_IMAGE *png_to_image(const UTOX_PNG_IMAGE, size_t size, uint16_t *w, uint16_t *h, _Bool keep_alpha);
+UTOX_NATIVE_IMAGE *decode_image(const UTOX_IMAGE, size_t size, uint16_t *w, uint16_t *h, _Bool keep_alpha);
 
-/* free an image created by png_to_image */
+/* free an image created by decode_image */
 void image_free(UTOX_NATIVE_IMAGE *image);
 
 void showkeyboard(_Bool show);
