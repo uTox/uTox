@@ -62,6 +62,9 @@ volatile bool gtk_open;
 static void update_image_preview(void *filechooser, void *image) {
 #define MAX_PREVIEW_SIZE 256
     char *filename = gtk_file_chooser_get_preview_filename(filechooser);
+    if (!filename)
+        return;
+
     // load preview
     void *pixbuf = gdk_pixbuf_new_from_file(filename, NULL);
 
