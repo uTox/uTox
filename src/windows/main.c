@@ -730,6 +730,10 @@ void paste(void)
     if(!h) {
         h = GetClipboardData(CF_BITMAP);
         if(h && selected_item->item == ITEM_FRIEND) {
+			FRIEND *f = selected_item->data;
+            if (!f->online){
+                return;
+            }
             HBITMAP copy;
             BITMAP bm;
             HDC tempdc;
@@ -1633,7 +1637,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
             }
         }
 
-        if (control || alt) {
+        if (control) {
             if (wParam >= '1' && wParam <= '9') {
                 list_selectchat(wParam - '1');
                 redraw();
