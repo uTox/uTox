@@ -29,8 +29,8 @@ int UTOX_NATIVE_IMAGE_IS_VALID(UTOX_NATIVE_IMAGE *img) {
     return img->image != nil;
 }
 
-UTOX_NATIVE_IMAGE *png_to_image(const UTOX_PNG_IMAGE data, size_t size, uint16_t *w, uint16_t *h, _Bool keep_alpha) {
-    CFDataRef idata_copy = CFDataCreate(kCFAllocatorDefault, data->png_data, size);
+UTOX_NATIVE_IMAGE *decode_image(const UTOX_IMAGE data, size_t size, uint16_t *w, uint16_t *h, _Bool keep_alpha) {
+    CFDataRef idata_copy = CFDataCreate(kCFAllocatorDefault, data, size);
     CGDataProviderRef src = CGDataProviderCreateWithCFData(idata_copy);
     CGImageRef underlying_img = CGImageCreateWithPNGDataProvider(src, NULL, YES, kCGRenderingIntentDefault);
     CGDataProviderRelease(src);
