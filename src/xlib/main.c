@@ -762,11 +762,10 @@ static Picture generate_alpha_bitmask(const uint8_t *rgba_data, uint16_t width, 
 
 UTOX_NATIVE_IMAGE *png_to_image(const UTOX_PNG_IMAGE data, size_t size, uint16_t *w, uint16_t *h, _Bool keep_alpha)
 {
-    uint8_t *rgba_data;
-    unsigned width, height;
-    unsigned r = lodepng_decode32(&rgba_data, &width, &height, data->png_data, size);
+    unsigned width, height, bpp;
+    uint8_t *rgba_data = stbi_load_from_memory(data, size, &width, &height, &bpp, 4);
 
-    if(r != 0 || !width || !height) {
+    if (rgba_data == NULL || width == 0 || height == 0) {
         return None; // invalid png data
     }
 
@@ -794,7 +793,8 @@ UTOX_NATIVE_IMAGE *png_to_image(const UTOX_PNG_IMAGE data, size_t size, uint16_t
     XImage *img = XCreateImage(display, visual, depth, ZPixmap, 0, (char*)out, width, height, 32, width * 4);
 
     Picture rgb = ximage_to_picture(img, NULL);
-    Picture alpha = (keep_alpha) ? generate_alpha_bitmask(rgba_data, width, height, rgba_size) : None;
+    // 4 bpp -> RGBA
+    Picture alpha = (bpp == 4 && keep_alpha) ? generate_alpha_bitmask(rgba_data, width, height, rgba_size) : None;
 
     free(rgba_data);
 

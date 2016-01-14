@@ -1,6 +1,10 @@
 #include "../main.h"
 #include "keysym2ucs.h"
 
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#define STB_IMAGE_WRITE_STATIC
+#include "../stb_image_write.h"
+
 extern XIC xic;
 
 _Bool doevent(XEvent event)
@@ -248,8 +252,6 @@ _Bool doevent(XEvent event)
                     if(selected_item->item == ITEM_FRIEND && f->online) {
                         XImage *img = XGetImage(display, RootWindow(display, screen), grabx, graby, grabpx, grabpy, XAllPlanes(), ZPixmap);
                         if(img) {
-                            uint8_t *out;
-                            size_t size;
                             uint8_t *temp, *p;
                             uint32_t *pp = (void*)img->data, *end = &pp[img->width * img->height];
                             p = temp = malloc(img->width * img->height * 3);
@@ -259,7 +261,8 @@ _Bool doevent(XEvent event)
                                 *p++ = i >> 8;
                                 *p++ = i;
                             }
-                            lodepng_encode_memory(&out, &size, temp, img->width, img->height, LCT_RGB, 8);
+                            int size = -1;
+                            uint8_t *out = stbi_write_png_to_mem(temp, 0, img->width, img->height, 3, &size);
                             free(temp);
 
                             uint16_t w = img->width;

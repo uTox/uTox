@@ -2,6 +2,10 @@
 #include <windows.h>
 #include <windowsx.h>
 
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#define STB_IMAGE_WRITE_STATIC
+#include "../stb_image_write.h"
+
 static _Bool flashing, desktopgrab_video;
 static _Bool hidden;
 
@@ -688,9 +692,8 @@ static void sendbitmap(HDC mem, HBITMAP hbm, int width, int height)
         pp += width * 3 + pbytes;
     }
 
-    uint8_t *out;
-    size_t size;
-    lodepng_encode_memory(&out, &size, bits, width, height, LCT_RGB, 8);
+    size_t size = -1;
+    uint8_t *out = stbi_write_png_to_mem(bits, 0, width, height, 3, &size);
     free(bits);
 
     UTOX_NATIVE_IMAGE *image = create_utox_image(hbm, 0, width, height);
@@ -761,11 +764,10 @@ void paste(void)
 
 UTOX_NATIVE_IMAGE *png_to_image(const UTOX_PNG_IMAGE data, size_t size, uint16_t *w, uint16_t *h, _Bool keep_alpha)
 {
-    uint8_t *rgba_data;
-    unsigned width, height;
-    unsigned r = lodepng_decode32(&rgba_data, &width, &height, data->png_data, size);
+    unsigned width, height, bpp;
+    uint8_t *rgba_data = stbi_load_from_memory(data, size, &width, &height, &bpp, 4);
 
-    if(r != 0 || !width || !height) {
+    if (rgba_data == NULL || width == 0 || height == 0) {
         return NULL; // invalid image
     }
 

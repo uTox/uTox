@@ -183,12 +183,11 @@ void edit_will_deactivate(void)
 
 UTOX_NATIVE_IMAGE *png_to_image(const UTOX_PNG_IMAGE data, size_t size, uint16_t *w, uint16_t *h, _Bool keep_alpha)
 {
-    uint8_t *out;
-    unsigned width, height;
-    unsigned r = lodepng_decode24(&out, &width, &height, data->png_data, size);
+    unsigned width, height, bpp;
+    uint8_t *out = stbi_load_from_memory(data, size, &width, &height, &bpp, 3);
     //free(data);
 
-    if(r != 0 || !width || !height) {
+    if (out == NULL || width == 0 || height == 0) {
         return 0;
     }
 

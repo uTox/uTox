@@ -100,11 +100,6 @@ typedef struct {
 
 // Structs
 
-typedef struct {
-    // Castless wrapper for lodepng data arguments.
-    unsigned char png_data[0];
-} *UTOX_PNG_IMAGE;
-
 typedef struct edit_change EDIT_CHANGE;
 
 // Enums
@@ -185,25 +180,26 @@ enum {
 // µTox includes
 #include "unused.h"
 
-#include "png/png.h"
+#include "stb_image.h"
+
+typedef struct {
+    uint8_t png_data[0];
+} *UTOX_PNG_IMAGE;
+
 
 #include "tox.h"
 #include "audio.h"
 #include "video.h"
 #include "utox_av.h"
 
-#ifdef __WIN32__
-#include "windows/main.h"
+#if defined __WIN32__
+    #include "windows/main.h"
+#elif defined __ANDROID__
+    #include "android/main.h"
+#elif defined __OBJC__
+    #include "cocoa/main.h"
 #else
-#ifdef __ANDROID__
-#include "android/main.h"
-#else
-#ifdef __OBJC__
-#include "cocoa/main.h"
-#else
-#include "xlib/main.h"
-#endif
-#endif
+    #include "xlib/main.h"
 #endif
 
 #include "sized_string.h"
