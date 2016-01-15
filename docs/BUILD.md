@@ -69,6 +69,40 @@ sudo ldconfig
 Have fun!
 
 If you're looking for a good IDE, Netbeans is very easy to setup for uTox, in fact, you can just create a new project from the existing sources and everything should work fine.
+
+
+### BSD
+
+uTox distribution includes BSD makefile, which works differently from GNU
+makefile used by GNU make.  It should work on Linux, BSDs and most other
+Unix-like systems.  Using BSD makefile allows building uTox in separate
+directory:
+```sh
+mkdir build
+cd build
+make -f path/to/uTox
+sudo make -f path/to/uTox install
+```
+*(Note: on some systems BSD make executable may not be called `make`.  Ajust
+commands accordingly.)*
+
+If needed, several concurrent builds may be performed in parallel, in different
+build directories.
+
+When called from source directory directly, BSD make will create build directory
+"build-*machine type*" automatically.
+
+Several macros (make variables) may be set to control build:
+
+* `PREFIX` (`/usr/local`), root for uTox installation.
+* `BINDIR` (`${PREFIX}/bin`), `utox` binary installation location.
+* `DATADIR` (`${PREFIX}/share/utox`), XDG application data root.
+* `MANDIR` (`${PREFIX}/share/man`), manual tree root.
+* `AUTO` (`Yes`), option dependencies autodetection toggle.
+* `OPTDEPs` (*autodetected or empty*), set of optional dependencies to use.
+  Choises are: `dbus-1`, `filteraudio`, `libv4lconvert` and `unity`.
+
+
 <a name="win" />
 ## Windows
 

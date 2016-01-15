@@ -19,6 +19,8 @@ ifeq ($(FILTER_AUDIO), 1)
 endif
 
 ifeq ($(UNAME_S), Linux)
+	CFLAGS += -DLINUX_IO
+
 	OUT_FILE = utox
 
 	DEPS += fontconfig freetype2 x11 xext xrender
