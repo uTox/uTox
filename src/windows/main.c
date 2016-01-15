@@ -730,7 +730,7 @@ void paste(void)
     if(!h) {
         h = GetClipboardData(CF_BITMAP);
         if(h && selected_item->item == ITEM_FRIEND) {
-			FRIEND *f = selected_item->data;
+	    FRIEND *f = selected_item->data;
             if (!f->online){
                 return;
             }
