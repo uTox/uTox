@@ -1,5 +1,9 @@
 #include "../main.h"
 
+#ifdef LINUX_IO
+#include <linux/input.h>
+#endif
+
 _Bool    hidden = 0;
 uint32_t tray_width = 32, tray_height = 32;
 XIC xic = NULL;
@@ -74,7 +78,6 @@ void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data)
 }
 
 
-#include <linux/input.h>
 FILE *ptt_keyboard_handle;
 Display *ptt_display;
 void init_ptt(void){
@@ -99,6 +102,7 @@ _Bool check_ptt_key(void){
     }
     int ptt_key;
 
+#ifdef LINUX_IO
     /* First, we try for direct access to the keyboard. */
     ptt_key = KEY_LEFTCTRL;                                      // TODO allow user to change this...
     if (ptt_keyboard_handle) {
@@ -117,6 +121,8 @@ _Bool check_ptt_key(void){
             return 0;
         }
     }
+#endif /* LINUX_IO */
+
     /* Okay nope, lets' fallback to xinput... *pouts*
      * Fall back to Querying the X for the current keymap. */
     ptt_key = XKeysymToKeycode(display, XK_Control_L);
@@ -441,15 +447,15 @@ void send_message(Display* dpy, /* display */ Window w, /* sender (tray window) 
     XSync(dpy, False);
 }
 
-extern uint8_t _binary_icons_utox_128x128_png_start;
-extern size_t  _binary_icons_utox_128x128_png_size;
+extern uint8_t _binary_utox_icon_png_start;
+extern size_t  _binary_utox_icon_png_size;
 
 void draw_tray_icon(void){
     // debug("Draw Tray\n");
 
     uint16_t width, height;
-    uint8_t *icon_data = (uint8_t*)&_binary_icons_utox_128x128_png_start;
-    size_t  icon_size  = (size_t)&_binary_icons_utox_128x128_png_size;
+    uint8_t *icon_data = (uint8_t*)&_binary_utox_icon_png_start;
+    size_t  icon_size  = (size_t)&_binary_utox_icon_png_size;
 
     UTOX_NATIVE_IMAGE *icon = decode_image(icon_data, icon_size, &width, &height, 1);
     if(UTOX_NATIVE_IMAGE_IS_VALID(icon)) {

@@ -9,3 +9,4 @@ Icon=utox
 Categories=InstantMessaging;AudioVideo;Network;
 Terminal=false
 MimeType=x-scheme-handler/tox;
+X-MessagingMenu-UsesChatSection=true
