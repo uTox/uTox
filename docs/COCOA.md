@@ -33,7 +33,7 @@ Done!
 
 ```bash
 brew install --HEAD libtoxcore
-make -f cocoa/Makefile uTox.dmg
+make uTox.dmg
 ```
 
 Done! (the DMG target builds a statically linked utox binary 

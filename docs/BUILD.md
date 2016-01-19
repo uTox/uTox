@@ -28,6 +28,21 @@ For the build to pass you need to install the following from sources: [filteraud
 
 For base emoji ids support you need: [base_emoji](https://github.com/irungentoo/base_emoji)
 
+### Advanced options
+
+If needed, any directory will do for building uTox. Eg. one may do:
+```sh
+cd `mktemp -dt utox-XXXXXXXXXX`
+make -f ~/coding/utox/Makefile
+sudo make -f ~/coding/utox/Makefile install
+```
+
+This should work with read-only source directory, or with several hosts building utox simultaneously from source tree shared over NFS.
+
+Some optional features may be enabled or disabled via make flags `DBUS`, `FILTER_AUDIO`, `V4LCONVERT` and `UNITY`.  Setting any of these to `1` will enable the feature; any other value (typically `0`) will disable.  Note, additional features come with additional dependencies.
+
+Setting flag `V` to any value would reveal the commands that are issued by make.
+
 <a name="ubuntu15_10">
 ## Ubuntu
 ###Tested on Ubuntu 15.10
