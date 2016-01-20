@@ -412,7 +412,11 @@ void openfileavatar(void)
 
     OPENFILENAME ofn = {
         .lStructSize = sizeof(OPENFILENAME),
-        .lpstrFilter = "PNG Files\0*.PNG\0\0",
+        .lpstrFilter = "All Files\0*.*\0"
+                       "GIF Files\0*.GIF\0"
+                       "PNG Files\0*.PNG\0"
+                       "JPG Files\0*.JPG;*.JPEG\0"
+                       "\0",
         .hwndOwner = hwnd,
         .lpstrFile = filepath,
         .nMaxFile = 1024,
@@ -443,7 +447,7 @@ void openfileavatar(void)
                 break;
             }
         } else {
-            debug("GetOpenFileName() failed\n");
+            debug("GetOpenFileName() failed when trying to grab an avatar.\n");
             break;
         }
     }
