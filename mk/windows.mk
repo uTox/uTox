@@ -14,8 +14,6 @@ OS_LDFLAGS :=	/usr/x86_64-w64-mingw32/sys-root/mingw/lib/libwinpthread.a \
 		-liphlpapi -lws2_32 -lgdi32 -lmsimg32 -ldnsapi -lcomdlg32 \
 		-Wl,-subsystem,windows -lwinmm -lole32 -loleaut32 -lstrmiids
 
-SLDFLAGS +=	-static
-
 DIRs :=		png windows
 
 OBJs :=		utox-icon.o

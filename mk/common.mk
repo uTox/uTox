@@ -15,7 +15,7 @@ CFLAGS +=	${OS_CFLAGS} -DGIT_VERSION=\"${GIT_V}\"
 LDFLAGS +=	${OS_LDFLAGS}
 
 ifneq (${PSEUDOSTATIC},1)
-SLDFLAGS :=	-static
+SLDFLAGS +=	-static ${OS_LDFLAGS}
 endif
 SLDFLAGS +=	${OS_LDFLAGS}
 
