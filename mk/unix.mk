@@ -23,6 +23,13 @@ DIRs :=		png xlib
 
 OBJs :=		utox-icon.o
 
+INSTALL_PROGRAM =	install -c -m 755
+INSTALL_DATA =		install -c -m 644
+INSTALL_MAN =		install -c -m 644
+INSTALL_PROGRAM_DIR =	install -d -m 755
+INSTALL_DATA_DIR =	install -d -m 755
+INSTALL_MAN_DIR =	install -d -m 755
+
 include ${SRCDIR}/mk/common.mk
 
 all: ${BIN}

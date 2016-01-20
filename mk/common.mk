@@ -92,14 +92,6 @@ BINPREFIX ?= ${PREFIX}/bin
 DATAPREFIX ?= ${PREFIX}/share
 MANPREFIX ?= ${PREFIX}/share/man
 
-INSTALL_PROGRAM =	install -c -m 755
-INSTALL_DATA =		install -c -m 644
-INSTALL_MAN =		install -c -m 644
-INSTALL_PROGRAM_DIR =	install -d -m 755
-INSTALL_DATA_DIR =	install -d -m 755
-INSTALL_MAN_DIR =	install -d -m 755
-
-
 SIZES =		14x14 16x16 22x22 24x24 32x32 48x48 64x64 72x72 96x96 128x128 \
 		192x192 256x256 512x512
 INSTALL_ICONS :=$(foreach size,${SIZES} scalable,${nl} \
