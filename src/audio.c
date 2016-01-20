@@ -392,36 +392,36 @@ void utox_audio_thread(void *args){
             }
 
             switch (m->msg){
-                case AUDIO_START_FRIEND: {
+                case UTOXAUDIO_START_FRIEND: {
                     FRIEND *f = &friend[m->param1];
                     if (!f->audio_dest) {
                         utox_audio_init_source(&f->audio_dest);
                     }
                     break;
                 }
-                case AUDIO_STOP_FRIEND: {
+                case UTOXAUDIO_STOP_FRIEND: {
                     FRIEND *f = &friend[m->param1];
                     if (f->audio_dest) {
                         utox_audio_term_source(&f->audio_dest);
                     }
                     break;
                 }
-                case AUDIO_START_PREVIEW: {
+                case UTOXAUDIO_START_PREVIEW: {
                     preview_on = 1;
                     break;
                 }
-                case AUDIO_STOP_PREVIEW: {
+                case UTOXAUDIO_STOP_PREVIEW: {
                     preview_on = 0;
                     break;
                 }
-                case AUDIO_PLAY_RINGTONE: {
+                case UTOXAUDIO_PLAY_RINGTONE: {
                     if (audible_notifications_enabled) {
                         debug("starting ringtone!\n");
                         alSourcePlay(ringtone);
                     }
                     break;
                 }
-                case AUDIO_STOP_RINGTONE: {
+                case UTOXAUDIO_STOP_RINGTONE: {
                     ALint state;
                     alGetSourcei(ringtone, AL_SOURCE_STATE, &state);
                     if(state == AL_PLAYING) {
