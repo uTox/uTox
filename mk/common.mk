@@ -27,7 +27,7 @@ endef
 #
 # Dependencies
 #
- 
+
 PKG_CONFIG ?=   pkg-config
 
 ifeq (${DBUS},1)
@@ -72,6 +72,8 @@ endif
 SRCs +=		$(wildcard ${SRCDIR}/src/*.c)
 SRCs +=		$(foreach dir,${DIRs},$(wildcard ${SRCDIR}/src/${dir}/*.[cm]))
 
+HEADERS +=		$(wildcard ${SRCDIR}/src/*.h ${SRCDIR}/src/*/*.h ${SRCDIR}/langs/*.h)
+
 OBJs +=		$(patsubst %.m,%.o,$(patsubst %.c,%.o,${SRCs:${SRCDIR}/src/%=%}))
 
 #
@@ -110,12 +112,12 @@ INSTALL_ICONS +=$(foreach size,${SIZES},${nl} \
 	${INSTALL_DATA} ${SRCDIR}/icons/utox-${size}.png \
 			${DATAPREFIX}/icons/hicolor/${size}/apps/utox.png)
 
-%.o: %.c
+%.o: %.c ${HEADERS}
 	@mkdir -p $(dir $@)
 	@echo "  CC    $@"
 	${SILENT}${CC} ${CFLAGS} -o $@ -c $<
 
-%.o : %.m
+%.o : %.m ${HEADERS}
 	@mkdir -p $(dir $@)
 	@echo "  CC    $@"
 	${SILENT}${CC} ${CFLAGS} -o $@ -c $<
@@ -137,4 +139,5 @@ info:
 	@echo " OSTYPE        ${OSTYPE}"
 	@echo " SRCDIR        ${SRCDIR}"
 	@echo " SRCs          ${SRCs}"
+	@echo " HEADERS       ${HEADERS}"
 	@echo " OBJs          ${OBJs}"
