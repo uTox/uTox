@@ -18,7 +18,7 @@ DIRs :=		png windows
 
 OBJs :=		utox-icon.o
 
-PKG_CONFIG ?= x86_64-w64-mingw32-pkg-config
+PKG_CONFIG ?=	x86_64-w64-mingw32-pkg-config
 
 include ${SRCDIR}/mk/common.mk
 
@@ -27,16 +27,4 @@ all: ${STATICBIN}
 utox-icon.o: ${SRCDIR}/icons/icon.rc
 	@cp $< utox-icon.rc
 	@echo "  RES   $@"
-	${SILENT}x86_64-w64-mingw32-windres icons/icon.rc -O coff -o utox-icon.o
-
-install: ${STATICBIN}
-	${INSTALL_PROGRAM_DIR} ${BINPREFIX}
-	${INSTALL_PROGRAM} ${STATICBIN} ${BINPREFIX}/${BIN}
-
-	${INSTALL_ICONS}
-
-	${INSTALL_DATA_DIR} ${DATAPREFIX}/applications
-	${INSTALL_DATA} ${SRCDIR}/src/utox.desktop ${DATAPREFIX}/applications/
-	
-	${INSTALL_MAN_DIR} ${MANPREFIX}/man1
-	${INSTALL_MAN} ${SRCDIR}/src/utox.1 ${MANPREFIX}/man1
+	${SILENT}x86_64-w64-mingw32-windres utox-icon.rc -O coff -o utox-icon.o
