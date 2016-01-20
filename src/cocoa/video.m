@@ -1,5 +1,4 @@
 #import "../main.h"
-//#include "lodepng.h"
 #include <pthread.h>
 #import <OpenGL/gl.h>
 #import <OpenGL/glext.h>

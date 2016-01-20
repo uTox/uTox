@@ -357,7 +357,7 @@ static void decode_inline_png(uint32_t friend_id, uint8_t *data, uint64_t size)
 {
     //TODO: start a new thread and decode the png in it.
     uint16_t width, height;
-    UTOX_NATIVE_IMAGE *native_image = png_to_image((UTOX_PNG_IMAGE)data, size, &width, &height, 0);
+    UTOX_NATIVE_IMAGE *native_image = decode_image((UTOX_IMAGE)data, size, &width, &height, 0);
     if (UTOX_NATIVE_IMAGE_IS_VALID(native_image)) {
         void *msg = malloc(sizeof(uint16_t) * 2 + sizeof(uint8_t *));
         memcpy(msg, &width, sizeof(uint16_t));

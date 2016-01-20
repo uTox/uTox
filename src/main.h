@@ -100,11 +100,6 @@ typedef struct {
 
 // Structs
 
-typedef struct {
-    // Castless wrapper for lodepng data arguments.
-    unsigned char png_data[0];
-} *UTOX_PNG_IMAGE;
-
 typedef struct edit_change EDIT_CHANGE;
 
 // Enums
@@ -185,25 +180,24 @@ enum {
 // µTox includes
 #include "unused.h"
 
-#include "png/png.h"
+#include "stb_image.h"
+#include "stb_image_write.h"
+extern unsigned char *stbi_write_png_to_mem(unsigned char *pixels, int stride_bytes, int x, int y, int n, int *out_len);
+typedef uint8_t *UTOX_IMAGE;
 
 #include "tox.h"
 #include "audio.h"
 #include "video.h"
 #include "utox_av.h"
 
-#ifdef __WIN32__
-#include "windows/main.h"
+#if defined __WIN32__
+    #include "windows/main.h"
+#elif defined __ANDROID__
+    #include "android/main.h"
+#elif defined __OBJC__
+    #include "cocoa/main.h"
 #else
-#ifdef __ANDROID__
-#include "android/main.h"
-#else
-#ifdef __OBJC__
-#include "cocoa/main.h"
-#else
-#include "xlib/main.h"
-#endif
-#endif
+    #include "xlib/main.h"
 #endif
 
 #include "sized_string.h"
@@ -300,9 +294,9 @@ void image_set_scale(UTOX_NATIVE_IMAGE *image, double scale);
 void draw_image(const UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t imgx, uint32_t imgy);
 
 /* converts a png to a UTOX_NATIVE_IMAGE, returns a pointer to it, keeping alpha channel only if keep_alpha is 1 */
-UTOX_NATIVE_IMAGE *png_to_image(const UTOX_PNG_IMAGE, size_t size, uint16_t *w, uint16_t *h, _Bool keep_alpha);
+UTOX_NATIVE_IMAGE *decode_image(const UTOX_IMAGE, size_t size, uint16_t *w, uint16_t *h, _Bool keep_alpha);
 
-/* free an image created by png_to_image */
+/* free an image created by decode_image */
 void image_free(UTOX_NATIVE_IMAGE *image);
 
 void showkeyboard(_Bool show);

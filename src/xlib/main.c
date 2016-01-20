@@ -327,7 +327,7 @@ void thread(void func(void*), void *args)
     pthread_t thread_temp;
     pthread_attr_t attr;
     pthread_attr_init(&attr);
-    pthread_attr_setstacksize(&attr, 1 << 18);
+    pthread_attr_setstacksize(&attr, 1 << 20);
     pthread_create(&thread_temp, &attr, (void*(*)(void*))func, args);
     pthread_attr_destroy(&attr);
 }
@@ -451,7 +451,7 @@ void draw_tray_icon(void){
     uint8_t *icon_data = (uint8_t*)&_binary_icons_utox_128x128_png_start;
     size_t  icon_size  = (size_t)&_binary_icons_utox_128x128_png_size;
 
-    UTOX_NATIVE_IMAGE *icon = png_to_image(icon_data, icon_size, &width, &height, 1);
+    UTOX_NATIVE_IMAGE *icon = decode_image(icon_data, icon_size, &width, &height, 1);
     if(UTOX_NATIVE_IMAGE_IS_VALID(icon)) {
         /* Get tray window size */
         int32_t x_r, y_r;
@@ -692,11 +692,11 @@ void pastedata(void *data, Atom type, int len, _Bool select)
    if (type == XA_PNG_IMG) {
         uint16_t width, height;
 
-        UTOX_NATIVE_IMAGE *native_image = png_to_image(data, size, &width, &height, 0);
+        UTOX_NATIVE_IMAGE *native_image = decode_image(data, size, &width, &height, 0);
         if (UTOX_NATIVE_IMAGE_IS_VALID(native_image)) {
             debug("Pasted image: %dx%d\n", width, height);
 
-            UTOX_PNG_IMAGE png_image = malloc(size);
+            UTOX_IMAGE png_image = malloc(size);
             memcpy(png_image, data, size);
             friend_sendimage((FRIEND*)selected_item->data, native_image, width, height, png_image, size);
         }
@@ -760,13 +760,12 @@ static Picture generate_alpha_bitmask(const uint8_t *rgba_data, uint16_t width, 
     return picture;
 }
 
-UTOX_NATIVE_IMAGE *png_to_image(const UTOX_PNG_IMAGE data, size_t size, uint16_t *w, uint16_t *h, _Bool keep_alpha)
+UTOX_NATIVE_IMAGE *decode_image(const UTOX_IMAGE data, size_t size, uint16_t *w, uint16_t *h, _Bool keep_alpha)
 {
-    uint8_t *rgba_data;
-    unsigned width, height;
-    unsigned r = lodepng_decode32(&rgba_data, &width, &height, data->png_data, size);
+    int width, height, bpp;
+    uint8_t *rgba_data = stbi_load_from_memory(data, size, &width, &height, &bpp, 4);
 
-    if(r != 0 || !width || !height) {
+    if (rgba_data == NULL || width == 0 || height == 0) {
         return None; // invalid png data
     }
 
@@ -794,7 +793,8 @@ UTOX_NATIVE_IMAGE *png_to_image(const UTOX_PNG_IMAGE data, size_t size, uint16_t
     XImage *img = XCreateImage(display, visual, depth, ZPixmap, 0, (char*)out, width, height, 32, width * 4);
 
     Picture rgb = ximage_to_picture(img, NULL);
-    Picture alpha = (keep_alpha) ? generate_alpha_bitmask(rgba_data, width, height, rgba_size) : None;
+    // 4 bpp -> RGBA
+    Picture alpha = (bpp == 4 && keep_alpha) ? generate_alpha_bitmask(rgba_data, width, height, rgba_size) : None;
 
     free(rgba_data);
 

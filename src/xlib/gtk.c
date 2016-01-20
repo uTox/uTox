@@ -145,7 +145,6 @@ static void gtk_openavatarthread(void *UNUSED(args)) {
             "_Open", GTK_RESPONSE_ACCEPT,
             NULL);
     void *filter = gtk_file_filter_new();
-    gtk_file_filter_add_mime_type(filter, "image/png");
     gtk_file_chooser_set_filter(dialog, filter);
 
     void *preview = gtk_image_new();
@@ -154,9 +153,13 @@ static void gtk_openavatarthread(void *UNUSED(args)) {
 
     while (gtk_dialog_run(dialog) == GTK_RESPONSE_ACCEPT) {
         char *filename = gtk_file_chooser_get_filename(dialog);
-        uint32_t size;
+        int size;
 
-        void *file_data = file_raw(filename, &size);
+        int width, height, bpp;
+        uint8_t *img = stbi_load(filename, &width, &height, &bpp, 0);
+        uint8_t *file_data = stbi_write_png_to_mem(img, 0, width, height, bpp, &size);
+        free(img);
+
         g_free_utox(filename);
         if (!file_data) {
             void *message_dialog = gtk_message_dialog_new(dialog, 0, 1, 2, (const char *)S(CANT_FIND_FILE_OR_EMPTY));

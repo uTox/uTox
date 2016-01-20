@@ -248,8 +248,6 @@ _Bool doevent(XEvent event)
                     if(selected_item->item == ITEM_FRIEND && f->online) {
                         XImage *img = XGetImage(display, RootWindow(display, screen), grabx, graby, grabpx, grabpy, XAllPlanes(), ZPixmap);
                         if(img) {
-                            uint8_t *out;
-                            size_t size;
                             uint8_t *temp, *p;
                             uint32_t *pp = (void*)img->data, *end = &pp[img->width * img->height];
                             p = temp = malloc(img->width * img->height * 3);
@@ -259,7 +257,8 @@ _Bool doevent(XEvent event)
                                 *p++ = i >> 8;
                                 *p++ = i;
                             }
-                            lodepng_encode_memory(&out, &size, temp, img->width, img->height, LCT_RGB, 8);
+                            int size = -1;
+                            uint8_t *out = stbi_write_png_to_mem(temp, 0, img->width, img->height, 3, &size);
                             free(temp);
 
                             uint16_t w = img->width;
@@ -268,7 +267,7 @@ _Bool doevent(XEvent event)
                             UTOX_NATIVE_IMAGE *image = malloc(sizeof(UTOX_NATIVE_IMAGE));
                             image->rgb = ximage_to_picture(img, NULL);
                             image->alpha = None;
-                            friend_sendimage(f, image, w, h, (UTOX_PNG_IMAGE)out, size);
+                            friend_sendimage(f, image, w, h, (UTOX_IMAGE)out, size);
                         }
                     }
                 } else {

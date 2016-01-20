@@ -10,7 +10,7 @@ DEPS = libtoxav libtoxcore openal vpx libsodium
 UNAME_S := $(shell uname -s)
 UNAME_O := $(shell uname -o)
 
-CFLAGS += -g -Wall -Wshadow -pthread -std=gnu99
+CFLAGS += -g -Wall -Wshadow -pthread -std=gnu99 -fno-strict-aliasing
 LDFLAGS += -pthread -lm
 
 ifeq ($(FILTER_AUDIO), 1)
@@ -73,7 +73,7 @@ endif
 DESTDIR ?=
 PREFIX ?= /usr/local
 
-SRC = $(wildcard src/*.c src/png/png.c)
+SRC = $(wildcard src/*.c)
 HEADERS = $(wildcard src/*.h src/*/*.h)
 OBJ = $(SRC:.c=.o)
 GIT_V = $(shell git describe --abbrev=8 --dirty --always --tags)
@@ -138,6 +138,6 @@ $(TRAY_OBJ):
 	$(TRAY_GEN) $(TRAY_OBJ)
 
 clean:
-	rm -f $(OUT_FILE) src/*.o src/png/*.o src/icons/*.o src/windows/*.o
+	rm -f $(OUT_FILE) src/*.o src/icons/*.o src/xlib/*.o src/windows/*.o
 
 .PHONY: all clean

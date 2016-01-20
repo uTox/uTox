@@ -768,7 +768,7 @@ void paste(void) {
 
         if (owned_ptr) {
             memcpy(owned_ptr, CFDataGetBytePtr(dat), size);
-            friend_sendimage(selected_item->data, i, CGImageGetWidth(img), CGImageGetHeight(img), (UTOX_PNG_IMAGE)owned_ptr, size);
+            friend_sendimage(selected_item->data, i, CGImageGetWidth(img), CGImageGetHeight(img), (UTOX_IMAGE)owned_ptr, size);
         } else {
             free(i);
             NSLog(@"ran out of memory, we will just do nothing and hope user doesn't notice because we're probably not the only process being screwy");

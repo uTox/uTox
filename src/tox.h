@@ -138,7 +138,7 @@ enum {
 
 struct TOX_SEND_INLINE_MSG {
     size_t image_size;
-    UTOX_PNG_IMAGE image;
+    UTOX_IMAGE image;
 };
 
 /* AV STATUS LIST */
