@@ -1,9 +1,9 @@
 .PHONY: all install
 
-DBUS :=		1
+DBUS :=		0
 FILTER_AUDIO :=	0
 UNITY :=	0
-V4LCONVERT :=	1
+V4LCONVERT :=	0
 
 DEPS :=		openal
 
@@ -17,6 +17,8 @@ OS_LDFLAGS :=	/usr/x86_64-w64-mingw32/sys-root/mingw/lib/libwinpthread.a \
 DIRs :=		png windows
 
 OBJs :=		utox-icon.o
+
+PKG_CONFIG ?= x86_64-w64-mingw32-pkg-config
 
 include ${SRCDIR}/mk/common.mk
 

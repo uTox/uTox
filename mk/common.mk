@@ -125,6 +125,7 @@ ${STATICBIN}: ${OBJs}
 
 info:
 	@echo " CC            ${CC}"
+	@echo " PKG_CONFIG    ${PKG_CONFIG}"
 	@echo " CFLAGS        ${CFLAGS}"
 	@echo " LDFLAGS       ${LDFALGS}"
 	@echo " Dependencies  ${DEPS}"
