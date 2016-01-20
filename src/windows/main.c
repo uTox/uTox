@@ -412,11 +412,12 @@ void openfileavatar(void)
 
     OPENFILENAME ofn = {
         .lStructSize = sizeof(OPENFILENAME),
-        .lpstrFilter = "All Files\0*.*\0"
-                       "GIF Files\0*.GIF\0"
-                       "PNG Files\0*.PNG\0"
-                       "JPG Files\0*.JPG;*.JPEG\0"
-                       "\0",
+        .lpstrFilter =  "Supported Images\0*.GIF;*.PNG;*.JPG;*.JPEG" /* TODO: add all the supported types */
+                        "All Files\0*.*\0"
+                        "GIF Files\0*.GIF\0"
+                        "PNG Files\0*.PNG\0"
+                        "JPG Files\0*.JPG;*.JPEG\0"
+                        "\0",
         .hwndOwner = hwnd,
         .lpstrFile = filepath,
         .nMaxFile = 1024,
