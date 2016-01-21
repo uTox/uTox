@@ -18,13 +18,13 @@ DIRs :=		png windows
 
 OBJs :=		utox-icon.o
 
-PKG_CONFIG ?=	x86_64-w64-mingw32-pkg-config
+TOOL_PREFIX ?=	x86_64-w64-mingw32-
+PKG_CONFIG ?=	${TOOL_PREFIX}pkg-config
 
 include ${SRCDIR}/mk/common.mk
 
 all: ${STATICBIN}
 
 utox-icon.o: ${SRCDIR}/icons/icon.rc
-	@cp $< utox-icon.rc
 	@echo "  RES   $@"
-	${SILENT}x86_64-w64-mingw32-windres utox-icon.rc -O coff -o utox-icon.o
+	${SILENT}${TOOL_PREFIX}windres -O coff -i $< -o $@
