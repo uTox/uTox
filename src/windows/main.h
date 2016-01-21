@@ -133,3 +133,8 @@ enum
     TRAY_STATUS_AWAY,
     TRAY_STATUS_BUSY,
 };
+
+
+// TODO move these into os_video.c
+int video_grab_x, video_grab_y, video_grab_w, video_grab_h;
+_Bool grabbing;

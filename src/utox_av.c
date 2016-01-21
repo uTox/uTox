@@ -272,13 +272,13 @@ void utox_av_local_call_control(ToxAV *av, uint32_t friend_number, TOXAV_CALL_CO
         switch (control) {
             case TOXAV_CALL_CONTROL_HIDE_VIDEO: {
                 toxav_bit_rate_set(av, friend_number, -1, 0, &bitrate_err);
-                postmessage_video(VIDEO_RECORD_STOP, friend_number, 0, NULL);
+                postmessage_utoxav(UTOXAV_STOP_VIDEO, friend_number, 0, NULL);
                 friend[friend_number].call_state_self &= (0xFF ^ TOXAV_FRIEND_CALL_STATE_SENDING_V);
                 break;
             }
             case TOXAV_CALL_CONTROL_SHOW_VIDEO: {
                 toxav_bit_rate_set(av, friend_number, -1, UTOX_DEFAULT_BITRATE_V, &bitrate_err);
-                postmessage_video(VIDEO_RECORD_START, friend_number, 0, NULL);
+                postmessage_utoxav(UTOXAV_START_VIDEO, friend_number, 0, NULL);
                 friend[friend_number].call_state_self |= TOXAV_FRIEND_CALL_STATE_SENDING_V;
                 break;
             }

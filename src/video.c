@@ -21,19 +21,6 @@ static void closevideodevice(void *handle) {
     vpx_img_free(&input);
 }
 
-void postmessage_video(uint8_t msg, uint32_t param1, uint32_t param2, void *data) {
-    while(video_thread_msg) {
-        yieldcpu(1);
-    }
-
-    video_msg.msg = msg;
-    video_msg.param1 = param1;
-    video_msg.param2 = param2;
-    video_msg.data = data;
-
-    video_thread_msg = 1;
-}
-
 void utox_video_thread(void *args) {
     ToxAV *av = args;
 
@@ -62,118 +49,6 @@ void utox_video_thread(void *args) {
     utox_video_thread_init = 1;
 
     while (1) {
-        if (video_thread_msg) {
-            TOX_MSG *m = &video_msg;
-            if (!m->msg) {
-                break;
-            }
-            switch (m->msg) {
-                // VIDEO_SET: select a different video device
-                case VIDEO_SET: {
-                    // end capturing if active
-                    if (video_active) {
-                        video_endread();
-                    }
-
-                    // close the currently active video device if any
-                    if (video_device_open) {
-                        closevideodevice(video_device);
-                        video_device_open = 0;
-                    }
-
-                    // select the new device
-                    video_device = m->data;
-                    if(video_device == NULL) {
-                        // reset if no device is selected
-                        video_device_open = 0;
-                        video_active = 0;
-                        video_count = 0;
-                        video_width = 0;
-                        video_height = 0;
-                        debug("uToxVID:\tChanged video input to NONE\n");
-                        break;
-                    }
-
-                    // directly open new device if any calls/previews are currently active
-                    if (video_count) {
-                        video_device_open = openvideodevice(video_device);
-                        if (video_device_open) {
-                            video_active = video_startread();
-                        } else {
-                            // reset if opening failed
-                            video_active = 0;
-                            video_count  = 0;
-                            debug("uToxVID:\tChanging video input device failed: unable to open device.\n");
-                            break;
-                        }
-                    } else {
-                        // open the video device to get some info e.g. frame size
-                        // close it afterwards to not block the device while it is not used
-                        if (openvideodevice(video_device)) {
-                            closevideodevice(video_device);
-                        }
-                        video_active = 0;
-                    }
-
-                    debug("uToxVID:\tChanged video input device\n");
-                    break;
-                }
-                // VIDEO_PREVIEW_START: a video preview has been opened
-                case VIDEO_PREVIEW_START: {
-                    debug("uToxVID:\tStarting video preview\n");
-                    video_preview = 1;
-                }
-                // VIDEO_RECORD_START: a video call has started
-                case VIDEO_RECORD_START: {
-                    // open device if not opended already
-                    if (video_device && !video_device_open) {
-                        video_device_open = openvideodevice(video_device);
-                    }
-                    if (!video_device_open) {
-                        debug("uToxVID:\tFailed to start video, no open video device\n");
-                        break;
-                    }
-                    // if video device is successfully opended, start capturing
-                    if ( video_width && video_height ) {
-                        video_count++;
-                        if (video_count && !video_active) {
-                            video_active = video_startread();
-                        }
-                    } else {
-                        debug("uToxVID:\tCan't start video for a 0 by 0 frame\n");
-                        break;
-                    }
-                    debug("uToxVID:\tStarting video feed (%i)\n", video_count);
-                    break;
-                }
-                // VIDEO_PREVIEW_STOP: a video preview has ended
-                case VIDEO_PREVIEW_STOP: {
-                    debug("uToxVID:\tClosing video preview\n");
-                    video_preview = 0;
-                    postmessage(AV_CLOSE_WINDOW, 0, 0, NULL);
-                }
-                // VIDEO_RECORD_STOP: a video call has ended
-                case VIDEO_RECORD_STOP: {
-                    video_count--;
-                    debug("uToxVID:\tEnd of video record... (%i)\n", video_count);
-                    if (video_count > UTOX_MAX_CALLS) {
-                        debug("uToxVID:\tExceeded max calls, abort abort!!\n");
-                        video_count = 0;
-                    }
-                    if (!video_count && video_active) {
-                        debug("uToxVID:\tLast video feed close, ending read.\n");
-                        video_endread();
-                        video_active = 0;
-                        // this was the last call/preview, close the device
-                        closevideodevice(video_device);
-                        video_device_open = 0;
-                    }
-                    break;
-                }
-            }
-            video_thread_msg = 0;
-        }
-
         if (video_active) {
             // capturing is enabled, capture frames
             int r = video_getframe(utox_video_frame.y, utox_video_frame.u, utox_video_frame.v, utox_video_frame.w, utox_video_frame.h);
@@ -224,15 +99,7 @@ void utox_video_thread(void *args) {
             }
         }
 
-        yieldcpu(5);
-    }
-
-    if (video_active) {
-        video_endread();
-    }
-
-    if (video_device_open) {
-        closevideodevice(video_device);
+        yieldcpu(20);
     }
 
     video_thread_msg = 0;
