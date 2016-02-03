@@ -1406,8 +1406,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     thread(toxcore_thread, NULL);
 
     //wait for tox_thread init
-    while(!tox_thread_init) {     
-        Sleep(1);     
+    while(!tox_thread_init && !encrypted_profile) {    
+        yieldcpu(1);     
     }
 
     if (*cmd) {
