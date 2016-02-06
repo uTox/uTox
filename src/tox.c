@@ -717,6 +717,10 @@ void toxcore_thread(void *UNUSED(args)) {
 
             // Start the treads
             thread(utox_av_ctrl_thread, av);
+
+            /* Moved into the utoxav ctrl thread */
+            // thread(utox_audio_thread, av);
+            // thread(utox_video_thread, av);
         }
 
         _Bool connected = 0;
@@ -1120,6 +1124,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
                 v_bitrate = 0;
                 debug("Tox:\tSending call to friend %u\n", param1);
             }
+            postmessage_utoxav(UTOXAV_OUTGOING_CALL_PENDING, param1, param2, NULL);
 
             TOXAV_ERR_CALL error = 0;
             toxav_call(av, param1, UTOX_DEFAULT_BITRATE_A, v_bitrate, &error);
@@ -1140,7 +1145,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
                         if (error) {
                             debug("uTox:\tError trying to toxav_answer error (%i)\n", error);
                         } else {
-                            postmessage_utoxav(UTOXAV_START_CALL, param1, param2, NULL);
+                            postmessage_utoxav(UTOXAV_OUTGOING_CALL_ACCEPTED, param1, param2, NULL);
                         }
                         postmessage(AV_CALL_ACCEPTED, param1, 0, NULL);
 
@@ -1158,7 +1163,6 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
                     }
                 }
             } else {
-                postmessage_utoxav(UTOXAV_START_CALL, param1, param2, NULL);
                 postmessage(AV_CALL_RINGING, param1, param2, NULL);
             }
             break;
@@ -1252,6 +1256,8 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
         case TOX_GROUP_PART: {
             /* param1: group #
              */
+            postmessage_utoxav(UTOXAV_GROUPCALL_END, param1, param1, NULL);
+
             tox_del_groupchat(tox, param1);
             save_needed = 1;
             break;
@@ -1851,7 +1857,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
 
             if (g->type == TOX_GROUPCHAT_TYPE_AV) {
                 g->audio_calling = 1;
-                postmessage_utoxav(UTOXAV_START_CALL, 0, param1, NULL);
+                postmessage_utoxav(UTOXAV_GROUPCALL_START, 0, param1, NULL);
                 redraw();
             }
             break;
@@ -1861,7 +1867,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
 
             if (g->type == TOX_GROUPCHAT_TYPE_AV) {
                 g->audio_calling = 0;
-                postmessage_utoxav(UTOXAV_END_CALL, 0, param1, NULL);
+                postmessage_utoxav(UTOXAV_GROUPCALL_END, 0, param1, NULL);
                 redraw();
             }
             break;

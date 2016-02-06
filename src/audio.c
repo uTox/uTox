@@ -122,11 +122,13 @@ void utox_audio_out_device_open(void) {
     ALint error;
     alGetError(); /* clear errors */
 
+    /* Create the buffers for the ringtone */
     alGenSources((ALuint)1, &preview);
     if ((error = alGetError()) != AL_NO_ERROR) {
         debug("uToxAudio:\tError generating source with err %x\n", error);
         return;
     }
+    /* Create the buffers for incoming audio */
     alGenSources((ALuint)1, &ringtone);
     if ((error = alGetError()) != AL_NO_ERROR) {
         debug("uToxAudio:\tError generating source with err %x\n", error);
@@ -383,8 +385,8 @@ void utox_audio_thread(void *args){
     preview_buffer = calloc(PREVIEW_BUFFER_SIZE, 2);
     preview_buffer_index = 0;
 
-    utox_audio_thread_init = 1;
     while(1) {
+        utox_audio_thread_init = 1;
         if(audio_thread_msg) {
             TOX_MSG *m = &audio_msg;
             if(!m->msg) {
@@ -403,6 +405,7 @@ void utox_audio_thread(void *args){
                     FRIEND *f = &friend[m->param1];
                     if (f->audio_dest) {
                         utox_audio_term_source(&f->audio_dest);
+                        f->audio_dest = NULL;
                     }
                     break;
                 }
@@ -417,6 +420,10 @@ void utox_audio_thread(void *args){
                 case UTOXAUDIO_PLAY_RINGTONE: {
                     if (audible_notifications_enabled) {
                         debug("starting ringtone!\n");
+
+                        alSourcei(ringtone, AL_LOOPING, AL_TRUE);
+                        alSourcei(ringtone, AL_BUFFER,  RingBuffer);
+
                         alSourcePlay(ringtone);
                     }
                     break;

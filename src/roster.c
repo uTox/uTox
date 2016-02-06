@@ -529,9 +529,6 @@ static void deleteitem(ITEM *i) {
                     g->peername[j] = NULL;
                 }
             }
-
-            postmessage_utoxav(UTOXAV_END_CALL, 0, (g - group), NULL);
-
             group_free(g);
             break;
         }
@@ -776,7 +773,7 @@ _Bool list_mup(void *UNUSED(n)) {
     _Bool draw = 0;
     tooltip_mup(); /* may need to return one true */
     if(selected_item_mousedown && abs(selected_item_dy) >= 5) {
-        if(nitem && find_item_shown_index(nitem) != INT_MAX) { 
+        if(nitem && find_item_shown_index(nitem) != INT_MAX) {
             if(selected_item->item == ITEM_FRIEND) {
                 if(nitem->item == ITEM_FRIEND) {
                     ITEM temp;
