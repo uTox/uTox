@@ -1,18 +1,16 @@
+#define STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "main.h"
 
 /** Change source of main.c if windows or android
  *  else default to xlib
  **/
-#ifdef __WIN32__
-//#include "windows/main.c"
+#if defined __WIN32__
+  //#include "windows/main.c"
+#elif defined __ANDROID__
+  #include "android/main.c"
+#elif defined__OBJC__
+  // #include "cocoa/main.m"
 #else
-#ifdef __ANDROID__
-#include "android/main.c"
-#else
-#ifdef __OBJC__
-// #include "cocoa/main.m"
-#else
-#include "xlib/main.c"
-#endif
-#endif
+  // #include "xlib/main.c"
 #endif

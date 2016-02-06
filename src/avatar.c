@@ -9,8 +9,6 @@
  *  if png_size_out is not null, the size of the png data will be stored in it
  *
  *  returns: 1 on successful loading, 0 on failure
- *
- * TODO: move this function into avatar.c
  */
 _Bool init_avatar(AVATAR *avatar, const char_t *id, uint8_t *png_data_out, uint32_t *png_size_out) {
     unset_avatar(avatar);
@@ -55,14 +53,18 @@ void avatar_free_image(AVATAR *avatar)
 int load_avatar(const char_t *id, uint8_t *dest, uint32_t *size_out)
 {
     char_t path[UTOX_FILE_NAME_LENGTH];
-    uint32_t size;
+    int size;
 
     get_avatar_location(path, id);
 
-    uint8_t *avatar_data = file_raw((char *)path, &size);
-    if (!avatar_data) {
+    int width, height, bpp;
+    uint8_t *img = stbi_load((const char*)path, &width, &height, &bpp, 0);
+    if (!img) {
         return 0;
     }
+    uint8_t *avatar_data = stbi_write_png_to_mem(img, 0, width, height, bpp, &size);
+    free(img);
+
     if (size > UTOX_AVATAR_MAX_DATA_LENGTH) {
         free(avatar_data);
         debug("Avatars:\t saved avatar file(%s) too large for tox\n", path);
@@ -113,7 +115,7 @@ int set_avatar(AVATAR *avatar, const uint8_t *data, uint32_t size)
     }
 
     uint16_t w, h;
-    UTOX_NATIVE_IMAGE *image = png_to_image((UTOX_PNG_IMAGE)data, size, &w, &h, 1);
+    UTOX_NATIVE_IMAGE *image = decode_image((UTOX_IMAGE)data, size, &w, &h, 1);
     if(!UTOX_NATIVE_IMAGE_IS_VALID(image)) {
         debug("Avatars:\t avatar is invalid\n");
         return 0;

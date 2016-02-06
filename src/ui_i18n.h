@@ -194,3 +194,11 @@ LANG_WINDOWS_ID(0x0816)
 #include "../langs/en.h" //fallback to English for untranslated things
 #include "../langs/pt.h"
 #undef _LANG_ID
+
+//"ESPERANTO" "Esperanto"
+#define _LANG_ID LANG_EO
+LANG_POSIX_LOCALE("eo")
+//LANG_WINDOWS_ID(0x0000)
+#include "../langs/en.h" //fallback to English for untranslated things
+#include "../langs/eo.h"
+#undef _LANG_ID

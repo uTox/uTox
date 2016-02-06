@@ -437,14 +437,20 @@ static void write_save(Tox *tox) {
     memcpy(path_tmp + (path_len - 1), ".tmp", sizeof(".tmp"));
     debug("Writing tox_save to: '%s'\n", (char*)path_tmp);
 
-    UTOX_ENC_ERR enc_err = utox_encrypt_data(data, clear_length, encrypted_data);
-    if (enc_err) {
-        /* encryption failed, write clear text data */
+    if (edit_profile_password.length == 0) {
+        // user doesn't use encryption
         file_write_raw(path_tmp, data, clear_length);
-        debug("\n\n\t\tWARNING UTOX WAS UNABLE TO ENCRYPT DATA!\n\t\tDATA WRITTEN IN CLEAR TEXT!\n\n");
+        debug("Unencrypted save data written\n");
     } else {
-        file_write_raw(path_tmp, encrypted_data, encrypted_length);
-        debug("Save encrypted!\n");
+        UTOX_ENC_ERR enc_err = utox_encrypt_data(data, clear_length, encrypted_data);
+        if (enc_err) {
+            /* encryption failed, write clear text data */
+            file_write_raw(path_tmp, data, clear_length);
+            debug("\n\n\t\tWARNING UTOX WAS UNABLE TO ENCRYPT DATA!\n\t\tDATA WRITTEN IN CLEAR TEXT!\n\n");
+        } else {
+            file_write_raw(path_tmp, encrypted_data, encrypted_length);
+            debug("Encrypted save data written\n");
+        }
     }
 
     if (rename((char*)path_tmp, (char*)path_real) != 0) {
@@ -1064,7 +1070,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
                data: pointer to a TOX_SEND_INLINE_MSG struct
              */
             struct TOX_SEND_INLINE_MSG *tsim = data;
-            outgoing_file_send(tox, param1, NULL, tsim->image->png_data, tsim->image_size, TOX_FILE_KIND_DATA);
+            outgoing_file_send(tox, param1, NULL, tsim->image, tsim->image_size, TOX_FILE_KIND_DATA);
             free(tsim);
 
             break;

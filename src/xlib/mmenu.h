@@ -1,3 +1,5 @@
+#include "../main.h"
+
 /* Function which removes an entry from the messaging menu
  * Is called by xlib/{list,event}.c and takes in parameter a friend ID
  */

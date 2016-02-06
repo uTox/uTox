@@ -91,7 +91,7 @@ void friend_set_alias(FRIEND *f, char_t *alias, STRING_IDX length){
     utox_write_metadata(f);
 }
 
-void friend_sendimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width, uint16_t height, UTOX_PNG_IMAGE png_image, size_t png_size) {
+void friend_sendimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width, uint16_t height, UTOX_IMAGE png_image, size_t png_size) {
     MSG_IMG *msg = malloc(sizeof(MSG_IMG));
     msg->author = 1;
     msg->msg_type = MSG_TYPE_IMAGE;

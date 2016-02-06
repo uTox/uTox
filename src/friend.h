@@ -41,7 +41,7 @@ void utox_friend_init(Tox *tox, uint32_t friend_number);
 void friend_setname(FRIEND *f, char_t *name, STRING_IDX length);
 void friend_set_alias(FRIEND *f, char_t *alias, STRING_IDX length);
 void friend_addmessage(FRIEND *f, void *data);
-void friend_sendimage(FRIEND *f, UTOX_NATIVE_IMAGE *, uint16_t width, uint16_t height, UTOX_PNG_IMAGE, size_t png_size);
+void friend_sendimage(FRIEND *f, UTOX_NATIVE_IMAGE *, uint16_t width, uint16_t height, UTOX_IMAGE, size_t png_size);
 void friend_recvimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width, uint16_t height);
 
 void friend_notify(FRIEND *f, char_t *str, STRING_IDX str_length, char_t *msg, STRING_IDX msg_length);

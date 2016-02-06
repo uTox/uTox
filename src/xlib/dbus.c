@@ -1,3 +1,8 @@
+#include "../main.h"
+
+#ifndef NO_DBUS
+#define HAVE_DBUS
+
 #include <dbus/dbus.h>
 #include <signal.h>
 
@@ -115,3 +120,5 @@ void dbus_notify(char *title, char *content, uint8_t *cid)
 
     return;
 }
+
+#endif

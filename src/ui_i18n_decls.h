@@ -23,8 +23,9 @@ enum {
     LANG_SV,
     LANG_HU,
     LANG_PT,
-    //Do NOT add new values beyond this point, or alter LANGS_MAX accordingly.
-    LANGS_MAX = LANG_PT
+    LANG_EO,
+
+    NUM_LANGS // add langs before this line
 };
 
 enum {
@@ -244,8 +245,8 @@ enum {
 
     STR_LANG_NATIVE_NAME,
     STR_LANG_ENGLISH_NAME,
-    //Do NOT add new values beyond this point, or alter STRS_MAX accordingly.
-    STRS_MAX = STR_LANG_ENGLISH_NAME
+
+    NUM_STRS // add strings before this line
 };
 
 typedef uint8_t UI_LANG_ID;

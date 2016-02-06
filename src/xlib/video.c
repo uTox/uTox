@@ -1,3 +1,5 @@
+#include "../main.h"
+
 void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height, _Bool resize) {
     if (!video_win[id]) {
         debug("frame for null window %u\n", id);
@@ -104,8 +106,6 @@ void* video_detect(void) {
     // Indicate that we support desktop capturing.
     postmessage(VIDEO_IN_DEVICE, STR_VIDEO_IN_DESKTOP, 0, (void*)1);
 
-    #ifdef __APPLE__
-    #else
     int i;
     for(i = 0; i != 64; i++) {
         snprintf(dev_name + 10, sizeof(dev_name) - 10, "%i", i);
@@ -134,7 +134,6 @@ void* video_detect(void) {
         }
 
     }
-    #endif
 
     initshm();
 

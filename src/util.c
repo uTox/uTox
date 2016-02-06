@@ -642,6 +642,8 @@ UTOX_SAVE* config_load(void)
             /* validate values */
             if(save->scale > 40) {
                 save->scale = 40;
+            } else if (save->scale < 5) {
+                save->scale = 10;
             }
             goto NEXT;
         } else if (save->version == 2) {
@@ -691,8 +693,7 @@ UTOX_SAVE* config_load(void)
 
     config_osdefaults(save);
 NEXT:
-    dropdown_dpi.selected                  = dropdown_dpi.over                  = save->scale - 6;
-    ui_set_scale(save->scale);
+    dropdown_dpi.selected                  = dropdown_dpi.over                  = save->scale - 5;
 
     dropdown_ipv6.selected                 = dropdown_ipv6.over                 = !save->enableipv6;
     dropdown_udp.selected                  = dropdown_udp.over                  = (save->disableudp != 0);
@@ -766,7 +767,7 @@ void config_save(UTOX_SAVE *save)
     }
 
     save->version                       = SAVE_VERSION;
-    save->scale                         = ui_scale;
+    save->scale                         = ui_scale - 1;
     save->enableipv6                    = !dropdown_ipv6.selected;
     save->disableudp                    = dropdown_udp.selected;
     save->proxyenable                   = dropdown_proxy.selected;

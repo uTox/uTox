@@ -9,20 +9,13 @@ DEPS = libtoxav libtoxcore openal vpx libsodium
 
 UNAME_S := $(shell uname -s)
 UNAME_O := $(shell uname -o)
-ARCH    := $(shell uname -m)
 
-CFLAGS += -g -Wall -Wshadow -pthread -std=gnu99
+CFLAGS += -g -Wall -Wshadow -pthread -std=gnu99 -fno-strict-aliasing
 LDFLAGS += -pthread -lm
 
 ifeq ($(FILTER_AUDIO), 1)
 	DEPS += filteraudio
 	CFLAGS += -DAUDIO_FILTERING
-endif
-
-ifeq ($(ARCH), x86_64)
-	OBJCPY = elf64-x86-64
-else
-	OBJCPY = elf32-i386
 endif
 
 ifeq ($(UNAME_S), Linux)
@@ -52,8 +45,11 @@ ifeq ($(UNAME_S), Linux)
 	LDFLAGS += -lresolv -ldl
 	LDFLAGS += $(shell pkg-config --libs $(DEPS))
 
+	OS_SRC = $(wildcard src/xlib/*.c)
+	OS_OBJ = $(OS_SRC:.c=.o)
+
 	TRAY_OBJ = icons/utox-128x128.o
-	TRAY_GEN = objcopy -I binary -O $(OBJCPY) -B i386 icons/utox-128x128.png
+	TRAY_GEN = $(LD) -r -b binary icons/utox-128x128.png -o
 else ifeq ($(UNAME_O), Cygwin)
 	OUT_FILE = utox.exe
 
@@ -77,7 +73,7 @@ endif
 DESTDIR ?=
 PREFIX ?= /usr/local
 
-SRC = $(wildcard src/*.c src/png/png.c)
+SRC = $(wildcard src/*.c)
 HEADERS = $(wildcard src/*.h src/*/*.h)
 OBJ = $(SRC:.c=.o)
 GIT_V = $(shell git describe --abbrev=8 --dirty --always --tags)
@@ -142,6 +138,6 @@ $(TRAY_OBJ):
 	$(TRAY_GEN) $(TRAY_OBJ)
 
 clean:
-	rm -f $(OUT_FILE) src/*.o src/png/*.o src/icons/*.o src/windows/*.o
+	rm -f $(OUT_FILE) src/*.o src/icons/*.o src/xlib/*.o src/windows/*.o
 
 .PHONY: all clean
