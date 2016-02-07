@@ -1073,10 +1073,10 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
             /* param1: friend id
                data: pointer to a TOX_SEND_INLINE_MSG struct
              */
-            struct TOX_SEND_INLINE_MSG *tsim = data;
-            outgoing_file_send(tox, param1, NULL, tsim->image, tsim->image_size, TOX_FILE_KIND_DATA);
-            free(tsim);
+            debug("Sending picture of %zu\n", ((struct TOX_SEND_INLINE_MSG*)data)->image_size);
 
+            outgoing_file_send(tox, param1, NULL, ((struct TOX_SEND_INLINE_MSG*)data)->image, ((struct TOX_SEND_INLINE_MSG*)data)->image_size, TOX_FILE_KIND_DATA);
+            free(data);
             break;
         }
         case TOX_FILE_ACCEPT: {

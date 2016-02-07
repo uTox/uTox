@@ -693,7 +693,7 @@ static void sendbitmap(HDC mem, HBITMAP hbm, int width, int height)
         pp += width * 3 + pbytes;
     }
 
-    size_t size = -1;
+    size_t size = 0;
     uint8_t *out = stbi_write_png_to_mem(bits, 0, width, height, 3, &size);
     free(bits);
 
