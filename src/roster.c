@@ -727,9 +727,9 @@ static void contextmenu_list_onselect(uint8_t i) {
 
 _Bool list_mright(void *UNUSED(n)) {
     static UI_STRING_ID menu_friend[] = {STR_SET_ALIAS, STR_CLEAR_HISTORY, STR_REMOVE_FRIEND};
-    static UI_STRING_ID menu_group_unmuted[] = {STR_CHANGE_GROUP_TOPIC, STR_MUTE, STR_REMOVE_GROUP};
-    static UI_STRING_ID menu_group_muted[] = {STR_CHANGE_GROUP_TOPIC, STR_UNMUTE, STR_REMOVE_GROUP};
-    static UI_STRING_ID menu_group[] = {STR_CHANGE_GROUP_TOPIC, STR_REMOVE_GROUP};
+    static UI_STRING_ID menu_group_unmuted[] = {STR_CHANGE_GROUP_TOPIC, STR_MUTE, STR_LEAVE};
+    static UI_STRING_ID menu_group_muted[] = {STR_CHANGE_GROUP_TOPIC, STR_UNMUTE, STR_LEAVE};
+    static UI_STRING_ID menu_group[] = {STR_CHANGE_GROUP_TOPIC, STR_LEAVE};
     static UI_STRING_ID menu_request[] = {STR_REQ_ACCEPT, STR_REQ_DECLINE};
     static UI_STRING_ID menu_none[] = {STR_ADDFRIENDS, STR_CREATEGROUPCHAT};
 
