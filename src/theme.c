@@ -365,7 +365,7 @@ void read_custom_theme(const char *path) {
 
     FILE *f = fopen(path, "r");
     if (!f) {
-        perror("whad de fug DDD-xx");
+        perror("warning");
         return;
     }
 
