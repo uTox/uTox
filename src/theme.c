@@ -360,12 +360,12 @@ uint32_t try_parse_hex_colour(char *colour, int *error) {
 }
 
 void read_custom_theme(const char *path) {
-    puts("hello");
+    puts("Loading custom theme:");
     puts(path);
 
     FILE *f = fopen(path, "r");
     if (!f) {
-        perror("warning");
+        perror("error: failed to open theme");
         return;
     }
 
@@ -397,7 +397,7 @@ void read_custom_theme(const char *path) {
         uint32_t col = try_parse_hex_colour(colour, &err);
 
         if (err) {
-            puts("error");
+            puts("error: parsing hex colour failed");
             continue;
         } else {
             *colourp = COLOR_PROC(col);
