@@ -292,7 +292,7 @@ void theme_load(char loadtheme) {
         int size = sizeof("utox_theme.ini");
 
         if (len + size > 1024) {
-            puts("datapath too long, abandoning ship!");
+            debug("datapath too long, abandoning ship!\n");
             break;
         }
 
@@ -360,12 +360,11 @@ uint32_t try_parse_hex_colour(char *colour, int *error) {
 }
 
 void read_custom_theme(const char *path) {
-    puts("Loading custom theme:");
-    puts(path);
+    debug("Loading custom theme: %s\n", path);
 
     FILE *f = fopen(path, "r");
     if (!f) {
-        perror("error: failed to open theme");
+        debug("error: failed to open theme: %s\n", strerror(errno));
         return;
     }
 
@@ -397,11 +396,11 @@ void read_custom_theme(const char *path) {
         uint32_t col = try_parse_hex_colour(colour, &err);
 
         if (err) {
-            puts("error: parsing hex colour failed");
+            debug("error: parsing hex colour failed\n");
             continue;
         } else {
             *colourp = COLOR_PROC(col);
-            puts("set colour...");
+            debug("set colour...\n");
         }
     }
 
