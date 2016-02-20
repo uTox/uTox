@@ -212,7 +212,7 @@ msgid(PROFILE_PASSWORD)
 msgstr("Profile password")
 
 msgid(LOCK_UTOX)
-msgstr("Disconnects from Toxcore, and locks profile")
+msgstr("Disconnects from Tox and locks this profile.")
 
 msgid(LOCK)
 msgstr("Lock")
@@ -435,6 +435,12 @@ msgstr("Off")
 
 msgid(ON)
 msgstr("On")
+
+msgid(SHOW)
+msgstr("Show")
+
+msgid(HIDE)
+msgstr("Hide")
 
 msgid(VIDEO_IN_NONE)
 msgstr("None")

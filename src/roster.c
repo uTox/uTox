@@ -291,6 +291,7 @@ static void show_page(ITEM *i) {
                 button_settings.disabled       = 0;
                 panel_settings_master.disabled = 1;
                 panel_overhead.disabled        = 1;
+                panel_profile_password_settings.disabled = 1;
             }
             break;
         }
@@ -771,7 +772,7 @@ _Bool list_mup(void *UNUSED(n)) {
     _Bool draw = 0;
     tooltip_mup(); /* may need to return one true */
     if(selected_item_mousedown && abs(selected_item_dy) >= 5) {
-        if(nitem && find_item_shown_index(nitem) != INT_MAX) { 
+        if(nitem && find_item_shown_index(nitem) != INT_MAX) {
             if(selected_item->item == ITEM_FRIEND) {
                 if(nitem->item == ITEM_FRIEND) {
                     ITEM temp;

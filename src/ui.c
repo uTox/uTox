@@ -296,11 +296,13 @@ static void draw_settings_text_profile(int x, int y, int w, int h){
     setfont(FONT_TEXT);
     drawstr(MAIN_LEFT + UTOX_SCALE(5 ), y + UTOX_SCALE(75  ), LANGUAGE);
     drawstr(MAIN_LEFT + UTOX_SCALE(5 ), y + UTOX_SCALE(100 ), PROFILE_PASSWORD);
+}
 
+static void draw_settings_text_password(int x, int y, int w, int h) {
     setfont(FONT_MISC);
     setcolor(C_RED);
-    drawstr(MAIN_LEFT + UTOX_SCALE(40 ), y + UTOX_SCALE(123 ), PROFILE_PW_WARNING);
-    drawstr(MAIN_LEFT + UTOX_SCALE(40 ), y + UTOX_SCALE(130 ), PROFILE_PW_NO_RECOVER);
+    drawstr(MAIN_LEFT + UTOX_SCALE(40), y + UTOX_SCALE(128), PROFILE_PW_WARNING);
+    drawstr(MAIN_LEFT + UTOX_SCALE(40), y + UTOX_SCALE(135), PROFILE_PW_NO_RECOVER);
 }
 
 static void draw_settings_text_network(int x, int y, int w, int UNUSED(height)){
@@ -502,6 +504,7 @@ PANEL panel_root,
                 panel_settings_master,
                     panel_settings_subheader,
                     panel_settings_profile,
+                        panel_profile_password_settings,
                     panel_settings_net,
                     panel_settings_ui,
                     panel_settings_av;
@@ -697,11 +700,22 @@ panel_main = {
                     (void*)&button_change_id_type,
                     #endif
                     (void*)&dropdown_language,
-                    (void*)&edit_profile_password,
-                    (void*)&button_lock_uTox,
+                    (void*)&button_show_password_settings,
+                    (void*)&panel_profile_password_settings,
                     NULL
                 }
             },
+
+                panel_profile_password_settings = {
+                    .type     = PANEL_NONE,
+                    .disabled = 1,
+                    .drawfunc = draw_settings_text_password,
+                    .child = (PANEL*[]) {
+                        (void*)&edit_profile_password,
+                        (void*)&button_lock_uTox,
+                        NULL
+                    }
+                },
 
             panel_settings_net = {
                 .type = PANEL_NONE,
@@ -1006,43 +1020,52 @@ void ui_set_scale(uint8_t scale) {
 
         b_lock_uTox = {
             .type   = PANEL_BUTTON,
-            .x      =   UTOX_SCALE(5 ),
-            .y      = UTOX_SCALE(125 ),
+            .x      = UTOX_SCALE(5),
+            .y      = UTOX_SCALE(130),
+            .width  = BM_SBUTTON_WIDTH,
+            .height = BM_SBUTTON_HEIGHT,
+        },
+
+        b_show_password_settings = {
+            .type   = PANEL_BUTTON,
+            .x      = UTOX_SCALE(50),
+            .y      = UTOX_SCALE(100),
             .width  = BM_SBUTTON_WIDTH,
             .height = BM_SBUTTON_HEIGHT,
         };
 
     /* Set the button panels */
-        button_avatar.panel = b_avatar;
-        button_name.panel = b_name;
-        button_statusmsg.panel = b_statusmsg;
-        button_status.panel = b_status_button;
+        button_avatar.panel                  = b_avatar;
+        button_name.panel                    = b_name;
+        button_statusmsg.panel               = b_statusmsg;
+        button_status.panel                  = b_status_button;
 
-        button_filter_friends.panel = b_filter_friends;
+        button_filter_friends.panel          = b_filter_friends;
 
-        button_add_new_contact.panel = b_add_new_contact;
-        button_settings.panel = b_settings;
-        button_create_group.panel = b_create_group;
+        button_add_new_contact.panel         = b_add_new_contact;
+        button_settings.panel                = b_settings;
+        button_create_group.panel            = b_create_group;
 
-        button_copyid.panel = b_copyid;
-        button_settings_sub_profile.panel = b_settings_sub_profile;
-        button_settings_sub_net.panel = b_settings_sub_net;
-        button_settings_sub_ui.panel = b_settings_sub_ui;
-        button_settings_sub_av.panel = b_settings_sub_av;
+        button_copyid.panel                  = b_copyid;
+        button_settings_sub_profile.panel    = b_settings_sub_profile;
+        button_settings_sub_net.panel        = b_settings_sub_net;
+        button_settings_sub_ui.panel         = b_settings_sub_ui;
+        button_settings_sub_av.panel         = b_settings_sub_av;
         #ifdef EMOJI_IDS
-        button_change_id_type.panel = b_change_id_type;
+        button_change_id_type.panel          = b_change_id_type;
         #endif
-        button_send_friend_request.panel = b_send_friend_request;
-        button_call_audio.panel          = b_call_audio;
-        button_call_video.panel          = b_call_video;
-        button_group_audio.panel         = b_group_audio;
-        button_accept_friend.panel       = b_accept_friend;
-        button_callpreview.panel         = b_callpreview;
-        button_videopreview.panel        = b_videopreview;
-        button_send_file.panel           = b_send_file;
-        button_send_screenshot.panel     = b_send_screenshot;
-        button_chat_send.panel           = b_chat_send;
-        button_lock_uTox.panel           = b_lock_uTox;
+        button_send_friend_request.panel     = b_send_friend_request;
+        button_call_audio.panel              = b_call_audio;
+        button_call_video.panel              = b_call_video;
+        button_group_audio.panel             = b_group_audio;
+        button_accept_friend.panel           = b_accept_friend;
+        button_callpreview.panel             = b_callpreview;
+        button_videopreview.panel            = b_videopreview;
+        button_send_file.panel               = b_send_file;
+        button_send_screenshot.panel         = b_send_screenshot;
+        button_chat_send.panel               = b_chat_send;
+        button_lock_uTox.panel               = b_lock_uTox;
+        button_show_password_settings.panel  = b_show_password_settings;
 
     /* Drop down structs */
         setfont(FONT_TEXT);
@@ -1250,19 +1273,19 @@ void ui_set_scale(uint8_t scale) {
 
         e_profile_password = {
             .type   = PANEL_EDIT,
-            .x      = UTOX_SCALE(5  ),  /* move the edit depending on what page! */
-            .y      = UTOX_SCALE(44 ) + (UTOX_SCALE(65 ) * panel_profile_password.disabled),
-            .height = UTOX_SCALE(12 ),
-            .width  = -UTOX_SCALE(5 ),
+            .x      =  UTOX_SCALE( 5),  /* move the edit depending on what page! */
+            .y      =  UTOX_SCALE(44) + (UTOX_SCALE(70) * panel_profile_password.disabled),
+            .height =  UTOX_SCALE(12),
+            .width  = -UTOX_SCALE( 5),
         },
 
         /* Message entry box for friends and groups */
         e_msg = {
             .type   = PANEL_EDIT,
-            .x      =   UTOX_SCALE(5 ) + BM_CHAT_BUTTON_WIDTH * 2, /* Make space for the left button  */
-            .y      = -UTOX_SCALE(23 ),
-            .width  = -UTOX_SCALE(32 ),
-            .height =  UTOX_SCALE(20 ),
+            .x      =  UTOX_SCALE( 5) + BM_CHAT_BUTTON_WIDTH * 2, /* Make space for the left button  */
+            .y      = -UTOX_SCALE(23),
+            .width  = -UTOX_SCALE(32),
+            .height =  UTOX_SCALE(20),
             /* text is 8 high. 8 * 2.5 = 20. */
         },
 

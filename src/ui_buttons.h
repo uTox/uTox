@@ -419,8 +419,13 @@ static void button_lock_uTox_onpress(void) {
         list_selectsettings();
         panel_profile_password.disabled = 0;
         panel_settings_master.disabled  = 1;
+        panel_profile_password_settings.disabled = 1;
         tox_settingschanged();
     }
+}
+
+static void button_show_password_settings_onpress(void) {
+    panel_profile_password_settings.disabled = 0;
 }
 
 BUTTON button_avatar = {
@@ -624,5 +629,13 @@ button_lock_uTox = {
     .update       = button_setcolors_success,
     .onpress      = button_lock_uTox_onpress,
     .button_text  = { .i18nal = STR_LOCK      },
+    .tooltip_text = { .i18nal = STR_LOCK_UTOX },
+},
+
+button_show_password_settings = {
+    .bm           = BM_SBUTTON,
+    .update       = button_setcolors_success,
+    .onpress      = button_show_password_settings_onpress,
+    .button_text  = { .i18nal = STR_SHOW      },
     .tooltip_text = { .i18nal = STR_LOCK_UTOX },
 };
