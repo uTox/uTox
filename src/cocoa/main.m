@@ -16,8 +16,6 @@
 #define DEFAULT_WIDTH (382 * DEFAULT_SCALE)
 #define DEFAULT_HEIGHT (320 * DEFAULT_SCALE)
 
-static _Bool utox_portable = 0;
-
 void debug(const char *fmt, ...) {
     va_list l;
     va_start(l, fmt);
@@ -62,57 +60,6 @@ void image_free(UTOX_NATIVE_IMAGE *img) {
 }
 
 static BOOL theme_set_on_argv = NO;
-
-int parse_argv(int argc, char const *argv[]) {
-    int parse_args_wait_for_theme = 0;
-
-    if (argc > 1) {
-        for (int i = 1; i < argc; i++) {
-            if (parse_args_wait_for_theme) {
-                if(!strcmp(argv[i], "default")) {
-                    theme = THEME_DEFAULT;
-                    parse_args_wait_for_theme = 0;
-                    theme_set_on_argv = YES;
-                    continue;
-                }
-                if(!strcmp(argv[i], "dark")) {
-                    theme = THEME_DARK;
-                    parse_args_wait_for_theme = 0;
-                    theme_set_on_argv = YES;
-                    continue;
-                }
-                if(!strcmp(argv[i], "light")) {
-                    theme = THEME_LIGHT;
-                    parse_args_wait_for_theme = 0;
-                    theme_set_on_argv = YES;
-                    continue;
-                }
-                if(!strcmp(argv[i], "highcontrast")) {
-                    theme = THEME_HIGHCONTRAST;
-                    parse_args_wait_for_theme = 0;
-                    theme_set_on_argv = YES;
-                    continue;
-                }
-                debug("Please specify correct theme (please check user manual for list of correct values).");
-            }
-
-            if(!strcmp(argv[i], "--version")) {
-                debug("%s\n", VERSION);
-                return 1;
-            }
-            if(!strcmp(argv[i], "--portable")) {
-                debug("Launching uTox in portable mode: All data will be saved to the tox folder in the current working directory\n");
-                utox_portable = 1;
-            }
-            if(!strcmp(argv[i], "--theme")) {
-                parse_args_wait_for_theme = 1;
-            }
-            printf("arg %d: %s\n", i, argv[i]);
-        }
-    }
-
-    return 0;
-}
 
 void thread(void func(void*), void *args) {
     pthread_t thread_temp;
@@ -527,11 +474,23 @@ void launch_at_startup(int should) {
 @end
 
 int main(int argc, char const *argv[]) {
-    theme = THEME_DEFAULT;
+    bool theme_was_set_on_argv;
+    int8_t should_launch_at_startup;
+    int8_t set_show_window;
+    bool no_updater;
 
-    int fatal = parse_argv(argc, argv);
-    if (fatal) {
-        return fatal;
+    parse_args(argc, argv, &theme_was_set_on_argv, &should_launch_at_startup, &set_show_window, &no_updater);
+
+    if (should_launch_at_startup == 1 || should_launch_at_startup == -1) {
+        debug("Start on boot not supported on this OS!\n");
+    }
+
+    if (set_show_window == 1 || set_show_window == -1) {
+        debug("Showing/hiding windows not supported on this OS!\n");
+    }
+
+    if (no_updater == true) {
+        debug("Disabling the updater is not supported on this OS. Updates are managed by the app store.\n");
     }
 
     setlocale(LC_ALL, "");
