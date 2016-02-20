@@ -548,7 +548,19 @@ int main(int argc, char const *argv[]) {
     @autoreleasepool {
         NSApplication *app = [NSApplication sharedApplication];
         NSArray *maybeMenus = nil;
-        BOOL ok = [[NSBundle mainBundle] loadNibNamed:@"MainMenu" owner:nil topLevelObjects:&maybeMenus];
+        BOOL ok;
+
+        if ([[NSBundle mainBundle] respondsToSelector:@selector(loadNibNamed:owner:topLevelObjects:)]) {
+            ok = [[NSBundle mainBundle] loadNibNamed:@"MainMenu" owner:nil topLevelObjects:&maybeMenus];
+        } else {
+            NSLog(@"warning: loading nib the deprecated way");
+
+            NSMutableArray *tlo = [[NSMutableArray alloc] init];
+            maybeMenus = tlo;
+            NSDictionary *params = @{NSNibTopLevelObjects: tlo};
+            ok = [NSBundle loadNibFile:[[NSBundle mainBundle] pathForResource:@"MainMenu" ofType:@"nib"] externalNameTable:params withZone:nil];
+        }
+
         if (ok) {
             for (id obj in maybeMenus) {
                 if ([obj isKindOfClass:[NSMenu class]]) {
@@ -557,6 +569,8 @@ int main(int argc, char const *argv[]) {
                 }
             }
         }
+
+        [maybeMenus release];
 
         uToxAppDelegate *appdelegate;
         app.delegate = appdelegate = [[uToxAppDelegate alloc] init];
