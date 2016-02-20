@@ -528,6 +528,7 @@ static void utox_thread_work_for_typing_notifications(Tox *tox, uint64_t time) {
 }
 
 static int load_toxcore_save(void){
+    encrypted_profile = 0;
     uint8_t *raw_data = NULL;
     size_t raw_length = get_savefile_data(&raw_data);
     size_t cleartext_length = raw_length - TOX_PASS_ENCRYPTION_EXTRA_LENGTH;
@@ -536,6 +537,7 @@ static int load_toxcore_save(void){
     /* Check if we're loading a saved profile */
     if (raw_data && raw_length) {
         if (tox_is_data_encrypted(raw_data)) {
+            encrypted_profile = 1;
             debug("Using encrypted data, trying password: ");
 
             UTOX_ENC_ERR decrypt_err = utox_decrypt_data(raw_data, raw_length, clear_data);
