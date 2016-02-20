@@ -1020,17 +1020,17 @@ int main(int argc, char *argv[]) {
     int8_t should_launch_at_startup;
     int8_t set_show_window;
     bool no_updater;
-    
+
     parse_args(argc, argv, &theme_was_set_on_argv, &should_launch_at_startup, &set_show_window, &no_updater);
-    
+
     if (should_launch_at_startup == 1 || should_launch_at_startup == -1) {
         debug("Start on boot not supported on this OS, please use your distro suggested method!\n");
     }
-    
+
     if (no_updater == true) {
         debug("Disabling the updater is not supported on this OS. Updates are managed by your distro's package manager.\n");
     }
-    
+
     XInitThreads();
 
     if((display = XOpenDisplay(NULL)) == NULL) {

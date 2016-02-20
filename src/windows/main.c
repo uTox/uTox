@@ -1304,10 +1304,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
         launch_at_startup(0);
     }
 
-#ifdef UPDATER_BUILD
-#define UTOX_EXE "\\uTox.exe"
-#define UTOX_UPDATER_EXE "\\utox_runner.exe"
-#define UTOX_VERSION_FILE "\\version"
+    #ifdef UPDATER_BUILD
+    #define UTOX_EXE "\\uTox.exe"
+    #define UTOX_UPDATER_EXE "\\utox_runner.exe"
+    #define UTOX_VERSION_FILE "\\version"
 
     if (!no_updater) {
         char path[MAX_PATH + 20];
@@ -1332,15 +1332,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
             }
         }
     }
-#endif
+    #endif
 
-#ifdef __WIN_LEGACY
-    debug("Legacy windows build\n");
-#else
-    debug("Normal windows build\n");
-#endif
-
-    theme_load(theme);
+    #ifdef __WIN_LEGACY
+        debug("Legacy windows build\n");
+    #else
+        debug("Normal windows build\n");
+    #endif
 
     // Free memory allocated by CommandLineToArgvA
     GlobalFree(argv);
@@ -1396,6 +1394,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     dropdown_language.selected = dropdown_language.over = LANG;
 
     UTOX_SAVE *save = config_load();
+
+    if (!theme_was_set_on_argv) {
+        theme = save->theme;
+    }
+    theme_load(theme);
 
     char pretitle[128];
     snprintf(pretitle, 128, "%s %s (version : %s)", TITLE, SUB_TITLE, VERSION);

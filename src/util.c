@@ -708,7 +708,6 @@ NEXT:
     dropdown_push_to_talk.selected         = dropdown_push_to_talk.over         = save->push_to_talk;
 
     dropdown_theme.selected = dropdown_theme.over = save->theme;
-    theme_load(save->theme);
 
     dropdown_typing_notes.selected = save->no_typing_notifications;
 
