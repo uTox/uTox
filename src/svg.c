@@ -421,7 +421,6 @@ _Bool svg_draw(_Bool needmemory) {
         BM_STATUSAREA_WIDTH * BM_STATUSAREA_HEIGHT +
         /* Panel buttons */
         BM_ADD_WIDTH * BM_ADD_WIDTH * 4 +
-        BM_THREE_BAR_WIDTH * BM_THREE_BAR_WIDTH +
         BM_CONTACT_WIDTH * BM_CONTACT_WIDTH * 2 +
         BM_LBICON_WIDTH * BM_LBICON_HEIGHT * 2 + // call, video
         BM_FILE_WIDTH * BM_FILE_HEIGHT + BM_FILE_BIG_WIDTH * BM_FILE_BIG_HEIGHT + // file small and big
@@ -490,13 +489,6 @@ _Bool svg_draw(_Bool needmemory) {
     drawsubcircle(p, BM_ADD_WIDTH, BM_ADD_WIDTH, 0.5 * BM_ADD_WIDTH, 0.5 * BM_ADD_WIDTH, UTOX_SCALE(3 ));
     loadalpha(BM_SETTINGS, p, BM_ADD_WIDTH, BM_ADD_WIDTH);
     p += BM_ADD_WIDTH * BM_ADD_WIDTH;
-
-    /* Settings 3 line bitmap          width              height                         x                                                y                    width                  height   radius */
-    drawrectroundedsub(p, BM_THREE_BAR_WIDTH, BM_THREE_BAR_WIDTH, BM_THREE_BAR_WIDTH * .15, BM_THREE_BAR_WIDTH /4 - BM_THREE_BAR_WIDTH   /8, BM_THREE_BAR_WIDTH * .7, (BM_THREE_BAR_WIDTH /8), 2);
-    drawrectroundedsub(p, BM_THREE_BAR_WIDTH, BM_THREE_BAR_WIDTH, BM_THREE_BAR_WIDTH * .15, BM_THREE_BAR_WIDTH /2 - BM_THREE_BAR_WIDTH   /8, BM_THREE_BAR_WIDTH * .7, (BM_THREE_BAR_WIDTH /8), 2);
-    drawrectroundedsub(p, BM_THREE_BAR_WIDTH, BM_THREE_BAR_WIDTH, BM_THREE_BAR_WIDTH * .15, BM_THREE_BAR_WIDTH /1 - BM_THREE_BAR_WIDTH *3/8, BM_THREE_BAR_WIDTH * .7, (BM_THREE_BAR_WIDTH /8), 2);
-    loadalpha(BM_SETTINGS_THREE_BAR, p, BM_THREE_BAR_WIDTH, BM_THREE_BAR_WIDTH);
-    p += BM_THREE_BAR_WIDTH * BM_THREE_BAR_WIDTH;
 
     /* Contact avatar default bitmap */
     drawnewcircle(p, BM_CONTACT_WIDTH, UTOX_SCALE(18 ), UTOX_SCALE(10 ), UTOX_SCALE(18 ), UTOX_SCALE(14 ));

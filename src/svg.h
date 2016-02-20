@@ -10,9 +10,6 @@
 #define  BM_STATUS_WIDTH        (UTOX_SCALE(5 ))
 #define  BM_STATUS_NOTIFY_WIDTH (UTOX_SCALE(7 ))
 #define  BM_NMSG_WIDTH          (UTOX_SCALE(9 ))
-/* Search and buttons toggle switch */
-#define _BM_THREE_BAR_WIDTH 14
-#define  BM_THREE_BAR_WIDTH (UTOX_SCALE(14 ))
 /* Standard large size button */
 #define  BM_LBUTTON_WIDTH  (UTOX_SCALE(26 ))
 #define  BM_LBUTTON_HEIGHT (UTOX_SCALE(20 ))
