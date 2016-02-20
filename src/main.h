@@ -232,6 +232,7 @@ volatile _Bool tox_thread_init, audio_thread_init, video_thread_init, utox_av_ct
 volatile _Bool logging_enabled, audible_notifications_enabled, audio_filtering_enabled, close_to_tray, start_in_tray, auto_startup, push_to_talk;
 volatile uint16_t loaded_audio_in_device, loaded_audio_out_device;
 _Bool tox_connected;
+// TODO: remove globals
 _Bool encrypted_profile;
 _Bool audio_preview, video_preview;
 
