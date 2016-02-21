@@ -109,9 +109,9 @@ STDMETHODIMP_(ULONG) test_Release(ISampleGrabberCB *lpMyObj) {
 
 #define SafeRelease(x) if(*(x)) {(*(x))->lpVtbl->Release(*(x));}
 
-HRESULT IsPinConnected(IPin *pPin, BOOL *pResult) {
+HRESULT IsPinConnected(IPin *local_pPin, BOOL *pResult) {
     IPin *pTmp = NULL;
-    HRESULT hr = pPin->lpVtbl->ConnectedTo(pPin, &pTmp);
+    HRESULT hr = local_pPin->lpVtbl->ConnectedTo(local_pPin, &pTmp);
     if (SUCCEEDED(hr))
     {
         *pResult = TRUE;
@@ -127,9 +127,9 @@ HRESULT IsPinConnected(IPin *pPin, BOOL *pResult) {
     return hr;
 }
 
-HRESULT IsPinDirection(IPin *pPin, PIN_DIRECTION dir, BOOL *pResult) {
+HRESULT IsPinDirection(IPin *local_pPin, PIN_DIRECTION dir, BOOL *pResult) {
     PIN_DIRECTION pinDir;
-    HRESULT hr = pPin->lpVtbl->QueryDirection(pPin, &pinDir);
+    HRESULT hr = local_pPin->lpVtbl->QueryDirection(local_pPin, &pinDir);
     if (SUCCEEDED(hr))
     {
         *pResult = (pinDir == dir);
@@ -137,18 +137,18 @@ HRESULT IsPinDirection(IPin *pPin, PIN_DIRECTION dir, BOOL *pResult) {
     return hr;
 }
 
-HRESULT MatchPin(IPin *pPin, PIN_DIRECTION direction, BOOL bShouldBeConnected, BOOL *pResult) {
+HRESULT MatchPin(IPin *local_pPin, PIN_DIRECTION direction, BOOL bShouldBeConnected, BOOL *pResult) {
     //assert(pResult != NULL);
 
     BOOL bMatch = FALSE;
     BOOL bIsConnected = FALSE;
 
-    HRESULT hr = IsPinConnected(pPin, &bIsConnected);
+    HRESULT hr = IsPinConnected(local_pPin, &bIsConnected);
     if (SUCCEEDED(hr))
     {
         if (bIsConnected == bShouldBeConnected)
         {
-            hr = IsPinDirection(pPin, direction, &bMatch);
+            hr = IsPinDirection(local_pPin, direction, &bMatch);
         }
     }
 
@@ -161,7 +161,7 @@ HRESULT MatchPin(IPin *pPin, PIN_DIRECTION direction, BOOL bShouldBeConnected, B
 
 HRESULT FindUnconnectedPin(IBaseFilter *pFilter, PIN_DIRECTION PinDir, IPin **ppPin) {
     IEnumPins *pEnum = NULL;
-    IPin *pPin = NULL;
+    IPin *local_pPin = NULL;
     BOOL bFound = FALSE;
 
     HRESULT hr = pFilter->lpVtbl->EnumPins(pFilter, &pEnum);
@@ -170,20 +170,20 @@ HRESULT FindUnconnectedPin(IBaseFilter *pFilter, PIN_DIRECTION PinDir, IPin **pp
         goto done;
     }
 
-    while (S_OK == pEnum->lpVtbl->Next(pEnum, 1, &pPin, NULL))
+    while (S_OK == pEnum->lpVtbl->Next(pEnum, 1, &local_pPin, NULL))
     {
-        hr = MatchPin(pPin, PinDir, FALSE, &bFound);
+        hr = MatchPin(local_pPin, PinDir, FALSE, &bFound);
         if (FAILED(hr))
         {
             goto done;
         }
         if (bFound)
         {
-            *ppPin = pPin;
+            *ppPin = local_pPin;
             (*ppPin)->lpVtbl->AddRef(*ppPin);
             break;
         }
-        SafeRelease(&pPin);
+        SafeRelease(&local_pPin);
     }
 
     if (!bFound)
@@ -192,7 +192,7 @@ HRESULT FindUnconnectedPin(IBaseFilter *pFilter, PIN_DIRECTION PinDir, IPin **pp
     }
 
 done:
-    SafeRelease(&pPin);
+    SafeRelease(&local_pPin);
     SafeRelease(&pEnum);
     return hr;
 }
