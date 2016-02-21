@@ -30,4 +30,9 @@ typedef struct UTOX_FRAME_PKG {
 
 utox_av_video_frame utox_video_frame;
 
+void utox_video_change_device(void *device);
+void utox_video_record_start(void);
+void utox_video_record_stop(void);
+
 void utox_video_thread(void *args);
+
