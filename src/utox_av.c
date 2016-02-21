@@ -63,7 +63,7 @@ void utox_av_ctrl_thread(void *args) {
                         postmessage_audio(UTOXAUDIO_START_FRIEND, msg->param1, msg->param2, NULL);
                         f->call_state_self = ( TOXAV_FRIEND_CALL_STATE_SENDING_A | TOXAV_FRIEND_CALL_STATE_ACCEPTING_A );
                         if (msg->param2) {
-                            // postmessage_video(VIDEO_RECORD_START, msg->param1, 0, NULL);
+                            utox_video_record_start();
                             f->call_state_self |= (TOXAV_FRIEND_CALL_STATE_SENDING_V | TOXAV_FRIEND_CALL_STATE_ACCEPTING_V);
                         }
                     }
@@ -83,7 +83,7 @@ void utox_av_ctrl_thread(void *args) {
                         FRIEND *f = &friend[msg->param1];
                         f->call_state_self = ( TOXAV_FRIEND_CALL_STATE_SENDING_A | TOXAV_FRIEND_CALL_STATE_ACCEPTING_A );
                         if (msg->param2) {
-                            // postmessage_video(VIDEO_RECORD_START, msg->param1, 0, NULL);
+                            utox_video_record_start();
                             f->call_state_self |= (TOXAV_FRIEND_CALL_STATE_SENDING_V | TOXAV_FRIEND_CALL_STATE_ACCEPTING_V);
                         }
                     } else if (msg->param2) {
@@ -113,7 +113,7 @@ void utox_av_ctrl_thread(void *args) {
                     if (msg->param1) {
                         FRIEND *f = &friend[msg->param1];
                         if ((f->call_state_self | TOXAV_FRIEND_CALL_STATE_SENDING_V | TOXAV_FRIEND_CALL_STATE_ACCEPTING_V)){
-                            // postmessage_video(VIDEO_RECORD_STOP, msg->param1, 0, NULL);
+                            utox_video_record_stop();
                         }
                         postmessage_audio(UTOXAUDIO_STOP_FRIEND, msg->param1, msg->param2, NULL);
                         postmessage_audio(UTOXAUDIO_STOP_RINGTONE, msg->param1, msg->param2, NULL);
@@ -160,7 +160,6 @@ void utox_av_ctrl_thread(void *args) {
                         //is preview
                     }
                     utox_video_record_start();
-                    debug("called video start\n");
                     break;
                 }
                 case UTOXAV_STOP_VIDEO: {
@@ -168,7 +167,6 @@ void utox_av_ctrl_thread(void *args) {
                         //is preview
                     }
                     utox_video_record_stop();
-                    debug("called video stop\n");
                     break;
                 }
 
@@ -203,6 +201,13 @@ void utox_av_ctrl_thread(void *args) {
                 }
 
                 case UTOXAV_SET_VIDEO_IN: {
+                    if(msg->data == NULL) {
+                        debug("uToxVID:\tChanged video input to NONE\n");
+                    }
+
+                    utox_video_change_device(msg->data);
+
+                    debug("uToxVID:\tChanged video input device\n");
                     break;
                 }
 

@@ -25,7 +25,6 @@ static int utf8tonative(char_t *str, wchar_t *out, int length){
 
 void video_begin(uint32_t id, char_t *name, STRING_IDX name_length, uint16_t width, uint16_t height) {
     if(video_hwnd[id]) {
-        debug("Win Video:\tvideo_hwnd exists\n");
         return;
     }
 
@@ -322,8 +321,8 @@ void* video_detect(void) {
                         pFilter = temp;
                     }
                     int len = wcslen(varName.bstrVal);
-                    void *data = malloc(sizeof(void*) + len * 3 / 2);
-                    WideCharToMultiByte(CP_UTF8, 0, varName.bstrVal, -1, data + sizeof(void*), len * 3 / 2, NULL, 0);
+                    void *data = malloc(sizeof(*pFilter) + len * 2);
+                    WideCharToMultiByte(CP_UTF8, 0, varName.bstrVal, -1, data + sizeof(*pFilter), len * 2, NULL, 0);
                     memcpy(data, &temp, sizeof(pFilter));
                     postmessage(VIDEO_IN_DEVICE_APPEND, UI_STRING_ID_INVALID, 1, data);
                 }
@@ -445,7 +444,6 @@ _Bool video_init(void *handle) {
 
     IEnumPins *pEnum = NULL;
 
-
     /* build filter graph */
     hr = pFilter->lpVtbl->EnumPins(pFilter, &pEnum);
     if (FAILED(hr)) {
@@ -471,13 +469,13 @@ _Bool video_init(void *handle) {
 
     hr = pPin->lpVtbl->QueryInterface(pPin, &IID_IAMStreamConfig, (void**)&pConfig);
     if (FAILED(hr)) {
-        debug("QueryInterface failed\n");
+        debug("Windows Video device: QueryInterface failed\n");
         return 0;
     }
 
     hr = pConfig->lpVtbl->GetFormat(pConfig, &pmt);
     if (FAILED(hr)) {
-        debug("GetFormat failed\n");
+        debug("Windows Video device: GetFormat failed\n");
         return 0;
     }
 
@@ -495,7 +493,7 @@ _Bool video_init(void *handle) {
 
     frame_data = malloc((size_t)video_width * video_height * 3);
 
-    debug("width height %u %u\n", video_width, video_height);
+    debug("Windows video init:\n\twidth height %u %u\n", video_width, video_height);
 
     return 1;
 }
@@ -509,6 +507,8 @@ void video_close(void *handle) {
         capturedesktop = 0;
         return;
     }
+
+    debug("closing webcam... ");
 
     HRESULT hr;
     IBaseFilter *pFilter = handle;

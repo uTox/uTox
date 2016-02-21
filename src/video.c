@@ -21,11 +21,37 @@ static void closevideodevice(void *handle) {
     vpx_img_free(&input);
 }
 
-_Bool video_active = 0;
-void *video_device;
+static volatile uint32_t video_active = 0;
+static void *video_device;
+
+void utox_video_change_device(void *device) {
+    if (device == NULL) {
+        video_active = 1;
+        utox_video_record_stop();
+        return;
+    }
+
+    if (video_active) {
+        video_endread();
+        closevideodevice(video_device);
+    }
+
+    video_device = device;
+    openvideodevice(video_device);
+
+    if (video_active) {
+        video_startread();
+    } else {
+        /* Just grab the new frame size */
+        closevideodevice(video_device);
+    }
+
+}
 
 void utox_video_record_start(){
-    video_active  = 1;
+    if (video_active++) {
+        return;
+    }
     video_preview = 1;
     openvideodevice(video_device);
     video_startread();
@@ -33,6 +59,10 @@ void utox_video_record_start(){
 }
 
 void utox_video_record_stop(){
+    video_active--;
+    if (!video_active) {
+        return;
+    }
     video_active  = 0;
     video_preview = 0;
     video_endread();
@@ -42,12 +72,6 @@ void utox_video_record_stop(){
 
 void utox_video_thread(void *args) {
     ToxAV *av = args;
-
-    // holds the currently selected video device
-    // Whether a video device has been opened
-    _Bool video_device_open = 0;
-    // counts the number of calls/previews that are currently active
-    uint16_t video_count = 0;
 
     // Add always-present null video input device.
     postmessage(VIDEO_IN_DEVICE_APPEND, STR_VIDEO_IN_NONE, 1, NULL);
@@ -89,7 +113,7 @@ void utox_video_thread(void *args) {
                         active_video_count++;
                         TOXAV_ERR_SEND_FRAME error = 0;
                         toxav_video_send_frame(av, friend[i].number, utox_video_frame.w, utox_video_frame.h, utox_video_frame.y, utox_video_frame.u, utox_video_frame.v, &error);
-
+                        // debug("Sent video frame to friend %u\n", i);
                         if (error) {
                             if (error == TOXAV_ERR_SEND_FRAME_SYNC) {
                                 debug("Vid Frame sync error: w=%u h=%u\n", utox_video_frame.w, utox_video_frame.h);
@@ -108,14 +132,13 @@ void utox_video_thread(void *args) {
                     }
                 }
             } else if(r == -1) {
-                video_active = 0;
-                video_device_open = 0;
+                debug("Err... something really bad happened trying to get this frame, I'm just going to plots now!\n");
                 video_endread();
                 closevideodevice(video_device);
             }
         }
 
-        yieldcpu(20);
+        yieldcpu(5);
     }
 
     video_thread_msg = 0;
