@@ -159,12 +159,16 @@ void utox_av_ctrl_thread(void *args) {
                     if (msg->param1) {
                         //is preview
                     }
+                    utox_video_record_start();
+                    debug("called video start\n");
                     break;
                 }
                 case UTOXAV_STOP_VIDEO: {
                     if (msg->param1) {
                         //is preview
                     }
+                    utox_video_record_stop();
+                    debug("called video stop\n");
                     break;
                 }
 

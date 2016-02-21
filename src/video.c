@@ -21,15 +21,31 @@ static void closevideodevice(void *handle) {
     vpx_img_free(&input);
 }
 
+_Bool video_active = 0;
+void *video_device;
+
+void utox_video_record_start(){
+    video_active  = 1;
+    video_preview = 1;
+    openvideodevice(video_device);
+    video_startread();
+    debug("started video\n");
+}
+
+void utox_video_record_stop(){
+    video_active  = 0;
+    video_preview = 0;
+    video_endread();
+    closevideodevice(video_device);
+    debug("stopped video\n");
+}
+
 void utox_video_thread(void *args) {
     ToxAV *av = args;
 
     // holds the currently selected video device
-    void *video_device;
     // Whether a video device has been opened
     _Bool video_device_open = 0;
-    // Whether video capturing is active
-    _Bool video_active = 0;
     // counts the number of calls/previews that are currently active
     uint16_t video_count = 0;
 
