@@ -178,7 +178,7 @@
 
         devices[@(i + 2)] = dev.uniqueID;
 
-        postmessage(VIDEO_IN_DEVICE, UI_STRING_ID_INVALID, 1, data);
+        postmessage(VIDEO_IN_DEVICE_APPEND, UI_STRING_ID_INVALID, 1, data);
     }
     return (void *)MIN(2, vdevIDs.count + 2);
 }
