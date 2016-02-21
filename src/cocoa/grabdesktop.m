@@ -146,7 +146,7 @@ static void stardust_display_capping_done(_Bool video, uint64_t ret, NSWindow *w
             desktop_capture_rect = rect;
             desktop_capture_rect.size.width -= (uint32_t)desktop_capture_rect.size.width % 8;
             desktop_capture_rect.size.height -= (uint32_t)desktop_capture_rect.size.height % 8;
-            postmessage_video(VIDEO_SET, 0, 0, (void*)1);
+            postmessage_utoxav(UTOXAV_SET_VIDEO_IN, 0, 0, (void*)1);
         }
     }
 

@@ -432,7 +432,7 @@ void* video_detect(void) {
             case 0:
                 video_preview = 0;
                 video_end(0);
-                postmessage_video(VIDEO_PREVIEW_STOP, 0, 0, NULL);
+                postmessage_utoxav(UTOXAV_STOP_VIDEO, 1, 0, NULL);
                 break;
             default: {
                 FRIEND *f = &friend[((uToxIroncladWindow *)notification.object).video_id - 1];

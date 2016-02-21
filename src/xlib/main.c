@@ -1257,8 +1257,6 @@ int main(int argc, char *argv[]) {
     }
     BREAK:
 
-    postmessage_audio(AUDIO_KILL, 0, 0, NULL);
-    postmessage_video(VIDEO_KILL, 0, 0, NULL);
     postmessage_utoxav(UTOXAV_KILL, 0, 0, NULL);
     postmessage_toxcore(TOX_KILL, 0, 0, NULL);
 
