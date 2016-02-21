@@ -5,11 +5,12 @@
 #define  BM_STATUSAREA_WIDTH (UTOX_SCALE(10 ))
 #define  BM_STATUSAREA_HEIGHT (UTOX_SCALE(20 ))
 /* Text button on the add a new friend page */
-#define _BM_ADD_WIDTH           9
-#define  BM_ADD_WIDTH           (UTOX_SCALE(9 ))
-#define  BM_STATUS_WIDTH        (UTOX_SCALE(5 ))
-#define  BM_STATUS_NOTIFY_WIDTH (UTOX_SCALE(7 ))
-#define  BM_NMSG_WIDTH          (UTOX_SCALE(9 ))
+#define _BM_ADD_WIDTH                   9
+#define  BM_ADD_WIDTH            SCALE(18)
+#define  BM_STATUS_WIDTH         SCALE(10)
+#define  BM_STATUS_NOTIFY_WIDTH FSCALE(12)
+#define  BM_NMSG_WIDTH           SCALE(18)
+
 /* Standard large size button */
 #define  BM_LBUTTON_WIDTH  (UTOX_SCALE(26 ))
 #define  BM_LBUTTON_HEIGHT (UTOX_SCALE(20 ))
