@@ -1438,7 +1438,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
 
             break;
         }
-        case VIDEO_IN_DEVICE: {
+        case VIDEO_IN_DEVICE_APPEND: {
             if(UI_STRING_ID_INVALID == param1) {
                 // Device name is a hardcoded string.
                 // data is a pointer to a buffer, that contains device handle pointer,

@@ -17,7 +17,7 @@ void *dibits;
 
 static uint16_t video_x, video_y;
 
-// TODO this is in main.c too, probably want to decide how to handle this.
+// TODO this is in main.c too, probably want to decide how to handle this. FIXME!
 static int utf8tonative(char_t *str, wchar_t *out, int length){
     return MultiByteToWideChar(CP_UTF8, 0, (char*)str, length, out, length);
 }
@@ -228,7 +228,7 @@ HRESULT ConnectFilters(IGraphBuilder *_pGraph, IBaseFilter *pSrc, IBaseFilter *p
 
 void* video_detect(void) {
     // Indicate that we support desktop capturing.
-    postmessage(VIDEO_IN_DEVICE, STR_VIDEO_IN_DESKTOP, 0, (void*)1);
+    postmessage(VIDEO_IN_DEVICE_APPEND, STR_VIDEO_IN_DESKTOP, 0, (void*)1);
 
     max_video_width = GetSystemMetrics(SM_CXVIRTUALSCREEN);
     max_video_height = GetSystemMetrics(SM_CYVIRTUALSCREEN);
@@ -297,6 +297,8 @@ void* video_detect(void) {
     IBaseFilter *pFilter = NULL;
     IMoniker *pMoniker = NULL;
 
+
+    debug("Windows Video Devices:\n");
     ULONG cFetched;
     while(pEnumCat->lpVtbl->Next(pEnumCat, 1, &pMoniker, &cFetched) == S_OK) {
         IPropertyBag *pPropBag;
@@ -308,31 +310,30 @@ void* video_detect(void) {
             hr = pPropBag->lpVtbl->Read(pPropBag, L"FriendlyName", &varName, 0);
             if (SUCCEEDED(hr)) {
                 if(varName.vt == VT_BSTR) {
-                    debug("friendly name: %ls\n", varName.bstrVal);
+                    debug("\tFriendly name: %ls\n", varName.bstrVal);
                 } else {
-                    debug("unfriendly name\n");
+                    debug("\tEw, got an unfriendly name\n");
                 }
-
-                // Display the name in your UI somehow.
+                // To create an instance of the filter, do the following:
+                IBaseFilter *temp;
+                hr = pMoniker->lpVtbl->BindToObject(pMoniker, NULL, NULL, &IID_IBaseFilter, (void**)&temp);
+                if(SUCCEEDED(hr)) {
+                    if(!pFilter) {
+                        pFilter = temp;
+                    }
+                    int len = wcslen(varName.bstrVal);
+                    void *data = malloc(sizeof(void*) + len * 3 / 2);
+                    WideCharToMultiByte(CP_UTF8, 0, varName.bstrVal, -1, data + sizeof(void*), len * 3 / 2, NULL, 0);
+                    memcpy(data, &temp, sizeof(pFilter));
+                    postmessage(VIDEO_IN_DEVICE_APPEND, UI_STRING_ID_INVALID, 1, data);
+                }
+            } else {
+                debug("Windows Video Code:\tcouldn't get a name for this device, this is a bug, please report!\n");
             }
+
             VariantClear(&varName);
-
-            // To create an instance of the filter, do the following:
-            IBaseFilter *temp;
-            hr = pMoniker->lpVtbl->BindToObject(pMoniker, NULL, NULL, &IID_IBaseFilter, (void**)&temp);
-            if(SUCCEEDED(hr)) {
-                if(!pFilter) {
-                    pFilter = temp;
-                }
-                int len = wcslen(varName.bstrVal);
-                void *data = malloc(sizeof(void*) + len * 3 / 2);
-                WideCharToMultiByte(CP_UTF8, 0, varName.bstrVal, -1, data + sizeof(void*), len * 3 / 2, NULL, 0);
-                memcpy(data, &temp, sizeof(pFilter));
-                postmessage(VIDEO_IN_DEVICE, UI_STRING_ID_INVALID, 1, data);
-            }
-
             // Now add the filter to the graph.
-            //Remember to release pFilter later.
+            // Remember to release pFilter later.
             pPropBag->lpVtbl->Release(pPropBag);
         }
         pMoniker->lpVtbl->Release(pMoniker);
@@ -358,16 +359,19 @@ void* video_detect(void) {
         return 0;
     }
 
+    /* I think this generates and formats the call back to copy each frame from the webcam */
     ISampleGrabberCB *test;
     test = malloc(sizeof(ISampleGrabberCB));
     test->lpVtbl = malloc(sizeof(*(test->lpVtbl)));
     // no idea what im doing here
+    /* Yeah, me neither... */
     test->lpVtbl->QueryInterface = test_QueryInterface;
-    test->lpVtbl->AddRef = test_AddRef;
-    test->lpVtbl->Release = test_Release;
-    test->lpVtbl->SampleCB = test_SampleCB;
-    test->lpVtbl->BufferCB = 0;
+    test->lpVtbl->AddRef         = test_AddRef;
+    test->lpVtbl->Release        = test_Release;
+    test->lpVtbl->SampleCB       = test_SampleCB;
+    test->lpVtbl->BufferCB       = 0;
 
+    /* I think this sets the call back for each frame... */
     hr = pGrabber->lpVtbl->SetCallback(pGrabber, test, 0);
     if(FAILED(hr)) {
         return 0;
@@ -434,7 +438,7 @@ _Bool video_init(void *handle) {
     IBaseFilter *pFilter = handle;
 
     hr = pGraph->lpVtbl->AddFilter(pGraph, pFilter, L"Video Capture");
-    if(FAILED(hr)) {
+    if (FAILED(hr)) {
         debug("AddFilter failed\n");
         return 0;
     }
@@ -444,7 +448,7 @@ _Bool video_init(void *handle) {
 
     /* build filter graph */
     hr = pFilter->lpVtbl->EnumPins(pFilter, &pEnum);
-    if(FAILED(hr)) {
+    if (FAILED(hr)) {
         debug("EnumPins failed\n");
         return 0;
     }
@@ -457,7 +461,7 @@ _Bool video_init(void *handle) {
         }
     }
 
-    if(FAILED(hr)) {
+    if (FAILED(hr)) {
         debug("failed to connect a filter\n");
         return 0;
     }
@@ -466,19 +470,19 @@ _Bool video_init(void *handle) {
     AM_MEDIA_TYPE *pmt = NULL;
 
     hr = pPin->lpVtbl->QueryInterface(pPin, &IID_IAMStreamConfig, (void**)&pConfig);
-    if(FAILED(hr)) {
+    if (FAILED(hr)) {
         debug("QueryInterface failed\n");
         return 0;
     }
 
     hr = pConfig->lpVtbl->GetFormat(pConfig, &pmt);
-    if(FAILED(hr)) {
+    if (FAILED(hr)) {
         debug("GetFormat failed\n");
         return 0;
     }
 
     BITMAPINFOHEADER *bmiHeader;
-    if(IsEqualGUID(&pmt->formattype, &FORMAT_VideoInfo)) {
+    if (IsEqualGUID(&pmt->formattype, &FORMAT_VideoInfo)) {
         VIDEOINFOHEADER *pvi = (VIDEOINFOHEADER*)pmt->pbFormat;
         bmiHeader = &(pvi->bmiHeader);
         video_width = bmiHeader->biWidth;
@@ -497,7 +501,7 @@ _Bool video_init(void *handle) {
 }
 
 void video_close(void *handle) {
-    if((size_t)handle == 1) {
+    if ((size_t)handle == 1) {
         ReleaseDC(desktopwnd, desktopdc);
         DeleteDC(capturedc);
         DeleteObject(capturebitmap);
@@ -510,17 +514,17 @@ void video_close(void *handle) {
     IBaseFilter *pFilter = handle;
 
     hr = pGraph->lpVtbl->RemoveFilter(pGraph, pFilter);
-    if(FAILED(hr)) {
+    if (FAILED(hr)) {
         return;
     }
 
     hr = pGraph->lpVtbl->Disconnect(pGraph, pPin);
-    if(FAILED(hr)) {
+    if (FAILED(hr)) {
         return;
     }
 
     hr = pGraph->lpVtbl->Disconnect(pGraph, pIPin);
-    if(FAILED(hr)) {
+    if (FAILED(hr)) {
         return;
     }
 
@@ -533,7 +537,7 @@ int video_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, uint16_t 
         return 0;
     }
 
-    if(capturedesktop) {
+    if (capturedesktop) {
         static uint64_t lasttime;
         uint64_t t = get_time();
         if(t - lasttime >= (uint64_t)1000 * 1000 * 1000 / 24) {

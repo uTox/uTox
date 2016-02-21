@@ -34,7 +34,7 @@ void utox_video_thread(void *args) {
     uint16_t video_count = 0;
 
     // Add always-present null video input device.
-    postmessage(VIDEO_IN_DEVICE, STR_VIDEO_IN_NONE, 1, NULL);
+    postmessage(VIDEO_IN_DEVICE_APPEND, STR_VIDEO_IN_NONE, 1, NULL);
 
     // select a video device (autodectect)
     video_device = video_detect();
