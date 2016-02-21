@@ -104,7 +104,7 @@ void* video_detect(void) {
     char dev_name[] = "/dev/videoXX", *first = NULL;
 
     // Indicate that we support desktop capturing.
-    postmessage(VIDEO_IN_DEVICE, STR_VIDEO_IN_DESKTOP, 0, (void*)1);
+    postmessage(VIDEO_IN_DEVICE_APPEND, STR_VIDEO_IN_DESKTOP, 0, (void*)1);
 
     int i;
     for(i = 0; i != 64; i++) {
@@ -128,9 +128,9 @@ void* video_detect(void) {
         memcpy(p + sizeof(void*), dev_name, sizeof(dev_name));
         if(!first) {
             first = pp;
-            postmessage(VIDEO_IN_DEVICE, UI_STRING_ID_INVALID, 1, p);
+            postmessage(VIDEO_IN_DEVICE_APPEND, UI_STRING_ID_INVALID, 1, p);
         } else {
-            postmessage(VIDEO_IN_DEVICE, UI_STRING_ID_INVALID, 0, p);
+            postmessage(VIDEO_IN_DEVICE_APPEND, UI_STRING_ID_INVALID, 0, p);
         }
 
     }
