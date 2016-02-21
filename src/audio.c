@@ -488,7 +488,7 @@ void utox_audio_thread(void *args){
             #ifdef AUDIO_FILTERING
             #ifdef ALC_LOOPBACK_CAPTURE_SAMPLES
             if (f_a && audio_filtering_enabled) {
-                alcGetIntegerv(device_out, ALC_LOOPBACK_CAPTURE_SAMPLES, sizeof(samples), &samples);
+                alcGetIntegerv(audio_out_device, ALC_LOOPBACK_CAPTURE_SAMPLES, sizeof(samples), &samples);
                 if(samples >= perframe) {
                     int16_t buffer[perframe];
                     alcCaptureSamplesLoopback(audio_out_handle, buffer, perframe);
