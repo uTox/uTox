@@ -6,6 +6,7 @@
 
 #define EXIT_ON_ERROR(hres)  \
               if (FAILED(hres)) { goto Exit; }
+
 #define SAFE_RELEASE(punk)  \
               if ((punk) != NULL)  \
                 { (punk)->lpVtbl->Release(punk); (punk) = NULL; }
@@ -51,7 +52,7 @@ void audio_detect(void)
     hr = pDeviceCollection->lpVtbl->GetCount(pDeviceCollection, &count);
     EXIT_ON_ERROR(hr)
 
-    printf("%u\n", count);
+    debug("Windows:\tAudio out devices %u\n", count);
 
     hr = pEnumerator->lpVtbl->GetDefaultAudioEndpoint(pEnumerator, eRender, eConsole, &pDevice);
     EXIT_ON_ERROR(hr)
@@ -62,10 +63,11 @@ void audio_detect(void)
     hr = pAudioClient->lpVtbl->GetMixFormat(pAudioClient, &pwfx);
     EXIT_ON_ERROR(hr)
 
-    printf("default format: %u %u %u %lu %lu %u %u\n", WAVE_FORMAT_PCM, pwfx->wFormatTag, pwfx->nChannels, pwfx->nSamplesPerSec, pwfx->nAvgBytesPerSec, pwfx->wBitsPerSample, pwfx->nBlockAlign);
+    debug("Windows:\tAudio default format: %u %u %u %lu %lu %u %u\n",
+        WAVE_FORMAT_PCM, pwfx->wFormatTag, pwfx->nChannels, pwfx->nSamplesPerSec, pwfx->nAvgBytesPerSec, pwfx->wBitsPerSample, pwfx->nBlockAlign);
 
     if(pwfx->nSamplesPerSec != 48000 || pwfx->nChannels != 2 || pwfx->wFormatTag != WAVE_FORMAT_EXTENSIBLE) {
-        printf("unsupported format for loopback\n");
+        debug("Windows:\tAudio - unsupported format for loopback\n");
         goto Exit;
     }
 
@@ -101,9 +103,10 @@ void audio_detect(void)
     hr = pAudioClient->lpVtbl->GetService(pAudioClient, &IID_IAudioCaptureClient_utox, (void**)&pCaptureClient);
     EXIT_ON_ERROR(hr)
 
-    printf("%u %lu\n", bufferFrameCount, pwfx->nSamplesPerSec);
+    debug("Windows:\tAudio frame count %u && Samples/s %lu\n", bufferFrameCount, pwfx->nSamplesPerSec);
 
-    postmessage(AUDIO_IN_DEVICE, STR_AUDIO_IN_DEFAULT_LOOPBACK, 0, (void*)(size_t)1);
+    // postmessage(AUDIO_IN_DEVICE, STR_AUDIO_IN_DEFAULT_LOOPBACK, 0, (void*)(size_t)1);
+    // this has no effect on my system, so I'm commenting it out, if you can't get audio, try enabling this again!
     return;
 
 Exit:
@@ -113,7 +116,7 @@ Exit:
     SAFE_RELEASE(pAudioClient)
     SAFE_RELEASE(pCaptureClient)
 
-    printf("audio_init fail: %lu\n", hr);
+    debug("Windows:\tAudio_init fail: %lu\n", hr);
 
 }
 

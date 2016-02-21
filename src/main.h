@@ -206,30 +206,39 @@ typedef uint8_t *UTOX_IMAGE;
 
 #include "ui.h"
 #include "svg.h"
-
 #include "avatar.h"
-#include "messages.h"
 #include "theme.h"
-#include "dns.h"
-#include "file_transfers.h"
+#include "text.h"
+
+#include "messages.h"
 #include "friend.h"
 #include "groups.h"
 #include "roster.h"
-#include "edit.h"
-#include "scrollable.h"
+#include "inline_video.h"
 #include "button.h"
 #include "dropdown.h"
+#include "edit.h"
+#include "scrollable.h"
+
 #include "contextmenu.h"
 #include "tooltip.h"
 #include "commands.h"
 
-#include "text.h"
 #include "util.h"
+#include "dns.h"
+#include "file_transfers.h"
 
+#include "ui_edits.h"
+#include "ui_buttons.h"
 #include "ui_dropdown.h"
 
+
 /* Super global vars */
-volatile _Bool tox_thread_init, audio_thread_init, video_thread_init, utox_av_ctrl_init;
+volatile _Bool tox_thread_init,
+               utox_av_ctrl_init,
+               utox_audio_thread_init,
+               utox_video_thread_init;
+
 volatile _Bool logging_enabled, audible_notifications_enabled, audio_filtering_enabled, close_to_tray, start_in_tray, auto_startup, push_to_talk;
 volatile uint16_t loaded_audio_in_device, loaded_audio_out_device;
 _Bool tox_connected;

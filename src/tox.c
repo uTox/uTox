@@ -483,8 +483,6 @@ void tox_settingschanged(void) {
     list_dropdown_clear(&dropdown_audio_out);
     list_dropdown_clear(&dropdown_video);
 
-    postmessage_video(VIDEO_KILL, 0, 0, NULL);
-    postmessage_audio(AUDIO_KILL, 0, 0, NULL);
     postmessage_utoxav(UTOXAV_KILL, 0, 0, NULL);
 
     // send the reconfig message!
@@ -721,8 +719,10 @@ void toxcore_thread(void *UNUSED(args)) {
 
             // Start the treads
             thread(utox_av_ctrl_thread, av);
-            thread(utox_audio_thread, av);
-            thread(utox_video_thread, av);
+
+            /* Moved into the utoxav ctrl thread */
+            // thread(utox_audio_thread, av);
+            // thread(utox_video_thread, av);
         }
 
         _Bool connected = 0;
@@ -785,7 +785,7 @@ void toxcore_thread(void *UNUSED(args)) {
         edit_setstr(&edit_profile_password, (char_t *)"", 0);
 
         // Wait for all a/v threads to return 0
-        while(audio_thread_init || video_thread_init || utox_av_ctrl_init) {
+        while(utox_audio_thread_init || utox_video_thread_init || utox_av_ctrl_init) {
             yieldcpu(1);
         }
 
@@ -1126,6 +1126,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
                 v_bitrate = 0;
                 debug("Tox:\tSending call to friend %u\n", param1);
             }
+            postmessage_utoxav(UTOXAV_OUTGOING_CALL_PENDING, param1, param2, NULL);
 
             TOXAV_ERR_CALL error = 0;
             toxav_call(av, param1, UTOX_DEFAULT_BITRATE_A, v_bitrate, &error);
@@ -1146,7 +1147,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
                         if (error) {
                             debug("uTox:\tError trying to toxav_answer error (%i)\n", error);
                         } else {
-                            postmessage_utoxav(UTOXAV_START_CALL, param1, param2, NULL);
+                            postmessage_utoxav(UTOXAV_OUTGOING_CALL_ACCEPTED, param1, param2, NULL);
                         }
                         postmessage(AV_CALL_ACCEPTED, param1, 0, NULL);
 
@@ -1164,7 +1165,6 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
                     }
                 }
             } else {
-                postmessage_utoxav(UTOXAV_START_CALL, param1, param2, NULL);
                 postmessage(AV_CALL_RINGING, param1, param2, NULL);
             }
             break;
@@ -1192,7 +1192,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
             if (error) {
                 debug("uTox:\tError trying to toxav_answer error (%i)\n", error);
             } else {
-                postmessage_utoxav(UTOXAV_START_CALL, param1, param2, NULL);
+                postmessage_utoxav(UTOXAV_INCOMING_CALL_ANSWER, param1, param2, NULL);
             }
             postmessage(AV_CALL_ACCEPTED, param1, 0, NULL);
             break;
@@ -1258,6 +1258,8 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
         case TOX_GROUP_PART: {
             /* param1: group #
              */
+            postmessage_utoxav(UTOXAV_GROUPCALL_END, param1, param1, NULL);
+
             tox_del_groupchat(tox, param1);
             save_needed = 1;
             break;
@@ -1421,7 +1423,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             }
 
             if (loaded_audio_in_device != 0 && (dropdown_audio_in.dropcount - 1) == loaded_audio_in_device) {
-                postmessage_utoxav(AUDIO_SET_INPUT, 0, 0, data);
+                postmessage_utoxav(UTOXAV_SET_AUDIO_IN, 0, 0, data);
                 dropdown_audio_in.selected = loaded_audio_in_device;
                 loaded_audio_in_device = 0;
             }
@@ -1431,14 +1433,14 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             list_dropdown_add_hardcoded(&dropdown_audio_out, data, data);
 
             if (loaded_audio_out_device != 0 && (dropdown_audio_out.dropcount - 1) == loaded_audio_out_device) {
-                postmessage_utoxav(AUDIO_SET_OUTPUT, 0, 0, data);
+                postmessage_utoxav(UTOXAV_SET_AUDIO_OUT, 0, 0, data);
                 dropdown_audio_out.selected = loaded_audio_out_device;
                 loaded_audio_out_device = 0;
             }
 
             break;
         }
-        case VIDEO_IN_DEVICE: {
+        case VIDEO_IN_DEVICE_APPEND: {
             if(UI_STRING_ID_INVALID == param1) {
                 // Device name is a hardcoded string.
                 // data is a pointer to a buffer, that contains device handle pointer,
@@ -1565,6 +1567,12 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         case FRIEND_NAME: {
             FRIEND *f = &friend[param1];
             friend_setname(f, data, param2);
+
+            // update the edit hint in the friend settings screen if needed
+            if(f->number == ((FRIEND*)selected_item)->number) {
+                maybe_i18nal_string_set_plain(&edit_friend_alias.empty_str, f->name, f->name_length);
+            }
+
             redraw();
             free(data);
             break;
@@ -1851,7 +1859,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
 
             if (g->type == TOX_GROUPCHAT_TYPE_AV) {
                 g->audio_calling = 1;
-                postmessage_utoxav(GROUP_AUDIO_CALL_START, param1, 0, NULL);
+                postmessage_utoxav(UTOXAV_GROUPCALL_START, 0, param1, NULL);
                 redraw();
             }
             break;
@@ -1861,7 +1869,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
 
             if (g->type == TOX_GROUPCHAT_TYPE_AV) {
                 g->audio_calling = 0;
-                postmessage_utoxav(GROUP_AUDIO_CALL_END, param1, 0, NULL);
+                postmessage_utoxav(UTOXAV_GROUPCALL_END, 0, param1, NULL);
                 redraw();
             }
             break;

@@ -39,8 +39,7 @@ void* file_raw(char *path, uint32_t *size)
     return data;
 }
 
-void file_write_raw(uint8_t *path, uint8_t *data, size_t size)
-{
+void file_write_raw(uint8_t *path, uint8_t *data, size_t size) {
     FILE *file;
 
     file = fopen((const char*)path, "wb");
@@ -51,8 +50,11 @@ void file_write_raw(uint8_t *path, uint8_t *data, size_t size)
 
     size_t outsize;
     outsize = fwrite(data, sizeof(uint8_t), size, file);
-    // debug("File write raw size in  %u\n", size);
-    // debug("File write raw size out %u\n", outsize);
+    if (outsize < size ) {
+        /* I HATE YOU WINDOWS YOU POS */
+        debug("File write raw size in  %u\n", (unsigned int)size);
+        debug("File write raw size out %u\n", (unsigned int)outsize);
+    }
     fflush(file);
     fclose(file);
     return;

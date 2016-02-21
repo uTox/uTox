@@ -1,9 +1,5 @@
 #include "main.h"
 
-#include "ui_edits.h"
-#include "ui_buttons.h"
-#include "ui_dropdown.h"
-
 // Application-wide language setting
 UI_LANG_ID LANG;
 
@@ -99,7 +95,7 @@ static void draw_user_badge(int UNUSED(x), int UNUSED(y), int UNUSED(width), int
 
         setcolor(!button_name.mouseover ? COLOR_MENU_TEXT : COLOR_MENU_SUBTEXT);
         setfont(FONT_SELF_NAME);
-        drawtextrange(SIDEBAR_NAME_LEFT, SIDEBAR_NAME_WIDTH, SIDEBAR_NAME_TOP, "Not connected!", 14);
+        drawtextrange(SIDEBAR_NAME_LEFT, SIDEBAR_NAME_WIDTH, SIDEBAR_NAME_TOP, S(NOT_CONNECTED), SLEN(NOT_CONNECTED));
     }
 }
 
@@ -400,6 +396,12 @@ static void draw_settings_sub_header(int x, int y, int w, int UNUSED(height)){
     }
 }
 
+static void draw_friend_settings(int UNUSED(x), int y, int width, int height) {
+    setcolor(COLOR_MAIN_TEXT);
+    drawstr(MAIN_LEFT + UTOX_SCALE(5), y + MAIN_TOP + UTOX_SCALE(6), ALIAS);
+    drawstr(MAIN_LEFT + UTOX_SCALE(5), y + MAIN_TOP + UTOX_SCALE(26), FRIEND_AUTOACCEPT);
+}
+
 static void draw_background(int UNUSED(x), int UNUSED(y), int width, int height){
     /* Default background                */
     drawrect(0, 0, width, height, COLOR_BACKGROUND_MAIN);
@@ -423,7 +425,6 @@ static void draw_background(int UNUSED(x), int UNUSED(y), int width, int height)
         drawhline(MAIN_LEFT, MAIN_TOP_FRAME_THIN  - 1, width, COLOR_EDGE_NORMAL);
     }
 }
-
 
 /* These remain for legacy reasons, PANEL_MAIN calls these by default when not given it's own function to call */
 static void  background_draw(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int width, int height){ return; }
@@ -484,30 +485,6 @@ messages_group = {
     },
     .type = 1
 };
-
-/* uTox panel draw hierarchy. */
-PANEL panel_root,
-        panel_side_bar,
-            panel_self,
-            panel_quick_buttons,
-            panel_roster,
-                panel_roster_list,
-            panel_lower_buttons,
-        panel_main,
-            panel_chat,
-                panel_group_chat,
-                panel_friend_chat,
-                panel_friend_request,
-            panel_overhead,
-                panel_profile_password,
-                panel_add_friend,
-                panel_settings_master,
-                    panel_settings_subheader,
-                    panel_settings_profile,
-                        panel_profile_password_settings,
-                    panel_settings_net,
-                    panel_settings_ui,
-                    panel_settings_av;
 
 /* Root panel, hold all the other panels */
 PANEL panel_root = {
@@ -585,38 +562,89 @@ panel_main = {
         .type = PANEL_NONE,
         .disabled = 1,
         .child = (PANEL*[]) {
-            (void*)&panel_group_chat,
-            (void*)&panel_friend_chat,
+            (void*)&panel_group,
+            (void*)&panel_friend,
             (void*)&panel_friend_request,
             NULL
         }
     },
-        panel_group_chat = {
+        panel_group = {
             .type = PANEL_NONE,
             .disabled = 1,
-            .drawfunc = draw_group,
             .child = (PANEL*[]) {
-                (void*)&scrollbar_group,
-                (void*)&edit_msg_group, // this needs to be one of the first, to get events before the others
-                (void*)&messages_group,
-                (void*)&button_group_audio,
-                (void*)&button_chat_send,
+                (void*)&panel_group_chat,
+                (void*)&panel_group_video,
+                (void*)&panel_group_settings,
                 NULL
             }
         },
-        panel_friend_chat ={
+            panel_group_chat = {
+                .type = PANEL_NONE,
+                .disabled = 0,
+                .drawfunc = draw_group,
+                .child = (PANEL*[]) {
+                    (void*)&scrollbar_group,
+                    (void*)&edit_msg_group, // this needs to be one of the first, to get events before the others
+                    (void*)&messages_group,
+                    (void*)&button_group_audio,
+                    (void*)&button_chat_send,
+                    NULL
+                }
+            },
+            panel_group_video = {
+                .type = PANEL_NONE,
+                .disabled = 1,
+                .child = (PANEL*[]) {
+                    NULL
+                }
+            },
+            panel_group_settings = {
+                .type = PANEL_NONE,
+                .disabled = 1,
+                .child = (PANEL*[]) {
+                    NULL
+                }
+            },
+        panel_friend = {
             .type = PANEL_NONE,
             .disabled = 1,
-            .drawfunc = draw_friend,
             .child = (PANEL*[]) {
-                (void*)&scrollbar_friend,
-                (void*)&edit_msg, // this needs to be one of the first, to get events before the others
-                (void*)&messages_friend,
-                (void*)&button_call_audio, (void*)&button_call_video,
-                (void*)&button_send_file, (void*)&button_send_screenshot, (void*)&button_chat_send,
+                (void*)&panel_friend_chat,
+                (void*)&panel_friend_video,
+                (void*)&panel_friend_settings,
                 NULL
             }
         },
+            panel_friend_chat = {
+                .type = PANEL_NONE,
+                .disabled = 0,
+                .drawfunc = draw_friend,
+                .child = (PANEL*[]) {
+                    (void*)&scrollbar_friend,
+                    (void*)&edit_msg, // this needs to be one of the first, to get events before the others
+                    (void*)&messages_friend,
+                    (void*)&button_call_audio, (void*)&button_call_video,
+                    (void*)&button_send_file, (void*)&button_send_screenshot, (void*)&button_chat_send,
+                    NULL
+                }
+            },
+            panel_friend_video = {
+                .type = PANEL_NONE,
+                .disabled = 1,
+                .child = (PANEL*[]) {
+                    NULL
+                }
+            },
+            panel_friend_settings = {
+                .type = PANEL_NONE,
+                .disabled = 1,
+                .drawfunc = draw_friend_settings,
+                .child = (PANEL*[]) {
+                    (void*)&edit_friend_alias,
+                    (void*)&dropdown_friend_autoaccept,
+                    NULL
+                }
+            },
         panel_friend_request = {
             .type = PANEL_NONE,
             .disabled = 1,
@@ -1206,6 +1234,14 @@ void ui_set_scale(uint8_t scale) {
             .y      = UTOX_SCALE(114 ),
             .height = UTOX_SCALE(12  ),
             .width  = UTOX_SCALE(20  )
+        },
+
+        d_friend_autoaccept = {
+            .type   = PANEL_DROPDOWN,
+            .x      = UTOX_SCALE(5   ),
+            .y      = UTOX_SCALE(64  ),
+            .height = UTOX_SCALE(12  ),
+            .width  = UTOX_SCALE(20  )
         };
 
     /* Drop down panels */
@@ -1224,6 +1260,7 @@ void ui_set_scale(uint8_t scale) {
         dropdown_start_in_tray.panel = d_start_in_tray;
         dropdown_theme.panel = d_theme;
         dropdown_auto_startup.panel = d_auto_startup;
+        dropdown_friend_autoaccept.panel = d_friend_autoaccept;
 
         #ifdef AUDIO_FILTERING
         dropdown_audio_filtering.panel = d_audio_filtering;
@@ -1319,6 +1356,14 @@ void ui_set_scale(uint8_t scale) {
             .y      = UTOX_SCALE(40  ),
             .height = UTOX_SCALE(12  ),
             .width  = UTOX_SCALE(30  )
+        },
+
+        e_friend_alias = {
+            .type   = PANEL_EDIT,
+            .x      = UTOX_SCALE(5   ),
+            .y      = UTOX_SCALE(44  ),
+            .height = UTOX_SCALE(12  ),
+            .width  = -UTOX_SCALE(5 )
         };
 
     /* Text entry panels */
@@ -1333,6 +1378,7 @@ void ui_set_scale(uint8_t scale) {
         edit_search.panel = e_search;
         edit_proxy_ip.panel = e_proxy_ip;
         edit_proxy_port.panel = e_proxy_port;
+        edit_friend_alias.panel = e_friend_alias;
 
     setscale();
 }
@@ -1344,6 +1390,7 @@ void ui_set_scale(uint8_t scale) {
 #define FUNC(x, ret, ...) static ret (* x##func[])(void *p, ##__VA_ARGS__) = { \
     (void*)background_##x, \
     (void*)messages_##x, \
+    (void*)inline_video_##x, \
     (void*)list_##x, \
     (void*)button_##x, \
     (void*)dropdown_##x, \

@@ -151,6 +151,9 @@ msgstr("Friend Request")
 msgid(USERSETTINGS)
 msgstr("User Settings")
 
+msgid(FRIEND_SETTINGS)
+msgstr("Friend Settings")
+
 msgid(NAME)
 msgstr("Name")
 
@@ -192,6 +195,9 @@ msgstr("Away")
 
 msgid(STATUS_BUSY)
 msgstr("Busy")
+
+msgid(NOT_CONNECTED)
+msgstr("Not Connected")
 
 msgid(OTHERSETTINGS)
 msgstr("Other Settings")
@@ -309,6 +315,12 @@ msgstr("Ignore")
 
 msgid(SET_ALIAS)
 msgstr("Set alias")
+
+msgid(ALIAS)
+msgstr("Alias")
+
+msgid(FRIEND_AUTOACCEPT)
+msgstr("Accept incoming file transfers without confirmation")
 
 msgid(SENDMESSAGE)
 msgstr("Send message")

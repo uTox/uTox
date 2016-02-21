@@ -1,3 +1,23 @@
+#ifdef __APPLE__
+    #include <OpenAL/al.h>
+    #include <OpenAL/alc.h>
+#else
+    #include <AL/al.h>
+    #include <AL/alc.h>
+
+    #ifdef AUDIO_FILTERING
+        #include <AL/alext.h>
+    #endif
+    /* include for compatibility with older versions of OpenAL */
+    #ifndef ALC_ALL_DEVICES_SPECIFIER
+        #include <AL/alext.h>
+    #endif
+#endif
+
+#ifdef AUDIO_FILTERING
+    #include <filter_audio.h>
+#endif
+
 #define UTOX_DEFAULT_BITRATE_A      32
 #define UTOX_DEFAULT_FRAME_A        20
 #define UTOX_DEFAULT_SAMPLE_RATE_A  48000
@@ -20,7 +40,19 @@
     typedef uint8_t Filter_Audio;
 #endif
 
-void sourceplaybuffer(int i, const int16_t *data, int samples, uint8_t channels, unsigned int sample_rate);
+void utox_audio_in_device_open(void);
+void utox_audio_in_device_close(void);
+void utox_audio_in_listen(void);
+void utox_audio_in_ignore(void);
+void utox_audio_in_device_set(ALCdevice *new_device);
+ALCdevice* utox_audio_in_device_get(void);
+
+void utox_audio_out_device_open(void);
+void utox_audio_out_device_close(void);
+void utox_audio_out_device_set(ALCdevice *new_device);
+ALCdevice* utox_audio_out_device_get(void);
+
+void sourceplaybuffer(unsigned int i, const int16_t *data, int samples, uint8_t channels, unsigned int sample_rate);
 
 /* send a message to the audio thread
  */

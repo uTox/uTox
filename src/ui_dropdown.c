@@ -4,14 +4,14 @@ static void dropdown_audio_in_onselect(uint16_t i, const DROPDOWN* dm)
 {
     DROP_ELEMENT *e = &((DROP_ELEMENT*) dm->userdata)[i];
     void *handle = e->handle;
-    postmessage_audio(AUDIO_SET_INPUT, 0, 0, handle);
+    postmessage_utoxav(UTOXAV_SET_AUDIO_IN, 0, 0, handle);
 }
 
 static void dropdown_audio_out_onselect(uint16_t i, const DROPDOWN* dm)
 {
     DROP_ELEMENT *e = &((DROP_ELEMENT*) dm->userdata)[i];
     void *handle = e->handle;
-    postmessage_audio(AUDIO_SET_OUTPUT, 0, 0, handle);
+    postmessage_utoxav(UTOXAV_SET_AUDIO_OUT, 0, 0, handle);
 }
 
 static void dropdown_video_onselect(uint16_t i, const DROPDOWN* dm)
@@ -26,7 +26,7 @@ static void dropdown_video_onselect(uint16_t i, const DROPDOWN* dm)
         desktopgrab(1);
         return;
     }
-    postmessage_utoxav(VIDEO_SET, 0, 0, handle);
+    postmessage_utoxav(UTOXAV_SET_VIDEO_IN, 0, 0, handle);
 }
 
 static void dropdown_dpi_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
@@ -130,6 +130,11 @@ static void dropdown_push_to_talk_onselect(const uint16_t i, const DROPDOWN* UNU
     } else {
         exit_ptt();
     }
+}
+
+static void dropdown_friend_autoaccept_onselect(const uint16_t i, const DROPDOWN* UNUSED(dm)) {
+    //FRIEND *f = selected_item->data;
+    // TODO: implement autoaccept
 }
 
 static UI_STRING_ID dpidrops[] = {
@@ -287,4 +292,11 @@ dropdown_push_to_talk = {
     .onselect  = dropdown_push_to_talk_onselect,
     .dropcount = countof(offondrops),
     .userdata  = offondrops
+},
+
+dropdown_friend_autoaccept = {
+    .ondisplay = simple_dropdown_ondisplay,
+    .onselect  = dropdown_friend_autoaccept_onselect,
+    .dropcount = countof(noyesdrops),
+    .userdata  = noyesdrops
 };

@@ -77,7 +77,8 @@ extern const CLSID CLSID_NullRenderer;
 #define WM_TOX          (WM_APP + 1)
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-
+/* Included in dnd.c */
+void dnd_init(HWND window);
 
 enum {
     MENU_TEXTINPUT = 101,
@@ -132,3 +133,8 @@ enum
     TRAY_STATUS_AWAY,
     TRAY_STATUS_BUSY,
 };
+
+
+// TODO move these into os_video.c
+int video_grab_x, video_grab_y, video_grab_w, video_grab_h;
+_Bool grabbing;
