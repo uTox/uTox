@@ -693,7 +693,7 @@ static void sendbitmap(HDC mem, HBITMAP hbm, int width, int height)
         pp += width * 3 + pbytes;
     }
 
-    size_t size = 0;
+    int size = 0;
     uint8_t *out = stbi_write_png_to_mem(bits, 0, width, height, 3, &size);
     free(bits);
 
@@ -769,7 +769,7 @@ void paste(void)
 
 UTOX_NATIVE_IMAGE *decode_image(const UTOX_IMAGE data, size_t size, uint16_t *w, uint16_t *h, _Bool keep_alpha)
 {
-    unsigned width, height, bpp;
+    int width, height, bpp;
     uint8_t *rgba_data = stbi_load_from_memory(data, size, &width, &height, &bpp, 4);
 
     if (rgba_data == NULL || width == 0 || height == 0) {
@@ -1193,7 +1193,7 @@ PCHAR* CommandLineToArgvA(PCHAR CmdLine, int* _argc) {
     i = 0;
     j = 0;
 
-    while (a = CmdLine[i]) {
+    while ((a = CmdLine[i])) {
         if (in_QM) {
             if (a == '\"') {
                 in_QM = FALSE;
@@ -1522,7 +1522,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
             for(i = 0; i != countof(friend); i++) {
                 if(video_hwnd[i + 1] == hwn) {
                     FRIEND *f = &friend[i];
-                    postmessage_toxcore(TOX_CALL_DISCONNECT, f->number, 0, NULL);
+                    postmessage_utoxav(UTOXAV_STOP_VIDEO, f->number, 0, NULL);
                     break;
                 }
             }
@@ -1649,7 +1649,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_KEYDOWN: {
         _Bool control = ((GetKeyState(VK_CONTROL) & 0x80) != 0);
         _Bool shift = ((GetKeyState(VK_SHIFT) & 0x80) != 0);
-        _Bool alt = ((GetKeyState(VK_MENU) & 0x80) != 0);
+        // _Bool alt = ((GetKeyState(VK_MENU) & 0x80) != 0); /* Be careful not to clobber alt+num symbols */
 
         if (wParam >= VK_NUMPAD0 && wParam <= VK_NUMPAD9) {
             // normalize keypad and non-keypad numbers

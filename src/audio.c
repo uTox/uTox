@@ -237,7 +237,7 @@ static void utox_audio_init_out(void) {
     }
 
     if(audio_out_device_list) {
-        audio_out_device = audio_out_device_list;
+        audio_out_device = (void*)audio_out_device_list;
         debug("uToxAudio:\toutput device list:\n");
         while(*audio_out_device_list) {
             debug("\t%s\n", audio_out_device_list);
@@ -405,7 +405,7 @@ void utox_audio_thread(void *args){
                     FRIEND *f = &friend[m->param1];
                     if (f->audio_dest) {
                         utox_audio_term_source(&f->audio_dest);
-                        f->audio_dest = NULL;
+                        f->audio_dest = 0;
                     }
                     break;
                 }

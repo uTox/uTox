@@ -27,7 +27,7 @@ static void *video_device;
 void utox_video_change_device(void *device) {
     if (device == NULL) {
         video_active = 1;
-        utox_video_record_stop();
+        utox_video_record_stop(0);
         return;
     }
 
@@ -48,23 +48,34 @@ void utox_video_change_device(void *device) {
 
 }
 
-void utox_video_record_start(){
+void utox_video_record_start(_Bool preview){
     if (video_active++) {
+        debug("video already running\n");
         return;
     }
-    video_preview = 1;
+    if (preview) {
+        video_preview = 1;
+    }
     openvideodevice(video_device);
     video_startread();
     debug("started video\n");
 }
 
-void utox_video_record_stop(){
-    video_active--;
+void utox_video_record_stop(_Bool preview){
     if (!video_active) {
+        debug("video already stopped!\n");
+        return;
+    }
+
+    video_active--;
+    if (video_active) {
+        debug("video stream in progress not stopping\n");
         return;
     }
     video_active  = 0;
-    video_preview = 0;
+    if (preview) {
+        video_preview = 0;
+    }
     video_endread();
     closevideodevice(video_device);
     debug("stopped video\n");
