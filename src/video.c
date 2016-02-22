@@ -72,10 +72,13 @@ void utox_video_record_stop(_Bool preview){
         debug("video stream in progress not stopping\n");
         return;
     }
+
     video_active  = 0;
+
     if (preview) {
         video_preview = 0;
     }
+
     video_endread();
     closevideodevice(video_device);
     debug("stopped video\n");

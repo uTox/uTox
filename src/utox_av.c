@@ -163,6 +163,7 @@ void utox_av_ctrl_thread(void *args) {
                         toxav_bit_rate_set(av, msg->param1, -1, 0, &bitrate_err);
                     }
                     utox_video_record_stop(1);
+                    postmessage(AV_CLOSE_WINDOW, msg->param1, 0, NULL);
                     break;
                 }
 
