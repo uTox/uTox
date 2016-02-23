@@ -1,5 +1,5 @@
 #include "main.h"
-#include "math.h"
+#include <math.h>
 
 #define SQRT2 1.41421356237309504880168872420969807856967187537694807317667973799
 
