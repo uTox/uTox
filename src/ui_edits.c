@@ -415,20 +415,20 @@ static void edit_search_onchange(EDIT *edit)
     char_t *data = edit->data;
     STRING_IDX length = edit->length;
 
-    if(!length) {
-        button_add_new_contact.panel.disabled = 1;
-        button_add_new_contact.nodraw   = 1;
-        button_settings.panel.disabled = 0;
-        button_settings.nodraw   = 0;
-        list_search(NULL);
-    } else {
-        memcpy(search_data, data, length);
-        search_data[length] = 0;
-        list_search((char_t*)search_data);
+    if(length) {
         button_add_new_contact.panel.disabled = 0;
-        button_add_new_contact.nodraw   = 0;
-        button_settings.panel.disabled = 1;
-        button_settings.nodraw   = 1;
+        button_add_new_contact.nodraw         = 0;
+        button_settings.panel.disabled        = 1;
+        button_settings.nodraw                = 1;
+        memcpy(search_data, data, length);
+        search_data[length]                   = 0;
+        list_search((char_t*)search_data);
+    } else {
+        button_add_new_contact.panel.disabled = 1;
+        button_add_new_contact.nodraw         = 1;
+        button_settings.panel.disabled        = 0;
+        button_settings.nodraw                = 0;
+        list_search(NULL);
     }
 
     redraw();

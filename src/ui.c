@@ -521,8 +521,9 @@ panel_side_bar = {
         .type     = PANEL_NONE,
         .disabled = 0,
         .child    = (PANEL*[]) {
-            (void*)&button_filter_friends,
-            (void*)&edit_search,
+            (void*)&button_filter_friends, /* Top of roster */
+
+            (void*)&edit_search,           /* Bottom of roster*/
             (void*)&button_settings,
             (void*)&button_add_new_contact,
             NULL
@@ -894,11 +895,12 @@ void ui_set_scale(uint8_t scale) {
         },
 
         b_add_new_contact = {
-            .type   = PANEL_BUTTON,
-            .y      = ROSTER_BOTTOM,
-            .x      = SIDEBAR_BUTTON_LEFT,
-            .width  = SIDEBAR_BUTTON_WIDTH,
-            .height = SIDEBAR_BUTTON_HEIGHT,
+            .type     = PANEL_BUTTON,
+            .y        = ROSTER_BOTTOM,
+            .x        = SIDEBAR_BUTTON_LEFT,
+            .width    = SIDEBAR_BUTTON_WIDTH,
+            .height   = SIDEBAR_BUTTON_HEIGHT,
+            .disabled = 1,
         },
 
         b_settings = {

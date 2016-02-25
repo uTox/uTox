@@ -105,10 +105,6 @@ static void button_add_new_contact_onpress(void) {
     }
 }
 
-static void button_create_group_onpress(void) {
-    postmessage_toxcore(TOX_GROUP_CREATE, 0, 0, NULL);
-}
-
 static void button_settings_onpress(void) {
     if (tox_thread_init) {
         list_selectsettings();
@@ -465,21 +461,14 @@ button_add_new_contact = {
     .tooltip_text = { .i18nal = STR_ADDFRIENDS },
 },
 
-button_create_group = {
-    .bm2 = BM_GROUPS,
-    .bw = _BM_ADD_WIDTH,
-    .bh = _BM_ADD_WIDTH,
-    .update = button_bottommenu_update,
-    .onpress = button_create_group_onpress,
-    .tooltip_text = { .i18nal = STR_CREATEGROUPCHAT },
-},
-
 button_settings = {
-    .bm2     = BM_SETTINGS,
-    .bw      = _BM_ADD_WIDTH,
-    .bh      = _BM_ADD_WIDTH,
-    .update  = button_bottommenu_update,
-    .onpress = button_settings_onpress,
+    .bm2          = BM_SETTINGS,
+    .bw           = _BM_ADD_WIDTH,
+    .bh           = _BM_ADD_WIDTH,
+    .update       = button_bottommenu_update,
+    .onpress      = button_settings_onpress,
+    .disabled     = 0,
+    .nodraw       = 0,
     .tooltip_text = { .i18nal = STR_USERSETTINGS },
 },
 
