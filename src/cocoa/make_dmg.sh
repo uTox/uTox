@@ -1,6 +1,6 @@
 #!/bin/sh
 WORK=$(mktemp -d utox_dmg.XXXXXXX) || exit 1
-tar -C $WORK -xjf "cocoa/frozen_dmg.tar.bz2"
+tar -C $WORK -xjf "src/cocoa/frozen_dmg.tar.bz2"
 
 rm $WORK/uTox/uTox.app
 cp -r "uTox.app" "$WORK/uTox/uTox.app"
