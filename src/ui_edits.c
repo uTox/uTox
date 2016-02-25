@@ -435,6 +435,26 @@ static void edit_search_onchange(EDIT *edit)
     return;
 }
 
+static void edit_search_onenter(EDIT *edit) {
+    char_t *data = edit->data;
+    STRING_IDX length = edit->length;
+
+    if (length == 76) {
+        friend_add(data, length, (char_t *)"", 0);
+        edit_setstr(&edit_search, (char_t *)"", 0);
+    } else {
+        if (tox_thread_init) {
+            /* Only change if we're logged in! */
+            edit_setstr(&edit_add_id, data, length);
+            edit_setstr(&edit_search, (char_t *)"", 0);
+            list_selectaddfriend();
+            edit_setfocus(&edit_add_msg);
+        }
+    }
+
+    return;
+}
+
 static void edit_proxy_ip_port_onlosefocus(EDIT *edit)
 {
     edit_proxy_port.data[edit_proxy_port.length] = 0;
@@ -534,11 +554,12 @@ edit_msg_group = {
 
 edit_search = {
     .maxlength = sizeof(edit_search_data),
-    .data = edit_search_data,
-    .onchange = edit_search_onchange,
-    .style = AUXILIARY_STYLE,
+    .data      = edit_search_data,
+    .onchange  = edit_search_onchange,
+    .onenter   = edit_search_onenter,
+    .style     = AUXILIARY_STYLE,
+    .vcentered = 1,
     .empty_str = { .i18nal = STR_CONTACT_SEARCH_ADD_HINT },
-    .vcentered = 1
 },
 
 edit_proxy_ip = {
