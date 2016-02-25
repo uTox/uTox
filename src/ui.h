@@ -145,10 +145,10 @@ float ui_scale;
 /* Left sidebar defines */
 #define SIDEBAR_WIDTH                      (UTOX_SCALE(115 ))
 /* User badge */
-    #define SIDEBAR_AVATAR_TOP              (UTOX_SCALE(5  ))
-    #define SIDEBAR_AVATAR_LEFT             (UTOX_SCALE(5  ))
-    #define SIDEBAR_AVATAR_WIDTH            (UTOX_SCALE(5  ))
-    #define SIDEBAR_AVATAR_HEIGHT           (UTOX_SCALE(5  ))
+    #define SIDEBAR_AVATAR_TOP              (SCALE(10))
+    #define SIDEBAR_AVATAR_LEFT             (SCALE(10))
+    #define SIDEBAR_AVATAR_WIDTH            (SCALE(10))
+    #define SIDEBAR_AVATAR_HEIGHT           (SCALE(10))
     #define SIDEBAR_NAME_TOP                (UTOX_SCALE(8  ))
     #define SIDEBAR_NAME_LEFT               (UTOX_SCALE(32 ))
     #define SIDEBAR_NAME_WIDTH              (UTOX_SCALE(95 ))
@@ -158,37 +158,37 @@ float ui_scale;
     #define SIDEBAR_STATUSMSG_WIDTH         (UTOX_SCALE(95 ))
     #define SIDEBAR_STATUSMSG_HEIGHT        (UTOX_SCALE(6  ))
     #define SELF_STATUS_ICON_LEFT           (UTOX_SCALE(96 ))
-    #define SELF_STATUS_ICON_TOP            (UTOX_SCALE(5  ))
+    #define SELF_STATUS_ICON_TOP            (SCALE(10))
 
 /* Sidebar buttons and settings */
-    #define SIDEBAR_FILTER_FRIENDS_TOP      (UTOX_SCALE(30 ))
-    #define SIDEBAR_FILTER_FRIENDS_LEFT     ( UTOX_SCALE(5 ))
-    #define SIDEBAR_FILTER_FRIENDS_WIDTH    (UTOX_SCALE(84 ))
-    #define SIDEBAR_FILTER_FRIENDS_HEIGHT   ( UTOX_SCALE(6 ))
+    #define SIDEBAR_FILTER_FRIENDS_TOP      (SCALE( 60))
+    #define SIDEBAR_FILTER_FRIENDS_LEFT     (SCALE( 10))
+    #define SIDEBAR_FILTER_FRIENDS_WIDTH    (SCALE(168))
+    #define SIDEBAR_FILTER_FRIENDS_HEIGHT   (SCALE( 12))
 
 /* Roster defines */
-    #define ROSTER_TOP                      ( UTOX_SCALE(39 ))
-    #define ROSTER_LEFT                     (  UTOX_SCALE(8 ))
-    #define ROSTER_BOTTOM                   (-UTOX_SCALE(15 ))
-    #define ROSTER_BOX_LEFT                 (  UTOX_SCALE(4 ))
-    #define ROSTER_BOX_HEIGHT               ( UTOX_SCALE(25 ))
-    #define ROSTER_AVATAR_TOP               (  UTOX_SCALE(5 ) / 2)
-    #define ROSTER_AVATAR_LEFT              (  4 + UTOX_SCALE(5 ) / 2)
+    #define ROSTER_TOP                      ( SCALE(80))
+    #define ROSTER_LEFT                     ( SCALE(16))
+    #define ROSTER_BOTTOM                   (-SCALE(30))
+    #define ROSTER_BOX_LEFT                 ( SCALE( 8))
+    #define ROSTER_BOX_HEIGHT               ( SCALE(50))
+    #define ROSTER_AVATAR_TOP               ( SCALE( 5))
+    #define ROSTER_AVATAR_LEFT              ( SCALE(10))
 
-    #define ROSTER_NAME_TOP                 (UTOX_SCALE(6  ))
-    #define ROSTER_NAME_LEFT                (UTOX_SCALE(30 ))
-    #define ROSTER_STATUS_MSG_TOP           (UTOX_SCALE(13 ))
+    #define ROSTER_NAME_TOP                 (SCALE(12))
+    #define ROSTER_NAME_LEFT                (SCALE(60))
+    #define ROSTER_STATUS_MSG_TOP           (SCALE(26))
 
 /* Sidebar Lower search box and setting button */
-    #define SIDEBAR_SEARCH_TOP              (-UTOX_SCALE(15 ))
-    #define SIDEBAR_SEARCH_LEFT             (  UTOX_SCALE(0 ))
-    #define SIDEBAR_SEARCH_WIDTH            (UTOX_SCALE(100 ))
-    #define SIDEBAR_SEARCH_HEIGHT           ( UTOX_SCALE(15 ))
+    #define SIDEBAR_SEARCH_TOP              (-SCALE( 30))
+    #define SIDEBAR_SEARCH_LEFT             ( SCALE(  0))
+    #define SIDEBAR_SEARCH_WIDTH            ( SCALE(199))
+    #define SIDEBAR_SEARCH_HEIGHT           ( SCALE( 30))
 
-    #define SIDEBAR_BUTTON_TOP              (-UTOX_SCALE(15 ))
-    #define SIDEBAR_BUTTON_LEFT             (UTOX_SCALE(100 ))
-    #define SIDEBAR_BUTTON_WIDTH            ( UTOX_SCALE(15 ))
-    #define SIDEBAR_BUTTON_HEIGHT           ( UTOX_SCALE(15 ))
+    #define SIDEBAR_BUTTON_TOP              (-SCALE( 30))
+    #define SIDEBAR_BUTTON_LEFT             ( SCALE(200))
+    #define SIDEBAR_BUTTON_WIDTH            ( SCALE( 30))
+    #define SIDEBAR_BUTTON_HEIGHT           ( SCALE( 30))
 
 
 /* Main box/Chat box size settings */
@@ -197,8 +197,8 @@ float ui_scale;
 #define MAIN_TOP_FRAME_THICK            ( UTOX_SCALE(30 ))
 
 /* Global UI size settings... */
-#define SCROLL_WIDTH                    (UTOX_SCALE(4   )) //must be divisible by 2
-#define FILE_TRANSFER_BOX_HEIGHT        (UTOX_SCALE(14  ))
+#define SCROLL_WIDTH                    (SCALE( 8)) //must be divisible by 2
+#define FILE_TRANSFER_BOX_HEIGHT        (SCALE(28))
 
 
 

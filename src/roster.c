@@ -165,21 +165,15 @@ void update_shown_list(void) {
 
 static ITEM* newitem(void) {
     ITEM *i = &item[itemcount++];
-    //TODO: ..
     update_shown_list();
     return i;
 }
 
 // return item that the user is mousing over
-static ITEM* item_hit(int mx, int my, int UNUSED(height)) {
+static ITEM* item_hit(int mx, int my, int height) {
     /* Mouse is outsite the list */
-    if(mx < ROSTER_BOX_LEFT || mx >= SIDEBAR_WIDTH) {
-        mouse_in_list = 0;
-        return NULL;
-    }
-
-    /* Mouse is above the list */
-    if(my < 0) {
+    if (mx < ROSTER_BOX_LEFT || mx >= SIDEBAR_WIDTH ||
+        my < 0               || my >= height + ROSTER_BOTTOM ) { /* TODO: Height is a bit buggy, Height may need /2 */
         mouse_in_list = 0;
         return NULL;
     }
@@ -194,7 +188,6 @@ static ITEM* item_hit(int mx, int my, int UNUSED(height)) {
     }
 
     ITEM *i;
-
     i = &item[shown_list[item_idx]];
     mouse_in_list = 1;
     return i;

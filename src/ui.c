@@ -306,39 +306,37 @@ static void draw_settings_text_network(int x, int y, int w, int UNUSED(height)){
     drawstr(MAIN_LEFT  + SCALE(10), y + SCALE(10), WARNING);
 
     setcolor(COLOR_MAIN_TEXT);
-    setfont(FONT_TEXT);
+    setfont(FONT_SELF_NAME);
     drawstr(MAIN_LEFT  + SCALE(10), y + UTOX_SCALE(15 ), IPV6);
     drawstr(MAIN_LEFT  + UTOX_SCALE(55  ), y + UTOX_SCALE(15 ), UDP);
     drawstr(MAIN_LEFT  + SCALE(10), y + UTOX_SCALE(30 ), PROXY);
-    setfont(FONT_SELF_NAME);
     drawtext(MAIN_LEFT + UTOX_SCALE(132 ), y + UTOX_SCALE(42 ), (uint8_t*)":", 1);
 }
 
 static void draw_settings_text_ui(int x, int y, int w, int UNUSED(height)){
     setcolor(COLOR_MAIN_TEXT);
-    setfont(FONT_TEXT);
-    drawstr(MAIN_LEFT + UTOX_SCALE(75 ), y + UTOX_SCALE(5 ), DPI);
-    drawstr(MAIN_LEFT + UTOX_SCALE(5  ), y + UTOX_SCALE(5 ), THEME);
-    drawstr(MAIN_LEFT + UTOX_SCALE(5  ), y + UTOX_SCALE(30 ), LOGGING);
-    drawstr(MAIN_LEFT + UTOX_SCALE(5  ), y + UTOX_SCALE(55 ), CLOSE_TO_TRAY);
-    drawstr(MAIN_LEFT + UTOX_SCALE(5  ) + UTOX_STR_WIDTH(CLOSE_TO_TRAY) + UTOX_SCALE(10 ), y + UTOX_SCALE(55 ), START_IN_TRAY);
-    drawstr(MAIN_LEFT + UTOX_SCALE(5  ), y + UTOX_SCALE(80 ), AUTO_STARTUP);
-    drawstr(MAIN_LEFT + UTOX_SCALE(5  ), y + UTOX_SCALE(105 ), SEND_TYPING_NOTIFICATIONS);
+    setfont(FONT_SELF_NAME);
+    drawstr(MAIN_LEFT + SCALE(150), y + SCALE( 10), DPI);
+    drawstr(MAIN_LEFT + SCALE( 10), y + SCALE( 10), THEME);
+    drawstr(MAIN_LEFT + SCALE( 10), y + SCALE( 60), LOGGING);
+    drawstr(MAIN_LEFT + SCALE( 10), y + SCALE(110), CLOSE_TO_TRAY);
+    drawstr(MAIN_LEFT + SCALE(150), y + SCALE(110), START_IN_TRAY);
+    drawstr(MAIN_LEFT + SCALE( 10), y + SCALE(160), AUTO_STARTUP);
+    drawstr(MAIN_LEFT + SCALE( 10), y + SCALE(210), SEND_TYPING_NOTIFICATIONS);
 }
 
 static void draw_settings_text_av(int x, int y, int w, int UNUSED(height)){
     setcolor(COLOR_MAIN_TEXT);
-    setfont(FONT_TEXT);
-    drawstr(MAIN_LEFT + UTOX_SCALE(5   ), y + UTOX_SCALE(5  ),  RINGTONE);
-    drawstr(MAIN_LEFT + UTOX_SCALE(60  ), y + UTOX_SCALE(5  ),  PUSH_TO_TALK);
-    #ifdef AUDIO_FILTERING
-    drawstr(MAIN_LEFT + UTOX_SCALE(120 ), y + UTOX_SCALE(5  ),  AUDIOFILTERING);
-    #endif
-    drawstr(MAIN_LEFT + UTOX_SCALE(5   ), y + UTOX_SCALE(35  ), AUDIOINPUTDEVICE);
-    drawstr(MAIN_LEFT + UTOX_SCALE(5   ), y + UTOX_SCALE(60  ), AUDIOOUTPUTDEVICE);
-    drawstr(MAIN_LEFT + UTOX_SCALE(5   ), y + UTOX_SCALE(85  ), VIDEOINPUTDEVICE);
     setfont(FONT_SELF_NAME);
-    drawstr(MAIN_LEFT + UTOX_SCALE(5   ), y + UTOX_SCALE(115 ), PREVIEW);
+    drawstr(MAIN_LEFT + SCALE( 10), y + SCALE( 10),  RINGTONE);
+    drawstr(MAIN_LEFT + SCALE(120), y + SCALE( 10),  PUSH_TO_TALK);
+    #ifdef AUDIO_FILTERING
+    drawstr(MAIN_LEFT + SCALE(240), y + SCALE( 10),  AUDIOFILTERING);
+    #endif
+    drawstr(MAIN_LEFT + SCALE( 10), y + SCALE( 70), AUDIOINPUTDEVICE);
+    drawstr(MAIN_LEFT + SCALE( 10), y + SCALE(130), AUDIOOUTPUTDEVICE);
+    drawstr(MAIN_LEFT + SCALE( 10), y + SCALE(190), VIDEOINPUTDEVICE);
+    drawstr(MAIN_LEFT + SCALE( 10), y + SCALE(260), PREVIEW);
 }
 
 static void draw_settings_sub_header(int x, int y, int w, int UNUSED(height)){
@@ -440,8 +438,8 @@ SCROLLABLE scrollbar_roster = {
         .type = PANEL_SCROLLABLE,
     },
     .color = C_SCROLL,
-    .x = 2,
-    .left = 1,
+    .x     = 2,
+    .left  = 1,
     .small = 1,
 },
 
@@ -509,10 +507,10 @@ panel_side_bar = {
 },
     /* The user badge and buttons */
     panel_self = {
-        .type = PANEL_NONE,
+        .type     = PANEL_NONE,
         .disabled = 0,
         .drawfunc = draw_user_badge,
-        .child = (PANEL*[]) {
+        .child    = (PANEL*[]) {
             (void*)&button_avatar, (void*)&button_name,       (void*)&button_status,
                                    (void*)&button_statusmsg,
             NULL
@@ -520,11 +518,10 @@ panel_side_bar = {
     },
     /* Left sided toggles */
     panel_quick_buttons = {
-        .type = PANEL_NONE,
+        .type     = PANEL_NONE,
         .disabled = 0,
-        .child = (PANEL*[]) {
+        .child    = (PANEL*[]) {
             (void*)&button_filter_friends,
-            //(void*)&button_create_group, TODO MOVE TO ROSTER
             (void*)&edit_search,
             (void*)&button_settings,
             (void*)&button_add_new_contact,
@@ -533,9 +530,9 @@ panel_side_bar = {
     },
     /* The friends and group was called list */
     panel_roster = {
-        .type = PANEL_NONE,
+        .type     = PANEL_NONE,
         .disabled = 0,
-        .child = (PANEL*[]) {
+        .child    = (PANEL*[]) {
             // TODO rename these
             (void*)&panel_roster_list,
             (void*)&scrollbar_roster,
@@ -543,7 +540,7 @@ panel_side_bar = {
         }
     },
         panel_roster_list = {
-            .type = PANEL_LIST,
+            .type           = PANEL_LIST,
             .content_scroll = &scrollbar_roster,
         },
 /* Main panel, holds the overhead/settings, or the friend/group containers */
@@ -1006,16 +1003,16 @@ void ui_set_scale(uint8_t scale) {
 
         b_callpreview = {
             .type   = PANEL_BUTTON,
-            .x      = UTOX_SCALE(5   ),
-            .y      = UTOX_SCALE(125 ),
+            .x      = SCALE( 10),
+            .y      = SCALE(280),
             .width  = BM_LBUTTON_WIDTH,
             .height = BM_LBUTTON_HEIGHT,
         },
 
         b_videopreview = {
             .type   = PANEL_BUTTON,
-            .x      = UTOX_SCALE(35  ),
-            .y      = UTOX_SCALE(125 ),
+            .x      = SCALE( 70),
+            .y      = SCALE(280),
             .width  = BM_LBUTTON_WIDTH,
             .height = BM_LBUTTON_HEIGHT,
         },
@@ -1126,34 +1123,34 @@ void ui_set_scale(uint8_t scale) {
 
         d_audio_in = {
             .type   = PANEL_DROPDOWN,
-            .x      = UTOX_SCALE(5   ),
-            .y      = UTOX_SCALE(45  ),
-            .height = UTOX_SCALE(12  ),
-            .width  = UTOX_SCALE(180 )
+            .x      = SCALE( 10),
+            .y      = SCALE( 90),
+            .height = SCALE( 24),
+            .width  = SCALE(360)
         },
 
         d_audio_out = {
             .type   = PANEL_DROPDOWN,
-            .x      = UTOX_SCALE(5   ),
-            .y      = UTOX_SCALE(70  ),
-            .height = UTOX_SCALE(12  ),
-            .width  = UTOX_SCALE(180 )
+            .x      = SCALE( 10),
+            .y      = SCALE(150),
+            .height = SCALE( 24),
+            .width  = SCALE(360)
         },
 
         d_video = {
             .type   = PANEL_DROPDOWN,
-            .x      = UTOX_SCALE(5   ),
-            .y      = UTOX_SCALE(95  ),
-            .height = UTOX_SCALE(12  ),
-            .width  = UTOX_SCALE(180 )
+            .x      = SCALE( 10),
+            .y      = SCALE(210),
+            .height = SCALE( 24),
+            .width  = SCALE(360)
         },
 
         d_dpi = {
             .type   = PANEL_DROPDOWN,
-            .x      = UTOX_SCALE(75  ),
-            .y      = UTOX_SCALE(15  ),
-            .height = UTOX_SCALE(12  ),
-            .width  = UTOX_SCALE(100 )
+            .x      = SCALE(150),
+            .y      = SCALE( 30),
+            .height = SCALE( 24),
+            .width  = SCALE(200)
         },
 
         d_language = {
@@ -1214,18 +1211,18 @@ void ui_set_scale(uint8_t scale) {
 
         d_start_in_tray = {
             .type   = PANEL_DROPDOWN,
-            .x      = UTOX_SCALE(5   ) + UTOX_STR_WIDTH(CLOSE_TO_TRAY) + UTOX_SCALE(10 ),
-            .y      = UTOX_SCALE(63  ),
-            .height = UTOX_SCALE(12  ),
-            .width  = UTOX_SCALE(20  )
+            .x      = SCALE(150),
+            .y      = SCALE(126),
+            .height = SCALE( 24),
+            .width  = SCALE( 40)
         },
 
         d_auto_startup = {
             .type   = PANEL_DROPDOWN,
-            .x      = UTOX_SCALE(5   ),
-            .y      = UTOX_SCALE(87  ),
-            .height = UTOX_SCALE(12  ),
-            .width  = UTOX_SCALE(20  )
+            .x      = SCALE( 10),
+            .y      = SCALE(175),
+            .height = SCALE( 24),
+            .width  = SCALE( 40)
         },
 
         d_typing_notes = {
