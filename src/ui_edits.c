@@ -483,7 +483,7 @@ edit_toxid = {
     .length = TOX_FRIEND_ADDRESS_SIZE * 2,
     .data = self.id_buffer,
     .readonly = 1,
-    .noborder = 1,
+    .noborder = 0,
     .select_completely = 1,
 },
 

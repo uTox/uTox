@@ -635,5 +635,5 @@ button_show_password_settings = {
     .update       = button_setcolors_success,
     .onpress      = button_show_password_settings_onpress,
     .button_text  = { .i18nal = STR_SHOW      },
-    .tooltip_text = { .i18nal = STR_LOCK_UTOX },
+    .tooltip_text = { .i18nal = STR_SHOW_UI_PASSWORD },
 };

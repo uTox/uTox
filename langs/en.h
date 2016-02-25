@@ -215,10 +215,13 @@ msgid(NETWORK_SETTINGS)
 msgstr("Network Settings")
 
 msgid(PROFILE_PASSWORD)
-msgstr("Profile password")
+msgstr("Profile Password")
 
 msgid(LOCK_UTOX)
 msgstr("Disconnects from Tox and locks this profile.")
+
+msgid(SHOW_UI_PASSWORD)
+msgstr("Click to show profile password field. Changes made here will be instant!")
 
 msgid(LOCK)
 msgstr("Lock")
