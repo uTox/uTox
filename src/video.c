@@ -13,16 +13,37 @@ static _Bool openvideodevice(void *handle) {
     utox_video_frame.v = input.planes[2];
     utox_video_frame.w = input.d_w;
     utox_video_frame.h = input.d_h;
+    debug("video init done!\n");
+
     return 1;
 }
 
 static void closevideodevice(void *handle) {
     video_close(handle);
-    vpx_img_free(&input);
+    //vpx_img_free(&input);
 }
 
 static volatile uint32_t video_active = 0;
 static void *video_device;
+
+void utox_video_append_device(void *device, _Bool localized, void *name, _Bool dflt) {
+    if (localized) {
+        // Device name is localized with name containing UI_STRING_ID.
+        // device is device handle pointer.
+        list_dropdown_add_localized(&dropdown_video, name, device);
+    } else {
+        // Device name is a hardcoded string.
+        // device is a pointer to a buffer, that contains device handle pointer,
+        // followed by device name string.
+        list_dropdown_add_hardcoded(&dropdown_video, device + sizeof(void*), *(void**)device);
+    }
+
+    // dflt == true, if this device will be chosen by video detecting code.
+    if (dflt) {
+        dropdown_video.selected = dropdown_video.over = (dropdown_video.dropcount - 1);
+    }
+
+}
 
 void utox_video_change_device(void *device) {
     if (device == NULL) {
@@ -88,7 +109,7 @@ void utox_video_thread(void *args) {
     ToxAV *av = args;
 
     // Add always-present null video input device.
-    postmessage(VIDEO_IN_DEVICE_APPEND, STR_VIDEO_IN_NONE, 1, NULL);
+    utox_video_append_device(NULL, 1, STR_VIDEO_IN_NONE, 1);
 
     // select a video device (autodectect)
     video_device = video_detect();

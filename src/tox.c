@@ -1440,23 +1440,6 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
 
             break;
         }
-        case VIDEO_IN_DEVICE_APPEND: {
-            if(UI_STRING_ID_INVALID == param1) {
-                // Device name is a hardcoded string.
-                // data is a pointer to a buffer, that contains device handle pointer,
-                // followed by device name string.
-                list_dropdown_add_hardcoded(&dropdown_video, data + sizeof(void*), *(void**)data);
-            } else {
-                // Device name is localized with param1 containing UI_STRING_ID.
-                // data is device handle pointer.
-                list_dropdown_add_localized(&dropdown_video, param1, data);
-            }
-            //param2 == true, if this device will be chosen by video detecting code.
-            if(param2) {
-                dropdown_video.selected = dropdown_video.over = (dropdown_video.dropcount - 1);
-            }
-            break;
-        }
 
         /* Client/User Interface messages. */
         case REDRAW: {

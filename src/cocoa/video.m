@@ -164,7 +164,7 @@
 
     devices = [[NSMutableDictionary alloc] init];
 
-    postmessage(VIDEO_IN_DEVICE_APPEND, STR_VIDEO_IN_DESKTOP, 0, SCREEN_VIDEO_DEVICE_HANDLE);
+    utox_video_append_device(SCREEN_VIDEO_DEVICE_HANDLE, 1, STR_VIDEO_IN_DESKTOP, 0);
 
     NSArray *vdevIDs = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
     for (int i = 0; i < vdevIDs.count; i++) {
@@ -178,7 +178,7 @@
 
         devices[@(i + 2)] = dev.uniqueID;
 
-        postmessage(VIDEO_IN_DEVICE_APPEND, UI_STRING_ID_INVALID, 1, data);
+        utox_video_append_device(data, 0, 1, data);
     }
     return (void *)MIN(2, vdevIDs.count + 2);
 }

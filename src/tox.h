@@ -84,7 +84,6 @@ enum {
     /* OS interaction/integration messages*/
     AUDIO_IN_DEVICE,
     AUDIO_OUT_DEVICE,
-    VIDEO_IN_DEVICE_APPEND,
 
     /* Client/User Interface messages. */
     REDRAW,

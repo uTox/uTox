@@ -104,10 +104,10 @@ void* video_detect(void) {
     char dev_name[] = "/dev/videoXX", *first = NULL;
 
     // Indicate that we support desktop capturing.
-    postmessage(VIDEO_IN_DEVICE_APPEND, STR_VIDEO_IN_DESKTOP, 0, (void*)1);
+    utox_video_append_device((void*)1, 1, STR_VIDEO_IN_DESKTOP, 0);
 
     int i;
-    for(i = 0; i != 64; i++) {
+    for(i = 0; i != 64; i++) { /* TODO: magic numbers are bad mm'kay? */
         snprintf(dev_name + 10, sizeof(dev_name) - 10, "%i", i);
 
         struct stat st;
@@ -128,9 +128,9 @@ void* video_detect(void) {
         memcpy(p + sizeof(void*), dev_name, sizeof(dev_name));
         if(!first) {
             first = pp;
-            postmessage(VIDEO_IN_DEVICE_APPEND, UI_STRING_ID_INVALID, 1, p);
+            utox_video_append_device(p, 0, 1, p);
         } else {
-            postmessage(VIDEO_IN_DEVICE_APPEND, UI_STRING_ID_INVALID, 0, p);
+            utox_video_append_device(p, 0, 0, p);
         }
 
     }

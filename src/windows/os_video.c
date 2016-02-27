@@ -227,7 +227,7 @@ HRESULT ConnectFilters(IGraphBuilder *_pGraph, IBaseFilter *pSrc, IBaseFilter *p
 
 void* video_detect(void) {
     // Indicate that we support desktop capturing.
-    postmessage(VIDEO_IN_DEVICE_APPEND, STR_VIDEO_IN_DESKTOP, 0, (void*)1);
+    utox_video_append_device((void*)1, 1, STR_VIDEO_IN_DESKTOP, 0);
 
     max_video_width = GetSystemMetrics(SM_CXVIRTUALSCREEN);
     max_video_height = GetSystemMetrics(SM_CYVIRTUALSCREEN);
@@ -324,7 +324,7 @@ void* video_detect(void) {
                     void *data = malloc(sizeof(*pFilter) + len * 2);
                     WideCharToMultiByte(CP_UTF8, 0, varName.bstrVal, -1, data + sizeof(*pFilter), len * 2, NULL, 0);
                     memcpy(data, &temp, sizeof(pFilter));
-                    postmessage(VIDEO_IN_DEVICE_APPEND, UI_STRING_ID_INVALID, 1, data);
+                    utox_video_append_device(data, 0, data, 1);
                 }
             } else {
                 debug("Windows Video Code:\tcouldn't get a name for this device, this is a bug, please report!\n");
