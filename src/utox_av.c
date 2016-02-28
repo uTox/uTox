@@ -92,6 +92,7 @@ void utox_av_ctrl_thread(void *args) {
 
                 case UTOXAV_OUTGOING_CALL_ACCEPTED: {
                     postmessage_audio(UTOXAUDIO_START_FRIEND, msg->param1, msg->param2, NULL);
+                    debug("uToxAV:\tCall accepted by friend\n");
                     // intentional fall thorough
                 }
                 case UTOXAV_OUTGOING_CALL_REJECTED: {
@@ -148,21 +149,23 @@ void utox_av_ctrl_thread(void *args) {
                 }
 
                 case UTOXAV_START_VIDEO: {
-                    if (msg->param1) {
+                    if (msg->param2) {
+                        utox_video_record_start(1);
+                    } else {
                         utox_video_record_start(0);
                         TOXAV_ERR_BIT_RATE_SET bitrate_err = 0;
                         toxav_bit_rate_set(av, msg->param1, UTOX_DEFAULT_BITRATE_V, 0, &bitrate_err);
                     }
-                    utox_video_record_start(1);
                     break;
                 }
                 case UTOXAV_STOP_VIDEO: {
-                    if (msg->param1) {
+                    if (msg->param2) {
+                        utox_video_record_stop(1);
+                    } else {
                         utox_video_record_stop(0);
                         TOXAV_ERR_BIT_RATE_SET bitrate_err = 0;
                         toxav_bit_rate_set(av, msg->param1, -1, 0, &bitrate_err);
                     }
-                    utox_video_record_stop(1);
                     postmessage(AV_CLOSE_WINDOW, msg->param1, 0, NULL);
                     break;
                 }
@@ -198,13 +201,8 @@ void utox_av_ctrl_thread(void *args) {
                 }
 
                 case UTOXAV_SET_VIDEO_IN: {
-                    if(msg->data == NULL) {
-                        debug("uToxVID:\tChanged video input to NONE\n");
-                    }
-
-                    utox_video_change_device(msg->data);
-
-                    debug("uToxVID:\tChanged video input device\n");
+                    utox_video_change_device(msg->param1);
+                    debug("uToxAV:\tChanged video input device\n");
                     break;
                 }
 
@@ -349,7 +347,6 @@ static void utox_av_incoming_frame_v(ToxAV *toxAV, uint32_t friend_number, uint1
     frame->img = malloc(width * height * 4);
 
     yuv420tobgr(width, height, y, u, v, ystride, ustride, vstride, frame->img);
-
     postmessage(AV_VIDEO_FRAME, friend_number + 1, 0, (void*)frame);
 }
 
@@ -375,8 +372,8 @@ static void utox_callback_av_change_state(ToxAV *av, uint32_t friend_number, uin
         utox_av_remote_disconnect(av, friend_number);
         return;
     } else if (!friend[friend_number].call_state_friend) {
-        utox_audio_friend_accepted(av, friend_number);
         friend[friend_number].call_state_friend = state;
+        utox_audio_friend_accepted(av, friend_number);
     }
 
     if (friend[friend_number].call_state_friend ^ (state & TOXAV_FRIEND_CALL_STATE_SENDING_A)) {

@@ -431,12 +431,12 @@ void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height
 void video_begin(uint32_t id, char_t *name, STRING_IDX name_length, uint16_t width, uint16_t height);
 void video_end(uint32_t id);
 
-void* video_detect(void);
-_Bool video_init(void *handle);
-void video_close(void *handle);
-int video_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, uint16_t height);
-_Bool video_startread(void);
-_Bool video_endread(void);
+uint16_t native_video_detect(void);
+_Bool    video_init(void *handle);
+void     video_close(void *handle);
+int      video_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, uint16_t height);
+_Bool    video_startread(void);
+_Bool    video_endread(void);
 
 void audio_detect(void);
 _Bool audio_init(void *handle);

@@ -1063,8 +1063,8 @@ LRESULT CALLBACK GrabProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
         }
 
         if(desktopgrab_video) {
-            postmessage_utoxav(UTOXAV_SET_VIDEO_IN, 0, 0, (void*)1);
             DestroyWindow(window);
+            postmessage_utoxav(UTOXAV_SET_VIDEO_IN, 1, 0, NULL);
         } else {
             FRIEND *f = selected_item->data;
             if(selected_item->item == ITEM_FRIEND && f->online) {

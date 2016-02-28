@@ -415,23 +415,43 @@ static void edit_search_onchange(EDIT *edit)
     char_t *data = edit->data;
     STRING_IDX length = edit->length;
 
-    if(!length) {
-        button_add_new_contact.panel.disabled = 1;
-        button_add_new_contact.nodraw   = 1;
-        button_settings.panel.disabled = 0;
-        button_settings.nodraw   = 0;
-        list_search(NULL);
-    } else {
-        memcpy(search_data, data, length);
-        search_data[length] = 0;
-        list_search((char_t*)search_data);
+    if(length) {
         button_add_new_contact.panel.disabled = 0;
-        button_add_new_contact.nodraw   = 0;
-        button_settings.panel.disabled = 1;
-        button_settings.nodraw   = 1;
+        button_add_new_contact.nodraw         = 0;
+        button_settings.panel.disabled        = 1;
+        button_settings.nodraw                = 1;
+        memcpy(search_data, data, length);
+        search_data[length]                   = 0;
+        list_search((char_t*)search_data);
+    } else {
+        button_add_new_contact.panel.disabled = 1;
+        button_add_new_contact.nodraw         = 1;
+        button_settings.panel.disabled        = 0;
+        button_settings.nodraw                = 0;
+        list_search(NULL);
     }
 
     redraw();
+    return;
+}
+
+static void edit_search_onenter(EDIT *edit) {
+    char_t *data = edit->data;
+    STRING_IDX length = edit->length;
+
+    if (length == 76) {
+        friend_add(data, length, (char_t *)"", 0);
+        edit_setstr(&edit_search, (char_t *)"", 0);
+    } else {
+        if (tox_thread_init) {
+            /* Only change if we're logged in! */
+            edit_setstr(&edit_add_id, data, length);
+            edit_setstr(&edit_search, (char_t *)"", 0);
+            list_selectaddfriend();
+            edit_setfocus(&edit_add_msg);
+        }
+    }
+
     return;
 }
 
@@ -483,7 +503,7 @@ edit_toxid = {
     .length = TOX_FRIEND_ADDRESS_SIZE * 2,
     .data = self.id_buffer,
     .readonly = 1,
-    .noborder = 1,
+    .noborder = 0,
     .select_completely = 1,
 },
 
@@ -534,11 +554,12 @@ edit_msg_group = {
 
 edit_search = {
     .maxlength = sizeof(edit_search_data),
-    .data = edit_search_data,
-    .onchange = edit_search_onchange,
-    .style = AUXILIARY_STYLE,
+    .data      = edit_search_data,
+    .onchange  = edit_search_onchange,
+    .onenter   = edit_search_onenter,
+    .style     = AUXILIARY_STYLE,
+    .vcentered = 1,
     .empty_str = { .i18nal = STR_CONTACT_SEARCH_ADD_HINT },
-    .vcentered = 1
 },
 
 edit_proxy_ip = {

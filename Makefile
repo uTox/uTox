@@ -74,7 +74,7 @@ DESTDIR ?=
 PREFIX ?= /usr/local
 
 SRC = $(wildcard src/*.c)
-HEADERS = $(wildcard src/*.h src/*/*.h)
+HEADERS = $(wildcard src/*.h src/*/*.h langs/*.h)
 OBJ = $(SRC:.c=.o)
 GIT_V = $(shell git describe --abbrev=8 --dirty --always --tags)
 

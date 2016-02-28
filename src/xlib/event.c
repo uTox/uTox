@@ -162,7 +162,6 @@ _Bool doevent(XEvent event)
                 grabpy = graby = ev->y_root;
 
                 //XDrawRectangle(display, RootWindow(display, screen), grabgc, grabx, graby, 0, 0);
-
                 break;
             }
 
@@ -271,7 +270,7 @@ _Bool doevent(XEvent event)
                         }
                     }
                 } else {
-                    postmessage_utoxav(UTOXAV_SET_VIDEO_IN, 0, 0, (void*)1);
+                    postmessage_utoxav(UTOXAV_SET_VIDEO_IN, 1, 0, NULL);
                 }
                 pointergrab = 0;
             } else {

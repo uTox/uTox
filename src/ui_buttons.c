@@ -105,10 +105,6 @@ static void button_add_new_contact_onpress(void) {
     }
 }
 
-static void button_create_group_onpress(void) {
-    postmessage_toxcore(TOX_GROUP_CREATE, 0, 0, NULL);
-}
-
 static void button_settings_onpress(void) {
     if (tox_thread_init) {
         list_selectsettings();
@@ -157,9 +153,9 @@ static void button_audiopreview_update(BUTTON *b) {
 
 static void button_videopreview_onpress(void) {
     if (video_preview) {
-        postmessage_utoxav(UTOXAV_STOP_VIDEO, 0, 0, NULL);
+        postmessage_utoxav(UTOXAV_STOP_VIDEO, 0, 1, NULL);
     } else if (video_width && video_height) {
-        postmessage_utoxav(UTOXAV_START_VIDEO, 0, 0, NULL);
+        postmessage_utoxav(UTOXAV_START_VIDEO, 0, 1, NULL);
     } else {
         debug("Button ERR:\tVideo_width = 0, can't preview\n");
     }
@@ -465,21 +461,14 @@ button_add_new_contact = {
     .tooltip_text = { .i18nal = STR_ADDFRIENDS },
 },
 
-button_create_group = {
-    .bm2 = BM_GROUPS,
-    .bw = _BM_ADD_WIDTH,
-    .bh = _BM_ADD_WIDTH,
-    .update = button_bottommenu_update,
-    .onpress = button_create_group_onpress,
-    .tooltip_text = { .i18nal = STR_CREATEGROUPCHAT },
-},
-
 button_settings = {
-    .bm2     = BM_SETTINGS,
-    .bw      = _BM_ADD_WIDTH,
-    .bh      = _BM_ADD_WIDTH,
-    .update  = button_bottommenu_update,
-    .onpress = button_settings_onpress,
+    .bm2          = BM_SETTINGS,
+    .bw           = _BM_ADD_WIDTH,
+    .bh           = _BM_ADD_WIDTH,
+    .update       = button_bottommenu_update,
+    .onpress      = button_settings_onpress,
+    .disabled     = 0,
+    .nodraw       = 0,
     .tooltip_text = { .i18nal = STR_USERSETTINGS },
 },
 
@@ -635,5 +624,5 @@ button_show_password_settings = {
     .update       = button_setcolors_success,
     .onpress      = button_show_password_settings_onpress,
     .button_text  = { .i18nal = STR_SHOW      },
-    .tooltip_text = { .i18nal = STR_LOCK_UTOX },
+    .tooltip_text = { .i18nal = STR_SHOW_UI_PASSWORD },
 };

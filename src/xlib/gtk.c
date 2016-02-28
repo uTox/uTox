@@ -145,6 +145,10 @@ static void gtk_openavatarthread(void *UNUSED(args)) {
             "_Open", GTK_RESPONSE_ACCEPT,
             NULL);
     void *filter = gtk_file_filter_new();
+    gtk_file_filter_add_mime_type(filter, "image/jpeg");
+    gtk_file_filter_add_mime_type(filter, "image/png");
+    gtk_file_filter_add_mime_type(filter, "image/bmp");
+    gtk_file_filter_add_mime_type(filter, "image/gif");
     gtk_file_chooser_set_filter(dialog, filter);
 
     void *preview = gtk_image_new();

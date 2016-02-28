@@ -1,11 +1,18 @@
 #include "main.h"
 
 static vpx_image_t input;
-static _Bool openvideodevice(void *handle) {
+static _Bool utox_open_video_device(void *handle) {
     // initialize video (will populate video_width and video_height)
-    if(!video_init(handle)) {
-        debug("video_init() failed\n");
-        return 0;
+    if (handle == (void*)1) {
+        if (!video_init((void*)1)){
+            debug("uToxVideo:\tvideo_init() failed for desktop\n");
+            return 0;
+        }
+    } else {
+        if(!video_init(*(void**)handle)) {
+            debug("uToxVideo:\tvideo_init() failed webcam\n");
+            return 0;
+        }
     }
     vpx_img_alloc(&input, VPX_IMG_FMT_I420, video_width, video_height, 1);
     utox_video_frame.y = input.planes[0];
@@ -13,66 +20,96 @@ static _Bool openvideodevice(void *handle) {
     utox_video_frame.v = input.planes[2];
     utox_video_frame.w = input.d_w;
     utox_video_frame.h = input.d_h;
+    debug("uToxVideo:\tvideo init done!\n");
+
     return 1;
 }
 
-static void closevideodevice(void *handle) {
-    video_close(handle);
-    vpx_img_free(&input);
+static void utox_close_video_device(void *handle) {
+    if (handle >= (void*)2) {
+        video_close(*(void**)handle);
+        vpx_img_free(&input);
+    }
 }
 
-static volatile uint32_t video_active = 0;
-static void *video_device;
+static          void    *video_device[16]     = {NULL}; /* TODO; magic number */
+static          int16_t  video_device_count   = 0;
+static volatile uint32_t video_device_current = 0;
+static volatile _Bool    video_active         = 0;
 
-void utox_video_change_device(void *device) {
-    if (device == NULL) {
-        video_active = 1;
-        utox_video_record_stop(0);
+void utox_video_append_device(void *device, _Bool localized, void *name, _Bool default_) {
+    video_device[video_device_count++] = device;
+
+    if (localized) {
+        // Device name is localized with name containing UI_STRING_ID.
+        // device is device handle pointer.
+        list_dropdown_add_localized(&dropdown_video, name, device);
+    } else {
+        // Device name is a hardcoded string.
+        // device is a pointer to a buffer, that contains device handle pointer,
+        // followed by device name string.
+        list_dropdown_add_hardcoded(&dropdown_video, name, *(void**)device);
+    }
+
+    /* TODO remove all default settings */
+    // default == true, if this device will be chosen by video detecting code.
+    if (default_) {
+        dropdown_video.selected = dropdown_video.over = (dropdown_video.dropcount - 1);
+    }
+
+}
+
+void utox_video_change_device(uint16_t device_number) {
+    if (!device_number){
+        video_device_current = 0;
+        video_active         = 0;
+        debug("uToxVideo:\tDisabled Video device (none)\n");
         return;
     }
 
     if (video_active) {
         video_endread();
-        closevideodevice(video_device);
+        utox_close_video_device(video_device[video_device_current]);
     }
 
-    video_device = device;
-    openvideodevice(video_device);
+    video_device_current = device_number;
+
+    utox_open_video_device(video_device[device_number]);
 
     if (video_active) {
         video_startread();
     } else {
         /* Just grab the new frame size */
-        closevideodevice(video_device);
+        utox_close_video_device(video_device[video_device_current]);
     }
 
 }
 
 void utox_video_record_start(_Bool preview){
-    if (video_active++) {
-        debug("video already running\n");
+    if (video_active) {
+        debug("uToxVideo:\tvideo already running\n");
         return;
     }
-    if (preview) {
-        video_preview = 1;
+
+    if (!video_device_current) {
+        debug("uToxVideo:\tNot starting device None\n");
+        return;
     }
-    openvideodevice(video_device);
+
+    if (preview)
+        video_preview = 1;
+
+    utox_open_video_device(video_device[video_device_current]);
     video_startread();
-    debug("started video\n");
+    video_active = 1;
+    debug("uToxVideo:\tstarted video\n");
 }
 
 void utox_video_record_stop(_Bool preview){
     if (!video_active) {
-        debug("video already stopped!\n");
+        debug("uToxVideo:\tvideo already stopped!\n");
         return;
     }
-
-    video_active--;
-    if (video_active) {
-        debug("video stream in progress not stopping\n");
-        return;
-    }
-
     video_active  = 0;
 
     if (preview) {
@@ -80,23 +117,24 @@ void utox_video_record_stop(_Bool preview){
     }
 
     video_endread();
-    closevideodevice(video_device);
-    debug("stopped video\n");
+    utox_close_video_device(video_device[video_device_current]);
+    debug("uToxVideo:\tstopped video\n");
 }
 
 void utox_video_thread(void *args) {
     ToxAV *av = args;
 
     // Add always-present null video input device.
-    postmessage(VIDEO_IN_DEVICE_APPEND, STR_VIDEO_IN_NONE, 1, NULL);
+    utox_video_append_device(NULL, 1, STR_VIDEO_IN_NONE, 1);
 
     // select a video device (autodectect)
-    video_device = video_detect();
-    if (video_device) {
+    video_device_current = native_video_detect();
+
+    if (video_device_current) {
         // open the video device to get some info e.g. frame size
         // close it afterwards to not block the device while it is not used
-        if (openvideodevice(video_device)) {
-            closevideodevice(video_device);
+        if (utox_open_video_device(video_device[video_device_current])) {
+            utox_close_video_device(video_device[video_device_current]);
         }
     }
 
@@ -127,35 +165,37 @@ void utox_video_thread(void *args) {
                         active_video_count++;
                         TOXAV_ERR_SEND_FRAME error = 0;
                         toxav_video_send_frame(av, friend[i].number, utox_video_frame.w, utox_video_frame.h, utox_video_frame.y, utox_video_frame.u, utox_video_frame.v, &error);
-                        // debug("Sent video frame to friend %u\n", i);
+                        // debug("uToxVideo:\tSent video frame to friend %u\n", i);
                         if (error) {
                             if (error == TOXAV_ERR_SEND_FRAME_SYNC) {
-                                debug("Vid Frame sync error: w=%u h=%u\n", utox_video_frame.w, utox_video_frame.h);
+                                debug("uToxVideo:\tVid Frame sync error: w=%u h=%u\n", utox_video_frame.w, utox_video_frame.h);
                             } else if (error == TOXAV_ERR_SEND_FRAME_PAYLOAD_TYPE_DISABLED) {
-                                debug("ToxAV disagrees with our AV state for friend %u, self %u, friend %u\n",
+                                debug("uToxVideo:\tToxAV disagrees with our AV state for friend %u, self %u, friend %u\n",
                                       i, friend[i].call_state_self, friend[i].call_state_friend);
                             } else {
-                                debug("toxav_send_video error friend: %i error: %u\n", friend[i].number, error);
+                                debug("uToxVideo:\ttoxav_send_video error friend: %i error: %u\n", friend[i].number, error);
                             }
                         } else {
                             if (i >= UTOX_MAX_CALLS){
-                                debug("Trying to send video frame to too many peers. Please report this bug!\n");
+                                debug("uToxVideo:\tTrying to send video frame to too many peers. Please report this bug!\n");
                                 break;
                             }
                         }
                     }
                 }
             } else if(r == -1) {
-                debug("Err... something really bad happened trying to get this frame, I'm just going to plots now!\n");
+                debug("uToxVideo:\tErr... something really bad happened trying to get this frame, I'm just going to plots now!\n");
                 video_endread();
-                closevideodevice(video_device);
+                utox_close_video_device(video_device);
             }
+        yieldcpu(16); /* 60 fps */
+        continue;
         }
 
-        yieldcpu(5);
+        yieldcpu(100);
     }
 
     video_thread_msg = 0;
     utox_video_thread_init = 0;
-    debug("UTOX VIDEO:\tClean thread exit!\n");
+    debug("uToxVideo:\tClean thread exit!\n");
 }
