@@ -92,6 +92,7 @@ void utox_av_ctrl_thread(void *args) {
 
                 case UTOXAV_OUTGOING_CALL_ACCEPTED: {
                     postmessage_audio(UTOXAUDIO_START_FRIEND, msg->param1, msg->param2, NULL);
+                    debug("uToxAV:\tCall accepted by friend\n");
                     // intentional fall thorough
                 }
                 case UTOXAV_OUTGOING_CALL_REJECTED: {
@@ -346,7 +347,6 @@ static void utox_av_incoming_frame_v(ToxAV *toxAV, uint32_t friend_number, uint1
     frame->img = malloc(width * height * 4);
 
     yuv420tobgr(width, height, y, u, v, ystride, ustride, vstride, frame->img);
-
     postmessage(AV_VIDEO_FRAME, friend_number + 1, 0, (void*)frame);
 }
 
@@ -372,8 +372,8 @@ static void utox_callback_av_change_state(ToxAV *av, uint32_t friend_number, uin
         utox_av_remote_disconnect(av, friend_number);
         return;
     } else if (!friend[friend_number].call_state_friend) {
-        utox_audio_friend_accepted(av, friend_number);
         friend[friend_number].call_state_friend = state;
+        utox_audio_friend_accepted(av, friend_number);
     }
 
     if (friend[friend_number].call_state_friend ^ (state & TOXAV_FRIEND_CALL_STATE_SENDING_A)) {
