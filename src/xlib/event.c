@@ -162,7 +162,7 @@ _Bool doevent(XEvent event)
                 grabpy = graby = ev->y_root;
 
                 //XDrawRectangle(display, RootWindow(display, screen), grabgc, grabx, graby, 0, 0);
-
+                postmessage_utoxav(UTOXAV_SET_VIDEO_IN, 1, 0, NULL);
                 break;
             }
 

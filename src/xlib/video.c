@@ -100,8 +100,9 @@ void initshm(void) {
     max_video_height = scr->height;
 }
 
-void* video_detect(void) {
+uint16_t native_video_detect(void) {
     char dev_name[] = "/dev/videoXX", *first = NULL;
+    device_count = 1; /* start at 1 for the desktop input */
 
     // Indicate that we support desktop capturing.
     utox_video_append_device((void*)1, 1, STR_VIDEO_IN_DESKTOP, 0);
@@ -128,16 +129,16 @@ void* video_detect(void) {
         memcpy(p + sizeof(void*), dev_name, sizeof(dev_name));
         if(!first) {
             first = pp;
-            utox_video_append_device(p, 0, 1, p);
+            utox_video_append_device(p, 0, p + sizeof(void *), 1);
         } else {
-            utox_video_append_device(p, 0, 0, p);
+            utox_video_append_device(p, 0, p + sizeof(void *), 0);
         }
-
+        device_count++;
     }
 
     initshm();
 
-    return first;
+    return device_count;
 }
 
 void desktopgrab(_Bool video) {
