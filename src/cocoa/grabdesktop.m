@@ -175,4 +175,5 @@ void desktopgrab(_Bool video) {
     stardust_context.finished_callback = &stardust_display_capping_done;
 
     [v release];
+    postmessage_utoxav(UTOXAV_SET_VIDEO_IN, 1, 0, NULL);
 }

@@ -157,11 +157,11 @@
 
 @implementation uToxAppDelegate (VideoDevices)
 
-- (void *)storeVideoDevicesList {
+- (uint16_t)storeVideoDevicesList {
     if (devices) {
         [devices release];
     }
-
+    device_count = 1; /* 1 for desktop */
     devices = [[NSMutableDictionary alloc] init];
 
     utox_video_append_device(SCREEN_VIDEO_DEVICE_HANDLE, 1, STR_VIDEO_IN_DESKTOP, 0);
@@ -178,9 +178,10 @@
 
         devices[@(i + 2)] = dev.uniqueID;
 
-        utox_video_append_device(data, 0, 1, data);
+        utox_video_append_device(data, 0, data + sizeof(void *), 1);
+        device_count++;
     }
-    return (void *)MIN(2, vdevIDs.count + 2);
+    return (uint16_t)device_count;
 }
 
 - (AVCaptureDevice *)getCaptureDeviceFromHandle:(void *)handle {
@@ -251,7 +252,7 @@ int video_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, uint16_t 
     return [active_video_session getCurrentFrameIntoChannelsY:y U:u V:v :width :height];
 }
 
-void* video_detect(void) {
+uint16_t native_video_detect(void) {
     uToxAppDelegate *ad = (uToxAppDelegate *)[NSApp delegate];
     return [ad storeVideoDevicesList];
 }

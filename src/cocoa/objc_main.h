@@ -59,6 +59,7 @@ struct utox_native_image {
 
 @class uToxView;
 @interface uToxAppDelegate : NSResponder <NSApplicationDelegate, NSWindowDelegate> {
+    uint16_t             device_count;
     NSMutableDictionary *devices;
     NSMutableDictionary *ironclad;
 }
