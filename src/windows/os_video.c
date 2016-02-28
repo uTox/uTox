@@ -317,7 +317,6 @@ uint16_t native_video_detect(void) {
                 // To create an instance of the filter, do the following:
                 hr = pMoniker->lpVtbl->BindToObject(pMoniker, NULL, NULL, &IID_IBaseFilter, (void**)&pFilter);
                 if(SUCCEEDED(hr)) {
-                    debug("detect pFilter %p\n", pFilter);
                     int len = wcslen(varName.bstrVal);
                     void *data = malloc(sizeof(*pFilter) + len * 2);
                     WideCharToMultiByte(CP_UTF8, 0, varName.bstrVal, -1, data + sizeof(*pFilter), len * 2, NULL, 0);
