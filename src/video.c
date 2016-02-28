@@ -188,9 +188,11 @@ void utox_video_thread(void *args) {
                 video_endread();
                 utox_close_video_device(video_device);
             }
+        yieldcpu(16); /* 60 fps */
+        continue;
         }
 
-        yieldcpu(5);
+        yieldcpu(100);
     }
 
     video_thread_msg = 0;
