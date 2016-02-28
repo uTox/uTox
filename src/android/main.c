@@ -301,9 +301,9 @@ void video_end(uint32_t id)
 {
 }
 
-void* video_detect(void)
+uint16_t native_video_detect(void)
 {
-    return NULL;
+    return 0;
 }
 
 _Bool video_init(void *handle)
