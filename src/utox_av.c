@@ -148,21 +148,23 @@ void utox_av_ctrl_thread(void *args) {
                 }
 
                 case UTOXAV_START_VIDEO: {
-                    if (msg->param1) {
+                    if (msg->param2) {
+                        utox_video_record_start(1);
+                    } else {
                         utox_video_record_start(0);
                         TOXAV_ERR_BIT_RATE_SET bitrate_err = 0;
                         toxav_bit_rate_set(av, msg->param1, UTOX_DEFAULT_BITRATE_V, 0, &bitrate_err);
                     }
-                    utox_video_record_start(1);
                     break;
                 }
                 case UTOXAV_STOP_VIDEO: {
-                    if (msg->param1) {
+                    if (msg->param2) {
+                        utox_video_record_stop(1);
+                    } else {
                         utox_video_record_stop(0);
                         TOXAV_ERR_BIT_RATE_SET bitrate_err = 0;
                         toxav_bit_rate_set(av, msg->param1, -1, 0, &bitrate_err);
                     }
-                    utox_video_record_stop(1);
                     postmessage(AV_CLOSE_WINDOW, msg->param1, 0, NULL);
                     break;
                 }
@@ -198,12 +200,7 @@ void utox_av_ctrl_thread(void *args) {
                 }
 
                 case UTOXAV_SET_VIDEO_IN: {
-                    if(msg->data == NULL) {
-                        debug("uToxVID:\tChanged video input to NONE\n");
-                    }
-
-                    utox_video_change_device(msg->data);
-
+                    utox_video_change_device(msg->param1);
                     debug("uToxVID:\tChanged video input device\n");
                     break;
                 }

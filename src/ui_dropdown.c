@@ -14,19 +14,12 @@ static void dropdown_audio_out_onselect(uint16_t i, const DROPDOWN* dm)
     postmessage_utoxav(UTOXAV_SET_AUDIO_OUT, 0, 0, handle);
 }
 
-static void dropdown_video_onselect(uint16_t i, const DROPDOWN* dm)
-{
-    DROP_ELEMENT *e = &((DROP_ELEMENT*) dm->userdata)[i];
-    void *handle = e->handle;
-    if(!handle && video_preview) {
-        // if no device is selected while previewing, close the preview window
-        video_end(0);
-        video_preview = 0;
-    } else if((size_t)handle == 1) {
+static void dropdown_video_onselect(uint16_t i, const DROPDOWN* dm) {
+    if (i == 1) {
         desktopgrab(1);
-        return;
+    } else {
+        postmessage_utoxav(UTOXAV_SET_VIDEO_IN, i, 0, NULL);
     }
-    postmessage_utoxav(UTOXAV_SET_VIDEO_IN, 0, 0, handle);
 }
 
 static void dropdown_dpi_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
@@ -176,11 +169,20 @@ static UI_STRING_ID themedrops[] = {
     STR_THEME_ZENBURN,
 };
 
-static UI_STRING_ID yesnodrops[] = {STR_YES, STR_NO};
+static UI_STRING_ID yesnodrops[] = {
+    STR_YES,
+    STR_NO
+};
 
-static UI_STRING_ID noyesdrops[] = {STR_NO, STR_YES};
+static UI_STRING_ID noyesdrops[] = {
+    STR_NO,
+    STR_YES
+};
 
-static UI_STRING_ID offondrops[] = {STR_OFF, STR_ON};
+static UI_STRING_ID offondrops[] = {
+    STR_OFF,
+    STR_ON
+};
 
 DROPDOWN dropdown_audio_in = {
     .ondisplay = list_dropdown_ondisplay,

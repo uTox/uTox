@@ -227,7 +227,7 @@ void friend_meta_data_read(Tox *tox, int friend_id) {
     uint32_t size;
     void *mdata = file_raw((char*)path, &size);
     if (!mdata) {
-        debug("Meta Data not found (%s)\n", path);
+        // debug("Meta Data not found (%s)\n", path);
         return;
     }
     FRIEND_META_DATA *metadata = calloc(1, sizeof(*metadata));

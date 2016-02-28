@@ -1,17 +1,19 @@
 // userdata of list-based dropdown consists of these records
-typedef struct
-{
+typedef struct {
     MAYBE_I18NAL_STRING name;
     void *handle;
-}DROP_ELEMENT;
+} DROP_ELEMENT;
 
 typedef struct dropdown {
     PANEL panel;
     _Bool mouseover, open;
     uint16_t dropcount, selected, over;
+
     void (*onselect)(uint16_t, const struct dropdown*);
     STRING* (*ondisplay)(uint16_t, const struct dropdown*);
+
     UI_ELEMENT_STYLE style;
+
     void *userdata;
 } DROPDOWN;
 
