@@ -201,7 +201,7 @@ void utox_av_ctrl_thread(void *args) {
 
                 case UTOXAV_SET_VIDEO_IN: {
                     utox_video_change_device(msg->param1);
-                    debug("uToxVID:\tChanged video input device\n");
+                    debug("uToxAV:\tChanged video input device\n");
                     break;
                 }
 
