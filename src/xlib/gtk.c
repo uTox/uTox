@@ -200,7 +200,7 @@ static void gtk_savethread(void *args) {
 
     while(1){ //TODO, save current dir, and filename and preload them to gtk dialog if save fails.
         /* Create a GTK save window */
-        void *dialog = gtk_file_chooser_dialog_new((const char *)S(SELECT_AVATAR_TITLE), NULL,
+        void *dialog = gtk_file_chooser_dialog_new((const char *)S(WHERE_TO_SAVE_FILE), NULL,
                 GTK_FILE_CHOOSER_ACTION_SAVE,
                 "_Cancel", GTK_RESPONSE_CANCEL,
                 "_Open", GTK_RESPONSE_ACCEPT,
