@@ -449,5 +449,3 @@ void audio_end(int32_t call_index);
 #define drawstr(x, y, i) drawtext(x, y, S(i), SLEN(i))
 #define drawstr_getwidth(x, y, str) drawtext_getwidth(x, y, (char_t*)str, sizeof(str) - 1)
 #define strwidth(x) textwidth((char_t*)x, sizeof(x) - 1)
-
-#endif
