@@ -1,5 +1,8 @@
-#ifndef MAIN_H
-#define MAIN_H
+// Versions
+#define TITLE         "uTox"
+#define SUB_TITLE     "(Alpha)"
+#define RELEASE_TITLE "Scumbag Developer"
+#define VERSION       "0.6.1"
 
 /* Support for large files. */
 #define _LARGEFILE_SOURCE
@@ -35,31 +38,25 @@
 #endif
 
 // Defaults
-#define DEFAULT_NAME "Tox User"
+#define DEFAULT_NAME   "Tox User"
 #define DEFAULT_STATUS "Toxing on uTox"
-#define DEFAULT_SCALE 11
-
-// Versions
-#define TITLE "uTox"
-#define SUB_TITLE "(Alpha)"
-#define VERSION "0.6.0"
+#define DEFAULT_SCALE  11
 
 // Limits and sizes
-#define UTOX_MAX_CALLS 16
-#define UTOX_MAX_NUM_FRIENDS 256 /* Deprecated; Avoid Use */
+#define UTOX_MAX_CALLS            16
+#define UTOX_MAX_NUM_FRIENDS      256 /* Deprecated; Avoid Use */
 #define UTOX_MAX_BACKLOG_MESSAGES 128
-#define UTOX_MAX_NUM_GROUPS 512
-#define UTOX_FILE_NAME_LENGTH 1024
+#define UTOX_MAX_NUM_GROUPS       512
+#define UTOX_FILE_NAME_LENGTH     1024
 
-
-#define MAX_CALLS UTOX_MAX_CALLS                        /* Deprecated; Avoid Use */
-#define MAX_NUM_FRIENDS UTOX_MAX_NUM_FRIENDS            /* Deprecated; Avoid Use */
-#define MAX_NUM_GROUPS UTOX_MAX_NUM_GROUPS              /* Deprecated; Avoid Use */
+#define MAX_CALLS               UTOX_MAX_CALLS       /* Deprecated; Avoid Use */
+#define MAX_NUM_FRIENDS         UTOX_MAX_NUM_FRIENDS /* Deprecated; Avoid Use */
+#define MAX_NUM_GROUPS          UTOX_MAX_NUM_GROUPS  /* Deprecated; Avoid Use */
 #define TOX_FRIEND_ADDRESS_SIZE TOX_ADDRESS_SIZE
 
-#define BORDER 1
-#define CAPTION 26
-#define MAIN_WIDTH 800
+#define BORDER      1
+#define CAPTION     26
+#define MAIN_WIDTH  800
 #define MAIN_HEIGHT 600
 
 #define inrect(x, y, rx, ry, width, height) ((x) >= (rx) && (y) >= (ry) && (x) < ((rx) + (width)) && (y) < ((ry) + (height)))
@@ -452,5 +449,3 @@ void audio_end(int32_t call_index);
 #define drawstr(x, y, i) drawtext(x, y, S(i), SLEN(i))
 #define drawstr_getwidth(x, y, str) drawtext_getwidth(x, y, (char_t*)str, sizeof(str) - 1)
 #define strwidth(x) textwidth((char_t*)x, sizeof(x) - 1)
-
-#endif
