@@ -1,4 +1,4 @@
-# μTox [![Build Status](https://travis-ci.org/GrayHatter/uTox.svg?branch=develop)](https://travis-ci.org/GrayHatter/uTox)[![Issue Stats](http://issuestats.com/github/grayhatter/utox/badge/pr)](http://issuestats.com/github/grayhatter/utox)[![Issue Stats](http://issuestats.com/github/grayhatter/utox/badge/issue)](http://issuestats.com/github/grayhatter/utox)
+# μTox [![Build Status](https://travis-ci.org/GrayHatter/uTox.svg?branch=develop)](https://travis-ci.org/GrayHatter/uTox)  [![Issue Stats](http://issuestats.com/github/grayhatter/utox/badge/pr)](http://issuestats.com/github/grayhatter/utox)  [![Issue Stats](http://issuestats.com/github/grayhatter/utox/badge/issue)](http://issuestats.com/github/grayhatter/utox)
 
 The lightweight [Tox](https://github.com/irungentoo/toxcore) client.
 
