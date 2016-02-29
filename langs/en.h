@@ -52,6 +52,9 @@ msgstr("Save File")
 msgid(WHERE_TO_SAVE_FILE_PROMPT)
 msgstr("Where do you want to save \"%.*s\"?")
 
+msgid(WHERE_TO_SAVE_FILE)
+msgstr("Where do you want to save the file?")
+
 msgid(SEND_FILE_PROMPT)
 msgstr("Select one or more files to send.")
 
