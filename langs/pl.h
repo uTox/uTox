@@ -5,13 +5,13 @@ msgid(LANG_ENGLISH_NAME)
 msgstr("POLISH")
 
 msgid(REQ_SENT)
-msgstr("Zapytanie zostało wysłane. Znajomy/a pojawi się online kiedy zaakceptuje zapytanie.")
+msgstr("Zapytanie zostało wysłane. Znajomy/a pojawi się jako podłączony kiedy zaakceptuje zapytanie.")
 
 msgid(REQ_RESOLVE)
 msgstr("Próba rozwiązania nazwy DNS...")
 
 msgid(DNS_DISABLED)
-msgstr("Rozwiązywanie nazwy DNS wyłączone gdy proxy bez UDP jest używane!")
+msgstr("Rozwiązywanie nazwy DNS jest wyłączone gdy używane jest proxy bez UDP!")
 
 msgid(REQ_INVALID_ID)
 msgstr("Błąd: Niepoprawny Tox ID")
@@ -257,10 +257,10 @@ msgid(WARNING)
 msgstr("Zmiana ustawień sieci/proxy tymczasowo rozłączy cię z siecią Tox")
 
 msgid(LOGGING)
-msgstr("Zapis logów")
+msgstr("Zapis historii")
 
 msgid(AUDIONOTIFICATIONS)
-msgstr("Włącz powiadomienie głosowe (dzwonek)")
+msgstr("Włącz powiadomienie dźwiękowe (dzwonek)")
 
 msgid(RINGTONE)
 msgstr("Dzwonek")
