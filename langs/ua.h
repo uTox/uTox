@@ -11,7 +11,7 @@ msgid(REQ_RESOLVE)
 msgstr("Визначення DNS-імені...")
 
 msgid(DNS_DISABLED)
-msgstr("Визначення DNS-імен вимкнуто при використанні проксі-сервера без UDP!") // Check the correctness
+msgstr("Визначення DNS-імен вимкнено при використанні проксі-сервера без UDP!") // Check the correctness
 
 msgid(REQ_INVALID_ID)
 msgstr("Помилка: Невірний Tox ID")
@@ -115,8 +115,8 @@ msgstr("Немає ніякого способу для відновлення �
 msgid(ADDFRIENDS)
 msgstr("Додати друзів")
 
-msgid(TOXID)
-msgstr("Tox ID")
+//msgid(TOXID)
+//msgstr("Tox ID")
 
 msgid(MESSAGE)
 msgstr("Повідомлення")
@@ -241,11 +241,11 @@ msgstr("Мова")
 msgid(NETWORK)
 msgstr("Мережа")
 
-msgid(IPV6)
-msgstr("IPv6:")
+//msgid(IPV6)
+//msgstr("IPv6:")
 
-msgid(UDP)
-msgstr("UDP:")
+//msgid(UDP)
+//msgstr("UDP:")
 
 msgid(PROXY)
 msgstr("Проксі (SOCKS 5)")
@@ -475,8 +475,8 @@ msgstr("Будь ласка, додайте мене в свій список д
 msgid(CONTACT_SEARCH_ADD_HINT)
 msgstr("Пошук/Додавання Друзів")
 
-msgid(PROXY_EDIT_HINT_IP)
-msgstr("IP")
+//msgid(PROXY_EDIT_HINT_IP)
+//msgstr("IP")
 
 msgid(PROXY_EDIT_HINT_PORT)
 msgstr("Порт")
@@ -523,8 +523,8 @@ msgstr("Контрастна")
 msgid(THEME_CUSTOM)
 msgstr("Власна (див. документацію)")
 
-msgid(THEME_ZENBURN)
-msgstr("Zenburn")
+//msgid(THEME_ZENBURN)
+//msgstr("Zenburn")
 
 msgid(SEND_TYPING_NOTIFICATIONS)
 msgstr("Повідомляти про набір відповіді")
