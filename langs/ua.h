@@ -52,6 +52,9 @@ msgstr("Збереження файлу")
 msgid(WHERE_TO_SAVE_FILE_PROMPT)
 msgstr("Оберіть місце для збереження\"%.*s\"")
 
+msgid(WHERE_TO_SAVE_FILE)
+msgstr("Куди ви хочете зберегти файл?")
+
 msgid(SEND_FILE_PROMPT)
 msgstr("Оберіть файл(и) для надсилання.")
 
