@@ -67,9 +67,6 @@ msgstr("Nowy transfer pliku")
 msgid(TRANSFER_STARTED)
 msgstr("Transfer pliku rozpoczęty")
 
-//msgid(TRANSFER___)
-//msgstr("...")
-
 msgid(TRANSFER_PAUSED)
 msgstr("Transfer pliku wstrzymany")
 
@@ -114,9 +111,6 @@ msgstr("Nie ma możliwości odzyskania zagubionych haseł.")
 
 msgid(ADDFRIENDS)
 msgstr("Dodaj znajomych")
-
-//msgid(TOXID)
-//msgstr("Tox ID")
 
 msgid(MESSAGE)
 msgstr("Wiadomość")
@@ -185,7 +179,7 @@ msgid(VIDEOINPUTDEVICE)
 msgstr("Urządzenie wejściowe wideo")
 
 msgid(PUSH_TO_TALK)
-msgstr("Przyciśnij by mówić")
+msgstr("Przyciśnij, by mówić")
 
 msgid(STATUS)
 msgstr("Status")
@@ -212,7 +206,7 @@ msgid(USER_INTERFACE)
 msgstr("Interfejs użytkownika")
 
 msgid(UTOX_SETTINGS)
-msgstr("Ustawienia uTox'a")
+msgstr("Ustawienia")
 
 msgid(NETWORK_SETTINGS)
 msgstr("Ustawienia sieci")
@@ -224,7 +218,7 @@ msgid(LOCK_UTOX)
 msgstr("Rozłącza z sieci Tox i blokuje ten profil.")
 
 msgid(SHOW_UI_PASSWORD)
-msgstr("Kliknij by wyświetlić pole hasła profilu. Zmiany będą wprowadzone natychmiastowo!")
+msgstr("Kliknij, aby wyświetlić pole hasła profilu. Zmiany zostaną wprowadzone natychmiastowo!")
 
 msgid(LOCK)
 msgstr("Zablokuj")
@@ -243,15 +237,6 @@ msgstr("Język")
 
 msgid(NETWORK)
 msgstr("Sieć")
-
-//msgid(IPV6)
-//msgstr("IPv6:")
-
-//msgid(UDP)
-//msgstr("UDP:")
-
-//msgid(PROXY)
-//msgstr("Proxy (SOCKS 5)")
 
 msgid(WARNING)
 msgstr("Zmiana ustawień sieci/proxy tymczasowo rozłączy cię z siecią Tox")
@@ -326,7 +311,7 @@ msgid(ALIAS)
 msgstr("Alias")
 
 msgid(FRIEND_AUTOACCEPT)
-msgstr("Akceptuj nadchodzące pliku bez potwierdzenia")
+msgstr("Akceptuj nadchodzące pliki bez potwierdzenia")
 
 msgid(SENDMESSAGE)
 msgstr("Wyślij wiadomość")
@@ -335,10 +320,10 @@ msgid(SENDSCREENSHOT)
 msgstr("Wyślij zrzut ekranu")
 
 msgid(CLICKTOSAVE)
-msgstr("Przyciśnij by zapisać")
+msgstr("Przyciśnij, by zapisać")
 
 msgid(CLICKTOOPEN)
-msgstr("Przyciśnij by otworzyć")
+msgstr("Przyciśnij, by otworzyć")
 
 msgid(CANCELLED)
 msgstr("Anulowano")
@@ -466,23 +451,11 @@ msgstr("Brak")
 msgid(VIDEO_IN_DESKTOP)
 msgstr("Ekran")
 
-//msgid(AUDIO_IN_DEFAULT_LOOPBACK)
-//msgstr("Default Loopback")
-
 msgid(AUDIO_IN_ANDROID)
 msgstr("Wejście OpenSL")
 
-//msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
-//msgstr("Please accept this friend request.")
-
 msgid(CONTACT_SEARCH_ADD_HINT)
 msgstr("Szukaj/dodaj znajomych")
-
-//msgid(PROXY_EDIT_HINT_IP)
-//msgstr("IP")
-
-//msgid(PROXY_EDIT_HINT_PORT)
-//msgstr("Port")
 
 msgid(WINDOW_TITLE_VIDEO_PREVIEW)
 msgstr("Podgląd wideo")
@@ -525,9 +498,6 @@ msgstr("Wysoki kontrast")
 
 msgid(THEME_CUSTOM)
 msgstr("Własny (przeczytaj dokumentację)")
-
-msgid(THEME_ZENBURN)
-msgstr("Zenburn")
 
 msgid(SEND_TYPING_NOTIFICATIONS)
 msgstr("Wysyłaj powiadomienia o pisaniu")
