@@ -6,3 +6,4 @@ lib/
 debug.keystore
 *.dll
 Tox/
+libtoxcore.log
