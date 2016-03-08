@@ -387,7 +387,7 @@ void native_select_dir_ft(uint32_t fid, MSG_FILE *file)
     }
 }
 
-void native_autoselect_dir_ft(uint32_t fid, MSG_FILE *file) {
+void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
     /* TODO: maybe do something different here? */
     char *path = malloc(file->name_length + 1);
     memcpy(path, file->name, file->name_length);
