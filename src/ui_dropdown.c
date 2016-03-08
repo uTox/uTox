@@ -125,9 +125,11 @@ static void dropdown_push_to_talk_onselect(const uint16_t i, const DROPDOWN* UNU
     }
 }
 
-static void dropdown_friend_autoaccept_onselect(const uint16_t i, const DROPDOWN* UNUSED(dm)) {
-    //FRIEND *f = selected_item->data;
+static void dropdown_friend_autoaccept_ft_onselect(const uint16_t i, const DROPDOWN* UNUSED(dm)) {
+    FRIEND *f = selected_item->data;
     // TODO: implement autoaccept
+    f->auto_accept_ft = !!i;
+    debug("Friend %u, is now accepting ft auto %u\n", f->number, i);
 }
 
 static UI_STRING_ID dpidrops[] = {
@@ -296,9 +298,9 @@ dropdown_push_to_talk = {
     .userdata  = offondrops
 },
 
-dropdown_friend_autoaccept = {
+dropdown_friend_autoaccept_ft = {
     .ondisplay = simple_dropdown_ondisplay,
-    .onselect  = dropdown_friend_autoaccept_onselect,
+    .onselect  = dropdown_friend_autoaccept_ft_onselect,
     .dropcount = countof(noyesdrops),
     .userdata  = noyesdrops
 };

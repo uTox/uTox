@@ -645,7 +645,7 @@ panel_main = {
                 .drawfunc = draw_friend_settings,
                 .child = (PANEL*[]) {
                     (void*)&edit_friend_alias,
-                    (void*)&dropdown_friend_autoaccept,
+                    (void*)&dropdown_friend_autoaccept_ft,
                     NULL
                 }
             },
@@ -1266,7 +1266,7 @@ void ui_set_scale(uint8_t scale) {
         dropdown_start_in_tray.panel = d_start_in_tray;
         dropdown_theme.panel = d_theme;
         dropdown_auto_startup.panel = d_auto_startup;
-        dropdown_friend_autoaccept.panel = d_friend_autoaccept;
+        dropdown_friend_autoaccept_ft.panel = d_friend_autoaccept;
 
         #ifdef AUDIO_FILTERING
         dropdown_audio_filtering.panel = d_audio_filtering;

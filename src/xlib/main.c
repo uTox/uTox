@@ -7,7 +7,7 @@ XIC xic = NULL;
 void* gtk_load(void);
 void gtk_openfilesend(void);
 void gtk_openfileavatar(void);
-void gtk_savefilerecv(uint32_t fid, MSG_FILE *file);
+void gtk_native_select_dir_ft(uint32_t fid, MSG_FILE *file);
 void gtk_savefiledata(MSG_FILE *file);
 
 void setclipboard(void)
@@ -373,10 +373,10 @@ void openfileavatar(void)
     }
 }
 
-void savefilerecv(uint32_t fid, MSG_FILE *file)
+void native_select_dir_ft(uint32_t fid, MSG_FILE *file)
 {
     if(libgtk) {
-        gtk_savefilerecv(fid, file);
+        gtk_native_select_dir_ft(fid, file);
     } else {
         //fall back to working dir
         char *path = malloc(file->name_length + 1);
@@ -385,6 +385,14 @@ void savefilerecv(uint32_t fid, MSG_FILE *file)
 
         postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->filenumber, path);
     }
+}
+
+void native_autoselect_dir_ft(uint32_t fid, MSG_FILE *file) {
+    /* TODO: maybe do something different here? */
+    char *path = malloc(file->name_length + 1);
+    memcpy(path, file->name, file->name_length);
+    path[file->name_length] = 0;
+    postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->filenumber, path);
 }
 
 void savefiledata(MSG_FILE *file)

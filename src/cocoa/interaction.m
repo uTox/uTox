@@ -845,7 +845,7 @@ void update_tray(void) {
 
 /* file utils */
 
-void savefilerecv(uint32_t fid, MSG_FILE *file) {
+void native_select_dir_ft(uint32_t fid, MSG_FILE *file) {
     NSSavePanel *picker = [NSSavePanel savePanel];
     NSString *fname = [[NSString alloc] initWithBytesNoCopy:file->name length:file->name_length encoding:NSUTF8StringEncoding freeWhenDone:NO];
     picker.message = [NSString stringWithFormat:NSSTRING_FROM_LOCALIZED(WHERE_TO_SAVE_FILE_PROMPT), file->name_length, file->name];
@@ -859,6 +859,22 @@ void savefilerecv(uint32_t fid, MSG_FILE *file) {
         postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->filenumber, strdup(destination.path.UTF8String));
     }
 }
+
+void native_autoselect_dir_ft(uint32_t fid, MSG_FILE *file) {
+    NSSavePanel *picker = [NSSavePanel savePanel];
+    NSString *fname = [[NSString alloc] initWithBytesNoCopy:file->name length:file->name_length encoding:NSUTF8StringEncoding freeWhenDone:NO];
+    picker.message = [NSString stringWithFormat:NSSTRING_FROM_LOCALIZED(WHERE_TO_SAVE_FILE_PROMPT), file->name_length, file->name];
+    picker.nameFieldStringValue = fname;
+    [fname release];
+    int ret = [picker runModal];
+
+    if (ret == NSFileHandlingPanelOKButton) {
+        NSURL *destination = picker.URL;
+        // FIXME: might be leaking
+        postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->filenumber, strdup(destination.path.UTF8String));
+    }
+}
+
 //@"Where do you want to save \"%.*s\"?"
 void savefiledata(MSG_FILE *file) {
     NSSavePanel *picker = [NSSavePanel savePanel];

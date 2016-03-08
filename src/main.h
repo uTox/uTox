@@ -418,7 +418,8 @@ void openfilesend(void);
 
 /* use the file chooser to pick an avatar and set it as the user's */
 void openfileavatar(void);
-void savefilerecv(uint32_t fid, MSG_FILE *file);
+void native_select_dir_ft(uint32_t fid, MSG_FILE *file);
+void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file);
 void savefiledata(MSG_FILE *file);
 
 

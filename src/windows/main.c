@@ -31,7 +31,7 @@ static int utf8tonative(char_t *str, wchar_t *out, int length){
     return MultiByteToWideChar(CP_UTF8, 0, (char*)str, length, out, length);
 }
 
-static int utf8str_to_native(char_t *str, wchar_t *out, int length){
+static int utf8_to_nativestr(char_t *str, wchar_t *out, int length){
     /* must be null terminated string                   ↓ */
     return MultiByteToWideChar(CP_UTF8, 0, (char*)str, -1, out, length);
 }
@@ -457,26 +457,9 @@ void openfileavatar(void)
     SetCurrentDirectoryW(dir);
 }
 
-void savefilerecv(uint32_t fid, MSG_FILE *file)
-{
-    char *path = malloc(256);
-    memcpy(path, file->name, file->name_length);
-    path[file->name_length] = 0;
-
-    OPENFILENAME ofn = {
-        .lStructSize = sizeof(OPENFILENAME),
-        .hwndOwner = hwnd,
-        .lpstrFile = path,
-        .nMaxFile = UTOX_FILE_NAME_LENGTH,
-        .Flags = OFN_EXPLORER | OFN_NOCHANGEDIR | OFN_NOREADONLYRETURN | OFN_OVERWRITEPROMPT,
-    };
-
-    if(GetSaveFileName(&ofn)) {
-        postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->filenumber, path);
-    } else {
-        debug("GetSaveFileName() failed\n");
-    }
-}
+/** following two Moved to main.VERSION.c */
+// void native_select_dir_ft(uint32_t fid, MSG_FILE *file)
+// void native_autoselect_dir_ft(uint32_t fid, MSG_FILE *file)
 
 void savefiledata(MSG_FILE *file)
 {
@@ -968,7 +951,7 @@ void update_tray(void){
         .cbSize = sizeof(nid),
     };
 
-    utf8str_to_native((char_t *)tip, nid.szTip, tip_length);
+    utf8_to_nativestr((char_t *)tip, nid.szTip, tip_length);
 
     Shell_NotifyIconW(NIM_MODIFY, &nid);
 

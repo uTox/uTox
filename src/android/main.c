@@ -144,42 +144,19 @@ uint64_t get_time(void)
     return ((uint64_t)ts.tv_sec * (1000 * 1000 * 1000)) + (uint64_t)ts.tv_nsec;
 }
 
-void copy(int value)
-{
-}
 
-void paste(void)
-{
-}
-
-void openurl(char_t *str)
-{
-}
-
-void openfilesend(void)
-{
-}
-
-void openfileavatar(void)
-{
-}
-
-void savefilerecv(uint32_t fid, MSG_FILE *file)
-{
-}
-
-void savefiledata(MSG_FILE *file)
-{
-}
-
-void setselection(char_t *data, STRING_IDX length)
-{
-}
-
-void edit_will_deactivate(void)
-{
-
-}
+/* These functions aren't support on Andorid HELP?
+ * TODO: fix these! */
+void copy(int value){}
+void paste(void){}
+void openurl(char_t *str){}
+void openfilesend(void){}
+void openfileavatar(void){}
+void native_select_dir_ft(uint32_t fid, MSG_FILE *file){}
+void native_autoselect_dir_ft(uint32_t fid, MSG_FILE *file){}
+void savefiledata(MSG_FILE *file){}
+void setselection(char_t *data, STRING_IDX length){}
+void edit_will_deactivate(void){}
 
 UTOX_NATIVE_IMAGE *decode_image(const UTOX_IMAGE data, size_t size, uint16_t *w, uint16_t *h, _Bool keep_alpha)
 {

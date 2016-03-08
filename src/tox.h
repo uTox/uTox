@@ -21,19 +21,19 @@ typedef enum UTOX_ENC_ERR {
 /* toxcore thread messages (sent from the client thread) */
 enum {
     /* SHUTDOWNEVERYTHING! */
-    TOX_KILL,
+    TOX_KILL, // 0
 
     /* Change our settings in core */
-    TOX_SELF_SET_NAME,
+    TOX_SELF_SET_NAME, // 1
     TOX_SELF_SET_STATUS,
     TOX_SELF_SET_STATE,
 
     /* Wooo pixturs */
-    TOX_AVATAR_SET,
-    TOX_AVATAR_UNSET, // 5
+    TOX_AVATAR_SET, // 4
+    TOX_AVATAR_UNSET,
 
     /* Interact with contacts */
-    TOX_FRIEND_NEW,
+    TOX_FRIEND_NEW, // 6
     TOX_FRIEND_ACCEPT,
     TOX_FRIEND_DELETE,
     TOX_FRIEND_ONLINE,
@@ -44,9 +44,10 @@ enum {
     TOX_SEND_TYPING,
 
     /* File Transfers */
-    TOX_FILE_ACCEPT,
+    TOX_FILE_ACCEPT, // 13
+    TOX_FILE_ACCEPT_AUTO,
     TOX_FILE_SEND_NEW,
-    TOX_FILE_SEND_NEW_INLINE, // 15
+    TOX_FILE_SEND_NEW_INLINE,
     TOX_FILE_SEND_NEW_SLASH,
 
     TOX_FILE_RESUME,
@@ -54,23 +55,23 @@ enum {
     TOX_FILE_CANCEL,
 
     /* Audio/Video Calls */
-    TOX_CALL_SEND, // 20
+    TOX_CALL_SEND, // 21
     TOX_CALL_INCOMING,
     TOX_CALL_ANSWER,
     TOX_CALL_PAUSE_AUDIO,
     TOX_CALL_PAUSE_VIDEO,
-    TOX_CALL_RESUME_AUDIO, // 25
+    TOX_CALL_RESUME_AUDIO,
     TOX_CALL_RESUME_VIDEO,
     TOX_CALL_DISCONNECT,
 
-    TOX_GROUP_CREATE,
+    TOX_GROUP_CREATE, // 29
     TOX_GROUP_JOIN,
-    TOX_GROUP_PART, // 30
+    TOX_GROUP_PART,
     TOX_GROUP_SEND_INVITE,
     TOX_GROUP_SET_TOPIC,
     TOX_GROUP_SEND_MESSAGE,
     TOX_GROUP_SEND_ACTION,
-    TOX_GROUP_AUDIO_START, // 35
+    TOX_GROUP_AUDIO_START,
     TOX_GROUP_AUDIO_END,
 };
 

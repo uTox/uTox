@@ -4,7 +4,7 @@ typedef struct friend_meta_data {
 } FRIEND_META_DATA;
 
 typedef struct friend {
-    _Bool online, typing, notify;
+    _Bool   online, typing, notify;
     uint8_t number, status;
 
     /* A/V calls */
@@ -12,9 +12,9 @@ typedef struct friend {
     uint16_t video_width, video_height;
     ALuint   audio_dest;
 
-    uint8_t cid[TOX_PUBLIC_KEY_SIZE], tooltip[8];
-    char_t *name, *alias, *status_message, *typed;
-    STRING_IDX name_length, alias_length, status_length, typed_length;
+    uint8_t     cid[TOX_PUBLIC_KEY_SIZE],    tooltip[8];
+    char_t     *name, *alias, *status_message, *typed;
+    STRING_IDX  name_length, alias_length, status_length, typed_length;
 
     MSG_DATA msg;
 
@@ -23,7 +23,9 @@ typedef struct friend {
 
     AVATAR avatar;
 
-    uint16_t transfer_count;
+    /* File transfers */
+    uint16_t    transfer_count;
+    _Bool       auto_accept_ft;
 
     FRIEND_META_DATA metadata;
 } FRIEND;

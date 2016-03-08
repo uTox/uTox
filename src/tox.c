@@ -1086,7 +1086,20 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
              * param2: file #
              * data: path to write file */
             if (utox_file_start_write(param1, param2, data) == 0) {
-            /*                          tox, friend#, file#,        START_FILE */
+                                        /*  tox, friend#, file#,        START_FILE      */
+                file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_RESUME);
+            } else {
+                file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_CANCEL);
+            }
+            break;
+            free(data);
+        }
+        case TOX_FILE_ACCEPT_AUTO: {
+            /* param1: friend #
+             * param2: file #
+             * data: path to write file */
+            if (utox_file_start_write(param1, param2, data) == 0) {
+                                        /*  tox, friend#, file#,        START_FILE      */
                 file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_RESUME);
             } else {
                 file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_CANCEL);
@@ -1478,13 +1491,18 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             break;
         }
         case FILE_INCOMING_NEW: {
-            FILE_TRANSFER *file_handle = data;
-            FRIEND *f = &friend[file_handle->friend_number];
+            FILE_TRANSFER *file = data;
+            FRIEND *f = &friend[file->friend_number];
 
-            friend_addmessage(f, file_handle->ui_data);
-            file_notify(f, file_handle->ui_data);
+            if (f->auto_accept_ft) {
+                debug("sending accept to core\n");
+                native_autoselect_dir_ft(file->friend_number, file);
+            }
+
+            friend_addmessage(f, file->ui_data);
+            file_notify(f, file->ui_data);
             redraw();
-            free(file_handle);
+            free(file);
             break;
         }
         case FILE_INCOMING_ACCEPT: {

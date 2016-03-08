@@ -679,7 +679,7 @@ _Bool messages_mdown(MESSAGES *m) {
             case FILE_TRANSFER_STATUS_NONE: {
                 if(!msg->author) {
                     if(m->over == 2) {
-                        savefilerecv(m->data->id, file);
+                        native_select_dir_ft(m->data->id, file);
                     } else if(m->over == 1) {
                         //decline
                         postmessage_toxcore(TOX_FILE_CANCEL, m->data->id, file->filenumber, NULL);

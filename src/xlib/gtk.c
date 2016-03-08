@@ -311,7 +311,7 @@ void gtk_openfileavatar(void) {
     thread(gtk_openavatarthread, NULL);
 }
 
-void gtk_savefilerecv(uint32_t fid, MSG_FILE *file) {
+void gtk_native_select_dir_ft(uint32_t fid, MSG_FILE *file) {
     if(gtk_open) {
         return;
     }
