@@ -860,19 +860,14 @@ void native_select_dir_ft(uint32_t fid, MSG_FILE *file) {
     }
 }
 
-void native_autoselect_dir_ft(uint32_t fid, MSG_FILE *file) {
-    NSSavePanel *picker = [NSSavePanel savePanel];
+void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
+    NSString *downloads = [NSSearchPathForDirectoriesInDomains(NSDownloadsDirectory, NSUserDomainMask, YES) firstObject];
     NSString *fname = [[NSString alloc] initWithBytesNoCopy:file->name length:file->name_length encoding:NSUTF8StringEncoding freeWhenDone:NO];
-    picker.message = [NSString stringWithFormat:NSSTRING_FROM_LOCALIZED(WHERE_TO_SAVE_FILE_PROMPT), file->name_length, file->name];
-    picker.nameFieldStringValue = fname;
-    [fname release];
-    int ret = [picker runModal];
 
-    if (ret == NSFileHandlingPanelOKButton) {
-        NSURL *destination = picker.URL;
-        // FIXME: might be leaking
-        postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->filenumber, strdup(destination.path.UTF8String));
-    }
+    NSString *dest = [downloads stringByAppendingPathComponent:fname];
+    [fname release];
+
+    postmessage_toxcore(TOX_FILE_ACCEPT_AUTO, fid, file->file_number, strdup(dest.UTF8String));
 }
 
 //@"Where do you want to save \"%.*s\"?"

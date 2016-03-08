@@ -959,7 +959,7 @@ int utox_file_start_write(uint32_t friend_number, uint32_t file_number, const ch
 
     file_handle->file = fopen((const char*)file_handle->path, "wb");
     if(!file_handle->file) {
-        debug("FileTransfer:\tThe file we're supposed to write to couldn't be opened\n%s\n", file->path);
+        debug("FileTransfer:\tThe file we're supposed to write to couldn't be opened\n%s\n", file_handle->path);
         utox_break_file(file_handle);
         return -1;
     }
