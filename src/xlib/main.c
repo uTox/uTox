@@ -392,7 +392,7 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
     char *path = malloc(file->name_length + 1);
     memcpy(path, file->name, file->name_length);
     path[file->name_length] = 0;
-    postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->filenumber, path);
+    postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->file_number, path);
 }
 
 void savefiledata(MSG_FILE *file)
