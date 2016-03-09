@@ -127,8 +127,8 @@ static void dropdown_push_to_talk_onselect(const uint16_t i, const DROPDOWN* UNU
 
 static void dropdown_friend_autoaccept_ft_onselect(const uint16_t i, const DROPDOWN* UNUSED(dm)) {
     FRIEND *f = selected_item->data;
-    // TODO: implement autoaccept
-    f->auto_accept_ft = !!i;
+    f->ft_autoaccept = !!i;
+    utox_write_metadata(f);
     debug("Friend %u, is now accepting ft auto %u\n", f->number, i);
 }
 

@@ -1,7 +1,28 @@
+/**
+ *  friend.h
+ */
 typedef struct friend_meta_data {
+    uint8_t version;
+
+    uint8_t ft_autoaccept      : 1;
+    uint8_t ft_autoaccept_path : 1;
+    uint8_t log_history        : 1;
+    uint8_t unused             : 5;
+
+    uint8_t zero[30];
+
     size_t alias_length;
+    size_t ft_autoaccept_path_length;
+
     uint8_t data[];
 } FRIEND_META_DATA;
+#define METADATA_VERSION 0
+
+
+typedef struct friend_meta_data_old {
+    size_t alias_length;
+    uint8_t data[];
+} FRIEND_META_DATA_OLD;
 
 typedef struct friend {
     _Bool   online, typing, notify;
@@ -25,9 +46,8 @@ typedef struct friend {
 
     /* File transfers */
     uint16_t    transfer_count;
-    _Bool       auto_accept_ft;
+    _Bool       ft_autoaccept;
 
-    FRIEND_META_DATA metadata;
 } FRIEND;
 
 typedef struct {

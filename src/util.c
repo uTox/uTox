@@ -796,29 +796,31 @@ void config_save(UTOX_SAVE *save)
 }
 
 void utox_write_metadata(FRIEND *f){
-    /* data sizes */
-    size_t data_sz = 0, current_sz = 0, alias_sz = 0;
-    if (f->alias) {
-        alias_sz = strlen((const char*)f->alias);
-        data_sz += alias_sz;
-    }
-
     /* Create path */
     uint8_t dest[UTOX_FILE_NAME_LENGTH], *dest_p;
     dest_p = dest + datapath(dest);
     cid_to_string(dest_p, f->cid);
     memcpy((char*)dest_p + (TOX_PUBLIC_KEY_SIZE * 2), ".fmetadata", sizeof(".fmetadata"));
 
-    /* Create data */
-    uint8_t *data = malloc(sizeof(FRIEND_META_DATA) + data_sz + 1);
-    memcpy(data, &f->metadata, sizeof(FRIEND_META_DATA));
-    current_sz = sizeof(FRIEND_META_DATA);
-    /* copy the data */
-        /* alias */
-        memcpy(data + current_sz, f->alias, alias_sz);
-        current_sz += alias_sz;
+    size_t total_size = 0;
+    FRIEND_META_DATA metadata[1];
+    memset(metadata, 0, sizeof(*metadata));
+    total_size += sizeof(*metadata);
+
+    metadata->version = METADATA_VERSION;
+    metadata->ft_autoaccept = f->ft_autoaccept;
+
+    if (f->alias && f->alias_length) {
+        metadata->alias_length = f->alias_length;
+        total_size += metadata->alias_length;
+    }
+
+    uint8_t *data = calloc(1, total_size);
+
+    memcpy(data, metadata, sizeof(*metadata));
+    memcpy(data + sizeof(*metadata), f->alias, metadata->alias_length);
 
     /* Write */
-    file_write_raw(dest, data, current_sz);
+    file_write_raw(dest, (uint8_t*)data, total_size);
     free(data);
 }

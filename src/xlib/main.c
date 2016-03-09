@@ -464,6 +464,7 @@ void draw_tray_icon(void){
         /* Get tray window size */
         int32_t x_r, y_r;
         uint32_t border_r, depth_r;
+        XMoveResizeWindow(display, tray_window, x_r, y_r, 32, 32);
         XGetGeometry(display, tray_window, &root, &x_r, &y_r, &tray_width, &tray_height, &border_r, &depth_r);
         /* TODO use xcb instead of xlib here!
         xcb_get_geometry_cookie_t xcb_get_geometry (xcb_connection_t *connection,

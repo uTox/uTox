@@ -157,9 +157,6 @@ volatile _Bool save_needed;
 /** [log_read description] */
 void log_read(Tox *tox, int fid);
 
-/** [friend_meta_data_read description] */
-void friend_meta_data_read(Tox *tox, int friend_id);
-
 /** [init_avatar description]
  *
  * TODO move this to avatar.h
