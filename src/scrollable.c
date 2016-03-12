@@ -109,16 +109,22 @@ _Bool scroll_mright(SCROLLABLE *UNUSED(s))
 
 _Bool scroll_mwheel(SCROLLABLE *s, int height, double delta, _Bool smooth)
 {
+
+    /* Variable which controls scroll speed. How much one scroll step
+     * moves viewport */
+    double scroll_speed_multip = 5.0;
+
     if(s->mouseover2)
     {
         uint32_t content_height = s->content_height;
         uint32_t port_height = height;
 
         if (content_height > port_height) {
+            /* Scrolling is relative to amount of total content in component */
             if (smooth) {
                 // this seems to be the magic equation that makes it scroll at the same speed
                 // regardless of how big the port is compared to the content.
-                s->d -= (delta * (32.0 * port_height / content_height) / content_height);
+                s->d -= (delta * (32.0 * port_height / content_height) / content_height) * scroll_speed_multip;
             } else {
                 uint32_t magic = (port_height * port_height) / content_height;
                 double fred = (port_height - magic);
