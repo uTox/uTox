@@ -35,7 +35,7 @@ struct messages {
     _Bool select;
 
     // Position and length of an URL in the message under the mouse,
-    // if present. urlover == uint16_t_MAX if there's none.
+    // if present. urlover == UINT16_MAX if there's none.
     uint16_t urlover, urllen;
 
     // Was the url pressed by the mouse.

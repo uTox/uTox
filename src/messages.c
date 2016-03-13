@@ -138,7 +138,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height) {
         case MSG_TYPE_TEXT:
         case MSG_TYPE_ACTION_TEXT: {
             // Normal message
-            uint16_t h1 = uint16_t_MAX, h2 = uint16_t_MAX;
+            uint16_t h1 = UINT16_MAX, h2 = UINT16_MAX;
             if(i == m->data->istart) {
                 h1 = m->data->start;
                 h2 = ((i == m->data->iend) ? m->data->end : msg->length);
@@ -151,8 +151,8 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height) {
             }
 
             if((m->data->istart == m->data->iend && m->data->start == m->data->end) || h1 == h2) {
-                h1 = uint16_t_MAX;
-                h2 = uint16_t_MAX;
+                h1 = UINT16_MAX;
+                h2 = UINT16_MAX;
             }
 
             if(msg->author) {
@@ -457,9 +457,9 @@ _Bool messages_mmove(MESSAGES *m, int UNUSED(px), int UNUSED(py), int width, int
                                            msg->height, font_small_lineheight, msg->msg, msg->length, 1);
 
                 _Bool prev_urlmdown = m->urlmdown;
-                if (m->urlover != uint16_t_MAX) {
+                if (m->urlover != UINT16_MAX) {
                     m->urlmdown = 0;
-                    m->urlover = uint16_t_MAX;
+                    m->urlover = UINT16_MAX;
                 }
 
                 if(my < 0 || my >= dy || mx < MESSAGES_X || m->over == msg->length) {
@@ -480,13 +480,13 @@ _Bool messages_mmove(MESSAGES *m, int UNUSED(px), int UNUSED(py), int width, int
                 char_t *end = msg->msg + msg->length;
                 while(str != end && *str != ' ' && *str != '\n') {
                     if(( str == msg->msg || *(str - 1) == '\n' || *(str - 1) == ' ') &&
-                       (m->urlover == uint16_t_MAX && end - str >= 7 && strcmp2(str, "http://") == 0)) {
+                       (m->urlover == UINT16_MAX && end - str >= 7 && strcmp2(str, "http://") == 0)) {
                         cursor = CURSOR_HAND;
                         m->urlover = str - msg->msg;
                     }
 
                     if(( str == msg->msg || *(str - 1) == '\n' || *(str - 1) == ' ') &&
-                       (m->urlover == uint16_t_MAX && end - str >= 8 && strcmp2(str, "https://") == 0)) {
+                       (m->urlover == UINT16_MAX && end - str >= 8 && strcmp2(str, "https://") == 0)) {
                         cursor = CURSOR_HAND;
                         m->urlover = str - msg->msg;
                     }
@@ -494,7 +494,7 @@ _Bool messages_mmove(MESSAGES *m, int UNUSED(px), int UNUSED(py), int width, int
                     str++;
                 }
 
-                if(m->urlover != uint16_t_MAX) {
+                if(m->urlover != UINT16_MAX) {
                     m->urllen = (str - msg->msg) - m->urlover;
                     m->urlmdown = prev_urlmdown;
                 }
@@ -646,7 +646,7 @@ _Bool messages_mdown(MESSAGES *m) {
         switch(msg->msg_type) {
         case MSG_TYPE_TEXT:
         case MSG_TYPE_ACTION_TEXT: {
-            if(m->urlover != uint16_t_MAX) {
+            if(m->urlover != UINT16_MAX) {
                 m->urlmdown = 1;
             }
 
@@ -825,7 +825,7 @@ _Bool messages_mup(MESSAGES *m){
     if(m->iover != MSG_IDX_MAX) {
         MESSAGE *msg = m->data->data[m->iover];
         if(msg->msg_type == MSG_TYPE_TEXT){
-            if(m->urlover != uint16_t_MAX && m->urlmdown) {
+            if(m->urlover != UINT16_MAX && m->urlmdown) {
                 char_t url[m->urllen + 1];
                 memcpy(url, msg->msg + m->urlover, m->urllen * sizeof(char_t));
                 url[m->urllen] = 0;

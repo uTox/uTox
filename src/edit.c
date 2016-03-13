@@ -102,12 +102,12 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
         memset(star, '*', edit->length);
         drawtextmultiline(x + UTOX_SCALE(2 ), x + width - UTOX_SCALE(2 ) - (edit->multiline ? SCROLL_WIDTH : 0),
                           yy + UTOX_SCALE(top_offset), y, y + height, font_small_lineheight, star, edit->length,
-                          is_active ? edit_sel.start : uint16_t_MAX, is_active ? edit_sel.length : uint16_t_MAX,
+                          is_active ? edit_sel.start : UINT16_MAX, is_active ? edit_sel.length : UINT16_MAX,
                           is_active ? edit_sel.mark_start : 0, is_active ? edit_sel.mark_length : 0, edit->multiline);
     } else {
         drawtextmultiline(x + UTOX_SCALE(2 ), x + width - UTOX_SCALE(2 ) - (edit->multiline ? SCROLL_WIDTH : 0),
                           yy + UTOX_SCALE(top_offset), y, y + height, font_small_lineheight, edit->data, edit->length,
-                          is_active ? edit_sel.start : uint16_t_MAX, is_active ? edit_sel.length : uint16_t_MAX,
+                          is_active ? edit_sel.start : UINT16_MAX, is_active ? edit_sel.length : UINT16_MAX,
                           is_active ? edit_sel.mark_start : 0, is_active ? edit_sel.mark_length : 0, edit->multiline);
     }
 
@@ -378,7 +378,7 @@ void edit_do(EDIT *edit, uint16_t start, uint16_t length, _Bool remove)
 
 static uint16_t edit_undo(EDIT *edit)
 {
-    uint16_t r = uint16_t_MAX;
+    uint16_t r = UINT16_MAX;
     if(edit->history_cur) {
         edit->history_cur--;
         r = edit_change_do(edit, edit->history[edit->history_cur]);
@@ -388,7 +388,7 @@ static uint16_t edit_undo(EDIT *edit)
 
 static uint16_t edit_redo(EDIT *edit)
 {
-    uint16_t r = uint16_t_MAX;
+    uint16_t r = UINT16_MAX;
     if(edit->history_cur != edit->history_length) {
         r = edit_change_do(edit, edit->history[edit->history_cur]);
         edit->history_cur++;
@@ -616,7 +616,7 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags){
         case 'Z': {
             if(!(flags & 1)) {
                 uint16_t p = edit_undo(edit);
-                if(p != uint16_t_MAX) {
+                if(p != UINT16_MAX) {
                     edit_sel.p1 = p;
                     edit_sel.p2 = p;
                     edit_sel.start = p;
@@ -632,7 +632,7 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags){
         case 'y':
         case 'Y': {
             uint16_t p = edit_redo(edit);
-            if(p != uint16_t_MAX) {
+            if(p != UINT16_MAX) {
                 edit_sel.p1 = p;
                 edit_sel.p2 = p;
                 edit_sel.start = p;
