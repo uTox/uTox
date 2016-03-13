@@ -35,7 +35,7 @@ static void drawitembox(ITEM *i, int y) {
     }
 }
 
-static void drawname(ITEM *i, int y, char_t *name, char_t *msg, STRING_IDX name_length, STRING_IDX msg_length, _Bool color_overide, uint32_t color) {
+static void drawname(ITEM *i, int y, char_t *name, char_t *msg, uint16_t name_length, uint16_t msg_length, _Bool color_overide, uint32_t color) {
     if (!color_overide) {
         color = (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT;
     }

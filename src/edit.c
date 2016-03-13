@@ -4,10 +4,10 @@ static EDIT *active_edit;
 
 static struct
 {
-    STRING_IDX start, length;
-    STRING_IDX p1, p2;
+    uint16_t start, length;
+    uint16_t p1, p2;
     // IME mark (underline)
-    STRING_IDX mark_start, mark_length;
+    uint16_t mark_start, mark_length;
     //TODO: pm field doesn't seem to be used. Remove? done
 }edit_sel;
 static _Bool edit_select;
@@ -102,12 +102,12 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
         memset(star, '*', edit->length);
         drawtextmultiline(x + UTOX_SCALE(2 ), x + width - UTOX_SCALE(2 ) - (edit->multiline ? SCROLL_WIDTH : 0),
                           yy + UTOX_SCALE(top_offset), y, y + height, font_small_lineheight, star, edit->length,
-                          is_active ? edit_sel.start : STRING_IDX_MAX, is_active ? edit_sel.length : STRING_IDX_MAX,
+                          is_active ? edit_sel.start : uint16_t_MAX, is_active ? edit_sel.length : uint16_t_MAX,
                           is_active ? edit_sel.mark_start : 0, is_active ? edit_sel.mark_length : 0, edit->multiline);
     } else {
         drawtextmultiline(x + UTOX_SCALE(2 ), x + width - UTOX_SCALE(2 ) - (edit->multiline ? SCROLL_WIDTH : 0),
                           yy + UTOX_SCALE(top_offset), y, y + height, font_small_lineheight, edit->data, edit->length,
-                          is_active ? edit_sel.start : STRING_IDX_MAX, is_active ? edit_sel.length : STRING_IDX_MAX,
+                          is_active ? edit_sel.start : uint16_t_MAX, is_active ? edit_sel.length : uint16_t_MAX,
                           is_active ? edit_sel.mark_start : 0, is_active ? edit_sel.mark_length : 0, edit->multiline);
     }
 
@@ -151,7 +151,7 @@ _Bool edit_mmove(EDIT *edit, int px, int py, int width, int height, int x, int y
         setfont(FONT_TEXT);
         edit_sel.p2 = hittextmultiline(x - UTOX_SCALE(2 ), width - UTOX_SCALE(4 ) - (edit->multiline ? SCROLL_WIDTH : 0), y - UTOX_SCALE(2 ), INT_MAX, font_small_lineheight, edit->data, edit->length, edit->multiline);
 
-        STRING_IDX start, length;
+        uint16_t start, length;
         if(edit_sel.p2 > edit_sel.p1) {
             start = edit_sel.p1;
             length = edit_sel.p2 - edit_sel.p1;
@@ -213,7 +213,7 @@ _Bool edit_dclick(EDIT *edit, _Bool triclick)
 
     char_t c = triclick ? '\n' : ' ';
 
-    STRING_IDX i = edit->mouseover_char;
+    uint16_t i = edit->mouseover_char;
     while(i != 0 && edit->data[i - 1] != c) {
         i -= utf8_unlen(edit->data + i);
     }
@@ -324,9 +324,9 @@ static void edit_redraw(void)
     redraw();
 }
 
-static STRING_IDX edit_change_do(EDIT *edit, EDIT_CHANGE *c)
+static uint16_t edit_change_do(EDIT *edit, EDIT_CHANGE *c)
 {
-    STRING_IDX r = c->start;
+    uint16_t r = c->start;
     if(c->remove) {
         memmove(edit->data + c->start + c->length, edit->data + c->start, edit->length - c->start);
         memcpy(edit->data + c->start, c->data, c->length);
@@ -341,7 +341,7 @@ static STRING_IDX edit_change_do(EDIT *edit, EDIT_CHANGE *c)
     return r;
 }
 
-void edit_do(EDIT *edit, STRING_IDX start, STRING_IDX length, _Bool remove)
+void edit_do(EDIT *edit, uint16_t start, uint16_t length, _Bool remove)
 {
     EDIT_CHANGE *new, **history;
 
@@ -376,9 +376,9 @@ void edit_do(EDIT *edit, STRING_IDX start, STRING_IDX length, _Bool remove)
     edit->history_length = edit->history_cur;
 }
 
-static STRING_IDX edit_undo(EDIT *edit)
+static uint16_t edit_undo(EDIT *edit)
 {
-    STRING_IDX r = STRING_IDX_MAX;
+    uint16_t r = uint16_t_MAX;
     if(edit->history_cur) {
         edit->history_cur--;
         r = edit_change_do(edit, edit->history[edit->history_cur]);
@@ -386,9 +386,9 @@ static STRING_IDX edit_undo(EDIT *edit)
     return r;
 }
 
-static STRING_IDX edit_redo(EDIT *edit)
+static uint16_t edit_redo(EDIT *edit)
 {
-    STRING_IDX r = STRING_IDX_MAX;
+    uint16_t r = uint16_t_MAX;
     if(edit->history_cur != edit->history_length) {
         r = edit_change_do(edit, edit->history[edit->history_cur]);
         edit->history_cur++;
@@ -414,7 +414,7 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags){
             }
 
             if(edit_sel.length == 0) {
-                STRING_IDX p = edit_sel.start;
+                uint16_t p = edit_sel.start;
                 if(p == 0) {
                     break;
                 }
@@ -434,7 +434,7 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags){
                     } while((flags & 4) && p != 0 && edit->data[p - 1] != ' ' && edit->data[p - 1] != '\n');
                 }
 
-                STRING_IDX len = edit_sel.start - p;
+                uint16_t len = edit_sel.start - p;
                 edit_do(edit, edit_sel.start - len, len, 1);
                 memmove(edit->data + edit_sel.start - len, edit->data + edit_sel.start, edit->length - edit_sel.start);
                 edit->length -= len;
@@ -473,7 +473,7 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags){
         }
 
         case KEY_LEFT: {
-            STRING_IDX p = edit_sel.p2;
+            uint16_t p = edit_sel.p2;
             if(p != 0) {
                 if(flags & 4) {
                     while(p != 0 && edit->data[p - 1] == ' ') {
@@ -504,7 +504,7 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags){
         }
 
         case KEY_RIGHT: {
-            STRING_IDX p = edit_sel.p2;
+            uint16_t p = edit_sel.p2;
             if(flags & 4) {
                 while(p != edit->length && edit->data[p] == ' ') {
                     p++;
@@ -615,8 +615,8 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags){
         case 'z':
         case 'Z': {
             if(!(flags & 1)) {
-                STRING_IDX p = edit_undo(edit);
-                if(p != STRING_IDX_MAX) {
+                uint16_t p = edit_undo(edit);
+                if(p != uint16_t_MAX) {
                     edit_sel.p1 = p;
                     edit_sel.p2 = p;
                     edit_sel.start = p;
@@ -631,8 +631,8 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags){
 
         case 'y':
         case 'Y': {
-            STRING_IDX p = edit_redo(edit);
-            if(p != STRING_IDX_MAX) {
+            uint16_t p = edit_redo(edit);
+            if(p != uint16_t_MAX) {
                 edit_sel.p1 = p;
                 edit_sel.p2 = p;
                 edit_sel.start = p;
@@ -822,7 +822,7 @@ EDIT *edit_get_active(void)
     return active_edit;
 }
 
-void edit_setstr(EDIT *edit, char_t *str, STRING_IDX length)
+void edit_setstr(EDIT *edit, char_t *str, uint16_t length)
 {
     if(length >= edit->maxlength) {
         length = edit->maxlength;
@@ -836,7 +836,7 @@ void edit_setstr(EDIT *edit, char_t *str, STRING_IDX length)
     }
 }
 
-void edit_setcursorpos(EDIT *edit, STRING_IDX pos)
+void edit_setcursorpos(EDIT *edit, uint16_t pos)
 {
     if (pos <= edit->length) {
         edit_sel.p1 = pos;
@@ -848,12 +848,12 @@ void edit_setcursorpos(EDIT *edit, STRING_IDX pos)
     edit_sel.length = 0;
 }
 
-STRING_IDX edit_getcursorpos(void)
+uint16_t edit_getcursorpos(void)
 {
     return edit_sel.p1 < edit_sel.p2 ? edit_sel.p1 : edit_sel.p2;
 }
 
-_Bool edit_getmark(STRING_IDX *outloc, STRING_IDX *outlen)
+_Bool edit_getmark(uint16_t *outloc, uint16_t *outlen)
 {
     if (outloc) {
         *outloc = edit_sel.mark_start;
@@ -865,13 +865,13 @@ _Bool edit_getmark(STRING_IDX *outloc, STRING_IDX *outlen)
     return (active_edit && edit_sel.mark_length)? 1 : 0;
 }
 
-void edit_setmark(STRING_IDX loc, STRING_IDX len)
+void edit_setmark(uint16_t loc, uint16_t len)
 {
     edit_sel.mark_start = loc;
     edit_sel.mark_length = len;
 }
 
-void edit_setselectedrange(STRING_IDX loc, STRING_IDX len)
+void edit_setselectedrange(uint16_t loc, uint16_t len)
 {
     edit_sel.start = edit_sel.p1 = loc;
     edit_sel.length = len;

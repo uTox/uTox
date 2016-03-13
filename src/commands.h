@@ -13,4 +13,4 @@ int slash_send_file(FRIEND *friend_handle, const uint8_t *filepath);
  *
  * Returns the remaining string length.
  */
-STRING_IDX utox_run_command(char_t *string, STRING_IDX string_length, char_t **cmd, char_t **argument, int trusted);
+uint16_t utox_run_command(char_t *string, uint16_t string_length, char_t **cmd, char_t **argument, int trusted);

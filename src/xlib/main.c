@@ -206,7 +206,7 @@ void drawalpha(int bm, int x, int y, int width, int height, uint32_t color)
     XRenderFreePicture(display, src);
 }
 
-static int _drawtext(int x, int xmax, int y, char_t *str, STRING_IDX length)
+static int _drawtext(int x, int xmax, int y, char_t *str, uint16_t length)
 {
     GLYPH *g;
     uint8_t len;
@@ -413,7 +413,7 @@ void savefiledata(MSG_FILE *file)
     }
 }
 
-void setselection(char_t *data, STRING_IDX length)
+void setselection(char_t *data, uint16_t length)
 {
     if(!length) {
         return;
@@ -946,7 +946,7 @@ int file_unlock(FILE *file, uint64_t start, size_t length){
     }
 }
 
-void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_length, FRIEND *f) {
+void notify(char_t *title, uint16_t title_length, char_t *msg, uint16_t msg_length, FRIEND *f) {
     if(havefocus) {
         return;
     }

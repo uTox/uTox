@@ -279,7 +279,7 @@ void launch_at_startup(int is_launch_at_startup);
 void drawalpha(int bm, int x, int y, int width, int height, uint32_t color);
 void loadalpha(int bm, void *data, int width, int height);
 void desktopgrab(_Bool video);
-void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_length, FRIEND *f);
+void notify(char_t *title, uint16_t title_length, char_t *msg, uint16_t msg_length, FRIEND *f);
 void setscale(void);
 void setscale_fonts(void);
 
@@ -328,7 +328,7 @@ void config_osdefaults(UTOX_SAVE *r);
 struct
 {
     uint8_t status;
-    STRING_IDX name_length, statusmsg_length;
+    uint16_t name_length, statusmsg_length;
     char_t *statusmsg, name[TOX_MAX_NAME_LENGTH];
     char_t id_buffer[TOX_FRIEND_ADDRESS_SIZE * 4];
     size_t id_buffer_length;
@@ -356,16 +356,16 @@ _Bool check_ptt_key(void);
 void  exit_ptt(void);
 
 /* draw functions*/
-void drawtext(int x, int y, char_t *str, STRING_IDX length);
-int drawtext_getwidth(int x, int y, char_t *str, STRING_IDX length);
-void drawtextwidth(int x, int width, int y, char_t *str, STRING_IDX length);
-void drawtextwidth_right(int x, int width, int y, char_t *str, STRING_IDX length);
-void drawtextrange(int x, int x2, int y, char_t *str, STRING_IDX length);
-void drawtextrangecut(int x, int x2, int y, char_t *str, STRING_IDX length);
+void drawtext(int x, int y, char_t *str, uint16_t length);
+int drawtext_getwidth(int x, int y, char_t *str, uint16_t length);
+void drawtextwidth(int x, int width, int y, char_t *str, uint16_t length);
+void drawtextwidth_right(int x, int width, int y, char_t *str, uint16_t length);
+void drawtextrange(int x, int x2, int y, char_t *str, uint16_t length);
+void drawtextrangecut(int x, int x2, int y, char_t *str, uint16_t length);
 
-int textwidth(char_t *str, STRING_IDX length);
-int textfit(char_t *str, STRING_IDX length, int width);
-int textfit_near(char_t *str, STRING_IDX length, int width);
+int textwidth(char_t *str, uint16_t length);
+int textfit(char_t *str, uint16_t length, int width);
+int textfit_near(char_t *str, uint16_t length, int width);
 //TODO: Seems to be unused. Remove?
 int text_drawline(int x, int right, int y, uint8_t *str, int i, int length, int highlight, int hlen, uint16_t lineheight);
 
@@ -401,7 +401,7 @@ void edit_will_deactivate(void);
  * accepts: char_t *title, title length, char_t *msg, msg length;
  * returns void;
  */
-void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_length, FRIEND *f);
+void notify(char_t *title, uint16_t title_length, char_t *msg, uint16_t msg_length, FRIEND *f);
 
 
 /* other */
@@ -423,10 +423,10 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file);
 void savefiledata(MSG_FILE *file);
 
 
-void setselection(char_t *data, STRING_IDX length);
+void setselection(char_t *data, uint16_t length);
 
 void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height, _Bool resize);
-void video_begin(uint32_t id, char_t *name, STRING_IDX name_length, uint16_t width, uint16_t height);
+void video_begin(uint32_t id, char_t *name, uint16_t name_length, uint16_t width, uint16_t height);
 void video_end(uint32_t id);
 
 uint16_t native_video_detect(void);

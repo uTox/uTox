@@ -82,7 +82,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height) {
         // Draw timestamps
         {
             char timestr[6];
-            STRING_IDX len;
+            uint16_t len;
             len = snprintf(timestr, sizeof(timestr), "%u:%.2u", msg->time / 60, msg->time % 60);
             if (len >= sizeof(timestr)) {
                 len = sizeof(timestr) - 1;
@@ -138,7 +138,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height) {
         case MSG_TYPE_TEXT:
         case MSG_TYPE_ACTION_TEXT: {
             // Normal message
-            STRING_IDX h1 = STRING_IDX_MAX, h2 = STRING_IDX_MAX;
+            uint16_t h1 = uint16_t_MAX, h2 = uint16_t_MAX;
             if(i == m->data->istart) {
                 h1 = m->data->start;
                 h2 = ((i == m->data->iend) ? m->data->end : msg->length);
@@ -151,8 +151,8 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height) {
             }
 
             if((m->data->istart == m->data->iend && m->data->start == m->data->end) || h1 == h2) {
-                h1 = STRING_IDX_MAX;
-                h2 = STRING_IDX_MAX;
+                h1 = uint16_t_MAX;
+                h2 = uint16_t_MAX;
             }
 
             if(msg->author) {
@@ -230,18 +230,18 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height) {
             uint8_t    text_name_and_size[file->name_length + 33];
             memcpy(text_name_and_size, file->name, file->name_length);
             text_name_and_size[file->name_length] = ' ';
-            STRING_IDX text_name_and_size_len = file->name_length + 1;
+            uint16_t text_name_and_size_len = file->name_length + 1;
             text_name_and_size_len += sprint_humanread_bytes(text_name_and_size + file->name_length + 1, 32, file_size);
 
             uint8_t    text_speed[32];
-            STRING_IDX text_speed_len = sprint_humanread_bytes(text_speed, sizeof(text_speed), file_speed);
+            uint16_t text_speed_len = sprint_humanread_bytes(text_speed, sizeof(text_speed), file_speed);
             if (text_speed_len <= 30) {
                 text_speed[text_speed_len++] = '/';
                 text_speed[text_speed_len++] = 's';
             }
 
             uint8_t    text_ttc[32];
-            STRING_IDX text_ttc_len = snprintf((char*)text_ttc, sizeof(text_ttc), "%llus", file_ttc);
+            uint16_t text_ttc_len = snprintf((char*)text_ttc, sizeof(text_ttc), "%llus", file_ttc);
             if (text_ttc_len >= sizeof(text_ttc)) {
                 text_ttc_len = sizeof(text_ttc) - 1;
             }
@@ -457,9 +457,9 @@ _Bool messages_mmove(MESSAGES *m, int UNUSED(px), int UNUSED(py), int width, int
                                            msg->height, font_small_lineheight, msg->msg, msg->length, 1);
 
                 _Bool prev_urlmdown = m->urlmdown;
-                if (m->urlover != STRING_IDX_MAX) {
+                if (m->urlover != uint16_t_MAX) {
                     m->urlmdown = 0;
-                    m->urlover = STRING_IDX_MAX;
+                    m->urlover = uint16_t_MAX;
                 }
 
                 if(my < 0 || my >= dy || mx < MESSAGES_X || m->over == msg->length) {
@@ -480,13 +480,13 @@ _Bool messages_mmove(MESSAGES *m, int UNUSED(px), int UNUSED(py), int width, int
                 char_t *end = msg->msg + msg->length;
                 while(str != end && *str != ' ' && *str != '\n') {
                     if(( str == msg->msg || *(str - 1) == '\n' || *(str - 1) == ' ') &&
-                       (m->urlover == STRING_IDX_MAX && end - str >= 7 && strcmp2(str, "http://") == 0)) {
+                       (m->urlover == uint16_t_MAX && end - str >= 7 && strcmp2(str, "http://") == 0)) {
                         cursor = CURSOR_HAND;
                         m->urlover = str - msg->msg;
                     }
 
                     if(( str == msg->msg || *(str - 1) == '\n' || *(str - 1) == ' ') &&
-                       (m->urlover == STRING_IDX_MAX && end - str >= 8 && strcmp2(str, "https://") == 0)) {
+                       (m->urlover == uint16_t_MAX && end - str >= 8 && strcmp2(str, "https://") == 0)) {
                         cursor = CURSOR_HAND;
                         m->urlover = str - msg->msg;
                     }
@@ -494,7 +494,7 @@ _Bool messages_mmove(MESSAGES *m, int UNUSED(px), int UNUSED(py), int width, int
                     str++;
                 }
 
-                if(m->urlover != STRING_IDX_MAX) {
+                if(m->urlover != uint16_t_MAX) {
                     m->urllen = (str - msg->msg) - m->urlover;
                     m->urlmdown = prev_urlmdown;
                 }
@@ -591,7 +591,7 @@ _Bool messages_mmove(MESSAGES *m, int UNUSED(px), int UNUSED(py), int width, int
 
             if(m->select) {
                 MSG_IDX istart, iend;
-                STRING_IDX start, end;
+                uint16_t start, end;
                 if(i > m->idown) {
                     istart = m->idown;
                     iend = i;
@@ -646,7 +646,7 @@ _Bool messages_mdown(MESSAGES *m) {
         switch(msg->msg_type) {
         case MSG_TYPE_TEXT:
         case MSG_TYPE_ACTION_TEXT: {
-            if(m->urlover != STRING_IDX_MAX) {
+            if(m->urlover != uint16_t_MAX) {
                 m->urlmdown = 1;
             }
 
@@ -764,7 +764,7 @@ _Bool messages_dclick(MESSAGES *m, _Bool triclick)
 
             char_t c = triclick ? '\n' : ' ';
 
-            STRING_IDX i = m->over;
+            uint16_t i = m->over;
             while(i != 0 && msg->msg[i - 1] != c) {
                 i -= utf8_unlen(msg->msg + i);
             }
@@ -825,7 +825,7 @@ _Bool messages_mup(MESSAGES *m){
     if(m->iover != MSG_IDX_MAX) {
         MESSAGE *msg = m->data->data[m->iover];
         if(msg->msg_type == MSG_TYPE_TEXT){
-            if(m->urlover != STRING_IDX_MAX && m->urlmdown) {
+            if(m->urlover != uint16_t_MAX && m->urlmdown) {
                 char_t url[m->urllen + 1];
                 memcpy(url, msg->msg + m->urlover, m->urllen * sizeof(char_t));
                 url[m->urllen] = 0;
@@ -917,7 +917,7 @@ int messages_selection(MESSAGES *m, void *buffer, uint32_t len, _Bool names)
         case MSG_TYPE_TEXT:
         case MSG_TYPE_ACTION_TEXT: {
             char_t *data;
-            STRING_IDX length;
+            uint16_t length;
             if(i == m->data->istart) {
                 if(i == m->data->iend) {
                     data = msg->msg + m->data->start;

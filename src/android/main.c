@@ -155,7 +155,7 @@ void openfileavatar(void){}
 void native_select_dir_ft(uint32_t fid, MSG_FILE *file){}
 void native_autoselect_dir_ft(uint32_t fid, MSG_FILE *file){}
 void savefiledata(MSG_FILE *file){}
-void setselection(char_t *data, STRING_IDX length){}
+void setselection(char_t *data, uint16_t length){}
 void edit_will_deactivate(void){}
 
 UTOX_NATIVE_IMAGE *decode_image(const UTOX_IMAGE data, size_t size, uint16_t *w, uint16_t *h, _Bool keep_alpha)
@@ -258,7 +258,7 @@ void setscale(void) {
     setscale_fonts();
 }
 
-void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_length, FRIEND *f)
+void notify(char_t *title, uint16_t title_length, char_t *msg, uint16_t msg_length, FRIEND *f)
 {
 }
 
@@ -270,7 +270,7 @@ void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height
 {
 }
 
-void video_begin(uint32_t id, char_t *name, STRING_IDX name_length, uint16_t width, uint16_t height)
+void video_begin(uint32_t id, char_t *name, uint16_t name_length, uint16_t width, uint16_t height)
 {
 }
 

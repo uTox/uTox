@@ -472,7 +472,7 @@ void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height
     [view displayImage:img_data w:width h:height];
 }
 
-void video_begin(uint32_t _id, char_t *name, STRING_IDX name_length, uint16_t width, uint16_t height) {
+void video_begin(uint32_t _id, char_t *name, uint16_t name_length, uint16_t width, uint16_t height) {
     if ([(uToxAppDelegate *)[NSApp delegate] ironcladWindowForID:_id])
         return;
 

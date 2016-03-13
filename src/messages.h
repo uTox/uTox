@@ -14,7 +14,7 @@ typedef struct {
     // Indices of messages in data array, where text selection starts and ends.
     MSG_IDX istart, iend;
     // Indices in strings of corresponding messages, where selection starts/ends.
-    STRING_IDX start, end;
+    uint16_t start, end;
 
     // Pointers at various message structs, at most MAX_BACKLOG_MESSAGES.
     void **data;
@@ -35,8 +35,8 @@ struct messages {
     _Bool select;
 
     // Position and length of an URL in the message under the mouse,
-    // if present. urlover == STRING_IDX_MAX if there's none.
-    STRING_IDX urlover, urllen;
+    // if present. urlover == uint16_t_MAX if there's none.
+    uint16_t urlover, urllen;
 
     // Was the url pressed by the mouse.
     _Bool urlmdown;
@@ -75,7 +75,7 @@ typedef struct {
     uint32_t height;
     uint32_t time;
 
-    STRING_IDX length;
+    uint16_t length;
     char_t msg[0];
 } MESSAGE;
 

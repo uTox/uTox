@@ -122,7 +122,7 @@ void utox_friend_init(Tox *tox, uint32_t friend_number){
         friend_meta_data_read(tox, friend_number);
 }
 
-void friend_setname(FRIEND *f, char_t *name, STRING_IDX length){
+void friend_setname(FRIEND *f, char_t *name, uint16_t length){
     if(f->name && (length != f->name_length || memcmp(f->name, name, length) != 0)) {
         MESSAGE *msg = malloc(sizeof(MESSAGE) + sizeof(" is now known as ") - 1 + f->name_length + length);
         msg->author = 0;
@@ -152,7 +152,7 @@ void friend_setname(FRIEND *f, char_t *name, STRING_IDX length){
     update_shown_list();
 }
 
-void friend_set_alias(FRIEND *f, char_t *alias, STRING_IDX length){
+void friend_set_alias(FRIEND *f, char_t *alias, uint16_t length){
     if (alias && length > 0) {
         debug("New Alias set for friend %s\n", f->name);
     } else {
@@ -210,7 +210,7 @@ void friend_recvimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width
     message_add(&messages_friend, (void*)msg, &f->msg);
 }
 
-void friend_notify(FRIEND *f, char_t *str, STRING_IDX str_length, char_t *msg, STRING_IDX msg_length) {
+void friend_notify(FRIEND *f, char_t *str, uint16_t str_length, char_t *msg, uint16_t msg_length) {
     int len = f->name_length + str_length + 3;
 
     char_t title[len + 1], *p = title;
@@ -224,7 +224,7 @@ void friend_notify(FRIEND *f, char_t *str, STRING_IDX str_length, char_t *msg, S
     notify(title, len, msg, msg_length, f);
 }
 
-void friend_addmessage_notify(FRIEND *f, char_t *data, STRING_IDX length) {
+void friend_addmessage_notify(FRIEND *f, char_t *data, uint16_t length) {
     MESSAGE *msg = malloc(sizeof(MESSAGE) + length);
     msg->author = 0;
     msg->msg_type = MSG_TYPE_ACTION_TEXT;
@@ -281,7 +281,7 @@ void friend_set_typing(FRIEND *f, int typing) {
     f->typing = typing;
 }
 
-void friend_addid(uint8_t *id, char_t *msg, STRING_IDX msg_length)
+void friend_addid(uint8_t *id, char_t *msg, uint16_t msg_length)
 {
     void *data = malloc(TOX_FRIEND_ADDRESS_SIZE + msg_length * sizeof(char_t));
     memcpy(data, id, TOX_FRIEND_ADDRESS_SIZE);
@@ -290,7 +290,7 @@ void friend_addid(uint8_t *id, char_t *msg, STRING_IDX msg_length)
     postmessage_toxcore(TOX_FRIEND_NEW, msg_length, 0, data);
 }
 
-void friend_add(char_t *name, STRING_IDX length, char_t *msg, STRING_IDX msg_length)
+void friend_add(char_t *name, uint16_t length, char_t *msg, uint16_t msg_length)
 {
     if(!length) {
         addfriend_status = ADDF_NONAME;

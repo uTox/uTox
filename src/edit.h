@@ -3,7 +3,7 @@
 struct edit_change
 {
     _Bool remove, padding;
-    STRING_IDX start, length;
+    uint16_t start, length;
     char_t data[0];
 };
 
@@ -18,7 +18,7 @@ struct edit {
     vcentered,
     password;
 
-    STRING_IDX mouseover_char, length, maxlength;
+    uint16_t mouseover_char, length, maxlength;
     uint16_t width, height;
 
     uint16_t history_cur, history_length;
@@ -47,7 +47,7 @@ _Bool edit_mwheel(EDIT *edit, int height, double d, _Bool smooth);
 _Bool edit_mup(EDIT *edit);
 _Bool edit_mleave(EDIT *edit);
 
-void edit_do(EDIT *edit, STRING_IDX start, STRING_IDX length, _Bool remove);
+void edit_do(EDIT *edit, uint16_t start, uint16_t length, _Bool remove);
 
 void edit_press(void);
 
@@ -62,15 +62,15 @@ EDIT *edit_get_active(void);
 
 void edit_resetfocus(void);
 void edit_setfocus(EDIT *edit);
-void edit_setstr(EDIT *edit, char_t *str, STRING_IDX length);
-void edit_setcursorpos(EDIT *edit, STRING_IDX pos);
-STRING_IDX edit_getcursorpos(void);
+void edit_setstr(EDIT *edit, char_t *str, uint16_t length);
+void edit_setcursorpos(EDIT *edit, uint16_t pos);
+uint16_t edit_getcursorpos(void);
 
 // set outloc and outlen to the mark range.
 // returns 1 if the mark range is valid for the current edit,
 // else 0.
 // a mark range is valid when *outlen != 0 and there is an active edit.
-_Bool edit_getmark(STRING_IDX *outloc, STRING_IDX *outlen);
-void edit_setmark(STRING_IDX loc, STRING_IDX len);
+_Bool edit_getmark(uint16_t *outloc, uint16_t *outlen);
+void edit_setmark(uint16_t loc, uint16_t len);
 
-void edit_setselectedrange(STRING_IDX loc, STRING_IDX len);
+void edit_setselectedrange(uint16_t loc, uint16_t len);

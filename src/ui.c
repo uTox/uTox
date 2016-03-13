@@ -5,7 +5,7 @@ UI_LANG_ID LANG;
 
 /***** MAYBE_I18NAL_STRING helpers start *****/
 
-void maybe_i18nal_string_set_plain(MAYBE_I18NAL_STRING *mis, char_t *str, STRING_IDX length) {
+void maybe_i18nal_string_set_plain(MAYBE_I18NAL_STRING *mis, char_t *str, uint16_t length) {
     mis->plain.str = str;
     mis->plain.length = length;
     mis->i18nal = UI_STRING_ID_INVALID;
