@@ -9,20 +9,13 @@ DEPS = libtoxav libtoxcore openal vpx libsodium
 
 UNAME_S := $(shell uname -s)
 UNAME_O := $(shell uname -o)
-ARCH    := $(shell uname -m)
 
-CFLAGS += -g -Wall -Wshadow -pthread -std=gnu99
+CFLAGS += -g -Wall -Wshadow -pthread -std=gnu99 -fno-strict-aliasing
 LDFLAGS += -pthread -lm
 
 ifeq ($(FILTER_AUDIO), 1)
 	DEPS += filteraudio
 	CFLAGS += -DAUDIO_FILTERING
-endif
-
-ifeq ($(ARCH), x86_64)
-	OBJCPY = elf64-x86-64
-else
-	OBJCPY = elf32-i386
 endif
 
 ifeq ($(UNAME_S), Linux)
@@ -52,8 +45,11 @@ ifeq ($(UNAME_S), Linux)
 	LDFLAGS += -lresolv -ldl
 	LDFLAGS += $(shell pkg-config --libs $(DEPS))
 
-	TRAY_GEN = objcopy -I binary -O $(OBJCPY) -B i386 icons/utox-128x128.png icons/utox-128x128.o
+	OS_SRC = $(wildcard src/xlib/*.c)
+	OS_OBJ = $(OS_SRC:.c=.o)
+
 	TRAY_OBJ = icons/utox-128x128.o
+	TRAY_GEN = $(LD) -r -b binary icons/utox-128x128.png -o
 else ifeq ($(UNAME_O), Cygwin)
 	OUT_FILE = utox.exe
 
@@ -66,25 +62,25 @@ else ifeq ($(UNAME_O), Cygwin)
 	LDFLAGS += -liphlpapi -lws2_32 -lgdi32 -lmsimg32 -ldnsapi -lcomdlg32
 	LDFLAGS += -Wl,-subsystem,windows -lwinmm -lole32 -loleaut32 -lstrmiids
 
-	OS_SRC = $(wildcard windows/*.c)
+	OS_SRC = $(wildcard src/windows/*.c)
 	OS_OBJ = $(OS_SRC:.c=.o)
 
-	TRAY_GEN = x86_64-w64-mingw32-windres icons/icon.rc -O coff -o icon.o
-	TRAY_OBJ = icon.o
+	TRAY_OBJ = icons/icon.o
+	TRAY_GEN = x86_64-w64-mingw32-windres icons/icon.rc -O coff -o
 endif
 
 
 DESTDIR ?=
 PREFIX ?= /usr/local
 
-SRC = $(wildcard *.c png/png.c)
-HEADERS = $(wildcard *.h */*.h)
+SRC = $(wildcard src/*.c)
+HEADERS = $(wildcard src/*.h src/*/*.h langs/*.h)
 OBJ = $(SRC:.c=.o)
 GIT_V = $(shell git describe --abbrev=8 --dirty --always --tags)
 
 all: utox
 
-utox: $(OBJ) $(OS_OBJ) tray-icon
+utox: $(OBJ) $(OS_OBJ) $(TRAY_OBJ)
 	@echo "  LD    $@"
 	@$(CC) $(CFLAGS) -o $(OUT_FILE) $(OBJ) $(OS_OBJ) $(TRAY_OBJ) $(LDFLAGS)
 
@@ -124,11 +120,11 @@ install: utox
 	install -m 644 icons/utox.svg $(DESTDIR)$(PREFIX)/share/icons/hicolor/scalable/apps/utox.svg
 
 	mkdir -p $(DESTDIR)$(PREFIX)/share/applications
-	install -m 644 utox.desktop $(DESTDIR)$(PREFIX)/share/applications/utox.desktop
+	install -m 644 src/utox.desktop $(DESTDIR)$(PREFIX)/share/applications/utox.desktop
 	if [ "$(UNITY)" -eq "1" ]; then echo "X-MessagingMenu-UsesChatSection=true" >> $(DESTDIR)$(PREFIX)/share/applications/utox.desktop; fi
 
 	mkdir -p $(DESTDIR)$(PREFIX)/share/man/man1
-	install -m 644 utox.1 $(DESTDIR)$(PREFIX)/share/man/man1/utox.1
+	install -m 644 src/utox.1 $(DESTDIR)$(PREFIX)/share/man/man1/utox.1
 
 $(OBJ): %.o: %.c $(HEADERS)
 	@echo "  CC    $@"
@@ -138,10 +134,10 @@ $(OS_OBJ): %.o: %.c $(HEADERS)
 	@echo "  CC    $@"
 	@$(CC) $(CFLAGS) -o $@ -c -DGIT_VERSION=\"$(GIT_V)\" $<
 
-tray-icon:
-	$(TRAY_GEN)
+$(TRAY_OBJ):
+	$(TRAY_GEN) $(TRAY_OBJ)
 
 clean:
-	rm -f $(OUT_FILE) *.o png/*.o icons/*.o windows/*.o
+	rm -f $(OUT_FILE) src/*.o src/icons/*.o src/xlib/*.o src/windows/*.o
 
 .PHONY: all clean

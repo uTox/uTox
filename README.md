@@ -1,33 +1,39 @@
 # μTox [![Build Status](https://travis-ci.org/GrayHatter/uTox.svg?branch=develop)](https://travis-ci.org/GrayHatter/uTox)
 
-Lightweight [Tox](https://github.com/irungentoo/ProjectTox-Core) client.
+The lightweight [Tox](https://github.com/irungentoo/toxcore) client.
 
-* Some things are incomplete and there may be some bugs: feel free to make issues/suggestions
+[**Tox Project Website**](https://tox.chat) **|** [**Tox Project Wiki**](https://wiki.tox.chat/) **|** [**Installing**](docs/INSTALL.md) **|** [**Compiling**](docs/BUILD.md).
 
-* Xlib support is mostly complete, but may have some small bugs (no right click menus, lags)
+You shouldn't have to chose a new client for every device: So µTox works everywhere! On every major system **Windows**, **OSX**, **Linux**, and even **Android**.
 
-* Android support is experimental, it lacks important features (accepting/creating file transfers, sending inline images, video)
+### Features
+- Avatars
+- Secure person to person conversations:
+  - Video (Webcam or Desktop sharing)
+  - Audio
+  - Text
+    - Chat History
+  - Screenshots
+- Group chats
+  - New API support ready.
+- File transfers, with inline images support
+- Tox DNS support with [uTox.org](http://register.utox.org/)
+- Tox URI support (clickable links)
+- Emoticons
+- Auto-updates on Windows.
 
-* Cocoa (OS X without XQuartz) support is also experimental. Please see [the notes](docs/COCOA.md) before building.
+Just like toxcore, µTox is still alpha software, so you may encounter bugs, or maybe a crash or two. µTox also needs your help. If you do encounter any bugs or problems please open an issue.
 
-## Screenshots
+µTox releases a new version on the 20th of every month. So you can always know when to get the newest version.
 
-μTox running on Windows 8
+### Screenshots
+μTox running on Windows 10
 
-![μTox on Win32](https://raw.github.com/notsecure/uTox/master/images/uTox-win32.png "μTox running on Windows 8")
+![μTox on Windows 10](images/utox-windows10.png "μTox running on Windows 10")
 
-μTox running on lubuntu:
+μTox running on OSX:
 
-![μTox on *nix](https://raw.github.com/notsecure/uTox/master/images/uTox-xlib.png "μTox running on lubuntu")
+![μTox on OSX](images/utox-osx.png "μTox running on OSX")
 
-## Installing
-
-See [INSTALL.md](docs/INSTALL.md).
-
-## Building
-
-See [BUILD.md](docs/BUILD.md).
-
-## Downloads
-
+### Downloads
 [Up to date download links on utox.org](http://utox.org)

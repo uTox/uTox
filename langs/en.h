@@ -121,10 +121,10 @@ msgstr("Message")
 msgid(SEARCHFRIENDS)
 msgstr("Search contacts")
 
-msgid(FILTER_ALL)
+msgid(FILTER_ONLINE)
 msgstr("Online Contacts")
 
-msgid(FILTER_ONLINE)
+msgid(FILTER_ALL)
 msgstr("All Contacts")
 
 msgid(FILTER_CONTACT_TOGGLE)
@@ -150,6 +150,9 @@ msgstr("Friend Request")
 
 msgid(USERSETTINGS)
 msgstr("User Settings")
+
+msgid(FRIEND_SETTINGS)
+msgstr("Friend Settings")
 
 msgid(NAME)
 msgstr("Name")
@@ -193,6 +196,9 @@ msgstr("Away")
 msgid(STATUS_BUSY)
 msgstr("Busy")
 
+msgid(NOT_CONNECTED)
+msgstr("Not Connected")
+
 msgid(OTHERSETTINGS)
 msgstr("Other Settings")
 
@@ -209,10 +215,13 @@ msgid(NETWORK_SETTINGS)
 msgstr("Network Settings")
 
 msgid(PROFILE_PASSWORD)
-msgstr("Profile password")
+msgstr("Profile Password")
 
 msgid(LOCK_UTOX)
-msgstr("Disconnects from Toxcore, and locks profile")
+msgstr("Disconnects from Tox and locks this profile.")
+
+msgid(SHOW_UI_PASSWORD)
+msgstr("Click to show profile password field. Changes made here will be instant!")
 
 msgid(LOCK)
 msgstr("Lock")
@@ -310,6 +319,12 @@ msgstr("Ignore")
 msgid(SET_ALIAS)
 msgstr("Set alias")
 
+msgid(ALIAS)
+msgstr("Alias")
+
+msgid(FRIEND_AUTOACCEPT)
+msgstr("Accept incoming file transfers without confirmation")
+
 msgid(SENDMESSAGE)
 msgstr("Send message")
 
@@ -325,6 +340,81 @@ msgstr("Click to open")
 msgid(CANCELLED)
 msgstr("Cancelled")
 
+msgid(DPI_060)
+msgstr("Custom DPI 60%")
+
+msgid(DPI_070)
+msgstr("Custom DPI 70%")
+
+msgid(DPI_080)
+msgstr("Custom DPI 80%")
+
+msgid(DPI_090)
+msgstr("Custom DPI 90%")
+
+msgid(DPI_100)
+msgstr("Custom DPI 100%")
+
+msgid(DPI_110)
+msgstr("Custom DPI 110%")
+
+msgid(DPI_120)
+msgstr("Custom DPI 120%")
+
+msgid(DPI_130)
+msgstr("Custom DPI 130%")
+
+msgid(DPI_140)
+msgstr("Custom DPI 140%")
+
+msgid(DPI_150)
+msgstr("Custom DPI 150%")
+
+msgid(DPI_160)
+msgstr("Custom DPI 160%")
+
+msgid(DPI_170)
+msgstr("Custom DPI 170%")
+
+msgid(DPI_180)
+msgstr("Custom DPI 180%")
+
+msgid(DPI_190)
+msgstr("Custom DPI 190%")
+
+msgid(DPI_200)
+msgstr("Custom DPI 200%")
+
+msgid(DPI_210)
+msgstr("Custom DPI 210%")
+
+msgid(DPI_220)
+msgstr("Custom DPI 220%")
+
+msgid(DPI_230)
+msgstr("Custom DPI 230%")
+
+msgid(DPI_240)
+msgstr("Custom DPI 240%")
+
+msgid(DPI_250)
+msgstr("Custom DPI 250%")
+
+msgid(DPI_260)
+msgstr("Custom DPI 260%")
+
+msgid(DPI_270)
+msgstr("Custom DPI 270%")
+
+msgid(DPI_280)
+msgstr("Custom DPI 280%")
+
+msgid(DPI_290)
+msgstr("Custom DPI 290%")
+
+msgid(DPI_300)
+msgstr("Custom DPI 300%")
+
 msgid(DPI_TINY)
 msgstr("Tiny (50%)")
 
@@ -339,9 +429,6 @@ msgstr("Large (200%)")
 
 msgid(DPI_HUGE)
 msgstr("Huge (250%)")
-
-msgid(FILTER_ALL)
-msgstr("All")
 
 msgid(PROXY_DISABLED)
 msgstr("Disabled")
@@ -363,6 +450,12 @@ msgstr("Off")
 
 msgid(ON)
 msgstr("On")
+
+msgid(SHOW)
+msgstr("Show")
+
+msgid(HIDE)
+msgstr("Hide")
 
 msgid(VIDEO_IN_NONE)
 msgstr("None")
