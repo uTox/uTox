@@ -241,7 +241,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height) {
             }
 
             uint8_t    text_ttc[32];
-            STRING_IDX text_ttc_len = snprintf((char*)text_ttc, sizeof(text_ttc), "%llus", file_ttc);
+            STRING_IDX text_ttc_len = snprintf((char*)text_ttc, sizeof(text_ttc), "%lus", file_ttc);
             if (text_ttc_len >= sizeof(text_ttc)) {
                 text_ttc_len = sizeof(text_ttc) - 1;
             }

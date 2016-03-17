@@ -582,7 +582,7 @@ void copy(int value)
 {
     int len;
     if(edit_active()) {
-        len = edit_copy(clipboard.data, sizeof(clipboard.data));
+        len = edit_copy((char_t*)clipboard.data, sizeof(clipboard.data));
     } else if(selected_item->item == ITEM_FRIEND) {
         len = messages_selection(&messages_friend, clipboard.data, sizeof(clipboard.data), value);
     } else {
