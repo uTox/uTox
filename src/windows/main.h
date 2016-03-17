@@ -65,8 +65,8 @@ extern const CLSID CLSID_NullRenderer;
 #include <mmdeviceapi.h>
 #include <process.h>
 
-#include <Shlobj.h>
-#include <Knownfolders.h>
+#include <shlobj.h>
+#include <knownfolders.h>
 
 #include <io.h>
 #include <error.h>
