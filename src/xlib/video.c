@@ -105,7 +105,7 @@ uint16_t native_video_detect(void) {
     uint16_t device_count = 1; /* start at 1 for the desktop input */
 
     // Indicate that we support desktop capturing.
-    utox_video_append_device((void*)1, 1, STR_VIDEO_IN_DESKTOP, 0);
+    utox_video_append_device((void*)1, 1, (void*)STR_VIDEO_IN_DESKTOP, 0);
 
     int i;
     for(i = 0; i != 64; i++) { /* TODO: magic numbers are bad mm'kay? */

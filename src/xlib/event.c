@@ -499,9 +499,9 @@ _Bool doevent(XEvent event)
 
         if(ev->target == XA_UTF8_STRING || ev->target == XA_STRING) {
             if(ev->selection == XA_PRIMARY) {
-                XChangeProperty(display, ev->requestor, ev->property, ev->target, 8, PropModeReplace, primary.data, primary.len);
+                XChangeProperty(display, ev->requestor, ev->property, ev->target, 8, PropModeReplace, (const unsigned char*)primary.data, primary.len);
             } else {
-                XChangeProperty(display, ev->requestor, ev->property, ev->target, 8, PropModeReplace, clipboard.data, clipboard.len);
+                XChangeProperty(display, ev->requestor, ev->property, ev->target, 8, PropModeReplace, (const unsigned char*)clipboard.data, clipboard.len);
             }
         } else if(ev->target == targets) {
             Atom supported[] = {XA_STRING, XA_UTF8_STRING};
