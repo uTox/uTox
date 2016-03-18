@@ -45,6 +45,20 @@ MSG_FILE* message_add_type_file(FILE_TRANSFER *file){//TODO shove on ui thread
     return msg;
 }
 
+static void messages_draw_timestamp(int x, int y, uint32_t time) {
+    char timestr[6];
+    uint16_t len;
+    len = snprintf(timestr, sizeof(timestr), "%u:%.2u", time / 60, time % 60);
+
+    if (len >= sizeof(timestr)) {
+        len = sizeof(timestr) - 1;
+    }
+
+    setcolor(COLOR_MAIN_SUBTEXT);
+    setfont(FONT_MISC);
+    drawtext(x, y, (char_t*)timestr, len);
+}
+
 static int messages_draw_text(MESSAGE *m, int x, int y, int w, int h, uint16_t h1, uint16_t h2){
     if(m->author) {
         setcolor(COLOR_MAIN_SUBTEXT);
@@ -102,18 +116,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height) {
         }
 
         // Draw timestamps
-        {
-            char timestr[6];
-            uint16_t len;
-            len = snprintf(timestr, sizeof(timestr), "%u:%.2u", msg->time / 60, msg->time % 60);
-            if (len >= sizeof(timestr)) {
-                len = sizeof(timestr) - 1;
-            }
-
-            setcolor(COLOR_MAIN_SUBTEXT);
-            setfont(FONT_MISC);
-            drawtext(x + width - ACTUAL_TIME_WIDTH, y, (char_t*)timestr, len);
-        }
+        messages_draw_timestamp(x + width - ACTUAL_TIME_WIDTH, y, msg->time);
 
         // Draw the names for groups or friends
         if (m->type) {
