@@ -45,6 +45,28 @@ MSG_FILE* message_add_type_file(FILE_TRANSFER *file){//TODO shove on ui thread
     return msg;
 }
 
+static int messages_draw_text(MESSAGE *m, int x, int y, int w, int h, uint16_t h1, uint16_t h2){
+    if(m->author) {
+        setcolor(COLOR_MAIN_SUBTEXT);
+    } else {
+        setcolor(COLOR_MAIN_CHATTEXT);
+    }
+
+    if (m->msg_type == MSG_TYPE_ACTION_TEXT) {
+        setcolor(COLOR_MAIN_ACTIONTEXT);
+    }
+
+    setfont(FONT_TEXT);
+    int ny = drawtextmultiline(x, w, y, MAIN_TOP, y + m->height, font_small_lineheight,
+                               m->msg, m->length, h1, h2 - h1, 0, 0, 1);
+
+    if(ny < y || (uint32_t)(ny - y) + MESSAGES_SPACING != m->height) {
+        debug("error101 %u %u\n", ny -y, m->height - MESSAGES_SPACING);
+    }
+
+    return ny;
+}
+
 /** Formats all messages from self and friends, and then call draw functions
  * to write them to the UI.
  *
@@ -155,27 +177,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height) {
                 h2 = UINT16_MAX;
             }
 
-            if(msg->author) {
-                setcolor(COLOR_MAIN_SUBTEXT);
-            } else {
-                setcolor(COLOR_MAIN_CHATTEXT);
-            }
-
-            if (msg->msg_type == MSG_TYPE_ACTION_TEXT) {
-                setcolor(COLOR_MAIN_ACTIONTEXT);
-            }
-
-            setfont(FONT_TEXT);
-            int ny = drawtextmultiline(x + MESSAGES_X, x + width - TIME_WIDTH,
-                                                    y,               MAIN_TOP,
-                                       y + msg->height, font_small_lineheight,
-                                       msg->msg, msg->length, h1, h2 - h1, 0, 0, 1);
-
-            if(ny < y || (uint32_t)(ny - y) + MESSAGES_SPACING != msg->height) {
-                debug("error101 %u %u\n", ny -y, msg->height - MESSAGES_SPACING);
-            }
-            y = ny;
-
+            y = messages_draw_text(msg, x + MESSAGES_X, y, x + width - TIME_WIDTH, height, h1, h2);
             break;
         }
 
