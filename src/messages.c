@@ -59,6 +59,16 @@ static void messages_draw_timestamp(int x, int y, uint32_t time) {
     drawtext(x, y, (char_t*)timestr, len);
 }
 
+static void messages_draw_author(int x, int y, int w, uint8_t *name, uint32_t length, _Bool author) {
+    if (author) {
+        setcolor(COLOR_MAIN_SUBTEXT);
+    } else {
+        setcolor(COLOR_MAIN_CHATTEXT);
+    }
+    setfont(FONT_TEXT);
+    drawtextwidth_right(x, w, y, name, length);
+}
+
 static int messages_draw_text(MESSAGE *m, int x, int y, int w, int h, uint16_t h1, uint16_t h2){
     if(m->author) {
         setcolor(COLOR_MAIN_SUBTEXT);
@@ -93,25 +103,20 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height) {
     // Message iterator
     void **p = m->data->data;
     MSG_IDX i, n = m->data->n;
-    y += 0;//UTOX_SCALE(2 );
 
     // Go through messages
-    for(i = 0; i != n; i++) {
+    for (i = 0; i != n; i++) {
         MESSAGE *msg = *p++;
 
         // Empty message
-        if(msg->height == 0) {
+        if (msg->height == 0) {
             return;
-        }
-
-        //! NOTE: should not be constant 0
-        if (y + msg->height <= 0) {
+        } else if (y + msg->height <= 0) {
+            //! NOTE: should not be constant 0
             y += msg->height;
             continue;
-        }
-
-        //! NOTE: should not be constant 100
-        if(y >= height + UTOX_SCALE(50 )) {
+        } else if (y >= height + SCALE(100)) {
+            //! NOTE: should not be constant 100
             break;
         }
 
@@ -121,39 +126,24 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height) {
         // Draw the names for groups or friends
         if (m->type) {
             // Group message authors are all the same color
-            setcolor(COLOR_MAIN_CHATTEXT);
-            setfont(FONT_TEXT);
-            drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, y, &msg->msg[msg->length] + 1, msg->msg[msg->length]);
+            messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET, &msg->msg[msg->length] + 1, msg->msg[msg->length], 1);
         } else {
             FRIEND *f = &friend[m->data->id];
-
-            // Always draw name next to action message
+            _Bool auth = msg->author;
             if (msg->msg_type == MSG_TYPE_ACTION_TEXT) {
+                // Always draw name next to action message
                 lastauthor = 0xFF;
+                auth = 1;
             }
 
             if (msg->author != lastauthor) {
-                // Draw author name
-                // If author is current user
-                setfont(FONT_TEXT);
-                if (msg->msg_type == MSG_TYPE_ACTION_TEXT) {
-                    setcolor(COLOR_MAIN_ACTIONTEXT);
-                } else {
-                    if (msg->author) {
-                        setcolor(COLOR_MAIN_SUBTEXT);
-                    } else {
-                        setcolor(COLOR_MAIN_CHATTEXT);
-                    }
-                }
-
                 if (msg->author) {
-                    drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, y, self.name, self.name_length);
+                    messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET, self.name, self.name_length, auth);
                 } else if (f->alias) {
-                    drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, y, f->alias, f->alias_length);
+                    messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET, f->alias, f->alias_length, auth);
                 } else {
-                    drawtextwidth_right(x, MESSAGES_X - NAME_OFFSET, y, f->name, f->name_length);
+                    messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET, f->name, f->name_length, auth);
                 }
-
                 lastauthor = msg->author;
             }
         }
