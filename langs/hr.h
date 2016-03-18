@@ -164,7 +164,7 @@ msgid(PROFILE)
 msgstr("Profil")
 
 msgid(STATUSMESSAGE)
-msgstr("Statusne poruke")
+msgstr("Statusna poruka")
 
 msgid(PREVIEW)
 msgstr("Pregled")
@@ -263,7 +263,7 @@ msgid(AUDIONOTIFICATIONS)
 msgstr("Omogući zvučne obavijesti (zvonjenje)")
 
 msgid(RINGTONE)
-msgstr("Melodija zvona")
+msgstr("Zvono")
 
 msgid(IS_TYPING)
 msgstr("piše...")
