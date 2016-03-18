@@ -91,6 +91,10 @@ static int messages_draw_text(MESSAGE *m, int x, int y, int w, int h, uint16_t h
     return ny;
 }
 
+static int messages_draw_image(MSG_IMG *img, int x, int y, int maxwidth) {
+    draw_message_image(img->image, x, y, img->w, img->h, maxwidth, img->zoom, img->position);
+    return (img->zoom || img->w <= maxwidth) ? img->h : img->h * maxwidth / img->w;
+}
 /** Formats all messages from self and friends, and then call draw functions
  * to write them to the UI.
  *
@@ -111,12 +115,10 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height) {
         // Empty message
         if (msg->height == 0) {
             return;
-        } else if (y + msg->height <= 0) {
-            //! NOTE: should not be constant 0
+        } else if (y + msg->height <= 0) { //! NOTE: should not be constant 0
             y += msg->height;
             continue;
-        } else if (y >= height + SCALE(100)) {
-            //! NOTE: should not be constant 100
+        } else if (y >= height + SCALE(100)) { //! NOTE: should not be constant 100
             break;
         }
 
@@ -176,10 +178,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height) {
 
         // Draw image
         case MSG_TYPE_IMAGE: {
-            MSG_IMG *img = (void*)msg;
-            int maxwidth = width - MESSAGES_X - TIME_WIDTH;
-            draw_message_image(img->image, x + MESSAGES_X, y, img->w, img->h, maxwidth, img->zoom, img->position);
-            y += (img->zoom || img->w <= maxwidth) ? img->h : img->h * maxwidth / img->w;
+            y += messages_draw_image((MSG_IMG*)msg, x + MESSAGES_X, y, width - MESSAGES_X - TIME_WIDTH);
             break;
         }
 
