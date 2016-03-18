@@ -173,7 +173,7 @@ static ITEM* newitem(void) {
 static ITEM* item_hit(int mx, int my, int height) {
     /* Mouse is outsite the list */
     if (mx < ROSTER_BOX_LEFT || mx >= SIDEBAR_WIDTH ||
-        my < 0               || my >= height + ROSTER_BOTTOM / 4 ) { /* TODO: Height is a bit buggy, Height needs /2
+        my < 0               || my >= showncount * ROSTER_BOX_HEIGHT) { /* TODO: Height is a bit buggy, Height needs /2
                                                                       * figure out why!  */
         mouse_in_list = 0;
         return NULL;
