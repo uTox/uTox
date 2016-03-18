@@ -212,7 +212,7 @@ msgid(USER_INTERFACE)
 msgstr("Sučelje")
 
 msgid(UTOX_SETTINGS)
-msgstr("Postavke uToxa")
+msgstr("Postavke")
 
 msgid(NETWORK_SETTINGS)
 msgstr("Mrežne postavke")
