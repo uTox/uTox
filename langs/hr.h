@@ -67,9 +67,6 @@ msgstr("Novi prijenos datoteka")
 msgid(TRANSFER_STARTED)
 msgstr("Prijenos datoteka u tijeku")
 
-msgid(TRANSFER___)
-msgstr("...")
-
 msgid(TRANSFER_PAUSED)
 msgstr("Prijenos datoteka zaustavljen")
 
@@ -114,9 +111,6 @@ msgstr("Nema načina za vraćanje zaboravljene zaporke.")
 
 msgid(ADDFRIENDS)
 msgstr("Dodaj novi kontakt")
-
-msgid(TOXID)
-msgstr("Tox ID")
 
 msgid(MESSAGE)
 msgstr("Poruka")
@@ -187,9 +181,6 @@ msgstr("Ulazni video uređaj")
 msgid(PUSH_TO_TALK)
 msgstr("Stisni za govor")
 
-msgid(STATUS)
-msgstr("Status")
-
 msgid(STATUS_ONLINE)
 msgstr("Nazočan")
 
@@ -204,9 +195,6 @@ msgstr("Nije spojen")
 
 msgid(OTHERSETTINGS)
 msgstr("Ostale postavke")
-
-msgid(UI)
-msgstr("UI")
 
 msgid(USER_INTERFACE)
 msgstr("Sučelje")
@@ -230,10 +218,7 @@ msgid(LOCK)
 msgstr("Zaključaj")
 
 msgid(AUDIO_VIDEO)
-msgstr("Audio/Video")
-
-msgid(DPI)
-msgstr("DPI")
+msgstr("Audio/video")
 
 msgid(SAVELOCATION)
 msgstr("Snimi lokaciju")
@@ -243,15 +228,6 @@ msgstr("Jezik")
 
 msgid(NETWORK)
 msgstr("Mreža")
-
-msgid(IPV6)
-msgstr("IPv6:")
-
-msgid(UDP)
-msgstr("UDP:")
-
-msgid(PROXY)
-msgstr("Proxy (SOCKS 5)")
 
 msgid(WARNING)
 msgstr("Promjena mrežnih/proxy postavki će vas privremeno odspojiti od Tox mreže")
@@ -322,9 +298,6 @@ msgstr("Ignoriraj")
 msgid(SET_ALIAS)
 msgstr("Namjesti alias")
 
-msgid(ALIAS)
-msgstr("Alias")
-
 msgid(FRIEND_AUTOACCEPT)
 msgstr("Prihvati dolazne datoteke bez potvrde")
 
@@ -342,81 +315,6 @@ msgstr("Klikni za otvaranje")
 
 msgid(CANCELLED)
 msgstr("Otkazano")
-
-msgid(DPI_060)
-msgstr("Custom DPI 60%")
-
-msgid(DPI_070)
-msgstr("Custom DPI 70%")
-
-msgid(DPI_080)
-msgstr("Custom DPI 80%")
-
-msgid(DPI_090)
-msgstr("Custom DPI 90%")
-
-msgid(DPI_100)
-msgstr("Custom DPI 100%")
-
-msgid(DPI_110)
-msgstr("Custom DPI 110%")
-
-msgid(DPI_120)
-msgstr("Custom DPI 120%")
-
-msgid(DPI_130)
-msgstr("Custom DPI 130%")
-
-msgid(DPI_140)
-msgstr("Custom DPI 140%")
-
-msgid(DPI_150)
-msgstr("Custom DPI 150%")
-
-msgid(DPI_160)
-msgstr("Custom DPI 160%")
-
-msgid(DPI_170)
-msgstr("Custom DPI 170%")
-
-msgid(DPI_180)
-msgstr("Custom DPI 180%")
-
-msgid(DPI_190)
-msgstr("Custom DPI 190%")
-
-msgid(DPI_200)
-msgstr("Custom DPI 200%")
-
-msgid(DPI_210)
-msgstr("Custom DPI 210%")
-
-msgid(DPI_220)
-msgstr("Custom DPI 220%")
-
-msgid(DPI_230)
-msgstr("Custom DPI 230%")
-
-msgid(DPI_240)
-msgstr("Custom DPI 240%")
-
-msgid(DPI_250)
-msgstr("Custom DPI 250%")
-
-msgid(DPI_260)
-msgstr("Custom DPI 260%")
-
-msgid(DPI_270)
-msgstr("Custom DPI 270%")
-
-msgid(DPI_280)
-msgstr("Custom DPI 280%")
-
-msgid(DPI_290)
-msgstr("Custom DPI 290%")
-
-msgid(DPI_300)
-msgstr("Custom DPI 300%")
 
 msgid(DPI_TINY)
 msgstr("Malo (50%)")
@@ -437,7 +335,7 @@ msgid(PROXY_DISABLED)
 msgstr("Onemogućeno")
 
 msgid(PROXY_FALLBACK)
-msgstr("Default")
+msgstr("Ako ne radi drugačije")
 
 msgid(PROXY_ALWAYS_USE)
 msgstr("Rabi uvijek")
@@ -463,26 +361,17 @@ msgstr("Sakrij")
 msgid(VIDEO_IN_NONE)
 msgstr("Nema")
 
-msgid(VIDEO_IN_DESKTOP)
-msgstr("Desktop")
-
 msgid(AUDIO_IN_DEFAULT_LOOPBACK)
-msgstr("Default Loopback")
+msgstr("Defaultni (loopback) ulaz")
 
 msgid(AUDIO_IN_ANDROID)
-msgstr("OpenSL Input")
+msgstr("OpenSL ulaz")
 
 msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
 msgstr("Molim prihvatite poziv za prijateljstvom.")
 
 msgid(CONTACT_SEARCH_ADD_HINT)
 msgstr("Traži/dodaj prijatelje")
-
-msgid(PROXY_EDIT_HINT_IP)
-msgstr("IP")
-
-msgid(PROXY_EDIT_HINT_PORT)
-msgstr("Port")
 
 msgid(WINDOW_TITLE_VIDEO_PREVIEW)
 msgstr("Video pregled")
@@ -512,7 +401,7 @@ msgid(THEME)
 msgstr("Tema")
 
 msgid(THEME_DEFAULT)
-msgstr("Default")
+msgstr("Defaultna tema")
 
 msgid(THEME_LIGHT)
 msgstr("Svijetla tema")
@@ -525,9 +414,6 @@ msgstr("Visoki kontrast")
 
 msgid(THEME_CUSTOM)
 msgstr("Posebno (vidi upute)")
-
-msgid(THEME_ZENBURN)
-msgstr("Zenburn")
 
 msgid(SEND_TYPING_NOTIFICATIONS)
 msgstr("Šalji obavijesti o tipkanju")
