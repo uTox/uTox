@@ -5,7 +5,8 @@
  *  zoom is whether the image is currently zoomed in
  *  position is the y position along the image the player has scrolled */
 static void draw_message_image(UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height,
-                               uint32_t maxwidth, _Bool zoom, double position) {
+                               uint32_t maxwidth, _Bool zoom, double position)
+{
     image_set_filter(image, FILTER_BILINEAR);
 
     if(!zoom && width > maxwidth) {
@@ -95,6 +96,211 @@ static int messages_draw_image(MSG_IMG *img, int x, int y, int maxwidth) {
     draw_message_image(img->image, x, y, img->w, img->h, maxwidth, img->zoom, img->position);
     return (img->zoom || img->w <= maxwidth) ? img->h : img->h * maxwidth / img->w;
 }
+
+static void messages_draw_filetransfer(MESSAGES *m, MSG_FILE *file, int i, int x, int y, int w, int h) {
+    int room_for_clip   = BM_FT_CAP_WIDTH + SCALE(2);
+    int dx              = x + MESSAGES_X + room_for_clip;
+    int d_width         = w - MESSAGES_X - TIME_WIDTH - room_for_clip;
+    /* Mouse Positions */
+    _Bool mo            = (m->iover == i);
+    _Bool mouse_over    = (mo && m->over) ? 1 : 0;
+    _Bool mouse_tbtn    = (mo && m->over == 2) ? 1 : 0;
+    _Bool mouse_bbtn    = (mo && m->over == 1) ? 1 : 0;
+
+    /* Button Background */
+    int btn_bg_w  = BM_FTB_WIDTH;
+    /* Button Background heights */
+    int tbtn_bg_y = y;
+    int tbtn_bg_h = BM_FTB_HEIGHT;
+    /* Top button info */
+    int btnx   = dx + d_width - (btn_bg_w * 2) - SCALE(2);
+    int tbtn_y = y + SCALE(8);
+    int btnw   = BM_FB_WIDTH;
+    int btnh   = BM_FB_HEIGHT;
+
+    /* Get the values for the file transfer. */
+    uint64_t file_size     = file->size;
+    uint64_t file_progress = file->progress;
+    uint64_t file_speed    = file->speed;
+    uint64_t file_ttc      = file_speed ? (file_size - file_progress ) / file_speed : 0 ;
+
+    long double file_percent  = (double)file_progress / (double)file_size;
+    if (file_progress > file_size) {
+        file_progress = file->size;
+        file_percent = 1.0;
+    }
+
+    uint8_t text_name_and_size[file->name_length + 33];
+    memcpy(text_name_and_size, file->name, file->name_length);
+    text_name_and_size[file->name_length] = ' ';
+    uint16_t text_name_and_size_len = file->name_length + 1;
+    text_name_and_size_len += sprint_humanread_bytes(text_name_and_size + file->name_length + 1, 32, file_size);
+
+    uint8_t  text_speed[32];
+    uint16_t text_speed_len = sprint_humanread_bytes(text_speed, sizeof(text_speed), file_speed);
+    if (text_speed_len <= 30) {
+        text_speed[text_speed_len++] = '/';
+        text_speed[text_speed_len++] = 's';
+    }
+
+    uint8_t text_ttc[32];
+    uint16_t text_ttc_len = snprintf((char*)text_ttc, sizeof(text_ttc), "%llus", file_ttc);
+    if (text_ttc_len >= sizeof(text_ttc)) {
+        text_ttc_len = sizeof(text_ttc) - 1;
+    }
+
+    // progress rectangle
+    uint32_t prog_bar = 0;
+
+    setfont(FONT_MISC);
+    setcolor(COLOR_BACKGROUND_MAIN);
+
+    /* Draw macros added, to reduce future line edits. */
+    #define draw_ft_rect(color) draw_rect_fill (dx, y, d_width, FILE_TRANSFER_BOX_HEIGHT, color)
+    #define draw_ft_prog(color) draw_rect_fill (dx, y, prog_bar, FILE_TRANSFER_BOX_HEIGHT, color)
+    #define draw_ft_cap(bg, fg) do { drawalpha(BM_FT_CAP, dx - room_for_clip, y, BM_FT_CAP_WIDTH, BM_FTB_HEIGHT, bg); \
+                                     drawalpha(BM_FILE, dx - room_for_clip + SCALE(4), y + SCALE(4), BM_FILE_WIDTH, BM_FILE_HEIGHT, fg); } while (0)
+
+    int wbound = dx + d_width - SCALE(6);
+
+    #define draw_ft_text_right(str, len) do { wbound -= (textwidth(str, len) + (SCALE(12))); drawtext(wbound, y + SCALE(8), str, len); } while (0)
+    #define draw_ft_alph_right(bm, col) do { wbound -= btnw + (SCALE(12)); drawalpha(bm, wbound, tbtn_y, btnw, btnh, col); } while (0)
+    #define drawstr_ft_right(t) draw_ft_text_right(S(t), SLEN(t))
+
+    switch (file->status) {
+        case FILE_TRANSFER_STATUS_NONE:
+        case FILE_TRANSFER_STATUS_ACTIVE:
+        case FILE_TRANSFER_STATUS_PAUSED_US:
+        case FILE_TRANSFER_STATUS_PAUSED_BOTH:
+        case FILE_TRANSFER_STATUS_PAUSED_THEM: {
+            int ftb_allowance = (BM_FTB_WIDTH * 2) + (SCALE(4));
+            d_width -= ftb_allowance;
+            wbound -= ftb_allowance;
+            break;
+        }
+        default:
+            // we'll round the corner even without buttons.
+            d_width -= btn_bg_w;
+            break;
+    }
+
+    prog_bar = (file->size == 0) ? 0 : ((long double)d_width * file_percent);
+
+    switch (file->status){
+        case FILE_TRANSFER_STATUS_COMPLETED: {
+            /* If mouse over use hover color */
+            uint32_t text = mouse_over ? COLOR_BUTTON_SUCCESS_HOVER_TEXT : COLOR_BUTTON_SUCCESS_TEXT,
+                     background = mouse_over ? COLOR_BUTTON_SUCCESS_HOVER_BACKGROUND : COLOR_BUTTON_SUCCESS_BACKGROUND;
+
+            setcolor(text);
+            draw_ft_cap(background, text);
+            draw_ft_rect(background);
+            drawalpha(BM_FTB2, dx + d_width, tbtn_bg_y, btn_bg_w, tbtn_bg_h, background);
+
+            if (file->inline_png) {
+                drawstr_ft_right(CLICKTOSAVE);
+            } else {
+                drawstr_ft_right(CLICKTOOPEN);
+            }
+            draw_ft_alph_right(BM_YES, text);
+            break;
+        }
+        case FILE_TRANSFER_STATUS_KILLED:{
+            setcolor(COLOR_BUTTON_DANGER_TEXT);
+            draw_ft_cap(COLOR_BUTTON_DANGER_BACKGROUND, COLOR_BUTTON_DANGER_TEXT);
+            draw_ft_rect(COLOR_BUTTON_DANGER_BACKGROUND);
+            drawalpha(BM_FTB2, dx + d_width, tbtn_bg_y, btn_bg_w, tbtn_bg_h, COLOR_BUTTON_DANGER_BACKGROUND);
+
+            drawstr_ft_right(TRANSFER_CANCELLED);
+            draw_ft_alph_right(BM_NO, COLOR_BUTTON_DANGER_TEXT);
+            break;
+        }
+        case FILE_TRANSFER_STATUS_BROKEN: {
+            setcolor(COLOR_BUTTON_DANGER_TEXT);
+            draw_ft_cap(COLOR_BUTTON_DANGER_BACKGROUND, COLOR_BUTTON_DANGER_TEXT);
+            draw_ft_rect(COLOR_BUTTON_DANGER_BACKGROUND);
+            drawalpha(BM_FTB2, dx + d_width, tbtn_bg_y, btn_bg_w, tbtn_bg_h, COLOR_BUTTON_DANGER_BACKGROUND);
+
+            drawstr_ft_right(TRANSFER_BROKEN);
+            draw_ft_alph_right(BM_NO, COLOR_BUTTON_DANGER_TEXT);
+            break;
+        }
+        case FILE_TRANSFER_STATUS_NONE: {
+            /* ↑ used for incoming transfers */
+            setcolor(COLOR_BUTTON_DISABLED_TRANSFER);
+            draw_ft_cap(COLOR_BUTTON_DISABLED_BACKGROUND, COLOR_BUTTON_DISABLED_TRANSFER);
+            draw_ft_rect(COLOR_BUTTON_DISABLED_BACKGROUND);
+
+            drawalpha(BM_FTB1, btnx, tbtn_bg_y, btn_bg_w, tbtn_bg_h,
+                      (mouse_bbtn ? COLOR_BUTTON_SUCCESS_HOVER_BACKGROUND : COLOR_BUTTON_SUCCESS_BACKGROUND));
+            drawalpha(BM_NO, btnx + ((btn_bg_w - btnw) / 2), tbtn_y, btnw, btnh,
+                      (mouse_bbtn ? COLOR_BUTTON_SUCCESS_HOVER_TEXT : COLOR_BUTTON_SUCCESS_TEXT));
+            btnx += btn_bg_w + UTOX_SCALE(1);
+
+            drawalpha(BM_FTB2, btnx, tbtn_bg_y, btn_bg_w, tbtn_bg_h,
+                      (mouse_tbtn ? COLOR_BUTTON_SUCCESS_HOVER_BACKGROUND : COLOR_BUTTON_SUCCESS_BACKGROUND));
+            drawalpha(BM_YES, btnx + ((btn_bg_w - btnw) / 2), tbtn_y, btnw, btnh,
+                      (mouse_tbtn ? COLOR_BUTTON_SUCCESS_HOVER_TEXT : COLOR_BUTTON_SUCCESS_TEXT));
+
+            draw_ft_prog(COLOR_BUTTON_DISABLED_FOREGROUND);
+            break;
+        }
+        case FILE_TRANSFER_STATUS_ACTIVE: {
+            setcolor(COLOR_BUTTON_INPROGRESS_TEXT);
+            draw_ft_cap(COLOR_BUTTON_INPROGRESS_BACKGROUND, COLOR_BUTTON_INPROGRESS_TEXT);
+            draw_ft_rect(COLOR_BUTTON_INPROGRESS_BACKGROUND);
+
+            drawalpha(BM_FTB1, btnx, tbtn_bg_y, btn_bg_w, tbtn_bg_h,
+                      (mouse_bbtn ? COLOR_BUTTON_SUCCESS_HOVER_BACKGROUND : COLOR_BUTTON_SUCCESS_BACKGROUND));
+            drawalpha(BM_NO, btnx + ((btn_bg_w - btnw) / 2), tbtn_y, btnw, btnh,
+                      (mouse_bbtn ? COLOR_BUTTON_DANGER_HOVER_TEXT : COLOR_BUTTON_DANGER_TEXT));
+            btnx += btn_bg_w + SCALE(2);
+
+            drawalpha(BM_FTB2, btnx, tbtn_bg_y, btn_bg_w, tbtn_bg_h,
+                      (mouse_tbtn ? COLOR_BUTTON_SUCCESS_HOVER_BACKGROUND : COLOR_BUTTON_SUCCESS_BACKGROUND));
+            drawalpha(BM_PAUSE, btnx + ((btn_bg_w - btnw) / 2), tbtn_y, btnw, btnh,
+                      (mouse_tbtn ? COLOR_BUTTON_SUCCESS_HOVER_TEXT : COLOR_BUTTON_SUCCESS_TEXT));
+
+            draw_ft_prog(COLOR_BUTTON_INPROGRESS_FOREGROUND);
+            draw_ft_text_right(text_ttc, text_ttc_len);
+            draw_ft_text_right(text_speed, text_speed_len);
+            break;
+        }
+        case FILE_TRANSFER_STATUS_PAUSED_US:
+        case FILE_TRANSFER_STATUS_PAUSED_BOTH:
+        case FILE_TRANSFER_STATUS_PAUSED_THEM: {
+            setcolor(COLOR_BUTTON_DISABLED_TRANSFER);
+
+            draw_ft_cap(COLOR_BUTTON_DISABLED_BACKGROUND, COLOR_BUTTON_DISABLED_TRANSFER);
+            draw_ft_rect(COLOR_BUTTON_DISABLED_BACKGROUND);
+
+            drawalpha(BM_FTB1, btnx, tbtn_bg_y, btn_bg_w, tbtn_bg_h,
+                      (mouse_bbtn ? COLOR_BUTTON_SUCCESS_HOVER_BACKGROUND : COLOR_BUTTON_SUCCESS_BACKGROUND));
+            drawalpha(BM_NO, btnx + ((btn_bg_w - btnw) / 2), tbtn_y, btnw, btnh,
+                      (mouse_bbtn ? COLOR_BUTTON_DANGER_HOVER_TEXT : COLOR_BUTTON_DANGER_TEXT));
+            btnx += btn_bg_w + SCALE(2);
+
+            if(file->status <= FILE_TRANSFER_STATUS_PAUSED_BOTH){
+                /* Paused by at least us */
+                drawalpha(BM_FTB2, btnx, tbtn_bg_y, btn_bg_w, tbtn_bg_h,
+                          (mouse_tbtn ? COLOR_BUTTON_SUCCESS_HOVER_BACKGROUND : COLOR_BUTTON_SUCCESS_BACKGROUND));
+                drawalpha(BM_RESUME, btnx + ((btn_bg_w - btnw) / 2), tbtn_y, btnw, btnh,
+                          (mouse_tbtn ? COLOR_BUTTON_SUCCESS_HOVER_TEXT : COLOR_BUTTON_SUCCESS_TEXT));
+            } else {
+                /* Paused only by them */
+                drawalpha(BM_FTB2, btnx, tbtn_bg_y, btn_bg_w, tbtn_bg_h, COLOR_BUTTON_DISABLED_BACKGROUND);
+                drawalpha(BM_PAUSE, btnx + ((btn_bg_w - btnw) / 2), tbtn_y, btnw, btnh, COLOR_BUTTON_DISABLED_TRANSFER);
+            }
+
+            draw_ft_prog(COLOR_BUTTON_DISABLED_FOREGROUND);
+            break;
+        }
+    }
+
+    setfont(FONT_TEXT);
+    drawtextrange(dx + SCALE(10), wbound - SCALE(10), y + SCALE(6), text_name_and_size, text_name_and_size_len);
+}
+
 /** Formats all messages from self and friends, and then call draw functions
  * to write them to the UI.
  *
@@ -184,219 +390,7 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height) {
 
         // Draw file transfer
         case MSG_TYPE_FILE: {
-            MSG_FILE *file = (void*)msg;
-            int room_for_clip = BM_FT_CAP_WIDTH + UTOX_SCALE(1);
-            int dx      = x + MESSAGES_X + room_for_clip;
-            int d_width = width - MESSAGES_X - TIME_WIDTH - room_for_clip;
-            /* Mouse Positions */
-            _Bool mo = (m->iover == i);
-            _Bool mouse_over = (mo && m->over) ? 1 : 0;
-            _Bool mouse_tbtn = (mo && m->over == 2) ? 1 : 0;
-            _Bool mouse_bbtn = (mo && m->over == 1) ? 1 : 0;
-
-            /* Old var kept for bug hunting
-            int xx = x + dx;
-            int xxx = xx + BM_FTM_WIDTH + SCALE; */
-
-            /* Button Background */
-            int btn_bg_w  = BM_FTB_WIDTH;
-            /* Button Background heights */
-            int tbtn_bg_y = y;
-            int tbtn_bg_h = BM_FTB_HEIGHT;
-            /* Top button info */
-            int btnx   = dx + d_width - (btn_bg_w * 2) - UTOX_SCALE(1);
-            int tbtn_y = y + UTOX_SCALE(4);
-            int btnw   = BM_FB_WIDTH;
-            int btnh   = BM_FB_HEIGHT;
-
-            /* Get the values for the file transfer. */
-            uint64_t file_size     = file->size;
-            uint64_t file_progress = file->progress;
-            uint64_t file_speed    = file->speed;
-            uint64_t file_ttc      = file_speed ? (file_size - file_progress ) / file_speed : 0 ;
-
-            long double file_percent  = (double)file_progress / (double)file_size;
-            if (file_progress > file_size) {
-                file_progress = file->size;
-                file_percent = 1.0;
-            }
-
-            uint8_t    text_name_and_size[file->name_length + 33];
-            memcpy(text_name_and_size, file->name, file->name_length);
-            text_name_and_size[file->name_length] = ' ';
-            uint16_t text_name_and_size_len = file->name_length + 1;
-            text_name_and_size_len += sprint_humanread_bytes(text_name_and_size + file->name_length + 1, 32, file_size);
-
-            uint8_t    text_speed[32];
-            uint16_t text_speed_len = sprint_humanread_bytes(text_speed, sizeof(text_speed), file_speed);
-            if (text_speed_len <= 30) {
-                text_speed[text_speed_len++] = '/';
-                text_speed[text_speed_len++] = 's';
-            }
-
-            uint8_t    text_ttc[32];
-            uint16_t text_ttc_len = snprintf((char*)text_ttc, sizeof(text_ttc), "%llus", file_ttc);
-            if (text_ttc_len >= sizeof(text_ttc)) {
-                text_ttc_len = sizeof(text_ttc) - 1;
-            }
-
-            // progress rectangle
-            uint32_t prog_bar = 0;
-
-            setfont(FONT_MISC);
-            setcolor(COLOR_BACKGROUND_MAIN);
-
-            /* Draw macros added, to reduce future line edits. */
-            #define draw_ft_rect(color) draw_rect_fill (dx, y, d_width, FILE_TRANSFER_BOX_HEIGHT, color)
-            #define draw_ft_prog(color) draw_rect_fill (dx, y, prog_bar, FILE_TRANSFER_BOX_HEIGHT, color)
-            #define draw_ft_cap(bg, fg) do { drawalpha(BM_FT_CAP, dx - room_for_clip, y, BM_FT_CAP_WIDTH, BM_FTB_HEIGHT, bg); \
-                                             drawalpha(BM_FILE, dx - room_for_clip + UTOX_SCALE(2), y + UTOX_SCALE(2 ), BM_FILE_WIDTH, BM_FILE_HEIGHT, fg); } while (0)
-
-            // #define draw_ft_prog(color) draw_rect_frame(dx + UTOX_SCALE(5 ), y + UTOX_SCALE(17 ), prog_box, UTOX_SCALE(7 ), color);
-            //                            draw_rect_fill (dx + UTOX_SCALE(5 ), y + UTOX_SCALE(17 ), prog_bar, UTOX_SCALE(7 ), color)
-
-            int wbound = dx + d_width - UTOX_SCALE(3 );
-
-            #define draw_ft_text_right(str, len) do { wbound -= (textwidth(str, len) + (UTOX_SCALE(6 ))); drawtext(wbound, y + UTOX_SCALE(4 ), str, len); } while (0)
-            #define draw_ft_alph_right(bm, col) do { wbound -= btnw + (UTOX_SCALE(6 )); drawalpha(bm, wbound, tbtn_y, btnw, btnh, col); } while (0)
-            #define drawstr_ft_right(t) draw_ft_text_right(S(t), SLEN(t))
-
-            switch (file->status) {
-                case FILE_TRANSFER_STATUS_NONE:
-                case FILE_TRANSFER_STATUS_ACTIVE:
-                case FILE_TRANSFER_STATUS_PAUSED_US:
-                case FILE_TRANSFER_STATUS_PAUSED_BOTH:
-                case FILE_TRANSFER_STATUS_PAUSED_THEM: {
-                    int ftb_allowance = (BM_FTB_WIDTH * 2) + (UTOX_SCALE(2));
-                    d_width -= ftb_allowance;
-                    wbound -= ftb_allowance;
-                    break;
-                }
-                default:
-                    // we'll round the corner even without buttons.
-                    d_width -= btn_bg_w;
-                    break;
-            }
-
-            prog_bar = (file->size == 0) ? 0 : ((long double)d_width * file_percent);
-
-            switch (file->status){
-            case FILE_TRANSFER_STATUS_COMPLETED: {
-                /* If mouse over use hover color */
-                uint32_t text = mouse_over ? COLOR_BUTTON_SUCCESS_HOVER_TEXT : COLOR_BUTTON_SUCCESS_TEXT,
-                         background = mouse_over ? COLOR_BUTTON_SUCCESS_HOVER_BACKGROUND : COLOR_BUTTON_SUCCESS_BACKGROUND;
-
-                setcolor(text);
-                draw_ft_cap(background, text);
-                draw_ft_rect(background);
-                drawalpha(BM_FTB2, dx + d_width, tbtn_bg_y, btn_bg_w, tbtn_bg_h, background);
-
-                if (file->inline_png) {
-                    drawstr_ft_right(CLICKTOSAVE);
-                } else {
-                    drawstr_ft_right(CLICKTOOPEN);
-                }
-                draw_ft_alph_right(BM_YES, text);
-                break;
-            }
-            case FILE_TRANSFER_STATUS_KILLED:{
-                setcolor(COLOR_BUTTON_DANGER_TEXT);
-                draw_ft_cap(COLOR_BUTTON_DANGER_BACKGROUND, COLOR_BUTTON_DANGER_TEXT);
-                draw_ft_rect(COLOR_BUTTON_DANGER_BACKGROUND);
-                drawalpha(BM_FTB2, dx + d_width, tbtn_bg_y, btn_bg_w, tbtn_bg_h, COLOR_BUTTON_DANGER_BACKGROUND);
-
-                drawstr_ft_right(TRANSFER_CANCELLED);
-                draw_ft_alph_right(BM_NO, COLOR_BUTTON_DANGER_TEXT);
-                break;
-            }
-            case FILE_TRANSFER_STATUS_BROKEN: {
-                setcolor(COLOR_BUTTON_DANGER_TEXT);
-                draw_ft_cap(COLOR_BUTTON_DANGER_BACKGROUND, COLOR_BUTTON_DANGER_TEXT);
-                draw_ft_rect(COLOR_BUTTON_DANGER_BACKGROUND);
-                drawalpha(BM_FTB2, dx + d_width, tbtn_bg_y, btn_bg_w, tbtn_bg_h, COLOR_BUTTON_DANGER_BACKGROUND);
-
-                drawstr_ft_right(TRANSFER_BROKEN);
-                draw_ft_alph_right(BM_NO, COLOR_BUTTON_DANGER_TEXT);
-                break;
-            }
-            case FILE_TRANSFER_STATUS_NONE: {
-                /* ↑ used for incoming transfers */
-                setcolor(COLOR_BUTTON_DISABLED_TRANSFER);
-                draw_ft_cap(COLOR_BUTTON_DISABLED_BACKGROUND, COLOR_BUTTON_DISABLED_TRANSFER);
-                draw_ft_rect(COLOR_BUTTON_DISABLED_BACKGROUND);
-
-                drawalpha(BM_FTB1, btnx, tbtn_bg_y, btn_bg_w, tbtn_bg_h,
-                          (mouse_bbtn ? COLOR_BUTTON_SUCCESS_HOVER_BACKGROUND : COLOR_BUTTON_SUCCESS_BACKGROUND));
-                drawalpha(BM_NO, btnx + ((btn_bg_w - btnw) / 2), tbtn_y, btnw, btnh,
-                          (mouse_bbtn ? COLOR_BUTTON_SUCCESS_HOVER_TEXT : COLOR_BUTTON_SUCCESS_TEXT));
-                btnx += btn_bg_w + UTOX_SCALE(1);
-
-                drawalpha(BM_FTB2, btnx, tbtn_bg_y, btn_bg_w, tbtn_bg_h,
-                          (mouse_tbtn ? COLOR_BUTTON_SUCCESS_HOVER_BACKGROUND : COLOR_BUTTON_SUCCESS_BACKGROUND));
-                drawalpha(BM_YES, btnx + ((btn_bg_w - btnw) / 2), tbtn_y, btnw, btnh,
-                          (mouse_tbtn ? COLOR_BUTTON_SUCCESS_HOVER_TEXT : COLOR_BUTTON_SUCCESS_TEXT));
-
-                draw_ft_prog(COLOR_BUTTON_DISABLED_FOREGROUND);
-                break;
-            }
-            case FILE_TRANSFER_STATUS_ACTIVE: {
-                setcolor(COLOR_BUTTON_INPROGRESS_TEXT);
-                draw_ft_cap(COLOR_BUTTON_INPROGRESS_BACKGROUND, COLOR_BUTTON_INPROGRESS_TEXT);
-                draw_ft_rect(COLOR_BUTTON_INPROGRESS_BACKGROUND);
-
-                drawalpha(BM_FTB1, btnx, tbtn_bg_y, btn_bg_w, tbtn_bg_h,
-                          (mouse_bbtn ? COLOR_BUTTON_SUCCESS_HOVER_BACKGROUND : COLOR_BUTTON_SUCCESS_BACKGROUND));
-                drawalpha(BM_NO, btnx + ((btn_bg_w - btnw) / 2), tbtn_y, btnw, btnh,
-                          (mouse_bbtn ? COLOR_BUTTON_DANGER_HOVER_TEXT : COLOR_BUTTON_DANGER_TEXT));
-                btnx += btn_bg_w + UTOX_SCALE(1);
-
-                drawalpha(BM_FTB2, btnx, tbtn_bg_y, btn_bg_w, tbtn_bg_h,
-                          (mouse_tbtn ? COLOR_BUTTON_SUCCESS_HOVER_BACKGROUND : COLOR_BUTTON_SUCCESS_BACKGROUND));
-                drawalpha(BM_PAUSE, btnx + ((btn_bg_w - btnw) / 2), tbtn_y, btnw, btnh,
-                          (mouse_tbtn ? COLOR_BUTTON_SUCCESS_HOVER_TEXT : COLOR_BUTTON_SUCCESS_TEXT));
-
-                draw_ft_prog(COLOR_BUTTON_INPROGRESS_FOREGROUND);
-                draw_ft_text_right(text_ttc, text_ttc_len);
-                draw_ft_text_right(text_speed, text_speed_len);
-                break;
-            }
-            case FILE_TRANSFER_STATUS_PAUSED_US:
-            case FILE_TRANSFER_STATUS_PAUSED_BOTH:
-            case FILE_TRANSFER_STATUS_PAUSED_THEM: {
-                setcolor(COLOR_BUTTON_DISABLED_TRANSFER);
-
-                draw_ft_cap(COLOR_BUTTON_DISABLED_BACKGROUND, COLOR_BUTTON_DISABLED_TRANSFER);
-                draw_ft_rect(COLOR_BUTTON_DISABLED_BACKGROUND);
-
-                drawalpha(BM_FTB1, btnx, tbtn_bg_y, btn_bg_w, tbtn_bg_h,
-                          (mouse_bbtn ? COLOR_BUTTON_SUCCESS_HOVER_BACKGROUND : COLOR_BUTTON_SUCCESS_BACKGROUND));
-                drawalpha(BM_NO, btnx + ((btn_bg_w - btnw) / 2), tbtn_y, btnw, btnh,
-                          (mouse_bbtn ? COLOR_BUTTON_DANGER_HOVER_TEXT : COLOR_BUTTON_DANGER_TEXT));
-                btnx += btn_bg_w + UTOX_SCALE(1);
-
-                if(file->status <= FILE_TRANSFER_STATUS_PAUSED_BOTH){
-                    /* Paused by at least us */
-                    drawalpha(BM_FTB2, btnx, tbtn_bg_y, btn_bg_w, tbtn_bg_h,
-                              (mouse_tbtn ? COLOR_BUTTON_SUCCESS_HOVER_BACKGROUND : COLOR_BUTTON_SUCCESS_BACKGROUND));
-                    drawalpha(BM_RESUME, btnx + ((btn_bg_w - btnw) / 2), tbtn_y, btnw, btnh,
-                              (mouse_tbtn ? COLOR_BUTTON_SUCCESS_HOVER_TEXT : COLOR_BUTTON_SUCCESS_TEXT));
-                } else {
-                    /* Paused only by them */
-                    drawalpha(BM_FTB2, btnx, tbtn_bg_y, btn_bg_w, tbtn_bg_h, COLOR_BUTTON_DISABLED_BACKGROUND);
-                    drawalpha(BM_PAUSE, btnx + ((btn_bg_w - btnw) / 2), tbtn_y, btnw, btnh, COLOR_BUTTON_DISABLED_TRANSFER);
-                }
-
-                draw_ft_prog(COLOR_BUTTON_DISABLED_FOREGROUND);
-                break;
-            }
-            }
-
-            setfont(FONT_TEXT);
-            // textwidth()
-            // drawtextwidth_right(dx + UTOX_SCALE(5 ), y + UTOX_SCALE(10 ), text_size, text_size_len);
-            drawtextrange(dx + UTOX_SCALE(5 ), wbound - UTOX_SCALE(5 ), y + UTOX_SCALE(3 ), text_name_and_size, text_name_and_size_len);
-            //drawtext(os + UTOX_SCALE(3 ), y + UTOX_SCALE(3 ), text_size, text_size_len);
-
+            messages_draw_filetransfer(m, (MSG_FILE*)msg, i, x, y, width, height);
             y += FILE_TRANSFER_BOX_HEIGHT;
             break;
         }
