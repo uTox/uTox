@@ -112,6 +112,9 @@ msgstr("Périphérique de sortie audio")
 msgid(VIDEOINPUTDEVICE)
 msgstr("Périphérique d'entrée vidéo")
 
+msgid(PUSH_TO_TALK)
+msgstr("Pousser à parler")
+
 msgid(BEEP_ON_MSG)
 msgstr("Sond au message")
 
