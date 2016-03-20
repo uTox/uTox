@@ -67,7 +67,14 @@ static void drawtextmark(int x, int y, char_t *str, uint16_t length, int d, int 
     drawhline(x + width, y + lineheight - 1, x + width + w, COLOR_MAIN_TEXT);
 }
 
-int drawtextmultiline(int x, int right, int y, int top, int bottom, uint16_t lineheight, char_t *data, uint16_t length, uint16_t h, uint16_t hlen, uint16_t mark, uint16_t marklen, _Bool multiline)
+
+int utox_draw_text_multiline_within_box(int x, int y,
+                                        int right, int top, int bottom,
+                                        uint16_t lineheight,
+                                        char_t *data, uint16_t length,
+                                        uint16_t h, uint16_t hlen,
+                                        uint16_t mark, uint16_t marklen,
+                                        _Bool multiline )
 {
     uint32_t c1, c2;
     _Bool greentext = 0, link = 0, draw = y + lineheight >= top;
@@ -169,6 +176,14 @@ int drawtextmultiline(int x, int right, int y, int top, int bottom, uint16_t lin
     }
 
     return y + lineheight;
+}
+
+int utox_draw_text_multiline_compat(int x, int right, int y, int top, int bottom,
+                                    uint16_t lineheight, char_t *data, uint16_t length,
+                                    uint16_t h, uint16_t hlen, uint16_t mark, uint16_t marklen, _Bool multiline)
+{
+    return utox_draw_text_multiline_within_box(x, y, right, top, bottom, lineheight, data, length,
+                                                h, hlen, mark, marklen, multiline);
 }
 
 uint16_t hittextmultiline(int mx, int right, int my, int height, uint16_t lineheight, char_t *str, uint16_t length, _Bool multiline)

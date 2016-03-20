@@ -66,7 +66,7 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
     if(!edit->noborder) {
         draw_rect_frame(x, y, width, height, (edit == active_edit) ? color_border_a : (edit->mouseover ? color_border_h : color_border));
     }
-    draw_rect_fill(x + 1, y + 1, width - UTOX_SCALE(1 ), height - UTOX_SCALE(1 ), color_bg);
+    draw_rect_fill(x + 1, y + 1, width - SCALE(2), height - SCALE(2), color_bg);
 
     setfont(FONT_TEXT);
     setcolor(color_text);
@@ -77,7 +77,7 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
         pushclip(x + 1, y + 1, width - 2, height - 2);
 
         SCROLLABLE *scroll = edit->scroll;
-        scroll->content_height = text_height(width - UTOX_SCALE(4 ) - SCROLL_WIDTH, font_small_lineheight, edit->data, edit->length) + UTOX_SCALE(4 );
+        scroll->content_height = text_height(width - SCALE(8) - SCROLL_WIDTH, font_small_lineheight, edit->data, edit->length) + UTOX_SCALE(4 );
         scroll_draw(scroll, x, y, width, height);
         yy -= scroll_gety(scroll, height);
     }
@@ -85,7 +85,7 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
     /* because the search field has a padding of 3.5 SCALEs */
     float top_offset = 2.0;
     if (edit->vcentered && !edit->multiline) {
-        top_offset = (height - font_small_lineheight) / (UTOX_SCALE(2.0));
+        top_offset = (height - font_small_lineheight) / (SCALE(4.0));
     }
 
     // display an edit hint if there's no text in the field
@@ -100,13 +100,13 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
         /* Generate the stars for this password */
         uint8_t star[edit->length];
         memset(star, '*', edit->length);
-        drawtextmultiline(x + UTOX_SCALE(2 ), x + width - UTOX_SCALE(2 ) - (edit->multiline ? SCROLL_WIDTH : 0),
-                          yy + UTOX_SCALE(top_offset), y, y + height, font_small_lineheight, star, edit->length,
+        utox_draw_text_multiline_compat(x + SCALE(4), x + width - SCALE(4) - (edit->multiline ? SCROLL_WIDTH : 0),
+                          yy + SCALE(top_offset * 2), y, y + height, font_small_lineheight, star, edit->length,
                           is_active ? edit_sel.start : UINT16_MAX, is_active ? edit_sel.length : UINT16_MAX,
                           is_active ? edit_sel.mark_start : 0, is_active ? edit_sel.mark_length : 0, edit->multiline);
     } else {
-        drawtextmultiline(x + UTOX_SCALE(2 ), x + width - UTOX_SCALE(2 ) - (edit->multiline ? SCROLL_WIDTH : 0),
-                          yy + UTOX_SCALE(top_offset), y, y + height, font_small_lineheight, edit->data, edit->length,
+        utox_draw_text_multiline_compat(x + SCALE(4), x + width - SCALE(4) - (edit->multiline ? SCROLL_WIDTH : 0),
+                          yy + SCALE(top_offset * 2), y, y + height, font_small_lineheight, edit->data, edit->length,
                           is_active ? edit_sel.start : UINT16_MAX, is_active ? edit_sel.length : UINT16_MAX,
                           is_active ? edit_sel.mark_start : 0, is_active ? edit_sel.mark_length : 0, edit->multiline);
     }

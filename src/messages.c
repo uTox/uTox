@@ -82,7 +82,7 @@ static int messages_draw_text(MESSAGE *m, int x, int y, int w, int h, uint16_t h
     }
 
     setfont(FONT_TEXT);
-    int ny = drawtextmultiline(x, w, y, MAIN_TOP, y + m->height, font_small_lineheight,
+    int ny = utox_draw_text_multiline_compat(x, w, y, MAIN_TOP, y + m->height, font_small_lineheight,
                                m->msg, m->length, h1, h2 - h1, 0, 0, 1);
 
     if(ny < y || (uint32_t)(ny - y) + MESSAGES_SPACING != m->height) {
@@ -321,13 +321,16 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height) {
     for (i = 0; i != n; i++) {
         MESSAGE *msg = *p++;
 
-        // Empty message
+        /* Decide if we should even bother drawing this message. */
         if (msg->height == 0) {
+            /* Empty message */
             return;
-        } else if (y + msg->height <= 0) { //! NOTE: should not be constant 0
+        } else if (y + msg->height <= MAIN_TOP) {
+            /* message is exclusively above the viewing window */
             y += msg->height;
             continue;
         } else if (y >= height + SCALE(100)) { //! NOTE: should not be constant 100
+            /* Message is exclusively below the viewing window */
             break;
         }
 
@@ -361,42 +364,42 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height) {
 
         // Draw message contents
         switch(msg->msg_type) {
-        case MSG_TYPE_TEXT:
-        case MSG_TYPE_ACTION_TEXT: {
-            // Normal message
-            uint16_t h1 = UINT16_MAX, h2 = UINT16_MAX;
-            if(i == m->data->istart) {
-                h1 = m->data->start;
-                h2 = ((i == m->data->iend) ? m->data->end : msg->length);
-            } else if(i == m->data->iend) {
-                h1 = 0;
-                h2 = m->data->end;
-            } else if(i > m->data->istart && i < m->data->iend) {
-                h1 = 0;
-                h2 = msg->length;
+            case MSG_TYPE_TEXT:
+            case MSG_TYPE_ACTION_TEXT: {
+                // Normal message
+                uint16_t h1 = UINT16_MAX, h2 = UINT16_MAX;
+                if(i == m->data->istart) {
+                    h1 = m->data->start;
+                    h2 = ((i == m->data->iend) ? m->data->end : msg->length);
+                } else if(i == m->data->iend) {
+                    h1 = 0;
+                    h2 = m->data->end;
+                } else if(i > m->data->istart && i < m->data->iend) {
+                    h1 = 0;
+                    h2 = msg->length;
+                }
+
+                if((m->data->istart == m->data->iend && m->data->start == m->data->end) || h1 == h2) {
+                    h1 = UINT16_MAX;
+                    h2 = UINT16_MAX;
+                }
+
+                y = messages_draw_text(msg, x + MESSAGES_X, y, x + width - TIME_WIDTH, height, h1, h2);
+                break;
             }
 
-            if((m->data->istart == m->data->iend && m->data->start == m->data->end) || h1 == h2) {
-                h1 = UINT16_MAX;
-                h2 = UINT16_MAX;
+            // Draw image
+            case MSG_TYPE_IMAGE: {
+                y += messages_draw_image((MSG_IMG*)msg, x + MESSAGES_X, y, width - MESSAGES_X - TIME_WIDTH);
+                break;
             }
 
-            y = messages_draw_text(msg, x + MESSAGES_X, y, x + width - TIME_WIDTH, height, h1, h2);
-            break;
-        }
-
-        // Draw image
-        case MSG_TYPE_IMAGE: {
-            y += messages_draw_image((MSG_IMG*)msg, x + MESSAGES_X, y, width - MESSAGES_X - TIME_WIDTH);
-            break;
-        }
-
-        // Draw file transfer
-        case MSG_TYPE_FILE: {
-            messages_draw_filetransfer(m, (MSG_FILE*)msg, i, x, y, width, height);
-            y += FILE_TRANSFER_BOX_HEIGHT;
-            break;
-        }
+            // Draw file transfer
+            case MSG_TYPE_FILE: {
+                messages_draw_filetransfer(m, (MSG_FILE*)msg, i, x, y, width, height);
+                y += FILE_TRANSFER_BOX_HEIGHT;
+                break;
+            }
         }
 
         y += MESSAGES_SPACING;
@@ -453,7 +456,7 @@ _Bool messages_mmove(MESSAGES *m, int UNUSED(px), int UNUSED(py), int width, int
                     m->urlover = UINT16_MAX;
                 }
 
-                if(my < 0 || my >= dy || mx < MESSAGES_X || m->over == msg->length) {
+                if (my < 0 || my >= dy || mx < MESSAGES_X || m->over == msg->length) {
                     break;
                 }
 
@@ -470,13 +473,13 @@ _Bool messages_mmove(MESSAGES *m, int UNUSED(px), int UNUSED(py), int width, int
 
                 char_t *end = msg->msg + msg->length;
                 while(str != end && *str != ' ' && *str != '\n') {
-                    if(( str == msg->msg || *(str - 1) == '\n' || *(str - 1) == ' ') &&
+                    if (( str == msg->msg || *(str - 1) == '\n' || *(str - 1) == ' ') &&
                        (m->urlover == UINT16_MAX && end - str >= 7 && strcmp2(str, "http://") == 0)) {
                         cursor = CURSOR_HAND;
                         m->urlover = str - msg->msg;
                     }
 
-                    if(( str == msg->msg || *(str - 1) == '\n' || *(str - 1) == ' ') &&
+                    if (( str == msg->msg || *(str - 1) == '\n' || *(str - 1) == ' ') &&
                        (m->urlover == UINT16_MAX && end - str >= 8 && strcmp2(str, "https://") == 0)) {
                         cursor = CURSOR_HAND;
                         m->urlover = str - msg->msg;
@@ -560,11 +563,11 @@ _Bool messages_mmove(MESSAGES *m, int UNUSED(px), int UNUSED(py), int width, int
                     0b111,
                 };
 
-                if(over && f[file->status * 2 + file->author] & (1 << (over - 1))) {
+                if (over && f[file->status * 2 + file->author] & (1 << (over - 1))) {
                     cursor = CURSOR_HAND;
                 }
 
-                if(over != m->over) {
+                if (over != m->over) {
                     need_redraw = 1;
                     m->over = over;
                 }
@@ -573,14 +576,14 @@ _Bool messages_mmove(MESSAGES *m, int UNUSED(px), int UNUSED(py), int width, int
             }
             }
 
-            if((i != m->iover) && (m->iover != MSG_IDX_MAX) && ((msg->msg_type == MSG_TYPE_FILE) ||
+            if ((i != m->iover) && (m->iover != MSG_IDX_MAX) && ((msg->msg_type == MSG_TYPE_FILE) ||
                (((MESSAGE*)(m->data->data[m->iover]))->msg_type == MSG_TYPE_FILE))) {
                 need_redraw = 1; // Redraw file on hover-in/out.
             }
 
             m->iover = i;
 
-            if(m->select) {
+            if (m->select) {
                 MSG_IDX istart, iend;
                 uint16_t start, end;
                 if(i > m->idown) {
@@ -796,11 +799,11 @@ _Bool messages_mright(MESSAGES *m)
     MESSAGE* msg = (MESSAGE*)m->data->data[m->iover];
 
     switch(msg->msg_type) {
-    case MSG_TYPE_TEXT:
-    case MSG_TYPE_ACTION_TEXT: {
-        contextmenu_new(countof(menu_copy), menu_copy, contextmenu_messages_onselect);
-        return 1;
-    }
+        case MSG_TYPE_TEXT:
+        case MSG_TYPE_ACTION_TEXT: {
+            contextmenu_new(countof(menu_copy), menu_copy, contextmenu_messages_onselect);
+            return 1;
+        }
     }
     return 0;
 }
