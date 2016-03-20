@@ -1063,7 +1063,7 @@ void ui_set_scale(uint8_t scale) {
 
         b_show_password_settings = {
             .type   = PANEL_BUTTON,
-            .x      = SCALE(130),
+            .x      = SCALE(145),
             .y      = SCALE(206),
             .width  = BM_SBUTTON_WIDTH,
             .height = BM_SBUTTON_HEIGHT,
