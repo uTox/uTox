@@ -388,8 +388,19 @@ static void write_save(Tox *tox) {
 
     /* Use atomic save! */
     memcpy(path_tmp, path_real, path_length);
-    snprintf((char*)path_tmp + (path_length), sizeof(path_tmp - path_length), ".tmp");
+    snprintf((char*)path_tmp + path_length, sizeof(path_tmp - path_length), ".tmp");
     debug("Writing tox_save to: '%s'\n", (char*)path_tmp);
+
+    if (access((const char*)path_tmp, F_OK ) != -1 ) {
+        debug("uToxSave:\t.tox.tmp exist, going to backup files\n");
+        /* Use atomic save! */
+        uint8_t path_bak[UTOX_FILE_NAME_LENGTH];
+        memcpy(path_bak, path_real, path_length);
+        snprintf((char*)path_bak + path_length, sizeof(path_bak - path_length), ".bak");
+        rename((char*)path_tmp, (char*)path_bak);  /* This will fail on windows if the .bak file exists
+                                                    * TODO decide what how µTox should handle this event?
+                                                    * Incrementing save numbers? */
+    }
 
     if (edit_profile_password.length == 0) {
         // user doesn't use encryption
@@ -412,17 +423,14 @@ static void write_save(Tox *tox) {
         remove((const char *)path_real);
         if (rename((char*)path_tmp, (char*)path_real) != 0) {
             debug("Saving Failed!!\n");
+            save_needed = 1;
+            return;
         } else {
             debug("Saved data!!\n");
         }
     } else {
-        debug("Saved data! Trying to chmod: ");
-        int ch = ch_mod(path_real);
-        if(!ch){
-            debug("success!\n");
-        } else {
-            debug("failed!\n");
-        }
+        /* Linux environment, try to enforce permissions */
+        ch_mod(path_real);
     }
 
     save_needed = 0;
