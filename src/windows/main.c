@@ -1631,8 +1631,8 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_SYSKEYDOWN: // called instead of WM_KEYDOWN when ALT is down or F10 is pressed
     case WM_KEYDOWN: {
         _Bool control = ((GetKeyState(VK_CONTROL) & 0x80) != 0);
-        _Bool shift = ((GetKeyState(VK_SHIFT) & 0x80) != 0);
-        // _Bool alt = ((GetKeyState(VK_MENU) & 0x80) != 0); /* Be careful not to clobber alt+num symbols */
+        _Bool shift   = ((GetKeyState(VK_SHIFT) & 0x80) != 0);
+        _Bool alt     = ((GetKeyState(VK_MENU) & 0x80) != 0); /* Be careful not to clobber alt+num symbols */
 
         if (wParam >= VK_NUMPAD0 && wParam <= VK_NUMPAD9) {
             // normalize keypad and non-keypad numbers
@@ -1656,7 +1656,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
             }
         }
 
-        if (control) {
+        if (control && !alt) {
             if (wParam >= '1' && wParam <= '9') {
                 list_selectchat(wParam - '1');
                 redraw();
