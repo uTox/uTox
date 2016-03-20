@@ -337,6 +337,7 @@ static void draw_settings_text_av(int x, int y, int w, int UNUSED(height)){
     setfont(FONT_SELF_NAME);
     drawstr(MAIN_LEFT + SCALE( 10), y + SCALE( 10),  RINGTONE);
     drawstr(MAIN_LEFT + SCALE(120), y + SCALE( 10),  PUSH_TO_TALK);
+    drawstr(MAIN_LEFT + SCALE(237), y + SCALE( 10),  BEEP_ON_MSG);
     #ifdef AUDIO_FILTERING
     drawstr(MAIN_LEFT + SCALE(240), y + SCALE( 10),  AUDIOFILTERING);
     #endif
@@ -789,6 +790,7 @@ panel_main = {
                 .child = (PANEL*[]) {
                     (void*)&button_callpreview,
                     (void*)&dropdown_push_to_talk,
+                    (void*)&dropdown_beep_on_msg,
                     (void*)&button_videopreview,
                     (void*)&dropdown_audio_in,
                     (void*)&dropdown_audio_out,
@@ -1120,6 +1122,14 @@ void ui_set_scale(uint8_t scale) {
             .width  = UTOX_SCALE(20 )
         },
 
+        d_beep_on_msg = {
+            .type   = PANEL_DROPDOWN,
+            .x      = UTOX_SCALE(119 ),
+            .y      = UTOX_SCALE(15 ),
+            .height = UTOX_SCALE(12 ),
+            .width  = UTOX_SCALE(20 )
+        },
+
         #ifdef AUDIO_FILTERING
         d_audio_filtering = {
             .type   = PANEL_DROPDOWN,
@@ -1262,6 +1272,7 @@ void ui_set_scale(uint8_t scale) {
         dropdown_logging.panel = d_logging;
         dropdown_audible_notification.panel = d_notifications;
         dropdown_push_to_talk.panel = d_push_to_talk;
+        dropdown_beep_on_msg.panel = d_beep_on_msg;
         dropdown_close_to_tray.panel = d_close_to_tray;
         dropdown_start_in_tray.panel = d_start_in_tray;
         dropdown_theme.panel = d_theme;
