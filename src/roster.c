@@ -35,7 +35,7 @@ static void drawitembox(ITEM *i, int y) {
     }
 }
 
-static void drawname(ITEM *i, int y, char_t *name, char_t *msg, STRING_IDX name_length, STRING_IDX msg_length, _Bool color_overide, uint32_t color) {
+static void drawname(ITEM *i, int y, char_t *name, char_t *msg, uint16_t name_length, uint16_t msg_length, _Bool color_overide, uint32_t color) {
     if (!color_overide) {
         color = (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT;
     }
@@ -173,7 +173,7 @@ static ITEM* newitem(void) {
 static ITEM* item_hit(int mx, int my, int height) {
     /* Mouse is outsite the list */
     if (mx < ROSTER_BOX_LEFT || mx >= SIDEBAR_WIDTH ||
-        my < 0               || my >= height + ROSTER_BOTTOM / 4 ) { /* TODO: Height is a bit buggy, Height needs /2
+        my < 0               || my >= showncount * ROSTER_BOX_HEIGHT) { /* TODO: Height is a bit buggy, Height needs /2
                                                                       * figure out why!  */
         mouse_in_list = 0;
         return NULL;

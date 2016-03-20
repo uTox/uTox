@@ -9,13 +9,13 @@ int slash_send_file(FRIEND *friend_handle, const uint8_t *filepath){
     return 1;
 }
 
-STRING_IDX utox_run_command(char_t *string, STRING_IDX string_length, char_t **cmd, char_t **argument, int trusted){
+uint16_t utox_run_command(char_t *string, uint16_t string_length, char_t **cmd, char_t **argument, int trusted){
     if(trusted == 0){
         return 0; /* We don't currently support commands from non-trusted sources, before you run commands from friends
                    * or elsewhere, you MUST implement error checking better than what exists */
     }
 
-    STRING_IDX cmd_length, argument_length;
+    uint16_t cmd_length, argument_length;
 
     if (string[0] == '/') { /* Cool it's a command we support! */
         // debug("command found!\n");

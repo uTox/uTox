@@ -9,7 +9,7 @@ typedef struct groupchat {
     volatile _Bool muted;
     ALuint audio_dest;
 
-    STRING_IDX name_length, topic_length, typed_length;
+    uint16_t name_length, topic_length, typed_length;
     char_t name[128], topic[128]; //static sizes for now
     char_t *typed;
     char_t *peername[MAX_GROUP_PEERS];

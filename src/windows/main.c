@@ -181,7 +181,7 @@ void draw_image(const UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, ui
     }
 }
 
-void drawtext(int x, int y, char_t *str, STRING_IDX length)
+void drawtext(int x, int y, char_t *str, uint16_t length)
 {
     wchar_t out[length];
     length = utf8tonative(str, out, length);
@@ -189,7 +189,7 @@ void drawtext(int x, int y, char_t *str, STRING_IDX length)
     TextOutW(hdc, x, y, out, length);
 }
 
-int drawtext_getwidth(int x, int y, char_t *str, STRING_IDX length)
+int drawtext_getwidth(int x, int y, char_t *str, uint16_t length)
 {
     wchar_t out[length];
     length = utf8tonative(str, out, length);
@@ -200,7 +200,7 @@ int drawtext_getwidth(int x, int y, char_t *str, STRING_IDX length)
     return size.cx;
 }
 
-void drawtextwidth(int x, int width, int y, char_t *str, STRING_IDX length)
+void drawtextwidth(int x, int width, int y, char_t *str, uint16_t length)
 {
     wchar_t out[length];
     length = utf8tonative(str, out, length);
@@ -209,7 +209,7 @@ void drawtextwidth(int x, int width, int y, char_t *str, STRING_IDX length)
     DrawTextW(hdc, out, length, &r, DT_SINGLELINE | DT_END_ELLIPSIS | DT_NOPREFIX);
 }
 
-void drawtextwidth_right(int x, int width, int y, char_t *str, STRING_IDX length)
+void drawtextwidth_right(int x, int width, int y, char_t *str, uint16_t length)
 {
     wchar_t out[length];
     length = utf8tonative(str, out, length);
@@ -218,7 +218,7 @@ void drawtextwidth_right(int x, int width, int y, char_t *str, STRING_IDX length
     DrawTextW(hdc, out, length, &r, DT_SINGLELINE | DT_END_ELLIPSIS | DT_NOPREFIX | DT_RIGHT);
 }
 
-void drawtextrange(int x, int x2, int y, char_t *str, STRING_IDX length)
+void drawtextrange(int x, int x2, int y, char_t *str, uint16_t length)
 {
     wchar_t out[length];
     length = utf8tonative(str, out, length);
@@ -227,7 +227,7 @@ void drawtextrange(int x, int x2, int y, char_t *str, STRING_IDX length)
     DrawTextW(hdc, out, length, &r, DT_SINGLELINE | DT_END_ELLIPSIS | DT_NOPREFIX);
 }
 
-void drawtextrangecut(int x, int x2, int y, char_t *str, STRING_IDX length)
+void drawtextrangecut(int x, int x2, int y, char_t *str, uint16_t length)
 {
     wchar_t out[length];
     length = utf8tonative(str, out, length);
@@ -236,7 +236,7 @@ void drawtextrangecut(int x, int x2, int y, char_t *str, STRING_IDX length)
     DrawTextW(hdc, out, length, &r, DT_SINGLELINE | DT_NOPREFIX);
 }
 
-int textwidth(char_t *str, STRING_IDX length)
+int textwidth(char_t *str, uint16_t length)
 {
     wchar_t out[length];
     length = utf8tonative(str, out, length);
@@ -246,7 +246,7 @@ int textwidth(char_t *str, STRING_IDX length)
     return size.cx;
 }
 
-int textfit(char_t *str, STRING_IDX len, int width)
+int textfit(char_t *str, uint16_t len, int width)
 {
     wchar_t out[len];
     int length = utf8tonative(str, out, len);
@@ -258,7 +258,7 @@ int textfit(char_t *str, STRING_IDX len, int width)
     return WideCharToMultiByte(CP_UTF8, 0, out, fit, (char*)str, len, NULL, 0);
 }
 
-int textfit_near(char_t *str, STRING_IDX len, int width)
+int textfit_near(char_t *str, uint16_t len, int width)
 {
     /*todo: near*/
     wchar_t out[len];
@@ -490,7 +490,7 @@ void savefiledata(MSG_FILE *file)
     }
 }
 
-void setselection(char_t *data, STRING_IDX length)
+void setselection(char_t *data, uint16_t length)
 {
 }
 
@@ -900,7 +900,7 @@ int file_unlock(FILE *file, uint64_t start, size_t length){
  * accepts: char_t *title, title length, char_t *msg, msg length;
  * returns void;
  */
-void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_length, FRIEND *f){
+void notify(char_t *title, uint16_t title_length, char_t *msg, uint16_t msg_length, FRIEND *f){
     if( havefocus || self.status == 2 ) {
         return;
     }

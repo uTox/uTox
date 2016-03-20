@@ -14,7 +14,7 @@ static char_t edit_name_data[128],
 static void edit_name_onenter(EDIT *edit)
 {
     char_t *data = edit->data;
-    STRING_IDX length = edit->length;
+    uint16_t length = edit->length;
 
     memcpy(self.name, data, length);
     self.name_length = length;
@@ -26,7 +26,7 @@ static void edit_name_onenter(EDIT *edit)
 static void edit_status_onenter(EDIT *edit)
 {
     char_t *data = edit->data;
-    STRING_IDX length = edit->length;
+    uint16_t length = edit->length;
 
     if(length) {
         void *p = realloc(self.statusmsg, length);
@@ -57,7 +57,7 @@ static void edit_friend_alias_onenter(EDIT *edit) {
 }
 
 static struct {
-    STRING_IDX start, end, cursorpos;
+    uint16_t start, end, cursorpos;
     uint32_t length, spacing;
     _Bool active;
     _Bool edited;
@@ -65,13 +65,13 @@ static struct {
 
 void edit_msg_onenter(EDIT *edit) {
     char_t *text = edit->data;
-    STRING_IDX length = edit->length;
+    uint16_t length = edit->length;
 
     if(length <= 0) {
         return;
     }
 
-    STRING_IDX command_length = 0;//, argument_length = 0;
+    uint16_t command_length = 0;//, argument_length = 0;
     char_t *command = NULL, *argument = NULL;
 
 
@@ -234,8 +234,8 @@ static uint8_t nick_completion_search(EDIT *edit, char_t *found_nick, int direct
 static void nick_completion_replace(EDIT *edit, char_t *nick, uint32_t size)
 {
     char_t *text = edit->data;
-    STRING_IDX length = edit->length;
-    STRING_IDX maxlength = edit->maxlength;
+    uint16_t length = edit->length;
+    uint16_t maxlength = edit->maxlength;
 
     int offset;
 
@@ -281,7 +281,7 @@ static void nick_completion_replace(EDIT *edit, char_t *nick, uint32_t size)
 static void edit_msg_ontab(EDIT *edit)
 {
     char_t *text = edit->data;
-    STRING_IDX length = edit->length;
+    uint16_t length = edit->length;
 
     if ((selected_item->item == ITEM_FRIEND) || (selected_item->item == ITEM_GROUP)) {
         char_t nick[130];
@@ -297,7 +297,7 @@ static void edit_msg_ontab(EDIT *edit)
                     || (length == 7 && !memcmp(text, "/alias ", 7))) {
                     FRIEND *f = selected_item->data;
                     char_t *last_name;
-                    STRING_IDX last_name_length;
+                    uint16_t last_name_length;
 
                     if (f->alias) {
                         last_name = f->alias;
@@ -413,7 +413,7 @@ static void edit_msg_onchange(EDIT *edit)
 static void edit_search_onchange(EDIT *edit)
 {
     char_t *data = edit->data;
-    STRING_IDX length = edit->length;
+    uint16_t length = edit->length;
 
     if(length) {
         button_add_new_contact.panel.disabled = 0;
@@ -437,7 +437,7 @@ static void edit_search_onchange(EDIT *edit)
 
 static void edit_search_onenter(EDIT *edit) {
     char_t *data = edit->data;
-    STRING_IDX length = edit->length;
+    uint16_t length = edit->length;
 
     if (length == 76) {
         friend_add(data, length, (char_t *)"", 0);

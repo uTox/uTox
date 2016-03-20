@@ -387,9 +387,9 @@ _Bool memcmp_case(const char_t *s1, const char_t *s2, uint32_t n)
     return 0;
 }
 
-char_t* tohtml(char_t *str, STRING_IDX length)
+char_t* tohtml(char_t *str, uint16_t length)
 {
-    STRING_IDX i = 0;
+    uint16_t i = 0;
     int len = 0;
     while(i != length) {
         switch(str[i]) {
@@ -428,7 +428,7 @@ char_t* tohtml(char_t *str, STRING_IDX length)
         }
 
         default: {
-            STRING_IDX r = utf8_len(str + i);
+            uint16_t r = utf8_len(str + i);
             memcpy(out + len, str + i, r);
             len += r;
             i += r;

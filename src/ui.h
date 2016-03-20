@@ -96,7 +96,7 @@ typedef struct {
   UI_STRING_ID i18nal;
 } MAYBE_I18NAL_STRING;
 
-void maybe_i18nal_string_set_plain(MAYBE_I18NAL_STRING*, char_t *str, STRING_IDX length);
+void maybe_i18nal_string_set_plain(MAYBE_I18NAL_STRING*, char_t *str, uint16_t length);
 void maybe_i18nal_string_set_i18nal(MAYBE_I18NAL_STRING*, UI_STRING_ID);
 STRING* maybe_i18nal_string_get(MAYBE_I18NAL_STRING*);
 _Bool maybe_i18nal_string_is_valid(MAYBE_I18NAL_STRING*);

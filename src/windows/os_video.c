@@ -23,7 +23,7 @@ static int utf8tonative(char_t *str, wchar_t *out, int length){
 }
 
 
-void video_begin(uint32_t id, char_t *name, STRING_IDX name_length, uint16_t width, uint16_t height) {
+void video_begin(uint32_t id, char_t *name, uint16_t name_length, uint16_t width, uint16_t height) {
     if(video_hwnd[id]) {
         return;
     }

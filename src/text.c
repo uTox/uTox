@@ -1,6 +1,6 @@
 #include "main.h"
 
-static void drawtexth(int x, int y, char_t *str, STRING_IDX length, int d, int h, int hlen, uint16_t lineheight)
+static void drawtexth(int x, int y, char_t *str, uint16_t length, int d, int h, int hlen, uint16_t lineheight)
 {
     // Draw cursor
     h -= d;
@@ -42,7 +42,7 @@ static void drawtexth(int x, int y, char_t *str, STRING_IDX length, int d, int h
     drawtext(x + width, y, str + h + hlen, length - (h + hlen));
 }
 
-static void drawtextmark(int x, int y, char_t *str, STRING_IDX length, int d, int h, int hlen, uint16_t lineheight)
+static void drawtextmark(int x, int y, char_t *str, uint16_t length, int d, int h, int hlen, uint16_t lineheight)
 {
     h -= d;
     if(h + hlen < 0 || h > length || hlen == 0) {
@@ -67,7 +67,14 @@ static void drawtextmark(int x, int y, char_t *str, STRING_IDX length, int d, in
     drawhline(x + width, y + lineheight - 1, x + width + w, COLOR_MAIN_TEXT);
 }
 
-int drawtextmultiline(int x, int right, int y, int top, int bottom, uint16_t lineheight, char_t *data, STRING_IDX length, STRING_IDX h, STRING_IDX hlen, STRING_IDX mark, STRING_IDX marklen, _Bool multiline)
+
+int utox_draw_text_multiline_within_box(int x, int y,
+                                        int right, int top, int bottom,
+                                        uint16_t lineheight,
+                                        char_t *data, uint16_t length,
+                                        uint16_t h, uint16_t hlen,
+                                        uint16_t mark, uint16_t marklen,
+                                        _Bool multiline )
 {
     uint32_t c1, c2;
     _Bool greentext = 0, link = 0, draw = y + lineheight >= top;
@@ -171,7 +178,15 @@ int drawtextmultiline(int x, int right, int y, int top, int bottom, uint16_t lin
     return y + lineheight;
 }
 
-STRING_IDX hittextmultiline(int mx, int right, int my, int height, uint16_t lineheight, char_t *str, STRING_IDX length, _Bool multiline)
+int utox_draw_text_multiline_compat(int x, int right, int y, int top, int bottom,
+                                    uint16_t lineheight, char_t *data, uint16_t length,
+                                    uint16_t h, uint16_t hlen, uint16_t mark, uint16_t marklen, _Bool multiline)
+{
+    return utox_draw_text_multiline_within_box(x, y, right, top, bottom, lineheight, data, length,
+                                                h, hlen, mark, marklen, multiline);
+}
+
+uint16_t hittextmultiline(int mx, int right, int my, int height, uint16_t lineheight, char_t *str, uint16_t length, _Bool multiline)
 {
     if(my < 0) {
         return 0;
@@ -251,7 +266,7 @@ STRING_IDX hittextmultiline(int mx, int right, int my, int height, uint16_t line
     return (b - str) + fit;
 }
 
-int text_height(int right, uint16_t lineheight, char_t *str, STRING_IDX length)
+int text_height(int right, uint16_t lineheight, char_t *str, uint16_t length)
 {
     int x = 0, y = 0;
     char_t *a = str, *b = a, *end = a + length;
@@ -299,7 +314,7 @@ int text_height(int right, uint16_t lineheight, char_t *str, STRING_IDX length)
     return y;
 }
 
-static void textxy(int width, STRING_IDX pp, uint16_t lineheight, char_t *str, STRING_IDX length, int *outx, int *outy)
+static void textxy(int width, uint16_t pp, uint16_t lineheight, char_t *str, uint16_t length, int *outx, int *outy)
 {
     int x = 0, y = 0;
     char_t *a = str, *b = str, *end = str + length, *p = str + pp;
@@ -352,7 +367,7 @@ static void textxy(int width, STRING_IDX pp, uint16_t lineheight, char_t *str, S
     *outy = y;
 }
 
-STRING_IDX text_lineup(int width, int height, STRING_IDX p, uint16_t lineheight, char_t *str, STRING_IDX length, SCROLLABLE *scroll)
+uint16_t text_lineup(int width, int height, uint16_t p, uint16_t lineheight, char_t *str, uint16_t length, SCROLLABLE *scroll)
 {
     //lazy
     int x, y;
@@ -377,7 +392,7 @@ STRING_IDX text_lineup(int width, int height, STRING_IDX p, uint16_t lineheight,
     return hittextmultiline(x, width, y, INT_MAX, lineheight, str, length, 1);
 }
 
-STRING_IDX text_linedown(int width, int height, STRING_IDX p, uint16_t lineheight, char_t *str, STRING_IDX length, SCROLLABLE *scroll)
+uint16_t text_linedown(int width, int height, uint16_t p, uint16_t lineheight, char_t *str, uint16_t length, SCROLLABLE *scroll)
 {
     //lazy
     int x, y;

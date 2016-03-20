@@ -78,7 +78,7 @@ _Bool memcmp_case(const char_t *s1, const char_t *s2, uint32_t n);
 
 /* replace html entities (<,>,&) with html
  */
-char_t* tohtml(char_t *str, STRING_IDX len);
+char_t* tohtml(char_t *str, uint16_t len);
 
 /* color format conversion functions
  *

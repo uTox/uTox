@@ -83,7 +83,7 @@ static struct __global_d_state {
 @end
 
 /* convert invalid utf8 to valid garbage */
-CFStringRef try_to_interpret_string(char_t *str, STRING_IDX length) {
+CFStringRef try_to_interpret_string(char_t *str, uint16_t length) {
     CFStringEncoding try_list[] = {kCFStringEncodingUTF8, kCFStringEncodingISOLatin1, 0};
     CFStringEncoding *c = try_list;
     CFStringRef string = NULL;
@@ -99,7 +99,7 @@ CFStringRef try_to_interpret_string(char_t *str, STRING_IDX length) {
     return string;
 }
 
-int drawtext_want_width(int x, int y, char_t *str, STRING_IDX length, BOOL wants_width) {
+int drawtext_want_width(int x, int y, char_t *str, uint16_t length, BOOL wants_width) {
     DRAW_TARGET_CHK()
 
     CGContextRef context = [NSGraphicsContext currentContext].graphicsPort;
@@ -135,15 +135,15 @@ int drawtext_want_width(int x, int y, char_t *str, STRING_IDX length, BOOL wants
     return wants_width? round(CTLineGetTypographicBounds(line, NULL, NULL, NULL) + CTLineGetTrailingWhitespaceWidth(line)) : 0;
 }
 
-void drawtext(int x, int y, char_t *str, STRING_IDX length) {
+void drawtext(int x, int y, char_t *str, uint16_t length) {
     drawtext_want_width(x, y, str, length, NO);
 }
 
-int drawtext_getwidth(int x, int y, char_t *str, STRING_IDX length) {
+int drawtext_getwidth(int x, int y, char_t *str, uint16_t length) {
     return drawtext_want_width(x, y, str, length, YES);
 }
 
-void drawtextwidth(int x, int width, int y, char_t *str, STRING_IDX length) {
+void drawtextwidth(int x, int width, int y, char_t *str, uint16_t length) {
     DRAW_TARGET_CHK()
 
     CGContextRef context = [NSGraphicsContext currentContext].graphicsPort;
@@ -190,7 +190,7 @@ void drawtextwidth(int x, int width, int y, char_t *str, STRING_IDX length) {
     CFRelease(ellipse);
 }
 
-void drawtextwidth_right(int x, int width, int y, char_t *str, STRING_IDX length) {
+void drawtextwidth_right(int x, int width, int y, char_t *str, uint16_t length) {
     DRAW_TARGET_CHK()
 
     CGContextRef context = [NSGraphicsContext currentContext].graphicsPort;
@@ -239,15 +239,15 @@ void drawtextwidth_right(int x, int width, int y, char_t *str, STRING_IDX length
     CFRelease(ellipse);
 }
 
-void drawtextrange(int x, int x2, int y, char_t *str, STRING_IDX length) {
+void drawtextrange(int x, int x2, int y, char_t *str, uint16_t length) {
     drawtextwidth(x, x2 - x, y, str, length);
 }
 
-void drawtextrangecut(int x, int x2, int y, char_t *str, STRING_IDX length) {
+void drawtextrangecut(int x, int x2, int y, char_t *str, uint16_t length) {
     drawtextwidth(x, x2 - x, y, str, length);
 }
 
-int textwidth(char_t *str, STRING_IDX length) {
+int textwidth(char_t *str, uint16_t length) {
     CFStringRef string = try_to_interpret_string(str, length);
     if (!string) {
         return 0;
@@ -275,7 +275,7 @@ int textwidth(char_t *str, STRING_IDX length) {
     return ret;
 }
 
-int textfit(char_t *str, STRING_IDX length, int width) {
+int textfit(char_t *str, uint16_t length, int width) {
     CFStringRef string = try_to_interpret_string(str, length);
     if (!string) {
         return 0;
@@ -310,7 +310,7 @@ int textfit(char_t *str, STRING_IDX length, int width) {
     return ret;
 }
 
-int textfit_near(char_t *str, STRING_IDX length, int width) {
+int textfit_near(char_t *str, uint16_t length, int width) {
     return textfit(str, length, width);
 }
 
