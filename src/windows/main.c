@@ -1707,14 +1707,11 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     }
 
     case WM_MOUSEWHEEL: {
-        /* Important  Do not use the LOWORD or HIWORD macros to extract the x- and y- coordinates of the cursor position
-         * because these macros return incorrect results on systems with multiple monitors. Systems with multiple
-         * monitors can have negative x- and y- coordinates, and LOWORD and HIWORD treat the coordinates as unsigned
-         * quantities.
-         *
-         * FIXME: if there is a way to determine whether deltas are precise on windows, do it
-         */
-        panel_mwheel(&panel_root, 0, 0, utox_window_width, utox_window_height, (double)((int16_t)HIWORD(wParam)) / (double)(WHEEL_DELTA), 1);
+        double delta = (double)GET_WHEEL_DELTA_WPARAM(wParam);
+        mx = GET_X_LPARAM(lParam);
+        my = GET_Y_LPARAM(lParam);
+
+        panel_mwheel(&panel_root, mx, my, utox_window_width, utox_window_height, delta / (double)(WHEEL_DELTA), 1);
         return 0;
     }
 
