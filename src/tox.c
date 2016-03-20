@@ -370,6 +370,7 @@ static void load_defaults(Tox *tox) {
 
 static void write_save(Tox *tox) {
     uint8_t path_tmp[UTOX_FILE_NAME_LENGTH], path_real[UTOX_FILE_NAME_LENGTH], *p;
+
     /* Get toxsave info from tox*/
     size_t clear_length = tox_get_savedata_size(tox);
     uint8_t data[clear_length];
@@ -381,12 +382,13 @@ static void write_save(Tox *tox) {
     tox_get_savedata(tox, data);
 
     /* Get save path! */
-    p = path_real + datapath(path_real);
-    memcpy(p, "tox_save.tox", sizeof("tox_save.tox"));
+    size_t path_length = datapath(path_real);
+    p = path_real + path_length;
+    path_length += snprintf((char*)p, sizeof(path_real) - path_length, "tox_save.tox");
+
     /* Use atomic save! */
-    size_t path_len = (p - path_real) + sizeof("tox_save.tox");
-    memcpy(path_tmp, path_real, path_len);
-    memcpy(path_tmp + (path_len - 1), ".tmp", sizeof(".tmp"));
+    memcpy(path_tmp, path_real, path_length);
+    snprintf((char*)path_tmp + (path_length), sizeof(path_tmp - path_length), ".tmp");
     debug("Writing tox_save to: '%s'\n", (char*)path_tmp);
 
     if (edit_profile_password.length == 0) {
