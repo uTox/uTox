@@ -66,13 +66,13 @@ static void draw_user_badge(int UNUSED(x), int UNUSED(y), int UNUSED(width), int
         /* Draw name */
         setcolor(!button_name.mouseover ? COLOR_MENU_TEXT : COLOR_MENU_SUBTEXT);
         setfont(FONT_SELF_NAME);
-        drawtextrange(SIDEBAR_NAME_LEFT, SIDEBAR_NAME_WIDTH, SIDEBAR_NAME_TOP, self.name, self.name_length);
+        drawtextrange(SIDEBAR_NAME_LEFT, SIDEBAR_NAME_WIDTH * 1.5, SIDEBAR_NAME_TOP, self.name, self.name_length);
 
         /*&Draw current status message
         @TODO: separate these colors if needed (COLOR_MAIN_HINTTEXT) */
         setcolor(!button_statusmsg.mouseover ? COLOR_MENU_SUBTEXT : COLOR_MAIN_HINTTEXT);
         setfont(FONT_STATUS);
-        drawtextrange(SIDEBAR_STATUSMSG_LEFT, SIDEBAR_STATUSMSG_WIDTH, SIDEBAR_STATUSMSG_TOP,
+        drawtextrange(SIDEBAR_STATUSMSG_LEFT, SIDEBAR_STATUSMSG_WIDTH * 1.5, SIDEBAR_STATUSMSG_TOP,
                       self.statusmsg, self.statusmsg_length);
 
         /* Draw status button icon */
@@ -346,6 +346,7 @@ static void draw_settings_text_av(int x, int y, int w, int UNUSED(height)){
     drawstr(MAIN_LEFT + SCALE( 10), y + SCALE(260), PREVIEW);
 }
 
+/* TODO make this fxn readable */
 static void draw_settings_sub_header(int x, int y, int w, int UNUSED(height)){
     setfont(FONT_SELF_NAME);
 
@@ -385,7 +386,7 @@ static void draw_settings_sub_header(int x, int y, int w, int UNUSED(height)){
         drawhline( x, y + 0, x_right_edge, COLOR_EDGE_ACTIVE);
         drawhline( x, y + 1, x_right_edge, COLOR_EDGE_ACTIVE);
     }
-    drawvline( x_right_edge, y + UTOX_SCALE(0 ), y + UTOX_SCALE(15  ), COLOR_EDGE_NORMAL);
+    drawvline( x_right_edge, y, y + UTOX_SCALE(15  ), COLOR_EDGE_NORMAL);
 
     /* Draw the text and bars for A/V settings */
     setcolor(!button_settings_sub_av.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_SUBTEXT);
@@ -862,16 +863,16 @@ void ui_set_scale(uint8_t scale) {
             .type   = PANEL_BUTTON,
             .x      = SIDEBAR_NAME_LEFT,
             .y      = SIDEBAR_NAME_TOP,
-            .width  = textwidth(self.name, self.name_length) - UTOX_SCALE(4 ),
-            .height = SIDEBAR_NAME_HEIGHT - UTOX_SCALE(1 ),
+            .width  = SIDEBAR_NAME_WIDTH,
+            .height = SIDEBAR_NAME_HEIGHT   - SCALE(2),
         },
 
         b_statusmsg = {
             .type   = PANEL_BUTTON,
             .x      = SIDEBAR_STATUSMSG_LEFT,
             .y      = SIDEBAR_STATUSMSG_TOP,
-            .width  = textwidth(self.statusmsg, self.statusmsg_length) - UTOX_SCALE(4 ),
-            .height = SIDEBAR_STATUSMSG_HEIGHT - UTOX_SCALE(1 ),
+            .width  = SELF_STATUS_ICON_LEFT    - SIDEBAR_STATUSMSG_LEFT - SCALE(2),
+            .height = SIDEBAR_STATUSMSG_HEIGHT - SCALE(2),
         },
 
         b_status_button = {
