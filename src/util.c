@@ -640,8 +640,8 @@ UTOX_SAVE* config_load(void)
     if(save || (save = file_text("utox_save"))) {
         if(save->version == SAVE_VERSION) {
             /* validate values */
-            if(save->scale > 40) {
-                save->scale = 40;
+            if(save->scale > 30) {
+                save->scale = 30;
             } else if (save->scale < 5) {
                 save->scale = 10;
             }
@@ -653,8 +653,8 @@ UTOX_SAVE* config_load(void)
             memcpy(save, save_v2, sizeof(UTOX_SAVE_V2));
             save->version = SAVE_VERSION;
 
-            if(save->scale > 40) {
-                save->scale = 40;
+            if(save->scale > 30) {
+                save->scale = 30;
             }
 
             strcpy((char*)save->proxy_ip, (char*)save_v2->proxy_ip);
