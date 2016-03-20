@@ -103,6 +103,7 @@ enum {
     STR_AUDIOOUTPUTDEVICE,
     STR_VIDEOINPUTDEVICE,
     STR_PUSH_TO_TALK,
+    STR_BEEP_ON_MSG,
 
     // Status info
     STR_STATUS,

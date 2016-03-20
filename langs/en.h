@@ -187,6 +187,9 @@ msgstr("Video Input Device")
 msgid(PUSH_TO_TALK)
 msgstr("Push To Talk")
 
+msgid(BEEP_ON_MSG)
+msgstr("Beep On Message")
+
 msgid(STATUS)
 msgstr("Status")
 
