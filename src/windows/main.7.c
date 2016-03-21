@@ -6,11 +6,6 @@
 
 #include "../main.h"
 
-static int native_to_utf8str(wchar_t *str_in, char *str_out, uint32_t max_size){
-        /* must be null terminated string          ↓                     */
-    return WideCharToMultiByte(CP_ACP, 0, str_in, -1, str_out, max_size, NULL, NULL);
-}
-
 void native_select_dir_ft(uint32_t fid, MSG_FILE *file)
 {
     char *path = malloc(UTOX_FILE_NAME_LENGTH);

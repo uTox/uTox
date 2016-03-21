@@ -36,6 +36,11 @@ static int utf8_to_nativestr(char_t *str, wchar_t *out, int length){
     return MultiByteToWideChar(CP_UTF8, 0, (char*)str, -1, out, length);
 }
 
+int native_to_utf8str(wchar_t *str_in, char *str_out, uint32_t max_size){
+        /* must be null terminated string          ↓                     */
+    return WideCharToMultiByte(CP_ACP, 0, str_in, -1, str_out, max_size, NULL, NULL);
+}
+
 void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data)
 {
     PostMessage(hwnd, WM_TOX + (msg), ((param1) << 16) | (param2), (LPARAM)data);

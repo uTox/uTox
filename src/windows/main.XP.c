@@ -22,7 +22,7 @@ void native_select_dir_ft(uint32_t fid, MSG_FILE *file) {
     }
 }
 
-void native_autoselect_dir_ft(uint32_t fid, FILE_ *file) {
+void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
     char *path[UTOX_FILE_NAME_LENGTH];
     if(!SHGetFolderPath(NULL, CSIDL_DESKTOP, NULL, 0, (char*)path)) {
         wchar_t first[UTOX_FILE_NAME_LENGTH];
