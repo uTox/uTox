@@ -1,9 +1,10 @@
 ## OPTIONS ##
 # set to anything else to disable them
-DBUS = 1
-V4LCONVERT = 1
-FILTER_AUDIO = 0
-UNITY = 0
+DBUS 			= 1
+V4LCONVERT 		= 1
+FILTER_AUDIO 	= 0
+UNITY 			= 0
+XP 				= 0
 
 DEPS = libtoxav libtoxcore openal vpx libsodium
 
@@ -54,6 +55,10 @@ ifeq ($(UNAME_S), Linux)
 	TRAY_GEN = $(LD) -r -b binary icons/utox-128x128.png -o
 else ifeq ($(UNAME_O), Cygwin)
 	OUT_FILE = utox.exe
+
+	ifeq ($(XP), 1)
+		CFLAGS += -D__WIN_LEGACY
+	endif
 
 	CFLAGS  += -static
 	LDFLAGS += /usr/x86_64-w64-mingw32/sys-root/mingw/lib/libwinpthread.a
