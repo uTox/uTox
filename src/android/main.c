@@ -139,7 +139,7 @@ void openurl(char_t *str){}
 void openfilesend(void){}
 void openfileavatar(void){}
 void native_select_dir_ft(uint32_t fid, MSG_FILE *file){}
-void native_autoselect_dir_ft(uint32_t fid, MSG_FILE *file){}
+void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file){}
 void savefiledata(MSG_FILE *file){}
 void setselection(char_t *data, uint16_t length){}
 void edit_will_deactivate(void){}
