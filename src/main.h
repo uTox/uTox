@@ -243,6 +243,7 @@ _Bool tox_connected;
 _Bool encrypted_profile;
 _Bool audio_preview, video_preview;
 
+_Bool utox_portable;
 
 //friends and groups
 //note: assumes array size will always be large enough

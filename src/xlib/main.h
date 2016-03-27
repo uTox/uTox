@@ -121,10 +121,6 @@ extern int utox_v4l_fd;
 /* dynamiclly load libgtk */
 void *libgtk;
 
-
-/* pointers to dynamically loaded libs */
-_Bool utox_portable;
-
 struct {
     int len;
     char data[65536]; //TODO: De-hardcode this value.
