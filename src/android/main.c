@@ -586,7 +586,7 @@ static void android_main(struct android_app* state){
     UTOX_SAVE *save = config_load();
     theme_load(THEME_DEFAULT);
 
-    thread(tox_thread, NULL);
+    thread(toxcore_thread, NULL);
 
     initfonts();
 
