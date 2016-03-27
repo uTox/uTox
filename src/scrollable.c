@@ -11,7 +11,7 @@ void scroll_draw(SCROLLABLE *s, int x, int y, int width, int height)
         scroll_width = SCROLL_WIDTH;
     }
 
-    if(h >= c) {
+    if (h >= c) {
         // If h(eight) > c(ontent height), don't draw anything.
         return;
     } else {
@@ -24,7 +24,7 @@ void scroll_draw(SCROLLABLE *s, int x, int y, int width, int height)
     x += s->x;
 
 
-    if(!s->left) {
+    if (!s->left) {
         x += width - scroll_width;
     }
 
@@ -32,7 +32,7 @@ void scroll_draw(SCROLLABLE *s, int x, int y, int width, int height)
 
     y += scroll_width / 2;
     int y2 = y + m - scroll_width;
-    if(scroll_width > m) {
+    if (scroll_width > m) {
         y2 = y;
     }
     drawrect(x, y, x + scroll_width, y2, s->color);
@@ -50,7 +50,8 @@ int scroll_gety(SCROLLABLE *s, int height) {
     return 0;
 }
 
-_Bool scroll_mmove(SCROLLABLE *s, int UNUSED(px), int UNUSED(py), int width, int height, int x, int y, int UNUSED(dx), int dy)
+_Bool scroll_mmove(SCROLLABLE *s, int UNUSED(px), int UNUSED(py), int width, int height,
+    int x, int y, int UNUSED(dx), int dy)
 {
     _Bool draw = 0;
 
@@ -63,24 +64,19 @@ _Bool scroll_mmove(SCROLLABLE *s, int UNUSED(px), int UNUSED(py), int width, int
 
     s->mouseover2 = inrect(x, y, 0, 0, width, height);
 
-    if(s->mousedown)
-    {
+    if (s->mousedown) {
         uint32_t c = s->content_height;
         uint32_t h = height;
 
-        if(c > h)
-        {
+        if (c > h) {
             uint32_t m = (h * h) / c;
             double d = (h - m);
 
             s->d = ((s->d * d) + (double)dy) / d;
 
-            if(s->d < 0.0)
-            {
+            if (s->d < 0.0) {
                 s->d = 0.0;
-            }
-            else if(s->d >= 1.0)
-            {
+            } else if(s->d >= 1.0) {
                 s->d = 1.0;
             }
 
@@ -109,16 +105,22 @@ _Bool scroll_mright(SCROLLABLE *UNUSED(s))
 
 _Bool scroll_mwheel(SCROLLABLE *s, int height, double delta, _Bool smooth)
 {
+
+    /* Variable which controls scroll speed. How much one scroll step
+     * moves viewport */
+    double scroll_speed_multip = 5.0;
+
     if(s->mouseover2)
     {
         uint32_t content_height = s->content_height;
         uint32_t port_height = height;
 
         if (content_height > port_height) {
+            /* Scrolling is relative to amount of total content in component */
             if (smooth) {
                 // this seems to be the magic equation that makes it scroll at the same speed
                 // regardless of how big the port is compared to the content.
-                s->d -= (delta * (32.0 * port_height / content_height) / content_height);
+                s->d -= (delta * (32.0 * port_height / content_height) / content_height) * scroll_speed_multip;
             } else {
                 uint32_t magic = (port_height * port_height) / content_height;
                 double fred = (port_height - magic);

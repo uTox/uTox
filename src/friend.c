@@ -1,5 +1,88 @@
 #include "main.h"
 
+/** Writes friend meta data filename for fid to dest. returns length written */
+static int friend_meta_data_path(uint8_t *dest, size_t size_dest, uint8_t *friend_key, uint32_t friend_num) {
+    if (size_dest < TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".fmetadata")){
+        return -1;
+    }
+
+    cid_to_string(dest, friend_key); dest += TOX_PUBLIC_KEY_SIZE * 2;
+    memcpy((char*)dest, ".fmetadata", sizeof(".fmetadata"));
+
+    return TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".fmetadata");
+}
+
+static void friend_meta_data_read(Tox *tox, int friend_id) {
+    /* Will need to be rewritten if anything is added to friend's meta data */
+    uint8_t path[UTOX_FILE_NAME_LENGTH], *p;
+    p = path + datapath(path);
+
+    uint8_t client_id[TOX_PUBLIC_KEY_SIZE];
+    tox_friend_get_public_key(tox, friend_id, client_id, 0);
+
+    int len = friend_meta_data_path(p, sizeof(path) - (p - path), client_id, friend_id);
+    if (len == -1) {
+        debug("Metadata:\tError getting meta data file name for friend %d\n", friend_id);
+        return;
+    }
+
+    uint32_t size;
+    void *file_data = file_raw((char*)path, &size);
+    if (!file_data) {
+        // debug("Meta Data not found (%s)\n", path);
+        return;
+    }
+    FRIEND_META_DATA *metadata = calloc(1, sizeof(*metadata) + size);  /* This is too much memory,     *
+                                                                        * but we are about to free it. */
+
+
+    memcpy(metadata, file_data, size);
+    /* Compatibility code for original version of meta_data... TODO: Remove in version >= 0.10 */
+    if (metadata->version >= 2) { /* Version 2 chosen because alias length (the original value at *
+                                   * metadata[0] should be > 2 (hopefully)                        */
+        if (size < sizeof(FRIEND_META_DATA_OLD)) {
+            debug("Metadata:\tMeta Data was incomplete\n");
+            return;
+        }
+
+        if (((FRIEND_META_DATA_OLD*)metadata)->alias_length) {
+            friend_set_alias(&friend[friend_id], file_data + sizeof(size_t),
+                                ((FRIEND_META_DATA_OLD*)metadata)->alias_length);
+        } else {
+            friend_set_alias(&friend[friend_id], NULL, 0);
+        }
+
+        debug("Metadata:\tConverting old metadata file to new!\n");
+        utox_write_metadata(&friend[friend_id]);
+
+        free(metadata);
+        free(file_data);
+        return;
+    } else if (metadata->version != 0) {
+        debug("Metadata:\tWARNING! This version of utox does not support this metadata file version.\n");
+        return;
+    }
+
+    if (size < sizeof(*metadata)) {
+        debug("Metadata:\tMeta Data was incomplete\n");
+        return;
+    }
+
+    if (metadata->alias_length) {
+        friend_set_alias(&friend[friend_id], &metadata->data[0], metadata->alias_length);
+    } else {
+        friend_set_alias(&friend[friend_id], NULL, 0); /* uTox expects this to be 0/NULL if there's no alias. */
+    }
+
+    friend[friend_id].ft_autoaccept         = metadata->ft_autoaccept;
+    dropdown_friend_autoaccept_ft.selected  = metadata->ft_autoaccept;
+    dropdown_friend_autoaccept_ft.over      = metadata->ft_autoaccept;
+
+    free(metadata);
+    free(file_data);
+    return;
+}
+
 void utox_friend_init(Tox *tox, uint32_t friend_number){
         int size;
         // get friend pointer
@@ -39,7 +122,7 @@ void utox_friend_init(Tox *tox, uint32_t friend_number){
         friend_meta_data_read(tox, friend_number);
 }
 
-void friend_setname(FRIEND *f, char_t *name, STRING_IDX length){
+void friend_setname(FRIEND *f, char_t *name, uint16_t length){
     if(f->name && (length != f->name_length || memcmp(f->name, name, length) != 0)) {
         MESSAGE *msg = malloc(sizeof(MESSAGE) + sizeof(" is now known as ") - 1 + f->name_length + length);
         msg->author = 0;
@@ -69,7 +152,7 @@ void friend_setname(FRIEND *f, char_t *name, STRING_IDX length){
     update_shown_list();
 }
 
-void friend_set_alias(FRIEND *f, char_t *alias, STRING_IDX length){
+void friend_set_alias(FRIEND *f, char_t *alias, uint16_t length){
     if (alias && length > 0) {
         debug("New Alias set for friend %s\n", f->name);
     } else {
@@ -80,18 +163,18 @@ void friend_set_alias(FRIEND *f, char_t *alias, STRING_IDX length){
     if(length == 0) {
         f->alias = NULL;
         f->alias_length = 0;
-        f->metadata.alias_length = 0;
     } else {
         f->alias = malloc(length + 1);
         memcpy(f->alias, alias, length);
         f->alias_length = length;
-        f->metadata.alias_length = length;
         f->alias[f->alias_length] = 0;
     }
     utox_write_metadata(f);
 }
 
-void friend_sendimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width, uint16_t height, UTOX_IMAGE png_image, size_t png_size) {
+void friend_sendimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width, uint16_t height,
+                      UTOX_IMAGE png_image, size_t png_size)
+{
     MSG_IMG *msg = malloc(sizeof(MSG_IMG));
     msg->author = 1;
     msg->msg_type = MSG_TYPE_IMAGE;
@@ -127,7 +210,7 @@ void friend_recvimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width
     message_add(&messages_friend, (void*)msg, &f->msg);
 }
 
-void friend_notify(FRIEND *f, char_t *str, STRING_IDX str_length, char_t *msg, STRING_IDX msg_length) {
+void friend_notify(FRIEND *f, char_t *str, uint16_t str_length, char_t *msg, uint16_t msg_length) {
     int len = f->name_length + str_length + 3;
 
     char_t title[len + 1], *p = title;
@@ -141,8 +224,7 @@ void friend_notify(FRIEND *f, char_t *str, STRING_IDX str_length, char_t *msg, S
     notify(title, len, msg, msg_length, f);
 }
 
-void friend_addmessage_notify(FRIEND *f, char_t *data, STRING_IDX length)
-{
+void friend_addmessage_notify(FRIEND *f, char_t *data, uint16_t length) {
     MESSAGE *msg = malloc(sizeof(MESSAGE) + length);
     msg->author = 0;
     msg->msg_type = MSG_TYPE_ACTION_TEXT;
@@ -199,7 +281,7 @@ void friend_set_typing(FRIEND *f, int typing) {
     f->typing = typing;
 }
 
-void friend_addid(uint8_t *id, char_t *msg, STRING_IDX msg_length)
+void friend_addid(uint8_t *id, char_t *msg, uint16_t msg_length)
 {
     void *data = malloc(TOX_FRIEND_ADDRESS_SIZE + msg_length * sizeof(char_t));
     memcpy(data, id, TOX_FRIEND_ADDRESS_SIZE);
@@ -208,7 +290,7 @@ void friend_addid(uint8_t *id, char_t *msg, STRING_IDX msg_length)
     postmessage_toxcore(TOX_FRIEND_NEW, msg_length, 0, data);
 }
 
-void friend_add(char_t *name, STRING_IDX length, char_t *msg, STRING_IDX msg_length)
+void friend_add(char_t *name, uint16_t length, char_t *msg, uint16_t msg_length)
 {
     if(!length) {
         addfriend_status = ADDF_NONAME;

@@ -104,6 +104,13 @@ static void utox_new_user_file(FILE_TRANSFER *file){
     postmessage(FILE_SEND_NEW, 0, 0, file_copy);
 }
 
+static void utox_new_contact_file(FILE_TRANSFER *file){
+    FILE_TRANSFER *file_copy = calloc(1, sizeof(FILE_TRANSFER));
+
+    memcpy(file_copy, file, sizeof(FILE_TRANSFER));
+    postmessage(FILE_INCOMING_NEW, 0, 0, file_copy);
+}
+
 /* Calculate the transfer speed for the UI. */
 static void calculate_speed(FILE_TRANSFER *file){
     if ((file->speed) > file->num_packets * 20 * 1371) {
@@ -632,7 +639,7 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
             file_handle->ui_data = message_add_type_file(file_handle);
             file_handle->resume = 0;
             /* Notify the user! */
-            utox_new_user_file(file_handle);
+            utox_new_contact_file(file_handle);
             file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_RESUME);
         } else {
             utox_build_file_transfer(file_handle, friend_number, file_number, file_size, 1, 0, 0,
@@ -641,7 +648,7 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
             file_handle->ui_data = message_add_type_file(file_handle);
             file_handle->resume = 0;
             /* Notify the user! */
-            utox_new_user_file(file_handle);
+            utox_new_contact_file(file_handle);
         }
         break; /*We shouldn't reach here, but just in case! */
     } /* last case */
@@ -944,19 +951,19 @@ static void outgoing_file_callback_chunk(Tox *tox, uint32_t friend_number, uint3
     calculate_speed(file_handle);
 }
 
-int utox_file_start_write(uint32_t friend_number, uint32_t file_number, void *filepath){
+int utox_file_start_write(uint32_t friend_number, uint32_t file_number, const char *filepath){
     FILE_TRANSFER *file_handle = get_file_transfer(friend_number, file_number);
-    file_handle->file = fopen(filepath, "wb");
+
+    file_handle->path = (uint8_t*)strdup(filepath);
+    file_handle->path_length = strlen(filepath);
+
+    file_handle->file = fopen((const char*)file_handle->path, "wb");
     if(!file_handle->file) {
-        debug("FileTransfer:\tThe file we're supposed to write to couldn't be opened\n");
-        free(filepath);
+        debug("FileTransfer:\tThe file we're supposed to write to couldn't be opened\n%s\n", file_handle->path);
         utox_break_file(file_handle);
         return -1;
     }
 
-    file_handle->path = (uint8_t*)strdup((const char*)filepath);
-    file_handle->path_length = strlen(filepath);
-    free(filepath);
             // Removed until we can find a better way of working this in;
             // if(file_handle->in_tmp_loc){
             //     fseeko(file_handle->tmp_file, 0, SEEK_SET);

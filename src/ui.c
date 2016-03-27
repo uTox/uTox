@@ -5,7 +5,7 @@ UI_LANG_ID LANG;
 
 /***** MAYBE_I18NAL_STRING helpers start *****/
 
-void maybe_i18nal_string_set_plain(MAYBE_I18NAL_STRING *mis, char_t *str, STRING_IDX length) {
+void maybe_i18nal_string_set_plain(MAYBE_I18NAL_STRING *mis, char_t *str, uint16_t length) {
     mis->plain.str = str;
     mis->plain.length = length;
     mis->i18nal = UI_STRING_ID_INVALID;
@@ -66,13 +66,13 @@ static void draw_user_badge(int UNUSED(x), int UNUSED(y), int UNUSED(width), int
         /* Draw name */
         setcolor(!button_name.mouseover ? COLOR_MENU_TEXT : COLOR_MENU_SUBTEXT);
         setfont(FONT_SELF_NAME);
-        drawtextrange(SIDEBAR_NAME_LEFT, SIDEBAR_NAME_WIDTH, SIDEBAR_NAME_TOP, self.name, self.name_length);
+        drawtextrange(SIDEBAR_NAME_LEFT, SIDEBAR_NAME_WIDTH * 1.5, SIDEBAR_NAME_TOP, self.name, self.name_length);
 
         /*&Draw current status message
         @TODO: separate these colors if needed (COLOR_MAIN_HINTTEXT) */
         setcolor(!button_statusmsg.mouseover ? COLOR_MENU_SUBTEXT : COLOR_MAIN_HINTTEXT);
         setfont(FONT_STATUS);
-        drawtextrange(SIDEBAR_STATUSMSG_LEFT, SIDEBAR_STATUSMSG_WIDTH, SIDEBAR_STATUSMSG_TOP,
+        drawtextrange(SIDEBAR_STATUSMSG_LEFT, SIDEBAR_STATUSMSG_WIDTH * 1.5, SIDEBAR_STATUSMSG_TOP,
                       self.statusmsg, self.statusmsg_length);
 
         /* Draw status button icon */
@@ -254,7 +254,7 @@ static void draw_add_friend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int hei
             str = SPTR(REQ_UNKNOWN); break;
         }
 
-        drawtextmultiline(MAIN_LEFT + UTOX_SCALE(5), utox_window_width - BM_SBUTTON_WIDTH - UTOX_SCALE(5 ), MAIN_TOP + UTOX_SCALE(83), 0, height, font_small_lineheight, str->str, str->length, 0xFFFF, 0, 0, 0, 1);
+        utox_draw_text_multiline_compat(MAIN_LEFT + UTOX_SCALE(5), utox_window_width - BM_SBUTTON_WIDTH - UTOX_SCALE(5 ), MAIN_TOP + UTOX_SCALE(83), 0, height, font_small_lineheight, str->str, str->length, 0xFFFF, 0, 0, 0, 1);
     }
 }
 
@@ -270,14 +270,21 @@ static void draw_profile_password(int UNUSED(x), int UNUSED(y), int UNUSED(w), i
 }
 
 /* Top bar for user settings */
-static void draw_settings_header(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height)){
+static void draw_settings_header(int UNUSED(x), int UNUSED(y), int w, int UNUSED(height)){
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(MAIN_LEFT + UTOX_SCALE(5), UTOX_SCALE(5), UTOX_SETTINGS);
+    drawstr(MAIN_LEFT + SCALE(10), SCALE(10), UTOX_SETTINGS);
     #ifdef GIT_VERSION
-        int x = MAIN_LEFT + UTOX_SCALE(5 ) + UTOX_STR_WIDTH(UTOX_SETTINGS) + UTOX_SCALE(5 );
+        int x = MAIN_LEFT + SCALE(10) + UTOX_STR_WIDTH(UTOX_SETTINGS) + SCALE(10);
         setfont(FONT_TEXT);
-        drawtext(x, UTOX_SCALE(5), (uint8_t*)GIT_VERSION, strlen(GIT_VERSION));
+        drawtext(x, SCALE(10), (uint8_t*)GIT_VERSION, strlen(GIT_VERSION));
+        char version_string[64];
+        int count;
+        count = snprintf(version_string, 64, "Core v%u.%u.%u ToxAV v%u.%u.%u ToxES v%u.%u.%u",
+                                    tox_version_major(),   tox_version_minor(),   tox_version_patch(),
+                                    toxav_version_major(), toxav_version_minor(), toxav_version_patch(),
+                                    toxes_version_major(), toxes_version_minor(), toxes_version_patch());
+        drawtextwidth_right(w, textwidth((char_t*)version_string, count), SCALE(10), (uint8_t*)version_string, strlen(version_string));
     #endif
 }
 
@@ -339,6 +346,7 @@ static void draw_settings_text_av(int x, int y, int w, int UNUSED(height)){
     drawstr(MAIN_LEFT + SCALE( 10), y + SCALE(260), PREVIEW);
 }
 
+/* TODO make this fxn readable */
 static void draw_settings_sub_header(int x, int y, int w, int UNUSED(height)){
     setfont(FONT_SELF_NAME);
 
@@ -378,7 +386,7 @@ static void draw_settings_sub_header(int x, int y, int w, int UNUSED(height)){
         drawhline( x, y + 0, x_right_edge, COLOR_EDGE_ACTIVE);
         drawhline( x, y + 1, x_right_edge, COLOR_EDGE_ACTIVE);
     }
-    drawvline( x_right_edge, y + UTOX_SCALE(0 ), y + UTOX_SCALE(15  ), COLOR_EDGE_NORMAL);
+    drawvline( x_right_edge, y, y + UTOX_SCALE(15  ), COLOR_EDGE_NORMAL);
 
     /* Draw the text and bars for A/V settings */
     setcolor(!button_settings_sub_av.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_SUBTEXT);
@@ -638,7 +646,7 @@ panel_main = {
                 .drawfunc = draw_friend_settings,
                 .child = (PANEL*[]) {
                     (void*)&edit_friend_alias,
-                    (void*)&dropdown_friend_autoaccept,
+                    (void*)&dropdown_friend_autoaccept_ft,
                     NULL
                 }
             },
@@ -855,16 +863,16 @@ void ui_set_scale(uint8_t scale) {
             .type   = PANEL_BUTTON,
             .x      = SIDEBAR_NAME_LEFT,
             .y      = SIDEBAR_NAME_TOP,
-            .width  = textwidth(self.name, self.name_length) - UTOX_SCALE(4 ),
-            .height = SIDEBAR_NAME_HEIGHT - UTOX_SCALE(1 ),
+            .width  = SIDEBAR_NAME_WIDTH,
+            .height = SIDEBAR_NAME_HEIGHT   - SCALE(2),
         },
 
         b_statusmsg = {
             .type   = PANEL_BUTTON,
             .x      = SIDEBAR_STATUSMSG_LEFT,
             .y      = SIDEBAR_STATUSMSG_TOP,
-            .width  = textwidth(self.statusmsg, self.statusmsg_length) - UTOX_SCALE(4 ),
-            .height = SIDEBAR_STATUSMSG_HEIGHT - UTOX_SCALE(1 ),
+            .width  = SELF_STATUS_ICON_LEFT    - SIDEBAR_STATUSMSG_LEFT - SCALE(2),
+            .height = SIDEBAR_STATUSMSG_HEIGHT - SCALE(2),
         },
 
         b_status_button = {
@@ -1259,7 +1267,7 @@ void ui_set_scale(uint8_t scale) {
         dropdown_start_in_tray.panel = d_start_in_tray;
         dropdown_theme.panel = d_theme;
         dropdown_auto_startup.panel = d_auto_startup;
-        dropdown_friend_autoaccept.panel = d_friend_autoaccept;
+        dropdown_friend_autoaccept_ft.panel = d_friend_autoaccept;
 
         #ifdef AUDIO_FILTERING
         dropdown_audio_filtering.panel = d_audio_filtering;

@@ -587,7 +587,7 @@ static inline void select_right_to_char(char_t c) {
     }
 
     edit_setselectedrange(replacementRange.location, replacementRange.length);
-    STRING_IDX insl = [aString lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
+    uint16_t insl = [aString lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
     edit_paste((char_t *)[aString UTF8String], insl, 0);
 
     [self unmarkText];
@@ -602,7 +602,7 @@ static inline void select_right_to_char(char_t c) {
 }
 
 - (NSRange)markedRange {
-    STRING_IDX loc, len;
+    uint16_t loc, len;
     BOOL valid = edit_getmark(&loc, &len);
     if (!valid) {
         return (NSRange){NSNotFound, 0};
@@ -625,7 +625,7 @@ static inline void select_right_to_char(char_t c) {
 
 - (void)setMarkedText:(id)aString selectedRange:(NSRange)selectedRange replacementRange:(NSRange)replacementRange {
     NSLog(@"%@", NSStringFromRange(replacementRange));
-    STRING_IDX loc, len;
+    uint16_t loc, len;
     BOOL valid;
     if ((valid = edit_getmark(&loc, &len)) && replacementRange.location != NSNotFound) {
         replacementRange.location += loc;
@@ -640,7 +640,7 @@ static inline void select_right_to_char(char_t c) {
     }
 
     edit_setselectedrange(replacementRange.location, replacementRange.length);
-    STRING_IDX insl = [aString lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
+    uint16_t insl = [aString lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
     if (!insl) {
         edit_char(KEY_DEL, YES, 0);
     } else {
@@ -704,7 +704,7 @@ static inline void select_right_to_char(char_t c) {
 // FIXME: asda
 static char_t clip_data[65536];
 
-void setselection(char_t *data, STRING_IDX length) {
+void setselection(char_t *data, uint16_t length) {
 }
 
 int getbuf(char_t *ptr, size_t len, int value) {
@@ -794,7 +794,7 @@ void edit_will_deactivate(void) {
 - (void)set_identityImageHasBorder:(BOOL)arg1;
 @end
 
-void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_length, FRIEND *f) {
+void notify(char_t *title, uint16_t title_length, char_t *msg, uint16_t msg_length, FRIEND *f) {
     if ([NSUserNotification class]) {
         NSUserNotification *usernotification = [[NSUserNotification alloc] init];
         NSString *t = [[NSString alloc] initWithBytes:title length:title_length encoding:NSUTF8StringEncoding];
@@ -845,7 +845,7 @@ void update_tray(void) {
 
 /* file utils */
 
-void savefilerecv(uint32_t fid, MSG_FILE *file) {
+void native_select_dir_ft(uint32_t fid, MSG_FILE *file) {
     NSSavePanel *picker = [NSSavePanel savePanel];
     NSString *fname = [[NSString alloc] initWithBytesNoCopy:file->name length:file->name_length encoding:NSUTF8StringEncoding freeWhenDone:NO];
     picker.message = [NSString stringWithFormat:NSSTRING_FROM_LOCALIZED(WHERE_TO_SAVE_FILE_PROMPT), file->name_length, file->name];
@@ -859,6 +859,17 @@ void savefilerecv(uint32_t fid, MSG_FILE *file) {
         postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->filenumber, strdup(destination.path.UTF8String));
     }
 }
+
+void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
+    NSString *downloads = [NSSearchPathForDirectoriesInDomains(NSDownloadsDirectory, NSUserDomainMask, YES) firstObject];
+    NSString *fname = [[NSString alloc] initWithBytesNoCopy:file->name length:file->name_length encoding:NSUTF8StringEncoding freeWhenDone:NO];
+
+    NSString *dest = [downloads stringByAppendingPathComponent:fname];
+    [fname release];
+
+    postmessage_toxcore(TOX_FILE_ACCEPT_AUTO, fid, file->file_number, strdup(dest.UTF8String));
+}
+
 //@"Where do you want to save \"%.*s\"?"
 void savefiledata(MSG_FILE *file) {
     NSSavePanel *picker = [NSSavePanel savePanel];

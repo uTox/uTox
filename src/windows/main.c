@@ -31,9 +31,14 @@ static int utf8tonative(char_t *str, wchar_t *out, int length){
     return MultiByteToWideChar(CP_UTF8, 0, (char*)str, length, out, length);
 }
 
-static int utf8str_to_native(char_t *str, wchar_t *out, int length){
+static int utf8_to_nativestr(char_t *str, wchar_t *out, int length){
     /* must be null terminated string                   ↓ */
     return MultiByteToWideChar(CP_UTF8, 0, (char*)str, -1, out, length);
+}
+
+int native_to_utf8str(wchar_t *str_in, char *str_out, uint32_t max_size){
+        /* must be null terminated string          ↓                     */
+    return WideCharToMultiByte(CP_ACP, 0, str_in, -1, str_out, max_size, NULL, NULL);
 }
 
 void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data)
@@ -181,7 +186,7 @@ void draw_image(const UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, ui
     }
 }
 
-void drawtext(int x, int y, char_t *str, STRING_IDX length)
+void drawtext(int x, int y, char_t *str, uint16_t length)
 {
     wchar_t out[length];
     length = utf8tonative(str, out, length);
@@ -189,7 +194,7 @@ void drawtext(int x, int y, char_t *str, STRING_IDX length)
     TextOutW(hdc, x, y, out, length);
 }
 
-int drawtext_getwidth(int x, int y, char_t *str, STRING_IDX length)
+int drawtext_getwidth(int x, int y, char_t *str, uint16_t length)
 {
     wchar_t out[length];
     length = utf8tonative(str, out, length);
@@ -200,7 +205,7 @@ int drawtext_getwidth(int x, int y, char_t *str, STRING_IDX length)
     return size.cx;
 }
 
-void drawtextwidth(int x, int width, int y, char_t *str, STRING_IDX length)
+void drawtextwidth(int x, int width, int y, char_t *str, uint16_t length)
 {
     wchar_t out[length];
     length = utf8tonative(str, out, length);
@@ -209,7 +214,7 @@ void drawtextwidth(int x, int width, int y, char_t *str, STRING_IDX length)
     DrawTextW(hdc, out, length, &r, DT_SINGLELINE | DT_END_ELLIPSIS | DT_NOPREFIX);
 }
 
-void drawtextwidth_right(int x, int width, int y, char_t *str, STRING_IDX length)
+void drawtextwidth_right(int x, int width, int y, char_t *str, uint16_t length)
 {
     wchar_t out[length];
     length = utf8tonative(str, out, length);
@@ -218,7 +223,7 @@ void drawtextwidth_right(int x, int width, int y, char_t *str, STRING_IDX length
     DrawTextW(hdc, out, length, &r, DT_SINGLELINE | DT_END_ELLIPSIS | DT_NOPREFIX | DT_RIGHT);
 }
 
-void drawtextrange(int x, int x2, int y, char_t *str, STRING_IDX length)
+void drawtextrange(int x, int x2, int y, char_t *str, uint16_t length)
 {
     wchar_t out[length];
     length = utf8tonative(str, out, length);
@@ -227,7 +232,7 @@ void drawtextrange(int x, int x2, int y, char_t *str, STRING_IDX length)
     DrawTextW(hdc, out, length, &r, DT_SINGLELINE | DT_END_ELLIPSIS | DT_NOPREFIX);
 }
 
-void drawtextrangecut(int x, int x2, int y, char_t *str, STRING_IDX length)
+void drawtextrangecut(int x, int x2, int y, char_t *str, uint16_t length)
 {
     wchar_t out[length];
     length = utf8tonative(str, out, length);
@@ -236,7 +241,7 @@ void drawtextrangecut(int x, int x2, int y, char_t *str, STRING_IDX length)
     DrawTextW(hdc, out, length, &r, DT_SINGLELINE | DT_NOPREFIX);
 }
 
-int textwidth(char_t *str, STRING_IDX length)
+int textwidth(char_t *str, uint16_t length)
 {
     wchar_t out[length];
     length = utf8tonative(str, out, length);
@@ -246,7 +251,7 @@ int textwidth(char_t *str, STRING_IDX length)
     return size.cx;
 }
 
-int textfit(char_t *str, STRING_IDX len, int width)
+int textfit(char_t *str, uint16_t len, int width)
 {
     wchar_t out[len];
     int length = utf8tonative(str, out, len);
@@ -258,7 +263,7 @@ int textfit(char_t *str, STRING_IDX len, int width)
     return WideCharToMultiByte(CP_UTF8, 0, out, fit, (char*)str, len, NULL, 0);
 }
 
-int textfit_near(char_t *str, STRING_IDX len, int width)
+int textfit_near(char_t *str, uint16_t len, int width)
 {
     /*todo: near*/
     wchar_t out[len];
@@ -457,26 +462,9 @@ void openfileavatar(void)
     SetCurrentDirectoryW(dir);
 }
 
-void savefilerecv(uint32_t fid, MSG_FILE *file)
-{
-    char *path = malloc(256);
-    memcpy(path, file->name, file->name_length);
-    path[file->name_length] = 0;
-
-    OPENFILENAME ofn = {
-        .lStructSize = sizeof(OPENFILENAME),
-        .hwndOwner = hwnd,
-        .lpstrFile = path,
-        .nMaxFile = UTOX_FILE_NAME_LENGTH,
-        .Flags = OFN_EXPLORER | OFN_NOCHANGEDIR | OFN_NOREADONLYRETURN | OFN_OVERWRITEPROMPT,
-    };
-
-    if(GetSaveFileName(&ofn)) {
-        postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->filenumber, path);
-    } else {
-        debug("GetSaveFileName() failed\n");
-    }
-}
+/** following two Moved to main.VERSION.c */
+// void native_select_dir_ft(uint32_t fid, MSG_FILE *file)
+// void native_autoselect_dir_ft(uint32_t fid, MSG_FILE *file)
 
 void savefiledata(MSG_FILE *file)
 {
@@ -507,7 +495,7 @@ void savefiledata(MSG_FILE *file)
     }
 }
 
-void setselection(char_t *data, STRING_IDX length)
+void setselection(char_t *data, uint16_t length)
 {
 }
 
@@ -917,7 +905,7 @@ int file_unlock(FILE *file, uint64_t start, size_t length){
  * accepts: char_t *title, title length, char_t *msg, msg length;
  * returns void;
  */
-void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_length, FRIEND *f){
+void notify(char_t *title, uint16_t title_length, char_t *msg, uint16_t msg_length, FRIEND *f){
     if( havefocus || self.status == 2 ) {
         return;
     }
@@ -968,7 +956,7 @@ void update_tray(void){
         .cbSize = sizeof(nid),
     };
 
-    utf8str_to_native((char_t *)tip, nid.szTip, tip_length);
+    utf8_to_nativestr((char_t *)tip, nid.szTip, tip_length);
 
     Shell_NotifyIconW(NIM_MODIFY, &nid);
 
@@ -1648,8 +1636,8 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_SYSKEYDOWN: // called instead of WM_KEYDOWN when ALT is down or F10 is pressed
     case WM_KEYDOWN: {
         _Bool control = ((GetKeyState(VK_CONTROL) & 0x80) != 0);
-        _Bool shift = ((GetKeyState(VK_SHIFT) & 0x80) != 0);
-        // _Bool alt = ((GetKeyState(VK_MENU) & 0x80) != 0); /* Be careful not to clobber alt+num symbols */
+        _Bool shift   = ((GetKeyState(VK_SHIFT) & 0x80) != 0);
+        _Bool alt     = ((GetKeyState(VK_MENU) & 0x80) != 0); /* Be careful not to clobber alt+num symbols */
 
         if (wParam >= VK_NUMPAD0 && wParam <= VK_NUMPAD9) {
             // normalize keypad and non-keypad numbers
@@ -1673,7 +1661,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
             }
         }
 
-        if (control) {
+        if (control && !alt) {
             if (wParam >= '1' && wParam <= '9') {
                 list_selectchat(wParam - '1');
                 redraw();
@@ -1724,14 +1712,11 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     }
 
     case WM_MOUSEWHEEL: {
-        /* Important  Do not use the LOWORD or HIWORD macros to extract the x- and y- coordinates of the cursor position
-         * because these macros return incorrect results on systems with multiple monitors. Systems with multiple
-         * monitors can have negative x- and y- coordinates, and LOWORD and HIWORD treat the coordinates as unsigned
-         * quantities.
-         *
-         * FIXME: if there is a way to determine whether deltas are precise on windows, do it
-         */
-        panel_mwheel(&panel_root, 0, 0, utox_window_width, utox_window_height, (double)((int16_t)HIWORD(wParam)) / (double)(WHEEL_DELTA), 1);
+        double delta = (double)GET_WHEEL_DELTA_WPARAM(wParam);
+        mx = GET_X_LPARAM(lParam);
+        my = GET_Y_LPARAM(lParam);
+
+        panel_mwheel(&panel_root, mx, my, utox_window_width, utox_window_height, delta / (double)(WHEEL_DELTA), 1);
         return 0;
     }
 

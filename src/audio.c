@@ -364,7 +364,7 @@ void utox_audio_thread(void *args){
     }
 
     if (ringtone) {
-        debug("uToxAudio:\tFirst ringtone is good, going to queue buffers\n");
+        // debug("uToxAudio:\tFirst ringtone is good, going to queue buffers\n");
         if (RingBuffer) {
             alSourcei(ringtone, AL_LOOPING, AL_TRUE);
             alSourcei(ringtone, AL_BUFFER,  RingBuffer);

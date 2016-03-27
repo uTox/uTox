@@ -43,7 +43,7 @@ void utox_video_append_device(void *device, _Bool localized, void *name, _Bool d
     if (localized) {
         // Device name is localized with name containing UI_STRING_ID.
         // device is device handle pointer.
-        list_dropdown_add_localized(&dropdown_video, name, device);
+        list_dropdown_add_localized(&dropdown_video, (UI_STRING_ID)name, device);
     } else {
         // Device name is a hardcoded string.
         // device is a pointer to a buffer, that contains device handle pointer,
@@ -125,7 +125,7 @@ void utox_video_thread(void *args) {
     ToxAV *av = args;
 
     // Add always-present null video input device.
-    utox_video_append_device(NULL, 1, STR_VIDEO_IN_NONE, 1);
+    utox_video_append_device(NULL, 1, (void*)STR_VIDEO_IN_NONE, 1);
 
     // select a video device (autodectect)
     video_device_current = native_video_detect();

@@ -7,7 +7,7 @@ XIC xic = NULL;
 void* gtk_load(void);
 void gtk_openfilesend(void);
 void gtk_openfileavatar(void);
-void gtk_savefilerecv(uint32_t fid, MSG_FILE *file);
+void gtk_native_select_dir_ft(uint32_t fid, MSG_FILE *file);
 void gtk_savefiledata(MSG_FILE *file);
 
 void setclipboard(void)
@@ -206,7 +206,7 @@ void drawalpha(int bm, int x, int y, int width, int height, uint32_t color)
     XRenderFreePicture(display, src);
 }
 
-static int _drawtext(int x, int xmax, int y, char_t *str, STRING_IDX length)
+static int _drawtext(int x, int xmax, int y, char_t *str, uint16_t length)
 {
     GLYPH *g;
     uint8_t len;
@@ -373,10 +373,10 @@ void openfileavatar(void)
     }
 }
 
-void savefilerecv(uint32_t fid, MSG_FILE *file)
+void native_select_dir_ft(uint32_t fid, MSG_FILE *file)
 {
     if(libgtk) {
-        gtk_savefilerecv(fid, file);
+        gtk_native_select_dir_ft(fid, file);
     } else {
         //fall back to working dir
         char *path = malloc(file->name_length + 1);
@@ -385,6 +385,14 @@ void savefilerecv(uint32_t fid, MSG_FILE *file)
 
         postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->filenumber, path);
     }
+}
+
+void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
+    /* TODO: maybe do something different here? */
+    char *path = malloc(file->name_length + 1);
+    memcpy(path, file->name, file->name_length);
+    path[file->name_length] = 0;
+    postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->file_number, path);
 }
 
 void savefiledata(MSG_FILE *file)
@@ -405,7 +413,7 @@ void savefiledata(MSG_FILE *file)
     }
 }
 
-void setselection(char_t *data, STRING_IDX length)
+void setselection(char_t *data, uint16_t length)
 {
     if(!length) {
         return;
@@ -456,6 +464,7 @@ void draw_tray_icon(void){
         /* Get tray window size */
         int32_t x_r, y_r;
         uint32_t border_r, depth_r;
+        XMoveResizeWindow(display, tray_window, x_r, y_r, 32, 32);
         XGetGeometry(display, tray_window, &root, &x_r, &y_r, &tray_width, &tray_height, &border_r, &depth_r);
         /* TODO use xcb instead of xlib here!
         xcb_get_geometry_cookie_t xcb_get_geometry (xcb_connection_t *connection,
@@ -573,7 +582,7 @@ void copy(int value)
 {
     int len;
     if(edit_active()) {
-        len = edit_copy(clipboard.data, sizeof(clipboard.data));
+        len = edit_copy((char_t*)clipboard.data, sizeof(clipboard.data));
     } else if(selected_item->item == ITEM_FRIEND) {
         len = messages_selection(&messages_friend, clipboard.data, sizeof(clipboard.data), value);
     } else {
@@ -937,7 +946,7 @@ int file_unlock(FILE *file, uint64_t start, size_t length){
     }
 }
 
-void notify(char_t *title, STRING_IDX title_length, char_t *msg, STRING_IDX msg_length, FRIEND *f) {
+void notify(char_t *title, uint16_t title_length, char_t *msg, uint16_t msg_length, FRIEND *f) {
     if(havefocus) {
         return;
     }

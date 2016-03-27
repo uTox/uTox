@@ -49,6 +49,9 @@ msgstr("Datei speichern")
 msgid(WHERE_TO_SAVE_FILE_PROMPT)
 msgstr("Wo soll \"%.*s\" gespeichert werden?")
 
+msgid(WHERE_TO_SAVE_FILE)
+msgstr("Wo soll die Datei gespeichert werden?")
+
 msgid(SEND_FILE_PROMPT)
 msgstr("Wähle eine oder mehrere Dateien zum Senden.")
 
@@ -137,7 +140,7 @@ msgid(OTHERSETTINGS)
 msgstr("Andere Einstellungen")
 
 msgid(UI)
-msgstr("Benutzeroberfläche") 
+msgstr("Benutzeroberfläche")
 
 msgid(USER_INTERFACE)
 msgstr("Oberfläche") // "Benutzeroberfläche" doesn't fit into tab header (Settings)

@@ -49,7 +49,7 @@ void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height
     free(new_data);
 }
 
-void video_begin(uint32_t id, char_t *name, STRING_IDX name_length, uint16_t width, uint16_t height) {
+void video_begin(uint32_t id, char_t *name, uint16_t name_length, uint16_t width, uint16_t height) {
     Window *win = &video_win[id];
     if(*win) {
         return;
@@ -105,7 +105,7 @@ uint16_t native_video_detect(void) {
     uint16_t device_count = 1; /* start at 1 for the desktop input */
 
     // Indicate that we support desktop capturing.
-    utox_video_append_device((void*)1, 1, STR_VIDEO_IN_DESKTOP, 0);
+    utox_video_append_device((void*)1, 1, (void*)STR_VIDEO_IN_DESKTOP, 0);
 
     int i;
     for(i = 0; i != 64; i++) { /* TODO: magic numbers are bad mm'kay? */

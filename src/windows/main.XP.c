@@ -2,6 +2,50 @@
 
 #include "../main.h"
 
+void native_select_dir_ft(uint32_t fid, MSG_FILE *file) {
+    char *path = malloc(UTOX_FILE_NAME_LENGTH);
+    memcpy(path, file->name, file->name_length);
+    path[file->name_length] = 0;
+
+    OPENFILENAME ofn = {
+        .lStructSize = sizeof(OPENFILENAME),
+        .hwndOwner = hwnd,
+        .lpstrFile = path,
+        .nMaxFile = UTOX_FILE_NAME_LENGTH,
+        .Flags = OFN_EXPLORER | OFN_NOCHANGEDIR | OFN_NOREADONLYRETURN | OFN_OVERWRITEPROMPT,
+    };
+
+    if(GetSaveFileName(&ofn)) {
+        postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->filenumber, path);
+    } else {
+        debug("GetSaveFileName() failed\n");
+    }
+}
+
+void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
+    char *path[UTOX_FILE_NAME_LENGTH];
+    if(!SHGetFolderPath(NULL, CSIDL_DESKTOP, NULL, 0, (char*)path)) {
+        wchar_t first[UTOX_FILE_NAME_LENGTH];
+        wchar_t second[UTOX_FILE_NAME_LENGTH];
+        wchar_t longname[UTOX_FILE_NAME_LENGTH];
+
+        swprintf(first, UTOX_FILE_NAME_LENGTH, L"%ls%ls", *path, L"\\Tox_Auto_Accept");
+        CreateDirectoryW(first, NULL);
+
+        MultiByteToWideChar(CP_UTF8, 0, (char*)file->name, file->name_length, longname, file->name_length);
+
+        swprintf(second, UTOX_FILE_NAME_LENGTH, L"%ls\\%ls", first, longname);
+
+        char *send = malloc(UTOX_FILE_NAME_LENGTH);
+        native_to_utf8str(second, send, UTOX_FILE_NAME_LENGTH);
+
+        postmessage_toxcore(TOX_FILE_ACCEPT_AUTO, fid, file->file_number, send);
+    } else {
+        debug("NATIVE:\tUnable to auto save file!\n");
+    }
+}
+
+
 void launch_at_startup(int is_launch_at_startup){
     HKEY hKey;
     const wchar_t* run_key_path = L"Software\\Microsoft\\Windows\\CurrentVersion\\Run";

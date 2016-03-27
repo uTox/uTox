@@ -66,6 +66,7 @@ extern const CLSID CLSID_NullRenderer;
 #include <process.h>
 
 #include <shlobj.h>
+#include <knownfolders.h>
 
 #include <io.h>
 #include <error.h>
@@ -138,3 +139,5 @@ enum
 // TODO move these into os_video.c
 int video_grab_x, video_grab_y, video_grab_w, video_grab_h;
 _Bool grabbing;
+
+int native_to_utf8str(wchar_t *str_in, char *str_out, uint32_t max_size);
