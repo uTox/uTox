@@ -314,9 +314,6 @@ void redraw(void);
 void update_tray(void);
 void force_redraw(void); // TODO: as parameter for redraw()?
 
-int datapath_old(uint8_t *dest);
-int datapath(uint8_t *dest);
-
 /* gets a subdirectory of tox's datapath and puts the full pathname in dest,
  * returns number of characters written */
 int datapath_subdir(uint8_t *dest, const char *subdir);
@@ -385,7 +382,6 @@ void popclip(void);
 void enddraw(int x, int y, int width, int height);
 
 /* OS interface replacements */
-int datapath_old(uint8_t *dest);
 int datapath(uint8_t *dest);
 int datapath_subdir(uint8_t *dest, const char *subdir);
 void flush_file(FILE *file);

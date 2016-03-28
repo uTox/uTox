@@ -138,10 +138,6 @@ void config_osdefaults(UTOX_SAVE *r) {
     r->window_height = DEFAULT_HEIGHT;
 }
 
-int datapath_old(uint8_t *dest) {
-    return 0;
-}
-
 void ensure_directory_r(char *path, int perm) {
     if ((strcmp(path, "/") == 0) || (strcmp(path, ".") == 0))
         return;

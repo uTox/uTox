@@ -632,9 +632,7 @@ UTOX_SAVE* config_load(void)
     save = file_text((char*)path);
 
     if (!save) {
-        p = path + datapath_old(path);
-        strcpy((char*)p, "utox_save");
-        save = file_text((char*)path);
+        debug("unable to load utox_save data\n");
     }
 
     if(save || (save = file_text("utox_save"))) {

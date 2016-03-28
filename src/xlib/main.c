@@ -827,11 +827,6 @@ void image_free(UTOX_NATIVE_IMAGE *image)
     free(image);
 }
 
-int datapath_old(uint8_t *dest)
-{
-    return 0;
-}
-
 int datapath(uint8_t *dest)
 {
     if (utox_portable) {

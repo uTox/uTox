@@ -96,19 +96,7 @@ void log_read(Tox *tox, int fid) {
     file = fopen((char*)path, "rb");
     if(!file) {
         debug("File not found (%s)\n", path);
-        p = path + datapath_old(path);
-
-        len = log_file_name(p, sizeof(path) - (p - path), tox, fid);
-        if (len == -1) {
-            debug("Error getting log file name for friend %d\n", fid);
-            return;
-        }
-
-        file = fopen((char*) path, "rb");
-        if (!file) {
-            debug("File not found (%s)\n", path);
-            return;
-        }
+        return;
     }
 
     LOG_FILE_MSG_HEADER header;
@@ -327,11 +315,6 @@ static size_t get_savefile_data(uint8_t **out_data){
         /* That didn't work, do we have a backup? */
         p = path + datapath(path);
         strcpy((char*)p, "tox_save.tmp");
-        data = file_raw((char*)path, &size);
-        if(data) break;
-        /* No backup huh? Is it in an old location we support? */
-        p = path + datapath_old(path);
-        strcpy((char*)p, "tox_save");
         data = file_raw((char*)path, &size);
         if(data) break;
         /* Well, lets try the current directory... */

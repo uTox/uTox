@@ -824,22 +824,6 @@ void image_free(UTOX_NATIVE_IMAGE *image)
     free(image);
 }
 
-int datapath_old(uint8_t *dest)
-{
-    if (utox_portable) {
-        return 0;
-    } else {
-        if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, (char*)dest))) {
-            uint8_t *p = dest + strlen((char*)dest);
-            strcpy((char *)p, "\\Tox"); p += 4;
-            *p++ = '\\';
-            return p - dest;
-        }
-    }
-
-    return 0;
-}
-
 int datapath(uint8_t *dest)
 {
     if (utox_portable) {
