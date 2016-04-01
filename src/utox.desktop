@@ -4,6 +4,7 @@ Type=Application
 Name=uTox
 Comment=A lightweight Tox client
 Comment[ru]=легковесный клиент Tox
+Comment[de]=Ein leichtgewichtiger Tox Client
 TryExec=utox
 Exec=utox
 Icon=utox
