@@ -78,6 +78,96 @@ void openurl(char_t *str)
     ShellExecute(NULL, "open", (char*)str, NULL, NULL, SW_SHOW);
 }
 
+/** Takes data from µTox and saves it, just how the OS likes it saved!
+ *
+ * Returns 1 on failure. Used to set save_needed in tox thread */
+static _Bool native_save_data(const uint8_t *name, size_t name_length, const uint8_t *data, size_t length){
+    uint8_t path[UTOX_FILE_NAME_LENGTH];
+    uint8_t atomic_path[UTOX_FILE_NAME_LENGTH];
+
+    if (utox_portable) {
+        strcpy((char *)path, utox_portable_save_path);
+    } else {
+        _Bool have_path = 0;
+        have_path = SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, (char*)path));
+
+        if (!have_path) {
+            have_path = SUCCEEDED(SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, (char*)path));
+        }
+
+        if (!have_path) {
+            strcpy((char *)path, utox_portable_save_path);
+            have_path = 1;
+        }
+    }
+    snprintf((char *)path + strlen((const char*)path), UTOX_FILE_NAME_LENGTH - strlen((const char*)path), "\\Tox\\");
+
+    if (CreateDirectory((char*)path, NULL) || GetLastError() == ERROR_ALREADY_EXISTS) {
+
+        if (strlen((const char*)path) + name_length >= UTOX_FILE_NAME_LENGTH - strlen(".atomic")){
+            debug("NATIVE:Save directory name too long\n");
+            return 0;
+        } else {
+            snprintf((char*)path + strlen((const char*)path), UTOX_FILE_NAME_LENGTH - strlen((const char*)path), "%s", name);
+            snprintf((char*)atomic_path, UTOX_FILE_NAME_LENGTH, "%s.atomic", path);
+        }
+
+        FILE *file = fopen((const char*)atomic_path, "wb");
+        if (file) {
+            fwrite(data, length, 1, file);
+            fclose(file);
+
+            if (!SUCCEEDED(MoveFileEx((const char*)atomic_path, (const char*)path, MOVEFILE_REPLACE_EXISTING))) {
+                if (remove((const char*)path)) {
+                    if (rename((const char*)atomic_path, (const char*)path)) {
+                        debug("NATIVE:\t%s deleted, but still unable to move file!\n", atomic_path);
+                        return 1;
+                    } else {
+                        return 0;
+                    }
+                }
+            }
+
+            return 0;
+        } else {
+            debug("NATIVE:\tUnable to open %s to write save\n", path);
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+_Bool native_save_data_tox(uint8_t *data, size_t length){
+    uint8_t name[] = "tox_save.tox";
+    return native_save_data(name, strlen((const char*)name), data, length);
+}
+
+int native_save_data_utox(){
+    return 0;
+}
+
+int native_save_data_log(){
+    return 0;
+
+}
+
+/** Takes data from µTox and loads it up! */
+
+
+int native_load_data_tox(){
+    return 0;
+}
+
+int native_load_data_utox(){
+    return 0;
+
+}
+
+int native_load_data_log(){
+    return 0;
+}
+
 /** Open system file browser dialog */
 void openfilesend(void)
 {

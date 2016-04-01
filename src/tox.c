@@ -352,71 +352,30 @@ static void load_defaults(Tox *tox) {
 }
 
 static void write_save(Tox *tox) {
-    uint8_t path_tmp[UTOX_FILE_NAME_LENGTH], path_real[UTOX_FILE_NAME_LENGTH], *p;
-
     /* Get toxsave info from tox*/
-    size_t clear_length = tox_get_savedata_size(tox);
-    uint8_t data[clear_length];
-
-    /* create encrypted data buffer */
+    size_t clear_length     = tox_get_savedata_size(tox);
     size_t encrypted_length = clear_length + TOX_PASS_ENCRYPTION_EXTRA_LENGTH;
+
+    uint8_t clear_data[clear_length];
     uint8_t encrypted_data[encrypted_length];
 
-    tox_get_savedata(tox, data);
-
-    /* Get save path! */
-    size_t path_length = datapath(path_real);
-    p = path_real + path_length;
-    path_length += snprintf((char*)p, sizeof(path_real) - path_length, "tox_save.tox");
-
-    /* Use atomic save! */
-    memcpy(path_tmp, path_real, path_length);
-    snprintf((char*)path_tmp + path_length, sizeof(path_tmp - path_length), ".tmp");
-    debug("Writing tox_save to: '%s'\n", (char*)path_tmp);
-
-    if (access((const char*)path_tmp, F_OK ) != -1 ) {
-        debug("uToxSave:\t.tox.tmp exist, going to backup files\n");
-        /* Use atomic save! */
-        uint8_t path_bak[UTOX_FILE_NAME_LENGTH];
-        memcpy(path_bak, path_real, path_length);
-        snprintf((char*)path_bak + path_length, sizeof(path_bak - path_length), ".bak");
-        rename((char*)path_tmp, (char*)path_bak);  /* This will fail on windows if the .bak file exists
-                                                    * TODO decide what how µTox should handle this event?
-                                                    * Incrementing save numbers? */
-    }
+    tox_get_savedata(tox, clear_data);
 
     if (edit_profile_password.length == 0) {
         // user doesn't use encryption
-        file_write_raw(path_tmp, data, clear_length);
+        save_needed = native_save_data_tox(clear_data, clear_length);
         debug("Unencrypted save data written\n");
     } else {
-        UTOX_ENC_ERR enc_err = utox_encrypt_data(data, clear_length, encrypted_data);
+        UTOX_ENC_ERR enc_err = utox_encrypt_data(clear_data, clear_length, encrypted_data);
         if (enc_err) {
             /* encryption failed, write clear text data */
-            file_write_raw(path_tmp, data, clear_length);
+            save_needed = native_save_data_tox(clear_data, clear_length);
             debug("\n\n\t\tWARNING UTOX WAS UNABLE TO ENCRYPT DATA!\n\t\tDATA WRITTEN IN CLEAR TEXT!\n\n");
         } else {
-            file_write_raw(path_tmp, encrypted_data, encrypted_length);
+            save_needed = native_save_data_tox(encrypted_data, encrypted_length);
             debug("Encrypted save data written\n");
         }
     }
-
-    if (rename((char*)path_tmp, (char*)path_real) != 0) {
-        debug("Simple rename failed, deleting and trying again: ");
-        remove((const char *)path_real);
-        if (rename((char*)path_tmp, (char*)path_real) != 0) {
-            debug("Saving Failed!!\n");
-            save_needed = 1;
-            return;
-        } else {
-            debug("Saved data!!\n");
-        }
-    } else {
-        /* Linux environment, try to enforce permissions */
-        ch_mod(path_real);
-    }
-
-    save_needed = 0;
 }
 
 void tox_settingschanged(void) {
