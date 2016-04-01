@@ -149,7 +149,7 @@ _Bool native_save_data_utox(uint8_t *data, size_t length){
     return native_save_data(name, strlen((const char*)name), data, length);
 }
 
-int native_save_data_log(){
+_Bool native_save_data_log(void){
     return 0;
 
 }
@@ -229,12 +229,12 @@ uint8_t *native_load_data_tox(size_t *size){
     return NULL;
 }
 
-UTOX_SAVE *native_load_data_utox(){
+UTOX_SAVE *native_load_data_utox(void){
     uint8_t name[] = "utox_save";
     return (UTOX_SAVE*)native_load_data(name, strlen((const char*)name), NULL);
 }
 
-int native_load_data_log(){
+uint8_t *native_load_data_log(size_t *size){
     return 0;
 }
 
