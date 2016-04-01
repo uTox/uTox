@@ -143,8 +143,9 @@ _Bool native_save_data_tox(uint8_t *data, size_t length){
     return native_save_data(name, strlen((const char*)name), data, length);
 }
 
-int native_save_data_utox(){
-    return 0;
+_Bool native_save_data_utox(uint8_t *data, size_t length){
+    uint8_t name[] = "utox_save";
+    return native_save_data(name, strlen((const char*)name), data, length);
 }
 
 int native_save_data_log(){
@@ -1241,7 +1242,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     };
     config_save(&d);
 
-    printf("uTox Clean Exit    ::\n");
+    printf("uTox:\tClean exit.\n");
 
     return 0;
 }
@@ -1285,7 +1286,6 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_QUIT:
     case WM_CLOSE:
     case WM_DESTROY: {
-        debug("quit msg\n");
         if(close_to_tray){
             debug("Closing to tray.\n");
             togglehide(0);

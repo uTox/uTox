@@ -364,7 +364,7 @@ static void write_save(Tox *tox) {
     if (edit_profile_password.length == 0) {
         // user doesn't use encryption
         save_needed = native_save_data_tox(clear_data, clear_length);
-        debug("Unencrypted save data written\n");
+        debug("Toxcore:\tUnencrypted save data written\n");
     } else {
         UTOX_ENC_ERR enc_err = utox_encrypt_data(clear_data, clear_length, encrypted_data);
         if (enc_err) {
@@ -373,7 +373,7 @@ static void write_save(Tox *tox) {
             debug("\n\n\t\tWARNING UTOX WAS UNABLE TO ENCRYPT DATA!\n\t\tDATA WRITTEN IN CLEAR TEXT!\n\n");
         } else {
             save_needed = native_save_data_tox(encrypted_data, encrypted_length);
-            debug("Encrypted save data written\n");
+            debug("Toxcore:\tEncrypted save data written\n");
         }
     }
 }
