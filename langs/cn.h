@@ -115,8 +115,8 @@ msgstr("忘记密码将无法找回。")
 msgid(ADDFRIENDS)
 msgstr("添加好友")
 
-msgid(TOXID)
-msgstr("Tox ID")
+//msgid(TOXID)
+//msgstr("Tox ID")
 
 msgid(MESSAGE)
 msgstr("消息")
@@ -244,11 +244,11 @@ msgstr("语言")
 msgid(NETWORK)
 msgstr("网络")
 
-msgid(IPV6)
-msgstr("IPv6:")
+//msgid(IPV6)
+//msgstr("IPv6:")
 
-msgid(UDP)
-msgstr("UDP:")
+//msgid(UDP)
+//msgstr("UDP:")
 
 msgid(PROXY)
 msgstr("代理 (SOCKS 5)")
@@ -478,8 +478,8 @@ msgstr("请接受这条好友请求。")
 msgid(CONTACT_SEARCH_ADD_HINT)
 msgstr("搜索/添加好友")
 
-msgid(PROXY_EDIT_HINT_IP)
-msgstr("IP")
+//msgid(PROXY_EDIT_HINT_IP)
+//msgstr("IP")
 
 msgid(PROXY_EDIT_HINT_PORT)
 msgstr("端口")
