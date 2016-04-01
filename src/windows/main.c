@@ -154,15 +154,58 @@ int native_save_data_log(){
 }
 
 /** Takes data from µTox and loads it up! */
+static uint8_t *native_load_data(const uint8_t *name, size_t name_length){
+    uint8_t path[UTOX_FILE_NAME_LENGTH];
+    uint8_t *data;
 
+    if (utox_portable) {
+        strcpy((char *)path, utox_portable_save_path);
+    } else {
+        _Bool have_path = 0;
+        have_path = SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, (char*)path));
+
+        if (!have_path) {
+            have_path = SUCCEEDED(SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, (char*)path));
+        }
+
+        if (!have_path) {
+            strcpy((char *)path, utox_portable_save_path);
+            have_path = 1;
+        }
+    }
+    snprintf((char *)path + strlen((const char*)path), UTOX_FILE_NAME_LENGTH - strlen((const char*)path), "\\Tox\\%s", name);
+
+    FILE *file = fopen((const char*)path, "rb");
+
+    fseek(file, 0, SEEK_END);
+    size_t size = ftell(file);
+    data = malloc(size);
+    if (!data) {
+        fclose(file);
+        return NULL;
+    } else {
+        fseek(file, 0, SEEK_SET);
+
+        if(fread(data, size, 1, file) != 1) {
+            debug("NATIVE:\tRead error on %s\n", path);
+            fclose(file);
+            free(data);
+            return NULL;
+        }
+
+    fclose(file);
+    }
+
+    return data;
+}
 
 int native_load_data_tox(){
     return 0;
 }
 
-int native_load_data_utox(){
-    return 0;
-
+UTOX_SAVE *native_load_data_utox(){
+    uint8_t name[] = "utox_save";
+    return (UTOX_SAVE*)native_load_data(name, strlen((const char*)name));
 }
 
 int native_load_data_log(){
@@ -1571,7 +1614,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
             break;
         }
 
-#define setstatus(x) if(self.status != x) { \
+            #define setstatus(x) if(self.status != x) { \
             postmessage_toxcore(TOX_SELF_SET_STATE, x, 0, NULL); self.status = x; redraw(); }
 
         case TRAY_STATUS_AVAILABLE: {

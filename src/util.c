@@ -621,15 +621,9 @@ typedef struct
     uint8_t proxy_ip[0];
 }UTOX_SAVE_V2;
 
-UTOX_SAVE* config_load(void)
-{
-    uint8_t path[UTOX_FILE_NAME_LENGTH], *p;
+UTOX_SAVE* config_load(void) {
     UTOX_SAVE *save;
-
-    p = path + datapath(path);
-    strcpy((char*)p, "utox_save");
-
-    save = file_text((char*)path);
+    save = native_load_data_utox();
 
     if (!save) {
         debug("unable to load utox_save data\n");
