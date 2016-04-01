@@ -118,6 +118,7 @@ static _Bool native_save_data(const uint8_t *name, size_t name_length, const uin
             fclose(file);
 
             if (!SUCCEEDED(MoveFileEx((const char*)atomic_path, (const char*)path, MOVEFILE_REPLACE_EXISTING))) {
+                /* Consider backing up this file instead of overwriting it. */
                 if (remove((const char*)path)) {
                     if (rename((const char*)atomic_path, (const char*)path)) {
                         debug("NATIVE:\t%s deleted, but still unable to move file!\n", atomic_path);
@@ -154,7 +155,7 @@ int native_save_data_log(){
 }
 
 /** Takes data from µTox and loads it up! */
-static uint8_t *native_load_data(const uint8_t *name, size_t name_length){
+static uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_size){
     uint8_t path[UTOX_FILE_NAME_LENGTH];
     uint8_t *data;
 
@@ -176,12 +177,19 @@ static uint8_t *native_load_data(const uint8_t *name, size_t name_length){
     snprintf((char *)path + strlen((const char*)path), UTOX_FILE_NAME_LENGTH - strlen((const char*)path), "\\Tox\\%s", name);
 
     FILE *file = fopen((const char*)path, "rb");
+    if (!file) {
+        //debug("NATIVE:\tUnable to open/read %s\n", path);
+        if (out_size) {*out_size = 0;}
+        return NULL;
+    }
+
 
     fseek(file, 0, SEEK_END);
     size_t size = ftell(file);
     data = malloc(size);
     if (!data) {
         fclose(file);
+        if (out_size) {*out_size = 0;}
         return NULL;
     } else {
         fseek(file, 0, SEEK_SET);
@@ -190,22 +198,40 @@ static uint8_t *native_load_data(const uint8_t *name, size_t name_length){
             debug("NATIVE:\tRead error on %s\n", path);
             fclose(file);
             free(data);
+            if (out_size) {*out_size = 0;}
             return NULL;
         }
 
     fclose(file);
     }
 
+    if (out_size) {*out_size = size;}
     return data;
 }
 
-int native_load_data_tox(){
-    return 0;
+uint8_t *native_load_data_tox(size_t *size){
+    uint8_t name[][20] = { "tox_save.tox",
+                           "tox_save.tox.atomic",
+                           "tox_save.tmp",
+                           "tox_save"
+    };
+
+    uint8_t *data;
+
+    for (int i = 0; i < 4; i++) {
+        data = native_load_data(name[i], strlen((const char*)name[i]), size);
+        if (data) {
+            return data;
+        } else {
+            debug("NATIVE:\tUnable to load %s\n", name[i]);
+        }
+    }
+    return NULL;
 }
 
 UTOX_SAVE *native_load_data_utox(){
     uint8_t name[] = "utox_save";
-    return (UTOX_SAVE*)native_load_data(name, strlen((const char*)name));
+    return (UTOX_SAVE*)native_load_data(name, strlen((const char*)name), NULL);
 }
 
 int native_load_data_log(){

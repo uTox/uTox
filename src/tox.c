@@ -298,34 +298,6 @@ static void set_callbacks(Tox *tox) {
     utox_set_callbacks_for_transfer(tox);
 }
 
-static size_t get_savefile_data(uint8_t **out_data){
-    uint8_t path[UTOX_FILE_NAME_LENGTH], *p, *data;
-    uint32_t size;
-
-    do{ /* Try the STS compliant save location */
-        p = path + datapath(path);
-        strcpy((char*)p, "tox_save.tox");
-        data = file_raw((char*)path, &size);
-        if(data) break; /* We have data, were done here! */
-        /* Try filename missing the .tox extension */
-        p = path + datapath(path);
-        strcpy((char*)p, "tox_save");
-        data = file_raw((char*)path, &size);
-        if(data) break;
-        /* That didn't work, do we have a backup? */
-        p = path + datapath(path);
-        strcpy((char*)p, "tox_save.tmp");
-        data = file_raw((char*)path, &size);
-        if(data) break;
-        /* Well, lets try the current directory... */
-        data = file_raw("tox_save", &size);
-        if(!data) return 0; /* F***it I give up! */
-    } while(0); /* Only once! */
-
-    *out_data = data;
-    return size;
-}
-
 static void tox_after_load(Tox *tox) {
     friends = tox_self_get_friend_list_size(tox);
 
@@ -392,6 +364,7 @@ void tox_settingschanged(void) {
     // send the reconfig message!
     postmessage_toxcore(0, 1, 0, NULL);
 
+    debug("Core:\tRestarting Toxcore");
     while(!tox_thread_init) {
         yieldcpu(1);
     }
@@ -431,8 +404,8 @@ static void utox_thread_work_for_typing_notifications(Tox *tox, uint64_t time) {
 
 static int load_toxcore_save(void){
     encrypted_profile = 0;
-    uint8_t *raw_data = NULL;
-    size_t raw_length = get_savefile_data(&raw_data);
+    size_t raw_length;
+    uint8_t *raw_data = native_load_data_tox(&raw_length);
     size_t cleartext_length = raw_length - TOX_PASS_ENCRYPTION_EXTRA_LENGTH;
     uint8_t *clear_data = malloc(cleartext_length);
 
