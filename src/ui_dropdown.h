@@ -13,6 +13,7 @@ extern DROPDOWN dropdown_dpi,
                 dropdown_auto_startup,
                 dropdown_typing_notes,
                 dropdown_push_to_talk,
+                dropdown_beep_on_msg,
                 dropdown_friend_autoaccept_ft;
 
 //List-based dropdowns. list_dropdown_* functions are applicable.
