@@ -105,26 +105,26 @@ static void draw_friend(int x, int y, int w, int height){
 
     // draw avatar or default image
     if (friend_has_avatar(f)) {
-        draw_avatar_image(f->avatar.image, MAIN_LEFT + UTOX_SCALE(5), UTOX_SCALE(5), f->avatar.width, f->avatar.height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
+        draw_avatar_image(f->avatar.image, MAIN_LEFT + SCALE(10), SCALE(10), f->avatar.width, f->avatar.height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
     } else {
-        drawalpha(BM_CONTACT, MAIN_LEFT + UTOX_SCALE(5), UTOX_SCALE(5), BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_MAIN_TEXT);
+        drawalpha(BM_CONTACT, MAIN_LEFT + SCALE(10), SCALE(10), BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_MAIN_TEXT);
     }
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_TITLE);
 
     if (f->alias) {
-        drawtextrange(MAIN_LEFT + UTOX_SCALE(30 ), utox_window_width - UTOX_SCALE(64 ), UTOX_SCALE(9 ), f->alias, f->alias_length);
+        drawtextrange(MAIN_LEFT + SCALE(60), utox_window_width - SCALE(128), SCALE(18), f->alias, f->alias_length);
     } else {
-        drawtextrange(MAIN_LEFT + UTOX_SCALE(30 ), utox_window_width - UTOX_SCALE(64 ), UTOX_SCALE(9 ), f->name, f->name_length);
+        drawtextrange(MAIN_LEFT + SCALE(60), utox_window_width - SCALE(128), SCALE(18), f->name, f->name_length);
     }
 
     setcolor(COLOR_MAIN_SUBTEXT);
     setfont(FONT_STATUS);
-    drawtextrange(MAIN_LEFT + UTOX_SCALE(30 ), utox_window_width - UTOX_SCALE(64 ), UTOX_SCALE(16 ), f->status_message, f->status_length);
+    drawtextrange(MAIN_LEFT + SCALE(60), utox_window_width - SCALE(128), SCALE(32), f->status_message, f->status_length);
 
     if (f->typing) {
-        int typing_y = ((y + height) + CHAT_BOX_TOP - UTOX_SCALE(7 ));
+        int typing_y = ((y + height) + CHAT_BOX_TOP - SCALE(14));
         setfont(FONT_MISC);
         // @TODO: separate these colors if needed
         setcolor(COLOR_MAIN_HINTTEXT);
@@ -136,18 +136,18 @@ static void draw_friend(int x, int y, int w, int height){
 static void draw_group(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height)){
     GROUPCHAT *g = selected_item->data;
 
-    drawalpha(BM_GROUP, MAIN_LEFT + UTOX_SCALE(5), UTOX_SCALE(5), BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_MAIN_TEXT);
+    drawalpha(BM_GROUP, MAIN_LEFT + SCALE(10), SCALE(10), BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_MAIN_TEXT);
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_TITLE);
-    drawtextrange(MAIN_LEFT + UTOX_SCALE(30 ), utox_window_width - UTOX_SCALE(32 ), UTOX_SCALE(1 ), g->name, g->name_length);
+    drawtextrange(MAIN_LEFT + SCALE(60), utox_window_width - SCALE(64), SCALE( 2), g->name, g->name_length);
 
     setcolor(COLOR_MAIN_SUBTEXT);
     setfont(FONT_STATUS);
-    drawtextrange(MAIN_LEFT + UTOX_SCALE(30 ), utox_window_width - UTOX_SCALE(32 ), UTOX_SCALE(8 ), g->topic, g->topic_length);
+    drawtextrange(MAIN_LEFT + SCALE(60), utox_window_width - SCALE(64), SCALE(16), g->topic, g->topic_length);
 
     uint32_t i = 0;
-    int k = MAIN_LEFT + UTOX_SCALE(30 );
+    int k = MAIN_LEFT + SCALE(60);
 
     uint64_t time = get_time();
 
@@ -168,17 +168,17 @@ static void draw_group(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(h
                 setcolor(COLOR_GROUP_PEER);
             }
 
-            if (k + w >= (utox_window_width - UTOX_SCALE(32 ))) {
+            if (k + w >= (utox_window_width - SCALE(64))) {
                 if (pos_y == 15) {
                     pos_y += 6;
-                    k = MAIN_LEFT + UTOX_SCALE(30 );
+                    k = MAIN_LEFT + SCALE(60);
                 } else {
-                    drawtext(k, UTOX_SCALE(pos_y), (uint8_t*)"...", 3);
+                    drawtext(k, SCALE(pos_y * 2), (uint8_t*)"...", 3);
                     break;
                 }
             }
 
-            drawtext(k, UTOX_SCALE(pos_y), buf, name[0] + 2);
+            drawtext(k, SCALE(pos_y * 2), buf, name[0] + 2);
 
             k += w;
         }
@@ -192,32 +192,32 @@ static void draw_friend_request(int UNUSED(x), int UNUSED(y), int UNUSED(w), int
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(MAIN_LEFT + UTOX_SCALE(5), UTOX_SCALE(10), FRIENDREQUEST);
+    drawstr(MAIN_LEFT + SCALE(10), SCALE(20), FRIENDREQUEST);
 
     setcolor(COLOR_MAIN_SUBTEXT);
     setfont(FONT_STATUS);
-    drawtextrange(MAIN_LEFT + UTOX_SCALE(5 ), utox_window_width, UTOX_SCALE(20 ), req->msg, req->length);
+    drawtextrange(MAIN_LEFT + SCALE(10), utox_window_width, SCALE(40), req->msg, req->length);
 }
 
 /* Draw add a friend window */
 static void draw_add_friend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int height){
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(MAIN_LEFT + UTOX_SCALE(5), UTOX_SCALE(10), ADDFRIENDS);
+    drawstr(MAIN_LEFT + SCALE(10), SCALE(20), ADDFRIENDS);
 
     setcolor(COLOR_MAIN_SUBTEXT);
     setfont(FONT_TEXT);
-    drawstr(MAIN_LEFT + UTOX_SCALE(5), MAIN_TOP + UTOX_SCALE(5), TOXID);
+    drawstr(MAIN_LEFT + SCALE(10), MAIN_TOP + SCALE(10), TOXID);
 
 
 
-    drawstr(MAIN_LEFT + UTOX_SCALE(5), MAIN_TOP + UTOX_SCALE(29), MESSAGE);
+    drawstr(MAIN_LEFT + SCALE(10), MAIN_TOP + SCALE(58), MESSAGE);
 
     if (options.proxy_type && !options.udp_enabled) {
         int push = UTOX_STR_WIDTH(TOXID);
         setfont(FONT_MISC);
         setcolor(C_RED);
-        drawstr(MAIN_LEFT + UTOX_SCALE(10) + push, MAIN_TOP + UTOX_SCALE(6), DNS_DISABLED);
+        drawstr(MAIN_LEFT + SCALE(20) + push, MAIN_TOP + SCALE(12), DNS_DISABLED);
     }
 
     if (addfriend_status) {
@@ -254,7 +254,7 @@ static void draw_add_friend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int hei
             str = SPTR(REQ_UNKNOWN); break;
         }
 
-        utox_draw_text_multiline_compat(MAIN_LEFT + UTOX_SCALE(5), utox_window_width - BM_SBUTTON_WIDTH - UTOX_SCALE(5 ), MAIN_TOP + UTOX_SCALE(83), 0, height, font_small_lineheight, str->str, str->length, 0xFFFF, 0, 0, 0, 1);
+        utox_draw_text_multiline_compat(MAIN_LEFT + SCALE(10), utox_window_width - BM_SBUTTON_WIDTH - SCALE(10), MAIN_TOP + SCALE(166), 0, height, font_small_lineheight, str->str, str->length, 0xFFFF, 0, 0, 0, 1);
     }
 }
 
@@ -262,11 +262,11 @@ static void draw_add_friend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int hei
 static void draw_profile_password(int UNUSED(x), int UNUSED(y), int UNUSED(w), int height){
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(MAIN_LEFT + UTOX_SCALE(5), UTOX_SCALE(10), PROFILE_PASSWORD);
+    drawstr(MAIN_LEFT + SCALE(10), SCALE(20), PROFILE_PASSWORD);
 
     setcolor(COLOR_MAIN_SUBTEXT);
     setfont(FONT_TEXT);
-    drawstr(MAIN_LEFT + UTOX_SCALE(5), MAIN_TOP + UTOX_SCALE(5), PROFILE_PASSWORD);
+    drawstr(MAIN_LEFT + SCALE(10), MAIN_TOP + SCALE(10), PROFILE_PASSWORD);
 }
 
 /* Top bar for user settings */
@@ -303,8 +303,8 @@ static void draw_settings_text_profile(int x, int y, int w, int h){
 static void draw_settings_text_password(int x, int y, int w, int h) {
     setfont(FONT_MISC);
     setcolor(C_RED);
-    drawstr(MAIN_LEFT + UTOX_SCALE(40), y + UTOX_SCALE(128), PROFILE_PW_WARNING);
-    drawstr(MAIN_LEFT + UTOX_SCALE(40), y + UTOX_SCALE(135), PROFILE_PW_NO_RECOVER);
+    drawstr(MAIN_LEFT + SCALE(80), y + SCALE(256), PROFILE_PW_WARNING);
+    drawstr(MAIN_LEFT + SCALE(80), y + SCALE(270), PROFILE_PW_NO_RECOVER);
 }
 
 static void draw_settings_text_network(int x, int y, int w, int UNUSED(height)){
@@ -314,10 +314,10 @@ static void draw_settings_text_network(int x, int y, int w, int UNUSED(height)){
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(MAIN_LEFT  + SCALE(10), y + UTOX_SCALE(15 ), IPV6);
-    drawstr(MAIN_LEFT  + UTOX_SCALE(55  ), y + UTOX_SCALE(15 ), UDP);
-    drawstr(MAIN_LEFT  + SCALE(10), y + UTOX_SCALE(30 ), PROXY);
-    drawtext(MAIN_LEFT + UTOX_SCALE(132 ), y + UTOX_SCALE(42 ), (uint8_t*)":", 1);
+    drawstr(MAIN_LEFT  + SCALE( 10), y + SCALE(30), IPV6);
+    drawstr(MAIN_LEFT  + SCALE(110), y + SCALE(30), UDP);
+    drawstr(MAIN_LEFT  + SCALE( 10), y + SCALE(60), PROXY);
+    drawtext(MAIN_LEFT + SCALE(264), y + SCALE(84), (uint8_t*)":", 1);
 }
 
 static void draw_settings_text_ui(int x, int y, int w, int UNUSED(height)){
@@ -327,7 +327,8 @@ static void draw_settings_text_ui(int x, int y, int w, int UNUSED(height)){
     drawstr(MAIN_LEFT + SCALE( 10), y + SCALE( 10), THEME);
     drawstr(MAIN_LEFT + SCALE( 10), y + SCALE( 60), LOGGING);
     drawstr(MAIN_LEFT + SCALE( 10), y + SCALE(110), CLOSE_TO_TRAY);
-    drawstr(MAIN_LEFT + SCALE(150), y + SCALE(110), START_IN_TRAY);
+    drawstr(MAIN_LEFT + SCALE( 10) + UTOX_STR_WIDTH(CLOSE_TO_TRAY) + SCALE(10),
+        y + SCALE(110), START_IN_TRAY);
     drawstr(MAIN_LEFT + SCALE( 10), y + SCALE(160), AUTO_STARTUP);
     drawstr(MAIN_LEFT + SCALE( 10), y + SCALE(210), SEND_TYPING_NOTIFICATIONS);
 }
@@ -335,16 +336,21 @@ static void draw_settings_text_ui(int x, int y, int w, int UNUSED(height)){
 static void draw_settings_text_av(int x, int y, int w, int UNUSED(height)){
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(MAIN_LEFT + SCALE( 10), y + SCALE( 10),  RINGTONE);
-    drawstr(MAIN_LEFT + SCALE(120), y + SCALE( 10),  PUSH_TO_TALK);
-    drawstr(MAIN_LEFT + SCALE(237), y + SCALE( 10),  BEEP_ON_MSG);
+    x = MAIN_LEFT + SCALE(10); /* x = x + MAIN_LEFT + SCALE(10) */
+    drawstr(x, y + SCALE(10),  RINGTONE);
+    int WHITESPACE_BW_OPT_WIDTH = SCALE(12); /* whitespace between two options FIXME rename */
+    int x_inc = UTOX_STR_WIDTH(RINGTONE) + WHITESPACE_BW_OPT_WIDTH; /* FIXME rename x_inc */
+    drawstr(x + x_inc, y + SCALE(10), PUSH_TO_TALK);
+    x_inc = x_inc + UTOX_STR_WIDTH(PUSH_TO_TALK) + WHITESPACE_BW_OPT_WIDTH;
+    drawstr(x + x_inc, y + SCALE(10), BEEP_ON_MSG);
     #ifdef AUDIO_FILTERING
-    drawstr(MAIN_LEFT + SCALE(240), y + SCALE( 10),  AUDIOFILTERING);
+    x_inc = x_inc + UTOX_STR_WIDTH(BEEP_ON_MSG) + WHITESPACE_BW_OPT_WIDTH;
+    drawstr(x + x_inc, y + SCALE(10), AUDIOFILTERING);
     #endif
-    drawstr(MAIN_LEFT + SCALE( 10), y + SCALE( 70), AUDIOINPUTDEVICE);
-    drawstr(MAIN_LEFT + SCALE( 10), y + SCALE(130), AUDIOOUTPUTDEVICE);
-    drawstr(MAIN_LEFT + SCALE( 10), y + SCALE(190), VIDEOINPUTDEVICE);
-    drawstr(MAIN_LEFT + SCALE( 10), y + SCALE(260), PREVIEW);
+    drawstr(x, y + SCALE( 70), AUDIOINPUTDEVICE);
+    drawstr(x, y + SCALE(130), AUDIOOUTPUTDEVICE);
+    drawstr(x, y + SCALE(190), VIDEOINPUTDEVICE);
+    drawstr(x, y + SCALE(260), PREVIEW);
 }
 
 /* TODO make this fxn readable */
@@ -353,49 +359,49 @@ static void draw_settings_sub_header(int x, int y, int w, int UNUSED(height)){
 
     /* Draw the text and bars for general settings */
     setcolor(!button_settings_sub_profile.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_SUBTEXT);
-    int x_right_edge = x + UTOX_SCALE(5 ) + UTOX_STR_WIDTH(PROFILE) + UTOX_SCALE(5 );
-    drawstr( x + UTOX_SCALE(5 ), y + UTOX_SCALE(5 ), PROFILE);
+    int x_right_edge = x + SCALE(10) + UTOX_STR_WIDTH(PROFILE) + SCALE(10);
+    drawstr( x + SCALE(10), y + SCALE(10), PROFILE);
     if (panel_settings_profile.disabled) {
-        drawhline( x, y + UTOX_SCALE(15 ), x_right_edge, COLOR_EDGE_NORMAL);
+        drawhline( x, y + SCALE(30), x_right_edge, COLOR_EDGE_NORMAL);
     } else {
         drawhline( x, y + 0, x_right_edge, COLOR_EDGE_ACTIVE);
         drawhline( x, y + 1, x_right_edge, COLOR_EDGE_ACTIVE);
     }
-    drawvline( x_right_edge, y + UTOX_SCALE(0 ), y + UTOX_SCALE(15 ), COLOR_EDGE_NORMAL);
+    drawvline( x_right_edge, y, y + SCALE(30), COLOR_EDGE_NORMAL);
 
     /* Draw the text and bars for network settings */
     setcolor(!button_settings_sub_net.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_SUBTEXT);
     x = x_right_edge;
-    x_right_edge = x_right_edge + UTOX_SCALE(5 ) + UTOX_STR_WIDTH(NETWORK) + UTOX_SCALE(5 );
-    drawstr( x + UTOX_SCALE(5 ), y + UTOX_SCALE(5 ), NETWORK);
+    x_right_edge = x_right_edge + SCALE(10) + UTOX_STR_WIDTH(NETWORK) + SCALE(10);
+    drawstr( x + SCALE(10), y + SCALE(10), NETWORK);
     if (panel_settings_net.disabled) {
-        drawhline( x, y + UTOX_SCALE(15 ), x_right_edge, COLOR_EDGE_NORMAL);
+        drawhline( x, y + SCALE(30), x_right_edge, COLOR_EDGE_NORMAL);
     } else {
         drawhline( x, y + 0, x_right_edge, COLOR_EDGE_ACTIVE);
         drawhline( x, y + 1, x_right_edge, COLOR_EDGE_ACTIVE);
     }
-    drawvline( x_right_edge, y + UTOX_SCALE(0 ), y + UTOX_SCALE(15  ), COLOR_EDGE_NORMAL);
+    drawvline( x_right_edge, y + SCALE(0), y + SCALE(30), COLOR_EDGE_NORMAL);
 
     /* Draw the text and bars for User interface settings */
     setcolor(!button_settings_sub_ui.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_SUBTEXT);
     x = x_right_edge;
-    x_right_edge = x_right_edge + UTOX_SCALE(5 ) + UTOX_STR_WIDTH(USER_INTERFACE) + UTOX_SCALE(5 );
-    drawstr( x + UTOX_SCALE(5 ), y + UTOX_SCALE(5 ), USER_INTERFACE);
+    x_right_edge = x_right_edge + SCALE(10) + UTOX_STR_WIDTH(USER_INTERFACE) + SCALE(10);
+    drawstr( x + SCALE(10), y + SCALE(10), USER_INTERFACE);
     if (panel_settings_ui.disabled) {
-        drawhline( x, y + UTOX_SCALE(15 ), x_right_edge, COLOR_EDGE_NORMAL);
+        drawhline( x, y + SCALE(30), x_right_edge, COLOR_EDGE_NORMAL);
     } else {
         drawhline( x, y + 0, x_right_edge, COLOR_EDGE_ACTIVE);
         drawhline( x, y + 1, x_right_edge, COLOR_EDGE_ACTIVE);
     }
-    drawvline( x_right_edge, y, y + UTOX_SCALE(15  ), COLOR_EDGE_NORMAL);
+    drawvline( x_right_edge, y, y + SCALE(30), COLOR_EDGE_NORMAL);
 
     /* Draw the text and bars for A/V settings */
     setcolor(!button_settings_sub_av.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_SUBTEXT);
     x = x_right_edge;
-    x_right_edge = x_right_edge + UTOX_SCALE(5 ) + UTOX_STR_WIDTH(AUDIO_VIDEO) + UTOX_SCALE(400 ); /* stretch to end of window */
-    drawstr( x + UTOX_SCALE(5 ), y + UTOX_SCALE(5 ), AUDIO_VIDEO);
+    x_right_edge = x_right_edge + SCALE(10) + UTOX_STR_WIDTH(AUDIO_VIDEO) + SCALE(800); /* stretch to end of window */
+    drawstr( x + SCALE(10), y + SCALE(10), AUDIO_VIDEO);
     if (panel_settings_av.disabled) {
-        drawhline( x, y + UTOX_SCALE(15 ), x_right_edge, COLOR_EDGE_NORMAL);
+        drawhline( x, y + SCALE(30), x_right_edge, COLOR_EDGE_NORMAL);
     } else {
         drawhline( x, y + 0, x_right_edge, COLOR_EDGE_ACTIVE);
         drawhline( x, y + 1, x_right_edge, COLOR_EDGE_ACTIVE);
@@ -404,8 +410,8 @@ static void draw_settings_sub_header(int x, int y, int w, int UNUSED(height)){
 
 static void draw_friend_settings(int UNUSED(x), int y, int width, int height) {
     setcolor(COLOR_MAIN_TEXT);
-    drawstr(MAIN_LEFT + UTOX_SCALE(5), y + MAIN_TOP + UTOX_SCALE(6), ALIAS);
-    drawstr(MAIN_LEFT + UTOX_SCALE(5), y + MAIN_TOP + UTOX_SCALE(26), FRIEND_AUTOACCEPT);
+    drawstr(MAIN_LEFT + SCALE(10), y + MAIN_TOP + SCALE(12), ALIAS);
+    drawstr(MAIN_LEFT + SCALE(10), y + MAIN_TOP + SCALE(52), FRIEND_AUTOACCEPT);
 }
 
 static void draw_background(int UNUSED(x), int UNUSED(y), int width, int height){
@@ -826,8 +832,8 @@ void ui_set_scale(uint8_t scale) {
         panel_main.x = MAIN_LEFT;
         panel_main.y = 0;
 
-        scrollbar_settings.panel.y        = UTOX_SCALE(16 );
-        scrollbar_settings.content_height = UTOX_SCALE(150 );
+        scrollbar_settings.panel.y        = SCALE( 32);
+        scrollbar_settings.content_height = SCALE(300);
 
         panel_settings_master.y  = MAIN_TOP_FRAME_THIN;
         panel_settings_profile.y = SCALE(32);
@@ -846,6 +852,8 @@ void ui_set_scale(uint8_t scale) {
         messages_group.panel.y          = MAIN_TOP;
         messages_group.panel.height     = CHAT_BOX_TOP;
         messages_group.panel.width      = -SCROLL_WIDTH;
+
+    int WHITESPACE_BW_OPT_WIDTH = SCALE(12); /* whitespace between two options FIXME rename */
 
     setscale_fonts();
 
@@ -923,7 +931,7 @@ void ui_set_scale(uint8_t scale) {
 
         b_copyid = {
             .type   = PANEL_BUTTON,
-            .x      = SCALE( 66),
+            .x      = SCALE( 10) + UTOX_STR_WIDTH(TOXID) + SCALE(4),
             .y      = SCALE(106),
             .width  = BM_SBUTTON_WIDTH,
             .height = BM_SBUTTON_HEIGHT,
@@ -932,84 +940,84 @@ void ui_set_scale(uint8_t scale) {
         /* setfont(FONT_SELF_NAME); needed for the next 4 buttons */
         b_settings_sub_profile = {
             .type   = PANEL_BUTTON,
-            .x      = UTOX_SCALE(1  ),                           /* Nudged 1px as a buffer */
-            .y      = UTOX_SCALE(1  ),
-            .width  = UTOX_SCALE(9  ) + UTOX_STR_WIDTH(PROFILE), /* Nudged 1px as a buffer */
-            .height = UTOX_SCALE(14 ),
+            .x      = SCALE(  2),                           /* Nudged 1px as a buffer */
+            .y      = SCALE(  2),
+            .width  = SCALE( 18) + UTOX_STR_WIDTH(PROFILE), /* Nudged 1px as a buffer */
+            .height = SCALE( 28),
         },
 
         b_settings_sub_net = {
             .type   = PANEL_BUTTON,
-            .x      = UTOX_SCALE(11 ) + UTOX_STR_WIDTH(PROFILE), /* Nudged 1px as a buffer */
-            .y      = UTOX_SCALE(1  ),
-            .width  = UTOX_SCALE(9  ) + UTOX_STR_WIDTH(NETWORK), /* Nudged 1px as a buffer */
-            .height = UTOX_SCALE(14 ),
+            .x      = SCALE( 22) + UTOX_STR_WIDTH(PROFILE), /* Nudged 1px as a buffer */
+            .y      = SCALE(  2),
+            .width  = SCALE( 18) + UTOX_STR_WIDTH(NETWORK), /* Nudged 1px as a buffer */
+            .height = SCALE( 28),
         },
 
         b_settings_sub_ui = {
             .type   = PANEL_BUTTON,
-            .x      = UTOX_SCALE(21 ) + UTOX_STR_WIDTH(PROFILE) + UTOX_STR_WIDTH(NETWORK), /* Nudged 1px as a buffer */
-            .y      = UTOX_SCALE(1  ),
-            .width  = UTOX_SCALE(9  ) + UTOX_STR_WIDTH(USER_INTERFACE),                    /* Nudged 1px as a buffer */
-            .height = UTOX_SCALE(14 ),
+            .x      = SCALE( 42) + UTOX_STR_WIDTH(PROFILE) + UTOX_STR_WIDTH(NETWORK), /* Nudged 1px as a buffer */
+            .y      = SCALE(  2),
+            .width  = SCALE( 18) + UTOX_STR_WIDTH(USER_INTERFACE),                    /* Nudged 1px as a buffer */
+            .height = SCALE( 28),
         },
 
         b_settings_sub_av = {
             .type   = PANEL_BUTTON,
-            .x      = UTOX_SCALE(31  ) + /* Nudged 1px as a buffer */
+            .x      = SCALE( 62) + /* Nudged 1px as a buffer */
                       UTOX_STR_WIDTH(PROFILE) + UTOX_STR_WIDTH(NETWORK) + UTOX_STR_WIDTH(USER_INTERFACE),
-            .y      = UTOX_SCALE(1   ),
-            .width  = UTOX_SCALE(400 ), /* Fill the rest of the space for this button */
-            .height = UTOX_SCALE(14  ),
+            .y      = SCALE(  2),
+            .width  = SCALE(800), /* Fill the rest of the space for this button */
+            .height = SCALE( 28),
         },
 
         #ifdef EMOJI_IDS
         b_change_id_type = {
-            .type = PANEL_BUTTON,
-            .x = UTOX_SCALE(80),
-            .y = UTOX_SCALE(53),
-            .width = BM_SBUTTON_WIDTH,
+            .type   = PANEL_BUTTON,
+            .x      = SCALE(160),
+            .y      = SCALE(106),
+            .width  = BM_SBUTTON_WIDTH,
             .height = BM_SBUTTON_HEIGHT,
         },
         #endif
 
         b_send_friend_request = {
-            .type = PANEL_BUTTON,
-            .x = -UTOX_SCALE(5) - BM_SBUTTON_WIDTH,
-            .y = MAIN_TOP + UTOX_SCALE(84),
-            .width = BM_SBUTTON_WIDTH,
-            .height = BM_SBUTTON_HEIGHT,
+            .type   =  PANEL_BUTTON,
+            .x      = -SCALE(10) - BM_SBUTTON_WIDTH,
+            .y      =  MAIN_TOP + SCALE(168),
+            .width  =  BM_SBUTTON_WIDTH,
+            .height =  BM_SBUTTON_HEIGHT,
         },
 
         b_call_audio = {
-            .type = PANEL_BUTTON,
-            .x = -UTOX_SCALE(62 ),
-            .y = UTOX_SCALE(5 ),
-            .width = BM_LBUTTON_WIDTH,
-            .height = BM_LBUTTON_HEIGHT,
+            .type   =  PANEL_BUTTON,
+            .x      = -SCALE(124),
+            .y      =  SCALE(10),
+            .width  =  BM_LBUTTON_WIDTH,
+            .height =  BM_LBUTTON_HEIGHT,
         },
 
         b_call_video = {
-            .type = PANEL_BUTTON,
-            .x = -UTOX_SCALE(31 ),
-            .y = UTOX_SCALE(5 ),
-            .width = BM_LBUTTON_WIDTH,
-            .height = BM_LBUTTON_HEIGHT,
+            .type   =  PANEL_BUTTON,
+            .x      = -SCALE(62),
+            .y      =  SCALE(10),
+            .width  =  BM_LBUTTON_WIDTH,
+            .height =  BM_LBUTTON_HEIGHT,
         },
 
         b_group_audio = {
-            .type = PANEL_BUTTON,
-            .x = -UTOX_SCALE(31 ),
-            .y = UTOX_SCALE(5 ),
-            .width = BM_LBUTTON_WIDTH,
-            .height = BM_LBUTTON_HEIGHT,
+            .type   =  PANEL_BUTTON,
+            .x      = -SCALE(62),
+            .y      =  SCALE(10),
+            .width  =  BM_LBUTTON_WIDTH,
+            .height =  BM_LBUTTON_HEIGHT,
         },
 
         b_accept_friend = {
-            .type = PANEL_BUTTON,
-            .x = UTOX_SCALE(5),
-            .y = MAIN_TOP + UTOX_SCALE(5),
-            .width = BM_SBUTTON_WIDTH,
+            .type   = PANEL_BUTTON,
+            .x      = SCALE( 10),
+            .y      = MAIN_TOP + SCALE(10),
+            .width  = BM_SBUTTON_WIDTH,
             .height = BM_SBUTTON_HEIGHT,
         },
 
@@ -1031,41 +1039,41 @@ void ui_set_scale(uint8_t scale) {
 
         /* bottom left button in chat */
         b_send_file = {
-            .type   = PANEL_BUTTON,
-            .x      =   UTOX_SCALE(3 ),
-            .y      = -UTOX_SCALE(23 ),
-            .width  = BM_CHAT_BUTTON_WIDTH,
-            .height = BM_CHAT_BUTTON_HEIGHT,
+            .type   =  PANEL_BUTTON,
+            .x      =  SCALE( 6),
+            .y      = -SCALE(46),
+            .width  =  BM_CHAT_BUTTON_WIDTH,
+            .height =  BM_CHAT_BUTTON_HEIGHT,
         },
 
         /* button to the right of b_chat_left */
         b_send_screenshot = {
-            .type   = PANEL_BUTTON,
-            .x      =   UTOX_SCALE(4 ) + BM_CHAT_BUTTON_WIDTH,
-            .y      = -UTOX_SCALE(23 ),
-            .width  = BM_CHAT_BUTTON_WIDTH,
-            .height = BM_CHAT_BUTTON_HEIGHT,
+            .type   =  PANEL_BUTTON,
+            .x      =  SCALE( 8) + BM_CHAT_BUTTON_WIDTH,
+            .y      = -SCALE(46),
+            .width  =  BM_CHAT_BUTTON_WIDTH,
+            .height =  BM_CHAT_BUTTON_HEIGHT,
         },
 
         b_chat_send = {
             .type   = PANEL_BUTTON,
-            .x      =  -UTOX_SCALE(3 ) - BM_CHAT_SEND_WIDTH,
-            .y      = -UTOX_SCALE(23 ),
+            .x      = -SCALE( 6) - BM_CHAT_SEND_WIDTH,
+            .y      = -SCALE(46),
             .width  = BM_CHAT_SEND_WIDTH,
             .height = BM_CHAT_SEND_HEIGHT,
         },
 
         b_lock_uTox = {
             .type   = PANEL_BUTTON,
-            .x      = UTOX_SCALE(5),
-            .y      = UTOX_SCALE(130),
+            .x      = SCALE( 10),
+            .y      = SCALE(260),
             .width  = BM_SBUTTON_WIDTH,
             .height = BM_SBUTTON_HEIGHT,
         },
 
         b_show_password_settings = {
             .type   = PANEL_BUTTON,
-            .x      = SCALE(145),
+            .x      = SCALE(10) + UTOX_STR_WIDTH(PROFILE_PASSWORD) + SCALE(4),
             .y      = SCALE(206),
             .width  = BM_SBUTTON_WIDTH,
             .height = BM_SBUTTON_HEIGHT,
@@ -1105,39 +1113,52 @@ void ui_set_scale(uint8_t scale) {
         button_show_password_settings.panel  = b_show_password_settings;
 
     /* Drop down structs */
+        /* save some before font changing */
+        int RINGTONE_STR_WIDTH      = UTOX_STR_WIDTH(RINGTONE);
+        int PUSH_TO_TALK_STR_WIDTH  = UTOX_STR_WIDTH(PUSH_TO_TALK);
+        #ifdef AUDIO_FILTERING
+        int BEEP_ON_MSG_STR_WIDTH   = UTOX_STR_WIDTH(BEEP_ON_MSG);
+        #endif
+        int IPV6_STR_WIDTH          = UTOX_STR_WIDTH(IPV6);
+        int UDP_STR_WIDTH           = UTOX_STR_WIDTH(UDP);
+        int CLOSE_TO_TRAY_STR_WIDTH = UTOX_STR_WIDTH(CLOSE_TO_TRAY);
+
         setfont(FONT_TEXT);
 
         PANEL d_notifications = {
             .type   = PANEL_DROPDOWN,
-            .x      = UTOX_SCALE(5   ),
-            .y      = UTOX_SCALE(15  ),
-            .height = UTOX_SCALE(12  ),
-            .width  = UTOX_SCALE(20  )
+            .x      = SCALE( 10),
+            .y      = SCALE( 30),
+            .height = SCALE( 24),
+            .width  = SCALE( 44)
         },
 
         d_push_to_talk = {
             .type   = PANEL_DROPDOWN,
-            .x      = UTOX_SCALE(60 ),
-            .y      = UTOX_SCALE(15 ),
-            .height = UTOX_SCALE(12 ),
-            .width  = UTOX_SCALE(20 )
+            .x      = SCALE( 10) + RINGTONE_STR_WIDTH + WHITESPACE_BW_OPT_WIDTH,
+            .y      = SCALE( 30),
+            .height = SCALE( 24),
+            .width  = SCALE( 44)
         },
 
         d_beep_on_msg = {
             .type   = PANEL_DROPDOWN,
-            .x      = UTOX_SCALE(119 ),
-            .y      = UTOX_SCALE(15 ),
-            .height = UTOX_SCALE(12 ),
-            .width  = UTOX_SCALE(20 )
+            .x      = SCALE( 10) + RINGTONE_STR_WIDTH + WHITESPACE_BW_OPT_WIDTH +
+                      PUSH_TO_TALK_STR_WIDTH + WHITESPACE_BW_OPT_WIDTH,
+            .y      = SCALE( 30),
+            .height = SCALE( 24),
+            .width  = SCALE( 44)
         },
 
         #ifdef AUDIO_FILTERING
         d_audio_filtering = {
             .type   = PANEL_DROPDOWN,
-            .x      = UTOX_SCALE(120 ),
-            .y      = UTOX_SCALE(15  ),
-            .height = UTOX_SCALE(12  ),
-            .width  = UTOX_SCALE(20  )
+            .x      = SCALE( 10) + RINGTONE_STR_WIDTH + WHITESPACE_BW_OPT_WIDTH +
+                      PUSH_TO_TALK_STR_WIDTH + WHITESPACE_BW_OPT_WIDTH +
+                      BEEP_ON_MSG_STR_WIDTH + WHITESPACE_BW_OPT_WIDTH,
+            .y      = SCALE( 30),
+            .height = SCALE( 24),
+            .width  = SCALE( 44)
         },
         #endif
 
@@ -1183,55 +1204,55 @@ void ui_set_scale(uint8_t scale) {
 
         d_proxy = {
             .type   = PANEL_DROPDOWN,
-            .x      = UTOX_SCALE(5   ),
-            .y      = UTOX_SCALE(40  ),
-            .height = UTOX_SCALE(12  ),
-            .width  = UTOX_SCALE(60  )
+            .x      = SCALE( 10),
+            .y      = SCALE( 80),
+            .height = SCALE( 24),
+            .width  = SCALE(120)
         },
 
         d_ipv6 = {
             .type   = PANEL_DROPDOWN,
-            .x      = UTOX_SCALE(24  ),
-            .y      = UTOX_SCALE(13  ),
-            .height = UTOX_SCALE(12  ),
-            .width  = UTOX_SCALE(20  )
+            .x      = SCALE( 10) + IPV6_STR_WIDTH + SCALE(4),
+            .y      = SCALE( 26),
+            .height = SCALE( 24),
+            .width  = SCALE( 40)
         },
 
         d_udp = {
             .type   = PANEL_DROPDOWN,
-            .x      = UTOX_SCALE(74  ),
-            .y      = UTOX_SCALE(13  ),
-            .height = UTOX_SCALE(12  ),
-            .width  = UTOX_SCALE(20  )
+            .x      = SCALE(110) + UDP_STR_WIDTH + SCALE(4),
+            .y      = SCALE( 26),
+            .height = SCALE( 24),
+            .width  = SCALE( 40)
         },
 
         d_logging = {
             .type   = PANEL_DROPDOWN,
-            .x      = UTOX_SCALE(5   ),
-            .y      = UTOX_SCALE(39  ),
-            .height = UTOX_SCALE(12  ),
-            .width  = UTOX_SCALE(20  )
+            .x      = SCALE( 10),
+            .y      = SCALE( 78),
+            .height = SCALE( 24),
+            .width  = SCALE( 40)
         },
 
         d_theme = {
             .type   = PANEL_DROPDOWN,
-            .x      = UTOX_SCALE(5   ),
-            .y      = UTOX_SCALE(15  ),
-            .height = UTOX_SCALE(12  ),
-            .width  = UTOX_SCALE(60  )
+            .x      = SCALE( 10),
+            .y      = SCALE( 30),
+            .height = SCALE( 24),
+            .width  = SCALE(120)
         },
 
         d_close_to_tray = {
             .type   = PANEL_DROPDOWN,
-            .x      = UTOX_SCALE(5   ),
-            .y      = UTOX_SCALE(63  ),
-            .height = UTOX_SCALE(12  ),
-            .width  = UTOX_SCALE(20  )
+            .x      = SCALE( 10),
+            .y      = SCALE(126),
+            .height = SCALE( 24),
+            .width  = SCALE( 40)
         },
 
         d_start_in_tray = {
             .type   = PANEL_DROPDOWN,
-            .x      = SCALE(150),
+            .x      = SCALE( 10) + CLOSE_TO_TRAY_STR_WIDTH + WHITESPACE_BW_OPT_WIDTH,
             .y      = SCALE(126),
             .height = SCALE( 24),
             .width  = SCALE( 40)
@@ -1247,18 +1268,18 @@ void ui_set_scale(uint8_t scale) {
 
         d_typing_notes = {
             .type   = PANEL_DROPDOWN,
-            .x      = UTOX_SCALE(5   ),
-            .y      = UTOX_SCALE(114 ),
-            .height = UTOX_SCALE(12  ),
-            .width  = UTOX_SCALE(20  )
+            .x      = SCALE( 10),
+            .y      = SCALE(228),
+            .height = SCALE( 24),
+            .width  = SCALE( 40)
         },
 
         d_friend_autoaccept = {
             .type   = PANEL_DROPDOWN,
-            .x      = UTOX_SCALE(5   ),
-            .y      = UTOX_SCALE(64  ),
-            .height = UTOX_SCALE(12  ),
-            .width  = UTOX_SCALE(20  )
+            .x      = SCALE( 10),
+            .y      = SCALE(128),
+            .height = SCALE( 24),
+            .width  = SCALE( 40)
         };
 
     /* Drop down panels */
@@ -1311,45 +1332,45 @@ void ui_set_scale(uint8_t scale) {
         },
 
         e_add_id = {
-            .type   = PANEL_EDIT,
-            .x      = UTOX_SCALE(5  ),
-            .y      = UTOX_SCALE(14 ) + MAIN_TOP,
-            .height = UTOX_SCALE(12 ),
-            .width  = -UTOX_SCALE(5 ),
+            .type   =  PANEL_EDIT,
+            .x      =  SCALE(10),
+            .y      =  SCALE(28) + MAIN_TOP,
+            .height =  SCALE(24),
+            .width  = -SCALE(10),
         },
 
         e_add_msg = {
-            .type   = PANEL_EDIT,
-            .x      = UTOX_SCALE(5  ),
-            .y      = UTOX_SCALE(38 ) + MAIN_TOP,
-            .height = UTOX_SCALE(42 ),
-            .width  = -UTOX_SCALE(5 ),
+            .type   =  PANEL_EDIT,
+            .x      =  SCALE(10),
+            .y      =  SCALE(76) + MAIN_TOP,
+            .height =  SCALE(84),
+            .width  = -SCALE(10),
         },
 
         e_profile_password = {
-            .type   = PANEL_EDIT,
-            .x      =  UTOX_SCALE( 5),  /* move the edit depending on what page! */
-            .y      =  UTOX_SCALE(44) + (UTOX_SCALE(70) * panel_profile_password.disabled),
-            .height =  UTOX_SCALE(12),
-            .width  = -UTOX_SCALE( 5),
+            .type   =  PANEL_EDIT,
+            .x      =  SCALE(10),  /* move the edit depending on what page! */
+            .y      =  SCALE(88) + (SCALE(140) * panel_profile_password.disabled),
+            .height =  SCALE(24),
+            .width  = -SCALE(10),
         },
 
         /* Message entry box for friends and groups */
         e_msg = {
-            .type   = PANEL_EDIT,
-            .x      =  UTOX_SCALE( 5) + BM_CHAT_BUTTON_WIDTH * 2, /* Make space for the left button  */
-            .y      = -UTOX_SCALE(23),
-            .width  = -UTOX_SCALE(32),
-            .height =  UTOX_SCALE(20),
+            .type   =  PANEL_EDIT,
+            .x      =  SCALE(10) + BM_CHAT_BUTTON_WIDTH * 2, /* Make space for the left button  */
+            .y      = -SCALE(46),
+            .width  = -SCALE(64),
+            .height =  SCALE(40),
             /* text is 8 high. 8 * 2.5 = 20. */
         },
 
         e_msg_group = {
-            .type   = PANEL_EDIT,
-            .x      =   UTOX_SCALE(3 ),
-            .y      = -UTOX_SCALE(23 ),
-            .width  = -UTOX_SCALE(10 ) - BM_CHAT_SEND_WIDTH,
-            .height =  UTOX_SCALE(20 ),
+            .type   =  PANEL_EDIT,
+            .x      =  SCALE( 6),
+            .y      = -SCALE(46),
+            .width  = -SCALE(20) - BM_CHAT_SEND_WIDTH,
+            .height =  SCALE(40),
         },
 
         e_search = {
@@ -1362,26 +1383,26 @@ void ui_set_scale(uint8_t scale) {
 
         e_proxy_ip = {
             .type   = PANEL_EDIT,
-            .x      = UTOX_SCALE(70 ),
-            .y      = UTOX_SCALE(40 ),
-            .height = UTOX_SCALE(12 ),
-            .width  = UTOX_SCALE(60 )
+            .x      = SCALE(140),
+            .y      = SCALE( 80),
+            .height = SCALE( 24),
+            .width  = SCALE(120)
         },
 
         e_proxy_port = {
             .type   = PANEL_EDIT,
-            .x      = UTOX_SCALE(135 ),
-            .y      = UTOX_SCALE(40  ),
-            .height = UTOX_SCALE(12  ),
-            .width  = UTOX_SCALE(30  )
+            .x      = SCALE(270),
+            .y      = SCALE( 80),
+            .height = SCALE( 24),
+            .width  = SCALE( 60)
         },
 
         e_friend_alias = {
-            .type   = PANEL_EDIT,
-            .x      = UTOX_SCALE(5   ),
-            .y      = UTOX_SCALE(44  ),
-            .height = UTOX_SCALE(12  ),
-            .width  = -UTOX_SCALE(5 )
+            .type   =  PANEL_EDIT,
+            .x      =  SCALE(10),
+            .y      =  SCALE(88),
+            .height =  SCALE(24),
+            .width  = -SCALE(10)
         };
 
     /* Text entry panels */
