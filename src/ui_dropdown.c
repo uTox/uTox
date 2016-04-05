@@ -125,6 +125,9 @@ static void dropdown_push_to_talk_onselect(const uint16_t i, const DROPDOWN* UNU
     }
 }
 
+static void dropdown_beep_on_msg_onselect(const uint16_t i, const DROPDOWN* UNUSED(dm)) {
+}
+
 static void dropdown_friend_autoaccept_ft_onselect(const uint16_t i, const DROPDOWN* UNUSED(dm)) {
     FRIEND *f = selected_item->data;
     f->ft_autoaccept = !!i;
@@ -294,6 +297,13 @@ dropdown_audio_filtering = {
 dropdown_push_to_talk = {
     .ondisplay = simple_dropdown_ondisplay,
     .onselect  = dropdown_push_to_talk_onselect,
+    .dropcount = countof(offondrops),
+    .userdata  = offondrops
+},
+
+dropdown_beep_on_msg = {
+    .ondisplay = simple_dropdown_ondisplay,
+    .onselect  = dropdown_beep_on_msg_onselect,
     .dropcount = countof(offondrops),
     .userdata  = offondrops
 },
