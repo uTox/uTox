@@ -6,12 +6,10 @@
 #import <Foundation/Foundation.h>
 #import <AppKit/AppKit.h>
 
-#ifdef MAKEFILE
-#include "interaction.m"
-#include "drawing.m"
-#include "video.m"
-#include "grabdesktop.m"
-#endif
+struct thread_call {
+    void *(*func)(void *);
+    void *argp;
+};
 
 #define DEFAULT_WIDTH (382 * DEFAULT_SCALE)
 #define DEFAULT_HEIGHT (320 * DEFAULT_SCALE)
@@ -61,12 +59,31 @@ void image_free(UTOX_NATIVE_IMAGE *img) {
 
 static BOOL theme_set_on_argv = NO;
 
+void *thread_trampoline(void *call) {
+    struct thread_call args = *(struct thread_call *)call;
+    free(call);
+
+    @autoreleasepool {
+        return args.func(args.argp);
+    }
+}
+
 void thread(void func(void*), void *args) {
     pthread_t thread_temp;
     pthread_attr_t attr;
     pthread_attr_init(&attr);
     pthread_attr_setstacksize(&attr, 1 << 20);
-    pthread_create(&thread_temp, &attr, (void*(*)(void*))func, args);
+
+    struct thread_call *call = malloc(sizeof(struct thread_call));
+    if (!call) {
+        fputs("thread(): no memory so gonna peace", stderr);
+        abort();
+    }
+
+    call->func = func;
+    call->argp = args;
+
+    pthread_create(&thread_temp, &attr, thread_trampoline, call);
     pthread_attr_destroy(&attr);
 }
 
