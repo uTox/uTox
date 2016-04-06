@@ -1,7 +1,9 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Script to cross compile utox for android from linux (and soon windows)
 #
 
+set -e
+set -x
 
 usage() {
 	echo "Cross compile script to build uTox for android from a ~unix environment."
@@ -22,6 +24,9 @@ for arg in "$@"; do
 			;;
 	esac
 done
+
+# read settings from a custom settings file. the defaults don't seem to be very useful.
+[ -f settings.android ] && source settings.android
 
 export ALIAS=utox
 
@@ -51,31 +56,39 @@ export TOOLCHAIN="$(cd toolchain; pwd)"
 		--platform=android-9
 
 export PATH="$TOOLCHAIN/bin:$PATH"
-# cd utox
 
-mkdir ./tmp
-mkdir ./tmp/java
-mkdir ./tmp/libs
-mkdir ./tmp/libs/armeabi
+mkdir -p ./tmp
+mkdir -p ./tmp/java
+mkdir -p ./tmp/libs
+mkdir -p ./tmp/libs/armeabi
 
-ls -la ../openal-arm/lib/
-OPENAL_BUILD='-I../openal-arm/include ../openal-arm/lib/libopenal.a -lOpenSLES'
+ls -la ../openal-arm/lib/ || :
+OPENAL_BUILD=${OPENAL_BUILD-'-I../openal-arm/include -L../openal-arm/lib -lOpenSLES'}
 NATIVE_AUDIO_BUILD='-DNATIVE_ANDROID_AUDIO -lOpenSLES'
 
-arm-linux-androideabi-gcc -Wl,--error-unresolved-symbols \
+LDFLAGS=${LDFLAGS--L ../toxcore-arm/ -static}
+CPPFLAGS=${CPPFLAGS--I../freetype-arm/include/freetype2/ -I../toxcore-arm/include/}
+CC=${CC-arm-linux-androideabi-gcc}
+
+SRCDIR=src
+
+${CC} -Wl,--error-unresolved-symbols \
 		-Wall -Wextra -s \
-		-I../freetype-arm/include/freetype2/ -I../toxcore-arm/include/ \
-		./*.c ./png/png.c -llog -landroid -lEGL -lGLESv2 $OPENAL_BUILD \
-		../toxcore-arm/lib/libtoxcore.a                                \
-		../toxcore-arm/lib/libtoxdns.a \
-		../toxcore-arm/lib/libtoxav.a \
-		../toxcore-arm/lib/libsodium.a \
-		../toxcore-arm/lib/libopus.a \
-		../toxcore-arm/lib/libvpx.a \
-		../freetype-arm/lib/libfreetype.a \
+		${CPPFLAGS} \
+		$SRCDIR/*.c -llog -landroid -lEGL -lGLESv2 $OPENAL_BUILD \
+		${LDFLAGS} \
+		-lopenal \
+		-ltoxcore                                \
+		-ltoxdns \
+		-ltoxav \
+		-lsodium \
+		-lopus \
+		-lvpx \
+		-lfreetype \
 		-lm -lz -ldl -shared -o ./tmp/libs/armeabi/libuTox.so
 
-$SDK_PATH/build-tools/21.1.2/aapt package -f -M ./android/AndroidManifest.xml -S ./android/res \
+AAPT={$SDK_PATH/build-tools/21.1.2/aapt-aapt}
+$AAPT package -f -M ./android/AndroidManifest.xml -S ./android/res \
 		-I $SDK_PATH/platforms/android-21/android.jar -F ./tmp/tmp1.apk -J ./tmp/java
 
 javac -d ./tmp/java ./tmp/java/R.java
