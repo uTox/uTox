@@ -1,47 +1,65 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 mkdir -p ./build/{lib/armeabi,java}
 
 set -e
+set -x
+
+# read settings from a custom settings file.
+[ -f settings.android ] && source settings.android
+
+# what is ./lib/arm/lib?
+LDFLAGS=${LDFLAGS-L./lib/arm/lib/}
+
+ANDROID_NDK_HOME=${ANDROID_NDK_HOME-/opt/android-ndk}
+ANDROID_SDK_HOME=${ANDROID_SDK_HOME-/opt/android-sdk}
+
+SYSROOT=${SYSROOT-/opt/android-ndk/platforms/android-12/arch-arm/}
+CPPFLAGS=${CPPFLAGS--I../freetype-arm/include/freetype2/ -I../toxcore-arm/include/}
 
 ./toolchain/bin/arm-linux-androideabi-gcc                                           \
     -Wl,--unresolved-symbols=report-all                                             \
-    -I ./toolchain/                                                                 \
+    -I ./toolchain/include                                                          \
+    -I ./toolchain/sysroot/usr/include                                              \
     -I ./lib/arm/include/freetype2/                                                 \
     -I ./lib/arm/include/freetype2/freetype/                                        \
     -I ./lib/arm/include/                                                           \
+    ${CPPFLAGS} \
+    ${LDFLAGS} \
+    -Ltoolchain/sysroot/usr/lib/ \
     ./src/*.c                                                                       \
-    ./lib/arm/lib/libtoxcore.a                                                      \
-    ./lib/arm/lib/libtoxdns.a                                                       \
-    ./lib/arm/lib/libtoxav.a                                                        \
-    ./lib/arm/lib/libtoxencryptsave.a                                               \
-    ./lib/arm/lib/libsodium.a                                                       \
-    ./lib/arm/lib/libopus.a                                                         \
-    ./lib/arm/lib/libvpx.a                                                          \
-    ./lib/arm/lib/libopenal.a                                                       \
-    ./lib/arm/lib/libfreetype.a                                                     \
-    /opt/android-ndk/sources/android/cpufeatures/cpu-features.c                     \
+    -ltoxcore                                                      \
+    -ltoxdns                                                       \
+    -ltoxav                                                        \
+    -ltoxencryptsave                                               \
+    -lsodium                                                       \
+    -lopus                                                         \
+    -lvpx                                                          \
+    -lopenal                                                       \
+    -lfreetype                                                     \
+    $ANDROID_NDK_HOME/sources/android/cpufeatures/cpu-features.c                     \
     -o ./build/lib/armeabi/libuTox.so                                               \
-    --sysroot=/opt/android-ndk/platforms/android-12/arch-arm/                       \
+    --sysroot=$SYSROOT                       \
     -llog -landroid -lEGL -lGLESv2 -lOpenSLES -lm -lz -ldl -shared -std=gnu99 -s
 
 
-/opt/android-sdk/build-tools/23.0.2/aapt package -f         \
+AAPT=${AAPT-/opt/android-sdk/build-tools/23.0.2/aapt}
+$AAPT package -f         \
     -M ./src/android/AndroidManifest.xml                    \
     -S ./src/android/res                                    \
-    -I /opt/android-sdk/platforms/android-23/android.jar    \
+    -I $ANDROID_SDK_HOME/platforms/android-23/android.jar    \
     -F ./build/uTox.apk                                     \
     -J ./build/java
 
 javac -d ./build/java ./build/java/R.java
 
-/opt/android-sdk/build-tools/23.0.2/dx \
+$ANDROID_SDK_HOME/build-tools/23.0.2/dx \
     --dex                              \
     --output=./build/classes.dex       \
     ./build/java
 
 
 java                                                                                            \
-    -classpath /opt/android-sdk/tools/lib/sdklib.jar com.android.sdklib.build.ApkBuilderMain    \
+    -classpath $ANDROID_SDK_HOME/tools/lib/sdklib.jar com.android.sdklib.build.ApkBuilderMain    \
     ./build/uTox.unsigned.apk                                                                   \
     -u -z ./build/uTox.apk                                                                      \
     -f ./build/classes.dex                                                                      \
@@ -57,7 +75,7 @@ jarsigner                                   \
 
 mv ./build/uTox.unsigned.apk ./build/uTox.signed.apk
 
-/opt/android-sdk/build-tools/23.0.2/zipalign  \
+$ANDROID_SDK_HOME/build-tools/23.0.2/zipalign  \
     -f 4                                      \
     ./build/uTox.signed.apk                   \
     ./uTox.ready.apk
