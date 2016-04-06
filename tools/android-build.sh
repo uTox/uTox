@@ -25,19 +25,32 @@ done
 
 export ALIAS=utox
 
-export ANDROID_NDK_HOME=/opt/android-ndk
-mkdir toolchain
-cd toolchain
-export TOOLCHAIN=$(pwd)
-cd ..
+ANDROID_NDK_HOME=${ANDROID_NDK_HOME-/opt/android-ndk}
+
+if [ ! -d $ANDROID_NDK_HOME ]; then
+	echo $ANDROID_NDK_HOME is not a directory >&2
+	exit 1
+fi
+
+SDK_PATH=${SDK_PATH-/opt/android-sdk}
+if [ ! -d $SDK_PATH ]; then
+	echo $SDK_PATH is not a directory >&2
+	exit 1
+fi
+
+TOOLCHAIN_NAME=${TOOLCHAIN_NAME-arm-linux-androideabi-clang3.5}
+
+export ANDROID_NDK_HOME
+mkdir -p toolchain
+export TOOLCHAIN="$(cd toolchain; pwd)"
+
 "$ANDROID_NDK_HOME/build/tools/make-standalone-toolchain.sh" \
- 		--ndk-dir="$ANDROID_NDK_HOME" \
- 		--toolchain=arm-linux-androideabi-clang3.5 \
- 		--install-dir=$TOOLCHAIN \
- 		--platform=android-9
+		--ndk-dir="$ANDROID_NDK_HOME" \
+		--toolchain="$TOOLCHAIN_NAME" \
+		--install-dir=$TOOLCHAIN \
+		--platform=android-9
 
 export PATH="$TOOLCHAIN/bin:$PATH"
-SDK_PATH=/opt/android-sdk
 # cd utox
 
 mkdir ./tmp
