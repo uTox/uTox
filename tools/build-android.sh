@@ -45,6 +45,8 @@ MORE_LIBS=${MORE_LIBS-\
     ./lib/arm/lib/libopenal.a                                                       \
     ./lib/arm/lib/libfreetype.a}
 
+PLATFORM_LIBS=${PLATFORM_LIBS--llog -landroid -lEGL -lGLESv2 -lOpenSLES -lm -lz -ldl}
+
 ${TOOLCHAIN}/bin/arm-linux-androideabi-gcc                                              \
     -Wl,--unresolved-symbols=report-all                                             \
     -I ./toolchain/include                                                          \
@@ -59,7 +61,8 @@ ${TOOLCHAIN}/bin/arm-linux-androideabi-gcc                                      
     $ANDROID_NDK_HOME/sources/android/cpufeatures/cpu-features.c                    \
     -o ./build/lib/armeabi/libuTox.so                                               \
     --sysroot=$SYSROOT                                                              \
-    -llog -landroid -lEGL -lGLESv2 -lOpenSLES -lm -lz -ldl -shared -std=gnu99 -s
+    ${PLATFORM_LIBS} \
+    -shared -std=gnu99 -s
 
 $AAPT package -f                                                \
     -M ./src/android/AndroidManifest.xml                        \
