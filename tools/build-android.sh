@@ -35,6 +35,7 @@ AAPT=${AAPT-/opt/android-sdk/build-tools/${DEV_VERSION}/aapt}
 ${TOOLCHAIN}/bin/arm-linux-androideabi-gcc                                              \
     -Wl,--unresolved-symbols=report-all                                             \
     -I ./toolchain/include                                                          \
+    -I ${TOOLCHAIN}/sysroot/usr/include \
     -I ./lib/arm/include/freetype2/                                                 \
     -I ./lib/arm/include/freetype2/freetype/                                        \
     -I ./lib/arm/include/                                                           \
