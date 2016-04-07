@@ -32,6 +32,19 @@ AAPT=${AAPT-/opt/android-sdk/build-tools/${DEV_VERSION}/aapt}
         --install-dir=$TOOLCHAIN/                                                       \
         --platform=${NDK_VERSION}
 
+TOX_LIBS=${TOX_LIBS-\
+    ./lib/arm/lib/libtoxcore.a                                                      \
+    ./lib/arm/lib/libtoxdns.a                                                       \
+    ./lib/arm/lib/libtoxav.a                                                        \
+    ./lib/arm/lib/libtoxencryptsave.a}
+
+MORE_LIBS=${MORE_LIBS-\
+    ./lib/arm/lib/libsodium.a                                                       \
+    ./lib/arm/lib/libopus.a                                                         \
+    ./lib/arm/lib/libvpx.a                                                          \
+    ./lib/arm/lib/libopenal.a                                                       \
+    ./lib/arm/lib/libfreetype.a}
+
 ${TOOLCHAIN}/bin/arm-linux-androideabi-gcc                                              \
     -Wl,--unresolved-symbols=report-all                                             \
     -I ./toolchain/include                                                          \
@@ -41,15 +54,8 @@ ${TOOLCHAIN}/bin/arm-linux-androideabi-gcc                                      
     -I ./lib/arm/include/                                                           \
     ${CPPFLAGS} \
     ./src/*.c                                                                       \
-    ./lib/arm/lib/libtoxcore.a                                                      \
-    ./lib/arm/lib/libtoxdns.a                                                       \
-    ./lib/arm/lib/libtoxav.a                                                        \
-    ./lib/arm/lib/libtoxencryptsave.a                                               \
-    ./lib/arm/lib/libsodium.a                                                       \
-    ./lib/arm/lib/libopus.a                                                         \
-    ./lib/arm/lib/libvpx.a                                                          \
-    ./lib/arm/lib/libopenal.a                                                       \
-    ./lib/arm/lib/libfreetype.a                                                     \
+    ${TOX_LIBS} \
+    ${MORE_LIBS} \
     $ANDROID_NDK_HOME/sources/android/cpufeatures/cpu-features.c                    \
     -o ./build/lib/armeabi/libuTox.so                                               \
     --sysroot=$SYSROOT                                                              \
