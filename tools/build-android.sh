@@ -38,6 +38,7 @@ ${TOOLCHAIN}/bin/arm-linux-androideabi-gcc                                      
     -I ./lib/arm/include/freetype2/                                                 \
     -I ./lib/arm/include/freetype2/freetype/                                        \
     -I ./lib/arm/include/                                                           \
+    ${CPPFLAGS} \
     ./src/*.c                                                                       \
     ./lib/arm/lib/libtoxcore.a                                                      \
     ./lib/arm/lib/libtoxdns.a                                                       \
