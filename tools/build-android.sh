@@ -23,7 +23,7 @@ ANDROID_NDK_HOME=${ANDROID_NDK_HOME-/opt/android-ndk}
 ANDROID_SDK_HOME=${ANDROID_SDK_HOME-/opt/android-sdk}
 SYSROOT=${SYSROOT-/opt/android-ndk/platforms/${NDK_VERSION}/arch-arm}
 AND_LINKS=${AND_LINKS-" ./lib/arm/lib/lib*.a"}
-TOOLCHAIN=${TOOLCHAIN-./toolchain/bin}
+TOOLCHAIN=${TOOLCHAIN-./toolchain}
 AAPT=${AAPT-/opt/android-sdk/build-tools/${DEV_VERSION}/aapt}
 
 [ -d ${TOOLCHAIN} ] || "$ANDROID_NDK_HOME/build/tools/make-standalone-toolchain.sh"     \
