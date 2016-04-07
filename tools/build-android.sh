@@ -56,6 +56,7 @@ ${TOOLCHAIN}/bin/arm-linux-androideabi-gcc                                      
     -I ./lib/arm/include/                                                           \
     ${CPPFLAGS} \
     ./src/*.c                                                                       \
+    ${LDFLAGS} \
     ${TOX_LIBS} \
     ${MORE_LIBS} \
     $ANDROID_NDK_HOME/sources/android/cpufeatures/cpu-features.c                    \
