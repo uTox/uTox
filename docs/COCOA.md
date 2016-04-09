@@ -24,7 +24,7 @@
 
 ```bash
 brew install --HEAD libtoxcore
-make -f cocoa/Makefile uTox.app
+make -f src/cocoa/Makefile uTox.app
 ```
 
 Done!
@@ -33,12 +33,12 @@ Done!
 
 ```bash
 brew install --HEAD libtoxcore
-make -f cocoa/Makefile uTox.dmg
+make -f src/cocoa/Makefile uTox.dmg
 ```
 
 Done! (the DMG target builds a statically linked utox binary 
 for you automatically. It does not depend on anything but system
-libraries. Build just the binary with `make -f cocoa/Makefile utox-static`)
+libraries. Build just the binary with `make -f src/cocoa/Makefile utox-static`)
 
 ## Adding to uTox-cocoa
 
