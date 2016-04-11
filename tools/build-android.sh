@@ -21,7 +21,7 @@ KEYSTORE=${KEYSTORE-~/.android/utox.keystore}
 # Standard dev kit locations on posix
 ANDROID_NDK_HOME=${ANDROID_NDK_HOME-/opt/android-ndk}
 ANDROID_SDK_HOME=${ANDROID_SDK_HOME-/opt/android-sdk}
-SYSROOT=${SYSROOT-/opt/android-ndk/platforms/${NDK_VERSION}/arch-arm}
+SYSROOT=${SYSROOT-${ANDROID_NDK_HOME}/platforms/${NDK_VERSION}/arch-arm}
 TOOLCHAIN=${TOOLCHAIN-./toolchain}
 AAPT=${AAPT-$ANDROID_SDK_HOME/build-tools/${DEV_VERSION}/aapt}
 
