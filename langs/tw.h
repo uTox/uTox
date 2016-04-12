@@ -26,7 +26,7 @@ msgid(REQ_NO_MSG)
 msgstr("錯誤：空消息")
 
 msgid(REQ_SELF_ID)
-msgstr("錯誤：TOX ID 是你自己的賬號")
+msgstr("錯誤：Tox ID 是你自己的賬號")
 
 msgid(REQ_ALREADY_FRIENDS)
 msgstr("錯誤：該 Tox ID 已存在於好友列表中")
