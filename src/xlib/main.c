@@ -488,7 +488,7 @@ static uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t
 
     fseek(file, 0, SEEK_END);
     size_t size = ftell(file);
-    data = malloc(size);
+    data = calloc(size + 1, 1); // needed for the ending null byte
     if (!data) {
         fclose(file);
         if (out_size) {*out_size = 0;}
@@ -1216,6 +1216,7 @@ int main(int argc, char *argv[]) {
     if (!theme_was_set_on_argv) {
         theme = save->theme;
     }
+
     printf("%d\n", theme);
     theme_load(theme);
 

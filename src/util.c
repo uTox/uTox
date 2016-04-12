@@ -629,7 +629,7 @@ UTOX_SAVE* config_load(void) {
         debug("unable to load utox_save data\n");
     }
 
-    if(save || (save = file_text("utox_save"))) {
+    if (save) {
         if(save->version == SAVE_VERSION) {
             /* validate values */
             if(save->scale > 30) {
@@ -657,7 +657,7 @@ UTOX_SAVE* config_load(void) {
         }
     }
 
-    save = malloc(sizeof(UTOX_SAVE) + 1);
+    save = calloc(sizeof(UTOX_SAVE) + 1, 1);
     save->version = 1;
     save->scale = DEFAULT_SCALE - 1;
 
@@ -714,6 +714,7 @@ NEXT:
     strcpy((char*)proxy_address, (char*)save->proxy_ip);
     edit_proxy_ip.length = strlen((char*)save->proxy_ip);
     strcpy((char*)edit_proxy_ip.data, (char*)save->proxy_ip);
+
     if(save->proxy_port) {
         edit_proxy_port.length = snprintf((char*)edit_proxy_port.data, edit_proxy_port.maxlength + 1, "%u", save->proxy_port);
         if (edit_proxy_port.length >= edit_proxy_port.maxlength + 1) {

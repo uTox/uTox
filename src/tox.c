@@ -406,12 +406,12 @@ static int load_toxcore_save(void){
     encrypted_profile = 0;
     size_t raw_length;
     uint8_t *raw_data = native_load_data_tox(&raw_length);
-    size_t cleartext_length = raw_length - TOX_PASS_ENCRYPTION_EXTRA_LENGTH;
-    uint8_t *clear_data = malloc(cleartext_length);
 
     /* Check if we're loading a saved profile */
     if (raw_data && raw_length) {
         if (tox_is_data_encrypted(raw_data)) {
+            size_t cleartext_length = raw_length - TOX_PASS_ENCRYPTION_EXTRA_LENGTH;
+            uint8_t *clear_data = malloc(cleartext_length);
             encrypted_profile = 1;
             debug("Using encrypted data, trying password: ");
 
