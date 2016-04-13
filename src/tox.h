@@ -91,6 +91,7 @@ enum {
     TOOLTIP_SHOW,
     SELF_AVATAR_SET,
     UPDATE_TRAY,
+    PROFILE_DID_LOAD,
 
     /* File transfer messages */
     FILE_SEND_NEW,

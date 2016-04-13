@@ -391,91 +391,6 @@ void ShowContextMenu(void)
     }
 }
 
-static void parsecmd(uint8_t *cmd, int len)
-{
-    debug("Command: %.*s\n", len, cmd);
-
-    //! lacks max length checks, writes to inputs even on failure, no notice of failure
-    //doesnt reset unset inputs
-
-    if(len > 6 && memcmp(cmd, "tox://", 6) == 0) {
-        cmd += 6;
-        len -= 6;
-    } else if (len > 4 && memcmp(cmd, "tox:", 4) == 0) {
-        cmd += 4;
-        len -= 4;
-    } else {
-        return;
-    }
-
-
-    uint8_t *b = edit_add_id.data, *a = cmd, *end = cmd + len;
-    uint16_t *l = &edit_add_id.length;
-    *l = 0;
-    while(a != end)
-    {
-        switch(*a)
-        {
-            case 'a' ... 'z':
-            case 'A' ... 'Z':
-            case '0' ... '9':
-            case '@':
-            case '.':
-            case ' ':
-            {
-                *b++ = *a;
-                *l = *l + 1;
-                break;
-            }
-
-            case '+':
-            {
-                *b++ = ' ';
-                *l = *l + 1;
-                break;
-            }
-
-            case '?':
-            case '&':
-            {
-                a++;        /* Anyone know what pin is used for? */
-                if(end - a >= 4 && memcmp(a, "pin=", 4) == 0)
-                {
-
-                    l = &edit_add_id.length;
-                    b = edit_add_id.data + *l;
-                    *b++ = ':';
-                    *l = *l + 1;
-                    a += 3;
-                    break;
-                }
-                else if(end - a >= 8 && memcmp(a, "message=", 8) == 0)
-                {
-                    b = edit_add_msg.data;
-                    l = &edit_add_msg.length;
-                    *l = 0;
-                    a += 7;
-                    break;
-                }
-                return;
-            }
-
-            case '/':
-            {
-                break;
-            }
-
-            default:
-            {
-                return;
-            }
-        }
-        a++;
-    }
-
-    list_selectaddfriend();
-}
-
 // creates an UTOX_NATIVE image based on given arguments
 // image should be freed with image_free
 static UTOX_NATIVE_IMAGE *create_utox_image(HBITMAP bmp, _Bool has_alpha, uint32_t width, uint32_t height)
@@ -1259,7 +1174,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
 
     if (*cmd) {
         int len = strlen(cmd);
-        parsecmd((uint8_t*)cmd, len);
+        do_tox_url((uint8_t*)cmd, len);
     }
 
     draw = 1;
