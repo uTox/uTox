@@ -715,6 +715,12 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
             save_needed = 1;
             break;
         }
+
+        case TOX_FRIEND_NEW_DEVICE: {
+            tox_friend_add_device(tox, data, param1, 0);
+            break;
+        }
+
         case TOX_FRIEND_ACCEPT: {
             /* data: FRIENDREQ
              */

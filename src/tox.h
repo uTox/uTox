@@ -34,6 +34,7 @@ enum {
 
     /* Interact with contacts */
     TOX_FRIEND_NEW, // 6
+    TOX_FRIEND_NEW_DEVICE,
     TOX_FRIEND_ACCEPT,
     TOX_FRIEND_DELETE,
     TOX_FRIEND_ONLINE,
