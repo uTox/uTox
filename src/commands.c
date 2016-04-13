@@ -82,10 +82,8 @@ void do_tox_url(uint8_t *url_string, int len) {
     //! lacks max length checks, writes to inputs even on failure, no notice of failure
     //doesnt reset unset inputs
 
-    if(len > 6 && memcmp(url_string, "tox://", 6) == 0) {
-        url_string += 6;
-        len -= 6;
-    } else if (len > 4 && memcmp(url_string, "tox:", 4) == 0) {
+    // slashes are removed later
+    if (len > 4 && memcmp(url_string, "tox:", 4) == 0) {
         url_string += 4;
         len -= 4;
     } else {
@@ -122,26 +120,22 @@ void do_tox_url(uint8_t *url_string, int len) {
             case '?':
             case '&':
             {
-                a++;        /* Anyone know what pin is used for? */
-                if(end - a >= 4 && memcmp(a, "pin=", 4) == 0)
-                {
-
-                    l = &edit_add_id.length;
-                    b = edit_add_id.data + *l;
-                    *b++ = ':';
-                    *l = *l + 1;
-                    a += 3;
-                    break;
-                }
-                else if(end - a >= 8 && memcmp(a, "message=", 8) == 0)
+                a++;
+                if(end - a >= 8 && memcmp(a, "message=", 8) == 0)
                 {
                     b = edit_add_msg.data;
                     l = &edit_add_msg.length;
                     *l = 0;
                     a += 7;
-                    break;
+                } else {
+                    // skip everythng up to the next &
+                    while (*a != '&' && a != end) {
+                        a++;
+                    }
+                    // set the track back to the & so we can proceed normally
+                    a--;
                 }
-                return;
+                break;
             }
 
             case '/':
