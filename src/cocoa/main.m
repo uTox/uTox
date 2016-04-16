@@ -479,6 +479,10 @@ void launch_at_startup(int should) {
     id  local_event_listener;
 }
 
+- (void)applicationWillFinishLaunching:(NSNotification *)notification {
+    [[NSAppleEventManager sharedAppleEventManager] setEventHandler:self andSelector:@selector(handleAppleEvent:withReplyEvent:) forEventClass:kInternetEventClass andEventID:kAEGetURL];
+}
+
 - (void)applicationDidFinishLaunching:(NSNotification *)notification {
     setup_cursors();
     NSImageView *dock_icon = [[NSImageView alloc] initWithFrame:CGRectZero];
@@ -615,6 +619,13 @@ void launch_at_startup(int should) {
         max_video_width = screen.frame.size.width;
         max_video_height = screen.frame.size.height;
     }
+}
+
+- (void)handleAppleEvent:(NSAppleEventDescriptor *)event withReplyEvent:(NSAppleEventDescriptor *)replyEvent {
+    NSString *theURL = [event paramDescriptorForKeyword:keyDirectObject].stringValue;
+    uint8_t *cs_url = (const uint8_t *)theURL.UTF8String;
+    do_tox_url(cs_url, strlen(cs_url));
+    [self soilWindowContents];
 }
 
 - (uToxView *)mainView {

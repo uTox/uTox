@@ -73,3 +73,89 @@ uint16_t utox_run_command(char_t *string, uint16_t string_length, char_t **cmd, 
     }
     return cmd_length;
 }
+
+_Bool g_select_add_friend_later = 0;
+
+void do_tox_url(uint8_t *url_string, int len) {
+    debug("Command: %.*s\n", len, url_string);
+
+    //! lacks max length checks, writes to inputs even on failure, no notice of failure
+    //doesnt reset unset inputs
+
+    // slashes are removed later
+    if (len > 4 && memcmp(url_string, "tox:", 4) == 0) {
+        url_string += 4;
+        len -= 4;
+    } else {
+        return;
+    }
+
+    // wtf??
+    uint8_t *b = edit_add_id.data, *a = url_string, *end = url_string + len;
+    uint16_t *l = &edit_add_id.length;
+    *l = 0;
+    while(a != end)
+    {
+        switch(*a)
+        {
+            case 'a' ... 'z':
+            case 'A' ... 'Z':
+            case '0' ... '9':
+            case '@':
+            case '.':
+            case ' ':
+            {
+                *b++ = *a;
+                *l = *l + 1;
+                break;
+            }
+
+            case '+':
+            {
+                *b++ = ' ';
+                *l = *l + 1;
+                break;
+            }
+
+            case '?':
+            case '&':
+            {
+                a++;
+                if(end - a >= 8 && memcmp(a, "message=", 8) == 0)
+                {
+                    b = edit_add_msg.data;
+                    l = &edit_add_msg.length;
+                    *l = 0;
+                    a += 7;
+                } else {
+                    // skip everythng up to the next &
+                    while (*a != '&' && a != end) {
+                        a++;
+                    }
+                    // set the track back to the & so we can proceed normally
+                    a--;
+                }
+                break;
+            }
+
+            case '/':
+            {
+                break;
+            }
+
+            default:
+            {
+                return;
+            }
+        }
+        a++;
+    }
+
+    if (!tox_thread_init) {
+        // if we receive a URL event before the profile is loaded, save it for later.
+        // this usually happens when we are launched as the result of a URL click.
+        g_select_add_friend_later = 1;
+    } else {
+        list_selectaddfriend();
+    }
+}

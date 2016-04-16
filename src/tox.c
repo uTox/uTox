@@ -593,6 +593,7 @@ void toxcore_thread(void *UNUSED(args)) {
             /* init the friends list. */
             list_start();
             postmessage(UPDATE_TRAY, 0, 0, NULL);
+            postmessage(PROFILE_DID_LOAD, 0, 0, NULL);
 
             // Start the treads
             thread(utox_av_ctrl_thread, av);
@@ -1353,6 +1354,14 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         }
         case UPDATE_TRAY: {
             update_tray();
+            break;
+        }
+        case PROFILE_DID_LOAD: {
+            if (g_select_add_friend_later) {
+                g_select_add_friend_later = 0;
+                list_selectaddfriend();
+            }
+            redraw();
             break;
         }
 
