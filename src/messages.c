@@ -472,6 +472,22 @@ static _Bool messages_mmove_image(MSG_IMG *image, int max_width, int mx, int my)
     return 0;
 }
 
+static uint8_t messages_mmove_filetransfer(MSG_FILE *file, int mx, int my, int width) {
+    mx -= SCALE(10); /* Why? */
+    if (mx >= 0 && mx < width && my >= 0 && my < FILE_TRANSFER_BOX_HEIGHT) {
+        if (mx >= width - TIME_WIDTH - (BM_FTB_WIDTH * 2) - SCALE(2) - SCROLL_WIDTH && mx <= width - TIME_WIDTH - SCROLL_WIDTH) {
+            if (mx >= width - TIME_WIDTH - BM_FTB_WIDTH - SCROLL_WIDTH) {
+                // mouse is over the right button (cancel)
+                return 2;
+            } else {
+                // mouse is over the left button (pause / accept)
+                return 1;
+            }
+        }
+        return 3;
+    }
+    return 0;
+}
 
 _Bool messages_mmove(MESSAGES *m, int UNUSED(px), int UNUSED(py), int width, int UNUSED(height),
                      int mx, int my, int dx, int UNUSED(dy)) {
@@ -490,7 +506,7 @@ _Bool messages_mmove(MESSAGES *m, int UNUSED(px), int UNUSED(py), int width, int
         }
     }
 
-    if(mx < 0 || my < 0 || (uint32_t) my > m->data->height) {
+    if (mx < 0 || my < 0 || (uint32_t) my > m->data->height) {
         if(m->iover != MSG_IDX_MAX) {
             m->iover = MSG_IDX_MAX;
             return 1;
@@ -523,63 +539,10 @@ _Bool messages_mmove(MESSAGES *m, int UNUSED(px), int UNUSED(py), int width, int
             }
 
             case MSG_TYPE_FILE: {
-                uint8_t over = 0;
-                MSG_FILE *file = (void*)msg;
-
-                mx -= SCALE(10);
-                if (mx >= 0 && mx < width &&
-                    my >= 0 && my < FILE_TRANSFER_BOX_HEIGHT) {
-                    over = 3;
-                    if(mx >= width - TIME_WIDTH - (BM_FTB_WIDTH * 2) - SCALE(2) - SCROLL_WIDTH &&
-                       mx <= width - TIME_WIDTH - SCROLL_WIDTH) {
-                        if(mx >= width - TIME_WIDTH - BM_FTB_WIDTH - SCROLL_WIDTH) {
-                            // yes this is a cruel joke
-                            // mouse is over the right button (cancel)
-                            over = 2;
-                        } else {
-                            // mouse is over the left button (pause / accept)
-                            over = 1;
-                        }
-                    }
-                }
-
-                /* WTF IS THIS?! REALLY?! I MEAN SRSLY... WTF! */
-                /* It was hard to write, it should be hard to understand IS A JOKE! */
-                static const uint8_t f[16] = {
-                    0b011,
-                    0b001,
-
-                    0b011,
-                    0b011,
-
-                    0b011,
-                    0b011,
-
-                    0b001,
-                    0b001,
-
-                    0b001,
-                    0b001,
-
-                    0b001,
-                    0b001,
-
-                    0b000,
-                    0b000,
-
-                    0b111,
-                    0b111,
-                };
-
-                if (over && f[file->status * 2 + file->author] & (1 << (over - 1))) {
-                    cursor = CURSOR_HAND;
-                }
-
-                if (over != m->over) {
+                m->over = messages_mmove_filetransfer((MSG_FILE*)msg, mx, my, width);
+                if (m->over) {
                     need_redraw = 1;
-                    m->over = over;
                 }
-
                 break;
             }
             }
@@ -820,7 +783,6 @@ _Bool messages_mwheel(MESSAGES *UNUSED(m), int UNUSED(height), double UNUSED(d),
 {
     return 0;
 }
-
 
 _Bool messages_mup(MESSAGES *m){
 
