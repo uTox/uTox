@@ -406,6 +406,58 @@ void messages_draw(MESSAGES *m, int x, int y, int width, int height) {
     }
 }
 
+static _Bool messages_mmove_text(MESSAGES *m, int width, int mx, int my, int dy, char_t *message, uint32_t msg_height, uint16_t msg_length) {
+
+    m->over = hittextmultiline(mx - MESSAGES_X,
+                               width - MESSAGES_X - TIME_WIDTH,
+                               (my < 0 ? 0 : my),
+                               msg_height,
+                               font_small_lineheight,
+                               message,
+                               msg_length,
+                               1);
+
+    _Bool prev_urlmdown = m->urlmdown;
+    if (m->urlover != UINT16_MAX) {
+        m->urlmdown = 0;
+        m->urlover = UINT16_MAX;
+    }
+
+    if (my < 0 || my >= dy || mx < MESSAGES_X || m->over == msg_length) {
+        return 0;
+    }
+
+    cursor = CURSOR_TEXT;
+
+    char_t *str = message + m->over;
+    while (str != message) {
+        str--;
+        if (*str == ' ' || *str == '\n') {
+            str++;
+            break;
+        }
+    }
+
+    char_t *end = message + msg_length;
+    while (str != end && *str != ' ' && *str != '\n') {
+        if (str == message || *(str - 1) == '\n' || *(str - 1) == ' ') {
+            if ((m->urlover == UINT16_MAX && end - str >= 7 && strcmp2(str, "http://") == 0)) {
+                cursor = CURSOR_HAND;
+                m->urlover = str - message;
+            } else if ((m->urlover == UINT16_MAX && end - str >= 8 && strcmp2(str, "https://") == 0)) {
+                cursor = CURSOR_HAND;
+                m->urlover = str - message;
+            }
+        }
+        str++;
+    }
+
+    if (m->urlover != UINT16_MAX) {
+        m->urllen = (str - message) - m->urlover;
+        m->urlmdown = prev_urlmdown;
+    }
+}
+
 _Bool messages_mmove(MESSAGES *m, int UNUSED(px), int UNUSED(py), int width, int UNUSED(height),
                      int mx, int my, int dx, int UNUSED(dy)) {
     if(m->idown < m->data->n) {
@@ -446,52 +498,7 @@ _Bool messages_mmove(MESSAGES *m, int UNUSED(px), int UNUSED(py), int width, int
             switch(msg->msg_type) {
             case MSG_TYPE_TEXT:
             case MSG_TYPE_ACTION_TEXT: {
-                /* normal message */
-                m->over = hittextmultiline(mx - MESSAGES_X, width - MESSAGES_X - TIME_WIDTH, my < 0 ? 0 : my,
-                                           msg->height, font_small_lineheight, msg->msg, msg->length, 1);
-
-                _Bool prev_urlmdown = m->urlmdown;
-                if (m->urlover != UINT16_MAX) {
-                    m->urlmdown = 0;
-                    m->urlover = UINT16_MAX;
-                }
-
-                if (my < 0 || my >= dy || mx < MESSAGES_X || m->over == msg->length) {
-                    break;
-                }
-
-                cursor = CURSOR_TEXT;
-
-                char_t *str = msg->msg + m->over;
-                while(str != msg->msg) {
-                    str--;
-                    if(*str == ' ' || *str == '\n') {
-                        str++;
-                        break;
-                    }
-                }
-
-                char_t *end = msg->msg + msg->length;
-                while(str != end && *str != ' ' && *str != '\n') {
-                    if (( str == msg->msg || *(str - 1) == '\n' || *(str - 1) == ' ') &&
-                       (m->urlover == UINT16_MAX && end - str >= 7 && strcmp2(str, "http://") == 0)) {
-                        cursor = CURSOR_HAND;
-                        m->urlover = str - msg->msg;
-                    }
-
-                    if (( str == msg->msg || *(str - 1) == '\n' || *(str - 1) == ' ') &&
-                       (m->urlover == UINT16_MAX && end - str >= 8 && strcmp2(str, "https://") == 0)) {
-                        cursor = CURSOR_HAND;
-                        m->urlover = str - msg->msg;
-                    }
-
-                    str++;
-                }
-
-                if(m->urlover != UINT16_MAX) {
-                    m->urllen = (str - msg->msg) - m->urlover;
-                    m->urlmdown = prev_urlmdown;
-                }
+                messages_mmove_text(m, width, mx, my, dy, msg->msg, msg->height, msg->length);
 
                 break;
             }
@@ -518,11 +525,11 @@ _Bool messages_mmove(MESSAGES *m, int UNUSED(px), int UNUSED(py), int width, int
                 uint8_t over = 0;
                 MSG_FILE *file = (void*)msg;
 
-                mx -= UTOX_SCALE(5);
+                mx -= SCALE(10);
                 if (mx >= 0 && mx < width &&
                     my >= 0 && my < FILE_TRANSFER_BOX_HEIGHT) {
                     over = 3;
-                    if(mx >= width - TIME_WIDTH - (BM_FTB_WIDTH * 2) - UTOX_SCALE(1) - SCROLL_WIDTH &&
+                    if(mx >= width - TIME_WIDTH - (BM_FTB_WIDTH * 2) - SCALE(2) - SCROLL_WIDTH &&
                        mx <= width - TIME_WIDTH - SCROLL_WIDTH) {
                         if(mx >= width - TIME_WIDTH - BM_FTB_WIDTH - SCROLL_WIDTH) {
                             // yes this is a cruel joke
