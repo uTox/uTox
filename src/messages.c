@@ -458,6 +458,21 @@ static _Bool messages_mmove_text(MESSAGES *m, int width, int mx, int my, int dy,
     }
 }
 
+static _Bool messages_mmove_image(MSG_IMG *image, int max_width, int mx, int my){
+    if (image->w > max_width) {
+        mx -= MESSAGES_X;
+        int w = image->w > max_width ? max_width : image->w;
+        int h = (image->zoom || image->w <= max_width) ? image->h : image->h * max_width / image->w;
+
+        if (mx >= 0 && my >= 0 && mx < w && my < h) {
+            cursor = CURSOR_ZOOM_IN + image->zoom;
+            return 1;
+        }
+    }
+    return 0;
+}
+
+
 _Bool messages_mmove(MESSAGES *m, int UNUSED(px), int UNUSED(py), int width, int UNUSED(height),
                      int mx, int my, int dx, int UNUSED(dy)) {
     if(m->idown < m->data->n) {
@@ -499,25 +514,11 @@ _Bool messages_mmove(MESSAGES *m, int UNUSED(px), int UNUSED(py), int width, int
             case MSG_TYPE_TEXT:
             case MSG_TYPE_ACTION_TEXT: {
                 messages_mmove_text(m, width, mx, my, dy, msg->msg, msg->height, msg->length);
-
                 break;
             }
 
             case MSG_TYPE_IMAGE: {
-                m->over = 0;
-
-                MSG_IMG *img = (void*)msg;
-                int maxwidth = width - MESSAGES_X - TIME_WIDTH;
-
-                if(img->w > maxwidth) {
-                    mx -= MESSAGES_X;
-                    int w = img->w > maxwidth ? maxwidth : img->w;
-                    int h = (img->zoom || img->w <= maxwidth) ? img->h : img->h * maxwidth / img->w;
-                    if(mx >= 0 && my >= 0 && mx < w && my < h) {
-                        m->over = 1;
-                        cursor = CURSOR_ZOOM_IN + img->zoom;
-                    }
-                }
+                m->over = messages_mmove_image((MSG_IMG*)msg, (width - MESSAGES_X - TIME_WIDTH), mx, my);
                 break;
             }
 
