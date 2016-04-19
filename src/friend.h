@@ -37,7 +37,7 @@ typedef struct friend {
     char_t     *name, *alias, *status_message, *typed;
     uint16_t  name_length, alias_length, status_length, typed_length;
 
-    MSG_DATA msg;
+    MESSAGES msg;
 
     EDIT_CHANGE **edit_history;
     uint16_t edit_history_cur, edit_history_length;

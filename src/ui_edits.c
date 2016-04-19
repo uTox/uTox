@@ -113,7 +113,7 @@ void edit_msg_onenter(EDIT *edit) {
             return;
         }
 
-        MESSAGE *msg = malloc(length + sizeof(MESSAGE));
+        MSG_TEXT *msg = malloc(length + sizeof(MSG_TEXT));
         msg->author = 1;
         msg->msg_type = action ? MSG_TYPE_ACTION_TEXT : MSG_TYPE_TEXT;
         msg->length = length;

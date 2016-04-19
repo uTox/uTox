@@ -91,6 +91,12 @@ void utox_friend_init(Tox *tox, uint32_t friend_number){
 
         // Set scroll position to bottom of window.
         f->msg.scroll = 1.0;
+        f->msg.panel.type           = PANEL_MESSAGES;
+        f->msg.panel.content_scroll = &scrollbar_friend;
+        f->msg.panel.y              = MAIN_TOP;
+        f->msg.panel.height         = CHAT_BOX_TOP;
+        f->msg.panel.width          = -SCROLL_WIDTH;
+
 
         // Get and set the public key for this friend number and set it.
         tox_friend_get_public_key(tox, friend_number, f->cid, 0);
@@ -123,8 +129,9 @@ void utox_friend_init(Tox *tox, uint32_t friend_number){
 }
 
 void friend_setname(FRIEND *f, char_t *name, uint16_t length){
-    if(f->name && (length != f->name_length || memcmp(f->name, name, length) != 0)) {
-        MESSAGE *msg = malloc(sizeof(MESSAGE) + sizeof(" is now known as ") - 1 + f->name_length + length);
+    /* TODO: rewrite */
+    if (f->name && (length != f->name_length || memcmp(f->name, name, length) != 0)) {
+        MSG_TEXT *msg = malloc(sizeof(MSG_TEXT) + sizeof(" is now known as ") - 1 + f->name_length + length);
         msg->author = 0;
         msg->msg_type = MSG_TYPE_ACTION_TEXT;
         msg->length = sizeof(" is now known as ") - 1 + f->name_length + length;
@@ -184,7 +191,7 @@ void friend_sendimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width
     msg->image = native_image;
     msg->position = 0.0;
 
-    message_add(&messages_friend, (void*)msg, &f->msg);
+    message_add(&f->msg, (void*)msg);
     redraw();
 
     struct TOX_SEND_INLINE_MSG *tsim = malloc(sizeof(struct TOX_SEND_INLINE_MSG));
@@ -194,7 +201,7 @@ void friend_sendimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width
 }
 
 void friend_recvimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width, uint16_t height) {
-    if(!UTOX_NATIVE_IMAGE_IS_VALID(native_image)) {
+    if (!UTOX_NATIVE_IMAGE_IS_VALID(native_image)) {
         return;
     }
 
@@ -207,7 +214,7 @@ void friend_recvimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width
     msg->image = native_image;
     msg->position = 0.0;
 
-    message_add(&messages_friend, (void*)msg, &f->msg);
+    message_add(&f->msg, (void*)msg);
 }
 
 void friend_notify(FRIEND *f, char_t *str, uint16_t str_length, char_t *msg, uint16_t msg_length) {
@@ -225,14 +232,14 @@ void friend_notify(FRIEND *f, char_t *str, uint16_t str_length, char_t *msg, uin
 }
 
 void friend_addmessage_notify(FRIEND *f, char_t *data, uint16_t length) {
-    MESSAGE *msg = malloc(sizeof(MESSAGE) + length);
+    MSG_TEXT *msg = malloc(sizeof(MSG_TEXT) + length);
     msg->author = 0;
     msg->msg_type = MSG_TYPE_ACTION_TEXT;
     msg->length = length;
     char_t *p = msg->msg;
     memcpy(p, data, length);
 
-    message_add(&messages_friend, msg, &f->msg);
+    message_add(&f->msg, msg);
 
     if(selected_item->data != f) {
         f->notify = 1;
@@ -240,20 +247,20 @@ void friend_addmessage_notify(FRIEND *f, char_t *data, uint16_t length) {
 }
 
 void friend_addmessage(FRIEND *f, void *data) {
-    MESSAGE *msg = data;
+    MSG_TEXT *msg = data;
 
-    message_add(&messages_friend, data, &f->msg);
+    message_add(&f->msg, data);
 
     /* if msg_type is text/action ? create tray popup */
     switch(msg->msg_type) {
-    case MSG_TYPE_TEXT:
-    case MSG_TYPE_ACTION_TEXT: {
-        char_t m[msg->length + 1];
-        memcpy(m, msg->msg, msg->length);
-        m[msg->length] = 0;
-        notify(f->name, f->name_length, m, msg->length, f);
-        break;
-    }
+        case MSG_TYPE_TEXT:
+        case MSG_TYPE_ACTION_TEXT: {
+            char_t m[msg->length + 1];
+            memcpy(m, msg->msg, msg->length);
+            m[msg->length] = 0;
+            notify(f->name, f->name_length, m, msg->length, f);
+            break;
+        }
     }
 
     if(selected_item->data != f) {
@@ -336,7 +343,7 @@ void friend_history_clear(FRIEND *f)
 {
     uint8_t path[UTOX_FILE_NAME_LENGTH], *p;
 
-    message_clear(&messages_friend, &f->msg);
+    messages_clear_all(&f->msg);
 
     {
         /* We get the file path of the log file */
@@ -371,9 +378,9 @@ void friend_free(FRIEND *f)
     free(f->status_message);
     free(f->typed);
 
-    MSG_IDX i = 0;
-    while(i < f->msg.n) {
-        MESSAGE *msg = f->msg.data[i];
+    uint32_t i = 0;
+    while(i < f->msg.number) {
+        MSG_TEXT *msg = f->msg.data[i];
         message_free(msg);
         i++;
     }

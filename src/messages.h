@@ -1,63 +1,48 @@
 //Type for indexing into MSG_DATA->data array of messages
-typedef uint32_t MSG_IDX;
-#define MSG_IDX_MAX (UINT32_MAX)
-
-typedef struct {
-    uint32_t width, height;
-
-    // Tox friendnumber/groupnumber
-    uint32_t id;
-
-    // Number of messages in data array.
-    MSG_IDX n;
-
-    // Indices of messages in data array, where text selection starts and ends.
-    MSG_IDX istart, iend;
-    // Indices in strings of corresponding messages, where selection starts/ends.
-    uint16_t start, end;
-
-    // Pointers at various message structs, at most MAX_BACKLOG_MESSAGES.
-    void **data;
-
-    // Field for preserving position of text scroll,
-    // while this MSG_DATA is inactive.
-    double scroll;
-} MSG_DATA;
 
 struct messages {
     PANEL panel;
 
     // false for Friendchat, true for Groupchat.
-    _Bool type;
+    _Bool is_groupchat;
 
-    // true if we're in the middle of selection operation
-    // (mousedown without mouseup yet).
-    _Bool select;
+    // Tox friendnumber/groupnumber
+    uint32_t id;
+
+    int height, width;
+
 
     // Position and length of an URL in the message under the mouse,
-    // if present. urlover == UINT16_MAX if there's none.
-    uint16_t urlover, urllen;
+    // if present. mouse_over_uri == UINT16_MAX if there's none.
+    uint16_t mouse_over_uri, urllen;
 
     // Was the url pressed by the mouse.
-    _Bool urlmdown;
+    _Bool mouse_down_on_uri;
 
-    uint32_t height, width;
+    uint32_t cursor_over_msg, cursor_over_position, cursor_down_msg, cursor_down_position;
+    uint32_t sel_start_msg, sel_end_msg, sel_start_position, sel_end_position;
+    // true if we're in the middle of selection operation
+    // (mousedown without mouseup yet).
+    _Bool selecting_text;
 
-    // Indices of messages, that the mouse is over now/has been
-    // pressed mousedown over. MSG_IDX_MAX, when the mouse isn't over
-    // any message/when not in selection mode.
-    MSG_IDX iover, idown;
-    // For text messages encodes indices of chars in strings.
-    // For non-text messages, encodes various logical parts of them.
-
+    uint32_t cursor_is_over, cursor_is_down;
     // over in file transfers (iover == 1):
     //   0  == not hovered
-    //   1  == hover on the upper transfer button
-    //   2  == hover on the lower transfer button
+    //   1  == hover on the left[?]  transfer button
+    //   2  == hover on the right[?] transfer button
     //   3  == hover on the rest of the transfer box
-    uint32_t over, down;
 
-    MSG_DATA *data;
+    // Number of messages in data array.
+    uint32_t  number;
+    // Number of extra to speedup realloc.
+    int32_t extra;
+
+
+    // Pointers at various message structs, at most MAX_BACKLOG_MESSAGES.
+    void **data;
+
+    // Field for preserving position of text scroll
+    double scroll;
 };
 
 enum {
@@ -66,6 +51,16 @@ enum {
     MSG_TYPE_IMAGE,
     MSG_TYPE_FILE,
 };
+
+/* Generic Message type */
+typedef struct {
+    // true, if we're the author, false, if someone else.
+    _Bool author;
+    uint8_t msg_type;
+
+    uint32_t height;
+    uint32_t time;
+} MSG_NULL;
 
 typedef struct {
     // true, if we're the author, false, if someone else.
@@ -77,7 +72,7 @@ typedef struct {
 
     uint16_t length;
     char_t msg[0];
-} MESSAGE;
+} MSG_TEXT;
 
 typedef struct {
     // true, if we're the author, false, if someone else.
@@ -115,22 +110,22 @@ struct FILE_TRANSFER;
 /* Called externally to add a message to the queue */
 MSG_FILE* message_add_type_file(struct FILE_TRANSFER *file);
 
-void messages_draw(MESSAGES *m, int x, int y, int width, int height);
-_Bool messages_mmove(MESSAGES *m, int x, int y, int width, int height, int mx, int my, int dx, int dy);
-_Bool messages_mdown(MESSAGES *m);
-_Bool messages_dclick(MESSAGES *m, _Bool triclick);
-_Bool messages_mright(MESSAGES *m);
-_Bool messages_mwheel(MESSAGES *m, int height, double d, _Bool smooth);
-_Bool messages_mup(MESSAGES *m);
-_Bool messages_mleave(MESSAGES *m);
+void messages_draw(PANEL *panel, int x, int y, int width, int height);
+_Bool messages_mmove(PANEL *panel, int x, int y, int width, int height, int mx, int my, int dx, int dy);
+_Bool messages_mdown(PANEL *panel);
+_Bool messages_dclick(PANEL *panel, _Bool triclick);
+_Bool messages_mright(PANEL *panel);
+_Bool messages_mwheel(PANEL *panel, int height, double d, _Bool smooth);
+_Bool messages_mup(PANEL *panel);
+_Bool messages_mleave(PANEL *panel);
 
-int messages_selection(MESSAGES *m, void *data, uint32_t len, _Bool names);
+int messages_selection(PANEL *panel, void *data, uint32_t len, _Bool names);
 
 _Bool messages_char(uint32_t ch);
 
-void messages_updateheight(MESSAGES *m);
-void message_updateheight(MESSAGES *m, MESSAGE *msg, MSG_DATA *p);
-void message_add(MESSAGES *m, MESSAGE *msg, MSG_DATA *p);
-void message_clear(MESSAGES *m, MSG_DATA *p);
+void messages_updateheight(MESSAGES *m, int width);
+void message_updateheight(MESSAGES *m, MSG_TEXT *msg);
+void message_add(MESSAGES *m, MSG_TEXT *msg);
+void messages_clear_all(MESSAGES *m);
 
-void message_free(MESSAGE *msg);
+void message_free(MSG_TEXT *msg);

@@ -476,19 +476,14 @@ scrollbar_settings = {
 };
 
 /* */
-MESSAGES messages_friend = {
-    .panel = {
-        .type = PANEL_MESSAGES,
-        .content_scroll = &scrollbar_friend,
-    }
+PANEL messages_friend = {
+    .type = PANEL_MESSAGES,
+    .content_scroll = &scrollbar_friend,
 },
 
 messages_group = {
-    .panel = {
-        .type = PANEL_MESSAGES,
-        .content_scroll = &scrollbar_group,
-    },
-    .type = 1
+    .type = PANEL_MESSAGES,
+    .content_scroll = &scrollbar_group,
 };
 
 /* Root panel, hold all the other panels */
@@ -824,8 +819,8 @@ void ui_set_scale(uint8_t scale) {
         panel_main.x = MAIN_LEFT;
         panel_main.y = 0;
 
-        scrollbar_settings.panel.y        = UTOX_SCALE(16 );
-        scrollbar_settings.content_height = UTOX_SCALE(150 );
+        scrollbar_settings.panel.y        = SCALE(32);  /* TODO magic numbers are bad */
+        scrollbar_settings.content_height = SCALE(300); /* TODO magic numbers are bad */
 
         panel_settings_master.y  = MAIN_TOP_FRAME_THIN;
         panel_settings_profile.y = SCALE(32);
@@ -835,15 +830,15 @@ void ui_set_scale(uint8_t scale) {
 
         scrollbar_friend.panel.y        = MAIN_TOP;
         scrollbar_friend.panel.height   = CHAT_BOX_TOP;
-        messages_friend.panel.y         = MAIN_TOP;
-        messages_friend.panel.height    = CHAT_BOX_TOP - SCALE(10);
-        messages_friend.panel.width     = -SCROLL_WIDTH;
+        messages_friend.y               = MAIN_TOP;
+        messages_friend.height          = CHAT_BOX_TOP - SCALE(10);
+        messages_friend.width           = -SCROLL_WIDTH;
 
         scrollbar_group.panel.y         = MAIN_TOP;
         scrollbar_group.panel.height    = CHAT_BOX_TOP;
-        messages_group.panel.y          = MAIN_TOP;
-        messages_group.panel.height     = CHAT_BOX_TOP;
-        messages_group.panel.width      = -SCROLL_WIDTH;
+        messages_group.y                = MAIN_TOP;
+        messages_group.height           = CHAT_BOX_TOP;
+        messages_group.width            = -SCROLL_WIDTH;
 
     setscale_fonts();
 
@@ -1433,13 +1428,15 @@ static void panel_update(PANEL *p, int x, int y, int width, int height)
 {
     FIX_XY_CORDS_FOR_SUBPANELS();
 
-    if(p->type == PANEL_MESSAGES) {
-        MESSAGES *m = (void*)p;
+    if (p->type == PANEL_MESSAGES && p->object) {
+        MESSAGES *m = p->object;
         m->width = width;
-        if(!p->disabled) {
-            messages_updateheight(m);
+        if (!p->disabled) {
+            messages_updateheight(m, p->width);
         }
     }
+
+    p->width = width;
 
     PANEL **pp = p->child, *subp;
     if(pp) {
@@ -1480,7 +1477,7 @@ static void panel_draw_sub(PANEL *p, int x, int y, int width, int height)
 
     PANEL **pp = p->child, *subp;
     if (pp) {
-        while((subp = *pp++)) {
+        while ((subp = *pp++)) {
             if (!subp->disabled) {
                 panel_draw_sub(subp, x, y, width, height);
             }
@@ -1498,7 +1495,7 @@ void panel_draw(PANEL *p, int x, int y, int width, int height)
 
     //pushclip(x, y, width, height);
 
-    if(p->type) {
+    if (p->type) {
         drawfunc[p->type - 1](p, x, y, width, height);
     } else {
         if(p->drawfunc) {
@@ -1507,7 +1504,7 @@ void panel_draw(PANEL *p, int x, int y, int width, int height)
     }
 
     PANEL **pp = p->child, *subp;
-    if(pp) {
+    if (pp) {
         while((subp = *pp++)) {
             if(!subp->disabled) {
                 panel_draw_sub(subp, x, y, width, height);

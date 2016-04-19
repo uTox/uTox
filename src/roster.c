@@ -243,12 +243,14 @@ static void show_page(ITEM *i) {
         case ITEM_FRIEND: {
             FRIEND *f = selected_item->data;
 
+            messages_friend.object = NULL;
+
             free(f->typed);
             f->typed_length = edit_msg.length;
             f->typed = malloc(edit_msg.length);
             memcpy(f->typed, edit_msg.data, edit_msg.length);
 
-            f->msg.scroll = messages_friend.panel.content_scroll->d;
+            f->msg.scroll = messages_friend.content_scroll->d;
 
             f->edit_history = edit_msg.history;
             f->edit_history_cur = edit_msg.history_cur;
@@ -270,12 +272,14 @@ static void show_page(ITEM *i) {
         case ITEM_GROUP: {
             GROUPCHAT *g = selected_item->data;
 
+            messages_group.object = NULL;
+
             free(g->typed);
             g->typed_length = edit_msg_group.length;
             g->typed = malloc(edit_msg_group.length);
             memcpy(g->typed, edit_msg_group.data, edit_msg_group.length);
 
-            g->msg.scroll = messages_group.panel.content_scroll->d;
+            g->msg.scroll = messages_group.content_scroll->d;
 
             g->edit_history = edit_msg_group.history;
             g->edit_history_cur = edit_msg_group.history_cur;
@@ -321,12 +325,14 @@ static void show_page(ITEM *i) {
             memcpy(edit_msg.data, f->typed, f->typed_length);
             edit_msg.length = f->typed_length;
 
-            messages_friend.data = &f->msg;
-            messages_updateheight(&messages_friend);
+            /* We use the MESSAGES struct from the friend, but we need the info from the panel. */
+            f->msg.width = messages_friend.width;
+            messages_friend.object = ((void**)&f->msg);
+            messages_updateheight((MESSAGES*)messages_friend.object, messages_friend.width);
 
-            messages_friend.iover = MSG_IDX_MAX;
-            messages_friend.panel.content_scroll->content_height = f->msg.height;
-            messages_friend.panel.content_scroll->d = f->msg.scroll;
+            ((MESSAGES*)messages_friend.object)->cursor_over_msg = UINT32_MAX;
+            scrollbar_friend.content_height = f->msg.height;
+            messages_friend.content_scroll->d = f->msg.scroll;
 
             f->msg.id = f - friend;
 
@@ -350,12 +356,14 @@ static void show_page(ITEM *i) {
             memcpy(edit_msg_group.data, g->typed, g->typed_length);
             edit_msg_group.length = g->typed_length;
 
-            messages_group.data = &g->msg;
-            messages_updateheight(&messages_group);
+            /* We use the MESSAGES struct from the group, but we need the info from the panel. */
+            g->msg.width = messages_group.width;
+            messages_group.object = ((void*)&g->msg);
+            messages_updateheight((MESSAGES*)messages_group.object, messages_group.width);
 
-            messages_group.iover = MSG_IDX_MAX;
-            messages_group.panel.content_scroll->content_height = g->msg.height;
-            messages_group.panel.content_scroll->d = g->msg.scroll;
+            ((MESSAGES*)messages_group.object)->cursor_over_msg = UINT32_MAX;
+            messages_group.content_scroll->content_height = g->msg.height;
+            messages_group.content_scroll->d = g->msg.scroll;
             edit_setfocus(&edit_msg_group);
 
             g->msg.id = g - group;
@@ -393,10 +401,6 @@ static void show_page(ITEM *i) {
     selected_item = i;
 
     addfriend_status = 0;
-
-    // I think we shouldn't call this just here, redrawing should only be done when panel_draw is called, and now, we
-    // don't even need to call the root tree, we can call subtrees/roots and should be able to increase performance.
-    // redraw();
 }
 
 void list_start(void) {
@@ -437,10 +441,10 @@ void list_addfriend2(FRIEND *f, FRIENDREQ *req) {
                 // panel_item[selected_item->item - 1].disabled = 1;
                 // panel_item[ITEM_FRIEND - 1].disabled = 0;
 
-                messages_friend.data = &f->msg;
-                messages_friend.iover = MSG_IDX_MAX;
-                messages_friend.panel.content_scroll->content_height = f->msg.height;
-                messages_friend.panel.content_scroll->d = f->msg.scroll;
+                messages_friend.object = (void*)&f->msg;
+                ((MESSAGES*)messages_friend.object)->cursor_over_msg = UINT32_MAX;
+                messages_friend.content_scroll->content_height = f->msg.height;
+                messages_friend.content_scroll->d = f->msg.scroll;
 
                 f->msg.id = f - friend;
             }

@@ -2,7 +2,7 @@ static void* copy_message(const uint8_t *str, uint16_t length, uint8_t msg_type)
 {
     length = utf8_validate(str, length);
 
-    MESSAGE *msg = malloc(sizeof(MESSAGE) + length);
+    MSG_TEXT *msg = malloc(sizeof(MSG_TEXT) + length);
     msg->author = 0;
     msg->msg_type = msg_type;
     msg->length = length;
@@ -24,7 +24,7 @@ static void* copy_groupmessage(Tox *tox, const uint8_t *str, uint16_t length, ui
     namelen = utf8_validate(name, namelen);
 
 
-    MESSAGE *msg = malloc(sizeof(MESSAGE) + 1 + length + namelen);
+    MSG_TEXT *msg = malloc(sizeof(MSG_TEXT) + 1 + length + namelen);
     msg->author = 0;
     msg->msg_type = msg_type;
     msg->length = length;
