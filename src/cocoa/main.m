@@ -236,7 +236,7 @@ _Bool native_save_data_tox(uint8_t *data, size_t length){
     return native_save_data(name, strlen((const char*)name), data, length);
 }
 
-_Bool native_save_data_utox(uint8_t *data, size_t length){
+_Bool native_save_data_utox(UTOX_SAVE *data, size_t length){
     uint8_t name[] = "utox_save";
     return native_save_data(name, strlen((const char*)name), data, length);
 }
