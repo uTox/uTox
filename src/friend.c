@@ -83,7 +83,7 @@ static void friend_meta_data_read(Tox *tox, int friend_id) {
     return;
 }
 
-void utox_friend_init(Tox *tox, uint32_t friend_number){
+void utox_friend_init(Tox *tox, uint32_t friend_number) {
         int size;
         // get friend pointer
         FRIEND *f = &friend[friend_number];
@@ -131,17 +131,15 @@ void utox_friend_init(Tox *tox, uint32_t friend_number){
 void friend_setname(FRIEND *f, char_t *name, uint16_t length){
     /* TODO: rewrite */
     if (f->name && (length != f->name_length || memcmp(f->name, name, length) != 0)) {
-        MSG_TEXT *msg = malloc(sizeof(MSG_TEXT) + sizeof(" is now known as ") - 1 + f->name_length + length);
-        msg->author = 0;
-        msg->msg_type = MSG_TYPE_ACTION_TEXT;
-        msg->length = sizeof(" is now known as ") - 1 + f->name_length + length;
 
-        char_t *p = msg->msg;
-        memcpy(p, f->name, f->name_length); p += f->name_length;
-        memcpy(p, " is now known as ", sizeof(" is now known as ") - 1); p += sizeof(" is now known as ") - 1;
-        memcpy(p, name, length);
+        size_t size = sizeof(" is now known as ") - 1 + f->name_length + length;
 
-        friend_addmessage(f, msg);
+        char_t *p = calloc(1, size);
+        memcpy(p, f->name, f->name_length);
+        memcpy(p + f->name_length, " is now known as ", sizeof(" is now known as ") - 1);
+        memcpy(p + f->name_length + sizeof(" is now known as ") - 1, name, length);
+
+        message_add_type_notice(&f->msg, p, size);
     }
 
     free(f->name);
@@ -182,16 +180,7 @@ void friend_set_alias(FRIEND *f, char_t *alias, uint16_t length){
 void friend_sendimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width, uint16_t height,
                       UTOX_IMAGE png_image, size_t png_size)
 {
-    MSG_IMG *msg = malloc(sizeof(MSG_IMG));
-    msg->author = 1;
-    msg->msg_type = MSG_TYPE_IMAGE;
-    msg->w = width;
-    msg->h = height;
-    msg->zoom = 0;
-    msg->image = native_image;
-    msg->position = 0.0;
-
-    message_add(&f->msg, (void*)msg);
+    message_add_type_image(&f->msg, 1, native_image, width, height);
     redraw();
 
     struct TOX_SEND_INLINE_MSG *tsim = malloc(sizeof(struct TOX_SEND_INLINE_MSG));
@@ -205,16 +194,7 @@ void friend_recvimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width
         return;
     }
 
-    MSG_IMG *msg = malloc(sizeof(MSG_IMG));
-    msg->author = 0;
-    msg->msg_type = MSG_TYPE_IMAGE;
-    msg->w = width;
-    msg->h = height;
-    msg->zoom = 0;
-    msg->image = native_image;
-    msg->position = 0.0;
-
-    message_add(&f->msg, (void*)msg);
+    message_add_type_image(&f->msg, 0, native_image, width, height);
 }
 
 void friend_notify(FRIEND *f, char_t *str, uint16_t str_length, char_t *msg, uint16_t msg_length) {
@@ -232,38 +212,9 @@ void friend_notify(FRIEND *f, char_t *str, uint16_t str_length, char_t *msg, uin
 }
 
 void friend_addmessage_notify(FRIEND *f, char_t *data, uint16_t length) {
-    MSG_TEXT *msg = malloc(sizeof(MSG_TEXT) + length);
-    msg->author = 0;
-    msg->msg_type = MSG_TYPE_ACTION_TEXT;
-    msg->length = length;
-    char_t *p = msg->msg;
-    memcpy(p, data, length);
+    message_add_type_text(&f->msg, 0, data, length);
 
-    message_add(&f->msg, msg);
-
-    if(selected_item->data != f) {
-        f->notify = 1;
-    }
-}
-
-void friend_addmessage(FRIEND *f, void *data) {
-    MSG_TEXT *msg = data;
-
-    message_add(&f->msg, data);
-
-    /* if msg_type is text/action ? create tray popup */
-    switch(msg->msg_type) {
-        case MSG_TYPE_TEXT:
-        case MSG_TYPE_ACTION_TEXT: {
-            char_t m[msg->length + 1];
-            memcpy(m, msg->msg, msg->length);
-            m[msg->length] = 0;
-            notify(f->name, f->name_length, m, msg->length, f);
-            break;
-        }
-    }
-
-    if(selected_item->data != f) {
+    if (selected_item->data != f) {
         f->notify = 1;
     }
 }

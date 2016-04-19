@@ -610,7 +610,7 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
                     file_handle->file = file;
                     file_handle->size_transferred = seek_size;
                     /* TODO try to re-access the original message box for this file transfer, without segfaulting! */
-                    file_handle->ui_data = message_add_type_file(file_handle);
+                    file_handle->ui_data = message_create_type_file(file_handle);
                     file_handle->resume = utox_file_alloc_ftinfo(file_handle);
                     utox_new_user_file(file_handle);
                     TOX_ERR_FILE_SEEK error = 0;
@@ -636,7 +636,7 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
             utox_build_file_transfer(file_handle, friend_number, file_number, file_size, 1, 1, 0,
                 TOX_FILE_KIND_DATA, filename, filename_length, NULL, 0, NULL, tox);
 
-            file_handle->ui_data = message_add_type_file(file_handle);
+            file_handle->ui_data = message_create_type_file(file_handle);
             file_handle->resume = 0;
             /* Notify the user! */
             utox_new_contact_file(file_handle);
@@ -645,7 +645,7 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
             utox_build_file_transfer(file_handle, friend_number, file_number, file_size, 1, 0, 0,
                 TOX_FILE_KIND_DATA, filename, filename_length, NULL, 0, NULL, tox);
             /* Set UI values */
-            file_handle->ui_data = message_add_type_file(file_handle);
+            file_handle->ui_data = message_create_type_file(file_handle);
             file_handle->resume = 0;
             /* Notify the user! */
             utox_new_contact_file(file_handle);
@@ -855,7 +855,7 @@ uint32_t outgoing_file_send(Tox *tox, uint32_t friend_number, uint8_t *path, uin
         /* Build UI info, and create resume file. */
         if(!memory){
             file_handle->file = file;
-            file_handle->ui_data = message_add_type_file(file_handle);
+            file_handle->ui_data = message_create_type_file(file_handle);
             file_handle->resume = utox_file_alloc_ftinfo(file_handle);
             if(kind == TOX_FILE_KIND_EXISTING){
                 free(path);
@@ -870,7 +870,7 @@ uint32_t outgoing_file_send(Tox *tox, uint32_t friend_number, uint8_t *path, uin
                 memcpy(file_handle->avatar, file_data, file_data_size);
             } else {
                 /* Allow saving of in-lines */
-                file_handle->ui_data = message_add_type_file(file_handle);
+                file_handle->ui_data = message_create_type_file(file_handle);
                 memcpy(file_handle->memory, file_data, file_data_size);
                 free(filename);
                 utox_new_user_file(file_handle);

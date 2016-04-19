@@ -8,3 +8,5 @@ debug.keystore
 Tox/
 libtoxcore.log
 toolchain/
+build/*
+tox/*

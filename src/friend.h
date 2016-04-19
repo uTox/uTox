@@ -62,13 +62,12 @@ void utox_friend_init(Tox *tox, uint32_t friend_number);
 
 void friend_setname(FRIEND *f, char_t *name, uint16_t length);
 void friend_set_alias(FRIEND *f, char_t *alias, uint16_t length);
-void friend_addmessage(FRIEND *f, void *data);
 void friend_sendimage(FRIEND *f, UTOX_NATIVE_IMAGE *, uint16_t width, uint16_t height, UTOX_IMAGE, size_t png_size);
 void friend_recvimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width, uint16_t height);
 
 void friend_notify(FRIEND *f, char_t *str, uint16_t str_length, char_t *msg, uint16_t msg_length);
 #define friend_notifystr(f, str, msg, mlen) friend_notify(f, (char_t*)str, sizeof(str) - 1, msg, mlen)
-void friend_addmessage_notify(FRIEND *f, char_t *data, uint16_t length);
+//void friend_addmessage_notify(FRIEND *f, char_t *data, uint16_t length);
 
 /* set friend online status. Returns: true if status changed, false otherwise */
 _Bool friend_set_online(FRIEND *f, _Bool online);

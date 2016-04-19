@@ -5,12 +5,9 @@ struct messages {
 
     // false for Friendchat, true for Groupchat.
     _Bool is_groupchat;
-
     // Tox friendnumber/groupnumber
     uint32_t id;
-
     int height, width;
-
 
     // Position and length of an URL in the message under the mouse,
     // if present. mouse_over_uri == UINT16_MAX if there's none.
@@ -25,18 +22,10 @@ struct messages {
     // (mousedown without mouseup yet).
     _Bool selecting_text;
 
-    uint32_t cursor_is_over, cursor_is_down;
-    // over in file transfers (iover == 1):
-    //   0  == not hovered
-    //   1  == hover on the left[?]  transfer button
-    //   2  == hover on the right[?] transfer button
-    //   3  == hover on the rest of the transfer box
-
     // Number of messages in data array.
     uint32_t  number;
     // Number of extra to speedup realloc.
-    int32_t extra;
-
+    int8_t extra;
 
     // Pointers at various message structs, at most MAX_BACKLOG_MESSAGES.
     void **data;
@@ -45,12 +34,18 @@ struct messages {
     double scroll;
 };
 
-enum {
+typedef enum UTOX_MSG_TYPE {
+    MSG_TYPE_NULL,
     MSG_TYPE_TEXT,
     MSG_TYPE_ACTION_TEXT,
+    MSG_TYPE_NOTICE,
     MSG_TYPE_IMAGE,
+    MSG_TYPE_IMAGE_HISTORY,
     MSG_TYPE_FILE,
-};
+    MSG_TYPE_FILE_HISTORY,
+    MSG_TYPE_CALL_ACTIVE,
+    MSG_TYPE_CALL_HISTORY,
+} UTOX_MSG_TYPE;
 
 /* Generic Message type */
 typedef struct {
@@ -60,7 +55,7 @@ typedef struct {
 
     uint32_t height;
     uint32_t time;
-} MSG_NULL;
+} MSG_VOID;
 
 typedef struct {
     // true, if we're the author, false, if someone else.
@@ -108,7 +103,12 @@ typedef struct msg_file {
 struct FILE_TRANSFER;
 
 /* Called externally to add a message to the queue */
-MSG_FILE* message_add_type_file(struct FILE_TRANSFER *file);
+MSG_FILE* message_create_type_file(struct FILE_TRANSFER *file);
+
+uint32_t message_add_type_text(MESSAGES *m, _Bool auth, const uint8_t *data, uint16_t length);
+uint32_t message_add_type_action(MESSAGES *m, _Bool auth, const uint8_t *data, uint16_t length);
+uint32_t message_add_type_notice(MESSAGES *m, const uint8_t *data, uint16_t length);
+uint32_t message_add_type_image(MESSAGES *m, _Bool auth, UTOX_NATIVE_IMAGE *img, uint16_t width, uint16_t height);
 
 void messages_draw(PANEL *panel, int x, int y, int width, int height);
 _Bool messages_mmove(PANEL *panel, int x, int y, int width, int height, int mx, int my, int dx, int dy);
@@ -124,8 +124,7 @@ int messages_selection(PANEL *panel, void *data, uint32_t len, _Bool names);
 _Bool messages_char(uint32_t ch);
 
 void messages_updateheight(MESSAGES *m, int width);
-void message_updateheight(MESSAGES *m, MSG_TEXT *msg);
-void message_add(MESSAGES *m, MSG_TEXT *msg);
+void message_updateheight(MESSAGES *m, MSG_VOID *msg);
 void messages_clear_all(MESSAGES *m);
 
 void message_free(MSG_TEXT *msg);

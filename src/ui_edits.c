@@ -113,17 +113,16 @@ void edit_msg_onenter(EDIT *edit) {
             return;
         }
 
-        MSG_TEXT *msg = malloc(length + sizeof(MSG_TEXT));
-        msg->author = 1;
-        msg->msg_type = action ? MSG_TYPE_ACTION_TEXT : MSG_TYPE_TEXT;
-        msg->length = length;
-        memcpy(msg->msg, text, length);
+        /* Display locally */
+        if (action) {
+            message_add_type_action(&f->msg, 1, text, length);
+        } else {
+            message_add_type_text(&f->msg, 1, text, length);
+        }
 
-        friend_addmessage(f, msg);
-
+        /* Send to contact */
         void *d = malloc(length);
         memcpy(d, text, length);
-
         postmessage_toxcore((action ? TOX_SEND_ACTION : TOX_SEND_MESSAGE), (f - friend), length, d);
     } else if(selected_item->item == ITEM_GROUP) {
         GROUPCHAT *g = selected_item->data;

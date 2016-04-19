@@ -1622,7 +1622,7 @@ _Bool panel_dclick(PANEL *p, _Bool triclick)
     if(p->type == PANEL_EDIT) {
         draw = edit_dclick((EDIT*)p, triclick);
     } else if(p->type == PANEL_MESSAGES) {
-        draw = messages_dclick((MESSAGES*)p, triclick);
+        draw = messages_dclick(p, triclick);
     }
 
     PANEL **pp = p->child, *subp;

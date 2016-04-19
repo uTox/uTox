@@ -1361,7 +1361,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             FILE_TRANSFER *file_handle = data;
             FRIEND *f = &friend[file_handle->friend_number];
 
-            friend_addmessage(f, file_handle->ui_data);
+            message_add_type_file_compat(f, file_handle->ui_data);
             file_notify(f, file_handle->ui_data);
             redraw();
             free(file_handle);
@@ -1376,7 +1376,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
                 native_autoselect_dir_ft(file->friend_number, file);
             }
 
-            friend_addmessage(f, file->ui_data);
+            message_add_type_file_compat(f, file->ui_data);
             file_notify(f, file->ui_data);
             redraw();
             free(file);
@@ -1507,7 +1507,6 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             break;
         }
         case FRIEND_MESSAGE: {
-            friend_addmessage(&friend[param1], data);
             redraw();
             break;
         }
@@ -1641,8 +1640,6 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             if (selected_item->data != g) {
                 g->notify = 1;
             }
-
-            message_add(&g->msg, data);
 
             if(selected_item && g == selected_item->data) {
                 redraw();//ui_drawmain();

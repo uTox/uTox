@@ -1,11 +1,57 @@
 #include "main.h"
 
-MSG_TEXT* message_add_type_text() {
-    return NULL;
+static uint32_t message_add(MESSAGES *m, MSG_VOID *msg);
+
+uint32_t message_add_type_text(MESSAGES *m, _Bool auth, const uint8_t *data, uint16_t length) {
+    MSG_TEXT *msg   = malloc(sizeof(MSG_TEXT) + length);
+    msg->author     = auth;
+    msg->msg_type   = MSG_TYPE_TEXT;
+    msg->length     = length;
+    memcpy(msg->msg, data, length);
+
+    return message_add(m, (MSG_VOID*)msg);
 }
 
+uint32_t message_add_type_action(MESSAGES *m, _Bool auth, const uint8_t *data, uint16_t length) {
+    MSG_TEXT *msg   = malloc(sizeof(MSG_TEXT) + length);
+    msg->author     = auth;
+    msg->msg_type   = MSG_TYPE_ACTION_TEXT;
+    msg->length     = length;
+    memcpy(msg->msg, data, length);
+
+    return message_add(m, (MSG_VOID*)msg);
+}
+
+uint32_t message_add_type_notice(MESSAGES *m, const uint8_t *data, uint16_t length) {
+    MSG_TEXT *msg   = malloc(sizeof(MSG_TEXT) + length);
+    msg->author     = 0;
+    msg->msg_type   = MSG_TYPE_ACTION_TEXT;
+    msg->length     = length;
+    memcpy(msg->msg, data, length);
+
+    return message_add(m, (MSG_VOID*)msg);
+}
+
+uint32_t message_add_type_image(MESSAGES *m, _Bool auth, UTOX_NATIVE_IMAGE *img, uint16_t width, uint16_t height) {
+    if (!UTOX_NATIVE_IMAGE_IS_VALID(img)) {
+        return 0;
+    }
+
+    MSG_IMG *msg = malloc(sizeof(MSG_IMG));
+    msg->author = auth;
+    msg->msg_type = MSG_TYPE_IMAGE;
+    msg->w = width;
+    msg->h = height;
+    msg->zoom = 0;
+    msg->image = img;
+    msg->position = 0.0;
+
+    return message_add(m, (MSG_VOID*)msg);
+}
+
+/* TODO FIX THIS SECTION TO MATCH ABOVE! */
 /* Called by new file transfer to add a new message to the msg list */
-MSG_FILE* message_add_type_file(FILE_TRANSFER *file) { //TODO shove on ui thread
+MSG_FILE* message_create_type_file(FILE_TRANSFER *file) { //TODO shove on ui thread
     MSG_FILE *msg   = malloc(sizeof(MSG_FILE));
     msg->author     = file->incoming ? 0 : 1;
     msg->msg_type   = MSG_TYPE_FILE;
@@ -21,6 +67,12 @@ MSG_FILE* message_add_type_file(FILE_TRANSFER *file) { //TODO shove on ui thread
     msg->path       = NULL;
 
     return msg;
+}
+
+// uint32_t message_add_type_file(MESSAGES *m, _Bool auth, file_number, status, name, name_length, local_path, local_length, file_size,) {}
+
+uint32_t message_add_type_file_compat(MESSAGES *m, MSG_FILE *f) {
+    return message_add(m, (MSG_VOID*)f);
 }
 
 static void messages_draw_timestamp(int x, int y, uint32_t time) {
@@ -368,6 +420,10 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
 
         // Draw message contents
         switch(msg->msg_type) {
+            case MSG_TYPE_NULL: {
+                break;
+            }
+
             case MSG_TYPE_TEXT:
             case MSG_TYPE_ACTION_TEXT: {
                 // Normal message
@@ -383,7 +439,7 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
                     h2 = msg->length;
                 }
 
-                if((m->sel_start_msg == m->sel_end_msg && m->sel_start_position == m->sel_end_position) || h1 == h2) {
+                if ((m->sel_start_msg == m->sel_end_msg && m->sel_start_position == m->sel_end_position) || h1 == h2) {
                     h1 = UINT16_MAX;
                     h2 = UINT16_MAX;
                 }
@@ -624,7 +680,7 @@ _Bool messages_mdown(PANEL *panel) {
 
     if (m->cursor_over_msg != UINT32_MAX) {
 
-        MSG_NULL *msg = m->data[m->cursor_over_msg];
+        MSG_VOID *msg = m->data[m->cursor_over_msg];
         switch (msg->msg_type) {
             case MSG_TYPE_TEXT:
             case MSG_TYPE_ACTION_TEXT: {
@@ -643,7 +699,7 @@ _Bool messages_mdown(PANEL *panel) {
                 if (m->cursor_over_position) {
                     if(!img->zoom) {
                         img->zoom = 1;
-                        message_updateheight(m, (MSG_TEXT*)msg);
+                        message_updateheight(m, (MSG_VOID*)msg);
                     } else {
                         m->cursor_down_msg = m->cursor_over_msg;
                     }
@@ -765,7 +821,7 @@ _Bool messages_dclick(PANEL *panel, _Bool triclick) {
                 if (m->cursor_over_position) {
                     if (img->zoom) {
                         img->zoom = 0;
-                        message_updateheight(m, msg);
+                        message_updateheight(m, (MSG_VOID*)msg);
                     }
                 }
                 return 1;
@@ -959,11 +1015,12 @@ int messages_selection(PANEL *panel, void *buffer, uint32_t len, _Bool names) {
     return (void*)p - buffer;
 }
 
-static int msgheight(MSG_TEXT *msg, int width) {
+static int msgheight(MSG_VOID *msg, int width) {
     switch(msg->msg_type) {
         case MSG_TYPE_TEXT:
         case MSG_TYPE_ACTION_TEXT: {
-            int theight = text_height(abs(width - MESSAGES_X - TIME_WIDTH), font_small_lineheight, msg->msg, msg->length);
+            MSG_TEXT *text = (void*)msg;
+            int theight = text_height(abs(width - MESSAGES_X - TIME_WIDTH), font_small_lineheight, text->msg, text->length);
             return (theight == 0) ? 0 : theight + MESSAGES_SPACING;
         }
 
@@ -993,7 +1050,7 @@ void messages_updateheight(MESSAGES *m, int width) {
     uint32_t i = 0;
 
     while (i < m->number) {
-        MSG_TEXT *msg = m->data[i];
+        MSG_VOID *msg = m->data[i];
         msg->height   = msgheight(msg, m->width);
         height       += msg->height;
         m->width      = width;
@@ -1003,7 +1060,7 @@ void messages_updateheight(MESSAGES *m, int width) {
     m->panel.content_scroll->content_height = m->height = height;
 }
 
-static void message_setheight(MESSAGES *m, MSG_NULL *msg) {
+static void message_setheight(MESSAGES *m, MSG_VOID *msg) {
 
     if (m->width == 0) {
         return;
@@ -1011,12 +1068,12 @@ static void message_setheight(MESSAGES *m, MSG_NULL *msg) {
 
     setfont(FONT_TEXT);
 
-    msg->height  = msgheight((MSG_TEXT*)msg, m->width);
+    msg->height  = msgheight((MSG_VOID*)msg, m->width);
     m->height   += msg->height;
     m->panel.content_scroll->content_height = m->height;
 }
 
-void message_updateheight(MESSAGES *m, MSG_TEXT *msg) {
+void message_updateheight(MESSAGES *m, MSG_VOID *msg) {
     if (m->width == 0) {
         return;
     }
@@ -1037,7 +1094,7 @@ void message_updateheight(MESSAGES *m, MSG_TEXT *msg) {
  *
  * accepts: MESSAGES *pointer, MESSAGE *pointer, MSG_DATA *pointer
  */
-void message_add(MESSAGES *m, MSG_TEXT *msg) {
+static uint32_t message_add(MESSAGES *m, MSG_VOID *msg) {
     time_t rawtime;
     struct tm *ti;
     time(&rawtime);
@@ -1059,7 +1116,7 @@ void message_add(MESSAGES *m, MSG_TEXT *msg) {
         m->data[m->number++] = msg;
         m->extra--;
     } else {
-        m->height -= ((MSG_NULL*)m->data[0])->height;
+        m->height -= ((MSG_VOID*)m->data[0])->height;
         /* Assuming this is MSG_TEXT is probably a mistake... */
         message_free(m->data[0]);
         memmove(m->data, m->data + 1, (UTOX_MAX_BACKLOG_MESSAGES - 1) * sizeof(void*));
@@ -1098,7 +1155,9 @@ void message_add(MESSAGES *m, MSG_TEXT *msg) {
         }
     }
 
-    message_setheight(m, (MSG_NULL*)msg);
+    message_setheight(m, (MSG_VOID*)msg);
+
+    return m->number;
 }
 
 _Bool messages_char(uint32_t ch) {
