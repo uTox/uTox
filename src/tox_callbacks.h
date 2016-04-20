@@ -1,16 +1,3 @@
-static void* copy_message(const uint8_t *str, uint16_t length, uint8_t msg_type)
-{
-    length = utf8_validate(str, length);
-
-    MESSAGE *msg = malloc(sizeof(MESSAGE) + length);
-    msg->author = 0;
-    msg->msg_type = msg_type;
-    msg->length = length;
-    memcpy(msg->msg, str, length);
-
-    return msg;
-}
-
 static void* copy_groupmessage(Tox *tox, const uint8_t *str, uint16_t length, uint8_t msg_type, int gid, int pid)
 {
     uint8_t name[TOX_MAX_NAME_LENGTH];
@@ -24,7 +11,7 @@ static void* copy_groupmessage(Tox *tox, const uint8_t *str, uint16_t length, ui
     namelen = utf8_validate(name, namelen);
 
 
-    MESSAGE *msg = malloc(sizeof(MESSAGE) + 1 + length + namelen);
+    MSG_TEXT *msg = malloc(sizeof(MSG_TEXT) + 1 + length + namelen);
     msg->author = 0;
     msg->msg_type = msg_type;
     msg->length = length;
@@ -51,20 +38,26 @@ static void callback_friend_request(Tox *UNUSED(tox), const uint8_t *id, const u
 static void callback_friend_message(Tox *tox, uint32_t friend_number, TOX_MESSAGE_TYPE type, const uint8_t *message, size_t length, void *UNUSED(userdata)){
     /* send message to UI */
     switch(type){
-    case TOX_MESSAGE_TYPE_NORMAL:
-        postmessage(FRIEND_MESSAGE, friend_number, 0, copy_message(message, length, MSG_TYPE_TEXT));
-        debug("Friend(%u) Standard Message: %.*s\n", friend_number, (int)length, message);
-        break;
-    case TOX_MESSAGE_TYPE_ACTION:
-        postmessage(FRIEND_MESSAGE, friend_number, 0, copy_message(message, length, MSG_TYPE_ACTION_TEXT));
-        debug("Friend(%u) Action Message: %.*s\n", friend_number, (int)length, message);
-        break;
-    default:
-        debug("Message from Friend(%u) of unsupported type: %.*s\n", friend_number, (int)length, message);
+        case TOX_MESSAGE_TYPE_NORMAL: {
+            message_add_type_text(&friend[friend_number].msg, 0, message, length);
+            debug("Friend(%u) Standard Message: %.*s\n", friend_number, (int)length, message);
+            break;
+        }
+
+        case TOX_MESSAGE_TYPE_ACTION: {
+            message_add_type_action(&friend[friend_number].msg, 0, message, length);
+            debug("Friend(%u) Action Message: %.*s\n", friend_number, (int)length, message);
+            break;
+        }
+
+        default: {
+            debug("Message from Friend(%u) of unsupported type: %.*s\n", friend_number, (int)length, message);
+        }
     }
+    postmessage(FRIEND_MESSAGE, friend_number, 0, NULL);
 
     /* write message to logfile */
-    log_write(tox, friend_number, message, length, 0, LOG_FILE_MSG_TYPE_TEXT);
+    log_write_old(tox, friend_number, message, length, 0, LOG_FILE_MSG_TYPE_TEXT);
 }
 
 static void callback_name_change(Tox *UNUSED(tox), uint32_t fid, const uint8_t *newname, size_t length, void *UNUSED(userdata)) {
@@ -142,6 +135,8 @@ static void callback_group_invite(Tox *tox, int fid, uint8_t type, const uint8_t
 
 static void callback_group_message(Tox *tox, int gid, int pid, const uint8_t *message, uint16_t length, void *UNUSED(userdata))
 {
+    message_add_type_text(&group[gid].msg, 0, message, length);
+
     postmessage(GROUP_MESSAGE, gid, 0, copy_groupmessage(tox, message, length, MSG_TYPE_TEXT, gid, pid));
 
     debug("Group Message (%u, %u): %.*s\n", gid, pid, length, message);

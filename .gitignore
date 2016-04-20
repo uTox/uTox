@@ -7,3 +7,6 @@ debug.keystore
 *.dll
 Tox/
 libtoxcore.log
+toolchain/
+build/*
+tox/*

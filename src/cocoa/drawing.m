@@ -394,6 +394,8 @@ void setscale(void) {
     svg_draw(1);
     // now we have 2x images, if applicable
     ui_scale = old_scale;
+
+    ad.utox_window.minSize = (CGSize){SCALE(640), SCALE(320)};
 }
 
 void cgdataprovider_is_finished(void *info, const void *data, size_t size) {

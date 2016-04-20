@@ -13,14 +13,6 @@ float scale = 1.0;
 _Bool connected = 0;
 _Bool havefocus;
 
-
-BLENDFUNCTION blend_function = {
-    .BlendOp = AC_SRC_OVER,
-    .BlendFlags = 0,
-    .SourceConstantAlpha = 0xFF,
-    .AlphaFormat = AC_SRC_ALPHA
-};
-
 /** Translate a char* from UTF-8 encoding to OS native;
  *
  * Accepts char_t pointer, native array pointer, length of input;
@@ -65,301 +57,6 @@ _Bool check_ptt_key(void){
 
 void exit_ptt(void){ push_to_talk = 0; }
 
-void drawalpha(int bm, int x, int y, int width, int height, uint32_t color)
-{
-    if(!bitmap[bm]) {
-        return;
-    }
-
-    BITMAPINFO bmi = {
-        .bmiHeader = {
-            .biSize = sizeof(BITMAPINFOHEADER),
-            .biWidth = width,
-            .biHeight = -height,
-            .biPlanes = 1,
-            .biBitCount = 32,
-            .biCompression = BI_RGB,
-        }
-    };
-
-    // create pointer to beginning and end of the alpha-channel-only bitmap
-    uint8_t *alpha_pixel = bitmap[bm], *end = alpha_pixel + width * height;
-
-
-    // create temporary bitmap we'll combine the alpha and colors on
-    uint32_t *out_pixel;
-    HBITMAP temp = CreateDIBSection(hdcMem, &bmi, DIB_RGB_COLORS, (void**)&out_pixel, NULL, 0);
-    SelectObject(hdcMem, temp);
-
-    // create pixels for the drawable bitmap based on the alpha value of
-    // each pixel in the alpha bitmap and the color given by 'color',
-    // the Win32 API requires we pre-apply our alpha channel as well by
-    // doing (color * alpha / 255) for each color channel
-    // NOTE: Input color is in the format 0BGR, output pixel is in the format BGRA
-    while(alpha_pixel != end) {
-        uint8_t alpha = *alpha_pixel++;
-        *out_pixel++ = (((color & 0xFF) * alpha / 255) << 16) // red
-                     | ((((color >> 8) & 0xFF) * alpha / 255) << 8)  // green
-                     | ((((color >> 16) & 0xFF) * alpha / 255) << 0) // blue
-                     | (alpha << 24); // alpha
-    }
-
-    // draw temporary bitmap on screen
-    AlphaBlend(hdc, x, y, width, height, hdcMem, 0, 0, width, height, blend_function);
-
-    // clean up
-    DeleteObject(temp);
-}
-
-void image_set_filter(UTOX_NATIVE_IMAGE *image, uint8_t filter)
-{
-    switch (filter) {
-    case FILTER_NEAREST:
-        image->stretch_mode = COLORONCOLOR;
-        break;
-    case FILTER_BILINEAR:
-        image->stretch_mode = HALFTONE;
-        break;
-    default:
-        debug("Warning: Tried to set image to unrecognized filter(%u).\n", filter);
-        return;
-    }
-}
-
-void image_set_scale(UTOX_NATIVE_IMAGE *image, double img_scale)
-{
-    image->scaled_width = (uint32_t)(((double)image->width * img_scale) + 0.5);
-    image->scaled_height = (uint32_t)(((double)image->height * img_scale) + 0.5);
-}
-
-static _Bool image_is_stretched(const UTOX_NATIVE_IMAGE *image)
-{
-    return image->width != image->scaled_width ||
-           image->height != image->scaled_height;
-}
-
-// NOTE: This function is way more complicated than the XRender variant, because
-// the Win32 API is a lot more limited, so all scaling, clipping, and handling
-// transparency has to be done explicitly
-void draw_image(const UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t imgx, uint32_t imgy)
-{
-    HDC drawdc; // device context we'll do the eventual drawing with
-    HBITMAP tmp = NULL; // used when scaling
-
-    if (!image_is_stretched(image)) {
-
-        SelectObject(hdcMem, image->bitmap);
-        drawdc = hdcMem;
-
-    } else {
-        // temporary device context for the scaling operation
-        drawdc = CreateCompatibleDC(NULL);
-
-        // set stretch mode from image
-        SetStretchBltMode(drawdc, image->stretch_mode);
-
-        // scaled bitmap will be drawn onto this bitmap
-        tmp = CreateCompatibleBitmap(hdcMem, image->scaled_width, image->scaled_height);
-        SelectObject(drawdc, tmp);
-
-        SelectObject(hdcMem, image->bitmap);
-
-        // stretch image onto temporary bitmap
-        if (image->has_alpha) {
-            AlphaBlend(drawdc, 0, 0, image->scaled_width, image->scaled_height, hdcMem, 0, 0, image->width, image->height, blend_function);
-        } else {
-            StretchBlt(drawdc, 0, 0, image->scaled_width, image->scaled_height, hdcMem, 0, 0, image->width, image->height, SRCCOPY);
-        }
-    }
-
-    // clip and draw
-    if (image->has_alpha) {
-        AlphaBlend(hdc, x, y, width, height, drawdc, imgx, imgy, width, height, blend_function);
-    } else {
-        BitBlt(hdc, x, y, width, height, drawdc, imgx, imgy, SRCCOPY);
-    }
-
-    // clean up
-    if (image_is_stretched(image)) {
-        DeleteObject(tmp);
-        DeleteDC(drawdc);
-    }
-}
-
-void drawtext(int x, int y, char_t *str, uint16_t length)
-{
-    wchar_t out[length];
-    length = utf8tonative(str, out, length);
-
-    TextOutW(hdc, x, y, out, length);
-}
-
-int drawtext_getwidth(int x, int y, char_t *str, uint16_t length)
-{
-    wchar_t out[length];
-    length = utf8tonative(str, out, length);
-
-    SIZE size;
-    TextOutW(hdc, x, y, out, length);
-    GetTextExtentPoint32W(hdc, out, length, &size);
-    return size.cx;
-}
-
-void drawtextwidth(int x, int width, int y, char_t *str, uint16_t length)
-{
-    wchar_t out[length];
-    length = utf8tonative(str, out, length);
-
-    RECT r = {x, y, x + width, y + 256};
-    DrawTextW(hdc, out, length, &r, DT_SINGLELINE | DT_END_ELLIPSIS | DT_NOPREFIX);
-}
-
-void drawtextwidth_right(int x, int width, int y, char_t *str, uint16_t length)
-{
-    wchar_t out[length];
-    length = utf8tonative(str, out, length);
-
-    RECT r = {x, y, x + width, y + 256};
-    DrawTextW(hdc, out, length, &r, DT_SINGLELINE | DT_END_ELLIPSIS | DT_NOPREFIX | DT_RIGHT);
-}
-
-void drawtextrange(int x, int x2, int y, char_t *str, uint16_t length)
-{
-    wchar_t out[length];
-    length = utf8tonative(str, out, length);
-
-    RECT r = {x, y, x2, y + 256};
-    DrawTextW(hdc, out, length, &r, DT_SINGLELINE | DT_END_ELLIPSIS | DT_NOPREFIX);
-}
-
-void drawtextrangecut(int x, int x2, int y, char_t *str, uint16_t length)
-{
-    wchar_t out[length];
-    length = utf8tonative(str, out, length);
-
-    RECT r = {x, y, x2, y + 256};
-    DrawTextW(hdc, out, length, &r, DT_SINGLELINE | DT_NOPREFIX);
-}
-
-int textwidth(char_t *str, uint16_t length)
-{
-    wchar_t out[length];
-    length = utf8tonative(str, out, length);
-
-    SIZE size;
-    GetTextExtentPoint32W(hdc, out, length, &size);
-    return size.cx;
-}
-
-int textfit(char_t *str, uint16_t len, int width)
-{
-    wchar_t out[len];
-    int length = utf8tonative(str, out, len);
-
-    int fit;
-    SIZE size;
-    GetTextExtentExPointW(hdc, out, length, width, &fit, NULL, &size);
-
-    return WideCharToMultiByte(CP_UTF8, 0, out, fit, (char*)str, len, NULL, 0);
-}
-
-int textfit_near(char_t *str, uint16_t len, int width)
-{
-    /*todo: near*/
-    wchar_t out[len];
-    int length = utf8tonative(str, out, len);
-
-    int fit;
-    SIZE size;
-    GetTextExtentExPointW(hdc, out, length, width, &fit, NULL, &size);
-
-    return WideCharToMultiByte(CP_UTF8, 0, out, fit, (char*)str, len, NULL, 0);
-}
-
-void draw_rect_frame(int x, int y, int width, int height, uint32_t color) {
-    RECT r = {x, y, x + width, y + height};
-    SetDCBrushColor(hdc, color);
-    FrameRect(hdc, &r, hdc_brush);
-}
-
-void draw_rect_fill(int x, int y, int width, int height, uint32_t color) {
-    RECT r = {x, y, x + width, y + height};
-    SetDCBrushColor(hdc, color);
-    FillRect(hdc, &r, hdc_brush);
-}
-
-void drawrect(int x, int y, int right, int bottom, uint32_t color)
-{
-    RECT r = {x, y, right, bottom};
-    SetDCBrushColor(hdc, color);
-    FillRect(hdc, &r, hdc_brush);
-}
-
-
-void drawhline(int x, int y, int x2, uint32_t color)
-{
-    RECT r = {x, y, x2, y + 1};
-    SetDCBrushColor(hdc, color);
-    FillRect(hdc, &r, hdc_brush);
-}
-
-void drawvline(int x, int y, int y2, uint32_t color)
-{
-    RECT r = {x, y, x + 1, y2};
-    SetDCBrushColor(hdc, color);
-    FillRect(hdc, &r, hdc_brush);
-}
-
-void setfont(int id)
-{
-    SelectObject(hdc, font[id]);
-}
-
-uint32_t setcolor(uint32_t color)
-{
-    return SetTextColor(hdc, color);
-}
-
-RECT clip[16];
-
-static int clipk;
-
-void pushclip(int left, int top, int width, int height)
-{
-    int right = left + width, bottom = top + height;
-
-    RECT *r = &clip[clipk++];
-    r->left = left;
-    r->top = top;
-    r->right = right;
-    r->bottom = bottom;
-
-    HRGN rgn = CreateRectRgn(left, top, right, bottom);
-    SelectClipRgn (hdc, rgn);
-    DeleteObject(rgn);
-}
-
-void popclip(void)
-{
-    clipk--;
-    if(!clipk) {
-        SelectClipRgn(hdc, NULL);
-        return;
-    }
-
-    RECT *r = &clip[clipk - 1];
-
-    HRGN rgn = CreateRectRgn(r->left, r->top, r->right, r->bottom);
-    SelectClipRgn (hdc, rgn);
-    DeleteObject(rgn);
-}
-
-void enddraw(int x, int y, int width, int height)
-{
-    SelectObject(hdc, hdc_bm);
-    BitBlt(main_hdc, x, y, width, height, hdc, x, y, SRCCOPY);
-}
-
 void thread(void func(void*), void *args)
 {
     _beginthread(func, 0, args);
@@ -379,6 +76,166 @@ void openurl(char_t *str)
 {
     //!convert
     ShellExecute(NULL, "open", (char*)str, NULL, NULL, SW_SHOW);
+}
+
+/** Takes data from µTox and saves it, just how the OS likes it saved!
+ *
+ * Returns 1 on failure. Used to set save_needed in tox thread */
+static _Bool native_save_data(const uint8_t *name, size_t name_length, const uint8_t *data, size_t length){
+    uint8_t path[UTOX_FILE_NAME_LENGTH];
+    uint8_t atomic_path[UTOX_FILE_NAME_LENGTH];
+
+    if (utox_portable) {
+        strcpy((char *)path, utox_portable_save_path);
+    } else {
+        _Bool have_path = 0;
+        have_path = SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, (char*)path));
+
+        if (!have_path) {
+            have_path = SUCCEEDED(SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, (char*)path));
+        }
+
+        if (!have_path) {
+            strcpy((char *)path, utox_portable_save_path);
+            have_path = 1;
+        }
+    }
+    snprintf((char *)path + strlen((const char*)path), UTOX_FILE_NAME_LENGTH - strlen((const char*)path), "\\Tox\\");
+
+    if (CreateDirectory((char*)path, NULL) || GetLastError() == ERROR_ALREADY_EXISTS) {
+
+        if (strlen((const char*)path) + name_length >= UTOX_FILE_NAME_LENGTH - strlen(".atomic")){
+            debug("NATIVE:Save directory name too long\n");
+            return 0;
+        } else {
+            snprintf((char*)path + strlen((const char*)path), UTOX_FILE_NAME_LENGTH - strlen((const char*)path), "%s", name);
+            snprintf((char*)atomic_path, UTOX_FILE_NAME_LENGTH, "%s.atomic", path);
+        }
+
+        FILE *file = fopen((const char*)atomic_path, "wb");
+        if (file) {
+            fwrite(data, length, 1, file);
+            fclose(file);
+
+            if (!SUCCEEDED(MoveFileEx((const char*)atomic_path, (const char*)path, MOVEFILE_REPLACE_EXISTING))) {
+                /* Consider backing up this file instead of overwriting it. */
+                if (remove((const char*)path)) {
+                    if (rename((const char*)atomic_path, (const char*)path)) {
+                        debug("NATIVE:\t%s deleted, but still unable to move file!\n", atomic_path);
+                        return 1;
+                    } else {
+                        return 0;
+                    }
+                }
+            }
+
+            return 0;
+        } else {
+            debug("NATIVE:\tUnable to open %s to write save\n", path);
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+_Bool native_save_data_tox(uint8_t *data, size_t length){
+    uint8_t name[] = "tox_save.tox";
+    return native_save_data(name, strlen((const char*)name), data, length);
+}
+
+_Bool native_save_data_utox(UTOX_SAVE *data, size_t length){
+    uint8_t name[] = "utox_save";
+    return native_save_data(name, strlen((const char*)name), data, length);
+}
+
+_Bool native_save_data_log(void){
+    return 0;
+
+}
+
+/** Takes data from µTox and loads it up! */
+static uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_size){
+    uint8_t path[UTOX_FILE_NAME_LENGTH];
+    uint8_t *data;
+
+    if (utox_portable) {
+        strcpy((char *)path, utox_portable_save_path);
+    } else {
+        _Bool have_path = 0;
+        have_path = SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, (char*)path));
+
+        if (!have_path) {
+            have_path = SUCCEEDED(SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, (char*)path));
+        }
+
+        if (!have_path) {
+            strcpy((char *)path, utox_portable_save_path);
+            have_path = 1;
+        }
+    }
+    snprintf((char *)path + strlen((const char*)path), UTOX_FILE_NAME_LENGTH - strlen((const char*)path), "\\Tox\\%s", name);
+
+    FILE *file = fopen((const char*)path, "rb");
+    if (!file) {
+        //debug("NATIVE:\tUnable to open/read %s\n", path);
+        if (out_size) {*out_size = 0;}
+        return NULL;
+    }
+
+
+    fseek(file, 0, SEEK_END);
+    size_t size = ftell(file);
+    data = malloc(size);
+    if (!data) {
+        fclose(file);
+        if (out_size) {*out_size = 0;}
+        return NULL;
+    } else {
+        fseek(file, 0, SEEK_SET);
+
+        if(fread(data, size, 1, file) != 1) {
+            debug("NATIVE:\tRead error on %s\n", path);
+            fclose(file);
+            free(data);
+            if (out_size) {*out_size = 0;}
+            return NULL;
+        }
+
+    fclose(file);
+    }
+
+    if (out_size) {*out_size = size;}
+    return data;
+}
+
+uint8_t *native_load_data_tox(size_t *size){
+    uint8_t name[][20] = { "tox_save.tox",
+                           "tox_save.tox.atomic",
+                           "tox_save.tmp",
+                           "tox_save"
+    };
+
+    uint8_t *data;
+
+    for (int i = 0; i < 4; i++) {
+        data = native_load_data(name[i], strlen((const char*)name[i]), size);
+        if (data) {
+            return data;
+        } else {
+            debug("NATIVE:\tUnable to load %s\n", name[i]);
+        }
+    }
+    return NULL;
+}
+
+UTOX_SAVE *native_load_data_utox(void){
+    uint8_t name[] = "utox_save";
+    return (UTOX_SAVE*)native_load_data(name, strlen((const char*)name), NULL);
+}
+
+uint8_t *native_load_data_log(size_t *size){
+    return 0;
 }
 
 /** Open system file browser dialog */
@@ -462,10 +319,6 @@ void openfileavatar(void)
     SetCurrentDirectoryW(dir);
 }
 
-/** following two Moved to main.VERSION.c */
-// void native_select_dir_ft(uint32_t fid, MSG_FILE *file)
-// void native_autoselect_dir_ft(uint32_t fid, MSG_FILE *file)
-
 void savefiledata(MSG_FILE *file)
 {
     char *path = malloc(UTOX_FILE_NAME_LENGTH);
@@ -495,9 +348,7 @@ void savefiledata(MSG_FILE *file)
     }
 }
 
-void setselection(char_t *data, uint16_t length)
-{
-}
+void setselection(char_t *data, uint16_t length){}
 
 /** Toggles the main window to/from hidden to tray/shown. */
 void togglehide(int show){
@@ -540,96 +391,6 @@ void ShowContextMenu(void)
     }
 }
 
-static void parsecmd(uint8_t *cmd, int len)
-{
-    debug("Command: %.*s\n", len, cmd);
-
-    //! lacks max length checks, writes to inputs even on failure, no notice of failure
-    //doesnt reset unset inputs
-
-    if(len > 6 && memcmp(cmd, "tox://", 6) == 0) {
-        cmd += 6;
-        len -= 6;
-    } else if (len > 4 && memcmp(cmd, "tox:", 4) == 0) {
-        cmd += 4;
-        len -= 4;
-    } else {
-        return;
-    }
-
-
-    uint8_t *b = edit_add_id.data, *a = cmd, *end = cmd + len;
-    uint16_t *l = &edit_add_id.length;
-    *l = 0;
-    while(a != end)
-    {
-        switch(*a)
-        {
-            case 'a' ... 'z':
-            case 'A' ... 'Z':
-            case '0' ... '9':
-            case '@':
-            case '.':
-            case ' ':
-            {
-                *b++ = *a;
-                *l = *l + 1;
-                break;
-            }
-
-            case '+':
-            {
-                *b++ = ' ';
-                *l = *l + 1;
-                break;
-            }
-
-            case '?':
-            case '&':
-            {
-                a++;        /* Anyone know what pin is used for? */
-                if(end - a >= 4 && memcmp(a, "pin=", 4) == 0)
-                {
-
-                    l = &edit_add_id.length;
-                    b = edit_add_id.data + *l;
-                    *b++ = ':';
-                    *l = *l + 1;
-                    a += 3;
-                    break;
-                }
-                else if(end - a >= 8 && memcmp(a, "message=", 8) == 0)
-                {
-                    b = edit_add_msg.data;
-                    l = &edit_add_msg.length;
-                    *l = 0;
-                    a += 7;
-                    break;
-                }
-                return;
-            }
-
-            case '/':
-            {
-                break;
-            }
-
-            default:
-            {
-                return;
-            }
-        }
-        a++;
-    }
-
-    list_selectaddfriend();
-}
-
-void loadalpha(int bm, void *data, int width, int height)
-{
-    bitmap[bm] = data;
-}
-
 // creates an UTOX_NATIVE image based on given arguments
 // image should be freed with image_free
 static UTOX_NATIVE_IMAGE *create_utox_image(HBITMAP bmp, _Bool has_alpha, uint32_t width, uint32_t height)
@@ -645,7 +406,6 @@ static UTOX_NATIVE_IMAGE *create_utox_image(HBITMAP bmp, _Bool has_alpha, uint32
 
     return image;
 }
-
 
 static void sendbitmap(HDC mem, HBITMAP hbm, int width, int height)
 {
@@ -822,22 +582,6 @@ void image_free(UTOX_NATIVE_IMAGE *image)
 {
     DeleteObject(image->bitmap);
     free(image);
-}
-
-int datapath_old(uint8_t *dest)
-{
-    if (utox_portable) {
-        return 0;
-    } else {
-        if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, (char*)dest))) {
-            uint8_t *p = dest + strlen((char*)dest);
-            strcpy((char *)p, "\\Tox"); p += 4;
-            *p++ = '\\';
-            return p - dest;
-        }
-    }
-
-    return 0;
 }
 
 int datapath(uint8_t *dest)
@@ -1430,7 +1174,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
 
     if (*cmd) {
         int len = strlen(cmd);
-        parsecmd((uint8_t*)cmd, len);
+        do_tox_url((uint8_t*)cmd, len);
     }
 
     draw = 1;
@@ -1482,7 +1226,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     };
     config_save(&d);
 
-    printf("uTox Clean Exit    ::\n");
+    printf("uTox:\tClean exit.\n");
 
     return 0;
 }
@@ -1526,7 +1270,6 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_QUIT:
     case WM_CLOSE:
     case WM_DESTROY: {
-        debug("quit msg\n");
         if(close_to_tray){
             debug("Closing to tray.\n");
             togglehide(0);
@@ -1812,7 +1555,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
             break;
         }
 
-#define setstatus(x) if(self.status != x) { \
+            #define setstatus(x) if(self.status != x) { \
             postmessage_toxcore(TOX_SELF_SET_STATE, x, 0, NULL); self.status = x; redraw(); }
 
         case TRAY_STATUS_AVAILABLE: {
@@ -1875,7 +1618,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
         SetForegroundWindow(hwn);
         COPYDATASTRUCT *data = (void*)lParam;
         if (data->lpData){
-            parsecmd(data->lpData, data->cbData);
+            do_tox_url(data->lpData, data->cbData);
         }
         return 0;
     }

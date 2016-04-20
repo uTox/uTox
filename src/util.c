@@ -621,23 +621,15 @@ typedef struct
     uint8_t proxy_ip[0];
 }UTOX_SAVE_V2;
 
-UTOX_SAVE* config_load(void)
-{
-    uint8_t path[UTOX_FILE_NAME_LENGTH], *p;
+UTOX_SAVE* config_load(void) {
     UTOX_SAVE *save;
-
-    p = path + datapath(path);
-    strcpy((char*)p, "utox_save");
-
-    save = file_text((char*)path);
+    save = native_load_data_utox();
 
     if (!save) {
-        p = path + datapath_old(path);
-        strcpy((char*)p, "utox_save");
-        save = file_text((char*)path);
+        debug("unable to load utox_save data\n");
     }
 
-    if(save || (save = file_text("utox_save"))) {
+    if (save) {
         if(save->version == SAVE_VERSION) {
             /* validate values */
             if(save->scale > 30) {
@@ -665,7 +657,7 @@ UTOX_SAVE* config_load(void)
         }
     }
 
-    save = malloc(sizeof(UTOX_SAVE) + 1);
+    save = calloc(sizeof(UTOX_SAVE) + 1, 1);
     save->version = 1;
     save->scale = DEFAULT_SCALE - 1;
 
@@ -722,6 +714,7 @@ NEXT:
     strcpy((char*)proxy_address, (char*)save->proxy_ip);
     edit_proxy_ip.length = strlen((char*)save->proxy_ip);
     strcpy((char*)edit_proxy_ip.data, (char*)save->proxy_ip);
+
     if(save->proxy_port) {
         edit_proxy_port.length = snprintf((char*)edit_proxy_port.data, edit_proxy_port.maxlength + 1, "%u", save->proxy_port);
         if (edit_proxy_port.length >= edit_proxy_port.maxlength + 1) {
@@ -751,20 +744,7 @@ NEXT:
     return save;
 }
 
-void config_save(UTOX_SAVE *save)
-{
-    uint8_t path[UTOX_FILE_NAME_LENGTH], *p;
-    FILE *file;
-
-    p = path + datapath(path);
-    strcpy((char*)p, "utox_save");
-
-    file = fopen((char*)path, "wb");
-    if(!file) {
-        debug("Unable to open uTox Save ::\n");
-        return;
-    }
-
+void config_save(UTOX_SAVE *save) {
     save->version                       = SAVE_VERSION;
     save->scale                         = ui_scale - 1;
     save->enableipv6                    = !dropdown_ipv6.selected;
@@ -789,10 +769,9 @@ void config_save(UTOX_SAVE *save)
     save->no_typing_notifications       = dont_send_typing_notes;
     memset(save->unused, 0, sizeof(save->unused));
 
-    debug("Writing uTox Save    ::\n");
-    fwrite(save, sizeof(*save), 1, file);
-    fwrite(options.proxy_host, strlen(options.proxy_host), 1, file);
-    fclose(file);
+    debug("uTox:\tWriting uTox Save\n");
+
+    native_save_data_utox(save, sizeof(*save));
 }
 
 void utox_write_metadata(FRIEND *f){

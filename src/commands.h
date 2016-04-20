@@ -14,3 +14,6 @@ int slash_send_file(FRIEND *friend_handle, const uint8_t *filepath);
  * Returns the remaining string length.
  */
 uint16_t utox_run_command(char_t *string, uint16_t string_length, char_t **cmd, char_t **argument, int trusted);
+
+extern _Bool g_select_add_friend_later;
+void do_tox_url(uint8_t *url_string, int len);

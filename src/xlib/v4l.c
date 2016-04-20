@@ -312,7 +312,10 @@ int v4l_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, uint16_t he
 
     /* assumes planes are continuous memory */
 #ifndef NO_V4LCONVERT
-    v4lconvert_convert(v4lconvert_data, &fmt, &dest_fmt, data, fmt.fmt.pix.sizeimage, y, (video_width * video_height * 3) / 2);
+    int result = v4lconvert_convert(v4lconvert_data, &fmt, &dest_fmt, data, buf.bytesused, y, (video_width * video_height * 3) / 2);
+    if (result == -1) {
+        debug("v4lconvert_convert error %s\n", v4lconvert_get_error_message(v4lconvert_data));
+    }
 #else
     if(fmt.fmt.pix.pixelformat == V4L2_PIX_FMT_YUYV) {
         yuv422to420(y, u, v, data, video_width, video_height);
@@ -325,5 +328,9 @@ int v4l_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, uint16_t he
         debug("VIDIOC_QBUF error %d, %s\n", errno, strerror(errno));
     }
 
+#ifndef NO_V4LCONVERT
+    return (result == -1 ? 0 : 1);
+#else
     return 1;
+#endif
 }

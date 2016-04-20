@@ -2,7 +2,7 @@
 #define TITLE         "uTox"
 #define SUB_TITLE     "(Alpha)"
 #define RELEASE_TITLE "µTox of disapproval"
-#define VERSION       "0.7.0"
+#define VERSION       "0.7.1"
 
 /* Support for large files. */
 #define _LARGEFILE_SOURCE
@@ -45,7 +45,7 @@
 // Limits and sizes
 #define UTOX_MAX_CALLS            16
 #define UTOX_MAX_NUM_FRIENDS      256 /* Deprecated; Avoid Use */
-#define UTOX_MAX_BACKLOG_MESSAGES 128
+#define UTOX_MAX_BACKLOG_MESSAGES 256
 #define UTOX_MAX_NUM_GROUPS       512
 #define UTOX_FILE_NAME_LENGTH     1024
 
@@ -271,6 +271,27 @@ uint16_t video_width, video_height, max_video_width, max_video_height;
 char proxy_address[256];
 extern struct Tox_Options options;
 
+
+
+/** Takes data from µTox and saves it, just how the OS likes it saved!
+ *
+ * Returns 1 on failure. Used to set save_needed in tox thread */
+_Bool native_save_data_tox(uint8_t *data, size_t length);
+_Bool native_save_data_utox(UTOX_SAVE *data, size_t length);
+_Bool native_save_data_log(void);
+
+/** Takes data from µTox and loads it up! */
+uint8_t   *native_load_data_tox(size_t *size);
+UTOX_SAVE *native_load_data_utox(void);
+uint8_t   *native_load_data_log(size_t *size);
+
+
+
+
+
+
+/* TODO: sort everything below this line! */
+
 void parse_args(int argc, char *argv[], _Bool *theme_was_set_on_argv, int8_t *should_launch_at_startup, int8_t *set_show_window, _Bool *no_updater);
 
 // inserts/deletes a value into the registry to launch uTox after boot
@@ -313,9 +334,6 @@ void showkeyboard(_Bool show);
 void redraw(void);
 void update_tray(void);
 void force_redraw(void); // TODO: as parameter for redraw()?
-
-int datapath_old(uint8_t *dest);
-int datapath(uint8_t *dest);
 
 /* gets a subdirectory of tox's datapath and puts the full pathname in dest,
  * returns number of characters written */
@@ -385,7 +403,6 @@ void popclip(void);
 void enddraw(int x, int y, int width, int height);
 
 /* OS interface replacements */
-int datapath_old(uint8_t *dest);
 int datapath(uint8_t *dest);
 int datapath_subdir(uint8_t *dest, const char *subdir);
 void flush_file(FILE *file);

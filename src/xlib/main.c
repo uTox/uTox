@@ -349,7 +349,6 @@ uint64_t get_time(void)
     return ((uint64_t)ts.tv_sec * (1000 * 1000 * 1000)) + (uint64_t)ts.tv_nsec;
 }
 
-
 void openurl(char_t *str)
 {
     char *cmd = "xdg-open";
@@ -372,6 +371,175 @@ void openfileavatar(void)
         gtk_openfileavatar();
     }
 }
+
+int datapath(uint8_t *dest)
+{
+    if (utox_portable) {
+        int l = sprintf((char*)dest, "./tox");
+        mkdir((char*)dest, 0700);
+        dest[l++] = '/';
+
+        return l;
+    } else {
+        char *home = getenv("HOME");
+        int l = sprintf((char*)dest, "%.230s/.config/tox", home);
+        mkdir((char*)dest, 0700);
+        dest[l++] = '/';
+
+        return l;
+    }
+}
+
+int datapath_subdir(uint8_t *dest, const char *subdir)
+{
+    int l = datapath(dest);
+    l += sprintf((char*)(dest+l), "%s", subdir);
+    mkdir((char*)dest, 0700);
+    dest[l++] = '/';
+
+    return l;
+}
+
+
+
+/** Takes data from µTox and saves it, just how the OS likes it saved!
+ *
+ * Returns 1 on failure. Used to set save_needed in tox thread */
+static _Bool native_save_data(const uint8_t *name, size_t name_length, const uint8_t *data, size_t length){
+    uint8_t path[UTOX_FILE_NAME_LENGTH];
+    uint8_t atomic_path[UTOX_FILE_NAME_LENGTH];
+
+    if (utox_portable) {
+        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "./tox/");
+    } else {
+        snprintf((char*)path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));
+    }
+
+    mkdir((char*)path, 0700);
+
+    if (strlen((const char*)path) + name_length >= UTOX_FILE_NAME_LENGTH - strlen(".atomic")){
+        debug("NATIVE:\tSave directory name too long\n");
+        return 0;
+    } else {
+        snprintf((char*)path + strlen((const char*)path), UTOX_FILE_NAME_LENGTH - strlen((const char*)path), "%s", name);
+        snprintf((char*)atomic_path, UTOX_FILE_NAME_LENGTH, "%s.atomic", path);
+    }
+
+    FILE *file = fopen((const char*)atomic_path, "wb");
+    if (file) {
+        fwrite(data, length, 1, file);
+        fclose(file);
+
+        if (rename((const char*)atomic_path, (const char*)path)) {
+            /* Consider backing up this file instead of overwriting it. */
+            debug("NATIVE:\t%sUnable to move file!\n", atomic_path);
+            return 1;
+        }
+        return 0;
+    } else {
+        debug("NATIVE:\tUnable to open %s to write save\n", path);
+        return 1;
+    }
+
+    return 1;
+}
+
+_Bool native_save_data_tox(uint8_t *data, size_t length){
+    uint8_t name[] = "tox_save.tox";
+    return native_save_data(name, strlen((const char*)name), data, length);
+}
+
+_Bool native_save_data_utox(UTOX_SAVE *data, size_t length){
+    uint8_t name[] = "utox_save";
+    return native_save_data(name, strlen((const char*)name), (const uint8_t*)data, length);
+}
+
+_Bool native_save_data_log(void){
+    return 0;
+
+}
+
+/** Takes data from µTox and loads it up! */
+static uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_size){
+    uint8_t path[UTOX_FILE_NAME_LENGTH];
+    uint8_t *data;
+
+    if (utox_portable) {
+        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "./tox/");
+    } else {
+        snprintf((char*)path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));
+    }
+
+    if (strlen((const char*)path) + name_length >= UTOX_FILE_NAME_LENGTH){
+        debug("NATIVE:\tLoad directory name too long\n");
+        return 0;
+    } else {
+        snprintf((char*)path + strlen((const char*)path), UTOX_FILE_NAME_LENGTH - strlen((const char*)path), "%s", name);
+    }
+
+
+    FILE *file = fopen((const char*)path, "rb");
+    if (!file) {
+        //debug("NATIVE:\tUnable to open/read %s\n", path);
+        if (out_size) {*out_size = 0;}
+        return NULL;
+    }
+
+
+    fseek(file, 0, SEEK_END);
+    size_t size = ftell(file);
+    data = calloc(size + 1, 1); // needed for the ending null byte
+    if (!data) {
+        fclose(file);
+        if (out_size) {*out_size = 0;}
+        return NULL;
+    } else {
+        fseek(file, 0, SEEK_SET);
+
+        if(fread(data, size, 1, file) != 1) {
+            debug("NATIVE:\tRead error on %s\n", path);
+            fclose(file);
+            free(data);
+            if (out_size) {*out_size = 0;}
+            return NULL;
+        }
+
+    fclose(file);
+    }
+
+    if (out_size) {*out_size = size;}
+    return data;
+}
+
+uint8_t *native_load_data_tox(size_t *size){
+    uint8_t name[][20] = { "tox_save.tox",
+                           "tox_save.tox.atomic",
+                           "tox_save.tmp",
+                           "tox_save"
+    };
+
+    uint8_t *data;
+
+    for (int i = 0; i < 4; i++) {
+        data = native_load_data(name[i], strlen((const char*)name[i]), size);
+        if (data) {
+            return data;
+        } else {
+            debug("NATIVE:\tUnable to load %s\n", name[i]);
+        }
+    }
+    return NULL;
+}
+
+UTOX_SAVE *native_load_data_utox(void){
+    uint8_t name[] = "utox_save";
+    return (UTOX_SAVE*)native_load_data(name, strlen((const char*)name), NULL);
+}
+
+uint8_t *native_load_data_log(size_t *size){
+    return 0;
+}
+
 
 void native_select_dir_ft(uint32_t fid, MSG_FILE *file)
 {
@@ -827,39 +995,6 @@ void image_free(UTOX_NATIVE_IMAGE *image)
     free(image);
 }
 
-int datapath_old(uint8_t *dest)
-{
-    return 0;
-}
-
-int datapath(uint8_t *dest)
-{
-    if (utox_portable) {
-        int l = sprintf((char*)dest, "./tox");
-        mkdir((char*)dest, 0700);
-        dest[l++] = '/';
-
-        return l;
-    } else {
-        char *home = getenv("HOME");
-        int l = sprintf((char*)dest, "%.230s/.config/tox", home);
-        mkdir((char*)dest, 0700);
-        dest[l++] = '/';
-
-        return l;
-    }
-}
-
-int datapath_subdir(uint8_t *dest, const char *subdir)
-{
-    int l = datapath(dest);
-    l += sprintf((char*)(dest+l), "%s", subdir);
-    mkdir((char*)dest, 0700);
-    dest[l++] = '/';
-
-    return l;
-}
-
 /** Sets file system permissions to something slightly safer.
  *
  * returns 0 and 1 on success and failure.
@@ -893,8 +1028,8 @@ void setscale(void)
     // TODO, fork this to a function
     xsh = XAllocSizeHints();
     xsh->flags = PMinSize;
-    xsh->min_width = UTOX_SCALE(320 );
-    xsh->min_height = UTOX_SCALE(160 );
+    xsh->min_width  = UTOX_SCALE(320);
+    xsh->min_height = UTOX_SCALE(160);
 
     XSetWMNormalHints(display, window, xsh);
 
@@ -1081,6 +1216,7 @@ int main(int argc, char *argv[]) {
     if (!theme_was_set_on_argv) {
         theme = save->theme;
     }
+
     printf("%d\n", theme);
     theme_load(theme);
 
