@@ -326,9 +326,8 @@ static void show_page(ITEM *i) {
             edit_msg.length = f->typed_length;
 
             /* We use the MESSAGES struct from the friend, but we need the info from the panel. */
-            f->msg.width = messages_friend.width;
             messages_friend.object = ((void**)&f->msg);
-            messages_updateheight((MESSAGES*)messages_friend.object, messages_friend.width);
+            messages_updateheight((MESSAGES*)messages_friend.object, f->msg.width);
 
             ((MESSAGES*)messages_friend.object)->cursor_over_msg = UINT32_MAX;
             scrollbar_friend.content_height = f->msg.height;
@@ -357,7 +356,6 @@ static void show_page(ITEM *i) {
             edit_msg_group.length = g->typed_length;
 
             /* We use the MESSAGES struct from the group, but we need the info from the panel. */
-            g->msg.width = messages_group.width;
             messages_group.object = ((void*)&g->msg);
             messages_updateheight((MESSAGES*)messages_group.object, messages_group.width);
 

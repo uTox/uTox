@@ -111,11 +111,15 @@ static int messages_draw_text(MSG_TEXT *msg, int x, int y, int w, int h, uint16_
     }
 
     setfont(FONT_TEXT);
-    int ny = utox_draw_text_multiline_compat(x, w, y, MAIN_TOP, y + msg->height, font_small_lineheight,
-                               msg->msg, msg->length, h1, h2 - h1, 0, 0, 1);
+
+    int ny = utox_draw_text_multiline_within_box(x, y,
+                                                 w + x, MAIN_TOP, y + msg->height,
+                                                 font_small_lineheight,
+                                                 msg->msg, msg->length,
+                                                 h1, h2 - h1, 0, 0, 1);
 
     if (ny < y || (uint32_t)(ny - y) + MESSAGES_SPACING != msg->height) {
-        debug("Text Draw Error:\ty %u | ny %u | height %u | spacing %u\n", y, ny, msg->height, MESSAGES_SPACING);
+        debug("Text Draw Error:\ty %i | ny %i | mheight %u | width %i \n", y, ny, msg->height, w);
     }
 
     return ny;
@@ -371,6 +375,11 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
     void **p = m->data;
     uint32_t i, n = m->number;
 
+    if (m->width != width) {
+        m->width = width;
+        messages_updateheight(m, width - MESSAGES_X + TIME_WIDTH);
+    }
+
     // Go through messages
     for (i = 0; i != n; i++) {
         MSG_TEXT *msg = *p++;
@@ -444,7 +453,7 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
                     h2 = UINT16_MAX;
                 }
 
-                y = messages_draw_text(msg, x + MESSAGES_X, y, x + width - TIME_WIDTH, height, h1, h2);
+                y = messages_draw_text(msg, x + MESSAGES_X, y, width - TIME_WIDTH - MESSAGES_X, height, h1, h2);
                 break;
             }
 
@@ -1040,7 +1049,7 @@ static int msgheight(MSG_VOID *msg, int width) {
 }
 
 void messages_updateheight(MESSAGES *m, int width) {
-    if (!m->data) {
+    if (!m->data || !width) {
         return;
     }
 
@@ -1053,7 +1062,6 @@ void messages_updateheight(MESSAGES *m, int width) {
         MSG_VOID *msg = m->data[i];
         msg->height   = msgheight(msg, m->width);
         height       += msg->height;
-        m->width      = width;
         i++;
     }
 

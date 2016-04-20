@@ -547,6 +547,7 @@ panel_side_bar = {
             .type           = PANEL_LIST,
             .content_scroll = &scrollbar_roster,
         },
+
 /* Main panel, holds the overhead/settings, or the friend/group containers */
 panel_main = {
     .type = PANEL_NONE,
@@ -1428,15 +1429,13 @@ static void panel_update(PANEL *p, int x, int y, int width, int height)
 {
     FIX_XY_CORDS_FOR_SUBPANELS();
 
-    if (p->type == PANEL_MESSAGES && p->object) {
-        MESSAGES *m = p->object;
-        m->width = width;
-        if (!p->disabled) {
-            messages_updateheight(m, p->width);
+    if (p->type == PANEL_MESSAGES) {
+        if (p->object) {
+            MESSAGES *m = p->object;
+            m->width = width;
+            messages_updateheight(m, width);
         }
     }
-
-    p->width = width;
 
     PANEL **pp = p->child, *subp;
     if(pp) {
