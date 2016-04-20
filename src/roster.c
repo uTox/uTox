@@ -235,6 +235,7 @@ static void show_page(ITEM *i) {
     // TODO!!
     // panel_item[selected_item->item - 1].disabled = 1;
     // panel_item[i->item - 1].disabled = 0;
+    int current_width;
 
     edit_resetfocus();
 
@@ -243,7 +244,7 @@ static void show_page(ITEM *i) {
         case ITEM_FRIEND: {
             FRIEND *f = selected_item->data;
 
-            messages_friend.object = NULL;
+            current_width = f->msg.width;
 
             free(f->typed);
             f->typed_length = edit_msg.length;
@@ -272,7 +273,7 @@ static void show_page(ITEM *i) {
         case ITEM_GROUP: {
             GROUPCHAT *g = selected_item->data;
 
-            messages_group.object = NULL;
+            current_width = g->msg.width;
 
             free(g->typed);
             g->typed_length = edit_msg_group.length;
@@ -325,17 +326,16 @@ static void show_page(ITEM *i) {
             memcpy(edit_msg.data, f->typed, f->typed_length);
             edit_msg.length = f->typed_length;
 
+            f->msg.width = current_width;
+            f->msg.id = f - friend;
+            f->notify = 0;
             /* We use the MESSAGES struct from the friend, but we need the info from the panel. */
             messages_friend.object = ((void**)&f->msg);
-            messages_updateheight((MESSAGES*)messages_friend.object, f->msg.width);
+            messages_updateheight((MESSAGES*)messages_friend.object, current_width);
 
             ((MESSAGES*)messages_friend.object)->cursor_over_msg = UINT32_MAX;
             scrollbar_friend.content_height = f->msg.height;
             messages_friend.content_scroll->d = f->msg.scroll;
-
-            f->msg.id = f - friend;
-
-            f->notify = 0;
 
             edit_msg.history = f->edit_history;
             edit_msg.history_cur = f->edit_history_cur;
@@ -355,18 +355,17 @@ static void show_page(ITEM *i) {
             memcpy(edit_msg_group.data, g->typed, g->typed_length);
             edit_msg_group.length = g->typed_length;
 
+            g->msg.width = current_width;
+            g->msg.id = g - group;
+            g->notify = 0;
             /* We use the MESSAGES struct from the group, but we need the info from the panel. */
             messages_group.object = ((void*)&g->msg);
-            messages_updateheight((MESSAGES*)messages_group.object, messages_group.width);
+            messages_updateheight((MESSAGES*)messages_group.object, current_width);
 
             ((MESSAGES*)messages_group.object)->cursor_over_msg = UINT32_MAX;
             messages_group.content_scroll->content_height = g->msg.height;
             messages_group.content_scroll->d = g->msg.scroll;
             edit_setfocus(&edit_msg_group);
-
-            g->msg.id = g - group;
-
-            g->notify = 0;
 
             edit_msg_group.history = g->edit_history;
             edit_msg_group.history_cur = g->edit_history_cur;
