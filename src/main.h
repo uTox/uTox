@@ -1,8 +1,8 @@
 // Versions
 #define TITLE         "uTox"
 #define SUB_TITLE     "(Alpha)"
-#define RELEASE_TITLE "µTox of disapproval"
-#define VERSION       "0.7.1"
+#define RELEASE_TITLE "Mild Shock"
+#define VERSION       "0.8.0"
 
 /* Support for large files. */
 #define _LARGEFILE_SOURCE
