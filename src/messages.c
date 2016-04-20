@@ -388,7 +388,7 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
         if (msg->height == 0) {
             /* Empty message */
             return;
-        } else if (y + msg->height <= MAIN_TOP) {
+        } else if (y + (int)msg->height <= MAIN_TOP) {
             /* message is exclusively above the viewing window */
             y += msg->height;
             continue;
