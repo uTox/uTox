@@ -378,6 +378,7 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
     if (m->width != width) {
         m->width = width;
         messages_updateheight(m, width - MESSAGES_X + TIME_WIDTH);
+        y -= scroll_gety(panel->content_scroll, height);
     }
 
     // Go through messages
