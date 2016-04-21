@@ -19,7 +19,7 @@ typedef struct groupchat {
     EDIT_CHANGE **edit_history;
     uint16_t edit_history_cur, edit_history_length;
 
-    MSG_DATA msg;
+    MESSAGES msg;
 } GROUPCHAT;
 
 void group_free(GROUPCHAT *g);

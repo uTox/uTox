@@ -45,7 +45,7 @@
 // Limits and sizes
 #define UTOX_MAX_CALLS            16
 #define UTOX_MAX_NUM_FRIENDS      256 /* Deprecated; Avoid Use */
-#define UTOX_MAX_BACKLOG_MESSAGES 128
+#define UTOX_MAX_BACKLOG_MESSAGES 256
 #define UTOX_MAX_NUM_GROUPS       512
 #define UTOX_FILE_NAME_LENGTH     1024
 
@@ -277,7 +277,7 @@ extern struct Tox_Options options;
  *
  * Returns 1 on failure. Used to set save_needed in tox thread */
 _Bool native_save_data_tox(uint8_t *data, size_t length);
-_Bool native_save_data_utox(uint8_t *data, size_t length);
+_Bool native_save_data_utox(UTOX_SAVE *data, size_t length);
 _Bool native_save_data_log(void);
 
 /** Takes data from µTox and loads it up! */

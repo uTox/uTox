@@ -1,71 +1,62 @@
 //Type for indexing into MSG_DATA->data array of messages
-typedef uint32_t MSG_IDX;
-#define MSG_IDX_MAX (UINT32_MAX)
-
-typedef struct {
-    uint32_t width, height;
-
-    // Tox friendnumber/groupnumber
-    uint32_t id;
-
-    // Number of messages in data array.
-    MSG_IDX n;
-
-    // Indices of messages in data array, where text selection starts and ends.
-    MSG_IDX istart, iend;
-    // Indices in strings of corresponding messages, where selection starts/ends.
-    uint16_t start, end;
-
-    // Pointers at various message structs, at most MAX_BACKLOG_MESSAGES.
-    void **data;
-
-    // Field for preserving position of text scroll,
-    // while this MSG_DATA is inactive.
-    double scroll;
-} MSG_DATA;
 
 struct messages {
     PANEL panel;
 
     // false for Friendchat, true for Groupchat.
-    _Bool type;
-
-    // true if we're in the middle of selection operation
-    // (mousedown without mouseup yet).
-    _Bool select;
+    _Bool is_groupchat;
+    // Tox friendnumber/groupnumber
+    uint32_t id;
+    int height, width;
 
     // Position and length of an URL in the message under the mouse,
-    // if present. urlover == UINT16_MAX if there's none.
-    uint16_t urlover, urllen;
+    // if present. mouse_over_uri == UINT16_MAX if there's none.
+    uint16_t mouse_over_uri, urllen;
 
     // Was the url pressed by the mouse.
-    _Bool urlmdown;
+    _Bool mouse_down_on_uri;
 
-    uint32_t height, width;
+    uint32_t cursor_over_msg, cursor_over_position, cursor_down_msg, cursor_down_position;
+    uint32_t sel_start_msg, sel_end_msg, sel_start_position, sel_end_position;
+    // true if we're in the middle of selection operation
+    // (mousedown without mouseup yet).
+    _Bool selecting_text;
 
-    // Indices of messages, that the mouse is over now/has been
-    // pressed mousedown over. MSG_IDX_MAX, when the mouse isn't over
-    // any message/when not in selection mode.
-    MSG_IDX iover, idown;
-    // For text messages encodes indices of chars in strings.
-    // For non-text messages, encodes various logical parts of them.
+    // Number of messages in data array.
+    uint32_t  number;
+    // Number of extra to speedup realloc.
+    int8_t extra;
 
-    // over in file transfers (iover == 1):
-    //   0  == not hovered
-    //   1  == hover on the upper transfer button
-    //   2  == hover on the lower transfer button
-    //   3  == hover on the rest of the transfer box
-    uint32_t over, down;
+    // Pointers at various message structs, at most MAX_BACKLOG_MESSAGES.
+    void **data;
 
-    MSG_DATA *data;
+    // Field for preserving position of text scroll
+    double scroll;
 };
 
-enum {
+typedef enum UTOX_MSG_TYPE {
+    MSG_TYPE_NULL,
     MSG_TYPE_TEXT,
     MSG_TYPE_ACTION_TEXT,
+    MSG_TYPE_NOTICE,
+    MSG_TYPE_NOTICE_DAY_CHANGE, // Seperated so I can localize this later!
     MSG_TYPE_IMAGE,
+    MSG_TYPE_IMAGE_HISTORY,
     MSG_TYPE_FILE,
-};
+    MSG_TYPE_FILE_HISTORY,
+    MSG_TYPE_CALL_ACTIVE,
+    MSG_TYPE_CALL_HISTORY,
+} UTOX_MSG_TYPE;
+
+/* Generic Message type */
+typedef struct {
+    // true, if we're the author, false, if someone else.
+    _Bool author;
+    uint8_t msg_type;
+
+    uint32_t height;
+    time_t time;
+} MSG_VOID;
 
 typedef struct {
     // true, if we're the author, false, if someone else.
@@ -73,11 +64,11 @@ typedef struct {
     uint8_t msg_type;
 
     uint32_t height;
-    uint32_t time;
+    time_t time;
 
     uint16_t length;
     char_t msg[0];
-} MESSAGE;
+} MSG_TEXT;
 
 typedef struct {
     // true, if we're the author, false, if someone else.
@@ -85,7 +76,7 @@ typedef struct {
     uint8_t msg_type;
 
     uint32_t height;
-    uint32_t time;
+    time_t time;
 
     uint16_t w, h;
     _Bool zoom;
@@ -99,7 +90,7 @@ typedef struct msg_file {
     uint8_t msg_type;
 
     uint32_t height;
-    uint32_t time;
+    time_t time;
 
     uint32_t speed;
     uint32_t filenumber;
@@ -113,24 +104,28 @@ typedef struct msg_file {
 struct FILE_TRANSFER;
 
 /* Called externally to add a message to the queue */
-MSG_FILE* message_add_type_file(struct FILE_TRANSFER *file);
+MSG_FILE* message_create_type_file(struct FILE_TRANSFER *file);
 
-void messages_draw(MESSAGES *m, int x, int y, int width, int height);
-_Bool messages_mmove(MESSAGES *m, int x, int y, int width, int height, int mx, int my, int dx, int dy);
-_Bool messages_mdown(MESSAGES *m);
-_Bool messages_dclick(MESSAGES *m, _Bool triclick);
-_Bool messages_mright(MESSAGES *m);
-_Bool messages_mwheel(MESSAGES *m, int height, double d, _Bool smooth);
-_Bool messages_mup(MESSAGES *m);
-_Bool messages_mleave(MESSAGES *m);
+uint32_t message_add_type_text(MESSAGES *m, _Bool auth, const uint8_t *data, uint16_t length);
+uint32_t message_add_type_action(MESSAGES *m, _Bool auth, const uint8_t *data, uint16_t length);
+uint32_t message_add_type_notice(MESSAGES *m, const uint8_t *data, uint16_t length);
+uint32_t message_add_type_image(MESSAGES *m, _Bool auth, UTOX_NATIVE_IMAGE *img, uint16_t width, uint16_t height);
 
-int messages_selection(MESSAGES *m, void *data, uint32_t len, _Bool names);
+void messages_draw(PANEL *panel, int x, int y, int width, int height);
+_Bool messages_mmove(PANEL *panel, int x, int y, int width, int height, int mx, int my, int dx, int dy);
+_Bool messages_mdown(PANEL *panel);
+_Bool messages_dclick(PANEL *panel, _Bool triclick);
+_Bool messages_mright(PANEL *panel);
+_Bool messages_mwheel(PANEL *panel, int height, double d, _Bool smooth);
+_Bool messages_mup(PANEL *panel);
+_Bool messages_mleave(PANEL *panel);
+
+int messages_selection(PANEL *panel, void *data, uint32_t len, _Bool names);
 
 _Bool messages_char(uint32_t ch);
 
-void messages_updateheight(MESSAGES *m);
-void message_updateheight(MESSAGES *m, MESSAGE *msg, MSG_DATA *p);
-void message_add(MESSAGES *m, MESSAGE *msg, MSG_DATA *p);
-void message_clear(MESSAGES *m, MSG_DATA *p);
+void messages_updateheight(MESSAGES *m, int width);
+void message_updateheight(MESSAGES *m, MSG_VOID *msg);
+void messages_clear_all(MESSAGES *m);
 
-void message_free(MESSAGE *msg);
+void message_free(MSG_TEXT *msg);

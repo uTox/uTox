@@ -10,7 +10,7 @@ void group_free(GROUPCHAT *g) {
 
     char_t **np = g->peername;
     uint32_t j = 0;
-    while(j < g->peers) {
+    while (j < g->peers) {
         char_t *n = *np++;
         if(n) {
             free(n);
@@ -18,8 +18,8 @@ void group_free(GROUPCHAT *g) {
         j++;
     }
 
-    MSG_IDX k = 0;
-    while(k < g->msg.n) {
+    uint32_t k = 0;
+    while (k < g->msg.number) {
         free(g->msg.data[k]);
         k++;
     }

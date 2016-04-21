@@ -30,7 +30,7 @@ typedef struct {
     uint8_t zeroes[2];
 } LOG_FILE_MSG_HEADER;
 
-void log_write(Tox *tox, int fid, const uint8_t *message, uint16_t length, _Bool author, uint8_t msg_type) {
+void log_write_old(Tox *tox, int fid, const uint8_t *message, uint16_t length, _Bool author, uint8_t msg_type) {
     if (!logging_enabled) {
         return;
     }
@@ -43,8 +43,9 @@ void log_write(Tox *tox, int fid, const uint8_t *message, uint16_t length, _Bool
     p = path + datapath(path);
 
     int len = log_file_name(p, sizeof(path) - (p - path), tox, fid);
-    if (len == -1)
+    if (len == -1) {
         return;
+    }
 
     p += len;
 
@@ -81,7 +82,7 @@ void log_write(Tox *tox, int fid, const uint8_t *message, uint16_t length, _Bool
     }
 }
 
-void log_read(Tox *tox, int fid) {
+void log_read_old(Tox *tox, int fid) {
     uint8_t path[UTOX_FILE_NAME_LENGTH], *p;
     FILE *file;
 
@@ -102,15 +103,26 @@ void log_read(Tox *tox, int fid) {
     LOG_FILE_MSG_HEADER header;
     off_t rewinds[UTOX_MAX_BACKLOG_MESSAGES] = {};
     size_t records_count = 0;
+    size_t notice_count = 0;
+
+    int curr_mon = 0, curr_day = 0;
+    struct tm *tm;
 
     /* TODO: some checks to avoid crashes with corrupted log files
      * first find the last UTOX_MAX_BACKLOG_MESSAGES messages in the log */
     while (1 == fread(&header, sizeof(LOG_FILE_MSG_HEADER), 1, file)) {
         fseeko(file, header.namelen + header.length, SEEK_CUR);
 
-        rewinds[records_count % countof(rewinds)] =
-                (off_t) sizeof(LOG_FILE_MSG_HEADER) + header.namelen + header.length;
+        rewinds[records_count % countof(rewinds)] = (off_t)sizeof(LOG_FILE_MSG_HEADER) + header.namelen + header.length;
         records_count++;
+
+        // if there's a day change, add notice.
+        tm = localtime((const time_t*)&header.time);
+        if (tm->tm_yday != curr_day || tm->tm_mon != curr_mon) {
+            curr_mon = tm->tm_mon;
+            curr_day = tm->tm_yday;
+            notice_count++;
+        }
     }
 
     if (ferror(file) || !feof(file)) {
@@ -125,15 +137,15 @@ void log_read(Tox *tox, int fid) {
 
     // Backtrack to read last UTOX_MAX_BACKLOG_MESSAGES in full.
     off_t rewind = 0;
-    MSG_IDX i;
-    for(i = 0; (i < records_count) && (i < countof(rewinds)); i++) {
+    uint32_t i;
+    for (i = 0; (i < records_count) && (i < countof(rewinds)); i++) {
         rewind += rewinds[i];
     }
     fseeko(file, -rewind, SEEK_CUR);
 
-    MSG_DATA *m = &friend[fid].msg;
-    m->data = malloc(sizeof(void*) * i);
-    m->n = 0;
+    MESSAGES *m = &friend[fid].msg;
+    m->data = malloc(sizeof(void*) * (i + notice_count));
+    m->number = 0;
 
     /* add the messages */
     while((0 < i) && (1 == fread(&header, sizeof(LOG_FILE_MSG_HEADER), 1, file))) {
@@ -142,46 +154,64 @@ void log_read(Tox *tox, int fid) {
         // Skip unused friend name recorded at the time.
         fseeko(file, header.namelen, SEEK_CUR);
 
-        MESSAGE *msg = NULL;
+        tm = localtime((const time_t*)&header.time);
+        if (tm->tm_yday != curr_day || tm->tm_mon != curr_mon) {
+            /* If there was a day change create that notice */
+            curr_mon = tm->tm_mon;
+            curr_day = tm->tm_yday;
+
+            // todo localize!
+            uint8_t notice_text[64];
+
+            size_t notice_len = strftime((char*)&notice_text, 64, "Day Change to %A %B %d", (const struct tm*)tm);
+
+            MSG_TEXT *msg = NULL;
+            msg = malloc(sizeof(MSG_TEXT) + notice_len);
+            msg->author = header.flags & 1;
+            msg->length = notice_len;
+            msg->time = header.time;
+            msg->msg_type = MSG_TYPE_NOTICE_DAY_CHANGE;
+
+            memcpy(&msg->msg, &notice_text, notice_len);
+
+            m->data[m->number++] = msg;
+        }
+
+
+        MSG_TEXT *msg = NULL;
+        msg = malloc(sizeof(MSG_TEXT) + header.length);
+        msg->author = header.flags & 1;
+        msg->length = header.length;
+        msg->time = header.time;
+
         switch(header.msg_type) {
-        case LOG_FILE_MSG_TYPE_ACTION: {
-            msg = malloc(sizeof(MESSAGE) + header.length);
-            msg->msg_type = MSG_TYPE_ACTION_TEXT;
-            break;
-        }
-        case LOG_FILE_MSG_TYPE_TEXT: {
-            msg = malloc(sizeof(MESSAGE) + header.length);
-            msg->msg_type = MSG_TYPE_TEXT;
-            break;
-        }
-        default: {
-            debug("Unknown backlog message type(%d), skipping.\n", (int)header.msg_type);
-            fseeko(file, header.length, SEEK_CUR);
-            continue;
-        }
+            case LOG_FILE_MSG_TYPE_ACTION: {
+                msg->msg_type = MSG_TYPE_ACTION_TEXT;
+                break;
+            }
+            case LOG_FILE_MSG_TYPE_TEXT: {
+                msg->msg_type = MSG_TYPE_TEXT;
+                break;
+            }
+            default: {
+                debug("Unknown backlog message type(%d), skipping.\n", (int)header.msg_type);
+                fseeko(file, header.length, SEEK_CUR);
+                continue;
+            }
         }
 
         // Read text message.
-        msg->author = header.flags & 1;
-        msg->length = header.length;
 
         if(1 != fread(msg->msg, msg->length, 1, file)) {
             debug("Log read error (%s)\n", path);
             fclose(file);
             return;
         }
-
         msg->length = utf8_validate(msg->msg, msg->length);
+        m->data[m->number++] = msg;
 
-        struct tm *ti;
-        time_t rawtime = header.time;
-        ti = localtime(&rawtime);
 
-        msg->time = ti->tm_hour * 60 + ti->tm_min;
-
-        m->data[m->n++] = msg;
-
-        // debug("loaded backlog: %d: %.*s\n", fid, msg->length, msg->msg);
+        debug("loaded backlog: %d: %.*s\n", fid, msg->length, msg->msg);
     }
 
     fclose(file);
@@ -841,7 +871,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
             tox_friend_send_message(tox, param1, type, p, param2, 0);
 
             /* write message to friend to logfile */
-            log_write(tox, param1, data, param2, 1, LOG_FILE_MSG_TYPE_TEXT);
+            log_write_old(tox, param1, data, param2, 1, LOG_FILE_MSG_TYPE_TEXT);
 
             free(data);
             break;
@@ -1370,7 +1400,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             FILE_TRANSFER *file_handle = data;
             FRIEND *f = &friend[file_handle->friend_number];
 
-            friend_addmessage(f, file_handle->ui_data);
+            message_add_type_file_compat(f, file_handle->ui_data);
             file_notify(f, file_handle->ui_data);
             redraw();
             free(file_handle);
@@ -1385,7 +1415,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
                 native_autoselect_dir_ft(file->friend_number, file);
             }
 
-            friend_addmessage(f, file->ui_data);
+            message_add_type_file_compat(f, file->ui_data);
             file_notify(f, file->ui_data);
             redraw();
             free(file);
@@ -1516,7 +1546,6 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             break;
         }
         case FRIEND_MESSAGE: {
-            friend_addmessage(&friend[param1], data);
             redraw();
             break;
         }
@@ -1621,6 +1650,9 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         /* Group chat functions */
         case GROUP_ADD: {
             GROUPCHAT *g = &group[param1];
+
+            /* TODO: all of this should be in a group_init() inside groups.c */
+
             g->name_length = snprintf((char*)g->name, sizeof(g->name), "Groupchat #%u", param1);
             if (g->name_length >= sizeof(g->name)) {
                 g->name_length = sizeof(g->name) - 1;
@@ -1628,6 +1660,14 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             g->topic_length = sizeof("Drag friends to invite them") - 1;
             memcpy(g->topic, "Drag friends to invite them", sizeof("Drag friends to invite them") - 1);
             g->msg.scroll = 1.0;
+            g->msg.panel.type = PANEL_MESSAGES;
+            g->msg.panel.content_scroll = &scrollbar_friend;
+            g->msg.panel.y          = MAIN_TOP;
+            g->msg.panel.height     = CHAT_BOX_TOP;
+            g->msg.panel.width      = -SCROLL_WIDTH;
+
+            g->msg.is_groupchat = 1;
+
             g->type = tox_group_get_type(data, param1);
             list_addgroup(g);
             redraw();
@@ -1639,8 +1679,6 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             if (selected_item->data != g) {
                 g->notify = 1;
             }
-
-            message_add(&messages_group, data, &g->msg);
 
             if(selected_item && g == selected_item->data) {
                 redraw();//ui_drawmain();

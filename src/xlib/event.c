@@ -288,6 +288,7 @@ _Bool doevent(XEvent event)
         // KeySym sym = XLookupKeysym(ev, 0);
         break;
     }
+
     case KeyPress: {
         XKeyEvent *ev = &event.xkey;
         KeySym sym = XLookupKeysym(ev, 0);//XKeycodeToKeysym(display, ev->keycode, 0)
@@ -517,39 +518,38 @@ _Bool doevent(XEvent event)
         break;
     }
 
-    case PropertyNotify:
-        {
-            XPropertyEvent *ev = &event.xproperty;
-            if (ev->state == PropertyNewValue && ev->atom == targets && pastebuf.data) {
-                debug("Property changed: %s\n", XGetAtomName(display, ev->atom));
+    case PropertyNotify:{
+        XPropertyEvent *ev = &event.xproperty;
+        if (ev->state == PropertyNewValue && ev->atom == targets && pastebuf.data) {
+            debug("Property changed: %s\n", XGetAtomName(display, ev->atom));
 
-                Atom type;
-                int format;
-                unsigned long int len, bytes_left;
-                void *data;
+            Atom type;
+            int format;
+            unsigned long int len, bytes_left;
+            void *data;
 
-                XGetWindowProperty(display, window, ev->atom, 0, ~0L, True, AnyPropertyType, &type, &format, &len, &bytes_left, (unsigned char**)&data);
+            XGetWindowProperty(display, window, ev->atom, 0, ~0L, True, AnyPropertyType, &type, &format, &len, &bytes_left, (unsigned char**)&data);
 
-                if (len == 0) {
-                    debug("Got 0 length data, pasting\n");
-                    pastedata(pastebuf.data, type, pastebuf.len, False);
-                    pastebuf.data = NULL;
-                    break;
-                }
-
-                if (pastebuf.left < len) {
-                    pastebuf.len += len - pastebuf.left;
-                    pastebuf.data = realloc(pastebuf.data, pastebuf.len);
-                    pastebuf.left = len;
-                }
-
-                memcpy(pastebuf.data + pastebuf.len - pastebuf.left, data, len);
-                pastebuf.left -= len;
-
-                XFree(data);
+            if (len == 0) {
+                debug("Got 0 length data, pasting\n");
+                pastedata(pastebuf.data, type, pastebuf.len, False);
+                pastebuf.data = NULL;
+                break;
             }
-            break;
+
+            if (pastebuf.left < len) {
+                pastebuf.len += len - pastebuf.left;
+                pastebuf.data = realloc(pastebuf.data, pastebuf.len);
+                pastebuf.left = len;
+            }
+
+            memcpy(pastebuf.data + pastebuf.len - pastebuf.left, data, len);
+            pastebuf.left -= len;
+
+            XFree(data);
         }
+        break;
+    }
 
     case ClientMessage:
         {
