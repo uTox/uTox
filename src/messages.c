@@ -101,14 +101,22 @@ static void messages_draw_author(int x, int y, int w, uint8_t *name, uint32_t le
 }
 
 static int messages_draw_text(MSG_TEXT *msg, int x, int y, int w, int h, uint16_t h1, uint16_t h2) {
-    if(msg->author) {
-        setcolor(COLOR_MAIN_SUBTEXT);
-    } else {
-        setcolor(COLOR_MAIN_CHATTEXT);
-    }
 
-    if (msg->msg_type == MSG_TYPE_ACTION_TEXT) {
-        setcolor(COLOR_MAIN_ACTIONTEXT);
+    switch (msg->msg_type) {
+        case MSG_TYPE_TEXT: {
+            if(msg->author) {
+                setcolor(COLOR_MAIN_SUBTEXT);
+            } else {
+                setcolor(COLOR_MAIN_CHATTEXT);
+            }
+            break;
+        }
+        case MSG_TYPE_NOTICE:
+        case MSG_TYPE_NOTICE_DAY_CHANGE:
+        case MSG_TYPE_ACTION_TEXT: {
+            setcolor(COLOR_MAIN_ACTIONTEXT);
+            break;
+        }
     }
 
     setfont(FONT_TEXT);
@@ -399,8 +407,6 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
             break;
         }
 
-        // Draw timestamps
-        messages_draw_timestamp(x + width - ACTUAL_TIME_WIDTH, y, &msg->time);
 
         // Draw the names for groups or friends
         if (m->is_groupchat) {
@@ -437,6 +443,12 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
 
             case MSG_TYPE_TEXT:
             case MSG_TYPE_ACTION_TEXT: {
+                // Draw timestamps
+                messages_draw_timestamp(x + width - ACTUAL_TIME_WIDTH, y, &msg->time);
+                /* intentional fall through */
+            }
+            case MSG_TYPE_NOTICE:
+            case MSG_TYPE_NOTICE_DAY_CHANGE: {
                 // Normal message
                 uint16_t h1 = UINT16_MAX, h2 = UINT16_MAX;
                 if (i == m->sel_start_msg) {
@@ -1029,7 +1041,9 @@ int messages_selection(PANEL *panel, void *buffer, uint32_t len, _Bool names) {
 static int msgheight(MSG_VOID *msg, int width) {
     switch(msg->msg_type) {
         case MSG_TYPE_TEXT:
-        case MSG_TYPE_ACTION_TEXT: {
+        case MSG_TYPE_ACTION_TEXT:
+        case MSG_TYPE_NOTICE:
+        case MSG_TYPE_NOTICE_DAY_CHANGE: {
             MSG_TEXT *text = (void*)msg;
             int theight = text_height(abs(width - MESSAGES_X - TIME_WIDTH), font_small_lineheight, text->msg, text->length);
             return (theight == 0) ? 0 : theight + MESSAGES_SPACING;
