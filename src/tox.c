@@ -211,7 +211,7 @@ void log_read_old(Tox *tox, int fid) {
         m->data[m->number++] = msg;
 
 
-        debug("loaded backlog: %d: %.*s\n", fid, msg->length, msg->msg);
+        // debug("loaded backlog: %d: %.*s\n", fid, msg->length, msg->msg);
     }
 
     fclose(file);
@@ -1400,7 +1400,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             FILE_TRANSFER *file_handle = data;
             FRIEND *f = &friend[file_handle->friend_number];
 
-            message_add_type_file_compat(f->msg, file_handle->ui_data);
+            message_add_type_file_compat(&f->msg, file_handle->ui_data);
             file_notify(f, file_handle->ui_data);
             redraw();
             free(file_handle);
@@ -1415,7 +1415,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
                 native_autoselect_dir_ft(file->friend_number, file);
             }
 
-            message_add_type_file_compat(f, file->ui_data);
+            message_add_type_file_compat(&f->msg, file->ui_data);
             file_notify(f, file->ui_data);
             redraw();
             free(file);

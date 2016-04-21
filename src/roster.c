@@ -658,6 +658,19 @@ _Bool list_mdown(void *UNUSED(n)) {
     return draw;
 }
 
+static void roster_init_settings_page(void) {
+    FRIEND *f = right_mouse_item->data;
+
+    panel_friend_chat.disabled     = 1;
+    panel_friend_video.disabled    = 1;
+    panel_friend_settings.disabled = 0;
+
+    maybe_i18nal_string_set_plain(&edit_friend_alias.empty_str, f->name, f->name_length);
+    edit_setstr(&edit_friend_alias, f->alias, f->alias_length);
+
+    dropdown_friend_autoaccept_ft.over = dropdown_friend_autoaccept_ft.selected = f->ft_autoaccept;
+}
+
 static void contextmenu_list_onselect(uint8_t i) {
     if (right_mouse_item) {
         switch (right_mouse_item->item) {
@@ -666,14 +679,8 @@ static void contextmenu_list_onselect(uint8_t i) {
                 panel_friend_video.disabled    = 1;
                 panel_friend_settings.disabled = 1;
                 if (i == 0) {
-                    FRIEND *f = right_mouse_item->data;
+                    roster_init_settings_page();
 
-                    panel_friend_chat.disabled     = 1;
-                    panel_friend_video.disabled    = 1;
-                    panel_friend_settings.disabled = 0;
-
-                    maybe_i18nal_string_set_plain(&edit_friend_alias.empty_str, f->name, f->name_length);
-                    edit_setstr(&edit_friend_alias, f->alias, f->alias_length);
                 } else if (i == 1) {
                     friend_history_clear((FRIEND*)right_mouse_item->data);
                 } else {
