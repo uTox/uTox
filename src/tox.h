@@ -155,7 +155,7 @@ volatile _Bool tox_thread_msg, audio_thread_msg, video_thread_msg, toxav_thread_
 volatile _Bool save_needed;
 
 /** [log_read description] */
-void log_read(Tox *tox, int fid);
+void log_read_old(Tox *tox, int fid);
 
 /** [init_avatar description]
  *

@@ -54,7 +54,7 @@ typedef struct {
     uint8_t msg_type;
 
     uint32_t height;
-    uint32_t time;
+    time_t time;
 } MSG_VOID;
 
 typedef struct {
@@ -63,7 +63,7 @@ typedef struct {
     uint8_t msg_type;
 
     uint32_t height;
-    uint32_t time;
+    time_t time;
 
     uint16_t length;
     char_t msg[0];
@@ -75,7 +75,7 @@ typedef struct {
     uint8_t msg_type;
 
     uint32_t height;
-    uint32_t time;
+    time_t time;
 
     uint16_t w, h;
     _Bool zoom;
@@ -89,7 +89,7 @@ typedef struct msg_file {
     uint8_t msg_type;
 
     uint32_t height;
-    uint32_t time;
+    time_t time;
 
     uint32_t speed;
     uint32_t filenumber;

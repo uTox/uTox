@@ -75,10 +75,11 @@ uint32_t message_add_type_file_compat(MESSAGES *m, MSG_FILE *f) {
     return message_add(m, (MSG_VOID*)f);
 }
 
-static void messages_draw_timestamp(int x, int y, uint32_t time) {
+static void messages_draw_timestamp(int x, int y, const time_t *time) {
+    struct tm *ltime = localtime(time);
     char timestr[6];
     uint16_t len;
-    len = snprintf(timestr, sizeof(timestr), "%u:%.2u", time / 60, time % 60);
+    len = snprintf(timestr, sizeof(timestr), "%u:%.2u", ltime->tm_hour, ltime->tm_min);
 
     if (len >= sizeof(timestr)) {
         len = sizeof(timestr) - 1;
@@ -399,7 +400,7 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
         }
 
         // Draw timestamps
-        messages_draw_timestamp(x + width - ACTUAL_TIME_WIDTH, y, msg->time);
+        messages_draw_timestamp(x + width - ACTUAL_TIME_WIDTH, y, &msg->time);
 
         // Draw the names for groups or friends
         if (m->is_groupchat) {
@@ -1105,12 +1106,10 @@ void message_updateheight(MESSAGES *m, MSG_VOID *msg) {
  */
 static uint32_t message_add(MESSAGES *m, MSG_VOID *msg) {
     time_t rawtime;
-    struct tm *ti;
     time(&rawtime);
-    ti = localtime(&rawtime);
 
     // Set the time this message was received by utox
-    msg->time = ti->tm_hour * 60 + ti->tm_min;
+    msg->time = rawtime;
 
     /* TODO: test this? */
     if (m->number < UTOX_MAX_BACKLOG_MESSAGES) {

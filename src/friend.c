@@ -122,7 +122,7 @@ void utox_friend_init(Tox *tox, uint32_t friend_number) {
         init_avatar(&f->avatar, cid, NULL, NULL);
 
         // Get the chat backlog
-        log_read(tox, friend_number);
+        log_read_old(tox, friend_number);
 
         // Load the meta data, if it exists.
         friend_meta_data_read(tox, friend_number);

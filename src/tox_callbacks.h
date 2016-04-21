@@ -57,7 +57,7 @@ static void callback_friend_message(Tox *tox, uint32_t friend_number, TOX_MESSAG
     postmessage(FRIEND_MESSAGE, friend_number, 0, NULL);
 
     /* write message to logfile */
-    log_write(tox, friend_number, message, length, 0, LOG_FILE_MSG_TYPE_TEXT);
+    log_write_old(tox, friend_number, message, length, 0, LOG_FILE_MSG_TYPE_TEXT);
 }
 
 static void callback_name_change(Tox *UNUSED(tox), uint32_t fid, const uint8_t *newname, size_t length, void *UNUSED(userdata)) {
