@@ -6,9 +6,9 @@ UI_LANG_ID LANG;
 /***** MAYBE_I18NAL_STRING helpers start *****/
 
 void maybe_i18nal_string_set_plain(MAYBE_I18NAL_STRING *mis, char_t *str, uint16_t length) {
-    mis->plain.str = str;
-    mis->plain.length = length;
     mis->i18nal = UI_STRING_ID_INVALID;
+    mis->plain.length = length;
+    mis->plain.str = str;
 }
 
 void maybe_i18nal_string_set_i18nal(MAYBE_I18NAL_STRING *mis, UI_STRING_ID string_id) {
@@ -403,8 +403,10 @@ static void draw_settings_sub_header(int x, int y, int w, int UNUSED(height)){
 
 static void draw_friend_settings(int UNUSED(x), int y, int width, int height) {
     setcolor(COLOR_MAIN_TEXT);
-    drawstr(MAIN_LEFT + UTOX_SCALE(5), y + MAIN_TOP + UTOX_SCALE(6), ALIAS);
-    drawstr(MAIN_LEFT + UTOX_SCALE(5), y + MAIN_TOP + UTOX_SCALE(26), FRIEND_AUTOACCEPT);
+    setfont(FONT_SELF_NAME);
+
+    drawstr(MAIN_LEFT + SCALE(10), y + MAIN_TOP + SCALE(12), ALIAS);
+    drawstr(MAIN_LEFT + SCALE(10), y + MAIN_TOP + SCALE(52), FRIEND_AUTOACCEPT);
 }
 
 static void draw_background(int UNUSED(x), int UNUSED(y), int width, int height){

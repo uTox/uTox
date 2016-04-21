@@ -1485,11 +1485,6 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             FRIEND *f = &friend[param1];
             friend_setname(f, data, param2);
 
-            // update the edit hint in the friend settings screen if needed
-            if(f->number == ((FRIEND*)selected_item)->number) {
-                maybe_i18nal_string_set_plain(&edit_friend_alias.empty_str, f->name, f->name_length);
-            }
-
             redraw();
             free(data);
             break;

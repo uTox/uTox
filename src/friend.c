@@ -143,7 +143,7 @@ void friend_setname(FRIEND *f, char_t *name, uint16_t length){
     }
 
     free(f->name);
-    if(length == 0) {
+    if (length == 0) {
         f->name = malloc(sizeof(f->cid) * 2 + 1);
         cid_to_string(f->name, f->cid);
         f->name_length = sizeof(f->cid) * 2;
@@ -153,6 +153,12 @@ void friend_setname(FRIEND *f, char_t *name, uint16_t length){
         f->name_length = length;
     }
     f->name[f->name_length] = 0;
+
+    if (!f->alias_length) {
+        if (selected_item->data && f->number == ((FRIEND*)selected_item->data)->number) {
+            maybe_i18nal_string_set_plain(&edit_friend_alias.empty_str, f->name, f->name_length);
+        }
+    }
 
     update_shown_list();
 }
