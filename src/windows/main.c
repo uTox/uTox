@@ -1618,7 +1618,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
         SetForegroundWindow(hwn);
         COPYDATASTRUCT *data = (void*)lParam;
         if (data->lpData){
-            parsecmd(data->lpData, data->cbData);
+            do_tox_url(data->lpData, data->cbData);
         }
         return 0;
     }
