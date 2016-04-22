@@ -190,9 +190,10 @@ void ensure_directory_r(char *path, int perm) {
 /** Takes data from µTox and saves it, just how the OS likes it saved!
  *
  * Returns 1 on failure. Used to set save_needed in tox thread */
-static _Bool native_save_data(const uint8_t *name, size_t name_length, const uint8_t *data, size_t length){
+_Bool native_save_data(const uint8_t *name, size_t name_length, const uint8_t *data, size_t length, _Bool append) {
     uint8_t path[UTOX_FILE_NAME_LENGTH];
     uint8_t atomic_path[UTOX_FILE_NAME_LENGTH];
+    FILE *file;
 
     if (utox_portable) {
         const char *curr = [NSBundle.mainBundle.bundlePath stringByDeletingLastPathComponent].UTF8String;
@@ -204,18 +205,28 @@ static _Bool native_save_data(const uint8_t *name, size_t name_length, const uin
 
     mkdir((char*)path, 0700);
 
-    if (strlen((const char*)path) + name_length >= UTOX_FILE_NAME_LENGTH - strlen(".atomic")){
-        debug("NATIVE:\tSave directory name too long\n");
-        return 0;
+    if (append) {
+        file = fopen((const char*)atomic_path, "ab");
     } else {
-        snprintf((char*)path + strlen((const char*)path), UTOX_FILE_NAME_LENGTH - strlen((const char*)path), "%s", name);
-        snprintf((char*)atomic_path, UTOX_FILE_NAME_LENGTH, "%s.atomic", path);
+        if (strlen((const char*)path) + name_length >= UTOX_FILE_NAME_LENGTH - strlen(".atomic")){
+            debug("NATIVE:\tSave directory name too long\n");
+            return 0;
+        } else {
+            snprintf((char*)path + strlen((const char*)path),
+                     UTOX_FILE_NAME_LENGTH - strlen((const char*)path), "%s", name);
+            snprintf((char*)atomic_path, UTOX_FILE_NAME_LENGTH, "%s.atomic", path);
+        }
+
+        file = fopen((const char*)atomic_path, "wb");
     }
 
-    FILE *file = fopen((const char*)atomic_path, "wb");
     if (file) {
         fwrite(data, length, 1, file);
         fclose(file);
+
+        if (append) {
+            return 0;
+        }
 
         if (rename((const char*)atomic_path, (const char*)path)) {
             /* Consider backing up this file instead of overwriting it. */
@@ -233,21 +244,20 @@ static _Bool native_save_data(const uint8_t *name, size_t name_length, const uin
 
 _Bool native_save_data_tox(uint8_t *data, size_t length){
     uint8_t name[] = "tox_save.tox";
-    return native_save_data(name, strlen((const char*)name), data, length);
+    return native_save_data(name, strlen((const char*)name), data, length, 0);
 }
 
 _Bool native_save_data_utox(UTOX_SAVE *data, size_t length){
     uint8_t name[] = "utox_save";
-    return native_save_data(name, strlen((const char*)name), data, length);
+    return native_save_data(name, strlen((const char*)name), data, length, 0);
 }
 
-_Bool native_save_data_log(void){
+_Bool native_save_data_log(uint32_t friend_number, uint8_t *data, size_t length) {
     return 0;
-
 }
 
 /** Takes data from µTox and loads it up! */
-static uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_size){
+uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_size){
     uint8_t path[UTOX_FILE_NAME_LENGTH];
     uint8_t *data;
 
@@ -263,7 +273,8 @@ static uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t
         debug("NATIVE:\tLoad directory name too long\n");
         return 0;
     } else {
-        snprintf((char*)path + strlen((const char*)path), UTOX_FILE_NAME_LENGTH - strlen((const char*)path), "%s", name);
+        snprintf((char*)path + strlen((const char*)path),
+                 UTOX_FILE_NAME_LENGTH - strlen((const char*)path), "%s", name);
     }
 
 

@@ -276,11 +276,13 @@ extern struct Tox_Options options;
 /** Takes data from µTox and saves it, just how the OS likes it saved!
  *
  * Returns 1 on failure. Used to set save_needed in tox thread */
+_Bool native_save_data(const uint8_t *name, size_t name_length, const uint8_t *data, size_t length, _Bool append);
 _Bool native_save_data_tox(uint8_t *data, size_t length);
 _Bool native_save_data_utox(UTOX_SAVE *data, size_t length);
-_Bool native_save_data_log(void);
+_Bool native_save_data_log(uint32_t friend_number, uint8_t *data, size_t length);
 
 /** Takes data from µTox and loads it up! */
+uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_size);
 uint8_t   *native_load_data_tox(size_t *size);
 UTOX_SAVE *native_load_data_utox(void);
 uint8_t   *native_load_data_log(size_t *size);
