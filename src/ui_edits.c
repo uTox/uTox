@@ -54,6 +54,8 @@ static void edit_friend_alias_onenter(EDIT *edit) {
     FRIEND *f = selected_item->data;
 
     friend_set_alias(f, edit_friend_alias.data, edit_friend_alias.length);
+
+    utox_write_metadata(f);
 }
 
 static struct {

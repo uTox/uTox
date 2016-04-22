@@ -57,6 +57,8 @@ uint16_t utox_run_command(char_t *string, uint16_t string_length, char_t **cmd, 
                 friend_set_alias(f, NULL, 0);
             }
 
+            utox_write_metadata(f);
+
             cmd_length = -1; /* We'll take care of this, don't return to edit */
         }
     } else if ((cmd_length == 8) && (memcmp(*cmd, "sendfile", 8) == 0)){

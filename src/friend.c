@@ -32,9 +32,7 @@ static void friend_meta_data_read(Tox *tox, int friend_id) {
         // debug("Meta Data not found (%s)\n", path);
         return;
     }
-    FRIEND_META_DATA *metadata = calloc(1, sizeof(*metadata) + size);  /* This is too much memory,     *
-                                                                        * but we are about to free it. */
-
+    FRIEND_META_DATA *metadata = calloc(1, sizeof(*metadata) + size);
 
     memcpy(metadata, file_data, size);
     /* Compatibility code for original version of meta_data... TODO: Remove in version >= 0.10 */
@@ -75,8 +73,6 @@ static void friend_meta_data_read(Tox *tox, int friend_id) {
     }
 
     friend[friend_id].ft_autoaccept         = metadata->ft_autoaccept;
-    dropdown_friend_autoaccept_ft.selected  = metadata->ft_autoaccept;
-    dropdown_friend_autoaccept_ft.over      = metadata->ft_autoaccept;
 
     free(metadata);
     free(file_data);
@@ -180,7 +176,6 @@ void friend_set_alias(FRIEND *f, char_t *alias, uint16_t length){
         f->alias_length = length;
         f->alias[f->alias_length] = 0;
     }
-    utox_write_metadata(f);
 }
 
 void friend_sendimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width, uint16_t height,
