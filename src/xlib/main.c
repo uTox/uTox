@@ -623,6 +623,9 @@ uint8_t **native_load_data_log(uint32_t friend_number, size_t *size, uint32_t co
 
     while (1 == fread(&header, sizeof(header), 1, file)) {
         if (start_at) {
+            fseeko(file, header.author_length, SEEK_CUR);
+            fseeko(file, header.msg_length, SEEK_CUR);
+            fseeko(file, 1, SEEK_CUR); /* newline char */
             start_at--;
             continue;
         }
