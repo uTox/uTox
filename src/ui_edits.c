@@ -79,32 +79,32 @@ void edit_msg_onenter(EDIT *edit) {
 
     command_length = utox_run_command(text, length, &command, &argument, 1);
 
-    if(command_length == 65535){
+    if (command_length == 65535) { /* TODO magic number */
         edit->length = 0;
         return;
     }
 
-    debug("cmd %u\n", command_length);
+    // debug("cmd %u\n", command_length);
 
     _Bool action = 0, topic = 0;
-    if(command_length){
+    if (command_length) {
         length = length - command_length - 2; /* first / and then the SPACE */
         text = argument;
-        if((command_length == 2) && (!memcmp(command, "me", 2))) {
-            if(argument) {
+        if ((command_length == 2) && (!memcmp(command, "me", 2))) {
+            if (argument) {
                 action = 1;
             } else {
                 return;
             }
-        } else if(command_length == 5){
-            if(memcmp(command, "topic", 5) == 0){
+        } else if (command_length == 5){
+            if (memcmp(command, "topic", 5) == 0){
                topic = 1;
             } /* Separated as a guide for commands that don't need a separate function */
         }
     }
 
 
-    if(!text){
+    if (!text) {
         return;
     }
 
@@ -117,9 +117,9 @@ void edit_msg_onenter(EDIT *edit) {
 
         /* Display locally */
         if (action) {
-            message_add_type_action(&f->msg, 1, text, length);
+            message_add_type_action(&f->msg, 1, text, length, 1);
         } else {
-            message_add_type_text(&f->msg, 1, text, length);
+            message_add_type_text(&f->msg, 1, text, length, 1);
         }
 
         /* Send to contact */

@@ -73,9 +73,9 @@ static void drawitem(ITEM *i, int UNUSED(x), int y) {
         }
 
         uint8_t status = f->online ? f->status : 3;
-        drawalpha(BM_ONLINE + status, SIDEBAR_WIDTH - UTOX_SCALE(12), y + ROSTER_BOX_HEIGHT / 2 - BM_STATUS_WIDTH / 2, BM_STATUS_WIDTH, BM_STATUS_WIDTH, status_color[status]);
-        if(f->notify) {
-            drawalpha(BM_STATUS_NOTIFY, SIDEBAR_WIDTH - UTOX_SCALE(13), y + ROSTER_BOX_HEIGHT / 2 - BM_STATUS_NOTIFY_WIDTH / 2, BM_STATUS_NOTIFY_WIDTH, BM_STATUS_NOTIFY_WIDTH, status_color[status]);
+        drawalpha(BM_ONLINE + status, SIDEBAR_WIDTH - SCALE(24), y + ROSTER_BOX_HEIGHT / 2 - BM_STATUS_WIDTH / 2, BM_STATUS_WIDTH, BM_STATUS_WIDTH, status_color[status]);
+        if (f->unread_msg) {
+            drawalpha(BM_STATUS_NOTIFY, SIDEBAR_WIDTH - SCALE(26), y + ROSTER_BOX_HEIGHT / 2 - BM_STATUS_NOTIFY_WIDTH / 2, BM_STATUS_NOTIFY_WIDTH, BM_STATUS_NOTIFY_WIDTH, status_color[status]);
         }
         // tooltip_new(utf8tonative(snprint_t(f->name, sizeof(char_t)*8));
         break;
@@ -326,9 +326,9 @@ static void show_page(ITEM *i) {
             memcpy(edit_msg.data, f->typed, f->typed_length);
             edit_msg.length = f->typed_length;
 
-            f->msg.width = current_width;
-            f->msg.id = f - friend;
-            f->notify = 0;
+            f->msg.width  = current_width;
+            f->msg.id     = f - friend;
+            f->unread_msg = 0;
             /* We use the MESSAGES struct from the friend, but we need the info from the panel. */
             messages_friend.object = ((void**)&f->msg);
             messages_updateheight((MESSAGES*)messages_friend.object, current_width);

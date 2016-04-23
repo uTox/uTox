@@ -205,6 +205,8 @@ _Bool native_save_data(const uint8_t *name, size_t name_length, const uint8_t *d
 
     mkdir((char*)path, 0700);
 
+    snprintf((char*)path + strlen((const char*)path), UTOX_FILE_NAME_LENGTH - strlen((const char*)path), "%s", name);
+
     if (append) {
         file = fopen((const char*)atomic_path, "ab");
     } else {
@@ -212,8 +214,6 @@ _Bool native_save_data(const uint8_t *name, size_t name_length, const uint8_t *d
             debug("NATIVE:\tSave directory name too long\n");
             return 0;
         } else {
-            snprintf((char*)path + strlen((const char*)path),
-                     UTOX_FILE_NAME_LENGTH - strlen((const char*)path), "%s", name);
             snprintf((char*)atomic_path, UTOX_FILE_NAME_LENGTH, "%s.atomic", path);
         }
 
@@ -336,7 +336,7 @@ UTOX_SAVE *native_load_data_utox(void){
     return (UTOX_SAVE*)native_load_data(name, strlen((const char*)name), NULL);
 }
 
-uint8_t *native_load_data_log(size_t *size){
+uint8_t **native_load_data_log(uint32_t friend_number, size_t *size, uint32_t count, uint32_t skip) {
     return 0;
 }
 

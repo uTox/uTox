@@ -786,8 +786,9 @@ void utox_write_metadata(FRIEND *f){
     memset(metadata, 0, sizeof(*metadata));
     total_size += sizeof(*metadata);
 
-    metadata->version = METADATA_VERSION;
-    metadata->ft_autoaccept = f->ft_autoaccept;
+    metadata->version           = METADATA_VERSION;
+    metadata->ft_autoaccept     = f->ft_autoaccept;
+    metadata->skip_msg_logging  = f->skip_msg_logging;
 
     if (f->alias && f->alias_length) {
         metadata->alias_length = f->alias_length;

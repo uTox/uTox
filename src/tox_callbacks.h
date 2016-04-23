@@ -39,13 +39,13 @@ static void callback_friend_message(Tox *tox, uint32_t friend_number, TOX_MESSAG
     /* send message to UI */
     switch(type){
         case TOX_MESSAGE_TYPE_NORMAL: {
-            message_add_type_text(&friend[friend_number].msg, 0, message, length);
+            message_add_type_text(&friend[friend_number].msg, 0, message, length, 1);
             debug("Friend(%u) Standard Message: %.*s\n", friend_number, (int)length, message);
             break;
         }
 
         case TOX_MESSAGE_TYPE_ACTION: {
-            message_add_type_action(&friend[friend_number].msg, 0, message, length);
+            message_add_type_action(&friend[friend_number].msg, 0, message, length, 1);
             debug("Friend(%u) Action Message: %.*s\n", friend_number, (int)length, message);
             break;
         }
@@ -55,9 +55,6 @@ static void callback_friend_message(Tox *tox, uint32_t friend_number, TOX_MESSAG
         }
     }
     postmessage(FRIEND_MESSAGE, friend_number, 0, NULL);
-
-    /* write message to logfile */
-    log_write_old(tox, friend_number, message, length, 0, LOG_FILE_MSG_TYPE_TEXT);
 }
 
 static void callback_name_change(Tox *UNUSED(tox), uint32_t fid, const uint8_t *newname, size_t length, void *UNUSED(userdata)) {
@@ -135,7 +132,7 @@ static void callback_group_invite(Tox *tox, int fid, uint8_t type, const uint8_t
 
 static void callback_group_message(Tox *tox, int gid, int pid, const uint8_t *message, uint16_t length, void *UNUSED(userdata))
 {
-    message_add_type_text(&group[gid].msg, 0, message, length);
+    message_add_type_text(&group[gid].msg, 0, message, length, 0);
 
     postmessage(GROUP_MESSAGE, gid, 0, copy_groupmessage(tox, message, length, MSG_TYPE_TEXT, gid, pid));
 

@@ -59,19 +59,20 @@ typedef struct {
 } MSG_VOID;
 
 typedef struct {
-    // true, if we're the author, false, if someone else.
     _Bool author;
     uint8_t msg_type;
 
     uint32_t height;
     time_t time;
 
+    uint32_t receipt;
+    time_t receipt_time;
+
     uint16_t length;
     char_t msg[0];
 } MSG_TEXT;
 
 typedef struct {
-    // true, if we're the author, false, if someone else.
     _Bool author;
     uint8_t msg_type;
 
@@ -85,7 +86,6 @@ typedef struct {
 } MSG_IMG;
 
 typedef struct msg_file {
-    // true, if we're the author, false, if someone else.
     _Bool author;
     uint8_t msg_type;
 
@@ -106,10 +106,13 @@ struct FILE_TRANSFER;
 /* Called externally to add a message to the queue */
 MSG_FILE* message_create_type_file(struct FILE_TRANSFER *file);
 
-uint32_t message_add_type_text(MESSAGES *m, _Bool auth, const uint8_t *data, uint16_t length);
-uint32_t message_add_type_action(MESSAGES *m, _Bool auth, const uint8_t *data, uint16_t length);
-uint32_t message_add_type_notice(MESSAGES *m, const uint8_t *data, uint16_t length);
-uint32_t message_add_type_image(MESSAGES *m, _Bool auth, UTOX_NATIVE_IMAGE *img, uint16_t width, uint16_t height);
+_Bool message_log_to_disk(MESSAGES *m, MSG_VOID *msg);
+
+uint32_t message_add_type_text(MESSAGES *m, _Bool auth, const uint8_t *data, uint16_t length, _Bool log);
+uint32_t message_add_type_action(MESSAGES *m, _Bool auth, const uint8_t *data, uint16_t length, _Bool log);
+uint32_t message_add_type_notice(MESSAGES *m, const uint8_t *data, uint16_t length, _Bool log);
+uint32_t message_add_type_image(MESSAGES *m, _Bool auth, UTOX_NATIVE_IMAGE *img,
+                                uint16_t width, uint16_t height, _Bool log);
 
 void messages_draw(PANEL *panel, int x, int y, int width, int height);
 _Bool messages_mmove(PANEL *panel, int x, int y, int width, int height, int mx, int my, int dx, int dy);

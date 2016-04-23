@@ -96,6 +96,18 @@ typedef struct {
     uint8_t  proxy_ip[0];
 } UTOX_SAVE;
 
+typedef struct {
+    uint8_t  log_version;
+    time_t   time;
+    size_t   author_length;
+    size_t   msg_length;
+    uint8_t  author : 1;
+    uint8_t  flags  : 7;
+    uint8_t  msg_type;
+    uint8_t  zeroes[2];
+} LOG_FILE_MSG_HEADER;
+
+
 // Structs
 
 typedef struct edit_change EDIT_CHANGE;
@@ -285,8 +297,7 @@ _Bool native_save_data_log(uint32_t friend_number, uint8_t *data, size_t length)
 uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_size);
 uint8_t   *native_load_data_tox(size_t *size);
 UTOX_SAVE *native_load_data_utox(void);
-uint8_t   *native_load_data_log(size_t *size);
-
+uint8_t **native_load_data_log(uint32_t friend_number, size_t *size, uint32_t count, uint32_t skip);
 
 
 

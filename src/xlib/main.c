@@ -400,8 +400,6 @@ int datapath_subdir(uint8_t *dest, const char *subdir)
     return l;
 }
 
-
-
 /** Takes data from µTox and saves it, just how the OS likes it saved!
  *
  * Returns 1 on failure. Used to set save_needed in tox thread */
@@ -418,6 +416,8 @@ _Bool native_save_data(const uint8_t *name, size_t name_length, const uint8_t *d
 
     mkdir((char*)path, 0700);
 
+    snprintf((char*)path + strlen((const char*)path), UTOX_FILE_NAME_LENGTH - strlen((const char*)path), "%s", name);
+
     if (append) {
         file = fopen((const char*)path, "ab");
     } else {
@@ -425,8 +425,6 @@ _Bool native_save_data(const uint8_t *name, size_t name_length, const uint8_t *d
             debug("NATIVE:\tSave directory name too long\n");
             return 0;
         } else {
-            snprintf((char*)path + strlen((const char*)path),
-                     UTOX_FILE_NAME_LENGTH - strlen((const char*)path), "%s", name);
             snprintf((char*)atomic_path, UTOX_FILE_NAME_LENGTH, "%s.atomic", path);
         }
         file = fopen((const char*)atomic_path, "wb");
@@ -465,7 +463,12 @@ _Bool native_save_data_utox(UTOX_SAVE *data, size_t length){
 }
 
 _Bool native_save_data_log(uint32_t friend_number, uint8_t *data, size_t length) {
-    uint8_t name[] = "blerg";
+    FRIEND *f = &friend[friend_number];
+    uint8_t hex[TOX_PUBLIC_KEY_SIZE * 2];
+    uint8_t name[TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".new.txt")];
+    cid_to_string(hex, f->cid);
+    snprintf((char*)name, TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".new.txt"), "%.*s.new.txt", TOX_PUBLIC_KEY_SIZE * 2, (char*)hex);
+
     return native_save_data(name, strlen((const char*)name), (const uint8_t*)data, length, 1);
 }
 
@@ -546,8 +549,109 @@ UTOX_SAVE *native_load_data_utox(void){
     return (UTOX_SAVE*)native_load_data(name, strlen((const char*)name), NULL);
 }
 
-uint8_t *native_load_data_log(size_t *size){
-    return 0;
+/** native_load_data_log
+ *
+ *  reads records from the log file of a friend
+ *
+ * returns each MSG in the order they were stored, to a max of `count`
+ * after skipping `skip` records
+ */
+uint8_t **native_load_data_log(uint32_t friend_number, size_t *size, uint32_t count, uint32_t skip) {
+    FRIEND *f = &friend[friend_number];
+    uint8_t hex[TOX_PUBLIC_KEY_SIZE * 2];
+    uint8_t path[UTOX_FILE_NAME_LENGTH];
+
+    cid_to_string(hex, f->cid);
+
+    if (utox_portable) {
+        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "./tox/");
+    } else {
+        snprintf((char*)path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));
+    }
+
+    if (strlen((const char*)path) + sizeof(hex) >= UTOX_FILE_NAME_LENGTH){
+        debug("NATIVE:\tLoad directory name too long\n");
+        return 0;
+    } else {
+        snprintf((char*)path + strlen((const char*)path), UTOX_FILE_NAME_LENGTH - strlen((const char*)path),
+                 "%.*s.new.txt", (int)sizeof(hex), (char*)hex);
+    }
+
+
+    FILE *file = fopen((const char*)path, "rb");
+    if (!file) {
+        //debug("NATIVE:\tUnable to open/read %s\n", path);
+        if (size) { *size = 0; }
+        return NULL;
+    }
+
+    LOG_FILE_MSG_HEADER header;
+    size_t records_count = 0;
+
+    while (1 == fread(&header, sizeof(header), 1, file)) {
+        fseeko(file, header.author_length + header.msg_length + 1, SEEK_CUR);
+        records_count++;
+    }
+
+
+    if (ferror(file) || !feof(file)) {
+        // TODO: consider removing or truncating the log file.
+        // If !feof() this means that the file has an incomplete record,
+        // which would prevent it from loading forever, even though
+        // new records will keep being appended as usual.
+        debug("Log read error (%s)\n", path);
+        fclose(file);
+        if (size) { *size = 0; }
+        return NULL;
+    }
+    rewind(file);
+
+    if (skip >= records_count) {
+        debug("Native log read:\tError, skipped all records\n");
+        fclose(file);
+        if (size) { *size = 0; }
+        return NULL;
+    }
+
+    if (count > (records_count - skip)) {
+        count = records_count - skip;
+    }
+
+    uint8_t **data = calloc(1, sizeof(*data) * count + 1);
+    size_t start_at = records_count - count - skip;
+    size_t actual_count = 0;
+
+    while (1 == fread(&header, sizeof(header), 1, file)) {
+        if (start_at) {
+            start_at--;
+            continue;
+        }
+
+        if (count) {
+            /* we have to skip the author name for now, it's left here for group chats support in the future */
+            fseeko(file, header.author_length, SEEK_CUR);
+            MSG_TEXT *msg   = calloc(1, sizeof(MSG_TEXT) + header.msg_length);
+            msg->author     = header.author;
+            msg->length     = header.msg_length;
+            msg->time       = header.time;
+            msg->msg_type   = header.msg_type;
+
+            if(1 != fread(msg->msg, msg->length, 1, file)) {
+                debug("Native log read:\tError,reading this record... stopping\n");
+                break;
+            }
+            msg->length = utf8_validate(msg->msg, msg->length);
+            *data++ = (void*)msg;
+            count--;
+            actual_count++;
+            fseeko(file, 1, SEEK_CUR); /* seek an extra \n char */
+        }
+    }
+
+    fclose(file);
+
+    if (size) { *size = actual_count; }
+    return data - actual_count;
 }
 
 

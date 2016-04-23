@@ -6,7 +6,7 @@ typedef struct friend_meta_data {
 
     uint8_t ft_autoaccept      : 1;
     uint8_t ft_autoaccept_path : 1;
-    uint8_t log_history        : 1;
+    uint8_t skip_msg_logging   : 1;
     uint8_t unused             : 5;
 
     uint8_t zero[30];
@@ -25,24 +25,37 @@ typedef struct friend_meta_data_old {
 } FRIEND_META_DATA_OLD;
 
 typedef struct friend {
-    _Bool   online, typing, notify;
-    uint8_t number, status;
+    uint8_t cid[TOX_PUBLIC_KEY_SIZE];
+    uint8_t number;
 
-    /* A/V calls */
-    int32_t  call_state_self, call_state_friend;
-    uint16_t video_width, video_height;
-    ALuint   audio_dest;
+    uint8_t *name;
+    uint8_t *alias;
+    uint8_t *status_message;
+    uint8_t *typed;
 
-    uint8_t     cid[TOX_PUBLIC_KEY_SIZE],    tooltip[8];
-    char_t     *name, *alias, *status_message, *typed;
-    uint16_t  name_length, alias_length, status_length, typed_length;
+    size_t  name_length;
+    size_t  alias_length;
+    size_t  status_length;
+    size_t  typed_length;
 
+    /* Friend Status */
+    uint8_t status;
+    _Bool online;
+    _Bool typing;
+
+    AVATAR avatar;
+
+    /* Messages */
+    _Bool skip_msg_logging;
+    _Bool unread_msg;
     MESSAGES msg;
-
     EDIT_CHANGE **edit_history;
     uint16_t edit_history_cur, edit_history_length;
 
-    AVATAR avatar;
+    /* Audio / Video */
+    int32_t  call_state_self, call_state_friend;
+    uint16_t video_width, video_height;
+    ALuint   audio_dest;
 
     /* File transfers */
     uint16_t    transfer_count;

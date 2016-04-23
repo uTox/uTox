@@ -28,7 +28,7 @@ typedef struct {
     uint8_t flags;
     uint8_t msg_type;
     uint8_t zeroes[2];
-} LOG_FILE_MSG_HEADER;
+} LOG_FILE_MSG_HEADER_COMPAT;
 
 void log_write_old(Tox *tox, int fid, const uint8_t *message, uint16_t length, _Bool author, uint8_t msg_type) {
     if (!logging_enabled) {
@@ -67,7 +67,7 @@ void log_write_old(Tox *tox, int fid, const uint8_t *message, uint16_t length, _
             namelen = 0;
         }
 
-        LOG_FILE_MSG_HEADER header = {
+        LOG_FILE_MSG_HEADER_COMPAT header = {
             .time = rawtime,
             .namelen = namelen,
             .length = length,
@@ -100,7 +100,7 @@ void log_read_old(Tox *tox, int fid) {
         return;
     }
 
-    LOG_FILE_MSG_HEADER header;
+    LOG_FILE_MSG_HEADER_COMPAT header;
     off_t rewinds[UTOX_MAX_BACKLOG_MESSAGES] = {};
     size_t records_count = 0;
     size_t notice_count = 0;
@@ -110,10 +110,10 @@ void log_read_old(Tox *tox, int fid) {
 
     /* TODO: some checks to avoid crashes with corrupted log files
      * first find the last UTOX_MAX_BACKLOG_MESSAGES messages in the log */
-    while (1 == fread(&header, sizeof(LOG_FILE_MSG_HEADER), 1, file)) {
+    while (1 == fread(&header, sizeof(LOG_FILE_MSG_HEADER_COMPAT), 1, file)) {
         fseeko(file, header.namelen + header.length, SEEK_CUR);
 
-        rewinds[records_count % countof(rewinds)] = (off_t)sizeof(LOG_FILE_MSG_HEADER) + header.namelen + header.length;
+        rewinds[records_count % countof(rewinds)] = (off_t)sizeof(LOG_FILE_MSG_HEADER_COMPAT) + header.namelen + header.length;
         records_count++;
 
         // if there's a day change, add notice.
@@ -148,7 +148,7 @@ void log_read_old(Tox *tox, int fid) {
     m->number = 0;
 
     /* add the messages */
-    while((0 < i) && (1 == fread(&header, sizeof(LOG_FILE_MSG_HEADER), 1, file))) {
+    while((0 < i) && (1 == fread(&header, sizeof(LOG_FILE_MSG_HEADER_COMPAT), 1, file))) {
         i--;
 
         // Skip unused friend name recorded at the time.
@@ -175,6 +175,8 @@ void log_read_old(Tox *tox, int fid) {
             memcpy(&msg->msg, &notice_text, notice_len);
 
             m->data[m->number++] = msg;
+
+            message_log_to_disk(m, msg);
         }
 
 
@@ -210,11 +212,14 @@ void log_read_old(Tox *tox, int fid) {
         msg->length = utf8_validate(msg->msg, msg->length);
         m->data[m->number++] = msg;
 
+        message_log_to_disk(m, msg);
 
         // debug("loaded backlog: %d: %.*s\n", fid, msg->length, msg->msg);
     }
 
     fclose(file);
+
+    remove((const char*)path);
 }
 
 static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
@@ -869,9 +874,6 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
             }
             // Send last or only message
             tox_friend_send_message(tox, param1, type, p, param2, 0);
-
-            /* write message to friend to logfile */
-            log_write_old(tox, param1, data, param2, 1, LOG_FILE_MSG_TYPE_TEXT);
 
             free(data);
             break;

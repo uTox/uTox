@@ -2,42 +2,135 @@
 
 static uint32_t message_add(MESSAGES *m, MSG_VOID *msg);
 
-uint32_t message_add_type_text(MESSAGES *m, _Bool auth, const uint8_t *data, uint16_t length) {
-    MSG_TEXT *msg   = malloc(sizeof(MSG_TEXT) + length);
+_Bool message_log_to_disk(MESSAGES *m, MSG_VOID *msg) {
+    if (m->is_groupchat) {
+        /* We don't support logging groupchats yet */
+        return 0;
+    }
+
+    FRIEND *f = &friend[m->id];
+
+    if (f->skip_msg_logging) {
+        return 0;
+    }
+
+    LOG_FILE_MSG_HEADER header ;
+    uint8_t *data;
+
+    switch (msg->msg_type) {
+        case MSG_TYPE_TEXT:
+        case MSG_TYPE_ACTION_TEXT:
+        case MSG_TYPE_NOTICE: {
+            size_t author_length;
+            uint8_t *author;
+            MSG_TEXT *text = (void*)msg;
+
+            if (text->author) {
+                author_length = self.name_length;
+                author = self.name;
+            } else {
+                author_length = f->name_length;
+                author = f->name;
+            }
+
+            header.log_version   = 0;
+            header.time          = text->time;
+            header.author_length = author_length;
+            header.msg_length    = text->length;
+            header.author        = text->author;
+            header.msg_type      = text->msg_type;
+
+
+            size_t length = sizeof(header) + text->length + author_length + 1;
+
+            data = calloc(1, length);
+            memcpy(data, &header, sizeof(header));
+            memcpy(data + sizeof(header), author, author_length);
+            memcpy(data + sizeof(header) + author_length, text->msg, text->length);
+            strcpy2(data + length - 1, "\n");
+
+            native_save_data_log(f->number, data, length);
+            break;
+        }
+        default: {
+            debug("uTox Logging:\tUnsupported file type %i\n", msg->msg_type);
+        }
+    }
+    free (data);
+    return 0;
+}
+
+_Bool messages_read_from_log(uint32_t friend_number){
+    size_t actual_count = 0;
+    uint8_t **data = native_load_data_log(friend_number, &actual_count, UTOX_MAX_BACKLOG_MESSAGES, 0);
+    MSG_VOID *msg;
+
+
+    if (data) {
+        void **p = (void**)data;
+        msg = *p++;
+        while (msg && actual_count--) {
+            message_add(&friend[friend_number].msg, msg);
+            msg = *p++;
+        }
+    } else {
+        debug("If there's a friend history,there should be an error here...\n");
+    }
+    return 0;
+}
+
+uint32_t message_add_type_text(MESSAGES *m, _Bool auth, const uint8_t *data, uint16_t length, _Bool log) {
+    MSG_TEXT *msg   = calloc(1, sizeof(MSG_TEXT) + length);
+    time(&msg->time);
     msg->author     = auth;
     msg->msg_type   = MSG_TYPE_TEXT;
     msg->length     = length;
     memcpy(msg->msg, data, length);
 
+    if (log) {
+        message_log_to_disk(m, (MSG_VOID*)msg);
+    }
+
     return message_add(m, (MSG_VOID*)msg);
 }
 
-uint32_t message_add_type_action(MESSAGES *m, _Bool auth, const uint8_t *data, uint16_t length) {
-    MSG_TEXT *msg   = malloc(sizeof(MSG_TEXT) + length);
+uint32_t message_add_type_action(MESSAGES *m, _Bool auth, const uint8_t *data, uint16_t length, _Bool log) {
+    MSG_TEXT *msg   = calloc(1, sizeof(MSG_TEXT) + length);
+    time(&msg->time);
     msg->author     = auth;
     msg->msg_type   = MSG_TYPE_ACTION_TEXT;
     msg->length     = length;
     memcpy(msg->msg, data, length);
 
+    if (log) {
+        message_log_to_disk(m, (MSG_VOID*)msg);
+    }
+
     return message_add(m, (MSG_VOID*)msg);
 }
 
-uint32_t message_add_type_notice(MESSAGES *m, const uint8_t *data, uint16_t length) {
-    MSG_TEXT *msg   = malloc(sizeof(MSG_TEXT) + length);
+uint32_t message_add_type_notice(MESSAGES *m, const uint8_t *data, uint16_t length, _Bool log) {
+    MSG_TEXT *msg   = calloc(1, sizeof(MSG_TEXT) + length);
+    time(&msg->time);
     msg->author     = 0;
-    msg->msg_type   = MSG_TYPE_ACTION_TEXT;
+    msg->msg_type   = MSG_TYPE_NOTICE;
     msg->length     = length;
     memcpy(msg->msg, data, length);
 
+    if (log) {
+        message_log_to_disk(m, (MSG_VOID*)msg);
+    }
+
     return message_add(m, (MSG_VOID*)msg);
 }
 
-uint32_t message_add_type_image(MESSAGES *m, _Bool auth, UTOX_NATIVE_IMAGE *img, uint16_t width, uint16_t height) {
+uint32_t message_add_type_image(MESSAGES *m, _Bool auth, UTOX_NATIVE_IMAGE *img, uint16_t width, uint16_t height, _Bool log) {
     if (!UTOX_NATIVE_IMAGE_IS_VALID(img)) {
         return 0;
     }
 
-    MSG_IMG *msg = malloc(sizeof(MSG_IMG));
+    MSG_IMG *msg = calloc(1, sizeof(MSG_IMG));
+    time(&msg->time);
     msg->author = auth;
     msg->msg_type = MSG_TYPE_IMAGE;
     msg->w = width;
@@ -52,7 +145,8 @@ uint32_t message_add_type_image(MESSAGES *m, _Bool auth, UTOX_NATIVE_IMAGE *img,
 /* TODO FIX THIS SECTION TO MATCH ABOVE! */
 /* Called by new file transfer to add a new message to the msg list */
 MSG_FILE* message_create_type_file(FILE_TRANSFER *file) { //TODO shove on ui thread
-    MSG_FILE *msg   = malloc(sizeof(MSG_FILE));
+    MSG_FILE *msg   = calloc(1, sizeof(MSG_FILE));
+    time(&msg->time);
     msg->author     = file->incoming ? 0 : 1;
     msg->msg_type   = MSG_TYPE_FILE;
     msg->filenumber = file->file_number;
@@ -417,21 +511,28 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
         } else {
             FRIEND *f = &friend[m->id];
             _Bool auth = msg->author;
+            _Bool draw_author = 1;
             if (msg->msg_type == MSG_TYPE_ACTION_TEXT) {
                 // Always draw name next to action message
                 lastauthor = 0xFF;
                 auth = 1;
             }
 
-            if (msg->author != lastauthor) {
-                if (msg->author) {
-                    messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET, self.name, self.name_length, auth);
-                } else if (f->alias) {
-                    messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET, f->alias, f->alias_length, auth);
-                } else {
-                    messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET, f->name, f->name_length, auth);
+            if (msg->msg_type == MSG_TYPE_NOTICE) {
+                draw_author = 0;
+            }
+
+            if (draw_author) {
+                if (msg->author != lastauthor) {
+                    if (msg->author) {
+                        messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET, self.name, self.name_length, auth);
+                    } else if (f->alias) {
+                        messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET, f->alias, f->alias_length, auth);
+                    } else {
+                        messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET, f->name, f->name_length, auth);
+                    }
+                    lastauthor = msg->author;
                 }
-                lastauthor = msg->author;
             }
         }
 
@@ -1119,12 +1220,6 @@ void message_updateheight(MESSAGES *m, MSG_VOID *msg) {
  * accepts: MESSAGES *pointer, MESSAGE *pointer, MSG_DATA *pointer
  */
 static uint32_t message_add(MESSAGES *m, MSG_VOID *msg) {
-    time_t rawtime;
-    time(&rawtime);
-
-    // Set the time this message was received by utox
-    msg->time = rawtime;
-
     /* TODO: test this? */
     if (m->number < UTOX_MAX_BACKLOG_MESSAGES) {
         if (m->extra <= 0) {

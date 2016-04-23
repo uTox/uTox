@@ -119,6 +119,7 @@ void utox_friend_init(Tox *tox, uint32_t friend_number) {
 
         // Get the chat backlog
         log_read_old(tox, friend_number);
+        messages_read_from_log(friend_number);
 
         // Load the meta data, if it exists.
         friend_meta_data_read(tox, friend_number);
@@ -135,7 +136,7 @@ void friend_setname(FRIEND *f, char_t *name, uint16_t length){
         memcpy(p + f->name_length, " is now known as ", sizeof(" is now known as ") - 1);
         memcpy(p + f->name_length + sizeof(" is now known as ") - 1, name, length);
 
-        message_add_type_notice(&f->msg, p, size);
+        message_add_type_notice(&f->msg, p, size, 1);
     }
 
     free(f->name);
@@ -181,7 +182,7 @@ void friend_set_alias(FRIEND *f, char_t *alias, uint16_t length){
 void friend_sendimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width, uint16_t height,
                       UTOX_IMAGE png_image, size_t png_size)
 {
-    message_add_type_image(&f->msg, 1, native_image, width, height);
+    message_add_type_image(&f->msg, 1, native_image, width, height, 0);
     redraw();
 
     struct TOX_SEND_INLINE_MSG *tsim = malloc(sizeof(struct TOX_SEND_INLINE_MSG));
@@ -195,7 +196,7 @@ void friend_recvimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width
         return;
     }
 
-    message_add_type_image(&f->msg, 0, native_image, width, height);
+    message_add_type_image(&f->msg, 0, native_image, width, height, 0);
 }
 
 void friend_notify(FRIEND *f, char_t *str, uint16_t str_length, char_t *msg, uint16_t msg_length) {
@@ -213,10 +214,10 @@ void friend_notify(FRIEND *f, char_t *str, uint16_t str_length, char_t *msg, uin
 }
 
 void friend_addmessage_notify(FRIEND *f, char_t *data, uint16_t length) {
-    message_add_type_text(&f->msg, 0, data, length);
+    message_add_type_text(&f->msg, 0, data, length, 1);
 
     if (selected_item->data != f) {
-        f->notify = 1;
+        f->unread_msg = 1;
     }
 }
 
@@ -226,7 +227,7 @@ _Bool friend_set_online(FRIEND *f, _Bool online) {
     }
 
     f->online = online;
-    if(!f->online) {
+    if (!f->online) {
         friend_set_typing(f, 0);
     }
 
