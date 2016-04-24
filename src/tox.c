@@ -30,58 +30,7 @@ typedef struct {
     uint8_t zeroes[2];
 } LOG_FILE_MSG_HEADER_COMPAT;
 
-void log_write_old(Tox *tox, int fid, const uint8_t *message, uint16_t length, _Bool author, uint8_t msg_type) {
-    if (!logging_enabled) {
-        return;
-    }
-
-    uint8_t path[UTOX_FILE_NAME_LENGTH], *p;
-    uint8_t name[TOX_MAX_NAME_LENGTH];
-    size_t namelen;
-    FILE *file;
-
-    p = path + datapath(path);
-
-    int len = log_file_name(p, sizeof(path) - (p - path), tox, fid);
-    if (len == -1) {
-        return;
-    }
-
-    p += len;
-
-    file = fopen((char*)path, "ab");
-    if (file) {
-        time_t rawtime;
-        time(&rawtime);
-
-        if (author) {
-            namelen = tox_self_get_name_size(tox);
-            tox_self_get_name(tox, name);
-        } else {
-            namelen = tox_friend_get_name_size(tox, fid, 0);
-            tox_friend_get_name(tox, fid, name, 0);
-
-        }
-
-        if (namelen > TOX_MAX_NAME_LENGTH) {
-            namelen = 0;
-        }
-
-        LOG_FILE_MSG_HEADER_COMPAT header = {
-            .time = rawtime,
-            .namelen = namelen,
-            .length = length,
-            .flags = author,
-            .msg_type = msg_type,
-        };
-
-        fwrite(&header, sizeof(header), 1, file);
-        fwrite(name, namelen, 1, file);
-        fwrite(message, length, 1, file);
-        fclose(file);
-    }
-}
-
+#warning "log_read_old is depcreated, remove at v0.10"
 void log_read_old(Tox *tox, int fid) {
     uint8_t path[UTOX_FILE_NAME_LENGTH], *p;
     FILE *file;
@@ -138,6 +87,7 @@ void log_read_old(Tox *tox, int fid) {
         msg->author = header.flags & 1;
         msg->length = header.length;
         msg->time = header.time;
+        msg->receipt_time = header.time;
 
         switch(header.msg_type) {
             case LOG_FILE_MSG_TYPE_ACTION: {
@@ -806,23 +756,27 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
              * param2: message length
              * data: message
              */
-            void *p = data;
+            MSG_TEXT *message = (void*)data;
+            void *p = message->msg;
+
             TOX_MESSAGE_TYPE type;
-            if(msg == TOX_SEND_ACTION){
+            if (msg == TOX_SEND_ACTION){
                 type = TOX_MESSAGE_TYPE_ACTION;
             } else {
                 type = TOX_MESSAGE_TYPE_NORMAL;
             }
-            while(param2 > TOX_MAX_MESSAGE_LENGTH) {
+
+            while (param2 > TOX_MAX_MESSAGE_LENGTH) {
                 uint16_t len = TOX_MAX_MESSAGE_LENGTH - utf8_unlen(p + TOX_MAX_MESSAGE_LENGTH);
                 tox_friend_send_message(tox, param1, type, p, len, 0);
                 param2 -= len;
                 p += len;
             }
-            // Send last or only message
-            tox_friend_send_message(tox, param1, type, p, param2, 0);
 
-            free(data);
+            // Send last or only message
+            message->receipt = tox_friend_send_message(tox, param1, type, p, param2, 0);
+            message->receipt_time = 0;
+
             break;
         }
         case TOX_SEND_TYPING: {
@@ -1241,7 +1195,11 @@ static void call_notify(FRIEND *f, uint8_t status) {
     }
 
     friend_notify(f, str->str, str->length, (uint8_t*)"", 0);
-    friend_addmessage_notify(f, str->str, str->length);
+    message_add_type_notice(&f->msg, str->str, str->length, 1);
+
+    if (selected_item->data != f) {
+        f->unread_msg = 1;
+    }
 }
 
 void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void *data) {
@@ -1349,6 +1307,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             FILE_TRANSFER *file_handle = data;
             FRIEND *f = &friend[file_handle->friend_number];
 
+            #warning "message_add_type_file_compat is depcreated"
             message_add_type_file_compat(&f->msg, file_handle->ui_data);
             file_notify(f, file_handle->ui_data);
             redraw();
@@ -1364,6 +1323,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
                 native_autoselect_dir_ft(file->friend_number, file);
             }
 
+            #warning "message_add_type_file_compat is depcreated"
             message_add_type_file_compat(&f->msg, file->ui_data);
             file_notify(f, file->ui_data);
             redraw();
@@ -1428,6 +1388,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             if (friend_set_online(f, param2)) {
                 redraw();
             }
+            messages_send_from_queue(&f->msg, param1);
             break;
         }
         case FRIEND_NAME: {

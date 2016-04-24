@@ -106,6 +106,9 @@ struct FILE_TRANSFER;
 /* Called externally to add a message to the queue */
 MSG_FILE* message_create_type_file(struct FILE_TRANSFER *file);
 
+uint32_t message_add_type_file_compat(MESSAGES *m, MSG_FILE *f);
+
+
 _Bool message_log_to_disk(MESSAGES *m, MSG_VOID *msg);
 
 uint32_t message_add_type_text(MESSAGES *m, _Bool auth, const uint8_t *data, uint16_t length, _Bool log);

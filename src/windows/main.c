@@ -337,11 +337,12 @@ uint8_t **native_load_data_log(uint32_t friend_number, size_t *size, uint32_t co
         if (count) {
             /* we have to skip the author name for now, it's left here for group chats support in the future */
             fseeko(file, header.author_length, SEEK_CUR);
-            MSG_TEXT *msg   = calloc(1, sizeof(MSG_TEXT) + header.msg_length);
-            msg->author     = header.author;
-            msg->length     = header.msg_length;
-            msg->time       = header.time;
-            msg->msg_type   = header.msg_type;
+            MSG_TEXT *msg       = calloc(1, sizeof(MSG_TEXT) + header.msg_length);
+            msg->author         = header.author;
+            msg->receipt_time   = header.receipt;
+            msg->length         = header.msg_length;
+            msg->time           = header.time;
+            msg->msg_type       = header.msg_type;
 
             if(1 != fread(msg->msg, msg->length, 1, file)) {
                 debug("Native log read:\tError,reading this record... stopping\n");

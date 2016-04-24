@@ -38,6 +38,7 @@ _Bool message_log_to_disk(MESSAGES *m, MSG_VOID *msg) {
             header.author_length = author_length;
             header.msg_length    = text->length;
             header.author        = text->author;
+            header.receipt       = (text->receipt_time ? 1 : 0);
             header.msg_type      = text->msg_type;
 
 
@@ -79,6 +80,40 @@ _Bool messages_read_from_log(uint32_t friend_number){
     return 0;
 }
 
+void messages_send_from_queue(MESSAGES *m, uint32_t friend_number) {
+    uint32_t start = m->number;
+
+    while (start--) {
+        if (m->data[start]) {
+            MSG_TEXT *msg = (MSG_TEXT*)(m->data[start]);
+            if (msg->msg_type == MSG_TYPE_TEXT || msg->msg_type == MSG_TYPE_ACTION_TEXT) {
+                if (!msg->receipt_time) {
+                    postmessage_toxcore((msg->msg_type == MSG_TYPE_TEXT ? TOX_SEND_MESSAGE : TOX_SEND_ACTION),
+                                        friend_number, msg->length, msg);
+                }
+            }
+        }
+    }
+}
+
+void messages_clear_receipt(MESSAGES *m, uint32_t receipt_number) {
+    uint32_t start = m->number;
+
+    while (start--) {
+        if (m->data[start]) {
+            MSG_TEXT *msg = (MSG_TEXT*)(m->data[start]);
+            if (msg->msg_type == MSG_TYPE_TEXT || msg->msg_type == MSG_TYPE_ACTION_TEXT) {
+                if (msg->receipt == receipt_number) {
+                    msg->receipt = 0;
+                    time(&msg->receipt_time);
+                    return;
+                }
+            }
+        }
+    }
+
+}
+
 uint32_t message_add_type_text(MESSAGES *m, _Bool auth, const uint8_t *data, uint16_t length, _Bool log) {
     MSG_TEXT *msg   = calloc(1, sizeof(MSG_TEXT) + length);
     time(&msg->time);
@@ -89,6 +124,10 @@ uint32_t message_add_type_text(MESSAGES *m, _Bool auth, const uint8_t *data, uin
 
     if (log) {
         message_log_to_disk(m, (MSG_VOID*)msg);
+    }
+
+    if (auth) {
+        postmessage_toxcore(TOX_SEND_MESSAGE, friend[m->id].number, length, msg);
     }
 
     return message_add(m, (MSG_VOID*)msg);
@@ -104,6 +143,10 @@ uint32_t message_add_type_action(MESSAGES *m, _Bool auth, const uint8_t *data, u
 
     if (log) {
         message_log_to_disk(m, (MSG_VOID*)msg);
+    }
+
+    if (auth) {
+        postmessage_toxcore(TOX_SEND_ACTION, friend[m->id].number, length, msg);
     }
 
     return message_add(m, (MSG_VOID*)msg);
@@ -199,9 +242,13 @@ static int messages_draw_text(MSG_TEXT *msg, int x, int y, int w, int h, uint16_
     switch (msg->msg_type) {
         case MSG_TYPE_TEXT: {
             if(msg->author) {
-                setcolor(COLOR_MAIN_SUBTEXT);
+                if (msg->receipt_time) {
+                    setcolor(COLOR_MSG_USER);
+                } else {
+                    setcolor(COLOR_MSG_USER_PEND);
+                }
             } else {
-                setcolor(COLOR_MAIN_CHATTEXT);
+                setcolor(COLOR_MSG_CONTACT);
             }
             break;
         }
@@ -721,7 +768,9 @@ _Bool messages_mmove(PANEL *panel, int UNUSED(px), int UNUSED(py), int width, in
 
             switch(msg->msg_type) {
                 case MSG_TYPE_TEXT:
-                case MSG_TYPE_ACTION_TEXT: {
+                case MSG_TYPE_ACTION_TEXT:
+                case MSG_TYPE_NOTICE:
+                case MSG_TYPE_NOTICE_DAY_CHANGE: {
                     messages_mmove_text(m, width, mx, my, dy, msg->msg, msg->height, msg->length);
                     break;
                 }
@@ -807,7 +856,9 @@ _Bool messages_mdown(PANEL *panel) {
         MSG_VOID *msg = m->data[m->cursor_over_msg];
         switch (msg->msg_type) {
             case MSG_TYPE_TEXT:
-            case MSG_TYPE_ACTION_TEXT: {
+            case MSG_TYPE_ACTION_TEXT:
+            case MSG_TYPE_NOTICE:
+            case MSG_TYPE_NOTICE_DAY_CHANGE: {
                 if (m->mouse_over_uri != UINT16_MAX) {
                     m->mouse_down_on_uri = 1;
                 }

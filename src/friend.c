@@ -213,14 +213,6 @@ void friend_notify(FRIEND *f, char_t *str, uint16_t str_length, char_t *msg, uin
     notify(title, len, msg, msg_length, f);
 }
 
-void friend_addmessage_notify(FRIEND *f, char_t *data, uint16_t length) {
-    message_add_type_text(&f->msg, 0, data, length, 1);
-
-    if (selected_item->data != f) {
-        f->unread_msg = 1;
-    }
-}
-
 _Bool friend_set_online(FRIEND *f, _Bool online) {
     if (f->online == online) {
         return false;

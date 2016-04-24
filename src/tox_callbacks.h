@@ -84,7 +84,7 @@ static void callback_typing_change(Tox *UNUSED(tox), uint32_t fid, _Bool is_typi
 }
 
 static void callback_read_receipt(Tox *UNUSED(tox), uint32_t fid, uint32_t receipt, void *UNUSED(userdata)) {
-    //postmessage(FRIEND_RECEIPT, fid, receipt);
+    messages_clear_receipt(&friend[fid].msg, receipt);
     debug("Friend-%u Receipt:\t%u\n", fid, receipt);
 }
 
@@ -92,7 +92,7 @@ static void callback_connection_status(Tox *tox, uint32_t fid, TOX_CONNECTION st
     if (friend[fid].online && !status) {
         ft_friend_offline(tox, fid);
         if (friend[fid].call_state_self || friend[fid].call_state_friend) {
-            utox_av_local_disconnect(NULL, fid); /* TODO HACK, toxav doesn't supply a toxav_get_toxav_from_otx() yet. */
+            utox_av_local_disconnect(NULL, fid); /* TODO HACK, toxav doesn't supply a toxav_get_toxav_from_tox() yet. */
         }
     } else if (!friend[fid].online && !!status) {
         ft_friend_online(tox, fid);

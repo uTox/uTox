@@ -111,21 +111,12 @@ void edit_msg_onenter(EDIT *edit) {
     if(selected_item->item == ITEM_FRIEND) {
         FRIEND *f = selected_item->data;
 
-        if(!f->online) {
-            return;
-        }
-
         /* Display locally */
         if (action) {
             message_add_type_action(&f->msg, 1, text, length, 1);
         } else {
             message_add_type_text(&f->msg, 1, text, length, 1);
         }
-
-        /* Send to contact */
-        void *d = malloc(length);
-        memcpy(d, text, length);
-        postmessage_toxcore((action ? TOX_SEND_ACTION : TOX_SEND_MESSAGE), (f - friend), length, d);
     } else if(selected_item->item == ITEM_GROUP) {
         GROUPCHAT *g = selected_item->data;
         if(topic){
