@@ -14,7 +14,7 @@ static void calculate_pos_and_width(CONTEXTMENU *b, int *x, int *w) {
     // Increase width if needed, so that all menu items fit.
     for(i = 0; i < b->count; i++) {
         STRING *name = b->ondisplay(i, b);
-        int needed_w = textwidth(name->str, name->length) + UTOX_SCALE(4 );
+        int needed_w = textwidth(name->str, name->length) + SCALE(8);
         if(*w < needed_w) {
             *w = needed_w;
         }
@@ -32,6 +32,7 @@ void contextmenu_draw(void)
     if(!b->open) {
         return;
     }
+    setfont(FONT_TEXT);
 
     int x, w, active_h;
     calculate_pos_and_width(b, &x, &w);
@@ -44,7 +45,6 @@ void contextmenu_draw(void)
     for(i = 0; i != b->count; i++) {
         // Ensure that font is set before calculating position and width.
         STRING *name = b->ondisplay(i, b);
-        setfont(FONT_TEXT);
         setcolor((active_h == b->y + i * CONTEXT_HEIGHT) ? COLOR_ACTIVEOPTION_TEXT : COLOR_MAIN_TEXT);
         drawtext(x + SCALE(4), b->y + SCALE(4) + i * CONTEXT_HEIGHT, name->str, name->length);
     }
