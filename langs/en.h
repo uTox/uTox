@@ -1,3 +1,5 @@
+#include "en/group.h"
+
 msgid(LANG_NATIVE_NAME)
 msgstr("English")
 
@@ -82,8 +84,11 @@ msgstr("File transfer canceled")
 msgid(TRANSFER_COMPLETE)
 msgstr("File transfer complete")
 
-msgid(GROUPCHAT_JOIN_AUDIO)
-msgstr("Join audio chat")
+msgid(CURSOR_CLICK_LEFT)
+msgstr("Left mouse click")
+
+msgid(CURSOR_CLICK_RIGHT)
+msgstr("Right mouse click")
 
 msgid(START_AUDIO_CALL)
 msgstr("Start call")
@@ -141,9 +146,6 @@ msgstr("Show online contacts only!")
 
 msgid(ADD)
 msgstr("Add")
-
-msgid(CREATEGROUPCHAT)
-msgstr("Create Groupchat")
 
 msgid(SWITCHPROFILE)
 msgstr("Switch Profile")
@@ -301,14 +303,8 @@ msgstr("Remove")
 msgid(REMOVE_FRIEND)
 msgstr("Remove Friend")
 
-msgid(REMOVE_GROUP)
-msgstr("Remove Group")
-
 msgid(LEAVE)
 msgstr("Leave")
-
-msgid(LEAVE_GROUP)
-msgstr("Leave Group")
 
 msgid(CTOPIC)
 msgstr("Change Topic")

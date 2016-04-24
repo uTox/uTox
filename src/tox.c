@@ -1601,8 +1601,13 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             if (g->name_length >= sizeof(g->name)) {
                 g->name_length = sizeof(g->name) - 1;
             }
-            g->topic_length = sizeof("Drag friends to invite them") - 1;
-            memcpy(g->topic, "Drag friends to invite them", sizeof("Drag friends to invite them") - 1);
+            if (param2) {
+                g->topic_length = sizeof("Error creating voice group, not supported yet") - 1;
+                strcpy2(g->topic, "Error creating voice group, not supported yet");
+            } else {
+                g->topic_length = sizeof("Drag friends to invite them") - 1;
+                memcpy(g->topic, "Drag friends to invite them", sizeof("Drag friends to invite them") - 1);
+            }
             g->msg.scroll = 1.0;
             g->msg.panel.type = PANEL_MESSAGES;
             g->msg.panel.content_scroll = &scrollbar_friend;
@@ -1614,6 +1619,9 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
 
             g->type = tox_group_get_type(data, param1);
             list_addgroup(g);
+
+            roster_select_last();
+
             redraw();
             break;
         }
