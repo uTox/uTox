@@ -2,8 +2,8 @@
 
 static CONTEXTMENU context_menu;
 
-#define CONTEXT_WIDTH (UTOX_SCALE(60))
-#define CONTEXT_HEIGHT (UTOX_SCALE(12))
+#define CONTEXT_WIDTH (SCALE(120))
+#define CONTEXT_HEIGHT (SCALE(24))
 
 static void calculate_pos_and_width(CONTEXTMENU *b, int *x, int *w) {
     uint8_t i;
@@ -46,7 +46,7 @@ void contextmenu_draw(void)
         STRING *name = b->ondisplay(i, b);
         setfont(FONT_TEXT);
         setcolor((active_h == b->y + i * CONTEXT_HEIGHT) ? COLOR_ACTIVEOPTION_TEXT : COLOR_MAIN_TEXT);
-        drawtext(x + UTOX_SCALE(2), b->y + UTOX_SCALE(2) + i * CONTEXT_HEIGHT, name->str, name->length);
+        drawtext(x + SCALE(4), b->y + SCALE(4) + i * CONTEXT_HEIGHT, name->str, name->length);
     }
 
     draw_rect_frame(x, b->y, w, b->height, COLOR_EDGE_ACTIVE);
