@@ -1119,7 +1119,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
             }
 
             if (g != -1) {
-                postmessage(GROUP_ADD, g, 0, tox);
+                postmessage(GROUP_ADD, g, param2, tox);
             }
             save_needed = 1;
             break;
@@ -1594,34 +1594,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         /* Group chat functions */
         case GROUP_ADD: {
             GROUPCHAT *g = &group[param1];
-
-            /* TODO: all of this should be in a group_init() inside groups.c */
-
-            g->name_length = snprintf((char*)g->name, sizeof(g->name), "Groupchat #%u", param1);
-            if (g->name_length >= sizeof(g->name)) {
-                g->name_length = sizeof(g->name) - 1;
-            }
-            if (param2) {
-                g->topic_length = sizeof("Error creating voice group, not supported yet") - 1;
-                strcpy2(g->topic, "Error creating voice group, not supported yet");
-            } else {
-                g->topic_length = sizeof("Drag friends to invite them") - 1;
-                memcpy(g->topic, "Drag friends to invite them", sizeof("Drag friends to invite them") - 1);
-            }
-            g->msg.scroll = 1.0;
-            g->msg.panel.type = PANEL_MESSAGES;
-            g->msg.panel.content_scroll = &scrollbar_friend;
-            g->msg.panel.y          = MAIN_TOP;
-            g->msg.panel.height     = CHAT_BOX_TOP;
-            g->msg.panel.width      = -SCROLL_WIDTH;
-
-            g->msg.is_groupchat = 1;
-
-            g->type = tox_group_get_type(data, param1);
-            list_addgroup(g);
-
-            roster_select_last();
-
+            group_init(g, param1, param2);
             redraw();
             break;
         }
@@ -1653,7 +1626,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             g->peername[param2] = g->peername[g->peers];
             g->peername[g->peers] = NULL;
 
-            if (g->type == TOX_GROUPCHAT_TYPE_AV) {
+            if (g->av_group) {
                 g->last_recv_audio[param2] = g->last_recv_audio[g->peers];
                 g->last_recv_audio[g->peers] = 0;
                 // REMOVED UNTIL AFTER NEW GCs group_av_peer_remove(g, param2);
@@ -1685,7 +1658,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             }
 
             if(tox_message_id == GROUP_PEER_ADD) {
-                if (g->type == TOX_GROUPCHAT_TYPE_AV) {
+                if (g->av_group) {
                     // todo fix group_av_peer_add(g, param2);
                 }
 
@@ -1734,7 +1707,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         case GROUP_AUDIO_START: {
             GROUPCHAT *g = &group[param1];
 
-            if (g->type == TOX_GROUPCHAT_TYPE_AV) {
+            if (g->av_group) {
                 g->audio_calling = 1;
                 postmessage_utoxav(UTOXAV_GROUPCALL_START, 0, param1, NULL);
                 redraw();
@@ -1744,7 +1717,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         case GROUP_AUDIO_END: {
             GROUPCHAT *g = &group[param1];
 
-            if (g->type == TOX_GROUPCHAT_TYPE_AV) {
+            if (g->av_group) {
                 g->audio_calling = 0;
                 postmessage_utoxav(UTOXAV_GROUPCALL_END, 0, param1, NULL);
                 redraw();

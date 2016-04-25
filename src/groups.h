@@ -4,7 +4,8 @@ typedef struct groupchat {
     _Bool audio_calling, notify;
     uint32_t peers;
     uint32_t our_peer_number;
-    uint8_t type;
+
+    uint8_t av_group;
 
     volatile _Bool muted;
     ALuint audio_dest;

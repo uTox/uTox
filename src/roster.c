@@ -729,7 +729,7 @@ static void contextmenu_list_onselect(uint8_t i) {
                     memcpy(str + 7, g->name, g->name_length);
                     edit_setfocus(&edit_msg_group);
                     edit_paste((char_t*)str, sizeof(str), 0);
-                } else if (i == 1 && g->type == TOX_GROUPCHAT_TYPE_AV) {
+                } else if (i == 1 && g->av_group) {
                     g->muted = !g->muted;
                 } else {
                     roster_delete_rmouse_item();
@@ -785,7 +785,7 @@ _Bool list_mright(void *UNUSED(n)) {
 
             case ITEM_GROUP: {
                 GROUPCHAT *g = mouseover_item->data;
-                if (g->type == TOX_GROUPCHAT_TYPE_AV) {
+                if (g->av_group) {
                     if (g->muted) {
                         contextmenu_new(countof(menu_group_muted), menu_group_muted, contextmenu_list_onselect);
                     } else {

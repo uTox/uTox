@@ -212,7 +212,7 @@ static void button_group_audio_onpress(void) {
 
 static void button_group_audio_update(BUTTON *b) {
     GROUPCHAT *g = selected_item->data;
-    if (g->type == TOX_GROUPCHAT_TYPE_AV) {
+    if (g->av_group) {
         b->disabled = 0;
         if (g->audio_calling)
             button_setcolors_danger(b);
