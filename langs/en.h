@@ -199,6 +199,9 @@ msgstr("Away")
 msgid(STATUS_BUSY)
 msgstr("Busy")
 
+msgid(SETTINGS_UI_MINI_ROSTER)
+msgstr("Use mini contact list")
+
 msgid(NOT_CONNECTED)
 msgstr("Not Connected")
 
