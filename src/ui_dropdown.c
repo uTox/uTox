@@ -305,8 +305,8 @@ dropdown_typing_notes = {
 dropdown_mini_roster = {
     .ondisplay  = simple_dropdown_ondisplay,
     .onselect   = dropdown_mini_roster_onselect,
-    .dropcount  = countof(yesnodrops),
-    .userdata   = yesnodrops
+    .dropcount  = countof(noyesdrops),
+    .userdata   = noyesdrops
 },
 
 dropdown_friend_autoaccept_ft = {
