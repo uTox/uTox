@@ -35,7 +35,7 @@ uint32_t outgoing_file_send(Tox *tox, uint32_t friend_number, uint8_t *path, uin
 
 int utox_file_start_write(uint32_t friend_number, uint32_t file_number, const char *filepath);
 
-void utox_set_callbacks_for_transfer(Tox *tox);
+void utox_set_callbacks_file_transfer(Tox *tox);
 void utox_cleanup_file_transfers(uint32_t friend_number, uint32_t file_number);
 
 void ft_friend_online(Tox *tox, uint32_t friend_number);

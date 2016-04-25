@@ -199,6 +199,7 @@ typedef uint8_t *UTOX_IMAGE;
 #include "audio.h"
 #include "video.h"
 #include "utox_av.h"
+#include "tox_callbacks.h"
 
 #if defined __WIN32__
     #include "windows/main.h"

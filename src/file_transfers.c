@@ -978,7 +978,7 @@ int utox_file_start_write(uint32_t friend_number, uint32_t file_number, const ch
     return 0;
 }
 
-void utox_set_callbacks_for_transfer(Tox *tox){
+void utox_set_callbacks_file_transfer(Tox *tox){
     /* Incoming files */
         /* This is the callback for a new incoming file. */
         tox_callback_file_recv(tox, incoming_file_callback_request, NULL);

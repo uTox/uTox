@@ -76,6 +76,27 @@ typedef struct {
     char_t msg[0];
 } MSG_TEXT;
 
+
+typedef struct {
+    _Bool author;
+    uint8_t  msg_type;
+
+    uint32_t height;
+    time_t   time;
+
+    uint32_t author_id;
+
+    uint32_t receipt;
+    time_t   receipt_time;
+
+    uint16_t length;
+
+    uint32_t name_length;
+    uint32_t name_color;
+
+    char_t msg[0];
+} MSG_TEXT_GROUP;
+
 typedef struct {
     _Bool author;
     uint8_t msg_type;

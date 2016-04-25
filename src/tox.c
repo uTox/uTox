@@ -242,8 +242,6 @@ static int utox_decrypt_data(void *cypher_data, size_t cypher_length, uint8_t *c
     return -1;
 }
 
-#include "tox_callbacks.h"
-
 /* bootstrap to dht with bootstrap_nodes */
 static void toxcore_bootstrap(Tox *tox) {
     static unsigned int j = 0;
@@ -262,22 +260,9 @@ static void toxcore_bootstrap(Tox *tox) {
 }
 
 static void set_callbacks(Tox *tox) {
-    tox_callback_friend_request(tox, callback_friend_request, NULL);
-    tox_callback_friend_message(tox, callback_friend_message, NULL);
-    tox_callback_friend_name(tox, callback_name_change, NULL);
-    tox_callback_friend_status_message(tox, callback_status_message, NULL);
-    tox_callback_friend_status(tox, callback_user_status, NULL);
-    tox_callback_friend_typing(tox, callback_typing_change, NULL);
-    tox_callback_friend_read_receipt(tox, callback_read_receipt, NULL);
-    tox_callback_friend_connection_status(tox, callback_connection_status, NULL);
-
-    tox_callback_group_invite(tox, callback_group_invite, NULL);
-    tox_callback_group_message(tox, callback_group_message, NULL);
-    tox_callback_group_action(tox, callback_group_action, NULL);
-    tox_callback_group_namelist_change(tox, callback_group_namelist_change, NULL);
-    tox_callback_group_title(tox, callback_group_topic, NULL);
-
-    utox_set_callbacks_for_transfer(tox);
+    utox_set_callbacks_friends(tox);
+    utox_set_callbacks_groups(tox);
+    utox_set_callbacks_file_transfer(tox);
 }
 
 static void tox_after_load(Tox *tox) {

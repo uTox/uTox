@@ -67,3 +67,6 @@ _Bool list_mright(void *n);
 _Bool list_mwheel(void *n, int height, double d, _Bool smooth);
 _Bool list_mup(void *n);
 _Bool list_mleave(void *n);
+
+/* New naming patten */
+void roster_select_last(void);

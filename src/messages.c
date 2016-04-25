@@ -506,9 +506,33 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
 
         // Draw the names for groups or friends
         if (m->is_groupchat) {
-            GROUP_PEER *peer = group[m->id].peer[msg->author_id];
-            if (peer) {
-                messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET, peer->name, peer->name_length, peer->name_color);
+            MSG_TEXT_GROUP *g_msg = (void*)msg;
+            if (g_msg) {
+                messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET,
+                                     g_msg->msg + g_msg->length, g_msg->name_length,
+                                     g_msg->name_color);
+                messages_draw_timestamp(x + width - ACTUAL_TIME_WIDTH, y, &g_msg->time);
+                /* This is a bit hacky, but I'm probably going to have to rewrite with new group chats, so MEH! */
+                uint16_t h1 = UINT16_MAX, h2 = UINT16_MAX;
+                if (i == m->sel_start_msg) {
+                    h1 = m->sel_start_position;
+                    h2 = ((i == m->sel_end_msg) ? m->sel_end_position : msg->length);
+                } else if (i == m->sel_end_msg) {
+                    h1 = 0;
+                    h2 = m->sel_end_position;
+                } else if (i > m->sel_start_msg && i < m->sel_end_msg) {
+                    h1 = 0;
+                    h2 = msg->length;
+                }
+
+                if ((m->sel_start_msg == m->sel_end_msg && m->sel_start_position == m->sel_end_position) || h1 == h2) {
+                    h1 = UINT16_MAX;
+                    h2 = UINT16_MAX;
+                }
+
+                y = messages_draw_text(msg, x + MESSAGES_X, y, width - TIME_WIDTH - MESSAGES_X, height, h1, h2);
+                continue;
+
             } else {
                 debug("Messages:\t error getting group peer name!\n");
             }
@@ -526,7 +550,7 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
 
             if (draw_author) {
                 if (msg->author != lastauthor) {
-                    if (!msg->author) {
+                    if (msg->author) {
                         messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET, self.name, self.name_length, COLOR_MAIN_SUBTEXT);
                     } else if (f->alias) {
                         messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET, f->alias, f->alias_length, COLOR_MAIN_CHATTEXT);
@@ -545,12 +569,12 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
             }
 
             case MSG_TYPE_TEXT:
-            case MSG_TYPE_ACTION_TEXT: {
+            case MSG_TYPE_ACTION_TEXT:
+            case MSG_TYPE_NOTICE: {
                 // Draw timestamps
                 messages_draw_timestamp(x + width - ACTUAL_TIME_WIDTH, y, &msg->time);
                 /* intentional fall through */
             }
-            case MSG_TYPE_NOTICE:
             case MSG_TYPE_NOTICE_DAY_CHANGE: {
                 // Normal message
                 uint16_t h1 = UINT16_MAX, h2 = UINT16_MAX;

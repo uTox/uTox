@@ -157,7 +157,7 @@ static void draw_group(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(h
         size_t   name_len   = ((GROUP_PEER*)g->peer[i])->name_length;
         uint32_t name_color = ((GROUP_PEER*)g->peer[i])->name_color;
         if (name) {
-            uint8_t buf[134]; /* TODO magic number */
+            uint8_t buf[TOX_MAX_NAME_LENGTH];
             memcpy(buf, name, name_len);
             memcpy(buf + name_len, ", ", 2);
 

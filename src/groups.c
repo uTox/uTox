@@ -31,21 +31,26 @@ void group_init(GROUPCHAT *g, uint32_t group_number, _Bool av_group) {
     roster_select_last();
 }
 
-void group_add_message(GROUPCHAT *g, int peer_id, const uint8_t *message, size_t length) {
+void group_add_message(GROUPCHAT *g, int peer_id, const uint8_t *message, size_t length, uint8_t m_type) {
     MESSAGES *m = &g->msg;
+    size_t nick_length = ((GROUP_PEER*)g->peer[peer_id])->name_length;
+    uint8_t *nick      = &((GROUP_PEER*)g->peer[peer_id])->name;
 
-    MSG_TEXT *msg   = calloc(1, sizeof(MSG_TEXT) + length);
+    MSG_TEXT_GROUP *msg = calloc(1, sizeof(MSG_TEXT) + (sizeof(void*) * (length + nick_length)));
+    msg->author         = (g->our_peer_number == peer_id ? 1 : 0);
+    msg->msg_type       = m_type;
+    msg->length         = length;
+    msg->author_id      = peer_id;
+    msg->name_length    = nick_length;
     time(&msg->time);
-    msg->author     = (g->our_peer_number == peer_id ? 1 : 0);
-    msg->msg_type   = MSG_TYPE_TEXT;
-    msg->length     = length;
-    msg->author_id  = peer_id;
-    memcpy(msg->msg, message, length);
 
-    message_add_group(m, msg);
+    memcpy(msg->msg, message, length);
+    memcpy(msg->msg + length, nick, nick_length);
+
+    message_add_group(m, (void*)msg);
 }
 
-void group_peer_add(GROUPCHAT *g, uint32_t peer_id, const uint8_t *name, size_t length, _Bool our_peer_number) {
+void group_peer_add(GROUPCHAT *g, uint32_t peer_id, _Bool our_peer_number) {
     if (!g->peer) {
         g->peer = calloc(MAX_GROUP_PEERS, sizeof(void));
         // debug("Groupchat:\tUnable to add peer to NULL group\n");
@@ -57,13 +62,32 @@ void group_peer_add(GROUPCHAT *g, uint32_t peer_id, const uint8_t *name, size_t 
         free(peer);
     }
 
-    peer = calloc(1, sizeof(*peer) + sizeof(void) * length);
-    memcpy(peer->name, "<unknown>", length);
-    peer->name_length = length;
+    peer = calloc(1, sizeof(*peer));
+    peer->name_length = 0;
     peer->name_color  = rand() % UINT32_MAX;
 
     g->peer_count++;
     g->peer[peer_id] = peer;
+}
+
+void group_peer_del(GROUPCHAT *g, uint32_t peer_id) {
+
+    group_add_message(g, peer_id, (const uint8_t*)"<- has Quit!", 12, MSG_TYPE_NOTICE);
+
+    if (!g->peer) {
+        debug("Groupchat:\tUnable to del peer from NULL group\n");
+    }
+
+    GROUP_PEER *peer = (void*)g->peer[peer_id];
+
+    if (peer) {
+        free(peer);
+    } else {
+        debug("Groupchat:\tUnable to find peer for deletion\n");
+        return;
+    }
+    g->peer_count--;
+    g->peer[peer_id] = NULL;
 }
 
 void group_peer_name_change(GROUPCHAT *g, uint32_t peer_id, const uint8_t *name, size_t length) {
@@ -74,18 +98,35 @@ void group_peer_name_change(GROUPCHAT *g, uint32_t peer_id, const uint8_t *name,
 
     GROUP_PEER *peer = g->peer[peer_id];
 
-    if (peer) {
-        peer = realloc(peer, sizeof(GROUP_PEER) + sizeof(void) * length);
-    } else {
-        peer = calloc(1, sizeof(GROUP_PEER) + sizeof(void) * length);
-    }
+    if (peer && peer->name_length) {
+        uint8_t old[TOX_MAX_NAME_LENGTH];
+        uint8_t msg[TOX_MAX_NAME_LENGTH];
+        size_t size = 0;
 
-    if (peer) {
-        peer->name_length = length;
-        memcpy(peer->name, name, length);
+        memcpy(old, peer->name, peer->name_length);
+        size = snprintf((void*)msg, TOX_MAX_NAME_LENGTH, "<- has changed their name from %.*s", (int)peer->name_length, old);
+        group_add_message(g, peer_id, msg, size, MSG_TYPE_NOTICE);
+        peer = realloc(peer, sizeof(GROUP_PEER) + sizeof(void) * length);
+
+        if (peer) {
+            peer->name_length = length;
+            memcpy(peer->name, name, length);
+        } else {
+            debug("Fatal error:\t couldn't realloc for group peer name!\n");
+            exit(40);
+        }
+
     } else {
-        debug("Fatal error:\t couldn't alloc for group peer name!\n");
-        exit(40);
+        /* Hopefully, they just joined? */
+        peer = calloc(1, sizeof(GROUP_PEER) + sizeof(void) * length);
+        if (peer) {
+            peer->name_length = length;
+            memcpy(peer->name, name, length);
+            group_add_message(g, peer_id, (const uint8_t*)"<- has joined!", 14, MSG_TYPE_NOTICE);
+        } else {
+            debug("Fatal error:\t couldn't alloc for group peer name!\n");
+            exit(40);
+        }
     }
 }
 

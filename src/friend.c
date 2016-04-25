@@ -93,7 +93,6 @@ void utox_friend_init(Tox *tox, uint32_t friend_number) {
         f->msg.panel.height         = CHAT_BOX_TOP;
         f->msg.panel.width          = -SCROLL_WIDTH;
 
-
         // Get and set the public key for this friend number and set it.
         tox_friend_get_public_key(tox, friend_number, f->cid, 0);
 
