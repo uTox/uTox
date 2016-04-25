@@ -213,8 +213,18 @@ void utox_av_ctrl_thread(void *args) {
         yieldcpu(toxav_iteration_interval(av));
     }
 
+
+    postmessage_audio(UTOXAUDIO_KILL, 0, 0, NULL);
+    postmessage_video(UTOXVIDEO_KILL, 0, 0, NULL);
+
+    // Wait for all a/v threads to return 0
+    while (utox_audio_thread_init || utox_video_thread_init) {
+        yieldcpu(1);
+    }
+
     toxav_thread_msg = 0;
     utox_av_ctrl_init = 0;
+
     debug("UTOXAV:\tClean thread exit!\n");
     return;
 }

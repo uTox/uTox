@@ -47,18 +47,13 @@ enum {
 
 enum {
     // kill the video thread
-    VIDEO_KILL,
-    // start a video call
-    VIDEO_RECORD_START,
-    // end a video call
-    VIDEO_RECORD_STOP,
-    // set a new video device
-    VIDEO_SET,
-    // start a video preview
-    VIDEO_PREVIEW_START,
-    // stop a video preview
-    VIDEO_PREVIEW_STOP,
-};
+    UTOXVIDEO_KILL,
+/*    UTOXVIDEO_RECORD_START,
+    UTOXVIDEO_RECORD_STOP,
+    UTOXVIDEO_SET,
+    UTOXVIDEO_PREVIEW_START,
+    UTOXVIDEO_PREVIEW_STOP,
+*/};
 
 /* send a message to the toxav thread
  */
