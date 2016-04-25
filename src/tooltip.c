@@ -2,8 +2,8 @@
 
 static TOOLTIP tooltip;
 
-#define TOOLTIP_WIDTH (UTOX_SCALE(12))
-#define TOOLTIP_HEIGHT (UTOX_SCALE(12))
+#define TOOLTIP_WIDTH   SCALE(24)
+#define TOOLTIP_HEIGHT  SCALE(24)
 #define TOOLTIP_YOFFSET 12
 
 static void calculate_pos_and_width(TOOLTIP *b, int *x, int *w) {
@@ -20,7 +20,7 @@ static void calculate_pos_and_width(TOOLTIP *b, int *x, int *w) {
     }
 
     // Push away from the right border to fit.
-    if(*x + *w >= utox_window_width) {
+    if(*x + *w >= settings.window_width) {
         *x -= *w;
     }
 }
@@ -57,7 +57,7 @@ void tooltip_draw(void)
     draw_rect_fill(x, b->y, w, b->height, COLOR_BACKGROUND_MAIN);
 
     STRING* s = maybe_i18nal_string_get(b->tt_text);
-    drawtext(x + UTOX_SCALE(2), b->y + UTOX_SCALE(2), s->str, s->length);
+    drawtext(x + SCALE(4), b->y + SCALE(4), s->str, s->length);
 
     draw_rect_frame(x, b->y, w, b->height, COLOR_EDGE_NORMAL);
 }
@@ -123,7 +123,7 @@ void tooltip_show(void)
 
     b->y = mouse.y + TOOLTIP_YOFFSET;
     b->height = TOOLTIP_HEIGHT;
-    if(b->y + b->height >= utox_window_height) {
+    if(b->y + b->height >= settings.window_height) {
         b->y -= (b->height + TOOLTIP_YOFFSET);
     }
     b->x = mouse.x;
