@@ -118,6 +118,7 @@ static void callback_group_invite(Tox *tox, int fid, uint8_t type, const uint8_t
     int gid = -1;
     if (type == TOX_GROUPCHAT_TYPE_TEXT) {
         gid = tox_join_groupchat(tox, fid, data, length);
+        group_init(&group[gid], gid, 0);
     } else if (type == TOX_GROUPCHAT_TYPE_AV) {
         // TODO FIX THIS AFTER NEW GROUP API IS RELEASED
         // gid = toxav_join_av_groupchat(tox, fid, data, length, &callback_av_group_audio, NULL);
@@ -132,7 +133,7 @@ static void callback_group_invite(Tox *tox, int fid, uint8_t type, const uint8_t
 
 static void callback_group_message(Tox *tox, int gid, int pid, const uint8_t *message, uint16_t length, void *UNUSED(userdata))
 {
-    message_add_type_text(&group[gid].msg, 0, message, length, 0);
+    group_add_message(&group[gid], pid, message, length);
 
     postmessage(GROUP_MESSAGE, gid, 0, copy_groupmessage(tox, message, length, MSG_TYPE_TEXT, gid, pid));
 
@@ -150,7 +151,16 @@ static void callback_group_namelist_change(Tox *tox, int gid, int pid, uint8_t c
 {
     switch(change) {
     case TOX_CHAT_CHANGE_PEER_ADD: {
-        postmessage(GROUP_PEER_ADD, gid, pid, tox);
+        GROUPCHAT *g = &group[gid];
+        _Bool is_us = 0;
+        if (tox_group_peernumber_is_ours(tox, gid, pid)) {
+            g->our_peer_number = pid;
+            is_us = 1;
+        }
+
+        group_peer_add(g, pid, (const uint8_t*)"unknown", 9, is_us);
+
+        postmessage(GROUP_PEER_ADD, gid, pid, NULL);
         break;
     }
 
@@ -160,16 +170,24 @@ static void callback_group_namelist_change(Tox *tox, int gid, int pid, uint8_t c
     }
 
     case TOX_CHAT_CHANGE_PEER_NAME: {
-        uint8_t name[TOX_MAX_NAME_LENGTH];
-        int len = tox_group_peername(tox, gid, pid, name);
+        GROUPCHAT *g = &group[gid];
 
+        if (g->peer) {
+            if (!g->peer[pid]) {
+                debug("Tox Group:\tERROR, can't sent a name, for non-existant peer!\n");
+                break;
+            }
+        } else {
+            debug("Tox Group:\tERROR, can't sent a name, for non-existant Group!\n");
+        }
+
+        const uint8_t name[TOX_MAX_NAME_LENGTH];
+        size_t len = tox_group_peername(tox, gid, pid, name);
         len = utf8_validate(name, len);
 
-        uint8_t *data = malloc(len + 1);
-        data[0] = len;
-        memcpy(data + 1, name, len);
+        group_peer_name_change(g, pid, name, len);
 
-        postmessage(GROUP_PEER_NAME, gid, pid, data);
+        postmessage(GROUP_PEER_NAME, gid, pid, NULL);
         break;
     }
     }

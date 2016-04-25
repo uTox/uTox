@@ -56,6 +56,8 @@ typedef struct {
 
     uint32_t height;
     time_t time;
+
+    uint32_t author_id;
 } MSG_VOID;
 
 typedef struct {
@@ -64,6 +66,8 @@ typedef struct {
 
     uint32_t height;
     time_t time;
+
+    uint32_t author_id;
 
     uint32_t receipt;
     time_t receipt_time;
@@ -79,6 +83,8 @@ typedef struct {
     uint32_t height;
     time_t time;
 
+    uint32_t author_id;
+
     uint16_t w, h;
     _Bool zoom;
     double position;
@@ -91,6 +97,8 @@ typedef struct msg_file {
 
     uint32_t height;
     time_t time;
+
+    uint32_t author_id;
 
     uint32_t speed;
     uint32_t filenumber;
@@ -107,6 +115,8 @@ struct FILE_TRANSFER;
 MSG_FILE* message_create_type_file(struct FILE_TRANSFER *file);
 
 _Bool message_log_to_disk(MESSAGES *m, MSG_VOID *msg);
+
+uint32_t message_add_group(MESSAGES *m, MSG_TEXT *msg);
 
 uint32_t message_add_type_text(MESSAGES *m, _Bool auth, const uint8_t *data, uint16_t length, _Bool log);
 uint32_t message_add_type_action(MESSAGES *m, _Bool auth, const uint8_t *data, uint16_t length, _Bool log);

@@ -96,7 +96,7 @@ static void drawitem(ITEM *i, int UNUSED(x), int y) {
             } else {
                 uint64_t time = get_time();
                 unsigned int j;
-                for (j = 0; j < g->peers; ++j) {
+                for (j = 0; j < g->peer_count; ++j) {
                     if (time - g->last_recv_audio[j] <= (uint64_t)1 * 1000 * 1000 * 1000) {
                         color_overide = 1;
                         color = COLOR_GROUP_AUDIO;
@@ -542,10 +542,12 @@ static void deleteitem(ITEM *i) {
             postmessage_toxcore(TOX_GROUP_PART, (g - group), 0, NULL);
 
             unsigned int j;
-            for (j = 0; j < g->peers; ++j) {
-                if(g->peername[j]) {
-                    free(g->peername[j]);
-                    g->peername[j] = NULL;
+            GROUP_PEER *peer;
+            for (j = 0; j < g->peer_count; ++j) {
+                peer = g->peer[j];
+                if(peer) {
+                    free(peer);
+                    peer = NULL;
                 }
             }
             group_free(g);

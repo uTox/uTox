@@ -432,6 +432,7 @@ _Bool native_save_data(const uint8_t *name, size_t name_length, const uint8_t *d
 
     if (file) {
         fwrite(data, length, 1, file);
+        fflush(file);
         fclose(file);
 
         if (append) {

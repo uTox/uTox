@@ -152,14 +152,15 @@ static void draw_group(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(h
     uint64_t time = get_time();
 
     unsigned int pos_y = 15;
-    while (i < g->peers) {
-        uint8_t *name = g->peername[i];
+    while (i < g->peer_count) {
+        uint8_t *name   = ((GROUP_PEER*)g->peer[i])->name;
+        size_t name_len =  ((GROUP_PEER*)g->peer[i])->name_length;
         if (name) {
-            uint8_t buf[134];
-            memcpy(buf, name + 1, name[0]);
-            memcpy(buf + name[0], ", ", 2);
+            uint8_t buf[134]; /* TODO magic number */
+            memcpy(buf, name, name_len);
+            memcpy(buf + name_len, ", ", 2);
 
-            int w = textwidth(buf, name[0] + 2);
+            int w = textwidth(buf, name_len + 2);
             if (i == g->our_peer_number) {
                 setcolor(COLOR_GROUP_SELF);
             } else if (time - g->last_recv_audio[i] <= (uint64_t)1 * 1000 * 1000 * 1000) {
@@ -168,17 +169,17 @@ static void draw_group(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(h
                 setcolor(COLOR_GROUP_PEER);
             }
 
-            if (k + w >= (utox_window_width - UTOX_SCALE(32 ))) {
+            if (k + w >= (utox_window_width - SCALE(64))) {
                 if (pos_y == 15) {
                     pos_y += 6;
-                    k = MAIN_LEFT + UTOX_SCALE(30 );
+                    k = MAIN_LEFT + SCALE(60);
                 } else {
-                    drawtext(k, UTOX_SCALE(pos_y), (uint8_t*)"...", 3);
+                    drawtext(k, SCALE(pos_y * 2), (uint8_t*)"...", 3);
                     break;
                 }
             }
 
-            drawtext(k, UTOX_SCALE(pos_y), buf, name[0] + 2);
+            drawtext(k, SCALE(pos_y * 2), buf, name_len + 2);
 
             k += w;
         }

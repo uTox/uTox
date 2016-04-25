@@ -186,7 +186,7 @@ static uint8_t nick_completion_search(EDIT *edit, char_t *found_nick, int direct
     static char_t *dedup[65536];
     GROUPCHAT *g = selected_item->data;
 
-    peers = peers_deduplicate(dedup, g->peername, g->peers);
+    peers = peers_deduplicate(dedup, g->peer, g->peer_count);
 
     i = 0;
     while (!found) {

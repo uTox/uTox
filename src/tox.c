@@ -1109,17 +1109,19 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
         TOX_GROUP_AUDIO_END,*/
 
         case TOX_GROUP_CREATE: {
-            int g = -1;
+            int g_num = -1;
             if (param1) {
                 // TODO FIX THIS AFTER NEW GROUP API
                 // g = toxav_add_av_groupchat(tox, &callback_av_group_audio, NULL);
-                g = tox_add_groupchat(tox);
+                g_num = tox_add_groupchat(tox);
             } else {
-                g = tox_add_groupchat(tox);
+                g_num = tox_add_groupchat(tox);
             }
 
-            if (g != -1) {
-                postmessage(GROUP_ADD, g, param2, tox);
+            if (g_num != -1) {
+                GROUPCHAT *g = &group[g_num];
+                group_init(g, g_num, param2);
+                postmessage(GROUP_ADD, g_num, param2, NULL);
             }
             save_needed = 1;
             break;
@@ -1593,8 +1595,6 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         }
         /* Group chat functions */
         case GROUP_ADD: {
-            GROUPCHAT *g = &group[param1];
-            group_init(g, param1, param2);
             redraw();
             break;
         }
@@ -1613,31 +1613,32 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         }
         case GROUP_PEER_DEL: {
             GROUPCHAT *g = &group[param1];
+            GROUP_PEER *peer = g->peer[param2];
 
             if (param2 > MAX_GROUP_PEERS) //TODO: dynamic arrays.
                 break;
 
-            if(g->peername[param2]) {
-                free(g->peername[param2]);
-                g->peername[param2] = NULL;
+            if(peer) {
+                free(peer);
+                peer = NULL;
             }
 
-            g->peers--;
-            g->peername[param2] = g->peername[g->peers];
-            g->peername[g->peers] = NULL;
+            g->peer_count--;
+            peer = g->peer[g->peer_count];
+            g->peer[g->peer_count] = NULL;
 
             if (g->av_group) {
-                g->last_recv_audio[param2] = g->last_recv_audio[g->peers];
-                g->last_recv_audio[g->peers] = 0;
+                g->last_recv_audio[param2] = g->last_recv_audio[g->peer_count];
+                g->last_recv_audio[g->peer_count] = 0;
                 // REMOVED UNTIL AFTER NEW GCs group_av_peer_remove(g, param2);
-                g->source[param2] = g->source[g->peers];
+                g->source[param2] = g->source[g->peer_count];
             }
 
-            if (g->peers == g->our_peer_number) {
+            if (g->peer_count == g->our_peer_number) {
                 g->our_peer_number = param2;
             }
 
-            g->topic_length = snprintf((char*)g->topic, sizeof(g->topic), "%u users in chat", g->peers);
+            g->topic_length = snprintf((char*)g->topic, sizeof(g->topic), "%u users in chat", g->peer_count);
             if (g->topic_length >= sizeof(g->topic)) {
                 g->topic_length = sizeof(g->topic) - 1;
             }
@@ -1650,32 +1651,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         case GROUP_PEER_NAME: {
             GROUPCHAT *g = &group[param1];
 
-            if (param2 > MAX_GROUP_PEERS) //TODO: dynamic arrays.
-                break;
-
-            if(g->peername[param2]) {
-                free(g->peername[param2]);
-            }
-
-            if(tox_message_id == GROUP_PEER_ADD) {
-                if (g->av_group) {
-                    // todo fix group_av_peer_add(g, param2);
-                }
-
-                if (tox_group_peernumber_is_ours(data, param1, param2)) {
-                    g->our_peer_number = param2;
-                }
-
-                uint8_t *n = malloc(10);
-                n[0] = 9;
-                memcpy(n + 1, "<unknown>", 9);
-                data = n;
-                g->peers++;
-            }
-
-            g->peername[param2] = data;
-
-            g->topic_length = snprintf((char*)g->topic, sizeof(g->topic), "%u users in chat", g->peers);
+            g->topic_length = snprintf((char*)g->topic, sizeof(g->topic), "%u users in chat", g->peer_count);
             if (g->topic_length >= sizeof(g->topic)) {
                 g->topic_length = sizeof(g->topic) - 1;
             }
@@ -1683,9 +1659,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             if(selected_item->data != g) {
                 g->notify = 1;
             }
-
             redraw();
-
             break;
         }
 

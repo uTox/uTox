@@ -79,6 +79,10 @@ _Bool messages_read_from_log(uint32_t friend_number){
     return 0;
 }
 
+uint32_t message_add_group(MESSAGES *m, MSG_TEXT *msg) {
+    return message_add(m, (MSG_VOID*)msg);
+}
+
 uint32_t message_add_type_text(MESSAGES *m, _Bool auth, const uint8_t *data, uint16_t length, _Bool log) {
     MSG_TEXT *msg   = calloc(1, sizeof(MSG_TEXT) + length);
     time(&msg->time);
@@ -504,10 +508,12 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
 
         // Draw the names for groups or friends
         if (m->is_groupchat) {
-            // Group message authors are all the same color
-            messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET,
-                                 &msg->msg[msg->length] + 1,
-                                 msg->msg[msg->length], 1);
+            GROUP_PEER *peer = group[m->id].peer[msg->author_id];
+            if (peer) {
+                messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET, peer->name, peer->name_length, peer->name_color);
+            } else {
+                debug("Messages:\t error getting group peer name!\n");
+            }
         } else {
             FRIEND *f = &friend[m->id];
             _Bool auth = msg->author;
