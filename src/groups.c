@@ -33,19 +33,17 @@ void group_init(GROUPCHAT *g, uint32_t group_number, _Bool av_group) {
 
 void group_add_message(GROUPCHAT *g, int peer_id, const uint8_t *message, size_t length, uint8_t m_type) {
     MESSAGES *m = &g->msg;
-    size_t nick_length = ((GROUP_PEER*)g->peer[peer_id])->name_length;
-    uint8_t *nick      = &((GROUP_PEER*)g->peer[peer_id])->name;
+    // size_t nick_length = ((GROUP_PEER*)g->peer[peer_id])->name_length;
+    // uint8_t *nick      = &((GROUP_PEER*)g->peer[peer_id])->name;
 
-    MSG_TEXT_GROUP *msg = calloc(1, sizeof(MSG_TEXT) + (sizeof(void*) * (length + nick_length)));
+    MSG_TEXT *msg = calloc(1, sizeof(*msg) + (sizeof(void*) * length));
     msg->author         = (g->our_peer_number == peer_id ? 1 : 0);
     msg->msg_type       = m_type;
     msg->length         = length;
     msg->author_id      = peer_id;
-    msg->name_length    = nick_length;
     time(&msg->time);
 
     memcpy(msg->msg, message, length);
-    memcpy(msg->msg + length, nick, nick_length);
 
     message_add_group(m, (void*)msg);
 }
@@ -62,12 +60,14 @@ void group_peer_add(GROUPCHAT *g, uint32_t peer_id, _Bool our_peer_number) {
         free(peer);
     }
 
-    peer = calloc(1, sizeof(*peer));
+    peer = calloc(1, sizeof(*peer) + sizeof(void) * 10);
     peer->name_length = 0;
+    strcpy2(peer->name, "<unknown>");
     peer->name_color  = rand() % UINT32_MAX;
 
     g->peer_count++;
     g->peer[peer_id] = peer;
+    group_add_message(g, peer_id, (const uint8_t*)"A new peer has joined!", 22, MSG_TYPE_NOTICE);
 }
 
 void group_peer_del(GROUPCHAT *g, uint32_t peer_id) {
@@ -118,7 +118,6 @@ void group_peer_name_change(GROUPCHAT *g, uint32_t peer_id, const uint8_t *name,
 
     } else {
         /* Hopefully, they just joined? */
-        peer = calloc(1, sizeof(GROUP_PEER) + sizeof(void) * length);
         if (peer) {
             peer->name_length = length;
             memcpy(peer->name, name, length);

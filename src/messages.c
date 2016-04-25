@@ -466,6 +466,37 @@ static void messages_draw_filetransfer(MESSAGES *m, MSG_FILE *file, int i, int x
     drawtextrange(dx + SCALE(10), wbound - SCALE(10), y + SCALE(6), text_name_and_size, text_name_and_size_len);
 }
 
+static int messages_draw_group(MESSAGES *m, MSG_TEXT *msg, uint32_t i, int x, int y, int width, int height) {
+    GROUP_PEER *peer = group[m->id].peer[msg->author_id];
+
+    if (peer) {
+        messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET, peer->name, peer->name_length, peer->name_color);
+    } else {
+        debug("Messages:\t error getting group peer name!\n");
+    }
+    messages_draw_timestamp(x + width - ACTUAL_TIME_WIDTH, y, &msg->time);
+
+    uint16_t h1 = UINT16_MAX, h2 = UINT16_MAX;
+    if (i == m->sel_start_msg) {
+        h1 = m->sel_start_position;
+        h2 = ((i == m->sel_end_msg) ? m->sel_end_position : msg->length);
+    } else if (i == m->sel_end_msg) {
+        h1 = 0;
+        h2 = m->sel_end_position;
+    } else if (i > m->sel_start_msg && i < m->sel_end_msg) {
+        h1 = 0;
+        h2 = msg->length;
+    }
+
+    if ((m->sel_start_msg == m->sel_end_msg && m->sel_start_position == m->sel_end_position) || h1 == h2) {
+        h1 = UINT16_MAX;
+        h2 = UINT16_MAX;
+    }
+
+    return messages_draw_text(msg, x + MESSAGES_X, y, width - TIME_WIDTH - MESSAGES_X, height, h1, h2);
+}
+
+
 /** Formats all messages from self and friends, and then call draw functions
  * to write them to the UI.
  *
@@ -503,39 +534,12 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
             break;
         }
 
-
         // Draw the names for groups or friends
         if (m->is_groupchat) {
-            MSG_TEXT_GROUP *g_msg = (void*)msg;
-            if (g_msg) {
-                messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET,
-                                     g_msg->msg + g_msg->length, g_msg->name_length,
-                                     g_msg->name_color);
-                messages_draw_timestamp(x + width - ACTUAL_TIME_WIDTH, y, &g_msg->time);
-                /* This is a bit hacky, but I'm probably going to have to rewrite with new group chats, so MEH! */
-                uint16_t h1 = UINT16_MAX, h2 = UINT16_MAX;
-                if (i == m->sel_start_msg) {
-                    h1 = m->sel_start_position;
-                    h2 = ((i == m->sel_end_msg) ? m->sel_end_position : msg->length);
-                } else if (i == m->sel_end_msg) {
-                    h1 = 0;
-                    h2 = m->sel_end_position;
-                } else if (i > m->sel_start_msg && i < m->sel_end_msg) {
-                    h1 = 0;
-                    h2 = msg->length;
-                }
 
-                if ((m->sel_start_msg == m->sel_end_msg && m->sel_start_position == m->sel_end_position) || h1 == h2) {
-                    h1 = UINT16_MAX;
-                    h2 = UINT16_MAX;
-                }
+            y = messages_draw_group(m, msg, i, x, y, width, height);
+            continue;
 
-                y = messages_draw_text(msg, x + MESSAGES_X, y, width - TIME_WIDTH - MESSAGES_X, height, h1, h2);
-                continue;
-
-            } else {
-                debug("Messages:\t error getting group peer name!\n");
-            }
         } else {
             FRIEND *f = &friend[m->id];
             _Bool draw_author = 1;
