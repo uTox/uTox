@@ -42,7 +42,7 @@ _Bool doevent(XEvent event)
 
     switch(event.type) {
     case Expose: {
-        enddraw(0, 0, utox_window_width, utox_window_height);
+        enddraw(0, 0, settings.window_width, settings.window_height);
         draw_tray_icon();
         // debug("expose\n");
         break;
@@ -82,7 +82,7 @@ _Bool doevent(XEvent event)
 
     case ConfigureNotify: {
         XConfigureEvent *ev = &event.xconfigure;
-        if(utox_window_width != ev->width || utox_window_height != ev->height) {
+        if(settings.window_width != ev->width || settings.window_height != ev->height) {
             // debug("resize\n");
 
             if(ev->width > drawwidth || ev->height > drawheight) {
@@ -95,10 +95,10 @@ _Bool doevent(XEvent event)
                 renderpic = XRenderCreatePicture(display, drawbuf, pictformat, 0, NULL);
             }
 
-            utox_window_width = ev->width;
-            utox_window_height = ev->height;
+            settings.window_width = ev->width;
+            settings.window_height = ev->height;
 
-            ui_size(utox_window_width, utox_window_height);
+            ui_size(settings.window_width, settings.window_height);
 
             redraw();
         }
@@ -135,7 +135,7 @@ _Bool doevent(XEvent event)
         my = ev->y;
 
         cursor = CURSOR_NONE;
-        panel_mmove(&panel_root, 0, 0, utox_window_width, utox_window_height, ev->x, ev->y, dx, dy);
+        panel_mmove(&panel_root, 0, 0, settings.window_width, settings.window_height, ev->x, ev->y, dx, dy);
 
         XDefineCursor(display, window, cursors[cursor]);
 
@@ -167,7 +167,7 @@ _Bool doevent(XEvent event)
 
             //todo: better double/triple click detect
             static Time lastclick, lastclick2;
-            panel_mmove(&panel_root, 0, 0, utox_window_width, utox_window_height, ev->x, ev->y, 0, 0);
+            panel_mmove(&panel_root, 0, 0, settings.window_width, settings.window_height, ev->x, ev->y, 0, 0);
             panel_mdown(&panel_root);
             if(ev->time - lastclick < 300) {
                 _Bool triclick = (ev->time - lastclick2 < 600);
@@ -195,13 +195,13 @@ _Bool doevent(XEvent event)
 
         case Button4: {
             // FIXME: determine precise deltas if possible
-            panel_mwheel(&panel_root, 0, 0, utox_window_width, utox_window_height, 1.0, 0);
+            panel_mwheel(&panel_root, 0, 0, settings.window_width, settings.window_height, 1.0, 0);
             break;
         }
 
         case Button5: {
             // FIXME: determine precise deltas if possible
-            panel_mwheel(&panel_root, 0, 0, utox_window_width, utox_window_height, -1.0, 0);
+            panel_mwheel(&panel_root, 0, 0, settings.window_width, settings.window_height, -1.0, 0);
             break;
         }
 
@@ -563,7 +563,7 @@ _Bool doevent(XEvent event)
 
             if(ev->message_type == wm_protocols) {
                 if((Atom)event.xclient.data.l[0] == wm_delete_window) {
-                    if(close_to_tray){
+                    if (settings.close_to_tray) {
                         debug("Closing to tray.\n");
                         togglehide();
                     } else {

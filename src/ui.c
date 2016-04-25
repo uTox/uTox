@@ -114,17 +114,17 @@ static void draw_friend(int x, int y, int w, int height){
     setfont(FONT_TITLE);
 
     if (f->alias) {
-        drawtextrange(MAIN_LEFT + UTOX_SCALE(30 ), utox_window_width - UTOX_SCALE(64 ), UTOX_SCALE(9 ), f->alias, f->alias_length);
+        drawtextrange(MAIN_LEFT + SCALE(60), settings.window_width - SCALE(128), SCALE(18), f->alias, f->alias_length);
     } else {
-        drawtextrange(MAIN_LEFT + UTOX_SCALE(30 ), utox_window_width - UTOX_SCALE(64 ), UTOX_SCALE(9 ), f->name, f->name_length);
+        drawtextrange(MAIN_LEFT + SCALE(60), settings.window_width - SCALE(128), SCALE(18), f->name, f->name_length);
     }
 
     setcolor(COLOR_MAIN_SUBTEXT);
     setfont(FONT_STATUS);
-    drawtextrange(MAIN_LEFT + UTOX_SCALE(30 ), utox_window_width - UTOX_SCALE(64 ), UTOX_SCALE(16 ), f->status_message, f->status_length);
+    drawtextrange(MAIN_LEFT + SCALE(60), settings.window_width - SCALE(128), SCALE(32), f->status_message, f->status_length);
 
     if (f->typing) {
-        int typing_y = ((y + height) + CHAT_BOX_TOP - UTOX_SCALE(7 ));
+        int typing_y = ((y + height) + CHAT_BOX_TOP - SCALE(14));
         setfont(FONT_MISC);
         // @TODO: separate these colors if needed
         setcolor(COLOR_MAIN_HINTTEXT);
@@ -140,11 +140,11 @@ static void draw_group(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(h
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_TITLE);
-    drawtextrange(MAIN_LEFT + UTOX_SCALE(30 ), utox_window_width - UTOX_SCALE(32 ), UTOX_SCALE(1 ), g->name, g->name_length);
+    drawtextrange(MAIN_LEFT + SCALE(60 ), settings.window_width - SCALE(64), SCALE(2), g->name, g->name_length);
 
     setcolor(COLOR_MAIN_SUBTEXT);
     setfont(FONT_STATUS);
-    drawtextrange(MAIN_LEFT + UTOX_SCALE(30 ), utox_window_width - UTOX_SCALE(32 ), UTOX_SCALE(8 ), g->topic, g->topic_length);
+    drawtextrange(MAIN_LEFT + SCALE(60 ), settings.window_width - SCALE(64), SCALE(16), g->topic, g->topic_length);
 
     uint32_t i = 0;
     int k = MAIN_LEFT + UTOX_SCALE(30 );
@@ -168,7 +168,7 @@ static void draw_group(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(h
                 setcolor(COLOR_GROUP_PEER);
             }
 
-            if (k + w >= (utox_window_width - UTOX_SCALE(32 ))) {
+            if (k + w >= (settings.window_width - UTOX_SCALE(32 ))) {
                 if (pos_y == 15) {
                     pos_y += 6;
                     k = MAIN_LEFT + UTOX_SCALE(30 );
@@ -196,7 +196,7 @@ static void draw_friend_request(int UNUSED(x), int UNUSED(y), int UNUSED(w), int
 
     setcolor(COLOR_MAIN_SUBTEXT);
     setfont(FONT_STATUS);
-    drawtextrange(MAIN_LEFT + UTOX_SCALE(5 ), utox_window_width, UTOX_SCALE(20 ), req->msg, req->length);
+    drawtextrange(MAIN_LEFT + UTOX_SCALE(5 ), settings.window_width, UTOX_SCALE(20 ), req->msg, req->length);
 }
 
 /* Draw add a friend window */
@@ -254,7 +254,7 @@ static void draw_add_friend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int hei
             str = SPTR(REQ_UNKNOWN); break;
         }
 
-        utox_draw_text_multiline_compat(MAIN_LEFT + UTOX_SCALE(5), utox_window_width - BM_SBUTTON_WIDTH - UTOX_SCALE(5 ), MAIN_TOP + UTOX_SCALE(83), 0, height, font_small_lineheight, str->str, str->length, 0xFFFF, 0, 0, 0, 1);
+        utox_draw_text_multiline_compat(MAIN_LEFT + UTOX_SCALE(5), settings.window_width - BM_SBUTTON_WIDTH - UTOX_SCALE(5 ), MAIN_TOP + UTOX_SCALE(83), 0, height, font_small_lineheight, str->str, str->length, 0xFFFF, 0, 0, 0, 1);
     }
 }
 

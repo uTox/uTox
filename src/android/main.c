@@ -64,13 +64,13 @@ void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data)
     write(pipefd[1], &piping, sizeof(PIPING));
 }
 
-void init_ptt(void){ push_to_talk = 0; /* android is unsupported */ }
+void init_ptt(void){ settings.push_to_talk = 0; /* android is unsupported */ }
 
 _Bool check_ptt_key(void){
     return 1;
 }
 
-void exit_ptt(void){ push_to_talk = 0; /* android is unsupported */ }
+void exit_ptt(void){ settings.push_to_talk = 0; /* android is unsupported */ }
 
 void image_set_filter(UTOX_NATIVE_IMAGE *image, uint8_t filter)
 {

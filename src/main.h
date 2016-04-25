@@ -107,9 +107,43 @@ typedef struct {
     uint8_t  zeroes[2];
 } LOG_FILE_MSG_HEADER;
 
+volatile uint16_t loaded_audio_in_device, loaded_audio_out_device;
+_Bool tox_connected;
+
+/* Super global vars */
+volatile _Bool tox_thread_init,
+               utox_av_ctrl_init,
+               utox_audio_thread_init,
+               utox_video_thread_init;
+
+typedef struct utox_settings {
+    _Bool close_to_tray;
+    _Bool logging_enabled;
+    _Bool ringtone_enabled;
+    _Bool audiofilter_enabled;
+    _Bool start_in_tray;
+    _Bool start_with_system;
+    _Bool push_to_talk;
+    _Bool use_encryption;
+    _Bool audio_preview;
+    _Bool video_preview;
+    _Bool send_typing_status;
+    _Bool use_mini_roster;
+
+    int window_height;
+    int window_width;
+} SETTINGS;
+
+/* This might need to be volatile type... */
+SETTINGS settings;
+
+//HFONT font_big, font_big2, font_med, font_med2, font_small, font_msg;
+int font_small_lineheight, font_msg_lineheight;
+uint16_t video_width, video_height, max_video_width, max_video_height;
+char proxy_address[256];
+extern struct Tox_Options options;
 
 // Structs
-
 typedef struct edit_change EDIT_CHANGE;
 
 // Enums
@@ -241,21 +275,6 @@ typedef uint8_t *UTOX_IMAGE;
 #include "ui_buttons.h"
 #include "ui_dropdown.h"
 
-
-/* Super global vars */
-volatile _Bool tox_thread_init,
-               utox_av_ctrl_init,
-               utox_audio_thread_init,
-               utox_video_thread_init;
-
-volatile _Bool logging_enabled, audible_notifications_enabled, audio_filtering_enabled, close_to_tray, start_in_tray, auto_startup, push_to_talk;
-volatile uint16_t loaded_audio_in_device, loaded_audio_out_device;
-_Bool tox_connected;
-// TODO: remove globals
-_Bool encrypted_profile;
-_Bool audio_preview, video_preview;
-
-
 //friends and groups
 //note: assumes array size will always be large enough
 FRIEND friend[MAX_NUM_FRIENDS];
@@ -263,7 +282,7 @@ GROUPCHAT group[MAX_NUM_GROUPS];
 uint32_t friends, groups;
 
 //window
-int utox_window_width, utox_window_height, utox_window_baseline;
+int utox_window_baseline;
 _Bool utox_window_maximized;
 
 uint8_t cursor;
@@ -273,17 +292,6 @@ _Bool mdown;
 struct {
     int x, y;
 } mouse;
-
-//fonts
-//HFONT font_big, font_big2, font_med, font_med2, font_small, font_msg;
-int font_small_lineheight, font_msg_lineheight;
-
-uint16_t video_width, video_height, max_video_width, max_video_height;
-
-char proxy_address[256];
-extern struct Tox_Options options;
-
-
 
 /** Takes data from µTox and saves it, just how the OS likes it saved!
  *
@@ -356,8 +364,7 @@ int ch_mod(uint8_t *file);
 void config_osdefaults(UTOX_SAVE *r);
 
 //me
-struct
-{
+struct {
     uint8_t status;
     uint16_t name_length, statusmsg_length;
     char_t *statusmsg, name[TOX_MAX_NAME_LENGTH];
@@ -370,12 +377,10 @@ struct
     unsigned int avatar_format;
     uint8_t *avatar_data;
     size_t avatar_size;
-}self;
+} self;
 
 //add friend page
 uint8_t addfriend_status;
-
-_Bool dont_send_typing_notes; //Stores user's preference about typing notifications
 
 void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data);
 

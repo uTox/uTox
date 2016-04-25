@@ -77,7 +77,7 @@ static void dropdown_udp_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
 
 static void dropdown_logging_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
 {
-    logging_enabled = !!i;
+    settings.logging_enabled = !!i;
 }
 
 static void dropdown_theme_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
@@ -87,32 +87,32 @@ static void dropdown_theme_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
 
 static void dropdown_notifications_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
 {
-    audible_notifications_enabled = !!i;
+    settings.ringtone_enabled = !!i;
 }
 
 static void dropdown_audio_filtering_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
 {
-    audio_filtering_enabled = !!i;
+    settings.audiofilter_enabled = !!i;
 }
 
 static void dropdown_close_to_tray_onselect(uint16_t i, const DROPDOWN* UNUSED(dm)){
-    close_to_tray = i;
-    debug("Close To Tray.   :: %i\n", close_to_tray);
+    settings.close_to_tray = i;
+    debug("Close To Tray.   :: %i\n", settings.close_to_tray);
 }
 
 static void dropdown_start_in_tray_onselect(uint16_t i, const DROPDOWN* UNUSED(dm)){
-    start_in_tray = i;
-    debug("Start in Tray.   :: %i\n", start_in_tray);
+    settings.start_in_tray = i;
+    debug("Start in Tray.   :: %i\n", settings.start_in_tray);
 }
 
 static void dropdown_auto_startup_onselect(uint16_t i, const DROPDOWN* UNUSED(dm)){
-    auto_startup = i;
-    launch_at_startup(auto_startup);
-    debug("Auto startup.   :: %i\n", auto_startup);
+    settings.start_with_system = i;
+    launch_at_startup(settings.start_with_system);
+    debug("Auto startup.   :: %i\n", settings.start_with_system);
 }
 
 static void dropdown_typing_notes_onselect(const uint16_t i, const DROPDOWN* UNUSED(dm)) {
-    dont_send_typing_notes = i;
+    settings.send_typing_status = i;
     debug("Typing notifications preference: %hu\n", i);
 }
 

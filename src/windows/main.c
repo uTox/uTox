@@ -38,7 +38,7 @@ void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data)
     PostMessage(hwnd, WM_TOX + (msg), ((param1) << 16) | (param2), (LPARAM)data);
 }
 
-void init_ptt(void){ push_to_talk = 1; }
+void init_ptt(void){ settings.push_to_talk = 1; }
 
 _Bool check_ptt_key(void){
     if (!push_to_talk) {
@@ -55,7 +55,7 @@ _Bool check_ptt_key(void){
     }
 }
 
-void exit_ptt(void){ push_to_talk = 0; }
+void exit_ptt(void){ settings.push_to_talk = 0; }
 
 void thread(void func(void*), void *args)
 {

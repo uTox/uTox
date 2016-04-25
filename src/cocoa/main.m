@@ -541,7 +541,7 @@ void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data) {
 }
 
 void init_ptt(void) {
-    push_to_talk = 1;
+    settings.push_to_talk = 1;
 }
 
 static _Bool is_ctrl_down = 0;
@@ -550,7 +550,7 @@ _Bool check_ptt_key(void){
 }
 
 void exit_ptt(void) {
-    push_to_talk = 0;
+    settings.push_to_talk = 0;
 }
 
 void redraw(void) {

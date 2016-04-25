@@ -96,8 +96,9 @@ void utox_video_record_start(_Bool preview){
         return;
     }
 
-    if (preview)
-        video_preview = 1;
+    if (preview) {
+        settings.video_preview = 1;
+    }
 
     utox_open_video_device(video_device[video_device_current]);
     video_startread();
@@ -113,7 +114,7 @@ void utox_video_record_stop(_Bool preview){
     video_active  = 0;
 
     if (preview) {
-        video_preview = 0;
+        settings.video_preview = 0;
     }
 
     video_endread();
@@ -165,7 +166,7 @@ void utox_video_thread(void *args) {
             // capturing is enabled, capture frames
             int r = video_getframe(utox_video_frame.y, utox_video_frame.u, utox_video_frame.v, utox_video_frame.w, utox_video_frame.h);
             if (r == 1) {
-                if (video_preview) {
+                if (settings.video_preview) {
                     /* Make a copy of the video frame for uTox to display */
                     utox_frame_pkg *frame = malloc(sizeof(*frame));
                     frame->w   = utox_video_frame.w;
