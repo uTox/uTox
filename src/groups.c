@@ -47,9 +47,8 @@ void group_add_message(GROUPCHAT *g, int peer_id, const uint8_t *message, size_t
 
 void group_peer_add(GROUPCHAT *g, uint32_t peer_id, const uint8_t *name, size_t length, _Bool our_peer_number) {
     if (!g->peer) {
-        debug("Groupchat:\tUnable to add peer to NULL group\n");
         g->peer = calloc(MAX_GROUP_PEERS, sizeof(void));
-
+        // debug("Groupchat:\tUnable to add peer to NULL group\n");
     }
 
     GROUP_PEER *peer = (void*)g->peer[peer_id];
@@ -61,6 +60,7 @@ void group_peer_add(GROUPCHAT *g, uint32_t peer_id, const uint8_t *name, size_t 
     peer = calloc(1, sizeof(*peer) + sizeof(void) * length);
     memcpy(peer->name, "<unknown>", length);
     peer->name_length = length;
+    peer->name_color  = rand() % UINT32_MAX;
 
     g->peer_count++;
     g->peer[peer_id] = peer;

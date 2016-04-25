@@ -79,6 +79,8 @@ _Bool messages_read_from_log(uint32_t friend_number){
     return 0;
 }
 
+/* TODO leaving this here is a little hacky, but it was the fastest way
+ * without considering if I should expose messages_add */
 uint32_t message_add_group(MESSAGES *m, MSG_TEXT *msg) {
     return message_add(m, (MSG_VOID*)msg);
 }
@@ -188,12 +190,8 @@ static void messages_draw_timestamp(int x, int y, const time_t *time) {
     drawtext(x, y, (char_t*)timestr, len);
 }
 
-static void messages_draw_author(int x, int y, int w, uint8_t *name, uint32_t length, _Bool author) {
-    if (author) {
-        setcolor(COLOR_MAIN_SUBTEXT);
-    } else {
-        setcolor(COLOR_MAIN_CHATTEXT);
-    }
+static void messages_draw_author(int x, int y, int w, uint8_t *name, uint32_t length, uint32_t color) {
+    setcolor(color);
     setfont(FONT_TEXT);
     drawtextwidth_right(x, w, y, name, length);
 }
@@ -516,12 +514,10 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
             }
         } else {
             FRIEND *f = &friend[m->id];
-            _Bool auth = msg->author;
             _Bool draw_author = 1;
             if (msg->msg_type == MSG_TYPE_ACTION_TEXT) {
                 // Always draw name next to action message
                 lastauthor = 0xFF;
-                auth = 1;
             }
 
             if (msg->msg_type == MSG_TYPE_NOTICE) {
@@ -530,12 +526,12 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
 
             if (draw_author) {
                 if (msg->author != lastauthor) {
-                    if (msg->author) {
-                        messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET, self.name, self.name_length, auth);
+                    if (!msg->author) {
+                        messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET, self.name, self.name_length, COLOR_MAIN_SUBTEXT);
                     } else if (f->alias) {
-                        messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET, f->alias, f->alias_length, auth);
+                        messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET, f->alias, f->alias_length, COLOR_MAIN_CHATTEXT);
                     } else {
-                        messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET, f->name, f->name_length, auth);
+                        messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET, f->name, f->name_length, COLOR_MAIN_CHATTEXT);
                     }
                     lastauthor = msg->author;
                 }

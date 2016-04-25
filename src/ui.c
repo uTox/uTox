@@ -136,35 +136,34 @@ static void draw_friend(int x, int y, int w, int height){
 static void draw_group(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height)){
     GROUPCHAT *g = selected_item->data;
 
-    drawalpha(BM_GROUP, MAIN_LEFT + UTOX_SCALE(5), UTOX_SCALE(5), BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_MAIN_TEXT);
+    drawalpha(BM_GROUP, MAIN_LEFT + SCALE(10), SCALE(10), BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_MAIN_TEXT);
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_TITLE);
-    drawtextrange(MAIN_LEFT + UTOX_SCALE(30 ), utox_window_width - UTOX_SCALE(32 ), UTOX_SCALE(1 ), g->name, g->name_length);
+    drawtextrange(MAIN_LEFT + SCALE(60), utox_window_width - SCALE(64), SCALE(2), g->name, g->name_length);
 
     setcolor(COLOR_MAIN_SUBTEXT);
     setfont(FONT_STATUS);
-    drawtextrange(MAIN_LEFT + UTOX_SCALE(30 ), utox_window_width - UTOX_SCALE(32 ), UTOX_SCALE(8 ), g->topic, g->topic_length);
+    drawtextrange(MAIN_LEFT + SCALE(60), utox_window_width - SCALE(64), SCALE(16), g->topic, g->topic_length);
 
     uint32_t i = 0;
-    int k = MAIN_LEFT + UTOX_SCALE(30 );
+    int k = MAIN_LEFT + SCALE(60);
 
     uint64_t time = get_time();
 
     unsigned int pos_y = 15;
     while (i < g->peer_count) {
-        uint8_t *name   = ((GROUP_PEER*)g->peer[i])->name;
-        size_t name_len =  ((GROUP_PEER*)g->peer[i])->name_length;
+        uint8_t *name       = ((GROUP_PEER*)g->peer[i])->name;
+        size_t   name_len   = ((GROUP_PEER*)g->peer[i])->name_length;
+        uint32_t name_color = ((GROUP_PEER*)g->peer[i])->name_color;
         if (name) {
             uint8_t buf[134]; /* TODO magic number */
             memcpy(buf, name, name_len);
             memcpy(buf + name_len, ", ", 2);
 
             int w = textwidth(buf, name_len + 2);
-            if (i == g->our_peer_number) {
-                setcolor(COLOR_GROUP_SELF);
-            } else if (time - g->last_recv_audio[i] <= (uint64_t)1 * 1000 * 1000 * 1000) {
-                setcolor(COLOR_GROUP_AUDIO);
+            if (name_color) {
+                setcolor(name_color);
             } else {
                 setcolor(COLOR_GROUP_PEER);
             }
