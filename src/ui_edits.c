@@ -144,23 +144,26 @@ void edit_msg_onenter(EDIT *edit) {
     edit->length = 0;
 }
 
-static uint32_t peers_deduplicate(char_t **dedup, char_t **peernames, uint32_t peers)
-{
+static uint32_t peers_deduplicate(char_t **dedup, size_t *dedup_size, void **peers, uint32_t peer_count) {
     int peer, i, count;
+    GROUP_PEER *p;
+    uint8_t *nick;
+    size_t   nick_len;
 
     count = 0;
-    for (peer = 0; peer < peers; peer++) {
-        char_t *nick;
+    for (peer = 0; peer < peer_count; peer++) {
 
-        nick = peernames[peer];
+        p           = peers[peer];
+        nick        = p->name;
+        nick_len    = p->name_length;
+
 
         if (nick) {
             _Bool found = 0;
             i = 0;
 
             while (!found && i < count) {
-                if (nick[0] == dedup[i][0]
-                        && !memcmp(nick + 1, dedup[i] + 1, nick[0])) {
+                if (nick_len == dedup_size[i] && !memcmp(nick, dedup[i], nick_len)) {
                     found = 1;
                 }
 
@@ -168,7 +171,8 @@ static uint32_t peers_deduplicate(char_t **dedup, char_t **peernames, uint32_t p
             }
 
             if (!found) {
-                dedup[count] = nick;
+                dedup[count]        = nick;
+                dedup_size[count]   = nick_len;
                 count++;
             }
         }
@@ -177,16 +181,17 @@ static uint32_t peers_deduplicate(char_t **dedup, char_t **peernames, uint32_t p
     return count;
 }
 
-static uint8_t nick_completion_search(EDIT *edit, char_t *found_nick, int direction)
-{
+static uint8_t nick_completion_search(EDIT *edit, char_t *found_nick, int direction) {
     char_t *text = edit->data;
     uint32_t i, peers, prev_index, compsize = completion.length;
-    char_t *nick;
+    char_t *nick = NULL;
+    size_t  nick_len = 0;
     _Bool found = 0;
-    static char_t *dedup[65536];
+    static char_t *dedup[65536]; /* TODO magic numbers */
+    static size_t dedup_size[65536]; /* TODO magic numbers */
     GROUPCHAT *g = selected_item->data;
 
-    peers = peers_deduplicate(dedup, g->peer, g->peer_count);
+    peers = peers_deduplicate(dedup, dedup_size, g->peer, g->peer_count);
 
     i = 0;
     while (!found) {
@@ -194,9 +199,10 @@ static uint8_t nick_completion_search(EDIT *edit, char_t *found_nick, int direct
             found = 1;
             i = 0;
         } else {
-            nick = dedup[i];
-            if (nick[0] == completion.end - completion.start - completion.spacing
-                    && !memcmp(nick + 1, text + completion.start, nick[0])) {
+            nick        = dedup[i];
+            nick_len    = dedup_size[i];
+            if (nick_len == completion.end - completion.start - completion.spacing
+                    && !memcmp(nick, text + completion.start, nick_len)) {
                 found = 1;
             } else {
                 i++;
@@ -216,17 +222,18 @@ static uint8_t nick_completion_search(EDIT *edit, char_t *found_nick, int direct
             i = 0;
         }
 
-        nick = dedup[i];
+        nick        = dedup[i];
+        nick_len    = dedup_size[i];
 
-        if (nick[0] >= compsize
-                && !memcmp_case(nick + 1, text + completion.start, compsize)) {
+        if (nick_len >= compsize
+                && !memcmp_case(nick, text + completion.start, compsize)) {
             found = 1;
         }
     } while (!found && i != prev_index);
 
     if (found) {
-        memcpy(found_nick, nick + 1, nick[0]);
-        return nick[0];
+        memcpy(found_nick, nick, nick_len);
+        return nick_len;
     } else {
         return 0;
     }
