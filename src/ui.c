@@ -330,6 +330,7 @@ static void draw_settings_text_ui(int x, int y, int w, int UNUSED(height)){
     drawstr(MAIN_LEFT + SCALE(150), y + SCALE(110), START_IN_TRAY);
     drawstr(MAIN_LEFT + SCALE( 10), y + SCALE(160), AUTO_STARTUP);
     drawstr(MAIN_LEFT + SCALE( 10), y + SCALE(210), SEND_TYPING_NOTIFICATIONS);
+    drawstr(MAIN_LEFT + SCALE( 10), y + SCALE(260), SETTINGS_UI_MINI_ROSTER);
 }
 
 static void draw_settings_text_av(int x, int y, int w, int UNUSED(height)){
@@ -776,6 +777,7 @@ panel_main = {
                     (void*)&dropdown_close_to_tray, (void*)&dropdown_start_in_tray,
                     (void*)&dropdown_auto_startup,
                     (void*)&dropdown_typing_notes,
+                    (void*)&dropdown_mini_roster,
                     NULL
                 }
             },
@@ -1102,10 +1104,71 @@ void ui_set_scale(uint8_t scale) {
 
     /* Drop down structs */
         setfont(FONT_TEXT);
+        /* Profile dropdowns */
+        /* Network page dropdows */
+        /* A/V settings page dropdowns */
+       /* User Interface drops */
+            PANEL d_theme = {
+                .type   = PANEL_DROPDOWN,
+                .x      = SCALE(10),
+                .y      = SCALE(30),
+                .height = SCALE(24),
+                .width  = SCALE(120)
+            },
+            d_dpi = {
+                .type   = PANEL_DROPDOWN,
+                .x      = SCALE(150),
+                .y      = SCALE(30),
+                .height = SCALE(24),
+                .width  = SCALE(200)
+            },
+            d_logging = {
+                .type   = PANEL_DROPDOWN,
+                .x      = SCALE(10),
+                .y      = SCALE(80),
+                .height = SCALE(24),
+                .width  = SCALE(40  )
+            },
+            d_close_to_tray = {
+                .type   = PANEL_DROPDOWN,
+                .x      = SCALE(10),
+                .y      = SCALE(130),
+                .height = SCALE(24),
+                .width  = SCALE(40)
+            },
+            d_start_in_tray = {
+                .type   = PANEL_DROPDOWN,
+                .x      = SCALE(150),
+                .y      = SCALE(130),
+                .height = SCALE(24),
+                .width  = SCALE(40)
+            },
+            d_auto_startup = {
+                .type   = PANEL_DROPDOWN,
+                .x      = SCALE(10),
+                .y      = SCALE(180),
+                .height = SCALE(24),
+                .width  = SCALE(40)
+            },
+            d_typing_notes = {
+                .type   = PANEL_DROPDOWN,
+                .x      = SCALE(10),
+                .y      = SCALE(230),
+                .height = SCALE(24),
+                .width  = SCALE(40)
+            },
+            d_mini_roster = {
+                .type   = PANEL_DROPDOWN,
+                .x      = SCALE(10),
+                .y      = SCALE(280),
+                .height = SCALE(24),
+                .width  = SCALE(40)
+            };
 
+        /* Unsorted */
         PANEL d_notifications = {
             .type   = PANEL_DROPDOWN,
-            .x      = UTOX_SCALE(5   ),
+            .x      = SCALE(10),
             .y      = UTOX_SCALE(15  ),
             .height = UTOX_SCALE(12  ),
             .width  = UTOX_SCALE(20  )
@@ -1118,7 +1181,6 @@ void ui_set_scale(uint8_t scale) {
             .height = UTOX_SCALE(12 ),
             .width  = UTOX_SCALE(20 )
         },
-
         #ifdef AUDIO_FILTERING
         d_audio_filtering = {
             .type   = PANEL_DROPDOWN,
@@ -1153,14 +1215,6 @@ void ui_set_scale(uint8_t scale) {
             .width  = SCALE(360)
         },
 
-        d_dpi = {
-            .type   = PANEL_DROPDOWN,
-            .x      = SCALE(150),
-            .y      = SCALE( 30),
-            .height = SCALE( 24),
-            .width  = SCALE(200)
-        },
-
         d_language = {
             .type   =  PANEL_DROPDOWN,
             .x      =  SCALE( 10),
@@ -1193,54 +1247,6 @@ void ui_set_scale(uint8_t scale) {
             .width  = UTOX_SCALE(20  )
         },
 
-        d_logging = {
-            .type   = PANEL_DROPDOWN,
-            .x      = UTOX_SCALE(5   ),
-            .y      = UTOX_SCALE(39  ),
-            .height = UTOX_SCALE(12  ),
-            .width  = UTOX_SCALE(20  )
-        },
-
-        d_theme = {
-            .type   = PANEL_DROPDOWN,
-            .x      = UTOX_SCALE(5   ),
-            .y      = UTOX_SCALE(15  ),
-            .height = UTOX_SCALE(12  ),
-            .width  = UTOX_SCALE(60  )
-        },
-
-        d_close_to_tray = {
-            .type   = PANEL_DROPDOWN,
-            .x      = UTOX_SCALE(5   ),
-            .y      = UTOX_SCALE(63  ),
-            .height = UTOX_SCALE(12  ),
-            .width  = UTOX_SCALE(20  )
-        },
-
-        d_start_in_tray = {
-            .type   = PANEL_DROPDOWN,
-            .x      = SCALE(150),
-            .y      = SCALE(126),
-            .height = SCALE( 24),
-            .width  = SCALE( 40)
-        },
-
-        d_auto_startup = {
-            .type   = PANEL_DROPDOWN,
-            .x      = SCALE( 10),
-            .y      = SCALE(175),
-            .height = SCALE( 24),
-            .width  = SCALE( 40)
-        },
-
-        d_typing_notes = {
-            .type   = PANEL_DROPDOWN,
-            .x      = UTOX_SCALE(5   ),
-            .y      = UTOX_SCALE(114 ),
-            .height = UTOX_SCALE(12  ),
-            .width  = UTOX_SCALE(20  )
-        },
-
         d_friend_autoaccept = {
             .type   = PANEL_DROPDOWN,
             .x      = UTOX_SCALE(5   ),
@@ -1265,12 +1271,14 @@ void ui_set_scale(uint8_t scale) {
         dropdown_start_in_tray.panel = d_start_in_tray;
         dropdown_theme.panel = d_theme;
         dropdown_auto_startup.panel = d_auto_startup;
-        dropdown_friend_autoaccept_ft.panel = d_friend_autoaccept;
 
         #ifdef AUDIO_FILTERING
-        dropdown_audio_filtering.panel = d_audio_filtering;
+            dropdown_audio_filtering.panel = d_audio_filtering;
         #endif
-        dropdown_typing_notes.panel = d_typing_notes;
+
+        dropdown_typing_notes.panel         = d_typing_notes;
+        dropdown_mini_roster.panel          = d_mini_roster;
+        dropdown_friend_autoaccept_ft.panel = d_friend_autoaccept;
 
     /* Text entry boxes */
         PANEL e_name = {

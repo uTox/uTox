@@ -25,7 +25,7 @@ enum {
     LANG_PT,
     LANG_EO,
     LANG_HR,
-    
+
     NUM_LANGS // add langs before this line
 };
 
@@ -110,6 +110,9 @@ enum {
     STR_STATUS_ONLINE,
     STR_STATUS_AWAY,
     STR_STATUS_BUSY,
+
+    // Settings Strings
+    STR_SETTINGS_UI_MINI_ROSTER,
 
     // Status strings
     STR_NOT_CONNECTED,

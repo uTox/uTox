@@ -116,6 +116,10 @@ static void dropdown_typing_notes_onselect(const uint16_t i, const DROPDOWN* UNU
     debug("Typing notifications preference: %hu\n", i);
 }
 
+static void dropdown_mini_roster_onselect(const uint16_t i, const DROPDOWN* UNUSED(dm)) {
+    settings.use_mini_roster = i;
+}
+
 static void dropdown_push_to_talk_onselect(const uint16_t i, const DROPDOWN* UNUSED(dm)) {
     if (i) {
         // TODO, push this onto the start and end call fxn?
@@ -277,13 +281,6 @@ dropdown_audible_notification = {
     .userdata = offondrops
 },
 
-dropdown_typing_notes = {
-    .ondisplay = simple_dropdown_ondisplay,
-    .onselect = dropdown_typing_notes_onselect,
-    .dropcount = countof(yesnodrops),
-    .userdata = yesnodrops
-},
-
 dropdown_audio_filtering = {
     .ondisplay = simple_dropdown_ondisplay,
     .onselect = dropdown_audio_filtering_onselect,
@@ -296,6 +293,20 @@ dropdown_push_to_talk = {
     .onselect  = dropdown_push_to_talk_onselect,
     .dropcount = countof(offondrops),
     .userdata  = offondrops
+},
+
+dropdown_typing_notes = {
+    .ondisplay  = simple_dropdown_ondisplay,
+    .onselect   = dropdown_typing_notes_onselect,
+    .dropcount  = countof(yesnodrops),
+    .userdata   = yesnodrops
+},
+
+dropdown_mini_roster = {
+    .ondisplay  = simple_dropdown_ondisplay,
+    .onselect   = dropdown_mini_roster_onselect,
+    .dropcount  = countof(yesnodrops),
+    .userdata   = yesnodrops
 },
 
 dropdown_friend_autoaccept_ft = {
