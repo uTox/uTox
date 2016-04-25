@@ -85,10 +85,10 @@ msgid(TRANSFER_COMPLETE)
 msgstr("File transfer complete")
 
 msgid(CURSOR_CLICK_LEFT)
-msgstr("Left mouse click")
+msgstr("Left click")
 
 msgid(CURSOR_CLICK_RIGHT)
-msgstr("Right mouse click")
+msgstr("Right click")
 
 msgid(START_AUDIO_CALL)
 msgstr("Start call")
