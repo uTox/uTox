@@ -149,21 +149,17 @@ static void draw_group(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(h
     uint32_t i = 0;
     int k = MAIN_LEFT + SCALE(60);
 
-    uint64_t time = get_time();
-
     unsigned int pos_y = 15;
     while (i < g->peer_count) {
-        uint8_t *name       = ((GROUP_PEER*)g->peer[i])->name;
-        size_t   name_len   = ((GROUP_PEER*)g->peer[i])->name_length;
-        uint32_t name_color = ((GROUP_PEER*)g->peer[i])->name_color;
-        if (name) {
-            uint8_t buf[TOX_MAX_NAME_LENGTH];
-            memcpy(buf, name, name_len);
-            memcpy(buf + name_len, ", ", 2);
+        GROUP_PEER *peer = g->peer[i];
 
-            int w = textwidth(buf, name_len + 2);
-            if (name_color) {
-                setcolor(name_color);
+        if (peer && peer->name_length && peer->name) {
+            uint8_t buf[TOX_MAX_NAME_LENGTH];
+            int text_length = snprintf(buf, TOX_MAX_NAME_LENGTH, "%.*s, ", (int)peer->name_length, peer->name);
+
+            int w = textwidth(buf, text_length);
+            if (peer->name_color) {
+                setcolor(peer->name_color);
             } else {
                 setcolor(COLOR_GROUP_PEER);
             }
@@ -178,7 +174,7 @@ static void draw_group(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(h
                 }
             }
 
-            drawtext(k, SCALE(pos_y * 2), buf, name_len + 2);
+            drawtext(k, SCALE(pos_y * 2), buf, text_length);
 
             k += w;
         }

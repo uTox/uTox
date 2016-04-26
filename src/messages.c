@@ -465,6 +465,10 @@ static void messages_draw_filetransfer(MESSAGES *m, MSG_FILE *file, int i, int x
     drawtextrange(dx + SCALE(10), wbound - SCALE(10), y + SCALE(6), text_name_and_size, text_name_and_size_len);
 }
 
+/* This is a bit hacky, and likely would benifit from being moved to a whole new section including seperating
+ * group messages/functions from friend messages and functions from inside ui.c.
+ *
+ * Idealy group and friend messages wouldn't even need to know about eachother.   */
 static int messages_draw_group(MESSAGES *m, MSG_GROUP *msg, uint32_t i, int x, int y, int width, int height) {
     uint16_t h1 = UINT16_MAX, h2 = UINT16_MAX;
     if (i == m->sel_start_msg) {
@@ -490,7 +494,6 @@ static int messages_draw_group(MESSAGES *m, MSG_GROUP *msg, uint32_t i, int x, i
                               msg->author, h1, h2,
                               x + MESSAGES_X, y, width - TIME_WIDTH - MESSAGES_X, height);
 }
-
 
 /** Formats all messages from self and friends, and then call draw functions
  * to write them to the UI.
@@ -748,7 +751,12 @@ _Bool messages_mmove(PANEL *panel, int UNUSED(px), int UNUSED(py), int width, in
             switch(msg->msg_type) {
                 case MSG_TYPE_TEXT:
                 case MSG_TYPE_ACTION_TEXT: {
-                    messages_mmove_text(m, width, mx, my, dy, msg->msg, msg->height, msg->length);
+                    if (m->is_groupchat) {
+                        MSG_GROUP *grp = (void*)msg;
+                        messages_mmove_text(m, width, mx, my, dy, grp->msg + grp->author_length, msg->height, msg->length);
+                    } else {
+                        messages_mmove_text(m, width, mx, my, dy, msg->msg, msg->height, msg->length);
+                    }
                     break;
                 }
 
