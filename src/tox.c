@@ -1603,14 +1603,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             if (param2 > MAX_GROUP_PEERS) //TODO: dynamic arrays.
                 break;
 
-            if(peer) {
-                free(peer);
-                peer = NULL;
-            }
-
-            g->peer_count--;
-            peer = g->peer[g->peer_count];
-            g->peer[g->peer_count] = NULL;
+            group_peer_del(g, param2);
 
             if (g->av_group) {
                 g->last_recv_audio[param2] = g->last_recv_audio[g->peer_count];

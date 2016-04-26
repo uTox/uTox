@@ -77,8 +77,9 @@ void group_peer_add(GROUPCHAT *g, uint32_t peer_id, _Bool our_peer_number) {
 }
 
 void group_peer_del(GROUPCHAT *g, uint32_t peer_id) {
-
     group_add_message(g, peer_id, (const uint8_t*)"<- has Quit!", 12, MSG_TYPE_NOTICE);
+
+    pthread_mutex_lock(&messages_lock); /* make sure that messages has posted before we continue */
 
     if (!g->peer) {
         debug("Groupchat:\tUnable to del peer from NULL group\n");
@@ -87,6 +88,7 @@ void group_peer_del(GROUPCHAT *g, uint32_t peer_id) {
     GROUP_PEER *peer = (void*)g->peer[peer_id];
 
     if (peer) {
+        debug("Freeing peer %u, name %.*s\n", peer_id, peer->name_length, peer->name);
         free(peer);
     } else {
         debug("Groupchat:\tUnable to find peer for deletion\n");

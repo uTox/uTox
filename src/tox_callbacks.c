@@ -171,10 +171,8 @@ static void callback_group_namelist_change(Tox *tox, int gid, int pid, uint8_t c
         }
 
         case TOX_CHAT_CHANGE_PEER_DEL: {
-            group_peer_del(g, pid);
-
-            postmessage(GROUP_PEER_DEL, gid, pid, tox);
             debug("Group:\tPeer Quit (%u, %u)\n", gid, pid);
+            postmessage(GROUP_PEER_DEL, gid, pid, tox);
             break;
         }
 
