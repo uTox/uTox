@@ -15,7 +15,7 @@ _Bool message_log_to_disk(MESSAGES *m, MSG_VOID *msg) {
     }
 
     LOG_FILE_MSG_HEADER header ;
-    uint8_t *data;
+    uint8_t *data = NULL;
 
     switch (msg->msg_type) {
         case MSG_TYPE_TEXT:
@@ -56,7 +56,7 @@ _Bool message_log_to_disk(MESSAGES *m, MSG_VOID *msg) {
             debug("uTox Logging:\tUnsupported file type %i\n", msg->msg_type);
         }
     }
-    free (data);
+    free(data);
     return 0;
 }
 
@@ -68,14 +68,16 @@ _Bool messages_read_from_log(uint32_t friend_number){
 
     if (data) {
         void **p = (void**)data;
-        msg = *p++;
-        while (msg && actual_count--) {
-            message_add(&friend[friend_number].msg, msg);
+        while (actual_count--) {
             msg = *p++;
+            if (msg) {
+                message_add(&friend[friend_number].msg, msg);
+            }
         }
     } else {
         debug("If there's a friend history,there should be an error here...\n");
     }
+    free(data);
     return 0;
 }
 
@@ -1223,12 +1225,18 @@ static uint32_t message_add(MESSAGES *m, MSG_VOID *msg) {
     /* TODO: test this? */
     if (m->number < UTOX_MAX_BACKLOG_MESSAGES) {
         if (m->extra <= 0) {
-            m->data = realloc(m->data, (m->number + 10) * sizeof(void*));
+            if (m->data) {
+                m->data = realloc(m->data, (m->number + 10) * sizeof(void*));
+                m->extra += 10;
+            } else {
+                m->data = calloc(20, sizeof(void*));
+                m->extra = 20;
+            }
+
             if (!m->data) {
                 debug("\n\n\nFATIAL ERROR TRYING TO REALLOC FOR MESSAGES.\nTHIS IS A BUG, PLEASE REPORT!\n\n\n");
-                exit(40);
+                exit(30);
             }
-            m->extra += 10;
         }
         m->data[m->number++] = msg;
         m->extra--;
