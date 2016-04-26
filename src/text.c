@@ -71,7 +71,7 @@ static void drawtextmark(int x, int y, char_t *str, uint16_t length, int d, int 
 int utox_draw_text_multiline_within_box(int x, int y, /* x, y of the top left corner of the box */
                                         int right, int top, int bottom,
                                         uint16_t lineheight,
-                                        char_t *data, uint16_t length, /* text, and length of the text*/
+                                        const char_t *data, uint16_t length, /* text, and length of the text*/
                                         uint16_t h, uint16_t hlen,
                                         uint16_t mark, uint16_t marklen,
                                         _Bool multiline )

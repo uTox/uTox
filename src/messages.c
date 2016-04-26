@@ -196,11 +196,13 @@ static void messages_draw_author(int x, int y, int w, uint8_t *name, uint32_t le
     drawtextwidth_right(x, w, y, name, length);
 }
 
-static int messages_draw_text(MSG_TEXT *msg, int x, int y, int w, int h, uint16_t h1, uint16_t h2) {
-
-    switch (msg->msg_type) {
+static int messages_draw_text(const uint8_t *msg, size_t length, uint32_t msg_height, uint8_t msg_type,
+                              _Bool author, uint16_t highlight_start, uint16_t highlight_end,
+                              int x, int y, int w, int h)
+{
+    switch (msg_type) {
         case MSG_TYPE_TEXT: {
-            if(msg->author) {
+            if (author) {
                 setcolor(COLOR_MAIN_SUBTEXT);
             } else {
                 setcolor(COLOR_MAIN_CHATTEXT);
@@ -217,14 +219,11 @@ static int messages_draw_text(MSG_TEXT *msg, int x, int y, int w, int h, uint16_
 
     setfont(FONT_TEXT);
 
-    int ny = utox_draw_text_multiline_within_box(x, y,
-                                                 w + x, MAIN_TOP, y + msg->height,
-                                                 font_small_lineheight,
-                                                 msg->msg, msg->length,
-                                                 h1, h2 - h1, 0, 0, 1);
+    int ny = utox_draw_text_multiline_within_box(x, y, w + x, MAIN_TOP, y + msg_height, font_small_lineheight,
+                                                 msg, length, highlight_start, highlight_end, 0, 0, 1);
 
-    if (ny < y || (uint32_t)(ny - y) + MESSAGES_SPACING != msg->height) {
-        debug("Text Draw Error:\ty %i | ny %i | mheight %u | width %i \n", y, ny, msg->height, w);
+    if (ny < y || (uint32_t)(ny - y) + MESSAGES_SPACING != msg_height) {
+        debug("Text Draw Error:\ty %i | ny %i | mheight %u | width %i \n", y, ny, msg_height, w);
     }
 
     return ny;
@@ -466,16 +465,7 @@ static void messages_draw_filetransfer(MESSAGES *m, MSG_FILE *file, int i, int x
     drawtextrange(dx + SCALE(10), wbound - SCALE(10), y + SCALE(6), text_name_and_size, text_name_and_size_len);
 }
 
-static int messages_draw_group(MESSAGES *m, MSG_TEXT *msg, uint32_t i, int x, int y, int width, int height) {
-    GROUP_PEER *peer = group[m->id].peer[msg->author_id];
-
-    if (peer) {
-        messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET, peer->name, peer->name_length, peer->name_color);
-    } else {
-        debug("Messages:\t error getting group peer name!\n");
-    }
-    messages_draw_timestamp(x + width - ACTUAL_TIME_WIDTH, y, &msg->time);
-
+static int messages_draw_group(MESSAGES *m, MSG_GROUP *msg, uint32_t i, int x, int y, int width, int height) {
     uint16_t h1 = UINT16_MAX, h2 = UINT16_MAX;
     if (i == m->sel_start_msg) {
         h1 = m->sel_start_position;
@@ -493,7 +483,12 @@ static int messages_draw_group(MESSAGES *m, MSG_TEXT *msg, uint32_t i, int x, in
         h2 = UINT16_MAX;
     }
 
-    return messages_draw_text(msg, x + MESSAGES_X, y, width - TIME_WIDTH - MESSAGES_X, height, h1, h2);
+
+    messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET, msg->msg, msg->author_length, msg->author_color);
+    messages_draw_timestamp(x + width - ACTUAL_TIME_WIDTH, y, &msg->time);
+    return messages_draw_text(msg->msg + msg->author_length, msg->length, msg->height, msg->msg_type,
+                              msg->author, h1, h2,
+                              x + MESSAGES_X, y, width - TIME_WIDTH - MESSAGES_X, height);
 }
 
 
@@ -536,8 +531,7 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
 
         // Draw the names for groups or friends
         if (m->is_groupchat) {
-
-            y = messages_draw_group(m, msg, i, x, y, width, height);
+            y = messages_draw_group(m, (MSG_GROUP*)msg, i, x, y, width, height);
             continue;
 
         } else {
@@ -598,7 +592,9 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
                     h2 = UINT16_MAX;
                 }
 
-                y = messages_draw_text(msg, x + MESSAGES_X, y, width - TIME_WIDTH - MESSAGES_X, height, h1, h2);
+                y = messages_draw_text(msg->msg, msg->length, msg->height, msg->msg_type,
+                                       msg->author, h1, h2,
+                                       x + MESSAGES_X, y, width - TIME_WIDTH - MESSAGES_X, height);
                 break;
             }
 
@@ -1195,6 +1191,40 @@ static int msgheight(MSG_VOID *msg, int width) {
     return 0;
 }
 
+static int msgheight_group(MSG_GROUP *grp, int width) {
+    switch(grp->msg_type) {
+        case MSG_TYPE_TEXT:
+        case MSG_TYPE_ACTION_TEXT:
+        case MSG_TYPE_NOTICE:
+        case MSG_TYPE_NOTICE_DAY_CHANGE: {
+            int theight = text_height(abs(width - MESSAGES_X - TIME_WIDTH), font_small_lineheight,
+                                      grp->msg + grp->author_length, grp->length);
+            return (theight == 0) ? 0 : theight + MESSAGES_SPACING;
+        }
+        default: {
+            debug("Error, can't set this group message height\n");
+        }
+    }
+
+    return 0;
+}
+
+static int message_setheight(MESSAGES *m, MSG_VOID *msg) {
+    if (m->width == 0) {
+        return 0;
+    }
+
+    setfont(FONT_TEXT);
+
+    if (m->is_groupchat) {
+        MSG_GROUP *grp = (void*)msg;
+        msg->height = msgheight_group(grp, m->width);
+    } else {
+        msg->height = msgheight(msg, m->width);
+    }
+    return msg->height;
+}
+
 void messages_updateheight(MESSAGES *m, int width) {
     if (!m->data || !width) {
         return;
@@ -1206,26 +1236,11 @@ void messages_updateheight(MESSAGES *m, int width) {
     uint32_t i = 0;
 
     while (i < m->number) {
-        MSG_VOID *msg = m->data[i];
-        msg->height   = msgheight(msg, m->width);
-        height       += msg->height;
+        height += message_setheight(m, (void*)m->data[i]);
         i++;
     }
 
     m->panel.content_scroll->content_height = m->height = height;
-}
-
-static void message_setheight(MESSAGES *m, MSG_VOID *msg) {
-
-    if (m->width == 0) {
-        return;
-    }
-
-    setfont(FONT_TEXT);
-
-    msg->height  = msgheight((MSG_VOID*)msg, m->width);
-    m->height   += msg->height;
-    m->panel.content_scroll->content_height = m->height;
 }
 
 void message_updateheight(MESSAGES *m, MSG_VOID *msg) {
@@ -1236,7 +1251,7 @@ void message_updateheight(MESSAGES *m, MSG_VOID *msg) {
     setfont(FONT_TEXT);
 
     m->height   -= msg->height;
-    msg->height  = msgheight(msg, m->width);
+    msg->height  = message_setheight(m, msg);
     m->height   += msg->height;
 
     m->panel.content_scroll->content_height = m->height;

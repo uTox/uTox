@@ -36,10 +36,14 @@ struct messages {
 
 typedef enum UTOX_MSG_TYPE {
     MSG_TYPE_NULL,
+
+    /* MSG_TEXT must start here */
     MSG_TYPE_TEXT,
     MSG_TYPE_ACTION_TEXT,
     MSG_TYPE_NOTICE,
     MSG_TYPE_NOTICE_DAY_CHANGE, // Seperated so I can localize this later!
+    /* MSG_TEXT should end here */
+    MSG_TYPE_OTHER, // Unused, expect to seperate MSG_TEXT type
     MSG_TYPE_IMAGE,
     MSG_TYPE_IMAGE_HISTORY,
     MSG_TYPE_FILE,
@@ -75,6 +79,26 @@ typedef struct {
     uint16_t length;
     char_t msg[0];
 } MSG_TEXT;
+
+
+typedef struct {
+    _Bool author;
+    uint8_t msg_type;
+
+    uint32_t height;
+    time_t time;
+
+    uint32_t author_id;
+
+    uint32_t receipt;
+    time_t receipt_time;
+
+    uint16_t length;
+    uint16_t author_length;
+
+    uint32_t author_color;
+    char_t msg[0];
+} MSG_GROUP;
 
 typedef struct {
     _Bool author;
