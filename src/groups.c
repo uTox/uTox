@@ -32,6 +32,7 @@ void group_init(GROUPCHAT *g, uint32_t group_number, _Bool av_group) {
 }
 
 void group_add_message(GROUPCHAT *g, int peer_id, const uint8_t *message, size_t length, uint8_t m_type) {
+    pthread_mutex_lock(&messages_lock); /* make sure that messages has posted before we continue */
     MESSAGES    *m    = &g->msg;
     GROUP_PEER  *peer = g->peer[peer_id];
     uint8_t     *nick = peer->name;
@@ -48,6 +49,7 @@ void group_add_message(GROUPCHAT *g, int peer_id, const uint8_t *message, size_t
     memcpy(msg->msg,                     nick,    peer->name_length);
     memcpy(msg->msg + peer->name_length, message, length);
 
+    pthread_mutex_unlock(&messages_lock);
     message_add_group(m, (void*)msg);
 }
 
@@ -71,13 +73,13 @@ void group_peer_add(GROUPCHAT *g, uint32_t peer_id, _Bool our_peer_number) {
 
     g->peer[peer_id] = peer;
     g->peer_count++;
+    pthread_mutex_unlock(&messages_lock);
 }
 
 void group_peer_del(GROUPCHAT *g, uint32_t peer_id) {
 
     group_add_message(g, peer_id, (const uint8_t*)"<- has Quit!", 12, MSG_TYPE_NOTICE);
 
-    pthread_mutex_lock(&messages_lock); /* make sure that messages has posted before we continue */
     if (!g->peer) {
         debug("Groupchat:\tUnable to del peer from NULL group\n");
     }
@@ -96,6 +98,7 @@ void group_peer_del(GROUPCHAT *g, uint32_t peer_id) {
 }
 
 void group_peer_name_change(GROUPCHAT *g, uint32_t peer_id, const uint8_t *name, size_t length) {
+    pthread_mutex_lock(&messages_lock); /* make sure that messages has posted before we continue */
     if (!g->peer) {
         debug("Groupchat:\tUnable to add peer to NULL group\n");
         return;
@@ -110,13 +113,14 @@ void group_peer_name_change(GROUPCHAT *g, uint32_t peer_id, const uint8_t *name,
 
         memcpy(old, peer->name, peer->name_length);
         size = snprintf((void*)msg, TOX_MAX_NAME_LENGTH, "<- has changed their name from %.*s", (int)peer->name_length, old);
-        group_add_message(g, peer_id, msg, size, MSG_TYPE_NOTICE);
         peer = realloc(peer, sizeof(GROUP_PEER) + sizeof(void) * length);
 
         if (peer) {
-            peer->name_length = length;
+            peer->name_length = utf8_validate(name, length);
             memcpy(peer->name, name, length);
             g->peer[peer_id] = peer;
+            pthread_mutex_unlock(&messages_lock);
+            group_add_message(g, peer_id, msg, size, MSG_TYPE_NOTICE);
             return;
         } else {
             debug("Fatal error:\t couldn't realloc for group peer name!\n");
@@ -127,9 +131,10 @@ void group_peer_name_change(GROUPCHAT *g, uint32_t peer_id, const uint8_t *name,
         /* Hopefully, they just joined, becasue that's the UX message we're going with! */
         peer = realloc(peer, sizeof(GROUP_PEER) + sizeof(void) * length);
         if (peer) {
-            peer->name_length = length;
+            peer->name_length = utf8_validate(name, length);
             memcpy(peer->name, name, length);
             g->peer[peer_id] = peer;
+            pthread_mutex_unlock(&messages_lock);
             group_add_message(g, peer_id, (const uint8_t*)"<- has joined the chat!", 23, MSG_TYPE_NOTICE);
             return;
         }
