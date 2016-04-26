@@ -17,6 +17,7 @@
 #include <math.h>
 #include <limits.h>
 #include <ctype.h>
+#include <pthread.h>
 
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -256,6 +257,8 @@ _Bool tox_connected;
 _Bool encrypted_profile;
 _Bool audio_preview, video_preview;
 
+
+pthread_mutex_t messages_lock;
 
 //friends and groups
 //note: assumes array size will always be large enough

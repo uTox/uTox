@@ -503,6 +503,8 @@ static int messages_draw_group(MESSAGES *m, MSG_GROUP *msg, uint32_t i, int x, i
  * accepts: messages struct *pointer, int x,y positions, int width,height
  */
 void messages_draw(PANEL *panel, int x, int y, int width, int height) {
+    pthread_mutex_lock(&messages_lock);
+
     MESSAGES *m = panel->object;
     // Do not draw author name next to every message
     uint8_t lastauthor = 0xFF;
@@ -524,6 +526,7 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
         /* Decide if we should even bother drawing this message. */
         if (msg->height == 0) {
             /* Empty message */
+            pthread_mutex_unlock(&messages_lock);
             return;
         } else if (y + (int)msg->height <= MAIN_TOP) {
             /* message is exclusively above the viewing window */
@@ -619,6 +622,8 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
 
         y += MESSAGES_SPACING;
     }
+
+    pthread_mutex_unlock(&messages_lock);
 }
 
 static _Bool messages_mmove_text(MESSAGES *m, int width, int mx, int my, int dy,
@@ -1275,6 +1280,8 @@ void message_updateheight(MESSAGES *m, MSG_VOID *msg) {
  * accepts: MESSAGES *pointer, MESSAGE *pointer, MSG_DATA *pointer
  */
 static uint32_t message_add(MESSAGES *m, MSG_VOID *msg) {
+    pthread_mutex_lock(&messages_lock);
+
     /* TODO: test this? */
     if (m->number < UTOX_MAX_BACKLOG_MESSAGES) {
         if (m->extra <= 0) {
@@ -1335,6 +1342,7 @@ static uint32_t message_add(MESSAGES *m, MSG_VOID *msg) {
 
     message_setheight(m, (MSG_VOID*)msg);
 
+    pthread_mutex_unlock(&messages_lock);
     return m->number;
 }
 

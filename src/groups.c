@@ -54,7 +54,7 @@ void group_add_message(GROUPCHAT *g, int peer_id, const uint8_t *message, size_t
 void group_peer_add(GROUPCHAT *g, uint32_t peer_id, _Bool our_peer_number) {
     if (!g->peer) {
         g->peer = calloc(MAX_GROUP_PEERS, sizeof(void));
-        // debug("Groupchat:\tUnable to add peer to NULL group\n");
+        debug("Groupchat:\tNeeded to calloc peers for this group chat. (%u)\n", peer_id);
     }
 
     GROUP_PEER *peer = (void*)g->peer[peer_id];
@@ -67,11 +67,10 @@ void group_peer_add(GROUPCHAT *g, uint32_t peer_id, _Bool our_peer_number) {
     peer->name_length = 0;
     strcpy2(peer->name, "<unknown>");
     peer->name_color  = rand() % UINT32_MAX;
+    peer->id = peer_id;
 
     g->peer[peer_id] = peer;
     g->peer_count++;
-
-    group_add_message(g, peer_id, (const uint8_t*)"A new peer has joined!", 22, MSG_TYPE_NOTICE);
 }
 
 void group_peer_del(GROUPCHAT *g, uint32_t peer_id) {
@@ -115,23 +114,27 @@ void group_peer_name_change(GROUPCHAT *g, uint32_t peer_id, const uint8_t *name,
         if (peer) {
             peer->name_length = length;
             memcpy(peer->name, name, length);
+            g->peer[peer_id] = peer;
+            return;
         } else {
             debug("Fatal error:\t couldn't realloc for group peer name!\n");
             exit(40);
         }
 
     } else if (peer) {
-        /* Hopefully, they just joined? */
+        /* Hopefully, they just joined, becasue that's the UX message we're going with! */
         peer = realloc(peer, sizeof(GROUP_PEER) + sizeof(void) * length);
         if (peer) {
             peer->name_length = length;
             memcpy(peer->name, name, length);
             g->peer[peer_id] = peer;
+            group_add_message(g, peer_id, (const uint8_t*)"<- has joined the chat!", 23, MSG_TYPE_NOTICE);
             return;
         }
+    } else {
+        debug("Fatal error:\t we can't set a name for a null peer! %u\n", peer_id);
+        exit(41);
     }
-    debug("Fatal error:\t couldn't alloc for group peer name!\n");
-    exit(40);
 }
 
 void group_free(GROUPCHAT *g) {
