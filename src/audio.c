@@ -334,11 +334,27 @@ void utox_audio_thread(void *args){
     alGenBuffers((ALuint)1, &RingBuffer);
 
     { /* wrapped to keep this data on the stack... I think... */
-        float    frequency1  = 441.f;
-        float    frequency2  = 882.f;
-        int      seconds     = 4;
-        unsigned sample_rate = 22050;
-        size_t   buf_size    = seconds * sample_rate * 2; //16 bit (2 bytes per sample)
+        // float    c3s            = 138.59;
+        // float    b3             = 246.94;
+        // float    a4             = 440.f;
+        // float    b4             = 493.88;
+        // float    e4             = 329.63;
+        // float    c5             = 523.25;
+        // float    d5             = 587.33;
+        // float    e5             = 659.25;
+        // float    f5             = 698.46;
+        // float    g5             = 783.99;
+        float    a5             = 880.f;
+        float    c6s            = 1108.73;
+        float    e6             = 1318.51;
+
+        int      seconds        = 8;
+        unsigned sample_rate    = 22000;
+        float    amplitude      = 15000;
+        float    t              = 6.283185307179586476925286766559;
+        uint     notes_per_sec  = 1;
+
+        size_t   buf_size       = seconds * sample_rate * 2; //16 bit (2 bytes per sample)
         int16_t *samples = malloc(buf_size * sizeof(int16_t));
 
         if (!samples) {
@@ -347,15 +363,51 @@ void utox_audio_thread(void *args){
         }
 
         /*Generate an electronic ringer sound that quickly alternates between two frequencies*/
-        for (int index = 0; index < buf_size; ++index) {
-            if ((index / (sample_rate)) % 4 < 2 ) {//4 second ring cycle, first 2 secondsring, the rest(2 seconds) is silence
-                if ((index / 1000) % 2 == 1) {
-                    samples[index] = 15000 * sin((2.0 * 3.1415926 * frequency1) / sample_rate * index); //5000=amplitude(volume level). It can be from zero to 32700
-                } else {
-                    samples[index] = 15000 * sin((2.0 * 3.1415926 * frequency2) / sample_rate * index);
+        for (uint64_t index = 0; index < buf_size; ++index) {
+            /* Loop through the buffer and queue each block of music.
+             * By default, there's 8 seconds of music, and 8 different "tones" */
+            switch ( (index / sample_rate / notes_per_sec) % (seconds * notes_per_sec) ) {
+                /* index / sample rate `mod` seconds. will give you full second long notes
+                 * you can change the length each tone is played by changing notes_per_second
+                 * but you'll need to add additional case to cover the entire span of time */
+                case 0: {
+                    samples[index]  = amplitude * (sin((t * a5) * index / sample_rate));
+                    break;
                 }
-            } else {
-                samples[index] = 0;
+                case 1: {
+                    samples[index]  = amplitude * (sin((t * c6s) * index / sample_rate));
+                    break;
+                }
+
+                case 2: {
+                    samples[index]  = amplitude * (sin((t * e6) * index / sample_rate));
+                    break;
+                }
+
+                case 3: {
+                    samples[index]  = amplitude/2 * (sin((t * a5) * index / sample_rate));
+                    samples[index] += amplitude/2 * (sin((t * c6s) * index / sample_rate));
+                    break;
+                }
+
+                case 4: {
+                    samples[index]  = amplitude/3 * (sin((t * a5) * index / sample_rate));
+                    samples[index] += amplitude/3 * (sin((t * c6s) * index / sample_rate));
+                    samples[index] += amplitude/3 * (sin((t * e6) * index / sample_rate));
+                    break;
+                }
+
+                case 5: {
+                    samples[index]  = amplitude/2 * (sin((t * a5) * index / sample_rate));
+                    samples[index] += amplitude/2 * (sin((t * c6s) * index / sample_rate));
+                    samples[index] += amplitude/2 * (sin((t * e6) * index / sample_rate));
+                    break;
+                }
+
+                default:{
+                    samples[index]  = 0;
+                    break;
+                }
             }
         }
 
