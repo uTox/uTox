@@ -748,8 +748,8 @@ void draw_tray_icon(void){
     UTOX_NATIVE_IMAGE *icon = decode_image(icon_data, icon_size, &width, &height, 1);
     if(UTOX_NATIVE_IMAGE_IS_VALID(icon)) {
         /* Get tray window size */
-        int32_t x_r, y_r;
-        uint32_t border_r, depth_r;
+        int32_t x_r = 0, y_r = 0;
+        uint32_t border_r = 0, depth_r = 0;
         XMoveResizeWindow(display, tray_window, x_r, y_r, 32, 32);
         XGetGeometry(display, tray_window, &root, &x_r, &y_r, &tray_width, &tray_height, &border_r, &depth_r);
         /* TODO use xcb instead of xlib here!

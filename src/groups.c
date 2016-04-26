@@ -120,41 +120,39 @@ void group_peer_name_change(GROUPCHAT *g, uint32_t peer_id, const uint8_t *name,
             exit(40);
         }
 
-    } else {
+    } else if (peer) {
         /* Hopefully, they just joined? */
+        peer = realloc(peer, sizeof(GROUP_PEER) + sizeof(void) * length);
         if (peer) {
             peer->name_length = length;
             memcpy(peer->name, name, length);
-            group_add_message(g, peer_id, (const uint8_t*)"<- has joined!", 14, MSG_TYPE_NOTICE);
-        } else {
-            debug("Fatal error:\t couldn't alloc for group peer name!\n");
-            exit(40);
+            g->peer[peer_id] = peer;
+            return;
         }
     }
+    debug("Fatal error:\t couldn't alloc for group peer name!\n");
+    exit(40);
 }
 
 void group_free(GROUPCHAT *g) {
-    uint16_t i = 0;
-    while(i != g->edit_history_length) {
+
+    uint32_t i = 0;
+    for (; i != g->edit_history_length; ++i) {
         free(g->edit_history[i]);
         i++;
     }
     free(g->edit_history);
 
-    uint32_t j = 0;
-    while (j < g->peer_count) {
-        if (g->peer[j]) {
-            free(g->peer[j]);
+    for (i = 0; i < g->peer_count; ++i ) {
+        if (g->peer[i]) {
+            free(g->peer[i]);
         }
-        j++;
     }
+    free(g->peer);
 
-    uint32_t k = 0;
-    while (k < g->msg.number) {
-        free(g->msg.data[k]);
-        k++;
+    for (i = 0; i < g->msg.number; ++i) {
+        message_free((void*)g->msg.data[i]);
     }
-
     free(g->msg.data);
 
     memset(g, 0, sizeof(GROUPCHAT));

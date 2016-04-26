@@ -538,18 +538,7 @@ static void deleteitem(ITEM *i) {
 
         case ITEM_GROUP: {
             GROUPCHAT *g = i->data;
-
             postmessage_toxcore(TOX_GROUP_PART, (g - group), 0, NULL);
-
-            unsigned int j;
-            GROUP_PEER *peer;
-            for (j = 0; j < g->peer_count; ++j) {
-                peer = g->peer[j];
-                if(peer) {
-                    free(peer);
-                    peer = NULL;
-                }
-            }
             group_free(g);
             break;
         }

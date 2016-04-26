@@ -153,9 +153,9 @@ static void draw_group(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(h
     while (i < g->peer_count) {
         GROUP_PEER *peer = g->peer[i];
 
-        if (peer && peer->name_length && peer->name) {
+        if (peer && peer->name_length) {
             uint8_t buf[TOX_MAX_NAME_LENGTH];
-            int text_length = snprintf(buf, TOX_MAX_NAME_LENGTH, "%.*s, ", (int)peer->name_length, peer->name);
+            int text_length = snprintf((char*)buf, TOX_MAX_NAME_LENGTH, "%.*s, ", (int)peer->name_length, peer->name);
 
             int w = textwidth(buf, text_length);
             if (peer->name_color) {

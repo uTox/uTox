@@ -162,7 +162,7 @@ void log_read_old(Tox *tox, int fid) {
         msg->length = utf8_validate(msg->msg, msg->length);
         m->data[m->number++] = msg;
 
-        message_log_to_disk(m, msg);
+        message_log_to_disk(m, (void*)msg);
     }
 
     fclose(file);
