@@ -38,7 +38,7 @@ typedef struct groupchat {
 
 void group_init(GROUPCHAT *g, uint32_t group_number, _Bool av_group);
 
-void group_add_message(GROUPCHAT *g, int peer_id, const uint8_t *message, size_t length, uint8_t m_type);
+uint32_t group_add_message(GROUPCHAT *g, int peer_id, const uint8_t *message, size_t length, uint8_t m_type);
 
 void group_peer_add(GROUPCHAT *g, uint32_t peer_id, _Bool our_peer_number);
 

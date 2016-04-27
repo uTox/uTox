@@ -33,7 +33,7 @@ void group_init(GROUPCHAT *g, uint32_t group_number, _Bool av_group) {
     roster_select_last();
 }
 
-void group_add_message(GROUPCHAT *g, int peer_id, const uint8_t *message, size_t length, uint8_t m_type) {
+uint32_t group_add_message(GROUPCHAT *g, int peer_id, const uint8_t *message, size_t length, uint8_t m_type) {
     pthread_mutex_lock(&messages_lock); /* make sure that messages has posted before we continue */
     MESSAGES    *m    = &g->msg;
     GROUP_PEER  *peer = g->peer[peer_id];
@@ -52,7 +52,7 @@ void group_add_message(GROUPCHAT *g, int peer_id, const uint8_t *message, size_t
     memcpy(msg->msg + peer->name_length, message, length);
 
     pthread_mutex_unlock(&messages_lock);
-    message_add_group(m, (void*)msg);
+    return message_add_group(m, (void*)msg);
 }
 
 void group_peer_add(GROUPCHAT *g, uint32_t peer_id, _Bool our_peer_number) {
