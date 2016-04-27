@@ -51,7 +51,7 @@ static void roster_draw_name(ITEM *i, int y, char_t *name, char_t *msg, uint16_t
     setfont(FONT_LIST_NAME);
 
     if (settings.use_mini_roster) {
-        drawtextwidth(ROSTER_NAME_LEFT / 2, SIDEBAR_WIDTH - ROSTER_NAME_LEFT / 2 - SCALE(32), y + ROSTER_NAME_TOP / 2,
+        drawtextwidth(ROSTER_NAME_LEFT / 2 + SCALE(5), SIDEBAR_WIDTH - ROSTER_NAME_LEFT / 2 - SCALE(32), y + ROSTER_NAME_TOP / 2,
                       name, name_length);
     } else {
         drawtextwidth(ROSTER_NAME_LEFT, SIDEBAR_WIDTH - ROSTER_NAME_LEFT - SCALE(32), y + ROSTER_NAME_TOP,
@@ -86,15 +86,21 @@ static void roster_draw_status_icon(uint8_t status, int y, _Bool notify) {
 static void drawitem(ITEM *i, int UNUSED(x), int y) {
     roster_draw_itembox(i, y);
 
-    int default_w   = 0;
-    int ava_top     = 0;
+    int default_w      = 0;
+    int ava_top        = 0;
+    int group_bitmap   = 0;
+    int contact_bitmap = 0;
 
     if (settings.use_mini_roster) {
-        default_w   = BM_CONTACT_WIDTH  / 2;
-        ava_top     = ROSTER_AVATAR_TOP / 2;
+        default_w      = BM_CONTACT_WIDTH  / 2;
+        ava_top        = ROSTER_AVATAR_TOP / 2;
+        group_bitmap   = BM_GROUP_MINI;
+        contact_bitmap = BM_CONTACT_MINI;
     } else {
-        default_w   = BM_CONTACT_WIDTH;
-        ava_top     = ROSTER_AVATAR_TOP;
+        default_w      = BM_CONTACT_WIDTH;
+        ava_top        = ROSTER_AVATAR_TOP;
+        group_bitmap   = BM_GROUP;
+        contact_bitmap = BM_CONTACT;
     }
 
     switch(i->item) {
@@ -106,7 +112,7 @@ static void drawitem(ITEM *i, int UNUSED(x), int y) {
         if (friend_has_avatar(f)) {
             draw_avatar_image(f->avatar.image, ROSTER_AVATAR_LEFT, y + ava_top, f->avatar.width, f->avatar.height, default_w, default_w);
         } else {
-            drawalpha(BM_CONTACT, ROSTER_AVATAR_LEFT, y + ava_top, default_w, default_w, (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
+            drawalpha(contact_bitmap, ROSTER_AVATAR_LEFT, y + ava_top, default_w, default_w, (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
         }
 
         if(f->alias){
@@ -121,7 +127,7 @@ static void drawitem(ITEM *i, int UNUSED(x), int y) {
 
     case ITEM_GROUP: {
         GROUPCHAT *g = i->data;
-        drawalpha(BM_GROUP, ROSTER_AVATAR_LEFT, y + ava_top, default_w, default_w, (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
+        drawalpha(group_bitmap, ROSTER_AVATAR_LEFT, y + ava_top, default_w, default_w, (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
         _Bool color_overide = 0;
         uint32_t color = 0;
 
@@ -150,7 +156,7 @@ static void drawitem(ITEM *i, int UNUSED(x), int y) {
         char_t name[TOX_FRIEND_ADDRESS_SIZE * 2];
         id_to_string(name, f->id);
 
-        drawalpha(BM_CONTACT, ROSTER_AVATAR_LEFT, y + ROSTER_AVATAR_TOP, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
+        drawalpha(contact_bitmap, ROSTER_AVATAR_LEFT, y + ROSTER_AVATAR_TOP, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
         roster_draw_name(i, y, name, f->msg, sizeof(name), f->length, 0, 0);
         break;
     }

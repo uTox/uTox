@@ -189,7 +189,9 @@ enum {
     BM_SBUTTON,
 
     BM_CONTACT,
+    BM_CONTACT_MINI,
     BM_GROUP,
+    BM_GROUP_MINI,
 
     BM_FILE,
     BM_FILE_BIG,
