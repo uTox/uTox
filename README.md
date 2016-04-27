@@ -4,7 +4,7 @@ The lightweight [Tox](https://github.com/irungentoo/toxcore) client.
 
 [**Tox Project Website**](https://tox.chat) **|** [**Tox Project Wiki**](https://wiki.tox.chat/) **|** [**Installing**](docs/INSTALL.md) **|** [**Compiling**](docs/BUILD.md).
 
-You shouldn't have to chose a new client for every device: So µTox works everywhere! On every major system **Windows**, **OSX**, **Linux**, and even **Android**.
+You shouldn't have to choose a new client for every device: So µTox works everywhere! On every major system **Windows**, **OSX**, **Linux**, and even **Android**.
 
 ### Features
 - Avatars
