@@ -494,7 +494,7 @@ static int messages_draw_group(MESSAGES *m, MSG_GROUP *msg, uint32_t i, int x, i
     messages_draw_timestamp(x + width - ACTUAL_TIME_WIDTH, y, &msg->time);
     return messages_draw_text(msg->msg + msg->author_length, msg->length, msg->height, msg->msg_type,
                               msg->author, h1, h2,
-                              x + MESSAGES_X, y, width - TIME_WIDTH - MESSAGES_X, height);
+                              x + MESSAGES_X, y, width - TIME_WIDTH - MESSAGES_X, height) + MESSAGES_SPACING;
 }
 
 /** Formats all messages from self and friends, and then call draw functions
@@ -757,7 +757,9 @@ _Bool messages_mmove(PANEL *panel, int UNUSED(px), int UNUSED(py), int width, in
 
             switch(msg->msg_type) {
                 case MSG_TYPE_TEXT:
-                case MSG_TYPE_ACTION_TEXT: {
+                case MSG_TYPE_ACTION_TEXT:
+                case MSG_TYPE_NOTICE:
+                case MSG_TYPE_NOTICE_DAY_CHANGE: {
                     if (m->is_groupchat) {
                         MSG_GROUP *grp = (void*)msg;
                         messages_mmove_text(m, width, mx, my, dy, grp->msg + grp->author_length, msg->height, msg->length);
