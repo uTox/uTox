@@ -154,6 +154,10 @@ static uint32_t peers_deduplicate(char_t **dedup, size_t *dedup_size, void **pee
     for (peer = 0; peer < peer_count; peer++) {
 
         p           = peers[peer];
+        if (!p) {
+            continue;
+        }
+
         nick        = p->name;
         nick_len    = p->name_length;
 
