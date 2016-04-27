@@ -417,15 +417,28 @@ _Bool svg_draw(_Bool needmemory) {
     /* Build what we expect the size to be.
      * This section uses unnamed shortcuts, so it really serves no purpose and makes it harder to debug, it needs to be
      * fixed, without shortcuts, and proper comments... TODO FIXME */
-    size = SCROLL_WIDTH * SCROLL_WIDTH + SCROLL_WIDTH * SCROLL_WIDTH /2 +
-        BM_STATUSAREA_WIDTH * BM_STATUSAREA_HEIGHT +
+    // comments behind the lines match with the comments of the code below that fills the memory
+    size =
+        SCROLL_WIDTH * SCROLL_WIDTH + /* Scroll bars top bottom halves */
+        SCROLL_WIDTH * SCROLL_WIDTH /2 + /* Scroll bars top bottom halves (small)*/
+        BM_STATUSAREA_WIDTH * BM_STATUSAREA_HEIGHT + /* status area */
         /* Panel buttons */
-        BM_ADD_WIDTH * BM_ADD_WIDTH * 4 +
-        BM_CONTACT_WIDTH * BM_CONTACT_WIDTH * 2 +
-        BM_LBICON_WIDTH * BM_LBICON_HEIGHT * 2 + // call, video
-        BM_FILE_WIDTH * BM_FILE_HEIGHT + BM_FILE_BIG_WIDTH * BM_FILE_BIG_HEIGHT + // file small and big
-        BM_STATUS_WIDTH * BM_STATUS_WIDTH * 4 +
-        BM_STATUS_NOTIFY_WIDTH * BM_STATUS_NOTIFY_WIDTH +
+        BM_ADD_WIDTH * BM_ADD_WIDTH + /* Draw panel Button: Add */
+        BM_ADD_WIDTH * BM_ADD_WIDTH + /* New group bitmap */
+        BM_ADD_WIDTH * BM_ADD_WIDTH + /* Draw panel Button: Transfer */
+        BM_ADD_WIDTH * BM_ADD_WIDTH + /* Settings gear bitmap */
+        BM_CONTACT_WIDTH * BM_CONTACT_WIDTH + /* Contact avatar default bitmap */
+        BM_CONTACT_WIDTH / 2 * BM_CONTACT_WIDTH / 2 + /* Contact avatar default bitmap for mini roster */
+        BM_CONTACT_WIDTH * BM_CONTACT_WIDTH + /* Group heads default bitmap */
+        BM_CONTACT_WIDTH / 2 * BM_CONTACT_WIDTH / 2 + /* Group heads default bitmap for mini roster */
+        BM_FILE_WIDTH * BM_FILE_HEIGHT + BM_FILE_BIG_WIDTH * BM_FILE_BIG_HEIGHT + /* Draw button icon overlays: file small and big */
+        BM_LBICON_WIDTH * BM_LBICON_HEIGHT + /* Call button icon */
+        BM_LBICON_WIDTH * BM_LBICON_HEIGHT + /* Video start end bitmap */
+        BM_STATUS_WIDTH * BM_STATUS_WIDTH + /* user status: online */
+        BM_STATUS_WIDTH * BM_STATUS_WIDTH + /* user status: away */
+        BM_STATUS_WIDTH * BM_STATUS_WIDTH + /* user status: busy */
+        BM_STATUS_WIDTH * BM_STATUS_WIDTH + /* user status: offline */
+        BM_STATUS_NOTIFY_WIDTH * BM_STATUS_NOTIFY_WIDTH + /* user status: notification */
         BM_LBUTTON_WIDTH * BM_LBUTTON_HEIGHT +
         BM_SBUTTON_WIDTH * BM_SBUTTON_HEIGHT +
         /* File transfer */
@@ -454,18 +467,18 @@ _Bool svg_draw(_Bool needmemory) {
     loadalpha(BM_SCROLLHALFBOT, p + SCROLL_WIDTH * SCROLL_WIDTH /2, SCROLL_WIDTH, SCROLL_WIDTH /2);
     p += SCROLL_WIDTH * SCROLL_WIDTH;
 
-
     /* Scroll bars top bottom halves (small)*/
     drawcircle(p, SCROLL_WIDTH /2);
     loadalpha(BM_SCROLLHALFTOP_SMALL, p,                                     SCROLL_WIDTH /2, SCROLL_WIDTH /4);
     loadalpha(BM_SCROLLHALFBOT_SMALL, p + SCROLL_WIDTH /2 * SCROLL_WIDTH /4, SCROLL_WIDTH /2, SCROLL_WIDTH /4);
     p += SCROLL_WIDTH * SCROLL_WIDTH /2;
 
+    /* status area */
     drawrectrounded(p, BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT, UTOX_SCALE(2));
     loadalpha(BM_STATUSAREA, p, BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT);
     p += BM_STATUSAREA_WIDTH * BM_STATUSAREA_HEIGHT;
 
-    /* Draw panel Buttons */
+    /* Draw panel Button: Add */
     drawcross(p, BM_ADD_WIDTH);
     loadalpha(BM_ADD, p, BM_ADD_WIDTH, BM_ADD_WIDTH);
     p += BM_ADD_WIDTH * BM_ADD_WIDTH;
@@ -475,6 +488,7 @@ _Bool svg_draw(_Bool needmemory) {
     loadalpha(BM_GROUPS, p, BM_ADD_WIDTH, BM_ADD_WIDTH);
     p += BM_ADD_WIDTH * BM_ADD_WIDTH;
 
+    /* Draw panel Button: Transfer */
     drawline(p, BM_ADD_WIDTH, BM_ADD_WIDTH, UTOX_SCALE(3), UTOX_SCALE(3), UTOX_SCALE(5), UTOX_SCALE(0.75 ));
     drawline(p, BM_ADD_WIDTH, BM_ADD_WIDTH, UTOX_SCALE(6), UTOX_SCALE(6), UTOX_SCALE(5), UTOX_SCALE(0.75 ));
     drawtri(p, BM_ADD_WIDTH, BM_ADD_WIDTH, UTOX_SCALE(6 ), 0, UTOX_SCALE(4 ), 0);
@@ -497,10 +511,22 @@ _Bool svg_draw(_Bool needmemory) {
     loadalpha(BM_CONTACT, p, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
     p += BM_CONTACT_WIDTH * BM_CONTACT_WIDTH;
 
+    /* Contact avatar default bitmap for mini roster */
+    drawnewcircle(p, BM_CONTACT_WIDTH / 2, UTOX_SCALE(9 ), UTOX_SCALE(5 ), UTOX_SCALE(9 ), UTOX_SCALE(7 ));
+    drawsubcircle(p, BM_CONTACT_WIDTH / 2, BM_CONTACT_WIDTH / 2, UTOX_SCALE(5 ), UTOX_SCALE(5 ), UTOX_SCALE(3 ));
+    drawhead(p, BM_CONTACT_WIDTH / 2, UTOX_SCALE(5 ), UTOX_SCALE(3 ), UTOX_SCALE(4 ));
+    loadalpha(BM_CONTACT_MINI, p, BM_CONTACT_WIDTH / 2, BM_CONTACT_WIDTH / 2);
+    p += BM_CONTACT_WIDTH / 2 * BM_CONTACT_WIDTH / 2;
+
     /* Group heads default bitmap */
     drawgroup(p, BM_CONTACT_WIDTH);
     loadalpha(BM_GROUP, p, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
     p += BM_CONTACT_WIDTH * BM_CONTACT_WIDTH;
+
+    /* Group heads default bitmap for mini roster */
+    drawgroup(p, BM_CONTACT_WIDTH / 2);
+    loadalpha(BM_GROUP_MINI, p, BM_CONTACT_WIDTH / 2, BM_CONTACT_WIDTH / 2);
+    p += BM_CONTACT_WIDTH / 2 * BM_CONTACT_WIDTH / 2;
 
     /* Draw button icon overlays. */
     drawlineround(p, BM_FILE_WIDTH, BM_FILE_HEIGHT, UTOX_SCALE(5.5 ), UTOX_SCALE(5 ), UTOX_SCALE(1 ), UTOX_SCALE(3.85 ), UTOX_SCALE(6.6 ), 0);
@@ -520,6 +546,7 @@ _Bool svg_draw(_Bool needmemory) {
     loadalpha(BM_FILE_BIG, p, BM_FILE_BIG_WIDTH, BM_FILE_BIG_HEIGHT);
     p += BM_FILE_BIG_WIDTH * BM_FILE_BIG_HEIGHT;
 
+    /* Call button icon */
     drawnewcircle(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, UTOX_SCALE(1), 0, UTOX_SCALE(19 ));
     drawsubcircle(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, UTOX_SCALE(1), 0, UTOX_SCALE(15 ));
     drawnewcircle2(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, UTOX_SCALE(9 ), UTOX_SCALE(2 ), UTOX_SCALE(3 ), 0);
@@ -542,27 +569,31 @@ _Bool svg_draw(_Bool needmemory) {
     loadalpha(BM_VIDEO, p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT);
     p += BM_LBICON_WIDTH * BM_LBICON_HEIGHT;
 
-    /* Draw user status Buttons */
+    /* user status: online */
     s = BM_STATUS_WIDTH * BM_STATUS_WIDTH;
     drawcircle(p, BM_STATUS_WIDTH);
     loadalpha(BM_ONLINE, p, BM_STATUS_WIDTH, BM_STATUS_WIDTH);
     p += s;
 
+    /* user status: away */
     drawcircle(p, BM_STATUS_WIDTH);
     drawsubcircle(p, BM_STATUS_WIDTH, BM_STATUS_WIDTH / 2, 0.5 * BM_STATUS_WIDTH, 0.5 * BM_STATUS_WIDTH, SCALE(6));
     loadalpha(BM_AWAY, p, BM_STATUS_WIDTH, BM_STATUS_WIDTH);
     p += s;
 
+    /* user status: busy */
     drawcircle(p, BM_STATUS_WIDTH);
     drawsubcircle(p, BM_STATUS_WIDTH, BM_STATUS_WIDTH / 2, 0.5 * BM_STATUS_WIDTH, 0.5 * BM_STATUS_WIDTH, SCALE(6));
     loadalpha(BM_BUSY, p, BM_STATUS_WIDTH, BM_STATUS_WIDTH);
     p += s;
 
+    /* user status: offline */
     drawcircle(p, BM_STATUS_WIDTH);
     drawsubcircle(p, BM_STATUS_WIDTH, BM_STATUS_WIDTH, 0.5 * BM_STATUS_WIDTH, 0.5 * BM_STATUS_WIDTH, SCALE(6));
     loadalpha(BM_OFFLINE, p, BM_STATUS_WIDTH, BM_STATUS_WIDTH);
     p += s;
 
+    /* user status: notification */
     drawcircle(p, BM_STATUS_NOTIFY_WIDTH);
     drawsubcircle(p, BM_STATUS_NOTIFY_WIDTH, BM_STATUS_NOTIFY_WIDTH, 0.5 * BM_STATUS_NOTIFY_WIDTH, 0.5 * BM_STATUS_NOTIFY_WIDTH, SCALE(10));
     loadalpha(BM_STATUS_NOTIFY, p, BM_STATUS_NOTIFY_WIDTH, BM_STATUS_NOTIFY_WIDTH);
