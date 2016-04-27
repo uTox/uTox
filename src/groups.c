@@ -55,7 +55,7 @@ uint32_t group_add_message(GROUPCHAT *g, int peer_id, const uint8_t *message, si
     return message_add_group(m, (void*)msg);
 }
 
-void group_peer_add(GROUPCHAT *g, uint32_t peer_id, _Bool our_peer_number) {
+void group_peer_add(GROUPCHAT *g, uint32_t peer_id, _Bool our_peer_number, uint32_t name_color) {
     pthread_mutex_lock(&messages_lock); /* make sure that messages has posted before we continue */
     if (!g->peer) {
         g->peer = calloc(MAX_GROUP_PEERS, sizeof(void));
@@ -64,17 +64,19 @@ void group_peer_add(GROUPCHAT *g, uint32_t peer_id, _Bool our_peer_number) {
 
     GROUP_PEER *peer = (void*)g->peer[peer_id];
 
-    if (peer) {
-        free(peer);
-    }
+    /* I don't want to comment out this, because it might cause a memleak, but I really have no choice because of
+     * how I have to realloc to work around current group chats. TODO & FIXME: this may leak */
+    // if (peer) {
+    //     free(peer);
+    // }
 
     peer = calloc(1, sizeof(*peer) + sizeof(void) * 10);
-    peer->name_length = 0;
     strcpy2(peer->name, "<unknown>");
-    peer->name_color  = rand() % UINT32_MAX;
-    peer->id = peer_id;
+    peer->name_length = 0;
+    peer->name_color  = name_color;
+    peer->id          = peer_id;
 
-    g->peer[peer_id] = peer;
+    g->peer[peer_id]  = peer;
     g->peer_count++;
     pthread_mutex_unlock(&messages_lock);
 }
@@ -149,6 +151,17 @@ void group_peer_name_change(GROUPCHAT *g, uint32_t peer_id, const uint8_t *name,
     }
 }
 
+void group_reset_peerlist(GROUPCHAT *g) {
+    /* ARE YOU KIDDING... WHO THOUGHT THIS API WAS OKAY?! */
+    uint32_t i = 0;
+    for (i = 0; i < g->peer_count; ++i ) {
+        if (g->peer[i]) {
+            free(g->peer[i]);
+        }
+    }
+    free(g->peer);
+}
+
 void group_free(GROUPCHAT *g) {
 
     uint32_t i = 0;
@@ -158,12 +171,7 @@ void group_free(GROUPCHAT *g) {
     }
     free(g->edit_history);
 
-    for (i = 0; i < g->peer_count; ++i ) {
-        if (g->peer[i]) {
-            free(g->peer[i]);
-        }
-    }
-    free(g->peer);
+    group_reset_peerlist(g);
 
     for (i = 0; i < g->msg.number; ++i) {
         message_free((void*)g->msg.data[i]);

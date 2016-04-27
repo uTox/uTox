@@ -1598,22 +1598,12 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         }
         case GROUP_PEER_DEL: {
             GROUPCHAT *g = &group[param1];
-            GROUP_PEER *peer = g->peer[param2];
-
-            if (param2 > MAX_GROUP_PEERS) //TODO: dynamic arrays.
-                break;
-
-            group_peer_del(g, param2);
 
             if (g->av_group) {
                 g->last_recv_audio[param2] = g->last_recv_audio[g->peer_count];
                 g->last_recv_audio[g->peer_count] = 0;
                 // REMOVED UNTIL AFTER NEW GCs group_av_peer_remove(g, param2);
                 g->source[param2] = g->source[g->peer_count];
-            }
-
-            if (g->peer_count == g->our_peer_number) {
-                g->our_peer_number = param2;
             }
 
             g->topic_length = snprintf((char*)g->topic, sizeof(g->topic), "%u users in chat", g->peer_count);

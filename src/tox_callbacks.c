@@ -152,11 +152,16 @@ static void callback_group_action(Tox *tox, int gid, int pid, const uint8_t *act
     debug("Group Action (%u, %u): %.*s\n", gid, pid, length, action);
 }
 
-static void callback_group_namelist_change(Tox *tox, int gid, int pid, uint8_t change, void *UNUSED(userdata))
-{
+static void callback_group_namelist_change(Tox *tox, int gid, int pid, uint8_t change, void *UNUSED(userdata)) {
     GROUPCHAT *g = &group[gid];
+
     switch(change) {
         case TOX_CHAT_CHANGE_PEER_ADD: {
+            if (g->peer) {
+                g->peer = realloc(g->peer, sizeof(void*) * (g->peer_count + 2));
+            } else {
+                g->peer = calloc(g->peer_count + 2, sizeof(void*));
+            }
             debug("Group:\tAdd (%u, %u)\n", gid, pid);
             _Bool is_us = 0;
             if (tox_group_peernumber_is_ours(tox, gid, pid)) {
@@ -164,15 +169,19 @@ static void callback_group_namelist_change(Tox *tox, int gid, int pid, uint8_t c
                 is_us = 1;
             }
 
-            group_peer_add(g, pid, is_us);
+            uint8_t pkey[TOX_PUBLIC_KEY_SIZE];
+            tox_group_peer_pubkey(tox, gid, pid, pkey);
+            uint64_t pkey_to_number = 0;
+            int key_i = 0;
+            for (;key_i < TOX_PUBLIC_KEY_SIZE; ++key_i) {
+                pkey_to_number += pkey[key_i];
+            }
+            srand(pkey_to_number);
+            uint32_t name_color  = rand() % UINT32_MAX;
+
+            group_peer_add(g, pid, is_us, name_color);
 
             postmessage(GROUP_PEER_ADD, gid, pid, NULL);
-            break;
-        }
-
-        case TOX_CHAT_CHANGE_PEER_DEL: {
-            debug("Group:\tPeer Quit (%u, %u)\n", gid, pid);
-            postmessage(GROUP_PEER_DEL, gid, pid, tox);
             break;
         }
 
@@ -195,6 +204,59 @@ static void callback_group_namelist_change(Tox *tox, int gid, int pid, uint8_t c
             group_peer_name_change(g, pid, name, len);
 
             postmessage(GROUP_PEER_NAME, gid, pid, NULL);
+            break;
+        }
+
+        case TOX_CHAT_CHANGE_PEER_DEL: {
+            debug("Group:\tPeer Quit (%u, %u)\n", gid, pid);
+            group_add_message(g, pid, (const uint8_t*)"<- has Quit!", 12, MSG_TYPE_NOTICE);
+
+            pthread_mutex_lock(&messages_lock); /* make sure that messages has posted before we continue */
+
+            group_reset_peerlist(g);
+
+            uint32_t number_peers = tox_group_number_peers(tox, gid);
+
+            g->peer = calloc(number_peers, sizeof(void*));
+
+            if (!g->peer) {
+                debug("Group:\tToxcore is very broken, but we couldn't alloc here.");
+                exit(44);
+            }
+
+            /* I'm about to break some uTox style here, because I'm expecting
+             * the API to change soon, and I just can't when it's this broken */
+            int i = 0;
+            for (i = 0; i < number_peers; ++i) {
+                uint8_t tmp[TOX_MAX_NAME_LENGTH];
+                size_t len = tox_group_peername(tox, gid, i, tmp);
+                GROUP_PEER *peer = calloc(1, len * sizeof(void*) + sizeof(*peer));
+                if (!peer) {
+                    debug("Group:\tToxcore is very broken, but we couldn't calloc here.");
+                    exit(45);
+                }
+                /* name and id number (it's worthless, but it's needed */
+                memcpy(peer->name, tmp, len);
+                peer->name_length = len;
+                peer->id = i;
+                /* get static random color */
+                uint8_t pkey[TOX_PUBLIC_KEY_SIZE];
+                tox_group_peer_pubkey(tox, gid, i, pkey);
+                uint64_t pkey_to_number = 0;
+                int key_i = 0;
+                for (;key_i < TOX_PUBLIC_KEY_SIZE; ++key_i) {
+                    pkey_to_number += pkey[key_i];
+                }
+                /* uTox doesnt' really use this for too much so lets fuck with the random seed.
+                 * If you know crypto, and cringe, I know me too... you can blame @irungentoo */
+                srand(pkey_to_number);
+                peer->name_color  = rand() % UINT32_MAX;
+                g->peer[i] = peer;
+            }
+            g->peer_count = number_peers;
+
+            postmessage(GROUP_PEER_DEL, gid, pid, NULL);
+            pthread_mutex_unlock(&messages_lock); /* make sure that messages has posted before we continue */
             break;
         }
     }
