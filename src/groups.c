@@ -1,6 +1,7 @@
 #include "main.h"
 
 void group_init(GROUPCHAT *g, uint32_t group_number, _Bool av_group) {
+    pthread_mutex_lock(&messages_lock); /* make sure that messages has posted before we continue */
     if (!g->peer) {
         g->peer = calloc(MAX_GROUP_PEERS, sizeof(void));
     }
@@ -26,6 +27,7 @@ void group_init(GROUPCHAT *g, uint32_t group_number, _Bool av_group) {
     g->msg.is_groupchat         = 1;
 
     g->av_group                 = av_group;
+    pthread_mutex_unlock(&messages_lock); /* make sure that messages has posted before we continue */
 
     list_addgroup(g);
     roster_select_last();
@@ -54,6 +56,7 @@ void group_add_message(GROUPCHAT *g, int peer_id, const uint8_t *message, size_t
 }
 
 void group_peer_add(GROUPCHAT *g, uint32_t peer_id, _Bool our_peer_number) {
+    pthread_mutex_lock(&messages_lock); /* make sure that messages has posted before we continue */
     if (!g->peer) {
         g->peer = calloc(MAX_GROUP_PEERS, sizeof(void));
         debug("Groupchat:\tNeeded to calloc peers for this group chat. (%u)\n", peer_id);
