@@ -100,12 +100,15 @@ uint8_t **utox_load_data_log(uint32_t friend_number, size_t *size, uint32_t coun
     size_t start_at = records_count - count - skip;
     size_t actual_count = 0;
 
+    size_t file_offset = 0;
+
     while (1 == fread(&header, sizeof(header), 1, file)) {
         if (start_at) {
-            fseeko(file, header.author_length, SEEK_CUR);
-            fseeko(file, header.msg_length, SEEK_CUR);
-            fseeko(file, 1, SEEK_CUR); /* newline char */
+            fseeko(file, header.author_length, SEEK_CUR);   /* Skip the recorded author */
+            fseeko(file, header.msg_length, SEEK_CUR);      /* Skip the message */
+            fseeko(file, 1, SEEK_CUR);                      /* Skip the newline char */
             start_at--;
+            file_offset = ftello(file);
             continue;
         }
 
@@ -118,6 +121,7 @@ uint8_t **utox_load_data_log(uint32_t friend_number, size_t *size, uint32_t coun
             msg->length         = header.msg_length;
             msg->time           = header.time;
             msg->msg_type       = header.msg_type;
+            msg->disk_offset    = file_offset;
 
             if(1 != fread(msg->msg, msg->length, 1, file)) {
                 debug("Native log read:\tError,reading this record... stopping\n");
@@ -128,6 +132,7 @@ uint8_t **utox_load_data_log(uint32_t friend_number, size_t *size, uint32_t coun
             count--;
             actual_count++;
             fseeko(file, 1, SEEK_CUR); /* seek an extra \n char */
+            file_offset = ftello(file);
         }
     }
 
@@ -136,8 +141,6 @@ uint8_t **utox_load_data_log(uint32_t friend_number, size_t *size, uint32_t coun
     if (size) { *size = actual_count; }
     return data - actual_count;
 }
-
-
 
 /* Shared function between all four platforms */
 void parse_args(int argc, char *argv[], bool *theme_was_set_on_argv, int8_t *should_launch_at_startup, int8_t *set_show_window, bool *no_updater) {

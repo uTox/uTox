@@ -52,18 +52,24 @@ typedef enum UTOX_MSG_TYPE {
 typedef struct {
     // true, if we're the author, false, if someone else.
     _Bool author;
+    _Bool from_disk;
     uint8_t msg_type;
 
     uint32_t height;
     time_t time;
+
+    uint64_t disk_offset;
 } MSG_VOID;
 
 typedef struct {
     _Bool author;
+    _Bool from_disk;
     uint8_t msg_type;
 
     uint32_t height;
     time_t time;
+
+    uint64_t disk_offset;
 
     uint32_t receipt;
     time_t receipt_time;
@@ -74,10 +80,13 @@ typedef struct {
 
 typedef struct {
     _Bool author;
+    _Bool from_disk;
     uint8_t msg_type;
 
     uint32_t height;
     time_t time;
+
+    uint64_t disk_offset;
 
     uint16_t w, h;
     _Bool zoom;
@@ -87,10 +96,13 @@ typedef struct {
 
 typedef struct msg_file {
     _Bool author;
+    _Bool from_disk;
     uint8_t msg_type;
 
     uint32_t height;
     time_t time;
+
+    uint64_t disk_offset;
 
     uint32_t speed;
     uint32_t filenumber;
