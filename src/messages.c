@@ -50,7 +50,7 @@ _Bool message_log_to_disk(MESSAGES *m, MSG_VOID *msg) {
             memcpy(data + sizeof(header) + author_length, text->msg, text->length);
             strcpy2(data + length - 1, "\n");
 
-            native_save_data_log(f->number, data, length);
+            utox_save_data_log(f->number, data, length);
             break;
         }
         default: {

@@ -623,7 +623,7 @@ typedef struct
 
 UTOX_SAVE* config_load(void) {
     UTOX_SAVE *save;
-    save = native_load_data_utox();
+    save = utox_load_data_utox();
 
     if (!save) {
         debug("unable to load utox_save data\n");
@@ -771,7 +771,7 @@ void config_save(UTOX_SAVE *save) {
 
     debug("uTox:\tWriting uTox Save\n");
 
-    native_save_data_utox(save, sizeof(*save));
+    utox_save_data_utox(save, sizeof(*save));
 }
 
 void utox_write_metadata(FRIEND *f){

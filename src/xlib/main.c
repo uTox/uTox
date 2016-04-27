@@ -452,26 +452,6 @@ _Bool native_save_data(const uint8_t *name, size_t name_length, const uint8_t *d
     return 1;
 }
 
-_Bool native_save_data_tox(uint8_t *data, size_t length){
-    uint8_t name[] = "tox_save.tox";
-    return native_save_data(name, strlen((const char*)name), data, length, 0);
-}
-
-_Bool native_save_data_utox(UTOX_SAVE *data, size_t length){
-    uint8_t name[] = "utox_save";
-    return native_save_data(name, strlen((const char*)name), (const uint8_t*)data, length, 0);
-}
-
-_Bool native_save_data_log(uint32_t friend_number, uint8_t *data, size_t length) {
-    FRIEND *f = &friend[friend_number];
-    uint8_t hex[TOX_PUBLIC_KEY_SIZE * 2];
-    uint8_t name[TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".new.txt")];
-    cid_to_string(hex, f->cid);
-    snprintf((char*)name, TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".new.txt"), "%.*s.new.txt", TOX_PUBLIC_KEY_SIZE * 2, (char*)hex);
-
-    return native_save_data(name, strlen((const char*)name), (const uint8_t*)data, length, 1);
-}
-
 /** Takes data from µTox and loads it up! */
 uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_size){
     uint8_t path[UTOX_FILE_NAME_LENGTH];
@@ -522,31 +502,6 @@ uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_s
 
     if (out_size) {*out_size = size;}
     return data;
-}
-
-uint8_t *native_load_data_tox(size_t *size){
-    uint8_t name[][20] = { "tox_save.tox",
-                           "tox_save.tox.atomic",
-                           "tox_save.tmp",
-                           "tox_save"
-    };
-
-    uint8_t *data;
-
-    for (int i = 0; i < 4; i++) {
-        data = native_load_data(name[i], strlen((const char*)name[i]), size);
-        if (data) {
-            return data;
-        } else {
-            debug("NATIVE:\tUnable to load %s\n", name[i]);
-        }
-    }
-    return NULL;
-}
-
-UTOX_SAVE *native_load_data_utox(void){
-    uint8_t name[] = "utox_save";
-    return (UTOX_SAVE*)native_load_data(name, strlen((const char*)name), NULL);
 }
 
 /** native_load_data_log

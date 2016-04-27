@@ -3,6 +3,54 @@
 #include "main.h"
 #include <getopt.h>
 
+/* The utox_ functions contained in src/main.c are wrappers for the platform native_ functions
+ * if you need to localize them to a specific platform, move them from here, to each
+ * src/<platform>/main.x and change from utox_ to native_ */
+_Bool utox_save_data_tox(uint8_t *data, size_t length){
+    uint8_t name[] = "tox_save.tox";
+    return native_save_data(name, strlen((const char*)name), data, length, 0);
+}
+
+_Bool utox_save_data_utox(UTOX_SAVE *data, size_t length){
+    uint8_t name[] = "utox_save";
+    return native_save_data(name, strlen((const char*)name), (const uint8_t*)data, length, 0);
+}
+
+_Bool utox_save_data_log(uint32_t friend_number, uint8_t *data, size_t length) {
+    FRIEND *f = &friend[friend_number];
+    uint8_t hex[TOX_PUBLIC_KEY_SIZE * 2];
+    uint8_t name[TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".new.txt")];
+    cid_to_string(hex, f->cid);
+    snprintf((char*)name, TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".new.txt"), "%.*s.new.txt", TOX_PUBLIC_KEY_SIZE * 2, (char*)hex);
+
+    return native_save_data(name, strlen((const char*)name), (const uint8_t*)data, length, 1);
+}
+
+uint8_t *utox_load_data_tox(size_t *size){
+    uint8_t name[][20] = { "tox_save.tox",
+                           "tox_save.tox.atomic",
+                           "tox_save.tmp",
+                           "tox_save"
+    };
+
+    uint8_t *data;
+
+    for (int i = 0; i < 4; i++) {
+        data = native_load_data(name[i], strlen((const char*)name[i]), size);
+        if (data) {
+            return data;
+        } else {
+            debug("NATIVE:\tUnable to load %s\n", name[i]);
+        }
+    }
+    return NULL;
+}
+
+UTOX_SAVE *utox_load_data_utox(void){
+    uint8_t name[] = "utox_save";
+    return (UTOX_SAVE*)native_load_data(name, strlen((const char*)name), NULL);
+}
+
 /* Shared function between all four platforms */
 void parse_args(int argc, char *argv[], bool *theme_was_set_on_argv, int8_t *should_launch_at_startup, int8_t *set_show_window, bool *no_updater) {
     // set default options
