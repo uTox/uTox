@@ -63,7 +63,7 @@ _Bool message_log_to_disk(MESSAGES *m, MSG_VOID *msg) {
 
 _Bool messages_read_from_log(uint32_t friend_number){
     size_t actual_count = 0;
-    uint8_t **data = native_load_data_log(friend_number, &actual_count, UTOX_MAX_BACKLOG_MESSAGES, 0);
+    uint8_t **data = utox_load_data_log(friend_number, &actual_count, UTOX_MAX_BACKLOG_MESSAGES, 0);
     MSG_VOID *msg;
 
 
