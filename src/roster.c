@@ -54,11 +54,22 @@ static void roster_draw_name(ITEM *i, int y, char_t *name, char_t *msg, uint16_t
     setfont(FONT_LIST_NAME);
 
     if (settings.use_mini_roster) {
-        drawtextwidth(ROSTER_NAME_LEFT / 2 + SCALE(5), SIDEBAR_WIDTH - ROSTER_NAME_LEFT / 2 - SCALE(32), y + ROSTER_NAME_TOP / 2,
-                      name, name_length);
+        /* Name only*/
+        drawtextwidth(ROSTER_NAME_LEFT / 2 + SCALE(5), SIDEBAR_WIDTH - ROSTER_NAME_LEFT / 2 - SCALE(32),
+                      y + ROSTER_NAME_TOP / 2, name, name_length);
     } else {
-        drawtextwidth(ROSTER_NAME_LEFT, SIDEBAR_WIDTH - ROSTER_NAME_LEFT - SCALE(32), y + ROSTER_NAME_TOP,
-                      name, name_length);
+        /* Name + user status msg*/
+        drawtextwidth(ROSTER_NAME_LEFT, SIDEBAR_WIDTH - ROSTER_NAME_LEFT - SCALE(32),
+                      y + ROSTER_NAME_TOP, name, name_length);
+
+        if (!color_overide) {
+            color = (selected_item == i) ? COLOR_MAIN_SUBTEXT : COLOR_LIST_SUBTEXT;
+        }
+        setcolor(color);
+        setfont(FONT_STATUS);
+        drawtextwidth(ROSTER_NAME_LEFT, SIDEBAR_WIDTH - ROSTER_NAME_LEFT - SCALE(32),
+                      y + ROSTER_STATUS_MSG_TOP, msg, msg_length);
+
     }
 }
 

@@ -676,6 +676,7 @@ UTOX_SAVE* config_load(void) {
     save->audible_notifications_enabled = 1;
     save->audio_device_in = ~0;
     save->audio_filtering_enabled = 1;
+    save->use_mini_roster = 0;
     save->filter = 0;
     save->push_to_talk = 0;
 
@@ -700,6 +701,7 @@ NEXT:
     dropdown_audible_notification.selected = dropdown_audible_notification.over = save->audible_notifications_enabled;
     dropdown_audio_filtering.selected      = dropdown_audio_filtering.over      = save->audio_filtering_enabled;
     dropdown_push_to_talk.selected         = dropdown_push_to_talk.over         = save->push_to_talk;
+    dropdown_mini_roster.selected          = dropdown_mini_roster.over          = save->use_mini_roster;
 
     dropdown_theme.selected = dropdown_theme.over = save->theme;
 
@@ -728,6 +730,7 @@ NEXT:
     settings.start_with_system      = save->auto_startup;
     settings.ringtone_enabled       = save->audible_notifications_enabled;
     settings.audiofilter_enabled    = save->audio_filtering_enabled;
+    settings.use_mini_roster        = save->use_mini_roster;
 
     settings.send_typing_status     = !save->no_typing_notifications;
     settings.window_width           = save->window_width;
@@ -746,7 +749,6 @@ NEXT:
 void config_save(UTOX_SAVE *save) {
     save->version                       = SAVE_VERSION;
     save->scale                         = ui_scale - 1;
-    save->enableipv6                    = !dropdown_ipv6.selected;
     save->disableudp                    = dropdown_udp.selected;
     save->proxyenable                   = dropdown_proxy.selected;
     save->logging_enabled               = settings.logging_enabled;
@@ -756,6 +758,9 @@ void config_save(UTOX_SAVE *save) {
     save->audible_notifications_enabled = settings.ringtone_enabled;
     save->audio_filtering_enabled       = settings.audiofilter_enabled;
     save->push_to_talk                  = settings.push_to_talk;
+    save->use_mini_roster               = settings.use_mini_roster;
+
+    save->enableipv6                    = !dropdown_ipv6.selected;
     save->no_typing_notifications       = !settings.send_typing_status;
 
     save->filter                        = list_get_filter();

@@ -80,19 +80,25 @@ typedef struct {
     uint16_t window_x, window_y, window_width, window_height;
     uint16_t proxy_port;
     uint8_t  proxyenable;
-    uint8_t  logging_enabled : 1;
-    uint8_t  audible_notifications_enabled : 1;
-    uint8_t  filter : 1;
-    uint8_t  audio_filtering_enabled : 1;
-    uint8_t  close_to_tray : 1;
-    uint8_t  start_in_tray : 1;
-    uint8_t  auto_startup : 1;
-    uint8_t  no_typing_notifications : 1;
+
+    uint8_t  logging_enabled                : 1;
+    uint8_t  audible_notifications_enabled  : 1;
+    uint8_t  filter                         : 1;
+    uint8_t  audio_filtering_enabled        : 1;
+    uint8_t  close_to_tray                  : 1;
+    uint8_t  start_in_tray                  : 1;
+    uint8_t  auto_startup                   : 1;
+    uint8_t  no_typing_notifications        : 1;
+
     uint16_t audio_device_in;
     uint16_t audio_device_out;
+
     uint8_t  theme;
-    uint8_t  push_to_talk : 1;
-    uint8_t  zero : 7;
+
+    uint8_t  push_to_talk                   : 1;
+    uint8_t  use_mini_roster                : 1;
+    uint8_t  zero                           : 6;
+
     uint16_t unused[31];
     uint8_t  proxy_ip[0];
 } UTOX_SAVE;
