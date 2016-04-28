@@ -1,5 +1,4 @@
 //Type for indexing into MSG_DATA->data array of messages
-
 struct messages {
     PANEL panel;
 
@@ -59,6 +58,7 @@ typedef struct {
     time_t time;
 
     uint64_t disk_offset;
+    uint32_t author_length; /* I don't really like storing this here, but I can't see a better way */
 } MSG_VOID;
 
 typedef struct {
@@ -70,6 +70,7 @@ typedef struct {
     time_t time;
 
     uint64_t disk_offset;
+    uint32_t author_length;
 
     uint32_t receipt;
     time_t receipt_time;
@@ -87,6 +88,7 @@ typedef struct {
     time_t time;
 
     uint64_t disk_offset;
+    uint32_t author_length;
 
     uint16_t w, h;
     _Bool zoom;
@@ -103,6 +105,7 @@ typedef struct msg_file {
     time_t time;
 
     uint64_t disk_offset;
+    uint32_t author_length;
 
     uint32_t speed;
     uint32_t filenumber;

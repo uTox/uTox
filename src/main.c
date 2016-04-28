@@ -8,7 +8,7 @@
  * src/<platform>/main.x and change from utox_ to native_ */
 _Bool utox_save_data_tox(uint8_t *data, size_t length){
     uint8_t name[] = "tox_save.tox";
-    return native_save_data(name, strlen((const char*)name), data, length, 0);
+    return !native_save_data(name, strlen((const char*)name), data, length, 0);
 }
 
 _Bool utox_save_data_utox(UTOX_SAVE *data, size_t length){
@@ -16,7 +16,7 @@ _Bool utox_save_data_utox(UTOX_SAVE *data, size_t length){
     return native_save_data(name, strlen((const char*)name), (const uint8_t*)data, length, 0);
 }
 
-_Bool utox_save_data_log(uint32_t friend_number, uint8_t *data, size_t length) {
+size_t utox_save_data_log(uint32_t friend_number, uint8_t *data, size_t length) {
     FRIEND *f = &friend[friend_number];
     uint8_t hex[TOX_PUBLIC_KEY_SIZE * 2];
     uint8_t name[TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".new.txt")];
@@ -115,6 +115,10 @@ uint8_t **utox_load_data_log(uint32_t friend_number, size_t *size, uint32_t coun
         if (count) {
             /* we have to skip the author name for now, it's left here for group chats support in the future */
             fseeko(file, header.author_length, SEEK_CUR);
+            if (header.msg_length > 1 << 16) {
+                debug("Can't malloc that much, you'll probably have to move or delete, your history for this peer.\n");
+                exit(5);
+            }
             MSG_TEXT *msg       = calloc(1, sizeof(MSG_TEXT) + header.msg_length);
             msg->author         = header.author;
             msg->receipt_time   = header.receipt;
@@ -122,6 +126,7 @@ uint8_t **utox_load_data_log(uint32_t friend_number, size_t *size, uint32_t coun
             msg->time           = header.time;
             msg->msg_type       = header.msg_type;
             msg->disk_offset    = file_offset;
+            msg->author_length  = header.author_length;
 
             if(1 != fread(msg->msg, msg->length, 1, file)) {
                 debug("Native log read:\tError,reading this record... stopping\n");
@@ -140,6 +145,26 @@ uint8_t **utox_load_data_log(uint32_t friend_number, size_t *size, uint32_t coun
 
     if (size) { *size = actual_count; }
     return data - actual_count;
+}
+
+_Bool utox_update_data_log(uint32_t friend_number, size_t offset, uint8_t *data, size_t length) {
+    FILE *file = native_load_data_logfile(friend_number);
+
+    if (!file) {
+        debug("History:\tUnable to access file provided by native_load_data_logfile()\n");
+        return 0;
+    }
+
+    if (fseeko(file, offset, SEEK_SET)) {
+        debug("History:\tUnable to seek to position %u in file provided by native_load_data_logfile()\n", offset);
+        return 0;
+    }
+
+    fwrite(data, length, 1, file);
+    fflush(file);
+    fclose(file);
+
+    return 1;
 }
 
 /* Shared function between all four platforms */

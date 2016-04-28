@@ -187,13 +187,12 @@ void ensure_directory_r(char *path, int perm) {
 }
 
 
-/** Takes data from µTox and saves it, just how the OS likes it saved!
- *
- * Returns 1 on failure. Used to set save_needed in tox thread */
-_Bool native_save_data(const uint8_t *name, size_t name_length, const uint8_t *data, size_t length, _Bool append) {
+/** Takes data from µTox and saves it, just how the OS likes it saved! */
+size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *data, size_t length, _Bool append) {
     uint8_t path[UTOX_FILE_NAME_LENGTH];
     uint8_t atomic_path[UTOX_FILE_NAME_LENGTH];
     FILE *file;
+    size_t offset = 0;
 
     if (utox_portable) {
         const char *curr = [NSBundle.mainBundle.bundlePath stringByDeletingLastPathComponent].UTF8String;
@@ -221,25 +220,26 @@ _Bool native_save_data(const uint8_t *name, size_t name_length, const uint8_t *d
     }
 
     if (file) {
+        offset = ftello(file);
         fwrite(data, length, 1, file);
         fclose(file);
 
         if (append) {
-            return 0;
+            return offset;
         }
 
         if (rename((const char*)atomic_path, (const char*)path)) {
             /* Consider backing up this file instead of overwriting it. */
             debug("NATIVE:\t%sUnable to move file!\n", atomic_path);
-            return 1;
+            return 0;
         }
-        return 0;
+        return 1;
     } else {
         debug("NATIVE:\tUnable to open %s to write save\n", path);
-        return 1;
+        return 0;
     }
 
-    return 1;
+    return 0;
 }
 
 /** Takes data from µTox and loads it up! */
@@ -321,7 +321,7 @@ FILE *native_load_data_logfile(uint32_t friend_number) {
     }
 
 
-    FILE *file = fopen((const char*)path, "rb");
+    FILE *file = fopen((const char*)path, "rb+");
     if (!file) {
         //debug("NATIVE:\tUnable to open/read %s\n", path);
         return NULL;

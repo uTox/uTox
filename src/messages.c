@@ -14,7 +14,8 @@ _Bool message_log_to_disk(MESSAGES *m, MSG_VOID *msg) {
         return 0;
     }
 
-    LOG_FILE_MSG_HEADER header ;
+    LOG_FILE_MSG_HEADER header;
+    memset(&header, 0, sizeof(header));
     uint8_t *data = NULL;
 
     switch (msg->msg_type) {
@@ -41,8 +42,7 @@ _Bool message_log_to_disk(MESSAGES *m, MSG_VOID *msg) {
             header.receipt       = (text->receipt_time ? 1 : 0);
             header.msg_type      = text->msg_type;
 
-
-            size_t length = sizeof(header) + text->length + author_length + 1;
+            size_t length = sizeof(header) + text->length + author_length + 1; /* extra \n char*/
 
             data = calloc(1, length);
             memcpy(data, &header, sizeof(header));
@@ -50,7 +50,7 @@ _Bool message_log_to_disk(MESSAGES *m, MSG_VOID *msg) {
             memcpy(data + sizeof(header) + author_length, text->msg, text->length);
             strcpy2(data + length - 1, "\n");
 
-            utox_save_data_log(f->number, data, length);
+            msg->disk_offset = utox_save_data_log(f->number, data, length);
             break;
         }
         default: {
@@ -106,8 +106,29 @@ void messages_clear_receipt(MESSAGES *m, uint32_t receipt_number) {
             MSG_TEXT *msg = (MSG_TEXT*)(m->data[start]);
             if (msg->msg_type == MSG_TYPE_TEXT || msg->msg_type == MSG_TYPE_ACTION_TEXT) {
                 if (msg->receipt == receipt_number) {
-                    msg->receipt = 0;
+
+                    msg->receipt = -1;
                     time(&msg->receipt_time);
+
+                    LOG_FILE_MSG_HEADER header;
+                    memset(&header, 0, sizeof(header));
+                    uint8_t *data = NULL;
+
+                    header.log_version   = 0;
+                    header.time          = msg->time;
+                    header.author_length = msg->author_length;
+                    header.msg_length    = msg->length;
+                    header.author        = 1;
+                    header.receipt       = 1;
+                    header.msg_type      = msg->msg_type;
+
+                    size_t length = sizeof(header);
+                    data = calloc(1, length);
+                    memcpy(data, &header, sizeof(header));
+
+                    utox_update_data_log(m->id, msg->disk_offset, data, length);
+                    free(data);
+
                     return;
                 }
             }
@@ -122,6 +143,13 @@ uint32_t message_add_type_text(MESSAGES *m, _Bool auth, const uint8_t *data, uin
     msg->author     = auth;
     msg->msg_type   = MSG_TYPE_TEXT;
     msg->length     = length;
+
+    if (auth) {
+        msg->author_length = self.name_length;
+    } else {
+        msg->author_length = friend[m->id].name_length;
+    }
+
     memcpy(msg->msg, data, length);
 
     if (log) {
@@ -141,6 +169,13 @@ uint32_t message_add_type_action(MESSAGES *m, _Bool auth, const uint8_t *data, u
     msg->author     = auth;
     msg->msg_type   = MSG_TYPE_ACTION_TEXT;
     msg->length     = length;
+
+    if (auth) {
+        msg->author_length = self.name_length;
+    } else {
+        msg->author_length = friend[m->id].name_length;
+    }
+
     memcpy(msg->msg, data, length);
 
     if (log) {
@@ -160,6 +195,7 @@ uint32_t message_add_type_notice(MESSAGES *m, const uint8_t *data, uint16_t leng
     msg->author     = 0;
     msg->msg_type   = MSG_TYPE_NOTICE;
     msg->length     = length;
+    msg->author_length = self.name_length;
     memcpy(msg->msg, data, length);
 
     if (log) {

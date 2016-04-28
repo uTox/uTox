@@ -78,13 +78,12 @@ void openurl(char_t *str)
     ShellExecute(NULL, "open", (char*)str, NULL, NULL, SW_SHOW);
 }
 
-/** Takes data from µTox and saves it, just how the OS likes it saved!
- *
- * Returns 1 on failure. Used to set save_needed in tox thread */
-_Bool native_save_data(const uint8_t *name, size_t name_length, const uint8_t *data, size_t length, _Bool append) {
+/** Takes data from µTox and saves it, just how the OS likes it saved! */
+size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *data, size_t length, _Bool append) {
     uint8_t path[UTOX_FILE_NAME_LENGTH];
     uint8_t atomic_path[UTOX_FILE_NAME_LENGTH];
     FILE *file;
+    size_t offset = 0;
 
     if (utox_portable) {
         strcpy((char *)path, utox_portable_save_path);
@@ -121,11 +120,12 @@ _Bool native_save_data(const uint8_t *name, size_t name_length, const uint8_t *d
         }
 
         if (file) {
+            offset = ftello(file);
             fwrite(data, length, 1, file);
             fclose(file);
 
             if (append) {
-                return 0;
+                return offset;
             }
 
             if (!SUCCEEDED(MoveFileEx((const char*)atomic_path, (const char*)path, MOVEFILE_REPLACE_EXISTING))) {
@@ -133,21 +133,21 @@ _Bool native_save_data(const uint8_t *name, size_t name_length, const uint8_t *d
                 if (remove((const char*)path)) {
                     if (rename((const char*)atomic_path, (const char*)path)) {
                         debug("NATIVE:\t%s deleted, but still unable to move file!\n", atomic_path);
-                        return 1;
-                    } else {
                         return 0;
+                    } else {
+                        return 1;
                     }
                 }
             }
 
-            return 0;
+            return 0; /* we should never hit this */
         } else {
             debug("NATIVE:\tUnable to open %s to write save\n", path);
-            return 1;
+            return 0;
         }
     }
 
-    return 0;
+    return 1;
 }
 
 /** Takes data from µTox and loads it up! */
@@ -237,7 +237,7 @@ FILE *native_load_data_logfile(uint32_t friend_number) {
     }
 
 
-    FILE *file = fopen((const char*)path, "rb");
+    FILE *file = fopen((const char*)path, "rb+");
     if (!file) {
         //debug("NATIVE:\tUnable to open/read %s\n", path);
         return NULL;
