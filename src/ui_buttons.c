@@ -135,16 +135,16 @@ static void button_change_id_type_onpress(void) {
 #endif
 
 static void button_audiopreview_onpress(void) {
-    if (!audio_preview) {
+    if (!settings.audio_preview) {
         postmessage_utoxav(UTOXAV_START_AUDIO, 1, 0, NULL);
     } else {
         postmessage_utoxav(UTOXAV_STOP_AUDIO, 1, 0, NULL);
     }
-    audio_preview = !audio_preview;
+    settings.audio_preview = !settings.audio_preview;
 }
 
 static void button_audiopreview_update(BUTTON *b) {
-    if (audio_preview){
+    if (settings.audio_preview){
         button_setcolors_danger(b);
     } else {
         button_setcolors_success(b);
@@ -152,17 +152,18 @@ static void button_audiopreview_update(BUTTON *b) {
 }
 
 static void button_videopreview_onpress(void) {
-    if (video_preview) {
+    if (settings.video_preview) {
         postmessage_utoxav(UTOXAV_STOP_VIDEO, 0, 1, NULL);
     } else if (video_width && video_height) {
         postmessage_utoxav(UTOXAV_START_VIDEO, 0, 1, NULL);
     } else {
         debug("Button ERR:\tVideo_width = 0, can't preview\n");
     }
+    settings.video_preview = !settings.video_preview;
 }
 
 static void button_videopreview_update(BUTTON *b) {
-    if (video_preview) {
+    if (settings.video_preview) {
         button_setcolors_danger(b);
     } else {
         button_setcolors_success(b);

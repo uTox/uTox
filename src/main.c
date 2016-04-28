@@ -3,6 +3,24 @@
 #include "main.h"
 #include <getopt.h>
 
+SETTINGS settings = {
+    .close_to_tray          = 0,
+    .logging_enabled        = 1,
+    .ringtone_enabled       = 1,
+    .audiofilter_enabled    = 0,
+    .start_in_tray          = 0,
+    .start_with_system      = 0,
+    .push_to_talk           = 0,
+    .use_encryption         = 1,
+    .audio_preview          = 0,
+    .video_preview          = 0,
+    .send_typing_status     = 0,
+    .use_mini_roster        = 0,
+
+    .window_height           = 600,
+    .window_width            = 800,
+};
+
 /* Shared function between all four platforms */
 void parse_args(int argc, char *argv[], bool *theme_was_set_on_argv, int8_t *should_launch_at_startup, int8_t *set_show_window, bool *no_updater) {
     // set default options

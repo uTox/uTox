@@ -31,7 +31,7 @@ typedef struct {
 } LOG_FILE_MSG_HEADER_COMPAT;
 
 void log_write_old(Tox *tox, int fid, const uint8_t *message, uint16_t length, _Bool author, uint8_t msg_type) {
-    if (!logging_enabled) {
+    if (!settings.logging_enabled) {
         return;
     }
 
@@ -370,7 +370,7 @@ static void utox_thread_work_for_typing_notifications(Tox *tox, uint64_t time) {
 }
 
 static int load_toxcore_save(void){
-    encrypted_profile = 0;
+    settings.use_encryption = 0;
     size_t raw_length;
     uint8_t *raw_data = native_load_data_tox(&raw_length);
 
@@ -379,7 +379,7 @@ static int load_toxcore_save(void){
         if (tox_is_data_encrypted(raw_data)) {
             size_t cleartext_length = raw_length - TOX_PASS_ENCRYPTION_EXTRA_LENGTH;
             uint8_t *clear_data = malloc(cleartext_length);
-            encrypted_profile = 1;
+            settings.use_encryption = 1;
             debug("Using encrypted data, trying password: ");
 
             UTOX_ENC_ERR decrypt_err = utox_decrypt_data(raw_data, raw_length, clear_data);
@@ -615,7 +615,7 @@ void toxcore_thread(void *UNUSED(args)) {
                 tox_thread_msg = 0;
             }
 
-            if (!dont_send_typing_notes){
+            if (settings.send_typing_status){
                 // Thread active transfers and check if friend is typing
                 utox_thread_work_for_typing_notifications(tox, time);
             }

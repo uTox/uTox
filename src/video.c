@@ -9,7 +9,7 @@ static _Bool utox_open_video_device(void *handle) {
             return 0;
         }
     } else {
-        if(!video_init(*(void**)handle)) {
+        if (!handle || !video_init(*(void**)handle)) {
             debug("uToxVideo:\tvideo_init() failed webcam\n");
             return 0;
         }
@@ -96,8 +96,9 @@ void utox_video_record_start(_Bool preview){
         return;
     }
 
-    if (preview)
-        video_preview = 1;
+    if (preview) {
+        settings.video_preview = 1;
+    }
 
     utox_open_video_device(video_device[video_device_current]);
     video_startread();
@@ -113,12 +114,25 @@ void utox_video_record_stop(_Bool preview){
     video_active  = 0;
 
     if (preview) {
-        video_preview = 0;
+        settings.video_preview = 0;
     }
 
     video_endread();
     utox_close_video_device(video_device[video_device_current]);
     debug("uToxVideo:\tstopped video\n");
+}
+
+void postmessage_video(uint8_t msg, uint32_t param1, uint32_t param2, void *data) {
+    while(video_thread_msg) {
+        yieldcpu(1);
+    }
+
+    video_msg.msg = msg;
+    video_msg.param1 = param1;
+    video_msg.param2 = param2;
+    video_msg.data = data;
+
+    video_thread_msg = 1;
 }
 
 void utox_video_thread(void *args) {
@@ -141,11 +155,18 @@ void utox_video_thread(void *args) {
     utox_video_thread_init = 1;
 
     while (1) {
+        if (video_thread_msg) {
+            TOX_MSG *m = &video_msg;
+            if (!m->msg || m->msg == UTOXVIDEO_KILL) {
+                break;
+            }
+        }
+
         if (video_active) {
             // capturing is enabled, capture frames
             int r = video_getframe(utox_video_frame.y, utox_video_frame.u, utox_video_frame.v, utox_video_frame.w, utox_video_frame.h);
             if (r == 1) {
-                if (video_preview) {
+                if (settings.video_preview) {
                     /* Make a copy of the video frame for uTox to display */
                     utox_frame_pkg *frame = malloc(sizeof(*frame));
                     frame->w   = utox_video_frame.w;

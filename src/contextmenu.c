@@ -21,7 +21,7 @@ static void calculate_pos_and_width(CONTEXTMENU *b, int *x, int *w) {
     }
 
     // Push away from the right border to fit.
-    if(*x + *w >= utox_window_width) {
+    if(*x + *w >= settings.window_width) {
         *x -= *w;
     }
 }
@@ -146,7 +146,7 @@ void contextmenu_new_ex(uint8_t count, void *userdata, void (*onselect)(uint8_t)
 
     b->y = mouse.y;
     b->height = CONTEXT_HEIGHT * count;
-    if(b->y + b->height >= utox_window_height) {
+    if(b->y + b->height >= settings.window_height) {
         b->y -= b->height;
     }
     b->x = mouse.x;

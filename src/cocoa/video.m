@@ -431,7 +431,7 @@ uint16_t native_video_detect(void) {
     if ([notification.object isKindOfClass:uToxIroncladWindow.class]) {
         switch (((uToxIroncladWindow *)notification.object).video_id) {
             case 0:
-                video_preview = 0;
+                settings.video_preview = 0;
                 video_end(0);
                 postmessage_utoxav(UTOXAV_STOP_VIDEO, 1, 0, NULL);
                 break;

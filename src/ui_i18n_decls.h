@@ -122,6 +122,9 @@ enum {
     STR_STATUS_AWAY,
     STR_STATUS_BUSY,
 
+    // Settings Strings
+    STR_SETTINGS_UI_MINI_ROSTER,
+
     // Status strings
     STR_NOT_CONNECTED,
 

@@ -418,7 +418,7 @@ void utox_audio_thread(void *args){
                     break;
                 }
                 case UTOXAUDIO_PLAY_RINGTONE: {
-                    if (audible_notifications_enabled) {
+                    if (settings.ringtone_enabled) {
                         debug("starting ringtone!\n");
 
                         alSourcei(ringtone, AL_LOOPING, AL_TRUE);
@@ -456,8 +456,8 @@ void utox_audio_thread(void *args){
                 debug("filter audio off\n");
             }
         #else
-            if (audio_filtering_enabled) {
-                audio_filtering_enabled = 0;
+            if (settings.audiofilter_enabled) {
+                settings.audiofilter_enabled = 0;
             }
         #endif
 
