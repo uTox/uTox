@@ -129,7 +129,7 @@ static void drawitem(ITEM *i, int UNUSED(x), int y) {
             drawalpha(BM_GROUP, ROSTER_AVATAR_LEFT, y + ROSTER_AVATAR_TOP, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
 
             roster_draw_name(i, y, S(CREATEGROUPCHAT),    S(CURSOR_CLICK_RIGHT),
-                                   SLEN(CREATEGROUPCHAT), SLEN(CURSOR_CLICK_RIGHT), COLOR_MAIN_TEXT, COLOR_LIST_TEXT);
+                                   SLEN(CREATEGROUPCHAT), SLEN(CURSOR_CLICK_RIGHT), 1, (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
             break;
         }
     }
