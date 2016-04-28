@@ -117,7 +117,8 @@ static void dropdown_typing_notes_onselect(const uint16_t i, const DROPDOWN* UNU
 }
 
 static void dropdown_mini_roster_onselect(const uint16_t i, const DROPDOWN* UNUSED(dm)) {
-    settings.use_mini_roster = i;
+    settings.use_mini_roster = !!i;
+    roster_re_scale();
 }
 
 static void dropdown_push_to_talk_onselect(const uint16_t i, const DROPDOWN* UNUSED(dm)) {

@@ -164,13 +164,13 @@ static void drawitem(ITEM *i, int UNUSED(x), int y) {
             char_t name[TOX_FRIEND_ADDRESS_SIZE * 2];
             id_to_string(name, f->id);
 
-            drawalpha(contact_bitmap, ROSTER_AVATAR_LEFT, y + ROSTER_AVATAR_TOP, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
+            drawalpha(contact_bitmap, ROSTER_AVATAR_LEFT, y + ROSTER_AVATAR_TOP, default_w, default_w, (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
             roster_draw_name(i, y, name, f->msg, sizeof(name), f->length, 0, 0);
             break;
         }
 
         case ITEM_CREATE_GROUP:{
-            drawalpha(group_bitmap, ROSTER_AVATAR_LEFT, y + ROSTER_AVATAR_TOP, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
+            drawalpha(group_bitmap, ROSTER_AVATAR_LEFT, y + ROSTER_AVATAR_TOP, default_w, default_w, (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
             roster_draw_name(i, y, S(CREATEGROUPCHAT),    S(CURSOR_CLICK_RIGHT),
                                    SLEN(CREATEGROUPCHAT), SLEN(CURSOR_CLICK_RIGHT), 1, (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
             break;
@@ -190,8 +190,8 @@ static int find_item_shown_index(ITEM *it) {
     return INT_MAX; // can't be found!
 }
 
-void list_scale(void) {
-    scrollbar_roster.content_height = showncount * ROSTER_BOX_HEIGHT;
+void roster_re_scale(void) {
+    scrollbar_roster.content_height = showncount * (ROSTER_BOX_HEIGHT / (!!settings.use_mini_roster + 1));
 }
 
 _Bool friend_matches_search_string(FRIEND *f, char_t *str) {
@@ -214,7 +214,7 @@ void update_shown_list(void) {
     }
 
     showncount = j;
-    list_scale();
+    roster_re_scale();
 }
 
 static ITEM* newitem(void) {

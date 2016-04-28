@@ -801,7 +801,7 @@ void ui_set_scale(uint8_t scale) {
         ui_scale = scale;
     }
 
-    list_scale();
+    roster_re_scale();
 
     /* DEFAULT positions */
         panel_side_bar.x = 0;

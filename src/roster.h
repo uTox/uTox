@@ -56,7 +56,7 @@ void list_reselect_current(void);
 void list_selectsettings(void);
 void list_selectswap(void);
 
-void list_scale(void);
+void roster_re_scale(void);
 
 void list_draw(void *n, int x, int y, int width, int height);
 void list_freeall(void);
