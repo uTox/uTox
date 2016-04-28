@@ -546,7 +546,7 @@ void init_ptt(void) {
 
 static _Bool is_ctrl_down = 0;
 _Bool check_ptt_key(void){
-    return push_to_talk? is_ctrl_down : 1;
+    return settings.push_to_talk? is_ctrl_down : 1;
 }
 
 void exit_ptt(void) {
@@ -638,12 +638,12 @@ void launch_at_startup(int should) {
     self.utox_window.delegate = self;
     self.utox_window.title = @(title_name);
 
-    utox_window_width = self.utox_window.frame.size.width;
-    utox_window_height = self.utox_window.frame.size.height;
+    settings.window_width = self.utox_window.frame.size.width;
+    settings.window_height = self.utox_window.frame.size.height;
 
     self.utox_window.contentView = [[[uToxView alloc] initWithFrame:(CGRect){0, 0, self.utox_window.frame.size}] autorelease];
     ui_set_scale((save->scale + 1) ?: 2);
-    ui_size(utox_window_width, utox_window_height);
+    ui_size(settings.window_width, settings.window_height);
 
     /* start the tox thread */
     thread(toxcore_thread, NULL);
@@ -715,7 +715,7 @@ void launch_at_startup(int should) {
 }
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)sender {
-    if (close_to_tray) {
+    if (settings.close_to_tray) {
         return NO;
     } else {
         return YES;
@@ -780,9 +780,9 @@ int main(int argc, char const *argv[]) {
     dropdown_language.selected = dropdown_language.over = LANG;
 
     /* set the width/height of the drawing region */
-    utox_window_width = DEFAULT_WIDTH;
-    utox_window_height = DEFAULT_HEIGHT;
-    ui_size(utox_window_width, utox_window_height);
+    settings.window_width = DEFAULT_WIDTH;
+    settings.window_height = DEFAULT_HEIGHT;
+    ui_size(settings.window_width, settings.window_height);
 
     /* event loop */
     @autoreleasepool {

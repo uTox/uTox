@@ -91,8 +91,8 @@ static CGRect find_ui_object_in_window(const PANEL *ui) {
     if (did_find) {
         int x = ui_element->x,
             y = ui_element->y,
-            width = utox_window_width,
-            height = utox_window_height;
+            width = settings.window_width,
+            height = settings.window_height;
 
         int i = 0;
         while (path[i] != -1) {
@@ -113,7 +113,7 @@ static CGRect find_ui_object_in_window(const PANEL *ui) {
             i++;
         }
 
-        ret = CGRectMake(x, utox_window_height - height - y, width, height);
+        ret = CGRectMake(x, settings.window_height - height - y, width, height);
     }
 
     free(path);
@@ -244,19 +244,19 @@ static inline void select_right_to_char(char_t c) {
 
 - (void)mouseMoved:(NSEvent *)theEvent {
     cursor = 0;
-    panel_mmove(&panel_root, 0, 0, utox_window_width, utox_window_height, theEvent.locationInWindow.x, self.frame.size.height - theEvent.locationInWindow.y, theEvent.deltaX, theEvent.deltaY);
+    panel_mmove(&panel_root, 0, 0, settings.window_width, settings.window_height, theEvent.locationInWindow.x, self.frame.size.height - theEvent.locationInWindow.y, theEvent.deltaX, theEvent.deltaY);
     [cursors[cursor] set];
 }
 
 - (void)mouseDragged:(NSEvent *)theEvent {
     cursor = 0;
-    panel_mmove(&panel_root, 0, 0, utox_window_width, utox_window_height, theEvent.locationInWindow.x, self.frame.size.height - theEvent.locationInWindow.y, theEvent.deltaX, theEvent.deltaY);
+    panel_mmove(&panel_root, 0, 0, settings.window_width, settings.window_height, theEvent.locationInWindow.x, self.frame.size.height - theEvent.locationInWindow.y, theEvent.deltaX, theEvent.deltaY);
     [cursors[cursor] set];
 }
 
 - (void)rightMouseDragged:(NSEvent *)theEvent {
     cursor = 0;
-    panel_mmove(&panel_root, 0, 0, utox_window_width, utox_window_height, theEvent.locationInWindow.x, self.frame.size.height - theEvent.locationInWindow.y, theEvent.deltaX, theEvent.deltaY);
+    panel_mmove(&panel_root, 0, 0, settings.window_width, settings.window_height, theEvent.locationInWindow.x, self.frame.size.height - theEvent.locationInWindow.y, theEvent.deltaX, theEvent.deltaY);
     [cursors[cursor] set];
 }
 
@@ -270,7 +270,7 @@ static inline void select_right_to_char(char_t c) {
 }
 
 - (void)scrollWheel:(NSEvent *)theEvent {
-    panel_mwheel(&panel_root, 0, 0, utox_window_width, utox_window_height, theEvent.deltaY, theEvent.hasPreciseScrollingDeltas);
+    panel_mwheel(&panel_root, 0, 0, settings.window_width, settings.window_height, theEvent.deltaY, theEvent.hasPreciseScrollingDeltas);
 }
 
 - (void)updateTrackingAreas {
