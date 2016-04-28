@@ -963,7 +963,16 @@ _Bool messages_dclick(PANEL *panel, _Bool triclick) {
     MESSAGES *m = panel->object;
 
     if(m->cursor_over_msg != UINT32_MAX) {
-        MSG_TEXT *msg = m->data[m->cursor_over_msg];
+        MSG_TEXT *msg    = m->data[m->cursor_over_msg];
+        uint8_t *real_msg = NULL;
+
+        if (m->is_groupchat) {
+            real_msg = &((MSG_GROUP*)msg)->msg[((MSG_GROUP*)msg)->author_length]; /* This is hacky, we should
+                                                                                 * probably fix this!      */
+        } else {
+            real_msg = msg->msg;
+        }
+
         switch(msg->msg_type) {
             case MSG_TYPE_TEXT:
             case MSG_TYPE_ACTION_TEXT: {
@@ -972,13 +981,13 @@ _Bool messages_dclick(PANEL *panel, _Bool triclick) {
                 char_t c = triclick ? '\n' : ' ';
 
                 uint16_t i = m->cursor_over_position;
-                while (i != 0 && msg->msg[i - 1] != c) {
-                    i -= utf8_unlen(msg->msg + i);
+                while (i != 0 && real_msg[i-1] != c) {
+                    i -= utf8_unlen(real_msg + i);
                 }
                 m->sel_start_position = i;
                 i = m->cursor_over_position;
-                while (i != msg->length && msg->msg[i] != c) {
-                    i += utf8_len(msg->msg + i);
+                while (i != msg->length && real_msg[i] != c) {
+                    i += utf8_len(real_msg + i);
                 }
                 m->sel_end_position = i;
                 return 1;
@@ -1084,16 +1093,10 @@ int messages_selection(PANEL *panel, void *buffer, uint32_t len, _Bool names) {
 
         if (names && (i != m->sel_start_msg || m->sel_start_position == 0)) {
             if (m->is_groupchat) {
-                //TODO: get rid of such hacks or provide unpacker.
-                //This basically undoes copy_groupmessage().
-                uint8_t l = (uint8_t)msg->msg[msg->length];
-                if (len <= l) {
-                    break;
-                }
-
-                memcpy(p, &msg->msg[msg->length + 1], l);
-                p += l;
-                len -= l;
+                MSG_GROUP *grp = (void*)msg;
+                memcpy(p, &grp->msg[0], grp->author_length);
+                p += grp->author_length;
+                len -= grp->author_length;
             } else {
                 FRIEND *f = &friend[m->id];
 
@@ -1128,21 +1131,31 @@ int messages_selection(PANEL *panel, void *buffer, uint32_t len, _Bool names) {
         switch(msg->msg_type) {
             case MSG_TYPE_TEXT:
             case MSG_TYPE_ACTION_TEXT: {
+                uint16_t group_name_buffer = 0;
+                if (m->is_groupchat) {
+                    MSG_GROUP *grp = (void*)msg;
+                    group_name_buffer = grp->author_length;
+                    group_name_buffer += 6; /* LOL, again, SO SORRY! This is about as hacky as it gets!
+                                             * 6 is the number of bytes of difference between the
+                                             * position of ->msg[0] of MSG_TEXT and of MSG_GROUP      */
+                }
+
+
                 char_t *data;
                 uint16_t length;
                 if(i == m->sel_start_msg) {
                     if(i == m->sel_end_msg) {
-                        data = msg->msg + m->sel_start_position;
+                        data = msg->msg + m->sel_start_position + group_name_buffer;
                         length = m->sel_end_position - m->sel_start_position;
                     } else {
-                        data = msg->msg + m->sel_start_position;
+                        data = msg->msg + m->sel_start_position + group_name_buffer;
                         length = msg->length - m->sel_start_position;
                     }
                 } else if(i == m->sel_end_msg) {
-                    data = msg->msg;
+                    data = msg->msg + group_name_buffer;
                     length = m->sel_end_position;
                 } else {
-                    data = msg->msg;
+                    data = msg->msg + group_name_buffer;
                     length = msg->length;
                 }
 
