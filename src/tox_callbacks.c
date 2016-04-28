@@ -177,7 +177,8 @@ static void callback_group_namelist_change(Tox *tox, int gid, int pid, uint8_t c
                 pkey_to_number += pkey[key_i];
             }
             srand(pkey_to_number);
-            uint32_t name_color  = rand() % UINT32_MAX;
+            uint32_t name_color = 0;
+            name_color  = RGB(rand(), rand(), rand());
 
             group_peer_add(g, pid, is_us, name_color);
 
@@ -250,7 +251,7 @@ static void callback_group_namelist_change(Tox *tox, int gid, int pid, uint8_t c
                 /* uTox doesnt' really use this for too much so lets fuck with the random seed.
                  * If you know crypto, and cringe, I know me too... you can blame @irungentoo */
                 srand(pkey_to_number);
-                peer->name_color  = rand() % UINT32_MAX;
+                peer->name_color = RGB(rand(), rand(), rand());
                 g->peer[i] = peer;
             }
             g->peer_count = number_peers;
