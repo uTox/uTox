@@ -103,7 +103,7 @@ void messages_clear_receipt(MESSAGES *m, uint32_t receipt_number) {
 
     while (start--) {
         if (m->data[start]) {
-            MSG_TEXT *msg = (MSG_TEXT*)(m->data[start]);
+            MSG_TEXT *msg = (MSG_TEXT*)m->data[start];
             if (msg->msg_type == MSG_TYPE_TEXT || msg->msg_type == MSG_TYPE_ACTION_TEXT) {
                 if (msg->receipt == receipt_number) {
 

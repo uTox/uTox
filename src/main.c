@@ -98,7 +98,7 @@ uint8_t **utox_load_data_log(uint32_t friend_number, size_t *size, uint32_t coun
          * If !feof() this means that the file has an incomplete record,
          * which would prevent it from loading forever, even though
          * new records will keep being appended as usual. */
-        debug("Log read error on file from friend (%u)\n", friend_number);
+        debug_error("Log read error on file from friend (%u)\n", friend_number);
         fclose(file);
         if (size) { *size = 0; }
         return NULL;
@@ -106,7 +106,7 @@ uint8_t **utox_load_data_log(uint32_t friend_number, size_t *size, uint32_t coun
     rewind(file);
 
     if (skip >= records_count) {
-        debug("Native log read:\tError, skipped all records\n");
+        debug_error("Native log read:\tError, skipped all records\n");
         fclose(file);
         if (size) { *size = 0; }
         return NULL;
@@ -136,7 +136,7 @@ uint8_t **utox_load_data_log(uint32_t friend_number, size_t *size, uint32_t coun
             /* we have to skip the author name for now, it's left here for group chats support in the future */
             fseeko(file, header.author_length, SEEK_CUR);
             if (header.msg_length > 1 << 16) {
-                debug("Can't malloc that much, you'll probably have to move or delete, your history for this peer.\n");
+                debug_error("Can't malloc that much, you'll probably have to move or delete, your history for this peer.\n");
                 exit(5);
             }
             MSG_TEXT *msg       = calloc(1, sizeof(MSG_TEXT) + header.msg_length);
@@ -171,12 +171,12 @@ _Bool utox_update_data_log(uint32_t friend_number, size_t offset, uint8_t *data,
     FILE *file = native_load_data_logfile(friend_number);
 
     if (!file) {
-        debug("History:\tUnable to access file provided by native_load_data_logfile()\n");
+        debug_error("History:\tUnable to access file provided by native_load_data_logfile()\n");
         return 0;
     }
 
     if (fseeko(file, offset, SEEK_SET)) {
-        debug("History:\tUnable to seek to position %u in file provided by native_load_data_logfile()\n", offset);
+        debug_error("History:\tUnable to seek to position %u in file provided by native_load_data_logfile()\n", offset);
         return 0;
     }
 
