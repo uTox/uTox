@@ -1242,9 +1242,9 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             /* param1: connection status (1 = connected, 0 = disconnected) */
             tox_connected = param1;
             if (tox_connected) {
-                debug("uTox:\tConnected to DHT!\n");
+                debug_notice("uTox:\tConnected to DHT!\n");
             } else {
-                debug("uTox:\tDisconnected from DHT!\n");
+                debug_notice("uTox:\tDisconnected from DHT!\n");
             }
             redraw();
             break;
