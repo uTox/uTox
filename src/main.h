@@ -141,6 +141,8 @@ typedef struct utox_settings {
     _Bool send_typing_status;
     _Bool use_mini_roster;
 
+    uint8_t verbose;
+
     int window_height;
     int window_width;
 } SETTINGS;
@@ -158,6 +160,16 @@ extern struct Tox_Options options;
 typedef struct edit_change EDIT_CHANGE;
 
 // Enums
+/* uTox debug levels */
+enum {
+    VERB_ANCIENT_MONK,      // Off
+    VERB_JANICE_ACCOUNTING, // Error (default)
+    VERB_CONCERNED_PARENT,  // Notice
+    VERB_NEW_ADHD_MEDS,     // Info
+    VERB_TEENAGE_GIRL,      // Debug
+};
+
+
 enum {
     CURSOR_NONE,
     CURSOR_TEXT,

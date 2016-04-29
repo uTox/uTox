@@ -17,6 +17,8 @@ SETTINGS settings = {
     .send_typing_status     = 0,
     .use_mini_roster        = 0,
 
+    .verbose                = 1,
+
     .window_height           = 600,
     .window_width            = 800,
 };
@@ -37,16 +39,18 @@ void parse_args(int argc, char *argv[], bool *theme_was_set_on_argv, int8_t *sho
         {"set",        required_argument,   NULL,  's'},
         {"unset",      required_argument,   NULL,  'u'},
         {"no-updater", no_argument,         NULL,  'n'},
-        {"version",    no_argument,         NULL,  'v'},
+        {"version",    no_argument,         NULL,   0},
+        {"silent",     no_argument,         NULL,   1},
+        {"verbose",    no_argument,         NULL,  'v'},
         {"help",       no_argument,         NULL,  'h'},
         {0, 0, 0, 0}
     };
 
-    int opt, long_index =0;
-    while ((opt = getopt_long(argc, argv,"t:ps:u:nvh", long_options, &long_index )) != -1) {
+    int opt, long_index = 0;
+    while ((opt = getopt_long(argc, argv, "t:ps:u:nvh", long_options, &long_index )) != -1) {
         // loop through each option; ":" after each option means an argument is required
         switch (opt) {
-            case 't':
+            case 't': {
                 if (!strcmp(optarg, "default")) {
                     theme = THEME_DEFAULT;
                 } else if (!strcmp(optarg, "dark")) {
@@ -63,13 +67,15 @@ void parse_args(int argc, char *argv[], bool *theme_was_set_on_argv, int8_t *sho
                 }
                 *theme_was_set_on_argv = 1;
                 break;
+            }
 
-            case 'p':
+            case 'p': {
                 debug("Launching uTox in portable mode: All data will be saved to the tox folder in the current working directory\n");
                 utox_portable = 1;
                 break;
+            }
 
-            case 's':
+            case 's': {
                 if (!strcmp(optarg, "start-on-boot")) {
                     *should_launch_at_startup = 1;
                 } else if (!strcmp(optarg, "show-window")) {
@@ -81,8 +87,9 @@ void parse_args(int argc, char *argv[], bool *theme_was_set_on_argv, int8_t *sho
                     exit(EXIT_FAILURE);
                 }
                 break;
+            }
 
-            case 'u':
+            case 'u': {
                 if (!strcmp(optarg, "start-on-boot")) {
                     *should_launch_at_startup = -1;
                 } else {
@@ -90,17 +97,30 @@ void parse_args(int argc, char *argv[], bool *theme_was_set_on_argv, int8_t *sho
                     exit(EXIT_FAILURE);
                 }
                 break;
+            }
 
-            case 'n':
+            case 'n': {
                 *no_updater = 1;
                 break;
+            }
 
-            case 'v':
+            case 1: {
                 debug("uTox version: %s\n", VERSION);
                 exit(EXIT_SUCCESS);
                 break;
+            }
 
-            case 'h':
+            case 0: {
+                settings.verbose = 0;
+                break;
+            }
+
+            case 'v': {
+                settings.verbose++;
+                break;
+            }
+
+            case 'h': {
                 debug("µTox - Lightweight Tox client version %s.\n\n", VERSION);
                 debug("The following options are available:\n");
                 debug("  -t --theme=<theme-name>  Specify a UI theme, where <theme-name> can be one of default, dark, light, highcontrast, zenburn.\n");
@@ -112,6 +132,7 @@ void parse_args(int argc, char *argv[], bool *theme_was_set_on_argv, int8_t *sho
                 debug("  -h --help                Shows this help text.\n");
                 exit(EXIT_SUCCESS);
                 break;
+            }
 
             case '?':
                 debug("Invalid option: %c!\n", (char) optopt);

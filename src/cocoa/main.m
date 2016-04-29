@@ -15,6 +15,31 @@ struct thread_call {
 #define DEFAULT_HEIGHT (320 * DEFAULT_SCALE)
 
 void debug(const char *fmt, ...) {
+    if (settings.verbose < VERB_TEENAGE_GIRL) { return; }
+    va_list l;
+    va_start(l, fmt);
+    NSLogv(@(fmt), l);
+    va_end(l);
+}
+
+void debug_info(const char *fmt, ...) {
+    if (settings.verbose < VERB_NEW_ADHD_MEDS) { return; }
+    va_list l;
+    va_start(l, fmt);
+    NSLogv(@(fmt), l);
+    va_end(l);
+}
+
+void debug_notice(const char *fmt, ...) {
+    if (settings.verbose < VERB_CONCERNED_PARENT) { return; }
+    va_list l;
+    va_start(l, fmt);
+    NSLogv(@(fmt), l);
+    va_end(l);
+}
+
+void debug_error(const char *fmt, ...) {
+    if (settings.verbose < VERB_JANICE_ACCOUNTING) { return; }
     va_list l;
     va_start(l, fmt);
     NSLogv(@(fmt), l);
