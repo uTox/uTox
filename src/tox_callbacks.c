@@ -61,7 +61,7 @@ static void callback_typing_change(Tox *UNUSED(tox), uint32_t fid, _Bool is_typi
 }
 
 static void callback_read_receipt(Tox *UNUSED(tox), uint32_t fid, uint32_t receipt, void *UNUSED(userdata)) {
-    //postmessage(FRIEND_RECEIPT, fid, receipt);
+    messages_clear_receipt(&friend[fid].msg, receipt);
     debug_info("Friend-%u Receipt:\t%u\n", fid, receipt);
 }
 
