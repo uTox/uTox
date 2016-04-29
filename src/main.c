@@ -121,15 +121,17 @@ void parse_args(int argc, char *argv[], bool *theme_was_set_on_argv, int8_t *sho
             }
 
             case 'h': {
-                debug("µTox - Lightweight Tox client version %s.\n\n", VERSION);
-                debug("The following options are available:\n");
-                debug("  -t --theme=<theme-name>  Specify a UI theme, where <theme-name> can be one of default, dark, light, highcontrast, zenburn.\n");
-                debug("  -p --portable            Launch in portable mode: All data will be saved to the tox folder in the current working directory.\n");
-                debug("  -s --set=<option>        Set an option: start-on-boot, show-window, hide-window.\n");
-                debug("  -u --unset=<option>      Unset an option: start-on-boot.\n");
-                debug("  -n --no-updater          Disable the updater.\n");
-                debug("  -v --version             Print the version and exit.\n");
-                debug("  -h --help                Shows this help text.\n");
+                debug_error("µTox - Lightweight Tox client version %s.\n\n", VERSION);
+                debug_error("The following options are available:\n");
+                debug_error("  -t --theme=<theme-name>  Specify a UI theme, where <theme-name> can be one of default, dark, light, highcontrast, zenburn.\n");
+                debug_error("  -p --portable            Launch in portable mode: All data will be saved to the tox folder in the current working directory.\n");
+                debug_error("  -s --set=<option>        Set an option: start-on-boot, show-window, hide-window.\n");
+                debug_error("  -u --unset=<option>      Unset an option: start-on-boot.\n");
+                debug_error("  -n --no-updater          Disable the updater.\n");
+                debug_error("  -v --verbose             Increase the amount of output, use -v multiple times to get full debug output.\n");
+                debug_error("  -h --help                Shows this help text.\n");
+                debug_error("  --version                Print the version and exit.\n");
+                debug_error("  --silent                 Set the verbosity level to 0, disable all debugging output.\n");
                 exit(EXIT_SUCCESS);
                 break;
             }
