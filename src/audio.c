@@ -442,15 +442,15 @@ void utox_audio_thread(void *args){
 
         // TODO move this code to filter_audio.c
         #ifdef AUDIO_FILTERING
-            if (!f_a && audio_filtering_enabled) {
+            if (!f_a && settings.audiofilter_enabled) {
                 f_a = new_filter_audio(UTOX_DEFAULT_SAMPLE_RATE_A);
                 if (!f_a) {
-                    audio_filtering_enabled = 0;
+                    settings.audiofilter_enabled = 0;
                     debug("filter audio failed\n");
                 } else {
                     debug("filter audio on\n");
                 }
-            } else if (f_a && !audio_filtering_enabled) {
+            } else if (f_a && !settings.audiofilter_enabled) {
                 kill_filter_audio(f_a);
                 f_a = NULL;
                 debug("filter audio off\n");
@@ -487,7 +487,7 @@ void utox_audio_thread(void *args){
 
             #ifdef AUDIO_FILTERING
             #ifdef ALC_LOOPBACK_CAPTURE_SAMPLES
-            if (f_a && audio_filtering_enabled) {
+            if (f_a && settings.audiofilter_enabled) {
                 alcGetIntegerv(audio_out_device, ALC_LOOPBACK_CAPTURE_SAMPLES, sizeof(samples), &samples);
                 if(samples >= perframe) {
                     int16_t buffer[perframe];
