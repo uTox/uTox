@@ -180,9 +180,10 @@ void utox_video_thread(void *args) {
                     postmessage(AV_VIDEO_FRAME, 0, 1, (void*)frame);
                 }
 
-                int i, active_video_count = 0;
+                uint32_t i, active_video_count = 0;
                 for (i = 0; i < UTOX_MAX_NUM_FRIENDS; i++) {
                     if (SEND_VIDEO_FRAME(i)) {
+                        debug("sending to friend %u", i);
                         active_video_count++;
                         TOXAV_ERR_SEND_FRAME error = 0;
                         toxav_video_send_frame(av, friend[i].number, utox_video_frame.w, utox_video_frame.h, utox_video_frame.y, utox_video_frame.u, utox_video_frame.v, &error);
@@ -197,7 +198,7 @@ void utox_video_thread(void *args) {
                                 debug("uToxVideo:\ttoxav_send_video error friend: %i error: %u\n", friend[i].number, error);
                             }
                         } else {
-                            if (i >= UTOX_MAX_CALLS){
+                            if (active_video_count >= UTOX_MAX_CALLS){
                                 debug("uToxVideo:\tTrying to send video frame to too many peers. Please report this bug!\n");
                                 break;
                             }
@@ -209,7 +210,7 @@ void utox_video_thread(void *args) {
                 video_endread();
                 utox_close_video_device(video_device);
             }
-        yieldcpu(16); /* 60 fps */
+        yieldcpu(40); /* 60 fps */
         continue;
         }
 
