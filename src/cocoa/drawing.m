@@ -54,15 +54,15 @@ static struct __global_d_state {
 - (void)drawRect:(NSRect)dirtyRect {
     [self becomeDrawTarget];
 
-    panel_draw(&panel_root, 0, 0, utox_window_width, utox_window_height);
+    panel_draw(&panel_root, 0, 0, settings.window_width, settings.window_height);
 
     [self resignAsDrawTarget];
 }
 
 - (void)resizeSubviewsWithOldSize:(NSSize)oldSize {
-    utox_window_width = self.frame.size.width;
-    utox_window_height = self.frame.size.height;
-    ui_size(utox_window_width, utox_window_height);
+    settings.window_width = self.frame.size.width;
+    settings.window_height = self.frame.size.height;
+    ui_size(settings.window_width, settings.window_height);
 
     [self.inputContext invalidateCharacterCoordinates];
 }

@@ -78,7 +78,7 @@ void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data)
 FILE *ptt_keyboard_handle;
 Display *ptt_display;
 void init_ptt(void){
-    push_to_talk = 1;
+    settings.push_to_talk = 1;
     uint8_t path[UTOX_FILE_NAME_LENGTH], *p;
     p = path + datapath(path);
     strcpy((char*)p, "ptt-kbd");
@@ -93,7 +93,7 @@ void init_ptt(void){
 }
 
 _Bool check_ptt_key(void){
-    if (!push_to_talk) {
+    if (!settings.push_to_talk) {
         // debug("PTT is disabled\n");
         return 1; /* If push to talk is disabled, return true. */
     }
@@ -146,7 +146,7 @@ void exit_ptt(void){
     if (ptt_display) {
         XCloseDisplay(ptt_display);
     }
-    push_to_talk = 0;
+    settings.push_to_talk = 0;
 }
 
 void image_set_scale(UTOX_NATIVE_IMAGE *image, double scale)
@@ -432,6 +432,7 @@ size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *
     if (file) {
         offset = ftello(file);
         fwrite(data, length, 1, file);
+        fflush(file);
         fclose(file);
 
         if (append) {
@@ -630,8 +631,8 @@ void draw_tray_icon(void){
     UTOX_NATIVE_IMAGE *icon = decode_image(icon_data, icon_size, &width, &height, 1);
     if(UTOX_NATIVE_IMAGE_IS_VALID(icon)) {
         /* Get tray window size */
-        int32_t x_r, y_r;
-        uint32_t border_r, depth_r;
+        int32_t x_r = 0, y_r = 0;
+        uint32_t border_r = 0, depth_r = 0;
         XMoveResizeWindow(display, tray_window, x_r, y_r, 32, 32);
         XGetGeometry(display, tray_window, &root, &x_r, &y_r, &tray_width, &tray_height, &border_r, &depth_r);
         /* TODO use xcb instead of xlib here!
@@ -1033,10 +1034,10 @@ void setscale(void)
 
     XSetWMNormalHints(display, window, xsh);
 
-    if(utox_window_width > UTOX_SCALE(320 ) && utox_window_height > UTOX_SCALE(160 ))
+    if(settings.window_width > UTOX_SCALE(320 ) && settings.window_height > UTOX_SCALE(160 ))
     {
         /* wont get a resize event, call this manually */
-        ui_size(utox_window_width, utox_window_height);
+        ui_size(settings.window_width, settings.window_height);
     }
 }
 
@@ -1221,7 +1222,7 @@ int main(int argc, char *argv[]) {
     theme_load(theme);
 
     /* create window */
-    window = XCreateWindow(display, root, save->window_x, save->window_y, utox_window_width, utox_window_height, 0, depth, InputOutput, visual, CWBackPixmap | CWBorderPixel | CWEventMask, &attrib);
+    window = XCreateWindow(display, root, save->window_x, save->window_y, settings.window_width, settings.window_height, 0, depth, InputOutput, visual, CWBackPixmap | CWBorderPixel | CWEventMask, &attrib);
 
     /* choose available libraries for optional UI stuff */
     if (!(libgtk = gtk_load())) {
@@ -1261,7 +1262,7 @@ int main(int argc, char *argv[]) {
     XRedraw         = XInternAtom(display, "XRedraw", False);
 
     /* create the draw buffer */
-    drawbuf = XCreatePixmap(display, window, utox_window_width, utox_window_height, depth);
+    drawbuf = XCreatePixmap(display, window, settings.window_width, settings.window_height, depth);
 
     /* catch WM_DELETE_WINDOW */
     XSetWMProtocols(display, window, &wm_delete_window, 1);
@@ -1340,14 +1341,14 @@ int main(int argc, char *argv[]) {
 
     if(set_show_window){
         if(set_show_window == 1){
-            start_in_tray = 0;
+            settings.start_in_tray = 0;
         } else if(set_show_window == -1){
-            start_in_tray = 1;
+            settings.start_in_tray = 1;
         }
     }
 
     /* make the window visible */
-    if (start_in_tray) {
+    if (settings.start_in_tray) {
         togglehide();
     } else {
         XMapWindow(display, window);
@@ -1364,7 +1365,7 @@ int main(int argc, char *argv[]) {
     }
 
     /* set the width/height of the drawing region */
-    ui_size(utox_window_width, utox_window_height);
+    ui_size(settings.window_width, settings.window_height);
 
     create_tray_icon();
     /* Registers the app in the Unity MM */
@@ -1376,7 +1377,7 @@ int main(int argc, char *argv[]) {
     #endif
 
     /* draw */
-    panel_draw(&panel_root, 0, 0, utox_window_width, utox_window_height);
+    panel_draw(&panel_root, 0, 0, settings.window_width, settings.window_height);
 
     /* event loop */
     while(1) {
@@ -1396,7 +1397,7 @@ int main(int argc, char *argv[]) {
         }
 
         if(_redraw) {
-            panel_draw(&panel_root, 0, 0, utox_window_width, utox_window_height);
+            panel_draw(&panel_root, 0, 0, settings.window_width, settings.window_height);
             _redraw = 0;
         }
     }

@@ -112,7 +112,7 @@ void log_read_old(Tox *tox, int fid) {
         msg->length = utf8_validate(msg->msg, msg->length);
         m->data[m->number++] = msg;
 
-        message_log_to_disk(m, msg);
+        message_log_to_disk(m, (void*)msg);
     }
 
     fclose(file);
@@ -192,8 +192,6 @@ static int utox_decrypt_data(void *cypher_data, size_t cypher_length, uint8_t *c
     return -1;
 }
 
-#include "tox_callbacks.h"
-
 /* bootstrap to dht with bootstrap_nodes */
 static void toxcore_bootstrap(Tox *tox) {
     static unsigned int j = 0;
@@ -212,22 +210,9 @@ static void toxcore_bootstrap(Tox *tox) {
 }
 
 static void set_callbacks(Tox *tox) {
-    tox_callback_friend_request(tox, callback_friend_request, NULL);
-    tox_callback_friend_message(tox, callback_friend_message, NULL);
-    tox_callback_friend_name(tox, callback_name_change, NULL);
-    tox_callback_friend_status_message(tox, callback_status_message, NULL);
-    tox_callback_friend_status(tox, callback_user_status, NULL);
-    tox_callback_friend_typing(tox, callback_typing_change, NULL);
-    tox_callback_friend_read_receipt(tox, callback_read_receipt, NULL);
-    tox_callback_friend_connection_status(tox, callback_connection_status, NULL);
-
-    tox_callback_group_invite(tox, callback_group_invite, NULL);
-    tox_callback_group_message(tox, callback_group_message, NULL);
-    tox_callback_group_action(tox, callback_group_action, NULL);
-    tox_callback_group_namelist_change(tox, callback_group_namelist_change, NULL);
-    tox_callback_group_title(tox, callback_group_topic, NULL);
-
-    utox_set_callbacks_for_transfer(tox);
+    utox_set_callbacks_friends(tox);
+    utox_set_callbacks_groups(tox);
+    utox_set_callbacks_file_transfer(tox);
 }
 
 static void tox_after_load(Tox *tox) {
@@ -335,7 +320,7 @@ static void utox_thread_work_for_typing_notifications(Tox *tox, uint64_t time) {
 }
 
 static int load_toxcore_save(void){
-    encrypted_profile = 0;
+    settings.use_encryption = 0;
     size_t raw_length;
     uint8_t *raw_data = utox_load_data_tox(&raw_length);
 
@@ -344,7 +329,7 @@ static int load_toxcore_save(void){
         if (tox_is_data_encrypted(raw_data)) {
             size_t cleartext_length = raw_length - TOX_PASS_ENCRYPTION_EXTRA_LENGTH;
             uint8_t *clear_data = malloc(cleartext_length);
-            encrypted_profile = 1;
+            settings.use_encryption = 1;
             debug("Using encrypted data, trying password: ");
 
             UTOX_ENC_ERR decrypt_err = utox_decrypt_data(raw_data, raw_length, clear_data);
@@ -580,7 +565,7 @@ void toxcore_thread(void *UNUSED(args)) {
                 tox_thread_msg = 0;
             }
 
-            if (!dont_send_typing_notes){
+            if (settings.send_typing_status){
                 // Thread active transfers and check if friend is typing
                 utox_thread_work_for_typing_notifications(tox, time);
             }
@@ -1063,17 +1048,19 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
         TOX_GROUP_AUDIO_END,*/
 
         case TOX_GROUP_CREATE: {
-            int g = -1;
+            int g_num = -1;
             if (param1) {
                 // TODO FIX THIS AFTER NEW GROUP API
                 // g = toxav_add_av_groupchat(tox, &callback_av_group_audio, NULL);
-                g = tox_add_groupchat(tox);
+                g_num = tox_add_groupchat(tox);
             } else {
-                g = tox_add_groupchat(tox);
+                g_num = tox_add_groupchat(tox);
             }
 
-            if (g != -1) {
-                postmessage(GROUP_ADD, g, 0, tox);
+            if (g_num != -1) {
+                GROUPCHAT *g = &group[g_num];
+                group_init(g, g_num, param2);
+                postmessage(GROUP_ADD, g_num, param2, NULL);
             }
             save_needed = 1;
             break;
@@ -1554,27 +1541,6 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         }
         /* Group chat functions */
         case GROUP_ADD: {
-            GROUPCHAT *g = &group[param1];
-
-            /* TODO: all of this should be in a group_init() inside groups.c */
-
-            g->name_length = snprintf((char*)g->name, sizeof(g->name), "Groupchat #%u", param1);
-            if (g->name_length >= sizeof(g->name)) {
-                g->name_length = sizeof(g->name) - 1;
-            }
-            g->topic_length = sizeof("Drag friends to invite them") - 1;
-            memcpy(g->topic, "Drag friends to invite them", sizeof("Drag friends to invite them") - 1);
-            g->msg.scroll = 1.0;
-            g->msg.panel.type = PANEL_MESSAGES;
-            g->msg.panel.content_scroll = &scrollbar_friend;
-            g->msg.panel.y          = MAIN_TOP;
-            g->msg.panel.height     = CHAT_BOX_TOP;
-            g->msg.panel.width      = -SCROLL_WIDTH;
-
-            g->msg.is_groupchat = 1;
-
-            g->type = tox_group_get_type(data, param1);
-            list_addgroup(g);
             redraw();
             break;
         }
@@ -1594,30 +1560,14 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         case GROUP_PEER_DEL: {
             GROUPCHAT *g = &group[param1];
 
-            if (param2 > MAX_GROUP_PEERS) //TODO: dynamic arrays.
-                break;
-
-            if(g->peername[param2]) {
-                free(g->peername[param2]);
-                g->peername[param2] = NULL;
-            }
-
-            g->peers--;
-            g->peername[param2] = g->peername[g->peers];
-            g->peername[g->peers] = NULL;
-
-            if (g->type == TOX_GROUPCHAT_TYPE_AV) {
-                g->last_recv_audio[param2] = g->last_recv_audio[g->peers];
-                g->last_recv_audio[g->peers] = 0;
+            if (g->av_group) {
+                g->last_recv_audio[param2] = g->last_recv_audio[g->peer_count];
+                g->last_recv_audio[g->peer_count] = 0;
                 // REMOVED UNTIL AFTER NEW GCs group_av_peer_remove(g, param2);
-                g->source[param2] = g->source[g->peers];
+                g->source[param2] = g->source[g->peer_count];
             }
 
-            if (g->peers == g->our_peer_number) {
-                g->our_peer_number = param2;
-            }
-
-            g->topic_length = snprintf((char*)g->topic, sizeof(g->topic), "%u users in chat", g->peers);
+            g->topic_length = snprintf((char*)g->topic, sizeof(g->topic), "%u users in chat", g->peer_count);
             if (g->topic_length >= sizeof(g->topic)) {
                 g->topic_length = sizeof(g->topic) - 1;
             }
@@ -1630,32 +1580,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         case GROUP_PEER_NAME: {
             GROUPCHAT *g = &group[param1];
 
-            if (param2 > MAX_GROUP_PEERS) //TODO: dynamic arrays.
-                break;
-
-            if(g->peername[param2]) {
-                free(g->peername[param2]);
-            }
-
-            if(tox_message_id == GROUP_PEER_ADD) {
-                if (g->type == TOX_GROUPCHAT_TYPE_AV) {
-                    // todo fix group_av_peer_add(g, param2);
-                }
-
-                if (tox_group_peernumber_is_ours(data, param1, param2)) {
-                    g->our_peer_number = param2;
-                }
-
-                uint8_t *n = malloc(10);
-                n[0] = 9;
-                memcpy(n + 1, "<unknown>", 9);
-                data = n;
-                g->peers++;
-            }
-
-            g->peername[param2] = data;
-
-            g->topic_length = snprintf((char*)g->topic, sizeof(g->topic), "%u users in chat", g->peers);
+            g->topic_length = snprintf((char*)g->topic, sizeof(g->topic), "%u users in chat", g->peer_count);
             if (g->topic_length >= sizeof(g->topic)) {
                 g->topic_length = sizeof(g->topic) - 1;
             }
@@ -1663,9 +1588,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             if(selected_item->data != g) {
                 g->notify = 1;
             }
-
             redraw();
-
             break;
         }
 
@@ -1687,7 +1610,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         case GROUP_AUDIO_START: {
             GROUPCHAT *g = &group[param1];
 
-            if (g->type == TOX_GROUPCHAT_TYPE_AV) {
+            if (g->av_group) {
                 g->audio_calling = 1;
                 postmessage_utoxav(UTOXAV_GROUPCALL_START, 0, param1, NULL);
                 redraw();
@@ -1697,7 +1620,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         case GROUP_AUDIO_END: {
             GROUPCHAT *g = &group[param1];
 
-            if (g->type == TOX_GROUPCHAT_TYPE_AV) {
+            if (g->av_group) {
                 g->audio_calling = 0;
                 postmessage_utoxav(UTOXAV_GROUPCALL_END, 0, param1, NULL);
                 redraw();

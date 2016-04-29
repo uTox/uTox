@@ -35,10 +35,13 @@ struct messages {
 
 typedef enum UTOX_MSG_TYPE {
     MSG_TYPE_NULL,
+    /* MSG_TEXT must start here */
     MSG_TYPE_TEXT,
     MSG_TYPE_ACTION_TEXT,
     MSG_TYPE_NOTICE,
     MSG_TYPE_NOTICE_DAY_CHANGE, // Seperated so I can localize this later!
+    /* MSG_TEXT should end here */
+    MSG_TYPE_OTHER, // Unused, expect to seperate MSG_TEXT type
     MSG_TYPE_IMAGE,
     MSG_TYPE_IMAGE_HISTORY,
     MSG_TYPE_FILE,
@@ -57,8 +60,10 @@ typedef struct {
     uint32_t height;
     time_t time;
 
+    uint32_t author_id;
+    uint32_t author_length;
+
     uint64_t disk_offset;
-    uint32_t author_length; /* I don't really like storing this here, but I can't see a better way */
 } MSG_VOID;
 
 typedef struct {
@@ -69,8 +74,10 @@ typedef struct {
     uint32_t height;
     time_t time;
 
-    uint64_t disk_offset;
+    uint32_t author_id;
     uint32_t author_length;
+
+    uint64_t disk_offset;
 
     uint32_t receipt;
     time_t receipt_time;
@@ -78,6 +85,7 @@ typedef struct {
     uint16_t length;
     char_t msg[0];
 } MSG_TEXT;
+
 
 typedef struct {
     _Bool author;
@@ -87,8 +95,32 @@ typedef struct {
     uint32_t height;
     time_t time;
 
+    uint32_t author_id;
+    uint16_t author_length;
+
     uint64_t disk_offset;
+
+    uint32_t receipt;
+    time_t receipt_time;
+
+    uint32_t author_color;
+
+    uint16_t length;
+    char_t msg[0];
+} MSG_GROUP;
+
+typedef struct {
+    _Bool author;
+    _Bool from_disk;
+    uint8_t msg_type;
+
+    uint32_t height;
+    time_t time;
+
+    uint32_t author_id;
     uint32_t author_length;
+
+    uint64_t disk_offset;
 
     uint16_t w, h;
     _Bool zoom;
@@ -104,8 +136,10 @@ typedef struct msg_file {
     uint32_t height;
     time_t time;
 
-    uint64_t disk_offset;
+    uint32_t author_id;
     uint32_t author_length;
+
+    uint64_t disk_offset;
 
     uint32_t speed;
     uint32_t filenumber;
@@ -125,6 +159,8 @@ uint32_t message_add_type_file_compat(MESSAGES *m, MSG_FILE *f);
 
 
 _Bool message_log_to_disk(MESSAGES *m, MSG_VOID *msg);
+
+uint32_t message_add_group(MESSAGES *m, MSG_TEXT *msg);
 
 uint32_t message_add_type_text(MESSAGES *m, _Bool auth, const uint8_t *data, uint16_t length, _Bool log);
 uint32_t message_add_type_action(MESSAGES *m, _Bool auth, const uint8_t *data, uint16_t length, _Bool log);

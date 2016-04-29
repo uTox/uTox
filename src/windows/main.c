@@ -38,10 +38,10 @@ void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data)
     PostMessage(hwnd, WM_TOX + (msg), ((param1) << 16) | (param2), (LPARAM)data);
 }
 
-void init_ptt(void){ push_to_talk = 1; }
+void init_ptt(void){ settings.push_to_talk = 1; }
 
 _Bool check_ptt_key(void){
-    if (!push_to_talk) {
+    if (!settings.push_to_talk) {
         // debug("PTT is disabled\n");
         return 1; /* If push to talk is disabled, return true. */
     }
@@ -55,7 +55,7 @@ _Bool check_ptt_key(void){
     }
 }
 
-void exit_ptt(void){ push_to_talk = 0; }
+void exit_ptt(void){ settings.push_to_talk = 0; }
 
 void thread(void func(void*), void *args)
 {
@@ -686,7 +686,7 @@ void edit_will_deactivate(void){}
 
 /* Redraws the main UI window */
 void redraw(void) {
-    panel_draw(&panel_root, 0, 0, utox_window_width, utox_window_height);
+    panel_draw(&panel_root, 0, 0, settings.window_width, settings.window_height);
 }
 
 /**
@@ -994,6 +994,8 @@ PCHAR* CommandLineToArgvA(PCHAR CmdLine, int* _argc) {
  */
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int nCmdShow){
 
+    pthread_mutex_init(&messages_lock, NULL);
+
     /* if opened with argument, check if uTox is already open and pass the argument to the existing process */
     HANDLE utox_mutex = CreateMutex(NULL, 0, TITLE);
 
@@ -1176,7 +1178,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     thread(toxcore_thread, NULL);
 
     //wait for tox_thread init
-    while(!tox_thread_init && !encrypted_profile) {
+    while(!tox_thread_init && !settings.use_encryption) {
         yieldcpu(1);
     }
 
@@ -1192,13 +1194,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     /* From --set flag */
     if(set_show_window){
         if(set_show_window == 1){
-            start_in_tray = 0;
+            settings.start_in_tray = 0;
         } else if(set_show_window == -1){
-            start_in_tray = 1;
+            settings.start_in_tray = 1;
         }
     }
 
-    if(start_in_tray){
+    if(settings.start_in_tray){
         ShowWindow(hwnd, SW_HIDE);
         hidden = 1;
     } else {
@@ -1250,8 +1252,8 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     if(hwnd && hwn != hwnd) {
         if(msg == WM_DESTROY) {
             if(hwn == video_hwnd[0]) {
-                if(video_preview) {
-                    video_preview = 0;
+                if(settings.video_preview) {
+                    settings.video_preview = 0;
                     postmessage_utoxav(UTOXAV_STOP_VIDEO, 0, 0, NULL);
                 }
 
@@ -1278,7 +1280,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_QUIT:
     case WM_CLOSE:
     case WM_DESTROY: {
-        if(close_to_tray){
+        if(settings.close_to_tray){
             debug("Closing to tray.\n");
             togglehide(0);
             return 1;
@@ -1327,8 +1329,8 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
             w = r.right;
             h = r.bottom;
 
-            utox_window_width = w;
-            utox_window_height = h;
+            settings.window_width = w;
+            settings.window_height = h;
 
             ui_set_scale(dropdown_dpi.selected + 6);
             ui_size(w, h);
@@ -1337,7 +1339,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
                 DeleteObject(hdc_bm);
             }
 
-            hdc_bm = CreateCompatibleBitmap(main_hdc, utox_window_width, utox_window_height);
+            hdc_bm = CreateCompatibleBitmap(main_hdc, settings.window_width, settings.window_height);
             SelectObject(hdc, hdc_bm);
             redraw();
         }
@@ -1467,7 +1469,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
         mx = GET_X_LPARAM(lParam);
         my = GET_Y_LPARAM(lParam);
 
-        panel_mwheel(&panel_root, mx, my, utox_window_width, utox_window_height, delta / (double)(WHEEL_DELTA), 1);
+        panel_mwheel(&panel_root, mx, my, settings.window_width, settings.window_height, delta / (double)(WHEEL_DELTA), 1);
         return 0;
     }
 
@@ -1483,7 +1485,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
         my = y;
 
         cursor = 0;
-        panel_mmove(&panel_root, 0, 0, utox_window_width, utox_window_height, x, y, dx, dy);
+        panel_mmove(&panel_root, 0, 0, settings.window_width, settings.window_height, x, y, dx, dy);
 
         SetCursor(cursors[cursor]);
 
@@ -1503,7 +1505,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
         y = GET_Y_LPARAM(lParam);
 
         if(x != mx || y != my) {
-            panel_mmove(&panel_root, 0, 0, utox_window_width, utox_window_height, x, y, x - mx, y - my);
+            panel_mmove(&panel_root, 0, 0, settings.window_width, settings.window_height, x, y, x - mx, y - my);
             mx = x;
             my = y;
         }

@@ -56,7 +56,7 @@ void list_reselect_current(void);
 void list_selectsettings(void);
 void list_selectswap(void);
 
-void list_scale(void);
+void roster_re_scale(void);
 
 void list_draw(void *n, int x, int y, int width, int height);
 void list_freeall(void);
@@ -67,3 +67,6 @@ _Bool list_mright(void *n);
 _Bool list_mwheel(void *n, int height, double d, _Bool smooth);
 _Bool list_mup(void *n);
 _Bool list_mleave(void *n);
+
+/* New naming patten */
+void roster_select_last(void);

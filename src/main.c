@@ -3,6 +3,26 @@
 #include "main.h"
 #include <getopt.h>
 
+SETTINGS settings = {
+    .close_to_tray          = 0,
+    .logging_enabled        = 1,
+    .ringtone_enabled       = 1,
+    .audiofilter_enabled    = 0,
+    .start_in_tray          = 0,
+    .start_with_system      = 0,
+    .push_to_talk           = 0,
+    .use_encryption         = 1,
+    .audio_preview          = 0,
+    .video_preview          = 0,
+    .send_typing_status     = 0,
+    .use_mini_roster        = 0,
+
+    .verbose                = 1,
+
+    .window_height           = 600,
+    .window_width            = 800,
+};
+
 /* The utox_ functions contained in src/main.c are wrappers for the platform native_ functions
  * if you need to localize them to a specific platform, move them from here, to each
  * src/<platform>/main.x and change from utox_ to native_ */
@@ -183,16 +203,18 @@ void parse_args(int argc, char *argv[], bool *theme_was_set_on_argv, int8_t *sho
         {"set",        required_argument,   NULL,  's'},
         {"unset",      required_argument,   NULL,  'u'},
         {"no-updater", no_argument,         NULL,  'n'},
-        {"version",    no_argument,         NULL,  'v'},
+        {"version",    no_argument,         NULL,   0},
+        {"silent",     no_argument,         NULL,   1},
+        {"verbose",    no_argument,         NULL,  'v'},
         {"help",       no_argument,         NULL,  'h'},
         {0, 0, 0, 0}
     };
 
-    int opt, long_index =0;
-    while ((opt = getopt_long(argc, argv,"t:ps:u:nvh", long_options, &long_index )) != -1) {
+    int opt, long_index = 0;
+    while ((opt = getopt_long(argc, argv, "t:ps:u:nvh", long_options, &long_index )) != -1) {
         // loop through each option; ":" after each option means an argument is required
         switch (opt) {
-            case 't':
+            case 't': {
                 if (!strcmp(optarg, "default")) {
                     theme = THEME_DEFAULT;
                 } else if (!strcmp(optarg, "dark")) {
@@ -209,13 +231,15 @@ void parse_args(int argc, char *argv[], bool *theme_was_set_on_argv, int8_t *sho
                 }
                 *theme_was_set_on_argv = 1;
                 break;
+            }
 
-            case 'p':
+            case 'p': {
                 debug("Launching uTox in portable mode: All data will be saved to the tox folder in the current working directory\n");
                 utox_portable = 1;
                 break;
+            }
 
-            case 's':
+            case 's': {
                 if (!strcmp(optarg, "start-on-boot")) {
                     *should_launch_at_startup = 1;
                 } else if (!strcmp(optarg, "show-window")) {
@@ -227,8 +251,9 @@ void parse_args(int argc, char *argv[], bool *theme_was_set_on_argv, int8_t *sho
                     exit(EXIT_FAILURE);
                 }
                 break;
+            }
 
-            case 'u':
+            case 'u': {
                 if (!strcmp(optarg, "start-on-boot")) {
                     *should_launch_at_startup = -1;
                 } else {
@@ -236,28 +261,44 @@ void parse_args(int argc, char *argv[], bool *theme_was_set_on_argv, int8_t *sho
                     exit(EXIT_FAILURE);
                 }
                 break;
+            }
 
-            case 'n':
+            case 'n': {
                 *no_updater = 1;
                 break;
+            }
 
-            case 'v':
+            case 1: {
                 debug("uTox version: %s\n", VERSION);
                 exit(EXIT_SUCCESS);
                 break;
+            }
 
-            case 'h':
-                debug("µTox - Lightweight Tox client version %s.\n\n", VERSION);
-                debug("The following options are available:\n");
-                debug("  -t --theme=<theme-name>  Specify a UI theme, where <theme-name> can be one of default, dark, light, highcontrast, zenburn.\n");
-                debug("  -p --portable            Launch in portable mode: All data will be saved to the tox folder in the current working directory.\n");
-                debug("  -s --set=<option>        Set an option: start-on-boot, show-window, hide-window.\n");
-                debug("  -u --unset=<option>      Unset an option: start-on-boot.\n");
-                debug("  -n --no-updater          Disable the updater.\n");
-                debug("  -v --version             Print the version and exit.\n");
-                debug("  -h --help                Shows this help text.\n");
+            case 0: {
+                settings.verbose = 0;
+                break;
+            }
+
+            case 'v': {
+                settings.verbose++;
+                break;
+            }
+
+            case 'h': {
+                debug_error("µTox - Lightweight Tox client version %s.\n\n", VERSION);
+                debug_error("The following options are available:\n");
+                debug_error("  -t --theme=<theme-name>  Specify a UI theme, where <theme-name> can be one of default, dark, light, highcontrast, zenburn.\n");
+                debug_error("  -p --portable            Launch in portable mode: All data will be saved to the tox folder in the current working directory.\n");
+                debug_error("  -s --set=<option>        Set an option: start-on-boot, show-window, hide-window.\n");
+                debug_error("  -u --unset=<option>      Unset an option: start-on-boot.\n");
+                debug_error("  -n --no-updater          Disable the updater.\n");
+                debug_error("  -v --verbose             Increase the amount of output, use -v multiple times to get full debug output.\n");
+                debug_error("  -h --help                Shows this help text.\n");
+                debug_error("  --version                Print the version and exit.\n");
+                debug_error("  --silent                 Set the verbosity level to 0, disable all debugging output.\n");
                 exit(EXIT_SUCCESS);
                 break;
+            }
 
             case '?':
                 debug("Invalid option: %c!\n", (char) optopt);

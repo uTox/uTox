@@ -676,6 +676,7 @@ UTOX_SAVE* config_load(void) {
     save->audible_notifications_enabled = 1;
     save->audio_device_in = ~0;
     save->audio_filtering_enabled = 1;
+    save->use_mini_roster = 0;
     save->filter = 0;
     save->push_to_talk = 0;
 
@@ -700,6 +701,7 @@ NEXT:
     dropdown_audible_notification.selected = dropdown_audible_notification.over = save->audible_notifications_enabled;
     dropdown_audio_filtering.selected      = dropdown_audio_filtering.over      = save->audio_filtering_enabled;
     dropdown_push_to_talk.selected         = dropdown_push_to_talk.over         = save->push_to_talk;
+    dropdown_mini_roster.selected          = dropdown_mini_roster.over          = save->use_mini_roster;
 
     dropdown_theme.selected = dropdown_theme.over = save->theme;
 
@@ -722,24 +724,24 @@ NEXT:
         }
     }
 
-    logging_enabled               = save->logging_enabled;
+    settings.logging_enabled        = save->logging_enabled;
+    settings.close_to_tray          = save->close_to_tray;
+    settings.start_in_tray          = save->start_in_tray;
+    settings.start_with_system      = save->auto_startup;
+    settings.ringtone_enabled       = save->audible_notifications_enabled;
+    settings.audiofilter_enabled    = save->audio_filtering_enabled;
+    settings.use_mini_roster        = save->use_mini_roster;
 
-    close_to_tray                 = save->close_to_tray;
-    start_in_tray                 = save->start_in_tray;
-    auto_startup                  = save->auto_startup;
+    settings.send_typing_status     = !save->no_typing_notifications;
+    settings.window_width           = save->window_width;
+    settings.window_height          = save->window_height;
 
-    audible_notifications_enabled = save->audible_notifications_enabled;
-    audio_filtering_enabled       = save->audio_filtering_enabled;
-    loaded_audio_out_device       = save->audio_device_out;
-    loaded_audio_in_device        = save->audio_device_in;
+    loaded_audio_out_device         = save->audio_device_out;
+    loaded_audio_in_device          = save->audio_device_in;
+
     if ( save->push_to_talk ) {
         init_ptt();
     }
-
-    dont_send_typing_notes        = save->no_typing_notifications;
-
-    utox_window_width  = save->window_width;
-    utox_window_height = save->window_height;
 
     return save;
 }
@@ -747,15 +749,19 @@ NEXT:
 void config_save(UTOX_SAVE *save) {
     save->version                       = SAVE_VERSION;
     save->scale                         = ui_scale - 1;
-    save->enableipv6                    = !dropdown_ipv6.selected;
     save->disableudp                    = dropdown_udp.selected;
     save->proxyenable                   = dropdown_proxy.selected;
-    save->logging_enabled               = logging_enabled;
-    save->close_to_tray                 = close_to_tray;
-    save->start_in_tray                 = start_in_tray;
-    save->auto_startup                  = auto_startup;
-    save->audible_notifications_enabled = audible_notifications_enabled;
-    save->audio_filtering_enabled       = audio_filtering_enabled;
+    save->logging_enabled               = settings.logging_enabled;
+    save->close_to_tray                 = settings.close_to_tray;
+    save->start_in_tray                 = settings.start_in_tray;
+    save->auto_startup                  = settings.start_with_system;
+    save->audible_notifications_enabled = settings.ringtone_enabled;
+    save->audio_filtering_enabled       = settings.audiofilter_enabled;
+    save->push_to_talk                  = settings.push_to_talk;
+    save->use_mini_roster               = settings.use_mini_roster;
+
+    save->enableipv6                    = !dropdown_ipv6.selected;
+    save->no_typing_notifications       = !settings.send_typing_status;
 
     save->filter                        = list_get_filter();
     save->proxy_port                    = options.proxy_port;
@@ -764,9 +770,7 @@ void config_save(UTOX_SAVE *save) {
     save->audio_device_out              = dropdown_audio_out.selected;
     save->theme                         = theme;
 
-    save->push_to_talk                  = push_to_talk;
 
-    save->no_typing_notifications       = dont_send_typing_notes;
     memset(save->unused, 0, sizeof(save->unused));
 
     debug("uTox:\tWriting uTox Save\n");

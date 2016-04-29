@@ -134,7 +134,12 @@ void messages_clear_receipt(MESSAGES *m, uint32_t receipt_number) {
             }
         }
     }
+}
 
+/* TODO leaving this here is a little hacky, but it was the fastest way
+ * without considering if I should expose messages_add */
+uint32_t message_add_group(MESSAGES *m, MSG_TEXT *msg) {
+    return message_add(m, (MSG_VOID*)msg);
 }
 
 uint32_t message_add_type_text(MESSAGES *m, _Bool auth, const uint8_t *data, uint16_t length, _Bool log) {
@@ -265,22 +270,20 @@ static void messages_draw_timestamp(int x, int y, const time_t *time) {
     drawtext(x, y, (char_t*)timestr, len);
 }
 
-static void messages_draw_author(int x, int y, int w, uint8_t *name, uint32_t length, _Bool author) {
-    if (author) {
-        setcolor(COLOR_MAIN_SUBTEXT);
-    } else {
-        setcolor(COLOR_MAIN_CHATTEXT);
-    }
+static void messages_draw_author(int x, int y, int w, uint8_t *name, uint32_t length, uint32_t color) {
+    setcolor(color);
     setfont(FONT_TEXT);
     drawtextwidth_right(x, w, y, name, length);
 }
 
-static int messages_draw_text(MSG_TEXT *msg, int x, int y, int w, int h, uint16_t h1, uint16_t h2) {
-
-    switch (msg->msg_type) {
+static int messages_draw_text(const uint8_t *msg, size_t length, uint32_t msg_height, uint8_t msg_type,
+                              _Bool author, _Bool receipt, uint16_t highlight_start, uint16_t highlight_end,
+                              int x, int y, int w, int h)
+{
+    switch (msg_type) {
         case MSG_TYPE_TEXT: {
-            if(msg->author) {
-                if (msg->receipt_time) {
+            if (author) {
+                if (receipt) {
                     setcolor(COLOR_MSG_USER);
                 } else {
                     setcolor(COLOR_MSG_USER_PEND);
@@ -300,14 +303,11 @@ static int messages_draw_text(MSG_TEXT *msg, int x, int y, int w, int h, uint16_
 
     setfont(FONT_TEXT);
 
-    int ny = utox_draw_text_multiline_within_box(x, y,
-                                                 w + x, MAIN_TOP, y + msg->height,
-                                                 font_small_lineheight,
-                                                 msg->msg, msg->length,
-                                                 h1, h2 - h1, 0, 0, 1);
+    int ny = utox_draw_text_multiline_within_box(x, y, w + x, MAIN_TOP, y + msg_height, font_small_lineheight,
+                                                 msg, length, highlight_start, highlight_end, 0, 0, 1);
 
-    if (ny < y || (uint32_t)(ny - y) + MESSAGES_SPACING != msg->height) {
-        debug("Text Draw Error:\ty %i | ny %i | mheight %u | width %i \n", y, ny, msg->height, w);
+    if (ny < y || (uint32_t)(ny - y) + MESSAGES_SPACING != msg_height) {
+        debug("Text Draw Error:\ty %i | ny %i | mheight %u | width %i \n", y, ny, msg_height, w);
     }
 
     return ny;
@@ -549,12 +549,44 @@ static void messages_draw_filetransfer(MESSAGES *m, MSG_FILE *file, int i, int x
     drawtextrange(dx + SCALE(10), wbound - SCALE(10), y + SCALE(6), text_name_and_size, text_name_and_size_len);
 }
 
+/* This is a bit hacky, and likely would benifit from being moved to a whole new section including seperating
+ * group messages/functions from friend messages and functions from inside ui.c.
+ *
+ * Idealy group and friend messages wouldn't even need to know about eachother.   */
+static int messages_draw_group(MESSAGES *m, MSG_GROUP *msg, uint32_t i, int x, int y, int width, int height) {
+    uint16_t h1 = UINT16_MAX, h2 = UINT16_MAX;
+    if (i == m->sel_start_msg) {
+        h1 = m->sel_start_position;
+        h2 = ((i == m->sel_end_msg) ? m->sel_end_position : msg->length);
+    } else if (i == m->sel_end_msg) {
+        h1 = 0;
+        h2 = m->sel_end_position;
+    } else if (i > m->sel_start_msg && i < m->sel_end_msg) {
+        h1 = 0;
+        h2 = msg->length;
+    }
+
+    if ((m->sel_start_msg == m->sel_end_msg && m->sel_start_position == m->sel_end_position) || h1 == h2) {
+        h1 = UINT16_MAX;
+        h2 = UINT16_MAX;
+    }
+
+
+    messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET, msg->msg, msg->author_length, msg->author_color);
+    messages_draw_timestamp(x + width - ACTUAL_TIME_WIDTH, y, &msg->time);
+    return messages_draw_text(msg->msg + msg->author_length, msg->length, msg->height, msg->msg_type,
+                              msg->author, msg->receipt_time, h1, h2,
+                              x + MESSAGES_X, y, width - TIME_WIDTH - MESSAGES_X, height) + MESSAGES_SPACING;
+}
+
 /** Formats all messages from self and friends, and then call draw functions
  * to write them to the UI.
  *
  * accepts: messages struct *pointer, int x,y positions, int width,height
  */
 void messages_draw(PANEL *panel, int x, int y, int width, int height) {
+    pthread_mutex_lock(&messages_lock);
+
     MESSAGES *m = panel->object;
     // Do not draw author name next to every message
     uint8_t lastauthor = 0xFF;
@@ -576,6 +608,7 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
         /* Decide if we should even bother drawing this message. */
         if (msg->height == 0) {
             /* Empty message */
+            pthread_mutex_unlock(&messages_lock);
             return;
         } else if (y + (int)msg->height <= MAIN_TOP) {
             /* message is exclusively above the viewing window */
@@ -586,21 +619,17 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
             break;
         }
 
-
         // Draw the names for groups or friends
         if (m->is_groupchat) {
-            // Group message authors are all the same color
-            messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET,
-                                 &msg->msg[msg->length] + 1,
-                                 msg->msg[msg->length], 1);
+            y = messages_draw_group(m, (MSG_GROUP*)msg, i, x, y, width, height);
+            continue;
+
         } else {
             FRIEND *f = &friend[m->id];
-            _Bool auth = msg->author;
             _Bool draw_author = 1;
             if (msg->msg_type == MSG_TYPE_ACTION_TEXT) {
                 // Always draw name next to action message
                 lastauthor = 0xFF;
-                auth = 1;
             }
 
             if (msg->msg_type == MSG_TYPE_NOTICE) {
@@ -610,11 +639,11 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
             if (draw_author) {
                 if (msg->author != lastauthor) {
                     if (msg->author) {
-                        messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET, self.name, self.name_length, auth);
+                        messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET, self.name, self.name_length, COLOR_MAIN_SUBTEXT);
                     } else if (f->alias) {
-                        messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET, f->alias, f->alias_length, auth);
+                        messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET, f->alias, f->alias_length, COLOR_MAIN_CHATTEXT);
                     } else {
-                        messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET, f->name, f->name_length, auth);
+                        messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET, f->name, f->name_length, COLOR_MAIN_CHATTEXT);
                     }
                     lastauthor = msg->author;
                 }
@@ -628,12 +657,12 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
             }
 
             case MSG_TYPE_TEXT:
-            case MSG_TYPE_ACTION_TEXT: {
+            case MSG_TYPE_ACTION_TEXT:
+            case MSG_TYPE_NOTICE: {
                 // Draw timestamps
                 messages_draw_timestamp(x + width - ACTUAL_TIME_WIDTH, y, &msg->time);
                 /* intentional fall through */
             }
-            case MSG_TYPE_NOTICE:
             case MSG_TYPE_NOTICE_DAY_CHANGE: {
                 // Normal message
                 uint16_t h1 = UINT16_MAX, h2 = UINT16_MAX;
@@ -653,7 +682,9 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
                     h2 = UINT16_MAX;
                 }
 
-                y = messages_draw_text(msg, x + MESSAGES_X, y, width - TIME_WIDTH - MESSAGES_X, height, h1, h2);
+                y = messages_draw_text(msg->msg, msg->length, msg->height, msg->msg_type,
+                                       msg->author, msg->receipt_time, h1, h2,
+                                       x + MESSAGES_X, y, width - TIME_WIDTH - MESSAGES_X, height);
                 break;
             }
 
@@ -673,6 +704,8 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
 
         y += MESSAGES_SPACING;
     }
+
+    pthread_mutex_unlock(&messages_lock);
 }
 
 static _Bool messages_mmove_text(MESSAGES *m, int width, int mx, int my, int dy,
@@ -809,7 +842,12 @@ _Bool messages_mmove(PANEL *panel, int UNUSED(px), int UNUSED(py), int width, in
                 case MSG_TYPE_ACTION_TEXT:
                 case MSG_TYPE_NOTICE:
                 case MSG_TYPE_NOTICE_DAY_CHANGE: {
-                    messages_mmove_text(m, width, mx, my, dy, msg->msg, msg->height, msg->length);
+                    if (m->is_groupchat) {
+                        MSG_GROUP *grp = (void*)msg;
+                        messages_mmove_text(m, width, mx, my, dy, grp->msg + grp->author_length, grp->height, grp->length);
+                    } else {
+                        messages_mmove_text(m, width, mx, my, dy, msg->msg, msg->height, msg->length);
+                    }
                     break;
                 }
 
@@ -1009,7 +1047,15 @@ _Bool messages_dclick(PANEL *panel, _Bool triclick) {
     MESSAGES *m = panel->object;
 
     if(m->cursor_over_msg != UINT32_MAX) {
-        MSG_TEXT *msg = m->data[m->cursor_over_msg];
+        MSG_TEXT *msg    = m->data[m->cursor_over_msg];
+        uint8_t *real_msg = NULL;
+
+        if (m->is_groupchat) {
+            real_msg = &((MSG_GROUP*)msg)->msg[msg->author_length];
+        } else {
+            real_msg = msg->msg;
+        }
+
         switch(msg->msg_type) {
             case MSG_TYPE_TEXT:
             case MSG_TYPE_ACTION_TEXT: {
@@ -1018,13 +1064,13 @@ _Bool messages_dclick(PANEL *panel, _Bool triclick) {
                 char_t c = triclick ? '\n' : ' ';
 
                 uint16_t i = m->cursor_over_position;
-                while (i != 0 && msg->msg[i - 1] != c) {
-                    i -= utf8_unlen(msg->msg + i);
+                while (i != 0 && real_msg[i-1] != c) {
+                    i -= utf8_unlen(real_msg + i);
                 }
                 m->sel_start_position = i;
                 i = m->cursor_over_position;
-                while (i != msg->length && msg->msg[i] != c) {
-                    i += utf8_len(msg->msg + i);
+                while (i != msg->length && real_msg[i] != c) {
+                    i += utf8_len(real_msg + i);
                 }
                 m->sel_end_position = i;
                 return 1;
@@ -1130,16 +1176,10 @@ int messages_selection(PANEL *panel, void *buffer, uint32_t len, _Bool names) {
 
         if (names && (i != m->sel_start_msg || m->sel_start_position == 0)) {
             if (m->is_groupchat) {
-                //TODO: get rid of such hacks or provide unpacker.
-                //This basically undoes copy_groupmessage().
-                uint8_t l = (uint8_t)msg->msg[msg->length];
-                if (len <= l) {
-                    break;
-                }
-
-                memcpy(p, &msg->msg[msg->length + 1], l);
-                p += l;
-                len -= l;
+                MSG_GROUP *grp = (void*)msg;
+                memcpy(p, &grp->msg[0], grp->author_length);
+                p += grp->author_length;
+                len -= grp->author_length;
             } else {
                 FRIEND *f = &friend[m->id];
 
@@ -1174,21 +1214,31 @@ int messages_selection(PANEL *panel, void *buffer, uint32_t len, _Bool names) {
         switch(msg->msg_type) {
             case MSG_TYPE_TEXT:
             case MSG_TYPE_ACTION_TEXT: {
+                uint16_t group_name_buffer = 0;
+                if (m->is_groupchat) {
+                    MSG_GROUP *grp = (void*)msg;
+                    group_name_buffer = grp->author_length;
+                    group_name_buffer += 4; /* LOL, again, SO SORRY! This is about as hacky as it gets!
+                                             * 2 is the number of bytes of difference between the
+                                             * position of ->msg[0] of MSG_TEXT and of MSG_GROUP      */
+                }
+
+
                 char_t *data;
                 uint16_t length;
                 if(i == m->sel_start_msg) {
                     if(i == m->sel_end_msg) {
-                        data = msg->msg + m->sel_start_position;
+                        data = msg->msg + m->sel_start_position + group_name_buffer;
                         length = m->sel_end_position - m->sel_start_position;
                     } else {
-                        data = msg->msg + m->sel_start_position;
+                        data = msg->msg + m->sel_start_position + group_name_buffer;
                         length = msg->length - m->sel_start_position;
                     }
                 } else if(i == m->sel_end_msg) {
-                    data = msg->msg;
+                    data = msg->msg + group_name_buffer;
                     length = m->sel_end_position;
                 } else {
-                    data = msg->msg;
+                    data = msg->msg + group_name_buffer;
                     length = msg->length;
                 }
 
@@ -1254,6 +1304,40 @@ static int msgheight(MSG_VOID *msg, int width) {
     return 0;
 }
 
+static int msgheight_group(MSG_GROUP *grp, int width) {
+    switch(grp->msg_type) {
+        case MSG_TYPE_TEXT:
+        case MSG_TYPE_ACTION_TEXT:
+        case MSG_TYPE_NOTICE:
+        case MSG_TYPE_NOTICE_DAY_CHANGE: {
+            int theight = text_height(abs(width - MESSAGES_X - TIME_WIDTH), font_small_lineheight,
+                                      grp->msg + grp->author_length, grp->length);
+            return (theight == 0) ? 0 : theight + MESSAGES_SPACING;
+        }
+        default: {
+            debug("Error, can't set this group message height\n");
+        }
+    }
+
+    return 0;
+}
+
+static int message_setheight(MESSAGES *m, MSG_VOID *msg) {
+    if (m->width == 0) {
+        return 0;
+    }
+
+    setfont(FONT_TEXT);
+
+    if (m->is_groupchat) {
+        MSG_GROUP *grp = (void*)msg;
+        msg->height = msgheight_group(grp, m->width);
+    } else {
+        msg->height = msgheight(msg, m->width);
+    }
+    return msg->height;
+}
+
 void messages_updateheight(MESSAGES *m, int width) {
     if (!m->data || !width) {
         return;
@@ -1265,26 +1349,11 @@ void messages_updateheight(MESSAGES *m, int width) {
     uint32_t i = 0;
 
     while (i < m->number) {
-        MSG_VOID *msg = m->data[i];
-        msg->height   = msgheight(msg, m->width);
-        height       += msg->height;
+        height += message_setheight(m, (void*)m->data[i]);
         i++;
     }
 
     m->panel.content_scroll->content_height = m->height = height;
-}
-
-static void message_setheight(MESSAGES *m, MSG_VOID *msg) {
-
-    if (m->width == 0) {
-        return;
-    }
-
-    setfont(FONT_TEXT);
-
-    msg->height  = msgheight((MSG_VOID*)msg, m->width);
-    m->height   += msg->height;
-    m->panel.content_scroll->content_height = m->height;
 }
 
 void message_updateheight(MESSAGES *m, MSG_VOID *msg) {
@@ -1295,7 +1364,7 @@ void message_updateheight(MESSAGES *m, MSG_VOID *msg) {
     setfont(FONT_TEXT);
 
     m->height   -= msg->height;
-    msg->height  = msgheight(msg, m->width);
+    msg->height  = message_setheight(m, msg);
     m->height   += msg->height;
 
     m->panel.content_scroll->content_height = m->height;
@@ -1309,6 +1378,8 @@ void message_updateheight(MESSAGES *m, MSG_VOID *msg) {
  * accepts: MESSAGES *pointer, MESSAGE *pointer, MSG_DATA *pointer
  */
 static uint32_t message_add(MESSAGES *m, MSG_VOID *msg) {
+    pthread_mutex_lock(&messages_lock);
+
     /* TODO: test this? */
     if (m->number < UTOX_MAX_BACKLOG_MESSAGES) {
         if (m->extra <= 0) {
@@ -1367,8 +1438,9 @@ static uint32_t message_add(MESSAGES *m, MSG_VOID *msg) {
         }
     }
 
-    message_setheight(m, (MSG_VOID*)msg);
+    message_updateheight(m, (MSG_VOID*)msg);
 
+    pthread_mutex_unlock(&messages_lock);
     return m->number;
 }
 

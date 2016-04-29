@@ -2,8 +2,8 @@
 
 static CONTEXTMENU context_menu;
 
-#define CONTEXT_WIDTH (UTOX_SCALE(60))
-#define CONTEXT_HEIGHT (UTOX_SCALE(12))
+#define CONTEXT_WIDTH (SCALE(120))
+#define CONTEXT_HEIGHT (SCALE(24))
 
 static void calculate_pos_and_width(CONTEXTMENU *b, int *x, int *w) {
     uint8_t i;
@@ -14,14 +14,14 @@ static void calculate_pos_and_width(CONTEXTMENU *b, int *x, int *w) {
     // Increase width if needed, so that all menu items fit.
     for(i = 0; i < b->count; i++) {
         STRING *name = b->ondisplay(i, b);
-        int needed_w = textwidth(name->str, name->length) + UTOX_SCALE(4 );
+        int needed_w = textwidth(name->str, name->length) + SCALE(8);
         if(*w < needed_w) {
             *w = needed_w;
         }
     }
 
     // Push away from the right border to fit.
-    if(*x + *w >= utox_window_width) {
+    if(*x + *w >= settings.window_width) {
         *x -= *w;
     }
 }
@@ -32,6 +32,7 @@ void contextmenu_draw(void)
     if(!b->open) {
         return;
     }
+    setfont(FONT_TEXT);
 
     int x, w, active_h;
     calculate_pos_and_width(b, &x, &w);
@@ -44,9 +45,8 @@ void contextmenu_draw(void)
     for(i = 0; i != b->count; i++) {
         // Ensure that font is set before calculating position and width.
         STRING *name = b->ondisplay(i, b);
-        setfont(FONT_TEXT);
         setcolor((active_h == b->y + i * CONTEXT_HEIGHT) ? COLOR_ACTIVEOPTION_TEXT : COLOR_MAIN_TEXT);
-        drawtext(x + UTOX_SCALE(2), b->y + UTOX_SCALE(2) + i * CONTEXT_HEIGHT, name->str, name->length);
+        drawtext(x + SCALE(4), b->y + SCALE(4) + i * CONTEXT_HEIGHT, name->str, name->length);
     }
 
     draw_rect_frame(x, b->y, w, b->height, COLOR_EDGE_ACTIVE);
@@ -146,7 +146,7 @@ void contextmenu_new_ex(uint8_t count, void *userdata, void (*onselect)(uint8_t)
 
     b->y = mouse.y;
     b->height = CONTEXT_HEIGHT * count;
-    if(b->y + b->height >= utox_window_height) {
+    if(b->y + b->height >= settings.window_height) {
         b->y -= b->height;
     }
     b->x = mouse.x;

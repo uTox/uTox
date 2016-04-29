@@ -31,7 +31,11 @@
 #define KEY_PAGEUP VK_PRIOR
 #define KEY_PAGEDOWN VK_NEXT
 
-#define debug(...) printf(__VA_ARGS__); fflush(stdout)
+#define debug(...)          (settings.verbose >= VERB_TEENAGE_GIRL     ) ? (printf(__VA_ARGS__); fflush(stdout)) : (0)
+#define debug_info(...)     (settings.verbose >= VERB_NEW_ADHD_MEDS    ) ? (printf(__VA_ARGS__); fflush(stdout)) : (0)
+#define debug_notice(...)   (settings.verbose >= VERB_CONCERNED_PARENT ) ? (printf(__VA_ARGS__); fflush(stdout)) : (0)
+#define debug_error(...)    (settings.verbose >= VERB_JANICE_ACCOUNTING) ? (printf(__VA_ARGS__); fflush(stdout)) : (0)
+
 
 #ifdef __MINGW32__
 #define fseeko fseeko64

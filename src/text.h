@@ -9,7 +9,7 @@ int      utox_draw_text_multiline_compat(int x, int right, int y, int top, int b
 int      utox_draw_text_multiline_within_box(int x, int y,
                                              int right, int top, int bottom,
                                              uint16_t lineheight,
-                                             char_t *data, uint16_t length,
+                                             const char_t *data, uint16_t length,
                                              uint16_t h, uint16_t hlen,
                                              uint16_t mark, uint16_t marklen,
                                              _Bool multiline);

@@ -2,7 +2,11 @@
 #define TITLE         "uTox"
 #define SUB_TITLE     "(Alpha)"
 #define RELEASE_TITLE "Mild Shock"
-#define VERSION       "0.8.0"
+#define PATCH_TITLE   "Acting"
+#define VERSION       "0.8.1"
+#define VER_MAJOR     0
+#define VER_MINOR     8
+#define VER_PATCH     1
 
 /* Support for large files. */
 #define _LARGEFILE_SOURCE
@@ -17,6 +21,7 @@
 #include <math.h>
 #include <limits.h>
 #include <ctype.h>
+#include <pthread.h>
 
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -79,19 +84,25 @@ typedef struct {
     uint16_t window_x, window_y, window_width, window_height;
     uint16_t proxy_port;
     uint8_t  proxyenable;
-    uint8_t  logging_enabled : 1;
-    uint8_t  audible_notifications_enabled : 1;
-    uint8_t  filter : 1;
-    uint8_t  audio_filtering_enabled : 1;
-    uint8_t  close_to_tray : 1;
-    uint8_t  start_in_tray : 1;
-    uint8_t  auto_startup : 1;
-    uint8_t  no_typing_notifications : 1;
+
+    uint8_t  logging_enabled                : 1;
+    uint8_t  audible_notifications_enabled  : 1;
+    uint8_t  filter                         : 1;
+    uint8_t  audio_filtering_enabled        : 1;
+    uint8_t  close_to_tray                  : 1;
+    uint8_t  start_in_tray                  : 1;
+    uint8_t  auto_startup                   : 1;
+    uint8_t  no_typing_notifications        : 1;
+
     uint16_t audio_device_in;
     uint16_t audio_device_out;
+
     uint8_t  theme;
-    uint8_t  push_to_talk : 1;
-    uint8_t  zero : 7;
+
+    uint8_t  push_to_talk                   : 1;
+    uint8_t  use_mini_roster                : 1;
+    uint8_t  zero                           : 6;
+
     uint16_t unused[31];
     uint8_t  proxy_ip[0];
 } UTOX_SAVE;
@@ -109,12 +120,58 @@ typedef struct {
     uint8_t  zeroes[2];
 } LOG_FILE_MSG_HEADER;
 
+volatile uint16_t loaded_audio_in_device, loaded_audio_out_device;
+_Bool tox_connected;
+
+/* Super global vars */
+volatile _Bool tox_thread_init,
+               utox_av_ctrl_init,
+               utox_audio_thread_init,
+               utox_video_thread_init;
+
+typedef struct utox_settings {
+    _Bool close_to_tray;
+    _Bool logging_enabled;
+    _Bool ringtone_enabled;
+    _Bool audiofilter_enabled;
+    _Bool start_in_tray;
+    _Bool start_with_system;
+    _Bool push_to_talk;
+    _Bool use_encryption;
+    _Bool audio_preview;
+    _Bool video_preview;
+    _Bool send_typing_status;
+    _Bool use_mini_roster;
+
+    uint8_t verbose;
+
+    int window_height;
+    int window_width;
+} SETTINGS;
+
+/* This might need to be volatile type... */
+SETTINGS settings;
+
+//HFONT font_big, font_big2, font_med, font_med2, font_small, font_msg;
+int font_small_lineheight, font_msg_lineheight;
+uint16_t video_width, video_height, max_video_width, max_video_height;
+char proxy_address[256];
+extern struct Tox_Options options;
 
 // Structs
-
 typedef struct edit_change EDIT_CHANGE;
 
 // Enums
+/* uTox debug levels */
+enum {
+    VERB_ANCIENT_MONK,      // Off
+    VERB_JANICE_ACCOUNTING, // Error (default)
+    VERB_CONCERNED_PARENT,  // Notice
+    VERB_NEW_ADHD_MEDS,     // Info
+    VERB_TEENAGE_GIRL,      // Debug
+};
+
+
 enum {
     CURSOR_NONE,
     CURSOR_TEXT,
@@ -157,7 +214,9 @@ enum {
     BM_SBUTTON,
 
     BM_CONTACT,
+    BM_CONTACT_MINI,
     BM_GROUP,
+    BM_GROUP_MINI,
 
     BM_FILE,
     BM_FILE_BIG,
@@ -201,6 +260,7 @@ typedef uint8_t *UTOX_IMAGE;
 #include "audio.h"
 #include "video.h"
 #include "utox_av.h"
+#include "tox_callbacks.h"
 
 #if defined __WIN32__
     #include "windows/main.h"
@@ -244,19 +304,7 @@ typedef uint8_t *UTOX_IMAGE;
 #include "ui_dropdown.h"
 
 
-/* Super global vars */
-volatile _Bool tox_thread_init,
-               utox_av_ctrl_init,
-               utox_audio_thread_init,
-               utox_video_thread_init;
-
-volatile _Bool logging_enabled, audible_notifications_enabled, audio_filtering_enabled, close_to_tray, start_in_tray, auto_startup, push_to_talk;
-volatile uint16_t loaded_audio_in_device, loaded_audio_out_device;
-_Bool tox_connected;
-// TODO: remove globals
-_Bool encrypted_profile;
-_Bool audio_preview, video_preview;
-
+pthread_mutex_t messages_lock;
 
 //friends and groups
 //note: assumes array size will always be large enough
@@ -265,7 +313,7 @@ GROUPCHAT group[MAX_NUM_GROUPS];
 uint32_t friends, groups;
 
 //window
-int utox_window_width, utox_window_height, utox_window_baseline;
+int utox_window_baseline;
 _Bool utox_window_maximized;
 
 uint8_t cursor;
@@ -375,8 +423,7 @@ int ch_mod(uint8_t *file);
 void config_osdefaults(UTOX_SAVE *r);
 
 //me
-struct
-{
+struct {
     uint8_t status;
     uint16_t name_length, statusmsg_length;
     char_t *statusmsg, name[TOX_MAX_NAME_LENGTH];
@@ -389,12 +436,10 @@ struct
     unsigned int avatar_format;
     uint8_t *avatar_data;
     size_t avatar_size;
-}self;
+} self;
 
 //add friend page
 uint8_t addfriend_status;
-
-_Bool dont_send_typing_notes; //Stores user's preference about typing notifications
 
 void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data);
 
