@@ -2,7 +2,11 @@
 #define TITLE         "uTox"
 #define SUB_TITLE     "(Alpha)"
 #define RELEASE_TITLE "Mild Shock"
-#define VERSION       "0.8.0"
+#define PATCH_TITLE   "Acting"
+#define VERSION       "0.8.1"
+#define VER_MAJOR     0
+#define VER_MINOR     8
+#define VER_PATCH     1
 
 /* Support for large files. */
 #define _LARGEFILE_SOURCE
