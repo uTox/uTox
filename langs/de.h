@@ -79,6 +79,12 @@ msgstr("Dateiübertragung abgebrochen")
 msgid(TRANSFER_COMPLETE)
 msgstr("Dateiübertragung abgeschlossen")
 
+msgid(CURSOR_CLICK_LEFT)
+msgstr("Linksklick")
+
+msgid(CURSOR_CLICK_RIGHT)
+msgstr("Rechtsklick")
+
 msgid(GROUPCHAT_JOIN_AUDIO)
 msgstr("Audiochat beitreten")
 
@@ -136,6 +142,12 @@ msgstr("Nur online Kontakte zeigen!")
 msgid(ADD)
 msgstr("Hinzufügen")
 
+msgid(GROUP_CREATE_TEXT)
+msgstr("Text-Gruppenchat erstellen")
+
+msgid(GROUP_CREATE_VOICE)
+msgstr("Audio-Gruppenchat erstellen")
+
 msgid(CREATEGROUPCHAT)
 msgstr("Gruppenchat erstellen")
 
@@ -180,6 +192,9 @@ msgstr("Abwesend")
 
 msgid(STATUS_BUSY)
 msgstr("Beschäftigt")
+
+msgid(SETTINGS_UI_MINI_ROSTER)
+msgstr("Kompakte Kontaktliste verwenden")
 
 msgid(NOT_CONNECTED)
 msgstr("Nicht verbunden")
