@@ -104,13 +104,13 @@ void parse_args(int argc, char *argv[], bool *theme_was_set_on_argv, int8_t *sho
                 break;
             }
 
-            case 1: {
-                debug("uTox version: %s\n", VERSION);
+            case 0: {
+                debug_error("uTox version: %s\n", VERSION);
                 exit(EXIT_SUCCESS);
                 break;
             }
 
-            case 0: {
+            case 1: {
                 settings.verbose = 0;
                 break;
             }
