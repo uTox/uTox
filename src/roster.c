@@ -396,6 +396,7 @@ static void show_page(ITEM *i) {
             messages_updateheight((MESSAGES*)messages_friend.object, current_width);
 
             ((MESSAGES*)messages_friend.object)->cursor_over_msg = UINT32_MAX;
+            ((MESSAGES*)messages_friend.object)->cursor_over_uri = UINT32_MAX;
             scrollbar_friend.content_height = f->msg.height;
             messages_friend.content_scroll->d = f->msg.scroll;
 

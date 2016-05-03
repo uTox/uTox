@@ -10,11 +10,11 @@ struct messages {
     int height, width;
 
     // Position and length of an URL in the message under the mouse,
-    // if present. mouse_over_uri == UINT16_MAX if there's none.
-    uint16_t mouse_over_uri, urllen;
+    // if present. cursor_over_uri == UINT16_MAX if there's none.
+    uint32_t cursor_over_uri, urllen;
 
     // Was the url pressed by the mouse.
-    _Bool mouse_down_on_uri;
+    _Bool cursor_down_uri;
 
     uint32_t cursor_over_msg, cursor_over_position, cursor_down_msg, cursor_down_position;
     uint32_t sel_start_msg, sel_end_msg, sel_start_position, sel_end_position;

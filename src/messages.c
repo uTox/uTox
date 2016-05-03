@@ -472,7 +472,7 @@ static void messages_draw_filetransfer(MESSAGES *m, MSG_FILE *file, int i, int x
  *
  * Idealy group and friend messages wouldn't even need to know about eachother.   */
 static int messages_draw_group(MESSAGES *m, MSG_GROUP *msg, uint32_t i, int x, int y, int width, int height) {
-    uint16_t h1 = UINT16_MAX, h2 = UINT16_MAX;
+    uint32_t h1 = UINT32_MAX, h2 = UINT32_MAX;
     if (i == m->sel_start_msg) {
         h1 = m->sel_start_position;
         h2 = ((i == m->sel_end_msg) ? m->sel_end_position : msg->length);
@@ -485,8 +485,8 @@ static int messages_draw_group(MESSAGES *m, MSG_GROUP *msg, uint32_t i, int x, i
     }
 
     if ((m->sel_start_msg == m->sel_end_msg && m->sel_start_position == m->sel_end_position) || h1 == h2) {
-        h1 = UINT16_MAX;
-        h2 = UINT16_MAX;
+        h1 = UINT32_MAX;
+        h2 = UINT32_MAX;
     }
 
 
@@ -583,7 +583,7 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
             }
             case MSG_TYPE_NOTICE_DAY_CHANGE: {
                 // Normal message
-                uint16_t h1 = UINT16_MAX, h2 = UINT16_MAX;
+                uint32_t h1 = UINT32_MAX, h2 = UINT32_MAX;
                 if (i == m->sel_start_msg) {
                     h1 = m->sel_start_position;
                     h2 = ((i == m->sel_end_msg) ? m->sel_end_position : msg->length);
@@ -596,8 +596,8 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
                 }
 
                 if ((m->sel_start_msg == m->sel_end_msg && m->sel_start_position == m->sel_end_position) || h1 == h2) {
-                    h1 = UINT16_MAX;
-                    h2 = UINT16_MAX;
+                    h1 = UINT32_MAX;
+                    h2 = UINT32_MAX;
                 }
 
                 y = messages_draw_text(msg->msg, msg->length, msg->height, msg->msg_type,
@@ -644,14 +644,14 @@ static _Bool messages_mmove_text(MESSAGES *m, int width, int mx, int my, int dy,
         return 0;
     }
 
-    _Bool prev_mouse_down_on_uri = m->mouse_down_on_uri;
+    _Bool prev_cursor_down_uri = m->cursor_down_uri;
 
-    if (m->mouse_over_uri != UINT16_MAX) {
-        m->mouse_down_on_uri = 0;
-        m->mouse_over_uri = UINT16_MAX;
+    if (m->cursor_over_uri != UINT32_MAX) {
+        m->cursor_down_uri = 0;
+        m->cursor_over_uri = UINT32_MAX;
     }
 
-
+    /* Seek back to the last line break */
     char_t *str = message + m->cursor_over_position;
     while (str != message) {
         str--;
@@ -661,24 +661,26 @@ static _Bool messages_mmove_text(MESSAGES *m, int width, int mx, int my, int dy,
         }
     }
 
+    /* Check if it's a URI we handle TODO: handle moar! */
     char_t *end = message + msg_length;
     while (str != end && *str != ' ' && *str != '\n') {
         if (str == message || *(str - 1) == '\n' || *(str - 1) == ' ') {
-            if ((m->mouse_over_uri == UINT16_MAX && end - str >= 7 && strcmp2(str, "http://") == 0)) {
+            if ((m->cursor_over_uri == UINT32_MAX && end - str >= 7 && strcmp2(str, "http://") == 0)) {
                 cursor = CURSOR_HAND;
-                m->mouse_over_uri = str - message;
-            } else if ((m->mouse_over_uri == UINT16_MAX && end - str >= 8 && strcmp2(str, "https://") == 0)) {
+                m->cursor_over_uri = str - message;
+            } else if ((m->cursor_over_uri == UINT32_MAX && end - str >= 8 && strcmp2(str, "https://") == 0)) {
                 cursor = CURSOR_HAND;
-                m->mouse_over_uri = str - message;
+                m->cursor_over_uri = str - message;
             }
         }
         str++;
     }
 
-    if (m->mouse_over_uri != UINT16_MAX) {
-        m->urllen = (str - message) - m->mouse_over_uri;
-        m->mouse_down_on_uri = prev_mouse_down_on_uri;
+    if (m->cursor_over_uri != UINT32_MAX) {
+        m->urllen = (str - message) - m->cursor_over_uri;
+        m->cursor_down_uri = prev_cursor_down_uri;
     }
+
     return 0;
 }
 
@@ -762,7 +764,7 @@ _Bool messages_mmove(PANEL *panel, int UNUSED(px), int UNUSED(py), int width, in
                 case MSG_TYPE_NOTICE_DAY_CHANGE: {
                     if (m->is_groupchat) {
                         MSG_GROUP *grp = (void*)msg;
-                        messages_mmove_text(m, width, mx, my, dy, grp->msg + grp->author_length, msg->height, msg->length);
+                        messages_mmove_text(m, width, mx, my, dy, grp->msg + grp->author_length, grp->height, grp->length);
                     } else {
                         messages_mmove_text(m, width, mx, my, dy, msg->msg, msg->height, msg->length);
                     }
@@ -793,7 +795,7 @@ _Bool messages_mmove(PANEL *panel, int UNUSED(px), int UNUSED(py), int width, in
 
             if (m->selecting_text) {
                 uint32_t msg_start, msg_end;
-                uint16_t pos_start, pos_end;
+                uint32_t pos_start, pos_end;
                 if (i > m->cursor_down_msg) {
                     msg_start = m->cursor_down_msg;
                     msg_end = i;
@@ -846,13 +848,12 @@ _Bool messages_mdown(PANEL *panel) {
     m->cursor_down_msg = UINT32_MAX;
 
     if (m->cursor_over_msg != UINT32_MAX) {
-
         MSG_VOID *msg = m->data[m->cursor_over_msg];
         switch (msg->msg_type) {
             case MSG_TYPE_TEXT:
             case MSG_TYPE_ACTION_TEXT: {
-                if (m->mouse_over_uri != UINT16_MAX) {
-                    m->mouse_down_on_uri = 1;
+                if (m->cursor_over_uri != UINT32_MAX) {
+                    m->cursor_down_uri = 1;
                 }
 
                 m->sel_start_msg = m->sel_end_msg = m->cursor_down_msg = m->cursor_over_msg;
@@ -1045,12 +1046,12 @@ _Bool messages_mup(PANEL *panel) {
 
         MSG_TEXT *msg = m->data[m->cursor_over_msg];
         if (msg->msg_type == MSG_TYPE_TEXT){
-            if (m->mouse_over_uri != UINT16_MAX && m->mouse_down_on_uri) {
+            if (m->cursor_over_uri != UINT32_MAX && m->cursor_down_uri) {
                 char_t url[m->urllen + 1];
-                memcpy(url, msg->msg + m->mouse_over_uri, m->urllen * sizeof(char_t));
+                memcpy(url, msg->msg + m->cursor_over_uri, m->urllen * sizeof(char_t));
                 url[m->urllen] = 0;
                 openurl(url);
-                m->mouse_down_on_uri = 0;
+                m->cursor_down_uri = 0;
             }
         }
     }
