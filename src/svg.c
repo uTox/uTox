@@ -393,17 +393,17 @@ static void drawlineroundempty(uint8_t *data, int width, int height, double sx, 
 
 static void drawgroup(uint8_t *data, int width) {
     double s = (double)width / BM_CONTACT_WIDTH;
-    drawnewcircle(data, width, s * UTOX_SCALE(9 ), s * UTOX_SCALE(5 ), s * UTOX_SCALE(9 ), s * UTOX_SCALE(7.5 ));
-    drawnewcircle(data, width, s * UTOX_SCALE(9 ), s * UTOX_SCALE(15 ), s * UTOX_SCALE(9 ), s * UTOX_SCALE(7.5 ));
-    drawsubcircle(data, width, width, s * UTOX_SCALE(5 ), s * UTOX_SCALE(4 ), s * UTOX_SCALE(5.5 ));
-    drawsubcircle(data, width, width, s * UTOX_SCALE(15 ), s * UTOX_SCALE(4 ), s * UTOX_SCALE(5.5 ));
-    drawhead(data, width, s * UTOX_SCALE(5 ), s * UTOX_SCALE(3 ), s * UTOX_SCALE(4.5 ));
-    drawhead(data, width, s * UTOX_SCALE(15 ), s * UTOX_SCALE(3 ), s * UTOX_SCALE(4.5 ));
+    drawnewcircle(data, width, s * SCALE(18), s * SCALE(10), s * SCALE(18), s * SCALE(15));
+    drawnewcircle(data, width, s * SCALE(18), s * SCALE(30), s * SCALE(18), s * SCALE(15));
+    drawsubcircle(data, width, width, s * SCALE(10), s * SCALE(8), s * SCALE(9));
+    drawsubcircle(data, width, width, s * SCALE(30), s * SCALE(8), s * SCALE(9));
+    drawhead(data, width, s * SCALE(10), s * SCALE(6), s * SCALE(9));
+    drawhead(data, width, s * SCALE(30), s * SCALE(6), s * SCALE(9));
 
-    drawnewcircle(data, width, s * UTOX_SCALE(20 ), s * UTOX_SCALE(10 ), s * UTOX_SCALE(20 ), s * UTOX_SCALE(14.5 ));
-    drawsubcircle(data, width, width, s * UTOX_SCALE(10 ), s * UTOX_SCALE(12 ), s * UTOX_SCALE(6.5 ));
-    drawsubcircle(data, width, width, s * UTOX_SCALE(10 ), s * UTOX_SCALE(8 ), s * UTOX_SCALE(9.5 ));
-    drawhead(data, width, s * UTOX_SCALE(10 ), s * UTOX_SCALE(8 ), s * UTOX_SCALE(7.5 ));
+    drawnewcircle(data, width, s * SCALE(40), s * SCALE(20), s * SCALE(40), s * SCALE(29));
+    drawsubcircle(data, width, width, s * SCALE(20), s * SCALE(24), s * SCALE(13));
+    drawsubcircle(data, width, width, s * SCALE(20), s * SCALE(16), s * SCALE(19));
+    drawhead(data, width, s * SCALE(20), s * SCALE(16), s * SCALE(15));
 }
 
 _Bool svg_draw(_Bool needmemory) {
@@ -423,29 +423,29 @@ _Bool svg_draw(_Bool needmemory) {
         SCROLL_WIDTH * SCROLL_WIDTH /2 + /* Scroll bars top bottom halves (small)*/
         BM_STATUSAREA_WIDTH * BM_STATUSAREA_HEIGHT + /* status area */
         /* Panel buttons */
-        BM_ADD_WIDTH * BM_ADD_WIDTH + /* Draw panel Button: Add */
-        BM_ADD_WIDTH * BM_ADD_WIDTH + /* New group bitmap */
-        BM_ADD_WIDTH * BM_ADD_WIDTH + /* Draw panel Button: Transfer */
-        BM_ADD_WIDTH * BM_ADD_WIDTH + /* Settings gear bitmap */
-        BM_CONTACT_WIDTH * BM_CONTACT_WIDTH + /* Contact avatar default bitmap */
-        BM_CONTACT_WIDTH / 2 * BM_CONTACT_WIDTH / 2 + /* Contact avatar default bitmap for mini roster */
-        BM_CONTACT_WIDTH * BM_CONTACT_WIDTH + /* Group heads default bitmap */
-        BM_CONTACT_WIDTH / 2 * BM_CONTACT_WIDTH / 2 + /* Group heads default bitmap for mini roster */
-        BM_FILE_WIDTH * BM_FILE_HEIGHT + BM_FILE_BIG_WIDTH * BM_FILE_BIG_HEIGHT + /* Draw button icon overlays: file small and big */
-        BM_LBICON_WIDTH * BM_LBICON_HEIGHT + /* Call button icon */
-        BM_LBICON_WIDTH * BM_LBICON_HEIGHT + /* Video start end bitmap */
-        BM_STATUS_WIDTH * BM_STATUS_WIDTH + /* user status: online */
-        BM_STATUS_WIDTH * BM_STATUS_WIDTH + /* user status: away */
-        BM_STATUS_WIDTH * BM_STATUS_WIDTH + /* user status: busy */
-        BM_STATUS_WIDTH * BM_STATUS_WIDTH + /* user status: offline */
-        BM_STATUS_NOTIFY_WIDTH * BM_STATUS_NOTIFY_WIDTH + /* user status: notification */
+        BM_ADD_WIDTH        * BM_ADD_WIDTH +                /* Draw panel Button: Add */
+        BM_ADD_WIDTH        * BM_ADD_WIDTH +                /* New group bitmap */
+        BM_ADD_WIDTH        * BM_ADD_WIDTH +                /* Draw panel Button: Transfer */
+        BM_ADD_WIDTH        * BM_ADD_WIDTH +                /* Settings gear bitmap */
+        BM_CONTACT_WIDTH    * BM_CONTACT_WIDTH +            /* Contact avatar default bitmap */
+        BM_CONTACT_WIDTH /2 * BM_CONTACT_WIDTH /2 +         /* Contact avatar default bitmap for mini roster */
+        BM_CONTACT_WIDTH    * BM_CONTACT_WIDTH +            /* Group heads default bitmap */
+        BM_CONTACT_WIDTH /2 * BM_CONTACT_WIDTH /2 +         /* Group heads default bitmap for mini roster */
+        BM_FILE_WIDTH       * BM_FILE_HEIGHT +              /* Draw button icon overlays: file paper clip */
+        BM_LBICON_WIDTH     * BM_LBICON_HEIGHT +            /* Call button icon */
+        BM_LBICON_WIDTH     * BM_LBICON_HEIGHT +            /* Video start end bitmap */
+        BM_STATUS_WIDTH     * BM_STATUS_WIDTH +             /* user status: online */
+        BM_STATUS_WIDTH     * BM_STATUS_WIDTH +             /* user status: away */
+        BM_STATUS_WIDTH     * BM_STATUS_WIDTH +             /* user status: busy */
+        BM_STATUS_WIDTH     * BM_STATUS_WIDTH +             /* user status: offline */
+        BM_STATUS_NOTIFY_WIDTH * BM_STATUS_NOTIFY_WIDTH +   /* user status: notification */
         BM_LBUTTON_WIDTH * BM_LBUTTON_HEIGHT +
         BM_SBUTTON_WIDTH * BM_SBUTTON_HEIGHT +
         /* File transfer */
         BM_FT_CAP_WIDTH * BM_FTB_HEIGHT +
         BM_FT_WIDTH * BM_FT_HEIGHT +
         BM_FTM_WIDTH * BM_FT_HEIGHT +
-        (BM_FTB_WIDTH * (BM_FTB_HEIGHT + UTOX_SCALE(1)) + BM_FTB_WIDTH * BM_FTB_HEIGHT) +
+        (BM_FTB_WIDTH * (BM_FTB_HEIGHT + SCALE(1)) + BM_FTB_WIDTH * BM_FTB_HEIGHT) +
         BM_FB_WIDTH * BM_FB_HEIGHT * 4 +
         /* Chat Buttons */
         BM_CHAT_BUTTON_WIDTH * BM_CHAT_BUTTON_HEIGHT * 2 + // Chat button 1, 2
@@ -474,7 +474,7 @@ _Bool svg_draw(_Bool needmemory) {
     p += SCROLL_WIDTH * SCROLL_WIDTH /2;
 
     /* status area */
-    drawrectrounded(p, BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT, UTOX_SCALE(2));
+    drawrectrounded(p, BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT, SCALE(4));
     loadalpha(BM_STATUSAREA, p, BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT);
     p += BM_STATUSAREA_WIDTH * BM_STATUSAREA_HEIGHT;
 
@@ -489,32 +489,32 @@ _Bool svg_draw(_Bool needmemory) {
     p += BM_ADD_WIDTH * BM_ADD_WIDTH;
 
     /* Draw panel Button: Transfer */
-    drawline(p, BM_ADD_WIDTH, BM_ADD_WIDTH, UTOX_SCALE(3), UTOX_SCALE(3), UTOX_SCALE(5), UTOX_SCALE(0.75 ));
-    drawline(p, BM_ADD_WIDTH, BM_ADD_WIDTH, UTOX_SCALE(6), UTOX_SCALE(6), UTOX_SCALE(5), UTOX_SCALE(0.75 ));
-    drawtri(p, BM_ADD_WIDTH, BM_ADD_WIDTH, UTOX_SCALE(6 ), 0, UTOX_SCALE(4 ), 0);
-    drawtri(p, BM_ADD_WIDTH, BM_ADD_WIDTH, UTOX_SCALE(3 ), UTOX_SCALE(9 ), UTOX_SCALE(4 ), 1);
+    drawline(p, BM_ADD_WIDTH, BM_ADD_WIDTH, SCALE(6),  SCALE(6),  SCALE(10), SCALE(1.5));
+    drawline(p, BM_ADD_WIDTH, BM_ADD_WIDTH, SCALE(12), SCALE(12), SCALE(10), SCALE(1.5));
+    drawtri(p, BM_ADD_WIDTH, BM_ADD_WIDTH,  SCALE(12),        0,  SCALE(8),         0);
+    drawtri(p, BM_ADD_WIDTH, BM_ADD_WIDTH,  SCALE(6),  SCALE(18), SCALE(8),         1);
     loadalpha(BM_TRANSFER, p, BM_ADD_WIDTH, BM_ADD_WIDTH);
     p += BM_ADD_WIDTH * BM_ADD_WIDTH;
 
     /* Settings gear bitmap */
     drawcross(p, BM_ADD_WIDTH);
     drawxcross(p, BM_ADD_WIDTH, BM_ADD_WIDTH, BM_ADD_WIDTH);
-    drawnewcircle(p, BM_ADD_WIDTH, BM_ADD_WIDTH, 0.5 * BM_ADD_WIDTH, 0.5 * BM_ADD_WIDTH, UTOX_SCALE(7 ));
-    drawsubcircle(p, BM_ADD_WIDTH, BM_ADD_WIDTH, 0.5 * BM_ADD_WIDTH, 0.5 * BM_ADD_WIDTH, UTOX_SCALE(3 ));
+    drawnewcircle(p, BM_ADD_WIDTH, BM_ADD_WIDTH, 0.5 * BM_ADD_WIDTH, 0.5 * BM_ADD_WIDTH, SCALE(14));
+    drawsubcircle(p, BM_ADD_WIDTH, BM_ADD_WIDTH, 0.5 * BM_ADD_WIDTH, 0.5 * BM_ADD_WIDTH, SCALE(6));
     loadalpha(BM_SETTINGS, p, BM_ADD_WIDTH, BM_ADD_WIDTH);
     p += BM_ADD_WIDTH * BM_ADD_WIDTH;
 
     /* Contact avatar default bitmap */
-    drawnewcircle(p, BM_CONTACT_WIDTH, UTOX_SCALE(18 ), UTOX_SCALE(10 ), UTOX_SCALE(18 ), UTOX_SCALE(14 ));
-    drawsubcircle(p, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, UTOX_SCALE(10 ), UTOX_SCALE(10 ), UTOX_SCALE(6 ));
-    drawhead(p, BM_CONTACT_WIDTH, UTOX_SCALE(10 ), UTOX_SCALE(6 ), UTOX_SCALE(8 ));
+    drawnewcircle(p, BM_CONTACT_WIDTH,        SCALE(36), SCALE(20), SCALE(36), SCALE(28));
+    drawsubcircle(p, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, SCALE(20), SCALE(20), SCALE(12));
+    drawhead(p, BM_CONTACT_WIDTH, SCALE(20), SCALE(12), SCALE(16));
     loadalpha(BM_CONTACT, p, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
     p += BM_CONTACT_WIDTH * BM_CONTACT_WIDTH;
 
     /* Contact avatar default bitmap for mini roster */
-    drawnewcircle(p, BM_CONTACT_WIDTH / 2, UTOX_SCALE(9 ), UTOX_SCALE(5 ), UTOX_SCALE(9 ), UTOX_SCALE(7 ));
-    drawsubcircle(p, BM_CONTACT_WIDTH / 2, BM_CONTACT_WIDTH / 2, UTOX_SCALE(5 ), UTOX_SCALE(5 ), UTOX_SCALE(3 ));
-    drawhead(p, BM_CONTACT_WIDTH / 2, UTOX_SCALE(5 ), UTOX_SCALE(3 ), UTOX_SCALE(4 ));
+    drawnewcircle(p, BM_CONTACT_WIDTH / 2, SCALE(18), SCALE(10), SCALE(18), SCALE(14));
+    drawsubcircle(p, BM_CONTACT_WIDTH / 2, BM_CONTACT_WIDTH / 2, SCALE(10), SCALE(10), SCALE(6));
+    drawhead(p, BM_CONTACT_WIDTH / 2, SCALE(10), SCALE(6), SCALE(8));
     loadalpha(BM_CONTACT_MINI, p, BM_CONTACT_WIDTH / 2, BM_CONTACT_WIDTH / 2);
     p += BM_CONTACT_WIDTH / 2 * BM_CONTACT_WIDTH / 2;
 
@@ -529,28 +529,19 @@ _Bool svg_draw(_Bool needmemory) {
     p += BM_CONTACT_WIDTH / 2 * BM_CONTACT_WIDTH / 2;
 
     /* Draw button icon overlays. */
-    drawlineround(p, BM_FILE_WIDTH, BM_FILE_HEIGHT, UTOX_SCALE(5.5 ), UTOX_SCALE(5 ), UTOX_SCALE(1 ), UTOX_SCALE(3.85 ), UTOX_SCALE(6.6 ), 0);
-    drawlineroundempty(p, BM_FILE_WIDTH, BM_FILE_HEIGHT, UTOX_SCALE(5.5 ), UTOX_SCALE(5 ), UTOX_SCALE(1 ), UTOX_SCALE(2.4 ), UTOX_SCALE(4.5 ));
-    drawsubcircle(p, BM_FILE_WIDTH, BM_FILE_HEIGHT, UTOX_SCALE(6.0 ), UTOX_SCALE(8.1 ), UTOX_SCALE(2.5 ));
-    drawlineround(p, BM_FILE_WIDTH, BM_FILE_HEIGHT, UTOX_SCALE(7.0 ), UTOX_SCALE(5.40 ), UTOX_SCALE(0.5 ), UTOX_SCALE(2.2 ), UTOX_SCALE(3.75 ), 1);
-    drawlineroundempty(p, BM_FILE_WIDTH, BM_FILE_HEIGHT, UTOX_SCALE(7.25 ), UTOX_SCALE(5.15 ), UTOX_SCALE(0.75 ), UTOX_SCALE(0.75 ), UTOX_SCALE(1.5 ));
+    drawlineround(p,      BM_FILE_WIDTH, BM_FILE_HEIGHT, FSCALE(10), FSCALE(10), FSCALE(2),   FSCALE(8.3), FSCALE(14), 0);
+    drawlineroundempty(p, BM_FILE_WIDTH, BM_FILE_HEIGHT, FSCALE(10), FSCALE(10), FSCALE(2),   FSCALE(6.5), FSCALE(11));
+    drawsubcircle(p,      BM_FILE_WIDTH, BM_FILE_HEIGHT, FSCALE(11), FSCALE(18), FSCALE(6));
+    drawlineround(p,      BM_FILE_WIDTH, BM_FILE_HEIGHT, FSCALE(12), FSCALE(12), FSCALE(1),   FSCALE(4.5), FSCALE(7.5), 1);
+    drawlineroundempty(p, BM_FILE_WIDTH, BM_FILE_HEIGHT, FSCALE(13), FSCALE(11), FSCALE(1.5), FSCALE(3),   FSCALE(5.5));
     loadalpha(BM_FILE, p, BM_FILE_WIDTH, BM_FILE_HEIGHT);
     p += BM_FILE_WIDTH * BM_FILE_HEIGHT;
-    /* and the big one... */
-    // TODO convert the *2 hack
-    drawlineround(p, BM_FILE_BIG_WIDTH, BM_FILE_BIG_HEIGHT, UTOX_SCALE(5.5 ) * 2, UTOX_SCALE(5 ) * 2, UTOX_SCALE(1 ) * 2, UTOX_SCALE(3.85 ) * 2, UTOX_SCALE(6.6 ) * 2, 0);
-    drawlineroundempty(p, BM_FILE_BIG_WIDTH, BM_FILE_BIG_HEIGHT, UTOX_SCALE(5.5 ) * 2, UTOX_SCALE(5 ) * 2, UTOX_SCALE(1 ) * 2, UTOX_SCALE(2.4 ) * 2, UTOX_SCALE(4.5 ) * 2);
-    drawsubcircle(p, BM_FILE_BIG_WIDTH, BM_FILE_BIG_HEIGHT, UTOX_SCALE(6.0 ) * 2, UTOX_SCALE(8.1 ) * 2, UTOX_SCALE(2.5 ) * 2);
-    drawlineround(p, BM_FILE_BIG_WIDTH, BM_FILE_BIG_HEIGHT, UTOX_SCALE(7.0 ) * 2, UTOX_SCALE(5.40 ) * 2, UTOX_SCALE(0.5 ) * 2, UTOX_SCALE(2.2 ) * 2, UTOX_SCALE(3.75 ) * 2, 1);
-    drawlineroundempty(p, BM_FILE_BIG_WIDTH, BM_FILE_BIG_HEIGHT, UTOX_SCALE(7.25 ) * 2, UTOX_SCALE(5.15 ) * 2, UTOX_SCALE(0.75 ) * 2, UTOX_SCALE(0.75 ) * 2, UTOX_SCALE(1.5 ) * 2);
-    loadalpha(BM_FILE_BIG, p, BM_FILE_BIG_WIDTH, BM_FILE_BIG_HEIGHT);
-    p += BM_FILE_BIG_WIDTH * BM_FILE_BIG_HEIGHT;
 
     /* Call button icon */
-    drawnewcircle(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, UTOX_SCALE(1), 0, UTOX_SCALE(19 ));
-    drawsubcircle(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, UTOX_SCALE(1), 0, UTOX_SCALE(15 ));
-    drawnewcircle2(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, UTOX_SCALE(9 ), UTOX_SCALE(2 ), UTOX_SCALE(3 ), 0);
-    drawnewcircle2(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, UTOX_SCALE(3 ), UTOX_SCALE(8 ), UTOX_SCALE(3 ), 1);
+    drawnewcircle(p,  BM_LBICON_WIDTH, BM_LBICON_HEIGHT, SCALE(1),        0,   SCALE(38));
+    drawsubcircle(p,  BM_LBICON_WIDTH, BM_LBICON_HEIGHT, SCALE(1),        0,   SCALE(30));
+    drawnewcircle2(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, SCALE(18), SCALE(4),  SCALE(6), 0);
+    drawnewcircle2(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, SCALE(6),  SCALE(16), SCALE(6), 1);
     loadalpha(BM_CALL, p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT);
     p += BM_LBICON_WIDTH * BM_LBICON_HEIGHT;
 
@@ -559,13 +550,13 @@ _Bool svg_draw(_Bool needmemory) {
     uint8_t *data = p;
     /* left triangle lens thing */
     for(y = 0; y != BM_LBICON_HEIGHT; y++) {
-        for(x = 0; x != UTOX_SCALE(4); x++) {
-            double d = fabs(y - UTOX_SCALE(4.5 )) - 0.66 * (UTOX_SCALE(4) - x);
+        for(x = 0; x != SCALE(8); x++) {
+            double d = fabs(y - SCALE(9)) - 0.66 * (SCALE(8) - x);
             *data++ = pixel(d);
         }
-        data += BM_LBICON_WIDTH - UTOX_SCALE(4);
+        data += BM_LBICON_WIDTH - SCALE(8);
     }
-    drawrectroundedsub(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, UTOX_SCALE(4 ), UTOX_SCALE(1), UTOX_SCALE(7 ), UTOX_SCALE(7 ), UTOX_SCALE(1));
+    drawrectroundedsub(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, SCALE(8), SCALE(1), SCALE(14), SCALE(14), SCALE(1));
     loadalpha(BM_VIDEO, p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT);
     p += BM_LBICON_WIDTH * BM_LBICON_HEIGHT;
 
@@ -599,109 +590,111 @@ _Bool svg_draw(_Bool needmemory) {
     loadalpha(BM_STATUS_NOTIFY, p, BM_STATUS_NOTIFY_WIDTH, BM_STATUS_NOTIFY_WIDTH);
     p += BM_STATUS_NOTIFY_WIDTH * BM_STATUS_NOTIFY_WIDTH;
 
-    drawrectrounded(p, BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT, UTOX_SCALE(2));
+    drawrectrounded(p, BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT, SCALE(4));
     loadalpha(BM_LBUTTON, p, BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
     p += BM_LBUTTON_WIDTH * BM_LBUTTON_HEIGHT;
 
-    drawrectrounded(p, BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT, UTOX_SCALE(2));
+    drawrectrounded(p, BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT, SCALE(4));
     loadalpha(BM_SBUTTON, p, BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
     p += BM_SBUTTON_WIDTH * BM_SBUTTON_HEIGHT;
 
     /* Draw file transfer buttons */
-    drawrectroundedex(p, BM_FT_CAP_WIDTH, BM_FTB_HEIGHT, UTOX_SCALE(2), 13);
+    drawrectroundedex(p, BM_FT_CAP_WIDTH, BM_FTB_HEIGHT, SCALE(4), 13);
     loadalpha(BM_FT_CAP, p, BM_FT_CAP_WIDTH, BM_FTB_HEIGHT);
     p += BM_FT_CAP_WIDTH * BM_FTB_HEIGHT;
 
-    drawrectrounded(p, BM_FT_WIDTH, BM_FT_HEIGHT, UTOX_SCALE(2));
+    drawrectrounded(p, BM_FT_WIDTH, BM_FT_HEIGHT, SCALE(4));
     loadalpha(BM_FT, p, BM_FT_WIDTH, BM_FT_HEIGHT);
     p += BM_FT_WIDTH * BM_FT_HEIGHT;
 
-    drawrectroundedex(p, BM_FTM_WIDTH, BM_FT_HEIGHT, UTOX_SCALE(2), 13);
+    drawrectroundedex(p, BM_FTM_WIDTH, BM_FT_HEIGHT, SCALE(4), 13);
     loadalpha(BM_FTM, p, BM_FTM_WIDTH, BM_FT_HEIGHT);
     p += BM_FTM_WIDTH * BM_FT_HEIGHT;
 
-    drawrectroundedex(p, BM_FTB_WIDTH, BM_FTB_HEIGHT + UTOX_SCALE(1), UTOX_SCALE(2), 0);
-    loadalpha(BM_FTB1, p, BM_FTB_WIDTH, BM_FTB_HEIGHT + UTOX_SCALE(1));
-    p += BM_FTB_WIDTH * (BM_FTB_HEIGHT + UTOX_SCALE(1));
+    drawrectroundedex(p,  BM_FTB_WIDTH, BM_FTB_HEIGHT + SCALE(1), SCALE(4), 0);
+    loadalpha(BM_FTB1, p, BM_FTB_WIDTH, BM_FTB_HEIGHT + SCALE(1));
+    p += BM_FTB_WIDTH * (BM_FTB_HEIGHT + SCALE(1));
 
-    drawrectroundedex(p, BM_FTB_WIDTH, BM_FTB_HEIGHT, UTOX_SCALE(2), 14);
+    drawrectroundedex(p, BM_FTB_WIDTH, BM_FTB_HEIGHT, SCALE(4), 14);
     loadalpha(BM_FTB2, p, BM_FTB_WIDTH, BM_FTB_HEIGHT);
     p += BM_FTB_WIDTH * BM_FTB_HEIGHT;
 
+
+    /* Used by the next few lines */
     s = BM_FB_WIDTH * BM_FB_HEIGHT;
 
     drawxcross(p, BM_FB_WIDTH, BM_FB_HEIGHT, BM_FB_HEIGHT);
     loadalpha(BM_NO, p, BM_FB_WIDTH, BM_FB_HEIGHT);
     p += s;
 
-    drawlinevert(p, BM_FB_WIDTH, BM_FB_HEIGHT, UTOX_SCALE(0.75 ), UTOX_SCALE(1.25 ));
-    drawlinevert(p, BM_FB_WIDTH, BM_FB_HEIGHT, UTOX_SCALE(4.25 ), UTOX_SCALE(1.25 ));
+    drawlinevert(p, BM_FB_WIDTH, BM_FB_HEIGHT, SCALE(1.5), SCALE(2.5));
+    drawlinevert(p, BM_FB_WIDTH, BM_FB_HEIGHT, SCALE(8.5), SCALE(2.5));
     loadalpha(BM_PAUSE, p, BM_FB_WIDTH, BM_FB_HEIGHT);
     p += s;
 
-    drawline(p,     BM_FB_WIDTH, BM_FB_HEIGHT, UTOX_SCALE(1.75), UTOX_SCALE(3.5),  UTOX_SCALE(2.5), UTOX_SCALE(0.5 ));
-    drawline(p,     BM_FB_WIDTH, BM_FB_HEIGHT, UTOX_SCALE(4),    UTOX_SCALE(3.5),  UTOX_SCALE(2.5), UTOX_SCALE(0.5 ));
-    drawlinedown(p, BM_FB_WIDTH, BM_FB_HEIGHT, UTOX_SCALE(1.75), UTOX_SCALE(1.75), UTOX_SCALE(2.5), UTOX_SCALE(0.5 ));
-    drawlinedown(p, BM_FB_WIDTH, BM_FB_HEIGHT, UTOX_SCALE(4),    UTOX_SCALE(1.75), UTOX_SCALE(2.5), UTOX_SCALE(0.5 ));
+    drawline(p,     BM_FB_WIDTH, BM_FB_HEIGHT, SCALE(2.5),  SCALE(7),   SCALE(5), SCALE(1));
+    drawline(p,     BM_FB_WIDTH, BM_FB_HEIGHT, SCALE(8),    SCALE(7),   SCALE(5), SCALE(1));
+    drawlinedown(p, BM_FB_WIDTH, BM_FB_HEIGHT, SCALE(2.5),  SCALE(2.5), SCALE(5), SCALE(1));
+    drawlinedown(p, BM_FB_WIDTH, BM_FB_HEIGHT, SCALE(8),    SCALE(2.5), SCALE(5), SCALE(1));
     loadalpha(BM_RESUME, p, BM_FB_WIDTH, BM_FB_HEIGHT);
     p += s;
 
-    drawline(p, BM_FB_WIDTH, BM_FB_HEIGHT, UTOX_SCALE(3.75), UTOX_SCALE(2.75), UTOX_SCALE(4), UTOX_SCALE(0.5 ));
-    drawlinedown(p, BM_FB_WIDTH, BM_FB_HEIGHT, UTOX_SCALE(1.9), UTOX_SCALE(3.25), UTOX_SCALE(2.5), UTOX_SCALE(0.5 ));
+    drawline(p,     BM_FB_WIDTH, BM_FB_HEIGHT, SCALE(7.5), SCALE(9),   SCALE(8), SCALE(1));
+    drawlinedown(p, BM_FB_WIDTH, BM_FB_HEIGHT, SCALE(2.8), SCALE(6.5), SCALE(5), SCALE(1));
     loadalpha(BM_YES, p, BM_FB_WIDTH, BM_FB_HEIGHT);
     p += s;
 
     /* the two small chat buttons... */
-    drawrectroundedex(p, BM_CHAT_BUTTON_WIDTH, BM_CHAT_BUTTON_HEIGHT, UTOX_SCALE(2), 13);
+    drawrectroundedex(p, BM_CHAT_BUTTON_WIDTH, BM_CHAT_BUTTON_HEIGHT, SCALE(4), 13);
     loadalpha(BM_CHAT_BUTTON_LEFT, p, BM_CHAT_BUTTON_WIDTH, BM_CHAT_BUTTON_HEIGHT);
     p += BM_CHAT_BUTTON_WIDTH * BM_CHAT_BUTTON_HEIGHT;
 
-    drawrectroundedex(p, BM_CHAT_BUTTON_WIDTH, BM_CHAT_BUTTON_HEIGHT, UTOX_SCALE(2), 0);
+    drawrectroundedex(p, BM_CHAT_BUTTON_WIDTH, BM_CHAT_BUTTON_HEIGHT, SCALE(4), 0);
     loadalpha(BM_CHAT_BUTTON_RIGHT, p, BM_CHAT_BUTTON_WIDTH, BM_CHAT_BUTTON_HEIGHT);
     p += BM_CHAT_BUTTON_WIDTH * BM_CHAT_BUTTON_HEIGHT;
 
 
     /* Draw chat send button */
-    drawrectroundedex(p, BM_CHAT_SEND_WIDTH, BM_CHAT_SEND_HEIGHT, UTOX_SCALE(4 ), 14);
+    drawrectroundedex(p, BM_CHAT_SEND_WIDTH, BM_CHAT_SEND_HEIGHT, SCALE(8), 14);
     loadalpha(BM_CHAT_SEND, p, BM_CHAT_SEND_WIDTH, BM_CHAT_SEND_HEIGHT);
     p += BM_CHAT_SEND_WIDTH * BM_CHAT_SEND_HEIGHT;
 
     /* Draw chat send overlay */
-    drawnewcircle(p, BM_CHAT_SEND_OVERLAY_WIDTH, BM_CHAT_SEND_OVERLAY_HEIGHT, UTOX_SCALE(10 ), UTOX_SCALE(7 ), UTOX_SCALE(13 ));
-    drawtri(      p, BM_CHAT_SEND_OVERLAY_WIDTH, BM_CHAT_SEND_OVERLAY_HEIGHT, UTOX_SCALE(15 ), UTOX_SCALE(9 ),  UTOX_SCALE(6 ), 0);
+    drawnewcircle(p, BM_CHAT_SEND_OVERLAY_WIDTH, BM_CHAT_SEND_OVERLAY_HEIGHT, SCALE(20), SCALE(14), SCALE(26));
+    drawtri(      p, BM_CHAT_SEND_OVERLAY_WIDTH, BM_CHAT_SEND_OVERLAY_HEIGHT, SCALE(30), SCALE(18), SCALE(12), 0);
     loadalpha(BM_CHAT_SEND_OVERLAY, p, BM_CHAT_SEND_OVERLAY_WIDTH, BM_CHAT_SEND_OVERLAY_HEIGHT);
     p += BM_CHAT_SEND_OVERLAY_WIDTH * BM_CHAT_SEND_OVERLAY_HEIGHT;
 
     /* screen shot button overlay */
     /* Rounded frame */
     drawrectroundedsub(p, BM_CHAT_BUTTON_OVERLAY_WIDTH,               BM_CHAT_BUTTON_OVERLAY_HEIGHT,
-                          UTOX_SCALE(1 ),                                  UTOX_SCALE(1 ),
-                          BM_CHAT_BUTTON_OVERLAY_WIDTH - (UTOX_SCALE(4 )), BM_CHAT_BUTTON_OVERLAY_HEIGHT - (UTOX_SCALE(4 )),
-                          UTOX_SCALE(1 ));
+                          SCALE(1),                                  SCALE(1),
+                          BM_CHAT_BUTTON_OVERLAY_WIDTH - (SCALE(8)), BM_CHAT_BUTTON_OVERLAY_HEIGHT - (SCALE(8)),
+                          SCALE(1));
     drawrectroundedneg(p, BM_CHAT_BUTTON_OVERLAY_WIDTH,               BM_CHAT_BUTTON_OVERLAY_HEIGHT, /* width, height */
-                          UTOX_SCALE(2 ),                                  UTOX_SCALE(2 ),                     /* start x, y */
-                          BM_CHAT_BUTTON_OVERLAY_WIDTH - (UTOX_SCALE(6 )), BM_CHAT_BUTTON_OVERLAY_HEIGHT - (UTOX_SCALE(6 )),
-                          UTOX_SCALE(1 ));
+                          SCALE(4),                                  SCALE(4),                     /* start x, y */
+                          BM_CHAT_BUTTON_OVERLAY_WIDTH - (SCALE(12)), BM_CHAT_BUTTON_OVERLAY_HEIGHT - (SCALE(12)),
+                          SCALE(1));
     /* camera shutter circle */
     drawnewcircle(p, BM_CHAT_BUTTON_OVERLAY_WIDTH,        BM_CHAT_BUTTON_OVERLAY_HEIGHT,
                      BM_CHAT_BUTTON_OVERLAY_WIDTH * 0.75, BM_CHAT_BUTTON_OVERLAY_HEIGHT * 0.75,
-                     UTOX_SCALE(6  ));
+                     SCALE(12 ));
     drawsubcircle(p, BM_CHAT_BUTTON_OVERLAY_WIDTH,        BM_CHAT_BUTTON_OVERLAY_HEIGHT,
                      BM_CHAT_BUTTON_OVERLAY_WIDTH * 0.75, BM_CHAT_BUTTON_OVERLAY_HEIGHT * 0.75,
-                     UTOX_SCALE(2 ));
+                     SCALE(4));
     /* shutter lines */
     svgdraw_line_neg(p,      BM_CHAT_BUTTON_OVERLAY_WIDTH,        BM_CHAT_BUTTON_OVERLAY_HEIGHT,
                              BM_CHAT_BUTTON_OVERLAY_WIDTH * 0.80, BM_CHAT_BUTTON_OVERLAY_HEIGHT * 0.65,
-                             UTOX_SCALE(2 ), 0.1);
+                             SCALE(4), 0.1);
     svgdraw_line_neg(p,      BM_CHAT_BUTTON_OVERLAY_WIDTH,        BM_CHAT_BUTTON_OVERLAY_HEIGHT,
                              BM_CHAT_BUTTON_OVERLAY_WIDTH * 0.73, BM_CHAT_BUTTON_OVERLAY_HEIGHT * 0.87,
-                             UTOX_SCALE(2 ), 0.1);
+                             SCALE(4), 0.1);
     svgdraw_line_down_neg(p, BM_CHAT_BUTTON_OVERLAY_WIDTH,        BM_CHAT_BUTTON_OVERLAY_HEIGHT,
                              BM_CHAT_BUTTON_OVERLAY_WIDTH * 0.65, BM_CHAT_BUTTON_OVERLAY_HEIGHT * 0.70,
-                             UTOX_SCALE(2 ), 0.1);
+                             SCALE(4), 0.1);
     svgdraw_line_down_neg(p, BM_CHAT_BUTTON_OVERLAY_WIDTH,        BM_CHAT_BUTTON_OVERLAY_HEIGHT,
                              BM_CHAT_BUTTON_OVERLAY_WIDTH * 0.85, BM_CHAT_BUTTON_OVERLAY_HEIGHT * 0.81,
-                             UTOX_SCALE(2 ), 0.1);
+                             SCALE(4), 0.1);
     loadalpha(BM_CHAT_BUTTON_OVERLAY_SCREENSHOT, p, BM_CHAT_BUTTON_OVERLAY_WIDTH, BM_CHAT_BUTTON_OVERLAY_HEIGHT);
     p += BM_CHAT_BUTTON_OVERLAY_WIDTH * BM_CHAT_BUTTON_OVERLAY_HEIGHT;
 
