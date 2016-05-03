@@ -121,11 +121,7 @@ static void drawitem(ITEM *i, int UNUSED(x), int y) {
                 drawalpha(contact_bitmap, ROSTER_AVATAR_LEFT, y + ava_top, default_w, default_w, (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
             }
 
-            if (f->alias){
-                roster_draw_name(i, y, f->alias, f->status_message, f->alias_length, f->status_length, 0, 0);
-            } else {
-                roster_draw_name(i, y, f->name, f->status_message, f->name_length, f->status_length, 0, 0);
-            }
+            roster_draw_name(i, y, UTOX_FRIEND_NAME(f), f->status_message, UTOX_FRIEND_NAME_LENGTH(f), f->status_length, 0, 0);
 
             roster_draw_status_icon(status, y, f->unread_msg);
             break;

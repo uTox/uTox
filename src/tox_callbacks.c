@@ -31,6 +31,7 @@ static void callback_friend_message(Tox *tox, uint32_t friend_number, TOX_MESSAG
             debug("Message from Friend(%u) of unsupported type: %.*s\n", friend_number, (int)length, message);
         }
     }
+    friend_notify_msg(&friend[friend_number], message, length);
     postmessage(FRIEND_MESSAGE, friend_number, 0, NULL);
 }
 

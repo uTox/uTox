@@ -198,18 +198,13 @@ void friend_recvimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width
     message_add_type_image(&f->msg, 0, native_image, width, height, 0);
 }
 
-void friend_notify(FRIEND *f, char_t *str, uint16_t str_length, char_t *msg, uint16_t msg_length) {
-    int len = f->name_length + str_length + 3;
+void friend_notify_msg(FRIEND *f, uint8_t *msg, size_t msg_length) {
 
-    char_t title[len + 1], *p = title;
-    memcpy(p, str, str_length); p += str_length;
-    *p++ = ' ';
-    *p++ = '(';
-    memcpy(p, f->name, f->name_length); p += f->name_length;
-    *p++ = ')';
-    *p = 0;
+    uint8_t title[UTOX_FRIEND_NAME_LENGTH(f) + 25];
 
-    notify(title, len, msg, msg_length, f);
+    size_t title_length = snprintf((char*)title, UTOX_FRIEND_NAME_LENGTH(f) + 25, "uTox new message from %.*s", UTOX_FRIEND_NAME_LENGTH(f), UTOX_FRIEND_NAME(f));
+
+    notify(title, title_length, msg, msg_length, f);
 }
 
 void friend_addmessage_notify(FRIEND *f, char_t *data, uint16_t length) {

@@ -1200,7 +1200,7 @@ int file_unlock(FILE *file, uint64_t start, size_t length){
 }
 
 void notify(char_t *title, uint16_t title_length, char_t *msg, uint16_t msg_length, FRIEND *f) {
-    if(havefocus) {
+    if (havefocus) {
         return;
     }
 
@@ -1211,10 +1211,11 @@ void notify(char_t *title, uint16_t title_length, char_t *msg, uint16_t msg_leng
     char_t *str = tohtml(msg, msg_length);
 
     uint8_t *f_cid = NULL;
-    if(friend_has_avatar(f)) {
+    if (friend_has_avatar(f)) {
         f_cid = f->cid;
     }
 
+    /* Todo handle this warning! */
     dbus_notify((char*)title, (char*)str, (uint8_t*)f_cid);
 
     free(str);
@@ -1283,20 +1284,24 @@ int main(int argc, char *argv[]) {
     int8_t set_show_window;
     bool no_updater;
 
+    #ifdef HAVE_DBUS
+        debug_info("Compiled with dbus support!\n");
+    #endif
+
     parse_args(argc, argv, &theme_was_set_on_argv, &should_launch_at_startup, &set_show_window, &no_updater);
 
     if (should_launch_at_startup == 1 || should_launch_at_startup == -1) {
-        debug("Start on boot not supported on this OS, please use your distro suggested method!\n");
+        debug_notice("Start on boot not supported on this OS, please use your distro suggested method!\n");
     }
 
     if (no_updater == true) {
-        debug("Disabling the updater is not supported on this OS. Updates are managed by your distro's package manager.\n");
+        debug_notice("Disabling the updater is not supported on this OS. Updates are managed by your distro's package manager.\n");
     }
 
     XInitThreads();
 
     if((display = XOpenDisplay(NULL)) == NULL) {
-        printf("Cannot open display\n");
+        debug_error("Cannot open display, must exit\n");
         return 1;
     }
 
@@ -1306,7 +1311,7 @@ int main(int argc, char *argv[]) {
     setlocale(LC_ALL, "");
     XSetLocaleModifiers("");
     if((xim = XOpenIM(display, 0, 0, 0)) == NULL) {
-        printf("Cannot open input method\n");
+        debug_error("Cannot open input method\n");
     }
 
     LANG = systemlang();
@@ -1335,7 +1340,7 @@ int main(int argc, char *argv[]) {
         theme = save->theme;
     }
 
-    printf("%d\n", theme);
+    debug_info("Setting theme to:\t%d\n", theme);
     theme_load(theme);
 
     /* create window */
@@ -1475,7 +1480,7 @@ int main(int argc, char *argv[]) {
         if((xic = XCreateIC(xim, XNInputStyle, XIMPreeditNothing | XIMStatusNothing, XNClientWindow, window, XNFocusWindow, window, NULL))) {
             XSetICFocus(xic);
         } else {
-            printf("Cannot open input method\n");
+            debug_error("Cannot open input method\n");
             XCloseIM(xim);
             xim = 0;
         }
@@ -1575,7 +1580,7 @@ int main(int argc, char *argv[]) {
         yieldcpu(1);
     }
 
-    debug("XLIB main:\tClean exit\n");
+    debug_error("XLIB main:\tClean exit\n");
 
     return 0;
 }

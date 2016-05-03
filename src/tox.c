@@ -1203,7 +1203,7 @@ static void file_notify(FRIEND *f, MSG_FILE *msg) {
         }
     }
 
-    friend_notify(f, str->str, str->length, msg->name, msg->name_length);
+    friend_notify_msg(f, str->str, str->length);
 }
 
 static void call_notify(FRIEND *f, uint8_t status) {
@@ -1227,7 +1227,7 @@ static void call_notify(FRIEND *f, uint8_t status) {
         }
     }
 
-    friend_notify(f, str->str, str->length, (uint8_t*)"", 0);
+    friend_notify_msg(f, str->str, str->length);
     friend_addmessage_notify(f, str->str, str->length);
 }
 
