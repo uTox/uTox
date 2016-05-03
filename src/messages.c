@@ -1356,7 +1356,7 @@ static uint32_t message_add(MESSAGES *m, MSG_VOID *msg) {
         }
     }
 
-    message_updateheight(m, (MSG_VOID*)msg);
+    m->height += message_setheight(m, (MSG_VOID*)msg);
 
     pthread_mutex_unlock(&messages_lock);
     return m->number;
