@@ -74,18 +74,21 @@ static void roster_draw_name(ITEM *i, int y, char_t *name, char_t *msg, uint16_t
 }
 
 static void roster_draw_status_icon(uint8_t status, int y, _Bool notify) {
-    int notify_y = y;
+    int y_n = y;
     if (settings.use_mini_roster) {
-        y        += (ROSTER_BOX_HEIGHT / 4) - (BM_STATUS_WIDTH / 2);
-        notify_y += (ROSTER_BOX_HEIGHT / 4) - (BM_STATUS_NOTIFY_WIDTH / 2);
+        y   += (ROSTER_BOX_HEIGHT /4) - (BM_STATUS_WIDTH /2);
+        y_n += (ROSTER_BOX_HEIGHT /4) - (BM_STATUS_NOTIFY_WIDTH /2);
     } else {
-        y        += (ROSTER_BOX_HEIGHT / 2) - (BM_STATUS_WIDTH / 2);
-        notify_y += (ROSTER_BOX_HEIGHT / 2) - (BM_STATUS_NOTIFY_WIDTH / 2);
+        y   += (ROSTER_BOX_HEIGHT /2) - (BM_STATUS_WIDTH /2);
+        y_n += (ROSTER_BOX_HEIGHT /2) - (BM_STATUS_NOTIFY_WIDTH /2);
     }
 
-    drawalpha(BM_ONLINE + status,   SIDEBAR_WIDTH - SCALE(24),        y, BM_STATUS_WIDTH,        BM_STATUS_WIDTH, status_color[status]);
+    int xpos   = SIDEBAR_WIDTH - SCALE(15) - BM_STATUS_WIDTH /2;
+    int xpos_n = SIDEBAR_WIDTH - SCALE(15) - BM_STATUS_NOTIFY_WIDTH /2;
+
+    drawalpha(BM_ONLINE + status,     xpos,   y, BM_STATUS_WIDTH,        BM_STATUS_WIDTH,        status_color[status]);
     if (notify) {
-        drawalpha(BM_STATUS_NOTIFY, SIDEBAR_WIDTH - SCALE(26), notify_y, BM_STATUS_NOTIFY_WIDTH, BM_STATUS_NOTIFY_WIDTH, status_color[status]);
+        drawalpha(BM_STATUS_NOTIFY, xpos_n, y_n, BM_STATUS_NOTIFY_WIDTH, BM_STATUS_NOTIFY_WIDTH, status_color[status]);
     }
 }
 
