@@ -1,181 +1,154 @@
 #include "main.h"
 
-static uint32_t message_add(MESSAGES *m, MSG_VOID *msg);
+/** Appends a messages from self or friend to the message list;
+ * will realloc or trim messages as needed;
+ *
+ * also handles auto scrolling selections with messages
+ *
+ * accepts: MESSAGES *pointer, MESSAGE *pointer, MSG_DATA *pointer
+ */
 
-_Bool message_log_to_disk(MESSAGES *m, MSG_VOID *msg) {
-    if (m->is_groupchat) {
-        /* We don't support logging groupchats yet */
-        return 0;
-    }
-
-    FRIEND *f = &friend[m->id];
-
-    if (f->skip_msg_logging) {
-        return 0;
-    }
-
-    LOG_FILE_MSG_HEADER header ;
-    uint8_t *data = NULL;
-
-    switch (msg->msg_type) {
+static int msgheight(MSG_VOID *msg, int width) {
+    switch(msg->msg_type) {
         case MSG_TYPE_TEXT:
         case MSG_TYPE_ACTION_TEXT:
-        case MSG_TYPE_NOTICE: {
-            size_t author_length;
-            uint8_t *author;
+        case MSG_TYPE_NOTICE:
+        case MSG_TYPE_NOTICE_DAY_CHANGE: {
             MSG_TEXT *text = (void*)msg;
+            int theight = text_height(abs(width - MESSAGES_X - TIME_WIDTH), font_small_lineheight, text->msg, text->length);
+            return (theight == 0) ? 0 : theight + MESSAGES_SPACING;
+        }
 
-            if (text->author) {
-                author_length = self.name_length;
-                author = self.name;
-            } else {
-                author_length = f->name_length;
-                author = f->name;
-            }
+        case MSG_TYPE_IMAGE: {
+            MSG_IMG *img = (void*)msg;
+            int maxwidth = width - MESSAGES_X - TIME_WIDTH;
+            return ((img->zoom || img->w <= maxwidth) ? img->h : img->h * maxwidth / img->w) + MESSAGES_SPACING;
+        }
 
-            header.log_version   = 0;
-            header.time          = text->time;
-            header.author_length = author_length;
-            header.msg_length    = text->length;
-            header.author        = text->author;
-            header.msg_type      = text->msg_type;
+        case MSG_TYPE_FILE: {
+            return FILE_TRANSFER_BOX_HEIGHT + MESSAGES_SPACING;
+        }
 
+    }
 
-            size_t length = sizeof(header) + text->length + author_length + 1;
+    return 0;
+}
 
-            data = calloc(1, length);
-            memcpy(data, &header, sizeof(header));
-            memcpy(data + sizeof(header), author, author_length);
-            memcpy(data + sizeof(header) + author_length, text->msg, text->length);
-            strcpy2(data + length - 1, "\n");
-
-            native_save_data_log(f->number, data, length);
-            break;
+static int msgheight_group(MSG_GROUP *grp, int width) {
+    switch(grp->msg_type) {
+        case MSG_TYPE_TEXT:
+        case MSG_TYPE_ACTION_TEXT:
+        case MSG_TYPE_NOTICE:
+        case MSG_TYPE_NOTICE_DAY_CHANGE: {
+            int theight = text_height(abs(width - MESSAGES_X - TIME_WIDTH), font_small_lineheight,
+                                      grp->msg + grp->author_length, grp->length);
+            return (theight == 0) ? 0 : theight + MESSAGES_SPACING;
         }
         default: {
-            debug("uTox Logging:\tUnsupported file type %i\n", msg->msg_type);
+            debug("Error, can't set this group message height\n");
         }
     }
-    free(data);
+
     return 0;
 }
 
-_Bool messages_read_from_log(uint32_t friend_number){
-    size_t actual_count = 0;
-    uint8_t **data = native_load_data_log(friend_number, &actual_count, UTOX_MAX_BACKLOG_MESSAGES, 0);
-    MSG_VOID *msg;
-
-
-    if (data) {
-        void **p = (void**)data;
-        while (actual_count--) {
-            msg = *p++;
-            if (msg) {
-                message_add(&friend[friend_number].msg, msg);
-            }
-        }
-    } else {
-        debug("If there's a friend history,there should be an error here...\n");
-    }
-    free(data);
-    return 0;
-}
-
-/* TODO leaving this here is a little hacky, but it was the fastest way
- * without considering if I should expose messages_add */
-uint32_t message_add_group(MESSAGES *m, MSG_TEXT *msg) {
-    return message_add(m, (MSG_VOID*)msg);
-}
-
-uint32_t message_add_type_text(MESSAGES *m, _Bool auth, const uint8_t *data, uint16_t length, _Bool log) {
-    MSG_TEXT *msg   = calloc(1, sizeof(MSG_TEXT) + length);
-    time(&msg->time);
-    msg->author     = auth;
-    msg->msg_type   = MSG_TYPE_TEXT;
-    msg->length     = length;
-    memcpy(msg->msg, data, length);
-
-    if (log) {
-        message_log_to_disk(m, (MSG_VOID*)msg);
-    }
-
-    return message_add(m, (MSG_VOID*)msg);
-}
-
-uint32_t message_add_type_action(MESSAGES *m, _Bool auth, const uint8_t *data, uint16_t length, _Bool log) {
-    MSG_TEXT *msg   = calloc(1, sizeof(MSG_TEXT) + length);
-    time(&msg->time);
-    msg->author     = auth;
-    msg->msg_type   = MSG_TYPE_ACTION_TEXT;
-    msg->length     = length;
-    memcpy(msg->msg, data, length);
-
-    if (log) {
-        message_log_to_disk(m, (MSG_VOID*)msg);
-    }
-
-    return message_add(m, (MSG_VOID*)msg);
-}
-
-uint32_t message_add_type_notice(MESSAGES *m, const uint8_t *data, uint16_t length, _Bool log) {
-    MSG_TEXT *msg   = calloc(1, sizeof(MSG_TEXT) + length);
-    time(&msg->time);
-    msg->author     = 0;
-    msg->msg_type   = MSG_TYPE_NOTICE;
-    msg->length     = length;
-    memcpy(msg->msg, data, length);
-
-    if (log) {
-        message_log_to_disk(m, (MSG_VOID*)msg);
-    }
-
-    return message_add(m, (MSG_VOID*)msg);
-}
-
-uint32_t message_add_type_image(MESSAGES *m, _Bool auth, UTOX_NATIVE_IMAGE *img, uint16_t width, uint16_t height, _Bool log) {
-    if (!UTOX_NATIVE_IMAGE_IS_VALID(img)) {
+static int message_setheight(MESSAGES *m, MSG_VOID *msg) {
+    if (m->width == 0) {
         return 0;
     }
 
-    MSG_IMG *msg = calloc(1, sizeof(MSG_IMG));
-    time(&msg->time);
-    msg->author = auth;
-    msg->msg_type = MSG_TYPE_IMAGE;
-    msg->w = width;
-    msg->h = height;
-    msg->zoom = 0;
-    msg->image = img;
-    msg->position = 0.0;
+    setfont(FONT_TEXT);
 
-    return message_add(m, (MSG_VOID*)msg);
+    if (m->is_groupchat) {
+        MSG_GROUP *grp = (void*)msg;
+        msg->height = msgheight_group(grp, m->width);
+    } else {
+        msg->height = msgheight(msg, m->width);
+    }
+    return msg->height;
 }
 
-/* TODO FIX THIS SECTION TO MATCH ABOVE! */
-/* Called by new file transfer to add a new message to the msg list */
-MSG_FILE* message_create_type_file(FILE_TRANSFER *file) { //TODO shove on ui thread
-    MSG_FILE *msg   = calloc(1, sizeof(MSG_FILE));
-    time(&msg->time);
-    msg->author     = file->incoming ? 0 : 1;
-    msg->msg_type   = MSG_TYPE_FILE;
-    msg->filenumber = file->file_number;
-    msg->status     = file->status;
-        // msg->name_length is the max enforce that
-    msg->name_length = (file->name_length > sizeof(msg->name)) ? sizeof(msg->name) : file->name_length;
-    memcpy(msg->name, file->name, msg->name_length);
-    msg->size       = file->size;
-    msg->progress   = file->size_transferred;
-    msg->speed      = 0;
-    msg->inline_png = file->in_memory;
-    msg->path       = NULL;
+static void message_updateheight(MESSAGES *m, MSG_VOID *msg) {
+    if (m->width == 0) {
+        return;
+    }
 
-    return msg;
+    setfont(FONT_TEXT);
+
+    m->height   -= msg->height;
+    msg->height  = message_setheight(m, msg);
+    m->height   += msg->height;
+
+    m->panel.content_scroll->content_height = m->height;
 }
 
-// uint32_t message_add_type_file(MESSAGES *m, _Bool auth, file_number, status, name, name_length, local_path, local_length, file_size,) {}
+static uint32_t message_add(MESSAGES *m, MSG_VOID *msg) {
+    pthread_mutex_lock(&messages_lock);
 
-uint32_t message_add_type_file_compat(MESSAGES *m, MSG_FILE *f) {
-    return message_add(m, (MSG_VOID*)f);
+    /* TODO: test this? */
+    if (m->number < UTOX_MAX_BACKLOG_MESSAGES) {
+        if (!m->data || m->extra <= 0) {
+            if (m->data) {
+                m->data = realloc(m->data, (m->number + 10) * sizeof(void*));
+                m->extra += 10;
+            } else {
+                m->data = calloc(20, sizeof(void*));
+                m->extra = 20;
+            }
+
+            if (!m->data) {
+                debug_error("\n\n\nFATIAL ERROR TRYING TO REALLOC FOR MESSAGES.\nTHIS IS A BUG, PLEASE REPORT!\n\n\n");
+                exit(30);
+            }
+        }
+        m->data[m->number++] = msg;
+        m->extra--;
+    } else {
+        m->height -= ((MSG_VOID*)m->data[0])->height;
+        /* Assuming this is MSG_TEXT is probably a mistake... */
+        message_free(m->data[0]);
+        memmove(m->data, m->data + 1, (UTOX_MAX_BACKLOG_MESSAGES - 1) * sizeof(void*));
+        m->data[UTOX_MAX_BACKLOG_MESSAGES - 1] = msg;
+
+        // Scroll selection up so that it stays over the same messages.
+        if (m->sel_start_msg != UINT32_MAX) {
+            if(0 < m->sel_start_msg) {
+                m->sel_start_msg--;
+            } else {
+                m->sel_start_position = 0;
+            }
+        }
+
+        if (m->sel_end_msg != UINT32_MAX) {
+            if(0 < m->sel_end_msg) {
+                m->sel_end_msg--;
+            } else {
+                m->sel_end_position = 0;
+            }
+        }
+
+        if (m->cursor_down_msg != UINT32_MAX) {
+            if(0 < m->cursor_down_msg) {
+                m->cursor_down_msg--;
+            } else {
+                m->cursor_down_position = 0;
+            }
+        }
+        if (m->cursor_over_msg != UINT32_MAX) {
+            if(0 < m->cursor_over_msg) {
+                m->cursor_over_msg--;
+            } else {
+                m->cursor_over_position = 0;
+            }
+        }
+    }
+
+    message_updateheight(m, (MSG_VOID*)msg);
+
+    pthread_mutex_unlock(&messages_lock);
+    return m->number;
 }
+
 
 static void messages_draw_timestamp(int x, int y, const time_t *time) {
     struct tm *ltime = localtime(time);
@@ -716,6 +689,182 @@ static uint8_t messages_mmove_filetransfer(MSG_FILE *file, int mx, int my, int w
     return 0;
 }
 
+_Bool message_log_to_disk(MESSAGES *m, MSG_VOID *msg) {
+    if (m->is_groupchat) {
+        /* We don't support logging groupchats yet */
+        return 0;
+    }
+
+    FRIEND *f = &friend[m->id];
+
+    if (f->skip_msg_logging) {
+        return 0;
+    }
+
+    LOG_FILE_MSG_HEADER header ;
+    uint8_t *data = NULL;
+
+    switch (msg->msg_type) {
+        case MSG_TYPE_TEXT:
+        case MSG_TYPE_ACTION_TEXT:
+        case MSG_TYPE_NOTICE: {
+            size_t author_length;
+            uint8_t *author;
+            MSG_TEXT *text = (void*)msg;
+
+            if (text->author) {
+                author_length = self.name_length;
+                author = self.name;
+            } else {
+                author_length = f->name_length;
+                author = f->name;
+            }
+
+            header.log_version   = 0;
+            header.time          = text->time;
+            header.author_length = author_length;
+            header.msg_length    = text->length;
+            header.author        = text->author;
+            header.msg_type      = text->msg_type;
+
+
+            size_t length = sizeof(header) + text->length + author_length + 1;
+
+            data = calloc(1, length);
+            memcpy(data, &header, sizeof(header));
+            memcpy(data + sizeof(header), author, author_length);
+            memcpy(data + sizeof(header) + author_length, text->msg, text->length);
+            strcpy2(data + length - 1, "\n");
+
+            native_save_data_log(f->number, data, length);
+            break;
+        }
+        default: {
+            debug("uTox Logging:\tUnsupported file type %i\n", msg->msg_type);
+        }
+    }
+    free(data);
+    return 0;
+}
+
+_Bool messages_read_from_log(uint32_t friend_number){
+    size_t actual_count = 0;
+    uint8_t **data = native_load_data_log(friend_number, &actual_count, UTOX_MAX_BACKLOG_MESSAGES, 0);
+    MSG_VOID *msg;
+
+
+    if (data) {
+        void **p = (void**)data;
+        while (actual_count--) {
+            msg = *p++;
+            if (msg) {
+                message_add(&friend[friend_number].msg, msg);
+            }
+        }
+    } else {
+        debug("If there's a friend history,there should be an error here...\n");
+    }
+    free(data);
+    return 0;
+}
+
+/* TODO leaving this here is a little hacky, but it was the fastest way
+ * without considering if I should expose messages_add */
+uint32_t message_add_group(MESSAGES *m, MSG_TEXT *msg) {
+    return message_add(m, (MSG_VOID*)msg);
+}
+
+uint32_t message_add_type_text(MESSAGES *m, _Bool auth, const uint8_t *data, uint16_t length, _Bool log) {
+    MSG_TEXT *msg   = calloc(1, sizeof(MSG_TEXT) + length);
+    time(&msg->time);
+    msg->author     = auth;
+    msg->msg_type   = MSG_TYPE_TEXT;
+    msg->length     = length;
+    memcpy(msg->msg, data, length);
+
+    if (log) {
+        message_log_to_disk(m, (MSG_VOID*)msg);
+    }
+
+    return message_add(m, (MSG_VOID*)msg);
+}
+
+uint32_t message_add_type_action(MESSAGES *m, _Bool auth, const uint8_t *data, uint16_t length, _Bool log) {
+    MSG_TEXT *msg   = calloc(1, sizeof(MSG_TEXT) + length);
+    time(&msg->time);
+    msg->author     = auth;
+    msg->msg_type   = MSG_TYPE_ACTION_TEXT;
+    msg->length     = length;
+    memcpy(msg->msg, data, length);
+
+    if (log) {
+        message_log_to_disk(m, (MSG_VOID*)msg);
+    }
+
+    return message_add(m, (MSG_VOID*)msg);
+}
+
+uint32_t message_add_type_notice(MESSAGES *m, const uint8_t *data, uint16_t length, _Bool log) {
+    MSG_TEXT *msg   = calloc(1, sizeof(MSG_TEXT) + length);
+    time(&msg->time);
+    msg->author     = 0;
+    msg->msg_type   = MSG_TYPE_NOTICE;
+    msg->length     = length;
+    memcpy(msg->msg, data, length);
+
+    if (log) {
+        message_log_to_disk(m, (MSG_VOID*)msg);
+    }
+
+    return message_add(m, (MSG_VOID*)msg);
+}
+
+uint32_t message_add_type_image(MESSAGES *m, _Bool auth, UTOX_NATIVE_IMAGE *img, uint16_t width, uint16_t height, _Bool log) {
+    if (!UTOX_NATIVE_IMAGE_IS_VALID(img)) {
+        return 0;
+    }
+
+    MSG_IMG *msg = calloc(1, sizeof(MSG_IMG));
+    time(&msg->time);
+    msg->author = auth;
+    msg->msg_type = MSG_TYPE_IMAGE;
+    msg->w = width;
+    msg->h = height;
+    msg->zoom = 0;
+    msg->image = img;
+    msg->position = 0.0;
+
+    return message_add(m, (MSG_VOID*)msg);
+}
+
+/* TODO FIX THIS SECTION TO MATCH ABOVE! */
+/* Called by new file transfer to add a new message to the msg list */
+MSG_FILE* message_create_type_file(FILE_TRANSFER *file) { //TODO shove on ui thread
+    MSG_FILE *msg   = calloc(1, sizeof(MSG_FILE));
+    time(&msg->time);
+    msg->author     = file->incoming ? 0 : 1;
+    msg->msg_type   = MSG_TYPE_FILE;
+    msg->filenumber = file->file_number;
+    msg->status     = file->status;
+        // msg->name_length is the max enforce that
+    msg->name_length = (file->name_length > sizeof(msg->name)) ? sizeof(msg->name) : file->name_length;
+    memcpy(msg->name, file->name, msg->name_length);
+    msg->size       = file->size;
+    msg->progress   = file->size_transferred;
+    msg->speed      = 0;
+    msg->inline_png = file->in_memory;
+    msg->path       = NULL;
+
+    return msg;
+}
+
+// uint32_t message_add_type_file(MESSAGES *m, _Bool auth, file_number, status, name, name_length, local_path, local_length, file_size,) {}
+
+uint32_t message_add_type_file_compat(MESSAGES *m, MSG_FILE *f) {
+    return message_add(m, (MSG_VOID*)f);
+}
+
+
 _Bool messages_mmove(PANEL *panel, int UNUSED(px), int UNUSED(py), int width, int UNUSED(height),
                      int mx, int my, int dx, int UNUSED(dy))
 {
@@ -1196,66 +1345,6 @@ int messages_selection(PANEL *panel, void *buffer, uint32_t len, _Bool names) {
     return (void*)p - buffer;
 }
 
-static int msgheight(MSG_VOID *msg, int width) {
-    switch(msg->msg_type) {
-        case MSG_TYPE_TEXT:
-        case MSG_TYPE_ACTION_TEXT:
-        case MSG_TYPE_NOTICE:
-        case MSG_TYPE_NOTICE_DAY_CHANGE: {
-            MSG_TEXT *text = (void*)msg;
-            int theight = text_height(abs(width - MESSAGES_X - TIME_WIDTH), font_small_lineheight, text->msg, text->length);
-            return (theight == 0) ? 0 : theight + MESSAGES_SPACING;
-        }
-
-        case MSG_TYPE_IMAGE: {
-            MSG_IMG *img = (void*)msg;
-            int maxwidth = width - MESSAGES_X - TIME_WIDTH;
-            return ((img->zoom || img->w <= maxwidth) ? img->h : img->h * maxwidth / img->w) + MESSAGES_SPACING;
-        }
-
-        case MSG_TYPE_FILE: {
-            return FILE_TRANSFER_BOX_HEIGHT + MESSAGES_SPACING;
-        }
-
-    }
-
-    return 0;
-}
-
-static int msgheight_group(MSG_GROUP *grp, int width) {
-    switch(grp->msg_type) {
-        case MSG_TYPE_TEXT:
-        case MSG_TYPE_ACTION_TEXT:
-        case MSG_TYPE_NOTICE:
-        case MSG_TYPE_NOTICE_DAY_CHANGE: {
-            int theight = text_height(abs(width - MESSAGES_X - TIME_WIDTH), font_small_lineheight,
-                                      grp->msg + grp->author_length, grp->length);
-            return (theight == 0) ? 0 : theight + MESSAGES_SPACING;
-        }
-        default: {
-            debug("Error, can't set this group message height\n");
-        }
-    }
-
-    return 0;
-}
-
-static int message_setheight(MESSAGES *m, MSG_VOID *msg) {
-    if (m->width == 0) {
-        return 0;
-    }
-
-    setfont(FONT_TEXT);
-
-    if (m->is_groupchat) {
-        MSG_GROUP *grp = (void*)msg;
-        msg->height = msgheight_group(grp, m->width);
-    } else {
-        msg->height = msgheight(msg, m->width);
-    }
-    return msg->height;
-}
-
 void messages_updateheight(MESSAGES *m, int width) {
     if (!m->data || !width) {
         return;
@@ -1272,94 +1361,6 @@ void messages_updateheight(MESSAGES *m, int width) {
     }
 
     m->panel.content_scroll->content_height = m->height = height;
-}
-
-void message_updateheight(MESSAGES *m, MSG_VOID *msg) {
-    if (m->width == 0) {
-        return;
-    }
-
-    setfont(FONT_TEXT);
-
-    m->height   -= msg->height;
-    msg->height  = message_setheight(m, msg);
-    m->height   += msg->height;
-
-    m->panel.content_scroll->content_height = m->height;
-}
-
-/** Appends a messages from self or friend to the message list;
- * will realloc or trim messages as needed;
- *
- * also handles auto scrolling selections with messages
- *
- * accepts: MESSAGES *pointer, MESSAGE *pointer, MSG_DATA *pointer
- */
-static uint32_t message_add(MESSAGES *m, MSG_VOID *msg) {
-    pthread_mutex_lock(&messages_lock);
-
-    /* TODO: test this? */
-    if (m->number < UTOX_MAX_BACKLOG_MESSAGES) {
-        if (!m->data || m->extra <= 0) {
-            if (m->data) {
-                m->data = realloc(m->data, (m->number + 10) * sizeof(void*));
-                m->extra += 10;
-            } else {
-                m->data = calloc(20, sizeof(void*));
-                m->extra = 20;
-            }
-
-            if (!m->data) {
-                debug_error("\n\n\nFATIAL ERROR TRYING TO REALLOC FOR MESSAGES.\nTHIS IS A BUG, PLEASE REPORT!\n\n\n");
-                exit(30);
-            }
-        }
-        m->data[m->number++] = msg;
-        m->extra--;
-    } else {
-        m->height -= ((MSG_VOID*)m->data[0])->height;
-        /* Assuming this is MSG_TEXT is probably a mistake... */
-        message_free(m->data[0]);
-        memmove(m->data, m->data + 1, (UTOX_MAX_BACKLOG_MESSAGES - 1) * sizeof(void*));
-        m->data[UTOX_MAX_BACKLOG_MESSAGES - 1] = msg;
-
-        // Scroll selection up so that it stays over the same messages.
-        if (m->sel_start_msg != UINT32_MAX) {
-            if(0 < m->sel_start_msg) {
-                m->sel_start_msg--;
-            } else {
-                m->sel_start_position = 0;
-            }
-        }
-
-        if (m->sel_end_msg != UINT32_MAX) {
-            if(0 < m->sel_end_msg) {
-                m->sel_end_msg--;
-            } else {
-                m->sel_end_position = 0;
-            }
-        }
-
-        if (m->cursor_down_msg != UINT32_MAX) {
-            if(0 < m->cursor_down_msg) {
-                m->cursor_down_msg--;
-            } else {
-                m->cursor_down_position = 0;
-            }
-        }
-        if (m->cursor_over_msg != UINT32_MAX) {
-            if(0 < m->cursor_over_msg) {
-                m->cursor_over_msg--;
-            } else {
-                m->cursor_over_position = 0;
-            }
-        }
-    }
-
-    message_updateheight(m, (MSG_VOID*)msg);
-
-    pthread_mutex_unlock(&messages_lock);
-    return m->number;
 }
 
 _Bool messages_char(uint32_t ch) {
