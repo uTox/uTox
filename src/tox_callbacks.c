@@ -112,8 +112,9 @@ static void callback_group_invite(Tox *tox, int fid, uint8_t type, const uint8_t
 static void callback_group_message(Tox *tox, int gid, int pid, const uint8_t *message, uint16_t length,
                                    void *UNUSED(userdata))
 {
+    debug_notice("Group Message (%u, %u): %.*s\n", gid, pid, length, message);
     group_add_message(&group[gid], pid, message, length, MSG_TYPE_TEXT);
-    debug("Group Message (%u, %u): %.*s\n", gid, pid, length, message);
+    postmessage(GROUP_MESSAGE, gid, pid, NULL);
 }
 
 static void callback_group_action(Tox *tox, int gid, int pid, const uint8_t *action, uint16_t length,

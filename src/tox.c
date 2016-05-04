@@ -1587,12 +1587,9 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             GROUPCHAT *g = &group[param1];
 
             if (selected_item->data != g) {
-                g->notify = 1;
+                g->unread_msg = 1;
             }
-
-            if(selected_item && g == selected_item->data) {
-                redraw();//ui_drawmain();
-            }
+            redraw();//ui_drawmain();
 
             break;
         }
@@ -1625,7 +1622,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             }
 
             if(selected_item->data != g) {
-                g->notify = 1;
+                g->unread_msg = 1;
             }
             redraw();
             break;

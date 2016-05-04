@@ -162,7 +162,6 @@ int messages_selection(PANEL *panel, void *data, uint32_t len, _Bool names);
 _Bool messages_char(uint32_t ch);
 
 void messages_updateheight(MESSAGES *m, int width);
-void message_updateheight(MESSAGES *m, MSG_VOID *msg);
 void messages_clear_all(MESSAGES *m);
 
 void message_free(MSG_TEXT *msg);

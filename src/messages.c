@@ -1300,7 +1300,7 @@ static uint32_t message_add(MESSAGES *m, MSG_VOID *msg) {
 
     /* TODO: test this? */
     if (m->number < UTOX_MAX_BACKLOG_MESSAGES) {
-        if (m->extra <= 0) {
+        if (!m->data || m->extra <= 0) {
             if (m->data) {
                 m->data = realloc(m->data, (m->number + 10) * sizeof(void*));
                 m->extra += 10;
@@ -1310,7 +1310,7 @@ static uint32_t message_add(MESSAGES *m, MSG_VOID *msg) {
             }
 
             if (!m->data) {
-                debug("\n\n\nFATIAL ERROR TRYING TO REALLOC FOR MESSAGES.\nTHIS IS A BUG, PLEASE REPORT!\n\n\n");
+                debug_error("\n\n\nFATIAL ERROR TRYING TO REALLOC FOR MESSAGES.\nTHIS IS A BUG, PLEASE REPORT!\n\n\n");
                 exit(30);
             }
         }
@@ -1356,7 +1356,7 @@ static uint32_t message_add(MESSAGES *m, MSG_VOID *msg) {
         }
     }
 
-    m->height += message_setheight(m, (MSG_VOID*)msg);
+    message_updateheight(m, (MSG_VOID*)msg);
 
     pthread_mutex_unlock(&messages_lock);
     return m->number;
@@ -1423,8 +1423,9 @@ void messages_clear_all(MESSAGES *m) {
     }
 
     free(m->data);
-    m->data = NULL;
+    m->data   = NULL;
     m->number = 0;
+    m->extra  = 0;
 
     m->sel_start_msg = m->sel_end_msg = m->sel_start_position = m->sel_end_position = 0;
 

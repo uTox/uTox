@@ -153,7 +153,7 @@ static void drawitem(ITEM *i, int UNUSED(x), int y) {
 
             roster_draw_name(i, y, g->name, g->topic, g->name_length, g->topic_length, color_overide, color);
 
-            roster_draw_status_icon(0, y, g->notify);
+            roster_draw_status_icon(0, y, g->unread_msg);
             break;
         }
 
@@ -421,9 +421,9 @@ static void show_page(ITEM *i) {
             memcpy(edit_msg_group.data, g->typed, g->typed_length);
             edit_msg_group.length = g->typed_length;
 
-            g->msg.width = current_width;
-            g->msg.id = g - group;
-            g->notify = 0;
+            g->msg.width    = current_width;
+            g->msg.id       = g - group;
+            g->unread_msg   = 0;
             /* We use the MESSAGES struct from the group, but we need the info from the panel. */
             messages_group.object = ((void*)&g->msg);
             messages_updateheight((MESSAGES*)messages_group.object, current_width);
