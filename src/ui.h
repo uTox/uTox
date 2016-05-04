@@ -136,7 +136,7 @@ char search_data[128];
 
 /* metrics
  */
-float ui_scale;
+double ui_scale;
 
 /* These are the new defines to help align UI elements, the new ones must use a _top/_bottom/ or _left/_right or
  * _width/_height postfix, and should be used to replace the originals whenever possible.
