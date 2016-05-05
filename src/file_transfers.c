@@ -51,7 +51,7 @@ static void utox_build_file_transfer(FILE_TRANSFER *ft, uint32_t friend_number, 
     if(name){
         file->name        = malloc(name_length + 1);
         memcpy(file->name, name, name_length);
-        file->name_length = name_length;
+        file->name_length = utf8_validate(name, name_length);
         file->name[file->name_length] = 0;
     } else {
         file->name        = NULL;
