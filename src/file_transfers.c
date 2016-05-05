@@ -578,7 +578,7 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
         file_handle->file_number   = file_number;
         memcpy(file_handle->file_id, file_id, TOX_FILE_ID_LENGTH);
         if (utox_file_load_ftinfo(file_handle)) {
-            debug("FileTransfer:\tIncoming Existing file from friend (%u) \n", friend_number);
+            debug_notice("FileTransfer:\tIncoming Existing file from friend (%u) \n", friend_number);
             /* We were able to load incoming file info from disk; validate date! */
             /* First, backup transfered size, because we're about to overwrite it*/
             uint64_t seek_size = file_handle->size_transferred;
@@ -587,7 +587,7 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
             uint64_t size = 0;
             if (file) {
                 /* File exist, and is readable, now get current size! */
-                debug("FileTransfer:\tCool file exists, let try to restart it.\n");
+                debug_info("FileTransfer:\tCool file exists, let try to restart it.\n");
                 /* Eventually we want to cancel the file if it's larger than the incoming size, but without an error
                 dialog we'll just wait for now...
                 fseeko(file, 0, SEEK_END); size = ftello(file); fclose(file);
@@ -615,11 +615,11 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
                     utox_new_user_file(file_handle);
                     TOX_ERR_FILE_SEEK error = 0;
                     tox_file_seek(tox, friend_number, file_number, seek_size, &error);
-                    debug("FileTransfer:\tseek %i\n", error);
+                    debug_error("FileTransfer:\tseek %i\n", error);
                     file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_RESUME);
                     return;
                 } else {
-                    debug("FileTransfer:\tFile opened for reading, but unable to get write access, canceling file!\n");
+                    debug_error("FileTransfer:\tFile opened for reading, but unable to get write access, canceling file!\n");
                     file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
                     free(file_handle->path);
                     return;
@@ -957,7 +957,7 @@ int utox_file_start_write(uint32_t friend_number, uint32_t file_number, const ch
     file_handle->path = (uint8_t*)strdup(filepath);
     file_handle->path_length = strlen(filepath);
 
-    file_handle->file = fopen((const char*)file_handle->path, "wb");
+    file_handle->file = fopen((const char*)file_handle->path, "wb, ccs=UTF-8");
     if(!file_handle->file) {
         debug_error("FileTransfer:\tThe file we're supposed to write to couldn't be opened\n\t\t\"%s\"\n", file_handle->path);
         utox_break_file(file_handle);
