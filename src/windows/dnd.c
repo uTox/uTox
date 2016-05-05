@@ -60,7 +60,7 @@ HRESULT __stdcall dnd_Drop(IDropTarget *lpMyObj, IDataObject * pDataObject, DWOR
     *pdwEffect = DROPEFFECT_COPY;
     debug("droppped!\n");
 
-    if(selected_item->item != ITEM_FRIEND) {
+    if (selected_item->item != ITEM_FRIEND) {
         return S_OK;
     }
 
@@ -73,21 +73,23 @@ HRESULT __stdcall dnd_Drop(IDropTarget *lpMyObj, IDataObject * pDataObject, DWOR
     STGMEDIUM medium;
 
     HRESULT r = pDataObject->lpVtbl->GetData(pDataObject, &format, &medium);
-    if(r == S_OK) {
+    if (r == S_OK) {
         HDROP h = medium.hGlobal;
         int count = DragQueryFile(h, ~0, NULL, 0);
         debug_info("%u files dropped\n", count);
         int i;
 
         char *paths = calloc(count, sizeof(uint8_t) * UTOX_FILE_NAME_LENGTH);
-        if(paths) {
+        if (paths) {
             char *p = paths;
             for(i = 0; i != count; i++) {
-                p += DragQueryFile(h, i, p, 256);
+                p += DragQueryFile(h, i, p, UTOX_FILE_NAME_LENGTH);
                 *p++ = '\n';
             }
 
             postmessage_toxcore(TOX_FILE_SEND_NEW, (FRIEND*)selected_item->data - friend, 0xFFFF, paths);
+        } else {
+            debug_error("DnD:\tUnable to get memory for drag and drop file names... this is bad!\n");
         }
 
         ReleaseStgMedium(&medium);
