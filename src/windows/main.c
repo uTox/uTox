@@ -362,23 +362,21 @@ uint8_t **native_load_data_log(uint32_t friend_number, size_t *size, uint32_t co
 }
 
 /** Open system file browser dialog */
-void openfilesend(void)
-{
-    char *filepath = malloc(1024);
-    filepath[0] = 0;
+void openfilesend(void) {
+    char *filepath = calloc(10, UTOX_FILE_NAME_LENGTH); /* lets pick 10 as the number of files we want to work with. */
 
-    wchar_t dir[1024];
+    wchar_t dir[UTOX_FILE_NAME_LENGTH];
     GetCurrentDirectoryW(countof(dir), dir);
 
     OPENFILENAME ofn = {
         .lStructSize = sizeof(OPENFILENAME),
         .hwndOwner = hwnd,
         .lpstrFile = filepath,
-        .nMaxFile = 1024,
+        .nMaxFile = UTOX_FILE_NAME_LENGTH * 10,
         .Flags = OFN_EXPLORER | OFN_ALLOWMULTISELECT | OFN_FILEMUSTEXIST,
     };
 
-    if(GetOpenFileName(&ofn)) {
+    if (GetOpenFileName(&ofn)) {
         postmessage_toxcore(TOX_FILE_SEND_NEW, (FRIEND*)selected_item->data - friend, ofn.nFileOffset, filepath);
     } else {
         debug("GetOpenFileName() failed\n");

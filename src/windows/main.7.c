@@ -42,8 +42,6 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file)
 
         swprintf(second, UTOX_FILE_NAME_LENGTH, L"%ls\\%ls", first, longname);
 
-        char *send = calloc(UTOX_FILE_NAME_LENGTH, sizeof(char*));
-
         /* Windows doesn't like UTF-8 strings, so we have to hold it's hand. */
         file->file = _fdopen(_open_osfhandle((intptr_t)CreateFileW(second,
                                                                    GENERIC_WRITE,
@@ -55,6 +53,7 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file)
                                              0),
                              "wb");
 
+        char *send = calloc(UTOX_FILE_NAME_LENGTH, sizeof(char*));
         native_to_utf8str(second, send, UTOX_FILE_NAME_LENGTH);
 
         debug_notice("Native:\tAuto Accept Directory: \"%s\"\n", send);

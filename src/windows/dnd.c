@@ -76,10 +76,10 @@ HRESULT __stdcall dnd_Drop(IDropTarget *lpMyObj, IDataObject * pDataObject, DWOR
     if(r == S_OK) {
         HDROP h = medium.hGlobal;
         int count = DragQueryFile(h, ~0, NULL, 0);
-        debug("%u files dropped\n", count);
+        debug_info("%u files dropped\n", count);
         int i;
 
-        char *paths = malloc(count * 256);
+        char *paths = calloc(count, sizeof(uint8_t) * UTOX_FILE_NAME_LENGTH);
         if(paths) {
             char *p = paths;
             for(i = 0; i != count; i++) {
@@ -92,7 +92,7 @@ HRESULT __stdcall dnd_Drop(IDropTarget *lpMyObj, IDataObject * pDataObject, DWOR
 
         ReleaseStgMedium(&medium);
     } else {
-        debug("itz failed! %lX\n", r);
+        debug_error("itz failed! %lX\n", r);
     }
 
     return S_OK;
