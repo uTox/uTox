@@ -961,7 +961,7 @@ void loadfonts(){
         .lfWeight = FW_NORMAL,
         //.lfCharSet = ANSI_CHARSET,
         .lfOutPrecision = OUT_TT_PRECIS,
-        .lfQuality = CLEARTYPE_QUALITY,
+        .lfQuality = DEFAULT_QUALITY,
         .lfFaceName = "DejaVu Sans",
     };
 
