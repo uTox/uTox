@@ -1354,7 +1354,6 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             message_add_type_file_compat(&f->msg, file->ui_data);
             file_notify(f, file->ui_data);
             redraw();
-            free(file);
             break;
         }
         case FILE_INCOMING_ACCEPT: {

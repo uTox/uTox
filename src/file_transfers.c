@@ -105,10 +105,10 @@ static void utox_new_user_file(FILE_TRANSFER *file){
 }
 
 static void utox_new_contact_file(FILE_TRANSFER *file){
-    FILE_TRANSFER *file_copy = calloc(1, sizeof(FILE_TRANSFER));
+    // FILE_TRANSFER *file_copy = calloc(1, sizeof(FILE_TRANSFER));
 
-    memcpy(file_copy, file, sizeof(FILE_TRANSFER));
-    postmessage(FILE_INCOMING_NEW, 0, 0, file_copy);
+    // memcpy(file_copy, file, sizeof(FILE_TRANSFER));
+    postmessage(FILE_INCOMING_NEW, 0, 0, file);
 }
 
 /* Calculate the transfer speed for the UI. */
@@ -957,7 +957,11 @@ int utox_file_start_write(uint32_t friend_number, uint32_t file_number, const ch
     file_handle->path = (uint8_t*)strdup(filepath);
     file_handle->path_length = strlen(filepath);
 
-    file_handle->file = fopen((const char*)file_handle->path, "wb, ccs=UTF-8");
+    if (!file_handle->file) { /* Windows opens the file for us */
+        debug_notice("FileTransfer:\tUnable to use already open file, going to re-open\n");
+        file_handle->file = fopen((const char*)file_handle->path, "wb, ccs=UTF-8");
+    }
+
     if(!file_handle->file) {
         debug_error("FileTransfer:\tThe file we're supposed to write to couldn't be opened\n\t\t\"%s\"\n", file_handle->path);
         utox_break_file(file_handle);
