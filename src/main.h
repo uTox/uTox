@@ -3,7 +3,7 @@
 #define SUB_TITLE     "(Alpha)"
 #define RELEASE_TITLE "Mild Shock"
 #define PATCH_TITLE   "Acting"
-#define VERSION       "0.8.1"
+#define VERSION       "0.8.2"
 #define VER_MAJOR     0
 #define VER_MINOR     8
 #define VER_PATCH     1

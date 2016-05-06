@@ -157,7 +157,6 @@ MSG_FILE* message_create_type_file(struct FILE_TRANSFER *file);
 
 uint32_t message_add_type_file_compat(MESSAGES *m, MSG_FILE *f);
 
-
 _Bool message_log_to_disk(MESSAGES *m, MSG_VOID *msg);
 
 uint32_t message_add_group(MESSAGES *m, MSG_TEXT *msg);

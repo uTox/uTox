@@ -1182,7 +1182,6 @@ static void call_notify(FRIEND *f, uint8_t status) {
     }
 
     friend_notify_msg(f, str->str, str->length);
-    friend_addmessage_notify(f, str->str, str->length);
 }
 
 void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void *data) {
