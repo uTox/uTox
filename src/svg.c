@@ -529,11 +529,11 @@ _Bool svg_draw(_Bool needmemory) {
     p += BM_CONTACT_WIDTH / 2 * BM_CONTACT_WIDTH / 2;
 
     /* Draw button icon overlays. */
-    drawlineround(p,      BM_FILE_WIDTH, BM_FILE_HEIGHT, FSCALE(10), FSCALE(10), FSCALE(2),   FSCALE(8.3), FSCALE(14), 0);
-    drawlineroundempty(p, BM_FILE_WIDTH, BM_FILE_HEIGHT, FSCALE(10), FSCALE(10), FSCALE(2),   FSCALE(6.5), FSCALE(11));
-    drawsubcircle(p,      BM_FILE_WIDTH, BM_FILE_HEIGHT, FSCALE(11), FSCALE(18), FSCALE(6));
-    drawlineround(p,      BM_FILE_WIDTH, BM_FILE_HEIGHT, FSCALE(12), FSCALE(12), FSCALE(1),   FSCALE(4.5), FSCALE(7.5), 1);
-    drawlineroundempty(p, BM_FILE_WIDTH, BM_FILE_HEIGHT, FSCALE(13), FSCALE(11), FSCALE(1.5), FSCALE(3),   FSCALE(5.5));
+    drawlineround(p,      BM_FILE_WIDTH, BM_FILE_HEIGHT, UI_FSCALE(10), UI_FSCALE(10), UI_FSCALE(2),   UI_FSCALE(8.3), UI_FSCALE(14), 0);
+    drawlineroundempty(p, BM_FILE_WIDTH, BM_FILE_HEIGHT, UI_FSCALE(10), UI_FSCALE(10), UI_FSCALE(2),   UI_FSCALE(6.5), UI_FSCALE(11));
+    drawsubcircle(p,      BM_FILE_WIDTH, BM_FILE_HEIGHT, UI_FSCALE(11), UI_FSCALE(18), UI_FSCALE(6));
+    drawlineround(p,      BM_FILE_WIDTH, BM_FILE_HEIGHT, UI_FSCALE(12), UI_FSCALE(12), UI_FSCALE(1),   UI_FSCALE(4.5), UI_FSCALE(7.5), 1);
+    drawlineroundempty(p, BM_FILE_WIDTH, BM_FILE_HEIGHT, UI_FSCALE(13), UI_FSCALE(11), UI_FSCALE(1.5), UI_FSCALE(3),   UI_FSCALE(5.5));
     loadalpha(BM_FILE, p, BM_FILE_WIDTH, BM_FILE_HEIGHT);
     p += BM_FILE_WIDTH * BM_FILE_HEIGHT;
 
