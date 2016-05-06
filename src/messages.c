@@ -150,6 +150,261 @@ static uint32_t message_add(MESSAGES *m, MSG_VOID *msg) {
 }
 
 
+
+
+_Bool message_log_to_disk(MESSAGES *m, MSG_VOID *msg) {
+    if (m->is_groupchat) {
+        /* We don't support logging groupchats yet */
+        return 0;
+    }
+
+    FRIEND *f = &friend[m->id];
+
+    if (f->skip_msg_logging) {
+        return 0;
+    }
+
+    LOG_FILE_MSG_HEADER header;
+    memset(&header, 0, sizeof(header));
+    uint8_t *data = NULL;
+
+    switch (msg->msg_type) {
+        case MSG_TYPE_TEXT:
+        case MSG_TYPE_ACTION_TEXT:
+        case MSG_TYPE_NOTICE: {
+            size_t author_length;
+            uint8_t *author;
+            MSG_TEXT *text = (void*)msg;
+
+            if (text->author) {
+                author_length = self.name_length;
+                author = self.name;
+            } else {
+                author_length = f->name_length;
+                author = f->name;
+            }
+
+            header.log_version   = 0;
+            header.time          = text->time;
+            header.author_length = author_length;
+            header.msg_length    = text->length;
+            header.author        = text->author;
+            header.receipt       = (text->receipt_time ? 1 : 0);
+            header.msg_type      = text->msg_type;
+
+            size_t length = sizeof(header) + text->length + author_length + 1; /* extra \n char*/
+
+            data = calloc(1, length);
+            memcpy(data, &header, sizeof(header));
+            memcpy(data + sizeof(header), author, author_length);
+            memcpy(data + sizeof(header) + author_length, text->msg, text->length);
+            strcpy2(data + length - 1, "\n");
+
+            msg->disk_offset = utox_save_data_log(f->number, data, length);
+            break;
+        }
+        default: {
+            debug("uTox Logging:\tUnsupported file type %i\n", msg->msg_type);
+        }
+    }
+    free(data);
+    return 0;
+}
+
+_Bool messages_read_from_log(uint32_t friend_number){
+    size_t actual_count = 0;
+    uint8_t **data = utox_load_data_log(friend_number, &actual_count, UTOX_MAX_BACKLOG_MESSAGES, 0);
+    MSG_VOID *msg;
+
+
+    if (data) {
+        void **p = (void**)data;
+        while (actual_count--) {
+            msg = *p++;
+            if (msg) {
+                message_add(&friend[friend_number].msg, msg);
+            }
+        }
+    } else {
+        debug("If there's a friend history,there should be an error here...\n");
+    }
+    free(data);
+    return 0;
+}
+
+void messages_send_from_queue(MESSAGES *m, uint32_t friend_number) {
+    uint32_t start = m->number;
+
+    while (start--) {
+        if (m->data[start]) {
+            MSG_TEXT *msg = (MSG_TEXT*)(m->data[start]);
+            if (msg->msg_type == MSG_TYPE_TEXT || msg->msg_type == MSG_TYPE_ACTION_TEXT) {
+                if (!msg->receipt_time) {
+                    postmessage_toxcore((msg->msg_type == MSG_TYPE_TEXT ? TOX_SEND_MESSAGE : TOX_SEND_ACTION),
+                                        friend_number, msg->length, msg);
+                }
+            }
+        }
+    }
+}
+
+void messages_clear_receipt(MESSAGES *m, uint32_t receipt_number) {
+    uint32_t start = m->number;
+
+    while (start--) {
+        if (m->data[start]) {
+            MSG_TEXT *msg = (MSG_TEXT*)m->data[start];
+            if (msg->msg_type == MSG_TYPE_TEXT || msg->msg_type == MSG_TYPE_ACTION_TEXT) {
+                if (msg->receipt == receipt_number) {
+
+                    msg->receipt = -1;
+                    time(&msg->receipt_time);
+
+                    LOG_FILE_MSG_HEADER header;
+                    memset(&header, 0, sizeof(header));
+                    uint8_t *data = NULL;
+
+                    header.log_version   = 0;
+                    header.time          = msg->time;
+                    header.author_length = msg->author_length;
+                    header.msg_length    = msg->length;
+                    header.author        = 1;
+                    header.receipt       = 1;
+                    header.msg_type      = msg->msg_type;
+
+                    size_t length = sizeof(header);
+                    data = calloc(1, length);
+                    memcpy(data, &header, sizeof(header));
+
+                    utox_update_data_log(m->id, msg->disk_offset, data, length);
+                    free(data);
+
+                    return;
+                }
+            }
+        }
+    }
+}
+
+/* TODO leaving this here is a little hacky, but it was the fastest way
+ * without considering if I should expose messages_add */
+uint32_t message_add_group(MESSAGES *m, MSG_TEXT *msg) {
+    return message_add(m, (MSG_VOID*)msg);
+}
+
+uint32_t message_add_type_text(MESSAGES *m, _Bool auth, const uint8_t *data, uint16_t length, _Bool log) {
+    MSG_TEXT *msg   = calloc(1, sizeof(MSG_TEXT) + length);
+    time(&msg->time);
+    msg->author     = auth;
+    msg->msg_type   = MSG_TYPE_TEXT;
+    msg->length     = length;
+
+    if (auth) {
+        msg->author_length = self.name_length;
+    } else {
+        msg->author_length = friend[m->id].name_length;
+    }
+
+    memcpy(msg->msg, data, length);
+
+    if (log) {
+        message_log_to_disk(m, (MSG_VOID*)msg);
+    }
+
+    if (auth) {
+        postmessage_toxcore(TOX_SEND_MESSAGE, friend[m->id].number, length, msg);
+    }
+
+    return message_add(m, (MSG_VOID*)msg);
+}
+
+uint32_t message_add_type_action(MESSAGES *m, _Bool auth, const uint8_t *data, uint16_t length, _Bool log) {
+    MSG_TEXT *msg   = calloc(1, sizeof(MSG_TEXT) + length);
+    time(&msg->time);
+    msg->author     = auth;
+    msg->msg_type   = MSG_TYPE_ACTION_TEXT;
+    msg->length     = length;
+
+    if (auth) {
+        msg->author_length = self.name_length;
+    } else {
+        msg->author_length = friend[m->id].name_length;
+    }
+
+    memcpy(msg->msg, data, length);
+
+    if (log) {
+        message_log_to_disk(m, (MSG_VOID*)msg);
+    }
+
+    if (auth) {
+        postmessage_toxcore(TOX_SEND_ACTION, friend[m->id].number, length, msg);
+    }
+
+    return message_add(m, (MSG_VOID*)msg);
+}
+
+uint32_t message_add_type_notice(MESSAGES *m, const uint8_t *data, uint16_t length, _Bool log) {
+    MSG_TEXT *msg   = calloc(1, sizeof(MSG_TEXT) + length);
+    time(&msg->time);
+    msg->author     = 0;
+    msg->msg_type   = MSG_TYPE_NOTICE;
+    msg->length     = length;
+    msg->author_length = self.name_length;
+    memcpy(msg->msg, data, length);
+
+    if (log) {
+        message_log_to_disk(m, (MSG_VOID*)msg);
+    }
+
+    return message_add(m, (MSG_VOID*)msg);
+}
+
+uint32_t message_add_type_image(MESSAGES *m, _Bool auth, UTOX_NATIVE_IMAGE *img, uint16_t width, uint16_t height, _Bool log) {
+    if (!UTOX_NATIVE_IMAGE_IS_VALID(img)) {
+        return 0;
+    }
+
+    MSG_IMG *msg = calloc(1, sizeof(MSG_IMG));
+    time(&msg->time);
+    msg->author = auth;
+    msg->msg_type = MSG_TYPE_IMAGE;
+    msg->w = width;
+    msg->h = height;
+    msg->zoom = 0;
+    msg->image = img;
+    msg->position = 0.0;
+
+    return message_add(m, (MSG_VOID*)msg);
+}
+
+/* TODO FIX THIS SECTION TO MATCH ABOVE! */
+/* Called by new file transfer to add a new message to the msg list */
+MSG_FILE* message_create_type_file(FILE_TRANSFER *file) { //TODO shove on ui thread
+    MSG_FILE *msg   = calloc(1, sizeof(MSG_FILE));
+    time(&msg->time);
+    msg->author     = file->incoming ? 0 : 1;
+    msg->msg_type   = MSG_TYPE_FILE;
+    msg->filenumber = file->file_number;
+    msg->status     = file->status;
+        // msg->name_length is the max enforce that
+    msg->name_length = (file->name_length > sizeof(msg->name)) ? sizeof(msg->name) : file->name_length;
+    memcpy(msg->name, file->name, msg->name_length);
+    msg->size       = file->size;
+    msg->progress   = file->size_transferred;
+    msg->speed      = 0;
+    msg->inline_png = file->in_memory;
+    msg->path       = NULL;
+
+    return msg;
+}
+
+// uint32_t message_add_type_file(MESSAGES *m, _Bool auth, file_number, status, name, name_length, local_path, local_length, file_size,) {}
+
+uint32_t message_add_type_file_compat(MESSAGES *m, MSG_FILE *f) {
+    return message_add(m, (MSG_VOID*)f);
+}
+
 static void messages_draw_timestamp(int x, int y, const time_t *time) {
     struct tm *ltime = localtime(time);
     char timestr[6];
@@ -172,15 +427,19 @@ static void messages_draw_author(int x, int y, int w, uint8_t *name, uint32_t le
 }
 
 static int messages_draw_text(const uint8_t *msg, size_t length, uint32_t msg_height, uint8_t msg_type,
-                              _Bool author, uint16_t highlight_start, uint16_t highlight_end,
+                              _Bool author, _Bool receipt, uint16_t highlight_start, uint16_t highlight_end,
                               int x, int y, int w, int h)
 {
     switch (msg_type) {
         case MSG_TYPE_TEXT: {
             if (author) {
-                setcolor(COLOR_MAIN_SUBTEXT);
+                if (receipt) {
+                    setcolor(COLOR_MSG_USER);
+                } else {
+                    setcolor(COLOR_MSG_USER_PEND);
+                }
             } else {
-                setcolor(COLOR_MAIN_CHATTEXT);
+                setcolor(COLOR_MSG_CONTACT);
             }
             break;
         }
@@ -466,7 +725,7 @@ static int messages_draw_group(MESSAGES *m, MSG_GROUP *msg, uint32_t i, int x, i
     messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET, msg->msg, msg->author_length, msg->author_color);
     messages_draw_timestamp(x + width - ACTUAL_TIME_WIDTH, y, &msg->time);
     return messages_draw_text(msg->msg + msg->author_length, msg->length, msg->height, msg->msg_type,
-                              msg->author, h1, h2,
+                              msg->author, msg->receipt_time, h1, h2,
                               x + MESSAGES_X, y, width - TIME_WIDTH - MESSAGES_X, height) + MESSAGES_SPACING;
 }
 
@@ -574,7 +833,7 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
                 }
 
                 y = messages_draw_text(msg->msg, msg->length, msg->height, msg->msg_type,
-                                       msg->author, h1, h2,
+                                       msg->author, msg->receipt_time, h1, h2,
                                        x + MESSAGES_X, y, width - TIME_WIDTH - MESSAGES_X, height);
                 break;
             }
@@ -997,10 +1256,13 @@ _Bool messages_mdown(PANEL *panel) {
     m->cursor_down_msg = UINT32_MAX;
 
     if (m->cursor_over_msg != UINT32_MAX) {
+
         MSG_VOID *msg = m->data[m->cursor_over_msg];
         switch (msg->msg_type) {
             case MSG_TYPE_TEXT:
-            case MSG_TYPE_ACTION_TEXT: {
+            case MSG_TYPE_ACTION_TEXT:
+            case MSG_TYPE_NOTICE:
+            case MSG_TYPE_NOTICE_DAY_CHANGE: {
                 if (m->cursor_over_uri != UINT32_MAX) {
                     m->cursor_down_uri = 1;
                 }
@@ -1285,8 +1547,8 @@ int messages_selection(PANEL *panel, void *buffer, uint32_t len, _Bool names) {
                 if (m->is_groupchat) {
                     MSG_GROUP *grp = (void*)msg;
                     group_name_buffer = grp->author_length;
-                    group_name_buffer += 6; /* LOL, again, SO SORRY! This is about as hacky as it gets!
-                                             * 6 is the number of bytes of difference between the
+                    group_name_buffer += 4; /* LOL, again, SO SORRY! This is about as hacky as it gets!
+                                             * 2 is the number of bytes of difference between the
                                              * position of ->msg[0] of MSG_TEXT and of MSG_GROUP      */
                 }
 

@@ -1,5 +1,4 @@
 //Type for indexing into MSG_DATA->data array of messages
-
 struct messages {
     PANEL panel;
 
@@ -36,7 +35,6 @@ struct messages {
 
 typedef enum UTOX_MSG_TYPE {
     MSG_TYPE_NULL,
-
     /* MSG_TEXT must start here */
     MSG_TYPE_TEXT,
     MSG_TYPE_ACTION_TEXT,
@@ -56,22 +54,30 @@ typedef enum UTOX_MSG_TYPE {
 typedef struct {
     // true, if we're the author, false, if someone else.
     _Bool author;
+    _Bool from_disk;
     uint8_t msg_type;
 
     uint32_t height;
     time_t time;
 
     uint32_t author_id;
+    uint32_t author_length;
+
+    uint64_t disk_offset;
 } MSG_VOID;
 
 typedef struct {
     _Bool author;
+    _Bool from_disk;
     uint8_t msg_type;
 
     uint32_t height;
     time_t time;
 
     uint32_t author_id;
+    uint32_t author_length;
+
+    uint64_t disk_offset;
 
     uint32_t receipt;
     time_t receipt_time;
@@ -83,31 +89,38 @@ typedef struct {
 
 typedef struct {
     _Bool author;
+    _Bool from_disk;
     uint8_t msg_type;
 
     uint32_t height;
     time_t time;
 
     uint32_t author_id;
+    uint16_t author_length;
+
+    uint64_t disk_offset;
 
     uint32_t receipt;
     time_t receipt_time;
 
-    uint16_t length;
-    uint16_t author_length;
-
     uint32_t author_color;
+
+    uint16_t length;
     char_t msg[0];
 } MSG_GROUP;
 
 typedef struct {
     _Bool author;
+    _Bool from_disk;
     uint8_t msg_type;
 
     uint32_t height;
     time_t time;
 
     uint32_t author_id;
+    uint32_t author_length;
+
+    uint64_t disk_offset;
 
     uint16_t w, h;
     _Bool zoom;
@@ -117,12 +130,16 @@ typedef struct {
 
 typedef struct msg_file {
     _Bool author;
+    _Bool from_disk;
     uint8_t msg_type;
 
     uint32_t height;
     time_t time;
 
     uint32_t author_id;
+    uint32_t author_length;
+
+    uint64_t disk_offset;
 
     uint32_t speed;
     uint32_t filenumber;
@@ -137,6 +154,9 @@ struct FILE_TRANSFER;
 
 /* Called externally to add a message to the queue */
 MSG_FILE* message_create_type_file(struct FILE_TRANSFER *file);
+
+uint32_t message_add_type_file_compat(MESSAGES *m, MSG_FILE *f);
+
 
 _Bool message_log_to_disk(MESSAGES *m, MSG_VOID *msg);
 

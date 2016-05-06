@@ -112,8 +112,10 @@ typedef struct {
     time_t   time;
     size_t   author_length;
     size_t   msg_length;
-    uint8_t  author : 1;
-    uint8_t  flags  : 7;
+    uint8_t  author  : 1;
+    uint8_t  receipt : 1;
+    uint8_t  flags   : 5;
+    uint8_t  deleted : 1;
     uint8_t  msg_type;
     uint8_t  zeroes[2];
 } LOG_FILE_MSG_HEADER;
@@ -334,20 +336,37 @@ extern struct Tox_Options options;
 
 /** Takes data from µTox and saves it, just how the OS likes it saved!
  *
- * Returns 1 on failure. Used to set save_needed in tox thread */
-_Bool native_save_data(const uint8_t *name, size_t name_length, const uint8_t *data, size_t length, _Bool append);
-_Bool native_save_data_tox(uint8_t *data, size_t length);
-_Bool native_save_data_utox(UTOX_SAVE *data, size_t length);
-_Bool native_save_data_log(uint32_t friend_number, uint8_t *data, size_t length);
+ * Returns the start of the offset on success, and 0 on failure.
+ * Used to set save_needed in tox thread
+ * And msg->disk_offset in history/messages */
+size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *data, size_t length, _Bool append);
 
 /** Takes data from µTox and loads it up! */
 uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_size);
-uint8_t   *native_load_data_tox(size_t *size);
-UTOX_SAVE *native_load_data_utox(void);
-uint8_t **native_load_data_log(uint32_t friend_number, size_t *size, uint32_t count, uint32_t skip);
 
+/** Selects the correct file on the platform and passes it to the global log reading function */
+FILE *native_load_data_logfile(uint32_t friend_number);
 
+/* Global wrappers for the native_ data functions */
+_Bool      utox_save_data_tox(uint8_t *data, size_t length);
+_Bool      utox_save_data_utox(UTOX_SAVE *data, size_t length);
+size_t     utox_save_data_log(uint32_t friend_number, uint8_t *data, size_t length);
 
+uint8_t   *utox_load_data_tox(size_t *size);
+UTOX_SAVE *utox_load_data_utox(void);
+
+/** This one actually does the work of reading the logfile information.
+ *
+ * inside main.c is probably the wrong place for it, but I'll leave chosing
+ * the correct location to someone else. */
+uint8_t **utox_load_data_log(uint32_t friend_number, size_t *size, uint32_t count, uint32_t skip);
+
+/** utox_update_data_log Updates the data for this friend's history.
+ *
+ * When given a friend_number and offset, utox_update_data_log will overwrite the file, with
+ * the supplied data * length. It makes no attempt to verify the data or length, it'll just
+ * write blindly. */
+_Bool utox_update_data_log(uint32_t friend_number, size_t offset, uint8_t *data, size_t length);
 
 
 /* TODO: sort everything below this line! */
