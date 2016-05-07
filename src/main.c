@@ -136,7 +136,9 @@ uint8_t **utox_load_data_log(uint32_t friend_number, size_t *size, uint32_t coun
             /* we have to skip the author name for now, it's left here for group chats support in the future */
             fseeko(file, header.author_length, SEEK_CUR);
             if (header.msg_length > 1 << 16) {
-                debug_error("Can't malloc that much, you'll probably have to move or delete, your history for this peer.\n");
+                debug_error("Can't malloc that much, you'll probably have to move or delete, your history for this"
+                            " peer.\n\t\tFriend number %u, count %u, actual_count %lu, size %lu",
+                            friend_number, count, actual_count, header.msg_length);
                 exit(5);
             }
             MSG_TEXT *msg       = calloc(1, sizeof(MSG_TEXT) + header.msg_length);
@@ -148,7 +150,7 @@ uint8_t **utox_load_data_log(uint32_t friend_number, size_t *size, uint32_t coun
             msg->disk_offset    = file_offset;
             msg->author_length  = header.author_length;
 
-            if(1 != fread(msg->msg, msg->length, 1, file)) {
+            if (1 != fread(msg->msg, msg->length, 1, file)) {
                 debug("Native log read:\tError,reading this record... stopping\n");
                 break;
             }
@@ -176,7 +178,8 @@ _Bool utox_update_data_log(uint32_t friend_number, size_t offset, uint8_t *data,
     }
 
     if (fseeko(file, offset, SEEK_SET)) {
-        debug_error("History:\tUnable to seek to position %u in file provided by native_load_data_logfile()\n", offset);
+        debug_error("History:\tUnable to seek to position %lu in file provided by native_load_data_logfile()\n",
+                    offset);
         return 0;
     }
 
