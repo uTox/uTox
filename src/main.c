@@ -137,8 +137,8 @@ uint8_t **utox_load_data_log(uint32_t friend_number, size_t *size, uint32_t coun
             fseeko(file, header.author_length, SEEK_CUR);
             if (header.msg_length > 1 << 16) {
                 debug_error("Can't malloc that much, you'll probably have to move or delete, your history for this"
-                            " peer.\n\t\tFriend number %u, count %u, actual_count %lu, size %lu",
-                            friend_number, count, actual_count, header.msg_length);
+                            " peer.\n\t\tFriend number %u, count %u, actual_count %lu, start at %lu, error size %lu",
+                            friend_number, count, actual_count, start_at, header.msg_length);
                 exit(5);
             }
             MSG_TEXT *msg       = calloc(1, sizeof(MSG_TEXT) + header.msg_length);
