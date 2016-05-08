@@ -364,8 +364,8 @@ void utox_audio_thread(void *args){
         uint     notes_per_sec  = 4;
         double   t              = 6.283185307179586476925286766559;
 
-        size_t   buf_size       = seconds * sample_rate * 2; //16 bit (2 bytes per sample)
-        int16_t *samples = malloc(buf_size * sizeof(int16_t));
+        size_t   buf_size       = seconds * sample_rate; //16 bit (2 bytes per sample)
+        int16_t *samples        = calloc(buf_size, sizeof(int16_t));
 
         if (!samples) {
             debug("uToxAudio:\tUnable to generate ringtone buffer!\n");
