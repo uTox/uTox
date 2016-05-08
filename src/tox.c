@@ -83,11 +83,11 @@ void log_read_old(Tox *tox, int fid) {
         fseeko(file, header.namelen, SEEK_CUR);
 
         MSG_TEXT *msg = NULL;
-        msg = malloc(sizeof(MSG_TEXT) + header.length);
-        msg->author = header.flags & 1;
-        msg->length = header.length;
-        msg->time = header.time;
-        msg->receipt_time = header.time;
+        msg = calloc(1, sizeof(MSG_TEXT) + header.length);
+        msg->author         = header.flags & 1;
+        msg->length         = header.length;
+        msg->time           = header.time;
+        msg->receipt_time   = 1;
 
         switch(header.msg_type) {
             case LOG_FILE_MSG_TYPE_ACTION: {
