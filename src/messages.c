@@ -818,6 +818,7 @@ void messages_clear_receipt(MESSAGES *m, uint32_t receipt_number) {
                     utox_update_data_log(m->id, msg->disk_offset, data, length);
                     free(data);
 
+                    postmessage(FRIEND_MESSAGE, 0, 0, NULL); /* Used to redraw the screen */
                     return;
                 }
             }
