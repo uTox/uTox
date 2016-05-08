@@ -107,7 +107,7 @@ void utox_friend_init(Tox *tox, uint32_t friend_number) {
 
         // Get and set the status message
         size = tox_friend_get_status_message_size(tox, friend_number, 0);
-        f->status_message = malloc(size);
+        f->status_message = calloc(1, size);
         tox_friend_get_status_message(tox, friend_number, f->status_message, 0);
         f->status_length = size;
 
@@ -142,11 +142,11 @@ void friend_setname(FRIEND *f, char_t *name, uint16_t length){
 
     free(f->name);
     if (length == 0) {
-        f->name = malloc(sizeof(f->cid) * 2 + 1);
+        f->name = calloc(1, sizeof(f->cid) * 2 + 1);
         cid_to_string(f->name, f->cid);
         f->name_length = sizeof(f->cid) * 2;
     } else {
-        f->name = malloc(length + 1);
+        f->name = calloc(1, length + 1);
         memcpy(f->name, name, length);
         f->name_length = length;
     }
