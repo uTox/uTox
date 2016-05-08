@@ -1,5 +1,10 @@
 #include "../main.h"
 
+#ifdef UNITY
+#include "xlib/mmenu.h"
+extern _Bool unity_running;
+#endif
+
 /* Function which removes an entry from the messaging menu
  * Is called by xlib/{list,event}.c and takes in parameter a friend ID
  */

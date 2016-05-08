@@ -1,9 +1,3 @@
-/* buttons */
-#ifdef UNITY
-#include "xlib/mmenu.h"
-extern _Bool unity_running;
-#endif
-
 BUTTON button_avatar,
        button_name,
        button_statusmsg,
