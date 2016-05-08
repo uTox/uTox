@@ -78,8 +78,6 @@ static void message_updateheight(MESSAGES *m, MSG_VOID *msg) {
     m->height   -= msg->height;
     msg->height  = message_setheight(m, msg);
     m->height   += msg->height;
-
-    m->panel.content_scroll->content_height = m->height;
 }
 
 static uint32_t message_add(MESSAGES *m, MSG_VOID *msg) {
@@ -97,7 +95,7 @@ static uint32_t message_add(MESSAGES *m, MSG_VOID *msg) {
             }
 
             if (!m->data) {
-                debug_error("\n\n\nFATIAL ERROR TRYING TO REALLOC FOR MESSAGES.\nTHIS IS A BUG, PLEASE REPORT!\n\n\n");
+                debug_error("\n\n\nFATAL ERROR TRYING TO REALLOC FOR MESSAGES.\nTHIS IS A BUG, PLEASE REPORT!\n\n\n");
                 exit(30);
             }
         }
@@ -144,6 +142,10 @@ static uint32_t message_add(MESSAGES *m, MSG_VOID *msg) {
     }
 
     message_updateheight(m, (MSG_VOID*)msg);
+
+    if (selected_item->data == &friend[m->id] ) {
+        m->panel.content_scroll->content_height = m->height;
+    }
 
     pthread_mutex_unlock(&messages_lock);
     return m->number;
@@ -1481,6 +1483,22 @@ _Bool messages_char(uint32_t ch) {
     return 0;
 }
 
+void messages_init(MESSAGES *m, uint32_t friend_number) {
+    if (m->data){
+        messages_clear_all(m);
+    }
+    memset(m, 0, sizeof(m));
+
+    m->data = calloc(20, sizeof(void*));
+    if (!m->data) {
+        debug_error("\n\n\nFATAL ERROR TRYING TO CALLOC FOR MESSAGES.\nTHIS IS A BUG, PLEASE REPORT!\n\n\n");
+        exit(30);
+    }
+
+    m->extra    = 20;
+    m->id       = friend_number;
+}
+
 void message_free(MSG_TEXT *msg) {
     switch(msg->msg_type) {
         case MSG_TYPE_IMAGE: {
@@ -1511,5 +1529,5 @@ void messages_clear_all(MESSAGES *m) {
 
     m->sel_start_msg = m->sel_end_msg = m->sel_start_position = m->sel_end_position = 0;
 
-    m->panel.content_scroll->content_height = m->height = 0;
+    m->height = 0;
 }

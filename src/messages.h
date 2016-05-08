@@ -181,6 +181,7 @@ int messages_selection(PANEL *panel, void *data, uint32_t len, _Bool names);
 _Bool messages_char(uint32_t ch);
 
 void messages_updateheight(MESSAGES *m, int width);
-void messages_clear_all(MESSAGES *m);
 
+void messages_init(MESSAGES *m, uint32_t friend_number);
 void message_free(MSG_TEXT *msg);
+void messages_clear_all(MESSAGES *m);

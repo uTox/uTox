@@ -300,7 +300,7 @@ static void show_page(ITEM *i) {
     // TODO!!
     // panel_item[selected_item->item - 1].disabled = 1;
     // panel_item[i->item - 1].disabled = 0;
-    int current_width;
+    static int current_width;
 
     edit_resetfocus();
 

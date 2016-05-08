@@ -83,7 +83,6 @@ void friend_recvimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width
 
 void friend_notify_msg(FRIEND *f, uint8_t *msg, size_t msg_length);
 
-
 /* set friend online status. Returns: true if status changed, false otherwise */
 _Bool friend_set_online(FRIEND *f, _Bool online);
 

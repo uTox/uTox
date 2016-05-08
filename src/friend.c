@@ -116,6 +116,9 @@ void utox_friend_init(Tox *tox, uint32_t friend_number) {
         cid_to_string(cid, f->cid);
         init_avatar(&f->avatar, cid, NULL, NULL);
 
+        MESSAGES *m = &f->msg;
+        messages_init(m, friend_number);
+
         // Get the chat backlog
         messages_read_from_log(friend_number);
 
