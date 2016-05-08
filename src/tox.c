@@ -64,7 +64,7 @@ void log_read_old(Tox *tox, int fid) {
         // If !feof() this means that the file has an incomplete record,
         // which would prevent it from loading forever, even though
         // new records will keep being appended as usual.
-        debug("Log read error (%s)\n", path);
+        debug_error("Log read error (%s)\n", path);
         fclose(file);
         return;
     }
@@ -74,7 +74,7 @@ void log_read_old(Tox *tox, int fid) {
 
     MESSAGES *m = &friend[fid].msg;
     m->id = fid;
-    m->data = malloc(sizeof(void*) * (records_count));
+    m->data = calloc(1, sizeof(void*) * (records_count));
 
     while((records_count) && (1 == fread(&header, sizeof(LOG_FILE_MSG_HEADER_COMPAT), 1, file))) {
         records_count--;
@@ -84,7 +84,7 @@ void log_read_old(Tox *tox, int fid) {
 
         MSG_TEXT *msg = NULL;
         msg = calloc(1, sizeof(MSG_TEXT) + header.length);
-        msg->author         = header.flags & 1;
+        msg->author         = header.flags ? 1 : 0;
         msg->length         = header.length;
         msg->time           = header.time;
         msg->receipt_time   = 1;
