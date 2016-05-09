@@ -101,6 +101,10 @@ ALCdevice* utox_audio_in_device_get(void) {
 
 static ALCcontext *context;
 void utox_audio_out_device_open(void) {
+    if (speakers_on) {
+        return;
+    }
+
     audio_out_handle = alcOpenDevice(audio_out_device);
     if (!audio_out_handle) {
         debug("alcOpenDevice() failed\n");
@@ -261,20 +265,20 @@ static void audio_out_init(void) {
         return;
     }
 
-    ALint error;
-    alGetError(); /* clear errors */
+    // ALint error;
+    // alGetError(); /* clear errors */
 
-    alGenSources((ALuint)1, &ringtone);
-    if ((error = alGetError()) != AL_NO_ERROR) {
-        debug("uToxAudio:\tError generating source with err %x\n", error);
-        return;
-    }
+    // alGenSources((ALuint)1, &ringtone);
+    // if ((error = alGetError()) != AL_NO_ERROR) {
+    //     debug("uToxAudio:\tError generating source with err %x\n", error);
+    //     return;
+    // }
 
-    alGenSources((ALuint)1, &preview);
-    if ((error = alGetError()) != AL_NO_ERROR) {
-        debug("uToxAudio:\tError generating source with err %x\n", error);
-        return;
-    }
+    // alGenSources((ALuint)1, &preview);
+    // if ((error = alGetError()) != AL_NO_ERROR) {
+    //     debug("uToxAudio:\tError generating source with err %x\n", error);
+    //     return;
+    // }
 
     alcCloseDevice(audio_out_handle);
 }
@@ -293,6 +297,11 @@ static void audio_source_term(ALuint *source) {
 }
 
 static void generate_ringtone(void) {
+    if (!settings.ringtone_enabled) {
+        return;
+    }
+
+
     ALint error;
     alGetError(); /* clear errors */
 
@@ -333,7 +342,7 @@ static void generate_ringtone(void) {
     uint     notes_per_sec  = 4;
     double   t              = 6.283185307179586476925286766559;
 
-    size_t   buf_size       = seconds * sample_rate; //16 bit (2 bytes per sample)
+    size_t   buf_size       = seconds * sample_rate * 2; //16 bit (2 bytes per sample)
     int16_t *samples        = calloc(buf_size, sizeof(int16_t));
 
     if (!samples) {
@@ -341,58 +350,38 @@ static void generate_ringtone(void) {
         return;
     }
 
-    #define fade_step_out()           (1 - ((double)(index % sample_rate)/sample_rate))
-    #define fade_step_in()            (    ((double)(index % sample_rate)/sample_rate))
-    #define gen_note_raw(x,a)         ((a * base_amplitude)                 * (sin((t * x) * index / sample_rate)))
-    #define gen_note_num(x,a)         ((a * base_amplitude)                 * (sin((t * notes[x].freq) * index / sample_rate)))
+    #define fade_step_out()           (1 - ((double)(index % (sample_rate/notes_per_sec))/(sample_rate/notes_per_sec)))
+    #define fade_step_in()            (    ((double)(index % (sample_rate/notes_per_sec))/(sample_rate/notes_per_sec)))
+    #define gen_note_raw(x,a)         ((a * base_amplitude)                   * (sin((t * x)             * index / sample_rate)))
+    #define gen_note_num(x,a)         ((a * base_amplitude)                   * (sin((t * notes[x].freq) * index / sample_rate)))
     #define gen_note_num_fade(x,a)    ((a * base_amplitude * fade_step_out()) * (sin((t * notes[x].freq) * index / sample_rate)))
     #define gen_note_num_fade_in(x,a) ((a * base_amplitude * fade_step_in() ) * (sin((t * notes[x].freq) * index / sample_rate)))
 
     for (uint64_t index = 0; index < buf_size; ++index) {
-        /* Loop through the buffer and queue each block of music.
-         * By default, there's 8 seconds of music, and 8 different "tones" */
-        int block_pos = (index % (sample_rate/notes_per_sec));
-        int block     = (index / (sample_rate/notes_per_sec)) % (seconds * notes_per_sec);
-        switch (block) {
+        switch ((index / (sample_rate/notes_per_sec)) % (seconds * notes_per_sec)) {
             /* index / sample rate `mod` seconds. will give you full second long notes
              * you can change the length each tone is played by changing notes_per_sec
              * but you'll need to add additional case to cover the entire span of time */
-            case 0: {
-                samples[index] = gen_note_num_fade(11,14);
-                break;
-            }
-
-            case 1: {
-                samples[index] = gen_note_num_fade(11,14);
-                break;
-            }
-
+            case 0:
+            case 1:
             case 2: {
                 samples[index] = gen_note_num_fade(11,14);
                 break;
             }
-
             case 3: {
                 samples[index] = gen_note_num_fade(14,14);
                 break;
             }
-
             case 4: {
-                samples[index] = gen_note_num_fade(11,14);
-                break;
-            }
-
-            case 5: {
                 samples[index] = gen_note_num(8,14);
                 break;
             }
-            case 6: {
+            case 5: {
                 samples[index] = gen_note_num_fade(8,14);
                 break;
             }
-
-            default:{
-                samples[index]  = 0;
+            default: {
+                samples[index] = 0;
                 break;
             }
         }
@@ -491,7 +480,7 @@ void utox_audio_thread(void *args){
                 }
                 case UTOXAUDIO_PLAY_RINGTONE: {
                     if (settings.ringtone_enabled) {
-                        debug("starting ringtone!\n");
+                        debug_info("uToxAudio:\tGoing to start ringtone!\n");
 
                         utox_audio_out_device_open();
 
@@ -505,11 +494,8 @@ void utox_audio_thread(void *args){
                     break;
                 }
                 case UTOXAUDIO_STOP_RINGTONE: {
-                    ALint state;
-                    alGetSourcei(ringtone, AL_SOURCE_STATE, &state);
-                    if(state == AL_PLAYING) {
-                        alSourceStop(ringtone);
-                    }
+                    debug_info("uToxAudio:\tGoing to stop ringtone!\n");
+                    alSourceStop(ringtone);
                     break;
                 }
             }
@@ -666,7 +652,7 @@ void utox_audio_thread(void *args){
 
     audio_thread_msg = 0;
     utox_audio_thread_init = 0;
-    debug("UTOXAUDIO:\tClean thread exit!\n");
+    debug("uToxAudio:\tClean thread exit!\n");
 }
 
 // COMMENTED OUT FOR NEW GC
