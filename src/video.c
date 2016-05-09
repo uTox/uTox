@@ -249,30 +249,30 @@ void utox_video_thread(void *args) {
                 uint32_t i, active_video_count = 0;
                 for (i = 0; i < UTOX_MAX_NUM_FRIENDS; i++) {
                     if (SEND_VIDEO_FRAME(i)) {
-                        debug("sending to friend %u", i);
+                        debug("sending to friend %u\n", i);
                         active_video_count++;
                         TOXAV_ERR_SEND_FRAME error = 0;
                         toxav_video_send_frame(av, friend[i].number, utox_video_frame.w, utox_video_frame.h, utox_video_frame.y, utox_video_frame.u, utox_video_frame.v, &error);
                         // debug("uToxVideo:\tSent video frame to friend %u\n", i);
                         if (error) {
                             if (error == TOXAV_ERR_SEND_FRAME_SYNC) {
-                                debug("uToxVideo:\tVid Frame sync error: w=%u h=%u\n", utox_video_frame.w, utox_video_frame.h);
+                                debug_notice("uToxVideo:\tVid Frame sync error: w=%u h=%u\n", utox_video_frame.w, utox_video_frame.h);
                             } else if (error == TOXAV_ERR_SEND_FRAME_PAYLOAD_TYPE_DISABLED) {
-                                debug("uToxVideo:\tToxAV disagrees with our AV state for friend %u, self %u, friend %u\n",
+                                debug_error("uToxVideo:\tToxAV disagrees with our AV state for friend %u, self %u, friend %u\n",
                                       i, friend[i].call_state_self, friend[i].call_state_friend);
                             } else {
-                                debug("uToxVideo:\ttoxav_send_video error friend: %i error: %u\n", friend[i].number, error);
+                                debug_error("uToxVideo:\ttoxav_send_video error friend: %i error: %u\n", friend[i].number, error);
                             }
                         } else {
                             if (active_video_count >= UTOX_MAX_CALLS){
-                                debug("uToxVideo:\tTrying to send video frame to too many peers. Please report this bug!\n");
+                                debug_error("uToxVideo:\tTrying to send video frame to too many peers. Please report this bug!\n");
                                 break;
                             }
                         }
                     }
                 }
             } else if(r == -1) {
-                debug("uToxVideo:\tErr... something really bad happened trying to get this frame, I'm just going to plots now!\n");
+                debug_error("uToxVideo:\tErr... something really bad happened trying to get this frame, I'm just going to plots now!\n");
                 video_device_stop();
                 close_video_device(video_device);
             }
