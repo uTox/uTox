@@ -62,7 +62,7 @@ void utox_av_ctrl_thread(void *args) {
                     postmessage_audio(UTOXAUDIO_START_FRIEND, msg->param1, msg->param2, NULL);
                     f->call_state_self = ( TOXAV_FRIEND_CALL_STATE_SENDING_A | TOXAV_FRIEND_CALL_STATE_ACCEPTING_A );
                     if (msg->param2) {
-                        utox_video_record_start(0);
+                        utox_video_start(0);
                         f->call_state_self |= (TOXAV_FRIEND_CALL_STATE_SENDING_V | TOXAV_FRIEND_CALL_STATE_ACCEPTING_V);
                     }
                     break;
@@ -80,7 +80,7 @@ void utox_av_ctrl_thread(void *args) {
                     FRIEND *f = &friend[msg->param1];
                     f->call_state_self = ( TOXAV_FRIEND_CALL_STATE_SENDING_A | TOXAV_FRIEND_CALL_STATE_ACCEPTING_A );
                     if (msg->param2) {
-                        utox_video_record_start(0);
+                        utox_video_start(0);
                         f->call_state_self |= (TOXAV_FRIEND_CALL_STATE_SENDING_V | TOXAV_FRIEND_CALL_STATE_ACCEPTING_V);
                     }
                     break;
@@ -101,7 +101,7 @@ void utox_av_ctrl_thread(void *args) {
                     call_count--;
                     FRIEND *f = &friend[msg->param1];
                     if ((f->call_state_self | TOXAV_FRIEND_CALL_STATE_SENDING_V | TOXAV_FRIEND_CALL_STATE_ACCEPTING_V)){
-                        utox_video_record_stop(0);
+                        utox_video_stop(0);
                     }
                     postmessage_audio(UTOXAUDIO_STOP_FRIEND, msg->param1, msg->param2, NULL);
                     postmessage_audio(UTOXAUDIO_STOP_RINGTONE, msg->param1, msg->param2, NULL);
@@ -145,9 +145,9 @@ void utox_av_ctrl_thread(void *args) {
 
                 case UTOXAV_START_VIDEO: {
                     if (msg->param2) {
-                        utox_video_record_start(1);
+                        utox_video_start(1);
                     } else {
-                        utox_video_record_start(0);
+                        utox_video_start(0);
                         TOXAV_ERR_BIT_RATE_SET bitrate_err = 0;
                         toxav_bit_rate_set(av, msg->param1, UTOX_DEFAULT_BITRATE_V, 0, &bitrate_err);
                     }
@@ -155,9 +155,9 @@ void utox_av_ctrl_thread(void *args) {
                 }
                 case UTOXAV_STOP_VIDEO: {
                     if (msg->param2) {
-                        utox_video_record_stop(1);
+                        utox_video_stop(1);
                     } else {
-                        utox_video_record_stop(0);
+                        utox_video_stop(0);
                         TOXAV_ERR_BIT_RATE_SET bitrate_err = 0;
                         toxav_bit_rate_set(av, msg->param1, -1, 0, &bitrate_err);
                     }

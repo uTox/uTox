@@ -278,26 +278,26 @@ uint16_t native_video_detect(void)
     return 0;
 }
 
-_Bool video_init(void *handle)
+_Bool native_video_init(void *handle)
 {
     return 0;
 }
 
-void video_close(void *handle)
+void native_video_close(void *handle)
 {
 }
 
-_Bool video_startread(void)
-{
-    return 1;
-}
-
-_Bool video_endread(void)
+_Bool native_video_startread(void)
 {
     return 1;
 }
 
-int video_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, uint16_t height)
+_Bool native_video_endread(void)
+{
+    return 1;
+}
+
+int native_video_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, uint16_t height)
 {
     return 0;
 }

@@ -1529,8 +1529,9 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             break;
         }
         case AV_CLOSE_WINDOW: {
+            debug_info("uTox:\tClosing video feed\n");
             video_end(param1);
-            debug("uTox:\tClosing video feed\n");
+            redraw();
             break;
         }
         /* Group chat functions */

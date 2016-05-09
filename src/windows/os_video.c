@@ -377,7 +377,7 @@ uint16_t native_video_detect(void) {
     return device_count;
 }
 
-_Bool video_init(void *handle) {
+_Bool native_video_init(void *handle) {
     if((size_t)handle == 1) {
         video_x      = volatile(video_grab_x);
         video_y      = volatile(video_grab_y);
@@ -498,7 +498,7 @@ _Bool video_init(void *handle) {
     return 1;
 }
 
-void video_close(void *handle) {
+void native_video_close(void *handle) {
     if ((size_t)handle == 1) {
         ReleaseDC(desktopwnd, desktopdc);
         DeleteDC(capturedc);
@@ -531,7 +531,7 @@ void video_close(void *handle) {
     debug("closed webcam\n");
 }
 
-int video_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, uint16_t height) {
+int native_video_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, uint16_t height) {
     if (width != video_width || height != video_height) {
         debug("width/height mismatch %u %u != %u %u\n", width, height, video_width, video_height);
         return 0;
@@ -569,7 +569,7 @@ int video_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, uint16_t 
     return 0;
 }
 
-_Bool video_startread(void) {
+_Bool native_video_startread(void) {
     if(capturedesktop) {
         return 1;
     }
@@ -583,7 +583,7 @@ _Bool video_startread(void) {
     return 1;
 }
 
-_Bool video_endread(void) {
+_Bool native_video_endread(void) {
     if(capturedesktop) {
         return 1;
     }

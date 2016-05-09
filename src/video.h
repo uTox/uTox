@@ -31,10 +31,11 @@ typedef struct UTOX_FRAME_PKG {
 utox_av_video_frame utox_video_frame;
 
 void utox_video_append_device(void *device, _Bool localized, void* name, _Bool default_);
-void utox_video_change_device(uint16_t i);
 
-void utox_video_record_start(_Bool preview);
-void utox_video_record_stop(_Bool preview);
+_Bool utox_video_change_device(uint16_t i);
+
+_Bool utox_video_start(_Bool preview);
+_Bool utox_video_stop(_Bool preview);
 
 void utox_video_thread(void *args);
 
