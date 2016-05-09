@@ -212,7 +212,7 @@ void sourceplaybuffer(unsigned int f, const int16_t *data, int samples, uint8_t 
     }
 }
 
-static void utox_audio_init_in(void) {
+static void audio_in_init(void) {
     const char *audio_in_device_list;
     audio_in_device_list = alcGetString(NULL, ALC_CAPTURE_DEVICE_SPECIFIER);
     if (audio_in_device_list) {
@@ -228,7 +228,7 @@ static void utox_audio_init_in(void) {
     audio_detect(); /* Get audio devices for windows */
 }
 
-static void utox_audio_init_out(void) {
+static void audio_out_init(void) {
     const char *audio_out_device_list;
     if (alcIsExtensionPresent(NULL, "ALC_ENUMERATE_ALL_EXT")) {
         audio_out_device_list = alcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER);
@@ -275,9 +275,11 @@ static void utox_audio_init_out(void) {
         debug("uToxAudio:\tError generating source with err %x\n", error);
         return;
     }
+
+    alcCloseDevice(audio_out_handle);
 }
 
-static void utox_audio_init_source(ALuint *source) {
+static void audio_source_init(ALuint *source) {
     ALint error;
     alGetError();
     alGenSources((ALuint)1 , source);
@@ -286,7 +288,7 @@ static void utox_audio_init_source(ALuint *source) {
     }
 }
 
-static void utox_audio_term_source(ALuint *source) {
+static void audio_source_term(ALuint *source) {
     alDeleteSources((ALuint)1, source);
 }
 
@@ -323,13 +325,14 @@ void utox_audio_thread(void *args){
     debug("uToxAudio:\tframe size: %u\n", perframe);
 
     /* init Microphone */
-    utox_audio_init_in();
+    audio_in_init();
     // utox_audio_in_device_open();
     // utox_audio_in_listen();
 
     /* init Speakers */
-    utox_audio_init_out();
-    utox_audio_out_device_open();
+    audio_out_init();
+    // utox_audio_out_device_open();
+    // utox_audio_out_device_close();
 
     alGenBuffers((ALuint)1, &RingBuffer);
 
@@ -468,19 +471,21 @@ void utox_audio_thread(void *args){
                 case UTOXAUDIO_START_FRIEND: {
                     FRIEND *f = &friend[m->param1];
                     if (!f->audio_dest) {
-                        utox_audio_init_source(&f->audio_dest);
+                        utox_audio_out_device_open();
+                        audio_source_init(&f->audio_dest);
                     }
                     break;
                 }
                 case UTOXAUDIO_STOP_FRIEND: {
                     FRIEND *f = &friend[m->param1];
                     if (f->audio_dest) {
-                        utox_audio_term_source(&f->audio_dest);
+                        audio_source_term(&f->audio_dest);
                         f->audio_dest = 0;
                     }
                     break;
                 }
                 case UTOXAUDIO_START_PREVIEW: {
+                    utox_audio_out_device_open();
                     preview_on = 1;
                     break;
                 }
@@ -491,6 +496,8 @@ void utox_audio_thread(void *args){
                 case UTOXAUDIO_PLAY_RINGTONE: {
                     if (settings.ringtone_enabled) {
                         debug("starting ringtone!\n");
+
+                        utox_audio_out_device_open();
 
                         alSourcei(ringtone, AL_LOOPING, AL_TRUE);
                         alSourcei(ringtone, AL_BUFFER,  RingBuffer);
