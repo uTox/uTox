@@ -336,11 +336,11 @@ static void generate_ringtone(void) {
     };
 
 
-    uint     seconds        = 4;
-    uint     sample_rate    = 22000;
-    uint     base_amplitude = 1000;
-    uint     notes_per_sec  = 4;
-    double   t              = 6.283185307179586476925286766559;
+    uint32_t    seconds        = 4;
+    uint32_t    sample_rate    = 22000;
+    uint32_t    base_amplitude = 1000;
+    uint32_t    notes_per_sec  = 4;
+    double      t              = 6.283185307179586476925286766559;
 
     size_t   buf_size       = seconds * sample_rate * 2; //16 bit (2 bytes per sample)
     int16_t *samples        = calloc(buf_size, sizeof(int16_t));
