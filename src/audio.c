@@ -292,6 +292,117 @@ static void audio_source_term(ALuint *source) {
     alDeleteSources((ALuint)1, source);
 }
 
+static void generate_ringtone(void) {
+    ALint error;
+    alGetError(); /* clear errors */
+
+    alGenBuffers((ALuint)1, &RingBuffer);
+
+    if ((error = alGetError()) != AL_NO_ERROR) {
+        debug("uToxAudio:\tError generating buffer with err %i\n", error);
+        return;
+    }
+
+    static struct {
+        char    note[4];
+        float   freq;
+    } notes[] = {
+        {"c3s",     138.59      },
+        {"g3",      196.00      },
+        {"b3",      246.94      },
+        {"c4",      261.63      },
+        {"a4",      440.f       },
+        {"b4",      493.88      },
+        {"e4",      329.63      },
+        {"f4",      349.23      },
+        {"c5",      523.25      },
+        {"d5",      587.33      },
+        {"e5",      659.25      },
+        {"f5",      698.46      },
+        {"g5",      783.99      },
+        {"a5",      880.f       },
+        {"c6s",     1108.73     },
+        {"e6",      1318.51     },
+        {NULL,      0           },
+    };
+
+
+    uint     seconds        = 4;
+    uint     sample_rate    = 22000;
+    uint     base_amplitude = 1000;
+    uint     notes_per_sec  = 4;
+    double   t              = 6.283185307179586476925286766559;
+
+    size_t   buf_size       = seconds * sample_rate; //16 bit (2 bytes per sample)
+    int16_t *samples        = calloc(buf_size, sizeof(int16_t));
+
+    if (!samples) {
+        debug("uToxAudio:\tUnable to generate ringtone buffer!\n");
+        return;
+    }
+
+    #define fade_step_out()           (1 - ((double)(index % sample_rate)/sample_rate))
+    #define fade_step_in()            (    ((double)(index % sample_rate)/sample_rate))
+    #define gen_note_raw(x,a)         ((a * base_amplitude)                 * (sin((t * x) * index / sample_rate)))
+    #define gen_note_num(x,a)         ((a * base_amplitude)                 * (sin((t * notes[x].freq) * index / sample_rate)))
+    #define gen_note_num_fade(x,a)    ((a * base_amplitude * fade_step_out()) * (sin((t * notes[x].freq) * index / sample_rate)))
+    #define gen_note_num_fade_in(x,a) ((a * base_amplitude * fade_step_in() ) * (sin((t * notes[x].freq) * index / sample_rate)))
+
+    for (uint64_t index = 0; index < buf_size; ++index) {
+        /* Loop through the buffer and queue each block of music.
+         * By default, there's 8 seconds of music, and 8 different "tones" */
+        int block_pos = (index % (sample_rate/notes_per_sec));
+        int block     = (index / (sample_rate/notes_per_sec)) % (seconds * notes_per_sec);
+        switch (block) {
+            /* index / sample rate `mod` seconds. will give you full second long notes
+             * you can change the length each tone is played by changing notes_per_sec
+             * but you'll need to add additional case to cover the entire span of time */
+            case 0: {
+                samples[index] = gen_note_num_fade(11,14);
+                break;
+            }
+
+            case 1: {
+                samples[index] = gen_note_num_fade(11,14);
+                break;
+            }
+
+            case 2: {
+                samples[index] = gen_note_num_fade(11,14);
+                break;
+            }
+
+            case 3: {
+                samples[index] = gen_note_num_fade(14,14);
+                break;
+            }
+
+            case 4: {
+                samples[index] = gen_note_num_fade(11,14);
+                break;
+            }
+
+            case 5: {
+                samples[index] = gen_note_num(8,14);
+                break;
+            }
+            case 6: {
+                samples[index] = gen_note_num_fade(8,14);
+                break;
+            }
+
+            default:{
+                samples[index]  = 0;
+                break;
+            }
+        }
+    }
+
+    alBufferData(RingBuffer, AL_FORMAT_MONO16, samples, buf_size, sample_rate);
+    free(samples);
+
+}
+
 void postmessage_audio(uint8_t msg, uint32_t param1, uint32_t param2, void *data) {
     while(audio_thread_msg) {
         yieldcpu(1);
@@ -333,121 +444,6 @@ void utox_audio_thread(void *args){
     audio_out_init();
     // utox_audio_out_device_open();
     // utox_audio_out_device_close();
-
-    alGenBuffers((ALuint)1, &RingBuffer);
-
-    struct {
-        char    note[4];
-        float   freq;
-    } notes[] = {
-        {"c3s",     138.59      },
-        {"g3",      196.00      },
-        {"b3",      246.94      },
-        {"c4",      261.63      },
-        {"a4",      440.f       },
-        {"b4",      493.88      },
-        {"e4",      329.63      },
-        {"f4",      349.23      },
-        {"c5",      523.25      },
-        {"d5",      587.33      },
-        {"e5",      659.25      },
-        {"f5",      698.46      },
-        {"g5",      783.99      },
-        {"a5",      880.f       },
-        {"c6s",     1108.73     },
-        {"e6",      1318.51     },
-        {NULL,      0           },
-    };
-
-    { /* wrapped to keep this data on the stack... I think... */
-
-        uint     seconds        = 2;
-        uint     sample_rate    = 22000;
-        uint     base_amplitude = 1000;
-        uint     notes_per_sec  = 4;
-        double   t              = 6.283185307179586476925286766559;
-
-        size_t   buf_size       = seconds * sample_rate; //16 bit (2 bytes per sample)
-        int16_t *samples        = calloc(buf_size, sizeof(int16_t));
-
-        if (!samples) {
-            debug("uToxAudio:\tUnable to generate ringtone buffer!\n");
-            return;
-        }
-
-        #define fade_step_out()           (1 - ((double)(index % sample_rate)/sample_rate))
-        #define fade_step_in()            (    ((double)(index % sample_rate)/sample_rate))
-        #define gen_note_raw(x,a)         ((a * base_amplitude)                 * (sin((t * x) * index / sample_rate)))
-        #define gen_note_num(x,a)         ((a * base_amplitude)                 * (sin((t * notes[x].freq) * index / sample_rate)))
-        #define gen_note_num_fade(x,a)    ((a * base_amplitude * fade_step_out()) * (sin((t * notes[x].freq) * index / sample_rate)))
-        #define gen_note_num_fade_in(x,a) ((a * base_amplitude * fade_step_in() ) * (sin((t * notes[x].freq) * index / sample_rate)))
-
-        for (uint64_t index = 0; index < buf_size; ++index) {
-            /* Loop through the buffer and queue each block of music.
-             * By default, there's 8 seconds of music, and 8 different "tones" */
-            int block_pos = (index % (sample_rate/notes_per_sec));
-            int block     = (index / (sample_rate/notes_per_sec)) % (seconds * notes_per_sec);
-            switch (block) {
-                /* index / sample rate `mod` seconds. will give you full second long notes
-                 * you can change the length each tone is played by changing notes_per_sec
-                 * but you'll need to add additional case to cover the entire span of time */
-                case 0: {
-                    samples[index] = gen_note_num_fade(11,14);
-                    break;
-                }
-
-                case 1: {
-                    samples[index] = gen_note_num_fade(11,14);
-                    break;
-                }
-
-                case 2: {
-                    samples[index] = gen_note_num_fade(11,14);
-                    break;
-                }
-
-                case 3: {
-                    samples[index] = gen_note_num_fade(14,14);
-                    break;
-                }
-
-                case 4: {
-                    samples[index] = gen_note_num_fade(11,14);
-                    break;
-                }
-
-                case 5: {
-                    samples[index] = gen_note_num(8,14);
-                    break;
-                }
-                case 6: {
-                    samples[index] = gen_note_num_fade(8,14);
-                    break;
-                }
-
-                default:{
-                    samples[index]  = 0;
-                    break;
-                }
-            }
-        }
-
-        alBufferData(RingBuffer, AL_FORMAT_MONO16, samples, buf_size, sample_rate);
-        free(samples);
-    }
-
-    if (ringtone) {
-        // debug("uToxAudio:\tFirst ringtone is good, going to queue buffers\n");
-        if (RingBuffer) {
-            alSourcei(ringtone, AL_LOOPING, AL_TRUE);
-            alSourcei(ringtone, AL_BUFFER,  RingBuffer);
-            // alSourcePlay(ringtone); /* Uncomment to test ringtone */
-        } else {
-            debug("uToxAudio:\tNo buffer to queue!\n");
-        }
-    } else {
-        debug("uToxAudio:\tFirst ringtone failed... can't queue buffers\n");
-    }
 
     Filter_Audio *f_a = NULL;
 
@@ -498,6 +494,8 @@ void utox_audio_thread(void *args){
                         debug("starting ringtone!\n");
 
                         utox_audio_out_device_open();
+
+                        generate_ringtone();
 
                         alSourcei(ringtone, AL_LOOPING, AL_TRUE);
                         alSourcei(ringtone, AL_BUFFER,  RingBuffer);
