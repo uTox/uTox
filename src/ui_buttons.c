@@ -271,7 +271,7 @@ static void button_call_video_onpress(void) {
     if (f->call_state_self) {
         if (SELF_ACCEPT_VIDEO(f->number)) {
             debug("Canceling call (video): %u\n", f->number);
-            postmessage_toxcore(TOX_CALL_DISCONNECT,  f->number, 1, NULL);
+            postmessage_toxcore(TOX_CALL_PAUSE_VIDEO,  f->number, 1, NULL);
         } else if (UTOX_SENDING_AUDIO(f->number)) {
             debug("Audio call inprogress, adding video\n");
             postmessage_toxcore(TOX_CALL_RESUME_VIDEO, f->number, 1, NULL);

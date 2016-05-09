@@ -27,7 +27,7 @@ _Bool doevent(XEvent event)
                 for(i = 0; i != countof(friend); i++) {
                     if(video_win[i + 1] == ev->window) {
                         FRIEND *f = &friend[i];
-                        postmessage_toxcore(TOX_CALL_DISCONNECT, f->number, 0, NULL);
+                        postmessage_utoxav(UTOXAV_STOP_VIDEO, f->number, 0, NULL);
                         break;
                     }
                 }

@@ -1013,8 +1013,8 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
         }
         case TOX_CALL_PAUSE_VIDEO: {
             /* param1: friend # */
-            debug("TODO bug, please report!!\n");
             debug("Tox:\tEnding video for active call!\n");
+            utox_av_local_call_control(av, param1, TOXAV_CALL_CONTROL_HIDE_VIDEO);
             break;
         }
         case TOX_CALL_RESUME_AUDIO: {
