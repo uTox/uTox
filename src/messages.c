@@ -701,19 +701,28 @@ static void messages_draw_filetransfer(MESSAGES *m, MSG_FILE *file, int i, int x
  * group messages/functions from friend messages and functions from inside ui.c.
  *
  * Idealy group and friend messages wouldn't even need to know about eachother.   */
-static int messages_draw_group(MESSAGES *m, MSG_GROUP *msg, uint32_t i, int x, int y, int width, int height) {
+static int messages_draw_group(MESSAGES *m, MSG_GROUP *msg, uint32_t curr_msg_i, int x, int y, int width, int height) {
     uint32_t h1 = UINT32_MAX, h2 = UINT32_MAX;
-    if (i == m->sel_start_msg) {
-        h1 = m->sel_start_position;
-        h2 = ((i == m->sel_end_msg) ? m->sel_end_position : msg->length);
-    } else if (i == m->sel_end_msg) {
-        h1 = 0;
-        h2 = m->sel_end_position;
-    } else if (i > m->sel_start_msg && i < m->sel_end_msg) {
-        h1 = 0;
-        h2 = msg->length;
+    if ((m->sel_start_msg > curr_msg_i && m->sel_end_msg > curr_msg_i) ||
+        (m->sel_start_msg < curr_msg_i && m->sel_end_msg < curr_msg_i)) {
+        /* Out side the highlight area */
+            h1 = UINT32_MAX;
+            h2 = UINT32_MAX;
+    } else {
+        if (m->sel_start_msg < curr_msg_i) {
+            h1 = 0;
+        } else {
+            h1 = m->sel_start_position;
+        }
+
+        if (m->sel_end_msg > curr_msg_i) {
+            h2 = msg->length;
+        } else {
+            h2 = m->sel_end_position;
+        }
     }
 
+    /* error check */
     if ((m->sel_start_msg == m->sel_end_msg && m->sel_start_position == m->sel_end_position) || h1 == h2) {
         h1 = UINT32_MAX;
         h2 = UINT32_MAX;
@@ -741,7 +750,7 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
 
     // Message iterator
     void **p = m->data;
-    uint32_t i, n = m->number;
+    uint32_t curr_msg_i, n = m->number;
 
     if (m->width != width) {
         m->width = width;
@@ -750,7 +759,7 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
     }
 
     // Go through messages
-    for (i = 0; i != n; i++) {
+    for (curr_msg_i = 0; curr_msg_i != n; curr_msg_i++) {
         MSG_TEXT *msg = *p++;
 
         /* Decide if we should even bother drawing this message. */
@@ -769,7 +778,7 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
 
         // Draw the names for groups or friends
         if (m->is_groupchat) {
-            y = messages_draw_group(m, (MSG_GROUP*)msg, i, x, y, width, height);
+            y = messages_draw_group(m, (MSG_GROUP*)msg, curr_msg_i, x, y, width, height);
             continue;
 
         } else {
@@ -814,17 +823,27 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
             case MSG_TYPE_NOTICE_DAY_CHANGE: {
                 // Normal message
                 uint32_t h1 = UINT32_MAX, h2 = UINT32_MAX;
-                if (i == m->sel_start_msg) {
-                    h1 = m->sel_start_position;
-                    h2 = ((i == m->sel_end_msg) ? m->sel_end_position : msg->length);
-                } else if (i == m->sel_end_msg) {
-                    h1 = 0;
-                    h2 = m->sel_end_position;
-                } else if (i > m->sel_start_msg && i < m->sel_end_msg) {
-                    h1 = 0;
-                    h2 = msg->length;
+
+                if ((m->sel_start_msg > curr_msg_i && m->sel_end_msg > curr_msg_i) ||
+                    (m->sel_start_msg < curr_msg_i && m->sel_end_msg < curr_msg_i)) {
+                    /* Out side the highlight area */
+                        h1 = UINT32_MAX;
+                        h2 = UINT32_MAX;
+                } else {
+                    if (m->sel_start_msg < curr_msg_i) {
+                        h1 = 0;
+                    } else {
+                        h1 = m->sel_start_position;
+                    }
+
+                    if (m->sel_end_msg > curr_msg_i) {
+                        h2 = msg->length;
+                    } else {
+                        h2 = m->sel_end_position;
+                    }
                 }
 
+                /* error check */
                 if ((m->sel_start_msg == m->sel_end_msg && m->sel_start_position == m->sel_end_position) || h1 == h2) {
                     h1 = UINT32_MAX;
                     h2 = UINT32_MAX;
@@ -844,7 +863,7 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
 
             // Draw file transfer
             case MSG_TYPE_FILE: {
-                messages_draw_filetransfer(m, (MSG_FILE*)msg, i, x, y, width, height);
+                messages_draw_filetransfer(m, (MSG_FILE*)msg, curr_msg_i, x, y, width, height);
                 y += FILE_TRANSFER_BOX_HEIGHT;
                 break;
             }
