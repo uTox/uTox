@@ -38,9 +38,17 @@
 #define countof(x) (sizeof(x)/sizeof(*(x)))
 
 //  fixes compile with apple headers
+/*** This breaks both android and Windows video... but it's needed to fix complation in clang (Cocoa & asan)
+ ***  TODO fix them?
 #ifndef __OBJC__
 #define volatile(x) (*((volatile typeof(x)*)&x))
+#endif */
+
+#ifndef __OBJC__
+#define volatile(x) (x)
 #endif
+
+
 
 // Defaults
 #define DEFAULT_NAME   "Tox User"
