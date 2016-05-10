@@ -332,7 +332,7 @@ static void generate_ringtone(void) {
         {"a5",      880.f       },
         {"c6s",     1108.73     },
         {"e6",      1318.51     },
-        {NULL,      0           },
+        {"",        0           },
     };
 
 

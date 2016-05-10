@@ -1495,7 +1495,7 @@ void messages_init(MESSAGES *m, uint32_t friend_number) {
     if (m->data){
         messages_clear_all(m);
     }
-    memset(m, 0, sizeof(m));
+    memset(m, 0, sizeof(*m) * countof(m));
 
     m->data = calloc(20, sizeof(void*));
     if (!m->data) {

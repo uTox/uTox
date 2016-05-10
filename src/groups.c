@@ -93,7 +93,7 @@ void group_peer_del(GROUPCHAT *g, uint32_t peer_id) {
     GROUP_PEER *peer = (void*)g->peer[peer_id];
 
     if (peer) {
-        debug("Freeing peer %u, name %.*s\n", peer_id, peer->name_length, peer->name);
+        debug("Freeing peer %u, name %.*s\n", peer_id, (int)peer->name_length, peer->name);
         free(peer);
     } else {
         debug("Groupchat:\tUnable to find peer for deletion\n");

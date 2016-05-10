@@ -161,7 +161,7 @@ uint32_t message_add_type_action(MESSAGES *m, _Bool auth, const uint8_t *data, u
 uint32_t message_add_type_notice(MESSAGES *m, const uint8_t *data, uint16_t length, _Bool log);
 uint32_t message_add_type_image(MESSAGES *m, _Bool auth, UTOX_NATIVE_IMAGE *img, uint16_t width, uint16_t height, _Bool log);
 
-MSG_FILE* message_create_type_file(FILE_TRANSFER *file);
+MSG_FILE* message_create_type_file(struct FILE_TRANSFER *file);
 uint32_t  message_add_type_file_compat(MESSAGES *m, MSG_FILE *f);
 
 _Bool     message_log_to_disk(MESSAGES *m, MSG_VOID *msg);

@@ -207,7 +207,7 @@ void friend_notify_msg(FRIEND *f, uint8_t *msg, size_t msg_length) {
 
     uint8_t title[UTOX_FRIEND_NAME_LENGTH(f) + 25];
 
-    size_t title_length = snprintf((char*)title, UTOX_FRIEND_NAME_LENGTH(f) + 25, "uTox new message from %.*s", UTOX_FRIEND_NAME_LENGTH(f), UTOX_FRIEND_NAME(f));
+    size_t title_length = snprintf((char*)title, UTOX_FRIEND_NAME_LENGTH(f) + 25, "uTox new message from %.*s", (int)UTOX_FRIEND_NAME_LENGTH(f), UTOX_FRIEND_NAME(f));
 
     notify(title, title_length, msg, msg_length, f);
 

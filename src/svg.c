@@ -551,7 +551,7 @@ _Bool svg_draw(_Bool needmemory) {
     /* left triangle lens thing */
     for(y = 0; y != BM_LBICON_HEIGHT; y++) {
         for(x = 0; x != SCALE(8); x++) {
-            double d = fabs(y - SCALE(9)) - 0.66 * (SCALE(8) - x);
+            double d = abs(y - SCALE(9)) - 0.66 * (SCALE(8) - x);
             *data++ = pixel(d);
         }
         data += BM_LBICON_WIDTH - SCALE(8);
