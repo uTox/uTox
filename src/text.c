@@ -1,8 +1,12 @@
 #include "main.h"
 
-static void drawtexth(int x, int y, char_t *str, uint16_t length, int d, int h, int hlen, uint16_t lineheight)
+static void text_draw_word_hl(int x, int y, char_t *str, uint16_t length, int d, int h, int hlen, uint16_t lineheight)
 {
     // Draw cursor
+    /* multiline drawing goes word by word so str is not what you think it will be
+     * drawing word by word could be the WORST way to go about it. (It's at least super frustrating without the
+     * documentation). Ideally I'd like to process in one loop through, then draw in the next, but that's a fix for
+     * another time. */
     h -= d;
     if(h + hlen < 0 || h > length) {
         drawtext(x, y, str, length);
@@ -114,7 +118,7 @@ int utox_draw_text_multiline_within_box(int x, int y, /* x, y of the top left co
                 if(multiline && x == xc) {
                     int fit = textfit(b, count, right - x);
                     if(draw) {
-                        drawtexth(x, y, b, fit, b - data, h, hlen, lineheight);
+                        text_draw_word_hl(x, y, b, fit, b - data, h, hlen, lineheight);
                         drawtextmark(x, y, b, fit, b - data, mark, marklen, lineheight);
                     }
                     count -= fit;
@@ -124,7 +128,7 @@ int utox_draw_text_multiline_within_box(int x, int y, /* x, y of the top left co
                 } else if(!multiline) {
                     int fit = textfit(b, count, right - x);
                     if(draw) {
-                        drawtexth(x, y, b, fit, b - data, h, hlen, lineheight);
+                        text_draw_word_hl(x, y, b, fit, b - data, h, hlen, lineheight);
                         drawtextmark(x, y, b, fit, b - data, mark, marklen, lineheight);
                     }
                     return y + lineheight;
@@ -140,7 +144,7 @@ int utox_draw_text_multiline_within_box(int x, int y, /* x, y of the top left co
             }
 
             if(draw) {
-                drawtexth(x, y, b, count, b - data, h, hlen, lineheight);
+                text_draw_word_hl(x, y, b, count, b - data, h, hlen, lineheight);
                 drawtextmark(x, y, b, count, b - data, mark, marklen, lineheight);
             }
 

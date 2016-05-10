@@ -849,6 +849,15 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
                     h2 = UINT32_MAX;
                 }
 
+                /* text.c is super broken, so we have to be hacky here */
+                if (h2 != msg->length){
+                    if (m->sel_end_msg != curr_msg_i) {
+                        h2 = msg->length - h2;
+                    } else {
+                        h2 -= h1;
+                    }
+                }
+
                 y = messages_draw_text(msg->msg, msg->length, msg->height, msg->msg_type,
                                        msg->author, msg->receipt_time, h1, h2,
                                        x + MESSAGES_X, y, width - TIME_WIDTH - MESSAGES_X, height);
@@ -880,14 +889,11 @@ static _Bool messages_mmove_text(MESSAGES *m, int width, int mx, int my, int dy,
 {
 
     cursor = CURSOR_TEXT;
-    m->cursor_over_position = hittextmultiline(mx - MESSAGES_X,
-                               width - MESSAGES_X - TIME_WIDTH,
-                               (my < 0 ? 0 : my),
-                               msg_height,
-                               font_small_lineheight,
-                               message,
-                               msg_length,
-                               1);
+    m->cursor_over_position = hittextmultiline(mx - MESSAGES_X, width - MESSAGES_X - TIME_WIDTH,
+                               (my < 0 ? 0 : my), msg_height, font_small_lineheight,
+                               message, msg_length, 1);
+
+        debug("msg mmove:\t%u\n", m->cursor_over_position);
 
     if (my < 0 || my >= dy || mx < MESSAGES_X || m->cursor_over_position == msg_length) {
         return 0;
@@ -1043,41 +1049,24 @@ _Bool messages_mmove(PANEL *panel, int UNUSED(px), int UNUSED(py), int width, in
 
 
             if (m->selecting_text) {
-                uint32_t msg_start, msg_end;
-                uint32_t pos_start, pos_end;
-                if (i > m->cursor_down_msg) {
-                    msg_start = m->cursor_down_msg;
-                    msg_end = i;
+                need_redraw = 1;
 
-                    pos_start = m->cursor_down_position;
-                    pos_end = m->cursor_over_position;
-                } else if (i < m->cursor_down_msg) {
-                    msg_end = m->cursor_down_msg;
-                    msg_start = i;
-
-                    pos_end = m->cursor_down_position;
-                    pos_start = m->cursor_over_position;
+                if (m->cursor_down_msg != m->cursor_over_msg || m->cursor_down_position <= m->cursor_over_position) {
+                    m->sel_start_position = m->cursor_down_position;
+                    m->sel_end_position   = m->cursor_over_position;
                 } else {
-                    msg_start = msg_end = i;
-                    if (m->cursor_over_position >= m->cursor_down_position) {
-                        pos_start = m->cursor_down_position;
-                        pos_end = m->cursor_over_position;
-                    } else {
-                        pos_end = m->cursor_down_position;
-                        pos_start = m->cursor_over_position;
-                    }
+                    m->sel_start_position = m->cursor_over_position;
+                    m->sel_end_position   = m->cursor_down_position;
                 }
 
-                if (  pos_start != m->sel_start_position
-                   || msg_start != m->sel_start_msg
-                   ||   pos_end != m->sel_end_position
-                   ||   msg_end != m->sel_end_msg) {
-
-                    m->sel_start_position   = pos_start;
-                    m->sel_end_position     = pos_end;
-                    m->sel_start_msg        = msg_start;
-                    m->sel_end_msg          = msg_end;
-                    need_redraw = 1;
+                if (m->cursor_down_msg <= m->cursor_over_msg) {
+                    m->sel_start_msg = m->cursor_down_msg;
+                    m->sel_end_msg   = m->cursor_over_msg;
+                } else {
+                    m->sel_start_msg      = m->cursor_over_msg;
+                    m->sel_end_msg        = m->cursor_down_msg;
+                    m->sel_start_position = m->cursor_over_position;
+                    m->sel_end_position   = m->cursor_down_position;
                 }
             }
 
