@@ -50,7 +50,8 @@ typedef enum UTOX_MSG_TYPE {
     MSG_TYPE_CALL_HISTORY,
 } UTOX_MSG_TYPE;
 
-/* Generic Message type */
+/* Generic Message type
+ * TODO: UNION the messages types within MSG_T */
 typedef struct {
     // true, if we're the author, false, if someone else.
     _Bool author;
@@ -152,35 +153,42 @@ typedef struct msg_file {
 
 struct FILE_TRANSFER;
 
-/* Called externally to add a message to the queue */
-MSG_FILE* message_create_type_file(struct FILE_TRANSFER *file);
-
-uint32_t message_add_type_file_compat(MESSAGES *m, MSG_FILE *f);
-
-_Bool message_log_to_disk(MESSAGES *m, MSG_VOID *msg);
 
 uint32_t message_add_group(MESSAGES *m, MSG_TEXT *msg);
 
 uint32_t message_add_type_text(MESSAGES *m, _Bool auth, const uint8_t *data, uint16_t length, _Bool log);
 uint32_t message_add_type_action(MESSAGES *m, _Bool auth, const uint8_t *data, uint16_t length, _Bool log);
 uint32_t message_add_type_notice(MESSAGES *m, const uint8_t *data, uint16_t length, _Bool log);
-uint32_t message_add_type_image(MESSAGES *m, _Bool auth, UTOX_NATIVE_IMAGE *img,
-                                uint16_t width, uint16_t height, _Bool log);
+uint32_t message_add_type_image(MESSAGES *m, _Bool auth, UTOX_NATIVE_IMAGE *img, uint16_t width, uint16_t height, _Bool log);
 
-void messages_draw(PANEL *panel, int x, int y, int width, int height);
-_Bool messages_mmove(PANEL *panel, int x, int y, int width, int height, int mx, int my, int dx, int dy);
+MSG_FILE* message_create_type_file(FILE_TRANSFER *file);
+uint32_t  message_add_type_file_compat(MESSAGES *m, MSG_FILE *f);
+
+_Bool     message_log_to_disk(MESSAGES *m, MSG_VOID *msg);
+_Bool     messages_read_from_log(uint32_t friend_number);
+
+void      messages_send_from_queue(MESSAGES *m, uint32_t friend_number);
+void      messages_clear_receipt(MESSAGES *m, uint32_t receipt_number);
+
+/** Formats all messages from self and friends, and then call draw functions
+ * to write them to the UI.
+ *
+ * accepts: messages struct *pointer, int x,y positions, int width,height
+ */
+void  messages_draw(PANEL *panel, int x, int y, int width, int height);
+
+_Bool messages_mmove(PANEL *panel, int px, int py, int width, int height, int mx, int my, int dx, int dy);
 _Bool messages_mdown(PANEL *panel);
 _Bool messages_dclick(PANEL *panel, _Bool triclick);
 _Bool messages_mright(PANEL *panel);
 _Bool messages_mwheel(PANEL *panel, int height, double d, _Bool smooth);
 _Bool messages_mup(PANEL *panel);
-_Bool messages_mleave(PANEL *panel);
-
-int messages_selection(PANEL *panel, void *data, uint32_t len, _Bool names);
-
+_Bool messages_mleave(PANEL *m);
 _Bool messages_char(uint32_t ch);
+int   messages_selection(PANEL *panel, void *buffer, uint32_t len, _Bool names);
 
-void messages_updateheight(MESSAGES *m, int width);
+void  messages_updateheight(MESSAGES *m, int width);
+
 
 void messages_init(MESSAGES *m, uint32_t friend_number);
 void message_free(MSG_TEXT *msg);
