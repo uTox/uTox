@@ -38,6 +38,11 @@
 
 #include <errno.h>
 
+#ifdef HAVE_DBUS
+#include <dbus/dbus.h>
+#include "dbus.h"
+#endif
+
 
 #define debug(...)          ((settings.verbose >= VERB_TEENAGE_GIRL     ) ? printf(__VA_ARGS__) : (0))
 #define debug_info(...)     ((settings.verbose >= VERB_NEW_ADHD_MEDS    ) ? printf(__VA_ARGS__) : (0))

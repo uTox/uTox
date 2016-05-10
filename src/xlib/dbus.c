@@ -1,7 +1,6 @@
 #include "../main.h"
 
 #ifdef HAVE_DBUS
-#include <dbus/dbus.h>
 #include <signal.h>
 
 #define NOTIFY_OBJECT "/org/freedesktop/Notifications"
