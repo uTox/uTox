@@ -115,7 +115,7 @@ void theme_load(char loadtheme) {
         COLOR_MAIN_QUOTETEXT        = COLOR_PROC(0x55b317);
 
         COLOR_MSG_USER              = COLOR_MAIN_SUBTEXT;
-        COLOR_MSG_USER_PEND         = COLOR_PROC(0x2626c8);
+        COLOR_MSG_USER_PEND         = COLOR_PROC(0x66ccff);
         COLOR_MSG_USER_ERROR        = COLOR_MAIN_REDTEXT;
         COLOR_MSG_CONTACT           = COLOR_MAIN_TEXT;
 
