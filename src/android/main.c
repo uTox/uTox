@@ -59,8 +59,8 @@ void init_ptt(void){ settings.push_to_talk = 0; /* android is unsupported */ }
 _Bool check_ptt_key(void){ return 1; /* android is unsupported */ }
 void exit_ptt(void){ settings.push_to_talk = 0; /* android is unsupported */ }
 
-void image_set_filter(UTOX_NATIVE_IMAGE *image, uint8_t filter){}
-void image_set_scale(UTOX_NATIVE_IMAGE *image, double scale){}
+void image_set_filter(UTOX_NATIVE_IMAGE *image, uint8_t filter){ /* Unsupported on android */ }
+void image_set_scale(UTOX_NATIVE_IMAGE *image, double scale){ /* Unsupported on android */ }
 
 void draw_image(const UTOX_NATIVE_IMAGE *data, int x, int y, uint32_t width, uint32_t height, uint32_t imgx, uint32_t imgy)
 {
@@ -83,28 +83,27 @@ void draw_image(const UTOX_NATIVE_IMAGE *data, int x, int y, uint32_t width, uin
 
 /* this function is no longer used, but it might contain handy information for creating the newer image draw functions
    on android. Currently drawing images is unsupported.
+    void drawimage(UTOX_NATIVE_IMAGE data, int x, int y, int width, int height, int maxwidth, _Bool zoom, double position)
+    {
+        GLuint texture = data;
 
-void drawimage(UTOX_NATIVE_IMAGE data, int x, int y, int width, int height, int maxwidth, _Bool zoom, double position)
-{
-    GLuint texture = data;
+        if(!zoom && width > maxwidth) {
+            makequad(&quads[0], x, y, x + maxwidth, y + (height * maxwidth / width));
+        } else {
+            makequad(&quads[0], x - (int)((double)(width - maxwidth) * position), y, x + width, y + height);
+        }
 
-    if(!zoom && width > maxwidth) {
-        makequad(&quads[0], x, y, x + maxwidth, y + (height * maxwidth / width));
-    } else {
-        makequad(&quads[0], x - (int)((double)(width - maxwidth) * position), y, x + width, y + height);
+        glBindTexture(GL_TEXTURE_2D, texture);
+
+        float one[] = {1.0, 1.0, 1.0};
+        float zero[] = {0.0, 0.0, 0.0};
+        glUniform3fv(k, 1, one);
+        glUniform3fv(k2, 1, zero);
+
+        glDrawQuads(0, 1);
+
+        glUniform3fv(k2, 1, one);
     }
-
-    glBindTexture(GL_TEXTURE_2D, texture);
-
-    float one[] = {1.0, 1.0, 1.0};
-    float zero[] = {0.0, 0.0, 0.0};
-    glUniform3fv(k, 1, one);
-    glUniform3fv(k2, 1, zero);
-
-    glDrawQuads(0, 1);
-
-    glUniform3fv(k2, 1, one);
-}
 */
 
 void thread(void func(void*), void *args)
@@ -129,14 +128,14 @@ uint64_t get_time(void)
 
 /* These functions aren't support on Andorid HELP?
  * TODO: fix these! */
-void copy(int value){}
-void paste(void){}
-void openurl(char_t *str){}
-void openfilesend(void){}
-void openfileavatar(void){}
-void savefiledata(MSG_FILE *file){}
-void setselection(char_t *data, uint16_t length){}
-void edit_will_deactivate(void){}
+void copy(int value){ /* Unsupported on android */ }
+void paste(void){ /* Unsupported on android */ }
+void openurl(char_t *str){ /* Unsupported on android */ }
+void openfilesend(void){ /* Unsupported on android */ }
+void openfileavatar(void){ /* Unsupported on android */ }
+void savefiledata(MSG_FILE *file){ /* Unsupported on android */ }
+void setselection(char_t *data, uint16_t length){ /* Unsupported on android */ }
+void edit_will_deactivate(void){ /* Unsupported on android */ }
 
 UTOX_NATIVE_IMAGE *decode_image(const UTOX_IMAGE data, size_t size, uint16_t *w, uint16_t *h, _Bool keep_alpha)
 {
@@ -367,33 +366,17 @@ void setscale(void) {
     setscale_fonts();
 }
 
-void notify(char_t *title, uint16_t title_length, char_t *msg, uint16_t msg_length, FRIEND *f){}
-
-void desktopgrab(_Bool video){}
-
-void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height, _Bool resize){}
-
-void video_begin(uint32_t id, char_t *name, uint16_t name_length, uint16_t width, uint16_t height){}
-
-void video_end(uint32_t id){}
-
-uint16_t native_video_detect(void) { return 0; }
-
-_Bool video_init(void *handle) { return 0; }
-
-void video_close(void *handle){}
-
-_Bool video_startread(void){
-    return 1;
-}
-
-_Bool video_endread(void){
-    return 1;
-}
-
-int video_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, uint16_t height){
-    return 0;
-}
+void notify(char_t *title, uint16_t title_length, char_t *msg, uint16_t msg_length, FRIEND *f){ /* Unsupported on android */ }
+void desktopgrab(_Bool video){ /* Unsupported on android */ }
+void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height, _Bool resize){ /* Unsupported on android */ }
+void video_begin(uint32_t id, char_t *name, uint16_t name_length, uint16_t width, uint16_t height){ /* Unsupported on android */ }
+void video_end(uint32_t id){ /* Unsupported on android */ }
+uint16_t native_video_detect(void) { return 0; /* Unsupported on android */ }
+_Bool video_init(void *handle) { return 0; /* Unsupported on android */  }
+void video_close(void *handle){ /* Unsupported on android */ }
+_Bool video_startread(void){ return 1; /* Unsupported on android */ }
+_Bool video_endread(void){ return 1; /* Unsupported on android */ }
+int video_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, uint16_t height){ return 0; /* Unsupported on android */ }
 
 /* gl initialization with EGL */
 static _Bool init_display(void) {
@@ -525,9 +508,9 @@ void force_redraw(void) {
     redraw();
 }
 
-void update_tray(void) {}
+void update_tray(void) { /* Unsupported on android */ }
 
-void config_osdefaults(UTOX_SAVE *r) {}
+void config_osdefaults(UTOX_SAVE *r) { /* Unsupported on android */ }
 
 void utox_android_redraw_window() {
     int32_t new_width, new_height;
