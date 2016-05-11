@@ -209,7 +209,7 @@ void pushclip(int left, int top, int w, int h)
 
     RECT *r = &clip[clipk++];
     r->x = left;
-    r->y = utox_window_height - (top + h);
+    r->y = settings.window_height - (top + h);
     r->width = w;
     r->height = h;
 
@@ -373,15 +373,15 @@ _Bool gl_init(void)
     loadfonts();
 
     float vec[4];
-    vec[0] = -(float)utox_window_width / 2.0;
-    vec[1] = -(float)utox_window_height / 2.0;
-    vec[2] = 2.0 / (float)utox_window_width;
-    vec[3] = -2.0 / (float)utox_window_height;
+    vec[0] = -(float)settings.window_width / 2.0;
+    vec[1] = -(float)settings.window_height / 2.0;
+    vec[2] = 2.0 / (float)settings.window_width;
+    vec[3] = -2.0 / (float)settings.window_height;
     glUniform4fv(matrix, 1, vec);
 
-    ui_size(utox_window_width, utox_window_height);
+    ui_size(settings.window_width, settings.window_height);
 
-    glViewport(0, 0, utox_window_width, utox_window_height);
+    glViewport(0, 0, settings.window_width, settings.window_height);
 
     redraw();
 

@@ -310,7 +310,6 @@ typedef uint8_t *UTOX_IMAGE;
 #include "ui_buttons.h"
 #include "ui_dropdown.h"
 
-
 pthread_mutex_t messages_lock;
 
 //friends and groups

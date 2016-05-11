@@ -34,3 +34,8 @@
 #include <GLES2/gl2.h>
 typedef GLuint UTOX_NATIVE_IMAGE;
 #define UTOX_NATIVE_IMAGE_IS_VALID(x) (0 != (x))
+
+#define ANDROID_INTERNAL_SAVE "/data/data/tox.client.utox/files/"
+
+// TODO remove this
+int utox_portable;
