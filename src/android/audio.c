@@ -138,14 +138,25 @@ void encoder_thread(void *arg)
                 player_queue(&loopback, frame, 1);
             }
 
+
+            // TODO fix this
             int i;
             for(i = 0; i < MAX_CALLS; i++) {
                 if(call[i]) {
                     int r;
                     uint8_t dest[960 * 2];
 
-                    debug("audio disabled in this build... sorry mate!\n");
 
+                    /*if((r = toxav_prepare_audio_frame(arg, i, dest, sizeof(dest), frame, 960)) < 0) {
+                        debug("toxav_prepare_audio_frame error %i\n", r);
+                        continue;
+                    }
+
+                    if((r = toxav_send_audio(arg, i, dest, r)) < 0) {
+                        debug("toxav_send_audio error %i %s\n", r, strerror(errno));
+                    }*/
+
+                    toxav_audio_send_frame(av, friend[i].number, (const int16_t *)buf, perframe, UTOX_DEFAULT_AUDIO_CHANNELS, UTOX_DEFAULT_SAMPLE_RATE_A, NULL);
 
                 }
             }
