@@ -697,8 +697,8 @@ static void android_main(struct android_app* state){
 
     initfonts();
 
-    dropdown_dpi.selected = dropdown_dpi.over = 3;
-    ui_set_scale(4);
+    dropdown_dpi.selected = dropdown_dpi.over = 20;
+    ui_set_scale(26);
 
     while(!tox_thread_init) {
         yieldcpu(1);
