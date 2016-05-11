@@ -8,26 +8,21 @@ You shouldn't have to choose a new client for every device: So µTox works every
 
 ## Downloads
 ### Windows
-[32bit Version](https://build.tox.chat/view/uTox/job/uTox_build_windows_x86_debug/lastSuccessfulBuild/artifact/utox_windows_x86_debug.zip)
-
-[64bit Version](https://build.tox.chat/view/uTox/job/uTox_build_windows_x86-64_release/lastSuccessfulBuild/artifact/utox_windows_x86-64.zip)
-
-[Windows XP Version](https://build.tox.chat/job/uTox-nightly-FOR-WIN-XP_build_windows_x86_debug/lastSuccessfulBuild/artifact/utox_nightly.zip)
+* [32bit Version](https://build.tox.chat/view/uTox/job/uTox_build_windows_x86_debug/lastSuccessfulBuild/artifact/utox_windows_x86_debug.zip)
+* [64bit Version](https://build.tox.chat/view/uTox/job/uTox_build_windows_x86-64_release/lastSuccessfulBuild/artifact/utox_windows_x86-64.zip)
+* [Windows XP Version](https://build.tox.chat/job/uTox-nightly-FOR-WIN-XP_build_windows_x86_debug/lastSuccessfulBuild/artifact/utox_nightly.zip)
 
 ### Linux/Posix
-[static x64](https://build.tox.chat/view/uTox/job/uTox_build_linux_x86-64_release/lastSuccessfulBuild/artifact/utox_linux_x86-64.tar.xz)
-
-[static x32](https://build.tox.chat/view/uTox/job/uTox_build_linux_x86_release/lastSuccessfulBuild/artifact/utox_linux_x86.tar.xz)
+* [static x64](https://build.tox.chat/view/uTox/job/uTox_build_linux_x86-64_release/lastSuccessfulBuild/artifact/utox_linux_x86-64.tar.xz)
+* [static x32](https://build.tox.chat/view/uTox/job/uTox_build_linux_x86_release/lastSuccessfulBuild/artifact/utox_linux_x86.tar.xz)
 
 ### OSX
-[Last Updated .dmg](https://github.com/GrayHatter/uTox/releases/download/v0.8.1/uTox-0.8.1.dmg) -- *could be out of date*
-
-[Version List](https://github.com/GrayHatter/uTox/releases)
+* [Last Updated .dmg](https://github.com/GrayHatter/uTox/releases/download/v0.8.1/uTox-0.8.1.dmg) -- *could be out of date*
+* [Version List](https://github.com/GrayHatter/uTox/releases)
 
 ### Android
-[uTox Android on Google Play](https://play.google.com/apps/testing/tox.client.utox)
-
-[Direct apk](https://build.tox.chat/view/uTox/job/uTox_build_android_armhf_release/lastSuccessfulBuild/artifact/uTox.apk)
+* [uTox Android on Google Play](https://play.google.com/apps/testing/tox.client.utox)
+* [Direct apk](https://build.tox.chat/view/uTox/job/uTox_build_android_armhf_release/lastSuccessfulBuild/artifact/uTox.apk)
 
 ### Features
 - Avatars
