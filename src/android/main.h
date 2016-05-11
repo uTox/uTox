@@ -38,4 +38,4 @@ typedef GLuint UTOX_NATIVE_IMAGE;
 #define ANDROID_INTERNAL_SAVE "/data/data/tox.client.utox/files/"
 
 // TODO remove this
-int utox_portable;
+int settings.portable_mode;

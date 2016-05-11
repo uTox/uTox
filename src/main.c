@@ -194,7 +194,7 @@ _Bool utox_update_data_log(uint32_t friend_number, size_t offset, uint8_t *data,
 void parse_args(int argc, char *argv[], bool *theme_was_set_on_argv, int8_t *should_launch_at_startup, int8_t *set_show_window, bool *no_updater) {
     // set default options
     theme = THEME_DEFAULT; // global declaration
-    utox_portable = false; // global declaration
+    settings.portable_mode = false; // global declaration
     *theme_was_set_on_argv = false;
     *should_launch_at_startup = 0;
     *set_show_window = 0;
@@ -238,7 +238,7 @@ void parse_args(int argc, char *argv[], bool *theme_was_set_on_argv, int8_t *sho
 
             case 'p': {
                 debug("Launching uTox in portable mode: All data will be saved to the tox folder in the current working directory\n");
-                utox_portable = 1;
+                settings.portable_mode = 1;
                 break;
             }
 

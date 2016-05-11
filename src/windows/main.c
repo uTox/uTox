@@ -85,8 +85,8 @@ size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *
     FILE *file;
     size_t offset = 0;
 
-    if (utox_portable) {
-        strcpy((char *)path, utox_portable_save_path);
+    if (settings.portable_mode) {
+        strcpy((char *)path, settings.portable_mode_save_path);
     } else {
         _Bool have_path = 0;
         have_path = SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, (char*)path));
@@ -96,7 +96,7 @@ size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *
         }
 
         if (!have_path) {
-            strcpy((char *)path, utox_portable_save_path);
+            strcpy((char *)path, settings.portable_mode_save_path);
             have_path = 1;
         }
     }
@@ -155,8 +155,8 @@ uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_s
     uint8_t path[UTOX_FILE_NAME_LENGTH];
     uint8_t *data;
 
-    if (utox_portable) {
-        strcpy((char *)path, utox_portable_save_path);
+    if (settings.portable_mode) {
+        strcpy((char *)path, settings.portable_mode_save_path);
     } else {
         _Bool have_path = 0;
         have_path = SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, (char*)path));
@@ -166,7 +166,7 @@ uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_s
         }
 
         if (!have_path) {
-            strcpy((char *)path, utox_portable_save_path);
+            strcpy((char *)path, settings.portable_mode_save_path);
             have_path = 1;
         }
     }
@@ -212,8 +212,8 @@ FILE *native_load_data_logfile(uint32_t friend_number) {
 
     cid_to_string(hex, f->cid);
 
-    if (utox_portable) {
-        strcpy((char *)path, utox_portable_save_path);
+    if (settings.portable_mode) {
+        strcpy((char *)path, settings.portable_mode_save_path);
     } else {
         _Bool have_path = 0;
         have_path = SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, (char*)path));
@@ -223,7 +223,7 @@ FILE *native_load_data_logfile(uint32_t friend_number) {
         }
 
         if (!have_path) {
-            strcpy((char *)path, utox_portable_save_path);
+            strcpy((char *)path, settings.portable_mode_save_path);
             have_path = 1;
         }
     }
@@ -592,9 +592,9 @@ void image_free(UTOX_NATIVE_IMAGE *image)
 
 int datapath(uint8_t *dest)
 {
-    if (utox_portable) {
+    if (settings.portable_mode) {
         uint8_t *p = dest;
-        strcpy((char *)p, utox_portable_save_path); p += strlen(utox_portable_save_path);
+        strcpy((char *)p, settings.portable_mode_save_path); p += strlen(settings.portable_mode_save_path);
         strcpy((char *)p, "\\Tox"); p += 4;
         CreateDirectory((char*)dest, NULL);
         *p++ = '\\';
@@ -1029,7 +1029,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
 
     parse_args(argc, argv, &theme_was_set_on_argv, &should_launch_at_startup, &set_show_window, &no_updater);
 
-    if (utox_portable == true) {
+    if (settings.portable_mode == true) {
         /* force the working directory if opened with portable command */
         HMODULE hModule = GetModuleHandle(NULL);
         char path[MAX_PATH];
@@ -1038,7 +1038,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
         for (i = (len - 1); path[i] != '\\'; --i);
         path[i] = 0;//!
         SetCurrentDirectory(path);
-        strcpy(utox_portable_save_path, path);
+        strcpy(settings.portable_mode_save_path, path);
     }
 
     if (should_launch_at_startup == 1) {

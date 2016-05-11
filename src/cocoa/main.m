@@ -219,7 +219,7 @@ size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *
     FILE *file;
     size_t offset = 0;
 
-    if (utox_portable) {
+    if (settings.portable_mode) {
         const char *curr = [NSBundle.mainBundle.bundlePath stringByDeletingLastPathComponent].UTF8String;
         snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "%s/tox/", curr);
     } else {
@@ -272,7 +272,7 @@ uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_s
     uint8_t path[UTOX_FILE_NAME_LENGTH];
     uint8_t *data;
 
-    if (utox_portable) {
+    if (settings.portable_mode) {
         const char *curr = [NSBundle.mainBundle.bundlePath stringByDeletingLastPathComponent].UTF8String;
         snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "%s/tox/", curr);
     } else {
@@ -329,7 +329,7 @@ FILE *native_load_data_logfile(uint32_t friend_number) {
 
     cid_to_string(hex, f->cid);
 
-    if (utox_portable) {
+    if (settings.portable_mode) {
         const char *curr = [NSBundle.mainBundle.bundlePath stringByDeletingLastPathComponent].UTF8String;
         snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "%s/tox/", curr);
     } else {
@@ -357,7 +357,7 @@ FILE *native_load_data_logfile(uint32_t friend_number) {
 
 /* it occured to me that we should probably make datapath allocate memory for its caller */
 int datapath(uint8_t *dest) {
-    if (utox_portable) {
+    if (settings.portable_mode) {
         const char *home = [NSBundle.mainBundle.bundlePath stringByDeletingLastPathComponent].UTF8String;
         int l = sprintf((char*)dest, "%.238s/tox", home);
         ensure_directory_r((char*)dest, 0700);
@@ -528,7 +528,7 @@ void launch_at_startup(int should) {
     // hold COMMAND to start utox in portable mode
     // unfortunately, OS X doesn't have the luxury of passing argv in the GUI
     if ([NSEvent modifierFlags] & NSCommandKeyMask) {
-        utox_portable = 1;
+        settings.portable_mode = 1;
     }
 
     /* load save data */

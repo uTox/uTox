@@ -374,7 +374,7 @@ void openfileavatar(void)
 
 int datapath(uint8_t *dest)
 {
-    if (utox_portable) {
+    if (settings.portable_mode) {
         int l = sprintf((char*)dest, "./tox");
         mkdir((char*)dest, 0700);
         dest[l++] = '/';
@@ -407,7 +407,7 @@ size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *
     FILE *file;
     size_t offset = 0;
 
-    if (utox_portable) {
+    if (settings.portable_mode) {
         snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "./tox/");
     } else {
         snprintf((char*)path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));
@@ -458,7 +458,7 @@ uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_s
     uint8_t path[UTOX_FILE_NAME_LENGTH];
     uint8_t *data;
 
-    if (utox_portable) {
+    if (settings.portable_mode) {
         snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "./tox/");
     } else {
         snprintf((char*)path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));
@@ -519,7 +519,7 @@ FILE *native_load_data_logfile(uint32_t friend_number) {
 
     cid_to_string(hex, f->cid);
 
-    if (utox_portable) {
+    if (settings.portable_mode) {
         snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "./tox/");
     } else {
         snprintf((char*)path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));
