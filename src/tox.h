@@ -91,6 +91,7 @@ enum {
     TOOLTIP_SHOW,
     SELF_AVATAR_SET,
     UPDATE_TRAY,
+    PROFILE_DID_LOAD,
 
     /* File transfer messages */
     FILE_SEND_NEW,
@@ -155,7 +156,9 @@ volatile _Bool tox_thread_msg, audio_thread_msg, video_thread_msg, toxav_thread_
 volatile _Bool save_needed;
 
 /** [log_read description] */
-void log_read(Tox *tox, int fid);
+/* Commented to generate a warning, this function is deprecated */
+/* REMOVE with v0.10 */
+// void log_read_old(Tox *tox, int fid);
 
 /** [init_avatar description]
  *

@@ -1,8 +1,12 @@
 // Versions
 #define TITLE         "uTox"
 #define SUB_TITLE     "(Alpha)"
-#define RELEASE_TITLE "µTox of disapproval"
-#define VERSION       "0.7.0"
+#define RELEASE_TITLE "Mild Shock"
+#define PATCH_TITLE   "Acting"
+#define VERSION       "0.8.2"
+#define VER_MAJOR     0
+#define VER_MINOR     8
+#define VER_PATCH     1
 
 /* Support for large files. */
 #define _LARGEFILE_SOURCE
@@ -17,6 +21,7 @@
 #include <math.h>
 #include <limits.h>
 #include <ctype.h>
+#include <pthread.h>
 
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -45,7 +50,7 @@
 // Limits and sizes
 #define UTOX_MAX_CALLS            16
 #define UTOX_MAX_NUM_FRIENDS      256 /* Deprecated; Avoid Use */
-#define UTOX_MAX_BACKLOG_MESSAGES 128
+#define UTOX_MAX_BACKLOG_MESSAGES 256
 #define UTOX_MAX_NUM_GROUPS       512
 #define UTOX_FILE_NAME_LENGTH     1024
 
@@ -68,9 +73,9 @@
 
 /* UTOX_SCALE is used as the default so that we have a lot of options for scale size.
  * When ever you see UTOX_SCALE(x) double the size, and use SCALE instead!           */
-#define UTOX_SCALE(x) (((int)( ((float)ui_scale * 2 / 10.0) * (float)(x) )) ? : 1 )
-#define      SCALE(x) (((int)( ((float)ui_scale / 10.0)     * (float)(x) )) ? : 1 )
-#define     FSCALE(x) ((     ( ((float)ui_scale / 10.0)     * (float)(x) )) ? : 1 )
+#define  UTOX_SCALE(x) (((int)((ui_scale * 2.0 / 10.0) * ((double)x) )) ? : 1)
+#define       SCALE(x) (((int)((ui_scale / 10.0)       * ((double)x) )) ? : 1)
+#define   UI_FSCALE(x) ((      (ui_scale / 10.0)       * ((double)x) )  ? : 1)
 
 /* House keeping for uTox save file. */
 #define SAVE_VERSION 3
@@ -79,28 +84,94 @@ typedef struct {
     uint16_t window_x, window_y, window_width, window_height;
     uint16_t proxy_port;
     uint8_t  proxyenable;
-    uint8_t  logging_enabled : 1;
-    uint8_t  audible_notifications_enabled : 1;
-    uint8_t  filter : 1;
-    uint8_t  audio_filtering_enabled : 1;
-    uint8_t  close_to_tray : 1;
-    uint8_t  start_in_tray : 1;
-    uint8_t  auto_startup : 1;
-    uint8_t  no_typing_notifications : 1;
+
+    uint8_t  logging_enabled                : 1;
+    uint8_t  audible_notifications_enabled  : 1;
+    uint8_t  filter                         : 1;
+    uint8_t  audio_filtering_enabled        : 1;
+    uint8_t  close_to_tray                  : 1;
+    uint8_t  start_in_tray                  : 1;
+    uint8_t  auto_startup                   : 1;
+    uint8_t  no_typing_notifications        : 1;
+
     uint16_t audio_device_in;
     uint16_t audio_device_out;
+
     uint8_t  theme;
-    uint8_t  push_to_talk : 1;
-    uint8_t  zero : 7;
+
+    uint8_t  push_to_talk                   : 1;
+    uint8_t  use_mini_roster                : 1;
+    uint8_t  zero                           : 6;
+
     uint16_t unused[31];
     uint8_t  proxy_ip[0];
 } UTOX_SAVE;
 
-// Structs
+typedef struct {
+    uint8_t  log_version;
+    time_t   time;
+    size_t   author_length;
+    size_t   msg_length;
+    uint8_t  author  : 1;
+    uint8_t  receipt : 1;
+    uint8_t  flags   : 5;
+    uint8_t  deleted : 1;
+    uint8_t  msg_type;
+    uint8_t  zeroes[2];
+} LOG_FILE_MSG_HEADER;
 
+volatile uint16_t loaded_audio_in_device, loaded_audio_out_device;
+_Bool tox_connected;
+
+/* Super global vars */
+volatile _Bool tox_thread_init,
+               utox_av_ctrl_init,
+               utox_audio_thread_init,
+               utox_video_thread_init;
+
+typedef struct utox_settings {
+    _Bool close_to_tray;
+    _Bool logging_enabled;
+    _Bool ringtone_enabled;
+    _Bool audiofilter_enabled;
+    _Bool start_in_tray;
+    _Bool start_with_system;
+    _Bool push_to_talk;
+    _Bool use_encryption;
+    _Bool audio_preview;
+    _Bool video_preview;
+    _Bool send_typing_status;
+    _Bool use_mini_roster;
+
+    uint8_t verbose;
+
+    int window_height;
+    int window_width;
+} SETTINGS;
+
+/* This might need to be volatile type... */
+SETTINGS settings;
+
+//HFONT font_big, font_big2, font_med, font_med2, font_small, font_msg;
+int font_small_lineheight, font_msg_lineheight;
+uint16_t video_width, video_height, max_video_width, max_video_height;
+char proxy_address[256];
+extern struct Tox_Options options;
+
+// Structs
 typedef struct edit_change EDIT_CHANGE;
 
 // Enums
+/* uTox debug levels */
+enum {
+    VERB_ANCIENT_MONK,      // Off
+    VERB_JANICE_ACCOUNTING, // Error (default)
+    VERB_CONCERNED_PARENT,  // Notice
+    VERB_NEW_ADHD_MEDS,     // Info
+    VERB_TEENAGE_GIRL,      // Debug
+};
+
+
 enum {
     CURSOR_NONE,
     CURSOR_TEXT,
@@ -143,10 +214,11 @@ enum {
     BM_SBUTTON,
 
     BM_CONTACT,
+    BM_CONTACT_MINI,
     BM_GROUP,
+    BM_GROUP_MINI,
 
     BM_FILE,
-    BM_FILE_BIG,
     BM_CALL,
     BM_VIDEO,
 
@@ -187,6 +259,7 @@ typedef uint8_t *UTOX_IMAGE;
 #include "audio.h"
 #include "video.h"
 #include "utox_av.h"
+#include "tox_callbacks.h"
 
 #if defined __WIN32__
     #include "windows/main.h"
@@ -229,21 +302,7 @@ typedef uint8_t *UTOX_IMAGE;
 #include "ui_buttons.h"
 #include "ui_dropdown.h"
 
-
-/* Super global vars */
-volatile _Bool tox_thread_init,
-               utox_av_ctrl_init,
-               utox_audio_thread_init,
-               utox_video_thread_init;
-
-volatile _Bool logging_enabled, audible_notifications_enabled, audio_filtering_enabled, close_to_tray, start_in_tray, auto_startup, push_to_talk;
-volatile uint16_t loaded_audio_in_device, loaded_audio_out_device;
-_Bool tox_connected;
-// TODO: remove globals
-_Bool encrypted_profile;
-_Bool audio_preview, video_preview;
-
-_Bool utox_portable;
+pthread_mutex_t messages_lock;
 
 //friends and groups
 //note: assumes array size will always be large enough
@@ -252,7 +311,7 @@ GROUPCHAT group[MAX_NUM_GROUPS];
 uint32_t friends, groups;
 
 //window
-int utox_window_width, utox_window_height, utox_window_baseline;
+int utox_window_baseline;
 _Bool utox_window_maximized;
 
 uint8_t cursor;
@@ -271,6 +330,45 @@ uint16_t video_width, video_height, max_video_width, max_video_height;
 
 char proxy_address[256];
 extern struct Tox_Options options;
+
+
+
+/** Takes data from µTox and saves it, just how the OS likes it saved!
+ *
+ * Returns the start of the offset on success, and 0 on failure.
+ * Used to set save_needed in tox thread
+ * And msg->disk_offset in history/messages */
+size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *data, size_t length, _Bool append);
+
+/** Takes data from µTox and loads it up! */
+uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_size);
+
+/** Selects the correct file on the platform and passes it to the global log reading function */
+FILE *native_load_data_logfile(uint32_t friend_number);
+
+/* Global wrappers for the native_ data functions */
+_Bool      utox_save_data_tox(uint8_t *data, size_t length);
+_Bool      utox_save_data_utox(UTOX_SAVE *data, size_t length);
+size_t     utox_save_data_log(uint32_t friend_number, uint8_t *data, size_t length);
+
+uint8_t   *utox_load_data_tox(size_t *size);
+UTOX_SAVE *utox_load_data_utox(void);
+
+/** This one actually does the work of reading the logfile information.
+ *
+ * inside main.c is probably the wrong place for it, but I'll leave chosing
+ * the correct location to someone else. */
+uint8_t **utox_load_data_log(uint32_t friend_number, size_t *size, uint32_t count, uint32_t skip);
+
+/** utox_update_data_log Updates the data for this friend's history.
+ *
+ * When given a friend_number and offset, utox_update_data_log will overwrite the file, with
+ * the supplied data * length. It makes no attempt to verify the data or length, it'll just
+ * write blindly. */
+_Bool utox_update_data_log(uint32_t friend_number, size_t offset, uint8_t *data, size_t length);
+
+
+/* TODO: sort everything below this line! */
 
 void parse_args(int argc, char *argv[], _Bool *theme_was_set_on_argv, int8_t *should_launch_at_startup, int8_t *set_show_window, _Bool *no_updater);
 
@@ -315,9 +413,6 @@ void redraw(void);
 void update_tray(void);
 void force_redraw(void); // TODO: as parameter for redraw()?
 
-int datapath_old(uint8_t *dest);
-int datapath(uint8_t *dest);
-
 /* gets a subdirectory of tox's datapath and puts the full pathname in dest,
  * returns number of characters written */
 int datapath_subdir(uint8_t *dest, const char *subdir);
@@ -326,8 +421,7 @@ int ch_mod(uint8_t *file);
 void config_osdefaults(UTOX_SAVE *r);
 
 //me
-struct
-{
+struct {
     uint8_t status;
     uint16_t name_length, statusmsg_length;
     char_t *statusmsg, name[TOX_MAX_NAME_LENGTH];
@@ -340,12 +434,10 @@ struct
     unsigned int avatar_format;
     uint8_t *avatar_data;
     size_t avatar_size;
-}self;
+} self;
 
 //add friend page
 uint8_t addfriend_status;
-
-_Bool dont_send_typing_notes; //Stores user's preference about typing notifications
 
 void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data);
 
@@ -386,7 +478,6 @@ void popclip(void);
 void enddraw(int x, int y, int width, int height);
 
 /* OS interface replacements */
-int datapath_old(uint8_t *dest);
 int datapath(uint8_t *dest);
 int datapath_subdir(uint8_t *dest, const char *subdir);
 void flush_file(FILE *file);

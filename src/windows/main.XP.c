@@ -36,8 +36,10 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
 
         swprintf(second, UTOX_FILE_NAME_LENGTH, L"%ls\\%ls", first, longname);
 
-        char *send = malloc(UTOX_FILE_NAME_LENGTH);
+        char *send = calloc(UTOX_FILE_NAME_LENGTH, sizeof(char*));
         native_to_utf8str(second, send, UTOX_FILE_NAME_LENGTH);
+
+        debug_notice("Native:\tAuto Accept Directory: \"%s\"", send);
 
         postmessage_toxcore(TOX_FILE_ACCEPT_AUTO, fid, file->file_number, send);
     } else {

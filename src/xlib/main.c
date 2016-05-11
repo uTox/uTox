@@ -78,7 +78,7 @@ void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data)
 FILE *ptt_keyboard_handle;
 Display *ptt_display;
 void init_ptt(void){
-    push_to_talk = 1;
+    settings.push_to_talk = 1;
     uint8_t path[UTOX_FILE_NAME_LENGTH], *p;
     p = path + datapath(path);
     strcpy((char*)p, "ptt-kbd");
@@ -93,7 +93,7 @@ void init_ptt(void){
 }
 
 _Bool check_ptt_key(void){
-    if (!push_to_talk) {
+    if (!settings.push_to_talk) {
         // debug("PTT is disabled\n");
         return 1; /* If push to talk is disabled, return true. */
     }
@@ -146,7 +146,7 @@ void exit_ptt(void){
     if (ptt_display) {
         XCloseDisplay(ptt_display);
     }
-    push_to_talk = 0;
+    settings.push_to_talk = 0;
 }
 
 void image_set_scale(UTOX_NATIVE_IMAGE *image, double scale)
@@ -349,7 +349,6 @@ uint64_t get_time(void)
     return ((uint64_t)ts.tv_sec * (1000 * 1000 * 1000)) + (uint64_t)ts.tv_nsec;
 }
 
-
 void openurl(char_t *str)
 {
     char *cmd = "xdg-open";
@@ -371,6 +370,176 @@ void openfileavatar(void)
     if(libgtk) {
         gtk_openfileavatar();
     }
+}
+
+int datapath(uint8_t *dest)
+{
+    if (utox_portable) {
+        int l = sprintf((char*)dest, "./tox");
+        mkdir((char*)dest, 0700);
+        dest[l++] = '/';
+
+        return l;
+    } else {
+        char *home = getenv("HOME");
+        int l = sprintf((char*)dest, "%.230s/.config/tox", home);
+        mkdir((char*)dest, 0700);
+        dest[l++] = '/';
+
+        return l;
+    }
+}
+
+int datapath_subdir(uint8_t *dest, const char *subdir)
+{
+    int l = datapath(dest);
+    l += sprintf((char*)(dest+l), "%s", subdir);
+    mkdir((char*)dest, 0700);
+    dest[l++] = '/';
+
+    return l;
+}
+
+/** Takes data from µTox and saves it, just how the OS likes it saved! */
+size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *data, size_t length, _Bool append) {
+    uint8_t path[UTOX_FILE_NAME_LENGTH];
+    uint8_t atomic_path[UTOX_FILE_NAME_LENGTH];
+    FILE *file;
+    size_t offset = 0;
+
+    if (utox_portable) {
+        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "./tox/");
+    } else {
+        snprintf((char*)path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));
+    }
+
+    mkdir((char*)path, 0700);
+
+    snprintf((char*)path + strlen((const char*)path), UTOX_FILE_NAME_LENGTH - strlen((const char*)path), "%s", name);
+
+    if (append) {
+        file = fopen((const char*)path, "ab");
+    } else {
+        if (strlen((const char*)path) + name_length >= UTOX_FILE_NAME_LENGTH - strlen(".atomic")){
+            debug("NATIVE:\tSave directory name too long\n");
+            return 0;
+        } else {
+            snprintf((char*)atomic_path, UTOX_FILE_NAME_LENGTH, "%s.atomic", path);
+        }
+        file = fopen((const char*)atomic_path, "wb");
+    }
+
+    if (file) {
+        offset = ftello(file);
+        fwrite(data, length, 1, file);
+        fflush(file);
+        fclose(file);
+
+        if (append) {
+            return offset;
+        }
+
+        if (rename((const char*)atomic_path, (const char*)path)) {
+            /* Consider backing up this file instead of overwriting it. */
+            debug("NATIVE:\t%sUnable to move file!\n", atomic_path);
+            return 0;
+        }
+        return 1;
+    } else {
+        debug("NATIVE:\tUnable to open %s to write save\n", path);
+        return 0;
+    }
+
+    return 0;
+}
+
+/** Takes data from µTox and loads it up! */
+uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_size){
+    uint8_t path[UTOX_FILE_NAME_LENGTH];
+    uint8_t *data;
+
+    if (utox_portable) {
+        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "./tox/");
+    } else {
+        snprintf((char*)path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));
+    }
+
+    if (strlen((const char*)path) + name_length >= UTOX_FILE_NAME_LENGTH){
+        debug("NATIVE:\tLoad directory name too long\n");
+        return 0;
+    } else {
+        snprintf((char*)path + strlen((const char*)path), UTOX_FILE_NAME_LENGTH - strlen((const char*)path), "%s", name);
+    }
+
+
+    FILE *file = fopen((const char*)path, "rb");
+    if (!file) {
+        //debug("NATIVE:\tUnable to open/read %s\n", path);
+        if (out_size) {*out_size = 0;}
+        return NULL;
+    }
+
+
+    fseek(file, 0, SEEK_END);
+    size_t size = ftell(file);
+    data = calloc(size + 1, 1); // needed for the ending null byte
+    if (!data) {
+        fclose(file);
+        if (out_size) {*out_size = 0;}
+        return NULL;
+    } else {
+        fseek(file, 0, SEEK_SET);
+
+        if(fread(data, size, 1, file) != 1) {
+            debug("NATIVE:\tRead error on %s\n", path);
+            fclose(file);
+            free(data);
+            if (out_size) {*out_size = 0;}
+            return NULL;
+        }
+
+    fclose(file);
+    }
+
+    if (out_size) {*out_size = size;}
+    return data;
+}
+
+/** native_load_data_log
+ *
+ *  reads records from the log file of a friend
+ *
+ * returns each MSG in the order they were stored, to a max of `count`
+ * after skipping `skip` records
+ */
+FILE *native_load_data_logfile(uint32_t friend_number) {
+    FRIEND *f = &friend[friend_number];
+    uint8_t hex[TOX_PUBLIC_KEY_SIZE * 2];
+    uint8_t path[UTOX_FILE_NAME_LENGTH];
+
+    cid_to_string(hex, f->cid);
+
+    if (utox_portable) {
+        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "./tox/");
+    } else {
+        snprintf((char*)path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));
+    }
+
+    if (strlen((const char*)path) + sizeof(hex) >= UTOX_FILE_NAME_LENGTH){
+        debug("NATIVE:\tLoad directory name too long\n");
+        return 0;
+    } else {
+        snprintf((char*)path + strlen((const char*)path), UTOX_FILE_NAME_LENGTH - strlen((const char*)path),
+                 "%.*s.new.txt", (int)sizeof(hex), (char*)hex);
+    }
+
+
+    FILE *file = fopen((const char*)path, "rb+");
+    if (!file) {
+        return NULL;
+    }
+
+    return file;
 }
 
 void native_select_dir_ft(uint32_t fid, MSG_FILE *file)
@@ -462,8 +631,8 @@ void draw_tray_icon(void){
     UTOX_NATIVE_IMAGE *icon = decode_image(icon_data, icon_size, &width, &height, 1);
     if(UTOX_NATIVE_IMAGE_IS_VALID(icon)) {
         /* Get tray window size */
-        int32_t x_r, y_r;
-        uint32_t border_r, depth_r;
+        int32_t x_r = 0, y_r = 0;
+        uint32_t border_r = 0, depth_r = 0;
         XMoveResizeWindow(display, tray_window, x_r, y_r, 32, 32);
         XGetGeometry(display, tray_window, &root, &x_r, &y_r, &tray_width, &tray_height, &border_r, &depth_r);
         /* TODO use xcb instead of xlib here!
@@ -827,39 +996,6 @@ void image_free(UTOX_NATIVE_IMAGE *image)
     free(image);
 }
 
-int datapath_old(uint8_t *dest)
-{
-    return 0;
-}
-
-int datapath(uint8_t *dest)
-{
-    if (utox_portable) {
-        int l = sprintf((char*)dest, "./tox");
-        mkdir((char*)dest, 0700);
-        dest[l++] = '/';
-
-        return l;
-    } else {
-        char *home = getenv("HOME");
-        int l = sprintf((char*)dest, "%.230s/.config/tox", home);
-        mkdir((char*)dest, 0700);
-        dest[l++] = '/';
-
-        return l;
-    }
-}
-
-int datapath_subdir(uint8_t *dest, const char *subdir)
-{
-    int l = datapath(dest);
-    l += sprintf((char*)(dest+l), "%s", subdir);
-    mkdir((char*)dest, 0700);
-    dest[l++] = '/';
-
-    return l;
-}
-
 /** Sets file system permissions to something slightly safer.
  *
  * returns 0 and 1 on success and failure.
@@ -893,15 +1029,15 @@ void setscale(void)
     // TODO, fork this to a function
     xsh = XAllocSizeHints();
     xsh->flags = PMinSize;
-    xsh->min_width = UTOX_SCALE(320 );
-    xsh->min_height = UTOX_SCALE(160 );
+    xsh->min_width  = UTOX_SCALE(320);
+    xsh->min_height = UTOX_SCALE(160);
 
     XSetWMNormalHints(display, window, xsh);
 
-    if(utox_window_width > UTOX_SCALE(320 ) && utox_window_height > UTOX_SCALE(160 ))
+    if(settings.window_width > UTOX_SCALE(320 ) && settings.window_height > UTOX_SCALE(160 ))
     {
         /* wont get a resize event, call this manually */
-        ui_size(utox_window_width, utox_window_height);
+        ui_size(settings.window_width, settings.window_height);
     }
 }
 
@@ -947,7 +1083,7 @@ int file_unlock(FILE *file, uint64_t start, size_t length){
 }
 
 void notify(char_t *title, uint16_t title_length, char_t *msg, uint16_t msg_length, FRIEND *f) {
-    if(havefocus) {
+    if (havefocus) {
         return;
     }
 
@@ -958,10 +1094,11 @@ void notify(char_t *title, uint16_t title_length, char_t *msg, uint16_t msg_leng
     char_t *str = tohtml(msg, msg_length);
 
     uint8_t *f_cid = NULL;
-    if(friend_has_avatar(f)) {
+    if (friend_has_avatar(f)) {
         f_cid = f->cid;
     }
 
+    /* Todo handle this warning! */
     dbus_notify((char*)title, (char*)str, (uint8_t*)f_cid);
 
     free(str);
@@ -1030,20 +1167,24 @@ int main(int argc, char *argv[]) {
     int8_t set_show_window;
     bool no_updater;
 
+    #ifdef HAVE_DBUS
+        debug_info("Compiled with dbus support!\n");
+    #endif
+
     parse_args(argc, argv, &theme_was_set_on_argv, &should_launch_at_startup, &set_show_window, &no_updater);
 
     if (should_launch_at_startup == 1 || should_launch_at_startup == -1) {
-        debug("Start on boot not supported on this OS, please use your distro suggested method!\n");
+        debug_notice("Start on boot not supported on this OS, please use your distro suggested method!\n");
     }
 
     if (no_updater == true) {
-        debug("Disabling the updater is not supported on this OS. Updates are managed by your distro's package manager.\n");
+        debug_notice("Disabling the updater is not supported on this OS. Updates are managed by your distro's package manager.\n");
     }
 
     XInitThreads();
 
     if((display = XOpenDisplay(NULL)) == NULL) {
-        printf("Cannot open display\n");
+        debug_error("Cannot open display, must exit\n");
         return 1;
     }
 
@@ -1053,7 +1194,7 @@ int main(int argc, char *argv[]) {
     setlocale(LC_ALL, "");
     XSetLocaleModifiers("");
     if((xim = XOpenIM(display, 0, 0, 0)) == NULL) {
-        printf("Cannot open input method\n");
+        debug_error("Cannot open input method\n");
     }
 
     LANG = systemlang();
@@ -1081,11 +1222,12 @@ int main(int argc, char *argv[]) {
     if (!theme_was_set_on_argv) {
         theme = save->theme;
     }
-    printf("%d\n", theme);
+
+    debug_info("Setting theme to:\t%d\n", theme);
     theme_load(theme);
 
     /* create window */
-    window = XCreateWindow(display, root, save->window_x, save->window_y, utox_window_width, utox_window_height, 0, depth, InputOutput, visual, CWBackPixmap | CWBorderPixel | CWEventMask, &attrib);
+    window = XCreateWindow(display, root, save->window_x, save->window_y, settings.window_width, settings.window_height, 0, depth, InputOutput, visual, CWBackPixmap | CWBorderPixel | CWEventMask, &attrib);
 
     /* choose available libraries for optional UI stuff */
     if (!(libgtk = gtk_load())) {
@@ -1125,7 +1267,7 @@ int main(int argc, char *argv[]) {
     XRedraw         = XInternAtom(display, "XRedraw", False);
 
     /* create the draw buffer */
-    drawbuf = XCreatePixmap(display, window, utox_window_width, utox_window_height, depth);
+    drawbuf = XCreatePixmap(display, window, settings.window_width, settings.window_height, depth);
 
     /* catch WM_DELETE_WINDOW */
     XSetWMProtocols(display, window, &wm_delete_window, 1);
@@ -1204,14 +1346,14 @@ int main(int argc, char *argv[]) {
 
     if(set_show_window){
         if(set_show_window == 1){
-            start_in_tray = 0;
+            settings.start_in_tray = 0;
         } else if(set_show_window == -1){
-            start_in_tray = 1;
+            settings.start_in_tray = 1;
         }
     }
 
     /* make the window visible */
-    if (start_in_tray) {
+    if (settings.start_in_tray) {
         togglehide();
     } else {
         XMapWindow(display, window);
@@ -1221,14 +1363,14 @@ int main(int argc, char *argv[]) {
         if((xic = XCreateIC(xim, XNInputStyle, XIMPreeditNothing | XIMStatusNothing, XNClientWindow, window, XNFocusWindow, window, NULL))) {
             XSetICFocus(xic);
         } else {
-            printf("Cannot open input method\n");
+            debug_error("Cannot open input method\n");
             XCloseIM(xim);
             xim = 0;
         }
     }
 
     /* set the width/height of the drawing region */
-    ui_size(utox_window_width, utox_window_height);
+    ui_size(settings.window_width, settings.window_height);
 
     create_tray_icon();
     /* Registers the app in the Unity MM */
@@ -1240,7 +1382,7 @@ int main(int argc, char *argv[]) {
     #endif
 
     /* draw */
-    panel_draw(&panel_root, 0, 0, utox_window_width, utox_window_height);
+    panel_draw(&panel_root, 0, 0, settings.window_width, settings.window_height);
 
     /* event loop */
     while(1) {
@@ -1260,7 +1402,7 @@ int main(int argc, char *argv[]) {
         }
 
         if(_redraw) {
-            panel_draw(&panel_root, 0, 0, utox_window_width, utox_window_height);
+            panel_draw(&panel_root, 0, 0, settings.window_width, settings.window_height);
             _redraw = 0;
         }
     }
@@ -1321,7 +1463,7 @@ int main(int argc, char *argv[]) {
         yieldcpu(1);
     }
 
-    debug("XLIB main:\tClean exit\n");
+    debug_error("XLIB main:\tClean exit\n");
 
     return 0;
 }

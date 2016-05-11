@@ -51,7 +51,7 @@ static void utox_build_file_transfer(FILE_TRANSFER *ft, uint32_t friend_number, 
     if(name){
         file->name        = malloc(name_length + 1);
         memcpy(file->name, name, name_length);
-        file->name_length = name_length;
+        file->name_length = utf8_validate(name, name_length);
         file->name[file->name_length] = 0;
     } else {
         file->name        = NULL;
@@ -105,10 +105,10 @@ static void utox_new_user_file(FILE_TRANSFER *file){
 }
 
 static void utox_new_contact_file(FILE_TRANSFER *file){
-    FILE_TRANSFER *file_copy = calloc(1, sizeof(FILE_TRANSFER));
+    // FILE_TRANSFER *file_copy = calloc(1, sizeof(FILE_TRANSFER));
 
-    memcpy(file_copy, file, sizeof(FILE_TRANSFER));
-    postmessage(FILE_INCOMING_NEW, 0, 0, file_copy);
+    // memcpy(file_copy, file, sizeof(FILE_TRANSFER));
+    postmessage(FILE_INCOMING_NEW, 0, 0, file);
 }
 
 /* Calculate the transfer speed for the UI. */
@@ -578,7 +578,7 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
         file_handle->file_number   = file_number;
         memcpy(file_handle->file_id, file_id, TOX_FILE_ID_LENGTH);
         if (utox_file_load_ftinfo(file_handle)) {
-            debug("FileTransfer:\tIncoming Existing file from friend (%u) \n", friend_number);
+            debug_notice("FileTransfer:\tIncoming Existing file from friend (%u) \n", friend_number);
             /* We were able to load incoming file info from disk; validate date! */
             /* First, backup transfered size, because we're about to overwrite it*/
             uint64_t seek_size = file_handle->size_transferred;
@@ -587,7 +587,7 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
             uint64_t size = 0;
             if (file) {
                 /* File exist, and is readable, now get current size! */
-                debug("FileTransfer:\tCool file exists, let try to restart it.\n");
+                debug_info("FileTransfer:\tCool file exists, let try to restart it.\n");
                 /* Eventually we want to cancel the file if it's larger than the incoming size, but without an error
                 dialog we'll just wait for now...
                 fseeko(file, 0, SEEK_END); size = ftello(file); fclose(file);
@@ -610,16 +610,16 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
                     file_handle->file = file;
                     file_handle->size_transferred = seek_size;
                     /* TODO try to re-access the original message box for this file transfer, without segfaulting! */
-                    file_handle->ui_data = message_add_type_file(file_handle);
+                    file_handle->ui_data = message_create_type_file(file_handle);
                     file_handle->resume = utox_file_alloc_ftinfo(file_handle);
                     utox_new_user_file(file_handle);
                     TOX_ERR_FILE_SEEK error = 0;
                     tox_file_seek(tox, friend_number, file_number, seek_size, &error);
-                    debug("FileTransfer:\tseek %i\n", error);
+                    debug_error("FileTransfer:\tseek %i\n", error);
                     file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_RESUME);
                     return;
                 } else {
-                    debug("FileTransfer:\tFile opened for reading, but unable to get write access, canceling file!\n");
+                    debug_error("FileTransfer:\tFile opened for reading, but unable to get write access, canceling file!\n");
                     file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
                     free(file_handle->path);
                     return;
@@ -636,7 +636,7 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
             utox_build_file_transfer(file_handle, friend_number, file_number, file_size, 1, 1, 0,
                 TOX_FILE_KIND_DATA, filename, filename_length, NULL, 0, NULL, tox);
 
-            file_handle->ui_data = message_add_type_file(file_handle);
+            file_handle->ui_data = message_create_type_file(file_handle);
             file_handle->resume = 0;
             /* Notify the user! */
             utox_new_contact_file(file_handle);
@@ -645,7 +645,7 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
             utox_build_file_transfer(file_handle, friend_number, file_number, file_size, 1, 0, 0,
                 TOX_FILE_KIND_DATA, filename, filename_length, NULL, 0, NULL, tox);
             /* Set UI values */
-            file_handle->ui_data = message_add_type_file(file_handle);
+            file_handle->ui_data = message_create_type_file(file_handle);
             file_handle->resume = 0;
             /* Notify the user! */
             utox_new_contact_file(file_handle);
@@ -855,7 +855,7 @@ uint32_t outgoing_file_send(Tox *tox, uint32_t friend_number, uint8_t *path, uin
         /* Build UI info, and create resume file. */
         if(!memory){
             file_handle->file = file;
-            file_handle->ui_data = message_add_type_file(file_handle);
+            file_handle->ui_data = message_create_type_file(file_handle);
             file_handle->resume = utox_file_alloc_ftinfo(file_handle);
             if(kind == TOX_FILE_KIND_EXISTING){
                 free(path);
@@ -870,7 +870,7 @@ uint32_t outgoing_file_send(Tox *tox, uint32_t friend_number, uint8_t *path, uin
                 memcpy(file_handle->avatar, file_data, file_data_size);
             } else {
                 /* Allow saving of in-lines */
-                file_handle->ui_data = message_add_type_file(file_handle);
+                file_handle->ui_data = message_create_type_file(file_handle);
                 memcpy(file_handle->memory, file_data, file_data_size);
                 free(filename);
                 utox_new_user_file(file_handle);
@@ -957,9 +957,13 @@ int utox_file_start_write(uint32_t friend_number, uint32_t file_number, const ch
     file_handle->path = (uint8_t*)strdup(filepath);
     file_handle->path_length = strlen(filepath);
 
-    file_handle->file = fopen((const char*)file_handle->path, "wb");
+    if (!file_handle->file) { /* Windows opens the file for us */
+        debug_notice("FileTransfer:\tUnable to use already open file, going to re-open\n");
+        file_handle->file = fopen((const char*)file_handle->path, "wb, ccs=UTF-8");
+    }
+
     if(!file_handle->file) {
-        debug("FileTransfer:\tThe file we're supposed to write to couldn't be opened\n%s\n", file_handle->path);
+        debug_error("FileTransfer:\tThe file we're supposed to write to couldn't be opened\n\t\t\"%s\"\n", file_handle->path);
         utox_break_file(file_handle);
         return -1;
     }
@@ -978,7 +982,7 @@ int utox_file_start_write(uint32_t friend_number, uint32_t file_number, const ch
     return 0;
 }
 
-void utox_set_callbacks_for_transfer(Tox *tox){
+void utox_set_callbacks_file_transfer(Tox *tox){
     /* Incoming files */
         /* This is the callback for a new incoming file. */
         tox_callback_file_recv(tox, incoming_file_callback_request, NULL);

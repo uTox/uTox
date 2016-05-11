@@ -55,13 +55,9 @@ void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data)
     write(pipefd[1], &piping, sizeof(PIPING));
 }
 
-void init_ptt(void){ push_to_talk = 0; /* android is unsupported */ }
-
-_Bool check_ptt_key(void){
-    return 1;
-}
-
-void exit_ptt(void){ push_to_talk = 0; /* android is unsupported */ }
+void init_ptt(void){ settings.push_to_talk = 0; /* android is unsupported */ }
+_Bool check_ptt_key(void){ return 1; /* android is unsupported */ }
+void exit_ptt(void){ settings.push_to_talk = 0; /* android is unsupported */ }
 
 void image_set_filter(UTOX_NATIVE_IMAGE *image, uint8_t filter){}
 void image_set_scale(UTOX_NATIVE_IMAGE *image, double scale){}
@@ -138,8 +134,6 @@ void paste(void){}
 void openurl(char_t *str){}
 void openfilesend(void){}
 void openfileavatar(void){}
-void native_select_dir_ft(uint32_t fid, MSG_FILE *file){}
-void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file){}
 void savefiledata(MSG_FILE *file){}
 void setselection(char_t *data, uint16_t length){}
 void edit_will_deactivate(void){}
@@ -192,22 +186,152 @@ void writesavedata(void *data, uint32_t len)
     }
 }
 
-int datapath_old(uint8_t *dest)
-{
+int datapath(uint8_t *dest){
     return 0;
 }
 
-int datapath(uint8_t *dest){
-    strcpy((char*)dest, "/data/data/tox.utox/files/");
-    debug((char*)dest);
-    debug("^dest^");
-    return 26;
+int datapath_subdir(uint8_t *dest, const char *subdir){
+    return 0;
 }
 
-int datapath_subdir(uint8_t *dest, const char *subdir){
-    strcpy((char*)dest, "/data/data/tox.utox/files/");
-    return 26;
+/** Takes data from µTox and saves it, just how the OS likes it saved! */
+size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *data, size_t length, _Bool append) {
+    uint8_t path[UTOX_FILE_NAME_LENGTH];
+    FILE *file;
+    size_t offset = 0;
+
+    snprintf((char*)path, UTOX_FILE_NAME_LENGTH, ANDROID_INTERNAL_SAVE);
+
+    // mkdir((char*)path, 0700);
+
+    snprintf((char*)path + strlen((const char*)path), UTOX_FILE_NAME_LENGTH - strlen((const char*)path), "%s", name);
+
+    if (append) {
+        file = fopen((const char*)path, "ab");
+    } else {
+        file = fopen((const char*)path, "wb");
+    }
+
+    if (file) {
+        offset = ftello(file);
+        fwrite(data, length, 1, file);
+        fflush(file);
+        fclose(file);
+
+        if (append) {
+            return offset;
+        }
+
+        return 1;
+    } else {
+        debug("NATIVE:\tUnable to open %s to write save\n", path);
+        return 0;
+    }
+
+    return 0;
 }
+
+/** Takes data from µTox and loads it up! */
+uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_size){
+    uint8_t path[UTOX_FILE_NAME_LENGTH];
+    uint8_t *data;
+
+    snprintf((char*)path, UTOX_FILE_NAME_LENGTH, ANDROID_INTERNAL_SAVE);
+
+    if (strlen((const char*)path) + name_length >= UTOX_FILE_NAME_LENGTH){
+        debug("NATIVE:\tLoad directory name too long\n");
+        return 0;
+    } else {
+        snprintf((char*)path + strlen((const char*)path), UTOX_FILE_NAME_LENGTH - strlen((const char*)path), "%s", name);
+    }
+
+
+    FILE *file = fopen((const char*)path, "rb");
+    if (!file) {
+        //debug("NATIVE:\tUnable to open/read %s\n", path);
+        if (out_size) {*out_size = 0;}
+        return NULL;
+    }
+
+
+    fseek(file, 0, SEEK_END);
+    size_t size = ftell(file);
+    data = calloc(size + 1, 1); // needed for the ending null byte
+    if (!data) {
+        fclose(file);
+        if (out_size) {*out_size = 0;}
+        return NULL;
+    } else {
+        fseek(file, 0, SEEK_SET);
+
+        if(fread(data, size, 1, file) != 1) {
+            debug("NATIVE:\tRead error on %s\n", path);
+            fclose(file);
+            free(data);
+            if (out_size) {*out_size = 0;}
+            return NULL;
+        }
+
+    fclose(file);
+    }
+
+    if (out_size) {*out_size = size;}
+    return data;
+}
+
+/** native_load_data_log
+ *
+ *  reads records from the log file of a friend
+ *
+ * returns each MSG in the order they were stored, to a max of `count`
+ * after skipping `skip` records
+ */
+FILE *native_load_data_logfile(uint32_t friend_number) {
+    FRIEND *f = &friend[friend_number];
+    uint8_t hex[TOX_PUBLIC_KEY_SIZE * 2];
+    uint8_t path[UTOX_FILE_NAME_LENGTH];
+
+    cid_to_string(hex, f->cid);
+
+    snprintf((char*)path, UTOX_FILE_NAME_LENGTH, ANDROID_INTERNAL_SAVE);
+
+    if (strlen((const char*)path) + sizeof(hex) >= UTOX_FILE_NAME_LENGTH){
+        debug("NATIVE:\tLoad directory name too long\n");
+        return 0;
+    } else {
+        snprintf((char*)path + strlen((const char*)path), UTOX_FILE_NAME_LENGTH - strlen((const char*)path),
+                 "%.*s.new.txt", (int)sizeof(hex), (char*)hex);
+    }
+
+    FILE *file = fopen((const char*)path, "rb+");
+    if (!file) {
+        return NULL;
+    }
+
+    return file;
+}
+
+void native_select_dir_ft(uint32_t fid, MSG_FILE *file)
+{
+    return; /* TODO unsupported on android */
+    //fall back to working dir
+    char *path = malloc(file->name_length + 1);
+    memcpy(path, file->name, file->name_length);
+    path[file->name_length] = 0;
+
+    postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->filenumber, path);
+}
+
+void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
+    return; /* TODO unsupported on android */
+    /* TODO: maybe do something different here? */
+    char *path = malloc(file->name_length + 1);
+    memcpy(path, file->name, file->name_length);
+    path[file->name_length] = 0;
+    postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->file_number, path);
+}
+
+
 
 void flush_file(FILE *file)
 {
@@ -307,8 +431,8 @@ static _Bool init_display(void) {
     eglQuerySurface(display, surface, EGL_WIDTH, &w);
     eglQuerySurface(display, surface, EGL_HEIGHT, &h);
 
-    utox_window_width = w;
-    utox_window_height = h;
+    settings.window_width = w;
+    settings.window_height = h;
 
     return gl_init();
 }
@@ -410,27 +534,27 @@ void utox_android_redraw_window() {
     eglQuerySurface(display, surface, EGL_WIDTH, &new_width);
     eglQuerySurface(display, surface, EGL_HEIGHT, &new_height);
 
-    if(new_width != utox_window_width || new_height != utox_window_height) {
-        utox_window_width  = new_width;
-        utox_window_height = new_height;
+    if(new_width != settings.window_width || new_height != settings.window_height) {
+        settings.window_width  = new_width;
+        settings.window_height = new_height;
 
         float vec[4];
-        vec[0] = -(float)utox_window_width / 2.0;
-        vec[1] = -(float)utox_window_height / 2.0;
-        vec[2] = 2.0 / (float)utox_window_width;
-        vec[3] = -2.0 / (float)utox_window_height;
+        vec[0] = -(float)settings.window_width / 2.0;
+        vec[1] = -(float)settings.window_height / 2.0;
+        vec[2] = 2.0 / (float)settings.window_width;
+        vec[3] = -2.0 / (float)settings.window_height;
         glUniform4fv(matrix, 1, vec);
 
-        ui_size(utox_window_width, utox_window_height);
+        ui_size(settings.window_width, settings.window_height);
 
-        glViewport(0, 0, utox_window_width, utox_window_height);
+        glViewport(0, 0, settings.window_width, settings.window_height);
 
         _redraw = 1;
     }
 
     if(_redraw) {
         _redraw = 0;
-        panel_draw(&panel_root, 0, 0, utox_window_width, utox_window_height);
+        panel_draw(&panel_root, 0, 0, settings.window_width, settings.window_height);
     }
 }
 
@@ -455,7 +579,7 @@ static void utox_andoid_input (AInputQueue *in_queue, AInputEvent *event) {
                 case AMOTION_EVENT_ACTION_POINTER_DOWN: {
                     lx = x;
                     ly = y;
-                    panel_mmove(&panel_root, 0, 0, utox_window_width, utox_window_height, x, y, 0, 0);
+                    panel_mmove(&panel_root, 0, 0, settings.window_width, settings.window_height, x, y, 0, 0);
                     panel_mdown(&panel_root);
                     //pointer[pointer_index].down = true;
                     //pointer[pointer_index].x = x;
@@ -489,7 +613,7 @@ static void utox_andoid_input (AInputQueue *in_queue, AInputEvent *event) {
                 }
 
                 case AMOTION_EVENT_ACTION_MOVE: {
-                    panel_mmove(&panel_root, 0, 0, utox_window_width, utox_window_height, x, y, x - lx, y - ly);
+                    panel_mmove(&panel_root, 0, 0, settings.window_width, settings.window_height, x, y, x - lx, y - ly);
                     if (lx != (int)x || ly != (int)y) {
                         p_down = 0;
                         lx = x;

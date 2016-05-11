@@ -37,6 +37,7 @@ struct panel
     int x, y, width, height;
     SCROLLABLE *content_scroll;
     void (*drawfunc)(int, int, int, int);
+    void *object;
     PANEL **child;
 };
 
@@ -86,8 +87,8 @@ extern PANEL panel_root,
                 panel_settings_ui,
                 panel_settings_av;
 
-extern MESSAGES messages_friend, messages_group;
-extern SCROLLABLE scrollbar_roster;
+extern PANEL messages_friend, messages_group;
+extern SCROLLABLE scrollbar_roster, scrollbar_friend, scrollbar_group;
 extern EDIT edit_name, edit_status, edit_add_id, edit_add_msg, edit_msg, edit_msg_group, edit_search, edit_proxy_ip, edit_proxy_port, edit_profile_password;
 extern BUTTON button_add_new_contact, button_settings, button_transfer;
 
@@ -135,7 +136,7 @@ char search_data[128];
 
 /* metrics
  */
-float ui_scale;
+double ui_scale;
 
 /* These are the new defines to help align UI elements, the new ones must use a _top/_bottom/ or _left/_right or
  * _width/_height postfix, and should be used to replace the originals whenever possible.

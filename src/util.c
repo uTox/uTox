@@ -621,23 +621,15 @@ typedef struct
     uint8_t proxy_ip[0];
 }UTOX_SAVE_V2;
 
-UTOX_SAVE* config_load(void)
-{
-    uint8_t path[UTOX_FILE_NAME_LENGTH], *p;
+UTOX_SAVE* config_load(void) {
     UTOX_SAVE *save;
-
-    p = path + datapath(path);
-    strcpy((char*)p, "utox_save");
-
-    save = file_text((char*)path);
+    save = utox_load_data_utox();
 
     if (!save) {
-        p = path + datapath_old(path);
-        strcpy((char*)p, "utox_save");
-        save = file_text((char*)path);
+        debug("unable to load utox_save data\n");
     }
 
-    if(save || (save = file_text("utox_save"))) {
+    if (save) {
         if(save->version == SAVE_VERSION) {
             /* validate values */
             if(save->scale > 30) {
@@ -665,7 +657,7 @@ UTOX_SAVE* config_load(void)
         }
     }
 
-    save = malloc(sizeof(UTOX_SAVE) + 1);
+    save = calloc(sizeof(UTOX_SAVE) + 1, 1);
     save->version = 1;
     save->scale = DEFAULT_SCALE - 1;
 
@@ -684,6 +676,7 @@ UTOX_SAVE* config_load(void)
     save->audible_notifications_enabled = 1;
     save->audio_device_in = ~0;
     save->audio_filtering_enabled = 1;
+    save->use_mini_roster = 0;
     save->filter = 0;
     save->push_to_talk = 0;
 
@@ -708,6 +701,7 @@ NEXT:
     dropdown_audible_notification.selected = dropdown_audible_notification.over = save->audible_notifications_enabled;
     dropdown_audio_filtering.selected      = dropdown_audio_filtering.over      = save->audio_filtering_enabled;
     dropdown_push_to_talk.selected         = dropdown_push_to_talk.over         = save->push_to_talk;
+    dropdown_mini_roster.selected          = dropdown_mini_roster.over          = save->use_mini_roster;
 
     dropdown_theme.selected = dropdown_theme.over = save->theme;
 
@@ -722,6 +716,7 @@ NEXT:
     strcpy((char*)proxy_address, (char*)save->proxy_ip);
     edit_proxy_ip.length = strlen((char*)save->proxy_ip);
     strcpy((char*)edit_proxy_ip.data, (char*)save->proxy_ip);
+
     if(save->proxy_port) {
         edit_proxy_port.length = snprintf((char*)edit_proxy_port.data, edit_proxy_port.maxlength + 1, "%u", save->proxy_port);
         if (edit_proxy_port.length >= edit_proxy_port.maxlength + 1) {
@@ -729,53 +724,44 @@ NEXT:
         }
     }
 
-    logging_enabled               = save->logging_enabled;
+    settings.logging_enabled        = save->logging_enabled;
+    settings.close_to_tray          = save->close_to_tray;
+    settings.start_in_tray          = save->start_in_tray;
+    settings.start_with_system      = save->auto_startup;
+    settings.ringtone_enabled       = save->audible_notifications_enabled;
+    settings.audiofilter_enabled    = save->audio_filtering_enabled;
+    settings.use_mini_roster        = save->use_mini_roster;
 
-    close_to_tray                 = save->close_to_tray;
-    start_in_tray                 = save->start_in_tray;
-    auto_startup                  = save->auto_startup;
+    settings.send_typing_status     = !save->no_typing_notifications;
+    settings.window_width           = save->window_width;
+    settings.window_height          = save->window_height;
 
-    audible_notifications_enabled = save->audible_notifications_enabled;
-    audio_filtering_enabled       = save->audio_filtering_enabled;
-    loaded_audio_out_device       = save->audio_device_out;
-    loaded_audio_in_device        = save->audio_device_in;
+    loaded_audio_out_device         = save->audio_device_out;
+    loaded_audio_in_device          = save->audio_device_in;
+
     if ( save->push_to_talk ) {
         init_ptt();
     }
 
-    dont_send_typing_notes        = save->no_typing_notifications;
-
-    utox_window_width  = save->window_width;
-    utox_window_height = save->window_height;
-
     return save;
 }
 
-void config_save(UTOX_SAVE *save)
-{
-    uint8_t path[UTOX_FILE_NAME_LENGTH], *p;
-    FILE *file;
-
-    p = path + datapath(path);
-    strcpy((char*)p, "utox_save");
-
-    file = fopen((char*)path, "wb");
-    if(!file) {
-        debug("Unable to open uTox Save ::\n");
-        return;
-    }
-
+void config_save(UTOX_SAVE *save) {
     save->version                       = SAVE_VERSION;
     save->scale                         = ui_scale - 1;
-    save->enableipv6                    = !dropdown_ipv6.selected;
     save->disableudp                    = dropdown_udp.selected;
     save->proxyenable                   = dropdown_proxy.selected;
-    save->logging_enabled               = logging_enabled;
-    save->close_to_tray                 = close_to_tray;
-    save->start_in_tray                 = start_in_tray;
-    save->auto_startup                  = auto_startup;
-    save->audible_notifications_enabled = audible_notifications_enabled;
-    save->audio_filtering_enabled       = audio_filtering_enabled;
+    save->logging_enabled               = settings.logging_enabled;
+    save->close_to_tray                 = settings.close_to_tray;
+    save->start_in_tray                 = settings.start_in_tray;
+    save->auto_startup                  = settings.start_with_system;
+    save->audible_notifications_enabled = settings.ringtone_enabled;
+    save->audio_filtering_enabled       = settings.audiofilter_enabled;
+    save->push_to_talk                  = settings.push_to_talk;
+    save->use_mini_roster               = settings.use_mini_roster;
+
+    save->enableipv6                    = !dropdown_ipv6.selected;
+    save->no_typing_notifications       = !settings.send_typing_status;
 
     save->filter                        = list_get_filter();
     save->proxy_port                    = options.proxy_port;
@@ -784,15 +770,12 @@ void config_save(UTOX_SAVE *save)
     save->audio_device_out              = dropdown_audio_out.selected;
     save->theme                         = theme;
 
-    save->push_to_talk                  = push_to_talk;
 
-    save->no_typing_notifications       = dont_send_typing_notes;
     memset(save->unused, 0, sizeof(save->unused));
 
-    debug("Writing uTox Save    ::\n");
-    fwrite(save, sizeof(*save), 1, file);
-    fwrite(options.proxy_host, strlen(options.proxy_host), 1, file);
-    fclose(file);
+    debug("uTox:\tWriting uTox Save\n");
+
+    utox_save_data_utox(save, sizeof(*save));
 }
 
 void utox_write_metadata(FRIEND *f){
@@ -807,8 +790,9 @@ void utox_write_metadata(FRIEND *f){
     memset(metadata, 0, sizeof(*metadata));
     total_size += sizeof(*metadata);
 
-    metadata->version = METADATA_VERSION;
-    metadata->ft_autoaccept = f->ft_autoaccept;
+    metadata->version           = METADATA_VERSION;
+    metadata->ft_autoaccept     = f->ft_autoaccept;
+    metadata->skip_msg_logging  = f->skip_msg_logging;
 
     if (f->alias && f->alias_length) {
         metadata->alias_length = f->alias_length;

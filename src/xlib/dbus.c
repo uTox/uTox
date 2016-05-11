@@ -1,8 +1,6 @@
 #include "../main.h"
 
-#ifndef NO_DBUS
-#define HAVE_DBUS
-
+#ifdef HAVE_DBUS
 #include <dbus/dbus.h>
 #include <signal.h>
 

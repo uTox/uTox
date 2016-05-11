@@ -39,7 +39,7 @@ cd libsodium
 git checkout tags/1.0.3
 ./autogen.sh
 ./configure && make check
-sudo make install
+sudo checkinstall
 cd ..
 
 
@@ -55,7 +55,7 @@ cd toxcore
 autoreconf -i
 ./configure
 make
-sudo make install
+sudo checkinstall
 cd ..
 
 git clone git://github.com/GrayHatter/uTox.git

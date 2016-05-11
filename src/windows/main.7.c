@@ -31,19 +31,32 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file)
 {
     wchar_t *path[UTOX_FILE_NAME_LENGTH];
     if(!SHGetKnownFolderPath((REFKNOWNFOLDERID)&FOLDERID_Downloads, KF_FLAG_CREATE, 0, path)) {
-        wchar_t first[UTOX_FILE_NAME_LENGTH];
-        wchar_t second[UTOX_FILE_NAME_LENGTH];
-        wchar_t longname[UTOX_FILE_NAME_LENGTH];
+        wchar_t first[UTOX_FILE_NAME_LENGTH]    = {0}; /* I don't trust swprintf on windows anymore, so let's help it */
+        wchar_t second[UTOX_FILE_NAME_LENGTH]   = {0}; /* out a bit by initialing everything to 0                     */
+        wchar_t longname[UTOX_FILE_NAME_LENGTH] = {0};
 
         swprintf(first, UTOX_FILE_NAME_LENGTH, L"%ls%ls", *path, L"\\Tox_Auto_Accept");
         CreateDirectoryW(first, NULL);
 
-        MultiByteToWideChar(CP_UTF8, 0, (char*)file->name, file->name_length, longname, file->name_length);
+        MultiByteToWideChar(CP_UTF8, 0, (char*)file->name, file->name_length, longname, UTOX_FILE_NAME_LENGTH);
 
         swprintf(second, UTOX_FILE_NAME_LENGTH, L"%ls\\%ls", first, longname);
 
-        char *send = malloc(UTOX_FILE_NAME_LENGTH);
+        /* Windows doesn't like UTF-8 strings, so we have to hold it's hand. */
+        file->file = _fdopen(_open_osfhandle((intptr_t)CreateFileW(second,
+                                                                   GENERIC_WRITE,
+                                                                   FILE_SHARE_READ,
+                                                                   NULL,
+                                                                   CREATE_ALWAYS,
+                                                                   FILE_ATTRIBUTE_NORMAL,
+                                                                   NULL),
+                                             0),
+                             "wb");
+
+        char *send = calloc(UTOX_FILE_NAME_LENGTH, sizeof(char*));
         native_to_utf8str(second, send, UTOX_FILE_NAME_LENGTH);
+
+        debug_notice("Native:\tAuto Accept Directory: \"%s\"\n", send);
 
         postmessage_toxcore(TOX_FILE_ACCEPT_AUTO, fid, file->file_number, send);
     } else {

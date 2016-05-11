@@ -202,3 +202,11 @@ LANG_POSIX_LOCALE("eo")
 #include "../langs/en.h" //fallback to English for untranslated things
 #include "../langs/eo.h"
 #undef _LANG_ID
+
+//"CROATIAN" "hrvatski"
+#define _LANG_ID LANG_HR
+LANG_POSIX_LOCALE("hr_HR")
+LANG_WINDOWS_ID(0x041A)
+#include "../langs/en.h" //fallback to English for untranslated things
+#include "../langs/hr.h"
+#undef _LANG_ID

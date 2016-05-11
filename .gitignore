@@ -13,3 +13,6 @@ build/*
 toolchain/*
 Tox/
 libtoxcore.log
+toolchain/
+build/*
+tox/*

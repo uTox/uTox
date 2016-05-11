@@ -54,15 +54,15 @@ static struct __global_d_state {
 - (void)drawRect:(NSRect)dirtyRect {
     [self becomeDrawTarget];
 
-    panel_draw(&panel_root, 0, 0, utox_window_width, utox_window_height);
+    panel_draw(&panel_root, 0, 0, settings.window_width, settings.window_height);
 
     [self resignAsDrawTarget];
 }
 
 - (void)resizeSubviewsWithOldSize:(NSSize)oldSize {
-    utox_window_width = self.frame.size.width;
-    utox_window_height = self.frame.size.height;
-    ui_size(utox_window_width, utox_window_height);
+    settings.window_width = self.frame.size.width;
+    settings.window_height = self.frame.size.height;
+    ui_size(settings.window_width, settings.window_height);
 
     [self.inputContext invalidateCharacterCoordinates];
 }
@@ -394,6 +394,8 @@ void setscale(void) {
     svg_draw(1);
     // now we have 2x images, if applicable
     ui_scale = old_scale;
+
+    ad.utox_window.minSize = (CGSize){SCALE(640), SCALE(320)};
 }
 
 void cgdataprovider_is_finished(void *info, const void *data, size_t size) {

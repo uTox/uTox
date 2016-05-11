@@ -134,7 +134,7 @@ void encoder_thread(void *arg)
         pthread_mutex_unlock(&callback_lock);
 
         if(c) {
-            if(volatile(audio_preview)) {
+            if(volatile(settings.audio_preview)) {
                 player_queue(&loopback, frame, 1);
             }
 

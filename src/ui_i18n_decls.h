@@ -24,6 +24,7 @@ enum {
     LANG_HU,
     LANG_PT,
     LANG_EO,
+    LANG_HR,
 
     NUM_LANGS // add langs before this line
 };
@@ -63,7 +64,17 @@ enum {
     STR_TRANSFER_CANCELLED,
     STR_TRANSFER_COMPLETE,
 
+    /* Cursor/Mouse strings */
+    STR_CURSOR_CLICK_LEFT,
+    STR_CURSOR_CLICK_RIGHT,
+
+    /* Group chat strings */
+    STR_GROUP_CREATE_TEXT,
+    STR_GROUP_CREATE_VOICE,
+
+    /* TODO REPLACE or REMOVE */
     STR_GROUPCHAT_JOIN_AUDIO,
+
     STR_START_AUDIO_CALL,
     STR_START_VIDEO_CALL,
 
@@ -78,6 +89,7 @@ enum {
     STR_PROFILE_PW_WARNING,
     STR_PROFILE_PW_NO_RECOVER,
 
+    /* Old Strings, please create or use more discriptive */
     STR_ADDFRIENDS,
     STR_TOXID,
     STR_MESSAGE,
@@ -109,6 +121,9 @@ enum {
     STR_STATUS_ONLINE,
     STR_STATUS_AWAY,
     STR_STATUS_BUSY,
+
+    // Settings Strings
+    STR_SETTINGS_UI_MINI_ROSTER,
 
     // Status strings
     STR_NOT_CONNECTED,
@@ -156,8 +171,10 @@ enum {
     STR_REMOVE_GROUP,
     STR_LEAVE,
     STR_LEAVE_GROUP,
-    STR_ACCEPT, STR_REQ_ACCEPT = STR_ACCEPT,
-    STR_CTOPIC, STR_CHANGE_GROUP_TOPIC = STR_CTOPIC,
+    STR_ACCEPT,
+    STR_REQ_ACCEPT = STR_ACCEPT,
+    STR_CTOPIC,
+    STR_CHANGE_GROUP_TOPIC = STR_CTOPIC,
     STR_IGNORE, STR_REQ_DECLINE = STR_IGNORE,
     STR_SET_ALIAS,
 

@@ -32,9 +32,7 @@ static void friend_meta_data_read(Tox *tox, int friend_id) {
         // debug("Meta Data not found (%s)\n", path);
         return;
     }
-    FRIEND_META_DATA *metadata = calloc(1, sizeof(*metadata) + size);  /* This is too much memory,     *
-                                                                        * but we are about to free it. */
-
+    FRIEND_META_DATA *metadata = calloc(1, sizeof(*metadata) + size);
 
     memcpy(metadata, file_data, size);
     /* Compatibility code for original version of meta_data... TODO: Remove in version >= 0.10 */
@@ -75,15 +73,13 @@ static void friend_meta_data_read(Tox *tox, int friend_id) {
     }
 
     friend[friend_id].ft_autoaccept         = metadata->ft_autoaccept;
-    dropdown_friend_autoaccept_ft.selected  = metadata->ft_autoaccept;
-    dropdown_friend_autoaccept_ft.over      = metadata->ft_autoaccept;
 
     free(metadata);
     free(file_data);
     return;
 }
 
-void utox_friend_init(Tox *tox, uint32_t friend_number){
+void utox_friend_init(Tox *tox, uint32_t friend_number) {
         int size;
         // get friend pointer
         FRIEND *f = &friend[friend_number];
@@ -91,6 +87,11 @@ void utox_friend_init(Tox *tox, uint32_t friend_number){
 
         // Set scroll position to bottom of window.
         f->msg.scroll = 1.0;
+        f->msg.panel.type           = PANEL_MESSAGES;
+        f->msg.panel.content_scroll = &scrollbar_friend;
+        f->msg.panel.y              = MAIN_TOP;
+        f->msg.panel.height         = CHAT_BOX_TOP;
+        f->msg.panel.width          = -SCROLL_WIDTH;
 
         // Get and set the public key for this friend number and set it.
         tox_friend_get_public_key(tox, friend_number, f->cid, 0);
@@ -116,29 +117,29 @@ void utox_friend_init(Tox *tox, uint32_t friend_number){
         init_avatar(&f->avatar, cid, NULL, NULL);
 
         // Get the chat backlog
-        log_read(tox, friend_number);
+        log_read_old(tox, friend_number);
+        messages_read_from_log(friend_number);
 
         // Load the meta data, if it exists.
         friend_meta_data_read(tox, friend_number);
 }
 
 void friend_setname(FRIEND *f, char_t *name, uint16_t length){
-    if(f->name && (length != f->name_length || memcmp(f->name, name, length) != 0)) {
-        MESSAGE *msg = malloc(sizeof(MESSAGE) + sizeof(" is now known as ") - 1 + f->name_length + length);
-        msg->author = 0;
-        msg->msg_type = MSG_TYPE_ACTION_TEXT;
-        msg->length = sizeof(" is now known as ") - 1 + f->name_length + length;
+    /* TODO: rewrite */
+    if (f->name && (length != f->name_length || memcmp(f->name, name, length) != 0)) {
 
-        char_t *p = msg->msg;
-        memcpy(p, f->name, f->name_length); p += f->name_length;
-        memcpy(p, " is now known as ", sizeof(" is now known as ") - 1); p += sizeof(" is now known as ") - 1;
-        memcpy(p, name, length);
+        size_t size = sizeof(" is now known as ") - 1 + f->name_length + length;
 
-        friend_addmessage(f, msg);
+        char_t *p = calloc(1, size);
+        memcpy(p, f->name, f->name_length);
+        memcpy(p + f->name_length, " is now known as ", sizeof(" is now known as ") - 1);
+        memcpy(p + f->name_length + sizeof(" is now known as ") - 1, name, length);
+
+        message_add_type_notice(&f->msg, p, size, 1);
     }
 
     free(f->name);
-    if(length == 0) {
+    if (length == 0) {
         f->name = malloc(sizeof(f->cid) * 2 + 1);
         cid_to_string(f->name, f->cid);
         f->name_length = sizeof(f->cid) * 2;
@@ -148,6 +149,12 @@ void friend_setname(FRIEND *f, char_t *name, uint16_t length){
         f->name_length = length;
     }
     f->name[f->name_length] = 0;
+
+    if (!f->alias_length) {
+        if (selected_item->data && f->number == ((FRIEND*)selected_item->data)->number) {
+            maybe_i18nal_string_set_plain(&edit_friend_alias.empty_str, f->name, f->name_length);
+        }
+    }
 
     update_shown_list();
 }
@@ -169,22 +176,12 @@ void friend_set_alias(FRIEND *f, char_t *alias, uint16_t length){
         f->alias_length = length;
         f->alias[f->alias_length] = 0;
     }
-    utox_write_metadata(f);
 }
 
 void friend_sendimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width, uint16_t height,
                       UTOX_IMAGE png_image, size_t png_size)
 {
-    MSG_IMG *msg = malloc(sizeof(MSG_IMG));
-    msg->author = 1;
-    msg->msg_type = MSG_TYPE_IMAGE;
-    msg->w = width;
-    msg->h = height;
-    msg->zoom = 0;
-    msg->image = native_image;
-    msg->position = 0.0;
-
-    message_add(&messages_friend, (void*)msg, &f->msg);
+    message_add_type_image(&f->msg, 1, native_image, width, height, 0);
     redraw();
 
     struct TOX_SEND_INLINE_MSG *tsim = malloc(sizeof(struct TOX_SEND_INLINE_MSG));
@@ -194,70 +191,23 @@ void friend_sendimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width
 }
 
 void friend_recvimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width, uint16_t height) {
-    if(!UTOX_NATIVE_IMAGE_IS_VALID(native_image)) {
+    if (!UTOX_NATIVE_IMAGE_IS_VALID(native_image)) {
         return;
     }
 
-    MSG_IMG *msg = malloc(sizeof(MSG_IMG));
-    msg->author = 0;
-    msg->msg_type = MSG_TYPE_IMAGE;
-    msg->w = width;
-    msg->h = height;
-    msg->zoom = 0;
-    msg->image = native_image;
-    msg->position = 0.0;
-
-    message_add(&messages_friend, (void*)msg, &f->msg);
+    message_add_type_image(&f->msg, 0, native_image, width, height, 0);
 }
 
-void friend_notify(FRIEND *f, char_t *str, uint16_t str_length, char_t *msg, uint16_t msg_length) {
-    int len = f->name_length + str_length + 3;
+void friend_notify_msg(FRIEND *f, uint8_t *msg, size_t msg_length) {
 
-    char_t title[len + 1], *p = title;
-    memcpy(p, str, str_length); p += str_length;
-    *p++ = ' ';
-    *p++ = '(';
-    memcpy(p, f->name, f->name_length); p += f->name_length;
-    *p++ = ')';
-    *p = 0;
+    uint8_t title[UTOX_FRIEND_NAME_LENGTH(f) + 25];
 
-    notify(title, len, msg, msg_length, f);
-}
+    size_t title_length = snprintf((char*)title, UTOX_FRIEND_NAME_LENGTH(f) + 25, "uTox new message from %.*s", UTOX_FRIEND_NAME_LENGTH(f), UTOX_FRIEND_NAME(f));
 
-void friend_addmessage_notify(FRIEND *f, char_t *data, uint16_t length) {
-    MESSAGE *msg = malloc(sizeof(MESSAGE) + length);
-    msg->author = 0;
-    msg->msg_type = MSG_TYPE_ACTION_TEXT;
-    msg->length = length;
-    char_t *p = msg->msg;
-    memcpy(p, data, length);
+    notify(title, title_length, msg, msg_length, f);
 
-    message_add(&messages_friend, msg, &f->msg);
-
-    if(selected_item->data != f) {
-        f->notify = 1;
-    }
-}
-
-void friend_addmessage(FRIEND *f, void *data) {
-    MESSAGE *msg = data;
-
-    message_add(&messages_friend, data, &f->msg);
-
-    /* if msg_type is text/action ? create tray popup */
-    switch(msg->msg_type) {
-    case MSG_TYPE_TEXT:
-    case MSG_TYPE_ACTION_TEXT: {
-        char_t m[msg->length + 1];
-        memcpy(m, msg->msg, msg->length);
-        m[msg->length] = 0;
-        notify(f->name, f->name_length, m, msg->length, f);
-        break;
-    }
-    }
-
-    if(selected_item->data != f) {
-        f->notify = 1;
+    if (selected_item->data != f) {
+        f->unread_msg = 1;
     }
 }
 
@@ -267,7 +217,7 @@ _Bool friend_set_online(FRIEND *f, _Bool online) {
     }
 
     f->online = online;
-    if(!f->online) {
+    if (!f->online) {
         friend_set_typing(f, 0);
     }
 
@@ -336,7 +286,7 @@ void friend_history_clear(FRIEND *f)
 {
     uint8_t path[UTOX_FILE_NAME_LENGTH], *p;
 
-    message_clear(&messages_friend, &f->msg);
+    messages_clear_all(&f->msg);
 
     {
         /* We get the file path of the log file */
@@ -371,9 +321,9 @@ void friend_free(FRIEND *f)
     free(f->status_message);
     free(f->typed);
 
-    MSG_IDX i = 0;
-    while(i < f->msg.n) {
-        MESSAGE *msg = f->msg.data[i];
+    uint32_t i = 0;
+    while(i < f->msg.number) {
+        MSG_TEXT *msg = f->msg.data[i];
         message_free(msg);
         i++;
     }

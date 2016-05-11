@@ -6,17 +6,40 @@
 #import <Foundation/Foundation.h>
 #import <AppKit/AppKit.h>
 
-#ifdef MAKEFILE
-#include "interaction.m"
-#include "drawing.m"
-#include "video.m"
-#include "grabdesktop.m"
-#endif
+struct thread_call {
+    void *(*func)(void *);
+    void *argp;
+};
 
 #define DEFAULT_WIDTH (382 * DEFAULT_SCALE)
 #define DEFAULT_HEIGHT (320 * DEFAULT_SCALE)
 
 void debug(const char *fmt, ...) {
+    if (settings.verbose < VERB_TEENAGE_GIRL) { return; }
+    va_list l;
+    va_start(l, fmt);
+    NSLogv(@(fmt), l);
+    va_end(l);
+}
+
+void debug_info(const char *fmt, ...) {
+    if (settings.verbose < VERB_NEW_ADHD_MEDS) { return; }
+    va_list l;
+    va_start(l, fmt);
+    NSLogv(@(fmt), l);
+    va_end(l);
+}
+
+void debug_notice(const char *fmt, ...) {
+    if (settings.verbose < VERB_CONCERNED_PARENT) { return; }
+    va_list l;
+    va_start(l, fmt);
+    NSLogv(@(fmt), l);
+    va_end(l);
+}
+
+void debug_error(const char *fmt, ...) {
+    if (settings.verbose < VERB_JANICE_ACCOUNTING) { return; }
     va_list l;
     va_start(l, fmt);
     NSLogv(@(fmt), l);
@@ -61,12 +84,31 @@ void image_free(UTOX_NATIVE_IMAGE *img) {
 
 static BOOL theme_set_on_argv = NO;
 
+void *thread_trampoline(void *call) {
+    struct thread_call args = *(struct thread_call *)call;
+    free(call);
+
+    @autoreleasepool {
+        return args.func(args.argp);
+    }
+}
+
 void thread(void func(void*), void *args) {
     pthread_t thread_temp;
     pthread_attr_t attr;
     pthread_attr_init(&attr);
     pthread_attr_setstacksize(&attr, 1 << 20);
-    pthread_create(&thread_temp, &attr, (void*(*)(void*))func, args);
+
+    struct thread_call *call = malloc(sizeof(struct thread_call));
+    if (!call) {
+        fputs("thread(): no memory so gonna peace", stderr);
+        abort();
+    }
+
+    call->func = func;
+    call->argp = args;
+
+    pthread_create(&thread_temp, &attr, thread_trampoline, call);
     pthread_attr_destroy(&attr);
 }
 
@@ -138,10 +180,6 @@ void config_osdefaults(UTOX_SAVE *r) {
     r->window_height = DEFAULT_HEIGHT;
 }
 
-int datapath_old(uint8_t *dest) {
-    return 0;
-}
-
 void ensure_directory_r(char *path, int perm) {
     if ((strcmp(path, "/") == 0) || (strcmp(path, ".") == 0))
         return;
@@ -171,6 +209,150 @@ void ensure_directory_r(char *path, int perm) {
         debug("ensure_directory_r(%s): %s", path, strerror(errno));
         abort();
     }
+}
+
+
+/** Takes data from µTox and saves it, just how the OS likes it saved! */
+size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *data, size_t length, _Bool append) {
+    uint8_t path[UTOX_FILE_NAME_LENGTH];
+    uint8_t atomic_path[UTOX_FILE_NAME_LENGTH];
+    FILE *file;
+    size_t offset = 0;
+
+    if (utox_portable) {
+        const char *curr = [NSBundle.mainBundle.bundlePath stringByDeletingLastPathComponent].UTF8String;
+        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "%s/tox/", curr);
+    } else {
+        const char *home = NSHomeDirectory().UTF8String;
+        snprintf((char*)path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", home);
+    }
+
+    mkdir((char*)path, 0700);
+
+    snprintf((char*)path + strlen((const char*)path), UTOX_FILE_NAME_LENGTH - strlen((const char*)path), "%s", name);
+
+    if (append) {
+        file = fopen((const char*)path, "ab");
+    } else {
+        if (strlen((const char*)path) + name_length >= UTOX_FILE_NAME_LENGTH - strlen(".atomic")){
+            debug("NATIVE:\tSave directory name too long\n");
+            return 0;
+        } else {
+            snprintf((char*)atomic_path, UTOX_FILE_NAME_LENGTH, "%s.atomic", path);
+        }
+
+        file = fopen((const char*)atomic_path, "wb");
+    }
+
+    if (file) {
+        offset = ftello(file);
+        fwrite(data, length, 1, file);
+        fclose(file);
+
+        if (append) {
+            return offset;
+        }
+
+        if (rename((const char*)atomic_path, (const char*)path)) {
+            /* Consider backing up this file instead of overwriting it. */
+            debug("NATIVE:\t%sUnable to move file!\n", atomic_path);
+            return 0;
+        }
+        return 1;
+    } else {
+        debug("NATIVE:\tUnable to open %s to write save\n", path);
+        return 0;
+    }
+
+    return 0;
+}
+
+/** Takes data from µTox and loads it up! */
+uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_size){
+    uint8_t path[UTOX_FILE_NAME_LENGTH];
+    uint8_t *data;
+
+    if (utox_portable) {
+        const char *curr = [NSBundle.mainBundle.bundlePath stringByDeletingLastPathComponent].UTF8String;
+        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "%s/tox/", curr);
+    } else {
+        const char *home = NSHomeDirectory().UTF8String;
+        snprintf((char*)path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", home);
+    }
+
+    if (strlen((const char*)path) + name_length >= UTOX_FILE_NAME_LENGTH){
+        debug("NATIVE:\tLoad directory name too long\n");
+        return 0;
+    } else {
+        snprintf((char*)path + strlen((const char*)path),
+                 UTOX_FILE_NAME_LENGTH - strlen((const char*)path), "%s", name);
+    }
+
+
+    FILE *file = fopen((const char*)path, "rb");
+    if (!file) {
+        //debug("NATIVE:\tUnable to open/read %s\n", path);
+        if (out_size) {*out_size = 0;}
+        return NULL;
+    }
+
+
+    fseek(file, 0, SEEK_END);
+    size_t size = ftell(file);
+    data = malloc(size);
+    if (!data) {
+        fclose(file);
+        if (out_size) {*out_size = 0;}
+        return NULL;
+    } else {
+        fseek(file, 0, SEEK_SET);
+
+        if(fread(data, size, 1, file) != 1) {
+            debug("NATIVE:\tRead error on %s\n", path);
+            fclose(file);
+            free(data);
+            if (out_size) {*out_size = 0;}
+            return NULL;
+        }
+
+    fclose(file);
+    }
+
+    if (out_size) {*out_size = size;}
+    return data;
+}
+
+FILE *native_load_data_logfile(uint32_t friend_number) {
+    FRIEND *f = &friend[friend_number];
+    uint8_t hex[TOX_PUBLIC_KEY_SIZE * 2];
+    uint8_t path[UTOX_FILE_NAME_LENGTH];
+
+    cid_to_string(hex, f->cid);
+
+    if (utox_portable) {
+        const char *curr = [NSBundle.mainBundle.bundlePath stringByDeletingLastPathComponent].UTF8String;
+        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "%s/tox/", curr);
+    } else {
+        const char *home = NSHomeDirectory().UTF8String;
+        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", home);
+    }
+
+    if (strlen((const char*)path) + sizeof(hex) >= UTOX_FILE_NAME_LENGTH){
+        debug("NATIVE:\tLoad directory name too long\n");
+        return 0;
+    } else {
+        snprintf((char*)path + strlen((const char*)path), UTOX_FILE_NAME_LENGTH - strlen((const char*)path),
+                 "%.*s.new.txt", (int)sizeof(hex), (char*)hex);
+    }
+
+
+    FILE *file = fopen((const char*)path, "rb+");
+    if (!file) {
+        //debug("NATIVE:\tUnable to open/read %s\n", path);
+        return NULL;
+    }
+
+    return file;
 }
 
 /* it occured to me that we should probably make datapath allocate memory for its caller */
@@ -269,16 +451,16 @@ void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data) {
 }
 
 void init_ptt(void) {
-    push_to_talk = 1;
+    settings.push_to_talk = 1;
 }
 
 static _Bool is_ctrl_down = 0;
 _Bool check_ptt_key(void){
-    return push_to_talk? is_ctrl_down : 1;
+    return settings.push_to_talk? is_ctrl_down : 1;
 }
 
 void exit_ptt(void) {
-    push_to_talk = 0;
+    settings.push_to_talk = 0;
 }
 
 void redraw(void) {
@@ -319,6 +501,10 @@ void launch_at_startup(int should) {
 @implementation uToxAppDelegate {
     id global_event_listener;
     id  local_event_listener;
+}
+
+- (void)applicationWillFinishLaunching:(NSNotification *)notification {
+    [[NSAppleEventManager sharedAppleEventManager] setEventHandler:self andSelector:@selector(handleAppleEvent:withReplyEvent:) forEventClass:kInternetEventClass andEventID:kAEGetURL];
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)notification {
@@ -362,12 +548,12 @@ void launch_at_startup(int should) {
     self.utox_window.delegate = self;
     self.utox_window.title = @(title_name);
 
-    utox_window_width = self.utox_window.frame.size.width;
-    utox_window_height = self.utox_window.frame.size.height;
+    settings.window_width = self.utox_window.frame.size.width;
+    settings.window_height = self.utox_window.frame.size.height;
 
     self.utox_window.contentView = [[[uToxView alloc] initWithFrame:(CGRect){0, 0, self.utox_window.frame.size}] autorelease];
     ui_set_scale((save->scale + 1) ?: 2);
-    ui_size(utox_window_width, utox_window_height);
+    ui_size(settings.window_width, settings.window_height);
 
     /* start the tox thread */
     thread(toxcore_thread, NULL);
@@ -439,7 +625,7 @@ void launch_at_startup(int should) {
 }
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)sender {
-    if (close_to_tray) {
+    if (settings.close_to_tray) {
         return NO;
     } else {
         return YES;
@@ -457,6 +643,13 @@ void launch_at_startup(int should) {
         max_video_width = screen.frame.size.width;
         max_video_height = screen.frame.size.height;
     }
+}
+
+- (void)handleAppleEvent:(NSAppleEventDescriptor *)event withReplyEvent:(NSAppleEventDescriptor *)replyEvent {
+    NSString *theURL = [event paramDescriptorForKeyword:keyDirectObject].stringValue;
+    uint8_t *cs_url = (const uint8_t *)theURL.UTF8String;
+    do_tox_url(cs_url, strlen(cs_url));
+    [self soilWindowContents];
 }
 
 - (uToxView *)mainView {
@@ -497,9 +690,9 @@ int main(int argc, char const *argv[]) {
     dropdown_language.selected = dropdown_language.over = LANG;
 
     /* set the width/height of the drawing region */
-    utox_window_width = DEFAULT_WIDTH;
-    utox_window_height = DEFAULT_HEIGHT;
-    ui_size(utox_window_width, utox_window_height);
+    settings.window_width = DEFAULT_WIDTH;
+    settings.window_height = DEFAULT_HEIGHT;
+    ui_size(settings.window_width, settings.window_height);
 
     /* event loop */
     @autoreleasepool {

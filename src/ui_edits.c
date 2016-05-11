@@ -54,6 +54,8 @@ static void edit_friend_alias_onenter(EDIT *edit) {
     FRIEND *f = selected_item->data;
 
     friend_set_alias(f, edit_friend_alias.data, edit_friend_alias.length);
+
+    utox_write_metadata(f);
 }
 
 static struct {
@@ -77,54 +79,44 @@ void edit_msg_onenter(EDIT *edit) {
 
     command_length = utox_run_command(text, length, &command, &argument, 1);
 
-    if(command_length == 65535){
+    if (command_length == 65535) { /* TODO magic number */
         edit->length = 0;
         return;
     }
 
-    debug("cmd %u\n", command_length);
+    // debug("cmd %u\n", command_length);
 
     _Bool action = 0, topic = 0;
-    if(command_length){
+    if (command_length) {
         length = length - command_length - 2; /* first / and then the SPACE */
         text = argument;
-        if((command_length == 2) && (!memcmp(command, "me", 2))) {
-            if(argument) {
+        if ((command_length == 2) && (!memcmp(command, "me", 2))) {
+            if (argument) {
                 action = 1;
             } else {
                 return;
             }
-        } else if(command_length == 5){
-            if(memcmp(command, "topic", 5) == 0){
+        } else if (command_length == 5){
+            if (memcmp(command, "topic", 5) == 0){
                topic = 1;
             } /* Separated as a guide for commands that don't need a separate function */
         }
     }
 
 
-    if(!text){
+    if (!text) {
         return;
     }
 
     if(selected_item->item == ITEM_FRIEND) {
         FRIEND *f = selected_item->data;
 
-        if(!f->online) {
-            return;
+        /* Display locally */
+        if (action) {
+            message_add_type_action(&f->msg, 1, text, length, 1);
+        } else {
+            message_add_type_text(&f->msg, 1, text, length, 1);
         }
-
-        MESSAGE *msg = malloc(length + sizeof(MESSAGE));
-        msg->author = 1;
-        msg->msg_type = action ? MSG_TYPE_ACTION_TEXT : MSG_TYPE_TEXT;
-        msg->length = length;
-        memcpy(msg->msg, text, length);
-
-        friend_addmessage(f, msg);
-
-        void *d = malloc(length);
-        memcpy(d, text, length);
-
-        postmessage_toxcore((action ? TOX_SEND_ACTION : TOX_SEND_MESSAGE), (f - friend), length, d);
     } else if(selected_item->item == ITEM_GROUP) {
         GROUPCHAT *g = selected_item->data;
         if(topic){
@@ -143,23 +135,30 @@ void edit_msg_onenter(EDIT *edit) {
     edit->length = 0;
 }
 
-static uint32_t peers_deduplicate(char_t **dedup, char_t **peernames, uint32_t peers)
-{
+static uint32_t peers_deduplicate(char_t **dedup, size_t *dedup_size, void **peers, uint32_t peer_count) {
     int peer, i, count;
+    GROUP_PEER *p;
+    uint8_t *nick;
+    size_t   nick_len;
 
     count = 0;
-    for (peer = 0; peer < peers; peer++) {
-        char_t *nick;
+    for (peer = 0; peer < peer_count; peer++) {
 
-        nick = peernames[peer];
+        p           = peers[peer];
+        if (!p) {
+            continue;
+        }
+
+        nick        = p->name;
+        nick_len    = p->name_length;
+
 
         if (nick) {
             _Bool found = 0;
             i = 0;
 
             while (!found && i < count) {
-                if (nick[0] == dedup[i][0]
-                        && !memcmp(nick + 1, dedup[i] + 1, nick[0])) {
+                if (nick_len == dedup_size[i] && !memcmp(nick, dedup[i], nick_len)) {
                     found = 1;
                 }
 
@@ -167,7 +166,8 @@ static uint32_t peers_deduplicate(char_t **dedup, char_t **peernames, uint32_t p
             }
 
             if (!found) {
-                dedup[count] = nick;
+                dedup[count]        = nick;
+                dedup_size[count]   = nick_len;
                 count++;
             }
         }
@@ -176,16 +176,17 @@ static uint32_t peers_deduplicate(char_t **dedup, char_t **peernames, uint32_t p
     return count;
 }
 
-static uint8_t nick_completion_search(EDIT *edit, char_t *found_nick, int direction)
-{
+static uint8_t nick_completion_search(EDIT *edit, char_t *found_nick, int direction) {
     char_t *text = edit->data;
     uint32_t i, peers, prev_index, compsize = completion.length;
-    char_t *nick;
+    char_t *nick = NULL;
+    size_t  nick_len = 0;
     _Bool found = 0;
-    static char_t *dedup[65536];
+    static char_t *dedup[65536]; /* TODO magic numbers */
+    static size_t dedup_size[65536]; /* TODO magic numbers */
     GROUPCHAT *g = selected_item->data;
 
-    peers = peers_deduplicate(dedup, g->peername, g->peers);
+    peers = peers_deduplicate(dedup, dedup_size, g->peer, g->peer_count);
 
     i = 0;
     while (!found) {
@@ -193,9 +194,10 @@ static uint8_t nick_completion_search(EDIT *edit, char_t *found_nick, int direct
             found = 1;
             i = 0;
         } else {
-            nick = dedup[i];
-            if (nick[0] == completion.end - completion.start - completion.spacing
-                    && !memcmp(nick + 1, text + completion.start, nick[0])) {
+            nick        = dedup[i];
+            nick_len    = dedup_size[i];
+            if (nick_len == completion.end - completion.start - completion.spacing
+                    && !memcmp(nick, text + completion.start, nick_len)) {
                 found = 1;
             } else {
                 i++;
@@ -215,17 +217,18 @@ static uint8_t nick_completion_search(EDIT *edit, char_t *found_nick, int direct
             i = 0;
         }
 
-        nick = dedup[i];
+        nick        = dedup[i];
+        nick_len    = dedup_size[i];
 
-        if (nick[0] >= compsize
-                && !memcmp_case(nick + 1, text + completion.start, compsize)) {
+        if (nick_len >= compsize
+                && !memcmp_case(nick, text + completion.start, compsize)) {
             found = 1;
         }
     } while (!found && i != prev_index);
 
     if (found) {
-        memcpy(found_nick, nick + 1, nick[0]);
-        return nick[0];
+        memcpy(found_nick, nick, nick_len);
+        return nick_len;
     } else {
         return 0;
     }

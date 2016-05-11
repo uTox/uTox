@@ -10,6 +10,9 @@ msgstr("Freundschaftsanfrage verschickt. Dein Freund wird online erscheinen, sob
 msgid(REQ_RESOLVE)
 msgstr("Versuche DNS-Namen aufzulösen ...")
 
+msgid(DNS_DISABLED)
+msgstr("DNS-Auflösung ist bei Nutzung eines Proxys ohne UDP deaktiviert!")
+
 msgid(REQ_INVALID_ID)
 msgstr("Fehler: Ungültige Tox ID")
 
@@ -76,6 +79,21 @@ msgstr("Dateiübertragung abgebrochen")
 msgid(TRANSFER_COMPLETE)
 msgstr("Dateiübertragung abgeschlossen")
 
+msgid(CURSOR_CLICK_LEFT)
+msgstr("Linksklick")
+
+msgid(CURSOR_CLICK_RIGHT)
+msgstr("Rechtsklick")
+
+msgid(GROUPCHAT_JOIN_AUDIO)
+msgstr("Audiochat beitreten")
+
+msgid(START_AUDIO_CALL)
+msgstr("Anruf beginnen")
+
+msgid(START_VIDEO_CALL)
+msgstr("Videoanruf beginnen")
+
 msgid(CALL_CANCELLED)
 msgstr("Anruf abgebrochen")
 
@@ -88,6 +106,15 @@ msgstr("Anruf klingelt")
 msgid(CALL_STARTED)
 msgstr("Anruf gestartet")
 
+msgid(PROFILE_SETTINGS)
+msgstr("Profileinstellungen")
+
+msgid(PROFILE_PW_WARNING)
+msgstr("WARNUNG: µTox wird automatisch beginnen mit diesem Passwort zu verschlüsseln.")
+
+msgid(PROFILE_PW_NO_RECOVER)
+msgstr("Es ist nicht möglich verlorene Passwörter wiederherzustellen.")
+
 msgid(ADDFRIENDS)
 msgstr("Neuen Kontakt hinzufügen")
 
@@ -97,8 +124,29 @@ msgstr("Nachricht")
 msgid(SEARCHFRIENDS)
 msgstr("Kontakte suchen")
 
+msgid(FILTER_ONLINE)
+msgstr("Online")
+
+msgid(FILTER_ALL)
+msgstr("Alle")
+
+msgid(FILTER_CONTACT_TOGGLE)
+msgstr("Filterung von offline Kontakten umschalten.")
+
+msgid(FILTER_TO_ALL)
+msgstr("Alle Kontakte zeigen!")
+
+msgid(FILTER_TO_ONLINE)
+msgstr("Nur online Kontakte zeigen!")
+
 msgid(ADD)
 msgstr("Hinzufügen")
+
+msgid(GROUP_CREATE_TEXT)
+msgstr("Text-Gruppenchat erstellen")
+
+msgid(GROUP_CREATE_VOICE)
+msgstr("Audio-Gruppenchat erstellen")
 
 msgid(CREATEGROUPCHAT)
 msgstr("Gruppenchat erstellen")
@@ -111,6 +159,9 @@ msgstr("Freundschaftsanfrage")
 
 msgid(USERSETTINGS)
 msgstr("Benutzereinstellungen")
+
+msgid(FRIEND_SETTINGS)
+msgstr("Freundeinstellungen")
 
 msgid(PROFILE)
 msgstr("Profil")
@@ -136,6 +187,18 @@ msgstr("Audioausgabegerät")
 msgid(VIDEOINPUTDEVICE)
 msgstr("Videoeingabegerät")
 
+msgid(STATUS_AWAY)
+msgstr("Abwesend")
+
+msgid(STATUS_BUSY)
+msgstr("Beschäftigt")
+
+msgid(SETTINGS_UI_MINI_ROSTER)
+msgstr("Kompakte Kontaktliste verwenden")
+
+msgid(NOT_CONNECTED)
+msgstr("Nicht verbunden")
+
 msgid(OTHERSETTINGS)
 msgstr("Andere Einstellungen")
 
@@ -150,6 +213,18 @@ msgstr("Einstellungen") // "uTox Einstellungen" would overlap with version (Sett
 
 msgid(NETWORK_SETTINGS)
 msgstr("Netzwerkeinstellungen")
+
+msgid(PROFILE_PASSWORD)
+msgstr("Profilpasswort")
+
+msgid(LOCK_UTOX)
+msgstr("Trennt die Verbindung zu Tox und sperrt dieses Profil.")
+
+msgid(SHOW_UI_PASSWORD)
+msgstr("Passwortfeld des Profils zeigen. Änderungen werden sofort angewendet!")
+
+msgid(LOCK)
+msgstr("Sperren")
 
 msgid(SAVELOCATION)
 msgstr("Speichere Standorteinstellung")
@@ -226,6 +301,15 @@ msgstr("Akzeptieren")
 msgid(IGNORE)
 msgstr("Ignorieren")
 
+msgid(SET_ALIAS)
+msgstr("Alias setzen")
+
+msgid(FRIEND_AUTOACCEPT)
+msgstr("Eingehende Dateiübertragungen ohne Nachfrage akzeptieren")
+
+msgid(SENDMESSAGE)
+msgstr("Senden")
+
 msgid(SENDSCREENSHOT)
 msgstr("Bildschirmaufnahme senden")
 
@@ -250,9 +334,6 @@ msgstr("Größer (200%)")
 msgid(DPI_HUGE)
 msgstr("Sehr groß (250%)")
 
-msgid(FILTER_ALL)
-msgstr("Alle")
-
 msgid(PROXY_DISABLED)
 msgstr("Deaktiviert")
 
@@ -271,6 +352,12 @@ msgstr("Aus")
 msgid(ON)
 msgstr("An")
 
+msgid(SHOW)
+msgstr("Zeigen")
+
+msgid(HIDE)
+msgstr("Verstecken")
+
 msgid(VIDEO_IN_NONE)
 msgstr("keines")
 
@@ -282,6 +369,9 @@ msgstr("OpenSL-Eingang")
 
 msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
 msgstr("Bitte füge mich deiner Kontaktliste hinzu.")
+
+msgid(CONTACT_SEARCH_ADD_HINT)
+msgstr("Freunde suchen/hinzufügen")
 
 msgid(WINDOW_TITLE_VIDEO_PREVIEW)
 msgstr("Videovorschau")
