@@ -9,7 +9,7 @@
 void native_select_dir_ft(uint32_t fid, MSG_FILE *file)
 {
     char *path = malloc(UTOX_FILE_NAME_LENGTH);
-    memcpy(path, file->name, file->name_length);
+    memcpy(path, file->file_name, file->name_length);
     path[file->name_length] = 0;
 
     OPENFILENAME ofn = {
@@ -21,7 +21,7 @@ void native_select_dir_ft(uint32_t fid, MSG_FILE *file)
     };
 
     if(GetSaveFileName(&ofn)) {
-        postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->filenumber, path);
+        postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->file->file_number, path);
     } else {
         debug("GetSaveFileName() failed\n");
     }

@@ -323,11 +323,12 @@ static void show_page(ITEM *i) {
             f->edit_history_length = edit_msg.history_length;
 
 
-            panel_chat.disabled            = 1;
-            panel_friend.disabled          = 1;
-            panel_friend_chat.disabled     = 1;
-            panel_friend_video.disabled    = 1;
-            panel_friend_settings.disabled = 1;
+            panel_chat.disabled             = 1;
+            panel_friend.disabled           = 1;
+            panel_friend_chat.disabled      = 1;
+            panel_friend_video.disabled     = 1;
+            panel_friend_settings.disabled  = 1;
+            settings.inline_video           = 1;
             break;
         }
         case ITEM_FRIEND_ADD: {
@@ -763,8 +764,12 @@ static void contextmenu_list_onselect(uint8_t i) {
                 panel_friend_settings.disabled = 1;
                 if (i == 0) {
                     roster_init_settings_page();
-
                 } else if (i == 1) {
+                    panel_friend_chat.disabled      = 1;
+                    panel_friend_video.disabled     = 0;
+                    panel_friend_settings.disabled  = 1;
+                    settings.inline_video           = 1;
+                } else if (i == 2) {
                     friend_history_clear((FRIEND*)right_mouse_item->data);
                 } else {
                     roster_delete_rmouse_item();
@@ -821,7 +826,7 @@ static void contextmenu_list_onselect(uint8_t i) {
 }
 
 _Bool list_mright(void *UNUSED(n)) {
-    static UI_STRING_ID menu_friend[]           = {STR_FRIEND_SETTINGS,     STR_CLEAR_HISTORY,  STR_REMOVE_FRIEND};
+    static UI_STRING_ID menu_friend[]           = {STR_FRIEND_SETTINGS,   STR_REMOVE_GROUP,  STR_CLEAR_HISTORY,  STR_REMOVE_FRIEND};
     static UI_STRING_ID menu_group_unmuted[]    = {STR_CHANGE_GROUP_TOPIC,  STR_MUTE,           STR_REMOVE_GROUP};
     static UI_STRING_ID menu_group_muted[]      = {STR_CHANGE_GROUP_TOPIC,  STR_UNMUTE,         STR_REMOVE_GROUP};
 

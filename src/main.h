@@ -35,20 +35,6 @@
 #include <base_emoji.h>
 #endif
 
-#define countof(x) (sizeof(x)/sizeof(*(x)))
-
-//  fixes compile with apple headers
-/*** This breaks both android and Windows video... but it's needed to fix complation in clang (Cocoa & asan)
- ***  TODO fix them?
-#ifndef __OBJC__
-#define volatile(x) (*((volatile typeof(x)*)&x))
-#endif */
-
-#ifndef __OBJC__
-#define volatile(x) (x)
-#endif
-
-
 
 // Defaults
 #define DEFAULT_NAME   "Tox User"
@@ -79,11 +65,27 @@
 
 #define isdesktop(x) ((size_t)(x) == 1)
 
+#define countof(x) (sizeof(x)/sizeof(*(x)))
+
+//  fixes compile with apple headers
+/*** This breaks both android and Windows video... but it's needed to fix complation in clang (Cocoa & asan)
+ ***  TODO fix them?
+#ifndef __OBJC__
+#define volatile(x) (*((volatile typeof(x)*)&x))
+#endif */
+
+#ifndef __OBJC__
+#define volatile(x) (x)
+#endif
 /* UTOX_SCALE is used as the default so that we have a lot of options for scale size.
  * When ever you see UTOX_SCALE(x) double the size, and use SCALE instead!           */
 #define  UTOX_SCALE(x) (((int)((ui_scale * 2.0 / 10.0) * ((double)x) )) ? : 1)
 #define       SCALE(x) (((int)((ui_scale / 10.0)       * ((double)x) )) ? : 1)
 #define   UI_FSCALE(x) ((      (ui_scale / 10.0)       * ((double)x) )  ? : 1)
+
+#define drawstr(x, y, i) drawtext(x, y, S(i), SLEN(i))
+#define drawstr_getwidth(x, y, str) drawtext_getwidth(x, y, (char_t*)str, sizeof(str) - 1)
+#define strwidth(x) textwidth((char_t*)x, sizeof(x) - 1)
 
 /* House keeping for uTox save file. */
 #define SAVE_VERSION 3
@@ -151,15 +153,22 @@ typedef struct utox_settings {
     _Bool send_typing_status;
     _Bool use_mini_roster;
     _Bool portable_mode;
+    _Bool inline_video;
 
     uint8_t verbose;
 
-    int window_height;
-    int window_width;
+    int     window_height;
+    int     window_width;
+    int     window_baseline;
+
+    _Bool   window_maximized;
 } SETTINGS;
 
 /* This might need to be volatile type... */
 SETTINGS settings;
+
+//add friend page
+uint8_t addfriend_status;
 
 //HFONT font_big, font_big2, font_med, font_med2, font_small, font_msg;
 int font_small_lineheight, font_msg_lineheight;
@@ -319,10 +328,23 @@ FRIEND friend[MAX_NUM_FRIENDS];
 GROUPCHAT group[MAX_NUM_GROUPS];
 uint32_t friends, groups;
 
-//window
-int utox_window_baseline;
-_Bool utox_window_maximized;
+//me
+struct {
+    uint8_t     status;
+    uint8_t     name[TOX_MAX_NAME_LENGTH];
+    uint8_t     *statusmsg;
+    size_t      name_length, statusmsg_length;
 
+    uint8_t     id_buffer[TOX_FRIEND_ADDRESS_SIZE * 4];
+    size_t      id_buffer_length;
+
+    uint8_t     id_binary[TOX_FRIEND_ADDRESS_SIZE];
+
+    AVATAR      avatar;
+    uint32_t    avatar_format;
+    uint8_t     *avatar_data;
+    size_t      avatar_size;
+} self;
 uint8_t cursor;
 
 _Bool mdown;
@@ -340,7 +362,7 @@ uint16_t video_width, video_height, max_video_width, max_video_height;
 char proxy_address[256];
 extern struct Tox_Options options;
 
-
+UTOX_FRAME_PKG *current_frame;
 
 /** Takes data from µTox and saves it, just how the OS likes it saved!
  *
@@ -428,25 +450,6 @@ int datapath_subdir(uint8_t *dest, const char *subdir);
 void flush_file(FILE *file);
 int ch_mod(uint8_t *file);
 void config_osdefaults(UTOX_SAVE *r);
-
-//me
-struct {
-    uint8_t status;
-    uint16_t name_length, statusmsg_length;
-    char_t *statusmsg, name[TOX_MAX_NAME_LENGTH];
-    char_t id_buffer[TOX_FRIEND_ADDRESS_SIZE * 4];
-    size_t id_buffer_length;
-
-    uint8_t id_binary[TOX_FRIEND_ADDRESS_SIZE];
-    AVATAR avatar;
-
-    unsigned int avatar_format;
-    uint8_t *avatar_data;
-    size_t avatar_size;
-} self;
-
-//add friend page
-uint8_t addfriend_status;
 
 void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data);
 
@@ -547,7 +550,3 @@ ToxAV* global_av;
 void audio_play(int32_t call_index, const int16_t *data, int length, uint8_t channels);
 void audio_begin(int32_t call_index);
 void audio_end(int32_t call_index);
-
-#define drawstr(x, y, i) drawtext(x, y, S(i), SLEN(i))
-#define drawstr_getwidth(x, y, str) drawtext_getwidth(x, y, (char_t*)str, sizeof(str) - 1)
-#define strwidth(x) textwidth((char_t*)x, sizeof(x) - 1)

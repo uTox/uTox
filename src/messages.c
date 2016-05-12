@@ -245,28 +245,28 @@ uint32_t message_add_type_image(MESSAGES *m, _Bool auth, UTOX_NATIVE_IMAGE *img,
 
 /* TODO FIX THIS SECTION TO MATCH ABOVE! */
 /* Called by new file transfer to add a new message to the msg list */
-MSG_FILE* message_create_type_file(FILE_TRANSFER *file) { //TODO shove on ui thread
-    MSG_FILE *msg   = calloc(1, sizeof(MSG_FILE));
+MSG_FILE* message_add_type_file(MESSAGES *m, FILE_TRANSFER *file) {
+    MSG_FILE *msg       = calloc(1, sizeof(MSG_FILE));
     time(&msg->time);
-    msg->author     = file->incoming ? 0 : 1;
-    msg->msg_type   = MSG_TYPE_FILE;
-    msg->filenumber = file->file_number;
-    msg->status     = file->status;
+    msg->author         = file->incoming ? 0 : 1;
+    msg->msg_type       = MSG_TYPE_FILE;
+    msg->file_status    = file->status;
         // msg->name_length is the max enforce that
-    msg->name_length = (file->name_length > sizeof(msg->name)) ? sizeof(msg->name) : file->name_length;
-    memcpy(msg->name, file->name, msg->name_length);
-    msg->size       = file->size;
-    msg->progress   = file->size_transferred;
-    msg->speed      = 0;
-    msg->inline_png = file->in_memory;
-    msg->path       = NULL;
+    msg->name_length    = (file->name_length > sizeof(msg->file_name)) ? sizeof(msg->file_name) : file->name_length;
+    memcpy(msg->file_name, file->name, msg->name_length);
+    msg->size           = file->size;
+    msg->progress       = file->size_transferred;
+    msg->speed          = 0;
+    msg->inline_png     = file->in_memory;
+    msg->path           = NULL;
+
+    msg->file           = file;
+
+    message_add(m, (MSG_VOID*)msg);
+
+    file->ui_data = msg;
 
     return msg;
-}
-
-// uint32_t message_add_type_file(MESSAGES *m, _Bool auth, file_number, status, name, name_length, local_path, local_length, file_size,) {}
-uint32_t message_add_type_file_compat(MESSAGES *m, MSG_FILE *f) {
-    return message_add(m, (MSG_VOID*)f);
 }
 
 _Bool message_log_to_disk(MESSAGES *m, MSG_VOID *msg) {
@@ -519,7 +519,7 @@ static void messages_draw_filetransfer(MESSAGES *m, MSG_FILE *file, int i, int x
     }
 
     uint8_t text_name_and_size[file->name_length + 33];
-    memcpy(text_name_and_size, file->name, file->name_length);
+    memcpy(text_name_and_size, file->file_name, file->name_length);
     text_name_and_size[file->name_length] = ' ';
     uint16_t text_name_and_size_len = file->name_length + 1;
     text_name_and_size_len += sprint_humanread_bytes(text_name_and_size + file->name_length + 1, 32, file_size);
@@ -586,7 +586,7 @@ static void messages_draw_filetransfer(MESSAGES *m, MSG_FILE *file, int i, int x
     #define draw_ft_alph_right(bm, col) do { wbound -= btnw + (SCALE(12)); drawalpha(bm, wbound, tbtn_y, btnw, btnh, col); } while (0)
     #define drawstr_ft_right(t) draw_ft_text_right(S(t), SLEN(t))
 
-    switch (file->status) {
+    switch (file->file_status) {
         case FILE_TRANSFER_STATUS_NONE:
         case FILE_TRANSFER_STATUS_ACTIVE:
         case FILE_TRANSFER_STATUS_PAUSED_US:
@@ -605,7 +605,7 @@ static void messages_draw_filetransfer(MESSAGES *m, MSG_FILE *file, int i, int x
 
     prog_bar = (file->size == 0) ? 0 : ((long double)d_width * file_percent);
 
-    switch (file->status){
+    switch (file->file_status){
         case FILE_TRANSFER_STATUS_COMPLETED: {
             /* If mouse over use hover color */
             uint32_t text = mouse_over ? COLOR_BUTTON_SUCCESS_HOVER_TEXT : COLOR_BUTTON_SUCCESS_TEXT,
@@ -679,8 +679,8 @@ static void messages_draw_filetransfer(MESSAGES *m, MSG_FILE *file, int i, int x
 
             draw_ft_no_btn();
 
-            if (file->status == FILE_TRANSFER_STATUS_PAUSED_BOTH ||
-                file->status == FILE_TRANSFER_STATUS_PAUSED_US    ) {
+            if (file->file_status == FILE_TRANSFER_STATUS_PAUSED_BOTH ||
+                file->file_status == FILE_TRANSFER_STATUS_PAUSED_US    ) {
                 /* Paused by at least us */
                 draw_ft_resume_btn();
             } else {
@@ -892,8 +892,6 @@ static _Bool messages_mmove_text(MESSAGES *m, int width, int mx, int my, int dy,
     m->cursor_over_position = hittextmultiline(mx - MESSAGES_X, width - MESSAGES_X - TIME_WIDTH,
                                (my < 0 ? 0 : my), msg_height, font_small_lineheight,
                                message, msg_length, 1);
-
-        debug("msg mmove:\t%u\n", m->cursor_over_position);
 
     if (my < 0 || my >= dy || mx < MESSAGES_X || m->cursor_over_position == msg_length) {
         return 0;
@@ -1122,18 +1120,18 @@ _Bool messages_mdown(PANEL *panel) {
                     break;
                 }
 
-                switch(file->status) {
+                switch(file->file_status) {
                 case FILE_TRANSFER_STATUS_NONE: {
                     if(!msg->author) {
                         if(m->cursor_over_position == 2) {
                             native_select_dir_ft(m->id, file);
                         } else if(m->cursor_over_position == 1) {
                             //decline
-                            postmessage_toxcore(TOX_FILE_CANCEL, m->id, file->filenumber, NULL);
+                            postmessage_toxcore(TOX_FILE_CANCEL, m->id, file->file->file_number, NULL);
                         }
                     } else if(m->cursor_over_position == 1) {
                         //cancel
-                        postmessage_toxcore(TOX_FILE_CANCEL, m->id, file->filenumber, NULL);
+                        postmessage_toxcore(TOX_FILE_CANCEL, m->id, file->file->file_number, NULL);
                     }
 
 
@@ -1143,10 +1141,10 @@ _Bool messages_mdown(PANEL *panel) {
                 case FILE_TRANSFER_STATUS_ACTIVE: {
                     if(m->cursor_over_position == 2) {
                         //pause
-                        postmessage_toxcore(TOX_FILE_PAUSE, m->id, file->filenumber, NULL);
+                        postmessage_toxcore(TOX_FILE_PAUSE, m->id, file->file->file_number, NULL);
                     } else if(m->cursor_over_position == 1) {
                         //cancel
-                        postmessage_toxcore(TOX_FILE_CANCEL, m->id, file->filenumber, NULL);
+                        postmessage_toxcore(TOX_FILE_CANCEL, m->id, file->file->file_number, NULL);
                     }
                     break;
                 }
@@ -1154,10 +1152,10 @@ _Bool messages_mdown(PANEL *panel) {
                 case FILE_TRANSFER_STATUS_PAUSED_US: {
                     if(m->cursor_over_position == 2) {
                         //resume
-                        postmessage_toxcore(TOX_FILE_RESUME, m->id, file->filenumber, NULL);
+                        postmessage_toxcore(TOX_FILE_RESUME, m->id, file->file->file_number, NULL);
                     } else if(m->cursor_over_position == 1) {
                         //cancel
-                        postmessage_toxcore(TOX_FILE_CANCEL, m->id, file->filenumber, NULL);
+                        postmessage_toxcore(TOX_FILE_CANCEL, m->id, file->file->file_number, NULL);
                     }
                     break;
                 }
@@ -1166,7 +1164,7 @@ _Bool messages_mdown(PANEL *panel) {
                 case FILE_TRANSFER_STATUS_BROKEN: {
                     //cancel
                     if(m->cursor_over_position == 1) {
-                        postmessage_toxcore(TOX_FILE_CANCEL, m->id, file->filenumber, NULL);
+                        postmessage_toxcore(TOX_FILE_CANCEL, m->id, file->file->file_number, NULL);
                     }
                     break;
                 }

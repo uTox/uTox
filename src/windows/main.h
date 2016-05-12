@@ -126,7 +126,7 @@ typedef struct utox_native_image {
 #define UTOX_NATIVE_IMAGE_HAS_ALPHA(x) (x->has_alpha)
 
 //static char save_path[280];
-char settings.portable_mode_save_path[MAX_PATH];
+char portable_mode_save_path[MAX_PATH];
 
 //WM_COMMAND
 enum

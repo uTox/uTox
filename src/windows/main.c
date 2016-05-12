@@ -86,7 +86,7 @@ size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *
     size_t offset = 0;
 
     if (settings.portable_mode) {
-        strcpy((char *)path, settings.portable_mode_save_path);
+        strcpy((char *)path, portable_mode_save_path);
     } else {
         _Bool have_path = 0;
         have_path = SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, (char*)path));
@@ -96,7 +96,7 @@ size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *
         }
 
         if (!have_path) {
-            strcpy((char *)path, settings.portable_mode_save_path);
+            strcpy((char *)path, portable_mode_save_path);
             have_path = 1;
         }
     }
@@ -156,7 +156,7 @@ uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_s
     uint8_t *data;
 
     if (settings.portable_mode) {
-        strcpy((char *)path, settings.portable_mode_save_path);
+        strcpy((char *)path, portable_mode_save_path);
     } else {
         _Bool have_path = 0;
         have_path = SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, (char*)path));
@@ -166,7 +166,7 @@ uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_s
         }
 
         if (!have_path) {
-            strcpy((char *)path, settings.portable_mode_save_path);
+            strcpy((char *)path, portable_mode_save_path);
             have_path = 1;
         }
     }
@@ -213,7 +213,7 @@ FILE *native_load_data_logfile(uint32_t friend_number) {
     cid_to_string(hex, f->cid);
 
     if (settings.portable_mode) {
-        strcpy((char *)path, settings.portable_mode_save_path);
+        strcpy((char *)path, portable_mode_save_path);
     } else {
         _Bool have_path = 0;
         have_path = SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, (char*)path));
@@ -223,7 +223,7 @@ FILE *native_load_data_logfile(uint32_t friend_number) {
         }
 
         if (!have_path) {
-            strcpy((char *)path, settings.portable_mode_save_path);
+            strcpy((char *)path, portable_mode_save_path);
             have_path = 1;
         }
     }
@@ -328,7 +328,7 @@ void openfileavatar(void)
 void savefiledata(MSG_FILE *file)
 {
     char *path = malloc(UTOX_FILE_NAME_LENGTH);
-    memcpy(path, file->name, file->name_length);
+    memcpy(path, file->file_name, file->name_length);
     path[file->name_length] = 0;
 
     OPENFILENAME ofn = {
@@ -352,6 +352,7 @@ void savefiledata(MSG_FILE *file)
     } else {
         debug("GetSaveFileName() failed\n");
     }
+    free(path);
 }
 
 void setselection(char_t *data, uint16_t length){}
@@ -594,7 +595,7 @@ int datapath(uint8_t *dest)
 {
     if (settings.portable_mode) {
         uint8_t *p = dest;
-        strcpy((char *)p, settings.portable_mode_save_path); p += strlen(settings.portable_mode_save_path);
+        strcpy((char *)p, portable_mode_save_path); p += strlen(portable_mode_save_path);
         strcpy((char *)p, "\\Tox"); p += 4;
         CreateDirectory((char*)dest, NULL);
         *p++ = '\\';
@@ -1038,7 +1039,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
         for (i = (len - 1); path[i] != '\\'; --i);
         path[i] = 0;//!
         SetCurrentDirectory(path);
-        strcpy(settings.portable_mode_save_path, path);
+        strcpy(portable_mode_save_path, path);
     }
 
     if (should_launch_at_startup == 1) {

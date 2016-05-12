@@ -629,7 +629,7 @@ panel_main = {
                 }
             },
             panel_friend_video = {
-                .type = PANEL_NONE,
+                .type = PANEL_INLINE_VIDEO,
                 .disabled = 1,
                 .child = (PANEL*[]) {
                     NULL

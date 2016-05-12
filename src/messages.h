@@ -129,6 +129,8 @@ typedef struct {
     UTOX_NATIVE_IMAGE *image;
 } MSG_IMG;
 
+struct FILE_TRANSFER;
+
 typedef struct msg_file {
     _Bool author;
     _Bool from_disk;
@@ -142,16 +144,20 @@ typedef struct msg_file {
 
     uint64_t disk_offset;
 
-    uint32_t speed;
-    uint32_t filenumber;
-    uint8_t status, name_length;
-    uint64_t size, progress;
-    _Bool inline_png;
+    struct FILE_TRANSFER *file;
+    uint8_t file_status;
+
+    uint8_t file_name[128];
+    size_t  name_length;
+
     uint8_t *path;
-    uint8_t name[64];
+    size_t  path_length;
+
+    uint32_t speed;
+    uint64_t size, progress;
+    _Bool   inline_png;
 } MSG_FILE;
 
-struct FILE_TRANSFER;
 
 
 uint32_t message_add_group(MESSAGES *m, MSG_TEXT *msg);
@@ -161,8 +167,7 @@ uint32_t message_add_type_action(MESSAGES *m, _Bool auth, const uint8_t *data, u
 uint32_t message_add_type_notice(MESSAGES *m, const uint8_t *data, uint16_t length, _Bool log);
 uint32_t message_add_type_image(MESSAGES *m, _Bool auth, UTOX_NATIVE_IMAGE *img, uint16_t width, uint16_t height, _Bool log);
 
-MSG_FILE* message_create_type_file(struct FILE_TRANSFER *file);
-uint32_t  message_add_type_file_compat(MESSAGES *m, MSG_FILE *f);
+MSG_FILE* message_add_type_file(MESSAGES *m, struct FILE_TRANSFER *file);
 
 _Bool     message_log_to_disk(MESSAGES *m, MSG_VOID *msg);
 _Bool     messages_read_from_log(uint32_t friend_number);

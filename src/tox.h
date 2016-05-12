@@ -123,6 +123,7 @@ enum {
     AV_CALL_ACCEPTED,
     AV_CALL_DISCONNECTED,
     AV_VIDEO_FRAME, // 30
+    AV_INLINE_FRAME,
     AV_CLOSE_WINDOW,
 
     /* Group interactions, commented out for the new groupchats (coming soon maybe?) */

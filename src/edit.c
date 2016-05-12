@@ -26,18 +26,17 @@ static void setactive(EDIT *edit)
 
 }
 
-void edit_draw(EDIT *edit, int x, int y, int width, int height)
-{
-    if((width - UTOX_SCALE(4 ) - SCROLL_WIDTH) < 0) {
+void edit_draw(EDIT *edit, int x, int y, int width, int height) {
+    if (width - SCALE(8) - SCROLL_WIDTH < 0) { // why?
         return;
     }
 
-    if(utox_window_baseline && y > utox_window_baseline - font_small_lineheight - UTOX_SCALE(4 )) {
-        y = utox_window_baseline - font_small_lineheight - UTOX_SCALE(4 );
+    if (settings.window_baseline && y > settings.window_baseline - font_small_lineheight - SCALE(8)) {
+        y = settings.window_baseline - font_small_lineheight - SCALE(8);
     }
 
-    edit->width = width -UTOX_SCALE(4 ) - (edit->multiline ? SCROLL_WIDTH : 0);
-    edit->height = height - UTOX_SCALE(4 );
+    edit->width = width - SCALE(8) - (edit->multiline ? SCROLL_WIDTH : 0);
+    edit->height = height - SCALE(8);
 
     // load colors for this style
     uint32_t color_bg,
@@ -77,7 +76,7 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
         pushclip(x + 1, y + 1, width - 2, height - 2);
 
         SCROLLABLE *scroll = edit->scroll;
-        scroll->content_height = text_height(width - SCALE(8) - SCROLL_WIDTH, font_small_lineheight, edit->data, edit->length) + UTOX_SCALE(4 );
+        scroll->content_height = text_height(width - SCALE(8) - SCROLL_WIDTH, font_small_lineheight, edit->data, edit->length) + SCALE(8);
         scroll_draw(scroll, x, y, width, height);
         yy -= scroll_gety(scroll, height);
     }
@@ -118,9 +117,9 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height)
 
 _Bool edit_mmove(EDIT *edit, int px, int py, int width, int height, int x, int y, int dx, int dy)
 {
-    if(utox_window_baseline && py > utox_window_baseline - font_small_lineheight - UTOX_SCALE(4 )) {
-        y += py - (utox_window_baseline - font_small_lineheight - UTOX_SCALE(4 ));
-        py = utox_window_baseline - font_small_lineheight - UTOX_SCALE(4 );
+    if (settings.window_baseline && py > settings.window_baseline - font_small_lineheight - SCALE(8)) {
+        y += py - (settings.window_baseline - font_small_lineheight - SCALE(8));
+        py = settings.window_baseline - font_small_lineheight - SCALE(8);
     }
 
     _Bool need_redraw = 0;
@@ -149,7 +148,7 @@ _Bool edit_mmove(EDIT *edit, int px, int py, int width, int height, int x, int y
         }
 
         setfont(FONT_TEXT);
-        edit_sel.p2 = hittextmultiline(x - UTOX_SCALE(2 ), width - UTOX_SCALE(4 ) - (edit->multiline ? SCROLL_WIDTH : 0), y - UTOX_SCALE(2 ), INT_MAX, font_small_lineheight, edit->data, edit->length, edit->multiline);
+        edit_sel.p2 = hittextmultiline(x - UTOX_SCALE(2 ), width - SCALE(8) - (edit->multiline ? SCROLL_WIDTH : 0), y - UTOX_SCALE(2 ), INT_MAX, font_small_lineheight, edit->data, edit->length, edit->multiline);
 
         uint16_t start, length;
         if(edit_sel.p2 > edit_sel.p1) {
@@ -167,7 +166,7 @@ _Bool edit_mmove(EDIT *edit, int px, int py, int width, int height, int x, int y
         }
     } else if(mouseover) {
         setfont(FONT_TEXT);
-        edit->mouseover_char = hittextmultiline(x - UTOX_SCALE(2 ), width - UTOX_SCALE(4 ) - (edit->multiline ? SCROLL_WIDTH : 0), y - UTOX_SCALE(2 ), INT_MAX, font_small_lineheight, edit->data, edit->length, edit->multiline);
+        edit->mouseover_char = hittextmultiline(x - UTOX_SCALE(2 ), width - SCALE(8) - (edit->multiline ? SCROLL_WIDTH : 0), y - UTOX_SCALE(2 ), INT_MAX, font_small_lineheight, edit->data, edit->length, edit->multiline);
     }
 
     return need_redraw;
