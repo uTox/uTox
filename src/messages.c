@@ -897,8 +897,6 @@ static _Bool messages_mmove_text(MESSAGES *m, int width, int mx, int my, int dy,
                                (my < 0 ? 0 : my), msg_height, font_small_lineheight,
                                message, msg_length, 1);
 
-        debug("msg mmove:\t%u\n", m->cursor_over_position);
-
     if (my < 0 || my >= dy || mx < MESSAGES_X || m->cursor_over_position == msg_length) {
         return 0;
     }
