@@ -269,10 +269,6 @@ MSG_FILE* message_add_type_file(MESSAGES *m, FILE_TRANSFER *file) {
     return msg;
 }
 
-// uint32_t message_add_type_file(MESSAGES *m, _Bool auth, file_number, status, name, name_length, local_path, local_length, file_size,) {}
-uint32_t message_add_type_file_compat(MESSAGES *m, MSG_FILE *f) {
-}
-
 _Bool message_log_to_disk(MESSAGES *m, MSG_VOID *msg) {
     if (m->is_groupchat) {
         /* We don't support logging groupchats yet */
