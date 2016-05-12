@@ -137,7 +137,7 @@ void savefiledata(MSG_FILE *file){ /* Unsupported on android */ }
 void setselection(char_t *data, uint16_t length){ /* Unsupported on android */ }
 void edit_will_deactivate(void){ /* Unsupported on android */ }
 
-UTOX_NATIVE_IMAGE *decode_image(const UTOX_IMAGE data, size_t size, uint16_t *w, uint16_t *h, _Bool keep_alpha)
+UTOX_NATIVE_IMAGE *decode_image_rgb(const UTOX_IMAGE data, size_t size, uint16_t *w, uint16_t *h, _Bool keep_alpha)
 {
     unsigned width, height, bpp;
     uint8_t *out = stbi_load_from_memory(data, size, &width, &height, &bpp, 3);
