@@ -206,8 +206,8 @@ static void gtk_savethread(void *args) {
                 "_Open", GTK_RESPONSE_ACCEPT,
                 NULL);
         /* Get incoming file name*/
-        char buf[sizeof(file->name) + 1];
-        memcpy(buf, file->name, file->name_length);
+        char buf[sizeof(file->file_name) + 1];
+        memcpy(buf, file->file_name, file->name_length);
         buf[file->name_length] = 0;
         /* give gtk the file name our friend is sending. */
         gtk_file_chooser_set_current_name(dialog, buf);
@@ -246,7 +246,7 @@ static void gtk_savethread(void *args) {
                 gtk_widget_destroy(dialog);
                 gtk_main_iteration();
                 gtk_widget_destroy(dialog);
-                postmessage(FILE_INCOMING_ACCEPT, fid, (file->filenumber >> 16), path);
+                postmessage(FILE_INCOMING_ACCEPT, fid, (file->file->file_number >> 16), path);
                 break;
             }
         } else if (result == GTK_RESPONSE_CANCEL) {

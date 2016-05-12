@@ -1131,7 +1131,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
 /** Translates status code to text then sends back to the user */
 static void file_notify(FRIEND *f, MSG_FILE *msg) {
     STRING *str;
-    switch(msg->status) {
+    switch(msg->file_status) {
         case FILE_TRANSFER_STATUS_NONE: {
             str = SPTR(TRANSFER_NEW); break;
         }
@@ -1286,14 +1286,12 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
 
         /* File transfer messages */
         case FILE_SEND_NEW: {
-            FILE_TRANSFER *file_handle = data;
-            FRIEND *f = &friend[file_handle->friend_number];
+            FRIEND *f = &friend[param1];
+            FILE_TRANSFER *file = data;
 
-            #warning "message_add_type_file_compat is depcreated"
-            message_add_type_file_compat(&f->msg, file_handle->ui_data);
-            file_notify(f, file_handle->ui_data);
+            message_add_type_file(&f->msg, file);
+            // file_notify(f, file->ui_data);
             redraw();
-            free(file_handle);
             break;
         }
         case FILE_INCOMING_NEW: {
@@ -1305,8 +1303,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
                 native_autoselect_dir_ft(file->friend_number, file);
             }
 
-            #warning "message_add_type_file_compat is depcreated"
-            message_add_type_file_compat(&f->msg, file->ui_data);
+            message_add_type_file(&f->msg, file);
             file_notify(f, file->ui_data);
             redraw();
             break;
@@ -1316,34 +1313,32 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             break;
         }
         case FILE_UPDATE_STATUS:{
+            if (!data) {
+                break;
+            }
+
             FILE_TRANSFER *file = data;
-            MSG_FILE *msg = file->ui_data;
-            if(!msg){//TODO shove on ui thread
-                free(file);
-                return;
-            }
-
             FRIEND *f = &friend[file->friend_number];
+            MSG_FILE *msg = file->ui_data;
 
-            _Bool f_notify = 0;
-            if (msg->status != file->status) {
-                f_notify = 1;
-                msg->status = file->status;
+            if (!msg) {
+                break;
             }
-            msg->filenumber = file->file_number;
+
+            if (msg->file_status != file->status) {
+                file_notify(f, msg);
+                msg->file_status = file->status;
+            }
             msg->progress = file->size_transferred;
             msg->speed = file->speed;
+
             if(file->in_memory){
                 msg->path = file->memory;
             } else {
                 msg->path = file->path;
             }
-            if (f_notify) {
-                file_notify(f, msg);
-            }
-
             redraw();
-            free(file);
+            // free(file);
             break;
         }
         case FILE_INLINE_IMAGE: {

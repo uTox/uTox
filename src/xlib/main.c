@@ -549,10 +549,10 @@ void native_select_dir_ft(uint32_t fid, MSG_FILE *file)
     } else {
         //fall back to working dir
         char *path = malloc(file->name_length + 1);
-        memcpy(path, file->name, file->name_length);
+        memcpy(path, file->file_name, file->name_length);
         path[file->name_length] = 0;
 
-        postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->filenumber, path);
+        postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->file->file_number, path);
     }
 }
 
