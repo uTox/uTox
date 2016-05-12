@@ -23,10 +23,11 @@ typedef struct UTOX_AV_VIDEO_FRAME {
     uint8_t  *y, *u, *v;
 } utox_av_video_frame;
 
-typedef struct UTOX_FRAME_PKG {
+typedef struct utox_frame_pkg {
     uint16_t w, h;
-    void *img;
-} utox_frame_pkg;
+    size_t   size;
+    void 	*img;
+} UTOX_FRAME_PKG;
 
 utox_av_video_frame utox_video_frame;
 

@@ -1511,7 +1511,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
                param2: self preview frame for pending call.
                data: packaged frame data */
 
-            utox_frame_pkg *frame = data;
+            UTOX_FRAME_PKG *frame = data;
             if (ACCEPT_VIDEO_FRAME(param1 - 1) || param2) {
                 STRING *s = SPTR(WINDOW_TITLE_VIDEO_PREVIEW);
                 video_begin(param1, s->str, s->length, frame->w, frame->h);
@@ -1520,6 +1520,9 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             }
             free(frame->img);
             free(data);
+            // Intentional fall through
+        }
+        case AV_INLINE_FRAME: {
             redraw();
             break;
         }

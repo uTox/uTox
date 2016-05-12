@@ -346,14 +346,33 @@ static void utox_av_incoming_frame_v(ToxAV *toxAV, uint32_t friend_number, uint1
     FRIEND *f = &friend[friend_number];
     f->video_width = width;
     f->video_height = height;
+    size_t size = width * height * 4;
 
-    utox_frame_pkg *frame = malloc(sizeof(*frame));
-    frame->w = width;
-    frame->h = height;
-    frame->img = malloc(width * height * 4);
+    UTOX_FRAME_PKG *frame = calloc(1,sizeof(*frame));
 
+    if (!frame) {
+        debug_error("uToxAV:\tcan't malloc for incoming frame\n");
+        return;
+    }
+
+    frame->w    = width;
+    frame->h    = height;
+    frame->size = size;
+    frame->img  = malloc(size);
     yuv420tobgr(width, height, y, u, v, ystride, ustride, vstride, frame->img);
-    postmessage(AV_VIDEO_FRAME, friend_number + 1, 0, (void*)frame);
+    if (settings.inline_video) {
+        // debug("uToxAV:\tInline this frame only frame.\n");
+        if (current_frame) {
+            if (current_frame->img) {
+                free(current_frame->img);
+            }
+            free(current_frame);
+        }
+        current_frame = frame;
+        postmessage(AV_INLINE_FRAME, 0, 0, NULL);
+    } else {
+        postmessage(AV_VIDEO_FRAME, friend_number + 1, 0, (void*)frame);
+    }
 }
 
 static void utox_audio_friend_accepted(ToxAV *av, uint32_t friend_number, uint32_t state) {

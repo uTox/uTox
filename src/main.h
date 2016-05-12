@@ -153,6 +153,7 @@ typedef struct utox_settings {
     _Bool send_typing_status;
     _Bool use_mini_roster;
     _Bool portable_mode;
+    _Bool inline_video;
 
     uint8_t verbose;
 
@@ -361,6 +362,7 @@ uint16_t video_width, video_height, max_video_width, max_video_height;
 char proxy_address[256];
 extern struct Tox_Options options;
 
+UTOX_FRAME_PKG *current_frame;
 
 /** Takes data from µTox and saves it, just how the OS likes it saved!
  *

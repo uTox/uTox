@@ -234,7 +234,7 @@ void utox_video_thread(void *args) {
             if (r == 1) {
                 if (settings.video_preview) {
                     /* Make a copy of the video frame for uTox to display */
-                    utox_frame_pkg *frame = malloc(sizeof(*frame));
+                    UTOX_FRAME_PKG *frame = malloc(sizeof(*frame));
                     frame->w   = utox_video_frame.w;
                     frame->h   = utox_video_frame.h;
                     frame->img = malloc(utox_video_frame.w * utox_video_frame.h * 4);
