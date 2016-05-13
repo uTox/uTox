@@ -161,12 +161,6 @@ volatile _Bool save_needed;
 /* REMOVE with v0.10 */
 // void log_read_old(Tox *tox, int fid);
 
-/** [init_avatar description]
- *
- * TODO move this to avatar.h
- */
-//_Bool init_avatar(AVATAR *avatar, const char_t *id, uint8_t *png_data_out, uint32_t *png_size_out);
-
 /* toxcore thread
  */
 void toxcore_thread(void *args);

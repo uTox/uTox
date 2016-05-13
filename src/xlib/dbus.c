@@ -13,20 +13,14 @@ static int notify_build_message(DBusMessage* notify_msg, char *title, char *cont
     DBusMessageIter args[4];
     char *app_name = "uTox";
     uint32_t replaces_id = -1;
-    char_t app_icon_data[UTOX_FILE_NAME_LENGTH];
     char *app_icon = "";
     int32_t timeout = 5000;
     dbus_bool_t m = 0;
     char* key = "foo";
     int value = 42;
 
-    // Gets the avatar of the user to be displayed in the notification
-    if(cid != NULL) {
-        char_t string_cid[TOX_PUBLIC_KEY_SIZE * 2];
-        cid_to_string(string_cid, cid);
-        get_avatar_location(app_icon_data, string_cid);
-        app_icon = (char*) app_icon_data;
-    }
+    /* TODO we can use dbus to show the notifying users avatar, we don't do so anymore because the directory/save
+     * functions were changed */
 
     dbus_message_iter_init_append(notify_msg, &args[0]);
     m |= dbus_message_iter_append_basic(&args[0], DBUS_TYPE_STRING, &app_name);

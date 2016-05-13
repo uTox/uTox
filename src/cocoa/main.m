@@ -374,15 +374,6 @@ int datapath(uint8_t *dest) {
     }
 }
 
-int datapath_subdir(uint8_t *dest, const char *subdir) {
-    int l = datapath(dest);
-    l += sprintf((char*)(dest+l), "%s", subdir);
-    mkdir((char*)dest, 0700);
-    dest[l++] = '/';
-
-    return l;
-}
-
 int ch_mod(uint8_t *file){
     return chmod((char*)file, S_IRUSR | S_IWUSR);
 }

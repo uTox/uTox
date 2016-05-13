@@ -189,10 +189,6 @@ int datapath(uint8_t *dest){
     return 0;
 }
 
-int datapath_subdir(uint8_t *dest, const char *subdir){
-    return 0;
-}
-
 /** Takes data from µTox and saves it, just how the OS likes it saved! */
 size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *data, size_t length, _Bool append) {
     uint8_t path[UTOX_FILE_NAME_LENGTH];

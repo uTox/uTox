@@ -114,7 +114,7 @@ void utox_friend_init(Tox *tox, uint32_t friend_number) {
         // Get the hex version of this friends ID
         char_t cid[TOX_PUBLIC_KEY_SIZE * 2];
         cid_to_string(cid, f->cid);
-        init_avatar(&f->avatar, cid, NULL, NULL);
+        init_avatar(&f->avatar, friend_number, NULL, NULL);
 
         MESSAGES *m = &f->msg;
         messages_init(m, friend_number);

@@ -377,14 +377,19 @@ uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_s
 /** Selects the correct file on the platform and passes it to the global log reading function */
 FILE *native_load_data_logfile(uint32_t friend_number);
 
+/** given a filename, native_remove_file will delete that file from the local config dir */
+_Bool native_remove_file(const uint8_t *name, size_t length);
+
+
+
 /* Global wrappers for the native_ data functions */
 _Bool      utox_save_data_tox(uint8_t *data, size_t length);
-_Bool      utox_save_data_utox(UTOX_SAVE *data, size_t length);
-size_t     utox_save_data_log(uint32_t friend_number, uint8_t *data, size_t length);
-
 uint8_t   *utox_load_data_tox(size_t *size);
+
+_Bool      utox_save_data_utox(UTOX_SAVE *data, size_t length);
 UTOX_SAVE *utox_load_data_utox(void);
 
+size_t     utox_save_data_log(uint32_t friend_number, uint8_t *data, size_t length);
 /** This one actually does the work of reading the logfile information.
  *
  * inside main.c is probably the wrong place for it, but I'll leave chosing
@@ -397,6 +402,13 @@ uint8_t **utox_load_data_log(uint32_t friend_number, size_t *size, uint32_t coun
  * the supplied data * length. It makes no attempt to verify the data or length, it'll just
  * write blindly. */
 _Bool utox_update_data_log(uint32_t friend_number, size_t offset, uint8_t *data, size_t length);
+
+
+_Bool    utox_save_data_avatar(uint32_t friend_number, const uint8_t *data, size_t length);
+uint8_t *utox_load_data_avatar(uint32_t friend_number, size_t *size);
+_Bool    utox_remove_file(const uint8_t *full_name, size_t length);
+
+
 
 
 /* TODO: sort everything below this line! */
@@ -446,7 +458,6 @@ void force_redraw(void); // TODO: as parameter for redraw()?
 
 /* gets a subdirectory of tox's datapath and puts the full pathname in dest,
  * returns number of characters written */
-int datapath_subdir(uint8_t *dest, const char *subdir);
 void flush_file(FILE *file);
 int ch_mod(uint8_t *file);
 void config_osdefaults(UTOX_SAVE *r);
@@ -491,7 +502,6 @@ void enddraw(int x, int y, int width, int height);
 
 /* OS interface replacements */
 int datapath(uint8_t *dest);
-int datapath_subdir(uint8_t *dest, const char *subdir);
 void flush_file(FILE *file);
 int ch_mod(uint8_t *file);
 int file_lock(FILE *file, uint64_t start, size_t length);

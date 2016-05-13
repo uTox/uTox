@@ -133,8 +133,8 @@ _Bool check_ptt_key(void){
         }
     }
     /* Couldn't access the keyboard directly, and XQuery failed, this is really bad! */
-    debug("Unable to access keyboard, you need to read the manual on how to enable utox to\nhave access to your key"
-          "board.\nDisable push to talk to suppress this message.\n");
+    debug_error("Unable to access keyboard, you need to read the manual on how to enable utox to\nhave access to your "
+                "keyboard.\nDisable push to talk to suppress this message.\n");
     return 0;
 
 }
@@ -251,16 +251,6 @@ int datapath(uint8_t *dest)
 
         return l;
     }
-}
-
-int datapath_subdir(uint8_t *dest, const char *subdir)
-{
-    int l = datapath(dest);
-    l += sprintf((char*)(dest+l), "%s", subdir);
-    mkdir((char*)dest, 0700);
-    dest[l++] = '/';
-
-    return l;
 }
 
 /** Takes data from µTox and saves it, just how the OS likes it saved! */
@@ -403,6 +393,34 @@ FILE *native_load_data_logfile(uint32_t friend_number) {
     }
 
     return file;
+}
+
+_Bool native_remove_file(const uint8_t *name, size_t length) {
+    uint8_t path[UTOX_FILE_NAME_LENGTH]  = {0};
+
+    if (settings.portable_mode) {
+        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "./tox/");
+    } else {
+        snprintf((char*)path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));
+    }
+
+
+    if (strlen((const char*)path) + length >= UTOX_FILE_NAME_LENGTH) {
+        debug("NATIVE:\tFile/directory name too long, unable to remove\n");
+        return 0;
+    } else {
+        snprintf((char*)path + strlen((const char*)path), UTOX_FILE_NAME_LENGTH - strlen((const char*)path),
+                 "%.*s", (int)length, (char*)name);
+    }
+
+    if (remove((const char*)path)) {
+        debug_error("NATIVE:\tUnable to delete file!\n\t\t%s\n", path);
+        return 0;
+    } else {
+        debug_info("NATIVE:\tFile deleted!\n");
+        debug("NATIVE:\t\t%s\n", path);
+    }
+    return 1;
 }
 
 void native_select_dir_ft(uint32_t fid, MSG_FILE *file)
@@ -629,11 +647,11 @@ void copy(int value)
 }
 
 int hold_x11s_hand(Display *d, XErrorEvent *event) {
-    debug("X11 err:\tX11 tried to kill itself, so I hit him with a shovel.\n");
-    debug("    err:\tResource: %lu || Serial %lu\n", event->resourceid, event->serial);
-    debug("    err:\tError code: %u || Request: %u || Minor: %u \n",
+    debug_error("X11 err:\tX11 tried to kill itself, so I hit him with a shovel.\n");
+    debug_error("    err:\tResource: %lu || Serial %lu\n", event->resourceid, event->serial);
+    debug_error("    err:\tError code: %u || Request: %u || Minor: %u \n",
           event->error_code, event->request_code, event->minor_code);
-    debug("uTox:\tThis would be a great time to submit a bug!\n");
+    debug_error("uTox:\tThis would be a great time to submit a bug!\n");
 
     return 0;
 }

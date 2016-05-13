@@ -441,15 +441,13 @@ static int init_toxcore(Tox **tox) {
 }
 
 static void init_self(Tox *tox) {
-    uint8_t id[TOX_FRIEND_ADDRESS_SIZE];
     /* Set local info for self */
     edit_setstr(&edit_name, self.name, self.name_length);
     edit_setstr(&edit_status, self.statusmsg, self.statusmsg_length);
 
     /* Get tox id, and gets the hex version for utox */
-    tox_self_get_address(tox, id);
-    memcpy(self.id_binary, id, TOX_FRIEND_ADDRESS_SIZE);
-    id_to_string(self.id_buffer, id);
+    tox_self_get_address(tox, self.id_binary);
+    id_to_string(self.id_buffer, self.id_binary);
     self.id_buffer_length = TOX_FRIEND_ADDRESS_SIZE * 2;
     debug("Tox ID: %.*s\n", (int)self.id_buffer_length, self.id_buffer);
 
@@ -458,7 +456,7 @@ static void init_self(Tox *tox) {
 
     uint8_t hex_id[TOX_FRIEND_ADDRESS_SIZE * 2];
     id_to_string(hex_id, self.id_binary);
-    if (init_avatar(&self.avatar, hex_id, avatar_data, &avatar_size)) {
+    if (init_avatar(&self.avatar, -1, avatar_data, &avatar_size)) {
         self.avatar_data = malloc(avatar_size);
         if (self.avatar_data) {
             memcpy(self.avatar_data, avatar_data, avatar_size);
@@ -1391,18 +1389,13 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         }
         case FRIEND_AVATAR_SET: {
             /* param1: friend id
-               param2: png size
-               data: png data
-            */
-            /* Work now done by file callback */
+             * param2: png size
+             * data: png data    */
             uint8_t *avatar = data;
-            size_t size = param2;
+            size_t size     = param2;
 
-            FRIEND *f = &friend[param1];
-            char_t cid[TOX_PUBLIC_KEY_SIZE * 2];
-            cid_to_string(cid, (char_t*)f->cid);
-            set_avatar(&f->avatar, avatar, size);
-            save_avatar(cid, avatar, size);
+            set_avatar(param1, avatar, size);
+            utox_save_data_avatar(param1, avatar, size);
 
             free(avatar);
             redraw();
@@ -1412,9 +1405,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             FRIEND *f = &friend[param1];
             unset_avatar(&f->avatar);
             // remove avatar from disk
-            char_t cid[TOX_PUBLIC_KEY_SIZE * 2];
-            cid_to_string(cid, f->cid);
-            delete_saved_avatar(cid);
+            delete_saved_avatar(param1);
 
             redraw();
             break;
@@ -1480,7 +1471,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             //   (it would remove his avatar locally too otherwise)
             //char_t cid[TOX_PUBLIC_KEY_SIZE * 2];
             //cid_to_string(cid, f->cid);
-            //delete_saved_avatar(cid);
+            //delete_saved_avatar(friend_number);
             friend_free(f);
             friends--;
             break;

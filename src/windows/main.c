@@ -613,16 +613,6 @@ int datapath(uint8_t *dest)
     return 0;
 }
 
-int datapath_subdir(uint8_t *dest, const char *subdir)
-{
-    int l = datapath(dest);
-    l += sprintf((char*)(dest+l), "%s", subdir);
-    CreateDirectory((char*)dest, NULL);
-    dest[l++] = '\\';
-
-    return l;
-}
-
 void flush_file(FILE *file)
 {
     fflush(file);
