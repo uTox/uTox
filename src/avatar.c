@@ -43,7 +43,7 @@ int load_avatar(uint32_t friend_number, uint8_t **dest, size_t *size_out) {
 
     uint8_t *img = utox_load_data_avatar(friend_number, &size);
     if (!img) {
-        debug_error("Avatars:\tUnable to get saved avatar from disk for friend %u\n", friend_number);
+        debug_notice("Avatars:\tUnable to get saved avatar from disk for friend %u\n", friend_number);
         return 0;
     }
 
