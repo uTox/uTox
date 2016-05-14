@@ -213,6 +213,7 @@ void friend_notify_msg(FRIEND *f, uint8_t *msg, size_t msg_length) {
 
     if (selected_item->data != f) {
         f->unread_msg = 1;
+        postmessage_audio(UTOXAUDIO_PLAY_NOTIFICATION, NOTIFY_TONE_FRIEND_NEW_MSG, 0, NULL);
     }
 }
 

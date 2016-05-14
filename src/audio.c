@@ -318,27 +318,47 @@ static void audio_source_term(ALuint *source) {
 #define gen_note_num_fade(x,a)    ((a * base_amplitude * fade_step_out()) * (sin((t * notes[x].freq) * index / sample_rate)))
 #define gen_note_num_fade_in(x,a) ((a * base_amplitude * fade_step_in() ) * (sin((t * notes[x].freq) * index / sample_rate)))
 
+enum {
+    NOTE_none,
+    NOTE_c3_sharp,
+    NOTE_g3,
+    NOTE_b3,
+    NOTE_c4,
+    NOTE_a4,
+    NOTE_b4,
+    NOTE_e4,
+    NOTE_f4,
+    NOTE_c5,
+    NOTE_d5,
+    NOTE_e5,
+    NOTE_f5,
+    NOTE_g5,
+    NOTE_a5,
+    NOTE_c6_sharp,
+    NOTE_e6,
+};
+
 static struct {
-    char    note[4];
+    uint8_t note;
     double  freq;
 } notes[] = {
-    {"c3s",     138.59      },
-    {"g3",      196.00      },
-    {"b3",      246.94      },
-    {"c4",      261.63      },
-    {"a4",      440.f       },
-    {"b4",      493.88      },
-    {"e4",      329.63      },
-    {"f4",      349.23      },
-    {"c5",      523.25      },
-    {"d5",      587.33      },
-    {"e5",      659.25      },
-    {"f5",      698.46      },
-    {"g5",      783.99      },
-    {"a5",      880.f       },
-    {"c6s",     1108.73     },
-    {"e6",      1318.51     },
-    {"",        0           },
+    {NOTE_none,         1           }, /* Can't be 0 or openal will skip this note/time */
+    {NOTE_c3_sharp,     138.59      },
+    {NOTE_g3,           196.00      },
+    {NOTE_b3,           246.94      },
+    {NOTE_c4,           261.63      },
+    {NOTE_a4,           440.f       },
+    {NOTE_b4,           493.88      },
+    {NOTE_e4,           329.63      },
+    {NOTE_f4,           349.23      },
+    {NOTE_c5,           523.25      },
+    {NOTE_d5,           587.33      },
+    {NOTE_e5,           659.25      },
+    {NOTE_f5,           698.46      },
+    {NOTE_g5,           783.99      },
+    {NOTE_a5,           880.f       },
+    {NOTE_c6_sharp,     1108.73     },
+    {NOTE_e6,           1318.51     },
 };
 
 static struct melodys { /* C99 6.7.8/10 uninitialized arithmetic types are 0 this is what we want. */
@@ -347,24 +367,32 @@ static struct melodys { /* C99 6.7.8/10 uninitialized arithmetic types are 0 thi
     uint8_t fade;
     uint8_t notes[8];
 } normal_ring[16] = {
-    {1, 14, 1, {11, }},
-    {1, 14, 1, {11, }},
-    {1, 14, 1, {11, }},
-    {1, 14, 1, {14, }},
-    {1, 14, 0, {8,  }},
-    {1, 14, 1, {8,  }},
-    {0, 0, 0,  {0,  }},
+    {1, 14, 1, {NOTE_f5,        }},
+    {1, 14, 1, {NOTE_f5,        }},
+    {1, 14, 1, {NOTE_f5,        }},
+    {1, 14, 1, {NOTE_c6_sharp,  }},
+    {1, 14, 0, {NOTE_c5,        }},
+    {1, 14, 1, {NOTE_c5,        }},
     {0, 0, 0,  {0,  }},
 }, friend_offline[4] = {
-    {1, 14, 1, {4, }},
-    {1, 14, 1, {2, }},
-    {1, 14, 1, {2, }},
+    {1, 14, 1, {NOTE_c4, }},
+    {1, 14, 1, {NOTE_g3, }},
+    {1, 14, 1, {NOTE_g3, }},
     {0, 0, 0,  {0, }},
 }, friend_online[4] = {
-    {1, 14, 0, {2, }},
-    {1, 14, 1, {2, }},
-    {1, 14, 1, {5, }},
-    {1, 14, 1, {6, }},
+    {1, 14, 0, {NOTE_g3, }},
+    {1, 14, 1, {NOTE_g3, }},
+    {1, 14, 1, {NOTE_a4, }},
+    {1, 14, 1, {NOTE_b4, }},
+}, friend_new_msg[8] = {
+    {1, 0, 0,  {0, }}, /* 3/8 sec of silence for spammy friends */
+    {1, 0, 0,  {0, }},
+    {1, 0, 0,  {0, }},
+    {1, 9,  0, {NOTE_g5, }},
+    {1, 9,  1, {NOTE_g5, }},
+    {1, 12, 1, {NOTE_a4, }},
+    {1, 10, 1, {NOTE_a4, }},
+    {1, 0, 0,  {0, }},
 };
 
 typedef struct melodys MELODY;
@@ -422,6 +450,10 @@ static void generate_tone_friend_offline(){
 
 static void generate_tone_friend_online(){
     generate_melody(friend_online, 1, 4, &ToneBuffer);
+}
+
+static void generate_tone_friend_new_msg(){
+    generate_melody(friend_new_msg, 1, 8, &ToneBuffer);
 }
 
 void postmessage_audio(uint8_t msg, uint32_t param1, uint32_t param2, void *data) {
@@ -522,7 +554,7 @@ void utox_audio_thread(void *args){
 
                         utox_audio_out_device_open();
 
-                        generate_tone_call_ringtone();;
+                        generate_tone_call_ringtone();
 
                         alSourcei(ringtone, AL_LOOPING, AL_TRUE);
                         alSourcei(ringtone, AL_BUFFER,  RingBuffer);
@@ -552,6 +584,10 @@ void utox_audio_thread(void *args){
                             }
                             case NOTIFY_TONE_FRIEND_OFFLINE:{
                                 generate_tone_friend_offline();
+                                break;
+                            }
+                            case NOTIFY_TONE_FRIEND_NEW_MSG: {
+                                generate_tone_friend_new_msg();
                                 break;
                             }
                         }
