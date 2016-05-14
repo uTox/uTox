@@ -328,6 +328,12 @@ FRIEND friend[MAX_NUM_FRIENDS];
 GROUPCHAT group[MAX_NUM_GROUPS];
 uint32_t friends, groups;
 
+enum {
+    USER_STATUS_AVAILABLE,
+    USER_STATUS_AWAY_IDLE,
+    USER_STATUS_DO_NOT_DISTURB,
+};
+
 //me
 struct {
     uint8_t     status;
