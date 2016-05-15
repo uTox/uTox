@@ -246,6 +246,38 @@ FILE *native_load_data_logfile(uint32_t friend_number) {
     return file;
 }
 
+
+/* TODO direct copy from xlib, this needs to be natified */
+_Bool native_remove_file(const uint8_t *name, size_t length) {
+    uint8_t path[UTOX_FILE_NAME_LENGTH]  = {0};
+
+    if (settings.portable_mode) {
+        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "./tox/");
+    } else {
+        snprintf((char*)path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));
+    }
+
+
+    if (strlen((const char*)path) + length >= UTOX_FILE_NAME_LENGTH) {
+        debug("NATIVE:\tFile/directory name too long, unable to remove\n");
+        return 0;
+    } else {
+        snprintf((char*)path + strlen((const char*)path), UTOX_FILE_NAME_LENGTH - strlen((const char*)path),
+                 "%.*s", (int)length, (char*)name);
+    }
+
+    if (remove((const char*)path)) {
+        debug_error("NATIVE:\tUnable to delete file!\n\t\t%s\n", path);
+        return 0;
+    } else {
+        debug_info("NATIVE:\tFile deleted!\n");
+        debug("NATIVE:\t\t%s\n", path);
+    }
+    return 1;
+}
+
+
+
 /** Open system file browser dialog */
 void openfilesend(void) {
     char *filepath = calloc(10, UTOX_FILE_NAME_LENGTH); /* lets pick 10 as the number of files we want to work with. */
@@ -1297,12 +1329,12 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_SIZE: {
         switch(wParam) {
         case SIZE_MAXIMIZED: {
-            utox_window_maximized = 1;
+            settings.window_maximized = 1;
             break;
         }
 
         case SIZE_RESTORED: {
-            utox_window_maximized = 0;
+            settings.window_maximized = 0;
             break;
         }
         }
@@ -1629,58 +1661,4 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     }
 
     return DefWindowProcW(hwn, msg, wParam, lParam);
-}
-
-void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height, _Bool resize)
-{
-    if(!video_hwnd[id]) {
-        debug("frame for null window\n");
-        return;
-    }
-
-    if(resize) {
-        RECT r = {
-            .left = 0,
-            .top = 0,
-            .right = width,
-            .bottom = height
-        };
-        AdjustWindowRect(&r, WS_OVERLAPPEDWINDOW, 0);
-
-        int w, h;
-        w = r.right - r.left;
-        h = r.bottom - r.top;
-        if(w > GetSystemMetrics(SM_CXSCREEN)) {
-            w = GetSystemMetrics(SM_CXSCREEN);
-        }
-
-        if(h > GetSystemMetrics(SM_CYSCREEN)) {
-            h = GetSystemMetrics(SM_CYSCREEN);
-        }
-
-        SetWindowPos(video_hwnd[id], 0, 0, 0, w, h, SWP_NOZORDER | SWP_NOMOVE);
-    }
-
-    BITMAPINFO bmi = {
-        .bmiHeader = {
-            .biSize = sizeof(BITMAPINFOHEADER),
-            .biWidth = width,
-            .biHeight = -height,
-            .biPlanes = 1,
-            .biBitCount = 32,
-            .biCompression = BI_RGB,
-        }
-    };
-
-
-    RECT r = {0};
-    GetClientRect(video_hwnd[id], &r);
-
-    HDC dc = GetDC(video_hwnd[id]);
-
-    if(width == r.right && height == r.bottom) {
-        SetDIBitsToDevice(dc, 0, 0, width, height, 0, 0, 0, height, img_data, &bmi, DIB_RGB_COLORS);
-    } else {
-        StretchDIBits(dc, 0, 0, r.right, r.bottom, 0, 0, width, height, img_data, &bmi, DIB_RGB_COLORS, SRCCOPY);
-    }
 }
