@@ -206,6 +206,10 @@ static void utox_kill_file(FILE_TRANSFER *file, uint8_t us){
         return;
     } else {
         file->status = FILE_TRANSFER_STATUS_KILLED;
+
+        if (file->ui_data){
+            file->ui_data->file_status = FILE_TRANSFER_STATUS_KILLED;
+        }
     }
 
     notify_update_file(file);
@@ -233,6 +237,11 @@ static void utox_break_file(FILE_TRANSFER *file){
         --friend[file->friend_number].transfer_count;
     }
     file->status = FILE_TRANSFER_STATUS_BROKEN;
+
+    if (file->ui_data){
+        file->ui_data->file_status = FILE_TRANSFER_STATUS_BROKEN;
+    }
+
     notify_update_file(file);
     utox_file_save_ftinfo(file);
     if (file->in_use) {
