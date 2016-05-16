@@ -342,7 +342,7 @@ static void utox_av_incoming_frame_v(ToxAV *toxAV, uint32_t friend_number, uint1
                                         int32_t ystride, int32_t ustride, int32_t vstride, void *user_data) {
     /* copy the vpx_image */
     /* 4 bits for the H*W, then a pixel for each color * size */
-    // debug("uToxAV:\tnew video frame from friend %u\n", friend_number);
+    debug("uToxAV:\tnew video frame from friend %u\n", friend_number);
     FRIEND *f = &friend[friend_number];
     f->video_width = width;
     f->video_height = height;
