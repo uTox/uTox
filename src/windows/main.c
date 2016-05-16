@@ -143,7 +143,7 @@ size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *
                     }
                 }
             } else {
-                return 0;
+                return 1;
             }
 
             debug_error("NATIVE:\tBAD EXIT, in native_save_data! Please report this issue!\n");
@@ -154,7 +154,7 @@ size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *
         }
     }
 
-    return 1;
+    return 0;
 }
 
 /** Takes data from µTox and loads it up! */
