@@ -20,6 +20,7 @@ struct messages {
     // true if we're in the middle of selection operation
     // (mousedown without mouseup yet).
     _Bool selecting_text;
+    _Bool cursor_over_time;
 
     // Number of messages in data array.
     uint32_t  number;

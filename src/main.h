@@ -154,6 +154,7 @@ typedef struct utox_settings {
     _Bool use_mini_roster;
     _Bool portable_mode;
     _Bool inline_video;
+    _Bool use_long_time_msg;
 
     uint8_t verbose;
 

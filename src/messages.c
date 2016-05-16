@@ -405,9 +405,15 @@ void messages_clear_receipt(MESSAGES *m, uint32_t receipt_number) {
 
 static void messages_draw_timestamp(int x, int y, const time_t *time) {
     struct tm *ltime = localtime(time);
-    char timestr[6];
+
+    char timestr[9];
     uint16_t len;
-    len = snprintf(timestr, sizeof(timestr), "%u:%.2u", ltime->tm_hour, ltime->tm_min);
+    if (settings.use_long_time_msg) {
+        len = snprintf(timestr, sizeof(timestr), "%.2u:%.2u:%.2u", ltime->tm_hour, ltime->tm_min, ltime->tm_sec);
+        x -= SCALE(8);
+    } else {
+        len = snprintf(timestr, sizeof(timestr), "%u:%.2u", ltime->tm_hour, ltime->tm_min);
+    }
 
     if (len >= sizeof(timestr)) {
         len = sizeof(timestr) - 1;
@@ -973,14 +979,21 @@ _Bool messages_mmove(PANEL *panel, int UNUSED(px), int UNUSED(py), int width, in
                      int mx, int my, int dx, int UNUSED(dy))
 {
     MESSAGES *m = panel->object;
+
+    if (mx >= width - TIME_WIDTH) {
+        m->cursor_over_time = 1;
+    } else {
+        m->cursor_over_time = 0;
+    }
+
     if (m->cursor_down_msg < m->number) {
         int maxwidth = width - MESSAGES_X - TIME_WIDTH;
         MSG_IMG *img_down = m->data[m->cursor_down_msg];
-        if((img_down->msg_type == MSG_TYPE_IMAGE) && (img_down->w > maxwidth)) {
+        if ((img_down->msg_type == MSG_TYPE_IMAGE) && (img_down->w > maxwidth)) {
             img_down->position -= (double)dx / (double)(img_down->w - maxwidth);
-            if(img_down->position > 1.0) {
+            if (img_down->position > 1.0) {
                 img_down->position = 1.0;
-            } else if(img_down->position < 0.0) {
+            } else if (img_down->position < 0.0) {
                 img_down->position = 0.0;
             }
             cursor = CURSOR_ZOOM_OUT;
@@ -989,7 +1002,7 @@ _Bool messages_mmove(PANEL *panel, int UNUSED(px), int UNUSED(py), int width, in
     }
 
     if (mx < 0 || my < 0 || (uint32_t) my > m->height) {
-        if(m->cursor_over_msg != UINT32_MAX) {
+        if (m->cursor_over_msg != UINT32_MAX) {
             m->cursor_over_msg = UINT32_MAX;
             return 1;
         }
@@ -1005,7 +1018,7 @@ _Bool messages_mmove(PANEL *panel, int UNUSED(px), int UNUSED(py), int width, in
     while (i < n) {
         MSG_TEXT *msg = *p++;
 
-        int dy = msg->height;
+        int dy = msg->height; /* dy is the wrong name here, you should change it! */
 
         if (my >= 0 && my < dy) {
             m->cursor_over_msg = i;
@@ -1202,7 +1215,12 @@ _Bool messages_mdown(PANEL *panel) {
 _Bool messages_dclick(PANEL *panel, _Bool triclick) {
     MESSAGES *m = panel->object;
 
-    if(m->cursor_over_msg != UINT32_MAX) {
+    if (m->cursor_over_time) {
+        settings.use_long_time_msg = !settings.use_long_time_msg;
+        return 1;
+    }
+
+    if (m->cursor_over_msg != UINT32_MAX) {
         MSG_TEXT *msg    = m->data[m->cursor_over_msg];
         uint8_t *real_msg = NULL;
 
