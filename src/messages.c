@@ -366,6 +366,8 @@ void messages_send_from_queue(MESSAGES *m, uint32_t friend_number) {
 }
 
 void messages_clear_receipt(MESSAGES *m, uint32_t receipt_number) {
+    pthread_mutex_lock(&messages_lock);
+
     uint32_t start = m->number;
 
     while (start--) {
@@ -393,15 +395,27 @@ void messages_clear_receipt(MESSAGES *m, uint32_t receipt_number) {
                     data = calloc(1, length);
                     memcpy(data, &header, sizeof(header));
 
-                    utox_update_data_log(m->id, msg->disk_offset, data, length);
+                    if (msg->disk_offset) {
+                        debug("Messages:\tUpdating message -> disk_offset is %u\n", msg->disk_offset);
+                        utox_update_data_log(m->id, msg->disk_offset, data, length);
+                    } else if(m->number == 1) {
+                        debug("Messages:\tUpdating first message -> disk_offset is %u\n", msg->disk_offset);
+                        utox_update_data_log(m->id, msg->disk_offset, data, length);
+                    } else {
+                        debug_error("Messages:\tUnable to update this message...\n"
+                            "\t\tThis is bad, there's probably a corrupt message in your history.\n"
+                            "\t\tmsg->disk_offset %u && m->number %u \n", msg->disk_offset, m->number);
+                    }
                     free(data);
 
                     postmessage(FRIEND_MESSAGE, 0, 0, NULL); /* Used to redraw the screen */
+                    pthread_mutex_unlock(&messages_lock);
                     return;
                 }
             }
         }
     }
+    pthread_mutex_unlock(&messages_lock);
 }
 
 

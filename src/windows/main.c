@@ -110,7 +110,7 @@ size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *
             file = fopen((const char*)path, "ab");
         } else {
             if (strlen((const char*)path) + name_length >= UTOX_FILE_NAME_LENGTH - strlen(".atomic")){
-                debug("NATIVE:Save directory name too long\n");
+                debug_error("NATIVE:Save directory name too long\n");
                 return 0;
             } else {
                 snprintf((char*)atomic_path, UTOX_FILE_NAME_LENGTH, "%s.atomic", path);
@@ -120,11 +120,15 @@ size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *
         }
 
         if (file) {
-            offset = ftello(file);
+            /* Why must windows not make ANY SENSE?!
+             * we must seek to the end to get the ACTUAL position, 'cause why not */
+            _fseeki64(file, 0, SEEK_END);
+            offset = _ftelli64(file);
             fwrite(data, length, 1, file);
             fclose(file);
 
             if (append) {
+                debug("NATIVE:\tOffset for this file is %u\n", offset);
                 return offset;
             }
 
@@ -132,17 +136,20 @@ size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *
                 /* Consider backing up this file instead of overwriting it. */
                 if (remove((const char*)path)) {
                     if (rename((const char*)atomic_path, (const char*)path)) {
-                        debug("NATIVE:\t%s deleted, but still unable to move file!\n", atomic_path);
+                        debug_error("NATIVE:\t%s deleted, but still unable to move file!\n", atomic_path);
                         return 0;
                     } else {
                         return 1;
                     }
                 }
+            } else {
+                return 0;
             }
 
+            debug_error("NATIVE:\tBAD EXIT, in native_save_data! Please report this issue!\n");
             return 0; /* we should never hit this */
         } else {
-            debug("NATIVE:\tUnable to open %s to write save\n", path);
+            debug_error("NATIVE:\tUnable to open %s to write save\n", path);
             return 0;
         }
     }
