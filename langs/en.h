@@ -96,6 +96,10 @@ msgstr("Start call")
 msgid(START_VIDEO_CALL)
 msgstr("Start video call")
 
+
+/******************************************************************************
+ *** Audio / Video Call Strings                                             ***
+ ******************************************************************************/
 msgid(CALL_CANCELLED)
 msgstr("Call canceled")
 
@@ -108,6 +112,18 @@ msgstr("Call ringing")
 msgid(CALL_STARTED)
 msgstr("Call started")
 
+msgid(CALL_FRIEND_HAD_ENDED_CALL)
+msgstr(" has ended the call!")
+
+msgid(CALL_VIDEO_SHOW_INLINE)
+msgstr("Show video inline")
+
+
+
+
+/******************************************************************************
+ *** Settings / Profile Strings                                             ***
+ ******************************************************************************/
 msgid(PROFILE_SETTINGS)
 msgstr("Profile Settings")
 

@@ -42,6 +42,7 @@ typedef struct friend {
     uint8_t status;
     _Bool online;
     _Bool typing;
+    _Bool video_inline;
 
     AVATAR avatar;
 
