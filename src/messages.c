@@ -153,6 +153,38 @@ static uint32_t message_add(MESSAGES *m, MSG_VOID *msg) {
     return m->number;
 }
 
+static _Bool msg_add_day_notice(MESSAGES *m, time_t last, time_t next) {
+
+    struct tm *msg_time = 0;
+    /* The tm struct is shared, we have to do it this way */
+    int ltime_year = 0, ltime_mon = 0, ltime_day = 0;
+
+    msg_time   = localtime(&last);
+    ltime_year = msg_time->tm_year;
+    ltime_mon  = msg_time->tm_mon;
+    ltime_day  = msg_time->tm_mday;
+    msg_time   = localtime(&next);
+
+    if (ltime_year < msg_time->tm_year ||
+            (ltime_year == msg_time->tm_year &&
+             ltime_mon   < msg_time->tm_mon) ||
+                (ltime_year == msg_time->tm_year &&
+                 ltime_mon  == msg_time->tm_mon  &&
+                 ltime_day   < msg_time->tm_mday) )
+    {
+        MSG_TEXT *msg   = calloc(1, sizeof(MSG_TEXT) + 256);
+        time(&msg->time);
+        msg->author     = 0;
+        msg->msg_type   = MSG_TYPE_NOTICE_DAY_CHANGE;
+        msg->author_length = self.name_length;
+        msg->length     = strftime((char*)msg->msg, 256, "Day has changed to %A %B %d %Y", msg_time);
+
+        message_add(m, (MSG_VOID*)msg);
+        return 1;
+    }
+    return 0;
+}
+
 /* TODO leaving this here is a little hacky, but it was the fastest way
  * without considering if I should expose messages_add */
 uint32_t message_add_group(MESSAGES *m, MSG_TEXT *msg) {
@@ -181,6 +213,11 @@ uint32_t message_add_type_text(MESSAGES *m, _Bool auth, const uint8_t *data, uin
     if (auth) {
         postmessage_toxcore(TOX_SEND_MESSAGE, friend[m->id].number, length, msg);
     }
+
+    if (m->data) {
+        msg_add_day_notice(m, ((MSG_VOID*)m->data[m->number-1])->time, msg->time);
+    }
+
 
     return message_add(m, (MSG_VOID*)msg);
 }
@@ -333,12 +370,18 @@ _Bool messages_read_from_log(uint32_t friend_number){
     size_t actual_count = 0;
     uint8_t **data = utox_load_data_log(friend_number, &actual_count, UTOX_MAX_BACKLOG_MESSAGES, 0);
     MSG_VOID *msg;
+    time_t last = 0;
 
     if (data) {
         void **p = (void**)data;
         while (actual_count--) {
             msg = *p++;
             if (msg) {
+
+                if (msg_add_day_notice(&friend[friend_number].msg, last, msg->time)) {
+                    last = msg->time;
+                }
+
                 message_add(&friend[friend_number].msg, msg);
             }
         }
@@ -809,6 +852,8 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
             if (msg->msg_type == MSG_TYPE_ACTION_TEXT) {
                 // Always draw name next to action message
                 lastauthor = 0xFF;
+            } else if (msg->msg_type == MSG_TYPE_NOTICE_DAY_CHANGE) {
+                draw_author = 0;
             }
 
             if (msg->msg_type == MSG_TYPE_NOTICE) {
