@@ -143,7 +143,9 @@ static uint32_t message_add(MESSAGES *m, MSG_VOID *msg) {
 
     message_updateheight(m, (MSG_VOID*)msg);
 
-    if (selected_item->data == &friend[m->id] ) {
+    if (m->is_groupchat && selected_item->data == &group[m->id]) {
+        m->panel.content_scroll->content_height = m->height;
+    } else if (selected_item->data == &friend[m->id]) {
         m->panel.content_scroll->content_height = m->height;
     }
 
