@@ -388,6 +388,9 @@ static void utox_complete_file(FILE_TRANSFER *file){
             }
         }
         file->status = FILE_TRANSFER_STATUS_COMPLETED;
+        if (file->ui_data){
+            file->ui_data->file_status = FILE_TRANSFER_STATUS_COMPLETED;
+        }
         notify_update_file(file);
     } else {
         debug("FileTransfer:\tUnable to complete file in non-active state (file:%u)\n", file->file_number);
