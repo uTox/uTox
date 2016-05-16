@@ -1337,10 +1337,10 @@ void ui_set_scale(uint8_t scale) {
 
         e_msg_group = {
             .type   = PANEL_EDIT,
-            .x      =   UTOX_SCALE(3 ),
-            .y      = -UTOX_SCALE(23 ),
-            .width  = -UTOX_SCALE(10 ) - BM_CHAT_SEND_WIDTH,
-            .height =  UTOX_SCALE(20 ),
+            .x      = SCALE(  6),
+            .y      = SCALE(-46),
+            .width  = SCALE(-10) - BM_CHAT_SEND_WIDTH,
+            .height = SCALE( 40),
         },
 
         e_search = {
