@@ -1117,6 +1117,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     // Free memory allocated by CommandLineToArgvA
     GlobalFree(argv);
 
+    #ifdef GIT_VERSION
+    debug_notice("uTox version %s \n", GIT_VERSION);
+    #endif
+
     /* */
     MSG msg;
     //int x, y;

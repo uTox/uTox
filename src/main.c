@@ -312,6 +312,9 @@ void parse_args(int argc, char *argv[], bool *theme_was_set_on_argv, int8_t *sho
 
             case 0: {
                 debug_error("uTox version: %s\n", VERSION);
+                #ifdef GIT_VERSION
+                debug_error("git version %s\n", GIT_VERSION);
+                #endif
                 exit(EXIT_SUCCESS);
                 break;
             }
