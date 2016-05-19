@@ -413,7 +413,9 @@ _Bool utox_update_data_log(uint32_t friend_number, size_t offset, uint8_t *data,
 
 _Bool    utox_save_data_avatar(uint32_t friend_number, const uint8_t *data, size_t length);
 uint8_t *utox_load_data_avatar(uint32_t friend_number, size_t *size);
+
 _Bool    utox_remove_file(const uint8_t *full_name, size_t length);
+_Bool utox_remove_friend_history(uint32_t friend_number);
 
 
 

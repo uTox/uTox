@@ -68,20 +68,7 @@ _Bool save_avatar(uint32_t friend_number, const uint8_t *data, uint32_t size) {
 }
 
 _Bool delete_saved_avatar(uint32_t friend_number) {
-    uint8_t hex[TOX_PUBLIC_KEY_SIZE * 2];
-    uint8_t name[sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png")];
-
-    if (friend_number == -1) {
-        /* load current user's avatar */
-        FRIEND *f = &friend[friend_number];
-        cid_to_string(hex, f->cid);
-    } else {
-        memcpy(hex, self.id_buffer, TOX_PUBLIC_KEY_SIZE * 2);
-    }
-    int name_len = snprintf((char*)name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"),
-                            "avatars/%.*s.png", TOX_PUBLIC_KEY_SIZE * 2, (char*)hex);
-
-    return utox_remove_file((const uint8_t*)name, (size_t)name_len);
+    return utox_remove_file_avatar(friend_number);
 }
 
 

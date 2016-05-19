@@ -177,6 +177,7 @@ uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_s
             have_path = 1;
         }
     }
+
     snprintf((char *)path + strlen((const char*)path), UTOX_FILE_NAME_LENGTH - strlen((const char*)path), "\\Tox\\%s", name);
 
     FILE *file = fopen((const char*)path, "rb");
@@ -253,15 +254,23 @@ FILE *native_load_data_logfile(uint32_t friend_number) {
     return file;
 }
 
-
-/* TODO direct copy from xlib, this needs to be natified */
 _Bool native_remove_file(const uint8_t *name, size_t length) {
     uint8_t path[UTOX_FILE_NAME_LENGTH]  = {0};
 
     if (settings.portable_mode) {
-        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "./tox/");
+        strcpy((char *)path, portable_mode_save_path);
     } else {
-        snprintf((char*)path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));
+        _Bool have_path = 0;
+        have_path = SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, (char*)path));
+
+        if (!have_path) {
+            have_path = SUCCEEDED(SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, (char*)path));
+        }
+
+        if (!have_path) {
+            strcpy((char *)path, portable_mode_save_path);
+            have_path = 1;
+        }
     }
 
 
@@ -270,7 +279,7 @@ _Bool native_remove_file(const uint8_t *name, size_t length) {
         return 0;
     } else {
         snprintf((char*)path + strlen((const char*)path), UTOX_FILE_NAME_LENGTH - strlen((const char*)path),
-                 "%.*s", (int)length, (char*)name);
+                 "\\Tox\\%.*s", (int)length, (char*)name);
     }
 
     if (remove((const char*)path)) {
