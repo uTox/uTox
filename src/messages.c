@@ -469,8 +469,8 @@ void messages_clear_receipt(MESSAGES *m, uint32_t receipt_number) {
                         utox_update_data_log(m->id, msg->disk_offset, data, length);
                     } else {
                         debug_error("Messages:\tUnable to update this message...\n"
-                            "\t\tThis is bad, there's probably a corrupt message in your history.\n"
-                            "\t\tmsg->disk_offset %u && m->number %u \n", msg->disk_offset, m->number);
+                            "\t\tThis is bad, there could be a corrupt message in your chat history.\n"
+                            "\t\tmsg->disk_offset %u && m->number %u receipt_number\n", msg->disk_offset, m->number, receipt_number);
                     }
                     free(data);
 
@@ -481,6 +481,7 @@ void messages_clear_receipt(MESSAGES *m, uint32_t receipt_number) {
             }
         }
     }
+    debug_error("Messages:\tReceived a receipt for a message we don't have a record of.\n");
     pthread_mutex_unlock(&messages_lock);
 }
 
