@@ -1178,6 +1178,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     }
     theme_load(theme);
 
+    save->window_width  = save->window_width  < SCALE(640) ? SCALE(640) : save->window_width;
+    save->window_height = save->window_height < SCALE(320) ? SCALE(320) : save->window_height;
+
     char pretitle[128];
     snprintf(pretitle, 128, "%s %s (version : %s)", TITLE, SUB_TITLE, VERSION);
     size_t title_size = strlen(pretitle)+1;
@@ -1323,7 +1326,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     }
 
     case WM_GETMINMAXINFO: {
-        POINT min = {UTOX_SCALE(320), UTOX_SCALE(160)};
+        POINT min = {SCALE(640), SCALE(320)};
         ((MINMAXINFO*)lParam)->ptMinTrackSize = min;
 
         break;
