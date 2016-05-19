@@ -84,7 +84,7 @@ void log_read_old(Tox *tox, int fid) {
 
         MSG_TEXT *msg = NULL;
         msg = calloc(1, sizeof(MSG_TEXT) + header.length);
-        msg->author         = header.flags ? 1 : 0;
+        msg->our_msg        = header.flags ? 1 : 0;
         msg->length         = header.length;
         msg->time           = header.time;
         msg->receipt_time   = 1;

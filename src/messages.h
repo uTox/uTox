@@ -55,7 +55,7 @@ typedef enum UTOX_MSG_TYPE {
  * TODO: UNION the messages types within MSG_T */
 typedef struct {
     // true, if we're the author, false, if someone else.
-    _Bool author;
+    _Bool our_msg;
     _Bool from_disk;
     uint8_t msg_type;
 
@@ -69,7 +69,7 @@ typedef struct {
 } MSG_VOID;
 
 typedef struct {
-    _Bool author;
+    _Bool our_msg;
     _Bool from_disk;
     uint8_t msg_type;
 
@@ -90,7 +90,7 @@ typedef struct {
 
 
 typedef struct {
-    _Bool author;
+    _Bool our_msg;
     _Bool from_disk;
     uint8_t msg_type;
 
@@ -112,7 +112,7 @@ typedef struct {
 } MSG_GROUP;
 
 typedef struct {
-    _Bool author;
+    _Bool our_msg;
     _Bool from_disk;
     uint8_t msg_type;
 
@@ -133,7 +133,7 @@ typedef struct {
 struct FILE_TRANSFER;
 
 typedef struct msg_file {
-    _Bool author;
+    _Bool our_msg;
     _Bool from_disk;
     uint8_t msg_type;
 

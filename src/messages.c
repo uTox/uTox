@@ -174,7 +174,7 @@ static _Bool msg_add_day_notice(MESSAGES *m, time_t last, time_t next) {
     {
         MSG_TEXT *msg   = calloc(1, sizeof(MSG_TEXT) + 256);
         time(&msg->time);
-        msg->author     = 0;
+        msg->our_msg     = 0;
         msg->msg_type   = MSG_TYPE_NOTICE_DAY_CHANGE;
         msg->author_length = self.name_length;
         msg->length     = strftime((char*)msg->msg, 256, "Day has changed to %A %B %d %Y", msg_time);
@@ -194,7 +194,7 @@ uint32_t message_add_group(MESSAGES *m, MSG_TEXT *msg) {
 uint32_t message_add_type_text(MESSAGES *m, _Bool auth, const uint8_t *data, uint16_t length, _Bool log) {
     MSG_TEXT *msg   = calloc(1, sizeof(MSG_TEXT) + length);
     time(&msg->time);
-    msg->author     = auth;
+    msg->our_msg     = auth;
     msg->msg_type   = MSG_TYPE_TEXT;
     msg->length     = length;
 
@@ -225,7 +225,7 @@ uint32_t message_add_type_text(MESSAGES *m, _Bool auth, const uint8_t *data, uin
 uint32_t message_add_type_action(MESSAGES *m, _Bool auth, const uint8_t *data, uint16_t length, _Bool log) {
     MSG_TEXT *msg   = calloc(1, sizeof(MSG_TEXT) + length);
     time(&msg->time);
-    msg->author     = auth;
+    msg->our_msg     = auth;
     msg->msg_type   = MSG_TYPE_ACTION_TEXT;
     msg->length     = length;
 
@@ -251,7 +251,7 @@ uint32_t message_add_type_action(MESSAGES *m, _Bool auth, const uint8_t *data, u
 uint32_t message_add_type_notice(MESSAGES *m, const uint8_t *data, uint16_t length, _Bool log) {
     MSG_TEXT *msg   = calloc(1, sizeof(MSG_TEXT) + length);
     time(&msg->time);
-    msg->author     = 0;
+    msg->our_msg     = 0;
     msg->msg_type   = MSG_TYPE_NOTICE;
     msg->length     = length;
     msg->author_length = self.name_length;
@@ -271,7 +271,7 @@ uint32_t message_add_type_image(MESSAGES *m, _Bool auth, UTOX_NATIVE_IMAGE *img,
 
     MSG_IMG *msg = calloc(1, sizeof(MSG_IMG));
     time(&msg->time);
-    msg->author = auth;
+    msg->our_msg = auth;
     msg->msg_type = MSG_TYPE_IMAGE;
     msg->w = width;
     msg->h = height;
@@ -287,7 +287,7 @@ uint32_t message_add_type_image(MESSAGES *m, _Bool auth, UTOX_NATIVE_IMAGE *img,
 MSG_FILE* message_add_type_file(MESSAGES *m, FILE_TRANSFER *file) {
     MSG_FILE *msg       = calloc(1, sizeof(MSG_FILE));
     time(&msg->time);
-    msg->author         = file->incoming ? 0 : 1;
+    msg->our_msg         = file->incoming ? 0 : 1;
     msg->msg_type       = MSG_TYPE_FILE;
     msg->file_status    = file->status;
         // msg->name_length is the max enforce that
@@ -331,7 +331,7 @@ _Bool message_log_to_disk(MESSAGES *m, MSG_VOID *msg) {
             uint8_t *author;
             MSG_TEXT *text = (void*)msg;
 
-            if (text->author) {
+            if (text->our_msg) {
                 author_length = self.name_length;
                 author = self.name;
             } else {
@@ -343,7 +343,7 @@ _Bool message_log_to_disk(MESSAGES *m, MSG_VOID *msg) {
             header.time          = text->time;
             header.author_length = author_length;
             header.msg_length    = text->length;
-            header.author        = text->author;
+            header.author        = text->our_msg;
             header.receipt       = (text->receipt_time ? 1 : 0);
             header.msg_type      = text->msg_type;
 
@@ -399,7 +399,7 @@ void messages_send_from_queue(MESSAGES *m, uint32_t friend_number) {
         if (m->data[start]) {
             MSG_TEXT *msg = (MSG_TEXT*)(m->data[start]);
             if (msg->msg_type == MSG_TYPE_TEXT || msg->msg_type == MSG_TYPE_ACTION_TEXT) {
-                if (!msg->receipt_time && msg->author) {
+                if (!msg->receipt_time && msg->our_msg) {
                     postmessage_toxcore((msg->msg_type == MSG_TYPE_TEXT ? TOX_SEND_MESSAGE : TOX_SEND_ACTION),
                                         friend_number, msg->length, msg);
                 }
@@ -797,7 +797,7 @@ static int messages_draw_group(MESSAGES *m, MSG_GROUP *msg, uint32_t curr_msg_i,
     messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET, msg->msg, msg->author_length, msg->author_color);
     messages_draw_timestamp(x + width - ACTUAL_TIME_WIDTH, y, &msg->time);
     return messages_draw_text(msg->msg + msg->author_length, msg->length, msg->height, msg->msg_type,
-                              msg->author, msg->receipt_time, h1, h2,
+                              msg->our_msg, 1, h1, h2,
                               x + MESSAGES_X, y, width - TIME_WIDTH - MESSAGES_X, height) + MESSAGES_SPACING;
 }
 
@@ -861,15 +861,15 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
             }
 
             if (draw_author) {
-                if (msg->author != lastauthor) {
-                    if (msg->author) {
+                if (msg->our_msg != lastauthor) {
+                    if (msg->our_msg) {
                         messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET, self.name, self.name_length, COLOR_MAIN_SUBTEXT);
                     } else if (f->alias) {
                         messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET, f->alias, f->alias_length, COLOR_MAIN_CHATTEXT);
                     } else {
                         messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET, f->name, f->name_length, COLOR_MAIN_CHATTEXT);
                     }
-                    lastauthor = msg->author;
+                    lastauthor = msg->our_msg;
                 }
             }
         }
@@ -926,7 +926,7 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
                 }
 
                 y = messages_draw_text(msg->msg, msg->length, msg->height, msg->msg_type,
-                                       msg->author, msg->receipt_time, h1, h2,
+                                       msg->our_msg, msg->receipt_time, h1, h2,
                                        x + MESSAGES_X, y, width - TIME_WIDTH - MESSAGES_X, height);
                 break;
             }
@@ -1196,7 +1196,7 @@ _Bool messages_mdown(PANEL *panel) {
 
                 switch(file->file_status) {
                 case FILE_TRANSFER_STATUS_NONE: {
-                    if(!msg->author) {
+                    if(!msg->our_msg) {
                         if(m->cursor_over_position == 2) {
                             native_select_dir_ft(m->id, file);
                         } else if(m->cursor_over_position == 1) {
@@ -1418,7 +1418,7 @@ int messages_selection(PANEL *panel, void *buffer, uint32_t len, _Bool names) {
             } else {
                 FRIEND *f = &friend[m->id];
 
-                if (!msg->author) {
+                if (!msg->our_msg) {
                     if (len <= f->name_length) {
                         break;
                     }
