@@ -393,19 +393,41 @@ _Bool messages_read_from_log(uint32_t friend_number){
 }
 
 void messages_send_from_queue(MESSAGES *m, uint32_t friend_number) {
-    uint32_t start = m->number;
+    uint32_t start      = m->number;
+    uint8_t  seek_num   = 3; /* this magic number is the number of messages we'll skip looking for the first unsent */
 
+    pthread_mutex_lock(&messages_lock);
+
+    /* seek back to find first queued message
+     * I hate this nest too, but it's readable */
     while (start--) {
         if (m->data[start]) {
             MSG_TEXT *msg = (MSG_TEXT*)(m->data[start]);
             if (msg->msg_type == MSG_TYPE_TEXT || msg->msg_type == MSG_TYPE_ACTION_TEXT) {
-                if (!msg->receipt_time && msg->our_msg) {
+                if (msg->our_msg) {
+                    if (msg->receipt_time) {
+                        if (!seek_num--) {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /* start sending messages, hopefully in order */
+    while (start < m->number) {
+        if (m->data[start++]) {
+            MSG_TEXT *msg = (MSG_TEXT*)(m->data[start]);
+            if (msg->msg_type == MSG_TYPE_TEXT || msg->msg_type == MSG_TYPE_ACTION_TEXT) {
+                if (msg->our_msg && !msg->receipt_time) {
                     postmessage_toxcore((msg->msg_type == MSG_TYPE_TEXT ? TOX_SEND_MESSAGE : TOX_SEND_ACTION),
                                         friend_number, msg->length, msg);
                 }
             }
         }
     }
+    pthread_mutex_unlock(&messages_lock);
 }
 
 void messages_clear_receipt(MESSAGES *m, uint32_t receipt_number) {
