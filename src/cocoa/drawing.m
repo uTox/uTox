@@ -570,7 +570,7 @@ void draw_image(const UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, ui
     CFRelease(di);
 }
 
-void draw_image_inline(uint8_t *img_data, size_t size, uint16_t w, uint16_t h, int x, int y) {
+void draw_inline_image(uint8_t *img_data, size_t size, uint16_t w, uint16_t h, int x, int y) {
     DRAW_TARGET_CHK()
 
     //debug("%lu %lu %lf", imgx, imgy, image->scale);
@@ -580,7 +580,7 @@ void draw_image_inline(uint8_t *img_data, size_t size, uint16_t w, uint16_t h, i
     CGRect rect = {
         .origin = {
             .x = x,
-            .y = sz - y - height,
+            .y = sz - y - h,
         },
         .size = {
             .width  = w,
@@ -589,7 +589,7 @@ void draw_image_inline(uint8_t *img_data, size_t size, uint16_t w, uint16_t h, i
     };
 
     CGContextRef this = [NSGraphicsContext currentContext].graphicsPort;
-    CGImageRef di = CGImageCreateWithImageInRect(image->image, (CGRect){0, 0, w, h});
+    CGImageRef di = CGImageCreateWithImageInRect(img_data, (CGRect){0, 0, w, h});
     CGContextDrawImage(this, rect, di);
     CFRelease(di);
 }
