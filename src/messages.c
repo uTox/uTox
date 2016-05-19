@@ -961,6 +961,7 @@ static _Bool messages_mmove_text(MESSAGES *m, int width, int mx, int my, int dy,
                                message, msg_length, 1);
 
     if (my < 0 || my >= dy || mx < MESSAGES_X || m->cursor_over_position == msg_length) {
+        m->cursor_over_uri = UINT32_MAX;
         return 0;
     }
 
@@ -971,7 +972,7 @@ static _Bool messages_mmove_text(MESSAGES *m, int width, int mx, int my, int dy,
         m->cursor_over_uri = UINT32_MAX;
     }
 
-    /* Seek back to the last line break */
+    /* Seek back to the last word/line break */
     char_t *str = message + m->cursor_over_position;
     while (str != message) {
         str--;
@@ -985,10 +986,10 @@ static _Bool messages_mmove_text(MESSAGES *m, int width, int mx, int my, int dy,
     char_t *end = message + msg_length;
     while (str != end && *str != ' ' && *str != '\n') {
         if (str == message || *(str - 1) == '\n' || *(str - 1) == ' ') {
-            if ((m->cursor_over_uri == UINT32_MAX && end - str >= 7 && strcmp2(str, "http://") == 0)) {
+            if (m->cursor_over_uri == UINT32_MAX && end - str >= 7 && (strcmp2(str, "http://") == 0)) {
                 cursor = CURSOR_HAND;
                 m->cursor_over_uri = str - message;
-            } else if ((m->cursor_over_uri == UINT32_MAX && end - str >= 8 && strcmp2(str, "https://") == 0)) {
+            } else if (m->cursor_over_uri == UINT32_MAX && end - str >= 8 && (strcmp2(str, "https://") == 0)) {
                 cursor = CURSOR_HAND;
                 m->cursor_over_uri = str - message;
             }
@@ -999,6 +1000,7 @@ static _Bool messages_mmove_text(MESSAGES *m, int width, int mx, int my, int dy,
     if (m->cursor_over_uri != UINT32_MAX) {
         m->urllen = (str - message) - m->cursor_over_uri;
         m->cursor_down_uri = prev_cursor_down_uri;
+            debug("urllen %u\n", m->urllen);
     }
 
     return 0;
@@ -1095,6 +1097,11 @@ _Bool messages_mmove(PANEL *panel, int UNUSED(px), int UNUSED(py), int width, in
                     } else {
                         messages_mmove_text(m, width, mx, my, dy, msg->msg, msg->height, msg->length);
                     }
+                    if (m->cursor_down_msg != UINT32_MAX &&
+                        (m->cursor_down_position != m->cursor_over_position
+                         || m->cursor_down_msg != m->cursor_over_msg)) {
+                        m->selecting_text = 1;
+                    }
                     break;
                 }
 
@@ -1166,12 +1173,12 @@ _Bool messages_mdown(PANEL *panel) {
             case MSG_TYPE_NOTICE:
             case MSG_TYPE_NOTICE_DAY_CHANGE: {
                 if (m->cursor_over_uri != UINT32_MAX) {
-                    m->cursor_down_uri = 1;
+                    m->cursor_down_uri = m->cursor_over_uri;
+                    debug("mdn dURI %u, oURI %u\n", m->cursor_down_uri, m->cursor_over_uri);
                 }
 
                 m->sel_start_msg = m->sel_end_msg = m->cursor_down_msg = m->cursor_over_msg;
                 m->sel_start_position = m->sel_end_position = m->cursor_down_position = m->cursor_over_position;
-                m->selecting_text = 1;
                 break;
             }
 
@@ -1361,10 +1368,14 @@ _Bool messages_mup(PANEL *panel) {
     }
 
     if (m->cursor_over_msg != UINT32_MAX) {
-
         MSG_TEXT *msg = m->data[m->cursor_over_msg];
         if (msg->msg_type == MSG_TYPE_TEXT){
-            if (m->cursor_over_uri != UINT32_MAX && m->cursor_down_uri) {
+            if (m->cursor_over_uri != UINT32_MAX
+                && m->cursor_down_uri == m->cursor_over_uri
+                && m->cursor_over_position >= m->cursor_over_uri
+                && m->cursor_over_position <= m->cursor_over_uri + m->urllen - 1 /* - 1 Don't open on white space */
+                && !m->selecting_text) {
+                debug("mup dURI %u, oURI %u\n", m->cursor_down_uri, m->cursor_over_uri);
                 char_t url[m->urllen + 1];
                 memcpy(url, msg->msg + m->cursor_over_uri, m->urllen * sizeof(char_t));
                 url[m->urllen] = 0;
@@ -1374,7 +1385,7 @@ _Bool messages_mup(PANEL *panel) {
         }
     }
 
-    //temporary, change this
+    // FIXME! temporary, change this
     /* lol... oh fuck... */
     if (m->selecting_text) {
         char_t *lel = malloc(65536); //TODO: De-hardcode this value.
