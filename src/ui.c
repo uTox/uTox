@@ -402,8 +402,9 @@ static void draw_friend_settings(int UNUSED(x), int y, int width, int height) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
 
-    drawstr(MAIN_LEFT + SCALE(10), y + MAIN_TOP + SCALE(12), ALIAS);
-    drawstr(MAIN_LEFT + SCALE(10), y + MAIN_TOP + SCALE(52), FRIEND_AUTOACCEPT);
+    drawstr(MAIN_LEFT + SCALE(10), y + MAIN_TOP + SCALE( 10), FRIEND_PUBLIC_KEY);
+    drawstr(MAIN_LEFT + SCALE(10), y + MAIN_TOP + SCALE( 60), FRIEND_ALIAS);
+    drawstr(MAIN_LEFT + SCALE(10), y + MAIN_TOP + SCALE(110), FRIEND_AUTOACCEPT);
 }
 
 static void draw_background(int UNUSED(x), int UNUSED(y), int width, int height){
@@ -640,6 +641,7 @@ panel_main = {
                 .disabled = 1,
                 .drawfunc = draw_friend_settings,
                 .child = (PANEL*[]) {
+                    (void*)&edit_friend_pubkey,
                     (void*)&edit_friend_alias,
                     (void*)&dropdown_friend_autoaccept_ft,
                     NULL
@@ -845,8 +847,7 @@ void ui_set_scale(uint8_t scale) {
 
     setfont(FONT_SELF_NAME);
 
-    /* Button Structs  */
-        /* Self badge box*/
+    /* User Badge & Roster  */
         PANEL b_avatar = {
             .type   = PANEL_BUTTON,
             .x      = SIDEBAR_AVATAR_LEFT,
@@ -879,23 +880,12 @@ void ui_set_scale(uint8_t scale) {
             .height = BM_STATUSAREA_HEIGHT,
         },
 
-        /* Buttons */
         b_filter_friends = {
             .type   = PANEL_BUTTON,
             .y      = SIDEBAR_FILTER_FRIENDS_TOP,
             .x      = SIDEBAR_FILTER_FRIENDS_LEFT,
             .width  = SIDEBAR_FILTER_FRIENDS_WIDTH,
             .height = SIDEBAR_FILTER_FRIENDS_HEIGHT,
-        },
-
-
-        /* TODO MOVE THIS TO ROSTER */
-        b_create_group = {
-            .type   = PANEL_BUTTON,
-            .y      = SIDEBAR_BUTTON_TOP,
-            .x      = SIDEBAR_BUTTON_LEFT,
-            .width  = SIDEBAR_BUTTON_WIDTH,
-            .height = SIDEBAR_BUTTON_HEIGHT,
         },
 
         b_add_new_contact = {
@@ -913,48 +903,61 @@ void ui_set_scale(uint8_t scale) {
             .x      = SIDEBAR_BUTTON_LEFT,
             .width  = SIDEBAR_BUTTON_WIDTH,
             .height = SIDEBAR_BUTTON_HEIGHT,
+        };
+
+        button_avatar.panel             = b_avatar;
+        button_name.panel               = b_name;
+        button_statusmsg.panel          = b_statusmsg;
+        button_status.panel             = b_status_button;
+        button_filter_friends.panel     = b_filter_friends;
+        button_add_new_contact.panel    = b_add_new_contact;
+        button_settings.panel           = b_settings;
+
+    /* Setting pages        */
+        PANEL b_settings_sub_profile = {
+            .type   = PANEL_BUTTON,
+            .x      = SCALE(1),       /* Nudged 1px as a buffer */
+            .y      = SCALE(1),
+            .width  = SCALE(18) + UTOX_STR_WIDTH(PROFILE), /* Nudged 1px as a buffer */
+            .height = SCALE(28),
         },
 
-        b_copyid = {
+        b_settings_sub_net = {
+            .type   = PANEL_BUTTON,
+            .x      = SCALE(22) + UTOX_STR_WIDTH(PROFILE),
+            .y      = SCALE(1),
+            .width  = SCALE(18) + UTOX_STR_WIDTH(NETWORK),
+            .height = SCALE(28),
+        },
+
+        b_settings_sub_ui = {
+            .type   = PANEL_BUTTON,
+            .x      = SCALE(42) + UTOX_STR_WIDTH(PROFILE) + UTOX_STR_WIDTH(NETWORK),
+            .y      = SCALE(1),
+            .width  = SCALE(18) + UTOX_STR_WIDTH(USER_INTERFACE),
+            .height = SCALE(28),
+        },
+
+        b_settings_sub_av = {
+            .type   = PANEL_BUTTON,
+            .x      = SCALE(62) + UTOX_STR_WIDTH(PROFILE) + UTOX_STR_WIDTH(NETWORK) + UTOX_STR_WIDTH(USER_INTERFACE),
+            .y      = SCALE(1),
+            .width  = SCALE(-1), /* Fill the rest of the space for this button */
+            .height = SCALE(28),
+        };
+
+        button_settings_sub_profile.panel    = b_settings_sub_profile;
+        button_settings_sub_net.panel        = b_settings_sub_net;
+        button_settings_sub_ui.panel         = b_settings_sub_ui;
+        button_settings_sub_av.panel         = b_settings_sub_av;
+
+    /* Profile              */
+        PANEL b_copyid = {
             .type   = PANEL_BUTTON,
             .x      = SCALE( 66),
             .y      = SCALE(106),
             .width  = BM_SBUTTON_WIDTH,
             .height = BM_SBUTTON_HEIGHT,
-        },
-
-        /* setfont(FONT_SELF_NAME); needed for the next 4 buttons */
-        b_settings_sub_profile = {
-            .type   = PANEL_BUTTON,
-            .x      = UTOX_SCALE(1  ),                           /* Nudged 1px as a buffer */
-            .y      = UTOX_SCALE(1  ),
-            .width  = UTOX_SCALE(9  ) + UTOX_STR_WIDTH(PROFILE), /* Nudged 1px as a buffer */
-            .height = UTOX_SCALE(14 ),
-        },
-
-        b_settings_sub_net = {
-            .type   = PANEL_BUTTON,
-            .x      = UTOX_SCALE(11 ) + UTOX_STR_WIDTH(PROFILE), /* Nudged 1px as a buffer */
-            .y      = UTOX_SCALE(1  ),
-            .width  = UTOX_SCALE(9  ) + UTOX_STR_WIDTH(NETWORK), /* Nudged 1px as a buffer */
-            .height = UTOX_SCALE(14 ),
-        },
-
-        b_settings_sub_ui = {
-            .type   = PANEL_BUTTON,
-            .x      = UTOX_SCALE(21 ) + UTOX_STR_WIDTH(PROFILE) + UTOX_STR_WIDTH(NETWORK), /* Nudged 1px as a buffer */
-            .y      = UTOX_SCALE(1  ),
-            .width  = UTOX_SCALE(9  ) + UTOX_STR_WIDTH(USER_INTERFACE),                    /* Nudged 1px as a buffer */
-            .height = UTOX_SCALE(14 ),
-        },
-
-        b_settings_sub_av = {
-            .type   = PANEL_BUTTON,
-            .x      = UTOX_SCALE(31  ) + /* Nudged 1px as a buffer */
-                      UTOX_STR_WIDTH(PROFILE) + UTOX_STR_WIDTH(NETWORK) + UTOX_STR_WIDTH(USER_INTERFACE),
-            .y      = UTOX_SCALE(1   ),
-            .width  = UTOX_SCALE(400 ), /* Fill the rest of the space for this button */
-            .height = UTOX_SCALE(14  ),
         },
 
         #ifdef EMOJI_IDS
@@ -967,7 +970,55 @@ void ui_set_scale(uint8_t scale) {
         },
         #endif
 
-        b_send_friend_request = {
+        b_show_password_settings = {
+            .type   = PANEL_BUTTON,
+            .x      = SCALE(130),
+            .y      = SCALE(206),
+            .width  = BM_SBUTTON_WIDTH,
+            .height = BM_SBUTTON_HEIGHT,
+        },
+
+        b_lock_uTox = {
+            .type   = PANEL_BUTTON,
+            .x      = UTOX_SCALE(5),
+            .y      = UTOX_SCALE(130),
+            .width  = BM_SBUTTON_WIDTH,
+            .height = BM_SBUTTON_HEIGHT,
+        };
+
+        button_copyid.panel                  = b_copyid;
+        #ifdef EMOJI_IDS
+        button_change_id_type.panel          = b_change_id_type;
+        #endif
+        button_show_password_settings.panel  = b_show_password_settings;
+        button_lock_uTox.panel               = b_lock_uTox;
+
+    /* Network              */
+
+    /* User Interface       */
+
+    /* Audio/Video          */
+        PANEL b_callpreview = {
+            .type   = PANEL_BUTTON,
+            .x      = SCALE( 10),
+            .y      = SCALE(280),
+            .width  = BM_LBUTTON_WIDTH,
+            .height = BM_LBUTTON_HEIGHT,
+        },
+
+        b_videopreview = {
+            .type   = PANEL_BUTTON,
+            .x      = SCALE( 70),
+            .y      = SCALE(280),
+            .width  = BM_LBUTTON_WIDTH,
+            .height = BM_LBUTTON_HEIGHT,
+        };
+
+        button_callpreview.panel    = b_callpreview;
+        button_videopreview.panel   = b_videopreview;
+
+    /* Friend Add Page      */
+        PANEL b_send_friend_request = {
             .type = PANEL_BUTTON,
             .x = -UTOX_SCALE(5) - BM_SBUTTON_WIDTH,
             .y = MAIN_TOP + UTOX_SCALE(84),
@@ -975,7 +1026,51 @@ void ui_set_scale(uint8_t scale) {
             .height = BM_SBUTTON_HEIGHT,
         },
 
-        b_call_audio = {
+        b_accept_friend = {
+            .type = PANEL_BUTTON,
+            .x = UTOX_SCALE(5),
+            .y = MAIN_TOP + UTOX_SCALE(5),
+            .width = BM_SBUTTON_WIDTH,
+            .height = BM_SBUTTON_HEIGHT,
+        };
+
+        button_send_friend_request.panel     = b_send_friend_request;
+        button_accept_friend.panel           = b_accept_friend;
+
+    /* Friend Settings Page */
+        PANEL e_friend_pubkey = {
+            .type   =  PANEL_EDIT,
+            .x      =  SCALE(10),
+            .y      =  SCALE(88),
+            .height =  SCALE(24),
+            .width  = -SCALE(10)
+        };
+
+        edit_friend_pubkey.panel = e_friend_pubkey;
+
+        PANEL e_friend_alias = {
+            .type   = PANEL_EDIT,
+            .x      = SCALE( 10),
+            .y      = SCALE(138),
+            .height = SCALE( 24),
+            .width  = SCALE(-10)
+        };
+
+        edit_friend_alias.panel = e_friend_alias;
+
+        PANEL d_friend_autoaccept = {
+            .type   = PANEL_DROPDOWN,
+            .x      = SCALE( 10),
+            .y      = SCALE(188),
+            .height = SCALE( 24),
+            .width  = SCALE( 40)
+        };
+
+        dropdown_friend_autoaccept_ft.panel = d_friend_autoaccept;
+
+
+    /* Friend / Group Page  */
+        PANEL b_call_audio = {
             .type = PANEL_BUTTON,
             .x = -UTOX_SCALE(62 ),
             .y = UTOX_SCALE(5 ),
@@ -996,30 +1091,6 @@ void ui_set_scale(uint8_t scale) {
             .x = -UTOX_SCALE(31 ),
             .y = UTOX_SCALE(5 ),
             .width = BM_LBUTTON_WIDTH,
-            .height = BM_LBUTTON_HEIGHT,
-        },
-
-        b_accept_friend = {
-            .type = PANEL_BUTTON,
-            .x = UTOX_SCALE(5),
-            .y = MAIN_TOP + UTOX_SCALE(5),
-            .width = BM_SBUTTON_WIDTH,
-            .height = BM_SBUTTON_HEIGHT,
-        },
-
-        b_callpreview = {
-            .type   = PANEL_BUTTON,
-            .x      = SCALE( 10),
-            .y      = SCALE(280),
-            .width  = BM_LBUTTON_WIDTH,
-            .height = BM_LBUTTON_HEIGHT,
-        },
-
-        b_videopreview = {
-            .type   = PANEL_BUTTON,
-            .x      = SCALE( 70),
-            .y      = SCALE(280),
-            .width  = BM_LBUTTON_WIDTH,
             .height = BM_LBUTTON_HEIGHT,
         },
 
@@ -1047,119 +1118,73 @@ void ui_set_scale(uint8_t scale) {
             .y      = -UTOX_SCALE(23 ),
             .width  = BM_CHAT_SEND_WIDTH,
             .height = BM_CHAT_SEND_HEIGHT,
-        },
-
-        b_lock_uTox = {
-            .type   = PANEL_BUTTON,
-            .x      = UTOX_SCALE(5),
-            .y      = UTOX_SCALE(130),
-            .width  = BM_SBUTTON_WIDTH,
-            .height = BM_SBUTTON_HEIGHT,
-        },
-
-        b_show_password_settings = {
-            .type   = PANEL_BUTTON,
-            .x      = SCALE(130),
-            .y      = SCALE(206),
-            .width  = BM_SBUTTON_WIDTH,
-            .height = BM_SBUTTON_HEIGHT,
         };
 
-    /* Set the button panels */
-        button_avatar.panel                  = b_avatar;
-        button_name.panel                    = b_name;
-        button_statusmsg.panel               = b_statusmsg;
-        button_status.panel                  = b_status_button;
-
-        button_filter_friends.panel          = b_filter_friends;
-
-        button_add_new_contact.panel         = b_add_new_contact;
-        button_settings.panel                = b_settings;
-        button_create_group.panel            = b_create_group;
-
-        button_copyid.panel                  = b_copyid;
-        button_settings_sub_profile.panel    = b_settings_sub_profile;
-        button_settings_sub_net.panel        = b_settings_sub_net;
-        button_settings_sub_ui.panel         = b_settings_sub_ui;
-        button_settings_sub_av.panel         = b_settings_sub_av;
-        #ifdef EMOJI_IDS
-        button_change_id_type.panel          = b_change_id_type;
-        #endif
-        button_send_friend_request.panel     = b_send_friend_request;
         button_call_audio.panel              = b_call_audio;
         button_call_video.panel              = b_call_video;
         button_group_audio.panel             = b_group_audio;
-        button_accept_friend.panel           = b_accept_friend;
-        button_callpreview.panel             = b_callpreview;
-        button_videopreview.panel            = b_videopreview;
         button_send_file.panel               = b_send_file;
         button_send_screenshot.panel         = b_send_screenshot;
         button_chat_send.panel               = b_chat_send;
-        button_lock_uTox.panel               = b_lock_uTox;
-        button_show_password_settings.panel  = b_show_password_settings;
 
-    /* Drop down structs */
+    /* Drop down structs    */
         setfont(FONT_TEXT);
-        /* Profile dropdowns */
-        /* Network page dropdows */
-        /* A/V settings page dropdowns */
-       /* User Interface drops */
-            PANEL d_theme = {
-                .type   = PANEL_DROPDOWN,
-                .x      = SCALE(10),
-                .y      = SCALE(30),
-                .height = SCALE(24),
-                .width  = SCALE(120)
-            },
-            d_dpi = {
-                .type   = PANEL_DROPDOWN,
-                .x      = SCALE(150),
-                .y      = SCALE(30),
-                .height = SCALE(24),
-                .width  = SCALE(200)
-            },
-            d_logging = {
-                .type   = PANEL_DROPDOWN,
-                .x      = SCALE(10),
-                .y      = SCALE(80),
-                .height = SCALE(24),
-                .width  = SCALE(40  )
-            },
-            d_close_to_tray = {
-                .type   = PANEL_DROPDOWN,
-                .x      = SCALE(10),
-                .y      = SCALE(130),
-                .height = SCALE(24),
-                .width  = SCALE(40)
-            },
-            d_start_in_tray = {
-                .type   = PANEL_DROPDOWN,
-                .x      = SCALE(150),
-                .y      = SCALE(130),
-                .height = SCALE(24),
-                .width  = SCALE(40)
-            },
-            d_auto_startup = {
-                .type   = PANEL_DROPDOWN,
-                .x      = SCALE(10),
-                .y      = SCALE(180),
-                .height = SCALE(24),
-                .width  = SCALE(40)
-            },
-            d_typing_notes = {
-                .type   = PANEL_DROPDOWN,
-                .x      = SCALE(10),
-                .y      = SCALE(230),
-                .height = SCALE(24),
-                .width  = SCALE(40)
-            },
-            d_mini_roster = {
-                .type   = PANEL_DROPDOWN,
-                .x      = SCALE(10),
-                .y      = SCALE(280),
-                .height = SCALE(24),
-                .width  = SCALE(40)
-            };
+        PANEL d_theme = {
+            .type   = PANEL_DROPDOWN,
+            .x      = SCALE(10),
+            .y      = SCALE(30),
+            .height = SCALE(24),
+            .width  = SCALE(120)
+        },
+        d_dpi = {
+            .type   = PANEL_DROPDOWN,
+            .x      = SCALE(150),
+            .y      = SCALE(30),
+            .height = SCALE(24),
+            .width  = SCALE(200)
+        },
+        d_logging = {
+            .type   = PANEL_DROPDOWN,
+            .x      = SCALE(10),
+            .y      = SCALE(80),
+            .height = SCALE(24),
+            .width  = SCALE(40  )
+        },
+        d_close_to_tray = {
+            .type   = PANEL_DROPDOWN,
+            .x      = SCALE(10),
+            .y      = SCALE(130),
+            .height = SCALE(24),
+            .width  = SCALE(40)
+        },
+        d_start_in_tray = {
+            .type   = PANEL_DROPDOWN,
+            .x      = SCALE(150),
+            .y      = SCALE(130),
+            .height = SCALE(24),
+            .width  = SCALE(40)
+        },
+        d_auto_startup = {
+            .type   = PANEL_DROPDOWN,
+            .x      = SCALE(10),
+            .y      = SCALE(180),
+            .height = SCALE(24),
+            .width  = SCALE(40)
+        },
+        d_typing_notes = {
+            .type   = PANEL_DROPDOWN,
+            .x      = SCALE(10),
+            .y      = SCALE(230),
+            .height = SCALE(24),
+            .width  = SCALE(40)
+        },
+        d_mini_roster = {
+            .type   = PANEL_DROPDOWN,
+            .x      = SCALE(10),
+            .y      = SCALE(280),
+            .height = SCALE(24),
+            .width  = SCALE(40)
+        };
 
         /* Unsorted */
         PANEL d_notifications = {
@@ -1241,15 +1266,8 @@ void ui_set_scale(uint8_t scale) {
             .y      = UTOX_SCALE(13  ),
             .height = UTOX_SCALE(12  ),
             .width  = UTOX_SCALE(20  )
-        },
-
-        d_friend_autoaccept = {
-            .type   = PANEL_DROPDOWN,
-            .x      = UTOX_SCALE(5   ),
-            .y      = UTOX_SCALE(64  ),
-            .height = UTOX_SCALE(12  ),
-            .width  = UTOX_SCALE(20  )
         };
+
 
     /* Drop down panels */
         dropdown_audio_in.panel = d_audio_in;
@@ -1274,7 +1292,6 @@ void ui_set_scale(uint8_t scale) {
 
         dropdown_typing_notes.panel         = d_typing_notes;
         dropdown_mini_roster.panel          = d_mini_roster;
-        dropdown_friend_autoaccept_ft.panel = d_friend_autoaccept;
 
     /* Text entry boxes */
         PANEL e_name = {
@@ -1365,14 +1382,6 @@ void ui_set_scale(uint8_t scale) {
             .y      = UTOX_SCALE(40  ),
             .height = UTOX_SCALE(12  ),
             .width  = UTOX_SCALE(30  )
-        },
-
-        e_friend_alias = {
-            .type   = PANEL_EDIT,
-            .x      = UTOX_SCALE(5   ),
-            .y      = UTOX_SCALE(44  ),
-            .height = UTOX_SCALE(12  ),
-            .width  = -UTOX_SCALE(5 )
         };
 
     /* Text entry panels */
@@ -1387,7 +1396,6 @@ void ui_set_scale(uint8_t scale) {
         edit_search.panel = e_search;
         edit_proxy_ip.panel = e_proxy_ip;
         edit_proxy_port.panel = e_proxy_port;
-        edit_friend_alias.panel = e_friend_alias;
 
     setscale();
 }

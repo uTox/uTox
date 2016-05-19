@@ -119,6 +119,18 @@ msgid(CALL_VIDEO_SHOW_INLINE)
 msgstr("Show video inline")
 
 
+/******************************************************************************
+ *** Friend & Friend Settings Strings                                       ***
+ ******************************************************************************/
+msgid(FRIEND_ALIAS)
+msgstr("Set Friend Alias")
+
+msgid(FRIEND_PUBLIC_KEY)
+msgstr("Friend's Public Key")
+
+msgid(FRIEND_AUTOACCEPT)
+msgstr("Accept incoming file transfers without confirmation")
+
 
 
 /******************************************************************************
@@ -339,9 +351,6 @@ msgstr("Set alias")
 
 msgid(ALIAS)
 msgstr("Alias")
-
-msgid(FRIEND_AUTOACCEPT)
-msgstr("Accept incoming file transfers without confirmation")
 
 msgid(SENDMESSAGE)
 msgstr("Send message")

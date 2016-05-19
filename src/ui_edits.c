@@ -9,7 +9,8 @@ static char_t edit_name_data[128],
               edit_proxy_ip_data[256],
               edit_proxy_port_data[8],
               edit_profile_password_data[65535],
-              edit_friend_alias_data[128];
+              edit_friend_alias_data[128],
+              edit_id_str[TOX_PUBLIC_KEY_SIZE * 2];
 
 static void edit_name_onenter(EDIT *edit)
 {
@@ -503,10 +504,19 @@ EDIT edit_name = {
 },
 
 edit_toxid = {
-    .length = TOX_FRIEND_ADDRESS_SIZE * 2,
-    .data = self.id_buffer,
-    .readonly = 1,
-    .noborder = 0,
+    .length     = TOX_PUBLIC_KEY_SIZE * 2,
+    .data       = self.id_buffer,
+    .readonly   = 1,
+    .noborder   = 0,
+    .select_completely = 1,
+},
+
+edit_friend_pubkey = {
+    .length     = TOX_PUBLIC_KEY_SIZE * 2,
+    .maxlength  = TOX_PUBLIC_KEY_SIZE * 2,
+    .data       = edit_id_str,
+    .readonly   = 1,
+    .noborder   = 0,
     .select_completely = 1,
 },
 
