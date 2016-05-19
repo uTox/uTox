@@ -313,10 +313,14 @@ static void audio_source_term(ALuint *source) {
 
 #define fade_step_out()           (1 - ((double)(index % (sample_rate/notes_per_sec))/(sample_rate/notes_per_sec)))
 #define fade_step_in()            (    ((double)(index % (sample_rate/notes_per_sec))/(sample_rate/notes_per_sec)))
-#define gen_note_raw(x,a)         ((a * base_amplitude)                   * (sin((t * x)             * index / sample_rate)))
-#define gen_note_num(x,a)         ((a * base_amplitude)                   * (sin((t * notes[x].freq) * index / sample_rate)))
-#define gen_note_num_fade(x,a)    ((a * base_amplitude * fade_step_out()) * (sin((t * notes[x].freq) * index / sample_rate)))
-#define gen_note_num_fade_in(x,a) ((a * base_amplitude * fade_step_in() ) * (sin((t * notes[x].freq) * index / sample_rate)))
+
+#define gen_note_raw(x,a)         ((a * base_amplitude) * (sin((t * x)             * index / sample_rate)))
+#define gen_note_num(x,a)         ((a * base_amplitude) * (sin((t * notes[x].freq) * index / sample_rate)))
+
+#define gen_note_num_fade(x,a)    ((a * base_amplitude * fade_step_out()) * \
+                                   (sin((t * notes[x].freq) * index / sample_rate)))
+#define gen_note_num_fade_in(x,a) ((a * base_amplitude * fade_step_in() ) * \
+                                   (sin((t * notes[x].freq) * index / sample_rate)))
 
 enum {
     NOTE_none,
@@ -704,7 +708,8 @@ void utox_audio_thread(void *args){
                     if (preview_buffer_index + perframe > PREVIEW_BUFFER_SIZE) {
                         preview_buffer_index = 0;
                     }
-                    sourceplaybuffer(UTOX_MAX_NUM_FRIENDS, preview_buffer + preview_buffer_index, perframe, UTOX_DEFAULT_AUDIO_CHANNELS, UTOX_DEFAULT_SAMPLE_RATE_A);
+                    sourceplaybuffer(UTOX_MAX_NUM_FRIENDS, preview_buffer + preview_buffer_index, perframe,
+                                     UTOX_DEFAULT_AUDIO_CHANNELS, UTOX_DEFAULT_SAMPLE_RATE_A);
                     if (voice) {
                         memcpy(preview_buffer + preview_buffer_index, buf, perframe * sizeof(int16_t));
                     } else {
@@ -720,7 +725,8 @@ void utox_audio_thread(void *args){
                             active_call_count++;
                             TOXAV_ERR_SEND_FRAME error = 0;
                             // debug("uToxAudio:\tSending audio frame!\n");
-                            toxav_audio_send_frame(av, friend[i].number, (const int16_t *)buf, perframe, UTOX_DEFAULT_AUDIO_CHANNELS, UTOX_DEFAULT_SAMPLE_RATE_A, &error);
+                            toxav_audio_send_frame(av, friend[i].number, (const int16_t *)buf, perframe,
+                                                   UTOX_DEFAULT_AUDIO_CHANNELS, UTOX_DEFAULT_SAMPLE_RATE_A, &error);
                             if (error) {
                                 debug("toxav_send_audio error friend == %i, error ==  %i\n", i, error);
                             } else {
@@ -742,7 +748,8 @@ void utox_audio_thread(void *args){
                         uint32_t max = tox_get_chatlist(tox, chats, num_chats);
                         for (i = 0; i < max; ++i) {
                             if (groups_audio[chats[i]]) {
-                                toxav_group_send_audio(tox, chats[i], (int16_t *)buf, perframe, UTOX_DEFAULT_AUDIO_CHANNELS, UTOX_DEFAULT_SAMPLE_RATE_A);
+                                toxav_group_send_audio(tox, chats[i], (int16_t *)buf, perframe,
+                                                       UTOX_DEFAULT_AUDIO_CHANNELS, UTOX_DEFAULT_SAMPLE_RATE_A);
                             }
                         }
                     }*/
@@ -806,7 +813,8 @@ void utox_audio_thread(void *args){
             return;
         }
 
-        alBufferData(bufid, (channels == 1) ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16, pcm, samples * 2 * channels, sample_rate);
+        alBufferData(bufid, (channels == 1) ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16, pcm, samples * 2 * channels,
+                        sample_rate);
         alSourceQueueBuffers(g->source[peernumber], 1, &bufid);
 
         ALint state;
