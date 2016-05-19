@@ -13,7 +13,7 @@ struct messages {
     uint32_t cursor_over_uri, urllen;
 
     // Was the url pressed by the mouse.
-    _Bool cursor_down_uri;
+    uint32_t cursor_down_uri;
 
     uint32_t cursor_over_msg, cursor_over_position, cursor_down_msg, cursor_down_position;
     uint32_t sel_start_msg, sel_end_msg, sel_start_position, sel_end_position;
