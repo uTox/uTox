@@ -359,11 +359,12 @@ _Bool native_remove_file(const uint8_t *name, size_t length) {
     uint8_t path[UTOX_FILE_NAME_LENGTH]  = {0};
 
     if (settings.portable_mode) {
-        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "./tox/");
+        const char *curr = [NSBundle.mainBundle.bundlePath stringByDeletingLastPathComponent].UTF8String;
+        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "%s/tox/", curr);
     } else {
-        snprintf((char*)path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));
+        const char *home = NSHomeDirectory().UTF8String;
+        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", home);
     }
-
 
     if (strlen((const char*)path) + length >= UTOX_FILE_NAME_LENGTH) {
         debug("NATIVE:\tFile/directory name too long, unable to remove\n");
