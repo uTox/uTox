@@ -417,7 +417,7 @@ void messages_send_from_queue(MESSAGES *m, uint32_t friend_number) {
 
     /* start sending messages, hopefully in order */
     while (start < m->number) {
-        if (m->data[start++]) {
+        if (m->data[start]) {
             MSG_TEXT *msg = (MSG_TEXT*)(m->data[start]);
             if (msg->msg_type == MSG_TYPE_TEXT || msg->msg_type == MSG_TYPE_ACTION_TEXT) {
                 if (msg->our_msg && !msg->receipt_time) {
@@ -426,6 +426,7 @@ void messages_send_from_queue(MESSAGES *m, uint32_t friend_number) {
                 }
             }
         }
+        ++start;
     }
     pthread_mutex_unlock(&messages_lock);
 }
