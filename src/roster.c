@@ -399,8 +399,12 @@ static void show_page(ITEM *i) {
             messages_friend.object = ((void**)&f->msg);
             messages_updateheight((MESSAGES*)messages_friend.object, current_width);
 
-            ((MESSAGES*)messages_friend.object)->cursor_over_msg = UINT32_MAX;
-            ((MESSAGES*)messages_friend.object)->cursor_over_uri = UINT32_MAX;
+            ((MESSAGES*)messages_friend.object)->cursor_over_msg        = UINT32_MAX;
+            ((MESSAGES*)messages_friend.object)->cursor_over_position   = UINT32_MAX;
+            ((MESSAGES*)messages_friend.object)->cursor_down_msg        = UINT32_MAX;
+            ((MESSAGES*)messages_friend.object)->cursor_down_position   = UINT32_MAX;
+            ((MESSAGES*)messages_friend.object)->cursor_over_uri        = UINT32_MAX;
+
             scrollbar_friend.content_height = f->msg.height;
             messages_friend.content_scroll->d = f->msg.scroll;
 
@@ -429,7 +433,13 @@ static void show_page(ITEM *i) {
             messages_group.object = ((void*)&g->msg);
             messages_updateheight((MESSAGES*)messages_group.object, current_width);
 
-            ((MESSAGES*)messages_group.object)->cursor_over_msg = UINT32_MAX;
+            ((MESSAGES*)messages_group.object)->cursor_over_msg         = UINT32_MAX;
+            ((MESSAGES*)messages_group.object)->cursor_over_position    = UINT32_MAX;
+            ((MESSAGES*)messages_group.object)->cursor_down_msg         = UINT32_MAX;
+            ((MESSAGES*)messages_group.object)->cursor_down_position    = UINT32_MAX;
+            ((MESSAGES*)messages_group.object)->cursor_over_uri         = UINT32_MAX;
+
+
             messages_group.content_scroll->content_height = g->msg.height;
             messages_group.content_scroll->d = g->msg.scroll;
             edit_setfocus(&edit_msg_group);
@@ -742,15 +752,17 @@ _Bool list_mdown(void *UNUSED(n)) {
     return draw;
 }
 
-static void roster_init_settings_page(void) {
+static void roster_init_friend_settings_page(void) {
     FRIEND *f = right_mouse_item->data;
 
     panel_friend_chat.disabled     = 1;
     panel_friend_video.disabled    = 1;
     panel_friend_settings.disabled = 0;
 
+    edit_setstr(&edit_friend_pubkey, (char_t*)&f->id_str, TOX_PUBLIC_KEY_SIZE * 2);
+
     maybe_i18nal_string_set_plain(&edit_friend_alias.empty_str, f->name, f->name_length);
-    edit_setstr(&edit_friend_alias, f->alias, f->alias_length);
+    edit_setstr(&edit_friend_alias,  f->alias, f->alias_length);
 
     dropdown_friend_autoaccept_ft.over = dropdown_friend_autoaccept_ft.selected = f->ft_autoaccept;
 }
@@ -764,7 +776,7 @@ static void contextmenu_friend(uint8_t rcase) {
     switch (rcase){
         case 0: {
             /* should be settings page */
-            roster_init_settings_page();
+            roster_init_friend_settings_page();
             break;
         }
         case 1: {
@@ -788,6 +800,7 @@ static void contextmenu_friend(uint8_t rcase) {
         }
     }
 }
+
 static void contextmenu_list_onselect(uint8_t i) {
     if (right_mouse_item) {
         switch (right_mouse_item->item) {
