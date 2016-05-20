@@ -215,7 +215,8 @@ uint32_t message_add_type_text(MESSAGES *m, _Bool auth, const uint8_t *data, uin
     }
 
     if (m->data) {
-        msg_add_day_notice(m, ((MSG_VOID*)m->data[m->number-1])->time, msg->time);
+        MSG_VOID *day_msg = m->data[m->number ? m->number -1 : 0];
+        msg_add_day_notice(m, day_msg->time, msg->time);
     }
 
 
@@ -400,7 +401,8 @@ void messages_send_from_queue(MESSAGES *m, uint32_t friend_number) {
 
     /* seek back to find first queued message
      * I hate this nest too, but it's readable */
-    while (start--) {
+    while (start) {
+        --start;
         if (m->data[start]) {
             MSG_TEXT *msg = (MSG_TEXT*)(m->data[start]);
             if (msg->msg_type == MSG_TYPE_TEXT || msg->msg_type == MSG_TYPE_ACTION_TEXT) {
@@ -464,13 +466,15 @@ void messages_clear_receipt(MESSAGES *m, uint32_t receipt_number) {
                     if (msg->disk_offset) {
                         debug("Messages:\tUpdating message -> disk_offset is %lu\n", msg->disk_offset);
                         utox_update_data_log(m->id, msg->disk_offset, data, length);
-                    } else if(m->number == 1) {
+                    } else if (msg->disk_offset == 0 && start <= 1 && receipt_number == 1) {
+                        /* This could get messy if receipt is 1 msg position is 0 and the offset is actually wrong,
+                         * But I couldn't come up with any other way to verify the rare case of a bad offset
+                         * start <= 1 to offset for the day change notification                                    */
                         debug("Messages:\tUpdating first message -> disk_offset is %lu\n", msg->disk_offset);
                         utox_update_data_log(m->id, msg->disk_offset, data, length);
                     } else {
                         debug_error("Messages:\tUnable to update this message...\n"
-                            "\t\tThis is bad, there could be a corrupt message in your chat history.\n"
-                            "\t\tmsg->disk_offset %lu && m->number %u receipt_number %u\n",
+                            "\t\tmsg->disk_offset %lu && m->number %u receipt_number %u \n",
                             msg->disk_offset, m->number, receipt_number);
                     }
                     free(data);
@@ -1637,6 +1641,7 @@ void message_free(MSG_TEXT *msg) {
 }
 
 void messages_clear_all(MESSAGES *m) {
+    pthread_mutex_lock(&messages_lock);
     uint32_t i;
 
     for (i = 0; i < m->number; i++) {
@@ -1651,4 +1656,5 @@ void messages_clear_all(MESSAGES *m) {
     m->sel_start_msg = m->sel_end_msg = m->sel_start_position = m->sel_end_position = 0;
 
     m->height = 0;
+    pthread_mutex_unlock(&messages_lock);
 }
