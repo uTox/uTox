@@ -341,10 +341,6 @@ static int load_toxcore_save(void){
                 } else {
                     debug("Unknown error, please file a bug report!\n");
                 }
-                panel_profile_password.disabled = 0;
-                panel_settings_master.disabled  = 1;
-                edit_setfocus(&edit_profile_password);
-                postmessage(REDRAW, 0, 0, NULL);
                 return -1;
             }
 
@@ -353,29 +349,17 @@ static int load_toxcore_save(void){
                 options.savedata_data   = clear_data;
                 options.savedata_length = cleartext_length;
 
-                panel_profile_password.disabled = 1;
-                panel_settings_master.disabled  = 0;
-                edit_resetfocus();
-                postmessage(REDRAW, 0, 0, NULL);
                 return 0;
             }
         } else {
-            debug("Using unencrypted save file; this is insecure!\n\n");
+            debug_info("Using unencrypted save file; this is insecure!\n\n");
             options.savedata_type   = TOX_SAVEDATA_TYPE_TOX_SAVE;
             options.savedata_data   = raw_data;
             options.savedata_length = raw_length;
-
-            panel_profile_password.disabled = 1;
-            panel_settings_master.disabled  = 0;
-            edit_resetfocus();
-            postmessage(REDRAW, 0, 0, NULL);
             return 0;
         }
     }
     /* No save file at all, create new profile! */
-    panel_profile_password.disabled = 1;
-    panel_settings_master.disabled  = 0;
-    postmessage(REDRAW, 0, 0, NULL);
     return -2;
 }
 
@@ -387,7 +371,26 @@ static int init_toxcore(Tox **tox) {
     if (save_status == -1) {
         /* Save file exist, couldn't decrypt, don't start a tox instance
         TODO: throw an error to the UI! */
+        panel_profile_password.disabled = 0;
+        panel_settings_master.disabled  = 1;
+        edit_setfocus(&edit_profile_password);
+        postmessage(REDRAW, 0, 0, NULL);
         return -1;
+    } else if (save_status == -2) {
+        /* New profile! */
+        panel_profile_password.disabled = 1;
+        panel_settings_master.disabled  = 0;
+        postmessage(REDRAW, 0, 0, NULL);
+    } else {
+        panel_profile_password.disabled = 1;
+        if (settings.show_splash) {
+            panel_splash_page.disabled  = 0;
+        } else {
+            panel_settings_master.disabled  = 0;
+        }
+
+        edit_resetfocus();
+        postmessage(REDRAW, 0, 0, NULL);
     }
 
     // Create main connection

@@ -99,6 +99,32 @@ static void draw_user_badge(int UNUSED(x), int UNUSED(y), int UNUSED(width), int
     }
 }
 
+static void draw_splash_page(int x, int y, int w, int h) {
+    setcolor(COLOR_MAIN_TEXT);
+
+    x += SCALE(10);
+
+    /* Generic Splash */
+    setfont(FONT_SELF_NAME);
+    int ny = utox_draw_text_multiline_within_box(x, y, w + x, y, y + h, font_small_lineheight,
+                                                 S(SPLASH_TITLE), SLEN(SPLASH_TITLE), ~0, ~0, 0, 0, 1);
+    setfont(FONT_TEXT);
+    ny += utox_draw_text_multiline_within_box(x, ny, w + x, ny, ny + h, font_small_lineheight,
+                                             S(SPLASH_TEXT), SLEN(SPLASH_TEXT), ~0, ~0, 0, 0, 1);
+
+
+    ny += SCALE(20);
+    /* Change log */
+    setfont(FONT_SELF_NAME);
+    ny += utox_draw_text_multiline_within_box(x, ny, w + x, y, ny + h, font_small_lineheight,
+                                        S(CHANGE_LOG_TITLE), SLEN(CHANGE_LOG_TITLE), ~0, ~0, 0, 0, 1);
+    setfont(FONT_TEXT);
+    ny += utox_draw_text_multiline_within_box(x, ny, w + x, ny, ny + h, font_small_lineheight,
+                                        S(CHANGE_LOG_TEXT), SLEN(CHANGE_LOG_TEXT), ~0, ~0, 0, 0, 1);
+
+
+}
+
 /* Header for friend chat window */
 static void draw_friend(int x, int y, int w, int height){
     FRIEND *f = selected_item->data;
@@ -661,12 +687,23 @@ panel_main = {
         .type = PANEL_NONE,
         .disabled = 0,
         .child = (PANEL*[]) {
+            (void*)&panel_splash_page,
             (void*)&panel_profile_password,
             (void*)&panel_add_friend,
             (void*)&panel_settings_master,
             NULL
         }
     },
+        panel_splash_page = {
+            .type = PANEL_NONE,
+            .disabled = 1,
+            .drawfunc = draw_splash_page,
+            .content_scroll = &scrollbar_settings,
+            .child = (PANEL*[]) {
+                NULL,
+            }
+        },
+
         panel_profile_password = {
             .type = PANEL_NONE,
             .disabled = 0,

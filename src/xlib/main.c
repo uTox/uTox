@@ -1082,6 +1082,8 @@ int main(int argc, char *argv[]) {
         theme = save->theme;
     }
 
+    utox_init();
+
     debug_info("Setting theme to:\t%d\n", theme);
     theme_load(theme);
 

@@ -358,10 +358,14 @@ static void show_page(ITEM *i) {
         }
         case ITEM_SETTINGS: {
             if (panel_profile_password.disabled) {
-                button_settings.disabled       = 0;
-                panel_settings_master.disabled = 1;
-                panel_overhead.disabled        = 1;
+                panel_splash_page.disabled      = 1;
+
+                panel_settings_master.disabled  = 1;
+                panel_overhead.disabled         = 1;
+
                 panel_profile_password_settings.disabled = 1;
+
+                button_settings.disabled        = 0;
             }
             break;
         }

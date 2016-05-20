@@ -630,7 +630,7 @@ UTOX_SAVE* config_load(void) {
     }
 
     if (save) {
-        if(save->version == SAVE_VERSION) {
+        if(save->save_version == SAVE_VERSION) {
             /* validate values */
             if(save->scale > 30) {
                 save->scale = 30;
@@ -638,12 +638,12 @@ UTOX_SAVE* config_load(void) {
                 save->scale = 10;
             }
             goto NEXT;
-        } else if (save->version == 2) {
+        } else if (save->save_version == 2) {
             UTOX_SAVE_V2 *save_v2 = (UTOX_SAVE_V2*)save;
             save = calloc(sizeof(UTOX_SAVE) + 1 + strlen((char *)save_v2->proxy_ip), 1);
 
             memcpy(save, save_v2, sizeof(UTOX_SAVE_V2));
-            save->version = SAVE_VERSION;
+            save->save_version = SAVE_VERSION;
 
             if(save->scale > 30) {
                 save->scale = 30;
@@ -658,7 +658,7 @@ UTOX_SAVE* config_load(void) {
     }
 
     save = calloc(sizeof(UTOX_SAVE) + 1, 1);
-    save->version = 1;
+    save->save_version = 1;
     save->scale = DEFAULT_SCALE - 1;
 
     save->enableipv6      = 1;
@@ -733,11 +733,15 @@ NEXT:
     settings.use_mini_roster        = save->use_mini_roster;
 
     settings.send_typing_status     = !save->no_typing_notifications;
+
     settings.window_width           = save->window_width;
     settings.window_height          = save->window_height;
 
+    settings.last_version           = save->utox_last_version;
+
     loaded_audio_out_device         = save->audio_device_out;
     loaded_audio_in_device          = save->audio_device_in;
+
 
     if ( save->push_to_talk ) {
         init_ptt();
@@ -747,7 +751,7 @@ NEXT:
 }
 
 void config_save(UTOX_SAVE *save) {
-    save->version                       = SAVE_VERSION;
+    save->save_version                       = SAVE_VERSION;
     save->scale                         = ui_scale - 1;
     save->disableudp                    = dropdown_udp.selected;
     save->proxyenable                   = dropdown_proxy.selected;
@@ -769,6 +773,8 @@ void config_save(UTOX_SAVE *save) {
     save->audio_device_in               = dropdown_audio_in.selected;
     save->audio_device_out              = dropdown_audio_out.selected;
     save->theme                         = theme;
+
+    save->utox_last_version             = settings.curr_version;
 
 
     memset(save->unused, 0, sizeof(save->unused));

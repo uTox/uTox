@@ -6,7 +6,8 @@
 #define VERSION       "0.8.2"
 #define VER_MAJOR     0
 #define VER_MINOR     8
-#define VER_PATCH     1
+#define VER_PATCH     2
+#define UTOX_VERSION_NUMBER 8002u /* major, minor, patch, 0 padded where needed */
 
 /* Support for large files. */
 #define _LARGEFILE_SOURCE
@@ -90,9 +91,14 @@
 /* House keeping for uTox save file. */
 #define SAVE_VERSION 3
 typedef struct {
-    uint8_t  version, scale, enableipv6, disableudp;
+    uint8_t  save_version;
+    uint8_t  scale;
+    uint8_t  enableipv6;
+    uint8_t  disableudp;
+
     uint16_t window_x, window_y, window_width, window_height;
     uint16_t proxy_port;
+
     uint8_t  proxyenable;
 
     uint8_t  logging_enabled                : 1;
@@ -113,7 +119,10 @@ typedef struct {
     uint8_t  use_mini_roster                : 1;
     uint8_t  zero                           : 6;
 
-    uint16_t unused[31];
+    uint32_t utox_last_version; // I don't like this here either,
+                                // but I'm not ready to rewrite and update this struct yet.
+
+    uint16_t unused[29];
     uint8_t  proxy_ip[0];
 } UTOX_SAVE;
 
@@ -140,6 +149,10 @@ volatile _Bool tox_thread_init,
                utox_video_thread_init;
 
 typedef struct utox_settings {
+    uint32_t curr_version;
+    uint32_t last_version;
+    _Bool    show_splash;
+
     _Bool close_to_tray;
     _Bool logging_enabled;
     _Bool ringtone_enabled;
@@ -158,9 +171,9 @@ typedef struct utox_settings {
 
     uint8_t verbose;
 
-    int     window_height;
-    int     window_width;
-    int     window_baseline;
+    uint32_t window_height;
+    uint32_t window_width;
+    uint32_t window_baseline;
 
     _Bool   window_maximized;
 } SETTINGS;
@@ -360,10 +373,6 @@ struct {
     int x, y;
 } mouse;
 
-//fonts
-//HFONT font_big, font_big2, font_med, font_med2, font_small, font_msg;
-int font_small_lineheight, font_msg_lineheight;
-
 uint16_t video_width, video_height, max_video_width, max_video_height;
 
 char proxy_address[256];
@@ -423,6 +432,9 @@ _Bool utox_remove_friend_history(uint32_t friend_number);
 /* TODO: sort everything below this line! */
 
 void parse_args(int argc, char *argv[], _Bool *theme_was_set_on_argv, int8_t *should_launch_at_startup, int8_t *set_show_window, _Bool *no_updater);
+
+void utox_init(void);
+
 
 // inserts/deletes a value into the registry to launch uTox after boot
 void launch_at_startup(int is_launch_at_startup);

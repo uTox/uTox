@@ -76,16 +76,17 @@ extern PANEL panel_root,
                     panel_friend_video,
                     panel_friend_settings,
                 panel_friend_request,
-        panel_overhead,
-            panel_profile_password,
-            panel_add_friend,
-            panel_settings_master,
-                panel_settings_subheader,
-                panel_settings_profile,
-                    panel_profile_password_settings,
-                panel_settings_net,
-                panel_settings_ui,
-                panel_settings_av;
+            panel_overhead,
+                panel_splash_page,
+                panel_profile_password,
+                panel_add_friend,
+                panel_settings_master,
+                    panel_settings_subheader,
+                    panel_settings_profile,
+                        panel_profile_password_settings,
+                    panel_settings_net,
+                    panel_settings_ui,
+                    panel_settings_av;
 
 extern PANEL messages_friend, messages_group;
 extern SCROLLABLE scrollbar_roster, scrollbar_friend, scrollbar_group;

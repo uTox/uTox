@@ -1,10 +1,35 @@
-#include "en/group.h"
-
+/******************************************************************************
+ *** English i18l Strings                                                   ***
+ ******************************************************************************/
 msgid(LANG_NATIVE_NAME)
 msgstr("English")
 
 msgid(LANG_ENGLISH_NAME)
 msgstr("ENGLISH")
+
+
+/******************************************************************************
+ *** Splash Message & Change Log                                            ***
+ ******************************************************************************/
+msgid(SPLASH_TITLE)
+msgstr("Welcome to the new uTox!")
+
+msgid(SPLASH_TEXT)
+msgstr("You have just upgraded to version 0.9.0!")
+
+msgid(CHANGE_LOG_TITLE)
+msgstr("Changes in v0.9.0")
+
+msgid(CHANGE_LOG_TEXT)
+msgstr("   Message queuing\n"
+"   Better, and colorized groupchats\n"
+"   Experimental Inline Video support\n"
+"   Mini Contact list\n"
+"   Refactored message handling\n")
+
+/******************************************************************************
+ *** Splash Message & Change Log                                            ***
+ ******************************************************************************/
 
 msgid(REQ_SENT)
 msgstr("Friend request sent. Your friend will appear online after the request is accepted.")
@@ -63,6 +88,10 @@ msgstr("Select one or more files to send.")
 msgid(SCREEN_CAPTURE_PROMPT)
 msgstr("Drag a box around the area of the screen you want to send.")
 
+
+/******************************************************************************
+ *** File Transfer Strings                                                  ***
+ ******************************************************************************/
 msgid(TRANSFER_NEW)
 msgstr("New file transfer")
 
@@ -84,22 +113,26 @@ msgstr("File transfer canceled")
 msgid(TRANSFER_COMPLETE)
 msgstr("File transfer complete")
 
+
+/******************************************************************************
+ *** Keyboard and Mouse Cursor Strings                                      ***
+ ******************************************************************************/
 msgid(CURSOR_CLICK_LEFT)
 msgstr("Left click")
 
 msgid(CURSOR_CLICK_RIGHT)
 msgstr("Right click")
 
+
+/******************************************************************************
+ *** Audio / Video Call Strings                                             ***
+ ******************************************************************************/
 msgid(START_AUDIO_CALL)
 msgstr("Start call")
 
 msgid(START_VIDEO_CALL)
 msgstr("Start video call")
 
-
-/******************************************************************************
- *** Audio / Video Call Strings                                             ***
- ******************************************************************************/
 msgid(CALL_CANCELLED)
 msgstr("Call canceled")
 
@@ -132,6 +165,27 @@ msgid(FRIEND_AUTOACCEPT)
 msgstr("Accept incoming file transfers without confirmation")
 
 
+/******************************************************************************
+ *** Group Strings                                                          ***
+ ******************************************************************************/
+msgid(GROUPCHAT_JOIN_AUDIO)
+msgstr("Join audio chat")
+
+msgid(GROUP_CREATE_TEXT)
+msgstr("Create a text group chat")
+
+msgid(GROUP_CREATE_VOICE)
+msgstr("Create a group chat with voice")
+
+msgid(CREATEGROUPCHAT)
+msgstr("Create Groupchat")
+
+msgid(REMOVE_GROUP)
+msgstr("Remove Group")
+
+msgid(LEAVE_GROUP)
+msgstr("Leave Group")
+
 
 /******************************************************************************
  *** Settings / Profile Strings                                             ***
@@ -145,6 +199,16 @@ msgstr("WARNING: µTox will automatically start encrypting with this password.")
 msgid(PROFILE_PW_NO_RECOVER)
 msgstr("There is no way to recover lost passwords.")
 
+
+
+
+
+
+/******************************************************************************
+ *** UNSORTED STRINGS                                                       ***
+ *** TODO:                                                                  ***
+ *** FIXME:                                                                 ***
+ ******************************************************************************/
 msgid(ADDFRIENDS)
 msgstr("Add New Contact")
 

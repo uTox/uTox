@@ -1187,6 +1187,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     }
     theme_load(theme);
 
+    utox_init();
+
     save->window_width  = save->window_width  < SCALE(640) ? SCALE(640) : save->window_width;
     save->window_height = save->window_height < SCALE(320) ? SCALE(320) : save->window_height;
 

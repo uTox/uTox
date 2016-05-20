@@ -4,6 +4,10 @@
 #include <getopt.h>
 
 SETTINGS settings = {
+    .curr_version           = UTOX_VERSION_NUMBER,
+    // .last_version                // included here to match the full struct
+    .show_splash            = 0,
+
     .close_to_tray          = 0,
     .logging_enabled        = 1,
     .ringtone_enabled       = 1,
@@ -16,11 +20,16 @@ SETTINGS settings = {
     .video_preview          = 0,
     .send_typing_status     = 0,
     .use_mini_roster        = 0,
+    // .portable_mode               // included here to match the full struct
+    // .inline_video                // included here to match the full struct
+    // .use_long_time_msg           // included here to match the full struct
 
     .verbose                = 1,
 
-    .window_height           = 600,
-    .window_width            = 800,
+    .window_height          = 600,
+    .window_width           = 800,
+    .window_baseline        = 0,
+    .window_maximized       = 0,
 };
 
 /* The utox_ functions contained in src/main.c are wrappers for the platform native_ functions
@@ -398,6 +407,14 @@ void parse_args(int argc, char *argv[], bool *theme_was_set_on_argv, int8_t *sho
                 break;
         }
     }
+}
+
+void utox_init(void) {
+    /* Called by the native main for every platform after loading utox setting, before showing/drawing any windows. */
+    if (settings.curr_version != settings.last_version) {
+        settings.show_splash = 1;
+    }
+        settings.show_splash = 1;
 }
 
 /** Change source of main.c if windows or android

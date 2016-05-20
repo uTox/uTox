@@ -558,6 +558,8 @@ void launch_at_startup(int should) {
     }
     theme_load(theme);
 
+    utox_init();
+
     char title_name[128];
     snprintf(title_name, 128, "%s %s (version: %s)", TITLE, SUB_TITLE, VERSION);
 
