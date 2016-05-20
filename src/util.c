@@ -219,7 +219,7 @@ int sprint_humanread_bytes(uint8_t *dest, unsigned int size, uint64_t bytes) {
     return r;
 }
 
-uint8_t utf8_len(char_t *data)
+uint8_t utf8_len(const char_t *data)
 {
     if(!(*data & 0x80)) {
         return 1;
@@ -387,7 +387,7 @@ _Bool memcmp_case(const char_t *s1, const char_t *s2, uint32_t n)
     return 0;
 }
 
-char_t* tohtml(char_t *str, uint16_t length)
+char_t* tohtml(const char_t *str, uint16_t length)
 {
     uint16_t i = 0;
     int len = 0;

@@ -167,8 +167,8 @@ void group_free(GROUPCHAT *g) {
     uint32_t i = 0;
     for (; i != g->edit_history_length; ++i) {
         free(g->edit_history[i]);
-        i++;
     }
+
     free(g->edit_history);
 
     group_reset_peerlist(g);

@@ -83,7 +83,7 @@ void friend_set_alias(FRIEND *f, char_t *alias, uint16_t length);
 void friend_sendimage(FRIEND *f, UTOX_NATIVE_IMAGE *, uint16_t width, uint16_t height, UTOX_IMAGE, size_t png_size);
 void friend_recvimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width, uint16_t height);
 
-void friend_notify_msg(FRIEND *f, uint8_t *msg, size_t msg_length);
+void friend_notify_msg(FRIEND *f, const uint8_t *msg, size_t msg_length);
 
 /* set friend online status. Returns: true if status changed, false otherwise */
 _Bool friend_set_online(FRIEND *f, _Bool online);

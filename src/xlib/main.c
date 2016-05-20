@@ -963,7 +963,7 @@ int file_unlock(FILE *file, uint64_t start, size_t length){
     }
 }
 
-void notify(char_t *title, uint16_t title_length, char_t *msg, uint16_t msg_length, FRIEND *f) {
+void notify(char_t *title, uint16_t title_length, const char_t *msg, uint16_t msg_length, FRIEND *f) {
     if (havefocus) {
         return;
     }

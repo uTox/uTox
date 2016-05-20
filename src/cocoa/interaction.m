@@ -794,7 +794,7 @@ void edit_will_deactivate(void) {
 - (void)set_identityImageHasBorder:(BOOL)arg1;
 @end
 
-void notify(char_t *title, uint16_t title_length, char_t *msg, uint16_t msg_length, FRIEND *f) {
+void notify(char_t *title, uint16_t title_length, const char_t *msg, uint16_t msg_length, FRIEND *f) {
     if ([NSUserNotification class]) {
         NSUserNotification *usernotification = [[NSUserNotification alloc] init];
         NSString *t = [[NSString alloc] initWithBytes:title length:title_length encoding:NSUTF8StringEncoding];

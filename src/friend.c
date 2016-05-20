@@ -205,8 +205,7 @@ void friend_recvimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width
     message_add_type_image(&f->msg, 0, native_image, width, height, 0);
 }
 
-void friend_notify_msg(FRIEND *f, uint8_t *msg, size_t msg_length) {
-
+void friend_notify_msg(FRIEND *f, const uint8_t *msg, size_t msg_length) {
     uint8_t title[UTOX_FRIEND_NAME_LENGTH(f) + 25];
 
     size_t title_length = snprintf((char*)title, UTOX_FRIEND_NAME_LENGTH(f) + 25, "uTox new message from %.*s", (int)UTOX_FRIEND_NAME_LENGTH(f), UTOX_FRIEND_NAME(f));

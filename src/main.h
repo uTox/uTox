@@ -422,6 +422,8 @@ _Bool utox_update_data_log(uint32_t friend_number, size_t offset, uint8_t *data,
 
 _Bool    utox_save_data_avatar(uint32_t friend_number, const uint8_t *data, size_t length);
 uint8_t *utox_load_data_avatar(uint32_t friend_number, size_t *size);
+_Bool    utox_remove_file_avatar(uint32_t friend_number);
+
 
 _Bool    utox_remove_file(const uint8_t *full_name, size_t length);
 _Bool utox_remove_friend_history(uint32_t friend_number);
@@ -442,7 +444,7 @@ void launch_at_startup(int is_launch_at_startup);
 void drawalpha(int bm, int x, int y, int width, int height, uint32_t color);
 void loadalpha(int bm, void *data, int width, int height);
 void desktopgrab(_Bool video);
-void notify(char_t *title, uint16_t title_length, char_t *msg, uint16_t msg_length, FRIEND *f);
+void notify(char_t *title, uint16_t title_length, const char_t *msg, uint16_t msg_length, FRIEND *f);
 void setscale(void);
 void setscale_fonts(void);
 
@@ -534,13 +536,6 @@ int file_unlock(FILE *file, uint64_t start, size_t length);
 
 /* OS-specific cleanup function for when edits are defocused. Commit IME state, etc. */
 void edit_will_deactivate(void);
-
-/** Creates a tray baloon popup with the message, and flashes the main window
- *
- * accepts: char_t *title, title length, char_t *msg, msg length;
- * returns void;
- */
-void notify(char_t *title, uint16_t title_length, char_t *msg, uint16_t msg_length, FRIEND *f);
 
 
 /* other */

@@ -462,15 +462,16 @@ void messages_clear_receipt(MESSAGES *m, uint32_t receipt_number) {
                     memcpy(data, &header, sizeof(header));
 
                     if (msg->disk_offset) {
-                        debug("Messages:\tUpdating message -> disk_offset is %u\n", msg->disk_offset);
+                        debug("Messages:\tUpdating message -> disk_offset is %lu\n", msg->disk_offset);
                         utox_update_data_log(m->id, msg->disk_offset, data, length);
                     } else if(m->number == 1) {
-                        debug("Messages:\tUpdating first message -> disk_offset is %u\n", msg->disk_offset);
+                        debug("Messages:\tUpdating first message -> disk_offset is %lu\n", msg->disk_offset);
                         utox_update_data_log(m->id, msg->disk_offset, data, length);
                     } else {
                         debug_error("Messages:\tUnable to update this message...\n"
                             "\t\tThis is bad, there could be a corrupt message in your chat history.\n"
-                            "\t\tmsg->disk_offset %u && m->number %u receipt_number\n", msg->disk_offset, m->number, receipt_number);
+                            "\t\tmsg->disk_offset %lu && m->number %u receipt_number %u\n",
+                            msg->disk_offset, m->number, receipt_number);
                     }
                     free(data);
 

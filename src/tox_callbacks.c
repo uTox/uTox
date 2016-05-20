@@ -174,7 +174,7 @@ static void callback_group_namelist_change(Tox *tox, int gid, int pid, uint8_t c
                 debug("Tox Group:\tERROR, can't sent a name, for non-existant Group!\n");
             }
 
-            const uint8_t name[TOX_MAX_NAME_LENGTH];
+            uint8_t name[TOX_MAX_NAME_LENGTH];
             size_t len = tox_group_peername(tox, gid, pid, name);
             len = utf8_validate(name, len);
 

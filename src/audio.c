@@ -47,6 +47,11 @@ void utox_audio_in_device_close(void) {
 }
 
 void utox_audio_in_listen(void) {
+    if (microphone_on) {
+        microphone_count++;
+        return;
+    }
+
     if (audio_in_handle) {
         if (audio_in_device == (void*)1) {
             audio_init(audio_in_handle);
@@ -64,22 +69,31 @@ void utox_audio_in_listen(void) {
     }
 
     if (audio_in_handle) {
-        microphone_on = 1;
+        microphone_on    = 1;
+        microphone_count = 1;
     } else {
-        microphone_on = 0;
+        microphone_on    = 0;
+        microphone_count = 1;
     }
 }
 
 void utox_audio_in_ignore(void) {
+    if (--microphone_count > 0 || !microphone_on) {
+        return;
+    }
+
     if (audio_in_handle) {
         if (audio_in_handle == (void*)1) {
             audio_close(audio_in_handle);
             microphone_on = 0;
+            microphone_count = 0;
             return;
         }
     alcCaptureStop(audio_in_handle);
     }
-    microphone_on = 0;
+
+    microphone_on    = 0;
+    microphone_count = 0;
 }
 
 void utox_audio_in_device_set(ALCdevice *new_device) {

@@ -414,7 +414,6 @@ void utox_init(void) {
     if (settings.curr_version != settings.last_version) {
         settings.show_splash = 1;
     }
-        settings.show_splash = 1;
 }
 
 /** Change source of main.c if windows or android
