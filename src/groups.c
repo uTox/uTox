@@ -40,7 +40,7 @@ uint32_t group_add_message(GROUPCHAT *g, int peer_id, const uint8_t *message, si
     uint8_t     *nick = peer->name;
 
     MSG_GROUP *msg = calloc(1, sizeof(*msg) + (sizeof(void*) * (length + peer->name_length)));
-    msg->author         = (g->our_peer_number == peer_id ? 1 : 0);
+    msg->our_msg        = (g->our_peer_number == peer_id ? 1 : 0);
     msg->msg_type       = m_type;
     msg->length         = length;
     msg->author_id      = peer_id;
@@ -93,7 +93,7 @@ void group_peer_del(GROUPCHAT *g, uint32_t peer_id) {
     GROUP_PEER *peer = (void*)g->peer[peer_id];
 
     if (peer) {
-        debug("Freeing peer %u, name %.*s\n", peer_id, peer->name_length, peer->name);
+        debug("Freeing peer %u, name %.*s\n", peer_id, (int)peer->name_length, peer->name);
         free(peer);
     } else {
         debug("Groupchat:\tUnable to find peer for deletion\n");
@@ -167,8 +167,8 @@ void group_free(GROUPCHAT *g) {
     uint32_t i = 0;
     for (; i != g->edit_history_length; ++i) {
         free(g->edit_history[i]);
-        i++;
     }
+
     free(g->edit_history);
 
     group_reset_peerlist(g);

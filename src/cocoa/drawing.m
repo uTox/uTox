@@ -569,3 +569,27 @@ void draw_image(const UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, ui
     CGContextDrawImage(this, rect, di);
     CFRelease(di);
 }
+
+void draw_inline_image(uint8_t *img_data, size_t size, uint16_t w, uint16_t h, int x, int y) {
+    DRAW_TARGET_CHK()
+
+    //debug("%lu %lu %lf", imgx, imgy, image->scale);
+
+    CGFloat sz = currently_drawing_into_view.frame.size.height;
+
+    CGRect rect = {
+        .origin = {
+            .x = x,
+            .y = sz - y - h,
+        },
+        .size = {
+            .width  = w,
+            .height = h,
+        }
+    };
+
+    CGContextRef this = [NSGraphicsContext currentContext].graphicsPort;
+    CGImageRef di = CGImageCreateWithImageInRect(img_data, (CGRect){0, 0, w, h});
+    CGContextDrawImage(this, rect, di);
+    CFRelease(di);
+}

@@ -76,16 +76,17 @@ extern PANEL panel_root,
                     panel_friend_video,
                     panel_friend_settings,
                 panel_friend_request,
-        panel_overhead,
-            panel_profile_password,
-            panel_add_friend,
-            panel_settings_master,
-                panel_settings_subheader,
-                panel_settings_profile,
-                    panel_profile_password_settings,
-                panel_settings_net,
-                panel_settings_ui,
-                panel_settings_av;
+            panel_overhead,
+                panel_splash_page,
+                panel_profile_password,
+                panel_add_friend,
+                panel_settings_master,
+                    panel_settings_subheader,
+                    panel_settings_profile,
+                        panel_profile_password_settings,
+                    panel_settings_net,
+                    panel_settings_ui,
+                    panel_settings_av;
 
 extern PANEL messages_friend, messages_group;
 extern SCROLLABLE scrollbar_roster, scrollbar_friend, scrollbar_group;
@@ -136,7 +137,7 @@ char search_data[128];
 
 /* metrics
  */
-float ui_scale;
+double ui_scale;
 
 /* These are the new defines to help align UI elements, the new ones must use a _top/_bottom/ or _left/_right or
  * _width/_height postfix, and should be used to replace the originals whenever possible.
@@ -193,9 +194,9 @@ float ui_scale;
 
 
 /* Main box/Chat box size settings */
-#define CHAT_BOX_TOP                    (-UTOX_SCALE(26 )) /* size of the bottom message box */
-#define MAIN_TOP_FRAME_THIN             ( UTOX_SCALE(15 ))
-#define MAIN_TOP_FRAME_THICK            ( UTOX_SCALE(30 ))
+#define CHAT_BOX_TOP                    ( SCALE(-52)) /* size of the bottom message box */
+#define MAIN_TOP_FRAME_THIN             ( SCALE(30) )
+#define MAIN_TOP_FRAME_THICK            ( SCALE(60) )
 
 /* Global UI size settings... */
 #define SCROLL_WIDTH                    (SCALE( 8)) //must be divisible by 2

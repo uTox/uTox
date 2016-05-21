@@ -18,6 +18,13 @@
     #include <filter_audio.h>
 #endif
 
+enum {
+    NOTIFY_TONE_NONE,
+    NOTIFY_TONE_FRIEND_ONLINE,
+    NOTIFY_TONE_FRIEND_OFFLINE,
+    NOTIFY_TONE_FRIEND_NEW_MSG,
+};
+
 #define UTOX_DEFAULT_BITRATE_A      32
 #define UTOX_DEFAULT_FRAME_A        20
 #define UTOX_DEFAULT_SAMPLE_RATE_A  48000

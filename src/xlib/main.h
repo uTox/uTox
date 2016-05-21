@@ -38,7 +38,17 @@
 
 #include <errno.h>
 
-#define debug(...) printf(__VA_ARGS__)
+#ifdef HAVE_DBUS
+#include <dbus/dbus.h>
+#include "dbus.h"
+#endif
+
+
+#define debug(...)          ((settings.verbose >= VERB_TEENAGE_GIRL     ) ? printf(__VA_ARGS__) : (0))
+#define debug_info(...)     ((settings.verbose >= VERB_NEW_ADHD_MEDS    ) ? printf(__VA_ARGS__) : (0))
+#define debug_notice(...)   ((settings.verbose >= VERB_CONCERNED_PARENT ) ? printf(__VA_ARGS__) : (0))
+/* debug_warning needed! */
+#define debug_error(...)    ((settings.verbose >= VERB_JANICE_ACCOUNTING) ? printf(__VA_ARGS__) : (0))
 
 #define RGB(r, g, b) (((r) << 16) | ((g) << 8) | (b))
 
@@ -120,10 +130,6 @@ extern int utox_v4l_fd;
 
 /* dynamiclly load libgtk */
 void *libgtk;
-
-
-/* pointers to dynamically loaded libs */
-_Bool utox_portable;
 
 struct {
     int len;

@@ -10,7 +10,7 @@ typedef struct group_peer {
 } GROUP_PEER;
 
 typedef struct groupchat {
-    _Bool audio_calling, notify;
+    _Bool audio_calling, unread_msg;
     uint32_t our_peer_number;
 
     uint8_t av_group;

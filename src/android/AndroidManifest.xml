@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-        package="tox.utox"
-        android:versionCode="1"
-        android:versionName="1.0">
+        package="tox.client.utox"
+        android:versionName="v0.8.2"
+        android:versionCode="2"> <!-- versionCode must int. inc for patches -->
 
     <!-- This is the platform API where NativeActivity was introduced. -->
     <uses-sdk android:minSdkVersion="12" />
@@ -22,7 +22,7 @@
         <activity android:name="android.app.NativeActivity"
                 android:label="μTox"
                 android:configChanges="orientation"
-                android:screenOrientation="sensorLandscape"
+                android:screenOrientation="sensor"
                 android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
             <!-- Tell NativeActivity the name of or .so -->
             <meta-data android:name="android.app.lib_name"

@@ -10,12 +10,12 @@
  *
  *  returns: 1 on successful loading, 0 on failure
  */
-_Bool init_avatar(AVATAR *avatar, const char_t *id, uint8_t *png_data_out, uint32_t *png_size_out) {
+_Bool init_avatar(AVATAR *avatar, uint32_t friend_number, uint8_t *png_data_out, uint32_t *png_size_out) {
     unset_avatar(avatar);
-    uint8_t avatar_data[UTOX_AVATAR_MAX_DATA_LENGTH];
-    uint32_t size;
-    if (load_avatar(id, avatar_data, &size)) {
-        if (set_avatar(avatar, avatar_data, size)) {
+    uint8_t *avatar_data = NULL;
+    size_t size = 0;
+    if (load_avatar(friend_number, &avatar_data, &size)) {
+        if (set_avatar(friend_number, avatar_data, size)) {
             if (png_data_out) {
                 memcpy(png_data_out, avatar_data, size);
             }
@@ -29,20 +29,8 @@ _Bool init_avatar(AVATAR *avatar, const char_t *id, uint8_t *png_data_out, uint3
     return 0;
 }
 
-/* gets avatar filepath for given client id string and stores it in dest,
- * returns number of chars written */
-int get_avatar_location(char_t *dest, const char_t *id)
-{
-    char_t *p = dest + datapath_subdir(dest, AVATAR_DIRECTORY);
-    memcpy((char *)p, id, TOX_PUBLIC_KEY_SIZE * 2); p += TOX_PUBLIC_KEY_SIZE * 2;
-    strcpy((char *)p, ".png"); p += sizeof(".png") - 1;
-
-    return p - dest;
-}
-
 /* frees the image of an avatar, does nothing if image is NULL */
-void avatar_free_image(AVATAR *avatar)
-{
+static void avatar_free_image(AVATAR *avatar) {
     if (avatar->image) {
         image_free(avatar->image);
         avatar->image = NULL;
@@ -50,99 +38,82 @@ void avatar_free_image(AVATAR *avatar)
 }
 
 
-int load_avatar(const char_t *id, uint8_t *dest, uint32_t *size_out)
-{
-    char_t path[UTOX_FILE_NAME_LENGTH];
-    int size;
+int load_avatar(uint32_t friend_number, uint8_t **dest, size_t *size_out) {
+    size_t size = 0;
 
-    get_avatar_location(path, id);
-
-    int width, height, bpp;
-    uint8_t *img = stbi_load((const char*)path, &width, &height, &bpp, 0);
+    uint8_t *img = utox_load_data_avatar(friend_number, &size);
     if (!img) {
+        debug_notice("Avatars:\tUnable to get saved avatar from disk for friend %u\n", friend_number);
         return 0;
     }
-    uint8_t *avatar_data = stbi_write_png_to_mem(img, 0, width, height, bpp, &size);
-    free(img);
 
     if (size > UTOX_AVATAR_MAX_DATA_LENGTH) {
-        free(avatar_data);
-        debug("Avatars:\t saved avatar file(%s) too large for tox\n", path);
+        free(img);
+        debug_error("Avatars:\tSaved avatar file for friend (%u) too large for tox\n", friend_number);
         return 0;
     }
 
-    memcpy(dest, avatar_data, size);
-    free(avatar_data);
+    *dest = img;
+
+    // free(avatar_data);
+
     if (size_out) {
         *size_out = size;
     }
     return 1;
 }
 
-int save_avatar(const char_t *id, const uint8_t *data, uint32_t size)
-{
-    char_t path[UTOX_FILE_NAME_LENGTH];
-
-    get_avatar_location(path, id);
-
-    FILE *file = fopen((char*)path, "wb");
-    if (file) {
-        fwrite(data, size, 1, file);
-        flush_file(file);
-        fclose(file);
-        return 1;
-    } else {
-        debug("Avatars:\terror opening avatar file (%s) for writing\n", (char *)path);
-        return 0;
-    }
+_Bool save_avatar(uint32_t friend_number, const uint8_t *data, uint32_t size) {
+    return utox_save_data_avatar(friend_number, data, size);
 }
 
-int delete_saved_avatar(const char_t *id)
-{
-    char_t path[UTOX_FILE_NAME_LENGTH];
-
-    get_avatar_location(path, id);
-
-    return remove((char *)path);
+_Bool delete_saved_avatar(uint32_t friend_number) {
+    return utox_remove_file_avatar(friend_number);
 }
 
 
-int set_avatar(AVATAR *avatar, const uint8_t *data, uint32_t size)
-{
+int set_avatar(uint32_t friend_number, const uint8_t *data, uint32_t size) {
     if (size > UTOX_AVATAR_MAX_DATA_LENGTH) {
         debug("Avatars:\t avatar too large\n");
         return 0;
     }
 
     uint16_t w, h;
-    UTOX_NATIVE_IMAGE *image = decode_image((UTOX_IMAGE)data, size, &w, &h, 1);
+    UTOX_NATIVE_IMAGE *image = decode_image_rgb((UTOX_IMAGE)data, size, &w, &h, 1);
     if(!UTOX_NATIVE_IMAGE_IS_VALID(image)) {
         debug("Avatars:\t avatar is invalid\n");
         return 0;
     } else {
+        if (friend_number == -1) {
+            avatar_free_image(&self.avatar);
+            self.avatar.image  = image;
+            self.avatar.width  = w;
+            self.avatar.height = h;
+            self.avatar.format = UTOX_AVATAR_FORMAT_PNG;
+            tox_hash(self.avatar.hash, data, size);
+        } else {
+            FRIEND *f = &friend[friend_number];
+            avatar_free_image(&f->avatar);
 
-        avatar_free_image(avatar);
-
-        avatar->image = image;
-        avatar->width = w;
-        avatar->height = h;
-        avatar->format = UTOX_AVATAR_FORMAT_PNG;
-        tox_hash(avatar->hash, data, size);
+            f->avatar.image  = image;
+            f->avatar.width  = w;
+            f->avatar.height = h;
+            f->avatar.format = UTOX_AVATAR_FORMAT_PNG;
+            tox_hash(f->avatar.hash, data, size);
+        }
 
         return 1;
     }
 }
 
-void unset_avatar(AVATAR *avatar)
-{
+void unset_avatar(AVATAR *avatar) {
     avatar->format = UTOX_AVATAR_FORMAT_NONE;
     avatar_free_image(avatar);
 }
 
 /* sets self avatar, see self_set_and_save_avatar */
-int self_set_avatar(const uint8_t *data, uint32_t size)
-{
-    if (!set_avatar(&self.avatar, data, size)) {
+int self_set_avatar(const uint8_t *data, uint32_t size) {
+    if (!set_avatar(-1, data, size)) {
         return 0;
     }
 
@@ -155,21 +126,16 @@ int self_set_avatar(const uint8_t *data, uint32_t size)
 int self_set_and_save_avatar(const uint8_t *data, uint32_t size)
 {
     if (self_set_avatar(data, size)) {
-        uint8_t hex_id[TOX_FRIEND_ADDRESS_SIZE * 2];
-        id_to_string(hex_id, self.id_binary);
-        save_avatar(hex_id, data, size);
+        save_avatar(-1, data, size);
         return 1;
     } else {
         return 0;
     }
 }
 
-void self_remove_avatar()
-{
+void self_remove_avatar(void) {
     unset_avatar(&self.avatar);
-    uint8_t hex_id[TOX_FRIEND_ADDRESS_SIZE * 2];
-    id_to_string(hex_id, self.id_binary);
-    delete_saved_avatar(hex_id);
+    delete_saved_avatar(-1);
     postmessage_toxcore(TOX_AVATAR_UNSET, 0, 0, NULL);
 }
 
@@ -199,7 +165,7 @@ int utox_avatar_update_friends(Tox *tox){
 void utox_incoming_avatar(uint32_t friend_number, uint8_t *avatar, size_t size){
     // save avatar and hash to disk
 
-    if(size <= 0){
+    if (size == 0){
         postmessage(FRIEND_AVATAR_UNSET, friend_number, 0, NULL);
     } else {
         postmessage(FRIEND_AVATAR_SET, friend_number, size, avatar);

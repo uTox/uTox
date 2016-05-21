@@ -794,7 +794,7 @@ void edit_will_deactivate(void) {
 - (void)set_identityImageHasBorder:(BOOL)arg1;
 @end
 
-void notify(char_t *title, uint16_t title_length, char_t *msg, uint16_t msg_length, FRIEND *f) {
+void notify(char_t *title, uint16_t title_length, const char_t *msg, uint16_t msg_length, FRIEND *f) {
     if ([NSUserNotification class]) {
         NSUserNotification *usernotification = [[NSUserNotification alloc] init];
         NSString *t = [[NSString alloc] initWithBytes:title length:title_length encoding:NSUTF8StringEncoding];
@@ -847,8 +847,8 @@ void update_tray(void) {
 
 void native_select_dir_ft(uint32_t fid, MSG_FILE *file) {
     NSSavePanel *picker = [NSSavePanel savePanel];
-    NSString *fname = [[NSString alloc] initWithBytesNoCopy:file->name length:file->name_length encoding:NSUTF8StringEncoding freeWhenDone:NO];
-    picker.message = [NSString stringWithFormat:NSSTRING_FROM_LOCALIZED(WHERE_TO_SAVE_FILE_PROMPT), file->name_length, file->name];
+    NSString *fname = [[NSString alloc] initWithBytesNoCopy:file->file_name length:file->name_length encoding:NSUTF8StringEncoding freeWhenDone:NO];
+    picker.message = [NSString stringWithFormat:NSSTRING_FROM_LOCALIZED(WHERE_TO_SAVE_FILE_PROMPT), file->name_length, file->file_name];
     picker.nameFieldStringValue = fname;
     [fname release];
     int ret = [picker runModal];
@@ -856,7 +856,7 @@ void native_select_dir_ft(uint32_t fid, MSG_FILE *file) {
     if (ret == NSFileHandlingPanelOKButton) {
         NSURL *destination = picker.URL;
         // FIXME: might be leaking
-        postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->filenumber, strdup(destination.path.UTF8String));
+        postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->file->file_number, strdup(destination.path.UTF8String));
     }
 }
 
@@ -873,8 +873,8 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
 //@"Where do you want to save \"%.*s\"?"
 void savefiledata(MSG_FILE *file) {
     NSSavePanel *picker = [NSSavePanel savePanel];
-    NSString *fname = [[NSString alloc] initWithBytes:file->name length:file->name_length encoding:NSUTF8StringEncoding];
-    picker.message = [NSString stringWithFormat:NSSTRING_FROM_LOCALIZED(WHERE_TO_SAVE_FILE_PROMPT), file->name_length, file->name];
+    NSString *fname = [[NSString alloc] initWithBytes:file->file_name length:file->name_length encoding:NSUTF8StringEncoding];
+    picker.message = [NSString stringWithFormat:NSSTRING_FROM_LOCALIZED(WHERE_TO_SAVE_FILE_PROMPT), file->name_length, file->file_name];
     picker.nameFieldStringValue = fname;
     [fname release];
     int ret = [picker runModal];

@@ -148,7 +148,7 @@ void desktopgrab(_Bool video) {
 
 static uint16_t video_x, video_y;
 
-_Bool video_init(void *handle) {
+_Bool native_video_init(void *handle) {
     if(isdesktop(handle)) {
         utox_v4l_fd = -1;
 
@@ -194,7 +194,7 @@ _Bool video_init(void *handle) {
     return v4l_init(handle);
 }
 
-void video_close(void *handle) {
+void native_video_close(void *handle) {
     if(isdesktop(handle)) {
         XShmDetach(deskdisplay, &shminfo);
         return;
@@ -203,7 +203,7 @@ void video_close(void *handle) {
     v4l_close();
 }
 
-_Bool video_startread(void) {
+_Bool native_video_startread(void) {
     if(utox_v4l_fd == -1) {
         return 1;
     }
@@ -211,7 +211,7 @@ _Bool video_startread(void) {
     return v4l_startread();
 }
 
-_Bool video_endread(void) {
+_Bool native_video_endread(void) {
     if(utox_v4l_fd == -1) {
         return 1;
     }
@@ -219,7 +219,7 @@ _Bool video_endread(void) {
     return v4l_endread();
 }
 
-int video_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, uint16_t height) {
+int native_video_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, uint16_t height) {
     if(utox_v4l_fd == -1) {
         static uint64_t lasttime;
         uint64_t t = get_time();

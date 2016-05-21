@@ -133,8 +133,8 @@ _Bool check_ptt_key(void){
         }
     }
     /* Couldn't access the keyboard directly, and XQuery failed, this is really bad! */
-    debug("Unable to access keyboard, you need to read the manual on how to enable utox to\nhave access to your key"
-          "board.\nDisable push to talk to suppress this message.\n");
+    debug_error("Unable to access keyboard, you need to read the manual on how to enable utox to\nhave access to your "
+                "keyboard.\nDisable push to talk to suppress this message.\n");
     return 0;
 
 }
@@ -183,143 +183,6 @@ void image_set_filter(UTOX_NATIVE_IMAGE *image, uint8_t filter)
     if (image->alpha) {
         XRenderSetPictureFilter(display, image->alpha, xfilter, NULL, 0);
     }
-}
-
-void draw_image(const UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t imgx, uint32_t imgy)
-{
-    XRenderComposite(display, PictOpOver, image->rgb, image->alpha, renderpic, imgx, imgy, imgx, imgy, x, y, width, height);
-}
-
-void drawalpha(int bm, int x, int y, int width, int height, uint32_t color)
-{
-    XRenderColor xrcolor = {
-        .red = ((color >> 8) & 0xFF00) | 0x80,
-        .green = ((color) & 0xFF00) | 0x80,
-        .blue = ((color << 8) & 0xFF00) | 0x80,
-        .alpha = 0xFFFF
-    };
-
-    Picture src = XRenderCreateSolidFill(display, &xrcolor);
-
-    XRenderComposite(display, PictOpOver, src, bitmap[bm], renderpic, 0, 0, 0, 0, x, y, width, height);
-
-    XRenderFreePicture(display, src);
-}
-
-static int _drawtext(int x, int xmax, int y, char_t *str, uint16_t length)
-{
-    GLYPH *g;
-    uint8_t len;
-    uint32_t ch;
-    while(length) {
-        len = utf8_len_read(str, &ch);
-        str += len;
-        length -= len;
-
-        g = font_getglyph(sfont, ch);
-        if(g) {
-            if(x + g->xadvance + UTOX_SCALE(5) > xmax && length) {
-                return -x;
-            }
-
-            if(g->pic) {
-                XRenderComposite(display, PictOpOver, colorpic, g->pic, renderpic, 0, 0, 0, 0, x + g->x, y + g->y, g->width, g->height);
-            }
-            x += g->xadvance;
-        }
-    }
-
-    return x;
-}
-
-#include "../shared/freetype-text.c"
-
-void draw_rect_frame(int x, int y, int width, int height, uint32_t color) {
-    XSetForeground(display, gc, color);
-    XDrawRectangle(display, drawbuf, gc, x, y, width - 1, height - 1);
-}
-
-void drawrect(int x, int y, int right, int bottom, uint32_t color)
-{
-    XSetForeground(display, gc, color);
-    XFillRectangle(display, drawbuf, gc, x, y, right - x, bottom - y);
-}
-
-void draw_rect_fill(int x, int y, int width, int height, uint32_t color) {
-    XSetForeground(display, gc, color);
-    XFillRectangle(display, drawbuf, gc, x, y, width, height);
-}
-
-void drawhline(int x, int y, int x2, uint32_t color)
-{
-    XSetForeground(display, gc, color);
-    XDrawLine(display, drawbuf, gc, x, y, x2, y);
-}
-
-void drawvline(int x, int y, int y2, uint32_t color)
-{
-    XSetForeground(display, gc, color);
-    XDrawLine(display, drawbuf, gc, x, y, x, y2);
-}
-
-uint32_t setcolor(uint32_t color)
-{
-    XRenderColor xrcolor;
-    xrcolor.red = ((color >> 8) & 0xFF00) | 0x80;
-    xrcolor.green = ((color) & 0xFF00) | 0x80;
-    xrcolor.blue = ((color << 8) & 0xFF00) | 0x80;
-    xrcolor.alpha = 0xFFFF;
-
-    XRenderFreePicture(display, colorpic);
-    colorpic = XRenderCreateSolidFill(display, &xrcolor);
-
-    uint32_t old = scolor;
-    scolor = color;
-    //xftcolor.pixel = color;
-    XSetForeground(display, gc, color);
-    return old;
-}
-
-static XRectangle clip[16];
-static int clipk;
-
-void pushclip(int left, int top, int width, int height)
-{
-    if(!clipk) {
-        //XSetClipMask(display, gc, drawbuf);
-    }
-
-    XRectangle *r = &clip[clipk++];
-    r->x = left;
-    r->y = top;
-    r->width = width;
-    r->height = height;
-
-    XSetClipRectangles(display, gc, 0, 0, r, 1, Unsorted);
-    XRenderSetPictureClipRectangles(display, renderpic, 0, 0, r, 1);
-}
-
-void popclip(void)
-{
-    clipk--;
-    if(!clipk) {
-        XSetClipMask(display, gc, None);
-
-        XRenderPictureAttributes pa;
-        pa.clip_mask = None;
-        XRenderChangePicture(display, renderpic, CPClipMask, &pa);
-        return;
-    }
-
-    XRectangle *r = &clip[clipk - 1];
-
-    XSetClipRectangles(display, gc, 0, 0, r, 1, Unsorted);
-    XRenderSetPictureClipRectangles(display, renderpic, 0, 0, r, 1);
-}
-
-void enddraw(int x, int y, int width, int height)
-{
-    XCopyArea(display, drawbuf, window, gc, x, y, width, height, x, y);
 }
 
 void thread(void func(void*), void *args)
@@ -374,7 +237,7 @@ void openfileavatar(void)
 
 int datapath(uint8_t *dest)
 {
-    if (utox_portable) {
+    if (settings.portable_mode) {
         int l = sprintf((char*)dest, "./tox");
         mkdir((char*)dest, 0700);
         dest[l++] = '/';
@@ -390,25 +253,14 @@ int datapath(uint8_t *dest)
     }
 }
 
-int datapath_subdir(uint8_t *dest, const char *subdir)
-{
-    int l = datapath(dest);
-    l += sprintf((char*)(dest+l), "%s", subdir);
-    mkdir((char*)dest, 0700);
-    dest[l++] = '/';
-
-    return l;
-}
-
-/** Takes data from µTox and saves it, just how the OS likes it saved!
- *
- * Returns 1 on failure. Used to set save_needed in tox thread */
-_Bool native_save_data(const uint8_t *name, size_t name_length, const uint8_t *data, size_t length, _Bool append) {
+/** Takes data from µTox and saves it, just how the OS likes it saved! */
+size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *data, size_t length, _Bool append) {
     uint8_t path[UTOX_FILE_NAME_LENGTH];
     uint8_t atomic_path[UTOX_FILE_NAME_LENGTH];
     FILE *file;
+    size_t offset = 0;
 
-    if (utox_portable) {
+    if (settings.portable_mode) {
         snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "./tox/");
     } else {
         snprintf((char*)path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));
@@ -431,46 +283,27 @@ _Bool native_save_data(const uint8_t *name, size_t name_length, const uint8_t *d
     }
 
     if (file) {
+        offset = ftello(file);
         fwrite(data, length, 1, file);
         fflush(file);
         fclose(file);
 
         if (append) {
-            return 0;
+            return offset;
         }
 
         if (rename((const char*)atomic_path, (const char*)path)) {
             /* Consider backing up this file instead of overwriting it. */
             debug("NATIVE:\t%sUnable to move file!\n", atomic_path);
-            return 1;
+            return 0;
         }
-        return 0;
+        return 1;
     } else {
         debug("NATIVE:\tUnable to open %s to write save\n", path);
-        return 1;
+        return 0;
     }
 
-    return 1;
-}
-
-_Bool native_save_data_tox(uint8_t *data, size_t length){
-    uint8_t name[] = "tox_save.tox";
-    return native_save_data(name, strlen((const char*)name), data, length, 0);
-}
-
-_Bool native_save_data_utox(UTOX_SAVE *data, size_t length){
-    uint8_t name[] = "utox_save";
-    return native_save_data(name, strlen((const char*)name), (const uint8_t*)data, length, 0);
-}
-
-_Bool native_save_data_log(uint32_t friend_number, uint8_t *data, size_t length) {
-    FRIEND *f = &friend[friend_number];
-    uint8_t hex[TOX_PUBLIC_KEY_SIZE * 2];
-    uint8_t name[TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".new.txt")];
-    cid_to_string(hex, f->cid);
-    snprintf((char*)name, TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".new.txt"), "%.*s.new.txt", TOX_PUBLIC_KEY_SIZE * 2, (char*)hex);
-
-    return native_save_data(name, strlen((const char*)name), (const uint8_t*)data, length, 1);
+    return 0;
 }
 
 /** Takes data from µTox and loads it up! */
@@ -478,7 +311,7 @@ uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_s
     uint8_t path[UTOX_FILE_NAME_LENGTH];
     uint8_t *data;
 
-    if (utox_portable) {
+    if (settings.portable_mode) {
         snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "./tox/");
     } else {
         snprintf((char*)path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));
@@ -525,31 +358,6 @@ uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_s
     return data;
 }
 
-uint8_t *native_load_data_tox(size_t *size){
-    uint8_t name[][20] = { "tox_save.tox",
-                           "tox_save.tox.atomic",
-                           "tox_save.tmp",
-                           "tox_save"
-    };
-
-    uint8_t *data;
-
-    for (int i = 0; i < 4; i++) {
-        data = native_load_data(name[i], strlen((const char*)name[i]), size);
-        if (data) {
-            return data;
-        } else {
-            debug("NATIVE:\tUnable to load %s\n", name[i]);
-        }
-    }
-    return NULL;
-}
-
-UTOX_SAVE *native_load_data_utox(void){
-    uint8_t name[] = "utox_save";
-    return (UTOX_SAVE*)native_load_data(name, strlen((const char*)name), NULL);
-}
-
 /** native_load_data_log
  *
  *  reads records from the log file of a friend
@@ -557,20 +365,20 @@ UTOX_SAVE *native_load_data_utox(void){
  * returns each MSG in the order they were stored, to a max of `count`
  * after skipping `skip` records
  */
-uint8_t **native_load_data_log(uint32_t friend_number, size_t *size, uint32_t count, uint32_t skip) {
+FILE *native_load_data_logfile(uint32_t friend_number) {
     FRIEND *f = &friend[friend_number];
-    uint8_t hex[TOX_PUBLIC_KEY_SIZE * 2];
-    uint8_t path[UTOX_FILE_NAME_LENGTH];
+    uint8_t hex[TOX_PUBLIC_KEY_SIZE * 2] = {0};
+    uint8_t path[UTOX_FILE_NAME_LENGTH]  = {0};
 
     cid_to_string(hex, f->cid);
 
-    if (utox_portable) {
+    if (settings.portable_mode) {
         snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "./tox/");
     } else {
         snprintf((char*)path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));
     }
 
-    if (strlen((const char*)path) + sizeof(hex) >= UTOX_FILE_NAME_LENGTH){
+    if (strlen((const char*)path) + sizeof(hex) >= UTOX_FILE_NAME_LENGTH) {
         debug("NATIVE:\tLoad directory name too long\n");
         return 0;
     } else {
@@ -579,85 +387,41 @@ uint8_t **native_load_data_log(uint32_t friend_number, size_t *size, uint32_t co
     }
 
 
-    FILE *file = fopen((const char*)path, "rb");
+    FILE *file = fopen((const char*)path, "rb+");
     if (!file) {
-        //debug("NATIVE:\tUnable to open/read %s\n", path);
-        if (size) { *size = 0; }
         return NULL;
     }
 
-    LOG_FILE_MSG_HEADER header;
-    size_t records_count = 0;
-
-    while (1 == fread(&header, sizeof(header), 1, file)) {
-        fseeko(file, header.author_length + header.msg_length + 1, SEEK_CUR);
-        records_count++;
-    }
-
-
-    if (ferror(file) || !feof(file)) {
-        // TODO: consider removing or truncating the log file.
-        // If !feof() this means that the file has an incomplete record,
-        // which would prevent it from loading forever, even though
-        // new records will keep being appended as usual.
-        debug("Log read error (%s)\n", path);
-        fclose(file);
-        if (size) { *size = 0; }
-        return NULL;
-    }
-    rewind(file);
-
-    if (skip >= records_count) {
-        debug("Native log read:\tError, skipped all records\n");
-        fclose(file);
-        if (size) { *size = 0; }
-        return NULL;
-    }
-
-    if (count > (records_count - skip)) {
-        count = records_count - skip;
-    }
-
-    uint8_t **data = calloc(1, sizeof(*data) * count + 1);
-    size_t start_at = records_count - count - skip;
-    size_t actual_count = 0;
-
-    while (1 == fread(&header, sizeof(header), 1, file)) {
-        if (start_at) {
-            fseeko(file, header.author_length, SEEK_CUR);
-            fseeko(file, header.msg_length, SEEK_CUR);
-            fseeko(file, 1, SEEK_CUR); /* newline char */
-            start_at--;
-            continue;
-        }
-
-        if (count) {
-            /* we have to skip the author name for now, it's left here for group chats support in the future */
-            fseeko(file, header.author_length, SEEK_CUR);
-            MSG_TEXT *msg   = calloc(1, sizeof(MSG_TEXT) + header.msg_length);
-            msg->author     = header.author;
-            msg->length     = header.msg_length;
-            msg->time       = header.time;
-            msg->msg_type   = header.msg_type;
-
-            if(1 != fread(msg->msg, msg->length, 1, file)) {
-                debug("Native log read:\tError,reading this record... stopping\n");
-                break;
-            }
-            msg->length = utf8_validate(msg->msg, msg->length);
-            *data++ = (void*)msg;
-            count--;
-            actual_count++;
-            fseeko(file, 1, SEEK_CUR); /* seek an extra \n char */
-        }
-    }
-
-    fclose(file);
-
-    if (size) { *size = actual_count; }
-    return data - actual_count;
+    return file;
 }
 
+_Bool native_remove_file(const uint8_t *name, size_t length) {
+    uint8_t path[UTOX_FILE_NAME_LENGTH]  = {0};
+
+    if (settings.portable_mode) {
+        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "./tox/");
+    } else {
+        snprintf((char*)path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));
+    }
+
+
+    if (strlen((const char*)path) + length >= UTOX_FILE_NAME_LENGTH) {
+        debug("NATIVE:\tFile/directory name too long, unable to remove\n");
+        return 0;
+    } else {
+        snprintf((char*)path + strlen((const char*)path), UTOX_FILE_NAME_LENGTH - strlen((const char*)path),
+                 "%.*s", (int)length, (char*)name);
+    }
+
+    if (remove((const char*)path)) {
+        debug_error("NATIVE:\tUnable to delete file!\n\t\t%s\n", path);
+        return 0;
+    } else {
+        debug_info("NATIVE:\tFile deleted!\n");
+        debug("NATIVE:\t\t%s\n", path);
+    }
+    return 1;
+}
 
 void native_select_dir_ft(uint32_t fid, MSG_FILE *file)
 {
@@ -666,10 +430,10 @@ void native_select_dir_ft(uint32_t fid, MSG_FILE *file)
     } else {
         //fall back to working dir
         char *path = malloc(file->name_length + 1);
-        memcpy(path, file->name, file->name_length);
+        memcpy(path, file->file_name, file->name_length);
         path[file->name_length] = 0;
 
-        postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->filenumber, path);
+        postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->file->file_number, path);
     }
 }
 
@@ -745,7 +509,7 @@ void draw_tray_icon(void){
     uint8_t *icon_data = (uint8_t*)&_binary_icons_utox_128x128_png_start;
     size_t  icon_size  = (size_t)&_binary_icons_utox_128x128_png_size;
 
-    UTOX_NATIVE_IMAGE *icon = decode_image(icon_data, icon_size, &width, &height, 1);
+    UTOX_NATIVE_IMAGE *icon = decode_image_rgb(icon_data, icon_size, &width, &height, 1);
     if(UTOX_NATIVE_IMAGE_IS_VALID(icon)) {
         /* Get tray window size */
         int32_t x_r = 0, y_r = 0;
@@ -883,11 +647,11 @@ void copy(int value)
 }
 
 int hold_x11s_hand(Display *d, XErrorEvent *event) {
-    debug("X11 err:\tX11 tried to kill itself, so I hit him with a shovel.\n");
-    debug("    err:\tResource: %lu || Serial %lu\n", event->resourceid, event->serial);
-    debug("    err:\tError code: %u || Request: %u || Minor: %u \n",
+    debug_error("X11 err:\tX11 tried to kill itself, so I hit him with a shovel.\n");
+    debug_error("    err:\tResource: %lu || Serial %lu\n", event->resourceid, event->serial);
+    debug_error("    err:\tError code: %u || Request: %u || Minor: %u \n",
           event->error_code, event->request_code, event->minor_code);
-    debug("uTox:\tThis would be a great time to submit a bug!\n");
+    debug_error("uTox:\tThis would be a great time to submit a bug!\n");
 
     return 0;
 }
@@ -987,7 +751,7 @@ void pastedata(void *data, Atom type, int len, _Bool select)
    if (type == XA_PNG_IMG) {
         uint16_t width, height;
 
-        UTOX_NATIVE_IMAGE *native_image = decode_image(data, size, &width, &height, 0);
+        UTOX_NATIVE_IMAGE *native_image = decode_image_rgb(data, size, &width, &height, 0);
         if (UTOX_NATIVE_IMAGE_IS_VALID(native_image)) {
             debug("Pasted image: %dx%d\n", width, height);
 
@@ -1055,7 +819,7 @@ static Picture generate_alpha_bitmask(const uint8_t *rgba_data, uint16_t width, 
     return picture;
 }
 
-UTOX_NATIVE_IMAGE *decode_image(const UTOX_IMAGE data, size_t size, uint16_t *w, uint16_t *h, _Bool keep_alpha)
+UTOX_NATIVE_IMAGE *decode_image_rgb(const UTOX_IMAGE data, size_t size, uint16_t *w, uint16_t *h, _Bool keep_alpha)
 {
     int width, height, bpp;
     uint8_t *rgba_data = stbi_load_from_memory(data, size, &width, &height, &bpp, 4);
@@ -1199,8 +963,8 @@ int file_unlock(FILE *file, uint64_t start, size_t length){
     }
 }
 
-void notify(char_t *title, uint16_t title_length, char_t *msg, uint16_t msg_length, FRIEND *f) {
-    if(havefocus) {
+void notify(char_t *title, uint16_t title_length, const char_t *msg, uint16_t msg_length, FRIEND *f) {
+    if (havefocus) {
         return;
     }
 
@@ -1211,10 +975,11 @@ void notify(char_t *title, uint16_t title_length, char_t *msg, uint16_t msg_leng
     char_t *str = tohtml(msg, msg_length);
 
     uint8_t *f_cid = NULL;
-    if(friend_has_avatar(f)) {
+    if (friend_has_avatar(f)) {
         f_cid = f->cid;
     }
 
+    /* Todo handle this warning! */
     dbus_notify((char*)title, (char*)str, (uint8_t*)f_cid);
 
     free(str);
@@ -1230,28 +995,6 @@ void notify(char_t *title, uint16_t title_length, char_t *msg, uint16_t msg_leng
 void showkeyboard(_Bool show) {}
 
 void edit_will_deactivate(void) {}
-
-void redraw(void) {
-    _redraw = 1;
-}
-
-void force_redraw(void) {
-    XEvent ev = {
-        .xclient = {
-            .type = ClientMessage,
-            .display = display,
-            .window = window,
-            .message_type = XRedraw,
-            .format = 8,
-            .data = {
-                .s = {0,0}
-            }
-        }
-    };
-    _redraw = 1;
-    XSendEvent(display, window, 0, 0, &ev);
-    XFlush(display);
-}
 
 void update_tray(void) {}
 
@@ -1283,20 +1026,24 @@ int main(int argc, char *argv[]) {
     int8_t set_show_window;
     bool no_updater;
 
+    #ifdef HAVE_DBUS
+        debug_info("Compiled with dbus support!\n");
+    #endif
+
     parse_args(argc, argv, &theme_was_set_on_argv, &should_launch_at_startup, &set_show_window, &no_updater);
 
     if (should_launch_at_startup == 1 || should_launch_at_startup == -1) {
-        debug("Start on boot not supported on this OS, please use your distro suggested method!\n");
+        debug_notice("Start on boot not supported on this OS, please use your distro suggested method!\n");
     }
 
     if (no_updater == true) {
-        debug("Disabling the updater is not supported on this OS. Updates are managed by your distro's package manager.\n");
+        debug_notice("Disabling the updater is not supported on this OS. Updates are managed by your distro's package manager.\n");
     }
 
     XInitThreads();
 
     if((display = XOpenDisplay(NULL)) == NULL) {
-        printf("Cannot open display\n");
+        debug_error("Cannot open display, must exit\n");
         return 1;
     }
 
@@ -1306,7 +1053,7 @@ int main(int argc, char *argv[]) {
     setlocale(LC_ALL, "");
     XSetLocaleModifiers("");
     if((xim = XOpenIM(display, 0, 0, 0)) == NULL) {
-        printf("Cannot open input method\n");
+        debug_error("Cannot open input method\n");
     }
 
     LANG = systemlang();
@@ -1335,7 +1082,9 @@ int main(int argc, char *argv[]) {
         theme = save->theme;
     }
 
-    printf("%d\n", theme);
+    utox_init();
+
+    debug_info("Setting theme to:\t%d\n", theme);
     theme_load(theme);
 
     /* create window */
@@ -1475,7 +1224,7 @@ int main(int argc, char *argv[]) {
         if((xic = XCreateIC(xim, XNInputStyle, XIMPreeditNothing | XIMStatusNothing, XNClientWindow, window, XNFocusWindow, window, NULL))) {
             XSetICFocus(xic);
         } else {
-            printf("Cannot open input method\n");
+            debug_error("Cannot open input method\n");
             XCloseIM(xim);
             xim = 0;
         }
@@ -1575,7 +1324,7 @@ int main(int argc, char *argv[]) {
         yieldcpu(1);
     }
 
-    debug("XLIB main:\tClean exit\n");
+    debug_error("XLIB main:\tClean exit\n");
 
     return 0;
 }

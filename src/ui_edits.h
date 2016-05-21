@@ -1,5 +1,6 @@
 extern EDIT edit_name,
             edit_toxid,
+            edit_friend_pubkey,
             edit_status,
             edit_add_id,
             edit_add_msg,

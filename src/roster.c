@@ -74,18 +74,21 @@ static void roster_draw_name(ITEM *i, int y, char_t *name, char_t *msg, uint16_t
 }
 
 static void roster_draw_status_icon(uint8_t status, int y, _Bool notify) {
-    int notify_y = y;
+    int y_n = y;
     if (settings.use_mini_roster) {
-        y        += (ROSTER_BOX_HEIGHT / 4) - (BM_STATUS_WIDTH / 2);
-        notify_y += (ROSTER_BOX_HEIGHT / 4) - (BM_STATUS_NOTIFY_WIDTH / 2);
+        y   += (ROSTER_BOX_HEIGHT /4) - (BM_STATUS_WIDTH /2);
+        y_n += (ROSTER_BOX_HEIGHT /4) - (BM_STATUS_NOTIFY_WIDTH /2);
     } else {
-        y        += (ROSTER_BOX_HEIGHT / 2) - (BM_STATUS_WIDTH / 2);
-        notify_y += (ROSTER_BOX_HEIGHT / 2) - (BM_STATUS_NOTIFY_WIDTH / 2);
+        y   += (ROSTER_BOX_HEIGHT /2) - (BM_STATUS_WIDTH /2);
+        y_n += (ROSTER_BOX_HEIGHT /2) - (BM_STATUS_NOTIFY_WIDTH /2);
     }
 
-    drawalpha(BM_ONLINE + status,   SIDEBAR_WIDTH - SCALE(24),        y, BM_STATUS_WIDTH,        BM_STATUS_WIDTH, status_color[status]);
+    int xpos   = SIDEBAR_WIDTH - SCALE(15) - BM_STATUS_WIDTH /2;
+    int xpos_n = SIDEBAR_WIDTH - SCALE(15) - BM_STATUS_NOTIFY_WIDTH /2;
+
+    drawalpha(BM_ONLINE + status,     xpos,   y, BM_STATUS_WIDTH,        BM_STATUS_WIDTH,        status_color[status]);
     if (notify) {
-        drawalpha(BM_STATUS_NOTIFY, SIDEBAR_WIDTH - SCALE(26), notify_y, BM_STATUS_NOTIFY_WIDTH, BM_STATUS_NOTIFY_WIDTH, status_color[status]);
+        drawalpha(BM_STATUS_NOTIFY, xpos_n, y_n, BM_STATUS_NOTIFY_WIDTH, BM_STATUS_NOTIFY_WIDTH, status_color[status]);
     }
 }
 
@@ -121,11 +124,7 @@ static void drawitem(ITEM *i, int UNUSED(x), int y) {
                 drawalpha(contact_bitmap, ROSTER_AVATAR_LEFT, y + ava_top, default_w, default_w, (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
             }
 
-            if (f->alias){
-                roster_draw_name(i, y, f->alias, f->status_message, f->alias_length, f->status_length, 0, 0);
-            } else {
-                roster_draw_name(i, y, f->name, f->status_message, f->name_length, f->status_length, 0, 0);
-            }
+            roster_draw_name(i, y, UTOX_FRIEND_NAME(f), f->status_message, UTOX_FRIEND_NAME_LENGTH(f), f->status_length, 0, 0);
 
             roster_draw_status_icon(status, y, f->unread_msg);
             break;
@@ -154,7 +153,7 @@ static void drawitem(ITEM *i, int UNUSED(x), int y) {
 
             roster_draw_name(i, y, g->name, g->topic, g->name_length, g->topic_length, color_overide, color);
 
-            roster_draw_status_icon(0, y, g->notify);
+            roster_draw_status_icon(0, y, g->unread_msg);
             break;
         }
 
@@ -301,7 +300,7 @@ static void show_page(ITEM *i) {
     // TODO!!
     // panel_item[selected_item->item - 1].disabled = 1;
     // panel_item[i->item - 1].disabled = 0;
-    int current_width;
+    static int current_width;
 
     edit_resetfocus();
 
@@ -324,11 +323,12 @@ static void show_page(ITEM *i) {
             f->edit_history_length = edit_msg.history_length;
 
 
-            panel_chat.disabled            = 1;
-            panel_friend.disabled          = 1;
-            panel_friend_chat.disabled     = 1;
-            panel_friend_video.disabled    = 1;
-            panel_friend_settings.disabled = 1;
+            panel_chat.disabled             = 1;
+            panel_friend.disabled           = 1;
+            panel_friend_chat.disabled      = 1;
+            panel_friend_video.disabled     = 1;
+            panel_friend_settings.disabled  = 1;
+            settings.inline_video           = 1;
             break;
         }
         case ITEM_FRIEND_ADD: {
@@ -358,10 +358,14 @@ static void show_page(ITEM *i) {
         }
         case ITEM_SETTINGS: {
             if (panel_profile_password.disabled) {
-                button_settings.disabled       = 0;
-                panel_settings_master.disabled = 1;
-                panel_overhead.disabled        = 1;
+                panel_splash_page.disabled      = 1;
+
+                panel_settings_master.disabled  = 1;
+                panel_overhead.disabled         = 1;
+
                 panel_profile_password_settings.disabled = 1;
+
+                button_settings.disabled        = 0;
             }
             break;
         }
@@ -399,7 +403,12 @@ static void show_page(ITEM *i) {
             messages_friend.object = ((void**)&f->msg);
             messages_updateheight((MESSAGES*)messages_friend.object, current_width);
 
-            ((MESSAGES*)messages_friend.object)->cursor_over_msg = UINT32_MAX;
+            ((MESSAGES*)messages_friend.object)->cursor_over_msg        = UINT32_MAX;
+            ((MESSAGES*)messages_friend.object)->cursor_over_position   = UINT32_MAX;
+            ((MESSAGES*)messages_friend.object)->cursor_down_msg        = UINT32_MAX;
+            ((MESSAGES*)messages_friend.object)->cursor_down_position   = UINT32_MAX;
+            ((MESSAGES*)messages_friend.object)->cursor_over_uri        = UINT32_MAX;
+
             scrollbar_friend.content_height = f->msg.height;
             messages_friend.content_scroll->d = f->msg.scroll;
 
@@ -421,14 +430,20 @@ static void show_page(ITEM *i) {
             memcpy(edit_msg_group.data, g->typed, g->typed_length);
             edit_msg_group.length = g->typed_length;
 
-            g->msg.width = current_width;
-            g->msg.id = g - group;
-            g->notify = 0;
+            g->msg.width    = current_width;
+            g->msg.id       = g - group;
+            g->unread_msg   = 0;
             /* We use the MESSAGES struct from the group, but we need the info from the panel. */
             messages_group.object = ((void*)&g->msg);
             messages_updateheight((MESSAGES*)messages_group.object, current_width);
 
-            ((MESSAGES*)messages_group.object)->cursor_over_msg = UINT32_MAX;
+            ((MESSAGES*)messages_group.object)->cursor_over_msg         = UINT32_MAX;
+            ((MESSAGES*)messages_group.object)->cursor_over_position    = UINT32_MAX;
+            ((MESSAGES*)messages_group.object)->cursor_down_msg         = UINT32_MAX;
+            ((MESSAGES*)messages_group.object)->cursor_down_position    = UINT32_MAX;
+            ((MESSAGES*)messages_group.object)->cursor_over_uri         = UINT32_MAX;
+
+
             messages_group.content_scroll->content_height = g->msg.height;
             messages_group.content_scroll->d = g->msg.scroll;
             edit_setfocus(&edit_msg_group);
@@ -741,34 +756,60 @@ _Bool list_mdown(void *UNUSED(n)) {
     return draw;
 }
 
-static void roster_init_settings_page(void) {
+static void roster_init_friend_settings_page(void) {
     FRIEND *f = right_mouse_item->data;
 
     panel_friend_chat.disabled     = 1;
     panel_friend_video.disabled    = 1;
     panel_friend_settings.disabled = 0;
 
+    edit_setstr(&edit_friend_pubkey, (char_t*)&f->id_str, TOX_PUBLIC_KEY_SIZE * 2);
+
     maybe_i18nal_string_set_plain(&edit_friend_alias.empty_str, f->name, f->name_length);
-    edit_setstr(&edit_friend_alias, f->alias, f->alias_length);
+    edit_setstr(&edit_friend_alias,  f->alias, f->alias_length);
 
     dropdown_friend_autoaccept_ft.over = dropdown_friend_autoaccept_ft.selected = f->ft_autoaccept;
+}
+
+static void contextmenu_friend(uint8_t rcase) {
+    FRIEND *f = right_mouse_item->data;
+
+    panel_friend_chat.disabled     = 0;
+    panel_friend_video.disabled    = 1;
+    panel_friend_settings.disabled = 1;
+    switch (rcase){
+        case 0: {
+            /* should be settings page */
+            roster_init_friend_settings_page();
+            break;
+        }
+        case 1: {
+            /* Should be show inline video */
+            panel_friend_chat.disabled      = 1;
+            panel_friend_video.disabled     = 0;
+            panel_friend_settings.disabled  = 1;
+            settings.inline_video           = 1;
+            f->video_inline = 1;
+            postmessage(AV_CLOSE_WINDOW, f->number +1, 0, NULL);
+            break;
+        }
+        case 2: {
+            /* should be clean history */
+            friend_history_clear((FRIEND*)right_mouse_item->data);
+            break;
+        }
+        case 3: {
+            /* Should be: delete friend */
+            roster_delete_rmouse_item();
+        }
+    }
 }
 
 static void contextmenu_list_onselect(uint8_t i) {
     if (right_mouse_item) {
         switch (right_mouse_item->item) {
             case ITEM_FRIEND:{
-                panel_friend_chat.disabled     = 0;
-                panel_friend_video.disabled    = 1;
-                panel_friend_settings.disabled = 1;
-                if (i == 0) {
-                    roster_init_settings_page();
-
-                } else if (i == 1) {
-                    friend_history_clear((FRIEND*)right_mouse_item->data);
-                } else {
-                    roster_delete_rmouse_item();
-                }
+                contextmenu_friend(i);
                 return;
             }
             case ITEM_GROUP: {
@@ -821,13 +862,24 @@ static void contextmenu_list_onselect(uint8_t i) {
 }
 
 _Bool list_mright(void *UNUSED(n)) {
-    static UI_STRING_ID menu_friend[]           = {STR_FRIEND_SETTINGS,     STR_CLEAR_HISTORY,  STR_REMOVE_FRIEND};
-    static UI_STRING_ID menu_group_unmuted[]    = {STR_CHANGE_GROUP_TOPIC,  STR_MUTE,           STR_REMOVE_GROUP};
-    static UI_STRING_ID menu_group_muted[]      = {STR_CHANGE_GROUP_TOPIC,  STR_UNMUTE,         STR_REMOVE_GROUP};
+    static UI_STRING_ID menu_friend[]           = { STR_FRIEND_SETTINGS,
+                                                    STR_CALL_VIDEO_SHOW_INLINE,
+                                                    STR_CLEAR_HISTORY,
+                                                    STR_REMOVE_FRIEND };
 
-    static UI_STRING_ID menu_group[]            = {STR_CHANGE_GROUP_TOPIC,  STR_REMOVE_GROUP};
-    static UI_STRING_ID menu_create_group[]     = {STR_GROUP_CREATE_TEXT,   STR_GROUP_CREATE_VOICE};
-    static UI_STRING_ID menu_request[]          = {STR_REQ_ACCEPT,          STR_REQ_DECLINE};
+    static UI_STRING_ID menu_group_unmuted[]    = { STR_CHANGE_GROUP_TOPIC,
+                                                    STR_MUTE,
+                                                    STR_REMOVE_GROUP };
+    static UI_STRING_ID menu_group_muted[]      = { STR_CHANGE_GROUP_TOPIC,
+                                                    STR_UNMUTE,
+                                                    STR_REMOVE_GROUP };
+
+    static UI_STRING_ID menu_group[]            = { STR_CHANGE_GROUP_TOPIC,
+                                                    STR_REMOVE_GROUP };
+    static UI_STRING_ID menu_create_group[]     = { STR_GROUP_CREATE_TEXT,
+                                                    STR_GROUP_CREATE_VOICE };
+    static UI_STRING_ID menu_request[]          = { STR_REQ_ACCEPT,
+                                                    STR_REQ_DECLINE };
 
     if (mouseover_item) {
         right_mouse_item = mouseover_item;

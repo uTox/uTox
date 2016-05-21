@@ -4,7 +4,7 @@
 
 void native_select_dir_ft(uint32_t fid, MSG_FILE *file) {
     char *path = malloc(UTOX_FILE_NAME_LENGTH);
-    memcpy(path, file->name, file->name_length);
+    memcpy(path, file->file_name, file->name_length);
     path[file->name_length] = 0;
 
     OPENFILENAME ofn = {
@@ -16,7 +16,7 @@ void native_select_dir_ft(uint32_t fid, MSG_FILE *file) {
     };
 
     if(GetSaveFileName(&ofn)) {
-        postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->filenumber, path);
+        postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->file->file_number, path);
     } else {
         debug("GetSaveFileName() failed\n");
     }
@@ -36,8 +36,10 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
 
         swprintf(second, UTOX_FILE_NAME_LENGTH, L"%ls\\%ls", first, longname);
 
-        char *send = malloc(UTOX_FILE_NAME_LENGTH);
+        char *send = calloc(UTOX_FILE_NAME_LENGTH, sizeof(char*));
         native_to_utf8str(second, send, UTOX_FILE_NAME_LENGTH);
+
+        debug_notice("Native:\tAuto Accept Directory: \"%s\"", send);
 
         postmessage_toxcore(TOX_FILE_ACCEPT_AUTO, fid, file->file_number, send);
     } else {

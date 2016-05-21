@@ -123,6 +123,7 @@ enum {
     AV_CALL_ACCEPTED,
     AV_CALL_DISCONNECTED,
     AV_VIDEO_FRAME, // 30
+    AV_INLINE_FRAME,
     AV_CLOSE_WINDOW,
 
     /* Group interactions, commented out for the new groupchats (coming soon maybe?) */
@@ -156,13 +157,9 @@ volatile _Bool tox_thread_msg, audio_thread_msg, video_thread_msg, toxav_thread_
 volatile _Bool save_needed;
 
 /** [log_read description] */
-void log_read_old(Tox *tox, int fid);
-
-/** [init_avatar description]
- *
- * TODO move this to avatar.h
- */
-//_Bool init_avatar(AVATAR *avatar, const char_t *id, uint8_t *png_data_out, uint32_t *png_size_out);
+/* Commented to generate a warning, this function is deprecated */
+/* REMOVE with v0.10 */
+// void log_read_old(Tox *tox, int fid);
 
 /* toxcore thread
  */

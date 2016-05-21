@@ -37,6 +37,7 @@ ifeq ($(UNAME_S), Linux)
 
 	ifeq ($(DBUS), 1)
 		DEPS += dbus-1
+		CFLAGS += -DHAVE_DBUS
 	else
 		CFLAGS += -DNO_DBUS
 	endif

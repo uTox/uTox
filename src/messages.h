@@ -1,5 +1,4 @@
 //Type for indexing into MSG_DATA->data array of messages
-
 struct messages {
     PANEL panel;
 
@@ -10,17 +9,18 @@ struct messages {
     int height, width;
 
     // Position and length of an URL in the message under the mouse,
-    // if present. mouse_over_uri == UINT16_MAX if there's none.
-    uint16_t mouse_over_uri, urllen;
+    // if present. cursor_over_uri == UINT16_MAX if there's none.
+    uint32_t cursor_over_uri, urllen;
 
     // Was the url pressed by the mouse.
-    _Bool mouse_down_on_uri;
+    uint32_t cursor_down_uri;
 
     uint32_t cursor_over_msg, cursor_over_position, cursor_down_msg, cursor_down_position;
     uint32_t sel_start_msg, sel_end_msg, sel_start_position, sel_end_position;
     // true if we're in the middle of selection operation
     // (mousedown without mouseup yet).
     _Bool selecting_text;
+    _Bool cursor_over_time;
 
     // Number of messages in data array.
     uint32_t  number;
@@ -36,7 +36,6 @@ struct messages {
 
 typedef enum UTOX_MSG_TYPE {
     MSG_TYPE_NULL,
-
     /* MSG_TEXT must start here */
     MSG_TYPE_TEXT,
     MSG_TYPE_ACTION_TEXT,
@@ -52,26 +51,35 @@ typedef enum UTOX_MSG_TYPE {
     MSG_TYPE_CALL_HISTORY,
 } UTOX_MSG_TYPE;
 
-/* Generic Message type */
+/* Generic Message type
+ * TODO: UNION the messages types within MSG_T */
 typedef struct {
     // true, if we're the author, false, if someone else.
-    _Bool author;
+    _Bool our_msg;
+    _Bool from_disk;
     uint8_t msg_type;
 
     uint32_t height;
     time_t time;
 
     uint32_t author_id;
+    uint32_t author_length;
+
+    uint64_t disk_offset;
 } MSG_VOID;
 
 typedef struct {
-    _Bool author;
+    _Bool our_msg;
+    _Bool from_disk;
     uint8_t msg_type;
 
     uint32_t height;
     time_t time;
 
     uint32_t author_id;
+    uint32_t author_length;
+
+    uint64_t disk_offset;
 
     uint32_t receipt;
     time_t receipt_time;
@@ -82,32 +90,39 @@ typedef struct {
 
 
 typedef struct {
-    _Bool author;
+    _Bool our_msg;
+    _Bool from_disk;
     uint8_t msg_type;
 
     uint32_t height;
     time_t time;
 
     uint32_t author_id;
+    uint16_t author_length;
+
+    uint64_t disk_offset;
 
     uint32_t receipt;
     time_t receipt_time;
 
-    uint16_t length;
-    uint16_t author_length;
-
     uint32_t author_color;
+
+    uint16_t length;
     char_t msg[0];
 } MSG_GROUP;
 
 typedef struct {
-    _Bool author;
+    _Bool our_msg;
+    _Bool from_disk;
     uint8_t msg_type;
 
     uint32_t height;
     time_t time;
 
     uint32_t author_id;
+    uint32_t author_length;
+
+    uint64_t disk_offset;
 
     uint16_t w, h;
     _Bool zoom;
@@ -115,54 +130,72 @@ typedef struct {
     UTOX_NATIVE_IMAGE *image;
 } MSG_IMG;
 
+struct FILE_TRANSFER;
+
 typedef struct msg_file {
-    _Bool author;
+    _Bool our_msg;
+    _Bool from_disk;
     uint8_t msg_type;
 
     uint32_t height;
     time_t time;
 
     uint32_t author_id;
+    uint32_t author_length;
+
+    uint64_t disk_offset;
+
+    struct FILE_TRANSFER *file;
+    uint8_t file_status;
+
+    uint8_t file_name[128];
+    size_t  name_length;
+
+    uint8_t *path;
+    size_t  path_length;
 
     uint32_t speed;
-    uint32_t filenumber;
-    uint8_t status, name_length;
     uint64_t size, progress;
-    _Bool inline_png;
-    uint8_t *path;
-    uint8_t name[64];
+    _Bool   inline_png;
 } MSG_FILE;
 
-struct FILE_TRANSFER;
 
-/* Called externally to add a message to the queue */
-MSG_FILE* message_create_type_file(struct FILE_TRANSFER *file);
-
-_Bool message_log_to_disk(MESSAGES *m, MSG_VOID *msg);
 
 uint32_t message_add_group(MESSAGES *m, MSG_TEXT *msg);
 
 uint32_t message_add_type_text(MESSAGES *m, _Bool auth, const uint8_t *data, uint16_t length, _Bool log);
 uint32_t message_add_type_action(MESSAGES *m, _Bool auth, const uint8_t *data, uint16_t length, _Bool log);
 uint32_t message_add_type_notice(MESSAGES *m, const uint8_t *data, uint16_t length, _Bool log);
-uint32_t message_add_type_image(MESSAGES *m, _Bool auth, UTOX_NATIVE_IMAGE *img,
-                                uint16_t width, uint16_t height, _Bool log);
+uint32_t message_add_type_image(MESSAGES *m, _Bool auth, UTOX_NATIVE_IMAGE *img, uint16_t width, uint16_t height, _Bool log);
 
-void messages_draw(PANEL *panel, int x, int y, int width, int height);
-_Bool messages_mmove(PANEL *panel, int x, int y, int width, int height, int mx, int my, int dx, int dy);
+MSG_FILE* message_add_type_file(MESSAGES *m, struct FILE_TRANSFER *file);
+
+_Bool     message_log_to_disk(MESSAGES *m, MSG_VOID *msg);
+_Bool     messages_read_from_log(uint32_t friend_number);
+
+void      messages_send_from_queue(MESSAGES *m, uint32_t friend_number);
+void      messages_clear_receipt(MESSAGES *m, uint32_t receipt_number);
+
+/** Formats all messages from self and friends, and then call draw functions
+ * to write them to the UI.
+ *
+ * accepts: messages struct *pointer, int x,y positions, int width,height
+ */
+void  messages_draw(PANEL *panel, int x, int y, int width, int height);
+
+_Bool messages_mmove(PANEL *panel, int px, int py, int width, int height, int mx, int my, int dx, int dy);
 _Bool messages_mdown(PANEL *panel);
 _Bool messages_dclick(PANEL *panel, _Bool triclick);
 _Bool messages_mright(PANEL *panel);
 _Bool messages_mwheel(PANEL *panel, int height, double d, _Bool smooth);
 _Bool messages_mup(PANEL *panel);
-_Bool messages_mleave(PANEL *panel);
-
-int messages_selection(PANEL *panel, void *data, uint32_t len, _Bool names);
-
+_Bool messages_mleave(PANEL *m);
 _Bool messages_char(uint32_t ch);
+int   messages_selection(PANEL *panel, void *buffer, uint32_t len, _Bool names);
 
-void messages_updateheight(MESSAGES *m, int width);
-void message_updateheight(MESSAGES *m, MSG_VOID *msg);
-void messages_clear_all(MESSAGES *m);
+void  messages_updateheight(MESSAGES *m, int width);
 
+
+void messages_init(MESSAGES *m, uint32_t friend_number);
 void message_free(MSG_TEXT *msg);
+void messages_clear_all(MESSAGES *m);

@@ -1,83 +1,187 @@
 #include "main.h"
 
-static uint32_t message_add(MESSAGES *m, MSG_VOID *msg);
+/** Appends a messages from self or friend to the message list;
+ * will realloc or trim messages as needed;
+ *
+ * also handles auto scrolling selections with messages
+ *
+ * accepts: MESSAGES *pointer, MESSAGE *pointer, MSG_DATA *pointer
+ */
 
-_Bool message_log_to_disk(MESSAGES *m, MSG_VOID *msg) {
-    if (m->is_groupchat) {
-        /* We don't support logging groupchats yet */
-        return 0;
-    }
-
-    FRIEND *f = &friend[m->id];
-
-    if (f->skip_msg_logging) {
-        return 0;
-    }
-
-    LOG_FILE_MSG_HEADER header ;
-    uint8_t *data = NULL;
-
-    switch (msg->msg_type) {
+static int msgheight(MSG_VOID *msg, int width) {
+    switch(msg->msg_type) {
         case MSG_TYPE_TEXT:
         case MSG_TYPE_ACTION_TEXT:
-        case MSG_TYPE_NOTICE: {
-            size_t author_length;
-            uint8_t *author;
+        case MSG_TYPE_NOTICE:
+        case MSG_TYPE_NOTICE_DAY_CHANGE: {
             MSG_TEXT *text = (void*)msg;
-
-            if (text->author) {
-                author_length = self.name_length;
-                author = self.name;
-            } else {
-                author_length = f->name_length;
-                author = f->name;
-            }
-
-            header.log_version   = 0;
-            header.time          = text->time;
-            header.author_length = author_length;
-            header.msg_length    = text->length;
-            header.author        = text->author;
-            header.msg_type      = text->msg_type;
-
-
-            size_t length = sizeof(header) + text->length + author_length + 1;
-
-            data = calloc(1, length);
-            memcpy(data, &header, sizeof(header));
-            memcpy(data + sizeof(header), author, author_length);
-            memcpy(data + sizeof(header) + author_length, text->msg, text->length);
-            strcpy2(data + length - 1, "\n");
-
-            native_save_data_log(f->number, data, length);
-            break;
+            int theight = text_height(abs(width - MESSAGES_X - TIME_WIDTH), font_small_lineheight, text->msg, text->length);
+            return (theight == 0) ? 0 : theight + MESSAGES_SPACING;
         }
-        default: {
-            debug("uTox Logging:\tUnsupported file type %i\n", msg->msg_type);
+
+        case MSG_TYPE_IMAGE: {
+            MSG_IMG *img = (void*)msg;
+            int maxwidth = width - MESSAGES_X - TIME_WIDTH;
+            return ((img->zoom || img->w <= maxwidth) ? img->h : img->h * maxwidth / img->w) + MESSAGES_SPACING;
         }
+
+        case MSG_TYPE_FILE: {
+            return FILE_TRANSFER_BOX_HEIGHT + MESSAGES_SPACING;
+        }
+
     }
-    free(data);
+
     return 0;
 }
 
-_Bool messages_read_from_log(uint32_t friend_number){
-    size_t actual_count = 0;
-    uint8_t **data = native_load_data_log(friend_number, &actual_count, UTOX_MAX_BACKLOG_MESSAGES, 0);
-    MSG_VOID *msg;
+static int msgheight_group(MSG_GROUP *grp, int width) {
+    switch(grp->msg_type) {
+        case MSG_TYPE_TEXT:
+        case MSG_TYPE_ACTION_TEXT:
+        case MSG_TYPE_NOTICE:
+        case MSG_TYPE_NOTICE_DAY_CHANGE: {
+            int theight = text_height(abs(width - MESSAGES_X - TIME_WIDTH), font_small_lineheight,
+                                      grp->msg + grp->author_length, grp->length);
+            return (theight == 0) ? 0 : theight + MESSAGES_SPACING;
+        }
+        default: {
+            debug("Error, can't set this group message height\n");
+        }
+    }
 
+    return 0;
+}
 
-    if (data) {
-        void **p = (void**)data;
-        while (actual_count--) {
-            msg = *p++;
-            if (msg) {
-                message_add(&friend[friend_number].msg, msg);
+static int message_setheight(MESSAGES *m, MSG_VOID *msg) {
+    if (m->width == 0) {
+        return 0;
+    }
+
+    setfont(FONT_TEXT);
+
+    if (m->is_groupchat) {
+        MSG_GROUP *grp = (void*)msg;
+        msg->height = msgheight_group(grp, m->width);
+    } else {
+        msg->height = msgheight(msg, m->width);
+    }
+    return msg->height;
+}
+
+static void message_updateheight(MESSAGES *m, MSG_VOID *msg) {
+    if (m->width == 0) {
+        return;
+    }
+
+    setfont(FONT_TEXT);
+
+    m->height   -= msg->height;
+    msg->height  = message_setheight(m, msg);
+    m->height   += msg->height;
+}
+
+static uint32_t message_add(MESSAGES *m, MSG_VOID *msg) {
+    pthread_mutex_lock(&messages_lock);
+
+    /* TODO: test this? */
+    if (m->number < UTOX_MAX_BACKLOG_MESSAGES) {
+        if (!m->data || m->extra <= 0) {
+            if (m->data) {
+                m->data = realloc(m->data, (m->number + 10) * sizeof(void*));
+                m->extra += 10;
+            } else {
+                m->data = calloc(20, sizeof(void*));
+                m->extra = 20;
+            }
+
+            if (!m->data) {
+                debug_error("\n\n\nFATAL ERROR TRYING TO REALLOC FOR MESSAGES.\nTHIS IS A BUG, PLEASE REPORT!\n\n\n");
+                exit(30);
             }
         }
+        m->data[m->number++] = msg;
+        m->extra--;
     } else {
-        debug("If there's a friend history,there should be an error here...\n");
+        m->height -= ((MSG_VOID*)m->data[0])->height;
+        /* Assuming this is MSG_TEXT is probably a mistake... */
+        message_free(m->data[0]);
+        memmove(m->data, m->data + 1, (UTOX_MAX_BACKLOG_MESSAGES - 1) * sizeof(void*));
+        m->data[UTOX_MAX_BACKLOG_MESSAGES - 1] = msg;
+
+        // Scroll selection up so that it stays over the same messages.
+        if (m->sel_start_msg != UINT32_MAX) {
+            if(0 < m->sel_start_msg) {
+                m->sel_start_msg--;
+            } else {
+                m->sel_start_position = 0;
+            }
+        }
+
+        if (m->sel_end_msg != UINT32_MAX) {
+            if(0 < m->sel_end_msg) {
+                m->sel_end_msg--;
+            } else {
+                m->sel_end_position = 0;
+            }
+        }
+
+        if (m->cursor_down_msg != UINT32_MAX) {
+            if(0 < m->cursor_down_msg) {
+                m->cursor_down_msg--;
+            } else {
+                m->cursor_down_position = 0;
+            }
+        }
+        if (m->cursor_over_msg != UINT32_MAX) {
+            if(0 < m->cursor_over_msg) {
+                m->cursor_over_msg--;
+            } else {
+                m->cursor_over_position = 0;
+            }
+        }
     }
-    free(data);
+
+    message_updateheight(m, (MSG_VOID*)msg);
+
+    if (m->is_groupchat && selected_item->data == &group[m->id]) {
+        m->panel.content_scroll->content_height = m->height;
+    } else if (selected_item->data == &friend[m->id]) {
+        m->panel.content_scroll->content_height = m->height;
+    }
+
+    pthread_mutex_unlock(&messages_lock);
+    return m->number;
+}
+
+static _Bool msg_add_day_notice(MESSAGES *m, time_t last, time_t next) {
+
+    struct tm *msg_time = 0;
+    /* The tm struct is shared, we have to do it this way */
+    int ltime_year = 0, ltime_mon = 0, ltime_day = 0;
+
+    msg_time   = localtime(&last);
+    ltime_year = msg_time->tm_year;
+    ltime_mon  = msg_time->tm_mon;
+    ltime_day  = msg_time->tm_mday;
+    msg_time   = localtime(&next);
+
+    if (ltime_year < msg_time->tm_year ||
+            (ltime_year == msg_time->tm_year &&
+             ltime_mon   < msg_time->tm_mon) ||
+                (ltime_year == msg_time->tm_year &&
+                 ltime_mon  == msg_time->tm_mon  &&
+                 ltime_day   < msg_time->tm_mday) )
+    {
+        MSG_TEXT *msg   = calloc(1, sizeof(MSG_TEXT) + 256);
+        time(&msg->time);
+        msg->our_msg     = 0;
+        msg->msg_type   = MSG_TYPE_NOTICE_DAY_CHANGE;
+        msg->author_length = self.name_length;
+        msg->length     = strftime((char*)msg->msg, 256, "Day has changed to %A %B %d %Y", msg_time);
+
+        message_add(m, (MSG_VOID*)msg);
+        return 1;
+    }
     return 0;
 }
 
@@ -90,14 +194,31 @@ uint32_t message_add_group(MESSAGES *m, MSG_TEXT *msg) {
 uint32_t message_add_type_text(MESSAGES *m, _Bool auth, const uint8_t *data, uint16_t length, _Bool log) {
     MSG_TEXT *msg   = calloc(1, sizeof(MSG_TEXT) + length);
     time(&msg->time);
-    msg->author     = auth;
+    msg->our_msg     = auth;
     msg->msg_type   = MSG_TYPE_TEXT;
     msg->length     = length;
+
+    if (auth) {
+        msg->author_length = self.name_length;
+    } else {
+        msg->author_length = friend[m->id].name_length;
+    }
+
     memcpy(msg->msg, data, length);
 
     if (log) {
         message_log_to_disk(m, (MSG_VOID*)msg);
     }
+
+    if (auth) {
+        postmessage_toxcore(TOX_SEND_MESSAGE, friend[m->id].number, length, msg);
+    }
+
+    if (m->data) {
+        MSG_VOID *day_msg = m->data[m->number ? m->number -1 : 0];
+        msg_add_day_notice(m, day_msg->time, msg->time);
+    }
+
 
     return message_add(m, (MSG_VOID*)msg);
 }
@@ -105,13 +226,24 @@ uint32_t message_add_type_text(MESSAGES *m, _Bool auth, const uint8_t *data, uin
 uint32_t message_add_type_action(MESSAGES *m, _Bool auth, const uint8_t *data, uint16_t length, _Bool log) {
     MSG_TEXT *msg   = calloc(1, sizeof(MSG_TEXT) + length);
     time(&msg->time);
-    msg->author     = auth;
+    msg->our_msg     = auth;
     msg->msg_type   = MSG_TYPE_ACTION_TEXT;
     msg->length     = length;
+
+    if (auth) {
+        msg->author_length = self.name_length;
+    } else {
+        msg->author_length = friend[m->id].name_length;
+    }
+
     memcpy(msg->msg, data, length);
 
     if (log) {
         message_log_to_disk(m, (MSG_VOID*)msg);
+    }
+
+    if (auth) {
+        postmessage_toxcore(TOX_SEND_ACTION, friend[m->id].number, length, msg);
     }
 
     return message_add(m, (MSG_VOID*)msg);
@@ -120,9 +252,10 @@ uint32_t message_add_type_action(MESSAGES *m, _Bool auth, const uint8_t *data, u
 uint32_t message_add_type_notice(MESSAGES *m, const uint8_t *data, uint16_t length, _Bool log) {
     MSG_TEXT *msg   = calloc(1, sizeof(MSG_TEXT) + length);
     time(&msg->time);
-    msg->author     = 0;
+    msg->our_msg     = 0;
     msg->msg_type   = MSG_TYPE_NOTICE;
     msg->length     = length;
+    msg->author_length = self.name_length;
     memcpy(msg->msg, data, length);
 
     if (log) {
@@ -139,7 +272,7 @@ uint32_t message_add_type_image(MESSAGES *m, _Bool auth, UTOX_NATIVE_IMAGE *img,
 
     MSG_IMG *msg = calloc(1, sizeof(MSG_IMG));
     time(&msg->time);
-    msg->author = auth;
+    msg->our_msg = auth;
     msg->msg_type = MSG_TYPE_IMAGE;
     msg->w = width;
     msg->h = height;
@@ -152,36 +285,223 @@ uint32_t message_add_type_image(MESSAGES *m, _Bool auth, UTOX_NATIVE_IMAGE *img,
 
 /* TODO FIX THIS SECTION TO MATCH ABOVE! */
 /* Called by new file transfer to add a new message to the msg list */
-MSG_FILE* message_create_type_file(FILE_TRANSFER *file) { //TODO shove on ui thread
-    MSG_FILE *msg   = calloc(1, sizeof(MSG_FILE));
+MSG_FILE* message_add_type_file(MESSAGES *m, FILE_TRANSFER *file) {
+    MSG_FILE *msg       = calloc(1, sizeof(MSG_FILE));
     time(&msg->time);
-    msg->author     = file->incoming ? 0 : 1;
-    msg->msg_type   = MSG_TYPE_FILE;
-    msg->filenumber = file->file_number;
-    msg->status     = file->status;
+    msg->our_msg         = file->incoming ? 0 : 1;
+    msg->msg_type       = MSG_TYPE_FILE;
+    msg->file_status    = file->status;
         // msg->name_length is the max enforce that
-    msg->name_length = (file->name_length > sizeof(msg->name)) ? sizeof(msg->name) : file->name_length;
-    memcpy(msg->name, file->name, msg->name_length);
-    msg->size       = file->size;
-    msg->progress   = file->size_transferred;
-    msg->speed      = 0;
-    msg->inline_png = file->in_memory;
-    msg->path       = NULL;
+    msg->name_length    = (file->name_length > sizeof(msg->file_name)) ? sizeof(msg->file_name) : file->name_length;
+    memcpy(msg->file_name, file->name, msg->name_length);
+    msg->size           = file->size;
+    msg->progress       = file->size_transferred;
+    msg->speed          = 0;
+    msg->inline_png     = file->in_memory;
+    msg->path           = NULL;
+
+    msg->file           = file;
+
+    message_add(m, (MSG_VOID*)msg);
+
+    file->ui_data = msg;
 
     return msg;
 }
 
-// uint32_t message_add_type_file(MESSAGES *m, _Bool auth, file_number, status, name, name_length, local_path, local_length, file_size,) {}
+_Bool message_log_to_disk(MESSAGES *m, MSG_VOID *msg) {
+    if (m->is_groupchat) {
+        /* We don't support logging groupchats yet */
+        return 0;
+    }
 
-uint32_t message_add_type_file_compat(MESSAGES *m, MSG_FILE *f) {
-    return message_add(m, (MSG_VOID*)f);
+    FRIEND *f = &friend[m->id];
+    if (f->skip_msg_logging) {
+        return 0;
+    }
+
+    LOG_FILE_MSG_HEADER header;
+    memset(&header, 0, sizeof(header));
+    uint8_t *data = NULL;
+
+    switch (msg->msg_type) {
+        case MSG_TYPE_TEXT:
+        case MSG_TYPE_ACTION_TEXT:
+        case MSG_TYPE_NOTICE: {
+            size_t author_length;
+            uint8_t *author;
+            MSG_TEXT *text = (void*)msg;
+
+            if (text->our_msg) {
+                author_length = self.name_length;
+                author = self.name;
+            } else {
+                author_length = f->name_length;
+                author = f->name;
+            }
+
+            header.log_version   = 0;
+            header.time          = text->time;
+            header.author_length = author_length;
+            header.msg_length    = text->length;
+            header.author        = text->our_msg;
+            header.receipt       = (text->receipt_time ? 1 : 0);
+            header.msg_type      = text->msg_type;
+
+            size_t length = sizeof(header) + text->length + author_length + 1; /* extra \n char*/
+
+            data = calloc(1, length);
+            memcpy(data, &header, sizeof(header));
+            memcpy(data + sizeof(header), author, author_length);
+            memcpy(data + sizeof(header) + author_length, text->msg, text->length);
+            strcpy2(data + length - 1, "\n");
+
+            msg->disk_offset = utox_save_data_log(f->number, data, length);
+            break;
+        }
+        default: {
+            debug("uTox Logging:\tUnsupported file type %i\n", msg->msg_type);
+        }
+    }
+    free(data);
+    return 0;
 }
+
+_Bool messages_read_from_log(uint32_t friend_number){
+    size_t actual_count = 0;
+    uint8_t **data = utox_load_data_log(friend_number, &actual_count, UTOX_MAX_BACKLOG_MESSAGES, 0);
+    MSG_VOID *msg;
+    time_t last = 0;
+
+    if (data) {
+        void **p = (void**)data;
+        while (actual_count--) {
+            msg = *p++;
+            if (msg) {
+
+                if (msg_add_day_notice(&friend[friend_number].msg, last, msg->time)) {
+                    last = msg->time;
+                }
+
+                message_add(&friend[friend_number].msg, msg);
+            }
+        }
+    } else {
+        debug("If there's a friend history,there should be an error here...\n");
+    }
+    free(data);
+    return 0;
+}
+
+void messages_send_from_queue(MESSAGES *m, uint32_t friend_number) {
+    uint32_t start      = m->number;
+    uint8_t  seek_num   = 3; /* this magic number is the number of messages we'll skip looking for the first unsent */
+
+    pthread_mutex_lock(&messages_lock);
+
+    /* seek back to find first queued message
+     * I hate this nest too, but it's readable */
+    while (start) {
+        --start;
+        if (m->data[start]) {
+            MSG_TEXT *msg = (MSG_TEXT*)(m->data[start]);
+            if (msg->msg_type == MSG_TYPE_TEXT || msg->msg_type == MSG_TYPE_ACTION_TEXT) {
+                if (msg->our_msg) {
+                    if (msg->receipt_time) {
+                        if (!seek_num--) {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /* start sending messages, hopefully in order */
+    while (start < m->number) {
+        if (m->data[start]) {
+            MSG_TEXT *msg = (MSG_TEXT*)(m->data[start]);
+            if (msg->msg_type == MSG_TYPE_TEXT || msg->msg_type == MSG_TYPE_ACTION_TEXT) {
+                if (msg->our_msg && !msg->receipt_time) {
+                    postmessage_toxcore((msg->msg_type == MSG_TYPE_TEXT ? TOX_SEND_MESSAGE : TOX_SEND_ACTION),
+                                        friend_number, msg->length, msg);
+                }
+            }
+        }
+        ++start;
+    }
+    pthread_mutex_unlock(&messages_lock);
+}
+
+void messages_clear_receipt(MESSAGES *m, uint32_t receipt_number) {
+    pthread_mutex_lock(&messages_lock);
+
+    uint32_t start = m->number;
+
+    while (start--) {
+        if (m->data[start]) {
+            MSG_TEXT *msg = (MSG_TEXT*)m->data[start];
+            if (msg->msg_type == MSG_TYPE_TEXT || msg->msg_type == MSG_TYPE_ACTION_TEXT) {
+                if (msg->receipt == receipt_number) {
+
+                    msg->receipt = -1;
+                    time(&msg->receipt_time);
+
+                    LOG_FILE_MSG_HEADER header;
+                    memset(&header, 0, sizeof(header));
+                    uint8_t *data = NULL;
+
+                    header.log_version   = 0;
+                    header.time          = msg->time;
+                    header.author_length = msg->author_length;
+                    header.msg_length    = msg->length;
+                    header.author        = 1;
+                    header.receipt       = 1;
+                    header.msg_type      = msg->msg_type;
+
+                    size_t length = sizeof(header);
+                    data = calloc(1, length);
+                    memcpy(data, &header, sizeof(header));
+
+                    if (msg->disk_offset) {
+                        debug("Messages:\tUpdating message -> disk_offset is %lu\n", msg->disk_offset);
+                        utox_update_data_log(m->id, msg->disk_offset, data, length);
+                    } else if (msg->disk_offset == 0 && start <= 1 && receipt_number == 1) {
+                        /* This could get messy if receipt is 1 msg position is 0 and the offset is actually wrong,
+                         * But I couldn't come up with any other way to verify the rare case of a bad offset
+                         * start <= 1 to offset for the day change notification                                    */
+                        debug("Messages:\tUpdating first message -> disk_offset is %lu\n", msg->disk_offset);
+                        utox_update_data_log(m->id, msg->disk_offset, data, length);
+                    } else {
+                        debug_error("Messages:\tUnable to update this message...\n"
+                            "\t\tmsg->disk_offset %lu && m->number %u receipt_number %u \n",
+                            msg->disk_offset, m->number, receipt_number);
+                    }
+                    free(data);
+
+                    postmessage(FRIEND_MESSAGE, 0, 0, NULL); /* Used to redraw the screen */
+                    pthread_mutex_unlock(&messages_lock);
+                    return;
+                }
+            }
+        }
+    }
+    debug_error("Messages:\tReceived a receipt for a message we don't have a record of.\n");
+    pthread_mutex_unlock(&messages_lock);
+}
+
 
 static void messages_draw_timestamp(int x, int y, const time_t *time) {
     struct tm *ltime = localtime(time);
-    char timestr[6];
+
+    char timestr[9];
     uint16_t len;
-    len = snprintf(timestr, sizeof(timestr), "%u:%.2u", ltime->tm_hour, ltime->tm_min);
+    if (settings.use_long_time_msg) {
+        len = snprintf(timestr, sizeof(timestr), "%.2u:%.2u:%.2u", ltime->tm_hour, ltime->tm_min, ltime->tm_sec);
+        x -= SCALE(8);
+    } else {
+        len = snprintf(timestr, sizeof(timestr), "%u:%.2u", ltime->tm_hour, ltime->tm_min);
+    }
 
     if (len >= sizeof(timestr)) {
         len = sizeof(timestr) - 1;
@@ -199,15 +519,19 @@ static void messages_draw_author(int x, int y, int w, uint8_t *name, uint32_t le
 }
 
 static int messages_draw_text(const uint8_t *msg, size_t length, uint32_t msg_height, uint8_t msg_type,
-                              _Bool author, uint16_t highlight_start, uint16_t highlight_end,
+                              _Bool author, _Bool receipt, uint16_t highlight_start, uint16_t highlight_end,
                               int x, int y, int w, int h)
 {
     switch (msg_type) {
         case MSG_TYPE_TEXT: {
             if (author) {
-                setcolor(COLOR_MAIN_SUBTEXT);
+                if (receipt) {
+                    setcolor(COLOR_MSG_USER);
+                } else {
+                    setcolor(COLOR_MSG_USER_PEND);
+                }
             } else {
-                setcolor(COLOR_MAIN_CHATTEXT);
+                setcolor(COLOR_MSG_CONTACT);
             }
             break;
         }
@@ -289,7 +613,7 @@ static void messages_draw_filetransfer(MESSAGES *m, MSG_FILE *file, int i, int x
     }
 
     uint8_t text_name_and_size[file->name_length + 33];
-    memcpy(text_name_and_size, file->name, file->name_length);
+    memcpy(text_name_and_size, file->file_name, file->name_length);
     text_name_and_size[file->name_length] = ' ';
     uint16_t text_name_and_size_len = file->name_length + 1;
     text_name_and_size_len += sprint_humanread_bytes(text_name_and_size + file->name_length + 1, 32, file_size);
@@ -356,7 +680,7 @@ static void messages_draw_filetransfer(MESSAGES *m, MSG_FILE *file, int i, int x
     #define draw_ft_alph_right(bm, col) do { wbound -= btnw + (SCALE(12)); drawalpha(bm, wbound, tbtn_y, btnw, btnh, col); } while (0)
     #define drawstr_ft_right(t) draw_ft_text_right(S(t), SLEN(t))
 
-    switch (file->status) {
+    switch (file->file_status) {
         case FILE_TRANSFER_STATUS_NONE:
         case FILE_TRANSFER_STATUS_ACTIVE:
         case FILE_TRANSFER_STATUS_PAUSED_US:
@@ -375,7 +699,7 @@ static void messages_draw_filetransfer(MESSAGES *m, MSG_FILE *file, int i, int x
 
     prog_bar = (file->size == 0) ? 0 : ((long double)d_width * file_percent);
 
-    switch (file->status){
+    switch (file->file_status){
         case FILE_TRANSFER_STATUS_COMPLETED: {
             /* If mouse over use hover color */
             uint32_t text = mouse_over ? COLOR_BUTTON_SUCCESS_HOVER_TEXT : COLOR_BUTTON_SUCCESS_TEXT,
@@ -449,8 +773,8 @@ static void messages_draw_filetransfer(MESSAGES *m, MSG_FILE *file, int i, int x
 
             draw_ft_no_btn();
 
-            if (file->status == FILE_TRANSFER_STATUS_PAUSED_BOTH ||
-                file->status == FILE_TRANSFER_STATUS_PAUSED_US    ) {
+            if (file->file_status == FILE_TRANSFER_STATUS_PAUSED_BOTH ||
+                file->file_status == FILE_TRANSFER_STATUS_PAUSED_US    ) {
                 /* Paused by at least us */
                 draw_ft_resume_btn();
             } else {
@@ -471,29 +795,38 @@ static void messages_draw_filetransfer(MESSAGES *m, MSG_FILE *file, int i, int x
  * group messages/functions from friend messages and functions from inside ui.c.
  *
  * Idealy group and friend messages wouldn't even need to know about eachother.   */
-static int messages_draw_group(MESSAGES *m, MSG_GROUP *msg, uint32_t i, int x, int y, int width, int height) {
-    uint16_t h1 = UINT16_MAX, h2 = UINT16_MAX;
-    if (i == m->sel_start_msg) {
-        h1 = m->sel_start_position;
-        h2 = ((i == m->sel_end_msg) ? m->sel_end_position : msg->length);
-    } else if (i == m->sel_end_msg) {
-        h1 = 0;
-        h2 = m->sel_end_position;
-    } else if (i > m->sel_start_msg && i < m->sel_end_msg) {
-        h1 = 0;
-        h2 = msg->length;
+static int messages_draw_group(MESSAGES *m, MSG_GROUP *msg, uint32_t curr_msg_i, int x, int y, int width, int height) {
+    uint32_t h1 = UINT32_MAX, h2 = UINT32_MAX;
+    if ((m->sel_start_msg > curr_msg_i && m->sel_end_msg > curr_msg_i) ||
+        (m->sel_start_msg < curr_msg_i && m->sel_end_msg < curr_msg_i)) {
+        /* Out side the highlight area */
+            h1 = UINT32_MAX;
+            h2 = UINT32_MAX;
+    } else {
+        if (m->sel_start_msg < curr_msg_i) {
+            h1 = 0;
+        } else {
+            h1 = m->sel_start_position;
+        }
+
+        if (m->sel_end_msg > curr_msg_i) {
+            h2 = msg->length;
+        } else {
+            h2 = m->sel_end_position;
+        }
     }
 
+    /* error check */
     if ((m->sel_start_msg == m->sel_end_msg && m->sel_start_position == m->sel_end_position) || h1 == h2) {
-        h1 = UINT16_MAX;
-        h2 = UINT16_MAX;
+        h1 = UINT32_MAX;
+        h2 = UINT32_MAX;
     }
 
 
     messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET, msg->msg, msg->author_length, msg->author_color);
     messages_draw_timestamp(x + width - ACTUAL_TIME_WIDTH, y, &msg->time);
     return messages_draw_text(msg->msg + msg->author_length, msg->length, msg->height, msg->msg_type,
-                              msg->author, h1, h2,
+                              msg->our_msg, 1, h1, h2,
                               x + MESSAGES_X, y, width - TIME_WIDTH - MESSAGES_X, height) + MESSAGES_SPACING;
 }
 
@@ -511,7 +844,7 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
 
     // Message iterator
     void **p = m->data;
-    uint32_t i, n = m->number;
+    uint32_t curr_msg_i, n = m->number;
 
     if (m->width != width) {
         m->width = width;
@@ -520,7 +853,7 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
     }
 
     // Go through messages
-    for (i = 0; i != n; i++) {
+    for (curr_msg_i = 0; curr_msg_i != n; curr_msg_i++) {
         MSG_TEXT *msg = *p++;
 
         /* Decide if we should even bother drawing this message. */
@@ -539,7 +872,7 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
 
         // Draw the names for groups or friends
         if (m->is_groupchat) {
-            y = messages_draw_group(m, (MSG_GROUP*)msg, i, x, y, width, height);
+            y = messages_draw_group(m, (MSG_GROUP*)msg, curr_msg_i, x, y, width, height);
             continue;
 
         } else {
@@ -548,6 +881,8 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
             if (msg->msg_type == MSG_TYPE_ACTION_TEXT) {
                 // Always draw name next to action message
                 lastauthor = 0xFF;
+            } else if (msg->msg_type == MSG_TYPE_NOTICE_DAY_CHANGE) {
+                draw_author = 0;
             }
 
             if (msg->msg_type == MSG_TYPE_NOTICE) {
@@ -555,15 +890,15 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
             }
 
             if (draw_author) {
-                if (msg->author != lastauthor) {
-                    if (msg->author) {
+                if (msg->our_msg != lastauthor) {
+                    if (msg->our_msg) {
                         messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET, self.name, self.name_length, COLOR_MAIN_SUBTEXT);
                     } else if (f->alias) {
                         messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET, f->alias, f->alias_length, COLOR_MAIN_CHATTEXT);
                     } else {
                         messages_draw_author(x, y, MESSAGES_X - NAME_OFFSET, f->name, f->name_length, COLOR_MAIN_CHATTEXT);
                     }
-                    lastauthor = msg->author;
+                    lastauthor = msg->our_msg;
                 }
             }
         }
@@ -583,25 +918,44 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
             }
             case MSG_TYPE_NOTICE_DAY_CHANGE: {
                 // Normal message
-                uint16_t h1 = UINT16_MAX, h2 = UINT16_MAX;
-                if (i == m->sel_start_msg) {
-                    h1 = m->sel_start_position;
-                    h2 = ((i == m->sel_end_msg) ? m->sel_end_position : msg->length);
-                } else if (i == m->sel_end_msg) {
-                    h1 = 0;
-                    h2 = m->sel_end_position;
-                } else if (i > m->sel_start_msg && i < m->sel_end_msg) {
-                    h1 = 0;
-                    h2 = msg->length;
+                uint32_t h1 = UINT32_MAX, h2 = UINT32_MAX;
+
+                if ((m->sel_start_msg > curr_msg_i && m->sel_end_msg > curr_msg_i) ||
+                    (m->sel_start_msg < curr_msg_i && m->sel_end_msg < curr_msg_i)) {
+                    /* Out side the highlight area */
+                        h1 = UINT32_MAX;
+                        h2 = UINT32_MAX;
+                } else {
+                    if (m->sel_start_msg < curr_msg_i) {
+                        h1 = 0;
+                    } else {
+                        h1 = m->sel_start_position;
+                    }
+
+                    if (m->sel_end_msg > curr_msg_i) {
+                        h2 = msg->length;
+                    } else {
+                        h2 = m->sel_end_position;
+                    }
                 }
 
+                /* error check */
                 if ((m->sel_start_msg == m->sel_end_msg && m->sel_start_position == m->sel_end_position) || h1 == h2) {
-                    h1 = UINT16_MAX;
-                    h2 = UINT16_MAX;
+                    h1 = UINT32_MAX;
+                    h2 = UINT32_MAX;
+                }
+
+                /* text.c is super broken, so we have to be hacky here */
+                if (h2 != msg->length){
+                    if (m->sel_end_msg != curr_msg_i) {
+                        h2 = msg->length - h2;
+                    } else {
+                        h2 -= h1;
+                    }
                 }
 
                 y = messages_draw_text(msg->msg, msg->length, msg->height, msg->msg_type,
-                                       msg->author, h1, h2,
+                                       msg->our_msg, msg->receipt_time, h1, h2,
                                        x + MESSAGES_X, y, width - TIME_WIDTH - MESSAGES_X, height);
                 break;
             }
@@ -614,7 +968,7 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
 
             // Draw file transfer
             case MSG_TYPE_FILE: {
-                messages_draw_filetransfer(m, (MSG_FILE*)msg, i, x, y, width, height);
+                messages_draw_filetransfer(m, (MSG_FILE*)msg, curr_msg_i, x, y, width, height);
                 y += FILE_TRANSFER_BOX_HEIGHT;
                 break;
             }
@@ -631,27 +985,23 @@ static _Bool messages_mmove_text(MESSAGES *m, int width, int mx, int my, int dy,
 {
 
     cursor = CURSOR_TEXT;
-    m->cursor_over_position = hittextmultiline(mx - MESSAGES_X,
-                               width - MESSAGES_X - TIME_WIDTH,
-                               (my < 0 ? 0 : my),
-                               msg_height,
-                               font_small_lineheight,
-                               message,
-                               msg_length,
-                               1);
+    m->cursor_over_position = hittextmultiline(mx - MESSAGES_X, width - MESSAGES_X - TIME_WIDTH,
+                               (my < 0 ? 0 : my), msg_height, font_small_lineheight,
+                               message, msg_length, 1);
 
     if (my < 0 || my >= dy || mx < MESSAGES_X || m->cursor_over_position == msg_length) {
+        m->cursor_over_uri = UINT32_MAX;
         return 0;
     }
 
-    _Bool prev_mouse_down_on_uri = m->mouse_down_on_uri;
+    _Bool prev_cursor_down_uri = m->cursor_down_uri;
 
-    if (m->mouse_over_uri != UINT16_MAX) {
-        m->mouse_down_on_uri = 0;
-        m->mouse_over_uri = UINT16_MAX;
+    if (m->cursor_over_uri != UINT32_MAX) {
+        m->cursor_down_uri = 0;
+        m->cursor_over_uri = UINT32_MAX;
     }
 
-
+    /* Seek back to the last word/line break */
     char_t *str = message + m->cursor_over_position;
     while (str != message) {
         str--;
@@ -661,24 +1011,27 @@ static _Bool messages_mmove_text(MESSAGES *m, int width, int mx, int my, int dy,
         }
     }
 
+    /* Check if it's a URI we handle TODO: handle moar! */
     char_t *end = message + msg_length;
     while (str != end && *str != ' ' && *str != '\n') {
         if (str == message || *(str - 1) == '\n' || *(str - 1) == ' ') {
-            if ((m->mouse_over_uri == UINT16_MAX && end - str >= 7 && strcmp2(str, "http://") == 0)) {
+            if (m->cursor_over_uri == UINT32_MAX && end - str >= 7 && (strcmp2(str, "http://") == 0)) {
                 cursor = CURSOR_HAND;
-                m->mouse_over_uri = str - message;
-            } else if ((m->mouse_over_uri == UINT16_MAX && end - str >= 8 && strcmp2(str, "https://") == 0)) {
+                m->cursor_over_uri = str - message;
+            } else if (m->cursor_over_uri == UINT32_MAX && end - str >= 8 && (strcmp2(str, "https://") == 0)) {
                 cursor = CURSOR_HAND;
-                m->mouse_over_uri = str - message;
+                m->cursor_over_uri = str - message;
             }
         }
         str++;
     }
 
-    if (m->mouse_over_uri != UINT16_MAX) {
-        m->urllen = (str - message) - m->mouse_over_uri;
-        m->mouse_down_on_uri = prev_mouse_down_on_uri;
+    if (m->cursor_over_uri != UINT32_MAX) {
+        m->urllen = (str - message) - m->cursor_over_uri;
+        m->cursor_down_uri = prev_cursor_down_uri;
+            debug("urllen %u\n", m->urllen);
     }
+
     return 0;
 }
 
@@ -718,14 +1071,21 @@ _Bool messages_mmove(PANEL *panel, int UNUSED(px), int UNUSED(py), int width, in
                      int mx, int my, int dx, int UNUSED(dy))
 {
     MESSAGES *m = panel->object;
+
+    if (mx >= width - TIME_WIDTH) {
+        m->cursor_over_time = 1;
+    } else {
+        m->cursor_over_time = 0;
+    }
+
     if (m->cursor_down_msg < m->number) {
         int maxwidth = width - MESSAGES_X - TIME_WIDTH;
         MSG_IMG *img_down = m->data[m->cursor_down_msg];
-        if((img_down->msg_type == MSG_TYPE_IMAGE) && (img_down->w > maxwidth)) {
+        if ((img_down->msg_type == MSG_TYPE_IMAGE) && (img_down->w > maxwidth)) {
             img_down->position -= (double)dx / (double)(img_down->w - maxwidth);
-            if(img_down->position > 1.0) {
+            if (img_down->position > 1.0) {
                 img_down->position = 1.0;
-            } else if(img_down->position < 0.0) {
+            } else if (img_down->position < 0.0) {
                 img_down->position = 0.0;
             }
             cursor = CURSOR_ZOOM_OUT;
@@ -734,7 +1094,7 @@ _Bool messages_mmove(PANEL *panel, int UNUSED(px), int UNUSED(py), int width, in
     }
 
     if (mx < 0 || my < 0 || (uint32_t) my > m->height) {
-        if(m->cursor_over_msg != UINT32_MAX) {
+        if (m->cursor_over_msg != UINT32_MAX) {
             m->cursor_over_msg = UINT32_MAX;
             return 1;
         }
@@ -750,7 +1110,7 @@ _Bool messages_mmove(PANEL *panel, int UNUSED(px), int UNUSED(py), int width, in
     while (i < n) {
         MSG_TEXT *msg = *p++;
 
-        int dy = msg->height;
+        int dy = msg->height; /* dy is the wrong name here, you should change it! */
 
         if (my >= 0 && my < dy) {
             m->cursor_over_msg = i;
@@ -762,9 +1122,14 @@ _Bool messages_mmove(PANEL *panel, int UNUSED(px), int UNUSED(py), int width, in
                 case MSG_TYPE_NOTICE_DAY_CHANGE: {
                     if (m->is_groupchat) {
                         MSG_GROUP *grp = (void*)msg;
-                        messages_mmove_text(m, width, mx, my, dy, grp->msg + grp->author_length, msg->height, msg->length);
+                        messages_mmove_text(m, width, mx, my, dy, grp->msg + grp->author_length, grp->height, grp->length);
                     } else {
                         messages_mmove_text(m, width, mx, my, dy, msg->msg, msg->height, msg->length);
+                    }
+                    if (m->cursor_down_msg != UINT32_MAX &&
+                        (m->cursor_down_position != m->cursor_over_position
+                         || m->cursor_down_msg != m->cursor_over_msg)) {
+                        m->selecting_text = 1;
                     }
                     break;
                 }
@@ -792,41 +1157,24 @@ _Bool messages_mmove(PANEL *panel, int UNUSED(px), int UNUSED(py), int width, in
 
 
             if (m->selecting_text) {
-                uint32_t msg_start, msg_end;
-                uint16_t pos_start, pos_end;
-                if (i > m->cursor_down_msg) {
-                    msg_start = m->cursor_down_msg;
-                    msg_end = i;
+                need_redraw = 1;
 
-                    pos_start = m->cursor_down_position;
-                    pos_end = m->cursor_over_position;
-                } else if (i < m->cursor_down_msg) {
-                    msg_end = m->cursor_down_msg;
-                    msg_start = i;
-
-                    pos_end = m->cursor_down_position;
-                    pos_start = m->cursor_over_position;
+                if (m->cursor_down_msg != m->cursor_over_msg || m->cursor_down_position <= m->cursor_over_position) {
+                    m->sel_start_position = m->cursor_down_position;
+                    m->sel_end_position   = m->cursor_over_position;
                 } else {
-                    msg_start = msg_end = i;
-                    if (m->cursor_over_position >= m->cursor_down_position) {
-                        pos_start = m->cursor_down_position;
-                        pos_end = m->cursor_over_position;
-                    } else {
-                        pos_end = m->cursor_down_position;
-                        pos_start = m->cursor_over_position;
-                    }
+                    m->sel_start_position = m->cursor_over_position;
+                    m->sel_end_position   = m->cursor_down_position;
                 }
 
-                if (  pos_start != m->sel_start_position
-                   || msg_start != m->sel_start_msg
-                   ||   pos_end != m->sel_end_position
-                   ||   msg_end != m->sel_end_msg) {
-
-                    m->sel_start_position   = pos_start;
-                    m->sel_end_position     = pos_end;
-                    m->sel_start_msg        = msg_start;
-                    m->sel_end_msg          = msg_end;
-                    need_redraw = 1;
+                if (m->cursor_down_msg <= m->cursor_over_msg) {
+                    m->sel_start_msg = m->cursor_down_msg;
+                    m->sel_end_msg   = m->cursor_over_msg;
+                } else {
+                    m->sel_start_msg      = m->cursor_over_msg;
+                    m->sel_end_msg        = m->cursor_down_msg;
+                    m->sel_start_position = m->cursor_over_position;
+                    m->sel_end_position   = m->cursor_down_position;
                 }
             }
 
@@ -850,14 +1198,16 @@ _Bool messages_mdown(PANEL *panel) {
         MSG_VOID *msg = m->data[m->cursor_over_msg];
         switch (msg->msg_type) {
             case MSG_TYPE_TEXT:
-            case MSG_TYPE_ACTION_TEXT: {
-                if (m->mouse_over_uri != UINT16_MAX) {
-                    m->mouse_down_on_uri = 1;
+            case MSG_TYPE_ACTION_TEXT:
+            case MSG_TYPE_NOTICE:
+            case MSG_TYPE_NOTICE_DAY_CHANGE: {
+                if (m->cursor_over_uri != UINT32_MAX) {
+                    m->cursor_down_uri = m->cursor_over_uri;
+                    debug("mdn dURI %u, oURI %u\n", m->cursor_down_uri, m->cursor_over_uri);
                 }
 
                 m->sel_start_msg = m->sel_end_msg = m->cursor_down_msg = m->cursor_over_msg;
                 m->sel_start_position = m->sel_end_position = m->cursor_down_position = m->cursor_over_position;
-                m->selecting_text = 1;
                 break;
             }
 
@@ -880,18 +1230,18 @@ _Bool messages_mdown(PANEL *panel) {
                     break;
                 }
 
-                switch(file->status) {
+                switch(file->file_status) {
                 case FILE_TRANSFER_STATUS_NONE: {
-                    if(!msg->author) {
+                    if(!msg->our_msg) {
                         if(m->cursor_over_position == 2) {
                             native_select_dir_ft(m->id, file);
                         } else if(m->cursor_over_position == 1) {
                             //decline
-                            postmessage_toxcore(TOX_FILE_CANCEL, m->id, file->filenumber, NULL);
+                            postmessage_toxcore(TOX_FILE_CANCEL, m->id, file->file->file_number, NULL);
                         }
                     } else if(m->cursor_over_position == 1) {
                         //cancel
-                        postmessage_toxcore(TOX_FILE_CANCEL, m->id, file->filenumber, NULL);
+                        postmessage_toxcore(TOX_FILE_CANCEL, m->id, file->file->file_number, NULL);
                     }
 
 
@@ -901,10 +1251,10 @@ _Bool messages_mdown(PANEL *panel) {
                 case FILE_TRANSFER_STATUS_ACTIVE: {
                     if(m->cursor_over_position == 2) {
                         //pause
-                        postmessage_toxcore(TOX_FILE_PAUSE, m->id, file->filenumber, NULL);
+                        postmessage_toxcore(TOX_FILE_PAUSE, m->id, file->file->file_number, NULL);
                     } else if(m->cursor_over_position == 1) {
                         //cancel
-                        postmessage_toxcore(TOX_FILE_CANCEL, m->id, file->filenumber, NULL);
+                        postmessage_toxcore(TOX_FILE_CANCEL, m->id, file->file->file_number, NULL);
                     }
                     break;
                 }
@@ -912,10 +1262,10 @@ _Bool messages_mdown(PANEL *panel) {
                 case FILE_TRANSFER_STATUS_PAUSED_US: {
                     if(m->cursor_over_position == 2) {
                         //resume
-                        postmessage_toxcore(TOX_FILE_RESUME, m->id, file->filenumber, NULL);
+                        postmessage_toxcore(TOX_FILE_RESUME, m->id, file->file->file_number, NULL);
                     } else if(m->cursor_over_position == 1) {
                         //cancel
-                        postmessage_toxcore(TOX_FILE_CANCEL, m->id, file->filenumber, NULL);
+                        postmessage_toxcore(TOX_FILE_CANCEL, m->id, file->file->file_number, NULL);
                     }
                     break;
                 }
@@ -924,7 +1274,7 @@ _Bool messages_mdown(PANEL *panel) {
                 case FILE_TRANSFER_STATUS_BROKEN: {
                     //cancel
                     if(m->cursor_over_position == 1) {
-                        postmessage_toxcore(TOX_FILE_CANCEL, m->id, file->filenumber, NULL);
+                        postmessage_toxcore(TOX_FILE_CANCEL, m->id, file->file->file_number, NULL);
                     }
                     break;
                 }
@@ -962,7 +1312,12 @@ _Bool messages_mdown(PANEL *panel) {
 _Bool messages_dclick(PANEL *panel, _Bool triclick) {
     MESSAGES *m = panel->object;
 
-    if(m->cursor_over_msg != UINT32_MAX) {
+    if (m->cursor_over_time) {
+        settings.use_long_time_msg = !settings.use_long_time_msg;
+        return 1;
+    }
+
+    if (m->cursor_over_msg != UINT32_MAX) {
         MSG_TEXT *msg    = m->data[m->cursor_over_msg];
         uint8_t *real_msg = NULL;
 
@@ -1042,20 +1397,24 @@ _Bool messages_mup(PANEL *panel) {
     }
 
     if (m->cursor_over_msg != UINT32_MAX) {
-
         MSG_TEXT *msg = m->data[m->cursor_over_msg];
         if (msg->msg_type == MSG_TYPE_TEXT){
-            if (m->mouse_over_uri != UINT16_MAX && m->mouse_down_on_uri) {
+            if (m->cursor_over_uri != UINT32_MAX
+                && m->cursor_down_uri == m->cursor_over_uri
+                && m->cursor_over_position >= m->cursor_over_uri
+                && m->cursor_over_position <= m->cursor_over_uri + m->urllen - 1 /* - 1 Don't open on white space */
+                && !m->selecting_text) {
+                debug("mup dURI %u, oURI %u\n", m->cursor_down_uri, m->cursor_over_uri);
                 char_t url[m->urllen + 1];
-                memcpy(url, msg->msg + m->mouse_over_uri, m->urllen * sizeof(char_t));
+                memcpy(url, msg->msg + m->cursor_over_uri, m->urllen * sizeof(char_t));
                 url[m->urllen] = 0;
                 openurl(url);
-                m->mouse_down_on_uri = 0;
+                m->cursor_down_uri = 0;
             }
         }
     }
 
-    //temporary, change this
+    // FIXME! temporary, change this
     /* lol... oh fuck... */
     if (m->selecting_text) {
         char_t *lel = malloc(65536); //TODO: De-hardcode this value.
@@ -1070,8 +1429,7 @@ _Bool messages_mup(PANEL *panel) {
     return 0;
 }
 
-_Bool messages_mleave(PANEL *UNUSED(m))
-{
+_Bool messages_mleave(PANEL *UNUSED(m)) {
     return 0;
 }
 
@@ -1100,7 +1458,7 @@ int messages_selection(PANEL *panel, void *buffer, uint32_t len, _Bool names) {
             } else {
                 FRIEND *f = &friend[m->id];
 
-                if (!msg->author) {
+                if (!msg->our_msg) {
                     if (len <= f->name_length) {
                         break;
                     }
@@ -1135,8 +1493,8 @@ int messages_selection(PANEL *panel, void *buffer, uint32_t len, _Bool names) {
                 if (m->is_groupchat) {
                     MSG_GROUP *grp = (void*)msg;
                     group_name_buffer = grp->author_length;
-                    group_name_buffer += 6; /* LOL, again, SO SORRY! This is about as hacky as it gets!
-                                             * 6 is the number of bytes of difference between the
+                    group_name_buffer += 4; /* LOL, again, SO SORRY! This is about as hacky as it gets!
+                                             * 2 is the number of bytes of difference between the
                                              * position of ->msg[0] of MSG_TEXT and of MSG_GROUP      */
                 }
 
@@ -1195,66 +1553,6 @@ int messages_selection(PANEL *panel, void *buffer, uint32_t len, _Bool names) {
     return (void*)p - buffer;
 }
 
-static int msgheight(MSG_VOID *msg, int width) {
-    switch(msg->msg_type) {
-        case MSG_TYPE_TEXT:
-        case MSG_TYPE_ACTION_TEXT:
-        case MSG_TYPE_NOTICE:
-        case MSG_TYPE_NOTICE_DAY_CHANGE: {
-            MSG_TEXT *text = (void*)msg;
-            int theight = text_height(abs(width - MESSAGES_X - TIME_WIDTH), font_small_lineheight, text->msg, text->length);
-            return (theight == 0) ? 0 : theight + MESSAGES_SPACING;
-        }
-
-        case MSG_TYPE_IMAGE: {
-            MSG_IMG *img = (void*)msg;
-            int maxwidth = width - MESSAGES_X - TIME_WIDTH;
-            return ((img->zoom || img->w <= maxwidth) ? img->h : img->h * maxwidth / img->w) + MESSAGES_SPACING;
-        }
-
-        case MSG_TYPE_FILE: {
-            return FILE_TRANSFER_BOX_HEIGHT + MESSAGES_SPACING;
-        }
-
-    }
-
-    return 0;
-}
-
-static int msgheight_group(MSG_GROUP *grp, int width) {
-    switch(grp->msg_type) {
-        case MSG_TYPE_TEXT:
-        case MSG_TYPE_ACTION_TEXT:
-        case MSG_TYPE_NOTICE:
-        case MSG_TYPE_NOTICE_DAY_CHANGE: {
-            int theight = text_height(abs(width - MESSAGES_X - TIME_WIDTH), font_small_lineheight,
-                                      grp->msg + grp->author_length, grp->length);
-            return (theight == 0) ? 0 : theight + MESSAGES_SPACING;
-        }
-        default: {
-            debug("Error, can't set this group message height\n");
-        }
-    }
-
-    return 0;
-}
-
-static int message_setheight(MESSAGES *m, MSG_VOID *msg) {
-    if (m->width == 0) {
-        return 0;
-    }
-
-    setfont(FONT_TEXT);
-
-    if (m->is_groupchat) {
-        MSG_GROUP *grp = (void*)msg;
-        msg->height = msgheight_group(grp, m->width);
-    } else {
-        msg->height = msgheight(msg, m->width);
-    }
-    return msg->height;
-}
-
 void messages_updateheight(MESSAGES *m, int width) {
     if (!m->data || !width) {
         return;
@@ -1271,94 +1569,6 @@ void messages_updateheight(MESSAGES *m, int width) {
     }
 
     m->panel.content_scroll->content_height = m->height = height;
-}
-
-void message_updateheight(MESSAGES *m, MSG_VOID *msg) {
-    if (m->width == 0) {
-        return;
-    }
-
-    setfont(FONT_TEXT);
-
-    m->height   -= msg->height;
-    msg->height  = message_setheight(m, msg);
-    m->height   += msg->height;
-
-    m->panel.content_scroll->content_height = m->height;
-}
-
-/** Appends a messages from self or friend to the message list;
- * will realloc or trim messages as needed;
- *
- * also handles auto scrolling selections with messages
- *
- * accepts: MESSAGES *pointer, MESSAGE *pointer, MSG_DATA *pointer
- */
-static uint32_t message_add(MESSAGES *m, MSG_VOID *msg) {
-    pthread_mutex_lock(&messages_lock);
-
-    /* TODO: test this? */
-    if (m->number < UTOX_MAX_BACKLOG_MESSAGES) {
-        if (m->extra <= 0) {
-            if (m->data) {
-                m->data = realloc(m->data, (m->number + 10) * sizeof(void*));
-                m->extra += 10;
-            } else {
-                m->data = calloc(20, sizeof(void*));
-                m->extra = 20;
-            }
-
-            if (!m->data) {
-                debug("\n\n\nFATIAL ERROR TRYING TO REALLOC FOR MESSAGES.\nTHIS IS A BUG, PLEASE REPORT!\n\n\n");
-                exit(30);
-            }
-        }
-        m->data[m->number++] = msg;
-        m->extra--;
-    } else {
-        m->height -= ((MSG_VOID*)m->data[0])->height;
-        /* Assuming this is MSG_TEXT is probably a mistake... */
-        message_free(m->data[0]);
-        memmove(m->data, m->data + 1, (UTOX_MAX_BACKLOG_MESSAGES - 1) * sizeof(void*));
-        m->data[UTOX_MAX_BACKLOG_MESSAGES - 1] = msg;
-
-        // Scroll selection up so that it stays over the same messages.
-        if (m->sel_start_msg != UINT32_MAX) {
-            if(0 < m->sel_start_msg) {
-                m->sel_start_msg--;
-            } else {
-                m->sel_start_position = 0;
-            }
-        }
-
-        if (m->sel_end_msg != UINT32_MAX) {
-            if(0 < m->sel_end_msg) {
-                m->sel_end_msg--;
-            } else {
-                m->sel_end_position = 0;
-            }
-        }
-
-        if (m->cursor_down_msg != UINT32_MAX) {
-            if(0 < m->cursor_down_msg) {
-                m->cursor_down_msg--;
-            } else {
-                m->cursor_down_position = 0;
-            }
-        }
-        if (m->cursor_over_msg != UINT32_MAX) {
-            if(0 < m->cursor_over_msg) {
-                m->cursor_over_msg--;
-            } else {
-                m->cursor_over_position = 0;
-            }
-        }
-    }
-
-    message_updateheight(m, (MSG_VOID*)msg);
-
-    pthread_mutex_unlock(&messages_lock);
-    return m->number;
 }
 
 _Bool messages_char(uint32_t ch) {
@@ -1398,6 +1608,22 @@ _Bool messages_char(uint32_t ch) {
     return 0;
 }
 
+void messages_init(MESSAGES *m, uint32_t friend_number) {
+    if (m->data){
+        messages_clear_all(m);
+    }
+    memset(m, 0, sizeof(*m) * countof(m));
+
+    m->data = calloc(20, sizeof(void*));
+    if (!m->data) {
+        debug_error("\n\n\nFATAL ERROR TRYING TO CALLOC FOR MESSAGES.\nTHIS IS A BUG, PLEASE REPORT!\n\n\n");
+        exit(30);
+    }
+
+    m->extra    = 20;
+    m->id       = friend_number;
+}
+
 void message_free(MSG_TEXT *msg) {
     switch(msg->msg_type) {
         case MSG_TYPE_IMAGE: {
@@ -1415,6 +1641,7 @@ void message_free(MSG_TEXT *msg) {
 }
 
 void messages_clear_all(MESSAGES *m) {
+    pthread_mutex_lock(&messages_lock);
     uint32_t i;
 
     for (i = 0; i < m->number; i++) {
@@ -1422,10 +1649,12 @@ void messages_clear_all(MESSAGES *m) {
     }
 
     free(m->data);
-    m->data = NULL;
+    m->data   = NULL;
     m->number = 0;
+    m->extra  = 0;
 
     m->sel_start_msg = m->sel_end_msg = m->sel_start_position = m->sel_end_position = 0;
 
-    m->panel.content_scroll->content_height = m->height = 0;
+    m->height = 0;
+    pthread_mutex_unlock(&messages_lock);
 }

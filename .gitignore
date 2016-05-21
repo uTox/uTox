@@ -1,10 +1,17 @@
+# objects
 *.o
+*.d
+*.dll
+
+# executables
 utox
 utox.exe
-bin/
-lib/
-debug.keystore
-*.dll
+*.apk
+
+# store dirs
+lib/*
+build/*
+toolchain/*
 Tox/
 libtoxcore.log
 toolchain/

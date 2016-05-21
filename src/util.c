@@ -219,7 +219,7 @@ int sprint_humanread_bytes(uint8_t *dest, unsigned int size, uint64_t bytes) {
     return r;
 }
 
-uint8_t utf8_len(char_t *data)
+uint8_t utf8_len(const char_t *data)
 {
     if(!(*data & 0x80)) {
         return 1;
@@ -387,7 +387,7 @@ _Bool memcmp_case(const char_t *s1, const char_t *s2, uint32_t n)
     return 0;
 }
 
-char_t* tohtml(char_t *str, uint16_t length)
+char_t* tohtml(const char_t *str, uint16_t length)
 {
     uint16_t i = 0;
     int len = 0;
@@ -623,14 +623,14 @@ typedef struct
 
 UTOX_SAVE* config_load(void) {
     UTOX_SAVE *save;
-    save = native_load_data_utox();
+    save = utox_load_data_utox();
 
     if (!save) {
         debug("unable to load utox_save data\n");
     }
 
     if (save) {
-        if(save->version == SAVE_VERSION) {
+        if(save->save_version == SAVE_VERSION) {
             /* validate values */
             if(save->scale > 30) {
                 save->scale = 30;
@@ -638,12 +638,12 @@ UTOX_SAVE* config_load(void) {
                 save->scale = 10;
             }
             goto NEXT;
-        } else if (save->version == 2) {
+        } else if (save->save_version == 2) {
             UTOX_SAVE_V2 *save_v2 = (UTOX_SAVE_V2*)save;
             save = calloc(sizeof(UTOX_SAVE) + 1 + strlen((char *)save_v2->proxy_ip), 1);
 
             memcpy(save, save_v2, sizeof(UTOX_SAVE_V2));
-            save->version = SAVE_VERSION;
+            save->save_version = SAVE_VERSION;
 
             if(save->scale > 30) {
                 save->scale = 30;
@@ -658,7 +658,7 @@ UTOX_SAVE* config_load(void) {
     }
 
     save = calloc(sizeof(UTOX_SAVE) + 1, 1);
-    save->version = 1;
+    save->save_version = 1;
     save->scale = DEFAULT_SCALE - 1;
 
     save->enableipv6      = 1;
@@ -733,11 +733,15 @@ NEXT:
     settings.use_mini_roster        = save->use_mini_roster;
 
     settings.send_typing_status     = !save->no_typing_notifications;
+
     settings.window_width           = save->window_width;
     settings.window_height          = save->window_height;
 
+    settings.last_version           = save->utox_last_version;
+
     loaded_audio_out_device         = save->audio_device_out;
     loaded_audio_in_device          = save->audio_device_in;
+
 
     if ( save->push_to_talk ) {
         init_ptt();
@@ -747,7 +751,7 @@ NEXT:
 }
 
 void config_save(UTOX_SAVE *save) {
-    save->version                       = SAVE_VERSION;
+    save->save_version                       = SAVE_VERSION;
     save->scale                         = ui_scale - 1;
     save->disableudp                    = dropdown_udp.selected;
     save->proxyenable                   = dropdown_proxy.selected;
@@ -770,12 +774,14 @@ void config_save(UTOX_SAVE *save) {
     save->audio_device_out              = dropdown_audio_out.selected;
     save->theme                         = theme;
 
+    save->utox_last_version             = settings.curr_version;
+
 
     memset(save->unused, 0, sizeof(save->unused));
 
     debug("uTox:\tWriting uTox Save\n");
 
-    native_save_data_utox(save, sizeof(*save));
+    utox_save_data_utox(save, sizeof(*save));
 }
 
 void utox_write_metadata(FRIEND *f){

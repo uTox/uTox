@@ -10,7 +10,10 @@
 
 #include <errno.h>
 
-#define debug(...) ((void)__android_log_print(ANDROID_LOG_INFO, "utox", __VA_ARGS__))
+#define debug(...)          ((void)__android_log_print(ANDROID_LOG_INFO, "utox", __VA_ARGS__))
+#define debug_info(...)     ((void)__android_log_print(ANDROID_LOG_INFO, "utox", __VA_ARGS__))
+#define debug_notice(...)   ((void)__android_log_print(ANDROID_LOG_INFO, "utox", __VA_ARGS__))
+#define debug_error(...)    ((void)__android_log_print(ANDROID_LOG_INFO, "utox", __VA_ARGS__))
 
 #define RGB(r, g, b) ((r) | ((g) << 8) | ((b) << 16))
 
@@ -31,3 +34,8 @@
 #include <GLES2/gl2.h>
 typedef GLuint UTOX_NATIVE_IMAGE;
 #define UTOX_NATIVE_IMAGE_IS_VALID(x) (0 != (x))
+
+#define ANDROID_INTERNAL_SAVE "/data/data/tox.client.utox/files/"
+
+// TODO remove this
+int settings.portable_mode;

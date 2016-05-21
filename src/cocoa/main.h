@@ -32,9 +32,11 @@
 
 #define RGB(r, g, b) (((r) << 16) | ((g) << 8) | (b))
 
-_Bool utox_portable;
-
 void debug(const char *fmt, ...);
+void debug_info(const char *fmt, ...);
+void debug_notice(const char *fmt, ...);
+void debug_error(const char *fmt, ...);
+
 typedef struct utox_native_image UTOX_NATIVE_IMAGE;
 int UTOX_NATIVE_IMAGE_IS_VALID(UTOX_NATIVE_IMAGE *img);
 

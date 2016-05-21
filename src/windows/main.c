@@ -30,7 +30,7 @@ static int utf8_to_nativestr(char_t *str, wchar_t *out, int length){
 
 int native_to_utf8str(wchar_t *str_in, char *str_out, uint32_t max_size){
         /* must be null terminated string          ↓                     */
-    return WideCharToMultiByte(CP_ACP, 0, str_in, -1, str_out, max_size, NULL, NULL);
+    return WideCharToMultiByte(CP_UTF8, 0, str_in, -1, str_out, max_size, NULL, NULL);
 }
 
 void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data)
@@ -78,16 +78,15 @@ void openurl(char_t *str)
     ShellExecute(NULL, "open", (char*)str, NULL, NULL, SW_SHOW);
 }
 
-/** Takes data from µTox and saves it, just how the OS likes it saved!
- *
- * Returns 1 on failure. Used to set save_needed in tox thread */
-_Bool native_save_data(const uint8_t *name, size_t name_length, const uint8_t *data, size_t length, _Bool append) {
+/** Takes data from µTox and saves it, just how the OS likes it saved! */
+size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *data, size_t length, _Bool append) {
     uint8_t path[UTOX_FILE_NAME_LENGTH];
     uint8_t atomic_path[UTOX_FILE_NAME_LENGTH];
     FILE *file;
+    size_t offset = 0;
 
-    if (utox_portable) {
-        strcpy((char *)path, utox_portable_save_path);
+    if (settings.portable_mode) {
+        strcpy((char *)path, portable_mode_save_path);
     } else {
         _Bool have_path = 0;
         have_path = SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, (char*)path));
@@ -97,7 +96,7 @@ _Bool native_save_data(const uint8_t *name, size_t name_length, const uint8_t *d
         }
 
         if (!have_path) {
-            strcpy((char *)path, utox_portable_save_path);
+            strcpy((char *)path, portable_mode_save_path);
             have_path = 1;
         }
     }
@@ -111,7 +110,7 @@ _Bool native_save_data(const uint8_t *name, size_t name_length, const uint8_t *d
             file = fopen((const char*)path, "ab");
         } else {
             if (strlen((const char*)path) + name_length >= UTOX_FILE_NAME_LENGTH - strlen(".atomic")){
-                debug("NATIVE:Save directory name too long\n");
+                debug_error("NATIVE:Save directory name too long\n");
                 return 0;
             } else {
                 snprintf((char*)atomic_path, UTOX_FILE_NAME_LENGTH, "%s.atomic", path);
@@ -121,53 +120,41 @@ _Bool native_save_data(const uint8_t *name, size_t name_length, const uint8_t *d
         }
 
         if (file) {
+            /* Why must windows not make ANY SENSE?!
+             * we must seek to the end to get the ACTUAL position, 'cause why not */
+            _fseeki64(file, 0, SEEK_END);
+            offset = _ftelli64(file);
             fwrite(data, length, 1, file);
             fclose(file);
 
             if (append) {
-                return 0;
+                debug("NATIVE:\tOffset for this file is %u\n", offset);
+                return offset;
             }
 
             if (!SUCCEEDED(MoveFileEx((const char*)atomic_path, (const char*)path, MOVEFILE_REPLACE_EXISTING))) {
                 /* Consider backing up this file instead of overwriting it. */
                 if (remove((const char*)path)) {
                     if (rename((const char*)atomic_path, (const char*)path)) {
-                        debug("NATIVE:\t%s deleted, but still unable to move file!\n", atomic_path);
-                        return 1;
-                    } else {
+                        debug_error("NATIVE:\t%s deleted, but still unable to move file!\n", atomic_path);
                         return 0;
+                    } else {
+                        return 1;
                     }
                 }
+            } else {
+                return 1;
             }
 
-            return 0;
+            debug_error("NATIVE:\tBAD EXIT, in native_save_data! Please report this issue!\n");
+            return 0; /* we should never hit this */
         } else {
-            debug("NATIVE:\tUnable to open %s to write save\n", path);
-            return 1;
+            debug_error("NATIVE:\tUnable to open %s to write save\n", path);
+            return 0;
         }
     }
 
     return 0;
-}
-
-_Bool native_save_data_tox(uint8_t *data, size_t length){
-    uint8_t name[] = "tox_save.tox";
-    return native_save_data(name, strlen((const char*)name), data, length, 0);
-}
-
-_Bool native_save_data_utox(UTOX_SAVE *data, size_t length){
-    uint8_t name[] = "utox_save";
-    return native_save_data(name, strlen((const char*)name), (const uint8_t*)data, length, 0);
-}
-
-_Bool native_save_data_log(uint32_t friend_number, uint8_t *data, size_t length) {
-    FRIEND *f = &friend[friend_number];
-    uint8_t hex[TOX_PUBLIC_KEY_SIZE * 2];
-    uint8_t name[TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".new.txt")];
-    cid_to_string(hex, f->cid);
-    snprintf((char*)name, TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".new.txt"), "%.*s.new.txt", TOX_PUBLIC_KEY_SIZE * 2, (char*)hex);
-
-    return native_save_data(name, strlen((const char*)name), (const uint8_t*)data, length, 1);
 }
 
 /** Takes data from µTox and loads it up! */
@@ -175,8 +162,8 @@ uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_s
     uint8_t path[UTOX_FILE_NAME_LENGTH];
     uint8_t *data;
 
-    if (utox_portable) {
-        strcpy((char *)path, utox_portable_save_path);
+    if (settings.portable_mode) {
+        strcpy((char *)path, portable_mode_save_path);
     } else {
         _Bool have_path = 0;
         have_path = SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, (char*)path));
@@ -186,10 +173,11 @@ uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_s
         }
 
         if (!have_path) {
-            strcpy((char *)path, utox_portable_save_path);
+            strcpy((char *)path, portable_mode_save_path);
             have_path = 1;
         }
     }
+
     snprintf((char *)path + strlen((const char*)path), UTOX_FILE_NAME_LENGTH - strlen((const char*)path), "\\Tox\\%s", name);
 
     FILE *file = fopen((const char*)path, "rb");
@@ -225,40 +213,15 @@ uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_s
     return data;
 }
 
-uint8_t *native_load_data_tox(size_t *size){
-    uint8_t name[][20] = { "tox_save.tox",
-                           "tox_save.tox.atomic",
-                           "tox_save.tmp",
-                           "tox_save"
-    };
-
-    uint8_t *data;
-
-    for (int i = 0; i < 4; i++) {
-        data = native_load_data(name[i], strlen((const char*)name[i]), size);
-        if (data) {
-            return data;
-        } else {
-            debug("NATIVE:\tUnable to load %s\n", name[i]);
-        }
-    }
-    return NULL;
-}
-
-UTOX_SAVE *native_load_data_utox(void){
-    uint8_t name[] = "utox_save";
-    return (UTOX_SAVE*)native_load_data(name, strlen((const char*)name), NULL);
-}
-
-uint8_t **native_load_data_log(uint32_t friend_number, size_t *size, uint32_t count, uint32_t skip) {
+FILE *native_load_data_logfile(uint32_t friend_number) {
     FRIEND *f = &friend[friend_number];
     uint8_t hex[TOX_PUBLIC_KEY_SIZE * 2];
     uint8_t path[UTOX_FILE_NAME_LENGTH];
 
     cid_to_string(hex, f->cid);
 
-    if (utox_portable) {
-        strcpy((char *)path, utox_portable_save_path);
+    if (settings.portable_mode) {
+        strcpy((char *)path, portable_mode_save_path);
     } else {
         _Bool have_path = 0;
         have_path = SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, (char*)path));
@@ -268,7 +231,7 @@ uint8_t **native_load_data_log(uint32_t friend_number, size_t *size, uint32_t co
         }
 
         if (!have_path) {
-            strcpy((char *)path, utox_portable_save_path);
+            strcpy((char *)path, portable_mode_save_path);
             have_path = 1;
         }
     }
@@ -282,103 +245,71 @@ uint8_t **native_load_data_log(uint32_t friend_number, size_t *size, uint32_t co
     }
 
 
-    FILE *file = fopen((const char*)path, "rb");
+    FILE *file = fopen((const char*)path, "rb+");
     if (!file) {
         //debug("NATIVE:\tUnable to open/read %s\n", path);
-        if (size) { *size = 0; }
         return NULL;
     }
 
-    LOG_FILE_MSG_HEADER header;
-    size_t records_count = 0;
-
-    while (1 == fread(&header, sizeof(header), 1, file)) {
-        fseeko(file, header.author_length + header.msg_length + 1, SEEK_CUR);
-        records_count++;
-    }
-
-
-    if (ferror(file) || !feof(file)) {
-        // TODO: consider removing or truncating the log file.
-        // If !feof() this means that the file has an incomplete record,
-        // which would prevent it from loading forever, even though
-        // new records will keep being appended as usual.
-        debug("Log read error (%s)\n", path);
-        fclose(file);
-        if (size) { *size = 0; }
-        return NULL;
-    }
-    rewind(file);
-
-    if (skip >= records_count) {
-        debug("Native log read:\tError, skipped all records\n");
-        fclose(file);
-        if (size) { *size = 0; }
-        return NULL;
-    }
-
-    if (count > (records_count - skip)) {
-        count = records_count - skip;
-    }
-
-    uint8_t **data = calloc(1, sizeof(*data) * count + 1);
-    size_t start_at = records_count - count - skip;
-    size_t actual_count = 0;
-
-    while (1 == fread(&header, sizeof(header), 1, file)) {
-        if (start_at) {
-            fseeko(file, header.author_length, SEEK_CUR);
-            fseeko(file, header.msg_length, SEEK_CUR);
-            fseeko(file, 1, SEEK_CUR); /* newline char */
-            start_at--;
-            continue;
-        }
-
-        if (count) {
-            /* we have to skip the author name for now, it's left here for group chats support in the future */
-            fseeko(file, header.author_length, SEEK_CUR);
-            MSG_TEXT *msg   = calloc(1, sizeof(MSG_TEXT) + header.msg_length);
-            msg->author     = header.author;
-            msg->length     = header.msg_length;
-            msg->time       = header.time;
-            msg->msg_type   = header.msg_type;
-
-            if(1 != fread(msg->msg, msg->length, 1, file)) {
-                debug("Native log read:\tError,reading this record... stopping\n");
-                break;
-            }
-            msg->length = utf8_validate(msg->msg, msg->length);
-            *data++ = (void*)msg;
-            count--;
-            actual_count++;
-            fseeko(file, 1, SEEK_CUR); /* seek an extra \n char */
-        }
-    }
-
-    fclose(file);
-
-    if (size) { *size = actual_count; }
-    return data - actual_count;
+    return file;
 }
 
-/** Open system file browser dialog */
-void openfilesend(void)
-{
-    char *filepath = malloc(1024);
-    filepath[0] = 0;
+_Bool native_remove_file(const uint8_t *name, size_t length) {
+    uint8_t path[UTOX_FILE_NAME_LENGTH]  = {0};
 
-    wchar_t dir[1024];
+    if (settings.portable_mode) {
+        strcpy((char *)path, portable_mode_save_path);
+    } else {
+        _Bool have_path = 0;
+        have_path = SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, (char*)path));
+
+        if (!have_path) {
+            have_path = SUCCEEDED(SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, (char*)path));
+        }
+
+        if (!have_path) {
+            strcpy((char *)path, portable_mode_save_path);
+            have_path = 1;
+        }
+    }
+
+
+    if (strlen((const char*)path) + length >= UTOX_FILE_NAME_LENGTH) {
+        debug("NATIVE:\tFile/directory name too long, unable to remove\n");
+        return 0;
+    } else {
+        snprintf((char*)path + strlen((const char*)path), UTOX_FILE_NAME_LENGTH - strlen((const char*)path),
+                 "\\Tox\\%.*s", (int)length, (char*)name);
+    }
+
+    if (remove((const char*)path)) {
+        debug_error("NATIVE:\tUnable to delete file!\n\t\t%s\n", path);
+        return 0;
+    } else {
+        debug_info("NATIVE:\tFile deleted!\n");
+        debug("NATIVE:\t\t%s\n", path);
+    }
+    return 1;
+}
+
+
+
+/** Open system file browser dialog */
+void openfilesend(void) {
+    char *filepath = calloc(10, UTOX_FILE_NAME_LENGTH); /* lets pick 10 as the number of files we want to work with. */
+
+    wchar_t dir[UTOX_FILE_NAME_LENGTH];
     GetCurrentDirectoryW(countof(dir), dir);
 
     OPENFILENAME ofn = {
         .lStructSize = sizeof(OPENFILENAME),
         .hwndOwner = hwnd,
         .lpstrFile = filepath,
-        .nMaxFile = 1024,
+        .nMaxFile = UTOX_FILE_NAME_LENGTH * 10,
         .Flags = OFN_EXPLORER | OFN_ALLOWMULTISELECT | OFN_FILEMUSTEXIST,
     };
 
-    if(GetOpenFileName(&ofn)) {
+    if (GetOpenFileName(&ofn)) {
         postmessage_toxcore(TOX_FILE_SEND_NEW, (FRIEND*)selected_item->data - friend, ofn.nFileOffset, filepath);
     } else {
         debug("GetOpenFileName() failed\n");
@@ -445,7 +376,7 @@ void openfileavatar(void)
 void savefiledata(MSG_FILE *file)
 {
     char *path = malloc(UTOX_FILE_NAME_LENGTH);
-    memcpy(path, file->name, file->name_length);
+    memcpy(path, file->file_name, file->name_length);
     path[file->name_length] = 0;
 
     OPENFILENAME ofn = {
@@ -469,6 +400,7 @@ void savefiledata(MSG_FILE *file)
     } else {
         debug("GetSaveFileName() failed\n");
     }
+    free(path);
 }
 
 void setselection(char_t *data, uint16_t length){}
@@ -638,7 +570,7 @@ void paste(void)
     CloseClipboard();
 }
 
-UTOX_NATIVE_IMAGE *decode_image(const UTOX_IMAGE data, size_t size, uint16_t *w, uint16_t *h, _Bool keep_alpha)
+UTOX_NATIVE_IMAGE *decode_image_rgb(const UTOX_IMAGE data, size_t size, uint16_t *w, uint16_t *h, _Bool keep_alpha)
 {
     int width, height, bpp;
     uint8_t *rgba_data = stbi_load_from_memory(data, size, &width, &height, &bpp, 4);
@@ -709,9 +641,9 @@ void image_free(UTOX_NATIVE_IMAGE *image)
 
 int datapath(uint8_t *dest)
 {
-    if (utox_portable) {
+    if (settings.portable_mode) {
         uint8_t *p = dest;
-        strcpy((char *)p, utox_portable_save_path); p += strlen(utox_portable_save_path);
+        strcpy((char *)p, portable_mode_save_path); p += strlen(portable_mode_save_path);
         strcpy((char *)p, "\\Tox"); p += 4;
         CreateDirectory((char*)dest, NULL);
         *p++ = '\\';
@@ -727,16 +659,6 @@ int datapath(uint8_t *dest)
     }
 
     return 0;
-}
-
-int datapath_subdir(uint8_t *dest, const char *subdir)
-{
-    int l = datapath(dest);
-    l += sprintf((char*)(dest+l), "%s", subdir);
-    CreateDirectory((char*)dest, NULL);
-    dest[l++] = '\\';
-
-    return l;
 }
 
 void flush_file(FILE *file)
@@ -772,7 +694,7 @@ int file_unlock(FILE *file, uint64_t start, size_t length){
  * accepts: char_t *title, title length, char_t *msg, msg length;
  * returns void;
  */
-void notify(char_t *title, uint16_t title_length, char_t *msg, uint16_t msg_length, FRIEND *f){
+void notify(char_t *title, uint16_t title_length, const char_t *msg, uint16_t msg_length, FRIEND *f){
     if( havefocus || self.status == 2 ) {
         return;
     }
@@ -963,7 +885,7 @@ void loadfonts(){
         .lfWeight = FW_NORMAL,
         //.lfCharSet = ANSI_CHARSET,
         .lfOutPrecision = OUT_TT_PRECIS,
-        .lfQuality = CLEARTYPE_QUALITY,
+        .lfQuality = DEFAULT_QUALITY,
         .lfFaceName = "DejaVu Sans",
     };
 
@@ -1146,7 +1068,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
 
     parse_args(argc, argv, &theme_was_set_on_argv, &should_launch_at_startup, &set_show_window, &no_updater);
 
-    if (utox_portable == true) {
+    if (settings.portable_mode == true) {
         /* force the working directory if opened with portable command */
         HMODULE hModule = GetModuleHandle(NULL);
         char path[MAX_PATH];
@@ -1155,7 +1077,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
         for (i = (len - 1); path[i] != '\\'; --i);
         path[i] = 0;//!
         SetCurrentDirectory(path);
-        strcpy(utox_portable_save_path, path);
+        strcpy(portable_mode_save_path, path);
     }
 
     if (should_launch_at_startup == 1) {
@@ -1203,6 +1125,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
 
     // Free memory allocated by CommandLineToArgvA
     GlobalFree(argv);
+
+    #ifdef GIT_VERSION
+    debug_notice("uTox version %s \n", GIT_VERSION);
+    #endif
 
     /* */
     MSG msg;
@@ -1260,6 +1186,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
         theme = save->theme;
     }
     theme_load(theme);
+
+    utox_init();
+
+    save->window_width  = save->window_width  < SCALE(640) ? SCALE(640) : save->window_width;
+    save->window_height = save->window_height < SCALE(320) ? SCALE(320) : save->window_height;
 
     char pretitle[128];
     snprintf(pretitle, 128, "%s %s (version : %s)", TITLE, SUB_TITLE, VERSION);
@@ -1406,7 +1337,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     }
 
     case WM_GETMINMAXINFO: {
-        POINT min = {UTOX_SCALE(320), UTOX_SCALE(160)};
+        POINT min = {SCALE(640), SCALE(320)};
         ((MINMAXINFO*)lParam)->ptMinTrackSize = min;
 
         break;
@@ -1423,12 +1354,12 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_SIZE: {
         switch(wParam) {
         case SIZE_MAXIMIZED: {
-            utox_window_maximized = 1;
+            settings.window_maximized = 1;
             break;
         }
 
         case SIZE_RESTORED: {
-            utox_window_maximized = 0;
+            settings.window_maximized = 0;
             break;
         }
         }
@@ -1755,58 +1686,4 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     }
 
     return DefWindowProcW(hwn, msg, wParam, lParam);
-}
-
-void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height, _Bool resize)
-{
-    if(!video_hwnd[id]) {
-        debug("frame for null window\n");
-        return;
-    }
-
-    if(resize) {
-        RECT r = {
-            .left = 0,
-            .top = 0,
-            .right = width,
-            .bottom = height
-        };
-        AdjustWindowRect(&r, WS_OVERLAPPEDWINDOW, 0);
-
-        int w, h;
-        w = r.right - r.left;
-        h = r.bottom - r.top;
-        if(w > GetSystemMetrics(SM_CXSCREEN)) {
-            w = GetSystemMetrics(SM_CXSCREEN);
-        }
-
-        if(h > GetSystemMetrics(SM_CYSCREEN)) {
-            h = GetSystemMetrics(SM_CYSCREEN);
-        }
-
-        SetWindowPos(video_hwnd[id], 0, 0, 0, w, h, SWP_NOZORDER | SWP_NOMOVE);
-    }
-
-    BITMAPINFO bmi = {
-        .bmiHeader = {
-            .biSize = sizeof(BITMAPINFOHEADER),
-            .biWidth = width,
-            .biHeight = -height,
-            .biPlanes = 1,
-            .biBitCount = 32,
-            .biCompression = BI_RGB,
-        }
-    };
-
-
-    RECT r = {0};
-    GetClientRect(video_hwnd[id], &r);
-
-    HDC dc = GetDC(video_hwnd[id]);
-
-    if(width == r.right && height == r.bottom) {
-        SetDIBitsToDevice(dc, 0, 0, width, height, 0, 0, 0, height, img_data, &bmi, DIB_RGB_COLORS);
-    } else {
-        StretchDIBits(dc, 0, 0, r.right, r.bottom, 0, 0, width, height, img_data, &bmi, DIB_RGB_COLORS, SRCCOPY);
-    }
 }
