@@ -3,11 +3,11 @@
 #define SUB_TITLE     "(Alpha)"
 #define RELEASE_TITLE "Mild Shock"
 #define PATCH_TITLE   "SRSLY"
-#define VERSION       "0.9.0"
+#define VERSION       "0.9.1"
 #define VER_MAJOR     0
 #define VER_MINOR     9
-#define VER_PATCH     0
-#define UTOX_VERSION_NUMBER 9000u /* major, minor, patch, 0 padded where needed */
+#define VER_PATCH     1
+#define UTOX_VERSION_NUMBER 9001u /* major, minor, patch, 0 padded where needed */
 
 /* Support for large files. */
 #define _LARGEFILE_SOURCE

@@ -251,11 +251,11 @@ _Bool utox_remove_file_avatar(uint32_t friend_number) {
     uint8_t name[sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png")];
 
     if (friend_number == -1) {
+        memcpy(hex, self.id_buffer, TOX_PUBLIC_KEY_SIZE * 2);
+    } else {
         /* load current user's avatar */
         FRIEND *f = &friend[friend_number];
         cid_to_string(hex, f->cid);
-    } else {
-        memcpy(hex, self.id_buffer, TOX_PUBLIC_KEY_SIZE * 2);
     }
     int name_len = snprintf((char*)name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"),
                             "avatars/%.*s.png", TOX_PUBLIC_KEY_SIZE * 2, (char*)hex);

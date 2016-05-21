@@ -206,6 +206,11 @@ uint32_t message_add_type_text(MESSAGES *m, _Bool auth, const uint8_t *data, uin
 
     memcpy(msg->msg, data, length);
 
+    if (m->data && m->number) {
+        MSG_VOID *day_msg = m->data[m->number ? m->number -1 : 0];
+        msg_add_day_notice(m, day_msg->time, msg->time);
+    }
+
     if (log) {
         message_log_to_disk(m, (MSG_VOID*)msg);
     }
@@ -213,12 +218,6 @@ uint32_t message_add_type_text(MESSAGES *m, _Bool auth, const uint8_t *data, uin
     if (auth) {
         postmessage_toxcore(TOX_SEND_MESSAGE, friend[m->id].number, length, msg);
     }
-
-    if (m->data) {
-        MSG_VOID *day_msg = m->data[m->number ? m->number -1 : 0];
-        msg_add_day_notice(m, day_msg->time, msg->time);
-    }
-
 
     return message_add(m, (MSG_VOID*)msg);
 }
