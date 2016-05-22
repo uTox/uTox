@@ -296,10 +296,11 @@ extern unsigned char *stbi_write_png_to_mem(unsigned char *pixels, int stride_by
 typedef uint8_t *UTOX_IMAGE;
 
 #include "tox.h"
-#include "audio.h"
-#include "video.h"
-#include "utox_av.h"
 #include "tox_callbacks.h"
+
+#include "av/audio.h"
+#include "av/video.h"
+#include "av/utox_av.h"
 
 #include "sized_string.h"
 #include "ui_i18n_decls.h"

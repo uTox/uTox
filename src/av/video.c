@@ -1,4 +1,4 @@
-#include "main.h"
+#include "../main.h"
 
 static void    *video_device[16]     = {NULL}; /* TODO; magic number */
 static int16_t  video_device_count   = 0;
