@@ -1,4 +1,4 @@
-#include "main.h"
+#include "../main.h"
 
 static char_t edit_name_data[128],
               edit_status_data[128],

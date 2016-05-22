@@ -1,4 +1,4 @@
-#include "main.h"
+#include "../main.h"
 
 static void text_draw_word_hl(int x, int y, char_t *str, uint16_t length, int d, int h, int hlen, uint16_t lineheight)
 {

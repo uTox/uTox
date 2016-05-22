@@ -3,11 +3,11 @@
 #define SUB_TITLE     "(Alpha)"
 #define RELEASE_TITLE "Mild Shock"
 #define PATCH_TITLE   "SRSLY"
-#define VERSION       "0.9.1"
+#define VERSION       "0.9.2"
 #define VER_MAJOR     0
 #define VER_MINOR     9
-#define VER_PATCH     1
-#define UTOX_VERSION_NUMBER 9001u /* major, minor, patch, 0 padded where needed */
+#define VER_PATCH     2
+#define UTOX_VERSION_NUMBER 9002u /* major, minor, patch, 0 padded where needed */
 
 /* Support for large files. */
 #define _LARGEFILE_SOURCE
@@ -306,33 +306,35 @@ typedef uint8_t *UTOX_IMAGE;
 #include "sized_string.h"
 #include "ui_i18n_decls.h"
 
-#include "ui.h"
-#include "svg.h"
 #include "avatar.h"
 #include "theme.h"
-#include "text.h"
+
+#include "ui.h"
 
 #include "messages.h"
 #include "friend.h"
 #include "groups.h"
 #include "roster.h"
 #include "inline_video.h"
-#include "button.h"
-#include "dropdown.h"
-#include "edit.h"
-#include "scrollable.h"
 
-#include "contextmenu.h"
-#include "tooltip.h"
+#include "ui/svg.h"
+#include "ui/text.h"
+#include "ui/button.h"
+#include "ui/dropdown.h"
+#include "ui/edit.h"
+#include "ui/scrollable.h"
+#include "ui/contextmenu.h"
+#include "ui/tooltip.h"
+
+#include "ui/ui_edits.h"
+#include "ui/ui_buttons.h"
+#include "ui/ui_dropdown.h"
+
 #include "commands.h"
 
 #include "util.h"
 #include "dns.h"
 #include "file_transfers.h"
-
-#include "ui_edits.h"
-#include "ui_buttons.h"
-#include "ui_dropdown.h"
 
 pthread_mutex_t messages_lock;
 
