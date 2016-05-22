@@ -90,7 +90,7 @@ _Bool doevent(XEvent event)
                 drawheight = ev->height + 10;
 
                 XFreePixmap(display, drawbuf);
-                drawbuf = XCreatePixmap(display, window, drawwidth, drawheight, depth);
+                drawbuf = XCreatePixmap(display, window, drawwidth, drawheight, xwin_depth);
                 XRenderFreePicture(display, renderpic);
                 renderpic = XRenderCreatePicture(display, drawbuf, pictformat, 0, NULL);
             }

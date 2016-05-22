@@ -173,7 +173,9 @@ static void gtk_openavatarthread(void *UNUSED(args)) {
             free(file_data);
             char_t size_str[16];
             int len = sprint_humanread_bytes(size_str, sizeof(size_str), UTOX_AVATAR_MAX_DATA_LENGTH);
-            void *message_dialog = gtk_message_dialog_new(dialog, 0, 1, 2, "%s%.*s.", S(AVATAR_TOO_LARGE_MAX_SIZE_IS), len, size_str);
+            char err_str[265] = {0};
+            snprintf((char*)err_str, 265, "%s%.*s (%ikb loaded)", S(AVATAR_TOO_LARGE_MAX_SIZE_IS), len, size_str, (size / 1024));
+            void *message_dialog = gtk_message_dialog_new(dialog, 0, 1, 2, err_str);
             gtk_dialog_run(message_dialog);
             gtk_widget_destroy(message_dialog);
         } else {

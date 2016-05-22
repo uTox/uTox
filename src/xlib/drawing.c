@@ -52,7 +52,7 @@ void draw_inline_image(uint8_t *img_data, size_t size, uint16_t w, uint16_t h, i
         *target |= (green | (green << 8) | (green << 16) | (green << 24)) & visual->green_mask;
     }
 
-    XImage *img = XCreateImage(display, visual, depth, ZPixmap, 0, (char*)out, w, h, 32, w * 4);
+    XImage *img = XCreateImage(display, visual, xwin_depth, ZPixmap, 0, (char*)out, w, h, 32, w * 4);
 
     Picture rgb = ximage_to_picture(img, NULL);
     // 4 bpp -> RGBA

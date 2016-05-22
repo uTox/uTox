@@ -513,9 +513,9 @@ void draw_tray_icon(void){
     if(UTOX_NATIVE_IMAGE_IS_VALID(icon)) {
         /* Get tray window size */
         int32_t x_r = 0, y_r = 0;
-        uint32_t border_r = 0, depth_r = 0;
+        uint32_t border_r = 0, xwin_depth_r = 0;
         XMoveResizeWindow(display, tray_window, x_r, y_r, 32, 32);
-        XGetGeometry(display, tray_window, &root, &x_r, &y_r, &tray_width, &tray_height, &border_r, &depth_r);
+        XGetGeometry(display, tray_window, &root, &x_r, &y_r, &tray_width, &tray_height, &border_r, &xwin_depth_r);
         /* TODO use xcb instead of xlib here!
         xcb_get_geometry_cookie_t xcb_get_geometry (xcb_connection_t *connection,
                                                 xcb_drawable_t    drawable );
@@ -549,7 +549,7 @@ void create_tray_icon(void){
 
     /* Get ready to draw a tray icon */
     trayicon_gc        = XCreateGC(display, root, 0, 0);
-    trayicon_drawbuf   = XCreatePixmap(display, tray_window, tray_width, tray_height, depth);
+    trayicon_drawbuf   = XCreatePixmap(display, tray_window, tray_width, tray_height, xwin_depth);
     trayicon_renderpic = XRenderCreatePicture(display, trayicon_drawbuf, pictformat, 0, NULL);
     /* Send icon to the tray */
     send_message(display, XGetSelectionOwner(display, XInternAtom(display, "_NET_SYSTEM_TRAY_S0", False)), SYSTEM_TRAY_REQUEST_DOCK, tray_window, 0, 0);
@@ -557,7 +557,7 @@ void create_tray_icon(void){
     draw_tray_icon();
     /* Reset the tray draw/picture buffers with the new tray size */
     XFreePixmap(display, trayicon_drawbuf);
-    trayicon_drawbuf = XCreatePixmap(display, tray_window, tray_width, tray_height, depth);
+    trayicon_drawbuf = XCreatePixmap(display, tray_window, tray_width, tray_height, xwin_depth);
     XRenderFreePicture(display, trayicon_renderpic);
     trayicon_renderpic = XRenderCreatePicture(display, trayicon_drawbuf, pictformat, 0, NULL);
     /* Redraw the tray one last time! */
@@ -574,7 +574,7 @@ void togglehide(void) {
     if(hidden) {
         int x, y;
         uint32_t w, h, border;
-        XGetGeometry(display, window, &root, &x, &y, &w, &h, &border, (uint*)&depth);
+        XGetGeometry(display, window, &root, &x, &y, &w, &h, &border, (uint*)&xwin_depth);
         XMapWindow(display, window);
         XMoveWindow(display, window, x, y);
         redraw();
@@ -597,7 +597,7 @@ void tray_window_event(XEvent event) {
                 tray_height = ev->height;
 
                 XFreePixmap(display, trayicon_drawbuf);
-                trayicon_drawbuf = XCreatePixmap(display, tray_window, tray_width, tray_height, 24); // TODO get depth from X not code
+                trayicon_drawbuf = XCreatePixmap(display, tray_window, tray_width, tray_height, 24); // TODO get xwin_depth from X not code
                 XRenderFreePicture(display, trayicon_renderpic);
                 trayicon_renderpic = XRenderCreatePicture(display, trayicon_drawbuf,XRenderFindStandardFormat(display, PictStandardRGB24), 0, NULL);
             }
@@ -849,7 +849,7 @@ UTOX_NATIVE_IMAGE *decode_image_rgb(const UTOX_IMAGE data, size_t size, uint16_t
         *target |= (green | (green << 8) | (green << 16) | (green << 24)) & visual->green_mask;
     }
 
-    XImage *img = XCreateImage(display, visual, depth, ZPixmap, 0, (char*)out, width, height, 32, width * 4);
+    XImage *img = XCreateImage(display, visual, xwin_depth, ZPixmap, 0, (char*)out, width, height, 32, width * 4);
 
     Picture rgb = ximage_to_picture(img, NULL);
     // 4 bpp -> RGBA
@@ -1059,13 +1059,13 @@ int main(int argc, char *argv[]) {
     LANG = systemlang();
     dropdown_language.selected = dropdown_language.over = LANG;
 
-    screen  = DefaultScreen(display);
-    cmap    = DefaultColormap(display, screen);
-    visual  = DefaultVisual(display, screen);
-    gc      = DefaultGC(display, screen);
-    depth   = DefaultDepth(display, screen);
-    scr     = DefaultScreenOfDisplay(display);
-    root    = RootWindow(display, screen);
+    screen      = DefaultScreen(display);
+    cmap        = DefaultColormap(display, screen);
+    visual      = DefaultVisual(display, screen);
+    gc          = DefaultGC(display, screen);
+    xwin_depth  = DefaultDepth(display, screen);
+    scr         = DefaultScreenOfDisplay(display);
+    root        = RootWindow(display, screen);
 
     XSetWindowAttributes attrib = {
         .background_pixel = WhitePixel(display, screen),
@@ -1088,7 +1088,8 @@ int main(int argc, char *argv[]) {
     theme_load(theme);
 
     /* create window */
-    window = XCreateWindow(display, root, save->window_x, save->window_y, settings.window_width, settings.window_height, 0, depth, InputOutput, visual, CWBackPixmap | CWBorderPixel | CWEventMask, &attrib);
+    window = XCreateWindow(display, root, save->window_x, save->window_y, settings.window_width, settings.window_height,
+                           0, xwin_depth, InputOutput, visual, CWBackPixmap | CWBorderPixel | CWEventMask, &attrib);
 
     /* choose available libraries for optional UI stuff */
     if (!(libgtk = gtk_load())) {
@@ -1128,7 +1129,7 @@ int main(int argc, char *argv[]) {
     XRedraw         = XInternAtom(display, "XRedraw", False);
 
     /* create the draw buffer */
-    drawbuf = XCreatePixmap(display, window, settings.window_width, settings.window_height, depth);
+    drawbuf = XCreatePixmap(display, window, settings.window_width, settings.window_height, xwin_depth);
 
     /* catch WM_DELETE_WINDOW */
     XSetWMProtocols(display, window, &wm_delete_window, 1);
