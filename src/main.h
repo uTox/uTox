@@ -8,35 +8,6 @@
 #define VER_MINOR     9
 #define VER_PATCH     2
 #define UTOX_VERSION_NUMBER 9002u /* major, minor, patch, 0 padded where needed */
-
-/* Support for large files. */
-#define _LARGEFILE_SOURCE
-#define _FILE_OFFSET_BITS 64
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdint.h>
-#include <inttypes.h>
-#include <time.h>
-#include <string.h>
-#include <math.h>
-#include <limits.h>
-#include <ctype.h>
-#include <pthread.h>
-
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <tox/tox.h>
-#include <tox/toxav.h>
-#include <tox/toxencryptsave.h>
-#include <vpx/vpx_codec.h>
-#include <vpx/vpx_image.h>
-
-#ifdef EMOJI_IDS
-#include <base_emoji.h>
-#endif
-
-
 // Defaults
 #define DEFAULT_NAME   "Tox User"
 #define DEFAULT_STATUS "Toxing on uTox"
@@ -87,6 +58,33 @@
 #define drawstr(x, y, i) drawtext(x, y, S(i), SLEN(i))
 #define drawstr_getwidth(x, y, str) drawtext_getwidth(x, y, (char_t*)str, sizeof(str) - 1)
 #define strwidth(x) textwidth((char_t*)x, sizeof(x) - 1)
+
+/* Support for large files. */
+#define _LARGEFILE_SOURCE
+#define _FILE_OFFSET_BITS 64
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdint.h>
+#include <inttypes.h>
+#include <time.h>
+#include <string.h>
+#include <math.h>
+#include <limits.h>
+#include <ctype.h>
+#include <pthread.h>
+
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <tox/tox.h>
+#include <tox/toxav.h>
+#include <tox/toxencryptsave.h>
+#include <vpx/vpx_codec.h>
+#include <vpx/vpx_image.h>
+
+#ifdef EMOJI_IDS
+#include <base_emoji.h>
+#endif
 
 /* House keeping for uTox save file. */
 #define SAVE_VERSION 3
@@ -279,6 +277,16 @@ enum {
     BM_ENDMARKER,
 };
 
+#if defined __WIN32__
+    #include "windows/main.h"
+#elif defined __ANDROID__
+    #include "android/main.h"
+#elif defined __OBJC__
+    #include "cocoa/main.h"
+#else
+    #include "xlib/main.h"
+#endif
+
 // µTox includes
 #include "unused.h"
 
@@ -293,23 +301,13 @@ typedef uint8_t *UTOX_IMAGE;
 #include "utox_av.h"
 #include "tox_callbacks.h"
 
-#if defined __WIN32__
-    #include "windows/main.h"
-#elif defined __ANDROID__
-    #include "android/main.h"
-#elif defined __OBJC__
-    #include "cocoa/main.h"
-#else
-    #include "xlib/main.h"
-#endif
-
 #include "sized_string.h"
 #include "ui_i18n_decls.h"
 
+#include "ui.h"
+
 #include "avatar.h"
 #include "theme.h"
-
-#include "ui.h"
 
 #include "messages.h"
 #include "friend.h"
@@ -335,6 +333,7 @@ typedef uint8_t *UTOX_IMAGE;
 #include "util.h"
 #include "dns.h"
 #include "file_transfers.h"
+
 
 pthread_mutex_t messages_lock;
 
