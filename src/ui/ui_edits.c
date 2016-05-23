@@ -504,7 +504,7 @@ EDIT edit_name = {
 },
 
 edit_toxid = {
-    .length     = TOX_PUBLIC_KEY_SIZE * 2,
+    .length     = TOX_FRIEND_ADDRESS_SIZE * 2,
     .data       = self.id_buffer,
     .readonly   = 1,
     .noborder   = 0,
