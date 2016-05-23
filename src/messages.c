@@ -339,7 +339,7 @@ _Bool message_log_to_disk(MESSAGES *m, MSG_VOID *msg) {
                 author = f->name;
             }
 
-            header.log_version   = 0;
+            header.log_version   = LOGFILE_SAVE_VERSION;
             header.time          = text->time;
             header.author_length = author_length;
             header.msg_length    = text->length;
@@ -398,10 +398,16 @@ void messages_send_from_queue(MESSAGES *m, uint32_t friend_number) {
 
     pthread_mutex_lock(&messages_lock);
 
+    int queue_count = 0;
     /* seek back to find first queued message
      * I hate this nest too, but it's readable */
     while (start) {
         --start;
+
+        if (++queue_count > 25) {
+            break;
+        }
+
         if (m->data[start]) {
             MSG_TEXT *msg = (MSG_TEXT*)(m->data[start]);
             if (msg->msg_type == MSG_TYPE_TEXT || msg->msg_type == MSG_TYPE_ACTION_TEXT) {
@@ -416,14 +422,16 @@ void messages_send_from_queue(MESSAGES *m, uint32_t friend_number) {
         }
     }
 
+    int sent_count = 0;
     /* start sending messages, hopefully in order */
-    while (start < m->number) {
+    while (start < m->number && sent_count <= 25) {
         if (m->data[start]) {
             MSG_TEXT *msg = (MSG_TEXT*)(m->data[start]);
             if (msg->msg_type == MSG_TYPE_TEXT || msg->msg_type == MSG_TYPE_ACTION_TEXT) {
                 if (msg->our_msg && !msg->receipt_time) {
                     postmessage_toxcore((msg->msg_type == MSG_TYPE_TEXT ? TOX_SEND_MESSAGE : TOX_SEND_ACTION),
                                         friend_number, msg->length, msg);
+                    ++sent_count;
                 }
             }
         }

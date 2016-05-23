@@ -50,8 +50,8 @@ Picture loadglyphpic(uint8_t *data, int width, int height, int pitch, _Bool no_s
             } while(--i);
         }
 
-        pixmap = XCreatePixmap(display, window, width, height, depth);
-        img = XCreateImage(display, CopyFromParent, depth, ZPixmap, 0, (char*)rgbx, width, height, 32, 0);
+        pixmap = XCreatePixmap(display, window, width, height, xwin_depth);
+        img = XCreateImage(display, CopyFromParent, xwin_depth, ZPixmap, 0, (char*)rgbx, width, height, 32, 0);
         legc = XCreateGC(display, pixmap, 0, NULL);
         XPutImage(display, pixmap, legc, img, 0, 0, 0, 0, width, height);
 

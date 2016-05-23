@@ -235,7 +235,7 @@ static void draw_add_friend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int hei
 
     drawstr(MAIN_LEFT + UTOX_SCALE(5), MAIN_TOP + UTOX_SCALE(29), MESSAGE);
 
-    if (options.proxy_type && !options.udp_enabled) {
+    if (settings.force_proxy) {
         int push = UTOX_STR_WIDTH(TOXID);
         setfont(FONT_MISC);
         setcolor(C_RED);

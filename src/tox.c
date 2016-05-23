@@ -1,7 +1,6 @@
 #include "main.h"
 #include "tox_bootstrap.h"
 
-struct Tox_Options options = {.proxy_host = proxy_address};
 volatile _Bool save_needed = 1;
 
 /* Writes log filename for fid to dest. returns length written */
@@ -319,7 +318,7 @@ static void utox_thread_work_for_typing_notifications(Tox *tox, uint64_t time) {
     }
 }
 
-static int load_toxcore_save(void){
+static int load_toxcore_save(struct Tox_Options *options) {
     settings.use_encryption = 0;
     size_t raw_length;
     uint8_t *raw_data = utox_load_data_tox(&raw_length);
@@ -345,17 +344,17 @@ static int load_toxcore_save(void){
             }
 
             if (clear_data && cleartext_length) {
-                options.savedata_type   = TOX_SAVEDATA_TYPE_TOX_SAVE;
-                options.savedata_data   = clear_data;
-                options.savedata_length = cleartext_length;
+                options->savedata_type   = TOX_SAVEDATA_TYPE_TOX_SAVE;
+                options->savedata_data   = clear_data;
+                options->savedata_length = cleartext_length;
 
                 return 0;
             }
         } else {
             debug_info("Using unencrypted save file; this is insecure!\n\n");
-            options.savedata_type   = TOX_SAVEDATA_TYPE_TOX_SAVE;
-            options.savedata_data   = raw_data;
-            options.savedata_length = raw_length;
+            options->savedata_type   = TOX_SAVEDATA_TYPE_TOX_SAVE;
+            options->savedata_data   = raw_data;
+            options->savedata_length = raw_length;
             return 0;
         }
     }
@@ -366,7 +365,18 @@ static int load_toxcore_save(void){
 static int init_toxcore(Tox **tox) {
     tox_thread_init = 0;
     int save_status = 0;
-    save_status = load_toxcore_save();
+
+    struct Tox_Options topt = {
+        .ipv6_enabled   = 1,
+        .udp_enabled    = 1,
+        .proxy_type     = TOX_PROXY_TYPE_NONE,
+        .proxy_host     = NULL,
+        .proxy_port     = 0,
+        .start_port     = 0,
+        .end_port       = 0,
+    };
+
+    save_status = load_toxcore_save(&topt);
 
     if (save_status == -1) {
         /* Save file exist, couldn't decrypt, don't start a tox instance
@@ -398,30 +408,30 @@ static int init_toxcore(Tox **tox) {
           "\t\tIPv6 : %u\n"
           "\t\tUDP  : %u\n"
           "\t\tProxy: %u %s %u\n",
-          options.ipv6_enabled,
-          options.udp_enabled,
-          options.proxy_type,
-          options.proxy_host,
-          options.proxy_port);
+          topt.ipv6_enabled,
+          topt.udp_enabled,
+          topt.proxy_type,
+          topt.proxy_host,
+          topt.proxy_port);
 
     TOX_ERR_NEW tox_new_err = 0;
-    *tox = tox_new(&options, &tox_new_err);
+    *tox = tox_new(&topt, &tox_new_err);
 
     if (*tox == NULL) {
         debug("\t\tTrying without proxy, err %u\n", tox_new_err);
 
-        options.proxy_type = TOX_PROXY_TYPE_NONE;
+        topt.proxy_type = TOX_PROXY_TYPE_NONE;
         dropdown_proxy.selected = dropdown_proxy.over = 0;
-        *tox = tox_new(&options, &tox_new_err);
+        *tox = tox_new(&topt, &tox_new_err);
 
-        if (!options.proxy_type || *tox == NULL) {
+        if (!topt.proxy_type || *tox == NULL) {
             debug("\t\tTrying without IPv6, err %u\n", tox_new_err);
 
-            options.ipv6_enabled = 0;
+            topt.ipv6_enabled = 0;
             dropdown_ipv6.selected = dropdown_ipv6.over = 1;
-            *tox = tox_new(&options, &tox_new_err);
+            *tox = tox_new(&topt, &tox_new_err);
 
-            if (!options.ipv6_enabled || *tox == NULL) {
+            if (!topt.ipv6_enabled || *tox == NULL) {
                 debug("\t\tERR: tox_new() failed %u\n", tox_new_err);
                 return -2;
             }
@@ -501,6 +511,10 @@ void toxcore_thread(void *UNUSED(args)) {
             // Start the tox av session.
             TOXAV_ERR_NEW toxav_error;
             av = toxav_new(tox, &toxav_error);
+
+            if (!av) {
+                debug_error("Tox:\tUnable to get toxAV (%u)\n", toxav_error);
+            }
 
             // Give toxcore the av functions to call
             set_av_callbacks(av);

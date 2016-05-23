@@ -1,4 +1,4 @@
-#include "main.h"
+#include "../main.h"
 
 void postmessage_utoxav(uint8_t msg, uint32_t param1, uint32_t param2, void *data) {
     while(toxav_thread_msg) {

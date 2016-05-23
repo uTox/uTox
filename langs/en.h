@@ -15,17 +15,29 @@ msgid(SPLASH_TITLE)
 msgstr("Welcome to the new uTox!")
 
 msgid(SPLASH_TEXT)
-msgstr("You have just upgraded to version 0.9.1!")
+msgstr("You have just upgraded to version 0.9.3! Release name: Srsly")
 
 msgid(CHANGE_LOG_TITLE)
-msgstr("Changes in v0.9.1")
+msgstr("Changes in v0.9.3")
 
 msgid(CHANGE_LOG_TEXT)
-msgstr("   Message queuing\n"
+msgstr(
+"    Fixed a message bug causing sporatic crashes in Windows\n"
+"    Limited the number of Messages to resend at once\n"
+"\n"
+"v0.9.2\n"
+"    Source Cleanups/Dir changes\n"
+"\n"
+"v0.9.1\n"
+"    Fixed a crash when sending a message to a new fiend\n"
+"\n"
+"v0.9.0\n"
+"   Message queuing\n"
 "   Better, and colorized groupchats\n"
 "   Experimental Inline Video support\n"
 "   Mini Contact list\n"
-"   Refactored message handling\n")
+"   Refactored message handling\n"
+"\n")
 
 /******************************************************************************
  *** Splash Message & Change Log                                            ***

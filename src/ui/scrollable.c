@@ -1,4 +1,4 @@
-#include "main.h"
+#include "../main.h"
 
 void scroll_draw(SCROLLABLE *s, int x, int y, int width, int height)
 {

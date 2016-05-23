@@ -8,6 +8,15 @@ SETTINGS settings = {
     // .last_version                // included here to match the full struct
     .show_splash            = 0,
 
+    .use_proxy              = 0,
+    .force_proxy            = 0,
+    .enable_udp             = 1,
+    .enable_ipv6            = 1,
+    .use_encryption         = 1,
+    // .portable_mode               // included here to match the full struct
+
+    .proxy_port             = 0,
+
     .close_to_tray          = 0,
     .logging_enabled        = 1,
     .ringtone_enabled       = 1,
@@ -15,12 +24,10 @@ SETTINGS settings = {
     .start_in_tray          = 0,
     .start_with_system      = 0,
     .push_to_talk           = 0,
-    .use_encryption         = 1,
     .audio_preview          = 0,
     .video_preview          = 0,
     .send_typing_status     = 0,
     .use_mini_roster        = 0,
-    // .portable_mode               // included here to match the full struct
     // .inline_video                // included here to match the full struct
     // .use_long_time_msg           // included here to match the full struct
 
@@ -152,7 +159,14 @@ uint8_t **utox_load_data_log(uint32_t friend_number, size_t *size, uint32_t coun
             }
             MSG_TEXT *msg       = calloc(1, sizeof(MSG_TEXT) + header.msg_length);
             msg->our_msg        = header.author;
-            msg->receipt_time   = header.receipt;
+
+            /* TEMP Fix to recover logs from v0.8.* */
+            if (header.log_version == 0) {
+                msg->receipt_time   = 1;
+            } else {
+                msg->receipt_time   = header.receipt;
+            }
+
             msg->length         = header.msg_length;
             msg->time           = header.time;
             msg->msg_type       = header.msg_type;

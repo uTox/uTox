@@ -3,40 +3,11 @@
 #define SUB_TITLE     "(Alpha)"
 #define RELEASE_TITLE "Mild Shock"
 #define PATCH_TITLE   "SRSLY"
-#define VERSION       "0.9.1"
+#define VERSION       "0.9.3"
 #define VER_MAJOR     0
 #define VER_MINOR     9
-#define VER_PATCH     1
-#define UTOX_VERSION_NUMBER 9001u /* major, minor, patch, 0 padded where needed */
-
-/* Support for large files. */
-#define _LARGEFILE_SOURCE
-#define _FILE_OFFSET_BITS 64
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdint.h>
-#include <inttypes.h>
-#include <time.h>
-#include <string.h>
-#include <math.h>
-#include <limits.h>
-#include <ctype.h>
-#include <pthread.h>
-
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <tox/tox.h>
-#include <tox/toxav.h>
-#include <tox/toxencryptsave.h>
-#include <vpx/vpx_codec.h>
-#include <vpx/vpx_image.h>
-
-#ifdef EMOJI_IDS
-#include <base_emoji.h>
-#endif
-
-
+#define VER_PATCH     3
+#define UTOX_VERSION_NUMBER 9003u /* major, minor, patch, 0 padded where needed */
 // Defaults
 #define DEFAULT_NAME   "Tox User"
 #define DEFAULT_STATUS "Toxing on uTox"
@@ -88,8 +59,35 @@
 #define drawstr_getwidth(x, y, str) drawtext_getwidth(x, y, (char_t*)str, sizeof(str) - 1)
 #define strwidth(x) textwidth((char_t*)x, sizeof(x) - 1)
 
+/* Support for large files. */
+#define _LARGEFILE_SOURCE
+#define _FILE_OFFSET_BITS 64
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdint.h>
+#include <inttypes.h>
+#include <time.h>
+#include <string.h>
+#include <math.h>
+#include <limits.h>
+#include <ctype.h>
+#include <pthread.h>
+
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <tox/tox.h>
+#include <tox/toxav.h>
+#include <tox/toxencryptsave.h>
+#include <vpx/vpx_codec.h>
+#include <vpx/vpx_image.h>
+
+#ifdef EMOJI_IDS
+#include <base_emoji.h>
+#endif
+
 /* House keeping for uTox save file. */
-#define SAVE_VERSION 3
+#define UTOX_SAVE_VERSION 3
 typedef struct {
     uint8_t  save_version;
     uint8_t  scale;
@@ -126,6 +124,7 @@ typedef struct {
     uint8_t  proxy_ip[0];
 } UTOX_SAVE;
 
+#define LOGFILE_SAVE_VERSION 3
 typedef struct {
     uint8_t  log_version;
     time_t   time;
@@ -153,6 +152,15 @@ typedef struct utox_settings {
     uint32_t last_version;
     _Bool    show_splash;
 
+    _Bool use_proxy;
+    _Bool force_proxy;
+    _Bool enable_udp;
+    _Bool enable_ipv6;
+    _Bool use_encryption;
+    _Bool portable_mode;
+
+    uint16_t proxy_port;
+
     _Bool close_to_tray;
     _Bool logging_enabled;
     _Bool ringtone_enabled;
@@ -160,12 +168,10 @@ typedef struct utox_settings {
     _Bool start_in_tray;
     _Bool start_with_system;
     _Bool push_to_talk;
-    _Bool use_encryption;
     _Bool audio_preview;
     _Bool video_preview;
     _Bool send_typing_status;
     _Bool use_mini_roster;
-    _Bool portable_mode;
     _Bool inline_video;
     _Bool use_long_time_msg;
 
@@ -188,7 +194,6 @@ uint8_t addfriend_status;
 int font_small_lineheight, font_msg_lineheight;
 uint16_t video_width, video_height, max_video_width, max_video_height;
 char proxy_address[256];
-extern struct Tox_Options options;
 
 // Structs
 typedef struct edit_change EDIT_CHANGE;
@@ -279,20 +284,6 @@ enum {
     BM_ENDMARKER,
 };
 
-// µTox includes
-#include "unused.h"
-
-#include "stb_image.h"
-#include "stb_image_write.h"
-extern unsigned char *stbi_write_png_to_mem(unsigned char *pixels, int stride_bytes, int x, int y, int n, int *out_len);
-typedef uint8_t *UTOX_IMAGE;
-
-#include "tox.h"
-#include "audio.h"
-#include "video.h"
-#include "utox_av.h"
-#include "tox_callbacks.h"
-
 #if defined __WIN32__
     #include "windows/main.h"
 #elif defined __ANDROID__
@@ -303,36 +294,63 @@ typedef uint8_t *UTOX_IMAGE;
     #include "xlib/main.h"
 #endif
 
+#ifdef UNUSED
+# undef UNUSED
+#endif
+
+#ifdef __GNUC__
+# define UNUSED(x) UNUSED_ ## x __attribute__((__unused__))
+#elif defined(__LCLINT__)
+# define UNUSED(x) /*@unused@*/ x
+#else
+# define UNUSED(x) x
+#endif
+
+#include "stb_image.h"
+#include "stb_image_write.h"
+extern unsigned char *stbi_write_png_to_mem(unsigned char *pixels, int stride_bytes, int x, int y, int n, int *out_len);
+typedef uint8_t *UTOX_IMAGE;
+
+#include "tox.h"
+#include "tox_callbacks.h"
+
+#include "av/audio.h"
+#include "av/video.h"
+#include "av/utox_av.h"
+
 #include "sized_string.h"
 #include "ui_i18n_decls.h"
 
 #include "ui.h"
-#include "svg.h"
+
 #include "avatar.h"
 #include "theme.h"
-#include "text.h"
 
 #include "messages.h"
 #include "friend.h"
 #include "groups.h"
 #include "roster.h"
 #include "inline_video.h"
-#include "button.h"
-#include "dropdown.h"
-#include "edit.h"
-#include "scrollable.h"
 
-#include "contextmenu.h"
-#include "tooltip.h"
+#include "ui/svg.h"
+#include "ui/text.h"
+#include "ui/button.h"
+#include "ui/dropdown.h"
+#include "ui/edit.h"
+#include "ui/scrollable.h"
+#include "ui/contextmenu.h"
+#include "ui/tooltip.h"
+
+#include "ui/ui_edits.h"
+#include "ui/ui_buttons.h"
+#include "ui/ui_dropdown.h"
+
 #include "commands.h"
 
 #include "util.h"
 #include "dns.h"
 #include "file_transfers.h"
 
-#include "ui_edits.h"
-#include "ui_buttons.h"
-#include "ui_dropdown.h"
 
 pthread_mutex_t messages_lock;
 
@@ -376,7 +394,6 @@ struct {
 uint16_t video_width, video_height, max_video_width, max_video_height;
 
 char proxy_address[256];
-extern struct Tox_Options options;
 
 UTOX_FRAME_PKG *current_frame;
 

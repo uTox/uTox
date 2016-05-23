@@ -1,4 +1,4 @@
-#include "main.h"
+#include "../main.h"
 
 static void dropdown_audio_in_onselect(uint16_t i, const DROPDOWN* dm)
 {
@@ -40,10 +40,10 @@ static STRING* dropdown_language_ondisplay(uint16_t i, const DROPDOWN* UNUSED(dm
 }
 
 static void dropdown_proxy_onselect(uint16_t i, const DROPDOWN* UNUSED(dm)) {
-    if ( (i != 0) != (options.proxy_type) || i) {
+/*    if ( (i != 0) != (options.proxy_type) || i) {
         options.proxy_type = (i != 0) ? TOX_PROXY_TYPE_SOCKS5 : TOX_PROXY_TYPE_NONE;
-        if(i == 2 && options.udp_enabled) {
-            options.udp_enabled = 0;
+        if(i == 2 && options.enable_udp) {
+            options.enable_udp = 0;
             dropdown_udp.selected = dropdown_udp.over = 1;
         }
         memcpy(proxy_address, edit_proxy_ip.data, edit_proxy_ip.length);
@@ -54,20 +54,20 @@ static void dropdown_proxy_onselect(uint16_t i, const DROPDOWN* UNUSED(dm)) {
 
         tox_settingschanged();
     }
-}
+FIXME! */}
 
 static void dropdown_ipv6_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
 {
-    if(!i != options.ipv6_enabled) {
-        options.ipv6_enabled = !i;
+    if(!i != settings.enable_ipv6) { /* SIGH... FIXME */
+        settings.enable_ipv6 = !i;
         tox_settingschanged();
     }
 }
 
 static void dropdown_udp_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
 {
-    if(i == options.udp_enabled) {
-        options.udp_enabled = !i;
+    if(i == settings.enable_udp) {
+        settings.enable_udp = !i;
         if(!i && dropdown_proxy.selected == 2) {
             dropdown_proxy.selected = dropdown_proxy.over = 1;
         }

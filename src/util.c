@@ -630,7 +630,7 @@ UTOX_SAVE* config_load(void) {
     }
 
     if (save) {
-        if(save->save_version == SAVE_VERSION) {
+        if(save->save_version == UTOX_SAVE_VERSION) {
             /* validate values */
             if(save->scale > 30) {
                 save->scale = 30;
@@ -643,7 +643,7 @@ UTOX_SAVE* config_load(void) {
             save = calloc(sizeof(UTOX_SAVE) + 1 + strlen((char *)save_v2->proxy_ip), 1);
 
             memcpy(save, save_v2, sizeof(UTOX_SAVE_V2));
-            save->save_version = SAVE_VERSION;
+            save->save_version = UTOX_SAVE_VERSION;
 
             if(save->scale > 30) {
                 save->scale = 30;
@@ -709,10 +709,10 @@ NEXT:
 
     list_set_filter(save->filter); /* roster list filtering */
 
-    options.ipv6_enabled = save->enableipv6;
-    options.udp_enabled = !save->disableudp;
-    options.proxy_type = save->proxyenable ? TOX_PROXY_TYPE_SOCKS5 : TOX_PROXY_TYPE_NONE;
-    options.proxy_port = save->proxy_port;
+    settings.enable_ipv6    = save->enableipv6;
+    settings.enable_udp     = !save->disableudp;
+    settings.use_proxy      = !!save->proxyenable;
+    settings.proxy_port     = save->proxy_port;
     strcpy((char*)proxy_address, (char*)save->proxy_ip);
     edit_proxy_ip.length = strlen((char*)save->proxy_ip);
     strcpy((char*)edit_proxy_ip.data, (char*)save->proxy_ip);
@@ -751,7 +751,7 @@ NEXT:
 }
 
 void config_save(UTOX_SAVE *save) {
-    save->save_version                       = SAVE_VERSION;
+    save->save_version                       = UTOX_SAVE_VERSION;
     save->scale                         = ui_scale - 1;
     save->disableudp                    = dropdown_udp.selected;
     save->proxyenable                   = dropdown_proxy.selected;
@@ -768,7 +768,7 @@ void config_save(UTOX_SAVE *save) {
     save->no_typing_notifications       = !settings.send_typing_status;
 
     save->filter                        = list_get_filter();
-    save->proxy_port                    = options.proxy_port;
+    save->proxy_port                    = settings.proxy_port;
 
     save->audio_device_in               = dropdown_audio_in.selected;
     save->audio_device_out              = dropdown_audio_out.selected;

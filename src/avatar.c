@@ -74,7 +74,7 @@ _Bool delete_saved_avatar(uint32_t friend_number) {
 
 int set_avatar(uint32_t friend_number, const uint8_t *data, uint32_t size) {
     if (size > UTOX_AVATAR_MAX_DATA_LENGTH) {
-        debug("Avatars:\t avatar too large\n");
+        debug_error("Avatars:\t avatar too large\n");
         return 0;
     }
 
