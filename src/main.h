@@ -3,11 +3,11 @@
 #define SUB_TITLE     "(Alpha)"
 #define RELEASE_TITLE "Mild Shock"
 #define PATCH_TITLE   "SRSLY"
-#define VERSION       "0.9.2"
+#define VERSION       "0.9.3"
 #define VER_MAJOR     0
 #define VER_MINOR     9
-#define VER_PATCH     2
-#define UTOX_VERSION_NUMBER 9002u /* major, minor, patch, 0 padded where needed */
+#define VER_PATCH     3
+#define UTOX_VERSION_NUMBER 9003u /* major, minor, patch, 0 padded where needed */
 // Defaults
 #define DEFAULT_NAME   "Tox User"
 #define DEFAULT_STATUS "Toxing on uTox"
@@ -87,7 +87,7 @@
 #endif
 
 /* House keeping for uTox save file. */
-#define SAVE_VERSION 3
+#define UTOX_SAVE_VERSION 3
 typedef struct {
     uint8_t  save_version;
     uint8_t  scale;
@@ -124,6 +124,7 @@ typedef struct {
     uint8_t  proxy_ip[0];
 } UTOX_SAVE;
 
+#define LOGFILE_SAVE_VERSION 3
 typedef struct {
     uint8_t  log_version;
     time_t   time;

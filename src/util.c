@@ -630,7 +630,7 @@ UTOX_SAVE* config_load(void) {
     }
 
     if (save) {
-        if(save->save_version == SAVE_VERSION) {
+        if(save->save_version == UTOX_SAVE_VERSION) {
             /* validate values */
             if(save->scale > 30) {
                 save->scale = 30;
@@ -643,7 +643,7 @@ UTOX_SAVE* config_load(void) {
             save = calloc(sizeof(UTOX_SAVE) + 1 + strlen((char *)save_v2->proxy_ip), 1);
 
             memcpy(save, save_v2, sizeof(UTOX_SAVE_V2));
-            save->save_version = SAVE_VERSION;
+            save->save_version = UTOX_SAVE_VERSION;
 
             if(save->scale > 30) {
                 save->scale = 30;
@@ -751,7 +751,7 @@ NEXT:
 }
 
 void config_save(UTOX_SAVE *save) {
-    save->save_version                       = SAVE_VERSION;
+    save->save_version                       = UTOX_SAVE_VERSION;
     save->scale                         = ui_scale - 1;
     save->disableudp                    = dropdown_udp.selected;
     save->proxyenable                   = dropdown_proxy.selected;

@@ -339,7 +339,7 @@ _Bool message_log_to_disk(MESSAGES *m, MSG_VOID *msg) {
                 author = f->name;
             }
 
-            header.log_version   = 0;
+            header.log_version   = LOGFILE_SAVE_VERSION;
             header.time          = text->time;
             header.author_length = author_length;
             header.msg_length    = text->length;

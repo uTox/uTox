@@ -159,7 +159,14 @@ uint8_t **utox_load_data_log(uint32_t friend_number, size_t *size, uint32_t coun
             }
             MSG_TEXT *msg       = calloc(1, sizeof(MSG_TEXT) + header.msg_length);
             msg->our_msg        = header.author;
-            msg->receipt_time   = header.receipt;
+
+            /* TEMP Fix to recover logs from v0.8.* */
+            if (header.log_version == 0) {
+                msg->receipt_time   = 1;
+            } else {
+                msg->receipt_time   = header.receipt;
+            }
+
             msg->length         = header.msg_length;
             msg->time           = header.time;
             msg->msg_type       = header.msg_type;
