@@ -457,7 +457,7 @@ static void dns_thread(void *data) {
 }
 
 void dns_request(char_t *name, uint16_t length) {
-    if (options.proxy_type && !options.udp_enabled) {
+    if (settings.force_proxy) {
         debug("uTox DNS:\tUnable to do DNS lookup, because we're are using a proxy without UDP!\n");
         return;
     }

@@ -464,18 +464,18 @@ static void edit_proxy_ip_port_onlosefocus(EDIT *edit)
     edit_proxy_port.data[edit_proxy_port.length] = 0;
     uint16_t proxy_port = strtol((char*)edit_proxy_port.data, NULL, 0);
 
-    if (memcmp(proxy_address, edit_proxy_ip.data, edit_proxy_ip.length) == 0 &&
-        proxy_address[edit_proxy_ip.length] == 0 &&
-        options.proxy_port == proxy_port)
-            return;
+    if (memcmp(proxy_address, edit_proxy_ip.data, edit_proxy_ip.length) == 0
+        && proxy_address[edit_proxy_ip.length] == 0) {
+        return;
+        }
 
     memcpy(proxy_address, edit_proxy_ip.data, edit_proxy_ip.length);
     proxy_address[edit_proxy_ip.length] = 0;
 
-    options.proxy_port = proxy_port;
 
-    if (options.proxy_type)
+    if (settings.use_proxy) {
         tox_settingschanged();
+    }
 }
 
 static void edit_profile_password_update(EDIT *edit) {

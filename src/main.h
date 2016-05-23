@@ -151,6 +151,15 @@ typedef struct utox_settings {
     uint32_t last_version;
     _Bool    show_splash;
 
+    _Bool use_proxy;
+    _Bool force_proxy;
+    _Bool enable_udp;
+    _Bool enable_ipv6;
+    _Bool use_encryption;
+    _Bool portable_mode;
+
+    uint16_t proxy_port;
+
     _Bool close_to_tray;
     _Bool logging_enabled;
     _Bool ringtone_enabled;
@@ -158,12 +167,10 @@ typedef struct utox_settings {
     _Bool start_in_tray;
     _Bool start_with_system;
     _Bool push_to_talk;
-    _Bool use_encryption;
     _Bool audio_preview;
     _Bool video_preview;
     _Bool send_typing_status;
     _Bool use_mini_roster;
-    _Bool portable_mode;
     _Bool inline_video;
     _Bool use_long_time_msg;
 
@@ -186,7 +193,6 @@ uint8_t addfriend_status;
 int font_small_lineheight, font_msg_lineheight;
 uint16_t video_width, video_height, max_video_width, max_video_height;
 char proxy_address[256];
-extern struct Tox_Options options;
 
 // Structs
 typedef struct edit_change EDIT_CHANGE;
@@ -287,8 +293,17 @@ enum {
     #include "xlib/main.h"
 #endif
 
-// µTox includes
-#include "unused.h"
+#ifdef UNUSED
+# undef UNUSED
+#endif
+
+#ifdef __GNUC__
+# define UNUSED(x) UNUSED_ ## x __attribute__((__unused__))
+#elif defined(__LCLINT__)
+# define UNUSED(x) /*@unused@*/ x
+#else
+# define UNUSED(x) x
+#endif
 
 #include "stb_image.h"
 #include "stb_image_write.h"
@@ -378,7 +393,6 @@ struct {
 uint16_t video_width, video_height, max_video_width, max_video_height;
 
 char proxy_address[256];
-extern struct Tox_Options options;
 
 UTOX_FRAME_PKG *current_frame;
 
