@@ -87,9 +87,16 @@ struct utox_native_image {
 - (NSWindow *)ironcladWindowForID:(uint32_t)id;
 @end
 
+@interface uToxIroncladVideoContent : NSView
+- (void)displayImage:(uint8_t *)rgba w:(uint16_t)width h:(uint16_t)height;
+- (void)checkSize;
+@end
+
 /* Main UI */
 
 @interface uToxView : NSView
+@property (retain) uToxIroncladVideoContent *inlineVideo;
+@property BOOL didDrawInlineVideoThisFrame;
 @end
 
 @interface uToxView (UserInteraction) <NSTextInputClient>

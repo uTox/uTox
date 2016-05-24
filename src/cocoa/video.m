@@ -318,9 +318,6 @@ uint16_t native_video_detect(void) {
 
 @end
 
-@interface uToxIroncladVideoContent : NSView
-@end
-
 @implementation uToxIroncladVideoContent
 
 - (instancetype)initWithFrame:(NSRect)frameRect {
