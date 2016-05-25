@@ -752,9 +752,8 @@ NEXT:
 }
 
 void config_save(UTOX_SAVE *save) {
-    save->save_version                       = UTOX_SAVE_VERSION;
+    save->save_version                  = UTOX_SAVE_VERSION;
     save->scale                         = ui_scale - 1;
-    save->disableudp                    = dropdown_udp.selected;
     save->proxyenable                   = dropdown_proxy.selected;
     save->logging_enabled               = settings.logging_enabled;
     save->close_to_tray                 = settings.close_to_tray;
@@ -765,7 +764,8 @@ void config_save(UTOX_SAVE *save) {
     save->push_to_talk                  = settings.push_to_talk;
     save->use_mini_roster               = settings.use_mini_roster;
 
-    save->enableipv6                    = !dropdown_ipv6.selected;
+    save->disableudp                    = !dropdown_udp.selected;
+    save->enableipv6                    = dropdown_ipv6.selected;
     save->no_typing_notifications       = !settings.send_typing_status;
 
     save->filter                        = list_get_filter();
