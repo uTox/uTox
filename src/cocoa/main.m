@@ -47,7 +47,7 @@ void debug_error(const char *fmt, ...) {
 }
 
 int UTOX_NATIVE_IMAGE_IS_VALID(UTOX_NATIVE_IMAGE *img) {
-    return img->image != nil;
+    return img != NULL && img->image != nil;
 }
 
 UTOX_NATIVE_IMAGE *decode_image_rgb(const UTOX_IMAGE data, size_t size, uint16_t *w, uint16_t *h, _Bool keep_alpha) {

@@ -314,6 +314,10 @@ _Bool message_log_to_disk(MESSAGES *m, MSG_VOID *msg) {
         return 0;
     }
 
+    if (!settings.logging_enabled) {
+        return 0;
+    }
+
     FRIEND *f = &friend[m->id];
     if (f->skip_msg_logging) {
         return 0;
