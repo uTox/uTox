@@ -764,8 +764,8 @@ void config_save(UTOX_SAVE *save) {
     save->push_to_talk                  = settings.push_to_talk;
     save->use_mini_roster               = settings.use_mini_roster;
 
-    save->disableudp                    = !dropdown_udp.selected;
-    save->enableipv6                    = dropdown_ipv6.selected;
+    save->disableudp                    = !settings.enable_udp;
+    save->enableipv6                    =  settings.enable_ipv6;
     save->no_typing_notifications       = !settings.send_typing_status;
 
     save->filter                        = list_get_filter();

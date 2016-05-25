@@ -248,8 +248,8 @@ dropdown_ipv6 = {
 dropdown_udp = {
     .ondisplay = simple_dropdown_ondisplay,
     .onselect = dropdown_udp_onselect,
-    .dropcount = countof(yesnodrops),
-    .userdata = yesnodrops
+    .dropcount = countof(noyesdrops),
+    .userdata = noyesdrops
 },
 
 dropdown_logging = {

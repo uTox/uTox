@@ -384,13 +384,11 @@ static int init_toxcore(Tox **tox) {
         panel_profile_password.disabled = 0;
         panel_settings_master.disabled  = 1;
         edit_setfocus(&edit_profile_password);
-        postmessage(REDRAW, 0, 0, NULL);
         return -1;
     } else if (save_status == -2) {
         /* New profile! */
         panel_profile_password.disabled = 1;
         panel_settings_master.disabled  = 0;
-        postmessage(REDRAW, 0, 0, NULL);
     } else {
         panel_profile_password.disabled = 1;
         if (settings.show_splash) {
@@ -398,10 +396,9 @@ static int init_toxcore(Tox **tox) {
         } else {
             panel_settings_master.disabled  = 0;
         }
-
         edit_resetfocus();
-        postmessage(REDRAW, 0, 0, NULL);
     }
+    postmessage(REDRAW, 0, 0, NULL);
 
     // Create main connection
     debug("CORE:\tCreating New Toxcore instance.\n"
