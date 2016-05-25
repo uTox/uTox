@@ -688,8 +688,9 @@ UTOX_SAVE* config_load(void) {
 NEXT:
     dropdown_dpi.selected                  = dropdown_dpi.over                  = save->scale - 5;
 
-    dropdown_ipv6.selected                 = dropdown_ipv6.over                 = !save->enableipv6;
-    dropdown_udp.selected                  = dropdown_udp.over                  = (save->disableudp != 0);
+    dropdown_ipv6.selected                 = dropdown_ipv6.over                 = save->enableipv6;
+    dropdown_udp.selected                  = dropdown_udp.over                  = !save->disableudp;
+
     dropdown_proxy.selected                = dropdown_proxy.over                = save->proxyenable <= 2 ? save->proxyenable : 2;
 
     dropdown_logging.selected              = dropdown_logging.over              = save->logging_enabled;

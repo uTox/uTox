@@ -367,11 +367,11 @@ static int init_toxcore(Tox **tox) {
     int save_status = 0;
 
     struct Tox_Options topt = {
-        .ipv6_enabled   = 1,
-        .udp_enabled    = 1,
+        .ipv6_enabled   = settings.enable_ipv6,
+        .udp_enabled    = settings.enable_udp,
         .proxy_type     = TOX_PROXY_TYPE_NONE,
         .proxy_host     = NULL,
-        .proxy_port     = 0,
+        .proxy_port     = settings.proxy_port,
         .start_port     = 0,
         .end_port       = 0,
     };

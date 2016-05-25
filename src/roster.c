@@ -359,6 +359,7 @@ static void show_page(ITEM *i) {
         case ITEM_SETTINGS: {
             if (panel_profile_password.disabled) {
                 panel_splash_page.disabled      = 1;
+                settings.show_splash            = 0;
 
                 panel_settings_master.disabled  = 1;
                 panel_overhead.disabled         = 1;

@@ -40,39 +40,51 @@ static STRING* dropdown_language_ondisplay(uint16_t i, const DROPDOWN* UNUSED(dm
 }
 
 static void dropdown_proxy_onselect(uint16_t i, const DROPDOWN* UNUSED(dm)) {
-/*    if ( (i != 0) != (options.proxy_type) || i) {
-        options.proxy_type = (i != 0) ? TOX_PROXY_TYPE_SOCKS5 : TOX_PROXY_TYPE_NONE;
-        if(i == 2 && options.enable_udp) {
-            options.enable_udp = 0;
-            dropdown_udp.selected = dropdown_udp.over = 1;
+    switch (i) {
+        case 0:{
+            settings.use_proxy = 0;
+            settings.force_proxy = 0;
+            break;
         }
-        memcpy(proxy_address, edit_proxy_ip.data, edit_proxy_ip.length);
-        proxy_address[edit_proxy_ip.length] = 0;
 
-        edit_proxy_port.data[edit_proxy_port.length] = 0;
-        options.proxy_port = strtol((char*)edit_proxy_port.data, NULL, 0);
+        case 1:{
+            settings.use_proxy = 1;
+            settings.force_proxy = 0;
+            break;
+        }
 
-        tox_settingschanged();
+        case 2:{
+            settings.use_proxy = 1;
+            settings.force_proxy = 1;
+            settings.enable_udp = 0;
+            break;
+        }
     }
-FIXME! */}
+    memcpy(proxy_address, edit_proxy_ip.data, edit_proxy_ip.length);
+    proxy_address[edit_proxy_ip.length] = 0;
 
-static void dropdown_ipv6_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
-{
-    if(!i != settings.enable_ipv6) { /* SIGH... FIXME */
-        settings.enable_ipv6 = !i;
-        tox_settingschanged();
-    }
+    edit_proxy_port.data[edit_proxy_port.length] = 0;
+    settings.proxy_port = strtol((char*)edit_proxy_port.data, NULL, 0);
+
+    tox_settingschanged();
 }
 
-static void dropdown_udp_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
-{
-    if(i == settings.enable_udp) {
-        settings.enable_udp = !i;
-        if(!i && dropdown_proxy.selected == 2) {
-            dropdown_proxy.selected = dropdown_proxy.over = 1;
-        }
-        tox_settingschanged();
+static void dropdown_ipv6_onselect(uint16_t i, const DROPDOWN* UNUSED(dm)) {
+    if (i) {
+        settings.enable_ipv6 = 1;
+    } else {
+        settings.enable_ipv6 = 0;
     }
+    tox_settingschanged();
+}
+
+static void dropdown_udp_onselect(uint16_t i, const DROPDOWN* UNUSED(dm)) {
+    if (i) {
+        settings.enable_udp = 1;
+    } else {
+        settings.enable_udp = 0;
+    }
+    tox_settingschanged();
 }
 
 static void dropdown_logging_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
@@ -229,8 +241,8 @@ dropdown_proxy = {
 dropdown_ipv6 = {
     .ondisplay = simple_dropdown_ondisplay,
     .onselect = dropdown_ipv6_onselect,
-    .dropcount = countof(yesnodrops),
-    .userdata = yesnodrops
+    .dropcount = countof(noyesdrops),
+    .userdata = noyesdrops
 },
 
 dropdown_udp = {
