@@ -24,7 +24,7 @@ msgid(CHANGE_LOG_TEXT)
 msgstr(
 "    Inline video for OSX\n"
 "    Fixed a logging bug\n"
-"\nv0.9.2\n"
+"\nv0.9.3\n"
 "    Fixed a message bug causing sporatic crashes in Windows\n"
 "    Limited the number of Messages to resend at once\n"
 "\nv0.9.2\n"
