@@ -84,6 +84,7 @@ extern PANEL panel_root,
                     panel_settings_subheader,
                     panel_settings_profile,
                         panel_profile_password_settings,
+                    panel_settings_devices,
                     panel_settings_net,
                     panel_settings_ui,
                     panel_settings_av;

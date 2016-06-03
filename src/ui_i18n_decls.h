@@ -100,11 +100,20 @@ enum {
     STR_CALL_VIDEO_SHOW_INLINE,
 
     /* Settings strings */
+    STR_PROFILE_BUTTON,
+    STR_DEVICES_BUTTON,
+    STR_NETWORK_BUTTON,
+    STR_USER_INTERFACE_BUTTON,
+    STR_AUDIO_VIDEO_BUTTON,
+
     STR_PROFILE_SETTINGS,
     STR_PROFILE_PW_WARNING,
     STR_PROFILE_PW_NO_RECOVER,
 
+    STR_DEVICES_ADD_NEW,
+
     /* Old Strings, please create or use more discriptive */
+    /* TODO REMOVE OLD ONES! */
     STR_ADDFRIENDS,
     STR_TOXID,
     STR_MESSAGE,

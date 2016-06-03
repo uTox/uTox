@@ -44,18 +44,7 @@ static void button_avatar_onpress(void) {
         openfileavatar();
 }
 
-/* TODO this is placed here (out of use order) for the following function, todo; create an external function to switch to the correct
- * settings page... */
-extern PANEL panel_settings_profile, panel_settings_net, panel_settings_ui, panel_settings_av;
-extern SCROLLABLE scrollbar_settings;
-static void button_settings_sub_profile_onpress(void){
-    scrollbar_settings.content_height = SCALE(260);
-    list_selectsettings();
-    panel_settings_profile.disabled = 0;
-    panel_settings_net.disabled  = 1;
-    panel_settings_ui.disabled   = 1;
-    panel_settings_av.disabled   = 1;
-}
+static void button_settings_sub_profile_onpress(void);
 
 static void button_name_onpress(void){
     button_settings_sub_profile_onpress();
@@ -175,31 +164,46 @@ static void button_send_friend_request_onpress(void) {
     edit_resetfocus();
 }
 
-static void button_settings_sub_net_onpress(void){
-    scrollbar_settings.content_height = UTOX_SCALE(90);
+extern SCROLLABLE scrollbar_settings;
+
+static void disable_all_setting_sub(void) {
     list_selectsettings();
     panel_settings_profile.disabled = 1;
-    panel_settings_net.disabled  = 0;
-    panel_settings_ui.disabled   = 1;
-    panel_settings_av.disabled   = 1;
+    panel_settings_devices.disabled = 1;
+    panel_settings_net.disabled     = 1;
+    panel_settings_ui.disabled      = 1;
+    panel_settings_av.disabled      = 1;
+
+}
+
+static void button_settings_sub_profile_onpress(void){
+    scrollbar_settings.content_height = SCALE(260);
+    disable_all_setting_sub();
+    panel_settings_profile.disabled = 0;
+}
+
+static void button_settings_sub_devices_onpress(void){
+    scrollbar_settings.content_height = SCALE(260);
+    disable_all_setting_sub();
+    panel_settings_devices.disabled = 0;
+}
+
+static void button_settings_sub_net_onpress(void){
+    scrollbar_settings.content_height = SCALE(180);
+    disable_all_setting_sub();
+    panel_settings_net.disabled = 0;
 }
 
 static void button_settings_sub_ui_onpress(void){
-    scrollbar_settings.content_height = UTOX_SCALE(140);
-    list_selectsettings();
-    panel_settings_profile.disabled = 1;
-    panel_settings_net.disabled  = 1;
-    panel_settings_ui.disabled   = 0;
-    panel_settings_av.disabled   = 1;
+    scrollbar_settings.content_height = SCALE(280);
+    disable_all_setting_sub();
+    panel_settings_ui.disabled = 0;
 }
 
 static void button_settings_sub_av_onpress(void){
-    scrollbar_settings.content_height = UTOX_SCALE(150);
-    list_selectsettings();
-    panel_settings_profile.disabled = 1;
-    panel_settings_net.disabled  = 1;
-    panel_settings_ui.disabled   = 1;
-    panel_settings_av.disabled   = 0;
+    scrollbar_settings.content_height = SCALE(300);
+    disable_all_setting_sub();
+    panel_settings_av.disabled = 0;
 }
 
 static void button_group_audio_onpress(void) {
@@ -476,6 +480,12 @@ button_settings = {
 button_settings_sub_profile = {
     .nodraw       = 1,
     .onpress      = button_settings_sub_profile_onpress,
+    .tooltip_text = { .i18nal = STR_UTOX_SETTINGS },
+},
+
+button_settings_sub_devices = {
+    .nodraw       = 1,
+    .onpress      = button_settings_sub_devices_onpress,
     .tooltip_text = { .i18nal = STR_UTOX_SETTINGS },
 },
 

@@ -644,6 +644,19 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
             break;
         }
 
+        case TOX_SELF_NEW_DEVICE: {
+            TOX_ERR_DEVICE_ADD error = 0;
+            tox_self_add_device(tox, data, &error);
+
+            if (error) {
+                debug_error("problem with adding device to self %u\n", error);
+            }
+
+            break;
+        }
+
+
+
         /* Avatar status */
         case TOX_AVATAR_SET: {
             /* param1: avatar format

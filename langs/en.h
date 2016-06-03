@@ -40,7 +40,7 @@ msgstr(
 "\n")
 
 /******************************************************************************
- *** Splash Message & Change Log                                            ***
+ *** MISC & UNSORTED                                                        ***
  ******************************************************************************/
 
 msgid(REQ_SENT)
@@ -202,6 +202,24 @@ msgstr("Leave Group")
 /******************************************************************************
  *** Settings / Profile Strings                                             ***
  ******************************************************************************/
+msgid(PROFILE_BUTTON)
+msgstr("Profile")
+
+msgid(DEVICES_BUTTON)
+msgstr("Devices")
+
+msgid(NETWORK_BUTTON)
+msgstr("Network")
+
+msgid(USER_INTERFACE_BUTTON)
+msgstr("User Interface")
+
+msgid(AUDIO_VIDEO_BUTTON)
+msgstr("Audio & Video")
+
+
+
+
 msgid(PROFILE_SETTINGS)
 msgstr("Profile Settings")
 
@@ -213,6 +231,16 @@ msgstr("There is no way to recover lost passwords.")
 
 
 
+/***     	Profile                                                         ***/
+
+/***     	Devices                                                         ***/
+msgid(DEVICES_ADD_NEW)
+msgstr("Add New Device to network")
+/*** 		Network                                                         ***/
+
+/***    	User Interface                                                  ***/
+
+/***		Audio/Video                                                     ***/
 
 
 

@@ -310,6 +310,79 @@ static void draw_settings_header(int UNUSED(x), int UNUSED(y), int w, int UNUSED
     #endif
 }
 
+/* TODO make this fxn readable */
+static void draw_settings_sub_header(int x, int y, int w, int UNUSED(height)){
+    setfont(FONT_SELF_NAME);
+
+    #define DRAW_UNDERLINE() drawhline( x, y + SCALE(30), x_right_edge, COLOR_EDGE_NORMAL)
+    #define DRAW_OVERLINE()  drawhline( x, y + 0, x_right_edge, COLOR_EDGE_ACTIVE); \
+                             drawhline( x, y + 1, x_right_edge, COLOR_EDGE_ACTIVE)
+
+
+    /* Draw the text and bars for general settings */
+    setcolor(!button_settings_sub_profile.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_SUBTEXT);
+    int x_right_edge = x + SCALE(10) + UTOX_STR_WIDTH(PROFILE_BUTTON) + SCALE(10);
+    drawstr( x + SCALE(10), y + SCALE(10), PROFILE_BUTTON);
+
+    if (panel_settings_profile.disabled) {
+        DRAW_UNDERLINE();
+    } else {
+        DRAW_OVERLINE();
+    }
+    drawvline( x_right_edge, y + SCALE(0), y + SCALE(30), COLOR_EDGE_NORMAL);
+
+    /* Draw the text and bars for device settings */
+    setcolor(!button_settings_sub_devices.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_SUBTEXT);
+    x = x_right_edge;
+    x_right_edge = x_right_edge + SCALE(10) + UTOX_STR_WIDTH(DEVICES_BUTTON) + SCALE(10);
+    drawstr( x + SCALE(10), y + SCALE(10), DEVICES_BUTTON);
+
+    if (panel_settings_devices.disabled) {
+        DRAW_UNDERLINE();
+    } else {
+        DRAW_OVERLINE();
+    }
+    drawvline( x_right_edge, y + SCALE(0), y + UTOX_SCALE(15  ), COLOR_EDGE_NORMAL);
+
+    /* Draw the text and bars for network settings */
+    setcolor(!button_settings_sub_net.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_SUBTEXT);
+    x = x_right_edge;
+    x_right_edge = x_right_edge + SCALE(10) + UTOX_STR_WIDTH(NETWORK_BUTTON) + SCALE(10);
+    drawstr( x + SCALE(10), y + SCALE(10), NETWORK_BUTTON);
+
+    if (panel_settings_net.disabled) {
+        DRAW_UNDERLINE();
+    } else {
+        DRAW_OVERLINE();
+    }
+    drawvline( x_right_edge, y + SCALE(0), y + SCALE(30), COLOR_EDGE_NORMAL);
+
+    /* Draw the text and bars for User interface settings */
+    setcolor(!button_settings_sub_ui.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_SUBTEXT);
+    x = x_right_edge;
+    x_right_edge = x_right_edge + SCALE(10) + UTOX_STR_WIDTH(USER_INTERFACE_BUTTON) + SCALE(10);
+    drawstr( x + SCALE(10), y + SCALE(10), USER_INTERFACE_BUTTON);
+
+    if (panel_settings_ui.disabled) {
+        DRAW_UNDERLINE();
+    } else {
+        DRAW_OVERLINE();
+    }
+    drawvline( x_right_edge, y, y + SCALE(30), COLOR_EDGE_NORMAL);
+
+    /* Draw the text and bars for A/V settings */
+    setcolor(!button_settings_sub_av.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_SUBTEXT);
+    x = x_right_edge;
+    x_right_edge = x_right_edge + SCALE(10) + UTOX_STR_WIDTH(AUDIO_VIDEO_BUTTON) + SCALE(1000); /* stretch to end of window */
+    drawstr( x + SCALE(10), y + SCALE(10), AUDIO_VIDEO_BUTTON);
+
+    if (panel_settings_av.disabled) {
+        DRAW_UNDERLINE();
+    } else {
+        DRAW_OVERLINE();
+    }
+}
+
 /* draw switch profile top bar */
 /* Text content for settings page */
 static void draw_settings_text_profile(int x, int y, int w, int h){
@@ -322,11 +395,17 @@ static void draw_settings_text_profile(int x, int y, int w, int h){
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(210), PROFILE_PASSWORD);
 }
 
+static void draw_settings_text_devices(int x, int y, int w, int h){
+    setcolor(COLOR_MAIN_TEXT);
+    setfont(FONT_SELF_NAME);
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(10), DEVICES_ADD_NEW);
+}
+
 static void draw_settings_text_password(int x, int y, int w, int h) {
     setfont(FONT_MISC);
     setcolor(C_RED);
-    drawstr(MAIN_LEFT + UTOX_SCALE(40), y + UTOX_SCALE(128), PROFILE_PW_WARNING);
-    drawstr(MAIN_LEFT + UTOX_SCALE(40), y + UTOX_SCALE(135), PROFILE_PW_NO_RECOVER);
+    drawstr(MAIN_LEFT + SCALE(80), y + SCALE(256), PROFILE_PW_WARNING);
+    drawstr(MAIN_LEFT + SCALE(80), y + SCALE(270), PROFILE_PW_NO_RECOVER);
 }
 
 static void draw_settings_text_network(int x, int y, int w, int UNUSED(height)){
@@ -369,60 +448,6 @@ static void draw_settings_text_av(int x, int y, int w, int UNUSED(height)){
     drawstr(MAIN_LEFT + SCALE( 10), y + SCALE(260), PREVIEW);
 }
 
-/* TODO make this fxn readable */
-static void draw_settings_sub_header(int x, int y, int w, int UNUSED(height)){
-    setfont(FONT_SELF_NAME);
-
-    /* Draw the text and bars for general settings */
-    setcolor(!button_settings_sub_profile.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_SUBTEXT);
-    int x_right_edge = x + UTOX_SCALE(5 ) + UTOX_STR_WIDTH(PROFILE) + UTOX_SCALE(5 );
-    drawstr( x + UTOX_SCALE(5 ), y + UTOX_SCALE(5 ), PROFILE);
-    if (panel_settings_profile.disabled) {
-        drawhline( x, y + UTOX_SCALE(15 ), x_right_edge, COLOR_EDGE_NORMAL);
-    } else {
-        drawhline( x, y + 0, x_right_edge, COLOR_EDGE_ACTIVE);
-        drawhline( x, y + 1, x_right_edge, COLOR_EDGE_ACTIVE);
-    }
-    drawvline( x_right_edge, y + UTOX_SCALE(0 ), y + UTOX_SCALE(15 ), COLOR_EDGE_NORMAL);
-
-    /* Draw the text and bars for network settings */
-    setcolor(!button_settings_sub_net.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_SUBTEXT);
-    x = x_right_edge;
-    x_right_edge = x_right_edge + UTOX_SCALE(5 ) + UTOX_STR_WIDTH(NETWORK) + UTOX_SCALE(5 );
-    drawstr( x + UTOX_SCALE(5 ), y + UTOX_SCALE(5 ), NETWORK);
-    if (panel_settings_net.disabled) {
-        drawhline( x, y + UTOX_SCALE(15 ), x_right_edge, COLOR_EDGE_NORMAL);
-    } else {
-        drawhline( x, y + 0, x_right_edge, COLOR_EDGE_ACTIVE);
-        drawhline( x, y + 1, x_right_edge, COLOR_EDGE_ACTIVE);
-    }
-    drawvline( x_right_edge, y + UTOX_SCALE(0 ), y + UTOX_SCALE(15  ), COLOR_EDGE_NORMAL);
-
-    /* Draw the text and bars for User interface settings */
-    setcolor(!button_settings_sub_ui.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_SUBTEXT);
-    x = x_right_edge;
-    x_right_edge = x_right_edge + UTOX_SCALE(5 ) + UTOX_STR_WIDTH(USER_INTERFACE) + UTOX_SCALE(5 );
-    drawstr( x + UTOX_SCALE(5 ), y + UTOX_SCALE(5 ), USER_INTERFACE);
-    if (panel_settings_ui.disabled) {
-        drawhline( x, y + UTOX_SCALE(15 ), x_right_edge, COLOR_EDGE_NORMAL);
-    } else {
-        drawhline( x, y + 0, x_right_edge, COLOR_EDGE_ACTIVE);
-        drawhline( x, y + 1, x_right_edge, COLOR_EDGE_ACTIVE);
-    }
-    drawvline( x_right_edge, y, y + UTOX_SCALE(15  ), COLOR_EDGE_NORMAL);
-
-    /* Draw the text and bars for A/V settings */
-    setcolor(!button_settings_sub_av.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_SUBTEXT);
-    x = x_right_edge;
-    x_right_edge = x_right_edge + UTOX_SCALE(5 ) + UTOX_STR_WIDTH(AUDIO_VIDEO) + UTOX_SCALE(400 ); /* stretch to end of window */
-    drawstr( x + UTOX_SCALE(5 ), y + UTOX_SCALE(5 ), AUDIO_VIDEO);
-    if (panel_settings_av.disabled) {
-        drawhline( x, y + UTOX_SCALE(15 ), x_right_edge, COLOR_EDGE_NORMAL);
-    } else {
-        drawhline( x, y + 0, x_right_edge, COLOR_EDGE_ACTIVE);
-        drawhline( x, y + 1, x_right_edge, COLOR_EDGE_ACTIVE);
-    }
-}
 
 static void draw_friend_settings(int UNUSED(x), int y, int width, int height) {
     setcolor(COLOR_MAIN_TEXT);
@@ -738,11 +763,13 @@ panel_main = {
                 .drawfunc = draw_settings_sub_header,
                 .child = (PANEL*[]) {
                     (void*)&button_settings_sub_profile,
+                    (void*)&button_settings_sub_devices,
                     (void*)&button_settings_sub_net,
                     (void*)&button_settings_sub_ui,
                     (void*)&button_settings_sub_av,
                     (void*)&scrollbar_settings,
                     (void*)&panel_settings_profile,
+                    (void*)&panel_settings_devices,
                     (void*)&panel_settings_net,
                     (void*)&panel_settings_ui,
                     (void*)&panel_settings_av,
@@ -783,6 +810,17 @@ panel_main = {
                         NULL
                     }
                 },
+
+            /* Panel to draw settings page */
+            panel_settings_devices = {
+                .type = PANEL_NONE,
+                .disabled = 1,
+                .drawfunc = draw_settings_text_devices,
+                .content_scroll = &scrollbar_settings,
+                .child = (PANEL*[]) {
+                    NULL
+                }
+            },
 
             panel_settings_net = {
                 .type = PANEL_NONE,
@@ -864,6 +902,7 @@ void ui_set_scale(uint8_t scale) {
 
         panel_settings_master.y  = MAIN_TOP_FRAME_THIN;
         panel_settings_profile.y = SCALE(32);
+        panel_settings_devices.y = SCALE(32);
         panel_settings_net.y     = SCALE(32);
         panel_settings_ui.y      = SCALE(32);
         panel_settings_av.y      = SCALE(32);
@@ -955,35 +994,46 @@ void ui_set_scale(uint8_t scale) {
             .type   = PANEL_BUTTON,
             .x      = SCALE(1),       /* Nudged 1px as a buffer */
             .y      = SCALE(1),
-            .width  = SCALE(18) + UTOX_STR_WIDTH(PROFILE), /* Nudged 1px as a buffer */
+            .width  = SCALE(18) + UTOX_STR_WIDTH(PROFILE_BUTTON),
+            .height = SCALE(28),
+        },
+
+        b_settings_sub_devices = {
+            .type   = PANEL_BUTTON,
+            .x      = SCALE(22) + UTOX_STR_WIDTH(PROFILE_BUTTON),
+            .y      = SCALE(1),
+            .width  = SCALE(18) + UTOX_STR_WIDTH(DEVICES_BUTTON),
             .height = SCALE(28),
         },
 
         b_settings_sub_net = {
             .type   = PANEL_BUTTON,
-            .x      = SCALE(22) + UTOX_STR_WIDTH(PROFILE),
+            .x      = SCALE(42) + UTOX_STR_WIDTH(PROFILE_BUTTON) + UTOX_STR_WIDTH(DEVICES_BUTTON),
             .y      = SCALE(1),
-            .width  = SCALE(18) + UTOX_STR_WIDTH(NETWORK),
+            .width  = SCALE(18) + UTOX_STR_WIDTH(NETWORK_BUTTON),
             .height = SCALE(28),
         },
 
         b_settings_sub_ui = {
             .type   = PANEL_BUTTON,
-            .x      = SCALE(42) + UTOX_STR_WIDTH(PROFILE) + UTOX_STR_WIDTH(NETWORK),
+            .x      = SCALE(62) + UTOX_STR_WIDTH(PROFILE_BUTTON) + UTOX_STR_WIDTH(DEVICES_BUTTON) +
+                                  UTOX_STR_WIDTH(NETWORK_BUTTON),
             .y      = SCALE(1),
-            .width  = SCALE(18) + UTOX_STR_WIDTH(USER_INTERFACE),
+            .width  = SCALE(18) + UTOX_STR_WIDTH(USER_INTERFACE_BUTTON),
             .height = SCALE(28),
         },
 
         b_settings_sub_av = {
             .type   = PANEL_BUTTON,
-            .x      = SCALE(62) + UTOX_STR_WIDTH(PROFILE) + UTOX_STR_WIDTH(NETWORK) + UTOX_STR_WIDTH(USER_INTERFACE),
+            .x      = SCALE(82) + UTOX_STR_WIDTH(PROFILE_BUTTON) + UTOX_STR_WIDTH(DEVICES_BUTTON) +
+                                  UTOX_STR_WIDTH(NETWORK_BUTTON) + UTOX_STR_WIDTH(USER_INTERFACE_BUTTON),
             .y      = SCALE(1),
             .width  = SCALE(-1), /* Fill the rest of the space for this button */
             .height = SCALE(28),
         };
 
         button_settings_sub_profile.panel    = b_settings_sub_profile;
+        button_settings_sub_devices.panel    = b_settings_sub_devices;
         button_settings_sub_net.panel        = b_settings_sub_net;
         button_settings_sub_ui.panel         = b_settings_sub_ui;
         button_settings_sub_av.panel         = b_settings_sub_av;

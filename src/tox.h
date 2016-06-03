@@ -28,24 +28,26 @@ enum {
     TOX_SELF_SET_STATUS,
     TOX_SELF_SET_STATE,
 
+    TOX_SELF_NEW_DEVICE,
+
     /* Wooo pixturs */
-    TOX_AVATAR_SET, // 4
+    TOX_AVATAR_SET,
     TOX_AVATAR_UNSET,
 
     /* Interact with contacts */
-    TOX_FRIEND_NEW, // 6
+    TOX_FRIEND_NEW,
     TOX_FRIEND_NEW_DEVICE,
     TOX_FRIEND_ACCEPT,
     TOX_FRIEND_DELETE,
     TOX_FRIEND_ONLINE,
 
     /* Default actions */
-    TOX_SEND_MESSAGE, // 10
+    TOX_SEND_MESSAGE,
     TOX_SEND_ACTION, /* Should we deprecate this, now that core uses a single function? */
     TOX_SEND_TYPING,
 
     /* File Transfers */
-    TOX_FILE_ACCEPT, // 13
+    TOX_FILE_ACCEPT,
     TOX_FILE_ACCEPT_AUTO,
     TOX_FILE_SEND_NEW,
     TOX_FILE_SEND_NEW_INLINE,
@@ -56,7 +58,7 @@ enum {
     TOX_FILE_CANCEL,
 
     /* Audio/Video Calls */
-    TOX_CALL_SEND, // 21
+    TOX_CALL_SEND,
     TOX_CALL_INCOMING,
     TOX_CALL_ANSWER,
     TOX_CALL_PAUSE_AUDIO,
@@ -65,7 +67,7 @@ enum {
     TOX_CALL_RESUME_VIDEO,
     TOX_CALL_DISCONNECT,
 
-    TOX_GROUP_CREATE, // 29
+    TOX_GROUP_CREATE,
     TOX_GROUP_JOIN,
     TOX_GROUP_PART,
     TOX_GROUP_SEND_INVITE,
