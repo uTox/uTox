@@ -818,6 +818,8 @@ panel_main = {
                 .drawfunc = draw_settings_text_devices,
                 .content_scroll = &scrollbar_settings,
                 .child = (PANEL*[]) {
+                    (void*)&button_add_new_device_to_self,
+                    (void*)&edit_add_new_device_to_self,
                     NULL
                 }
             },
@@ -937,7 +939,7 @@ void ui_set_scale(uint8_t scale) {
             .x      = SIDEBAR_NAME_LEFT,
             .y      = SIDEBAR_NAME_TOP,
             .width  = SIDEBAR_NAME_WIDTH,
-            .height = SIDEBAR_NAME_HEIGHT   - SCALE(2),
+            .height = SIDEBAR_NAME_HEIGHT - SCALE(2),
         },
 
         b_statusmsg = {
@@ -1071,6 +1073,30 @@ void ui_set_scale(uint8_t scale) {
             .y      = UTOX_SCALE(130),
             .width  = BM_SBUTTON_WIDTH,
             .height = BM_SBUTTON_HEIGHT,
+        },
+
+        e_name = {
+            .type   =  PANEL_EDIT,
+            .x      =  SCALE(10),
+            .y      =  SCALE(27),
+            .height =  SCALE(24),
+            .width  = -SCALE(10)
+        },
+
+        e_status = {
+            .type   =  PANEL_EDIT,
+            .x      =  SCALE(10),
+            .y      =  SCALE(76),
+            .height =  SCALE(24),
+            .width  = -SCALE(10)
+        },
+
+        e_toxid = {
+            .type   =  PANEL_EDIT,
+            .x      =  SCALE( 10),
+            .y      =  SCALE(126),
+            .height =  SCALE( 24),
+            .width  = -SCALE( 10)
         };
 
         button_copyid.panel                  = b_copyid;
@@ -1079,6 +1105,30 @@ void ui_set_scale(uint8_t scale) {
         #endif
         button_show_password_settings.panel  = b_show_password_settings;
         button_lock_uTox.panel               = b_lock_uTox;
+
+        edit_name.panel = e_name;
+        edit_status.panel = e_status;
+        edit_toxid.panel = e_toxid;
+
+    /* Devices              */
+        PANEL b_add_new_device_to_self = {
+            .type   = PANEL_BUTTON,
+            .x      = SCALE(-10) - BM_SBUTTON_WIDTH,
+            .y      = SCALE( 51),
+            .width  = BM_SBUTTON_WIDTH,
+            .height = BM_SBUTTON_HEIGHT,
+        },
+
+        e_add_new_device_to_self = {
+            .type   = PANEL_EDIT,
+            .x      = SCALE( 10),
+            .y      = SCALE( 27),
+            .height = SCALE( 24),
+            .width  = SCALE(-10),
+        };
+
+        button_add_new_device_to_self.panel = b_add_new_device_to_self;
+        edit_add_new_device_to_self.panel   = e_add_new_device_to_self;
 
     /* Network              */
 
@@ -1381,31 +1431,7 @@ void ui_set_scale(uint8_t scale) {
         dropdown_mini_roster.panel          = d_mini_roster;
 
     /* Text entry boxes */
-        PANEL e_name = {
-            .type   =  PANEL_EDIT,
-            .x      =  SCALE(10),
-            .y      =  SCALE(27),
-            .height =  SCALE(24),
-            .width  = -SCALE(10)
-        },
-
-        e_status = {
-            .type   =  PANEL_EDIT,
-            .x      =  SCALE(10),
-            .y      =  SCALE(76),
-            .height =  SCALE(24),
-            .width  = -SCALE(10)
-        },
-
-        e_toxid = {
-            .type   =  PANEL_EDIT,
-            .x      =  SCALE( 10),
-            .y      =  SCALE(126),
-            .height =  SCALE( 24),
-            .width  = -SCALE( 10)
-        },
-
-        e_add_id = {
+        PANEL e_add_id = {
             .type   = PANEL_EDIT,
             .x      = UTOX_SCALE(5  ),
             .y      = UTOX_SCALE(14 ) + MAIN_TOP,
@@ -1472,9 +1498,6 @@ void ui_set_scale(uint8_t scale) {
         };
 
     /* Text entry panels */
-        edit_name.panel = e_name;
-        edit_status.panel = e_status;
-        edit_toxid.panel = e_toxid;
         edit_add_id.panel = e_add_id;
         edit_add_msg.panel = e_add_msg;
         edit_profile_password.panel = e_profile_password;

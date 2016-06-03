@@ -1,5 +1,15 @@
 #include "../main.h"
 
+
+/* Leaving this here isn't the best way, but it's good enough for now */
+static void button_setcolors_success(BUTTON *b) {
+    b->c1 = COLOR_BUTTON_SUCCESS_BACKGROUND;
+    b->c2 = COLOR_BUTTON_SUCCESS_HOVER_BACKGROUND;
+    b->c3 = COLOR_BUTTON_SUCCESS_HOVER_BACKGROUND;
+    b->ct1 = COLOR_BUTTON_SUCCESS_TEXT;
+    b->ct2 = COLOR_BUTTON_SUCCESS_HOVER_TEXT;
+}
+
 extern SCROLLABLE scrollbar_settings;
 
 static void button_settings_onpress(void) {
@@ -60,6 +70,11 @@ static void button_bottommenu_update(BUTTON *b) {
     b->cd = COLOR_BACKGROUND_MENU_ACTIVE;
 }
 
+static void button_add_device_to_self_mdown(void) {
+    devices_self_add(edit_add_new_device_to_self.data, edit_add_new_device_to_self.length);
+    edit_resetfocus();
+}
+
 BUTTON button_settings = {
     .bm2          = BM_SETTINGS,
     .bw           = _BM_ADD_WIDTH,
@@ -99,4 +114,11 @@ button_settings_sub_av = {
     .nodraw       = 1,
     .onpress      = button_settings_sub_av_onpress,
     .tooltip_text = { .i18nal = STR_AUDIO_VIDEO },
+},
+
+button_add_new_device_to_self = {
+    .bm             = BM_SBUTTON,
+    .button_text    = { .i18nal = STR_ADD },
+    .update         = button_setcolors_success,
+    .onpress        = button_add_device_to_self_mdown,
 };

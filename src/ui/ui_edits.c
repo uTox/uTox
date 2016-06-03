@@ -3,6 +3,7 @@
 static char_t edit_name_data[128],
               edit_status_data[128],
               edit_addid_data[TOX_FRIEND_ADDRESS_SIZE * 4],
+              edit_add_self_device_data[TOX_FRIEND_ADDRESS_SIZE * 4],
               edit_addmsg_data[1024],
               edit_msg_data[65535],
               edit_search_data[127],

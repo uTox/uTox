@@ -13,6 +13,8 @@ BUTTON button_avatar,
        button_settings_sub_ui,
        button_settings_sub_av,
 
+       button_add_new_device_to_self,
+
        button_copyid,
        button_change_id_type,
        button_send_friend_request,

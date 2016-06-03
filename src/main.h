@@ -313,6 +313,7 @@ typedef uint8_t *UTOX_IMAGE;
 
 #include "tox.h"
 #include "tox_callbacks.h"
+#include "devices.h"
 
 #include "av/audio.h"
 #include "av/video.h"

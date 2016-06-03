@@ -59,17 +59,7 @@ uint16_t utox_run_command(char_t *string, uint16_t string_length, char_t **cmd, 
 
             postmessage_toxcore(TOX_FRIEND_NEW_DEVICE, f->number, 0, data);
         }
-    } else if ((cmd_length == 1) && (memcmp(*cmd, "s", 1) == 0)) {
-        if(selected_item->item == ITEM_FRIEND) {
-
-            uint8_t id[TOX_FRIEND_ADDRESS_SIZE * 2];
-            string_to_id(id, *argument);
-            void *data = malloc(TOX_FRIEND_ADDRESS_SIZE * sizeof(char_t));
-            memcpy(data, id, TOX_FRIEND_ADDRESS_SIZE);
-
-            postmessage_toxcore(TOX_SELF_NEW_DEVICE, 0, 0, data);
-        }
-    } else if ((cmd_length == 5) && (memcmp(*cmd, "alias", 5) == 0)) {
+    }else if ((cmd_length == 5) && (memcmp(*cmd, "alias", 5) == 0)) {
         if(selected_item->item == ITEM_FRIEND) {
             FRIEND *f = selected_item->data;
             if (*argument) {
