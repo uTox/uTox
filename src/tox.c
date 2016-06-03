@@ -327,7 +327,7 @@ static int load_toxcore_save(struct Tox_Options *options) {
     if (raw_data && raw_length) {
         if (tox_is_data_encrypted(raw_data)) {
             size_t cleartext_length = raw_length - TOX_PASS_ENCRYPTION_EXTRA_LENGTH;
-            uint8_t *clear_data = malloc(cleartext_length);
+            uint8_t *clear_data = calloc(1, cleartext_length);
             settings.use_encryption = 1;
             debug("Using encrypted data, trying password: ");
 
