@@ -124,9 +124,6 @@ void utox_friend_init(Tox *tox, uint32_t friend_number) {
         // Get the chat backlog
         messages_read_from_log(friend_number);
 
-        /* And make sure we load these too */
-        log_read_old(tox, friend_number);
-
         // Load the meta data, if it exists.
         friend_meta_data_read(tox, friend_number);
 }

@@ -29,95 +29,6 @@ typedef struct {
     uint8_t zeroes[2];
 } LOG_FILE_MSG_HEADER_COMPAT;
 
-#warning "log_read_old is depcreated, remove at v0.10"
-void log_read_old(Tox *tox, int fid) {
-    uint8_t path[UTOX_FILE_NAME_LENGTH], *p;
-    FILE *file;
-
-    p = path + datapath(path);
-
-    int len = log_file_name(p, sizeof(path) - (p - path), tox, fid);
-    if (len == -1) {
-        debug("Error getting log file name for friend %d\n", fid);
-        return;
-    }
-
-    file = fopen((char*)path, "rb");
-    if(!file) {
-        debug("File not found (%s)\n", path);
-        return;
-    }
-
-    LOG_FILE_MSG_HEADER_COMPAT header;
-    size_t records_count = 0;
-
-    /* TODO: some checks to avoid crashes with corrupted log files
-     * first find the last UTOX_MAX_BACKLOG_MESSAGES messages in the log */
-    while (1 == fread(&header, sizeof(LOG_FILE_MSG_HEADER_COMPAT), 1, file)) {
-        fseeko(file, header.namelen + header.length, SEEK_CUR);
-        records_count++;
-    }
-
-    if (ferror(file) || !feof(file)) {
-        // TODO: consider removing or truncating the log file.
-        // If !feof() this means that the file has an incomplete record,
-        // which would prevent it from loading forever, even though
-        // new records will keep being appended as usual.
-        debug_error("Log read error (%s)\n", path);
-        fclose(file);
-        return;
-    }
-
-
-    rewind(file);
-
-    MESSAGES *m = &friend[fid].msg;
-    m->id = fid;
-    m->data = calloc(1, sizeof(void*) * (records_count));
-
-    while((records_count) && (1 == fread(&header, sizeof(LOG_FILE_MSG_HEADER_COMPAT), 1, file))) {
-        records_count--;
-
-        // Skip unused friend name recorded at the time.
-        fseeko(file, header.namelen, SEEK_CUR);
-
-        MSG_TEXT *msg = NULL;
-        msg = calloc(1, sizeof(MSG_TEXT) + header.length);
-        msg->our_msg        = header.flags ? 1 : 0;
-        msg->length         = header.length;
-        msg->time           = header.time;
-        msg->receipt_time   = 1;
-
-        switch(header.msg_type) {
-            case LOG_FILE_MSG_TYPE_ACTION: {
-                msg->msg_type = MSG_TYPE_ACTION_TEXT;
-                break;
-            }
-            case LOG_FILE_MSG_TYPE_TEXT: {
-                msg->msg_type = MSG_TYPE_TEXT;
-                break;
-            }
-            default: {
-                debug("Unknown backlog message type(%d), skipping.\n", (int)header.msg_type);
-                fseeko(file, header.length, SEEK_CUR);
-                continue;
-            }
-        }
-        if(1 != fread(msg->msg, msg->length, 1, file)) {
-            debug("Log read error (%s)\n", path);
-            fclose(file);
-            return;
-        }
-        msg->length = utf8_validate(msg->msg, msg->length);
-        m->data[m->number++] = msg;
-
-        message_log_to_disk(m, (void*)msg);
-    }
-
-    fclose(file);
-    remove((const char*)path);
-}
-
 static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
                                uint32_t param1, uint32_t param2, void *data);
 
@@ -211,6 +122,7 @@ static void toxcore_bootstrap(Tox *tox) {
 static void set_callbacks(Tox *tox) {
     utox_set_callbacks_friends(tox);
     utox_set_callbacks_groups(tox);
+    utox_set_callbacks_mdevice(tox);
     utox_set_callbacks_file_transfer(tox);
 }
 

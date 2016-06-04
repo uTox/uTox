@@ -91,6 +91,17 @@ static void callback_connection_status(Tox *tox, uint32_t fid, TOX_CONNECTION st
     }
 }
 
+void utox_set_callbacks_friends(Tox *tox) {
+    tox_callback_friend_request(tox, callback_friend_request, NULL);
+    tox_callback_friend_message(tox, callback_friend_message, NULL);
+    tox_callback_friend_name(tox, callback_name_change, NULL);
+    tox_callback_friend_status_message(tox, callback_status_message, NULL);
+    tox_callback_friend_status(tox, callback_user_status, NULL);
+    tox_callback_friend_typing(tox, callback_typing_change, NULL);
+    tox_callback_friend_read_receipt(tox, callback_read_receipt, NULL);
+    tox_callback_friend_connection_status(tox, callback_connection_status, NULL);
+}
+
 void callback_av_group_audio(Tox *tox, int groupnumber, int peernumber, const int16_t *pcm, unsigned int samples,
                                     uint8_t channels, unsigned int sample_rate, void *userdata);
 
@@ -255,21 +266,27 @@ static void callback_group_topic(Tox *tox, int gid, int pid, const uint8_t *titl
     debug("Group Title (%u, %u): %.*s\n", gid, pid, length, title);
 }
 
-void utox_set_callbacks_friends(Tox *tox) {
-    tox_callback_friend_request(tox, callback_friend_request, NULL);
-    tox_callback_friend_message(tox, callback_friend_message, NULL);
-    tox_callback_friend_name(tox, callback_name_change, NULL);
-    tox_callback_friend_status_message(tox, callback_status_message, NULL);
-    tox_callback_friend_status(tox, callback_user_status, NULL);
-    tox_callback_friend_typing(tox, callback_typing_change, NULL);
-    tox_callback_friend_read_receipt(tox, callback_read_receipt, NULL);
-    tox_callback_friend_connection_status(tox, callback_connection_status, NULL);
-}
-
 void utox_set_callbacks_groups(Tox *tox) {
     tox_callback_group_invite(tox, callback_group_invite, NULL);
     tox_callback_group_message(tox, callback_group_message, NULL);
     tox_callback_group_action(tox, callback_group_action, NULL);
     tox_callback_group_namelist_change(tox, callback_group_namelist_change, NULL);
     tox_callback_group_title(tox, callback_group_topic, NULL);
+}
+
+
+static void callback_mdev_self_name(Tox *tox, uint32_t dev_num, uint8_t *name, size_t length, void *UNUSED(userdata)) {
+
+    debug_info("Name changed on remote device %u\n", dev_num);
+
+    memcpy(self.name, name, length);
+    self.name_length = length;
+
+    edit_setstr(&edit_name, self.name, self.name_length);
+
+    postmessage(REDRAW, 0, 0, NULL);
+}
+
+void utox_set_callbacks_mdevice(Tox *tox) {
+    tox_callback_mdev_self_name(tox, callback_mdev_self_name, NULL);
 }
