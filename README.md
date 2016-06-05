@@ -49,3 +49,7 @@ Just like toxcore, µTox is still alpha software, so you may encounter bugs, or 
 μTox running on OSX:
 
 ![μTox on OSX](images/utox-osx.png "μTox running on OSX")
+
+μTox running on Linux (Ubuntu)
+
+![μTox on Linux](images/utox-linux.png "μTox running on Linux (Ubuntu)")
