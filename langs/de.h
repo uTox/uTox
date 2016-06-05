@@ -1,9 +1,16 @@
+/******************************************************************************
+ *** German i18l Strings                                                    ***
+ ******************************************************************************/
 msgid(LANG_NATIVE_NAME)
 msgstr("Deutsch")
 
 msgid(LANG_ENGLISH_NAME)
 msgstr("GERMAN")
 
+
+/******************************************************************************
+ *** UNSORTED STRINGS                                                       ***
+ ******************************************************************************/
 msgid(REQ_SENT)
 msgstr("Freundschaftsanfrage verschickt. Dein Freund wird online erscheinen, sobald er deine Anfrage akzeptiert hat.")
 
@@ -61,6 +68,10 @@ msgstr("Wähle eine oder mehrere Dateien zum Senden.")
 msgid(SCREEN_CAPTURE_PROMPT)
 msgstr("Markiere den Bereich des Bildschirms, der gesendet werden soll.")
 
+
+/******************************************************************************
+ *** File Transfer Strings                                                  ***
+ ******************************************************************************/
 msgid(TRANSFER_NEW)
 msgstr("Neue Dateiübertragung")
 
@@ -79,15 +90,20 @@ msgstr("Dateiübertragung abgebrochen")
 msgid(TRANSFER_COMPLETE)
 msgstr("Dateiübertragung abgeschlossen")
 
+
+/******************************************************************************
+ *** Keyboard and Mouse Cursor Strings                                      ***
+ ******************************************************************************/
 msgid(CURSOR_CLICK_LEFT)
 msgstr("Linksklick")
 
 msgid(CURSOR_CLICK_RIGHT)
 msgstr("Rechtsklick")
 
-msgid(GROUPCHAT_JOIN_AUDIO)
-msgstr("Audiochat beitreten")
 
+/******************************************************************************
+ *** Audio / Video Call Strings                                             ***
+ ******************************************************************************/
 msgid(START_AUDIO_CALL)
 msgstr("Anruf beginnen")
 
@@ -106,6 +122,48 @@ msgstr("Anruf klingelt")
 msgid(CALL_STARTED)
 msgstr("Anruf gestartet")
 
+msgid(CALL_FRIEND_HAD_ENDED_CALL)
+msgstr(" hat den Anruf beendet!")
+
+
+/******************************************************************************
+ *** Friend & Friend Settings Strings                                       ***
+ ******************************************************************************/
+msgid(FRIEND_ALIAS)
+msgstr("Alias setzen")
+
+msgid(FRIEND_PUBLIC_KEY)
+msgstr("Öffentlicher Schlüssel")
+
+msgid(FRIEND_AUTOACCEPT)
+msgstr("Eingehende Dateiübertragungen ohne Nachfrage akzeptieren")
+
+
+/******************************************************************************
+ *** Group Strings                                                          ***
+ ******************************************************************************/
+msgid(GROUPCHAT_JOIN_AUDIO)
+msgstr("Audiochat beitreten")
+
+msgid(GROUP_CREATE_TEXT)
+msgstr("Text-Gruppenchat erstellen")
+
+msgid(GROUP_CREATE_VOICE)
+msgstr("Audio-Gruppenchat erstellen")
+
+msgid(CREATEGROUPCHAT)
+msgstr("Gruppenchat erstellen")
+
+msgid(REMOVE_GROUP)
+msgstr("Gruppe entfernen")
+
+msgid(LEAVE_GROUP)
+msgstr("Gruppe verlassen")
+
+
+/******************************************************************************
+ *** Settings / Profile Strings                                             ***
+ ******************************************************************************/
 msgid(PROFILE_SETTINGS)
 msgstr("Profileinstellungen")
 
@@ -115,6 +173,10 @@ msgstr("WARNUNG: µTox wird automatisch beginnen mit diesem Passwort zu verschl�
 msgid(PROFILE_PW_NO_RECOVER)
 msgstr("Es ist nicht möglich verlorene Passwörter wiederherzustellen.")
 
+
+/******************************************************************************
+ *** UNSORTED STRINGS                                                       ***
+ ******************************************************************************/
 msgid(ADDFRIENDS)
 msgstr("Neuen Kontakt hinzufügen")
 
@@ -141,15 +203,6 @@ msgstr("Nur online Kontakte zeigen!")
 
 msgid(ADD)
 msgstr("Hinzufügen")
-
-msgid(GROUP_CREATE_TEXT)
-msgstr("Text-Gruppenchat erstellen")
-
-msgid(GROUP_CREATE_VOICE)
-msgstr("Audio-Gruppenchat erstellen")
-
-msgid(CREATEGROUPCHAT)
-msgstr("Gruppenchat erstellen")
 
 msgid(SWITCHPROFILE)
 msgstr("Profil wechseln")
@@ -283,14 +336,8 @@ msgstr("Entfernen")
 msgid(REMOVE_FRIEND)
 msgstr("Freund entfernen")
 
-msgid(REMOVE_GROUP)
-msgstr("Gruppe entfernen")
-
 msgid(LEAVE)
 msgstr("Verlassen")
-
-msgid(LEAVE_GROUP)
-msgstr("Gruppe verlassen")
 
 msgid(CTOPIC)
 msgstr("Thema ändern")
@@ -303,9 +350,6 @@ msgstr("Ignorieren")
 
 msgid(SET_ALIAS)
 msgstr("Alias setzen")
-
-msgid(FRIEND_AUTOACCEPT)
-msgstr("Eingehende Dateiübertragungen ohne Nachfrage akzeptieren")
 
 msgid(SENDMESSAGE)
 msgstr("Senden")
