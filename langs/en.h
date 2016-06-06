@@ -236,6 +236,9 @@ msgstr("There is no way to recover lost passwords.")
 /***     	Devices                                                         ***/
 msgid(DEVICES_ADD_NEW)
 msgstr("Add New Device to network")
+
+msgid(DEVICES_NUMBER)
+msgstr("Number of linked devices")
 /*** 		Network                                                         ***/
 
 /***    	User Interface                                                  ***/

@@ -359,7 +359,7 @@ pthread_mutex_t messages_lock;
 //note: assumes array size will always be large enough
 FRIEND friend[MAX_NUM_FRIENDS];
 GROUPCHAT group[MAX_NUM_GROUPS];
-uint32_t friends, groups;
+uint32_t friends, groups; /* */
 
 enum {
     USER_STATUS_AVAILABLE,
@@ -373,6 +373,10 @@ struct {
     uint8_t     name[TOX_MAX_NAME_LENGTH];
     uint8_t     *statusmsg;
     size_t      name_length, statusmsg_length;
+
+    size_t      friend_list_count;
+    size_t      groups_list_count;
+    size_t      device_list_count;
 
     uint8_t     id_buffer[TOX_FRIEND_ADDRESS_SIZE * 4];
     size_t      id_buffer_length;

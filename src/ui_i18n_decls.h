@@ -111,6 +111,7 @@ enum {
     STR_PROFILE_PW_NO_RECOVER,
 
     STR_DEVICES_ADD_NEW,
+    STR_DEVICES_NUMBER,
 
     /* Old Strings, please create or use more discriptive */
     /* TODO REMOVE OLD ONES! */

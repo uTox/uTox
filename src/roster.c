@@ -496,7 +496,7 @@ void list_start(void) {
     button_settings.disabled = 1;
     selected_item = &item_settings;
 
-    FRIEND *f = friend, *end = f + friends;
+    FRIEND *f = friend, *end = f + self.friend_list_count;
 
     while (f != end) {
         i->item = ITEM_FRIEND;

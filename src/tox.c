@@ -127,10 +127,12 @@ static void set_callbacks(Tox *tox) {
 }
 
 static void tox_after_load(Tox *tox) {
-    friends = tox_self_get_friend_list_size(tox);
+    self.friend_list_count = tox_self_get_friend_list_size(tox);
+    // self.group_list_count = tox_self_get_(tox);
+    self.device_list_count = tox_self_get_device_count(tox);
 
     uint32_t i = 0;
-    while(i != friends) {
+    while(i != self.friend_list_count) {
         utox_friend_init(tox, i);
         i++;
     }
@@ -561,7 +563,9 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
             tox_self_add_device(tox, data, &error);
 
             if (error) {
-                debug_error("problem with adding device to self %u\n", error);
+                debug_error("Toxcore:\tproblem with adding device to self %u\n", error);
+            } else {
+                self.device_list_count++;
             }
 
             break;
@@ -659,7 +663,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
             } else {
                 uint8_t hex_id[TOX_FRIEND_ADDRESS_SIZE * 2];
                 id_to_string(hex_id, self.id_binary);
-                debug("uTox:\tUnable to accept friend %s, error num = %i\n", hex_id, fid);
+                debug("Toxcore:\tUnable to accept friend %s, error num = %i\n", hex_id, fid);
             }
             save_needed = 1;
             break;
@@ -814,7 +818,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
             /* param1: friend id
                data: pointer to a TOX_SEND_INLINE_MSG struct
              */
-            debug("Sending picture inline.");
+            debug("Toxcore:\tSending picture inline.");
 
             outgoing_file_send(tox, param1, NULL, ((struct TOX_SEND_INLINE_MSG*)data)->image, ((struct TOX_SEND_INLINE_MSG*)data)->image_size, TOX_FILE_KIND_DATA);
             free(data);
@@ -873,10 +877,10 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
             int v_bitrate = 0;
             if (param2) {
                 v_bitrate = UTOX_DEFAULT_BITRATE_V;
-                debug("Tox:\tSending video call to friend %u\n", param1);
+                debug("Toxcore:\tSending video call to friend %u\n", param1);
             } else {
                 v_bitrate = 0;
-                debug("Tox:\tSending call to friend %u\n", param1);
+                debug("Toxcore:\tSending call to friend %u\n", param1);
             }
             postmessage_utoxav(UTOXAV_OUTGOING_CALL_PENDING, param1, param2, NULL);
 
@@ -885,19 +889,19 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
             if (error) {
                 switch(error) {
                     case TOXAV_ERR_CALL_MALLOC: {
-                        debug("Tox:\tError making call to friend %u; Unable to malloc for this call.\n", param1);
+                        debug("Toxcore:\tError making call to friend %u; Unable to malloc for this call.\n", param1);
                         break;
                     }
                     case TOXAV_ERR_CALL_FRIEND_ALREADY_IN_CALL: {
                         /* This shouldn't happen, but just in case toxav gets a call before uTox gets this message we
                          * can just pretend like we're answering a call... */
-                        debug("Tox:\tError making call to friend %u; Already in call.\n", param1);
-                        debug("Tox:\tForwarding and accepting call!\n");
+                        debug("Toxcore:\tError making call to friend %u; Already in call.\n", param1);
+                        debug("Toxcore:\tForwarding and accepting call!\n");
 
                         TOXAV_ERR_ANSWER ans_error = 0;
                         toxav_answer(av, param1, UTOX_DEFAULT_BITRATE_A, v_bitrate, &ans_error);
                         if (error) {
-                            debug("uTox:\tError trying to toxav_answer error (%i)\n", error);
+                            debug("Toxcore:\tError trying to toxav_answer error (%i)\n", error);
                         } else {
                             postmessage_utoxav(UTOXAV_OUTGOING_CALL_ACCEPTED, param1, param2, NULL);
                         }
@@ -912,7 +916,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
                         TOXAV_ERR_CALL_FRIEND_NOT_CONNECTED,
                         TOXAV_ERR_CALL_FRIEND_ALREADY_IN_CALL,
                         TOXAV_ERR_CALL_INVALID_BIT_RATE,*/
-                        debug("Error making call to %u, error num is %i.\n", param1, error);
+                        debug("Toxcore:\tError making call to %u, error num is %i.\n", param1, error);
                         break;
                     }
                 }
@@ -933,16 +937,16 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
 
             if (param2) {
                 v_bitrate = UTOX_DEFAULT_BITRATE_V;
-                debug("uTox:\tAnswering video call.\n");
+                debug("Toxcore:\tAnswering video call.\n");
             } else {
                 v_bitrate = 0;
-                debug("uTox:\tAnswering audio call.\n");
+                debug("Toxcore:\tAnswering audio call.\n");
             }
 
             toxav_answer(av, param1, UTOX_DEFAULT_BITRATE_A, v_bitrate, &error);
 
             if (error) {
-                debug("uTox:\tError trying to toxav_answer error (%i)\n", error);
+                debug("Toxcore:\tError trying to toxav_answer error (%i)\n", error);
             } else {
                 postmessage_utoxav(UTOXAV_INCOMING_CALL_ANSWER, param1, param2, NULL);
             }
@@ -951,23 +955,23 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
         }
         case TOX_CALL_PAUSE_AUDIO: {
             /* param1: friend # */
-            debug("TODO bug, please report!!\n");
+            debug("TToxcore:\tODO bug, please report 001!!\n");
             break;
         }
         case TOX_CALL_PAUSE_VIDEO: {
             /* param1: friend # */
-            debug("Tox:\tEnding video for active call!\n");
+            debug("Toxcore:\tEnding video for active call!\n");
             utox_av_local_call_control(av, param1, TOXAV_CALL_CONTROL_HIDE_VIDEO);
             break;
         }
         case TOX_CALL_RESUME_AUDIO: {
             /* param1: friend # */
-            debug("TODO bug, please report!!\n");
+            debug("Toxcore:\tTODO bug, please report 002!!\n");
             break;
         }
         case TOX_CALL_RESUME_VIDEO: {
             /* param1: friend # */
-            debug("Tox:\tStarting video for active call!\n");
+            debug("Toxcore:\tStarting video for active call!\n");
             utox_av_local_call_control(av, param1, TOXAV_CALL_CONTROL_SHOW_VIDEO);
             friend[param1].call_state_self |= TOXAV_FRIEND_CALL_STATE_SENDING_V |
                                               TOXAV_FRIEND_CALL_STATE_ACCEPTING_V;

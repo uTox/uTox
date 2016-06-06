@@ -399,6 +399,13 @@ static void draw_settings_text_devices(int x, int y, int w, int h){
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(10), DEVICES_ADD_NEW);
+
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(60), DEVICES_NUMBER);
+
+    uint8_t str[10];
+    size_t strlen = snprintf(str, 10, "%u", self.device_list_count);
+
+    drawtext(MAIN_LEFT + SCALE(10), y + SCALE(75), str, strlen);
 }
 
 static void draw_settings_text_password(int x, int y, int w, int h) {
