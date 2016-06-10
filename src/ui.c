@@ -131,9 +131,9 @@ static void draw_friend(int x, int y, int w, int height){
 
     // draw avatar or default image
     if (friend_has_avatar(f)) {
-        draw_avatar_image(f->avatar.image, MAIN_LEFT + UTOX_SCALE(5), UTOX_SCALE(5), f->avatar.width, f->avatar.height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
+        draw_avatar_image(f->avatar.image, MAIN_LEFT + SCALE(10), SCALE(10), f->avatar.width, f->avatar.height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
     } else {
-        drawalpha(BM_CONTACT, MAIN_LEFT + UTOX_SCALE(5), UTOX_SCALE(5), BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_MAIN_TEXT);
+        drawalpha(BM_CONTACT, MAIN_LEFT + SCALE(10), SCALE(10), BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_MAIN_TEXT);
     }
 
     setcolor(COLOR_MAIN_TEXT);
@@ -214,7 +214,7 @@ static void draw_friend_request(int UNUSED(x), int UNUSED(y), int UNUSED(w), int
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(MAIN_LEFT + UTOX_SCALE(5), UTOX_SCALE(10), FRIENDREQUEST);
+    drawstr(MAIN_LEFT + SCALE(10), UTOX_SCALE(10), FRIENDREQUEST);
 
     setcolor(COLOR_MAIN_SUBTEXT);
     setfont(FONT_STATUS);
@@ -225,15 +225,15 @@ static void draw_friend_request(int UNUSED(x), int UNUSED(y), int UNUSED(w), int
 static void draw_add_friend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int height){
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(MAIN_LEFT + UTOX_SCALE(5), UTOX_SCALE(10), ADDFRIENDS);
+    drawstr(MAIN_LEFT + SCALE(10), UTOX_SCALE(10), ADDFRIENDS);
 
     setcolor(COLOR_MAIN_SUBTEXT);
     setfont(FONT_TEXT);
-    drawstr(MAIN_LEFT + UTOX_SCALE(5), MAIN_TOP + UTOX_SCALE(5), TOXID);
+    drawstr(MAIN_LEFT + SCALE(10), MAIN_TOP + SCALE(10), TOXID);
 
 
 
-    drawstr(MAIN_LEFT + UTOX_SCALE(5), MAIN_TOP + UTOX_SCALE(29), MESSAGE);
+    drawstr(MAIN_LEFT + SCALE(10), MAIN_TOP + UTOX_SCALE(29), MESSAGE);
 
     if (settings.force_proxy) {
         int push = UTOX_STR_WIDTH(TOXID);
@@ -276,7 +276,7 @@ static void draw_add_friend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int hei
             str = SPTR(REQ_UNKNOWN); break;
         }
 
-        utox_draw_text_multiline_compat(MAIN_LEFT + UTOX_SCALE(5), settings.window_width - BM_SBUTTON_WIDTH - UTOX_SCALE(5 ), MAIN_TOP + UTOX_SCALE(83), 0, height, font_small_lineheight, str->str, str->length, 0xFFFF, 0, 0, 0, 1);
+        utox_draw_text_multiline_compat(MAIN_LEFT + SCALE(10), settings.window_width - BM_SBUTTON_WIDTH - UTOX_SCALE(5 ), MAIN_TOP + UTOX_SCALE(83), 0, height, font_small_lineheight, str->str, str->length, 0xFFFF, 0, 0, 0, 1);
     }
 }
 
@@ -284,11 +284,11 @@ static void draw_add_friend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int hei
 static void draw_profile_password(int UNUSED(x), int UNUSED(y), int UNUSED(w), int height){
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(MAIN_LEFT + UTOX_SCALE(5), UTOX_SCALE(10), PROFILE_PASSWORD);
+    drawstr(MAIN_LEFT + SCALE(10), UTOX_SCALE(10), PROFILE_PASSWORD);
 
     setcolor(COLOR_MAIN_SUBTEXT);
     setfont(FONT_TEXT);
-    drawstr(MAIN_LEFT + UTOX_SCALE(5), MAIN_TOP + UTOX_SCALE(5), PROFILE_PASSWORD);
+    drawstr(MAIN_LEFT + SCALE(10), MAIN_TOP + SCALE(10), PROFILE_PASSWORD);
 }
 
 /* Top bar for user settings */
@@ -1076,7 +1076,7 @@ void ui_set_scale(uint8_t scale) {
 
         b_lock_uTox = {
             .type   = PANEL_BUTTON,
-            .x      = UTOX_SCALE(5),
+            .x      = SCALE(10),
             .y      = UTOX_SCALE(130),
             .width  = BM_SBUTTON_WIDTH,
             .height = BM_SBUTTON_HEIGHT,
@@ -1164,7 +1164,7 @@ void ui_set_scale(uint8_t scale) {
     /* Friend Add Page      */
         PANEL b_send_friend_request = {
             .type = PANEL_BUTTON,
-            .x = -UTOX_SCALE(5) - BM_SBUTTON_WIDTH,
+            .x = SCALE(-10) - BM_SBUTTON_WIDTH,
             .y = MAIN_TOP + UTOX_SCALE(84),
             .width = BM_SBUTTON_WIDTH,
             .height = BM_SBUTTON_HEIGHT,
@@ -1172,8 +1172,8 @@ void ui_set_scale(uint8_t scale) {
 
         b_accept_friend = {
             .type = PANEL_BUTTON,
-            .x = UTOX_SCALE(5),
-            .y = MAIN_TOP + UTOX_SCALE(5),
+            .x = SCALE(10),
+            .y = MAIN_TOP + SCALE(10),
             .width = BM_SBUTTON_WIDTH,
             .height = BM_SBUTTON_HEIGHT,
         };

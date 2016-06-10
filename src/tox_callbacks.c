@@ -275,6 +275,13 @@ void utox_set_callbacks_groups(Tox *tox) {
 }
 
 
+static void callback_friend_list_change(Tox *tox, void *user_data) {
+    debug_error("friend list change, updating roster\n");
+    list_freeall();
+    tox_after_load(tox);
+    list_start();
+}
+
 static void callback_mdev_self_name(Tox *tox, uint32_t dev_num, uint8_t *name, size_t length, void *UNUSED(userdata)) {
 
     debug_info("Name changed on remote device %u\n", dev_num);
@@ -288,5 +295,6 @@ static void callback_mdev_self_name(Tox *tox, uint32_t dev_num, uint8_t *name, s
 }
 
 void utox_set_callbacks_mdevice(Tox *tox) {
+    tox_callback_friend_list_change(tox, callback_friend_list_change, NULL);
     tox_callback_mdev_self_name(tox, callback_mdev_self_name, NULL);
 }

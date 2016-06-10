@@ -24,7 +24,7 @@ enum {
     TOX_KILL, // 0
 
     /* Change our settings in core */
-    TOX_SELF_SET_NAME, // 1
+    TOX_SELF_SET_NAME,
     TOX_SELF_SET_STATUS,
     TOX_SELF_SET_STATE,
 
@@ -159,10 +159,7 @@ TOX_MSG tox_msg, audio_msg, video_msg, toxav_msg;
 volatile _Bool tox_thread_msg, audio_thread_msg, video_thread_msg, toxav_thread_msg;
 volatile _Bool save_needed;
 
-/** [log_read description] */
-/* Commented to generate a warning, this function is deprecated */
-/* REMOVE with v0.10 */
-// void log_read_old(Tox *tox, int fid);
+void tox_after_load(Tox *tox);
 
 /* toxcore thread
  */

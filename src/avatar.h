@@ -14,7 +14,7 @@ typedef struct avatar {
 /* whether user's avatar is set */
 #define self_has_avatar() (self.avatar.format != UTOX_AVATAR_FORMAT_NONE)
 /* whether friend f's avatar is set, where f is a pointer to a friend struct */
-#define friend_has_avatar(f) (f->avatar.format != UTOX_AVATAR_FORMAT_NONE)
+#define friend_has_avatar(f) (f) && (f->avatar.format != UTOX_AVATAR_FORMAT_NONE)
 
 _Bool init_avatar(AVATAR *avatar, uint32_t friend_number, uint8_t *png_data_out, uint32_t *png_size_out);
 

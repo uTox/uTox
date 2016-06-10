@@ -45,7 +45,7 @@ static void roster_draw_itembox(ITEM *i, int y) {
 }
 
 static void roster_draw_name(ITEM *i, int y, char_t *name, char_t *msg, uint16_t name_length, uint16_t msg_length,
-                     _Bool color_overide, uint32_t color)
+                             _Bool color_overide, uint32_t color)
 {
     if (!color_overide) {
         color = (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT;
@@ -488,21 +488,18 @@ static void show_page(ITEM *i) {
 }
 
 void list_start(void) {
-    ITEM *i = item;
+    selected_item = &item_settings;
+    button_settings.disabled = 1;
 
     item_add.item       = ITEM_ADD;
     item_settings.item  = ITEM_SETTINGS;
 
-    button_settings.disabled = 1;
-    selected_item = &item_settings;
-
-    FRIEND *f = friend, *end = f + self.friend_list_count;
-
-    while (f != end) {
+    ITEM *i = item;
+    for (uint32_t num = 0; num < self.friend_list_count; ++num) {
+        FRIEND *f = &friend[num];
         i->item = ITEM_FRIEND;
         i->data = f;
         i++;
-        f++;
     }
 
     itemcount = i - item;

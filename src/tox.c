@@ -126,7 +126,7 @@ static void set_callbacks(Tox *tox) {
     utox_set_callbacks_file_transfer(tox);
 }
 
-static void tox_after_load(Tox *tox) {
+void tox_after_load(Tox *tox) {
     self.friend_list_count = tox_self_get_friend_list_size(tox);
     // self.group_list_count = tox_self_get_(tox);
     self.device_list_count = tox_self_get_device_count(tox);
@@ -560,7 +560,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
 
         case TOX_SELF_NEW_DEVICE: {
             TOX_ERR_DEVICE_ADD error = 0;
-            tox_self_add_device(tox, data, &error);
+            tox_self_add_device(tox, data + TOX_FRIEND_ADDRESS_SIZE, param1, data, &error);
 
             if (error) {
                 debug_error("Toxcore:\tproblem with adding device to self %u\n", error);
@@ -985,7 +985,8 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
         }
 
         /* Groups are broken while we await the new GCs getting merged. */
-    /*  TOX_GROUP_JOIN,
+        /*
+        TOX_GROUP_JOIN,
         TOX_GROUP_PART, // 30
         TOX_GROUP_INVITE,
         TOX_GROUP_SET_TOPIC,
