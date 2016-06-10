@@ -277,9 +277,9 @@ void utox_set_callbacks_groups(Tox *tox) {
 
 static void callback_friend_list_change(Tox *tox, void *user_data) {
     debug_error("friend list change, updating roster\n");
-    list_freeall();
+
     tox_after_load(tox);
-    list_start();
+    roster_reload_contacts();
 }
 
 static void callback_mdev_self_name(Tox *tox, uint32_t dev_num, uint8_t *name, size_t length, void *UNUSED(userdata)) {

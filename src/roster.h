@@ -37,7 +37,7 @@ typedef struct
     uint8_t item;
     char namestr[15];
     void *data;
-}ITEM;
+} ITEM;
 
 extern ITEM *selected_item;
 ITEM *right_mouse_item;
@@ -58,9 +58,14 @@ void list_selectswap(void);
 
 void roster_re_scale(void);
 
-void list_draw(void *n, int x, int y, int width, int height);
 void list_freeall(void);
 
+/* New naming patten */
+void roster_select_last(void);
+void roster_reload_contacts(void);
+
+/* UI functions */
+void list_draw(void *UNUSED(n), int UNUSED(x), int y, int UNUSED(width), int UNUSED(height));
 _Bool list_mmove(void *n, int x, int y, int width, int height, int mx, int my, int dx, int dy);
 _Bool list_mdown(void *n);
 _Bool list_mright(void *n);
@@ -68,5 +73,3 @@ _Bool list_mwheel(void *n, int height, double d, _Bool smooth);
 _Bool list_mup(void *n);
 _Bool list_mleave(void *n);
 
-/* New naming patten */
-void roster_select_last(void);

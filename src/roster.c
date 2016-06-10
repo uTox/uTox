@@ -552,32 +552,6 @@ void list_addfriendreq(FRIENDREQ *f) {
     i->data = f;
 }
 
-void list_draw(void *UNUSED(n), int UNUSED(x), int y, int UNUSED(width), int UNUSED(height)) {
-    int real_height = 0;
-    if (settings.use_mini_roster) {
-        real_height = ROSTER_BOX_HEIGHT / 2;
-    } else {
-        real_height = ROSTER_BOX_HEIGHT;
-    }
-
-    ITEM *mi = NULL; // item being dragged
-    int my; // y of item being dragged
-
-    for (int i = 0; i < showncount; i++) {
-        ITEM *it = &item[shown_list[i]];
-        if(it == selected_item && (selected_item_dy >= 5 || selected_item_dy <= -5)) {
-            mi = it;
-            my = y + selected_item_dy;
-        } else {
-            drawitem(it, ROSTER_BOX_LEFT, y);
-        }
-        y += real_height;
-    }
-
-    if (mi) {
-        drawitem(mi, ROSTER_BOX_LEFT, my);
-    }
-}
 
 void group_av_peer_remove(GROUPCHAT *g, int peernumber);
 
@@ -689,9 +663,51 @@ void list_selectswap(void) {
     show_page(&item_transfer);
 }
 
+/******************************************************************************
+ ****** Updated functions                                                ******
+ ******************************************************************************/
+
 void roster_select_last(void) {
     /* -2 should be the last, -1 is the create group */
     show_page(&item[itemcount-2]);
+}
+
+void roster_reload_contacts(void) {
+    list_freeall();
+    list_start();
+
+    list_reselect_current();
+}
+
+/******************************************************************************
+ ****** UI functions                                                     ******
+ ******************************************************************************/
+
+void list_draw(void *UNUSED(n), int UNUSED(x), int y, int UNUSED(width), int UNUSED(height)) {
+    int real_height = 0;
+    if (settings.use_mini_roster) {
+        real_height = ROSTER_BOX_HEIGHT / 2;
+    } else {
+        real_height = ROSTER_BOX_HEIGHT;
+    }
+
+    ITEM *mi = NULL; // item being dragged
+    int my; // y of item being dragged
+
+    for (int i = 0; i < showncount; i++) {
+        ITEM *it = &item[shown_list[i]];
+        if(it == selected_item && (selected_item_dy >= 5 || selected_item_dy <= -5)) {
+            mi = it;
+            my = y + selected_item_dy;
+        } else {
+            drawitem(it, ROSTER_BOX_LEFT, y);
+        }
+        y += real_height;
+    }
+
+    if (mi) {
+        drawitem(mi, ROSTER_BOX_LEFT, my);
+    }
 }
 
 _Bool list_mmove(void *UNUSED(n), int UNUSED(x), int UNUSED(y), int UNUSED(width), int height, int mx, int my, int UNUSED(dx), int dy) {
