@@ -142,9 +142,9 @@ void self_remove_avatar(void) {
     postmessage_toxcore(TOX_AVATAR_UNSET, 0, 0, NULL);
 }
 
-_Bool avatar_on_friend_online(Tox *tox, uint32_t friend_number){
-    uint8_t *avatar_data = self.avatar_data;
-    size_t avatar_size = self.avatar_size;
+_Bool avatar_on_friend_online(Tox *tox, uint32_t friend_number) {
+    size_t avatar_size;
+    uint8_t *avatar_data = utox_load_data_avatar(-1, &avatar_size);
 
     outgoing_file_send(tox, friend_number, NULL, avatar_data, avatar_size, TOX_FILE_KIND_AVATAR);
     return 1;

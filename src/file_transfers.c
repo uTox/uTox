@@ -880,7 +880,7 @@ uint32_t outgoing_file_send(Tox *tox, uint32_t friend_number, uint8_t *path, uin
 
     } else {
         debug("tox_file_send() failed\n");
-        if(avatar){
+        if (avatar){
             free(file_data);
         } else if(memory){
             free(filename);
