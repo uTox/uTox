@@ -70,14 +70,14 @@ static void draw_user_badge(int UNUSED(x), int UNUSED(y), int UNUSED(width), int
 
         /*&Draw current status message
         @TODO: separate these colors if needed (COLOR_MAIN_HINTTEXT) */
-        setcolor(!button_statusmsg.mouseover ? COLOR_MENU_SUBTEXT : COLOR_MAIN_HINTTEXT);
+        setcolor(!button_status_msg.mouseover ? COLOR_MENU_SUBTEXT : COLOR_MAIN_HINTTEXT);
         setfont(FONT_STATUS);
         drawtextrange(SIDEBAR_STATUSMSG_LEFT, SIDEBAR_STATUSMSG_WIDTH * 1.5, SIDEBAR_STATUSMSG_TOP,
                       self.statusmsg, self.statusmsg_length);
 
         /* Draw status button icon */
         drawalpha(BM_STATUSAREA, SELF_STATUS_ICON_LEFT, SELF_STATUS_ICON_TOP, BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT,
-                  button_status.mouseover ? COLOR_BACKGROUND_LIST_HOVER : COLOR_BACKGROUND_LIST);
+                  button_usr_state.mouseover ? COLOR_BACKGROUND_LIST_HOVER : COLOR_BACKGROUND_LIST);
         uint8_t status = tox_connected ? self.status : 3;
         drawalpha(BM_ONLINE + status, SELF_STATUS_ICON_LEFT + BM_STATUSAREA_WIDTH / 2 - BM_STATUS_WIDTH / 2,
                   SELF_STATUS_ICON_TOP + BM_STATUSAREA_HEIGHT / 2 - BM_STATUS_WIDTH / 2, BM_STATUS_WIDTH, BM_STATUS_WIDTH,
@@ -572,8 +572,8 @@ panel_side_bar = {
         .disabled = 0,
         .drawfunc = draw_user_badge,
         .child    = (PANEL*[]) {
-            (void*)&button_avatar, (void*)&button_name,       (void*)&button_status,
-                                   (void*)&button_statusmsg,
+            (void*)&button_avatar, (void*)&button_name,       (void*)&button_usr_state,
+                                   (void*)&button_status_msg,
             NULL
         }
     },
@@ -882,6 +882,13 @@ panel_main = {
                 }
             };
 
+#define CREATE_BUTTON(n, a, b, w, h) PANEL b_##n = { .type = PANEL_BUTTON, \
+                                                     .x        = a,    \
+                                                     .y        = b,    \
+                                                     .width    = w,    \
+                                                     .height   = h, }; \
+                                                     button_##n.panel = b_##n
+
 void ui_set_scale(uint8_t scale) {
     if(ui_scale != scale) {
         ui_scale = scale;
@@ -933,70 +940,16 @@ void ui_set_scale(uint8_t scale) {
     setfont(FONT_SELF_NAME);
 
     /* User Badge & Roster  */
-        PANEL b_avatar = {
-            .type   = PANEL_BUTTON,
-            .x      = SIDEBAR_AVATAR_LEFT,
-            .y      = SIDEBAR_AVATAR_TOP,
-            .width  = BM_CONTACT_WIDTH,
-            .height = BM_CONTACT_WIDTH,
-        },
-
-        b_name = {
-            .type   = PANEL_BUTTON,
-            .x      = SIDEBAR_NAME_LEFT,
-            .y      = SIDEBAR_NAME_TOP,
-            .width  = SIDEBAR_NAME_WIDTH,
-            .height = SIDEBAR_NAME_HEIGHT - SCALE(2),
-        },
-
-        b_statusmsg = {
-            .type   = PANEL_BUTTON,
-            .x      = SIDEBAR_STATUSMSG_LEFT,
-            .y      = SIDEBAR_STATUSMSG_TOP,
-            .width  = SELF_STATUS_ICON_LEFT    - SIDEBAR_STATUSMSG_LEFT - SCALE(2),
-            .height = SIDEBAR_STATUSMSG_HEIGHT - SCALE(2),
-        },
-
-        b_status_button = {
-            .type   = PANEL_BUTTON,
-            .x      = SELF_STATUS_ICON_LEFT,
-            .y      = SELF_STATUS_ICON_TOP,
-            .width  = BM_STATUSAREA_WIDTH,
-            .height = BM_STATUSAREA_HEIGHT,
-        },
-
-        b_filter_friends = {
-            .type   = PANEL_BUTTON,
-            .y      = SIDEBAR_FILTER_FRIENDS_TOP,
-            .x      = SIDEBAR_FILTER_FRIENDS_LEFT,
-            .width  = SIDEBAR_FILTER_FRIENDS_WIDTH,
-            .height = SIDEBAR_FILTER_FRIENDS_HEIGHT,
-        },
-
-        b_add_new_contact = {
-            .type     = PANEL_BUTTON,
-            .y        = ROSTER_BOTTOM,
-            .x        = SIDEBAR_BUTTON_LEFT,
-            .width    = SIDEBAR_BUTTON_WIDTH,
-            .height   = SIDEBAR_BUTTON_HEIGHT,
-            .disabled = 1,
-        },
-
-        b_settings = {
-            .type   = PANEL_BUTTON,
-            .y      = ROSTER_BOTTOM,
-            .x      = SIDEBAR_BUTTON_LEFT,
-            .width  = SIDEBAR_BUTTON_WIDTH,
-            .height = SIDEBAR_BUTTON_HEIGHT,
-        };
-
-        button_avatar.panel             = b_avatar;
-        button_name.panel               = b_name;
-        button_statusmsg.panel          = b_statusmsg;
-        button_status.panel             = b_status_button;
-        button_filter_friends.panel     = b_filter_friends;
-        button_add_new_contact.panel    = b_add_new_contact;
-        button_settings.panel           = b_settings;
+    CREATE_BUTTON(avatar, SIDEBAR_AVATAR_LEFT, SIDEBAR_AVATAR_TOP, BM_CONTACT_WIDTH,   BM_CONTACT_WIDTH);
+    CREATE_BUTTON(name,   SIDEBAR_NAME_LEFT,   SIDEBAR_NAME_TOP,   SIDEBAR_NAME_WIDTH, SIDEBAR_NAME_HEIGHT - SCALE(2));
+    CREATE_BUTTON(status_msg, SIDEBAR_STATUSMSG_LEFT, SIDEBAR_STATUSMSG_TOP,
+                  (SELF_STATUS_ICON_LEFT - SIDEBAR_STATUSMSG_LEFT - SCALE(2)), SIDEBAR_STATUSMSG_HEIGHT - SCALE(2));
+    CREATE_BUTTON(usr_state, SELF_STATUS_ICON_LEFT, SELF_STATUS_ICON_TOP, BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT);
+    CREATE_BUTTON(filter_friends, SIDEBAR_FILTER_FRIENDS_LEFT, SIDEBAR_FILTER_FRIENDS_TOP,
+                  SIDEBAR_FILTER_FRIENDS_WIDTH, SIDEBAR_FILTER_FRIENDS_HEIGHT);
+    CREATE_BUTTON(add_new_contact, SIDEBAR_BUTTON_LEFT, ROSTER_BOTTOM, SIDEBAR_BUTTON_WIDTH, SIDEBAR_BUTTON_HEIGHT);
+    b_add_new_contact.disabled = 1;
+    CREATE_BUTTON(settings, SIDEBAR_BUTTON_LEFT, ROSTER_BOTTOM, SIDEBAR_BUTTON_WIDTH, SIDEBAR_BUTTON_HEIGHT);
 
     /* Setting pages        */
         PANEL b_settings_sub_profile = {

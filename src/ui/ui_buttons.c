@@ -385,12 +385,12 @@ button_name = {
     .onpress = button_name_onpress,
 },
 
-button_statusmsg = {
+button_status_msg = {
     .nodraw = 1,
     .onpress = button_statusmsg_onpress,
 },
 
-button_status = {
+button_usr_state = {
     .nodraw = 1,
     .onpress = button_status_onpress,
     .tooltip_text = { .i18nal = STR_STATUS },
