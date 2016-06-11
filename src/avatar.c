@@ -23,7 +23,10 @@ _Bool init_avatar(AVATAR *avatar, uint32_t friend_number, uint8_t *png_data_out,
                 *png_size_out = size;
             }
 
+            free(avatar_data);
             return 1;
+        } else {
+            free(avatar_data);
         }
     }
     return 0;

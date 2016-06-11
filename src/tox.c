@@ -3,19 +3,6 @@
 
 volatile _Bool save_needed = 1;
 
-/* Writes log filename for fid to dest. returns length written */
-static int log_file_name(uint8_t *dest, size_t size_dest, Tox *tox, int fid) {
-    if (size_dest < TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".txt"))
-        return -1;
-
-    uint8_t client_id[TOX_PUBLIC_KEY_SIZE];
-    tox_friend_get_public_key(tox, fid, client_id, 0);
-    cid_to_string(dest, client_id); dest += TOX_PUBLIC_KEY_SIZE * 2;
-    memcpy((char*)dest, ".txt", sizeof(".txt"));
-
-    return TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".txt");
-}
-
 enum {
   LOG_FILE_MSG_TYPE_TEXT = 0,
   LOG_FILE_MSG_TYPE_ACTION = 1,
@@ -349,6 +336,8 @@ static int init_toxcore(Tox **tox) {
         }
     }
 
+    free((void*)topt.savedata_data);
+
     /* Give toxcore the functions to call */
     set_callbacks(*tox);
 
@@ -646,7 +635,10 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
         }
 
         case TOX_FRIEND_NEW_DEVICE: {
+            debug_info("Toxcore:\tAdding new device to peer %u\n", param1);
             tox_friend_add_device(tox, data, param1, 0);
+            free(data);
+            save_needed = 1;
             break;
         }
 

@@ -115,7 +115,6 @@ void utox_friend_init(Tox *tox, uint32_t friend_number) {
         tox_friend_get_status_message(tox, friend_number, f->status_message, 0);
         f->status_length = size;
 
-        // Get the hex version of this friends ID
         init_avatar(&f->avatar, friend_number, NULL, NULL);
 
         MESSAGES *m = &f->msg;
