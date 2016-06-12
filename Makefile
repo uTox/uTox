@@ -2,7 +2,7 @@
 # set to anything else to disable them
 DBUS 			= 1
 V4LCONVERT 		= 1
-FILTER_AUDIO 	= 0
+FILTER_AUDIO 	= 1
 UNITY 			= 0
 XP 				= 0
 

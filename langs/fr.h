@@ -23,10 +23,10 @@ msgid(REQ_NO_MSG)
 msgstr("Erreur: Message vide")
 
 msgid(REQ_SELF_ID)
-msgstr("Erreur: Tox ID est une ID personnel")
+msgstr("Erreur: Tox ID est un ID personnel")
 
 msgid(REQ_ALREADY_FRIENDS)
-msgstr("Erreur: Tox ID est déjà dans votre liste d'ami")
+msgstr("Erreur: Tox ID est déjà dans votre liste d'amis")
 
 msgid(REQ_UNKNOWN)
 msgstr("Erreur: Inconnue")
@@ -74,7 +74,7 @@ msgid(ADDFRIENDS)
 msgstr("Ajouter un ami")
 
 msgid(SEARCHFRIENDS)
-msgstr("Recherche d'ami")
+msgstr("Recherche d'amis")
 
 msgid(ADD)
 msgstr("Ajouter")
@@ -86,7 +86,7 @@ msgid(FRIENDREQUEST)
 msgstr("Demande d'ami")
 
 msgid(USERSETTINGS)
-msgstr("Paramètre d'utilisateur")
+msgstr("Paramètres d'utilisateur")
 
 msgid(NAME)
 msgstr("Nom")
@@ -128,7 +128,7 @@ msgid(NETWORK)
 msgstr("Réseau")
 
 msgid(WARNING)
-msgstr("Modifier les paramètres Réseau/Proxy vous déconnectera du réseau Tox")
+msgstr("Modifier les paramètres Réseau/Proxy vous déconnectera temporairement du réseau Tox")
 
 msgid(LOGGING)
 msgstr("Historique")
