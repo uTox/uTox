@@ -627,3 +627,11 @@ button_show_password_settings = {
     .button_text  = { .i18nal = STR_SHOW      },
     .tooltip_text = { .i18nal = STR_SHOW_UI_PASSWORD },
 };
+
+button_export_chatlog = {
+    .bm = BM_SBUTTON,
+    .button_text = { .i18nal = STR_COPY_TOX_ID },
+    .update = button_setcolors_success,
+    .onpress = button_export_chatlog_onpress,
+    .disabled = 0,
+},
