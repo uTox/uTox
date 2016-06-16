@@ -670,6 +670,7 @@ panel_main = {
                     (void*)&edit_friend_pubkey,
                     (void*)&edit_friend_alias,
                     (void*)&dropdown_friend_autoaccept_ft,
+                    (void*)&button_export_chatlog,
                     NULL
                 }
             },
