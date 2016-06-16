@@ -672,10 +672,12 @@ void roster_select_last(void) {
     show_page(&item[itemcount-2]);
 }
 
-void roster_reload_contacts(void) {
+void roster_dump_contacts(void) {
     list_freeall();
-    list_start();
+}
 
+void roster_reload_contacts(void) {
+    list_start();
     list_reselect_current();
 }
 

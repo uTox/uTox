@@ -62,6 +62,7 @@ void list_freeall(void);
 
 /* New naming patten */
 void roster_select_last(void);
+void roster_dump_contacts(void);
 void roster_reload_contacts(void);
 
 /* UI functions */

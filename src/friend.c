@@ -80,51 +80,54 @@ static void friend_meta_data_read(Tox *tox, int friend_id) {
 }
 
 void utox_friend_init(Tox *tox, uint32_t friend_number) {
-        int size;
-        // get friend pointer
-        FRIEND *f = &friend[friend_number];
-        uint8_t name[TOX_MAX_NAME_LENGTH];
+    int size;
+    // get friend pointer
+    FRIEND *f = &friend[friend_number];
+    uint8_t name[TOX_MAX_NAME_LENGTH];
 
-        // Set scroll position to bottom of window.
-        f->msg.scroll = 1.0;
-        f->msg.panel.type           = PANEL_MESSAGES;
-        f->msg.panel.content_scroll = &scrollbar_friend;
-        f->msg.panel.y              = MAIN_TOP;
-        f->msg.panel.height         = CHAT_BOX_TOP;
-        f->msg.panel.width          = -SCROLL_WIDTH;
+    // Set scroll position to bottom of window.
+    f->msg.scroll = 1.0;
+    f->msg.panel.type           = PANEL_MESSAGES;
+    f->msg.panel.content_scroll = &scrollbar_friend;
+    f->msg.panel.y              = MAIN_TOP;
+    f->msg.panel.height         = CHAT_BOX_TOP;
+    f->msg.panel.width          = -SCROLL_WIDTH;
 
-        // Get and set the public key for this friend number and set it.
-        tox_friend_get_public_key(tox, friend_number, f->cid, 0);
+    // Get and set the public key for this friend number and set it.
+    tox_friend_get_public_key(tox, friend_number, f->cid, 0);
+    char_t cid[TOX_PUBLIC_KEY_SIZE * 2];
+    cid_to_string(cid, f->cid);
+    memcpy(f->id_str, cid, TOX_PUBLIC_KEY_SIZE * 2);
 
-        char_t cid[TOX_PUBLIC_KEY_SIZE * 2];
-        cid_to_string(cid, f->cid);
+    // Set the friend number we got from toxcore
+    f->number = friend_number;
 
-        memcpy(f->id_str, cid, TOX_PUBLIC_KEY_SIZE * 2);
-        // Set the friend number we got from toxcore
-        f->number = friend_number;
+    // Get and set friend name and length
+    size = tox_friend_get_name_size(tox, friend_number, 0);
+    tox_friend_get_name(tox, friend_number, name, 0);
+    // Set the name for utox as well
+    friend_setname(f, name, size);
 
-        // Get and set friend name and length
-        size = tox_friend_get_name_size(tox, friend_number, 0);
-        tox_friend_get_name(tox, friend_number, name, 0);
-        // Set the name for utox as well
-        friend_setname(f, name, size);
+    // Get and set the status message
+    size = tox_friend_get_status_message_size(tox, friend_number, 0);
+    f->status_message = calloc(1, size);
+    tox_friend_get_status_message(tox, friend_number, f->status_message, 0);
+    f->status_length = size;
 
-        // Get and set the status message
-        size = tox_friend_get_status_message_size(tox, friend_number, 0);
-        f->status_message = calloc(1, size);
-        tox_friend_get_status_message(tox, friend_number, f->status_message, 0);
-        f->status_length = size;
+    /* TODO; consider error handling these two */
+    f->online = tox_friend_get_connection_status(tox, friend_number, NULL);
+    f->status = tox_friend_get_status(tox, friend_number, NULL);
 
-        init_avatar(&f->avatar, friend_number, NULL, NULL);
+    init_avatar(&f->avatar, friend_number, NULL, NULL);
 
-        MESSAGES *m = &f->msg;
-        messages_init(m, friend_number);
+    MESSAGES *m = &f->msg;
+    messages_init(m, friend_number);
 
-        // Get the chat backlog
-        messages_read_from_log(friend_number);
+    // Get the chat backlog
+    messages_read_from_log(friend_number);
 
-        // Load the meta data, if it exists.
-        friend_meta_data_read(tox, friend_number);
+    // Load the meta data, if it exists.
+    friend_meta_data_read(tox, friend_number);
 }
 
 void friend_setname(FRIEND *f, char_t *name, uint16_t length){
