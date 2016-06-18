@@ -20,6 +20,8 @@
 #define UTOX_MAX_NUM_GROUPS       512
 #define UTOX_FILE_NAME_LENGTH     1024
 
+#define UTOX_MAX_NAME_LENGTH      128
+
 #define MAX_CALLS               UTOX_MAX_CALLS       /* Deprecated; Avoid Use */
 #define MAX_NUM_FRIENDS         UTOX_MAX_NUM_FRIENDS /* Deprecated; Avoid Use */
 #define MAX_NUM_GROUPS          UTOX_MAX_NUM_GROUPS  /* Deprecated; Avoid Use */
@@ -413,50 +415,82 @@ size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *
 uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_size);
 
 /** Selects the correct file on the platform and passes it to the global log reading function */
-FILE *native_load_data_logfile(uint32_t friend_number);
+FILE *native_load_chatlog_file(uint32_t friend_number);
 
 /** given a filename, native_remove_file will delete that file from the local config dir */
 _Bool native_remove_file(const uint8_t *name, size_t length);
 
 
 
-/* Global wrappers for the native_ data functions */
+/*** Global wrappers for the native_ data functions ***/
+
+/** TODO DOCUMENATION
+ */
 _Bool      utox_save_data_tox(uint8_t *data, size_t length);
+
+/** TODO DOCUMENATION
+ */
 uint8_t   *utox_load_data_tox(size_t *size);
 
+/** TODO DOCUMENATION
+ */
 _Bool      utox_save_data_utox(UTOX_SAVE *data, size_t length);
+
+/** TODO DOCUMENATION
+ */
 UTOX_SAVE *utox_load_data_utox(void);
 
-size_t     utox_save_data_log(uint32_t friend_number, uint8_t *data, size_t length);
+/** TODO DOCUMENATION
+ */
+size_t     utox_save_chatlog(uint32_t friend_number, uint8_t *data, size_t length);
+
 /** This one actually does the work of reading the logfile information.
  *
  * inside main.c is probably the wrong place for it, but I'll leave chosing
  * the correct location to someone else. */
-uint8_t **utox_load_data_log(uint32_t friend_number, size_t *size, uint32_t count, uint32_t skip);
+uint8_t **utox_load_chatlog(uint32_t friend_number, size_t *size, uint32_t count, uint32_t skip);
 
-/** utox_update_data_log Updates the data for this friend's history.
+/** utox_update_chatlog Updates the data for this friend's history.
  *
- * When given a friend_number and offset, utox_update_data_log will overwrite the file, with
+ * When given a friend_number and offset, utox_update_chatlog will overwrite the file, with
  * the supplied data * length. It makes no attempt to verify the data or length, it'll just
  * write blindly. */
-_Bool utox_update_data_log(uint32_t friend_number, size_t offset, uint8_t *data, size_t length);
+_Bool utox_update_chatlog(uint32_t friend_number, size_t offset, uint8_t *data, size_t length);
 
-
+/** TODO DOCUMENATION
+ */
 _Bool    utox_save_data_avatar(uint32_t friend_number, const uint8_t *data, size_t length);
+/** TODO DOCUMENATION
+ */
 uint8_t *utox_load_data_avatar(uint32_t friend_number, size_t *size);
+/** TODO DOCUMENATION
+ */
 _Bool    utox_remove_file_avatar(uint32_t friend_number);
 
+/** TODO DOCUMENATION
+ */
+_Bool utox_remove_file(const uint8_t *full_name, size_t length);
+/** TODO DOCUMENATION
+ */
+_Bool utox_remove_friend_chatlog(uint32_t friend_number);
 
-_Bool    utox_remove_file(const uint8_t *full_name, size_t length);
-_Bool utox_remove_friend_history(uint32_t friend_number);
+/** TODO DOCUMENATION
+ */
+void  utox_export_chatlog_init(uint32_t friend_number);
 
-
+/** TODO DOCUMENATION
+ */
+void  utox_export_chatlog(uint32_t friend_number, FILE *dest_file);
 
 
 /* TODO: sort everything below this line! */
 
+/** TODO DOCUMENATION
+ */
 void parse_args(int argc, char *argv[], _Bool *theme_was_set_on_argv, int8_t *should_launch_at_startup, int8_t *set_show_window, _Bool *no_updater);
 
+/** TODO DOCUMENATION
+ */
 void utox_init(void);
 
 

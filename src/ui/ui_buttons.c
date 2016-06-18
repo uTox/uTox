@@ -373,6 +373,10 @@ static void button_show_password_settings_onpress(void) {
     panel_profile_password_settings.disabled = 0;
 }
 
+static void button_export_chatlog_onpress(void) {
+    utox_export_chatlog_init(((FRIEND*)selected_item->data)->number);
+}
+
 
 BUTTON button_avatar = {
     .nodraw = 1,
@@ -541,12 +545,12 @@ button_show_password_settings = {
     .onpress      = button_show_password_settings_onpress,
     .button_text  = { .i18nal = STR_SHOW      },
     .tooltip_text = { .i18nal = STR_SHOW_UI_PASSWORD },
-};
+},
 
 button_export_chatlog = {
     .bm = BM_SBUTTON,
-    .button_text = { .i18nal = STR_COPY_TOX_ID },
+    .button_text = { .i18nal = STR_FRIEND_EXPORT_CHATLOG },
     .update = button_setcolors_success,
     .onpress = button_export_chatlog_onpress,
     .disabled = 0,
-},
+};

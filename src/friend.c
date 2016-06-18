@@ -291,7 +291,7 @@ void friend_add(char_t *name, uint16_t length, char_t *msg, uint16_t msg_length)
 void friend_history_clear(FRIEND *f) {
     messages_clear_all(&f->msg);
 
-    utox_remove_friend_history(f->number);
+    utox_remove_friend_chatlog(f->number);
 }
 
 void friend_free(FRIEND *f)

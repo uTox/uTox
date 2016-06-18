@@ -1055,6 +1055,8 @@ void ui_set_scale(uint8_t scale) {
         CREATE_BUTTON(accept_friend, SCALE(10), MAIN_TOP + SCALE(10), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
 
     /* Friend Settings Page */
+        CREATE_BUTTON(export_chatlog, SCALE(10), SCALE(220), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+
         PANEL e_friend_pubkey = {
             .type   =  PANEL_EDIT,
             .x      =  SCALE(10),
@@ -1093,8 +1095,10 @@ void ui_set_scale(uint8_t scale) {
         /* bottom left button in chat */
         CREATE_BUTTON(send_file, SCALE(6), SCALE(-46),  BM_CHAT_BUTTON_WIDTH,  BM_CHAT_BUTTON_HEIGHT);
         /* button to the right of b_chat_left */
-        CREATE_BUTTON(send_screenshot, SCALE(8) + BM_CHAT_BUTTON_WIDTH, SCALE(-46 ), BM_CHAT_BUTTON_WIDTH, BM_CHAT_BUTTON_HEIGHT);
-        CREATE_BUTTON(chat_send, SCALE(-6) - BM_CHAT_SEND_WIDTH, SCALE(-26 ), BM_CHAT_SEND_WIDTH, BM_CHAT_SEND_HEIGHT);
+        CREATE_BUTTON(send_screenshot, SCALE(8) + BM_CHAT_BUTTON_WIDTH, SCALE(-46 ),
+                                       BM_CHAT_BUTTON_WIDTH, BM_CHAT_BUTTON_HEIGHT);
+        CREATE_BUTTON(chat_send,       SCALE(-6) - BM_CHAT_SEND_WIDTH,  SCALE(-46),
+                                       BM_CHAT_SEND_WIDTH, BM_CHAT_SEND_HEIGHT);
 
     /* Drop down structs    */
         setfont(FONT_TEXT);

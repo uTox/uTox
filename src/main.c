@@ -77,7 +77,7 @@ UTOX_SAVE *utox_load_data_utox(void) {
     return (UTOX_SAVE*)native_load_data(name, strlen((const char*)name), NULL);
 }
 
-size_t utox_save_data_log(uint32_t friend_number, uint8_t *data, size_t length) {
+size_t utox_save_chatlog(uint32_t friend_number, uint8_t *data, size_t length) {
     FRIEND *f = &friend[friend_number];
     uint8_t hex[TOX_PUBLIC_KEY_SIZE * 2];
     uint8_t name[TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".new.txt")];
@@ -87,17 +87,11 @@ size_t utox_save_data_log(uint32_t friend_number, uint8_t *data, size_t length) 
     return native_save_data(name, strlen((const char*)name), (const uint8_t*)data, length, 1);
 }
 
-uint8_t **utox_load_data_log(uint32_t friend_number, size_t *size, uint32_t count, uint32_t skip) {
-    /* Becasue every platform is different, we have to ask them to open the file for us.
-     * However once we have it, every platform does the same thing, this should prevent issues
-     * from occuring on a single platform. */
-
-    FILE *file = native_load_data_logfile(friend_number);
+static size_t utox_count_chatlog(uint32_t friend_number) {
+    FILE *file = native_load_chatlog_file(friend_number);
 
     if (!file) {
-        debug("History:\tUnable to access file provided by native_load_data_logfile()\n");
-        if (size) { *size = 0; }
-        return NULL;
+        return 0;
     }
 
     LOG_FILE_MSG_HEADER header;
@@ -114,12 +108,37 @@ uint8_t **utox_load_data_log(uint32_t friend_number, size_t *size, uint32_t coun
          * If !feof() this means that the file has an incomplete record,
          * which would prevent it from loading forever, even though
          * new records will keep being appended as usual. */
-        debug_error("Log read error on file from friend (%u)\n", friend_number);
+        debug_error("Log read trying to count history for friend #%u\n", friend_number);
         fclose(file);
+        return 0;
+    }
+
+    fclose(file);
+    return records_count;
+}
+
+/* TODO create fxn that will try to recover a corrupt chat history.
+ *
+ * In the majority of bug reports the corrupt message is often the first, so in
+ * theory we should be able to trim the start of the chatlog up to and including
+ * the first \n char. We may have to do so multiple times, but once we find the
+ * first valid message everything else should "work" */
+
+uint8_t **utox_load_chatlog(uint32_t friend_number, size_t *size, uint32_t count, uint32_t skip) {
+    /* Becasue every platform is different, we have to ask them to open the file for us.
+     * However once we have it, every platform does the same thing, this should prevent issues
+     * from occuring on a single platform. */
+    LOG_FILE_MSG_HEADER header;
+    size_t records_count = utox_count_chatlog(friend_number);
+
+
+    FILE *file = native_load_chatlog_file(friend_number);
+    if (!file) {
+        debug("History:\tUnable to access file provided by native_load_chatlog_file()\n");
         if (size) { *size = 0; }
         return NULL;
     }
-    rewind(file);
+
 
     if (skip >= records_count) {
         debug_error("Native log read:\tError, skipped all records\n");
@@ -192,16 +211,16 @@ uint8_t **utox_load_data_log(uint32_t friend_number, size_t *size, uint32_t coun
     return data - actual_count;
 }
 
-_Bool utox_update_data_log(uint32_t friend_number, size_t offset, uint8_t *data, size_t length) {
-    FILE *file = native_load_data_logfile(friend_number);
+_Bool utox_update_chatlog(uint32_t friend_number, size_t offset, uint8_t *data, size_t length) {
+    FILE *file = native_load_chatlog_file(friend_number);
 
     if (!file) {
-        debug_error("History:\tUnable to access file provided by native_load_data_logfile()\n");
+        debug_error("History:\tUnable to access file provided by native_load_chatlog_file()\n");
         return 0;
     }
 
     if (fseeko(file, offset, SEEK_SET)) {
-        debug_error("History:\tUnable to seek to position %lu in file provided by native_load_data_logfile()\n",
+        debug_error("History:\tUnable to seek to position %lu in file provided by native_load_chatlog_file()\n",
                     offset);
         return 0;
     }
@@ -211,6 +230,64 @@ _Bool utox_update_data_log(uint32_t friend_number, size_t offset, uint8_t *data,
     fclose(file);
 
     return 1;
+}
+
+_Bool utox_remove_friend_chatlog(uint32_t friend_number) {
+    size_t length = TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".new.txt");
+    uint8_t hex[TOX_PUBLIC_KEY_SIZE * 2];
+    uint8_t name[length];
+
+    FRIEND *f = &friend[friend_number];
+    cid_to_string(hex, f->cid);
+
+    snprintf((char*)name, length, "%.*s.new.txt", TOX_PUBLIC_KEY_SIZE * 2, (char*)hex);
+
+    return utox_remove_file(name, length);
+}
+
+void utox_export_chatlog_init(uint32_t friend_number) {
+    native_export_chatlog_init(friend_number);
+}
+
+void utox_export_chatlog(uint32_t friend_number, FILE *dest_file) {
+    if (!dest_file || friend_number == -1) {
+        return;
+    }
+
+    FILE *file = native_load_chatlog_file(friend_number);
+    LOG_FILE_MSG_HEADER header;
+    int i;
+    char c;
+
+    while (1 == fread(&header, sizeof(header), 1, file)) {
+        /* Write Author */
+        fwrite("<", 1, 1, dest_file);
+        for (i = 0; i < header.author_length; ++i) {
+            c = fgetc(file);
+            if (c != EOF) {
+                fputc(c, dest_file);
+            } else {
+                continue;
+            }
+        }
+        fwrite(">", 1, 1, dest_file);
+
+        /* Write text */
+        fwrite(" ", 1, 1, dest_file);
+        for (i = 0; i < header.msg_length; ++i) {
+            c = fgetc(file);
+            if (c != EOF) {
+                fputc(c, dest_file);
+            } else {
+                continue;
+            }
+        }
+        c = fgetc(file); /* the newline char */
+        fputc(c, dest_file);
+    }
+
+    fclose(file);
+    fclose(dest_file);
 }
 
 _Bool utox_save_data_avatar(uint32_t friend_number, const uint8_t *data, size_t length) {
@@ -282,22 +359,8 @@ _Bool utox_remove_file_avatar(uint32_t friend_number) {
     return native_remove_file(name, name_len);
 }
 
-
 _Bool utox_remove_file(const uint8_t *full_name, size_t length) {
     return native_remove_file(full_name, length);
-}
-
-_Bool utox_remove_friend_history(uint32_t friend_number) {
-    size_t length = TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".new.txt");
-    uint8_t hex[TOX_PUBLIC_KEY_SIZE * 2];
-    uint8_t name[length];
-
-    FRIEND *f = &friend[friend_number];
-    cid_to_string(hex, f->cid);
-
-    snprintf((char*)name, length, "%.*s.new.txt", TOX_PUBLIC_KEY_SIZE * 2, (char*)hex);
-
-    return utox_remove_file(name, length);
 }
 
 /* Shared function between all four platforms */

@@ -358,14 +358,14 @@ uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_s
     return data;
 }
 
-/** native_load_data_log
+/** native_load_chatlog
  *
  *  reads records from the log file of a friend
  *
  * returns each MSG in the order they were stored, to a max of `count`
  * after skipping `skip` records
  */
-FILE *native_load_data_logfile(uint32_t friend_number) {
+FILE *native_load_chatlog_file(uint32_t friend_number) {
     FRIEND *f = &friend[friend_number];
     uint8_t hex[TOX_PUBLIC_KEY_SIZE * 2] = {0};
     uint8_t path[UTOX_FILE_NAME_LENGTH]  = {0};
@@ -393,6 +393,20 @@ FILE *native_load_data_logfile(uint32_t friend_number) {
     }
 
     return file;
+}
+
+void native_export_chatlog_init(uint32_t friend_number) {
+    if (libgtk) {
+        gtk_save_chatlog(friend_number);
+    } else {
+        uint8_t name[UTOX_MAX_NAME_LENGTH + sizeof(".txt")];
+        snprintf((char*)name, sizeof(name), "%.*s.txt", (int)friend[friend_number].name_length, friend[friend_number].name);
+
+        FILE *file = fopen((char*)name, "wb");
+        if (file) {
+            utox_export_chatlog(friend_number, file);
+        }
+    }
 }
 
 _Bool native_remove_file(const uint8_t *name, size_t length) {

@@ -274,14 +274,14 @@ uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_s
     return data;
 }
 
-/** native_load_data_log
+/** native_load_chatlog
  *
  *  reads records from the log file of a friend
  *
  * returns each MSG in the order they were stored, to a max of `count`
  * after skipping `skip` records
  */
-FILE *native_load_data_logfile(uint32_t friend_number) {
+FILE *native_load_chatlog_file(uint32_t friend_number) {
     FRIEND *f = &friend[friend_number];
     uint8_t hex[TOX_PUBLIC_KEY_SIZE * 2];
     uint8_t path[UTOX_FILE_NAME_LENGTH];

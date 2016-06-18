@@ -359,7 +359,7 @@ _Bool message_log_to_disk(MESSAGES *m, MSG_VOID *msg) {
             memcpy(data + sizeof(header) + author_length, text->msg, text->length);
             strcpy2(data + length - 1, "\n");
 
-            msg->disk_offset = utox_save_data_log(f->number, data, length);
+            msg->disk_offset = utox_save_chatlog(f->number, data, length);
             break;
         }
         default: {
@@ -372,7 +372,7 @@ _Bool message_log_to_disk(MESSAGES *m, MSG_VOID *msg) {
 
 _Bool messages_read_from_log(uint32_t friend_number){
     size_t actual_count = 0;
-    uint8_t **data = utox_load_data_log(friend_number, &actual_count, UTOX_MAX_BACKLOG_MESSAGES, 0);
+    uint8_t **data = utox_load_chatlog(friend_number, &actual_count, UTOX_MAX_BACKLOG_MESSAGES, 0);
     MSG_VOID *msg;
     time_t last = 0;
 
@@ -476,13 +476,13 @@ void messages_clear_receipt(MESSAGES *m, uint32_t receipt_number) {
 
                     if (msg->disk_offset) {
                         debug("Messages:\tUpdating message -> disk_offset is %lu\n", msg->disk_offset);
-                        utox_update_data_log(m->id, msg->disk_offset, data, length);
+                        utox_update_chatlog(m->id, msg->disk_offset, data, length);
                     } else if (msg->disk_offset == 0 && start <= 1 && receipt_number == 1) {
                         /* This could get messy if receipt is 1 msg position is 0 and the offset is actually wrong,
                          * But I couldn't come up with any other way to verify the rare case of a bad offset
                          * start <= 1 to offset for the day change notification                                    */
                         debug("Messages:\tUpdating first message -> disk_offset is %lu\n", msg->disk_offset);
-                        utox_update_data_log(m->id, msg->disk_offset, data, length);
+                        utox_update_chatlog(m->id, msg->disk_offset, data, length);
                     } else {
                         debug_error("Messages:\tUnable to update this message...\n"
                             "\t\tmsg->disk_offset %lu && m->number %u receipt_number %u \n",

@@ -81,6 +81,7 @@ enum {
     STR_FRIEND_ALIAS,
     STR_FRIEND_PUBLIC_KEY,
     STR_FRIEND_AUTOACCEPT,
+    STR_FRIEND_EXPORT_CHATLOG,
 
     /* Group chat strings */
     STR_GROUP_CREATE_TEXT,

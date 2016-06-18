@@ -57,7 +57,7 @@ void* (*gdk_pixbuf_new_from_file_at_size)(const char*, int, int, void**);
 int (*gdk_pixbuf_get_width)(const void*);
 int (*gdk_pixbuf_get_height)(const void*);
 
-volatile bool gtk_open;
+static bool gtk_open;
 
 static void update_image_preview(void *filechooser, void *image) {
 #define MAX_PREVIEW_SIZE 256
@@ -266,7 +266,7 @@ static void gtk_savethread(void *args) {
     gtk_open = false;
 }
 
-static void gtk_savedatathread(void *args) {
+static void gtk_save_data_thread(void *args) {
     MSG_FILE *file = args;
     void *dialog = gtk_file_chooser_dialog_new((const char *)S(SAVE_FILE), NULL,
             GTK_FILE_CHOOSER_ACTION_SAVE,
@@ -286,6 +286,36 @@ static void gtk_savedatathread(void *args) {
             free(file->path);
             file->path = (uint8_t*)strdup(name);
             file->inline_png = 0;
+        }
+    }
+
+    gtk_widget_destroy(dialog);
+    while(gtk_events_pending()) {
+        gtk_main_iteration();
+    }
+
+    gtk_open = false;
+}
+
+static void gtk_save_chatlog_thread(void *args) {
+    uint32_t friend_number = *(uint32_t*)args;
+
+    char name[UTOX_MAX_NAME_LENGTH + sizeof(".txt")];
+    snprintf(name, sizeof(name), "%.*s.txt", (int)friend[friend_number].name_length, friend[friend_number].name);
+
+    void *dialog = gtk_file_chooser_dialog_new((const char *)S(SAVE_FILE), NULL,
+            GTK_FILE_CHOOSER_ACTION_SAVE,
+            "_Cancel", GTK_RESPONSE_CANCEL,
+            "_Save", GTK_RESPONSE_ACCEPT,
+            NULL);
+    gtk_file_chooser_set_current_name(dialog, name);
+    int result = gtk_dialog_run(dialog);
+    if (result == GTK_RESPONSE_ACCEPT) {
+        char *file_name = gtk_file_chooser_get_filename(dialog);
+
+        FILE *fp = fopen(file_name, "wb");
+        if (fp) {
+            utox_export_chatlog(friend_number, fp);
         }
     }
 
@@ -327,7 +357,16 @@ void gtk_savefiledata(MSG_FILE *file) {
         return;
     }
     gtk_open = true;
-    thread(gtk_savedatathread, file);
+    thread(gtk_save_data_thread, file);
+}
+
+void gtk_save_chatlog(uint32_t friend_number) {
+    if (gtk_open) {
+        return;
+    }
+
+    gtk_open = true;
+    thread(gtk_save_chatlog_thread, &friend_number);
 }
 
 void* gtk_load(void) {

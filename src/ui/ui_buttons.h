@@ -28,4 +28,6 @@ BUTTON button_avatar,
        button_send_screenshot,
        button_chat_send,
        button_lock_uTox,
-       button_show_password_settings;
+       button_show_password_settings,
+
+       button_export_chatlog;

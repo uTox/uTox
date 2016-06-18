@@ -176,6 +176,9 @@ msgstr("Friend's Public Key")
 msgid(FRIEND_AUTOACCEPT)
 msgstr("Accept incoming file transfers without confirmation")
 
+msgid(FRIEND_EXPORT_CHATLOG)
+msgstr("Export Chatlog as plain text")
+
 
 /******************************************************************************
  *** Group Strings                                                          ***

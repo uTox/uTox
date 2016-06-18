@@ -53,7 +53,7 @@ static int utox_encrypt_data(void *clear_text, size_t clear_length, uint8_t *cyp
                      cypher_data, &err);
 
     if (err) {
-        debug("Fatal Error; unable to encrypt data!\n");
+        debug_error("Fatal Error; unable to encrypt data!\n");
         exit(10);
     }
 
