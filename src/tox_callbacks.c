@@ -283,7 +283,7 @@ static void callback_friend_list_change(Tox *tox, void *user_data) {
     roster_reload_contacts();
 }
 
-static void callback_mdev_self_name(Tox *tox, uint32_t dev_num, uint8_t *name, size_t length, void *UNUSED(userdata)) {
+static void callback_mdev_self_name(Tox *tox, uint32_t dev_num, const uint8_t *name, size_t length, void *UNUSED(userdata)) {
 
     debug_info("Name changed on remote device %u\n", dev_num);
 
