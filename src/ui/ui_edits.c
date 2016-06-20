@@ -115,9 +115,9 @@ void edit_msg_onenter(EDIT *edit) {
 
         /* Display locally */
         if (action) {
-            message_add_type_action(&f->msg, 1, text, length, 1);
+            message_add_type_action(&f->msg, 1, text, length, 1, 1);
         } else {
-            message_add_type_text(&f->msg, 1, text, length, 1);
+            message_add_type_text(&f->msg, 1, text, length, 1, 1);
         }
     } else if(selected_item->item == ITEM_GROUP) {
         GROUPCHAT *g = selected_item->data;

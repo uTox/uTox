@@ -191,15 +191,19 @@ uint32_t message_add_group(MESSAGES *m, MSG_TEXT *msg) {
     return message_add(m, (MSG_VOID*)msg);
 }
 
-uint32_t message_add_type_text(MESSAGES *m, _Bool auth, const uint8_t *data, uint16_t length, _Bool log) {
+uint32_t message_add_type_text(MESSAGES *m, _Bool auth, const uint8_t *data, uint16_t length, _Bool log, _Bool send) {
     MSG_TEXT *msg   = calloc(1, sizeof(MSG_TEXT) + length);
     time(&msg->time);
-    msg->our_msg     = auth;
+    msg->our_msg    = auth;
     msg->msg_type   = MSG_TYPE_TEXT;
     msg->length     = length;
 
     if (auth) {
         msg->author_length = self.name_length;
+        if (!send) {
+            msg->receipt      = 0;
+            msg->receipt_time = 1;
+        }
     } else {
         msg->author_length = friend[m->id].name_length;
     }
@@ -215,14 +219,14 @@ uint32_t message_add_type_text(MESSAGES *m, _Bool auth, const uint8_t *data, uin
         message_log_to_disk(m, (MSG_VOID*)msg);
     }
 
-    if (auth) {
+    if (auth && send) {
         postmessage_toxcore(TOX_SEND_MESSAGE, friend[m->id].number, length, msg);
     }
 
     return message_add(m, (MSG_VOID*)msg);
 }
 
-uint32_t message_add_type_action(MESSAGES *m, _Bool auth, const uint8_t *data, uint16_t length, _Bool log) {
+uint32_t message_add_type_action(MESSAGES *m, _Bool auth, const uint8_t *data, uint16_t length, _Bool log, _Bool send) {
     MSG_TEXT *msg   = calloc(1, sizeof(MSG_TEXT) + length);
     time(&msg->time);
     msg->our_msg     = auth;
@@ -231,6 +235,10 @@ uint32_t message_add_type_action(MESSAGES *m, _Bool auth, const uint8_t *data, u
 
     if (auth) {
         msg->author_length = self.name_length;
+        if (!send) {
+            msg->receipt      = 0;
+            msg->receipt_time = 1;
+        }
     } else {
         msg->author_length = friend[m->id].name_length;
     }
@@ -241,7 +249,7 @@ uint32_t message_add_type_action(MESSAGES *m, _Bool auth, const uint8_t *data, u
         message_log_to_disk(m, (MSG_VOID*)msg);
     }
 
-    if (auth) {
+    if (auth && send) {
         postmessage_toxcore(TOX_SEND_ACTION, friend[m->id].number, length, msg);
     }
 
@@ -264,7 +272,9 @@ uint32_t message_add_type_notice(MESSAGES *m, const uint8_t *data, uint16_t leng
     return message_add(m, (MSG_VOID*)msg);
 }
 
-uint32_t message_add_type_image(MESSAGES *m, _Bool auth, UTOX_NATIVE_IMAGE *img, uint16_t width, uint16_t height, _Bool log) {
+uint32_t message_add_type_image(MESSAGES *m, _Bool auth, UTOX_NATIVE_IMAGE *img, uint16_t width, uint16_t height,
+                                _Bool log)
+{
     if (!UTOX_NATIVE_IMAGE_IS_VALID(img)) {
         return 0;
     }

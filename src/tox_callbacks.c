@@ -16,13 +16,13 @@ static void callback_friend_message(Tox *tox, uint32_t friend_number, TOX_MESSAG
     /* send message to UI */
     switch(type){
         case TOX_MESSAGE_TYPE_NORMAL: {
-            message_add_type_text(&friend[friend_number].msg, 0, message, length, 1);
+            message_add_type_text(&friend[friend_number].msg, 0, message, length, 1, 0);
             debug("Friend(%u) Standard Message: %.*s\n", friend_number, (int)length, message);
             break;
         }
 
         case TOX_MESSAGE_TYPE_ACTION: {
-            message_add_type_action(&friend[friend_number].msg, 0, message, length, 1);
+            message_add_type_action(&friend[friend_number].msg, 0, message, length, 1, 0);
             debug("Friend(%u) Action Message: %.*s\n", friend_number, (int)length, message);
             break;
         }
@@ -295,7 +295,32 @@ static void callback_mdev_self_name(Tox *tox, uint32_t dev_num, const uint8_t *n
     postmessage(REDRAW, 0, 0, NULL);
 }
 
+static void callback_device_sent_message(Tox *tox, uint32_t sending_device, uint32_t target_friend,
+                                        TOX_MESSAGE_TYPE type, uint8_t *msg, size_t msg_length)
+{
+    debug("Message sent from other device %u\n\t\t%.*s\n", sending_device, (uint)msg_length, msg);
+
+    switch (type) {
+        case TOX_MESSAGE_TYPE_NORMAL: {
+            message_add_type_text(&friend[target_friend].msg, 1, msg, msg_length, 1, 0);
+            break;
+        }
+
+        case TOX_MESSAGE_TYPE_ACTION: {
+            message_add_type_action(&friend[target_friend].msg, 1, msg, msg_length, 1, 0);
+            break;
+        }
+
+        default: {
+            debug_error("Message from Friend(%u) of unsupported type: %.*s\n", target_friend, (uint)msg_length, msg);
+        }
+    }
+    friend_notify_msg(&friend[target_friend], msg, msg_length);
+    postmessage(FRIEND_MESSAGE, target_friend, 0, NULL);
+}
+
 void utox_set_callbacks_mdevice(Tox *tox) {
     tox_callback_friend_list_change(tox, callback_friend_list_change, NULL);
     tox_callback_mdev_self_name(tox, callback_mdev_self_name, NULL);
+    tox_callback_device_sent_message(tox, callback_device_sent_message, NULL);
 }
