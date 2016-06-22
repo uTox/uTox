@@ -298,7 +298,7 @@ static void callback_mdev_self_name(Tox *tox, uint32_t dev_num, const uint8_t *n
 static void callback_device_sent_message(Tox *tox, uint32_t sending_device, uint32_t target_friend,
                                         TOX_MESSAGE_TYPE type, uint8_t *msg, size_t msg_length)
 {
-    debug("Message sent from other device %u\n\t\t%.*s\n", sending_device, (uint)msg_length, msg);
+    debug("Message sent from other device %u\n\t\t%.*s\n", sending_device, (uint32_t)msg_length, msg);
 
     switch (type) {
         case TOX_MESSAGE_TYPE_NORMAL: {
@@ -312,7 +312,7 @@ static void callback_device_sent_message(Tox *tox, uint32_t sending_device, uint
         }
 
         default: {
-            debug_error("Message from Friend(%u) of unsupported type: %.*s\n", target_friend, (uint)msg_length, msg);
+            debug_error("Message from Friend(%u) of unsupported type: %.*s\n", target_friend, (uint32_t)msg_length, msg);
         }
     }
     friend_notify_msg(&friend[target_friend], msg, msg_length);

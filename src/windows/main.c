@@ -292,8 +292,6 @@ _Bool native_remove_file(const uint8_t *name, size_t length) {
     return 1;
 }
 
-
-
 /** Open system file browser dialog */
 void openfilesend(void) {
     char *filepath = calloc(10, UTOX_FILE_NAME_LENGTH); /* lets pick 10 as the number of files we want to work with. */
