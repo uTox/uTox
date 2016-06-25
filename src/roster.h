@@ -18,23 +18,19 @@ void list_set_filter(uint8_t filter);
 // won't deallocate it after setting to NULL. The string should be NULL-terminated.
 void list_search(char_t *str);
 
-
-
 /* non-exhaustive list of panels we to select from, it's probably better to replace this but I don't know with what. */
-enum
-{
+typedef enum {
     ITEM_NONE,
-    ITEM_ADD,
     ITEM_SETTINGS,
+    ITEM_ADD,
     ITEM_FRIEND,
-    ITEM_GROUP,
-    ITEM_CREATE_GROUP,
     ITEM_FRIEND_ADD,
-};
+    ITEM_GROUP,
+    ITEM_GROUP_CREATE,
+} ITEM_TYPE;
 
-typedef struct
-{
-    uint8_t item;
+typedef struct {
+    ITEM_TYPE item;
     char namestr[15];
     void *data;
 } ITEM;

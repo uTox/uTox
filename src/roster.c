@@ -112,7 +112,7 @@ static void drawitem(ITEM *i, int UNUSED(x), int y) {
         contact_bitmap = BM_CONTACT;
     }
 
-    switch(i->item) {
+    switch (i->item) {
         case ITEM_FRIEND: {
             FRIEND *f = i->data;
             uint8_t status = f->online ? f->status : 3;
@@ -168,10 +168,15 @@ static void drawitem(ITEM *i, int UNUSED(x), int y) {
             break;
         }
 
-        case ITEM_CREATE_GROUP:{
+        case ITEM_GROUP_CREATE:{
             drawalpha(group_bitmap, ROSTER_AVATAR_LEFT, y + ROSTER_AVATAR_TOP, default_w, default_w, (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
             roster_draw_name(i, y, S(CREATEGROUPCHAT),    S(CURSOR_CLICK_RIGHT),
                                    SLEN(CREATEGROUPCHAT), SLEN(CURSOR_CLICK_RIGHT), 1, (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
+            break;
+        }
+
+        default: {
+            debug_error("Trying to draw an item that we shouldn't be drawing!\n");
             break;
         }
     }
@@ -218,7 +223,7 @@ void update_shown_list(void) {
 
 static ITEM* newitem(void) {
     ITEM *i = &item[itemcount - 1];
-    item[itemcount].item = ITEM_CREATE_GROUP;
+    item[itemcount].item = ITEM_GROUP_CREATE;
     item[itemcount].data = NULL;
     itemcount++;
     update_shown_list();
@@ -305,7 +310,7 @@ static void show_page(ITEM *i) {
     edit_resetfocus();
 
     /* First things first, we need to deselect and store the old data. */
-    switch (selected_item->item){
+    switch (selected_item->item) {
         case ITEM_FRIEND: {
             FRIEND *f = selected_item->data;
 
@@ -331,11 +336,13 @@ static void show_page(ITEM *i) {
             settings.inline_video           = 1;
             break;
         }
+
         case ITEM_FRIEND_ADD: {
             panel_chat.disabled           = 1;
             panel_friend_request.disabled = 1;
             break;
         }
+
         case ITEM_GROUP: {
             GROUPCHAT *g = selected_item->data;
 
@@ -356,6 +363,7 @@ static void show_page(ITEM *i) {
             panel_group.disabled = 1;
             break;
         }
+
         case ITEM_SETTINGS: {
             if (panel_profile_password.disabled) {
                 panel_splash_page.disabled      = 1;
@@ -370,12 +378,18 @@ static void show_page(ITEM *i) {
             }
             break;
         }
+
         case ITEM_ADD: {
             button_add_new_contact.disabled = 0;
             panel_add_friend.disabled       = 1;
             break;
-        } /* End of last case */
-    } /* End of switch    */
+        }
+
+        default: {
+            debug_error("Trying to switch to an item that we shouldn't be selecting\n");
+            break;
+        }
+    }
 
 
     /* Now we activate/select the new page, and load stored data */
@@ -385,6 +399,7 @@ static void show_page(ITEM *i) {
             panel_friend_request.disabled = 0;
             break;
         }
+
         case ITEM_FRIEND: {
             FRIEND *f = i->data;
 
@@ -425,6 +440,7 @@ static void show_page(ITEM *i) {
             panel_friend_settings.disabled = 1;
             break;
         }
+
         case ITEM_GROUP: {
             GROUPCHAT *g = i->data;
 
@@ -460,6 +476,7 @@ static void show_page(ITEM *i) {
             panel_group_settings.disabled = 1;
             break;
         }
+
         case ITEM_SETTINGS: {
             if (panel_profile_password.disabled) {
                 button_settings.disabled        = 1;
@@ -468,6 +485,7 @@ static void show_page(ITEM *i) {
             }
             break;
         }
+
         case ITEM_ADD: {
             button_add_new_contact.disabled = 1;
             panel_overhead.disabled         = 0;
@@ -475,12 +493,18 @@ static void show_page(ITEM *i) {
             edit_setfocus(&edit_add_id);
             break;
         }
-        case ITEM_CREATE_GROUP: {
+
+        case ITEM_GROUP_CREATE: {
             // postmessage_toxcore(TOX_GROUP_CREATE, 0, 0, NULL);
             break;
         }
 
-    } // Switch
+        default: {
+            debug_error("Trying to switch to an item that we shouldn't be selecting\n");
+            break;
+        }
+
+    }
 
     selected_item = i;
 
@@ -556,7 +580,7 @@ void list_addfriendreq(FRIENDREQ *f) {
 void group_av_peer_remove(GROUPCHAT *g, int peernumber);
 
 
-// TODO  removing multiple items without moving the mouse causes asan neg-size-param error on memmove!
+// FIXME removing multiple items without moving the mouse causes asan neg-size-param error on memmove!
 static void deleteitem(ITEM *i) {
     right_mouse_item = NULL;
 
@@ -601,7 +625,7 @@ static void deleteitem(ITEM *i) {
     int size = (&item[itemcount] - i) * sizeof(ITEM);
     memmove(i, i + 1, size);
 
-    if(i != selected_item && selected_item > i && selected_item >= item && selected_item < item + countof(item)) {
+    if (i != selected_item && selected_item > i && selected_item >= item && selected_item < item + countof(item)) {
         selected_item--;
     }
 
@@ -623,17 +647,26 @@ void roster_delete_rmouse_item(void) {
 
 void list_freeall(void) {
     ITEM *i;
-    for(i = item; i != item + itemcount; i++) {
-        switch(i->item) {
-        case ITEM_FRIEND:
-            friend_free(i->data);
-            break;
-        case ITEM_GROUP:
-            group_free(i->data);
-            break;
-        case ITEM_FRIEND_ADD:
-            free(i->data);
-            break;
+    for (i = item; i != item + itemcount; i++) {
+        switch (i->item) {
+            case ITEM_FRIEND: {
+                friend_free(i->data);
+                break;
+            }
+
+            case ITEM_GROUP: {
+                group_free(i->data);
+                break;
+            }
+
+            case ITEM_FRIEND_ADD: {
+                free(i->data);
+                break;
+            }
+
+            default: {
+                break;
+            }
         }
         i->item = ITEM_NONE;
     }
@@ -667,18 +700,84 @@ void list_selectswap(void) {
  ****** Updated functions                                                ******
  ******************************************************************************/
 
+static struct {
+    ITEM_TYPE type;
+    void *data;
+} push_pop;
+
+static void push_selected(void) {
+    push_pop.type = selected_item->item;
+
+    switch (push_pop.type) {
+        case ITEM_NONE:
+        case ITEM_SETTINGS:
+        case ITEM_ADD: {
+            return;
+        }
+        case ITEM_FRIEND: {
+            push_pop.data = calloc(1, TOX_PUBLIC_KEY_SIZE);
+            FRIEND *f = selected_item->data;
+            memcpy(push_pop.data, &f->cid, TOX_PUBLIC_KEY_SIZE);
+            break;
+        }
+        case ITEM_FRIEND_ADD:
+        case ITEM_GROUP:
+        case ITEM_GROUP_CREATE: {
+            return;
+        }
+    }
+}
+
+static void pop_selected(void) {
+    switch (push_pop.type) {
+        case ITEM_NONE:
+        case ITEM_SETTINGS: {
+            show_page(&item_settings);
+            return;
+        }
+
+        case ITEM_ADD: {
+            show_page(&item_add);
+            return;
+        }
+
+        case ITEM_FRIEND: {
+            uint16_t i;
+            for (i = 0; i < itemcount; ++i) {
+                if (item[i].item == ITEM_FRIEND) {
+                    FRIEND *f = item[i].data;
+                    if (memcmp(push_pop.data, &f->cid, TOX_PUBLIC_KEY_SIZE) == 0) {
+                        show_page(&item[i]);
+                        return;
+                    }
+                }
+            }
+            show_page(&item_settings);
+            break;
+        }
+
+        case ITEM_FRIEND_ADD:
+        case ITEM_GROUP:
+        case ITEM_GROUP_CREATE: {
+            return;
+        }
+
+    }
+}
+
 void roster_select_last(void) {
     /* -2 should be the last, -1 is the create group */
     show_page(&item[itemcount-2]);
 }
 
 void roster_dump_contacts(void) {
+    push_selected();
     list_freeall();
 }
 
 void roster_reload_contacts(void) {
     list_start();
-    list_reselect_current();
+    pop_selected();
 }
 
 /******************************************************************************
@@ -856,7 +955,7 @@ static void contextmenu_list_onselect(uint8_t i) {
                 return;
             }
 
-            case ITEM_CREATE_GROUP: {
+            case ITEM_GROUP_CREATE: {
                 if (i) {
                     postmessage_toxcore(TOX_GROUP_CREATE, 0, 1, NULL);
                 } else {
@@ -921,13 +1020,18 @@ _Bool list_mright(void *UNUSED(n)) {
                 break;
             }
 
-            case ITEM_CREATE_GROUP: {
+            case ITEM_GROUP_CREATE: {
                 contextmenu_new(countof(menu_create_group), menu_create_group, contextmenu_list_onselect);
                 break;
             }
 
             case ITEM_FRIEND_ADD: {
                 contextmenu_new(countof(menu_request), menu_request, contextmenu_list_onselect);
+                break;
+            }
+
+            default: {
+                debug_error("MRIGHT on a roster entry that shouldn't exist!\n");
                 break;
             }
         }
