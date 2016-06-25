@@ -838,11 +838,7 @@ panel_main = {
                 .disabled = 1,
                 .drawfunc = draw_settings_text_devices,
                 .content_scroll = &scrollbar_settings,
-                .child = (PANEL*[]) {
-                    (void*)&button_add_new_device_to_self,
-                    (void*)&edit_add_new_device_to_self,
-                    NULL
-                }
+                .child = NULL,
             },
 
             panel_settings_net = {
@@ -904,7 +900,7 @@ panel_main = {
                                                      button_##n.panel = b_##n
 
 void ui_set_scale(uint8_t scale) {
-    if(ui_scale != scale) {
+    if (ui_scale != scale) {
         ui_scale = scale;
     }
 
@@ -1389,11 +1385,25 @@ static void panel_update(PANEL *p, int x, int y, int width, int height)
 {
     FIX_XY_CORDS_FOR_SUBPANELS();
 
-    if (p->type == PANEL_MESSAGES) {
-        if (p->object) {
-            MESSAGES *m = p->object;
-            m->width = width;
-            messages_updateheight(m, width);
+    switch (p->type) {
+        case PANEL_NONE: {
+            if (p == &panel_settings_devices) {
+                devices_update_list();
+            }
+            break;
+        }
+
+        case PANEL_MESSAGES: {
+            if (p->object) {
+                MESSAGES *m = p->object;
+                m->width = width;
+                messages_updateheight(m, width);
+            }
+            break;
+        }
+
+        default: {
+            break;
         }
     }
 
@@ -1457,15 +1467,15 @@ void panel_draw(PANEL *p, int x, int y, int width, int height)
     if (p->type) {
         drawfunc[p->type - 1](p, x, y, width, height);
     } else {
-        if(p->drawfunc) {
+        if (p->drawfunc) {
             p->drawfunc(x, y, width, height);
         }
     }
 
     PANEL **pp = p->child, *subp;
     if (pp) {
-        while((subp = *pp++)) {
-            if(!subp->disabled) {
+        while ((subp = *pp++)) {
+            if (!subp->disabled) {
                 panel_draw_sub(subp, x, y, width, height);
             }
         }

@@ -7,7 +7,7 @@
  */
 void draw_avatar_image(UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t targetwidth, uint32_t targetheight);
 
-enum {
+typedef enum {
     PANEL_NONE,
     PANEL_MAIN,
     PANEL_MESSAGES,
@@ -17,7 +17,7 @@ enum {
     PANEL_DROPDOWN,
     PANEL_EDIT,
     PANEL_SCROLLABLE,
-};
+} PANEL_TYPE;
 
 typedef enum {
     MAIN_STYLE, // white style, used in right side
@@ -30,9 +30,8 @@ typedef struct panel PANEL;
 typedef struct button BUTTON;
 typedef struct messages MESSAGES;
 
-struct panel
-{
-    uint8_t type;
+struct panel {
+    PANEL_TYPE type;
     _Bool disabled;
     int x, y, width, height;
     SCROLLABLE *content_scroll;
