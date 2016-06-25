@@ -88,9 +88,8 @@ LIBVPX="./lib/vpx"
 LIBOPUS="./lib/opus"
 LIBOPENAL="./lib/openal"
 
-GIT_V=`git describe --abbrev=8 --dirty --always --tags`
-echo -n "Git version: "
-git describe --abbrev=8 --dirty --always --tags
+GIT_V=$(git describe --abbrev=8 --dirty --always --tags)
+echo "Git version: $GIT_V"
 
 # Build filter_audio
 AUDIO_FILTERING_BUILD="-DAUDIO_FILTERING -I ./lib/filter_audio/ ./lib/filter_audio/filter_audio.c \
@@ -104,10 +103,10 @@ rm utox.exe 2> /dev/null
 "$WINDOWS_TOOLCHAIN"-windres icons/icon.rc -O coff -o icon.o
 
 # Compile
-"$WINDOWS_TOOLCHAIN"-gcc -o utox.exe  $COMP_OPTs                         \
+"$WINDOWS_TOOLCHAIN"-gcc -o utox.exe  "$COMP_OPTs"                       \
     -I $LIBTOXCORE/include/                                              \
     -DGIT_VERSION=\"$GIT_V\" -DAL_LIBTYPE_STATIC                         \
-    ./*.c ./png/png.c ./icon.o                                           \
+    src/*.c src/ui/*.c src/av/*.c src/windows/*.c icon.o                 \
     $LIBTOXCORE/lib/libtoxcore.a                                         \
     $LIBTOXCORE/lib/libtoxav.a                                           \
     $LIBTOXCORE/lib/libtoxdns.a                                          \
@@ -117,6 +116,6 @@ rm utox.exe 2> /dev/null
     $LIBOPUS/lib/libopus.a               -I $LIBOPUS/include/            \
     $LIBOPENAL/lib/libOpenAL32.a         -I $LIBOPENAL/include/          \
     $MINGW32_LIB_DIR/libwinpthread.a                                     \
-    $AUDIO_FILTERING_BUILD                                               \
+    "$AUDIO_FILTERING_BUILD"                                             \
     -std=gnu99 -liphlpapi -lws2_32 -lgdi32 -lmsimg32 -ldnsapi -lcomdlg32 \
     -Wl,-subsystem,windows -lwinmm -lole32 -loleaut32 -lstrmiids
