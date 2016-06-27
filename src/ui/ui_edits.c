@@ -11,7 +11,8 @@ static char_t edit_name_data[128],
               edit_proxy_port_data[8],
               edit_profile_password_data[65535],
               edit_friend_alias_data[128],
-              edit_id_str[TOX_PUBLIC_KEY_SIZE * 2];
+              edit_id_str[TOX_PUBLIC_KEY_SIZE * 2],
+              edit_group_topic_data[128];
 
 static void edit_name_onenter(EDIT *edit)
 {
@@ -485,6 +486,13 @@ static void edit_profile_password_update(EDIT *edit) {
     }
 }
 
+static void edit_group_topic_onenter(EDIT *edit){
+    GROUPCHAT *g = right_mouse_item->data;
+    void *d = malloc(edit->length);
+    memcpy(d, edit->data, edit->length);
+    postmessage_toxcore(TOX_GROUP_SET_TOPIC, (g - group), edit->length, d);
+}
+
 SCROLLABLE edit_addmsg_scroll = {
     .panel = { .type = PANEL_SCROLLABLE, },
     .d = 1.0,
@@ -604,4 +612,13 @@ edit_friend_alias = {
     .onenter = edit_friend_alias_onenter,
     .onlosefocus = edit_friend_alias_onenter,
     .empty_str.plain = STRING_INIT(""), // set dynamically to the friend's name
+},
+
+edit_group_topic = {
+    .maxlength = 128,
+    .data = edit_group_topic_data,
+    .onenter = edit_group_topic_onenter,
+    .onlosefocus = edit_group_topic_onenter,
+    .noborder = 0,
+    .empty_str.plain = STRING_INIT("")
 };

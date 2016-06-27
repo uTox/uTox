@@ -203,6 +203,27 @@ msgstr("Leave Group")
 
 
 /******************************************************************************
+ *** Group Settings                                                         ***
+ ******************************************************************************/
+msgid(GROUPCHAT_SETTINGS)
+msgstr("Groupchat Settings")
+
+msgid(GROUP_NOTIFICATIONS)
+msgstr("Group Notifications")
+
+msgid(GROUP_NOTIFICATIONS_ON)
+msgstr("On")
+
+msgid(GROUP_NOTIFICATIONS_MENTION)
+msgstr("Mentioned")
+
+msgid(GROUP_NOTIFICATIONS_OFF)
+msgstr("Off")
+
+msgid(GROUP_TOPIC)
+msgstr("Set Group's Topic")
+
+/******************************************************************************
  *** Settings / Profile Strings                                             ***
  ******************************************************************************/
 msgid(PROFILE_BUTTON)

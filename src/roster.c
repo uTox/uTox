@@ -886,6 +886,18 @@ static void roster_init_friend_settings_page(void) {
     dropdown_friend_autoaccept_ft.over = dropdown_friend_autoaccept_ft.selected = f->ft_autoaccept;
 }
 
+static void roster_init_group_settings_page(void) {
+    GROUPCHAT *g = right_mouse_item->data;
+
+    panel_group_chat.disabled     = 1;
+    panel_group_video.disabled    = 1;
+    panel_group_settings.disabled = 0;
+
+    edit_setstr(&edit_group_topic, g->name, g->name_length);
+
+    dropdown_notify_groupchats.over = dropdown_notify_groupchats.selected = g->notify;
+}
+
 static void contextmenu_friend(uint8_t rcase) {
     FRIEND *f = right_mouse_item->data;
 
@@ -930,7 +942,9 @@ static void contextmenu_list_onselect(uint8_t i) {
             case ITEM_GROUP: {
                 panel_group_chat.disabled = 0;
                 GROUPCHAT *g = right_mouse_item->data;
-                if (i == 0) {
+                if(i == 0){
+                    roster_init_group_settings_page();
+                }else if (i == 1) {
                     if(right_mouse_item != selected_item) {
                         show_page(right_mouse_item);
                     }
@@ -940,7 +954,7 @@ static void contextmenu_list_onselect(uint8_t i) {
                     memcpy(str + 7, g->name, g->name_length);
                     edit_setfocus(&edit_msg_group);
                     edit_paste((char_t*)str, sizeof(str), 0);
-                } else if (i == 1 && g->av_group) {
+                } else if (i == 2 && g->av_group) {
                     g->muted = !g->muted;
                 } else {
                     roster_delete_rmouse_item();
@@ -982,14 +996,17 @@ _Bool list_mright(void *UNUSED(n)) {
                                                     STR_CLEAR_HISTORY,
                                                     STR_REMOVE_FRIEND };
 
-    static UI_STRING_ID menu_group_unmuted[]    = { STR_CHANGE_GROUP_TOPIC,
+    static UI_STRING_ID menu_group_unmuted[]    = { STR_GROUPCHAT_SETTINGS,
+                                                    STR_CHANGE_GROUP_TOPIC,
                                                     STR_MUTE,
                                                     STR_REMOVE_GROUP };
-    static UI_STRING_ID menu_group_muted[]      = { STR_CHANGE_GROUP_TOPIC,
+    static UI_STRING_ID menu_group_muted[]      = { STR_GROUPCHAT_SETTINGS,
+                                                    STR_CHANGE_GROUP_TOPIC,
                                                     STR_UNMUTE,
                                                     STR_REMOVE_GROUP };
 
-    static UI_STRING_ID menu_group[]            = { STR_CHANGE_GROUP_TOPIC,
+    static UI_STRING_ID menu_group[]            = { STR_GROUPCHAT_SETTINGS,
+                                                    STR_CHANGE_GROUP_TOPIC,
                                                     STR_REMOVE_GROUP };
     static UI_STRING_ID menu_create_group[]     = { STR_GROUP_CREATE_TEXT,
                                                     STR_GROUP_CREATE_VOICE };

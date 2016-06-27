@@ -477,6 +477,15 @@ static void draw_friend_settings(int UNUSED(x), int y, int width, int height) {
     drawstr(MAIN_LEFT + SCALE(10), y + MAIN_TOP + SCALE(110), FRIEND_AUTOACCEPT);
 }
 
+
+static void draw_group_settings(int UNUSED(x), int y, int width, int height) {
+    setcolor(COLOR_MAIN_TEXT);
+    setfont(FONT_SELF_NAME);
+
+    drawstr(MAIN_LEFT + SCALE(10), y + MAIN_TOP + SCALE(10), GROUP_TOPIC);
+    drawstr(MAIN_LEFT + SCALE(10), y + MAIN_TOP + SCALE(70), GROUP_NOTIFICATIONS);
+}
+
 static void draw_background(int UNUSED(x), int UNUSED(y), int width, int height){
     /* Default background                */
     drawrect(0, 0, width, height, COLOR_BACKGROUND_MAIN);
@@ -673,7 +682,10 @@ panel_main = {
             panel_group_settings = {
                 .type = PANEL_NONE,
                 .disabled = 1,
+                .drawfunc = draw_group_settings,
                 .child = (PANEL*[]) {
+                    (void *)&edit_group_topic,
+                    (void *)&dropdown_notify_groupchats,
                     NULL
                 }
             },
@@ -1083,6 +1095,26 @@ void ui_set_scale(uint8_t scale) {
 
         dropdown_friend_autoaccept_ft.panel = d_friend_autoaccept;
 
+     /* Group Settings */
+        PANEL e_group_topic = {
+            .type   = PANEL_EDIT,
+            .x      = SCALE(10),
+            .y      = SCALE(95),
+            .height = SCALE(24),
+            .width  = SCALE(-10)
+        };
+
+        edit_group_topic.panel = e_group_topic;
+
+        PANEL d_group_notifications = {
+            .type   = PANEL_DROPDOWN,
+            .x      = SCALE( 10),
+            .y      = SCALE(155),
+            .height = SCALE( 24),
+            .width  = SCALE( 85)
+        };
+
+        dropdown_notify_groupchats.panel = d_group_notifications;
 
     /* Friend / Group Page  */
         CREATE_BUTTON(call_audio, SCALE(-124), SCALE(10), BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);

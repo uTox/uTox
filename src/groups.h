@@ -14,6 +14,7 @@ typedef struct groupchat {
     uint32_t our_peer_number;
 
     uint8_t av_group;
+    uint8_t notify; //0: always send notifications, 1: only send when mentioned, 2: never send notifications
 
     volatile _Bool muted;
     ALuint audio_dest;
@@ -49,3 +50,5 @@ void group_peer_name_change(GROUPCHAT *g, uint32_t peer_id, const uint8_t *name,
 void group_reset_peerlist(GROUPCHAT *g);
 
 void group_free(GROUPCHAT *g);
+
+void group_notify_msg(GROUPCHAT *g, const uint8_t *message, size_t length);

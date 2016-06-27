@@ -11,6 +11,7 @@ extern EDIT edit_name,
             edit_proxy_port,
             edit_profile_password,
             edit_friend_alias,
+            edit_group_topic,
 
             edit_add_new_device_to_self;
 
