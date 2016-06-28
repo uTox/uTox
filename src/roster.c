@@ -942,9 +942,9 @@ static void contextmenu_list_onselect(uint8_t i) {
             case ITEM_GROUP: {
                 panel_group_chat.disabled = 0;
                 GROUPCHAT *g = right_mouse_item->data;
-                if(i == 0){
+                if (i == 0){
                     roster_init_group_settings_page();
-                }else if (i == 1) {
+                } else if (i == 1) {
                     if(right_mouse_item != selected_item) {
                         show_page(right_mouse_item);
                     }

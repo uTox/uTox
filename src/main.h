@@ -184,6 +184,7 @@ typedef struct utox_settings {
     uint32_t window_baseline;
 
     _Bool   window_maximized;
+    uint8_t group_notifications;
 } SETTINGS;
 
 /* This might need to be volatile type... */

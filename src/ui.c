@@ -458,8 +458,9 @@ static void draw_settings_text_av(int x, int y, int w, int UNUSED(height)){
     setfont(FONT_SELF_NAME);
     drawstr(MAIN_LEFT + SCALE( 10), y + SCALE( 10),  RINGTONE);
     drawstr(MAIN_LEFT + SCALE(120), y + SCALE( 10),  PUSH_TO_TALK);
+    drawstr(MAIN_LEFT + SCALE(240), y + SCALE( 10), GROUP_NOTIFICATIONS);
     #ifdef AUDIO_FILTERING
-    drawstr(MAIN_LEFT + SCALE(240), y + SCALE( 10),  AUDIOFILTERING);
+    drawstr(MAIN_LEFT + SCALE(400), y + SCALE( 10),  AUDIOFILTERING);
     #endif
     drawstr(MAIN_LEFT + SCALE( 10), y + SCALE( 70), AUDIOINPUTDEVICE);
     drawstr(MAIN_LEFT + SCALE( 10), y + SCALE(130), AUDIOOUTPUTDEVICE);
@@ -900,6 +901,7 @@ panel_main = {
                     (void*)&dropdown_video,
                     (void*)&dropdown_audible_notification,
                     (void*)&dropdown_audio_filtering,
+                    (void*)&dropdown_global_group_notifications,
                     NULL
                 }
             };
@@ -1206,12 +1208,20 @@ void ui_set_scale(uint8_t scale) {
         #ifdef AUDIO_FILTERING
         d_audio_filtering = {
             .type   = PANEL_DROPDOWN,
-            .x      = UTOX_SCALE(120 ),
+            .x      = UTOX_SCALE(200 ),
             .y      = UTOX_SCALE(15  ),
             .height = UTOX_SCALE(12  ),
             .width  = UTOX_SCALE(20  )
         },
         #endif
+
+        d_global_group_notifications = {
+            .type   = PANEL_DROPDOWN,
+            .x      = UTOX_SCALE(120),
+            .y      = UTOX_SCALE( 15),
+            .height = UTOX_SCALE( 12),
+            .width  = UTOX_SCALE( 50)
+        },
 
         d_audio_in = {
             .type   = PANEL_DROPDOWN,
@@ -1291,8 +1301,9 @@ void ui_set_scale(uint8_t scale) {
             dropdown_audio_filtering.panel = d_audio_filtering;
         #endif
 
-        dropdown_typing_notes.panel         = d_typing_notes;
-        dropdown_mini_roster.panel          = d_mini_roster;
+        dropdown_typing_notes.panel               = d_typing_notes;
+        dropdown_mini_roster.panel                = d_mini_roster;
+        dropdown_global_group_notifications.panel = d_global_group_notifications;
 
     /* Text entry boxes */
         PANEL e_add_id = {

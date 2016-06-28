@@ -15,7 +15,8 @@ extern DROPDOWN dropdown_dpi,
                 dropdown_typing_notes,
                 dropdown_mini_roster,
                 dropdown_friend_autoaccept_ft,
-                dropdown_notify_groupchats;
+                dropdown_notify_groupchats,
+                dropdown_global_group_notifications;
 
 //List-based dropdowns. list_dropdown_* functions are applicable.
 extern DROPDOWN dropdown_audio_in,

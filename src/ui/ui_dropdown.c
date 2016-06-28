@@ -150,10 +150,14 @@ static void dropdown_friend_autoaccept_ft_onselect(const uint16_t i, const DROPD
 }
 
 
-static void dropdown_notify_groupchats_onselect(const uint16_t i, const DROPDOWN* UNUSED(dm)){
+static void dropdown_notify_groupchats_onselect(const uint16_t i, const DROPDOWN* UNUSED(dm)) {
     GROUPCHAT *g = selected_item->data;
     g->notify = i;
     debug("g->notify = %u\n", i);
+}
+
+static void dropdown_global_group_notifications_onselect(const uint16_t i, const DROPDOWN* UNUSED(dm)) {
+    settings.group_notifications = i;
 }
 
 static UI_STRING_ID dpidrops[] = {
@@ -345,6 +349,13 @@ dropdown_friend_autoaccept_ft = {
 dropdown_notify_groupchats = {
     .ondisplay = simple_dropdown_ondisplay,
     .onselect  = dropdown_notify_groupchats_onselect,
+    .dropcount = countof(notifydrops),
+    .userdata  = notifydrops
+},
+
+dropdown_global_group_notifications = {
+    .ondisplay = simple_dropdown_ondisplay,
+    .onselect  = dropdown_global_group_notifications_onselect,
     .dropcount = countof(notifydrops),
     .userdata  = notifydrops
 };

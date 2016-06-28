@@ -486,7 +486,7 @@ static void edit_profile_password_update(EDIT *edit) {
     }
 }
 
-static void edit_group_topic_onenter(EDIT *edit){
+static void edit_group_topic_onenter(EDIT *edit) {
     GROUPCHAT *g = right_mouse_item->data;
     void *d = malloc(edit->length);
     memcpy(d, edit->data, edit->length);
