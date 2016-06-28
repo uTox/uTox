@@ -803,7 +803,7 @@ void notify(char_t *title, uint16_t title_length, const char_t *msg, uint16_t ms
         NSString *msg_ = [[NSString alloc] initWithBytes:msg length:msg_length encoding:NSUTF8StringEncoding];
         usernotification.informativeText = msg_;
 
-        if(!is_group){
+        if (!is_group) {
             FRIEND *f = object;
             if (friend_has_avatar(f)) {
                 UTOX_NATIVE_IMAGE *im = f->avatar.image;

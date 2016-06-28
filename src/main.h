@@ -118,6 +118,7 @@ typedef struct {
     uint8_t  push_to_talk                   : 1;
     uint8_t  use_mini_roster                : 1;
     uint8_t  zero                           : 6;
+    uint8_t  group_notifications;
 
     uint32_t utox_last_version; // I don't like this here either,
                                 // but I'm not ready to rewrite and update this struct yet.
