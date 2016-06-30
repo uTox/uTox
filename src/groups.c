@@ -26,6 +26,7 @@ void group_init(GROUPCHAT *g, uint32_t group_number, _Bool av_group) {
     g->msg.panel.width          = -SCROLL_WIDTH;
     g->msg.is_groupchat         = 1;
 
+    g->notify                   = settings.group_notifications;
     g->av_group                 = av_group;
     pthread_mutex_unlock(&messages_lock); /* make sure that messages has posted before we continue */
 
@@ -179,4 +180,17 @@ void group_free(GROUPCHAT *g) {
     free(g->msg.data);
 
     memset(g, 0, sizeof(GROUPCHAT));
+}
+
+
+void group_notify_msg(GROUPCHAT *g, const uint8_t *msg, size_t msg_length){
+    uint8_t title[g->name_length + 25];
+
+    size_t title_length = snprintf((char*)title, g->name_length + 25, "uTox new message in %.*s", (int)g->name_length, g->name);
+
+    notify(title, title_length, msg, msg_length, g, 1);
+
+    if (selected_item->data != g) {
+        postmessage_audio(UTOXAUDIO_PLAY_NOTIFICATION, NOTIFY_TONE_FRIEND_NEW_MSG, 0, NULL);
+    }
 }

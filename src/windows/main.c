@@ -692,7 +692,7 @@ int file_unlock(FILE *file, uint64_t start, size_t length){
  * accepts: char_t *title, title length, char_t *msg, msg length;
  * returns void;
  */
-void notify(char_t *title, uint16_t title_length, const char_t *msg, uint16_t msg_length, FRIEND *f){
+void notify(char_t *title, uint16_t title_length, const char_t *msg, uint16_t msg_length, void *object, _Bool is_group){
     if( havefocus || self.status == 2 ) {
         return;
     }

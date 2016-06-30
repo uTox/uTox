@@ -683,6 +683,7 @@ UTOX_SAVE* config_load(void) {
     save->theme = 0;
 
     save->no_typing_notifications = 0;
+    save->group_notifications = 0;
 
     config_osdefaults(save);
 NEXT:
@@ -707,6 +708,7 @@ NEXT:
     dropdown_theme.selected = dropdown_theme.over = save->theme;
 
     dropdown_typing_notes.selected = save->no_typing_notifications;
+    dropdown_global_group_notifications.selected = save->group_notifications;
 
     list_set_filter(save->filter); /* roster list filtering */
 
@@ -734,6 +736,7 @@ NEXT:
     settings.use_mini_roster        = save->use_mini_roster;
 
     settings.send_typing_status     = !save->no_typing_notifications;
+    settings.group_notifications    = save->group_notifications;
 
     settings.window_width           = save->window_width;
     settings.window_height          = save->window_height;
@@ -776,6 +779,7 @@ void config_save(UTOX_SAVE *save) {
     save->theme                         = theme;
 
     save->utox_last_version             = settings.curr_version;
+    save->group_notifications           = settings.group_notifications;
 
 
     memset(save->unused, 0, sizeof(save->unused));

@@ -209,7 +209,7 @@ void friend_notify_msg(FRIEND *f, const uint8_t *msg, size_t msg_length) {
 
     size_t title_length = snprintf((char*)title, UTOX_FRIEND_NAME_LENGTH(f) + 25, "uTox new message from %.*s", (int)UTOX_FRIEND_NAME_LENGTH(f), UTOX_FRIEND_NAME(f));
 
-    notify(title, title_length, msg, msg_length, f);
+    notify(title, title_length, msg, msg_length, f, 0);
 
     if (selected_item->data != f) {
         f->unread_msg = 1;

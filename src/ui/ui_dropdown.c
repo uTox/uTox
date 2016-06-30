@@ -149,6 +149,17 @@ static void dropdown_friend_autoaccept_ft_onselect(const uint16_t i, const DROPD
     debug("Friend %u, is now accepting ft auto %u\n", f->number, i);
 }
 
+
+static void dropdown_notify_groupchats_onselect(const uint16_t i, const DROPDOWN* UNUSED(dm)) {
+    GROUPCHAT *g = selected_item->data;
+    g->notify = i;
+    debug("g->notify = %u\n", i);
+}
+
+static void dropdown_global_group_notifications_onselect(const uint16_t i, const DROPDOWN* UNUSED(dm)) {
+    settings.group_notifications = i;
+}
+
 static UI_STRING_ID dpidrops[] = {
     STR_DPI_TINY,
     STR_DPI_060,
@@ -201,6 +212,12 @@ static UI_STRING_ID noyesdrops[] = {
 static UI_STRING_ID offondrops[] = {
     STR_OFF,
     STR_ON
+};
+
+static UI_STRING_ID notifydrops[] = {
+    STR_GROUP_NOTIFICATIONS_ON,
+    STR_GROUP_NOTIFICATIONS_MENTION,
+    STR_GROUP_NOTIFICATIONS_OFF
 };
 
 DROPDOWN dropdown_audio_in = {
@@ -327,4 +344,18 @@ dropdown_friend_autoaccept_ft = {
     .onselect  = dropdown_friend_autoaccept_ft_onselect,
     .dropcount = countof(noyesdrops),
     .userdata  = noyesdrops
+},
+
+dropdown_notify_groupchats = {
+    .ondisplay = simple_dropdown_ondisplay,
+    .onselect  = dropdown_notify_groupchats_onselect,
+    .dropcount = countof(notifydrops),
+    .userdata  = notifydrops
+},
+
+dropdown_global_group_notifications = {
+    .ondisplay = simple_dropdown_ondisplay,
+    .onselect  = dropdown_global_group_notifications_onselect,
+    .dropcount = countof(notifydrops),
+    .userdata  = notifydrops
 };

@@ -118,6 +118,7 @@ typedef struct {
     uint8_t  push_to_talk                   : 1;
     uint8_t  use_mini_roster                : 1;
     uint8_t  zero                           : 6;
+    uint8_t  group_notifications;
 
     uint32_t utox_last_version; // I don't like this here either,
                                 // but I'm not ready to rewrite and update this struct yet.
@@ -184,6 +185,7 @@ typedef struct utox_settings {
     uint32_t window_baseline;
 
     _Bool   window_maximized;
+    uint8_t group_notifications;
 } SETTINGS;
 
 /* This might need to be volatile type... */
@@ -500,7 +502,7 @@ void launch_at_startup(int is_launch_at_startup);
 void drawalpha(int bm, int x, int y, int width, int height, uint32_t color);
 void loadalpha(int bm, void *data, int width, int height);
 void desktopgrab(_Bool video);
-void notify(char_t *title, uint16_t title_length, const char_t *msg, uint16_t msg_length, FRIEND *f);
+void notify(char_t *title, uint16_t title_length, const char_t *msg, uint16_t msg_length, void *object, _Bool is_group);
 void setscale(void);
 void setscale_fonts(void);
 
