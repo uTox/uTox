@@ -31,3 +31,8 @@ BUTTON button_avatar,
        button_show_password_settings,
 
        button_export_chatlog;
+
+void button_setcolors_success(BUTTON *b);
+void button_setcolors_danger(BUTTON *b);
+void button_setcolors_warning(BUTTON *b);
+void button_setcolors_disabled(BUTTON *b);

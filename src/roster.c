@@ -759,6 +759,7 @@ static void pop_selected(void) {
         case ITEM_FRIEND_ADD:
         case ITEM_GROUP:
         case ITEM_GROUP_CREATE: {
+            show_page(&item_settings);
             return;
         }
 

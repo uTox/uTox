@@ -1,15 +1,5 @@
 #include "../main.h"
 
-
-/* Leaving this here isn't the best way, but it's good enough for now */
-static void button_setcolors_success(BUTTON *b) {
-    b->c1 = COLOR_BUTTON_SUCCESS_BACKGROUND;
-    b->c2 = COLOR_BUTTON_SUCCESS_HOVER_BACKGROUND;
-    b->c3 = COLOR_BUTTON_SUCCESS_HOVER_BACKGROUND;
-    b->ct1 = COLOR_BUTTON_SUCCESS_TEXT;
-    b->ct2 = COLOR_BUTTON_SUCCESS_HOVER_TEXT;
-}
-
 extern SCROLLABLE scrollbar_settings;
 
 static void button_settings_onpress(void) {

@@ -900,11 +900,14 @@ panel_main = {
                                                      button_##n.panel = b_##n
 
 void ui_set_scale(uint8_t scale) {
-    if (ui_scale != scale) {
-        ui_scale = scale;
+    if (ui_scale == scale) {
+        return;
     }
 
+    ui_scale = scale;
     roster_re_scale();
+    setscale_fonts();
+    setfont(FONT_SELF_NAME);
 
     /* DEFAULT positions */
         panel_side_bar.x = 0;
@@ -945,9 +948,7 @@ void ui_set_scale(uint8_t scale) {
         messages_group.height           = CHAT_BOX_TOP;
         messages_group.width            = -SCROLL_WIDTH;
 
-    setscale_fonts();
 
-    setfont(FONT_SELF_NAME);
 
     /* User Badge & Roster  */
     CREATE_BUTTON(avatar, SIDEBAR_AVATAR_LEFT, SIDEBAR_AVATAR_TOP, BM_CONTACT_WIDTH,   BM_CONTACT_WIDTH);
@@ -1026,14 +1027,14 @@ void ui_set_scale(uint8_t scale) {
         edit_toxid.panel = e_toxid;
 
     /* Devices              */
-        CREATE_BUTTON(add_new_device_to_self, SCALE(-10) - BM_SBUTTON_WIDTH, SCALE(51), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+        CREATE_BUTTON(add_new_device_to_self, SCALE(-10) - BM_SBUTTON_WIDTH, SCALE(28), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
 
         PANEL e_add_new_device_to_self = {
             .type   = PANEL_EDIT,
             .x      = SCALE( 10),
             .y      = SCALE( 27),
             .height = SCALE( 24),
-            .width  = SCALE(-10),
+            .width  = SCALE(-15) - BM_SBUTTON_WIDTH,
         };
 
         edit_add_new_device_to_self.panel   = e_add_new_device_to_self;
@@ -1388,7 +1389,7 @@ static void panel_update(PANEL *p, int x, int y, int width, int height)
     switch (p->type) {
         case PANEL_NONE: {
             if (p == &panel_settings_devices) {
-                devices_update_list();
+                devices_update_ui();
             }
             break;
         }

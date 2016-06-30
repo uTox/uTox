@@ -20,7 +20,7 @@
 #define UTOX_MAX_NUM_GROUPS       512
 #define UTOX_FILE_NAME_LENGTH     1024
 
-#define UTOX_MAX_NAME_LENGTH      128
+#define UTOX_MAX_NAME_LENGTH      TOX_MAX_NAME_LENGTH
 
 #define MAX_CALLS               UTOX_MAX_CALLS       /* Deprecated; Avoid Use */
 #define MAX_NUM_FRIENDS         UTOX_MAX_NUM_FRIENDS /* Deprecated; Avoid Use */
@@ -192,7 +192,6 @@ SETTINGS settings;
 //add friend page
 uint8_t addfriend_status;
 
-//HFONT font_big, font_big2, font_med, font_med2, font_small, font_msg;
 int font_small_lineheight, font_msg_lineheight;
 uint16_t video_width, video_height, max_video_width, max_video_height;
 char proxy_address[256];
@@ -223,16 +222,12 @@ enum {
 enum {
     FONT_TEXT,
     FONT_TITLE,
-
-    /*FONT_MSG,
-    FONT_MSG_NAME,
-    FONT_MSG_LINK,*/
-
     FONT_SELF_NAME,
     FONT_STATUS,
     FONT_LIST_NAME,
-
     FONT_MISC,
+
+    FONT_END,
 };
 
 /* SVG Bitmap names. */
@@ -359,8 +354,11 @@ pthread_mutex_t messages_lock;
 
 //friends and groups
 //note: assumes array size will always be large enough
+UTOX_DEVICE *devices;
+
 FRIEND friend[MAX_NUM_FRIENDS];
 GROUPCHAT group[MAX_NUM_GROUPS];
+
 uint32_t friends, groups; /* */
 
 enum {
@@ -377,8 +375,13 @@ struct {
     size_t      name_length, statusmsg_length;
 
     size_t      friend_list_count;
+    size_t      friend_list_size;
+
     size_t      groups_list_count;
+    size_t      groups_list_size;
+
     size_t      device_list_count;
+    size_t      device_list_size;
 
     uint8_t     id_buffer[TOX_FRIEND_ADDRESS_SIZE * 4];
     size_t      id_buffer_length;
@@ -390,6 +393,7 @@ struct {
     uint8_t     *avatar_data;
     size_t      avatar_size;
 } self;
+
 uint8_t cursor;
 
 _Bool mdown;

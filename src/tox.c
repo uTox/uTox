@@ -118,10 +118,17 @@ void tox_after_load(Tox *tox) {
     // self.group_list_count = tox_self_get_(tox);
     self.device_list_count = tox_self_get_device_count(tox);
 
-    uint32_t i = 0;
-    while(i != self.friend_list_count) {
+    uint32_t i;
+    for (i = 0; i < self.friend_list_count; ++i) {
         utox_friend_init(tox, i);
-        i++;
+    }
+
+    // devices_update_list();
+    utox_devices_init();
+    devices_update_ui();
+
+    for (i = 0; i < self.device_list_count; ++i) {
+        utox_device_init(tox, i);
     }
 
     self.name_length = tox_self_get_name_size(tox);

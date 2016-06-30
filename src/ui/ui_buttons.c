@@ -6,7 +6,7 @@ extern _Bool unity_running;
 #endif
 
 /* Quick color change functions */
-static void button_setcolors_success(BUTTON *b) {
+void button_setcolors_success(BUTTON *b) {
     b->c1 = COLOR_BUTTON_SUCCESS_BACKGROUND;
     b->c2 = COLOR_BUTTON_SUCCESS_HOVER_BACKGROUND;
     b->c3 = COLOR_BUTTON_SUCCESS_HOVER_BACKGROUND;
@@ -14,7 +14,7 @@ static void button_setcolors_success(BUTTON *b) {
     b->ct2 = COLOR_BUTTON_SUCCESS_HOVER_TEXT;
 }
 
-static void button_setcolors_danger(BUTTON *b) {
+void button_setcolors_danger(BUTTON *b) {
     b->c1 = COLOR_BUTTON_DANGER_BACKGROUND;
     b->c2 = COLOR_BUTTON_DANGER_HOVER_BACKGROUND;
     b->c3 = COLOR_BUTTON_DANGER_HOVER_BACKGROUND;
@@ -22,7 +22,7 @@ static void button_setcolors_danger(BUTTON *b) {
     b->ct2 = COLOR_BUTTON_DANGER_HOVER_TEXT;
 }
 
-static void button_setcolors_warning(BUTTON *b) {
+void button_setcolors_warning(BUTTON *b) {
     b->c1 = COLOR_BUTTON_WARNING_BACKGROUND;
     b->c2 = COLOR_BUTTON_WARNING_HOVER_BACKGROUND;
     b->c3 = COLOR_BUTTON_WARNING_HOVER_BACKGROUND;
@@ -30,7 +30,7 @@ static void button_setcolors_warning(BUTTON *b) {
     b->ct2 = COLOR_BUTTON_WARNING_HOVER_TEXT;
 }
 
-static void button_setcolors_disabled(BUTTON *b) {
+void button_setcolors_disabled(BUTTON *b) {
     b->c1 = COLOR_BUTTON_DISABLED_BACKGROUND;
     b->c2 = COLOR_BUTTON_DISABLED_BACKGROUND;
     b->c3 = COLOR_BUTTON_DISABLED_BACKGROUND;
