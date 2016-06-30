@@ -727,13 +727,13 @@ uint32_t outgoing_file_send(Tox *tox, uint32_t friend_number, uint8_t *path, uin
         friend[friend_number].transfer_count++;
     }
     /* Declare vars */
-    uint32_t file_number;
-    TOX_ERR_FILE_SEND error;
+    uint32_t file_number = 0;
+    TOX_ERR_FILE_SEND error = 0;
     uint8_t file_id[TOX_HASH_LENGTH] = {0};
     uint64_t file_size = 0, transfer_size = 0;
     FILE *file = NULL;
     uint8_t memory = 0, avatar = 0;
-    uint8_t *filename;
+    uint8_t *filename = NULL;
     size_t path_length = 0, filename_length = 0;
 
     switch (kind){
