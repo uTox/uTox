@@ -983,9 +983,9 @@ void notify(char_t *title, uint16_t title_length, const char_t *msg, uint16_t ms
     }
 
     uint8_t *f_cid = NULL;
-    if(is_group){
-        GROUPCHAT *obj = object;
-    }else{
+    if (is_group) {
+        //GROUPCHAT *obj = object;
+    } else {
         FRIEND *obj = object;
         if (friend_has_avatar(obj)) {
             f_cid = obj->cid;

@@ -708,7 +708,8 @@ NEXT:
     dropdown_theme.selected = dropdown_theme.over = save->theme;
 
     dropdown_typing_notes.selected = save->no_typing_notifications;
-    dropdown_global_group_notifications.selected = save->group_notifications;
+
+    dropdown_global_group_notifications.selected = dropdown_global_group_notifications.over = save->group_notifications;
 
     list_set_filter(save->filter); /* roster list filtering */
 

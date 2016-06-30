@@ -128,9 +128,7 @@ static void callback_group_message(Tox *tox, int gid, int pid, const uint8_t *me
     GROUPCHAT *g = &group[gid];
     debug_notice("Group Message (%u, %u): %.*s\n", gid, pid, length, message);
     group_add_message(g, pid, message, length, MSG_TYPE_TEXT);
-    if (g->notify == 0 || (g->notify == 1 && strstr((const char *)message, (const char *)self.name) != NULL)) {
-        group_notify_msg(g, message, length);
-    }
+    group_notify_msg(g, message, length);
     postmessage(GROUP_MESSAGE, gid, pid, NULL);
 }
 

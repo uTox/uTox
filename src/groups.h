@@ -1,5 +1,12 @@
 #define MAX_GROUP_PEERS 256
 
+/*  UTOX_SAVE limits 8 as the max */
+typedef enum {
+    GNOTIFY_NEVER,      /* 0: never send notifications, */
+    GNOTIFY_HIGHLIGHTS, /* 1: only send when mentioned, */
+    GNOTIFY_ALWAYS,     /* 2: always send notifications */
+} GNOTIFY_TYPE;
+
 typedef struct group_peer {
     uint32_t id;
 
@@ -14,7 +21,8 @@ typedef struct groupchat {
     uint32_t our_peer_number;
 
     uint8_t av_group;
-    uint8_t notify; //0: always send notifications, 1: only send when mentioned, 2: never send notifications
+
+    GNOTIFY_TYPE notify;
 
     volatile _Bool muted;
     ALuint audio_dest;
