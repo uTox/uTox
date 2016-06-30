@@ -977,9 +977,19 @@ int file_unlock(FILE *file, uint64_t start, size_t length){
     }
 }
 
-void notify(char_t *title, uint16_t title_length, const char_t *msg, uint16_t msg_length, FRIEND *f) {
+void notify(char_t *title, uint16_t title_length, const char_t *msg, uint16_t msg_length, void *object, _Bool is_group) {
     if (havefocus) {
         return;
+    }
+
+    uint8_t *f_cid = NULL;
+    if (is_group) {
+        //GROUPCHAT *obj = object;
+    } else {
+        FRIEND *obj = object;
+        if (friend_has_avatar(obj)) {
+            f_cid = obj->cid;
+        }
     }
 
     XWMHints hints = {.flags = 256};
@@ -987,11 +997,6 @@ void notify(char_t *title, uint16_t title_length, const char_t *msg, uint16_t ms
 
     #ifdef HAVE_DBUS
     char_t *str = tohtml(msg, msg_length);
-
-    uint8_t *f_cid = NULL;
-    if (friend_has_avatar(f)) {
-        f_cid = f->cid;
-    }
 
     /* Todo handle this warning! */
     dbus_notify((char*)title, (char*)str, (uint8_t*)f_cid);
@@ -1001,7 +1006,7 @@ void notify(char_t *title, uint16_t title_length, const char_t *msg, uint16_t ms
 
     #ifdef UNITY
     if(unity_running) {
-        mm_notify(f->name, f->cid);
+        mm_notify(obj->name, f_cid);
     }
     #endif
 }

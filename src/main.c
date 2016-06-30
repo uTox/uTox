@@ -37,6 +37,7 @@ SETTINGS settings = {
     .window_width           = 800,
     .window_baseline        = 0,
     .window_maximized       = 0,
+    .group_notifications    = GNOTIFY_ALWAYS,
 };
 
 /* The utox_ functions contained in src/main.c are wrappers for the platform native_ functions

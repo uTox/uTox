@@ -125,8 +125,10 @@ static void callback_group_invite(Tox *tox, int fid, uint8_t type, const uint8_t
 static void callback_group_message(Tox *tox, int gid, int pid, const uint8_t *message, uint16_t length,
                                    void *UNUSED(userdata))
 {
+    GROUPCHAT *g = &group[gid];
     debug_notice("Group Message (%u, %u): %.*s\n", gid, pid, length, message);
-    group_add_message(&group[gid], pid, message, length, MSG_TYPE_TEXT);
+    group_add_message(g, pid, message, length, MSG_TYPE_TEXT);
+    group_notify_msg(g, message, length);
     postmessage(GROUP_MESSAGE, gid, pid, NULL);
 }
 

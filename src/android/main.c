@@ -365,7 +365,7 @@ void setscale(void) {
     setscale_fonts();
 }
 
-void notify(char_t *title, uint16_t title_length, const char_t *msg, uint16_t msg_length, FRIEND *f){ /* Unsupported on android */ }
+void notify(char_t *title, uint16_t title_length, const char_t *msg, uint16_t msg_length, void *object, _Bool is_group){ /* Unsupported on android */ }
 void desktopgrab(_Bool video){ /* Unsupported on android */ }
 void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height, _Bool resize){ /* Unsupported on android */ }
 void video_begin(uint32_t id, char_t *name, uint16_t name_length, uint16_t width, uint16_t height){ /* Unsupported on android */ }

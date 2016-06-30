@@ -458,8 +458,9 @@ static void draw_settings_text_av(int x, int y, int w, int UNUSED(height)){
     setfont(FONT_SELF_NAME);
     drawstr(MAIN_LEFT + SCALE( 10), y + SCALE( 10),  RINGTONE);
     drawstr(MAIN_LEFT + SCALE(120), y + SCALE( 10),  PUSH_TO_TALK);
+    drawstr(MAIN_LEFT + SCALE(240), y + SCALE( 10), GROUP_NOTIFICATIONS);
     #ifdef AUDIO_FILTERING
-    drawstr(MAIN_LEFT + SCALE(240), y + SCALE( 10),  AUDIOFILTERING);
+    drawstr(MAIN_LEFT + SCALE(400), y + SCALE( 10),  AUDIOFILTERING);
     #endif
     drawstr(MAIN_LEFT + SCALE( 10), y + SCALE( 70), AUDIOINPUTDEVICE);
     drawstr(MAIN_LEFT + SCALE( 10), y + SCALE(130), AUDIOOUTPUTDEVICE);
@@ -475,6 +476,15 @@ static void draw_friend_settings(int UNUSED(x), int y, int width, int height) {
     drawstr(MAIN_LEFT + SCALE(10), y + MAIN_TOP + SCALE( 10), FRIEND_PUBLIC_KEY);
     drawstr(MAIN_LEFT + SCALE(10), y + MAIN_TOP + SCALE( 60), FRIEND_ALIAS);
     drawstr(MAIN_LEFT + SCALE(10), y + MAIN_TOP + SCALE(110), FRIEND_AUTOACCEPT);
+}
+
+
+static void draw_group_settings(int UNUSED(x), int y, int width, int height) {
+    setcolor(COLOR_MAIN_TEXT);
+    setfont(FONT_SELF_NAME);
+
+    drawstr(MAIN_LEFT + SCALE(10), y + MAIN_TOP + SCALE(10), GROUP_TOPIC);
+    drawstr(MAIN_LEFT + SCALE(10), y + MAIN_TOP + SCALE(70), GROUP_NOTIFICATIONS);
 }
 
 static void draw_background(int UNUSED(x), int UNUSED(y), int width, int height){
@@ -673,7 +683,10 @@ panel_main = {
             panel_group_settings = {
                 .type = PANEL_NONE,
                 .disabled = 1,
+                .drawfunc = draw_group_settings,
                 .child = (PANEL*[]) {
+                    (void *)&edit_group_topic,
+                    (void *)&dropdown_notify_groupchats,
                     NULL
                 }
             },
@@ -888,6 +901,7 @@ panel_main = {
                     (void*)&dropdown_video,
                     (void*)&dropdown_audible_notification,
                     (void*)&dropdown_audio_filtering,
+                    (void*)&dropdown_global_group_notifications,
                     NULL
                 }
             };
@@ -1084,6 +1098,26 @@ void ui_set_scale(uint8_t scale) {
 
         dropdown_friend_autoaccept_ft.panel = d_friend_autoaccept;
 
+     /* Group Settings */
+        PANEL e_group_topic = {
+            .type   = PANEL_EDIT,
+            .x      = SCALE(10),
+            .y      = SCALE(95),
+            .height = SCALE(24),
+            .width  = SCALE(-10)
+        };
+
+        edit_group_topic.panel = e_group_topic;
+
+        PANEL d_group_notifications = {
+            .type   = PANEL_DROPDOWN,
+            .x      = SCALE( 10),
+            .y      = SCALE(155),
+            .height = SCALE( 24),
+            .width  = SCALE( 85)
+        };
+
+        dropdown_notify_groupchats.panel = d_group_notifications;
 
     /* Friend / Group Page  */
         CREATE_BUTTON(call_audio, SCALE(-124), SCALE(10), BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
@@ -1175,12 +1209,20 @@ void ui_set_scale(uint8_t scale) {
         #ifdef AUDIO_FILTERING
         d_audio_filtering = {
             .type   = PANEL_DROPDOWN,
-            .x      = UTOX_SCALE(120 ),
+            .x      = UTOX_SCALE(200 ),
             .y      = UTOX_SCALE(15  ),
             .height = UTOX_SCALE(12  ),
             .width  = UTOX_SCALE(20  )
         },
         #endif
+
+        d_global_group_notifications = {
+            .type   = PANEL_DROPDOWN,
+            .x      = UTOX_SCALE(120),
+            .y      = UTOX_SCALE( 15),
+            .height = UTOX_SCALE( 12),
+            .width  = UTOX_SCALE( 50)
+        },
 
         d_audio_in = {
             .type   = PANEL_DROPDOWN,
@@ -1260,8 +1302,9 @@ void ui_set_scale(uint8_t scale) {
             dropdown_audio_filtering.panel = d_audio_filtering;
         #endif
 
-        dropdown_typing_notes.panel         = d_typing_notes;
-        dropdown_mini_roster.panel          = d_mini_roster;
+        dropdown_typing_notes.panel               = d_typing_notes;
+        dropdown_mini_roster.panel                = d_mini_roster;
+        dropdown_global_group_notifications.panel = d_global_group_notifications;
 
     /* Text entry boxes */
         PANEL e_add_id = {

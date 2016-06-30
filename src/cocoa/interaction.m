@@ -794,7 +794,7 @@ void edit_will_deactivate(void) {
 - (void)set_identityImageHasBorder:(BOOL)arg1;
 @end
 
-void notify(char_t *title, uint16_t title_length, const char_t *msg, uint16_t msg_length, FRIEND *f) {
+void notify(char_t *title, uint16_t title_length, const char_t *msg, uint16_t msg_length, void *object, _Bool is_group) {
     if ([NSUserNotification class]) {
         NSUserNotification *usernotification = [[NSUserNotification alloc] init];
         NSString *t = [[NSString alloc] initWithBytes:title length:title_length encoding:NSUTF8StringEncoding];
@@ -803,24 +803,27 @@ void notify(char_t *title, uint16_t title_length, const char_t *msg, uint16_t ms
         NSString *msg_ = [[NSString alloc] initWithBytes:msg length:msg_length encoding:NSUTF8StringEncoding];
         usernotification.informativeText = msg_;
 
-        if (friend_has_avatar(f)) {
-            UTOX_NATIVE_IMAGE *im = f->avatar.image;
-            size_t w = CGImageGetWidth(im->image) / im->scale,
-                   h = CGImageGetHeight(im->image) / im->scale;
-            NSImage *i = [[NSImage alloc] initWithCGImage:im->image size:(CGSize){w, h}];
-            if ([usernotification respondsToSelector:@selector(set_identityImage:)]) {
-                [usernotification set_identityImage:i];
-            } else {
-                NSLog(@"WARNING: OS X has broken the private api I use to set notification avatars. "
-                      "If you see this message please update uTox (if you're on latest, file a bug)");
-            }
-            if ([usernotification respondsToSelector:@selector(set_identityImageHasBorder:)]) {
+        if (!is_group) {
+            FRIEND *f = object;
+            if (friend_has_avatar(f)) {
+                UTOX_NATIVE_IMAGE *im = f->avatar.image;
+                size_t w = CGImageGetWidth(im->image) / im->scale,
+                       h = CGImageGetHeight(im->image) / im->scale;
+                NSImage *i = [[NSImage alloc] initWithCGImage:im->image size:(CGSize){w, h}];
+                if ([usernotification respondsToSelector:@selector(set_identityImage:)]) {
+                    [usernotification set_identityImage:i];
+                } else {
+                    NSLog(@"WARNING: OS X has broken the private api I use to set notification avatars. "
+                          "If you see this message please update uTox (if you're on latest, file a bug)");
+                }
+                if ([usernotification respondsToSelector:@selector(set_identityImageHasBorder:)]) {
                 [usernotification set_identityImageHasBorder:YES];
-            } else {
-                NSLog(@"WARNING: OS X has broken the private api I use to set notification avatars. "
-                      "If you see this message please update uTox (if you're on latest, file a bug)");
+                } else {
+                    NSLog(@"WARNING: OS X has broken the private api I use to set notification avatars. "
+                          "If you see this message please update uTox (if you're on latest, file a bug)");
+                }
+                [i release];
             }
-            [i release];
         }
 
         [[NSUserNotificationCenter defaultUserNotificationCenter] deliverNotification:usernotification];
