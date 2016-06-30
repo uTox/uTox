@@ -259,10 +259,11 @@ uint32_t message_add_type_action(MESSAGES *m, _Bool auth, const uint8_t *data, u
 uint32_t message_add_type_notice(MESSAGES *m, const uint8_t *data, uint16_t length, _Bool log) {
     MSG_TEXT *msg   = calloc(1, sizeof(MSG_TEXT) + length);
     time(&msg->time);
-    msg->our_msg     = 0;
-    msg->msg_type   = MSG_TYPE_NOTICE;
-    msg->length     = length;
-    msg->author_length = self.name_length;
+    msg->our_msg        = 0;
+    msg->msg_type       = MSG_TYPE_NOTICE;
+    msg->length         = length;
+    msg->author_length  = self.name_length;
+    msg->receipt_time   = time(NULL);
     memcpy(msg->msg, data, length);
 
     if (log) {
@@ -510,7 +511,6 @@ void messages_clear_receipt(MESSAGES *m, uint32_t receipt_number) {
     debug_error("Messages:\tReceived a receipt for a message we don't have a record of.\n");
     pthread_mutex_unlock(&messages_lock);
 }
-
 
 static void messages_draw_timestamp(int x, int y, const time_t *time) {
     struct tm *ltime = localtime(time);

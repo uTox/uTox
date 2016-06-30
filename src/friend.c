@@ -130,21 +130,18 @@ void utox_friend_init(Tox *tox, uint32_t friend_number) {
     friend_meta_data_read(tox, friend_number);
 }
 
-void friend_setname(FRIEND *f, char_t *name, uint16_t length){
-    /* TODO: rewrite */
-    if (f->name && (length != f->name_length || memcmp(f->name, name, length) != 0)) {
+void friend_setname(FRIEND *f, uint8_t *name, size_t length){
+    if (f->name && f->name_length) {
+        size_t size = sizeof(" is now known as ") + f->name_length + length;
 
-        size_t size = sizeof(" is now known as ") - 1 + f->name_length + length;
-
-        char_t *p = calloc(1, size);
-        memcpy(p, f->name, f->name_length);
-        memcpy(p + f->name_length, " is now known as ", sizeof(" is now known as ") - 1);
-        memcpy(p + f->name_length + sizeof(" is now known as ") - 1, name, length);
+        uint8_t *p = calloc(1, size);
+        size = snprintf((char *)p, size, "%.*s is now known as %.*s", (int)f->name_length, f->name, (int)length, name);
 
         message_add_type_notice(&f->msg, p, size, 1);
+
+        free(f->name);
     }
 
-    free(f->name);
     if (length == 0) {
         f->name = calloc(1, sizeof(f->cid) * 2 + 1);
         cid_to_string(f->name, f->cid);
@@ -154,6 +151,7 @@ void friend_setname(FRIEND *f, char_t *name, uint16_t length){
         memcpy(f->name, name, length);
         f->name_length = length;
     }
+
     f->name[f->name_length] = 0;
 
     if (!f->alias_length) {
