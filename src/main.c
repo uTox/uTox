@@ -175,7 +175,8 @@ uint8_t **utox_load_chatlog(uint32_t friend_number, size_t *size, uint32_t count
                 debug_error("Can't malloc that much, you'll probably have to move or delete, your history for this"
                             " peer.\n\t\tFriend number %u, count %u, actual_count %lu, start at %lu, error size %lu",
                             friend_number, count, actual_count, start_at, header.msg_length);
-                exit(5);
+                if (size) { *size = 0; }
+                return NULL;
             }
             MSG_TEXT *msg       = calloc(1, sizeof(MSG_TEXT) + header.msg_length);
             msg->our_msg        = header.author;

@@ -473,7 +473,7 @@ void messages_clear_receipt(MESSAGES *m, uint32_t receipt_number) {
                     memset(&header, 0, sizeof(header));
                     uint8_t *data = NULL;
 
-                    header.log_version   = 0;
+                    header.log_version   = LOGFILE_SAVE_VERSION;
                     header.time          = msg->time;
                     header.author_length = msg->author_length;
                     header.msg_length    = msg->length;
