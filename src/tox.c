@@ -1,7 +1,6 @@
 #include "main.h"
 #include "tox_bootstrap.h"
 
-struct Tox_Options options = {.proxy_host = proxy_address};
 volatile _Bool save_needed = 1;
 
 /* Writes log filename for fid to dest. returns length written */
@@ -84,7 +83,7 @@ void log_read_old(Tox *tox, int fid) {
 
         MSG_TEXT *msg = NULL;
         msg = calloc(1, sizeof(MSG_TEXT) + header.length);
-        msg->author         = header.flags ? 1 : 0;
+        msg->our_msg        = header.flags ? 1 : 0;
         msg->length         = header.length;
         msg->time           = header.time;
         msg->receipt_time   = 1;
@@ -319,7 +318,7 @@ static void utox_thread_work_for_typing_notifications(Tox *tox, uint64_t time) {
     }
 }
 
-static int load_toxcore_save(void){
+static int load_toxcore_save(struct Tox_Options *options) {
     settings.use_encryption = 0;
     size_t raw_length;
     uint8_t *raw_data = utox_load_data_tox(&raw_length);
@@ -341,84 +340,95 @@ static int load_toxcore_save(void){
                 } else {
                     debug("Unknown error, please file a bug report!\n");
                 }
-                panel_profile_password.disabled = 0;
-                panel_settings_master.disabled  = 1;
-                edit_setfocus(&edit_profile_password);
-                postmessage(REDRAW, 0, 0, NULL);
                 return -1;
             }
 
             if (clear_data && cleartext_length) {
-                options.savedata_type   = TOX_SAVEDATA_TYPE_TOX_SAVE;
-                options.savedata_data   = clear_data;
-                options.savedata_length = cleartext_length;
+                options->savedata_type   = TOX_SAVEDATA_TYPE_TOX_SAVE;
+                options->savedata_data   = clear_data;
+                options->savedata_length = cleartext_length;
 
-                panel_profile_password.disabled = 1;
-                panel_settings_master.disabled  = 0;
-                edit_resetfocus();
-                postmessage(REDRAW, 0, 0, NULL);
                 return 0;
             }
         } else {
-            debug("Using unencrypted save file; this is insecure!\n\n");
-            options.savedata_type   = TOX_SAVEDATA_TYPE_TOX_SAVE;
-            options.savedata_data   = raw_data;
-            options.savedata_length = raw_length;
-
-            panel_profile_password.disabled = 1;
-            panel_settings_master.disabled  = 0;
-            edit_resetfocus();
-            postmessage(REDRAW, 0, 0, NULL);
+            debug_info("Using unencrypted save file; this is insecure!\n\n");
+            options->savedata_type   = TOX_SAVEDATA_TYPE_TOX_SAVE;
+            options->savedata_data   = raw_data;
+            options->savedata_length = raw_length;
             return 0;
         }
     }
     /* No save file at all, create new profile! */
-    panel_profile_password.disabled = 1;
-    panel_settings_master.disabled  = 0;
-    postmessage(REDRAW, 0, 0, NULL);
     return -2;
 }
 
 static int init_toxcore(Tox **tox) {
     tox_thread_init = 0;
     int save_status = 0;
-    save_status = load_toxcore_save();
+
+    struct Tox_Options topt = {
+        .ipv6_enabled   = settings.enable_ipv6,
+        .udp_enabled    = settings.enable_udp,
+        .proxy_type     = TOX_PROXY_TYPE_NONE,
+        .proxy_host     = NULL,
+        .proxy_port     = settings.proxy_port,
+        .start_port     = 0,
+        .end_port       = 0,
+    };
+
+    save_status = load_toxcore_save(&topt);
 
     if (save_status == -1) {
         /* Save file exist, couldn't decrypt, don't start a tox instance
         TODO: throw an error to the UI! */
+        panel_profile_password.disabled = 0;
+        panel_settings_master.disabled  = 1;
+        edit_setfocus(&edit_profile_password);
         return -1;
+    } else if (save_status == -2) {
+        /* New profile! */
+        panel_profile_password.disabled = 1;
+        panel_settings_master.disabled  = 0;
+    } else {
+        panel_profile_password.disabled = 1;
+        if (settings.show_splash) {
+            panel_splash_page.disabled  = 0;
+        } else {
+            panel_settings_master.disabled  = 0;
+        }
+        edit_resetfocus();
     }
+    postmessage(REDRAW, 0, 0, NULL);
 
     // Create main connection
     debug("CORE:\tCreating New Toxcore instance.\n"
           "\t\tIPv6 : %u\n"
           "\t\tUDP  : %u\n"
           "\t\tProxy: %u %s %u\n",
-          options.ipv6_enabled,
-          options.udp_enabled,
-          options.proxy_type,
-          options.proxy_host,
-          options.proxy_port);
+          topt.ipv6_enabled,
+          topt.udp_enabled,
+          topt.proxy_type,
+          topt.proxy_host,
+          topt.proxy_port);
 
     TOX_ERR_NEW tox_new_err = 0;
-    *tox = tox_new(&options, &tox_new_err);
+    *tox = tox_new(&topt, &tox_new_err);
 
     if (*tox == NULL) {
         debug("\t\tTrying without proxy, err %u\n", tox_new_err);
 
-        options.proxy_type = TOX_PROXY_TYPE_NONE;
+        topt.proxy_type = TOX_PROXY_TYPE_NONE;
         dropdown_proxy.selected = dropdown_proxy.over = 0;
-        *tox = tox_new(&options, &tox_new_err);
+        *tox = tox_new(&topt, &tox_new_err);
 
-        if (!options.proxy_type || *tox == NULL) {
+        if (!topt.proxy_type || *tox == NULL) {
             debug("\t\tTrying without IPv6, err %u\n", tox_new_err);
 
-            options.ipv6_enabled = 0;
+            topt.ipv6_enabled = 0;
             dropdown_ipv6.selected = dropdown_ipv6.over = 1;
-            *tox = tox_new(&options, &tox_new_err);
+            *tox = tox_new(&topt, &tox_new_err);
 
-            if (!options.ipv6_enabled || *tox == NULL) {
+            if (!topt.ipv6_enabled || *tox == NULL) {
                 debug("\t\tERR: tox_new() failed %u\n", tox_new_err);
                 return -2;
             }
@@ -441,15 +451,13 @@ static int init_toxcore(Tox **tox) {
 }
 
 static void init_self(Tox *tox) {
-    uint8_t id[TOX_FRIEND_ADDRESS_SIZE];
     /* Set local info for self */
     edit_setstr(&edit_name, self.name, self.name_length);
     edit_setstr(&edit_status, self.statusmsg, self.statusmsg_length);
 
     /* Get tox id, and gets the hex version for utox */
-    tox_self_get_address(tox, id);
-    memcpy(self.id_binary, id, TOX_FRIEND_ADDRESS_SIZE);
-    id_to_string(self.id_buffer, id);
+    tox_self_get_address(tox, self.id_binary);
+    id_to_string(self.id_buffer, self.id_binary);
     self.id_buffer_length = TOX_FRIEND_ADDRESS_SIZE * 2;
     debug("Tox ID: %.*s\n", (int)self.id_buffer_length, self.id_buffer);
 
@@ -458,7 +466,7 @@ static void init_self(Tox *tox) {
 
     uint8_t hex_id[TOX_FRIEND_ADDRESS_SIZE * 2];
     id_to_string(hex_id, self.id_binary);
-    if (init_avatar(&self.avatar, hex_id, avatar_data, &avatar_size)) {
+    if (init_avatar(&self.avatar, -1, avatar_data, &avatar_size)) {
         self.avatar_data = malloc(avatar_size);
         if (self.avatar_data) {
             memcpy(self.avatar_data, avatar_data, avatar_size);
@@ -500,6 +508,10 @@ void toxcore_thread(void *UNUSED(args)) {
             // Start the tox av session.
             TOXAV_ERR_NEW toxav_error;
             av = toxav_new(tox, &toxav_error);
+
+            if (!av) {
+                debug_error("Tox:\tUnable to get toxAV (%u)\n", toxav_error);
+            }
 
             // Give toxcore the av functions to call
             set_av_callbacks(av);
@@ -1391,18 +1403,13 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         }
         case FRIEND_AVATAR_SET: {
             /* param1: friend id
-               param2: png size
-               data: png data
-            */
-            /* Work now done by file callback */
+             * param2: png size
+             * data: png data    */
             uint8_t *avatar = data;
-            size_t size = param2;
+            size_t size     = param2;
 
-            FRIEND *f = &friend[param1];
-            char_t cid[TOX_PUBLIC_KEY_SIZE * 2];
-            cid_to_string(cid, (char_t*)f->cid);
-            set_avatar(&f->avatar, avatar, size);
-            save_avatar(cid, avatar, size);
+            set_avatar(param1, avatar, size);
+            utox_save_data_avatar(param1, avatar, size);
 
             free(avatar);
             redraw();
@@ -1412,9 +1419,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             FRIEND *f = &friend[param1];
             unset_avatar(&f->avatar);
             // remove avatar from disk
-            char_t cid[TOX_PUBLIC_KEY_SIZE * 2];
-            cid_to_string(cid, f->cid);
-            delete_saved_avatar(cid);
+            delete_saved_avatar(param1);
 
             redraw();
             break;
@@ -1480,7 +1485,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             //   (it would remove his avatar locally too otherwise)
             //char_t cid[TOX_PUBLIC_KEY_SIZE * 2];
             //cid_to_string(cid, f->cid);
-            //delete_saved_avatar(cid);
+            //delete_saved_avatar(friend_number);
             friend_free(f);
             friends--;
             break;

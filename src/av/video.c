@@ -1,4 +1,4 @@
-#include "main.h"
+#include "../main.h"
 
 static void    *video_device[16]     = {NULL}; /* TODO; magic number */
 static int16_t  video_device_count   = 0;
@@ -249,7 +249,7 @@ void utox_video_thread(void *args) {
                 uint32_t i, active_video_count = 0;
                 for (i = 0; i < UTOX_MAX_NUM_FRIENDS; i++) {
                     if (SEND_VIDEO_FRAME(i)) {
-                        debug("sending to friend %u\n", i);
+                        debug("uToxVideo:\tsending video frame to friend %u\n", i);
                         active_video_count++;
                         TOXAV_ERR_SEND_FRAME error = 0;
                         toxav_video_send_frame(av, friend[i].number, utox_video_frame.w, utox_video_frame.h, utox_video_frame.y, utox_video_frame.u, utox_video_frame.v, &error);

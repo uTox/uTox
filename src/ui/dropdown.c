@@ -1,4 +1,4 @@
-#include "main.h"
+#include "../main.h"
 
 static DROPDOWN *active_dropdown;
 static int active_x, active_y, active_width, active_height;

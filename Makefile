@@ -83,7 +83,7 @@ DESTDIR ?=
 PREFIX ?= /usr/local
 DATAROOTDIR ?= $(PREFIX)/share
 
-SRC = $(wildcard src/*.c)
+SRC = $(wildcard src/*.c src/ui/*.c src/av/*.c)
 HEADERS = $(wildcard src/*.h src/*/*.h langs/*.h)
 OBJ = $(SRC:.c=.o)
 GIT_V = $(shell git describe --abbrev=8 --dirty --always --tags)

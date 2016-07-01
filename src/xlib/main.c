@@ -133,8 +133,8 @@ _Bool check_ptt_key(void){
         }
     }
     /* Couldn't access the keyboard directly, and XQuery failed, this is really bad! */
-    debug("Unable to access keyboard, you need to read the manual on how to enable utox to\nhave access to your key"
-          "board.\nDisable push to talk to suppress this message.\n");
+    debug_error("Unable to access keyboard, you need to read the manual on how to enable utox to\nhave access to your "
+                "keyboard.\nDisable push to talk to suppress this message.\n");
     return 0;
 
 }
@@ -251,16 +251,6 @@ int datapath(uint8_t *dest)
 
         return l;
     }
-}
-
-int datapath_subdir(uint8_t *dest, const char *subdir)
-{
-    int l = datapath(dest);
-    l += sprintf((char*)(dest+l), "%s", subdir);
-    mkdir((char*)dest, 0700);
-    dest[l++] = '/';
-
-    return l;
 }
 
 /** Takes data from µTox and saves it, just how the OS likes it saved! */
@@ -405,6 +395,34 @@ FILE *native_load_data_logfile(uint32_t friend_number) {
     return file;
 }
 
+_Bool native_remove_file(const uint8_t *name, size_t length) {
+    uint8_t path[UTOX_FILE_NAME_LENGTH]  = {0};
+
+    if (settings.portable_mode) {
+        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "./tox/");
+    } else {
+        snprintf((char*)path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));
+    }
+
+
+    if (strlen((const char*)path) + length >= UTOX_FILE_NAME_LENGTH) {
+        debug("NATIVE:\tFile/directory name too long, unable to remove\n");
+        return 0;
+    } else {
+        snprintf((char*)path + strlen((const char*)path), UTOX_FILE_NAME_LENGTH - strlen((const char*)path),
+                 "%.*s", (int)length, (char*)name);
+    }
+
+    if (remove((const char*)path)) {
+        debug_error("NATIVE:\tUnable to delete file!\n\t\t%s\n", path);
+        return 0;
+    } else {
+        debug_info("NATIVE:\tFile deleted!\n");
+        debug("NATIVE:\t\t%s\n", path);
+    }
+    return 1;
+}
+
 void native_select_dir_ft(uint32_t fid, MSG_FILE *file)
 {
     if(libgtk) {
@@ -491,13 +509,13 @@ void draw_tray_icon(void){
     uint8_t *icon_data = (uint8_t*)&_binary_icons_utox_128x128_png_start;
     size_t  icon_size  = (size_t)&_binary_icons_utox_128x128_png_size;
 
-    UTOX_NATIVE_IMAGE *icon = decode_image(icon_data, icon_size, &width, &height, 1);
+    UTOX_NATIVE_IMAGE *icon = decode_image_rgb(icon_data, icon_size, &width, &height, 1);
     if(UTOX_NATIVE_IMAGE_IS_VALID(icon)) {
         /* Get tray window size */
         int32_t x_r = 0, y_r = 0;
-        uint32_t border_r = 0, depth_r = 0;
+        uint32_t border_r = 0, xwin_depth_r = 0;
         XMoveResizeWindow(display, tray_window, x_r, y_r, 32, 32);
-        XGetGeometry(display, tray_window, &root, &x_r, &y_r, &tray_width, &tray_height, &border_r, &depth_r);
+        XGetGeometry(display, tray_window, &root, &x_r, &y_r, &tray_width, &tray_height, &border_r, &xwin_depth_r);
         /* TODO use xcb instead of xlib here!
         xcb_get_geometry_cookie_t xcb_get_geometry (xcb_connection_t *connection,
                                                 xcb_drawable_t    drawable );
@@ -531,7 +549,7 @@ void create_tray_icon(void){
 
     /* Get ready to draw a tray icon */
     trayicon_gc        = XCreateGC(display, root, 0, 0);
-    trayicon_drawbuf   = XCreatePixmap(display, tray_window, tray_width, tray_height, depth);
+    trayicon_drawbuf   = XCreatePixmap(display, tray_window, tray_width, tray_height, xwin_depth);
     trayicon_renderpic = XRenderCreatePicture(display, trayicon_drawbuf, pictformat, 0, NULL);
     /* Send icon to the tray */
     send_message(display, XGetSelectionOwner(display, XInternAtom(display, "_NET_SYSTEM_TRAY_S0", False)), SYSTEM_TRAY_REQUEST_DOCK, tray_window, 0, 0);
@@ -539,7 +557,7 @@ void create_tray_icon(void){
     draw_tray_icon();
     /* Reset the tray draw/picture buffers with the new tray size */
     XFreePixmap(display, trayicon_drawbuf);
-    trayicon_drawbuf = XCreatePixmap(display, tray_window, tray_width, tray_height, depth);
+    trayicon_drawbuf = XCreatePixmap(display, tray_window, tray_width, tray_height, xwin_depth);
     XRenderFreePicture(display, trayicon_renderpic);
     trayicon_renderpic = XRenderCreatePicture(display, trayicon_drawbuf, pictformat, 0, NULL);
     /* Redraw the tray one last time! */
@@ -556,7 +574,7 @@ void togglehide(void) {
     if(hidden) {
         int x, y;
         uint32_t w, h, border;
-        XGetGeometry(display, window, &root, &x, &y, &w, &h, &border, (uint*)&depth);
+        XGetGeometry(display, window, &root, &x, &y, &w, &h, &border, (uint*)&xwin_depth);
         XMapWindow(display, window);
         XMoveWindow(display, window, x, y);
         redraw();
@@ -579,7 +597,7 @@ void tray_window_event(XEvent event) {
                 tray_height = ev->height;
 
                 XFreePixmap(display, trayicon_drawbuf);
-                trayicon_drawbuf = XCreatePixmap(display, tray_window, tray_width, tray_height, 24); // TODO get depth from X not code
+                trayicon_drawbuf = XCreatePixmap(display, tray_window, tray_width, tray_height, 24); // TODO get xwin_depth from X not code
                 XRenderFreePicture(display, trayicon_renderpic);
                 trayicon_renderpic = XRenderCreatePicture(display, trayicon_drawbuf,XRenderFindStandardFormat(display, PictStandardRGB24), 0, NULL);
             }
@@ -629,11 +647,11 @@ void copy(int value)
 }
 
 int hold_x11s_hand(Display *d, XErrorEvent *event) {
-    debug("X11 err:\tX11 tried to kill itself, so I hit him with a shovel.\n");
-    debug("    err:\tResource: %lu || Serial %lu\n", event->resourceid, event->serial);
-    debug("    err:\tError code: %u || Request: %u || Minor: %u \n",
+    debug_error("X11 err:\tX11 tried to kill itself, so I hit him with a shovel.\n");
+    debug_error("    err:\tResource: %lu || Serial %lu\n", event->resourceid, event->serial);
+    debug_error("    err:\tError code: %u || Request: %u || Minor: %u \n",
           event->error_code, event->request_code, event->minor_code);
-    debug("uTox:\tThis would be a great time to submit a bug!\n");
+    debug_error("uTox:\tThis would be a great time to submit a bug!\n");
 
     return 0;
 }
@@ -733,7 +751,7 @@ void pastedata(void *data, Atom type, int len, _Bool select)
    if (type == XA_PNG_IMG) {
         uint16_t width, height;
 
-        UTOX_NATIVE_IMAGE *native_image = decode_image(data, size, &width, &height, 0);
+        UTOX_NATIVE_IMAGE *native_image = decode_image_rgb(data, size, &width, &height, 0);
         if (UTOX_NATIVE_IMAGE_IS_VALID(native_image)) {
             debug("Pasted image: %dx%d\n", width, height);
 
@@ -801,7 +819,7 @@ static Picture generate_alpha_bitmask(const uint8_t *rgba_data, uint16_t width, 
     return picture;
 }
 
-UTOX_NATIVE_IMAGE *decode_image(const UTOX_IMAGE data, size_t size, uint16_t *w, uint16_t *h, _Bool keep_alpha)
+UTOX_NATIVE_IMAGE *decode_image_rgb(const UTOX_IMAGE data, size_t size, uint16_t *w, uint16_t *h, _Bool keep_alpha)
 {
     int width, height, bpp;
     uint8_t *rgba_data = stbi_load_from_memory(data, size, &width, &height, &bpp, 4);
@@ -831,7 +849,7 @@ UTOX_NATIVE_IMAGE *decode_image(const UTOX_IMAGE data, size_t size, uint16_t *w,
         *target |= (green | (green << 8) | (green << 16) | (green << 24)) & visual->green_mask;
     }
 
-    XImage *img = XCreateImage(display, visual, depth, ZPixmap, 0, (char*)out, width, height, 32, width * 4);
+    XImage *img = XCreateImage(display, visual, xwin_depth, ZPixmap, 0, (char*)out, width, height, 32, width * 4);
 
     Picture rgb = ximage_to_picture(img, NULL);
     // 4 bpp -> RGBA
@@ -945,7 +963,7 @@ int file_unlock(FILE *file, uint64_t start, size_t length){
     }
 }
 
-void notify(char_t *title, uint16_t title_length, char_t *msg, uint16_t msg_length, FRIEND *f) {
+void notify(char_t *title, uint16_t title_length, const char_t *msg, uint16_t msg_length, FRIEND *f) {
     if (havefocus) {
         return;
     }
@@ -1041,13 +1059,13 @@ int main(int argc, char *argv[]) {
     LANG = systemlang();
     dropdown_language.selected = dropdown_language.over = LANG;
 
-    screen  = DefaultScreen(display);
-    cmap    = DefaultColormap(display, screen);
-    visual  = DefaultVisual(display, screen);
-    gc      = DefaultGC(display, screen);
-    depth   = DefaultDepth(display, screen);
-    scr     = DefaultScreenOfDisplay(display);
-    root    = RootWindow(display, screen);
+    screen      = DefaultScreen(display);
+    cmap        = DefaultColormap(display, screen);
+    visual      = DefaultVisual(display, screen);
+    gc          = DefaultGC(display, screen);
+    xwin_depth  = DefaultDepth(display, screen);
+    scr         = DefaultScreenOfDisplay(display);
+    root        = RootWindow(display, screen);
 
     XSetWindowAttributes attrib = {
         .background_pixel = WhitePixel(display, screen),
@@ -1064,11 +1082,14 @@ int main(int argc, char *argv[]) {
         theme = save->theme;
     }
 
+    utox_init();
+
     debug_info("Setting theme to:\t%d\n", theme);
     theme_load(theme);
 
     /* create window */
-    window = XCreateWindow(display, root, save->window_x, save->window_y, settings.window_width, settings.window_height, 0, depth, InputOutput, visual, CWBackPixmap | CWBorderPixel | CWEventMask, &attrib);
+    window = XCreateWindow(display, root, save->window_x, save->window_y, settings.window_width, settings.window_height,
+                           0, xwin_depth, InputOutput, visual, CWBackPixmap | CWBorderPixel | CWEventMask, &attrib);
 
     /* choose available libraries for optional UI stuff */
     if (!(libgtk = gtk_load())) {
@@ -1108,7 +1129,7 @@ int main(int argc, char *argv[]) {
     XRedraw         = XInternAtom(display, "XRedraw", False);
 
     /* create the draw buffer */
-    drawbuf = XCreatePixmap(display, window, settings.window_width, settings.window_height, depth);
+    drawbuf = XCreatePixmap(display, window, settings.window_width, settings.window_height, xwin_depth);
 
     /* catch WM_DELETE_WINDOW */
     XSetWMProtocols(display, window, &wm_delete_window, 1);

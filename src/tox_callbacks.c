@@ -77,6 +77,7 @@ static void callback_connection_status(Tox *tox, uint32_t fid, TOX_CONNECTION st
         /* resend avatar info (in case it changed) */
         /* Avatars must be sent LAST or they will clobber existing file transfers! */
         avatar_on_friend_online(tox, fid);
+        postmessage_audio(UTOXAUDIO_PLAY_NOTIFICATION, NOTIFY_TONE_FRIEND_ONLINE, 0, NULL);
     }
     postmessage(FRIEND_ONLINE, fid, !!status, NULL);
 
@@ -86,6 +87,7 @@ static void callback_connection_status(Tox *tox, uint32_t fid, TOX_CONNECTION st
         debug_info("Friend-%u:\tOnline (TCP)\n", fid);
     } else {
         debug_info("Friend-%u:\tOffline\n", fid);
+        postmessage_audio(UTOXAUDIO_PLAY_NOTIFICATION, NOTIFY_TONE_FRIEND_OFFLINE, 0, NULL);
     }
 }
 
@@ -172,7 +174,7 @@ static void callback_group_namelist_change(Tox *tox, int gid, int pid, uint8_t c
                 debug("Tox Group:\tERROR, can't sent a name, for non-existant Group!\n");
             }
 
-            const uint8_t name[TOX_MAX_NAME_LENGTH];
+            uint8_t name[TOX_MAX_NAME_LENGTH];
             size_t len = tox_group_peername(tox, gid, pid, name);
             len = utf8_validate(name, len);
 

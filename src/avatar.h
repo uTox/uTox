@@ -1,8 +1,5 @@
-/* subdirectory name to save avatars in */
-#define AVATAR_DIRECTORY "avatars"
-
-//TODO: remove
-#define UTOX_AVATAR_MAX_DATA_LENGTH (64 * 1024) //NOTE: increasing this above 64k might cause issues.
+//TODO: remove?
+#define UTOX_AVATAR_MAX_DATA_LENGTH (64 * 1024) //NOTE: increasing this above 64k might cause issues with other clients.
 #define UTOX_AVATAR_FORMAT_NONE 0
 #define UTOX_AVATAR_FORMAT_PNG 1
 
@@ -19,13 +16,7 @@ typedef struct avatar {
 /* whether friend f's avatar is set, where f is a pointer to a friend struct */
 #define friend_has_avatar(f) (f->avatar.format != UTOX_AVATAR_FORMAT_NONE)
 
-_Bool init_avatar(AVATAR *avatar, const char_t *id, uint8_t *png_data_out, uint32_t *png_size_out);
-
-/* gets the avatar location on the disk and puts the result in dest.
- * id is the client id string for given client. To get the cid string from a cid, use cid_to_string
- *  returns the number of chars written
- */
-int get_avatar_location(char_t *dest, const char_t *id);
+_Bool init_avatar(AVATAR *avatar, uint32_t friend_number, uint8_t *png_data_out, uint32_t *png_size_out);
 
 /* loads an avatar from disk and puts the resulting png data in buffer given by dest.
  * id is the client id string for given client. To get the cid string from a cid, use cid_to_string
@@ -35,7 +26,7 @@ int get_avatar_location(char_t *dest, const char_t *id);
  *  on failure: returns 0
  *  notes: dest should be at least UTOX_AVATAR_MAX_DATA_LENGTH bytes long.
  */
-int load_avatar(const char_t *id, uint8_t *dest, uint32_t *size_out);
+int load_avatar(uint32_t friend_number, uint8_t **dest, size_t *size_out);
 
 /* saves avatar png data to disk
  * id is cid string(see load_avatar), and size is size of data
@@ -43,14 +34,14 @@ int load_avatar(const char_t *id, uint8_t *dest, uint32_t *size_out);
  *  on failure: returns 0
  *  see also: load_avatar
  */
-int save_avatar(const char_t *id, const uint8_t *data, uint32_t size);
+_Bool save_avatar(uint32_t friend_number, const uint8_t *data, uint32_t size);
 
 /* deletes saved avatar data for given id
  *  on success: returns 1
  *  on failure: returns 0
  *  see also: load_avatar
  */
-int delete_saved_avatar(const char_t *id);
+_Bool delete_saved_avatar(uint32_t friend_number);
 
 /* converts png data given by data to a UTOX_NATIVE_IMAGE and uses that to populate the avatar struct
  *  avatar is pointer to an avatar struct to store result in. Remains unchanged if function fails.
@@ -62,7 +53,7 @@ int delete_saved_avatar(const char_t *id);
  *
  *  notes: fails if given size is larger than UTOX_AVATAR_MAX_DATA_LENGTH or data is not valid PNG data
  */
-int set_avatar(AVATAR *avatar, const uint8_t *data, uint32_t size);
+int set_avatar(uint32_t friend_number, const uint8_t *data, uint32_t size);
 
 /* unsets an avatar by setting its format to UTOX_AVATAR_FORMAT_NONE and
  * freeing its image */

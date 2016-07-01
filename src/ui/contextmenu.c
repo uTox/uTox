@@ -1,4 +1,4 @@
-#include "main.h"
+#include "../main.h"
 
 static CONTEXTMENU context_menu;
 

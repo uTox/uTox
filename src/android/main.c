@@ -137,7 +137,7 @@ void savefiledata(MSG_FILE *file){ /* Unsupported on android */ }
 void setselection(char_t *data, uint16_t length){ /* Unsupported on android */ }
 void edit_will_deactivate(void){ /* Unsupported on android */ }
 
-UTOX_NATIVE_IMAGE *decode_image(const UTOX_IMAGE data, size_t size, uint16_t *w, uint16_t *h, _Bool keep_alpha)
+UTOX_NATIVE_IMAGE *decode_image_rgb(const UTOX_IMAGE data, size_t size, uint16_t *w, uint16_t *h, _Bool keep_alpha)
 {
     unsigned width, height, bpp;
     uint8_t *out = stbi_load_from_memory(data, size, &width, &height, &bpp, 3);
@@ -186,10 +186,6 @@ void writesavedata(void *data, uint32_t len)
 }
 
 int datapath(uint8_t *dest){
-    return 0;
-}
-
-int datapath_subdir(uint8_t *dest, const char *subdir){
     return 0;
 }
 
@@ -369,7 +365,7 @@ void setscale(void) {
     setscale_fonts();
 }
 
-void notify(char_t *title, uint16_t title_length, char_t *msg, uint16_t msg_length, FRIEND *f){ /* Unsupported on android */ }
+void notify(char_t *title, uint16_t title_length, const char_t *msg, uint16_t msg_length, FRIEND *f){ /* Unsupported on android */ }
 void desktopgrab(_Bool video){ /* Unsupported on android */ }
 void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height, _Bool resize){ /* Unsupported on android */ }
 void video_begin(uint32_t id, char_t *name, uint16_t name_length, uint16_t width, uint16_t height){ /* Unsupported on android */ }
@@ -695,6 +691,8 @@ static void android_main(struct android_app* state){
 
     UTOX_SAVE *save = config_load();
     theme_load(THEME_DEFAULT);
+
+    utox_init();
 
     thread(toxcore_thread, NULL);
 

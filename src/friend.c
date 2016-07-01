@@ -96,6 +96,10 @@ void utox_friend_init(Tox *tox, uint32_t friend_number) {
         // Get and set the public key for this friend number and set it.
         tox_friend_get_public_key(tox, friend_number, f->cid, 0);
 
+        char_t cid[TOX_PUBLIC_KEY_SIZE * 2];
+        cid_to_string(cid, f->cid);
+
+        memcpy(f->id_str, cid, TOX_PUBLIC_KEY_SIZE * 2);
         // Set the friend number we got from toxcore
         f->number = friend_number;
 
@@ -112,9 +116,7 @@ void utox_friend_init(Tox *tox, uint32_t friend_number) {
         f->status_length = size;
 
         // Get the hex version of this friends ID
-        char_t cid[TOX_PUBLIC_KEY_SIZE * 2];
-        cid_to_string(cid, f->cid);
-        init_avatar(&f->avatar, cid, NULL, NULL);
+        init_avatar(&f->avatar, friend_number, NULL, NULL);
 
         MESSAGES *m = &f->msg;
         messages_init(m, friend_number);
@@ -203,8 +205,7 @@ void friend_recvimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width
     message_add_type_image(&f->msg, 0, native_image, width, height, 0);
 }
 
-void friend_notify_msg(FRIEND *f, uint8_t *msg, size_t msg_length) {
-
+void friend_notify_msg(FRIEND *f, const uint8_t *msg, size_t msg_length) {
     uint8_t title[UTOX_FRIEND_NAME_LENGTH(f) + 25];
 
     size_t title_length = snprintf((char*)title, UTOX_FRIEND_NAME_LENGTH(f) + 25, "uTox new message from %.*s", (int)UTOX_FRIEND_NAME_LENGTH(f), UTOX_FRIEND_NAME(f));
@@ -213,6 +214,7 @@ void friend_notify_msg(FRIEND *f, uint8_t *msg, size_t msg_length) {
 
     if (selected_item->data != f) {
         f->unread_msg = 1;
+        postmessage_audio(UTOXAUDIO_PLAY_NOTIFICATION, NOTIFY_TONE_FRIEND_NEW_MSG, 0, NULL);
     }
 }
 
@@ -287,30 +289,10 @@ void friend_add(char_t *name, uint16_t length, char_t *msg, uint16_t msg_length)
 
 #define LOGFILE_EXT ".txt"
 
-void friend_history_clear(FRIEND *f)
-{
-    uint8_t path[UTOX_FILE_NAME_LENGTH], *p;
-
+void friend_history_clear(FRIEND *f) {
     messages_clear_all(&f->msg);
 
-    {
-        /* We get the file path of the log file */
-        p = path + datapath(path);
-
-        if(countof(path) - (p - path) < TOX_PUBLIC_KEY_SIZE * 2 + sizeof(LOGFILE_EXT))
-        {
-            /* We ensure that we have enough space in the buffer,
-               if not we fail */
-            debug("error/history_clear: path too long\n");
-            return;
-        }
-
-        cid_to_string(p, f->cid);
-        p += TOX_PUBLIC_KEY_SIZE * 2;
-        memcpy((char*)p, LOGFILE_EXT, sizeof(LOGFILE_EXT));
-    }
-
-    remove((const char *)path);
+    utox_remove_friend_history(f->number);
 }
 
 void friend_free(FRIEND *f)

@@ -1,4 +1,4 @@
-#include "main.h"
+#include "../main.h"
 
 void postmessage_utoxav(uint8_t msg, uint32_t param1, uint32_t param2, void *data) {
     while(toxav_thread_msg) {
@@ -342,7 +342,7 @@ static void utox_av_incoming_frame_v(ToxAV *toxAV, uint32_t friend_number, uint1
                                         int32_t ystride, int32_t ustride, int32_t vstride, void *user_data) {
     /* copy the vpx_image */
     /* 4 bits for the H*W, then a pixel for each color * size */
-    // debug("uToxAV:\tnew video frame from friend %u\n", friend_number);
+    debug("uToxAV:\tnew video frame from friend %u\n", friend_number);
     FRIEND *f = &friend[friend_number];
     f->video_width = width;
     f->video_height = height;
@@ -360,7 +360,7 @@ static void utox_av_incoming_frame_v(ToxAV *toxAV, uint32_t friend_number, uint1
     frame->size = size;
     frame->img  = malloc(size);
     yuv420tobgr(width, height, y, u, v, ystride, ustride, vstride, frame->img);
-    if (settings.inline_video) {
+    if (f->video_inline) {
         // debug("uToxAV:\tInline this frame only frame.\n");
         if (current_frame) {
             if (current_frame->img) {
@@ -369,7 +369,7 @@ static void utox_av_incoming_frame_v(ToxAV *toxAV, uint32_t friend_number, uint1
             free(current_frame);
         }
         current_frame = frame;
-        postmessage(AV_INLINE_FRAME, 0, 0, NULL);
+        postmessage(AV_INLINE_FRAME, friend_number, 0, NULL);
     } else {
         postmessage(AV_VIDEO_FRAME, friend_number + 1, 0, (void*)frame);
     }
@@ -388,6 +388,7 @@ static void utox_audio_friend_accepted(ToxAV *av, uint32_t friend_number, uint32
 
 /** respond to a Audio Video state change call back from toxav */
 static void utox_callback_av_change_state(ToxAV *av, uint32_t friend_number, uint32_t state, void *userdata) {
+    FRIEND *f = &friend[friend_number];
     if ( state == 1 ) {
         // handle error
         debug_error("uToxAV:\tChange state with an error, this should never happen. Please send bug report!\n");
@@ -396,6 +397,7 @@ static void utox_callback_av_change_state(ToxAV *av, uint32_t friend_number, uin
     } else if ( state == 2 ) {
         debug_notice("uToxAV:\tCall ended with friend_number %u.\n", friend_number);
         utox_av_remote_disconnect(av, friend_number);
+        message_add_type_notice(&f->msg, "Friend Has Ended the call!", 26, 0); /* TODO localization with S() SLEN() */
         return;
     } else if (!friend[friend_number].call_state_friend) {
         utox_audio_friend_accepted(av, friend_number, state);
@@ -413,6 +415,7 @@ static void utox_callback_av_change_state(ToxAV *av, uint32_t friend_number, uin
             debug_info("uToxAV:\tFriend %u is now sending video.\n", friend_number);
         } else {
             debug_info("uToxAV:\tFriend %u is no longer sending video.\n", friend_number);
+            list_reselect_current();
         }
     }
     if (friend[friend_number].call_state_friend ^ (state & TOXAV_FRIEND_CALL_STATE_ACCEPTING_A)) {

@@ -1,4 +1,4 @@
-#include "main.h"
+#include "../main.h"
 
 static EDIT *active_edit;
 
@@ -398,30 +398,35 @@ static uint16_t edit_redo(EDIT *edit)
 #define updatesel() if(edit_sel.p1 <= edit_sel.p2) {edit_sel.start = edit_sel.p1; edit_sel.length = edit_sel.p2 - edit_sel.p1;} \
                     else {edit_sel.start = edit_sel.p2; edit_sel.length = edit_sel.p1 - edit_sel.p2;}
 
-void edit_char(uint32_t ch, _Bool control, uint8_t flags){
+enum {
+    EMOD_SHIFT = (1 << 0),
+    EMOD_CTRL  = (1 << 2),
+};
+
+void edit_char(uint32_t ch, _Bool control, uint8_t flags) {
     /* shift: flags & 1
      * control: flags & 4 */
     EDIT *edit = active_edit;
 
-    if(control || (ch <= 0x1F && (!edit->multiline || ch != '\n')) || (ch >= 0x7f && ch <= 0x9F)) {
+    if (control || (ch <= 0x1F && (!edit->multiline || ch != '\n')) || (ch >= 0x7f && ch <= 0x9F)) {
         _Bool modified = 0;
 
         switch(ch) {
         case KEY_BACK: {
-            if(edit->readonly) {
+            if (edit->readonly) {
                 return;
             }
 
-            if(edit_sel.length == 0) {
+            if (edit_sel.length == 0) {
                 uint16_t p = edit_sel.start;
-                if(p == 0) {
+                if (p == 0) {
                     break;
                 }
 
                 modified = 1;
 
                 /* same as ctrl+left */
-                if(flags & 4) {
+                if (flags & EMOD_CTRL) {
                     while(p != 0 && edit->data[p - 1] == ' ') {
                         p--;
                     }
@@ -430,7 +435,7 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags){
                 if (p != 0) {
                     do {
                         p -= utf8_unlen(&edit->data[p]);
-                    } while((flags & 4) && p != 0 && edit->data[p - 1] != ' ' && edit->data[p - 1] != '\n');
+                    } while((flags & EMOD_CTRL) && p != 0 && edit->data[p - 1] != ' ' && edit->data[p - 1] != '\n');
                 }
 
                 uint16_t len = edit_sel.start - p;
@@ -448,17 +453,17 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags){
         }
 
         case KEY_DEL: {
-            if(edit->readonly) {
+            if (edit->readonly) {
                 return;
             }
 
             char_t *p = active_edit->data + edit_sel.start;
-            if(edit_sel.length) {
+            if (edit_sel.length) {
                 edit_do(edit, edit_sel.start, edit_sel.length, 1);
                 memmove(p, p + edit_sel.length, active_edit->length - (edit_sel.start + edit_sel.length));
                 active_edit->length -= edit_sel.length;
             }
-            else if(edit_sel.start < active_edit->length) {
+            else if (edit_sel.start < active_edit->length) {
                 uint8_t len = utf8_len(p);
                 edit_do(edit, edit_sel.start, len, 1);
                 memmove(p, p + len, active_edit->length - edit_sel.start - len);
@@ -473,8 +478,8 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags){
 
         case KEY_LEFT: {
             uint16_t p = edit_sel.p2;
-            if(p != 0) {
-                if(flags & 4) {
+            if (p != 0) {
+                if (flags & EMOD_CTRL) {
                     while(p != 0 && edit->data[p - 1] == ' ') {
                         p--;
                     }
@@ -483,15 +488,15 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags){
                 if (p != 0) {
                     do {
                         p -= utf8_unlen(&edit->data[p]);
-                    } while((flags & 4) && p != 0 && edit->data[p - 1] != ' ' && edit->data[p - 1] != '\n');
+                    } while((flags & EMOD_CTRL) && p != 0 && edit->data[p - 1] != ' ' && edit->data[p - 1] != '\n');
                 }
             }
 
-            if(flags & 1) {
+            if (flags & EMOD_SHIFT) {
                 edit_sel.p2 = p;
                 updatesel();
             } else {
-                if(edit_sel.length) {
+                if (edit_sel.length) {
                     p = edit_sel.start;
                 }
                 edit_sel.p1 = p;
@@ -504,24 +509,24 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags){
 
         case KEY_RIGHT: {
             uint16_t p = edit_sel.p2;
-            if(flags & 4) {
+            if (flags & EMOD_CTRL) {
                 while(p != edit->length && edit->data[p] == ' ') {
                     p++;
                 }
             }
 
             do {
-                if(p == edit->length) {
+                if (p == edit->length) {
                     break;
                 }
                 p += utf8_len(&edit->data[p]);
-            } while((flags & 4) && edit->data[p] != ' ' && edit->data[p] != '\n');
+            } while((flags & EMOD_CTRL) && edit->data[p] != ' ' && edit->data[p] != '\n');
 
-            if(flags & 1) {
+            if (flags & EMOD_SHIFT) {
                 edit_sel.p2 = p;
                 updatesel();
             } else {
-                if(edit_sel.length) {
+                if (edit_sel.length) {
                     p = edit_sel.start + edit_sel.length;
                 }
                 edit_sel.p1 = p;
@@ -533,13 +538,13 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags){
         }
 
         case KEY_UP: {
-            if(!edit->multiline) {
+            if (!edit->multiline) {
                 break;
             }
 
             setfont(FONT_TEXT);
             edit_sel.p2 = text_lineup(edit->width, edit->height, edit_sel.p2, font_small_lineheight, edit->data, edit->length, edit->scroll);
-            if(!(flags & 1)) {
+            if (!(flags & EMOD_SHIFT)) {
                 edit_sel.p1 = edit_sel.p2;
             }
             updatesel();
@@ -547,13 +552,13 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags){
         }
 
         case KEY_DOWN: {
-            if(!edit->multiline) {
+            if (!edit->multiline) {
                 break;
             }
 
             setfont(FONT_TEXT);
             edit_sel.p2 = text_linedown(edit->width, edit->height, edit_sel.p2, font_small_lineheight, edit->data, edit->length, edit->scroll);
-            if(!(flags & 1)) {
+            if (!(flags & EMOD_SHIFT)) {
                 edit_sel.p1 = edit_sel.p2;
             }
             updatesel();
@@ -561,7 +566,7 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags){
         }
 
         case KEY_PAGEUP: {
-            if(!edit->multiline) {
+            if (!edit->multiline) {
                 break;
             }
 
@@ -570,7 +575,7 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags){
         }
 
         case KEY_PAGEDOWN: {
-            if(!edit->multiline) {
+            if (!edit->multiline) {
                 break;
             }
 
@@ -579,7 +584,7 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags){
         }
 
         case KEY_HOME: {
-            if(flags & 1) {
+            if (flags & EMOD_SHIFT) {
                 edit_sel.p2 = 0;
                 edit_sel.start = 0;
                 edit_sel.length = edit_sel.p1;
@@ -590,14 +595,37 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags){
         }
 
         case KEY_END: {
-            if(flags & 1) {
-                edit_sel.p2 = edit->length;
-                edit_sel.start = edit_sel.p1;
-                edit_sel.length = edit_sel.p2 - edit_sel.p1;
+            if (flags & EMOD_CTRL) {
+                edit_sel.p1 = edit_sel.p2 = edit_sel.start = edit->length;
+                edit_sel.length = 0;
                 break;
             }
-            edit_sel.p1 = edit_sel.p2 = edit_sel.start = edit->length;
-            edit_sel.length = 0;
+
+            uint32_t p = edit_sel.p2;
+            while (p != edit->length && edit->data[p] != '\n') {
+                    p++;
+            }
+            --p;
+
+            do {
+                if (p == edit->length) {
+                    break;
+                }
+                p += utf8_len(&edit->data[p]);
+            } while((flags & EMOD_CTRL) && edit->data[p] != '\n');
+
+            if (flags & EMOD_SHIFT) {
+                edit_sel.p2 = p;
+                updatesel();
+            } else {
+                if (edit_sel.length) {
+                    p = edit_sel.start + edit_sel.length;
+                }
+                edit_sel.p1 = p;
+                edit_sel.p2 = p;
+                edit_sel.start = p;
+                edit_sel.length = 0;
+            }
             break;
         }
 
@@ -613,9 +641,9 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags){
 
         case 'z':
         case 'Z': {
-            if(!(flags & 1)) {
+            if (!(flags & EMOD_SHIFT)) {
                 uint16_t p = edit_undo(edit);
-                if(p != UINT16_MAX) {
+                if (p != UINT16_MAX) {
                     edit_sel.p1 = p;
                     edit_sel.p2 = p;
                     edit_sel.start = p;
@@ -631,7 +659,7 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags){
         case 'y':
         case 'Y': {
             uint16_t p = edit_redo(edit);
-            if(p != UINT16_MAX) {
+            if (p != UINT16_MAX) {
                 edit_sel.p1 = p;
                 edit_sel.p2 = p;
                 edit_sel.start = p;
@@ -644,10 +672,10 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags){
         case KEY_RETURN: {
             modified = 1;
 
-            if(edit->onenter && !(flags & 4)) {
+            if (edit->onenter && !(flags & EMOD_CTRL)) {
                 edit->onenter(edit);
                 /*dirty*/
-                if(edit->length == 0) {
+                if (edit->length == 0) {
                     uint16_t i = 0;
                     while(i != edit->history_length) {
                         free(edit->history[i]);
@@ -668,9 +696,9 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags){
         }
 
         case KEY_TAB: {
-            if ((flags & 1) && !(flags & 4) && edit->onshifttab) {
+            if ((flags & EMOD_SHIFT) && !(flags & EMOD_CTRL) && edit->onshifttab) {
                 edit->onshifttab(edit);
-            } else if (!(flags & 4) && edit->ontab) {
+            } else if (!(flags & EMOD_CTRL) && edit->ontab) {
                 edit->ontab(edit);
             }
 
@@ -680,17 +708,17 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags){
         }
 
         edit_select = 0;
-        if(modified && edit->onchange) {
+        if (modified && edit->onchange) {
             edit->onchange(edit);
         }
 
         edit_redraw();
-    } else if(!edit->readonly) {
+    } else if (!edit->readonly) {
         uint8_t len = unicode_to_utf8_len(ch);
-        if(edit->length - edit_sel.length + len <= edit->maxlength) {
+        if (edit->length - edit_sel.length + len <= edit->maxlength) {
             char_t *p = edit->data + edit_sel.start;
 
-            if(edit_sel.length) {
+            if (edit_sel.length) {
                 edit_do(edit, edit_sel.start, edit_sel.length, 1);
             }
 
@@ -706,7 +734,7 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags){
             edit_sel.p2 = edit_sel.p1;
             edit_sel.length = 0;
 
-            if(edit->onchange) {
+            if (edit->onchange) {
                 edit->onchange(edit);
             }
 

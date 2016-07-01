@@ -219,7 +219,7 @@ int sprint_humanread_bytes(uint8_t *dest, unsigned int size, uint64_t bytes) {
     return r;
 }
 
-uint8_t utf8_len(char_t *data)
+uint8_t utf8_len(const char_t *data)
 {
     if(!(*data & 0x80)) {
         return 1;
@@ -387,7 +387,7 @@ _Bool memcmp_case(const char_t *s1, const char_t *s2, uint32_t n)
     return 0;
 }
 
-char_t* tohtml(char_t *str, uint16_t length)
+char_t* tohtml(const char_t *str, uint16_t length)
 {
     uint16_t i = 0;
     int len = 0;
@@ -630,7 +630,7 @@ UTOX_SAVE* config_load(void) {
     }
 
     if (save) {
-        if(save->version == SAVE_VERSION) {
+        if(save->save_version == UTOX_SAVE_VERSION) {
             /* validate values */
             if(save->scale > 30) {
                 save->scale = 30;
@@ -638,12 +638,12 @@ UTOX_SAVE* config_load(void) {
                 save->scale = 10;
             }
             goto NEXT;
-        } else if (save->version == 2) {
+        } else if (save->save_version == 2) {
             UTOX_SAVE_V2 *save_v2 = (UTOX_SAVE_V2*)save;
             save = calloc(sizeof(UTOX_SAVE) + 1 + strlen((char *)save_v2->proxy_ip), 1);
 
             memcpy(save, save_v2, sizeof(UTOX_SAVE_V2));
-            save->version = SAVE_VERSION;
+            save->save_version = UTOX_SAVE_VERSION;
 
             if(save->scale > 30) {
                 save->scale = 30;
@@ -658,7 +658,7 @@ UTOX_SAVE* config_load(void) {
     }
 
     save = calloc(sizeof(UTOX_SAVE) + 1, 1);
-    save->version = 1;
+    save->save_version = 1;
     save->scale = DEFAULT_SCALE - 1;
 
     save->enableipv6      = 1;
@@ -688,8 +688,9 @@ UTOX_SAVE* config_load(void) {
 NEXT:
     dropdown_dpi.selected                  = dropdown_dpi.over                  = save->scale - 5;
 
-    dropdown_ipv6.selected                 = dropdown_ipv6.over                 = !save->enableipv6;
-    dropdown_udp.selected                  = dropdown_udp.over                  = (save->disableudp != 0);
+    dropdown_ipv6.selected                 = dropdown_ipv6.over                 = save->enableipv6;
+    dropdown_udp.selected                  = dropdown_udp.over                  = !save->disableudp;
+
     dropdown_proxy.selected                = dropdown_proxy.over                = save->proxyenable <= 2 ? save->proxyenable : 2;
 
     dropdown_logging.selected              = dropdown_logging.over              = save->logging_enabled;
@@ -709,10 +710,10 @@ NEXT:
 
     list_set_filter(save->filter); /* roster list filtering */
 
-    options.ipv6_enabled = save->enableipv6;
-    options.udp_enabled = !save->disableudp;
-    options.proxy_type = save->proxyenable ? TOX_PROXY_TYPE_SOCKS5 : TOX_PROXY_TYPE_NONE;
-    options.proxy_port = save->proxy_port;
+    settings.enable_ipv6    = save->enableipv6;
+    settings.enable_udp     = !save->disableudp;
+    settings.use_proxy      = !!save->proxyenable;
+    settings.proxy_port     = save->proxy_port;
     strcpy((char*)proxy_address, (char*)save->proxy_ip);
     edit_proxy_ip.length = strlen((char*)save->proxy_ip);
     strcpy((char*)edit_proxy_ip.data, (char*)save->proxy_ip);
@@ -733,11 +734,15 @@ NEXT:
     settings.use_mini_roster        = save->use_mini_roster;
 
     settings.send_typing_status     = !save->no_typing_notifications;
+
     settings.window_width           = save->window_width;
     settings.window_height          = save->window_height;
 
+    settings.last_version           = save->utox_last_version;
+
     loaded_audio_out_device         = save->audio_device_out;
     loaded_audio_in_device          = save->audio_device_in;
+
 
     if ( save->push_to_talk ) {
         init_ptt();
@@ -747,9 +752,8 @@ NEXT:
 }
 
 void config_save(UTOX_SAVE *save) {
-    save->version                       = SAVE_VERSION;
+    save->save_version                  = UTOX_SAVE_VERSION;
     save->scale                         = ui_scale - 1;
-    save->disableudp                    = dropdown_udp.selected;
     save->proxyenable                   = dropdown_proxy.selected;
     save->logging_enabled               = settings.logging_enabled;
     save->close_to_tray                 = settings.close_to_tray;
@@ -760,15 +764,18 @@ void config_save(UTOX_SAVE *save) {
     save->push_to_talk                  = settings.push_to_talk;
     save->use_mini_roster               = settings.use_mini_roster;
 
-    save->enableipv6                    = !dropdown_ipv6.selected;
+    save->disableudp                    = !settings.enable_udp;
+    save->enableipv6                    =  settings.enable_ipv6;
     save->no_typing_notifications       = !settings.send_typing_status;
 
     save->filter                        = list_get_filter();
-    save->proxy_port                    = options.proxy_port;
+    save->proxy_port                    = settings.proxy_port;
 
     save->audio_device_in               = dropdown_audio_in.selected;
     save->audio_device_out              = dropdown_audio_out.selected;
     save->theme                         = theme;
+
+    save->utox_last_version             = settings.curr_version;
 
 
     memset(save->unused, 0, sizeof(save->unused));

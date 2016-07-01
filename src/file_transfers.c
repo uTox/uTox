@@ -206,6 +206,10 @@ static void utox_kill_file(FILE_TRANSFER *file, uint8_t us){
         return;
     } else {
         file->status = FILE_TRANSFER_STATUS_KILLED;
+
+        if (file->ui_data){
+            file->ui_data->file_status = FILE_TRANSFER_STATUS_KILLED;
+        }
     }
 
     notify_update_file(file);
@@ -233,6 +237,11 @@ static void utox_break_file(FILE_TRANSFER *file){
         --friend[file->friend_number].transfer_count;
     }
     file->status = FILE_TRANSFER_STATUS_BROKEN;
+
+    if (file->ui_data){
+        file->ui_data->file_status = FILE_TRANSFER_STATUS_BROKEN;
+    }
+
     notify_update_file(file);
     utox_file_save_ftinfo(file);
     if (file->in_use) {
@@ -351,7 +360,7 @@ static void decode_inline_png(uint32_t friend_id, uint8_t *data, uint64_t size)
 {
     //TODO: start a new thread and decode the png in it.
     uint16_t width, height;
-    UTOX_NATIVE_IMAGE *native_image = decode_image((UTOX_IMAGE)data, size, &width, &height, 0);
+    UTOX_NATIVE_IMAGE *native_image = decode_image_rgb((UTOX_IMAGE)data, size, &width, &height, 0);
     if (UTOX_NATIVE_IMAGE_IS_VALID(native_image)) {
         void *msg = malloc(sizeof(uint16_t) * 2 + sizeof(uint8_t *));
         memcpy(msg, &width, sizeof(uint16_t));
@@ -388,6 +397,9 @@ static void utox_complete_file(FILE_TRANSFER *file){
             }
         }
         file->status = FILE_TRANSFER_STATUS_COMPLETED;
+        if (file->ui_data){
+            file->ui_data->file_status = FILE_TRANSFER_STATUS_COMPLETED;
+        }
         notify_update_file(file);
     } else {
         debug("FileTransfer:\tUnable to complete file in non-active state (file:%u)\n", file->file_number);

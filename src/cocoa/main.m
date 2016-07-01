@@ -47,10 +47,10 @@ void debug_error(const char *fmt, ...) {
 }
 
 int UTOX_NATIVE_IMAGE_IS_VALID(UTOX_NATIVE_IMAGE *img) {
-    return img->image != nil;
+    return img != NULL && img->image != nil;
 }
 
-UTOX_NATIVE_IMAGE *decode_image(const UTOX_IMAGE data, size_t size, uint16_t *w, uint16_t *h, _Bool keep_alpha) {
+UTOX_NATIVE_IMAGE *decode_image_rgb(const UTOX_IMAGE data, size_t size, uint16_t *w, uint16_t *h, _Bool keep_alpha) {
     CFDataRef idata_copy = CFDataCreate(kCFAllocatorDefault, data, size);
     CGDataProviderRef src = CGDataProviderCreateWithCFData(idata_copy);
     CGImageRef underlying_img = CGImageCreateWithPNGDataProvider(src, NULL, YES, kCGRenderingIntentDefault);
@@ -355,6 +355,35 @@ FILE *native_load_data_logfile(uint32_t friend_number) {
     return file;
 }
 
+_Bool native_remove_file(const uint8_t *name, size_t length) {
+    uint8_t path[UTOX_FILE_NAME_LENGTH]  = {0};
+
+    if (settings.portable_mode) {
+        const char *curr = [NSBundle.mainBundle.bundlePath stringByDeletingLastPathComponent].UTF8String;
+        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "%s/tox/", curr);
+    } else {
+        const char *home = NSHomeDirectory().UTF8String;
+        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", home);
+    }
+
+    if (strlen((const char*)path) + length >= UTOX_FILE_NAME_LENGTH) {
+        debug("NATIVE:\tFile/directory name too long, unable to remove\n");
+        return 0;
+    } else {
+        snprintf((char*)path + strlen((const char*)path), UTOX_FILE_NAME_LENGTH - strlen((const char*)path),
+                 "%.*s", (int)length, (char*)name);
+    }
+
+    if (remove((const char*)path)) {
+        debug_error("NATIVE:\tUnable to delete file!\n\t\t%s\n", path);
+        return 0;
+    } else {
+        debug_info("NATIVE:\tFile deleted!\n");
+        debug("NATIVE:\t\t%s\n", path);
+    }
+    return 1;
+}
+
 /* it occured to me that we should probably make datapath allocate memory for its caller */
 int datapath(uint8_t *dest) {
     if (settings.portable_mode) {
@@ -372,15 +401,6 @@ int datapath(uint8_t *dest) {
 
         return l;
     }
-}
-
-int datapath_subdir(uint8_t *dest, const char *subdir) {
-    int l = datapath(dest);
-    l += sprintf((char*)(dest+l), "%s", subdir);
-    mkdir((char*)dest, 0700);
-    dest[l++] = '/';
-
-    return l;
 }
 
 int ch_mod(uint8_t *file){
@@ -537,6 +557,8 @@ void launch_at_startup(int should) {
         theme = save->theme;
     }
     theme_load(theme);
+
+    utox_init();
 
     char title_name[128];
     snprintf(title_name, 128, "%s %s (version: %s)", TITLE, SUB_TITLE, VERSION);

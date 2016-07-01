@@ -30,6 +30,44 @@ void draw_image(const UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, ui
                      imgx, imgy, imgx, imgy, x, y, width, height);
 }
 
+void draw_inline_image(uint8_t *img_data, size_t size, uint16_t w, uint16_t h, int x, int y){
+    uint8_t *rgba_data = img_data;
+
+    // we don't need to free this, that's done by XDestroyImage()
+    uint8_t *out = malloc(size);
+
+    // colors are read into red, blue and green and written into the target pointer
+    uint8_t red, blue, green;
+    uint32_t *target;
+
+    uint32_t i;
+    for (i = 0; i < size; i += 4) {
+        red = (rgba_data+i)[0] & 0xFF;
+        green = (rgba_data+i)[1] & 0xFF;
+        blue = (rgba_data+i)[2] & 0xFF;
+
+        target = (uint32_t *)(out+i);
+        *target = (red | (red << 8) | (red << 16) | (red << 24)) & visual->red_mask;
+        *target |= (blue | (blue << 8) | (blue << 16) | (blue << 24)) & visual->blue_mask;
+        *target |= (green | (green << 8) | (green << 16) | (green << 24)) & visual->green_mask;
+    }
+
+    XImage *img = XCreateImage(display, visual, xwin_depth, ZPixmap, 0, (char*)out, w, h, 32, w * 4);
+
+    Picture rgb = ximage_to_picture(img, NULL);
+    // 4 bpp -> RGBA
+    Picture alpha = None;
+
+    UTOX_NATIVE_IMAGE *image = malloc(sizeof(UTOX_NATIVE_IMAGE));
+    image->rgb = rgb;
+    image->alpha = alpha;
+
+    XDestroyImage(img);
+
+    draw_image(image, x, y, w, h, 0, 0);
+
+}
+
 void drawalpha(int bm, int x, int y, int width, int height, uint32_t color) {
     XRenderColor xrcolor = {
         .red = ((color >> 8) & 0xFF00) | 0x80,

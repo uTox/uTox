@@ -2,40 +2,12 @@
 #define TITLE         "uTox"
 #define SUB_TITLE     "(Alpha)"
 #define RELEASE_TITLE "Mild Shock"
-#define PATCH_TITLE   "Acting"
-#define VERSION       "0.8.2"
+#define PATCH_TITLE   "SRSLY"
+#define VERSION       "0.9.5"
 #define VER_MAJOR     0
-#define VER_MINOR     8
-#define VER_PATCH     1
-
-/* Support for large files. */
-#define _LARGEFILE_SOURCE
-#define _FILE_OFFSET_BITS 64
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdint.h>
-#include <inttypes.h>
-#include <time.h>
-#include <string.h>
-#include <math.h>
-#include <limits.h>
-#include <ctype.h>
-#include <pthread.h>
-
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <tox/tox.h>
-#include <tox/toxav.h>
-#include <tox/toxencryptsave.h>
-#include <vpx/vpx_codec.h>
-#include <vpx/vpx_image.h>
-
-#ifdef EMOJI_IDS
-#include <base_emoji.h>
-#endif
-
-
+#define VER_MINOR     9
+#define VER_PATCH     5
+#define UTOX_VERSION_NUMBER 9005u /* major, minor, patch, 0 padded where needed */
 // Defaults
 #define DEFAULT_NAME   "Tox User"
 #define DEFAULT_STATUS "Toxing on uTox"
@@ -87,12 +59,44 @@
 #define drawstr_getwidth(x, y, str) drawtext_getwidth(x, y, (char_t*)str, sizeof(str) - 1)
 #define strwidth(x) textwidth((char_t*)x, sizeof(x) - 1)
 
+/* Support for large files. */
+#define _LARGEFILE_SOURCE
+#define _FILE_OFFSET_BITS 64
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdint.h>
+#include <inttypes.h>
+#include <time.h>
+#include <string.h>
+#include <math.h>
+#include <limits.h>
+#include <ctype.h>
+#include <pthread.h>
+
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <tox/tox.h>
+#include <tox/toxav.h>
+#include <tox/toxencryptsave.h>
+#include <vpx/vpx_codec.h>
+#include <vpx/vpx_image.h>
+
+#ifdef EMOJI_IDS
+#include <base_emoji.h>
+#endif
+
 /* House keeping for uTox save file. */
-#define SAVE_VERSION 3
+#define UTOX_SAVE_VERSION 3
 typedef struct {
-    uint8_t  version, scale, enableipv6, disableudp;
+    uint8_t  save_version;
+    uint8_t  scale;
+    uint8_t  enableipv6;
+    uint8_t  disableudp;
+
     uint16_t window_x, window_y, window_width, window_height;
     uint16_t proxy_port;
+
     uint8_t  proxyenable;
 
     uint8_t  logging_enabled                : 1;
@@ -113,10 +117,14 @@ typedef struct {
     uint8_t  use_mini_roster                : 1;
     uint8_t  zero                           : 6;
 
-    uint16_t unused[31];
+    uint32_t utox_last_version; // I don't like this here either,
+                                // but I'm not ready to rewrite and update this struct yet.
+
+    uint16_t unused[29];
     uint8_t  proxy_ip[0];
 } UTOX_SAVE;
 
+#define LOGFILE_SAVE_VERSION 3
 typedef struct {
     uint8_t  log_version;
     time_t   time;
@@ -140,6 +148,19 @@ volatile _Bool tox_thread_init,
                utox_video_thread_init;
 
 typedef struct utox_settings {
+    uint32_t curr_version;
+    uint32_t last_version;
+    _Bool    show_splash;
+
+    _Bool use_proxy;
+    _Bool force_proxy;
+    _Bool enable_udp;
+    _Bool enable_ipv6;
+    _Bool use_encryption;
+    _Bool portable_mode;
+
+    uint16_t proxy_port;
+
     _Bool close_to_tray;
     _Bool logging_enabled;
     _Bool ringtone_enabled;
@@ -147,19 +168,18 @@ typedef struct utox_settings {
     _Bool start_in_tray;
     _Bool start_with_system;
     _Bool push_to_talk;
-    _Bool use_encryption;
     _Bool audio_preview;
     _Bool video_preview;
     _Bool send_typing_status;
     _Bool use_mini_roster;
-    _Bool portable_mode;
     _Bool inline_video;
+    _Bool use_long_time_msg;
 
     uint8_t verbose;
 
-    int     window_height;
-    int     window_width;
-    int     window_baseline;
+    uint32_t window_height;
+    uint32_t window_width;
+    uint32_t window_baseline;
 
     _Bool   window_maximized;
 } SETTINGS;
@@ -174,7 +194,6 @@ uint8_t addfriend_status;
 int font_small_lineheight, font_msg_lineheight;
 uint16_t video_width, video_height, max_video_width, max_video_height;
 char proxy_address[256];
-extern struct Tox_Options options;
 
 // Structs
 typedef struct edit_change EDIT_CHANGE;
@@ -265,20 +284,6 @@ enum {
     BM_ENDMARKER,
 };
 
-// µTox includes
-#include "unused.h"
-
-#include "stb_image.h"
-#include "stb_image_write.h"
-extern unsigned char *stbi_write_png_to_mem(unsigned char *pixels, int stride_bytes, int x, int y, int n, int *out_len);
-typedef uint8_t *UTOX_IMAGE;
-
-#include "tox.h"
-#include "audio.h"
-#include "video.h"
-#include "utox_av.h"
-#include "tox_callbacks.h"
-
 #if defined __WIN32__
     #include "windows/main.h"
 #elif defined __ANDROID__
@@ -289,36 +294,63 @@ typedef uint8_t *UTOX_IMAGE;
     #include "xlib/main.h"
 #endif
 
+#ifdef UNUSED
+# undef UNUSED
+#endif
+
+#ifdef __GNUC__
+# define UNUSED(x) UNUSED_ ## x __attribute__((__unused__))
+#elif defined(__LCLINT__)
+# define UNUSED(x) /*@unused@*/ x
+#else
+# define UNUSED(x) x
+#endif
+
+#include "stb_image.h"
+#include "stb_image_write.h"
+extern unsigned char *stbi_write_png_to_mem(unsigned char *pixels, int stride_bytes, int x, int y, int n, int *out_len);
+typedef uint8_t *UTOX_IMAGE;
+
+#include "tox.h"
+#include "tox_callbacks.h"
+
+#include "av/audio.h"
+#include "av/video.h"
+#include "av/utox_av.h"
+
 #include "sized_string.h"
 #include "ui_i18n_decls.h"
 
 #include "ui.h"
-#include "svg.h"
+
 #include "avatar.h"
 #include "theme.h"
-#include "text.h"
 
 #include "messages.h"
 #include "friend.h"
 #include "groups.h"
 #include "roster.h"
 #include "inline_video.h"
-#include "button.h"
-#include "dropdown.h"
-#include "edit.h"
-#include "scrollable.h"
 
-#include "contextmenu.h"
-#include "tooltip.h"
+#include "ui/svg.h"
+#include "ui/text.h"
+#include "ui/button.h"
+#include "ui/dropdown.h"
+#include "ui/edit.h"
+#include "ui/scrollable.h"
+#include "ui/contextmenu.h"
+#include "ui/tooltip.h"
+
+#include "ui/ui_edits.h"
+#include "ui/ui_buttons.h"
+#include "ui/ui_dropdown.h"
+
 #include "commands.h"
 
 #include "util.h"
 #include "dns.h"
 #include "file_transfers.h"
 
-#include "ui_edits.h"
-#include "ui_buttons.h"
-#include "ui_dropdown.h"
 
 pthread_mutex_t messages_lock;
 
@@ -327,6 +359,12 @@ pthread_mutex_t messages_lock;
 FRIEND friend[MAX_NUM_FRIENDS];
 GROUPCHAT group[MAX_NUM_GROUPS];
 uint32_t friends, groups;
+
+enum {
+    USER_STATUS_AVAILABLE,
+    USER_STATUS_AWAY_IDLE,
+    USER_STATUS_DO_NOT_DISTURB,
+};
 
 //me
 struct {
@@ -353,14 +391,9 @@ struct {
     int x, y;
 } mouse;
 
-//fonts
-//HFONT font_big, font_big2, font_med, font_med2, font_small, font_msg;
-int font_small_lineheight, font_msg_lineheight;
-
 uint16_t video_width, video_height, max_video_width, max_video_height;
 
 char proxy_address[256];
-extern struct Tox_Options options;
 
 UTOX_FRAME_PKG *current_frame;
 
@@ -377,14 +410,19 @@ uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_s
 /** Selects the correct file on the platform and passes it to the global log reading function */
 FILE *native_load_data_logfile(uint32_t friend_number);
 
+/** given a filename, native_remove_file will delete that file from the local config dir */
+_Bool native_remove_file(const uint8_t *name, size_t length);
+
+
+
 /* Global wrappers for the native_ data functions */
 _Bool      utox_save_data_tox(uint8_t *data, size_t length);
-_Bool      utox_save_data_utox(UTOX_SAVE *data, size_t length);
-size_t     utox_save_data_log(uint32_t friend_number, uint8_t *data, size_t length);
-
 uint8_t   *utox_load_data_tox(size_t *size);
+
+_Bool      utox_save_data_utox(UTOX_SAVE *data, size_t length);
 UTOX_SAVE *utox_load_data_utox(void);
 
+size_t     utox_save_data_log(uint32_t friend_number, uint8_t *data, size_t length);
 /** This one actually does the work of reading the logfile information.
  *
  * inside main.c is probably the wrong place for it, but I'll leave chosing
@@ -399,9 +437,23 @@ uint8_t **utox_load_data_log(uint32_t friend_number, size_t *size, uint32_t coun
 _Bool utox_update_data_log(uint32_t friend_number, size_t offset, uint8_t *data, size_t length);
 
 
+_Bool    utox_save_data_avatar(uint32_t friend_number, const uint8_t *data, size_t length);
+uint8_t *utox_load_data_avatar(uint32_t friend_number, size_t *size);
+_Bool    utox_remove_file_avatar(uint32_t friend_number);
+
+
+_Bool    utox_remove_file(const uint8_t *full_name, size_t length);
+_Bool utox_remove_friend_history(uint32_t friend_number);
+
+
+
+
 /* TODO: sort everything below this line! */
 
 void parse_args(int argc, char *argv[], _Bool *theme_was_set_on_argv, int8_t *should_launch_at_startup, int8_t *set_show_window, _Bool *no_updater);
+
+void utox_init(void);
+
 
 // inserts/deletes a value into the registry to launch uTox after boot
 void launch_at_startup(int is_launch_at_startup);
@@ -409,7 +461,7 @@ void launch_at_startup(int is_launch_at_startup);
 void drawalpha(int bm, int x, int y, int width, int height, uint32_t color);
 void loadalpha(int bm, void *data, int width, int height);
 void desktopgrab(_Bool video);
-void notify(char_t *title, uint16_t title_length, char_t *msg, uint16_t msg_length, FRIEND *f);
+void notify(char_t *title, uint16_t title_length, const char_t *msg, uint16_t msg_length, FRIEND *f);
 void setscale(void);
 void setscale_fonts(void);
 
@@ -433,10 +485,14 @@ void image_set_scale(UTOX_NATIVE_IMAGE *image, double scale);
  * TODO: improve this so this function is safer to use */
 void draw_image(const UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t imgx, uint32_t imgy);
 
-/* converts a png to a UTOX_NATIVE_IMAGE, returns a pointer to it, keeping alpha channel only if keep_alpha is 1 */
-UTOX_NATIVE_IMAGE *decode_image(const UTOX_IMAGE, size_t size, uint16_t *w, uint16_t *h, _Bool keep_alpha);
+/* Native wrapper to ready and call draw_image */
+void draw_inline_image(uint8_t *img_data, size_t size, uint16_t w, uint16_t h, int x, int y);
 
-/* free an image created by decode_image */
+
+/* converts a png to a UTOX_NATIVE_IMAGE, returns a pointer to it, keeping alpha channel only if keep_alpha is 1 */
+UTOX_NATIVE_IMAGE *decode_image_rgb(const UTOX_IMAGE, size_t size, uint16_t *w, uint16_t *h, _Bool keep_alpha);
+
+/* free an image created by decode_image_rgb */
 void image_free(UTOX_NATIVE_IMAGE *image);
 
 void showkeyboard(_Bool show);
@@ -446,7 +502,6 @@ void force_redraw(void); // TODO: as parameter for redraw()?
 
 /* gets a subdirectory of tox's datapath and puts the full pathname in dest,
  * returns number of characters written */
-int datapath_subdir(uint8_t *dest, const char *subdir);
 void flush_file(FILE *file);
 int ch_mod(uint8_t *file);
 void config_osdefaults(UTOX_SAVE *r);
@@ -491,7 +546,6 @@ void enddraw(int x, int y, int width, int height);
 
 /* OS interface replacements */
 int datapath(uint8_t *dest);
-int datapath_subdir(uint8_t *dest, const char *subdir);
 void flush_file(FILE *file);
 int ch_mod(uint8_t *file);
 int file_lock(FILE *file, uint64_t start, size_t length);
@@ -499,13 +553,6 @@ int file_unlock(FILE *file, uint64_t start, size_t length);
 
 /* OS-specific cleanup function for when edits are defocused. Commit IME state, etc. */
 void edit_will_deactivate(void);
-
-/** Creates a tray baloon popup with the message, and flashes the main window
- *
- * accepts: char_t *title, title length, char_t *msg, msg length;
- * returns void;
- */
-void notify(char_t *title, uint16_t title_length, char_t *msg, uint16_t msg_length, FRIEND *f);
 
 
 /* other */

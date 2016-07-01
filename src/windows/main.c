@@ -110,7 +110,7 @@ size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *
             file = fopen((const char*)path, "ab");
         } else {
             if (strlen((const char*)path) + name_length >= UTOX_FILE_NAME_LENGTH - strlen(".atomic")){
-                debug("NATIVE:Save directory name too long\n");
+                debug_error("NATIVE:Save directory name too long\n");
                 return 0;
             } else {
                 snprintf((char*)atomic_path, UTOX_FILE_NAME_LENGTH, "%s.atomic", path);
@@ -120,11 +120,15 @@ size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *
         }
 
         if (file) {
-            offset = ftello(file);
+            /* Why must windows not make ANY SENSE?!
+             * we must seek to the end to get the ACTUAL position, 'cause why not */
+            _fseeki64(file, 0, SEEK_END);
+            offset = _ftelli64(file);
             fwrite(data, length, 1, file);
             fclose(file);
 
             if (append) {
+                debug("NATIVE:\tOffset for this file is %u\n", offset);
                 return offset;
             }
 
@@ -132,22 +136,25 @@ size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *
                 /* Consider backing up this file instead of overwriting it. */
                 if (remove((const char*)path)) {
                     if (rename((const char*)atomic_path, (const char*)path)) {
-                        debug("NATIVE:\t%s deleted, but still unable to move file!\n", atomic_path);
+                        debug_error("NATIVE:\t%s deleted, but still unable to move file!\n", atomic_path);
                         return 0;
                     } else {
                         return 1;
                     }
                 }
+            } else {
+                return 1;
             }
 
+            debug_error("NATIVE:\tBAD EXIT, in native_save_data! Please report this issue!\n");
             return 0; /* we should never hit this */
         } else {
-            debug("NATIVE:\tUnable to open %s to write save\n", path);
+            debug_error("NATIVE:\tUnable to open %s to write save\n", path);
             return 0;
         }
     }
 
-    return 1;
+    return 0;
 }
 
 /** Takes data from µTox and loads it up! */
@@ -170,6 +177,7 @@ uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_s
             have_path = 1;
         }
     }
+
     snprintf((char *)path + strlen((const char*)path), UTOX_FILE_NAME_LENGTH - strlen((const char*)path), "\\Tox\\%s", name);
 
     FILE *file = fopen((const char*)path, "rb");
@@ -245,6 +253,46 @@ FILE *native_load_data_logfile(uint32_t friend_number) {
 
     return file;
 }
+
+_Bool native_remove_file(const uint8_t *name, size_t length) {
+    uint8_t path[UTOX_FILE_NAME_LENGTH]  = {0};
+
+    if (settings.portable_mode) {
+        strcpy((char *)path, portable_mode_save_path);
+    } else {
+        _Bool have_path = 0;
+        have_path = SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, (char*)path));
+
+        if (!have_path) {
+            have_path = SUCCEEDED(SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, (char*)path));
+        }
+
+        if (!have_path) {
+            strcpy((char *)path, portable_mode_save_path);
+            have_path = 1;
+        }
+    }
+
+
+    if (strlen((const char*)path) + length >= UTOX_FILE_NAME_LENGTH) {
+        debug("NATIVE:\tFile/directory name too long, unable to remove\n");
+        return 0;
+    } else {
+        snprintf((char*)path + strlen((const char*)path), UTOX_FILE_NAME_LENGTH - strlen((const char*)path),
+                 "\\Tox\\%.*s", (int)length, (char*)name);
+    }
+
+    if (remove((const char*)path)) {
+        debug_error("NATIVE:\tUnable to delete file!\n\t\t%s\n", path);
+        return 0;
+    } else {
+        debug_info("NATIVE:\tFile deleted!\n");
+        debug("NATIVE:\t\t%s\n", path);
+    }
+    return 1;
+}
+
+
 
 /** Open system file browser dialog */
 void openfilesend(void) {
@@ -522,7 +570,7 @@ void paste(void)
     CloseClipboard();
 }
 
-UTOX_NATIVE_IMAGE *decode_image(const UTOX_IMAGE data, size_t size, uint16_t *w, uint16_t *h, _Bool keep_alpha)
+UTOX_NATIVE_IMAGE *decode_image_rgb(const UTOX_IMAGE data, size_t size, uint16_t *w, uint16_t *h, _Bool keep_alpha)
 {
     int width, height, bpp;
     uint8_t *rgba_data = stbi_load_from_memory(data, size, &width, &height, &bpp, 4);
@@ -613,16 +661,6 @@ int datapath(uint8_t *dest)
     return 0;
 }
 
-int datapath_subdir(uint8_t *dest, const char *subdir)
-{
-    int l = datapath(dest);
-    l += sprintf((char*)(dest+l), "%s", subdir);
-    CreateDirectory((char*)dest, NULL);
-    dest[l++] = '\\';
-
-    return l;
-}
-
 void flush_file(FILE *file)
 {
     fflush(file);
@@ -656,7 +694,7 @@ int file_unlock(FILE *file, uint64_t start, size_t length){
  * accepts: char_t *title, title length, char_t *msg, msg length;
  * returns void;
  */
-void notify(char_t *title, uint16_t title_length, char_t *msg, uint16_t msg_length, FRIEND *f){
+void notify(char_t *title, uint16_t title_length, const char_t *msg, uint16_t msg_length, FRIEND *f){
     if( havefocus || self.status == 2 ) {
         return;
     }
@@ -1088,6 +1126,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     // Free memory allocated by CommandLineToArgvA
     GlobalFree(argv);
 
+    #ifdef GIT_VERSION
+    debug_notice("uTox version %s \n", GIT_VERSION);
+    #endif
+
     /* */
     MSG msg;
     //int x, y;
@@ -1144,6 +1186,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
         theme = save->theme;
     }
     theme_load(theme);
+
+    utox_init();
+
+    save->window_width  = save->window_width  < SCALE(640) ? SCALE(640) : save->window_width;
+    save->window_height = save->window_height < SCALE(320) ? SCALE(320) : save->window_height;
 
     char pretitle[128];
     snprintf(pretitle, 128, "%s %s (version : %s)", TITLE, SUB_TITLE, VERSION);
@@ -1290,7 +1337,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     }
 
     case WM_GETMINMAXINFO: {
-        POINT min = {UTOX_SCALE(320), UTOX_SCALE(160)};
+        POINT min = {SCALE(640), SCALE(320)};
         ((MINMAXINFO*)lParam)->ptMinTrackSize = min;
 
         break;
@@ -1307,12 +1354,12 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_SIZE: {
         switch(wParam) {
         case SIZE_MAXIMIZED: {
-            utox_window_maximized = 1;
+            settings.window_maximized = 1;
             break;
         }
 
         case SIZE_RESTORED: {
-            utox_window_maximized = 0;
+            settings.window_maximized = 0;
             break;
         }
         }
@@ -1639,58 +1686,4 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam)
     }
 
     return DefWindowProcW(hwn, msg, wParam, lParam);
-}
-
-void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height, _Bool resize)
-{
-    if(!video_hwnd[id]) {
-        debug("frame for null window\n");
-        return;
-    }
-
-    if(resize) {
-        RECT r = {
-            .left = 0,
-            .top = 0,
-            .right = width,
-            .bottom = height
-        };
-        AdjustWindowRect(&r, WS_OVERLAPPEDWINDOW, 0);
-
-        int w, h;
-        w = r.right - r.left;
-        h = r.bottom - r.top;
-        if(w > GetSystemMetrics(SM_CXSCREEN)) {
-            w = GetSystemMetrics(SM_CXSCREEN);
-        }
-
-        if(h > GetSystemMetrics(SM_CYSCREEN)) {
-            h = GetSystemMetrics(SM_CYSCREEN);
-        }
-
-        SetWindowPos(video_hwnd[id], 0, 0, 0, w, h, SWP_NOZORDER | SWP_NOMOVE);
-    }
-
-    BITMAPINFO bmi = {
-        .bmiHeader = {
-            .biSize = sizeof(BITMAPINFOHEADER),
-            .biWidth = width,
-            .biHeight = -height,
-            .biPlanes = 1,
-            .biBitCount = 32,
-            .biCompression = BI_RGB,
-        }
-    };
-
-
-    RECT r = {0};
-    GetClientRect(video_hwnd[id], &r);
-
-    HDC dc = GetDC(video_hwnd[id]);
-
-    if(width == r.right && height == r.bottom) {
-        SetDIBitsToDevice(dc, 0, 0, width, height, 0, 0, 0, height, img_data, &bmi, DIB_RGB_COLORS);
-    } else {
-        StretchDIBits(dc, 0, 0, r.right, r.bottom, 0, 0, width, height, img_data, &bmi, DIB_RGB_COLORS, SRCCOPY);
-    }
 }

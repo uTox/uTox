@@ -13,13 +13,14 @@ struct messages {
     uint32_t cursor_over_uri, urllen;
 
     // Was the url pressed by the mouse.
-    _Bool cursor_down_uri;
+    uint32_t cursor_down_uri;
 
     uint32_t cursor_over_msg, cursor_over_position, cursor_down_msg, cursor_down_position;
     uint32_t sel_start_msg, sel_end_msg, sel_start_position, sel_end_position;
     // true if we're in the middle of selection operation
     // (mousedown without mouseup yet).
     _Bool selecting_text;
+    _Bool cursor_over_time;
 
     // Number of messages in data array.
     uint32_t  number;
@@ -54,7 +55,7 @@ typedef enum UTOX_MSG_TYPE {
  * TODO: UNION the messages types within MSG_T */
 typedef struct {
     // true, if we're the author, false, if someone else.
-    _Bool author;
+    _Bool our_msg;
     _Bool from_disk;
     uint8_t msg_type;
 
@@ -68,7 +69,7 @@ typedef struct {
 } MSG_VOID;
 
 typedef struct {
-    _Bool author;
+    _Bool our_msg;
     _Bool from_disk;
     uint8_t msg_type;
 
@@ -89,7 +90,7 @@ typedef struct {
 
 
 typedef struct {
-    _Bool author;
+    _Bool our_msg;
     _Bool from_disk;
     uint8_t msg_type;
 
@@ -111,7 +112,7 @@ typedef struct {
 } MSG_GROUP;
 
 typedef struct {
-    _Bool author;
+    _Bool our_msg;
     _Bool from_disk;
     uint8_t msg_type;
 
@@ -132,7 +133,7 @@ typedef struct {
 struct FILE_TRANSFER;
 
 typedef struct msg_file {
-    _Bool author;
+    _Bool our_msg;
     _Bool from_disk;
     uint8_t msg_type;
 

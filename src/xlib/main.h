@@ -80,7 +80,7 @@ typedef struct utox_native_image {
 /* Main window */
 Display  *display;
 int      screen;
-int		 depth;
+int		 xwin_depth;
 Window   root, window;
 GC       gc;
 Colormap cmap;
