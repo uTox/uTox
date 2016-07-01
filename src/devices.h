@@ -18,6 +18,8 @@ typedef struct UTOX_DEVICE {
 
 void utox_devices_init(void);
 
+void utox_devices_decon(void);
+
 void utox_device_init(Tox *tox, uint16_t dev_num);
 
 void devices_update_list(void);

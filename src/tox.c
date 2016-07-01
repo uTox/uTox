@@ -177,6 +177,9 @@ static void write_save(Tox *tox) {
 void tox_settingschanged(void) {
     //free everything
     tox_connected = 0;
+
+    utox_devices_decon();
+
     list_freeall();
 
     list_dropdown_clear(&dropdown_audio_in);

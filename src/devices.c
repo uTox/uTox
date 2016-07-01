@@ -25,7 +25,7 @@ static bool realloc_devices_list(uint16_t new_size) {
     return 1;
 }
 
-void utox_devices_init (void) {
+void utox_devices_init(void) {
     if (devices) {
         debug_error("Devices:\tUnable to init base devices, *devices exists\n");
         exit(1);
@@ -39,6 +39,13 @@ void utox_devices_init (void) {
         exit(2);
     }
 };
+
+void utox_devices_decon(void) {
+    if (devices) {
+        free(devices);
+        devices = NULL;
+    }
+}
 
 void utox_device_init(Tox *tox, uint16_t dev_num) {
     if (dev_num >= self.device_list_size) {
