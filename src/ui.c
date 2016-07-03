@@ -913,6 +913,15 @@ panel_main = {
                                                      .height   = h, }; \
                                                      button_##n.panel = b_##n
 
+#define CREATE_EDIT(n, a, b, w, h) PANEL e_##n = { .type = PANEL_EDIT, \
+                                                   .x        = a,    \
+                                                   .y        = b,    \
+                                                   .width    = w,    \
+                                                   .height   = h, }; \
+                                                   edit_##n.panel = e_##n
+
+
+
 void ui_set_scale(uint8_t scale) {
     if (ui_scale == scale) {
         return;
@@ -1043,15 +1052,7 @@ void ui_set_scale(uint8_t scale) {
     /* Devices              */
         CREATE_BUTTON(add_new_device_to_self, SCALE(-10) - BM_SBUTTON_WIDTH, SCALE(28), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
 
-        PANEL e_add_new_device_to_self = {
-            .type   = PANEL_EDIT,
-            .x      = SCALE( 10),
-            .y      = SCALE( 27),
-            .height = SCALE( 24),
-            .width  = SCALE(-15) - BM_SBUTTON_WIDTH,
-        };
-
-        edit_add_new_device_to_self.panel   = e_add_new_device_to_self;
+        CREATE_EDIT(add_new_device_to_self, SCALE(10), SCALE(27), SCALE(0) - UTOX_STR_WIDTH(ADD) - BM_SBUTTON_WIDTH, SCALE(24));
 
     /* Network              */
 
