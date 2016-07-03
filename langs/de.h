@@ -138,6 +138,8 @@ msgstr("Öffentlicher Schlüssel")
 msgid(FRIEND_AUTOACCEPT)
 msgstr("Eingehende Dateiübertragungen ohne Nachfrage akzeptieren")
 
+msgid(FRIEND_EXPORT_CHATLOG)
+msgstr("Chatverlauf als Text exportieren")
 
 /******************************************************************************
  *** Group Strings                                                          ***
@@ -162,8 +164,43 @@ msgstr("Gruppe verlassen")
 
 
 /******************************************************************************
+ *** Group Settings                                                         ***
+ ******************************************************************************/
+msgid(GROUPCHAT_SETTINGS)
+msgstr("Gruppenchat-Einstellungen")
+
+msgid(GROUP_NOTIFICATIONS)
+msgstr("Benachrichtigungen")
+
+msgid(GROUP_NOTIFICATIONS_ON)
+msgstr("An")
+
+msgid(GROUP_NOTIFICATIONS_MENTION)
+msgstr("Erwähnung")
+
+msgid(GROUP_NOTIFICATIONS_OFF)
+msgstr("Aus")
+
+msgid(GROUP_TOPIC)
+msgstr("Thema der Gruppe festlegen")
+
+
+/******************************************************************************
  *** Settings / Profile Strings                                             ***
  ******************************************************************************/
+msgid(PROFILE_BUTTON)
+msgstr("Profil")
+
+msgid(DEVICES_BUTTON)
+msgstr("Geräte")
+
+msgid(NETWORK_BUTTON)
+msgstr("Netzwerk")
+
+msgid(USER_INTERFACE_BUTTON)
+msgstr("Benutzeroberfläche")
+
+/***     	Profile                                                         ***/
 msgid(PROFILE_SETTINGS)
 msgstr("Profileinstellungen")
 
@@ -172,6 +209,18 @@ msgstr("WARNUNG: µTox wird automatisch beginnen mit diesem Passwort zu verschl�
 
 msgid(PROFILE_PW_NO_RECOVER)
 msgstr("Es ist nicht möglich verlorene Passwörter wiederherzustellen.")
+
+/***     	Devices                                                       ***/
+msgid(DEVICES_ADD_NEW)
+msgstr("Neues Gerät hinzufügen")
+
+msgid(DEVICES_NUMBER)
+msgstr("Anzahl der verknüpften Geräte")
+/*** 		Network                                                         ***/
+
+/***    User Interface                                                  ***/
+
+/***		Audio/Video                                                     ***/
 
 
 /******************************************************************************
