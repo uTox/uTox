@@ -137,7 +137,9 @@ void friend_setname(FRIEND *f, uint8_t *name, size_t length){
         uint8_t *p = calloc(1, size);
         size = snprintf((char *)p, size, "%.*s is now known as %.*s", (int)f->name_length, f->name, (int)length, name);
 
-        message_add_type_notice(&f->msg, p, size, 1);
+        if (length != f->name_length || memcmp(f->name, name, (length < f->name_length ? length : f->name_length))) {
+            message_add_type_notice(&f->msg, p, size, 1);
+        }
 
         free(f->name);
     }
