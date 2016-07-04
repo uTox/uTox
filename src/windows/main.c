@@ -732,6 +732,9 @@ void redraw(void) {
 void update_tray(void){
     uint32_t tip_length;
     char *tip;
+
+    /* TODO; this is likely to over/under-run FIXME! */
+
     tip = malloc(128 * sizeof(char)); //128 is the max length of nid.szTip
 
     snprintf(tip, 127*sizeof(char), "%s : %s", self.name, self.statusmsg);

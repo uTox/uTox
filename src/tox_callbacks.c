@@ -297,6 +297,21 @@ static void callback_mdev_self_name(Tox *tox, uint32_t dev_num, const uint8_t *n
     postmessage(REDRAW, 0, 0, NULL);
 }
 
+typedef void tox_mdev_self_status_message_cb(Tox *tox, uint32_t device_number,
+                                             const uint8_t *status_message, size_t len, void *user_data);
+
+static void callback_mdev_self_status_msg(Tox *tox, uint32_t dev_num, const uint8_t *smsg, size_t length, void *UNUSED(userdata)) {
+
+    debug_info("Status Message changed on remote device %u\n", dev_num);
+
+    memcpy(self.statusmsg, smsg, length);
+    self.statusmsg_length = length;
+
+    edit_setstr(&edit_status, self.statusmsg, self.statusmsg_length);
+
+    postmessage(REDRAW, 0, 0, NULL);
+}
+
 static void callback_device_sent_message(Tox *tox, uint32_t sending_device, uint32_t target_friend,
                                         TOX_MESSAGE_TYPE type, uint8_t *msg, size_t msg_length)
 {
@@ -323,6 +338,7 @@ static void callback_device_sent_message(Tox *tox, uint32_t sending_device, uint
 
 void utox_set_callbacks_mdevice(Tox *tox) {
     tox_callback_friend_list_change(tox, callback_friend_list_change, NULL);
+    tox_callback_mdev_self_status_message(tox, callback_mdev_self_status_msg, NULL);
     tox_callback_mdev_self_name(tox, callback_mdev_self_name, NULL);
     tox_callback_mdev_sent_message(tox, callback_device_sent_message, NULL);
 }

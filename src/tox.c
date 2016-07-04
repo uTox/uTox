@@ -131,7 +131,6 @@ void tox_after_load(Tox *tox) {
     self.name_length = tox_self_get_name_size(tox);
     tox_self_get_name(tox, self.name);
     self.statusmsg_length = tox_self_get_status_message_size(tox);
-    self.statusmsg = malloc(self.statusmsg_length);
     tox_self_get_status_message(tox, self.statusmsg);
     self.status = tox_self_get_status(tox);
 }

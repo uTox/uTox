@@ -31,13 +31,8 @@ static void edit_status_onenter(EDIT *edit)
     char_t *data = edit->data;
     uint16_t length = edit->length;
 
-    if(length) {
-        void *p = realloc(self.statusmsg, length);
-        if(!p) {
-            return;
-        }
-
-        self.statusmsg = p;
+    if (length) {
+        length = (length <= TOX_MAX_STATUS_MESSAGE_LENGTH) ? length : TOX_MAX_STATUS_MESSAGE_LENGTH;
         memcpy(self.statusmsg, data, length);
         self.statusmsg_length = length;
     } else {

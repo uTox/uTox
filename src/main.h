@@ -377,7 +377,7 @@ enum {
 struct {
     uint8_t     status;
     uint8_t     name[TOX_MAX_NAME_LENGTH];
-    uint8_t     *statusmsg;
+    uint8_t     statusmsg[TOX_MAX_STATUS_MESSAGE_LENGTH];
     size_t      name_length, statusmsg_length;
 
     size_t      friend_list_count;
