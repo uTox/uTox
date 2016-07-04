@@ -281,7 +281,7 @@ static void callback_friend_list_change(Tox *tox, void *user_data) {
     debug_error("friend list change, updating roster\n");
 
     roster_dump_contacts();
-    tox_after_load(tox);
+    utox_friend_list_init(tox);
     roster_reload_contacts();
 }
 
@@ -324,5 +324,5 @@ static void callback_device_sent_message(Tox *tox, uint32_t sending_device, uint
 void utox_set_callbacks_mdevice(Tox *tox) {
     tox_callback_friend_list_change(tox, callback_friend_list_change, NULL);
     tox_callback_mdev_self_name(tox, callback_mdev_self_name, NULL);
-    tox_callback_device_sent_message(tox, callback_device_sent_message, NULL);
+    tox_callback_mdev_sent_message(tox, callback_device_sent_message, NULL);
 }

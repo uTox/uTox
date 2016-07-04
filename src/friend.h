@@ -78,6 +78,8 @@ typedef struct {
 
 void utox_friend_init(Tox *tox, uint32_t friend_number);
 
+void utox_friend_list_init(Tox *tox);
+
 void friend_setname(FRIEND *f, uint8_t *name, size_t length);
 void friend_set_alias(FRIEND *f, char_t *alias, uint16_t length);
 void friend_sendimage(FRIEND *f, UTOX_NATIVE_IMAGE *, uint16_t width, uint16_t height, UTOX_IMAGE, size_t png_size);

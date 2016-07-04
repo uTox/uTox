@@ -130,7 +130,16 @@ void utox_friend_init(Tox *tox, uint32_t friend_number) {
     friend_meta_data_read(tox, friend_number);
 }
 
-void friend_setname(FRIEND *f, uint8_t *name, size_t length){
+void utox_friend_list_init(Tox *tox) {
+    self.friend_list_count = tox_self_get_friend_list_size(tox);
+
+    uint32_t i;
+    for (i = 0; i < self.friend_list_count; ++i) {
+        utox_friend_init(tox, i);
+    }
+}
+
+void friend_setname(FRIEND *f, uint8_t *name, size_t length) {
     if (f->name && f->name_length) {
         size_t size = sizeof(" is now known as ") + f->name_length + length;
 
