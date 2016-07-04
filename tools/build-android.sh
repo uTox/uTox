@@ -54,6 +54,8 @@ ${TOOLCHAIN}/bin/arm-linux-androideabi-gcc \
     -I ./lib/arm/include/ \
     ${CPPFLAGS} \
     ./src/*.c \
+    ./src/ui/*.c \
+    ./src/av/*.c \
     ${LDFLAGS} \
     ${TOX_LIBS} \
     ${MORE_LIBS} \
