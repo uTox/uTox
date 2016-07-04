@@ -704,9 +704,16 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
                 p += len;
             }
 
+            TOX_ERR_FRIEND_SEND_MESSAGE error = 0;
+
             // Send last or only message
-            message->receipt = tox_friend_send_message(tox, param1, type, p, param2, 0);
+            message->receipt = tox_friend_send_message(tox, param1, type, p, param2, &error);
             message->receipt_time = 0;
+
+            debug_info("Toxcore:\tSending message, receipt %u", message->receipt);
+            if (error) {
+                debug_error("Toxcore:\tError sending message... %u", error);
+            }
 
             break;
         }

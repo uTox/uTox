@@ -508,7 +508,7 @@ void messages_clear_receipt(MESSAGES *m, uint32_t receipt_number) {
             }
         }
     }
-    debug_error("Messages:\tReceived a receipt for a message we don't have a record of.\n");
+    debug_error("Messages:\tReceived a receipt for a message we don't have a record of. %u\n", receipt_number);
     pthread_mutex_unlock(&messages_lock);
 }
 
