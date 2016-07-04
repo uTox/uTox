@@ -312,6 +312,11 @@ static void callback_mdev_self_status_msg(Tox *tox, uint32_t dev_num, const uint
     postmessage(REDRAW, 0, 0, NULL);
 }
 
+static void callback_mdev_self_state(Tox *tox, uint32_t device_number, TOX_USER_STATUS state, void *user_data) {
+    self.status = state;
+}
+
+
 static void callback_device_sent_message(Tox *tox, uint32_t sending_device, uint32_t target_friend,
                                         TOX_MESSAGE_TYPE type, uint8_t *msg, size_t msg_length)
 {
@@ -338,7 +343,10 @@ static void callback_device_sent_message(Tox *tox, uint32_t sending_device, uint
 
 void utox_set_callbacks_mdevice(Tox *tox) {
     tox_callback_friend_list_change(tox, callback_friend_list_change, NULL);
+
     tox_callback_mdev_self_status_message(tox, callback_mdev_self_status_msg, NULL);
     tox_callback_mdev_self_name(tox, callback_mdev_self_name, NULL);
+    tox_callback_mdev_self_state(tox, callback_mdev_self_state, NULL);
+
     tox_callback_mdev_sent_message(tox, callback_device_sent_message, NULL);
 }
