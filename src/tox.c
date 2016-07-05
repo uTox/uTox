@@ -710,9 +710,9 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
             message->receipt = tox_friend_send_message(tox, param1, type, p, param2, &error);
             message->receipt_time = 0;
 
-            debug_info("Toxcore:\tSending message, receipt %u", message->receipt);
+            debug_info("Toxcore:\tSending message, receipt %u\n", message->receipt);
             if (error) {
-                debug_error("Toxcore:\tError sending message... %u", error);
+                debug_error("Toxcore:\tError sending message... %u\n", error);
             }
 
             break;
