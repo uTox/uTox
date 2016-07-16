@@ -342,7 +342,7 @@ msgstr("UDP :")
 //msgstr("Proxy (SOCKS 5)")
 
 msgid(WARNING)
-msgstr("Modifier les paramètres Réseau/Proxy vous déconnectera teomporairement du réseau Tox")
+msgstr("Modifier les paramètres Réseau/Proxy vous déconnectera temporairement du réseau Tox")
 
 msgid(LOGGING)
 msgstr("Historique")
