@@ -349,7 +349,7 @@ static void draw_settings_text_ui(int x, int y, int w, int UNUSED(height)){
     drawstr(MAIN_LEFT + SCALE( 10), y + SCALE( 10), THEME);
     drawstr(MAIN_LEFT + SCALE( 10), y + SCALE( 60), LOGGING);
     drawstr(MAIN_LEFT + SCALE( 10), y + SCALE(110), CLOSE_TO_TRAY);
-    drawstr(MAIN_LEFT + SCALE(150), y + SCALE(110), START_IN_TRAY);
+    drawstr(MAIN_LEFT + SCALE(300), y + SCALE(110), START_IN_TRAY);
     drawstr(MAIN_LEFT + SCALE( 10), y + SCALE(160), AUTO_STARTUP);
     drawstr(MAIN_LEFT + SCALE( 10), y + SCALE(210), SEND_TYPING_NOTIFICATIONS);
     drawstr(MAIN_LEFT + SCALE( 10), y + SCALE(260), SETTINGS_UI_MINI_ROSTER);
@@ -361,7 +361,7 @@ static void draw_settings_text_av(int x, int y, int w, int UNUSED(height)){
     drawstr(MAIN_LEFT + SCALE( 10), y + SCALE( 10),  RINGTONE);
     drawstr(MAIN_LEFT + SCALE(120), y + SCALE( 10),  PUSH_TO_TALK);
     #ifdef AUDIO_FILTERING
-    drawstr(MAIN_LEFT + SCALE(240), y + SCALE( 10),  AUDIOFILTERING);
+    drawstr(MAIN_LEFT + SCALE(300), y + SCALE( 10),  AUDIOFILTERING);
     #endif
     drawstr(MAIN_LEFT + SCALE( 10), y + SCALE( 70), AUDIOINPUTDEVICE);
     drawstr(MAIN_LEFT + SCALE( 10), y + SCALE(130), AUDIOOUTPUTDEVICE);
@@ -1009,7 +1009,7 @@ void ui_set_scale(uint8_t scale) {
 
         b_show_password_settings = {
             .type   = PANEL_BUTTON,
-            .x      = SCALE(130),
+            .x      = SCALE(180),
             .y      = SCALE(206),
             .width  = BM_SBUTTON_WIDTH,
             .height = BM_SBUTTON_HEIGHT,
@@ -1196,7 +1196,7 @@ void ui_set_scale(uint8_t scale) {
         },
         d_start_in_tray = {
             .type   = PANEL_DROPDOWN,
-            .x      = SCALE(150),
+            .x      = SCALE(300),
             .y      = SCALE(130),
             .height = SCALE(24),
             .width  = SCALE(40)
@@ -1242,7 +1242,7 @@ void ui_set_scale(uint8_t scale) {
         #ifdef AUDIO_FILTERING
         d_audio_filtering = {
             .type   = PANEL_DROPDOWN,
-            .x      = UTOX_SCALE(120 ),
+            .x      = UTOX_SCALE(150 ),
             .y      = UTOX_SCALE(15  ),
             .height = UTOX_SCALE(12  ),
             .width  = UTOX_SCALE(20  )
