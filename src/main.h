@@ -365,7 +365,7 @@ UTOX_DEVICE *devices;
 FRIEND friend[MAX_NUM_FRIENDS];
 GROUPCHAT group[MAX_NUM_GROUPS];
 
-uint32_t friends, groups; /* */
+uint32_t friends, groups; /* Number of friends and groups */
 
 enum {
     USER_STATUS_AVAILABLE,
