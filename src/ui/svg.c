@@ -420,26 +420,36 @@ _Bool svg_draw(_Bool needmemory) {
     size =
         SCROLL_WIDTH * SCROLL_WIDTH + /* Scroll bars top bottom halves */
         SCROLL_WIDTH * SCROLL_WIDTH /2 + /* Scroll bars top bottom halves (small)*/
+
         BM_STATUSAREA_WIDTH * BM_STATUSAREA_HEIGHT + /* status area */
         /* Panel buttons */
         BM_ADD_WIDTH        * BM_ADD_WIDTH +                /* Draw panel Button: Add */
         BM_ADD_WIDTH        * BM_ADD_WIDTH +                /* New group bitmap */
         BM_ADD_WIDTH        * BM_ADD_WIDTH +                /* Draw panel Button: Transfer */
         BM_ADD_WIDTH        * BM_ADD_WIDTH +                /* Settings gear bitmap */
+
         BM_CONTACT_WIDTH    * BM_CONTACT_WIDTH +            /* Contact avatar default bitmap */
         BM_CONTACT_WIDTH /2 * BM_CONTACT_WIDTH /2 +         /* Contact avatar default bitmap for mini roster */
         BM_CONTACT_WIDTH    * BM_CONTACT_WIDTH +            /* Group heads default bitmap */
         BM_CONTACT_WIDTH /2 * BM_CONTACT_WIDTH /2 +         /* Group heads default bitmap for mini roster */
+
         BM_FILE_WIDTH       * BM_FILE_HEIGHT +              /* Draw button icon overlays: file paper clip */
+
         BM_LBICON_WIDTH     * BM_LBICON_HEIGHT +            /* Call button icon */
         BM_LBICON_WIDTH     * BM_LBICON_HEIGHT +            /* Video start end bitmap */
+
         BM_STATUS_WIDTH     * BM_STATUS_WIDTH +             /* user status: online */
         BM_STATUS_WIDTH     * BM_STATUS_WIDTH +             /* user status: away */
         BM_STATUS_WIDTH     * BM_STATUS_WIDTH +             /* user status: busy */
         BM_STATUS_WIDTH     * BM_STATUS_WIDTH +             /* user status: offline */
+
         BM_STATUS_NOTIFY_WIDTH * BM_STATUS_NOTIFY_WIDTH +   /* user status: notification */
-        BM_LBUTTON_WIDTH * BM_LBUTTON_HEIGHT +
-        BM_SBUTTON_WIDTH * BM_SBUTTON_HEIGHT +
+
+        BM_LBUTTON_WIDTH * BM_LBUTTON_HEIGHT +              /* Generic Large Button */
+        BM_SBUTTON_WIDTH * BM_SBUTTON_HEIGHT +              /* Generic Small Button */
+
+        BM_SWITCH_ICON_WIDTH  * BM_SWITCH_HEIGHT  +              /* Switch toggle */
+
         /* File transfer */
         BM_FT_CAP_WIDTH * BM_FTB_HEIGHT +
         BM_FT_WIDTH * BM_FT_HEIGHT +
@@ -589,6 +599,7 @@ _Bool svg_draw(_Bool needmemory) {
     loadalpha(BM_STATUS_NOTIFY, p, BM_STATUS_NOTIFY_WIDTH, BM_STATUS_NOTIFY_WIDTH);
     p += BM_STATUS_NOTIFY_WIDTH * BM_STATUS_NOTIFY_WIDTH;
 
+    /* Generic button icons */
     drawrectrounded(p, BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT, SCALE(4));
     loadalpha(BM_LBUTTON, p, BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
     p += BM_LBUTTON_WIDTH * BM_LBUTTON_HEIGHT;
@@ -596,6 +607,11 @@ _Bool svg_draw(_Bool needmemory) {
     drawrectrounded(p, BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT, SCALE(4));
     loadalpha(BM_SBUTTON, p, BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
     p += BM_SBUTTON_WIDTH * BM_SBUTTON_HEIGHT;
+
+    /* Basic Switch Style icon */
+    drawrectrounded(p, BM_SWITCH_ICON_WIDTH, BM_SWITCH_HEIGHT, SCALE(4));
+    loadalpha(BM_SWITCH, p, BM_SWITCH_ICON_WIDTH, BM_SWITCH_HEIGHT);
+    p += BM_SWITCH_ICON_WIDTH * BM_SWITCH_HEIGHT;
 
     /* Draw file transfer buttons */
     drawrectroundedex(p, BM_FT_CAP_WIDTH, BM_FTB_HEIGHT, SCALE(4), 13);

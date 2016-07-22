@@ -87,11 +87,6 @@ static void dropdown_udp_onselect(uint16_t i, const DROPDOWN* UNUSED(dm)) {
     tox_settingschanged();
 }
 
-static void dropdown_logging_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
-{
-    settings.logging_enabled = !!i;
-}
-
 static void dropdown_theme_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
 {
     theme_load(i);
@@ -126,11 +121,6 @@ static void dropdown_auto_startup_onselect(uint16_t i, const DROPDOWN* UNUSED(dm
 static void dropdown_typing_notes_onselect(const uint16_t i, const DROPDOWN* UNUSED(dm)) {
     settings.send_typing_status = i;
     debug("Typing notifications preference: %hu\n", i);
-}
-
-static void dropdown_mini_roster_onselect(const uint16_t i, const DROPDOWN* UNUSED(dm)) {
-    settings.use_mini_roster = !!i;
-    roster_re_scale();
 }
 
 static void dropdown_push_to_talk_onselect(const uint16_t i, const DROPDOWN* UNUSED(dm)) {
@@ -252,13 +242,6 @@ dropdown_udp = {
     .userdata = noyesdrops
 },
 
-dropdown_logging = {
-    .ondisplay = simple_dropdown_ondisplay,
-    .onselect = dropdown_logging_onselect,
-    .dropcount = countof(noyesdrops),
-    .userdata = noyesdrops
-},
-
 dropdown_theme = {
     .ondisplay = simple_dropdown_ondisplay,
     .onselect = dropdown_theme_onselect,
@@ -313,13 +296,6 @@ dropdown_typing_notes = {
     .onselect   = dropdown_typing_notes_onselect,
     .dropcount  = countof(yesnodrops),
     .userdata   = yesnodrops
-},
-
-dropdown_mini_roster = {
-    .ondisplay  = simple_dropdown_ondisplay,
-    .onselect   = dropdown_mini_roster_onselect,
-    .dropcount  = countof(noyesdrops),
-    .userdata   = noyesdrops
 },
 
 dropdown_friend_autoaccept_ft = {

@@ -31,7 +31,8 @@ _Bool maybe_i18nal_string_is_valid(MAYBE_I18NAL_STRING *mis) {
 
 /***** MAYBE_I18NAL_STRING helpers end *****/
 
-void draw_avatar_image(UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t targetwidth, uint32_t targetheight)
+void draw_avatar_image(UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height,
+                                                               uint32_t targetwidth, uint32_t targetheight)
 {
     /* get smallest of width or height */
     double scale = (width > height) ?
@@ -459,7 +460,8 @@ static void draw_background(int UNUSED(x), int UNUSED(y), int width, int height)
 
 /* These remain for legacy reasons, PANEL_MAIN calls these by default when not given it's own function to call */
 static void  background_draw(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int width, int height){ return; }
-static _Bool background_mmove(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height), int UNUSED(mx), int UNUSED(my), int UNUSED(dx), int UNUSED(dy)) { return 0; }
+static _Bool background_mmove(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height),\
+                                 int UNUSED(mx), int UNUSED(my), int UNUSED(dx), int UNUSED(dy)) { return 0; }
 static _Bool background_mdown(PANEL *UNUSED(p)) { return 0; }
 static _Bool background_mright(PANEL *UNUSED(p)) { return 0; }
 static _Bool background_mwheel(PANEL *UNUSED(p), int UNUSED(height), double UNUSED(d), _Bool UNUSED(smooth)) { return 0; }
@@ -808,11 +810,11 @@ panel_main = {
                 .child = (PANEL*[]) {
                     (void*)&dropdown_dpi,
                     (void*)&dropdown_theme,
-                    (void*)&dropdown_logging,
+                    (void*)&switch_logging,
                     (void*)&dropdown_close_to_tray, (void*)&dropdown_start_in_tray,
                     (void*)&dropdown_auto_startup,
                     (void*)&dropdown_typing_notes,
-                    (void*)&dropdown_mini_roster,
+                    (void*)&switch_mini_contacts,
                     NULL
                 }
             },
@@ -884,7 +886,28 @@ void ui_set_scale(uint8_t scale) {
 
     setfont(FONT_SELF_NAME);
 
+    /* TODO MOVE THIS */
+    PANEL panel_switch_logging = {
+        .type = PANEL_SWITCH,
+        .x      = SCALE(160),
+        .y      = SCALE(60),
+        .width  = BM_SWITCH_WIDTH,
+        .height = BM_SWITCH_HEIGHT,
+    };
+
+    PANEL panel_switch_mini_contacts = {
+        .type = PANEL_SWITCH,
+        .x      = SCALE(160),
+        .y      = SCALE(260),
+        .width  = BM_SWITCH_WIDTH,
+        .height = BM_SWITCH_HEIGHT,
+    };
+
+    switch_logging.panel = panel_switch_logging;
+    switch_mini_contacts.panel = panel_switch_mini_contacts;
+
     /* User Badge & Roster  */
+
         PANEL b_avatar = {
             .type   = PANEL_BUTTON,
             .x      = SIDEBAR_AVATAR_LEFT,
@@ -1180,13 +1203,6 @@ void ui_set_scale(uint8_t scale) {
             .height = SCALE(24),
             .width  = SCALE(200)
         },
-        d_logging = {
-            .type   = PANEL_DROPDOWN,
-            .x      = SCALE(10),
-            .y      = SCALE(80),
-            .height = SCALE(24),
-            .width  = SCALE(40  )
-        },
         d_close_to_tray = {
             .type   = PANEL_DROPDOWN,
             .x      = SCALE(10),
@@ -1212,13 +1228,6 @@ void ui_set_scale(uint8_t scale) {
             .type   = PANEL_DROPDOWN,
             .x      = SCALE(10),
             .y      = SCALE(230),
-            .height = SCALE(24),
-            .width  = SCALE(40)
-        },
-        d_mini_roster = {
-            .type   = PANEL_DROPDOWN,
-            .x      = SCALE(10),
-            .y      = SCALE(280),
             .height = SCALE(24),
             .width  = SCALE(40)
         };
@@ -1315,7 +1324,6 @@ void ui_set_scale(uint8_t scale) {
         dropdown_proxy.panel = d_proxy;
         dropdown_ipv6.panel = d_ipv6;
         dropdown_udp.panel = d_udp;
-        dropdown_logging.panel = d_logging;
         dropdown_audible_notification.panel = d_notifications;
         dropdown_push_to_talk.panel = d_push_to_talk;
         dropdown_close_to_tray.panel = d_close_to_tray;
@@ -1328,7 +1336,6 @@ void ui_set_scale(uint8_t scale) {
         #endif
 
         dropdown_typing_notes.panel         = d_typing_notes;
-        dropdown_mini_roster.panel          = d_mini_roster;
 
     /* Text entry boxes */
         PANEL e_name = {
@@ -1447,6 +1454,7 @@ void ui_set_scale(uint8_t scale) {
     (void*)inline_video_##x, \
     (void*)list_##x, \
     (void*)button_##x, \
+    (void*)switch_##x, \
     (void*)dropdown_##x, \
     (void*)edit_##x, \
     (void*)scroll_##x, \

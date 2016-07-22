@@ -686,14 +686,15 @@ UTOX_SAVE* config_load(void) {
 
     config_osdefaults(save);
 NEXT:
-    dropdown_dpi.selected                  = dropdown_dpi.over                  = save->scale - 5;
+    dropdown_dpi.selected                   = dropdown_dpi.over                  = save->scale - 5;
 
-    dropdown_ipv6.selected                 = dropdown_ipv6.over                 = save->enableipv6;
-    dropdown_udp.selected                  = dropdown_udp.over                  = !save->disableudp;
+    dropdown_ipv6.selected                  = dropdown_ipv6.over                 = save->enableipv6;
+    dropdown_udp.selected                   = dropdown_udp.over                  = !save->disableudp;
 
-    dropdown_proxy.selected                = dropdown_proxy.over                = save->proxyenable <= 2 ? save->proxyenable : 2;
+    dropdown_proxy.selected                 = dropdown_proxy.over                = save->proxyenable <= 2 ? save->proxyenable : 2;
 
-    dropdown_logging.selected              = dropdown_logging.over              = save->logging_enabled;
+    switch_logging.switch_on                = save->logging_enabled;
+    switch_mini_contacts.switch_on          = save->use_mini_roster;
 
     dropdown_close_to_tray.selected        = dropdown_close_to_tray.over        = save->close_to_tray;
     dropdown_start_in_tray.selected        = dropdown_start_in_tray.over        = save->start_in_tray;
@@ -702,7 +703,6 @@ NEXT:
     dropdown_audible_notification.selected = dropdown_audible_notification.over = save->audible_notifications_enabled;
     dropdown_audio_filtering.selected      = dropdown_audio_filtering.over      = save->audio_filtering_enabled;
     dropdown_push_to_talk.selected         = dropdown_push_to_talk.over         = save->push_to_talk;
-    dropdown_mini_roster.selected          = dropdown_mini_roster.over          = save->use_mini_roster;
 
     dropdown_theme.selected = dropdown_theme.over = save->theme;
 

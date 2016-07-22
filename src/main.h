@@ -234,7 +234,7 @@ enum {
 };
 
 /* SVG Bitmap names. */
-enum {
+typedef enum {
     BM_ONLINE = 1,
     BM_AWAY,
     BM_BUSY,
@@ -249,6 +249,8 @@ enum {
 
     BM_LBUTTON,
     BM_SBUTTON,
+
+    BM_SWITCH,
 
     BM_CONTACT,
     BM_CONTACT_MINI,
@@ -282,7 +284,7 @@ enum {
     BM_CHAT_SEND,
     BM_CHAT_SEND_OVERLAY,
     BM_ENDMARKER,
-};
+} SVG_IMG;
 
 #if defined __WIN32__
     #include "windows/main.h"
@@ -335,6 +337,7 @@ typedef uint8_t *UTOX_IMAGE;
 #include "ui/svg.h"
 #include "ui/text.h"
 #include "ui/button.h"
+#include "ui/switch.h"
 #include "ui/dropdown.h"
 #include "ui/edit.h"
 #include "ui/scrollable.h"

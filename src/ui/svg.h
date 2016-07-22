@@ -17,6 +17,11 @@
 /* Standard small size button */
 #define  BM_SBUTTON_WIDTH  (UTOX_SCALE(26 ))
 #define  BM_SBUTTON_HEIGHT (UTOX_SCALE(10 ))
+
+#define  BM_SWITCH_WIDTH        (SCALE(60))
+#define  BM_SWITCH_HEIGHT       (SCALE(25))
+#define  BM_SWITCH_ICON_WIDTH   (SCALE(30))
+
 /* File transfer buttons */
 #define  BM_FT_WIDTH   (UTOX_SCALE(125 ))
 #define  BM_FT_HEIGHT  (UTOX_SCALE(26 ))

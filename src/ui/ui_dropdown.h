@@ -4,7 +4,6 @@ extern DROPDOWN dropdown_dpi,
                 dropdown_proxy,
                 dropdown_ipv6,
                 dropdown_udp,
-                dropdown_logging,
                 dropdown_audible_notification,
                 dropdown_audio_filtering,
                 dropdown_close_to_tray,
@@ -13,7 +12,6 @@ extern DROPDOWN dropdown_dpi,
                 dropdown_auto_startup,
                 dropdown_push_to_talk,
                 dropdown_typing_notes,
-                dropdown_mini_roster,
                 dropdown_friend_autoaccept_ft;
 
 //List-based dropdowns. list_dropdown_* functions are applicable.
