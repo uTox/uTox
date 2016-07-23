@@ -69,24 +69,6 @@ static void dropdown_proxy_onselect(uint16_t i, const DROPDOWN* UNUSED(dm)) {
     tox_settingschanged();
 }
 
-static void dropdown_ipv6_onselect(uint16_t i, const DROPDOWN* UNUSED(dm)) {
-    if (i) {
-        settings.enable_ipv6 = 1;
-    } else {
-        settings.enable_ipv6 = 0;
-    }
-    tox_settingschanged();
-}
-
-static void dropdown_udp_onselect(uint16_t i, const DROPDOWN* UNUSED(dm)) {
-    if (i) {
-        settings.enable_udp = 1;
-    } else {
-        settings.enable_udp = 0;
-    }
-    tox_settingschanged();
-}
-
 static void dropdown_theme_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
 {
     theme_load(i);
@@ -226,20 +208,6 @@ dropdown_proxy = {
     .onselect = dropdown_proxy_onselect,
     .dropcount = countof(proxydrops),
     .userdata = proxydrops
-},
-
-dropdown_ipv6 = {
-    .ondisplay = simple_dropdown_ondisplay,
-    .onselect = dropdown_ipv6_onselect,
-    .dropcount = countof(noyesdrops),
-    .userdata = noyesdrops
-},
-
-dropdown_udp = {
-    .ondisplay = simple_dropdown_ondisplay,
-    .onselect = dropdown_udp_onselect,
-    .dropcount = countof(noyesdrops),
-    .userdata = noyesdrops
 },
 
 dropdown_theme = {

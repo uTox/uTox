@@ -425,7 +425,7 @@ static int init_toxcore(Tox **tox) {
             debug("\t\tTrying without IPv6, err %u\n", tox_new_err);
 
             topt.ipv6_enabled = 0;
-            dropdown_ipv6.selected = dropdown_ipv6.over = 1;
+            switch_ipv6.switch_on = settings.enable_ipv6 = 1;
             *tox = tox_new(&topt, &tox_new_err);
 
             if (!topt.ipv6_enabled || *tox == NULL) {

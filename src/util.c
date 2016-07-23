@@ -688,11 +688,11 @@ UTOX_SAVE* config_load(void) {
 NEXT:
     dropdown_dpi.selected                   = dropdown_dpi.over                  = save->scale - 5;
 
-    dropdown_ipv6.selected                  = dropdown_ipv6.over                 = save->enableipv6;
-    dropdown_udp.selected                   = dropdown_udp.over                  = !save->disableudp;
 
     dropdown_proxy.selected                 = dropdown_proxy.over                = save->proxyenable <= 2 ? save->proxyenable : 2;
 
+    switch_ipv6.switch_on                    = save->enableipv6;
+    switch_udp.switch_on                     = !save->disableudp;
     switch_logging.switch_on                = save->logging_enabled;
     switch_mini_contacts.switch_on          = save->use_mini_roster;
 

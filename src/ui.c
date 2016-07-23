@@ -337,10 +337,11 @@ static void draw_settings_text_network(int x, int y, int w, int UNUSED(height)){
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(MAIN_LEFT  + SCALE(10), y + UTOX_SCALE(15 ), IPV6);
-    drawstr(MAIN_LEFT  + UTOX_SCALE(55  ), y + UTOX_SCALE(15 ), UDP);
-    drawstr(MAIN_LEFT  + SCALE(10), y + UTOX_SCALE(30 ), PROXY);
-    drawtext(MAIN_LEFT + UTOX_SCALE(132 ), y + UTOX_SCALE(42 ), (uint8_t*)":", 1);
+    drawstr(MAIN_LEFT  + SCALE(10), y + SCALE(30), IPV6);
+
+    drawstr(MAIN_LEFT  + SCALE(10), y + SCALE(60), UDP);
+    drawstr(MAIN_LEFT  + SCALE(10), y + SCALE(90), PROXY);
+    drawtext(MAIN_LEFT + SCALE(264), y + SCALE(114), (uint8_t*)":", 1);
 }
 
 static void draw_settings_text_ui(int x, int y, int w, int UNUSED(height)){
@@ -796,8 +797,8 @@ panel_main = {
                     (void*)&edit_proxy_ip,
                     (void*)&edit_proxy_port,
                     (void*)&dropdown_proxy,
-                    (void*)&dropdown_ipv6,
-                    (void*)&dropdown_udp,
+                    (void*)&switch_ipv6,
+                    (void*)&switch_udp,
                     NULL
                 }
             },
@@ -889,7 +890,7 @@ void ui_set_scale(uint8_t scale) {
     /* TODO MOVE THIS */
     PANEL panel_switch_logging = {
         .type = PANEL_SWITCH,
-        .x      = SCALE(160),
+        .x      = SCALE(-10) - BM_SWITCH_WIDTH,
         .y      = SCALE(60),
         .width  = BM_SWITCH_WIDTH,
         .height = BM_SWITCH_HEIGHT,
@@ -897,7 +898,7 @@ void ui_set_scale(uint8_t scale) {
 
     PANEL panel_switch_mini_contacts = {
         .type = PANEL_SWITCH,
-        .x      = SCALE(160),
+        .x      = SCALE(-10) - BM_SWITCH_WIDTH,
         .y      = SCALE(260),
         .width  = BM_SWITCH_WIDTH,
         .height = BM_SWITCH_HEIGHT,
@@ -905,6 +906,25 @@ void ui_set_scale(uint8_t scale) {
 
     switch_logging.panel = panel_switch_logging;
     switch_mini_contacts.panel = panel_switch_mini_contacts;
+
+    PANEL panel_switch_ipv6 = {
+        .type = PANEL_SWITCH,
+        .x      = SCALE(-10) - BM_SWITCH_WIDTH,
+        .y      = SCALE( 30),
+        .width  = BM_SWITCH_WIDTH,
+        .height = BM_SWITCH_HEIGHT,
+    };
+
+    PANEL panel_switch_udp = {
+        .type = PANEL_SWITCH,
+        .x      = SCALE(-10) - BM_SWITCH_WIDTH,
+        .y      = SCALE( 60),
+        .width  = BM_SWITCH_WIDTH,
+        .height = BM_SWITCH_HEIGHT,
+    };
+
+    switch_ipv6.panel = panel_switch_ipv6;
+    switch_udp.panel = panel_switch_udp;
 
     /* User Badge & Roster  */
 
@@ -1292,26 +1312,10 @@ void ui_set_scale(uint8_t scale) {
 
         d_proxy = {
             .type   = PANEL_DROPDOWN,
-            .x      = UTOX_SCALE(5   ),
-            .y      = UTOX_SCALE(40  ),
-            .height = UTOX_SCALE(12  ),
-            .width  = UTOX_SCALE(60  )
-        },
-
-        d_ipv6 = {
-            .type   = PANEL_DROPDOWN,
-            .x      = UTOX_SCALE(24  ),
-            .y      = UTOX_SCALE(13  ),
-            .height = UTOX_SCALE(12  ),
-            .width  = UTOX_SCALE(20  )
-        },
-
-        d_udp = {
-            .type   = PANEL_DROPDOWN,
-            .x      = UTOX_SCALE(74  ),
-            .y      = UTOX_SCALE(13  ),
-            .height = UTOX_SCALE(12  ),
-            .width  = UTOX_SCALE(20  )
+            .x      = SCALE(10),
+            .y      = SCALE(110),
+            .height = SCALE(24),
+            .width  = SCALE(120)
         };
 
 
@@ -1322,8 +1326,6 @@ void ui_set_scale(uint8_t scale) {
         dropdown_dpi.panel = d_dpi;
         dropdown_language.panel = d_language;
         dropdown_proxy.panel = d_proxy;
-        dropdown_ipv6.panel = d_ipv6;
-        dropdown_udp.panel = d_udp;
         dropdown_audible_notification.panel = d_notifications;
         dropdown_push_to_talk.panel = d_push_to_talk;
         dropdown_close_to_tray.panel = d_close_to_tray;
@@ -1414,18 +1416,18 @@ void ui_set_scale(uint8_t scale) {
 
         e_proxy_ip = {
             .type   = PANEL_EDIT,
-            .x      = UTOX_SCALE(70 ),
-            .y      = UTOX_SCALE(40 ),
-            .height = UTOX_SCALE(12 ),
-            .width  = UTOX_SCALE(60 )
+            .x      = SCALE(140),
+            .y      = SCALE(110),
+            .width  = SCALE(120),
+            .height = SCALE( 24),
         },
 
         e_proxy_port = {
             .type   = PANEL_EDIT,
-            .x      = UTOX_SCALE(135 ),
-            .y      = UTOX_SCALE(40  ),
-            .height = UTOX_SCALE(12  ),
-            .width  = UTOX_SCALE(30  )
+            .x      = SCALE(270),
+            .y      = SCALE(110),
+            .width  = SCALE( 60),
+            .height = SCALE( 24),
         };
 
     /* Text entry panels */
