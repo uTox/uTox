@@ -33,6 +33,37 @@ static void switchfxn_udp(void) {
     tox_settingschanged();
 }
 
+static void switchfxn_close_to_tray(void) {
+    settings.close_to_tray = !settings.close_to_tray;
+}
+
+static void switchfxn_start_in_tray(void) {
+    settings.start_in_tray = !settings.start_in_tray;
+}
+
+static void switchfxn_auto_startup(void) {
+    settings.start_with_system = !settings.start_with_system;
+}
+
+static void switchfxn_typing_notes(void) {
+    settings.send_typing_status = !settings.send_typing_status;
+}
+
+static void switchfxn_audible_notifications(void) {
+    settings.ringtone_enabled = !settings.ringtone_enabled;
+}
+
+static void switchfxn_push_to_talk(void) {
+    if (!settings.push_to_talk) {
+        init_ptt();
+    } else {
+        exit_ptt();
+    }
+}
+
+static void switchfxn_audio_filtering(void) {
+    settings.audiofilter_enabled = !settings.audiofilter_enabled;
+}
 
 UISWITCH switch_logging = {
     .style        = BM_SWITCH,
@@ -60,4 +91,53 @@ UISWITCH switch_udp = {
     .update       = switch_set_colors,
     .onpress      = switchfxn_udp,
     .tooltip_text = { .i18nal = STR_UDP },
+};
+
+UISWITCH switch_close_to_tray = {
+    .style        = BM_SWITCH,
+    .update       = switch_set_colors,
+    .onpress      = switchfxn_close_to_tray,
+    .tooltip_text = { .i18nal = STR_CLOSE_TO_TRAY },
+};
+
+UISWITCH switch_start_in_tray = {
+    .style        = BM_SWITCH,
+    .update       = switch_set_colors,
+    .onpress      = switchfxn_start_in_tray,
+    .tooltip_text = { .i18nal = STR_START_IN_TRAY },
+};
+
+UISWITCH switch_auto_startup = {
+    .style        = BM_SWITCH,
+    .update       = switch_set_colors,
+    .onpress      = switchfxn_auto_startup,
+    .tooltip_text = { .i18nal = STR_AUTO_STARTUP },
+};
+
+UISWITCH switch_typing_notes = {
+    .style        = BM_SWITCH,
+    .update       = switch_set_colors,
+    .onpress      = switchfxn_typing_notes,
+    .tooltip_text = { .i18nal = STR_SEND_TYPING_NOTIFICATIONS },
+};
+
+UISWITCH switch_audible_notifications = {
+    .style        = BM_SWITCH,
+    .update       = switch_set_colors,
+    .onpress      = switchfxn_audible_notifications,
+    .tooltip_text = { .i18nal = STR_AUDIONOTIFICATIONS },
+};
+
+UISWITCH switch_push_to_talk = {
+    .style        = BM_SWITCH,
+    .update       = switch_set_colors,
+    .onpress      = switchfxn_push_to_talk,
+    .tooltip_text = { .i18nal = STR_PUSH_TO_TALK },
+};
+
+UISWITCH switch_audio_filtering = {
+    .style        = BM_SWITCH,
+    .update       = switch_set_colors,
+    .onpress      = switchfxn_audio_filtering,
+    .tooltip_text = { .i18nal = STR_AUDIOFILTERING },
 };

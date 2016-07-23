@@ -349,26 +349,26 @@ static void draw_settings_text_ui(int x, int y, int w, int UNUSED(height)){
     setfont(FONT_SELF_NAME);
     drawstr(MAIN_LEFT + SCALE(150), y + SCALE( 10), DPI);
     drawstr(MAIN_LEFT + SCALE( 10), y + SCALE( 10), THEME);
-    drawstr(MAIN_LEFT + SCALE( 10), y + SCALE( 60), LOGGING);
-    drawstr(MAIN_LEFT + SCALE( 10), y + SCALE(110), CLOSE_TO_TRAY);
-    drawstr(MAIN_LEFT + SCALE(150), y + SCALE(110), START_IN_TRAY);
-    drawstr(MAIN_LEFT + SCALE( 10), y + SCALE(160), AUTO_STARTUP);
-    drawstr(MAIN_LEFT + SCALE( 10), y + SCALE(210), SEND_TYPING_NOTIFICATIONS);
-    drawstr(MAIN_LEFT + SCALE( 10), y + SCALE(260), SETTINGS_UI_MINI_ROSTER);
+    drawstr(MAIN_LEFT + SCALE( 10), y + SCALE( 65), LOGGING);
+    drawstr(MAIN_LEFT + SCALE( 10), y + SCALE( 95), CLOSE_TO_TRAY);
+    drawstr(MAIN_LEFT + SCALE( 10), y + SCALE(125), START_IN_TRAY);
+    drawstr(MAIN_LEFT + SCALE( 10), y + SCALE(155), AUTO_STARTUP);
+    drawstr(MAIN_LEFT + SCALE( 10), y + SCALE(185), SEND_TYPING_NOTIFICATIONS);
+    drawstr(MAIN_LEFT + SCALE( 10), y + SCALE(215), SETTINGS_UI_MINI_ROSTER);
 }
 
 static void draw_settings_text_av(int x, int y, int w, int UNUSED(height)){
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(MAIN_LEFT + SCALE( 10), y + SCALE( 10),  RINGTONE);
-    drawstr(MAIN_LEFT + SCALE(120), y + SCALE( 10),  PUSH_TO_TALK);
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE( 10), RINGTONE);
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE( 40), PUSH_TO_TALK);
     #ifdef AUDIO_FILTERING
-    drawstr(MAIN_LEFT + SCALE(240), y + SCALE( 10),  AUDIOFILTERING);
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE( 70), AUDIOFILTERING);
     #endif
-    drawstr(MAIN_LEFT + SCALE( 10), y + SCALE( 70), AUDIOINPUTDEVICE);
-    drawstr(MAIN_LEFT + SCALE( 10), y + SCALE(130), AUDIOOUTPUTDEVICE);
-    drawstr(MAIN_LEFT + SCALE( 10), y + SCALE(190), VIDEOINPUTDEVICE);
-    drawstr(MAIN_LEFT + SCALE( 10), y + SCALE(260), PREVIEW);
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(100), AUDIOINPUTDEVICE);
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(160), AUDIOOUTPUTDEVICE);
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(220), VIDEOINPUTDEVICE);
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(280), PREVIEW);
 }
 
 /* TODO make this fxn readable */
@@ -812,9 +812,10 @@ panel_main = {
                     (void*)&dropdown_dpi,
                     (void*)&dropdown_theme,
                     (void*)&switch_logging,
-                    (void*)&dropdown_close_to_tray, (void*)&dropdown_start_in_tray,
-                    (void*)&dropdown_auto_startup,
-                    (void*)&dropdown_typing_notes,
+                    (void*)&switch_close_to_tray,
+                    (void*)&switch_start_in_tray,
+                    (void*)&switch_auto_startup,
+                    (void*)&switch_typing_notes,
                     (void*)&switch_mini_contacts,
                     NULL
                 }
@@ -827,13 +828,13 @@ panel_main = {
                 .content_scroll = &scrollbar_settings,
                 .child = (PANEL*[]) {
                     (void*)&button_callpreview,
-                    (void*)&dropdown_push_to_talk,
+                    (void*)&switch_push_to_talk,
                     (void*)&button_videopreview,
                     (void*)&dropdown_audio_in,
                     (void*)&dropdown_audio_out,
                     (void*)&dropdown_video,
-                    (void*)&dropdown_audible_notification,
-                    (void*)&dropdown_audio_filtering,
+                    (void*)&switch_audible_notifications,
+                    (void*)&switch_audio_filtering,
                     NULL
                 }
             };
@@ -889,26 +890,55 @@ void ui_set_scale(uint8_t scale) {
 
     /* TODO MOVE THIS */
     PANEL panel_switch_logging = {
-        .type = PANEL_SWITCH,
+        .type   = PANEL_SWITCH,
         .x      = SCALE(-10) - BM_SWITCH_WIDTH,
         .y      = SCALE(60),
         .width  = BM_SWITCH_WIDTH,
         .height = BM_SWITCH_HEIGHT,
     };
 
-    PANEL panel_switch_mini_contacts = {
-        .type = PANEL_SWITCH,
+    PANEL panel_switch_close_to_tray = {
+        .type   = PANEL_SWITCH,
         .x      = SCALE(-10) - BM_SWITCH_WIDTH,
-        .y      = SCALE(260),
+        .y      = SCALE( 90),
         .width  = BM_SWITCH_WIDTH,
         .height = BM_SWITCH_HEIGHT,
     };
 
-    switch_logging.panel = panel_switch_logging;
-    switch_mini_contacts.panel = panel_switch_mini_contacts;
+    PANEL panel_switch_start_in_tray = {
+        .type   = PANEL_SWITCH,
+        .x      = SCALE(-10) - BM_SWITCH_WIDTH,
+        .y      = SCALE(120),
+        .width  = BM_SWITCH_WIDTH,
+        .height = BM_SWITCH_HEIGHT,
+    };
+
+    PANEL panel_switch_auto_startup = {
+        .type   = PANEL_SWITCH,
+        .x      = SCALE(-10) - BM_SWITCH_WIDTH,
+        .y      = SCALE(150),
+        .width  = BM_SWITCH_WIDTH,
+        .height = BM_SWITCH_HEIGHT,
+    };
+
+    PANEL panel_switch_typing_notes = {
+        .type   = PANEL_SWITCH,
+        .x      = SCALE(-10) - BM_SWITCH_WIDTH,
+        .y      = SCALE(180),
+        .width  = BM_SWITCH_WIDTH,
+        .height = BM_SWITCH_HEIGHT,
+    };
+
+    PANEL panel_switch_mini_contacts = {
+        .type   = PANEL_SWITCH,
+        .x      = SCALE(-10) - BM_SWITCH_WIDTH,
+        .y      = SCALE(210),
+        .width  = BM_SWITCH_WIDTH,
+        .height = BM_SWITCH_HEIGHT,
+    };
 
     PANEL panel_switch_ipv6 = {
-        .type = PANEL_SWITCH,
+        .type   = PANEL_SWITCH,
         .x      = SCALE(-10) - BM_SWITCH_WIDTH,
         .y      = SCALE( 30),
         .width  = BM_SWITCH_WIDTH,
@@ -916,15 +946,53 @@ void ui_set_scale(uint8_t scale) {
     };
 
     PANEL panel_switch_udp = {
-        .type = PANEL_SWITCH,
+        .type   = PANEL_SWITCH,
         .x      = SCALE(-10) - BM_SWITCH_WIDTH,
         .y      = SCALE( 60),
         .width  = BM_SWITCH_WIDTH,
         .height = BM_SWITCH_HEIGHT,
     };
 
+    PANEL panel_switch_audible_notifications = {
+        .type   = PANEL_SWITCH,
+        .x      = SCALE(-10) - BM_SWITCH_WIDTH,
+        .y      = SCALE(10),
+        .width  = BM_SWITCH_WIDTH,
+        .height = BM_SWITCH_HEIGHT,
+    };
+
+    PANEL panel_switch_push_to_talk = {
+        .type   = PANEL_SWITCH,
+        .x      = SCALE(-10) - BM_SWITCH_WIDTH,
+        .y      = SCALE(40),
+        .width  = BM_SWITCH_WIDTH,
+        .height = BM_SWITCH_HEIGHT,
+    };
+
+    #ifdef AUDIO_FILTERING
+    PANEL panel_switch_audio_filtering = {
+        .type   = PANEL_SWITCH,
+        .x      = SCALE(-10) - BM_SWITCH_WIDTH,
+        .y      = SCALE(70),
+        .width  = BM_SWITCH_WIDTH,
+        .height = BM_SWITCH_HEIGHT,
+    };
+    #endif
+
+    switch_logging.panel = panel_switch_logging;
+    switch_mini_contacts.panel = panel_switch_mini_contacts;
     switch_ipv6.panel = panel_switch_ipv6;
     switch_udp.panel = panel_switch_udp;
+    switch_close_to_tray.panel = panel_switch_close_to_tray;
+    switch_start_in_tray.panel = panel_switch_start_in_tray;
+    switch_auto_startup.panel = panel_switch_auto_startup;
+    switch_typing_notes.panel = panel_switch_typing_notes;
+    switch_audible_notifications.panel = panel_switch_audible_notifications;
+    switch_push_to_talk.panel = panel_switch_push_to_talk;
+
+    #ifdef AUDIO_FILTERING
+    switch_audio_filtering.panel = panel_switch_audio_filtering;
+    #endif
 
     /* User Badge & Roster  */
 
@@ -1081,7 +1149,7 @@ void ui_set_scale(uint8_t scale) {
         PANEL b_callpreview = {
             .type   = PANEL_BUTTON,
             .x      = SCALE( 10),
-            .y      = SCALE(280),
+            .y      = SCALE(300),
             .width  = BM_LBUTTON_WIDTH,
             .height = BM_LBUTTON_HEIGHT,
         },
@@ -1089,7 +1157,7 @@ void ui_set_scale(uint8_t scale) {
         b_videopreview = {
             .type   = PANEL_BUTTON,
             .x      = SCALE( 70),
-            .y      = SCALE(280),
+            .y      = SCALE(300),
             .width  = BM_LBUTTON_WIDTH,
             .height = BM_LBUTTON_HEIGHT,
         };
@@ -1222,66 +1290,13 @@ void ui_set_scale(uint8_t scale) {
             .y      = SCALE(30),
             .height = SCALE(24),
             .width  = SCALE(200)
-        },
-        d_close_to_tray = {
-            .type   = PANEL_DROPDOWN,
-            .x      = SCALE(10),
-            .y      = SCALE(130),
-            .height = SCALE(24),
-            .width  = SCALE(40)
-        },
-        d_start_in_tray = {
-            .type   = PANEL_DROPDOWN,
-            .x      = SCALE(150),
-            .y      = SCALE(130),
-            .height = SCALE(24),
-            .width  = SCALE(40)
-        },
-        d_auto_startup = {
-            .type   = PANEL_DROPDOWN,
-            .x      = SCALE(10),
-            .y      = SCALE(180),
-            .height = SCALE(24),
-            .width  = SCALE(40)
-        },
-        d_typing_notes = {
-            .type   = PANEL_DROPDOWN,
-            .x      = SCALE(10),
-            .y      = SCALE(230),
-            .height = SCALE(24),
-            .width  = SCALE(40)
         };
 
         /* Unsorted */
-        PANEL d_notifications = {
-            .type   = PANEL_DROPDOWN,
-            .x      = SCALE(10),
-            .y      = UTOX_SCALE(15  ),
-            .height = UTOX_SCALE(12  ),
-            .width  = UTOX_SCALE(20  )
-        },
-
-        d_push_to_talk = {
-            .type   = PANEL_DROPDOWN,
-            .x      = UTOX_SCALE(60 ),
-            .y      = UTOX_SCALE(15 ),
-            .height = UTOX_SCALE(12 ),
-            .width  = UTOX_SCALE(20 )
-        },
-        #ifdef AUDIO_FILTERING
-        d_audio_filtering = {
-            .type   = PANEL_DROPDOWN,
-            .x      = UTOX_SCALE(120 ),
-            .y      = UTOX_SCALE(15  ),
-            .height = UTOX_SCALE(12  ),
-            .width  = UTOX_SCALE(20  )
-        },
-        #endif
-
-        d_audio_in = {
+        PANEL d_audio_in = {
             .type   = PANEL_DROPDOWN,
             .x      = SCALE( 10),
-            .y      = SCALE( 90),
+            .y      = SCALE(120),
             .height = SCALE( 24),
             .width  = SCALE(360)
         },
@@ -1289,7 +1304,7 @@ void ui_set_scale(uint8_t scale) {
         d_audio_out = {
             .type   = PANEL_DROPDOWN,
             .x      = SCALE( 10),
-            .y      = SCALE(150),
+            .y      = SCALE(180),
             .height = SCALE( 24),
             .width  = SCALE(360)
         },
@@ -1297,7 +1312,7 @@ void ui_set_scale(uint8_t scale) {
         d_video = {
             .type   = PANEL_DROPDOWN,
             .x      = SCALE( 10),
-            .y      = SCALE(210),
+            .y      = SCALE(240),
             .height = SCALE( 24),
             .width  = SCALE(360)
         },
@@ -1326,18 +1341,8 @@ void ui_set_scale(uint8_t scale) {
         dropdown_dpi.panel = d_dpi;
         dropdown_language.panel = d_language;
         dropdown_proxy.panel = d_proxy;
-        dropdown_audible_notification.panel = d_notifications;
-        dropdown_push_to_talk.panel = d_push_to_talk;
-        dropdown_close_to_tray.panel = d_close_to_tray;
-        dropdown_start_in_tray.panel = d_start_in_tray;
         dropdown_theme.panel = d_theme;
-        dropdown_auto_startup.panel = d_auto_startup;
 
-        #ifdef AUDIO_FILTERING
-            dropdown_audio_filtering.panel = d_audio_filtering;
-        #endif
-
-        dropdown_typing_notes.panel         = d_typing_notes;
 
     /* Text entry boxes */
         PANEL e_name = {
