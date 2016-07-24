@@ -686,27 +686,27 @@ UTOX_SAVE* config_load(void) {
 
     config_osdefaults(save);
 NEXT:
-    dropdown_dpi.selected                   = dropdown_dpi.over                  = save->scale - 5;
+    dropdown_dpi.selected                  = dropdown_dpi.over                  = save->scale - 5;
 
 
-    dropdown_proxy.selected                 = dropdown_proxy.over                = save->proxyenable <= 2 ? save->proxyenable : 2;
+    dropdown_proxy.selected                = dropdown_proxy.over                = save->proxyenable <= 2 ? save->proxyenable : 2;
 
-    switch_ipv6.switch_on                    = save->enableipv6;
-    switch_udp.switch_on                     = !save->disableudp;
-    switch_logging.switch_on                = save->logging_enabled;
-    switch_mini_contacts.switch_on          = save->use_mini_roster;
+    switch_ipv6.switch_on                  = save->enableipv6;
+    switch_udp.switch_on                   = !save->disableudp;
+    switch_logging.switch_on               = save->logging_enabled;
+    switch_mini_contacts.switch_on         = save->use_mini_roster;
+    switch_auto_startup.switch_on          = save->auto_startup;
 
-    dropdown_close_to_tray.selected        = dropdown_close_to_tray.over        = save->close_to_tray;
-    dropdown_start_in_tray.selected        = dropdown_start_in_tray.over        = save->start_in_tray;
-    dropdown_auto_startup.selected         = dropdown_auto_startup.over         = save->auto_startup;
+    switch_close_to_tray.switch_on         = save->close_to_tray;
+    switch_start_in_tray.switch_on         = save->start_in_tray;
 
-    dropdown_audible_notification.selected = dropdown_audible_notification.over = save->audible_notifications_enabled;
-    dropdown_audio_filtering.selected      = dropdown_audio_filtering.over      = save->audio_filtering_enabled;
-    dropdown_push_to_talk.selected         = dropdown_push_to_talk.over         = save->push_to_talk;
+    switch_audible_notifications.switch_on  = save->audible_notifications_enabled;
+    switch_audio_filtering.switch_on       = save->audio_filtering_enabled;
+    switch_push_to_talk.switch_on          = save->push_to_talk;
 
-    dropdown_theme.selected = dropdown_theme.over = save->theme;
+    dropdown_theme.selected                = dropdown_theme.over                = save->theme;
 
-    dropdown_typing_notes.selected = save->no_typing_notifications;
+    switch_typing_notes.switch_on          = save->no_typing_notifications;
 
     list_set_filter(save->filter); /* roster list filtering */
 

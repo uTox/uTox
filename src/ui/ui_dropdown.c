@@ -74,46 +74,6 @@ static void dropdown_theme_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
     theme_load(i);
 }
 
-static void dropdown_notifications_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
-{
-    settings.ringtone_enabled = !!i;
-}
-
-static void dropdown_audio_filtering_onselect(uint16_t i, const DROPDOWN* UNUSED(dm))
-{
-    settings.audiofilter_enabled = !!i;
-}
-
-static void dropdown_close_to_tray_onselect(uint16_t i, const DROPDOWN* UNUSED(dm)){
-    settings.close_to_tray = i;
-    debug("Close To Tray.   :: %i\n", settings.close_to_tray);
-}
-
-static void dropdown_start_in_tray_onselect(uint16_t i, const DROPDOWN* UNUSED(dm)){
-    settings.start_in_tray = i;
-    debug("Start in Tray.   :: %i\n", settings.start_in_tray);
-}
-
-static void dropdown_auto_startup_onselect(uint16_t i, const DROPDOWN* UNUSED(dm)){
-    settings.start_with_system = i;
-    launch_at_startup(settings.start_with_system);
-    debug("Auto startup.   :: %i\n", settings.start_with_system);
-}
-
-static void dropdown_typing_notes_onselect(const uint16_t i, const DROPDOWN* UNUSED(dm)) {
-    settings.send_typing_status = i;
-    debug("Typing notifications preference: %hu\n", i);
-}
-
-static void dropdown_push_to_talk_onselect(const uint16_t i, const DROPDOWN* UNUSED(dm)) {
-    if (i) {
-        // TODO, push this onto the start and end call fxn?
-        init_ptt();
-    } else {
-        exit_ptt();
-    }
-}
-
 static void dropdown_friend_autoaccept_ft_onselect(const uint16_t i, const DROPDOWN* UNUSED(dm)) {
     FRIEND *f = selected_item->data;
     f->ft_autoaccept = !!i;
@@ -215,55 +175,6 @@ dropdown_theme = {
     .onselect = dropdown_theme_onselect,
     .dropcount = countof(themedrops),
     .userdata = themedrops
-},
-
-dropdown_close_to_tray = {
-    .ondisplay = simple_dropdown_ondisplay,
-    .onselect = dropdown_close_to_tray_onselect,
-    .dropcount = countof(noyesdrops),
-    .userdata = noyesdrops
-},
-
-dropdown_start_in_tray = {
-    .ondisplay = simple_dropdown_ondisplay,
-    .onselect = dropdown_start_in_tray_onselect,
-    .dropcount = countof(noyesdrops),
-    .userdata = noyesdrops
-},
-
-dropdown_auto_startup = {
-    .ondisplay = simple_dropdown_ondisplay,
-    .onselect = dropdown_auto_startup_onselect,
-    .dropcount = countof(noyesdrops),
-    .userdata = noyesdrops
-},
-
-dropdown_audible_notification = {
-    .ondisplay = simple_dropdown_ondisplay,
-    .onselect = dropdown_notifications_onselect,
-    .dropcount = countof(offondrops),
-    .userdata = offondrops
-},
-
-dropdown_audio_filtering = {
-    .ondisplay = simple_dropdown_ondisplay,
-    .onselect = dropdown_audio_filtering_onselect,
-    .dropcount = countof(offondrops),
-    .userdata = offondrops
-},
-
-dropdown_push_to_talk = {
-    .ondisplay = simple_dropdown_ondisplay,
-    .onselect  = dropdown_push_to_talk_onselect,
-    .dropcount = countof(offondrops),
-    .userdata  = offondrops
-},
-
-dropdown_typing_notes = {
-    .ondisplay  = simple_dropdown_ondisplay,
-    .onselect   = dropdown_typing_notes_onselect,
-    .dropcount  = countof(yesnodrops),
-    .userdata   = yesnodrops
 },
 
 dropdown_friend_autoaccept_ft = {
