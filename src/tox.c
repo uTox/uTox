@@ -370,7 +370,7 @@ static int init_toxcore(Tox **tox) {
         .ipv6_enabled   = settings.enable_ipv6,
         .udp_enabled    = settings.enable_udp,
         .proxy_type     = TOX_PROXY_TYPE_NONE,
-        .proxy_host     = NULL,
+        .proxy_host     = proxy_address,
         .proxy_port     = settings.proxy_port,
         .start_port     = 0,
         .end_port       = 0,
@@ -400,36 +400,39 @@ static int init_toxcore(Tox **tox) {
     }
     postmessage(REDRAW, 0, 0, NULL);
 
+    if (settings.use_proxy) {
+        topt.proxy_type = TOX_PROXY_TYPE_SOCKS5;
+    }
+
     // Create main connection
     debug("CORE:\tCreating New Toxcore instance.\n"
-          "\t\tIPv6 : %u\n"
-          "\t\tUDP  : %u\n"
-          "\t\tProxy: %u %s %u\n",
-          topt.ipv6_enabled,
-          topt.udp_enabled,
-          topt.proxy_type,
-          topt.proxy_host,
-          topt.proxy_port);
+             "\t\tIPv6 : %u\n"
+             "\t\tUDP  : %u\n"
+             "\t\tProxy: %u %s %u\n",
+             topt.ipv6_enabled,
+             topt.udp_enabled,
+             topt.proxy_type, topt.proxy_host, topt.proxy_port);
+
 
     TOX_ERR_NEW tox_new_err = 0;
     *tox = tox_new(&topt, &tox_new_err);
 
     if (*tox == NULL) {
-        debug("\t\tTrying without proxy, err %u\n", tox_new_err);
+        debug("\t\tError #%u, Going to try without proxy.\n", tox_new_err);
 
         topt.proxy_type = TOX_PROXY_TYPE_NONE;
         dropdown_proxy.selected = dropdown_proxy.over = 0;
         *tox = tox_new(&topt, &tox_new_err);
 
         if (!topt.proxy_type || *tox == NULL) {
-            debug("\t\tTrying without IPv6, err %u\n", tox_new_err);
+            debug("\t\tError #%u, Going to try without IPv6.\n", tox_new_err);
 
             topt.ipv6_enabled = 0;
             switch_ipv6.switch_on = settings.enable_ipv6 = 1;
             *tox = tox_new(&topt, &tox_new_err);
 
             if (!topt.ipv6_enabled || *tox == NULL) {
-                debug("\t\tERR: tox_new() failed %u\n", tox_new_err);
+                debug("\t\tFatal Error creating a Tox instance... Error #%u\n", tox_new_err);
                 return -2;
             }
         }

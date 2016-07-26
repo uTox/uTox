@@ -193,7 +193,7 @@ uint8_t addfriend_status;
 //HFONT font_big, font_big2, font_med, font_med2, font_small, font_msg;
 int font_small_lineheight, font_msg_lineheight;
 uint16_t video_width, video_height, max_video_width, max_video_height;
-char proxy_address[256];
+char proxy_address[256]; /* Magic Number inside toxcore */
 
 // Structs
 typedef struct edit_change EDIT_CHANGE;

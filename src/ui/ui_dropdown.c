@@ -120,19 +120,9 @@ static UI_STRING_ID themedrops[] = {
     STR_THEME_ZENBURN,
 };
 
-static UI_STRING_ID yesnodrops[] = {
-    STR_YES,
-    STR_NO
-};
-
 static UI_STRING_ID noyesdrops[] = {
     STR_NO,
     STR_YES
-};
-
-static UI_STRING_ID offondrops[] = {
-    STR_OFF,
-    STR_ON
 };
 
 DROPDOWN dropdown_audio_in = {

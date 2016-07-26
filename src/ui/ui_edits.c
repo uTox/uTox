@@ -469,6 +469,7 @@ static void edit_proxy_ip_port_onlosefocus(EDIT *edit)
         return;
         }
 
+    memset(proxy_address, 0, 256); /* Magic number from toxcore */
     memcpy(proxy_address, edit_proxy_ip.data, edit_proxy_ip.length);
     proxy_address[edit_proxy_ip.length] = 0;
 
@@ -580,6 +581,7 @@ edit_proxy_ip = {
     .data = edit_proxy_ip_data,
     .onlosefocus = edit_proxy_ip_port_onlosefocus,
     .empty_str = { .i18nal = STR_PROXY_EDIT_HINT_IP },
+    /* TODO .ontab = change to proxy port field */
 },
 
 edit_proxy_port = {
