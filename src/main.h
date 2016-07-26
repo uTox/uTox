@@ -1,13 +1,12 @@
 // Versions
 #define TITLE         "uTox"
 #define SUB_TITLE     "(Alpha)"
-#define RELEASE_TITLE "Mild Shock"
-#define PATCH_TITLE   "SRSLY"
-#define VERSION       "0.9.5"
+#define RELEASE_TITLE "Extreme Shock"
+#define VERSION       "0.9.7"
 #define VER_MAJOR     0
 #define VER_MINOR     9
-#define VER_PATCH     5
-#define UTOX_VERSION_NUMBER 9005u /* major, minor, patch, 0 padded where needed */
+#define VER_PATCH     7
+#define UTOX_VERSION_NUMBER 9007u /* major, minor, patch, 0 padded where needed */
 // Defaults
 #define DEFAULT_NAME   "Tox User"
 #define DEFAULT_STATUS "Toxing on uTox"
