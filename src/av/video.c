@@ -285,6 +285,15 @@ void utox_video_thread(void *args) {
         yieldcpu(100);
     }
 
+    video_device_count      = 0;
+    video_device_current    = 0;
+    video_active            = 0;
+
+    int i;
+    for (i = 0; i < 16; ++i) {
+        video_device[i] = NULL;
+    }
+
     video_thread_msg = 0;
     utox_video_thread_init = 0;
     debug("uToxVideo:\tClean thread exit!\n");
