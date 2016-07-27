@@ -1098,7 +1098,7 @@ void ui_set_scale(uint8_t scale) {
 
     /* Setting pages        */
     CREATE_BUTTON(settings_sub_profile, 1, 1, SCALE(18) + UTOX_STR_WIDTH(PROFILE_BUTTON), SCALE(28));
-    uint settings_tab_x = 1 + UTOX_STR_WIDTH(PROFILE_BUTTON);
+    uint32_t settings_tab_x = 1 + UTOX_STR_WIDTH(PROFILE_BUTTON);
 
     #ifdef ENABLE_MULTIDEVICE
     CREATE_BUTTON(settings_sub_devices, settings_tab_x, 1, SCALE(22) + UTOX_STR_WIDTH(DEVICES_BUTTON), SCALE(28));
