@@ -80,6 +80,10 @@ void draw_image(const UTOX_NATIVE_IMAGE *data, int x, int y, uint32_t width, uin
     glUniform3fv(k2, 1, one);
 }
 
+void draw_inline_image(uint8_t *img_data, size_t size, uint16_t w, uint16_t h, int x, int y) {
+    draw_image(img_data, x, y, w, h, 0, 0);
+}
+
 
 /* this function is no longer used, but it might contain handy information for creating the newer image draw functions
    on android. Currently drawing images is unsupported.
@@ -308,25 +312,46 @@ FILE *native_load_chatlog_file(uint32_t friend_number) {
 
 void native_select_dir_ft(uint32_t fid, MSG_FILE *file)
 {
-    return; /* TODO unsupported on android */
+    return; /* TODO unsupported on android
     //fall back to working dir
     char *path = malloc(file->name_length + 1);
     memcpy(path, file->name, file->name_length);
     path[file->name_length] = 0;
 
-    postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->filenumber, path);
+    postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->filenumber, path); */
 }
 
 void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
-    return; /* TODO unsupported on android */
-    /* TODO: maybe do something different here? */
+    return; /* TODO unsupported on android
+    /* TODO: maybe do something different here?
     char *path = malloc(file->name_length + 1);
     memcpy(path, file->name, file->name_length);
     path[file->name_length] = 0;
-    postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->file_number, path);
+    postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->file_number, path); */
 }
 
+_Bool native_remove_file(const uint8_t *name, size_t length) {
+    uint8_t path[UTOX_FILE_NAME_LENGTH]  = {0};
 
+    snprintf((char *)path, UTOX_FILE_NAME_LENGTH, ANDROID_INTERNAL_SAVE);
+
+    if (strlen((const char*)path) + length >= UTOX_FILE_NAME_LENGTH) {
+        debug("NATIVE:\tFile/directory name too long, unable to remove\n");
+        return 0;
+    } else {
+        snprintf((char*)path + strlen((const char*)path), UTOX_FILE_NAME_LENGTH - strlen((const char*)path),
+                 "%.*s", (int)length, (char*)name);
+    }
+
+    if (remove((const char*)path)) {
+        debug_error("NATIVE:\tUnable to delete file!\n\t\t%s\n", path);
+        return 0;
+    } else {
+        debug_info("NATIVE:\tFile deleted!\n");
+        debug("NATIVE:\t\t%s\n", path);
+    }
+    return 1;
+}
 
 void flush_file(FILE *file)
 {
@@ -698,8 +723,8 @@ static void android_main(struct android_app* state){
 
     initfonts();
 
-    dropdown_dpi.selected = dropdown_dpi.over = 20;
-    ui_set_scale(26);
+    dropdown_dpi.selected = dropdown_dpi.over = 15;
+    ui_set_scale(21);
 
     while(!tox_thread_init) {
         yieldcpu(1);
@@ -851,7 +876,7 @@ static void onContentRectChanged(ANativeActivity* activity, const ARect* r)
     rect = *r;
     debug("rect: %u %u %u %u\n", rect.left, rect.right, rect.top, rect.bottom);
 
-    utox_window_baseline = rect.bottom;
+    settings.window_baseline = rect.bottom;
     _redraw = 1;
 }
 

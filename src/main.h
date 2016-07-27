@@ -2,12 +2,11 @@
 #define TITLE         "uTox"
 #define SUB_TITLE     "(Alpha)"
 #define RELEASE_TITLE "WORKING"
-#define PATCH_TITLE   ""
-#define VERSION       "0.10.0"
+#define VERSION       "0.10.1"
 #define VER_MAJOR     0
 #define VER_MINOR     10
-#define VER_PATCH     0
-#define UTOX_VERSION_NUMBER 10000u /* major, minor, patch, 0 padded where needed */
+#define VER_PATCH     1
+#define UTOX_VERSION_NUMBER 10001u /* major, minor, patch, 0 padded where needed */
 // Defaults
 #define DEFAULT_NAME   "Tox User"
 #define DEFAULT_STATUS "Toxing on uTox"
@@ -200,7 +199,7 @@ uint8_t addfriend_status;
 
 int font_small_lineheight, font_msg_lineheight;
 uint16_t video_width, video_height, max_video_width, max_video_height;
-char proxy_address[256];
+char proxy_address[256]; /* Magic Number inside toxcore */
 
 // Structs
 typedef struct edit_change EDIT_CHANGE;
@@ -237,7 +236,7 @@ enum {
 };
 
 /* SVG Bitmap names. */
-enum {
+typedef enum {
     BM_ONLINE = 1,
     BM_AWAY,
     BM_BUSY,
@@ -252,6 +251,8 @@ enum {
 
     BM_LBUTTON,
     BM_SBUTTON,
+
+    BM_SWITCH,
 
     BM_CONTACT,
     BM_CONTACT_MINI,
@@ -285,7 +286,7 @@ enum {
     BM_CHAT_SEND,
     BM_CHAT_SEND_OVERLAY,
     BM_ENDMARKER,
-};
+} SVG_IMG;
 
 #if defined __WIN32__
     #include "windows/main.h"
@@ -339,6 +340,7 @@ typedef uint8_t *UTOX_IMAGE;
 #include "ui/svg.h"
 #include "ui/text.h"
 #include "ui/button.h"
+#include "ui/switch.h"
 #include "ui/dropdown.h"
 #include "ui/edit.h"
 #include "ui/scrollable.h"
@@ -364,8 +366,6 @@ UTOX_DEVICE *devices;
 
 FRIEND friend[MAX_NUM_FRIENDS];
 GROUPCHAT group[MAX_NUM_GROUPS];
-
-uint32_t friends, groups; /* */
 
 enum {
     USER_STATUS_AVAILABLE,
@@ -484,6 +484,8 @@ _Bool utox_remove_file(const uint8_t *full_name, size_t length);
  */
 _Bool utox_remove_friend_chatlog(uint32_t friend_number);
 
+_Bool    utox_remove_file(const uint8_t *full_name, size_t length);
+_Bool utox_remove_friend_history(uint32_t friend_number);
 /** TODO DOCUMENATION
  */
 void  utox_export_chatlog_init(uint32_t friend_number);

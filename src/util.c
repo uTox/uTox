@@ -607,20 +607,6 @@ void scale_rgbx_image(uint8_t *old_rgbx, uint16_t old_width, uint16_t old_height
     }
 }
 
-typedef struct
-{
-    uint8_t version, scale, enableipv6, disableudp;
-    uint16_t window_x, window_y, window_width, window_height;
-    uint16_t proxy_port;
-    uint8_t proxyenable;
-    uint8_t logging_enabled : 1;
-    uint8_t audible_notifications_enabled : 1;
-    uint8_t filter : 1;
-    uint8_t audio_filtering_enabled : 1;
-    uint8_t zero : 4;
-    uint8_t proxy_ip[0];
-}UTOX_SAVE_V2;
-
 UTOX_SAVE* config_load(void) {
     UTOX_SAVE *save;
     save = utox_load_data_utox();
@@ -630,98 +616,49 @@ UTOX_SAVE* config_load(void) {
     }
 
     if (save) {
-        if(save->save_version == UTOX_SAVE_VERSION) {
-            /* validate values */
-            if(save->scale > 30) {
-                save->scale = 30;
-            } else if (save->scale < 5) {
-                save->scale = 10;
-            }
-            goto NEXT;
-        } else if (save->save_version == 2) {
-            UTOX_SAVE_V2 *save_v2 = (UTOX_SAVE_V2*)save;
-            save = calloc(sizeof(UTOX_SAVE) + 1 + strlen((char *)save_v2->proxy_ip), 1);
-
-            memcpy(save, save_v2, sizeof(UTOX_SAVE_V2));
-            save->save_version = UTOX_SAVE_VERSION;
-
-            if(save->scale > 30) {
-                save->scale = 30;
-            }
-
-            strcpy((char*)save->proxy_ip, (char*)save_v2->proxy_ip);
-            free(save_v2);
-            goto NEXT;
-        } else {
-            free(save);
+        /* validate values */
+        if(save->scale > 30) {
+            save->scale = 30;
+        } else if (save->scale < 5) {
+            save->scale = 10;
         }
     }
 
-    save = calloc(sizeof(UTOX_SAVE) + 1, 1);
-    save->save_version = 1;
-    save->scale = DEFAULT_SCALE - 1;
+    dropdown_dpi.selected       = dropdown_dpi.over     = save->scale - 5;
+    dropdown_proxy.selected     = dropdown_proxy.over   = save->proxyenable <= 2 ? save->proxyenable : 2;
 
-    save->enableipv6      = 1;
-    save->disableudp      = 0;
-    save->proxy_port      = 0;
-    save->proxyenable     = 0;
-    save->proxy_ip[0]     = 0;
+    switch_ipv6.switch_on           = save->enableipv6;
+    switch_udp.switch_on            = !save->disableudp;
+    switch_logging.switch_on        = save->logging_enabled;
+    switch_mini_contacts.switch_on  = save->use_mini_roster;
+    switch_auto_startup.switch_on   = save->auto_startup;
 
-    save->logging_enabled = 1;
+    switch_close_to_tray.switch_on         = save->close_to_tray;
+    switch_start_in_tray.switch_on         = save->start_in_tray;
 
-    save->close_to_tray   = 0;
-    save->start_in_tray   = 0;
-    save->auto_startup    = 0;
+    switch_audible_notifications.switch_on = save->audible_notifications_enabled;
+    switch_audio_filtering.switch_on       = save->audio_filtering_enabled;
+    switch_push_to_talk.switch_on          = save->push_to_talk;
 
-    save->audible_notifications_enabled = 1;
-    save->audio_device_in = ~0;
-    save->audio_filtering_enabled = 1;
-    save->use_mini_roster = 0;
-    save->filter = 0;
-    save->push_to_talk = 0;
+    dropdown_theme.selected                = dropdown_theme.over                = save->theme;
 
-    save->theme = 0;
-
-    save->no_typing_notifications = 0;
-    save->group_notifications = 0;
-
-    config_osdefaults(save);
-NEXT:
-    dropdown_dpi.selected                  = dropdown_dpi.over                  = save->scale - 5;
-
-    dropdown_ipv6.selected                 = dropdown_ipv6.over                 = save->enableipv6;
-    dropdown_udp.selected                  = dropdown_udp.over                  = !save->disableudp;
-
-    dropdown_proxy.selected                = dropdown_proxy.over                = save->proxyenable <= 2 ? save->proxyenable : 2;
-
-    dropdown_logging.selected              = dropdown_logging.over              = save->logging_enabled;
-
-    dropdown_close_to_tray.selected        = dropdown_close_to_tray.over        = save->close_to_tray;
-    dropdown_start_in_tray.selected        = dropdown_start_in_tray.over        = save->start_in_tray;
-    dropdown_auto_startup.selected         = dropdown_auto_startup.over         = save->auto_startup;
-
-    dropdown_audible_notification.selected = dropdown_audible_notification.over = save->audible_notifications_enabled;
-    dropdown_audio_filtering.selected      = dropdown_audio_filtering.over      = save->audio_filtering_enabled;
-    dropdown_push_to_talk.selected         = dropdown_push_to_talk.over         = save->push_to_talk;
-    dropdown_mini_roster.selected          = dropdown_mini_roster.over          = save->use_mini_roster;
-
-    dropdown_theme.selected = dropdown_theme.over = save->theme;
-
-    dropdown_typing_notes.selected = save->no_typing_notifications;
-
-    dropdown_global_group_notifications.selected = dropdown_global_group_notifications.over = save->group_notifications;
+    switch_typing_notes.switch_on          = save->no_typing_notifications;
 
     list_set_filter(save->filter); /* roster list filtering */
 
-    settings.enable_ipv6    = save->enableipv6;
-    settings.enable_udp     = !save->disableudp;
+    /* Network settings */
+    settings.enable_ipv6    =   save->enableipv6;
+    settings.enable_udp     =  !save->disableudp;
     settings.use_proxy      = !!save->proxyenable;
-    settings.proxy_port     = save->proxy_port;
+    settings.proxy_port     =   save->proxy_port;
+
     strcpy((char*)proxy_address, (char*)save->proxy_ip);
+
     edit_proxy_ip.length = strlen((char*)save->proxy_ip);
+
     strcpy((char*)edit_proxy_ip.data, (char*)save->proxy_ip);
 
-    if(save->proxy_port) {
+    if (save->proxy_port) {
         edit_proxy_port.length = snprintf((char*)edit_proxy_port.data, edit_proxy_port.maxlength + 1, "%u", save->proxy_port);
         if (edit_proxy_port.length >= edit_proxy_port.maxlength + 1) {
             edit_proxy_port.length = edit_proxy_port.maxlength;
@@ -755,7 +692,15 @@ NEXT:
     return save;
 }
 
-void config_save(UTOX_SAVE *save) {
+void config_save(UTOX_SAVE *save_in) {
+    UTOX_SAVE *save = calloc(1, sizeof(UTOX_SAVE) + 256);
+
+    /* Copy the data from the in data to protect the calloc */
+    save->window_x       = save_in->window_x;
+    save->window_y       = save_in->window_y;
+    save->window_width   = save_in->window_width;
+    save->window_height  = save_in->window_height;
+
     save->save_version                  = UTOX_SAVE_VERSION;
     save->scale                         = ui_scale - 1;
     save->proxyenable                   = dropdown_proxy.selected;
@@ -782,12 +727,10 @@ void config_save(UTOX_SAVE *save) {
     save->utox_last_version             = settings.curr_version;
     save->group_notifications           = settings.group_notifications;
 
+    memcpy(save->proxy_ip, proxy_address, 256); /* Magic number inside toxcore */
 
-    memset(save->unused, 0, sizeof(save->unused));
-
-    debug("uTox:\tWriting uTox Save\n");
-
-    utox_save_data_utox(save, sizeof(*save));
+    debug_notice("uTox:\tWriting uTox Save\n");
+    utox_save_data_utox(save, sizeof(*save) + 256); /* Magic number inside toxcore */
 }
 
 void utox_write_metadata(FRIEND *f){

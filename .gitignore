@@ -17,3 +17,10 @@ libtoxcore.log
 toolchain/
 build/*
 tox/*
+
+# editor files
+*.swp
+*~
+GPATH
+GRTAGS
+GTAGS

@@ -30,7 +30,7 @@ void draw_image(const UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, ui
                      imgx, imgy, imgx, imgy, x, y, width, height);
 }
 
-void draw_inline_image(uint8_t *img_data, size_t size, uint16_t w, uint16_t h, int x, int y){
+void draw_inline_image(uint8_t *img_data, size_t size, uint16_t w, uint16_t h, int x, int y) {
     uint8_t *rgba_data = img_data;
 
     // we don't need to free this, that's done by XDestroyImage()

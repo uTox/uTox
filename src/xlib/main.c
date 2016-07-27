@@ -1311,7 +1311,6 @@ int main(int argc, char *argv[]) {
         .window_y = y_return < 0 ? 0 : y_return,
         .window_width = width_return,
         .window_height = height_return,
-        .theme = theme,
     };
 
     config_save(&d);
