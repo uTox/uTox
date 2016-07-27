@@ -109,13 +109,16 @@ static void toxcore_bootstrap(Tox *tox) {
 static void set_callbacks(Tox *tox) {
     utox_set_callbacks_friends(tox);
     utox_set_callbacks_groups(tox);
+#ifdef ENABLE_MULTIDEVICE
     utox_set_callbacks_mdevice(tox);
+#endif
     utox_set_callbacks_file_transfer(tox);
 }
 
 void tox_after_load(Tox *tox) {
     utox_friend_list_init(tox);
 
+#ifdef ENABLE_MULTIDEVICE
     // self.group_list_count = tox_self_get_(tox);
     self.device_list_count = tox_self_get_device_count(tox);
 
@@ -127,6 +130,7 @@ void tox_after_load(Tox *tox) {
     for (i = 0; i < self.device_list_count; ++i) {
         utox_device_init(tox, i);
     }
+#endif
 
     self.name_length = tox_self_get_name_size(tox);
     tox_self_get_name(tox, self.name);
@@ -174,7 +178,9 @@ void tox_settingschanged(void) {
     //free everything
     tox_connected = 0;
 
+#ifdef ENABLE_MULTIDEVICE
     utox_devices_decon();
+#endif
 
     list_freeall();
 
@@ -281,7 +287,9 @@ static int init_toxcore(Tox **tox) {
         .proxy_port                 = settings.proxy_port,
         .start_port                 = 0,
         .end_port                   = 0,
+#ifdef ENABLE_MULTIDEVICE
         .send_message_to_devices    = 1,
+#endif
     };
 
     save_status = load_toxcore_save(&topt);
@@ -558,6 +566,8 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
         }
 
         case TOX_SELF_NEW_DEVICE: {
+            #ifdef ENABLE_MULTIDEVICE
+
             TOX_ERR_DEVICE_ADD error = 0;
             tox_self_add_device(tox, data + TOX_FRIEND_ADDRESS_SIZE, param1, data, &error);
 
@@ -567,6 +577,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg,
                 self.device_list_count++;
             }
 
+            #endif
             break;
         }
 

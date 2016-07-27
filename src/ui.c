@@ -343,6 +343,7 @@ static void draw_settings_sub_header(int x, int y, int w, int UNUSED(height)){
     }
     drawvline( x_right_edge, y + SCALE(0), y + SCALE(30), COLOR_EDGE_NORMAL);
 
+#ifdef ENABLE_MULTIDEVICE
     /* Draw the text and bars for device settings */
     setcolor(!button_settings_sub_devices.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_SUBTEXT);
     x = x_right_edge;
@@ -355,6 +356,7 @@ static void draw_settings_sub_header(int x, int y, int w, int UNUSED(height)){
         DRAW_OVERLINE();
     }
     drawvline( x_right_edge, y + SCALE(0), y + UTOX_SCALE(15  ), COLOR_EDGE_NORMAL);
+#endif
 
     /* Draw the text and bars for network settings */
     setcolor(!button_settings_sub_net.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_SUBTEXT);
@@ -1096,31 +1098,21 @@ void ui_set_scale(uint8_t scale) {
 
     /* Setting pages        */
     CREATE_BUTTON(settings_sub_profile, 1, 1, SCALE(18) + UTOX_STR_WIDTH(PROFILE_BUTTON), SCALE(28));
+    uint settings_tab_x = 1 + UTOX_STR_WIDTH(PROFILE_BUTTON);
 
-    CREATE_BUTTON(settings_sub_devices, SCALE(22) + UTOX_STR_WIDTH(PROFILE_BUTTON),
-                                        1,
-                                        SCALE(18) + UTOX_STR_WIDTH(DEVICES_BUTTON),
-                                        SCALE(28));
+    #ifdef ENABLE_MULTIDEVICE
+    CREATE_BUTTON(settings_sub_devices, settings_tab_x, 1, SCALE(22) + UTOX_STR_WIDTH(DEVICES_BUTTON), SCALE(28));
+    settings_tab_x += SCALE(22) + UTOX_STR_WIDTH(DEVICES_BUTTON);
+    #endif
 
-    CREATE_BUTTON(settings_sub_net,     SCALE(42) + UTOX_STR_WIDTH(PROFILE_BUTTON) + UTOX_STR_WIDTH(DEVICES_BUTTON),
-                                        1,
-                                        SCALE(18) + UTOX_STR_WIDTH(NETWORK_BUTTON),
-                                        SCALE(28));
+    CREATE_BUTTON(settings_sub_net, settings_tab_x, 1, SCALE(18) + UTOX_STR_WIDTH(NETWORK_BUTTON), SCALE(28));
+    settings_tab_x += SCALE(20) + UTOX_STR_WIDTH(NETWORK_BUTTON);
 
-    CREATE_BUTTON(settings_sub_ui,      SCALE(62) + UTOX_STR_WIDTH(PROFILE_BUTTON) +
-                                                    UTOX_STR_WIDTH(DEVICES_BUTTON) +
-                                                    UTOX_STR_WIDTH(NETWORK_BUTTON),
-                                        1,
-                                        SCALE(18) + UTOX_STR_WIDTH(USER_INTERFACE_BUTTON),
-                                        SCALE(28));
+    CREATE_BUTTON(settings_sub_ui, settings_tab_x, 1, SCALE(18) + UTOX_STR_WIDTH(USER_INTERFACE_BUTTON), SCALE(28));
+    settings_tab_x += SCALE(20) + UTOX_STR_WIDTH(USER_INTERFACE_BUTTON);
 
-    CREATE_BUTTON(settings_sub_av,      SCALE(82) + UTOX_STR_WIDTH(PROFILE_BUTTON) +
-                                                    UTOX_STR_WIDTH(DEVICES_BUTTON) +
-                                                    UTOX_STR_WIDTH(NETWORK_BUTTON) +
-                                                    UTOX_STR_WIDTH(USER_INTERFACE_BUTTON),
-                                         1,
-                                        -1,
-                                        SCALE(28));
+    CREATE_BUTTON(settings_sub_av, settings_tab_x, 1, -1, SCALE(28));
+
     /* Profile              */
     CREATE_BUTTON(copyid, SCALE(66), SCALE(106), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
     CREATE_BUTTON(show_password_settings, SCALE(130), SCALE(206), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
@@ -1448,7 +1440,9 @@ static void panel_update(PANEL *p, int x, int y, int width, int height)
     switch (p->type) {
         case PANEL_NONE: {
             if (p == &panel_settings_devices) {
+                #ifdef ENABLE_MULTIDEVICE
                 devices_update_ui();
+                #endif
             }
             break;
         }

@@ -31,6 +31,7 @@
 #define MAIN_WIDTH  800
 #define MAIN_HEIGHT 600
 
+
 #define inrect(x, y, rx, ry, width, height) ((x) >= (rx) && (y) >= (ry) && (x) < ((rx) + (width)) && (y) < ((ry) + (height)))
 
 #define strcmp2(x, y) (memcmp(x, y, sizeof(y) - 1))
@@ -82,6 +83,10 @@
 #include <tox/toxencryptsave.h>
 #include <vpx/vpx_codec.h>
 #include <vpx/vpx_image.h>
+
+#if TOX_VERSION_MINOR > 0
+  #define ENABLE_MULTIDEVICE 1
+#endif
 
 #ifdef EMOJI_IDS
 #include <base_emoji.h>

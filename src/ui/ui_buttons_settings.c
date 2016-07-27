@@ -61,8 +61,10 @@ static void button_bottommenu_update(BUTTON *b) {
 }
 
 static void button_add_device_to_self_mdown(void) {
+    #ifdef ENABLE_MULTIDEVICE
     devices_self_add(edit_add_new_device_to_self.data, edit_add_new_device_to_self.length);
     edit_resetfocus();
+    #endif
 }
 
 BUTTON button_settings = {
