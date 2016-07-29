@@ -612,16 +612,28 @@ UTOX_SAVE* config_load(void) {
     save = utox_load_data_utox();
 
     if (!save) {
-        debug("unable to load utox_save data\n");
+        debug_notice("unable to load utox_save data\n");
+        /* Create and set defaults */
+        save = calloc(1, sizeof(UTOX_SAVE));
+        save->enableipv6    = 1;
+        save->disableudp    = 0;
+        save->proxyenable   = 0;
+
+        save->audio_filtering_enabled       = 1;
+        save->audible_notifications_enabled = 1;
     }
 
-    if (save) {
-        /* validate values */
-        if(save->scale > 30) {
-            save->scale = 30;
-        } else if (save->scale < 5) {
-            save->scale = 10;
-        }
+    if (save->scale > 30) {
+        save->scale = 30;
+    } else if (save->scale < 5) {
+        save->scale = 10;
+    }
+
+    if (save->window_width < MAIN_WIDTH) {
+        save->window_width = MAIN_WIDTH;
+    }
+    if (save->window_height < MAIN_HEIGHT) {
+        save->window_height = MAIN_HEIGHT;
     }
 
     dropdown_dpi.selected       = dropdown_dpi.over     = save->scale - 5;
@@ -642,7 +654,7 @@ UTOX_SAVE* config_load(void) {
 
     dropdown_theme.selected                = dropdown_theme.over                = save->theme;
 
-    switch_typing_notes.switch_on          = save->no_typing_notifications;
+    switch_typing_notes.switch_on          = !save->no_typing_notifications;
 
     list_set_filter(save->filter); /* roster list filtering */
 
