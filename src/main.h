@@ -1,45 +1,45 @@
 // Versions
-#define TITLE         "uTox"
-#define SUB_TITLE     "(Alpha)"
+#define TITLE "uTox"
+#define SUB_TITLE "(Alpha)"
 #define RELEASE_TITLE "WORKING"
-#define VERSION       "0.10.1"
-#define VER_MAJOR     0
-#define VER_MINOR     10
-#define VER_PATCH     1
+#define VERSION "0.10.1"
+#define VER_MAJOR 0
+#define VER_MINOR 10
+#define VER_PATCH 1
 #define UTOX_VERSION_NUMBER 10001u /* major, minor, patch, 0 padded where needed */
 // Defaults
-#define DEFAULT_NAME   "Tox User"
+#define DEFAULT_NAME "Tox User"
 #define DEFAULT_STATUS "Toxing on uTox"
-#define DEFAULT_SCALE  11
+#define DEFAULT_SCALE 11
 
 // Limits and sizes
-#define UTOX_MAX_CALLS            16
-#define UTOX_MAX_NUM_FRIENDS      256 /* Deprecated; Avoid Use */
+#define UTOX_MAX_CALLS 16
+#define UTOX_MAX_NUM_FRIENDS 256 /* Deprecated; Avoid Use */
 #define UTOX_MAX_BACKLOG_MESSAGES 256
-#define UTOX_MAX_NUM_GROUPS       512
-#define UTOX_FILE_NAME_LENGTH     1024
+#define UTOX_MAX_NUM_GROUPS 512
+#define UTOX_FILE_NAME_LENGTH 1024
 
-#define UTOX_MAX_NAME_LENGTH      TOX_MAX_NAME_LENGTH
+#define UTOX_MAX_NAME_LENGTH TOX_MAX_NAME_LENGTH
 
-#define MAX_CALLS               UTOX_MAX_CALLS       /* Deprecated; Avoid Use */
-#define MAX_NUM_FRIENDS         UTOX_MAX_NUM_FRIENDS /* Deprecated; Avoid Use */
-#define MAX_NUM_GROUPS          UTOX_MAX_NUM_GROUPS  /* Deprecated; Avoid Use */
+#define MAX_CALLS UTOX_MAX_CALLS             /* Deprecated; Avoid Use */
+#define MAX_NUM_FRIENDS UTOX_MAX_NUM_FRIENDS /* Deprecated; Avoid Use */
+#define MAX_NUM_GROUPS UTOX_MAX_NUM_GROUPS   /* Deprecated; Avoid Use */
 #define TOX_FRIEND_ADDRESS_SIZE TOX_ADDRESS_SIZE
 
-#define BORDER      1
-#define CAPTION     26
-#define MAIN_WIDTH  800
+#define BORDER 1
+#define CAPTION 26
+#define MAIN_WIDTH 800
 #define MAIN_HEIGHT 600
 
-
-#define inrect(x, y, rx, ry, width, height) ((x) >= (rx) && (y) >= (ry) && (x) < ((rx) + (width)) && (y) < ((ry) + (height)))
+#define inrect(x, y, rx, ry, width, height)                                                                            \
+    ((x) >= (rx) && (y) >= (ry) && (x) < ((rx) + (width)) && (y) < ((ry) + (height)))
 
 #define strcmp2(x, y) (memcmp(x, y, sizeof(y) - 1))
 #define strcpy2(x, y) (memcpy(x, y, sizeof(y) - 1))
 
-#define isdesktop(x) ((size_t)(x) == 1)
+//#define isdesktop(x) ((size_t)(x) == 1)
 
-#define countof(x) (sizeof(x)/sizeof(*(x)))
+#define countof(x) (sizeof(x) / sizeof(*(x)))
 
 //  fixes compile with apple headers
 /*** This breaks both android and Windows video... but it's needed to fix complation in clang (Cocoa & asan)
@@ -49,17 +49,17 @@
 #endif */
 
 #ifndef __OBJC__
-#define volatile(x) (x)
+#define volatile(x)(x)
 #endif
 /* UTOX_SCALE is used as the default so that we have a lot of options for scale size.
  * When ever you see UTOX_SCALE(x) double the size, and use SCALE instead!           */
-#define  UTOX_SCALE(x) (((int)((ui_scale * 2.0 / 10.0) * ((double)x) )) ? : 1)
-#define       SCALE(x) (((int)((ui_scale / 10.0)       * ((double)x) )) ? : 1)
-#define   UI_FSCALE(x) ((      (ui_scale / 10.0)       * ((double)x) )  ? : 1)
+#define UTOX_SCALE(x) (((int)((ui_scale * 2.0 / 10.0) * ((double)x))) ?: 1)
+#define SCALE(x) (((int)((ui_scale / 10.0) * ((double)x))) ?: 1)
+#define UI_FSCALE(x) (((ui_scale / 10.0) * ((double)x)) ?: 1)
 
 #define drawstr(x, y, i) drawtext(x, y, S(i), SLEN(i))
-#define drawstr_getwidth(x, y, str) drawtext_getwidth(x, y, (char_t*)str, sizeof(str) - 1)
-#define strwidth(x) textwidth((char_t*)x, sizeof(x) - 1)
+#define drawstr_getwidth(x, y, str) drawtext_getwidth(x, y, (char_t *)str, sizeof(str) - 1)
+#define strwidth(x) textwidth((char_t *)x, sizeof(x) - 1)
 
 /* Support for large files. */
 #define _LARGEFILE_SOURCE
@@ -85,7 +85,7 @@
 #include <vpx/vpx_image.h>
 
 #if TOX_VERSION_MINOR > 0
-  #define ENABLE_MULTIDEVICE 1
+#define ENABLE_MULTIDEVICE 1
 #endif
 
 #ifdef EMOJI_IDS
@@ -95,34 +95,34 @@
 /* House keeping for uTox save file. */
 #define UTOX_SAVE_VERSION 3
 typedef struct {
-    uint8_t  save_version;
-    uint8_t  scale;
-    uint8_t  enableipv6;
-    uint8_t  disableudp;
+    uint8_t save_version;
+    uint8_t scale;
+    uint8_t enableipv6;
+    uint8_t disableudp;
 
     uint16_t window_x, window_y, window_width, window_height;
     uint16_t proxy_port;
 
-    uint8_t  proxyenable;
+    uint8_t proxyenable;
 
-    uint8_t  logging_enabled                : 1;
-    uint8_t  audible_notifications_enabled  : 1;
-    uint8_t  filter                         : 1;
-    uint8_t  audio_filtering_enabled        : 1;
-    uint8_t  close_to_tray                  : 1;
-    uint8_t  start_in_tray                  : 1;
-    uint8_t  auto_startup                   : 1;
-    uint8_t  no_typing_notifications        : 1;
+    uint8_t logging_enabled : 1;
+    uint8_t audible_notifications_enabled : 1;
+    uint8_t filter : 1;
+    uint8_t audio_filtering_enabled : 1;
+    uint8_t close_to_tray : 1;
+    uint8_t start_in_tray : 1;
+    uint8_t auto_startup : 1;
+    uint8_t no_typing_notifications : 1;
 
     uint16_t audio_device_in;
     uint16_t audio_device_out;
 
-    uint8_t  theme;
+    uint8_t theme;
 
-    uint8_t  push_to_talk                   : 1;
-    uint8_t  use_mini_roster                : 1;
-    uint8_t  group_notifications            : 4;
-    uint8_t  zero                           : 2;
+    uint8_t push_to_talk : 1;
+    uint8_t use_mini_roster : 1;
+    uint8_t group_notifications : 4;
+    uint8_t zero : 2;
 
     uint32_t utox_last_version; // I don't like this here either,
                                 // but I'm not ready to rewrite and update this struct yet.
@@ -133,30 +133,27 @@ typedef struct {
 
 #define LOGFILE_SAVE_VERSION 3
 typedef struct {
-    uint8_t  log_version;
+    uint8_t log_version;
 
-    time_t   time;
-    size_t   author_length;
-    size_t   msg_length;
+    time_t time;
+    size_t author_length;
+    size_t msg_length;
 
-    uint8_t  author  : 1;
-    uint8_t  receipt : 1;
-    uint8_t  flags   : 5;
-    uint8_t  deleted : 1;
+    uint8_t author : 1;
+    uint8_t receipt : 1;
+    uint8_t flags : 5;
+    uint8_t deleted : 1;
 
-    uint8_t  msg_type;
+    uint8_t msg_type;
 
-    uint8_t  zeroes[2];
+    uint8_t zeroes[2];
 } LOG_FILE_MSG_HEADER;
 
 volatile uint16_t loaded_audio_in_device, loaded_audio_out_device;
-_Bool tox_connected;
+_Bool             tox_connected;
 
 /* Super global vars */
-volatile _Bool tox_thread_init,
-               utox_av_ctrl_init,
-               utox_audio_thread_init,
-               utox_video_thread_init;
+volatile _Bool tox_thread_init, utox_av_ctrl_init, utox_audio_thread_init, utox_video_thread_init;
 
 typedef struct utox_settings {
     uint32_t curr_version;
@@ -199,12 +196,12 @@ typedef struct utox_settings {
 /* This might need to be volatile type... */
 SETTINGS settings;
 
-//add friend page
+// add friend page
 uint8_t addfriend_status;
 
-int font_small_lineheight, font_msg_lineheight;
+int      font_small_lineheight, font_msg_lineheight;
 uint16_t video_width, video_height, max_video_width, max_video_height;
-char proxy_address[256]; /* Magic Number inside toxcore */
+char     proxy_address[256]; /* Magic Number inside toxcore */
 
 // Structs
 typedef struct edit_change EDIT_CHANGE;
@@ -218,7 +215,6 @@ enum {
     VERB_NEW_ADHD_MEDS,     // Info
     VERB_TEENAGE_GIRL,      // Debug
 };
-
 
 enum {
     CURSOR_NONE,
@@ -294,25 +290,25 @@ typedef enum {
 } SVG_IMG;
 
 #if defined __WIN32__
-    #include "windows/main.h"
+#include "windows/main.h"
 #elif defined __ANDROID__
-    #include "android/main.h"
+#include "android/main.h"
 #elif defined __OBJC__
-    #include "cocoa/main.h"
+#include "cocoa/main.h"
 #else
-    #include "xlib/main.h"
+#include "xlib/main.h"
 #endif
 
 #ifdef UNUSED
-# undef UNUSED
+#undef UNUSED
 #endif
 
 #ifdef __GNUC__
-# define UNUSED(x) UNUSED_ ## x __attribute__((__unused__))
+#define UNUSED(x) UNUSED_##x __attribute__((__unused__))
 #elif defined(__LCLINT__)
-# define UNUSED(x) /*@unused@*/ x
+#define UNUSED(x) /*@unused@*/ x
 #else
-# define UNUSED(x) x
+#define UNUSED(x) x
 #endif
 
 #include "stb_image.h"
@@ -362,11 +358,10 @@ typedef uint8_t *UTOX_IMAGE;
 #include "dns.h"
 #include "file_transfers.h"
 
-
 pthread_mutex_t messages_lock;
 
-//friends and groups
-//note: assumes array size will always be large enough
+// friends and groups
+// note: assumes array size will always be large enough
 UTOX_DEVICE *devices;
 
 FRIEND friend[MAX_NUM_FRIENDS];
@@ -378,31 +373,31 @@ enum {
     USER_STATUS_DO_NOT_DISTURB,
 };
 
-//me
+// me
 struct {
-    uint8_t     status;
-    uint8_t     name[TOX_MAX_NAME_LENGTH];
-    uint8_t     statusmsg[TOX_MAX_STATUS_MESSAGE_LENGTH];
-    size_t      name_length, statusmsg_length;
+    uint8_t status;
+    uint8_t name[TOX_MAX_NAME_LENGTH];
+    uint8_t statusmsg[TOX_MAX_STATUS_MESSAGE_LENGTH];
+    size_t  name_length, statusmsg_length;
 
-    size_t      friend_list_count;
-    size_t      friend_list_size;
+    size_t friend_list_count;
+    size_t friend_list_size;
 
-    size_t      groups_list_count;
-    size_t      groups_list_size;
+    size_t groups_list_count;
+    size_t groups_list_size;
 
-    size_t      device_list_count;
-    size_t      device_list_size;
+    size_t device_list_count;
+    size_t device_list_size;
 
-    uint8_t     id_buffer[TOX_FRIEND_ADDRESS_SIZE * 4];
-    size_t      id_buffer_length;
+    uint8_t id_buffer[TOX_FRIEND_ADDRESS_SIZE * 4];
+    size_t  id_buffer_length;
 
-    uint8_t     id_binary[TOX_FRIEND_ADDRESS_SIZE];
+    uint8_t id_binary[TOX_FRIEND_ADDRESS_SIZE];
 
-    AVATAR      avatar;
-    uint32_t    avatar_format;
-    uint8_t     *avatar_data;
-    size_t      avatar_size;
+    AVATAR   avatar;
+    uint32_t avatar_format;
+    uint8_t *avatar_data;
+    size_t   avatar_size;
 } self;
 
 uint8_t cursor;
@@ -435,21 +430,19 @@ FILE *native_load_chatlog_file(uint32_t friend_number);
 /** given a filename, native_remove_file will delete that file from the local config dir */
 _Bool native_remove_file(const uint8_t *name, size_t length);
 
-
-
 /*** Global wrappers for the native_ data functions ***/
 
 /** TODO DOCUMENATION
  */
-_Bool      utox_save_data_tox(uint8_t *data, size_t length);
+_Bool utox_save_data_tox(uint8_t *data, size_t length);
 
 /** TODO DOCUMENATION
  */
-uint8_t   *utox_load_data_tox(size_t *size);
+uint8_t *utox_load_data_tox(size_t *size);
 
 /** TODO DOCUMENATION
  */
-_Bool      utox_save_data_utox(UTOX_SAVE *data, size_t length);
+_Bool utox_save_data_utox(UTOX_SAVE *data, size_t length);
 
 /** TODO DOCUMENATION
  */
@@ -457,7 +450,7 @@ UTOX_SAVE *utox_load_data_utox(void);
 
 /** TODO DOCUMENATION
  */
-size_t     utox_save_chatlog(uint32_t friend_number, uint8_t *data, size_t length);
+size_t utox_save_chatlog(uint32_t friend_number, uint8_t *data, size_t length);
 
 /** This one actually does the work of reading the logfile information.
  *
@@ -474,13 +467,13 @@ _Bool utox_update_chatlog(uint32_t friend_number, size_t offset, uint8_t *data, 
 
 /** TODO DOCUMENATION
  */
-_Bool    utox_save_data_avatar(uint32_t friend_number, const uint8_t *data, size_t length);
+_Bool utox_save_data_avatar(uint32_t friend_number, const uint8_t *data, size_t length);
 /** TODO DOCUMENATION
  */
 uint8_t *utox_load_data_avatar(uint32_t friend_number, size_t *size);
 /** TODO DOCUMENATION
  */
-_Bool    utox_remove_file_avatar(uint32_t friend_number);
+_Bool utox_remove_file_avatar(uint32_t friend_number);
 
 /** TODO DOCUMENATION
  */
@@ -489,27 +482,26 @@ _Bool utox_remove_file(const uint8_t *full_name, size_t length);
  */
 _Bool utox_remove_friend_chatlog(uint32_t friend_number);
 
-_Bool    utox_remove_file(const uint8_t *full_name, size_t length);
+_Bool utox_remove_file(const uint8_t *full_name, size_t length);
 _Bool utox_remove_friend_history(uint32_t friend_number);
 /** TODO DOCUMENATION
  */
-void  utox_export_chatlog_init(uint32_t friend_number);
+void utox_export_chatlog_init(uint32_t friend_number);
 
 /** TODO DOCUMENATION
  */
-void  utox_export_chatlog(uint32_t friend_number, FILE *dest_file);
-
+void utox_export_chatlog(uint32_t friend_number, FILE *dest_file);
 
 /* TODO: sort everything below this line! */
 
 /** TODO DOCUMENATION
  */
-void parse_args(int argc, char *argv[], _Bool *theme_was_set_on_argv, int8_t *should_launch_at_startup, int8_t *set_show_window, _Bool *no_updater);
+void parse_args(int argc, char *argv[], _Bool *theme_was_set_on_argv, int8_t *should_launch_at_startup,
+                int8_t *set_show_window, _Bool *no_updater);
 
 /** TODO DOCUMENATION
  */
 void utox_init(void);
-
 
 // inserts/deletes a value into the registry to launch uTox after boot
 void launch_at_startup(int is_launch_at_startup);
@@ -529,21 +521,23 @@ enum {
 void image_set_filter(UTOX_NATIVE_IMAGE *image, uint8_t filter);
 
 /* set scale of image so that when it's drawn it will be `scale' times as large(2.0 for double size, 0.5 for half, etc.)
- *  notes: theoretically lowest possible scale is (1.0/65536.0), highest is 65536.0, values outside of this range will create weird issues
+ *  notes: theoretically lowest possible scale is (1.0/65536.0), highest is 65536.0, values outside of this range will
+ * create weird issues
  *         scaling will be rounded to pixels, so it might not be exact
  */
 void image_set_scale(UTOX_NATIVE_IMAGE *image, double scale);
 
 /* draws an utox image with or without alpha channel into the rect of (x,y,width,height) on the screen,
  * starting at position (imgx,imgy) of the image
- * WARNING: Windows can fail to show the image at all if the rect (imgx,imgy,width,height) contains even 1 pixel outside of
+ * WARNING: Windows can fail to show the image at all if the rect (imgx,imgy,width,height) contains even 1 pixel outside
+ * of
  * the image's size AFTER SCALING, so be careful.
  * TODO: improve this so this function is safer to use */
-void draw_image(const UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t imgx, uint32_t imgy);
+void draw_image(const UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t imgx,
+                uint32_t imgy);
 
 /* Native wrapper to ready and call draw_image */
 void draw_inline_image(uint8_t *img_data, size_t size, uint16_t w, uint16_t h, int x, int y);
-
 
 /* converts a png to a UTOX_NATIVE_IMAGE, returns a pointer to it, keeping alpha channel only if keep_alpha is 1 */
 UTOX_NATIVE_IMAGE *decode_image_rgb(const UTOX_IMAGE, size_t size, uint16_t *w, uint16_t *h, _Bool keep_alpha);
@@ -582,9 +576,9 @@ void drawtextrangecut(int x, int x2, int y, char_t *str, uint16_t length);
 int textwidth(char_t *str, uint16_t length);
 int textfit(char_t *str, uint16_t length, int width);
 int textfit_near(char_t *str, uint16_t length, int width);
-//TODO: Seems to be unused. Remove?
-int text_drawline(int x, int right, int y, uint8_t *str, int i, int length, int highlight, int hlen, uint16_t lineheight);
-
+// TODO: Seems to be unused. Remove?
+int text_drawline(int x, int right, int y, uint8_t *str, int i, int length, int highlight, int hlen,
+                  uint16_t lineheight);
 
 void drawrect(int x, int y, int right, int bottom, uint32_t color);
 void draw_rect_frame(int x, int y, int width, int height, uint32_t color);
@@ -610,12 +604,10 @@ int file_unlock(FILE *file, uint64_t start, size_t length);
 /* OS-specific cleanup function for when edits are defocused. Commit IME state, etc. */
 void edit_will_deactivate(void);
 
-
 /* other */
-void thread(void func(void*), void *args);
+void thread(void func(void *), void *args);
 void yieldcpu(uint32_t ms);
 uint64_t get_time(void);
-
 
 void copy(int value);
 void paste(void);
@@ -629,7 +621,6 @@ void native_select_dir_ft(uint32_t fid, MSG_FILE *file);
 void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file);
 void savefiledata(MSG_FILE *file);
 
-
 void setselection(char_t *data, uint16_t length);
 
 void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height, _Bool resize);
@@ -637,18 +628,18 @@ void video_begin(uint32_t id, char_t *name, uint16_t name_length, uint16_t width
 void video_end(uint32_t id);
 
 uint16_t native_video_detect(void);
-_Bool    native_video_init(void *handle);
-void     native_video_close(void *handle);
-int      native_video_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, uint16_t height);
-_Bool    native_video_startread(void);
-_Bool    native_video_endread(void);
+_Bool native_video_init(void *handle);
+void native_video_close(void *handle);
+int native_video_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, uint16_t height);
+_Bool native_video_startread(void);
+_Bool native_video_endread(void);
 
-void audio_detect(void);
+void  audio_detect(void);
 _Bool audio_init(void *handle);
 _Bool audio_close(void *handle);
 _Bool audio_frame(int16_t *buffer);
 
-ToxAV* global_av;
+ToxAV *global_av;
 
 void audio_play(int32_t call_index, const int16_t *data, int length, uint8_t channels);
 void audio_begin(int32_t call_index);
