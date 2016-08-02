@@ -115,7 +115,8 @@ ALCdevice *utox_audio_in_device_get(void) {
 }
 
 static ALCcontext *context;
-void               utox_audio_out_device_open(void) {
+
+void utox_audio_out_device_open(void) {
     if (speakers_on) {
         speakers_count++;
         return;
