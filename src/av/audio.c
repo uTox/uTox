@@ -607,7 +607,7 @@ void utox_audio_thread(void *args) {
                         alSourcePlay(notifytone);
 
                         time(&close_device_in);
-                        close_device_in += 4 + currtime;
+                        close_device_in += 4;
                         debug_info("uToxAudio:\tclose device set!\n");
                     }
                     break;
