@@ -37,7 +37,7 @@
 #define strcmp2(x, y) (memcmp(x, y, sizeof(y) - 1))
 #define strcpy2(x, y) (memcpy(x, y, sizeof(y) - 1))
 
-//#define isdesktop(x) ((size_t)(x) == 1)
+#define isdesktop(x) ((size_t)(x) == 1)
 
 #define countof(x) (sizeof(x) / sizeof(*(x)))
 
