@@ -128,6 +128,9 @@ msgstr("Commencer un appel")
 msgid(START_VIDEO_CALL)
 msgstr("Commencer un appel vidéo")
 
+msgid(CALL_DECLINE)
+msgstr("Rejeter l'appel")
+
 msgid(CALL_CANCELLED)
 msgstr("Appel annulé")
 

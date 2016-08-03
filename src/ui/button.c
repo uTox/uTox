@@ -21,14 +21,15 @@ static void calculate_pos_and_width(BUTTON *b, int *x, int *w) {
 
 void button_draw(BUTTON *b, int x, int y, int width, int height)
 {
-    // Button is hidden
-    if (b->nodraw)
-        return;
 
     // If `update` function is defined, call it on each draw
     if (b->update) {
         b->update(b);
     }
+
+    // Button is hidden
+    if (b->nodraw)
+        return;
 
     // Ensure that font is set before calculating position and width.
     setfont(FONT_SELF_NAME);

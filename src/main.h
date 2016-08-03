@@ -261,6 +261,7 @@ typedef enum {
     BM_GROUP_MINI,
 
     BM_FILE,
+    BM_DECLINE,
     BM_CALL,
     BM_VIDEO,
 

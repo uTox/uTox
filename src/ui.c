@@ -711,7 +711,7 @@ panel_main = {
                     (void*)&scrollbar_friend,
                     (void*)&edit_msg, // this needs to be one of the first, to get events before the others
                     (void*)&messages_friend,
-                    (void*)&button_call_audio, (void*)&button_call_video,
+                    (void*)&button_call_decline, (void*)&button_call_audio, (void*)&button_call_video,
                     (void*)&button_send_file, (void*)&button_send_screenshot, (void*)&button_chat_send,
                     NULL
                 }
@@ -1222,6 +1222,7 @@ void ui_set_scale(uint8_t scale) {
         dropdown_notify_groupchats.panel = d_group_notifications;
 
     /* Friend / Group Page  */
+        CREATE_BUTTON(call_decline, SCALE(-186), SCALE(10), BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
         CREATE_BUTTON(call_audio, SCALE(-124), SCALE(10), BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
         CREATE_BUTTON(call_video, SCALE(-62),  SCALE(10), BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
         CREATE_BUTTON(group_audio, SCALE(-62), SCALE(10), BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);

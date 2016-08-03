@@ -99,6 +99,7 @@ enum {
     /* A/V Call Strings */
     STR_START_AUDIO_CALL, // TODO rename STR_CALL_
     STR_START_VIDEO_CALL, // TODO rename STR_CALL_
+    STR_CALL_DECLINE,
     STR_CALL_CANCELLED,
     STR_CALL_INVITED,
     STR_CALL_RINGING,
