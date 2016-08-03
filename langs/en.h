@@ -151,6 +151,9 @@ msgstr("Start call")
 msgid(START_VIDEO_CALL)
 msgstr("Start video call")
 
+msgid(CALL_DECLINE)
+msgstr("Decline the call")
+
 msgid(CALL_CANCELLED)
 msgstr("Call canceled")
 

@@ -189,6 +189,28 @@ static void button_group_audio_update(BUTTON *b) {
     }
 }
 
+
+static void button_call_decline_onpress(void) {
+    FRIEND *f = selected_item->data;
+    if (f->call_state_friend) {
+        debug("Declining call: %u\n", f->number);
+        postmessage_toxcore(TOX_CALL_DISCONNECT, f->number, 0, NULL);
+    }
+}
+
+static void button_call_decline_update(BUTTON *b) {
+    FRIEND *f = selected_item->data;
+    if (UTOX_AVAILABLE_AUDIO(f->number) && !UTOX_SENDING_AUDIO(f->number)) {
+        button_setcolors_danger(b);
+        b->nodraw = 0;
+        b->disabled = 0;
+    } else {
+        button_setcolors_disabled(b);
+        b->nodraw = 1;
+        b->disabled = 1;
+    }
+}
+
 static void button_call_audio_onpress(void) {
     FRIEND *f = selected_item->data;
     if (f->call_state_self) {
@@ -441,6 +463,18 @@ button_send_friend_request = {
     .update = button_setcolors_success,
     .onpress = button_send_friend_request_onpress,
     .disabled = 0,
+},
+
+button_call_decline = {
+    .bm = BM_LBUTTON,
+    .bm2 = BM_DECLINE,
+    .bw = _BM_LBICON_WIDTH,
+    .bh = _BM_LBICON_HEIGHT,
+    .onpress = button_call_decline_onpress,
+    .update = button_call_decline_update,
+    .tooltip_text = { .i18nal = STR_CALL_DECLINE },
+    .nodraw = 1,
+    .disabled = 1,
 },
 
 button_call_audio = {
