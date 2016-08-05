@@ -1,31 +1,6 @@
 # All these settings have been taken from the clang-format manual,
 # Take a look at http://clang.llvm.org/docs/ClangFormatStyleOptions.html
 BasedOnStyle: LLVM
-
-# The extra indent or outdent of access modifiers, e.g. "public":.
-#  "AccessModifierOffset": 2,
-
-# If true, horizontally aligns arguments after an open bracket.
-# This applies to round brackets (parentheses), angle brackets and square brackets.
-# This will result in formattings like:
-# Possible values:
-
-# BAS_Align (in configuration: Align) Align parameters on the open bracket,
-#  e.g.:
-# someLongFunction(argument1,
-#                  argument2);
-
-# BAS_DontAlign (in configuration: DontAlign) Don’t align, instead use
-# ContinuationIndentWidth, e.g.:
-# someLongFunction(argument1,
-#     argument2);
-
-# BAS_AlwaysBreak (in configuration: AlwaysBreak) Always break after an
-# open bracket, if the parameters don’t fit on a single line, e.g.:
-# someLongFunction(
-#     argument1, argument2);
-#  "AlignAfterOpenBracket": true,
-
 # If true, aligns consecutive assignments.
 # This will align the assignment operators of consecutive lines.
 # This will result in formattings like:
@@ -75,7 +50,7 @@ AllowShortCaseLabelsOnASingleLine: true
 #  "AllowShortFunctionsOnASingleLine": "None",
 
 # If true, if (a) return; can be put on a single line.
-#  "AllowShortIfStatementsOnASingleLine": false,
+AllowShortIfStatementsOnASingleLine: false
 
 # If true, while (true) continue; can be put on a single line.
 #  "AllowShortLoopsOnASingleLine": true,
@@ -132,7 +107,7 @@ AllowShortCaseLabelsOnASingleLine: true
 # BOS_None (in configuration: None) Break after operators.
 # BOS_NonAssignment (in configuration: NonAssignment) Break before operators that aren’t assignments.
 # BOS_All (in configuration: All) Break before operators.
-#  "BreakBeforeBinaryOperators": "None",
+BreakBeforeBinaryOperators: NonAssignment
 
 # The brace breaking style to use.
 # Possible "values":
