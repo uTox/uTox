@@ -110,6 +110,9 @@ msgstr("Anruf beginnen")
 msgid(START_VIDEO_CALL)
 msgstr("Videoanruf beginnen")
 
+msgid(CALL_DECLINE)
+msgstr("Anruf ablehnen")
+
 msgid(CALL_CANCELLED)
 msgstr("Anruf abgebrochen")
 
@@ -124,6 +127,9 @@ msgstr("Anruf gestartet")
 
 msgid(CALL_FRIEND_HAD_ENDED_CALL)
 msgstr(" hat den Anruf beendet!")
+
+msgid(CALL_VIDEO_SHOW_INLINE)
+msgstr("Video inline zeigen")
 
 
 /******************************************************************************
@@ -353,7 +359,7 @@ msgid(IS_TYPING)
 msgstr("schreibt ...")
 
 msgid(CLOSE_TO_TRAY)
-msgstr("In den Infobereich schließen") // TODO: overlaps with translation of START_IN_TRAY (Settings > UI)
+msgstr("In den Infobereich schließen")
 
 msgid(START_IN_TRAY)
 msgstr("Im Infobereich starten")
