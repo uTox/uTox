@@ -79,13 +79,13 @@ msgstr("Transfer pliku anulowany")
 msgid(TRANSFER_COMPLETE)
 msgstr("Transfer pliku zakończony")
 
-msgid(GROUPCHAT_JOIN_AUDIO)
+msgid(GROUP_START_AUDIO)
 msgstr("Dołącz do czatu głosowego")
 
-msgid(START_AUDIO_CALL)
+msgid(CALL_START_AUDIO)
 msgstr("Rozpocznij rozmowę")
 
-msgid(START_VIDEO_CALL)
+msgid(CALL_START_VIDEO)
 msgstr("Rozpocznij wideorozmowę")
 
 msgid(CALL_CANCELLED)

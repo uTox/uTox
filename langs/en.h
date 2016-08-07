@@ -145,10 +145,10 @@ msgstr("Right click")
 /******************************************************************************
  *** Audio / Video Call Strings                                             ***
  ******************************************************************************/
-msgid(START_AUDIO_CALL)
+msgid(CALL_START_AUDIO)
 msgstr("Start call")
 
-msgid(START_VIDEO_CALL)
+msgid(CALL_START_VIDEO)
 msgstr("Start video call")
 
 msgid(CALL_DECLINE)
@@ -192,7 +192,7 @@ msgstr("Export Chatlog as plain text")
 /******************************************************************************
  *** Group Strings                                                          ***
  ******************************************************************************/
-msgid(GROUPCHAT_JOIN_AUDIO)
+msgid(GROUP_START_AUDIO)
 msgstr("Join audio chat")
 
 msgid(GROUP_CREATE_TEXT)
@@ -214,7 +214,7 @@ msgstr("Leave Group")
 /******************************************************************************
  *** Group Settings                                                         ***
  ******************************************************************************/
-msgid(GROUPCHAT_SETTINGS)
+msgid(GROUP_SETTINGS)
 msgstr("Groupchat Settings")
 
 msgid(GROUP_NOTIFICATIONS)

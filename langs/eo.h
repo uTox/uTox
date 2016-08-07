@@ -79,13 +79,13 @@ msgstr("Dosiera transigo nuligita")
 msgid(TRANSFER_COMPLETE)
 msgstr("Dosiera transigo kompletigita")
 
-msgid(GROUPCHAT_JOIN_AUDIO)
+msgid(GROUP_START_AUDIO)
 msgstr("Aliĝi al voĉa babilejo")
 
-msgid(START_AUDIO_CALL)
+msgid(CALL_START_AUDIO)
 msgstr("Eki voĉan vokon")
 
-msgid(START_VIDEO_CALL)
+msgid(CALL_START_VIDEO)
 msgstr("Eki videan vokon")
 
 msgid(CALL_CANCELLED)

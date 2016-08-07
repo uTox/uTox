@@ -997,16 +997,16 @@ _Bool list_mright(void *UNUSED(n)) {
                                                     STR_CLEAR_HISTORY,
                                                     STR_REMOVE_FRIEND };
 
-    static UI_STRING_ID menu_group_unmuted[]    = { STR_GROUPCHAT_SETTINGS,
+    static UI_STRING_ID menu_group_unmuted[]    = { STR_GROUP_SETTINGS,
                                                     STR_CHANGE_GROUP_TOPIC,
                                                     STR_MUTE,
                                                     STR_REMOVE_GROUP };
-    static UI_STRING_ID menu_group_muted[]      = { STR_GROUPCHAT_SETTINGS,
+    static UI_STRING_ID menu_group_muted[]      = { STR_GROUP_SETTINGS,
                                                     STR_CHANGE_GROUP_TOPIC,
                                                     STR_UNMUTE,
                                                     STR_REMOVE_GROUP };
 
-    static UI_STRING_ID menu_group[]            = { STR_GROUPCHAT_SETTINGS,
+    static UI_STRING_ID menu_group[]            = { STR_GROUP_SETTINGS,
                                                     STR_CHANGE_GROUP_TOPIC,
                                                     STR_REMOVE_GROUP };
     static UI_STRING_ID menu_create_group[]     = { STR_GROUP_CREATE_TEXT,

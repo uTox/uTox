@@ -122,10 +122,10 @@ msgstr("Clic droit")
 /******************************************************************************
  *** Appels Audio / Vidéo                                                   ***
  ******************************************************************************/
-msgid(START_AUDIO_CALL)
+msgid(CALL_START_AUDIO)
 msgstr("Commencer un appel")
 
-msgid(START_VIDEO_CALL)
+msgid(CALL_START_VIDEO)
 msgstr("Commencer un appel vidéo")
 
 msgid(CALL_DECLINE)
@@ -166,7 +166,7 @@ msgstr("Accepter les fichiers entrants sans confirmation")
 /******************************************************************************
  *** Groupes                                                                ***
  ******************************************************************************/
-msgid(GROUPCHAT_JOIN_AUDIO)
+msgid(GROUP_START_AUDIO)
 msgstr("Rejoindre le tchat audio")
 
 msgid(GROUP_CREATE_TEXT)

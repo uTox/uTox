@@ -104,10 +104,10 @@ msgstr("Rechtsklick")
 /******************************************************************************
  *** Audio / Video Call Strings                                             ***
  ******************************************************************************/
-msgid(START_AUDIO_CALL)
+msgid(CALL_START_AUDIO)
 msgstr("Anruf beginnen")
 
-msgid(START_VIDEO_CALL)
+msgid(CALL_START_VIDEO)
 msgstr("Videoanruf beginnen")
 
 msgid(CALL_DECLINE)
@@ -150,7 +150,7 @@ msgstr("Chatverlauf als Text exportieren")
 /******************************************************************************
  *** Group Strings                                                          ***
  ******************************************************************************/
-msgid(GROUPCHAT_JOIN_AUDIO)
+msgid(GROUP_START_AUDIO)
 msgstr("Audiochat beitreten")
 
 msgid(GROUP_CREATE_TEXT)
@@ -172,7 +172,7 @@ msgstr("Gruppe verlassen")
 /******************************************************************************
  *** Group Settings                                                         ***
  ******************************************************************************/
-msgid(GROUPCHAT_SETTINGS)
+msgid(GROUP_SETTINGS)
 msgstr("Gruppenchat-Einstellungen")
 
 msgid(GROUP_NOTIFICATIONS)
