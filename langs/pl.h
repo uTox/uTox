@@ -470,10 +470,10 @@ msgid(IGNORE)
 msgstr("Ignoruj")
 
 msgid(SET_ALIAS)
-msgstr("Ustaw nazwę")
+msgstr("Ustaw pseudonim")
 
 msgid(ALIAS)
-msgstr("Nazwa")
+msgstr("Pseudonim")
 
 msgid(SENDMESSAGE)
 msgstr("Wyślij wiadomość")
