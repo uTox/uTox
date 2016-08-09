@@ -644,10 +644,10 @@ msgid(SELECT_AVATAR_TITLE)
 msgstr("Wybierz awatar")
 
 msgid(AVATAR_TOO_LARGE_MAX_SIZE_IS)
-msgstr("Awatar jest za duży. Maksymalny rozmiar to: ")
+msgstr("Awatar zbyt duży. Rozmiar maksymalny to: ")
 
 msgid(CANT_FIND_FILE_OR_EMPTY)
-msgstr("Niem można znaleść wybranego pliku lub wybrany plik jest pusty.")
+msgstr("Nie można znaleźć wybranego pliku lub wybrany plik jest pusty.")
 
 msgid(CLEAR_HISTORY)
 msgstr("Wyczyść historię")
