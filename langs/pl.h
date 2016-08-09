@@ -296,7 +296,7 @@ msgid(FILTER_ALL)
 msgstr("Wszystkie kontakty")
 
 msgid(FILTER_CONTACT_TOGGLE)
-msgstr("Tylko dostępne kontakty")
+msgstr("Tylko podłączone kontakty")
 
 msgid(FILTER_TO_ALL)
 msgstr("Pokaż wszystkie kontakty")
@@ -356,10 +356,10 @@ msgid(STATUS_ONLINE)
 msgstr("Online")
 
 msgid(STATUS_AWAY)
-msgstr("Z dala")
+msgstr("Zaraz wracam")
 
 msgid(STATUS_BUSY)
-msgstr("Niewidoczny")
+msgstr("Zajęty")
 
 msgid(SETTINGS_UI_MINI_ROSTER)
 msgstr("Użyj małej listy kontaktów")
@@ -408,15 +408,6 @@ msgstr("Język")
 
 msgid(NETWORK)
 msgstr("Sieć")
-
-msgid(IPV6)
-msgstr("IPv6:")
-
-msgid(UDP)
-msgstr("UDP:")
-
-msgid(PROXY)
-msgstr("Proxy (SOCKS 5)")
 
 msgid(WARNING)
 msgstr("Zmiana ustawień sieci/proxy na chwilę rozłączy cię z sieci Tox!")
