@@ -36,7 +36,7 @@ msgstr(
 "    Usunięto błąd podczas wysyłania wiadomości do nowego znajomego\n"
 "\nv0.9.0\n"
 "   Kolejka wiadomości\n"
-"   Lepsze czaty grupowe\n"
+"   Poprawiono czaty grupowe\n"
 "   Eksperymentalna funkcja wideo w środku okna\n"
 "   Mała lista kontaktów\n"
 "   Wykonano ponownie przetwarzanie wiadomości\n"
