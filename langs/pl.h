@@ -12,7 +12,7 @@ msgid(SPLASH_TITLE)
 msgstr("Witaj w nowym uTox!")
 
 msgid(SPLASH_TEXT)
-msgstr("Zaktualisowałeś uTox do wersji 0.9.8! Nazwa kodowa wersji: Srsly v3")
+msgstr("uTox został zaktualizowany do wersji 0.9.8! Nazwa kodowa wersji: Srsly v3")
 
 msgid(CHANGE_LOG_TITLE)
 msgstr("Zmiany w v0.9.8")
@@ -112,9 +112,6 @@ msgstr("Nowy transfer pliku")
 
 msgid(TRANSFER_STARTED)
 msgstr("Transfer pliku rozpoczęty")
-
-msgid(TRANSFER___)
-msgstr("...")
 
 msgid(TRANSFER_PAUSED)
 msgstr("Transfer pliku wstrzymany")
@@ -285,9 +282,6 @@ msgstr("Lista połączonych urządzeń")
  ******************************************************************************/
 msgid(ADDFRIENDS)
 msgstr("Dodaj nowy kontakt")
-
-msgid(TOXID)
-msgstr("Tox ID")
 
 msgid(MESSAGE)
 msgstr("Wiadomość")
