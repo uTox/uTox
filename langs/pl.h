@@ -673,8 +673,5 @@ msgstr("Wysoki kontrast")
 msgid(THEME_CUSTOM)
 msgstr("Własny (zobacz dokumentację)")
 
-msgid(THEME_ZENBURN)
-msgstr("Zenburn")
-
 msgid(SEND_TYPING_NOTIFICATIONS)
 msgstr("Wyślij powiadomienie gdy piszę")
