@@ -413,7 +413,7 @@ msgid(WARNING)
 msgstr("Zmiana ustawień sieci/proxy na chwilę rozłączy cię z sieci Tox!")
 
 msgid(LOGGING)
-msgstr("Logowanie")
+msgstr("Zapisuj historię")
 
 msgid(AUDIONOTIFICATIONS)
 msgstr("Włącz powiadomienia Audio (dzwonek)")
@@ -437,7 +437,7 @@ msgid(COPYWITHOUTNAMES)
 msgstr("Kopiuj (bez nazw)")
 
 msgid(COPY_WITH_NAMES)
-msgstr("Kopiuj (załącz nazwy)")
+msgstr("Kopiuj (z nazwami)")
 
 msgid(CUT)
 msgstr("Wytnij")
