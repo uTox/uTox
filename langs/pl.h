@@ -47,7 +47,7 @@ msgstr(
  ******************************************************************************/
 
 msgid(REQ_SENT)
-msgstr("Wysłano zaproszenie do znajomych. Znajomy stanie się dostępny po jego przyjęciu")
+msgstr("Wysłano zaproszenie do znajomych. Znajomy/a stanie się dostępny po jego przyjęciu")
 
 msgid(REQ_RESOLVE)
 msgstr("Odnajdowanie nazwy DNS...")
