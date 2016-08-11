@@ -92,7 +92,7 @@ all: utox
 
 utox: $(OBJ) $(OS_OBJ) $(TRAY_OBJ)
 	@echo "  LD    $@"
-	@$(CC) $(CFLAGS) -o $(OUT_FILE) $(OBJ) $(OS_OBJ) $(TRAY_OBJ) $(LDFLAGS)
+	@$(CC) $(CFLAGS) -o $(OUT_FILE) $(OBJ) $(OS_OBJ) $(TRAY_OBJ) $(LDFLAGS) $(LIBS)
 
 install: utox
 	mkdir -p $(DESTDIR)$(PREFIX)/bin
