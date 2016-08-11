@@ -14,8 +14,25 @@ UNAME_O := $(shell uname -o)
 CFLAGS += -g -Wall -Wshadow -pthread -std=gnu99 -fno-strict-aliasing
 LDFLAGS += -pthread -lm
 
+# also link against these
+LIBS =
+
+ifeq ($(UNAME_S), Linux)
+	PKG_CONFIG = pkg-config
+else ifeq ($(UNAME_O), Cygwin)
+	PKG_CONFIG = x86_64-w64-mingw32-pkg-config
+else
+	PKG_CONFIG = false
+$(error unsupported platform)
+endif
+
 ifeq ($(FILTER_AUDIO), 1)
+ifeq ($(shell $(PKG_CONFIG) --exists filteraudio && echo yes), yes )
 	DEPS += filteraudio
+else
+$(warning pkg-config does not know about filteraudio, this might not work)
+$(error consider setting FILTER_AUDIO=0)
+endif
 	CFLAGS += -DAUDIO_FILTERING
 endif
 
@@ -42,8 +59,6 @@ ifeq ($(UNAME_S), Linux)
 		CFLAGS += -DNO_DBUS
 	endif
 
-	PKG_CONFIG = pkg-config
-
 	CFLAGS += $(shell $(PKG_CONFIG) --cflags $(DEPS))
 
 	LDFLAGS += -lresolv -ldl
@@ -64,7 +79,6 @@ else ifeq ($(UNAME_O), Cygwin)
 	CFLAGS  += -static
 	LDFLAGS += /usr/x86_64-w64-mingw32/sys-root/mingw/lib/libwinpthread.a
 
-	PKG_CONFIG = x86_64-w64-mingw32-pkg-config
 	CFLAGS  += $(shell $(PKG_CONFIG) --cflags $(DEPS))
 	LDFLAGS += $(shell $(PKG_CONFIG) --libs   $(DEPS))
 
@@ -92,7 +106,7 @@ all: utox
 
 utox: $(OBJ) $(OS_OBJ) $(TRAY_OBJ)
 	@echo "  LD    $@"
-	@$(CC) $(CFLAGS) -o $(OUT_FILE) $(OBJ) $(OS_OBJ) $(TRAY_OBJ) $(LDFLAGS)
+	@$(CC) $(CFLAGS) -o $(OUT_FILE) $(OBJ) $(OS_OBJ) $(TRAY_OBJ) $(LDFLAGS) $(LIBS)
 
 install: utox
 	mkdir -p $(DESTDIR)$(PREFIX)/bin
