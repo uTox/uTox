@@ -11,14 +11,11 @@ DEPS = libtoxav libtoxcore openal vpx libsodium
 UNAME_S := $(shell uname -s)
 UNAME_O := $(shell uname -o)
 
-# flags passed to the C compiler
 CFLAGS += -g -Wall -Wshadow -pthread -std=gnu99 -fno-strict-aliasing
-
-# linker flags
 LDFLAGS += -pthread -lm
 
-# link the executable against these
-LIBS +=
+# also link against these
+LIBS =
 
 ifeq ($(FILTER_AUDIO), 1)
 	DEPS += filteraudio
@@ -52,8 +49,8 @@ ifeq ($(UNAME_S), Linux)
 
 	CFLAGS += $(shell $(PKG_CONFIG) --cflags $(DEPS))
 
-	LIBS += -lresolv -ldl
-	LIBS += $(shell $(PKG_CONFIG) --libs $(DEPS))
+	LDFLAGS += -lresolv -ldl
+	LDFLAGS += $(shell $(PKG_CONFIG) --libs $(DEPS))
 
 	OS_SRC = $(wildcard src/xlib/*.c)
 	OS_OBJ = $(OS_SRC:.c=.o)
