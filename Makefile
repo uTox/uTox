@@ -83,8 +83,8 @@ else ifeq ($(UNAME_O), Cygwin)
 	CC			= x86_64-w64-mingw32-gcc
 endif
 
-WIN_CFLAGS   = -Wall -Wshadow -pthread -Ofast -std=gnu99 -fgnu89-inline -fno-strict-aliasing -DAL_LIBTYPE_STATIC -DGIT_VERSION=\"$(GIT_V)\" -I libs/windows-x64/include/
-WIN_LDFLAGS += -lm -pthread -liphlpapi -lws2_32 -lgdi32 -lmsimg32 -ldnsapi -lcomdlg32 -lwinmm -lole32 -loleaut32 -lstrmiids -Wl,-subsystem,windows
+WIN_CFLAGS   = -Wall -Wshadow -Ofast -std=gnu99 -fgnu89-inline -fno-strict-aliasing -static -DAL_LIBTYPE_STATIC -DGIT_VERSION=\"$(GIT_V)\" -I libs/windows-x64/include/
+WIN_LDFLAGS += -lm -lpthread -liphlpapi -lws2_32 -lgdi32 -lmsimg32 -ldnsapi -lcomdlg32 -lwinmm -lole32 -loleaut32 -lstrmiids -Wl,-subsystem,windows
 
 STATIC_LIBS  = lib/{libOpenAL32,libtoxav,libtoxdns,libtoxcore,libtoxencryptsave,libvpx,libopus,libsodium}.a
 DYNMIC_LIBS  = -L ./libs/windows-x64/lib/ -lm -lOpenAL32 -ltoxav -ltoxcore -ltoxdns -ltoxencryptsave -lopus -lvpx -lsodium
@@ -97,14 +97,14 @@ uTox-x64.exe: $(SRC) $(WIN_SRC) $(TRAY_OBJ) libs-64 x64-libs
 	$(eval LOCAL_LIBS=./libs/windows-x64/$(STATIC_LIBS))
 	@echo "  Cross Compiling Windows x64 $@"
 	@x86_64-w64-mingw32-windres icons/icon.rc -O coff -o $(TRAY_OBJ)
-	@x86_64-w64-mingw32-gcc $(WIN_CFLAGS) -o $@ $(SRC) $(WIN_SRC) $(TRAY_OBJ) $(LOCAL_LIBS) $(WIN_LDFLAGS) /usr/x86_64-w64-mingw32/lib/libwinpthread.a
+	@x86_64-w64-mingw32-gcc $(WIN_CFLAGS) -o $@ $(SRC) $(WIN_SRC) $(TRAY_OBJ) $(LOCAL_LIBS) $(WIN_LDFLAGS)
 
 # Cross compile recipe
 uTox-x32.exe: $(SRC) $(WIN_SRC) $(TRAY_OBJ) libs-32 x32-libs
 	$(eval LOCAL_LIBS=./libs/windows-x32/$(STATIC_LIBS))
 	@echo "  Cross Compiling Windows x32 $@"
 	@i686-w64-mingw32-windres icons/icon.rc -O coff -o $(TRAY_OBJ)
-	@i686-w64-mingw32-gcc   $(WIN_CFLAGS) -o $@ $(SRC) $(WIN_SRC) $(TRAY_OBJ) $(LOCAL_LIBS) $(WIN_LDFLAGS) /usr/i686-w64-mingw32/lib/libwinpthread.a
+	@i686-w64-mingw32-gcc   $(WIN_CFLAGS) -o $@ $(SRC) $(WIN_SRC) $(TRAY_OBJ) $(LOCAL_LIBS) $(WIN_LDFLAGS)
 
 # Cross compile recipe
 uTox-win32-winXP.exe: $(OBJ) $(WIN_OBJ) $(TRAY_OBJ) x32-libs
@@ -189,18 +189,11 @@ libs-clean:
 dist-clean:
 	rm -r ./dist/*
 
-all-libs: libs-64 x32-libs libs-64 x64-libs
+all-libs: libs-32 x32-libs libs-64 x64-libs
 
 libs-32:
 	@echo "Fetching pre-built windows x32 libs from build.tox.chat... "
 	@mkdir -p libs/windows-x32/
-
-libs-64:
-	@echo "Fetching pre-built windows x64 libs from build.tox.chat... "
-	@mkdir -p libs/windows-x64/
-
-x32-libs:  libs/libopus_build_windows_x86_static_release.zip libs/libopenal_build_windows_x86_static_release.zip libs/libtoxcore_build_windows_x86_static_release.zip libs/libvpx_build_windows_x86_static_release.zip libs/libsodium_build_windows_x86_static_release.zip libs/libfilteraudio-x86.zip
-	@echo "Done!"
 
 libs/libfilteraudio-x86.zip:
 	@echo "	Fetching $@ from https://build.tox.chat"
@@ -233,8 +226,12 @@ libs/libsodium_build_windows_x86_static_release.zip:
 	@cd libs/ && curl -s -O https://build.tox.chat/view/libsodium/job/libsodium_build_windows_x86_static_release/lastSuccessfulBuild/artifact/libsodium_build_windows_x86_static_release.zip
 	@unzip -qq -d libs/windows-x32/ $@
 
-x64-libs : libs/libopus_build_windows_x86-64_static_release.zip libs/libopenal_build_windows_x86-64_static_release.zip libs/libtoxcore_build_windows_x86-64_static_release.zip libs/libvpx_build_windows_x86-64_static_release.zip libs/libsodium_build_windows_x86-64_static_release.zip libs/libfilteraudio-x86_64.zip
+x32-libs:  libs/libopus_build_windows_x86_static_release.zip libs/libopenal_build_windows_x86_static_release.zip libs/libtoxcore_build_windows_x86_static_release.zip libs/libvpx_build_windows_x86_static_release.zip libs/libsodium_build_windows_x86_static_release.zip libs/libfilteraudio-x86.zip
 	@echo "Done!"
+
+libs-64:
+	@echo "Fetching pre-built windows x64 libs from build.tox.chat... "
+	@mkdir -p libs/windows-x64/
 
 libs/libfilteraudio-x86_64.zip:
 	@echo "	Fetching $@ from https://build.tox.chat"
@@ -266,6 +263,9 @@ libs/libsodium_build_windows_x86-64_static_release.zip:
 	@echo "	Fetching $@ from https://build.tox.chat"
 	@cd libs/ && curl -s -O https://build.tox.chat/view/libsodium/job/libsodium_build_windows_x86-64_static_release/lastSuccessfulBuild/artifact/libsodium_build_windows_x86-64_static_release.zip
 	@unzip -qq -d libs/windows-x64/ $@
+
+x64-libs : libs/libopus_build_windows_x86-64_static_release.zip libs/libopenal_build_windows_x86-64_static_release.zip libs/libtoxcore_build_windows_x86-64_static_release.zip libs/libvpx_build_windows_x86-64_static_release.zip libs/libsodium_build_windows_x86-64_static_release.zip libs/libfilteraudio-x86_64.zip
+	@echo "Done!"
 
 dist: all-libs uTox-x64.exe uTox-x32.exe
 	@echo "Going to build Win64 and Win32"

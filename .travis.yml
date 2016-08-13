@@ -6,12 +6,12 @@ addons:
       - yasm
       - check
       - libopenal-dev
-      - libdbus-1
+      - libopenal-data
+      - libopenal1
+      - dbus
+      - libdbus-1-3
       - libv4l-dev
-      - gcc-mingw-w64
-      - gcc-mingw-w64-base
       - mingw-w64
-      - mingw-w64-common
       - mingw-w64-dev
       - binutils-mingw-w64
 
@@ -26,7 +26,7 @@ matrix:
     - os: osx
       compiler: clang
       env: BUILD=osx
-    - os: windows
+    - os: linux
       compiler: x86_64-w64-mingw32-gcc
       env: BUILD=windows
 
