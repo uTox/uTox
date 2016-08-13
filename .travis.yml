@@ -8,9 +8,20 @@ addons:
       - libopenal-dev
       - libdbus-1-dev
       - libv4l-dev
+      - gcc-mingw-w64
+      - gcc-mingw-w64-base
+      - gcc-mingw-w64-i686
+      - gcc-mingw-w64-x86-64
+      - mingw-w64
+      - mingw-w64-common
+      - mingw-w64-i686-dev
+      - mingw-w64-x86-64-dev
+      - mingw-w64-dev
+      - binutils-mingw-w64
+      - binutils-mingw-w64-i686
+      - binutils-mingw-w64-x86-64
 
 matrix:
-  fast_finish: true
   include:
     - os: linux
       compiler: gcc
@@ -23,7 +34,7 @@ matrix:
       env: BUILD=osx
     - os: windows
       compiler: x86_64-w64-mingw32-gcc
-      env: BUILD=windows PACKAGES="gcc-mingw-w64-x86-64 binutils-mingw-w64-x86-64 mingw-w64-dev"
+      env: BUILD=windows
 
 git:
   depth: 5

@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e -x
+
 get() {
     mkdir -p TRAVIS_PREFIX
     curl "$1" | tar -C TRAVIS_PREFIX -xJ
