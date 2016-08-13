@@ -23,16 +23,16 @@ matrix:
       compiler: clang
       env: BUILD=linux
       addons:
-              apt:
-                packages:
-                  - yasm
-                  - check
-                  - libopenal-dev
-                  - libopenal-data
-                  - libopenal1
-                  - dbus
-                  - libdbus-1-3
-                  - libv4l-dev
+        apt:
+          packages:
+            - yasm
+            - check
+            - libopenal-dev
+            - libopenal-data
+            - libopenal1
+            - dbus
+            - libdbus-1-3
+            - libv4l-dev
     - os: linux
       compiler: x86_64-w64-mingw32-gcc
       env: BUILD=windows
@@ -42,7 +42,6 @@ matrix:
             - libopenal-dev
             - mingw-w64
             - mingw-w64-dev
-            - mingw-w64-common
             - binutils-mingw-w64
     - os: osx
       compiler: clang
