@@ -2,36 +2,51 @@ dist: trusty
 
 language: c
 
-addons:
-  apt:
-    packages:
-      - yasm
-      - check
-      - libopenal-dev
-      - libopenal-data
-      - libopenal1
-      - dbus
-      - libdbus-1-3
-      - libv4l-dev
-      - mingw-w64
-      - mingw-w64-dev
-      - mingw-w64-common
-      - binutils-mingw-w64
 
 matrix:
   include:
     - os: linux
       compiler: gcc
       env: BUILD=linux
+      addons:
+        apt:
+          packages:
+            - yasm
+            - check
+            - libopenal-dev
+            - libopenal-data
+            - libopenal1
+            - dbus
+            - libdbus-1-3
+            - libv4l-dev
     - os: linux
       compiler: clang
       env: BUILD=linux
-    - os: osx
-      compiler: clang
-      env: BUILD=osx
+      addons:
+              apt:
+                packages:
+                  - yasm
+                  - check
+                  - libopenal-dev
+                  - libopenal-data
+                  - libopenal1
+                  - dbus
+                  - libdbus-1-3
+                  - libv4l-dev
     - os: linux
       compiler: x86_64-w64-mingw32-gcc
       env: BUILD=windows
+      addons:
+        apt:
+          packages:
+            - libopenal-dev
+            - mingw-w64
+            - mingw-w64-dev
+            - mingw-w64-common
+            - binutils-mingw-w64
+    - os: osx
+      compiler: clang
+      env: BUILD=osx
 
 git:
   depth: 5
