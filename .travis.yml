@@ -1,10 +1,5 @@
 language: c
 
-os:
-  - linux
-  - osx
-  - windows
-
 sudo: required
 
 matrix:
