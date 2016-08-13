@@ -6,20 +6,14 @@ addons:
       - yasm
       - check
       - libopenal-dev
-      - libdbus-1-dev
+      - libdbus-1
       - libv4l-dev
       - gcc-mingw-w64
       - gcc-mingw-w64-base
-      - gcc-mingw-w64-i686
-      - gcc-mingw-w64-x86-64
       - mingw-w64
       - mingw-w64-common
-      - mingw-w64-i686-dev
-      - mingw-w64-x86-64-dev
       - mingw-w64-dev
       - binutils-mingw-w64
-      - binutils-mingw-w64-i686
-      - binutils-mingw-w64-x86-64
 
 matrix:
   include:
