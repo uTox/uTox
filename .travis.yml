@@ -13,6 +13,7 @@ addons:
       - libv4l-dev
       - mingw-w64
       - mingw-w64-dev
+      - mingw-w64-common
       - binutils-mingw-w64
 
 matrix:
