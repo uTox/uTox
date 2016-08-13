@@ -86,7 +86,25 @@ endif
 WIN_CFLAGS   = -Wall -Wshadow -Ofast -std=gnu99 -fgnu89-inline -fno-strict-aliasing -static -DAL_LIBTYPE_STATIC -DGIT_VERSION=\"$(GIT_V)\" -I libs/windows-x64/include/
 WIN_LDFLAGS += -lm -lpthread -liphlpapi -lws2_32 -lgdi32 -lmsimg32 -ldnsapi -lcomdlg32 -lwinmm -lole32 -loleaut32 -lstrmiids -Wl,-subsystem,windows
 
-STATIC_LIBS  = lib/{libOpenAL32,libtoxav,libtoxdns,libtoxcore,libtoxencryptsave,libvpx,libopus,libsodium}.a
+# Yeah, I don't like it either, but Travis doesn't like me...
+STATIC_LIBS_X64	 = ./libs/windows-x64/lib/libOpenAL32.a
+STATIC_LIBS_X64	+= ./libs/windows-x64/lib/libtoxav.a
+STATIC_LIBS_X64	+= ./libs/windows-x64/lib/libtoxdns.a
+STATIC_LIBS_X64	+= ./libs/windows-x64/lib/libtoxcore.a
+STATIC_LIBS_X64	+= ./libs/windows-x64/lib/libtoxencryptsave.a
+STATIC_LIBS_X64	+= ./libs/windows-x64/lib/libvpx.a
+STATIC_LIBS_X64	+= ./libs/windows-x64/lib/libopus.a
+STATIC_LIBS_X64	+= ./libs/windows-x64/lib/libsodium.a
+
+STATIC_LIBS_X32	 = ./libs/windows-x32/lib/libOpenAL32.a
+STATIC_LIBS_X32	+= ./libs/windows-x32/lib/libtoxav.a
+STATIC_LIBS_X32	+= ./libs/windows-x32/lib/libtoxdns.a
+STATIC_LIBS_X32	+= ./libs/windows-x32/lib/libtoxcore.a
+STATIC_LIBS_X32	+= ./libs/windows-x32/lib/libtoxencryptsave.a
+STATIC_LIBS_X32	+= ./libs/windows-x32/lib/libvpx.a
+STATIC_LIBS_X32	+= ./libs/windows-x32/lib/libopus.a
+STATIC_LIBS_X32	+= ./libs/windows-x32/lib/libsodium.a
+
 DYNMIC_LIBS  = -L ./libs/windows-x64/lib/ -lm -lOpenAL32 -ltoxav -ltoxcore -ltoxdns -ltoxencryptsave -lopus -lvpx -lsodium
 
 
@@ -94,17 +112,15 @@ all: $(OUT_FILE)
 
 # Cross compile recipe
 uTox-x64.exe: $(SRC) $(WIN_SRC) $(TRAY_OBJ) libs-64 x64-libs
-	$(eval LOCAL_LIBS=./libs/windows-x64/$(STATIC_LIBS))
 	@echo "  Cross Compiling Windows x64 $@"
 	@x86_64-w64-mingw32-windres icons/icon.rc -O coff -o $(TRAY_OBJ)
-	@x86_64-w64-mingw32-gcc $(WIN_CFLAGS) -o $@ $(SRC) $(WIN_SRC) $(TRAY_OBJ) $(LOCAL_LIBS) $(WIN_LDFLAGS)
+	@x86_64-w64-mingw32-gcc $(WIN_CFLAGS) -o $@ $(SRC) $(WIN_SRC) $(TRAY_OBJ) $(STATIC_LIBS_X64) $(WIN_LDFLAGS)
 
 # Cross compile recipe
 uTox-x32.exe: $(SRC) $(WIN_SRC) $(TRAY_OBJ) libs-32 x32-libs
-	$(eval LOCAL_LIBS=./libs/windows-x32/$(STATIC_LIBS))
 	@echo "  Cross Compiling Windows x32 $@"
 	@i686-w64-mingw32-windres icons/icon.rc -O coff -o $(TRAY_OBJ)
-	@i686-w64-mingw32-gcc   $(WIN_CFLAGS) -o $@ $(SRC) $(WIN_SRC) $(TRAY_OBJ) $(LOCAL_LIBS) $(WIN_LDFLAGS)
+	@i686-w64-mingw32-gcc   $(WIN_CFLAGS) -o $@ $(SRC) $(WIN_SRC) $(TRAY_OBJ) $(STATIC_LIBS_X32) $(WIN_LDFLAGS)
 
 # Cross compile recipe
 uTox-win32-winXP.exe: $(OBJ) $(WIN_OBJ) $(TRAY_OBJ) x32-libs
