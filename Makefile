@@ -41,22 +41,22 @@ ifeq ($(UNAME_S), Linux)
 	ifeq ($(V4LCONVERT), 1)
 		DEPS += libv4lconvert
 	else
-		UNX_CFLAGS += -DNO_V4LCONVERT
+		CFLAGS += -DNO_V4LCONVERT
 	endif
 
 	ifeq ($(UNITY), 1)
 		DEPS += messaging-menu unity
-		UNX_CFLAGS += -DUNITY
+		CFLAGS += -DUNITY
 	endif
 
 	ifeq ($(DBUS), 1)
 		DEPS += dbus-1
-		UNX_CFLAGS += -DHAVE_DBUS
+		CFLAGS += -DHAVE_DBUS
 	else
-		UNX_CFLAGS += -DNO_DBUS
+		CFLAGS += -DNO_DBUS
 	endif
 
-	UNX_CFLAGS += $(shell $(PKG_CONFIG) --cflags $(DEPS))
+	CFLAGS += $(shell $(PKG_CONFIG) --cflags $(DEPS))
 	LDFLAGS += -lresolv -ldl $(shell $(PKG_CONFIG) --libs $(DEPS))
 	TRAY_GEN = $(LD) -r -b binary icons/utox-128x128.png -o
 
