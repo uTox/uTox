@@ -1,49 +1,65 @@
+dist: trusty
+
 language: c
 
-os:
-  - linux
-  - osx
-  - windows
-
-compiler:
-  - gcc
-  - clang
-  - x86_64-w64-mingw32-gcc
-
-sudo: required
 
 matrix:
-  fast_finish: true
   include:
     - os: linux
       compiler: gcc
+      env: BUILD=linux
+      addons:
+        apt:
+          packages:
+            - yasm
+            - check
+            - libopenal-dev
+            - libopenal-data
+            - libopenal1
+            - dbus
+            - libdbus-1-3
+            - libv4l-dev
     - os: linux
       compiler: clang
+      env: BUILD=linux
+      addons:
+        apt:
+          packages:
+            - yasm
+            - check
+            - libopenal-dev
+            - libopenal-data
+            - libopenal1
+            - dbus
+            - libdbus-1-3
+            - libv4l-dev
+    - os: linux
+      compiler: x86_64-w64-mingw32-gcc
+      env: BUILD=windows
+      addons:
+        apt:
+          packages:
+            - libopenal-dev
+            - mingw-w64
+            - mingw-w64-dev
+            - binutils-mingw-w64
     - os: osx
       compiler: clang
-    - os: windows
-      compiler: x86_64-w64-mingw32-gcc
-      env: PACKAGES="gcc-mingw-w64-x86-64 binutils-mingw-w64-x86-64 mingw-w64-dev"
-  allow_failures:
-    - os: windows
-  exclude:
-    - compiler: gcc
-    - compiler: clang
-    - compiler: x86_64-w64-mingw32-gcc
+      env: BUILD=osx
 
 git:
   depth: 5
 
 
 before_script:
-  - if [ "$TRAVIS_OS_NAME" = "linux"   ]; then ./travis/linux-before.sh;   fi
-  - if [ "$TRAVIS_OS_NAME" = "osx"     ]; then ./travis/osx-before.sh;     fi
-  - if [ "$TRAVIS_OS_NAME" = "windows" ]; then ./travis/windows-before.sh; fi
+  - if [ "$BUILD" = "linux"   ]; then ./travis/linux-before.sh;   fi
+  - if [ "$BUILD" = "osx"     ]; then ./travis/osx-before.sh;     fi
+  - if [ "$BUILD" = "windows" ]; then ./travis/windows-before.sh; fi
 
 script:
-  - if [ "$TRAVIS_OS_NAME" = "linux"   ]; then PKG_CONFIG_PATH="$(pwd)/TRAVIS_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH" CFLAGS="-I/usr/include/freetype2" make; fi
-  - if [ "$TRAVIS_OS_NAME" = "osx"     ]; then make -f src/cocoa/Makefile utox; fi
-  - if [ "$TRAVIS_OS_NAME" = "windows" ]; then PKG_CONFIG_PATH="$(pwd)/TRAVIS_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH" CFLAGS="-I/usr/include/freetype2" make; fi
+  - if [ "$BUILD" = "linux"   ]; then PKG_CONFIG_PATH="$(pwd)/TRAVIS_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH" CFLAGS="-I/usr/include/freetype2" make; fi
+  - if [ "$BUILD" = "osx"     ]; then make -f src/cocoa/Makefile utox; fi
+  - if [ "$BUILD" = "windows" ]; then make dist; fi
 
 notifications:
   email: false
