@@ -79,13 +79,13 @@ msgstr("Prijenos datoteka otkazan")
 msgid(TRANSFER_COMPLETE)
 msgstr("Prijenos datoteka dovršen")
 
-msgid(GROUPCHAT_JOIN_AUDIO)
+msgid(GROUP_START_AUDIO)
 msgstr("Spoji se na audio chat")
 
-msgid(START_AUDIO_CALL)
+msgid(CALL_START_AUDIO)
 msgstr("Nazovi")
 
-msgid(START_VIDEO_CALL)
+msgid(CALL_START_VIDEO)
 msgstr("Nazovi - video poziv")
 
 msgid(CALL_CANCELLED)

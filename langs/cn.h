@@ -82,13 +82,13 @@ msgstr("文件传送取消")
 msgid(TRANSFER_COMPLETE)
 msgstr("文件传送完成")
 
-msgid(GROUPCHAT_JOIN_AUDIO)
+msgid(GROUP_START_AUDIO)
 msgstr("参加语音聊天")
 
-msgid(START_AUDIO_CALL)
+msgid(CALL_START_AUDIO)
 msgstr("语音呼叫")
 
-msgid(START_VIDEO_CALL)
+msgid(CALL_START_VIDEO)
 msgstr("视频呼叫")
 
 msgid(CALL_CANCELLED)

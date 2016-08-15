@@ -484,7 +484,7 @@ button_call_audio = {
     .bh = _BM_LBICON_HEIGHT,
     .onpress = button_call_audio_onpress,
     .update = button_call_audio_update,
-    .tooltip_text = { .i18nal = STR_START_AUDIO_CALL },
+    .tooltip_text = { .i18nal = STR_CALL_START_AUDIO },
 },
 
 button_call_video = {
@@ -494,7 +494,7 @@ button_call_video = {
     .bh = _BM_LBICON_HEIGHT,
     .onpress = button_call_video_onpress,
     .update = button_call_video_update,
-    .tooltip_text = { .i18nal = STR_START_VIDEO_CALL },
+    .tooltip_text = { .i18nal = STR_CALL_START_VIDEO },
 },
 
 button_group_audio = {
@@ -504,7 +504,7 @@ button_group_audio = {
     .bh = _BM_LBICON_HEIGHT,
     .onpress = button_group_audio_onpress,
     .update = button_group_audio_update,
-    .tooltip_text = { .i18nal = STR_GROUPCHAT_JOIN_AUDIO },
+    .tooltip_text = { .i18nal = STR_GROUP_START_AUDIO },
 },
 
 button_accept_friend = {

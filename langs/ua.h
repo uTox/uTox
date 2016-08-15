@@ -82,13 +82,13 @@ msgstr("Скасовано передачу файлу")
 msgid(TRANSFER_COMPLETE)
 msgstr("Завершено передачу файлу")
 
-msgid(GROUPCHAT_JOIN_AUDIO)
+msgid(GROUP_START_AUDIO)
 msgstr("Приєднатися до аудіо чату")
 
-msgid(START_AUDIO_CALL)
+msgid(CALL_START_AUDIO)
 msgstr("Зателефонувати")
 
-msgid(START_VIDEO_CALL)
+msgid(CALL_START_VIDEO)
 msgstr("Здійснити відеодзвінок")
 
 msgid(CALL_CANCELLED)
