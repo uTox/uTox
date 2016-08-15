@@ -1,10 +1,10 @@
 ## OPTIONS ##
 # set to anything else to disable them
-DBUS			= 1
-V4LCONVERT		= 1
-FILTER_AUDIO	= 1
-UNITY			= 0
-XP				= 0
+DBUS			?= 1
+V4LCONVERT		?= 1
+FILTER_AUDIO	?= 1
+UNITY			?= 0
+XP				?= 0
 
 UNAME_S		:= $(shell uname -s)
 UNAME_O		:= $(shell uname -o)
@@ -97,7 +97,7 @@ else ifeq ($(UNAME_O), Cygwin)
 	CC			= x86_64-w64-mingw32-gcc
 endif
 
-WIN_CFLAGS   = -Wall -Wshadow -Ofast -std=gnu99 -fgnu89-inline -fno-strict-aliasing -static -DAL_LIBTYPE_STATIC -DGIT_VERSION=\"$(GIT_V)\" -I libs/windows-x64/include/
+WIN_CFLAGS   = -Wall -Wshadow -static -Ofast -std=gnu99 -fgnu89-inline -fno-strict-aliasing -DAL_LIBTYPE_STATIC -DGIT_VERSION=\"$(GIT_V)\"
 WIN_LDFLAGS += -lm -lpthread -liphlpapi -lws2_32 -lgdi32 -lmsimg32 -ldnsapi -lcomdlg32 -lwinmm -lole32 -loleaut32 -lstrmiids -Wl,-subsystem,windows
 
 # Yeah, I don't like it either, but Travis doesn't like me...
@@ -133,13 +133,13 @@ all: $(OUT_FILE)
 uTox-x64.exe: $(SRC) $(WIN_SRC) libs-64 x64-libs
 	@echo "  Cross Compiling Windows x64 $@"
 	@x86_64-w64-mingw32-windres icons/icon.rc -O coff -o icons/icon-win64.o
-	@x86_64-w64-mingw32-gcc $(WIN_CFLAGS) -o $@ $(SRC) $(WIN_SRC) icons/icon-win64.o $(STATIC_LIBS_X64) $(WIN_LDFLAGS)
+	@x86_64-w64-mingw32-gcc $(WIN_CFLAGS) -I ./libs/windows-x64/include/ -o $@ $(SRC) $(WIN_SRC) icons/icon-win64.o $(STATIC_LIBS_X64) $(WIN_LDFLAGS)
 
 # Cross compile recipe
 uTox-x32.exe: $(SRC) $(WIN_SRC) libs-32 x32-libs
 	@echo "  Cross Compiling Windows x32 $@"
 	@i686-w64-mingw32-windres icons/icon.rc -O coff -o icons/icon-win32.o
-	@i686-w64-mingw32-gcc   $(WIN_CFLAGS) -o $@ $(SRC) $(WIN_SRC) icons/icon-win32.o $(STATIC_LIBS_X32) $(WIN_LDFLAGS)
+	@i686-w64-mingw32-gcc   $(WIN_CFLAGS) -I ./libs/windows-x32/include/ -o $@ $(SRC) $(WIN_SRC) icons/icon-win32.o $(STATIC_LIBS_X32) $(WIN_LDFLAGS)
 
 # Cross compile recipe
 uTox-win32-winXP.exe: $(OBJ) $(WIN_OBJ) $(TRAY_OBJ) x32-libs

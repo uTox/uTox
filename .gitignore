@@ -18,6 +18,7 @@ libtoxcore.log
 toolchain/
 build/*
 tox/*
+dist/*
 
 # editor files
 *.swp

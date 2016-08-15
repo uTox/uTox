@@ -852,7 +852,7 @@ void native_export_chatlog_init(uint32_t fid) {
 
     NSSavePanel *picker = [NSSavePanel savePanel];
     NSString *fname = [[NSString alloc] initWithBytesNoCopy:friend[fid].name length:friend[fid].name_length encoding:NSUTF8StringEncoding freeWhenDone:NO];
-    picker.message = [NSString stringWithFormat:NSSTRING_FROM_LOCALIZED(WHERE_TO_SAVE_FILE_PROMPT), friend[friend_number].name_length, friend[friend_number].name];
+    picker.message = [NSString stringWithFormat:NSSTRING_FROM_LOCALIZED(WHERE_TO_SAVE_FILE_PROMPT), friend[fid].name_length, friend[fid].name];
     picker.nameFieldStringValue = fname;
     [fname release];
     int ret = [picker runModal];
