@@ -38,8 +38,6 @@ matrix:
       compiler: x86_64-w64-mingw32-gcc
       addons:
         apt:
-          sources:
-            - debian-sid
           packages:
             - libopenal-dev
             - mingw-w64
@@ -52,8 +50,6 @@ matrix:
       compiler: x86_64-w64-mingw32-gcc
       addons:
         apt:
-          sources:
-            - debian-sid
           packages:
             - libopenal-dev
             - mingw-w64
