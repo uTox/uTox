@@ -132,14 +132,14 @@ all: $(OUT_FILE)
 # Cross compile recipe
 uTox-x64.exe: $(SRC) $(WIN_SRC) libs-64 x64-libs
 	@echo "  Cross Compiling Windows x64 $@"
-	@x86_64-w64-mingw32-windres icons/icon.rc -O coff -o $(TRAY_OBJ)
-	@x86_64-w64-mingw32-gcc $(WIN_CFLAGS) -o $@ $(SRC) $(WIN_SRC) $(TRAY_OBJ) $(STATIC_LIBS_X64) $(WIN_LDFLAGS)
+	@x86_64-w64-mingw32-windres icons/icon.rc -O coff -o icons/icon-win64.o
+	@x86_64-w64-mingw32-gcc $(WIN_CFLAGS) -o $@ $(SRC) $(WIN_SRC) icons/icon-win64.o $(STATIC_LIBS_X64) $(WIN_LDFLAGS)
 
 # Cross compile recipe
 uTox-x32.exe: $(SRC) $(WIN_SRC) libs-32 x32-libs
 	@echo "  Cross Compiling Windows x32 $@"
-	@i686-w64-mingw32-windres icons/icon.rc -O coff -o $(TRAY_OBJ)
-	@i686-w64-mingw32-gcc   $(WIN_CFLAGS) -o $@ $(SRC) $(WIN_SRC) $(TRAY_OBJ) $(STATIC_LIBS_X32) $(WIN_LDFLAGS)
+	@i686-w64-mingw32-windres icons/icon.rc -O coff -o icons/icon-win32.o
+	@i686-w64-mingw32-gcc   $(WIN_CFLAGS) -o $@ $(SRC) $(WIN_SRC) icons/icon-win32.o $(STATIC_LIBS_X32) $(WIN_LDFLAGS)
 
 # Cross compile recipe
 uTox-win32-winXP.exe: $(OBJ) $(WIN_OBJ) $(TRAY_OBJ) x32-libs
