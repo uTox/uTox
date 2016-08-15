@@ -2,7 +2,7 @@
 # set to anything else to disable them
 DBUS			= 1
 V4LCONVERT		= 1
-FILTER_AUDIO	= 0
+FILTER_AUDIO	= 1
 UNITY			= 0
 XP				= 0
 
@@ -16,27 +16,32 @@ DESTDIR		?=
 PREFIX		?= /usr/local
 DATAROOTDIR ?= $(PREFIX)/share
 
-HEADERS 	= $(wildcard src/*.h src/*/*.h langs/*.h)
-SRC 		= $(wildcard src/*.c src/ui/*.c src/av/*.c)
-OBJ 		= $(SRC:.c=.o)
+HEADERS 	:= $(wildcard src/*.h src/*/*.h langs/*.h)
+SRC 		:= $(wildcard src/*.c src/ui/*.c src/av/*.c)
+OBJ 		:= $(SRC:.c=.o)
 
-GIT_V		= $(shell git describe --abbrev=8 --dirty --always --tags)
+GIT_V		:= $(shell git describe --abbrev=8 --dirty --always --tags)
 CFLAGS		+= -DGIT_VERSION=\"$(GIT_V)\"
 
-WIN_SRC		= $(wildcard src/windows/*.c)
-WIN_OBJ		= $(WIN_SRC:.c=.o)
+WIN_SRC		:= $(wildcard src/windows/*.c)
+WIN_OBJ		:= $(WIN_SRC:.c=.o)
 
-UNX_SRC		= $(wildcard src/xlib/*.c)
-UNX_OBJ		= $(UNX_SRC:.c=.o)
+UNX_SRC		:= $(wildcard src/xlib/*.c)
+UNX_OBJ		:= $(UNX_SRC:.c=.o)
 
 TRAY_OBJ	= icons/icon.o
+
 
 ifeq ($(UNAME_S), Linux)
 	SYS        	= Unix
 	OUT_FILE 	= utox
 	PKG_CONFIG 	= pkg-config
 
-	DEPS 		= libtoxav libtoxcore openal vpx libsodium fontconfig freetype2 x11 xext xrender
+	DEPS 		+= libtoxav libtoxcore openal vpx libsodium fontconfig freetype2 x11 xext xrender
+
+	ifeq ($(FILTER_AUDIO), 1)
+		DEPS	+= filteraudio
+	endif
 
 	ifeq ($(V4LCONVERT), 1)
 		DEPS += libv4lconvert
@@ -56,12 +61,20 @@ ifeq ($(UNAME_S), Linux)
 		CFLAGS += -DNO_DBUS
 	endif
 
+	ifeq ($(shell uname -m), x86_64)
+		TRAY_OBJ	= icons/icon-x64.o
+	else
+		TRAY_OBJ	= icons/icon-x32.o
+	endif
+
 	CFLAGS += $(shell $(PKG_CONFIG) --cflags $(DEPS))
 	LDFLAGS += -lresolv -ldl $(shell $(PKG_CONFIG) --libs $(DEPS))
 	TRAY_GEN = $(LD) -r -b binary icons/utox-128x128.png -o
 
 	ifeq ($(CC), x86_64-w64-mingw32-gcc)
+		TRAY_OBJ	= icons/icon-win64.o
 		OUT_FILE	= uTox-x64.exe
+
 		TRAY_GEN	= x86_64-w64-mingw32-windres icons/icon.rc -O coff -o
 		CFLAGS		= $(WIN_CFLAGS)
 	endif
@@ -71,11 +84,12 @@ ifeq ($(UNAME_S), Linux)
 			WIN_CFLAGS += -D__WIN_LEGACY
 		endif
 
+		TRAY_OBJ	= icons/icon-win32.o
 		OUT_FILE	= uTox-x32.exe
+
 		TRAY_GEN	= i686-w64-mingw32-windres icons/icon.rc -O coff -o
 		CFLAGS		= $(WIN_CFLAGS)
 	endif
-
 else ifeq ($(UNAME_O), Cygwin)
 	SYS			= Cygwin
 	OUT_FILE	=
@@ -87,7 +101,7 @@ WIN_CFLAGS   = -Wall -Wshadow -Ofast -std=gnu99 -fgnu89-inline -fno-strict-alias
 WIN_LDFLAGS += -lm -lpthread -liphlpapi -lws2_32 -lgdi32 -lmsimg32 -ldnsapi -lcomdlg32 -lwinmm -lole32 -loleaut32 -lstrmiids -Wl,-subsystem,windows
 
 # Yeah, I don't like it either, but Travis doesn't like me...
-STATIC_LIBS_X64	 = ./libs/windows-x64/lib/libOpenAL32.a
+STATIC_LIBS_X64	+= ./libs/windows-x64/lib/libOpenAL32.a
 STATIC_LIBS_X64	+= ./libs/windows-x64/lib/libtoxav.a
 STATIC_LIBS_X64	+= ./libs/windows-x64/lib/libtoxdns.a
 STATIC_LIBS_X64	+= ./libs/windows-x64/lib/libtoxcore.a
@@ -96,7 +110,7 @@ STATIC_LIBS_X64	+= ./libs/windows-x64/lib/libvpx.a
 STATIC_LIBS_X64	+= ./libs/windows-x64/lib/libopus.a
 STATIC_LIBS_X64	+= ./libs/windows-x64/lib/libsodium.a
 
-STATIC_LIBS_X32	 = ./libs/windows-x32/lib/libOpenAL32.a
+STATIC_LIBS_X32	+= ./libs/windows-x32/lib/libOpenAL32.a
 STATIC_LIBS_X32	+= ./libs/windows-x32/lib/libtoxav.a
 STATIC_LIBS_X32	+= ./libs/windows-x32/lib/libtoxdns.a
 STATIC_LIBS_X32	+= ./libs/windows-x32/lib/libtoxcore.a
@@ -104,6 +118,11 @@ STATIC_LIBS_X32	+= ./libs/windows-x32/lib/libtoxencryptsave.a
 STATIC_LIBS_X32	+= ./libs/windows-x32/lib/libvpx.a
 STATIC_LIBS_X32	+= ./libs/windows-x32/lib/libopus.a
 STATIC_LIBS_X32	+= ./libs/windows-x32/lib/libsodium.a
+
+ifeq ($(FILTER_AUDIO), 1)
+	STATIC_LIBS_X32	+= ./libs/windows-x32/lib/libfilteraudio.a
+	STATIC_LIBS_X64	+= ./libs/windows-x64/lib/libfilteraudio.a
+endif
 
 DYNMIC_LIBS  = -L ./libs/windows-x64/lib/ -lm -lOpenAL32 -ltoxav -ltoxcore -ltoxdns -ltoxencryptsave -lopus -lvpx -lsodium
 
