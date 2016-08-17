@@ -21,7 +21,7 @@ msgid(CHANGE_LOG_TEXT)
 msgstr(
 "    Usunięto błąd podczas tworzenia nowego profilu\n"
 "\nv0.9.7\n"
-"    Kilka usprawnień interfejsu użytkownika \n"
+"    Usprawniono interfejs użytkownika \n"
 "    Zamieniono wszystkie listy Tak/Nie na przełączniki\n"
 "    Usunięto zapisywanie hostów proxy i portów podczas restartów.\n"
 "\nv0.9.5\n"
