@@ -71,7 +71,7 @@ msgid(REQ_SELF_ID)
 msgstr("Błąd: Podany Tox ID jest twoim Tox ID")
 
 msgid(REQ_ALREADY_FRIENDS)
-msgstr("Błąd: Podany Tox ID jest już w liście znajomych")
+msgstr("Błąd: Podany Tox ID jest już na liście znajomych")
 
 msgid(REQ_UNKNOWN)
 msgstr("Błąd: Nieznany")
@@ -83,7 +83,7 @@ msgid(REQ_BAD_NOSPAM)
 msgstr("Błąd: Nieprawidłowy Tox ID (zła wartość nospam)")
 
 msgid(REQ_NO_MEMORY)
-msgstr("Błąd: brak pamięci")
+msgstr("Błąd: Brak pamięci")
 
 msgid(SEND_FILE)
 msgstr("Wyślij plik")
