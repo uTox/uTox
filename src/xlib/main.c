@@ -1086,6 +1086,7 @@ int main(int argc, char *argv[]) {
     scr         = DefaultScreenOfDisplay(display);
     root        = RootWindow(display, screen);
 
+
     XSetWindowAttributes attrib = {
         .background_pixel = WhitePixel(display, screen),
         .border_pixel = BlackPixel(display, screen),
@@ -1093,6 +1094,9 @@ int main(int argc, char *argv[]) {
                     PointerMotionMask | StructureNotifyMask | KeyPressMask | KeyReleaseMask | FocusChangeMask |
                     PropertyChangeMask,
     };
+    /* Also has as override_redirect member. I think this may be what we need for crating a clean mouse menu for the
+     * tray icon */
+
 
     /* load save data */
     UTOX_SAVE *save = config_load();
