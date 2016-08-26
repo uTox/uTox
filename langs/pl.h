@@ -23,7 +23,7 @@ msgstr(
 "\nv0.9.7\n"
 "    Usprawniono interfejs użytkownika \n"
 "    Zamieniono wszystkie listy Tak/Nie na przełączniki\n"
-"    Usunięto zapisywanie hostów proxy i portów podczas restartów.\n"
+"    Naprawiono zapisywanie hostów proxy i portów podczas restartów.\n"
 "\nv0.9.5\n"
 "    Wideo w środku okna dla OSX\n"
 "    Usunięto błąd zapisywania historii\n"
@@ -39,7 +39,7 @@ msgstr(
 "   Poprawiono czaty grupowe\n"
 "   Eksperymentalna funkcja wideo w środku okna\n"
 "   Mała lista kontaktów\n"
-"   Wykonano ponownie przetwarzanie wiadomości\n"
+"   Usprawniono przetwarzanie wiadomości\n"
 "\n")
 
 /******************************************************************************
@@ -386,7 +386,7 @@ msgid(PROFILE_PASSWORD)
 msgstr("Hasło profilu")
 
 msgid(LOCK_UTOX)
-msgstr("Rozłącza z uTox i blokuje ten profil.")
+msgstr("Rozłącza z siecią Tox i blokuje ten profil.")
 
 msgid(SHOW_UI_PASSWORD)
 msgstr("Kliknij, aby wyświetlić pole hasła profilu. Zmiany zostaną wprowadzone natychmiastowo!")
@@ -410,7 +410,7 @@ msgid(NETWORK)
 msgstr("Sieć")
 
 msgid(WARNING)
-msgstr("Zmiana ustawień sieci/proxy na chwilę rozłączy cię z sieci Tox!")
+msgstr("Zmiana ustawień sieci/proxy na chwilę rozłączy cię z siecią Tox")
 
 msgid(LOGGING)
 msgstr("Zapisuj historię")
@@ -623,7 +623,7 @@ msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
 msgstr("Proszę, zaakceptuj to zaproszenie do znajomych.")
 
 msgid(CONTACT_SEARCH_ADD_HINT)
-msgstr("Szukaj/Dodaj Znajomych")
+msgstr("Szukaj/dodaj znajomych")
 
 msgid(PROXY_EDIT_HINT_IP)
 msgstr("IP")
