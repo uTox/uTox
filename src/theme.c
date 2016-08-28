@@ -332,6 +332,12 @@ uint32_t *find_colour_pointer(char *colour) {
             break;
 
     colour[l + 1] = '\0';
+
+    // remove "COLOR_" prefix
+    if (!strncmp(colour, "COLOR_", 6)) {
+        colour += 6;
+    }
+
     debug("'%s'\n", colour);
 
     for (int i = 0;; ++i) {
