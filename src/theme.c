@@ -3,6 +3,24 @@
 
 #define COLOR_PROC(a_ulColor) RGB((a_ulColor >> 16) & 0x0000FF, (a_ulColor >> 8) & 0x0000FF, a_ulColor & 0x0000FF)
 
+/* Solarized colour scheme */
+#define SOLAR_BASE03    0x002b36
+#define SOLAR_BASE02    0x073642
+#define SOLAR_BASE01    0x586e75
+#define SOLAR_BASE00    0x657b83
+#define SOLAR_BASE0     0x839496
+#define SOLAR_BASE1     0x93a1a1
+#define SOLAR_BASE2     0xeee8d5
+#define SOLAR_BASE3     0xfdf6e3
+#define SOLAR_YELLOW    0xb58900
+#define SOLAR_ORANGE    0xcb4b16
+#define SOLAR_RED       0xdc322f
+#define SOLAR_MAGENTA   0xd33682
+#define SOLAR_VIOLET    0x6c71c4
+#define SOLAR_BLUE      0x268bd2
+#define SOLAR_CYAN      0x2aa198
+#define SOLAR_GREEN     0x859900
+
 void theme_load(char loadtheme) {
     // Update the settings dropdown UI
     dropdown_theme.selected = loadtheme;
@@ -299,23 +317,6 @@ void theme_load(char loadtheme) {
         COLOR_BUTTON_INPROGRESS_FOREGROUND     = COLOR_MAIN_TEXT;
         COLOR_BUTTON_DISABLED_FOREGROUND       = COLOR_BACKGROUND_LIST_HOVER;
         break;
-
-#define SOLAR_BASE03    0x002b36
-#define SOLAR_BASE02    0x073642
-#define SOLAR_BASE01    0x586e75
-#define SOLAR_BASE00    0x657b83
-#define SOLAR_BASE0     0x839496
-#define SOLAR_BASE1     0x93a1a1
-#define SOLAR_BASE2     0xeee8d5
-#define SOLAR_BASE3     0xfdf6e3
-#define SOLAR_YELLOW    0xb58900
-#define SOLAR_ORANGE    0xcb4b16
-#define SOLAR_RED       0xdc322f
-#define SOLAR_MAGENTA   0xd33682
-#define SOLAR_VIOLET    0x6c71c4
-#define SOLAR_BLUE      0x268bd2
-#define SOLAR_CYAN      0x2aa198
-#define SOLAR_GREEN     0x859900
 
     case THEME_SOLARIZED_DARK:
         COLOR_BACKGROUND_MAIN        = COLOR_PROC(SOLAR_BASE03);
