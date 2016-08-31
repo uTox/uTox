@@ -611,5 +611,11 @@ msgstr("Personnalisé (voir docs)")
 //msgid(THEME_ZENBURN)
 //msgstr("Zenburn")
 
+msgid(THEME_SOLARIZED_LIGHT)
+msgstr("Solarized-clair")
+
+msgid(THEME_SOLARIZED_DARK)
+msgstr("Solarized-sombre")
+
 msgid(SEND_TYPING_NOTIFICATIONS)
 msgstr("Envoyer les notifications d'écriture")

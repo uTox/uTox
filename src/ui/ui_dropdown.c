@@ -129,6 +129,8 @@ static UI_STRING_ID themedrops[] = {
     STR_THEME_HIGHCONTRAST,
     STR_THEME_CUSTOM,
     STR_THEME_ZENBURN,
+    STR_THEME_SOLARIZED_LIGHT,
+    STR_THEME_SOLARIZED_DARK,
 };
 
 static UI_STRING_ID noyesdrops[] = {
