@@ -693,5 +693,11 @@ msgstr("Custom (see docs)")
 msgid(THEME_ZENBURN)
 msgstr("Zenburn")
 
+msgid(THEME_SOLARIZED_LIGHT)
+msgstr("Solarized-light")
+
+msgid(THEME_SOLARIZED_DARK)
+msgstr("Solarized-dark")
+
 msgid(SEND_TYPING_NOTIFICATIONS)
 msgstr("Send typing notifications")
