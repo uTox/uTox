@@ -7,10 +7,10 @@ static void switch_set_colors(UISWITCH *s) {
         s->press_color  = COLOR_BUTTON_SUCCESS_HOVER_BACKGROUND;
         s->hover_color  = COLOR_BUTTON_SUCCESS_HOVER_BACKGROUND;
     } else {
-        s->bg_color     = COLOR_BUTTON_DANGER_BACKGROUND;
-        s->sw_color     = COLOR_BUTTON_DANGER_TEXT;
-        s->hover_color  = COLOR_BUTTON_DANGER_HOVER_BACKGROUND;
-        s->press_color  = COLOR_BUTTON_DANGER_HOVER_BACKGROUND;
+        s->bg_color     = COLOR_BUTTON_DISABLED_BACKGROUND;
+        s->sw_color     = COLOR_BUTTON_DISABLED_TEXT;
+        s->hover_color  = COLOR_BUTTON_DISABLED_HOVER_BACKGROUND;
+        s->press_color  = COLOR_BUTTON_DISABLED_HOVER_BACKGROUND;
     }
 }
 
