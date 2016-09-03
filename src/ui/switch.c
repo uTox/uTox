@@ -27,9 +27,9 @@ void switch_draw(UISWITCH *s, int x, int y, int w, int h) {
 
     if (s->style) {
         if (s->switch_on) {
-            drawalpha(s->style, x + (w / 2), y, w / 2, h, s->sw_color);
+            drawalpha(s->style, x + (w / 2) + SCALE(2), y + SCALE(2), w / 2 - SCALE(4), h - SCALE(4), s->sw_color);
         } else {
-            drawalpha(s->style, x,           y, w / 2, h, s->sw_color);
+            drawalpha(s->style, x           + SCALE(2), y + SCALE(2), w / 2 - SCALE(4), h - SCALE(4), s->sw_color);
         }
     }
 }
