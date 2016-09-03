@@ -9,7 +9,7 @@ static void switch_set_colors(UISWITCH *s) {
     } else {
         s->bg_color    = COLOR_BTN_DISABLED_BKGRND;
         s->sw_color    = COLOR_BTN_DISABLED_FORGRND;
-        s->hover_color = COLOR_BTN_DISABLED_BKGRND;
+        s->hover_color = COLOR_BTN_DISABLED_BKGRND_HOVER;
         s->press_color = COLOR_BTN_DISABLED_BKGRND_HOVER;
     }
 }
