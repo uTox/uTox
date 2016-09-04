@@ -1123,9 +1123,7 @@ void ui_set_scale(uint8_t scale) {
 #endif
 
     PANEL e_name = {.type = PANEL_EDIT, .x = SCALE(10), .y = SCALE(27), .height = SCALE(24), .width = -SCALE(10)},
-
           e_status = {.type = PANEL_EDIT, .x = SCALE(10), .y = SCALE(76), .height = SCALE(24), .width = -SCALE(10)},
-
           e_toxid = {.type = PANEL_EDIT, .x = SCALE(10), .y = SCALE(126), .height = SCALE(24), .width = -SCALE(10)};
 
     edit_name.panel   = e_name;

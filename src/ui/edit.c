@@ -585,6 +585,10 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags) {
             }
 
             case KEY_END: {
+                if (edit->length == 0) {
+                    break;
+                }
+
                 if (flags & EMOD_CTRL) {
                     edit_sel.p1 = edit_sel.p2 = edit_sel.start = edit->length;
                     edit_sel.length                            = 0;
