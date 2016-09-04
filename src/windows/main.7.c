@@ -54,44 +54,37 @@ void native_select_dir_ft(uint32_t fid, MSG_FILE *file) {
 }
 
 void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
+    char *send = calloc(UTOX_FILE_NAME_LENGTH, sizeof(char *));
+
     wchar_t *path[UTOX_FILE_NAME_LENGTH];
+    wchar_t  sub_path[UTOX_FILE_NAME_LENGTH] = {0}; /* I don't trust swprintf on windows anymore, so let's help it */
+    wchar_t  fullpath[UTOX_FILE_NAME_LENGTH] = {0}; /* out a bit by initialing everything to 0                     */
+    wchar_t  longname[UTOX_FILE_NAME_LENGTH] = {0};
 
     if (settings.portable_mode) {
-        char *send = calloc(UTOX_FILE_NAME_LENGTH, sizeof(char *));
         snprintf(send, UTOX_FILE_NAME_LENGTH, "%s\\Tox_Auto_Accept", portable_mode_save_path);
-
         debug_notice("Native:\tAuto Accept Directory: \"%s\"\n", send);
         postmessage_toxcore(TOX_FILE_ACCEPT_AUTO, fid, file->file_number, send);
-        return;
-    }
-
-    if (!SHGetKnownFolderPath((REFKNOWNFOLDERID)&FOLDERID_Downloads, KF_FLAG_CREATE, 0, path)) {
-        wchar_t first[UTOX_FILE_NAME_LENGTH]    = {0}; /* I don't trust swprintf on windows anymore, so let's help it */
-        wchar_t second[UTOX_FILE_NAME_LENGTH]   = {0}; /* out a bit by initialing everything to 0                     */
-        wchar_t longname[UTOX_FILE_NAME_LENGTH] = {0};
-
-        swprintf(first, UTOX_FILE_NAME_LENGTH, L"%ls%ls", *path, L"\\Tox_Auto_Accept");
-        CreateDirectoryW(first, NULL);
-
-        MultiByteToWideChar(CP_UTF8, 0, (char *)file->name, file->name_length, longname, UTOX_FILE_NAME_LENGTH);
-
-        swprintf(second, UTOX_FILE_NAME_LENGTH, L"%ls\\%ls", first, longname);
-
-        /* Windows doesn't like UTF-8 strings, so we have to hold it's hand. */
-        file->file = _fdopen(_open_osfhandle((intptr_t)CreateFileW(second, GENERIC_WRITE, FILE_SHARE_READ, NULL,
-                                                                   CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL),
-                                             0),
-                             "wb");
-
-        char *send = calloc(UTOX_FILE_NAME_LENGTH, sizeof(char *));
-        native_to_utf8str(second, send, UTOX_FILE_NAME_LENGTH);
-
-        debug_notice("Native:\tAuto Accept Directory: \"%s\"\n", send);
-
-        postmessage_toxcore(TOX_FILE_ACCEPT_AUTO, fid, file->file_number, send);
+    } else if (!SHGetKnownFolderPath((REFKNOWNFOLDERID)&FOLDERID_Downloads, KF_FLAG_CREATE, 0, path)) {
+        swprintf(sub_path, UTOX_FILE_NAME_LENGTH, L"%ls%ls", *path, L"\\Tox_Auto_Accept");
+        CreateDirectoryW(sub_path, NULL);
     } else {
         debug("NATIVE:\tUnable to auto save file!\n");
     }
+    debug_notice("Native:\tAuto Accept Directory: \"%s\"\n", send);
+
+    /* UTF8 name to windows version*/
+    MultiByteToWideChar(CP_UTF8, 0, (char *)file->name, file->name_length, longname, UTOX_FILE_NAME_LENGTH);
+    swprintf(fullpath, UTOX_FILE_NAME_LENGTH, L"%ls\\%ls", sub_path, longname);
+    /* Windows doesn't like UTF-8 strings, so we have to hold it's hand. */
+    file->file = _fdopen(_open_osfhandle((intptr_t)CreateFileW(fullpath, GENERIC_WRITE, FILE_SHARE_READ, NULL,
+                                                               CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL),
+                                         0),
+                         "wb");
+
+    /* Back to UTF8 for uTox */
+    native_to_utf8str(fullpath, send, UTOX_FILE_NAME_LENGTH);
+    postmessage_toxcore(TOX_FILE_ACCEPT_AUTO, fid, file->file_number, send);
 }
 
 void launch_at_startup(int is_launch_at_startup) {

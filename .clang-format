@@ -97,9 +97,6 @@ BreakBeforeBraces: Attach
 # that name. If there is no name, a zero-length name is assumed.
 #  "Cpp11BracedListStyle": true,
 
-# If true, analyze the formatted file for the most common alignment of
-# & and *. PointerAlignment is then used only as fallback.
-#  "DerivePointerAlignment": true,
 
 # Disables formatting completely.
 #  "DisableFormat": false,
@@ -172,8 +169,7 @@ IndentCaseLabels: true
 # A regular expression matching macros that end a block.
 #  MacroBlockEnd: "*_MACRO_END",
 
-# The maximum number of consecutive empty lines to keep.
-#  "MaxEmptyLinesToKeep": 2,
+MaxEmptyLinesToKeep: 2
 
 # The number of characters to use for indentation of ObjC blocks.
 #  "ObjCBlockIndentWidth": 4,
@@ -188,8 +184,6 @@ IndentCaseLabels: true
 
 # The penalty for breaking a function call after “call(”.
 PenaltyBreakBeforeFirstCallParameter: 10
-
-# The penalty for each line break introduced inside a comment.
 PenaltyBreakComment: 3
 
 # The penalty for breaking before the first <<.
@@ -204,7 +198,9 @@ PenaltyBreakComment: 3
 # Penalty for putting the return type of a function onto its own line.
 #  "PenaltyReturnTypeOnItsOwnLine": 0,
 
-PointerAlignment: Right
+DerivePointerAlignment: true
+# PointerAlignment: Middle
+# PointerBindsToType: true
 
 SpaceAfterCStyleCast: false
 SortIncludes: false # I'd like this to be true eventually TODO
