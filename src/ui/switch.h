@@ -2,7 +2,8 @@ struct uiswitch {
     PANEL panel;
 
     // Switch switch toggle style.
-    SVG_IMG style;
+    SVG_IMG style_outer;
+    SVG_IMG style_inner;
 
     // Width/height of bm2 picture. Used for centering.
     int bw, bh;
