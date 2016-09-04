@@ -55,6 +55,15 @@ void native_select_dir_ft(uint32_t fid, MSG_FILE *file) {
 
 void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
     wchar_t *path[UTOX_FILE_NAME_LENGTH];
+    if (settings.portable_mode) {
+        char *send = calloc(UTOX_FILE_NAME_LENGTH, sizeof(char *));
+        snprintf(send, UTOX_FILE_NAME_LENGTH, "%s\\Tox_Auto_Accept", portable_mode_save_path);
+
+        debug_notice("Native:\tAuto Accept Directory: \"%s\"\n", send);
+        postmessage_toxcore(TOX_FILE_ACCEPT_AUTO, fid, file->file_number, send);
+        return;
+    }
+
     if (!SHGetKnownFolderPath((REFKNOWNFOLDERID)&FOLDERID_Downloads, KF_FLAG_CREATE, 0, path)) {
         wchar_t first[UTOX_FILE_NAME_LENGTH]    = {0}; /* I don't trust swprintf on windows anymore, so let's help it */
         wchar_t second[UTOX_FILE_NAME_LENGTH]   = {0}; /* out a bit by initialing everything to 0                     */
