@@ -23,13 +23,13 @@ void switch_draw(UISWITCH *s, int x, int y, int w, int h) {
 
     // Switch background color
     uint32_t color = s->mousedown ? s->press_color : (s->mouseover ? s->hover_color : s->bg_color);
-    drawalpha(BM_SWITCH, x, y, w, h, s->disabled ? (s->disabled_color ? s->disabled_color : s->disabled_color) : color);
+    drawalpha(s->style_outer, x, y, w, h, s->disabled ? (s->disabled_color ? s->disabled_color : s->disabled_color) : color);
 
-    if (s->style) {
+    if (s->style_inner) {
         if (s->switch_on) {
-            drawalpha(s->style, x + (w / 2) + SCALE(2), y + SCALE(2), w / 2 - SCALE(4), h - SCALE(4), s->sw_color);
+            drawalpha(s->style_inner, x + (w / 2) + SCALE(2), y + SCALE(2), w / 2 - SCALE(4), h - SCALE(4), s->sw_color);
         } else {
-            drawalpha(s->style, x           + SCALE(2), y + SCALE(2), w / 2 - SCALE(4), h - SCALE(4), s->sw_color);
+            drawalpha(s->style_inner, x           + SCALE(2), y + SCALE(2), w / 2 - SCALE(4), h - SCALE(4), s->sw_color);
         }
     }
 }

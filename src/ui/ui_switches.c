@@ -66,71 +66,88 @@ static void switchfxn_audio_filtering(void) {
 }
 
 UISWITCH switch_logging = {
-    .style        = BM_SWITCH_ICON,
+    .style_outer  = BM_SWITCH,
+    .style_inner  = BM_SWITCH_ICON,
     .update       = switch_set_colors,
     .onpress      = switchfxn_logging,
     .tooltip_text = {.i18nal = STR_LOGGING},
 };
 
 UISWITCH switch_mini_contacts = {
-    .style        = BM_SWITCH_ICON,
+    .style_outer  = BM_SWITCH,
+    .style_inner  = BM_SWITCH_ICON,
     .update       = switch_set_colors,
     .onpress      = switchfxn_mini_contacts,
     .tooltip_text = {.i18nal = STR_SETTINGS_UI_MINI_ROSTER},
 };
 
 UISWITCH switch_ipv6 = {
-    .style = BM_SWITCH_ICON, .update = switch_set_colors, .onpress = switchfxn_ipv6, .tooltip_text = {.i18nal = STR_IPV6},
+    .style_outer  = BM_SWITCH,
+    .style_inner  = BM_SWITCH_ICON,
+    .update       = switch_set_colors,
+    .onpress      = switchfxn_ipv6,
+    .tooltip_text = {.i18nal = STR_IPV6},
 };
 
 UISWITCH switch_udp = {
-    .style = BM_SWITCH_ICON, .update = switch_set_colors, .onpress = switchfxn_udp, .tooltip_text = {.i18nal = STR_UDP},
+    .style_outer  = BM_SWITCH,
+    .style_inner  = BM_SWITCH_ICON,
+    .update       = switch_set_colors,
+    .onpress      = switchfxn_udp,
+    .tooltip_text = {.i18nal = STR_UDP},
 };
 
 UISWITCH switch_close_to_tray = {
-    .style        = BM_SWITCH_ICON,
+    .style_outer  = BM_SWITCH,
+    .style_inner  = BM_SWITCH_ICON,
     .update       = switch_set_colors,
     .onpress      = switchfxn_close_to_tray,
     .tooltip_text = {.i18nal = STR_CLOSE_TO_TRAY},
 };
 
 UISWITCH switch_start_in_tray = {
-    .style        = BM_SWITCH_ICON,
+    .style_outer  = BM_SWITCH,
+    .style_inner  = BM_SWITCH_ICON,
     .update       = switch_set_colors,
     .onpress      = switchfxn_start_in_tray,
     .tooltip_text = {.i18nal = STR_START_IN_TRAY},
 };
 
 UISWITCH switch_auto_startup = {
-    .style        = BM_SWITCH_ICON,
+    .style_outer  = BM_SWITCH,
+    .style_inner  = BM_SWITCH_ICON,
     .update       = switch_set_colors,
     .onpress      = switchfxn_auto_startup,
     .tooltip_text = {.i18nal = STR_AUTO_STARTUP},
 };
 
 UISWITCH switch_typing_notes = {
-    .style        = BM_SWITCH_ICON,
+    .style_outer  = BM_SWITCH,
+    .style_inner  = BM_SWITCH_ICON,
     .update       = switch_set_colors,
     .onpress      = switchfxn_typing_notes,
     .tooltip_text = {.i18nal = STR_SEND_TYPING_NOTIFICATIONS},
 };
 
 UISWITCH switch_audible_notifications = {
-    .style        = BM_SWITCH_ICON,
+    .style_outer  = BM_SWITCH,
+    .style_inner  = BM_SWITCH_ICON,
     .update       = switch_set_colors,
     .onpress      = switchfxn_audible_notifications,
     .tooltip_text = {.i18nal = STR_AUDIONOTIFICATIONS},
 };
 
 UISWITCH switch_push_to_talk = {
-    .style        = BM_SWITCH_ICON,
+    .style_outer  = BM_SWITCH,
+    .style_inner  = BM_SWITCH_ICON,
     .update       = switch_set_colors,
     .onpress      = switchfxn_push_to_talk,
     .tooltip_text = {.i18nal = STR_PUSH_TO_TALK},
 };
 
 UISWITCH switch_audio_filtering = {
-    .style        = BM_SWITCH_ICON,
+    .style_outer  = BM_SWITCH,
+    .style_inner  = BM_SWITCH_ICON,
     .update       = switch_set_colors,
     .onpress      = switchfxn_audio_filtering,
     .tooltip_text = {.i18nal = STR_AUDIOFILTERING},
