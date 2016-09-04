@@ -55,6 +55,7 @@ void native_select_dir_ft(uint32_t fid, MSG_FILE *file) {
 
 void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
     wchar_t *path[UTOX_FILE_NAME_LENGTH];
+
     if (settings.portable_mode) {
         char *send = calloc(UTOX_FILE_NAME_LENGTH, sizeof(char *));
         snprintf(send, UTOX_FILE_NAME_LENGTH, "%s\\Tox_Auto_Accept", portable_mode_save_path);
