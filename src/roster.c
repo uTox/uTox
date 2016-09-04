@@ -7,24 +7,23 @@ extern _Bool unity_running;
 /* I think these are pointers to the panel's they're named after. */
 static ITEM item_add, item_settings, item_transfer;
 
-
 // full list of friends and group chats
-static ITEM item[1024]; /* TODO MAGIC NUMBER*/
+static ITEM     item[1024]; /* TODO MAGIC NUMBER*/
 static uint32_t itemcount;
 
-static uint32_t shown_list[1024]; // list of chats actually shown in the GUI after filtering(actually indices pointing to chats in the chats array)
+static uint32_t shown_list[1024]; // list of chats actually shown in the GUI after filtering(actually indices pointing
+                                  // to chats in the chats array)
 static uint32_t showncount;
 
 // search and filter stuff
-static char_t* search_string;
+static char_t *search_string;
 static uint8_t filter;
 
 static ITEM *mouseover_item;
 static ITEM *nitem; // item that selected_item is being dragged over
-ITEM *selected_item = &item_add;
+ITEM *       selected_item = &item_add;
 
-static _Bool mouse_in_list,
-             selected_item_mousedown;
+static _Bool mouse_in_list, selected_item_mousedown;
 
 static int selected_item_dy; // y offset of selected item being dragged from its original position
 
@@ -37,16 +36,15 @@ static void roster_draw_itembox(ITEM *i, int y) {
         height = ROSTER_BOX_HEIGHT;
     }
 
-    if(selected_item == i) {
-        drawrect(ROSTER_BOX_LEFT, y + 1, SIDEBAR_WIDTH, y + height, COLOR_BACKGROUND_MAIN);
-    } else if(mouseover_item == i) {
-        drawrect(ROSTER_BOX_LEFT, y + 1, SIDEBAR_WIDTH, y + height, COLOR_BACKGROUND_LIST_HOVER);
+    if (selected_item == i) {
+        drawrect(ROSTER_BOX_LEFT, y + 1, SIDEBAR_WIDTH, y + height, COLOR_BKGRND_MAIN);
+    } else if (mouseover_item == i) {
+        drawrect(ROSTER_BOX_LEFT, y + 1, SIDEBAR_WIDTH, y + height, COLOR_BKGRND_LIST_HOVER);
     }
 }
 
 static void roster_draw_name(ITEM *i, int y, char_t *name, char_t *msg, uint16_t name_length, uint16_t msg_length,
-                             _Bool color_overide, uint32_t color)
-{
+                             _Bool color_overide, uint32_t color) {
     if (!color_overide) {
         color = (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT;
     }
@@ -59,34 +57,33 @@ static void roster_draw_name(ITEM *i, int y, char_t *name, char_t *msg, uint16_t
                       y + ROSTER_NAME_TOP / 2, name, name_length);
     } else {
         /* Name + user status msg*/
-        drawtextwidth(ROSTER_NAME_LEFT, SIDEBAR_WIDTH - ROSTER_NAME_LEFT - SCALE(32),
-                      y + ROSTER_NAME_TOP, name, name_length);
+        drawtextwidth(ROSTER_NAME_LEFT, SIDEBAR_WIDTH - ROSTER_NAME_LEFT - SCALE(32), y + ROSTER_NAME_TOP, name,
+                      name_length);
 
         if (!color_overide) {
-            color = (selected_item == i) ? COLOR_MAIN_SUBTEXT : COLOR_LIST_SUBTEXT;
+            color = (selected_item == i) ? COLOR_MAIN_TEXT_SUBTEXT : COLOR_LIST_TEXT_SUBTEXT;
         }
         setcolor(color);
         setfont(FONT_STATUS);
-        drawtextwidth(ROSTER_NAME_LEFT, SIDEBAR_WIDTH - ROSTER_NAME_LEFT - SCALE(32),
-                      y + ROSTER_STATUS_MSG_TOP, msg, msg_length);
-
+        drawtextwidth(ROSTER_NAME_LEFT, SIDEBAR_WIDTH - ROSTER_NAME_LEFT - SCALE(32), y + ROSTER_STATUS_MSG_TOP, msg,
+                      msg_length);
     }
 }
 
 static void roster_draw_status_icon(uint8_t status, int y, _Bool notify) {
     int y_n = y;
     if (settings.use_mini_roster) {
-        y   += (ROSTER_BOX_HEIGHT /4) - (BM_STATUS_WIDTH /2);
-        y_n += (ROSTER_BOX_HEIGHT /4) - (BM_STATUS_NOTIFY_WIDTH /2);
+        y += (ROSTER_BOX_HEIGHT / 4) - (BM_STATUS_WIDTH / 2);
+        y_n += (ROSTER_BOX_HEIGHT / 4) - (BM_STATUS_NOTIFY_WIDTH / 2);
     } else {
-        y   += (ROSTER_BOX_HEIGHT /2) - (BM_STATUS_WIDTH /2);
-        y_n += (ROSTER_BOX_HEIGHT /2) - (BM_STATUS_NOTIFY_WIDTH /2);
+        y += (ROSTER_BOX_HEIGHT / 2) - (BM_STATUS_WIDTH / 2);
+        y_n += (ROSTER_BOX_HEIGHT / 2) - (BM_STATUS_NOTIFY_WIDTH / 2);
     }
 
-    int xpos   = SIDEBAR_WIDTH - SCALE(15) - BM_STATUS_WIDTH /2;
-    int xpos_n = SIDEBAR_WIDTH - SCALE(15) - BM_STATUS_NOTIFY_WIDTH /2;
+    int xpos   = SIDEBAR_WIDTH - SCALE(15) - BM_STATUS_WIDTH / 2;
+    int xpos_n = SIDEBAR_WIDTH - SCALE(15) - BM_STATUS_NOTIFY_WIDTH / 2;
 
-    drawalpha(BM_ONLINE + status,     xpos,   y, BM_STATUS_WIDTH,        BM_STATUS_WIDTH,        status_color[status]);
+    drawalpha(BM_ONLINE + status, xpos, y, BM_STATUS_WIDTH, BM_STATUS_WIDTH, status_color[status]);
     if (notify) {
         drawalpha(BM_STATUS_NOTIFY, xpos_n, y_n, BM_STATUS_NOTIFY_WIDTH, BM_STATUS_NOTIFY_WIDTH, status_color[status]);
     }
@@ -101,7 +98,7 @@ static void drawitem(ITEM *i, int UNUSED(x), int y) {
     int contact_bitmap = 0;
 
     if (settings.use_mini_roster) {
-        default_w      = BM_CONTACT_WIDTH  / 2;
+        default_w      = BM_CONTACT_WIDTH / 2;
         ava_top        = ROSTER_AVATAR_TOP / 2;
         group_bitmap   = BM_GROUP_MINI;
         contact_bitmap = BM_CONTACT_MINI;
@@ -114,17 +111,20 @@ static void drawitem(ITEM *i, int UNUSED(x), int y) {
 
     switch (i->item) {
         case ITEM_FRIEND: {
-            FRIEND *f = i->data;
+            FRIEND *f      = i->data;
             uint8_t status = f->online ? f->status : 3;
 
             // draw avatar or default image
             if (friend_has_avatar(f)) {
-                draw_avatar_image(f->avatar.image, ROSTER_AVATAR_LEFT, y + ava_top, f->avatar.width, f->avatar.height, default_w, default_w);
+                draw_avatar_image(f->avatar.image, ROSTER_AVATAR_LEFT, y + ava_top, f->avatar.width, f->avatar.height,
+                                  default_w, default_w);
             } else {
-                drawalpha(contact_bitmap, ROSTER_AVATAR_LEFT, y + ava_top, default_w, default_w, (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
+                drawalpha(contact_bitmap, ROSTER_AVATAR_LEFT, y + ava_top, default_w, default_w,
+                          (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
             }
 
-            roster_draw_name(i, y, UTOX_FRIEND_NAME(f), f->status_message, UTOX_FRIEND_NAME_LENGTH(f), f->status_length, 0, 0);
+            roster_draw_name(i, y, UTOX_FRIEND_NAME(f), f->status_message, UTOX_FRIEND_NAME_LENGTH(f), f->status_length,
+                             0, 0);
 
             roster_draw_status_icon(status, y, f->unread_msg);
             break;
@@ -132,20 +132,21 @@ static void drawitem(ITEM *i, int UNUSED(x), int y) {
 
         case ITEM_GROUP: {
             GROUPCHAT *g = i->data;
-            drawalpha(group_bitmap, ROSTER_AVATAR_LEFT, y + ava_top, default_w, default_w, (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
-            _Bool color_overide = 0;
-            uint32_t color = 0;
+            drawalpha(group_bitmap, ROSTER_AVATAR_LEFT, y + ava_top, default_w, default_w,
+                      (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
+            _Bool    color_overide = 0;
+            uint32_t color         = 0;
 
             if (g->muted) {
                 color_overide = 1;
-                color = COLOR_GROUP_MUTED;
+                color         = COLOR_GROUP_MUTED;
             } else {
-                uint64_t time = get_time();
+                uint64_t     time = get_time();
                 unsigned int j;
                 for (j = 0; j < g->peer_count; ++j) {
                     if (time - g->last_recv_audio[j] <= (uint64_t)1 * 1000 * 1000 * 1000) {
                         color_overide = 1;
-                        color = COLOR_GROUP_AUDIO;
+                        color         = COLOR_GROUP_AUDIO;
                         break;
                     }
                 }
@@ -163,15 +164,17 @@ static void drawitem(ITEM *i, int UNUSED(x), int y) {
             char_t name[TOX_FRIEND_ADDRESS_SIZE * 2];
             id_to_string(name, f->id);
 
-            drawalpha(contact_bitmap, ROSTER_AVATAR_LEFT, y + ROSTER_AVATAR_TOP, default_w, default_w, (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
+            drawalpha(contact_bitmap, ROSTER_AVATAR_LEFT, y + ROSTER_AVATAR_TOP, default_w, default_w,
+                      (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
             roster_draw_name(i, y, name, f->msg, sizeof(name), f->length, 0, 0);
             break;
         }
 
-        case ITEM_GROUP_CREATE:{
-            drawalpha(group_bitmap, ROSTER_AVATAR_LEFT, y + ROSTER_AVATAR_TOP, default_w, default_w, (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
-            roster_draw_name(i, y, S(CREATEGROUPCHAT),    S(CURSOR_CLICK_RIGHT),
-                                   SLEN(CREATEGROUPCHAT), SLEN(CURSOR_CLICK_RIGHT), 1, (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
+        case ITEM_GROUP_CREATE: {
+            drawalpha(group_bitmap, ROSTER_AVATAR_LEFT, y + ROSTER_AVATAR_TOP, default_w, default_w,
+                      (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
+            roster_draw_name(i, y, S(CREATEGROUPCHAT), S(CURSOR_CLICK_RIGHT), SLEN(CREATEGROUPCHAT),
+                             SLEN(CURSOR_CLICK_RIGHT), 1, (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
             break;
         }
 
@@ -199,20 +202,18 @@ void roster_re_scale(void) {
 }
 
 _Bool friend_matches_search_string(FRIEND *f, char_t *str) {
-    return !str ||
-            strstr_case((char*)f->name, (char*)str) ||
-            (f->alias && strstr_case((char*)f->alias, (char*)str));
+    return !str || strstr_case((char *)f->name, (char *)str)
+           || (f->alias && strstr_case((char *)f->alias, (char *)str));
 }
 
 void update_shown_list(void) {
-    FRIEND *f;
+    FRIEND * f;
     uint32_t i; // index in item array
     uint32_t j; // index in shown_list array
     for (i = j = 0; i < itemcount; i++) {
         ITEM *it = &item[i];
-        f = it->data;
-        if(it->item != ITEM_FRIEND ||
-                ((!filter || f->online) && friend_matches_search_string(f, search_string))) {
+        f        = it->data;
+        if (it->item != ITEM_FRIEND || ((!filter || f->online) && friend_matches_search_string(f, search_string))) {
             shown_list[j++] = i;
         }
     }
@@ -221,8 +222,8 @@ void update_shown_list(void) {
     roster_re_scale();
 }
 
-static ITEM* newitem(void) {
-    ITEM *i = &item[itemcount - 1];
+static ITEM *newitem(void) {
+    ITEM *i              = &item[itemcount - 1];
     item[itemcount].item = ITEM_GROUP_CREATE;
     item[itemcount].data = NULL;
     itemcount++;
@@ -231,7 +232,7 @@ static ITEM* newitem(void) {
 }
 
 // return item that the user is mousing over
-static ITEM* item_hit(int mx, int my, int height) {
+static ITEM *item_hit(int mx, int my, int height) {
     int real_height = 0;
     if (settings.use_mini_roster) {
         real_height = ROSTER_BOX_HEIGHT / 2;
@@ -240,9 +241,9 @@ static ITEM* item_hit(int mx, int my, int height) {
     }
 
     /* Mouse is outsite the list */
-    if (mx < ROSTER_BOX_LEFT || mx >= SIDEBAR_WIDTH ||
-        my < 0               || my >= showncount * real_height) { /* TODO: Height is a bit buggy, Height needs /2
-                                                                      * figure out why!  */
+    if (mx < ROSTER_BOX_LEFT || mx >= SIDEBAR_WIDTH || my < 0
+        || my >= showncount * real_height) { /* TODO: Height is a bit buggy, Height needs /2
+                                                 * figure out why!  */
         mouse_in_list = 0;
         return NULL;
     }
@@ -251,13 +252,13 @@ static ITEM* item_hit(int mx, int my, int height) {
     item_idx /= real_height;
 
     /* mouse is below the last item */
-    if(item_idx >= showncount) {
+    if (item_idx >= showncount) {
         mouse_in_list = 1;
         return NULL;
     }
 
     ITEM *i;
-    i = &item[shown_list[item_idx]];
+    i             = &item[shown_list[item_idx]];
     mouse_in_list = 1;
     return i;
 }
@@ -282,12 +283,12 @@ static void change_tab(int offset) {
      * remoing this if seems to work but I don't know what it was doing here
      * so I commented it incase it breaks stuff...  */
     // if (selected_item->item == ITEM_FRIEND ||
-        // selected_item->item == ITEM_GROUP) {
-        int index = find_item_shown_index(selected_item);
-        if (index != INT_MAX) {
-            // list_selectchat will check if out of bounds
-            list_selectchat((index + offset + showncount) % showncount);
-        }
+    // selected_item->item == ITEM_GROUP) {
+    int index = find_item_shown_index(selected_item);
+    if (index != INT_MAX) {
+        // list_selectchat will check if out of bounds
+        list_selectchat((index + offset + showncount) % showncount);
+    }
     // }
 }
 
@@ -318,22 +319,21 @@ static void show_page(ITEM *i) {
 
             free(f->typed);
             f->typed_length = edit_msg.length;
-            f->typed = malloc(edit_msg.length);
+            f->typed        = malloc(edit_msg.length);
             memcpy(f->typed, edit_msg.data, edit_msg.length);
 
             f->msg.scroll = messages_friend.content_scroll->d;
 
-            f->edit_history = edit_msg.history;
-            f->edit_history_cur = edit_msg.history_cur;
+            f->edit_history        = edit_msg.history;
+            f->edit_history_cur    = edit_msg.history_cur;
             f->edit_history_length = edit_msg.history_length;
 
-
-            panel_chat.disabled             = 1;
-            panel_friend.disabled           = 1;
-            panel_friend_chat.disabled      = 1;
-            panel_friend_video.disabled     = 1;
-            panel_friend_settings.disabled  = 1;
-            settings.inline_video           = 1;
+            panel_chat.disabled            = 1;
+            panel_friend.disabled          = 1;
+            panel_friend_chat.disabled     = 1;
+            panel_friend_video.disabled    = 1;
+            panel_friend_settings.disabled = 1;
+            settings.inline_video          = 1;
             break;
         }
 
@@ -350,13 +350,13 @@ static void show_page(ITEM *i) {
 
             free(g->typed);
             g->typed_length = edit_msg_group.length;
-            g->typed = malloc(edit_msg_group.length);
+            g->typed        = malloc(edit_msg_group.length);
             memcpy(g->typed, edit_msg_group.data, edit_msg_group.length);
 
             g->msg.scroll = messages_group.content_scroll->d;
 
-            g->edit_history = edit_msg_group.history;
-            g->edit_history_cur = edit_msg_group.history_cur;
+            g->edit_history        = edit_msg_group.history;
+            g->edit_history_cur    = edit_msg_group.history_cur;
             g->edit_history_length = edit_msg_group.history_length;
 
             panel_chat.disabled  = 1;
@@ -366,15 +366,15 @@ static void show_page(ITEM *i) {
 
         case ITEM_SETTINGS: {
             if (panel_profile_password.disabled) {
-                panel_splash_page.disabled      = 1;
-                settings.show_splash            = 0;
+                panel_splash_page.disabled = 1;
+                settings.show_splash       = 0;
 
-                panel_settings_master.disabled  = 1;
-                panel_overhead.disabled         = 1;
+                panel_settings_master.disabled = 1;
+                panel_overhead.disabled        = 1;
 
                 panel_profile_password_settings.disabled = 1;
 
-                button_settings.disabled        = 0;
+                button_settings.disabled = 0;
             }
             break;
         }
@@ -391,7 +391,6 @@ static void show_page(ITEM *i) {
         }
     }
 
-
     /* Now we activate/select the new page, and load stored data */
     switch (i->item) {
         case ITEM_FRIEND_ADD: {
@@ -403,11 +402,11 @@ static void show_page(ITEM *i) {
         case ITEM_FRIEND: {
             FRIEND *f = i->data;
 
-            #ifdef UNITY
+#ifdef UNITY
             if (unity_running) {
                 mm_rm_entry(f->cid);
             }
-            #endif
+#endif
 
             memcpy(edit_msg.data, f->typed, f->typed_length);
             edit_msg.length = f->typed_length;
@@ -416,20 +415,20 @@ static void show_page(ITEM *i) {
             f->msg.id     = f - friend;
             f->unread_msg = 0;
             /* We use the MESSAGES struct from the friend, but we need the info from the panel. */
-            messages_friend.object = ((void**)&f->msg);
-            messages_updateheight((MESSAGES*)messages_friend.object, current_width);
+            messages_friend.object = ((void **)&f->msg);
+            messages_updateheight((MESSAGES *)messages_friend.object, current_width);
 
-            ((MESSAGES*)messages_friend.object)->cursor_over_msg        = UINT32_MAX;
-            ((MESSAGES*)messages_friend.object)->cursor_over_position   = UINT32_MAX;
-            ((MESSAGES*)messages_friend.object)->cursor_down_msg        = UINT32_MAX;
-            ((MESSAGES*)messages_friend.object)->cursor_down_position   = UINT32_MAX;
-            ((MESSAGES*)messages_friend.object)->cursor_over_uri        = UINT32_MAX;
+            ((MESSAGES *)messages_friend.object)->cursor_over_msg      = UINT32_MAX;
+            ((MESSAGES *)messages_friend.object)->cursor_over_position = UINT32_MAX;
+            ((MESSAGES *)messages_friend.object)->cursor_down_msg      = UINT32_MAX;
+            ((MESSAGES *)messages_friend.object)->cursor_down_position = UINT32_MAX;
+            ((MESSAGES *)messages_friend.object)->cursor_over_uri      = UINT32_MAX;
 
-            scrollbar_friend.content_height = f->msg.height;
+            scrollbar_friend.content_height   = f->msg.height;
             messages_friend.content_scroll->d = f->msg.scroll;
 
-            edit_msg.history = f->edit_history;
-            edit_msg.history_cur = f->edit_history_cur;
+            edit_msg.history        = f->edit_history;
+            edit_msg.history_cur    = f->edit_history_cur;
             edit_msg.history_length = f->edit_history_length;
             edit_setfocus(&edit_msg);
 
@@ -447,26 +446,25 @@ static void show_page(ITEM *i) {
             memcpy(edit_msg_group.data, g->typed, g->typed_length);
             edit_msg_group.length = g->typed_length;
 
-            g->msg.width    = current_width;
-            g->msg.id       = g - group;
-            g->unread_msg   = 0;
+            g->msg.width  = current_width;
+            g->msg.id     = g - group;
+            g->unread_msg = 0;
             /* We use the MESSAGES struct from the group, but we need the info from the panel. */
-            messages_group.object = ((void*)&g->msg);
-            messages_updateheight((MESSAGES*)messages_group.object, current_width);
+            messages_group.object = ((void *)&g->msg);
+            messages_updateheight((MESSAGES *)messages_group.object, current_width);
 
-            ((MESSAGES*)messages_group.object)->cursor_over_msg         = UINT32_MAX;
-            ((MESSAGES*)messages_group.object)->cursor_over_position    = UINT32_MAX;
-            ((MESSAGES*)messages_group.object)->cursor_down_msg         = UINT32_MAX;
-            ((MESSAGES*)messages_group.object)->cursor_down_position    = UINT32_MAX;
-            ((MESSAGES*)messages_group.object)->cursor_over_uri         = UINT32_MAX;
-
+            ((MESSAGES *)messages_group.object)->cursor_over_msg      = UINT32_MAX;
+            ((MESSAGES *)messages_group.object)->cursor_over_position = UINT32_MAX;
+            ((MESSAGES *)messages_group.object)->cursor_down_msg      = UINT32_MAX;
+            ((MESSAGES *)messages_group.object)->cursor_down_position = UINT32_MAX;
+            ((MESSAGES *)messages_group.object)->cursor_over_uri      = UINT32_MAX;
 
             messages_group.content_scroll->content_height = g->msg.height;
-            messages_group.content_scroll->d = g->msg.scroll;
+            messages_group.content_scroll->d              = g->msg.scroll;
             edit_setfocus(&edit_msg_group);
 
-            edit_msg_group.history = g->edit_history;
-            edit_msg_group.history_cur = g->edit_history_cur;
+            edit_msg_group.history        = g->edit_history;
+            edit_msg_group.history_cur    = g->edit_history_cur;
             edit_msg_group.history_length = g->edit_history_length;
 
             panel_chat.disabled           = 0;
@@ -479,9 +477,9 @@ static void show_page(ITEM *i) {
 
         case ITEM_SETTINGS: {
             if (panel_profile_password.disabled) {
-                button_settings.disabled        = 1;
-                panel_overhead.disabled         = 0;
-                panel_settings_master.disabled  = 0;
+                button_settings.disabled       = 1;
+                panel_overhead.disabled        = 0;
+                panel_settings_master.disabled = 0;
             }
             break;
         }
@@ -503,7 +501,6 @@ static void show_page(ITEM *i) {
             debug_error("Trying to switch to an item that we shouldn't be selecting\n");
             break;
         }
-
     }
 
     selected_item = i;
@@ -512,17 +509,17 @@ static void show_page(ITEM *i) {
 }
 
 void list_start(void) {
-    selected_item = &item_settings;
+    selected_item            = &item_settings;
     button_settings.disabled = 1;
 
-    item_add.item       = ITEM_ADD;
-    item_settings.item  = ITEM_SETTINGS;
+    item_add.item      = ITEM_ADD;
+    item_settings.item = ITEM_SETTINGS;
 
     ITEM *i = item;
     for (uint32_t num = 0; num < self.friend_list_count; ++num) {
         FRIEND *f = &friend[num];
-        i->item = ITEM_FRIEND;
-        i->data = f;
+        i->item   = ITEM_FRIEND;
+        i->data   = f;
         i++;
     }
 
@@ -542,16 +539,16 @@ void list_addfriend(FRIEND *f) {
 
 void list_addfriend2(FRIEND *f, FRIENDREQ *req) {
     uint32_t i = 0;
-    while(i < itemcount) {
-        if(item[i].data == req) {
-            if(&item[i] == selected_item) {
+    while (i < itemcount) {
+        if (item[i].data == req) {
+            if (&item[i] == selected_item) {
                 // panel_item[selected_item->item - 1].disabled = 1;
                 // panel_item[ITEM_FRIEND - 1].disabled = 0;
 
-                messages_friend.object = (void*)&f->msg;
-                ((MESSAGES*)messages_friend.object)->cursor_over_msg = UINT32_MAX;
-                messages_friend.content_scroll->content_height = f->msg.height;
-                messages_friend.content_scroll->d = f->msg.scroll;
+                messages_friend.object                                = (void *)&f->msg;
+                ((MESSAGES *)messages_friend.object)->cursor_over_msg = UINT32_MAX;
+                messages_friend.content_scroll->content_height        = f->msg.height;
+                messages_friend.content_scroll->d                     = f->msg.scroll;
 
                 f->msg.id = f - friend;
             }
@@ -576,17 +573,15 @@ void list_addfriendreq(FRIENDREQ *f) {
     i->data = f;
 }
 
-
 void group_av_peer_remove(GROUPCHAT *g, int peernumber);
-
 
 // FIXME removing multiple items without moving the mouse causes asan neg-size-param error on memmove!
 static void deleteitem(ITEM *i) {
     right_mouse_item = NULL;
 
     if (i == selected_item) {
-        if(i == &item[itemcount] - 1) {
-            if(i == item) {
+        if (i == &item[itemcount] - 1) {
+            if (i == item) {
                 show_page(&item_add);
             } else {
                 show_page(i - 1);
@@ -615,9 +610,7 @@ static void deleteitem(ITEM *i) {
             break;
         }
 
-        default: {
-            return;
-        }
+        default: { return; }
     }
 
     itemcount--;
@@ -630,17 +623,17 @@ static void deleteitem(ITEM *i) {
     }
 
     update_shown_list();
-    redraw();//list_draw();
+    redraw(); // list_draw();
 }
 
 void list_deletesitem(void) {
-    if(selected_item >= item && selected_item < item + countof(item)) {
+    if (selected_item >= item && selected_item < item + countof(item)) {
         deleteitem(selected_item);
     }
 }
 
 void roster_delete_rmouse_item(void) {
-    if(right_mouse_item >= item && right_mouse_item < item + countof(item)) {
+    if (right_mouse_item >= item && right_mouse_item < item + countof(item)) {
         deleteitem(right_mouse_item);
     }
 }
@@ -664,9 +657,7 @@ void list_freeall(void) {
                 break;
             }
 
-            default: {
-                break;
-            }
+            default: { break; }
         }
         i->item = ITEM_NONE;
     }
@@ -702,7 +693,7 @@ void list_selectswap(void) {
 
 static struct {
     ITEM_TYPE type;
-    void *data;
+    void *    data;
 } push_pop;
 
 static void push_selected(void) {
@@ -716,7 +707,7 @@ static void push_selected(void) {
         }
         case ITEM_FRIEND: {
             push_pop.data = calloc(1, TOX_PUBLIC_KEY_SIZE);
-            FRIEND *f = selected_item->data;
+            FRIEND *f     = selected_item->data;
             memcpy(push_pop.data, &f->cid, TOX_PUBLIC_KEY_SIZE);
             break;
         }
@@ -762,13 +753,12 @@ static void pop_selected(void) {
             show_page(&item_settings);
             return;
         }
-
     }
 }
 
 void roster_select_last(void) {
     /* -2 should be the last, -1 is the create group */
-    show_page(&item[itemcount-2]);
+    show_page(&item[itemcount - 2]);
 }
 
 void roster_dump_contacts(void) {
@@ -794,11 +784,11 @@ void list_draw(void *UNUSED(n), int UNUSED(x), int y, int UNUSED(width), int UNU
     }
 
     ITEM *mi = NULL; // item being dragged
-    int my; // y of item being dragged
+    int   my;        // y of item being dragged
 
     for (int i = 0; i < showncount; i++) {
         ITEM *it = &item[shown_list[i]];
-        if(it == selected_item && (selected_item_dy >= 5 || selected_item_dy <= -5)) {
+        if (it == selected_item && (selected_item_dy >= 5 || selected_item_dy <= -5)) {
             mi = it;
             my = y + selected_item_dy;
         } else {
@@ -812,7 +802,8 @@ void list_draw(void *UNUSED(n), int UNUSED(x), int y, int UNUSED(width), int UNU
     }
 }
 
-_Bool list_mmove(void *UNUSED(n), int UNUSED(x), int UNUSED(y), int UNUSED(width), int height, int mx, int my, int UNUSED(dx), int dy) {
+_Bool list_mmove(void *UNUSED(n), int UNUSED(x), int UNUSED(y), int UNUSED(width), int height, int mx, int my,
+                 int UNUSED(dx), int dy) {
     int real_height = 0;
     if (settings.use_mini_roster) {
         real_height = ROSTER_BOX_HEIGHT / 2;
@@ -820,33 +811,32 @@ _Bool list_mmove(void *UNUSED(n), int UNUSED(x), int UNUSED(y), int UNUSED(width
         real_height = ROSTER_BOX_HEIGHT;
     }
 
-
     ITEM *i = item_hit(mx, my, height);
 
     _Bool draw = 0;
 
-    if(i != mouseover_item) {
+    if (i != mouseover_item) {
         mouseover_item = i;
-        draw = 1;
+        draw           = 1;
     }
 
-    if(selected_item_mousedown) {
+    if (selected_item_mousedown) {
         // drag item
         selected_item_dy += dy;
         nitem = NULL;
-        if(abs(selected_item_dy) >= real_height / 2) {
+        if (abs(selected_item_dy) >= real_height / 2) {
             int d; // offset, in number of items, of where the dragged item is compared to where it started
-            if(selected_item_dy > 0) {
+            if (selected_item_dy > 0) {
                 d = (selected_item_dy + real_height / 2) / real_height;
             } else {
                 d = (selected_item_dy - real_height / 2) / real_height;
             }
             int index = find_item_shown_index(selected_item);
             if (index != INT_MAX) { // selected_item was found in shown list
-                index += d; // get item being dragged over
+                index += d;         // get item being dragged over
 
                 // set item being dragged over
-                if(index >= 0 && ((uint32_t) index) < itemcount) {
+                if (index >= 0 && ((uint32_t)index) < itemcount) {
                     nitem = &item[shown_list[index]];
                 }
             }
@@ -865,7 +855,7 @@ _Bool list_mdown(void *UNUSED(n)) {
     tooltip_mdown(); /* may need to return on true */
     if (mouseover_item) {
         show_page(mouseover_item);
-        draw = 1;
+        draw                    = 1;
         selected_item_mousedown = 1;
     }
 
@@ -879,10 +869,10 @@ static void roster_init_friend_settings_page(void) {
     panel_friend_video.disabled    = 1;
     panel_friend_settings.disabled = 0;
 
-    edit_setstr(&edit_friend_pubkey, (char_t*)&f->id_str, TOX_PUBLIC_KEY_SIZE * 2);
+    edit_setstr(&edit_friend_pubkey, (char_t *)&f->id_str, TOX_PUBLIC_KEY_SIZE * 2);
 
     maybe_i18nal_string_set_plain(&edit_friend_alias.empty_str, f->name, f->name_length);
-    edit_setstr(&edit_friend_alias,  f->alias, f->alias_length);
+    edit_setstr(&edit_friend_alias, f->alias, f->alias_length);
 
     dropdown_friend_autoaccept_ft.over = dropdown_friend_autoaccept_ft.selected = f->ft_autoaccept;
 }
@@ -905,7 +895,7 @@ static void contextmenu_friend(uint8_t rcase) {
     panel_friend_chat.disabled     = 0;
     panel_friend_video.disabled    = 1;
     panel_friend_settings.disabled = 1;
-    switch (rcase){
+    switch (rcase) {
         case 0: {
             /* should be settings page */
             roster_init_friend_settings_page();
@@ -913,17 +903,17 @@ static void contextmenu_friend(uint8_t rcase) {
         }
         case 1: {
             /* Should be show inline video */
-            panel_friend_chat.disabled      = 1;
-            panel_friend_video.disabled     = 0;
-            panel_friend_settings.disabled  = 1;
-            settings.inline_video           = 1;
-            f->video_inline = 1;
-            postmessage(AV_CLOSE_WINDOW, f->number +1, 0, NULL);
+            panel_friend_chat.disabled     = 1;
+            panel_friend_video.disabled    = 0;
+            panel_friend_settings.disabled = 1;
+            settings.inline_video          = 1;
+            f->video_inline                = 1;
+            postmessage(AV_CLOSE_WINDOW, f->number + 1, 0, NULL);
             break;
         }
         case 2: {
             /* should be clean history */
-            friend_history_clear((FRIEND*)right_mouse_item->data);
+            friend_history_clear((FRIEND *)right_mouse_item->data);
             break;
         }
         case 3: {
@@ -936,17 +926,17 @@ static void contextmenu_friend(uint8_t rcase) {
 static void contextmenu_list_onselect(uint8_t i) {
     if (right_mouse_item) {
         switch (right_mouse_item->item) {
-            case ITEM_FRIEND:{
+            case ITEM_FRIEND: {
                 contextmenu_friend(i);
                 return;
             }
             case ITEM_GROUP: {
                 panel_group_chat.disabled = 0;
-                GROUPCHAT *g = right_mouse_item->data;
+                GROUPCHAT *g              = right_mouse_item->data;
                 if (i == 0) {
                     roster_init_group_settings_page();
                 } else if (i == 1) {
-                    if(right_mouse_item != selected_item) {
+                    if (right_mouse_item != selected_item) {
                         show_page(right_mouse_item);
                     }
 
@@ -954,7 +944,7 @@ static void contextmenu_list_onselect(uint8_t i) {
                     strcpy(str, "/topic ");
                     memcpy(str + 7, g->name, g->name_length);
                     edit_setfocus(&edit_msg_group);
-                    edit_paste((char_t*)str, sizeof(str), 0);
+                    edit_paste((char_t *)str, sizeof(str), 0);
                 } else if (i == 2 && g->av_group) {
                     g->muted = !g->muted;
                 } else {
@@ -992,27 +982,17 @@ static void contextmenu_list_onselect(uint8_t i) {
 }
 
 _Bool list_mright(void *UNUSED(n)) {
-    static UI_STRING_ID menu_friend[]           = { STR_FRIEND_SETTINGS,
-                                                    STR_CALL_VIDEO_SHOW_INLINE,
-                                                    STR_CLEAR_HISTORY,
-                                                    STR_REMOVE_FRIEND };
+    static UI_STRING_ID menu_friend[] = {STR_FRIEND_SETTINGS, STR_CALL_VIDEO_SHOW_INLINE, STR_CLEAR_HISTORY,
+                                         STR_REMOVE_FRIEND};
 
-    static UI_STRING_ID menu_group_unmuted[]    = { STR_GROUPCHAT_SETTINGS,
-                                                    STR_CHANGE_GROUP_TOPIC,
-                                                    STR_MUTE,
-                                                    STR_REMOVE_GROUP };
-    static UI_STRING_ID menu_group_muted[]      = { STR_GROUPCHAT_SETTINGS,
-                                                    STR_CHANGE_GROUP_TOPIC,
-                                                    STR_UNMUTE,
-                                                    STR_REMOVE_GROUP };
+    static UI_STRING_ID menu_group_unmuted[] = {STR_GROUPCHAT_SETTINGS, STR_CHANGE_GROUP_TOPIC, STR_MUTE,
+                                                STR_REMOVE_GROUP};
+    static UI_STRING_ID menu_group_muted[] = {STR_GROUPCHAT_SETTINGS, STR_CHANGE_GROUP_TOPIC, STR_UNMUTE,
+                                              STR_REMOVE_GROUP};
 
-    static UI_STRING_ID menu_group[]            = { STR_GROUPCHAT_SETTINGS,
-                                                    STR_CHANGE_GROUP_TOPIC,
-                                                    STR_REMOVE_GROUP };
-    static UI_STRING_ID menu_create_group[]     = { STR_GROUP_CREATE_TEXT,
-                                                    STR_GROUP_CREATE_VOICE };
-    static UI_STRING_ID menu_request[]          = { STR_REQ_ACCEPT,
-                                                    STR_REQ_DECLINE };
+    static UI_STRING_ID menu_group[]        = {STR_GROUPCHAT_SETTINGS, STR_CHANGE_GROUP_TOPIC, STR_REMOVE_GROUP};
+    static UI_STRING_ID menu_create_group[] = {STR_GROUP_CREATE_TEXT, STR_GROUP_CREATE_VOICE};
+    static UI_STRING_ID menu_request[]      = {STR_REQ_ACCEPT, STR_REQ_DECLINE};
 
     if (mouseover_item) {
         right_mouse_item = mouseover_item;
@@ -1069,37 +1049,36 @@ _Bool list_mwheel(void *UNUSED(n), int UNUSED(height), double UNUSED(d), _Bool U
 _Bool list_mup(void *UNUSED(n)) {
     _Bool draw = 0;
     tooltip_mup(); /* may need to return one true */
-    if(selected_item_mousedown && abs(selected_item_dy) >= 5) {
-        if(nitem && find_item_shown_index(nitem) != INT_MAX) {
-            if(selected_item->item == ITEM_FRIEND) {
-                if(nitem->item == ITEM_FRIEND) {
+    if (selected_item_mousedown && abs(selected_item_dy) >= 5) {
+        if (nitem && find_item_shown_index(nitem) != INT_MAX) {
+            if (selected_item->item == ITEM_FRIEND) {
+                if (nitem->item == ITEM_FRIEND) {
                     ITEM temp;
 
-                    temp = *selected_item;
+                    temp           = *selected_item;
                     *selected_item = *nitem;
-                    *nitem = temp;
+                    *nitem         = temp;
 
                     selected_item = nitem;
                 }
 
-                if(nitem->item == ITEM_GROUP) {
-                    FRIEND *f = selected_item->data;
+                if (nitem->item == ITEM_GROUP) {
+                    FRIEND *   f = selected_item->data;
                     GROUPCHAT *g = nitem->data;
 
-                    if(f->online) {
+                    if (f->online) {
                         postmessage_toxcore(TOX_GROUP_SEND_INVITE, (g - group), (f - friend), NULL);
                     }
                 }
-
             }
 
-            if(selected_item->item == ITEM_GROUP) {
-                if(nitem->item == ITEM_FRIEND || nitem->item == ITEM_GROUP) {
+            if (selected_item->item == ITEM_GROUP) {
+                if (nitem->item == ITEM_FRIEND || nitem->item == ITEM_GROUP) {
                     ITEM temp;
 
-                    temp = *selected_item;
+                    temp           = *selected_item;
                     *selected_item = *nitem;
-                    *nitem = temp;
+                    *nitem         = temp;
 
                     selected_item = nitem;
                 }
@@ -1108,17 +1087,16 @@ _Bool list_mup(void *UNUSED(n)) {
             nitem = NULL;
         }
 
-
         draw = 1;
     }
 
     selected_item_mousedown = 0;
-    selected_item_dy = 0;
+    selected_item_dy        = 0;
 
     return draw;
 }
 
-_Bool list_mleave(void *UNUSED(n)){
+_Bool list_mleave(void *UNUSED(n)) {
     if (mouseover_item) {
         mouseover_item = NULL;
         return 1;

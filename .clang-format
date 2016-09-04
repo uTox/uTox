@@ -1,59 +1,19 @@
-# All these settings have been taken from the clang-format manual,
-# Take a look at http://clang.llvm.org/docs/ClangFormatStyleOptions.html
 BasedOnStyle: LLVM
-# If true, aligns consecutive assignments.
-# This will align the assignment operators of consecutive lines.
-# This will result in formattings like:
-#     int aaaa = 12;
-#     int b    = 23;
-#     int ccc  = 23;
+
+ColumnLimit: 120
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+
 AlignConsecutiveAssignments: true
-
-# If true, aligns consecutive declarations.
-# This will align the declaration names of consecutive lines. This will result in formattings like
-# int         aaaa = 12;
-# float       b = 23;
-# std::string ccc = 23;
 AlignConsecutiveDeclarations: true
-
-# If true, aligns escaped newlines as far left as possible. Otherwise puts
-# them into the right-most column.
-#  "AlignEscapedNewlinesLeft": true,
-
-# If true, horizontally align operands of binary and ternary expressions.
-# "AlignOperands": true,
-
-# If true, aligns trailing comments.
 AlignTrailingComments: true
 
-# Allow putting all parameters of a function declaration onto the next line
-# even if BinPackParameters is false.
-#  "AllowAllParametersOfDeclarationOnNextLine": true,
-
-# Allows contracting simple braced statements to a single line.
-# E.g., this allows if (a) { return; } to be put on a single line.
 AllowShortBlocksOnASingleLine: false
-
-# If true, short case labels will be contracted to a single line.
 AllowShortCaseLabelsOnASingleLine: true
-
-# Dependent on the value, int f() { return 0; } can be put on a single
-# line.
-# Possible values:
-#     SFS_None   (in "configuration": None) Never merge functions into a
-#     single line.
-#     SFS_Empty (in configuration: Empty) Only merge empty functions.
-#     SFS_Inline (in "configuration": Inline) Only merge functions defined
-#     inside a class.
-#     SFS_All    (in "configuration": All) Merge all functions fitting on a
-#     single line.
-#  "AllowShortFunctionsOnASingleLine": "None",
-
-# If true, if (a) return; can be put on a single line.
 AllowShortIfStatementsOnASingleLine: false
-
-# If true, while (true) continue; can be put on a single line.
-#  "AllowShortLoopsOnASingleLine": true,
+AllowShortLoopsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: None
 
 # The function definition return type breaking style to use.
 # Possible values:
@@ -102,30 +62,7 @@ AllowShortIfStatementsOnASingleLine: false
 # Break after each annotation on a field in Java files.
 # "BreakAfterJavaFieldAnnotations": true,
 
-# The way to wrap binary operators.
-# Possible values:
-# BOS_None (in configuration: None) Break after operators.
-# BOS_NonAssignment (in configuration: NonAssignment) Break before operators that aren’t assignments.
-# BOS_All (in configuration: All) Break before operators.
 BreakBeforeBinaryOperators: NonAssignment
-
-# The brace breaking style to use.
-# Possible "values":
-# BS_Attach (in "configuration": Attach) Always attach braces to
-# surrounding context.
-# BS_Linux (in "configuration": Linux) Like Attach, but break before braces
-# on function, namespace and class definitions.
-# BS_Mozilla (in configuration: Mozilla) Like Attach, but break before
-# braces on enum, function, and record definitions.
-# BS_Stroustrup (in "configuration": Stroustrup) Like Attach, but break
-# before function definitions.
-# BS_Allman (in "configuration": Allman) Always break before braces.
-# BS_GNU (in "configuration": GNU) Always break before braces and add an extra
-# level of indentation to braces of control statements, not to those of
-# class, function or other definitions.
-# BS_WebKit (in configuration: WebKit) Like Attach, but break before functions.
-# BS_Custom (in configuration: Custom) Configure each individual brace in
-# BraceWrapping.
 BreakBeforeBraces: Attach
 
 # If true, ternary operators will be placed after line breaks.
@@ -134,11 +71,6 @@ BreakBeforeBraces: Attach
 # Always break constructor initializers before commas and align the commas
 # with the colon.
 #  "BreakConstructorInitializersBeforeComma": true,
-
-# The column limit. A column limit of 0 means that there is no column
-# limit. In this case, clang-format will respect the input’s line breaking
-# decisions within statements unless they contradict other rules.
-ColumnLimit: 120
 
 # A regular expression that describes comments with special meaning, which
 # should not be split into lines or otherwise changed.
@@ -220,9 +152,6 @@ IndentCaseLabels: true
 # definitions after the type.
 #  "IndentFunctionDeclarationAfterType": true,
 
-# The number of columns to use for indentation.
-IndentWidth: 4
-
 # Indent if a function definition or declaration is wrapped after the type.
 #  "IndentWrappedFunctionNames": true,
 
@@ -283,9 +212,7 @@ SortIncludes: false # I'd like this to be true eventually TODO
 # If false, spaces will be removed before assignment operators.
 SpaceBeforeAssignmentOperators: true
 SpaceBeforeParens: ControlStatements
-
-# If true, spaces may be inserted into ‘()’.
-#  "SpaceInEmptyParentheses": true,
+SpaceInEmptyParentheses: false
 
 # The number of spaces before trailing line comments (//-comments). This
 # does not affect trailing block comments (/**/-comments) as those commonly
@@ -299,15 +226,8 @@ SpaceBeforeParens: ControlStatements
 # If true, spaces may be inserted into C style casts.
 #  "SpacesInCStyleCastParentheses": true,
 
-# If true, spaces are inserted inside container literals (e.g. ObjC and
-# Javascript array and dict literals).
-#  "SpacesInContainerLiterals": true,
-
 # If true, spaces will be inserted after ‘(‘ and before ‘)’.
 #  "SpacesInParentheses": true,
 
 # If true, spaces will be inserted after ‘[‘ and before ‘]’.
 #  "SpacesInSquareBrackets": true,
-
-TabWidth: 4
-UseTab: Never
