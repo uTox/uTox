@@ -663,8 +663,8 @@ _Bool svg_draw(_Bool needmemory) {
     loadalpha(BM_RESUME, p, BM_FB_WIDTH, BM_FB_HEIGHT);
     p += s;
 
-    drawline(p,     BM_FB_WIDTH, BM_FB_HEIGHT, SCALE(7.5), SCALE(9),   SCALE(8), SCALE(1));
-    drawlinedown(p, BM_FB_WIDTH, BM_FB_HEIGHT, SCALE(2.8), SCALE(6.5), SCALE(5), SCALE(1));
+    drawline(p,     BM_FB_WIDTH, BM_FB_HEIGHT, SCALE(8), SCALE(6), SCALE(8),   SCALE(1));
+    drawlinedown(p, BM_FB_WIDTH, BM_FB_HEIGHT, SCALE(3), SCALE(6), SCALE(3.5), SCALE(1));
     loadalpha(BM_YES, p, BM_FB_WIDTH, BM_FB_HEIGHT);
     p += s;
 
