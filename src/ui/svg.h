@@ -20,8 +20,8 @@
 
 #define  BM_SWITCH_WIDTH        (SCALE(60))
 #define  BM_SWITCH_HEIGHT       (SCALE(25))
-#define  BM_SWITCH_ICON_WIDTH   (SCALE(26))
-#define  BM_SWITCH_ICON_HEIGHT  (SCALE(21))
+#define  BM_SWITCH_INNER_WIDTH  (SCALE(26))
+#define  BM_SWITCH_INNER_HEIGHT (SCALE(21))
 
 /* File transfer buttons */
 #define  BM_FT_WIDTH   (UTOX_SCALE(125 ))

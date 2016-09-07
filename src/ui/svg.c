@@ -449,8 +449,8 @@ _Bool svg_draw(_Bool needmemory) {
         BM_LBUTTON_WIDTH * BM_LBUTTON_HEIGHT +              /* Generic Large Button */
         BM_SBUTTON_WIDTH * BM_SBUTTON_HEIGHT +              /* Generic Small Button */
 
-        BM_SWITCH_WIDTH       * BM_SWITCH_HEIGHT  +         /* Switch */
-        BM_SWITCH_ICON_WIDTH  * BM_SWITCH_ICON_HEIGHT  +    /* Switch toggle */
+        BM_SWITCH_WIDTH       * BM_SWITCH_HEIGHT +          /* Switch */
+        BM_SWITCH_INNER_WIDTH * BM_SWITCH_INNER_HEIGHT +    /* Switch toggle */
 
         /* File transfer */
         BM_FT_CAP_WIDTH * BM_FTB_HEIGHT +
@@ -624,9 +624,9 @@ _Bool svg_draw(_Bool needmemory) {
     p += BM_SWITCH_WIDTH * BM_SWITCH_HEIGHT;
 
     /* Basic Switch Style icon */
-    drawrectrounded(p, BM_SWITCH_ICON_WIDTH, BM_SWITCH_ICON_HEIGHT, SCALE(4));
-    loadalpha(BM_SWITCH_ICON, p, BM_SWITCH_ICON_WIDTH, BM_SWITCH_ICON_HEIGHT);
-    p += BM_SWITCH_ICON_WIDTH * BM_SWITCH_ICON_HEIGHT;
+    drawrectrounded(p, BM_SWITCH_INNER_WIDTH, BM_SWITCH_INNER_HEIGHT, SCALE(4));
+    loadalpha(BM_SWITCH_INNER, p, BM_SWITCH_INNER_WIDTH, BM_SWITCH_INNER_HEIGHT);
+    p += BM_SWITCH_INNER_WIDTH * BM_SWITCH_INNER_HEIGHT;
 
     /* Draw file transfer buttons */
     drawrectroundedex(p, BM_FT_CAP_WIDTH, BM_FTB_HEIGHT, SCALE(4), 13);
