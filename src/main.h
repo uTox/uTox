@@ -254,7 +254,7 @@ typedef enum {
     BM_SBUTTON,
 
     BM_SWITCH,
-    BM_SWITCH_ICON,
+    BM_SWITCH_INNER,
 
     BM_CONTACT,
     BM_CONTACT_MINI,
