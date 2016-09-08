@@ -1,9 +1,10 @@
 struct uiswitch {
     PANEL panel;
 
-    // Switch switch toggle style.
     SVG_IMG style_outer;
     SVG_IMG style_toggle;
+    SVG_IMG style_icon_off;
+    SVG_IMG style_icon_on;
 
     // Width/height of the toggle. Used for centering.
     int tw, th;
