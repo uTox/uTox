@@ -18,8 +18,8 @@
 #define  BM_SBUTTON_WIDTH  (UTOX_SCALE(26 ))
 #define  BM_SBUTTON_HEIGHT (UTOX_SCALE(10 ))
 
-#define  BM_SWITCH_WIDTH        (SCALE(60))
-#define  BM_SWITCH_HEIGHT       (SCALE(25))
+#define  BM_SWITCH_WIDTH         (SCALE(60))
+#define  BM_SWITCH_HEIGHT        (SCALE(25))
 #define  BM_SWITCH_TOGGLE_WIDTH  (SCALE(26))
 #define  BM_SWITCH_TOGGLE_HEIGHT (SCALE(21))
 

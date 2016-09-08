@@ -449,7 +449,7 @@ _Bool svg_draw(_Bool needmemory) {
         BM_LBUTTON_WIDTH * BM_LBUTTON_HEIGHT +              /* Generic Large Button */
         BM_SBUTTON_WIDTH * BM_SBUTTON_HEIGHT +              /* Generic Small Button */
 
-        BM_SWITCH_WIDTH       * BM_SWITCH_HEIGHT +          /* Switch */
+        BM_SWITCH_WIDTH        * BM_SWITCH_HEIGHT +         /* Switch */
         BM_SWITCH_TOGGLE_WIDTH * BM_SWITCH_TOGGLE_HEIGHT +  /* Switch toggle */
 
         /* File transfer */
