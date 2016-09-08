@@ -1,15 +1,15 @@
 #include "../main.h"
 
-static void utox_filter_audio_kill(Filter_Audio *filter_audio_handle){
-    #ifdef AUDIO_FILTERING
+static void utox_filter_audio_kill(Filter_Audio *filter_audio_handle) {
+#ifdef AUDIO_FILTERING
     kill_filter_audio(filter_audio_handle);
-    #endif
+#endif
 }
 
 static ALCdevice *audio_out_handle, *audio_in_handle;
-static void      *audio_out_device, *audio_in_device;
-static _Bool      speakers_on,       microphone_on;
-static int16_t    speakers_count,    microphone_count;
+static void *     audio_out_device, *audio_in_device;
+static _Bool      speakers_on, microphone_on;
+static int16_t    speakers_count, microphone_count;
 /* TODO hacky fix. This source list should be a VLA with a way to link sources to friends.
  * NO SRSLY don't leave this like this! */
 static ALuint ringtone, preview, notifytone;
@@ -20,19 +20,18 @@ void utox_audio_in_device_open(void) {
     if (!audio_in_device) {
         return;
     }
-    if (audio_in_device == (void*)1) {
-        audio_in_handle = (void*)1;
+    if (audio_in_device == (void *)1) {
+        audio_in_handle = (void *)1;
         return;
     }
 
     audio_in_handle = alcCaptureOpenDevice(audio_in_device, UTOX_DEFAULT_SAMPLE_RATE_A, AL_FORMAT_MONO16,
-                                                            (UTOX_DEFAULT_FRAME_A * UTOX_DEFAULT_SAMPLE_RATE_A * 4)
-                                                            / 1000);
+                                           (UTOX_DEFAULT_FRAME_A * UTOX_DEFAULT_SAMPLE_RATE_A * 4) / 1000);
 }
 
 void utox_audio_in_device_close(void) {
     if (audio_in_handle) {
-        if (audio_in_handle == (void*)1) {
+        if (audio_in_handle == (void *)1) {
             audio_in_handle = NULL;
             microphone_on   = 0;
             return;
@@ -40,7 +39,7 @@ void utox_audio_in_device_close(void) {
         if (microphone_on) {
             alcCaptureStop(audio_in_handle);
         }
-    alcCaptureCloseDevice(audio_in_handle);
+        alcCaptureCloseDevice(audio_in_handle);
     }
     audio_in_handle = NULL;
     microphone_on   = 0;
@@ -53,7 +52,7 @@ void utox_audio_in_listen(void) {
     }
 
     if (audio_in_handle) {
-        if (audio_in_device == (void*)1) {
+        if (audio_in_device == (void *)1) {
             audio_init(audio_in_handle);
             return;
         }
@@ -83,13 +82,13 @@ void utox_audio_in_ignore(void) {
     }
 
     if (audio_in_handle) {
-        if (audio_in_handle == (void*)1) {
+        if (audio_in_handle == (void *)1) {
             audio_close(audio_in_handle);
-            microphone_on = 0;
+            microphone_on    = 0;
             microphone_count = 0;
             return;
         }
-    alcCaptureStop(audio_in_handle);
+        alcCaptureStop(audio_in_handle);
     }
 
     microphone_on    = 0;
@@ -107,7 +106,7 @@ void utox_audio_in_device_set(ALCdevice *new_device) {
     }
 }
 
-ALCdevice* utox_audio_in_device_get(void) {
+ALCdevice *utox_audio_in_device_get(void) {
     if (audio_in_handle) {
         return audio_in_device;
     } else {
@@ -116,6 +115,7 @@ ALCdevice* utox_audio_in_device_get(void) {
 }
 
 static ALCcontext *context;
+
 void utox_audio_out_device_open(void) {
     if (speakers_on) {
         speakers_count++;
@@ -134,7 +134,7 @@ void utox_audio_out_device_open(void) {
         debug("alcMakeContextCurrent() failed\n");
         alcCloseDevice(audio_out_handle);
         audio_out_handle = NULL;
-        speakers_on = 0;
+        speakers_on      = 0;
         return;
     }
     speakers_on = 1;
@@ -193,7 +193,7 @@ void utox_audio_out_device_set(ALCdevice *new_device) {
     }
 }
 
-ALCdevice* utox_audio_out_device_get(void) {
+ALCdevice *utox_audio_out_device_get(void) {
     if (audio_out_handle) {
         return audio_out_device;
     } else {
@@ -202,7 +202,7 @@ ALCdevice* utox_audio_out_device_get(void) {
 }
 
 void sourceplaybuffer(unsigned int f, const int16_t *data, int samples, uint8_t channels, unsigned int sample_rate) {
-    if(!channels || channels > 2) {
+    if (!channels || channels > 2) {
         return;
     }
 
@@ -213,33 +213,33 @@ void sourceplaybuffer(unsigned int f, const int16_t *data, int samples, uint8_t 
         source = friend[f].audio_dest;
     }
 
-
     ALuint bufid;
-    ALint processed = 0, queued = 16;
+    ALint  processed = 0, queued = 16;
     alGetSourcei(source, AL_BUFFERS_PROCESSED, &processed);
     alGetSourcei(source, AL_BUFFERS_QUEUED, &queued);
     alSourcei(source, AL_LOOPING, AL_FALSE);
 
-    if(processed) {
+    if (processed) {
         ALuint bufids[processed];
         alSourceUnqueueBuffers(source, processed, bufids);
         alDeleteBuffers(processed - 1, bufids + 1);
         bufid = bufids[0];
-    } else if(queued < 16) {
+    } else if (queued < 16) {
         alGenBuffers(1, &bufid);
     } else {
         debug("dropped audio frame\n");
         return;
     }
 
-    alBufferData(bufid, (channels == 1) ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16, data, samples * 2 * channels, sample_rate);
+    alBufferData(bufid, (channels == 1) ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16, data, samples * 2 * channels,
+                 sample_rate);
     alSourceQueueBuffers(source, 1, &bufid);
 
     // debug("audio frame || samples == %i channels == %u rate == %u \n", samples, channels, sample_rate);
 
     ALint state;
     alGetSourcei(source, AL_SOURCE_STATE, &state);
-    if(state != AL_PLAYING) {
+    if (state != AL_PLAYING) {
         alSourcePlay(source);
         // debug("Starting source %u\n", i);
     }
@@ -249,11 +249,11 @@ static void audio_in_init(void) {
     const char *audio_in_device_list;
     audio_in_device_list = alcGetString(NULL, ALC_CAPTURE_DEVICE_SPECIFIER);
     if (audio_in_device_list) {
-        audio_in_device = (void*)audio_in_device_list;
+        audio_in_device = (void *)audio_in_device_list;
         debug("uToxAudio:\tinput device list:\n");
-        while(*audio_in_device_list) {
+        while (*audio_in_device_list) {
             debug("\t%s\n", audio_in_device_list);
-            postmessage(AUDIO_IN_DEVICE, UI_STRING_ID_INVALID, 0, (void*)audio_in_device_list);
+            postmessage(AUDIO_IN_DEVICE, UI_STRING_ID_INVALID, 0, (void *)audio_in_device_list);
             audio_in_device_list += strlen(audio_in_device_list) + 1;
         }
     }
@@ -269,12 +269,12 @@ static void audio_out_init(void) {
         audio_out_device_list = alcGetString(NULL, ALC_DEVICE_SPECIFIER);
     }
 
-    if(audio_out_device_list) {
-        audio_out_device = (void*)audio_out_device_list;
+    if (audio_out_device_list) {
+        audio_out_device = (void *)audio_out_device_list;
         debug("uToxAudio:\toutput device list:\n");
-        while(*audio_out_device_list) {
+        while (*audio_out_device_list) {
             debug("\t%s\n", audio_out_device_list);
-            postmessage(AUDIO_OUT_DEVICE, 0, 0, (void*)audio_out_device_list);
+            postmessage(AUDIO_OUT_DEVICE, 0, 0, (void *)audio_out_device_list);
             audio_out_device_list += strlen(audio_out_device_list) + 1;
         }
     }
@@ -285,10 +285,10 @@ static void audio_out_init(void) {
         return;
     }
 
-    int attrlist[] = {  ALC_FREQUENCY, UTOX_DEFAULT_SAMPLE_RATE_A, ALC_INVALID };
+    int attrlist[] = {ALC_FREQUENCY, UTOX_DEFAULT_SAMPLE_RATE_A, ALC_INVALID};
 
     context = alcCreateContext(audio_out_handle, attrlist);
-    if(!alcMakeContextCurrent(context)) {
+    if (!alcMakeContextCurrent(context)) {
         debug("alcMakeContextCurrent() failed\n");
         alcCloseDevice(audio_out_handle);
         return;
@@ -315,27 +315,26 @@ static void audio_out_init(void) {
 static void audio_source_init(ALuint *source) {
     ALint error;
     alGetError();
-    alGenSources((ALuint)1 , source);
+    alGenSources((ALuint)1, source);
     if ((error = alGetError()) != AL_NO_ERROR) {
         debug("uToxAudio:\tError generating source with err %x\n", error);
     }
 }
 
-static void audio_source_term(ALuint *source) {
-    alDeleteSources((ALuint)1, source);
-}
+static void audio_source_term(ALuint *source) { alDeleteSources((ALuint)1, source); }
 
-#define fade_step_out()           (1 - ((double)(index % (sample_rate/notes_per_sec))/(sample_rate/notes_per_sec)))
-#define fade_step_in()            (    ((double)(index % (sample_rate/notes_per_sec))/(sample_rate/notes_per_sec)))
+#define fade_step_out() (1 - ((double)(index % (sample_rate / notes_per_sec)) / (sample_rate / notes_per_sec)))
+#define fade_step_in() (((double)(index % (sample_rate / notes_per_sec)) / (sample_rate / notes_per_sec)))
 
-#define gen_note_raw(x,a)         ((a * base_amplitude) * (sin((t * x)             * index / sample_rate)))
-#define gen_note_num(x,a)         ((a * base_amplitude) * (sin((t * notes[x].freq) * index / sample_rate)))
+#define gen_note_raw(x, a) ((a * base_amplitude) * (sin((t * x) * index / sample_rate)))
+#define gen_note_num(x, a) ((a * base_amplitude) * (sin((t * notes[x].freq) * index / sample_rate)))
 
-#define gen_note_num_fade(x,a)    ((a * base_amplitude * fade_step_out()) * \
-                                   (sin((t * notes[x].freq) * index / sample_rate)))
-#define gen_note_num_fade_in(x,a) ((a * base_amplitude * fade_step_in() ) * \
-                                   (sin((t * notes[x].freq) * index / sample_rate)))
+#define gen_note_num_fade(x, a)                                                                                        \
+    ((a * base_amplitude * fade_step_out()) * (sin((t * notes[x].freq) * index / sample_rate)))
+#define gen_note_num_fade_in(x, a)                                                                                     \
+    ((a * base_amplitude * fade_step_in()) * (sin((t * notes[x].freq) * index / sample_rate)))
 
+// clang-format off
 enum {
     NOTE_none,
     NOTE_c3_sharp,
@@ -412,6 +411,7 @@ static struct melodys { /* C99 6.7.8/10 uninitialized arithmetic types are 0 thi
     {1, 10, 1, {NOTE_a4, }},
     {1, 0, 0,  {0, }},
 };
+// clang-format on
 
 typedef struct melodys MELODY;
 
@@ -426,12 +426,12 @@ static void generate_melody(MELODY melody[], uint32_t seconds, uint32_t notes_pe
         return;
     }
 
-    uint32_t    sample_rate    = 22000;
-    uint32_t    base_amplitude = 1000;
-    double      t              = 6.283185307179586476925286766559;
+    uint32_t sample_rate    = 22000;
+    uint32_t base_amplitude = 1000;
+    double   t              = 6.283185307179586476925286766559;
 
-    size_t   buf_size       = seconds * sample_rate * 2; //16 bit (2 bytes per sample)
-    int16_t *samples        = calloc(buf_size, sizeof(int16_t));
+    size_t   buf_size = seconds * sample_rate * 2; // 16 bit (2 bytes per sample)
+    int16_t *samples  = calloc(buf_size, sizeof(int16_t));
 
     if (!samples) {
         debug("uToxAudio:\tUnable to generate ringtone buffer!\n");
@@ -443,7 +443,7 @@ static void generate_melody(MELODY melody[], uint32_t seconds, uint32_t notes_pe
         /* index / sample rate `mod` seconds. will give you full second long notes
          * you can change the length each tone is played by changing notes_per_sec
          * but you'll need to add additional case to cover the entire span of time */
-        position = ((index / (sample_rate/notes_per_sec)) % (seconds * notes_per_sec));
+        position = ((index / (sample_rate / notes_per_sec)) % (seconds * notes_per_sec));
 
         for (int i = 0; i < melody[position].count; ++i) {
             if (melody[position].fade) {
@@ -458,48 +458,40 @@ static void generate_melody(MELODY melody[], uint32_t seconds, uint32_t notes_pe
     free(samples);
 }
 
-static void generate_tone_call_ringtone() {
-    generate_melody(normal_ring, 4, 4, &RingBuffer);
-}
+static void generate_tone_call_ringtone() { generate_melody(normal_ring, 4, 4, &RingBuffer); }
 
-static void generate_tone_friend_offline(){
-    generate_melody(friend_offline, 1, 4, &ToneBuffer);
-}
+static void generate_tone_friend_offline() { generate_melody(friend_offline, 1, 4, &ToneBuffer); }
 
-static void generate_tone_friend_online(){
-    generate_melody(friend_online, 1, 4, &ToneBuffer);
-}
+static void generate_tone_friend_online() { generate_melody(friend_online, 1, 4, &ToneBuffer); }
 
-static void generate_tone_friend_new_msg(){
-    generate_melody(friend_new_msg, 1, 8, &ToneBuffer);
-}
+static void generate_tone_friend_new_msg() { generate_melody(friend_new_msg, 1, 8, &ToneBuffer); }
 
 void postmessage_audio(uint8_t msg, uint32_t param1, uint32_t param2, void *data) {
-    while(audio_thread_msg) {
+    while (audio_thread_msg) {
         yieldcpu(1);
     }
 
-    audio_msg.msg = msg;
+    audio_msg.msg    = msg;
     audio_msg.param1 = param1;
     audio_msg.param2 = param2;
-    audio_msg.data = data;
+    audio_msg.data   = data;
 
     audio_thread_msg = 1;
 }
 
-void utox_audio_thread(void *args){
-    time_t close_device_in    = 0;
-    time_t currtime           = 0;
+void utox_audio_thread(void *args) {
+    time_t close_device_in = 0;
+    time_t currtime        = 0;
 
     ToxAV *av = args;
 
-    #ifdef AUDIO_FILTERING
+#ifdef AUDIO_FILTERING
     debug("uToxAudio:\tAudio Filtering");
-    #ifdef ALC_LOOPBACK_CAPTURE_SAMPLES
+#ifdef ALC_LOOPBACK_CAPTURE_SAMPLES
     debug(" and Echo cancellation");
-    #endif
+#endif
     debug(" enabled in this build\n");
-    #endif
+#endif
     //_Bool call[MAX_CALLS] = {0}, preview = 0;
     //_Bool groups_audio[MAX_NUM_GROUPS] = {0};
 
@@ -521,24 +513,24 @@ void utox_audio_thread(void *args){
 
     Filter_Audio *f_a = NULL;
 
-    int16_t     *preview_buffer = NULL;
+    int16_t *    preview_buffer       = NULL;
     unsigned int preview_buffer_index = 0;
-    _Bool        preview_on = 0;
-    #define PREVIEW_BUFFER_SIZE (UTOX_DEFAULT_SAMPLE_RATE_A / 2)
+    _Bool        preview_on           = 0;
+#define PREVIEW_BUFFER_SIZE (UTOX_DEFAULT_SAMPLE_RATE_A / 2)
 
-    preview_buffer = calloc(PREVIEW_BUFFER_SIZE, 2);
+    preview_buffer       = calloc(PREVIEW_BUFFER_SIZE, 2);
     preview_buffer_index = 0;
 
     utox_audio_thread_init = 1;
-    while(1) {
+    while (1) {
         time(&currtime);
-        if(audio_thread_msg) {
+        if (audio_thread_msg) {
             TOX_MSG *m = &audio_msg;
-            if(!m->msg) {
+            if (!m->msg) {
                 break;
             }
 
-            switch (m->msg){
+            switch (m->msg) {
                 case UTOXAUDIO_START_FRIEND: {
                     FRIEND *f = &friend[m->param1];
                     if (!f->audio_dest) {
@@ -575,7 +567,7 @@ void utox_audio_thread(void *args){
                         generate_tone_call_ringtone();
 
                         alSourcei(ringtone, AL_LOOPING, AL_TRUE);
-                        alSourcei(ringtone, AL_BUFFER,  RingBuffer);
+                        alSourcei(ringtone, AL_BUFFER, RingBuffer);
 
                         alSourcePlay(ringtone);
                     }
@@ -587,7 +579,7 @@ void utox_audio_thread(void *args){
                     utox_audio_out_device_close();
                     break;
                 }
-                case UTOXAUDIO_PLAY_NOTIFICATION:{
+                case UTOXAUDIO_PLAY_NOTIFICATION: {
                     if (settings.ringtone_enabled && self.status == USER_STATUS_AVAILABLE) {
                         debug_info("uToxAudio:\tGoing to start notification tone!\n");
 
@@ -600,7 +592,7 @@ void utox_audio_thread(void *args){
                                 generate_tone_friend_online();
                                 break;
                             }
-                            case NOTIFY_TONE_FRIEND_OFFLINE:{
+                            case NOTIFY_TONE_FRIEND_OFFLINE: {
                                 generate_tone_friend_offline();
                                 break;
                             }
@@ -611,17 +603,17 @@ void utox_audio_thread(void *args){
                         }
 
                         alSourcei(notifytone, AL_LOOPING, AL_FALSE);
-                        alSourcei(notifytone, AL_BUFFER,  ToneBuffer);
+                        alSourcei(notifytone, AL_BUFFER, ToneBuffer);
 
                         alSourcePlay(notifytone);
 
                         time(&close_device_in);
-                        close_device_in = 4 + currtime;
+                        close_device_in += 4;
                         debug_info("uToxAudio:\tclose device set!\n");
                     }
                     break;
                 }
-                case UTOXAUDIO_STOP_NOTIFICATION:{
+                case UTOXAUDIO_STOP_NOTIFICATION: {
 
                     break;
                 }
@@ -635,26 +627,26 @@ void utox_audio_thread(void *args){
             }
         }
 
-        // TODO move this code to filter_audio.c
-        #ifdef AUDIO_FILTERING
-            if (!f_a && settings.audiofilter_enabled) {
-                f_a = new_filter_audio(UTOX_DEFAULT_SAMPLE_RATE_A);
-                if (!f_a) {
-                    settings.audiofilter_enabled = 0;
-                    debug("filter audio failed\n");
-                } else {
-                    debug("filter audio on\n");
-                }
-            } else if (f_a && !settings.audiofilter_enabled) {
-                kill_filter_audio(f_a);
-                f_a = NULL;
-                debug("filter audio off\n");
-            }
-        #else
-            if (settings.audiofilter_enabled) {
+// TODO move this code to filter_audio.c
+#ifdef AUDIO_FILTERING
+        if (!f_a && settings.audiofilter_enabled) {
+            f_a = new_filter_audio(UTOX_DEFAULT_SAMPLE_RATE_A);
+            if (!f_a) {
                 settings.audiofilter_enabled = 0;
+                debug("filter audio failed\n");
+            } else {
+                debug("filter audio on\n");
             }
-        #endif
+        } else if (f_a && !settings.audiofilter_enabled) {
+            kill_filter_audio(f_a);
+            f_a = NULL;
+            debug("filter audio off\n");
+        }
+#else
+        if (settings.audiofilter_enabled) {
+            settings.audiofilter_enabled = 0;
+        }
+#endif
 
         _Bool sleep = 1;
 
@@ -663,15 +655,15 @@ void utox_audio_thread(void *args){
             _Bool frame = 0;
             /* If we have a device_in we're on linux so we can just call OpenAL, otherwise we're on something else so
              * we'll need to call audio_frame() to add to the buffer for us. */
-            if (audio_in_handle == (void*)1) {
-                frame = audio_frame((void*)buf);
+            if (audio_in_handle == (void *)1) {
+                frame = audio_frame((void *)buf);
                 if (frame) {
                     /* We have an audio frame to use, continue without sleeping. */
                     sleep = 0;
                 }
             } else {
                 alcGetIntegerv(audio_in_handle, ALC_CAPTURE_SAMPLES, sizeof(samples), &samples);
-                if(samples >= perframe) {
+                if (samples >= perframe) {
                     alcCaptureSamples(audio_in_handle, buf, perframe);
                     frame = 1;
                     if (samples >= perframe * 2) {
@@ -680,11 +672,11 @@ void utox_audio_thread(void *args){
                 }
             }
 
-            #ifdef AUDIO_FILTERING
-            #ifdef ALC_LOOPBACK_CAPTURE_SAMPLES
+#ifdef AUDIO_FILTERING
+#ifdef ALC_LOOPBACK_CAPTURE_SAMPLES
             if (f_a && settings.audiofilter_enabled) {
                 alcGetIntegerv(audio_out_device, ALC_LOOPBACK_CAPTURE_SAMPLES, sizeof(samples), &samples);
-                if(samples >= perframe) {
+                if (samples >= perframe) {
                     int16_t buffer[perframe];
                     alcCaptureSamplesLoopback(audio_out_handle, buffer, perframe);
                     pass_audio_output(f_a, buffer, perframe);
@@ -694,14 +686,14 @@ void utox_audio_thread(void *args){
                     }
                 }
             }
-            #endif
-            #endif
+#endif
+#endif
 
             if (frame) {
                 _Bool voice = 1;
-                #ifdef AUDIO_FILTERING
+#ifdef AUDIO_FILTERING
                 if (f_a) {
-                    int ret = filter_audio(f_a, (int16_t*)buf, perframe);
+                    int ret = filter_audio(f_a, (int16_t *)buf, perframe);
 
                     if (ret == -1) {
                         debug("filter audio error\n");
@@ -711,11 +703,11 @@ void utox_audio_thread(void *args){
                         voice = 0;
                     }
                 }
-                #endif
+#endif
 
                 /* If push to talk, we don't have to do anything */
                 if (!check_ptt_key()) {
-                    voice = 0; //PTT is up, send nothing.
+                    voice = 0; // PTT is up, send nothing.
                 }
 
                 if (preview_on) {
@@ -734,8 +726,8 @@ void utox_audio_thread(void *args){
 
                 if (voice) {
                     int i, active_call_count = 0;
-                    for(i = 0; i < UTOX_MAX_NUM_FRIENDS; i++) {
-                        if( UTOX_SEND_AUDIO(i) ) {
+                    for (i = 0; i < UTOX_MAX_NUM_FRIENDS; i++) {
+                        if (UTOX_SEND_AUDIO(i)) {
                             active_call_count++;
                             TOXAV_ERR_SEND_FRAME error = 0;
                             // debug("uToxAudio:\tSending audio frame!\n");
@@ -778,7 +770,7 @@ void utox_audio_thread(void *args){
 
     utox_filter_audio_kill(f_a);
 
-    //missing some cleanup ?
+    // missing some cleanup ?
     alDeleteSources(1, &ringtone);
     alDeleteSources(1, &preview);
     alDeleteBuffers(1, &RingBuffer);
@@ -786,64 +778,64 @@ void utox_audio_thread(void *args){
     utox_audio_in_device_close();
     utox_audio_out_device_close();
 
-    audio_thread_msg = 0;
+    audio_thread_msg       = 0;
     utox_audio_thread_init = 0;
     debug("uToxAudio:\tClean thread exit!\n");
 }
 
 // COMMENTED OUT FOR NEW GC
-    /*void callback_av_group_audio(Tox *tox, int groupnumber, int peernumber, const int16_t *pcm, unsigned int samples,
-                                        uint8_t channels, unsigned int sample_rate, void *userdata)
-    {
-        GROUPCHAT *g = &group[groupnumber];
+/*void callback_av_group_audio(Tox *tox, int groupnumber, int peernumber, const int16_t *pcm, unsigned int samples,
+                                    uint8_t channels, unsigned int sample_rate, void *userdata)
+{
+    GROUPCHAT *g = &group[groupnumber];
 
-        uint64_t time = get_time();
+    uint64_t time = get_time();
 
-        if (time - g->last_recv_audio[peernumber] > (uint64_t)1 * 1000 * 1000 * 1000) {
-            postmessage(GROUP_UPDATE, groupnumber, peernumber, NULL);
-        }
-
-        g->last_recv_audio[peernumber] = time;
-
-        if(!channels || channels > 2 || g->muted) {
-            return;
-        }
-
-        ALuint bufid;
-        ALint processed = 0, queued = 16;
-        alGetSourcei(g->source[peernumber], AL_BUFFERS_PROCESSED, &processed);
-        alGetSourcei(g->source[peernumber], AL_BUFFERS_QUEUED, &queued);
-        alSourcei(g->source[peernumber], AL_LOOPING, AL_FALSE);
-
-        if(processed) {
-            ALuint bufids[processed];
-            alSourceUnqueueBuffers(g->source[peernumber], processed, bufids);
-            alDeleteBuffers(processed - 1, bufids + 1);
-            bufid = bufids[0];
-        } else if(queued < 16) {
-            alGenBuffers(1, &bufid);
-        } else {
-            debug("dropped audio frame %i %i\n", groupnumber, peernumber);
-            return;
-        }
-
-        alBufferData(bufid, (channels == 1) ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16, pcm, samples * 2 * channels,
-                        sample_rate);
-        alSourceQueueBuffers(g->source[peernumber], 1, &bufid);
-
-        ALint state;
-        alGetSourcei(g->source[peernumber], AL_SOURCE_STATE, &state);
-        if(state != AL_PLAYING) {
-            alSourcePlay(g->source[peernumber]);
-            debug("Starting source %i %i\n", groupnumber, peernumber);
-        }
+    if (time - g->last_recv_audio[peernumber] > (uint64_t)1 * 1000 * 1000 * 1000) {
+        postmessage(GROUP_UPDATE, groupnumber, peernumber, NULL);
     }
 
-    void group_av_peer_add(GROUPCHAT *g, int peernumber) {
-        alGenSources(1, &g->source[peernumber]);
+    g->last_recv_audio[peernumber] = time;
+
+    if(!channels || channels > 2 || g->muted) {
+        return;
     }
 
-    void group_av_peer_remove(GROUPCHAT *g, int peernumber) {
-        alDeleteSources(1, &g->source[peernumber]);
+    ALuint bufid;
+    ALint processed = 0, queued = 16;
+    alGetSourcei(g->source[peernumber], AL_BUFFERS_PROCESSED, &processed);
+    alGetSourcei(g->source[peernumber], AL_BUFFERS_QUEUED, &queued);
+    alSourcei(g->source[peernumber], AL_LOOPING, AL_FALSE);
+
+    if(processed) {
+        ALuint bufids[processed];
+        alSourceUnqueueBuffers(g->source[peernumber], processed, bufids);
+        alDeleteBuffers(processed - 1, bufids + 1);
+        bufid = bufids[0];
+    } else if(queued < 16) {
+        alGenBuffers(1, &bufid);
+    } else {
+        debug("dropped audio frame %i %i\n", groupnumber, peernumber);
+        return;
     }
-    */
+
+    alBufferData(bufid, (channels == 1) ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16, pcm, samples * 2 * channels,
+                    sample_rate);
+    alSourceQueueBuffers(g->source[peernumber], 1, &bufid);
+
+    ALint state;
+    alGetSourcei(g->source[peernumber], AL_SOURCE_STATE, &state);
+    if(state != AL_PLAYING) {
+        alSourcePlay(g->source[peernumber]);
+        debug("Starting source %i %i\n", groupnumber, peernumber);
+    }
+}
+
+void group_av_peer_add(GROUPCHAT *g, int peernumber) {
+    alGenSources(1, &g->source[peernumber]);
+}
+
+void group_av_peer_remove(GROUPCHAT *g, int peernumber) {
+    alDeleteSources(1, &g->source[peernumber]);
+}
+*/

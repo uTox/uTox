@@ -2,3 +2,4 @@
 
 set -e -x
 
+make dist

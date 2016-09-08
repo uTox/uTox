@@ -1,17 +1,16 @@
 #include "../main.h"
 
-_Bool    hidden = 0;
+_Bool    hidden     = 0;
 uint32_t tray_width = 32, tray_height = 32;
-XIC xic = NULL;
+XIC      xic = NULL;
 
-void* gtk_load(void);
-void gtk_openfilesend(void);
-void gtk_openfileavatar(void);
+void *gtk_load(void);
+void  gtk_openfilesend(void);
+void  gtk_openfileavatar(void);
 void gtk_native_select_dir_ft(uint32_t fid, MSG_FILE *file);
 void gtk_savefiledata(MSG_FILE *file);
 
-void setclipboard(void)
-{
+void setclipboard(void) {
     XSetSelectionOwner(display, XA_CLIPBOARD, window, CurrentTime);
 }
 
@@ -53,46 +52,35 @@ void setclipboard(void)
     return first;
 }*/
 
-void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data)
-{
+void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data) {
     XEvent event = {
         .xclient = {
-            .window = 0,
-            .type = ClientMessage,
-            .message_type = msg,
-            .format = 8,
-            .data = {
-                .s = {param1, param2}
-            }
-        }
-    };
+            .window = 0, .type = ClientMessage, .message_type = msg, .format = 8, .data = {.s = {param1, param2}}}};
 
-    memcpy(&event.xclient.data.s[2], &data, sizeof(void*));
+    memcpy(&event.xclient.data.s[2], &data, sizeof(void *));
 
     XSendEvent(display, window, False, 0, &event);
     XFlush(display);
 }
 
-
 #include <linux/input.h>
-FILE *ptt_keyboard_handle;
+FILE *   ptt_keyboard_handle;
 Display *ptt_display;
-void init_ptt(void){
+void     init_ptt(void) {
     settings.push_to_talk = 1;
     uint8_t path[UTOX_FILE_NAME_LENGTH], *p;
     p = path + datapath(path);
-    strcpy((char*)p, "ptt-kbd");
+    strcpy((char *)p, "ptt-kbd");
 
-    ptt_keyboard_handle = fopen((const char*)path, "r");
-    if (!ptt_keyboard_handle){
+    ptt_keyboard_handle = fopen((const char *)path, "r");
+    if (!ptt_keyboard_handle) {
         debug("Could not access ptt-kbd in data directory\n");
         ptt_display = XOpenDisplay(0);
         XSynchronize(ptt_display, True);
     }
-
 }
 
-_Bool check_ptt_key(void){
+_Bool check_ptt_key(void) {
     if (!settings.push_to_talk) {
         // debug("PTT is disabled\n");
         return 1; /* If push to talk is disabled, return true. */
@@ -100,16 +88,17 @@ _Bool check_ptt_key(void){
     int ptt_key;
 
     /* First, we try for direct access to the keyboard. */
-    ptt_key = KEY_LEFTCTRL;                                      // TODO allow user to change this...
+    ptt_key = KEY_LEFTCTRL; // TODO allow user to change this...
     if (ptt_keyboard_handle) {
         /* Nice! we have direct access to the keyboard! */
-        char key_map[KEY_MAX/8 + 1];                             // Create a byte array the size of the number of keys
+        char key_map[KEY_MAX / 8 + 1]; // Create a byte array the size of the number of keys
         memset(key_map, 0, sizeof(key_map));
-        ioctl(fileno(ptt_keyboard_handle), EVIOCGKEY(sizeof(key_map)), key_map); // Fill the keymap with the current keyboard state
-        int keyb = key_map[ptt_key/8];                           // The key we want (and the seven others around it)
-        int mask = 1 << (ptt_key % 8);                           // Put 1 in the same column as our key state
+        ioctl(fileno(ptt_keyboard_handle), EVIOCGKEY(sizeof(key_map)), key_map); // Fill the keymap with the current
+                                                                                 // keyboard state
+        int keyb = key_map[ptt_key / 8]; // The key we want (and the seven others around it)
+        int mask = 1 << (ptt_key % 8);   // Put 1 in the same column as our key state
 
-        if (keyb & mask){
+        if (keyb & mask) {
             // debug("PTT key is down\n");
             return 1;
         } else {
@@ -119,12 +108,12 @@ _Bool check_ptt_key(void){
     }
     /* Okay nope, lets' fallback to xinput... *pouts*
      * Fall back to Querying the X for the current keymap. */
-    ptt_key = XKeysymToKeycode(display, XK_Control_L);
+    ptt_key       = XKeysymToKeycode(display, XK_Control_L);
     char keys[32] = {0};
     /* We need our own connection, so that we don't block the main display... No idea why... */
-    if ( ptt_display ) {
+    if (ptt_display) {
         XQueryKeymap(ptt_display, keys);
-        if (keys[ptt_key/8] & (0x1 << ( ptt_key % 8 ))) {
+        if (keys[ptt_key / 8] & (0x1 << (ptt_key % 8))) {
             // debug("PTT key is down (according to XQueryKeymap\n");
             return 1;
         } else {
@@ -136,11 +125,10 @@ _Bool check_ptt_key(void){
     debug_error("Unable to access keyboard, you need to read the manual on how to enable utox to\nhave access to your "
                 "keyboard.\nDisable push to talk to suppress this message.\n");
     return 0;
-
 }
 
-void exit_ptt(void){
-    if (ptt_keyboard_handle){
+void exit_ptt(void) {
+    if (ptt_keyboard_handle) {
         fclose(ptt_keyboard_handle);
     }
     if (ptt_display) {
@@ -149,35 +137,23 @@ void exit_ptt(void){
     settings.push_to_talk = 0;
 }
 
-void image_set_scale(UTOX_NATIVE_IMAGE *image, double scale)
-{
+void image_set_scale(UTOX_NATIVE_IMAGE *image, double scale) {
     uint32_t r = (uint32_t)(65536.0 / scale);
 
     /* transformation matrix to scale image */
-    XTransform trans = {
-        {{r, 0, 0},
-         {0, r, 0},
-         {0, 0, 65536}}
-    };
+    XTransform trans = {{{r, 0, 0}, {0, r, 0}, {0, 0, 65536}}};
     XRenderSetPictureTransform(display, image->rgb, &trans);
     if (image->alpha) {
         XRenderSetPictureTransform(display, image->alpha, &trans);
     }
 }
 
-void image_set_filter(UTOX_NATIVE_IMAGE *image, uint8_t filter)
-{
+void image_set_filter(UTOX_NATIVE_IMAGE *image, uint8_t filter) {
     const char *xfilter;
     switch (filter) {
-    case FILTER_NEAREST:
-        xfilter = FilterNearest;
-        break;
-    case FILTER_BILINEAR:
-        xfilter = FilterBilinear;
-        break;
-    default:
-        debug("Warning: Tried to set image to unrecognized filter(%u).\n", filter);
-        return;
+        case FILTER_NEAREST: xfilter  = FilterNearest; break;
+        case FILTER_BILINEAR: xfilter = FilterBilinear; break;
+        default: debug("Warning: Tried to set image to unrecognized filter(%u).\n", filter); return;
     }
     XRenderSetPictureFilter(display, image->rgb, xfilter, NULL, 0);
     if (image->alpha) {
@@ -185,68 +161,61 @@ void image_set_filter(UTOX_NATIVE_IMAGE *image, uint8_t filter)
     }
 }
 
-void thread(void func(void*), void *args)
-{
-    pthread_t thread_temp;
+void thread(void func(void *), void *args) {
+    pthread_t      thread_temp;
     pthread_attr_t attr;
     pthread_attr_init(&attr);
     pthread_attr_setstacksize(&attr, 1 << 20);
-    pthread_create(&thread_temp, &attr, (void*(*)(void*))func, args);
+    pthread_create(&thread_temp, &attr, (void *(*)(void *))func, args);
     pthread_attr_destroy(&attr);
 }
 
-void yieldcpu(uint32_t ms)
-{
+void yieldcpu(uint32_t ms) {
     usleep(1000 * ms);
 }
 
-uint64_t get_time(void)
-{
+uint64_t get_time(void) {
     struct timespec ts;
-    #ifdef CLOCK_MONOTONIC_RAW
+#ifdef CLOCK_MONOTONIC_RAW
     clock_gettime(CLOCK_MONOTONIC_RAW, &ts);
-    #else
+#else
     clock_gettime(CLOCK_MONOTONIC, &ts);
-    #endif
+#endif
 
     return ((uint64_t)ts.tv_sec * (1000 * 1000 * 1000)) + (uint64_t)ts.tv_nsec;
 }
 
-void openurl(char_t *str)
-{
+void openurl(char_t *str) {
     char *cmd = "xdg-open";
-    if(!fork()) {
+    if (!fork()) {
         execlp(cmd, cmd, str, (char *)0);
         exit(127);
     }
 }
 
-void openfilesend(void)
-{
-    if(libgtk) {
+void openfilesend(void) {
+    if (libgtk) {
         gtk_openfilesend();
     }
 }
 
-void openfileavatar(void)
-{
-    if(libgtk) {
+void openfileavatar(void) {
+    if (libgtk) {
         gtk_openfileavatar();
     }
 }
 
-int datapath(uint8_t *dest)
-{
+int datapath(uint8_t *dest) {
     if (settings.portable_mode) {
-        int l = sprintf((char*)dest, "./tox");
-        mkdir((char*)dest, 0700);
+        int l = sprintf((char *)dest, "./tox");
+        mkdir((char *)dest, 0700);
         dest[l++] = '/';
 
         return l;
     } else {
         char *home = getenv("HOME");
-        int l = sprintf((char*)dest, "%.230s/.config/tox", home);
-        mkdir((char*)dest, 0700);
+        int   l    = sprintf((char *)dest, "%.230s/.config/tox", home);
+        mkdir((char *)dest, 0700);
         dest[l++] = '/';
 
         return l;
@@ -257,29 +226,29 @@ int datapath(uint8_t *dest)
 size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *data, size_t length, _Bool append) {
     uint8_t path[UTOX_FILE_NAME_LENGTH];
     uint8_t atomic_path[UTOX_FILE_NAME_LENGTH];
-    FILE *file;
-    size_t offset = 0;
+    FILE *  file;
+    size_t  offset = 0;
 
     if (settings.portable_mode) {
         snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "./tox/");
     } else {
-        snprintf((char*)path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));
+        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));
     }
 
-    mkdir((char*)path, 0700);
+    mkdir((char *)path, 0700);
 
-    snprintf((char*)path + strlen((const char*)path), UTOX_FILE_NAME_LENGTH - strlen((const char*)path), "%s", name);
+    snprintf((char *)path + strlen((const char *)path), UTOX_FILE_NAME_LENGTH - strlen((const char *)path), "%s", name);
 
     if (append) {
-        file = fopen((const char*)path, "ab");
+        file = fopen((const char *)path, "ab");
     } else {
-        if (strlen((const char*)path) + name_length >= UTOX_FILE_NAME_LENGTH - strlen(".atomic")){
+        if (strlen((const char *)path) + name_length >= UTOX_FILE_NAME_LENGTH - strlen(".atomic")) {
             debug("NATIVE:\tSave directory name too long\n");
             return 0;
         } else {
-            snprintf((char*)atomic_path, UTOX_FILE_NAME_LENGTH, "%s.atomic", path);
+            snprintf((char *)atomic_path, UTOX_FILE_NAME_LENGTH, "%s.atomic", path);
         }
-        file = fopen((const char*)atomic_path, "wb");
+        file = fopen((const char *)atomic_path, "wb");
     }
 
     if (file) {
@@ -292,7 +261,7 @@ size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *
             return offset;
         }
 
-        if (rename((const char*)atomic_path, (const char*)path)) {
+        if (rename((const char *)atomic_path, (const char *)path)) {
             /* Consider backing up this file instead of overwriting it. */
             debug("NATIVE:\t%sUnable to move file!\n", atomic_path);
             return 0;
@@ -307,54 +276,61 @@ size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *
 }
 
 /** Takes data from µTox and loads it up! */
-uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_size){
-    uint8_t path[UTOX_FILE_NAME_LENGTH];
+uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_size) {
+    uint8_t  path[UTOX_FILE_NAME_LENGTH];
     uint8_t *data;
 
     if (settings.portable_mode) {
         snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "./tox/");
     } else {
-        snprintf((char*)path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));
+        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));
     }
 
-    if (strlen((const char*)path) + name_length >= UTOX_FILE_NAME_LENGTH){
+    if (strlen((const char *)path) + name_length >= UTOX_FILE_NAME_LENGTH) {
         debug("NATIVE:\tLoad directory name too long\n");
         return 0;
     } else {
-        snprintf((char*)path + strlen((const char*)path), UTOX_FILE_NAME_LENGTH - strlen((const char*)path), "%s", name);
+        snprintf((char *)path + strlen((const char *)path), UTOX_FILE_NAME_LENGTH - strlen((const char *)path), "%s",
+                 name);
     }
 
-
-    FILE *file = fopen((const char*)path, "rb");
+    FILE *file = fopen((const char *)path, "rb");
     if (!file) {
-        //debug("NATIVE:\tUnable to open/read %s\n", path);
-        if (out_size) {*out_size = 0;}
+        // debug("NATIVE:\tUnable to open/read %s\n", path);
+        if (out_size) {
+            *out_size = 0;
+        }
         return NULL;
     }
 
-
     fseek(file, 0, SEEK_END);
     size_t size = ftell(file);
-    data = calloc(size + 1, 1); // needed for the ending null byte
+    data        = calloc(size + 1, 1); // needed for the ending null byte
     if (!data) {
         fclose(file);
-        if (out_size) {*out_size = 0;}
+        if (out_size) {
+            *out_size = 0;
+        }
         return NULL;
     } else {
         fseek(file, 0, SEEK_SET);
 
-        if(fread(data, size, 1, file) != 1) {
+        if (fread(data, size, 1, file) != 1) {
             debug("NATIVE:\tRead error on %s\n", path);
             fclose(file);
             free(data);
-            if (out_size) {*out_size = 0;}
+            if (out_size) {
+                *out_size = 0;
+            }
             return NULL;
         }
 
-    fclose(file);
+        fclose(file);
     }
 
-    if (out_size) {*out_size = size;}
+    if (out_size) {
+        *out_size = size;
+    }
     return data;
 }
 
@@ -366,7 +342,7 @@ uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_s
  * after skipping `skip` records
  */
 FILE *native_load_chatlog_file(uint32_t friend_number) {
-    FRIEND *f = &friend[friend_number];
+    FRIEND *f                            = &friend[friend_number];
     uint8_t hex[TOX_PUBLIC_KEY_SIZE * 2] = {0};
     uint8_t path[UTOX_FILE_NAME_LENGTH]  = {0};
 
@@ -375,19 +351,18 @@ FILE *native_load_chatlog_file(uint32_t friend_number) {
     if (settings.portable_mode) {
         snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "./tox/");
     } else {
-        snprintf((char*)path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));
+        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));
     }
 
-    if (strlen((const char*)path) + sizeof(hex) >= UTOX_FILE_NAME_LENGTH) {
+    if (strlen((const char *)path) + sizeof(hex) >= UTOX_FILE_NAME_LENGTH) {
         debug("NATIVE:\tLoad directory name too long\n");
         return 0;
     } else {
-        snprintf((char*)path + strlen((const char*)path), UTOX_FILE_NAME_LENGTH - strlen((const char*)path),
-                 "%.*s.new.txt", (int)sizeof(hex), (char*)hex);
+        snprintf((char *)path + strlen((const char *)path), UTOX_FILE_NAME_LENGTH - strlen((const char *)path),
+                 "%.*s.new.txt", (int)sizeof(hex), (char *)hex);
     }
 
-
-    FILE *file = fopen((const char*)path, "rb+");
+    FILE *file = fopen((const char *)path, "rb+");
     if (!file) {
         return NULL;
     }
@@ -400,9 +375,10 @@ void native_export_chatlog_init(uint32_t friend_number) {
         gtk_save_chatlog(friend_number);
     } else {
         uint8_t name[UTOX_MAX_NAME_LENGTH + sizeof(".txt")];
-        snprintf((char*)name, sizeof(name), "%.*s.txt", (int)friend[friend_number].name_length, friend[friend_number].name);
+        snprintf((char *)name, sizeof(name), "%.*s.txt", (int)friend[friend_number].name_length,
+                 friend[friend_number].name);
 
-        FILE *file = fopen((char*)name, "wb");
+        FILE *file = fopen((char *)name, "wb");
         if (file) {
             utox_export_chatlog(friend_number, file);
         }
@@ -410,24 +386,23 @@ void native_export_chatlog_init(uint32_t friend_number) {
 }
 
 _Bool native_remove_file(const uint8_t *name, size_t length) {
-    uint8_t path[UTOX_FILE_NAME_LENGTH]  = {0};
+    uint8_t path[UTOX_FILE_NAME_LENGTH] = {0};
 
     if (settings.portable_mode) {
         snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "./tox/");
     } else {
-        snprintf((char*)path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));
+        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));
     }
 
-
-    if (strlen((const char*)path) + length >= UTOX_FILE_NAME_LENGTH) {
+    if (strlen((const char *)path) + length >= UTOX_FILE_NAME_LENGTH) {
         debug("NATIVE:\tFile/directory name too long, unable to remove\n");
         return 0;
     } else {
-        snprintf((char*)path + strlen((const char*)path), UTOX_FILE_NAME_LENGTH - strlen((const char*)path),
-                 "%.*s", (int)length, (char*)name);
+        snprintf((char *)path + strlen((const char *)path), UTOX_FILE_NAME_LENGTH - strlen((const char *)path), "%.*s",
+                 (int)length, (char *)name);
     }
 
-    if (remove((const char*)path)) {
+    if (remove((const char *)path)) {
         debug_error("NATIVE:\tUnable to delete file!\n\t\t%s\n", path);
         return 0;
     } else {
@@ -437,12 +412,11 @@ _Bool native_remove_file(const uint8_t *name, size_t length) {
     return 1;
 }
 
-void native_select_dir_ft(uint32_t fid, MSG_FILE *file)
-{
-    if(libgtk) {
+void native_select_dir_ft(uint32_t fid, MSG_FILE *file) {
+    if (libgtk) {
         gtk_native_select_dir_ft(fid, file);
     } else {
-        //fall back to working dir
+        // fall back to working dir
         char *path = malloc(file->name_length + 1);
         memcpy(path, file->file_name, file->name_length);
         path[file->name_length] = 0;
@@ -453,33 +427,42 @@ void native_select_dir_ft(uint32_t fid, MSG_FILE *file)
 
 void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
     /* TODO: maybe do something different here? */
+    if (settings.portable_mode) {
+        char *path = malloc(file->name_length + 1);
+        snprintf(path, UTOX_FILE_NAME_LENGTH, "./tox/Tox_Auto_Accept/");
+        mkdir(path, 0700);
+        snprintf(path, UTOX_FILE_NAME_LENGTH, "./tox/Tox_Auto_Accept/%.*s", (int)file->name_length, file->name);
+
+        debug_notice("Native:\tAuto Accept Directory: \"%s\"\n", path);
+        postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->file_number, path);
+        return;
+    }
+
     char *path = malloc(file->name_length + 1);
     memcpy(path, file->name, file->name_length);
     path[file->name_length] = 0;
     postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->file_number, path);
 }
 
-void savefiledata(MSG_FILE *file)
-{
-    if(libgtk) {
+void savefiledata(MSG_FILE *file) {
+    if (libgtk) {
         gtk_savefiledata(file);
     } else {
-        //fall back to working dir inline.png
+        // fall back to working dir inline.png
         FILE *fp = fopen("inline.png", "wb");
-        if(fp) {
+        if (fp) {
             fwrite(file->path, file->size, 1, fp);
             fclose(fp);
 
             free(file->path);
-            file->path = (uint8_t*)strdup("inline.png");
+            file->path       = (uint8_t *)strdup("inline.png");
             file->inline_png = 0;
         }
     }
 }
 
-void setselection(char_t *data, uint16_t length)
-{
-    if(!length) {
+void setselection(char_t *data, uint16_t length) {
+    if (!length) {
         return;
     }
 
@@ -490,24 +473,24 @@ void setselection(char_t *data, uint16_t length)
 
 /* Tray icon stuff */
 
-#define SYSTEM_TRAY_REQUEST_DOCK    0
-#define SYSTEM_TRAY_BEGIN_MESSAGE   1
-#define SYSTEM_TRAY_CANCEL_MESSAGE  2
+#define SYSTEM_TRAY_REQUEST_DOCK 0
+#define SYSTEM_TRAY_BEGIN_MESSAGE 1
+#define SYSTEM_TRAY_CANCEL_MESSAGE 2
 
-void send_message(Display* dpy, /* display */ Window w, /* sender (tray window) */ long message, /* message opcode */
-                  long data1, /* message data 1 */ long data2, /* message data 2 */ long data3    /* message data 3 */ ){
+void send_message(Display *dpy, /* display */ Window w, /* sender (tray window) */ long message, /* message opcode */
+                  long data1, /* message data 1 */ long data2, /* message data 2 */ long data3 /* message data 3 */) {
     XEvent ev;
 
     memset(&ev, 0, sizeof(ev));
-    ev.xclient.type = ClientMessage;
-    ev.xclient.window = w;
-    ev.xclient.message_type = XInternAtom (dpy, "_NET_SYSTEM_TRAY_OPCODE", False );
-    ev.xclient.format = 32;
-    ev.xclient.data.l[0] = CurrentTime;
-    ev.xclient.data.l[1] = message;
-    ev.xclient.data.l[2] = data1;
-    ev.xclient.data.l[3] = data2;
-    ev.xclient.data.l[4] = data3;
+    ev.xclient.type         = ClientMessage;
+    ev.xclient.window       = w;
+    ev.xclient.message_type = XInternAtom(dpy, "_NET_SYSTEM_TRAY_OPCODE", False);
+    ev.xclient.format       = 32;
+    ev.xclient.data.l[0]    = CurrentTime;
+    ev.xclient.data.l[1]    = message;
+    ev.xclient.data.l[2]    = data1;
+    ev.xclient.data.l[3]    = data2;
+    ev.xclient.data.l[4]    = data3;
 
     XSendEvent(dpy, w, False, NoEventMask, &ev);
     XSync(dpy, False);
@@ -516,17 +499,17 @@ void send_message(Display* dpy, /* display */ Window w, /* sender (tray window) 
 extern uint8_t _binary_icons_utox_128x128_png_start;
 extern size_t  _binary_icons_utox_128x128_png_size;
 
-void draw_tray_icon(void){
+void draw_tray_icon(void) {
     // debug("Draw Tray\n");
 
     uint16_t width, height;
-    uint8_t *icon_data = (uint8_t*)&_binary_icons_utox_128x128_png_start;
-    size_t  icon_size  = (size_t)&_binary_icons_utox_128x128_png_size;
+    uint8_t *icon_data = (uint8_t *)&_binary_icons_utox_128x128_png_start;
+    size_t   icon_size = (size_t)&_binary_icons_utox_128x128_png_size;
 
     UTOX_NATIVE_IMAGE *icon = decode_image_rgb(icon_data, icon_size, &width, &height, 1);
-    if(UTOX_NATIVE_IMAGE_IS_VALID(icon)) {
+    if (UTOX_NATIVE_IMAGE_IS_VALID(icon)) {
         /* Get tray window size */
-        int32_t x_r = 0, y_r = 0;
+        int32_t  x_r = 0, y_r = 0;
         uint32_t border_r = 0, xwin_depth_r = 0;
         XMoveResizeWindow(display, tray_window, x_r, y_r, 32, 32);
         XGetGeometry(display, tray_window, &root, &x_r, &y_r, &tray_width, &tray_height, &border_r, &xwin_depth_r);
@@ -548,7 +531,8 @@ void draw_tray_icon(void){
         XSetForeground(display, trayicon_gc, 0xFFFFFF);
         XFillRectangle(display, trayicon_drawbuf, trayicon_gc, 0, 0, tray_width, tray_height);
         /* TODO: copy method of grabbing background for tray from tray.c:tray_update_root_bg_pmap() (stalonetray) */
-        XRenderComposite(display, PictOpOver, icon->rgb, icon->alpha, trayicon_renderpic, 0, 0, 0, 0, 0, 0, tray_width, tray_height);
+        XRenderComposite(display, PictOpOver, icon->rgb, icon->alpha, trayicon_renderpic, 0, 0, 0, 0, 0, 0, tray_width,
+                         tray_height);
         XCopyArea(display, trayicon_drawbuf, tray_window, trayicon_gc, 0, 0, tray_width, tray_height, 0, 0);
 
         free(icon);
@@ -557,8 +541,9 @@ void draw_tray_icon(void){
     }
 }
 
-void create_tray_icon(void){
-    tray_window = XCreateSimpleWindow(display, RootWindow(display, screen), 0, 0, tray_width, tray_height, 0, BlackPixel(display, screen), WhitePixel(display, screen));
+void create_tray_icon(void) {
+    tray_window = XCreateSimpleWindow(display, RootWindow(display, screen), 0, 0, tray_width, tray_height, 0,
+                                      BlackPixel(display, screen), WhitePixel(display, screen));
     XSelectInput(display, tray_window, ButtonPress);
 
     /* Get ready to draw a tray icon */
@@ -566,7 +551,8 @@ void create_tray_icon(void){
     trayicon_drawbuf   = XCreatePixmap(display, tray_window, tray_width, tray_height, xwin_depth);
     trayicon_renderpic = XRenderCreatePicture(display, trayicon_drawbuf, pictformat, 0, NULL);
     /* Send icon to the tray */
-    send_message(display, XGetSelectionOwner(display, XInternAtom(display, "_NET_SYSTEM_TRAY_S0", False)), SYSTEM_TRAY_REQUEST_DOCK, tray_window, 0, 0);
+    send_message(display, XGetSelectionOwner(display, XInternAtom(display, "_NET_SYSTEM_TRAY_S0", False)),
+                 SYSTEM_TRAY_REQUEST_DOCK, tray_window, 0, 0);
     /* Draw the tray */
     draw_tray_icon();
     /* Reset the tray draw/picture buffers with the new tray size */
@@ -578,17 +564,16 @@ void create_tray_icon(void){
     draw_tray_icon();
 }
 
-void destroy_tray_icon(void)
-{
+void destroy_tray_icon(void) {
     XDestroyWindow(display, tray_window);
 }
 
 /** Toggles the main window to/from hidden to tray/shown. */
 void togglehide(void) {
-    if(hidden) {
-        int x, y;
+    if (hidden) {
+        int      x, y;
         uint32_t w, h, border;
-        XGetGeometry(display, window, &root, &x, &y, &w, &h, &border, (uint*)&xwin_depth);
+        XGetGeometry(display, window, &root, &x, &y, &w, &h, &border, (uint *)&xwin_depth);
         XMapWindow(display, window);
         XMoveWindow(display, window, x, y);
         redraw();
@@ -600,95 +585,89 @@ void togglehide(void) {
 }
 
 void tray_window_event(XEvent event) {
-    switch(event.type){
-    case ConfigureNotify: {
-        XConfigureEvent *ev = &event.xconfigure;
-        if(tray_width != ev->width || tray_height != ev->height) {
-            debug("Tray resized w:%i h:%i\n", ev->width, ev->height);
+    switch (event.type) {
+        case ConfigureNotify: {
+            XConfigureEvent *ev = &event.xconfigure;
+            if (tray_width != ev->width || tray_height != ev->height) {
+                debug("Tray resized w:%i h:%i\n", ev->width, ev->height);
 
-            if(ev->width > tray_width || ev->height > tray_height) {
-                tray_width = ev->width;
+                if (ev->width > tray_width || ev->height > tray_height) {
+                    tray_width  = ev->width;
+                    tray_height = ev->height;
+
+                    XFreePixmap(display, trayicon_drawbuf);
+                    trayicon_drawbuf = XCreatePixmap(display, tray_window, tray_width, tray_height,
+                                                     24); // TODO get xwin_depth from X not code
+                    XRenderFreePicture(display, trayicon_renderpic);
+                    trayicon_renderpic = XRenderCreatePicture(
+                        display, trayicon_drawbuf, XRenderFindStandardFormat(display, PictStandardRGB24), 0, NULL);
+                }
+
+                tray_width  = ev->width;
                 tray_height = ev->height;
 
-                XFreePixmap(display, trayicon_drawbuf);
-                trayicon_drawbuf = XCreatePixmap(display, tray_window, tray_width, tray_height, 24); // TODO get xwin_depth from X not code
-                XRenderFreePicture(display, trayicon_renderpic);
-                trayicon_renderpic = XRenderCreatePicture(display, trayicon_drawbuf,XRenderFindStandardFormat(display, PictStandardRGB24), 0, NULL);
+                draw_tray_icon();
             }
 
-            tray_width = ev->width;
-            tray_height = ev->height;
-
-            draw_tray_icon();
+            break;
         }
+        case ButtonPress: {
+            XButtonEvent *ev = &event.xbutton;
 
-        break;
-    }
-    case ButtonPress: {
-        XButtonEvent *ev = &event.xbutton;
-
-        if (ev->button == Button1) {
-            togglehide();
+            if (ev->button == Button1) {
+                togglehide();
+            }
         }
-    }
     }
 }
 
-void pasteprimary(void)
-{
+void pasteprimary(void) {
     Window owner = XGetSelectionOwner(display, XA_PRIMARY);
-    if(owner) {
+    if (owner) {
         XConvertSelection(display, XA_PRIMARY, XA_UTF8_STRING, targets, window, CurrentTime);
     }
 }
 
-void copy(int value)
-{
+void copy(int value) {
     int len;
-    if(edit_active()) {
-        len = edit_copy((char_t*)clipboard.data, sizeof(clipboard.data));
-    } else if(selected_item->item == ITEM_FRIEND) {
+    if (edit_active()) {
+        len = edit_copy((char_t *)clipboard.data, sizeof(clipboard.data));
+    } else if (selected_item->item == ITEM_FRIEND) {
         len = messages_selection(&messages_friend, clipboard.data, sizeof(clipboard.data), value);
     } else {
         len = messages_selection(&messages_group, clipboard.data, sizeof(clipboard.data), value);
     }
 
-    if(len) {
+    if (len) {
         clipboard.len = len;
         setclipboard();
     }
-
 }
 
 int hold_x11s_hand(Display *d, XErrorEvent *event) {
     debug_error("X11 err:\tX11 tried to kill itself, so I hit him with a shovel.\n");
     debug_error("    err:\tResource: %lu || Serial %lu\n", event->resourceid, event->serial);
-    debug_error("    err:\tError code: %u || Request: %u || Minor: %u \n",
-          event->error_code, event->request_code, event->minor_code);
+    debug_error("    err:\tError code: %u || Request: %u || Minor: %u \n", event->error_code, event->request_code,
+                event->minor_code);
     debug_error("uTox:\tThis would be a great time to submit a bug!\n");
 
     return 0;
 }
 
-void paste(void)
-{
+void paste(void) {
     Window owner = XGetSelectionOwner(display, XA_CLIPBOARD);
 
     /* Ask owner for supported types */
     if (owner) {
-        XEvent event = {
-            .xselectionrequest = {
-                .type = SelectionRequest,
-                .send_event = True,
-                .display = display,
-                .owner = owner,
-                .requestor = window,
-                .target = targets,
-                .selection = XA_CLIPBOARD,
-                .property = XA_ATOM,
-                .time = CurrentTime
-            }
-        };
+        XEvent event = {.xselectionrequest = {.type       = SelectionRequest,
+                                              .send_event = True,
+                                              .display    = display,
+                                              .owner      = owner,
+                                              .requestor  = window,
+                                              .target     = targets,
+                                              .selection  = XA_CLIPBOARD,
+                                              .property   = XA_ATOM,
+                                              .time       = CurrentTime}};
 
         XSendEvent(display, owner, 0, NoEventMask, &event);
         XFlush(display);
@@ -698,7 +677,7 @@ void paste(void)
 void pastebestformat(const Atom atoms[], int len, Atom selection) {
     XSetErrorHandler(hold_x11s_hand);
     const Atom supported[] = {XA_PNG_IMG, XA_URI_LIST, XA_UTF8_STRING};
-    int i, j;
+    int        i, j;
     for (i = 0; i < len; i++) {
         char *name = XGetAtomName(display, atoms[i]);
         if (name) {
@@ -718,33 +697,30 @@ void pastebestformat(const Atom atoms[], int len, Atom selection) {
     }
 }
 
-static _Bool ishexdigit(char c)
-{
+static _Bool ishexdigit(char c) {
     c = toupper(c);
     return (c >= '0' && c <= '9') || (c >= 'A' && c <= 'F');
 }
 
-static char hexdecode(char upper, char lower)
-{
+static char hexdecode(char upper, char lower) {
     upper = toupper(upper);
     lower = toupper(lower);
-    return (upper >= 'A' ? upper - 'A' + 10 : upper - '0') * 16 +
-        (lower >= 'A' ? lower - 'A' + 10 : lower - '0');
+    return (upper >= 'A' ? upper - 'A' + 10 : upper - '0') * 16 + (lower >= 'A' ? lower - 'A' + 10 : lower - '0');
 }
 
 void formaturilist(char *out, const char *in, int len) {
     int i, removed = 0, start = 0;
 
     for (i = 0; i < len; i++) {
-        //Replace CRLF with LF
+        // Replace CRLF with LF
         if (in[i] == '\r') {
             memcpy(out + start - removed, in + start, i - start);
             start = i + 1;
             removed++;
-        } else if (in[i] == '%' && i + 2 < len && ishexdigit(in[i+1]) && ishexdigit(in[i+2])) {
+        } else if (in[i] == '%' && i + 2 < len && ishexdigit(in[i + 1]) && ishexdigit(in[i + 2])) {
             memcpy(out + start - removed, in + start, i - start);
-            out[i - removed] = hexdecode(in[i+1], in[i+2]);
-            start = i + 3;
+            out[i - removed] = hexdecode(in[i + 1], in[i + 2]);
+            start            = i + 3;
             removed += 2;
         }
     }
@@ -753,16 +729,15 @@ void formaturilist(char *out, const char *in, int len) {
     }
 
     out[len - removed] = 0;
-    //out[len - removed - 1] = '\n';
+    // out[len - removed - 1] = '\n';
 }
 
-void pastedata(void *data, Atom type, int len, _Bool select)
-{
-   if (0 > len) {
-       return; // Let my conscience be clear about signed->unsigned casts.
-   }
-   size_t size = (size_t) len;
-   if (type == XA_PNG_IMG) {
+void pastedata(void *data, Atom type, int len, _Bool select) {
+    if (0 > len) {
+        return; // Let my conscience be clear about signed->unsigned casts.
+    }
+    size_t size = (size_t)len;
+    if (type == XA_PNG_IMG) {
         uint16_t width, height;
 
         UTOX_NATIVE_IMAGE *native_image = decode_image_rgb(data, size, &width, &height, 0);
@@ -771,23 +746,22 @@ void pastedata(void *data, Atom type, int len, _Bool select)
 
             UTOX_IMAGE png_image = malloc(size);
             memcpy(png_image, data, size);
-            friend_sendimage((FRIEND*)selected_item->data, native_image, width, height, png_image, size);
+            friend_sendimage((FRIEND *)selected_item->data, native_image, width, height, png_image, size);
         }
     } else if (type == XA_URI_LIST) {
         char *path = malloc(len + 1);
-        formaturilist(path, (char*) data, len);
-        postmessage_toxcore(TOX_FILE_SEND_NEW, (FRIEND*)selected_item->data - friend, 0xFFFF, path);
-    } else if(type == XA_UTF8_STRING && edit_active()) {
+        formaturilist(path, (char *)data, len);
+        postmessage_toxcore(TOX_FILE_SEND_NEW, (FRIEND *)selected_item->data - friend, 0xFFFF, path);
+    } else if (type == XA_UTF8_STRING && edit_active()) {
         edit_paste(data, len, select);
     }
 }
 
 // converts an XImage to a Picture usable by XRender, uses XRenderPictFormat given by
 // 'format', uses the default format if it is NULL
-Picture ximage_to_picture(XImage *img, const XRenderPictFormat *format)
-{
+Picture ximage_to_picture(XImage *img, const XRenderPictFormat *format) {
     Pixmap pixmap = XCreatePixmap(display, window, img->width, img->height, img->depth);
-    GC legc = XCreateGC(display, pixmap, 0, NULL);
+    GC     legc   = XCreateGC(display, pixmap, 0, NULL);
     XPutImage(display, pixmap, legc, img, 0, 0, 0, 0, img->width, img->height);
 
     if (format == NULL) {
@@ -801,31 +775,29 @@ Picture ximage_to_picture(XImage *img, const XRenderPictFormat *format)
     return picture;
 }
 
-void loadalpha(int bm, void *data, int width, int height)
-{
+void loadalpha(int bm, void *data, int width, int height) {
     XImage *img = XCreateImage(display, CopyFromParent, 8, ZPixmap, 0, data, width, height, 8, 0);
 
     // create picture that only holds alpha values
     // NOTE: the XImage made earlier should really be freed, but calling XDestroyImage on it will also
-    // automatically free the data it's pointing to(which we don't want), so there's no easy way to destroy them currently
+    // automatically free the data it's pointing to(which we don't want), so there's no easy way to destroy them
+    // currently
     bitmap[bm] = ximage_to_picture(img, XRenderFindStandardFormat(display, PictStandardA8));
 }
-
 
 /* generates an alpha bitmask based on the alpha channel in given rgba_data
  * returned picture will have 1 byte for each pixel, and have the same width and height as input
  */
-static Picture generate_alpha_bitmask(const uint8_t *rgba_data, uint16_t width, uint16_t height, uint32_t rgba_size)
-{
+static Picture generate_alpha_bitmask(const uint8_t *rgba_data, uint16_t width, uint16_t height, uint32_t rgba_size) {
     // we don't need to free this, that's done by XDestroyImage()
     uint8_t *out = malloc(rgba_size / 4);
     uint32_t i, j;
     for (i = j = 0; i < rgba_size; i += 4, j++) {
-        out[j] = (rgba_data+i)[3] & 0xFF; // take only alpha values
+        out[j] = (rgba_data + i)[3] & 0xFF; // take only alpha values
     }
 
     // create 1-byte-per-pixel image and convert it to a Alpha-format Picture
-    XImage *img = XCreateImage(display, CopyFromParent, 8, ZPixmap, 0, (char*)out, width, height, 8, width);
+    XImage *img     = XCreateImage(display, CopyFromParent, 8, ZPixmap, 0, (char *)out, width, height, 8, width);
     Picture picture = ximage_to_picture(img, XRenderFindStandardFormat(display, PictStandardA8));
 
     XDestroyImage(img);
@@ -833,9 +805,8 @@ static Picture generate_alpha_bitmask(const uint8_t *rgba_data, uint16_t width, 
     return picture;
 }
 
-UTOX_NATIVE_IMAGE *decode_image_rgb(const UTOX_IMAGE data, size_t size, uint16_t *w, uint16_t *h, _Bool keep_alpha)
-{
-    int width, height, bpp;
+UTOX_NATIVE_IMAGE *decode_image_rgb(const UTOX_IMAGE data, size_t size, uint16_t *w, uint16_t *h, _Bool keep_alpha) {
+    int      width, height, bpp;
     uint8_t *rgba_data = stbi_load_from_memory(data, size, &width, &height, &bpp, 4);
 
     if (rgba_data == NULL || width == 0 || height == 0) {
@@ -848,22 +819,22 @@ UTOX_NATIVE_IMAGE *decode_image_rgb(const UTOX_IMAGE data, size_t size, uint16_t
     uint8_t *out = malloc(rgba_size);
 
     // colors are read into red, blue and green and written into the target pointer
-    uint8_t red, blue, green;
+    uint8_t   red, blue, green;
     uint32_t *target;
 
     uint32_t i;
     for (i = 0; i < rgba_size; i += 4) {
-        red = (rgba_data+i)[0] & 0xFF;
-        green = (rgba_data+i)[1] & 0xFF;
-        blue = (rgba_data+i)[2] & 0xFF;
+        red   = (rgba_data + i)[0] & 0xFF;
+        green = (rgba_data + i)[1] & 0xFF;
+        blue  = (rgba_data + i)[2] & 0xFF;
 
-        target = (uint32_t *)(out+i);
+        target  = (uint32_t *)(out + i);
         *target = (red | (red << 8) | (red << 16) | (red << 24)) & visual->red_mask;
         *target |= (blue | (blue << 8) | (blue << 16) | (blue << 24)) & visual->blue_mask;
         *target |= (green | (green << 8) | (green << 16) | (green << 24)) & visual->green_mask;
     }
 
-    XImage *img = XCreateImage(display, visual, xwin_depth, ZPixmap, 0, (char*)out, width, height, 32, width * 4);
+    XImage *img = XCreateImage(display, visual, xwin_depth, ZPixmap, 0, (char *)out, width, height, 32, width * 4);
 
     Picture rgb = ximage_to_picture(img, NULL);
     // 4 bpp -> RGBA
@@ -875,15 +846,14 @@ UTOX_NATIVE_IMAGE *decode_image_rgb(const UTOX_IMAGE data, size_t size, uint16_t
     *h = height;
 
     UTOX_NATIVE_IMAGE *image = malloc(sizeof(UTOX_NATIVE_IMAGE));
-    image->rgb = rgb;
-    image->alpha = alpha;
+    image->rgb               = rgb;
+    image->alpha             = alpha;
 
     XDestroyImage(img);
     return image;
 }
 
-void image_free(UTOX_NATIVE_IMAGE *image)
-{
+void image_free(UTOX_NATIVE_IMAGE *image) {
     XRenderFreePicture(display, image->rgb);
     if (image->alpha) {
         XRenderFreePicture(display, image->alpha);
@@ -895,96 +865,93 @@ void image_free(UTOX_NATIVE_IMAGE *image)
  *
  * returns 0 and 1 on success and failure.
  */
-int ch_mod(uint8_t *file){
-    return chmod((char*)file, S_IRUSR | S_IWUSR);
+int ch_mod(uint8_t *file) {
+    return chmod((char *)file, S_IRUSR | S_IWUSR);
 }
 
-void flush_file(FILE *file)
-{
+void flush_file(FILE *file) {
     fflush(file);
     int fd = fileno(file);
     fsync(fd);
 }
 
-void setscale(void)
-{
+void setscale(void) {
     int i;
-    for(i = 0; i != countof(bitmap); i++) {
-        if(bitmap[i]) {
+    for (i = 0; i != countof(bitmap); i++) {
+        if (bitmap[i]) {
             XRenderFreePicture(display, bitmap[i]);
         }
     }
 
     svg_draw(0);
 
-    if(xsh) {
+    if (xsh) {
         XFree(xsh);
     }
 
     // TODO, fork this to a function
-    xsh = XAllocSizeHints();
-    xsh->flags = PMinSize;
+    xsh             = XAllocSizeHints();
+    xsh->flags      = PMinSize;
     xsh->min_width  = UTOX_SCALE(320);
     xsh->min_height = UTOX_SCALE(160);
 
     XSetWMNormalHints(display, window, xsh);
 
-    if(settings.window_width > UTOX_SCALE(320 ) && settings.window_height > UTOX_SCALE(160 ))
-    {
+    if (settings.window_width > UTOX_SCALE(320) && settings.window_height > UTOX_SCALE(160)) {
         /* wont get a resize event, call this manually */
         ui_size(settings.window_width, settings.window_height);
     }
 }
 
-void setscale_fonts(void)
-{
+void setscale_fonts(void) {
     freefonts();
     loadfonts();
 
     font_small_lineheight = (font[FONT_TEXT].info[0].face->size->metrics.height + (1 << 5)) >> 6;
-    //font_msg_lineheight = (font[FONT_MSG].info[0].face->size->metrics.height + (1 << 5)) >> 6;
+    // font_msg_lineheight = (font[FONT_MSG].info[0].face->size->metrics.height + (1 << 5)) >> 6;
 }
 
-int file_lock(FILE *file, uint64_t start, size_t length){
-    int result = -1;
+int file_lock(FILE *file, uint64_t start, size_t length) {
+    int          result = -1;
     struct flock fl;
-    fl.l_type = F_WRLCK;
+    fl.l_type   = F_WRLCK;
     fl.l_whence = SEEK_SET;
-    fl.l_start = start;
-    fl.l_len = length;
+    fl.l_start  = start;
+    fl.l_len    = length;
 
     result = fcntl(fileno(file), F_SETLK, &fl);
-    if(result != -1){
+    if (result != -1) {
         return 1;
     } else {
         return 0;
     }
 }
 
-int file_unlock(FILE *file, uint64_t start, size_t length){
-    int result = -1;
+int file_unlock(FILE *file, uint64_t start, size_t length) {
+    int          result = -1;
     struct flock fl;
-    fl.l_type = F_UNLCK;
+    fl.l_type   = F_UNLCK;
     fl.l_whence = SEEK_SET;
-    fl.l_start = start;
-    fl.l_len = length;
+    fl.l_start  = start;
+    fl.l_len    = length;
 
     result = fcntl(fileno(file), F_SETLK, &fl);
-    if(result != -1){
+    if (result != -1) {
         return 1;
     } else {
         return 0;
     }
 }
 
-void notify(char_t *title, uint16_t title_length, const char_t *msg, uint16_t msg_length, void *object, _Bool is_group) {
+void notify(char_t *title, uint16_t title_length, const char_t *msg, uint16_t msg_length, void *object,
+            _Bool is_group) {
     if (havefocus) {
         return;
     }
 
     uint8_t *f_cid = NULL;
     if (is_group) {
-        //GROUPCHAT *obj = object;
+        // GROUPCHAT *obj = object;
     } else {
         FRIEND *obj = object;
         if (friend_has_avatar(obj)) {
@@ -995,59 +962,61 @@ void notify(char_t *title, uint16_t title_length, const char_t *msg, uint16_t ms
     XWMHints hints = {.flags = 256};
     XSetWMHints(display, window, &hints);
 
-    #ifdef HAVE_DBUS
+#ifdef HAVE_DBUS
     char_t *str = tohtml(msg, msg_length);
 
     /* Todo handle this warning! */
-    dbus_notify((char*)title, (char*)str, (uint8_t*)f_cid);
+    dbus_notify((char *)title, (char *)str, (uint8_t *)f_cid);
 
     free(str);
-    #endif
+#endif
 
-    #ifdef UNITY
-    if(unity_running) {
+#ifdef UNITY
+    if (unity_running) {
         mm_notify(obj->name, f_cid);
     }
-    #endif
+#endif
 }
 
-void showkeyboard(_Bool show) {}
+void showkeyboard(_Bool show) {
+}
 
-void edit_will_deactivate(void) {}
+void edit_will_deactivate(void) {
+}
 
-void update_tray(void) {}
+void update_tray(void) {
+}
 
 void config_osdefaults(UTOX_SAVE *r) {
-    r->window_x = 0;
-    r->window_y = 0;
-    r->window_width = DEFAULT_WIDTH;
+    r->window_x      = 0;
+    r->window_y      = 0;
+    r->window_width  = DEFAULT_WIDTH;
     r->window_height = DEFAULT_HEIGHT;
 }
 
-static int systemlang(void)
-{
+static int systemlang(void) {
     char *str = getenv("LC_ALL");
-    if(!str) {
+    if (!str) {
         str = getenv("LC_MESSAGES");
     }
-    if(!str) {
+    if (!str) {
         str = getenv("LANG");
     }
-    if(!str) {
+    if (!str) {
         return DEFAULT_LANG;
     }
     return ui_guess_lang_by_posix_locale(str, DEFAULT_LANG);
 }
 
 int main(int argc, char *argv[]) {
-    bool theme_was_set_on_argv;
+    bool   theme_was_set_on_argv;
     int8_t should_launch_at_startup;
     int8_t set_show_window;
-    bool no_updater;
+    bool   no_updater;
 
-    #ifdef HAVE_DBUS
-        debug_info("Compiled with dbus support!\n");
-    #endif
+#ifdef HAVE_DBUS
+    debug_info("Compiled with dbus support!\n");
+#endif
 
     parse_args(argc, argv, &theme_was_set_on_argv, &should_launch_at_startup, &set_show_window, &no_updater);
 
@@ -1056,12 +1025,13 @@ int main(int argc, char *argv[]) {
     }
 
     if (no_updater == true) {
-        debug_notice("Disabling the updater is not supported on this OS. Updates are managed by your distro's package manager.\n");
+        debug_notice("Disabling the updater is not supported on this OS. Updates are managed by your distro's package "
+                     "manager.\n");
     }
 
     XInitThreads();
 
-    if((display = XOpenDisplay(NULL)) == NULL) {
+    if ((display = XOpenDisplay(NULL)) == NULL) {
         debug_error("Cannot open display, must exit\n");
         return 1;
     }
@@ -1071,28 +1041,34 @@ int main(int argc, char *argv[]) {
     XIM xim;
     setlocale(LC_ALL, "");
     XSetLocaleModifiers("");
-    if((xim = XOpenIM(display, 0, 0, 0)) == NULL) {
+    if ((xim = XOpenIM(display, 0, 0, 0)) == NULL) {
         debug_error("Cannot open input method\n");
     }
 
-    LANG = systemlang();
+    LANG                       = systemlang();
     dropdown_language.selected = dropdown_language.over = LANG;
 
-    screen      = DefaultScreen(display);
-    cmap        = DefaultColormap(display, screen);
-    visual      = DefaultVisual(display, screen);
-    gc          = DefaultGC(display, screen);
-    xwin_depth  = DefaultDepth(display, screen);
-    scr         = DefaultScreenOfDisplay(display);
-    root        = RootWindow(display, screen);
+    screen     = DefaultScreen(display);
+    cmap       = DefaultColormap(display, screen);
+    visual     = DefaultVisual(display, screen);
+    gc         = DefaultGC(display, screen);
+    xwin_depth = DefaultDepth(display, screen);
+    scr        = DefaultScreenOfDisplay(display);
+    root       = RootWindow(display, screen);
 
     XSetWindowAttributes attrib = {
         .background_pixel = WhitePixel(display, screen),
-        .border_pixel = BlackPixel(display, screen),
-        .event_mask = ExposureMask | ButtonPressMask | ButtonReleaseMask | EnterWindowMask | LeaveWindowMask |
-                    PointerMotionMask | StructureNotifyMask | KeyPressMask | KeyReleaseMask | FocusChangeMask |
-                    PropertyChangeMask,
+        .border_pixel     = BlackPixel(display, screen),
+        .event_mask       = ExposureMask | ButtonPressMask | ButtonReleaseMask | EnterWindowMask | LeaveWindowMask
+                      | PointerMotionMask
+                      | StructureNotifyMask
+                      | KeyPressMask
+                      | KeyReleaseMask
+                      | FocusChangeMask
+                      | PropertyChangeMask,
     };
+    /* Also has as override_redirect member. I think this may be what we need for crating a clean mouse menu for the
+     * tray icon */
 
     /* load save data */
     UTOX_SAVE *save = config_load();
@@ -1112,7 +1088,7 @@ int main(int argc, char *argv[]) {
 
     /* choose available libraries for optional UI stuff */
     if (!(libgtk = gtk_load())) {
-        //try Qt
+        // try Qt
     }
 
     /* start the tox thread */
@@ -1122,30 +1098,29 @@ int main(int argc, char *argv[]) {
     wm_protocols     = XInternAtom(display, "WM_PROTOCOLS", 0);
     wm_delete_window = XInternAtom(display, "WM_DELETE_WINDOW", 0);
     XA_CLIPBOARD     = XInternAtom(display, "CLIPBOARD", 0);
-    XA_NET_NAME      = XInternAtom(display, "_NET_WM_NAME", 0),
-    XA_UTF8_STRING   = XInternAtom(display, "UTF8_STRING", 1);
+    XA_NET_NAME = XInternAtom(display, "_NET_WM_NAME", 0), XA_UTF8_STRING = XInternAtom(display, "UTF8_STRING", 1);
 
-    if(XA_UTF8_STRING == None) {
+    if (XA_UTF8_STRING == None) {
         XA_UTF8_STRING = XA_STRING;
     }
     targets = XInternAtom(display, "TARGETS", 0);
 
     XA_INCR = XInternAtom(display, "INCR", False);
 
-    XdndAware       = XInternAtom(display, "XdndAware", False);
-    XdndEnter       = XInternAtom(display, "XdndEnter", False);
-    XdndLeave       = XInternAtom(display, "XdndLeave", False);
-    XdndPosition    = XInternAtom(display, "XdndPosition", False);
-    XdndStatus      = XInternAtom(display, "XdndStatus", False);
-    XdndDrop        = XInternAtom(display, "XdndDrop", False);
-    XdndSelection   = XInternAtom(display, "XdndSelection", False);
-    XdndDATA        = XInternAtom(display, "XdndDATA", False);
-    XdndActionCopy  = XInternAtom(display, "XdndActionCopy", False);
+    XdndAware      = XInternAtom(display, "XdndAware", False);
+    XdndEnter      = XInternAtom(display, "XdndEnter", False);
+    XdndLeave      = XInternAtom(display, "XdndLeave", False);
+    XdndPosition   = XInternAtom(display, "XdndPosition", False);
+    XdndStatus     = XInternAtom(display, "XdndStatus", False);
+    XdndDrop       = XInternAtom(display, "XdndDrop", False);
+    XdndSelection  = XInternAtom(display, "XdndSelection", False);
+    XdndDATA       = XInternAtom(display, "XdndDATA", False);
+    XdndActionCopy = XInternAtom(display, "XdndActionCopy", False);
 
-    XA_URI_LIST     = XInternAtom(display, "text/uri-list", False);
-    XA_PNG_IMG      = XInternAtom(display, "image/png", False);
+    XA_URI_LIST = XInternAtom(display, "text/uri-list", False);
+    XA_PNG_IMG  = XInternAtom(display, "image/png", False);
 
-    XRedraw         = XInternAtom(display, "XRedraw", False);
+    XRedraw = XInternAtom(display, "XRedraw", False);
 
     /* create the draw buffer */
     drawbuf = XCreatePixmap(display, window, settings.window_width, settings.window_height, xwin_depth);
@@ -1154,22 +1129,19 @@ int main(int argc, char *argv[]) {
     XSetWMProtocols(display, window, &wm_delete_window, 1);
 
     /* set WM_CLASS */
-    XClassHint hint = {
-        .res_name = "utox",
-        .res_class = "utox"
-    };
+    XClassHint hint = {.res_name = "utox", .res_class = "utox"};
 
     XSetClassHint(display, window, &hint);
 
     /* set drag and drog version */
     Atom dndversion = 3;
-    XChangeProperty(display, window, XdndAware, XA_ATOM, 32, PropModeReplace, (uint8_t*)&dndversion, 1);
+    XChangeProperty(display, window, XdndAware, XA_ATOM, 32, PropModeReplace, (uint8_t *)&dndversion, 1);
 
     char title_name[128];
     snprintf(title_name, 128, "%s %s (version: %s)", TITLE, SUB_TITLE, VERSION);
     // Effett, I give up! No OS can agree how to handle non ascii bytes, so effemm!
     // may be needed when uTox becomes muTox
-    //memmove(title_name, title_name+1, strlen(title_name))
+    // memmove(title_name, title_name+1, strlen(title_name))
     /* set the window name */
     XSetStandardProperties(display, window, title_name, "uTox", None, argv, argc, None);
 
@@ -1187,23 +1159,24 @@ int main(int argc, char *argv[]) {
     free(save);
 
     /* load the used cursors */
-    cursors[CURSOR_NONE] = XCreateFontCursor(display, XC_left_ptr);
-    cursors[CURSOR_HAND] = XCreateFontCursor(display, XC_hand2);
-    cursors[CURSOR_TEXT] = XCreateFontCursor(display, XC_xterm);
-    cursors[CURSOR_SELECT] = XCreateFontCursor(display, XC_crosshair);
-    cursors[CURSOR_ZOOM_IN] = XCreateFontCursor(display, XC_target);
+    cursors[CURSOR_NONE]     = XCreateFontCursor(display, XC_left_ptr);
+    cursors[CURSOR_HAND]     = XCreateFontCursor(display, XC_hand2);
+    cursors[CURSOR_TEXT]     = XCreateFontCursor(display, XC_xterm);
+    cursors[CURSOR_SELECT]   = XCreateFontCursor(display, XC_crosshair);
+    cursors[CURSOR_ZOOM_IN]  = XCreateFontCursor(display, XC_target);
     cursors[CURSOR_ZOOM_OUT] = XCreateFontCursor(display, XC_target);
 
     /* */
     XGCValues gcval;
-    gcval.foreground = XWhitePixel(display, 0);
-    gcval.function = GXxor;
-    gcval.background = XBlackPixel(display, 0);
-    gcval.plane_mask = gcval.background ^ gcval.foreground;
+    gcval.foreground     = XWhitePixel(display, 0);
+    gcval.function       = GXxor;
+    gcval.background     = XBlackPixel(display, 0);
+    gcval.plane_mask     = gcval.background ^ gcval.foreground;
     gcval.subwindow_mode = IncludeInferiors;
 
     /* GC for the */
-    grabgc = XCreateGC(display, RootWindow(display, screen), GCFunction | GCForeground | GCBackground | GCSubwindowMode, &gcval);
+    grabgc = XCreateGC(display, RootWindow(display, screen), GCFunction | GCForeground | GCBackground | GCSubwindowMode,
+                       &gcval);
 
     XWindowAttributes attr;
     XGetWindowAttributes(display, root, &attr);
@@ -1212,10 +1185,10 @@ int main(int argc, char *argv[]) {
     // XRenderPictFormat *pictformat = XRenderFindStandardFormat(display, PictStandardA8);
 
     /* Xft draw context/color */
-    renderpic = XRenderCreatePicture (display, drawbuf, pictformat, 0, NULL);
+    renderpic = XRenderCreatePicture(display, drawbuf, pictformat, 0, NULL);
 
     XRenderColor xrcolor = {0};
-    colorpic = XRenderCreateSolidFill(display, &xrcolor);
+    colorpic             = XRenderCreateSolidFill(display, &xrcolor);
 
     /*xftdraw = XftDrawCreate(display, drawbuf, visual, cmap);
     XRenderColor xrcolor;
@@ -1225,10 +1198,10 @@ int main(int argc, char *argv[]) {
     xrcolor.alpha = 0xffff;
     XftColorAllocValue(display, visual, cmap, &xrcolor, &xftcolor);*/
 
-    if(set_show_window){
-        if(set_show_window == 1){
+    if (set_show_window) {
+        if (set_show_window == 1) {
             settings.start_in_tray = 0;
-        } else if(set_show_window == -1){
+        } else if (set_show_window == -1) {
             settings.start_in_tray = 1;
         }
     }
@@ -1241,7 +1214,8 @@ int main(int argc, char *argv[]) {
     }
 
     if (xim) {
-        if((xic = XCreateIC(xim, XNInputStyle, XIMPreeditNothing | XIMStatusNothing, XNClientWindow, window, XNFocusWindow, window, NULL))) {
+        if ((xic = XCreateIC(xim, XNInputStyle, XIMPreeditNothing | XIMStatusNothing, XNClientWindow, window,
+                             XNFocusWindow, window, NULL))) {
             XSetICFocus(xic);
         } else {
             debug_error("Cannot open input method\n");
@@ -1254,62 +1228,61 @@ int main(int argc, char *argv[]) {
     ui_size(settings.window_width, settings.window_height);
 
     create_tray_icon();
-    /* Registers the app in the Unity MM */
-    #ifdef UNITY
+/* Registers the app in the Unity MM */
+#ifdef UNITY
     unity_running = is_unity_running();
-    if(unity_running) {
+    if (unity_running) {
         mm_register();
     }
-    #endif
+#endif
 
     /* draw */
     panel_draw(&panel_root, 0, 0, settings.window_width, settings.window_height);
 
     /* event loop */
-    while(1) {
+    while (1) {
         /* block on the first event, then process all events */
         XEvent event;
 
         XNextEvent(display, &event);
-        if(!doevent(event)) {
+        if (!doevent(event)) {
             break;
         }
 
-        while(XPending(display)) {
+        while (XPending(display)) {
             XNextEvent(display, &event);
-            if(!doevent(event)) {
+            if (!doevent(event)) {
                 goto BREAK;
             }
         }
 
-        if(_redraw) {
+        if (_redraw) {
             panel_draw(&panel_root, 0, 0, settings.window_width, settings.window_height);
             _redraw = 0;
         }
     }
-    BREAK:
+BREAK:
 
     postmessage_utoxav(UTOXAV_KILL, 0, 0, NULL);
     postmessage_toxcore(TOX_KILL, 0, 0, NULL);
 
     /* free client thread stuff */
-    if(libgtk) {
-
+    if (libgtk) {
     }
 
     destroy_tray_icon();
 
-    Window root_return, child_return;
-    int x_return, y_return;
+    Window       root_return, child_return;
+    int          x_return, y_return;
     unsigned int width_return, height_return, i;
     XGetGeometry(display, window, &root_return, &x_return, &y_return, &width_return, &height_return, &i, &i);
 
     XTranslateCoordinates(display, window, root_return, 0, 0, &x_return, &y_return, &child_return);
 
     UTOX_SAVE d = {
-        .window_x = x_return < 0 ? 0 : x_return,
-        .window_y = y_return < 0 ? 0 : y_return,
-        .window_width = width_return,
+        .window_x      = x_return < 0 ? 0 : x_return,
+        .window_y      = y_return < 0 ? 0 : y_return,
+        .window_width  = width_return,
         .window_height = height_return,
     };
 
@@ -1325,21 +1298,23 @@ int main(int argc, char *argv[]) {
     XRenderFreePicture(display, renderpic);
     XRenderFreePicture(display, colorpic);
 
-    if (xic) XDestroyIC(xic);
-    if (xim) XCloseIM(xim);
+    if (xic)
+        XDestroyIC(xic);
+    if (xim)
+        XCloseIM(xim);
 
     XDestroyWindow(display, window);
     XCloseDisplay(display);
 
-    /* Unregisters the app from the Unity MM */
-    #ifdef UNITY
-    if(unity_running) {
+/* Unregisters the app from the Unity MM */
+#ifdef UNITY
+    if (unity_running) {
         mm_unregister();
     }
-    #endif
+#endif
 
     /* wait for threads to exit */
-    while(tox_thread_init) {
+    while (tox_thread_init) {
         yieldcpu(1);
     }
 
@@ -1350,4 +1325,5 @@ int main(int argc, char *argv[]) {
 
 /* Dummy functions used in other systems... */
 /* Used in windows only... */
-void launch_at_startup(int is_launch_at_startup) {}
+void launch_at_startup(int is_launch_at_startup) {
+}

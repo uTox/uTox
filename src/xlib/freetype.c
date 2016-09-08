@@ -1,22 +1,23 @@
 #include "../main.h"
+#define UTOX_FONT_XLIB "Roboto"
 
 static void font_info_open(FONT_INFO *i, FcPattern *pattern);
 
-Picture loadglyphpic(uint8_t *data, int width, int height, int pitch, _Bool no_subpixel, _Bool vertical, _Bool swap_blue_red)
-{
-    if(!width || !height) {
+Picture loadglyphpic(uint8_t *data, int width, int height, int pitch, _Bool no_subpixel, _Bool vertical,
+                     _Bool swap_blue_red) {
+    if (!width || !height) {
         return None;
     }
 
     Picture picture;
-    GC legc;
-    Pixmap pixmap;
+    GC      legc;
+    Pixmap  pixmap;
     XImage *img;
 
-    if(no_subpixel) {
+    if (no_subpixel) {
         pixmap = XCreatePixmap(display, window, width, height, 8);
-        img = XCreateImage(display, CopyFromParent, 8, ZPixmap, 0, (char*)data, width, height, 8, 0);
-        legc = XCreateGC(display, pixmap, 0, NULL);
+        img    = XCreateImage(display, CopyFromParent, 8, ZPixmap, 0, (char *)data, width, height, 8, 0);
+        legc   = XCreateGC(display, pixmap, 0, NULL);
         XPutImage(display, pixmap, legc, img, 0, 0, 0, 0, width, height);
         picture = XRenderCreatePicture(display, pixmap, XRenderFindStandardFormat(display, PictStandardA8), 0, NULL);
     } else {
@@ -24,41 +25,41 @@ Picture loadglyphpic(uint8_t *data, int width, int height, int pitch, _Bool no_s
         uint32_t *rgbx, *p, *end;
 
         rgbx = malloc(4 * width * height);
-        if(!rgbx) {
+        if (!rgbx) {
             return None;
         }
 
-        p = rgbx;
+        p     = rgbx;
         int i = height;
         if (!vertical) {
             do {
                 end = p + width;
-                while(p != end) {
+                while (p != end) {
                     *p++ = swap_blue_red ? RGB(data[2], data[1], data[0]) : RGB(data[0], data[1], data[2]);
                     data += 3;
                 }
                 data += pitch - width * 3;
-            } while(--i);
+            } while (--i);
         } else {
             do {
                 end = p + width;
-                while(p != end) {
-                    *p++ = swap_blue_red ? RGB(data[2 * pitch], data[1 * pitch], data[0]) : RGB(data[0], data[1 * pitch], data[2 * pitch]);
+                while (p != end) {
+                    *p++ = swap_blue_red ? RGB(data[2 * pitch], data[1 * pitch], data[0])
+                                         : RGB(data[0], data[1 * pitch], data[2 * pitch]);
                     data += 1;
                 }
                 data += (pitch - width) + (pitch * 2);
-            } while(--i);
+            } while (--i);
         }
 
         pixmap = XCreatePixmap(display, window, width, height, xwin_depth);
-        img = XCreateImage(display, CopyFromParent, xwin_depth, ZPixmap, 0, (char*)rgbx, width, height, 32, 0);
-        legc = XCreateGC(display, pixmap, 0, NULL);
+        img    = XCreateImage(display, CopyFromParent, xwin_depth, ZPixmap, 0, (char *)rgbx, width, height, 32, 0);
+        legc   = XCreateGC(display, pixmap, 0, NULL);
         XPutImage(display, pixmap, legc, img, 0, 0, 0, 0, width, height);
 
-
-
         XRenderPictureAttributes attr = {.component_alpha = 1};
-        picture = XRenderCreatePicture(display, pixmap, XRenderFindStandardFormat(display, PictStandardRGB24), CPComponentAlpha, &attr);
+        picture = XRenderCreatePicture(display, pixmap, XRenderFindStandardFormat(display, PictStandardRGB24),
+                                       CPComponentAlpha, &attr);
 
         free(rgbx);
     }
@@ -69,56 +70,55 @@ Picture loadglyphpic(uint8_t *data, int width, int height, int pitch, _Bool no_s
     return picture;
 }
 
-GLYPH* font_getglyph(FONT *f, uint32_t ch)
-{
+GLYPH *font_getglyph(FONT *f, uint32_t ch) {
     uint32_t hash = ch % 128;
-    GLYPH *g = f->glyphs[hash], *s = g;
-    if(g) {
-        while(g->ucs4 != ~0) {
-            if(g->ucs4 == ch) {
+    GLYPH *  g = f->glyphs[hash], *s = g;
+    if (g) {
+        while (g->ucs4 != ~0) {
+            if (g->ucs4 == ch) {
                 return g;
             }
             g++;
         }
 
-        if(!FcCharSetHasChar(charset, ch)) {
+        if (!FcCharSetHasChar(charset, ch)) {
             return NULL;
         }
 
         uint32_t count = (uint32_t)(g - s);
-        g = realloc(s, (count + 2) * sizeof(GLYPH));
-        if(!g) {
+        g              = realloc(s, (count + 2) * sizeof(GLYPH));
+        if (!g) {
             return NULL;
         }
 
         f->glyphs[hash] = g;
         g += count;
     } else {
-        if(!FcCharSetHasChar(charset, ch)) {
+        if (!FcCharSetHasChar(charset, ch)) {
             return NULL;
         }
 
         g = malloc(sizeof(GLYPH) * 2);
-        if(!g) {
+        if (!g) {
             return NULL;
         }
 
         f->glyphs[hash] = g;
     }
 
-    //return FcCharSetHasChar (pub->charset, ucs4);
+    // return FcCharSetHasChar (pub->charset, ucs4);
     FONT_INFO *i = f->info;
-    while(i->face) {
-        if(FcCharSetHasChar(i->cs, ch)) {
+    while (i->face) {
+        if (FcCharSetHasChar(i->cs, ch)) {
             break;
         }
         i++;
     }
 
-    if(!i->face) {
+    if (!i->face) {
         uint32_t count = (uint32_t)(i - f->info);
-        i = realloc(f->info, (count + 2) * sizeof(FONT_INFO));
-        if(!i) {
+        i              = realloc(f->info, (count + 2) * sizeof(FONT_INFO));
+        if (!i) {
             return NULL;
         }
 
@@ -128,15 +128,15 @@ GLYPH* font_getglyph(FONT *f, uint32_t ch)
         i[1].face = NULL;
 
         int j;
-        for(j = 0; j != fs->nfont; j++) {
+        for (j = 0; j != fs->nfont; j++) {
             FcCharSet *cs;
 
             FcPatternGetCharSet(fs->fonts[j], FC_CHARSET, 0, &cs);
-            if(FcCharSetHasChar(cs, ch)) {
+            if (FcCharSetHasChar(cs, ch)) {
                 FcPattern *p = FcPatternDuplicate(fs->fonts[j]);
 
                 double size;
-                if(!FcPatternGetDouble(f->pattern, FC_PIXEL_SIZE, 0, &size)) {
+                if (!FcPatternGetDouble(f->pattern, FC_PIXEL_SIZE, 0, &size)) {
                     FcPatternAddDouble(p, FC_PIXEL_SIZE, size);
                 }
 
@@ -146,8 +146,8 @@ GLYPH* font_getglyph(FONT *f, uint32_t ch)
             }
         }
 
-        if(!i->face) {
-            //something went wrong
+        if (!i->face) {
+            // something went wrong
             debug("???\n");
             return NULL;
         }
@@ -155,9 +155,9 @@ GLYPH* font_getglyph(FONT *f, uint32_t ch)
 
     int lcd_filter = FC_LCD_DEFAULT;
     FcPatternGetInteger(f->pattern, FC_LCD_FILTER, 0, &lcd_filter);
-    FT_Library_SetLcdFilter( ftlib, lcd_filter);
+    FT_Library_SetLcdFilter(ftlib, lcd_filter);
 
-    int ft_flags = FT_LOAD_DEFAULT;
+    int ft_flags        = FT_LOAD_DEFAULT;
     int ft_render_flags = FT_RENDER_MODE_NORMAL;
 
     _Bool hinting = 1, antialias = 1, vertical_layout = 0, autohint = 0;
@@ -175,7 +175,7 @@ GLYPH* font_getglyph(FONT *f, uint32_t ch)
     FcPatternGetInteger(f->pattern, FC_RGBA, 0, (int *)&subpixel);
 
     _Bool no_subpixel = (subpixel == FC_RGBA_NONE);
-    _Bool vert = ft_vert;
+    _Bool vert        = ft_vert;
 
     if (no_subpixel) {
         ft_render_flags = FT_RENDER_MODE_NORMAL;
@@ -209,59 +209,59 @@ GLYPH* font_getglyph(FONT *f, uint32_t ch)
     FT_Render_Glyph(i->face->glyph, ft_render_flags);
     FT_GlyphSlotRec *p = i->face->glyph;
 
-    g->ucs4 = ch;
-    g->x = p->bitmap_left;
-    g->y = PIXELS(i->face->size->metrics.ascender) - p->bitmap_top;
-    g->height = p->bitmap.rows;
+    g->ucs4     = ch;
+    g->x        = p->bitmap_left;
+    g->y        = PIXELS(i->face->size->metrics.ascender) - p->bitmap_top;
+    g->height   = p->bitmap.rows;
     g->xadvance = (p->advance.x + (1 << 5)) >> 6;
 
-    if(p->bitmap.pixel_mode == FT_PIXEL_MODE_MONO) {
+    if (p->bitmap.pixel_mode == FT_PIXEL_MODE_MONO) {
         unsigned int r, x;
-        uint8_t *mybuf = malloc(p->bitmap.width*g->height);
-        uint8_t *sline = p->bitmap.buffer, *dest = mybuf;
+        uint8_t *    mybuf = malloc(p->bitmap.width * g->height);
+        uint8_t *    sline = p->bitmap.buffer, *dest = mybuf;
 
         g->width = p->bitmap.width;
-        for(r = 0; r < g->height; r++, sline += p->bitmap.pitch) {
-            for(x = 0; x < g->width; x++, dest++) {
+        for (r = 0; r < g->height; r++, sline += p->bitmap.pitch) {
+            for (x = 0; x < g->width; x++, dest++) {
                 *dest = (sline[(x >> 3)] & (0x80 >> (x & 7))) * 0xff;
             }
         }
         free(p->bitmap.buffer);
         p->bitmap.buffer = mybuf;
-        no_subpixel = 1;
+        no_subpixel      = 1;
     } else if (p->bitmap.pixel_mode == FT_PIXEL_MODE_GRAY) {
-        g->width = p->bitmap.width;
+        g->width    = p->bitmap.width;
         no_subpixel = 1;
-    } else if (p->bitmap.pixel_mode ==  FT_PIXEL_MODE_LCD) {
-        g->width = p->bitmap.width / 3;
+    } else if (p->bitmap.pixel_mode == FT_PIXEL_MODE_LCD) {
+        g->width    = p->bitmap.width / 3;
         no_subpixel = 0;
-        vert = 0;
-    } else if (p->bitmap.pixel_mode ==  FT_PIXEL_MODE_LCD_V) {
-        g->width = p->bitmap.width;
-        g->height = p->bitmap.rows / 3;
+        vert        = 0;
+    } else if (p->bitmap.pixel_mode == FT_PIXEL_MODE_LCD_V) {
+        g->width    = p->bitmap.width;
+        g->height   = p->bitmap.rows / 3;
         no_subpixel = 0;
-        vert = 1;
+        vert        = 1;
     } else {
-        g->width = p->bitmap.width;
+        g->width    = p->bitmap.width;
         no_subpixel = 0;
     }
 
-    //debug("%u %u %u %u %C\n", PIXELS(i->face->size->metrics.height), g->width, g->height, p->bitmap.pitch, ch);
+    // debug("%u %u %u %u %C\n", PIXELS(i->face->size->metrics.height), g->width, g->height, p->bitmap.pitch, ch);
     g->pic = loadglyphpic(p->bitmap.buffer, g->width, g->height, p->bitmap.pitch, no_subpixel, vert, ft_swap_blue_red);
 
     return g;
 }
 
 void initfonts(void) {
-    if(!FcInit()) {
-        //error
+    if (!FcInit()) {
+        // error
     }
 
     FT_Init_FreeType(&ftlib);
 
-    FcResult result;
+    FcResult   result;
     FcPattern *pat = FcPatternCreate();
-    FcPatternAddString(pat, FC_FAMILY, (uint8_t*)"Roboto");
+    FcPatternAddString(pat, FC_FAMILY, (uint8_t *)UTOX_FONT_XLIB);
     FcConfigSubstitute(0, pat, FcMatchPattern);
     FcDefaultSubstitute(pat);
     fs = FcFontSort(NULL, pat, 0, &charset, &result);
@@ -272,8 +272,8 @@ void initfonts(void) {
 /*static void default_sub(FcPattern *pattern)
 {
     //this is actually mostly useless
-    //FcValue	v;
-    //double	dpi;
+    //FcValue   v;
+    //double    dpi;
 
     //FcPatternAddBool (pattern, XFT_RENDER, XftDefaultGetBool (dpy, XFT_RENDER, screen, XftDefaultHasRender (dpy)));
     FcPatternAddBool (pattern, FC_ANTIALIAS, True);
@@ -282,38 +282,38 @@ void initfonts(void) {
     FcPatternAddInteger (pattern, FC_HINT_STYLE, FC_HINT_FULL);
     FcPatternAddBool (pattern, FC_AUTOHINT, False);
 
-    int	subpixel = FC_RGBA_UNKNOWN;
-	//if (XftDefaultHasRender (dpy))
-	{
-	    int render_order = XRenderQuerySubpixelOrder (display, screen);
-	    switch (render_order) {
-	    default:
-	    case SubPixelUnknown:	subpixel = FC_RGBA_UNKNOWN; break;
-	    case SubPixelHorizontalRGB:	subpixel = FC_RGBA_RGB; break;
-	    case SubPixelHorizontalBGR:	subpixel = FC_RGBA_BGR; break;
-	    case SubPixelVerticalRGB:	subpixel = FC_RGBA_VRGB; break;
-	    case SubPixelVerticalBGR:	subpixel = FC_RGBA_VBGR; break;
-	    case SubPixelNone:		subpixel = FC_RGBA_NONE; break;
-	    }
-	}
+    int subpixel = FC_RGBA_UNKNOWN;
+    //if (XftDefaultHasRender (dpy))
+    {
+        int render_order = XRenderQuerySubpixelOrder (display, screen);
+        switch (render_order) {
+        default:
+        case SubPixelUnknown:   subpixel = FC_RGBA_UNKNOWN; break;
+        case SubPixelHorizontalRGB: subpixel = FC_RGBA_RGB; break;
+        case SubPixelHorizontalBGR: subpixel = FC_RGBA_BGR; break;
+        case SubPixelVerticalRGB:   subpixel = FC_RGBA_VRGB; break;
+        case SubPixelVerticalBGR:   subpixel = FC_RGBA_VBGR; break;
+        case SubPixelNone:      subpixel = FC_RGBA_NONE; break;
+        }
+    }
 
-	FcPatternAddInteger (pattern, FC_RGBA, subpixel);
-	FcPatternAddInteger (pattern, FC_LCD_FILTER, FC_LCD_DEFAULT);
-	FcPatternAddBool (pattern, FC_MINSPACE, False);
+    FcPatternAddInteger (pattern, FC_RGBA, subpixel);
+    FcPatternAddInteger (pattern, FC_LCD_FILTER, FC_LCD_DEFAULT);
+    FcPatternAddBool (pattern, FC_MINSPACE, False);
 
-	//dpi = (((double) DisplayHeight (dpy, screen) * 25.4) / (double) DisplayHeightMM (dpy, screen));
-	//FcPatternAddDouble (pattern, FC_DPI, dpi);
-	FcPatternAddDouble (pattern, FC_SCALE, 1.0);
-	//FcPatternAddInteger (pattern, XFT_MAX_GLYPH_MEMORY, XftDefaultGetInteger (dpy, XFT_MAX_GLYPH_MEMORY, screen, XFT_FONT_MAX_GLYPH_MEMORY));
+    //dpi = (((double) DisplayHeight (dpy, screen) * 25.4) / (double) DisplayHeightMM (dpy, screen));
+    //FcPatternAddDouble (pattern, FC_DPI, dpi);
+    FcPatternAddDouble (pattern, FC_SCALE, 1.0);
+    //FcPatternAddInteger (pattern, XFT_MAX_GLYPH_MEMORY, XftDefaultGetInteger (dpy, XFT_MAX_GLYPH_MEMORY, screen,
+XFT_FONT_MAX_GLYPH_MEMORY));
 
-	FcDefaultSubstitute (pattern);
+    FcDefaultSubstitute (pattern);
 }*/
 
-static void font_info_open(FONT_INFO *i, FcPattern *pattern)
-{
-    uint8_t *filename;
-    int id = 0;
-    double size;
+static void font_info_open(FONT_INFO *i, FcPattern *pattern) {
+    uint8_t * filename;
+    int       id = 0;
+    double    size;
     FcMatrix *font_matrix;
     /*FT_Matrix matrix = {
         .xx = 0x10000,
@@ -325,13 +325,13 @@ static void font_info_open(FONT_INFO *i, FcPattern *pattern)
     FcPatternGetString(pattern, FC_FILE, 0, &filename);
     FcPatternGetInteger(pattern, FC_INDEX, 0, &id);
     FcPatternGetCharSet(pattern, FC_CHARSET, 0, &i->cs);
-    if(FcPatternGetMatrix(pattern, FC_MATRIX, 0, &font_matrix) == FcResultMatch) {
+    if (FcPatternGetMatrix(pattern, FC_MATRIX, 0, &font_matrix) == FcResultMatch) {
         debug("has a matrix\n");
     }
 
     FcPatternGetDouble(pattern, FC_PIXEL_SIZE, 0, &size);
 
-    int ft_error = FT_New_Face(ftlib, (char*)filename, id, &i->face);
+    int ft_error = FT_New_Face(ftlib, (char *)filename, id, &i->face);
 
     if (ft_error != 0) {
         debug("Freetype error %u %s %i\n", ft_error, filename, id);
@@ -347,20 +347,19 @@ static void font_info_open(FONT_INFO *i, FcPattern *pattern)
     // debug("Loaded font %s %u %i %i\n", filename, id, PIXELS(i->face->ascender), PIXELS(i->face->descender));
 }
 
-
 static _Bool font_open(FONT *a_font, ...) {
     /* add error checks */
-    va_list	    va;
-    FcPattern	    *pat;
-    FcPattern	    *match;
-    FcResult	    result;
+    va_list    va;
+    FcPattern *pat;
+    FcPattern *match;
+    FcResult   result;
 
-    va_start (va, a_font);
+    va_start(va, a_font);
     pat = FcPatternVaBuild(NULL, va);
-    va_end (va);
+    va_end(va);
 
     FcConfigSubstitute(NULL, pat, FcMatchPattern);
-    //default_sub(pat);
+    // default_sub(pat);
     match = FcFontMatch(NULL, pat, &result);
     FcPatternDestroy(pat);
 
@@ -376,53 +375,54 @@ static _Bool font_open(FONT *a_font, ...) {
 }
 
 void loadfonts(void) {
-    int render_order = XRenderQuerySubpixelOrder (display, screen);
-    if(render_order == SubPixelHorizontalBGR || render_order == SubPixelVerticalBGR) {
+    int render_order = XRenderQuerySubpixelOrder(display, screen);
+    if (render_order == SubPixelHorizontalBGR || render_order == SubPixelVerticalBGR) {
         ft_swap_blue_red = 1;
         debug("ft_swap_blue_red\n");
     }
 
-    if(render_order == SubPixelVerticalBGR || render_order == SubPixelVerticalRGB) {
+    if (render_order == SubPixelVerticalBGR || render_order == SubPixelVerticalRGB) {
         ft_vert = 1;
         debug("ft_vert\n");
     }
 
-     #define F(x) (UTOX_SCALE(x) / 2.0)
-     font_open(&font[FONT_TEXT],       FC_FAMILY, FcTypeString, "Roboto", FC_PIXEL_SIZE, FcTypeDouble, F(12.0),
-                FC_WEIGHT, FcTypeInteger, FC_WEIGHT_NORMAL, FC_SLANT, FcTypeInteger, FC_SLANT_ROMAN, NULL);
+#define F(x) (UTOX_SCALE(x) / 2.0)
+    font_open(&font[FONT_TEXT], FC_FAMILY, FcTypeString, UTOX_FONT_XLIB, FC_PIXEL_SIZE, FcTypeDouble, F(12.0),
+              FC_WEIGHT, FcTypeInteger, FC_WEIGHT_NORMAL, FC_SLANT, FcTypeInteger, FC_SLANT_ROMAN, NULL);
 
-     font_open(&font[FONT_TITLE],      FC_FAMILY, FcTypeString, "Roboto", FC_PIXEL_SIZE, FcTypeDouble, F(12.0),
-                FC_WEIGHT, FcTypeInteger, FC_WEIGHT_BOLD,   NULL);
+    font_open(&font[FONT_TITLE], FC_FAMILY, FcTypeString, UTOX_FONT_XLIB, FC_PIXEL_SIZE, FcTypeDouble, F(12.0),
+              FC_WEIGHT, FcTypeInteger, FC_WEIGHT_BOLD, NULL);
 
-     font_open(&font[FONT_SELF_NAME],  FC_FAMILY, FcTypeString, "Roboto", FC_PIXEL_SIZE, FcTypeDouble, F(14.0),
-                FC_WEIGHT, FcTypeInteger, FC_WEIGHT_BOLD,   NULL);
-     font_open(&font[FONT_STATUS],     FC_FAMILY, FcTypeString, "Roboto", FC_PIXEL_SIZE, FcTypeDouble, F(11.0),
-                FC_WEIGHT, FcTypeInteger, FC_WEIGHT_NORMAL, FC_SLANT, FcTypeInteger, FC_SLANT_ROMAN, NULL);
+    font_open(&font[FONT_SELF_NAME], FC_FAMILY, FcTypeString, UTOX_FONT_XLIB, FC_PIXEL_SIZE, FcTypeDouble, F(14.0),
+              FC_WEIGHT, FcTypeInteger, FC_WEIGHT_BOLD, NULL);
+    font_open(&font[FONT_STATUS], FC_FAMILY, FcTypeString, UTOX_FONT_XLIB, FC_PIXEL_SIZE, FcTypeDouble, F(11.0),
+              FC_WEIGHT, FcTypeInteger, FC_WEIGHT_NORMAL, FC_SLANT, FcTypeInteger, FC_SLANT_ROMAN, NULL);
 
-     font_open(&font[FONT_LIST_NAME],  FC_FAMILY, FcTypeString, "Roboto", FC_PIXEL_SIZE, FcTypeDouble, F(12.0),
-                FC_WEIGHT, FcTypeInteger, FC_WEIGHT_NORMAL, FC_SLANT, FcTypeInteger, FC_SLANT_ROMAN, NULL);
+    font_open(&font[FONT_LIST_NAME], FC_FAMILY, FcTypeString, UTOX_FONT_XLIB, FC_PIXEL_SIZE, FcTypeDouble, F(12.0),
+              FC_WEIGHT, FcTypeInteger, FC_WEIGHT_NORMAL, FC_SLANT, FcTypeInteger, FC_SLANT_ROMAN, NULL);
 
-     //font_open(&font[FONT_MSG],      FC_FAMILY, FcTypeString, "Roboto", FC_PIXEL_SIZE, FcTypeDouble, F(11.0),
-     //           FC_WEIGHT, FcTypeInteger, FC_WEIGHT_LIGHT,  NULL);
-     //font_open(&font[FONT_MSG_NAME], FC_FAMILY, FcTypeString, "Roboto", FC_PIXEL_SIZE, FcTypeDouble, F(10.0),                 FC_WEIGHT, FcTypeInteger, FC_WEIGHT_LIGHT,  NULL);
-     font_open(&font[FONT_MISC],       FC_FAMILY, FcTypeString, "Roboto", FC_PIXEL_SIZE, FcTypeDouble, F(10.0),
-                FC_WEIGHT, FcTypeInteger, FC_WEIGHT_NORMAL, FC_SLANT, FcTypeInteger, FC_SLANT_ROMAN, NULL);
-     //font_open(&font[FONT_MSG_LINK], FC_FAMILY, FcTypeString, "Roboto", FC_PIXEL_SIZE, FcTypeDouble, F(11.0),
-     //           FC_WEIGHT, FcTypeInteger, FC_WEIGHT_LIGHT,  NULL);
-    #undef F
+    // font_open(&font[FONT_MSG],      FC_FAMILY, FcTypeString, UTOX_FONT_XLIB, FC_PIXEL_SIZE, FcTypeDouble, F(11.0),
+    //           FC_WEIGHT, FcTypeInteger, FC_WEIGHT_LIGHT,  NULL);
+    // font_open(&font[FONT_MSG_NAME], FC_FAMILY, FcTypeString, UTOX_FONT_XLIB, FC_PIXEL_SIZE, FcTypeDouble, F(10.0),
+    // FC_WEIGHT, FcTypeInteger, FC_WEIGHT_LIGHT,  NULL);
+    font_open(&font[FONT_MISC], FC_FAMILY, FcTypeString, UTOX_FONT_XLIB, FC_PIXEL_SIZE, FcTypeDouble, F(10.0),
+              FC_WEIGHT, FcTypeInteger, FC_WEIGHT_NORMAL, FC_SLANT, FcTypeInteger, FC_SLANT_ROMAN, NULL);
+// font_open(&font[FONT_MSG_LINK], FC_FAMILY, FcTypeString, UTOX_FONT_XLIB, FC_PIXEL_SIZE, FcTypeDouble, F(11.0),
+//           FC_WEIGHT, FcTypeInteger, FC_WEIGHT_LIGHT,  NULL);
+#undef F
 }
 
 void freefonts(void) {
     int i;
-    for(i = 0; i != countof(font); i++) {
+    for (i = 0; i != countof(font); i++) {
         FONT *f = &font[i];
-        if(f->pattern) {
+        if (f->pattern) {
             FcPatternDestroy(f->pattern);
         }
 
-        if(f->info) {
+        if (f->info) {
             FONT_INFO *fi = f->info;
-            while(fi->face) {
+            while (fi->face) {
                 FT_Done_Face(fi->face);
                 fi++;
             }
@@ -430,11 +430,11 @@ void freefonts(void) {
         }
 
         int j = 0;
-        for(j = 0; j != countof(f->glyphs); j++) {
+        for (j = 0; j != countof(f->glyphs); j++) {
             GLYPH *g = f->glyphs[j];
-            if(g) {
-                while(g->ucs4 != ~0) {
-                    if(g->pic) {
+            if (g) {
+                while (g->ucs4 != ~0) {
+                    if (g->pic) {
                         XRenderFreePicture(display, g->pic);
                     }
                     g++;

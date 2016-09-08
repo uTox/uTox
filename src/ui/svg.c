@@ -436,6 +436,7 @@ _Bool svg_draw(_Bool needmemory) {
         BM_FILE_WIDTH       * BM_FILE_HEIGHT +              /* Draw button icon overlays: file paper clip */
 
         BM_LBICON_WIDTH     * BM_LBICON_HEIGHT +            /* Call button icon */
+        BM_LBICON_WIDTH     * BM_LBICON_HEIGHT +            /* Call button icon */
         BM_LBICON_WIDTH     * BM_LBICON_HEIGHT +            /* Video start end bitmap */
 
         BM_STATUS_WIDTH     * BM_STATUS_WIDTH +             /* user status: online */
@@ -546,6 +547,14 @@ _Bool svg_draw(_Bool needmemory) {
     loadalpha(BM_FILE, p, BM_FILE_WIDTH, BM_FILE_HEIGHT);
     p += BM_FILE_WIDTH * BM_FILE_HEIGHT;
 
+    /* Decline call button icon */
+    drawnewcircle(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, SCALE(11),   SCALE(25), SCALE(38));
+    drawsubcircle(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, SCALE(11),   SCALE(25), SCALE(30));
+    drawnewcircle(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, SCALE(3),    SCALE(11), SCALE(6));
+    drawnewcircle(p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT, SCALE(19.5), SCALE(11), SCALE(6));
+    loadalpha(BM_DECLINE, p, BM_LBICON_WIDTH, BM_LBICON_HEIGHT);
+    p += BM_LBICON_WIDTH * BM_LBICON_HEIGHT;
+
     /* Call button icon */
     drawnewcircle(p,  BM_LBICON_WIDTH, BM_LBICON_HEIGHT, SCALE(1),        0,   SCALE(38));
     drawsubcircle(p,  BM_LBICON_WIDTH, BM_LBICON_HEIGHT, SCALE(1),        0,   SCALE(30));
@@ -654,8 +663,8 @@ _Bool svg_draw(_Bool needmemory) {
     loadalpha(BM_RESUME, p, BM_FB_WIDTH, BM_FB_HEIGHT);
     p += s;
 
-    drawline(p,     BM_FB_WIDTH, BM_FB_HEIGHT, SCALE(7.5), SCALE(9),   SCALE(8), SCALE(1));
-    drawlinedown(p, BM_FB_WIDTH, BM_FB_HEIGHT, SCALE(2.8), SCALE(6.5), SCALE(5), SCALE(1));
+    drawline(p,     BM_FB_WIDTH, BM_FB_HEIGHT, SCALE(8), SCALE(6), SCALE(8),   SCALE(1));
+    drawlinedown(p, BM_FB_WIDTH, BM_FB_HEIGHT, SCALE(3), SCALE(6), SCALE(3.5), SCALE(1));
     loadalpha(BM_YES, p, BM_FB_WIDTH, BM_FB_HEIGHT);
     p += s;
 

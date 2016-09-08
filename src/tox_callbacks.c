@@ -341,6 +341,7 @@ static void callback_device_sent_message(Tox *tox, uint32_t sending_device, uint
     postmessage(FRIEND_MESSAGE, target_friend, 0, NULL);
 }
 
+#ifdef ENABLE_MULTIDEVICE
 void utox_set_callbacks_mdevice(Tox *tox) {
     tox_callback_friend_list_change(tox, callback_friend_list_change, NULL);
 
@@ -350,3 +351,4 @@ void utox_set_callbacks_mdevice(Tox *tox) {
 
     tox_callback_mdev_sent_message(tox, callback_device_sent_message, NULL);
 }
+#endif

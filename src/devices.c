@@ -1,5 +1,7 @@
 #include "main.h"
 
+#ifdef ENABLE_MULTIDEVICE
+
 static bool realloc_devices_list(uint16_t new_size) {
     if (new_size == 0) {
         if (devices) {
@@ -184,3 +186,5 @@ void devices_self_add(uint8_t *device, size_t length) {
         debug_error("error trying to add this device\n");
     }
 }
+
+#endif

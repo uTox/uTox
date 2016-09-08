@@ -848,6 +848,22 @@ void update_tray(void) {
 
 /* file utils */
 
+void native_export_chatlog_init(uint32_t fid) {
+
+    NSSavePanel *picker = [NSSavePanel savePanel];
+    NSString *fname = [[NSString alloc] initWithBytesNoCopy:friend[fid].name length:friend[fid].name_length encoding:NSUTF8StringEncoding freeWhenDone:NO];
+    picker.message = [NSString stringWithFormat:NSSTRING_FROM_LOCALIZED(WHERE_TO_SAVE_FILE_PROMPT), friend[fid].name_length, friend[fid].name];
+    picker.nameFieldStringValue = fname;
+    [fname release];
+    int ret = [picker runModal];
+
+    if (ret == NSFileHandlingPanelOKButton) {
+        NSURL *destination = picker.URL;
+        // FIXME: might be leaking
+        utox_export_chatlog(fid, strdup(destination.path.UTF8String));
+    }
+}
+
 void native_select_dir_ft(uint32_t fid, MSG_FILE *file) {
     NSSavePanel *picker = [NSSavePanel savePanel];
     NSString *fname = [[NSString alloc] initWithBytesNoCopy:file->file_name length:file->name_length encoding:NSUTF8StringEncoding freeWhenDone:NO];

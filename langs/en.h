@@ -15,13 +15,19 @@ msgid(SPLASH_TITLE)
 msgstr("Welcome to the new uTox!")
 
 msgid(SPLASH_TEXT)
-msgstr("You have just upgraded to version 0.9.5! Release name: Srsly")
+msgstr("You have just upgraded to version 0.9.8! Release name: Srsly v3")
 
 msgid(CHANGE_LOG_TITLE)
-msgstr("Changes in v0.9.5")
+msgstr("Changes in v0.9.8")
 
 msgid(CHANGE_LOG_TEXT)
 msgstr(
+"    Fixed a crash when trying to create a new profile\n"
+"\nv0.9.7\n"
+"    Some minor GUI fixes\n"
+"    Replaced all Yes/No dropdowns with Switches\n"
+"    Fixed saving proxy host & port across restarts.\n"
+"\nv0.9.5\n"
 "    Inline video for OSX\n"
 "    Fixed a logging bug\n"
 "\nv0.9.3\n"
@@ -144,6 +150,9 @@ msgstr("Start call")
 
 msgid(START_VIDEO_CALL)
 msgstr("Start video call")
+
+msgid(CALL_DECLINE)
+msgstr("Decline the call")
 
 msgid(CALL_CANCELLED)
 msgstr("Call canceled")
@@ -683,6 +692,12 @@ msgstr("Custom (see docs)")
 
 msgid(THEME_ZENBURN)
 msgstr("Zenburn")
+
+msgid(THEME_SOLARIZED_LIGHT)
+msgstr("Solarized-light")
+
+msgid(THEME_SOLARIZED_DARK)
+msgstr("Solarized-dark")
 
 msgid(SEND_TYPING_NOTIFICATIONS)
 msgstr("Send typing notifications")

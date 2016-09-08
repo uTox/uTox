@@ -1,8 +1,8 @@
-# μTox [![Build Status](https://travis-ci.org/GrayHatter/uTox.svg?branch=develop)](https://travis-ci.org/GrayHatter/uTox)  [![Issue Stats](http://issuestats.com/github/grayhatter/utox/badge/pr)](http://issuestats.com/github/grayhatter/utox)  [![Issue Stats](http://issuestats.com/github/grayhatter/utox/badge/issue)](http://issuestats.com/github/grayhatter/utox)
+# μTox [![Build Status](https://travis-ci.org/uTox/uTox.svg?branch=develop)](https://travis-ci.org/uTox/uTox)  [![Issue Stats](http://issuestats.com/github/uTox/utox/badge/pr)](http://issuestats.com/github/uTox/utox)  [![Issue Stats](http://issuestats.com/github/uTox/utox/badge/issue)](http://issuestats.com/github/uTox/utox)
 
-The lightweight [Tox](https://github.com/irungentoo/toxcore) client.
+The lightweight [Tox](https://github.com/TokTok/toxcore) client.
 
-[**Tox Project Website**](https://tox.chat) **|** [**Tox Project Wiki**](https://wiki.tox.chat/) **|** [**Installing**](docs/INSTALL.md) **|** [**Compiling**](docs/BUILD.md).
+[**Tox Project Website**](https://tox.chat) **|** [**Tox Project Wiki**](https://wiki.tox.chat/) **|** [**Installing**](docs/INSTALL.md) **|** [**Changelog**](CHANGELOG.md) **|** [**Compiling**](docs/BUILD.md) **|** [**Toxcore Spec**](https://toktok.github.io/spec).
 
 You shouldn't have to choose a new client for every device: So µTox works everywhere! On every major system **Windows**, **OSX**, **Linux**, and even **Android**.
 
@@ -19,7 +19,7 @@ You shouldn't have to choose a new client for every device: So µTox works every
  * [Version List](https://github.com/GrayHatter/uTox/releases)
 * **Android**
  * [uTox Android on Google Play](https://play.google.com/apps/testing/tox.client.utox)
- * [Direct apk](https://build.tox.chat/view/uTox/job/uTox_build_android_armhf_release/lastSuccessfulBuild/artifact/uTox.apk)
+ * [Direct apk](https://build.tox.chat/view/uTox/job/uTox_build_android_armhf_release/lastSuccessfulBuild/artifact/uTox.apk) (You may need to uninstall the previous version.)
 
 ### Features
 - Avatars
@@ -33,13 +33,11 @@ You shouldn't have to choose a new client for every device: So µTox works every
   - New API support ready.
 - File transfers, with inline images support
 - Tox DNS support with [uTox.org](http://register.utox.org/)
-- Tox URI support (clickable links)
+- Tox URI support (clickable Tox links)
 - Emoticons
 - Auto-updates on Windows.
 
-Just like toxcore, µTox is still alpha software, so you may encounter bugs, or maybe a crash or two. µTox also needs your help. If you do encounter any bugs or problems please open an issue.
-
-µTox releases a new version on the 20th of every month. So you can always know when to get the newest version.
+Just like Toxcore, µTox is still alpha software, so you may encounter bugs, or maybe a crash or two. µTox also needs your help, if you do encounter any bugs or problems please open an issue.
 
 ### Screenshots
 μTox running on Windows 10

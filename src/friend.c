@@ -128,6 +128,7 @@ void utox_friend_init(Tox *tox, uint32_t friend_number) {
 
     // Load the meta data, if it exists.
     friend_meta_data_read(tox, friend_number);
+    friends++;
 }
 
 void utox_friend_list_init(Tox *tox) {
@@ -334,4 +335,14 @@ void friend_free(FRIEND *f)
     }
 
     memset(f, 0, sizeof(FRIEND));//
+}
+
+FRIEND *find_friend_by_name(uint8_t *name){
+    int i;
+    for (i = 0; i < friends; i++) {
+        if (strcmp((const char *)friend[i].name, (const char *)name) == 0) {
+            return &friend[i];
+        }
+    }
+    return NULL;
 }

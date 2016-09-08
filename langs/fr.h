@@ -128,6 +128,9 @@ msgstr("Commencer un appel")
 msgid(START_VIDEO_CALL)
 msgstr("Commencer un appel vidéo")
 
+msgid(CALL_DECLINE)
+msgstr("Rejeter l'appel")
+
 msgid(CALL_CANCELLED)
 msgstr("Appel annulé")
 
@@ -607,6 +610,12 @@ msgstr("Personnalisé (voir docs)")
 
 //msgid(THEME_ZENBURN)
 //msgstr("Zenburn")
+
+msgid(THEME_SOLARIZED_LIGHT)
+msgstr("Solarized-clair")
+
+msgid(THEME_SOLARIZED_DARK)
+msgstr("Solarized-sombre")
 
 msgid(SEND_TYPING_NOTIFICATIONS)
 msgstr("Envoyer les notifications d'écriture")
