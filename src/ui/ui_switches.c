@@ -15,6 +15,8 @@ static void switch_set_colors(UISWITCH *s) {
 }
 
 static void switch_set_size(UISWITCH *s) {
+    s->toggle_w   = BM_SWITCH_TOGGLE_WIDTH;
+    s->toggle_h   = BM_SWITCH_TOGGLE_HEIGHT;
     s->icon_off_w = BM_FB_WIDTH;
     s->icon_off_h = BM_FB_HEIGHT;
     s->icon_on_w  = BM_FB_WIDTH;

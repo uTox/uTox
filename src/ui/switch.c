@@ -26,16 +26,18 @@ void switch_draw(UISWITCH *s, int x, int y, int w, int h) {
     drawalpha(s->style_outer, x, y, w, h, s->disabled ? (s->disabled_color ? s->disabled_color : s->disabled_color) : color);
 
     // SVG offsets, used for centering
-    int ix0 = ((w / 2 - s->icon_off_w) / 2),
+    int tx  = ((w / 2 - s->toggle_w)   / 2),
+        ty  = ((h     - s->toggle_h)   / 2),
+        ix0 = ((w / 2 - s->icon_off_w) / 2),
         iy0 = ((h     - s->icon_off_h) / 2),
         ix1 = ((w / 2 - s->icon_on_w)  / 2),
         iy1 = ((h     - s->icon_on_h)  / 2);
 
     if (s->style_toggle) {
         if (s->switch_on) {
-            drawalpha(s->style_toggle, x + (w / 2) + SCALE(2), y + SCALE(2), w / 2 - SCALE(4), h - SCALE(4), s->sw_color);
+            drawalpha(s->style_toggle, x + (w / 2) + tx, y + ty, s->toggle_w, s->toggle_h, s->sw_color);
         } else {
-            drawalpha(s->style_toggle, x           + SCALE(2), y + SCALE(2), w / 2 - SCALE(4), h - SCALE(4), s->sw_color);
+            drawalpha(s->style_toggle, x           + tx, y + ty, s->toggle_w, s->toggle_h, s->sw_color);
         }
     }
 
