@@ -3,10 +3,10 @@ struct uiswitch {
 
     // Switch switch toggle style.
     SVG_IMG style_outer;
-    SVG_IMG style_inner;
+    SVG_IMG style_toggle;
 
-    // Width/height of bm2 picture. Used for centering.
-    int bw, bh;
+    // Width/height of the toggle. Used for centering.
+    int tw, th;
 
     // Background RGB color for bm picture, when Idle/Hovered/Pressed respectively.
     uint32_t

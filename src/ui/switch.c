@@ -28,13 +28,13 @@ void switch_draw(UISWITCH *s, int x, int y, int w, int h) {
     int icon_x = ((w / 2 - BM_FB_WIDTH)  / 2);
     int icon_y = ((h     - BM_FB_HEIGHT) / 2);
 
-    if (s->style_inner) {
+    if (s->style_toggle) {
         if (s->switch_on) {
             drawalpha(BM_YES,         x + icon_x,             y + icon_y,   BM_FB_WIDTH,      BM_FB_HEIGHT, s->sw_color);
-            drawalpha(s->style_inner, x + (w / 2) + SCALE(2), y + SCALE(2), w / 2 - SCALE(4), h - SCALE(4), s->sw_color);
+            drawalpha(s->style_toggle, x + (w / 2) + SCALE(2), y + SCALE(2), w / 2 - SCALE(4), h - SCALE(4), s->sw_color);
         } else {
             drawalpha(BM_NO,          x + (w / 2) + icon_x,   y + icon_y,   BM_FB_WIDTH,      BM_FB_HEIGHT, s->sw_color);
-            drawalpha(s->style_inner, x           + SCALE(2), y + SCALE(2), w / 2 - SCALE(4), h - SCALE(4), s->sw_color);
+            drawalpha(s->style_toggle, x           + SCALE(2), y + SCALE(2), w / 2 - SCALE(4), h - SCALE(4), s->sw_color);
         }
     }
 }
