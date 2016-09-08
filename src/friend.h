@@ -98,3 +98,6 @@ void friend_add(char_t *name, uint16_t length, char_t *msg, uint16_t msg_length)
 void friend_history_clear(FRIEND *f);
 
 void friend_free(FRIEND *f);
+
+/* Searches for a friend using the specified name */
+FRIEND *find_friend_by_name(uint8_t *name);

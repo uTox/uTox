@@ -81,6 +81,17 @@ uint16_t utox_run_command(char_t *string, uint16_t string_length, char_t **cmd, 
                 return 0;
             }
         }
+    } else if (cmd_length == 6 && memcmp(*cmd, "invite", 6) == 0) {
+        if (selected_item->item == ITEM_GROUP) {
+            GROUPCHAT *g = selected_item->data;
+            FRIEND *f = find_friend_by_name(*argument);
+            if (f != NULL && f->online) {
+                cmd_length = -1;
+                postmessage_toxcore(TOX_GROUP_SEND_INVITE, (g - group), (f - friend), NULL);
+            } else {
+                return 0;
+            }
+        }
     } else {
         // debug("Command unsupported!\n");
     }
