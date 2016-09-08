@@ -335,3 +335,13 @@ void friend_free(FRIEND *f)
 
     memset(f, 0, sizeof(FRIEND));//
 }
+
+FRIEND *find_friend_by_name(uint8_t *name){
+    int i;
+    for (i = 0; i < self.friend_list_count; i++) {
+        if (strcmp((const char *)friend[i].name, (const char *)name) == 0 || strcmp((const char *)friend[i].alias, (const char *)name) == 0) {
+            return &friend[i];
+        }
+    }
+    return NULL;
+}
