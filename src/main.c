@@ -403,6 +403,10 @@ void parse_args(int argc, char *argv[], bool *theme_was_set_on_argv, int8_t *sho
                     theme = THEME_HIGHCONTRAST;
                 } else if (!strcmp(optarg, "zenburn")) {
                     theme = THEME_ZENBURN;
+                } else if (!strcmp(optarg, "solarized-light")) {
+                    theme = THEME_SOLARIZED_LIGHT;
+                } else if (!strcmp(optarg, "solarized-dark")) {
+                    theme = THEME_SOLARIZED_DARK;
                 } else {
                     debug("Please specify correct theme (please check user manual for list of correct values).\n");
                     exit(EXIT_FAILURE);
