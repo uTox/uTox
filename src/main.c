@@ -404,7 +404,7 @@ void parse_args(int argc, char *argv[], bool *theme_was_set_on_argv, int8_t *sho
                 } else if (!strcmp(optarg, "zenburn")) {
                     theme = THEME_ZENBURN;
                 } else {
-                    debug("Please specify correct theme (please check user manual for list of correct values).\n");
+                    debug_error("Please specify correct theme (please check user manual for list of correct values).\n");
                     exit(EXIT_FAILURE);
                 }
                 *theme_was_set_on_argv = 1;
@@ -425,7 +425,7 @@ void parse_args(int argc, char *argv[], bool *theme_was_set_on_argv, int8_t *sho
                 } else if (!strcmp(optarg, "hide-window")) {
                     *set_show_window = -1;
                 } else {
-                    debug("Please specify a correct set option (please check user manual for list of correct values).\n");
+                    debug_error("Please specify a correct set option (please check user manual for list of correct values).\n");
                     exit(EXIT_FAILURE);
                 }
                 break;
@@ -435,7 +435,7 @@ void parse_args(int argc, char *argv[], bool *theme_was_set_on_argv, int8_t *sho
                 if (!strcmp(optarg, "start-on-boot")) {
                     *should_launch_at_startup = -1;
                 } else {
-                    debug("Please specify a correct unset option (please check user manual for list of correct values).\n");
+                    debug_error("Please specify a correct unset option (please check user manual for list of correct values).\n");
                     exit(EXIT_FAILURE);
                 }
                 break;
