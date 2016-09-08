@@ -1,9 +1,9 @@
-.TH UTOX "1" "November 2015" "µTox 0.4.3"
+.TH UTOX "1" "September 2016" "µTox 0.10.1"
 .SH NAME
 µTox \- Lightweight Tox client
 
 .SH SYNOPSIS
-usage: utox [--portable] [--theme <default|dark|light|highcontrast|zenburn>] [--set=<start-on-boot|show-window|hide-window>]
+usage: utox [--portable] [--theme <default|dark|light|highcontrast|zenburn|solarized-light|solarized-dark>] [--set=<start-on-boot|show-window|hide-window>]
    or: utox --version
    or: utox --help
 
@@ -20,30 +20,42 @@ usage: utox [--portable] [--theme <default|dark|light|highcontrast|zenburn>] [--
  * file transfers
 
 .SH OPTIONS
-.IP "\fB\-\-theme\fP <THEME>"
+.IP "\fB\-t\fP \fI<THEME>\fP or \fB\-\-theme\fP \fI<THEME>\fP"
 Choose a color scheme. Possible options are \fIdefault\fP, \fIdark\fP,
-\fIlight\fP, \fIhighcontrast\fP, or \fPzenburn\fP.
+\fIlight\fP, \fIhighcontrast\fP, \fIzenburn\fP, \fIsolarized-light\fP, or
+\fIsolarized-dark\fP.
 
-.IP \fB\-\-portable\fP
+.IP "\fB\-p\fP or \fB\-\-portable\fP"
 Run in portable mode. All data will be saved to the tox folder in the current working directory, see FILES for more details.
 
-.IP \fB\-\-set=<OPTION>\fP
+.IP "\fB\-s\fP \fI<OPTION>\fP or \fB\-\-set \fP\fI<OPTION>\fP"
 Set an option. The available options are "start-on-boot", "show-window" and "hide-window".
 
-.IP \fB\-\-version\fP
-Print version and exit.
+.IP "\fB\-s\fP \fI<OPTION>\fP or \fB\-\-set \fP\fI<OPTION>\fP"
+Unset an option. The available option is "start-on-boot".
 
-.IP \fB\-\-verbose\fP
-Increase debug output level.
+.IP "\fB\-v\fP or \fB\-\-verbose\fP"
+Increase debug output level. Multiple -v options increase the verbosity. The
+maximum is 3.
 
-.IP \fB\-\-help\fP
+.IP "\fB--silent\fP"
+Set the verbosity level to 0, disable all debugging output.
+
+.IP "\fB\-h\fP or \fB\-\-help\fP"
 Print a short description of available options.
+
+.IP "\fB\-\-version\fP"
+Print the version and exit.
 
 .SH CHAT COMMANDS
 These commands can be used in the chat window.
 .IP "\fB/alias\fP <alias>"
 Sets selected friend's alias to <alias>. It will be displayed instead of that
 friend's name.
+.IP "\fB/invite\fP <name>"
+Invites <name> to the current groupchat.
+.IP "\fB/sendfile\fP <path>"
+Sends a file located in <path> to the current friend.
 .IP "\fB/topic\fP <topic>"
 Changes current groupchat's name/topic to <topic>. This command can also be
 used to edit the current topic by typing /topic and pressing the tab key.
@@ -63,6 +75,8 @@ language, proxy options, DPI or logging.
 .IP \fBavatars\fP
 The \fBavatars\fP directory contains other contacts' avatars. Files are named
 after contacts' public keys (the first 64 characters of the ID).
+.IP \fBTox_Auto_Accept\fP
+Default directory for auto-accepted files in portable mode.
 .IP "\fB[public key].txt\fP"
 Those are friends' chat logs. µTox supports only 1v1 chat logging for now.
 .IP "\fB[public key].fmetadata\fP"
@@ -73,15 +87,15 @@ client restarts.
 
 .SH CONTRIBUTORS
 Please see the list page:
-.I https://github.com/GrayHatter/uTox/graphs/contributors
+.I https://github.com/uTox/uTox/graphs/contributors
 
 .SH BUGS
 Please report bugs on
-.I https://github.com/GrayHatter/uTox/issues
+.I https://github.com/uTox/uTox/issues
 
 The website for
 .B µTox
 can be found at
 .I http://utox.org/
 and source code can be found at
-.I https://github.com/GrayHatter/uTox
+.I https://github.com/uTox/uTox
