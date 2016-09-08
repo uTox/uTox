@@ -6,10 +6,12 @@ struct uiswitch {
     SVG_IMG style_icon_off;
     SVG_IMG style_icon_on;
 
-    // Width/height of the toggle. Used for centering.
-    int tw, th;
+    // Width/height of the toggle and the icons. Used for centering.
+    int toggle_w, toggle_h,
+        icon_off_w, icon_off_h,
+        icon_on_w, icon_on_h;
 
-    // Background RGB color for bm picture, when Idle/Hovered/Pressed respectively.
+    // Background RGB color, when Idle/Hovered/Pressed respectively.
     uint32_t
         bg_color,       // Switch normal background color
         sw_color,       // Switch 'toggle' color

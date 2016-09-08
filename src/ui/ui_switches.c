@@ -14,6 +14,18 @@ static void switch_set_colors(UISWITCH *s) {
     }
 }
 
+static void switch_set_size(UISWITCH *s) {
+    s->icon_off_w = BM_FB_WIDTH;
+    s->icon_off_h = BM_FB_HEIGHT;
+    s->icon_on_w  = BM_FB_WIDTH;
+    s->icon_on_h  = BM_FB_HEIGHT;
+}
+
+static void switch_update(UISWITCH *s) {
+    switch_set_colors(s);
+    switch_set_size(s);
+}
+
 static void switchfxn_logging(void) {
     settings.logging_enabled = !settings.logging_enabled;
 }
@@ -70,7 +82,7 @@ UISWITCH switch_logging = {
     .style_toggle = BM_SWITCH_TOGGLE,
     .style_icon_off = BM_NO,
     .style_icon_on = BM_YES,
-    .update       = switch_set_colors,
+    .update       = switch_update,
     .onpress      = switchfxn_logging,
     .tooltip_text = {.i18nal = STR_LOGGING},
 };
@@ -80,7 +92,7 @@ UISWITCH switch_mini_contacts = {
     .style_toggle = BM_SWITCH_TOGGLE,
     .style_icon_off = BM_NO,
     .style_icon_on = BM_YES,
-    .update       = switch_set_colors,
+    .update       = switch_update,
     .onpress      = switchfxn_mini_contacts,
     .tooltip_text = {.i18nal = STR_SETTINGS_UI_MINI_ROSTER},
 };
@@ -90,7 +102,7 @@ UISWITCH switch_ipv6 = {
     .style_toggle = BM_SWITCH_TOGGLE,
     .style_icon_off = BM_NO,
     .style_icon_on = BM_YES,
-    .update       = switch_set_colors,
+    .update       = switch_update,
     .onpress      = switchfxn_ipv6,
     .tooltip_text = {.i18nal = STR_IPV6},
 };
@@ -100,7 +112,7 @@ UISWITCH switch_udp = {
     .style_toggle = BM_SWITCH_TOGGLE,
     .style_icon_off = BM_NO,
     .style_icon_on = BM_YES,
-    .update       = switch_set_colors,
+    .update       = switch_update,
     .onpress      = switchfxn_udp,
     .tooltip_text = {.i18nal = STR_UDP},
 };
@@ -110,7 +122,7 @@ UISWITCH switch_close_to_tray = {
     .style_toggle = BM_SWITCH_TOGGLE,
     .style_icon_off = BM_NO,
     .style_icon_on = BM_YES,
-    .update       = switch_set_colors,
+    .update       = switch_update,
     .onpress      = switchfxn_close_to_tray,
     .tooltip_text = {.i18nal = STR_CLOSE_TO_TRAY},
 };
@@ -120,7 +132,7 @@ UISWITCH switch_start_in_tray = {
     .style_toggle = BM_SWITCH_TOGGLE,
     .style_icon_off = BM_NO,
     .style_icon_on = BM_YES,
-    .update       = switch_set_colors,
+    .update       = switch_update,
     .onpress      = switchfxn_start_in_tray,
     .tooltip_text = {.i18nal = STR_START_IN_TRAY},
 };
@@ -130,7 +142,7 @@ UISWITCH switch_auto_startup = {
     .style_toggle = BM_SWITCH_TOGGLE,
     .style_icon_off = BM_NO,
     .style_icon_on = BM_YES,
-    .update       = switch_set_colors,
+    .update       = switch_update,
     .onpress      = switchfxn_auto_startup,
     .tooltip_text = {.i18nal = STR_AUTO_STARTUP},
 };
@@ -140,7 +152,7 @@ UISWITCH switch_typing_notes = {
     .style_toggle = BM_SWITCH_TOGGLE,
     .style_icon_off = BM_NO,
     .style_icon_on = BM_YES,
-    .update       = switch_set_colors,
+    .update       = switch_update,
     .onpress      = switchfxn_typing_notes,
     .tooltip_text = {.i18nal = STR_SEND_TYPING_NOTIFICATIONS},
 };
@@ -150,7 +162,7 @@ UISWITCH switch_audible_notifications = {
     .style_toggle = BM_SWITCH_TOGGLE,
     .style_icon_off = BM_NO,
     .style_icon_on = BM_YES,
-    .update       = switch_set_colors,
+    .update       = switch_update,
     .onpress      = switchfxn_audible_notifications,
     .tooltip_text = {.i18nal = STR_AUDIONOTIFICATIONS},
 };
@@ -160,7 +172,7 @@ UISWITCH switch_push_to_talk = {
     .style_toggle = BM_SWITCH_TOGGLE,
     .style_icon_off = BM_NO,
     .style_icon_on = BM_YES,
-    .update       = switch_set_colors,
+    .update       = switch_update,
     .onpress      = switchfxn_push_to_talk,
     .tooltip_text = {.i18nal = STR_PUSH_TO_TALK},
 };
@@ -170,7 +182,7 @@ UISWITCH switch_audio_filtering = {
     .style_toggle = BM_SWITCH_TOGGLE,
     .style_icon_off = BM_NO,
     .style_icon_on = BM_YES,
-    .update       = switch_set_colors,
+    .update       = switch_update,
     .onpress      = switchfxn_audio_filtering,
     .tooltip_text = {.i18nal = STR_AUDIOFILTERING},
 };

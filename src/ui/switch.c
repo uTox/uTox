@@ -25,8 +25,11 @@ void switch_draw(UISWITCH *s, int x, int y, int w, int h) {
     uint32_t color = s->mousedown ? s->press_color : (s->mouseover ? s->hover_color : s->bg_color);
     drawalpha(s->style_outer, x, y, w, h, s->disabled ? (s->disabled_color ? s->disabled_color : s->disabled_color) : color);
 
-    int icon_x = ((w / 2 - BM_FB_WIDTH)  / 2);
-    int icon_y = ((h     - BM_FB_HEIGHT) / 2);
+    // SVG offsets, used for centering
+    int ix0 = ((w / 2 - s->icon_off_w) / 2),
+        iy0 = ((h     - s->icon_off_h) / 2),
+        ix1 = ((w / 2 - s->icon_on_w)  / 2),
+        iy1 = ((h     - s->icon_on_h)  / 2);
 
     if (s->style_toggle) {
         if (s->switch_on) {
@@ -37,9 +40,9 @@ void switch_draw(UISWITCH *s, int x, int y, int w, int h) {
     }
 
     if (s->style_icon_off && !s->switch_on) {
-        drawalpha(s->style_icon_off, x + (w / 2) + icon_x, y + icon_y, BM_FB_WIDTH, BM_FB_HEIGHT, s->sw_color);
+        drawalpha(s->style_icon_off, x + (w / 2) + ix0, y + iy0, s->icon_off_w, s->icon_off_h, s->sw_color);
     } else if (s->style_icon_on && s->switch_on) {
-        drawalpha(s->style_icon_on,  x           + icon_x, y + icon_y, BM_FB_WIDTH, BM_FB_HEIGHT, s->sw_color);
+        drawalpha(s->style_icon_on,  x           + ix1, y + iy1, s->icon_on_w,  s->icon_on_h,  s->sw_color);
     }
 }
 
