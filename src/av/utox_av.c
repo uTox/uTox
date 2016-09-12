@@ -14,17 +14,21 @@ void postmessage_utoxav(uint8_t msg, uint32_t param1, uint32_t param2, void *dat
     toxav_thread_msg = 1;
 }
 
-#define VERIFY_AUDIO_IN()   if (call_count) { \
-                                if (!audio_in) { \
-                                    utox_audio_in_device_open(); \
-                                    utox_audio_in_listen(); \
-                                    audio_in = 1; \
-                                } \
-                            } else { \
-                                utox_audio_in_ignore(); \
-                                utox_audio_in_device_close(); \
-                                audio_in = 0; \
-                            } yieldcpu(5)
+#define VERIFY_AUDIO_IN()                                                                                              \
+    do {                                                                                                               \
+        if (call_count) {                                                                                              \
+            if (!audio_in) {                                                                                           \
+                utox_audio_in_device_open();                                                                           \
+                utox_audio_in_listen();                                                                                \
+                audio_in = 1;                                                                                          \
+            }                                                                                                          \
+        } else {                                                                                                       \
+            utox_audio_in_ignore();                                                                                    \
+            utox_audio_in_device_close();                                                                              \
+            audio_in = 0;                                                                                              \
+        }                                                                                                              \
+        yieldcpu(5);                                                                                                   \
+    } while (0)
 
 void utox_av_ctrl_thread(void *args) {
     ToxAV *av = args;
