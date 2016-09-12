@@ -1006,20 +1006,7 @@ int utox_file_start_write(uint32_t friend_number, uint32_t file_number, const ch
     return 0;
 }
 
-void utox_set_callbacks_file_transfer(Tox *tox){
-    /* Incoming files */
-        /* This is the callback for a new incoming file. */
-        tox_callback_file_recv(tox, incoming_file_callback_request, NULL);
-        /* This is the callback with friend's actions for a file */
-        tox_callback_file_recv_control(tox, file_transfer_callback_control, NULL);
-        /* This is the callback with a chunk data for a file. */
-        tox_callback_file_recv_chunk(tox, incoming_file_callback_chunk, NULL);
-    /* Outgoing files */
-        /* This is the callback send to request a new file chunk */
-        tox_callback_file_chunk_request(tox, outgoing_file_callback_chunk, NULL);
-}
-
-void utox_cleanup_file_transfers(uint32_t friend_number, uint32_t file_number){
+void utox_cleanup_file_transfers(uint32_t friend_number, uint32_t file_number) {
     FILE_TRANSFER *transfer = get_file_transfer(friend_number, file_number);
     if (transfer->name) {
         debug("FileTransfer:\tCleaning up file transfers! (%u & %u)\n", friend_number, file_number);
@@ -1112,4 +1099,17 @@ _Bool utox_file_load_ftinfo(FILE_TRANSFER *file) {
     free(info);
     free(load);
     return 1;
+}
+
+void utox_set_callbacks_file_transfer(Tox *tox) {
+    /* Incoming files */
+    /* This is the callback for a new incoming file. */
+    tox_callback_file_recv(tox, incoming_file_callback_request);
+    /* This is the callback with friend's actions for a file */
+    tox_callback_file_recv_control(tox, file_transfer_callback_control);
+    /* This is the callback with a chunk data for a file. */
+    tox_callback_file_recv_chunk(tox, incoming_file_callback_chunk);
+    /* Outgoing files */
+    /* This is the callback send to request a new file chunk */
+    tox_callback_file_chunk_request(tox, outgoing_file_callback_chunk);
 }

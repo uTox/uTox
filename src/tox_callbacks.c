@@ -94,20 +94,21 @@ static void callback_connection_status(Tox *tox, uint32_t fid, TOX_CONNECTION st
 }
 
 void utox_set_callbacks_friends(Tox *tox) {
-    tox_callback_friend_request(tox, callback_friend_request, NULL);
-    tox_callback_friend_message(tox, callback_friend_message, NULL);
-    tox_callback_friend_name(tox, callback_name_change, NULL);
-    tox_callback_friend_status_message(tox, callback_status_message, NULL);
-    tox_callback_friend_status(tox, callback_user_status, NULL);
-    tox_callback_friend_typing(tox, callback_typing_change, NULL);
-    tox_callback_friend_read_receipt(tox, callback_read_receipt, NULL);
-    tox_callback_friend_connection_status(tox, callback_connection_status, NULL);
+    tox_callback_friend_request(tox, callback_friend_request);
+    tox_callback_friend_message(tox, callback_friend_message);
+    tox_callback_friend_name(tox, callback_name_change);
+    tox_callback_friend_status_message(tox, callback_status_message);
+    tox_callback_friend_status(tox, callback_user_status);
+    tox_callback_friend_typing(tox, callback_typing_change);
+    tox_callback_friend_read_receipt(tox, callback_read_receipt);
+    tox_callback_friend_connection_status(tox, callback_connection_status);
 }
 
 void callback_av_group_audio(Tox *tox, int groupnumber, int peernumber, const int16_t *pcm, unsigned int samples,
-                                    uint8_t channels, unsigned int sample_rate, void *userdata);
+                             uint8_t channels, unsigned int sample_rate, void *userdata);
 
-static void callback_group_invite(Tox *tox, int fid, uint8_t type, const uint8_t *data, uint16_t length, void *UNUSED(userdata)) {
+static void callback_group_invite(Tox *tox, int fid, uint8_t type, const uint8_t *data, uint16_t length,
+                                  void *UNUSED(userdata)) {
     int gid = -1;
     if (type == TOX_GROUPCHAT_TYPE_TEXT) {
         gid = tox_join_groupchat(tox, fid, data, length);
