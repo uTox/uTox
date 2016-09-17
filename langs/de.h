@@ -514,5 +514,11 @@ msgstr("Hoher Kontrast")
 msgid(THEME_CUSTOM)
 msgstr("Benutzerdefiniert (siehe Dokumentation)")
 
+msgid(THEME_SOLARIZED_LIGHT)
+msgstr("Solarized hell")
+
+msgid(THEME_SOLARIZED_DARK)
+msgstr("Solarized dunkel")
+
 msgid(SEND_TYPING_NOTIFICATIONS)
 msgstr("Mitteilen, ob getippt wird")
