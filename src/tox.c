@@ -992,12 +992,14 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
 
         case TOX_GROUP_CREATE: {
             int g_num = -1;
+
+            TOX_ERR_CONFERENCE_NEW error = 0;
             if (param1) {
                 // TODO FIX THIS AFTER NEW GROUP API
                 // g = toxav_add_av_groupchat(tox, &callback_av_group_audio, NULL);
-                g_num = tox_add_groupchat(tox);
+                g_num = tox_conference_new(tox, &error);
             } else {
-                g_num = tox_add_groupchat(tox);
+                g_num = tox_conference_new(tox, &error);
             }
 
             if (g_num != -1) {
@@ -1015,7 +1017,8 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
              */
             postmessage_utoxav(UTOXAV_GROUPCALL_END, param1, param1, NULL);
 
-            tox_del_groupchat(tox, param1);
+            TOX_ERR_CONFERENCE_DELETE error = 0;
+            tox_conference_delete(tox, param1, &error);
             save_needed = 1;
             break;
         }
@@ -1023,7 +1026,8 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             /* param1: group #
              * param2: friend #
              */
-            tox_invite_friend(tox, param2, param1);
+            TOX_ERR_CONFERENCE_INVITE error = 0;
+            tox_conference_invite(tox, param2, param1, &error);
             save_needed = 1;
             break;
         }
@@ -1032,28 +1036,34 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
              * param2: topic length
              * data: topic
              */
-            tox_group_set_title(tox, param1, data, param2);
+            TOX_ERR_CONFERENCE_TITLE error = 0;
+
+            tox_conference_set_title(tox, param1, data, param2, &error);
             postmessage(GROUP_TOPIC, param1, param2, data);
             save_needed = 1;
             break;
         }
         case TOX_GROUP_SEND_MESSAGE: {
-            /* param1: group #
-             * param2: message length
-             * data: message
-             */
-            tox_group_message_send(tox, param1, data, param2);
-            free(data);
-            break;
-        }
-        case TOX_GROUP_SEND_ACTION: {
-            /* param1: group #
-             * param2: message length
-             * data: message
-             */
-            tox_group_action_send(tox, param1, data, param2);
-            free(data);
-            break;
+            case TOX_GROUP_SEND_ACTION: {
+                /* param1: group #
+                 * param2: message length
+                 * data: message
+                 */
+                TOX_MESSAGE_TYPE type =
+                    (msg == TOX_GROUP_SEND_ACTION ? TOX_MESSAGE_TYPE_ACTION : TOX_MESSAGE_TYPE_NORMAL);
+
+                TOX_ERR_CONFERENCE_SEND_MESSAGE error = 0;
+                tox_conference_send_message(tox, param1, type, data, param2, &error);
+                free(data);
+                break;
+            }
+                /* param1: group #
+                 * param2: message length
+                 * data: message
+                 */
+                tox_conference_action_send(tox, param1, data, param2);
+                free(data);
+                break;
         }
         /* Disabled */
         case TOX_GROUP_AUDIO_START: {

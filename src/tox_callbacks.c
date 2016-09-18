@@ -107,13 +107,13 @@ void utox_set_callbacks_friends(Tox *tox) {
 void callback_av_group_audio(Tox *tox, int groupnumber, int peernumber, const int16_t *pcm, unsigned int samples,
                              uint8_t channels, unsigned int sample_rate, void *userdata);
 
-static void callback_group_invite(Tox *tox, int fid, uint8_t type, const uint8_t *data, uint16_t length,
+static void callback_group_invite(Tox *tox, uint32_t fid, TOX_CONFERENCE_TYPE type, const uint8_t *data, size_t length,
                                   void *UNUSED(userdata)) {
     int gid = -1;
-    if (type == TOX_GROUPCHAT_TYPE_TEXT) {
-        gid = tox_join_groupchat(tox, fid, data, length);
+    if (type == TOX_CONFERENCE_TYPE_TEXT) {
+        gid = tox_conference_join(tox, fid, data, length, NULL);
         group_init(&group[gid], gid, 0);
-    } else if (type == TOX_GROUPCHAT_TYPE_AV) {
+    } else if (type == TOX_CONFERENCE_TYPE_AV) {
         // TODO FIX THIS AFTER NEW GROUP API IS RELEASED
         // gid = toxav_join_av_groupchat(tox, fid, data, length, &callback_av_group_audio, NULL);
     }
@@ -125,28 +125,32 @@ static void callback_group_invite(Tox *tox, int fid, uint8_t type, const uint8_t
     debug("Group Invite (%i,f:%i) type %u\n", gid, fid, type);
 }
 
-static void callback_group_message(Tox *tox, int gid, int pid, const uint8_t *message, uint16_t length,
-                                   void *UNUSED(userdata)) {
+static void callback_group_message(Tox *tox, uint32_t gid, uint32_t pid, TOX_MESSAGE_TYPE type, const uint8_t *message,
+                                   size_t length, void *UNUSED(userdata)) {
     GROUPCHAT *g = &group[gid];
-    debug_notice("Group Message (%u, %u): %.*s\n", gid, pid, length, message);
-    group_add_message(g, pid, message, length, MSG_TYPE_TEXT);
+
+    switch (type) {
+        case TOX_MESSAGE_TYPE_ACTION: {
+            debug("Group Action (%u, %u): %.*s\n", gid, pid, (int)length, message);
+            group_add_message(g, pid, message, length, MSG_TYPE_ACTION_TEXT);
+            break;
+        }
+        case TOX_MESSAGE_TYPE_NORMAL: {
+            debug_notice("Group Message (%u, %u): %.*s\n", gid, pid, (int)length, message);
+            group_add_message(g, pid, message, length, MSG_TYPE_TEXT);
+            break;
+        }
+    }
     group_notify_msg(g, message, length);
     postmessage(GROUP_MESSAGE, gid, pid, NULL);
 }
 
-static void callback_group_action(Tox *tox, int gid, int pid, const uint8_t *action, uint16_t length,
-                                  void *UNUSED(userdata)) {
-    group_add_message(&group[gid], pid, action, length, MSG_TYPE_ACTION_TEXT);
-    postmessage(GROUP_MESSAGE, gid, 0, NULL);
-
-    debug("Group Action (%u, %u): %.*s\n", gid, pid, length, action);
-}
-
-static void callback_group_namelist_change(Tox *tox, int gid, int pid, uint8_t change, void *UNUSED(userdata)) {
+static void callback_group_namelist_change(Tox *tox, uint32_t gid, uint32_t pid, TOX_CONFERENCE_STATE_CHANGE change,
+                                           void *UNUSED(userdata)) {
     GROUPCHAT *g = &group[gid];
 
     switch (change) {
-        case TOX_CHAT_CHANGE_PEER_ADD: {
+        case TOX_CONFERENCE_STATE_CHANGE_PEER_JOIN: {
             if (g->peer) {
                 g->peer = realloc(g->peer, sizeof(void *) * (g->peer_count + 2));
             } else {
@@ -154,13 +158,13 @@ static void callback_group_namelist_change(Tox *tox, int gid, int pid, uint8_t c
             }
             debug("Group:\tAdd (%u, %u)\n", gid, pid);
             _Bool is_us = 0;
-            if (tox_group_peernumber_is_ours(tox, gid, pid)) {
+            if (tox_conference_peer_number_is_ours(tox, gid, pid, 0)) {
                 g->our_peer_number = pid;
                 is_us              = 1;
             }
 
             uint8_t pkey[TOX_PUBLIC_KEY_SIZE];
-            tox_group_peer_pubkey(tox, gid, pid, pkey);
+            tox_conference_peer_get_public_key(tox, gid, pid, pkey, NULL);
             uint64_t pkey_to_number = 0;
             int      key_i          = 0;
             for (; key_i < TOX_PUBLIC_KEY_SIZE; ++key_i) {
@@ -176,7 +180,7 @@ static void callback_group_namelist_change(Tox *tox, int gid, int pid, uint8_t c
             break;
         }
 
-        case TOX_CHAT_CHANGE_PEER_NAME: {
+        case TOX_CONFERENCE_STATE_CHANGE_PEER_NAME_CHANGE: {
             debug("Group:\tPeer name change (%u, %u)\n", gid, pid);
 
             if (g->peer) {
@@ -189,7 +193,7 @@ static void callback_group_namelist_change(Tox *tox, int gid, int pid, uint8_t c
             }
 
             uint8_t name[TOX_MAX_NAME_LENGTH];
-            size_t  len = tox_group_peername(tox, gid, pid, name);
+            size_t  len = tox_conference_peer_get_name(tox, gid, pid, name, NULL);
             len         = utf8_validate(name, len);
 
             group_peer_name_change(g, pid, name, len);
@@ -198,7 +202,7 @@ static void callback_group_namelist_change(Tox *tox, int gid, int pid, uint8_t c
             break;
         }
 
-        case TOX_CHAT_CHANGE_PEER_DEL: {
+        case TOX_CONFERENCE_STATE_CHANGE_PEER_EXIT: {
             debug("Group:\tPeer Quit (%u, %u)\n", gid, pid);
             group_add_message(g, pid, (const uint8_t *)"<- has Quit!", 12, MSG_TYPE_NOTICE);
 
@@ -206,7 +210,7 @@ static void callback_group_namelist_change(Tox *tox, int gid, int pid, uint8_t c
 
             group_reset_peerlist(g);
 
-            uint32_t number_peers = tox_group_number_peers(tox, gid);
+            uint32_t number_peers = tox_conference_peer_count(tox, gid, NULL);
 
             g->peer = calloc(number_peers, sizeof(void *));
 
@@ -220,7 +224,7 @@ static void callback_group_namelist_change(Tox *tox, int gid, int pid, uint8_t c
             int i = 0;
             for (i = 0; i < number_peers; ++i) {
                 uint8_t     tmp[TOX_MAX_NAME_LENGTH];
-                size_t      len  = tox_group_peername(tox, gid, i, tmp);
+                size_t      len  = tox_conference_peer_get_name(tox, gid, i, tmp, NULL);
                 GROUP_PEER *peer = calloc(1, len * sizeof(void *) + sizeof(*peer));
                 if (!peer) {
                     debug("Group:\tToxcore is very broken, but we couldn't calloc here.");
@@ -232,7 +236,7 @@ static void callback_group_namelist_change(Tox *tox, int gid, int pid, uint8_t c
                 peer->id          = i;
                 /* get static random color */
                 uint8_t pkey[TOX_PUBLIC_KEY_SIZE];
-                tox_group_peer_pubkey(tox, gid, i, pkey);
+                tox_conference_peer_get_public_key(tox, gid, i, pkey, NULL);
                 uint64_t pkey_to_number = 0;
                 int      key_i          = 0;
                 for (; key_i < TOX_PUBLIC_KEY_SIZE; ++key_i) {
@@ -253,7 +257,7 @@ static void callback_group_namelist_change(Tox *tox, int gid, int pid, uint8_t c
     }
 }
 
-static void callback_group_topic(Tox *tox, int gid, int pid, const uint8_t *title, uint8_t length,
+static void callback_group_topic(Tox *tox, uint32_t gid, uint32_t pid, const uint8_t *title, size_t length,
                                  void *UNUSED(userdata)) {
     length = utf8_validate(title, length);
     if (!length)
@@ -270,11 +274,10 @@ static void callback_group_topic(Tox *tox, int gid, int pid, const uint8_t *titl
 }
 
 void utox_set_callbacks_groups(Tox *tox) {
-    tox_callback_group_invite(tox, callback_group_invite, NULL);
-    tox_callback_group_message(tox, callback_group_message, NULL);
-    tox_callback_group_action(tox, callback_group_action, NULL);
-    tox_callback_group_namelist_change(tox, callback_group_namelist_change, NULL);
-    tox_callback_group_title(tox, callback_group_topic, NULL);
+    tox_callback_conference_invite(tox, callback_group_invite, NULL);
+    tox_callback_conference_message(tox, callback_group_message, NULL);
+    tox_callback_conference_namelist_change(tox, callback_group_namelist_change, NULL);
+    tox_callback_conference_title(tox, callback_group_topic, NULL);
 }
 
 
