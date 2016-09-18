@@ -190,6 +190,8 @@ void openurl(char_t *str) {
     if (!fork()) {
         execlp(cmd, cmd, str, (char *)0);
         exit(127);
+    } else {
+        waitpid(-1, NULL, WNOHANG);
     }
 }
 
