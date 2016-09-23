@@ -23,14 +23,28 @@ void switch_draw(UISWITCH *s, int x, int y, int w, int h) {
 
     // Switch background color
     uint32_t color = s->mousedown ? s->press_color : (s->mouseover ? s->hover_color : s->bg_color);
-    draw_rect_fill(x, y, w, h, s->disabled ? (s->disabled_color ? s->disabled_color : s->disabled_color) : color);
+    drawalpha(s->style_outer, x, y, w, h, s->disabled ? (s->disabled_color ? s->disabled_color : s->disabled_color) : color);
 
-    if (s->style) {
+    // SVG offsets, used for centering
+    int tx  = ((w / 2 - s->toggle_w)   / 2),
+        ty  = ((h     - s->toggle_h)   / 2),
+        ix0 = ((w / 2 - s->icon_off_w) / 2),
+        iy0 = ((h     - s->icon_off_h) / 2),
+        ix1 = ((w / 2 - s->icon_on_w)  / 2),
+        iy1 = ((h     - s->icon_on_h)  / 2);
+
+    if (s->style_toggle) {
         if (s->switch_on) {
-            drawalpha(s->style, x + (w / 2), y, w / 2, h, s->sw_color);
+            drawalpha(s->style_toggle, x + (w / 2) + tx, y + ty, s->toggle_w, s->toggle_h, s->sw_color);
         } else {
-            drawalpha(s->style, x,           y, w / 2, h, s->sw_color);
+            drawalpha(s->style_toggle, x           + tx, y + ty, s->toggle_w, s->toggle_h, s->sw_color);
         }
+    }
+
+    if (s->style_icon_off && !s->switch_on) {
+        drawalpha(s->style_icon_off, x + (w / 2) + ix0, y + iy0, s->icon_off_w, s->icon_off_h, s->sw_color);
+    } else if (s->style_icon_on && s->switch_on) {
+        drawalpha(s->style_icon_on,  x           + ix1, y + iy1, s->icon_on_w,  s->icon_on_h,  s->sw_color);
     }
 }
 

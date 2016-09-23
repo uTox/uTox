@@ -449,7 +449,8 @@ _Bool svg_draw(_Bool needmemory) {
         BM_LBUTTON_WIDTH * BM_LBUTTON_HEIGHT +              /* Generic Large Button */
         BM_SBUTTON_WIDTH * BM_SBUTTON_HEIGHT +              /* Generic Small Button */
 
-        BM_SWITCH_ICON_WIDTH  * BM_SWITCH_HEIGHT  +              /* Switch toggle */
+        BM_SWITCH_WIDTH        * BM_SWITCH_HEIGHT +         /* Switch */
+        BM_SWITCH_TOGGLE_WIDTH * BM_SWITCH_TOGGLE_HEIGHT +  /* Switch toggle */
 
         /* File transfer */
         BM_FT_CAP_WIDTH * BM_FTB_HEIGHT +
@@ -617,10 +618,15 @@ _Bool svg_draw(_Bool needmemory) {
     loadalpha(BM_SBUTTON, p, BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
     p += BM_SBUTTON_WIDTH * BM_SBUTTON_HEIGHT;
 
-    /* Basic Switch Style icon */
-    drawrectrounded(p, BM_SWITCH_ICON_WIDTH, BM_SWITCH_HEIGHT, SCALE(4));
-    loadalpha(BM_SWITCH, p, BM_SWITCH_ICON_WIDTH, BM_SWITCH_HEIGHT);
-    p += BM_SWITCH_ICON_WIDTH * BM_SWITCH_HEIGHT;
+    /* Outer part of the switch */
+    drawrectrounded(p, BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT, SCALE(4));
+    loadalpha(BM_SWITCH, p, BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
+    p += BM_SWITCH_WIDTH * BM_SWITCH_HEIGHT;
+
+    /* Switch toggle */
+    drawrectrounded(p, BM_SWITCH_TOGGLE_WIDTH, BM_SWITCH_TOGGLE_HEIGHT, SCALE(4));
+    loadalpha(BM_SWITCH_TOGGLE, p, BM_SWITCH_TOGGLE_WIDTH, BM_SWITCH_TOGGLE_HEIGHT);
+    p += BM_SWITCH_TOGGLE_WIDTH * BM_SWITCH_TOGGLE_HEIGHT;
 
     /* Draw file transfer buttons */
     drawrectroundedex(p, BM_FT_CAP_WIDTH, BM_FTB_HEIGHT, SCALE(4), 13);
