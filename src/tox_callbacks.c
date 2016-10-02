@@ -274,10 +274,10 @@ static void callback_group_topic(Tox *tox, uint32_t gid, uint32_t pid, const uin
 }
 
 void utox_set_callbacks_groups(Tox *tox) {
-    tox_callback_conference_invite(tox, callback_group_invite, NULL);
-    tox_callback_conference_message(tox, callback_group_message, NULL);
-    tox_callback_conference_namelist_change(tox, callback_group_namelist_change, NULL);
-    tox_callback_conference_title(tox, callback_group_topic, NULL);
+    tox_callback_conference_invite(tox, callback_group_invite);
+    tox_callback_conference_message(tox, callback_group_message);
+    tox_callback_conference_namelist_change(tox, callback_group_namelist_change);
+    tox_callback_conference_title(tox, callback_group_topic);
 }
 
 

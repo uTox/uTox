@@ -301,9 +301,8 @@ static void draw_settings_header(int UNUSED(x), int UNUSED(y), int w, int UNUSED
     drawtext(x, SCALE(10), (uint8_t *)GIT_VERSION, strlen(GIT_VERSION));
     char version_string[64];
     int  count;
-    count = snprintf(version_string, 64, "Core v%u.%u.%u ToxAV v%u.%u.%u ToxES v%u.%u.%u", tox_version_major(),
-                     tox_version_minor(), tox_version_patch(), toxav_version_major(), toxav_version_minor(),
-                     toxav_version_patch(), toxes_version_major(), toxes_version_minor(), toxes_version_patch());
+    count =
+        snprintf(version_string, 64, "Core v%u.%u.%u", tox_version_major(), tox_version_minor(), tox_version_patch());
     drawtextwidth_right(w, textwidth((char_t *)version_string, count), SCALE(10), (uint8_t *)version_string,
                         strlen(version_string));
 #endif

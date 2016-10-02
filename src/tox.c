@@ -264,6 +264,16 @@ static int load_toxcore_save(struct Tox_Options *options) {
     return -2;
 }
 
+static void log_callback(Tox *tox, TOX_LOG_LEVEL level, const char *file, uint32_t line, const char *func,
+                         const char *message, void *user_data) {
+    if (message) {
+        debug("TOXCORE LOGGING ERROR: %s\n", message);
+    } else if (func) {
+        debug("TOXCORE LOGGING ERROR: %s\n", func);
+    }
+}
+
+
 static int init_toxcore(Tox **tox) {
     tox_thread_init = 0;
     int save_status = 0;
@@ -325,7 +335,8 @@ static int init_toxcore(Tox **tox) {
 
         topt.proxy_type         = TOX_PROXY_TYPE_NONE;
         dropdown_proxy.selected = dropdown_proxy.over = 0;
-        *tox                                          = tox_new(&topt, &tox_new_err);
+
+        *tox = tox_new(&topt, &tox_new_err);
 
         if (!topt.proxy_type || *tox == NULL) {
             debug("\t\tError #%u, Going to try without IPv6.\n", tox_new_err);
@@ -345,6 +356,8 @@ static int init_toxcore(Tox **tox) {
 
     /* Give toxcore the functions to call */
     set_callbacks(*tox);
+
+    tox_callback_log(*tox, &log_callback, NULL);
 
     /* Connect to bootstrapped nodes in "tox_bootstrap.h" */
     toxcore_bootstrap(*tox);
