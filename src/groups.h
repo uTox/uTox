@@ -20,6 +20,7 @@ typedef struct groupchat {
     _Bool audio_calling, unread_msg;
     uint32_t our_peer_number;
 
+    uint8_t number;
     uint8_t av_group;
 
     GNOTIFY_TYPE notify;

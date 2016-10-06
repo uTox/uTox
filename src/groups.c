@@ -26,6 +26,7 @@ void group_init(GROUPCHAT *g, uint32_t group_number, _Bool av_group) {
     g->msg.panel.width          = -SCROLL_WIDTH;
     g->msg.is_groupchat         = 1;
 
+    g->number                   = group_number;
     g->notify                   = settings.group_notifications;
     g->av_group                 = av_group;
     pthread_mutex_unlock(&messages_lock); /* make sure that messages has posted before we continue */
