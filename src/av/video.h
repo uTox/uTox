@@ -1,3 +1,6 @@
+#ifndef VIDEO_H
+#define VIDEO_H
+
 #define UTOX_DEFAULT_BITRATE_V  5000
 #define UTOX_MIN_BITRATE_VIDEO  512
 #define UTOX_DEFAULT_VID_WIDTH  1280
@@ -42,3 +45,4 @@ void utox_video_thread(void *args);
 
 void postmessage_video(uint8_t msg, uint32_t param1, uint32_t param2, void *data);
 
+#endif

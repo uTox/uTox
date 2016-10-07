@@ -1,3 +1,6 @@
+#ifndef AUDIO_H
+#define AUDIO_H
+
 #ifdef __APPLE__
     #include <OpenAL/al.h>
     #include <OpenAL/alc.h>
@@ -66,3 +69,5 @@ void sourceplaybuffer(unsigned int i, const int16_t *data, int samples, uint8_t 
 void postmessage_audio(uint8_t msg, uint32_t param1, uint32_t param2, void *data);
 
 void utox_audio_thread(void *args);
+
+#endif

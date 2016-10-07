@@ -1,3 +1,6 @@
+#ifndef AVATAR_H
+#define AVATAR_H
+
 //TODO: remove?
 #define UTOX_AVATAR_MAX_DATA_LENGTH (64 * 1024) //NOTE: increasing this above 64k might cause issues with other clients.
 #define UTOX_AVATAR_FORMAT_NONE 0
@@ -93,3 +96,5 @@ int utox_avatar_update_friends(Tox *tox);
  * If size <=0, we'll unset the avatar, else we'll set and update the friend
  */
 void utox_incoming_avatar(uint32_t friend_number, uint8_t *avatar, size_t size);
+
+#endif

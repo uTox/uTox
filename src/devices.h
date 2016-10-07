@@ -2,6 +2,9 @@
  *
  * Functions to add and remove devices from our Tox device group
  */
+#ifndef DEVICES_H
+#define DEVICES_H
+
 #ifndef ENABLE_MULTIDEVICE
 typedef uint8_t TOX_DEVICE_STATUS;
 #endif
@@ -29,3 +32,4 @@ void devices_update_ui(void);
 
 void devices_self_add(uint8_t *device, size_t length);
 
+#endif

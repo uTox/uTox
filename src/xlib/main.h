@@ -1,3 +1,6 @@
+#ifndef XLIB_MAIN_H
+#define XLIB_MAIN_H
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -167,3 +170,5 @@ void v4l_close(void);
 _Bool v4l_startread(void);
 _Bool v4l_endread(void);
 int v4l_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, uint16_t height);
+
+#endif

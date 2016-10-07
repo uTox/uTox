@@ -1,3 +1,6 @@
+#ifndef WINDOWS_MAIN_H
+#define WINDOWS_MAIN_H
+
 /** Select the true main.c for legacy XP support.
  *  else default to xlib
  **/
@@ -144,3 +147,5 @@ int video_grab_x, video_grab_y, video_grab_w, video_grab_h;
 _Bool grabbing;
 
 int native_to_utf8str(wchar_t *str_in, char *str_out, uint32_t max_size);
+
+#endif

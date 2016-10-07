@@ -1,3 +1,6 @@
+#ifndef SVG_H
+#define SVG_H
+
 /* Scroll bar rounded corners top and bottom */
 #define  BM_SCROLLHALF_WIDTH SCROLL_WIDTH
 #define  BM_SCROLLHALF_HEIGHT (SCROLL_WIDTH / 2)
@@ -74,3 +77,5 @@
 void *svg_data;
 
 _Bool svg_draw(_Bool needmemory);
+
+#endif

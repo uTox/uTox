@@ -1,3 +1,5 @@
+#ifndef SCROLLABLE_H
+#define SCROLLABLE_H
 
 struct scrollable {
     PANEL panel;
@@ -20,3 +22,5 @@ _Bool scroll_mright(SCROLLABLE *s);
 _Bool scroll_mwheel(SCROLLABLE *s, int height, double delta, _Bool smooth);
 _Bool scroll_mup(SCROLLABLE *s);
 _Bool scroll_mleave(SCROLLABLE *s);
+
+#endif

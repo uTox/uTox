@@ -1,4 +1,6 @@
 /* toxav thread messages (sent from the client thread to the audio or video thread) */
+#ifndef UTOX_AV_H
+#define UTOX_AV_H
 
 /* utox av thread commands */
 enum {
@@ -75,3 +77,5 @@ void set_av_callbacks(ToxAV *av);
 //                                     uint8_t channels, unsigned int sample_rate, void *userdata);
 // void group_av_peer_add(GROUPCHAT *g, int peernumber);
 // void group_av_peer_remove(GROUPCHAT *g, int peernumber);
+
+#endif

@@ -1,3 +1,6 @@
+#ifndef UI_EDITS_H
+#define UI_EDITS_H
+
 extern EDIT edit_name,
             edit_toxid,
             edit_friend_pubkey,
@@ -17,3 +20,5 @@ extern EDIT edit_name,
 
 /* This function sends the message to the friend/group it's also called by the send button. */
 void edit_msg_onenter(EDIT *edit);
+
+#endif

@@ -1,3 +1,6 @@
+#ifndef ROSTER_H
+#define ROSTER_H
+
 /* list: the contact list
  */
 
@@ -70,3 +73,4 @@ _Bool list_mwheel(void *n, int height, double d, _Bool smooth);
 _Bool list_mup(void *n);
 _Bool list_mleave(void *n);
 
+#endif

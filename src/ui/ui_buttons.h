@@ -1,3 +1,6 @@
+#ifndef UI_BUTTONS_H
+#define UI_BUTTONS_H
+
 BUTTON button_avatar,
        button_name,
        button_status_msg,
@@ -37,3 +40,5 @@ void button_setcolors_success(BUTTON *b);
 void button_setcolors_danger(BUTTON *b);
 void button_setcolors_warning(BUTTON *b);
 void button_setcolors_disabled(BUTTON *b);
+
+#endif

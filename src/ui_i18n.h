@@ -1,3 +1,5 @@
+#ifndef UI_I18N_H
+#define UI_I18N_H
 
 //"CZECH" "Čeština"
 #define _LANG_ID LANG_CS
@@ -210,3 +212,5 @@ LANG_WINDOWS_ID(0x041A)
 #include "../langs/en.h" //fallback to English for untranslated things
 #include "../langs/hr.h"
 #undef _LANG_ID
+
+#endif

@@ -1,6 +1,9 @@
 /**
  *  friend.h
  */
+#ifndef FRIEND_H
+#define FRIEND_H
+
 typedef struct friend_meta_data {
     uint8_t version;
 
@@ -101,3 +104,5 @@ void friend_free(FRIEND *f);
 
 /* Searches for a friend using the specified name */
 FRIEND *find_friend_by_name(uint8_t *name);
+
+#endif

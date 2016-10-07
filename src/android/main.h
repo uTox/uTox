@@ -1,3 +1,6 @@
+#ifndef ANDROID_MAIN_H
+#define ANDROID_MAIN_H
+
 #include <android/log.h>
 #include <sys/system_properties.h>
 #include <sys/ioctl.h>
@@ -36,3 +39,5 @@ typedef GLuint UTOX_NATIVE_IMAGE;
 #define UTOX_NATIVE_IMAGE_IS_VALID(x) (0 != (x))
 
 #define ANDROID_INTERNAL_SAVE "/data/data/tox.client.utox/files/"
+
+#endif

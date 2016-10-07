@@ -1,3 +1,6 @@
+#ifndef UI_DROPDOWN_H
+#define UI_DROPDOWN_H
+
 //Simple static dropdowns.
 extern DROPDOWN dropdown_dpi,
                 dropdown_language,
@@ -17,3 +20,5 @@ extern DROPDOWN dropdown_dpi,
 extern DROPDOWN dropdown_audio_in,
                 dropdown_audio_out,
                 dropdown_video;
+
+#endif

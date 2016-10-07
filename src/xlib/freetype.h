@@ -1,3 +1,6 @@
+#ifndef XLIB_FREETYPE_H
+#define XLIB_FREETYPE_H
+
 #include <ft2build.h>
 #include FT_LCD_FILTER_H
 #include <fontconfig/fontconfig.h>
@@ -38,3 +41,5 @@ GLYPH* font_getglyph(FONT *f, uint32_t ch);
 void initfonts(void);
 void loadfonts(void);
 void freefonts(void);
+
+#endif

@@ -1,3 +1,6 @@
+#ifndef SWITCH_H
+#define SWITCH_H
+
 struct uiswitch {
     PANEL panel;
 
@@ -36,3 +39,5 @@ bool switch_mright(UISWITCH *s);
 bool switch_mwheel(UISWITCH *s, int height, double d, bool smooth);
 bool switch_mup(UISWITCH *s);
 bool switch_mleave(UISWITCH *s);
+
+#endif

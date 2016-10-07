@@ -1,3 +1,6 @@
+#ifndef BUTTON_H
+#define BUTTON_H
+
 struct button {
     PANEL panel;
 
@@ -33,3 +36,5 @@ _Bool button_mright(BUTTON *b);
 _Bool button_mwheel(BUTTON *b, int height, double d, _Bool smooth);
 _Bool button_mup(BUTTON *b);
 _Bool button_mleave(BUTTON *b);
+
+#endif
