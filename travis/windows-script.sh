@@ -1,5 +1,6 @@
 #!/bin/sh
+set -eux
 
-set -e -x
+. ./travis/env.sh
 
-make dist
+make FILTER_AUDIO=0 DBUS=0
