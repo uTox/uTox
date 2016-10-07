@@ -1,5 +1,10 @@
+#if defined (MAIN_H) && !defined (WINDOWS_MAIN_H)
+#error "We should never include main from different platforms."
+#endif
+
 #ifndef WINDOWS_MAIN_H
 #define WINDOWS_MAIN_H
+#define MAIN_H
 
 /** Select the true main.c for legacy XP support.
  *  else default to xlib

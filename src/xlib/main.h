@@ -1,5 +1,10 @@
+#if defined (MAIN_H) && !defined (XLIB_MAIN_H)
+#error "We should never include main from different platforms."
+#endif
+
 #ifndef XLIB_MAIN_H
 #define XLIB_MAIN_H
+#define MAIN_H
 
 #include <stdlib.h>
 #include <stdio.h>

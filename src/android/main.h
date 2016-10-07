@@ -1,5 +1,10 @@
+#if defined (MAIN_H) && !defined (ANDROID_MAIN_H)
+#error "We should never include main from different platforms."
+#endif
+
 #ifndef ANDROID_MAIN_H
 #define ANDROID_MAIN_H
+#define MAIN_H
 
 #include <android/log.h>
 #include <sys/system_properties.h>
