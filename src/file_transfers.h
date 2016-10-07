@@ -1,3 +1,6 @@
+#ifndef FILE_TRANSFERS_H
+#define FILE_TRANSFERS_H
+
 #define MAX_FILE_TRANSFERS 32
 
 enum UTOX_FILE_TRANSFER_STATUS{
@@ -43,3 +46,5 @@ void ft_friend_offline(Tox *tox, uint32_t friend_number);
 
 void utox_file_save_ftinfo(FILE_TRANSFER *file);
 _Bool utox_file_load_ftinfo(FILE_TRANSFER *file);
+
+#endif

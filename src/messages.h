@@ -1,3 +1,6 @@
+#ifndef MESSAGES_H
+#define MESSAGES_H
+
 //Type for indexing into MSG_DATA->data array of messages
 struct messages {
     PANEL panel;
@@ -199,3 +202,5 @@ void  messages_updateheight(MESSAGES *m, int width);
 void messages_init(MESSAGES *m, uint32_t friend_number);
 void message_free(MSG_TEXT *msg);
 void messages_clear_all(MESSAGES *m);
+
+#endif

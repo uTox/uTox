@@ -1,3 +1,6 @@
+#ifndef INLINE_VIDEO_H
+#define INLINE_VIDEO_H
+
 typedef struct inline_vid {
     PANEL panel;
 
@@ -16,3 +19,5 @@ _Bool inline_video_mwheel(INLINE_VID *UNUSED(p), int UNUSED(height), double UNUS
 _Bool inline_video_mup(INLINE_VID *UNUSED(p));
 
 _Bool inline_video_mleave(INLINE_VID *UNUSED(p));
+
+#endif

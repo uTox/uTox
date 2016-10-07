@@ -1,3 +1,6 @@
+#ifndef TOOLTIP_H
+#define TOOLTIP_H
+
 typedef struct tooltip {
     int x, y, width, height;
     _Bool visible;
@@ -20,3 +23,4 @@ _Bool tooltip_mup(void);
 void tooltip_show(void);
 void tooltip_new(MAYBE_I18NAL_STRING* text);
 
+#endif

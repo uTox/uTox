@@ -1,3 +1,6 @@
+#ifndef THEME_H
+#define THEME_H
+
 enum {
     THEME_DEFAULT,
     THEME_LIGHT,
@@ -102,3 +105,5 @@ uint32_t theme;
 
 extern const char *COLOUR_NAME_TABLE[];
 extern uint32_t *  COLOUR_POINTER_TABLE[];
+
+#endif

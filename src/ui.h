@@ -1,3 +1,6 @@
+#ifndef UI_H
+#define UI_H
+
 /* draws an image in the style of an avatar at within rect (x,y,targetwidth,targetheight)
  * this means: resize the image while keeping proportion so that the dimension(width or height) that has the smallest rational difference to the targetdimension becomes exactly targetdimension, then
  * crop the image so it fits in the (x,y,targetwidth,targetheight) rect, and
@@ -229,3 +232,5 @@ double ui_scale;
 /* colors */
 #define C_RED                   RGB(200, 78, 78)
 #define C_SCROLL                GRAY(209)
+
+#endif

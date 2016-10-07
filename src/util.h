@@ -1,3 +1,6 @@
+#ifndef UTIL_H
+#define UTIL_H
+
 /*todo: sprint_bytes */
 
 /* read a whole file from a path,
@@ -102,3 +105,5 @@ void config_save(UTOX_SAVE *save);
  Saves user meta data to disk
  */
 void utox_write_metadata(FRIEND *f);
+
+#endif

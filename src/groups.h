@@ -1,3 +1,6 @@
+#ifndef GROUPS_H
+#define GROUPS_H
+
 #define MAX_GROUP_PEERS 256
 
 /*  UTOX_SAVE limits 8 as the max */
@@ -61,3 +64,5 @@ void group_reset_peerlist(GROUPCHAT *g);
 void group_free(GROUPCHAT *g);
 
 void group_notify_msg(GROUPCHAT *g, const uint8_t *message, size_t length);
+
+#endif

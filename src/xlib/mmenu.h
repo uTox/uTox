@@ -1,3 +1,6 @@
+#ifndef MMENU_H
+#define MMENU_H
+
 #include "../main.h"
 
 #ifdef UNITY
@@ -14,3 +17,5 @@ void mm_rm_entry(uint8_t *f_id);
  * Is called by ui_buttons.h
  */
  void mm_set_status(int status);
+
+#endif

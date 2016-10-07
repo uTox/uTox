@@ -1,3 +1,6 @@
+#ifndef EDIT_H
+#define EDIT_H
+
 /*todo: replace windows functions, multiline edits, add missing edit functions (ex: double click to select word)*/
 
 struct edit_change
@@ -74,3 +77,5 @@ _Bool edit_getmark(uint16_t *outloc, uint16_t *outlen);
 void edit_setmark(uint16_t loc, uint16_t len);
 
 void edit_setselectedrange(uint16_t loc, uint16_t len);
+
+#endif

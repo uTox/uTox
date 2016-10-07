@@ -1,3 +1,6 @@
+#ifndef DROPDOWN_H
+#define DROPDOWN_H
+
 // userdata of list-based dropdown consists of these records
 typedef struct {
     MAYBE_I18NAL_STRING name;
@@ -33,3 +36,5 @@ STRING* list_dropdown_ondisplay(uint16_t, const DROPDOWN*);
 void list_dropdown_add_hardcoded(DROPDOWN*, uint8_t* name, void *handle);
 void list_dropdown_add_localized(DROPDOWN*, UI_STRING_ID string_id, void *handle);
 void list_dropdown_clear(DROPDOWN*);
+
+#endif

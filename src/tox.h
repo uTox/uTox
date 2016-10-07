@@ -3,6 +3,8 @@
 >= GiB file sizes with FILE_*_PROGRESS on 32bit */
 
 /* details about messages and their (param1, param2, data) values are in the message handlers in tox.c*/
+#ifndef UTOX_TOX_H
+#define UTOX_TOX_H
 
 typedef struct {
     uint8_t msg;
@@ -174,3 +176,5 @@ void postmessage_toxcore(uint8_t msg, uint32_t param1, uint32_t param2, void *da
 void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data);
 
 void tox_settingschanged(void);
+
+#endif

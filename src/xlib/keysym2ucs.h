@@ -33,6 +33,8 @@
  *
  * AUTOMATICALLY GENERATED FILE, DO NOT EDIT !!! (unicode/convmap.pl)
  */
+#ifndef KEYSYM2UCS_H
+#define KEYSYM2UCS_H
 
 struct codepair {
   unsigned short keysym;
@@ -843,3 +845,5 @@ static uint32_t keysym2ucs(KeySym keysym) {
     /* no matching Unicode value found */
     return ~0;
 }
+
+#endif
