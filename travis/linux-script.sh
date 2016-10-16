@@ -1,4 +1,8 @@
 #!/bin/sh
-set -e -x
+set -e -u -x
 
-PKG_CONFIG_PATH="./TRAVIS_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH" CFLAGS="-I/usr/include/freetype2 -I./TRAVIS_PREFIX/include/" make DBUS=0
+. ./travis/env.sh
+
+echo "@grayhatter, you need to add FILTER_AUDIO support back in!!"
+
+make FILTER_AUDIO=0 DBUS=0

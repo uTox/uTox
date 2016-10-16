@@ -1,4 +1,4 @@
 #!/bin/sh
 
-set -e -x
+set -eux
 
