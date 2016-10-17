@@ -313,8 +313,8 @@ static void draw_settings_sub_header(int x, int y, int w, int UNUSED(height)) {
     setfont(FONT_SELF_NAME);
 
 #define DRAW_UNDERLINE() drawhline(x, y + SCALE(30), x_right_edge, COLOR_EDGE_NORMAL)
-#define DRAW_OVERLINE()                                                                                                \
-    drawhline(x, y + 0, x_right_edge, COLOR_EDGE_ACTIVE);                                                              \
+#define DRAW_OVERLINE()                                   \
+    drawhline(x, y + 0, x_right_edge, COLOR_EDGE_ACTIVE); \
     drawhline(x, y + 1, x_right_edge, COLOR_EDGE_ACTIVE)
 
     /* Draw the text and bars for general settings */
@@ -500,29 +500,20 @@ static void draw_background(int UNUSED(x), int UNUSED(y), int width, int height)
 }
 
 /* These remain for legacy reasons, PANEL_MAIN calls these by default when not given it's own function to call */
-static void background_draw(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int width, int height) {
-    return;
-}
+static void background_draw(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int width, int height) { return; }
 static _Bool background_mmove(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height),
                               int UNUSED(mx), int UNUSED(my), int UNUSED(dx), int UNUSED(dy)) {
     return 0;
 }
-static _Bool background_mdown(PANEL *UNUSED(p)) {
-    return 0;
-}
-static _Bool background_mright(PANEL *UNUSED(p)) {
-    return 0;
-}
+static _Bool background_mdown(PANEL *UNUSED(p)) { return 0; }
+static _Bool background_mright(PANEL *UNUSED(p)) { return 0; }
 static _Bool background_mwheel(PANEL *UNUSED(p), int UNUSED(height), double UNUSED(d), _Bool UNUSED(smooth)) {
     return 0;
 }
-static _Bool background_mup(PANEL *UNUSED(p)) {
-    return 0;
-}
-static _Bool background_mleave(PANEL *UNUSED(p)) {
-    return 0;
-}
+static _Bool background_mup(PANEL *UNUSED(p)) { return 0; }
+static _Bool background_mleave(PANEL *UNUSED(p)) { return 0; }
 
+// clang-format off
 // Scrollbar or friend list
 SCROLLABLE scrollbar_roster =
                {
@@ -911,17 +902,18 @@ panel_main = {
                     NULL
                 }
             };
+// clang-format on
 
-#define CREATE_BUTTON(n, a, b, w, h)                                                                                   \
-    PANEL b_##n = {                                                                                                    \
-        .type = PANEL_BUTTON, .x = a, .y = b, .width = w, .height = h,                                                 \
-    };                                                                                                                 \
+#define CREATE_BUTTON(n, a, b, w, h)                                   \
+    PANEL b_##n = {                                                    \
+        .type = PANEL_BUTTON, .x = a, .y = b, .width = w, .height = h, \
+    };                                                                 \
     button_##n.panel = b_##n
 
-#define CREATE_EDIT(n, a, b, w, h)                                                                                     \
-    PANEL e_##n = {                                                                                                    \
-        .type = PANEL_EDIT, .x = a, .y = b, .width = w, .height = h,                                                   \
-    };                                                                                                                 \
+#define CREATE_EDIT(n, a, b, w, h)                                   \
+    PANEL e_##n = {                                                  \
+        .type = PANEL_EDIT, .x = a, .y = b, .width = w, .height = h, \
+    };                                                               \
     edit_##n.panel = e_##n
 
 void ui_set_scale(uint8_t scale) {
@@ -1060,7 +1052,7 @@ void ui_set_scale(uint8_t scale) {
                                                .x      = SCALE(-10) - BM_SWITCH_WIDTH,
                                                .y      = SCALE(55),
                                                .width  = BM_SWITCH_WIDTH,
-                                               .height = BM_SWITCH_HEIGHT};
+                                               .height = BM_SWITCH_HEIGHT };
 
 #ifdef AUDIO_FILTERING
     PANEL panel_switch_audio_filtering = {
@@ -1122,9 +1114,9 @@ void ui_set_scale(uint8_t scale) {
     CREATE_BUTTON(show_password_settings, SCALE(130), SCALE(206), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
     CREATE_BUTTON(lock_uTox, SCALE(10), SCALE(260), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
 
-    PANEL e_name = {.type = PANEL_EDIT, .x = SCALE(10), .y = SCALE(27), .height = SCALE(24), .width = -SCALE(10)},
-          e_status = {.type = PANEL_EDIT, .x = SCALE(10), .y = SCALE(76), .height = SCALE(24), .width = -SCALE(10)},
-          e_toxid = {.type = PANEL_EDIT, .x = SCALE(10), .y = SCALE(126), .height = SCALE(24), .width = -SCALE(10)};
+    PANEL e_name = {.type = PANEL_EDIT, .x = SCALE(10), .y = SCALE(27), .height = SCALE(24), .width = -SCALE(10) },
+          e_status = {.type = PANEL_EDIT, .x = SCALE(10), .y = SCALE(76), .height = SCALE(24), .width = -SCALE(10) },
+          e_toxid = {.type = PANEL_EDIT, .x = SCALE(10), .y = SCALE(126), .height = SCALE(24), .width = -SCALE(10) };
 
     edit_name.panel   = e_name;
     edit_status.panel = e_status;
@@ -1154,28 +1146,33 @@ void ui_set_scale(uint8_t scale) {
     CREATE_BUTTON(export_chatlog, SCALE(10), SCALE(220), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
 
     PANEL e_friend_pubkey = {
-        .type = PANEL_EDIT, .x = SCALE(10), .y = SCALE(88), .height = SCALE(24), .width = -SCALE(10)};
+        .type = PANEL_EDIT, .x = SCALE(10), .y = SCALE(88), .height = SCALE(24), .width = -SCALE(10)
+    };
 
     edit_friend_pubkey.panel = e_friend_pubkey;
 
     PANEL e_friend_alias = {
-        .type = PANEL_EDIT, .x = SCALE(10), .y = SCALE(138), .height = SCALE(24), .width = SCALE(-10)};
+        .type = PANEL_EDIT, .x = SCALE(10), .y = SCALE(138), .height = SCALE(24), .width = SCALE(-10)
+    };
 
     edit_friend_alias.panel = e_friend_alias;
 
     PANEL d_friend_autoaccept = {
-        .type = PANEL_DROPDOWN, .x = SCALE(10), .y = SCALE(188), .height = SCALE(24), .width = SCALE(40)};
+        .type = PANEL_DROPDOWN, .x = SCALE(10), .y = SCALE(188), .height = SCALE(24), .width = SCALE(40)
+    };
 
     dropdown_friend_autoaccept_ft.panel = d_friend_autoaccept;
 
     /* Group Settings */
     PANEL e_group_topic = {
-        .type = PANEL_EDIT, .x = SCALE(10), .y = SCALE(95), .height = SCALE(24), .width = SCALE(-10)};
+        .type = PANEL_EDIT, .x = SCALE(10), .y = SCALE(95), .height = SCALE(24), .width = SCALE(-10)
+    };
 
     edit_group_topic.panel = e_group_topic;
 
     PANEL d_group_notifications = {
-        .type = PANEL_DROPDOWN, .x = SCALE(10), .y = SCALE(155), .height = SCALE(24), .width = SCALE(85)};
+        .type = PANEL_DROPDOWN, .x = SCALE(10), .y = SCALE(155), .height = SCALE(24), .width = SCALE(85)
+    };
 
     dropdown_notify_groupchats.panel = d_group_notifications;
 
@@ -1193,37 +1190,26 @@ void ui_set_scale(uint8_t scale) {
 
     /* Drop down structs    */
     setfont(FONT_TEXT);
-    PANEL d_theme = {.type = PANEL_DROPDOWN, .x = SCALE(10), .y = SCALE(30), .height = SCALE(24), .width = SCALE(120)},
-          d_dpi = {.type = PANEL_DROPDOWN, .x = SCALE(150), .y = SCALE(30), .height = SCALE(24), .width = SCALE(200)};
+    PANEL d_theme = {.type = PANEL_DROPDOWN, .x = SCALE(10), .y = SCALE(30), .height = SCALE(24), .width = SCALE(120) },
+          d_dpi = {.type = PANEL_DROPDOWN, .x = SCALE(150), .y = SCALE(30), .height = SCALE(24), .width = SCALE(200) };
 
     /* Unsorted */
-    PANEL d_audio_in = {.type   = PANEL_DROPDOWN,
-                        .x      = SCALE(10),
-                        .y      = SCALE(120),
-                        .height = SCALE(24),
-                        .width  = SCALE(360)},
+    PANEL
+    d_audio_in = {.type = PANEL_DROPDOWN, .x = SCALE(10), .y = SCALE(120), .height = SCALE(24), .width = SCALE(360) },
 
-          d_audio_out = {.type   = PANEL_DROPDOWN,
-                         .x      = SCALE(10),
-                         .y      = SCALE(180),
-                         .height = SCALE(24),
-                         .width  = SCALE(360)},
+    d_audio_out = {.type = PANEL_DROPDOWN, .x = SCALE(10), .y = SCALE(180), .height = SCALE(24), .width = SCALE(360) },
 
-          d_video = {.type = PANEL_DROPDOWN, .x = SCALE(10), .y = SCALE(240), .height = SCALE(24), .width = SCALE(360)},
+    d_video = {.type = PANEL_DROPDOWN, .x = SCALE(10), .y = SCALE(240), .height = SCALE(24), .width = SCALE(360) },
 
-          d_language = {.type   = PANEL_DROPDOWN,
-                        .x      = SCALE(10),
-                        .y      = SCALE(177),
-                        .height = SCALE(24),
-                        .width  = -SCALE(10)},
+    d_language = {.type = PANEL_DROPDOWN, .x = SCALE(10), .y = SCALE(177), .height = SCALE(24), .width = -SCALE(10) },
 
-          d_proxy = {.type = PANEL_DROPDOWN, .x = SCALE(10), .y = SCALE(110), .height = SCALE(24), .width = SCALE(120)},
+    d_proxy = {.type = PANEL_DROPDOWN, .x = SCALE(10), .y = SCALE(110), .height = SCALE(24), .width = SCALE(120) },
 
-          d_global_group_notifications = {.type   = PANEL_DROPDOWN,
-                                          .x      = UTOX_SCALE(120),
-                                          .y      = UTOX_SCALE(15),
-                                          .height = UTOX_SCALE(12),
-                                          .width  = UTOX_SCALE(50)};
+    d_global_group_notifications = {.type   = PANEL_DROPDOWN,
+                                    .x      = UTOX_SCALE(120),
+                                    .y      = UTOX_SCALE(15),
+                                    .height = UTOX_SCALE(12),
+                                    .width  = UTOX_SCALE(50) };
 
     /* Drop down panels */
     dropdown_audio_in.panel  = d_audio_in;
@@ -1239,63 +1225,63 @@ void ui_set_scale(uint8_t scale) {
     /* Text entry boxes */
     PANEL e_add_id =
               {
-                  .type   = PANEL_EDIT,
-                  .x      = UTOX_SCALE(5),
-                  .y      = UTOX_SCALE(14) + MAIN_TOP,
-                  .height = UTOX_SCALE(12),
-                  .width  = -SCALE(10),
+                .type   = PANEL_EDIT,
+                .x      = UTOX_SCALE(5),
+                .y      = UTOX_SCALE(14) + MAIN_TOP,
+                .height = UTOX_SCALE(12),
+                .width  = -SCALE(10),
               },
 
           e_add_msg =
               {
-                  .type   = PANEL_EDIT,
-                  .x      = UTOX_SCALE(5),
-                  .y      = UTOX_SCALE(38) + MAIN_TOP,
-                  .height = UTOX_SCALE(42),
-                  .width  = -SCALE(10),
+                .type   = PANEL_EDIT,
+                .x      = UTOX_SCALE(5),
+                .y      = UTOX_SCALE(38) + MAIN_TOP,
+                .height = UTOX_SCALE(42),
+                .width  = -SCALE(10),
               },
 
           e_profile_password =
               {
-                  .type   = PANEL_EDIT,
-                  .x      = UTOX_SCALE(5), /* move the edit depending on what page! */
-                  .y      = UTOX_SCALE(44) + (UTOX_SCALE(70) * panel_profile_password.disabled),
-                  .height = UTOX_SCALE(12),
-                  .width  = -UTOX_SCALE(5),
+                .type   = PANEL_EDIT,
+                .x      = UTOX_SCALE(5), /* move the edit depending on what page! */
+                .y      = UTOX_SCALE(44) + (UTOX_SCALE(70) * panel_profile_password.disabled),
+                .height = UTOX_SCALE(12),
+                .width  = -UTOX_SCALE(5),
               },
 
           /* Message entry box for friends and groups */
         e_msg =
             {
-                .type   = PANEL_EDIT,
-                .x      = UTOX_SCALE(5) + BM_CHAT_BUTTON_WIDTH * 2, /* Make space for the left button  */
-                .y      = -UTOX_SCALE(23),
-                .width  = -UTOX_SCALE(32),
-                .height = UTOX_SCALE(20),
-                /* text is 8 high. 8 * 2.5 = 20. */
+              .type   = PANEL_EDIT,
+              .x      = UTOX_SCALE(5) + BM_CHAT_BUTTON_WIDTH * 2, /* Make space for the left button  */
+              .y      = -UTOX_SCALE(23),
+              .width  = -UTOX_SCALE(32),
+              .height = UTOX_SCALE(20),
+              /* text is 8 high. 8 * 2.5 = 20. */
             },
 
           e_msg_group =
               {
-                  .type   = PANEL_EDIT,
-                  .x      = SCALE(6),
-                  .y      = SCALE(-46),
-                  .width  = SCALE(-10) - BM_CHAT_SEND_WIDTH,
-                  .height = SCALE(40),
+                .type   = PANEL_EDIT,
+                .x      = SCALE(6),
+                .y      = SCALE(-46),
+                .width  = SCALE(-10) - BM_CHAT_SEND_WIDTH,
+                .height = SCALE(40),
               },
 
           e_search =
               {
-                  .type   = PANEL_EDIT,
-                  .y      = SIDEBAR_SEARCH_TOP,
-                  .x      = SIDEBAR_SEARCH_LEFT,
-                  .width  = SIDEBAR_SEARCH_WIDTH,
-                  .height = SIDEBAR_SEARCH_HEIGHT,
+                .type   = PANEL_EDIT,
+                .y      = SIDEBAR_SEARCH_TOP,
+                .x      = SIDEBAR_SEARCH_LEFT,
+                .width  = SIDEBAR_SEARCH_WIDTH,
+                .height = SIDEBAR_SEARCH_HEIGHT,
               },
 
           e_proxy_ip =
               {
-                  .type = PANEL_EDIT, .x = SCALE(140), .y = SCALE(110), .width = SCALE(120), .height = SCALE(24),
+                .type = PANEL_EDIT, .x = SCALE(140), .y = SCALE(110), .width = SCALE(120), .height = SCALE(24),
               },
 
           e_proxy_port = {
@@ -1322,13 +1308,13 @@ void ui_set_scale(uint8_t scale) {
  * These are functions that are (must be) defined elsewehere. The preprocessor in this case creates the prototypes that
  * will then be used by panel_draw_sub to call the correct function
 */
-#define FUNC(x, ret, ...)                                                                                              \
-    static ret (*x##func[])(void *p, ##__VA_ARGS__) =                                                                  \
-        {                                                                                                              \
-            (void *)background_##x, (void *)messages_##x, (void *)inline_video_##x,                                    \
-            (void *)list_##x,       (void *)button_##x,   (void *)switch_##x,                                          \
-            (void *)dropdown_##x,   (void *)edit_##x,     (void *)scroll_##x,                                          \
-    };
+#define FUNC(x, ret, ...)                                                         \
+    static ret (*x##func[])(void *p, ##__VA_ARGS__) =                             \
+        {                                                                         \
+          (void *)background_##x, (void *)messages_##x, (void *)inline_video_##x, \
+          (void *)list_##x,       (void *)button_##x,   (void *)switch_##x,       \
+          (void *)dropdown_##x,   (void *)edit_##x,     (void *)scroll_##x,       \
+        };
 
 FUNC(draw, void, int x, int y, int width, int height);
 FUNC(mmove, _Bool, int x, int y, int width, int height, int mx, int my, int dx, int dy);
@@ -1346,14 +1332,14 @@ FUNC(mleave, _Bool);
  * change the relative
  *
  * if w/h <0 use parent panel width (maybe?)    */
-#define FIX_XY_CORDS_FOR_SUBPANELS()                                                                                   \
-    {                                                                                                                  \
-        int relx = (p->x < 0) ? width + p->x : p->x;                                                                   \
-        int rely = (p->y < 0) ? height + p->y : p->y;                                                                  \
-        x += relx;                                                                                                     \
-        y += rely;                                                                                                     \
-        width  = (p->width <= 0) ? width + p->width - relx : p->width;                                                 \
-        height = (p->height <= 0) ? height + p->height - rely : p->height;                                             \
+#define FIX_XY_CORDS_FOR_SUBPANELS()                                       \
+    {                                                                      \
+        int relx = (p->x < 0) ? width + p->x : p->x;                       \
+        int rely = (p->y < 0) ? height + p->y : p->y;                      \
+        x += relx;                                                         \
+        y += rely;                                                         \
+        width  = (p->width <= 0) ? width + p->width - relx : p->width;     \
+        height = (p->height <= 0) ? height + p->height - rely : p->height; \
     }
 
 static void panel_update(PANEL *p, int x, int y, int width, int height) {
