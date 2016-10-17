@@ -1,23 +1,27 @@
 #ifndef INLINE_VIDEO_H
 #define INLINE_VIDEO_H
 
-typedef struct inline_vid {
-    PANEL panel;
+#include <inttypes.h>
+#include <stdbool.h>
 
-} INLINE_VID;
+#include "ui.h"
 
-void inline_video_draw(INLINE_VID *UNUSED(p), int UNUSED(x), int UNUSED(y), int width, int height);
+typedef struct inline_vid { PANEL panel; } INLINE_VID;
 
-_Bool inline_video_mmove(INLINE_VID *UNUSED(p), int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height), int UNUSED(mx), int UNUSED(my), int UNUSED(dx), int UNUSED(dy));
+bool inline_set_frame(uint16_t w, uint16_t h, size_t size, void *img);
 
-_Bool inline_video_mdown(INLINE_VID *UNUSED(p));
+void inline_video_draw(INLINE_VID *p, int x, int y, int width, int height);
 
-_Bool inline_video_mright(INLINE_VID *UNUSED(p));
+bool inline_video_mmove(INLINE_VID *p, int x, int y, int width, int height, int mx, int my, int dx, int dy);
 
-_Bool inline_video_mwheel(INLINE_VID *UNUSED(p), int UNUSED(height), double UNUSED(d), _Bool UNUSED(smooth));
+bool inline_video_mdown(INLINE_VID *p);
 
-_Bool inline_video_mup(INLINE_VID *UNUSED(p));
+bool inline_video_mright(INLINE_VID *p);
 
-_Bool inline_video_mleave(INLINE_VID *UNUSED(p));
+bool inline_video_mwheel(INLINE_VID *p, int height, double d, bool smooth);
+
+bool inline_video_mup(INLINE_VID *p);
+
+bool inline_video_mleave(INLINE_VID *p);
 
 #endif

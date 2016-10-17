@@ -1,4 +1,4 @@
-#include "main.h"
+#include "devices.h"
 
 #ifdef ENABLE_MULTIDEVICE
 
@@ -22,7 +22,7 @@ static bool realloc_devices_list(uint16_t new_size) {
         return 0;
     }
 
-    devices = tmp;
+    devices               = tmp;
     self.device_list_size = new_size;
     return 1;
 }
@@ -33,7 +33,7 @@ void utox_devices_init(void) {
         exit(1);
     }
 
-    devices = calloc(self.device_list_count, sizeof(UTOX_DEVICE));
+    devices               = calloc(self.device_list_count, sizeof(UTOX_DEVICE));
     self.device_list_size = self.device_list_count;
 
     if (devices == NULL) {
@@ -51,7 +51,7 @@ void utox_devices_decon(void) {
 
 void utox_device_init(Tox *tox, uint16_t dev_num) {
     if (dev_num >= self.device_list_size) {
-        if (!realloc_devices_list(dev_num + 1)){
+        if (!realloc_devices_list(dev_num + 1)) {
             debug_error("Devices:\tERROR, unable to realloc for a new device\n");
             return;
         }
@@ -88,35 +88,31 @@ static void devices_self_add_submit(uint8_t *name, size_t length, uint8_t id[TOX
     postmessage_toxcore(TOX_SELF_NEW_DEVICE, length, 0, data);
 }
 
-static void delete_this_device(void) {
-    debug_error("Delete button pressed\n");
-}
+static void delete_this_device(void) { debug_error("Delete button pressed\n"); }
 
-void devices_update_list(void) {
-
-}
+void devices_update_list(void) {}
 
 void devices_update_ui(void) {
     if (!devices) {
-        panel_settings_devices.child    = calloc(3, sizeof(void*));
-        panel_settings_devices.child[0] = (void*)&button_add_new_device_to_self;
-        panel_settings_devices.child[1] = (void*)&edit_add_new_device_to_self;
+        panel_settings_devices.child    = calloc(3, sizeof(void *));
+        panel_settings_devices.child[0] = (void *)&button_add_new_device_to_self;
+        panel_settings_devices.child[1] = (void *)&edit_add_new_device_to_self;
         panel_settings_devices.child[2] = NULL;
         return;
     }
 
     if (!panel_settings_devices.child) {
-        panel_settings_devices.child    = calloc(3 + self.device_list_count * 2, sizeof(void*));
-        panel_settings_devices.child[0] = (void*)&button_add_new_device_to_self;
-        panel_settings_devices.child[1] = (void*)&edit_add_new_device_to_self;
+        panel_settings_devices.child    = calloc(3 + self.device_list_count * 2, sizeof(void *));
+        panel_settings_devices.child[0] = (void *)&button_add_new_device_to_self;
+        panel_settings_devices.child[1] = (void *)&edit_add_new_device_to_self;
     } else {
-        panel_settings_devices.child    = realloc(panel_settings_devices.child,
-                                                  (3 + self.device_list_count * 2) * sizeof(void*));
+        panel_settings_devices.child =
+            realloc(panel_settings_devices.child, (3 + self.device_list_count * 2) * sizeof(void *));
     }
 
     uint16_t i;
     for (i = 0; i < self.device_list_count; ++i) {
-        EDIT   *edit = calloc(1, sizeof(EDIT));
+        EDIT *  edit = calloc(1, sizeof(EDIT));
         BUTTON *dele = calloc(1, sizeof(BUTTON));
 
         if (!edit) {
@@ -124,44 +120,40 @@ void devices_update_ui(void) {
             exit(7);
         }
 
-        PANEL p_edit = {
-            .type   = PANEL_EDIT,
-            .x      = SCALE( 10),
-            .y      = SCALE( 95) + (i * SCALE(27)),
-            .width  = SCALE(-25) - BM_SBUTTON_WIDTH,
-            .height = SCALE( 24),
-        },
+        PANEL p_edit =
+                  {
+                    .type   = PANEL_EDIT,
+                    .x      = SCALE(10),
+                    .y      = SCALE(95) + (i * SCALE(27)),
+                    .width  = SCALE(-25) - BM_SBUTTON_WIDTH,
+                    .height = SCALE(24),
+                  },
 
-        b_delete = {
-            .type   = PANEL_BUTTON,
-            .x      = SCALE(-10) - BM_SBUTTON_WIDTH,
-            .y      = SCALE( 95) + (i * SCALE(29)),
-            .width  = BM_SBUTTON_WIDTH,
-            .height = BM_SBUTTON_HEIGHT,
-        };
+              b_delete = {
+                  .type   = PANEL_BUTTON,
+                  .x      = SCALE(-10) - BM_SBUTTON_WIDTH,
+                  .y      = SCALE(95) + (i * SCALE(29)),
+                  .width  = BM_SBUTTON_WIDTH,
+                  .height = BM_SBUTTON_HEIGHT,
+              };
 
-        edit->panel             = p_edit;
-        edit->length            = TOX_PUBLIC_KEY_SIZE * 2,
-        edit->maxlength         = TOX_PUBLIC_KEY_SIZE * 2,
-        edit->data              = devices[i].pubkey_hex,
-        edit->readonly          = 1,
-        edit->noborder          = 0,
-        edit->select_completely = 1,
+        edit->panel  = p_edit;
+        edit->length = TOX_PUBLIC_KEY_SIZE * 2, edit->maxlength = TOX_PUBLIC_KEY_SIZE * 2,
+        edit->data = devices[i].pubkey_hex, edit->readonly = 1, edit->noborder = 0, edit->select_completely = 1,
 
-        dele->panel                 = b_delete;
-        dele->bm                    = BM_SBUTTON;
-        dele->update                = button_setcolors_success,
-        dele->onpress               = delete_this_device,
-        dele->button_text.i18nal    = STR_DELETE;
+        dele->panel  = b_delete;
+        dele->bm     = BM_SBUTTON;
+        dele->update = button_setcolors_success, dele->onpress = delete_this_device,
+        dele->button_text.i18nal = STR_DELETE;
 
-        panel_settings_devices.child[(i * 2) + 2] = (void*)edit;
-        panel_settings_devices.child[(i * 2) + 3] = (void*)dele;
+        panel_settings_devices.child[(i * 2) + 2] = (void *)edit;
+        panel_settings_devices.child[(i * 2) + 3] = (void *)dele;
     }
-        panel_settings_devices.child[(i * 2) + 2] = NULL;
+    panel_settings_devices.child[(i * 2) + 2] = NULL;
 }
 
 void devices_self_add(uint8_t *device, size_t length) {
-    uint8_t name_cleaned[length];
+    uint8_t  name_cleaned[length];
     uint16_t length_cleaned = 0;
 
     unsigned int i;
@@ -172,16 +164,16 @@ void devices_self_add(uint8_t *device, size_t length) {
         }
     }
 
-    if(!length_cleaned) {
+    if (!length_cleaned) {
         addfriend_status = ADDF_NONAME;
         return;
     }
 
     uint8_t id[TOX_FRIEND_ADDRESS_SIZE];
 
-    if(length_cleaned == TOX_FRIEND_ADDRESS_SIZE * 2 && string_to_id(id, name_cleaned)) {
+    if (length_cleaned == TOX_FRIEND_ADDRESS_SIZE * 2 && string_to_id(id, name_cleaned)) {
         /* TODO, names! */
-        devices_self_add_submit((uint8_t*)"Default device name", 19, id);
+        devices_self_add_submit((uint8_t *)"Default device name", 19, id);
     } else {
         debug_error("error trying to add this device\n");
     }

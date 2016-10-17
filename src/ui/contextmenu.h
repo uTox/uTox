@@ -1,22 +1,29 @@
 #ifndef CONTEXTMENU_H
 #define CONTEXTMENU_H
 
+#include <inttypes.h>
+#include <stdbool.h>
+
+#include "../../langs/i18n_decls.h"
+#include "../sized_string.h"
+
 typedef struct contextmenu {
-    int x, y, width, height;
-    _Bool open;
+    int     x, y, width, height;
+    bool    open;
     uint8_t count, over, down;
     void (*onselect)(uint8_t);
-    STRING* (*ondisplay)(uint8_t, const struct contextmenu*);
+    STRING *(*ondisplay)(uint8_t, const struct contextmenu *);
     void *userdata;
 } CONTEXTMENU;
 
 void contextmenu_draw(void);
-_Bool contextmenu_mmove(int mx, int my, int dx, int dy);
-_Bool contextmenu_mdown(void);
-_Bool contextmenu_mup(void);
-_Bool contextmenu_mleave(void);
+bool contextmenu_mmove(int mx, int my, int dx, int dy);
+bool contextmenu_mdown(void);
+bool contextmenu_mup(void);
+bool contextmenu_mleave(void);
 
-void contextmenu_new(uint8_t count, UI_STRING_ID* menu_string_ids, void (*onselect)(uint8_t));
-void contextmenu_new_ex(uint8_t count, void *userdata, void (*onselect)(uint8_t), STRING* (*ondisplay)(uint8_t, const CONTEXTMENU*));
+void contextmenu_new(uint8_t count, UTOX_I18N_STR *menu_string_ids, void (*onselect)(uint8_t));
+void contextmenu_new_ex(uint8_t count, void *userdata, void (*onselect)(uint8_t),
+                        STRING *(*ondisplay)(uint8_t, const CONTEXTMENU *));
 
 #endif

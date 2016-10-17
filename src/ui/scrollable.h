@@ -1,26 +1,30 @@
 #ifndef SCROLLABLE_H
 #define SCROLLABLE_H
 
-struct scrollable {
+#include "../ui.h"
+
+typedef struct scrollable {
     PANEL panel;
 
     uint32_t color;
-    int x;
-    _Bool small;
+    int      x;
+    bool     small;
 
     double d;
-    _Bool left, mousedown, mouseover, mouseover2;
-    int content_height;
-};
+    bool   left, mousedown, mouseover, mouseover2;
+    int    content_height;
+} SCROLLABLE;
 
 void scroll_draw(SCROLLABLE *s, int x, int y, int width, int height);
 int scroll_gety(SCROLLABLE *s, int height);
 
-_Bool scroll_mmove(SCROLLABLE *s, int x, int y, int width, int height, int mx, int my, int dx, int dy);
-_Bool scroll_mdown(SCROLLABLE *s);
-_Bool scroll_mright(SCROLLABLE *s);
-_Bool scroll_mwheel(SCROLLABLE *s, int height, double delta, _Bool smooth);
-_Bool scroll_mup(SCROLLABLE *s);
-_Bool scroll_mleave(SCROLLABLE *s);
+bool scroll_mmove(SCROLLABLE *s, int x, int y, int width, int height, int mx, int my, int dx, int dy);
+bool scroll_mdown(SCROLLABLE *s);
+bool scroll_mright(SCROLLABLE *s);
+bool scroll_mwheel(SCROLLABLE *s, int height, double delta, bool smooth);
+bool scroll_mup(SCROLLABLE *s);
+bool scroll_mleave(SCROLLABLE *s);
+
+extern SCROLLABLE scrollbar_flist, scrollbar_friend, scrollbar_group;
 
 #endif

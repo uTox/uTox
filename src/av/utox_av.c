@@ -1,4 +1,11 @@
+// utox_av.c
+#include "utox_av.h"
+
 #include "../main.h"
+#include "../main_native.h"
+
+#include "../friend.h"
+#include "../tox.h"
 
 bool toxav_thread_msg = 0;
 void postmessage_utoxav(uint8_t msg, uint32_t param1, uint32_t param2, void *data) {
@@ -14,20 +21,20 @@ void postmessage_utoxav(uint8_t msg, uint32_t param1, uint32_t param2, void *dat
     toxav_thread_msg = 1;
 }
 
-#define VERIFY_AUDIO_IN()                                                                                              \
-    do {                                                                                                               \
-        if (call_count) {                                                                                              \
-            if (!audio_in) {                                                                                           \
-                utox_audio_in_device_open();                                                                           \
-                utox_audio_in_listen();                                                                                \
-                audio_in = 1;                                                                                          \
-            }                                                                                                          \
-        } else {                                                                                                       \
-            utox_audio_in_ignore();                                                                                    \
-            utox_audio_in_device_close();                                                                              \
-            audio_in = 0;                                                                                              \
-        }                                                                                                              \
-        yieldcpu(5);                                                                                                   \
+#define VERIFY_AUDIO_IN()                    \
+    do {                                     \
+        if (call_count) {                    \
+            if (!audio_in) {                 \
+                utox_audio_in_device_open(); \
+                utox_audio_in_listen();      \
+                audio_in = 1;                \
+            }                                \
+        } else {                             \
+            utox_audio_in_ignore();          \
+            utox_audio_in_device_close();    \
+            audio_in = 0;                    \
+        }                                    \
+        yieldcpu(5);                         \
     } while (0)
 
 void utox_av_ctrl_thread(void *args) {
@@ -37,8 +44,8 @@ void utox_av_ctrl_thread(void *args) {
     debug("Toxav thread init\n");
 
     volatile uint32_t call_count = 0;
-    volatile _Bool    audio_in   = 0;
-    // volatile _Bool video_on  = 0;
+    volatile bool     audio_in   = 0;
+    // volatile bool video_on  = 0;
 
     thread(utox_audio_thread, av);
     thread(utox_video_thread, av);
@@ -351,7 +358,7 @@ static void utox_av_incoming_frame_v(ToxAV *toxAV, uint32_t friend_number, uint1
     f->video_height = height;
     size_t size     = width * height * 4;
 
-    UTOX_FRAME_PKG *frame = calloc(1, sizeof(*frame));
+    UTOX_FRAME_PKG *frame = calloc(1, sizeof(UTOX_FRAME_PKG));
 
     if (!frame) {
         debug_error("uToxAV:\tcan't malloc for incoming frame\n");
@@ -365,13 +372,9 @@ static void utox_av_incoming_frame_v(ToxAV *toxAV, uint32_t friend_number, uint1
     yuv420tobgr(width, height, y, u, v, ystride, ustride, vstride, frame->img);
     if (f->video_inline) {
         // debug("uToxAV:\tInline this frame only frame.\n");
-        if (current_frame) {
-            if (current_frame->img) {
-                free(current_frame->img);
-            }
-            free(current_frame);
+        if (!inline_set_frame(width, height, size, frame->img)) {
+            debug_error("uToxAV:\t error setting frame for inline video\n");
         }
-        current_frame = frame;
         postmessage(AV_INLINE_FRAME, friend_number, 0, NULL);
     } else {
         postmessage(AV_VIDEO_FRAME, friend_number + 1, 0, (void *)frame);
@@ -418,7 +421,7 @@ static void utox_callback_av_change_state(ToxAV *av, uint32_t friend_number, uin
             debug_info("uToxAV:\tFriend %u is now sending video.\n", friend_number);
         } else {
             debug_info("uToxAV:\tFriend %u is no longer sending video.\n", friend_number);
-            list_reselect_current();
+            flist_reselect_current();
         }
     }
     if (friend[friend_number].call_state_friend ^ (state & TOXAV_FRIEND_CALL_STATE_ACCEPTING_A)) {

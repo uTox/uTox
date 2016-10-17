@@ -1,10 +1,12 @@
+// scrollable.c
+#include "scrollable.h"
+
 #include "../main.h"
 
-void scroll_draw(SCROLLABLE *s, int x, int y, int width, int height)
-{
-    uint32_t c = s->content_height;
-    uint32_t h = height, m, dy;
-    int scroll_width = 0;
+void scroll_draw(SCROLLABLE *s, int x, int y, int width, int height) {
+    uint32_t c            = s->content_height;
+    uint32_t h            = height, m, dy;
+    int      scroll_width = 0;
     if (s->small) {
         scroll_width = SCROLL_WIDTH / 2;
     } else {
@@ -15,9 +17,9 @@ void scroll_draw(SCROLLABLE *s, int x, int y, int width, int height)
         // If h(eight) > c(ontent height), don't draw anything.
         return;
     } else {
-        m = (h * h) / c;
+        m        = (h * h) / c;
         double d = (h - m);
-        dy = (s->d * d) + 0.5;
+        dy       = (s->d * d) + 0.5;
     }
 
     y += dy;
@@ -28,7 +30,7 @@ void scroll_draw(SCROLLABLE *s, int x, int y, int width, int height)
         x += width - scroll_width;
     }
 
-    drawalpha(s->small ? BM_SCROLLHALFTOP_SMALL : BM_SCROLLHALFTOP, x, y, scroll_width, scroll_width /2, s->color);
+    drawalpha(s->small ? BM_SCROLLHALFTOP_SMALL : BM_SCROLLHALFTOP, x, y, scroll_width, scroll_width / 2, s->color);
 
     y += scroll_width / 2;
     int y2 = y + m - scroll_width;
@@ -37,7 +39,7 @@ void scroll_draw(SCROLLABLE *s, int x, int y, int width, int height)
     }
     drawrect(x, y, x + scroll_width, y2, s->color);
 
-    drawalpha(s->small ? BM_SCROLLHALFBOT_SMALL : BM_SCROLLHALFBOT, x, y2, scroll_width, scroll_width /2, s->color);
+    drawalpha(s->small ? BM_SCROLLHALFBOT_SMALL : BM_SCROLLHALFBOT, x, y2, scroll_width, scroll_width / 2, s->color);
 }
 
 int scroll_gety(SCROLLABLE *s, int height) {
@@ -50,16 +52,14 @@ int scroll_gety(SCROLLABLE *s, int height) {
     return 0;
 }
 
-_Bool scroll_mmove(SCROLLABLE *s, int UNUSED(px), int UNUSED(py), int width, int height,
-    int x, int y, int UNUSED(dx), int dy)
-{
-    _Bool draw = 0;
+bool scroll_mmove(SCROLLABLE *s, int UNUSED(px), int UNUSED(py), int width, int height, int x, int y, int UNUSED(dx),
+                  int dy) {
+    bool draw = 0;
 
-    _Bool hit = inrect(x, y, s->left ? 0 : (width - SCROLL_WIDTH), 0, SCROLL_WIDTH, height);
-    if(s->mouseover != hit)
-    {
+    bool hit = inrect(x, y, s->left ? 0 : (width - SCROLL_WIDTH), 0, SCROLL_WIDTH, height);
+    if (s->mouseover != hit) {
         s->mouseover = hit;
-        draw = 1;
+        draw         = 1;
     }
 
     s->mouseover2 = inrect(x, y, 0, 0, width, height);
@@ -70,13 +70,13 @@ _Bool scroll_mmove(SCROLLABLE *s, int UNUSED(px), int UNUSED(py), int width, int
 
         if (c > h) {
             uint32_t m = (h * h) / c;
-            double d = (h - m);
+            double   d = (h - m);
 
             s->d = ((s->d * d) + (double)dy) / d;
 
             if (s->d < 0.0) {
                 s->d = 0.0;
-            } else if(s->d >= 1.0) {
+            } else if (s->d >= 1.0) {
                 s->d = 1.0;
             }
 
@@ -87,10 +87,8 @@ _Bool scroll_mmove(SCROLLABLE *s, int UNUSED(px), int UNUSED(py), int width, int
     return draw;
 }
 
-_Bool scroll_mdown(SCROLLABLE *s)
-{
-    if(s->mouseover)
-    {
+bool scroll_mdown(SCROLLABLE *s) {
+    if (s->mouseover) {
         s->mousedown = 1;
         return 1;
     }
@@ -98,22 +96,17 @@ _Bool scroll_mdown(SCROLLABLE *s)
     return 0;
 }
 
-_Bool scroll_mright(SCROLLABLE *UNUSED(s))
-{
-    return 0;
-}
+bool scroll_mright(SCROLLABLE *UNUSED(s)) { return 0; }
 
-_Bool scroll_mwheel(SCROLLABLE *s, int height, double delta, _Bool smooth)
-{
+bool scroll_mwheel(SCROLLABLE *s, int height, double delta, bool smooth) {
 
     /* Variable which controls scroll speed. How much one scroll step
      * moves viewport */
     double scroll_speed_multip = 5.0;
 
-    if(s->mouseover2)
-    {
+    if (s->mouseover2) {
         uint32_t content_height = s->content_height;
-        uint32_t port_height = height;
+        uint32_t port_height    = height;
 
         if (content_height > port_height) {
             /* Scrolling is relative to amount of total content in component */
@@ -123,7 +116,7 @@ _Bool scroll_mwheel(SCROLLABLE *s, int height, double delta, _Bool smooth)
                 s->d -= (delta * (32.0 * port_height / content_height) / content_height) * scroll_speed_multip;
             } else {
                 uint32_t magic = (port_height * port_height) / content_height;
-                double fred = (port_height - magic);
+                double   fred  = (port_height - magic);
                 s->d -= 16.0 * delta / fred;
             }
 
@@ -140,10 +133,8 @@ _Bool scroll_mwheel(SCROLLABLE *s, int height, double delta, _Bool smooth)
     return 0;
 }
 
-_Bool scroll_mup(SCROLLABLE *s)
-{
-    if(s->mousedown)
-    {
+bool scroll_mup(SCROLLABLE *s) {
+    if (s->mousedown) {
         s->mousedown = 0;
         return 1;
     }
@@ -151,10 +142,8 @@ _Bool scroll_mup(SCROLLABLE *s)
     return 0;
 }
 
-_Bool scroll_mleave(SCROLLABLE *s)
-{
-    if(s->mouseover)
-    {
+bool scroll_mleave(SCROLLABLE *s) {
+    if (s->mouseover) {
         s->mouseover = 0;
         return 1;
     }

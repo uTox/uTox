@@ -1,4 +1,9 @@
+// edit.c
+
+#include "edit.h"
+
 #include "../main.h"
+#include "../theme.h"
 
 static EDIT *active_edit;
 
@@ -9,7 +14,7 @@ static struct {
     uint16_t mark_start, mark_length;
     // TODO: pm field doesn't seem to be used. Remove? done
 } edit_sel;
-static _Bool edit_select;
+static bool edit_select;
 
 static void setactive(EDIT *edit) {
     if (edit != active_edit) {
@@ -89,7 +94,7 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height) {
         drawtext(x + UTOX_SCALE(2), yy + UTOX_SCALE(top_offset), empty_str_text->str, empty_str_text->length);
     }
 
-    _Bool is_active = (edit == active_edit);
+    bool is_active = (edit == active_edit);
     if (edit->password) {
         /* Generate the stars for this password */
         uint8_t star[edit->length];
@@ -112,15 +117,15 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height) {
     }
 }
 
-_Bool edit_mmove(EDIT *edit, int px, int py, int width, int height, int x, int y, int dx, int dy) {
+bool edit_mmove(EDIT *edit, int px, int py, int width, int height, int x, int y, int dx, int dy) {
     if (settings.window_baseline && py > settings.window_baseline - font_small_lineheight - SCALE(8)) {
         y += py - (settings.window_baseline - font_small_lineheight - SCALE(8));
         py = settings.window_baseline - font_small_lineheight - SCALE(8);
     }
 
-    _Bool need_redraw = 0;
+    bool need_redraw = 0;
 
-    _Bool mouseover = inrect(x, y, 0, 0, width - (edit->multiline ? SCROLL_WIDTH : 0), height);
+    bool mouseover = inrect(x, y, 0, 0, width - (edit->multiline ? SCROLL_WIDTH : 0), height);
     if (mouseover) {
         cursor = CURSOR_TEXT;
     }
@@ -172,7 +177,7 @@ _Bool edit_mmove(EDIT *edit, int px, int py, int width, int height, int x, int y
     return need_redraw;
 }
 
-_Bool edit_mdown(EDIT *edit) {
+bool edit_mdown(EDIT *edit) {
     if (edit->mouseover_char > edit->length) {
         edit->mouseover_char = edit->length;
     }
@@ -199,7 +204,7 @@ _Bool edit_mdown(EDIT *edit) {
     return 0;
 }
 
-_Bool edit_dclick(EDIT *edit, _Bool triclick) {
+bool edit_dclick(EDIT *edit, bool triclick) {
     if (edit != active_edit) {
         return 0;
     }
@@ -208,7 +213,7 @@ _Bool edit_dclick(EDIT *edit, _Bool triclick) {
         edit->mouseover_char = edit->length;
     }
 
-    char_t c = triclick ? '\n' : ' ';
+    char c = triclick ? '\n' : ' ';
 
     uint16_t i = edit->mouseover_char;
     while (i != 0 && edit->data[i - 1] != c) {
@@ -241,8 +246,8 @@ static void contextmenu_edit_onselect(uint8_t i) {
     }
 }
 
-_Bool edit_mright(EDIT *edit) {
-    static UI_STRING_ID menu_edit[] = {STR_CUT, STR_COPY, STR_PASTE, STR_DELETE, STR_SELECTALL};
+bool edit_mright(EDIT *edit) {
+    static UTOX_I18N_STR menu_edit[] = { STR_CUT, STR_COPY, STR_PASTE, STR_DELETE, STR_SELECTALL };
     if (edit->mouseover_char > edit->length) {
         edit->mouseover_char = edit->length;
     }
@@ -273,14 +278,14 @@ void edit_press(void) {
     edit_sel.length                            = 0;
 }
 
-_Bool edit_mwheel(EDIT *edit, int height, double d, _Bool smooth) {
+bool edit_mwheel(EDIT *edit, int height, double d, bool smooth) {
     if (edit->multiline) {
         return scroll_mwheel(edit->scroll, height - UTOX_SCALE(4), d, smooth);
     }
     return 0;
 }
 
-_Bool edit_mup(EDIT *edit) {
+bool edit_mup(EDIT *edit) {
     if (edit->multiline) {
         if (scroll_mup(edit->scroll)) {
             return 1;
@@ -295,7 +300,7 @@ _Bool edit_mup(EDIT *edit) {
     return 0;
 }
 
-_Bool edit_mleave(EDIT *edit) {
+bool edit_mleave(EDIT *edit) {
     if (edit->mouseover) {
         edit->mouseover = 0;
         return 1;
@@ -304,9 +309,7 @@ _Bool edit_mleave(EDIT *edit) {
     return 0;
 }
 
-static void edit_redraw(void) {
-    redraw();
-}
+static void edit_redraw(void) { redraw(); }
 
 static uint16_t edit_change_do(EDIT *edit, EDIT_CHANGE *c) {
     uint16_t r = c->start;
@@ -324,7 +327,7 @@ static uint16_t edit_change_do(EDIT *edit, EDIT_CHANGE *c) {
     return r;
 }
 
-void edit_do(EDIT *edit, uint16_t start, uint16_t length, _Bool remove) {
+void edit_do(EDIT *edit, uint16_t start, uint16_t length, bool remove) {
     EDIT_CHANGE *new, **history;
 
     new = malloc(sizeof(EDIT_CHANGE) + length);
@@ -375,13 +378,13 @@ static uint16_t edit_redo(EDIT *edit) {
     return r;
 }
 
-#define updatesel()                                                                                                    \
-    if (edit_sel.p1 <= edit_sel.p2) {                                                                                  \
-        edit_sel.start  = edit_sel.p1;                                                                                 \
-        edit_sel.length = edit_sel.p2 - edit_sel.p1;                                                                   \
-    } else {                                                                                                           \
-        edit_sel.start  = edit_sel.p2;                                                                                 \
-        edit_sel.length = edit_sel.p1 - edit_sel.p2;                                                                   \
+#define updatesel()                                  \
+    if (edit_sel.p1 <= edit_sel.p2) {                \
+        edit_sel.start  = edit_sel.p1;               \
+        edit_sel.length = edit_sel.p2 - edit_sel.p1; \
+    } else {                                         \
+        edit_sel.start  = edit_sel.p2;               \
+        edit_sel.length = edit_sel.p1 - edit_sel.p2; \
     }
 
 enum {
@@ -389,13 +392,13 @@ enum {
     EMOD_CTRL  = (1 << 2),
 };
 
-void edit_char(uint32_t ch, _Bool control, uint8_t flags) {
+void edit_char(uint32_t ch, bool control, uint8_t flags) {
     /* shift: flags & 1
      * control: flags & 4 */
     EDIT *edit = active_edit;
 
     if (control || (ch <= 0x1F && (!edit->multiline || ch != '\n')) || (ch >= 0x7f && ch <= 0x9F)) {
-        _Bool modified = 0;
+        bool modified = 0;
 
         switch (ch) {
             case KEY_BACK: {
@@ -445,7 +448,7 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags) {
                     return;
                 }
 
-                char_t *p = active_edit->data + edit_sel.start;
+                char *p = active_edit->data + edit_sel.start;
                 if (edit_sel.length) {
                     edit_do(edit, edit_sel.start, edit_sel.length, 1);
                     memmove(p, p + edit_sel.length, active_edit->length - (edit_sel.start + edit_sel.length));
@@ -709,7 +712,7 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags) {
     } else if (!edit->readonly) {
         uint8_t len = unicode_to_utf8_len(ch);
         if (edit->length - edit_sel.length + len <= edit->maxlength) {
-            char_t *p = edit->data + edit_sel.start;
+            char *p = edit->data + edit_sel.start;
 
             if (edit_sel.length) {
                 edit_do(edit, edit_sel.start, edit_sel.length, 1);
@@ -736,17 +739,15 @@ void edit_char(uint32_t ch, _Bool control, uint8_t flags) {
     }
 }
 
-int edit_selection(EDIT *edit, char_t *data, int len) {
+int edit_selection(EDIT *edit, char *data, int len) {
     if (data)
         memcpy(data, edit->data + edit_sel.start, edit_sel.length);
     return edit_sel.length;
 }
 
-int edit_copy(char_t *data, int len) {
-    return edit_selection(active_edit, data, len);
-}
+int edit_copy(char *data, int len) { return edit_selection(active_edit, data, len); }
 
-void edit_paste(char_t *data, int length, _Bool select) {
+void edit_paste(char *data, int length, bool select) {
     if (!active_edit) {
         return;
     }
@@ -780,7 +781,7 @@ void edit_paste(char_t *data, int length, _Bool select) {
         return;
     }
 
-    char_t *p = active_edit->data + edit_sel.start;
+    char *p = active_edit->data + edit_sel.start;
 
     if (edit_sel.length) {
         edit_do(active_edit, edit_sel.start, edit_sel.length, 1);
@@ -828,15 +829,11 @@ void edit_setfocus(EDIT *edit) {
     setactive(edit);
 }
 
-_Bool edit_active(void) {
-    return (active_edit != NULL);
-}
+bool edit_active(void) { return (active_edit != NULL); }
 
-EDIT *edit_get_active(void) {
-    return active_edit;
-}
+EDIT *edit_get_active(void) { return active_edit; }
 
-void edit_setstr(EDIT *edit, char_t *str, uint16_t length) {
+void edit_setstr(EDIT *edit, char *str, uint16_t length) {
     if (length >= edit->maxlength) {
         length = edit->maxlength;
     }
@@ -860,11 +857,9 @@ void edit_setcursorpos(EDIT *edit, uint16_t pos) {
     edit_sel.length              = 0;
 }
 
-uint16_t edit_getcursorpos(void) {
-    return edit_sel.p1 < edit_sel.p2 ? edit_sel.p1 : edit_sel.p2;
-}
+uint16_t edit_getcursorpos(void) { return edit_sel.p1 < edit_sel.p2 ? edit_sel.p1 : edit_sel.p2; }
 
-_Bool edit_getmark(uint16_t *outloc, uint16_t *outlen) {
+bool edit_getmark(uint16_t *outloc, uint16_t *outlen) {
     if (outloc) {
         *outloc = edit_sel.mark_start;
     }

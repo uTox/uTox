@@ -1,4 +1,9 @@
+#include <inttypes.h>
+
+#include "friend.h"
+#include "groups.h"
 #include "main.h"
+#include "tox.h"
 
 static void callback_friend_request(Tox *UNUSED(tox), const uint8_t *id, const uint8_t *msg, size_t length,
                                     void *UNUSED(userdata)) {
@@ -58,7 +63,7 @@ static void callback_user_status(Tox *UNUSED(tox), uint32_t fid, TOX_USER_STATUS
     debug_info("Friend-%u State:\t%u\n", fid, status);
 }
 
-static void callback_typing_change(Tox *UNUSED(tox), uint32_t fid, _Bool is_typing, void *UNUSED(userdata)) {
+static void callback_typing_change(Tox *UNUSED(tox), uint32_t fid, bool is_typing, void *UNUSED(userdata)) {
     postmessage(FRIEND_TYPING, fid, is_typing, NULL);
     debug_info("Friend-%u Typing:\t%u\n", fid, is_typing);
 }
@@ -157,7 +162,7 @@ static void callback_group_namelist_change(Tox *tox, uint32_t gid, uint32_t pid,
                 g->peer = calloc(g->peer_count + 2, sizeof(void *));
             }
             debug("Group:\tAdd (%u, %u)\n", gid, pid);
-            _Bool is_us = 0;
+            bool is_us = 0;
             if (tox_conference_peer_number_is_ours(tox, gid, pid, 0)) {
                 g->our_peer_number = pid;
                 is_us              = 1;
@@ -284,9 +289,9 @@ void utox_set_callbacks_groups(Tox *tox) {
 static void callback_friend_list_change(Tox *tox, void *user_data) {
     debug_error("friend list change, updating roster\n");
 
-    roster_dump_contacts();
+    flist_dump_contacts();
     utox_friend_list_init(tox);
-    roster_reload_contacts();
+    flist_reload_contacts();
 }
 
 static void callback_mdev_self_name(Tox *tox, uint32_t dev_num, const uint8_t *name, size_t length,

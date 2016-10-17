@@ -1,7 +1,15 @@
-#include "main.h"
+// flist.c
+
+#include "flist.h"
+
+#include "theme.h"
+#include "ui/buttons.h"
+#include "ui/dropdowns.h"
+#include "ui/scrollable.h"
+
 #ifdef UNITY
 #include "xlib/mmenu.h"
-extern _Bool unity_running;
+extern bool unity_running;
 #endif
 
 /* I think these are pointers to the panel's they're named after. */
@@ -16,21 +24,21 @@ static uint32_t shown_list[1024]; // list of chats actually shown in the GUI aft
 static uint32_t showncount;
 
 // search and filter stuff
-static char_t *search_string;
+static char *  search_string;
 static uint8_t filter;
 
 static ITEM *mouseover_item;
 static ITEM *nitem; // item that selected_item is being dragged over
-ITEM *       selected_item = &item_add;
+static ITEM *selected_item = &item_add;
 
-static _Bool mouse_in_list, selected_item_mousedown;
+static bool mouse_in_list, selected_item_mousedown;
 
 static int selected_item_dy; // y offset of selected item being dragged from its original position
 
-static void roster_draw_itembox(ITEM *i, int y) {
+static void flist_draw_itembox(ITEM *i, int y) {
     int height = 0;
 
-    if (settings.use_mini_roster) {
+    if (settings.use_mini_flist) {
         height = ROSTER_BOX_HEIGHT / 2;
     } else {
         height = ROSTER_BOX_HEIGHT;
@@ -43,15 +51,15 @@ static void roster_draw_itembox(ITEM *i, int y) {
     }
 }
 
-static void roster_draw_name(ITEM *i, int y, char_t *name, char_t *msg, uint16_t name_length, uint16_t msg_length,
-                             _Bool color_overide, uint32_t color) {
+static void flist_draw_name(ITEM *i, int y, char *name, char *msg, uint16_t name_length, uint16_t msg_length,
+                            bool color_overide, uint32_t color) {
     if (!color_overide) {
         color = (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT;
     }
     setcolor(color);
     setfont(FONT_LIST_NAME);
 
-    if (settings.use_mini_roster) {
+    if (settings.use_mini_flist) {
         /* Name only*/
         drawtextwidth(ROSTER_NAME_LEFT / 2 + SCALE(5), SIDEBAR_WIDTH - ROSTER_NAME_LEFT / 2 - SCALE(32),
                       y + ROSTER_NAME_TOP / 2, name, name_length);
@@ -70,9 +78,9 @@ static void roster_draw_name(ITEM *i, int y, char_t *name, char_t *msg, uint16_t
     }
 }
 
-static void roster_draw_status_icon(uint8_t status, int y, _Bool notify) {
+static void flist_draw_status_icon(uint8_t status, int y, bool notify) {
     int y_n = y;
-    if (settings.use_mini_roster) {
+    if (settings.use_mini_flist) {
         y += (ROSTER_BOX_HEIGHT / 4) - (BM_STATUS_WIDTH / 2);
         y_n += (ROSTER_BOX_HEIGHT / 4) - (BM_STATUS_NOTIFY_WIDTH / 2);
     } else {
@@ -90,14 +98,14 @@ static void roster_draw_status_icon(uint8_t status, int y, _Bool notify) {
 }
 
 static void drawitem(ITEM *i, int UNUSED(x), int y) {
-    roster_draw_itembox(i, y);
+    flist_draw_itembox(i, y);
 
     int default_w      = 0;
     int ava_top        = 0;
     int group_bitmap   = 0;
     int contact_bitmap = 0;
 
-    if (settings.use_mini_roster) {
+    if (settings.use_mini_flist) {
         default_w      = BM_CONTACT_WIDTH / 2;
         ava_top        = ROSTER_AVATAR_TOP / 2;
         group_bitmap   = BM_GROUP_MINI;
@@ -123,10 +131,10 @@ static void drawitem(ITEM *i, int UNUSED(x), int y) {
                           (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
             }
 
-            roster_draw_name(i, y, UTOX_FRIEND_NAME(f), f->status_message, UTOX_FRIEND_NAME_LENGTH(f), f->status_length,
-                             0, 0);
+            flist_draw_name(i, y, UTOX_FRIEND_NAME(f), f->status_message, UTOX_FRIEND_NAME_LENGTH(f), f->status_length,
+                            0, 0);
 
-            roster_draw_status_icon(status, y, f->unread_msg);
+            flist_draw_status_icon(status, y, f->unread_msg);
             break;
         }
 
@@ -134,7 +142,7 @@ static void drawitem(ITEM *i, int UNUSED(x), int y) {
             GROUPCHAT *g = i->data;
             drawalpha(group_bitmap, ROSTER_AVATAR_LEFT, y + ava_top, default_w, default_w,
                       (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
-            _Bool    color_overide = 0;
+            bool     color_overide = 0;
             uint32_t color         = 0;
 
             if (g->muted) {
@@ -152,29 +160,29 @@ static void drawitem(ITEM *i, int UNUSED(x), int y) {
                 }
             }
 
-            roster_draw_name(i, y, g->name, g->topic, g->name_length, g->topic_length, color_overide, color);
+            flist_draw_name(i, y, g->name, g->topic, g->name_length, g->topic_length, color_overide, color);
 
-            roster_draw_status_icon(0, y, g->unread_msg);
+            flist_draw_status_icon(0, y, g->unread_msg);
             break;
         }
 
         case ITEM_FRIEND_ADD: {
             FRIENDREQ *f = i->data;
 
-            char_t name[TOX_FRIEND_ADDRESS_SIZE * 2];
+            char name[TOX_FRIEND_ADDRESS_SIZE * 2];
             id_to_string(name, f->id);
 
             drawalpha(contact_bitmap, ROSTER_AVATAR_LEFT, y + ROSTER_AVATAR_TOP, default_w, default_w,
                       (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
-            roster_draw_name(i, y, name, f->msg, sizeof(name), f->length, 0, 0);
+            flist_draw_name(i, y, name, f->msg, sizeof(name), f->length, 0, 0);
             break;
         }
 
         case ITEM_GROUP_CREATE: {
             drawalpha(group_bitmap, ROSTER_AVATAR_LEFT, y + ROSTER_AVATAR_TOP, default_w, default_w,
                       (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
-            roster_draw_name(i, y, S(CREATEGROUPCHAT), S(CURSOR_CLICK_RIGHT), SLEN(CREATEGROUPCHAT),
-                             SLEN(CURSOR_CLICK_RIGHT), 1, (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
+            flist_draw_name(i, y, S(CREATEGROUPCHAT), S(CURSOR_CLICK_RIGHT), SLEN(CREATEGROUPCHAT),
+                            SLEN(CURSOR_CLICK_RIGHT), 1, (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT);
             break;
         }
 
@@ -197,16 +205,16 @@ static int find_item_shown_index(ITEM *it) {
     return INT_MAX; // can't be found!
 }
 
-void roster_re_scale(void) {
-    scrollbar_roster.content_height = showncount * (ROSTER_BOX_HEIGHT / (!!settings.use_mini_roster + 1));
+void flist_re_scale(void) {
+    scrollbar_flist.content_height = showncount * (ROSTER_BOX_HEIGHT / (!!settings.use_mini_flist + 1));
 }
 
-_Bool friend_matches_search_string(FRIEND *f, char_t *str) {
+bool friend_matches_search_string(FRIEND *f, char *str) {
     return !str || strstr_case((char *)f->name, (char *)str)
            || (f->alias && strstr_case((char *)f->alias, (char *)str));
 }
 
-void update_shown_list(void) {
+void flist_update_shown_list(void) {
     FRIEND * f;
     uint32_t i; // index in item array
     uint32_t j; // index in shown_list array
@@ -219,7 +227,7 @@ void update_shown_list(void) {
     }
 
     showncount = j;
-    roster_re_scale();
+    flist_re_scale();
 }
 
 static ITEM *newitem(void) {
@@ -227,14 +235,14 @@ static ITEM *newitem(void) {
     item[itemcount].item = ITEM_GROUP_CREATE;
     item[itemcount].data = NULL;
     itemcount++;
-    update_shown_list();
+    flist_update_shown_list();
     return i;
 }
 
 // return item that the user is mousing over
 static ITEM *item_hit(int mx, int my, int height) {
     int real_height = 0;
-    if (settings.use_mini_roster) {
+    if (settings.use_mini_flist) {
         real_height = ROSTER_BOX_HEIGHT / 2;
     } else {
         real_height = ROSTER_BOX_HEIGHT;
@@ -263,18 +271,16 @@ static ITEM *item_hit(int mx, int my, int height) {
     return i;
 }
 
-uint8_t list_get_filter(void) {
-    return filter;
-}
+uint8_t flist_get_filter(void) { return filter; }
 
-void list_set_filter(uint8_t new_filter) {
+void flist_set_filter(uint8_t new_filter) {
     filter = new_filter;
-    update_shown_list();
+    flist_update_shown_list();
 }
 
-void list_search(char_t *str) {
+void flist_search(char *str) {
     search_string = str;
-    update_shown_list();
+    flist_update_shown_list();
 }
 
 // change the selected item by [offset] items in the shown list
@@ -286,19 +292,15 @@ static void change_tab(int offset) {
     // selected_item->item == ITEM_GROUP) {
     int index = find_item_shown_index(selected_item);
     if (index != INT_MAX) {
-        // list_selectchat will check if out of bounds
-        list_selectchat((index + offset + showncount) % showncount);
+        // flist_selectchat will check if out of bounds
+        flist_selectchat((index + offset + showncount) % showncount);
     }
     // }
 }
 
-void previous_tab(void) {
-    change_tab(-1);
-}
+void flist_previous_tab(void) { change_tab(-1); }
 
-void next_tab(void) {
-    change_tab(1);
-}
+void flist_next_tab(void) { change_tab(1); }
 
 /* TODO: move this out of here!
  * maybe to ui.c ? */
@@ -508,7 +510,7 @@ static void show_page(ITEM *i) {
     addfriend_status = 0;
 }
 
-void list_start(void) {
+void flist_start(void) {
     selected_item            = &item_settings;
     button_settings.disabled = 1;
 
@@ -528,16 +530,16 @@ void list_start(void) {
     newitem(); /* Called alone will create the group bar */
 
     search_string = NULL;
-    update_shown_list();
+    flist_update_shown_list();
 }
 
-void list_addfriend(FRIEND *f) {
+void flist_addfriend(FRIEND *f) {
     ITEM *i = newitem();
     i->item = ITEM_FRIEND;
     i->data = f;
 }
 
-void list_addfriend2(FRIEND *f, FRIENDREQ *req) {
+void flist_addfriend2(FRIEND *f, FRIENDREQ *req) {
     uint32_t i = 0;
     while (i < itemcount) {
         if (item[i].data == req) {
@@ -561,13 +563,13 @@ void list_addfriend2(FRIEND *f, FRIENDREQ *req) {
     }
 }
 
-void list_addgroup(GROUPCHAT *g) {
+void flist_addgroup(GROUPCHAT *g) {
     ITEM *i = newitem();
     i->item = ITEM_GROUP;
     i->data = g;
 }
 
-void list_addfriendreq(FRIENDREQ *f) {
+void flist_addfriendreq(FRIENDREQ *f) {
     ITEM *i = newitem();
     i->item = ITEM_FRIEND_ADD;
     i->data = f;
@@ -622,23 +624,23 @@ static void deleteitem(ITEM *i) {
         selected_item--;
     }
 
-    update_shown_list();
-    redraw(); // list_draw();
+    flist_update_shown_list();
+    redraw(); // flist_draw();
 }
 
-void list_deletesitem(void) {
+void flist_deletesitem(void) {
     if (selected_item >= item && selected_item < item + countof(item)) {
         deleteitem(selected_item);
     }
 }
 
-void roster_delete_rmouse_item(void) {
+void flist_delete_rmouse_item(void) {
     if (right_mouse_item >= item && right_mouse_item < item + countof(item)) {
         deleteitem(right_mouse_item);
     }
 }
 
-void list_freeall(void) {
+void flist_freeall(void) {
     ITEM *i;
     for (i = item; i != item + itemcount; i++) {
         switch (i->item) {
@@ -665,27 +667,19 @@ void list_freeall(void) {
     showncount = 0;
 }
 
-void list_selectchat(int index) {
+void flist_selectchat(int index) {
     if (index >= 0 && index < showncount) {
         show_page(&item[shown_list[index]]);
     }
 }
 
-void list_reselect_current(void) {
-    show_page(selected_item);
-}
+void flist_reselect_current(void) { show_page(selected_item); }
 
-void list_selectsettings(void) {
-    show_page(&item_settings);
-}
+void flist_selectsettings(void) { show_page(&item_settings); }
 
-void list_selectaddfriend(void) {
-    show_page(&item_add);
-}
+void flist_selectaddfriend(void) { show_page(&item_add); }
 
-void list_selectswap(void) {
-    show_page(&item_transfer);
-}
+void flist_selectswap(void) { show_page(&item_transfer); }
 
 /******************************************************************************
  ****** Updated functions                                                ******
@@ -756,28 +750,30 @@ static void pop_selected(void) {
     }
 }
 
-void roster_select_last(void) {
+void flist_select_last(void) {
     /* -2 should be the last, -1 is the create group */
     show_page(&item[itemcount - 2]);
 }
 
-void roster_dump_contacts(void) {
+void flist_dump_contacts(void) {
     push_selected();
-    list_freeall();
+    flist_freeall();
 }
 
-void roster_reload_contacts(void) {
-    list_start();
+void flist_reload_contacts(void) {
+    flist_start();
     pop_selected();
 }
+
+ITEM *flist_get_selected(void) { return selected_item; }
 
 /******************************************************************************
  ****** UI functions                                                     ******
  ******************************************************************************/
 
-void list_draw(void *UNUSED(n), int UNUSED(x), int y, int UNUSED(width), int UNUSED(height)) {
+void flist_draw(void *UNUSED(n), int UNUSED(x), int y, int UNUSED(width), int UNUSED(height)) {
     int real_height = 0;
-    if (settings.use_mini_roster) {
+    if (settings.use_mini_flist) {
         real_height = ROSTER_BOX_HEIGHT / 2;
     } else {
         real_height = ROSTER_BOX_HEIGHT;
@@ -802,10 +798,10 @@ void list_draw(void *UNUSED(n), int UNUSED(x), int y, int UNUSED(width), int UNU
     }
 }
 
-_Bool list_mmove(void *UNUSED(n), int UNUSED(x), int UNUSED(y), int UNUSED(width), int height, int mx, int my,
+bool flist_mmove(void *UNUSED(n), int UNUSED(x), int UNUSED(y), int UNUSED(width), int height, int mx, int my,
                  int UNUSED(dx), int dy) {
     int real_height = 0;
-    if (settings.use_mini_roster) {
+    if (settings.use_mini_flist) {
         real_height = ROSTER_BOX_HEIGHT / 2;
     } else {
         real_height = ROSTER_BOX_HEIGHT;
@@ -813,7 +809,7 @@ _Bool list_mmove(void *UNUSED(n), int UNUSED(x), int UNUSED(y), int UNUSED(width
 
     ITEM *i = item_hit(mx, my, height);
 
-    _Bool draw = 0;
+    bool draw = 0;
 
     if (i != mouseover_item) {
         mouseover_item = i;
@@ -850,8 +846,8 @@ _Bool list_mmove(void *UNUSED(n), int UNUSED(x), int UNUSED(y), int UNUSED(width
     return draw;
 }
 
-_Bool list_mdown(void *UNUSED(n)) {
-    _Bool draw = 0;
+bool flist_mdown(void *UNUSED(n)) {
+    bool draw = 0;
     tooltip_mdown(); /* may need to return on true */
     if (mouseover_item) {
         show_page(mouseover_item);
@@ -862,14 +858,14 @@ _Bool list_mdown(void *UNUSED(n)) {
     return draw;
 }
 
-static void roster_init_friend_settings_page(void) {
+static void flist_init_friend_settings_page(void) {
     FRIEND *f = right_mouse_item->data;
 
     panel_friend_chat.disabled     = 1;
     panel_friend_video.disabled    = 1;
     panel_friend_settings.disabled = 0;
 
-    edit_setstr(&edit_friend_pubkey, (char_t *)&f->id_str, TOX_PUBLIC_KEY_SIZE * 2);
+    edit_setstr(&edit_friend_pubkey, (char *)&f->id_str, TOX_PUBLIC_KEY_SIZE * 2);
 
     maybe_i18nal_string_set_plain(&edit_friend_alias.empty_str, f->name, f->name_length);
     edit_setstr(&edit_friend_alias, f->alias, f->alias_length);
@@ -877,7 +873,7 @@ static void roster_init_friend_settings_page(void) {
     dropdown_friend_autoaccept_ft.over = dropdown_friend_autoaccept_ft.selected = f->ft_autoaccept;
 }
 
-static void roster_init_group_settings_page(void) {
+static void flist_init_group_settings_page(void) {
     GROUPCHAT *g = right_mouse_item->data;
 
     panel_group_chat.disabled     = 1;
@@ -898,7 +894,7 @@ static void contextmenu_friend(uint8_t rcase) {
     switch (rcase) {
         case 0: {
             /* should be settings page */
-            roster_init_friend_settings_page();
+            flist_init_friend_settings_page();
             break;
         }
         case 1: {
@@ -918,7 +914,7 @@ static void contextmenu_friend(uint8_t rcase) {
         }
         case 3: {
             /* Should be: delete friend */
-            roster_delete_rmouse_item();
+            flist_delete_rmouse_item();
         }
     }
 }
@@ -934,7 +930,7 @@ static void contextmenu_list_onselect(uint8_t i) {
                 panel_group_chat.disabled = 0;
                 GROUPCHAT *g              = right_mouse_item->data;
                 if (i == 0) {
-                    roster_init_group_settings_page();
+                    flist_init_group_settings_page();
                 } else if (i == 1) {
                     if (right_mouse_item != selected_item) {
                         show_page(right_mouse_item);
@@ -944,11 +940,11 @@ static void contextmenu_list_onselect(uint8_t i) {
                     strcpy(str, "/topic ");
                     memcpy(str + 7, g->name, g->name_length);
                     edit_setfocus(&edit_msg_group);
-                    edit_paste((char_t *)str, sizeof(str), 0);
+                    edit_paste((char *)str, sizeof(str), 0);
                 } else if (i == 2 && g->av_group) {
                     g->muted = !g->muted;
                 } else {
-                    roster_delete_rmouse_item();
+                    flist_delete_rmouse_item();
                 }
                 return;
             }
@@ -981,18 +977,18 @@ static void contextmenu_list_onselect(uint8_t i) {
     }
 }
 
-_Bool list_mright(void *UNUSED(n)) {
-    static UI_STRING_ID menu_friend[] = {STR_FRIEND_SETTINGS, STR_CALL_VIDEO_SHOW_INLINE, STR_CLEAR_HISTORY,
-                                         STR_REMOVE_FRIEND};
+bool flist_mright(void *UNUSED(n)) {
+    static UTOX_I18N_STR menu_friend[] = { STR_FRIEND_SETTINGS, STR_CALL_VIDEO_SHOW_INLINE, STR_CLEAR_HISTORY,
+                                           STR_REMOVE_FRIEND };
 
-    static UI_STRING_ID menu_group_unmuted[] = {STR_GROUPCHAT_SETTINGS, STR_CHANGE_GROUP_TOPIC, STR_MUTE,
-                                                STR_REMOVE_GROUP};
-    static UI_STRING_ID menu_group_muted[] = {STR_GROUPCHAT_SETTINGS, STR_CHANGE_GROUP_TOPIC, STR_UNMUTE,
-                                              STR_REMOVE_GROUP};
+    static UTOX_I18N_STR menu_group_unmuted[] = { STR_GROUPCHAT_SETTINGS, STR_CHANGE_GROUP_TOPIC, STR_MUTE,
+                                                  STR_REMOVE_GROUP };
+    static UTOX_I18N_STR menu_group_muted[] = { STR_GROUPCHAT_SETTINGS, STR_CHANGE_GROUP_TOPIC, STR_UNMUTE,
+                                                STR_REMOVE_GROUP };
 
-    static UI_STRING_ID menu_group[]        = {STR_GROUPCHAT_SETTINGS, STR_CHANGE_GROUP_TOPIC, STR_REMOVE_GROUP};
-    static UI_STRING_ID menu_create_group[] = {STR_GROUP_CREATE_TEXT, STR_GROUP_CREATE_VOICE};
-    static UI_STRING_ID menu_request[]      = {STR_REQ_ACCEPT, STR_REQ_DECLINE};
+    static UTOX_I18N_STR menu_group[]        = { STR_GROUPCHAT_SETTINGS, STR_CHANGE_GROUP_TOPIC, STR_REMOVE_GROUP };
+    static UTOX_I18N_STR menu_create_group[] = { STR_GROUP_CREATE_TEXT, STR_GROUP_CREATE_VOICE };
+    static UTOX_I18N_STR menu_request[]      = { STR_REQ_ACCEPT, STR_REQ_DECLINE };
 
     if (mouseover_item) {
         right_mouse_item = mouseover_item;
@@ -1029,7 +1025,7 @@ _Bool list_mright(void *UNUSED(n)) {
             }
 
             default: {
-                debug_error("MRIGHT on a roster entry that shouldn't exist!\n");
+                debug_error("MRIGHT on a flist entry that shouldn't exist!\n");
                 break;
             }
         }
@@ -1037,17 +1033,15 @@ _Bool list_mright(void *UNUSED(n)) {
         return 1;
     } else if (mouse_in_list) {
         right_mouse_item = NULL; /* Unset right_mouse_item so that we don't interact with the incorrect context menu
-                                  * I'm not sure if this belongs here or in list_mmove, or maybe item_hit. */
+                                  * I'm not sure if this belongs here or in flist_mmove, or maybe item_hit. */
     }
     return 0;
 }
 
-_Bool list_mwheel(void *UNUSED(n), int UNUSED(height), double UNUSED(d), _Bool UNUSED(smooth)) {
-    return 0;
-}
+bool flist_mwheel(void *UNUSED(n), int UNUSED(height), double UNUSED(d), bool UNUSED(smooth)) { return 0; }
 
-_Bool list_mup(void *UNUSED(n)) {
-    _Bool draw = 0;
+bool flist_mup(void *UNUSED(n)) {
+    bool draw = 0;
     tooltip_mup(); /* may need to return one true */
     if (selected_item_mousedown && abs(selected_item_dy) >= 5) {
         if (nitem && find_item_shown_index(nitem) != INT_MAX) {
@@ -1096,7 +1090,7 @@ _Bool list_mup(void *UNUSED(n)) {
     return draw;
 }
 
-_Bool list_mleave(void *UNUSED(n)) {
+bool flist_mleave(void *UNUSED(n)) {
     if (mouseover_item) {
         mouseover_item = NULL;
         return 1;

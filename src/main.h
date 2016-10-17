@@ -1,3 +1,8 @@
+// uTox main.h
+//
+#ifndef UTOX_MAIN_H
+#define UTOX_MAIN_H
+
 // Versions
 #define TITLE "uTox"
 #define SUB_TITLE "(Alpha)"
@@ -14,16 +19,12 @@
 
 // Limits and sizes
 #define UTOX_MAX_CALLS 16
-#define UTOX_MAX_NUM_FRIENDS 256 /* Deprecated; Avoid Use */
 #define UTOX_MAX_BACKLOG_MESSAGES 256
 #define UTOX_MAX_NUM_GROUPS 512
 #define UTOX_FILE_NAME_LENGTH 1024
 
 #define UTOX_MAX_NAME_LENGTH TOX_MAX_NAME_LENGTH
 
-#define MAX_CALLS UTOX_MAX_CALLS             /* Deprecated; Avoid Use */
-#define MAX_NUM_FRIENDS UTOX_MAX_NUM_FRIENDS /* Deprecated; Avoid Use */
-#define MAX_NUM_GROUPS UTOX_MAX_NUM_GROUPS   /* Deprecated; Avoid Use */
 #define TOX_FRIEND_ADDRESS_SIZE TOX_ADDRESS_SIZE
 
 #define BORDER 1
@@ -31,7 +32,7 @@
 #define MAIN_WIDTH 800
 #define MAIN_HEIGHT 600
 
-#define inrect(x, y, rx, ry, width, height)                                                                            \
+#define inrect(x, y, rx, ry, width, height) \
     ((x) >= (rx) && (y) >= (ry) && (x) < ((rx) + (width)) && (y) < ((ry) + (height)))
 
 #define strcmp2(x, y) (memcmp(x, y, sizeof(y) - 1))
@@ -58,36 +59,33 @@
 #define UI_FSCALE(x) (((ui_scale / 10.0) * ((double)x)) ?: 1)
 
 #define drawstr(x, y, i) drawtext(x, y, S(i), SLEN(i))
-#define drawstr_getwidth(x, y, str) drawtext_getwidth(x, y, (char_t *)str, sizeof(str) - 1)
-#define strwidth(x) textwidth((char_t *)x, sizeof(x) - 1)
+#define drawstr_getwidth(x, y, str) drawtext_getwidth(x, y, (char *)str, sizeof(str) - 1)
+#define strwidth(x) textwidth((char *)x, sizeof(x) - 1)
 
 /* Support for large files. */
 #define _LARGEFILE_SOURCE
 #define _FILE_OFFSET_BITS 64
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdint.h>
-#include <inttypes.h>
-#include <time.h>
-#include <string.h>
-#include <math.h>
-#include <limits.h>
 #include <ctype.h>
+#include <inttypes.h>
+#include <limits.h>
+#include <math.h>
 #include <pthread.h>
-
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <time.h>
 #include <tox/tox.h>
-#include <tox/toxav.h>
-#include <tox/toxencryptsave.h>
-#include <vpx/vpx_codec.h>
-#include <vpx/vpx_image.h>
+
+#include "avatar.h"
+#include "messages.h"
 
 #if TOX_VERSION_MAJOR > 0
 #define ENABLE_MULTIDEVICE 1
 #endif
-
 
 /* House keeping for uTox save file. */
 #define UTOX_SAVE_VERSION 3
@@ -117,7 +115,7 @@ typedef struct {
     uint8_t theme;
 
     uint8_t push_to_talk : 1;
-    uint8_t use_mini_roster : 1;
+    uint8_t use_mini_flist : 1;
     uint8_t group_notifications : 4;
     uint8_t status_notifications : 1;
     uint8_t zero : 1;
@@ -148,48 +146,50 @@ typedef struct {
 } LOG_FILE_MSG_HEADER;
 
 volatile uint16_t loaded_audio_in_device, loaded_audio_out_device;
-_Bool             tox_connected;
+bool              tox_connected;
 
 /* Super global vars */
-volatile _Bool tox_thread_init, utox_av_ctrl_init, utox_audio_thread_init, utox_video_thread_init;
+volatile bool tox_thread_init, utox_av_ctrl_init, utox_audio_thread_init, utox_video_thread_init;
 
 typedef struct utox_settings {
     uint32_t curr_version;
     uint32_t last_version;
-    _Bool    show_splash;
+    bool     show_splash;
 
-    _Bool use_proxy;
-    _Bool force_proxy;
-    _Bool enable_udp;
-    _Bool enable_ipv6;
-    _Bool use_encryption;
-    _Bool portable_mode;
+    bool use_proxy;
+    bool force_proxy;
+    bool enable_udp;
+    bool enable_ipv6;
+    bool use_encryption;
+    bool portable_mode;
 
     uint16_t proxy_port;
 
-    _Bool close_to_tray;
-    _Bool logging_enabled;
-    _Bool ringtone_enabled;
-    _Bool audiofilter_enabled;
-    _Bool start_in_tray;
-    _Bool start_with_system;
-    _Bool push_to_talk;
-    _Bool audio_preview;
-    _Bool video_preview;
-    _Bool send_typing_status;
-    _Bool use_mini_roster;
-    _Bool inline_video;
-    _Bool use_long_time_msg;
+    bool close_to_tray;
+    bool logging_enabled;
+    bool ringtone_enabled;
+    bool audiofilter_enabled;
+    bool start_in_tray;
+    bool start_with_system;
+    bool push_to_talk;
+    bool audio_preview;
+    bool video_preview;
+    bool send_typing_status;
+    bool use_mini_flist;
+    bool inline_video;
+    bool use_long_time_msg;
 
     uint8_t verbose;
+
+    uint32_t theme;
 
     uint32_t window_height;
     uint32_t window_width;
     uint32_t window_baseline;
 
-    _Bool   window_maximized;
+    bool    window_maximized;
     uint8_t group_notifications;
-    _Bool   status_notifications;
+    bool    status_notifications;
 } SETTINGS;
 
 /* This might need to be volatile type... */
@@ -201,9 +201,6 @@ uint8_t addfriend_status;
 int      font_small_lineheight, font_msg_lineheight;
 uint16_t video_width, video_height, max_video_width, max_video_height;
 char     proxy_address[256]; /* Magic Number inside toxcore */
-
-// Structs
-typedef struct edit_change EDIT_CHANGE;
 
 // Enums
 /* uTox debug levels */
@@ -235,71 +232,6 @@ enum {
     FONT_END,
 };
 
-/* SVG Bitmap names. */
-typedef enum {
-    BM_ONLINE = 1,
-    BM_AWAY,
-    BM_BUSY,
-    BM_OFFLINE,
-    BM_STATUS_NOTIFY,
-
-    BM_ADD,
-    BM_GROUPS,
-    BM_TRANSFER,
-    BM_SETTINGS,
-    BM_SETTINGS_THREE_BAR,
-
-    BM_LBUTTON,
-    BM_SBUTTON,
-
-    BM_SWITCH,
-    BM_SWITCH_TOGGLE,
-
-    BM_CONTACT,
-    BM_CONTACT_MINI,
-    BM_GROUP,
-    BM_GROUP_MINI,
-
-    BM_FILE,
-    BM_DECLINE,
-    BM_CALL,
-    BM_VIDEO,
-
-    BM_FT,
-    BM_FTM,
-    BM_FTB1,
-    BM_FTB2,
-    BM_FT_CAP,
-
-    BM_NO,
-    BM_PAUSE,
-    BM_RESUME,
-    BM_YES,
-
-    BM_SCROLLHALFTOP,
-    BM_SCROLLHALFBOT,
-    BM_SCROLLHALFTOP_SMALL,
-    BM_SCROLLHALFBOT_SMALL,
-    BM_STATUSAREA,
-
-    BM_CHAT_BUTTON_LEFT,
-    BM_CHAT_BUTTON_RIGHT,
-    BM_CHAT_BUTTON_OVERLAY_SCREENSHOT,
-    BM_CHAT_SEND,
-    BM_CHAT_SEND_OVERLAY,
-    BM_ENDMARKER,
-} SVG_IMG;
-
-#if defined __WIN32__
-#include "windows/main.h"
-#elif defined __ANDROID__
-#include "android/main.h"
-#elif defined __OBJC__
-#include "cocoa/main.h"
-#else
-#include "xlib/main.h"
-#endif
-
 #ifdef UNUSED
 #undef UNUSED
 #endif
@@ -312,61 +244,13 @@ typedef enum {
 #define UNUSED(x) x
 #endif
 
+
 #include "stb_image.h"
 #include "stb_image_write.h"
 extern unsigned char *stbi_write_png_to_mem(unsigned char *pixels, int stride_bytes, int x, int y, int n, int *out_len);
 typedef uint8_t *UTOX_IMAGE;
 
-#include "tox.h"
-#include "tox_callbacks.h"
-#include "devices.h"
-
-#include "av/audio.h"
-#include "av/video.h"
-#include "av/utox_av.h"
-
-#include "sized_string.h"
-#include "ui_i18n_decls.h"
-
-#include "ui.h"
-
-#include "avatar.h"
-#include "theme.h"
-
-#include "messages.h"
-#include "friend.h"
-#include "groups.h"
-#include "roster.h"
-#include "inline_video.h"
-
-#include "ui/svg.h"
-#include "ui/text.h"
-#include "ui/button.h"
-#include "ui/switch.h"
-#include "ui/dropdown.h"
-#include "ui/edit.h"
-#include "ui/scrollable.h"
-#include "ui/contextmenu.h"
-#include "ui/tooltip.h"
-
-#include "ui/ui_edits.h"
-#include "ui/ui_buttons.h"
-#include "ui/ui_dropdown.h"
-
-#include "commands.h"
-
-#include "util.h"
-#include "dns.h"
-#include "file_transfers.h"
-
 pthread_mutex_t messages_lock;
-
-// friends and groups
-// note: assumes array size will always be large enough
-UTOX_DEVICE *devices;
-
-FRIEND friend[MAX_NUM_FRIENDS];
-GROUPCHAT group[MAX_NUM_GROUPS];
 
 enum {
     USER_STATUS_AVAILABLE,
@@ -402,25 +286,17 @@ struct {
 } self;
 
 uint8_t cursor;
-
-_Bool mdown;
-
 struct {
     int x, y;
 } mouse;
-
-uint16_t video_width, video_height, max_video_width, max_video_height;
-
-char proxy_address[256];
-
-UTOX_FRAME_PKG *current_frame;
+bool mdown;
 
 /** Takes data from µTox and saves it, just how the OS likes it saved!
  *
  * Returns the start of the offset on success, and 0 on failure.
  * Used to set save_needed in tox thread
  * And msg->disk_offset in history/messages */
-size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *data, size_t length, _Bool append);
+size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *data, size_t length, bool append);
 
 /** Takes data from µTox and loads it up! */
 uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_size);
@@ -429,13 +305,13 @@ uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_s
 FILE *native_load_chatlog_file(uint32_t friend_number);
 
 /** given a filename, native_remove_file will delete that file from the local config dir */
-_Bool native_remove_file(const uint8_t *name, size_t length);
+bool native_remove_file(const uint8_t *name, size_t length);
 
 /*** Global wrappers for the native_ data functions ***/
 
 /** TODO DOCUMENATION
  */
-_Bool utox_save_data_tox(uint8_t *data, size_t length);
+bool utox_save_data_tox(uint8_t *data, size_t length);
 
 /** TODO DOCUMENATION
  */
@@ -443,7 +319,7 @@ uint8_t *utox_load_data_tox(size_t *size);
 
 /** TODO DOCUMENATION
  */
-_Bool utox_save_data_utox(UTOX_SAVE *data, size_t length);
+bool utox_save_data_utox(UTOX_SAVE *data, size_t length);
 
 /** TODO DOCUMENATION
  */
@@ -464,27 +340,27 @@ uint8_t **utox_load_chatlog(uint32_t friend_number, size_t *size, uint32_t count
  * When given a friend_number and offset, utox_update_chatlog will overwrite the file, with
  * the supplied data * length. It makes no attempt to verify the data or length, it'll just
  * write blindly. */
-_Bool utox_update_chatlog(uint32_t friend_number, size_t offset, uint8_t *data, size_t length);
+bool utox_update_chatlog(uint32_t friend_number, size_t offset, uint8_t *data, size_t length);
 
 /** TODO DOCUMENATION
  */
-_Bool utox_save_data_avatar(uint32_t friend_number, const uint8_t *data, size_t length);
+bool utox_save_data_avatar(uint32_t friend_number, const uint8_t *data, size_t length);
 /** TODO DOCUMENATION
  */
 uint8_t *utox_load_data_avatar(uint32_t friend_number, size_t *size);
 /** TODO DOCUMENATION
  */
-_Bool utox_remove_file_avatar(uint32_t friend_number);
+bool utox_remove_file_avatar(uint32_t friend_number);
 
 /** TODO DOCUMENATION
  */
-_Bool utox_remove_file(const uint8_t *full_name, size_t length);
+bool utox_remove_file(const uint8_t *full_name, size_t length);
 /** TODO DOCUMENATION
  */
-_Bool utox_remove_friend_chatlog(uint32_t friend_number);
+bool utox_remove_friend_chatlog(uint32_t friend_number);
 
-_Bool utox_remove_file(const uint8_t *full_name, size_t length);
-_Bool utox_remove_friend_history(uint32_t friend_number);
+bool utox_remove_file(const uint8_t *full_name, size_t length);
+bool utox_remove_friend_history(uint32_t friend_number);
 /** TODO DOCUMENATION
  */
 void utox_export_chatlog_init(uint32_t friend_number);
@@ -497,8 +373,8 @@ void utox_export_chatlog(uint32_t friend_number, FILE *dest_file);
 
 /** TODO DOCUMENATION
  */
-void parse_args(int argc, char *argv[], _Bool *theme_was_set_on_argv, int8_t *should_launch_at_startup,
-                int8_t *set_show_window, _Bool *no_updater);
+void parse_args(int argc, char *argv[], bool *theme_was_set_on_argv, int8_t *should_launch_at_startup,
+                int8_t *set_show_window, bool *no_updater);
 
 /** TODO DOCUMENATION
  */
@@ -509,8 +385,8 @@ void launch_at_startup(int is_launch_at_startup);
 
 void drawalpha(int bm, int x, int y, int width, int height, uint32_t color);
 void loadalpha(int bm, void *data, int width, int height);
-void desktopgrab(_Bool video);
-void notify(char_t *title, uint16_t title_length, const char_t *msg, uint16_t msg_length, void *object, _Bool is_group);
+void desktopgrab(bool video);
+void notify(char *title, uint16_t title_length, const char *msg, uint16_t msg_length, void *object, bool is_group);
 void setscale(void);
 void setscale_fonts(void);
 
@@ -519,14 +395,14 @@ enum {
     FILTER_BILINEAR // prettier and a bit slower filtering
 };
 /* set filtering method used when resizing given image to one of above enum */
-void image_set_filter(UTOX_NATIVE_IMAGE *image, uint8_t filter);
+void image_set_filter(NATIVE_IMAGE *image, uint8_t filter);
 
 /* set scale of image so that when it's drawn it will be `scale' times as large(2.0 for double size, 0.5 for half, etc.)
  *  notes: theoretically lowest possible scale is (1.0/65536.0), highest is 65536.0, values outside of this range will
  * create weird issues
  *         scaling will be rounded to pixels, so it might not be exact
  */
-void image_set_scale(UTOX_NATIVE_IMAGE *image, double scale);
+void image_set_scale(NATIVE_IMAGE *image, double scale);
 
 /* draws an utox image with or without alpha channel into the rect of (x,y,width,height) on the screen,
  * starting at position (imgx,imgy) of the image
@@ -534,19 +410,18 @@ void image_set_scale(UTOX_NATIVE_IMAGE *image, double scale);
  * of
  * the image's size AFTER SCALING, so be careful.
  * TODO: improve this so this function is safer to use */
-void draw_image(const UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t imgx,
-                uint32_t imgy);
+void draw_image(const NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t imgx, uint32_t imgy);
 
 /* Native wrapper to ready and call draw_image */
 void draw_inline_image(uint8_t *img_data, size_t size, uint16_t w, uint16_t h, int x, int y);
 
-/* converts a png to a UTOX_NATIVE_IMAGE, returns a pointer to it, keeping alpha channel only if keep_alpha is 1 */
-UTOX_NATIVE_IMAGE *decode_image_rgb(const UTOX_IMAGE, size_t size, uint16_t *w, uint16_t *h, _Bool keep_alpha);
+/* converts a png to a NATIVE_IMAGE, returns a pointer to it, keeping alpha channel only if keep_alpha is 1 */
+NATIVE_IMAGE *decode_image_rgb(const UTOX_IMAGE, size_t size, uint16_t *w, uint16_t *h, bool keep_alpha);
 
 /* free an image created by decode_image_rgb */
-void image_free(UTOX_NATIVE_IMAGE *image);
+void image_free(NATIVE_IMAGE *image);
 
-void showkeyboard(_Bool show);
+void showkeyboard(bool show);
 void redraw(void);
 void update_tray(void);
 void force_redraw(void); // TODO: as parameter for redraw()?
@@ -560,23 +435,23 @@ void config_osdefaults(UTOX_SAVE *r);
 void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data);
 
 /** returns 0 if push to talk is enabled, and the button is up, else returns 1. */
-void  init_ptt(void);
-_Bool get_ptt_key(void);
-_Bool set_ptt_key(void);
-_Bool check_ptt_key(void);
-void  exit_ptt(void);
+void init_ptt(void);
+bool get_ptt_key(void);
+bool set_ptt_key(void);
+bool check_ptt_key(void);
+void exit_ptt(void);
 
 /* draw functions*/
-void drawtext(int x, int y, char_t *str, uint16_t length);
-int drawtext_getwidth(int x, int y, char_t *str, uint16_t length);
-void drawtextwidth(int x, int width, int y, char_t *str, uint16_t length);
-void drawtextwidth_right(int x, int width, int y, char_t *str, uint16_t length);
-void drawtextrange(int x, int x2, int y, char_t *str, uint16_t length);
-void drawtextrangecut(int x, int x2, int y, char_t *str, uint16_t length);
+void drawtext(int x, int y, char *str, uint16_t length);
+int drawtext_getwidth(int x, int y, char *str, uint16_t length);
+void drawtextwidth(int x, int width, int y, char *str, uint16_t length);
+void drawtextwidth_right(int x, int width, int y, char *str, uint16_t length);
+void drawtextrange(int x, int x2, int y, char *str, uint16_t length);
+void drawtextrangecut(int x, int x2, int y, char *str, uint16_t length);
 
-int textwidth(char_t *str, uint16_t length);
-int textfit(char_t *str, uint16_t length, int width);
-int textfit_near(char_t *str, uint16_t length, int width);
+int textwidth(char *str, uint16_t length);
+int textfit(char *str, uint16_t length, int width);
+int textfit_near(char *str, uint16_t length, int width);
 // TODO: Seems to be unused. Remove?
 int text_drawline(int x, int right, int y, uint8_t *str, int i, int length, int highlight, int hlen,
                   uint16_t lineheight);
@@ -613,35 +488,28 @@ uint64_t get_time(void);
 void copy(int value);
 void paste(void);
 
-void openurl(char_t *str);
+void openurl(char *str);
 void openfilesend(void);
 
 /* use the file chooser to pick an avatar and set it as the user's */
 void openfileavatar(void);
 void native_select_dir_ft(uint32_t fid, MSG_FILE *file);
-void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file);
+void native_autoselect_dir_ft(uint32_t fid, struct FILE_TRANSFER *file);
 void savefiledata(MSG_FILE *file);
 
-void setselection(char_t *data, uint16_t length);
+void setselection(char *data, uint16_t length);
 
-void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height, _Bool resize);
-void video_begin(uint32_t id, char_t *name, uint16_t name_length, uint16_t width, uint16_t height);
+void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height, bool resize);
+void video_begin(uint32_t id, char *name, uint16_t name_length, uint16_t width, uint16_t height);
 void video_end(uint32_t id);
 
-uint16_t native_video_detect(void);
-_Bool native_video_init(void *handle);
-void native_video_close(void *handle);
-int native_video_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, uint16_t height);
-_Bool native_video_startread(void);
-_Bool native_video_endread(void);
-
-void  audio_detect(void);
-_Bool audio_init(void *handle);
-_Bool audio_close(void *handle);
-_Bool audio_frame(int16_t *buffer);
-
-ToxAV *global_av;
+void audio_detect(void);
+bool audio_init(void *handle);
+bool audio_close(void *handle);
+bool audio_frame(int16_t *buffer);
 
 void audio_play(int32_t call_index, const int16_t *data, int length, uint8_t channels);
 void audio_begin(int32_t call_index);
 void audio_end(int32_t call_index);
+
+#endif

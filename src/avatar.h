@@ -1,25 +1,28 @@
 #ifndef AVATAR_H
 #define AVATAR_H
 
-//TODO: remove?
-#define UTOX_AVATAR_MAX_DATA_LENGTH (64 * 1024) //NOTE: increasing this above 64k might cause issues with other clients.
+#include "main_native.h"
+
+// TODO: remove?
+#define UTOX_AVATAR_MAX_DATA_LENGTH (64 * 1024) // NOTE: increasing this above 64k might cause
+                                                // issues with other clients who do stupid things.
 #define UTOX_AVATAR_FORMAT_NONE 0
 #define UTOX_AVATAR_FORMAT_PNG 1
 
 /* data needed for each avatar in memory */
 typedef struct avatar {
-    uint8_t format; /* one of TOX_AVATAR_FORMAT */
-    uint8_t hash[TOX_HASH_LENGTH]; /* tox_hash for the png data of this avatar */
-    UTOX_NATIVE_IMAGE *image; /* converted avatar image to draw */
-    uint16_t width, height; /* width and height of image (in pixels) */
-}AVATAR;
+    uint8_t       format;                /* one of TOX_AVATAR_FORMAT */
+    uint8_t       hash[TOX_HASH_LENGTH]; /* tox_hash for the png data of this avatar */
+    NATIVE_IMAGE *image;                 /* converted avatar image to draw */
+    uint16_t      width, height;         /* width and height of image (in pixels) */
+} AVATAR;
 
 /* whether user's avatar is set */
 #define self_has_avatar() (self.avatar.format != UTOX_AVATAR_FORMAT_NONE)
 /* whether friend f's avatar is set, where f is a pointer to a friend struct */
 #define friend_has_avatar(f) (f) && (f->avatar.format != UTOX_AVATAR_FORMAT_NONE)
 
-_Bool init_avatar(AVATAR *avatar, uint32_t friend_number, uint8_t *png_data_out, uint32_t *png_size_out);
+bool init_avatar(AVATAR *avatar, uint32_t friend_number, uint8_t *png_data_out, uint32_t *png_size_out);
 
 /* loads an avatar from disk and puts the resulting png data in buffer given by dest.
  * id is the client id string for given client. To get the cid string from a cid, use cid_to_string
@@ -37,16 +40,16 @@ int load_avatar(uint32_t friend_number, uint8_t **dest, size_t *size_out);
  *  on failure: returns 0
  *  see also: load_avatar
  */
-_Bool save_avatar(uint32_t friend_number, const uint8_t *data, uint32_t size);
+bool save_avatar(uint32_t friend_number, const uint8_t *data, uint32_t size);
 
 /* deletes saved avatar data for given id
  *  on success: returns 1
  *  on failure: returns 0
  *  see also: load_avatar
  */
-_Bool delete_saved_avatar(uint32_t friend_number);
+bool delete_saved_avatar(uint32_t friend_number);
 
-/* converts png data given by data to a UTOX_NATIVE_IMAGE and uses that to populate the avatar struct
+/* converts png data given by data to a NATIVE_IMAGE and uses that to populate the avatar struct
  *  avatar is pointer to an avatar struct to store result in. Remains unchanged if function fails.
  *  data is pointer to png data to convert
  *  size is size of data
@@ -81,7 +84,7 @@ void self_remove_avatar();
  * return 1 on success.
  * return 0 on failure.
  */
-_Bool avatar_on_friend_online(Tox *tox, uint32_t friend_number);
+bool avatar_on_friend_online(Tox *tox, uint32_t friend_number);
 
 /** called once out new avatar is changed to update all of our friends
  *

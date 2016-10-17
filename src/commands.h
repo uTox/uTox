@@ -1,6 +1,8 @@
 #ifndef COMMANDS_H
 #define COMMANDS_H
 
+#include "friend.h"
+
 /** slash_send_file()
  *
  * takes a file from the message box, and send it to the current friend.
@@ -16,9 +18,9 @@ int slash_send_file(FRIEND *friend_handle, const uint8_t *filepath);
  *
  * Returns the remaining string length.
  */
-uint16_t utox_run_command(char_t *string, uint16_t string_length, char_t **cmd, char_t **argument, int trusted);
+uint16_t utox_run_command(char *string, uint16_t string_length, char **cmd, char **argument, int trusted);
 
-extern _Bool g_select_add_friend_later;
+extern bool g_select_add_friend_later;
 void do_tox_url(uint8_t *url_string, int len);
 
 #endif

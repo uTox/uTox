@@ -1,4 +1,10 @@
+// tooltip.c
+
+#include "tooltip.h"
+
 #include "../main.h"
+#include "../theme.h"
+#include "../tox.h"
 
 static TOOLTIP tooltip;
 
@@ -25,7 +31,7 @@ static void calculate_pos_and_width(TOOLTIP *b, int *x, int *w) {
     }
 }
 
-volatile _Bool kill_thread;
+volatile bool kill_thread;
 
 void tooltip_reset(void) {
     TOOLTIP *b = &tooltip;
@@ -60,7 +66,7 @@ void tooltip_draw(void) {
     draw_rect_frame(x, b->y, w, b->height, COLOR_EDGE_NORMAL);
 }
 
-_Bool tooltip_mmove(void) {
+bool tooltip_mmove(void) {
     TOOLTIP *b = &tooltip;
 
     b->can_show = 0;
@@ -79,7 +85,7 @@ _Bool tooltip_mmove(void) {
     return 1;
 }
 
-_Bool tooltip_mdown(void) {
+bool tooltip_mdown(void) {
     TOOLTIP *b = &tooltip;
 
     b->can_show   = 0;
@@ -94,7 +100,7 @@ _Bool tooltip_mdown(void) {
     return 0;
 }
 
-_Bool tooltip_mup(void) {
+bool tooltip_mup(void) {
     TOOLTIP *b = &tooltip;
 
     b->can_show   = 0;
@@ -131,7 +137,7 @@ void tooltip_show(void) {
     }
 }
 
-volatile _Bool reset_time;
+volatile bool reset_time;
 
 static void tooltip_thread(void *UNUSED(args)) {
     uint64_t last_move_time = ~0;

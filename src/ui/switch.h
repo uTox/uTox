@@ -1,6 +1,9 @@
 #ifndef SWITCH_H
 #define SWITCH_H
 
+#include "../ui.h"
+
+typedef struct uiswitch UISWITCH;
 struct uiswitch {
     PANEL panel;
 
@@ -10,13 +13,10 @@ struct uiswitch {
     SVG_IMG style_icon_on;
 
     // Width/height of the toggle and the icons. Used for centering.
-    int toggle_w, toggle_h,
-        icon_off_w, icon_off_h,
-        icon_on_w, icon_on_h;
+    int toggle_w, toggle_h, icon_off_w, icon_off_h, icon_on_w, icon_on_h;
 
     // Background RGB color, when Idle/Hovered/Pressed respectively.
-    uint32_t
-        bg_color,       // Switch normal background color
+    uint32_t bg_color,  // Switch normal background color
         sw_color,       // Switch 'toggle' color
         hover_color,    // Switch mouse over color
         press_color,    // Switch mouse down color
@@ -39,5 +39,9 @@ bool switch_mright(UISWITCH *s);
 bool switch_mwheel(UISWITCH *s, int height, double d, bool smooth);
 bool switch_mup(UISWITCH *s);
 bool switch_mleave(UISWITCH *s);
+
+extern UISWITCH switch_logging, switch_mini_contacts, switch_ipv6, switch_udp, switch_auto_startup, switch_typing_notes,
+    switch_close_to_tray, switch_start_in_tray, switch_audible_notifications, switch_push_to_talk,
+    switch_audio_filtering, switch_status_notifications;
 
 #endif

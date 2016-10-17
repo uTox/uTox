@@ -1,5 +1,6 @@
 /* uTox audio using OpenSL
- *  todo: error checking, only record when needed, audio sources only in "playing" state when they have something to play(does it make a difference?)
+ *  todo: error checking, only record when needed, audio sources only in "playing" state when they have something to
+ * play(does it make a difference?)
  */
 
 static SLObjectItf engineObject = NULL;
@@ -7,68 +8,64 @@ static SLEngineItf engineEngine;
 
 static SLObjectItf outputMixObject = NULL;
 
-static SLObjectItf recorderObject = NULL;
-static SLRecordItf recorderRecord;
+static SLObjectItf                   recorderObject = NULL;
+static SLRecordItf                   recorderRecord;
 static SLAndroidSimpleBufferQueueItf recorderBufferQueue;
 
-//dont change this
+// dont change this
 #define FRAMES (960 * 3)
 
 static short recbuf[960 * 2];
 
-typedef struct
-{
-    SLObjectItf player;
+typedef struct {
+    SLObjectItf                   player;
     SLAndroidSimpleBufferQueueItf queue;
-    uint8_t channels;
-    uint8_t value;
-    volatile _Bool queued[8];
-    uint8_t unqueue;
-    short *buf;
+    uint8_t                       channels;
+    uint8_t                       value;
+    volatile bool                 queued[8];
+    uint8_t                       unqueue;
+    short *                       buf;
 } AUDIO_PLAYER;
 
 AUDIO_PLAYER loopback, call_player[MAX_CALLS];
 
-static SLDataFormat_PCM format_pcm = {
-    .formatType = SL_DATAFORMAT_PCM,
-    .numChannels = 1,
-    .samplesPerSec = SL_SAMPLINGRATE_48,
-    .bitsPerSample = SL_PCMSAMPLEFORMAT_FIXED_16,
-    .containerSize = SL_PCMSAMPLEFORMAT_FIXED_16,
-    .channelMask = SL_SPEAKER_FRONT_CENTER,
-    .endianness = SL_BYTEORDER_LITTLEENDIAN
-};
+static SLDataFormat_PCM format_pcm = {.formatType    = SL_DATAFORMAT_PCM,
+                                      .numChannels   = 1,
+                                      .samplesPerSec = SL_SAMPLINGRATE_48,
+                                      .bitsPerSample = SL_PCMSAMPLEFORMAT_FIXED_16,
+                                      .containerSize = SL_PCMSAMPLEFORMAT_FIXED_16,
+                                      .channelMask   = SL_SPEAKER_FRONT_CENTER,
+                                      .endianness    = SL_BYTEORDER_LITTLEENDIAN };
 
-volatile _Bool call[MAX_CALLS];
+volatile bool call[MAX_CALLS];
 
 pthread_mutex_t callback_lock;
 
-void* frames[128];
+void *  frames[128];
 uint8_t frame_count;
 
-void playCallback(SLAndroidSimpleBufferQueueItf bq, void *context)
-{
-    AUDIO_PLAYER *p = context;
+void playCallback(SLAndroidSimpleBufferQueueItf bq, void *context) {
+    AUDIO_PLAYER *p         = context;
     p->queued[p->unqueue++] = 0;
-    if(p->unqueue == 8) {
+    if (p->unqueue == 8) {
         p->unqueue = 0;
     }
 }
 
-void init_player(AUDIO_PLAYER *p, uint8_t channels)
-{
+void init_player(AUDIO_PLAYER *p, uint8_t channels) {
     format_pcm.numChannels = channels;
-    format_pcm.channelMask = ((channels == 1) ? SL_SPEAKER_FRONT_CENTER : (SL_SPEAKER_FRONT_LEFT | SL_SPEAKER_FRONT_RIGHT));
+    format_pcm.channelMask =
+        ((channels == 1) ? SL_SPEAKER_FRONT_CENTER : (SL_SPEAKER_FRONT_LEFT | SL_SPEAKER_FRONT_RIGHT));
     p->channels = channels;
 
-    SLDataLocator_AndroidSimpleBufferQueue loc_bufq = {SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE, 8};
-    SLDataSource audioSrc = {&loc_bufq, &format_pcm};
-    SLDataLocator_OutputMix loc_outmix = {SL_DATALOCATOR_OUTPUTMIX, outputMixObject};
-    SLDataSink audioSnk = {&loc_outmix, NULL};
-    SLPlayItf bqPlayerPlay;
+    SLDataLocator_AndroidSimpleBufferQueue loc_bufq   = { SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE, 8 };
+    SLDataSource                           audioSrc   = { &loc_bufq, &format_pcm };
+    SLDataLocator_OutputMix                loc_outmix = { SL_DATALOCATOR_OUTPUTMIX, outputMixObject };
+    SLDataSink                             audioSnk   = { &loc_outmix, NULL };
+    SLPlayItf                              bqPlayerPlay;
 
-    const SLInterfaceID ids[] = {SL_IID_BUFFERQUEUE};
-    const SLboolean reqs[] = {SL_BOOLEAN_TRUE};
+    const SLInterfaceID ids[]  = { SL_IID_BUFFERQUEUE };
+    const SLboolean     reqs[] = { SL_BOOLEAN_TRUE };
 
     (*engineEngine)->CreateAudioPlayer(engineEngine, &p->player, &audioSrc, &audioSnk, 1, ids, reqs);
     (*p->player)->Realize(p->player, SL_BOOLEAN_FALSE);
@@ -80,33 +77,31 @@ void init_player(AUDIO_PLAYER *p, uint8_t channels)
     p->buf = malloc(960 * 2 * 8 * channels);
 }
 
-void close_player(AUDIO_PLAYER *p)
-{
+void close_player(AUDIO_PLAYER *p) {
     (*p->player)->Destroy(p->player);
     free(p->buf);
     memset(p, 0, sizeof(*p));
 }
 
-static void player_queue(AUDIO_PLAYER *p, const int16_t *data, uint8_t channels)
-{
-    if(channels != p->channels && p->player) {
+static void player_queue(AUDIO_PLAYER *p, const int16_t *data, uint8_t channels) {
+    if (channels != p->channels && p->player) {
         close_player(p);
     }
 
-    if(!p->player) {
+    if (!p->player) {
         init_player(p, channels);
     }
 
     SLresult result;
 
-    if(!p->queued[p->value]) {
+    if (!p->queued[p->value]) {
         p->queued[p->value] = 1;
 
         memcpy(&p->buf[p->value * 960 * channels], data, 960 * 2 * channels);
         result = (*p->queue)->Enqueue(p->queue, &p->buf[p->value * 960 * channels], 960 * 2 * channels);
 
         p->value++;
-        if(p->value == 8) {
+        if (p->value == 8) {
             p->value = 0;
         }
     } else {
@@ -116,34 +111,33 @@ static void player_queue(AUDIO_PLAYER *p, const int16_t *data, uint8_t channels)
 
 /* thread dedicated to encoding audio frames */
 /* todo: exit */
-void encoder_thread(void *arg)
-{
-    while(1) {
-        void *frame;
+void encoder_thread(void *arg) {
+    while (1) {
+        void *  frame;
         uint8_t c;
 
         pthread_mutex_lock(&callback_lock);
 
         c = volatile(frame_count);
-        if(c) {
+        if (c) {
             frame = volatile(frames[0]);
-            memmove(&frames[0], &frames[1], (c - 1) * sizeof(void*));
+            memmove(&frames[0], &frames[1], (c - 1) * sizeof(void *));
             frame_count--;
         }
 
         pthread_mutex_unlock(&callback_lock);
 
-        if(c) {
-            if(volatile(settings.audio_preview)) {
+        if (c) {
+            if (volatile(settings.audio_preview)) {
                 player_queue(&loopback, frame, 1);
             }
 
 
             // TODO fix this
             int i;
-            for(i = 0; i < MAX_CALLS; i++) {
-                if(call[i]) {
-                    int r;
+            for (i = 0; i < MAX_CALLS; i++) {
+                if (call[i]) {
+                    int     r;
                     uint8_t dest[960 * 2];
 
 
@@ -156,30 +150,29 @@ void encoder_thread(void *arg)
                         debug("toxav_send_audio error %i %s\n", r, strerror(errno));
                     }*/
 
-                     // toxav_audio_send_frame(av, friend[i].number, (const int16_t *)buf, perframe, UTOX_DEFAULT_AUDIO_CHANNELS, UTOX_DEFAULT_SAMPLE_RATE_A, NULL);
-
+                    // toxav_audio_send_frame(av, friend[i].number, (const int16_t *)buf, perframe,
+                    // UTOX_DEFAULT_AUDIO_CHANNELS, UTOX_DEFAULT_SAMPLE_RATE_A, NULL);
                 }
             }
 
             free(frame);
         }
 
-        if(c <= 1) {
+        if (c <= 1) {
             yieldcpu(1);
         }
     }
 }
 
 /* these two callbacks assume they will be called from the same thread (not at the same time from different threads) */
-void bqRecorderCallback(SLAndroidSimpleBufferQueueItf bq, void *context)
-{
-    SLresult result;
-    static _Bool b;
-    short *buf = &recbuf[b ? 960 : 0];
+void bqRecorderCallback(SLAndroidSimpleBufferQueueItf bq, void *context) {
+    SLresult    result;
+    static bool b;
+    short *     buf = &recbuf[b ? 960 : 0];
 
     pthread_mutex_lock(&callback_lock);
 
-    if(frame_count == 128) {
+    if (frame_count == 128) {
         debug("problem~!~\n");
     } else {
         void *frame = malloc(960 * 2);
@@ -188,27 +181,27 @@ void bqRecorderCallback(SLAndroidSimpleBufferQueueItf bq, void *context)
     }
 
     result = (*bq)->Enqueue(bq, buf, 960 * 2);
-    b = !b;
+    b      = !b;
 
     pthread_mutex_unlock(&callback_lock);
 }
 
-_Bool createAudioRecorder(void)
-{
+bool createAudioRecorder(void) {
     SLresult result;
 
     // configure audio source
-    SLDataLocator_IODevice loc_dev = {SL_DATALOCATOR_IODEVICE, SL_IODEVICE_AUDIOINPUT, SL_DEFAULTDEVICEID_AUDIOINPUT, NULL};
-    SLDataSource audioSrc = {&loc_dev, NULL};
+    SLDataLocator_IODevice loc_dev = { SL_DATALOCATOR_IODEVICE, SL_IODEVICE_AUDIOINPUT, SL_DEFAULTDEVICEID_AUDIOINPUT,
+                                       NULL };
+    SLDataSource audioSrc = { &loc_dev, NULL };
 
     // configure audio sink
-    SLDataLocator_AndroidSimpleBufferQueue loc_bq = {SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE, 2};
-    SLDataSink audioSnk = {&loc_bq, &format_pcm};
+    SLDataLocator_AndroidSimpleBufferQueue loc_bq   = { SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE, 2 };
+    SLDataSink                             audioSnk = { &loc_bq, &format_pcm };
 
     // create audio recorder
     // (requires the RECORD_AUDIO permission)
-    const SLInterfaceID id[1] = {SL_IID_ANDROIDSIMPLEBUFFERQUEUE};
-    const SLboolean req[1] = {SL_BOOLEAN_TRUE};
+    const SLInterfaceID id[1]  = { SL_IID_ANDROIDSIMPLEBUFFERQUEUE };
+    const SLboolean     req[1] = { SL_BOOLEAN_TRUE };
     result = (*engineEngine)->CreateAudioRecorder(engineEngine, &recorderObject, &audioSrc, &audioSnk, 1, id, req);
     if (SL_RESULT_SUCCESS != result) {
         return 0;
@@ -229,13 +222,12 @@ _Bool createAudioRecorder(void)
     result = (*recorderBufferQueue)->RegisterCallback(recorderBufferQueue, bqRecorderCallback, NULL);
 
     pthread_mutex_init(&callback_lock, NULL);
-    //thread(encoder_thread, av);
+    // thread(encoder_thread, av);
 
     return 1;
 }
 
-void startRecording(void)
-{
+void startRecording(void) {
     SLresult result;
 
     result = (*recorderRecord)->SetRecordState(recorderRecord, SL_RECORDSTATE_STOPPED);
@@ -247,8 +239,7 @@ void startRecording(void)
     result = (*recorderRecord)->SetRecordState(recorderRecord, SL_RECORDSTATE_RECORDING);
 }
 
-void stopRecording(void)
-{
+void stopRecording(void) {
     SLresult result;
 
     result = (*recorderRecord)->SetRecordState(recorderRecord, SL_RECORDSTATE_STOPPED);
@@ -266,8 +257,7 @@ void stopRecording(void)
     pthread_mutex_unlock(&callback_lock);
 }
 
-void createEngine(void)
-{
+void createEngine(void) {
     SLresult result;
 
     result = slCreateEngine(&engineObject, 0, NULL, 0, NULL, NULL);
@@ -285,51 +275,40 @@ void createEngine(void)
 }
 
 /* ASSUMES LENGTH == 960 */
-void audio_play(int32_t call_index, const int16_t *data, int length, uint8_t channels)
-{
+void audio_play(int32_t call_index, const int16_t *data, int length, uint8_t channels) {
     player_queue(&call_player[call_index], data, channels);
 }
 
-void audio_begin(int32_t call_index)
-{
-    call[call_index] = 1;
-}
+void audio_begin(int32_t call_index) { call[call_index] = 1; }
 
-void audio_end(int32_t call_index)
-{
-    call[call_index] = 0;
-}
+void audio_end(int32_t call_index) { call[call_index] = 0; }
 
-void audio_detect(void)
-{
+void audio_detect(void) {
     createEngine();
     createAudioRecorder();
-    postmessage(AUDIO_IN_DEVICE, STR_AUDIO_IN_ANDROID, 1, (void*)(size_t)1);
+    postmessage(AUDIO_IN_DEVICE, STR_AUDIO_IN_ANDROID, 1, (void *)(size_t)1);
 }
 
-_Bool audio_init(void *handle)
-{
+bool audio_init(void *handle) {
     startRecording();
     return 1;
 }
 
-_Bool audio_close(void *handle)
-{
+bool audio_close(void *handle) {
     stopRecording();
     return 1;
 }
 
-_Bool audio_frame(int16_t *buffer)
-{
-    void *frame;
+bool audio_frame(int16_t *buffer) {
+    void *  frame;
     uint8_t c;
 
     pthread_mutex_lock(&callback_lock);
 
     c = volatile(frame_count);
-    if(c) {
+    if (c) {
         frame = volatile(frames[0]);
-        memmove(&frames[0], &frames[1], (c - 1) * sizeof(void*));
+        memmove(&frames[0], &frames[1], (c - 1) * sizeof(void *));
         frame_count--;
     }
 

@@ -7,56 +7,50 @@ void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height
     }
 
     if (resize) {
-        XWindowChanges changes = {
-            .width = width,
-            .height = height
-        };
+        XWindowChanges changes = {.width = width, .height = height };
         XConfigureWindow(display, video_win[id], CWWidth | CWHeight, &changes);
     }
 
     XWindowAttributes attrs;
     XGetWindowAttributes(display, video_win[id], &attrs);
 
-    XImage image = {
-        .width = attrs.width,
-        .height = attrs.height,
-        .depth = 24,
-        .bits_per_pixel = 32,
-        .format = ZPixmap,
-        .byte_order = LSBFirst,
-        .bitmap_unit = 8,
-        .bitmap_bit_order = LSBFirst,
-        .bytes_per_line = attrs.width * 4,
-        .red_mask = 0xFF0000,
-        .green_mask = 0xFF00,
-        .blue_mask = 0xFF,
-        .data = (char*)img_data
-    };
+    XImage image = {.width            = attrs.width,
+                    .height           = attrs.height,
+                    .depth            = 24,
+                    .bits_per_pixel   = 32,
+                    .format           = ZPixmap,
+                    .byte_order       = LSBFirst,
+                    .bitmap_unit      = 8,
+                    .bitmap_bit_order = LSBFirst,
+                    .bytes_per_line   = attrs.width * 4,
+                    .red_mask         = 0xFF0000,
+                    .green_mask       = 0xFF00,
+                    .blue_mask        = 0xFF,
+                    .data             = (char *)img_data };
 
     /* scale image if needed */
     uint8_t *new_data = malloc(attrs.width * attrs.height * 4);
     if (new_data && (attrs.width != width || attrs.height != height)) {
         scale_rgbx_image(img_data, width, height, new_data, attrs.width, attrs.height);
-        image.data = (char*)new_data;
+        image.data = (char *)new_data;
     }
 
 
-    GC default_gc = DefaultGC(display, screen);
-    Pixmap pixmap = XCreatePixmap(display, window, attrs.width, attrs.height, xwin_depth);
+    GC     default_gc = DefaultGC(display, screen);
+    Pixmap pixmap     = XCreatePixmap(display, window, attrs.width, attrs.height, xwin_depth);
     XPutImage(display, pixmap, default_gc, &image, 0, 0, 0, 0, attrs.width, attrs.height);
     XCopyArea(display, pixmap, video_win[id], default_gc, 0, 0, attrs.width, attrs.height, 0, 0);
     XFreePixmap(display, pixmap);
     free(new_data);
 }
 
-void video_begin(uint32_t id, char_t *name, uint16_t name_length, uint16_t width, uint16_t height) {
+void video_begin(uint32_t id, char *name, uint16_t name_length, uint16_t width, uint16_t height) {
     Window *win = &video_win[id];
-    if(*win) {
+    if (*win) {
         return;
     }
 
-    *win = XCreateSimpleWindow(display, RootWindow(display, screen),
-                               0, 0, width, height, 0,
+    *win = XCreateSimpleWindow(display, RootWindow(display, screen), 0, 0, width, height, 0,
                                BlackPixel(display, screen), WhitePixel(display, screen));
 
     // Fallback name in ISO8859-1.
@@ -66,10 +60,7 @@ void video_begin(uint32_t id, char_t *name, uint16_t name_length, uint16_t width
     XSetWMProtocols(display, *win, &wm_delete_window, 1);
 
     /* set WM_CLASS */
-    XClassHint hint = {
-        .res_name = "utoxvideo",
-        .res_class = "utoxvideo"
-    };
+    XClassHint hint = {.res_name = "utoxvideo", .res_class = "utoxvideo" };
 
     XSetClassHint(display, *win, &hint);
 
@@ -78,7 +69,7 @@ void video_begin(uint32_t id, char_t *name, uint16_t name_length, uint16_t width
 }
 
 void video_end(uint32_t id) {
-    if(!video_win[id]) {
+    if (!video_win[id]) {
         return;
     }
 
@@ -88,46 +79,46 @@ void video_end(uint32_t id) {
 }
 
 Display *deskdisplay;
-int deskscreen;
+int      deskscreen;
 
 XShmSegmentInfo shminfo;
 
 void initshm(void) {
     deskdisplay = XOpenDisplay(NULL);
-    deskscreen = DefaultScreen(deskdisplay);
+    deskscreen  = DefaultScreen(deskdisplay);
     debug("desktop: %u %u\n", scr->width, scr->height);
-    max_video_width = scr->width;
+    max_video_width  = scr->width;
     max_video_height = scr->height;
 }
 
 uint16_t native_video_detect(void) {
-    char dev_name[] = "/dev/videoXX", *first = NULL;
+    char     dev_name[] = "/dev/videoXX", *first = NULL;
     uint16_t device_count = 1; /* start at 1 for the desktop input */
 
     // Indicate that we support desktop capturing.
-    utox_video_append_device((void*)1, 1, (void*)STR_VIDEO_IN_DESKTOP, 0);
+    utox_video_append_device((void *)1, 1, (void *)STR_VIDEO_IN_DESKTOP, 0);
 
     int i;
-    for(i = 0; i != 64; i++) { /* TODO: magic numbers are bad mm'kay? */
+    for (i = 0; i != 64; i++) { /* TODO: magic numbers are bad mm'kay? */
         snprintf(dev_name + 10, sizeof(dev_name) - 10, "%i", i);
 
         struct stat st;
         if (-1 == stat(dev_name, &st)) {
             continue;
-            //debug("Cannot identify '%s': %d, %s\n", dev_name, errno, strerror(errno));
-            //return 0;
+            // debug("Cannot identify '%s': %d, %s\n", dev_name, errno, strerror(errno));
+            // return 0;
         }
 
         if (!S_ISCHR(st.st_mode)) {
             continue;
-            //debug("%s is no device\n", dev_name);
-            //return 0;
+            // debug("%s is no device\n", dev_name);
+            // return 0;
         }
 
-        void *p = malloc(sizeof(void*) + sizeof(dev_name)), *pp = p + sizeof(void*);
-        memcpy(p, &pp, sizeof(void*));
-        memcpy(p + sizeof(void*), dev_name, sizeof(dev_name));
-        if(!first) {
+        void *p = malloc(sizeof(void *) + sizeof(dev_name)), *pp = p + sizeof(void *);
+        memcpy(p, &pp, sizeof(void *));
+        memcpy(p + sizeof(void *), dev_name, sizeof(dev_name));
+        if (!first) {
             first = pp;
             utox_video_append_device(p, 0, p + sizeof(void *), 1);
         } else {
@@ -143,48 +134,52 @@ uint16_t native_video_detect(void) {
 
 void desktopgrab(_Bool video) {
     pointergrab = 1 + video;
-    XGrabPointer(display, window, False, Button1MotionMask | ButtonPressMask | ButtonReleaseMask, GrabModeAsync, GrabModeAsync, None, cursors[CURSOR_SELECT], CurrentTime);
+    XGrabPointer(display, window, False, Button1MotionMask | ButtonPressMask | ButtonReleaseMask, GrabModeAsync,
+                 GrabModeAsync, None, cursors[CURSOR_SELECT], CurrentTime);
 }
 
 static uint16_t video_x, video_y;
 
 _Bool native_video_init(void *handle) {
-    if(isdesktop(handle)) {
+    if (isdesktop(handle)) {
         utox_v4l_fd = -1;
 
-        video_x = volatile(grabx);
-        video_y = volatile(graby);
-        video_width = volatile(grabpx);
+        video_x      = volatile(grabx);
+        video_y      = volatile(graby);
+        video_width  = volatile(grabpx);
         video_height = volatile(grabpy);
 
-        if(video_width & 1) {
-            if(video_x & 1) {
+        if (video_width & 1) {
+            if (video_x & 1) {
                 video_x--;
             }
             video_width++;
         }
 
-        if(video_height & 1) {
-            if(video_y & 1) {
+        if (video_height & 1) {
+            if (video_y & 1) {
                 video_y--;
             }
             video_height++;
         }
 
-        if(!(screen_image = XShmCreateImage(deskdisplay, DefaultVisual(deskdisplay, deskscreen), DefaultDepth(deskdisplay, deskscreen), ZPixmap, NULL, &shminfo, video_width, video_height))) {
+        if (!(screen_image = XShmCreateImage(deskdisplay, DefaultVisual(deskdisplay, deskscreen),
+                                             DefaultDepth(deskdisplay, deskscreen), ZPixmap, NULL, &shminfo,
+                                             video_width, video_height))) {
             return 0;
         }
 
-        if((shminfo.shmid = shmget(IPC_PRIVATE, screen_image->bytes_per_line * screen_image->height, IPC_CREAT | 0777)) < 0) {
+        if ((shminfo.shmid = shmget(IPC_PRIVATE, screen_image->bytes_per_line * screen_image->height, IPC_CREAT | 0777))
+            < 0) {
             return 0;
         }
 
-        if((shminfo.shmaddr = screen_image->data = (char*)shmat(shminfo.shmid, 0, 0)) == (char*)-1) {
+        if ((shminfo.shmaddr = screen_image->data = (char *)shmat(shminfo.shmid, 0, 0)) == (char *)-1) {
             return 0;
         }
 
         shminfo.readOnly = False;
-        if(!XShmAttach(deskdisplay, &shminfo)) {
+        if (!XShmAttach(deskdisplay, &shminfo)) {
             return 0;
         }
 
@@ -195,7 +190,7 @@ _Bool native_video_init(void *handle) {
 }
 
 void native_video_close(void *handle) {
-    if(isdesktop(handle)) {
+    if (isdesktop(handle)) {
         XShmDetach(deskdisplay, &shminfo);
         return;
     }
@@ -204,7 +199,7 @@ void native_video_close(void *handle) {
 }
 
 _Bool native_video_startread(void) {
-    if(utox_v4l_fd == -1) {
+    if (utox_v4l_fd == -1) {
         return 1;
     }
 
@@ -212,7 +207,7 @@ _Bool native_video_startread(void) {
 }
 
 _Bool native_video_endread(void) {
-    if(utox_v4l_fd == -1) {
+    if (utox_v4l_fd == -1) {
         return 1;
     }
 
@@ -220,17 +215,18 @@ _Bool native_video_endread(void) {
 }
 
 int native_video_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, uint16_t height) {
-    if(utox_v4l_fd == -1) {
+    if (utox_v4l_fd == -1) {
         static uint64_t lasttime;
-        uint64_t t = get_time();
-        if(t - lasttime >= (uint64_t)1000 * 1000 * 1000 / 24) {
-            XShmGetImage(deskdisplay,RootWindow(deskdisplay, deskscreen), screen_image, video_x, video_y, AllPlanes);
+        uint64_t        t = get_time();
+        if (t - lasttime >= (uint64_t)1000 * 1000 * 1000 / 24) {
+            XShmGetImage(deskdisplay, RootWindow(deskdisplay, deskscreen), screen_image, video_x, video_y, AllPlanes);
             if (width != video_width || height != video_height) {
-                debug("uTox:\twidth/height mismatch %u %u != %u %u\n", width, height, screen_image->width, screen_image->height);
+                debug("uTox:\twidth/height mismatch %u %u != %u %u\n", width, height, screen_image->width,
+                      screen_image->height);
                 return 0;
             }
 
-            bgrxtoyuv420(y, u, v, (uint8_t*)screen_image->data, screen_image->width, screen_image->height);
+            bgrxtoyuv420(y, u, v, (uint8_t *)screen_image->data, screen_image->width, screen_image->height);
             lasttime = t;
             return 1;
         }

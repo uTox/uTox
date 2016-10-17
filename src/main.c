@@ -1,65 +1,67 @@
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "main.h"
+
 #include <getopt.h>
 
-SETTINGS settings = {
-    .curr_version           = UTOX_VERSION_NUMBER,
-    // .last_version                // included here to match the full struct
-    .show_splash            = 0,
+#include "main.h"
 
-    .use_proxy              = 0,
-    .force_proxy            = 0,
-    .enable_udp             = 1,
-    .enable_ipv6            = 1,
-    .use_encryption         = 1,
+#include "friend.h"
+#include "groups.h"
+#include "theme.h"
+
+SETTINGS settings = {
+    .curr_version = UTOX_VERSION_NUMBER,
+    // .last_version                // included here to match the full struct
+    .show_splash = 0,
+
+    .use_proxy      = 0,
+    .force_proxy    = 0,
+    .enable_udp     = 1,
+    .enable_ipv6    = 1,
+    .use_encryption = 1,
     // .portable_mode               // included here to match the full struct
 
-    .proxy_port             = 0,
+    .proxy_port = 0,
 
-    .close_to_tray          = 0,
-    .logging_enabled        = 1,
-    .ringtone_enabled       = 1,
-    .audiofilter_enabled    = 1,
-    .start_in_tray          = 0,
-    .start_with_system      = 0,
-    .push_to_talk           = 0,
-    .audio_preview          = 0,
-    .video_preview          = 0,
-    .send_typing_status     = 0,
-    .use_mini_roster        = 0,
+    .close_to_tray       = 0,
+    .logging_enabled     = 1,
+    .ringtone_enabled    = 1,
+    .audiofilter_enabled = 1,
+    .start_in_tray       = 0,
+    .start_with_system   = 0,
+    .push_to_talk        = 0,
+    .audio_preview       = 0,
+    .video_preview       = 0,
+    .send_typing_status  = 0,
+    .use_mini_flist      = 0,
     // .inline_video                // included here to match the full struct
     // .use_long_time_msg           // included here to match the full struct
 
-    .verbose                = 1,
+    .verbose = 1,
 
-    .window_height          = 600,
-    .window_width           = 800,
-    .window_baseline        = 0,
-    .window_maximized       = 0,
-    .group_notifications    = GNOTIFY_ALWAYS,
-    .status_notifications   = 1,
+    .window_height        = 600,
+    .window_width         = 800,
+    .window_baseline      = 0,
+    .window_maximized     = 0,
+    .group_notifications  = GNOTIFY_ALWAYS,
+    .status_notifications = 1,
 };
 
 /* The utox_ functions contained in src/main.c are wrappers for the platform native_ functions
  * if you need to localize them to a specific platform, move them from here, to each
  * src/<platform>/main.x and change from utox_ to native_ */
-_Bool utox_save_data_tox(uint8_t *data, size_t length) {
+bool utox_save_data_tox(uint8_t *data, size_t length) {
     uint8_t name[] = "tox_save.tox";
-    return !native_save_data(name, strlen((const char*)name), data, length, 0);
+    return !native_save_data(name, strlen((const char *)name), data, length, 0);
 }
 
 uint8_t *utox_load_data_tox(size_t *size) {
-    uint8_t name[][20] = { "tox_save.tox",
-                           "tox_save.tox.atomic",
-                           "tox_save.tmp",
-                           "tox_save"
-    };
+    uint8_t name[][20] = { "tox_save.tox", "tox_save.tox.atomic", "tox_save.tmp", "tox_save" };
 
     uint8_t *data;
 
     for (int i = 0; i < 4; i++) {
-        data = native_load_data(name[i], strlen((const char*)name[i]), size);
+        data = native_load_data(name[i], strlen((const char *)name[i]), size);
         if (data) {
             return data;
         } else {
@@ -69,14 +71,14 @@ uint8_t *utox_load_data_tox(size_t *size) {
     return NULL;
 }
 
-_Bool utox_save_data_utox(UTOX_SAVE *data, size_t length) {
+bool utox_save_data_utox(UTOX_SAVE *data, size_t length) {
     uint8_t name[] = "utox_save";
-    return native_save_data(name, strlen((const char*)name), (const uint8_t*)data, length, 0);
+    return native_save_data(name, strlen((const char *)name), (const uint8_t *)data, length, 0);
 }
 
 UTOX_SAVE *utox_load_data_utox(void) {
     uint8_t name[] = "utox_save";
-    return (UTOX_SAVE*)native_load_data(name, strlen((const char*)name), NULL);
+    return (UTOX_SAVE *)native_load_data(name, strlen((const char *)name), NULL);
 }
 
 size_t utox_save_chatlog(uint32_t friend_number, uint8_t *data, size_t length) {
@@ -84,9 +86,10 @@ size_t utox_save_chatlog(uint32_t friend_number, uint8_t *data, size_t length) {
     uint8_t hex[TOX_PUBLIC_KEY_SIZE * 2];
     uint8_t name[TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".new.txt")];
     cid_to_string(hex, f->cid);
-    snprintf((char*)name, TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".new.txt"), "%.*s.new.txt", TOX_PUBLIC_KEY_SIZE * 2, (char*)hex);
+    snprintf((char *)name, TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".new.txt"), "%.*s.new.txt", TOX_PUBLIC_KEY_SIZE * 2,
+             (char *)hex);
 
-    return native_save_data(name, strlen((const char*)name), (const uint8_t*)data, length, 1);
+    return native_save_data(name, strlen((const char *)name), (const uint8_t *)data, length, 1);
 }
 
 static size_t utox_count_chatlog(uint32_t friend_number) {
@@ -97,7 +100,7 @@ static size_t utox_count_chatlog(uint32_t friend_number) {
     }
 
     LOG_FILE_MSG_HEADER header;
-    size_t records_count = 0;
+    size_t              records_count = 0;
 
     while (1 == fread(&header, sizeof(header), 1, file)) {
         fseeko(file, header.author_length + header.msg_length + 1, SEEK_CUR);
@@ -131,13 +134,15 @@ uint8_t **utox_load_chatlog(uint32_t friend_number, size_t *size, uint32_t count
      * However once we have it, every platform does the same thing, this should prevent issues
      * from occuring on a single platform. */
     LOG_FILE_MSG_HEADER header;
-    size_t records_count = utox_count_chatlog(friend_number);
+    size_t              records_count = utox_count_chatlog(friend_number);
 
 
     FILE *file = native_load_chatlog_file(friend_number);
     if (!file) {
         debug("History:\tUnable to access file provided by native_load_chatlog_file()\n");
-        if (size) { *size = 0; }
+        if (size) {
+            *size = 0;
+        }
         return NULL;
     }
 
@@ -145,7 +150,9 @@ uint8_t **utox_load_chatlog(uint32_t friend_number, size_t *size, uint32_t count
     if (skip >= records_count) {
         debug_error("Native log read:\tError, skipped all records\n");
         fclose(file);
-        if (size) { *size = 0; }
+        if (size) {
+            *size = 0;
+        }
         return NULL;
     }
 
@@ -153,17 +160,17 @@ uint8_t **utox_load_chatlog(uint32_t friend_number, size_t *size, uint32_t count
         count = records_count - skip;
     }
 
-    uint8_t **data = calloc(1, sizeof(*data) * count + 1);
-    size_t start_at = records_count - count - skip;
-    size_t actual_count = 0;
+    uint8_t **data         = calloc(1, sizeof(*data) * count + 1);
+    size_t    start_at     = records_count - count - skip;
+    size_t    actual_count = 0;
 
     size_t file_offset = 0;
 
     while (1 == fread(&header, sizeof(header), 1, file)) {
         if (start_at) {
-            fseeko(file, header.author_length, SEEK_CUR);   /* Skip the recorded author */
-            fseeko(file, header.msg_length, SEEK_CUR);      /* Skip the message */
-            fseeko(file, 1, SEEK_CUR);                      /* Skip the newline char */
+            fseeko(file, header.author_length, SEEK_CUR); /* Skip the recorded author */
+            fseeko(file, header.msg_length, SEEK_CUR);    /* Skip the message */
+            fseeko(file, 1, SEEK_CUR);                    /* Skip the newline char */
             start_at--;
             file_offset = ftello(file);
             continue;
@@ -176,31 +183,33 @@ uint8_t **utox_load_chatlog(uint32_t friend_number, size_t *size, uint32_t count
                 debug_error("Can't malloc that much, you'll probably have to move or delete, your history for this"
                             " peer.\n\t\tFriend number %u, count %u, actual_count %lu, start at %lu, error size %lu",
                             friend_number, count, actual_count, start_at, header.msg_length);
-                if (size) { *size = 0; }
+                if (size) {
+                    *size = 0;
+                }
                 return NULL;
             }
-            MSG_TEXT *msg       = calloc(1, sizeof(MSG_TEXT) + header.msg_length);
-            msg->our_msg        = header.author;
+            MSG_TEXT *msg = calloc(1, sizeof(MSG_TEXT) + header.msg_length);
+            msg->our_msg  = header.author;
 
             /* TEMP Fix to recover logs from v0.8.* */
             if (header.log_version == 0) {
-                msg->receipt_time   = 1;
+                msg->receipt_time = 1;
             } else {
-                msg->receipt_time   = header.receipt;
+                msg->receipt_time = header.receipt;
             }
 
-            msg->length         = header.msg_length;
-            msg->time           = header.time;
-            msg->msg_type       = header.msg_type;
-            msg->disk_offset    = file_offset;
-            msg->author_length  = header.author_length;
+            msg->length        = header.msg_length;
+            msg->time          = header.time;
+            msg->msg_type      = header.msg_type;
+            msg->disk_offset   = file_offset;
+            msg->author_length = header.author_length;
 
             if (1 != fread(msg->msg, msg->length, 1, file)) {
                 debug("Native log read:\tError,reading this record... stopping\n");
                 break;
             }
             msg->length = utf8_validate(msg->msg, msg->length);
-            *data++ = (void*)msg;
+            *data++     = (void *)msg;
             count--;
             actual_count++;
             fseeko(file, 1, SEEK_CUR); /* seek an extra \n char */
@@ -210,11 +219,13 @@ uint8_t **utox_load_chatlog(uint32_t friend_number, size_t *size, uint32_t count
 
     fclose(file);
 
-    if (size) { *size = actual_count; }
+    if (size) {
+        *size = actual_count;
+    }
     return data - actual_count;
 }
 
-_Bool utox_update_chatlog(uint32_t friend_number, size_t offset, uint8_t *data, size_t length) {
+bool utox_update_chatlog(uint32_t friend_number, size_t offset, uint8_t *data, size_t length) {
     FILE *file = native_load_chatlog_file(friend_number);
 
     if (!file) {
@@ -235,32 +246,30 @@ _Bool utox_update_chatlog(uint32_t friend_number, size_t offset, uint8_t *data, 
     return 1;
 }
 
-_Bool utox_remove_friend_chatlog(uint32_t friend_number) {
-    size_t length = TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".new.txt");
+bool utox_remove_friend_chatlog(uint32_t friend_number) {
+    size_t  length = TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".new.txt");
     uint8_t hex[TOX_PUBLIC_KEY_SIZE * 2];
     uint8_t name[length];
 
     FRIEND *f = &friend[friend_number];
     cid_to_string(hex, f->cid);
 
-    snprintf((char*)name, length, "%.*s.new.txt", TOX_PUBLIC_KEY_SIZE * 2, (char*)hex);
+    snprintf((char *)name, length, "%.*s.new.txt", TOX_PUBLIC_KEY_SIZE * 2, (char *)hex);
 
     return utox_remove_file(name, length);
 }
 
-void utox_export_chatlog_init(uint32_t friend_number) {
-    native_export_chatlog_init(friend_number);
-}
+void utox_export_chatlog_init(uint32_t friend_number) { native_export_chatlog_init(friend_number); }
 
 void utox_export_chatlog(uint32_t friend_number, FILE *dest_file) {
     if (!dest_file || friend_number == -1) {
         return;
     }
 
-    FILE *file = native_load_chatlog_file(friend_number);
+    FILE *              file = native_load_chatlog_file(friend_number);
     LOG_FILE_MSG_HEADER header;
-    int i;
-    char c;
+    int                 i;
+    char                c;
 
     while (1 == fread(&header, sizeof(header), 1, file)) {
         /* Write Author */
@@ -293,7 +302,7 @@ void utox_export_chatlog(uint32_t friend_number, FILE *dest_file) {
     fclose(dest_file);
 }
 
-_Bool utox_save_data_avatar(uint32_t friend_number, const uint8_t *data, size_t length) {
+bool utox_save_data_avatar(uint32_t friend_number, const uint8_t *data, size_t length) {
     uint8_t hex[TOX_PUBLIC_KEY_SIZE * 2];
     uint8_t name[sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png")];
 
@@ -305,16 +314,16 @@ _Bool utox_save_data_avatar(uint32_t friend_number, const uint8_t *data, size_t 
         cid_to_string(hex, f->cid);
     }
 
-    snprintf((char*)name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"),
-             "avatars/%.*s.png", TOX_PUBLIC_KEY_SIZE * 2, (char*)hex);
+    snprintf((char *)name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"), "avatars/%.*s.png",
+             TOX_PUBLIC_KEY_SIZE * 2, (char *)hex);
 
-    #ifdef __WIN32__
-    snprintf((char*)name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"),
-             "avatars\\%.*s.png", TOX_PUBLIC_KEY_SIZE * 2, (char*)hex);
-    #endif
+#ifdef __WIN32__
+    snprintf((char *)name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"), "avatars\\%.*s.png",
+             TOX_PUBLIC_KEY_SIZE * 2, (char *)hex);
+#endif
 
 
-    return native_save_data(name, strlen((const char*)name), (const uint8_t*)data, length, 0);
+    return native_save_data(name, strlen((const char *)name), (const uint8_t *)data, length, 0);
 }
 
 uint8_t *utox_load_data_avatar(uint32_t friend_number, size_t *size) {
@@ -329,18 +338,18 @@ uint8_t *utox_load_data_avatar(uint32_t friend_number, size_t *size) {
         cid_to_string(hex, f->cid);
     }
 
-    snprintf((char*)name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"),
-             "avatars/%.*s.png", TOX_PUBLIC_KEY_SIZE * 2, (char*)hex);
+    snprintf((char *)name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"), "avatars/%.*s.png",
+             TOX_PUBLIC_KEY_SIZE * 2, (char *)hex);
 
-    #ifdef __WIN32__
-    snprintf((char*)name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"),
-             "avatars\\%.*s.png", TOX_PUBLIC_KEY_SIZE * 2, (char*)hex);
-    #endif
+#ifdef __WIN32__
+    snprintf((char *)name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"), "avatars\\%.*s.png",
+             TOX_PUBLIC_KEY_SIZE * 2, (char *)hex);
+#endif
 
-    return native_load_data(name, strlen((const char*)name), size);
+    return native_load_data(name, strlen((const char *)name), size);
 }
 
-_Bool utox_remove_file_avatar(uint32_t friend_number) {
+bool utox_remove_file_avatar(uint32_t friend_number) {
     uint8_t hex[TOX_PUBLIC_KEY_SIZE * 2];
     uint8_t name[sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png")];
 
@@ -351,65 +360,60 @@ _Bool utox_remove_file_avatar(uint32_t friend_number) {
         FRIEND *f = &friend[friend_number];
         cid_to_string(hex, f->cid);
     }
-    int name_len = snprintf((char*)name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"),
-                            "avatars/%.*s.png", TOX_PUBLIC_KEY_SIZE * 2, (char*)hex);
+    int name_len = snprintf((char *)name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"),
+                            "avatars/%.*s.png", TOX_PUBLIC_KEY_SIZE * 2, (char *)hex);
 
-    #ifdef __WIN32__
-    name_len = snprintf((char*)name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"),
-             "avatars\\%.*s.png", TOX_PUBLIC_KEY_SIZE * 2, (char*)hex);
-    #endif
+#ifdef __WIN32__
+    name_len = snprintf((char *)name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"),
+                        "avatars\\%.*s.png", TOX_PUBLIC_KEY_SIZE * 2, (char *)hex);
+#endif
 
     return native_remove_file(name, name_len);
 }
 
-_Bool utox_remove_file(const uint8_t *full_name, size_t length) {
-    return native_remove_file(full_name, length);
-}
+bool utox_remove_file(const uint8_t *full_name, size_t length) { return native_remove_file(full_name, length); }
 
 /* Shared function between all four platforms */
-void parse_args(int argc, char *argv[], bool *theme_was_set_on_argv, int8_t *should_launch_at_startup, int8_t *set_show_window, bool *no_updater) {
+void parse_args(int argc, char *argv[], bool *theme_was_set_on_argv, int8_t *should_launch_at_startup,
+                int8_t *set_show_window, bool *no_updater) {
     // set default options
-    theme = THEME_DEFAULT; // global declaration
-    settings.portable_mode = false; // global declaration
-    *theme_was_set_on_argv = false;
+    settings.theme            = THEME_DEFAULT;
+    settings.portable_mode    = false;
+    *theme_was_set_on_argv    = false;
     *should_launch_at_startup = 0;
-    *set_show_window = 0;
-    *no_updater = false;
+    *set_show_window          = 0;
+    *no_updater               = false;
 
     static struct option long_options[] = {
-        {"theme",      required_argument,   NULL,  't'},
-        {"portable",   no_argument,         NULL,  'p'},
-        {"set",        required_argument,   NULL,  's'},
-        {"unset",      required_argument,   NULL,  'u'},
-        {"no-updater", no_argument,         NULL,  'n'},
-        {"version",    no_argument,         NULL,   0},
-        {"silent",     no_argument,         NULL,   1},
-        {"verbose",    no_argument,         NULL,  'v'},
-        {"help",       no_argument,         NULL,  'h'},
-        {0, 0, 0, 0}
+        { "theme", required_argument, NULL, 't' }, { "portable", no_argument, NULL, 'p' },
+        { "set", required_argument, NULL, 's' },   { "unset", required_argument, NULL, 'u' },
+        { "no-updater", no_argument, NULL, 'n' },  { "version", no_argument, NULL, 0 },
+        { "silent", no_argument, NULL, 1 },        { "verbose", no_argument, NULL, 'v' },
+        { "help", no_argument, NULL, 'h' },        { 0, 0, 0, 0 }
     };
 
     int opt, long_index = 0;
-    while ((opt = getopt_long(argc, argv, "t:ps:u:nvh", long_options, &long_index )) != -1) {
+    while ((opt = getopt_long(argc, argv, "t:ps:u:nvh", long_options, &long_index)) != -1) {
         // loop through each option; ":" after each option means an argument is required
         switch (opt) {
             case 't': {
                 if (!strcmp(optarg, "default")) {
-                    theme = THEME_DEFAULT;
+                    settings.theme = THEME_DEFAULT;
                 } else if (!strcmp(optarg, "dark")) {
-                    theme = THEME_DARK;
+                    settings.theme = THEME_DARK;
                 } else if (!strcmp(optarg, "light")) {
-                    theme = THEME_LIGHT;
+                    settings.theme = THEME_LIGHT;
                 } else if (!strcmp(optarg, "highcontrast")) {
-                    theme = THEME_HIGHCONTRAST;
+                    settings.theme = THEME_HIGHCONTRAST;
                 } else if (!strcmp(optarg, "zenburn")) {
-                    theme = THEME_ZENBURN;
+                    settings.theme = THEME_ZENBURN;
                 } else if (!strcmp(optarg, "solarized-light")) {
-                    theme = THEME_SOLARIZED_LIGHT;
+                    settings.theme = THEME_SOLARIZED_LIGHT;
                 } else if (!strcmp(optarg, "solarized-dark")) {
-                    theme = THEME_SOLARIZED_DARK;
+                    settings.theme = THEME_SOLARIZED_DARK;
                 } else {
-                    debug_error("Please specify correct theme (please check user manual for list of correct values).\n");
+                    debug_error(
+                        "Please specify correct theme (please check user manual for list of correct values).\n");
                     exit(EXIT_FAILURE);
                 }
                 *theme_was_set_on_argv = 1;
@@ -417,7 +421,8 @@ void parse_args(int argc, char *argv[], bool *theme_was_set_on_argv, int8_t *sho
             }
 
             case 'p': {
-                debug("Launching uTox in portable mode: All data will be saved to the tox folder in the current working directory\n");
+                debug("Launching uTox in portable mode: All data will be saved to the tox folder in the current "
+                      "working directory\n");
                 settings.portable_mode = 1;
                 break;
             }
@@ -430,7 +435,8 @@ void parse_args(int argc, char *argv[], bool *theme_was_set_on_argv, int8_t *sho
                 } else if (!strcmp(optarg, "hide-window")) {
                     *set_show_window = -1;
                 } else {
-                    debug_error("Please specify a correct set option (please check user manual for list of correct values).\n");
+                    debug_error(
+                        "Please specify a correct set option (please check user manual for list of correct values).\n");
                     exit(EXIT_FAILURE);
                 }
                 break;
@@ -440,7 +446,8 @@ void parse_args(int argc, char *argv[], bool *theme_was_set_on_argv, int8_t *sho
                 if (!strcmp(optarg, "start-on-boot")) {
                     *should_launch_at_startup = -1;
                 } else {
-                    debug_error("Please specify a correct unset option (please check user manual for list of correct values).\n");
+                    debug_error("Please specify a correct unset option (please check user manual for list of correct "
+                                "values).\n");
                     exit(EXIT_FAILURE);
                 }
                 break;
@@ -453,9 +460,9 @@ void parse_args(int argc, char *argv[], bool *theme_was_set_on_argv, int8_t *sho
 
             case 0: {
                 debug_error("uTox version: %s\n", VERSION);
-                #ifdef GIT_VERSION
+#ifdef GIT_VERSION
                 debug_error("git version %s\n", GIT_VERSION);
-                #endif
+#endif
                 exit(EXIT_SUCCESS);
                 break;
             }
@@ -473,12 +480,15 @@ void parse_args(int argc, char *argv[], bool *theme_was_set_on_argv, int8_t *sho
             case 'h': {
                 debug_error("µTox - Lightweight Tox client version %s.\n\n", VERSION);
                 debug_error("The following options are available:\n");
-                debug_error("  -t --theme=<theme-name>  Specify a UI theme, where <theme-name> can be one of default, dark, light, highcontrast, zenburn.\n");
-                debug_error("  -p --portable            Launch in portable mode: All data will be saved to the tox folder in the current working directory.\n");
+                debug_error("  -t --theme=<theme-name>  Specify a UI theme, where <theme-name> can be one of default, "
+                            "dark, light, highcontrast, zenburn.\n");
+                debug_error("  -p --portable            Launch in portable mode: All data will be saved to the tox "
+                            "folder in the current working directory.\n");
                 debug_error("  -s --set=<option>        Set an option: start-on-boot, show-window, hide-window.\n");
                 debug_error("  -u --unset=<option>      Unset an option: start-on-boot.\n");
                 debug_error("  -n --no-updater          Disable the updater.\n");
-                debug_error("  -v --verbose             Increase the amount of output, use -v multiple times to get full debug output.\n");
+                debug_error("  -v --verbose             Increase the amount of output, use -v multiple times to get "
+                            "full debug output.\n");
                 debug_error("  -h --help                Shows this help text.\n");
                 debug_error("  --version                Print the version and exit.\n");
                 debug_error("  --silent                 Set the verbosity level to 0, disable all debugging output.\n");
@@ -486,9 +496,7 @@ void parse_args(int argc, char *argv[], bool *theme_was_set_on_argv, int8_t *sho
                 break;
             }
 
-            case '?':
-                debug("Invalid option: %c!\n", (char) optopt);
-                break;
+            case '?': debug("Invalid option: %c!\n", (char)optopt); break;
         }
     }
 }
@@ -504,11 +512,11 @@ void utox_init(void) {
  *  else default to xlib
  **/
 #if defined __WIN32__
-  //#include "windows/main.c"
+//#include "windows/main.c"
 #elif defined __ANDROID__
-  #include "android/main.c"
+#include "android/main.c"
 #elif defined__OBJC__
-  // #include "cocoa/main.m"
+// #include "cocoa/main.m"
 #else
-  // #include "xlib/main.c"
+// #include "xlib/main.c"
 #endif

@@ -26,9 +26,9 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
     char *send = calloc(UTOX_FILE_NAME_LENGTH, sizeof(char *));
     char *path[UTOX_FILE_NAME_LENGTH];
 
-    wchar_t first[UTOX_FILE_NAME_LENGTH];
-    wchar_t second[UTOX_FILE_NAME_LENGTH];
-    wchar_t longname[UTOX_FILE_NAME_LENGTH];
+    wchar first[UTOX_FILE_NAME_LENGTH];
+    wchar second[UTOX_FILE_NAME_LENGTH];
+    wchar longname[UTOX_FILE_NAME_LENGTH];
 
     if (settings.portable_mode) {
         snprintf(send, UTOX_FILE_NAME_LENGTH, "%s\\Tox_Auto_Accept", portable_mode_save_path);
@@ -54,10 +54,10 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
 }
 
 void launch_at_startup(int is_launch_at_startup) {
-    HKEY           hKey;
-    const wchar_t *run_key_path = L"Software\\Microsoft\\Windows\\CurrentVersion\\Run";
-    wchar_t        path[UTOX_FILE_NAME_LENGTH * 2];
-    uint16_t       path_length = 0, ret = 0;
+    HKEY         hKey;
+    const wchar *run_key_path = L"Software\\Microsoft\\Windows\\CurrentVersion\\Run";
+    wchar        path[UTOX_FILE_NAME_LENGTH * 2];
+    uint16_t     path_length = 0, ret = 0;
     if (is_launch_at_startup == 1) {
         if (ERROR_SUCCESS == RegOpenKeyW(HKEY_CURRENT_USER, run_key_path, &hKey)) {
             path_length           = GetModuleFileNameW(NULL, path + 1, UTOX_FILE_NAME_LENGTH * 2);

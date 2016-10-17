@@ -1,4 +1,4 @@
-#if defined (MAIN_H) && !defined (ANDROID_MAIN_H)
+#if defined(MAIN_H) && !defined(ANDROID_MAIN_H)
 #error "We should never include main from different platforms."
 #endif
 
@@ -7,21 +7,21 @@
 #define MAIN_H
 
 #include <android/log.h>
-#include <sys/system_properties.h>
-#include <sys/ioctl.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <unistd.h>
-#include <time.h>
 #include <arpa/inet.h>
+#include <netinet/in.h>
+#include <sys/ioctl.h>
+#include <sys/socket.h>
+#include <sys/system_properties.h>
+#include <sys/types.h>
+#include <time.h>
+#include <unistd.h>
 
 #include <errno.h>
 
-#define debug(...)          ((void)__android_log_print(ANDROID_LOG_INFO, "utox", __VA_ARGS__))
-#define debug_info(...)     ((void)__android_log_print(ANDROID_LOG_INFO, "utox", __VA_ARGS__))
-#define debug_notice(...)   ((void)__android_log_print(ANDROID_LOG_INFO, "utox", __VA_ARGS__))
-#define debug_error(...)    ((void)__android_log_print(ANDROID_LOG_INFO, "utox", __VA_ARGS__))
+#define debug(...) ((void)__android_log_print(ANDROID_LOG_INFO, "utox", __VA_ARGS__))
+#define debug_info(...) ((void)__android_log_print(ANDROID_LOG_INFO, "utox", __VA_ARGS__))
+#define debug_notice(...) ((void)__android_log_print(ANDROID_LOG_INFO, "utox", __VA_ARGS__))
+#define debug_error(...) ((void)__android_log_print(ANDROID_LOG_INFO, "utox", __VA_ARGS__))
 
 #define RGB(r, g, b) ((r) | ((g) << 8) | ((b) << 16))
 
@@ -40,8 +40,8 @@
 
 // Early include to obtain GLuint.
 #include <GLES2/gl2.h>
-typedef GLuint UTOX_NATIVE_IMAGE;
-#define UTOX_NATIVE_IMAGE_IS_VALID(x) (0 != (x))
+typedef GLuint NATIVE_IMAGE;
+#define NATIVE_IMAGE_IS_VALID(x) (0 != (x))
 
 #define ANDROID_INTERNAL_SAVE "/data/data/tox.client.utox/files/"
 

@@ -1,4 +1,8 @@
+// switches.c
+#include "switches.h"
+
 #include "../main.h"
+#include "../theme.h"
 
 static void switch_set_colors(UISWITCH *s) {
     if (s->switch_on) {
@@ -28,13 +32,11 @@ static void switch_update(UISWITCH *s) {
     switch_set_size(s);
 }
 
-static void switchfxn_logging(void) {
-    settings.logging_enabled = !settings.logging_enabled;
-}
+static void switchfxn_logging(void) { settings.logging_enabled = !settings.logging_enabled; }
 
 static void switchfxn_mini_contacts(void) {
-    settings.use_mini_roster = !settings.use_mini_roster;
-    roster_re_scale();
+    settings.use_mini_flist = !settings.use_mini_flist;
+    flist_re_scale();
 }
 
 static void switchfxn_ipv6(void) {
@@ -47,25 +49,15 @@ static void switchfxn_udp(void) {
     tox_settingschanged();
 }
 
-static void switchfxn_close_to_tray(void) {
-    settings.close_to_tray = !settings.close_to_tray;
-}
+static void switchfxn_close_to_tray(void) { settings.close_to_tray = !settings.close_to_tray; }
 
-static void switchfxn_start_in_tray(void) {
-    settings.start_in_tray = !settings.start_in_tray;
-}
+static void switchfxn_start_in_tray(void) { settings.start_in_tray = !settings.start_in_tray; }
 
-static void switchfxn_auto_startup(void) {
-    settings.start_with_system = !settings.start_with_system;
-}
+static void switchfxn_auto_startup(void) { settings.start_with_system = !settings.start_with_system; }
 
-static void switchfxn_typing_notes(void) {
-    settings.send_typing_status = !settings.send_typing_status;
-}
+static void switchfxn_typing_notes(void) { settings.send_typing_status = !settings.send_typing_status; }
 
-static void switchfxn_audible_notifications(void) {
-    settings.ringtone_enabled = !settings.ringtone_enabled;
-}
+static void switchfxn_audible_notifications(void) { settings.ringtone_enabled = !settings.ringtone_enabled; }
 
 static void switchfxn_push_to_talk(void) {
     if (!settings.push_to_talk) {
@@ -75,13 +67,9 @@ static void switchfxn_push_to_talk(void) {
     }
 }
 
-static void switchfxn_audio_filtering(void) {
-    settings.audiofilter_enabled = !settings.audiofilter_enabled;
-}
+static void switchfxn_audio_filtering(void) { settings.audiofilter_enabled = !settings.audiofilter_enabled; }
 
-static void switchfxn_status_notifications(void){
-    settings.status_notifications = !settings.status_notifications;
-}
+static void switchfxn_status_notifications(void) { settings.status_notifications = !settings.status_notifications; }
 
 UISWITCH switch_logging = {
     .style_outer    = BM_SWITCH,
@@ -90,7 +78,7 @@ UISWITCH switch_logging = {
     .style_icon_on  = BM_YES,
     .update         = switch_update,
     .onpress        = switchfxn_logging,
-    .tooltip_text   = {.i18nal = STR_LOGGING},
+    .tooltip_text = {.i18nal = STR_LOGGING },
 };
 
 UISWITCH switch_mini_contacts = {
@@ -100,7 +88,7 @@ UISWITCH switch_mini_contacts = {
     .style_icon_on  = BM_YES,
     .update         = switch_update,
     .onpress        = switchfxn_mini_contacts,
-    .tooltip_text   = {.i18nal = STR_SETTINGS_UI_MINI_ROSTER},
+    .tooltip_text = {.i18nal = STR_SETTINGS_UI_MINI_ROSTER },
 };
 
 UISWITCH switch_ipv6 = {
@@ -110,7 +98,7 @@ UISWITCH switch_ipv6 = {
     .style_icon_on  = BM_YES,
     .update         = switch_update,
     .onpress        = switchfxn_ipv6,
-    .tooltip_text   = {.i18nal = STR_IPV6},
+    .tooltip_text = {.i18nal = STR_IPV6 },
 };
 
 UISWITCH switch_udp = {
@@ -120,7 +108,7 @@ UISWITCH switch_udp = {
     .style_icon_on  = BM_YES,
     .update         = switch_update,
     .onpress        = switchfxn_udp,
-    .tooltip_text   = {.i18nal = STR_UDP},
+    .tooltip_text = {.i18nal = STR_UDP },
 };
 
 UISWITCH switch_close_to_tray = {
@@ -130,7 +118,7 @@ UISWITCH switch_close_to_tray = {
     .style_icon_on  = BM_YES,
     .update         = switch_update,
     .onpress        = switchfxn_close_to_tray,
-    .tooltip_text   = {.i18nal = STR_CLOSE_TO_TRAY},
+    .tooltip_text = {.i18nal = STR_CLOSE_TO_TRAY },
 };
 
 UISWITCH switch_start_in_tray = {
@@ -140,7 +128,7 @@ UISWITCH switch_start_in_tray = {
     .style_icon_on  = BM_YES,
     .update         = switch_update,
     .onpress        = switchfxn_start_in_tray,
-    .tooltip_text   = {.i18nal = STR_START_IN_TRAY},
+    .tooltip_text = {.i18nal = STR_START_IN_TRAY },
 };
 
 UISWITCH switch_auto_startup = {
@@ -150,7 +138,7 @@ UISWITCH switch_auto_startup = {
     .style_icon_on  = BM_YES,
     .update         = switch_update,
     .onpress        = switchfxn_auto_startup,
-    .tooltip_text   = {.i18nal = STR_AUTO_STARTUP},
+    .tooltip_text = {.i18nal = STR_AUTO_STARTUP },
 };
 
 UISWITCH switch_typing_notes = {
@@ -160,7 +148,7 @@ UISWITCH switch_typing_notes = {
     .style_icon_on  = BM_YES,
     .update         = switch_update,
     .onpress        = switchfxn_typing_notes,
-    .tooltip_text   = {.i18nal = STR_SEND_TYPING_NOTIFICATIONS},
+    .tooltip_text = {.i18nal = STR_SEND_TYPING_NOTIFICATIONS },
 };
 
 UISWITCH switch_audible_notifications = {
@@ -170,7 +158,7 @@ UISWITCH switch_audible_notifications = {
     .style_icon_on  = BM_YES,
     .update         = switch_update,
     .onpress        = switchfxn_audible_notifications,
-    .tooltip_text   = {.i18nal = STR_AUDIONOTIFICATIONS},
+    .tooltip_text = {.i18nal = STR_AUDIONOTIFICATIONS },
 };
 
 UISWITCH switch_push_to_talk = {
@@ -180,7 +168,7 @@ UISWITCH switch_push_to_talk = {
     .style_icon_on  = BM_YES,
     .update         = switch_update,
     .onpress        = switchfxn_push_to_talk,
-    .tooltip_text   = {.i18nal = STR_PUSH_TO_TALK},
+    .tooltip_text = {.i18nal = STR_PUSH_TO_TALK },
 };
 
 UISWITCH switch_audio_filtering = {
@@ -190,7 +178,7 @@ UISWITCH switch_audio_filtering = {
     .style_icon_on  = BM_YES,
     .update         = switch_update,
     .onpress        = switchfxn_audio_filtering,
-    .tooltip_text   = {.i18nal = STR_AUDIOFILTERING},
+    .tooltip_text = {.i18nal = STR_AUDIOFILTERING },
 };
 
 UISWITCH switch_status_notifications = {
@@ -200,5 +188,5 @@ UISWITCH switch_status_notifications = {
     .style_icon_on  = BM_YES,
     .update         = switch_update,
     .onpress        = switchfxn_status_notifications,
-    .tooltip_text   = {.i18nal = STR_STATUS_NOTIFICATIONS},
+    .tooltip_text = {.i18nal = STR_STATUS_NOTIFICATIONS },
 };

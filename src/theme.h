@@ -101,8 +101,6 @@ void read_custom_theme(const char *path);
 
 uint32_t status_color[4];
 
-uint32_t theme;
-
 extern const char *COLOUR_NAME_TABLE[];
 extern uint32_t *  COLOUR_POINTER_TABLE[];
 

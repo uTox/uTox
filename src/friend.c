@@ -1,4 +1,7 @@
-#include "main.h"
+// friend.c
+#include "friend.h"
+
+#include "flist.h"
 
 /** Writes friend meta data filename for fid to dest. returns length written */
 static int friend_meta_data_path(uint8_t *dest, size_t size_dest, uint8_t *friend_key, uint32_t friend_num) {
@@ -96,7 +99,7 @@ void utox_friend_init(Tox *tox, uint32_t friend_number) {
 
     // Get and set the public key for this friend number and set it.
     tox_friend_get_public_key(tox, friend_number, f->cid, 0);
-    char_t cid[TOX_PUBLIC_KEY_SIZE * 2];
+    char cid[TOX_PUBLIC_KEY_SIZE * 2];
     cid_to_string(cid, f->cid);
     memcpy(f->id_str, cid, TOX_PUBLIC_KEY_SIZE * 2);
 
@@ -167,15 +170,16 @@ void friend_setname(FRIEND *f, uint8_t *name, size_t length) {
     f->name[f->name_length] = 0;
 
     if (!f->alias_length) {
-        if (selected_item->data && f->number == ((FRIEND *)selected_item->data)->number) {
+        FRIEND *selected = flist_get_selected()->data;
+        if (selected && f->number == selected->number) {
             maybe_i18nal_string_set_plain(&edit_friend_alias.empty_str, f->name, f->name_length);
         }
     }
 
-    update_shown_list();
+    flist_update_shown_list();
 }
 
-void friend_set_alias(FRIEND *f, char_t *alias, uint16_t length) {
+void friend_set_alias(FRIEND *f, char *alias, uint16_t length) {
     if (alias && length > 0) {
         debug("New Alias set for friend %s\n", f->name);
     } else {
@@ -194,7 +198,7 @@ void friend_set_alias(FRIEND *f, char_t *alias, uint16_t length) {
     }
 }
 
-void friend_sendimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width, uint16_t height, UTOX_IMAGE png_image,
+void friend_sendimage(FRIEND *f, NATIVE_IMAGE *native_image, uint16_t width, uint16_t height, UTOX_IMAGE png_image,
                       size_t png_size) {
     message_add_type_image(&f->msg, 1, native_image, width, height, 0);
     redraw();
@@ -205,8 +209,8 @@ void friend_sendimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width
     postmessage_toxcore(TOX_FILE_SEND_NEW_INLINE, f - friend, 0, tsim);
 }
 
-void friend_recvimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width, uint16_t height) {
-    if (!UTOX_NATIVE_IMAGE_IS_VALID(native_image)) {
+void friend_recvimage(FRIEND *f, NATIVE_IMAGE *native_image, uint16_t width, uint16_t height) {
+    if (!NATIVE_IMAGE_IS_VALID(native_image)) {
         return;
     }
 
@@ -221,13 +225,13 @@ void friend_notify_msg(FRIEND *f, const uint8_t *msg, size_t msg_length) {
 
     notify(title, title_length, msg, msg_length, f, 0);
 
-    if (selected_item->data != f) {
+    if (flist_get_selected()->data != f) {
         f->unread_msg = 1;
         postmessage_audio(UTOXAUDIO_PLAY_NOTIFICATION, NOTIFY_TONE_FRIEND_NEW_MSG, 0, NULL);
     }
 }
 
-_Bool friend_set_online(FRIEND *f, _Bool online) {
+bool friend_set_online(FRIEND *f, bool online) {
     if (f->online == online) {
         return false;
     }
@@ -237,25 +241,23 @@ _Bool friend_set_online(FRIEND *f, _Bool online) {
         friend_set_typing(f, 0);
     }
 
-    update_shown_list();
+    flist_update_shown_list();
 
     return true;
 }
 
 
-void friend_set_typing(FRIEND *f, int typing) {
-    f->typing = typing;
-}
+void friend_set_typing(FRIEND *f, int typing) { f->typing = typing; }
 
-void friend_addid(uint8_t *id, char_t *msg, uint16_t msg_length) {
-    void *data = malloc(TOX_FRIEND_ADDRESS_SIZE + msg_length * sizeof(char_t));
+void friend_addid(uint8_t *id, char *msg, uint16_t msg_length) {
+    void *data = malloc(TOX_FRIEND_ADDRESS_SIZE + msg_length * sizeof(char));
     memcpy(data, id, TOX_FRIEND_ADDRESS_SIZE);
-    memcpy(data + TOX_FRIEND_ADDRESS_SIZE, msg, msg_length * sizeof(char_t));
+    memcpy(data + TOX_FRIEND_ADDRESS_SIZE, msg, msg_length * sizeof(char));
 
     postmessage_toxcore(TOX_FRIEND_NEW, msg_length, 0, data);
 }
 
-void friend_add(char_t *name, uint16_t length, char_t *msg, uint16_t msg_length) {
+void friend_add(char *name, uint16_t length, char *msg, uint16_t msg_length) {
     if (!length) {
         addfriend_status = ADDF_NONAME;
         return;

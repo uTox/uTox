@@ -1,20 +1,26 @@
-enum {
+// i18n_decls.h
+#ifndef I18N_DECLS_H
+#define I18N_DECLS_H
+
+#include "../src/sized_string.h"
+
+typedef enum {
     LANG_BG,
     LANG_DE,
     LANG_EN,
     LANG_ES,
     LANG_FR,
-    LANG_HI, //5
+    LANG_HI, // 5
     LANG_JA,
     LANG_IT,
     LANG_LV,
     LANG_NL,
-    LANG_NO, //10
+    LANG_NO, // 10
     LANG_BR,
     LANG_PL,
     LANG_RO,
     LANG_RU,
-    LANG_TR, //15
+    LANG_TR, // 15
     LANG_UA,
     LANG_CN,
     LANG_TW,
@@ -27,11 +33,11 @@ enum {
     LANG_HR,
 
     NUM_LANGS // add langs before this line
-};
+} UTOX_LANG;
 
-enum {
-    //This ensures that all statically initialized to zero UI_STRING_ID vars
-    //will render as canary "BUG. PLEASE REPORT." strings.
+typedef enum {
+    // This ensures that all statically initialized to zero UTOX_I18N_STR vars
+    // will render as canary "BUG. PLEASE REPORT." strings.
     UI_STRING_ID_INVALID = 0,
 
     STR_LANG_NATIVE_NAME,
@@ -191,7 +197,8 @@ enum {
 
 
     // Interact with texts / clipboard
-    STR_COPY, STR_COPY_TOX_ID = STR_COPY,
+    STR_COPY,
+    STR_COPY_TOX_ID = STR_COPY,
     STR_COPYWITHOUTNAMES,
     STR_COPY_WITH_NAMES,
     STR_CUT,
@@ -208,7 +215,8 @@ enum {
     STR_REQ_ACCEPT = STR_ACCEPT,
     STR_CTOPIC,
     STR_CHANGE_GROUP_TOPIC = STR_CTOPIC,
-    STR_IGNORE, STR_REQ_DECLINE = STR_IGNORE,
+    STR_IGNORE,
+    STR_REQ_DECLINE = STR_IGNORE,
     STR_SET_ALIAS,
 
     STR_ALIAS,
@@ -268,7 +276,8 @@ enum {
     STR_SHOW,
     STR_HIDE,
 
-    STR_VIDEO_IN_NONE, STR_AUDIO_IN_NONE = STR_VIDEO_IN_NONE,
+    STR_VIDEO_IN_NONE,
+    STR_AUDIO_IN_NONE = STR_VIDEO_IN_NONE,
     STR_VIDEO_IN_DESKTOP,
 
     STR_AUDIO_IN_DEFAULT_LOOPBACK,
@@ -300,12 +309,11 @@ enum {
     STR_STATUS_NOTIFICATIONS,
 
     NUM_STRS // add strings before this line
-};
+} UTOX_I18N_STR;
 
-typedef uint8_t UI_LANG_ID;
-typedef uint16_t UI_STRING_ID;
+STRING *ui_gettext(UTOX_LANG lang, UTOX_I18N_STR string_id);
 
-STRING* ui_gettext(UI_LANG_ID lang, UI_STRING_ID string_id);
+UTOX_LANG ui_guess_lang_by_posix_locale(const char *locale, UTOX_LANG deflt);
+UTOX_LANG ui_guess_lang_by_windows_lang_id(uint16_t lang_id, UTOX_LANG deflt);
 
-UI_LANG_ID ui_guess_lang_by_posix_locale(const char* locale, UI_LANG_ID deflt);
-UI_LANG_ID ui_guess_lang_by_windows_lang_id(uint16_t lang_id, UI_LANG_ID deflt);
+#endif

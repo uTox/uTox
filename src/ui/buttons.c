@@ -1,8 +1,16 @@
+// buttons.c
+#include "buttons.h"
+
+#include "../flist.h"
+#include "../friend.h"
+#include "../groups.h"
 #include "../main.h"
+#include "../theme.h"
+
 /* buttons */
 #ifdef UNITY
 #include "xlib/mmenu.h"
-extern _Bool unity_running;
+extern bool unity_running;
 #endif
 
 /* Quick color change functions */
@@ -45,7 +53,7 @@ static void button_avatar_onpress(void) {
 }
 
 static void button_name_onpress(void) {
-    list_selectsettings();
+    flist_selectsettings();
     panel_settings_profile.disabled = 0;
     panel_settings_devices.disabled = 1;
     panel_settings_net.disabled     = 1;
@@ -55,7 +63,7 @@ static void button_name_onpress(void) {
 }
 
 static void button_statusmsg_onpress(void) {
-    list_selectsettings();
+    flist_selectsettings();
     panel_settings_profile.disabled = 0;
     panel_settings_devices.disabled = 1;
     panel_settings_net.disabled     = 1;
@@ -95,16 +103,16 @@ static void button_menu_update(BUTTON *b) {
 static void button_add_new_contact_onpress(void) {
     if (tox_thread_init) {
         /* Only change if we're logged in! */
-        edit_setstr(&edit_add_id, (char_t *)edit_search.data, edit_search.length);
-        edit_setstr(&edit_search, (char_t *)"", 0);
-        list_selectaddfriend();
+        edit_setstr(&edit_add_id, (char *)edit_search.data, edit_search.length);
+        edit_setstr(&edit_search, (char *)"", 0);
+        flist_selectaddfriend();
         edit_setfocus(&edit_add_msg);
     }
 }
 
 static void button_filter_friends_onpress(void) {
-    list_set_filter(!list_get_filter()); // this only works because right now there are only 2 filters
-                                         // (none or online), basically a bool
+    flist_set_filter(flist_get_filter()); // this only works because right now there are only 2 filters
+                                          // (none or online), basically a bool
 }
 
 static void button_copyid_onpress(void) {
@@ -154,7 +162,7 @@ static void button_send_friend_request_onpress(void) {
 }
 
 static void button_group_audio_onpress(void) {
-    GROUPCHAT *g = selected_item->data;
+    GROUPCHAT *g = flist_get_selected()->data;
     if (g->audio_calling) {
         postmessage_toxcore(TOX_GROUP_AUDIO_END, (g - group), 0, NULL);
     } else {
@@ -163,7 +171,7 @@ static void button_group_audio_onpress(void) {
 }
 
 static void button_group_audio_update(BUTTON *b) {
-    GROUPCHAT *g = selected_item->data;
+    GROUPCHAT *g = flist_get_selected()->data;
     if (g->av_group) {
         b->disabled = 0;
         if (g->audio_calling)
@@ -177,7 +185,7 @@ static void button_group_audio_update(BUTTON *b) {
 }
 
 static void button_call_decline_onpress(void) {
-    FRIEND *f = selected_item->data;
+    FRIEND *f = flist_get_selected()->data;
     if (f->call_state_friend) {
         debug("Declining call: %u\n", f->number);
         postmessage_toxcore(TOX_CALL_DISCONNECT, f->number, 0, NULL);
@@ -185,7 +193,7 @@ static void button_call_decline_onpress(void) {
 }
 
 static void button_call_decline_update(BUTTON *b) {
-    FRIEND *f = selected_item->data;
+    FRIEND *f = flist_get_selected()->data;
     if (UTOX_AVAILABLE_AUDIO(f->number) && !UTOX_SENDING_AUDIO(f->number)) {
         button_setcolors_danger(b);
         b->nodraw   = 0;
@@ -198,7 +206,7 @@ static void button_call_decline_update(BUTTON *b) {
 }
 
 static void button_call_audio_onpress(void) {
-    FRIEND *f = selected_item->data;
+    FRIEND *f = flist_get_selected()->data;
     if (f->call_state_self) {
         if (UTOX_SENDING_AUDIO(f->number)) {
             debug("Ending call: %u\n", f->number);
@@ -220,7 +228,7 @@ static void button_call_audio_onpress(void) {
 }
 
 static void button_call_audio_update(BUTTON *b) {
-    FRIEND *f = selected_item->data;
+    FRIEND *f = flist_get_selected()->data;
     if (UTOX_SENDING_AUDIO(f->number)) {
         button_setcolors_danger(b);
         b->disabled = 0;
@@ -239,7 +247,7 @@ static void button_call_audio_update(BUTTON *b) {
 }
 
 static void button_call_video_onpress(void) {
-    FRIEND *f = selected_item->data;
+    FRIEND *f = flist_get_selected()->data;
     if (f->call_state_self) {
         if (SELF_ACCEPT_VIDEO(f->number)) {
             debug("Canceling call (video): %u\n", f->number);
@@ -263,7 +271,7 @@ static void button_call_video_onpress(void) {
 }
 
 static void button_call_video_update(BUTTON *b) {
-    FRIEND *f = selected_item->data;
+    FRIEND *f = flist_get_selected()->data;
     if (SELF_SEND_VIDEO(f->number)) {
         button_setcolors_danger(b);
         b->disabled = 0;
@@ -282,7 +290,7 @@ static void button_call_video_update(BUTTON *b) {
 }
 
 static void button_accept_friend_onpress(void) {
-    FRIENDREQ *req = selected_item->data;
+    FRIENDREQ *req = flist_get_selected()->data;
     postmessage_toxcore(TOX_FRIEND_ACCEPT, 0, 0, req);
     panel_friend_request.disabled = 1;
 }
@@ -294,20 +302,20 @@ static void contextmenu_avatar_onselect(uint8_t i) {
 
 static void button_avatar_onright(void) {
     if (self_has_avatar()) {
-        static UI_STRING_ID menu[] = { STR_REMOVE };
+        static UTOX_I18N_STR menu[] = { STR_REMOVE };
         contextmenu_new(countof(menu), menu, contextmenu_avatar_onselect);
     }
 }
 
 static void button_send_file_onpress(void) {
-    FRIEND *f = selected_item->data;
+    FRIEND *f = flist_get_selected()->data;
     if (f->online) {
         openfilesend();
     }
 }
 
 static void button_send_file_update(BUTTON *b) {
-    FRIEND *f = selected_item->data;
+    FRIEND *f = flist_get_selected()->data;
     if (f->online) {
         b->disabled = 0;
         button_setcolors_success(b);
@@ -318,14 +326,14 @@ static void button_send_file_update(BUTTON *b) {
 }
 
 static void button_send_screenshot_onpress(void) {
-    FRIEND *f = selected_item->data;
+    FRIEND *f = flist_get_selected()->data;
     if (f->online) {
         desktopgrab(0);
     }
 }
 
 static void button_send_screenshot_update(BUTTON *b) {
-    FRIEND *f = selected_item->data;
+    FRIEND *f = flist_get_selected()->data;
     if (f->online) {
         b->disabled = 0;
         button_setcolors_success(b);
@@ -337,8 +345,8 @@ static void button_send_screenshot_update(BUTTON *b) {
 
 /* Button to send chat message */
 static void button_chat_send_onpress(void) {
-    if (selected_item->item == ITEM_FRIEND) {
-        FRIEND *f = selected_item->data;
+    if (flist_get_selected()->item == ITEM_FRIEND) {
+        FRIEND *f = flist_get_selected()->data;
         if (f->online) {
             // TODO clear the chat bar with a /slash command
             edit_msg_onenter(&edit_msg);
@@ -353,8 +361,8 @@ static void button_chat_send_onpress(void) {
 }
 
 static void button_chat_send_update(BUTTON *b) {
-    if (selected_item->item == ITEM_FRIEND) {
-        FRIEND *f = selected_item->data;
+    if (flist_get_selected()->item == ITEM_FRIEND) {
+        FRIEND *f = flist_get_selected()->data;
         if (f->online) {
             b->disabled = 0;
             button_setcolors_success(b);
@@ -370,7 +378,7 @@ static void button_chat_send_update(BUTTON *b) {
 
 static void button_lock_uTox_onpress(void) {
     if (tox_thread_init && edit_profile_password.length > 3) {
-        list_selectsettings();
+        flist_selectsettings();
         panel_profile_password.disabled = 0;
         panel_settings_master.disabled  = 1;
         tox_settingschanged();
@@ -379,7 +387,9 @@ static void button_lock_uTox_onpress(void) {
 
 static void button_show_password_settings_onpress(void) { panel_profile_password_settings.disabled = 0; }
 
-static void button_export_chatlog_onpress(void) { utox_export_chatlog_init(((FRIEND *)selected_item->data)->number); }
+static void button_export_chatlog_onpress(void) {
+    utox_export_chatlog_init(((FRIEND *)flist_get_selected()->data)->number);
+}
 
 
 BUTTON button_avatar = {
@@ -552,3 +562,116 @@ BUTTON button_export_chatlog = {
     .onpress  = button_export_chatlog_onpress,
     .disabled = 0,
 };
+#include "../main.h"
+
+extern SCROLLABLE scrollbar_settings;
+
+static void button_settings_onpress(void) {
+    if (tox_thread_init) {
+        flist_selectsettings();
+    }
+}
+
+static void disable_all_setting_sub(void) {
+    flist_selectsettings();
+    panel_settings_profile.disabled = 1;
+    panel_settings_devices.disabled = 1;
+    panel_settings_net.disabled     = 1;
+    panel_settings_ui.disabled      = 1;
+    panel_settings_av.disabled      = 1;
+}
+
+static void button_settings_sub_profile_onpress(void) {
+    scrollbar_settings.content_height = SCALE(260);
+    disable_all_setting_sub();
+    panel_settings_profile.disabled = 0;
+}
+
+static void button_settings_sub_devices_onpress(void) {
+    scrollbar_settings.content_height = SCALE(260);
+    disable_all_setting_sub();
+    panel_settings_devices.disabled = 0;
+}
+
+static void button_settings_sub_net_onpress(void) {
+    scrollbar_settings.content_height = SCALE(180);
+    disable_all_setting_sub();
+    panel_settings_net.disabled = 0;
+}
+
+static void button_settings_sub_ui_onpress(void) {
+    scrollbar_settings.content_height = SCALE(280);
+    disable_all_setting_sub();
+    panel_settings_ui.disabled = 0;
+}
+
+static void button_settings_sub_av_onpress(void) {
+    scrollbar_settings.content_height = SCALE(300);
+    disable_all_setting_sub();
+    panel_settings_av.disabled = 0;
+}
+
+static void button_bottommenu_update(BUTTON *b) {
+    b->c1  = COLOR_BKGRND_MENU;
+    b->c2  = COLOR_BKGRND_MENU_HOVER;
+    b->c3  = COLOR_BKGRND_MENU_ACTIVE;
+    b->ct1 = COLOR_MENU_TEXT;
+    b->ct2 = COLOR_MENU_TEXT;
+    if (b->mousedown || b->disabled) {
+        b->ct1 = COLOR_MENU_TEXT_ACTIVE;
+        b->ct2 = COLOR_MENU_TEXT_ACTIVE;
+    }
+    b->cd = COLOR_BKGRND_MENU_ACTIVE;
+}
+
+static void button_add_device_to_self_mdown(void) {
+#ifdef ENABLE_MULTIDEVICE
+    devices_self_add(edit_add_new_device_to_self.data, edit_add_new_device_to_self.length);
+    edit_resetfocus();
+#endif
+}
+
+BUTTON
+button_settings =
+    {
+      .bm2          = BM_SETTINGS,
+      .bw           = _BM_ADD_WIDTH,
+      .bh           = _BM_ADD_WIDTH,
+      .update       = button_bottommenu_update,
+      .onpress      = button_settings_onpress,
+      .disabled     = 0,
+      .nodraw       = 0,
+      .tooltip_text = {.i18nal = STR_USERSETTINGS },
+    },
+
+    button_settings_sub_profile =
+        {
+          .nodraw = 1, .onpress = button_settings_sub_profile_onpress, .tooltip_text = {.i18nal = STR_UTOX_SETTINGS },
+        },
+
+    button_settings_sub_devices =
+        {
+          .nodraw = 1, .onpress = button_settings_sub_devices_onpress, .tooltip_text = {.i18nal = STR_UTOX_SETTINGS },
+        },
+
+    button_settings_sub_net =
+        {
+          .nodraw = 1, .onpress = button_settings_sub_net_onpress, .tooltip_text = {.i18nal = STR_NETWORK_SETTINGS },
+        },
+
+    button_settings_sub_ui =
+        {
+          .nodraw = 1, .onpress = button_settings_sub_ui_onpress, .tooltip_text = {.i18nal = STR_USERSETTINGS },
+        },
+
+    button_settings_sub_av =
+        {
+          .nodraw = 1, .onpress = button_settings_sub_av_onpress, .tooltip_text = {.i18nal = STR_AUDIO_VIDEO },
+        },
+
+    button_add_new_device_to_self = {
+        .bm          = BM_SBUTTON,
+        .button_text = {.i18nal = STR_ADD },
+        .update  = button_setcolors_success,
+        .onpress = button_add_device_to_self_mdown,
+    };

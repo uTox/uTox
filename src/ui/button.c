@@ -1,3 +1,6 @@
+// button.c
+#include "button.h"
+
 #include "../main.h"
 
 static void calculate_pos_and_width(BUTTON *b, int *x, int *w) {
@@ -75,15 +78,15 @@ void button_draw(BUTTON *b, int x, int y, int width, int height) {
     }
 }
 
-_Bool button_mmove(BUTTON *b, int UNUSED(x), int UNUSED(y), int width, int height, int mx, int my, int UNUSED(dx),
-                   int UNUSED(dy)) {
+bool button_mmove(BUTTON *b, int UNUSED(x), int UNUSED(y), int width, int height, int mx, int my, int UNUSED(dx),
+                  int UNUSED(dy)) {
     // Ensure that font is set before calculating position and width.
     setfont(FONT_SELF_NAME);
 
     int real_x = 0, real_w = width;
     calculate_pos_and_width(b, &real_x, &real_w);
 
-    _Bool mouseover = inrect(mx, my, real_x, 0, real_w, height);
+    bool mouseover = inrect(mx, my, real_x, 0, real_w, height);
     if (mouseover) {
         if (!b->disabled) {
             cursor = CURSOR_HAND;
@@ -101,7 +104,7 @@ _Bool button_mmove(BUTTON *b, int UNUSED(x), int UNUSED(y), int width, int heigh
     return 0;
 }
 
-_Bool button_mdown(BUTTON *b) {
+bool button_mdown(BUTTON *b) {
     if (!b->mousedown && b->mouseover) {
         b->mousedown = 1;
         return 1;
@@ -110,7 +113,7 @@ _Bool button_mdown(BUTTON *b) {
     return 0;
 }
 
-_Bool button_mright(BUTTON *b) {
+bool button_mright(BUTTON *b) {
     if (b->mouseover && b->onright) {
         b->onright();
         return 1;
@@ -119,9 +122,9 @@ _Bool button_mright(BUTTON *b) {
     return 0;
 }
 
-_Bool button_mwheel(BUTTON *UNUSED(b), int UNUSED(height), double UNUSED(d), _Bool UNUSED(smooth)) { return 0; }
+bool button_mwheel(BUTTON *UNUSED(b), int UNUSED(height), double UNUSED(d), bool UNUSED(smooth)) { return 0; }
 
-_Bool button_mup(BUTTON *b) {
+bool button_mup(BUTTON *b) {
     if (b->mousedown) {
         if (b->mouseover) {
             b->onpress();
@@ -134,7 +137,7 @@ _Bool button_mup(BUTTON *b) {
     return 0;
 }
 
-_Bool button_mleave(BUTTON *b) {
+bool button_mleave(BUTTON *b) {
     if (b->mouseover) {
         b->mouseover = 0;
         return 1;

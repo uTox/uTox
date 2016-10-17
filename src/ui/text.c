@@ -1,6 +1,10 @@
-#include "../main.h"
+// text.c
+#include "text.h"
 
-static void text_draw_word_hl(int x, int y, char_t *str, uint16_t length, int d, int h, int hlen, uint16_t lineheight) {
+#include "../main.h"
+#include "../theme.h"
+
+static void text_draw_word_hl(int x, int y, char *str, uint16_t length, int d, int h, int hlen, uint16_t lineheight) {
     // Draw cursor
     /* multiline drawing goes word by word so str is not what you think it will be
      * drawing word by word could be the WORST way to go about it. (It's at least super frustrating without the
@@ -45,7 +49,7 @@ static void text_draw_word_hl(int x, int y, char_t *str, uint16_t length, int d,
     drawtext(x + width, y, str + h + hlen, length - (h + hlen));
 }
 
-static void drawtextmark(int x, int y, char_t *str, uint16_t length, int d, int h, int hlen, uint16_t lineheight) {
+static void drawtextmark(int x, int y, char *str, uint16_t length, int d, int h, int hlen, uint16_t lineheight) {
     h -= d;
     if (h + hlen < 0 || h > length || hlen == 0) {
         return;
@@ -70,13 +74,13 @@ static void drawtextmark(int x, int y, char_t *str, uint16_t length, int d, int 
 }
 
 int utox_draw_text_multiline_within_box(int x, int y, /* x, y of the top left corner of the box */
-                                        int right, int top, int bottom, uint16_t lineheight, const char_t *data,
+                                        int right, int top, int bottom, uint16_t lineheight, const char *data,
                                         uint16_t length, /* text, and length of the text*/
-                                        uint16_t h, uint16_t hlen, uint16_t mark, uint16_t marklen, _Bool multiline) {
+                                        uint16_t h, uint16_t hlen, uint16_t mark, uint16_t marklen, bool multiline) {
     uint32_t c1, c2;
-    _Bool    greentext = 0, link = 0, draw = y + lineheight >= top;
+    bool     greentext = 0, link = 0, draw = y + lineheight >= top;
     int      xc = x;
-    char_t * a = data, *b = a, *end = a + length;
+    char *   a = data, *b = a, *end = a + length;
     while (1) {
         if (a != end) {
             if (*a == '>' && (a == data || *(a - 1) == '\n')) {
@@ -92,7 +96,7 @@ int utox_draw_text_multiline_within_box(int x, int y, /* x, y of the top left co
             }
 
             if (a == data || *(a - 1) == '\n') {
-                char_t *r = a;
+                char *r = a;
                 while (r != end && *r != '\n') {
                     r++;
                 }
@@ -176,15 +180,15 @@ int utox_draw_text_multiline_within_box(int x, int y, /* x, y of the top left co
     return y + lineheight;
 }
 
-int utox_draw_text_multiline_compat(int x, int right, int y, int top, int bottom, uint16_t lineheight, char_t *data,
+int utox_draw_text_multiline_compat(int x, int right, int y, int top, int bottom, uint16_t lineheight, char *data,
                                     uint16_t length, uint16_t h, uint16_t hlen, uint16_t mark, uint16_t marklen,
-                                    _Bool multiline) {
+                                    bool multiline) {
     return utox_draw_text_multiline_within_box(x, y, right, top, bottom, lineheight, data, length, h, hlen, mark,
                                                marklen, multiline);
 }
 
-uint16_t hittextmultiline(int mx, int right, int my, int height, uint16_t lineheight, char_t *str, uint16_t length,
-                          _Bool multiline) {
+uint16_t hittextmultiline(int mx, int right, int my, int height, uint16_t lineheight, char *str, uint16_t length,
+                          bool multiline) {
     if (my < 0) {
         return 0;
     }
@@ -193,8 +197,8 @@ uint16_t hittextmultiline(int mx, int right, int my, int height, uint16_t linehe
         return length;
     }
 
-    int     x = 0;
-    char_t *a = str, *b = str, *end = str + length;
+    int   x = 0;
+    char *a = str, *b = str, *end = str + length;
     while (1) {
         if (a == end || *a == '\n' || *a == ' ') {
             int count = a - b, w = textwidth(b, a - b);
@@ -263,9 +267,9 @@ uint16_t hittextmultiline(int mx, int right, int my, int height, uint16_t linehe
     return (b - str) + fit;
 }
 
-int text_height(int right, uint16_t lineheight, char_t *str, uint16_t length) {
-    int     x = 0, y = 0;
-    char_t *a = str, *b = a, *end = a + length;
+int text_height(int right, uint16_t lineheight, char *str, uint16_t length) {
+    int   x = 0, y = 0;
+    char *a = str, *b = a, *end = a + length;
     while (1) {
         if (a == end || *a == ' ' || *a == '\n') {
             int count = a - b, w = textwidth(b, count);
@@ -309,9 +313,9 @@ int text_height(int right, uint16_t lineheight, char_t *str, uint16_t length) {
     return y;
 }
 
-static void textxy(int width, uint16_t pp, uint16_t lineheight, char_t *str, uint16_t length, int *outx, int *outy) {
-    int     x = 0, y = 0;
-    char_t *a = str, *b = str, *end = str + length, *p = str + pp;
+static void textxy(int width, uint16_t pp, uint16_t lineheight, char *str, uint16_t length, int *outx, int *outy) {
+    int   x = 0, y = 0;
+    char *a = str, *b = str, *end = str + length, *p = str + pp;
     while (1) {
         if (a == end || *a == '\n' || *a == ' ') {
             int count = a - b, w = textwidth(b, a - b);
@@ -361,7 +365,7 @@ static void textxy(int width, uint16_t pp, uint16_t lineheight, char_t *str, uin
     *outy = y;
 }
 
-uint16_t text_lineup(int width, int height, uint16_t p, uint16_t lineheight, char_t *str, uint16_t length,
+uint16_t text_lineup(int width, int height, uint16_t p, uint16_t lineheight, char *str, uint16_t length,
                      SCROLLABLE *scroll) {
     // lazy
     int x, y;
@@ -386,7 +390,7 @@ uint16_t text_lineup(int width, int height, uint16_t p, uint16_t lineheight, cha
     return hittextmultiline(x, width, y, INT_MAX, lineheight, str, length, 1);
 }
 
-uint16_t text_linedown(int width, int height, uint16_t p, uint16_t lineheight, char_t *str, uint16_t length,
+uint16_t text_linedown(int width, int height, uint16_t p, uint16_t lineheight, char *str, uint16_t length,
                        SCROLLABLE *scroll) {
     // lazy
     int x, y;

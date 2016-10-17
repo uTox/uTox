@@ -3,8 +3,8 @@
 
 static void font_info_open(FONT_INFO *i, FcPattern *pattern);
 
-Picture loadglyphpic(uint8_t *data, int width, int height, int pitch, _Bool no_subpixel, _Bool vertical,
-                     _Bool swap_blue_red) {
+Picture loadglyphpic(uint8_t *data, int width, int height, int pitch, bool no_subpixel, bool vertical,
+                     bool swap_blue_red) {
     if (!width || !height) {
         return None;
     }
@@ -44,8 +44,8 @@ Picture loadglyphpic(uint8_t *data, int width, int height, int pitch, _Bool no_s
             do {
                 end = p + width;
                 while (p != end) {
-                    *p++ = swap_blue_red ? RGB(data[2 * pitch], data[1 * pitch], data[0])
-                                         : RGB(data[0], data[1 * pitch], data[2 * pitch]);
+                    *p++ = swap_blue_red ? RGB(data[2 * pitch], data[1 * pitch], data[0]) :
+                                           RGB(data[0], data[1 * pitch], data[2 * pitch]);
                     data += 1;
                 }
                 data += (pitch - width) + (pitch * 2);
@@ -57,7 +57,7 @@ Picture loadglyphpic(uint8_t *data, int width, int height, int pitch, _Bool no_s
         legc   = XCreateGC(display, pixmap, 0, NULL);
         XPutImage(display, pixmap, legc, img, 0, 0, 0, 0, width, height);
 
-        XRenderPictureAttributes attr = {.component_alpha = 1};
+        XRenderPictureAttributes attr = {.component_alpha = 1 };
         picture = XRenderCreatePicture(display, pixmap, XRenderFindStandardFormat(display, PictStandardRGB24),
                                        CPComponentAlpha, &attr);
 
@@ -160,7 +160,7 @@ GLYPH *font_getglyph(FONT *f, uint32_t ch) {
     int ft_flags        = FT_LOAD_DEFAULT;
     int ft_render_flags = FT_RENDER_MODE_NORMAL;
 
-    _Bool hinting = 1, antialias = 1, vertical_layout = 0, autohint = 0;
+    bool hinting = 1, antialias = 1, vertical_layout = 0, autohint = 0;
     FcPatternGetBool(f->pattern, FC_HINTING, 0, (int *)&hinting);
     FcPatternGetBool(f->pattern, FC_ANTIALIAS, 0, (int *)&antialias);
     FcPatternGetBool(f->pattern, FC_VERTICAL_LAYOUT, 0, (int *)&vertical_layout);
@@ -174,8 +174,8 @@ GLYPH *font_getglyph(FONT *f, uint32_t ch) {
     int subpixel = FC_RGBA_NONE;
     FcPatternGetInteger(f->pattern, FC_RGBA, 0, (int *)&subpixel);
 
-    _Bool no_subpixel = (subpixel == FC_RGBA_NONE);
-    _Bool vert        = ft_vert;
+    bool no_subpixel = (subpixel == FC_RGBA_NONE);
+    bool vert        = ft_vert;
 
     if (no_subpixel) {
         ft_render_flags = FT_RENDER_MODE_NORMAL;
@@ -347,7 +347,7 @@ static void font_info_open(FONT_INFO *i, FcPattern *pattern) {
     // debug("Loaded font %s %u %i %i\n", filename, id, PIXELS(i->face->ascender), PIXELS(i->face->descender));
 }
 
-static _Bool font_open(FONT *a_font, ...) {
+static bool font_open(FONT *a_font, ...) {
     /* add error checks */
     va_list    va;
     FcPattern *pat;

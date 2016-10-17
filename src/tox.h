@@ -1,15 +1,21 @@
-/* todo: proper system for posting messages to the toxcore thread, comments, better names (?), proper cleanup of a/v and a/v thread*/
-/* -proper unpause/pause file transfers, resuming file transfers + what if new file transfer with same id gets created before the main thread receives the message for the old one?
+/* todo: proper system for posting messages to the toxcore thread, comments, better names (?), proper cleanup of a/v and
+ * a/v thread*/
+/* -proper unpause/pause file transfers, resuming file transfers + what if new file transfer with same id gets created
+before the main thread receives the message for the old one?
 >= GiB file sizes with FILE_*_PROGRESS on 32bit */
 
 /* details about messages and their (param1, param2, data) values are in the message handlers in tox.c*/
 #ifndef UTOX_TOX_H
 #define UTOX_TOX_H
 
+#include <tox/tox.h>
+
+#include "main.h"
+
 typedef struct {
-    uint8_t msg;
+    uint8_t  msg;
     uint32_t param1, param2;
-    void *data;
+    void *   data;
 } TOX_MSG;
 
 typedef enum UTOX_ENC_ERR {
@@ -24,6 +30,7 @@ typedef enum UTOX_ENC_ERR {
 enum {
     /* SHUTDOWNEVERYTHING! */
     TOX_KILL, // 0
+    TOX_SAVE,
 
     /* Change our settings in core */
     TOX_SELF_SET_NAME,
@@ -144,7 +151,7 @@ enum {
 };
 
 struct TOX_SEND_INLINE_MSG {
-    size_t image_size;
+    size_t     image_size;
     UTOX_IMAGE image;
 };
 
@@ -157,9 +164,8 @@ enum {
 };
 
 /* Inter-thread communication vars. */
-TOX_MSG tox_msg, audio_msg, video_msg, toxav_msg;
-volatile _Bool tox_thread_msg, audio_thread_msg, video_thread_msg;
-volatile _Bool save_needed;
+TOX_MSG       tox_msg, audio_msg, video_msg, toxav_msg;
+volatile bool tox_thread_msg, audio_thread_msg, video_thread_msg;
 
 void tox_after_load(Tox *tox);
 

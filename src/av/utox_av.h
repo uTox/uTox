@@ -2,6 +2,12 @@
 #ifndef UTOX_AV_H
 #define UTOX_AV_H
 
+#include <tox/toxav.h>
+
+#include "audio.h"
+#include "video.h"
+
+#define UTOX_MAX_VIDEO_CALLS 32
 /* utox av thread commands */
 enum {
     UTOXAV_KILL,
@@ -18,7 +24,6 @@ enum {
 
     UTOXAV_GROUPCALL_START,
     UTOXAV_GROUPCALL_END,
-
 
     UTOXAV_START_AUDIO,
     UTOXAV_STOP_AUDIO,
@@ -48,18 +53,18 @@ enum {
 
     UTOXAUDIO_PLAY_NOTIFICATION,
     UTOXAUDIO_STOP_NOTIFICATION,
-
 };
 
 enum {
     // kill the video thread
     UTOXVIDEO_KILL,
-/*    UTOXVIDEO_RECORD_START,
+    /*    UTOXVIDEO_RECORD_START,
     UTOXVIDEO_RECORD_STOP,
     UTOXVIDEO_SET,
     UTOXVIDEO_PREVIEW_START,
     UTOXVIDEO_PREVIEW_STOP,
-*/};
+*/
+};
 
 /* send a message to the toxav thread
  */

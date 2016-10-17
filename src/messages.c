@@ -1,4 +1,10 @@
+// messages.c
+
+#include "messages.h"
+
+#include "flist.h"
 #include "main.h"
+#include "theme.h"
 
 /** Appends a messages from self or friend to the message list;
  * will realloc or trim messages as needed;
@@ -141,9 +147,9 @@ static uint32_t message_add(MESSAGES *m, MSG_VOID *msg) {
 
     message_updateheight(m, (MSG_VOID *)msg);
 
-    if (m->is_groupchat && selected_item->data == &group[m->id]) {
+    if (m->is_groupchat && flist_get_selected()->data == &group[m->id]) {
         m->panel.content_scroll->content_height = m->height;
-    } else if (selected_item->data == &friend[m->id]) {
+    } else if (flist_get_selected()->data == &friend[m->id]) {
         m->panel.content_scroll->content_height = m->height;
     }
 
@@ -151,7 +157,7 @@ static uint32_t message_add(MESSAGES *m, MSG_VOID *msg) {
     return m->number;
 }
 
-static _Bool msg_add_day_notice(MESSAGES *m, time_t last, time_t next) {
+static bool msg_add_day_notice(MESSAGES *m, time_t last, time_t next) {
 
     struct tm *msg_time = 0;
     /* The tm struct is shared, we have to do it this way */
@@ -180,11 +186,9 @@ static _Bool msg_add_day_notice(MESSAGES *m, time_t last, time_t next) {
 
 /* TODO leaving this here is a little hacky, but it was the fastest way
  * without considering if I should expose messages_add */
-uint32_t message_add_group(MESSAGES *m, MSG_TEXT *msg) {
-    return message_add(m, (MSG_VOID *)msg);
-}
+uint32_t message_add_group(MESSAGES *m, MSG_TEXT *msg) { return message_add(m, (MSG_VOID *)msg); }
 
-uint32_t message_add_type_text(MESSAGES *m, _Bool auth, const uint8_t *data, uint16_t length, _Bool log, _Bool send) {
+uint32_t message_add_type_text(MESSAGES *m, bool auth, const uint8_t *data, uint16_t length, bool log, bool send) {
     MSG_TEXT *msg = calloc(1, sizeof(MSG_TEXT) + length);
     time(&msg->time);
     msg->our_msg  = auth;
@@ -219,7 +223,7 @@ uint32_t message_add_type_text(MESSAGES *m, _Bool auth, const uint8_t *data, uin
     return message_add(m, (MSG_VOID *)msg);
 }
 
-uint32_t message_add_type_action(MESSAGES *m, _Bool auth, const uint8_t *data, uint16_t length, _Bool log, _Bool send) {
+uint32_t message_add_type_action(MESSAGES *m, bool auth, const uint8_t *data, uint16_t length, bool log, bool send) {
     MSG_TEXT *msg = calloc(1, sizeof(MSG_TEXT) + length);
     time(&msg->time);
     msg->our_msg  = auth;
@@ -249,7 +253,7 @@ uint32_t message_add_type_action(MESSAGES *m, _Bool auth, const uint8_t *data, u
     return message_add(m, (MSG_VOID *)msg);
 }
 
-uint32_t message_add_type_notice(MESSAGES *m, const uint8_t *data, uint16_t length, _Bool log) {
+uint32_t message_add_type_notice(MESSAGES *m, const uint8_t *data, uint16_t length, bool log) {
     MSG_TEXT *msg = calloc(1, sizeof(MSG_TEXT) + length);
     time(&msg->time);
     msg->our_msg       = 0;
@@ -266,9 +270,8 @@ uint32_t message_add_type_notice(MESSAGES *m, const uint8_t *data, uint16_t leng
     return message_add(m, (MSG_VOID *)msg);
 }
 
-uint32_t message_add_type_image(MESSAGES *m, _Bool auth, UTOX_NATIVE_IMAGE *img, uint16_t width, uint16_t height,
-                                _Bool log) {
-    if (!UTOX_NATIVE_IMAGE_IS_VALID(img)) {
+uint32_t message_add_type_image(MESSAGES *m, bool auth, NATIVE_IMAGE *img, uint16_t width, uint16_t height, bool log) {
+    if (!NATIVE_IMAGE_IS_VALID(img)) {
         return 0;
     }
 
@@ -311,7 +314,7 @@ MSG_FILE *message_add_type_file(MESSAGES *m, FILE_TRANSFER *file) {
     return msg;
 }
 
-_Bool message_log_to_disk(MESSAGES *m, MSG_VOID *msg) {
+bool message_log_to_disk(MESSAGES *m, MSG_VOID *msg) {
     if (m->is_groupchat) {
         /* We don't support logging groupchats yet */
         return 0;
@@ -371,7 +374,7 @@ _Bool message_log_to_disk(MESSAGES *m, MSG_VOID *msg) {
     return 0;
 }
 
-_Bool messages_read_from_log(uint32_t friend_number) {
+bool messages_read_from_log(uint32_t friend_number) {
     size_t    actual_count = 0;
     uint8_t **data         = utox_load_chatlog(friend_number, &actual_count, UTOX_MAX_BACKLOG_MESSAGES, 0);
     MSG_VOID *msg;
@@ -520,7 +523,7 @@ static void messages_draw_timestamp(int x, int y, const time_t *time) {
 
     setcolor(COLOR_MAIN_TEXT_SUBTEXT);
     setfont(FONT_MISC);
-    drawtext(x, y, (char_t *)timestr, len);
+    drawtext(x, y, (char *)timestr, len);
 }
 
 static void messages_draw_author(int x, int y, int w, uint8_t *name, uint32_t length, uint32_t color) {
@@ -529,8 +532,8 @@ static void messages_draw_author(int x, int y, int w, uint8_t *name, uint32_t le
     drawtextwidth_right(x, w, y, name, length);
 }
 
-static int messages_draw_text(const uint8_t *msg, size_t length, uint32_t msg_height, uint8_t msg_type, _Bool author,
-                              _Bool receipt, uint16_t highlight_start, uint16_t highlight_end, int x, int y, int w,
+static int messages_draw_text(const uint8_t *msg, size_t length, uint32_t msg_height, uint8_t msg_type, bool author,
+                              bool receipt, uint16_t highlight_start, uint16_t highlight_end, int x, int y, int w,
                               int h) {
     switch (msg_type) {
         case MSG_TYPE_TEXT: {
@@ -594,10 +597,10 @@ static void messages_draw_filetransfer(MESSAGES *m, MSG_FILE *file, int i, int x
     int dx            = x + MESSAGES_X + room_for_clip;
     int d_width       = w - MESSAGES_X - TIME_WIDTH - room_for_clip;
     /* Mouse Positions */
-    _Bool mo             = (m->cursor_over_msg == i);
-    _Bool mouse_over     = (mo && m->cursor_over_position) ? 1 : 0;
-    _Bool mouse_rght_btn = (mo && m->cursor_over_position == 2) ? 1 : 0;
-    _Bool mouse_left_btn = (mo && m->cursor_over_position == 1) ? 1 : 0;
+    bool mo             = (m->cursor_over_msg == i);
+    bool mouse_over     = (mo && m->cursor_over_position) ? 1 : 0;
+    bool mouse_rght_btn = (mo && m->cursor_over_position == 2) ? 1 : 0;
+    bool mouse_left_btn = (mo && m->cursor_over_position == 1) ? 1 : 0;
 
     /* Button Background */
     int btn_bg_w = BM_FTB_WIDTH;
@@ -650,55 +653,55 @@ static void messages_draw_filetransfer(MESSAGES *m, MSG_FILE *file, int i, int x
 /* Draw macros added, to reduce future line edits. */
 #define draw_ft_rect(color) draw_rect_fill(dx, y, d_width, FILE_TRANSFER_BOX_HEIGHT, color)
 #define draw_ft_prog(color) draw_rect_fill(dx, y, prog_bar, FILE_TRANSFER_BOX_HEIGHT, color)
-#define draw_ft_cap(bg, fg)                                                                                            \
-    do {                                                                                                               \
-        drawalpha(BM_FT_CAP, dx - room_for_clip, y, BM_FT_CAP_WIDTH, BM_FTB_HEIGHT, bg);                               \
-        drawalpha(BM_FILE, dx - room_for_clip + SCALE(4), y + SCALE(4), BM_FILE_WIDTH, BM_FILE_HEIGHT, fg);            \
+#define draw_ft_cap(bg, fg)                                                                                 \
+    do {                                                                                                    \
+        drawalpha(BM_FT_CAP, dx - room_for_clip, y, BM_FT_CAP_WIDTH, BM_FTB_HEIGHT, bg);                    \
+        drawalpha(BM_FILE, dx - room_for_clip + SCALE(4), y + SCALE(4), BM_FILE_WIDTH, BM_FILE_HEIGHT, fg); \
     } while (0)
 
 /* Always first */
-#define draw_ft_no_btn()                                                                                               \
-    do {                                                                                                               \
-        drawalpha(BM_FTB1, btnx, tbtn_bg_y, btn_bg_w, tbtn_bg_h,                                                       \
-                  (mouse_left_btn ? COLOR_BTN_DANGER_BKGRND_HOVER : COLOR_BTN_SUCCESS_BKGRND));                        \
-        drawalpha(BM_NO, btnx + ((btn_bg_w - btnw) / 2), tbtn_y, btnw, btnh,                                           \
-                  (mouse_left_btn ? COLOR_BTN_DANGER_TEXT_HOVER : COLOR_BTN_DANGER_TEXT));                             \
+#define draw_ft_no_btn()                                                                        \
+    do {                                                                                        \
+        drawalpha(BM_FTB1, btnx, tbtn_bg_y, btn_bg_w, tbtn_bg_h,                                \
+                  (mouse_left_btn ? COLOR_BTN_DANGER_BKGRND_HOVER : COLOR_BTN_SUCCESS_BKGRND)); \
+        drawalpha(BM_NO, btnx + ((btn_bg_w - btnw) / 2), tbtn_y, btnw, btnh,                    \
+                  (mouse_left_btn ? COLOR_BTN_DANGER_TEXT_HOVER : COLOR_BTN_DANGER_TEXT));      \
     } while (0)
 /* Always last */
-#define draw_ft_yes_btn()                                                                                              \
-    do {                                                                                                               \
-        drawalpha(BM_FTB2, btnx + btn_bg_w + SCALE(2), tbtn_bg_y, btn_bg_w, tbtn_bg_h,                                 \
-                  (mouse_rght_btn ? COLOR_BTN_SUCCESS_BKGRND_HOVER : COLOR_BTN_SUCCESS_BKGRND));                       \
-        drawalpha(BM_YES, btnx + btn_bg_w + SCALE(2) + ((btn_bg_w - btnw) / 2), tbtn_y, btnw, btnh,                    \
-                  (mouse_rght_btn ? COLOR_BTN_SUCCESS_TEXT_HOVER : COLOR_BTN_SUCCESS_TEXT));                           \
+#define draw_ft_yes_btn()                                                                           \
+    do {                                                                                            \
+        drawalpha(BM_FTB2, btnx + btn_bg_w + SCALE(2), tbtn_bg_y, btn_bg_w, tbtn_bg_h,              \
+                  (mouse_rght_btn ? COLOR_BTN_SUCCESS_BKGRND_HOVER : COLOR_BTN_SUCCESS_BKGRND));    \
+        drawalpha(BM_YES, btnx + btn_bg_w + SCALE(2) + ((btn_bg_w - btnw) / 2), tbtn_y, btnw, btnh, \
+                  (mouse_rght_btn ? COLOR_BTN_SUCCESS_TEXT_HOVER : COLOR_BTN_SUCCESS_TEXT));        \
     } while (0)
-#define draw_ft_pause_btn()                                                                                            \
-    do {                                                                                                               \
-        drawalpha(BM_FTB2, btnx + btn_bg_w + SCALE(2), tbtn_bg_y, btn_bg_w, tbtn_bg_h,                                 \
-                  (mouse_rght_btn ? COLOR_BTN_SUCCESS_BKGRND_HOVER : COLOR_BTN_SUCCESS_BKGRND));                       \
-        drawalpha(BM_PAUSE, btnx + btn_bg_w + SCALE(2) + ((btn_bg_w - btnw) / 2), tbtn_y, btnw, btnh,                  \
-                  (mouse_rght_btn ? COLOR_BTN_SUCCESS_TEXT_HOVER : COLOR_BTN_SUCCESS_TEXT));                           \
+#define draw_ft_pause_btn()                                                                           \
+    do {                                                                                              \
+        drawalpha(BM_FTB2, btnx + btn_bg_w + SCALE(2), tbtn_bg_y, btn_bg_w, tbtn_bg_h,                \
+                  (mouse_rght_btn ? COLOR_BTN_SUCCESS_BKGRND_HOVER : COLOR_BTN_SUCCESS_BKGRND));      \
+        drawalpha(BM_PAUSE, btnx + btn_bg_w + SCALE(2) + ((btn_bg_w - btnw) / 2), tbtn_y, btnw, btnh, \
+                  (mouse_rght_btn ? COLOR_BTN_SUCCESS_TEXT_HOVER : COLOR_BTN_SUCCESS_TEXT));          \
     } while (0)
 
-#define draw_ft_resume_btn()                                                                                           \
-    do {                                                                                                               \
-        drawalpha(BM_FTB2, btnx + btn_bg_w + SCALE(2), tbtn_bg_y, btn_bg_w, tbtn_bg_h,                                 \
-                  (mouse_rght_btn ? COLOR_BTN_SUCCESS_BKGRND_HOVER : COLOR_BTN_SUCCESS_BKGRND));                       \
-        drawalpha(BM_RESUME, btnx + btn_bg_w + SCALE(2) + ((btn_bg_w - btnw) / 2), tbtn_y, btnw, btnh,                 \
-                  (mouse_rght_btn ? COLOR_BTN_SUCCESS_TEXT_HOVER : COLOR_BTN_SUCCESS_TEXT));                           \
+#define draw_ft_resume_btn()                                                                           \
+    do {                                                                                               \
+        drawalpha(BM_FTB2, btnx + btn_bg_w + SCALE(2), tbtn_bg_y, btn_bg_w, tbtn_bg_h,                 \
+                  (mouse_rght_btn ? COLOR_BTN_SUCCESS_BKGRND_HOVER : COLOR_BTN_SUCCESS_BKGRND));       \
+        drawalpha(BM_RESUME, btnx + btn_bg_w + SCALE(2) + ((btn_bg_w - btnw) / 2), tbtn_y, btnw, btnh, \
+                  (mouse_rght_btn ? COLOR_BTN_SUCCESS_TEXT_HOVER : COLOR_BTN_SUCCESS_TEXT));           \
     } while (0)
 
     int wbound = dx + d_width - SCALE(6);
 
-#define draw_ft_text_right(str, len)                                                                                   \
-    do {                                                                                                               \
-        wbound -= (textwidth(str, len) + (SCALE(12)));                                                                 \
-        drawtext(wbound, y + SCALE(8), str, len);                                                                      \
+#define draw_ft_text_right(str, len)                   \
+    do {                                               \
+        wbound -= (textwidth(str, len) + (SCALE(12))); \
+        drawtext(wbound, y + SCALE(8), str, len);      \
     } while (0)
-#define draw_ft_alph_right(bm, col)                                                                                    \
-    do {                                                                                                               \
-        wbound -= btnw + (SCALE(12));                                                                                  \
-        drawalpha(bm, wbound, tbtn_y, btnw, btnh, col);                                                                \
+#define draw_ft_alph_right(bm, col)                     \
+    do {                                                \
+        wbound -= btnw + (SCALE(12));                   \
+        drawalpha(bm, wbound, tbtn_y, btnw, btnh, col); \
     } while (0)
 #define drawstr_ft_right(t) draw_ft_text_right(S(t), SLEN(t))
 
@@ -898,7 +901,7 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
 
         } else {
             FRIEND *f           = &friend[m->id];
-            _Bool   draw_author = 1;
+            bool    draw_author = 1;
             if (msg->msg_type == MSG_TYPE_ACTION_TEXT) {
                 // Always draw name next to action message
                 lastauthor = 0xFF;
@@ -1004,8 +1007,8 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
     pthread_mutex_unlock(&messages_lock);
 }
 
-static _Bool messages_mmove_text(MESSAGES *m, int width, int mx, int my, int dy, char_t *message, uint32_t msg_height,
-                                 uint16_t msg_length) {
+static bool messages_mmove_text(MESSAGES *m, int width, int mx, int my, int dy, char *message, uint32_t msg_height,
+                                uint16_t msg_length) {
 
     cursor                  = CURSOR_TEXT;
     m->cursor_over_position = hittextmultiline(mx - MESSAGES_X, width - MESSAGES_X - TIME_WIDTH, (my < 0 ? 0 : my),
@@ -1016,7 +1019,7 @@ static _Bool messages_mmove_text(MESSAGES *m, int width, int mx, int my, int dy,
         return 0;
     }
 
-    _Bool prev_cursor_down_uri = m->cursor_down_uri;
+    bool prev_cursor_down_uri = m->cursor_down_uri;
 
     if (m->cursor_over_uri != UINT32_MAX) {
         m->cursor_down_uri = 0;
@@ -1024,7 +1027,7 @@ static _Bool messages_mmove_text(MESSAGES *m, int width, int mx, int my, int dy,
     }
 
     /* Seek back to the last word/line break */
-    char_t *str = message + m->cursor_over_position;
+    char *str = message + m->cursor_over_position;
     while (str != message) {
         str--;
         if (*str == ' ' || *str == '\n') {
@@ -1034,7 +1037,7 @@ static _Bool messages_mmove_text(MESSAGES *m, int width, int mx, int my, int dy,
     }
 
     /* Check if it's a URI we handle TODO: handle moar! */
-    char_t *end = message + msg_length;
+    char *end = message + msg_length;
     while (str != end && *str != ' ' && *str != '\n') {
         if (str == message || *(str - 1) == '\n' || *(str - 1) == ' ') {
             if (m->cursor_over_uri == UINT32_MAX && end - str >= 7 && (strcmp2(str, "http://") == 0)) {
@@ -1057,7 +1060,7 @@ static _Bool messages_mmove_text(MESSAGES *m, int width, int mx, int my, int dy,
     return 0;
 }
 
-static _Bool messages_mmove_image(MSG_IMG *image, int max_width, int mx, int my) {
+static bool messages_mmove_image(MSG_IMG *image, int max_width, int mx, int my) {
     if (image->w > max_width) {
         mx -= MESSAGES_X;
         int w = image->w > max_width ? max_width : image->w;
@@ -1089,8 +1092,8 @@ static uint8_t messages_mmove_filetransfer(MSG_FILE *file, int mx, int my, int w
     return 0;
 }
 
-_Bool messages_mmove(PANEL *panel, int UNUSED(px), int UNUSED(py), int width, int UNUSED(height), int mx, int my,
-                     int dx, int UNUSED(dy)) {
+bool messages_mmove(PANEL *panel, int UNUSED(px), int UNUSED(py), int width, int UNUSED(height), int mx, int my, int dx,
+                    int UNUSED(dy)) {
     MESSAGES *m = panel->object;
 
     if (mx >= width - TIME_WIDTH) {
@@ -1126,7 +1129,7 @@ _Bool messages_mmove(PANEL *panel, int UNUSED(px), int UNUSED(py), int width, in
 
     void **  p = m->data;
     uint32_t i = 0, n = m->number;
-    _Bool    need_redraw = 0;
+    bool     need_redraw = 0;
 
     while (i < n) {
         MSG_TEXT *msg = *p++;
@@ -1209,7 +1212,7 @@ _Bool messages_mmove(PANEL *panel, int UNUSED(px), int UNUSED(py), int width, in
     return 0;
 }
 
-_Bool messages_mdown(PANEL *panel) {
+bool messages_mdown(PANEL *panel) {
     MESSAGES *m        = panel->object;
     m->cursor_down_msg = UINT32_MAX;
 
@@ -1327,7 +1330,7 @@ _Bool messages_mdown(PANEL *panel) {
     return 0;
 }
 
-_Bool messages_dclick(PANEL *panel, _Bool triclick) {
+bool messages_dclick(PANEL *panel, bool triclick) {
     MESSAGES *m = panel->object;
 
     if (m->cursor_over_time) {
@@ -1351,7 +1354,7 @@ _Bool messages_dclick(PANEL *panel, _Bool triclick) {
             case MSG_TYPE_ACTION_TEXT: {
                 m->sel_start_msg = m->sel_end_msg = m->cursor_over_msg;
 
-                char_t c = triclick ? '\n' : ' ';
+                char c = triclick ? '\n' : ' ';
 
                 uint16_t i = m->cursor_over_position;
                 while (i != 0 && real_msg[i - 1] != c) {
@@ -1380,13 +1383,11 @@ _Bool messages_dclick(PANEL *panel, _Bool triclick) {
     return 0;
 }
 
-static void contextmenu_messages_onselect(uint8_t i) {
-    copy(!!i); /* if not 0 force a 1 */
-}
+static void contextmenu_messages_onselect(uint8_t i) { copy(!!i); /* if not 0 force a 1 */ }
 
-_Bool messages_mright(PANEL *panel) {
-    MESSAGES *          m           = panel->object;
-    static UI_STRING_ID menu_copy[] = {STR_COPY, STR_COPY_WITH_NAMES};
+bool messages_mright(PANEL *panel) {
+    MESSAGES *           m           = panel->object;
+    static UTOX_I18N_STR menu_copy[] = { STR_COPY, STR_COPY_WITH_NAMES };
     if (m->cursor_over_msg == UINT32_MAX) {
         return 0;
     }
@@ -1403,11 +1404,9 @@ _Bool messages_mright(PANEL *panel) {
     return 0;
 }
 
-_Bool messages_mwheel(PANEL *UNUSED(panel), int UNUSED(height), double UNUSED(d), _Bool UNUSED(smooth)) {
-    return 0;
-}
+bool messages_mwheel(PANEL *UNUSED(panel), int UNUSED(height), double UNUSED(d), bool UNUSED(smooth)) { return 0; }
 
-_Bool messages_mup(PANEL *panel) {
+bool messages_mup(PANEL *panel) {
     MESSAGES *m = panel->object;
 
     if (!m->data) {
@@ -1422,8 +1421,8 @@ _Bool messages_mup(PANEL *panel) {
                 && m->cursor_over_position <= m->cursor_over_uri + m->urllen - 1 /* - 1 Don't open on white space */
                 && !m->selecting_text) {
                 debug("mup dURI %u, oURI %u\n", m->cursor_down_uri, m->cursor_over_uri);
-                char_t url[m->urllen + 1];
-                memcpy(url, msg->msg + m->cursor_over_uri, m->urllen * sizeof(char_t));
+                char url[m->urllen + 1];
+                memcpy(url, msg->msg + m->cursor_over_uri, m->urllen * sizeof(char));
                 url[m->urllen] = 0;
                 openurl(url);
                 m->cursor_down_uri = 0;
@@ -1434,7 +1433,7 @@ _Bool messages_mup(PANEL *panel) {
     // FIXME! temporary, change this
     /* lol... oh fuck... */
     if (m->selecting_text) {
-        char_t *lel = malloc(65536); // TODO: De-hardcode this value.
+        char *lel = malloc(65536); // TODO: De-hardcode this value.
         setselection(lel, messages_selection(panel, lel, 65536, 0));
         free(lel);
 
@@ -1446,22 +1445,20 @@ _Bool messages_mup(PANEL *panel) {
     return 0;
 }
 
-_Bool messages_mleave(PANEL *UNUSED(m)) {
-    return 0;
-}
+bool messages_mleave(PANEL *UNUSED(m)) { return 0; }
 
-int messages_selection(PANEL *panel, void *buffer, uint32_t len, _Bool names) {
+int messages_selection(PANEL *panel, void *buffer, uint32_t len, bool names) {
     MESSAGES *m = panel->object;
 
     if (m->number == 0) {
-        *(char_t *)buffer = 0;
+        *(char *)buffer = 0;
         return 0;
     }
 
     uint32_t i = m->sel_start_msg, n = m->sel_end_msg + 1;
     void **  dp = &m->data[i];
 
-    char_t *p = buffer;
+    char *p = buffer;
 
     while (i != UINT32_MAX && i != n) {
         MSG_TEXT *msg = *dp++;
@@ -1515,7 +1512,7 @@ int messages_selection(PANEL *panel, void *buffer, uint32_t len, _Bool names) {
                                              * position of ->msg[0] of MSG_TEXT and of MSG_GROUP      */
                 }
 
-                char_t * data;
+                char *   data;
                 uint16_t length;
                 if (i == m->sel_start_msg) {
                     if (i == m->sel_end_msg) {
@@ -1587,11 +1584,11 @@ void messages_updateheight(MESSAGES *m, int width) {
     m->panel.content_scroll->content_height = m->height = height;
 }
 
-_Bool messages_char(uint32_t ch) {
+bool messages_char(uint32_t ch) {
     MESSAGES *m;
-    if (selected_item->item == ITEM_FRIEND) {
+    if (flist_get_selected()->item == ITEM_FRIEND) {
         m = messages_friend.object;
-    } else if (selected_item->item == ITEM_GROUP) {
+    } else if (flist_get_selected()->item == ITEM_GROUP) {
         m = messages_group.object;
     } else {
         return 0;

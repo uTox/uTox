@@ -1,14 +1,18 @@
+#include "file_transfers.h"
+
+#include "friend.h"
 #include "main.h"
 
 // static FILE_TRANSFER *file_t[256], **file_tend = file_t;
-static FILE_TRANSFER outgoing_transfer[MAX_NUM_FRIENDS][MAX_FILE_TRANSFERS] = {{{0}}};
-static FILE_TRANSFER incoming_transfer[MAX_NUM_FRIENDS][MAX_FILE_TRANSFERS] = {{{0}}};
+#pragma message "FILE_TRANSFER structs need to become dynamic"
+static FILE_TRANSFER outgoing_transfer[128][MAX_FILE_TRANSFERS] = { { { 0 } } };
+static FILE_TRANSFER incoming_transfer[128][MAX_FILE_TRANSFERS] = { { { 0 } } };
 
 // Remove if supported by core
 #define TOX_FILE_KIND_EXISTING 3
 
 FILE_TRANSFER *get_file_transfer(uint32_t friend_number, uint32_t file_number) {
-    _Bool incoming = 0;
+    bool incoming = 0;
     if (file_number >= (1 << 16)) {
         file_number = (file_number >> 16) - 1;
         incoming    = 1;
@@ -31,7 +35,7 @@ FILE_TRANSFER *get_file_transfer(uint32_t friend_number, uint32_t file_number) {
 
 /* Create a FILE_TRANSFER struct with the supplied data. */
 static void build_file_transfer(FILE_TRANSFER *ft, uint32_t friend_number, uint32_t file_number, uint64_t file_size,
-                                _Bool incoming, _Bool in_memory, _Bool is_avatar, uint8_t kind, const uint8_t *name,
+                                bool incoming, bool in_memory, bool is_avatar, uint8_t kind, const uint8_t *name,
                                 size_t name_length, const uint8_t *path, size_t path_length, const uint8_t *file_id,
                                 Tox *tox) {
     FILE_TRANSFER *file = ft;
@@ -127,7 +131,7 @@ static void calculate_speed(FILE_TRANSFER *file) {
 
 /* Create the file transfer resume info file. */
 static int utox_file_alloc_ftinfo(FILE_TRANSFER *file) {
-    uint8_t blank_id[TOX_FILE_ID_LENGTH] = {0};
+    uint8_t blank_id[TOX_FILE_ID_LENGTH] = { 0 };
     if (memcmp(file->file_id, blank_id, TOX_FILE_ID_LENGTH) == 0) {
         debug_error("FileTransfer:\tUnable to get file id from tox... uTox can't resume file %.*s\n",
                     (uint32_t)file->name_length, file->name);
@@ -211,8 +215,8 @@ static void utox_kill_file(FILE_TRANSFER *file, uint8_t us) {
     } else {
         file->status = FILE_TRANSFER_STATUS_KILLED;
 
-        if (file->ui_data) {
-            file->ui_data->file_status = FILE_TRANSFER_STATUS_KILLED;
+        if (((MSG_FILE *)file->ui_data)) {
+            ((MSG_FILE *)file->ui_data)->file_status = FILE_TRANSFER_STATUS_KILLED;
         }
     }
 
@@ -242,8 +246,8 @@ static void utox_break_file(FILE_TRANSFER *file) {
     }
     file->status = FILE_TRANSFER_STATUS_BROKEN;
 
-    if (file->ui_data) {
-        file->ui_data->file_status = FILE_TRANSFER_STATUS_BROKEN;
+    if (((MSG_FILE *)file->ui_data)) {
+        ((MSG_FILE *)file->ui_data)->file_status = FILE_TRANSFER_STATUS_BROKEN;
     }
 
     notify_update_file(file);
@@ -362,9 +366,9 @@ static void utox_run_file(FILE_TRANSFER *file, uint8_t us) {
 
 static void decode_inline_png(uint32_t friend_id, uint8_t *data, uint64_t size) {
     // TODO: start a new thread and decode the png in it.
-    uint16_t           width, height;
-    UTOX_NATIVE_IMAGE *native_image = decode_image_rgb((UTOX_IMAGE)data, size, &width, &height, 0);
-    if (UTOX_NATIVE_IMAGE_IS_VALID(native_image)) {
+    uint16_t      width, height;
+    NATIVE_IMAGE *native_image = decode_image_rgb((UTOX_IMAGE)data, size, &width, &height, 0);
+    if (NATIVE_IMAGE_IS_VALID(native_image)) {
         void *msg = malloc(sizeof(uint16_t) * 2 + sizeof(uint8_t *));
         memcpy(msg, &width, sizeof(uint16_t));
         memcpy(msg + sizeof(uint16_t), &height, sizeof(uint16_t));
@@ -386,13 +390,13 @@ static void utox_complete_file(FILE_TRANSFER *file) {
                     decode_inline_png(file->friend_number, file->memory, file->size);
                 }
             } else { // Is a file
-                file->ui_data->path = (uint8_t *)strdup((const char *)file->path);
+                ((MSG_FILE *)file->ui_data)->path = (uint8_t *)strdup((const char *)file->path);
             }
         } else {
             if (file->in_memory) {
                 // TODO, might want to do something here.
             } else { // Is a file
-                file->ui_data->path = (uint8_t *)strdup((const char *)file->path);
+                ((MSG_FILE *)file->ui_data)->path = (uint8_t *)strdup((const char *)file->path);
             }
             if (friend[file->friend_number].transfer_count) {
                 /* Decrement if > 0 */
@@ -400,8 +404,8 @@ static void utox_complete_file(FILE_TRANSFER *file) {
             }
         }
         file->status = FILE_TRANSFER_STATUS_COMPLETED;
-        if (file->ui_data) {
-            file->ui_data->file_status = FILE_TRANSFER_STATUS_COMPLETED;
+        if (((MSG_FILE *)file->ui_data)) {
+            ((MSG_FILE *)file->ui_data)->file_status = FILE_TRANSFER_STATUS_COMPLETED;
         }
         notify_update_file(file);
     } else {
@@ -542,7 +546,7 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
                                            uint64_t file_size, const uint8_t *filename, size_t filename_length,
                                            void *user_data) {
     /* First things first, get the file_id from core */
-    uint8_t file_id[TOX_FILE_ID_LENGTH] = {0};
+    uint8_t file_id[TOX_FILE_ID_LENGTH] = { 0 };
     tox_file_get_file_id(tox, friend_number, file_number, file_id, 0);
     /* access the correct memory location for this file */
     FILE_TRANSFER *file_handle = get_file_transfer(friend_number, file_number);
@@ -749,7 +753,7 @@ uint32_t outgoing_file_send(Tox *tox, uint32_t friend_number, uint8_t *path, uin
     /* Declare vars */
     uint32_t          file_number              = 0;
     TOX_ERR_FILE_SEND error                    = 0;
-    uint8_t           file_id[TOX_HASH_LENGTH] = {0};
+    uint8_t           file_id[TOX_HASH_LENGTH] = { 0 };
     uint64_t          file_size = 0, transfer_size = 0;
     FILE *            file   = NULL;
     uint8_t           memory = 0, avatar = 0;
@@ -1041,7 +1045,7 @@ void utox_file_save_ftinfo(FILE_TRANSFER *file) {
     fflush(file->saveinfo);
 }
 
-_Bool utox_file_load_ftinfo(FILE_TRANSFER *file) {
+bool utox_file_load_ftinfo(FILE_TRANSFER *file) {
     uint8_t  path[UTOX_FILE_NAME_LENGTH];
     size_t   path_length;
     uint32_t size_read;

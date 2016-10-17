@@ -1,4 +1,8 @@
-#include "../main.h"
+// audio.c
+#include "utox_av.h"
+
+#include "../friend.h"
+#include "../tox.h"
 
 static void utox_filter_audio_kill(Filter_Audio *filter_audio_handle) {
 #ifdef AUDIO_FILTERING
@@ -8,7 +12,7 @@ static void utox_filter_audio_kill(Filter_Audio *filter_audio_handle) {
 
 static ALCdevice *audio_out_handle, *audio_in_handle;
 static void *     audio_out_device, *audio_in_device;
-static _Bool      speakers_on, microphone_on;
+static bool       speakers_on, microphone_on;
 static int16_t    speakers_count, microphone_count;
 /* TODO hacky fix. This source list should be a VLA with a way to link sources to friends.
  * NO SRSLY don't leave this like this! */
@@ -207,7 +211,7 @@ void sourceplaybuffer(unsigned int f, const int16_t *data, int samples, uint8_t 
     }
 
     ALuint source;
-    if (f >= UTOX_MAX_NUM_FRIENDS) {
+    if (f >= self.friend_list_size) {
         source = preview;
     } else {
         source = friend[f].audio_dest;
@@ -285,7 +289,7 @@ static void audio_out_init(void) {
         return;
     }
 
-    int attrlist[] = {ALC_FREQUENCY, UTOX_DEFAULT_SAMPLE_RATE_A, ALC_INVALID};
+    int attrlist[] = { ALC_FREQUENCY, UTOX_DEFAULT_SAMPLE_RATE_A, ALC_INVALID };
 
     context = alcCreateContext(audio_out_handle, attrlist);
     if (!alcMakeContextCurrent(context)) {
@@ -329,9 +333,9 @@ static void audio_source_term(ALuint *source) { alDeleteSources((ALuint)1, sourc
 #define gen_note_raw(x, a) ((a * base_amplitude) * (sin((t * x) * index / sample_rate)))
 #define gen_note_num(x, a) ((a * base_amplitude) * (sin((t * notes[x].freq) * index / sample_rate)))
 
-#define gen_note_num_fade(x, a)                                                                                        \
+#define gen_note_num_fade(x, a) \
     ((a * base_amplitude * fade_step_out()) * (sin((t * notes[x].freq) * index / sample_rate)))
-#define gen_note_num_fade_in(x, a)                                                                                     \
+#define gen_note_num_fade_in(x, a) \
     ((a * base_amplitude * fade_step_in()) * (sin((t * notes[x].freq) * index / sample_rate)))
 
 // clang-format off
@@ -492,8 +496,8 @@ void utox_audio_thread(void *args) {
 #endif
     debug(" enabled in this build\n");
 #endif
-    //_Bool call[MAX_CALLS] = {0}, preview = 0;
-    //_Bool groups_audio[MAX_NUM_GROUPS] = {0};
+    // bool call[MAX_CALLS] = {0}, preview = 0;
+    // bool groups_audio[MAX_NUM_GROUPS] = {0};
 
     int     perframe = (UTOX_DEFAULT_FRAME_A * UTOX_DEFAULT_SAMPLE_RATE_A) / 1000;
     uint8_t buf[perframe * 2 * UTOX_DEFAULT_AUDIO_CHANNELS]; //, dest[perframe * 2 * UTOX_DEFAULT_AUDIO_CHANNELS];
@@ -515,7 +519,7 @@ void utox_audio_thread(void *args) {
 
     int16_t *    preview_buffer       = NULL;
     unsigned int preview_buffer_index = 0;
-    _Bool        preview_on           = 0;
+    bool         preview_on           = 0;
 #define PREVIEW_BUFFER_SIZE (UTOX_DEFAULT_SAMPLE_RATE_A / 2)
 
     preview_buffer       = calloc(PREVIEW_BUFFER_SIZE, 2);
@@ -648,11 +652,11 @@ void utox_audio_thread(void *args) {
         }
 #endif
 
-        _Bool sleep = 1;
+        bool sleep = 1;
 
         if (microphone_on) {
             ALint samples;
-            _Bool frame = 0;
+            bool  frame = 0;
             /* If we have a device_in we're on linux so we can just call OpenAL, otherwise we're on something else so
              * we'll need to call audio_frame() to add to the buffer for us. */
             if (audio_in_handle == (void *)1) {
@@ -690,7 +694,7 @@ void utox_audio_thread(void *args) {
 #endif
 
             if (frame) {
-                _Bool voice = 1;
+                bool voice = 1;
 #ifdef AUDIO_FILTERING
                 if (f_a) {
                     int ret = filter_audio(f_a, (int16_t *)buf, perframe);
@@ -714,7 +718,7 @@ void utox_audio_thread(void *args) {
                     if (preview_buffer_index + perframe > PREVIEW_BUFFER_SIZE) {
                         preview_buffer_index = 0;
                     }
-                    sourceplaybuffer(UTOX_MAX_NUM_FRIENDS, preview_buffer + preview_buffer_index, perframe,
+                    sourceplaybuffer(self.friend_list_size, preview_buffer + preview_buffer_index, perframe,
                                      UTOX_DEFAULT_AUDIO_CHANNELS, UTOX_DEFAULT_SAMPLE_RATE_A);
                     if (voice) {
                         memcpy(preview_buffer + preview_buffer_index, buf, perframe * sizeof(int16_t));
@@ -726,7 +730,7 @@ void utox_audio_thread(void *args) {
 
                 if (voice) {
                     int i, active_call_count = 0;
-                    for (i = 0; i < UTOX_MAX_NUM_FRIENDS; i++) {
+                    for (i = 0; i < self.friend_list_size; i++) {
                         if (UTOX_SEND_AUDIO(i)) {
                             active_call_count++;
                             TOXAV_ERR_SEND_FRAME error = 0;

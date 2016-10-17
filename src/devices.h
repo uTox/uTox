@@ -5,6 +5,9 @@
 #ifndef DEVICES_H
 #define DEVICES_H
 
+#include <inttypes.h>
+#include <tox/tox.h>
+
 #ifndef ENABLE_MULTIDEVICE
 typedef uint8_t TOX_DEVICE_STATUS;
 #endif
@@ -19,6 +22,8 @@ typedef struct UTOX_DEVICE {
     TOX_DEVICE_STATUS status;
 
 } UTOX_DEVICE;
+
+UTOX_DEVICE *devices;
 
 void utox_devices_init(void);
 

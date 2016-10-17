@@ -1,9 +1,9 @@
 #ifndef uTox_objc_main_h
 #define uTox_objc_main_h
 
+#import <AVFoundation/AVFoundation.h>
 #import <AppKit/AppKit.h>
 #import <Foundation/Foundation.h>
-#import <AVFoundation/AVFoundation.h>
 
 #ifndef NS_DESIGNATED_INITIALIZER
 #if __has_attribute(objc_designated_initializer)
@@ -15,19 +15,20 @@
 
 @class uToxStardustView;
 extern CGDirectDisplayID desktop_capture_from;
-extern CGRect desktop_capture_rect;
-extern CGFloat desktop_capture_scale;
+extern CGRect            desktop_capture_rect;
+extern CGFloat           desktop_capture_scale;
 typedef struct {
-    NSWindow *window;
+    NSWindow *        window;
     uToxStardustView *view;
-    void (*finished_callback)(_Bool, uint64_t, NSWindow *);
+    void (*finished_callback)(bool, uint64_t, NSWindow *);
 } stardust_context_t;
 extern stardust_context_t stardust_context;
 
 void setup_cursors(void);
 
-#define RELEASE_CHK(func, obj) if ((obj)) \
-    func((obj));
+#define RELEASE_CHK(func, obj) \
+    if ((obj))                 \
+        func((obj));
 
 //#define HAS_CUSTOM_EDIT_DRAW_IMPLEMENTATION
 
@@ -39,22 +40,23 @@ typedef struct {
 } NSOperatingSystemVersion;
 #endif
 
-#define MAC_OS_AT_LEAST_DO(a, b, c) \
+#define MAC_OS_AT_LEAST_DO(a, b, c)                                                                     \
     if ([[NSProcessInfo processInfo] respondsToSelector:@selector(isOperatingSystemAtLeastVersion:)] && \
-        [[NSProcessInfo processInfo] isOperatingSystemAtLeastVersion:(NSOperatingSystemVersion){a, b, c}])
-#define AT_LEAST_YOSEMITE_DO      MAC_OS_AT_LEAST_DO(10, 10, 0)
-#define AT_LEAST_ELCAPITAN_DO     MAC_OS_AT_LEAST_DO(10, 11, 0)
+        [[NSProcessInfo processInfo] isOperatingSystemAtLeastVersion:(NSOperatingSystemVersion){ a, b, c }])
+#define AT_LEAST_YOSEMITE_DO MAC_OS_AT_LEAST_DO(10, 10, 0)
+#define AT_LEAST_ELCAPITAN_DO MAC_OS_AT_LEAST_DO(10, 11, 0)
 
 // gotta use the old version checker here
-#define AT_LEAST_MAVERICKS_DO     if (NSFoundationVersionNumber >= NSFoundationVersionNumber10_9)
+#define AT_LEAST_MAVERICKS_DO if (NSFoundationVersionNumber >= NSFoundationVersionNumber10_9)
 #define AT_LEAST_MOUNTAIN_LION_DO if (NSFoundationVersionNumber >= NSFoundationVersionNumber10_8)
 
-#define NSSTRING_FROM_LOCALIZED(msgid) [[[NSString alloc] initWithBytes:S(msgid) length:SLEN(msgid) encoding:NSUTF8StringEncoding] autorelease]
+#define NSSTRING_FROM_LOCALIZED(msgid) \
+    [[[NSString alloc] initWithBytes:S(msgid) length:SLEN(msgid) encoding:NSUTF8StringEncoding] autorelease]
 
 
 struct utox_native_image {
     CGImageRef image;
-    double scale;
+    double     scale;
 };
 
 @class uToxView;
@@ -63,10 +65,10 @@ struct utox_native_image {
     NSMutableDictionary *devices;
     NSMutableDictionary *ironclad;
 }
-@property (retain) NSWindow *utox_window;
-@property (retain) NSMenuItem *nameMenuItem;
-@property (retain) NSMenuItem *statusMenuItem;
-@property (retain) NSMenu *dockMenu;
+@property(retain) NSWindow *  utox_window;
+@property(retain) NSMenuItem *nameMenuItem;
+@property(retain) NSMenuItem *statusMenuItem;
+@property(retain) NSMenu *    dockMenu;
 
 - (uToxView *)mainView;
 - (void)soilWindowContents;
@@ -94,8 +96,8 @@ struct utox_native_image {
 
 /* Main UI */
 
-@interface uToxView : NSView
-@property (retain) uToxIroncladVideoContent *inlineVideo;
+@interface                                  uToxView : NSView
+@property(retain) uToxIroncladVideoContent *inlineVideo;
 @property BOOL didDrawInlineVideoThisFrame;
 @end
 
@@ -107,8 +109,8 @@ struct utox_native_image {
 @interface uToxStardustView : NSView
 + (NSWindow *)createWindowOnScreen:(NSScreen *)target;
 
-@property (strong) NSTextField *instruction;
-@property (getter=isVideo) BOOL video;
+@property(strong) NSTextField *instruction;
+@property(getter=isVideo) BOOL video;
 - (CGRect)getRect;
 @end
 

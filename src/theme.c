@@ -23,8 +23,6 @@
 
 void theme_load(char loadtheme) {
     // Update the settings dropdown UI
-    dropdown_theme.selected = loadtheme;
-    theme                   = loadtheme;
 
     // ==== Default theme     ====
     // ---- Background Colors ----
@@ -551,7 +549,7 @@ uint32_t try_parse_hex_colour(char *color, int *error) {
     }
 
     unsigned char red, green, blue;
-    char          hex[3] = {0};
+    char          hex[3] = { 0 };
 
     memcpy(hex, color, 2);
     red = strtol(hex, NULL, 16);

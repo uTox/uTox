@@ -1,17 +1,26 @@
+// ui.c
+
+#include "flist.h"
+#include "friend.h"
+#include "inline_video.h"
 #include "main.h"
+#include "theme.h"
+#include "ui/buttons.h"
+#include "ui/dropdowns.h"
+#include "ui/switches.h"
 
 // Application-wide language setting
-UI_LANG_ID LANG;
+UTOX_LANG LANG;
 
 /***** MAYBE_I18NAL_STRING helpers start *****/
 
-void maybe_i18nal_string_set_plain(MAYBE_I18NAL_STRING *mis, char_t *str, uint16_t length) {
+void maybe_i18nal_string_set_plain(MAYBE_I18NAL_STRING *mis, char *str, uint16_t length) {
     mis->i18nal       = UI_STRING_ID_INVALID;
     mis->plain.length = length;
     mis->plain.str    = str;
 }
 
-void maybe_i18nal_string_set_i18nal(MAYBE_I18NAL_STRING *mis, UI_STRING_ID string_id) {
+void maybe_i18nal_string_set_i18nal(MAYBE_I18NAL_STRING *mis, UTOX_I18N_STR string_id) {
     mis->plain.str    = NULL;
     mis->plain.length = 0;
     mis->i18nal       = string_id;
@@ -25,13 +34,13 @@ STRING *maybe_i18nal_string_get(MAYBE_I18NAL_STRING *mis) {
     }
 }
 
-_Bool maybe_i18nal_string_is_valid(MAYBE_I18NAL_STRING *mis) {
+bool maybe_i18nal_string_is_valid(MAYBE_I18NAL_STRING *mis) {
     return (mis->plain.str || ((UI_STRING_ID_INVALID != mis->i18nal) && (mis->i18nal < NUM_STRS)));
 }
 
 /***** MAYBE_I18NAL_STRING helpers end *****/
 
-void draw_avatar_image(UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t targetwidth,
+void draw_avatar_image(NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t targetwidth,
                        uint32_t targetheight) {
     /* get smallest of width or height */
     double scale = (width > height) ? (double)targetheight / height : (double)targetwidth / width;
@@ -85,8 +94,8 @@ static void draw_user_badge(int UNUSED(x), int UNUSED(y), int UNUSED(width), int
         setcolor(!button_filter_friends.mouseover ? COLOR_MENU_TEXT_SUBTEXT : COLOR_MAIN_TEXT_HINT);
         setfont(FONT_STATUS);
         drawtextrange(SIDEBAR_FILTER_FRIENDS_LEFT, SIDEBAR_FILTER_FRIENDS_WIDTH, SIDEBAR_FILTER_FRIENDS_TOP,
-                      list_get_filter() ? S(FILTER_ONLINE) : S(FILTER_ALL),
-                      list_get_filter() ? SLEN(FILTER_ONLINE) : SLEN(FILTER_ALL));
+                      flist_get_filter() ? S(FILTER_ONLINE) : S(FILTER_ALL),
+                      flist_get_filter() ? SLEN(FILTER_ONLINE) : SLEN(FILTER_ALL));
     } else {
         drawalpha(BM_CONTACT, SIDEBAR_AVATAR_LEFT, SIDEBAR_AVATAR_TOP, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH,
                   COLOR_MENU_TEXT);
@@ -122,7 +131,7 @@ static void draw_splash_page(int x, int y, int w, int h) {
 
 /* Header for friend chat window */
 static void draw_friend(int x, int y, int w, int height) {
-    FRIEND *f = selected_item->data;
+    FRIEND *f = flist_get_selected()->data;
 
     // draw avatar or default image
     if (friend_has_avatar(f)) {
@@ -157,7 +166,7 @@ static void draw_friend(int x, int y, int w, int height) {
 }
 
 static void draw_group(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height)) {
-    GROUPCHAT *g = selected_item->data;
+    GROUPCHAT *g = flist_get_selected()->data;
 
     drawalpha(BM_GROUP, MAIN_LEFT + SCALE(10), SCALE(10), BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_MAIN_TEXT);
 
@@ -207,7 +216,7 @@ static void draw_group(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(h
 
 /* Draw an invite to be a friend window */
 static void draw_friend_request(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height)) {
-    FRIENDREQ *req = selected_item->data;
+    FRIENDREQ *req = flist_get_selected()->data;
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
@@ -303,7 +312,7 @@ static void draw_settings_header(int UNUSED(x), int UNUSED(y), int w, int UNUSED
     int  count;
     count =
         snprintf(version_string, 64, "Core v%u.%u.%u", tox_version_major(), tox_version_minor(), tox_version_patch());
-    drawtextwidth_right(w, textwidth((char_t *)version_string, count), SCALE(10), (uint8_t *)version_string,
+    drawtextwidth_right(w, textwidth((char *)version_string, count), SCALE(10), (uint8_t *)version_string,
                         strlen(version_string));
 #endif
 }
@@ -501,21 +510,19 @@ static void draw_background(int UNUSED(x), int UNUSED(y), int width, int height)
 
 /* These remain for legacy reasons, PANEL_MAIN calls these by default when not given it's own function to call */
 static void background_draw(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int width, int height) { return; }
-static _Bool background_mmove(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height),
-                              int UNUSED(mx), int UNUSED(my), int UNUSED(dx), int UNUSED(dy)) {
+static bool background_mmove(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height),
+                             int UNUSED(mx), int UNUSED(my), int UNUSED(dx), int UNUSED(dy)) {
     return 0;
 }
-static _Bool background_mdown(PANEL *UNUSED(p)) { return 0; }
-static _Bool background_mright(PANEL *UNUSED(p)) { return 0; }
-static _Bool background_mwheel(PANEL *UNUSED(p), int UNUSED(height), double UNUSED(d), _Bool UNUSED(smooth)) {
-    return 0;
-}
-static _Bool background_mup(PANEL *UNUSED(p)) { return 0; }
-static _Bool background_mleave(PANEL *UNUSED(p)) { return 0; }
+static bool background_mdown(PANEL *UNUSED(p)) { return 0; }
+static bool background_mright(PANEL *UNUSED(p)) { return 0; }
+static bool background_mwheel(PANEL *UNUSED(p), int UNUSED(height), double UNUSED(d), bool UNUSED(smooth)) { return 0; }
+static bool background_mup(PANEL *UNUSED(p)) { return 0; }
+static bool background_mleave(PANEL *UNUSED(p)) { return 0; }
 
 // clang-format off
 // Scrollbar or friend list
-SCROLLABLE scrollbar_roster =
+SCROLLABLE scrollbar_flist =
                {
                    .panel =
                        {
@@ -584,7 +591,7 @@ panel_side_bar = {
     .child = (PANEL*[]) {
         &panel_self,
         &panel_quick_buttons,
-        &panel_roster,
+        &panel_flist,
         NULL
     }
 },
@@ -613,19 +620,19 @@ panel_side_bar = {
         }
     },
     /* The friends and group was called list */
-    panel_roster = {
+    panel_flist = {
         .type     = PANEL_NONE,
         .disabled = 0,
         .child    = (PANEL*[]) {
             // TODO rename these
-            (void*)&panel_roster_list,
-            (void*)&scrollbar_roster,
+            (void*)&panel_flist_list,
+            (void*)&scrollbar_flist,
             NULL
         }
     },
-        panel_roster_list = {
+        panel_flist_list = {
             .type           = PANEL_LIST,
-            .content_scroll = &scrollbar_roster,
+            .content_scroll = &scrollbar_flist,
         },
 
 /* Main panel, holds the overhead/settings, or the friend/group containers */
@@ -922,7 +929,7 @@ void ui_set_scale(uint8_t scale) {
     }
 
     ui_scale = scale;
-    roster_re_scale();
+    flist_re_scale();
     setscale_fonts();
     setfont(FONT_SELF_NAME);
 
@@ -931,14 +938,14 @@ void ui_set_scale(uint8_t scale) {
     panel_side_bar.y     = 0;
     panel_side_bar.width = SIDEBAR_WIDTH;
 
-    scrollbar_roster.panel.y      = ROSTER_TOP;
-    scrollbar_roster.panel.width  = MAIN_LEFT;
-    scrollbar_roster.panel.height = ROSTER_BOTTOM;
+    scrollbar_flist.panel.y      = ROSTER_TOP;
+    scrollbar_flist.panel.width  = MAIN_LEFT;
+    scrollbar_flist.panel.height = ROSTER_BOTTOM;
 
-    panel_roster_list.x      = 0;
-    panel_roster_list.y      = ROSTER_TOP;
-    panel_roster_list.width  = MAIN_LEFT;
-    panel_roster_list.height = ROSTER_BOTTOM;
+    panel_flist.x      = 0;
+    panel_flist.y      = ROSTER_TOP;
+    panel_flist.width  = MAIN_LEFT;
+    panel_flist.height = ROSTER_BOTTOM;
 
     panel_main.x = MAIN_LEFT;
     panel_main.y = 0;
@@ -1308,23 +1315,23 @@ void ui_set_scale(uint8_t scale) {
  * These are functions that are (must be) defined elsewehere. The preprocessor in this case creates the prototypes that
  * will then be used by panel_draw_sub to call the correct function
 */
-#define FUNC(x, ret, ...)                                                         \
+#define MAKE_FUNC(ret, x, ...)                                                    \
     static ret (*x##func[])(void *p, ##__VA_ARGS__) =                             \
         {                                                                         \
           (void *)background_##x, (void *)messages_##x, (void *)inline_video_##x, \
-          (void *)list_##x,       (void *)button_##x,   (void *)switch_##x,       \
+          (void *)flist_##x,      (void *)button_##x,   (void *)switch_##x,       \
           (void *)dropdown_##x,   (void *)edit_##x,     (void *)scroll_##x,       \
         };
 
-FUNC(draw, void, int x, int y, int width, int height);
-FUNC(mmove, _Bool, int x, int y, int width, int height, int mx, int my, int dx, int dy);
-FUNC(mdown, _Bool);
-FUNC(mright, _Bool);
-FUNC(mwheel, _Bool, int height, double d);
-FUNC(mup, _Bool);
-FUNC(mleave, _Bool);
+MAKE_FUNC(void, draw, int x, int y, int width, int height);
+MAKE_FUNC(bool, mmove, int x, int y, int width, int height, int mx, int my, int dx, int dy);
+MAKE_FUNC(bool, mdown);
+MAKE_FUNC(bool, mright);
+MAKE_FUNC(bool, mwheel, int height, double d);
+MAKE_FUNC(bool, mup);
+MAKE_FUNC(bool, mleave);
 
-#undef FUNC
+#undef MAKE_FUNC
 
 /* Use the preprocessor to add code to adjust the x,y cords for panels or sub panels.
  * If neg value place x/y from the right/bottom of panel.
@@ -1447,7 +1454,7 @@ void panel_draw(PANEL *p, int x, int y, int width, int height) {
     enddraw(x, y, width, height);
 }
 
-_Bool panel_mmove(PANEL *p, int x, int y, int width, int height, int mx, int my, int dx, int dy) {
+bool panel_mmove(PANEL *p, int x, int y, int width, int height, int mx, int my, int dx, int dy) {
     if (p == &panel_root) {
         mouse.x = mx;
         mouse.y = my;
@@ -1472,7 +1479,7 @@ _Bool panel_mmove(PANEL *p, int x, int y, int width, int height, int mx, int my,
         my += scroll_y;
     }
 
-    _Bool draw = p->type ? mmovefunc[p->type - 1](p, x, y, width, height, mx, mmy, dx, dy) : 0;
+    bool draw = p->type ? mmovefunc[p->type - 1](p, x, y, width, height, mx, mmy, dx, dy) : 0;
     // Has to be called before children mmove
     if (p == &panel_root) {
         draw |= tooltip_mmove();
@@ -1496,7 +1503,7 @@ _Bool panel_mmove(PANEL *p, int x, int y, int width, int height, int mx, int my,
     return draw;
 }
 
-static _Bool panel_mdown_sub(PANEL *p) {
+static bool panel_mdown_sub(PANEL *p) {
     if (p->type && mdownfunc[p->type - 1](p)) {
         return 1;
     }
@@ -1521,7 +1528,7 @@ void panel_mdown(PANEL *p) {
         return;
     }
 
-    _Bool   draw = edit_active();
+    bool    draw = edit_active();
     PANEL **pp   = p->child, *subp;
     if (pp) {
         while ((subp = *pp++)) {
@@ -1539,8 +1546,8 @@ void panel_mdown(PANEL *p) {
     }
 }
 
-_Bool panel_dclick(PANEL *p, _Bool triclick) {
-    _Bool draw = 0;
+bool panel_dclick(PANEL *p, bool triclick) {
+    bool draw = 0;
     if (p->type == PANEL_EDIT) {
         draw = edit_dclick((EDIT *)p, triclick);
     } else if (p->type == PANEL_MESSAGES) {
@@ -1566,8 +1573,8 @@ _Bool panel_dclick(PANEL *p, _Bool triclick) {
     return draw;
 }
 
-_Bool panel_mright(PANEL *p) {
-    _Bool   draw = p->type ? mrightfunc[p->type - 1](p) : 0;
+bool panel_mright(PANEL *p) {
+    bool    draw = p->type ? mrightfunc[p->type - 1](p) : 0;
     PANEL **pp   = p->child, *subp;
     if (pp) {
         while ((subp = *pp++)) {
@@ -1584,10 +1591,10 @@ _Bool panel_mright(PANEL *p) {
     return draw;
 }
 
-_Bool panel_mwheel(PANEL *p, int x, int y, int width, int height, double d, _Bool smooth) {
+bool panel_mwheel(PANEL *p, int x, int y, int width, int height, double d, bool smooth) {
     FIX_XY_CORDS_FOR_SUBPANELS();
 
-    _Bool   draw = p->type ? mwheelfunc[p->type - 1](p, height, d) : 0;
+    bool    draw = p->type ? mwheelfunc[p->type - 1](p, height, d) : 0;
     PANEL **pp   = p->child, *subp;
     if (pp) {
         while ((subp = *pp++)) {
@@ -1604,8 +1611,8 @@ _Bool panel_mwheel(PANEL *p, int x, int y, int width, int height, double d, _Boo
     return draw;
 }
 
-_Bool panel_mup(PANEL *p) {
-    _Bool   draw = p->type ? mupfunc[p->type - 1](p) : 0;
+bool panel_mup(PANEL *p) {
+    bool    draw = p->type ? mupfunc[p->type - 1](p) : 0;
     PANEL **pp   = p->child, *subp;
     if (pp) {
         while ((subp = *pp++)) {
@@ -1626,8 +1633,8 @@ _Bool panel_mup(PANEL *p) {
     return draw;
 }
 
-_Bool panel_mleave(PANEL *p) {
-    _Bool   draw = p->type ? mleavefunc[p->type - 1](p) : 0;
+bool panel_mleave(PANEL *p) {
+    bool    draw = p->type ? mleavefunc[p->type - 1](p) : 0;
     PANEL **pp   = p->child, *subp;
     if (pp) {
         while ((subp = *pp++)) {

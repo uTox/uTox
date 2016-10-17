@@ -1,4 +1,8 @@
+// dropdown.c
+#include "dropdown.h"
+
 #include "../main.h"
+#include "../theme.h"
 
 static DROPDOWN *active_dropdown;
 static int       active_x, active_y, active_width, active_height;
@@ -114,7 +118,7 @@ void dropdown_draw(DROPDOWN *d, int x, int y, int width, int height) {
     }
 }
 
-_Bool dropdown_mmove(DROPDOWN *d, int UNUSED(x), int y, int w, int h, int mx, int my, int UNUSED(dx), int UNUSED(dy)) {
+bool dropdown_mmove(DROPDOWN *d, int UNUSED(x), int y, int w, int h, int mx, int my, int UNUSED(dx), int UNUSED(dy)) {
     if (d->open) {
         int over = my / h + d->selected;
 
@@ -133,7 +137,7 @@ _Bool dropdown_mmove(DROPDOWN *d, int UNUSED(x), int y, int w, int h, int mx, in
             }
         }
     } else {
-        _Bool mouseover = inrect(mx, my, 0, 0, w, h);
+        bool mouseover = inrect(mx, my, 0, 0, w, h);
         if (mouseover != d->mouseover) {
             d->mouseover = mouseover;
             return 1;
@@ -143,7 +147,7 @@ _Bool dropdown_mmove(DROPDOWN *d, int UNUSED(x), int y, int w, int h, int mx, in
     return 0;
 }
 
-_Bool dropdown_mdown(DROPDOWN *d) {
+bool dropdown_mdown(DROPDOWN *d) {
     if (d->mouseover && d->dropcount) {
         d->open         = 1;
         active_dropdown = d;
@@ -153,15 +157,11 @@ _Bool dropdown_mdown(DROPDOWN *d) {
     return 0;
 }
 
-_Bool dropdown_mright(DROPDOWN *UNUSED(d)) {
-    return 0;
-}
+bool dropdown_mright(DROPDOWN *UNUSED(d)) { return 0; }
 
-_Bool dropdown_mwheel(DROPDOWN *UNUSED(d), int UNUSED(height), double UNUSED(dlta), _Bool UNUSED(smooth)) {
-    return 0;
-}
+bool dropdown_mwheel(DROPDOWN *UNUSED(d), int UNUSED(height), double UNUSED(dlta), bool UNUSED(smooth)) { return 0; }
 
-_Bool dropdown_mup(DROPDOWN *d) {
+bool dropdown_mup(DROPDOWN *d) {
     if (d->open) {
         d->open         = 0;
         active_dropdown = NULL;
@@ -175,7 +175,7 @@ _Bool dropdown_mup(DROPDOWN *d) {
     return 0;
 }
 
-_Bool dropdown_mleave(DROPDOWN *d) {
+bool dropdown_mleave(DROPDOWN *d) {
     if (d->mouseover) {
         d->mouseover = 0;
         return 1;
@@ -200,7 +200,7 @@ void list_dropdown_add_hardcoded(DROPDOWN *d, uint8_t *name, void *handle) {
 }
 
 // Appends localized menu item.
-void list_dropdown_add_localized(DROPDOWN *d, UI_STRING_ID string_id, void *handle) {
+void list_dropdown_add_localized(DROPDOWN *d, UTOX_I18N_STR string_id, void *handle) {
     void *p = realloc(d->userdata, (d->dropcount + 1) * sizeof(DROP_ELEMENT));
     if (!p) {
         return;
@@ -235,7 +235,7 @@ STRING *list_dropdown_ondisplay(uint16_t i, const DROPDOWN *dm) {
 // Generic display function for simple dropdowns,
 // userdata of which is a simple array of UI_STRING_IDs.
 STRING *simple_dropdown_ondisplay(uint16_t i, const DROPDOWN *dm) {
-    return SPTRFORLANG(LANG, ((UI_STRING_ID *)dm->userdata)[i]);
+    return SPTRFORLANG(LANG, ((UTOX_I18N_STR *)dm->userdata)[i]);
 }
 
 /***** simple localized dropdown menu end *****/

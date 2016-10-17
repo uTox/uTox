@@ -1,8 +1,12 @@
-#include "../main.h"
-
+// gtk.c
+#include <dlfcn.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include <dlfcn.h>
+
+#include "../flist.h"
+#include "../friend.h"
+#include "../main.h"
+
 
 #define LIBGTK_FILENAME "libgtk-3.so.0"
 
@@ -14,48 +18,48 @@
 
 typedef struct GSList GSList;
 struct GSList {
-    void *data;
+    void *  data;
     GSList *next;
 };
 
-void (*gtk_init)(int*, char***);
+void (*gtk_init)(int *, char ***);
 bool (*gtk_events_pending)(void);
 bool (*gtk_main_iteration)(void);
 
-void (*gtk_widget_set_margin_left)(void*, int);
-void (*gtk_widget_set_margin_right)(void*, int);
-void (*gtk_widget_destroy)(void*);
+void (*gtk_widget_set_margin_left)(void *, int);
+void (*gtk_widget_set_margin_right)(void *, int);
+void (*gtk_widget_destroy)(void *);
 
-unsigned long (*g_signal_connect_data)(void*, const char*, void*, void*, void*, int);
-void (*g_object_unref)(void*);
-void (*g_slist_free_utox)(GSList*);
-void (*g_free_utox)(void*); // this can't be called g_free because it causes segfaults on some machines if it is
+unsigned long (*g_signal_connect_data)(void *, const char *, void *, void *, void *, int);
+void (*g_object_unref)(void *);
+void (*g_slist_free_utox)(GSList *);
+void (*g_free_utox)(void *); // this can't be called g_free because it causes segfaults on some machines if it is
 
-void* (*gtk_message_dialog_new)(void*, int, int, int, const char*, ...);
+void *(*gtk_message_dialog_new)(void *, int, int, int, const char *, ...);
 
-int (*gtk_dialog_run)(void*);
+int (*gtk_dialog_run)(void *);
 
-void* (*gtk_file_chooser_dialog_new)(const char*, void*, int, const char*, ...);
-void (*gtk_file_chooser_set_select_multiple)(void*, bool);
-void (*gtk_file_chooser_set_current_name)(void*, const char*);
-char* (*gtk_file_chooser_get_filename)(void*);
-GSList* (*gtk_file_chooser_get_filenames)(void*);
-void (*gtk_file_chooser_set_do_overwrite_confirmation)(void*, bool);
-void (*gtk_file_chooser_set_filter)(void*, void*);
-char* (*gtk_file_chooser_get_preview_filename)(void*);
-void (*gtk_file_chooser_set_preview_widget)(void*, void*);
-void (*gtk_file_chooser_set_preview_widget_active)(void*, bool);
+void *(*gtk_file_chooser_dialog_new)(const char *, void *, int, const char *, ...);
+void (*gtk_file_chooser_set_select_multiple)(void *, bool);
+void (*gtk_file_chooser_set_current_name)(void *, const char *);
+char *(*gtk_file_chooser_get_filename)(void *);
+GSList *(*gtk_file_chooser_get_filenames)(void *);
+void (*gtk_file_chooser_set_do_overwrite_confirmation)(void *, bool);
+void (*gtk_file_chooser_set_filter)(void *, void *);
+char *(*gtk_file_chooser_get_preview_filename)(void *);
+void (*gtk_file_chooser_set_preview_widget)(void *, void *);
+void (*gtk_file_chooser_set_preview_widget_active)(void *, bool);
 
-void* (*gtk_file_filter_new)(void);
-void (*gtk_file_filter_add_mime_type)(void*, const char*);
+void *(*gtk_file_filter_new)(void);
+void (*gtk_file_filter_add_mime_type)(void *, const char *);
 
-void* (*gtk_image_new)(void);
-void (*gtk_image_set_from_pixbuf)(void*, void*);
+void *(*gtk_image_new)(void);
+void (*gtk_image_set_from_pixbuf)(void *, void *);
 
-void* (*gdk_pixbuf_new_from_file)(const char*, void**);
-void* (*gdk_pixbuf_new_from_file_at_size)(const char*, int, int, void**);
-int (*gdk_pixbuf_get_width)(const void*);
-int (*gdk_pixbuf_get_height)(const void*);
+void *(*gdk_pixbuf_new_from_file)(const char *, void **);
+void *(*gdk_pixbuf_new_from_file_at_size)(const char *, int, int, void **);
+int (*gdk_pixbuf_get_width)(const void *);
+int (*gdk_pixbuf_get_height)(const void *);
 
 static bool gtk_open;
 
@@ -101,11 +105,8 @@ static void update_image_preview(void *filechooser, void *image) {
 static void gtk_opensendthread(void *args) {
     uint16_t fid = (size_t)args;
 
-    void *dialog = gtk_file_chooser_dialog_new((const char *)S(SEND_FILE), NULL,
-            GTK_FILE_CHOOSER_ACTION_OPEN,
-            "_Cancel", GTK_RESPONSE_CANCEL,
-            "_Open", GTK_RESPONSE_ACCEPT,
-            NULL);
+    void *dialog = gtk_file_chooser_dialog_new((const char *)S(SEND_FILE), NULL, GTK_FILE_CHOOSER_ACTION_OPEN,
+                                               "_Cancel", GTK_RESPONSE_CANCEL, "_Open", GTK_RESPONSE_ACCEPT, NULL);
     gtk_file_chooser_set_select_multiple(dialog, true);
 
     void *preview = gtk_image_new();
@@ -113,11 +114,11 @@ static void gtk_opensendthread(void *args) {
     g_signal_connect_data(dialog, "update-preview", update_image_preview, preview, NULL, 0);
 
     int result = gtk_dialog_run(dialog);
-    if(result == GTK_RESPONSE_ACCEPT) {
-        char *out = malloc(65536), *outp = out;
+    if (result == GTK_RESPONSE_ACCEPT) {
+        char *  out = malloc(65536), *outp = out;
         GSList *list = gtk_file_chooser_get_filenames(dialog), *p = list;
-        while(p) {
-            outp = stpcpy(outp, p->data);
+        while (p) {
+            outp    = stpcpy(outp, p->data);
             *outp++ = '\n';
             g_free_utox(p->data);
             p = p->next;
@@ -126,12 +127,12 @@ static void gtk_opensendthread(void *args) {
         g_slist_free_utox(list);
         debug("files: %s\n", out);
 
-        //dont call this from this thread
+        // dont call this from this thread
         postmessage_toxcore(TOX_FILE_SEND_NEW, fid, 0xFFFF, out);
     }
 
     gtk_widget_destroy(dialog);
-    while(gtk_events_pending()) {
+    while (gtk_events_pending()) {
         gtk_main_iteration();
     }
 
@@ -139,11 +140,8 @@ static void gtk_opensendthread(void *args) {
 }
 
 static void gtk_openavatarthread(void *UNUSED(args)) {
-    void *dialog = gtk_file_chooser_dialog_new((const char *)S(SELECT_AVATAR_TITLE), NULL,
-            GTK_FILE_CHOOSER_ACTION_OPEN,
-            "_Cancel", GTK_RESPONSE_CANCEL,
-            "_Open", GTK_RESPONSE_ACCEPT,
-            NULL);
+    void *dialog = gtk_file_chooser_dialog_new((const char *)S(SELECT_AVATAR_TITLE), NULL, GTK_FILE_CHOOSER_ACTION_OPEN,
+                                               "_Cancel", GTK_RESPONSE_CANCEL, "_Open", GTK_RESPONSE_ACCEPT, NULL);
     void *filter = gtk_file_filter_new();
     gtk_file_filter_add_mime_type(filter, "image/jpeg");
     gtk_file_filter_add_mime_type(filter, "image/png");
@@ -157,10 +155,10 @@ static void gtk_openavatarthread(void *UNUSED(args)) {
 
     while (gtk_dialog_run(dialog) == GTK_RESPONSE_ACCEPT) {
         char *filename = gtk_file_chooser_get_filename(dialog);
-        int size;
+        int   size;
 
-        int width, height, bpp;
-        uint8_t *img = stbi_load(filename, &width, &height, &bpp, 0);
+        int      width, height, bpp;
+        uint8_t *img       = stbi_load(filename, &width, &height, &bpp, 0);
         uint8_t *file_data = stbi_write_png_to_mem(img, 0, width, height, bpp, &size);
         free(img);
 
@@ -171,10 +169,11 @@ static void gtk_openavatarthread(void *UNUSED(args)) {
             gtk_widget_destroy(message_dialog);
         } else if (size > UTOX_AVATAR_MAX_DATA_LENGTH) {
             free(file_data);
-            char_t size_str[16];
-            int len = sprint_humanread_bytes(size_str, sizeof(size_str), UTOX_AVATAR_MAX_DATA_LENGTH);
-            char err_str[265] = {0};
-            snprintf((char*)err_str, 265, "%s%.*s (%ikb loaded)", S(AVATAR_TOO_LARGE_MAX_SIZE_IS), len, size_str, (size / 1024));
+            char size_str[16];
+            int  len          = sprint_humanread_bytes(size_str, sizeof(size_str), UTOX_AVATAR_MAX_DATA_LENGTH);
+            char err_str[265] = { 0 };
+            snprintf((char *)err_str, 265, "%s%.*s (%ikb loaded)", S(AVATAR_TOO_LARGE_MAX_SIZE_IS), len, size_str,
+                     (size / 1024));
             void *message_dialog = gtk_message_dialog_new(dialog, 0, 1, 2, err_str);
             gtk_dialog_run(message_dialog);
             gtk_widget_destroy(message_dialog);
@@ -185,7 +184,7 @@ static void gtk_openavatarthread(void *UNUSED(args)) {
     }
 
     gtk_widget_destroy(dialog);
-    while(gtk_events_pending()) {
+    while (gtk_events_pending()) {
         gtk_main_iteration();
     }
 
@@ -195,18 +194,16 @@ static void gtk_openavatarthread(void *UNUSED(args)) {
 static void gtk_savethread(void *args) {
     MSG_FILE *file = args;
 
-    //WHY?!
-    uint16_t fid = file->progress;
+    // WHY?!
+    uint16_t fid   = file->progress;
     file->progress = 0;
-    //WHY?!
+    // WHY?!
 
-    while(1){ //TODO, save current dir, and filename and preload them to gtk dialog if save fails.
+    while (1) { // TODO, save current dir, and filename and preload them to gtk dialog if save fails.
         /* Create a GTK save window */
-        void *dialog = gtk_file_chooser_dialog_new((const char *)S(WHERE_TO_SAVE_FILE), NULL,
-                GTK_FILE_CHOOSER_ACTION_SAVE,
-                "_Cancel", GTK_RESPONSE_CANCEL,
-                "_Open", GTK_RESPONSE_ACCEPT,
-                NULL);
+        void *dialog =
+            gtk_file_chooser_dialog_new((const char *)S(WHERE_TO_SAVE_FILE), NULL, GTK_FILE_CHOOSER_ACTION_SAVE,
+                                        "_Cancel", GTK_RESPONSE_CANCEL, "_Open", GTK_RESPONSE_ACCEPT, NULL);
         /* Get incoming file name*/
         char buf[sizeof(file->file_name) + 1];
         memcpy(buf, file->file_name, file->name_length);
@@ -215,26 +212,27 @@ static void gtk_savethread(void *args) {
         gtk_file_chooser_set_current_name(dialog, buf);
         /* Prompt to overwrite */
         gtk_file_chooser_set_do_overwrite_confirmation(dialog, true);
-        /* Users can create folders when saving. */ //TODO ENABLE BELOW!
-        //gtk_file_chooser_set_create_folders(dialog, TRUE);
+        /* Users can create folders when saving. */ // TODO ENABLE BELOW!
+        // gtk_file_chooser_set_create_folders(dialog, TRUE);
         int result = gtk_dialog_run(dialog);
         /* If user is ready to save check then pass to utox. */
-        if(result == GTK_RESPONSE_ACCEPT) {
+        if (result == GTK_RESPONSE_ACCEPT) {
             char *name = gtk_file_chooser_get_filename(dialog);
             char *path = strdup(name);
-            //g_free_utox(name)
+            // g_free_utox(name)
 
             debug("name: %s\npath: %s\n", name, path);
 
             /* can we really write this file? */
             FILE *fp = fopen(path, "w");
-            if(fp == NULL){
+            if (fp == NULL) {
                 /* No, we can't display error, jump to top. */
-                if(errno == EACCES){
+                if (errno == EACCES) {
                     debug("File write permission denied.\n");
-                    void *errordialog = gtk_message_dialog_new(dialog, 1, 3, 2,
-                            //parent, destroy_with_parent, gtk_error_message, gtk_buttons_close
-                                            "Error writing to file '%s'", name);
+                    void *errordialog =
+                        gtk_message_dialog_new(dialog, 1, 3, 2,
+                                               // parent, destroy_with_parent, gtk_error_message, gtk_buttons_close
+                                               "Error writing to file '%s'", name);
                     gtk_dialog_run(errordialog);
                     gtk_widget_destroy(errordialog);
                     gtk_widget_destroy(dialog);
@@ -259,7 +257,7 @@ static void gtk_savethread(void *args) {
         break;
     }
 
-    while(gtk_events_pending()) {
+    while (gtk_events_pending()) {
         gtk_main_iteration();
     }
 
@@ -267,30 +265,27 @@ static void gtk_savethread(void *args) {
 }
 
 static void gtk_save_data_thread(void *args) {
-    MSG_FILE *file = args;
-    void *dialog = gtk_file_chooser_dialog_new((const char *)S(SAVE_FILE), NULL,
-            GTK_FILE_CHOOSER_ACTION_SAVE,
-            "_Cancel", GTK_RESPONSE_CANCEL,
-            "_Save", GTK_RESPONSE_ACCEPT,
-            NULL);
+    MSG_FILE *file   = args;
+    void *    dialog = gtk_file_chooser_dialog_new((const char *)S(SAVE_FILE), NULL, GTK_FILE_CHOOSER_ACTION_SAVE,
+                                               "_Cancel", GTK_RESPONSE_CANCEL, "_Save", GTK_RESPONSE_ACCEPT, NULL);
     gtk_file_chooser_set_current_name(dialog, "inline.png");
     int result = gtk_dialog_run(dialog);
-    if(result == GTK_RESPONSE_ACCEPT) {
+    if (result == GTK_RESPONSE_ACCEPT) {
         char *name = gtk_file_chooser_get_filename(dialog);
 
         FILE *fp = fopen(name, "wb");
-        if(fp) {
+        if (fp) {
             fwrite(file->path, file->size, 1, fp);
             fclose(fp);
 
             free(file->path);
-            file->path = (uint8_t*)strdup(name);
+            file->path       = (uint8_t *)strdup(name);
             file->inline_png = 0;
         }
     }
 
     gtk_widget_destroy(dialog);
-    while(gtk_events_pending()) {
+    while (gtk_events_pending()) {
         gtk_main_iteration();
     }
 
@@ -298,16 +293,13 @@ static void gtk_save_data_thread(void *args) {
 }
 
 static void gtk_save_chatlog_thread(void *args) {
-    uint32_t friend_number = *(uint32_t*)args;
+    uint32_t friend_number = *(uint32_t *)args;
 
     char name[UTOX_MAX_NAME_LENGTH + sizeof(".txt")];
     snprintf(name, sizeof(name), "%.*s.txt", (int)friend[friend_number].name_length, friend[friend_number].name);
 
-    void *dialog = gtk_file_chooser_dialog_new((const char *)S(SAVE_FILE), NULL,
-            GTK_FILE_CHOOSER_ACTION_SAVE,
-            "_Cancel", GTK_RESPONSE_CANCEL,
-            "_Save", GTK_RESPONSE_ACCEPT,
-            NULL);
+    void *dialog = gtk_file_chooser_dialog_new((const char *)S(SAVE_FILE), NULL, GTK_FILE_CHOOSER_ACTION_SAVE,
+                                               "_Cancel", GTK_RESPONSE_CANCEL, "_Save", GTK_RESPONSE_ACCEPT, NULL);
     gtk_file_chooser_set_current_name(dialog, name);
     int result = gtk_dialog_run(dialog);
     if (result == GTK_RESPONSE_ACCEPT) {
@@ -320,7 +312,7 @@ static void gtk_save_chatlog_thread(void *args) {
     }
 
     gtk_widget_destroy(dialog);
-    while(gtk_events_pending()) {
+    while (gtk_events_pending()) {
         gtk_main_iteration();
     }
 
@@ -328,15 +320,16 @@ static void gtk_save_chatlog_thread(void *args) {
 }
 
 void gtk_openfilesend(void) {
-    if(gtk_open) {
+    if (gtk_open) {
         return;
     }
     gtk_open = true;
-    thread(gtk_opensendthread, (void*)(size_t)((FRIEND*)selected_item->data - friend));
+#warning __FILE__ ":" __LINE__ + 1 " This is the worst way to do this!"
+    thread(gtk_opensendthread, (void *)(size_t)((FRIEND *)(flist_get_selected()->data) - friend));
 }
 
 void gtk_openfileavatar(void) {
-    if(gtk_open) {
+    if (gtk_open) {
         return;
     }
     gtk_open = true;
@@ -344,16 +337,16 @@ void gtk_openfileavatar(void) {
 }
 
 void gtk_native_select_dir_ft(uint32_t fid, MSG_FILE *file) {
-    if(gtk_open) {
+    if (gtk_open) {
         return;
     }
-    gtk_open = true;
+    gtk_open       = true;
     file->progress = fid;
     thread(gtk_savethread, file);
 }
 
 void gtk_savefiledata(MSG_FILE *file) {
-    if(gtk_open) {
+    if (gtk_open) {
         return;
     }
     gtk_open = true;
@@ -369,49 +362,52 @@ void gtk_save_chatlog(uint32_t friend_number) {
     thread(gtk_save_chatlog_thread, &friend_number);
 }
 
-void* gtk_load(void) {
+void *gtk_load(void) {
     void *lib = dlopen(LIBGTK_FILENAME, RTLD_LAZY);
-    if(lib) {
+    if (lib) {
         debug("have GTK\n");
 
-        gtk_init = dlsym(lib, "gtk_init");
-        gtk_main_iteration = dlsym(lib, "gtk_main_iteration");
-        gtk_events_pending = dlsym(lib, "gtk_events_pending");
-        gtk_file_chooser_dialog_new = dlsym(lib, "gtk_file_chooser_dialog_new");
-        gtk_file_filter_new = dlsym(lib, "gtk_file_filter_new");
-        gtk_message_dialog_new = dlsym(lib, "gtk_message_dialog_new");
-        gtk_dialog_run = dlsym(lib, "gtk_dialog_run");
-        gtk_file_chooser_get_filename = dlsym(lib, "gtk_file_chooser_get_filename");
-        gtk_file_chooser_get_filenames = dlsym(lib, "gtk_file_chooser_get_filenames");
+        gtk_init                                       = dlsym(lib, "gtk_init");
+        gtk_main_iteration                             = dlsym(lib, "gtk_main_iteration");
+        gtk_events_pending                             = dlsym(lib, "gtk_events_pending");
+        gtk_file_chooser_dialog_new                    = dlsym(lib, "gtk_file_chooser_dialog_new");
+        gtk_file_filter_new                            = dlsym(lib, "gtk_file_filter_new");
+        gtk_message_dialog_new                         = dlsym(lib, "gtk_message_dialog_new");
+        gtk_dialog_run                                 = dlsym(lib, "gtk_dialog_run");
+        gtk_file_chooser_get_filename                  = dlsym(lib, "gtk_file_chooser_get_filename");
+        gtk_file_chooser_get_filenames                 = dlsym(lib, "gtk_file_chooser_get_filenames");
         gtk_file_chooser_set_do_overwrite_confirmation = dlsym(lib, "gtk_file_chooser_set_do_overwrite_confirmation");
-        gtk_file_chooser_set_select_multiple = dlsym(lib, "gtk_file_chooser_set_select_multiple");
-        gtk_file_chooser_set_current_name = dlsym(lib, "gtk_file_chooser_set_current_name");
-        gtk_file_chooser_set_filter = dlsym(lib, "gtk_file_chooser_set_filter");
-        gtk_file_filter_add_mime_type = dlsym(lib, "gtk_file_filter_add_mime_type");
-        gtk_widget_destroy = dlsym(lib, "gtk_widget_destroy");
-        g_slist_free_utox = dlsym(lib, "g_slist_free");
-        g_free_utox = dlsym(lib, "g_free");
-        g_signal_connect_data = dlsym(lib, "g_signal_connect_data");
-        g_object_unref = dlsym(lib, "g_object_unref");
-        gtk_file_chooser_get_preview_filename = dlsym(lib, "gtk_file_chooser_get_preview_filename");
-        gtk_file_chooser_set_preview_widget_active = dlsym(lib, "gtk_file_chooser_set_preview_widget_active");
-        gtk_file_chooser_set_preview_widget = dlsym(lib, "gtk_file_chooser_set_preview_widget");
-        gtk_image_new = dlsym(lib, "gtk_image_new");
-        gtk_image_set_from_pixbuf = dlsym(lib, "gtk_image_set_from_pixbuf");
-        gdk_pixbuf_new_from_file = dlsym(lib, "gdk_pixbuf_new_from_file");
-        gdk_pixbuf_new_from_file_at_size = dlsym(lib, "gdk_pixbuf_new_from_file_at_size");
-        gdk_pixbuf_get_width = dlsym(lib, "gdk_pixbuf_get_width");
-        gdk_pixbuf_get_height = dlsym(lib, "gdk_pixbuf_get_height");
-        gtk_widget_set_margin_left = dlsym(lib, "gtk_widget_set_margin_left");
-        gtk_widget_set_margin_right = dlsym(lib, "gtk_widget_set_margin_right");
+        gtk_file_chooser_set_select_multiple           = dlsym(lib, "gtk_file_chooser_set_select_multiple");
+        gtk_file_chooser_set_current_name              = dlsym(lib, "gtk_file_chooser_set_current_name");
+        gtk_file_chooser_set_filter                    = dlsym(lib, "gtk_file_chooser_set_filter");
+        gtk_file_filter_add_mime_type                  = dlsym(lib, "gtk_file_filter_add_mime_type");
+        gtk_widget_destroy                             = dlsym(lib, "gtk_widget_destroy");
+        g_slist_free_utox                              = dlsym(lib, "g_slist_free");
+        g_free_utox                                    = dlsym(lib, "g_free");
+        g_signal_connect_data                          = dlsym(lib, "g_signal_connect_data");
+        g_object_unref                                 = dlsym(lib, "g_object_unref");
+        gtk_file_chooser_get_preview_filename          = dlsym(lib, "gtk_file_chooser_get_preview_filename");
+        gtk_file_chooser_set_preview_widget_active     = dlsym(lib, "gtk_file_chooser_set_preview_widget_active");
+        gtk_file_chooser_set_preview_widget            = dlsym(lib, "gtk_file_chooser_set_preview_widget");
+        gtk_image_new                                  = dlsym(lib, "gtk_image_new");
+        gtk_image_set_from_pixbuf                      = dlsym(lib, "gtk_image_set_from_pixbuf");
+        gdk_pixbuf_new_from_file                       = dlsym(lib, "gdk_pixbuf_new_from_file");
+        gdk_pixbuf_new_from_file_at_size               = dlsym(lib, "gdk_pixbuf_new_from_file_at_size");
+        gdk_pixbuf_get_width                           = dlsym(lib, "gdk_pixbuf_get_width");
+        gdk_pixbuf_get_height                          = dlsym(lib, "gdk_pixbuf_get_height");
+        gtk_widget_set_margin_left                     = dlsym(lib, "gtk_widget_set_margin_left");
+        gtk_widget_set_margin_right                    = dlsym(lib, "gtk_widget_set_margin_right");
 
-        if(!gtk_init || !gtk_main_iteration || !gtk_events_pending || !gtk_file_chooser_dialog_new || !gtk_file_filter_new ||
-           !gtk_message_dialog_new || !gtk_dialog_run || !gtk_file_chooser_get_filename || !gtk_file_chooser_get_filenames ||
-           !gtk_file_chooser_set_do_overwrite_confirmation || !gtk_file_chooser_set_select_multiple || !gtk_file_chooser_set_current_name ||
-           !gtk_file_chooser_set_filter || !gtk_file_filter_add_mime_type || !gtk_widget_destroy || !g_slist_free_utox || !g_free_utox ||
-           !gtk_file_chooser_get_preview_filename || !gtk_file_chooser_set_preview_widget_active || !gtk_file_chooser_set_preview_widget ||
-           !gtk_image_new || !gtk_image_set_from_pixbuf || !gdk_pixbuf_new_from_file || !gdk_pixbuf_new_from_file_at_size || !gdk_pixbuf_get_width ||
-           !gdk_pixbuf_get_height || !gtk_widget_set_margin_left || !gtk_widget_set_margin_right) {
+        if (!gtk_init || !gtk_main_iteration || !gtk_events_pending || !gtk_file_chooser_dialog_new
+            || !gtk_file_filter_new || !gtk_message_dialog_new || !gtk_dialog_run || !gtk_file_chooser_get_filename
+            || !gtk_file_chooser_get_filenames || !gtk_file_chooser_set_do_overwrite_confirmation
+            || !gtk_file_chooser_set_select_multiple || !gtk_file_chooser_set_current_name
+            || !gtk_file_chooser_set_filter || !gtk_file_filter_add_mime_type || !gtk_widget_destroy
+            || !g_slist_free_utox || !g_free_utox || !gtk_file_chooser_get_preview_filename
+            || !gtk_file_chooser_set_preview_widget_active || !gtk_file_chooser_set_preview_widget || !gtk_image_new
+            || !gtk_image_set_from_pixbuf || !gdk_pixbuf_new_from_file || !gdk_pixbuf_new_from_file_at_size
+            || !gdk_pixbuf_get_width || !gdk_pixbuf_get_height || !gtk_widget_set_margin_left
+            || !gtk_widget_set_margin_right) {
             debug("bad GTK\n");
             dlclose(lib);
         } else {

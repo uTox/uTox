@@ -1,26 +1,30 @@
 #ifndef TOOLTIP_H
 #define TOOLTIP_H
 
+#include <stdbool.h>
+
+#include "../ui.h"
+
 typedef struct tooltip {
-    int x, y, width, height;
-    _Bool visible;
+    int  x, y, width, height;
+    bool visible;
 
-    _Bool can_show;
-    _Bool mouse_down;
-    _Bool thread;
+    bool can_show;
+    bool mouse_down;
+    bool thread;
 
-    MAYBE_I18NAL_STRING* tt_text;
+    MAYBE_I18NAL_STRING *tt_text;
 } TOOLTIP;
 
 // removes the tooltip, requires a redraw
 void tooltip_reset(void);
 
 void tooltip_draw(void);
-_Bool tooltip_mmove(void);
-_Bool tooltip_mdown(void);
-_Bool tooltip_mup(void);
+bool tooltip_mmove(void);
+bool tooltip_mdown(void);
+bool tooltip_mup(void);
 
 void tooltip_show(void);
-void tooltip_new(MAYBE_I18NAL_STRING* text);
+void tooltip_new(MAYBE_I18NAL_STRING *text);
 
 #endif

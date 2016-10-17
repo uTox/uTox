@@ -1,10 +1,10 @@
 #include "../main.h"
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <pthread.h>
-#include <libgen.h>
-#import <Foundation/Foundation.h>
 #import <AppKit/AppKit.h>
+#import <Foundation/Foundation.h>
+#include <libgen.h>
+#include <pthread.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 struct thread_call {
     void *(*func)(void *);
@@ -15,7 +15,9 @@ struct thread_call {
 #define DEFAULT_HEIGHT (320 * DEFAULT_SCALE)
 
 void debug(const char *fmt, ...) {
-    if (settings.verbose < VERB_TEENAGE_GIRL) { return; }
+    if (settings.verbose < VERB_TEENAGE_GIRL) {
+        return;
+    }
     va_list l;
     va_start(l, fmt);
     NSLogv(@(fmt), l);
@@ -23,7 +25,9 @@ void debug(const char *fmt, ...) {
 }
 
 void debug_info(const char *fmt, ...) {
-    if (settings.verbose < VERB_NEW_ADHD_MEDS) { return; }
+    if (settings.verbose < VERB_NEW_ADHD_MEDS) {
+        return;
+    }
     va_list l;
     va_start(l, fmt);
     NSLogv(@(fmt), l);
@@ -31,7 +35,9 @@ void debug_info(const char *fmt, ...) {
 }
 
 void debug_notice(const char *fmt, ...) {
-    if (settings.verbose < VERB_CONCERNED_PARENT) { return; }
+    if (settings.verbose < VERB_CONCERNED_PARENT) {
+        return;
+    }
     va_list l;
     va_start(l, fmt);
     NSLogv(@(fmt), l);
@@ -39,45 +45,41 @@ void debug_notice(const char *fmt, ...) {
 }
 
 void debug_error(const char *fmt, ...) {
-    if (settings.verbose < VERB_JANICE_ACCOUNTING) { return; }
+    if (settings.verbose < VERB_JANICE_ACCOUNTING) {
+        return;
+    }
     va_list l;
     va_start(l, fmt);
     NSLogv(@(fmt), l);
     va_end(l);
 }
 
-int UTOX_NATIVE_IMAGE_IS_VALID(UTOX_NATIVE_IMAGE *img) {
-    return img != NULL && img->image != nil;
-}
+int NATIVE_IMAGE_IS_VALID(NATIVE_IMAGE *img) { return img != NULL && img->image != nil; }
 
-UTOX_NATIVE_IMAGE *decode_image_rgb(const UTOX_IMAGE data, size_t size, uint16_t *w, uint16_t *h, _Bool keep_alpha) {
-    CFDataRef idata_copy = CFDataCreate(kCFAllocatorDefault, data, size);
-    CGDataProviderRef src = CGDataProviderCreateWithCFData(idata_copy);
-    CGImageRef underlying_img = CGImageCreateWithPNGDataProvider(src, NULL, YES, kCGRenderingIntentDefault);
+NATIVE_IMAGE *decode_image_rgb(const UTOX_IMAGE data, size_t size, uint16_t *w, uint16_t *h, bool keep_alpha) {
+    CFDataRef         idata_copy     = CFDataCreate(kCFAllocatorDefault, data, size);
+    CGDataProviderRef src            = CGDataProviderCreateWithCFData(idata_copy);
+    CGImageRef        underlying_img = CGImageCreateWithPNGDataProvider(src, NULL, YES, kCGRenderingIntentDefault);
     CGDataProviderRelease(src);
     CFRelease(idata_copy);
 
     if (underlying_img) {
-        *w = CGImageGetWidth(underlying_img);
-        *h = CGImageGetHeight(underlying_img);
-        UTOX_NATIVE_IMAGE *ret = malloc(sizeof(UTOX_NATIVE_IMAGE));
-        ret->scale = 1.0;
-        ret->image = underlying_img;
+        *w                = CGImageGetWidth(underlying_img);
+        *h                = CGImageGetHeight(underlying_img);
+        NATIVE_IMAGE *ret = malloc(sizeof(NATIVE_IMAGE));
+        ret->scale        = 1.0;
+        ret->image        = underlying_img;
         return ret;
     } else {
         return NULL;
     }
 }
 
-void image_set_filter(UTOX_NATIVE_IMAGE *image, uint8_t filter) {
+void image_set_filter(NATIVE_IMAGE *image, uint8_t filter) {}
 
-}
+void image_set_scale(NATIVE_IMAGE *image, double scale) { image->scale = scale; }
 
-void image_set_scale(UTOX_NATIVE_IMAGE *image, double scale) {
-    image->scale = scale;
-}
-
-void image_free(UTOX_NATIVE_IMAGE *img) {
+void image_free(NATIVE_IMAGE *img) {
     CGImageRelease(img->image);
     free(img);
 }
@@ -93,8 +95,8 @@ void *thread_trampoline(void *call) {
     }
 }
 
-void thread(void func(void*), void *args) {
-    pthread_t thread_temp;
+void thread(void func(void *), void *args) {
+    pthread_t      thread_temp;
     pthread_attr_t attr;
     pthread_attr_init(&attr);
     pthread_attr_setstacksize(&attr, 1 << 20);
@@ -112,34 +114,26 @@ void thread(void func(void*), void *args) {
     pthread_attr_destroy(&attr);
 }
 
-void yieldcpu(uint32_t ms) {
-    usleep(1000 * ms);
-}
+void yieldcpu(uint32_t ms) { usleep(1000 * ms); }
 
 /* *** audio/video *** */
 void audio_detect(void) {}
 
-_Bool audio_init(void *handle) {
-    return 0;
-}
+bool audio_init(void *handle) { return 0; }
 
-_Bool audio_close(void *handle) {
-    return 0;
-}
+bool audio_close(void *handle) { return 0; }
 
-_Bool audio_frame(int16_t *buffer) {
-    return 0;
-}
+bool audio_frame(int16_t *buffer) { return 0; }
 
 /* *** os *** */
 
 int systemlang(void) {
     // FIXME maybe replace with NSLocale?
     char *str = getenv("LC_MESSAGES");
-    if(!str) {
+    if (!str) {
         str = getenv("LANG");
     }
-    if(!str) {
+    if (!str) {
         return DEFAULT_LANG;
     }
     return ui_guess_lang_by_posix_locale(str, DEFAULT_LANG);
@@ -147,23 +141,22 @@ int systemlang(void) {
 
 uint64_t get_time(void) {
     struct timespec ts;
-    clock_serv_t muhclock;
+    clock_serv_t    muhclock;
     mach_timespec_t machtime;
     host_get_clock_service(mach_host_self(), SYSTEM_CLOCK, &muhclock);
     clock_get_time(muhclock, &machtime);
     mach_port_deallocate(mach_task_self(), muhclock);
-    ts.tv_sec = machtime.tv_sec;
+    ts.tv_sec  = machtime.tv_sec;
     ts.tv_nsec = machtime.tv_nsec;
 
     return ((uint64_t)ts.tv_sec * (1000 * 1000 * 1000)) + (uint64_t)ts.tv_nsec;
 }
 
-void openurl(char_t *str) {
+void openurl(char *str) {
     NSString *urls = [[NSString alloc] initWithCString:(char *)str encoding:NSUTF8StringEncoding];
 
     NSURL *url = NULL;
-    if (!strncasecmp((const char *)str, "http://", 7) ||
-        !strncasecmp((const char *)str, "https://", 8)) {
+    if (!strncasecmp((const char *)str, "http://", 7) || !strncasecmp((const char *)str, "https://", 8)) {
         url = [NSURL URLWithString:urls];
     } else /* it's a path */ {
         url = [NSURL fileURLWithPath:urls];
@@ -174,9 +167,9 @@ void openurl(char_t *str) {
 }
 
 void config_osdefaults(UTOX_SAVE *r) {
-    r->window_x = 0;
-    r->window_y = 0;
-    r->window_width = DEFAULT_WIDTH;
+    r->window_x      = 0;
+    r->window_y      = 0;
+    r->window_width  = DEFAULT_WIDTH;
     r->window_height = DEFAULT_HEIGHT;
 }
 
@@ -213,35 +206,35 @@ void ensure_directory_r(char *path, int perm) {
 
 
 /** Takes data from µTox and saves it, just how the OS likes it saved! */
-size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *data, size_t length, _Bool append) {
+size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *data, size_t length, bool append) {
     uint8_t path[UTOX_FILE_NAME_LENGTH];
     uint8_t atomic_path[UTOX_FILE_NAME_LENGTH];
-    FILE *file;
-    size_t offset = 0;
+    FILE *  file;
+    size_t  offset = 0;
 
     if (settings.portable_mode) {
         const char *curr = [NSBundle.mainBundle.bundlePath stringByDeletingLastPathComponent].UTF8String;
         snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "%s/tox/", curr);
     } else {
         const char *home = NSHomeDirectory().UTF8String;
-        snprintf((char*)path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", home);
+        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", home);
     }
 
-    mkdir((char*)path, 0700);
+    mkdir((char *)path, 0700);
 
-    snprintf((char*)path + strlen((const char*)path), UTOX_FILE_NAME_LENGTH - strlen((const char*)path), "%s", name);
+    snprintf((char *)path + strlen((const char *)path), UTOX_FILE_NAME_LENGTH - strlen((const char *)path), "%s", name);
 
     if (append) {
-        file = fopen((const char*)path, "ab");
+        file = fopen((const char *)path, "ab");
     } else {
-        if (strlen((const char*)path) + name_length >= UTOX_FILE_NAME_LENGTH - strlen(".atomic")){
+        if (strlen((const char *)path) + name_length >= UTOX_FILE_NAME_LENGTH - strlen(".atomic")) {
             debug("NATIVE:\tSave directory name too long\n");
             return 0;
         } else {
-            snprintf((char*)atomic_path, UTOX_FILE_NAME_LENGTH, "%s.atomic", path);
+            snprintf((char *)atomic_path, UTOX_FILE_NAME_LENGTH, "%s.atomic", path);
         }
 
-        file = fopen((const char*)atomic_path, "wb");
+        file = fopen((const char *)atomic_path, "wb");
     }
 
     if (file) {
@@ -253,7 +246,7 @@ size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *
             return offset;
         }
 
-        if (rename((const char*)atomic_path, (const char*)path)) {
+        if (rename((const char *)atomic_path, (const char *)path)) {
             /* Consider backing up this file instead of overwriting it. */
             debug("NATIVE:\t%sUnable to move file!\n", atomic_path);
             return 0;
@@ -268,8 +261,8 @@ size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *
 }
 
 /** Takes data from µTox and loads it up! */
-uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_size){
-    uint8_t path[UTOX_FILE_NAME_LENGTH];
+uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_size) {
+    uint8_t  path[UTOX_FILE_NAME_LENGTH];
     uint8_t *data;
 
     if (settings.portable_mode) {
@@ -277,48 +270,56 @@ uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_s
         snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "%s/tox/", curr);
     } else {
         const char *home = NSHomeDirectory().UTF8String;
-        snprintf((char*)path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", home);
+        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", home);
     }
 
-    if (strlen((const char*)path) + name_length >= UTOX_FILE_NAME_LENGTH){
+    if (strlen((const char *)path) + name_length >= UTOX_FILE_NAME_LENGTH) {
         debug("NATIVE:\tLoad directory name too long\n");
         return 0;
     } else {
-        snprintf((char*)path + strlen((const char*)path),
-                 UTOX_FILE_NAME_LENGTH - strlen((const char*)path), "%s", name);
+        snprintf((char *)path + strlen((const char *)path), UTOX_FILE_NAME_LENGTH - strlen((const char *)path), "%s",
+                 name);
     }
 
 
-    FILE *file = fopen((const char*)path, "rb");
+    FILE *file = fopen((const char *)path, "rb");
     if (!file) {
-        //debug("NATIVE:\tUnable to open/read %s\n", path);
-        if (out_size) {*out_size = 0;}
+        // debug("NATIVE:\tUnable to open/read %s\n", path);
+        if (out_size) {
+            *out_size = 0;
+        }
         return NULL;
     }
 
 
     fseek(file, 0, SEEK_END);
     size_t size = ftell(file);
-    data = malloc(size);
+    data        = malloc(size);
     if (!data) {
         fclose(file);
-        if (out_size) {*out_size = 0;}
+        if (out_size) {
+            *out_size = 0;
+        }
         return NULL;
     } else {
         fseek(file, 0, SEEK_SET);
 
-        if(fread(data, size, 1, file) != 1) {
+        if (fread(data, size, 1, file) != 1) {
             debug("NATIVE:\tRead error on %s\n", path);
             fclose(file);
             free(data);
-            if (out_size) {*out_size = 0;}
+            if (out_size) {
+                *out_size = 0;
+            }
             return NULL;
         }
 
-    fclose(file);
+        fclose(file);
     }
 
-    if (out_size) {*out_size = size;}
+    if (out_size) {
+        *out_size = size;
+    }
     return data;
 }
 
@@ -337,26 +338,26 @@ FILE *native_load_chatlog_file(uint32_t friend_number) {
         snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", home);
     }
 
-    if (strlen((const char*)path) + sizeof(hex) >= UTOX_FILE_NAME_LENGTH){
+    if (strlen((const char *)path) + sizeof(hex) >= UTOX_FILE_NAME_LENGTH) {
         debug("NATIVE:\tLoad directory name too long\n");
         return 0;
     } else {
-        snprintf((char*)path + strlen((const char*)path), UTOX_FILE_NAME_LENGTH - strlen((const char*)path),
-                 "%.*s.new.txt", (int)sizeof(hex), (char*)hex);
+        snprintf((char *)path + strlen((const char *)path), UTOX_FILE_NAME_LENGTH - strlen((const char *)path),
+                 "%.*s.new.txt", (int)sizeof(hex), (char *)hex);
     }
 
 
-    FILE *file = fopen((const char*)path, "rb+");
+    FILE *file = fopen((const char *)path, "rb+");
     if (!file) {
-        //debug("NATIVE:\tUnable to open/read %s\n", path);
+        // debug("NATIVE:\tUnable to open/read %s\n", path);
         return NULL;
     }
 
     return file;
 }
 
-_Bool native_remove_file(const uint8_t *name, size_t length) {
-    uint8_t path[UTOX_FILE_NAME_LENGTH]  = {0};
+bool native_remove_file(const uint8_t *name, size_t length) {
+    uint8_t path[UTOX_FILE_NAME_LENGTH] = { 0 };
 
     if (settings.portable_mode) {
         const char *curr = [NSBundle.mainBundle.bundlePath stringByDeletingLastPathComponent].UTF8String;
@@ -366,15 +367,15 @@ _Bool native_remove_file(const uint8_t *name, size_t length) {
         snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", home);
     }
 
-    if (strlen((const char*)path) + length >= UTOX_FILE_NAME_LENGTH) {
+    if (strlen((const char *)path) + length >= UTOX_FILE_NAME_LENGTH) {
         debug("NATIVE:\tFile/directory name too long, unable to remove\n");
         return 0;
     } else {
-        snprintf((char*)path + strlen((const char*)path), UTOX_FILE_NAME_LENGTH - strlen((const char*)path),
-                 "%.*s", (int)length, (char*)name);
+        snprintf((char *)path + strlen((const char *)path), UTOX_FILE_NAME_LENGTH - strlen((const char *)path), "%.*s",
+                 (int)length, (char *)name);
     }
 
-    if (remove((const char*)path)) {
+    if (remove((const char *)path)) {
         debug_error("NATIVE:\tUnable to delete file!\n\t\t%s\n", path);
         return 0;
     } else {
@@ -388,35 +389,33 @@ _Bool native_remove_file(const uint8_t *name, size_t length) {
 int datapath(uint8_t *dest) {
     if (settings.portable_mode) {
         const char *home = [NSBundle.mainBundle.bundlePath stringByDeletingLastPathComponent].UTF8String;
-        int l = sprintf((char*)dest, "%.238s/tox", home);
-        ensure_directory_r((char*)dest, 0700);
+        int l            = sprintf((char *)dest, "%.238s/tox", home);
+        ensure_directory_r((char *)dest, 0700);
         dest[l++] = '/';
 
         return l;
     } else {
         const char *home = NSHomeDirectory().UTF8String;
-        int l = sprintf((char*)dest, "%.230s/.config/tox", home);
-        ensure_directory_r((char*)dest, 0700);
+        int         l    = sprintf((char *)dest, "%.230s/.config/tox", home);
+        ensure_directory_r((char *)dest, 0700);
         dest[l++] = '/';
 
         return l;
     }
 }
 
-int ch_mod(uint8_t *file){
-    return chmod((char*)file, S_IRUSR | S_IWUSR);
-}
+int ch_mod(uint8_t *file) { return chmod((char *)file, S_IRUSR | S_IWUSR); }
 
-int file_lock(FILE *file, uint64_t start, size_t length){
-    int result = -1;
+int file_lock(FILE *file, uint64_t start, size_t length) {
+    int          result = -1;
     struct flock fl;
-    fl.l_type = F_WRLCK;
+    fl.l_type   = F_WRLCK;
     fl.l_whence = SEEK_SET;
-    fl.l_start = start;
-    fl.l_len = length;
+    fl.l_start  = start;
+    fl.l_len    = length;
 
     result = fcntl(fileno(file), F_SETLK, &fl);
-    if(result != -1){
+    if (result != -1) {
         return 1;
     } else {
         return 0;
@@ -424,15 +423,15 @@ int file_lock(FILE *file, uint64_t start, size_t length){
 }
 
 int file_unlock(FILE *file, uint64_t start, size_t length) {
-    int result = -1;
+    int          result = -1;
     struct flock fl;
-    fl.l_type = F_UNLCK;
+    fl.l_type   = F_UNLCK;
     fl.l_whence = SEEK_SET;
-    fl.l_start = start;
-    fl.l_len = length;
+    fl.l_start  = start;
+    fl.l_len    = length;
 
     result = fcntl(fileno(file), F_SETLK, &fl);
-    if(result != -1){
+    if (result != -1) {
         return 1;
     } else {
         return 0;
@@ -447,12 +446,12 @@ void flush_file(FILE *file) {
 
 int resize_file(FILE *file, uint64_t size) {
     // https://github.com/trbs/fallocate/blob/master/fallocate/_fallocatemodule.c
-    int fd = fileno(file);
-    fstore_t stuff = {F_ALLOCATECONTIG, F_PEOFPOSMODE, 0, size, 0};
-    int err = fcntl(fd, F_PREALLOCATE, &stuff);
+    int      fd    = fileno(file);
+    fstore_t stuff = { F_ALLOCATECONTIG, F_PEOFPOSMODE, 0, size, 0 };
+    int      err   = fcntl(fd, F_PREALLOCATE, &stuff);
     if (err == -1) {
         stuff.fst_flags = F_ALLOCATEALL;
-        err = fcntl(fd, F_PREALLOCATE, &stuff);
+        err             = fcntl(fd, F_PREALLOCATE, &stuff);
     }
 
     if (err != -1) {
@@ -466,22 +465,16 @@ void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data) {
     /* If you notice any data races, or interesting bugs that appear in OSX but not xlib,
      * replace async( with sync( */
     dispatch_async(dispatch_get_main_queue(), ^{
-        tox_message(msg, param1, param2, data);
+      tox_message(msg, param1, param2, data);
     });
 }
 
-void init_ptt(void) {
-    settings.push_to_talk = 1;
-}
+void init_ptt(void) { settings.push_to_talk = 1; }
 
-static _Bool is_ctrl_down = 0;
-_Bool check_ptt_key(void){
-    return settings.push_to_talk? is_ctrl_down : 1;
-}
+static bool is_ctrl_down = 0;
+bool        check_ptt_key(void) { return settings.push_to_talk ? is_ctrl_down : 1; }
 
-void exit_ptt(void) {
-    settings.push_to_talk = 0;
-}
+void exit_ptt(void) { settings.push_to_talk = 0; }
 
 void redraw(void) {
     uToxAppDelegate *ad = (uToxAppDelegate *)[NSApp delegate];
@@ -491,12 +484,13 @@ void redraw(void) {
 void launch_at_startup(int should) {
     LSSharedFileListRef items = LSSharedFileListCreate(kCFAllocatorDefault, kLSSharedFileListSessionLoginItems, NULL);
     if (should) {
-        CFRelease(LSSharedFileListInsertItemURL(items, kLSSharedFileListItemLast, NULL, NULL, (__bridge CFURLRef)[NSBundle mainBundle].bundleURL, NULL, NULL));
+        CFRelease(LSSharedFileListInsertItemURL(items, kLSSharedFileListItemLast, NULL, NULL,
+                                                (__bridge CFURLRef)[NSBundle mainBundle].bundleURL, NULL, NULL));
     } else {
         CFArrayRef current_items = LSSharedFileListCopySnapshot(items, NULL);
         for (int i = 0; i < CFArrayGetCount(current_items); ++i) {
             LSSharedFileListItemRef it = (void *)CFArrayGetValueAtIndex(current_items, i);
-            CFURLRef urlornull;
+            CFURLRef                urlornull;
 #if MAC_OS_X_VERSION_MIN_REQUIRED < 101000
             LSSharedFileListItemResolve(it, 0, &urlornull, NULL);
 #else
@@ -520,28 +514,33 @@ void launch_at_startup(int should) {
 
 @implementation uToxAppDelegate {
     id global_event_listener;
-    id  local_event_listener;
+    id local_event_listener;
 }
 
 - (void)applicationWillFinishLaunching:(NSNotification *)notification {
-    [[NSAppleEventManager sharedAppleEventManager] setEventHandler:self andSelector:@selector(handleAppleEvent:withReplyEvent:) forEventClass:kInternetEventClass andEventID:kAEGetURL];
+    [[NSAppleEventManager sharedAppleEventManager] setEventHandler:self
+                                                       andSelector:@selector(handleAppleEvent:withReplyEvent:)
+                                                     forEventClass:kInternetEventClass
+                                                        andEventID:kAEGetURL];
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)notification {
     setup_cursors();
-    NSImageView *dock_icon = [[NSImageView alloc] initWithFrame:CGRectZero];
-    dock_icon.image = [NSApplication sharedApplication].applicationIconImage;
+    NSImageView *dock_icon                                 = [[NSImageView alloc] initWithFrame:CGRectZero];
+    dock_icon.image                                        = [NSApplication sharedApplication].applicationIconImage;
     [NSApplication sharedApplication].dockTile.contentView = dock_icon;
     [dock_icon release];
 
-    global_event_listener = [NSEvent addGlobalMonitorForEventsMatchingMask:NSFlagsChangedMask handler:^(NSEvent *e) {
-        is_ctrl_down = e.modifierFlags & NSFunctionKeyMask;
-    }];
+    global_event_listener = [NSEvent addGlobalMonitorForEventsMatchingMask:NSFlagsChangedMask
+                                                                   handler:^(NSEvent *e) {
+                                                                     is_ctrl_down = e.modifierFlags & NSFunctionKeyMask;
+                                                                   }];
 
-    local_event_listener = [NSEvent addLocalMonitorForEventsMatchingMask:NSFlagsChangedMask handler:^NSEvent *(NSEvent *e) {
-        is_ctrl_down = e.modifierFlags & NSFunctionKeyMask;
-        return e;
-    }];
+    local_event_listener = [NSEvent addLocalMonitorForEventsMatchingMask:NSFlagsChangedMask
+                                                                 handler:^NSEvent *(NSEvent *e) {
+                                                                   is_ctrl_down = e.modifierFlags & NSFunctionKeyMask;
+                                                                   return e;
+                                                                 }];
 
     ironclad = [[NSMutableDictionary alloc] init];
 
@@ -554,9 +553,11 @@ void launch_at_startup(int should) {
     /* load save data */
     UTOX_SAVE *save = config_load();
     if (!theme_set_on_argv) {
-        theme = save->theme;
+        settings.theme          = save->theme;
+        dropdown_theme.selected = save->theme;
     }
-    theme_load(theme);
+    theme_load(settings.theme);
+
 
     utox_init();
 
@@ -564,29 +565,35 @@ void launch_at_startup(int should) {
     snprintf(title_name, 128, "%s %s (version: %s)", TITLE, SUB_TITLE, VERSION);
 
 #define WINDOW_MASK (NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask | NSResizableWindowMask)
-    self.utox_window = [[NSWindow alloc] initWithContentRect:(NSRect){save->window_x, save->window_y, save->window_width, save->window_height} styleMask:WINDOW_MASK backing:NSBackingStoreBuffered defer:NO screen:[NSScreen mainScreen]];
+    self.utox_window = [[NSWindow alloc]
+        initWithContentRect:(NSRect) { save->window_x, save->window_y, save->window_width, save->window_height }
+                  styleMask:WINDOW_MASK
+                    backing:NSBackingStoreBuffered
+                      defer:NO
+                     screen:[NSScreen mainScreen]];
     self.utox_window.releasedWhenClosed = NO;
 #undef WINDOW_MASK
     self.utox_window.delegate = self;
-    self.utox_window.title = @(title_name);
+    self.utox_window.title    = @(title_name);
 
-    settings.window_width = self.utox_window.frame.size.width;
+    settings.window_width  = self.utox_window.frame.size.width;
     settings.window_height = self.utox_window.frame.size.height;
 
-    self.utox_window.contentView = [[[uToxView alloc] initWithFrame:(CGRect){0, 0, self.utox_window.frame.size}] autorelease];
+    self.utox_window.contentView =
+        [[[uToxView alloc] initWithFrame:(CGRect){ 0, 0, self.utox_window.frame.size }] autorelease];
     ui_set_scale((save->scale + 1) ?: 2);
     ui_size(settings.window_width, settings.window_height);
 
     /* start the tox thread */
     thread(toxcore_thread, NULL);
 
-    self.nameMenuItem = [[[NSMenuItem alloc] initWithTitle:@"j" action:NULL keyEquivalent:@""] autorelease];
+    self.nameMenuItem   = [[[NSMenuItem alloc] initWithTitle:@"j" action:NULL keyEquivalent:@""] autorelease];
     self.statusMenuItem = [[[NSMenuItem alloc] initWithTitle:@"j" action:NULL keyEquivalent:@""] autorelease];
     update_tray();
     //[self.nameMenuItem release];
     //[self.statusMenuItem release];
 
-    max_video_width = [NSScreen mainScreen].frame.size.width;
+    max_video_width  = [NSScreen mainScreen].frame.size.width;
     max_video_height = [NSScreen mainScreen].frame.size.height;
 
     [self.utox_window makeFirstResponder:self.utox_window.contentView];
@@ -622,9 +629,9 @@ void launch_at_startup(int should) {
     UTOX_SAVE d = {
         // from bottom of screen
         // TODO: translate to xy from top
-        .window_x = self.utox_window.frame.origin.x,
-        .window_y = self.utox_window.frame.origin.y,
-        .window_width = self.utox_window.frame.size.width,
+        .window_x      = self.utox_window.frame.origin.x,
+        .window_y      = self.utox_window.frame.origin.y,
+        .window_width  = self.utox_window.frame.size.width,
         .window_height = self.utox_window.frame.size.height,
     };
 
@@ -634,7 +641,7 @@ void launch_at_startup(int should) {
     [NSEvent removeMonitor:local_event_listener];
 
     /* wait for threads to exit */
-    while(tox_thread_init) {
+    while (tox_thread_init) {
         yieldcpu(1);
     }
 
@@ -662,14 +669,14 @@ void launch_at_startup(int should) {
 - (void)windowDidChangeScreen:(NSNotification *)notification {
     if (notification.object == self.utox_window) {
         NSScreen *screen = self.utox_window.screen;
-        max_video_width = screen.frame.size.width;
+        max_video_width  = screen.frame.size.width;
         max_video_height = screen.frame.size.height;
     }
 }
 
 - (void)handleAppleEvent:(NSAppleEventDescriptor *)event withReplyEvent:(NSAppleEventDescriptor *)replyEvent {
     NSString *theURL = [event paramDescriptorForKeyword:keyDirectObject].stringValue;
-    uint8_t *cs_url = (const uint8_t *)theURL.UTF8String;
+    uint8_t * cs_url = (const uint8_t *)theURL.UTF8String;
     do_tox_url(cs_url, strlen(cs_url));
     [self soilWindowContents];
 }
@@ -687,10 +694,10 @@ void launch_at_startup(int should) {
 @end
 
 int main(int argc, char const *argv[]) {
-    bool theme_was_set_on_argv;
+    bool   theme_was_set_on_argv;
     int8_t should_launch_at_startup;
     int8_t set_show_window;
-    bool no_updater;
+    bool   no_updater;
 
     parse_args(argc, argv, &theme_was_set_on_argv, &should_launch_at_startup, &set_show_window, &no_updater);
 
@@ -708,29 +715,31 @@ int main(int argc, char const *argv[]) {
 
     setlocale(LC_ALL, "");
 
-    LANG = systemlang();
+    LANG                       = systemlang();
     dropdown_language.selected = dropdown_language.over = LANG;
 
     /* set the width/height of the drawing region */
-    settings.window_width = DEFAULT_WIDTH;
+    settings.window_width  = DEFAULT_WIDTH;
     settings.window_height = DEFAULT_HEIGHT;
     ui_size(settings.window_width, settings.window_height);
 
     /* event loop */
     @autoreleasepool {
-        NSApplication *app = [NSApplication sharedApplication];
+        NSApplication *app  = [NSApplication sharedApplication];
         NSArray *maybeMenus = nil;
-        BOOL ok;
+        BOOL     ok;
 
         if ([[NSBundle mainBundle] respondsToSelector:@selector(loadNibNamed:owner:topLevelObjects:)]) {
             ok = [[NSBundle mainBundle] loadNibNamed:@"MainMenu" owner:nil topLevelObjects:&maybeMenus];
         } else {
             NSLog(@"warning: loading nib the deprecated way");
 
-            NSMutableArray *tlo = [[NSMutableArray alloc] init];
-            maybeMenus = tlo;
-            NSDictionary *params = @{NSNibTopLevelObjects: tlo};
-            ok = [NSBundle loadNibFile:[[NSBundle mainBundle] pathForResource:@"MainMenu" ofType:@"nib"] externalNameTable:params withZone:nil];
+            NSMutableArray *tlo  = [[NSMutableArray alloc] init];
+            maybeMenus           = tlo;
+            NSDictionary *params = @{ NSNibTopLevelObjects : tlo };
+            ok = [NSBundle loadNibFile:[[NSBundle mainBundle] pathForResource:@"MainMenu" ofType:@"nib"]
+                     externalNameTable:params
+                              withZone:nil];
         }
 
         if (ok) {

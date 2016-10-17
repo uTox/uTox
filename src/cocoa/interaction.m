@@ -4,24 +4,24 @@
 NSCursor *cursors[8];
 
 void setup_cursors(void) {
-    cursors[CURSOR_NONE] = [NSCursor arrowCursor];
-    cursors[CURSOR_HAND] = [NSCursor pointingHandCursor];
-    cursors[CURSOR_SELECT] = [NSCursor crosshairCursor];
-    cursors[CURSOR_TEXT] = [NSCursor IBeamCursor];
-    cursors[CURSOR_ZOOM_IN] = create_zoom_in_cursor();
+    cursors[CURSOR_NONE]     = [NSCursor arrowCursor];
+    cursors[CURSOR_HAND]     = [NSCursor pointingHandCursor];
+    cursors[CURSOR_SELECT]   = [NSCursor crosshairCursor];
+    cursors[CURSOR_TEXT]     = [NSCursor IBeamCursor];
+    cursors[CURSOR_ZOOM_IN]  = create_zoom_in_cursor();
     cursors[CURSOR_ZOOM_OUT] = create_zoom_out_cursor();
 }
 
-int getbuf(char_t *ptr, size_t len, int value);
+int getbuf(char *ptr, size_t len, int value);
 
 // below comment applies too
 static inline NSRange uToxRangeFromNSRange(NSRange utf16, NSString *s) {
     NSInteger start = [[s substringToIndex:utf16.location] lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
-    NSInteger len = [[s substringWithRange:utf16] lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
+    NSInteger len   = [[s substringWithRange:utf16] lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
     return NSMakeRange(start, len);
 }
 
-static inline void utf8_correct(NSRange *r, char_t *s, size_t len) {
+static inline void utf8_correct(NSRange *r, char *s, size_t len) {
     while ((s[r->location] >> 6) == 2 && r->location > 0) {
         --r->location;
     }
@@ -72,42 +72,39 @@ static int find_ui_object_recursive(const PANEL *root, const PANEL *target, int 
     return 0;
 }
 
-#define _apply_generic_transform(type, a) { \
-    type *__ = (type *)a; \
-    int relx = (a->x < 0) ? width + a->x : a->x; \
-    int rely = (a->y < 0) ? height + a->y : a->y; \
-    x += relx; \
-    y += rely; \
-    width = (__->width <= 0) ? width + __->width - relx : __->width; \
-    height = (__->height <= 0) ? height + __->height - rely : __->height; \
-}
+#define _apply_generic_transform(type, a)                                     \
+    {                                                                         \
+        type *__   = (type *)a;                                               \
+        int   relx = (a->x < 0) ? width + a->x : a->x;                        \
+        int   rely = (a->y < 0) ? height + a->y : a->y;                       \
+        x += relx;                                                            \
+        y += rely;                                                            \
+        width  = (__->width <= 0) ? width + __->width - relx : __->width;     \
+        height = (__->height <= 0) ? height + __->height - rely : __->height; \
+    }
 
 static CGRect find_ui_object_in_window(const PANEL *ui) {
-    int *path = NULL;
-    CGRect ret = CGRectZero;
-    int did_find = find_ui_object_recursive(&panel_root, ui, &path, 0);
+    int *  path     = NULL;
+    CGRect ret      = CGRectZero;
+    int    did_find = find_ui_object_recursive(&panel_root, ui, &path, 0);
 
     PANEL *ui_element = &panel_root;
     if (did_find) {
-        int x = ui_element->x,
-            y = ui_element->y,
-            width = settings.window_width,
-            height = settings.window_height;
+        int x = ui_element->x, y = ui_element->y, width = settings.window_width, height = settings.window_height;
 
         int i = 0;
         while (path[i] != -1) {
-            //debug("@: %d %d %d %d", x, y, width, height);
-            //debug("%d %d %d %p", i, path[i], ui_element->child[path[i]]->type, ui_element->child[path[i]]->content_scroll);
+            // debug("@: %d %d %d %d", x, y, width, height);
+            // debug("%d %d %d %p", i, path[i], ui_element->child[path[i]]->type,
+            // ui_element->child[path[i]]->content_scroll);
 
             ui_element = ui_element->child[path[i]];
             switch (ui_element->type) {
                 case 6:
                     _apply_generic_transform(EDIT, ui_element);
-                    height += UTOX_SCALE(4 ); // seems to be the magic number
+                    height += UTOX_SCALE(4); // seems to be the magic number
                     break;
-                default:
-                    _apply_generic_transform(PANEL, ui_element);
-                    break;
+                default: _apply_generic_transform(PANEL, ui_element); break;
             }
 
             i++;
@@ -120,9 +117,9 @@ static CGRect find_ui_object_in_window(const PANEL *ui) {
     return ret;
 }
 
-static inline void move_left_to_char(char_t c) {
+static inline void move_left_to_char(char c) {
     EDIT *edit = edit_get_active();
-    int loc = edit_getcursorpos();
+    int   loc  = edit_getcursorpos();
 
     if (loc == 0) {
         return;
@@ -132,7 +129,7 @@ static inline void move_left_to_char(char_t c) {
         loc--;
     }
 
-    while(loc != 0 && edit->data[loc - 1] != c) {
+    while (loc != 0 && edit->data[loc - 1] != c) {
         int move = utf8_unlen(edit->data + loc);
         loc -= move;
     }
@@ -141,9 +138,9 @@ static inline void move_left_to_char(char_t c) {
     redraw();
 }
 
-static inline void select_left_to_char(char_t c) {
+static inline void select_left_to_char(char c) {
     EDIT *edit = edit_get_active();
-    int loc = edit_getcursorpos(), len = edit_selection(edit, NULL, 0);
+    int   loc = edit_getcursorpos(), len = edit_selection(edit, NULL, 0);
 
     if (loc == 0) {
         return;
@@ -154,7 +151,7 @@ static inline void select_left_to_char(char_t c) {
         len++;
     }
 
-    while(loc != 0 && edit->data[loc - 1] != c) {
+    while (loc != 0 && edit->data[loc - 1] != c) {
         int move = utf8_unlen(edit->data + loc);
         loc -= move;
         len += move;
@@ -164,9 +161,9 @@ static inline void select_left_to_char(char_t c) {
     redraw();
 }
 
-static inline void move_right_to_char(char_t c) {
+static inline void move_right_to_char(char c) {
     EDIT *edit = edit_get_active();
-    int loc = edit_getcursorpos();
+    int   loc  = edit_getcursorpos();
 
     if (loc > edit->length) {
         return;
@@ -176,7 +173,7 @@ static inline void move_right_to_char(char_t c) {
         loc += 1;
     }
 
-    while(loc != edit->length && edit->data[loc] != c) {
+    while (loc != edit->length && edit->data[loc] != c) {
         loc += utf8_len(&edit->data[loc]);
     }
 
@@ -184,9 +181,9 @@ static inline void move_right_to_char(char_t c) {
     redraw();
 }
 
-static inline void select_right_to_char(char_t c) {
+static inline void select_right_to_char(char c) {
     EDIT *edit = edit_get_active();
-    int loc = edit_getcursorpos(), end = loc + edit_selection(edit, NULL, 0);
+    int   loc = edit_getcursorpos(), end = loc + edit_selection(edit, NULL, 0);
 
     if (end > edit->length) {
         return;
@@ -196,7 +193,7 @@ static inline void select_right_to_char(char_t c) {
         end += 1;
     }
 
-    while(end != edit->length && edit->data[end] != c) {
+    while (end != edit->length && edit->data[end] != c) {
         int move = utf8_len(edit->data + end);
         end += move;
     }
@@ -209,24 +206,21 @@ static inline void select_right_to_char(char_t c) {
 
 + (NSSpeechSynthesizer *)sharedSpeechSynthesizer {
     static NSSpeechSynthesizer *ss;
-    static dispatch_once_t onceToken;
+    static dispatch_once_t      onceToken;
     dispatch_once(&onceToken, ^{
-        ss = [[NSSpeechSynthesizer alloc] initWithVoice:[NSSpeechSynthesizer defaultVoice]];
+      ss = [[NSSpeechSynthesizer alloc] initWithVoice:[NSSpeechSynthesizer defaultVoice]];
     });
     return ss;
 }
 
 - (void)mouseDown:(NSEvent *)theEvent {
-    //NSLog(@"mouse down");
+    // NSLog(@"mouse down");
     panel_mdown(&panel_root);
     int tclk = 0;
     switch (theEvent.clickCount) {
-        case 3:
-            tclk = 1;
-        case 2:
-            panel_dclick(&panel_root, tclk);
-        default:
-            break;
+        case 3: tclk = 1;
+        case 2: panel_dclick(&panel_root, tclk);
+        default: break;
     }
 }
 
@@ -244,19 +238,22 @@ static inline void select_right_to_char(char_t c) {
 
 - (void)mouseMoved:(NSEvent *)theEvent {
     cursor = 0;
-    panel_mmove(&panel_root, 0, 0, settings.window_width, settings.window_height, theEvent.locationInWindow.x, self.frame.size.height - theEvent.locationInWindow.y, theEvent.deltaX, theEvent.deltaY);
+    panel_mmove(&panel_root, 0, 0, settings.window_width, settings.window_height, theEvent.locationInWindow.x,
+                self.frame.size.height - theEvent.locationInWindow.y, theEvent.deltaX, theEvent.deltaY);
     [cursors[cursor] set];
 }
 
 - (void)mouseDragged:(NSEvent *)theEvent {
     cursor = 0;
-    panel_mmove(&panel_root, 0, 0, settings.window_width, settings.window_height, theEvent.locationInWindow.x, self.frame.size.height - theEvent.locationInWindow.y, theEvent.deltaX, theEvent.deltaY);
+    panel_mmove(&panel_root, 0, 0, settings.window_width, settings.window_height, theEvent.locationInWindow.x,
+                self.frame.size.height - theEvent.locationInWindow.y, theEvent.deltaX, theEvent.deltaY);
     [cursors[cursor] set];
 }
 
 - (void)rightMouseDragged:(NSEvent *)theEvent {
     cursor = 0;
-    panel_mmove(&panel_root, 0, 0, settings.window_width, settings.window_height, theEvent.locationInWindow.x, self.frame.size.height - theEvent.locationInWindow.y, theEvent.deltaX, theEvent.deltaY);
+    panel_mmove(&panel_root, 0, 0, settings.window_width, settings.window_height, theEvent.locationInWindow.x,
+                self.frame.size.height - theEvent.locationInWindow.y, theEvent.deltaX, theEvent.deltaY);
     [cursors[cursor] set];
 }
 
@@ -270,12 +267,17 @@ static inline void select_right_to_char(char_t c) {
 }
 
 - (void)scrollWheel:(NSEvent *)theEvent {
-    panel_mwheel(&panel_root, 0, 0, settings.window_width, settings.window_height, theEvent.deltaY, theEvent.hasPreciseScrollingDeltas);
+    panel_mwheel(&panel_root, 0, 0, settings.window_width, settings.window_height, theEvent.deltaY,
+                 theEvent.hasPreciseScrollingDeltas);
 }
 
 - (void)updateTrackingAreas {
     [self removeTrackingArea:[self.trackingAreas firstObject]];
-    NSTrackingArea *track = [[NSTrackingArea alloc] initWithRect:self.bounds options:NSTrackingMouseMoved | NSTrackingMouseEnteredAndExited | NSTrackingActiveAlways owner:self userInfo:nil];
+    NSTrackingArea *track = [[NSTrackingArea alloc]
+        initWithRect:self.bounds
+             options:NSTrackingMouseMoved | NSTrackingMouseEnteredAndExited | NSTrackingActiveAlways
+               owner:self
+            userInfo:nil];
     [self addTrackingArea:track];
     [track release];
 }
@@ -283,7 +285,8 @@ static inline void select_right_to_char(char_t c) {
 - (void)keyDown:(NSEvent *)theEvent {
     // option + [0-9] will jump to the n-th chat
     char n = 0;
-    if (theEvent.charactersIgnoringModifiers.length == 1 && (theEvent.modifierFlags & NSDeviceIndependentModifierFlagsMask) == NSControlKeyMask) {
+    if (theEvent.charactersIgnoringModifiers.length == 1
+        && (theEvent.modifierFlags & NSDeviceIndependentModifierFlagsMask) == NSControlKeyMask) {
         switch (n = [theEvent.charactersIgnoringModifiers characterAtIndex:0]) {
             case '1':
             case '2':
@@ -294,29 +297,29 @@ static inline void select_right_to_char(char_t c) {
             case '7':
             case '8':
             case '9':
-                list_selectchat(n - '1');
+                flist_selectchat(n - '1');
                 redraw();
                 break;
             case '0':
-                list_selectchat(9);
+                flist_selectchat(9);
                 redraw();
                 break;
-            default:
-                goto defaultaction;
+            default: goto defaultaction;
         }
     } else if (stardust_context.window && theEvent.keyCode == kVK_Escape) {
         stardust_context.finished_callback(stardust_context.view.isVideo, 1, stardust_context.window);
     } else {
-      defaultaction:
+    defaultaction:
         // easier to let MacOS interpret
-        [self interpretKeyEvents:@[theEvent]];
+        [self interpretKeyEvents:@[ theEvent ]];
     }
 }
 
-#define BEEP_IF_EDIT_NOT_ACTIVE() if (!edit_active()) { \
-    NSBeep(); \
-    return; \
-}
+#define BEEP_IF_EDIT_NOT_ACTIVE() \
+    if (!edit_active()) {         \
+        NSBeep();                 \
+        return;                   \
+    }
 
 - (void)insertText:(id)insertString {
     BEEP_IF_EDIT_NOT_ACTIVE()
@@ -325,11 +328,12 @@ static inline void select_right_to_char(char_t c) {
         insertString = [insertString string];
     }
 
-    edit_paste((char_t *)[insertString UTF8String], [insertString lengthOfBytesUsingEncoding:NSUTF8StringEncoding], NO);
+    edit_paste((char *)[insertString UTF8String], [insertString lengthOfBytesUsingEncoding:NSUTF8StringEncoding], NO);
 }
 
 // TODO: NSTextInputClient
-#define FLAGS() (([NSEvent modifierFlags] & NSCommandKeyMask)? 4 : 0) | (([NSEvent modifierFlags] & NSShiftKeyMask)? 1 : 0)
+#define FLAGS() \
+    (([NSEvent modifierFlags] & NSCommandKeyMask) ? 4 : 0) | (([NSEvent modifierFlags] & NSShiftKeyMask) ? 1 : 0)
 - (void)insertTab:(id)sender {
     BEEP_IF_EDIT_NOT_ACTIVE()
 
@@ -391,7 +395,7 @@ static inline void select_right_to_char(char_t c) {
     [self delete:sender];
 }
 
-- (void)delete:(id)sender {
+- (void) delete:(id)sender {
     BEEP_IF_EDIT_NOT_ACTIVE()
 
     if (edit_copy(NULL, 0)) {
@@ -519,12 +523,12 @@ static inline void select_right_to_char(char_t c) {
 }
 
 - (void)focusPaneAddFriend:(id)sender {
-    list_selectaddfriend();
+    flist_selectaddfriend();
     redraw();
 }
 
 - (void)focusPanePreferences:(id)sender {
-    list_selectsettings();
+    flist_selectsettings();
     redraw();
 }
 
@@ -533,18 +537,18 @@ static inline void select_right_to_char(char_t c) {
 }
 
 - (void)tabPrevFriend:(id)sender {
-    previous_tab();
+    flist_previous_tab();
     redraw();
 }
 
 - (void)tabNextFriend:(id)sender {
-    next_tab();
+    flist_next_tab();
     redraw();
 }
 
 - (void)startSpeaking:(id)sender {
-    char_t *buf = malloc(65536);
-    int len = getbuf(buf, 65536, 0);
+    char *buf = malloc(65536);
+    int   len = getbuf(buf, 65536, 0);
 
     if (len != 0) {
         NSString *strtospk = [[NSString alloc] initWithBytes:buf length:len encoding:NSUTF8StringEncoding];
@@ -562,9 +566,9 @@ static inline void select_right_to_char(char_t c) {
 
 - (NSString *)copyEditContents {
     NSString *strtocopy;
-    char_t *buf = malloc(65536);
-    int len = getbuf(buf, 65536, 0);
-    strtocopy = [[NSString alloc] initWithBytes:buf length:len encoding:NSUTF8StringEncoding];
+    char *    buf = malloc(65536);
+    int       len = getbuf(buf, 65536, 0);
+    strtocopy     = [[NSString alloc] initWithBytes:buf length:len encoding:NSUTF8StringEncoding];
     free(buf);
     return strtocopy;
 }
@@ -588,7 +592,7 @@ static inline void select_right_to_char(char_t c) {
 
     edit_setselectedrange(replacementRange.location, replacementRange.length);
     uint16_t insl = [aString lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
-    edit_paste((char_t *)[aString UTF8String], insl, 0);
+    edit_paste((char *)[aString UTF8String], insl, 0);
 
     [self unmarkText];
 }
@@ -603,11 +607,11 @@ static inline void select_right_to_char(char_t c) {
 
 - (NSRange)markedRange {
     uint16_t loc, len;
-    BOOL valid = edit_getmark(&loc, &len);
+    BOOL     valid = edit_getmark(&loc, &len);
     if (!valid) {
-        return (NSRange){NSNotFound, 0};
+        return (NSRange){ NSNotFound, 0 };
     } else {
-        return (NSRange){loc, len};
+        return (NSRange){ loc, len };
     }
 }
 
@@ -617,20 +621,21 @@ static inline void select_right_to_char(char_t c) {
 
 - (NSRange)selectedRange {
     if (!edit_active()) {
-        return (NSRange){NSNotFound, 0};
+        return (NSRange){ NSNotFound, 0 };
     } else {
-        return (NSRange){edit_getcursorpos(), edit_selection(edit_get_active(), NULL, 0)};
+        return (NSRange){ edit_getcursorpos(), edit_selection(edit_get_active(), NULL, 0) };
     }
 }
 
 - (void)setMarkedText:(id)aString selectedRange:(NSRange)selectedRange replacementRange:(NSRange)replacementRange {
     NSLog(@"%@", NSStringFromRange(replacementRange));
     uint16_t loc, len;
-    BOOL valid;
+    BOOL     valid;
     if ((valid = edit_getmark(&loc, &len)) && replacementRange.location != NSNotFound) {
         replacementRange.location += loc;
     } else if (valid) {
-        replacementRange = NSMakeRange(loc, len); NSLog(@"valid=1 replace %d %d", loc, len);
+        replacementRange = NSMakeRange(loc, len);
+        NSLog(@"valid=1 replace %d %d", loc, len);
     } else {
         replacementRange = NSMakeRange(edit_getcursorpos(), edit_selection(edit_get_active(), NULL, 0));
     }
@@ -644,7 +649,7 @@ static inline void select_right_to_char(char_t c) {
     if (!insl) {
         edit_char(KEY_DEL, YES, 0);
     } else {
-        edit_paste((char_t *)[aString UTF8String], insl, 0);
+        edit_paste((char *)[aString UTF8String], insl, 0);
     }
 
     if ([aString length] == 0) {
@@ -660,8 +665,8 @@ static inline void select_right_to_char(char_t c) {
 }
 
 - (NSAttributedString *)attributedSubstringForProposedRange:(NSRange)aRange actualRange:(NSRangePointer)actualRange {
-    char_t *buf = malloc(65536);
-    int len = getbuf(buf, 65536, 0);
+    char *buf = malloc(65536);
+    int   len = getbuf(buf, 65536, 0);
 
     if (aRange.location >= len) {
         free(buf);
@@ -679,7 +684,8 @@ static inline void select_right_to_char(char_t c) {
         return nil;
     }
 
-    NSString *s = [[NSString alloc] initWithBytes:buf + aRange.location length:aRange.length encoding:NSUTF8StringEncoding];
+    NSString *s =
+        [[NSString alloc] initWithBytes:buf + aRange.location length:aRange.length encoding:NSUTF8StringEncoding];
     NSAttributedString *a = [[NSAttributedString alloc] initWithString:s attributes:nil];
 
     free(buf);
@@ -695,24 +701,23 @@ static inline void select_right_to_char(char_t c) {
 
 - (NSRect)firstRectForCharacterRange:(NSRange)aRange actualRange:(NSRangePointer)actualRange {
     CGRect loc = find_ui_object_in_window(&edit_get_active()->panel);
-    //NSLog(@"%@", NSStringFromRect(loc));
+    // NSLog(@"%@", NSStringFromRect(loc));
     return [self.window convertRectToScreen:loc];
 }
 
 @end
 
 // FIXME: asda
-static char_t clip_data[65536];
+static char clip_data[65536];
 
-void setselection(char_t *data, uint16_t length) {
-}
+void setselection(char *data, uint16_t length) {}
 
-int getbuf(char_t *ptr, size_t len, int value) {
+int getbuf(char *ptr, size_t len, int value) {
     int ret = 0;
     if (edit_active()) {
         // FIXME: asfasg
         ret = edit_copy(ptr, len);
-    } else if(selected_item->item == ITEM_FRIEND) {
+    } else if (selected_item->item == ITEM_FRIEND) {
         ret = messages_selection(&messages_friend, ptr, len, value);
     } else {
         ret = messages_selection(&messages_group, ptr, len, value);
@@ -722,56 +727,59 @@ int getbuf(char_t *ptr, size_t len, int value) {
 }
 
 void copy(int value) {
-    int len;
+    int       len;
     NSString *strtocopy;
 
     len = getbuf(clip_data, sizeof(clip_data), value);
 
     strtocopy = [[NSString alloc] initWithBytes:clip_data length:len encoding:NSUTF8StringEncoding];
-    if(len) {
+    if (len) {
         [[NSPasteboard generalPasteboard] clearContents];
-        [[NSPasteboard generalPasteboard] writeObjects:@[strtocopy]];
+        [[NSPasteboard generalPasteboard] writeObjects:@[ strtocopy ]];
     }
     [strtocopy release];
 }
 
 void paste(void) {
-    NSPasteboard *pb = [NSPasteboard generalPasteboard];
-    NSArray *arr = [pb readObjectsForClasses:@[NSImage.class, NSString.class] options:nil];
-    id string_or_img = arr.firstObject;
+    NSPasteboard *pb       = [NSPasteboard generalPasteboard];
+    NSArray *arr           = [pb readObjectsForClasses:@[ NSImage.class, NSString.class ] options:nil];
+    id       string_or_img = arr.firstObject;
 
     if ([string_or_img isKindOfClass:NSString.class]) {
         NSString *str = string_or_img;
         if (edit_active()) {
-            edit_paste((char_t *)str.UTF8String, [str lengthOfBytesUsingEncoding:NSUTF8StringEncoding], 0);
+            edit_paste((char *)str.UTF8String, [str lengthOfBytesUsingEncoding:NSUTF8StringEncoding], 0);
         } else {
             NSBeep();
         }
     } else /* NSImage */ {
         [string_or_img lockFocus];
-        NSBitmapImageRep *bmp = [[NSBitmapImageRep alloc] initWithFocusedViewRect:(CGRect){CGPointZero, [string_or_img size]}];
+        NSBitmapImageRep *bmp =
+            [[NSBitmapImageRep alloc] initWithFocusedViewRect:(CGRect){ CGPointZero, [string_or_img size] }];
         [string_or_img unlockFocus];
 
-        CGImageRef img = CGImageRetain(bmp.CGImage);
-        UTOX_NATIVE_IMAGE *i = malloc(sizeof(UTOX_NATIVE_IMAGE));
-        i->scale = 1.0;
-        i->image = img;
+        CGImageRef    img = CGImageRetain(bmp.CGImage);
+        NATIVE_IMAGE *i   = malloc(sizeof(NATIVE_IMAGE));
+        i->scale          = 1.0;
+        i->image          = img;
 
-        CFMutableDataRef dat = CFDataCreateMutable(kCFAllocatorDefault, 0);
+        CFMutableDataRef      dat  = CFDataCreateMutable(kCFAllocatorDefault, 0);
         CGImageDestinationRef dest = CGImageDestinationCreateWithData(dat, kUTTypePNG, 1, NULL);
         CGImageDestinationAddImage(dest, img, NULL);
         CGImageDestinationFinalize(dest);
         CFRelease(dest);
 
-        size_t size = CFDataGetLength(dat);
+        size_t   size      = CFDataGetLength(dat);
         uint8_t *owned_ptr = malloc(size);
 
         if (owned_ptr) {
             memcpy(owned_ptr, CFDataGetBytePtr(dat), size);
-            friend_sendimage(selected_item->data, i, CGImageGetWidth(img), CGImageGetHeight(img), (UTOX_IMAGE)owned_ptr, size);
+            friend_sendimage(selected_item->data, i, CGImageGetWidth(img), CGImageGetHeight(img), (UTOX_IMAGE)owned_ptr,
+                             size);
         } else {
             free(i);
-            NSLog(@"ran out of memory, we will just do nothing and hope user doesn't notice because we're probably not the only process being screwy");
+            NSLog(@"ran out of memory, we will just do nothing and hope user doesn't notice because we're probably not "
+                  @"the only process being screwy");
         }
 
         CFRelease(dat);
@@ -779,9 +787,7 @@ void paste(void) {
     }
 }
 
-void showkeyboard(_Bool show) {
-
-}
+void showkeyboard(bool show) {}
 
 void edit_will_deactivate(void) {
     uToxAppDelegate *ad = (uToxAppDelegate *)[NSApplication sharedApplication].delegate;
@@ -794,7 +800,7 @@ void edit_will_deactivate(void) {
 - (void)set_identityImageHasBorder:(BOOL)arg1;
 @end
 
-void notify(char_t *title, uint16_t title_length, const char_t *msg, uint16_t msg_length, void *object, _Bool is_group) {
+void notify(char *title, uint16_t title_length, const char *msg, uint16_t msg_length, void *object, bool is_group) {
     if ([NSUserNotification class]) {
         NSUserNotification *usernotification = [[NSUserNotification alloc] init];
         NSString *t = [[NSString alloc] initWithBytes:title length:title_length encoding:NSUTF8StringEncoding];
@@ -806,21 +812,20 @@ void notify(char_t *title, uint16_t title_length, const char_t *msg, uint16_t ms
         if (!is_group) {
             FRIEND *f = object;
             if (friend_has_avatar(f)) {
-                UTOX_NATIVE_IMAGE *im = f->avatar.image;
-                size_t w = CGImageGetWidth(im->image) / im->scale,
-                       h = CGImageGetHeight(im->image) / im->scale;
-                NSImage *i = [[NSImage alloc] initWithCGImage:im->image size:(CGSize){w, h}];
+                NATIVE_IMAGE *im = f->avatar.image;
+                size_t        w = CGImageGetWidth(im->image) / im->scale, h = CGImageGetHeight(im->image) / im->scale;
+                NSImage *i = [[NSImage alloc] initWithCGImage:im->image size:(CGSize){ w, h }];
                 if ([usernotification respondsToSelector:@selector(set_identityImage:)]) {
                     [usernotification set_identityImage:i];
                 } else {
                     NSLog(@"WARNING: OS X has broken the private api I use to set notification avatars. "
-                          "If you see this message please update uTox (if you're on latest, file a bug)");
+                           "If you see this message please update uTox (if you're on latest, file a bug)");
                 }
                 if ([usernotification respondsToSelector:@selector(set_identityImageHasBorder:)]) {
-                [usernotification set_identityImageHasBorder:YES];
+                    [usernotification set_identityImageHasBorder:YES];
                 } else {
                     NSLog(@"WARNING: OS X has broken the private api I use to set notification avatars. "
-                          "If you see this message please update uTox (if you're on latest, file a bug)");
+                           "If you see this message please update uTox (if you're on latest, file a bug)");
                 }
                 [i release];
             }
@@ -842,8 +847,11 @@ void notify(char_t *title, uint16_t title_length, const char_t *msg, uint16_t ms
 
 void update_tray(void) {
     uToxAppDelegate *ad = (uToxAppDelegate *)[NSApplication sharedApplication].delegate;
-    ad.nameMenuItem.title = [[[NSString alloc] initWithBytes:self.name length:self.name_length encoding:NSUTF8StringEncoding] autorelease];
-    ad.statusMenuItem.title = [[[NSString alloc] initWithBytes:self.statusmsg length:self.statusmsg_length encoding:NSUTF8StringEncoding] autorelease];
+    ad.nameMenuItem.title =
+        [[[NSString alloc] initWithBytes:self.name length:self.name_length encoding:NSUTF8StringEncoding] autorelease];
+    ad.statusMenuItem.title =
+        [[[NSString alloc] initWithBytes:self.statusmsg length:self.statusmsg_length encoding:NSUTF8StringEncoding]
+            autorelease];
 }
 
 /* file utils */
@@ -851,8 +859,12 @@ void update_tray(void) {
 void native_export_chatlog_init(uint32_t fid) {
 
     NSSavePanel *picker = [NSSavePanel savePanel];
-    NSString *fname = [[NSString alloc] initWithBytesNoCopy:friend[fid].name length:friend[fid].name_length encoding:NSUTF8StringEncoding freeWhenDone:NO];
-    picker.message = [NSString stringWithFormat:NSSTRING_FROM_LOCALIZED(WHERE_TO_SAVE_FILE_PROMPT), friend[fid].name_length, friend[fid].name];
+    NSString *fname     = [[NSString alloc] initWithBytesNoCopy:friend[fid].name
+                                                     length:friend[fid].name_length
+                                                   encoding:NSUTF8StringEncoding
+                                               freeWhenDone:NO];
+    picker.message = [NSString
+        stringWithFormat:NSSTRING_FROM_LOCALIZED(WHERE_TO_SAVE_FILE_PROMPT), friend[fid].name_length, friend[fid].name];
     picker.nameFieldStringValue = fname;
     [fname release];
     int ret = [picker runModal];
@@ -866,8 +878,12 @@ void native_export_chatlog_init(uint32_t fid) {
 
 void native_select_dir_ft(uint32_t fid, MSG_FILE *file) {
     NSSavePanel *picker = [NSSavePanel savePanel];
-    NSString *fname = [[NSString alloc] initWithBytesNoCopy:file->file_name length:file->name_length encoding:NSUTF8StringEncoding freeWhenDone:NO];
-    picker.message = [NSString stringWithFormat:NSSTRING_FROM_LOCALIZED(WHERE_TO_SAVE_FILE_PROMPT), file->name_length, file->file_name];
+    NSString *fname     = [[NSString alloc] initWithBytesNoCopy:file->file_name
+                                                     length:file->name_length
+                                                   encoding:NSUTF8StringEncoding
+                                               freeWhenDone:NO];
+    picker.message = [NSString
+        stringWithFormat:NSSTRING_FROM_LOCALIZED(WHERE_TO_SAVE_FILE_PROMPT), file->name_length, file->file_name];
     picker.nameFieldStringValue = fname;
     [fname release];
     int ret = [picker runModal];
@@ -880,8 +896,12 @@ void native_select_dir_ft(uint32_t fid, MSG_FILE *file) {
 }
 
 void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
-    NSString *downloads = [NSSearchPathForDirectoriesInDomains(NSDownloadsDirectory, NSUserDomainMask, YES) firstObject];
-    NSString *fname = [[NSString alloc] initWithBytesNoCopy:file->name length:file->name_length encoding:NSUTF8StringEncoding freeWhenDone:NO];
+    NSString *downloads =
+        [NSSearchPathForDirectoriesInDomains(NSDownloadsDirectory, NSUserDomainMask, YES) firstObject];
+    NSString *fname = [[NSString alloc] initWithBytesNoCopy:file->name
+                                                     length:file->name_length
+                                                   encoding:NSUTF8StringEncoding
+                                               freeWhenDone:NO];
 
     NSString *dest = [downloads stringByAppendingPathComponent:fname];
     [fname release];
@@ -892,66 +912,72 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
 //@"Where do you want to save \"%.*s\"?"
 void savefiledata(MSG_FILE *file) {
     NSSavePanel *picker = [NSSavePanel savePanel];
-    NSString *fname = [[NSString alloc] initWithBytes:file->file_name length:file->name_length encoding:NSUTF8StringEncoding];
-    picker.message = [NSString stringWithFormat:NSSTRING_FROM_LOCALIZED(WHERE_TO_SAVE_FILE_PROMPT), file->name_length, file->file_name];
+    NSString *fname =
+        [[NSString alloc] initWithBytes:file->file_name length:file->name_length encoding:NSUTF8StringEncoding];
+    picker.message = [NSString
+        stringWithFormat:NSSTRING_FROM_LOCALIZED(WHERE_TO_SAVE_FILE_PROMPT), file->name_length, file->file_name];
     picker.nameFieldStringValue = fname;
     [fname release];
     int ret = [picker runModal];
 
     if (ret == NSFileHandlingPanelOKButton) {
-        NSURL *destination = picker.URL;
-        NSData *d = [NSData dataWithBytesNoCopy:file->path length:file->size freeWhenDone:NO];
+        NSURL * destination = picker.URL;
+        NSData *d           = [NSData dataWithBytesNoCopy:file->path length:file->size freeWhenDone:NO];
         [d writeToURL:destination atomically:YES];
 
         free(file->path);
-        file->path = (uint8_t*)strdup("inline.png");
+        file->path       = (uint8_t *)strdup("inline.png");
         file->inline_png = 0;
     }
 }
 //@"Select one or more files to send."
 void openfilesend(void) {
-    NSOpenPanel *picker = [NSOpenPanel openPanel];
-    picker.title = NSSTRING_FROM_LOCALIZED(SEND_FILE);
-    picker.message = NSSTRING_FROM_LOCALIZED(SEND_FILE_PROMPT);
+    NSOpenPanel *picker            = [NSOpenPanel openPanel];
+    picker.title                   = NSSTRING_FROM_LOCALIZED(SEND_FILE);
+    picker.message                 = NSSTRING_FROM_LOCALIZED(SEND_FILE_PROMPT);
     picker.allowsMultipleSelection = YES;
-    int ret = [picker runModal];
+    int ret                        = [picker runModal];
 
     if (ret == NSFileHandlingPanelOKButton) {
-        NSArray *urls = picker.URLs;
-        NSMutableString *s = [NSMutableString string];
+        NSArray *        urls = picker.URLs;
+        NSMutableString *s    = [NSMutableString string];
         for (NSURL *url in urls) {
             [s appendFormat:@"%@\n", url.path];
         }
-        postmessage_toxcore(TOX_FILE_SEND_NEW, (FRIEND*)selected_item->data - friend, 0xFFFF, strdup(s.UTF8String));
+        postmessage_toxcore(TOX_FILE_SEND_NEW, (FRIEND *)selected_item->data - friend, 0xFFFF, strdup(s.UTF8String));
     }
 }
 
 void openfileavatar(void) {
     NSOpenPanel *picker = [NSOpenPanel openPanel];
 
-    picker.title = [[[NSString alloc] initWithBytes:S(SELECT_AVATAR_TITLE) length:SLEN(SELECT_AVATAR_TITLE) encoding:NSUTF8StringEncoding] autorelease];
-    picker.allowedFileTypes = @[@"png"];
-    int ret = [picker runModal];
+    picker.title = [[[NSString alloc] initWithBytes:S(SELECT_AVATAR_TITLE)
+                                             length:SLEN(SELECT_AVATAR_TITLE)
+                                           encoding:NSUTF8StringEncoding] autorelease];
+    picker.allowedFileTypes = @[ @"png" ];
+    int ret                 = [picker runModal];
 
     if (ret == NSFileHandlingPanelOKButton) {
-        NSURL *url = picker.URL;
-        uint32_t fsize = 0;
-        void *file_data = file_raw((char *)url.path.UTF8String, &fsize);
+        NSURL *  url       = picker.URL;
+        uint32_t fsize     = 0;
+        void *   file_data = file_raw((char *)url.path.UTF8String, &fsize);
         if (fsize > UTOX_AVATAR_MAX_DATA_LENGTH) {
             free(file_data);
 
-            char_t size_str[16];
-            int len = sprint_humanread_bytes(size_str, sizeof(size_str), UTOX_AVATAR_MAX_DATA_LENGTH);
+            char size_str[16];
+            int  len = sprint_humanread_bytes(size_str, sizeof(size_str), UTOX_AVATAR_MAX_DATA_LENGTH);
 
             NSString *bytess = [[NSString alloc] initWithBytes:size_str length:len encoding:NSUTF8StringEncoding];
-            NSString *title = [[NSString alloc] initWithBytes:S(AVATAR_TOO_LARGE_MAX_SIZE_IS) length:SLEN(AVATAR_TOO_LARGE_MAX_SIZE_IS) encoding:NSUTF8StringEncoding];
+            NSString *title  = [[NSString alloc] initWithBytes:S(AVATAR_TOO_LARGE_MAX_SIZE_IS)
+                                                       length:SLEN(AVATAR_TOO_LARGE_MAX_SIZE_IS)
+                                                     encoding:NSUTF8StringEncoding];
 
             NSString *emsg = [[NSString alloc] initWithFormat:@"%@%@", title, bytess];
             [title release];
             [bytess release];
 
-            NSAlert *alert = [[NSAlert alloc] init];
-            alert.alertStyle = NSWarningAlertStyle;
+            NSAlert *alert    = [[NSAlert alloc] init];
+            alert.alertStyle  = NSWarningAlertStyle;
             alert.messageText = emsg;
             [emsg release];
             [alert runModal];

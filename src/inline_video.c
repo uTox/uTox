@@ -1,6 +1,6 @@
-#include "main.h"
-
-/** TODO : a lot...
+/** inline_video.c
+ *
+ * TODO : a lot...
  *
  * We need to resive the video frame, and maybe center...
  *
@@ -11,41 +11,56 @@
  * Consider auto selecting inline video
  */
 
-void inline_video_draw(INLINE_VID *UNUSED(p), int x, int y, int width, int height){
+#include <stddef.h>
+
+#include "av/utox_av.h"
+#include "inline_video.h"
+#include "main.h"
+
+static UTOX_FRAME_PKG current_frame = { 0 };
+
+bool inline_set_frame(uint16_t w, uint16_t h, size_t size, void *img) {
+    current_frame.w    = w;
+    current_frame.h    = h;
+    current_frame.size = size;
+
+    current_frame.img = realloc(current_frame.img, size);
+    if (size && current_frame.img) {
+        memcpy(current_frame.img, img, size);
+        return true;
+    }
+
+    current_frame.w    = 0;
+    current_frame.h    = 0;
+    current_frame.size = 0;
+    free(current_frame.img);
+    return false;
+}
+
+void inline_video_draw(INLINE_VID *UNUSED(p), int x, int y, int width, int height) {
     if (!settings.inline_video) {
         return;
     }
 
     debug("Inline Video:\tDrawing new frame.\n");
 
-    if (current_frame && current_frame->img && current_frame->size) {
-        draw_inline_image(current_frame->img, current_frame->size,
-                          current_frame->w, current_frame->h,
-                          x, y + MAIN_TOP_FRAME_THICK);
+    if (current_frame.img && current_frame.size) {
+        draw_inline_image(current_frame.img, current_frame.size, current_frame.w, current_frame.h, x,
+                          y + MAIN_TOP_FRAME_THICK);
     }
 }
 
-_Bool inline_video_mmove(INLINE_VID *UNUSED(p), int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height), int UNUSED(mx), int UNUSED(my), int UNUSED(dx), int UNUSED(dy)) {
+bool inline_video_mmove(INLINE_VID *UNUSED(p), int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height),
+                        int UNUSED(mx), int UNUSED(my), int UNUSED(dx), int UNUSED(dy)) {
     return 0;
 }
 
-_Bool inline_video_mdown(INLINE_VID *UNUSED(p)) {
-    return 0;
-}
+bool inline_video_mdown(INLINE_VID *UNUSED(p)) { return 0; }
 
-_Bool inline_video_mright(INLINE_VID *UNUSED(p)) {
-    return 0;
-}
+bool inline_video_mright(INLINE_VID *UNUSED(p)) { return 0; }
 
-_Bool inline_video_mwheel(INLINE_VID *UNUSED(p), int UNUSED(height), double UNUSED(d), _Bool UNUSED(smooth)) {
-    return 0;
-}
+bool inline_video_mwheel(INLINE_VID *UNUSED(p), int UNUSED(height), double UNUSED(d), bool UNUSED(smooth)) { return 0; }
 
-_Bool inline_video_mup(INLINE_VID *UNUSED(p)) {
-    return 0;
-}
+bool inline_video_mup(INLINE_VID *UNUSED(p)) { return 0; }
 
-_Bool inline_video_mleave(INLINE_VID *UNUSED(p)) {
-    return 0;
-}
-
+bool inline_video_mleave(INLINE_VID *UNUSED(p)) { return 0; }

@@ -1,16 +1,20 @@
-#include "main.h"
+// commands.c
+#include "commands.h"
 
-int slash_send_file(FRIEND *friend_handle, const uint8_t *filepath){
-	if (filepath == NULL)
-		return 0;
+#include "flist.h"
+
+
+int slash_send_file(FRIEND *friend_handle, const uint8_t *filepath) {
+    if (filepath == NULL)
+        return 0;
 
     debug("Slash:\tFile path is: %s\n", filepath);
-    postmessage_toxcore(TOX_FILE_SEND_NEW_SLASH, friend_handle - friend, 0xFFFF, (void*)filepath);
+    postmessage_toxcore(TOX_FILE_SEND_NEW_SLASH, friend_handle - friend, 0xFFFF, (void *)filepath);
     return 1;
 }
 
-uint16_t utox_run_command(char_t *string, uint16_t string_length, char_t **cmd, char_t **argument, int trusted){
-    if(trusted == 0){
+uint16_t utox_run_command(char *string, uint16_t string_length, char **cmd, char **argument, int trusted) {
+    if (trusted == 0) {
         return 0; /* We don't currently support commands from non-trusted sources, before you run commands from friends
                    * or elsewhere, you MUST implement error checking better than what exists */
     }
@@ -31,37 +35,37 @@ uint16_t utox_run_command(char_t *string, uint16_t string_length, char_t **cmd, 
         for (; i < string_length; ++i) {
             if (string[i] != ' ') {
                 argument_length = string_length - i;
-                *argument = string + i;
+                *argument       = string + i;
                 break;
             }
         }
 
-        if(cmd_length){
+        if (cmd_length) {
             --cmd_length;
             *cmd = string + 1;
         }
     } else {
         // debug("No command found\n"); /* Sad, we don't support this command. */
         *argument = string;
-        cmd = NULL;
+        cmd       = NULL;
         return 0;
     }
 
     /* Start accepting actions */
     if ((cmd_length == 1) && (memcmp(*cmd, "d", 1) == 0)) {
-        if(selected_item->item == ITEM_FRIEND) {
-            FRIEND *f = selected_item->data;
+        if (flist_get_selected()->item == ITEM_FRIEND) {
+            FRIEND *f = flist_get_selected()->data;
 
             uint8_t id[TOX_FRIEND_ADDRESS_SIZE * 2];
             string_to_id(id, *argument);
-            void *data = malloc(TOX_FRIEND_ADDRESS_SIZE * sizeof(char_t));
+            void *data = malloc(TOX_FRIEND_ADDRESS_SIZE * sizeof(char));
             memcpy(data, id, TOX_FRIEND_ADDRESS_SIZE);
 
             postmessage_toxcore(TOX_FRIEND_NEW_DEVICE, f->number, 0, data);
         }
-    }else if ((cmd_length == 5) && (memcmp(*cmd, "alias", 5) == 0)) {
-        if(selected_item->item == ITEM_FRIEND) {
-            FRIEND *f = selected_item->data;
+    } else if ((cmd_length == 5) && (memcmp(*cmd, "alias", 5) == 0)) {
+        if (flist_get_selected()->item == ITEM_FRIEND) {
+            FRIEND *f = flist_get_selected()->data;
             if (*argument) {
                 friend_set_alias(f, *argument, argument_length);
             } else {
@@ -72,9 +76,9 @@ uint16_t utox_run_command(char_t *string, uint16_t string_length, char_t **cmd, 
 
             cmd_length = -1; /* We'll take care of this, don't return to edit */
         }
-    } else if ((cmd_length == 8) && (memcmp(*cmd, "sendfile", 8) == 0)){
-        if(selected_item->item == ITEM_FRIEND) {
-            FRIEND *f = selected_item->data;
+    } else if ((cmd_length == 8) && (memcmp(*cmd, "sendfile", 8) == 0)) {
+        if (flist_get_selected()->item == ITEM_FRIEND) {
+            FRIEND *f = flist_get_selected()->data;
             if (slash_send_file(f, *argument)) {
                 cmd_length = -1; /* We'll take care of this, don't return to edit */
             } else {
@@ -82,9 +86,9 @@ uint16_t utox_run_command(char_t *string, uint16_t string_length, char_t **cmd, 
             }
         }
     } else if (cmd_length == 6 && memcmp(*cmd, "invite", 6) == 0) {
-        if (selected_item->item == ITEM_GROUP) {
-            GROUPCHAT *g = selected_item->data;
-            FRIEND *f = find_friend_by_name(*argument);
+        if (flist_get_selected()->item == ITEM_GROUP) {
+            GROUPCHAT *g = flist_get_selected()->data;
+            FRIEND *   f = find_friend_by_name(*argument);
             if (f != NULL && f->online) {
                 cmd_length = -1;
                 postmessage_toxcore(TOX_GROUP_SEND_INVITE, g->number, f->number, NULL);
@@ -98,13 +102,13 @@ uint16_t utox_run_command(char_t *string, uint16_t string_length, char_t **cmd, 
     return cmd_length;
 }
 
-_Bool g_select_add_friend_later = 0;
+bool g_select_add_friend_later = 0;
 
 void do_tox_url(uint8_t *url_string, int len) {
     debug("Command: %.*s\n", len, url_string);
 
     //! lacks max length checks, writes to inputs even on failure, no notice of failure
-    //doesnt reset unset inputs
+    // doesnt reset unset inputs
 
     // slashes are removed later
     if (len > 4 && memcmp(url_string, "tox:", 4) == 0) {
@@ -115,40 +119,34 @@ void do_tox_url(uint8_t *url_string, int len) {
     }
 
     // wtf??
-    uint8_t *b = edit_add_id.data, *a = url_string, *end = url_string + len;
+    uint8_t * b = edit_add_id.data, *a = url_string, *end = url_string + len;
     uint16_t *l = &edit_add_id.length;
-    *l = 0;
-    while(a != end)
-    {
-        switch(*a)
-        {
+    *l          = 0;
+    while (a != end) {
+        switch (*a) {
             case 'a' ... 'z':
             case 'A' ... 'Z':
             case '0' ... '9':
             case '@':
             case '.':
-            case ' ':
-            {
+            case ' ': {
                 *b++ = *a;
-                *l = *l + 1;
+                *l   = *l + 1;
                 break;
             }
 
-            case '+':
-            {
+            case '+': {
                 *b++ = ' ';
-                *l = *l + 1;
+                *l   = *l + 1;
                 break;
             }
 
             case '?':
-            case '&':
-            {
+            case '&': {
                 a++;
-                if(end - a >= 8 && memcmp(a, "message=", 8) == 0)
-                {
-                    b = edit_add_msg.data;
-                    l = &edit_add_msg.length;
+                if (end - a >= 8 && memcmp(a, "message=", 8) == 0) {
+                    b  = edit_add_msg.data;
+                    l  = &edit_add_msg.length;
                     *l = 0;
                     a += 7;
                 } else {
@@ -162,15 +160,11 @@ void do_tox_url(uint8_t *url_string, int len) {
                 break;
             }
 
-            case '/':
-            {
+            case '/': {
                 break;
             }
 
-            default:
-            {
-                return;
-            }
+            default: { return; }
         }
         a++;
     }
@@ -180,6 +174,6 @@ void do_tox_url(uint8_t *url_string, int len) {
         // this usually happens when we are launched as the result of a URL click.
         g_select_add_friend_later = 1;
     } else {
-        list_selectaddfriend();
+        flist_selectaddfriend();
     }
 }

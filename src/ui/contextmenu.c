@@ -1,4 +1,9 @@
+// contextmenu.c
+
+#include "contextmenu.h"
+
 #include "../main.h"
+#include "../theme.h"
 
 static CONTEXTMENU context_menu;
 
@@ -51,7 +56,7 @@ void contextmenu_draw(void) {
     draw_rect_frame(x, b->y, w, b->height, COLOR_EDGE_ACTIVE);
 }
 
-_Bool contextmenu_mmove(int mx, int my, int UNUSED(dx), int UNUSED(dy)) {
+bool contextmenu_mmove(int mx, int my, int UNUSED(dx), int UNUSED(dy)) {
     CONTEXTMENU *b = &context_menu;
 
     if (!b->open) {
@@ -67,7 +72,7 @@ _Bool contextmenu_mmove(int mx, int my, int UNUSED(dx), int UNUSED(dy)) {
     int x, w;
     calculate_pos_and_width(b, &x, &w);
 
-    _Bool mouseover = inrect(mx, my, x, b->y, w, b->height);
+    bool mouseover = inrect(mx, my, x, b->y, w, b->height);
     if (!mouseover) {
         if (b->over != 0xFF) {
             b->over = 0xFF;
@@ -89,7 +94,7 @@ _Bool contextmenu_mmove(int mx, int my, int UNUSED(dx), int UNUSED(dy)) {
     return 0;
 }
 
-_Bool contextmenu_mdown(void) {
+bool contextmenu_mdown(void) {
     CONTEXTMENU *b = &context_menu;
 
     if (!b->open) {
@@ -104,7 +109,7 @@ _Bool contextmenu_mdown(void) {
     return 1;
 }
 
-_Bool contextmenu_mup(void) {
+bool contextmenu_mup(void) {
     CONTEXTMENU *b = &context_menu;
 
     if (!b->open) {
@@ -120,7 +125,7 @@ _Bool contextmenu_mup(void) {
     return 0;
 }
 
-_Bool contextmenu_mleave(void) {
+bool contextmenu_mleave(void) {
     CONTEXTMENU *b = &context_menu;
 
     if (!b->open) {
@@ -156,9 +161,9 @@ void contextmenu_new_ex(uint8_t count, void *userdata, void (*onselect)(uint8_t)
 }
 
 static STRING *contextmenu_localized_ondisplay(uint8_t i, const CONTEXTMENU *cm) {
-    return SPTRFORLANG(LANG, ((UI_STRING_ID *)cm->userdata)[i]);
+    return SPTRFORLANG(LANG, ((UTOX_I18N_STR *)cm->userdata)[i]);
 }
 
-void contextmenu_new(uint8_t count, UI_STRING_ID *menu_string_ids, void (*onselect)(uint8_t)) {
+void contextmenu_new(uint8_t count, UTOX_I18N_STR *menu_string_ids, void (*onselect)(uint8_t)) {
     contextmenu_new_ex(count, menu_string_ids, onselect, contextmenu_localized_ondisplay);
 }

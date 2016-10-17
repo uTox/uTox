@@ -5,7 +5,7 @@
 
 #ifdef UNITY
 #include "xlib/mmenu.h"
-extern _Bool unity_running;
+extern bool unity_running;
 #endif
 
 /* Function which removes an entry from the messaging menu
@@ -16,6 +16,6 @@ void mm_rm_entry(uint8_t *f_id);
 /* Function which sets the user status in the messaging menu
  * Is called by ui_buttons.h
  */
- void mm_set_status(int status);
+void mm_set_status(int status);
 
 #endif
