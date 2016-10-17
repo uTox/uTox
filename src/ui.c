@@ -448,8 +448,9 @@ static void draw_settings_text_av(int x, int y, int w, int UNUSED(height)) {
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(10), RINGTONE);
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(40), PUSH_TO_TALK);
     drawstr(MAIN_LEFT + SCALE(240), y + SCALE(10), GROUP_NOTIFICATIONS);
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(60),  STATUS_NOTIFICATIONS);
 #ifdef AUDIO_FILTERING
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(70), AUDIOFILTERING);
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(80), AUDIOFILTERING);
 #endif
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(100), AUDIOINPUTDEVICE);
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(160), AUDIOOUTPUTDEVICE);
@@ -910,6 +911,7 @@ panel_main = {
                     (void*)&switch_audible_notifications,
                     (void*)&switch_audio_filtering,
                     (void*)&dropdown_global_group_notifications,
+                    (void*)&switch_status_notifications,
                     NULL
                 }
             };
@@ -1045,7 +1047,7 @@ void ui_set_scale(uint8_t scale) {
     PANEL panel_switch_audible_notifications = {
         .type   = PANEL_SWITCH,
         .x      = SCALE(-10) - BM_SWITCH_WIDTH,
-        .y      = SCALE(10),
+        .y      = SCALE(0),
         .width  = BM_SWITCH_WIDTH,
         .height = BM_SWITCH_HEIGHT,
     };
@@ -1053,16 +1055,24 @@ void ui_set_scale(uint8_t scale) {
     PANEL panel_switch_push_to_talk = {
         .type   = PANEL_SWITCH,
         .x      = SCALE(-10) - BM_SWITCH_WIDTH,
-        .y      = SCALE(40),
+        .y      = SCALE(30),
         .width  = BM_SWITCH_WIDTH,
         .height = BM_SWITCH_HEIGHT,
+    };
+
+    PANEL panel_switch_status_notifications = {
+        .type   = PANEL_SWITCH,
+        .x      = SCALE(-10) - BM_SWITCH_WIDTH,
+        .y      = SCALE(55),
+        .width  = BM_SWITCH_WIDTH,
+        .height = BM_SWITCH_HEIGHT
     };
 
 #ifdef AUDIO_FILTERING
     PANEL panel_switch_audio_filtering = {
         .type   = PANEL_SWITCH,
         .x      = SCALE(-10) - BM_SWITCH_WIDTH,
-        .y      = SCALE(70),
+        .y      = SCALE(80),
         .width  = BM_SWITCH_WIDTH,
         .height = BM_SWITCH_HEIGHT,
     };
@@ -1078,6 +1088,7 @@ void ui_set_scale(uint8_t scale) {
     switch_typing_notes.panel          = panel_switch_typing_notes;
     switch_audible_notifications.panel = panel_switch_audible_notifications;
     switch_push_to_talk.panel          = panel_switch_push_to_talk;
+    switch_status_notifications.panel  = panel_switch_status_notifications;
 
 #ifdef AUDIO_FILTERING
     switch_audio_filtering.panel = panel_switch_audio_filtering;

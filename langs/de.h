@@ -522,3 +522,6 @@ msgstr("Solarized dunkel")
 
 msgid(SEND_TYPING_NOTIFICATIONS)
 msgstr("Mitteilen, ob getippt wird")
+
+msgid(STATUS_NOTIFICATIONS)
+msgstr("Statusbenachrichtigungen")
