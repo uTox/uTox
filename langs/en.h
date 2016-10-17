@@ -701,3 +701,6 @@ msgstr("Solarized-dark")
 
 msgid(SEND_TYPING_NOTIFICATIONS)
 msgstr("Send typing notifications")
+
+msgid(STATUS_NOTIFICATIONS)
+msgstr("Status Notifications")

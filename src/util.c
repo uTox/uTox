@@ -651,6 +651,7 @@ UTOX_SAVE* config_load(void) {
     switch_audible_notifications.switch_on = save->audible_notifications_enabled;
     switch_audio_filtering.switch_on       = save->audio_filtering_enabled;
     switch_push_to_talk.switch_on          = save->push_to_talk;
+    switch_status_notifications.switch_on  = save->status_notifications;
 
     dropdown_theme.selected                = dropdown_theme.over                = save->theme;
 
@@ -687,6 +688,7 @@ UTOX_SAVE* config_load(void) {
 
     settings.send_typing_status     = !save->no_typing_notifications;
     settings.group_notifications    = save->group_notifications;
+    settings.status_notifications   = save->status_notifications;
 
     settings.window_width           = save->window_width;
     settings.window_height          = save->window_height;
@@ -738,6 +740,7 @@ void config_save(UTOX_SAVE *save_in) {
 
     save->utox_last_version             = settings.curr_version;
     save->group_notifications           = settings.group_notifications;
+    save->status_notifications          = settings.status_notifications;
 
     memcpy(save->proxy_ip, proxy_address, 256); /* Magic number inside toxcore */
 
