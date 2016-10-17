@@ -677,8 +677,7 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
 
 /* Called by toxcore to deliver the next chunk of incoming data. */
 static void incoming_file_callback_chunk(Tox *UNUSED(tox), uint32_t friend_number, uint32_t file_number,
-                                         uint64_t position, const uint8_t *data, size_t length,
-                                         void *UNUSED(user_data)) {
+                                         uint64_t position, const uint8_t *data, size_t length, void *UNUSED(user_data)) {
     // debug("FileTransfer:\tIncoming chunk friend(%u), file(%u), start(%u), end(%u), \n", friend_number, file_number,
     // position, length);
 

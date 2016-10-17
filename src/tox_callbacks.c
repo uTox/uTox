@@ -344,8 +344,7 @@ static void callback_device_sent_message(Tox *tox, uint32_t sending_device, uint
         }
 
         default: {
-            debug_error("Message from Friend(%u) of unsupported type: %.*s\n", target_friend, (uint32_t)msg_length,
-                        msg);
+            debug_error("Message from Friend(%u) of unsupported type: %.*s\n", target_friend, (uint32_t)msg_length, msg);
         }
     }
     friend_notify_msg(&friend[target_friend], msg, msg_length);

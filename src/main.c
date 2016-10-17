@@ -234,8 +234,7 @@ bool utox_update_chatlog(uint32_t friend_number, size_t offset, uint8_t *data, s
     }
 
     if (fseeko(file, offset, SEEK_SET)) {
-        debug_error("History:\tUnable to seek to position %lu in file provided by native_load_chatlog_file()\n",
-                    offset);
+        debug_error("History:\tUnable to seek to position %lu in file provided by native_load_chatlog_file()\n", offset);
         return 0;
     }
 

@@ -30,7 +30,9 @@ static void dropdown_video_onselect(uint16_t i, const DROPDOWN *dm) {
     }
 }
 
-static void dropdown_dpi_onselect(uint16_t i, const DROPDOWN *UNUSED(dm)) { ui_set_scale(i + 6); }
+static void dropdown_dpi_onselect(uint16_t i, const DROPDOWN *UNUSED(dm)) {
+    ui_set_scale(i + 6);
+}
 
 static void dropdown_language_onselect(uint16_t i, const DROPDOWN *UNUSED(dm)) {
     LANG = (UTOX_LANG)i;
@@ -72,7 +74,9 @@ static void dropdown_proxy_onselect(uint16_t i, const DROPDOWN *UNUSED(dm)) {
     tox_settingschanged();
 }
 
-static void dropdown_theme_onselect(uint16_t i, const DROPDOWN *UNUSED(dm)) { theme_load(i); }
+static void dropdown_theme_onselect(uint16_t i, const DROPDOWN *UNUSED(dm)) {
+    theme_load(i);
+}
 
 static void dropdown_friend_autoaccept_ft_onselect(const uint16_t i, const DROPDOWN *UNUSED(dm)) {
     FRIEND *f        = flist_get_selected()->data;
