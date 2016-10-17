@@ -2,12 +2,13 @@
 
 /** Writes friend meta data filename for fid to dest. returns length written */
 static int friend_meta_data_path(uint8_t *dest, size_t size_dest, uint8_t *friend_key, uint32_t friend_num) {
-    if (size_dest < TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".fmetadata")){
+    if (size_dest < TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".fmetadata")) {
         return -1;
     }
 
-    cid_to_string(dest, friend_key); dest += TOX_PUBLIC_KEY_SIZE * 2;
-    memcpy((char*)dest, ".fmetadata", sizeof(".fmetadata"));
+    cid_to_string(dest, friend_key);
+    dest += TOX_PUBLIC_KEY_SIZE * 2;
+    memcpy((char *)dest, ".fmetadata", sizeof(".fmetadata"));
 
     return TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".fmetadata");
 }
@@ -27,7 +28,7 @@ static void friend_meta_data_read(Tox *tox, int friend_id) {
     }
 
     uint32_t size;
-    void *file_data = file_raw((char*)path, &size);
+    void *   file_data = file_raw((char *)path, &size);
     if (!file_data) {
         // debug("Meta Data not found (%s)\n", path);
         return;
@@ -43,9 +44,9 @@ static void friend_meta_data_read(Tox *tox, int friend_id) {
             return;
         }
 
-        if (((FRIEND_META_DATA_OLD*)metadata)->alias_length) {
+        if (((FRIEND_META_DATA_OLD *)metadata)->alias_length) {
             friend_set_alias(&friend[friend_id], file_data + sizeof(size_t),
-                                ((FRIEND_META_DATA_OLD*)metadata)->alias_length);
+                             ((FRIEND_META_DATA_OLD *)metadata)->alias_length);
         } else {
             friend_set_alias(&friend[friend_id], NULL, 0);
         }
@@ -67,12 +68,12 @@ static void friend_meta_data_read(Tox *tox, int friend_id) {
     }
 
     if (metadata->alias_length) {
-        friend_set_alias(&friend[friend_id], &metadata->data[0], metadata->alias_length);
+        friend_set_alias(&friend[friend_id], &metadata -> data[0], metadata->alias_length);
     } else {
         friend_set_alias(&friend[friend_id], NULL, 0); /* uTox expects this to be 0/NULL if there's no alias. */
     }
 
-    friend[friend_id].ft_autoaccept         = metadata->ft_autoaccept;
+    friend[friend_id].ft_autoaccept = metadata->ft_autoaccept;
 
     free(metadata);
     free(file_data);
@@ -86,7 +87,7 @@ void utox_friend_init(Tox *tox, uint32_t friend_number) {
     uint8_t name[TOX_MAX_NAME_LENGTH];
 
     // Set scroll position to bottom of window.
-    f->msg.scroll = 1.0;
+    f->msg.scroll               = 1.0;
     f->msg.panel.type           = PANEL_MESSAGES;
     f->msg.panel.content_scroll = &scrollbar_friend;
     f->msg.panel.y              = MAIN_TOP;
@@ -109,7 +110,7 @@ void utox_friend_init(Tox *tox, uint32_t friend_number) {
     friend_setname(f, name, size);
 
     // Get and set the status message
-    size = tox_friend_get_status_message_size(tox, friend_number, 0);
+    size              = tox_friend_get_status_message_size(tox, friend_number, 0);
     f->status_message = calloc(1, size);
     tox_friend_get_status_message(tox, friend_number, f->status_message, 0);
     f->status_length = size;
@@ -166,7 +167,7 @@ void friend_setname(FRIEND *f, uint8_t *name, size_t length) {
     f->name[f->name_length] = 0;
 
     if (!f->alias_length) {
-        if (selected_item->data && f->number == ((FRIEND*)selected_item->data)->number) {
+        if (selected_item->data && f->number == ((FRIEND *)selected_item->data)->number) {
             maybe_i18nal_string_set_plain(&edit_friend_alias.empty_str, f->name, f->name_length);
         }
     }
@@ -174,7 +175,7 @@ void friend_setname(FRIEND *f, uint8_t *name, size_t length) {
     update_shown_list();
 }
 
-void friend_set_alias(FRIEND *f, char_t *alias, uint16_t length){
+void friend_set_alias(FRIEND *f, char_t *alias, uint16_t length) {
     if (alias && length > 0) {
         debug("New Alias set for friend %s\n", f->name);
     } else {
@@ -182,26 +183,25 @@ void friend_set_alias(FRIEND *f, char_t *alias, uint16_t length){
     }
 
     free(f->alias);
-    if(length == 0) {
-        f->alias = NULL;
+    if (length == 0) {
+        f->alias        = NULL;
         f->alias_length = 0;
     } else {
         f->alias = malloc(length + 1);
         memcpy(f->alias, alias, length);
-        f->alias_length = length;
+        f->alias_length           = length;
         f->alias[f->alias_length] = 0;
     }
 }
 
-void friend_sendimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width, uint16_t height,
-                      UTOX_IMAGE png_image, size_t png_size)
-{
+void friend_sendimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width, uint16_t height, UTOX_IMAGE png_image,
+                      size_t png_size) {
     message_add_type_image(&f->msg, 1, native_image, width, height, 0);
     redraw();
 
     struct TOX_SEND_INLINE_MSG *tsim = malloc(sizeof(struct TOX_SEND_INLINE_MSG));
-    tsim->image = png_image;
-    tsim->image_size = png_size;
+    tsim->image                      = png_image;
+    tsim->image_size                 = png_size;
     postmessage_toxcore(TOX_FILE_SEND_NEW_INLINE, f - friend, 0, tsim);
 }
 
@@ -216,7 +216,8 @@ void friend_recvimage(FRIEND *f, UTOX_NATIVE_IMAGE *native_image, uint16_t width
 void friend_notify_msg(FRIEND *f, const uint8_t *msg, size_t msg_length) {
     uint8_t title[UTOX_FRIEND_NAME_LENGTH(f) + 25];
 
-    size_t title_length = snprintf((char*)title, UTOX_FRIEND_NAME_LENGTH(f) + 25, "uTox new message from %.*s", (int)UTOX_FRIEND_NAME_LENGTH(f), UTOX_FRIEND_NAME(f));
+    size_t title_length = snprintf((char *)title, UTOX_FRIEND_NAME_LENGTH(f) + 25, "uTox new message from %.*s",
+                                   (int)UTOX_FRIEND_NAME_LENGTH(f), UTOX_FRIEND_NAME(f));
 
     notify(title, title_length, msg, msg_length, f, 0);
 
@@ -246,8 +247,7 @@ void friend_set_typing(FRIEND *f, int typing) {
     f->typing = typing;
 }
 
-void friend_addid(uint8_t *id, char_t *msg, uint16_t msg_length)
-{
+void friend_addid(uint8_t *id, char_t *msg, uint16_t msg_length) {
     void *data = malloc(TOX_FRIEND_ADDRESS_SIZE + msg_length * sizeof(char_t));
     memcpy(data, id, TOX_FRIEND_ADDRESS_SIZE);
     memcpy(data + TOX_FRIEND_ADDRESS_SIZE, msg, msg_length * sizeof(char_t));
@@ -255,21 +255,13 @@ void friend_addid(uint8_t *id, char_t *msg, uint16_t msg_length)
     postmessage_toxcore(TOX_FRIEND_NEW, msg_length, 0, data);
 }
 
-void friend_add(char_t *name, uint16_t length, char_t *msg, uint16_t msg_length)
-{
-    if(!length) {
+void friend_add(char_t *name, uint16_t length, char_t *msg, uint16_t msg_length) {
+    if (!length) {
         addfriend_status = ADDF_NONAME;
         return;
     }
 
-#ifdef EMOJI_IDS
-    uint8_t emo_id[TOX_FRIEND_ADDRESS_SIZE];
-    if (emoji_string_to_bytes(emo_id, TOX_FRIEND_ADDRESS_SIZE, name, length) == TOX_FRIEND_ADDRESS_SIZE) {
-        friend_addid(emo_id, msg, msg_length);
-    }
-#endif
-
-    uint8_t name_cleaned[length];
+    uint8_t  name_cleaned[length];
     uint16_t length_cleaned = 0;
 
     unsigned int i;
@@ -280,13 +272,13 @@ void friend_add(char_t *name, uint16_t length, char_t *msg, uint16_t msg_length)
         }
     }
 
-    if(!length_cleaned) {
+    if (!length_cleaned) {
         addfriend_status = ADDF_NONAME;
         return;
     }
 
     uint8_t id[TOX_FRIEND_ADDRESS_SIZE];
-    if(length_cleaned == TOX_FRIEND_ADDRESS_SIZE * 2 && string_to_id(id, name_cleaned)) {
+    if (length_cleaned == TOX_FRIEND_ADDRESS_SIZE * 2 && string_to_id(id, name_cleaned)) {
         friend_addid(id, msg, msg_length);
     } else {
         /* not a regular id, try DNS discovery */
@@ -303,10 +295,9 @@ void friend_history_clear(FRIEND *f) {
     utox_remove_friend_chatlog(f->number);
 }
 
-void friend_free(FRIEND *f)
-{
+void friend_free(FRIEND *f) {
     uint16_t j = 0;
-    while(j != f->edit_history_length) {
+    while (j != f->edit_history_length) {
         free(f->edit_history[j]);
         j++;
     }
@@ -317,7 +308,7 @@ void friend_free(FRIEND *f)
     free(f->typed);
 
     uint32_t i = 0;
-    while(i < f->msg.number) {
+    while (i < f->msg.number) {
         MSG_TEXT *msg = f->msg.data[i];
         message_free(msg);
         i++;
@@ -325,7 +316,7 @@ void friend_free(FRIEND *f)
 
     free(f->msg.data);
 
-    if(f->call_state_self) {
+    if (f->call_state_self) {
         // postmessage_audio(AUDIO_END, f->number, 0, NULL);
         /* TODO end a video call too!
         if(f->calling == CALL_OK_VIDEO) {
@@ -333,13 +324,14 @@ void friend_free(FRIEND *f)
         }*/
     }
 
-    memset(f, 0, sizeof(FRIEND));//
+    memset(f, 0, sizeof(FRIEND)); //
 }
 
 FRIEND *find_friend_by_name(uint8_t *name) {
     int i;
     for (i = 0; i < self.friend_list_count; i++) {
-        if ((friend[i].alias && memcmp(friend[i].alias, name, friend[i].alias_length) == 0) || memcmp(friend[i].name, name, friend[i].name_length) == 0) {
+        if ((friend[i].alias && memcmp(friend[i].alias, name, friend[i].alias_length) == 0)
+            || memcmp(friend[i].name, name, friend[i].name_length) == 0) {
             return &friend[i];
         }
     }
@@ -352,13 +344,14 @@ void friend_notify_status(FRIEND *f, const uint8_t *msg, size_t msg_length, char
     }
 
     uint8_t title[UTOX_FRIEND_NAME_LENGTH(f) + 20];
-    size_t title_length = snprintf((char*)title, UTOX_FRIEND_NAME_LENGTH(f) + 20, "uTox %.*s is now %s.", (int)UTOX_FRIEND_NAME_LENGTH(f), UTOX_FRIEND_NAME(f), state);
+    size_t  title_length = snprintf((char *)title, UTOX_FRIEND_NAME_LENGTH(f) + 20, "uTox %.*s is now %s.",
+                                   (int)UTOX_FRIEND_NAME_LENGTH(f), UTOX_FRIEND_NAME(f), state);
 
     notify(title, title_length, msg, msg_length, f, 0);
 
-    if(f->online){
+    if (f->online) {
         postmessage_audio(UTOXAUDIO_PLAY_NOTIFICATION, NOTIFY_TONE_FRIEND_ONLINE, 0, NULL);
-    }else {
+    } else {
         postmessage_audio(UTOXAUDIO_PLAY_NOTIFICATION, NOTIFY_TONE_FRIEND_OFFLINE, 0, NULL);
     }
 }

@@ -448,7 +448,7 @@ static void draw_settings_text_av(int x, int y, int w, int UNUSED(height)) {
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(10), RINGTONE);
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(40), PUSH_TO_TALK);
     drawstr(MAIN_LEFT + SCALE(240), y + SCALE(10), GROUP_NOTIFICATIONS);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(60),  STATUS_NOTIFICATIONS);
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(60), STATUS_NOTIFICATIONS);
 #ifdef AUDIO_FILTERING
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(80), AUDIOFILTERING);
 #endif
@@ -831,10 +831,6 @@ panel_main = {
                     // Text: Tox ID
                     (void*)&edit_toxid,
                     (void*)&button_copyid,
-// User's tox id
-#ifdef EMOJI_IDS
-                    (void*)&button_change_id_type,
-#endif
                     (void*)&dropdown_language,
                     (void*)&button_show_password_settings,
                     (void*)&panel_profile_password_settings,
@@ -1060,13 +1056,11 @@ void ui_set_scale(uint8_t scale) {
         .height = BM_SWITCH_HEIGHT,
     };
 
-    PANEL panel_switch_status_notifications = {
-        .type   = PANEL_SWITCH,
-        .x      = SCALE(-10) - BM_SWITCH_WIDTH,
-        .y      = SCALE(55),
-        .width  = BM_SWITCH_WIDTH,
-        .height = BM_SWITCH_HEIGHT
-    };
+    PANEL panel_switch_status_notifications = {.type   = PANEL_SWITCH,
+                                               .x      = SCALE(-10) - BM_SWITCH_WIDTH,
+                                               .y      = SCALE(55),
+                                               .width  = BM_SWITCH_WIDTH,
+                                               .height = BM_SWITCH_HEIGHT};
 
 #ifdef AUDIO_FILTERING
     PANEL panel_switch_audio_filtering = {
@@ -1127,10 +1121,6 @@ void ui_set_scale(uint8_t scale) {
     CREATE_BUTTON(copyid, SCALE(66), SCALE(106), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
     CREATE_BUTTON(show_password_settings, SCALE(130), SCALE(206), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
     CREATE_BUTTON(lock_uTox, SCALE(10), SCALE(260), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
-
-#ifdef EMOJI_IDS
-    CREATE_BUTTON(change_id_type, SCALE(160), SCALE(106), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
-#endif
 
     PANEL e_name = {.type = PANEL_EDIT, .x = SCALE(10), .y = SCALE(27), .height = SCALE(24), .width = -SCALE(10)},
           e_status = {.type = PANEL_EDIT, .x = SCALE(10), .y = SCALE(76), .height = SCALE(24), .width = -SCALE(10)},

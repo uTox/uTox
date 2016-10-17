@@ -112,20 +112,6 @@ static void button_copyid_onpress(void) {
     copy(0);
 }
 
-#ifdef EMOJI_IDS
-static void button_change_id_type_onpress(void) {
-    edit_resetfocus();
-    if (self.id_buffer_length == TOX_FRIEND_ADDRESS_SIZE * 2) {
-        self.id_buffer_length =
-            bytes_to_emoji_string(self.id_buffer, sizeof(self.id_buffer), self.id_binary, TOX_FRIEND_ADDRESS_SIZE);
-        edit_toxid.length = self.id_buffer_length;
-    } else {
-        id_to_string(self.id_buffer, self.id_binary);
-        self.id_buffer_length = edit_toxid.length = TOX_FRIEND_ADDRESS_SIZE * 2;
-    }
-}
-#endif
-
 static void button_audiopreview_onpress(void) {
     if (!settings.audio_preview) {
         postmessage_utoxav(UTOXAV_START_AUDIO, 1, 0, NULL);
@@ -308,7 +294,7 @@ static void contextmenu_avatar_onselect(uint8_t i) {
 
 static void button_avatar_onright(void) {
     if (self_has_avatar()) {
-        static UI_STRING_ID menu[] = {STR_REMOVE};
+        static UI_STRING_ID menu[] = { STR_REMOVE };
         contextmenu_new(countof(menu), menu, contextmenu_avatar_onselect);
     }
 }
@@ -391,214 +377,178 @@ static void button_lock_uTox_onpress(void) {
     }
 }
 
-static void button_show_password_settings_onpress(void) {
-    panel_profile_password_settings.disabled = 0;
-}
+static void button_show_password_settings_onpress(void) { panel_profile_password_settings.disabled = 0; }
 
-static void button_export_chatlog_onpress(void) {
-    utox_export_chatlog_init(((FRIEND *)selected_item->data)->number);
-}
+static void button_export_chatlog_onpress(void) { utox_export_chatlog_init(((FRIEND *)selected_item->data)->number); }
 
-BUTTON button_avatar =
-           {
-               .nodraw = 1, .onpress = button_avatar_onpress, .onright = button_avatar_onright,
-},
 
-       button_name =
-           {
-               .nodraw = 1, .onpress = button_name_onpress,
-},
+BUTTON button_avatar = {
+    .nodraw = 1, .onpress = button_avatar_onpress, .onright = button_avatar_onright,
+};
 
-       button_status_msg =
-           {
-               .nodraw = 1, .onpress = button_statusmsg_onpress,
-},
+BUTTON button_name = {
+    .nodraw = 1, .onpress = button_name_onpress,
+};
 
-       button_usr_state =
-           {
-               .nodraw = 1, .onpress = button_status_onpress, .tooltip_text = {.i18nal = STR_STATUS},
-},
+BUTTON button_status_msg = {
+    .nodraw = 1, .onpress = button_statusmsg_onpress,
+};
 
-       button_filter_friends =
-           {
-               .nodraw       = 1,
-               .onpress      = button_filter_friends_onpress,
-               .tooltip_text = {.i18nal = STR_FILTER_CONTACT_TOGGLE},
-},
+BUTTON button_usr_state = {
+    .nodraw = 1, .onpress = button_status_onpress, .tooltip_text = {.i18nal = STR_STATUS },
+};
 
-       button_add_new_contact =
-           {
-               .bm2          = BM_ADD,
-               .bw           = _BM_ADD_WIDTH,
-               .bh           = _BM_ADD_WIDTH,
-               .update       = button_menu_update,
-               .onpress      = button_add_new_contact_onpress,
-               .disabled     = 1,
-               .nodraw       = 1,
-               .tooltip_text = {.i18nal = STR_ADDFRIENDS},
-},
+BUTTON button_filter_friends = {
+    .nodraw = 1, .onpress = button_filter_friends_onpress, .tooltip_text = {.i18nal = STR_FILTER_CONTACT_TOGGLE },
+};
 
-       button_copyid =
-           {
-               .bm          = BM_SBUTTON,
-               .button_text = {.i18nal = STR_COPY_TOX_ID},
-               .update   = button_setcolors_success,
-               .onpress  = button_copyid_onpress,
-               .disabled = 0,
-},
+BUTTON button_add_new_contact = {
+    .bm2          = BM_ADD,
+    .bw           = _BM_ADD_WIDTH,
+    .bh           = _BM_ADD_WIDTH,
+    .update       = button_menu_update,
+    .onpress      = button_add_new_contact_onpress,
+    .disabled     = 1,
+    .nodraw       = 1,
+    .tooltip_text = {.i18nal = STR_ADDFRIENDS },
+};
 
-#ifdef EMOJI_IDS
-       button_change_id_type =
-           {
-               .bm = BM_SBUTTON,
-               //.button_text = { .i18nal = STR_COPY_TOX_ID },
-               .update   = button_setcolors_success,
-               .onpress  = button_change_id_type_onpress,
-               .disabled = 0,
-},
-#endif
+BUTTON button_copyid = {
+    .bm          = BM_SBUTTON,
+    .button_text = {.i18nal = STR_COPY_TOX_ID },
+    .update   = button_setcolors_success,
+    .onpress  = button_copyid_onpress,
+    .disabled = 0,
+};
 
-       button_send_friend_request =
-           {
-               .bm          = BM_SBUTTON,
-               .button_text = {.i18nal = STR_ADD},
-               .update   = button_setcolors_success,
-               .onpress  = button_send_friend_request_onpress,
-               .disabled = 0,
-},
+BUTTON button_send_friend_request = {
+    .bm          = BM_SBUTTON,
+    .button_text = {.i18nal = STR_ADD },
+    .update   = button_setcolors_success,
+    .onpress  = button_send_friend_request_onpress,
+    .disabled = 0,
+};
 
-       button_call_decline =
-           {
-               .bm           = BM_LBUTTON,
-               .bm2          = BM_DECLINE,
-               .bw           = _BM_LBICON_WIDTH,
-               .bh           = _BM_LBICON_HEIGHT,
-               .onpress      = button_call_decline_onpress,
-               .update       = button_call_decline_update,
-               .tooltip_text = {.i18nal = STR_CALL_DECLINE},
-               .nodraw   = 1,
-               .disabled = 1,
-},
+BUTTON button_call_decline = {
+    .bm           = BM_LBUTTON,
+    .bm2          = BM_DECLINE,
+    .bw           = _BM_LBICON_WIDTH,
+    .bh           = _BM_LBICON_HEIGHT,
+    .onpress      = button_call_decline_onpress,
+    .update       = button_call_decline_update,
+    .tooltip_text = {.i18nal = STR_CALL_DECLINE },
+    .nodraw   = 1,
+    .disabled = 1,
+};
 
-       button_call_audio =
-           {
-               .bm           = BM_LBUTTON,
-               .bm2          = BM_CALL,
-               .bw           = _BM_LBICON_WIDTH,
-               .bh           = _BM_LBICON_HEIGHT,
-               .onpress      = button_call_audio_onpress,
-               .update       = button_call_audio_update,
-               .tooltip_text = {.i18nal = STR_START_AUDIO_CALL},
-},
+BUTTON button_call_audio = {
+    .bm           = BM_LBUTTON,
+    .bm2          = BM_CALL,
+    .bw           = _BM_LBICON_WIDTH,
+    .bh           = _BM_LBICON_HEIGHT,
+    .onpress      = button_call_audio_onpress,
+    .update       = button_call_audio_update,
+    .tooltip_text = {.i18nal = STR_START_AUDIO_CALL },
+};
 
-       button_call_video =
-           {
-               .bm           = BM_LBUTTON,
-               .bm2          = BM_VIDEO,
-               .bw           = _BM_LBICON_WIDTH,
-               .bh           = _BM_LBICON_HEIGHT,
-               .onpress      = button_call_video_onpress,
-               .update       = button_call_video_update,
-               .tooltip_text = {.i18nal = STR_START_VIDEO_CALL},
-},
+BUTTON button_call_video = {
+    .bm           = BM_LBUTTON,
+    .bm2          = BM_VIDEO,
+    .bw           = _BM_LBICON_WIDTH,
+    .bh           = _BM_LBICON_HEIGHT,
+    .onpress      = button_call_video_onpress,
+    .update       = button_call_video_update,
+    .tooltip_text = {.i18nal = STR_START_VIDEO_CALL },
+};
 
-       button_group_audio =
-           {
-               .bm           = BM_LBUTTON,
-               .bm2          = BM_CALL,
-               .bw           = _BM_LBICON_WIDTH,
-               .bh           = _BM_LBICON_HEIGHT,
-               .onpress      = button_group_audio_onpress,
-               .update       = button_group_audio_update,
-               .tooltip_text = {.i18nal = STR_GROUPCHAT_JOIN_AUDIO},
-},
+BUTTON button_group_audio = {
+    .bm           = BM_LBUTTON,
+    .bm2          = BM_CALL,
+    .bw           = _BM_LBICON_WIDTH,
+    .bh           = _BM_LBICON_HEIGHT,
+    .onpress      = button_group_audio_onpress,
+    .update       = button_group_audio_update,
+    .tooltip_text = {.i18nal = STR_GROUPCHAT_JOIN_AUDIO },
+};
 
-       button_accept_friend =
-           {
-               .bm          = BM_SBUTTON,
-               .button_text = {.i18nal = STR_ADD},
-               .update  = button_setcolors_success,
-               .onpress = button_accept_friend_onpress,
-},
+BUTTON button_accept_friend = {
+    .bm          = BM_SBUTTON,
+    .button_text = {.i18nal = STR_ADD },
+    .update  = button_setcolors_success,
+    .onpress = button_accept_friend_onpress,
+};
 
-       button_callpreview =
-           {
-               .bm       = BM_LBUTTON,
-               .bm2      = BM_CALL,
-               .bw       = _BM_LBICON_WIDTH,
-               .bh       = _BM_LBICON_HEIGHT,
-               .onpress  = button_audiopreview_onpress,
-               .update   = button_audiopreview_update,
-               .disabled = 0,
-},
+BUTTON button_callpreview = {
+    .bm       = BM_LBUTTON,
+    .bm2      = BM_CALL,
+    .bw       = _BM_LBICON_WIDTH,
+    .bh       = _BM_LBICON_HEIGHT,
+    .onpress  = button_audiopreview_onpress,
+    .update   = button_audiopreview_update,
+    .disabled = 0,
+};
 
-       button_videopreview =
-           {
-               .bm       = BM_LBUTTON,
-               .bm2      = BM_VIDEO,
-               .bw       = _BM_LBICON_WIDTH,
-               .bh       = _BM_LBICON_HEIGHT,
-               .onpress  = button_videopreview_onpress,
-               .update   = button_videopreview_update,
-               .disabled = 0,
-},
+BUTTON button_videopreview = {
+    .bm       = BM_LBUTTON,
+    .bm2      = BM_VIDEO,
+    .bw       = _BM_LBICON_WIDTH,
+    .bh       = _BM_LBICON_HEIGHT,
+    .onpress  = button_videopreview_onpress,
+    .update   = button_videopreview_update,
+    .disabled = 0,
+};
 
-       button_send_file =
-           {
-               .bm           = BM_CHAT_BUTTON_LEFT,
-               .bm2          = BM_FILE,
-               .bw           = _BM_FILE_WIDTH,
-               .bh           = _BM_FILE_HEIGHT,
-               .onpress      = button_send_file_onpress,
-               .update       = button_send_file_update,
-               .disabled     = 1,
-               .tooltip_text = {.i18nal = STR_SEND_FILE},
-},
+BUTTON button_send_file = {
+    .bm           = BM_CHAT_BUTTON_LEFT,
+    .bm2          = BM_FILE,
+    .bw           = _BM_FILE_WIDTH,
+    .bh           = _BM_FILE_HEIGHT,
+    .onpress      = button_send_file_onpress,
+    .update       = button_send_file_update,
+    .disabled     = 1,
+    .tooltip_text = {.i18nal = STR_SEND_FILE },
+};
 
-       button_send_screenshot =
-           {
-               .bm           = BM_CHAT_BUTTON_RIGHT,
-               .bm2          = BM_CHAT_BUTTON_OVERLAY_SCREENSHOT,
-               .bw           = _BM_CHAT_BUTTON_OVERLAY_WIDTH,
-               .bh           = _BM_CHAT_BUTTON_OVERLAY_HEIGHT,
-               .update       = button_send_screenshot_update,
-               .onpress      = button_send_screenshot_onpress,
-               .tooltip_text = {.i18nal = STR_SENDSCREENSHOT},
-},
+BUTTON button_send_screenshot = {
+    .bm           = BM_CHAT_BUTTON_RIGHT,
+    .bm2          = BM_CHAT_BUTTON_OVERLAY_SCREENSHOT,
+    .bw           = _BM_CHAT_BUTTON_OVERLAY_WIDTH,
+    .bh           = _BM_CHAT_BUTTON_OVERLAY_HEIGHT,
+    .update       = button_send_screenshot_update,
+    .onpress      = button_send_screenshot_onpress,
+    .tooltip_text = {.i18nal = STR_SENDSCREENSHOT },
+};
 
-       button_chat_send =
-           {
-               .bm           = BM_CHAT_SEND,
-               .bm2          = BM_CHAT_SEND_OVERLAY,
-               .bw           = _BM_CHAT_SEND_OVERLAY_WIDTH,
-               .bh           = _BM_CHAT_SEND_OVERLAY_HEIGHT,
-               .onpress      = button_chat_send_onpress,
-               .update       = button_chat_send_update,
-               .tooltip_text = {.i18nal = STR_SENDMESSAGE},
-},
+BUTTON button_chat_send = {
+    .bm           = BM_CHAT_SEND,
+    .bm2          = BM_CHAT_SEND_OVERLAY,
+    .bw           = _BM_CHAT_SEND_OVERLAY_WIDTH,
+    .bh           = _BM_CHAT_SEND_OVERLAY_HEIGHT,
+    .onpress      = button_chat_send_onpress,
+    .update       = button_chat_send_update,
+    .tooltip_text = {.i18nal = STR_SENDMESSAGE },
+};
 
-       button_lock_uTox =
-           {
-               .bm          = BM_SBUTTON,
-               .update      = button_setcolors_success,
-               .onpress     = button_lock_uTox_onpress,
-               .button_text = {.i18nal = STR_LOCK},
-               .tooltip_text = {.i18nal = STR_LOCK_UTOX},
-},
+BUTTON button_lock_uTox = {
+    .bm          = BM_SBUTTON,
+    .update      = button_setcolors_success,
+    .onpress     = button_lock_uTox_onpress,
+    .button_text = {.i18nal = STR_LOCK },
+    .tooltip_text = {.i18nal = STR_LOCK_UTOX },
+};
 
-       button_show_password_settings =
-           {
-               .bm          = BM_SBUTTON,
-               .update      = button_setcolors_success,
-               .onpress     = button_show_password_settings_onpress,
-               .button_text = {.i18nal = STR_SHOW},
-               .tooltip_text = {.i18nal = STR_SHOW_UI_PASSWORD},
-},
+BUTTON button_show_password_settings = {
+    .bm          = BM_SBUTTON,
+    .update      = button_setcolors_success,
+    .onpress     = button_show_password_settings_onpress,
+    .button_text = {.i18nal = STR_SHOW },
+    .tooltip_text = {.i18nal = STR_SHOW_UI_PASSWORD },
+};
 
-       button_export_chatlog = {
-           .bm          = BM_SBUTTON,
-           .button_text = {.i18nal = STR_FRIEND_EXPORT_CHATLOG},
-           .update   = button_setcolors_success,
-           .onpress  = button_export_chatlog_onpress,
-           .disabled = 0,
+BUTTON button_export_chatlog = {
+    .bm          = BM_SBUTTON,
+    .button_text = {.i18nal = STR_FRIEND_EXPORT_CHATLOG },
+    .update   = button_setcolors_success,
+    .onpress  = button_export_chatlog_onpress,
+    .disabled = 0,
 };

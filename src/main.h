@@ -84,13 +84,10 @@
 #include <vpx/vpx_codec.h>
 #include <vpx/vpx_image.h>
 
-#if TOX_VERSION_MINOR > 0
+#if TOX_VERSION_MAJOR > 0
 #define ENABLE_MULTIDEVICE 1
 #endif
 
-#ifdef EMOJI_IDS
-#include <base_emoji.h>
-#endif
 
 /* House keeping for uTox save file. */
 #define UTOX_SAVE_VERSION 3
