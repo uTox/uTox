@@ -1,6 +1,8 @@
 // button.c
 #include "button.h"
 
+#include "tooltip.h"
+
 #include "../main.h"
 
 static void calculate_pos_and_width(BUTTON *b, int *x, int *w) {

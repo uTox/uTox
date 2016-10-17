@@ -30,8 +30,7 @@ void id_to_string(char *dest, char *src);
 
 /* same as id_to_string(), but for TOX_PUBLIC_KEY_SIZE
  */
-void cid_to_string(char *dest, char *src);
-
+void cid_to_string(char *dest, uint8_t *src);
 
 /* same as id_to_string(), but for TOX_FILE_ID_LENGTH
  */
@@ -53,7 +52,7 @@ bool string_to_id(char *dest, char *src);
  *  returns number of characters written
  *  notes: dest MUST be at least size characters large
  */
-int sprint_humanread_bytes(uint8_t *dest, unsigned int size, uint64_t bytes);
+int sprint_humanread_bytes(char *dest, unsigned int size, uint64_t bytes);
 
 /** length of a utf-8 character
  *  returns the size of the character in bytes

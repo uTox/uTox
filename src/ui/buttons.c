@@ -1,6 +1,8 @@
 // buttons.c
 #include "buttons.h"
 
+#include "contextmenu.h"
+
 #include "../flist.h"
 #include "../friend.h"
 #include "../groups.h"

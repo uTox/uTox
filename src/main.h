@@ -261,8 +261,8 @@ enum {
 // me
 struct {
     uint8_t status;
-    uint8_t name[TOX_MAX_NAME_LENGTH];
-    uint8_t statusmsg[TOX_MAX_STATUS_MESSAGE_LENGTH];
+    char    name[TOX_MAX_NAME_LENGTH];
+    char    statusmsg[TOX_MAX_STATUS_MESSAGE_LENGTH];
     size_t  name_length, statusmsg_length;
 
     size_t friend_list_count;
@@ -453,8 +453,7 @@ int textwidth(char *str, uint16_t length);
 int textfit(char *str, uint16_t length, int width);
 int textfit_near(char *str, uint16_t length, int width);
 // TODO: Seems to be unused. Remove?
-int text_drawline(int x, int right, int y, uint8_t *str, int i, int length, int highlight, int hlen,
-                  uint16_t lineheight);
+int text_drawline(int x, int right, int y, uint8_t *str, int i, int length, int highlight, int hlen, uint16_t lineheight);
 
 void drawrect(int x, int y, int right, int bottom, uint32_t color);
 void draw_rect_frame(int x, int y, int width, int height, uint32_t color);

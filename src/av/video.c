@@ -9,6 +9,7 @@
 #include "../main.h"
 #include "../tox.h"
 #include "../ui/dropdowns.h"
+#include "../util.h"
 
 
 static void *   video_device[16]     = { NULL }; /* TODO; magic number */
@@ -84,12 +85,12 @@ void utox_video_append_device(void *device, bool localized, void *name, bool def
     if (localized) {
         // Device name is localized with name containing UTOX_I18N_STR.
         // device is device handle pointer.
-        list_dropdown_add_localized(&dropdown_video, (UTOX_I18N_STR)name, device);
+        dropdown_list_add_localized(&dropdown_video, (UTOX_I18N_STR)name, device);
     } else {
         // Device name is a hardcoded string.
         // device is a pointer to a buffer, that contains device handle pointer,
         // followed by device name string.
-        list_dropdown_add_hardcoded(&dropdown_video, name, *(void **)device);
+        dropdown_list_add_hardcoded(&dropdown_video, name, *(void **)device);
     }
 
     /* TODO remove all default settings */

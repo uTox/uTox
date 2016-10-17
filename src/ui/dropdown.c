@@ -187,7 +187,7 @@ bool dropdown_mleave(DROPDOWN *d) {
 /***** list-based dropdown menu start *****/
 
 // Appends localization-independent menu item.
-void list_dropdown_add_hardcoded(DROPDOWN *d, uint8_t *name, void *handle) {
+void dropdown_list_add_hardcoded(DROPDOWN *d, char *name, void *handle) {
     void *p = realloc(d->userdata, (d->dropcount + 1) * sizeof(DROP_ELEMENT));
     if (!p) {
         return;
@@ -200,7 +200,7 @@ void list_dropdown_add_hardcoded(DROPDOWN *d, uint8_t *name, void *handle) {
 }
 
 // Appends localized menu item.
-void list_dropdown_add_localized(DROPDOWN *d, UTOX_I18N_STR string_id, void *handle) {
+void dropdown_list_add_localized(DROPDOWN *d, UTOX_I18N_STR string_id, void *handle) {
     void *p = realloc(d->userdata, (d->dropcount + 1) * sizeof(DROP_ELEMENT));
     if (!p) {
         return;
@@ -213,7 +213,7 @@ void list_dropdown_add_localized(DROPDOWN *d, UTOX_I18N_STR string_id, void *han
 }
 
 // Clears menu (removes all menu items of a list-based dropdown).
-void list_dropdown_clear(DROPDOWN *d) {
+void dropdown_list_clear(DROPDOWN *d) {
     free(d->userdata);
     d->userdata  = NULL;
     d->dropcount = 0;
@@ -223,7 +223,7 @@ void list_dropdown_clear(DROPDOWN *d) {
 
 // Generic display function for list-based dropdowns,
 // userdata of which is an array of DROP_ELEMENTs.
-STRING *list_dropdown_ondisplay(uint16_t i, const DROPDOWN *dm) {
+STRING *dropdown_list_ondisplay(uint16_t i, const DROPDOWN *dm) {
     DROP_ELEMENT *e = &((DROP_ELEMENT *)dm->userdata)[i];
     return maybe_i18nal_string_get(&e->name);
 }

@@ -14,7 +14,7 @@ void drawtextwidth(int x, int width, int y, char *str, uint16_t length) { drawte
 
 void drawtextwidth_right(int x, int width, int y, char *str, uint16_t length) {
     int w = textwidth(str, length);
-    if (w < width) {
+    if (w <= width) {
         drawtext(x + width - w, y, str, length);
     } else {
         drawtextrange(x, x + width, y, str, length);

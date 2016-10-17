@@ -6,6 +6,7 @@
 #include "../flist.h"
 #include "../friend.h"
 #include "../main.h"
+#include "../util.h"
 
 
 #define LIBGTK_FILENAME "libgtk-3.so.0"
@@ -401,13 +402,12 @@ void *gtk_load(void) {
         if (!gtk_init || !gtk_main_iteration || !gtk_events_pending || !gtk_file_chooser_dialog_new
             || !gtk_file_filter_new || !gtk_message_dialog_new || !gtk_dialog_run || !gtk_file_chooser_get_filename
             || !gtk_file_chooser_get_filenames || !gtk_file_chooser_set_do_overwrite_confirmation
-            || !gtk_file_chooser_set_select_multiple || !gtk_file_chooser_set_current_name
-            || !gtk_file_chooser_set_filter || !gtk_file_filter_add_mime_type || !gtk_widget_destroy
-            || !g_slist_free_utox || !g_free_utox || !gtk_file_chooser_get_preview_filename
-            || !gtk_file_chooser_set_preview_widget_active || !gtk_file_chooser_set_preview_widget || !gtk_image_new
-            || !gtk_image_set_from_pixbuf || !gdk_pixbuf_new_from_file || !gdk_pixbuf_new_from_file_at_size
-            || !gdk_pixbuf_get_width || !gdk_pixbuf_get_height || !gtk_widget_set_margin_left
-            || !gtk_widget_set_margin_right) {
+            || !gtk_file_chooser_set_select_multiple || !gtk_file_chooser_set_current_name || !gtk_file_chooser_set_filter
+            || !gtk_file_filter_add_mime_type || !gtk_widget_destroy || !g_slist_free_utox || !g_free_utox
+            || !gtk_file_chooser_get_preview_filename || !gtk_file_chooser_set_preview_widget_active
+            || !gtk_file_chooser_set_preview_widget || !gtk_image_new || !gtk_image_set_from_pixbuf
+            || !gdk_pixbuf_new_from_file || !gdk_pixbuf_new_from_file_at_size || !gdk_pixbuf_get_width
+            || !gdk_pixbuf_get_height || !gtk_widget_set_margin_left || !gtk_widget_set_margin_right) {
             debug("bad GTK\n");
             dlclose(lib);
         } else {

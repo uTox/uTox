@@ -6,6 +6,8 @@
 #include "../friend.h"
 #include "../groups.h"
 #include "../main.h"
+#include "../theme.h"
+#include "../util.h"
 
 
 static void dropdown_audio_in_onselect(uint16_t i, const DROPDOWN *dm) {
@@ -111,46 +113,44 @@ static UTOX_I18N_STR notifydrops[] = {
     STR_GROUP_NOTIFICATIONS_OFF, STR_GROUP_NOTIFICATIONS_MENTION, STR_GROUP_NOTIFICATIONS_ON,
 };
 
-DROPDOWN dropdown_audio_in = {.ondisplay = list_dropdown_ondisplay, .onselect = dropdown_audio_in_onselect },
+DROPDOWN dropdown_audio_in = {.ondisplay = dropdown_list_ondisplay, .onselect = dropdown_audio_in_onselect };
 
-         dropdown_audio_out = {.ondisplay = list_dropdown_ondisplay, .onselect = dropdown_audio_out_onselect },
+DROPDOWN dropdown_audio_out = {.ondisplay = dropdown_list_ondisplay, .onselect = dropdown_audio_out_onselect };
 
-         dropdown_video =
-             {
-               .ondisplay = list_dropdown_ondisplay, .onselect = dropdown_video_onselect,
-             },
+DROPDOWN dropdown_video = {
+    .ondisplay = dropdown_list_ondisplay, .onselect = dropdown_video_onselect,
+};
 
-         dropdown_dpi = {.ondisplay = simple_dropdown_ondisplay,
+DROPDOWN dropdown_dpi = {.ondisplay = simple_dropdown_ondisplay,
                          .onselect  = dropdown_dpi_onselect,
                          .dropcount = countof(dpidrops),
-                         .userdata  = dpidrops },
+                         .userdata  = dpidrops };
 
-         dropdown_language =
-             {
-               .ondisplay = dropdown_language_ondisplay, .onselect = dropdown_language_onselect, .dropcount = NUM_LANGS,
-             },
+DROPDOWN dropdown_language = {
+    .ondisplay = dropdown_language_ondisplay, .onselect = dropdown_language_onselect, .dropcount = NUM_LANGS,
+};
 
-         dropdown_proxy = {.ondisplay = simple_dropdown_ondisplay,
+DROPDOWN dropdown_proxy = {.ondisplay = simple_dropdown_ondisplay,
                            .onselect  = dropdown_proxy_onselect,
                            .dropcount = countof(proxydrops),
-                           .userdata  = proxydrops },
+                           .userdata  = proxydrops };
 
-         dropdown_theme = {.ondisplay = simple_dropdown_ondisplay,
+DROPDOWN dropdown_theme = {.ondisplay = simple_dropdown_ondisplay,
                            .onselect  = dropdown_theme_onselect,
                            .dropcount = countof(themedrops),
-                           .userdata  = themedrops },
+                           .userdata  = themedrops };
 
-         dropdown_friend_autoaccept_ft = {.ondisplay = simple_dropdown_ondisplay,
+DROPDOWN dropdown_friend_autoaccept_ft = {.ondisplay = simple_dropdown_ondisplay,
                                           .onselect  = dropdown_friend_autoaccept_ft_onselect,
                                           .dropcount = countof(noyesdrops),
-                                          .userdata  = noyesdrops },
+                                          .userdata  = noyesdrops };
 
-         dropdown_notify_groupchats = {.ondisplay = simple_dropdown_ondisplay,
+DROPDOWN dropdown_notify_groupchats = {.ondisplay = simple_dropdown_ondisplay,
                                        .onselect  = dropdown_notify_groupchats_onselect,
                                        .dropcount = countof(notifydrops),
-                                       .userdata  = notifydrops },
+                                       .userdata  = notifydrops };
 
-         dropdown_global_group_notifications = {.ondisplay = simple_dropdown_ondisplay,
+DROPDOWN dropdown_global_group_notifications = {.ondisplay = simple_dropdown_ondisplay,
                                                 .onselect  = dropdown_global_group_notifications_onselect,
                                                 .dropcount = countof(notifydrops),
                                                 .userdata  = notifydrops };

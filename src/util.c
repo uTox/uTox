@@ -148,7 +148,7 @@ static void to_hex(char *a, char *p, int size) {
 
 void id_to_string(char *dest, char *src) { to_hex(dest, src, TOX_FRIEND_ADDRESS_SIZE); }
 
-void cid_to_string(char *dest, char *src) { to_hex(dest, src, TOX_PUBLIC_KEY_SIZE); }
+void cid_to_string(char *dest, uint8_t *src) { to_hex(dest, src, TOX_PUBLIC_KEY_SIZE); }
 
 void fid_to_string(char *dest, char *src) { to_hex(dest, src, TOX_FILE_ID_LENGTH); }
 
@@ -187,7 +187,7 @@ bool string_to_id(char *w, char *a) {
     return 1;
 }
 
-int sprint_humanread_bytes(uint8_t *dest, unsigned int size, uint64_t bytes) {
+int sprint_humanread_bytes(char *dest, unsigned int size, uint64_t bytes) {
     char * str[]  = { "B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB" };
     int    max_id = countof(str) - 1;
     int    i      = 0;
@@ -456,8 +456,7 @@ void yuv420tobgr(uint16_t width, uint16_t height, const uint8_t *y, const uint8_
     }
 }
 
-void yuv422to420(uint8_t *plane_y, uint8_t *plane_u, uint8_t *plane_v, uint8_t *input, uint16_t width,
-                 uint16_t height) {
+void yuv422to420(uint8_t *plane_y, uint8_t *plane_u, uint8_t *plane_v, uint8_t *input, uint16_t width, uint16_t height) {
     uint8_t *end = input + width * height * 2;
     while (input != end) {
         uint8_t *line_end = input + width * 2;

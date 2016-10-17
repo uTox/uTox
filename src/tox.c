@@ -194,9 +194,9 @@ void tox_settingschanged(void) {
 
     flist_freeall();
 
-    list_dropdown_clear(&dropdown_audio_in);
-    list_dropdown_clear(&dropdown_audio_out);
-    list_dropdown_clear(&dropdown_video);
+    dropdown_list_clear(&dropdown_audio_in);
+    dropdown_list_clear(&dropdown_audio_out);
+    dropdown_list_clear(&dropdown_video);
 
     postmessage_utoxav(UTOXAV_KILL, 0, 0, NULL);
 
@@ -1218,9 +1218,9 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
              * data: device identifier.
              */
             if (UI_STRING_ID_INVALID == param1) {
-                list_dropdown_add_hardcoded(&dropdown_audio_in, data, data);
+                dropdown_list_add_hardcoded(&dropdown_audio_in, data, data);
             } else {
-                list_dropdown_add_localized(&dropdown_audio_in, param1, data);
+                dropdown_list_add_localized(&dropdown_audio_in, param1, data);
             }
 
             if (loaded_audio_in_device == (uint16_t)~0 && param2) {
@@ -1235,7 +1235,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             break;
         }
         case AUDIO_OUT_DEVICE: {
-            list_dropdown_add_hardcoded(&dropdown_audio_out, data, data);
+            dropdown_list_add_hardcoded(&dropdown_audio_out, data, data);
 
             if (loaded_audio_out_device != 0 && (dropdown_audio_out.dropcount - 1) == loaded_audio_out_device) {
                 postmessage_utoxav(UTOXAV_SET_AUDIO_OUT, 0, 0, data);

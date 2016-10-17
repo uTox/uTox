@@ -4,8 +4,11 @@
 #include "../main.h"
 #include "../main_native.h"
 
+#include "../flist.h"
 #include "../friend.h"
+#include "../inline_video.h"
 #include "../tox.h"
+#include "../util.h"
 
 bool toxav_thread_msg = 0;
 void postmessage_utoxav(uint8_t msg, uint32_t param1, uint32_t param2, void *data) {
@@ -112,8 +115,7 @@ void utox_av_ctrl_thread(void *args) {
                 case UTOXAV_CALL_END: {
                     call_count--;
                     FRIEND *f = &friend[msg->param1];
-                    if ((f->call_state_self | TOXAV_FRIEND_CALL_STATE_SENDING_V
-                         | TOXAV_FRIEND_CALL_STATE_ACCEPTING_V)) {
+                    if ((f->call_state_self | TOXAV_FRIEND_CALL_STATE_SENDING_V | TOXAV_FRIEND_CALL_STATE_ACCEPTING_V)) {
                         utox_video_stop(0);
                     }
                     postmessage_audio(UTOXAUDIO_STOP_FRIEND, msg->param1, msg->param2, NULL);

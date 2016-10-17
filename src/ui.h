@@ -122,7 +122,7 @@ double ui_scale;
  * If you're able to replace an original, replace all occurrences, and delete the define. */
 
 /* Left sidebar defines */
-#define SIDEBAR_WIDTH (UTOX_SCALE(115))
+#define SIDEBAR_WIDTH (SCALE(230))
 /* User badge */
 #define SIDEBAR_AVATAR_TOP (SCALE(10))
 #define SIDEBAR_AVATAR_LEFT (SCALE(10))

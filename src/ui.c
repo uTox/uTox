@@ -1,13 +1,18 @@
 // ui.c
+#include "ui.h"
 
 #include "flist.h"
 #include "friend.h"
 #include "inline_video.h"
 #include "main.h"
 #include "theme.h"
+
 #include "ui/buttons.h"
+#include "ui/contextmenu.h"
 #include "ui/dropdowns.h"
 #include "ui/switches.h"
+#include "ui/text.h"
+#include "ui/tooltip.h"
 
 // Application-wide language setting
 UTOX_LANG LANG;
@@ -131,7 +136,7 @@ static void draw_splash_page(int x, int y, int w, int h) {
 
 /* Header for friend chat window */
 static void draw_friend(int x, int y, int w, int height) {
-    FRIEND *f = flist_get_selected()->data;
+    FRIEND *f = (flist_get_selected()->data);
 
     // draw avatar or default image
     if (friend_has_avatar(f)) {
@@ -186,8 +191,8 @@ static void draw_group(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(h
         GROUP_PEER *peer = g->peer[i];
 
         if (peer && peer->name_length) {
-            uint8_t buf[TOX_MAX_NAME_LENGTH];
-            int text_length = snprintf((char *)buf, TOX_MAX_NAME_LENGTH, "%.*s, ", (int)peer->name_length, peer->name);
+            char buf[TOX_MAX_NAME_LENGTH];
+            int  text_length = snprintf((char *)buf, TOX_MAX_NAME_LENGTH, "%.*s, ", (int)peer->name_length, peer->name);
 
             int w = textwidth(buf, text_length);
             if (peer->name_color) {
@@ -201,7 +206,7 @@ static void draw_group(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(h
                     pos_y += 6;
                     k = MAIN_LEFT + SCALE(60);
                 } else {
-                    drawtext(k, SCALE(pos_y * 2), (uint8_t *)"...", 3);
+                    drawtext(k, SCALE(pos_y * 2), "...", 3);
                     break;
                 }
             }
@@ -216,7 +221,7 @@ static void draw_group(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(h
 
 /* Draw an invite to be a friend window */
 static void draw_friend_request(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height)) {
-    FRIENDREQ *req = flist_get_selected()->data;
+    FRIENDREQ *req = (flist_get_selected()->data);
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
@@ -224,7 +229,7 @@ static void draw_friend_request(int UNUSED(x), int UNUSED(y), int UNUSED(w), int
 
     setcolor(COLOR_MAIN_TEXT_SUBTEXT);
     setfont(FONT_STATUS);
-    drawtextrange(MAIN_LEFT + SCALE(10), settings.window_width, UTOX_SCALE(20), req->msg, req->length);
+    drawtextrange(MAIN_LEFT + SCALE(10), settings.window_width, SCALE(40), req->msg, req->length);
 }
 
 /* Draw add a friend window */
@@ -307,13 +312,12 @@ static void draw_settings_header(int UNUSED(x), int UNUSED(y), int w, int UNUSED
 #ifdef GIT_VERSION
     int x = MAIN_LEFT + SCALE(10) + UTOX_STR_WIDTH(UTOX_SETTINGS) + SCALE(10);
     setfont(FONT_TEXT);
-    drawtext(x, SCALE(10), (uint8_t *)GIT_VERSION, strlen(GIT_VERSION));
-    char version_string[64];
+    drawtext(x, SCALE(10), GIT_VERSION, strlen(GIT_VERSION));
+    char ver_string[64];
     int  count;
-    count =
-        snprintf(version_string, 64, "Core v%u.%u.%u", tox_version_major(), tox_version_minor(), tox_version_patch());
-    drawtextwidth_right(w, textwidth((char *)version_string, count), SCALE(10), (uint8_t *)version_string,
-                        strlen(version_string));
+    count = snprintf(ver_string, 64, "Toxcore v%u.%u.%u", tox_version_major(), tox_version_minor(), tox_version_patch());
+    drawtextwidth_right(w + SIDEBAR_WIDTH - textwidth(ver_string, count), textwidth(ver_string, count), SCALE(10),
+                        ver_string, count);
 #endif
 }
 
@@ -411,8 +415,8 @@ static void draw_settings_text_devices(int x, int y, int w, int h) {
 
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(60), DEVICES_NUMBER);
 
-    uint8_t str[10];
-    size_t  strlen = snprintf(str, 10, "%u", self.device_list_count);
+    char   str[10];
+    size_t strlen = snprintf(str, 10, "%zu", self.device_list_count);
 
     drawtext(MAIN_LEFT + SCALE(10), y + SCALE(75), str, strlen);
 }
@@ -435,7 +439,7 @@ static void draw_settings_text_network(int x, int y, int w, int UNUSED(height)) 
 
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(60), UDP);
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(90), PROXY);
-    drawtext(MAIN_LEFT + SCALE(264), y + SCALE(114), (uint8_t *)":", 1);
+    drawtext(MAIN_LEFT + SCALE(264), y + SCALE(114), ":", 1);
 }
 
 static void draw_settings_text_ui(int x, int y, int w, int UNUSED(height)) {
@@ -1130,8 +1134,7 @@ void ui_set_scale(uint8_t scale) {
     edit_toxid.panel  = e_toxid;
 
     /* Devices              */
-    CREATE_BUTTON(add_new_device_to_self, SCALE(-10) - BM_SBUTTON_WIDTH, SCALE(28), BM_SBUTTON_WIDTH,
-                  BM_SBUTTON_HEIGHT);
+    CREATE_BUTTON(add_new_device_to_self, SCALE(-10) - BM_SBUTTON_WIDTH, SCALE(28), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
 
     CREATE_EDIT(add_new_device_to_self, SCALE(10), SCALE(27), SCALE(0) - UTOX_STR_WIDTH(ADD) - BM_SBUTTON_WIDTH,
                 SCALE(24));
@@ -1152,15 +1155,11 @@ void ui_set_scale(uint8_t scale) {
     /* Friend Settings Page */
     CREATE_BUTTON(export_chatlog, SCALE(10), SCALE(220), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
 
-    PANEL e_friend_pubkey = {
-        .type = PANEL_EDIT, .x = SCALE(10), .y = SCALE(88), .height = SCALE(24), .width = -SCALE(10)
-    };
+    PANEL e_friend_pubkey = {.type = PANEL_EDIT, .x = SCALE(10), .y = SCALE(88), .height = SCALE(24), .width = -SCALE(10) };
 
     edit_friend_pubkey.panel = e_friend_pubkey;
 
-    PANEL e_friend_alias = {
-        .type = PANEL_EDIT, .x = SCALE(10), .y = SCALE(138), .height = SCALE(24), .width = SCALE(-10)
-    };
+    PANEL e_friend_alias = {.type = PANEL_EDIT, .x = SCALE(10), .y = SCALE(138), .height = SCALE(24), .width = SCALE(-10) };
 
     edit_friend_alias.panel = e_friend_alias;
 
@@ -1171,9 +1170,7 @@ void ui_set_scale(uint8_t scale) {
     dropdown_friend_autoaccept_ft.panel = d_friend_autoaccept;
 
     /* Group Settings */
-    PANEL e_group_topic = {
-        .type = PANEL_EDIT, .x = SCALE(10), .y = SCALE(95), .height = SCALE(24), .width = SCALE(-10)
-    };
+    PANEL e_group_topic = {.type = PANEL_EDIT, .x = SCALE(10), .y = SCALE(95), .height = SCALE(24), .width = SCALE(-10) };
 
     edit_group_topic.panel = e_group_topic;
 
@@ -1315,13 +1312,11 @@ void ui_set_scale(uint8_t scale) {
  * These are functions that are (must be) defined elsewehere. The preprocessor in this case creates the prototypes that
  * will then be used by panel_draw_sub to call the correct function
 */
-#define MAKE_FUNC(ret, x, ...)                                                    \
-    static ret (*x##func[])(void *p, ##__VA_ARGS__) =                             \
-        {                                                                         \
-          (void *)background_##x, (void *)messages_##x, (void *)inline_video_##x, \
-          (void *)flist_##x,      (void *)button_##x,   (void *)switch_##x,       \
-          (void *)dropdown_##x,   (void *)edit_##x,     (void *)scroll_##x,       \
-        };
+#define MAKE_FUNC(ret, x, ...)                                                                                          \
+    static ret (*x##func[])(void *p, ##__VA_ARGS__) = {                                                                 \
+        (void *)background_##x, (void *)messages_##x, (void *)inline_video_##x, (void *)flist_##x,  (void *)button_##x, \
+        (void *)switch_##x,     (void *)dropdown_##x, (void *)edit_##x,         (void *)scroll_##x,                     \
+    };
 
 MAKE_FUNC(void, draw, int x, int y, int width, int height);
 MAKE_FUNC(bool, mmove, int x, int y, int width, int height, int mx, int my, int dx, int dy);

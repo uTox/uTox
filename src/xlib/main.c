@@ -4,7 +4,9 @@
 
 #include "../flist.h"
 #include "../friend.h"
+#include "../theme.h"
 #include "../ui/dropdowns.h"
+#include "../util.h"
 
 bool     hidden     = 0;
 uint32_t tray_width = 32, tray_height = 32;
@@ -18,50 +20,10 @@ void gtk_savefiledata(MSG_FILE *file);
 
 void setclipboard(void) { XSetSelectionOwner(display, XA_CLIPBOARD, window, CurrentTime); }
 
-/*static XftFont* getfont(XftFont **font, uint32_t ch)
-{
-    XftFont *first = font[0];
-    if(!FcCharSetHasChar(charset, ch)) {
-        return first;
-    }
-
-    while(*font) {
-        if(XftGlyphExists(display, *font, ch)) {
-            return *font;
-        }
-        font++;
-    }
-
-    FcResult result;
-    int i;
-    for(i = 0; i != fs->nfont; i++) {
-        FcCharSet *cs;
-        result = FcPatternGetCharSet(fs->fonts[i], FC_CHARSET, 0, &cs);
-        if(FcCharSetHasChar(cs, ch)) {
-            FcPattern *p = FcPatternDuplicate(fs->fonts[i]), *pp;
-
-            double size;
-            if(!FcPatternGetDouble(first->pattern, FC_PIXEL_SIZE, 0, &size)) {
-                FcPatternAddDouble(p, FC_PIXEL_SIZE, size);
-            }
-
-            pp = XftFontMatch(display, screen, p, &result);
-            *font = XftFontOpenPattern(display, pp);
-            FcPatternDestroy(p);
-            return *font;
-        }
-    }
-
-    //should never happen
-    return first;
-}*/
-
 void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data) {
-    XEvent event = {.xclient = {.window       = 0,
-                                .type         = ClientMessage,
-                                .message_type = msg,
-                                .format       = 8,
-                                .data = {.s = { param1, param2 } } } };
+    XEvent event = {
+        .xclient = {.window = 0, .type = ClientMessage, .message_type = msg, .format = 8, .data = {.s = { param1, param2 } } }
+    };
 
     memcpy(&event.xclient.data.s[2], &data, sizeof(void *));
 
@@ -185,7 +147,6 @@ uint64_t get_time(void) {
 #else
     clock_gettime(CLOCK_MONOTONIC, &ts);
 #endif
-
     return ((uint64_t)ts.tv_sec * (1000 * 1000 * 1000)) + (uint64_t)ts.tv_nsec;
 }
 
@@ -347,7 +308,7 @@ uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_s
  */
 FILE *native_load_chatlog_file(uint32_t friend_number) {
     FRIEND *f                            = &friend[friend_number];
-    uint8_t hex[TOX_PUBLIC_KEY_SIZE * 2] = { 0 };
+    char    hex[TOX_PUBLIC_KEY_SIZE * 2] = { 0 };
     uint8_t path[UTOX_FILE_NAME_LENGTH]  = { 0 };
 
     cid_to_string(hex, f->cid);

@@ -5,6 +5,8 @@
 #include "flist.h"
 #include "main.h"
 #include "theme.h"
+#include "ui/text.h"
+#include "util.h"
 
 /** Appends a messages from self or friend to the message list;
  * will realloc or trim messages as needed;
@@ -188,7 +190,7 @@ static bool msg_add_day_notice(MESSAGES *m, time_t last, time_t next) {
  * without considering if I should expose messages_add */
 uint32_t message_add_group(MESSAGES *m, MSG_TEXT *msg) { return message_add(m, (MSG_VOID *)msg); }
 
-uint32_t message_add_type_text(MESSAGES *m, bool auth, const uint8_t *data, uint16_t length, bool log, bool send) {
+uint32_t message_add_type_text(MESSAGES *m, bool auth, const char *msgtxt, uint16_t length, bool log, bool send) {
     MSG_TEXT *msg = calloc(1, sizeof(MSG_TEXT) + length);
     time(&msg->time);
     msg->our_msg  = auth;
@@ -205,7 +207,7 @@ uint32_t message_add_type_text(MESSAGES *m, bool auth, const uint8_t *data, uint
         msg->author_length = friend[m->id].name_length;
     }
 
-    memcpy(msg->msg, data, length);
+    memcpy(msg->msg, msgtxt, length);
 
     if (m->data && m->number) {
         MSG_VOID *day_msg = m->data[m->number ? m->number - 1 : 0];
@@ -223,7 +225,7 @@ uint32_t message_add_type_text(MESSAGES *m, bool auth, const uint8_t *data, uint
     return message_add(m, (MSG_VOID *)msg);
 }
 
-uint32_t message_add_type_action(MESSAGES *m, bool auth, const uint8_t *data, uint16_t length, bool log, bool send) {
+uint32_t message_add_type_action(MESSAGES *m, bool auth, const char *msgtxt, uint16_t length, bool log, bool send) {
     MSG_TEXT *msg = calloc(1, sizeof(MSG_TEXT) + length);
     time(&msg->time);
     msg->our_msg  = auth;
@@ -240,7 +242,7 @@ uint32_t message_add_type_action(MESSAGES *m, bool auth, const uint8_t *data, ui
         msg->author_length = friend[m->id].name_length;
     }
 
-    memcpy(msg->msg, data, length);
+    memcpy(msg->msg, msgtxt, length);
 
     if (log) {
         message_log_to_disk(m, (MSG_VOID *)msg);
@@ -253,7 +255,7 @@ uint32_t message_add_type_action(MESSAGES *m, bool auth, const uint8_t *data, ui
     return message_add(m, (MSG_VOID *)msg);
 }
 
-uint32_t message_add_type_notice(MESSAGES *m, const uint8_t *data, uint16_t length, bool log) {
+uint32_t message_add_type_notice(MESSAGES *m, const char *msgtxt, uint16_t length, bool log) {
     MSG_TEXT *msg = calloc(1, sizeof(MSG_TEXT) + length);
     time(&msg->time);
     msg->our_msg       = 0;
@@ -261,7 +263,7 @@ uint32_t message_add_type_notice(MESSAGES *m, const uint8_t *data, uint16_t leng
     msg->length        = length;
     msg->author_length = self.name_length;
     msg->receipt_time  = time(NULL);
-    memcpy(msg->msg, data, length);
+    memcpy(msg->msg, msgtxt, length);
 
     if (log) {
         message_log_to_disk(m, (MSG_VOID *)msg);
@@ -337,8 +339,9 @@ bool message_log_to_disk(MESSAGES *m, MSG_VOID *msg) {
         case MSG_TYPE_TEXT:
         case MSG_TYPE_ACTION_TEXT:
         case MSG_TYPE_NOTICE: {
+            char *author;
+
             size_t    author_length;
-            uint8_t * author;
             MSG_TEXT *text = (void *)msg;
 
             if (text->our_msg) {
@@ -526,15 +529,14 @@ static void messages_draw_timestamp(int x, int y, const time_t *time) {
     drawtext(x, y, (char *)timestr, len);
 }
 
-static void messages_draw_author(int x, int y, int w, uint8_t *name, uint32_t length, uint32_t color) {
+static void messages_draw_author(int x, int y, int w, char *name, uint32_t length, uint32_t color) {
     setcolor(color);
     setfont(FONT_TEXT);
     drawtextwidth_right(x, w, y, name, length);
 }
 
-static int messages_draw_text(const uint8_t *msg, size_t length, uint32_t msg_height, uint8_t msg_type, bool author,
-                              bool receipt, uint16_t highlight_start, uint16_t highlight_end, int x, int y, int w,
-                              int h) {
+static int messages_draw_text(const char *msg, size_t length, uint32_t msg_height, uint8_t msg_type, bool author,
+                              bool receipt, uint16_t highlight_start, uint16_t highlight_end, int x, int y, int w, int h) {
     switch (msg_type) {
         case MSG_TYPE_TEXT: {
             if (author) {
@@ -625,21 +627,21 @@ static void messages_draw_filetransfer(MESSAGES *m, MSG_FILE *file, int i, int x
         file_percent  = 1.0;
     }
 
-    uint8_t text_name_and_size[file->name_length + 33];
+    char text_name_and_size[file->name_length + 33];
     memcpy(text_name_and_size, file->file_name, file->name_length);
     text_name_and_size[file->name_length] = ' ';
     uint16_t text_name_and_size_len       = file->name_length + 1;
     text_name_and_size_len += sprint_humanread_bytes(text_name_and_size + file->name_length + 1, 32, file_size);
 
-    uint8_t  text_speed[32];
+    char     text_speed[32];
     uint16_t text_speed_len = sprint_humanread_bytes(text_speed, sizeof(text_speed), file_speed);
     if (text_speed_len <= 30) {
         text_speed[text_speed_len++] = '/';
         text_speed[text_speed_len++] = 's';
     }
 
-    uint8_t  text_ttc[32];
-    uint16_t text_ttc_len = snprintf((char *)text_ttc, sizeof(text_ttc), "%lus", file_ttc);
+    char     text_ttc[32];
+    uint16_t text_ttc_len = snprintf(text_ttc, sizeof(text_ttc), "%lus", file_ttc);
     if (text_ttc_len >= sizeof(text_ttc)) {
         text_ttc_len = sizeof(text_ttc) - 1;
     }
@@ -981,9 +983,8 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
                     }
                 }
 
-                y = messages_draw_text(msg->msg, msg->length, msg->height, msg->msg_type, msg->our_msg,
-                                       msg->receipt_time, h1, h2, x + MESSAGES_X, y, width - TIME_WIDTH - MESSAGES_X,
-                                       height);
+                y = messages_draw_text(msg->msg, msg->length, msg->height, msg->msg_type, msg->our_msg, msg->receipt_time,
+                                       h1, h2, x + MESSAGES_X, y, width - TIME_WIDTH - MESSAGES_X, height);
                 break;
             }
 

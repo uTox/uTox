@@ -37,9 +37,9 @@ bool dropdown_mleave(DROPDOWN *b);
 
 STRING *simple_dropdown_ondisplay(uint16_t, const DROPDOWN *);
 
-STRING *list_dropdown_ondisplay(uint16_t i, const DROPDOWN *dm);
-void flist_dropdown_add_hardcoded(DROPDOWN *, uint8_t *name, void *handle);
-void flist_dropdown_add_localized(DROPDOWN *, UTOX_I18N_STR string_id, void *handle);
-void flist_dropdown_clear(DROPDOWN *);
+STRING *dropdown_list_ondisplay(uint16_t i, const DROPDOWN *dm);
+void dropdown_list_add_hardcoded(DROPDOWN *d, char *name, void *handle);
+void dropdown_list_add_localized(DROPDOWN *d, UTOX_I18N_STR string_id, void *handle);
+void dropdown_list_clear(DROPDOWN *);
 
 #endif

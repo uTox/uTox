@@ -3,7 +3,7 @@
 
 #include "../ui.h"
 
-typedef struct scrollable {
+struct scrollable {
     PANEL panel;
 
     uint32_t color;
@@ -13,7 +13,7 @@ typedef struct scrollable {
     double d;
     bool   left, mousedown, mouseover, mouseover2;
     int    content_height;
-} SCROLLABLE;
+};
 
 void scroll_draw(SCROLLABLE *s, int x, int y, int width, int height);
 int scroll_gety(SCROLLABLE *s, int height);

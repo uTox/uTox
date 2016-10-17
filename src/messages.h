@@ -168,9 +168,9 @@ typedef struct {
 
 uint32_t message_add_group(MESSAGES *m, MSG_TEXT *msg);
 
-uint32_t message_add_type_text(MESSAGES *m, bool auth, const uint8_t *data, uint16_t length, bool log, bool send);
-uint32_t message_add_type_action(MESSAGES *m, bool auth, const uint8_t *data, uint16_t length, bool log, bool send);
-uint32_t message_add_type_notice(MESSAGES *m, const uint8_t *data, uint16_t length, bool log);
+uint32_t message_add_type_text(MESSAGES *m, bool auth, const char *msgtxt, uint16_t length, bool log, bool send);
+uint32_t message_add_type_action(MESSAGES *m, bool auth, const char *msgtxt, uint16_t length, bool log, bool send);
+uint32_t message_add_type_notice(MESSAGES *m, const char *msgtxt, uint16_t length, bool log);
 uint32_t message_add_type_image(MESSAGES *m, bool auth, NATIVE_IMAGE *img, uint16_t width, uint16_t height, bool log);
 
 MSG_FILE *message_add_type_file(MESSAGES *m, struct FILE_TRANSFER *file);
