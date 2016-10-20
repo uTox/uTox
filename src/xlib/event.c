@@ -510,7 +510,7 @@ bool doevent(XEvent event) {
                 XChangeProperty(display, ev->requestor, ev->property, XA_ATOM, 32, PropModeReplace, (void *)&supported,
                                 countof(supported));
             } else {
-                debug("unknown request\n");
+                debug_notice("XLIB selection request: unknown request\n");
                 resp.xselection.property = None;
             }
 

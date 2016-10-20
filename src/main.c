@@ -258,7 +258,9 @@ bool utox_remove_friend_chatlog(uint32_t friend_number) {
     return utox_remove_file(name, length);
 }
 
-void utox_export_chatlog_init(uint32_t friend_number) { native_export_chatlog_init(friend_number); }
+void utox_export_chatlog_init(uint32_t friend_number) {
+    native_export_chatlog_init(friend_number);
+}
 
 void utox_export_chatlog(uint32_t friend_number, FILE *dest_file) {
     if (!dest_file || friend_number == -1) {
@@ -306,7 +308,7 @@ bool utox_save_data_avatar(uint32_t friend_number, const uint8_t *data, size_t l
     uint8_t name[sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png")];
 
     if (friend_number == -1) {
-        memcpy(hex, self.id_buffer, TOX_PUBLIC_KEY_SIZE * 2);
+        memcpy(hex, self.id_str, TOX_PUBLIC_KEY_SIZE * 2);
     } else {
         /* load current user's avatar */
         FRIEND *f = &friend[friend_number];
@@ -330,7 +332,7 @@ uint8_t *utox_load_data_avatar(uint32_t friend_number, size_t *size) {
     uint8_t name[sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png")];
 
     if (friend_number == -1) {
-        memcpy(hex, self.id_buffer, TOX_PUBLIC_KEY_SIZE * 2);
+        memcpy(hex, self.id_str, TOX_PUBLIC_KEY_SIZE * 2);
     } else {
         /* load current user's avatar */
         FRIEND *f = &friend[friend_number];
@@ -353,7 +355,7 @@ bool utox_remove_file_avatar(uint32_t friend_number) {
     uint8_t name[sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png")];
 
     if (friend_number == -1) {
-        memcpy(hex, self.id_buffer, TOX_PUBLIC_KEY_SIZE * 2);
+        memcpy(hex, self.id_str, TOX_PUBLIC_KEY_SIZE * 2);
     } else {
         /* load current user's avatar */
         FRIEND *f = &friend[friend_number];
@@ -370,7 +372,9 @@ bool utox_remove_file_avatar(uint32_t friend_number) {
     return native_remove_file(name, name_len);
 }
 
-bool utox_remove_file(const uint8_t *full_name, size_t length) { return native_remove_file(full_name, length); }
+bool utox_remove_file(const uint8_t *full_name, size_t length) {
+    return native_remove_file(full_name, length);
+}
 
 /* Shared function between all four platforms */
 void parse_args(int argc, char *argv[], bool *theme_was_set_on_argv, int8_t *should_launch_at_startup,

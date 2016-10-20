@@ -26,7 +26,7 @@ bool strstr_case(const char *a, const char *b);
 /* convert tox id to string
  *  notes: dest must be (TOX_FRIEND_ADDRESS_SIZE * 2) bytes large, src must be TOX_FRIEND_ADDRESS_SIZE bytes large
  */
-void id_to_string(char *dest, char *src);
+void id_to_string(char *dest, uint8_t *src);
 
 /* same as id_to_string(), but for TOX_PUBLIC_KEY_SIZE
  */
@@ -34,19 +34,19 @@ void cid_to_string(char *dest, uint8_t *src);
 
 /* same as id_to_string(), but for TOX_FILE_ID_LENGTH
  */
-void fid_to_string(char *dest, char *src);
+void fid_to_string(char *dest, uint8_t *src);
 
 /* convert tox hash to string,
  *  notes: dest must be (TOX_HASH_LENGTH * 2) bytes large, src must be TOX_HASH_LENGTH bytes large
  */
-void hash_to_string(char *dest, char *src);
+void hash_to_string(char *dest, uint8_t *src);
 
 /** convert string to tox id
  *  on success: returns 1
  *  on failure: returns 0
  *  notes: dest must be TOX_FRIEND_ADDRESS_SIZE bytes large, some data may be written to dest even on failure
  */
-bool string_to_id(char *dest, char *src);
+bool string_to_id(uint8_t *dest, char *src);
 
 /** convert number of bytes to human readable string
  *  returns number of characters written

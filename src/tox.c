@@ -11,6 +11,7 @@
 #include "groups.h"
 #include "main.h"
 #include "tox_bootstrap.h"
+#include "util.h"
 
 #include "av/utox_av.h"
 #include "ui/dropdown.h"
@@ -396,14 +397,14 @@ static void init_self(Tox *tox) {
 
     /* Get tox id, and gets the hex version for utox */
     tox_self_get_address(tox, self.id_binary);
-    id_to_string(self.id_buffer, self.id_binary);
-    self.id_buffer_length = TOX_FRIEND_ADDRESS_SIZE * 2;
-    debug("Tox ID: %.*s\n", (int)self.id_buffer_length, self.id_buffer);
+    id_to_string(self.id_str, self.id_binary);
+    self.id_str_length = TOX_FRIEND_ADDRESS_SIZE * 2;
+    debug("Tox ID: %.*s\n", (int)self.id_str_length, self.id_str);
 
     uint8_t  avatar_data[UTOX_AVATAR_MAX_DATA_LENGTH];
     uint32_t avatar_size;
 
-    uint8_t hex_id[TOX_FRIEND_ADDRESS_SIZE * 2];
+    char hex_id[TOX_FRIEND_ADDRESS_SIZE * 2];
     id_to_string(hex_id, self.id_binary);
     if (init_avatar(&self.avatar, -1, avatar_data, &avatar_size)) {
         self.avatar_data = malloc(avatar_size);

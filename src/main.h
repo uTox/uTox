@@ -259,7 +259,7 @@ enum {
 };
 
 // me
-struct {
+struct utox_self {
     uint8_t status;
     char    name[TOX_MAX_NAME_LENGTH];
     char    statusmsg[TOX_MAX_STATUS_MESSAGE_LENGTH];
@@ -274,8 +274,8 @@ struct {
     size_t device_list_count;
     size_t device_list_size;
 
-    uint8_t id_buffer[TOX_FRIEND_ADDRESS_SIZE * 4];
-    size_t  id_buffer_length;
+    char   id_str[TOX_FRIEND_ADDRESS_SIZE * 2];
+    size_t id_str_length;
 
     uint8_t id_binary[TOX_FRIEND_ADDRESS_SIZE];
 
@@ -285,11 +285,12 @@ struct {
     size_t   avatar_size;
 } self;
 
-uint8_t cursor;
-struct {
+struct utox_mouse {
     int x, y;
 } mouse;
-bool mdown;
+
+uint8_t cursor;
+bool    mdown;
 
 /** Takes data from µTox and saves it, just how the OS likes it saved!
  *

@@ -123,38 +123,40 @@ bool strstr_case(const char *a, const char *b) {
     return 0;
 }
 
-static void to_hex(char *a, char *p, int size) {
-    char b, c, *end = p + size;
-
-    while (p != end) {
-        b = *p++;
-
-        c = (b & 0xF);
-        b = (b >> 4);
-
-        if (b < 10) {
-            *a++ = b + '0';
+static void to_hex(char *out, uint8_t *in, int size) {
+    while (size--) {
+        if (*in >> 4 < 0xA) {
+            *out++ = '0' + (*in >> 4);
         } else {
-            *a++ = b - 10 + 'A';
+            *out++ = 'A' + (*in >> 4) - 0xA;
         }
 
-        if (c < 10) {
-            *a++ = c + '0';
+        if ((*in & 0xf) < 0xA) {
+            *out++ = '0' + (*in & 0xF);
         } else {
-            *a++ = c - 10 + 'A';
+            *out++ = 'A' + (*in & 0xF) - 0xA;
         }
+        in++;
     }
 }
 
-void id_to_string(char *dest, char *src) { to_hex(dest, src, TOX_FRIEND_ADDRESS_SIZE); }
+void id_to_string(char *dest, uint8_t *src) {
+    to_hex(dest, src, TOX_FRIEND_ADDRESS_SIZE);
+}
 
-void cid_to_string(char *dest, uint8_t *src) { to_hex(dest, src, TOX_PUBLIC_KEY_SIZE); }
+void cid_to_string(char *dest, uint8_t *src) {
+    to_hex(dest, src, TOX_PUBLIC_KEY_SIZE);
+}
 
-void fid_to_string(char *dest, char *src) { to_hex(dest, src, TOX_FILE_ID_LENGTH); }
+void fid_to_string(char *dest, uint8_t *src) {
+    to_hex(dest, src, TOX_FILE_ID_LENGTH);
+}
 
-void hash_to_string(char *dest, char *src) { to_hex(dest, src, TOX_HASH_LENGTH); }
+void hash_to_string(char *dest, uint8_t *src) {
+    to_hex(dest, src, TOX_HASH_LENGTH);
+}
 
-bool string_to_id(char *w, char *a) {
+bool string_to_id(uint8_t *w, char *a) {
     char *end = w + TOX_FRIEND_ADDRESS_SIZE;
     while (w != end) {
         char c, v;

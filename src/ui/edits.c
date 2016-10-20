@@ -373,7 +373,9 @@ static void edit_msg_onshifttab(EDIT *edit) {
     }
 }
 
-static void edit_msg_onlosefocus(EDIT *edit) { completion.active = 0; }
+static void edit_msg_onlosefocus(EDIT *edit) {
+    completion.active = 0;
+}
 
 static void edit_msg_onchange(EDIT *edit) {
     if (flist_get_selected()->item == ITEM_FRIEND) {
@@ -441,8 +443,7 @@ static void edit_proxy_ip_port_onlosefocus(EDIT *edit) {
     edit_proxy_port.data[edit_proxy_port.length] = 0;
     uint16_t proxy_port                          = strtol((char *)edit_proxy_port.data, NULL, 0);
 
-    if (memcmp(proxy_address, edit_proxy_ip.data, edit_proxy_ip.length) == 0
-        && proxy_address[edit_proxy_ip.length] == 0) {
+    if (memcmp(proxy_address, edit_proxy_ip.data, edit_proxy_ip.length) == 0 && proxy_address[edit_proxy_ip.length] == 0) {
         return;
     }
 
@@ -495,11 +496,7 @@ EDIT edit_name =
 
      edit_toxid =
          {
-           .length            = TOX_FRIEND_ADDRESS_SIZE * 2,
-           .data              = self.id_buffer,
-           .readonly          = 1,
-           .noborder          = 0,
-           .select_completely = 1,
+           .length = TOX_FRIEND_ADDRESS_SIZE * 2, .data = self.id_str, .readonly = 1, .noborder = 0, .select_completely = 1,
          },
 
      edit_friend_pubkey =
@@ -514,10 +511,7 @@ EDIT edit_name =
 
      edit_status =
          {
-           .maxlength   = 128,
-           .data        = edit_status_data,
-           .onenter     = edit_status_onenter,
-           .onlosefocus = edit_status_onenter,
+           .maxlength = 128, .data = edit_status_data, .onenter = edit_status_onenter, .onlosefocus = edit_status_onenter,
          },
 
      edit_add_id =
