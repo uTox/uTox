@@ -7,11 +7,11 @@
 #define TITLE "uTox"
 #define SUB_TITLE "(Alpha)"
 #define RELEASE_TITLE "WORKING"
-#define VERSION "0.10.1"
+#define VERSION "0.10.9"
 #define VER_MAJOR 0
 #define VER_MINOR 10
-#define VER_PATCH 1
-#define UTOX_VERSION_NUMBER 10001u /* major, minor, patch, 0 padded where needed */
+#define VER_PATCH 9
+#define UTOX_VERSION_NUMBER 10009u /* major, minor, patch */
 // Defaults
 #define DEFAULT_NAME "Tox User"
 #define DEFAULT_STATUS "Toxing on uTox"
