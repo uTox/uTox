@@ -35,12 +35,16 @@ typedef enum {
 typedef struct panel      PANEL;
 typedef struct scrollable SCROLLABLE;
 struct panel {
-    PANEL_TYPE  type;
-    bool        disabled;
-    int         x, y, width, height;
+    PANEL_TYPE type;
+
+    bool disabled;
+    int  x, y, width, height;
+
     SCROLLABLE *content_scroll;
+
     void (*drawfunc)(int, int, int, int);
-    void *  object;
+    void *object;
+
     PANEL **child;
 };
 
