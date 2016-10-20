@@ -106,7 +106,7 @@ panel_side_bar = {
         .disabled = 0,
         .child    = (PANEL*[]) {
             // TODO rename these
-            (PANEL*)&panel_flist_list,
+            &panel_flist_list,
             (PANEL*)&scrollbar_flist,
             NULL
         }
@@ -121,8 +121,8 @@ panel_main = {
     .type = PANEL_NONE,
     .disabled = 0,
     .child = (PANEL*[]) {
-        (PANEL*)&panel_chat,
-        (PANEL*)&panel_overhead,
+        &panel_chat,
+        &panel_overhead,
         NULL
     }
 },
@@ -131,9 +131,9 @@ panel_main = {
         .type = PANEL_NONE,
         .disabled = 1,
         .child = (PANEL*[]) {
-            (PANEL*)&panel_group,
-            (PANEL*)&panel_friend,
-            (PANEL*)&panel_friend_request,
+            &panel_group,
+            &panel_friend,
+            &panel_friend_request,
             NULL
         }
     },
@@ -141,9 +141,9 @@ panel_main = {
             .type = PANEL_NONE,
             .disabled = 1,
             .child = (PANEL*[]) {
-                (PANEL*)&panel_group_chat,
-                (PANEL*)&panel_group_video,
-                (PANEL*)&panel_group_settings,
+                &panel_group_chat,
+                &panel_group_video,
+                &panel_group_settings,
                 NULL
             }
         },
@@ -181,9 +181,9 @@ panel_main = {
             .type = PANEL_NONE,
             .disabled = 1,
             .child = (PANEL*[]) {
-                (PANEL*)&panel_friend_chat,
-                (PANEL*)&panel_friend_video,
-                (PANEL*)&panel_friend_settings,
+                &panel_friend_chat,
+                &panel_friend_video,
+                &panel_friend_settings,
                 NULL
             }
         },
@@ -233,10 +233,10 @@ panel_main = {
         .type = PANEL_NONE,
         .disabled = 0,
         .child = (PANEL*[]) {
-            (PANEL*)&panel_splash_page,
-            (PANEL*)&panel_profile_password,
-            (PANEL*)&panel_add_friend,
-            (PANEL*)&panel_settings_master,
+            &panel_splash_page,
+            &panel_profile_password,
+            &panel_add_friend,
+            &panel_settings_master,
             NULL
         }
     },
@@ -274,7 +274,7 @@ panel_main = {
             .disabled = 1,
             .drawfunc = draw_settings_header,
             .child = (PANEL*[]) {
-                (PANEL*)&panel_settings_subheader,
+                &panel_settings_subheader,
                 NULL
             }
         },
@@ -289,11 +289,11 @@ panel_main = {
                     (PANEL*)&button_settings_sub_ui,
                     (PANEL*)&button_settings_sub_av,
                     (PANEL*)&scrollbar_settings,
-                    (PANEL*)&panel_settings_profile,
-                    (PANEL*)&panel_settings_devices,
-                    (PANEL*)&panel_settings_net,
-                    (PANEL*)&panel_settings_ui,
-                    (PANEL*)&panel_settings_av,
+                    &panel_settings_profile,
+                    &panel_settings_devices,
+                    &panel_settings_net,
+                    &panel_settings_ui,
+                    &panel_settings_av,
                     NULL
                 }
             },
@@ -312,7 +312,7 @@ panel_main = {
                     (PANEL*)&button_copyid,
                     (PANEL*)&dropdown_language,
                     (PANEL*)&button_show_password_settings,
-                    (PANEL*)&panel_profile_password_settings,
+                    &panel_profile_password_settings,
                     NULL
                 }
             },
