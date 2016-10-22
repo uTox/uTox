@@ -59,16 +59,16 @@ msgid(DNS_DISABLED)
 msgstr("Определение имён DNS отключено при использовании прокси без UDP!")
 
 msgid(REQ_INVALID_ID)
-msgstr("Ошибка: Неправильный Tox ID")
+msgstr("Ошибка: неправильный Tox ID")
 
 msgid(REQ_EMPTY_ID)
-msgstr("Ошибка: Не указан Tox ID")
+msgstr("Ошибка: не указан Tox ID")
 
 msgid(REQ_LONG_MSG)
-msgstr("Ошибка: Слишком длинное сообщение")
+msgstr("Ошибка: слишком длинное сообщение")
 
 msgid(REQ_NO_MSG)
-msgstr("Ошибка: Пустое сообщение")
+msgstr("Ошибка: пустое сообщение")
 
 msgid(REQ_SELF_ID)
 msgstr("Ошибка: Tox ID совпадает с собственным")
@@ -77,16 +77,16 @@ msgid(REQ_ALREADY_FRIENDS)
 msgstr("Ошибка: Tox ID уже есть в списке контактов")
 
 msgid(REQ_UNKNOWN)
-msgstr("Ошибка: Неизвестная")
+msgstr("Неизвестная ошибка")
 
 msgid(REQ_BAD_CHECKSUM)
-msgstr("Ошибка: Неправильный Tox ID (контрольная сумма не совпадает)")
+msgstr("Ошибка: неправильный Tox ID (контрольная сумма не совпадает)")
 
 msgid(REQ_BAD_NOSPAM)
-msgstr("Ошибка: Неправильный Tox ID (неверное значение nospam)")
+msgstr("Ошибка: неправильный Tox ID (неверное значение nospam)")
 
 msgid(REQ_NO_MEMORY)
-msgstr("Ошибка: Не хватает памяти")
+msgstr("Ошибка: не хватает памяти")
 
 msgid(SEND_FILE)
 msgstr("Отправить файл")
@@ -145,28 +145,28 @@ msgstr("Правый клик")
  *** Audio / Video Call Strings                                             ***
  ******************************************************************************/
 msgid(START_AUDIO_CALL)
-msgstr("Сделать звонок")
+msgstr("Позвонить")
 
 msgid(START_VIDEO_CALL)
-msgstr("Сделать видео звонок")
+msgstr("Видео вызов")
 
 msgid(CALL_DECLINE)
 msgstr("Отклонить вызов")
 
 msgid(CALL_CANCELLED)
-msgstr("Звонок отменён")
+msgstr("Вызов отменён")
 
 msgid(CALL_INVITED)
-msgstr("Входящий звонок")
+msgstr("Входящий вызов")
 
 msgid(CALL_RINGING)
-msgstr("Исходящий звонок")
+msgstr("Исходящий вызов")
 
 msgid(CALL_STARTED)
 msgstr("Разговор начат")
 
 msgid(CALL_FRIEND_HAD_ENDED_CALL)
-msgstr(" завершил звонок!")
+msgstr(" завершил разговор!")
 
 msgid(CALL_VIDEO_SHOW_INLINE)
 msgstr("Показывать видео встроенным")
@@ -176,7 +176,7 @@ msgstr("Показывать видео встроенным")
  *** Friend & Friend Settings Strings                                       ***
  ******************************************************************************/
 msgid(FRIEND_ALIAS)
-msgstr("Установить синоним контакта")
+msgstr("Назначить псевдоним контакта")
 
 msgid(FRIEND_PUBLIC_KEY)
 msgstr("Открытый ключ контакта")
@@ -229,7 +229,7 @@ msgid(GROUP_NOTIFICATIONS_OFF)
 msgstr("Выкл")
 
 msgid(GROUP_TOPIC)
-msgstr("Установить тему группы")
+msgstr("Тема группы")
 
 /******************************************************************************
  *** Settings / Profile Strings                                             ***
@@ -248,7 +248,7 @@ msgid(USER_INTERFACE_BUTTON)
 msgstr("Интерфейс")
 
 msgid(AUDIO_VIDEO_BUTTON)
-msgstr("Аудио и Видео")
+msgstr("Аудио и видео")
 
 
 
@@ -268,7 +268,7 @@ msgstr("Не существует способов восстановления 
 
 /***     	Devices                                                         ***/
 msgid(DEVICES_ADD_NEW)
-msgstr("Добавить новое устройство в сеть")
+msgstr("Добавить новое связанное устройство")
 
 msgid(DEVICES_NUMBER)
 msgstr("Число связанных устройств")
@@ -403,7 +403,7 @@ msgid(LOCK)
 msgstr("Блокировка")
 
 msgid(AUDIO_VIDEO)
-msgstr("Аудио/Видео")
+msgstr("Аудио/видео")
 
 msgid(DPI)
 msgstr("Разрешение, точек/дюйм")
@@ -475,7 +475,7 @@ msgid(REMOVE_FRIEND)
 msgstr("Удалить контакт")
 
 msgid(LEAVE)
-msgstr("Покинуть")
+msgstr("Выйти")
 
 msgid(CTOPIC)
 msgstr("Сменить тему")
@@ -487,10 +487,10 @@ msgid(IGNORE)
 msgstr("Игнорировать")
 
 msgid(SET_ALIAS)
-msgstr("Установить синоним")
+msgstr("Назначить псевдоним")
 
 msgid(ALIAS)
-msgstr("синоним")
+msgstr("псевдоним")
 
 msgid(SENDMESSAGE)
 msgstr("Отправить сообщение")
@@ -640,7 +640,7 @@ msgid(DEFAULT_FRIEND_REQUEST_MESSAGE)
 msgstr("Пожалуйста, добавьте меня в свой список контактов.")
 
 msgid(CONTACT_SEARCH_ADD_HINT)
-msgstr("Найти/Добавить контакты")
+msgstr("Найти/добавить контакты")
 
 msgid(PROXY_EDIT_HINT_IP)
 msgstr("IP")
