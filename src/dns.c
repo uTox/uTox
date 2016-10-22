@@ -18,7 +18,7 @@ static struct tox3 {
               0xEA, 0x4C, 0xF7, 0x27, 0x7A, 0x85, 0x02, 0x7C, 0xD9, 0xF5, 0x19, 0x6D, 0xF1, 0x7E, 0x0B, 0x13 } }
 };
 
-static void *istox3(uint8_t *name, uint16_t name_length) {
+static void *istox3(char *name, size_t name_length) {
     int i;
     for (i = 0; i != countof(tox3_server); i++) {
         struct tox3 *t = &tox3_server[i];
@@ -42,7 +42,7 @@ static void writechecksum(uint8_t *address) {
         checksum[i % 2] ^= address[i];
 }
 
-static int64_t parseargument(uint8_t *dest, char *src, uint16_t length, void **pdns3) {
+static int64_t parseargument(uint8_t *dest, char *src, size_t length, void **pdns3) {
     /* parses format groupbot@utox.org -> groupbot._tox.utox.org */
 
     bool     reset = 0, at = 0;
@@ -127,7 +127,7 @@ static int64_t parseargument(uint8_t *dest, char *src, uint16_t length, void **p
         if ((d - dest) > TOXDNS_MAX_RECOMMENDED_NAME_LENGTH)
             return -1;
 
-        void *dns3 = istox3((uint8_t *)"utox.org", sizeof("utox.org") - 1);
+        void *dns3 = istox3("utox.org", sizeof("utox.org") - 1);
 
         if (!dns3)
             return -1;
@@ -148,7 +148,7 @@ static int64_t parseargument(uint8_t *dest, char *src, uint16_t length, void **p
 
     *d = 0;
 
-    debug("Parsed: (%.*s)->(%s) pin=%X\n", length, src, dest, pin);
+    debug("Parsed: (%.*s)->(%s) pin=%X\n", (int)length, src, dest, pin);
 
     return pin;
 }
@@ -264,9 +264,9 @@ static bool parserecord(uint8_t *dest, uint8_t *src, uint32_t pin, void *dns3) {
 }
 
 static void dns_thread(void *data) {
-    uint16_t length = *(uint16_t *)data;
-    uint8_t  result[256];
-    bool     success = 0;
+    size_t  length = *(size_t *)data;
+    uint8_t result[256];
+    bool    success = 0;
 
     void *  dns3 = NULL;
     int64_t ret  = parseargument(result, data + 2, length, &dns3);
@@ -443,15 +443,16 @@ FAIL:
     postmessage(DNS_RESULT, success, 0, data);
 }
 
-void dns_request(char *name, uint16_t length) {
+void dns_request(char *name, size_t length) {
     if (settings.force_proxy) {
         debug("uTox DNS:\tUnable to do DNS lookup, because we're are using a proxy without UDP!\n");
         return;
     }
 
-    void *data = malloc((2u + length < TOX_FRIEND_ADDRESS_SIZE) ? TOX_FRIEND_ADDRESS_SIZE : 2u + length * sizeof(char));
-    memcpy(data, &length, 2);
-    memcpy(data + 2, name, length * sizeof(char));
+    void *data = malloc((sizeof(length) + length < TOX_FRIEND_ADDRESS_SIZE) ? TOX_FRIEND_ADDRESS_SIZE :
+                                                                              2u + length * sizeof(char));
+    memcpy(data, &length, sizeof(length));
+    memcpy(data + sizeof(length), name, length * sizeof(char));
 
     thread(dns_thread, data);
 }

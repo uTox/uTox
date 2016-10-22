@@ -2,8 +2,12 @@
 
 #include "edit.h"
 
+#include "contextmenu.h"
+#include "text.h"
+
 #include "../main.h"
 #include "../theme.h"
+#include "../util.h"
 
 static EDIT *active_edit;
 
@@ -91,13 +95,13 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height) {
     if (!edit->length && maybe_i18nal_string_is_valid(&edit->empty_str)) {
         STRING *empty_str_text = maybe_i18nal_string_get(&edit->empty_str);
         setcolor(COLOR_MAIN_TEXT_HINT);
-        drawtext(x + UTOX_SCALE(2), yy + UTOX_SCALE(top_offset), empty_str_text->str, empty_str_text->length);
+        drawtext(x + SCALE(4), yy + UTOX_SCALE(top_offset), empty_str_text->str, empty_str_text->length);
     }
 
     bool is_active = (edit == active_edit);
     if (edit->password) {
         /* Generate the stars for this password */
-        uint8_t star[edit->length];
+        char star[edit->length];
         memset(star, '*', edit->length);
         utox_draw_text_multiline_compat(x + SCALE(4), x + width - SCALE(4) - (edit->multiline ? SCROLL_WIDTH : 0),
                                         yy + SCALE(top_offset * 2), y, y + height, font_small_lineheight, star,
@@ -149,9 +153,9 @@ bool edit_mmove(EDIT *edit, int px, int py, int width, int height, int x, int y,
         }
 
         setfont(FONT_TEXT);
-        edit_sel.p2 = hittextmultiline(x - UTOX_SCALE(2), width - SCALE(8) - (edit->multiline ? SCROLL_WIDTH : 0),
-                                       y - UTOX_SCALE(2), INT_MAX, font_small_lineheight, edit->data, edit->length,
-                                       edit->multiline);
+        edit_sel.p2 =
+            hittextmultiline(x - SCALE(4), width - SCALE(8) - (edit->multiline ? SCROLL_WIDTH : 0), y - SCALE(4),
+                             INT_MAX, font_small_lineheight, edit->data, edit->length, edit->multiline);
 
         uint16_t start, length;
         if (edit_sel.p2 > edit_sel.p1) {
@@ -169,9 +173,9 @@ bool edit_mmove(EDIT *edit, int px, int py, int width, int height, int x, int y,
         }
     } else if (mouseover) {
         setfont(FONT_TEXT);
-        edit->mouseover_char = hittextmultiline(
-            x - UTOX_SCALE(2), width - SCALE(8) - (edit->multiline ? SCROLL_WIDTH : 0), y - UTOX_SCALE(2), INT_MAX,
-            font_small_lineheight, edit->data, edit->length, edit->multiline);
+        edit->mouseover_char =
+            hittextmultiline(x - SCALE(4), width - SCALE(8) - (edit->multiline ? SCROLL_WIDTH : 0), y - SCALE(4),
+                             INT_MAX, font_small_lineheight, edit->data, edit->length, edit->multiline);
     }
 
     return need_redraw;
@@ -309,7 +313,9 @@ bool edit_mleave(EDIT *edit) {
     return 0;
 }
 
-static void edit_redraw(void) { redraw(); }
+static void edit_redraw(void) {
+    redraw();
+}
 
 static uint16_t edit_change_do(EDIT *edit, EDIT_CHANGE *c) {
     uint16_t r = c->start;
@@ -424,8 +430,7 @@ void edit_char(uint32_t ch, bool control, uint8_t flags) {
                     if (p != 0) {
                         do {
                             p -= utf8_unlen(&edit->data[p]);
-                        } while ((flags & EMOD_CTRL) && p != 0 && edit->data[p - 1] != ' '
-                                 && edit->data[p - 1] != '\n');
+                        } while ((flags & EMOD_CTRL) && p != 0 && edit->data[p - 1] != ' ' && edit->data[p - 1] != '\n');
                     }
 
                     uint16_t len = edit_sel.start - p;
@@ -478,8 +483,7 @@ void edit_char(uint32_t ch, bool control, uint8_t flags) {
                     if (p != 0) {
                         do {
                             p -= utf8_unlen(&edit->data[p]);
-                        } while ((flags & EMOD_CTRL) && p != 0 && edit->data[p - 1] != ' '
-                                 && edit->data[p - 1] != '\n');
+                        } while ((flags & EMOD_CTRL) && p != 0 && edit->data[p - 1] != ' ' && edit->data[p - 1] != '\n');
                     }
                 }
 
@@ -745,7 +749,9 @@ int edit_selection(EDIT *edit, char *data, int len) {
     return edit_sel.length;
 }
 
-int edit_copy(char *data, int len) { return edit_selection(active_edit, data, len); }
+int edit_copy(char *data, int len) {
+    return edit_selection(active_edit, data, len);
+}
 
 void edit_paste(char *data, int length, bool select) {
     if (!active_edit) {
@@ -762,9 +768,11 @@ void edit_paste(char *data, int length, bool select) {
     int newlen = 0, i = 0;
     while (i < length) {
         uint8_t len = utf8_len(data + i);
-        if ((((!active_edit->multiline || data[i] != '\n') && data[i] <= 0x1F) || data[i] == 0x7F)
-            || (len == 2 && data[i] == 0xc2 && data[i + 1] <= 0x9f)) {
-            // control characters.
+        if ((((!active_edit->multiline || data[i] != '\n')                               // not multiline or '\n'
+              && data[i] <= 0x1F)                                                        // and is a control char
+             || data[i] == 0x7F)                                                         // or is delete
+            || (len == 2 && (uint8_t)data[i] == 0xC2 && (uint8_t)data[i + 1] <= 0xBF)) { // or is utf8
+            // Ignore these control characters.
         } else {
             if (newlen + len > maxlen) {
                 break;
@@ -829,9 +837,13 @@ void edit_setfocus(EDIT *edit) {
     setactive(edit);
 }
 
-bool edit_active(void) { return (active_edit != NULL); }
+bool edit_active(void) {
+    return (active_edit != NULL);
+}
 
-EDIT *edit_get_active(void) { return active_edit; }
+EDIT *edit_get_active(void) {
+    return active_edit;
+}
 
 void edit_setstr(EDIT *edit, char *str, uint16_t length) {
     if (length >= edit->maxlength) {
@@ -857,7 +869,9 @@ void edit_setcursorpos(EDIT *edit, uint16_t pos) {
     edit_sel.length              = 0;
 }
 
-uint16_t edit_getcursorpos(void) { return edit_sel.p1 < edit_sel.p2 ? edit_sel.p1 : edit_sel.p2; }
+uint16_t edit_getcursorpos(void) {
+    return edit_sel.p1 < edit_sel.p2 ? edit_sel.p1 : edit_sel.p2;
+}
 
 bool edit_getmark(uint16_t *outloc, uint16_t *outlen) {
     if (outloc) {

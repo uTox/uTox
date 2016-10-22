@@ -37,7 +37,9 @@ void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data) {
     PostMessage(hwnd, WM_TOX + (msg), ((param1) << 16) | (param2), (LPARAM)data);
 }
 
-void init_ptt(void) { settings.push_to_talk = 1; }
+void init_ptt(void) {
+    settings.push_to_talk = 1;
+}
 
 bool check_ptt_key(void) {
     if (!settings.push_to_talk) {
@@ -54,13 +56,21 @@ bool check_ptt_key(void) {
     }
 }
 
-void exit_ptt(void) { settings.push_to_talk = 0; }
+void exit_ptt(void) {
+    settings.push_to_talk = 0;
+}
 
-void thread(void func(void *), void *args) { _beginthread(func, 0, args); }
+void thread(void func(void *), void *args) {
+    _beginthread(func, 0, args);
+}
 
-void yieldcpu(uint32_t ms) { Sleep(ms); }
+void yieldcpu(uint32_t ms) {
+    Sleep(ms);
+}
 
-uint64_t get_time(void) { return ((uint64_t)clock() * 1000 * 1000); }
+uint64_t get_time(void) {
+    return ((uint64_t)clock() * 1000 * 1000);
+}
 
 void openurl(char *str) {
     //! convert
@@ -715,7 +725,9 @@ void showkeyboard(bool show) {} /* Added for android support. */
 void edit_will_deactivate(void) {}
 
 /* Redraws the main UI window */
-void redraw(void) { panel_draw(&panel_root, 0, 0, settings.window_width, settings.window_height); }
+void redraw(void) {
+    panel_draw(&panel_root, 0, 0, settings.window_width, settings.window_height);
+}
 
 /**
  * update_tray(void)
@@ -744,7 +756,9 @@ void update_tray(void) {
     free(tip);
 }
 
-void force_redraw(void) { redraw(); }
+void force_redraw(void) {
+    redraw();
+}
 
 void desktopgrab(bool video) {
     int x, y, w, h;
@@ -914,7 +928,9 @@ void setscale_fonts(void) {
     loadfonts();
 }
 
-void setscale(void) { svg_draw(1); }
+void setscale(void) {
+    svg_draw(1);
+}
 
 void config_osdefaults(UTOX_SAVE *r) {
     r->window_x      = (GetSystemMetrics(SM_CXSCREEN) - MAIN_WIDTH) / 2;
