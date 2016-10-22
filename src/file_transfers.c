@@ -2,6 +2,7 @@
 
 #include "friend.h"
 #include "main.h"
+#include "util.h"
 
 // static FILE_TRANSFER *file_t[256], **file_tend = file_t;
 #pragma message "FILE_TRANSFER structs need to become dynamic"
@@ -143,12 +144,12 @@ static int utox_file_alloc_ftinfo(FILE_TRANSFER *file) {
     path_length = datapath(path);
 
     if (file->incoming) {
-        uint8_t hex_id[TOX_FILE_ID_LENGTH * 2];
+        char hex_id[TOX_FILE_ID_LENGTH * 2];
         fid_to_string(hex_id, file->file_id);
         memcpy(path + path_length, hex_id, TOX_FILE_ID_LENGTH * 2);
         strcpy((char *)path + (path_length + TOX_FILE_ID_LENGTH * 2), ".ftinfo");
     } else {
-        uint8_t hex_id[TOX_PUBLIC_KEY_SIZE * 2];
+        char hex_id[TOX_PUBLIC_KEY_SIZE * 2];
         cid_to_string(hex_id, friend[file->friend_number].cid);
         memcpy(path + path_length, hex_id, TOX_PUBLIC_KEY_SIZE * 2);
         sprintf((char *)path + (path_length + TOX_PUBLIC_KEY_SIZE * 2), "%02i.ftoutfo", file->file_number % 100);
@@ -176,12 +177,12 @@ static void utox_file_free_ftinfo(FILE_TRANSFER *file) {
     path_length = datapath(path);
 
     if (file->incoming) {
-        uint8_t hex_id[TOX_FILE_ID_LENGTH * 2];
+        char hex_id[TOX_FILE_ID_LENGTH * 2];
         fid_to_string(hex_id, file->file_id);
         memcpy(path + path_length, hex_id, TOX_FILE_ID_LENGTH * 2);
         strcpy((char *)path + (path_length + TOX_FILE_ID_LENGTH * 2), ".ftinfo");
     } else {
-        uint8_t hex_id[TOX_PUBLIC_KEY_SIZE * 2];
+        char hex_id[TOX_PUBLIC_KEY_SIZE * 2];
         cid_to_string(hex_id, friend[file->friend_number].cid);
         memcpy(path + path_length, hex_id, TOX_PUBLIC_KEY_SIZE * 2);
         sprintf((char *)path + (path_length + TOX_PUBLIC_KEY_SIZE * 2), "%02i.ftoutfo", file->file_number % 100);
@@ -195,7 +196,7 @@ static void utox_file_ftoutfo_move(unsigned int friend_number, unsigned int sour
     uint8_t path_src[UTOX_FILE_NAME_LENGTH], path_dst[UTOX_FILE_NAME_LENGTH];
     size_t  path_length;
     path_length = datapath(path_src);
-    uint8_t hex_id[TOX_PUBLIC_KEY_SIZE * 2];
+    char hex_id[TOX_PUBLIC_KEY_SIZE * 2];
     cid_to_string(hex_id, friend[friend_number].cid);
     memcpy(path_src + path_length, hex_id, TOX_PUBLIC_KEY_SIZE * 2);
     memcpy(path_dst, path_src, (path_length + TOX_PUBLIC_KEY_SIZE * 2));
@@ -1052,12 +1053,12 @@ bool utox_file_load_ftinfo(FILE_TRANSFER *file) {
     path_length = datapath(path);
 
     if (file->incoming) {
-        uint8_t hex_id[TOX_FILE_ID_LENGTH * 2];
+        char hex_id[TOX_FILE_ID_LENGTH * 2];
         fid_to_string(hex_id, file->file_id);
         memcpy(path + path_length, hex_id, TOX_FILE_ID_LENGTH * 2);
         strcpy((char *)path + (path_length + TOX_FILE_ID_LENGTH * 2), ".ftinfo");
     } else {
-        uint8_t hex_id[TOX_PUBLIC_KEY_SIZE * 2];
+        char hex_id[TOX_PUBLIC_KEY_SIZE * 2];
         cid_to_string(hex_id, friend[file->friend_number].cid);
         memcpy(path + path_length, hex_id, TOX_PUBLIC_KEY_SIZE * 2);
         sprintf((char *)path + (path_length + TOX_PUBLIC_KEY_SIZE * 2), "%02i.ftoutfo", file->file_number % 100);
