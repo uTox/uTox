@@ -8,6 +8,7 @@
 #include "friend.h"
 #include "groups.h"
 #include "theme.h"
+#include "util.h"
 
 SETTINGS settings = {
     .curr_version = UTOX_VERSION_NUMBER,
@@ -83,7 +84,7 @@ UTOX_SAVE *utox_load_data_utox(void) {
 
 size_t utox_save_chatlog(uint32_t friend_number, uint8_t *data, size_t length) {
     FRIEND *f = &friend[friend_number];
-    uint8_t hex[TOX_PUBLIC_KEY_SIZE * 2];
+    char    hex[TOX_PUBLIC_KEY_SIZE * 2];
     uint8_t name[TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".new.txt")];
     cid_to_string(hex, f->cid);
     snprintf((char *)name, TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".new.txt"), "%.*s.new.txt", TOX_PUBLIC_KEY_SIZE * 2,
@@ -208,7 +209,7 @@ uint8_t **utox_load_chatlog(uint32_t friend_number, size_t *size, uint32_t count
                 debug("Native log read:\tError,reading this record... stopping\n");
                 break;
             }
-            msg->length = utf8_validate(msg->msg, msg->length);
+            msg->length = utf8_validate((uint8_t *)msg->msg, msg->length);
             *data++     = (void *)msg;
             count--;
             actual_count++;
@@ -247,7 +248,7 @@ bool utox_update_chatlog(uint32_t friend_number, size_t offset, uint8_t *data, s
 
 bool utox_remove_friend_chatlog(uint32_t friend_number) {
     size_t  length = TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".new.txt");
-    uint8_t hex[TOX_PUBLIC_KEY_SIZE * 2];
+    char    hex[TOX_PUBLIC_KEY_SIZE * 2];
     uint8_t name[length];
 
     FRIEND *f = &friend[friend_number];
@@ -304,7 +305,7 @@ void utox_export_chatlog(uint32_t friend_number, FILE *dest_file) {
 }
 
 bool utox_save_data_avatar(uint32_t friend_number, const uint8_t *data, size_t length) {
-    uint8_t hex[TOX_PUBLIC_KEY_SIZE * 2];
+    char    hex[TOX_PUBLIC_KEY_SIZE * 2];
     uint8_t name[sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png")];
 
     if (friend_number == -1) {
@@ -328,7 +329,7 @@ bool utox_save_data_avatar(uint32_t friend_number, const uint8_t *data, size_t l
 }
 
 uint8_t *utox_load_data_avatar(uint32_t friend_number, size_t *size) {
-    uint8_t hex[TOX_PUBLIC_KEY_SIZE * 2];
+    char    hex[TOX_PUBLIC_KEY_SIZE * 2];
     uint8_t name[sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png")];
 
     if (friend_number == -1) {
@@ -351,7 +352,7 @@ uint8_t *utox_load_data_avatar(uint32_t friend_number, size_t *size) {
 }
 
 bool utox_remove_file_avatar(uint32_t friend_number) {
-    uint8_t hex[TOX_PUBLIC_KEY_SIZE * 2];
+    char    hex[TOX_PUBLIC_KEY_SIZE * 2];
     uint8_t name[sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png")];
 
     if (friend_number == -1) {
