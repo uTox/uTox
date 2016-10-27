@@ -70,8 +70,7 @@ static bool image_is_stretched(const NATIVE_IMAGE *image) {
 // NOTE: This function is way more complicated than the XRender variant, because
 // the Win32 API is a lot more limited, so all scaling, clipping, and handling
 // transparency has to be done explicitly
-void draw_image(const NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t imgx,
-                uint32_t imgy) {
+void draw_image(const NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t imgx, uint32_t imgy) {
     HDC     drawdc;     // device context we'll do the eventual drawing with
     HBITMAP tmp = NULL; // used when scaling
 
@@ -131,14 +130,14 @@ void draw_inline_image(uint8_t *img_data, size_t size, uint16_t w, uint16_t h, i
     SetDIBitsToDevice(hdc, x, y, w, h, 0, 0, 0, h, img_data, &bmi, DIB_RGB_COLORS);
 }
 
-void drawtext(int x, int y, char *str, uint16_t length) {
+void drawtext(int x, int y, const char *str, uint16_t length) {
     wchar out[length];
     length = utf8tonative(str, out, length);
 
     TextOutW(hdc, x, y, out, length);
 }
 
-int drawtext_getwidth(int x, int y, char *str, uint16_t length) {
+int drawtext_getwidth(int x, int y, const char *str, uint16_t length) {
     wchar out[length];
     length = utf8tonative(str, out, length);
 
@@ -148,7 +147,7 @@ int drawtext_getwidth(int x, int y, char *str, uint16_t length) {
     return size.cx;
 }
 
-void drawtextwidth(int x, int width, int y, char *str, uint16_t length) {
+void drawtextwidth(int x, int width, int y, const char *str, uint16_t length) {
     wchar out[length];
     length = utf8tonative(str, out, length);
 
@@ -156,7 +155,7 @@ void drawtextwidth(int x, int width, int y, char *str, uint16_t length) {
     DrawTextW(hdc, out, length, &r, DT_SINGLELINE | DT_END_ELLIPSIS | DT_NOPREFIX);
 }
 
-void drawtextwidth_right(int x, int width, int y, char *str, uint16_t length) {
+void drawtextwidth_right(int x, int width, int y, const char *str, uint16_t length) {
     wchar out[length];
     length = utf8tonative(str, out, length);
 
@@ -164,7 +163,7 @@ void drawtextwidth_right(int x, int width, int y, char *str, uint16_t length) {
     DrawTextW(hdc, out, length, &r, DT_SINGLELINE | DT_END_ELLIPSIS | DT_NOPREFIX | DT_RIGHT);
 }
 
-void drawtextrange(int x, int x2, int y, char *str, uint16_t length) {
+void drawtextrange(int x, int x2, int y, const char *str, uint16_t length) {
     wchar out[length];
     length = utf8tonative(str, out, length);
 
@@ -172,7 +171,7 @@ void drawtextrange(int x, int x2, int y, char *str, uint16_t length) {
     DrawTextW(hdc, out, length, &r, DT_SINGLELINE | DT_END_ELLIPSIS | DT_NOPREFIX);
 }
 
-void drawtextrangecut(int x, int x2, int y, char *str, uint16_t length) {
+void drawtextrangecut(int x, int x2, int y, const char *str, uint16_t length) {
     wchar out[length];
     length = utf8tonative(str, out, length);
 
@@ -180,7 +179,7 @@ void drawtextrangecut(int x, int x2, int y, char *str, uint16_t length) {
     DrawTextW(hdc, out, length, &r, DT_SINGLELINE | DT_NOPREFIX);
 }
 
-int textwidth(char *str, uint16_t length) {
+int textwidth(const char *str, uint16_t length) {
     wchar out[length];
     length = utf8tonative(str, out, length);
 
@@ -189,7 +188,7 @@ int textwidth(char *str, uint16_t length) {
     return size.cx;
 }
 
-int textfit(char *str, uint16_t len, int width) {
+int textfit(const char *str, uint16_t len, int width) {
     wchar out[len];
     int   length = utf8tonative(str, out, len);
 
@@ -200,7 +199,7 @@ int textfit(char *str, uint16_t len, int width) {
     return WideCharToMultiByte(CP_UTF8, 0, out, fit, (char *)str, len, NULL, 0);
 }
 
-int textfit_near(char *str, uint16_t len, int width) {
+int textfit_near(const char *str, uint16_t len, int width) {
     /*todo: near*/
     wchar out[len];
     int   length = utf8tonative(str, out, len);
@@ -243,9 +242,13 @@ void drawvline(int x, int y, int y2, uint32_t color) {
     FillRect(hdc, &r, hdc_brush);
 }
 
-void setfont(int id) { SelectObject(hdc, font[id]); }
+void setfont(int id) {
+    SelectObject(hdc, font[id]);
+}
 
-uint32_t setcolor(uint32_t color) { return SetTextColor(hdc, color); }
+uint32_t setcolor(uint32_t color) {
+    return SetTextColor(hdc, color);
+}
 
 RECT clip[16];
 
@@ -284,4 +287,6 @@ void enddraw(int x, int y, int width, int height) {
     BitBlt(main_hdc, x, y, width, height, hdc, x, y, SRCCOPY);
 }
 
-void loadalpha(int bm, void *data, int width, int height) { bitmap[bm] = data; }
+void loadalpha(int bm, void *data, int width, int height) {
+    bitmap[bm] = data;
+}

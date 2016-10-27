@@ -74,7 +74,7 @@ void drawalpha(int bm, int x, int y, int width, int height, uint32_t color) {
     XRenderFreePicture(display, src);
 }
 
-static int _drawtext(int x, int xmax, int y, char *str, uint16_t length) {
+static int _drawtext(int x, int xmax, int y, const char *str, uint16_t length) {
     GLYPH *  g;
     uint8_t  len;
     uint32_t ch;

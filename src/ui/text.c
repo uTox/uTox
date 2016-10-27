@@ -3,8 +3,10 @@
 
 #include "../main.h"
 #include "../theme.h"
+#include "../util.h"
 
-static void text_draw_word_hl(int x, int y, char *str, uint16_t length, int d, int h, int hlen, uint16_t lineheight) {
+static void text_draw_word_hl(int x, int y, const char *str, uint16_t length, int d, int h, int hlen,
+                              uint16_t lineheight) {
     // Draw cursor
     /* multiline drawing goes word by word so str is not what you think it will be
      * drawing word by word could be the WORST way to go about it. (It's at least super frustrating without the
@@ -49,7 +51,7 @@ static void text_draw_word_hl(int x, int y, char *str, uint16_t length, int d, i
     drawtext(x + width, y, str + h + hlen, length - (h + hlen));
 }
 
-static void drawtextmark(int x, int y, char *str, uint16_t length, int d, int h, int hlen, uint16_t lineheight) {
+static void drawtextmark(int x, int y, const char *str, uint16_t length, int d, int h, int hlen, uint16_t lineheight) {
     h -= d;
     if (h + hlen < 0 || h > length || hlen == 0) {
         return;
@@ -78,9 +80,11 @@ int utox_draw_text_multiline_within_box(int x, int y, /* x, y of the top left co
                                         uint16_t length, /* text, and length of the text*/
                                         uint16_t h, uint16_t hlen, uint16_t mark, uint16_t marklen, bool multiline) {
     uint32_t c1, c2;
-    bool     greentext = 0, link = 0, draw = y + lineheight >= top;
-    int      xc = x;
-    char *   a = data, *b = a, *end = a + length;
+
+    bool greentext = 0, link = 0, draw = y + lineheight >= top;
+    int  xc = x;
+
+    const char *a = data, *b = a, *end = a + length;
     while (1) {
         if (a != end) {
             if (*a == '>' && (a == data || *(a - 1) == '\n')) {
@@ -89,14 +93,13 @@ int utox_draw_text_multiline_within_box(int x, int y, /* x, y of the top left co
             }
 
             if ((a == data || *(a - 1) == '\n' || *(a - 1) == ' ')
-                && ((end - a >= 7 && memcmp(a, "http://", 7) == 0)
-                    || (end - a >= 8 && memcmp(a, "https://", 8) == 0))) {
+                && ((end - a >= 7 && memcmp(a, "http://", 7) == 0) || (end - a >= 8 && memcmp(a, "https://", 8) == 0))) {
                 c2   = setcolor(COLOR_MAIN_TEXT_URL);
                 link = 1;
             }
 
             if (a == data || *(a - 1) == '\n') {
-                char *r = a;
+                const char *r = a;
                 while (r != end && *r != '\n') {
                     r++;
                 }

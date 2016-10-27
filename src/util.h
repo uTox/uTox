@@ -60,7 +60,7 @@ int sprint_humanread_bytes(char *dest, unsigned int size, uint64_t bytes);
  */
 uint8_t utf8_len(const char *data);
 /* read the character into ch */
-uint8_t utf8_len_read(char *data, uint32_t *ch);
+uint8_t utf8_len_read(const char *data, uint32_t *ch);
 /* backwards length */
 uint8_t utf8_unlen(char *data);
 

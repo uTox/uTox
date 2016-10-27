@@ -234,7 +234,7 @@ uint8_t utf8_len(const char *data) {
     return bytes;
 }
 
-uint8_t utf8_len_read(char *data, uint32_t *ch) {
+uint8_t utf8_len_read(const char *data, uint32_t *ch) {
     uint8_t a = data[0];
     if (!(a & 0x80)) {
         *ch = data[0];

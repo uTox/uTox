@@ -443,16 +443,16 @@ bool check_ptt_key(void);
 void exit_ptt(void);
 
 /* draw functions*/
-void drawtext(int x, int y, char *str, uint16_t length);
-int drawtext_getwidth(int x, int y, char *str, uint16_t length);
-void drawtextwidth(int x, int width, int y, char *str, uint16_t length);
-void drawtextwidth_right(int x, int width, int y, char *str, uint16_t length);
-void drawtextrange(int x, int x2, int y, char *str, uint16_t length);
-void drawtextrangecut(int x, int x2, int y, char *str, uint16_t length);
+void drawtext(int x, int y, const char *str, uint16_t length);
+int drawtext_getwidth(int x, int y, const char *str, uint16_t length);
+void drawtextwidth(int x, int width, int y, const char *str, uint16_t length);
+void drawtextwidth_right(int x, int width, int y, const char *str, uint16_t length);
+void drawtextrange(int x, int x2, int y, const char *str, uint16_t length);
+void drawtextrangecut(int x, int x2, int y, const char *str, uint16_t length);
 
-int textwidth(char *str, uint16_t length);
-int textfit(char *str, uint16_t length, int width);
-int textfit_near(char *str, uint16_t length, int width);
+int textwidth(const char *str, uint16_t length);
+int textfit(const char *str, uint16_t length, int width);
+int textfit_near(const char *str, uint16_t length, int width);
 // TODO: Seems to be unused. Remove?
 int text_drawline(int x, int right, int y, uint8_t *str, int i, int length, int highlight, int hlen, uint16_t lineheight);
 

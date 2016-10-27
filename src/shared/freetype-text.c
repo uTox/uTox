@@ -1,18 +1,24 @@
 
-void drawtext(int x, int y, char *str, uint16_t length) { _drawtext(x, INT_MAX, y, str, length); }
+void drawtext(int x, int y, const char *str, uint16_t length) {
+    _drawtext(x, INT_MAX, y, str, length);
+}
 
-int drawtext_getwidth(int x, int y, char *str, uint16_t length) { return _drawtext(x, INT_MAX, y, str, length) - x; }
+int drawtext_getwidth(int x, int y, const char *str, uint16_t length) {
+    return _drawtext(x, INT_MAX, y, str, length) - x;
+}
 
-void drawtextrange(int x, int xmax, int y, char *str, uint16_t length) {
+void drawtextrange(int x, int xmax, int y, const char *str, uint16_t length) {
     x = _drawtext(x, xmax, y, str, length);
     if (x < 0) {
         _drawtext(-x, INT_MAX, y, (char *)"...", 3);
     }
 }
 
-void drawtextwidth(int x, int width, int y, char *str, uint16_t length) { drawtextrange(x, x + width, y, str, length); }
+void drawtextwidth(int x, int width, int y, const char *str, uint16_t length) {
+    drawtextrange(x, x + width, y, str, length);
+}
 
-void drawtextwidth_right(int x, int width, int y, char *str, uint16_t length) {
+void drawtextwidth_right(int x, int width, int y, const char *str, uint16_t length) {
     int w = textwidth(str, length);
     if (w <= width) {
         drawtext(x + width - w, y, str, length);
@@ -21,7 +27,7 @@ void drawtextwidth_right(int x, int width, int y, char *str, uint16_t length) {
     }
 }
 
-int textwidth(char *str, uint16_t length) {
+int textwidth(const char *str, uint16_t length) {
     GLYPH *  g;
     uint8_t  len;
     uint32_t ch;
@@ -39,7 +45,7 @@ int textwidth(char *str, uint16_t length) {
     return x;
 }
 
-int textfit(char *str, uint16_t length, int width) {
+int textfit(const char *str, uint16_t length, int width) {
     GLYPH *  g;
     uint8_t  len;
     uint32_t ch;
@@ -64,7 +70,7 @@ int textfit(char *str, uint16_t length, int width) {
     return length;
 }
 
-int textfit_near(char *str, uint16_t length, int width) {
+int textfit_near(const char *str, uint16_t length, int width) {
     GLYPH *  g;
     uint8_t  len;
     uint32_t ch;
@@ -89,4 +95,6 @@ int textfit_near(char *str, uint16_t length, int width) {
     return length;
 }
 
-void setfont(int id) { sfont = &font[id]; }
+void setfont(int id) {
+    sfont = &font[id];
+}

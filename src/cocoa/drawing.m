@@ -126,9 +126,8 @@ int drawtext_want_width(int x, int y, char *str, uint16_t length, BOOL wants_wid
     CFStringRef keys[]   = { kCTFontAttributeName, kCTForegroundColorAttributeName };
     CFTypeRef   values[] = { font, global_text_state._use_font_color_ref };
 
-    CFDictionaryRef attributes =
-        CFDictionaryCreate(kCFAllocatorDefault, (const void **)&keys, (const void **)&values, 2,
-                           &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+    CFDictionaryRef attributes = CFDictionaryCreate(kCFAllocatorDefault, (const void **)&keys, (const void **)&values,
+                                                    2, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
 
     CFAttributedStringRef attrString = CFAttributedStringCreate(kCFAllocatorDefault, string, attributes);
     CFRelease(string);
@@ -146,11 +145,15 @@ int drawtext_want_width(int x, int y, char *str, uint16_t length, BOOL wants_wid
                0;
 }
 
-void drawtext(int x, int y, char *str, uint16_t length) { drawtext_want_width(x, y, str, length, NO); }
+void drawtext(int x, int y, const char *str, uint16_t length) {
+    drawtext_want_width(x, y, str, length, NO);
+}
 
-int drawtext_getwidth(int x, int y, char *str, uint16_t length) { return drawtext_want_width(x, y, str, length, YES); }
+int drawtext_getwidth(int x, int y, const char *str, uint16_t length) {
+    return drawtext_want_width(x, y, str, length, YES);
+}
 
-void drawtextwidth(int x, int width, int y, char *str, uint16_t length) {
+void drawtextwidth(int x, int width, int y, const char *str, uint16_t length) {
     DRAW_TARGET_CHK()
 
     CGContextRef context = [NSGraphicsContext currentContext].graphicsPort;
@@ -167,9 +170,8 @@ void drawtextwidth(int x, int width, int y, char *str, uint16_t length) {
     CFStringRef keys[]   = { kCTFontAttributeName, kCTForegroundColorAttributeName };
     CFTypeRef   values[] = { font, global_text_state._use_font_color_ref };
 
-    CFDictionaryRef attributes =
-        CFDictionaryCreate(kCFAllocatorDefault, (const void **)&keys, (const void **)&values, 2,
-                           &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+    CFDictionaryRef attributes = CFDictionaryCreate(kCFAllocatorDefault, (const void **)&keys, (const void **)&values,
+                                                    2, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
 
     CFAttributedStringRef attrString = CFAttributedStringCreate(kCFAllocatorDefault, string, attributes);
     CFAttributedStringRef ellipse    = CFAttributedStringCreate(kCFAllocatorDefault, CFSTR("\u2026"), attributes);
@@ -196,7 +198,7 @@ free_everything:
     CFRelease(ellipse);
 }
 
-void drawtextwidth_right(int x, int width, int y, char *str, uint16_t length) {
+void drawtextwidth_right(int x, int width, int y, const char *str, uint16_t length) {
     DRAW_TARGET_CHK()
 
     CGContextRef context = [NSGraphicsContext currentContext].graphicsPort;
@@ -213,9 +215,8 @@ void drawtextwidth_right(int x, int width, int y, char *str, uint16_t length) {
     CFStringRef keys[]   = { kCTFontAttributeName, kCTForegroundColorAttributeName };
     CFTypeRef   values[] = { font, global_text_state._use_font_color_ref };
 
-    CFDictionaryRef attributes =
-        CFDictionaryCreate(kCFAllocatorDefault, (const void **)&keys, (const void **)&values, 2,
-                           &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+    CFDictionaryRef attributes = CFDictionaryCreate(kCFAllocatorDefault, (const void **)&keys, (const void **)&values,
+                                                    2, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
 
     CFAttributedStringRef attrString = CFAttributedStringCreate(kCFAllocatorDefault, string, attributes);
     CFAttributedStringRef ellipse    = CFAttributedStringCreate(kCFAllocatorDefault, CFSTR("\u2026"), attributes);
@@ -244,11 +245,15 @@ free_everything:
     CFRelease(ellipse);
 }
 
-void drawtextrange(int x, int x2, int y, char *str, uint16_t length) { drawtextwidth(x, x2 - x, y, str, length); }
+void drawtextrange(int x, int x2, int y, const char *str, uint16_t length) {
+    drawtextwidth(x, x2 - x, y, str, length);
+}
 
-void drawtextrangecut(int x, int x2, int y, char *str, uint16_t length) { drawtextwidth(x, x2 - x, y, str, length); }
+void drawtextrangecut(int x, int x2, int y, const char *str, uint16_t length) {
+    drawtextwidth(x, x2 - x, y, str, length);
+}
 
-int textwidth(char *str, uint16_t length) {
+int textwidth(const char *str, uint16_t length) {
     CFStringRef string = try_to_interpret_string(str, length);
     if (!string) {
         return 0;
@@ -259,9 +264,8 @@ int textwidth(char *str, uint16_t length) {
     CFStringRef keys[]   = { kCTFontAttributeName };
     CFTypeRef   values[] = { font };
 
-    CFDictionaryRef attributes =
-        CFDictionaryCreate(kCFAllocatorDefault, (const void **)&keys, (const void **)&values, 1,
-                           &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+    CFDictionaryRef attributes = CFDictionaryCreate(kCFAllocatorDefault, (const void **)&keys, (const void **)&values,
+                                                    1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
 
     CFAttributedStringRef attrString = CFAttributedStringCreate(kCFAllocatorDefault, string, attributes);
     CFRelease(string);
@@ -275,7 +279,7 @@ int textwidth(char *str, uint16_t length) {
     return ret;
 }
 
-int textfit(char *str, uint16_t length, int width) {
+int textfit(const char *str, uint16_t length, int width) {
     CFStringRef string = try_to_interpret_string(str, length);
     if (!string) {
         return 0;
@@ -286,9 +290,8 @@ int textfit(char *str, uint16_t length, int width) {
     CFStringRef keys[]   = { kCTFontAttributeName };
     CFTypeRef   values[] = { font };
 
-    CFDictionaryRef attributes =
-        CFDictionaryCreate(kCFAllocatorDefault, (const void **)&keys, (const void **)&values, 1,
-                           &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+    CFDictionaryRef attributes = CFDictionaryCreate(kCFAllocatorDefault, (const void **)&keys, (const void **)&values,
+                                                    1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
 
     CFAttributedStringRef attrString = CFAttributedStringCreate(kCFAllocatorDefault, string, attributes);
     CFRelease(attributes);
@@ -309,9 +312,13 @@ int textfit(char *str, uint16_t length, int width) {
     return ret;
 }
 
-int textfit_near(char *str, uint16_t length, int width) { return textfit(str, length, width); }
+int textfit_near(const char *str, uint16_t length, int width) {
+    return textfit(str, length, width);
+}
 
-void setfont(int id) { global_text_state._use_font = fonts[id]; }
+void setfont(int id) {
+    global_text_state._use_font = fonts[id];
+}
 
 uint32_t setcolor(uint32_t color) {
     uint32_t ret = global_text_state._use_font_color;
@@ -341,7 +348,9 @@ void setscale_fonts(void) {
 #define COCOA_BASE_FONT_ELCAPITAN ".SFNSText"
 
     const char *fontname;
-    AT_LEAST_ELCAPITAN_DO { fontname = COCOA_BASE_FONT_ELCAPITAN; }
+    AT_LEAST_ELCAPITAN_DO {
+        fontname = COCOA_BASE_FONT_ELCAPITAN;
+    }
     else AT_LEAST_YOSEMITE_DO {
         fontname = COCOA_BASE_FONT_YOSEMITE;
     }
@@ -362,10 +371,11 @@ void setscale_fonts(void) {
 #undef COCOA_BASE_FONT_NEW
 #undef COCOA_BASE_FONT_OLD
 
-    AT_LEAST_ELCAPITAN_DO { font_small_lineheight = CTFontGetBoundingBox(fonts[FONT_TEXT]).size.height; }
+    AT_LEAST_ELCAPITAN_DO {
+        font_small_lineheight = CTFontGetBoundingBox(fonts[FONT_TEXT]).size.height;
+    }
     else {
-        font_small_lineheight =
-            (CTFontGetBoundingBox(fonts[FONT_TEXT]).size.height - CTFontGetDescent(fonts[FONT_TEXT]));
+        font_small_lineheight = (CTFontGetBoundingBox(fonts[FONT_TEXT]).size.height - CTFontGetDescent(fonts[FONT_TEXT]));
     }
     font_small_lineheight += CTFontGetLeading(fonts[FONT_TEXT]);
 
@@ -391,7 +401,9 @@ void setscale(void) {
     ad.utox_window.minSize = (CGSize){ SCALE(640), SCALE(320) };
 }
 
-void cgdataprovider_is_finished(void *info, const void *data, size_t size) { free((void *)data); }
+void cgdataprovider_is_finished(void *info, const void *data, size_t size) {
+    free((void *)data);
+}
 
 void drawalpha(int bm, int x, int y, int width, int height, uint32_t color) {
     DRAW_TARGET_CHK()
@@ -527,8 +539,7 @@ void popclip(void) {
 
 void enddraw(int x, int y, int width, int height) {}
 
-void draw_image(const NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t imgx,
-                uint32_t imgy) {
+void draw_image(const NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t imgx, uint32_t imgy) {
     DRAW_TARGET_CHK()
 
     // debug("%lu %lu %lf", imgx, imgy, image->scale);
