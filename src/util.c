@@ -5,6 +5,7 @@
 
 #include "util.h"
 
+#include "flist.h"
 #include "main_native.h"
 #include "ui/dropdowns.h"
 #include "ui/switches.h"
@@ -157,7 +158,7 @@ void hash_to_string(char *dest, uint8_t *src) {
 }
 
 bool string_to_id(uint8_t *w, char *a) {
-    char *end = w + TOX_FRIEND_ADDRESS_SIZE;
+    uint8_t *end = w + TOX_FRIEND_ADDRESS_SIZE;
     while (w != end) {
         char c, v;
 
@@ -748,8 +749,8 @@ void config_save(UTOX_SAVE *save_in) {
 
 void utox_write_metadata(FRIEND *f) {
     /* Create path */
-    uint8_t dest[UTOX_FILE_NAME_LENGTH], *dest_p;
-    dest_p = dest + datapath(dest);
+    char dest[UTOX_FILE_NAME_LENGTH], *dest_p;
+    dest_p = dest + datapath((uint8_t *)dest);
     cid_to_string(dest_p, f->cid);
     memcpy((char *)dest_p + (TOX_PUBLIC_KEY_SIZE * 2), ".fmetadata", sizeof(".fmetadata"));
 
@@ -773,6 +774,6 @@ void utox_write_metadata(FRIEND *f) {
     memcpy(data + sizeof(*metadata), f->alias, metadata->alias_length);
 
     /* Write */
-    file_write_raw(dest, (uint8_t *)data, total_size);
+    file_write_raw((uint8_t *)dest, (uint8_t *)data, total_size);
     free(data);
 }

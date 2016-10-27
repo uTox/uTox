@@ -1,5 +1,7 @@
 #include "../main.h"
 
+#include "../util.h"
+
 void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height, _Bool resize) {
     if (!video_win[id]) {
         debug("frame for null window %u\n", id);
@@ -56,7 +58,7 @@ void video_begin(uint32_t id, char *name, uint16_t name_length, uint16_t width, 
     // Fallback name in ISO8859-1.
     XStoreName(display, *win, "Video Preview");
     // UTF-8 name for those WMs that can display it.
-    XChangeProperty(display, *win, XA_NET_NAME, XA_UTF8_STRING, 8, PropModeReplace, name, name_length);
+    XChangeProperty(display, *win, XA_NET_NAME, XA_UTF8_STRING, 8, PropModeReplace, (uint8_t *)name, name_length);
     XSetWMProtocols(display, *win, &wm_delete_window, 1);
 
     /* set WM_CLASS */

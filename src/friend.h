@@ -35,8 +35,8 @@ typedef struct friend_meta_data_old {
     uint8_t data[];
 } FRIEND_META_DATA_OLD;
 
-typedef struct friend FRIEND;
-struct friend {
+
+typedef struct utox_friend {
     uint8_t cid[TOX_PUBLIC_KEY_SIZE];
 
     uint8_t id_str[TOX_PUBLIC_KEY_SIZE * 2];
@@ -76,7 +76,7 @@ struct friend {
     /* File transfers */
     uint16_t transfer_count;
     bool     ft_autoaccept;
-};
+} FRIEND;
 
 typedef struct {
     uint16_t length;
