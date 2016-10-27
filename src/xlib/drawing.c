@@ -1,7 +1,11 @@
 /* xlib drawing.c */
 #include "../main.h"
 
-void redraw(void) { _redraw = 1; }
+#include "../util.h"
+
+void redraw(void) {
+    _redraw = 1;
+}
 
 void force_redraw(void) {
     XEvent ev = {.xclient = {.type         = ClientMessage,
@@ -15,8 +19,7 @@ void force_redraw(void) {
     XFlush(display);
 }
 
-void draw_image(const NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t imgx,
-                uint32_t imgy) {
+void draw_image(const NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t imgx, uint32_t imgy) {
     XRenderComposite(display, PictOpOver, image->rgb, image->alpha, renderpic, imgx, imgy, imgx, imgy, x, y, width,
                      height);
 }
@@ -97,6 +100,7 @@ static int _drawtext(int x, int xmax, int y, char *str, uint16_t length) {
     return x;
 }
 
+// TODO Moing this to the top throws errors, find out why
 #include "../shared/freetype-text.c"
 
 void draw_rect_frame(int x, int y, int width, int height, uint32_t color) {
