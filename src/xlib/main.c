@@ -18,7 +18,9 @@ void  gtk_openfileavatar(void);
 void gtk_native_select_dir_ft(uint32_t fid, MSG_FILE *file);
 void gtk_savefiledata(MSG_FILE *file);
 
-void setclipboard(void) { XSetSelectionOwner(display, XA_CLIPBOARD, window, CurrentTime); }
+void setclipboard(void) {
+    XSetSelectionOwner(display, XA_CLIPBOARD, window, CurrentTime);
+}
 
 void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data) {
     XEvent event = {
@@ -138,7 +140,9 @@ void thread(void func(void *), void *args) {
     pthread_attr_destroy(&attr);
 }
 
-void yieldcpu(uint32_t ms) { usleep(1000 * ms); }
+void yieldcpu(uint32_t ms) {
+    usleep(1000 * ms);
+}
 
 uint64_t get_time(void) {
     struct timespec ts;
@@ -189,31 +193,33 @@ int datapath(uint8_t *dest) {
 
 /** Takes data from µTox and saves it, just how the OS likes it saved! */
 size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *data, size_t length, bool append) {
-    uint8_t path[UTOX_FILE_NAME_LENGTH];
-    uint8_t atomic_path[UTOX_FILE_NAME_LENGTH];
-    FILE *  file;
-    size_t  offset = 0;
+    char path[UTOX_FILE_NAME_LENGTH]        = { 0 };
+    char atomic_path[UTOX_FILE_NAME_LENGTH] = { 0 };
+
+    FILE *file;
+
+    size_t offset = 0;
 
     if (settings.portable_mode) {
-        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "./tox/");
+        snprintf(path, UTOX_FILE_NAME_LENGTH, "./tox/");
     } else {
-        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));
+        snprintf(path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));
     }
 
-    mkdir((char *)path, 0700);
+    mkdir(path, 0700);
 
-    snprintf((char *)path + strlen((const char *)path), UTOX_FILE_NAME_LENGTH - strlen((const char *)path), "%s", name);
+    snprintf(path + strlen(path), UTOX_FILE_NAME_LENGTH - strlen(path), "%s", name);
 
     if (append) {
-        file = fopen((const char *)path, "ab");
+        file = fopen(path, "ab");
     } else {
-        if (strlen((const char *)path) + name_length >= UTOX_FILE_NAME_LENGTH - strlen(".atomic")) {
+        if (strlen(path) + name_length >= UTOX_FILE_NAME_LENGTH - strlen(".atomic")) {
             debug("NATIVE:\tSave directory name too long\n");
             return 0;
         } else {
-            snprintf((char *)atomic_path, UTOX_FILE_NAME_LENGTH, "%s.atomic", path);
+            snprintf(atomic_path, UTOX_FILE_NAME_LENGTH, "%s.atomic", path);
         }
-        file = fopen((const char *)atomic_path, "wb");
+        file = fopen(atomic_path, "wb");
     }
 
     if (file) {
@@ -226,7 +232,7 @@ size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *
             return offset;
         }
 
-        if (rename((const char *)atomic_path, (const char *)path)) {
+        if (rename(atomic_path, path)) {
             /* Consider backing up this file instead of overwriting it. */
             debug("NATIVE:\t%sUnable to move file!\n", atomic_path);
             return 0;
@@ -242,8 +248,8 @@ size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *
 
 /** Takes data from µTox and loads it up! */
 uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_size) {
-    uint8_t  path[UTOX_FILE_NAME_LENGTH];
-    uint8_t *data;
+    char  path[UTOX_FILE_NAME_LENGTH] = { 0 };
+    char *data;
 
     if (settings.portable_mode) {
         snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "./tox/");
@@ -251,15 +257,14 @@ uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_s
         snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));
     }
 
-    if (strlen((const char *)path) + name_length >= UTOX_FILE_NAME_LENGTH) {
+    if (strlen(path) + name_length >= UTOX_FILE_NAME_LENGTH) {
         debug("NATIVE:\tLoad directory name too long\n");
         return 0;
     } else {
-        snprintf((char *)path + strlen((const char *)path), UTOX_FILE_NAME_LENGTH - strlen((const char *)path), "%s",
-                 name);
+        snprintf(path + strlen(path), UTOX_FILE_NAME_LENGTH - strlen(path), "%s", name);
     }
 
-    FILE *file = fopen((const char *)path, "rb");
+    FILE *file = fopen(path, "rb");
     if (!file) {
         // debug("NATIVE:\tUnable to open/read %s\n", path);
         if (out_size) {
@@ -270,7 +275,8 @@ uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_s
 
     fseek(file, 0, SEEK_END);
     size_t size = ftell(file);
-    data        = calloc(size + 1, 1); // needed for the ending null byte
+
+    data = calloc(size + 1, 1); // needed for the ending null byte
     if (!data) {
         fclose(file);
         if (out_size) {
@@ -307,27 +313,25 @@ uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_s
  * after skipping `skip` records
  */
 FILE *native_load_chatlog_file(uint32_t friend_number) {
-    FRIEND *f                            = &friend[friend_number];
-    char    hex[TOX_PUBLIC_KEY_SIZE * 2] = { 0 };
-    uint8_t path[UTOX_FILE_NAME_LENGTH]  = { 0 };
+    FRIEND *f = &friend[friend_number];
 
-    cid_to_string(hex, f->cid);
+    char path[UTOX_FILE_NAME_LENGTH] = { 0 };
 
     if (settings.portable_mode) {
-        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "./tox/");
+        snprintf(path, UTOX_FILE_NAME_LENGTH, "./tox/");
     } else {
-        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));
+        snprintf(path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));
     }
 
-    if (strlen((const char *)path) + sizeof(hex) >= UTOX_FILE_NAME_LENGTH) {
+    if (strlen(path) + TOX_PUBLIC_KEY_SIZE * 2 >= UTOX_FILE_NAME_LENGTH) {
         debug("NATIVE:\tLoad directory name too long\n");
         return 0;
     } else {
-        snprintf((char *)path + strlen((const char *)path), UTOX_FILE_NAME_LENGTH - strlen((const char *)path),
-                 "%.*s.new.txt", (int)sizeof(hex), (char *)hex);
+        snprintf(path + strlen(path), UTOX_FILE_NAME_LENGTH - strlen(path), "%.*s.new.txt", TOX_PUBLIC_KEY_SIZE * 2,
+                 f->id_str);
     }
 
-    FILE *file = fopen((const char *)path, "rb+");
+    FILE *file = fopen(path, "rb+");
     if (!file) {
         return NULL;
     }
@@ -529,7 +533,9 @@ void create_tray_icon(void) {
     draw_tray_icon();
 }
 
-void destroy_tray_icon(void) { XDestroyWindow(display, tray_window); }
+void destroy_tray_icon(void) {
+    XDestroyWindow(display, tray_window);
+}
 
 /** Toggles the main window to/from hidden to tray/shown. */
 void togglehide(void) {
@@ -830,7 +836,9 @@ void image_free(NATIVE_IMAGE *image) {
  *
  * returns 0 and 1 on success and failure.
  */
-int ch_mod(uint8_t *file) { return chmod((char *)file, S_IRUSR | S_IWUSR); }
+int ch_mod(uint8_t *file) {
+    return chmod((char *)file, S_IRUSR | S_IWUSR);
+}
 
 void flush_file(FILE *file) {
     fflush(file);

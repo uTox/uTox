@@ -84,13 +84,11 @@ UTOX_SAVE *utox_load_data_utox(void) {
 
 size_t utox_save_chatlog(uint32_t friend_number, uint8_t *data, size_t length) {
     FRIEND *f = &friend[friend_number];
-    char    hex[TOX_PUBLIC_KEY_SIZE * 2];
-    uint8_t name[TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".new.txt")];
-    cid_to_string(hex, f->cid);
-    snprintf((char *)name, TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".new.txt"), "%.*s.new.txt", TOX_PUBLIC_KEY_SIZE * 2,
-             (char *)hex);
 
-    return native_save_data(name, strlen((const char *)name), (const uint8_t *)data, length, 1);
+    char name[TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".new.txt")];
+    snprintf(name, TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".new.txt"), "%.*s.new.txt", TOX_PUBLIC_KEY_SIZE * 2, f->id_str);
+
+    return native_save_data((uint8_t *)name, strlen(name), data, length, 1);
 }
 
 static size_t utox_count_chatlog(uint32_t friend_number) {
@@ -135,8 +133,8 @@ uint8_t **utox_load_chatlog(uint32_t friend_number, size_t *size, uint32_t count
      * However once we have it, every platform does the same thing, this should prevent issues
      * from occuring on a single platform. */
     LOG_FILE_MSG_HEADER header;
-    size_t              records_count = utox_count_chatlog(friend_number);
 
+    size_t records_count = utox_count_chatlog(friend_number);
 
     FILE *file = native_load_chatlog_file(friend_number);
     if (!file) {
@@ -161,9 +159,10 @@ uint8_t **utox_load_chatlog(uint32_t friend_number, size_t *size, uint32_t count
         count = records_count - skip;
     }
 
-    uint8_t **data         = calloc(1, sizeof(*data) * count + 1);
-    size_t    start_at     = records_count - count - skip;
-    size_t    actual_count = 0;
+    uint8_t **data = calloc(1, sizeof(*data) * count + 1);
+
+    size_t start_at     = records_count - count - skip;
+    size_t actual_count = 0;
 
     size_t file_offset = 0;
 
@@ -305,50 +304,58 @@ void utox_export_chatlog(uint32_t friend_number, FILE *dest_file) {
 }
 
 bool utox_save_data_avatar(uint32_t friend_number, const uint8_t *data, size_t length) {
-    char    hex[TOX_PUBLIC_KEY_SIZE * 2];
-    uint8_t name[sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png")];
+    char name[sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png")];
 
     if (friend_number == -1) {
-        memcpy(hex, self.id_str, TOX_PUBLIC_KEY_SIZE * 2);
-    } else {
         /* load current user's avatar */
-        FRIEND *f = &friend[friend_number];
-        cid_to_string(hex, f->cid);
-    }
-
-    snprintf((char *)name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"), "avatars/%.*s.png",
-             TOX_PUBLIC_KEY_SIZE * 2, (char *)hex);
+        snprintf(name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"), "avatars/%.*s.png",
+                 TOX_PUBLIC_KEY_SIZE * 2, self.id_str);
 
 #ifdef __WIN32__
-    snprintf((char *)name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"), "avatars\\%.*s.png",
-             TOX_PUBLIC_KEY_SIZE * 2, (char *)hex);
+        snprintf(name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"), "avatars\\%.*s.png",
+                 TOX_PUBLIC_KEY_SIZE * 2, self.id_str);
 #endif
+    } else {
+        FRIEND *f = &friend[friend_number];
+        snprintf(name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"), "avatars/%.*s.png",
+                 TOX_PUBLIC_KEY_SIZE * 2, f->id_str);
+
+#ifdef __WIN32__
+        snprintf(name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"), "avatars\\%.*s.png",
+                 TOX_PUBLIC_KEY_SIZE * 2, f->id_str);
+#endif
+    }
 
 
-    return native_save_data(name, strlen((const char *)name), (const uint8_t *)data, length, 0);
+    return native_save_data((uint8_t *)name, strlen((const char *)name), (const uint8_t *)data, length, 0);
 }
 
 uint8_t *utox_load_data_avatar(uint32_t friend_number, size_t *size) {
-    char    hex[TOX_PUBLIC_KEY_SIZE * 2];
-    uint8_t name[sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png")];
+
+    char name[sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png")];
 
     if (friend_number == -1) {
-        memcpy(hex, self.id_str, TOX_PUBLIC_KEY_SIZE * 2);
-    } else {
         /* load current user's avatar */
-        FRIEND *f = &friend[friend_number];
-        cid_to_string(hex, f->cid);
-    }
-
-    snprintf((char *)name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"), "avatars/%.*s.png",
-             TOX_PUBLIC_KEY_SIZE * 2, (char *)hex);
+        snprintf(name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"), "avatars/%.*s.png",
+                 TOX_PUBLIC_KEY_SIZE * 2, self.id_str);
 
 #ifdef __WIN32__
-    snprintf((char *)name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"), "avatars\\%.*s.png",
-             TOX_PUBLIC_KEY_SIZE * 2, (char *)hex);
+        snprintf(name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"), "avatars\\%.*s.png",
+                 TOX_PUBLIC_KEY_SIZE * 2, self.id_str);
 #endif
+    } else {
+        FRIEND *f = &friend[friend_number];
+        snprintf(name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"), "avatars/%.*s.png",
+                 TOX_PUBLIC_KEY_SIZE * 2, f->id_str);
 
-    return native_load_data(name, strlen((const char *)name), size);
+#ifdef __WIN32__
+        snprintf(name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"), "avatars\\%.*s.png",
+                 TOX_PUBLIC_KEY_SIZE * 2, f->id_str);
+#endif
+    }
+
+
+    return native_load_data((uint8_t *)name, strlen((const char *)name), size);
 }
 
 bool utox_remove_file_avatar(uint32_t friend_number) {
