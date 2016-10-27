@@ -6,6 +6,13 @@
 #define XLIB_MAIN_H
 #define MAIN_H
 
+#ifdef HAVE_DBUS
+#include "dbus.h"
+#endif
+
+#include "../ui/svg.h"
+#include "freetype.h"
+
 #include <X11/X.h>
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
@@ -34,12 +41,6 @@
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 
-#ifdef HAVE_DBUS
-#include "dbus.h"
-#endif
-
-#include "../ui/svg.h"
-#include "freetype.h"
 
 #define DEFAULT_WIDTH (382 * DEFAULT_SCALE)
 #define DEFAULT_HEIGHT (320 * DEFAULT_SCALE)

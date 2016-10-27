@@ -67,7 +67,7 @@ uint8_t utf8_unlen(char *data);
 /* remove invalid characters from utf8 string
  * returns the new length after invalid characters have been removed
  */
-int utf8_validate(const char *data, int len);
+int utf8_validate(const uint8_t *data, int len);
 
 /*
  */

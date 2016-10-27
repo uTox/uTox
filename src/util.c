@@ -282,9 +282,15 @@ uint8_t utf8_unlen(char *data) {
     return len;
 }
 
-int utf8_validate(const char *data, int len) {
+/* I've had some issues with this function in the past when it's given malformed data.
+ * irungentoo has previouslly said, it'll never fail when given a valid utf-8 string, however the
+ * utf8 standard says that applications are required to handle and correctlly respond to malformed
+ * strings as they have been used in the past to create security expliots. This function is known to
+ * enter an endless state, or segv on bad strings. Either way, that's bad and needs to be fixed.
+ * TODO(grayhatter) TODO(anyone) */
+int utf8_validate(const uint8_t *data, int len) {
     // stops when an invalid character is reached
-    const char *a = data, *end = data + len;
+    const uint8_t *a = data, *end = data + len;
     while (a != end) {
         if (!(*a & 0x80)) {
             a++;
