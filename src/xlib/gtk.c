@@ -364,6 +364,7 @@ void gtk_save_chatlog(uint32_t friend_number) {
 }
 
 void *gtk_load(void) {
+    return NULL;
     void *lib = dlopen(LIBGTK_FILENAME, RTLD_LAZY);
     if (lib) {
         debug("have GTK\n");
