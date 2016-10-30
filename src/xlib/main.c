@@ -12,11 +12,11 @@ bool     hidden     = 0;
 uint32_t tray_width = 32, tray_height = 32;
 XIC      xic = NULL;
 
-void *gtk_load(void);
-void  gtk_openfilesend(void);
-void  gtk_openfileavatar(void);
-void gtk_native_select_dir_ft(uint32_t fid, MSG_FILE *file);
-void gtk_savefiledata(MSG_FILE *file);
+void *ugtk_load(void);
+void  ugtk_openfilesend(void);
+void  ugtk_openfileavatar(void);
+void ugtk_native_select_dir_ft(uint32_t fid, MSG_FILE *file);
+void ugtk_savefiledata(MSG_FILE *file);
 
 void setclipboard(void) {
     XSetSelectionOwner(display, XA_CLIPBOARD, window, CurrentTime);
@@ -164,13 +164,13 @@ void openurl(char *str) {
 
 void openfilesend(void) {
     if (libgtk) {
-        gtk_openfilesend();
+        ugtk_openfilesend();
     }
 }
 
 void openfileavatar(void) {
     if (libgtk) {
-        gtk_openfileavatar();
+        ugtk_openfileavatar();
     }
 }
 
@@ -341,7 +341,7 @@ FILE *native_load_chatlog_file(uint32_t friend_number) {
 
 void native_export_chatlog_init(uint32_t friend_number) {
     if (libgtk) {
-        gtk_save_chatlog(friend_number);
+        ugtk_save_chatlog(friend_number);
     } else {
         uint8_t name[UTOX_MAX_NAME_LENGTH + sizeof(".txt")];
         snprintf((char *)name, sizeof(name), "%.*s.txt", (int)friend[friend_number].name_length,
@@ -383,7 +383,7 @@ bool native_remove_file(const uint8_t *name, size_t length) {
 
 void native_select_dir_ft(uint32_t fid, MSG_FILE *file) {
     if (libgtk) {
-        gtk_native_select_dir_ft(fid, file);
+        ugtk_native_select_dir_ft(fid, file);
     } else {
         // fall back to working dir
         char *path = malloc(file->name_length + 1);
@@ -415,7 +415,7 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
 
 void savefiledata(MSG_FILE *file) {
     if (libgtk) {
-        gtk_savefiledata(file);
+        ugtk_savefiledata(file);
     } else {
         // fall back to working dir inline.png
         FILE *fp = fopen("inline.png", "wb");
@@ -1062,7 +1062,7 @@ int main(int argc, char *argv[]) {
                            0, xwin_depth, InputOutput, visual, CWBackPixmap | CWBorderPixel | CWEventMask, &attrib);
 
     /* choose available libraries for optional UI stuff */
-    if (!(libgtk = gtk_load())) {
+    if (!(libgtk = ugtk_load())) {
         // try Qt
     }
 
