@@ -3,9 +3,13 @@
 #include "flist.h"
 
 #include "theme.h"
+#include "util.h"
+
 #include "ui/buttons.h"
+#include "ui/contextmenu.h"
 #include "ui/dropdowns.h"
 #include "ui/scrollable.h"
+#include "ui/tooltip.h"
 
 #ifdef UNITY
 #include "xlib/mmenu.h"
@@ -31,7 +35,9 @@ static ITEM *mouseover_item;
 static ITEM *nitem; // item that selected_item is being dragged over
 static ITEM *selected_item = &item_add;
 
-static bool mouse_in_list, selected_item_mousedown;
+static bool mouse_in_list;
+static bool selected_item_mousedown;
+static bool selected_item_mousedown_move_pend;
 
 static int selected_item_dy; // y offset of selected item being dragged from its original position
 
@@ -270,7 +276,9 @@ static ITEM *item_hit(int mx, int my, int height) {
     return i;
 }
 
-uint8_t flist_get_filter(void) { return filter; }
+uint8_t flist_get_filter(void) {
+    return filter;
+}
 
 void flist_set_filter(uint8_t new_filter) {
     filter = new_filter;
@@ -297,30 +305,27 @@ static void change_tab(int offset) {
     // }
 }
 
-void flist_previous_tab(void) { change_tab(-1); }
+void flist_previous_tab(void) {
+    change_tab(-1);
+}
 
-void flist_next_tab(void) { change_tab(1); }
+void flist_next_tab(void) {
+    change_tab(1);
+}
 
 /* TODO: move this out of here!
  * maybe to ui.c ? */
-static void show_page(ITEM *i) {
-    // TODO!!
-    // panel_item[selected_item->item - 1].disabled = 1;
-    // panel_item[i->item - 1].disabled = 0;
-    static int current_width;
-
-    edit_resetfocus();
-
-    /* First things first, we need to deselect and store the old data. */
-    switch (selected_item->item) {
+static int  current_width; // I know, but I'm in a hurry, so I'll fix this later
+static void page_close(ITEM *i) {
+    switch (i->item) {
         case ITEM_FRIEND: {
-            FRIEND *f = selected_item->data;
+            FRIEND *f = i->data;
 
             current_width = f->msg.width;
 
             free(f->typed);
             f->typed_length = edit_msg.length;
-            f->typed        = malloc(edit_msg.length);
+            f->typed        = calloc(1, edit_msg.length);
             memcpy(f->typed, edit_msg.data, edit_msg.length);
 
             f->msg.scroll = messages_friend.content_scroll->d;
@@ -351,7 +356,7 @@ static void show_page(ITEM *i) {
 
             free(g->typed);
             g->typed_length = edit_msg_group.length;
-            g->typed        = malloc(edit_msg_group.length);
+            g->typed        = calloc(1, edit_msg_group.length);
             memcpy(g->typed, edit_msg_group.data, edit_msg_group.length);
 
             g->msg.scroll = messages_group.content_scroll->d;
@@ -391,8 +396,9 @@ static void show_page(ITEM *i) {
             break;
         }
     }
+}
 
-    /* Now we activate/select the new page, and load stored data */
+static void page_open(ITEM *i) {
     switch (i->item) {
         case ITEM_FRIEND_ADD: {
             panel_chat.disabled           = 0;
@@ -503,6 +509,19 @@ static void show_page(ITEM *i) {
             break;
         }
     }
+}
+
+static void show_page(ITEM *i) {
+    // TODO!!
+    // panel_item[selected_item->item - 1].disabled = 1;
+    // panel_item[i->item - 1].disabled = 0;
+    edit_resetfocus();
+
+    /* First things first, we need to deselect and store the old data. */
+    page_close(selected_item);
+
+    /* Now we activate/select the new page, and load stored data */
+    page_open(i);
 
     selected_item = i;
 
@@ -672,13 +691,21 @@ void flist_selectchat(int index) {
     }
 }
 
-void flist_reselect_current(void) { show_page(selected_item); }
+void flist_reselect_current(void) {
+    show_page(selected_item);
+}
 
-void flist_selectsettings(void) { show_page(&item_settings); }
+void flist_selectsettings(void) {
+    show_page(&item_settings);
+}
 
-void flist_selectaddfriend(void) { show_page(&item_add); }
+void flist_selectaddfriend(void) {
+    show_page(&item_add);
+}
 
-void flist_selectswap(void) { show_page(&item_transfer); }
+void flist_selectswap(void) {
+    show_page(&item_transfer);
+}
 
 /******************************************************************************
  ****** Updated functions                                                ******
@@ -764,7 +791,9 @@ void flist_reload_contacts(void) {
     pop_selected();
 }
 
-ITEM *flist_get_selected(void) { return selected_item; }
+ITEM *flist_get_selected(void) {
+    return selected_item;
+}
 
 /******************************************************************************
  ****** UI functions                                                     ******
@@ -800,6 +829,7 @@ void flist_draw(void *UNUSED(n), int UNUSED(x), int y, int UNUSED(width), int UN
 bool flist_mmove(void *UNUSED(n), int UNUSED(x), int UNUSED(y), int UNUSED(width), int height, int mx, int my,
                  int UNUSED(dx), int dy) {
     int real_height = 0;
+
     if (settings.use_mini_flist) {
         real_height = ROSTER_BOX_HEIGHT / 2;
     } else {
@@ -819,7 +849,14 @@ bool flist_mmove(void *UNUSED(n), int UNUSED(x), int UNUSED(y), int UNUSED(width
         // drag item
         selected_item_dy += dy;
         nitem = NULL;
+
+        if (selected_item_mousedown_move_pend == true && (selected_item_dy >= 5 || selected_item_dy <= -5)) {
+            selected_item_mousedown_move_pend = false;
+            show_page(i);
+        }
+
         if (abs(selected_item_dy) >= real_height / 2) {
+
             int d; // offset, in number of items, of where the dragged item is compared to where it started
             if (selected_item_dy > 0) {
                 d = (selected_item_dy + real_height / 2) / real_height;
@@ -846,15 +883,14 @@ bool flist_mmove(void *UNUSED(n), int UNUSED(x), int UNUSED(y), int UNUSED(width
 }
 
 bool flist_mdown(void *UNUSED(n)) {
-    bool draw = 0;
     tooltip_mdown(); /* may need to return on true */
     if (mouseover_item) {
-        show_page(mouseover_item);
-        draw                    = 1;
-        selected_item_mousedown = 1;
+        // show_page(mouseover_item);
+        selected_item_mousedown           = true;
+        selected_item_mousedown_move_pend = true;
+        return true;
     }
-
-    return draw;
+    return false;
 }
 
 static void flist_init_friend_settings_page(void) {
@@ -1037,11 +1073,19 @@ bool flist_mright(void *UNUSED(n)) {
     return 0;
 }
 
-bool flist_mwheel(void *UNUSED(n), int UNUSED(height), double UNUSED(d), bool UNUSED(smooth)) { return 0; }
+bool flist_mwheel(void *UNUSED(n), int UNUSED(height), double UNUSED(d), bool UNUSED(smooth)) {
+    return 0;
+}
 
 bool flist_mup(void *UNUSED(n)) {
-    bool draw = 0;
+    bool draw = false;
     tooltip_mup(); /* may need to return one true */
+
+    if (mouseover_item && selected_item_mousedown_move_pend == true) {
+        show_page(mouseover_item);
+        draw = true;
+    }
+
     if (selected_item_mousedown && abs(selected_item_dy) >= 5) {
         if (nitem && find_item_shown_index(nitem) != INT_MAX) {
             if (selected_item->item == ITEM_FRIEND) {
@@ -1080,11 +1124,12 @@ bool flist_mup(void *UNUSED(n)) {
             nitem = NULL;
         }
 
-        draw = 1;
+        draw = true;
     }
 
-    selected_item_mousedown = 0;
-    selected_item_dy        = 0;
+    selected_item_mousedown           = 0;
+    selected_item_mousedown_move_pend = 0;
+    selected_item_dy                  = 0;
 
     return draw;
 }
