@@ -1,5 +1,6 @@
 # objects
 *.o
+*.a
 *.d
 *.dll
 
@@ -26,3 +27,8 @@ dist/*
 GPATH
 GRTAGS
 GTAGS
+
+# CMake build files/dirs
+CMakeCache.txt
+cmake_install.cmake
+CMakeFiles
