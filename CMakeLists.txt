@@ -1,10 +1,5 @@
-cmake_minimum_required(VERSION 2.8.6)
-project(uTox)
-
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-
-include(CheckCCompilerFlag)
-include(ModulePackage)
+cmake_minimum_required(VERSION 3.2)
+project(uTox LANGUAGES C)
 
 # This version is for the entire project. All libraries (core, av, ...) move in
 # versions in a synchronised way.
@@ -14,17 +9,22 @@ set(PROJECT_VERSION_PATCH "9")
 set(PROJECT_VERSION
   "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
 
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+set(LIBRARIES toxcore toxav toxencryptsave toxdns openal m pthread vpx )
+
+if(UNIX)
+    list(APPEND LIBRARIES v4lconvert X11 Xext Xrender fontconfig freetype resolv dl )
+elseif(WIN32)
+    list(APPEND LIBRARIES)
+endif()
 
 set(CMAKE_C_COMPILER clang)
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -Wall -Wextra -pedantic -fno-strict-aliasing")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -pedantic -fno-strict-aliasing")
 ################################################################################
 #
 # :: Dependencies and configuration
 #
 ################################################################################
 include_directories(/usr/include/freetype2)
-
 
 # add_library(ui
 #     src/ui/button.c
@@ -182,7 +182,8 @@ add_executable(utox
 
 add_custom_command(OUTPUT icon.o
       COMMAND cd ${CMAKE_CURRENT_SOURCE_DIR}/ && ld -r -b binary -o ${CMAKE_CURRENT_BINARY_DIR}/icon.o icons/utox-128x128.png
-      COMMAND objcopy --rename-section .data=.rodata,alloc,load,readonly,data,contents ${CMAKE_CURRENT_BINARY_DIR}/icon.o ${CMAKE_CURRENT_BINARY_DIR}/icon.o)
+      COMMAND objcopy --rename-section .data=.rodata,alloc,load,readonly,data,contents ${CMAKE_CURRENT_BINARY_DIR}/icon.o ${CMAKE_CURRENT_BINARY_DIR}/icon.o
+      DEPENDS icons/icon.rc icons/utox-128x128.png)
 add_library(icon STATIC icon.o)
 SET_SOURCE_FILES_PROPERTIES(
   icon.o
@@ -199,9 +200,6 @@ SET_TARGET_PROPERTIES(
 target_link_libraries(utox
     # av native ui
     icon
-    resolv dl
-    toxcore toxav toxencryptsave toxdns
-    vpx openal v4lconvert
-    X11 Xext Xrender fontconfig freetype
-    m pthread )
+    ${LIBRARIES}
+)
 
