@@ -10,6 +10,7 @@ set(PROJECT_VERSION
   "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
 
 set(LIBRARIES toxcore toxav toxencryptsave toxdns openal m pthread vpx )
+set(U_LIBRARIES utoxAV uNative uUI )
 
 if(UNIX)
     list(APPEND LIBRARIES v4lconvert X11 Xext Xrender fontconfig freetype resolv dl )
@@ -26,64 +27,67 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -pedantic -fno-strict-aliasing
 ################################################################################
 include_directories(/usr/include/freetype2)
 
-# add_library(ui
-#     src/ui/button.c
-#     src/ui/button.h
-#     src/ui/buttons.c
-#     src/ui/buttons.h
-#     src/ui/contextmenu.c
-#     src/ui/contextmenu.h
-#     src/ui/draw_helpers.c
-#     src/ui/draw_helpers.h
-#     src/ui/dropdown.c
-#     src/ui/dropdown.h
-#     src/ui/dropdowns.c
-#     src/ui/dropdowns.h
-#     src/ui/edit.c
-#     src/ui/edit.h
-#     src/ui/edits.c
-#     src/ui/edits.h
-#     src/ui/layout_tree.h
-#     src/ui/scrollable.c
-#     src/ui/scrollable.h
-#     src/ui/svg.c
-#     src/ui/svg.h
-#     src/ui/switch.c
-#     src/ui/switch.h
-#     src/ui/switches.c
-#     src/ui/switches.h
-#     src/ui/text.c
-#     src/ui/text.h
-#     src/ui/tooltip.c
-#     src/ui/tooltip.h
-#     )
+# TODO move this to the a new CMakeLists.txt in the ui subdir
+add_library(uUI STATIC
+    src/ui/button.c
+    src/ui/button.h
+    src/ui/buttons.c
+    src/ui/buttons.h
+    src/ui/contextmenu.c
+    src/ui/contextmenu.h
+    src/ui/draw_helpers.c
+    src/ui/draw_helpers.h
+    src/ui/dropdown.c
+    src/ui/dropdown.h
+    src/ui/dropdowns.c
+    src/ui/dropdowns.h
+    src/ui/edit.c
+    src/ui/edit.h
+    src/ui/edits.c
+    src/ui/edits.h
+    src/ui/layout_tree.h
+    src/ui/scrollable.c
+    src/ui/scrollable.h
+    src/ui/svg.c
+    src/ui/svg.h
+    src/ui/switch.c
+    src/ui/switch.h
+    src/ui/switches.c
+    src/ui/switches.h
+    src/ui/text.c
+    src/ui/text.h
+    src/ui/tooltip.c
+    src/ui/tooltip.h
+    )
 
-# add_library(native
-#     src/xlib/audio.c
-#     src/xlib/dbus.c
-#     src/xlib/dbus.h
-#     src/xlib/drawing.c
-#     src/xlib/event.c
-#     src/xlib/freetype.c
-#     src/xlib/freetype.h
-#     src/xlib/gtk.c
-#     src/xlib/keysym2ucs.h
-#     src/xlib/main.c
-#     src/xlib/main.h
-#     src/xlib/mmenu.c
-#     src/xlib/mmenu.h
-#     src/xlib/v4l.c
-#     src/xlib/video.c)
+add_library(uNative STATIC
+    src/xlib/audio.c
+    src/xlib/dbus.c
+    src/xlib/dbus.h
+    src/xlib/drawing.c
+    src/xlib/event.c
+    src/xlib/freetype.c
+    src/xlib/freetype.h
+    src/xlib/gtk.c
+    src/xlib/keysym2ucs.h
+    src/xlib/main.c
+    src/xlib/main.h
+    src/xlib/mmenu.c
+    src/xlib/mmenu.h
+    src/xlib/v4l.c
+    src/xlib/video.c
+    )
+target_link_libraries(uNative icon)
 
-# add_library(av
-#     src/av
-#     src/av/utox_av.h
-#     src/av/utox_av.c
-#     src/av/audio.c
-#     src/av/audio.h
-#     src/av/video.h
-#     src/av/video.c
-# )
+add_library(utoxAV STATIC
+    src/av
+    src/av/utox_av.h
+    src/av/utox_av.c
+    src/av/audio.c
+    src/av/audio.h
+    src/av/video.h
+    src/av/video.c
+    )
 
 add_executable(utox
     src/avatar.c
@@ -128,56 +132,6 @@ add_executable(utox
     src/ui_i18n.h
     src/util.c
     src/util.h
-    src/ui/button.c
-    src/ui/button.h
-    src/ui/buttons.c
-    src/ui/buttons.h
-    src/ui/contextmenu.c
-    src/ui/contextmenu.h
-    src/ui/draw_helpers.c
-    src/ui/draw_helpers.h
-    src/ui/dropdown.c
-    src/ui/dropdown.h
-    src/ui/dropdowns.c
-    src/ui/dropdowns.h
-    src/ui/edit.c
-    src/ui/edit.h
-    src/ui/edits.c
-    src/ui/edits.h
-    src/ui/layout_tree.h
-    src/ui/scrollable.c
-    src/ui/scrollable.h
-    src/ui/svg.c
-    src/ui/svg.h
-    src/ui/switch.c
-    src/ui/switch.h
-    src/ui/switches.c
-    src/ui/switches.h
-    src/ui/text.c
-    src/ui/text.h
-    src/ui/tooltip.c
-    src/ui/tooltip.h
-    src/xlib/audio.c
-    src/xlib/dbus.c
-    src/xlib/dbus.h
-    src/xlib/drawing.c
-    src/xlib/event.c
-    src/xlib/freetype.c
-    src/xlib/freetype.h
-    src/xlib/gtk.c
-    src/xlib/keysym2ucs.h
-    src/xlib/main.c
-    src/xlib/main.h
-    src/xlib/mmenu.c
-    src/xlib/mmenu.h
-    src/xlib/v4l.c
-    src/xlib/video.c
-    src/av/utox_av.h
-    src/av/utox_av.c
-    src/av/audio.c
-    src/av/audio.h
-    src/av/video.h
-    src/av/video.c
     )
 
 add_custom_command(OUTPUT icon.o
@@ -199,7 +153,7 @@ SET_TARGET_PROPERTIES(
 
 target_link_libraries(utox
     # av native ui
-    icon
     ${LIBRARIES}
+    ${U_LIBRARIES}
 )
 
