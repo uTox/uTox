@@ -10,16 +10,59 @@ set(PROJECT_VERSION
   "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
 
 set(LIBRARIES toxcore toxav toxencryptsave toxdns openal m pthread vpx )
-set(U_LIBRARIES utoxAV uNative uUI )
 
-if(UNIX)
-    list(APPEND LIBRARIES v4lconvert X11 Xext Xrender fontconfig freetype resolv dl )
-elseif(WIN32)
+# Protip, you must use a different directory for each build target...
+# -DMAKE_TOOLCHAIN_FILE has no effect unless the target directory is empty
+# 1.5 hours to learn this...
+if(WIN32)
+    set(U_LIBRARIES utoxAV win_Native uUI )
     list(APPEND LIBRARIES)
+
+    add_library(win_Native STATIC
+        src/windows/audio.c
+        src/windows/dnd.c
+        src/windows/drawing.c
+        src/windows/example.reg
+        src/windows/main.7.c
+        src/windows/main.c
+        src/windows/main.h
+        src/windows/main.XP.c
+        src/windows/os_video.c
+        src/windows/video.c
+        )
+    target_link_libraries(win_Native icon)
+elseif(APPLE)
+    set(U_LIBRARIES utoxAV cocoa_Native uUI )
+    list(APPEND LIBRARIES)
+elseif(UNIX) # xlib by default
+    set(U_LIBRARIES utoxAV xlib_Native uUI )
+    list(APPEND LIBRARIES v4lconvert X11 Xext Xrender fontconfig freetype resolv dl )
+
+    add_library(xlib_Native STATIC
+        src/xlib/audio.c
+        src/xlib/dbus.c
+        src/xlib/dbus.h
+        src/xlib/drawing.c
+        src/xlib/event.c
+        src/xlib/freetype.c
+        src/xlib/freetype.h
+        src/xlib/gtk.c
+        src/xlib/keysym2ucs.h
+        src/xlib/main.c
+        src/xlib/main.h
+        src/xlib/mmenu.c
+        src/xlib/mmenu.h
+        src/xlib/v4l.c
+        src/xlib/video.c
+        )
+    target_link_libraries(xlib_Native icon)
+
 endif()
 
-set(CMAKE_C_COMPILER clang)
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -pedantic -fno-strict-aliasing")
+# if(NOT CMAKE_CROSSCOMPILING)
+#     set(CMAKE_C_COMPILER clang)
+#     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -pedantic -fno-strict-aliasing")
+# endif()
 ################################################################################
 #
 # :: Dependencies and configuration
@@ -60,24 +103,6 @@ add_library(uUI STATIC
     src/ui/tooltip.h
     )
 
-add_library(uNative STATIC
-    src/xlib/audio.c
-    src/xlib/dbus.c
-    src/xlib/dbus.h
-    src/xlib/drawing.c
-    src/xlib/event.c
-    src/xlib/freetype.c
-    src/xlib/freetype.h
-    src/xlib/gtk.c
-    src/xlib/keysym2ucs.h
-    src/xlib/main.c
-    src/xlib/main.h
-    src/xlib/mmenu.c
-    src/xlib/mmenu.h
-    src/xlib/v4l.c
-    src/xlib/video.c
-    )
-target_link_libraries(uNative icon)
 
 add_library(utoxAV STATIC
     src/av
@@ -135,25 +160,17 @@ add_executable(utox
     )
 
 add_custom_command(OUTPUT icon.o
-      COMMAND cd ${CMAKE_CURRENT_SOURCE_DIR}/ && ld -r -b binary -o ${CMAKE_CURRENT_BINARY_DIR}/icon.o icons/utox-128x128.png
-      COMMAND objcopy --rename-section .data=.rodata,alloc,load,readonly,data,contents ${CMAKE_CURRENT_BINARY_DIR}/icon.o ${CMAKE_CURRENT_BINARY_DIR}/icon.o
-      DEPENDS icons/icon.rc icons/utox-128x128.png)
+    COMMAND cd ${CMAKE_CURRENT_SOURCE_DIR}/ && ld -r -b binary -o ${CMAKE_CURRENT_BINARY_DIR}/icon.o icons/utox-128x128.png
+    COMMAND objcopy --rename-section .data=.rodata,alloc,load,readonly,data,contents ${CMAKE_CURRENT_BINARY_DIR}/icon.o ${CMAKE_CURRENT_BINARY_DIR}/icon.o
+    DEPENDS icons/icon.rc icons/utox-128x128.png
+    )
+
+SET_SOURCE_FILES_PROPERTIES( icon.o PROPERTIES EXTERNAL_OBJECT true GENERATED true )
 add_library(icon STATIC icon.o)
-SET_SOURCE_FILES_PROPERTIES(
-  icon.o
-  PROPERTIES
-  EXTERNAL_OBJECT true
-  GENERATED true
-  )
-SET_TARGET_PROPERTIES(
-  icon
-  PROPERTIES
-  LINKER_LANGUAGE C
-  )
+SET_TARGET_PROPERTIES( icon PROPERTIES LINKER_LANGUAGE C )
+
 
 target_link_libraries(utox
-    # av native ui
     ${LIBRARIES}
     ${U_LIBRARIES}
 )
-

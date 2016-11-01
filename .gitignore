@@ -1,8 +1,10 @@
 # objects
-*.o
-*.a
-*.d
-*.dll
+src/*/*.o
+src/*/*.a
+src/*/*.d
+src/*/*.dll
+
+icons/*.o
 
 # executables
 utox
@@ -27,8 +29,3 @@ dist/*
 GPATH
 GRTAGS
 GTAGS
-
-# CMake build files/dirs
-CMakeCache.txt
-cmake_install.cmake
-CMakeFiles
