@@ -1,4 +1,5 @@
-#include "../main.h"
+#include "main.h"
+
 #include <windows.h>
 #include <windowsx.h>
 
@@ -8,10 +9,11 @@ static bool hidden;
 
 static TRACKMOUSEEVENT tme           = { sizeof(TRACKMOUSEEVENT), TME_LEAVE, 0, 0 };
 static bool            mouse_tracked = 0;
-bool                   draw          = 0;
-float                  scale         = 1.0;
-bool                   connected     = 0;
-bool                   havefocus;
+
+bool  draw      = 0;
+float scale     = 1.0;
+bool  connected = 0;
+bool  havefocus;
 
 /** Translate a char* from UTF-8 encoding to OS native;
  *
@@ -1691,7 +1693,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam) {
             return 0;
         }
 
-        case WM_TOX... WM_TOX + 128: {
+        case WM_TOX ... WM_TOX + 128: {
             tox_message(msg - WM_TOX, wParam >> 16, wParam, (void *)lParam);
             return 0;
         }

@@ -1,4 +1,4 @@
-#include "../main.h"
+#include "main.h"
 
 // REFERENCE_TIME time units per second and per millisecond
 #define REFTIMES_PER_SEC 10000000
@@ -28,9 +28,7 @@ WAVEFORMATEX *       pwfx           = NULL;
 // const GUID KSDATAFORMAT_SUBTYPE_IEEE_FLOAT = {STATIC_KSDATAFORMAT_SUBTYPE_IEEE_FLOAT};
 // const GUID KSDATAFORMAT_SUBTYPE_PCM = {STATIC_KSDATAFORMAT_SUBTYPE_PCM};
 
-const GUID IID_IAudioCaptureClient_utox = {
-    0xc8adbd64, 0xe71e, 0x48a0, { 0xa4, 0xde, 0x18, 0x5c, 0x39, 0x5c, 0xd3, 0x17 }
-};
+const GUID IID_IAudioCaptureClient_utox = { 0xc8adbd64, 0xe71e, 0x48a0, { 0xa4, 0xde, 0x18, 0x5c, 0x39, 0x5c, 0xd3, 0x17 } };
 
 
 /* note: only works when loopback is 48khz 2 channel floating*/
@@ -125,9 +123,13 @@ Exit:
     debug("Windows:\tAudio_init fail: %lu\n", hr);
 }
 
-bool audio_init(void *handle) { return SUCCEEDED(pAudioClient->lpVtbl->Start(pAudioClient)); }
+bool audio_init(void *handle) {
+    return SUCCEEDED(pAudioClient->lpVtbl->Start(pAudioClient));
+}
 
-bool audio_close(void *handle) { return SUCCEEDED(pAudioClient->lpVtbl->Stop(pAudioClient)); }
+bool audio_close(void *handle) {
+    return SUCCEEDED(pAudioClient->lpVtbl->Stop(pAudioClient));
+}
 
 static void *convertsamples(int16_t *dest, float *src, int samples) {
     if (!src) {
