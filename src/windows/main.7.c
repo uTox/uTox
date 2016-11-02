@@ -8,6 +8,11 @@
 
 void native_export_chatlog_init(uint32_t friend_number) {
     char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
+    if (path == NULL){
+        debug("SelectDir:\t Could not allocate memory.\n");
+        return;
+    }
+
     snprintf(path, UTOX_FILE_NAME_LENGTH, "%.*s.txt", (int)friend[friend_number].name_length,
              friend[friend_number].name);
 
@@ -35,6 +40,10 @@ void native_export_chatlog_init(uint32_t friend_number) {
 
 void native_select_dir_ft(uint32_t fid, MSG_FILE *file) {
     char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
+    if (path == NULL){
+        debug("SelectDir:\t Could not allocate memory for path.\n");
+        return;
+    }
     memcpy(path, file->file_name, file->name_length);
     path[file->name_length] = 0;
 
@@ -55,6 +64,10 @@ void native_select_dir_ft(uint32_t fid, MSG_FILE *file) {
 
 void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
     char *send = calloc(UTOX_FILE_NAME_LENGTH, sizeof(char *));
+    if (send == NULL){
+        debug("AutoSelectDir:\t Could not allocate memory.\n");
+        return;
+    }
 
     wchar *path[UTOX_FILE_NAME_LENGTH];
     wchar  sub_path[UTOX_FILE_NAME_LENGTH] = { 0 }; /* I don't trust swprintf on windows anymore, so let's help it */

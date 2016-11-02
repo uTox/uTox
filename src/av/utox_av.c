@@ -371,6 +371,10 @@ static void utox_av_incoming_frame_v(ToxAV *toxAV, uint32_t friend_number, uint1
     frame->h    = height;
     frame->size = size;
     frame->img  = malloc(size);
+    if (frame->img == NULL) {
+        debug("uToxAV:\t Could not allocate memory for image.\n");
+        return;
+    }
     yuv420tobgr(width, height, y, u, v, ystride, ustride, vstride, frame->img);
     if (f->video_inline) {
         // debug("uToxAV:\tInline this frame only frame.\n");

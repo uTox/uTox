@@ -788,6 +788,10 @@ NATIVE_IMAGE *decode_image_rgb(const UTOX_IMAGE data, size_t size, uint16_t *w, 
 
     // we don't need to free this, that's done by XDestroyImage()
     uint8_t *out = malloc(rgba_size);
+    if (out == NULL) {
+        debug("decode_image_rgb:\t Could mot allocate memory.\n");
+        return NULL;
+    }
 
     // colors are read into red, blue and green and written into the target pointer
     uint8_t   red, blue, green;
@@ -817,6 +821,10 @@ NATIVE_IMAGE *decode_image_rgb(const UTOX_IMAGE data, size_t size, uint16_t *w, 
     *h = height;
 
     NATIVE_IMAGE *image = malloc(sizeof(NATIVE_IMAGE));
+    if (image == NULL) {
+        debug("decode_image_rgb:\t Could mot allocate memory for image.\n");
+        return NULL;
+    }
     image->rgb          = rgb;
     image->alpha        = alpha;
 

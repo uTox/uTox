@@ -120,6 +120,10 @@ int self_set_avatar(const uint8_t *data, uint32_t size) {
     }
 
     uint8_t *png_data = malloc(size);
+    if (png_data == NULL) {
+        debug("self_set_avatar:\t Could not allocate memory.\n");
+        return 0;
+    }
     memcpy(png_data, data, size);
     postmessage_toxcore(TOX_AVATAR_SET, UTOX_AVATAR_FORMAT_PNG, size, png_data);
     return 1;
