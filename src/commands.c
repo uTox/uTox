@@ -59,6 +59,10 @@ uint16_t utox_run_command(char *string, uint16_t string_length, char **cmd, char
             uint8_t id[TOX_FRIEND_ADDRESS_SIZE * 2];
             string_to_id(id, *argument);
             void *data = malloc(TOX_FRIEND_ADDRESS_SIZE * sizeof(char));
+            if (data == NULL) {
+                debug("utox_run_command:\t Could not allocate memory.\n");
+                return 0;
+            }
             memcpy(data, id, TOX_FRIEND_ADDRESS_SIZE);
 
             postmessage_toxcore(TOX_FRIEND_NEW_DEVICE, f->number, 0, data);

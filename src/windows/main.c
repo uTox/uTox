@@ -303,6 +303,10 @@ bool native_remove_file(const uint8_t *name, size_t length) {
 /** Open system file browser dialog */
 void openfilesend(void) {
     char *filepath = calloc(10, UTOX_FILE_NAME_LENGTH); /* lets pick 10 as the number of files we want to work with. */
+    if (filepath == NULL) {
+        debug("openfilesend:\t Could not allocate memory for path.\n");
+        return;
+    }
 
     wchar dir[UTOX_FILE_NAME_LENGTH];
     GetCurrentDirectoryW(countof(dir), dir);
@@ -382,6 +386,10 @@ void openfileavatar(void) {
 
 void savefiledata(MSG_FILE *file) {
     char *path = malloc(UTOX_FILE_NAME_LENGTH);
+    if (path == NULL) {
+        debug("savefiledata:\t Could not allocate memory for path.\n");
+        return;
+    }
     memcpy(path, file->file_name, file->name_length);
     path[file->name_length] = 0;
 
@@ -458,6 +466,10 @@ void ShowContextMenu(void) {
 // image should be freed with image_free
 static NATIVE_IMAGE *create_utox_image(HBITMAP bmp, bool has_alpha, uint32_t width, uint32_t height) {
     NATIVE_IMAGE *image  = malloc(sizeof(NATIVE_IMAGE));
+    if(image == NULL){
+        debug("create_utox_image:\t Could not allocate memory for image.\n");
+        return NULL;
+    }
     image->bitmap        = bmp;
     image->has_alpha     = has_alpha;
     image->width         = width;
@@ -741,6 +753,10 @@ void update_tray(void) {
     /* TODO; this is likely to over/under-run FIXME! */
 
     tip = malloc(128 * sizeof(char)); // 128 is the max length of nid.szTip
+    if (tip == NULL) {
+        debug("update_trip:\t Could not allocate memory.\n");
+        return;
+    }
 
     snprintf(tip, 127 * sizeof(char), "%s : %s", self.name, self.statusmsg);
     tip_length = self.name_length + 3 + self.statusmsg_length;

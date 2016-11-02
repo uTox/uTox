@@ -37,6 +37,10 @@ static void friend_meta_data_read(Tox *tox, int friend_id) {
         return;
     }
     FRIEND_META_DATA *metadata = calloc(1, sizeof(*metadata) + size);
+    if (metadata == NULL) {
+        debug("Metadata:\tCould not allocate memory for metadata.\n");
+        return;
+    }
 
     memcpy(metadata, file_data, size);
     /* Compatibility code for original version of meta_data... TODO: Remove in version >= 0.10 */
