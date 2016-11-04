@@ -312,19 +312,19 @@ bool native_remove_file(const uint8_t *name, size_t length);
 
 /** TODO DOCUMENATION
  */
-bool utox_save_data_tox(uint8_t *data, size_t length);
+bool utox_data_save_tox(uint8_t *data, size_t length);
 
 /** TODO DOCUMENATION
  */
-uint8_t *utox_load_data_tox(size_t *size);
+uint8_t *utox_data_load_tox(size_t *size);
 
 /** TODO DOCUMENATION
  */
-bool utox_save_data_utox(UTOX_SAVE *data, size_t length);
+bool utox_data_save_utox(UTOX_SAVE *data, size_t length);
 
 /** TODO DOCUMENATION
  */
-UTOX_SAVE *utox_load_data_utox(void);
+UTOX_SAVE *utox_data_load_utox(void);
 
 /** TODO DOCUMENATION
  */
@@ -345,10 +345,10 @@ bool utox_update_chatlog(uint32_t friend_number, size_t offset, uint8_t *data, s
 
 /** TODO DOCUMENATION
  */
-bool utox_save_data_avatar(uint32_t friend_number, const uint8_t *data, size_t length);
+bool utox_data_save_avatar(uint32_t friend_number, const uint8_t *data, size_t length);
 /** TODO DOCUMENATION
  */
-uint8_t *utox_load_data_avatar(uint32_t friend_number, size_t *size);
+uint8_t *utox_data_load_avatar(uint32_t friend_number, size_t *size);
 /** TODO DOCUMENATION
  */
 bool utox_remove_file_avatar(uint32_t friend_number);

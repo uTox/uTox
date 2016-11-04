@@ -45,7 +45,7 @@ static void avatar_free_image(AVATAR *avatar) {
 int load_avatar(uint32_t friend_number, uint8_t **dest, size_t *size_out) {
     size_t size = 0;
 
-    uint8_t *img = utox_load_data_avatar(friend_number, &size);
+    uint8_t *img = utox_data_load_avatar(friend_number, &size);
     if (!img) {
         debug_notice("Avatars:\tUnable to get saved avatar from disk for friend %u\n", friend_number);
         return 0;
@@ -68,10 +68,12 @@ int load_avatar(uint32_t friend_number, uint8_t **dest, size_t *size_out) {
 }
 
 bool save_avatar(uint32_t friend_number, const uint8_t *data, uint32_t size) {
-    return utox_save_data_avatar(friend_number, data, size);
+    return utox_data_save_avatar(friend_number, data, size);
 }
 
-bool delete_saved_avatar(uint32_t friend_number) { return utox_remove_file_avatar(friend_number); }
+bool delete_saved_avatar(uint32_t friend_number) {
+    return utox_remove_file_avatar(friend_number);
+}
 
 
 int set_avatar(uint32_t friend_number, const uint8_t *data, uint32_t size) {
@@ -146,7 +148,7 @@ void self_remove_avatar(void) {
 
 bool avatar_on_friend_online(Tox *tox, uint32_t friend_number) {
     size_t   avatar_size;
-    uint8_t *avatar_data = utox_load_data_avatar(-1, &avatar_size);
+    uint8_t *avatar_data = utox_data_load_avatar(-1, &avatar_size);
 
     outgoing_file_send(tox, friend_number, NULL, avatar_data, avatar_size, TOX_FILE_KIND_AVATAR);
     return 1;

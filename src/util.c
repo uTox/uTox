@@ -607,7 +607,7 @@ void scale_rgbx_image(uint8_t *old_rgbx, uint16_t old_width, uint16_t old_height
 
 UTOX_SAVE *config_load(void) {
     UTOX_SAVE *save;
-    save = utox_load_data_utox();
+    save = utox_data_load_utox();
 
     if (!save) {
         debug_notice("unable to load utox_save data\n");
@@ -744,7 +744,7 @@ void config_save(UTOX_SAVE *save_in) {
     memcpy(save->proxy_ip, proxy_address, 256); /* Magic number inside toxcore */
 
     debug_notice("uTox:\tWriting uTox Save\n");
-    utox_save_data_utox(save, sizeof(*save) + 256); /* Magic number inside toxcore */
+    utox_data_save_utox(save, sizeof(*save) + 256); /* Magic number inside toxcore */
 }
 
 void utox_write_metadata(FRIEND *f) {

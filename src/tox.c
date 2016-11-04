@@ -170,16 +170,16 @@ static void write_save(Tox *tox) {
 
     if (edit_profile_password.length == 0) {
         // user doesn't use encryption
-        save_needed = utox_save_data_tox(clear_data, clear_length);
+        save_needed = utox_data_save_tox(clear_data, clear_length);
         debug("Toxcore:\tUnencrypted save data written\n");
     } else {
         UTOX_ENC_ERR enc_err = utox_encrypt_data(clear_data, clear_length, encrypted_data);
         if (enc_err) {
             /* encryption failed, write clear text data */
-            save_needed = utox_save_data_tox(clear_data, clear_length);
+            save_needed = utox_data_save_tox(clear_data, clear_length);
             debug("\n\n\t\tWARNING UTOX WAS UNABLE TO ENCRYPT DATA!\n\t\tDATA WRITTEN IN CLEAR TEXT!\n\n");
         } else {
-            save_needed = utox_save_data_tox(encrypted_data, encrypted_length);
+            save_needed = utox_data_save_tox(encrypted_data, encrypted_length);
             debug("Toxcore:\tEncrypted save data written\n");
         }
     }
@@ -242,7 +242,7 @@ static void utox_thread_work_for_typing_notifications(Tox *tox, uint64_t time) {
 static int load_toxcore_save(struct Tox_Options *options) {
     settings.use_encryption = 0;
     size_t   raw_length;
-    uint8_t *raw_data = utox_load_data_tox(&raw_length);
+    uint8_t *raw_data = utox_data_load_tox(&raw_length);
 
     /* Check if we're loading a saved profile */
     if (raw_data && raw_length) {
@@ -1393,7 +1393,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             size_t   size   = param2;
 
             set_avatar(param1, avatar, size);
-            utox_save_data_avatar(param1, avatar, size);
+            utox_data_save_avatar(param1, avatar, size);
 
             free(avatar);
             redraw();
