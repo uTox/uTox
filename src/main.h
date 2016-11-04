@@ -146,7 +146,8 @@ typedef struct {
 } LOG_FILE_MSG_HEADER;
 
 volatile uint16_t loaded_audio_in_device, loaded_audio_out_device;
-bool              tox_connected;
+
+bool tox_connected;
 
 /* Super global vars */
 volatile bool tox_thread_init, utox_av_ctrl_init, utox_audio_thread_init, utox_video_thread_init;
@@ -231,6 +232,11 @@ enum {
 
     FONT_END,
 };
+
+typedef enum {
+    FILEDATA_OVERWRITE = 0,
+    FILEDATA_APPEND    = 1,
+} FILEDATA_SAVETYPE;
 
 #ifdef UNUSED
 #undef UNUSED
@@ -325,6 +331,10 @@ bool utox_data_save_utox(UTOX_SAVE *data, size_t length);
 /** TODO DOCUMENATION
  */
 UTOX_SAVE *utox_data_load_utox(void);
+
+/** TODO DOCUMENATION
+ */
+uint8_t *utox_data_load_custom_theme(size_t *out);
 
 /** TODO DOCUMENATION
  */
@@ -427,8 +437,6 @@ void redraw(void);
 void update_tray(void);
 void force_redraw(void); // TODO: as parameter for redraw()?
 
-/* gets a subdirectory of tox's datapath and puts the full pathname in dest,
- * returns number of characters written */
 void flush_file(FILE *file);
 int ch_mod(uint8_t *file);
 void config_osdefaults(UTOX_SAVE *r);
@@ -471,7 +479,6 @@ void popclip(void);
 void enddraw(int x, int y, int width, int height);
 
 /* OS interface replacements */
-int datapath(uint8_t *dest);
 void flush_file(FILE *file);
 int ch_mod(uint8_t *file);
 int file_lock(FILE *file, uint64_t start, size_t length);

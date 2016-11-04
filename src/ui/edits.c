@@ -2,8 +2,10 @@
 
 #include "buttons.h"
 
+#include "../commands.h"
 #include "../flist.h"
 #include "../tox.h"
+#include "../util.h"
 
 static char edit_name_data[128], edit_status_data[128], edit_addid_data[TOX_FRIEND_ADDRESS_SIZE * 4],
     edit_add_self_device_data[TOX_FRIEND_ADDRESS_SIZE * 4], edit_addmsg_data[1024], edit_msg_data[65535],
@@ -128,10 +130,13 @@ void edit_msg_onenter(EDIT *edit) {
 }
 
 static uint32_t peers_deduplicate(char **dedup, size_t *dedup_size, void **peers, uint32_t peer_count) {
-    int         peer, i, count;
+    int peer, count;
+
     GROUP_PEER *p;
-    uint8_t *   nick;
-    size_t      nick_len;
+
+    char *nick;
+
+    size_t nick_len;
 
     count = 0;
     for (peer = 0; peer < peer_count; peer++) {
@@ -145,9 +150,9 @@ static uint32_t peers_deduplicate(char **dedup, size_t *dedup_size, void **peers
         nick_len = p->name_length;
 
 
+        int i = 0;
         if (nick) {
             bool found = 0;
-            i          = 0;
 
             while (!found && i < count) {
                 if (nick_len == dedup_size[i] && !memcmp(nick, dedup[i], nick_len)) {
@@ -441,7 +446,8 @@ static void edit_search_onenter(EDIT *edit) {
 
 static void edit_proxy_ip_port_onlosefocus(EDIT *edit) {
     edit_proxy_port.data[edit_proxy_port.length] = 0;
-    uint16_t proxy_port                          = strtol((char *)edit_proxy_port.data, NULL, 0);
+
+    settings.proxy_port = strtol((char *)edit_proxy_port.data, NULL, 0);
 
     if (memcmp(proxy_address, edit_proxy_ip.data, edit_proxy_ip.length) == 0 && proxy_address[edit_proxy_ip.length] == 0) {
         return;
@@ -607,7 +613,7 @@ EDIT edit_name =
                          .noborder        = 0,
                          .empty_str.plain = STRING_INIT("") };
 #include "../main.h"
-static uint8_t edit_add_new_device_to_self_data[TOX_FRIEND_ADDRESS_SIZE * 4];
+static char edit_add_new_device_to_self_data[TOX_FRIEND_ADDRESS_SIZE * 4];
 
 static void edit_add_new_device_to_self_onenter(EDIT *edit) {
 #ifdef ENABLE_MULTIDEVICE

@@ -651,30 +651,6 @@ void image_free(NATIVE_IMAGE *image) {
     free(image);
 }
 
-int datapath(uint8_t *dest) {
-    if (settings.portable_mode) {
-        uint8_t *p = dest;
-        strcpy((char *)p, portable_mode_save_path);
-        p += strlen(portable_mode_save_path);
-        strcpy((char *)p, "\\Tox");
-        p += 4;
-        CreateDirectory((char *)dest, NULL);
-        *p++ = '\\';
-        return p - dest;
-    } else {
-        if (SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, (char *)dest))) {
-            uint8_t *p = dest + strlen((char *)dest);
-            strcpy((char *)p, "\\Tox");
-            p += 4;
-            CreateDirectory((char *)dest, NULL);
-            *p++ = '\\';
-            return p - dest;
-        }
-    }
-
-    return 0;
-}
-
 void flush_file(FILE *file) {
     fflush(file);
     int fd = _fileno(file);

@@ -38,9 +38,9 @@ FILE *   ptt_keyboard_handle;
 Display *ptt_display;
 void     init_ptt(void) {
     settings.push_to_talk = 1;
-    uint8_t path[UTOX_FILE_NAME_LENGTH], *p;
-    p = path + datapath(path);
-    strcpy((char *)p, "ptt-kbd");
+
+    char path[UTOX_FILE_NAME_LENGTH];
+    snprintf(path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/ppt-kbd", getenv("HOME")); // TODO DRY
 
     ptt_keyboard_handle = fopen((const char *)path, "r");
     if (!ptt_keyboard_handle) {
@@ -69,10 +69,10 @@ bool check_ptt_key(void) {
         int mask = 1 << (ptt_key % 8);   // Put 1 in the same column as our key state
 
         if (keyb & mask) {
-            // debug("PTT key is down\n");
+            debug("PTT key is down\n");
             return 1;
         } else {
-            // debug("PTT key is up\n");
+            debug("PTT key is up\n");
             return 0;
         }
     }
@@ -84,10 +84,10 @@ bool check_ptt_key(void) {
     if (ptt_display) {
         XQueryKeymap(ptt_display, keys);
         if (keys[ptt_key / 8] & (0x1 << (ptt_key % 8))) {
-            // debug("PTT key is down (according to XQueryKeymap\n");
+            debug("PTT key is down (according to XQueryKeymap\n");
             return 1;
         } else {
-            // debug("PTT key is up (according to XQueryKeymap\n");
+            debug("PTT key is up (according to XQueryKeymap\n");
             return 0;
         }
     }
@@ -171,23 +171,6 @@ void openfilesend(void) {
 void openfileavatar(void) {
     if (libgtk) {
         ugtk_openfileavatar();
-    }
-}
-
-int datapath(uint8_t *dest) {
-    if (settings.portable_mode) {
-        int l = sprintf((char *)dest, "./tox");
-        mkdir((char *)dest, 0700);
-        dest[l++] = '/';
-
-        return l;
-    } else {
-        char *home = getenv("HOME");
-        int   l    = sprintf((char *)dest, "%.230s/.config/tox", home);
-        mkdir((char *)dest, 0700);
-        dest[l++] = '/';
-
-        return l;
     }
 }
 
@@ -825,8 +808,8 @@ NATIVE_IMAGE *decode_image_rgb(const UTOX_IMAGE data, size_t size, uint16_t *w, 
         debug("decode_image_rgb:\t Could mot allocate memory for image.\n");
         return NULL;
     }
-    image->rgb          = rgb;
-    image->alpha        = alpha;
+    image->rgb   = rgb;
+    image->alpha = alpha;
 
     XDestroyImage(img);
     return image;

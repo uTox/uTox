@@ -748,32 +748,32 @@ void config_save(UTOX_SAVE *save_in) {
 }
 
 void utox_write_metadata(FRIEND *f) {
-    /* Create path */
-    char dest[UTOX_FILE_NAME_LENGTH], *dest_p;
-    dest_p = dest + datapath((uint8_t *)dest);
-    cid_to_string(dest_p, f->cid);
-    memcpy((char *)dest_p + (TOX_PUBLIC_KEY_SIZE * 2), ".fmetadata", sizeof(".fmetadata"));
+    // /* Create path */
+    // char dest[UTOX_FILE_NAME_LENGTH], *dest_p;
+    // dest_p = dest + datapath((uint8_t *)dest);
+    // cid_to_string(dest_p, f->cid);
+    // memcpy((char *)dest_p + (TOX_PUBLIC_KEY_SIZE * 2), ".fmetadata", sizeof(".fmetadata"));
 
-    size_t           total_size = 0;
-    FRIEND_META_DATA metadata[1];
-    memset(metadata, 0, sizeof(*metadata));
-    total_size += sizeof(*metadata);
+    // size_t           total_size = 0;
+    // FRIEND_META_DATA metadata[1];
+    // memset(metadata, 0, sizeof(*metadata));
+    // total_size += sizeof(*metadata);
 
-    metadata->version          = METADATA_VERSION;
-    metadata->ft_autoaccept    = f->ft_autoaccept;
-    metadata->skip_msg_logging = f->skip_msg_logging;
+    // metadata->version          = METADATA_VERSION;
+    // metadata->ft_autoaccept    = f->ft_autoaccept;
+    // metadata->skip_msg_logging = f->skip_msg_logging;
 
-    if (f->alias && f->alias_length) {
-        metadata->alias_length = f->alias_length;
-        total_size += metadata->alias_length;
-    }
+    // if (f->alias && f->alias_length) {
+    //     metadata->alias_length = f->alias_length;
+    //     total_size += metadata->alias_length;
+    // }
 
-    uint8_t *data = calloc(1, total_size);
+    // uint8_t *data = calloc(1, total_size);
 
-    memcpy(data, metadata, sizeof(*metadata));
-    memcpy(data + sizeof(*metadata), f->alias, metadata->alias_length);
+    // memcpy(data, metadata, sizeof(*metadata));
+    // memcpy(data + sizeof(*metadata), f->alias, metadata->alias_length);
 
-    /* Write */
-    file_write_raw((uint8_t *)dest, (uint8_t *)data, total_size);
-    free(data);
+    // /* Write */
+    // file_write_raw((uint8_t *)dest, (uint8_t *)data, total_size);
+    // free(data);
 }

@@ -60,15 +60,13 @@ elseif(UNIX) # xlib by default
 
 endif()
 
-# if(NOT CMAKE_CROSSCOMPILING)
-#     set(CMAKE_C_COMPILER clang)
-#     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -pedantic -fno-strict-aliasing")
-# endif()
-################################################################################
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -pedantic -fno-strict-aliasing")
+
+#######################################################################
 #
 # :: Dependencies and configuration
 #
-################################################################################
+#######################################################################
 include_directories(/usr/include/freetype2)
 
 # TODO move this to the a new CMakeLists.txt in the ui subdir
@@ -104,7 +102,11 @@ add_library(uUI STATIC
     src/ui/tooltip.h
     )
 
-
+#######################################################################
+#
+# :: uTox AV system (TODO move to subdir)
+#
+#######################################################################
 add_library(utoxAV STATIC
     src/av
     src/av/utox_av.h
@@ -115,6 +117,11 @@ add_library(utoxAV STATIC
     src/av/video.c
     )
 
+#######################################################################
+#
+# :: uTox main
+#
+#######################################################################
 add_executable(utox
     src/avatar.c
     src/avatar.h
@@ -157,15 +164,16 @@ add_executable(utox
     src/util.h
     )
 
+
 add_custom_command(OUTPUT icon.o
     COMMAND cd ${CMAKE_CURRENT_SOURCE_DIR}/ && ld -r -b binary -o ${CMAKE_CURRENT_BINARY_DIR}/icon.o icons/utox-128x128.png
     COMMAND objcopy --rename-section .data=.rodata,alloc,load,readonly,data,contents ${CMAKE_CURRENT_BINARY_DIR}/icon.o ${CMAKE_CURRENT_BINARY_DIR}/icon.o
     DEPENDS icons/icon.rc icons/utox-128x128.png
     )
+set_source_files_properties( icon.o PROPERTIES EXTERNAL_OBJECT true GENERATED true )
 
-SET_SOURCE_FILES_PROPERTIES( icon.o PROPERTIES EXTERNAL_OBJECT true GENERATED true )
 add_library(icon STATIC icon.o)
-SET_TARGET_PROPERTIES( icon PROPERTIES LINKER_LANGUAGE C )
+set_target_properties( icon PROPERTIES LINKER_LANGUAGE C )
 
 
 target_link_libraries(utox
