@@ -465,7 +465,7 @@ BUTTON button_call_audio = {
     .bh           = _BM_LBICON_HEIGHT,
     .onpress      = button_call_audio_onpress,
     .update       = button_call_audio_update,
-    .tooltip_text = {.i18nal = STR_START_AUDIO_CALL },
+    .tooltip_text = {.i18nal = STR_CALL_START_AUDIO },
 };
 
 BUTTON button_call_video = {
@@ -475,7 +475,7 @@ BUTTON button_call_video = {
     .bh           = _BM_LBICON_HEIGHT,
     .onpress      = button_call_video_onpress,
     .update       = button_call_video_update,
-    .tooltip_text = {.i18nal = STR_START_VIDEO_CALL },
+    .tooltip_text = {.i18nal = STR_CALL_START_VIDEO },
 };
 
 BUTTON button_group_audio = {
