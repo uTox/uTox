@@ -9,8 +9,9 @@ set(PROJECT_VERSION_PATCH "9")
 set(PROJECT_VERSION
   "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
 
-set(LIBRARIES toxcore toxav toxencryptsave toxdns openal m pthread vpx )
+set (CMAKE_C_STANDARD 99)
 
+set(LIBRARIES toxcore toxav toxencryptsave toxdns openal m pthread vpx )
 # Protip, you must use a different directory for each build target...
 # -DMAKE_TOOLCHAIN_FILE has no effect unless the target directory is empty
 # 1.5 hours to learn this...
