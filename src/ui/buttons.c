@@ -176,10 +176,11 @@ static void button_group_audio_update(BUTTON *b) {
     GROUPCHAT *g = flist_get_selected()->data;
     if (g->av_group) {
         b->disabled = 0;
-        if (g->audio_calling)
+        if (g->audio_calling) {
             button_setcolors_danger(b);
-        else
+        } else {
             button_setcolors_success(b);
+        }
     } else {
         b->disabled = 1;
         button_setcolors_disabled(b);
@@ -298,8 +299,9 @@ static void button_accept_friend_onpress(void) {
 }
 
 static void contextmenu_avatar_onselect(uint8_t i) {
-    if (i == 0)
+    if (i == 0) {
         self_remove_avatar();
+    }
 }
 
 static void button_avatar_onright(void) {
@@ -395,23 +397,31 @@ static void button_export_chatlog_onpress(void) {
 
 
 BUTTON button_avatar = {
-    .nodraw = 1, .onpress = button_avatar_onpress, .onright = button_avatar_onright,
+    .nodraw = 1, 
+    .onpress = button_avatar_onpress, 
+    .onright = button_avatar_onright,
 };
 
 BUTTON button_name = {
-    .nodraw = 1, .onpress = button_name_onpress,
+    .nodraw = 1, 
+    .onpress = button_name_onpress,
 };
 
 BUTTON button_status_msg = {
-    .nodraw = 1, .onpress = button_statusmsg_onpress,
+    .nodraw = 1, 
+    .onpress = button_statusmsg_onpress,
 };
 
 BUTTON button_usr_state = {
-    .nodraw = 1, .onpress = button_status_onpress, .tooltip_text = {.i18nal = STR_STATUS },
+    .nodraw = 1, 
+    .onpress = button_status_onpress, 
+    .tooltip_text = {.i18nal = STR_STATUS },
 };
 
 BUTTON button_filter_friends = {
-    .nodraw = 1, .onpress = button_filter_friends_onpress, .tooltip_text = {.i18nal = STR_FILTER_CONTACT_TOGGLE },
+    .nodraw = 1, 
+    .onpress = button_filter_friends_onpress, 
+    .tooltip_text = {.i18nal = STR_FILTER_CONTACT_TOGGLE },
 };
 
 BUTTON button_add_new_contact = {
@@ -648,27 +658,37 @@ button_settings =
 
     button_settings_sub_profile =
         {
-          .nodraw = 1, .onpress = button_settings_sub_profile_onpress, .tooltip_text = {.i18nal = STR_UTOX_SETTINGS },
+          .nodraw = 1, 
+          .onpress = button_settings_sub_profile_onpress, 
+          .tooltip_text = {.i18nal = STR_UTOX_SETTINGS },
         },
 
     button_settings_sub_devices =
         {
-          .nodraw = 1, .onpress = button_settings_sub_devices_onpress, .tooltip_text = {.i18nal = STR_UTOX_SETTINGS },
+          .nodraw = 1, 
+          .onpress = button_settings_sub_devices_onpress, 
+          .tooltip_text = {.i18nal = STR_UTOX_SETTINGS },
         },
 
     button_settings_sub_net =
         {
-          .nodraw = 1, .onpress = button_settings_sub_net_onpress, .tooltip_text = {.i18nal = STR_NETWORK_SETTINGS },
+          .nodraw = 1, 
+          .onpress = button_settings_sub_net_onpress, 
+          .tooltip_text = {.i18nal = STR_NETWORK_SETTINGS },
         },
 
     button_settings_sub_ui =
         {
-          .nodraw = 1, .onpress = button_settings_sub_ui_onpress, .tooltip_text = {.i18nal = STR_USERSETTINGS },
+          .nodraw = 1, 
+          .onpress = button_settings_sub_ui_onpress, 
+          .tooltip_text = {.i18nal = STR_USERSETTINGS },
         },
 
     button_settings_sub_av =
         {
-          .nodraw = 1, .onpress = button_settings_sub_av_onpress, .tooltip_text = {.i18nal = STR_AUDIO_VIDEO },
+          .nodraw = 1, 
+          .onpress = button_settings_sub_av_onpress, 
+          .tooltip_text = {.i18nal = STR_AUDIO_VIDEO },
         },
 
     button_add_new_device_to_self = {
