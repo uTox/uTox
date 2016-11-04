@@ -140,12 +140,9 @@ add_executable(utox
     src/messages.h
     src/sized_string.h
     src/stb_image.h
-    src/stb_image.h
-    src/stb_image_write.h
     src/stb_image_write.h
     src/theme.c
     src/theme.h
-    src/theme_tables.h
     src/theme_tables.h
     src/tox.c
     src/tox.h
