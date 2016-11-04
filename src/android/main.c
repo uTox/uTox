@@ -49,9 +49,15 @@ void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data) {
     write(pipefd[1], &piping, sizeof(PIPING));
 }
 
-void init_ptt(void) { settings.push_to_talk = 0; /* android is unsupported */ }
-bool check_ptt_key(void) { return 1; /* android is unsupported */ }
-void exit_ptt(void) { settings.push_to_talk = 0; /* android is unsupported */ }
+void init_ptt(void) {
+    settings.push_to_talk = 0; /* android is unsupported */
+}
+bool check_ptt_key(void) {
+    return 1; /* android is unsupported */
+}
+void exit_ptt(void) {
+    settings.push_to_talk = 0; /* android is unsupported */
+}
 
 void image_set_filter(NATIVE_IMAGE *image, uint8_t filter) { /* Unsupported on android */
 }
@@ -111,7 +117,9 @@ void thread(void func(void *), void *args) {
     pthread_create(&thread_temp, NULL, (void *(*)(void *))func, args);
 }
 
-void yieldcpu(uint32_t ms) { usleep(1000 * ms); }
+void yieldcpu(uint32_t ms) {
+    usleep(1000 * ms);
+}
 
 uint64_t get_time(void) {
     struct timespec ts;
@@ -167,7 +175,9 @@ void image_free(NATIVE_IMAGE *image) {
     glDeleteTextures(1, &texture);
 }
 
-void *loadsavedata(uint32_t *len) { return file_raw("/data/data/tox.utox/files/tox_save", len); }
+void *loadsavedata(uint32_t *len) {
+    return file_raw("/data/data/tox.utox/files/tox_save", len);
+}
 
 void writesavedata(void *data, uint32_t len) {
     debug("Trying to save data (android)\n");
@@ -181,8 +191,6 @@ void writesavedata(void *data, uint32_t len) {
         debug("fopen failed\n");
     }
 }
-
-int datapath(uint8_t *dest) { return 0; }
 
 /** Takes data from µTox and saves it, just how the OS likes it saved! */
 size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *data, size_t length, bool append) {
@@ -368,15 +376,23 @@ int file_lock(FILE *file, uint64_t start, size_t length) {
     return 0;
 }
 
-bool native_video_init(void *handle) { return 0; /* Unsupported on android */ }
+bool native_video_init(void *handle) {
+    return 0; /* Unsupported on android */
+}
 void native_video_close(void *handle) { /* Unsupported on android */
 }
-bool native_video_startread(void) { return 1; /* Unsupported on android */ }
-bool native_video_endread(void) { return 1; /* Unsupported on android */ }
+bool native_video_startread(void) {
+    return 1; /* Unsupported on android */
+}
+bool native_video_endread(void) {
+    return 1; /* Unsupported on android */
+}
 int native_video_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, uint16_t height) {
     return 0; /* Unsupported on android */
 }
-int file_unlock(FILE *file, uint64_t start, size_t length) { return 0; /* Unsupported on android */ }
+int file_unlock(FILE *file, uint64_t start, size_t length) {
+    return 0; /* Unsupported on android */
+}
 
 void setscale_fonts(void) {
     freefonts();
@@ -404,12 +420,20 @@ void video_begin(uint32_t id, char *name, uint16_t name_length, uint16_t width,
 }
 void video_end(uint32_t id) { /* Unsupported on android */
 }
-uint16_t native_video_detect(void) { return 0; /* Unsupported on android */ }
-bool video_init(void *handle) { return 0; /* Unsupported on android */ }
+uint16_t native_video_detect(void) {
+    return 0; /* Unsupported on android */
+}
+bool video_init(void *handle) {
+    return 0; /* Unsupported on android */
+}
 void video_close(void *handle) { /* Unsupported on android */
 }
-bool video_startread(void) { return 1; /* Unsupported on android */ }
-bool video_endread(void) { return 1; /* Unsupported on android */ }
+bool video_startread(void) {
+    return 1; /* Unsupported on android */
+}
+bool video_endread(void) {
+    return 1; /* Unsupported on android */
+}
 int video_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, uint16_t height) {
     return 0; /* Unsupported on android */
 }
@@ -543,9 +567,13 @@ static uint32_t getkeychar(int32_t key) /* get a character from an android keyco
 #undef MAPC
 }
 
-void redraw(void) { _redraw = 1; }
+void redraw(void) {
+    _redraw = 1;
+}
 
-void force_redraw(void) { redraw(); }
+void force_redraw(void) {
+    redraw();
+}
 
 void update_tray(void) { /* Unsupported on android */
 }
@@ -859,17 +887,29 @@ void showkeyboard(bool show) {
     (*vm)->DetachCurrentThread(vm);
 }
 
-static void onDestroy(ANativeActivity *act) { destroy = 1; }
+static void onDestroy(ANativeActivity *act) {
+    destroy = 1;
+}
 
-static void onNativeWindowCreated(ANativeActivity *act, ANativeWindow *win) { windowN = win; }
+static void onNativeWindowCreated(ANativeActivity *act, ANativeWindow *win) {
+    windowN = win;
+}
 
-static void onNativeWindowDestroyed(ANativeActivity *act, ANativeWindow *win) { windowN = NULL; }
+static void onNativeWindowDestroyed(ANativeActivity *act, ANativeWindow *win) {
+    windowN = NULL;
+}
 
-static void onWindowFocusChanged(ANativeActivity *act, int focus) { focused = (focus != 0); }
+static void onWindowFocusChanged(ANativeActivity *act, int focus) {
+    focused = (focus != 0);
+}
 
-static void onInputQueueCreated(ANativeActivity *act, AInputQueue *queue) { inputQueueNew = queue; }
+static void onInputQueueCreated(ANativeActivity *act, AInputQueue *queue) {
+    inputQueueNew = queue;
+}
 
-static void onInputQueueDestroyed(ANativeActivity *act, AInputQueue *queue) { inputQueueNew = NULL; }
+static void onInputQueueDestroyed(ANativeActivity *act, AInputQueue *queue) {
+    inputQueueNew = NULL;
+}
 
 static void onContentRectChanged(ANativeActivity *activity, const ARect *r) {
     rect = *r;
