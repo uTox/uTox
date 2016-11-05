@@ -1,5 +1,29 @@
 #include "../main.h"
 
+#include "../../langs/i18n_decls.h"
+
+#include <inttypes.h>
+#include <stdbool.h>
+
+#include <windows.h>
+
+#include <control.h>
+#include <strmif.h>
+#include <uuids.h>
+#include <vfwmsgs.h>
+#include <qedit.h>
+#include <mmdeviceapi.h>
+#include <Amvideo.h>
+
+#ifdef __CRT__NO_INLINE
+#undef __CRT__NO_INLINE
+#define DID_UNDEFINE__CRT__NO_INLINE
+#include <dshow.h>
+#ifdef DID_UNDEFINE__CRT__NO_INLINE
+#define __CRT__NO_INLINE
+#endif
+#endif
+
 IGraphBuilder * pGraph;
 IBaseFilter *   pGrabberF;
 IMediaControl * pControl;
@@ -18,7 +42,7 @@ void *  dibits;
 static uint16_t video_x, video_y;
 
 // TODO this is in main.c too, probably want to decide how to handle this. FIXME!
-static int utf8tonative(char *str, wchar *out, int length) {
+static int utf8tonative(char *str, wchar_t *out, int length) {
     return MultiByteToWideChar(CP_UTF8, 0, (char *)str, length, out, length);
 }
 
@@ -29,7 +53,7 @@ void video_begin(uint32_t id, char *name, uint16_t name_length, uint16_t width, 
     }
 
     HWND *h = &video_hwnd[id];
-    wchar out[name_length + 1];
+    wchar_t out[name_length + 1];
     int   len = utf8tonative(name, out, name_length);
     out[len]  = 0;
 
@@ -362,10 +386,10 @@ uint16_t native_video_detect(void) {
 
 bool native_video_init(void *handle) {
     if ((size_t)handle == 1) {
-        video_x      = volatile(video_grab_x);
-        video_y      = volatile(video_grab_y);
-        video_width  = volatile(video_grab_w);
-        video_height = volatile(video_grab_h);
+        video_x      = video_grab_x;
+        video_y      = video_grab_y;
+        video_width  = video_grab_w;
+        video_height = video_grab_h;
 
         if (video_width & 1) {
             if (video_x & 1) {

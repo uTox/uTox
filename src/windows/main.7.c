@@ -4,7 +4,13 @@
 #define _WIN32_WINNT 0x0600
 #endif
 
+#include "main.h"
+
 #include "../main.h"
+#include "../tox.h"
+#include "../friend.h"
+
+#include <shlobj.h>
 
 void native_export_chatlog_init(uint32_t friend_number) {
     char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
@@ -69,10 +75,10 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
         return;
     }
 
-    wchar *path[UTOX_FILE_NAME_LENGTH];
-    wchar  sub_path[UTOX_FILE_NAME_LENGTH] = { 0 }; /* I don't trust swprintf on windows anymore, so let's help it */
-    wchar  fullpath[UTOX_FILE_NAME_LENGTH] = { 0 }; /* out a bit by initialing everything to 0                     */
-    wchar  longname[UTOX_FILE_NAME_LENGTH] = { 0 };
+    wchar_t *path[UTOX_FILE_NAME_LENGTH];
+    wchar_t  sub_path[UTOX_FILE_NAME_LENGTH] = { 0 }; /* I don't trust swprintf on windows anymore, so let's help it */
+    wchar_t  fullpath[UTOX_FILE_NAME_LENGTH] = { 0 }; /* out a bit by initialing everything to 0                     */
+    wchar_t  longname[UTOX_FILE_NAME_LENGTH] = { 0 };
 
     if (settings.portable_mode) {
         snprintf(send, UTOX_FILE_NAME_LENGTH, "%s\\Tox_Auto_Accept", portable_mode_save_path);
@@ -102,8 +108,8 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
 
 void launch_at_startup(int is_launch_at_startup) {
     HKEY         hKey;
-    const wchar *run_key_path = L"Software\\Microsoft\\Windows\\CurrentVersion\\Run";
-    wchar        path[UTOX_FILE_NAME_LENGTH * 2];
+    const wchar_t *run_key_path = L"Software\\Microsoft\\Windows\\CurrentVersion\\Run";
+    wchar_t        path[UTOX_FILE_NAME_LENGTH * 2];
     uint16_t     path_length = 0, ret = 0;
     if (is_launch_at_startup == 1) {
         if (ERROR_SUCCESS == RegOpenKeyW(HKEY_CURRENT_USER, run_key_path, &hKey)) {
@@ -112,7 +118,7 @@ void launch_at_startup(int is_launch_at_startup) {
             path[path_length + 1] = '\"';
             path[path_length + 2] = '\0';
             path_length += 2;
-            ret = RegSetKeyValueW(hKey, NULL, (LPCSTR)(L"uTox"), REG_SZ, path, path_length * 2); /*2 bytes per wchar */
+            ret = RegSetKeyValueW(hKey, NULL, (LPCSTR)(L"uTox"), REG_SZ, path, path_length * 2); /*2 bytes per wchar_t */
             if (ret == ERROR_SUCCESS) {
                 debug("Successful auto start addition.\n");
             }

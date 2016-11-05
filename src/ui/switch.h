@@ -2,6 +2,7 @@
 #define SWITCH_H
 
 #include "../ui.h"
+#include "svg.h"
 
 typedef struct uiswitch UISWITCH;
 struct uiswitch {

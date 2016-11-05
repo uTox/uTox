@@ -5,6 +5,8 @@
 #include "main_native.h"
 #include "sized_string.h"
 
+#include <stdbool.h>
+
 #define DEFAULT_LANG LANG_EN
 #define S(x) (ui_gettext(LANG, (STR_##x))->str)
 #define SLEN(x) (ui_gettext(LANG, (STR_##x))->length)

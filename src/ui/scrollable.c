@@ -1,7 +1,10 @@
 // scrollable.c
 #include "scrollable.h"
 
+#include "svg.h"
+
 #include "../main.h"
+
 
 void scroll_draw(SCROLLABLE *s, int x, int y, int width, int height) {
     uint32_t c            = s->content_height;

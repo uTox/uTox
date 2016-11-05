@@ -9,6 +9,7 @@
 #include "ui/contextmenu.h"
 #include "ui/dropdowns.h"
 #include "ui/scrollable.h"
+#include "ui/svg.h"
 #include "ui/tooltip.h"
 
 #ifdef UNITY

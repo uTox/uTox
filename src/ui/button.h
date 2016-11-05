@@ -3,6 +3,8 @@
 
 #include "../ui.h"
 
+#include <stdbool.h>
+
 typedef struct button BUTTON;
 struct button {
     PANEL panel;
