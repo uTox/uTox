@@ -44,6 +44,7 @@ void debug_error(const char *fmt, ...);
 
 typedef struct utox_native_image NATIVE_IMAGE;
 int NATIVE_IMAGE_IS_VALID(NATIVE_IMAGE *img);
+FILE *native_get_file(uint8_t *name, size_t *size, char *flag);
 
 #ifdef __OBJC__
 #include "objc_main.h"
