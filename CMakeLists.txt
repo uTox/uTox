@@ -11,13 +11,16 @@ set(PROJECT_VERSION
 
 set (CMAKE_C_STANDARD 99)
 
-set(LIBRARIES toxcore toxav toxencryptsave toxdns openal m pthread vpx )
+set(LIBRARIES toxcore toxav toxencryptsave toxdns m pthread vpx )
 # Protip, you must use a different directory for each build target...
 # -DMAKE_TOOLCHAIN_FILE has no effect unless the target directory is empty
 # 1.5 hours to learn this...
 if(WIN32)
     set(U_LIBRARIES utoxAV win_Native uUI )
-    list(APPEND LIBRARIES)
+    list(APPEND LIBRARIES OpenAL32 iphlpapi ws2_32 gdi32 msimg32 dnsapi comdlg32 winmm ole32 oleaut32 strmiids opus sodium )
+
+    include_directories( /usr/local/include/ )
+    link_directories( /usr/local/lib/ )
 
     add_library(win_Native STATIC
         src/windows/audio.c
@@ -37,7 +40,7 @@ elseif(APPLE)
     list(APPEND LIBRARIES)
 elseif(UNIX) # xlib by default
     set(U_LIBRARIES utoxAV xlib_Native uUI )
-    list(APPEND LIBRARIES v4lconvert X11 Xext Xrender fontconfig freetype resolv dl )
+    list(APPEND LIBRARIES v4lconvert X11 Xext Xrender fontconfig freetype resolv dl openal )
 
     add_library(xlib_Native STATIC
         src/xlib/audio.c

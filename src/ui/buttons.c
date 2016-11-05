@@ -8,6 +8,8 @@
 #include "../groups.h"
 #include "../theme.h"
 
+#include "../ui/svg.h"
+
 /* buttons */
 #ifdef UNITY
 #include "xlib/mmenu.h"

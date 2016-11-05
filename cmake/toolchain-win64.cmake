@@ -6,10 +6,8 @@ SET(CMAKE_C_COMPILER   x86_64-w64-mingw32-gcc)
 SET(CMAKE_CXX_COMPILER x86_64-w64-mingw32-g++)
 SET(CMAKE_RC_COMPILER  x86_64-w64-mingw32-windres)
 
-SET(CMAKE_C_FLAGS "-static-libgcc -static-libstdc++ -static -O3 -s")
-SET(CMAKE_CXX_FLAGS "-static-libgcc -static-libstdc++ -static -O3 -s")
-SET(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "-static-libgcc -static-libstdc++ -static -O3 -s")
-SET(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "-static-libgcc -static-libstdc++ -static -O3 -s")
+SET(CMAKE_C_FLAGS "-static-libgcc -static -O3 -s -std=c99 -w -DAL_LIBTYPE_STATIC")
+SET(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "-static-libgcc -static -O3 -s -std=c99 -Wl,-subsystem,windows")
 
 # adjust the default behaviour of the FIND_XXX() commands:
 # search headers and libraries in the target environment, search

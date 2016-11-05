@@ -1,11 +1,16 @@
 #include "main.h"
 
-#include <windows.h>
-#include <windowsx.h>
+#include "../flist.h"
+#include "../friend.h"
+#include "../main.h"
+#include "../theme.h"
+#include "../tox.h"
+
+#include "../av/utox_av.h"
+#include "../ui/dropdowns.h"
 
 static bool flashing, desktopgrab_video;
 static bool hidden;
-
 
 static TRACKMOUSEEVENT tme           = { sizeof(TRACKMOUSEEVENT), TME_LEAVE, 0, 0 };
 static bool            mouse_tracked = 0;
@@ -21,16 +26,16 @@ bool  havefocus;
  * Returns: number of chars writen, or 0 on failure.
  *
  */
-static int utf8tonative(char *str, wchar *out, int length) {
+static int utf8tonative(char *str, wchar_t *out, int length) {
     return MultiByteToWideChar(CP_UTF8, 0, (char *)str, length, out, length);
 }
 
-static int utf8_to_nativestr(char *str, wchar *out, int length) {
+static int utf8_to_nativestr(char *str, wchar_t *out, int length) {
     /* must be null terminated string                   ↓ */
     return MultiByteToWideChar(CP_UTF8, 0, (char *)str, -1, out, length);
 }
 
-int native_to_utf8str(wchar *str_in, char *str_out, uint32_t max_size) {
+int native_to_utf8str(wchar_t *str_in, char *str_out, uint32_t max_size) {
     /* must be null terminated string          ↓                     */
     return WideCharToMultiByte(CP_UTF8, 0, str_in, -1, str_out, max_size, NULL, NULL);
 }
@@ -170,7 +175,7 @@ void openfilesend(void) {
         return;
     }
 
-    wchar dir[UTOX_FILE_NAME_LENGTH];
+    wchar_t dir[UTOX_FILE_NAME_LENGTH];
     GetCurrentDirectoryW(countof(dir), dir);
 
     OPENFILENAME ofn = {
@@ -182,7 +187,7 @@ void openfilesend(void) {
     };
 
     if (GetOpenFileName(&ofn)) {
-        postmessage_toxcore(TOX_FILE_SEND_NEW, (FRIEND *)selected_item->data - friend, ofn.nFileOffset, filepath);
+        postmessage_toxcore(TOX_FILE_SEND_NEW, (FRIEND *)flist_get_selected()->data - friend, ofn.nFileOffset, filepath);
     } else {
         debug("GetOpenFileName() failed\n");
     }
@@ -194,7 +199,7 @@ void openfileavatar(void) {
     char *filepath = malloc(1024);
     filepath[0]    = 0;
 
-    wchar dir[1024];
+    wchar_t dir[1024];
     GetCurrentDirectoryW(countof(dir), dir);
 
     OPENFILENAME ofn = {
@@ -379,7 +384,7 @@ static void sendbitmap(HDC mem, HBITMAP hbm, int width, int height) {
     free(bits);
 
     NATIVE_IMAGE *image = create_utox_image(hbm, 0, width, height);
-    friend_sendimage(selected_item->data, image, width, height, (UTOX_IMAGE)out, size);
+    friend_sendimage(flist_get_selected()->data, image, width, height, (UTOX_IMAGE)out, size);
 }
 
 void copy(int value) {
@@ -389,16 +394,16 @@ void copy(int value) {
     if (edit_active()) {
         len       = edit_copy(data, 32767);
         data[len] = 0;
-    } else if (selected_item->item == ITEM_FRIEND) {
+    } else if (flist_get_selected()->item == ITEM_FRIEND) {
         len = messages_selection(&messages_friend, data, 32768, value);
-    } else if (selected_item->item == ITEM_GROUP) {
+    } else if (flist_get_selected()->item == ITEM_GROUP) {
         len = messages_selection(&messages_group, data, 32768, value);
     } else {
         return;
     }
 
     HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, (len + 1) * 2);
-    wchar * d    = GlobalLock(hMem);
+    wchar_t * d    = GlobalLock(hMem);
     utf8tonative(data, d, len + 1); // because data is nullterminated
     GlobalUnlock(hMem);
     OpenClipboard(hwnd);
@@ -412,8 +417,8 @@ void paste(void) {
     HANDLE h = GetClipboardData(CF_UNICODETEXT);
     if (!h) {
         h = GetClipboardData(CF_BITMAP);
-        if (h && selected_item->item == ITEM_FRIEND) {
-            FRIEND *f = selected_item->data;
+        if (h && flist_get_selected()->item == ITEM_FRIEND) {
+            FRIEND *f = flist_get_selected()->data;
             if (!f->online) {
                 return;
             }
@@ -434,7 +439,7 @@ void paste(void) {
             DeleteDC(tempdc);
         }
     } else {
-        wchar *d = GlobalLock(h);
+        wchar_t *d = GlobalLock(h);
         char   data[65536]; // TODO: De-hardcode this value.
         int    len = WideCharToMultiByte(CP_UTF8, 0, d, -1, (char *)data, sizeof(data), NULL, 0);
         if (edit_active()) {
@@ -703,8 +708,8 @@ LRESULT CALLBACK GrabProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam) {
             DestroyWindow(window);
             postmessage_utoxav(UTOXAV_SET_VIDEO_IN, 1, 0, NULL);
         } else {
-            FRIEND *f = selected_item->data;
-            if (selected_item->item == ITEM_FRIEND && f->online) {
+            FRIEND *f = flist_get_selected()->data;
+            if (flist_get_selected()->item == ITEM_FRIEND && f->online) {
                 DestroyWindow(window);
                 HWND dwnd = GetDesktopWindow();
                 HDC  ddc  = GetDC(dwnd);
@@ -989,7 +994,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     /* */
     MSG msg;
     // int x, y;
-    wchar classname[] = L"uTox", popupclassname[] = L"uToxgrab";
+    wchar_t classname[] = L"uTox", popupclassname[] = L"uToxgrab";
 
     my_icon              = LoadIcon(hInstance, MAKEINTRESOURCE(101));
     unread_messages_icon = LoadIcon(hInstance, MAKEINTRESOURCE(102));
@@ -1043,7 +1048,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
         dropdown_theme.selected = save->theme;
         settings.theme          = save->theme;
     }
-    theme_load(theme);
+    theme_load(settings.theme);
 
     utox_init();
 
@@ -1053,7 +1058,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     char pretitle[128];
     snprintf(pretitle, 128, "%s %s (version : %s)", TITLE, SUB_TITLE, VERSION);
     size_t title_size = strlen(pretitle) + 1;
-    wchar  title[title_size];
+    wchar_t  title[title_size];
     mbstowcs(title, pretitle, title_size);
     /* trim first letter that appears for god knows why */
     /* needed if/when the uTox becomes a muTox */
