@@ -395,7 +395,7 @@ static void button_export_chatlog_onpress(void) {
     utox_export_chatlog_init(((FRIEND *)flist_get_selected()->data)->number);
 }
 
-
+// clang-format off
 BUTTON button_avatar = {
     .nodraw = 1, 
     .onpress = button_avatar_onpress, 
