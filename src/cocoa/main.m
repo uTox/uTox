@@ -335,18 +335,18 @@ uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_s
     return data;
 }
 
-FILE *native_get_file(uint8_t *name, size_t *size, char *flag) {
+FILE *native_get_file(char *name, size_t *size, char *flag) {
     char path[UTOX_FILE_NAME_LENGTH] = { 0 };
 
     if (settings.portable_mode) {
-        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "./tox/");
+        snprintf(path, UTOX_FILE_NAME_LENGTH, "./tox/");
     } else {
-        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));
+        snprintf(path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));
     }
 
     mkdir(path, 0700);
 
-    if (strlen(path) + strlen((char *)name) >= UTOX_FILE_NAME_LENGTH) {
+    if (strlen(path) + strlen(name) >= UTOX_FILE_NAME_LENGTH) {
         debug("NATIVE:\tLoad directory name too long\n");
         return NULL;
     } else {
@@ -360,9 +360,11 @@ FILE *native_get_file(uint8_t *name, size_t *size, char *flag) {
         return NULL;
     }
 
-    fseek(fp, 0, SEEK_END);
-    *size = ftell(fp);
-    fseek(fp, 0, SEEK_SET);
+    if (size != NULL) {
+        fseek(fp, 0, SEEK_END);
+        *size = ftell(fp);
+        fseek(fp, 0, SEEK_SET);
+    }
 
     return fp;
 }

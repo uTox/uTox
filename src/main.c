@@ -53,7 +53,7 @@ SETTINGS settings = {
  * src/<platform>/main.x and change from utox_ to native_ */
 bool utox_data_save_tox(uint8_t *data, size_t length) {
     uint8_t name[] = "tox_save.tox";
-    FILE *fp = native_get_file(name, &length, "wb");
+    FILE *fp = native_get_file((char *)name, &length, "wb");
     if (fp == NULL) {
         return true;
     }
@@ -72,7 +72,7 @@ uint8_t *utox_data_load_tox(size_t *size) {
     FILE *fp;
 
     for (int i = 0; i < 4; i++) {
-        fp = native_get_file(name[i], size, "rb");
+        fp = native_get_file((char *)name[i], size, "rb");
         if (fp == NULL) {
             continue;
         }
@@ -82,7 +82,6 @@ uint8_t *utox_data_load_tox(size_t *size) {
             fclose(fp);
             continue;
         }
-        fseek(fp, 0, SEEK_SET);
         if (fread(data, 1, *size, fp) != 0) {
             debug("Could not read: %s.\n", name[i]);
             perror("fread");
@@ -99,8 +98,8 @@ uint8_t *utox_data_load_tox(size_t *size) {
 
 bool utox_data_save_utox(UTOX_SAVE *data, size_t length) {
     uint8_t name[] = "utox_save";
-    size_t size;
-    FILE *fp = native_get_file(name, &size, "wb");
+    size_t size = 0;
+    FILE *fp = native_get_file((char *)name, &size, "wb");
 
     if (fp == NULL) {
         return false;
@@ -115,31 +114,32 @@ bool utox_data_save_utox(UTOX_SAVE *data, size_t length) {
 }
 
 UTOX_SAVE *utox_data_load_utox(void) {
-    uint8_t name[] = "utox_save", *data;
-    size_t length;
-    FILE *fp = native_get_file(name, &length, "rb");
+    uint8_t name[] = "utox_save";
+    size_t length = 0;
+    UTOX_SAVE *save;
+    FILE *fp = native_get_file((char *)name, &length, "rb");
 
     if (fp == NULL) {
         return NULL;
     }
 
-    data = calloc(length + 1, 1);
-    if (data == NULL) {
+    save = calloc(length + 1, 1);
+    if (save == NULL) {
         fclose(fp);
         return NULL;
     }
 
-    if (fread(data, 1, length, fp) != 1) {
+    if (fread(save, 1, length, fp) != 1) {
         debug("Could not read: %s\n", name);
         perror("fread");
         printf("%d\n", ferror(fp));
         fclose(fp);
-        free(data);
+        free(save);
         return NULL;
     }
     fclose(fp);
 
-    return (UTOX_SAVE *)data;
+    return save;
 }
 
 bool utox_data_save_ftinfo(uint32_t friend_number, uint8_t *data, size_t length) {

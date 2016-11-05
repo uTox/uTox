@@ -45,6 +45,6 @@ typedef GLuint NATIVE_IMAGE;
 
 #define ANDROID_INTERNAL_SAVE "/data/data/tox.client.utox/files/"
 
-FILE *native_get_file(uint8_t *name, size_t *size, char *flag);
+FILE *native_get_file(char *name, size_t *size, char *flag);
 
 #endif

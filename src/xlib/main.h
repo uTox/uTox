@@ -165,6 +165,6 @@ void v4l_close(void);
 bool v4l_startread(void);
 bool v4l_endread(void);
 int v4l_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, uint16_t height);
-FILE *native_get_file(uint8_t *name, size_t *size, char *flag);
+FILE *native_get_file(char *name, size_t *size, char *flag);
 
 #endif
