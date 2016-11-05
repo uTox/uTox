@@ -286,6 +286,32 @@ uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_s
     return data;
 }
 
+FILE *native_get_file(uint8_t *name, size_t *size, char *flag) {
+    char  path[UTOX_FILE_NAME_LENGTH] = { 0 };
+
+    snprintf((char *)path, UTOX_FILE_NAME_LENGTH, ANDROID_INTERNAL_SAVE);
+
+    if (strlen((const char *)path) + name_length >= UTOX_FILE_NAME_LENGTH) {
+        debug("NATIVE:\tLoad directory name too long\n");
+        return 0;
+    } else {
+        snprintf((char *)path + strlen((const char *)path), UTOX_FILE_NAME_LENGTH - strlen((const char *)path), "%s",
+                 name);
+    }
+
+    FILE *fp = fopen(path, flag);
+
+    if (fp == NULL) {
+        debug("Could not open %s\n", path);
+        return NULL;
+    }
+
+    fseek(fp, 0, SEEK_END);
+    *size = ftell(fp);
+
+    return fp;
+}
+
 /** native_load_chatlog
  *
  *  reads records from the log file of a friend

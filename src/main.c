@@ -53,33 +53,93 @@ SETTINGS settings = {
  * src/<platform>/main.x and change from utox_ to native_ */
 bool utox_data_save_tox(uint8_t *data, size_t length) {
     uint8_t name[] = "tox_save.tox";
-    return !native_save_data(name, strlen((const char *)name), data, length, 0);
+    FILE *fp = native_get_file(name, &length, "wb");
+    if (fp == NULL) {
+        return true;
+    }
+
+    fwrite(data, length, 1, fp);
+    fflush(fp);
+    fclose(fp);
+
+    return false;
 }
 
 uint8_t *utox_data_load_tox(size_t *size) {
     uint8_t name[][20] = { "tox_save.tox", "tox_save.tox.atomic", "tox_save.tmp", "tox_save" };
 
     uint8_t *data;
+    FILE *fp;
 
     for (int i = 0; i < 4; i++) {
-        data = native_load_data(name[i], strlen((const char *)name[i]), size);
-        if (data) {
-            return data;
-        } else {
-            debug("NATIVE:\tUnable to load %s\n", name[i]);
+        fp = native_get_file(name[i], size, "rb");
+        if (fp == NULL) {
+            continue;
         }
+        data = calloc(*size + 1, 1);
+        if (data == NULL) {
+            debug("Could not allocate memory.\n");
+            fclose(fp);
+            continue;
+        }
+        fseek(fp, 0, SEEK_SET);
+        if (fread(data, 1, *size, fp) != 0) {
+            debug("Could not read: %s.\n", name[i]);
+            perror("fread");
+            printf("%d\n", ferror(fp));
+            fclose(fp);
+            free(data);
+            continue;
+        }
+        fclose(fp);
+        return data;
     }
     return NULL;
 }
 
 bool utox_data_save_utox(UTOX_SAVE *data, size_t length) {
     uint8_t name[] = "utox_save";
-    return native_save_data(name, strlen((const char *)name), (const uint8_t *)data, length, 0);
+    size_t size;
+    FILE *fp = native_get_file(name, &size, "wb");
+
+    if (fp == NULL) {
+        return false;
+    }
+
+    fwrite(data, length, 1, fp);
+    perror("fwrite");
+    fflush(fp);
+    fclose(fp);
+
+    return true;
 }
 
 UTOX_SAVE *utox_data_load_utox(void) {
-    uint8_t name[] = "utox_save";
-    return (UTOX_SAVE *)native_load_data(name, strlen((const char *)name), NULL);
+    uint8_t name[] = "utox_save", *data;
+    size_t length;
+    FILE *fp = native_get_file(name, &length, "rb");
+
+    if (fp == NULL) {
+        return NULL;
+    }
+
+    data = calloc(length + 1, 1);
+    if (data == NULL) {
+        fclose(fp);
+        return NULL;
+    }
+
+    if (fread(data, 1, length, fp) != 1) {
+        debug("Could not read: %s\n", name);
+        perror("fread");
+        printf("%d\n", ferror(fp));
+        fclose(fp);
+        free(data);
+        return NULL;
+    }
+    fclose(fp);
+
+    return (UTOX_SAVE *)data;
 }
 
 bool utox_data_save_ftinfo(uint32_t friend_number, uint8_t *data, size_t length) {
