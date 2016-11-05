@@ -146,6 +146,6 @@ int  video_grab_x, video_grab_y, video_grab_w, video_grab_h;
 bool grabbing;
 
 int native_to_utf8str(wchar *str_in, char *str_out, uint32_t max_size);
-FILE *native_get_file(uint8_t *name, size_t *size, char *flag);
+FILE *native_get_file(char *name, size_t *size, char *flag);
 
 #endif

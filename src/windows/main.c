@@ -223,7 +223,7 @@ uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_s
     return data;
 }
 
-FILE *native_get_file(uint8_t *name, size_t *size, char *flag) {
+FILE *native_get_file(char *name, size_t *size, char *flag) {
 
 }
 
