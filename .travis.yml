@@ -46,6 +46,18 @@ matrix:
       compiler: clang
 
     - os: linux
+      sudo: required
+      dist: trusty
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - gcc-5
+            - mingw-w64
+            - gcc-mingw-w64
+            - binutils-mingw-w64
+            - yasm
       env: BUILD=windows
       compiler: x86_64-w64-mingw32-gcc
 
