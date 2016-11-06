@@ -82,14 +82,8 @@ msgstr("Tilføj venner")
 msgid(MESSAGE)
 msgstr("Besked")
 
-msgid(SEARCHFRIENDS)
-msgstr("Søg i venner")
-
 msgid(ADD)
 msgstr("Tilføj")
-
-msgid(SWITCHPROFILE)
-msgstr("Skift profil")
 
 msgid(FRIENDREQUEST)
 msgstr("Venneanmodning")
@@ -105,9 +99,6 @@ msgstr("Status besked")
 
 msgid(PREVIEW)
 msgstr("Eksempel")
-
-msgid(DEVICESELECTION)
-msgstr("Vælg enhed")
 
 msgid(AUDIOINPUTDEVICE)
 msgstr("Lyd input enhed")

@@ -84,14 +84,8 @@ msgstr("Arkadaş Ekle")
 msgid(MESSAGE)
 msgstr("Mesaj Gönder")
 
-msgid(SEARCHFRIENDS)
-msgstr("Arkadaş Arama")
-
 msgid(ADD)
 msgstr("Ekle")
-
-msgid(SWITCHPROFILE)
-msgstr("Profil Değiştir")
 
 msgid(FRIENDREQUEST)
 msgstr("Arkadaşlık Talebi")
@@ -107,9 +101,6 @@ msgstr("Durum Mesajı")
 
 msgid(PREVIEW)
 msgstr("Önizleme")
-
-msgid(DEVICESELECTION)
-msgstr("Aygıt Seçimi")
 
 msgid(AUDIOINPUTDEVICE)
 msgstr("Ses Girişi Aygıtı")
