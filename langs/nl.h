@@ -85,14 +85,8 @@ msgstr("Vrienden Toevoegen")
 msgid(MESSAGE)
 msgstr("Bericht")
 
-msgid(SEARCHFRIENDS)
-msgstr("Zoek Vrienden")
-
 msgid(ADD)
 msgstr("Toevoegen")
-
-msgid(SWITCHPROFILE)
-msgstr("Van Profiel Veranderen")
 
 msgid(FRIENDREQUEST)
 msgstr("Vriendschapsverzoek")
@@ -108,9 +102,6 @@ msgstr("Statusbericht")
 
 msgid(PREVIEW)
 msgstr("Voorbeeld")
-
-msgid(DEVICESELECTION)
-msgstr("Apparaat Selectie")
 
 msgid(AUDIOINPUTDEVICE)
 msgstr("Geluid Invoerapparaat")

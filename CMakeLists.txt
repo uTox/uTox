@@ -60,7 +60,7 @@ elseif(UNIX) # xlib by default
 
 endif()
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -pedantic -fno-strict-aliasing")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -fno-strict-aliasing")
 
 #######################################################################
 #
@@ -177,6 +177,6 @@ set_target_properties( icon PROPERTIES LINKER_LANGUAGE C )
 
 
 target_link_libraries(utox
-    ${LIBRARIES}
     ${U_LIBRARIES}
+    ${LIBRARIES}
 )

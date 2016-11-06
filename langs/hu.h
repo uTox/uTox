@@ -82,14 +82,8 @@ msgstr("Tox ID")
 msgid(MESSAGE)
 msgstr("Üzenet")
 
-msgid(SEARCHFRIENDS)
-msgstr("Partnerek keresése")
-
 msgid(ADD)
 msgstr("Hozzáadás")
-
-msgid(SWITCHPROFILE)
-msgstr("Profilváltás")
 
 msgid(FRIENDREQUEST)
 msgstr("Partnerkérelem")
@@ -105,9 +99,6 @@ msgstr("Állapot üzenet")
 
 msgid(PREVIEW)
 msgstr("Előnézet")
-
-msgid(DEVICESELECTION)
-msgstr("Eszközválasztás")
 
 msgid(AUDIOINPUTDEVICE)
 msgstr("Bemeneti hangeszköz")

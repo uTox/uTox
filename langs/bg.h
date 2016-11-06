@@ -84,14 +84,8 @@ msgstr("Добави приятели")
 msgid(MESSAGE)
 msgstr("Съобщение")
 
-msgid(SEARCHFRIENDS)
-msgstr("Потърси приятели")
-
 msgid(ADD)
 msgstr("Добави")
-
-msgid(SWITCHPROFILE)
-msgstr("Смени профил")
 
 msgid(FRIENDREQUEST)
 msgstr("Покана за приятелство")
@@ -107,9 +101,6 @@ msgstr("Статус")
 
 msgid(PREVIEW)
 msgstr("Преглед")
-
-msgid(DEVICESELECTION)
-msgstr("Избор на устройство")
 
 msgid(AUDIOINPUTDEVICE)
 msgstr("Устройство за записване на звук")

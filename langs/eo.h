@@ -82,10 +82,10 @@ msgstr("Dosiera transigo kompletigita")
 msgid(GROUPCHAT_JOIN_AUDIO)
 msgstr("Aliĝi al voĉa babilejo")
 
-msgid(START_AUDIO_CALL)
+msgid(CALL_START_AUDIO)
 msgstr("Eki voĉan vokon")
 
-msgid(START_VIDEO_CALL)
+msgid(CALL_START_VIDEO)
 msgstr("Eki videan vokon")
 
 msgid(CALL_CANCELLED)
@@ -118,9 +118,6 @@ msgstr("Tox-identigilo")
 msgid(MESSAGE)
 msgstr("Mesaĝo")
 
-msgid(SEARCHFRIENDS)
-msgstr("Serĉi kontaktojn")
-
 msgid(FILTER_ALL)
 msgstr("Enretaj Kontaktoj")
 
@@ -130,20 +127,11 @@ msgstr("Ĉiuj Kontaktoj")
 msgid(FILTER_CONTACT_TOGGLE)
 msgstr("Baskuligi filtradon de eksterretaj kontaktoj.")
 
-msgid(FILTER_TO_ALL)
-msgstr("Montri ĉiujn kontaktojn!")
-
-msgid(FILTER_TO_ONLINE)
-msgstr("Montri nur enretajn kontaktojn!")
-
 msgid(ADD)
 msgstr("Aldoni")
 
 msgid(CREATEGROUPCHAT)
 msgstr("Krei Grupbabilejo")
-
-msgid(SWITCHPROFILE)
-msgstr("Ŝalti Profilojn")
 
 msgid(FRIENDREQUEST)
 msgstr("Amikiĝpeto")
@@ -154,17 +142,11 @@ msgstr("Uzantaj Agordoj")
 msgid(NAME)
 msgstr("Nomo")
 
-msgid(PROFILE)
-msgstr("Profilo")
-
 msgid(STATUSMESSAGE)
 msgstr("Stata mesaĝo")
 
 msgid(PREVIEW)
 msgstr("Antaŭvidi")
-
-msgid(DEVICESELECTION)
-msgstr("Elekto de aparato")
 
 msgid(AUDIOINPUTDEVICE)
 msgstr("Aparato por sona enigo")

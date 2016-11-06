@@ -104,10 +104,10 @@ msgstr("Rechtsklick")
 /******************************************************************************
  *** Audio / Video Call Strings                                             ***
  ******************************************************************************/
-msgid(START_AUDIO_CALL)
+msgid(CALL_START_AUDIO)
 msgstr("Anruf beginnen")
 
-msgid(START_VIDEO_CALL)
+msgid(CALL_START_VIDEO)
 msgstr("Videoanruf beginnen")
 
 msgid(CALL_DECLINE)
@@ -238,9 +238,6 @@ msgstr("Neuen Kontakt hinzufügen")
 msgid(MESSAGE)
 msgstr("Nachricht")
 
-msgid(SEARCHFRIENDS)
-msgstr("Kontakte suchen")
-
 msgid(FILTER_ONLINE)
 msgstr("Online")
 
@@ -250,17 +247,8 @@ msgstr("Alle")
 msgid(FILTER_CONTACT_TOGGLE)
 msgstr("Filterung von offline Kontakten umschalten.")
 
-msgid(FILTER_TO_ALL)
-msgstr("Alle Kontakte zeigen!")
-
-msgid(FILTER_TO_ONLINE)
-msgstr("Nur online Kontakte zeigen!")
-
 msgid(ADD)
 msgstr("Hinzufügen")
-
-msgid(SWITCHPROFILE)
-msgstr("Profil wechseln")
 
 msgid(FRIENDREQUEST)
 msgstr("Freundschaftsanfrage")
@@ -271,17 +259,11 @@ msgstr("Benutzereinstellungen")
 msgid(FRIEND_SETTINGS)
 msgstr("Freundeinstellungen")
 
-msgid(PROFILE)
-msgstr("Profil")
-
 msgid(STATUSMESSAGE)
 msgstr("Statusnachricht")
 
 msgid(PREVIEW)
 msgstr("Vorschau")
-
-msgid(DEVICESELECTION)
-msgstr("Geräteauswahl")
 
 msgid(AUDIOINPUTDEVICE)
 msgstr("Audioeingabegerät")

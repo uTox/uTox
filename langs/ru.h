@@ -144,10 +144,10 @@ msgstr("Правый клик")
 /******************************************************************************
  *** Audio / Video Call Strings                                             ***
  ******************************************************************************/
-msgid(START_AUDIO_CALL)
+msgid(CALL_START_AUDIO)
 msgstr("Позвонить")
 
-msgid(START_VIDEO_CALL)
+msgid(CALL_START_VIDEO)
 msgstr("Видео вызов")
 
 msgid(CALL_DECLINE)
@@ -294,9 +294,6 @@ msgstr("Tox ID")
 msgid(MESSAGE)
 msgstr("Сообщение")
 
-msgid(SEARCHFRIENDS)
-msgstr("Поиск контактов")
-
 msgid(FILTER_ONLINE)
 msgstr("Контакты на связи")
 
@@ -306,17 +303,8 @@ msgstr("Все контакты")
 msgid(FILTER_CONTACT_TOGGLE)
 msgstr("Переключить видимость отсутствующих контактов.")
 
-msgid(FILTER_TO_ALL)
-msgstr("Показывать все контакты!")
-
-msgid(FILTER_TO_ONLINE)
-msgstr("Показывать только контакты на связи!")
-
 msgid(ADD)
 msgstr("Добавить")
-
-msgid(SWITCHPROFILE)
-msgstr("Переключить профиль")
 
 msgid(FRIENDREQUEST)
 msgstr("Запрос на добавление в список контактов")
@@ -330,17 +318,11 @@ msgstr("Настройки контакта")
 msgid(NAME)
 msgstr("Имя")
 
-msgid(PROFILE)
-msgstr("Профиль")
-
 msgid(STATUSMESSAGE)
 msgstr("Сообщение статуса")
 
 msgid(PREVIEW)
 msgstr("Предпросмотр")
-
-msgid(DEVICESELECTION)
-msgstr("Выбор устройств")
 
 msgid(AUDIOINPUTDEVICE)
 msgstr("Устройство захвата звука")

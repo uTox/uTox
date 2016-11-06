@@ -93,14 +93,8 @@ msgstr("Tox ID")
 msgid(MESSAGE)
 msgstr("Meddelande")
 
-msgid(SEARCHFRIENDS)
-msgstr("Sök vänner")
-
 msgid(ADD)
 msgstr("Lägg till")
-
-msgid(SWITCHPROFILE)
-msgstr("Ändra profil")
 
 msgid(FRIENDREQUEST)
 msgstr("Vänskapsinbjudan")
@@ -116,9 +110,6 @@ msgstr("Tillståndsmeddelande")
 
 msgid(PREVIEW)
 msgstr("Förhandsvisning")
-
-msgid(DEVICESELECTION)
-msgstr("Hårdvaru (Device) val")
 
 msgid(AUDIOINPUTDEVICE)
 msgstr("Ljudingångshårdvara (Input Device)")
