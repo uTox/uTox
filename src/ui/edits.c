@@ -612,7 +612,7 @@ EDIT edit_name =
                          .onlosefocus     = edit_group_topic_onenter,
                          .noborder        = 0,
                          .empty_str.plain = STRING_INIT("") };
-#include "../main.h"
+
 static char edit_add_new_device_to_self_data[TOX_FRIEND_ADDRESS_SIZE * 4];
 
 static void edit_add_new_device_to_self_onenter(EDIT *edit) {

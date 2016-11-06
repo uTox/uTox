@@ -6,7 +6,6 @@
 #include "../flist.h"
 #include "../friend.h"
 #include "../groups.h"
-#include "../main.h"
 #include "../theme.h"
 
 /* buttons */
@@ -564,7 +563,6 @@ BUTTON button_export_chatlog = {
     .onpress  = button_export_chatlog_onpress,
     .disabled = 0,
 };
-#include "../main.h"
 
 extern SCROLLABLE scrollbar_settings;
 

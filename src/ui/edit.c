@@ -5,7 +5,6 @@
 #include "contextmenu.h"
 #include "text.h"
 
-#include "../main.h"
 #include "../theme.h"
 #include "../util.h"
 

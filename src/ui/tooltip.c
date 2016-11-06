@@ -2,7 +2,6 @@
 
 #include "tooltip.h"
 
-#include "../main.h"
 #include "../theme.h"
 #include "../tox.h"
 
