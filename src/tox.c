@@ -3,6 +3,7 @@
 #include <tox/toxencryptsave.h>
 
 #include "tox.h"
+#include "tox_callbacks.h"
 
 #include "commands.h"
 #include "file_transfers.h"
@@ -297,18 +298,21 @@ static int init_toxcore(Tox **tox) {
     tox_thread_init = 0;
     int save_status = 0;
 
-    struct Tox_Options topt = {
-        .ipv6_enabled = settings.enable_ipv6,
-        .udp_enabled  = settings.enable_udp,
-        .proxy_type   = TOX_PROXY_TYPE_NONE,
-        .proxy_host   = proxy_address,
-        .proxy_port   = settings.proxy_port,
-        .start_port   = 0,
-        .end_port     = 0,
+    struct Tox_Options topt;
+    tox_options_default(&topt);
+    // tox_options_set_start_port(&topt, 0);
+    // tox_options_set_end_port(&topt, 0);
+
+    tox_options_set_ipv6_enabled(&topt, settings.enable_ipv6);
+    tox_options_set_udp_enabled(&topt, settings.enable_udp);
+
+    tox_options_set_proxy_type(&topt, TOX_PROXY_TYPE_NONE);
+    tox_options_set_proxy_host(&topt, proxy_address);
+    tox_options_set_proxy_port(&topt, settings.proxy_port);
+
 #ifdef ENABLE_MULTIDEVICE
-        .send_message_to_devices = 1,
+    tox_options_set_mdev_mirror_sent(&topt, 1);
 #endif
-    };
 
     save_status = load_toxcore_save(&topt);
 
@@ -376,7 +380,7 @@ static int init_toxcore(Tox **tox) {
     /* Give toxcore the functions to call */
     set_callbacks(*tox);
 
-    tox_callback_log(*tox, &log_callback, NULL);
+    // tox_callback_log(*tox, &log_callback, NULL);
 
     /* Connect to bootstrapped nodes in "tox_bootstrap.h" */
     toxcore_bootstrap(*tox);
