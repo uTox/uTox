@@ -177,6 +177,6 @@ set_target_properties( icon PROPERTIES LINKER_LANGUAGE C )
 
 
 target_link_libraries(utox
-    ${LIBRARIES}
     ${U_LIBRARIES}
+    ${LIBRARIES}
 )
