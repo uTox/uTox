@@ -97,17 +97,11 @@ msgstr("ID Tox")
 msgid(MESSAGE)
 msgstr("Mensagem")
 
-msgid(SEARCHFRIENDS)
-msgstr("Procurar Amigos")
-
 msgid(ADD)
 msgstr("Adicionar")
 
 msgid(CREATEGROUPCHAT)
 msgstr("Criar Conversa de Grupo")
-
-msgid(SWITCHPROFILE)
-msgstr("Trocar de Perfil")
 
 msgid(FRIENDREQUEST)
 msgstr("Pedido de Amizade")
@@ -123,9 +117,6 @@ msgstr("Mensagem de Estado")
 
 msgid(PREVIEW)
 msgstr("Pré-visualização")
-
-msgid(DEVICESELECTION)
-msgstr("Seleção de Dispositivos")
 
 msgid(AUDIOINPUTDEVICE)
 msgstr("Dispositivo de Entrada de Áudio")

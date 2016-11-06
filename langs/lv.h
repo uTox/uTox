@@ -76,14 +76,8 @@ msgstr("Pievienot draugus")
 msgid(MESSAGE)
 msgstr("Ziņa")
 
-msgid(SEARCHFRIENDS)
-msgstr("Meklēt draugus")
-
 msgid(ADD)
 msgstr("Pievienot")
-
-msgid(SWITCHPROFILE)
-msgstr("Mainīt lietotāju")
 
 msgid(FRIENDREQUEST)
 msgstr("Draugu pieprasījums")
@@ -99,9 +93,6 @@ msgstr("Statusa ziņojums")
 
 msgid(PREVIEW)
 msgstr("Priekšskatījums")
-
-msgid(DEVICESELECTION)
-msgstr("Ierīču izvēle")
 
 msgid(AUDIOINPUTDEVICE)
 msgstr("Audio ievades ierīce")

@@ -85,10 +85,10 @@ msgstr("文件傳送完成")
 msgid(GROUPCHAT_JOIN_AUDIO)
 msgstr("參加語音聊天")
 
-msgid(START_AUDIO_CALL)
+msgid(CALL_START_AUDIO)
 msgstr("語音呼叫")
 
-msgid(START_VIDEO_CALL)
+msgid(CALL_START_VIDEO)
 msgstr("視頻呼叫")
 
 msgid(CALL_CANCELLED)
@@ -121,9 +121,6 @@ msgstr("添加好友")
 msgid(MESSAGE)
 msgstr("消息")
 
-msgid(SEARCHFRIENDS)
-msgstr("搜索好友")
-
 msgid(FILTER_ONLINE)
 msgstr("在線好友")
 
@@ -133,20 +130,11 @@ msgstr("全部好友")
 msgid(FILTER_CONTACT_TOGGLE)
 msgstr("切換是否過濾離線好友")
 
-msgid(FILTER_TO_ALL)
-msgstr("顯示全部好友！")
-
-msgid(FILTER_TO_ONLINE)
-msgstr("僅顯示在線好友！")
-
 msgid(ADD)
 msgstr("添加")
 
 msgid(CREATEGROUPCHAT)
 msgstr("創建一個群聊")
-
-msgid(SWITCHPROFILE)
-msgstr("切換配置文件")
 
 msgid(FRIENDREQUEST)
 msgstr("好友請求")
@@ -160,17 +148,11 @@ msgstr("好友設置")
 msgid(NAME)
 msgstr("名字")
 
-msgid(PROFILE)
-msgstr("配置")
-
 msgid(STATUSMESSAGE)
 msgstr("簽名")
 
 msgid(PREVIEW)
 msgstr("預覽")
-
-msgid(DEVICESELECTION)
-msgstr("設備選擇")
 
 msgid(AUDIOINPUTDEVICE)
 msgstr("音頻輸入設備")

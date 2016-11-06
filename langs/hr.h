@@ -82,10 +82,10 @@ msgstr("Prijenos datoteka dovršen")
 msgid(GROUPCHAT_JOIN_AUDIO)
 msgstr("Spoji se na audio chat")
 
-msgid(START_AUDIO_CALL)
+msgid(CALL_START_AUDIO)
 msgstr("Nazovi")
 
-msgid(START_VIDEO_CALL)
+msgid(CALL_START_VIDEO)
 msgstr("Nazovi - video poziv")
 
 msgid(CALL_CANCELLED)
@@ -115,9 +115,6 @@ msgstr("Dodaj novi kontakt")
 msgid(MESSAGE)
 msgstr("Poruka")
 
-msgid(SEARCHFRIENDS)
-msgstr("Traži prijatelje")
-
 msgid(FILTER_ONLINE)
 msgstr("Nazočni prijatelji")
 
@@ -127,20 +124,11 @@ msgstr("Svi prijatelji")
 msgid(FILTER_CONTACT_TOGGLE)
 msgstr("Uključi-isključi offline prijatelje.")
 
-msgid(FILTER_TO_ALL)
-msgstr("Prikaži sve kontakte!")
-
-msgid(FILTER_TO_ONLINE)
-msgstr("Prikaži samo nazočne prijatelje!")
-
 msgid(ADD)
 msgstr("Dodaj")
 
 msgid(CREATEGROUPCHAT)
 msgstr("Stvori grupni chat")
-
-msgid(SWITCHPROFILE)
-msgstr("Zamijeni profil")
 
 msgid(FRIENDREQUEST)
 msgstr("Zahtjev za prijateljstvom")
@@ -154,17 +142,11 @@ msgstr("Postavke prijatelja")
 msgid(NAME)
 msgstr("Ime")
 
-msgid(PROFILE)
-msgstr("Profil")
-
 msgid(STATUSMESSAGE)
 msgstr("Statusna poruka")
 
 msgid(PREVIEW)
 msgstr("Pregled")
-
-msgid(DEVICESELECTION)
-msgstr("Biranje uređaja")
 
 msgid(AUDIOINPUTDEVICE)
 msgstr("Ulazni audio uređaj")
