@@ -201,7 +201,7 @@ int sprint_humanread_bytes(char *dest, unsigned int size, uint64_t bytes) {
         i++;
     }
 
-    int r;
+    size_t r;
 
     r = snprintf((char *)dest, size, "%u", (uint32_t)bytes);
 

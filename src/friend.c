@@ -347,7 +347,7 @@ FRIEND *find_friend_by_name(uint8_t *name) {
     return NULL;
 }
 
-void friend_notify_status(FRIEND *f, const uint8_t *msg, size_t msg_length, char *state) {
+void friend_notify_status(FRIEND *f, const char *msg, size_t msg_length, char *state) {
     if (!settings.status_notifications) {
         return;
     }
