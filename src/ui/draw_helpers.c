@@ -148,7 +148,7 @@ void draw_group(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height))
     drawtextrange(MAIN_LEFT + SCALE(60), settings.window_width - SCALE(64), SCALE(16), g->topic, g->topic_length);
 
     uint32_t i = 0;
-    int      k = MAIN_LEFT + SCALE(60);
+    unsigned k = MAIN_LEFT + SCALE(60);
 
     unsigned int pos_y = 15;
     while (i < g->peer_count) {
@@ -158,7 +158,7 @@ void draw_group(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height))
             char buf[TOX_MAX_NAME_LENGTH];
             int  text_length = snprintf((char *)buf, TOX_MAX_NAME_LENGTH, "%.*s, ", (int)peer->name_length, peer->name);
 
-            int w = textwidth(buf, text_length);
+            unsigned w = textwidth(buf, text_length);
             if (peer->name_color) {
                 setcolor(peer->name_color);
             } else {
@@ -258,7 +258,7 @@ void draw_add_friend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int height) {
 }
 
 /* Draw the text for profile password window */
-void draw_profile_password(int UNUSED(x), int UNUSED(y), int UNUSED(w), int height) {
+void draw_profile_password(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
     drawstr(MAIN_LEFT + SCALE(10), SCALE(20), PROFILE_PASSWORD);
@@ -269,7 +269,7 @@ void draw_profile_password(int UNUSED(x), int UNUSED(y), int UNUSED(w), int heig
 }
 
 /* Top bar for user settings */
-void draw_settings_header(int UNUSED(x), int UNUSED(y), int w, int UNUSED(height)) {
+void draw_settings_header(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
     drawstr(MAIN_LEFT + SCALE(10), SCALE(10), UTOX_SETTINGS);
@@ -286,7 +286,7 @@ void draw_settings_header(int UNUSED(x), int UNUSED(y), int w, int UNUSED(height
 }
 
 /* TODO make this fxn readable */
-void draw_settings_sub_header(int x, int y, int w, int UNUSED(height)) {
+void draw_settings_sub_header(int x, int y, int UNUSED(w), int UNUSED(height)) {
     setfont(FONT_SELF_NAME);
 
 #define DRAW_UNDERLINE() drawhline(x, y + SCALE(30), x_right_edge, COLOR_EDGE_NORMAL)
@@ -362,7 +362,7 @@ void draw_settings_sub_header(int x, int y, int w, int UNUSED(height)) {
 
 /* draw switch profile top bar */
 /* Text content for settings page */
-void draw_settings_text_profile(int x, int y, int w, int h) {
+void draw_settings_text_profile(int UNUSED(x), int y, int UNUSED(w), int UNUSED(h)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(10), NAME);
@@ -372,7 +372,7 @@ void draw_settings_text_profile(int x, int y, int w, int h) {
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(210), PROFILE_PASSWORD);
 }
 
-void draw_settings_text_devices(int x, int y, int w, int h) {
+void draw_settings_text_devices(int UNUSED(x), int y, int UNUSED(w), int UNUSED(h)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(10), DEVICES_ADD_NEW);
@@ -385,14 +385,14 @@ void draw_settings_text_devices(int x, int y, int w, int h) {
     drawtext(MAIN_LEFT + SCALE(10), y + SCALE(75), str, strlen);
 }
 
-void draw_settings_text_password(int x, int y, int w, int h) {
+void draw_settings_text_password(int UNUSED(x), int y, int UNUSED(w), int UNUSED(h)) {
     setfont(FONT_MISC);
     setcolor(C_RED);
     drawstr(MAIN_LEFT + SCALE(80), y + SCALE(256), PROFILE_PW_WARNING);
     drawstr(MAIN_LEFT + SCALE(80), y + SCALE(270), PROFILE_PW_NO_RECOVER);
 }
 
-void draw_settings_text_network(int x, int y, int w, int UNUSED(height)) {
+void draw_settings_text_network(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)) {
     setfont(FONT_MISC);
     setcolor(C_RED);
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(10), WARNING);
@@ -406,7 +406,7 @@ void draw_settings_text_network(int x, int y, int w, int UNUSED(height)) {
     drawtext(MAIN_LEFT + SCALE(264), y + SCALE(114), ":", 1);
 }
 
-void draw_settings_text_ui(int x, int y, int w, int UNUSED(height)) {
+void draw_settings_text_ui(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
     drawstr(MAIN_LEFT + SCALE(150), y + SCALE(10), DPI);
@@ -419,7 +419,7 @@ void draw_settings_text_ui(int x, int y, int w, int UNUSED(height)) {
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(215), SETTINGS_UI_MINI_ROSTER);
 }
 
-void draw_settings_text_av(int x, int y, int w, int UNUSED(height)) {
+void draw_settings_text_av(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(10), RINGTONE);
@@ -435,7 +435,7 @@ void draw_settings_text_av(int x, int y, int w, int UNUSED(height)) {
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(280), PREVIEW);
 }
 
-void draw_friend_settings(int UNUSED(x), int y, int width, int height) {
+void draw_friend_settings(int UNUSED(x), int y, int UNUSED(width), int UNUSED(height)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
 
@@ -444,7 +444,7 @@ void draw_friend_settings(int UNUSED(x), int y, int width, int height) {
     drawstr(MAIN_LEFT + SCALE(10), y + MAIN_TOP + SCALE(110), FRIEND_AUTOACCEPT);
 }
 
-void draw_group_settings(int UNUSED(x), int y, int width, int height) {
+void draw_group_settings(int UNUSED(x), int y, int UNUSED(width), int UNUSED(height)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
 
@@ -477,7 +477,7 @@ void draw_background(int UNUSED(x), int UNUSED(y), int width, int height) {
 }
 
 /* These remain for legacy reasons, PANEL_MAIN calls these by default when not given it's own function to call */
-void background_draw(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int width, int height) {
+void background_draw(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height)) {
     return;
 }
 bool background_mmove(PANEL *UNUSED(p), int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height),
