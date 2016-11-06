@@ -1,10 +1,15 @@
-dist: trusty
+dist: precise
+sudo: false
 
 language: c
 
 addons:
   apt:
+    sources:
+       - george-edison55-precise-backports # cmake 3.2.3
     packages:
+      - cmake
+      - cmake-data
       - dbus
       - dbus-x11
       - libdbus-1-3

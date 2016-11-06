@@ -146,7 +146,8 @@ typedef struct {
 } LOG_FILE_MSG_HEADER;
 
 volatile uint16_t loaded_audio_in_device, loaded_audio_out_device;
-bool              tox_connected;
+
+bool tox_connected;
 
 /* Super global vars */
 volatile bool tox_thread_init, utox_av_ctrl_init, utox_audio_thread_init, utox_video_thread_init;
@@ -232,6 +233,11 @@ enum {
     FONT_END,
 };
 
+typedef enum {
+    FILEDATA_OVERWRITE = 0,
+    FILEDATA_APPEND    = 1,
+} FILEDATA_SAVETYPE;
+
 #ifdef UNUSED
 #undef UNUSED
 #endif
@@ -312,19 +318,23 @@ bool native_remove_file(const uint8_t *name, size_t length);
 
 /** TODO DOCUMENATION
  */
-bool utox_save_data_tox(uint8_t *data, size_t length);
+bool utox_data_save_tox(uint8_t *data, size_t length);
 
 /** TODO DOCUMENATION
  */
-uint8_t *utox_load_data_tox(size_t *size);
+uint8_t *utox_data_load_tox(size_t *size);
 
 /** TODO DOCUMENATION
  */
-bool utox_save_data_utox(UTOX_SAVE *data, size_t length);
+bool utox_data_save_utox(UTOX_SAVE *data, size_t length);
 
 /** TODO DOCUMENATION
  */
-UTOX_SAVE *utox_load_data_utox(void);
+UTOX_SAVE *utox_data_load_utox(void);
+
+/** TODO DOCUMENATION
+ */
+uint8_t *utox_data_load_custom_theme(size_t *out);
 
 /** TODO DOCUMENATION
  */
@@ -345,10 +355,10 @@ bool utox_update_chatlog(uint32_t friend_number, size_t offset, uint8_t *data, s
 
 /** TODO DOCUMENATION
  */
-bool utox_save_data_avatar(uint32_t friend_number, const uint8_t *data, size_t length);
+bool utox_data_save_avatar(uint32_t friend_number, const uint8_t *data, size_t length);
 /** TODO DOCUMENATION
  */
-uint8_t *utox_load_data_avatar(uint32_t friend_number, size_t *size);
+uint8_t *utox_data_load_avatar(uint32_t friend_number, size_t *size);
 /** TODO DOCUMENATION
  */
 bool utox_remove_file_avatar(uint32_t friend_number);
@@ -427,8 +437,6 @@ void redraw(void);
 void update_tray(void);
 void force_redraw(void); // TODO: as parameter for redraw()?
 
-/* gets a subdirectory of tox's datapath and puts the full pathname in dest,
- * returns number of characters written */
 void flush_file(FILE *file);
 int ch_mod(uint8_t *file);
 void config_osdefaults(UTOX_SAVE *r);
@@ -471,7 +479,6 @@ void popclip(void);
 void enddraw(int x, int y, int width, int height);
 
 /* OS interface replacements */
-int datapath(uint8_t *dest);
 void flush_file(FILE *file);
 int ch_mod(uint8_t *file);
 int file_lock(FILE *file, uint64_t start, size_t length);

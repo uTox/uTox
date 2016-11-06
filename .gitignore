@@ -1,7 +1,10 @@
 # objects
-*.o
-*.d
-*.dll
+src/*/*.o
+src/*/*.a
+src/*/*.d
+src/*/*.dll
+
+icons/*.o
 
 # executables
 utox

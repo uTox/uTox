@@ -51,12 +51,12 @@ SETTINGS settings = {
 /* The utox_ functions contained in src/main.c are wrappers for the platform native_ functions
  * if you need to localize them to a specific platform, move them from here, to each
  * src/<platform>/main.x and change from utox_ to native_ */
-bool utox_save_data_tox(uint8_t *data, size_t length) {
+bool utox_data_save_tox(uint8_t *data, size_t length) {
     uint8_t name[] = "tox_save.tox";
     return !native_save_data(name, strlen((const char *)name), data, length, 0);
 }
 
-uint8_t *utox_load_data_tox(size_t *size) {
+uint8_t *utox_data_load_tox(size_t *size) {
     uint8_t name[][20] = { "tox_save.tox", "tox_save.tox.atomic", "tox_save.tmp", "tox_save" };
 
     uint8_t *data;
@@ -72,15 +72,30 @@ uint8_t *utox_load_data_tox(size_t *size) {
     return NULL;
 }
 
-bool utox_save_data_utox(UTOX_SAVE *data, size_t length) {
+bool utox_data_save_utox(UTOX_SAVE *data, size_t length) {
     uint8_t name[] = "utox_save";
     return native_save_data(name, strlen((const char *)name), (const uint8_t *)data, length, 0);
 }
 
-UTOX_SAVE *utox_load_data_utox(void) {
+UTOX_SAVE *utox_data_load_utox(void) {
     uint8_t name[] = "utox_save";
     return (UTOX_SAVE *)native_load_data(name, strlen((const char *)name), NULL);
 }
+
+bool utox_data_save_ftinfo(uint32_t friend_number, uint8_t *data, size_t length) {
+    FRIEND *f = &friend[friend_number];
+
+    char name[TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".ftinfo")];
+    snprintf(name, TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".ftinfo"), "%.*s.ftinfo", TOX_PUBLIC_KEY_SIZE * 2, f->id_str);
+
+    return native_save_data((uint8_t *)name, strlen(name), data, length, 0);
+}
+
+uint8_t *utox_data_load_custom_theme(size_t *out) {
+    char name[] = "utox_theme.ini";
+    return native_load_data((uint8_t *)name, strlen(name), out);
+}
+
 
 size_t utox_save_chatlog(uint32_t friend_number, uint8_t *data, size_t length) {
     FRIEND *f = &friend[friend_number];
@@ -127,7 +142,6 @@ static size_t utox_count_chatlog(uint32_t friend_number) {
  * theory we should be able to trim the start of the chatlog up to and including
  * the first \n char. We may have to do so multiple times, but once we find the
  * first valid message everything else should "work" */
-
 uint8_t **utox_load_chatlog(uint32_t friend_number, size_t *size, uint32_t count, uint32_t skip) {
     /* Becasue every platform is different, we have to ask them to open the file for us.
      * However once we have it, every platform does the same thing, this should prevent issues
@@ -303,7 +317,7 @@ void utox_export_chatlog(uint32_t friend_number, FILE *dest_file) {
     fclose(dest_file);
 }
 
-bool utox_save_data_avatar(uint32_t friend_number, const uint8_t *data, size_t length) {
+bool utox_data_save_avatar(uint32_t friend_number, const uint8_t *data, size_t length) {
     char name[sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png")];
 
     if (friend_number == -1) {
@@ -330,7 +344,7 @@ bool utox_save_data_avatar(uint32_t friend_number, const uint8_t *data, size_t l
     return native_save_data((uint8_t *)name, strlen((const char *)name), (const uint8_t *)data, length, 0);
 }
 
-uint8_t *utox_load_data_avatar(uint32_t friend_number, size_t *size) {
+uint8_t *utox_data_load_avatar(uint32_t friend_number, size_t *size) {
 
     char name[sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png")];
 
@@ -519,15 +533,7 @@ void utox_init(void) {
     }
 }
 
-/** Change source of main.c if windows or android
- *  else default to xlib
- **/
-#if defined __WIN32__
-//#include "windows/main.c"
-#elif defined __ANDROID__
+/** Android is still a bit legacy, so we just include it all here. */
+#if defined __ANDROID__
 #include "android/main.c"
-#elif defined__OBJC__
-// #include "cocoa/main.m"
-#else
-// #include "xlib/main.c"
 #endif

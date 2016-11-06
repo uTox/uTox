@@ -2,9 +2,10 @@
 #include "friend.h"
 
 #include "flist.h"
+#include "util.h"
 
 /** Writes friend meta data filename for fid to dest. returns length written */
-static int friend_meta_data_path(uint8_t *dest, size_t size_dest, uint8_t *friend_key, uint32_t friend_num) {
+static int friend_meta_data_path(char *dest, size_t size_dest, uint8_t *friend_key, uint32_t friend_num) {
     if (size_dest < TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".fmetadata")) {
         return -1;
     }
@@ -18,13 +19,13 @@ static int friend_meta_data_path(uint8_t *dest, size_t size_dest, uint8_t *frien
 
 static void friend_meta_data_read(Tox *tox, int friend_id) {
     /* Will need to be rewritten if anything is added to friend's meta data */
-    uint8_t path[UTOX_FILE_NAME_LENGTH], *p;
-    p = path + datapath(path);
 
     uint8_t client_id[TOX_PUBLIC_KEY_SIZE];
     tox_friend_get_public_key(tox, friend_id, client_id, 0);
 
-    int len = friend_meta_data_path(p, sizeof(path) - (p - path), client_id, friend_id);
+    char path[UTOX_FILE_NAME_LENGTH];
+
+    int len = friend_meta_data_path(path, UTOX_FILE_NAME_LENGTH, client_id, friend_id);
     if (len == -1) {
         debug("Metadata:\tError getting meta data file name for friend %d\n", friend_id);
         return;
@@ -251,7 +252,9 @@ bool friend_set_online(FRIEND *f, bool online) {
 }
 
 
-void friend_set_typing(FRIEND *f, int typing) { f->typing = typing; }
+void friend_set_typing(FRIEND *f, int typing) {
+    f->typing = typing;
+}
 
 void friend_addid(uint8_t *id, char *msg, uint16_t msg_length) {
     void *data = malloc(TOX_FRIEND_ADDRESS_SIZE + msg_length * sizeof(char));

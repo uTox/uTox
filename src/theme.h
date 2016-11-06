@@ -97,7 +97,7 @@ uint32_t COLOR_BTN_DISABLED_FORGRND;
 uint32_t COLOR_BTN_INPROGRESS_FORGRND;
 
 void theme_load(char loadtheme);
-void read_custom_theme(const char *path);
+void read_custom_theme(const uint8_t *data, size_t length);
 
 uint32_t status_color[4];
 

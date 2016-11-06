@@ -189,7 +189,7 @@ void draw_friend_request(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(MAIN_LEFT + SCALE(10), UTOX_SCALE(10), FRIENDREQUEST);
+    drawstr(MAIN_LEFT + SCALE(10), SCALE(20), FRIENDREQUEST);
 
     setcolor(COLOR_MAIN_TEXT_SUBTEXT);
     setfont(FONT_STATUS);
@@ -200,7 +200,7 @@ void draw_friend_request(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED
 void draw_add_friend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int height) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(MAIN_LEFT + SCALE(10), UTOX_SCALE(10), ADDFRIENDS);
+    drawstr(MAIN_LEFT + SCALE(10), SCALE(20), ADDFRIENDS);
 
     setcolor(COLOR_MAIN_TEXT_SUBTEXT);
     setfont(FONT_TEXT);
@@ -212,7 +212,7 @@ void draw_add_friend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int height) {
         int push = UTOX_STR_WIDTH(TOXID);
         setfont(FONT_MISC);
         setcolor(C_RED);
-        drawstr(MAIN_LEFT + UTOX_SCALE(10) + push, MAIN_TOP + UTOX_SCALE(6), DNS_DISABLED);
+        drawstr(MAIN_LEFT + SCALE(20) + push, MAIN_TOP + UTOX_SCALE(6), DNS_DISABLED);
     }
 
     if (addfriend_status) {
@@ -261,7 +261,7 @@ void draw_add_friend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int height) {
 void draw_profile_password(int UNUSED(x), int UNUSED(y), int UNUSED(w), int height) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(MAIN_LEFT + SCALE(10), UTOX_SCALE(10), PROFILE_PASSWORD);
+    drawstr(MAIN_LEFT + SCALE(10), SCALE(20), PROFILE_PASSWORD);
 
     setcolor(COLOR_MAIN_TEXT_SUBTEXT);
     setfont(FONT_TEXT);

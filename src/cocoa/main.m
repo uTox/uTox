@@ -54,7 +54,9 @@ void debug_error(const char *fmt, ...) {
     va_end(l);
 }
 
-int NATIVE_IMAGE_IS_VALID(NATIVE_IMAGE *img) { return img != NULL && img->image != nil; }
+int NATIVE_IMAGE_IS_VALID(NATIVE_IMAGE *img) {
+    return img != NULL && img->image != nil;
+}
 
 NATIVE_IMAGE *decode_image_rgb(const UTOX_IMAGE data, size_t size, uint16_t *w, uint16_t *h, bool keep_alpha) {
     CFDataRef         idata_copy     = CFDataCreate(kCFAllocatorDefault, data, size);
@@ -77,7 +79,9 @@ NATIVE_IMAGE *decode_image_rgb(const UTOX_IMAGE data, size_t size, uint16_t *w, 
 
 void image_set_filter(NATIVE_IMAGE *image, uint8_t filter) {}
 
-void image_set_scale(NATIVE_IMAGE *image, double scale) { image->scale = scale; }
+void image_set_scale(NATIVE_IMAGE *image, double scale) {
+    image->scale = scale;
+}
 
 void image_free(NATIVE_IMAGE *img) {
     CGImageRelease(img->image);
@@ -114,16 +118,24 @@ void thread(void func(void *), void *args) {
     pthread_attr_destroy(&attr);
 }
 
-void yieldcpu(uint32_t ms) { usleep(1000 * ms); }
+void yieldcpu(uint32_t ms) {
+    usleep(1000 * ms);
+}
 
 /* *** audio/video *** */
 void audio_detect(void) {}
 
-bool audio_init(void *handle) { return 0; }
+bool audio_init(void *handle) {
+    return 0;
+}
 
-bool audio_close(void *handle) { return 0; }
+bool audio_close(void *handle) {
+    return 0;
+}
 
-bool audio_frame(int16_t *buffer) { return 0; }
+bool audio_frame(int16_t *buffer) {
+    return 0;
+}
 
 /* *** os *** */
 
@@ -385,26 +397,9 @@ bool native_remove_file(const uint8_t *name, size_t length) {
     return 1;
 }
 
-/* it occured to me that we should probably make datapath allocate memory for its caller */
-int datapath(uint8_t *dest) {
-    if (settings.portable_mode) {
-        const char *home = [NSBundle.mainBundle.bundlePath stringByDeletingLastPathComponent].UTF8String;
-        int l            = sprintf((char *)dest, "%.238s/tox", home);
-        ensure_directory_r((char *)dest, 0700);
-        dest[l++] = '/';
-
-        return l;
-    } else {
-        const char *home = NSHomeDirectory().UTF8String;
-        int         l    = sprintf((char *)dest, "%.230s/.config/tox", home);
-        ensure_directory_r((char *)dest, 0700);
-        dest[l++] = '/';
-
-        return l;
-    }
+int ch_mod(uint8_t *file) {
+    return chmod((char *)file, S_IRUSR | S_IWUSR);
 }
-
-int ch_mod(uint8_t *file) { return chmod((char *)file, S_IRUSR | S_IWUSR); }
 
 int file_lock(FILE *file, uint64_t start, size_t length) {
     int          result = -1;
@@ -469,12 +464,18 @@ void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data) {
     });
 }
 
-void init_ptt(void) { settings.push_to_talk = 1; }
+void init_ptt(void) {
+    settings.push_to_talk = 1;
+}
 
 static bool is_ctrl_down = 0;
-bool        check_ptt_key(void) { return settings.push_to_talk ? is_ctrl_down : 1; }
+bool        check_ptt_key(void) {
+    return settings.push_to_talk ? is_ctrl_down : 1;
+}
 
-void exit_ptt(void) { settings.push_to_talk = 0; }
+void exit_ptt(void) {
+    settings.push_to_talk = 0;
+}
 
 void redraw(void) {
     uToxAppDelegate *ad = (uToxAppDelegate *)[NSApp delegate];

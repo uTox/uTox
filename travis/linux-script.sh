@@ -5,4 +5,5 @@ set -e -u -x
 
 echo "@grayhatter, you need to add FILTER_AUDIO support back in!!"
 
-make FILTER_AUDIO=0 DBUS=0
+cmake .
+make

@@ -36,7 +36,7 @@ typedef struct FILE_TRANSFER {
     uint32_t speed, num_packets;
     uint64_t last_check_time, last_check_transferred;
 
-    FILE *file, *saveinfo;
+    FILE *file;
 
     void *ui_data; // Don't really want this to be void MSG_FILE is better IMO, but dependency hell
 } FILE_TRANSFER;

@@ -2,6 +2,8 @@
 
 #include "switch.h"
 
+#include "tooltip.h"
+
 #include "../main.h"
 
 static void calculate_pos_and_width(UISWITCH *s, int *x, int *w) {
@@ -92,7 +94,9 @@ bool switch_mright(UISWITCH *s) {
     return 0;
 }
 
-bool switch_mwheel(UISWITCH *UNUSED(s), int UNUSED(height), double UNUSED(d), bool UNUSED(smooth)) { return 0; }
+bool switch_mwheel(UISWITCH *UNUSED(s), int UNUSED(height), double UNUSED(d), bool UNUSED(smooth)) {
+    return 0;
+}
 
 bool switch_mup(UISWITCH *s) {
     if (s->mousedown) {

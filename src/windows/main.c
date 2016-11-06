@@ -1,4 +1,5 @@
-#include "../main.h"
+#include "main.h"
+
 #include <windows.h>
 #include <windowsx.h>
 
@@ -8,10 +9,11 @@ static bool hidden;
 
 static TRACKMOUSEEVENT tme           = { sizeof(TRACKMOUSEEVENT), TME_LEAVE, 0, 0 };
 static bool            mouse_tracked = 0;
-bool                   draw          = 0;
-float                  scale         = 1.0;
-bool                   connected     = 0;
-bool                   havefocus;
+
+bool  draw      = 0;
+float scale     = 1.0;
+bool  connected = 0;
+bool  havefocus;
 
 /** Translate a char* from UTF-8 encoding to OS native;
  *
@@ -647,30 +649,6 @@ NATIVE_IMAGE *decode_image_rgb(const UTOX_IMAGE data, size_t size, uint16_t *w, 
 void image_free(NATIVE_IMAGE *image) {
     DeleteObject(image->bitmap);
     free(image);
-}
-
-int datapath(uint8_t *dest) {
-    if (settings.portable_mode) {
-        uint8_t *p = dest;
-        strcpy((char *)p, portable_mode_save_path);
-        p += strlen(portable_mode_save_path);
-        strcpy((char *)p, "\\Tox");
-        p += 4;
-        CreateDirectory((char *)dest, NULL);
-        *p++ = '\\';
-        return p - dest;
-    } else {
-        if (SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, (char *)dest))) {
-            uint8_t *p = dest + strlen((char *)dest);
-            strcpy((char *)p, "\\Tox");
-            p += 4;
-            CreateDirectory((char *)dest, NULL);
-            *p++ = '\\';
-            return p - dest;
-        }
-    }
-
-    return 0;
 }
 
 void flush_file(FILE *file) {
@@ -1691,7 +1669,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam) {
             return 0;
         }
 
-        case WM_TOX... WM_TOX + 128: {
+        case WM_TOX ... WM_TOX + 128: {
             tox_message(msg - WM_TOX, wParam >> 16, wParam, (void *)lParam);
             return 0;
         }

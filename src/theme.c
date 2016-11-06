@@ -481,18 +481,9 @@ void theme_load(char loadtheme) {
             break;
 
         case THEME_CUSTOM: {
-            uint8_t     themepath[UTOX_FILE_NAME_LENGTH];
-            int         len  = datapath(themepath);
-            const char *s    = "utox_theme.ini";
-            int         size = sizeof("utox_theme.ini");
-
-            if (len + size > 1024) {
-                debug("datapath too long, abandoning ship!\n");
-                break;
-            }
-
-            memcpy(themepath + len, s, size);
-            read_custom_theme((const char *)themepath);
+            size_t   size;
+            uint8_t *themedata = utox_data_load_custom_theme(&size);
+            read_custom_theme(themedata, size);
         }
     }
 
@@ -561,38 +552,33 @@ uint32_t try_parse_hex_colour(char *color, int *error) {
     return RGB(red, green, blue);
 }
 
-void read_custom_theme(const char *path) {
-    debug("Loading custom theme: %s\n", path);
+void read_custom_theme(const uint8_t *data, size_t length) {
+    debug("Loading custom theme\n");
 
-    FILE *f = fopen(path, "r");
-    if (!f) {
-        debug("error: failed to open theme: %s\n", strerror(errno));
-        return;
-    }
+    while (length) {
 
-    char buf[1024]; // 1024 ought to be enough for anyone
-    while (!feof(f)) {
-        fgets(buf, 1024, f);
-
-        char *line = buf;
+        char *line = (char *)data;
         while (*line != 0) {
             if (*line == '#') {
                 *line = 0;
                 break;
             }
-            line++;
+            ++line;
+            --length;
         }
 
-        char *color = strpbrk(buf, "=");
+        char *color = strpbrk(line, "=");
 
-        if (!color || color == buf)
+        if (!color || color == line) {
             continue;
+        }
 
         *color++ = 0;
 
-        uint32_t *colorp = find_colour_pointer(buf);
-        if (!colorp)
+        uint32_t *colorp = find_colour_pointer(line);
+        if (!colorp) {
             continue;
+        }
 
         int      err = 0;
         uint32_t col = try_parse_hex_colour(color, &err);

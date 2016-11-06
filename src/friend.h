@@ -91,7 +91,6 @@ typedef struct {
 #define UTOX_FRIEND_NAME(f) ((f->alias) ? f->alias : f->name)
 #define UTOX_FRIEND_NAME_LENGTH(f) ((f->alias) ? f->alias_length : f->name_length)
 
-#pragma message "Static FRIEND struct in uTox needs to become dynamic!!"
 FRIEND friend[128];
 
 void utox_friend_init(Tox *tox, uint32_t friend_number);

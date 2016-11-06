@@ -607,7 +607,7 @@ void scale_rgbx_image(uint8_t *old_rgbx, uint16_t old_width, uint16_t old_height
 
 UTOX_SAVE *config_load(void) {
     UTOX_SAVE *save;
-    save = utox_load_data_utox();
+    save = utox_data_load_utox();
 
     if (!save) {
         debug_notice("unable to load utox_save data\n");
@@ -744,36 +744,36 @@ void config_save(UTOX_SAVE *save_in) {
     memcpy(save->proxy_ip, proxy_address, 256); /* Magic number inside toxcore */
 
     debug_notice("uTox:\tWriting uTox Save\n");
-    utox_save_data_utox(save, sizeof(*save) + 256); /* Magic number inside toxcore */
+    utox_data_save_utox(save, sizeof(*save) + 256); /* Magic number inside toxcore */
 }
 
 void utox_write_metadata(FRIEND *f) {
-    /* Create path */
-    char dest[UTOX_FILE_NAME_LENGTH], *dest_p;
-    dest_p = dest + datapath((uint8_t *)dest);
-    cid_to_string(dest_p, f->cid);
-    memcpy((char *)dest_p + (TOX_PUBLIC_KEY_SIZE * 2), ".fmetadata", sizeof(".fmetadata"));
+    // /* Create path */
+    // char dest[UTOX_FILE_NAME_LENGTH], *dest_p;
+    // dest_p = dest + datapath((uint8_t *)dest);
+    // cid_to_string(dest_p, f->cid);
+    // memcpy((char *)dest_p + (TOX_PUBLIC_KEY_SIZE * 2), ".fmetadata", sizeof(".fmetadata"));
 
-    size_t           total_size = 0;
-    FRIEND_META_DATA metadata[1];
-    memset(metadata, 0, sizeof(*metadata));
-    total_size += sizeof(*metadata);
+    // size_t           total_size = 0;
+    // FRIEND_META_DATA metadata[1];
+    // memset(metadata, 0, sizeof(*metadata));
+    // total_size += sizeof(*metadata);
 
-    metadata->version          = METADATA_VERSION;
-    metadata->ft_autoaccept    = f->ft_autoaccept;
-    metadata->skip_msg_logging = f->skip_msg_logging;
+    // metadata->version          = METADATA_VERSION;
+    // metadata->ft_autoaccept    = f->ft_autoaccept;
+    // metadata->skip_msg_logging = f->skip_msg_logging;
 
-    if (f->alias && f->alias_length) {
-        metadata->alias_length = f->alias_length;
-        total_size += metadata->alias_length;
-    }
+    // if (f->alias && f->alias_length) {
+    //     metadata->alias_length = f->alias_length;
+    //     total_size += metadata->alias_length;
+    // }
 
-    uint8_t *data = calloc(1, total_size);
+    // uint8_t *data = calloc(1, total_size);
 
-    memcpy(data, metadata, sizeof(*metadata));
-    memcpy(data + sizeof(*metadata), f->alias, metadata->alias_length);
+    // memcpy(data, metadata, sizeof(*metadata));
+    // memcpy(data + sizeof(*metadata), f->alias, metadata->alias_length);
 
-    /* Write */
-    file_write_raw((uint8_t *)dest, (uint8_t *)data, total_size);
-    free(data);
+    // /* Write */
+    // file_write_raw((uint8_t *)dest, (uint8_t *)data, total_size);
+    // free(data);
 }
