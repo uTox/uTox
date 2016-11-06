@@ -1,6 +1,4 @@
 /* xlib drawing.c */
-#include "../main.h"
-
 #include "../util.h"
 
 void redraw(void) {

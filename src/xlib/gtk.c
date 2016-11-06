@@ -5,7 +5,6 @@
 
 #include "../flist.h"
 #include "../friend.h"
-#include "../main.h"
 #include "../util.h"
 
 

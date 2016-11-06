@@ -1,5 +1,3 @@
-#include "../main.h"
-
 #ifdef UNITY
 #include <messaging-menu/messaging-menu.h>
 #include <unity.h>
