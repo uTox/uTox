@@ -82,14 +82,8 @@ msgstr("Tox ID")
 msgid(MESSAGE)
 msgstr("Zpráva")
 
-msgid(SEARCHFRIENDS)
-msgstr("Najdi kontakt")
-
 msgid(ADD)
 msgstr("Přidej")
-
-msgid(SWITCHPROFILE)
-msgstr("Přepnout profil")
 
 msgid(FRIENDREQUEST)
 msgstr("Žádost o kontakt")
@@ -105,9 +99,6 @@ msgstr("Status")
 
 msgid(PREVIEW)
 msgstr("Náhled")
-
-msgid(DEVICESELECTION)
-msgstr("Výběr zařízení")
 
 msgid(AUDIOINPUTDEVICE)
 msgstr("Vstupní zvukové zařízení")
