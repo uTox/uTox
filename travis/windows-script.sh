@@ -3,4 +3,5 @@ set -eux
 
 . ./travis/env.sh
 
-make FILTER_AUDIO=0 DBUS=0
+cmake . -DCMAKE_TOOLCHAIN_FILE=cmake/toolchain-win64.cmake
+make
