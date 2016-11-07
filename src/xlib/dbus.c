@@ -5,8 +5,6 @@
 
 #include "dbus.h"
 
-#include "../main.h"
-
 #define NOTIFY_OBJECT "/org/freedesktop/Notifications"
 #define NOTIFY_INTERFACE "org.freedesktop.Notifications"
 

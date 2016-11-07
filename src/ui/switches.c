@@ -2,7 +2,6 @@
 #include "switches.h"
 
 #include "../flist.h"
-#include "../main.h"
 #include "../theme.h"
 
 static void switch_set_colors(UISWITCH *s) {

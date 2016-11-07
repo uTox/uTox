@@ -1,8 +1,6 @@
 #ifndef MMENU_H
 #define MMENU_H
 
-#include "../main.h"
-
 #ifdef UNITY
 #include "xlib/mmenu.h"
 extern bool unity_running;

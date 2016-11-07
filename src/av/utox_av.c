@@ -1,7 +1,6 @@
 // utox_av.c
 #include "utox_av.h"
 
-#include "../main.h"
 #include "../main_native.h"
 
 #include "../flist.h"

@@ -6,7 +6,6 @@
 #include "utox_av.h"
 
 #include "../friend.h"
-#include "../main.h"
 #include "../tox.h"
 #include "../ui/dropdowns.h"
 #include "../util.h"
