@@ -201,7 +201,7 @@ static void drawitem(ITEM *i, int UNUSED(x), int y) {
 
 // find index of given item in shown_list, or INT_MAX if it can't be found
 static int find_item_shown_index(ITEM *it) {
-    int i = 0;
+    unsigned int i = 0;
     while (i < showncount) {
         if (shown_list[i] == it - item) { // (it - item) returns the index of the item in the full items list
             return i;
@@ -220,12 +220,11 @@ bool friend_matches_search_string(FRIEND *f, char *str) {
 }
 
 void flist_update_shown_list(void) {
-    FRIEND * f;
     uint32_t i; // index in item array
     uint32_t j; // index in shown_list array
     for (i = j = 0; i < itemcount; i++) {
-        ITEM *it = &item[i];
-        f        = it->data;
+        ITEM  *it = &item[i];
+        FRIEND *f = it->data;
         if (it->item != ITEM_FRIEND || ((!filter || f->online) && friend_matches_search_string(f, search_string))) {
             shown_list[j++] = i;
         }
@@ -810,7 +809,7 @@ void flist_draw(void *UNUSED(n), int UNUSED(x), int y, int UNUSED(width), int UN
     ITEM *mi = NULL; // item being dragged
     int   my;        // y of item being dragged
 
-    for (int i = 0; i < showncount; i++) {
+    for (unsigned int i = 0; i < showncount; i++) {
         ITEM *it = &item[shown_list[i]];
         if (it == selected_item && (selected_item_dy >= 5 || selected_item_dy <= -5)) {
             mi = it;
