@@ -54,12 +54,14 @@ SETTINGS settings = {
 bool utox_data_save_tox(uint8_t *data, size_t length) {
     uint8_t name[] = "tox_save.tox";
     FILE *fp = native_get_file((char *)name, &length, "wb");
+
     if (fp == NULL) {
+        debug("Can not open tox_save.tox to write to it\n");
         return true;
     }
 
     fwrite(data, length, 1, fp);
-    fflush(fp);
+    flush_file(fp);
     fclose(fp);
 
     return false;
@@ -80,12 +82,10 @@ uint8_t *utox_data_load_tox(size_t *size) {
         if (data == NULL) {
             debug("Could not allocate memory.\n");
             fclose(fp);
-            continue;
+            break; //quit were out of memory, calloc will fail again
         }
-        if (fread(data, 1, *size, fp) != 0) {
+        if (fread(data, 1, *size, fp) != *size) {
             debug("Could not read: %s.\n", name[i]);
-            perror("fread");
-            printf("%d\n", ferror(fp));
             fclose(fp);
             free(data);
             continue;
@@ -106,8 +106,7 @@ bool utox_data_save_utox(UTOX_SAVE *data, size_t length) {
     }
 
     fwrite(data, length, 1, fp);
-    perror("fwrite");
-    fflush(fp);
+    flush_file(fp);
     fclose(fp);
 
     return true;
@@ -129,10 +128,8 @@ UTOX_SAVE *utox_data_load_utox(void) {
         return NULL;
     }
 
-    if (fread(save, 1, length, fp) != 1) {
-        debug("Could not read: %s\n", name);
-        perror("fread");
-        printf("%d\n", ferror(fp));
+    if (fread(save, 1, length, fp) != length) {
+        debug("Could not read save file\n");
         fclose(fp);
         free(save);
         return NULL;
