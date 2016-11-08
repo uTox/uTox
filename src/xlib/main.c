@@ -232,7 +232,7 @@ size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *
 /** Takes data from µTox and loads it up! */
 uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_size) {
     char  path[UTOX_FILE_NAME_LENGTH] = { 0 };
-    char *data;
+    uint8_t *data;
 
     if (settings.portable_mode) {
         snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "./tox/");
@@ -259,7 +259,7 @@ uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_s
     fseek(file, 0, SEEK_END);
     size_t size = ftell(file);
 
-    data = calloc(size + 1, 1); // needed for the ending null byte
+    data = (uint8_t *)calloc(size + 1, 1); // needed for the ending null byte
     if (!data) {
         fclose(file);
         if (out_size) {
@@ -326,7 +326,7 @@ void native_export_chatlog_init(uint32_t friend_number) {
     if (libgtk) {
         ugtk_save_chatlog(friend_number);
     } else {
-        uint8_t name[UTOX_MAX_NAME_LENGTH + sizeof(".txt")];
+        char name[UTOX_MAX_NAME_LENGTH + sizeof(".txt")];
         snprintf((char *)name, sizeof(name), "%.*s.txt", (int)friend[friend_number].name_length,
                  friend[friend_number].name);
 
@@ -337,8 +337,8 @@ void native_export_chatlog_init(uint32_t friend_number) {
     }
 }
 
-bool native_remove_file(const uint8_t *name, size_t length) {
-    uint8_t path[UTOX_FILE_NAME_LENGTH] = { 0 };
+bool native_remove_file(const char *name, size_t length) {
+    char path[UTOX_FILE_NAME_LENGTH] = { 0 };
 
     if (settings.portable_mode) {
         snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "./tox/");
@@ -348,7 +348,7 @@ bool native_remove_file(const uint8_t *name, size_t length) {
 
     if (strlen((const char *)path) + length >= UTOX_FILE_NAME_LENGTH) {
         debug("NATIVE:\tFile/directory name too long, unable to remove\n");
-        return 0;
+        return false;
     } else {
         snprintf((char *)path + strlen((const char *)path), UTOX_FILE_NAME_LENGTH - strlen((const char *)path), "%.*s",
                  (int)length, (char *)name);
@@ -356,12 +356,12 @@ bool native_remove_file(const uint8_t *name, size_t length) {
 
     if (remove((const char *)path)) {
         debug_error("NATIVE:\tUnable to delete file!\n\t\t%s\n", path);
-        return 0;
+        return false;
     } else {
         debug_info("NATIVE:\tFile deleted!\n");
         debug("NATIVE:\t\t%s\n", path);
     }
-    return 1;
+    return true;
 }
 
 void native_select_dir_ft(uint32_t fid, MSG_FILE *file) {
@@ -407,7 +407,7 @@ void savefiledata(MSG_FILE *file) {
             fclose(fp);
 
             free(file->path);
-            file->path       = (uint8_t *)strdup("inline.png");
+            file->path       = (char *)strdup("inline.png");
             file->inline_png = 0;
         }
     }
@@ -629,7 +629,7 @@ void paste(void) {
 void pastebestformat(const Atom atoms[], int len, Atom selection) {
     XSetErrorHandler(hold_x11s_hand);
     const Atom supported[] = { XA_PNG_IMG, XA_URI_LIST, XA_UTF8_STRING };
-    int        i, j;
+    unsigned int i, j;
     for (i = 0; i < len; i++) {
         char *name = XGetAtomName(display, atoms[i]);
         if (name) {
@@ -827,7 +827,7 @@ void image_free(NATIVE_IMAGE *image) {
  *
  * returns 0 and 1 on success and failure.
  */
-int ch_mod(uint8_t *file) {
+int ch_mod(char *file) {
     return chmod((char *)file, S_IRUSR | S_IWUSR);
 }
 
@@ -838,7 +838,7 @@ void flush_file(FILE *file) {
 }
 
 void setscale(void) {
-    int i;
+    unsigned int i;
     for (i = 0; i != countof(bitmap); i++) {
         if (bitmap[i]) {
             XRenderFreePicture(display, bitmap[i]);
@@ -882,10 +882,10 @@ int file_lock(FILE *file, uint64_t start, size_t length) {
     fl.l_len    = length;
 
     result = fcntl(fileno(file), F_SETLK, &fl);
-    if (result != -1) {
-        return 1;
-    } else {
+    if (result == -1) {
         return 0;
+    } else {
+        return 1;
     }
 }
 
@@ -898,10 +898,10 @@ int file_unlock(FILE *file, uint64_t start, size_t length) {
     fl.l_len    = length;
 
     result = fcntl(fileno(file), F_SETLK, &fl);
-    if (result != -1) {
-        return 1;
-    } else {
+    if (result == -1) {
         return 0;
+    } else {
+        return 1;
     }
 }
 
@@ -952,7 +952,7 @@ void config_osdefaults(UTOX_SAVE *r) {
     r->window_height = DEFAULT_HEIGHT;
 }
 
-static int systemlang(void) {
+static UTOX_LANG systemlang(void) {
     char *str = getenv("LC_ALL");
     if (!str) {
         str = getenv("LC_MESSAGES");
