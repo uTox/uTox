@@ -1,8 +1,8 @@
-# μTox [![Build Status](https://travis-ci.org/uTox/uTox.svg?branch=develop)](https://travis-ci.org/uTox/uTox)  [![Issue Stats](http://issuestats.com/github/uTox/utox/badge/pr)](http://issuestats.com/github/uTox/utox)  [![Issue Stats](http://issuestats.com/github/uTox/utox/badge/issue)](http://issuestats.com/github/uTox/utox)
+# μTox [![Build Status](https://travis-ci.org/uTox/uTox.svg?branch=develop)](https://travis-ci.org/uTox/uTox)
 
 The lightweight [Tox](https://github.com/TokTok/toxcore) client.
 
-[**Tox Project Website**](https://tox.chat) **|** [**Tox Project Wiki**](https://wiki.tox.chat/) **|** [**Installing**](docs/INSTALL.md) **|** [**Changelog**](CHANGELOG.md) **|** [**Compiling**](docs/BUILD.md) **|** [**Toxcore Spec**](https://toktok.github.io/spec).
+[**TokTok Site**](http://toktok.github.io/) **|** [**Installing**](docs/INSTALL.md) **|** [**Changelog**](CHANGELOG.md) **|** [**Compiling**](docs/BUILD.md) **|** [**Toxcore Spec**](https://toktok.github.io/spec).
 
 You shouldn't have to choose a new client for every device: So µTox works everywhere! On every major system **Windows**, **OSX**, **Linux**, and even **Android**.
 
@@ -15,10 +15,10 @@ You shouldn't have to choose a new client for every device: So µTox works every
  * [static x64](https://build.tox.chat/view/uTox/job/uTox_build_linux_x86-64_release/lastSuccessfulBuild/artifact/utox_linux_x86-64.tar.xz)
  * [static x32](https://build.tox.chat/view/uTox/job/uTox_build_linux_x86_release/lastSuccessfulBuild/artifact/utox_linux_x86.tar.xz)
 * **OSX**
- * [Last Updated .dmg](https://github.com/GrayHatter/uTox/releases/download/v0.8.1/uTox-0.8.1.dmg) -- *could be out of date*
- * [Version List](https://github.com/GrayHatter/uTox/releases)
+ * [Last Updated .dmg](https://github.com/uTox/uTox/releases/download/v0.9.8/uTox-0.9.8.dmg) -- *could be out of date, check the version list below*
+ * [Version List](https://github.com/uTox/uTox/releases)
 * **Android**
- * [uTox Android on Google Play](https://play.google.com/apps/testing/tox.client.utox)
+ * [uTox Android on Google Play](https://play.google.com/apps/testing/tox.client.utox) **You should use [Antox](https://play.google.com/store/apps/details?id=chat.tox.antox&hl=en)
  * [Direct apk](https://build.tox.chat/view/uTox/job/uTox_build_android_armhf_release/lastSuccessfulBuild/artifact/uTox.apk) (You may need to uninstall the previous version.)
 
 ### Features
