@@ -92,6 +92,7 @@ if ! ([ -f "$CACHE_DIR/openal.sha" ] && diff "$CACHE_DIR/openal.sha" openal.sha 
             -DDSOUND_LIBRARY=/usr/x86_64-w64-mingw32/lib/libdsound.a
   make
   make install
+  cd ..
   mv openal.sha "$CACHE_DIR/openal.sha"
 fi
 cd ..
