@@ -26,6 +26,7 @@
 #undef CLEARTYPE_QUALITY
 #define CLEARTYPE_QUALITY 5
 
+// clang-format off
 #define STRSAFE_NO_DEPRECATE
 #include <windows.h>
 #include <windns.h>
@@ -34,10 +35,11 @@
 #define STRSAFE_NO_DEPRECATE
 #include <initguid.h>
 
-#include <Shlobj.h>
+#include <shlobj.h>
 #include <knownfolders.h>
 #include <error.h>
 #include <io.h>
+// clang-format on
 
 #define KEY_BACK VK_BACK
 #define KEY_RETURN VK_RETURN
