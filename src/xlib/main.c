@@ -600,6 +600,7 @@ void tray_window_event(XEvent event) {
     switch (event.type) {
         case ConfigureNotify: {
             XConfigureEvent *ev = &event.xconfigure;
+            // TODO(robinli): cast ev->width & height to uint32_t if safe
             if (tray_width != ev->width || tray_height != ev->height) {
                 debug("Tray resized w:%i h:%i\n", ev->width, ev->height);
 
@@ -656,7 +657,7 @@ void copy(int value) {
     }
 }
 
-int hold_x11s_hand(Display *d, XErrorEvent *event) {
+int hold_x11s_hand(Display *UNUSED(d), XErrorEvent *event) {
     debug_error("X11 err:\tX11 tried to kill itself, so I hit him with a shovel.\n");
     debug_error("    err:\tResource: %lu || Serial %lu\n", event->resourceid, event->serial);
     debug_error("    err:\tError code: %u || Request: %u || Minor: %u \n", event->error_code, event->request_code,
@@ -686,10 +687,10 @@ void paste(void) {
     }
 }
 
-void pastebestformat(const Atom atoms[], int len, Atom selection) {
+void pastebestformat(const Atom atoms[], size_t len, Atom selection) {
     XSetErrorHandler(hold_x11s_hand);
     const Atom supported[] = { XA_PNG_IMG, XA_URI_LIST, XA_UTF8_STRING };
-    unsigned int i, j;
+    size_t i, j;
     for (i = 0; i < len; i++) {
         char *name = XGetAtomName(display, atoms[i]);
         if (name) {
@@ -720,8 +721,8 @@ static char hexdecode(char upper, char lower) {
     return (upper >= 'A' ? upper - 'A' + 10 : upper - '0') * 16 + (lower >= 'A' ? lower - 'A' + 10 : lower - '0');
 }
 
-void formaturilist(char *out, const char *in, int len) {
-    int i, removed = 0, start = 0;
+void formaturilist(char *out, const char *in, size_t len) {
+    size_t i, removed = 0, start = 0;
 
     for (i = 0; i < len; i++) {
         // Replace CRLF with LF
@@ -744,10 +745,8 @@ void formaturilist(char *out, const char *in, int len) {
     // out[len - removed - 1] = '\n';
 }
 
-void pastedata(void *data, Atom type, int len, bool select) {
-    if (0 > len) {
-        return; // Let my conscience be clear about signed->unsigned casts.
-    }
+// TODO(robinli): Go over this function and see if either len or size are removeable.
+void pastedata(void *data, Atom type, size_t len, bool select) {
     size_t size = (size_t)len;
     if (type == XA_PNG_IMG) {
         uint16_t width, height;
@@ -919,7 +918,8 @@ void setscale(void) {
 
     XSetWMNormalHints(display, window, xsh);
 
-    if (settings.window_width > UTOX_SCALE(320) && settings.window_height > UTOX_SCALE(160)) {
+    if (settings.window_width > (uint32_t)UTOX_SCALE(320) && 
+        settings.window_height > (uint32_t)UTOX_SCALE(160)) {
         /* wont get a resize event, call this manually */
         ui_size(settings.window_width, settings.window_height);
     }
@@ -965,7 +965,7 @@ int file_unlock(FILE *file, uint64_t start, size_t length) {
     }
 }
 
-void notify(char *title, uint16_t title_length, const char *msg, uint16_t msg_length, void *object, bool is_group) {
+void notify(char *title, uint16_t UNUSED(title_length), const char *msg, uint16_t msg_length, void *object, bool is_group) {
     if (havefocus) {
         return;
     }
@@ -987,7 +987,7 @@ void notify(char *title, uint16_t title_length, const char *msg, uint16_t msg_le
     char *str = tohtml(msg, msg_length);
 
     /* Todo handle this warning! */
-    dbus_notify((char *)title, (char *)str, (uint8_t *)f_cid);
+    dbus_notify(title, str, f_cid);
 
     free(str);
 #endif
@@ -999,7 +999,7 @@ void notify(char *title, uint16_t title_length, const char *msg, uint16_t msg_le
 #endif
 }
 
-void showkeyboard(bool show) {}
+void showkeyboard(bool UNUSED(show)) {}
 
 void edit_will_deactivate(void) {}
 
@@ -1343,4 +1343,4 @@ BREAK:
 
 /* Dummy functions used in other systems... */
 /* Used in windows only... */
-void launch_at_startup(int is_launch_at_startup) {}
+void launch_at_startup(int UNUSED(is_launch_at_startup)) {}
