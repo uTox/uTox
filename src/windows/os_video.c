@@ -7,13 +7,13 @@
 
 #include <windows.h>
 
+#include <amvideo.h>
 #include <control.h>
+#include <mmdeviceapi.h>
+#include <qedit.h>
 #include <strmif.h>
 #include <uuids.h>
 #include <vfwmsgs.h>
-#include <qedit.h>
-#include <mmdeviceapi.h>
-#include <Amvideo.h>
 
 #ifdef __CRT__NO_INLINE
 #undef __CRT__NO_INLINE
@@ -52,10 +52,10 @@ void video_begin(uint32_t id, char *name, uint16_t name_length, uint16_t width, 
         return;
     }
 
-    HWND *h = &video_hwnd[id];
+    HWND *  h = &video_hwnd[id];
     wchar_t out[name_length + 1];
-    int   len = utf8tonative(name, out, name_length);
-    out[len]  = 0;
+    int     len = utf8tonative(name, out, name_length);
+    out[len]    = 0;
 
     RECT r = {.left = 0, .top = 0, .right = width, .bottom = height };
     AdjustWindowRect(&r, WS_OVERLAPPEDWINDOW, 0);
@@ -115,8 +115,12 @@ HRESULT STDMETHODCALLTYPE test_SampleCB(ISampleGrabberCB *lpMyObj, double Sample
     return S_OK;
 }
 
-STDMETHODIMP test_QueryInterface(ISampleGrabberCB *lpMyObj, REFIID riid, LPVOID FAR *lppvObj) { return 0; }
-STDMETHODIMP_(ULONG) test_AddRef(ISampleGrabberCB *lpMyObj) { return 1; }
+STDMETHODIMP test_QueryInterface(ISampleGrabberCB *lpMyObj, REFIID riid, LPVOID FAR *lppvObj) {
+    return 0;
+}
+STDMETHODIMP_(ULONG) test_AddRef(ISampleGrabberCB *lpMyObj) {
+    return 1;
+}
 
 STDMETHODIMP_(ULONG) test_Release(ISampleGrabberCB *lpMyObj) {
     free(lpMyObj->lpVtbl);
