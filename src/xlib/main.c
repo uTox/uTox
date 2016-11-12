@@ -174,6 +174,27 @@ void openfileavatar(void) {
     }
 }
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include "main_native.h"
+bool native_create_dir(const char *filepath) {
+    if (UTOX_FILE_OPTS_WRITE | UTOX_FILE_OPTS_MKDIR) {
+        int status = mkdir(filepath, 0755);
+        if (status == 0) {
+            return true;
+        } else {
+            switch(errno) {
+            case EEXIST:
+                return true;
+                break;
+            default:
+                return false;
+            }
+        }
+    }
+    return false;
+}
+
 /** Takes data from µTox and saves it, just how the OS likes it saved! */
 size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *data, size_t length, bool append) {
     char path[UTOX_FILE_NAME_LENGTH]        = { 0 };
