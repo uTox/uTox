@@ -66,3 +66,34 @@ if ! ([ -f "$CACHE_DIR/toxcore.sha" ] && diff "$CACHE_DIR/toxcore.sha" toxcore.s
 fi
 cd ..
 rm -rf toxcore
+
+if ! [ -d openal ]; then
+  git clone --depth=1 https://github.com/irungentoo/openal-soft-tox.git openal
+fi
+cd openal
+git rev-parse HEAD > openal.sha
+if ! ([ -f "$CACHE_DIR/openal.sha" ] && diff "$CACHE_DIR/openal.sha" openal.sha ); then
+  echo "SET(CMAKE_SYSTEM_NAME Windows)
+        SET(CMAKE_C_COMPILER x86_64-w64-mingw32-gcc)
+        SET(CMAKE_CXX_COMPILER x86_64-w64-mingw32-g++)
+        SET(CMAKE_RC_COMPILER x86_64-w64-mingw32-windres)
+        SET(CMAKE_FIND_ROOT_PATH $CACHE_DIR )
+        SET(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+        SET(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+        SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)" > ./Toolchain-x86_64-w64-mingw32.cmake
+  mkdir -p build
+  cd build
+  cmake ..  -DCMAKE_TOOLCHAIN_FILE=./Toolchain-x86_64-w64-mingw32.cmake \
+            -DCMAKE_PREFIX_PATH="$CACHE_DIR/usr" \
+            -DCMAKE_INSTALL_PREFIX="$CACHE_DIR/usr" \
+            -DLIBTYPE="STATIC" \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DDSOUND_INCLUDE_DIR=/usr/x86_64-w64-mingw32/include \
+            -DDSOUND_LIBRARY=/usr/x86_64-w64-mingw32/lib/libdsound.a
+  make
+  make install
+  cd ..
+  mv openal.sha "$CACHE_DIR/openal.sha"
+fi
+cd ..
+rm -rf openal
