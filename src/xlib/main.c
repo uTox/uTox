@@ -4,9 +4,13 @@
 
 #include "../flist.h"
 #include "../friend.h"
+#include "../main_native.h"
 #include "../theme.h"
 #include "../ui/dropdowns.h"
 #include "../util.h"
+
+
+
 
 bool     hidden     = 0;
 uint32_t tray_width = 32, tray_height = 32;
@@ -172,6 +176,19 @@ void openfileavatar(void) {
     if (libgtk) {
         ugtk_openfileavatar();
     }
+}
+
+// Returns true if path exists, false otherwise.
+bool native_create_dir(const char *filepath) {
+    if (UTOX_FILE_OPTS_WRITE | UTOX_FILE_OPTS_MKDIR) {
+        int status = mkdir(filepath, S_IRWXU);
+        if (status == 0) {
+            return true;
+        } else if (errno == EEXIST) {
+            return true;
+        } 
+    }
+    return false;
 }
 
 /** Takes data from µTox and saves it, just how the OS likes it saved! */
