@@ -53,10 +53,11 @@ SETTINGS settings = {
  * src/<platform>/main.x and change from utox_ to native_ */
 bool utox_data_save_tox(uint8_t *data, size_t length) {
     uint8_t name[] = "tox_save.tox";
-    FILE *fp = native_get_file((char *)name, &length, "wb");
+    size_t *size = 0;
+    FILE *fp = native_get_file((char *)name, size, "wb");
 
     if (fp == NULL) {
-        debug("Can not open tox_save.tox to write to it\n");
+        debug("Can not open tox_save.tox to write to it.\n");
         return true;
     }
 
@@ -72,9 +73,10 @@ uint8_t *utox_data_load_tox(size_t *size) {
 
     uint8_t *data;
     FILE *fp;
+    size_t *length = 0;
 
     for (int i = 0; i < 4; i++) {
-        fp = native_get_file((char *)name[i], size, "rb");
+        fp = native_get_file((char *)name[i], length, "rb");
         if (fp == NULL) {
             continue;
         }
@@ -144,13 +146,44 @@ bool utox_data_save_ftinfo(uint32_t friend_number, uint8_t *data, size_t length)
 
     char name[TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".ftinfo")];
     snprintf(name, TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".ftinfo"), "%.*s.ftinfo", TOX_PUBLIC_KEY_SIZE * 2, f->id_str);
+    size_t *size = 0;
+    FILE *fp = native_get_file(name, size, "rb");
 
-    return native_save_data((uint8_t *)name, strlen(name), data, length, 0);
+    if (fp == NULL) {
+        return false;
+    }
+
+    fwrite(data, length, 1, fp);
+    flush_file(fp);
+    fclose(fp);
+
+    return true;
 }
 
 uint8_t *utox_data_load_custom_theme(size_t *out) {
     char name[] = "utox_theme.ini";
-    return native_load_data((uint8_t *)name, strlen(name), out);
+    FILE *fp = native_get_file(name, out, "rb");
+    uint8_t *data;
+
+    if (fp == NULL){
+        return NULL;
+    }
+
+    data = calloc(*out + 1, 1);
+    if (data == NULL) {
+        fclose(fp);
+        return NULL;
+    }
+
+    if (fread(data, 1, *out, fp) != *out) {
+        debug("Could not read custome theme file\n");
+        fclose(fp);
+        free(data);
+        return NULL;
+    }
+    fclose(fp);
+
+    return data;
 }
 
 
@@ -159,8 +192,19 @@ size_t utox_save_chatlog(uint32_t friend_number, uint8_t *data, size_t length) {
 
     char name[TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".new.txt")];
     snprintf(name, TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".new.txt"), "%.*s.new.txt", TOX_PUBLIC_KEY_SIZE * 2, f->id_str);
+    size_t *size = 0;
+    FILE *fp = native_get_file(name, size, "ab");
 
-    return native_save_data((uint8_t *)name, strlen(name), data, length, 1);
+    if (fp == NULL) {
+        return 0;
+    }
+
+    off_t offset = ftello(fp);
+    fwrite(data, length, 1, fp);
+    flush_file(fp);
+    fclose(fp);
+
+    return offset;
 }
 
 static size_t utox_count_chatlog(uint32_t friend_number) {
@@ -376,6 +420,8 @@ void utox_export_chatlog(uint32_t friend_number, FILE *dest_file) {
 
 bool utox_data_save_avatar(uint32_t friend_number, const uint8_t *data, size_t length) {
     char name[sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png")];
+    FILE *fp;
+    size_t *size = 0;
 
     if (friend_number == -1) {
         /* load current user's avatar */
@@ -397,13 +443,25 @@ bool utox_data_save_avatar(uint32_t friend_number, const uint8_t *data, size_t l
 #endif
     }
 
+    fp = native_get_file(name, size, "wb");
 
-    return native_save_data((uint8_t *)name, strlen((const char *)name), (const uint8_t *)data, length, 0);
+    if (fp == NULL) {
+        return false;
+    }
+
+    fwrite(data, length, 1, fp);
+    flush_file(fp);
+    fclose(fp);
+
+    return true;
 }
 
 uint8_t *utox_data_load_avatar(uint32_t friend_number, size_t *size) {
 
     char name[sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png")];
+    FILE *fp;
+    size_t *length = 0;
+    uint8_t *data;
 
     if (friend_number == -1) {
         /* load current user's avatar */
@@ -425,8 +483,29 @@ uint8_t *utox_data_load_avatar(uint32_t friend_number, size_t *size) {
 #endif
     }
 
+    fp = native_get_file(name, length, "rb");
 
-    return native_load_data((uint8_t *)name, strlen((const char *)name), size);
+    if (fp == NULL) {
+        return NULL;
+    }
+
+    data = calloc(*size + 1, 1);
+
+    if (data == NULL) {
+        fclose(fp);
+        return NULL;
+    }
+
+    if (fread(data, 1, *size, fp) != *size) {
+        debug("Could not read: avator for friend number: %u.\n", friend_number);
+        fclose(fp);
+        free(data);
+        return NULL;
+    }
+
+    fclose(fp);
+
+    return data;
 }
 
 bool utox_remove_file_avatar(uint32_t friend_number) {
