@@ -298,7 +298,7 @@ static void button_accept_friend_onpress(void) {
 
 static void contextmenu_avatar_onselect(uint8_t i) {
     if (i == 0)
-        self_remove_avatar();
+        avatar_unset_self();
 }
 
 static void button_avatar_onright(void) {
@@ -386,7 +386,9 @@ static void button_lock_uTox_onpress(void) {
     }
 }
 
-static void button_show_password_settings_onpress(void) { panel_profile_password_settings.disabled = 0; }
+static void button_show_password_settings_onpress(void) {
+    panel_profile_password_settings.disabled = 0;
+}
 
 static void button_export_chatlog_onpress(void) {
     utox_export_chatlog_init(((FRIEND *)flist_get_selected()->data)->number);

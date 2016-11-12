@@ -327,8 +327,8 @@ void ShowContextMenu(void) {
 // creates an UTOX_NATIVE image based on given arguments
 // image should be freed with image_free
 static NATIVE_IMAGE *create_utox_image(HBITMAP bmp, bool has_alpha, uint32_t width, uint32_t height) {
-    NATIVE_IMAGE *image  = malloc(sizeof(NATIVE_IMAGE));
-    if(image == NULL){
+    NATIVE_IMAGE *image = malloc(sizeof(NATIVE_IMAGE));
+    if (image == NULL) {
         debug("create_utox_image:\t Could not allocate memory for image.\n");
         return NULL;
     }
@@ -446,7 +446,7 @@ void paste(void) {
     CloseClipboard();
 }
 
-NATIVE_IMAGE *decode_image_rgb(const UTOX_IMAGE data, size_t size, uint16_t *w, uint16_t *h, bool keep_alpha) {
+NATIVE_IMAGE *utox_image_to_native(const UTOX_IMAGE data, size_t size, uint16_t *w, uint16_t *h, bool keep_alpha) {
     int      width, height, bpp;
     uint8_t *rgba_data = stbi_load_from_memory(data, size, &width, &height, &bpp, 4);
 
