@@ -397,7 +397,7 @@ void native_export_chatlog_init(uint32_t friend_number) {
     }
 }
 
-bool native_remove_file(const char *name, size_t length) {
+bool native_remove_file(const uint8_t *name, size_t length) {
     char path[UTOX_FILE_NAME_LENGTH] = { 0 };
 
     if (settings.portable_mode) {
@@ -887,7 +887,7 @@ void image_free(NATIVE_IMAGE *image) {
  *
  * returns 0 and 1 on success and failure.
  */
-int ch_mod(char *file) {
+int ch_mod(uint8_t *file) {
     return chmod((char *)file, S_IRUSR | S_IWUSR);
 }
 
