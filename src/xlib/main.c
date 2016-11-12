@@ -4,9 +4,13 @@
 
 #include "../flist.h"
 #include "../friend.h"
+#include "../main_native.h"
 #include "../theme.h"
 #include "../ui/dropdowns.h"
 #include "../util.h"
+
+
+
 
 bool     hidden     = 0;
 uint32_t tray_width = 32, tray_height = 32;
@@ -174,23 +178,15 @@ void openfileavatar(void) {
     }
 }
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include "main_native.h"
+// Returns true if path exists, false otherwise.
 bool native_create_dir(const char *filepath) {
     if (UTOX_FILE_OPTS_WRITE | UTOX_FILE_OPTS_MKDIR) {
-        int status = mkdir(filepath, 0755);
+        int status = mkdir(filepath, S_IRWXU | S_IRGRP | S_IROTH);
         if (status == 0) {
             return true;
-        } else {
-            switch(errno) {
-            case EEXIST:
-                return true;
-                break;
-            default:
-                return false;
-            }
-        }
+        } else if (errno == EEXIST) {
+            return true;
+        } 
     }
     return false;
 }
