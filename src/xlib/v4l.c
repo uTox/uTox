@@ -24,10 +24,12 @@ static int xioctl(int fh, unsigned long request, void *arg) {
 
     return r;
 }
+
 struct buffer {
     void * start;
     size_t length;
 };
+
 static struct buffer *buffers;
 static uint32_t       n_buffers;
 
@@ -206,7 +208,7 @@ bool v4l_init(char *dev_name) {
 }
 
 void v4l_close(void) {
-    int i;
+    size_t i;
     for (i = 0; i < n_buffers; ++i) {
         if (-1 == munmap(buffers[i].start, buffers[i].length)) {
             debug("munmap error\n");
@@ -218,7 +220,7 @@ void v4l_close(void) {
 
 bool v4l_startread(void) {
     debug("start webcam\n");
-    unsigned int       i;
+    size_t i;
     enum v4l2_buf_type type;
 
     for (i = 0; i < n_buffers; ++i) {
