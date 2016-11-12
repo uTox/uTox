@@ -5,6 +5,7 @@
 #include "tox.h"
 #include "tox_callbacks.h"
 
+#include "avatar.h"
 #include "commands.h"
 #include "file_transfers.h"
 #include "flist.h"
@@ -405,22 +406,8 @@ static void init_self(Tox *tox) {
     self.id_str_length = TOX_FRIEND_ADDRESS_SIZE * 2;
     debug("Tox ID: %.*s\n", (int)self.id_str_length, self.id_str);
 
-    uint8_t  avatar_data[UTOX_AVATAR_MAX_DATA_LENGTH];
-    uint32_t avatar_size;
-
     char hex_id[TOX_FRIEND_ADDRESS_SIZE * 2];
     id_to_string(hex_id, self.id_binary);
-    if (init_avatar(&self.avatar, -1, avatar_data, &avatar_size)) {
-        self.avatar_data = malloc(avatar_size);
-        if (self.avatar_data) {
-            memcpy(self.avatar_data, avatar_data, avatar_size);
-            self.avatar_size   = avatar_size;
-            self.avatar_format = UTOX_AVATAR_FORMAT_PNG;
-            char hash_string[TOX_HASH_LENGTH * 2];
-            hash_to_string(hash_string, self.avatar.hash);
-            debug("Tox Avatar Hash: %.*s\n", (int)sizeof(hash_string), hash_string);
-        }
-    }
 }
 
 /** void toxcore_thread(void)
@@ -612,23 +599,12 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
              * data: raw avatar data (PNG)
              */
 
-            if (self.avatar_data) {
-                free(self.avatar_data);
-            }
-
-            self.avatar_data   = data;
-            self.avatar_size   = param2;
-            self.avatar_format = param1;
-            utox_avatar_update_friends(tox);
+            avatar_set_self(data, param2);
             save_needed = 1;
             break;
         }
         case TOX_AVATAR_UNSET: {
-            free(self.avatar_data);
-            self.avatar_data   = NULL;
-            self.avatar_size   = 0;
-            self.avatar_format = 0;
-            utox_avatar_update_friends(tox);
+            avatar_unset_self();
             save_needed = 1;
             break;
         }
@@ -1396,7 +1372,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             uint8_t *avatar = data;
             size_t   size   = param2;
 
-            set_avatar(param1, avatar, size);
+            avatar_set(&friend[param1].avatar, avatar, size);
             utox_data_save_avatar(param1, avatar, size);
 
             free(avatar);
@@ -1405,9 +1381,9 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
         }
         case FRIEND_AVATAR_UNSET: {
             FRIEND *f = &friend[param1];
-            unset_avatar(&f->avatar);
+            avatar_unset(&f->avatar);
             // remove avatar from disk
-            delete_saved_avatar(param1);
+            avatar_delete_self(param1);
 
             redraw();
             break;

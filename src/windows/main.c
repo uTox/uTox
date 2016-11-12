@@ -84,148 +84,8 @@ void openurl(char *str) {
     ShellExecute(NULL, "open", (char *)str, NULL, NULL, SW_SHOW);
 }
 
-/** Takes data from µTox and saves it, just how the OS likes it saved! */
-size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *data, size_t length, bool append) {
-    uint8_t path[UTOX_FILE_NAME_LENGTH];
-    uint8_t atomic_path[UTOX_FILE_NAME_LENGTH];
-    FILE *  file;
-    size_t  offset = 0;
+FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS flags) {
 
-    if (settings.portable_mode) {
-        strcpy((char *)path, portable_mode_save_path);
-    } else {
-        bool have_path = 0;
-        have_path      = SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, (char *)path));
-
-        if (!have_path) {
-            have_path = SUCCEEDED(SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, (char *)path));
-        }
-
-        if (!have_path) {
-            strcpy((char *)path, portable_mode_save_path);
-            have_path = 1;
-        }
-    }
-    snprintf((char *)path + strlen((const char *)path), UTOX_FILE_NAME_LENGTH - strlen((const char *)path), "\\Tox\\");
-
-    if (CreateDirectory((char *)path, NULL) || GetLastError() == ERROR_ALREADY_EXISTS) {
-        snprintf((char *)path + strlen((const char *)path), UTOX_FILE_NAME_LENGTH - strlen((const char *)path), "%s",
-                 name);
-
-        if (append) {
-            file = fopen((const char *)path, "ab");
-        } else {
-            if (strlen((const char *)path) + name_length >= UTOX_FILE_NAME_LENGTH - strlen(".atomic")) {
-                debug_error("NATIVE:Save directory name too long\n");
-                return 0;
-            } else {
-                snprintf((char *)atomic_path, UTOX_FILE_NAME_LENGTH, "%s.atomic", path);
-            }
-
-            file = fopen((const char *)atomic_path, "wb");
-        }
-
-        if (file) {
-            /* Why must windows not make ANY SENSE?!
-             * we must seek to the end to get the ACTUAL position, 'cause why not */
-            _fseeki64(file, 0, SEEK_END);
-            offset = _ftelli64(file);
-            fwrite(data, length, 1, file);
-            fclose(file);
-
-            if (append) {
-                debug("NATIVE:\tOffset for this file is %u\n", offset);
-                return offset;
-            }
-
-            if (!SUCCEEDED(MoveFileEx((const char *)atomic_path, (const char *)path, MOVEFILE_REPLACE_EXISTING))) {
-                /* Consider backing up this file instead of overwriting it. */
-                if (remove((const char *)path)) {
-                    if (rename((const char *)atomic_path, (const char *)path)) {
-                        debug_error("NATIVE:\t%s deleted, but still unable to move file!\n", atomic_path);
-                        return 0;
-                    } else {
-                        return 1;
-                    }
-                }
-            } else {
-                return 1;
-            }
-
-            debug_error("NATIVE:\tBAD EXIT, in native_save_data! Please report this issue!\n");
-            return 0; /* we should never hit this */
-        } else {
-            debug_error("NATIVE:\tUnable to open %s to write save\n", path);
-            return 0;
-        }
-    }
-
-    return 0;
-}
-
-/** Takes data from µTox and loads it up! */
-uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_size) {
-    uint8_t  path[UTOX_FILE_NAME_LENGTH];
-    uint8_t *data;
-
-    if (settings.portable_mode) {
-        strcpy((char *)path, portable_mode_save_path);
-    } else {
-        bool have_path = 0;
-        have_path      = SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, (char *)path));
-
-        if (!have_path) {
-            have_path = SUCCEEDED(SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, (char *)path));
-        }
-
-        if (!have_path) {
-            strcpy((char *)path, portable_mode_save_path);
-            have_path = 1;
-        }
-    }
-
-    snprintf((char *)path + strlen((const char *)path), UTOX_FILE_NAME_LENGTH - strlen((const char *)path), "\\Tox\\%s",
-             name);
-
-    FILE *file = fopen((const char *)path, "rb");
-    if (!file) {
-        // debug("NATIVE:\tUnable to open/read %s\n", path);
-        if (out_size) {
-            *out_size = 0;
-        }
-        return NULL;
-    }
-
-
-    fseek(file, 0, SEEK_END);
-    size_t size = ftell(file);
-    data        = malloc(size);
-    if (!data) {
-        fclose(file);
-        if (out_size) {
-            *out_size = 0;
-        }
-        return NULL;
-    } else {
-        fseek(file, 0, SEEK_SET);
-
-        if (fread(data, size, 1, file) != 1) {
-            debug("NATIVE:\tRead error on %s\n", path);
-            fclose(file);
-            free(data);
-            if (out_size) {
-                *out_size = 0;
-            }
-            return NULL;
-        }
-
-        fclose(file);
-    }
-
-    if (out_size) {
-        *out_size = size;
-    }
-    return data;
 }
 
 FILE *native_load_chatlog_file(uint32_t friend_number) {
@@ -472,8 +332,8 @@ void ShowContextMenu(void) {
 // creates an UTOX_NATIVE image based on given arguments
 // image should be freed with image_free
 static NATIVE_IMAGE *create_utox_image(HBITMAP bmp, bool has_alpha, uint32_t width, uint32_t height) {
-    NATIVE_IMAGE *image  = malloc(sizeof(NATIVE_IMAGE));
-    if(image == NULL){
+    NATIVE_IMAGE *image = malloc(sizeof(NATIVE_IMAGE));
+    if (image == NULL) {
         debug("create_utox_image:\t Could not allocate memory for image.\n");
         return NULL;
     }
@@ -591,7 +451,7 @@ void paste(void) {
     CloseClipboard();
 }
 
-NATIVE_IMAGE *decode_image_rgb(const UTOX_IMAGE data, size_t size, uint16_t *w, uint16_t *h, bool keep_alpha) {
+NATIVE_IMAGE *utox_image_to_native(const UTOX_IMAGE data, size_t size, uint16_t *w, uint16_t *h, bool keep_alpha) {
     int      width, height, bpp;
     uint8_t *rgba_data = stbi_load_from_memory(data, size, &width, &height, &bpp, 4);
 

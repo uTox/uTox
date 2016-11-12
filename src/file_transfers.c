@@ -361,7 +361,7 @@ static void utox_run_file(FILE_TRANSFER *file, uint8_t us) {
 static void decode_inline_png(uint32_t friend_id, uint8_t *data, uint64_t size) {
     // TODO: start a new thread and decode the png in it.
     uint16_t      width, height;
-    NATIVE_IMAGE *native_image = decode_image_rgb((UTOX_IMAGE)data, size, &width, &height, 0);
+    NATIVE_IMAGE *native_image = utox_image_to_native((UTOX_IMAGE)data, size, &width, &height, 0);
     if (NATIVE_IMAGE_IS_VALID(native_image)) {
         void *msg = malloc(sizeof(uint16_t) * 2 + sizeof(uint8_t *));
         memcpy(msg, &width, sizeof(uint16_t));
@@ -1033,7 +1033,7 @@ void utox_file_save_ftinfo(FILE_TRANSFER *file) {
 
 bool utox_file_load_ftinfo(FILE_TRANSFER *file) {
     uint8_t  path[UTOX_FILE_NAME_LENGTH];
-    size_t   path_length;
+    size_t   path_length = 0;
     uint32_t size_read;
 
     // path_length = datapath(path);

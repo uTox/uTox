@@ -1,5 +1,3 @@
-// uTox main.h
-//
 #ifndef UTOX_MAIN_H
 #define UTOX_MAIN_H
 
@@ -80,7 +78,6 @@
 #include <time.h>
 #include <tox/tox.h>
 
-#include "avatar.h"
 #include "messages.h"
 
 #if TOX_VERSION_MAJOR > 0
@@ -264,6 +261,7 @@ enum {
     USER_STATUS_DO_NOT_DISTURB,
 };
 
+typedef struct avatar AVATAR;
 // me
 struct utox_self {
     uint8_t status;
@@ -285,10 +283,7 @@ struct utox_self {
 
     uint8_t id_binary[TOX_FRIEND_ADDRESS_SIZE];
 
-    AVATAR   avatar;
-    uint32_t avatar_format;
-    uint8_t *avatar_data;
-    size_t   avatar_size;
+    AVATAR *avatar;
 } self;
 
 struct utox_mouse {
@@ -358,10 +353,10 @@ bool utox_update_chatlog(uint32_t friend_number, size_t offset, uint8_t *data, s
 bool utox_data_save_avatar(uint32_t friend_number, const uint8_t *data, size_t length);
 /** TODO DOCUMENATION
  */
-uint8_t *utox_data_load_avatar(uint32_t friend_number, size_t *size);
+uint8_t *utox_data_load_avatar(const char hexid[TOX_PUBLIC_KEY_SIZE * 2], size_t *size);
 /** TODO DOCUMENATION
  */
-bool utox_remove_file_avatar(uint32_t friend_number);
+bool utox_data_del_avatar(uint32_t friend_number);
 
 /** TODO DOCUMENATION
  */
@@ -427,9 +422,9 @@ void draw_image(const NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_
 void draw_inline_image(uint8_t *img_data, size_t size, uint16_t w, uint16_t h, int x, int y);
 
 /* converts a png to a NATIVE_IMAGE, returns a pointer to it, keeping alpha channel only if keep_alpha is 1 */
-NATIVE_IMAGE *decode_image_rgb(const UTOX_IMAGE, size_t size, uint16_t *w, uint16_t *h, bool keep_alpha);
+NATIVE_IMAGE *utox_image_to_native(const UTOX_IMAGE, size_t size, uint16_t *w, uint16_t *h, bool keep_alpha);
 
-/* free an image created by decode_image_rgb */
+/* free an image created by utox_image_to_native */
 void image_free(NATIVE_IMAGE *image);
 
 void showkeyboard(bool show);

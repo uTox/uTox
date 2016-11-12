@@ -35,8 +35,8 @@ void draw_user_badge(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED
         /* Only draw the user badge if toxcore is running */
         /*draw avatar or default image */
         if (self_has_avatar()) {
-            draw_avatar_image(self.avatar.image, SIDEBAR_AVATAR_LEFT, SIDEBAR_AVATAR_TOP, self.avatar.width,
-                              self.avatar.height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
+            draw_avatar_image(self.avatar->img, SIDEBAR_AVATAR_LEFT, SIDEBAR_AVATAR_TOP, self.avatar->width,
+                              self.avatar->height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
         } else {
             drawalpha(BM_CONTACT, SIDEBAR_AVATAR_LEFT, SIDEBAR_AVATAR_TOP, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH,
                       COLOR_MENU_TEXT);
@@ -106,7 +106,7 @@ void draw_friend(int x, int y, int w, int height) {
 
     // draw avatar or default image
     if (friend_has_avatar(f)) {
-        draw_avatar_image(f->avatar.image, MAIN_LEFT + SCALE(10), SCALE(10), f->avatar.width, f->avatar.height,
+        draw_avatar_image(f->avatar.img, MAIN_LEFT + SCALE(10), SCALE(10), f->avatar.width, f->avatar.height,
                           BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
     } else {
         drawalpha(BM_CONTACT, MAIN_LEFT + SCALE(10), SCALE(10), BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_MAIN_TEXT);
@@ -352,7 +352,7 @@ void draw_settings_sub_header(int x, int y, int UNUSED(w), int UNUSED(height)) {
     /* Draw the text and bars for A/V settings */
     setcolor(!button_settings_sub_av.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_TEXT_SUBTEXT);
     x            = x_right_edge;
-    x_right_edge = x_right_edge + SCALE(10) + UTOX_STR_WIDTH(AUDIO_VIDEO_BUTTON) + SCALE(1000);
+    x_right_edge = x_right_edge + SCALE(10) + UTOX_STR_WIDTH(AUDIO_VIDEO_BUTTON) + SCALE(10);
     drawstr(x + SCALE(10), y + SCALE(10), AUDIO_VIDEO_BUTTON);
 
     if (panel_settings_av.disabled) {
@@ -360,6 +360,11 @@ void draw_settings_sub_header(int x, int y, int UNUSED(w), int UNUSED(height)) {
     } else {
         DRAW_OVERLINE();
     }
+    drawvline(x_right_edge, y + SCALE(0), y + SCALE(30), COLOR_EDGE_NORMAL);
+
+    x            = x_right_edge;
+    x_right_edge = x_right_edge + SCALE(1000);
+    DRAW_UNDERLINE();
 }
 
 /* draw switch profile top bar */

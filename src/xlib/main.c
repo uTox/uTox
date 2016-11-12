@@ -288,6 +288,49 @@ uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_s
     return data;
 }
 
+FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS flag) {
+    char path[UTOX_FILE_NAME_LENGTH] = { 0 };
+
+    if (settings.portable_mode) {
+        snprintf(path, UTOX_FILE_NAME_LENGTH, "./tox/");
+    } else {
+        snprintf(path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));
+    }
+
+    if (flag & UTOX_FILE_OPTS_READ || flag & UTOX_FILE_OPTS_MKDIR) {
+        mkdir(path, 0700);
+    }
+
+    if (strlen(path) + strlen(name) >= UTOX_FILE_NAME_LENGTH) {
+        debug("NATIVE:\tLoad directory name too long\n");
+        return NULL;
+    } else {
+        snprintf(path + strlen(path), UTOX_FILE_NAME_LENGTH - strlen(path), "%s", name);
+    }
+
+    FILE *fp = NULL;
+    if (flag & UTOX_FILE_OPTS_READ) {
+        fp = fopen(path, "rb");
+    } else if (flag & UTOX_FILE_OPTS_WRITE) {
+        fp = fopen(path, "wb");
+    } else if (flag & UTOX_FILE_OPTS_APPEND) {
+        fp = fopen(path, "ab");
+    }
+
+    if (fp == NULL) {
+        debug("Could not open %s\n", path);
+        return NULL;
+    }
+
+    if (size != NULL) {
+        fseek(fp, 0, SEEK_END);
+        *size = ftell(fp);
+        fseek(fp, 0, SEEK_SET);
+    }
+
+    return fp;
+}
+
 /** native_load_chatlog
  *
  *  reads records from the log file of a friend
@@ -458,7 +501,7 @@ void draw_tray_icon(void) {
     uint8_t *icon_data = (uint8_t *)&_binary_icons_utox_128x128_png_start;
     size_t   icon_size = (size_t)&_binary_icons_utox_128x128_png_size;
 
-    NATIVE_IMAGE *icon = decode_image_rgb(icon_data, icon_size, &width, &height, 1);
+    NATIVE_IMAGE *icon = utox_image_to_native(icon_data, icon_size, &width, &height, 1);
     if (NATIVE_IMAGE_IS_VALID(icon)) {
         /* Get tray window size */
         int32_t  x_r = 0, y_r = 0;
@@ -692,7 +735,7 @@ void pastedata(void *data, Atom type, int len, bool select) {
     if (type == XA_PNG_IMG) {
         uint16_t width, height;
 
-        NATIVE_IMAGE *native_image = decode_image_rgb(data, size, &width, &height, 0);
+        NATIVE_IMAGE *native_image = utox_image_to_native(data, size, &width, &height, 0);
         if (NATIVE_IMAGE_IS_VALID(native_image)) {
             debug("Pasted image: %dx%d\n", width, height);
 
@@ -759,7 +802,7 @@ static Picture generate_alpha_bitmask(const uint8_t *rgba_data, uint16_t width, 
     return picture;
 }
 
-NATIVE_IMAGE *decode_image_rgb(const UTOX_IMAGE data, size_t size, uint16_t *w, uint16_t *h, bool keep_alpha) {
+NATIVE_IMAGE *utox_image_to_native(const UTOX_IMAGE data, size_t size, uint16_t *w, uint16_t *h, bool keep_alpha) {
     int      width, height, bpp;
     uint8_t *rgba_data = stbi_load_from_memory(data, size, &width, &height, &bpp, 4);
 
@@ -772,7 +815,7 @@ NATIVE_IMAGE *decode_image_rgb(const UTOX_IMAGE data, size_t size, uint16_t *w, 
     // we don't need to free this, that's done by XDestroyImage()
     uint8_t *out = malloc(rgba_size);
     if (out == NULL) {
-        debug("decode_image_rgb:\t Could mot allocate memory.\n");
+        debug("utox_image_to_native:\t Could mot allocate memory.\n");
         return NULL;
     }
 
@@ -805,7 +848,7 @@ NATIVE_IMAGE *decode_image_rgb(const UTOX_IMAGE data, size_t size, uint16_t *w, 
 
     NATIVE_IMAGE *image = malloc(sizeof(NATIVE_IMAGE));
     if (image == NULL) {
-        debug("decode_image_rgb:\t Could mot allocate memory for image.\n");
+        debug("utox_image_to_native:\t Could mot allocate memory for image.\n");
         return NULL;
     }
     image->rgb   = rgb;

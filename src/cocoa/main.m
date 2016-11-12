@@ -58,7 +58,7 @@ int NATIVE_IMAGE_IS_VALID(NATIVE_IMAGE *img) {
     return img != NULL && img->image != nil;
 }
 
-NATIVE_IMAGE *decode_image_rgb(const UTOX_IMAGE data, size_t size, uint16_t *w, uint16_t *h, bool keep_alpha) {
+NATIVE_IMAGE *utox_image_to_native(const UTOX_IMAGE data, size_t size, uint16_t *w, uint16_t *h, bool keep_alpha) {
     CFDataRef         idata_copy     = CFDataCreate(kCFAllocatorDefault, data, size);
     CGDataProviderRef src            = CGDataProviderCreateWithCFData(idata_copy);
     CGImageRef        underlying_img = CGImageCreateWithPNGDataProvider(src, NULL, YES, kCGRenderingIntentDefault);
@@ -216,123 +216,47 @@ void ensure_directory_r(char *path, int perm) {
     }
 }
 
-
-/** Takes data from µTox and saves it, just how the OS likes it saved! */
-size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *data, size_t length, bool append) {
-    uint8_t path[UTOX_FILE_NAME_LENGTH];
-    uint8_t atomic_path[UTOX_FILE_NAME_LENGTH];
-    FILE *  file;
-    size_t  offset = 0;
+FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS flags) {
+    char path[UTOX_FILE_NAME_LENGTH] = { 0 };
 
     if (settings.portable_mode) {
-        const char *curr = [NSBundle.mainBundle.bundlePath stringByDeletingLastPathComponent].UTF8String;
-        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "%s/tox/", curr);
+        snprintf(path, UTOX_FILE_NAME_LENGTH, "./tox/");
     } else {
-        const char *home = NSHomeDirectory().UTF8String;
-        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", home);
+        snprintf(path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));
     }
 
-    mkdir((char *)path, 0700);
-
-    snprintf((char *)path + strlen((const char *)path), UTOX_FILE_NAME_LENGTH - strlen((const char *)path), "%s", name);
-
-    if (append) {
-        file = fopen((const char *)path, "ab");
-    } else {
-        if (strlen((const char *)path) + name_length >= UTOX_FILE_NAME_LENGTH - strlen(".atomic")) {
-            debug("NATIVE:\tSave directory name too long\n");
-            return 0;
-        } else {
-            snprintf((char *)atomic_path, UTOX_FILE_NAME_LENGTH, "%s.atomic", path);
-        }
-
-        file = fopen((const char *)atomic_path, "wb");
+    if (flag & UTOX_FILE_OPTS_READ || flag & UTOX_FILE_OPTS_MKDIR) {
+        mkdir(path, 0700);
     }
 
-    if (file) {
-        offset = ftello(file);
-        fwrite(data, length, 1, file);
-        fclose(file);
-
-        if (append) {
-            return offset;
-        }
-
-        if (rename((const char *)atomic_path, (const char *)path)) {
-            /* Consider backing up this file instead of overwriting it. */
-            debug("NATIVE:\t%sUnable to move file!\n", atomic_path);
-            return 0;
-        }
-        return 1;
-    } else {
-        debug("NATIVE:\tUnable to open %s to write save\n", path);
-        return 0;
-    }
-
-    return 0;
-}
-
-/** Takes data from µTox and loads it up! */
-uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_size) {
-    uint8_t  path[UTOX_FILE_NAME_LENGTH];
-    uint8_t *data;
-
-    if (settings.portable_mode) {
-        const char *curr = [NSBundle.mainBundle.bundlePath stringByDeletingLastPathComponent].UTF8String;
-        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "%s/tox/", curr);
-    } else {
-        const char *home = NSHomeDirectory().UTF8String;
-        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", home);
-    }
-
-    if (strlen((const char *)path) + name_length >= UTOX_FILE_NAME_LENGTH) {
+    if (strlen(path) + strlen(name) >= UTOX_FILE_NAME_LENGTH) {
         debug("NATIVE:\tLoad directory name too long\n");
-        return 0;
+        return NULL;
     } else {
-        snprintf((char *)path + strlen((const char *)path), UTOX_FILE_NAME_LENGTH - strlen((const char *)path), "%s",
-                 name);
+        snprintf(path + strlen(path), UTOX_FILE_NAME_LENGTH - strlen(path), "%s", name);
     }
 
+    FILE *fp = NULL;
+    if (flag & UTOX_FILE_OPTS_READ) {
+        fp = fopen(path, "rb");
+    } else if (flag & UTOX_FILE_OPTS_WRITE) {
+        fp = fopen(path, "wb");
+    } else if (flag & UTOX_FILE_OPTS_APPEND) {
+        fp = fopen(path, "ab");
+    }
 
-    FILE *file = fopen((const char *)path, "rb");
-    if (!file) {
-        // debug("NATIVE:\tUnable to open/read %s\n", path);
-        if (out_size) {
-            *out_size = 0;
-        }
+    if (fp == NULL) {
+        debug("Could not open %s\n", path);
         return NULL;
     }
 
-
-    fseek(file, 0, SEEK_END);
-    size_t size = ftell(file);
-    data        = malloc(size);
-    if (!data) {
-        fclose(file);
-        if (out_size) {
-            *out_size = 0;
-        }
-        return NULL;
-    } else {
-        fseek(file, 0, SEEK_SET);
-
-        if (fread(data, size, 1, file) != 1) {
-            debug("NATIVE:\tRead error on %s\n", path);
-            fclose(file);
-            free(data);
-            if (out_size) {
-                *out_size = 0;
-            }
-            return NULL;
-        }
-
-        fclose(file);
+    if (size != NULL) {
+        fseek(fp, 0, SEEK_END);
+        *size = ftell(fp);
+        fseek(fp, 0, SEEK_SET);
     }
 
-    if (out_size) {
-        *out_size = size;
-    }
-    return data;
+    return fp;
 }
 
 FILE *native_load_chatlog_file(uint32_t friend_number) {

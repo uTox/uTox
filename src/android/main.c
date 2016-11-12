@@ -148,7 +148,7 @@ void setselection(char *data, uint16_t length) { /* Unsupported on android */
 void edit_will_deactivate(void) { /* Unsupported on android */
 }
 
-NATIVE_IMAGE *decode_image_rgb(const UTOX_IMAGE data, size_t size, uint16_t *w, uint16_t *h, bool keep_alpha) {
+NATIVE_IMAGE *utox_image_to_native(const UTOX_IMAGE data, size_t size, uint16_t *w, uint16_t *h, bool keep_alpha) {
     unsigned width, height, bpp;
     uint8_t *out = stbi_load_from_memory(data, size, &width, &height, &bpp, 3);
     // free(data);
@@ -192,98 +192,40 @@ void writesavedata(void *data, uint32_t len) {
     }
 }
 
-/** Takes data from µTox and saves it, just how the OS likes it saved! */
-size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *data, size_t length, bool append) {
-    uint8_t path[UTOX_FILE_NAME_LENGTH];
-    FILE *  file;
-    size_t  offset = 0;
+FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS flag) {
+    char path[UTOX_FILE_NAME_LENGTH] = { 0 };
 
-    snprintf((char *)path, UTOX_FILE_NAME_LENGTH, ANDROID_INTERNAL_SAVE);
+    snprintf(path, UTOX_FILE_NAME_LENGTH, ANDROID_INTERNAL_SAVE);
 
-    // mkdir((char*)path, 0700);
-
-    snprintf((char *)path + strlen((const char *)path), UTOX_FILE_NAME_LENGTH - strlen((const char *)path), "%s", name);
-
-    if (append) {
-        file = fopen((const char *)path, "ab");
-    } else {
-        file = fopen((const char *)path, "wb");
-    }
-
-    if (file) {
-        offset = ftello(file);
-        fwrite(data, length, 1, file);
-        fflush(file);
-        fclose(file);
-
-        if (append) {
-            return offset;
-        }
-
-        return 1;
-    } else {
-        debug("NATIVE:\tUnable to open %s to write save\n", path);
-        return 0;
-    }
-
-    return 0;
-}
-
-/** Takes data from µTox and loads it up! */
-uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_size) {
-    uint8_t  path[UTOX_FILE_NAME_LENGTH];
-    uint8_t *data;
-
-    snprintf((char *)path, UTOX_FILE_NAME_LENGTH, ANDROID_INTERNAL_SAVE);
-
-    if (strlen((const char *)path) + name_length >= UTOX_FILE_NAME_LENGTH) {
+    if (strlen(path) + strlen(name) >= UTOX_FILE_NAME_LENGTH) {
         debug("NATIVE:\tLoad directory name too long\n");
         return 0;
     } else {
-        snprintf((char *)path + strlen((const char *)path), UTOX_FILE_NAME_LENGTH - strlen((const char *)path), "%s",
+        snprintf(path + strlen(path), UTOX_FILE_NAME_LENGTH - strlen(path), "%s",
                  name);
     }
 
+    FILE *fp = NULL;
+    if (flag & UTOX_FILE_OPTS_READ) {
+        fp = fopen(path, "rb");
+    } else if (flag & UTOX_FILE_OPTS_WRITE) {
+        fp = fopen(path, "wb");
+    } else if(flag & UTOX_FILE_OPTS_APPEND) {
+        fp = fopen(path, "ab");
+    }
 
-    FILE *file = fopen((const char *)path, "rb");
-    if (!file) {
-        // debug("NATIVE:\tUnable to open/read %s\n", path);
-        if (out_size) {
-            *out_size = 0;
-        }
+    if (fp == NULL) {
+        debug("Could not open %s\n", path);
         return NULL;
     }
 
-
-    fseek(file, 0, SEEK_END);
-    size_t size = ftell(file);
-    data        = calloc(size + 1, 1); // needed for the ending null byte
-    if (!data) {
-        fclose(file);
-        if (out_size) {
-            *out_size = 0;
-        }
-        return NULL;
-    } else {
-        fseek(file, 0, SEEK_SET);
-
-        if (fread(data, size, 1, file) != 1) {
-            debug("NATIVE:\tRead error on %s\n", path);
-            fclose(file);
-            free(data);
-            if (out_size) {
-                *out_size = 0;
-            }
-            return NULL;
-        }
-
-        fclose(file);
+    if (size != NULL) {
+        fseek(fp, 0, SEEK_END);
+        *size = ftell(fp);
+        fseek(fp, 0, SEEK_SET);
     }
 
-    if (out_size) {
-        *out_size = size;
-    }
-    return data;
+    return fp;
 }
 
 /** native_load_chatlog

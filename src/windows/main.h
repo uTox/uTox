@@ -84,7 +84,7 @@ HWND      video_hwnd[128]; // todo fixme
 #define NATIVE_IMAGE_IS_VALID(x) (NULL != (x))
 #define NATIVE_IMAGE_HAS_ALPHA(x) (x->has_alpha)
 // internal representation of an image
-typedef struct utox_native_image {
+typedef struct win_native_image {
     HBITMAP bitmap; // 32 bit bitmap containing
                     // red, green, blue and alpha
 
