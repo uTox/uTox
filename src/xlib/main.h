@@ -155,9 +155,9 @@ void togglehide(void);
 
 void pasteprimary(void);
 void setclipboard(void);
-void pastebestformat(const Atom atoms[], int len, Atom selection);
-void formaturilist(char *out, const char *in, int len);
-void pastedata(void *data, Atom type, int len, bool select);
+void pastebestformat(const Atom atoms[], size_t len, Atom selection);
+void formaturilist(char *out, const char *in, size_t len);
+void pastedata(void *data, Atom type, size_t len, bool select);
 
 // video4linux
 bool v4l_init(char *dev_name);
