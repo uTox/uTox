@@ -350,7 +350,7 @@ void draw_settings_sub_header(int x, int y, int UNUSED(w), int UNUSED(height)) {
     /* Draw the text and bars for A/V settings */
     setcolor(!button_settings_sub_av.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_TEXT_SUBTEXT);
     x            = x_right_edge;
-    x_right_edge = x_right_edge + SCALE(10) + UTOX_STR_WIDTH(AUDIO_VIDEO_BUTTON) + SCALE(1000);
+    x_right_edge = x_right_edge + SCALE(10) + UTOX_STR_WIDTH(AUDIO_VIDEO_BUTTON) + SCALE(10);
     drawstr(x + SCALE(10), y + SCALE(10), AUDIO_VIDEO_BUTTON);
 
     if (panel_settings_av.disabled) {
@@ -358,6 +358,11 @@ void draw_settings_sub_header(int x, int y, int UNUSED(w), int UNUSED(height)) {
     } else {
         DRAW_OVERLINE();
     }
+    drawvline(x_right_edge, y + SCALE(0), y + SCALE(30), COLOR_EDGE_NORMAL);
+
+    x            = x_right_edge;
+    x_right_edge = x_right_edge + SCALE(1000);
+    DRAW_UNDERLINE();
 }
 
 /* draw switch profile top bar */
