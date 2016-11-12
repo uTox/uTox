@@ -1033,7 +1033,7 @@ void utox_file_save_ftinfo(FILE_TRANSFER *file) {
 
 bool utox_file_load_ftinfo(FILE_TRANSFER *file) {
     uint8_t  path[UTOX_FILE_NAME_LENGTH];
-    size_t   path_length;
+    size_t   path_length = 0;
     uint32_t size_read;
 
     // path_length = datapath(path);
