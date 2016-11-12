@@ -58,6 +58,9 @@ matrix:
             - gcc-mingw-w64
             - binutils-mingw-w64
             - yasm
+            - libopenal-dev
+            - libopenal-data
+            - libopenal1
       env: BUILD=windows
       compiler: x86_64-w64-mingw32-gcc
 
