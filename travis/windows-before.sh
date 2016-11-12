@@ -68,7 +68,7 @@ cd ..
 rm -rf toxcore
 
 if ! [ -d openal ]; then
-  git clone --depth=1 git@github.com:irungentoo/openal-soft-tox.git openal
+  git clone --depth=1 https://github.com/irungentoo/openal-soft-tox.git openal
 fi
 cd openal
 git rev-parse HEAD > openal.sha
