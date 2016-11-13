@@ -148,7 +148,7 @@ void setselection(char *data, uint16_t length) { /* Unsupported on android */
 void edit_will_deactivate(void) { /* Unsupported on android */
 }
 
-NATIVE_IMAGE *decode_image_rgb(const UTOX_IMAGE data, size_t size, uint16_t *w, uint16_t *h, bool keep_alpha) {
+NATIVE_IMAGE *utox_image_to_native(const UTOX_IMAGE data, size_t size, uint16_t *w, uint16_t *h, bool keep_alpha) {
     unsigned width, height, bpp;
     uint8_t *out = stbi_load_from_memory(data, size, &width, &height, &bpp, 3);
     // free(data);

@@ -108,7 +108,7 @@ HBITMAP   hdc_bm;
 HWND      video_hwnd[MAX_NUM_FRIENDS];
 
 // internal representation of an image
-typedef struct utox_native_image {
+typedef struct win_native_image {
     HBITMAP bitmap; // 32 bit bitmap containing
                     // red, green, blue and alpha
 

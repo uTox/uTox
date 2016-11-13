@@ -518,7 +518,7 @@ void draw_tray_icon(void) {
     uint8_t *icon_data = (uint8_t *)&_binary_icons_utox_128x128_png_start;
     size_t   icon_size = (size_t)&_binary_icons_utox_128x128_png_size;
 
-    NATIVE_IMAGE *icon = decode_image_rgb(icon_data, icon_size, &width, &height, 1);
+    NATIVE_IMAGE *icon = utox_image_to_native(icon_data, icon_size, &width, &height, 1);
     if (NATIVE_IMAGE_IS_VALID(icon)) {
         /* Get tray window size */
         int32_t  x_r = 0, y_r = 0;
@@ -752,7 +752,7 @@ void pastedata(void *data, Atom type, int len, bool select) {
     if (type == XA_PNG_IMG) {
         uint16_t width, height;
 
-        NATIVE_IMAGE *native_image = decode_image_rgb(data, size, &width, &height, 0);
+        NATIVE_IMAGE *native_image = utox_image_to_native(data, size, &width, &height, 0);
         if (NATIVE_IMAGE_IS_VALID(native_image)) {
             debug("Pasted image: %dx%d\n", width, height);
 
@@ -819,7 +819,7 @@ static Picture generate_alpha_bitmask(const uint8_t *rgba_data, uint16_t width, 
     return picture;
 }
 
-NATIVE_IMAGE *decode_image_rgb(const UTOX_IMAGE data, size_t size, uint16_t *w, uint16_t *h, bool keep_alpha) {
+NATIVE_IMAGE *utox_image_to_native(const UTOX_IMAGE data, size_t size, uint16_t *w, uint16_t *h, bool keep_alpha) {
     int      width, height, bpp;
     uint8_t *rgba_data = stbi_load_from_memory(data, size, &width, &height, &bpp, 4);
 
@@ -832,7 +832,7 @@ NATIVE_IMAGE *decode_image_rgb(const UTOX_IMAGE data, size_t size, uint16_t *w, 
     // we don't need to free this, that's done by XDestroyImage()
     uint8_t *out = malloc(rgba_size);
     if (out == NULL) {
-        debug("decode_image_rgb:\t Could mot allocate memory.\n");
+        debug("utox_image_to_native:\t Could mot allocate memory.\n");
         return NULL;
     }
 
@@ -865,7 +865,7 @@ NATIVE_IMAGE *decode_image_rgb(const UTOX_IMAGE data, size_t size, uint16_t *w, 
 
     NATIVE_IMAGE *image = malloc(sizeof(NATIVE_IMAGE));
     if (image == NULL) {
-        debug("decode_image_rgb:\t Could mot allocate memory for image.\n");
+        debug("utox_image_to_native:\t Could mot allocate memory for image.\n");
         return NULL;
     }
     image->rgb   = rgb;

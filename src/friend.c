@@ -104,9 +104,8 @@ void utox_friend_init(Tox *tox, uint32_t friend_number) {
 
     // Get and set the public key for this friend number and set it.
     tox_friend_get_public_key(tox, friend_number, f->cid, 0);
-    char cid[TOX_PUBLIC_KEY_SIZE * 2];
-    cid_to_string(cid, f->cid);
-    memcpy(f->id_str, cid, TOX_PUBLIC_KEY_SIZE * 2);
+    tox_friend_get_public_key(tox, friend_number, f->id_bin, 0);
+    cid_to_string(f->id_str, f->id_bin);
 
     // Set the friend number we got from toxcore
     f->number = friend_number;
@@ -127,7 +126,7 @@ void utox_friend_init(Tox *tox, uint32_t friend_number) {
     f->online = tox_friend_get_connection_status(tox, friend_number, NULL);
     f->status = tox_friend_get_status(tox, friend_number, NULL);
 
-    init_avatar(&f->avatar, friend_number, NULL, NULL);
+    avatar_init(f->id_str, &f->avatar);
 
     MESSAGES *m = &f->msg;
     messages_init(m, friend_number);

@@ -130,7 +130,7 @@ static void drawitem(ITEM *i, int UNUSED(x), int y) {
 
             // draw avatar or default image
             if (friend_has_avatar(f)) {
-                draw_avatar_image(f->avatar.image, ROSTER_AVATAR_LEFT, y + ava_top, f->avatar.width, f->avatar.height,
+                draw_avatar_image(f->avatar.img, ROSTER_AVATAR_LEFT, y + ava_top, f->avatar.width, f->avatar.height,
                                   default_w, default_w);
             } else {
                 drawalpha(contact_bitmap, ROSTER_AVATAR_LEFT, y + ava_top, default_w, default_w,
