@@ -275,7 +275,7 @@ uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_s
     fseek(file, 0, SEEK_END);
     size_t size = ftell(file);
 
-    uint8_t *data = (uint8_t *)calloc(size + 1, 1); // needed for the ending null byte
+    uint8_t *data = calloc(size + 1, 1); // needed for the ending null byte
     if (!data) {
         fclose(file);
         if (out_size) {
@@ -942,9 +942,8 @@ int file_lock(FILE *file, uint64_t start, size_t length) {
     result = fcntl(fileno(file), F_SETLK, &fl);
     if (result == -1) {
         return 0;
-    } else {
-        return 1;
-    }
+    } 
+    return 1;
 }
 
 int file_unlock(FILE *file, uint64_t start, size_t length) {
@@ -958,9 +957,8 @@ int file_unlock(FILE *file, uint64_t start, size_t length) {
     result = fcntl(fileno(file), F_SETLK, &fl);
     if (result == -1) {
         return 0;
-    } else {
-        return 1;
     }
+    return 1;
 }
 
 void notify(char *title, uint16_t UNUSED(title_length), const char *msg, uint16_t msg_length, void *object, bool is_group) {
@@ -984,7 +982,6 @@ void notify(char *title, uint16_t UNUSED(title_length), const char *msg, uint16_
 #ifdef HAVE_DBUS
     char *str = tohtml(msg, msg_length);
 
-    /* Todo handle this warning! */
     dbus_notify(title, str, f_cid);
 
     free(str);
