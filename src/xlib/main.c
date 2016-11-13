@@ -249,7 +249,6 @@ size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *
 /** Takes data from µTox and loads it up! */
 uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_size) {
     char  path[UTOX_FILE_NAME_LENGTH] = { 0 };
-    uint8_t *data;
 
     if (settings.portable_mode) {
         snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "./tox/");
@@ -276,7 +275,7 @@ uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_s
     fseek(file, 0, SEEK_END);
     size_t size = ftell(file);
 
-    data = (uint8_t *)calloc(size + 1, 1); // needed for the ending null byte
+    uint8_t *data = (uint8_t *)calloc(size + 1, 1); // needed for the ending null byte
     if (!data) {
         fclose(file);
         if (out_size) {
@@ -600,11 +599,10 @@ void tray_window_event(XEvent event) {
     switch (event.type) {
         case ConfigureNotify: {
             XConfigureEvent *ev = &event.xconfigure;
-            // TODO(robinli): cast ev->width & height to uint32_t if safe
-            if (tray_width != ev->width || tray_height != ev->height) {
+            if (tray_width != (uint32_t)ev->width || tray_height != (uint32_t)ev->height) {
                 debug("Tray resized w:%i h:%i\n", ev->width, ev->height);
 
-                if (ev->width > tray_width || ev->height > tray_height) {
+                if ((uint32_t)ev->width > tray_width || (uint32_t)ev->height > tray_height) {
                     tray_width  = ev->width;
                     tray_height = ev->height;
 
