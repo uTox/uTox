@@ -157,9 +157,13 @@ bool dropdown_mdown(DROPDOWN *d) {
     return 0;
 }
 
-bool dropdown_mright(DROPDOWN *UNUSED(d)) { return 0; }
+bool dropdown_mright(DROPDOWN *UNUSED(d)) {
+    return 0;
+}
 
-bool dropdown_mwheel(DROPDOWN *UNUSED(d), int UNUSED(height), double UNUSED(dlta), bool UNUSED(smooth)) { return 0; }
+bool dropdown_mwheel(DROPDOWN *UNUSED(d), int UNUSED(height), double UNUSED(dlta), bool UNUSED(smooth)) {
+    return 0;
+}
 
 bool dropdown_mup(DROPDOWN *d) {
     if (d->open) {

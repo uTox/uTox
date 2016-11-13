@@ -1,6 +1,9 @@
 #ifndef THEME_H
 #define THEME_H
 
+#include <inttypes.h>
+#include <stddef.h>
+
 enum {
     THEME_DEFAULT,
     THEME_LIGHT,

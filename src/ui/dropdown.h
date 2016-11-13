@@ -1,9 +1,6 @@
 #ifndef DROPDOWN_H
 #define DROPDOWN_H
 
-#include <inttypes.h>
-#include <stdbool.h>
-
 #include "../ui.h"
 
 // userdata of list-based dropdown consists of these records

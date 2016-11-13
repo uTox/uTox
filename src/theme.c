@@ -1,4 +1,8 @@
+#include "theme.h"
+
 #include "main.h"
+#include "main_native.h"
+
 #include "theme_tables.h"
 
 #define COLOR_PROC(a_ulColor) RGB((a_ulColor >> 16) & 0x0000FF, (a_ulColor >> 8) & 0x0000FF, a_ulColor & 0x0000FF)
