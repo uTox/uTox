@@ -1,5 +1,5 @@
-#include "../main.h"
 #include "../ui/svg.h"
+#include "main.h"
 
 void *bitmap[BM_ENDMARKER + 1];
 
@@ -193,7 +193,7 @@ int textwidth(const char *str, uint16_t length) {
 
 int textfit(const char *str, uint16_t len, int width) {
     wchar_t out[len];
-    int   length = utf8tonative(str, out, len);
+    int     length = utf8tonative(str, out, len);
 
     int  fit;
     SIZE size;
@@ -205,7 +205,7 @@ int textfit(const char *str, uint16_t len, int width) {
 int textfit_near(const char *str, uint16_t len, int width) {
     /*todo: near*/
     wchar_t out[len];
-    int   length = utf8tonative(str, out, len);
+    int     length = utf8tonative(str, out, len);
 
     int  fit;
     SIZE size;

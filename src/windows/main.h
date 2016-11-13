@@ -37,7 +37,6 @@
 
 #include <shlobj.h>
 #include <knownfolders.h>
-#include <error.h>
 #include <io.h>
 // clang-format on
 
