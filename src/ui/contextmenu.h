@@ -1,11 +1,7 @@
 #ifndef CONTEXTMENU_H
 #define CONTEXTMENU_H
 
-#include <inttypes.h>
-#include <stdbool.h>
-
-#include "../../langs/i18n_decls.h"
-#include "../sized_string.h"
+#include "../ui.h"
 
 typedef struct contextmenu {
     int     x, y, width, height;

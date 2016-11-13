@@ -3,6 +3,7 @@
 #include "dns.h"
 
 #include "main.h"
+#include "main_native.h"
 #include "tox.h"
 
 static struct tox3 {

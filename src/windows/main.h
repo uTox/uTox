@@ -54,10 +54,10 @@
 #define KEY_PAGEUP VK_PRIOR
 #define KEY_PAGEDOWN VK_NEXT
 
-#define debug(...) (settings.verbose >= VERB_TEENAGE_GIRL) ? (printf(__VA_ARGS__) & fflush(stdout)) : (0)
-#define debug_info(...) (settings.verbose >= VERB_NEW_ADHD_MEDS) ? (printf(__VA_ARGS__) & fflush(stdout)) : (0)
-#define debug_notice(...) (settings.verbose >= VERB_CONCERNED_PARENT) ? (printf(__VA_ARGS__) & fflush(stdout)) : (0)
-#define debug_error(...) (settings.verbose >= VERB_JANICE_ACCOUNTING) ? (printf(__VA_ARGS__) & fflush(stdout)) : (0)
+#define debug(...) (settings.verbose >= VERBOSITY_DEBUG) ? (printf(__VA_ARGS__) & fflush(stdout)) : (0)
+#define debug_info(...) (settings.verbose >= VERBOSITY_INFO) ? (printf(__VA_ARGS__) & fflush(stdout)) : (0)
+#define debug_notice(...) (settings.verbose >= VERBOSITY_NOTICE) ? (printf(__VA_ARGS__) & fflush(stdout)) : (0)
+#define debug_error(...) (settings.verbose >= VERBOSITY_ERROR) ? (printf(__VA_ARGS__) & fflush(stdout)) : (0)
 
 #define WM_NOTIFYICON (WM_APP + 0)
 #define WM_TOX (WM_APP + 1)
@@ -84,7 +84,7 @@ HWND      video_hwnd[128]; // todo fixme
 #define NATIVE_IMAGE_IS_VALID(x) (NULL != (x))
 #define NATIVE_IMAGE_HAS_ALPHA(x) (x->has_alpha)
 // internal representation of an image
-typedef struct win_native_image {
+typedef struct native_image {
     HBITMAP bitmap; // 32 bit bitmap containing
                     // red, green, blue and alpha
 

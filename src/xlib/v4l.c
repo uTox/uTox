@@ -1,4 +1,4 @@
-#include "../main.h"
+#include "main.h"
 
 int utox_v4l_fd = -1;
 

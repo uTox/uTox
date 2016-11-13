@@ -10,6 +10,8 @@
 #include "dbus.h"
 #endif
 
+#include "../main.h"
+
 #include "../ui/svg.h"
 #include "freetype.h"
 
@@ -43,11 +45,11 @@
 #define DEFAULT_WIDTH (382 * DEFAULT_SCALE)
 #define DEFAULT_HEIGHT (320 * DEFAULT_SCALE)
 
-#define debug(...) ((settings.verbose >= VERB_TEENAGE_GIRL) ? printf(__VA_ARGS__) : (0))
-#define debug_info(...) ((settings.verbose >= VERB_NEW_ADHD_MEDS) ? printf(__VA_ARGS__) : (0))
-#define debug_notice(...) ((settings.verbose >= VERB_CONCERNED_PARENT) ? printf(__VA_ARGS__) : (0))
-/* debug_warning needed! */
-#define debug_error(...) ((settings.verbose >= VERB_JANICE_ACCOUNTING) ? printf(__VA_ARGS__) : (0))
+#define debug(...) ((settings.verbose >= VERBOSITY_DEBUG) ? printf(__VA_ARGS__) : (0))
+#define debug_info(...) ((settings.verbose >= VERBOSITY_INFO) ? printf(__VA_ARGS__) : (0))
+#define debug_notice(...) ((settings.verbose >= VERBOSITY_NOTICE) ? printf(__VA_ARGS__) : (0))
+#define debug_warning(...) ((settings.verbose >= VERBOSITY_WARNING) ? printf(__VA_ARGS__) : (0))
+#define debug_error(...) ((settings.verbose >= VERBOSITY_ERROR) ? printf(__VA_ARGS__) : (0))
 
 #define RGB(r, g, b) (((r) << 16) | ((g) << 8) | (b))
 
@@ -65,7 +67,7 @@
 #define KEY_PAGEUP XK_Page_Up
 #define KEY_PAGEDOWN XK_Page_Down
 
-typedef struct xlib_native_image {
+typedef struct native_image {
     // This is really a Picture, but it is just a typedef for XID, and I didn't
     // want to clutter namespace with #include <X11/extensions/Xrender.h> for it.
     XID rgb;
