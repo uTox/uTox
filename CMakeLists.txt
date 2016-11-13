@@ -183,3 +183,4 @@ target_link_libraries(utox
     ${U_LIBRARIES}
     ${LIBRARIES}
 )
+set_property(TARGET utox PROPERTY C_STANDARD 99)

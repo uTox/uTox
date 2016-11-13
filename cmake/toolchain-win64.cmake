@@ -6,8 +6,10 @@ set(CMAKE_C_COMPILER   x86_64-w64-mingw32-gcc)
 set(CMAKE_CXX_COMPILER x86_64-w64-mingw32-g++)
 set(CMAKE_RC_COMPILER  x86_64-w64-mingw32-windres)
 
-set(CMAKE_C_FLAGS "-static-libgcc -static -O3 -s -std=gnu99 -Wp -w -DAL_LIBTYPE_STATIC")
-set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "-static-libgcc -static -O3 -s -std=c99 -Wl,-subsystem,windows")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -static-libgcc -static -O3 -s -std=gnu99 -Wp -w -DAL_LIBTYPE_STATIC")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libgcc -static -O3 -s -std=gnu99 -Wp -w -DAL_LIBTYPE_STATIC")
+
+set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "-static-libgcc -static -O3 -s -std=gnu99 -Wl,-subsystem,windows")
 
 set(INCLUDE_DIRECTORIES SYSTEM /usr/share/mingw-w64/include/)
 
