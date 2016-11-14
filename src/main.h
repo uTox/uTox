@@ -293,6 +293,11 @@ struct utox_mouse {
 uint8_t cursor;
 bool    mdown;
 
+/** Takes a filepath and creates it with permissions 0700 if it doesn't already exist.
+ * 
+ * Returns a bool indicating if the path exists or not. */ 
+bool native_create_dir(const char *filepath);
+
 /** Takes data from µTox and saves it, just how the OS likes it saved!
  *
  * Returns the start of the offset on success, and 0 on failure.

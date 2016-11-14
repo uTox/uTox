@@ -4,7 +4,6 @@
 
 #include "../flist.h"
 #include "../friend.h"
-#include "../main_native.h"
 #include "../theme.h"
 #include "../ui/dropdowns.h"
 #include "../util.h"
@@ -178,16 +177,11 @@ void openfileavatar(void) {
     }
 }
 
-// Returns true if path exists, false otherwise.
 bool native_create_dir(const char *filepath) {
-    if (UTOX_FILE_OPTS_WRITE | UTOX_FILE_OPTS_MKDIR) {
-        int status = mkdir(filepath, S_IRWXU | S_IRGRP | S_IROTH);
-        if (status == 0) {
-            return true;
-        } else if (errno == EEXIST) {
-            return true;
-        } 
-    }
+    const int status = mkdir(filepath, S_IRWXU);
+    if (status == 0 || errno == EEXIST) {
+        return true;
+    } 
     return false;
 }
 
