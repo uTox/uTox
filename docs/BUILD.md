@@ -1,6 +1,6 @@
 # Build
 
-Following are barebone compilation instructions that should get you going. They probably wont work but #tox-dev can 
+Following are barebone compilation instructions that should get you going. They probably wont work but #utox on freenode can
 probably help you out if you're nice when you ask.
 
 If you're looking for it to "just work" you're going to want [these instructions](INSTALL.md) instead.
@@ -13,6 +13,9 @@ If you're looking for it to "just work" you're going to want [these instructions
 The easy way out is:
 ```sh
 cd uTox/
+mkdir build
+cd build
+cmake ..
 make
 make install
 ```
@@ -32,7 +35,7 @@ For base emoji ids support you need: [base_emoji](https://github.com/irungentoo/
 ## Ubuntu
 ###Tested on Ubuntu 15.10
 ```bash
-sudo apt-get install build-essential libtool autotools-dev automake checkinstall check git yasm libopus-dev libvpx-dev pkg-config libfontconfig1-dev libdbus-1-dev libv4l-dev libxrender-dev libopenal-dev libxext-dev
+sudo apt-get install build-essential libtool autotools-dev automake checkinstall check git yasm libopus-dev libvpx-dev pkg-config libfontconfig1-dev libdbus-1-dev libv4l-dev libxrender-dev libopenal-dev libxext-dev cmake
 
 git clone git://github.com/jedisct1/libsodium.git
 cd libsodium
@@ -50,16 +53,18 @@ sudo checkinstall
 cd ..
 
 
-git clone git://github.com/irungentoo/toxcore.git
-cd toxcore
-autoreconf -i
-./configure
+git clone git://github.com/TokTok/c-toxcore.git
+cd c-toxcore
+cmake .
 make
 sudo checkinstall
 cd ..
 
-git clone git://github.com/GrayHatter/uTox.git
+git clone git://github.com/uTox/uTox.git
 cd uTox/
+mkdir build
+cd build
+cmake ..
 make
 sudo checkinstall
 
@@ -74,7 +79,7 @@ If you're looking for a good IDE, Netbeans is very easy to setup for uTox, in fa
 
 ### Compiling for Windows
 
-If you have mingw-w64 and a working cygwin enviroment, the build script provided in 
+If you have mingw-w64 and a working cygwin enviroment, the build script provided in
 tools/ should just work. You must tell it if you want 32 or 64 bit, then the enviroment
  you want to use.
 
@@ -82,7 +87,7 @@ tools/ should just work. You must tell it if you want 32 or 64 bit, then the env
 
 32bit should be `tools/cross-compile-windows.sh -32`
 
-Make sure you grab a copy of toxcore, openal, and filter_audio from 
+Make sure you grab a copy of toxcore, openal, and filter_audio from
 https://jenkins.libtoxcore.so/ (Make sure you grab the right bit version.)
 
 You can also cross compile from unix if that's more your thing; again you'll need mingw-w64 and then just:

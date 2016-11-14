@@ -2,7 +2,7 @@
 
 The following will help you get μTox installed on your computron/toaster/carrier pigeon. The focus of this guide is to get you running ASAP. And mostly deals with precomplied binaries. If you're looking to contribute (you're the real MVP) you're probably looking for [Building](BUILD.md).
 
-For any and all of the following, you'll need to have [toxcore](https://github.com/irungentoo/toxcore) installed first.
+For any and all of the following, you'll need to have [toxcore](https://github.com/TokTok/c-toxcore) installed first.
 
 - [Unix-like](#unix)
 - [OS X](#osx)
@@ -14,11 +14,14 @@ For any and all of the following, you'll need to have [toxcore](https://github.c
 
 Dependencies:
 
-```dbus filter_audio freetype libvpx openal v4l xext xrender```
+```dbus filter_audio freetype libvpx openal v4l xext xrender cmake```
 
 1. First compile:
 
     ```bash
+    mkdir build
+    cd build
+    cmake ..
     make all
     ```
 
@@ -30,7 +33,7 @@ Dependencies:
 
 If make/install really isn't your thing, you can try some precomplied binaries.
 - [amd64](https://build.tox.chat/job/uTox_build_linux_x86-64_release/lastSuccessfulBuild/artifact/utox_linux_x86-64.tar.xz)
-- [i686](https://build.tox.chat/job/uTox_build_linux_x86_release/lastSuccessfulBuild/artifact/utox_linux_x86.tar.xz) 
+- [i686](https://build.tox.chat/job/uTox_build_linux_x86_release/lastSuccessfulBuild/artifact/utox_linux_x86.tar.xz)
 
 ### Adding a desktop launcher
 
@@ -47,7 +50,7 @@ Assuming that repository working copy is your current directory.
     ```bash
     sudo chmod +x /usr/share/applications/utox.desktop
     ```
-    
+
 3. Add an icon
 
     ```bash
