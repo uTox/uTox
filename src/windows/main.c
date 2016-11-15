@@ -507,6 +507,9 @@ NATIVE_IMAGE *utox_image_to_native(const UTOX_IMAGE data, size_t size, uint16_t 
 }
 
 void image_free(NATIVE_IMAGE *image) {
+    if (!image) {
+        return;
+    }
     DeleteObject(image->bitmap);
     free(image);
 }

@@ -171,6 +171,9 @@ NATIVE_IMAGE *utox_image_to_native(const UTOX_IMAGE data, size_t size, uint16_t 
 }
 
 void image_free(NATIVE_IMAGE *image) {
+    if (!img) {
+        return;
+    }
     GLuint texture = image;
     glDeleteTextures(1, &texture);
 }
