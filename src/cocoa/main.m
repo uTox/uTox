@@ -84,6 +84,9 @@ void image_set_scale(NATIVE_IMAGE *image, double scale) {
 }
 
 void image_free(NATIVE_IMAGE *img) {
+	if (!img) {
+        return;
+	}
     CGImageRelease(img->image);
     free(img);
 }
