@@ -181,7 +181,7 @@ bool native_create_dir(const char *filepath) {
     const int status = mkdir(filepath, S_IRWXU);
     if (status == 0 || errno == EEXIST) {
         return true;
-    } 
+    }
     return false;
 }
 
@@ -867,6 +867,9 @@ NATIVE_IMAGE *utox_image_to_native(const UTOX_IMAGE data, size_t size, uint16_t 
 }
 
 void image_free(NATIVE_IMAGE *image) {
+    if (!image) {
+        return;
+    }
     XRenderFreePicture(display, image->rgb);
     if (image->alpha) {
         XRenderFreePicture(display, image->alpha);
@@ -910,7 +913,7 @@ void setscale(void) {
 
     XSetWMNormalHints(display, window, xsh);
 
-    if (settings.window_width > (uint32_t)UTOX_SCALE(320) && 
+    if (settings.window_width > (uint32_t)UTOX_SCALE(320) &&
         settings.window_height > (uint32_t)UTOX_SCALE(160)) {
         /* wont get a resize event, call this manually */
         ui_size(settings.window_width, settings.window_height);
@@ -936,7 +939,7 @@ int file_lock(FILE *file, uint64_t start, size_t length) {
     result = fcntl(fileno(file), F_SETLK, &fl);
     if (result == -1) {
         return 0;
-    } 
+    }
     return 1;
 }
 
