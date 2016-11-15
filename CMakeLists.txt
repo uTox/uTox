@@ -34,7 +34,7 @@ if(WIN32)
         src/windows/os_video.c
         src/windows/video.c
         )
-    target_link_libraries(win_Native icon)
+    target_link_libraries(win_Native icon ${LIBRARIES})
 elseif(APPLE)
     set(U_LIBRARIES utoxAV cocoa_Native uUI )
     list(APPEND LIBRARIES)
