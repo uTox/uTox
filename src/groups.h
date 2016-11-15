@@ -16,10 +16,9 @@ typedef enum {
 
 typedef struct group_peer {
     uint32_t id;
-    // TODO: choose a color for the peer name from a list, and persist across name changes.
     uint32_t name_color;
     size_t name_length;
-    char name[0];
+    uint8_t name[0];
 } GROUP_PEER;
 
 typedef struct groupchat {
