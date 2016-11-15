@@ -43,10 +43,9 @@ static uint8_t pixelmax(double d, uint8_t p) {
 }
 
 static void drawrectrounded(uint8_t *data, int width, int height, int radius) {
-    int    x, y;
     double hw = (double)radius - 0.5;
-    for (y = 0; y != height; y++) {
-        for (x = 0; x != width; x++) {
+    for (int y = 0; y != height; y++) {
+        for (int x = 0; x != width; x++) {
             if ((x < radius || x >= width - radius) && (y < radius || y >= height - radius)) {
                 double dx, dy;
                 dx       = (x < radius) ? x - hw : x + hw - width + 1.0;
@@ -61,20 +60,18 @@ static void drawrectrounded(uint8_t *data, int width, int height, int radius) {
 }
 
 static void drawrectroundedex(uint8_t *data, int width, int height, int radius, uint8_t flags) {
-    bool c1 = ((flags & 1) != 0); /* left   0001 */
-    bool c2 = ((flags & 2) != 0); /* right  0010 */
-    bool c3 = ((flags & 4) != 0); /* top    0100 */
-    bool c4 = ((flags & 8) != 0); /* bottom 1000 */
+    bool left =   ((flags & 1) != 0); /* 0001 */
+    bool right =  ((flags & 2) != 0); /* 0010 */
+    bool top =    ((flags & 4) != 0); /* 0100 */
+    bool bottom = ((flags & 8) != 0); /* 1000 */
 
-    int    x, y;
     double hw = (double)radius - 0.5;
-    for (y = 0; y != height; y++) {
-        for (x = 0; x != width; x++) {
-            if (((c1 && x < radius) || (c2 && x >= width - radius))
-                && ((c3 && y < radius) || (c4 && y >= height - radius))) {
-                double dx, dy;
-                dx       = (x < radius) ? x - hw : x + hw - width + 1.0;
-                dy       = (y < radius) ? y - hw : y + hw - height + 1.0;
+    for (int y = 0; y != height; y++) {
+        for (int x = 0; x != width; x++) {
+            if (((left && x < radius) || (right && x >= width - radius))
+                && ((top && y < radius) || (bottom && y >= height - radius))) {
+                double dx = (x < radius) ? x - hw : x + hw - width + 1.0;
+                double dy = (y < radius) ? y - hw : y + hw - height + 1.0;
                 double d = sqrt(dx * dx + dy * dy) - hw;
                 *data++  = pixel(d);
             } else {
@@ -84,19 +81,17 @@ static void drawrectroundedex(uint8_t *data, int width, int height, int radius, 
     }
 }
 
-static void drawrectroundedsub(uint8_t *p, int width, int height, int sx, int sy, int sw, int sh, int radius) {
-    int    x, y;
+static void drawrectroundedsub(uint8_t *p, int width, int UNUSED(height), int sx, int sy, int sw, int sh, int radius) {
     double hw = (double)radius - 0.5;
-    for (y = sy; y != sy + sh; y++) {
-        for (x = sx; x != sx + sw; x++) {
+    for (int y = sy; y != sy + sh; y++) {
+        for (int x = sx; x != sx + sw; x++) {
             uint8_t *data = &p[y * width + x];
             x -= sx;
             y -= sy;
 
             if ((x < radius || x >= sw - radius) && (y < radius || y >= sh - radius)) {
-                double dx, dy;
-                dx       = (x < radius) ? x - hw : x + hw - sw + 1.0;
-                dy       = (y < radius) ? y - hw : y + hw - sh + 1.0;
+                double dx = (x < radius) ? x - hw : x + hw - sw + 1.0;
+                double dy = (y < radius) ? y - hw : y + hw - sh + 1.0;
                 double d = sqrt(dx * dx + dy * dy) - hw;
                 *data    = pixel(d);
             } else {
@@ -109,19 +104,17 @@ static void drawrectroundedsub(uint8_t *p, int width, int height, int sx, int sy
     }
 }
 
-static void drawrectroundedneg(uint8_t *p, int width, int height, int sx, int sy, int sw, int sh, int radius) {
-    int    x, y;
+static void drawrectroundedneg(uint8_t *p, int width, int UNUSED(height), int sx, int sy, int sw, int sh, int radius) {
     double hw = (double)radius - 0.5;
-    for (y = sy; y != sy + sh; y++) {
-        for (x = sx; x != sx + sw; x++) {
+    for (int y = sy; y != sy + sh; y++) {
+        for (int x = sx; x != sx + sw; x++) {
             uint8_t *data = &p[y * width + x];
             x -= sx;
             y -= sy;
 
             if ((x < radius || x >= sw - radius) && (y < radius || y >= sh - radius)) {
-                double dx, dy;
-                dx       = (x < radius) ? x - hw : x + hw - sw + 1.0;
-                dy       = (y < radius) ? y - hw : y + hw - sh + 1.0;
+                double dx = (x < radius) ? x - hw : x + hw - sw + 1.0;
+                double dy = (y < radius) ? y - hw : y + hw - sh + 1.0;
                 double d = sqrt(dx * dx + dy * dy) - hw;
                 *data    = 0xFF - pixel(d);
             } else {
@@ -135,10 +128,9 @@ static void drawrectroundedneg(uint8_t *p, int width, int height, int sx, int sy
 }
 
 static void drawcircle(uint8_t *data, int width) {
-    int    x, y;
     double hw = (double)width / 2.0 - 0.5;
-    for (y = 0; y != width; y++) {
-        for (x = 0; x != width; x++) {
+    for (int y = 0; y != width; y++) {
+        for (int x = 0; x != width; x++) {
             double dx = (x - hw), dy = (y - hw);
             double d = sqrt(dx * dx + dy * dy) - hw + 0.5;
             *data++  = pixel(d);
@@ -147,11 +139,9 @@ static void drawcircle(uint8_t *data, int width) {
 }
 
 static void drawnewcircle(uint8_t *data, int width, int height, double cx, double cy, double subwidth) {
-    int    x, y;
     double hw = cx - 0.5, vw = cy - 0.5, sw = (double)subwidth / 2.0;
-
-    for (y = 0; y != height; y++) {
-        for (x = 0; x != width; x++) {
+    for (int y = 0; y != height; y++) {
+        for (int x = 0; x != width; x++) {
             double dx = (x - hw), dy = (y - vw);
             double d = sqrt(dx * dx + dy * dy) - sw;
             *data    = pixelmax(d, *data);
@@ -161,12 +151,10 @@ static void drawnewcircle(uint8_t *data, int width, int height, double cx, doubl
 }
 
 static void drawnewcircle2(uint8_t *data, int width, int height, double cx, double cy, double subwidth, uint8_t flags) {
-    int    x, y;
     double hw = cx - 0.5, vw = cy - 0.5, sw = (double)subwidth / 2.0;
     bool   b = (flags & 1) != 0;
-
-    for (y = 0; y != height; y++) {
-        for (x = 0; x != width; x++) {
+    for (int y = 0; y != height; y++) {
+        for (int x = 0; x != width; x++) {
             double dx = (x - hw), dy = (y - vw);
             if (b && dy > 0) {
                 dy *= 1.25;
@@ -189,11 +177,9 @@ static void drawnewcircle2(uint8_t *data, int width, int height, double cx, doub
 }
 
 static void drawhead(uint8_t *data, int width, double cx, double cy, double subwidth) {
-    int    x, y;
     double hw = (double)cx - 0.5, vw = (double)cy - 0.5, sw = (double)subwidth / 2.0;
-
-    for (y = 0; y != width; y++) {
-        for (x = 0; x != width; x++) {
+    for (int y = 0; y != width; y++) {
+        for (int x = 0; x != width; x++) {
             double dx = (x - hw), dy = (y - vw);
             if (dy > 0) {
                 dy *= 0.75;
@@ -206,11 +192,9 @@ static void drawhead(uint8_t *data, int width, double cx, double cy, double subw
 }
 
 static void drawsubcircle(uint8_t *data, int width, int height, double cx, double cy, double subwidth) {
-    int    x, y;
     double hw = cx - 0.5, vw = cy - 0.5, sw = subwidth / 2.0;
-
-    for (y = 0; y != height; y++) {
-        for (x = 0; x != width; x++) {
+    for (int y = 0; y != height; y++) {
+        for (int x = 0; x != width; x++) {
             double dx = (x - hw), dy = (y - vw);
             double d = sqrt(dx * dx + dy * dy) - sw;
             *data    = pixelmin(d, *data);
@@ -220,11 +204,10 @@ static void drawsubcircle(uint8_t *data, int width, int height, double cx, doubl
 }
 
 static void drawcross(uint8_t *data, int width) {
-    int    x, y;
     double hw = 0.5 * (double)(width - 1);
     double w  = 0.0625 * (double)width;
-    for (y = 0; y != width; y++) {
-        for (x = 0; x != width; x++) {
+    for (int y = 0; y != width; y++) {
+        for (int x = 0; x != width; x++) {
             double dx = fabs(x - hw), dy = fabs(y - hw);
             double d = fmin(dx, dy) - w;
             *data++  = pixel(d);
@@ -233,12 +216,11 @@ static void drawcross(uint8_t *data, int width) {
 }
 
 static void drawxcross(uint8_t *data, int width, int height, int radius) {
-    int    x, y;
     double cx = 0.5 * (double)(width - 1);
     double cy = 0.5 * (double)(height - 1);
     double w  = 0.0625 * (double)radius;
-    for (y = 0; y != height; y++) {
-        for (x = 0; x != width; x++) {
+    for (int y = 0; y != height; y++) {
+        for (int x = 0; x != width; x++) {
             double dx = (double)x - cx, dy = (double)y - cy;
             double d1 = (SQRT2 / 2.0) * fabs(dx + dy), d2 = (SQRT2 / 2.0) * fabs(dx - dy);
             double d = fmin(d1, d2) - w;
@@ -250,11 +232,9 @@ static void drawxcross(uint8_t *data, int width, int height, int radius) {
 }
 
 static void drawline(uint8_t *data, int width, int height, double sx, double sy, double span, double radius) {
-    int    x, y;
     double cx = sx - 0.5, cy = sy - 0.5;
-
-    for (y = 0; y != height; y++) {
-        for (x = 0; x != width; x++) {
+    for (int y = 0; y != height; y++) {
+        for (int x = 0; x != width; x++) {
             double dx = (double)x - cx, dy = (double)y - cy;
             double d = (SQRT2 / 2.0) * fabs(dx + dy) - radius;
             d        = fmax(fabs(dx) + fabs(dy) - (SQRT2 / 2.0) * (double)span - radius, d);
@@ -265,11 +245,9 @@ static void drawline(uint8_t *data, int width, int height, double sx, double sy,
 }
 
 static void drawlinedown(uint8_t *data, int width, int height, double sx, double sy, double span, double radius) {
-    int    x, y;
     double cx = sx - 0.5, cy = sy - 0.5;
-
-    for (y = 0; y != height; y++) {
-        for (x = 0; x != width; x++) {
+    for (int y = 0; y != height; y++) {
+        for (int x = 0; x != width; x++) {
             double dx = (double)x - cx, dy = (double)y - cy;
             double d = (SQRT2 / 2.0) * fabs(dx - dy) - radius;
             d        = fmax(fabs(dx) + fabs(dy) - (SQRT2 / 2.0) * (double)span - radius, d);
@@ -280,11 +258,9 @@ static void drawlinedown(uint8_t *data, int width, int height, double sx, double
 }
 
 static void svgdraw_line_neg(uint8_t *data, int width, int height, double sx, double sy, double span, double radius) {
-    int    x, y;
     double cx = sx - 0.5, cy = sy - 0.5;
-
-    for (y = 0; y != height; y++) {
-        for (x = 0; x != width; x++) {
+    for (int y = 0; y != height; y++) {
+        for (int x = 0; x != width; x++) {
             double dx = (double)x - cx, dy = (double)y - cy;
             double d = (SQRT2 / 2.0) * fabs(dx + dy) - radius;
             d        = fmax(fabs(dx) + fabs(dy) - (SQRT2 / 2.0) * (double)span - radius, d);
@@ -296,11 +272,9 @@ static void svgdraw_line_neg(uint8_t *data, int width, int height, double sx, do
 
 static void svgdraw_line_down_neg(uint8_t *data, int width, int height, double sx, double sy, double span,
                                   double radius) {
-    int    x, y;
     double cx = sx - 0.5, cy = sy - 0.5;
-
-    for (y = 0; y != height; y++) {
-        for (x = 0; x != width; x++) {
+    for (int y = 0; y != height; y++) {
+        for (int x = 0; x != width; x++) {
             double dx = (double)x - cx, dy = (double)y - cy;
             double d = (SQRT2 / 2.0) * fabs(dx - dy) - radius;
             d        = fmax(fabs(dx) + fabs(dy) - (SQRT2 / 2.0) * (double)span - radius, d);
@@ -311,11 +285,9 @@ static void svgdraw_line_down_neg(uint8_t *data, int width, int height, double s
 }
 
 static void drawlinevert(uint8_t *data, int width, int height, double sx, double w) {
-    int    x, y;
     double cx = sx + w / 2.0 - 0.5;
-
-    for (y = 0; y != height; y++) {
-        for (x = 0; x != width; x++) {
+    for (int y = 0; y != height; y++) {
+        for (int x = 0; x != width; x++) {
             double d = fabs((double)x - cx) - w / 2.0;
             *data    = pixelmax(d, *data);
             data++;
@@ -324,11 +296,9 @@ static void drawlinevert(uint8_t *data, int width, int height, double sx, double
 }
 
 static void drawtri(uint8_t *data, int width, int height, double sx, double sy, double size, uint8_t dir) {
-    int    x, y;
     double cx = sx - 0.5, cy = sy - 0.5;
-
-    for (y = 0; y != height; y++) {
-        for (x = 0; x != width; x++) {
+    for (int y = 0; y != height; y++) {
+        for (int x = 0; x != width; x++) {
             double dx = (double)x - cx, dy = (double)y - cy;
             if (!dir) {
                 if (dx < 0.0 && dy > 0.0) {
@@ -348,14 +318,12 @@ static void drawtri(uint8_t *data, int width, int height, double sx, double sy, 
 
 static void drawlineround(uint8_t *data, int width, int height, double sx, double sy, double span, double radius,
                           double subwidth, uint8_t flags) {
-    int    x, y;
     double cx = sx - 0.5, cy = sy - 0.5, sw = (double)subwidth / 2.0;
-
-    for (y = 0; y != height; y++) {
-        for (x = 0; x != width; x++) {
+    for (int y = 0; y != height; y++) {
+        for (int x = 0; x != width; x++) {
             double dx = (double)x - cx, dy = (double)y - cy;
-            double d = (SQRT2 / 2.0) * fabs(dx + dy) - radius;
-            d        = fmax(fabs(dx) + fabs(dy) - (SQRT2 / 2.0) * (double)span - radius, d);
+            double d  = (SQRT2 / 2.0) * fabs(dx + dy) - radius;
+            d         = fmax(fabs(dx) + fabs(dy) - (SQRT2 / 2.0) * (double)span - radius, d);
 
             double ddx, ddy, d2;
 
@@ -381,14 +349,12 @@ static void drawlineround(uint8_t *data, int width, int height, double sx, doubl
 
 static void drawlineroundempty(uint8_t *data, int width, int height, double sx, double sy, double span, double radius,
                                double subwidth) {
-    int    x, y;
     double cx = sx - 0.5, cy = sy - 0.5, sw = (double)subwidth / 2.0;
-
-    for (y = 0; y != height; y++) {
-        for (x = 0; x != width; x++) {
+    for (int y = 0; y != height; y++) {
+        for (int x = 0; x != width; x++) {
             double dx = (double)x - cx, dy = (double)y - cy;
-            double d = (SQRT2 / 2.0) * fabs(dx + dy) - radius;
-            d        = fmax(fabs(dx) + fabs(dy) - (SQRT2 / 2.0) * (double)span - radius, d);
+            double d  = (SQRT2 / 2.0) * fabs(dx + dy) - radius;
+            d         = fmax(fabs(dx) + fabs(dy) - (SQRT2 / 2.0) * (double)span - radius, d);
 
             double ddx = (double)x - cx - span * SQRT2, ddy = (double)y - cy + span * SQRT2;
             double d2 = sqrt(ddx * ddx + ddy * ddy) - sw;
@@ -424,9 +390,6 @@ static void drawgroup(uint8_t *data, int width) {
 }
 
 bool svg_draw(bool needmemory) {
-    int   size, s;
-    void *p;
-
     if (svg_data) {
         free(svg_data);
     }
@@ -435,56 +398,58 @@ bool svg_draw(bool needmemory) {
      * This section uses unnamed shortcuts, so it really serves no purpose and makes it harder to debug, it needs to be
      * fixed, without shortcuts, and proper comments... TODO FIXME */
     // comments behind the lines match with the comments of the code below that fills the memory
-    size = SCROLL_WIDTH * SCROLL_WIDTH +     /* Scroll bars top bottom halves */
-           SCROLL_WIDTH * SCROLL_WIDTH / 2 + /* Scroll bars top bottom halves (small)*/
+    int size = SCROLL_WIDTH * SCROLL_WIDTH +     /* Scroll bars top bottom halves */
+               SCROLL_WIDTH * SCROLL_WIDTH / 2 + /* Scroll bars top bottom halves (small)*/
 
-           BM_STATUSAREA_WIDTH * BM_STATUSAREA_HEIGHT + /* status area */
-           /* Panel buttons */
-           BM_ADD_WIDTH * BM_ADD_WIDTH + /* Draw panel Button: Add */
-           BM_ADD_WIDTH * BM_ADD_WIDTH + /* New group bitmap */
-           BM_ADD_WIDTH * BM_ADD_WIDTH + /* Draw panel Button: Transfer */
-           BM_ADD_WIDTH * BM_ADD_WIDTH + /* Settings gear bitmap */
+               BM_STATUSAREA_WIDTH * BM_STATUSAREA_HEIGHT + /* status area */
+               /* Panel buttons */
+               BM_ADD_WIDTH * BM_ADD_WIDTH + /* Draw panel Button: Add */
+               BM_ADD_WIDTH * BM_ADD_WIDTH + /* New group bitmap */
+               BM_ADD_WIDTH * BM_ADD_WIDTH + /* Draw panel Button: Transfer */
+               BM_ADD_WIDTH * BM_ADD_WIDTH + /* Settings gear bitmap */
 
-           BM_CONTACT_WIDTH * BM_CONTACT_WIDTH +         /* Contact avatar default bitmap */
-           BM_CONTACT_WIDTH / 2 * BM_CONTACT_WIDTH / 2 + /* Contact avatar default bitmap for mini roster */
-           BM_CONTACT_WIDTH * BM_CONTACT_WIDTH +         /* Group heads default bitmap */
-           BM_CONTACT_WIDTH / 2 * BM_CONTACT_WIDTH / 2 + /* Group heads default bitmap for mini roster */
+               BM_CONTACT_WIDTH * BM_CONTACT_WIDTH +         /* Contact avatar default bitmap */
+               BM_CONTACT_WIDTH / 2 * BM_CONTACT_WIDTH / 2 + /* Contact avatar default bitmap for mini roster */
+               BM_CONTACT_WIDTH * BM_CONTACT_WIDTH +         /* Group heads default bitmap */
+               BM_CONTACT_WIDTH / 2 * BM_CONTACT_WIDTH / 2 + /* Group heads default bitmap for mini roster */
 
-           BM_FILE_WIDTH * BM_FILE_HEIGHT + /* Draw button icon overlays: file paper clip */
+               BM_FILE_WIDTH * BM_FILE_HEIGHT + /* Draw button icon overlays: file paper clip */
 
-           BM_LBICON_WIDTH * BM_LBICON_HEIGHT + /* Call button icon */
-           BM_LBICON_WIDTH * BM_LBICON_HEIGHT + /* Call button icon */
-           BM_LBICON_WIDTH * BM_LBICON_HEIGHT + /* Video start end bitmap */
+               BM_LBICON_WIDTH * BM_LBICON_HEIGHT + /* Call button icon */
+               BM_LBICON_WIDTH * BM_LBICON_HEIGHT + /* Call button icon */
+               BM_LBICON_WIDTH * BM_LBICON_HEIGHT + /* Video start end bitmap */
 
-           BM_STATUS_WIDTH * BM_STATUS_WIDTH + /* user status: online */
-           BM_STATUS_WIDTH * BM_STATUS_WIDTH + /* user status: away */
-           BM_STATUS_WIDTH * BM_STATUS_WIDTH + /* user status: busy */
-           BM_STATUS_WIDTH * BM_STATUS_WIDTH + /* user status: offline */
+               BM_STATUS_WIDTH * BM_STATUS_WIDTH + /* user status: online */
+               BM_STATUS_WIDTH * BM_STATUS_WIDTH + /* user status: away */
+               BM_STATUS_WIDTH * BM_STATUS_WIDTH + /* user status: busy */
+               BM_STATUS_WIDTH * BM_STATUS_WIDTH + /* user status: offline */
 
-           BM_STATUS_NOTIFY_WIDTH * BM_STATUS_NOTIFY_WIDTH + /* user status: notification */
+               BM_STATUS_NOTIFY_WIDTH * BM_STATUS_NOTIFY_WIDTH + /* user status: notification */
 
-           BM_LBUTTON_WIDTH * BM_LBUTTON_HEIGHT + /* Generic Large Button */
-           BM_SBUTTON_WIDTH * BM_SBUTTON_HEIGHT + /* Generic Small Button */
+               BM_LBUTTON_WIDTH * BM_LBUTTON_HEIGHT + /* Generic Large Button */
+               BM_SBUTTON_WIDTH * BM_SBUTTON_HEIGHT + /* Generic Small Button */
 
-           BM_SWITCH_WIDTH * BM_SWITCH_HEIGHT +               /* Switch */
-           BM_SWITCH_TOGGLE_WIDTH * BM_SWITCH_TOGGLE_HEIGHT + /* Switch toggle */
+               BM_SWITCH_WIDTH * BM_SWITCH_HEIGHT +               /* Switch */
+               BM_SWITCH_TOGGLE_WIDTH * BM_SWITCH_TOGGLE_HEIGHT + /* Switch toggle */
 
-           /* File transfer */
-           BM_FT_CAP_WIDTH * BM_FTB_HEIGHT + BM_FT_WIDTH * BM_FT_HEIGHT + BM_FTM_WIDTH * BM_FT_HEIGHT
-           + (BM_FTB_WIDTH * (BM_FTB_HEIGHT + SCALE(1)) + BM_FTB_WIDTH * BM_FTB_HEIGHT) + BM_FB_WIDTH * BM_FB_HEIGHT * 4
-           +
-           /* Chat Buttons */
-           BM_CHAT_BUTTON_WIDTH * BM_CHAT_BUTTON_HEIGHT * 2 + // Chat button 1, 2
-           BM_CHAT_SEND_WIDTH * BM_CHAT_SEND_HEIGHT + BM_CHAT_SEND_OVERLAY_WIDTH * BM_CHAT_SEND_OVERLAY_HEIGHT
-           + BM_CHAT_BUTTON_OVERLAY_WIDTH * BM_CHAT_BUTTON_OVERLAY_HEIGHT;
+               /* File transfer */
+               BM_FT_CAP_WIDTH * BM_FTB_HEIGHT + BM_FT_WIDTH * BM_FT_HEIGHT + BM_FTM_WIDTH * BM_FT_HEIGHT + 
+               (BM_FTB_WIDTH * (BM_FTB_HEIGHT + SCALE(1)) + 
+               BM_FTB_WIDTH * BM_FTB_HEIGHT) + BM_FB_WIDTH * BM_FB_HEIGHT * 4 +
+
+               /* Chat Buttons */
+               BM_CHAT_BUTTON_WIDTH * BM_CHAT_BUTTON_HEIGHT * 2 + // Chat button 1, 2
+               BM_CHAT_SEND_WIDTH * BM_CHAT_SEND_HEIGHT + 
+               BM_CHAT_SEND_OVERLAY_WIDTH * BM_CHAT_SEND_OVERLAY_HEIGHT + 
+               BM_CHAT_BUTTON_OVERLAY_WIDTH * BM_CHAT_BUTTON_OVERLAY_HEIGHT;
 
     svg_data = calloc(1, size);
 
     if (!svg_data) {
-        return 0;
+        return false;
     }
 
-    p = svg_data;
+    void *p = svg_data;
 
     /* Scroll bars top bottom halves */
     drawcircle(p, SCROLL_WIDTH);
@@ -583,11 +548,10 @@ bool svg_draw(bool needmemory) {
     p += BM_LBICON_WIDTH * BM_LBICON_HEIGHT;
 
     /* Video start end bitmap */
-    int      x, y;
     uint8_t *data = p;
     /* left triangle lens thing */
-    for (y = 0; y != BM_LBICON_HEIGHT; y++) {
-        for (x = 0; x != SCALE(8); x++) {
+    for (int y = 0; y != BM_LBICON_HEIGHT; y++) {
+        for (int x = 0; x != SCALE(8); x++) {
             double d = abs(y - SCALE(9)) - 0.66 * (SCALE(8) - x);
             *data++  = pixel(d);
         }
@@ -598,7 +562,7 @@ bool svg_draw(bool needmemory) {
     p += BM_LBICON_WIDTH * BM_LBICON_HEIGHT;
 
     /* user status: online */
-    s = BM_STATUS_WIDTH * BM_STATUS_WIDTH;
+    int s = BM_STATUS_WIDTH * BM_STATUS_WIDTH;
     drawcircle(p, BM_STATUS_WIDTH);
     loadalpha(BM_ONLINE, p, BM_STATUS_WIDTH, BM_STATUS_WIDTH);
     p += s;
@@ -748,5 +712,5 @@ bool svg_draw(bool needmemory) {
         svg_data = NULL;
     }
 
-    return 1;
+    return true;
 }
