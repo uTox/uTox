@@ -1,19 +1,15 @@
+#include "main.h"
+
 #include "../main.h"
 
 #include "../../langs/i18n_decls.h"
 
-#include <inttypes.h>
-#include <stdbool.h>
-
 #include <windows.h>
 
-#include <amvideo.h>
-#include <control.h>
-#include <mmdeviceapi.h>
+#include <dshow.h>
 #include <qedit.h>
-#include <strmif.h>
-#include <uuids.h>
-#include <vfwmsgs.h>
+// amvideo.h must be uncluded after dshow
+#include <amvideo.h>
 
 #ifdef __CRT__NO_INLINE
 #undef __CRT__NO_INLINE
