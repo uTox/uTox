@@ -19,8 +19,8 @@ if(WIN32)
     set(U_LIBRARIES utoxAV win_Native uUI )
     list(APPEND LIBRARIES OpenAL32 iphlpapi ws2_32 gdi32 msimg32 dnsapi comdlg32 winmm ole32 oleaut32 strmiids opus sodium )
 
-    include_directories( /usr/local/include/ )
-    link_directories( /usr/local/lib/ )
+    include_directories( libs/windows-x64/include/ )
+    link_directories( libs/windows-x64/lib )
 
     add_library(win_Native STATIC
         src/windows/audio.c
