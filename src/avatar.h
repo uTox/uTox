@@ -31,12 +31,12 @@ bool avatar_init(char hexid[32], AVATAR *avatar);
  *  data is pointer to png data to convert
  *  size is size of data
  *
- *  on success: returns 1
- *  on failure: returns 0
+ *  on success: returns true
+ *  on failure: returns false
  *
  *  notes: fails if given size is larger than UTOX_AVATAR_MAX_DATA_LENGTH or data is not valid PNG data
  */
-int avatar_set(AVATAR *avatar, const uint8_t *data, size_t size);
+bool avatar_set(AVATAR *avatar, const uint8_t *data, size_t size);
 
 /** Helper function for the users avatar */
 bool avatar_set_self(const uint8_t *data, size_t size);
@@ -45,7 +45,7 @@ bool avatar_set_self(const uint8_t *data, size_t size);
  * freeing its image */
 void unset_avatar(AVATAR *avatar);
 
-bool avatar_unset_self(void);
+void avatar_unset_self(void);
 
 /* sets own avatar based on given png data and saves it to disk if successful
  *  data is png data to set avatar to
