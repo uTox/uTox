@@ -6,7 +6,7 @@
 void scroll_draw(SCROLLABLE *s, int x, int y, int width, int height) {
     uint32_t c            = s->content_height;
     uint32_t h            = height, m, dy;
-    int      scroll_width = 0;
+    uint32_t scroll_width = 0;
     if (s->small) {
         scroll_width = SCROLL_WIDTH / 2;
     } else {
@@ -24,7 +24,6 @@ void scroll_draw(SCROLLABLE *s, int x, int y, int width, int height) {
 
     y += dy;
     x += s->x;
-
 
     if (!s->left) {
         x += width - scroll_width;
@@ -54,12 +53,12 @@ int scroll_gety(SCROLLABLE *s, int height) {
 
 bool scroll_mmove(SCROLLABLE *s, int UNUSED(px), int UNUSED(py), int width, int height, int x, int y, int UNUSED(dx),
                   int dy) {
-    bool draw = 0;
+    bool draw = false;
 
     bool hit = inrect(x, y, s->left ? 0 : (width - SCROLL_WIDTH), 0, SCROLL_WIDTH, height);
     if (s->mouseover != hit) {
         s->mouseover = hit;
-        draw         = 1;
+        draw         = true;
     }
 
     s->mouseover2 = inrect(x, y, 0, 0, width, height);
@@ -80,7 +79,7 @@ bool scroll_mmove(SCROLLABLE *s, int UNUSED(px), int UNUSED(py), int width, int 
                 s->d = 1.0;
             }
 
-            draw = 1;
+            draw = true;
         }
     }
 
@@ -90,13 +89,13 @@ bool scroll_mmove(SCROLLABLE *s, int UNUSED(px), int UNUSED(py), int width, int 
 bool scroll_mdown(SCROLLABLE *s) {
     if (s->mouseover) {
         s->mousedown = 1;
-        return 1;
+        return true;
     }
 
-    return 0;
+    return false;
 }
 
-bool scroll_mright(SCROLLABLE *UNUSED(s)) { return 0; }
+bool scroll_mright(SCROLLABLE *UNUSED(s)) { return false; }
 
 bool scroll_mwheel(SCROLLABLE *s, int height, double delta, bool smooth) {
 
@@ -126,29 +125,29 @@ bool scroll_mwheel(SCROLLABLE *s, int height, double delta, bool smooth) {
                 s->d = 1.0;
             }
 
-            return 1;
+            return true;
         }
     }
 
-    return 0;
+    return false;
 }
 
 bool scroll_mup(SCROLLABLE *s) {
     if (s->mousedown) {
         s->mousedown = 0;
-        return 1;
+        return true;
     }
 
-    return 0;
+    return false;
 }
 
 bool scroll_mleave(SCROLLABLE *s) {
     if (s->mouseover) {
         s->mouseover = 0;
-        return 1;
+        return true;
     }
 
     s->mouseover2 = 0;
 
-    return 0;
+    return false;
 }
