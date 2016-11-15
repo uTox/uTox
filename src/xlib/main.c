@@ -8,6 +8,9 @@
 #include "../ui/dropdowns.h"
 #include "../util.h"
 
+
+
+
 bool     hidden     = 0;
 uint32_t tray_width = 32, tray_height = 32;
 XIC      xic = NULL;
@@ -174,6 +177,14 @@ void openfileavatar(void) {
     }
 }
 
+bool native_create_dir(const char *filepath) {
+    const int status = mkdir(filepath, S_IRWXU);
+    if (status == 0 || errno == EEXIST) {
+        return true;
+    } 
+    return false;
+}
+
 /** Takes data from µTox and saves it, just how the OS likes it saved! */
 size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *data, size_t length, bool append) {
     char path[UTOX_FILE_NAME_LENGTH]        = { 0 };
@@ -232,7 +243,6 @@ size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *
 /** Takes data from µTox and loads it up! */
 uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_size) {
     char  path[UTOX_FILE_NAME_LENGTH] = { 0 };
-    char *data;
 
     if (settings.portable_mode) {
         snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "./tox/");
@@ -259,7 +269,7 @@ uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_s
     fseek(file, 0, SEEK_END);
     size_t size = ftell(file);
 
-    data = calloc(size + 1, 1); // needed for the ending null byte
+    uint8_t *data = calloc(size + 1, 1); // needed for the ending null byte
     if (!data) {
         fclose(file);
         if (out_size) {
@@ -369,7 +379,7 @@ void native_export_chatlog_init(uint32_t friend_number) {
     if (libgtk) {
         ugtk_save_chatlog(friend_number);
     } else {
-        uint8_t name[UTOX_MAX_NAME_LENGTH + sizeof(".txt")];
+        char name[UTOX_MAX_NAME_LENGTH + sizeof(".txt")];
         snprintf((char *)name, sizeof(name), "%.*s.txt", (int)friend[friend_number].name_length,
                  friend[friend_number].name);
 
@@ -381,7 +391,7 @@ void native_export_chatlog_init(uint32_t friend_number) {
 }
 
 bool native_remove_file(const uint8_t *name, size_t length) {
-    uint8_t path[UTOX_FILE_NAME_LENGTH] = { 0 };
+    char path[UTOX_FILE_NAME_LENGTH] = { 0 };
 
     if (settings.portable_mode) {
         snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "./tox/");
@@ -391,7 +401,7 @@ bool native_remove_file(const uint8_t *name, size_t length) {
 
     if (strlen((const char *)path) + length >= UTOX_FILE_NAME_LENGTH) {
         debug("NATIVE:\tFile/directory name too long, unable to remove\n");
-        return 0;
+        return false;
     } else {
         snprintf((char *)path + strlen((const char *)path), UTOX_FILE_NAME_LENGTH - strlen((const char *)path), "%.*s",
                  (int)length, (char *)name);
@@ -399,12 +409,12 @@ bool native_remove_file(const uint8_t *name, size_t length) {
 
     if (remove((const char *)path)) {
         debug_error("NATIVE:\tUnable to delete file!\n\t\t%s\n", path);
-        return 0;
+        return false;
     } else {
         debug_info("NATIVE:\tFile deleted!\n");
         debug("NATIVE:\t\t%s\n", path);
     }
-    return 1;
+    return true;
 }
 
 void native_select_dir_ft(uint32_t fid, MSG_FILE *file) {
@@ -450,7 +460,7 @@ void savefiledata(MSG_FILE *file) {
             fclose(fp);
 
             free(file->path);
-            file->path       = (uint8_t *)strdup("inline.png");
+            file->path       = (char *)strdup("inline.png");
             file->inline_png = 0;
         }
     }
@@ -583,10 +593,10 @@ void tray_window_event(XEvent event) {
     switch (event.type) {
         case ConfigureNotify: {
             XConfigureEvent *ev = &event.xconfigure;
-            if (tray_width != ev->width || tray_height != ev->height) {
+            if (tray_width != (uint32_t)ev->width || tray_height != (uint32_t)ev->height) {
                 debug("Tray resized w:%i h:%i\n", ev->width, ev->height);
 
-                if (ev->width > tray_width || ev->height > tray_height) {
+                if ((uint32_t)ev->width > tray_width || (uint32_t)ev->height > tray_height) {
                     tray_width  = ev->width;
                     tray_height = ev->height;
 
@@ -639,7 +649,7 @@ void copy(int value) {
     }
 }
 
-int hold_x11s_hand(Display *d, XErrorEvent *event) {
+int hold_x11s_hand(Display *UNUSED(d), XErrorEvent *event) {
     debug_error("X11 err:\tX11 tried to kill itself, so I hit him with a shovel.\n");
     debug_error("    err:\tResource: %lu || Serial %lu\n", event->resourceid, event->serial);
     debug_error("    err:\tError code: %u || Request: %u || Minor: %u \n", event->error_code, event->request_code,
@@ -669,10 +679,10 @@ void paste(void) {
     }
 }
 
-void pastebestformat(const Atom atoms[], int len, Atom selection) {
+void pastebestformat(const Atom atoms[], size_t len, Atom selection) {
     XSetErrorHandler(hold_x11s_hand);
     const Atom supported[] = { XA_PNG_IMG, XA_URI_LIST, XA_UTF8_STRING };
-    int        i, j;
+    size_t i, j;
     for (i = 0; i < len; i++) {
         char *name = XGetAtomName(display, atoms[i]);
         if (name) {
@@ -703,8 +713,8 @@ static char hexdecode(char upper, char lower) {
     return (upper >= 'A' ? upper - 'A' + 10 : upper - '0') * 16 + (lower >= 'A' ? lower - 'A' + 10 : lower - '0');
 }
 
-void formaturilist(char *out, const char *in, int len) {
-    int i, removed = 0, start = 0;
+void formaturilist(char *out, const char *in, size_t len) {
+    size_t i, removed = 0, start = 0;
 
     for (i = 0; i < len; i++) {
         // Replace CRLF with LF
@@ -727,10 +737,8 @@ void formaturilist(char *out, const char *in, int len) {
     // out[len - removed - 1] = '\n';
 }
 
-void pastedata(void *data, Atom type, int len, bool select) {
-    if (0 > len) {
-        return; // Let my conscience be clear about signed->unsigned casts.
-    }
+// TODO(robinli): Go over this function and see if either len or size are removeable.
+void pastedata(void *data, Atom type, size_t len, bool select) {
     size_t size = (size_t)len;
     if (type == XA_PNG_IMG) {
         uint16_t width, height;
@@ -881,7 +889,7 @@ void flush_file(FILE *file) {
 }
 
 void setscale(void) {
-    int i;
+    unsigned int i;
     for (i = 0; i != countof(bitmap); i++) {
         if (bitmap[i]) {
             XRenderFreePicture(display, bitmap[i]);
@@ -902,7 +910,8 @@ void setscale(void) {
 
     XSetWMNormalHints(display, window, xsh);
 
-    if (settings.window_width > UTOX_SCALE(320) && settings.window_height > UTOX_SCALE(160)) {
+    if (settings.window_width > (uint32_t)UTOX_SCALE(320) && 
+        settings.window_height > (uint32_t)UTOX_SCALE(160)) {
         /* wont get a resize event, call this manually */
         ui_size(settings.window_width, settings.window_height);
     }
@@ -925,11 +934,10 @@ int file_lock(FILE *file, uint64_t start, size_t length) {
     fl.l_len    = length;
 
     result = fcntl(fileno(file), F_SETLK, &fl);
-    if (result != -1) {
-        return 1;
-    } else {
+    if (result == -1) {
         return 0;
-    }
+    } 
+    return 1;
 }
 
 int file_unlock(FILE *file, uint64_t start, size_t length) {
@@ -941,14 +949,13 @@ int file_unlock(FILE *file, uint64_t start, size_t length) {
     fl.l_len    = length;
 
     result = fcntl(fileno(file), F_SETLK, &fl);
-    if (result != -1) {
-        return 1;
-    } else {
+    if (result == -1) {
         return 0;
     }
+    return 1;
 }
 
-void notify(char *title, uint16_t title_length, const char *msg, uint16_t msg_length, void *object, bool is_group) {
+void notify(char *title, uint16_t UNUSED(title_length), const char *msg, uint16_t msg_length, void *object, bool is_group) {
     if (havefocus) {
         return;
     }
@@ -969,8 +976,7 @@ void notify(char *title, uint16_t title_length, const char *msg, uint16_t msg_le
 #ifdef HAVE_DBUS
     char *str = tohtml(msg, msg_length);
 
-    /* Todo handle this warning! */
-    dbus_notify((char *)title, (char *)str, (uint8_t *)f_cid);
+    dbus_notify(title, str, f_cid);
 
     free(str);
 #endif
@@ -982,7 +988,7 @@ void notify(char *title, uint16_t title_length, const char *msg, uint16_t msg_le
 #endif
 }
 
-void showkeyboard(bool show) {}
+void showkeyboard(bool UNUSED(show)) {}
 
 void edit_will_deactivate(void) {}
 
@@ -995,7 +1001,7 @@ void config_osdefaults(UTOX_SAVE *r) {
     r->window_height = DEFAULT_HEIGHT;
 }
 
-static int systemlang(void) {
+static UTOX_LANG systemlang(void) {
     char *str = getenv("LC_ALL");
     if (!str) {
         str = getenv("LC_MESSAGES");
@@ -1326,4 +1332,4 @@ BREAK:
 
 /* Dummy functions used in other systems... */
 /* Used in windows only... */
-void launch_at_startup(int is_launch_at_startup) {}
+void launch_at_startup(int UNUSED(is_launch_at_startup)) {}

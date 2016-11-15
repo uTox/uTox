@@ -154,11 +154,11 @@ typedef struct {
     struct FILE_TRANSFER *file;
     uint8_t               file_status;
 
-    uint8_t file_name[128];
-    size_t  name_length;
+    char   file_name[128];
+    size_t name_length;
 
-    uint8_t *path;
-    size_t   path_length;
+    char  *path;
+    size_t path_length;
 
     uint32_t speed;
     uint64_t size, progress;

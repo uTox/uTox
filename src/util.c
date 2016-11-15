@@ -747,7 +747,7 @@ void config_save(UTOX_SAVE *save_in) {
     utox_data_save_utox(save, sizeof(*save) + 256); /* Magic number inside toxcore */
 }
 
-void utox_write_metadata(FRIEND *f) {
+void utox_write_metadata(FRIEND *UNUSED(f)) {
     // /* Create path */
     // char dest[UTOX_FILE_NAME_LENGTH], *dest_p;
     // dest_p = dest + datapath((uint8_t *)dest);

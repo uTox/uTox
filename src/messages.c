@@ -272,7 +272,7 @@ uint32_t message_add_type_notice(MESSAGES *m, const char *msgtxt, uint16_t lengt
     return message_add(m, (MSG_VOID *)msg);
 }
 
-uint32_t message_add_type_image(MESSAGES *m, bool auth, NATIVE_IMAGE *img, uint16_t width, uint16_t height, bool log) {
+uint32_t message_add_type_image(MESSAGES *m, bool auth, NATIVE_IMAGE *img, uint16_t width, uint16_t height, bool UNUSED(log)) {
     if (!NATIVE_IMAGE_IS_VALID(img)) {
         return 0;
     }
@@ -536,7 +536,7 @@ static void messages_draw_author(int x, int y, int w, char *name, uint32_t lengt
 }
 
 static int messages_draw_text(const char *msg, size_t length, uint32_t msg_height, uint8_t msg_type, bool author,
-                              bool receipt, uint16_t highlight_start, uint16_t highlight_end, int x, int y, int w, int h) {
+                              bool receipt, uint16_t highlight_start, uint16_t highlight_end, int x, int y, int w, int UNUSED(h)) {
     switch (msg_type) {
         case MSG_TYPE_TEXT: {
             if (author) {
@@ -594,7 +594,7 @@ static int messages_draw_image(MSG_IMG *img, int x, int y, int maxwidth) {
     return (img->zoom || img->w <= maxwidth) ? img->h : img->h * maxwidth / img->w;
 }
 
-static void messages_draw_filetransfer(MESSAGES *m, MSG_FILE *file, int i, int x, int y, int w, int h) {
+static void messages_draw_filetransfer(MESSAGES *m, MSG_FILE *file, uint32_t i, int x, int y, int w, int UNUSED(h)) {
     int room_for_clip = BM_FT_CAP_WIDTH + SCALE(2);
     int dx            = x + MESSAGES_X + room_for_clip;
     int d_width       = w - MESSAGES_X - TIME_WIDTH - room_for_clip;
@@ -870,7 +870,7 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
 
     // Message iterator
     void **  p = m->data;
-    uint32_t curr_msg_i, n = m->number;
+    uint32_t n = m->number;
 
     if (m->width != width) {
         m->width = width;
@@ -879,7 +879,7 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
     }
 
     // Go through messages
-    for (curr_msg_i = 0; curr_msg_i != n; curr_msg_i++) {
+    for (size_t curr_msg_i = 0; curr_msg_i != n; curr_msg_i++) {
         MSG_TEXT *msg = *p++;
 
         /* Decide if we should even bother drawing this message. */
@@ -1075,7 +1075,7 @@ static bool messages_mmove_image(MSG_IMG *image, int max_width, int mx, int my) 
     return 0;
 }
 
-static uint8_t messages_mmove_filetransfer(MSG_FILE *file, int mx, int my, int width) {
+static uint8_t messages_mmove_filetransfer(MSG_FILE *UNUSED(file), int mx, int my, int width) {
     mx -= SCALE(10); /* Why? */
     if (mx >= 0 && mx < width && my >= 0 && my < FILE_TRANSFER_BOX_HEIGHT) {
         if (mx >= width - TIME_WIDTH - (BM_FTB_WIDTH * 2) - SCALE(2) - SCROLL_WIDTH
@@ -1114,23 +1114,23 @@ bool messages_mmove(PANEL *panel, int UNUSED(px), int UNUSED(py), int width, int
                 img_down->position = 0.0;
             }
             cursor = CURSOR_ZOOM_OUT;
-            return 1;
+            return true;
         }
     }
 
     if (mx < 0 || my < 0 || (uint32_t)my > m->height) {
         if (m->cursor_over_msg != UINT32_MAX) {
             m->cursor_over_msg = UINT32_MAX;
-            return 1;
+            return true;
         }
-        return 0;
+        return false;
     }
 
     setfont(FONT_TEXT);
 
     void **  p = m->data;
     uint32_t i = 0, n = m->number;
-    bool     need_redraw = 0;
+    bool     need_redraw = false;
 
     while (i < n) {
         MSG_TEXT *msg = *p++;
@@ -1168,7 +1168,7 @@ bool messages_mmove(PANEL *panel, int UNUSED(px), int UNUSED(py), int width, int
                 case MSG_TYPE_FILE: {
                     m->cursor_over_position = messages_mmove_filetransfer((MSG_FILE *)msg, mx, my, width);
                     if (m->cursor_over_position) {
-                        need_redraw = 1;
+                        need_redraw = true;
                     }
                     break;
                 }
@@ -1177,11 +1177,11 @@ bool messages_mmove(PANEL *panel, int UNUSED(px), int UNUSED(py), int width, int
             if ((i != m->cursor_over_msg) && (m->cursor_over_msg != UINT32_MAX)
                 && ((msg->msg_type == MSG_TYPE_FILE)
                     || (((MSG_FILE *)(m->data[m->cursor_over_msg]))->msg_type == MSG_TYPE_FILE))) {
-                need_redraw = 1; // Redraw file on hover-in/out.
+                need_redraw = true; // Redraw file on hover-in/out.
             }
 
             if (m->selecting_text) {
-                need_redraw = 1;
+                need_redraw = true;
 
                 if (m->cursor_down_msg != m->cursor_over_msg || m->cursor_down_position <= m->cursor_over_position) {
                     m->sel_start_position = m->cursor_down_position;
@@ -1210,7 +1210,7 @@ bool messages_mmove(PANEL *panel, int UNUSED(px), int UNUSED(py), int width, int
         i++;
     }
 
-    return 0;
+    return false;
 }
 
 bool messages_mdown(PANEL *panel) {
@@ -1336,7 +1336,7 @@ bool messages_dclick(PANEL *panel, bool triclick) {
 
     if (m->cursor_over_time) {
         settings.use_long_time_msg = !settings.use_long_time_msg;
-        return 1;
+        return true;
     }
 
     if (m->cursor_over_msg != UINT32_MAX) {
@@ -1344,8 +1344,8 @@ bool messages_dclick(PANEL *panel, bool triclick) {
         uint8_t * real_msg = NULL;
 
         if (m->is_groupchat) {
-            real_msg = &((MSG_GROUP *)msg)->msg[((MSG_GROUP *)msg)->author_length]; /* This is hacky, we should
-                                                                                   * probably fix this!      */
+            // TODO: This is hacky, we should probably fix this
+            real_msg = &((MSG_GROUP *)msg)->msg[((MSG_GROUP *)msg)->author_length];
         } else {
             real_msg = msg->msg;
         }
@@ -1367,7 +1367,7 @@ bool messages_dclick(PANEL *panel, bool triclick) {
                     i += utf8_len(real_msg + i);
                 }
                 m->sel_end_position = i;
-                return 1;
+                return true;
             }
             case MSG_TYPE_IMAGE: {
                 MSG_IMG *img = (void *)msg;
@@ -1377,11 +1377,11 @@ bool messages_dclick(PANEL *panel, bool triclick) {
                         message_updateheight(m, (MSG_VOID *)msg);
                     }
                 }
-                return 1;
+                return true;
             }
         }
     }
-    return 0;
+    return false;
 }
 
 static void contextmenu_messages_onselect(uint8_t i) { copy(!!i); /* if not 0 force a 1 */ }

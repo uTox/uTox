@@ -191,11 +191,13 @@ void ui_set_scale(uint8_t scale) {
         .height = BM_SWITCH_HEIGHT,
     };
 
-    PANEL panel_switch_status_notifications = {.type   = PANEL_SWITCH,
-                                               .x      = SCALE(-10) - BM_SWITCH_WIDTH,
-                                               .y      = SCALE(55),
-                                               .width  = BM_SWITCH_WIDTH,
-                                               .height = BM_SWITCH_HEIGHT };
+    PANEL panel_switch_status_notifications = {
+        .type   = PANEL_SWITCH,
+        .x      = SCALE(-10) - BM_SWITCH_WIDTH,
+        .y      = SCALE(55),
+        .width  = BM_SWITCH_WIDTH,
+        .height = BM_SWITCH_HEIGHT 
+    };
 
 #ifdef AUDIO_FILTERING
     PANEL panel_switch_audio_filtering = {
