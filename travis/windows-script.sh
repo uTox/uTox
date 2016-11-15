@@ -3,7 +3,7 @@ set -eux
 
 . ./travis/env.sh
 
-export CFLAGS="-I$CACHE_DIR/usr/include -I/usr/share/mingw-w64/include/ -std=c99"
+export CFLAGS="-I$CACHE_DIR/usr/include -I/usr/share/mingw-w64/include/ -std=c99 -DAL_LIBTYPE_STATIC "
 
 mkdir build_win
 cd build_win
