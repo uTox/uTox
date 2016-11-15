@@ -40,11 +40,11 @@ static void edit_status_onenter(EDIT *edit) {
     postmessage_toxcore(TOX_SELF_SET_STATUS, length, 0, self.statusmsg); //!
 }
 
-static void edit_add_new_contact(EDIT *edit) {
+static void edit_add_new_contact(EDIT *UNUSED(edit)) {
     friend_add(edit_add_id.data, edit_add_id.length, edit_add_msg.data, edit_add_msg.length);
 }
 
-static void edit_friend_alias_onenter(EDIT *edit) {
+static void edit_friend_alias_onenter(EDIT *UNUSED(edit)) {
     FRIEND *f = flist_get_selected()->data;
 
     friend_set_alias(f, edit_friend_alias.data, edit_friend_alias.length);
@@ -73,7 +73,8 @@ void edit_msg_onenter(EDIT *edit) {
 
     command_length = utox_run_command(text, length, &command, &argument, 1);
 
-    if (command_length == 65535) { /* TODO magic number */
+    // TODO: Magic number
+    if (command_length == 65535) {
         edit->length = 0;
         return;
     }
@@ -130,33 +131,24 @@ void edit_msg_onenter(EDIT *edit) {
 }
 
 static uint32_t peers_deduplicate(char **dedup, size_t *dedup_size, void **peers, uint32_t peer_count) {
-    int peer, count;
+    uint32_t count = 0;
+    for (size_t peer = 0; peer < peer_count; peer++) {
 
-    GROUP_PEER *p;
-
-    char *nick;
-
-    size_t nick_len;
-
-    count = 0;
-    for (peer = 0; peer < peer_count; peer++) {
-
-        p = peers[peer];
+        GROUP_PEER *p = peers[peer];
         if (!p) {
             continue;
         }
 
-        nick     = p->name;
-        nick_len = p->name_length;
+        char *nick      = p->name;
+        size_t nick_len = p->name_length;
 
-
-        int i = 0;
+        size_t i = 0;
         if (nick) {
-            bool found = 0;
+            bool found = false;
 
             while (!found && i < count) {
                 if (nick_len == dedup_size[i] && !memcmp(nick, dedup[i], nick_len)) {
-                    found = 1;
+                    found = true;
                 }
 
                 i++;
@@ -378,11 +370,11 @@ static void edit_msg_onshifttab(EDIT *edit) {
     }
 }
 
-static void edit_msg_onlosefocus(EDIT *edit) {
+static void edit_msg_onlosefocus(EDIT *UNUSED(edit)) {
     completion.active = 0;
 }
 
-static void edit_msg_onchange(EDIT *edit) {
+static void edit_msg_onchange(EDIT *UNUSED(edit)) {
     if (flist_get_selected()->item == ITEM_FRIEND) {
         FRIEND *f = flist_get_selected()->data;
 
@@ -444,7 +436,7 @@ static void edit_search_onenter(EDIT *edit) {
     return;
 }
 
-static void edit_proxy_ip_port_onlosefocus(EDIT *edit) {
+static void edit_proxy_ip_port_onlosefocus(EDIT *UNUSED(edit)) {
     edit_proxy_port.data[edit_proxy_port.length] = 0;
 
     settings.proxy_port = strtol((char *)edit_proxy_port.data, NULL, 0);
@@ -463,7 +455,7 @@ static void edit_proxy_ip_port_onlosefocus(EDIT *edit) {
     }
 }
 
-static void edit_profile_password_update(EDIT *edit) {
+static void edit_profile_password_update(EDIT *UNUSED(edit)) {
     if (tox_thread_init) {
         postmessage_toxcore(TOX_SAVE, 0, 0, NULL);
     }
@@ -615,7 +607,7 @@ EDIT edit_name =
 
 static char edit_add_new_device_to_self_data[TOX_FRIEND_ADDRESS_SIZE * 4];
 
-static void edit_add_new_device_to_self_onenter(EDIT *edit) {
+static void edit_add_new_device_to_self_onenter(EDIT *UNUSED(edit)) {
 #ifdef ENABLE_MULTIDEVICE
     devices_self_add(edit_add_new_device_to_self.data, edit_add_new_device_to_self.length);
 #endif
