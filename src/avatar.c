@@ -72,6 +72,10 @@ bool avatar_set_self(const uint8_t *data, size_t size) {
 }
 
 void avatar_unset(AVATAR *avatar) {
+    if (!avatar) {
+        return;
+    }
+
     avatar->format = UTOX_AVATAR_FORMAT_NONE;
     avatar_free_image(avatar);
 }
@@ -120,6 +124,7 @@ void avatar_delete_self(void) {
 }
 
 bool avatar_on_friend_online(Tox *tox, uint32_t friend_number) {
+    return false;
     size_t   avatar_size;
     uint8_t *avatar_data = utox_data_load_avatar(-1, &avatar_size);
 
