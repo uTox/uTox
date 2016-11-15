@@ -33,11 +33,8 @@
 static STRING canary = STRING_INIT("BUG. PLEASE REPORT.");
 
 static void init_strings(STRING (*localized_strings)[NUM_STRS]) {
-    UTOX_LANG     i;
-    UTOX_I18N_STR j;
-
-    for (i = 0; i < NUM_LANGS; i++) {
-        for (j = 0; j < NUM_STRS; j++) {
+    for (UTOX_LANG i = 0; i < NUM_LANGS; i++) {
+        for (UTOX_I18N_STR j = 0; j < NUM_STRS; j++) {
             localized_strings[i][j] = canary;
         }
     }
@@ -98,15 +95,15 @@ UTOX_LANG ui_guess_lang_by_posix_locale(const char *locale, UTOX_LANG deflt) {
         ready = 1;
     }
 
-    UTOX_LANG i;
     UTOX_LANG found_lang = 0;
     int8_t    found_prio = INT8_MAX;
 
     // Try detecting by full prefix match first.
-    for (i = 0; i < NUM_LANGS; i++) {
+    for (UTOX_LANG i = 0; i < NUM_LANGS; i++) {
         const char *l = posix_locales[i];
-        if (!l)
+        if (!l) {
             continue;
+        }
 
         if (strstr(locale, l)) {
             if (found_prio > priorities[i]) {
@@ -123,14 +120,16 @@ UTOX_LANG ui_guess_lang_by_posix_locale(const char *locale, UTOX_LANG deflt) {
     // It appears we haven't found exact language_territory
     // match (e.g. zh_TW) for given locale. ,
     // Try stripping territory off and search only by language part.
-    for (i = 0; i < NUM_LANGS; i++) {
+    for (UTOX_LANG i = 0; i < NUM_LANGS; i++) {
         const char *l = posix_locales[i];
-        if (!l)
+        if (!l) {
             continue;
+        }
 
         char *sep = strchr(l, '_');
-        if (!sep)
+        if (!sep) {
             continue;
+        }
 
         if (!strncmp(locale, l, sep - l)) {
             if (found_prio > priorities[i]) {
@@ -172,15 +171,15 @@ UTOX_LANG ui_guess_lang_by_windows_lang_id(uint16_t lang_id, UTOX_LANG deflt) {
         ready = 1;
     }
 
-    UTOX_LANG i;
     UTOX_LANG found_lang = 0;
     int8_t    found_prio = INT8_MAX;
 
     // Try detecting by full match first, including sublanguage part.
-    for (i = 0; i < NUM_LANGS; i++) {
+    for (UTOX_LANG i = 0; i < NUM_LANGS; i++) {
         uint16_t l = windows_lang_ids[i];
-        if (!l)
+        if (!l) {
             continue;
+        }
 
         if (l == lang_id) {
             if (found_prio > priorities[i]) {
@@ -196,10 +195,11 @@ UTOX_LANG ui_guess_lang_by_windows_lang_id(uint16_t lang_id, UTOX_LANG deflt) {
 
     // It appears we haven't found exact id match.
     // Try matching by the lower 8 bits, which contain language family part.
-    for (i = 0; i < NUM_LANGS; i++) {
+    for (UTOX_LANG i = 0; i < NUM_LANGS; i++) {
         uint16_t l = windows_lang_ids[i];
-        if (!l)
+        if (!l) {
             continue;
+        }
 
         if ((l & 0xFF) == (lang_id & 0xFF)) {
             if (found_prio > priorities[i]) {
