@@ -16,11 +16,10 @@ typedef enum {
 
 typedef struct group_peer {
     uint32_t id;
-
-    uint32_t name_color; /* TODO chose a color for the peer name from a list,
-                                * and persist across name changes*/
-    size_t  name_length;
-    uint8_t name[0];
+    // TODO: choose a color for the peer name from a list, and persist across name changes.
+    uint32_t name_color;
+    size_t name_length;
+    char name[0];
 } GROUP_PEER;
 
 typedef struct groupchat {
