@@ -387,6 +387,8 @@ static void button_lock_uTox_onpress(void) {
 }
 
 static void button_show_password_settings_onpress(void) {
+    button_show_password_settings.disabled = 1;
+    button_show_password_settings.nodraw = 1;
     panel_profile_password_settings.disabled = 0;
 }
 
@@ -587,6 +589,8 @@ static void button_settings_sub_profile_onpress(void) {
     scrollbar_settings.content_height = SCALE(260);
     disable_all_setting_sub();
     panel_settings_profile.disabled = 0;
+    button_show_password_settings.disabled = 0;
+    button_show_password_settings.nodraw = 0;
 }
 
 static void button_settings_sub_devices_onpress(void) {
