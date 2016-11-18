@@ -126,7 +126,7 @@ void ui_set_scale(uint8_t scale) {
 
     // User Interface tab
 
-    CREATE_SWITCH(logging, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(60), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT); 
+    CREATE_SWITCH(logging, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(60), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
     CREATE_SWITCH(close_to_tray, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(90), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
     CREATE_SWITCH(start_in_tray, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(120), BM_SWITCH_WIDTH,BM_SWITCH_HEIGHT);
     CREATE_SWITCH(auto_startup, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(150), BM_SWITCH_WIDTH,BM_SWITCH_HEIGHT);
@@ -263,7 +263,7 @@ void ui_set_scale(uint8_t scale) {
 #endif
 
         const uint16_t draw_y_vect = 60;
-        CREATE_DROPDOWN(global_group_notifications, SCALE(10), SCALE(start_draw_y + draw_y_vect * 0), 
+        CREATE_DROPDOWN(global_group_notifications, SCALE(10), SCALE(start_draw_y + draw_y_vect * 0),
                         SCALE(24), SCALE(100));
         CREATE_DROPDOWN(audio_in, SCALE(10), SCALE(start_draw_y + draw_y_vect * 1), SCALE(24), SCALE(360));
         CREATE_DROPDOWN(audio_out, SCALE(10), SCALE(start_draw_y + draw_y_vect * 2), SCALE(24), SCALE(360));
