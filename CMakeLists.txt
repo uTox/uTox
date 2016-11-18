@@ -14,9 +14,11 @@ set (CMAKE_C_STANDARD 99)
 if(TOXCORE_STATIC)
     # The static windows libs need all of these... because REASONS!
     set(TOX_LIBS
-        toxgroup
+        toxencryptsave
         toxav
         toxdns
+        toxcore
+        toxgroup
         toxmessenger
         toxfriends
         toxdht
