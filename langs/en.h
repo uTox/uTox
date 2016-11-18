@@ -145,10 +145,10 @@ msgstr("Right click")
 /******************************************************************************
  *** Audio / Video Call Strings                                             ***
  ******************************************************************************/
-msgid(START_AUDIO_CALL)
+msgid(CALL_START_AUDIO)
 msgstr("Start call")
 
-msgid(START_VIDEO_CALL)
+msgid(CALL_START_VIDEO)
 msgstr("Start video call")
 
 msgid(CALL_DECLINE)
@@ -294,9 +294,6 @@ msgstr("Tox ID")
 msgid(MESSAGE)
 msgstr("Message")
 
-msgid(SEARCHFRIENDS)
-msgstr("Search contacts")
-
 msgid(FILTER_ONLINE)
 msgstr("Online Contacts")
 
@@ -306,17 +303,8 @@ msgstr("All Contacts")
 msgid(FILTER_CONTACT_TOGGLE)
 msgstr("Toggle filtering of offline contacts.")
 
-msgid(FILTER_TO_ALL)
-msgstr("Show all contacts!")
-
-msgid(FILTER_TO_ONLINE)
-msgstr("Show online contacts only!")
-
 msgid(ADD)
 msgstr("Add")
-
-msgid(SWITCHPROFILE)
-msgstr("Switch Profile")
 
 msgid(FRIENDREQUEST)
 msgstr("Friend Request")
@@ -330,17 +318,11 @@ msgstr("Friend Settings")
 msgid(NAME)
 msgstr("Name")
 
-msgid(PROFILE)
-msgstr("Profile")
-
 msgid(STATUSMESSAGE)
 msgstr("Status Message")
 
 msgid(PREVIEW)
 msgstr("Preview")
-
-msgid(DEVICESELECTION)
-msgstr("Device Selection")
 
 msgid(AUDIOINPUTDEVICE)
 msgstr("Audio Input Device")
