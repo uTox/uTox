@@ -11,27 +11,31 @@ set(PROJECT_VERSION
 
 set (CMAKE_C_STANDARD 99)
 
-set(LIBRARIES toxcore toxav toxencryptsave toxdns m pthread vpx sodium )
+set(LIBRARIES
+    toxencryptsave  toxdns
+    toxav           toxcore
+    vpx             sodium
+    pthread         m
+    )
 # Protip, you must use a different directory for each build target...
 # -DMAKE_TOOLCHAIN_FILE has no effect unless the target directory is empty
 # 1.5 hours to learn this...
 if(WIN32)
     set(U_LIBRARIES utoxAV win_Native uUI )
     list(APPEND LIBRARIES
-        OpenAL32
-        iphlpapi
-        ws2_32
-        gdi32
-        msimg32
-        dnsapi
-        comdlg32
-        winmm
-        ole32
-        oleaut32
-        strmiids
-        shlobj
-        opus
+        OpenAL32    opus
+        iphlpapi    ws2_32      gdi32       msimg32
+        dnsapi      comdlg32    winmm       ole32
+        oleaut32    strmiids    shell32
         )
+
+    # The static windows libs need all of these... because REASONS!
+    # list(APPEND LIBRARIES
+    #     toxcrypto       toxdht
+    #     toxfriends      toxgroup
+    #     toxmessenger    toxnetcrypto
+    #     toxnetwork
+    #     )
 
     include_directories(
         libs/toktok/include

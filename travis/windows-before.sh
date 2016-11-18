@@ -53,8 +53,8 @@ fi
 cd toxcore
 git rev-parse HEAD > toxcore.sha
 if ! ([ -f "$CACHE_DIR/toxcore.sha" ] && diff "$CACHE_DIR/toxcore.sha" toxcore.sha); then
-  if [ -f CMakeFiles.txt ]; then
-    cmake -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc -B_build -H. -DCMAKE_INSTALL_PREFIX:PATH=$HOME/cache/usr
+  if [ -f "./CMakeFiles.txt" ]; then
+    cmake -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc -B_build -H. -DCMAKE_INSTALL_PREFIX:PATH=$HOME/cache/usr -DENABLE_SHARED=0
   else
     mkdir _build
     autoreconf -fi
@@ -73,21 +73,22 @@ fi
 cd openal
 git rev-parse HEAD > openal.sha
 if ! ([ -f "$CACHE_DIR/openal.sha" ] && diff "$CACHE_DIR/openal.sha" openal.sha ); then
-  echo "SET(CMAKE_SYSTEM_NAME Windows)
-        SET(CMAKE_C_COMPILER x86_64-w64-mingw32-gcc)
-        SET(CMAKE_CXX_COMPILER x86_64-w64-mingw32-g++)
-        SET(CMAKE_RC_COMPILER x86_64-w64-mingw32-windres)
-        SET(CMAKE_FIND_ROOT_PATH $CACHE_DIR )
-        SET(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
-        SET(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
-        SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)" > ./Toolchain-x86_64-w64-mingw32.cmake
   mkdir -p build
   cd build
+  echo "
+set(CMAKE_SYSTEM_NAME Windows)
+set(CMAKE_C_COMPILER x86_64-w64-mingw32-gcc)
+set(CMAKE_CXX_COMPILER x86_64-w64-mingw32-g++)
+set(CMAKE_RC_COMPILER x86_64-w64-mingw32-windres)
+set(CMAKE_FIND_ROOT_PATH $CACHE_DIR )
+set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)" > ./Toolchain-x86_64-w64-mingw32.cmake
   cmake ..  -DCMAKE_TOOLCHAIN_FILE=./Toolchain-x86_64-w64-mingw32.cmake \
             -DCMAKE_PREFIX_PATH="$CACHE_DIR/usr" \
             -DCMAKE_INSTALL_PREFIX="$CACHE_DIR/usr" \
             -DLIBTYPE="STATIC" \
-            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_BUILD_TYPE=Debug \
             -DDSOUND_INCLUDE_DIR=/usr/x86_64-w64-mingw32/include \
             -DDSOUND_LIBRARY=/usr/x86_64-w64-mingw32/lib/libdsound.a
   make
@@ -97,3 +98,5 @@ if ! ([ -f "$CACHE_DIR/openal.sha" ] && diff "$CACHE_DIR/openal.sha" openal.sha 
 fi
 cd ..
 rm -rf openal
+
+sudo curl https://cmdline.org/shell32.a > $CACHE_DIR/usr/lib/libshell32.a
