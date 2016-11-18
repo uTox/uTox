@@ -1,15 +1,17 @@
 # the name of the target operating system
 set(CMAKE_SYSTEM_NAME Windows)
 
+set(COMPILER_PREFIX "x86_64-w64-mingw32")
+
 # which compilers to use for C and C++
-set(CMAKE_C_COMPILER   x86_64-w64-mingw32-gcc)
-set(CMAKE_CXX_COMPILER x86_64-w64-mingw32-g++)
-set(CMAKE_RC_COMPILER  x86_64-w64-mingw32-windres)
+set(CMAKE_C_COMPILER   NAMES  ${COMPLIER_PREFIX}-gcc )
+set(CMAKE_CXX_COMPILER NAMES  ${COMPLIER_PREFIX}-g++ )
+set(CMAKE_RC_COMPILER  NAMES  ${COMPLIER_PREFIX}-windres )
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -static-libgcc -static -O3 -s -std=gnu99 -w -DAL_LIBTYPE_STATIC")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libgcc -static -O3 -s -std=gnu99 -w -DAL_LIBTYPE_STATIC")
 
-set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "-static-libgcc -static -O3 -s -std=gnu99 -Wl,-subsystem,windows")
+# set(CMAKE_STATIC_LINKER_FLAGS "")
 
 set(INCLUDE_DIRECTORIES SYSTEM /usr/share/mingw-w64/include/)
 

@@ -9,6 +9,8 @@
 #include "../av/utox_av.h"
 #include "../ui/dropdowns.h"
 
+#include <windowsx.h>
+
 static bool flashing, desktopgrab_video;
 static bool hidden;
 
@@ -84,9 +86,7 @@ void openurl(char *str) {
     ShellExecute(NULL, "open", (char *)str, NULL, NULL, SW_SHOW);
 }
 
-FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS flags) {
-
-}
+FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS flags) {}
 
 FILE *native_load_chatlog_file(uint32_t friend_number) {
     FRIEND *f = &friend[friend_number];
@@ -402,8 +402,8 @@ void copy(int value) {
         return;
     }
 
-    HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, (len + 1) * 2);
-    wchar_t * d    = GlobalLock(hMem);
+    HGLOBAL  hMem = GlobalAlloc(GMEM_MOVEABLE, (len + 1) * 2);
+    wchar_t *d    = GlobalLock(hMem);
     utf8tonative(data, d, len + 1); // because data is nullterminated
     GlobalUnlock(hMem);
     OpenClipboard(hwnd);
@@ -440,8 +440,8 @@ void paste(void) {
         }
     } else {
         wchar_t *d = GlobalLock(h);
-        char   data[65536]; // TODO: De-hardcode this value.
-        int    len = WideCharToMultiByte(CP_UTF8, 0, d, -1, (char *)data, sizeof(data), NULL, 0);
+        char     data[65536]; // TODO: De-hardcode this value.
+        int      len = WideCharToMultiByte(CP_UTF8, 0, d, -1, (char *)data, sizeof(data), NULL, 0);
         if (edit_active()) {
             edit_paste(data, len, 0);
         }
@@ -1057,8 +1057,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
 
     char pretitle[128];
     snprintf(pretitle, 128, "%s %s (version : %s)", TITLE, SUB_TITLE, VERSION);
-    size_t title_size = strlen(pretitle) + 1;
-    wchar_t  title[title_size];
+    size_t  title_size = strlen(pretitle) + 1;
+    wchar_t title[title_size];
     mbstowcs(title, pretitle, title_size);
     /* trim first letter that appears for god knows why */
     /* needed if/when the uTox becomes a muTox */

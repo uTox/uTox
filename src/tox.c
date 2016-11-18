@@ -352,7 +352,8 @@ static int init_toxcore(Tox **tox) {
 
 
     TOX_ERR_NEW tox_new_err = 0;
-    *tox                    = tox_new(&topt, &tox_new_err);
+
+    *tox = tox_new(&topt, &tox_new_err);
 
     if (*tox == NULL) {
         debug("\t\tError #%u, Going to try without proxy.\n", tox_new_err);

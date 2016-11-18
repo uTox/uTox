@@ -11,16 +11,38 @@ set(PROJECT_VERSION
 
 set (CMAKE_C_STANDARD 99)
 
-set(LIBRARIES toxcore toxav toxencryptsave toxdns m pthread vpx )
+set(LIBRARIES toxcore toxav toxencryptsave toxdns m pthread vpx sodium )
 # Protip, you must use a different directory for each build target...
 # -DMAKE_TOOLCHAIN_FILE has no effect unless the target directory is empty
 # 1.5 hours to learn this...
 if(WIN32)
     set(U_LIBRARIES utoxAV win_Native uUI )
-    list(APPEND LIBRARIES OpenAL32 iphlpapi ws2_32 gdi32 msimg32 dnsapi comdlg32 winmm ole32 oleaut32 strmiids opus sodium )
+    list(APPEND LIBRARIES
+        OpenAL32
+        iphlpapi
+        ws2_32
+        gdi32
+        msimg32
+        dnsapi
+        comdlg32
+        winmm
+        ole32
+        oleaut32
+        strmiids
+        shlobj
+        opus
+        )
 
-    include_directories( libs/windows-x64/include/ )
-    link_directories( libs/windows-x64/lib )
+    include_directories(
+        libs/toktok/include
+        libs/windows-x64/include/
+        )
+
+    link_directories(
+        /usr/x86_64-w64-mingw32/lib/
+        libs/toktok/lib
+        libs/windows-x64/lib
+        )
 
     add_library(win_Native STATIC
         src/windows/audio.c
@@ -119,6 +141,8 @@ add_library(utoxAV STATIC
     src/av/video.h
     src/av/video.c
     )
+    target_link_libraries(utoxAV ${LIBRARIES})
+
 
 #######################################################################
 #
