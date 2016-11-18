@@ -73,7 +73,8 @@ if(WIN32)
 elseif(APPLE)
     # We should do something here
 elseif(UNIX) # xlib by default
-    set(UTOX_NATIVE xlib_Native )
+
+    include_directories(/usr/include/freetype2)
 
     add_library(utoxNATIVE STATIC
         src/xlib/audio.c
@@ -105,7 +106,6 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -fno-strict-aliasing")
 # :: Dependencies and configuration
 #
 #######################################################################
-include_directories(/usr/include/freetype2)
 
 # TODO move this to the a new CMakeLists.txt in the ui subdir
 add_library(utoxUI STATIC
@@ -145,8 +145,6 @@ add_library(utoxUI STATIC
 # :: uTox AV system (TODO move to subdir)
 #
 #######################################################################
-find_package(openal REQUIRED)
-
 add_library(utoxAV STATIC
     src/av
     src/av/utox_av.h
