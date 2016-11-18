@@ -62,19 +62,20 @@ if(WIN32)
         src/windows/video.c
         )
     target_link_libraries(win_Native
-        OpenAL32
         iphlpapi    ws2_32      gdi32       msimg32
         dnsapi      comdlg32    winmm       ole32
         oleaut32    strmiids    shell32
         opus
         )
 
+    set(OPENAL openal32)
+
 elseif(APPLE)
     set(U_LIBRARIES utoxAV cocoa_Native uUI )
     list(APPEND LIBRARIES)
 elseif(UNIX) # xlib by default
     set(U_LIBRARIES utoxAV xlib_Native uUI )
-    list(APPEND LIBRARIES v4lconvert X11 Xext Xrender fontconfig freetype resolv dl openal )
+    list(APPEND LIBRARIES v4lconvert X11 Xext Xrender fontconfig freetype resolv dl )
 
     add_library(xlib_Native STATIC
         src/xlib/audio.c
@@ -94,6 +95,8 @@ elseif(UNIX) # xlib by default
         src/xlib/video.c
         )
     target_link_libraries(xlib_Native icon)
+
+    set(OPENAL openal)
 
 endif()
 
@@ -144,6 +147,8 @@ add_library(uUI STATIC
 # :: uTox AV system (TODO move to subdir)
 #
 #######################################################################
+find_package(openal REQUIRED)
+
 add_library(utoxAV STATIC
     src/av
     src/av/utox_av.h
@@ -153,7 +158,7 @@ add_library(utoxAV STATIC
     src/av/video.h
     src/av/video.c
     )
-    target_link_libraries(utoxAV OpenAL32)
+    target_link_libraries(utoxAV ${OPENAL})
 
 
 #######################################################################
