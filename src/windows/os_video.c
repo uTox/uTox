@@ -8,7 +8,7 @@
 
 #include <dshow.h>
 #include <qedit.h>
-// amvideo.h must be uncluded after dshow
+// amvideo.h must be included after dshow
 #include <amvideo.h>
 
 #ifdef __CRT__NO_INLINE
