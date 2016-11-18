@@ -33,9 +33,6 @@ matrix:
   include:
     - os: linux
       env: BUILD=linux TOXCORE_REPO=TokTok/c-toxcore
-      compiler: gcc
-    - os: linux
-      env: BUILD=linux TOXCORE_REPO=TokTok/c-toxcore
       compiler: clang
 
     - os: linux
