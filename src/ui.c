@@ -230,7 +230,6 @@ void ui_set_scale(uint8_t scale) {
     switch_audible_notifications.panel = panel_switch_audible_notifications;
     switch_push_to_talk.panel          = panel_switch_push_to_talk;
     switch_status_notifications.panel  = panel_switch_status_notifications;
-
 #ifdef AUDIO_FILTERING
     switch_audio_filtering.panel = panel_switch_audio_filtering;
 #endif
@@ -288,8 +287,12 @@ void ui_set_scale(uint8_t scale) {
     /* User Interface       */
 
     /* Audio/Video          */
-    CREATE_BUTTON(callpreview, SCALE(10), SCALE(360), BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
-    CREATE_BUTTON(videopreview, SCALE(70), SCALE(360), BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
+    uint16_t preview_button_pos_y = 360;
+#ifdef AUDIO_FILTERING
+    preview_button_pos_y = 390;
+#endif
+    CREATE_BUTTON(callpreview, SCALE(10), SCALE(preview_button_pos_y), BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
+    CREATE_BUTTON(videopreview, SCALE(70), SCALE(preview_button_pos_y), BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
 
     /* Friend Add Page      */
     CREATE_BUTTON(send_friend_request, SCALE(-10) - BM_SBUTTON_WIDTH, MAIN_TOP + UTOX_SCALE(84), BM_SBUTTON_WIDTH,
@@ -385,13 +388,16 @@ void ui_set_scale(uint8_t scale) {
 
     // Each element is draw_pos_y_inc units apart and they start draw_pos_y down.
     uint16_t draw_pos_y = 120;
+#ifdef AUDIO_FILTERING
+    draw_pos_y = 150;
+#endif
     const uint16_t draw_pos_y_inc = 60;
 
     // No idea why, but this dropdown obeys different rules than the rest.
     PANEL d_global_group_notifications = {
         .type   = PANEL_DROPDOWN,
         .x      = UTOX_SCALE(5),
-        .y      = UTOX_SCALE(60),
+        .y      = UTOX_SCALE(draw_pos_y / 2),
         .height = UTOX_SCALE(12),
         .width  = UTOX_SCALE(50) 
     };
