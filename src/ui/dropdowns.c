@@ -73,8 +73,9 @@ static void dropdown_proxy_onselect(uint16_t i, const DROPDOWN *UNUSED(dm)) {
     tox_settingschanged();
 }
 
-static void dropdown_theme_onselect(uint16_t i, const DROPDOWN *UNUSED(dm)) {
+static void dropdown_theme_onselect(const uint16_t i, const DROPDOWN *UNUSED(dm)) {
     theme_load(i);
+    settings.theme = i;
 }
 
 static void dropdown_friend_autoaccept_ft_onselect(const uint16_t i, const DROPDOWN *UNUSED(dm)) {
