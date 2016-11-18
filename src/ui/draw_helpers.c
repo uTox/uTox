@@ -427,17 +427,35 @@ void draw_settings_text_ui(int UNUSED(x), int y, int UNUSED(w), int UNUSED(heigh
 void draw_settings_text_av(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(10), RINGTONE);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(40), PUSH_TO_TALK);
-    drawstr(MAIN_LEFT + SCALE(240), y + SCALE(10), GROUP_NOTIFICATIONS);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(60), STATUS_NOTIFICATIONS);
+    
+    // The element is draw_pos_y_inc units apart and they start draw_pos_y down.
+    uint16_t draw_pos_y = 10;
+    uint16_t draw_pos_y_inc = 30;
+
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(draw_pos_y), RINGTONE);
+    draw_pos_y += draw_pos_y_inc;
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(draw_pos_y), PUSH_TO_TALK);
+    draw_pos_y += draw_pos_y_inc;
+    // Group notifications is a stupid exception for now.
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(draw_pos_y), GROUP_NOTIFICATIONS);
+    draw_pos_y += draw_pos_y_inc;
 #ifdef AUDIO_FILTERING
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(80), AUDIOFILTERING);
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(draw_pos_y), AUDIOFILTERING);
+    draw_pos_y += draw_pos_y_inc;
 #endif
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(100), AUDIOINPUTDEVICE);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(160), AUDIOOUTPUTDEVICE);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(220), VIDEOINPUTDEVICE);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(280), PREVIEW);
+    // These are 60 apart as there needs to be room for a dropdown between them.
+
+    draw_pos_y_inc = 60;
+
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(draw_pos_y), STATUS_NOTIFICATIONS);
+    draw_pos_y += draw_pos_y_inc;
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(draw_pos_y), AUDIOINPUTDEVICE);
+    draw_pos_y += draw_pos_y_inc;
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(draw_pos_y), AUDIOOUTPUTDEVICE);
+    draw_pos_y += draw_pos_y_inc;
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(draw_pos_y), VIDEOINPUTDEVICE);
+    draw_pos_y += draw_pos_y_inc;
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(draw_pos_y), PREVIEW);
 }
 
 void draw_friend_settings(int UNUSED(x), int y, int UNUSED(width), int UNUSED(height)) {

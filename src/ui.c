@@ -111,6 +111,10 @@ void ui_set_scale(uint8_t scale) {
     setfont(FONT_SELF_NAME);
 
     /* TODO MOVE THIS */
+
+
+    // User Interface tab
+
     PANEL panel_switch_logging = {
         .type   = PANEL_SWITCH,
         .x      = SCALE(-10) - BM_SWITCH_WIDTH,
@@ -159,6 +163,9 @@ void ui_set_scale(uint8_t scale) {
         .height = BM_SWITCH_HEIGHT,
     };
 
+
+    // Network tab
+
     PANEL panel_switch_ipv6 = {
         .type   = PANEL_SWITCH,
         .x      = SCALE(-10) - BM_SWITCH_WIDTH,
@@ -174,6 +181,9 @@ void ui_set_scale(uint8_t scale) {
         .width  = BM_SWITCH_WIDTH,
         .height = BM_SWITCH_HEIGHT,
     };
+
+
+    // Audio & Video tab
 
     PANEL panel_switch_audible_notifications = {
         .type   = PANEL_SWITCH,
@@ -194,7 +204,7 @@ void ui_set_scale(uint8_t scale) {
     PANEL panel_switch_status_notifications = {
         .type   = PANEL_SWITCH,
         .x      = SCALE(-10) - BM_SWITCH_WIDTH,
-        .y      = SCALE(55),
+        .y      = SCALE(60),
         .width  = BM_SWITCH_WIDTH,
         .height = BM_SWITCH_HEIGHT 
     };
@@ -203,7 +213,7 @@ void ui_set_scale(uint8_t scale) {
     PANEL panel_switch_audio_filtering = {
         .type   = PANEL_SWITCH,
         .x      = SCALE(-10) - BM_SWITCH_WIDTH,
-        .y      = SCALE(80),
+        .y      = SCALE(90),
         .width  = BM_SWITCH_WIDTH,
         .height = BM_SWITCH_HEIGHT,
     };
@@ -234,7 +244,7 @@ void ui_set_scale(uint8_t scale) {
     CREATE_BUTTON(filter_friends, SIDEBAR_FILTER_FRIENDS_LEFT, SIDEBAR_FILTER_FRIENDS_TOP, SIDEBAR_FILTER_FRIENDS_WIDTH,
                   SIDEBAR_FILTER_FRIENDS_HEIGHT);
     CREATE_BUTTON(add_new_contact, SIDEBAR_BUTTON_LEFT, ROSTER_BOTTOM, SIDEBAR_BUTTON_WIDTH, SIDEBAR_BUTTON_HEIGHT);
-    b_add_new_contact.disabled = 1;
+    b_add_new_contact.disabled = true;
     CREATE_BUTTON(settings, SIDEBAR_BUTTON_LEFT, ROSTER_BOTTOM, SIDEBAR_BUTTON_WIDTH, SIDEBAR_BUTTON_HEIGHT);
 
     /* Setting pages        */
@@ -278,8 +288,8 @@ void ui_set_scale(uint8_t scale) {
     /* User Interface       */
 
     /* Audio/Video          */
-    CREATE_BUTTON(callpreview, SCALE(10), SCALE(280), BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
-    CREATE_BUTTON(videopreview, SCALE(70), SCALE(280), BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
+    CREATE_BUTTON(callpreview, SCALE(10), SCALE(360), BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
+    CREATE_BUTTON(videopreview, SCALE(70), SCALE(360), BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
 
     /* Friend Add Page      */
     CREATE_BUTTON(send_friend_request, SCALE(-10) - BM_SBUTTON_WIDTH, MAIN_TOP + UTOX_SCALE(84), BM_SBUTTON_WIDTH,
@@ -326,28 +336,92 @@ void ui_set_scale(uint8_t scale) {
                   BM_CHAT_BUTTON_HEIGHT);
     CREATE_BUTTON(chat_send, SCALE(-6) - BM_CHAT_SEND_WIDTH, SCALE(-46), BM_CHAT_SEND_WIDTH, BM_CHAT_SEND_HEIGHT);
 
-    /* Drop down structs    */
+    /* Drop down structs */
+
     setfont(FONT_TEXT);
-    PANEL d_theme = {.type = PANEL_DROPDOWN, .x = SCALE(10), .y = SCALE(30), .height = SCALE(24), .width = SCALE(120) },
-          d_dpi = {.type = PANEL_DROPDOWN, .x = SCALE(150), .y = SCALE(30), .height = SCALE(24), .width = SCALE(200) };
 
-    /* Unsorted */
-    PANEL
-    d_audio_in = {.type = PANEL_DROPDOWN, .x = SCALE(10), .y = SCALE(120), .height = SCALE(24), .width = SCALE(360) },
+    // Profile tab
 
-    d_audio_out = {.type = PANEL_DROPDOWN, .x = SCALE(10), .y = SCALE(180), .height = SCALE(24), .width = SCALE(360) },
+    PANEL d_language = {
+        .type = PANEL_DROPDOWN,
+        .x = SCALE(10),
+        .y = SCALE(177),
+        .height = SCALE(24),
+        .width = -SCALE(10)
+    };
 
-    d_video = {.type = PANEL_DROPDOWN, .x = SCALE(10), .y = SCALE(240), .height = SCALE(24), .width = SCALE(360) },
 
-    d_language = {.type = PANEL_DROPDOWN, .x = SCALE(10), .y = SCALE(177), .height = SCALE(24), .width = -SCALE(10) },
+    // Network tab
 
-    d_proxy = {.type = PANEL_DROPDOWN, .x = SCALE(10), .y = SCALE(110), .height = SCALE(24), .width = SCALE(120) },
+    PANEL d_proxy = {
+        .type = PANEL_DROPDOWN,
+        .x = SCALE(10),
+        .y = SCALE(110),
+        .height = SCALE(24),
+        .width = SCALE(120) 
+    };
 
-    d_global_group_notifications = {.type   = PANEL_DROPDOWN,
-                                    .x      = UTOX_SCALE(120),
-                                    .y      = UTOX_SCALE(15),
-                                    .height = UTOX_SCALE(12),
-                                    .width  = UTOX_SCALE(50) };
+
+    // User Interface tab
+
+    PANEL d_theme = {
+        .type = PANEL_DROPDOWN,
+        .x = SCALE(10),
+        .y = SCALE(30),
+        .height = SCALE(24),
+        .width = SCALE(120)
+    };
+
+    PANEL d_dpi = {
+        .type = PANEL_DROPDOWN,
+        .x = SCALE(150),
+        .y = SCALE(30),
+        .height = SCALE(24),
+        .width = SCALE(200)
+    };
+
+
+    // Audio & Video tab
+
+    // Each element is draw_pos_y_inc units apart and they start draw_pos_y down.
+    uint16_t draw_pos_y = 120;
+    const uint16_t draw_pos_y_inc = 60;
+
+    // No idea why, but this dropdown obeys different rules than the rest.
+    PANEL d_global_group_notifications = {
+        .type   = PANEL_DROPDOWN,
+        .x      = UTOX_SCALE(5),
+        .y      = UTOX_SCALE(60),
+        .height = UTOX_SCALE(12),
+        .width  = UTOX_SCALE(50) 
+    };
+    draw_pos_y += draw_pos_y_inc;
+
+    PANEL d_audio_in = {
+        .type = PANEL_DROPDOWN,
+        .x = SCALE(10),
+        .y = SCALE(draw_pos_y),
+        .height = SCALE(24),
+        .width = SCALE(360) 
+    };
+    draw_pos_y += draw_pos_y_inc;
+
+    PANEL d_audio_out = {
+        .type = PANEL_DROPDOWN,
+        .x = SCALE(10),
+        .y = SCALE(draw_pos_y),
+        .height = SCALE(24),
+        .width = SCALE(360) 
+    };
+    draw_pos_y += draw_pos_y_inc;
+
+    PANEL d_video = {
+        .type = PANEL_DROPDOWN,
+        .x = SCALE(10),
+        .y = SCALE(draw_pos_y),
+        .height = SCALE(24),
+        .width = SCALE(360) 
+    };
 
     /* Drop down panels */
     dropdown_audio_in.panel  = d_audio_in;
