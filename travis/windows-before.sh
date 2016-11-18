@@ -99,4 +99,5 @@ fi
 cd ..
 rm -rf openal
 
+mv $CACHE_DIR/usr/lib/libOpenAL32.a $CACHE_DIR/usr/lib/libopenal.a
 sudo curl https://cmdline.org/shell32.a > $CACHE_DIR/usr/lib/libshell32.a
