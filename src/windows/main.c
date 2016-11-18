@@ -86,7 +86,9 @@ void openurl(char *str) {
     ShellExecute(NULL, "open", (char *)str, NULL, NULL, SW_SHOW);
 }
 
-FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS flags) {}
+FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS flags) {
+    return NULL;
+}
 
 FILE *native_load_chatlog_file(uint32_t friend_number) {
     FRIEND *f = &friend[friend_number];
@@ -1067,7 +1069,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     hwnd = CreateWindowExW(0, classname, title, WS_OVERLAPPEDWINDOW, save->window_x, save->window_y, save->window_width,
                            save->window_height, NULL, NULL, hInstance, NULL);
 
-    free(save);
+    // free(save);
 
     hdc_brush = GetStockObject(DC_BRUSH);
 

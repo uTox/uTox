@@ -271,7 +271,7 @@ void draw_profile_password(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUS
 }
 
 /* Top bar for user settings */
-void draw_settings_header(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height)) {
+void draw_settings_header(int UNUSED(x), int UNUSED(y), int w, int UNUSED(height)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
     drawstr(MAIN_LEFT + SCALE(10), SCALE(10), UTOX_SETTINGS);
