@@ -70,8 +70,6 @@ if(WIN32)
         opus
         )
 
-    set(OPENAL openal32)
-
 elseif(APPLE)
     # We should do something here
 elseif(UNIX) # xlib by default
@@ -96,8 +94,6 @@ elseif(UNIX) # xlib by default
         src/xlib/video.c
         )
     target_link_libraries(utoxNATIVE icon v4lconvert X11 Xext Xrender fontconfig freetype resolv dl )
-
-    set(OPENAL openal)
 
 endif()
 
@@ -156,7 +152,7 @@ add_library(utoxAV STATIC
     src/av/video.h
     src/av/video.c
     )
-    target_link_libraries(utoxAV ${OPENAL})
+    target_link_libraries(utoxAV openal)
 
 
 #######################################################################
