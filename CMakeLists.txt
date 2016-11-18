@@ -17,25 +17,26 @@ set(LIBRARIES
     vpx             sodium
     pthread         m
     )
+
 # Protip, you must use a different directory for each build target...
 # -DMAKE_TOOLCHAIN_FILE has no effect unless the target directory is empty
 # 1.5 hours to learn this...
 if(WIN32)
     set(U_LIBRARIES utoxAV win_Native uUI )
-    list(APPEND LIBRARIES
-        OpenAL32    opus
-        iphlpapi    ws2_32      gdi32       msimg32
-        dnsapi      comdlg32    winmm       ole32
-        oleaut32    strmiids    shell32
-        )
 
-    # The static windows libs need all of these... because REASONS!
-    # list(APPEND LIBRARIES
-    #     toxcrypto       toxdht
-    #     toxfriends      toxgroup
-    #     toxmessenger    toxnetcrypto
-    #     toxnetwork
-    #     )
+    if(TOXCORE_STATIC)
+        # The static windows libs need all of these... because REASONS!
+        list(APPEND LIBRARIES
+            toxcrypto
+            toxnetwork
+            toxnetcrypto
+            toxdht
+            toxfriends
+            toxmessenger
+            toxgroup
+            sodium
+            )
+    endif()
 
     include_directories(
         libs/toktok/include
@@ -43,8 +44,8 @@ if(WIN32)
         )
 
     link_directories(
-        /usr/x86_64-w64-mingw32/lib/
         libs/toktok/lib
+        /usr/x86_64-w64-mingw32/lib/
         libs/windows-x64/lib
         )
 
@@ -60,7 +61,14 @@ if(WIN32)
         src/windows/os_video.c
         src/windows/video.c
         )
-    target_link_libraries(win_Native icon ${LIBRARIES})
+    target_link_libraries(win_Native
+        OpenAL32
+        iphlpapi    ws2_32      gdi32       msimg32
+        dnsapi      comdlg32    winmm       ole32
+        oleaut32    strmiids    shell32
+        opus
+        )
+
 elseif(APPLE)
     set(U_LIBRARIES utoxAV cocoa_Native uUI )
     list(APPEND LIBRARIES)
@@ -145,7 +153,7 @@ add_library(utoxAV STATIC
     src/av/video.h
     src/av/video.c
     )
-    target_link_libraries(utoxAV ${LIBRARIES})
+    target_link_libraries(utoxAV OpenAL32)
 
 
 #######################################################################
