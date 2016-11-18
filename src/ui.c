@@ -268,9 +268,29 @@ void ui_set_scale(uint8_t scale) {
     CREATE_BUTTON(show_password_settings, SCALE(145), SCALE(206), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
     CREATE_BUTTON(lock_uTox, SCALE(10), SCALE(260), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
 
-    PANEL e_name = {.type = PANEL_EDIT, .x = SCALE(10), .y = SCALE(27), .height = SCALE(24), .width = -SCALE(10) },
-          e_status = {.type = PANEL_EDIT, .x = SCALE(10), .y = SCALE(76), .height = SCALE(24), .width = -SCALE(10) },
-          e_toxid = {.type = PANEL_EDIT, .x = SCALE(10), .y = SCALE(126), .height = SCALE(24), .width = -SCALE(10) };
+    PANEL e_name = {
+            .type = PANEL_EDIT,
+            .x = SCALE(10),
+            .y = SCALE(27),
+            .height = SCALE(24),
+            .width = -SCALE(10)
+        },
+
+        e_status = {
+            .type = PANEL_EDIT,
+            .x = SCALE(10),
+            .y = SCALE(76),
+            .height = SCALE(24),
+            .width = -SCALE(10) 
+        },
+
+        e_toxid = {
+            .type = PANEL_EDIT,
+            .x = SCALE(10),
+            .y = SCALE(126),
+            .height = SCALE(24),
+            .width = -SCALE(10)
+        };
 
     edit_name.panel   = e_name;
     edit_status.panel = e_status;
@@ -287,12 +307,14 @@ void ui_set_scale(uint8_t scale) {
     /* User Interface       */
 
     /* Audio/Video          */
-    uint16_t preview_button_pos_y = 360;
+    {
+        uint16_t preview_button_pos_y = 360;
 #ifdef AUDIO_FILTERING
-    preview_button_pos_y = 390;
+        preview_button_pos_y = 390;
 #endif
-    CREATE_BUTTON(callpreview, SCALE(10), SCALE(preview_button_pos_y), BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
-    CREATE_BUTTON(videopreview, SCALE(70), SCALE(preview_button_pos_y), BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
+        CREATE_BUTTON(callpreview, SCALE(10), SCALE(preview_button_pos_y), BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
+        CREATE_BUTTON(videopreview, SCALE(70), SCALE(preview_button_pos_y), BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
+    }
 
     /* Friend Add Page      */
     CREATE_BUTTON(send_friend_request, SCALE(-10) - BM_SBUTTON_WIDTH, MAIN_TOP + UTOX_SCALE(84), BM_SBUTTON_WIDTH,
@@ -302,27 +324,53 @@ void ui_set_scale(uint8_t scale) {
     /* Friend Settings Page */
     CREATE_BUTTON(export_chatlog, SCALE(10), SCALE(220), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
 
-    PANEL e_friend_pubkey = {.type = PANEL_EDIT, .x = SCALE(10), .y = SCALE(88), .height = SCALE(24), .width = -SCALE(10) };
+    PANEL e_friend_pubkey = {
+        .type = PANEL_EDIT,
+        .x = SCALE(10),
+        .y = SCALE(88),
+        .height = SCALE(24),
+        .width = -SCALE(10)
+    };
 
     edit_friend_pubkey.panel = e_friend_pubkey;
 
-    PANEL e_friend_alias = {.type = PANEL_EDIT, .x = SCALE(10), .y = SCALE(138), .height = SCALE(24), .width = SCALE(-10) };
+    PANEL e_friend_alias = {
+        .type = PANEL_EDIT,
+        .x = SCALE(10),
+        .y = SCALE(138),
+        .height = SCALE(24),
+        .width = SCALE(-10)
+    };
 
     edit_friend_alias.panel = e_friend_alias;
 
     PANEL d_friend_autoaccept = {
-        .type = PANEL_DROPDOWN, .x = SCALE(10), .y = SCALE(188), .height = SCALE(24), .width = SCALE(40)
+        .type = PANEL_DROPDOWN,
+        .x = SCALE(10),
+        .y = SCALE(188),
+        .height = SCALE(24),
+        .width = SCALE(40)
     };
 
     dropdown_friend_autoaccept_ft.panel = d_friend_autoaccept;
 
     /* Group Settings */
-    PANEL e_group_topic = {.type = PANEL_EDIT, .x = SCALE(10), .y = SCALE(95), .height = SCALE(24), .width = SCALE(-10) };
+    PANEL e_group_topic = {
+        .type = PANEL_EDIT,
+        .x = SCALE(10),
+        .y = SCALE(95),
+        .height = SCALE(24),
+        .width = SCALE(-10)
+    };
 
     edit_group_topic.panel = e_group_topic;
 
     PANEL d_group_notifications = {
-        .type = PANEL_DROPDOWN, .x = SCALE(10), .y = SCALE(155), .height = SCALE(24), .width = SCALE(85)
+        .type = PANEL_DROPDOWN,
+        .x = SCALE(10),
+        .y = SCALE(155),
+        .height = SCALE(24),
+        .width = SCALE(85)
     };
 
     dropdown_notify_groupchats.panel = d_group_notifications;
@@ -385,126 +433,128 @@ void ui_set_scale(uint8_t scale) {
 
 
     // Audio & Video tab
-
-    // Each element is draw_pos_y_inc units apart and they start draw_pos_y down.
-    uint16_t draw_pos_y = 120;
+    {
+        // Each element is draw_pos_y_inc units apart and they start draw_pos_y down.
+        uint16_t draw_pos_y = 120;
 #ifdef AUDIO_FILTERING
-    draw_pos_y = 150;
+        draw_pos_y = 150;
 #endif
-    const uint16_t draw_pos_y_inc = 60;
+        const uint16_t draw_pos_y_inc = 60;
 
-    // No idea why, but this dropdown obeys different rules than the rest.
-    PANEL d_global_group_notifications = {
-        .type   = PANEL_DROPDOWN,
-        .x      = UTOX_SCALE(5),
-        .y      = UTOX_SCALE(draw_pos_y / 2),
-        .height = UTOX_SCALE(12),
-        .width  = UTOX_SCALE(50) 
-    };
-    draw_pos_y += draw_pos_y_inc;
+        // No idea why, but this dropdown obeys different rules than the rest.
+        PANEL d_global_group_notifications = {
+            .type   = PANEL_DROPDOWN,
+            .x      = UTOX_SCALE(5),
+            .y      = UTOX_SCALE(draw_pos_y / 2),
+            .height = UTOX_SCALE(12),
+            .width  = UTOX_SCALE(50) 
+        };
+        draw_pos_y += draw_pos_y_inc;
 
-    PANEL d_audio_in = {
-        .type = PANEL_DROPDOWN,
-        .x = SCALE(10),
-        .y = SCALE(draw_pos_y),
-        .height = SCALE(24),
-        .width = SCALE(360) 
-    };
-    draw_pos_y += draw_pos_y_inc;
+        PANEL d_audio_in = {
+            .type = PANEL_DROPDOWN,
+            .x = SCALE(10),
+            .y = SCALE(draw_pos_y),
+            .height = SCALE(24),
+            .width = SCALE(360) 
+        };
+        draw_pos_y += draw_pos_y_inc;
 
-    PANEL d_audio_out = {
-        .type = PANEL_DROPDOWN,
-        .x = SCALE(10),
-        .y = SCALE(draw_pos_y),
-        .height = SCALE(24),
-        .width = SCALE(360) 
-    };
-    draw_pos_y += draw_pos_y_inc;
+        PANEL d_audio_out = {
+            .type = PANEL_DROPDOWN,
+            .x = SCALE(10),
+            .y = SCALE(draw_pos_y),
+            .height = SCALE(24),
+            .width = SCALE(360) 
+        };
+        draw_pos_y += draw_pos_y_inc;
 
-    PANEL d_video = {
-        .type = PANEL_DROPDOWN,
-        .x = SCALE(10),
-        .y = SCALE(draw_pos_y),
-        .height = SCALE(24),
-        .width = SCALE(360) 
-    };
+        PANEL d_video = {
+            .type = PANEL_DROPDOWN,
+            .x = SCALE(10),
+            .y = SCALE(draw_pos_y),
+            .height = SCALE(24),
+            .width = SCALE(360) 
+        };
 
-    /* Drop down panels */
-    dropdown_audio_in.panel  = d_audio_in;
-    dropdown_audio_out.panel = d_audio_out;
-    dropdown_video.panel     = d_video;
-    dropdown_dpi.panel       = d_dpi;
-    dropdown_language.panel  = d_language;
-    dropdown_proxy.panel     = d_proxy;
-    dropdown_theme.panel     = d_theme;
+        /* Drop down panels */
+        dropdown_audio_in.panel  = d_audio_in;
+        dropdown_audio_out.panel = d_audio_out;
+        dropdown_video.panel     = d_video;
+        dropdown_dpi.panel       = d_dpi;
+        dropdown_language.panel  = d_language;
+        dropdown_proxy.panel     = d_proxy;
+        dropdown_theme.panel     = d_theme;
 
-    dropdown_global_group_notifications.panel = d_global_group_notifications;
+        dropdown_global_group_notifications.panel = d_global_group_notifications;
+    }
 
     /* Text entry boxes */
-    PANEL e_add_id =
-              {
-                .type   = PANEL_EDIT,
-                .x      = UTOX_SCALE(5),
-                .y      = UTOX_SCALE(14) + MAIN_TOP,
-                .height = UTOX_SCALE(12),
-                .width  = -SCALE(10),
-              },
+    PANEL e_add_id = {
+            .type   = PANEL_EDIT,
+            .x      = UTOX_SCALE(5),
+            .y      = UTOX_SCALE(14) + MAIN_TOP,
+            .height = UTOX_SCALE(12),
+            .width  = -SCALE(10),
+        },
 
-          e_add_msg =
-              {
-                .type   = PANEL_EDIT,
-                .x      = UTOX_SCALE(5),
-                .y      = UTOX_SCALE(38) + MAIN_TOP,
-                .height = UTOX_SCALE(42),
-                .width  = -SCALE(10),
-              },
+        e_add_msg = {
+            .type   = PANEL_EDIT,
+            .x      = UTOX_SCALE(5),
+            .y      = UTOX_SCALE(38) + MAIN_TOP,
+            .height = UTOX_SCALE(42),
+            .width  = -SCALE(10),
+        },
 
-          e_profile_password =
-              {
-                .type   = PANEL_EDIT,
-                .x      = UTOX_SCALE(5), /* move the edit depending on what page! */
-                .y      = UTOX_SCALE(44) + (UTOX_SCALE(70) * panel_profile_password.disabled),
-                .height = UTOX_SCALE(12),
-                .width  = -UTOX_SCALE(5),
-              },
+        e_profile_password = {
+            .type   = PANEL_EDIT,
+            .x      = UTOX_SCALE(5), /* move the edit depending on what page! */
+            .y      = UTOX_SCALE(44) + (UTOX_SCALE(70) * panel_profile_password.disabled),
+            .height = UTOX_SCALE(12),
+            .width  = -UTOX_SCALE(5),
+        },
 
-          /* Message entry box for friends and groups */
-        e_msg =
-            {
-              .type   = PANEL_EDIT,
-              .x      = UTOX_SCALE(5) + BM_CHAT_BUTTON_WIDTH * 2, /* Make space for the left button  */
-              .y      = -UTOX_SCALE(23),
-              .width  = -UTOX_SCALE(32),
-              .height = UTOX_SCALE(20),
-              /* text is 8 high. 8 * 2.5 = 20. */
-            },
+        /* Message entry box for friends and groups */
+        e_msg = {
+            .type   = PANEL_EDIT,
+            .x      = UTOX_SCALE(5) + BM_CHAT_BUTTON_WIDTH * 2, /* Make space for the left button  */
+            .y      = -UTOX_SCALE(23),
+            .width  = -UTOX_SCALE(32),
+            .height = UTOX_SCALE(20),
+            /* text is 8 high. 8 * 2.5 = 20. */
+        },
 
-          e_msg_group =
-              {
-                .type   = PANEL_EDIT,
-                .x      = SCALE(6),
-                .y      = SCALE(-46),
-                .width  = SCALE(-10) - BM_CHAT_SEND_WIDTH,
-                .height = SCALE(40),
-              },
+        e_msg_group = {
+            .type   = PANEL_EDIT,
+            .x      = SCALE(6),
+            .y      = SCALE(-46),
+            .width  = SCALE(-10) - BM_CHAT_SEND_WIDTH,
+            .height = SCALE(40),
+        },
 
-          e_search =
-              {
-                .type   = PANEL_EDIT,
-                .y      = SIDEBAR_SEARCH_TOP,
-                .x      = SIDEBAR_SEARCH_LEFT,
-                .width  = SIDEBAR_SEARCH_WIDTH,
-                .height = SIDEBAR_SEARCH_HEIGHT,
-              },
+        e_search = {
+            .type   = PANEL_EDIT,
+            .y      = SIDEBAR_SEARCH_TOP,
+            .x      = SIDEBAR_SEARCH_LEFT,
+            .width  = SIDEBAR_SEARCH_WIDTH,
+            .height = SIDEBAR_SEARCH_HEIGHT,
+        },
 
-          e_proxy_ip =
-              {
-                .type = PANEL_EDIT, .x = SCALE(140), .y = SCALE(110), .width = SCALE(120), .height = SCALE(24),
-              },
+        e_proxy_ip = {
+            .type = PANEL_EDIT,
+            .x = SCALE(140),
+            .y = SCALE(110),
+            .width = SCALE(120),
+            .height = SCALE(24),
+        },
 
-          e_proxy_port = {
-              .type = PANEL_EDIT, .x = SCALE(270), .y = SCALE(110), .width = SCALE(60), .height = SCALE(24),
-          };
+        e_proxy_port = {
+            .type = PANEL_EDIT,
+            .x = SCALE(270),
+            .y = SCALE(110),
+            .width = SCALE(60),
+            .height = SCALE(24),
+        };
 
     /* Text entry panels */
     edit_name.panel             = e_name;
@@ -676,7 +726,7 @@ bool panel_mmove(PANEL *p, int x, int y, int width, int height, int mx, int my, 
     int mmy = my;
 
     if (p->content_scroll) {
-        int scroll_y = scroll_gety(p->content_scroll, height);
+        const int scroll_y = scroll_gety(p->content_scroll, height);
         if (my < 0) {
             mmy = -1;
         } else if (my >= height) {
@@ -688,7 +738,7 @@ bool panel_mmove(PANEL *p, int x, int y, int width, int height, int mx, int my, 
         my += scroll_y;
     }
 
-    bool draw = p->type ? mmovefunc[p->type - 1](p, x, y, width, height, mx, mmy, dx, dy) : 0;
+    bool draw = p->type ? mmovefunc[p->type - 1](p, x, y, width, height, mx, mmy, dx, dy) : false;
     // Has to be called before children mmove
     if (p == &panel_root) {
         draw |= tooltip_mmove();
@@ -714,7 +764,7 @@ bool panel_mmove(PANEL *p, int x, int y, int width, int height, int mx, int my, 
 
 static bool panel_mdown_sub(PANEL *p) {
     if (p->type && mdownfunc[p->type - 1](p)) {
-        return 1;
+        return true;
     }
 
     PANEL **pp = p->child, *subp;
@@ -722,13 +772,13 @@ static bool panel_mdown_sub(PANEL *p) {
         while ((subp = *pp++)) {
             if (!subp->disabled) {
                 if (panel_mdown_sub(subp)) {
-                    return 1;
+                    return true;
                 }
             }
         }
     }
 
-    return 0;
+    return false;
 }
 
 void panel_mdown(PANEL *p) {
@@ -743,7 +793,7 @@ void panel_mdown(PANEL *p) {
         while ((subp = *pp++)) {
             if (!subp->disabled) {
                 if (panel_mdown_sub(subp)) {
-                    draw = 1;
+                    draw = true;
                     break;
                 }
             }
@@ -756,7 +806,7 @@ void panel_mdown(PANEL *p) {
 }
 
 bool panel_dclick(PANEL *p, bool triclick) {
-    bool draw = 0;
+    bool draw = false;
     if (p->type == PANEL_EDIT) {
         draw = edit_dclick((EDIT *)p, triclick);
     } else if (p->type == PANEL_MESSAGES) {
@@ -783,7 +833,7 @@ bool panel_dclick(PANEL *p, bool triclick) {
 }
 
 bool panel_mright(PANEL *p) {
-    bool    draw = p->type ? mrightfunc[p->type - 1](p) : 0;
+    bool    draw = p->type ? mrightfunc[p->type - 1](p) : false;
     PANEL **pp   = p->child, *subp;
     if (pp) {
         while ((subp = *pp++)) {
@@ -803,7 +853,7 @@ bool panel_mright(PANEL *p) {
 bool panel_mwheel(PANEL *p, int x, int y, int width, int height, double d, bool smooth) {
     FIX_XY_CORDS_FOR_SUBPANELS();
 
-    bool    draw = p->type ? mwheelfunc[p->type - 1](p, height, d) : 0;
+    bool    draw = p->type ? mwheelfunc[p->type - 1](p, height, d) : false;
     PANEL **pp   = p->child, *subp;
     if (pp) {
         while ((subp = *pp++)) {
@@ -821,7 +871,7 @@ bool panel_mwheel(PANEL *p, int x, int y, int width, int height, double d, bool 
 }
 
 bool panel_mup(PANEL *p) {
-    bool    draw = p->type ? mupfunc[p->type - 1](p) : 0;
+    bool    draw = p->type ? mupfunc[p->type - 1](p) : false;
     PANEL **pp   = p->child, *subp;
     if (pp) {
         while ((subp = *pp++)) {
@@ -843,7 +893,7 @@ bool panel_mup(PANEL *p) {
 }
 
 bool panel_mleave(PANEL *p) {
-    bool    draw = p->type ? mleavefunc[p->type - 1](p) : 0;
+    bool    draw = p->type ? mleavefunc[p->type - 1](p) : false;
     PANEL **pp   = p->child, *subp;
     if (pp) {
         while ((subp = *pp++)) {
