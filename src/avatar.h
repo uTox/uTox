@@ -45,6 +45,7 @@ bool avatar_set_self(const uint8_t *data, size_t size);
  * freeing its image */
 void unset_avatar(AVATAR *avatar);
 
+/* Helper function to unset the user's avatar */
 void avatar_unset_self(void);
 
 /* sets own avatar based on given png data and saves it to disk if successful
@@ -74,28 +75,19 @@ bool avatar_on_friend_online(Tox *tox, uint32_t friend_number);
  */
 void utox_incoming_avatar(uint32_t friend_number, uint8_t *avatar, size_t size);
 
-/* Saves the avatar for friend with friend_number
- *
- * If friend_number is -1 we save the current users avatar
+/* Saves the avatar for user with hexid
  *
  * returns true on success
  * returns false on failure
  */
-bool save_avatar(uint32_t friend_number, const uint8_t *data, uint32_t length);
+bool save_avatar(char hexid[64], const uint8_t *data, uint32_t length);
 
-/* Loads the avatar
+/* Deletes the avatar for user with hexid
  *
  * returns true on success
  * returns false on failure
  */
-bool load_avatar(char hexid[64], AVATAR *avatar, size_t *size_out);
-
-/* Deletes the avatar for friend with friend_number
- *
- * returns true on success
- * returns false on failure
- */
-bool avatar_delete(uint32_t friend_number);
+bool avatar_delete(char hexid[64]);
 
 /* Loads the avatar for the specified hexid
  *

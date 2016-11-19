@@ -12,35 +12,23 @@ static void avatar_free_image(AVATAR *avatar) {
     }
 }
 
-bool save_avatar(uint32_t friend_number, const uint8_t *data, uint32_t length) {
+bool save_avatar(char hexid[64], const uint8_t *data, uint32_t length) {
     char    name[sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png")];
     FILE *  fp;
     size_t *size = 0;
 
-    if (friend_number == -1) {
-        /* load current user's avatar */
 #ifdef __WIN32__
         snprintf(name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"), "avatars\\%.*s.png",
-                 TOX_PUBLIC_KEY_SIZE * 2, self.id_str);
+                 TOX_PUBLIC_KEY_SIZE * 2, hexid);
 #else
         snprintf(name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"), "avatars/%.*s.png",
-                 TOX_PUBLIC_KEY_SIZE * 2, self.id_str);
+                 TOX_PUBLIC_KEY_SIZE * 2, hexid);
 #endif
-    } else {
-        FRIEND *f = &friend[friend_number];
-#ifdef __WIN32__
-        snprintf(name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"), "avatars\\%.*s.png",
-                 TOX_PUBLIC_KEY_SIZE * 2, f->id_str);
-#else
-        snprintf(name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"), "avatars/%.*s.png",
-                 TOX_PUBLIC_KEY_SIZE * 2, f->id_str);
-#endif
-    }
 
     fp = native_get_file(name, size, UTOX_FILE_OPTS_WRITE);
 
     if (fp == NULL) {
-        debug("Could not open avatar for friend number: %u\n", friend_number);
+        debug("Avatars:\tCould not open avatar for: %s\n", hexid);
         return false;
     }
 
@@ -50,8 +38,10 @@ bool save_avatar(uint32_t friend_number, const uint8_t *data, uint32_t length) {
     return true;
 }
 
-uint8_t *load_img_data(char hexid[64], size_t *out_size){
+uint8_t *load_img_data(char hexid[64], size_t *out_size) {
     char name[sizeof("avatars/") + sizeof(*hexid) + sizeof(".png")];
+
+    printf("hexid: %s\n", hexid);
 
 #ifdef __WIN32__
     snprintf(name, sizeof(*name), "avatar\\%.*s.png", (int)sizeof(*hexid), hexid);
@@ -63,19 +53,19 @@ uint8_t *load_img_data(char hexid[64], size_t *out_size){
 
     FILE *fp = native_get_file(name, &size, UTOX_FILE_OPTS_READ);
     if (fp == NULL) {
-        debug("Could not open avatar for friend : %.*s", (int)sizeof(*hexid), hexid);
+        debug("Avatars:\tCould not open avatar for friend : %.*s", (int)sizeof(*hexid), hexid);
         return NULL;
     }
 
     uint8_t *data = calloc(size, 1);
     if (data == NULL) {
-        debug("Could not allocate memory for avatar of size %lu.\n", size);
+        debug("Avatars:\tCould not allocate memory for avatar of size %lu.\n", size);
         fclose(fp);
         return NULL;
     }
 
     if (fread(data, 1, size, fp) != size) {
-        debug("Could not read: avatar for friend : %.*s", (int)sizeof(*hexid), hexid);
+        debug("Avatars:\tCould not read: avatar for friend : %.*s", (int)sizeof(*hexid), hexid);
         fclose(fp);
         free(data);
         return NULL;
@@ -88,29 +78,21 @@ uint8_t *load_img_data(char hexid[64], size_t *out_size){
     return data;
 }
 
-bool avatar_delete(uint32_t friend_number) {
-    char    hex[TOX_PUBLIC_KEY_SIZE * 2];
+bool avatar_delete(char hexid[64]) {
     uint8_t name[sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png")];
 
-    if (friend_number == -1) {
-        memcpy(hex, self.id_str, TOX_PUBLIC_KEY_SIZE * 2);
-    } else {
-        /* load current user's avatar */
-        FRIEND *f = &friend[friend_number];
-        cid_to_string(hex, f->cid);
-    }
 #ifdef __WIN32__
     int name_len = snprintf((char *)name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"),
-                            "avatars/%.*s.png", TOX_PUBLIC_KEY_SIZE * 2, (char *)hex);
+                            "avatars/%.*s.png", TOX_PUBLIC_KEY_SIZE * 2, (char *)hexid);
 #else
     int name_len = snprintf((char *)name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"),
-                        "avatars\\%.*s.png", TOX_PUBLIC_KEY_SIZE * 2, (char *)hex);
+                        "avatars\\%.*s.png", TOX_PUBLIC_KEY_SIZE * 2, (char *)hexid);
 #endif
 
     return native_remove_file(name, name_len);
 }
 
-bool load_avatar(char hexid[64], AVATAR *avatar, size_t *size_out) {
+static bool load_avatar(char hexid[64], AVATAR *avatar, size_t *size_out) {
     size_t size = 0;
 
     uint8_t *img = load_img_data(hexid, &size);
@@ -196,17 +178,18 @@ bool avatar_init(char hexid[64], AVATAR *avatar) {
 }
 
 bool avatar_init_self(char hexid[64]) {
+    size_t size = 0;
     self.avatar = calloc(1, sizeof(AVATAR));
     if (!self.avatar) {
         return false;
     }
 
-    return load_avatar(hexid, self.avatar, NULL);
+    return load_avatar(hexid, self.avatar, &size);
 }
 
 bool self_set_and_save_avatar(const uint8_t *data, uint32_t size) {
     if (avatar_set_self(data, size)) {
-        save_avatar(-1, data, size);
+        save_avatar(self.id_str, data, size);
         return true;
     }
     return false;
@@ -219,7 +202,7 @@ void avatar_delete_self(void) {
 
 bool avatar_on_friend_online(Tox *tox, uint32_t friend_number) {
     size_t   avatar_size = 0;
-    uint8_t *avatar_data = load_img_data(-1, &avatar_size);
+    uint8_t *avatar_data = load_img_data(self.id_str, &avatar_size);
     if (!avatar_data) {
         return false;
     }
