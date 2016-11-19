@@ -1374,7 +1374,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             size_t   size   = param2;
 
             avatar_set(&friend[param1].avatar, avatar, size);
-            utox_data_save_avatar(param1, avatar, size);
+            save_avatar(param1, avatar, size);
 
             free(avatar);
             redraw();
