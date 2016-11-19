@@ -40,17 +40,16 @@ endif()
 # -DMAKE_TOOLCHAIN_FILE has no effect unless the target directory is empty
 # 1.5 hours to learn this...
 if(WIN32)
-    include_directories(
-        libs/toktok/include
-        libs/windows-x64/include/
-        )
+    include_directories( libs/toktok/include libs/windows-x64/include/ )
+    link_directories( libs/toktok/lib /usr/x86_64-w64-mingw32/lib/ libs/windows-x64/lib )
+    #########################################
+    ## Native Icon data
+    #########################################
+    enable_language(RC)
 
-    link_directories(
-        libs/toktok/lib
-        /usr/x86_64-w64-mingw32/lib/
-        libs/windows-x64/lib
-        )
-
+    #########################################
+    ## Native Interface
+    #########################################
     add_library(utoxNATIVE STATIC
         src/windows/audio.c
         src/windows/dnd.c
@@ -67,18 +66,26 @@ if(WIN32)
     target_link_libraries(utoxNATIVE
         iphlpapi    ws2_32      gdi32       msimg32
         dnsapi      comdlg32    winmm       ole32
-        oleaut32    strmiids    shell32
-        opus
-        )
+        oleaut32    strmiids    shell32     opus )
 
     set(WINDOWS_ICON icons/icon.rc)
 
 elseif(APPLE)
     # We should do something here
 elseif(UNIX) # xlib by default
-
     include_directories(/usr/include/freetype2)
-
+    #########################################
+    ## Native Icon data
+    #########################################
+    add_custom_command(OUTPUT icon.o
+        COMMAND cd ${CMAKE_CURRENT_SOURCE_DIR}/ && ld -r -b binary -o ${CMAKE_CURRENT_BINARY_DIR}/icon.o icons/utox-128x128.png
+        DEPENDS icons/utox-128x128.png )
+    set_source_files_properties( icon.o PROPERTIES EXTERNAL_OBJECT true GENERATED true )
+    add_library(icon STATIC icon.o)
+    set_target_properties( icon PROPERTIES LINKER_LANGUAGE C )
+    #########################################
+    ## Native Interface
+    #########################################
     add_library(utoxNATIVE STATIC
         src/xlib/audio.c
         src/xlib/dbus.c
@@ -96,6 +103,7 @@ elseif(UNIX) # xlib by default
         src/xlib/v4l.c
         src/xlib/video.c
         )
+
     target_link_libraries(utoxNATIVE bin-icon v4lconvert X11 Xext Xrender fontconfig freetype resolv dl )
 
 endif()
@@ -138,8 +146,7 @@ add_library(utoxUI STATIC
     src/ui/text.c
     src/ui/text.h
     src/ui/tooltip.c
-    src/ui/tooltip.h
-    )
+    src/ui/tooltip.h )
 
 #######################################################################
 #
@@ -153,8 +160,7 @@ add_library(utoxAV STATIC
     src/av/audio.c
     src/av/audio.h
     src/av/video.h
-    src/av/video.c
-    )
+    src/av/video.c )
     target_link_libraries(utoxAV openal)
 
 
@@ -208,28 +214,9 @@ add_executable(utox
 
     )
 
-
-add_custom_command(OUTPUT icon.o
-    COMMAND cd ${CMAKE_CURRENT_SOURCE_DIR}/ && ld -r -b binary -o ${CMAKE_CURRENT_BINARY_DIR}/icon.o icons/utox-128x128.png
-    COMMAND objcopy --rename-section .data=.rodata,alloc,load,readonly,data,contents ${CMAKE_CURRENT_BINARY_DIR}/icon.o ${CMAKE_CURRENT_BINARY_DIR}/icon.o
-    DEPENDS icons/icon.rc icons/utox-128x128.png
-    )
-set_source_files_properties( icon.o PROPERTIES EXTERNAL_OBJECT true GENERATED true )
-
-add_library(bin-icon STATIC icon.o)
-set_target_properties( bin-icon PROPERTIES LINKER_LANGUAGE C )
-
-
 target_link_libraries(utox
-                      utoxAV
-                      utoxNATIVE
-                      utoxUI
-                      ${TOX_LIBS}
-                      ${LIBRARIES}
-                      sodium
-                      pthread
-                      m
-                      vpx
-                      )
+                      utoxAV        utoxNATIVE      utoxUI
+                      ${TOX_LIBS}   ${LIBRARIES}
+                      sodium        pthread     m   vpx )
 
 set_property(TARGET utox PROPERTY C_STANDARD 99)
