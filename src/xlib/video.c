@@ -1,6 +1,6 @@
 #include "../util.h"
 
-void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height, _Bool resize) {
+void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height, bool resize) {
     if (!video_win[id]) {
         debug("frame for null window %u\n", id);
         return;
@@ -132,7 +132,7 @@ uint16_t native_video_detect(void) {
     return device_count;
 }
 
-void desktopgrab(_Bool video) {
+void desktopgrab(bool video) {
     pointergrab = 1 + video;
     XGrabPointer(display, window, False, Button1MotionMask | ButtonPressMask | ButtonReleaseMask, GrabModeAsync,
                  GrabModeAsync, None, cursors[CURSOR_SELECT], CurrentTime);
@@ -140,7 +140,7 @@ void desktopgrab(_Bool video) {
 
 static uint16_t video_x, video_y;
 
-_Bool native_video_init(void *handle) {
+bool native_video_init(void *handle) {
     if (isdesktop(handle)) {
         utox_v4l_fd = -1;
 
@@ -198,7 +198,7 @@ void native_video_close(void *handle) {
     v4l_close();
 }
 
-_Bool native_video_startread(void) {
+bool native_video_startread(void) {
     if (utox_v4l_fd == -1) {
         return 1;
     }
@@ -206,7 +206,7 @@ _Bool native_video_startread(void) {
     return v4l_startread();
 }
 
-_Bool native_video_endread(void) {
+bool native_video_endread(void) {
     if (utox_v4l_fd == -1) {
         return 1;
     }

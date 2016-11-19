@@ -84,14 +84,8 @@ msgstr("Adăugare prieteni")
 msgid(MESSAGE)
 msgstr("Mesaj")
 
-msgid(SEARCHFRIENDS)
-msgstr("Căutare prieteni")
-
 msgid(ADD)
 msgstr("Adăugare")
-
-msgid(SWITCHPROFILE)
-msgstr("Schimbare profil")
 
 msgid(FRIENDREQUEST)
 msgstr("Cerere de prietenie")
@@ -107,9 +101,6 @@ msgstr("Mesaj de stare")
 
 msgid(PREVIEW)
 msgstr("Previzualizare")
-
-msgid(DEVICESELECTION)
-msgstr("Selectarea dispozitivului")
 
 msgid(AUDIOINPUTDEVICE)
 msgstr("Dispozitiv de intrare audio")

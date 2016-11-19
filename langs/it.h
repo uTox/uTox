@@ -94,17 +94,11 @@ msgstr("Aggiungi contatto")
 msgid(MESSAGE)
 msgstr("Messaggio")
 
-msgid(SEARCHFRIENDS)
-msgstr("Cerca contatti")
-
 msgid(ADD)
 msgstr("Aggiungi")
 
 msgid(CREATEGROUPCHAT)
 msgstr("Crea chat di gruppo")
-
-msgid(SWITCHPROFILE)
-msgstr("Cambia Profilo")
 
 msgid(FRIENDREQUEST)
 msgstr("Richieste d'amicizia")
@@ -115,17 +109,11 @@ msgstr("Impostazioni")
 msgid(NAME)
 msgstr("Nome")
 
-msgid(PROFILE)
-msgstr("Profilo")
-
 msgid(STATUSMESSAGE)
 msgstr("Messaggio di stato")
 
 msgid(PREVIEW)
 msgstr("Anteprima")
-
-msgid(DEVICESELECTION)
-msgstr("Dispositivi")
 
 msgid(AUDIOINPUTDEVICE)
 msgstr("Audio (input)")

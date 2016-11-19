@@ -11,15 +11,47 @@ set(PROJECT_VERSION
 
 set (CMAKE_C_STANDARD 99)
 
-set(LIBRARIES toxcore toxav toxencryptsave toxdns openal m pthread vpx )
+if(TOXCORE_STATIC)
+    # The static windows libs need all of these... because REASONS!
+    set(TOX_LIBS
+        toxencryptsave
+        toxav
+        toxdns
+        toxcore
+        toxgroup
+        toxmessenger
+        toxfriends
+        toxdht
+        toxnetcrypto
+        toxcrypto
+        toxnetwork
+        )
+else()
+    set(TOX_LIBS
+        toxencryptsave
+        toxdns
+        toxav
+        toxcore
+        )
+endif()
+
+
 # Protip, you must use a different directory for each build target...
 # -DMAKE_TOOLCHAIN_FILE has no effect unless the target directory is empty
 # 1.5 hours to learn this...
 if(WIN32)
-    set(U_LIBRARIES utoxAV win_Native uUI )
-    list(APPEND LIBRARIES)
+    include_directories(
+        libs/toktok/include
+        libs/windows-x64/include/
+        )
 
-    add_library(win_Native STATIC
+    link_directories(
+        libs/toktok/lib
+        /usr/x86_64-w64-mingw32/lib/
+        libs/windows-x64/lib
+        )
+
+    add_library(utoxNATIVE STATIC
         src/windows/audio.c
         src/windows/dnd.c
         src/windows/drawing.c
@@ -31,15 +63,20 @@ if(WIN32)
         src/windows/os_video.c
         src/windows/video.c
         )
-    target_link_libraries(win_Native icon)
-elseif(APPLE)
-    set(U_LIBRARIES utoxAV cocoa_Native uUI )
-    list(APPEND LIBRARIES)
-elseif(UNIX) # xlib by default
-    set(U_LIBRARIES utoxAV xlib_Native uUI )
-    list(APPEND LIBRARIES v4lconvert X11 Xext Xrender fontconfig freetype resolv dl )
+    target_link_libraries(utoxNATIVE
+        iphlpapi    ws2_32      gdi32       msimg32
+        dnsapi      comdlg32    winmm       ole32
+        oleaut32    strmiids    shell32
+        opus
+        )
 
-    add_library(xlib_Native STATIC
+elseif(APPLE)
+    # We should do something here
+elseif(UNIX) # xlib by default
+
+    include_directories(/usr/include/freetype2)
+
+    add_library(utoxNATIVE STATIC
         src/xlib/audio.c
         src/xlib/dbus.c
         src/xlib/dbus.h
@@ -56,7 +93,7 @@ elseif(UNIX) # xlib by default
         src/xlib/v4l.c
         src/xlib/video.c
         )
-    target_link_libraries(xlib_Native icon)
+    target_link_libraries(utoxNATIVE icon v4lconvert X11 Xext Xrender fontconfig freetype resolv dl )
 
 endif()
 
@@ -67,10 +104,9 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -fno-strict-aliasing")
 # :: Dependencies and configuration
 #
 #######################################################################
-include_directories(/usr/include/freetype2)
 
 # TODO move this to the a new CMakeLists.txt in the ui subdir
-add_library(uUI STATIC
+add_library(utoxUI STATIC
     src/ui/button.c
     src/ui/button.h
     src/ui/buttons.c
@@ -116,6 +152,8 @@ add_library(utoxAV STATIC
     src/av/video.h
     src/av/video.c
     )
+    target_link_libraries(utoxAV openal)
+
 
 #######################################################################
 #
@@ -177,6 +215,15 @@ set_target_properties( icon PROPERTIES LINKER_LANGUAGE C )
 
 
 target_link_libraries(utox
-    ${U_LIBRARIES}
-    ${LIBRARIES}
-)
+                      utoxAV
+                      utoxNATIVE
+                      utoxUI
+                      ${TOX_LIBS}
+                      ${LIBRARIES}
+                      sodium
+                      pthread
+                      m
+                      vpx
+                      )
+
+set_property(TARGET utox PROPERTY C_STANDARD 99)

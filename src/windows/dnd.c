@@ -1,4 +1,8 @@
-#include "../main.h"
+#include "main.h"
+
+// #include "../main.h"
+#include "../flist.h"
+
 typedef struct {
     IDropTarget dt;
     LONG ref;
@@ -60,7 +64,7 @@ HRESULT __stdcall dnd_Drop(IDropTarget *lpMyObj, IDataObject * pDataObject, DWOR
     *pdwEffect = DROPEFFECT_COPY;
     debug("droppped!\n");
 
-    if (selected_item->item != ITEM_FRIEND) {
+    if (flist_get_selected()->item != ITEM_FRIEND) {
         return S_OK;
     }
 
@@ -87,7 +91,7 @@ HRESULT __stdcall dnd_Drop(IDropTarget *lpMyObj, IDataObject * pDataObject, DWOR
                 *p++ = '\n';
             }
 
-            postmessage_toxcore(TOX_FILE_SEND_NEW, (FRIEND*)selected_item->data - friend, 0xFFFF, paths);
+            postmessage_toxcore(TOX_FILE_SEND_NEW, (FRIEND*)flist_get_selected()->data - friend, 0xFFFF, paths);
         } else {
             debug_error("DnD:\tUnable to get memory for drag and drop file names... this is bad!\n");
         }

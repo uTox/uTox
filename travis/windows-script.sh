@@ -3,4 +3,9 @@ set -eux
 
 . ./travis/env.sh
 
-make FILTER_AUDIO=0 DBUS=0
+export CFLAGS="-I$CACHE_DIR/usr/include -I/usr/share/mingw-w64/include/ -std=c99 -DAL_LIBTYPE_STATIC "
+
+mkdir build_win
+cd build_win
+cmake .. -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchain-win64.cmake
+make VERBOSE=1

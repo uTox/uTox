@@ -128,7 +128,7 @@ bool button_mwheel(BUTTON *UNUSED(b), int UNUSED(height), double UNUSED(d), bool
 
 bool button_mup(BUTTON *b) {
     if (b->mousedown) {
-        if (b->mouseover) {
+        if (b->mouseover && b->onpress) {
             b->onpress();
         }
 

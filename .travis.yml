@@ -24,34 +24,53 @@ addons:
       - binutils-mingw-w64
       - gcc-mingw-w64
 
+cache:
+  directories:
+    - $HOME/cache
+
 matrix:
   fast_finish: true
   allow_failures:
     - os: osx
-    - env: BUILD=linux TOXCORE_REPO=irungentoo/toxcore
-    - env: BUILD=windows
+    # - env: BUILD=windows
+    # - env: BUILD=linux TOXCORE_REPO=irungentoo/toxcore
   include:
     - os: linux
       env: BUILD=linux TOXCORE_REPO=TokTok/c-toxcore
-      compiler: gcc
-    - os: linux
-      env: BUILD=linux TOXCORE_REPO=TokTok/c-toxcore
       compiler: clang
 
     - os: linux
-      env: BUILD=linux TOXCORE_REPO=irungentoo/toxcore
-      compiler: gcc
-    - os: linux
-      env: BUILD=linux TOXCORE_REPO=irungentoo/toxcore
-      compiler: clang
-
-    - os: linux
+      sudo: required
+      dist: trusty
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - gcc-5
+            - mingw-w64
+            - gcc-mingw-w64
+            - mingw-w64-common
+            - binutils-mingw-w64
+            - yasm
+            - libopenal-dev
+            - libopenal-data
+            - libopenal1
       env: BUILD=windows
       compiler: x86_64-w64-mingw32-gcc
 
-    - os: osx
-      compiler: clang
-      env: BUILD=osx
+    # OSX currently won't build... ask stal for help maybe?
+    # - os: osx
+    #   compiler: clang
+    #   env: BUILD=osx
+
+    # We don't support old toxcore yet/anymore
+    # - os: linux
+    #   env: BUILD=linux TOXCORE_REPO=irungentoo/toxcore
+    #   compiler: gcc
+    # - os: linux
+    #   env: BUILD=linux TOXCORE_REPO=irungentoo/toxcore
+    #   compiler: clang
 
 git:
   depth: 5
@@ -63,5 +82,19 @@ before_script:
 script:
   - ./travis/${BUILD}-script.sh
 
+after_failure:
+  - ./travis/debug_failure.sh
+
+
 notifications:
   email: false
+  irc:
+    channels:
+      - "chat.freenode.net#utox"
+    template:
+      - "TRAVIS #%{build_number} %{result} %{repository_name} %{build_url}"
+
+branches:
+  only:
+    - master
+    - develop

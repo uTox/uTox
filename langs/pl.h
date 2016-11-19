@@ -139,10 +139,10 @@ msgstr("Kliknięcie prawym przyciskiem myszy")
 /******************************************************************************
  *** Audio / Video Call Strings                                             ***
  ******************************************************************************/
-msgid(START_AUDIO_CALL)
+msgid(CALL_START_AUDIO)
 msgstr("Rozpocznij rozmowę głosową")
 
-msgid(START_VIDEO_CALL)
+msgid(CALL_START_VIDEO)
 msgstr("Rozpocznij rozmowę wideo")
 
 msgid(CALL_DECLINE)
@@ -286,9 +286,6 @@ msgstr("Dodaj nowy kontakt")
 msgid(MESSAGE)
 msgstr("Wiadomość")
 
-msgid(SEARCHFRIENDS)
-msgstr("Wyszukaj w kontaktach")
-
 msgid(FILTER_ONLINE)
 msgstr("Dostępne kontakty")
 
@@ -298,17 +295,8 @@ msgstr("Wszystkie kontakty")
 msgid(FILTER_CONTACT_TOGGLE)
 msgstr("Tylko podłączone kontakty")
 
-msgid(FILTER_TO_ALL)
-msgstr("Pokaż wszystkie kontakty")
-
-msgid(FILTER_TO_ONLINE)
-msgstr("Pokaż tylko dostępne kontakty")
-
 msgid(ADD)
 msgstr("Dodaj")
-
-msgid(SWITCHPROFILE)
-msgstr("Przełącz profil")
 
 msgid(FRIENDREQUEST)
 msgstr("Prośba o dodanie do znajomych")
@@ -322,17 +310,11 @@ msgstr("Ustawienia znajomego")
 msgid(NAME)
 msgstr("Nazwa")
 
-msgid(PROFILE)
-msgstr("Profil")
-
 msgid(STATUSMESSAGE)
 msgstr("Opis")
 
 msgid(PREVIEW)
 msgstr("Podgląd")
-
-msgid(DEVICESELECTION)
-msgstr("Wybór urządzenia")
 
 msgid(AUDIOINPUTDEVICE)
 msgstr("Urządzenie wejściowe audio")
