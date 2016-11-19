@@ -197,9 +197,11 @@ void ui_set_scale(uint8_t scale) {
 
     /* Audio/Video          */
     {
-        uint16_t preview_button_pos_y = 360;
+#ifndef AUDIO_FILTERING
+        const uint16_t preview_button_pos_y = 360;
+#endif
 #ifdef AUDIO_FILTERING
-        preview_button_pos_y = 390;
+        const uint16_t preview_button_pos_y = 390;
 #endif
         CREATE_BUTTON(callpreview, SCALE(10), SCALE(preview_button_pos_y), BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
         CREATE_BUTTON(videopreview, SCALE(70), SCALE(preview_button_pos_y), BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
@@ -255,18 +257,18 @@ void ui_set_scale(uint8_t scale) {
     // Audio & Video tab
     {
         // Each element is draw_pos_y_inc units apart and they start draw_pos_y down.
-        uint16_t draw_pos_y = 120;
-#ifdef AUDIO_FILTERING
-        draw_pos_y = 150;
+#ifndef AUDIO_FILTERING
+        const uint16_t start_draw_y = 120;
 #endif
-        const uint16_t draw_pos_y_inc = 60;
-        CREATE_DROPDOWN(global_group_notifications, SCALE(10), SCALE(draw_pos_y), SCALE(24), SCALE(100));
-        draw_pos_y += draw_pos_y_inc;
-        CREATE_DROPDOWN(audio_in, SCALE(10), SCALE(draw_pos_y), SCALE(24), SCALE(360));
-        draw_pos_y += draw_pos_y_inc;
-        CREATE_DROPDOWN(audio_out, SCALE(10), SCALE(draw_pos_y), SCALE(24), SCALE(360));
-        draw_pos_y += draw_pos_y_inc;
-        CREATE_DROPDOWN(video, SCALE(10), SCALE(draw_pos_y), SCALE(24), SCALE(360));
+#ifdef AUDIO_FILTERING
+        const uint16_t start_draw_y = 150;
+#endif
+        const uint16_t draw_y_vect = 60;
+        CREATE_DROPDOWN(global_group_notifications, SCALE(10), SCALE(start_draw_y + draw_y_vect * 0), 
+                        SCALE(24), SCALE(100));
+        CREATE_DROPDOWN(audio_in, SCALE(10), SCALE(start_draw_y + draw_y_vect * 1), SCALE(24), SCALE(360));
+        CREATE_DROPDOWN(audio_out, SCALE(10), SCALE(start_draw_y + draw_y_vect * 2), SCALE(24), SCALE(360));
+        CREATE_DROPDOWN(video, SCALE(10), SCALE(start_draw_y + draw_y_vect * 3), SCALE(24), SCALE(360));
     }
 
     // Add friend panel
