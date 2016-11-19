@@ -25,7 +25,7 @@
 #define SOLAR_CYAN 0x2aa198
 #define SOLAR_GREEN 0x859900
 
-void theme_load(char loadtheme) {
+void theme_load(const char loadtheme) {
     // Update the settings dropdown UI
 
     // ==== Default theme     ====
