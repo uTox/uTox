@@ -730,7 +730,7 @@ void utox_audio_thread(void *args) {
 
                 if (voice) {
                     size_t i, active_call_count = 0;
-                    for (i = 0; i < self.friend_list_size; i++) {
+                    for (i = 0; i < self.friend_list_count; i++) {
                         if (UTOX_SEND_AUDIO(i)) {
                             active_call_count++;
                             TOXAV_ERR_SEND_FRAME error = 0;

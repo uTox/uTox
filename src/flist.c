@@ -1,5 +1,3 @@
-// flist.c
-
 #include "flist.h"
 
 #include "theme.h"
