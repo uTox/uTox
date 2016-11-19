@@ -117,7 +117,7 @@ static void button_add_new_contact_onpress(void) {
 static void button_filter_friends_onpress(void) {
     // this only works because right now there are only 2 filters
     // (none or online), basically a bool
-    flist_set_filter(flist_get_filter());  
+    flist_set_filter(!flist_get_filter());
 }
 
 static void button_copyid_onpress(void) {
@@ -420,7 +420,9 @@ BUTTON button_usr_state = {
 };
 
 BUTTON button_filter_friends = {
-    .nodraw = true, .onpress = button_filter_friends_onpress, .tooltip_text = {.i18nal = STR_FILTER_CONTACT_TOGGLE },
+    .nodraw = true,
+    .onpress = button_filter_friends_onpress,
+    .tooltip_text = {.i18nal = STR_FILTER_CONTACT_TOGGLE },
 };
 
 BUTTON button_add_new_contact = {
