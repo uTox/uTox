@@ -1,5 +1,14 @@
-#include "../main.h"
+#include "main.h"
 #include "cursor.h"
+#include "../avatar.h"
+#include "../file_transfers.h"
+#include "../flist.h"
+#include "../messages.h"
+#include "../av/utox_av.h"
+#include "../tox.h"
+#include "../ui.h"
+#include "../ui/edit.h"
+#include "../util.h"
 
 NSCursor *cursors[8];
 
@@ -286,7 +295,7 @@ static inline void select_right_to_char(char c) {
     // option + [0-9] will jump to the n-th chat
     char n = 0;
     if (theEvent.charactersIgnoringModifiers.length == 1
-        && (theEvent.modifierFlags & NSDeviceIndependentModifierFlagsMask) == NSControlKeyMask) {
+        && (theEvent.modifierFlags & NSEventModifierFlagDeviceIndependentFlagsMask) == NSEventModifierFlagControl) {
         switch (n = [theEvent.charactersIgnoringModifiers characterAtIndex:0]) {
             case '1':
             case '2':
@@ -333,7 +342,7 @@ static inline void select_right_to_char(char c) {
 
 // TODO: NSTextInputClient
 #define FLAGS() \
-    (([NSEvent modifierFlags] & NSCommandKeyMask) ? 4 : 0) | (([NSEvent modifierFlags] & NSShiftKeyMask) ? 1 : 0)
+    (([NSEvent modifierFlags] & NSEventModifierFlagCommand) ? 4 : 0) | (([NSEvent modifierFlags] & NSEventModifierFlagShift) ? 1 : 0)
 - (void)insertTab:(id)sender {
     BEEP_IF_EDIT_NOT_ACTIVE()
 
@@ -717,7 +726,7 @@ int getbuf(char *ptr, size_t len, int value) {
     if (edit_active()) {
         // FIXME: asfasg
         ret = edit_copy(ptr, len);
-    } else if (selected_item->item == ITEM_FRIEND) {
+    } else if (flist_get_selected()->item == ITEM_FRIEND) {
         ret = messages_selection(&messages_friend, ptr, len, value);
     } else {
         ret = messages_selection(&messages_group, ptr, len, value);
@@ -774,7 +783,7 @@ void paste(void) {
 
         if (owned_ptr) {
             memcpy(owned_ptr, CFDataGetBytePtr(dat), size);
-            friend_sendimage(selected_item->data, i, CGImageGetWidth(img), CGImageGetHeight(img), (UTOX_IMAGE)owned_ptr,
+            friend_sendimage(flist_get_selected()->data, i, CGImageGetWidth(img), CGImageGetHeight(img), (UTOX_IMAGE)owned_ptr,
                              size);
         } else {
             free(i);
@@ -812,7 +821,7 @@ void notify(char *title, uint16_t title_length, const char *msg, uint16_t msg_le
         if (!is_group) {
             FRIEND *f = object;
             if (friend_has_avatar(f)) {
-                NATIVE_IMAGE *im = f->avatar.image;
+                NATIVE_IMAGE *im = f->avatar.img;
                 size_t        w = CGImageGetWidth(im->image) / im->scale, h = CGImageGetHeight(im->image) / im->scale;
                 NSImage *i = [[NSImage alloc] initWithCGImage:im->image size:(CGSize){ w, h }];
                 if ([usernotification respondsToSelector:@selector(set_identityImage:)]) {
@@ -944,7 +953,7 @@ void openfilesend(void) {
         for (NSURL *url in urls) {
             [s appendFormat:@"%@\n", url.path];
         }
-        postmessage_toxcore(TOX_FILE_SEND_NEW, (FRIEND *)selected_item->data - friend, 0xFFFF, strdup(s.UTF8String));
+        //postmessage_toxcore(TOX_FILE_SEND_NEW, (FRIEND *)selected_item->data - friend, 0xFFFF, strdup(s.UTF8String));
     }
 }
 
@@ -977,7 +986,7 @@ void openfileavatar(void) {
             [bytess release];
 
             NSAlert *alert    = [[NSAlert alloc] init];
-            alert.alertStyle  = NSWarningAlertStyle;
+            alert.alertStyle  = NSAlertStyleWarning;
             alert.messageText = emsg;
             [emsg release];
             [alert runModal];
