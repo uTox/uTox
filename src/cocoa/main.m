@@ -1,13 +1,14 @@
-#include "../ui/dropdowns.h"
-#include "../main.h"
-#include "../main_native.h"
+#include "../commands.h"
+#include "../theme.h"
 #include "../ui.h"
+#include "../ui/dropdowns.h"
 #include "../util.h"
+
 #import <AppKit/AppKit.h>
 #import <Foundation/Foundation.h>
+
 #include <libgen.h>
 #include <pthread.h>
-#include <time.h>
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <sys/types.h>
@@ -178,7 +179,7 @@ void openurl(char *str) {
 
     NSURL *url = NULL;
     if (!strncasecmp((const char *)str, "http://", 7) || !strncasecmp((const char *)str, "https://", 8)) {
-                   url = [NSURL URLWithString:urls];
+        url = [NSURL URLWithString:urls];
     } else /* it's a path */ {
         url = [NSURL fileURLWithPath:urls];
     }
@@ -480,7 +481,7 @@ void launch_at_startup(int should) {
 
     // hold COMMAND to start utox in portable mode
     // unfortunately, OS X doesn't have the luxury of passing argv in the GUI
-    if ([NSEvent modifierFlags] & NSCommandKeyMask) {
+    if ([NSEvent modifierFlags] & NSEventModifierFlagCommand) {
         settings.portable_mode = 1;
     }
 
@@ -498,7 +499,7 @@ void launch_at_startup(int should) {
     char title_name[128];
     snprintf(title_name, 128, "%s %s (version: %s)", TITLE, SUB_TITLE, VERSION);
 
-#define WINDOW_MASK (NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask | NSResizableWindowMask)
+#define WINDOW_MASK (NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable)
     self.utox_window = [[NSWindow alloc]
         initWithContentRect:(NSRect) { save->window_x, save->window_y, save->window_width, save->window_height }
                   styleMask:WINDOW_MASK

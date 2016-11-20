@@ -1,7 +1,7 @@
 #include "main.h"
-#include "../main.h"
 #include "../friend.h"
 #include "../tox.h"
+#include "../util.h"
 #include "../av/utox_av.h"
 #import <OpenGL/gl.h>
 #import <OpenGL/glext.h>
@@ -386,8 +386,8 @@ uint16_t native_video_detect(void) {
     (CGRect) { 0, 0, 100, 100 }
     NSWindow *ret =
         [[uToxIroncladWindow alloc] initWithContentRect:START_RECT
-                                              styleMask:NSHUDWindowMask | NSUtilityWindowMask | NSClosableWindowMask
-                                                  | NSTitledWindowMask | NSWindowStyleMaskResizable
+                                              styleMask:NSWindowStyleMaskHUDWindow | NSWindowStyleMaskUtilityWindow | NSWindowStyleMaskClosable
+                                                  | NSWindowStyleMaskTitled | NSWindowStyleMaskResizable
                                                   backing:NSBackingStoreBuffered
                                                     defer:YES];
     ret.hidesOnDeactivate = NO;
@@ -505,15 +505,16 @@ void video_begin(uint32_t _id, char *name, uint16_t name_length, uint16_t width,
     int rswidth             = width + chrome_metric_w;
     int rsheight            = height + chrome_metric_h;
 
-    [video_win
-        setFrame:(CGRect) { CGRectGetMaxX(utoxwin.frame), CGRectGetMaxY(utoxwin.frame) - rsheight, rswidth, rsheight }
-         display:YES];
-                 ((uToxIroncladView *)video_win.contentView).videoSize = (CGSize){ width, height };
-                 video_win.contentAspectRatio                          = (CGSize){ width, height };
-                 [utoxapp setIroncladWindow:video_win forID:_id];
+    [video_win setFrame:(CGRect) { CGRectGetMaxX(utoxwin.frame), 
+        CGRectGetMaxY(utoxwin.frame) - rsheight, rswidth, rsheight }
+        display:YES];
 
-                 [video_win makeKeyAndOrderFront:utoxapp];
-                 [video_win release];
+    ((uToxIroncladView *)video_win.contentView).videoSize = (CGSize){ width, height };
+    video_win.contentAspectRatio                          = (CGSize){ width, height };
+    [utoxapp setIroncladWindow:video_win forID:_id];
+
+    [video_win makeKeyAndOrderFront:utoxapp];
+    [video_win release];
 }
 
 void video_end(uint32_t id) {

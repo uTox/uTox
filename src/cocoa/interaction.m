@@ -1,15 +1,14 @@
 #include "main.h"
+#include "cursor.h"
 #include "../avatar.h"
 #include "../file_transfers.h"
 #include "../flist.h"
-#include "../friend.h"
 #include "../messages.h"
 #include "../av/utox_av.h"
 #include "../tox.h"
 #include "../ui.h"
 #include "../ui/edit.h"
 #include "../util.h"
-#include "cursor.h"
 
 NSCursor *cursors[8];
 
@@ -727,8 +726,8 @@ int getbuf(char *ptr, size_t len, int value) {
     if (edit_active()) {
         // FIXME: asfasg
         ret = edit_copy(ptr, len);
-    //} else if (selected_item->item == ITEM_FRIEND) {
-    //    ret = messages_selection(&messages_friend, ptr, len, value);
+    } else if (flist_get_selected()->item == ITEM_FRIEND) {
+        ret = messages_selection(&messages_friend, ptr, len, value);
     } else {
         ret = messages_selection(&messages_group, ptr, len, value);
     }
@@ -784,8 +783,8 @@ void paste(void) {
 
         if (owned_ptr) {
             memcpy(owned_ptr, CFDataGetBytePtr(dat), size);
-            //friend_sendimage(selected_item->data, i, CGImageGetWidth(img), CGImageGetHeight(img), (UTOX_IMAGE)owned_ptr,
-             //                size);
+            friend_sendimage(flist_get_selected()->data, i, CGImageGetWidth(img), CGImageGetHeight(img), (UTOX_IMAGE)owned_ptr,
+                             size);
         } else {
             free(i);
             NSLog(@"ran out of memory, we will just do nothing and hope user doesn't notice because we're probably not "

@@ -1,5 +1,4 @@
 #include "main.h"
-#include "../main.h"
 #include "../av/utox_av.h"
 #include "../friend.h"
 #include "../flist.h"
@@ -145,8 +144,8 @@ static void stardust_display_capping_done(bool video, uint64_t ret, NSWindow *wi
             memcpy(owned_ptr, CFDataGetBytePtr(dat), size);
             CFRelease(dat);
 
-            //friend_sendimage(selected_item->data, img, CGImageGetWidth(inliness), CGImageGetHeight(inliness),
-            //                 (UTOX_IMAGE)owned_ptr, size);
+            friend_sendimage(flist_get_selected()->data, img, CGImageGetWidth(inliness), CGImageGetHeight(inliness),
+                             (UTOX_IMAGE)owned_ptr, size);
         } else {
             desktop_capture_from  = screen_id;
             CGRect rect           = [v getRect];
