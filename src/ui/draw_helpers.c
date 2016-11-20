@@ -206,13 +206,13 @@ void draw_add_friend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int height) {
     setfont(FONT_TEXT);
     drawstr(MAIN_LEFT + SCALE(10), MAIN_TOP + SCALE(10), TOXID);
 
-    drawstr(MAIN_LEFT + SCALE(10), MAIN_TOP + UTOX_SCALE(29), MESSAGE);
+    drawstr(MAIN_LEFT + SCALE(10), MAIN_TOP + SCALE(58), MESSAGE);
 
     if (settings.force_proxy) {
         int push = UTOX_STR_WIDTH(TOXID);
         setfont(FONT_MISC);
         setcolor(C_RED);
-        drawstr(MAIN_LEFT + SCALE(20) + push, MAIN_TOP + UTOX_SCALE(6), DNS_DISABLED);
+        drawstr(MAIN_LEFT + SCALE(20) + push, MAIN_TOP + SCALE(12), DNS_DISABLED);
     }
 
     if (addfriend_status) {
@@ -318,7 +318,7 @@ void draw_settings_sub_header(int x, int y, int UNUSED(w), int UNUSED(height)) {
     } else {
         DRAW_OVERLINE();
     }
-    drawvline(x_right_edge, y + SCALE(0), y + UTOX_SCALE(15), COLOR_EDGE_NORMAL);
+    drawvline(x_right_edge, y + SCALE(0), y + SCALE(30), COLOR_EDGE_NORMAL);
 #endif
 
     /* Draw the text and bars for network settings */

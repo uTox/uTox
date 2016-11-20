@@ -371,7 +371,7 @@ static bool font_open(FONT *a_font, ...) {
 
     a_font->info[1].face = NULL;
 
-    return 1;
+    return true;
 }
 
 void loadfonts(void) {
@@ -386,7 +386,7 @@ void loadfonts(void) {
         debug("ft_vert\n");
     }
 
-#define F(x) (UTOX_SCALE(x) / 2.0)
+#define F(x) (SCALE(x) * 1.0)
     font_open(&font[FONT_TEXT], FC_FAMILY, FcTypeString, UTOX_FONT_XLIB, FC_PIXEL_SIZE, FcTypeDouble, F(12.0),
               FC_WEIGHT, FcTypeInteger, FC_WEIGHT_NORMAL, FC_SLANT, FcTypeInteger, FC_SLANT_ROMAN, NULL);
 
@@ -407,14 +407,13 @@ void loadfonts(void) {
     // FC_WEIGHT, FcTypeInteger, FC_WEIGHT_LIGHT,  NULL);
     font_open(&font[FONT_MISC], FC_FAMILY, FcTypeString, UTOX_FONT_XLIB, FC_PIXEL_SIZE, FcTypeDouble, F(10.0),
               FC_WEIGHT, FcTypeInteger, FC_WEIGHT_NORMAL, FC_SLANT, FcTypeInteger, FC_SLANT_ROMAN, NULL);
-// font_open(&font[FONT_MSG_LINK], FC_FAMILY, FcTypeString, UTOX_FONT_XLIB, FC_PIXEL_SIZE, FcTypeDouble, F(11.0),
-//           FC_WEIGHT, FcTypeInteger, FC_WEIGHT_LIGHT,  NULL);
+    // font_open(&font[FONT_MSG_LINK], FC_FAMILY, FcTypeString, UTOX_FONT_XLIB, FC_PIXEL_SIZE, FcTypeDouble, F(11.0),
+    //           FC_WEIGHT, FcTypeInteger, FC_WEIGHT_LIGHT,  NULL);
 #undef F
 }
 
 void freefonts(void) {
-    int i;
-    for (i = 0; i != countof(font); i++) {
+    for (int i = 0; i != countof(font); i++) {
         FONT *f = &font[i];
         if (f->pattern) {
             FcPatternDestroy(f->pattern);
@@ -429,8 +428,7 @@ void freefonts(void) {
             free(f->info);
         }
 
-        int j = 0;
-        for (j = 0; j != countof(f->glyphs); j++) {
+        for (int j = 0; j != countof(f->glyphs); j++) {
             GLYPH *g = f->glyphs[j];
             if (g) {
                 while (g->ucs4 != ~0) {

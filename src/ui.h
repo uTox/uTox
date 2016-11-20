@@ -168,16 +168,16 @@ double ui_scale;
 
 
 /* Main panel defines */
-#define MAIN_LEFT (UTOX_SCALE(115)) + 1
-#define MAIN_TOP (UTOX_SCALE(30))
+#define MAIN_LEFT (SCALE(230)) + 1
+#define MAIN_TOP (SCALE(60))
 
 /* Legacy defines, instead of using these, you should replace them with something more descriptive */
-#define LIST_Y2 (UTOX_SCALE(43))
-#define LIST_BUTTON_Y (-UTOX_SCALE(13))
-#define MESSAGES_SPACING (UTOX_SCALE(2))
-#define MESSAGES_X (UTOX_SCALE(55))
-#define TIME_WIDTH (UTOX_SCALE(20))
-#define ACTUAL_TIME_WIDTH (UTOX_SCALE(16))
-#define NAME_OFFSET (UTOX_SCALE(7))
+#define LIST_Y2 (SCALE(86))
+#define LIST_BUTTON_Y (SCALE(-26))
+#define MESSAGES_SPACING (SCALE(4))
+#define MESSAGES_X (SCALE(110))
+#define TIME_WIDTH (SCALE(40))
+#define ACTUAL_TIME_WIDTH (SCALE(32))
+#define NAME_OFFSET (SCALE(14))
 
 #endif

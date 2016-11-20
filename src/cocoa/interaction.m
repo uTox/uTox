@@ -92,8 +92,7 @@ static CGRect find_ui_object_in_window(const PANEL *ui) {
     if (did_find) {
         int x = ui_element->x, y = ui_element->y, width = settings.window_width, height = settings.window_height;
 
-        int i = 0;
-        while (path[i] != -1) {
+        for (int i = 0; path[i] != -1; i++) {
             // debug("@: %d %d %d %d", x, y, width, height);
             // debug("%d %d %d %p", i, path[i], ui_element->child[path[i]]->type,
             // ui_element->child[path[i]]->content_scroll);
@@ -102,12 +101,10 @@ static CGRect find_ui_object_in_window(const PANEL *ui) {
             switch (ui_element->type) {
                 case 6:
                     _apply_generic_transform(EDIT, ui_element);
-                    height += UTOX_SCALE(4); // seems to be the magic number
+                    height += SCALE(8); // seems to be the magic number
                     break;
                 default: _apply_generic_transform(PANEL, ui_element); break;
             }
-
-            i++;
         }
 
         ret = CGRectMake(x, settings.window_height - height - y, width, height);

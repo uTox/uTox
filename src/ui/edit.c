@@ -94,7 +94,7 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height) {
     if (!edit->length && maybe_i18nal_string_is_valid(&edit->empty_str)) {
         STRING *empty_str_text = maybe_i18nal_string_get(&edit->empty_str);
         setcolor(COLOR_MAIN_TEXT_HINT);
-        drawtext(x + SCALE(4), yy + UTOX_SCALE(top_offset), empty_str_text->str, empty_str_text->length);
+        drawtext(x + SCALE(4), yy + SCALE(top_offset* 2), empty_str_text->str, empty_str_text->length);
     }
 
     bool is_active = (edit == active_edit);
@@ -209,7 +209,7 @@ bool edit_mdown(EDIT *edit) {
 
 bool edit_dclick(EDIT *edit, bool triclick) {
     if (edit != active_edit) {
-        return 0;
+        return false;
     }
 
     if (edit->mouseover_char > edit->length) {
@@ -230,7 +230,7 @@ bool edit_dclick(EDIT *edit, bool triclick) {
     edit_sel.p2     = i;
     edit_sel.length = i - edit_sel.start;
 
-    return 1;
+    return true;
 }
 
 static void contextmenu_edit_onselect(uint8_t i) {
@@ -267,13 +267,13 @@ bool edit_mright(EDIT *edit) {
 
         contextmenu_new(countof(menu_edit), menu_edit, contextmenu_edit_onselect);
 
-        return 1;
+        return true;
     } else if (active_edit == edit) {
         edit_resetfocus(); // lose focus if right mouse button is pressed somewhere else
-        return 1;          // redraw
+        return true;          // redraw
     }
 
-    return 0;
+    return false;
 }
 
 void edit_press(void) {
@@ -283,15 +283,15 @@ void edit_press(void) {
 
 bool edit_mwheel(EDIT *edit, int height, double d, bool smooth) {
     if (edit->multiline) {
-        return scroll_mwheel(edit->scroll, height - UTOX_SCALE(4), d, smooth);
+        return scroll_mwheel(edit->scroll, height - SCALE(8), d, smooth);
     }
-    return 0;
+    return false;
 }
 
 bool edit_mup(EDIT *edit) {
     if (edit->multiline) {
         if (scroll_mup(edit->scroll)) {
-            return 1;
+            return true;
         }
     }
 
@@ -300,16 +300,16 @@ bool edit_mup(EDIT *edit) {
         edit_select = 0;
     }
 
-    return 0;
+    return false;
 }
 
 bool edit_mleave(EDIT *edit) {
     if (edit->mouseover) {
-        edit->mouseover = 0;
-        return 1;
+        edit->mouseover = false;
+        return true;
     }
 
-    return 0;
+    return false;
 }
 
 static void edit_redraw(void) {
@@ -403,7 +403,7 @@ void edit_char(uint32_t ch, bool control, uint8_t flags) {
     EDIT *edit = active_edit;
 
     if (control || (ch <= 0x1F && (!edit->multiline || ch != '\n')) || (ch >= 0x7f && ch <= 0x9F)) {
-        bool modified = 0;
+        bool modified = false;
 
         switch (ch) {
             case KEY_BACK: {
@@ -417,7 +417,7 @@ void edit_char(uint32_t ch, bool control, uint8_t flags) {
                         break;
                     }
 
-                    modified = 1;
+                    modified = true;
 
                     /* same as ctrl+left */
                     if (flags & EMOD_CTRL) {
@@ -466,7 +466,7 @@ void edit_char(uint32_t ch, bool control, uint8_t flags) {
                 edit_sel.p1     = edit_sel.start;
                 edit_sel.p2     = edit_sel.start;
                 edit_sel.length = 0;
-                modified        = 1;
+                modified        = true;
                 break;
             }
 
@@ -648,7 +648,7 @@ void edit_char(uint32_t ch, bool control, uint8_t flags) {
                         edit_sel.p2     = p;
                         edit_sel.start  = p;
                         edit_sel.length = 0;
-                        modified        = 1;
+                        modified        = true;
                     }
                     break;
                 } else {
@@ -664,22 +664,20 @@ void edit_char(uint32_t ch, bool control, uint8_t flags) {
                     edit_sel.p2     = p;
                     edit_sel.start  = p;
                     edit_sel.length = 0;
-                    modified        = 1;
+                    modified        = false;
                 }
                 break;
             }
 
             case KEY_RETURN: {
-                modified = 1;
+                modified = true;
 
                 if (edit->onenter && !(flags & EMOD_CTRL)) {
                     edit->onenter(edit);
                     /*dirty*/
                     if (edit->length == 0) {
-                        uint16_t i = 0;
-                        while (i != edit->history_length) {
+                        for (uint16_t i = 0; i != edit->history_length; i++) {
                             free(edit->history[i]);
-                            i++;
                         }
                         free(edit->history);
                         edit->history        = NULL;
@@ -743,8 +741,9 @@ void edit_char(uint32_t ch, bool control, uint8_t flags) {
 }
 
 int edit_selection(EDIT *edit, char *data, int len) {
-    if (data)
+    if (data) {
         memcpy(data, edit->data + edit_sel.start, edit_sel.length);
+    }
     return edit_sel.length;
 }
 
@@ -763,7 +762,7 @@ void edit_paste(char *data, int length, bool select) {
 
     length = utf8_validate((uint8_t *)data, length);
 
-    int maxlen = active_edit->maxlength - active_edit->length + edit_sel.length;
+    const int maxlen = active_edit->maxlength - active_edit->length + edit_sel.length;
     int newlen = 0, i = 0;
     while (i < length) {
         uint8_t len = utf8_len(data + i);

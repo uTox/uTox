@@ -360,14 +360,12 @@ void setscale_fonts(void) {
     CFStringRef reg  = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%s-Regular"), fontname);
     CFStringRef bold = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%s-Bold"), fontname);
 
-#define LOCAL_SCALE(x) (UTOX_SCALE(x) / 2.0)
-    fonts[FONT_TEXT]      = CTFontCreateWithNameAndOptions(reg, LOCAL_SCALE(12.0), NULL, kCTFontOptionsDefault);
-    fonts[FONT_STATUS]    = CTFontCreateWithNameAndOptions(reg, LOCAL_SCALE(11.0), NULL, kCTFontOptionsDefault);
-    fonts[FONT_LIST_NAME] = CTFontCreateWithNameAndOptions(reg, LOCAL_SCALE(12.0), NULL, kCTFontOptionsDefault);
-    fonts[FONT_TITLE]     = CTFontCreateWithNameAndOptions(bold, LOCAL_SCALE(12.0), NULL, kCTFontOptionsDefault);
-    fonts[FONT_SELF_NAME] = CTFontCreateWithNameAndOptions(bold, LOCAL_SCALE(14.0), NULL, kCTFontOptionsDefault);
-    fonts[FONT_MISC]      = CTFontCreateWithNameAndOptions(bold, LOCAL_SCALE(10.0), NULL, kCTFontOptionsDefault);
-#undef LOCAL_SCALE
+    fonts[FONT_TEXT]      = CTFontCreateWithNameAndOptions(reg, SCALE(12.0), NULL, kCTFontOptionsDefault);
+    fonts[FONT_STATUS]    = CTFontCreateWithNameAndOptions(reg, SCALE(11.0), NULL, kCTFontOptionsDefault);
+    fonts[FONT_LIST_NAME] = CTFontCreateWithNameAndOptions(reg, SCALE(12.0), NULL, kCTFontOptionsDefault);
+    fonts[FONT_TITLE]     = CTFontCreateWithNameAndOptions(bold, SCALE(12.0), NULL, kCTFontOptionsDefault);
+    fonts[FONT_SELF_NAME] = CTFontCreateWithNameAndOptions(bold, SCALE(14.0), NULL, kCTFontOptionsDefault);
+    fonts[FONT_MISC]      = CTFontCreateWithNameAndOptions(bold, SCALE(10.0), NULL, kCTFontOptionsDefault);
 #undef COCOA_BASE_FONT_NEW
 #undef COCOA_BASE_FONT_OLD
 

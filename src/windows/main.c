@@ -686,7 +686,7 @@ LRESULT CALLBACK GrabProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam) {
         if (video_grab_x < video_grab_w) {
             video_grab_w -= video_grab_x;
         } else {
-            int w        = video_grab_x - video_grab_w;
+            const int w  = video_grab_x - video_grab_w;
             video_grab_x = video_grab_w;
             video_grab_w = w;
         }
@@ -694,7 +694,7 @@ LRESULT CALLBACK GrabProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam) {
         if (video_grab_y < video_grab_h) {
             video_grab_h -= video_grab_y;
         } else {
-            int w        = video_grab_y - video_grab_h;
+            const int w  = video_grab_y - video_grab_h;
             video_grab_y = video_grab_h;
             video_grab_h = w;
         }
@@ -733,7 +733,7 @@ LRESULT CALLBACK GrabProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam) {
 }
 
 void freefonts() {
-    for (int i = 0; i != countof(font); i++) {
+    for (size_t i = 0; i != countof(font); i++) {
         if (font[i]) {
             DeleteObject(font[i]);
         }
@@ -749,7 +749,7 @@ void loadfonts() {
         .lfFaceName     = "DejaVu Sans",
     };
 
-#define F(x) ((UTOX_SCALE(-x) - 1) / 2)
+#define F(x) ((SCALE(-x * 2) - 1) / 2)
     lf.lfHeight     = F(12);
     font[FONT_TEXT] = CreateFontIndirect(&lf);
 
