@@ -185,6 +185,7 @@ bool native_create_dir(const char *filepath) {
     return false;
 }
 
+#if 0
 /** Takes data from µTox and saves it, just how the OS likes it saved! */
 size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *data, size_t length, bool append) {
     char path[UTOX_FILE_NAME_LENGTH]        = { 0 };
@@ -239,6 +240,7 @@ size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *
 
     return 0;
 }
+#endif
 
 /** Takes data from µTox and loads it up! */
 uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_size) {

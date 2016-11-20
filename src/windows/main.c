@@ -37,99 +37,6 @@ static int utf8_to_nativestr(char *str, wchar_t *out, int length) {
     return MultiByteToWideChar(CP_UTF8, 0, (char *)str, -1, out, length);
 }
 
-int native_to_utf8str(wchar_t *str_in, char *str_out, uint32_t max_size) {
-    /* must be null terminated string          ↓                     */
-    return WideCharToMultiByte(CP_UTF8, 0, str_in, -1, str_out, max_size, NULL, NULL);
-}
-
-void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data) {
-    PostMessage(hwnd, WM_TOX + (msg), ((param1) << 16) | (param2), (LPARAM)data);
-}
-
-void init_ptt(void) {
-    settings.push_to_talk = 1;
-}
-
-bool check_ptt_key(void) {
-    if (!settings.push_to_talk) {
-        // debug("PTT is disabled\n");
-        return 1; /* If push to talk is disabled, return true. */
-    }
-
-    if (GetAsyncKeyState(VK_LCONTROL)) {
-        // debug("PTT key is down\n");
-        return 1;
-    } else {
-        // debug("PTT key is up\n");
-        return 0;
-    }
-}
-
-void exit_ptt(void) {
-    settings.push_to_talk = 0;
-}
-
-void thread(void func(void *), void *args) {
-    _beginthread(func, 0, args);
-}
-
-void yieldcpu(uint32_t ms) {
-    Sleep(ms);
-}
-
-uint64_t get_time(void) {
-    return ((uint64_t)clock() * 1000 * 1000);
-}
-
-void openurl(char *str) {
-    //! convert
-    ShellExecute(NULL, "open", (char *)str, NULL, NULL, SW_SHOW);
-}
-
-FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS flags) {
-    return NULL;
-}
-
-FILE *native_load_chatlog_file(uint32_t friend_number) {
-    FRIEND *f = &friend[friend_number];
-    uint8_t hex[TOX_PUBLIC_KEY_SIZE * 2];
-    uint8_t path[UTOX_FILE_NAME_LENGTH];
-
-    cid_to_string(hex, f->cid);
-
-    if (settings.portable_mode) {
-        strcpy((char *)path, portable_mode_save_path);
-    } else {
-        bool have_path = 0;
-        have_path      = SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, (char *)path));
-
-        if (!have_path) {
-            have_path = SUCCEEDED(SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, (char *)path));
-        }
-
-        if (!have_path) {
-            strcpy((char *)path, portable_mode_save_path);
-            have_path = 1;
-        }
-    }
-
-    if (strlen((const char *)path) + sizeof(hex) >= UTOX_FILE_NAME_LENGTH) {
-        debug("NATIVE:\tLoad directory name too long\n");
-        return 0;
-    } else {
-        snprintf((char *)path + strlen((const char *)path), UTOX_FILE_NAME_LENGTH - strlen((const char *)path),
-                 "\\Tox\\%.*s.new.txt", (int)sizeof(hex), (char *)hex);
-    }
-
-
-    FILE *file = fopen((const char *)path, "rb+");
-    if (!file) {
-        // debug("NATIVE:\tUnable to open/read %s\n", path);
-        return NULL;
-    }
-
-    return file;
-}
 
 bool native_remove_file(const uint8_t *name, size_t length) {
     uint8_t path[UTOX_FILE_NAME_LENGTH] = { 0 };
@@ -284,6 +191,70 @@ void savefiledata(MSG_FILE *file) {
         debug("GetSaveFileName() failed\n");
     }
     free(path);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+int native_to_utf8str(wchar_t *str_in, char *str_out, uint32_t max_size) {
+    /* must be null terminated string          ↓                     */
+    return WideCharToMultiByte(CP_UTF8, 0, str_in, -1, str_out, max_size, NULL, NULL);
+}
+
+void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data) {
+    PostMessage(hwnd, WM_TOX + (msg), ((param1) << 16) | (param2), (LPARAM)data);
+}
+
+void init_ptt(void) {
+    settings.push_to_talk = 1;
+}
+
+bool check_ptt_key(void) {
+    if (!settings.push_to_talk) {
+        // debug("PTT is disabled\n");
+        return 1; /* If push to talk is disabled, return true. */
+    }
+
+    if (GetAsyncKeyState(VK_LCONTROL)) {
+        // debug("PTT key is down\n");
+        return 1;
+    } else {
+        // debug("PTT key is up\n");
+        return 0;
+    }
+}
+
+void exit_ptt(void) {
+    settings.push_to_talk = 0;
+}
+
+void thread(void func(void *), void *args) {
+    _beginthread(func, 0, args);
+}
+
+void yieldcpu(uint32_t ms) {
+    Sleep(ms);
+}
+
+uint64_t get_time(void) {
+    return ((uint64_t)clock() * 1000 * 1000);
+}
+
+void openurl(char *str) {
+    //! convert
+    ShellExecute(NULL, "open", (char *)str, NULL, NULL, SW_SHOW);
 }
 
 void setselection(char *data, uint16_t length) {}
