@@ -77,8 +77,40 @@ if(WIN32)
 
     set(WINDOWS_ICON icons/icon.rc)
 
-elseif(APPLE)
-    # We should do something here
+elseif(APPLE) # Mac has a lot of dependencies
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -x objective-c")
+
+    add_library(utoxNATIVE STATIC
+        src/cocoa/MainMenu.xib
+        src/cocoa/cursor.h
+        src/cocoa/drawing.m
+        src/cocoa/grabdesktop.m
+        src/cocoa/interaction.m
+        src/cocoa/main.h
+        src/cocoa/main.m
+        src/cocoa/objc_main.h
+        src/cocoa/video.m
+        )
+
+    target_link_libraries(utoxNATIVE
+        "-framework AppKit"
+        "-framework ApplicationServices"
+        "-framework AVFoundation"
+        "-framework Cocoa"
+        "-framework CoreData"
+        "-framework CoreFoundation"
+        "-framework CoreGraphics"
+        "-framework CoreMedia"
+        "-framework CoreText"
+        "-framework CoreVideo"
+        "-framework Foundation"
+        "-framework OpenAL"
+        "-framework OpenGL"
+        "-framework QuartzCore"
+        -lresolv
+        )
+
+    set(APPLE_ICON icons/utox.icns)
 elseif(UNIX) # xlib by default
 
     include_directories(/usr/include/freetype2)
@@ -209,6 +241,7 @@ add_executable(utox
     src/util.h
 
     ${WINDOWS_ICON}
+    ${APPLE_ICON}
 
     )
 

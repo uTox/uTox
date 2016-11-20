@@ -1,4 +1,7 @@
-#import "../main.h"
+#include "main.h"
+#include "../av/utox_av.h"
+#include "../friend.h"
+#include "../flist.h"
 
 static void stardust_display_capping_done(bool video, uint64_t ret, NSWindow *window);
 static inline CGRect CGRectCentreInRect(CGRect r1, CGRect r2) {
@@ -23,7 +26,7 @@ static inline CGRect CGRectCentreInRect(CGRect r1, CGRect r2) {
 + (NSWindow *)createWindowOnScreen:(NSScreen *)target {
     NSWindow *ret =
         [[NSWindow alloc] initWithContentRect:CGRectMake(0, 0, target.frame.size.width, target.frame.size.height)
-                                    styleMask:NSBorderlessWindowMask
+                                    styleMask:NSWindowStyleMaskBorderless
                                       backing:NSBackingStoreBuffered
                                         defer:NO
                                        screen:target];
@@ -37,7 +40,7 @@ static inline CGRect CGRectCentreInRect(CGRect r1, CGRect r2) {
 - (instancetype)initWithFrame:(NSRect)frameRect {
     self = [super initWithFrame:frameRect];
     if (self) {
-        returnRect       = (CGRect){ 0 };
+        returnRect       = (CGRect) { 0 };
         CGRect mainFrame = ((uToxAppDelegate *)[NSApp delegate]).utox_window.frame;
         CGRect posRect   = CGRectOffset(CGRectCentreInRect((CGRect){ 0, 0, 480, 40 }, mainFrame), mainFrame.origin.x,
                                       mainFrame.origin.y);
@@ -50,7 +53,7 @@ static inline CGRect CGRectCentreInRect(CGRect r1, CGRect r2) {
         self.instruction.drawsBackground = NO;
         self.instruction.editable        = NO;
         self.instruction.font            = [NSFont systemFontOfSize:16.0];
-        self.instruction.alignment       = NSCenterTextAlignment;
+        self.instruction.alignment       = NSTextAlignmentCenter;
         [self addSubview:self.instruction];
     }
     return self;
@@ -141,7 +144,7 @@ static void stardust_display_capping_done(bool video, uint64_t ret, NSWindow *wi
             memcpy(owned_ptr, CFDataGetBytePtr(dat), size);
             CFRelease(dat);
 
-            friend_sendimage(selected_item->data, img, CGImageGetWidth(inliness), CGImageGetHeight(inliness),
+            friend_sendimage(flist_get_selected()->data, img, CGImageGetWidth(inliness), CGImageGetHeight(inliness),
                              (UTOX_IMAGE)owned_ptr, size);
         } else {
             desktop_capture_from  = screen_id;
