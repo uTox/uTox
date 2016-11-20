@@ -409,7 +409,7 @@ static void init_self(Tox *tox) {
 
     char hex_id[TOX_FRIEND_ADDRESS_SIZE * 2];
     id_to_string(hex_id, self.id_binary);
-    avatar_init_self(self.id_str);
+    avatar_init_self();
 }
 
 /** void toxcore_thread(void)

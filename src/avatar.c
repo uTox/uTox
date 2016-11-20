@@ -9,13 +9,13 @@ static void avatar_free_image(AVATAR *avatar) {
     if (avatar) {
         image_free(avatar->img);
         avatar->img = NULL;
+        avatar->size = 0;
     }
 }
 
-bool save_avatar(char hexid[64], const uint8_t *data, uint32_t length) {
-    char    name[sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png")];
-    FILE *  fp;
-    size_t *size = 0;
+bool save_avatar(char hexid[64], const uint8_t *data, size_t length) {
+    char name[sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png")];
+    FILE *fp;
 
 #ifdef __WIN32__
         snprintf(name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"), "avatars\\%.*s.png",
@@ -25,10 +25,10 @@ bool save_avatar(char hexid[64], const uint8_t *data, uint32_t length) {
                  TOX_PUBLIC_KEY_SIZE * 2, hexid);
 #endif
 
-    fp = native_get_file(name, size, UTOX_FILE_OPTS_WRITE);
+    fp = native_get_file(name, NULL, UTOX_FILE_OPTS_WRITE);
 
     if (fp == NULL) {
-        debug("Avatars:\tCould not open avatar for: %s\n", hexid);
+        debug("Avatars:\tCould not open avatar for: %.*s\n", (int)sizeof(*hexid), hexid);
         return false;
     }
 
@@ -40,8 +40,6 @@ bool save_avatar(char hexid[64], const uint8_t *data, uint32_t length) {
 
 uint8_t *load_img_data(char hexid[64], size_t *out_size) {
     char name[sizeof("avatars/") + sizeof(*hexid) + sizeof(".png")];
-
-    printf("hexid: %s\n", hexid);
 
 #ifdef __WIN32__
     snprintf(name, sizeof(*name), "avatar\\%.*s.png", (int)sizeof(*hexid), hexid);
@@ -109,6 +107,7 @@ static bool load_avatar(char hexid[64], AVATAR *avatar, size_t *size_out) {
 
     avatar->img = utox_image_to_native(img, size, &avatar->width, &avatar->height, true);
     if (avatar->img) {
+        avatar->size = size;
         if (size_out) {
             *size_out = size;
         }
@@ -138,6 +137,7 @@ bool avatar_set(AVATAR *avatar, const uint8_t *data, size_t size) {
 
     avatar->img    = image;
     avatar->format = UTOX_AVATAR_FORMAT_PNG;
+    avatar->size   = size;
     tox_hash(avatar->hash, data, size);
 
     return true;
@@ -177,14 +177,13 @@ bool avatar_init(char hexid[64], AVATAR *avatar) {
     return load_avatar(hexid, avatar, NULL);
 }
 
-bool avatar_init_self(char hexid[64]) {
-    size_t size = 0;
+bool avatar_init_self(void) {
     self.avatar = calloc(1, sizeof(AVATAR));
     if (!self.avatar) {
         return false;
     }
 
-    return load_avatar(hexid, self.avatar, &size);
+    return load_avatar(self.id_str, self.avatar, NULL);
 }
 
 bool self_set_and_save_avatar(const uint8_t *data, uint32_t size) {

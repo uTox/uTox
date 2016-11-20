@@ -43,7 +43,7 @@ bool avatar_set_self(const uint8_t *data, size_t size);
 
 /* unsets an avatar by setting its format to UTOX_AVATAR_FORMAT_NONE and
  * freeing its image */
-void unset_avatar(AVATAR *avatar);
+void avatar_unset(AVATAR *avatar);
 
 /* Helper function to unset the user's avatar */
 void avatar_unset_self(void);
@@ -80,7 +80,7 @@ void utox_incoming_avatar(uint32_t friend_number, uint8_t *avatar, size_t size);
  * returns true on success
  * returns false on failure
  */
-bool save_avatar(char hexid[64], const uint8_t *data, uint32_t length);
+bool save_avatar(char hexid[64], const uint8_t *data, size_t length);
 
 /* Deletes the avatar for user with hexid
  *
@@ -95,5 +95,8 @@ bool avatar_delete(char hexid[64]);
  * returns NULL on failure
  */
 uint8_t *load_img_data(char hexid[64], size_t *out_size);
+
+/* Helper function to intialize the users avatar */
+bool avatar_init_self(void);
 
 #endif
