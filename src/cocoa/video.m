@@ -1,4 +1,4 @@
-#import "../main.h"
+#import "main.h"
 #import <OpenGL/gl.h>
 #import <OpenGL/glext.h>
 #include <pthread.h>

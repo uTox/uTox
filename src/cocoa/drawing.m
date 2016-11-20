@@ -1,4 +1,7 @@
+#import "main.h"
+#import "objc_main.h"
 #import "../main.h"
+#import "../ui/svg.h"
 
 #ifdef UTOX_COCOA_BRAVE
 #define DRAW_TARGET_CHK()

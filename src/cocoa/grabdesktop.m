@@ -1,4 +1,6 @@
+#import "main.h"
 #import "../main.h"
+#import "../av/utox_av.h"
 
 static void stardust_display_capping_done(bool video, uint64_t ret, NSWindow *window);
 static inline CGRect CGRectCentreInRect(CGRect r1, CGRect r2) {

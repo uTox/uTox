@@ -1,4 +1,4 @@
-#include "../main.h"
+#include "main.h"
 #include "cursor.h"
 
 NSCursor *cursors[8];

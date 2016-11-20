@@ -1,4 +1,4 @@
-#include "../main.h"
+#include "main.h"
 #import <AppKit/AppKit.h>
 #import <Foundation/Foundation.h>
 #include <libgen.h>

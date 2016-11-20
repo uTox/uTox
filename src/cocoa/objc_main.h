@@ -45,6 +45,7 @@ typedef struct {
         [[NSProcessInfo processInfo] isOperatingSystemAtLeastVersion:(NSOperatingSystemVersion){ a, b, c }])
 #define AT_LEAST_YOSEMITE_DO MAC_OS_AT_LEAST_DO(10, 10, 0)
 #define AT_LEAST_ELCAPITAN_DO MAC_OS_AT_LEAST_DO(10, 11, 0)
+#define AT_LEAST_SIERRA_DO MAC_OS_AT_LEAST_DO(10, 12, 0)
 
 // gotta use the old version checker here
 #define AT_LEAST_MAVERICKS_DO if (NSFoundationVersionNumber >= NSFoundationVersionNumber10_9)
@@ -54,7 +55,7 @@ typedef struct {
     [[[NSString alloc] initWithBytes:S(msgid) length:SLEN(msgid) encoding:NSUTF8StringEncoding] autorelease]
 
 
-struct utox_native_image {
+struct native_image {
     CGImageRef image;
     double     scale;
 };
