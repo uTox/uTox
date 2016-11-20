@@ -63,7 +63,7 @@ uint8_t *load_img_data(char hexid[64], size_t *out_size) {
     }
 
     if (fread(data, 1, size, fp) != size) {
-        debug("Avatars:\tCould not read: avatar for friend : %.*s", (int)sizeof(*hexid), hexid);
+        debug("Avatars:\tCould not read: avatar for friend : %.*s\n", (int)sizeof(*hexid), hexid);
         fclose(fp);
         free(data);
         return NULL;
@@ -170,7 +170,7 @@ void avatar_unset_self(void) {
  *      if it is not null, it should be at least UTOX_AVATAR_MAX_DATA_LENGTH bytes long
  *  if png_size_out is not null, the size of the png data will be stored in it
  *
- *  returns: 1 on successful loading, 0 on failure
+ *  returns: true on successful loading, false on failure
  */
 bool avatar_init(char hexid[64], AVATAR *avatar) {
     avatar_unset(avatar);
