@@ -1,9 +1,16 @@
-#include "../main.h"
+#include "../commands.h"
+#include "../theme.h"
+#include "../ui.h"
+#include "../ui/dropdowns.h"
+#include "../util.h"
+
 #import <AppKit/AppKit.h>
 #import <Foundation/Foundation.h>
+
 #include <libgen.h>
 #include <pthread.h>
 #include <sys/stat.h>
+#include <sys/time.h>
 #include <sys/types.h>
 
 struct thread_call {
@@ -84,9 +91,9 @@ void image_set_scale(NATIVE_IMAGE *image, double scale) {
 }
 
 void image_free(NATIVE_IMAGE *img) {
-	if (!img) {
+    if (!img) {
         return;
-	}
+    }
     CGImageRelease(img->image);
     free(img);
 }
@@ -228,7 +235,7 @@ FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS flags) {
         snprintf(path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));
     }
 
-    if (flag & UTOX_FILE_OPTS_READ || flag & UTOX_FILE_OPTS_MKDIR) {
+    if (flags & UTOX_FILE_OPTS_READ || flags & UTOX_FILE_OPTS_MKDIR) {
         mkdir(path, 0700);
     }
 
@@ -240,11 +247,11 @@ FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS flags) {
     }
 
     FILE *fp = NULL;
-    if (flag & UTOX_FILE_OPTS_READ) {
+    if (flags & UTOX_FILE_OPTS_READ) {
         fp = fopen(path, "rb");
-    } else if (flag & UTOX_FILE_OPTS_WRITE) {
+    } else if (flags & UTOX_FILE_OPTS_WRITE) {
         fp = fopen(path, "wb");
-    } else if (flag & UTOX_FILE_OPTS_APPEND) {
+    } else if (flags & UTOX_FILE_OPTS_APPEND) {
         fp = fopen(path, "ab");
     }
 
@@ -278,7 +285,7 @@ bool native_remove_file(const uint8_t *name, size_t length) {
         return 0;
     } else {
         snprintf((char *)path + strlen((const char *)path), UTOX_FILE_NAME_LENGTH - strlen((const char *)path), "%.*s",
-                 (int)length, (char *)name);
+                (int)length, (char *)name);
     }
 
     if (remove((const char *)path)) {
@@ -354,8 +361,8 @@ void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data) {
     /* If you notice any data races, or interesting bugs that appear in OSX but not xlib,
      * replace async( with sync( */
     dispatch_async(dispatch_get_main_queue(), ^{
-      tox_message(msg, param1, param2, data);
-    });
+            tox_message(msg, param1, param2, data);
+            });
 }
 
 void init_ptt(void) {
@@ -380,7 +387,7 @@ void launch_at_startup(int should) {
     LSSharedFileListRef items = LSSharedFileListCreate(kCFAllocatorDefault, kLSSharedFileListSessionLoginItems, NULL);
     if (should) {
         CFRelease(LSSharedFileListInsertItemURL(items, kLSSharedFileListItemLast, NULL, NULL,
-                                                (__bridge CFURLRef)[NSBundle mainBundle].bundleURL, NULL, NULL));
+                    (__bridge CFURLRef)[NSBundle mainBundle].bundleURL, NULL, NULL));
     } else {
         CFArrayRef current_items = LSSharedFileListCopySnapshot(items, NULL);
         for (int i = 0; i < CFArrayGetCount(current_items); ++i) {
@@ -426,22 +433,22 @@ void launch_at_startup(int should) {
     [NSApplication sharedApplication].dockTile.contentView = dock_icon;
     [dock_icon release];
 
-    global_event_listener = [NSEvent addGlobalMonitorForEventsMatchingMask:NSFlagsChangedMask
+    global_event_listener = [NSEvent addGlobalMonitorForEventsMatchingMask:NSEventMaskFlagsChanged
                                                                    handler:^(NSEvent *e) {
-                                                                     is_ctrl_down = e.modifierFlags & NSFunctionKeyMask;
+                                                                       is_ctrl_down = e.modifierFlags & NSEventModifierFlagFunction;
                                                                    }];
 
-    local_event_listener = [NSEvent addLocalMonitorForEventsMatchingMask:NSFlagsChangedMask
+    local_event_listener = [NSEvent addLocalMonitorForEventsMatchingMask:NSEventMaskFlagsChanged
                                                                  handler:^NSEvent *(NSEvent *e) {
-                                                                   is_ctrl_down = e.modifierFlags & NSFunctionKeyMask;
-                                                                   return e;
+                                                                     is_ctrl_down = e.modifierFlags & NSEventModifierFlagFunction;
+                                                                     return e;
                                                                  }];
 
     ironclad = [[NSMutableDictionary alloc] init];
 
     // hold COMMAND to start utox in portable mode
     // unfortunately, OS X doesn't have the luxury of passing argv in the GUI
-    if ([NSEvent modifierFlags] & NSCommandKeyMask) {
+    if ([NSEvent modifierFlags] & NSEventModifierFlagCommand) {
         settings.portable_mode = 1;
     }
 
@@ -459,43 +466,43 @@ void launch_at_startup(int should) {
     char title_name[128];
     snprintf(title_name, 128, "%s %s (version: %s)", TITLE, SUB_TITLE, VERSION);
 
-#define WINDOW_MASK (NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask | NSResizableWindowMask)
+#define WINDOW_MASK (NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable)
     self.utox_window = [[NSWindow alloc]
         initWithContentRect:(NSRect) { save->window_x, save->window_y, save->window_width, save->window_height }
                   styleMask:WINDOW_MASK
                     backing:NSBackingStoreBuffered
                       defer:NO
                      screen:[NSScreen mainScreen]];
-    self.utox_window.releasedWhenClosed = NO;
+                            self.utox_window.releasedWhenClosed = NO;
 #undef WINDOW_MASK
-    self.utox_window.delegate = self;
-    self.utox_window.title    = @(title_name);
+                            self.utox_window.delegate = self;
+                            self.utox_window.title    = @(title_name);
 
-    settings.window_width  = self.utox_window.frame.size.width;
-    settings.window_height = self.utox_window.frame.size.height;
+                            settings.window_width  = self.utox_window.frame.size.width;
+                            settings.window_height = self.utox_window.frame.size.height;
 
-    self.utox_window.contentView =
-        [[[uToxView alloc] initWithFrame:(CGRect){ 0, 0, self.utox_window.frame.size }] autorelease];
-    ui_set_scale((save->scale + 1) ?: 2);
-    ui_size(settings.window_width, settings.window_height);
+                            self.utox_window.contentView =
+                                [[[uToxView alloc] initWithFrame:(CGRect){ 0, 0, self.utox_window.frame.size }] autorelease];
+                            ui_set_scale((save->scale + 1) ?: 2);
+                            ui_size(settings.window_width, settings.window_height);
 
-    /* start the tox thread */
-    thread(toxcore_thread, NULL);
+                            /* start the tox thread */
+                            thread(toxcore_thread, NULL);
 
-    self.nameMenuItem   = [[[NSMenuItem alloc] initWithTitle:@"j" action:NULL keyEquivalent:@""] autorelease];
-    self.statusMenuItem = [[[NSMenuItem alloc] initWithTitle:@"j" action:NULL keyEquivalent:@""] autorelease];
-    update_tray();
-    //[self.nameMenuItem release];
-    //[self.statusMenuItem release];
+                            self.nameMenuItem   = [[[NSMenuItem alloc] initWithTitle:@"j" action:NULL keyEquivalent:@""] autorelease];
+                            self.statusMenuItem = [[[NSMenuItem alloc] initWithTitle:@"j" action:NULL keyEquivalent:@""] autorelease];
+                            update_tray();
+                            //[self.nameMenuItem release];
+                            //[self.statusMenuItem release];
 
-    max_video_width  = [NSScreen mainScreen].frame.size.width;
-    max_video_height = [NSScreen mainScreen].frame.size.height;
+                            max_video_width  = [NSScreen mainScreen].frame.size.width;
+                            max_video_height = [NSScreen mainScreen].frame.size.height;
 
-    [self.utox_window makeFirstResponder:self.utox_window.contentView];
-    [self.utox_window makeKeyAndOrderFront:self];
+                            [self.utox_window makeFirstResponder:self.utox_window.contentView];
+                            [self.utox_window makeKeyAndOrderFront:self];
 
-    /* done with save */
-    free(save);
+                            /* done with save */
+                            free(save);
 }
 
 - (NSMenu *)applicationDockMenu:(NSApplication *)sender {
@@ -625,7 +632,7 @@ int main(int argc, char const *argv[]) {
         BOOL     ok;
 
         if ([[NSBundle mainBundle] respondsToSelector:@selector(loadNibNamed:owner:topLevelObjects:)]) {
-            ok = [[NSBundle mainBundle] loadNibNamed:@"MainMenu" owner:nil topLevelObjects:&maybeMenus];
+             ok = [[NSBundle mainBundle] loadNibNamed:@"MainMenu" owner:nil topLevelObjects:&maybeMenus];
         } else {
             NSLog(@"warning: loading nib the deprecated way");
 
