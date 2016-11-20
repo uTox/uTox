@@ -202,7 +202,7 @@ void friend_set_alias(FRIEND *f, char *alias, uint16_t length) {
     }
 }
 
-void friend_sendimage(FRIEND *f, NATIVE_IMAGE *native_image, uint16_t width, uint16_t height, UTOX_IMAGE png_image,
+void aimage(FRIEND *f, NATIVE_IMAGE *native_image, uint16_t width, uint16_t height, UTOX_IMAGE png_image,
                       size_t png_size) {
     message_add_type_image(&f->msg, 1, native_image, width, height, 0);
     redraw();
