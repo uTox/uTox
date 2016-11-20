@@ -62,6 +62,7 @@ if(WIN32)
         src/windows/main.XP.c
         src/windows/os_video.c
         src/windows/video.c
+        src/windows/filesys.c
         )
     target_link_libraries(utoxNATIVE
         iphlpapi    ws2_32      gdi32       msimg32
