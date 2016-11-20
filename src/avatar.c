@@ -13,7 +13,7 @@ static void avatar_free_image(AVATAR *avatar) {
     }
 }
 
-bool save_avatar(char hexid[64], const uint8_t *data, size_t length) {
+bool save_avatar(char hexid[TOX_PUBLIC_KEY_SIZE * 2], const uint8_t *data, size_t length) {
     char name[sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png")];
     FILE *fp;
 
@@ -38,7 +38,7 @@ bool save_avatar(char hexid[64], const uint8_t *data, size_t length) {
     return true;
 }
 
-uint8_t *load_img_data(char hexid[64], size_t *out_size) {
+static uint8_t *load_img_data(char hexid[TOX_PUBLIC_KEY_SIZE * 2], size_t *out_size) {
     char name[sizeof("avatars/") + sizeof(*hexid) + sizeof(".png")];
 
 #ifdef __WIN32__
@@ -76,7 +76,7 @@ uint8_t *load_img_data(char hexid[64], size_t *out_size) {
     return data;
 }
 
-bool avatar_delete(char hexid[64]) {
+bool avatar_delete(char hexid[TOX_PUBLIC_KEY_SIZE * 2]) {
     uint8_t name[sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png")];
 
 #ifdef __WIN32__
@@ -90,7 +90,7 @@ bool avatar_delete(char hexid[64]) {
     return native_remove_file(name, name_len);
 }
 
-static bool load_avatar(char hexid[64], AVATAR *avatar, size_t *size_out) {
+static bool load_avatar(char hexid[TOX_PUBLIC_KEY_SIZE * 2], AVATAR *avatar, size_t *size_out) {
     size_t size = 0;
 
     uint8_t *img = load_img_data(hexid, &size);
@@ -172,7 +172,7 @@ void avatar_unset_self(void) {
  *
  *  returns: true on successful loading, false on failure
  */
-bool avatar_init(char hexid[64], AVATAR *avatar) {
+bool avatar_init(char hexid[TOX_PUBLIC_KEY_SIZE * 2], AVATAR *avatar) {
     avatar_unset(avatar);
     return load_avatar(hexid, avatar, NULL);
 }

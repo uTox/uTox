@@ -24,7 +24,7 @@ typedef struct avatar {
 /* whether friend f's avatar is set, where f is a pointer to a friend struct */
 #define friend_has_avatar(f) (f) && (f->avatar.format != UTOX_AVATAR_FORMAT_NONE)
 
-bool avatar_init(char hexid[32], AVATAR *avatar);
+bool avatar_init(char hexid[TOX_PUBLIC_KEY_SIZE * 2], AVATAR *avatar);
 
 /* converts png data given by data to a NATIVE_IMAGE and uses that to populate the avatar struct
  *  avatar is pointer to an avatar struct to store result in. Remains unchanged if function fails.
@@ -80,21 +80,14 @@ void utox_incoming_avatar(uint32_t friend_number, uint8_t *avatar, size_t size);
  * returns true on success
  * returns false on failure
  */
-bool save_avatar(char hexid[64], const uint8_t *data, size_t length);
+bool save_avatar(char hexid[TOX_PUBLIC_KEY_SIZE * 2], const uint8_t *data, size_t length);
 
 /* Deletes the avatar for user with hexid
  *
  * returns true on success
  * returns false on failure
  */
-bool avatar_delete(char hexid[64]);
-
-/* Loads the avatar for the specified hexid
- *
- * returns data on success
- * returns NULL on failure
- */
-uint8_t *load_img_data(char hexid[64], size_t *out_size);
+bool avatar_delete(char hexid[TOX_PUBLIC_KEY_SIZE * 2]);
 
 /* Helper function to intialize the users avatar */
 bool avatar_init_self(void);

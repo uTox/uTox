@@ -856,7 +856,7 @@ uint32_t outgoing_file_send(Tox *tox, uint32_t friend_number, uint8_t *path, uin
 
             debug("FileTransfer:\tStarting avatar to friend %u.\n", friend_number);
             file_number = tox_file_send(tox, friend_number, TOX_FILE_KIND_AVATAR, file_data_size, file_id, NULL, 0, &error);
-            debug("FileTransfer:\t, tox_file_send error: %u", error);
+            debug_error("FileTransfer:\t, tox_file_send error: %u", error);
 
             file_size = file_data_size;
             memory    = 1;
