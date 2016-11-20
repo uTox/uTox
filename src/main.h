@@ -82,6 +82,13 @@
 #define ENABLE_MULTIDEVICE 1
 #endif
 
+typedef enum UTOX_FILE_OPTS {
+    UTOX_FILE_OPTS_READ   = 1 << 0,
+    UTOX_FILE_OPTS_WRITE  = 1 << 1,
+    UTOX_FILE_OPTS_APPEND = 1 << 2,
+    UTOX_FILE_OPTS_MKDIR  = 1 << 3,
+} UTOX_FILE_OPTS;
+
 /* House keeping for uTox save file. */
 #define UTOX_SAVE_VERSION 3
 typedef struct {
@@ -295,22 +302,12 @@ uint8_t cursor;
 bool    mdown;
 
 /** Takes a filepath and creates it with permissions 0700 (in posix environments) if it doesn't already exist.
- * 
- * Returns a bool indicating if the path exists or not. */ 
+ *
+ * Returns a bool indicating if the path exists or not. */
 bool native_create_dir(const char *filepath);
 
-/** Takes data from µTox and saves it, just how the OS likes it saved!
- *
- * Returns the start of the offset on success, and 0 on failure.
- * Used to set save_needed in tox thread
- * And msg->disk_offset in history/messages */
-size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *data, size_t length, bool append);
-
-/** Takes data from µTox and loads it up! */
-uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_size);
-
 /** Selects the correct file on the platform and passes it to the global log reading function */
-FILE *native_load_chatlog_file(uint32_t friend_number);
+FILE *native_load_chatlog_file(char hex[TOX_PUBLIC_KEY_SIZE * 2]);
 
 /** given a filename, native_remove_file will delete that file from the local config dir */
 bool native_remove_file(const uint8_t *name, size_t length);
@@ -339,27 +336,27 @@ uint8_t *utox_data_load_custom_theme(size_t *out);
 
 /** TODO DOCUMENATION
  */
-size_t utox_save_chatlog(uint32_t friend_number, uint8_t *data, size_t length);
+size_t utox_save_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], uint8_t *data, size_t length);
 
 /** This one actually does the work of reading the logfile information.
  *
  * inside main.c is probably the wrong place for it, but I'll leave chosing
  * the correct location to someone else. */
-uint8_t **utox_load_chatlog(uint32_t friend_number, size_t *size, uint32_t count, uint32_t skip);
+uint8_t **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, uint32_t count, uint32_t skip);
 
 /** utox_update_chatlog Updates the data for this friend's history.
  *
  * When given a friend_number and offset, utox_update_chatlog will overwrite the file, with
  * the supplied data * length. It makes no attempt to verify the data or length, it'll just
  * write blindly. */
-bool utox_update_chatlog(uint32_t friend_number, size_t offset, uint8_t *data, size_t length);
+bool utox_update_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t offset, uint8_t *data, size_t length);
 
 /** TODO DOCUMENATION
  */
-bool utox_data_save_avatar(uint32_t friend_number, const uint8_t *data, size_t length);
+bool utox_data_save_avatar(char hex[TOX_PUBLIC_KEY_SIZE * 2], const uint8_t *data, size_t length);
 /** TODO DOCUMENATION
  */
-uint8_t *utox_data_load_avatar(const char hexid[TOX_PUBLIC_KEY_SIZE * 2], size_t *size);
+uint8_t *utox_data_load_avatar(const char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size);
 /** TODO DOCUMENATION
  */
 bool utox_data_del_avatar(uint32_t friend_number);
@@ -369,17 +366,17 @@ bool utox_data_del_avatar(uint32_t friend_number);
 bool utox_remove_file(const uint8_t *full_name, size_t length);
 /** TODO DOCUMENATION
  */
-bool utox_remove_friend_chatlog(uint32_t friend_number);
+bool utox_remove_friend_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2]);
 
 bool utox_remove_file(const uint8_t *full_name, size_t length);
-bool utox_remove_friend_history(uint32_t friend_number);
+bool utox_remove_friend_history(char hex[TOX_PUBLIC_KEY_SIZE * 2]);
 /** TODO DOCUMENATION
  */
 void utox_export_chatlog_init(uint32_t friend_number);
 
 /** TODO DOCUMENATION
  */
-void utox_export_chatlog(uint32_t friend_number, FILE *dest_file);
+void utox_export_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], FILE *dest_file);
 
 /* TODO: sort everything below this line! */
 
