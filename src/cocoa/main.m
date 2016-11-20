@@ -15,7 +15,7 @@ struct thread_call {
 #define DEFAULT_HEIGHT (320 * DEFAULT_SCALE)
 
 void debug(const char *fmt, ...) {
-    if (settings.verbose < VERB_TEENAGE_GIRL) {
+    if (settings.verbose < VERBOSITY_DEBUG) {
         return;
     }
     va_list l;
@@ -25,7 +25,7 @@ void debug(const char *fmt, ...) {
 }
 
 void debug_info(const char *fmt, ...) {
-    if (settings.verbose < VERB_NEW_ADHD_MEDS) {
+    if (settings.verbose < VERBOSITY_INFO) {
         return;
     }
     va_list l;
@@ -35,7 +35,7 @@ void debug_info(const char *fmt, ...) {
 }
 
 void debug_notice(const char *fmt, ...) {
-    if (settings.verbose < VERB_CONCERNED_PARENT) {
+    if (settings.verbose < VERBOSITY_NOTICE) {
         return;
     }
     va_list l;
@@ -45,7 +45,7 @@ void debug_notice(const char *fmt, ...) {
 }
 
 void debug_error(const char *fmt, ...) {
-    if (settings.verbose < VERB_JANICE_ACCOUNTING) {
+    if (settings.verbose < VERBOSITY_ERROR) {
         return;
     }
     va_list l;
