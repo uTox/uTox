@@ -1,5 +1,15 @@
 #include "main.h"
 
+#include "../main.h"
+
+#include <stdbool.h>
+#include <stddef.h>
+#include <inttypes.h>
+
+#include <audioclient.h>
+#include <mmdeviceapi.h>
+
+
 // REFERENCE_TIME time units per second and per millisecond
 #define REFTIMES_PER_SEC 10000000
 #define REFTIMES_PER_MILLISEC 10000

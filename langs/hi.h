@@ -91,9 +91,6 @@ msgstr("मित्र")
 msgid(MESSAGE)
 msgstr("संदेश")
 
-msgid(SEARCHFRIENDS)
-msgstr("मित्र खोजें")
-
 //TODO: Same as in English? Localize or remove.
 //msgid(ADD)
 //msgstr("Add")

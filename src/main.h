@@ -76,8 +76,6 @@
 #include <time.h>
 #include <tox/tox.h>
 
-#include "messages.h"
-
 #if TOX_VERSION_MAJOR > 0
 #define ENABLE_MULTIDEVICE 1
 #endif
@@ -147,6 +145,8 @@ bool tox_connected;
 /* Super global vars */
 volatile bool tox_thread_init, utox_av_ctrl_init, utox_audio_thread_init, utox_video_thread_init;
 
+double ui_scale;
+
 typedef struct utox_settings {
     uint32_t curr_version;
     uint32_t last_version;
@@ -201,11 +201,12 @@ char     proxy_address[256]; /* Magic Number inside toxcore */
 // Enums
 /* uTox debug levels */
 enum {
-    VERB_ANCIENT_MONK,      // Off
-    VERB_JANICE_ACCOUNTING, // Error (default)
-    VERB_CONCERNED_PARENT,  // Notice
-    VERB_NEW_ADHD_MEDS,     // Info
-    VERB_TEENAGE_GIRL,      // Debug
+    VERBOSITY_OFF,
+    VERBOSITY_ERROR,
+    VERBOSITY_WARNING,
+    VERBOSITY_NOTICE,
+    VERBOSITY_INFO,
+    VERBOSITY_DEBUG,
 };
 
 enum {
@@ -403,6 +404,9 @@ enum {
     FILTER_NEAREST, // ugly and quick filtering
     FILTER_BILINEAR // prettier and a bit slower filtering
 };
+
+typedef struct native_image NATIVE_IMAGE;
+
 /* set filtering method used when resizing given image to one of above enum */
 void image_set_filter(NATIVE_IMAGE *image, uint8_t filter);
 
@@ -498,9 +502,6 @@ void openfilesend(void);
 
 /* use the file chooser to pick an avatar and set it as the user's */
 void openfileavatar(void);
-void native_select_dir_ft(uint32_t fid, MSG_FILE *file);
-void native_autoselect_dir_ft(uint32_t fid, struct FILE_TRANSFER *file);
-void savefiledata(MSG_FILE *file);
 
 void setselection(char *data, uint16_t length);
 

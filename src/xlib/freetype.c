@@ -1,4 +1,4 @@
-#include "../main.h"
+#include "main.h"
 #define UTOX_FONT_XLIB "Roboto"
 
 static void font_info_open(FONT_INFO *i, FcPattern *pattern);

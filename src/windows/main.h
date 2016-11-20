@@ -18,51 +18,27 @@
 #define WINVER 0x410
 #endif
 
+#include <inttypes.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdio.h>
+
 #undef CLEARTYPE_QUALITY
 #define CLEARTYPE_QUALITY 5
 
+// clang-format off
 #define STRSAFE_NO_DEPRECATE
-#include <windns.h>
 #include <windows.h>
+#include <windns.h>
 #include <winreg.h>
 
-#ifdef __MINGW32__
-#define fseeko fseeko64
-#define ftello ftello64
-#endif
-
 #define STRSAFE_NO_DEPRECATE
-
-#ifdef __CRT__NO_INLINE
-#undef __CRT__NO_INLINE
-#define DID_UNDEFINE__CRT__NO_INLINE
-#include <dshow.h>
-#ifdef DID_UNDEFINE__CRT__NO_INLINE
-#define __CRT__NO_INLINE
-#endif
-#endif
-
 #include <initguid.h>
 
-#include <amvideo.h>
-#include <control.h>
-#include <strmif.h>
-#include <uuids.h>
-#include <vfwmsgs.h>
-
-#include <qedit.h>
-extern const CLSID CLSID_SampleGrabber;
-extern const CLSID CLSID_NullRenderer;
-
-#include <audioclient.h>
-#include <mmdeviceapi.h>
-#include <process.h>
-
-#include <knownfolders.h>
 #include <shlobj.h>
-
-#include <error.h>
+#include <knownfolders.h>
 #include <io.h>
+// clang-format on
 
 #define KEY_BACK VK_BACK
 #define KEY_RETURN VK_RETURN
@@ -77,25 +53,22 @@ extern const CLSID CLSID_NullRenderer;
 #define KEY_PAGEUP VK_PRIOR
 #define KEY_PAGEDOWN VK_NEXT
 
-#define debug(...) (settings.verbose >= VERB_TEENAGE_GIRL) ? (printf(__VA_ARGS__) & fflush(stdout)) : (0)
-#define debug_info(...) (settings.verbose >= VERB_NEW_ADHD_MEDS) ? (printf(__VA_ARGS__) & fflush(stdout)) : (0)
-#define debug_notice(...) (settings.verbose >= VERB_CONCERNED_PARENT) ? (printf(__VA_ARGS__) & fflush(stdout)) : (0)
-#define debug_error(...) (settings.verbose >= VERB_JANICE_ACCOUNTING) ? (printf(__VA_ARGS__) & fflush(stdout)) : (0)
+#define debug(...) (settings.verbose >= VERBOSITY_DEBUG) ? (printf(__VA_ARGS__) & fflush(stdout)) : (0)
+#define debug_info(...) (settings.verbose >= VERBOSITY_INFO) ? (printf(__VA_ARGS__) & fflush(stdout)) : (0)
+#define debug_notice(...) (settings.verbose >= VERBOSITY_NOTICE) ? (printf(__VA_ARGS__) & fflush(stdout)) : (0)
+#define debug_error(...) (settings.verbose >= VERBOSITY_ERROR) ? (printf(__VA_ARGS__) & fflush(stdout)) : (0)
 
 #define WM_NOTIFYICON (WM_APP + 0)
 #define WM_TOX (WM_APP + 1)
 
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-/* Included in dnd.c */
-void dnd_init(HWND window);
+extern const CLSID CLSID_SampleGrabber;
+extern const CLSID CLSID_NullRenderer;
 
 enum {
     MENU_TEXTINPUT = 101,
     MENU_MESSAGES  = 102,
 };
 
-// HBITMAP bitmap[32];
-void *  bitmap[BM_ENDMARKER + 1];
 HFONT   font[32];
 HCURSOR cursors[8];
 HICON   my_icon, unread_messages_icon;
@@ -105,10 +78,12 @@ HINSTANCE hinstance;
 HDC       main_hdc, hdc, hdcMem;
 HBRUSH    hdc_brush;
 HBITMAP   hdc_bm;
-HWND      video_hwnd[MAX_NUM_FRIENDS];
+HWND      video_hwnd[128]; // todo fixme
 
+#define NATIVE_IMAGE_IS_VALID(x) (NULL != (x))
+#define NATIVE_IMAGE_HAS_ALPHA(x) (x->has_alpha)
 // internal representation of an image
-typedef struct win_native_image {
+typedef struct native_image {
     HBITMAP bitmap; // 32 bit bitmap containing
                     // red, green, blue and alpha
 
@@ -126,9 +101,6 @@ typedef struct win_native_image {
 
 } NATIVE_IMAGE;
 
-#define NATIVE_IMAGE_IS_VALID(x) (NULL != (x))
-#define NATIVE_IMAGE_HAS_ALPHA(x) (x->has_alpha)
-
 // static char save_path[280];
 char portable_mode_save_path[MAX_PATH];
 
@@ -145,6 +117,10 @@ enum {
 int  video_grab_x, video_grab_y, video_grab_w, video_grab_h;
 bool grabbing;
 
-int native_to_utf8str(wchar *str_in, char *str_out, uint32_t max_size);
+LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+/* Included in dnd.c */
+void dnd_init(HWND window);
+
+int native_to_utf8str(wchar_t *str_in, char *str_out, uint32_t max_size);
 
 #endif

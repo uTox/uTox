@@ -2,7 +2,7 @@
 #define UI_H
 
 #include "../langs/i18n_decls.h"
-#include "main_native.h"
+#include "main.h"
 #include "sized_string.h"
 
 #define DEFAULT_LANG LANG_EN
@@ -95,8 +95,7 @@ bool panel_mwheel(PANEL *p, int x, int y, int width, int height, double d, bool 
 bool panel_mup(PANEL *p);
 bool panel_mleave(PANEL *p);
 
-char   search_data[128];
-double ui_scale;
+char search_data[128];
 
 /* colors */
 #define GRAY(x) (((x) << 16) | ((x) << 8) | (x))

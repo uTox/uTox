@@ -1,4 +1,7 @@
-#include "../main.h"
+#include "../ui/svg.h"
+#include "main.h"
+
+void *bitmap[BM_ENDMARKER + 1];
 
 BLENDFUNCTION blend_function = {
     .BlendOp = AC_SRC_OVER, .BlendFlags = 0, .SourceConstantAlpha = 0xFF, .AlphaFormat = AC_SRC_ALPHA
@@ -131,14 +134,14 @@ void draw_inline_image(uint8_t *img_data, size_t size, uint16_t w, uint16_t h, i
 }
 
 void drawtext(int x, int y, const char *str, uint16_t length) {
-    wchar out[length];
+    wchar_t out[length];
     length = utf8tonative(str, out, length);
 
     TextOutW(hdc, x, y, out, length);
 }
 
 int drawtext_getwidth(int x, int y, const char *str, uint16_t length) {
-    wchar out[length];
+    wchar_t out[length];
     length = utf8tonative(str, out, length);
 
     SIZE size;
@@ -148,7 +151,7 @@ int drawtext_getwidth(int x, int y, const char *str, uint16_t length) {
 }
 
 void drawtextwidth(int x, int width, int y, const char *str, uint16_t length) {
-    wchar out[length];
+    wchar_t out[length];
     length = utf8tonative(str, out, length);
 
     RECT r = { x, y, x + width, y + 256 };
@@ -156,7 +159,7 @@ void drawtextwidth(int x, int width, int y, const char *str, uint16_t length) {
 }
 
 void drawtextwidth_right(int x, int width, int y, const char *str, uint16_t length) {
-    wchar out[length];
+    wchar_t out[length];
     length = utf8tonative(str, out, length);
 
     RECT r = { x, y, x + width, y + 256 };
@@ -164,7 +167,7 @@ void drawtextwidth_right(int x, int width, int y, const char *str, uint16_t leng
 }
 
 void drawtextrange(int x, int x2, int y, const char *str, uint16_t length) {
-    wchar out[length];
+    wchar_t out[length];
     length = utf8tonative(str, out, length);
 
     RECT r = { x, y, x2, y + 256 };
@@ -172,7 +175,7 @@ void drawtextrange(int x, int x2, int y, const char *str, uint16_t length) {
 }
 
 void drawtextrangecut(int x, int x2, int y, const char *str, uint16_t length) {
-    wchar out[length];
+    wchar_t out[length];
     length = utf8tonative(str, out, length);
 
     RECT r = { x, y, x2, y + 256 };
@@ -180,7 +183,7 @@ void drawtextrangecut(int x, int x2, int y, const char *str, uint16_t length) {
 }
 
 int textwidth(const char *str, uint16_t length) {
-    wchar out[length];
+    wchar_t out[length];
     length = utf8tonative(str, out, length);
 
     SIZE size;
@@ -189,8 +192,8 @@ int textwidth(const char *str, uint16_t length) {
 }
 
 int textfit(const char *str, uint16_t len, int width) {
-    wchar out[len];
-    int   length = utf8tonative(str, out, len);
+    wchar_t out[len];
+    int     length = utf8tonative(str, out, len);
 
     int  fit;
     SIZE size;
@@ -201,8 +204,8 @@ int textfit(const char *str, uint16_t len, int width) {
 
 int textfit_near(const char *str, uint16_t len, int width) {
     /*todo: near*/
-    wchar out[len];
-    int   length = utf8tonative(str, out, len);
+    wchar_t out[len];
+    int     length = utf8tonative(str, out, len);
 
     int  fit;
     SIZE size;

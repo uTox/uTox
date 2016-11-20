@@ -81,7 +81,9 @@ GLYPH *font_getglyph(FONT *f, uint32_t ch) {
     return g;
 }
 
-static void initfonts(void) { FT_Init_FreeType(&ftlib); }
+static void initfonts(void) {
+    FT_Init_FreeType(&ftlib);
+}
 
 static bool font_open(FONT *f, double size, uint8_t weight) {
     FT_New_Face(ftlib, "/system/fonts/Roboto-Regular.ttf", 0, &f->face);

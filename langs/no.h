@@ -91,17 +91,11 @@ msgstr("Legg til venner")
 msgid(MESSAGE)
 msgstr("Melding")
 
-msgid(SEARCHFRIENDS)
-msgstr("Søk igjennom venner")
-
 msgid(ADD)
 msgstr("Legg til")
 
 msgid(CREATEGROUPCHAT)
 msgstr("Lag Gruppesamtale")
-
-msgid(SWITCHPROFILE)
-msgstr("Bytt Profil")
 
 msgid(FRIENDREQUEST)
 msgstr("Venneforespørsel")
@@ -117,9 +111,6 @@ msgstr("Statusmelding")
 
 msgid(PREVIEW)
 msgstr("Forhåndsvisning")
-
-msgid(DEVICESELECTION)
-msgstr("Enhetsvalg")
 
 msgid(AUDIOINPUTDEVICE)
 msgstr("Lydinnspillingsenhet")

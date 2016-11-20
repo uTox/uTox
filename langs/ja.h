@@ -84,14 +84,8 @@ msgstr("フレンド追加")
 msgid(MESSAGE)
 msgstr("メッセージ")
 
-msgid(SEARCHFRIENDS)
-msgstr("フレンドの検索")
-
 msgid(ADD)
 msgstr("追加")
-
-msgid(SWITCHPROFILE)
-msgstr("プロファイルを変更")
 
 msgid(FRIENDREQUEST)
 msgstr("フレンド要求")
@@ -107,9 +101,6 @@ msgstr("状態メッセージ")
 
 msgid(PREVIEW)
 msgstr("プレビュー")
-
-msgid(DEVICESELECTION)
-msgstr("デバイス選択")
 
 msgid(AUDIOINPUTDEVICE)
 msgstr("音声入力デバイス")

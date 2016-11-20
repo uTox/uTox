@@ -42,7 +42,7 @@ void debug_info(const char *fmt, ...);
 void debug_notice(const char *fmt, ...);
 void debug_error(const char *fmt, ...);
 
-typedef struct cocoa_native_image NATIVE_IMAGE;
+typedef struct native_image NATIVE_IMAGE;
 int NATIVE_IMAGE_IS_VALID(NATIVE_IMAGE *img);
 
 #ifdef __OBJC__

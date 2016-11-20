@@ -122,10 +122,10 @@ msgstr("Clic droit")
 /******************************************************************************
  *** Appels Audio / Vidéo                                                   ***
  ******************************************************************************/
-msgid(START_AUDIO_CALL)
+msgid(CALL_START_AUDIO)
 msgstr("Commencer un appel")
 
-msgid(START_VIDEO_CALL)
+msgid(CALL_START_VIDEO)
 msgstr("Commencer un appel vidéo")
 
 msgid(CALL_DECLINE)
@@ -212,9 +212,6 @@ msgstr("ID Tox")
 //msgid(MESSAGE)
 //msgstr("Message")
 
-msgid(SEARCHFRIENDS)
-msgstr("Recherche d'amis")
-
 msgid(FILTER_ONLINE)
 msgstr("En ligne")
 
@@ -224,17 +221,8 @@ msgstr("Tout")
 msgid(FILTER_CONTACT_TOGGLE)
 msgstr("Basculer le filtrage des contacts hors ligne.")
 
-msgid(FILTER_TO_ALL)
-msgstr("Afficher tous les contacts !")
-
-msgid(FILTER_TO_ONLINE)
-msgstr("Afficher les contacts en ligne uniquement !")
-
 msgid(ADD)
 msgstr("Ajouter")
-
-msgid(SWITCHPROFILE)
-msgstr("Changement de profil")
 
 msgid(FRIENDREQUEST)
 msgstr("Demande d'ami")
@@ -248,17 +236,11 @@ msgstr("Paramètres de l'ami")
 msgid(NAME)
 msgstr("Nom")
 
-msgid(PROFILE)
-msgstr("Profil")
-
 msgid(STATUSMESSAGE)
 msgstr("Message d'humeur")
 
 msgid(PREVIEW)
 msgstr("Aperçu")
-
-msgid(DEVICESELECTION)
-msgstr("Sélection des périphériques")
 
 msgid(AUDIOINPUTDEVICE)
 msgstr("Périphérique d'entrée audio")

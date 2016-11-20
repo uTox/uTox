@@ -85,10 +85,10 @@ msgstr("Завершено передачу файлу")
 msgid(GROUPCHAT_JOIN_AUDIO)
 msgstr("Приєднатися до аудіо чату")
 
-msgid(START_AUDIO_CALL)
+msgid(CALL_START_AUDIO)
 msgstr("Зателефонувати")
 
-msgid(START_VIDEO_CALL)
+msgid(CALL_START_VIDEO)
 msgstr("Здійснити відеодзвінок")
 
 msgid(CALL_CANCELLED)
@@ -121,9 +121,6 @@ msgstr("Додати друзів")
 msgid(MESSAGE)
 msgstr("Повідомлення")
 
-msgid(SEARCHFRIENDS)
-msgstr("Пошук друзів")
-
 msgid(FILTER_ONLINE)
 msgstr("Онлайн")
 
@@ -133,20 +130,11 @@ msgstr("Всі")
 msgid(FILTER_CONTACT_TOGGLE)
 msgstr("Перемикання фільтрації оффлайн контактів.")
 
-msgid(FILTER_TO_ALL)
-msgstr("Показати всі контакти")
-
-msgid(FILTER_TO_ONLINE)
-msgstr("Показувати тільки онлайн контакти")
-
 msgid(ADD)
 msgstr("Додати")
 
 msgid(CREATEGROUPCHAT)
 msgstr("Створити групову бесіду")
-
-msgid(SWITCHPROFILE)
-msgstr("Перемкнути профіль")
 
 msgid(FRIENDREQUEST)
 msgstr("Запит на додавання до списку друзів")
@@ -160,17 +148,11 @@ msgstr("Налаштування друзів")
 msgid(NAME)
 msgstr("Ім'я")
 
-msgid(PROFILE)
-msgstr("Профіль")
-
 msgid(STATUSMESSAGE)
 msgstr("Статус")
 
 msgid(PREVIEW)
 msgstr("Перевірка")
-
-msgid(DEVICESELECTION)
-msgstr("Вибір пристроїв")
 
 msgid(AUDIOINPUTDEVICE)
 msgstr("Пристрій захоплення звуку")

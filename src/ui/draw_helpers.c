@@ -4,10 +4,12 @@
 
 #include "buttons.h"
 #include "text.h"
+#include "svg.h"
 
 #include "../flist.h"
 #include "../friend.h"
 #include "../theme.h"
+
 
 void draw_avatar_image(NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t targetwidth,
                        uint32_t targetheight) {
@@ -269,7 +271,7 @@ void draw_profile_password(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUS
 }
 
 /* Top bar for user settings */
-void draw_settings_header(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height)) {
+void draw_settings_header(int UNUSED(x), int UNUSED(y), int w, int UNUSED(height)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
     drawstr(MAIN_LEFT + SCALE(10), SCALE(10), UTOX_SETTINGS);

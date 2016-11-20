@@ -68,7 +68,7 @@ fi
 
 # Other options
 if [[ $debug  == 1 ]]; then
-    COMP_OPTs="-g -O0"
+    COMP_OPTs="-ggdb"
     echo "Building with debugging info"
 elif [[ $fast == 1 ]]; then
     COMP_OPTs="-s -O0"
@@ -82,11 +82,11 @@ if [[ $legacy == 1 ]]; then
     echo "Compiling for windows XP"
 fi
 
-LIBTOXCORE="./lib/toxcore"
-LIBNACL="./lib/libsodium"
-LIBVPX="./lib/vpx"
-LIBOPUS="./lib/opus"
-LIBOPENAL="./lib/openal"
+LIBTOXCORE="./libs/toxcore"
+LIBNACL="./libs/libsodium"
+LIBVPX="./libs/vpx"
+LIBOPUS="./libs/opus"
+LIBOPENAL="./libs/openal"
 
 GIT_V=$(git describe --abbrev=8 --dirty --always --tags)
 echo "Git version: $GIT_V"
@@ -95,6 +95,7 @@ echo "Git version: $GIT_V"
 AUDIO_FILTERING_BUILD="-DAUDIO_FILTERING -I ./lib/filter_audio/ ./lib/filter_audio/filter_audio.c \
 ./lib/filter_audio/aec/*.c ./lib/filter_audio/agc/*.c ./lib/filter_audio/ns/*.c ./lib/filter_audio/other/*.c \
 ./lib/filter_audio/vad/*.c ./lib/filter_audio/zam/*.c"
+AUDIO_FILTERING_BUILD=""
 
 # Remove existing
 rm utox.exe 2> /dev/null
@@ -104,7 +105,7 @@ rm utox.exe 2> /dev/null
 
 # Compile
 "$WINDOWS_TOOLCHAIN"-gcc -o utox.exe  "$COMP_OPTs"                       \
-    -I $LIBTOXCORE/include/                                              \
+    -I libs/toktok/include/                                              \
     -DGIT_VERSION=\"$GIT_V\" -DAL_LIBTYPE_STATIC                         \
     src/*.c src/ui/*.c src/av/*.c src/windows/*.c icon.o                 \
     $LIBTOXCORE/lib/libtoxcore.a                                         \
@@ -116,6 +117,5 @@ rm utox.exe 2> /dev/null
     $LIBOPUS/lib/libopus.a               -I $LIBOPUS/include/            \
     $LIBOPENAL/lib/libOpenAL32.a         -I $LIBOPENAL/include/          \
     $MINGW32_LIB_DIR/libwinpthread.a                                     \
-    "$AUDIO_FILTERING_BUILD"                                             \
     -std=gnu99 -liphlpapi -lws2_32 -lgdi32 -lmsimg32 -ldnsapi -lcomdlg32 \
     -Wl,-subsystem,windows -lwinmm -lole32 -loleaut32 -lstrmiids

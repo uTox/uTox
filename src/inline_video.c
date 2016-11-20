@@ -11,11 +11,12 @@
  * Consider auto selecting inline video
  */
 
-#include <stddef.h>
+#include "inline_video.h"
+
+#include "main.h"
+#include "main_native.h"
 
 #include "av/utox_av.h"
-#include "inline_video.h"
-#include "main.h"
 
 static UTOX_FRAME_PKG current_frame = { 0 };
 
@@ -55,12 +56,22 @@ bool inline_video_mmove(INLINE_VID *UNUSED(p), int UNUSED(x), int UNUSED(y), int
     return 0;
 }
 
-bool inline_video_mdown(INLINE_VID *UNUSED(p)) { return 0; }
+bool inline_video_mdown(INLINE_VID *UNUSED(p)) {
+    return 0;
+}
 
-bool inline_video_mright(INLINE_VID *UNUSED(p)) { return 0; }
+bool inline_video_mright(INLINE_VID *UNUSED(p)) {
+    return 0;
+}
 
-bool inline_video_mwheel(INLINE_VID *UNUSED(p), int UNUSED(height), double UNUSED(d), bool UNUSED(smooth)) { return 0; }
+bool inline_video_mwheel(INLINE_VID *UNUSED(p), int UNUSED(height), double UNUSED(d), bool UNUSED(smooth)) {
+    return 0;
+}
 
-bool inline_video_mup(INLINE_VID *UNUSED(p)) { return 0; }
+bool inline_video_mup(INLINE_VID *UNUSED(p)) {
+    return 0;
+}
 
-bool inline_video_mleave(INLINE_VID *UNUSED(p)) { return 0; }
+bool inline_video_mleave(INLINE_VID *UNUSED(p)) {
+    return 0;
+}
