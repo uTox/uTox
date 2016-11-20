@@ -1,4 +1,8 @@
-#import "../main.h"
+#include "main.h"
+#include "../friend.h"
+#include "../tox.h"
+#include "../util.h"
+#include "../av/utox_av.h"
 #import <OpenGL/gl.h>
 #import <OpenGL/glext.h>
 #include <pthread.h>
@@ -83,9 +87,9 @@
     [_linkerVideo setSampleBufferDelegate:self queue:_processingQueue];
     if (_shouldMangleDimensions) {
         [_linkerVideo setVideoSettings:@{
-            (id)kCVPixelBufferPixelFormatTypeKey : @(kCVPixelFormatType_420YpCbCr8Planar),
-            (id)kCVPixelBufferWidthKey : @640,
-            (id)kCVPixelBufferHeightKey : @480
+ (id)kCVPixelBufferPixelFormatTypeKey : @(kCVPixelFormatType_420YpCbCr8Planar),
+           (id)kCVPixelBufferWidthKey : @640,
+          (id)kCVPixelBufferHeightKey : @480
         }];
     } else {
         [_linkerVideo setVideoSettings:@{(id)kCVPixelBufferPixelFormatTypeKey : @(kCVPixelFormatType_32BGRA) }];
@@ -100,24 +104,24 @@
 }
 
 - (void)captureOutput:(AVCaptureOutput *)captureOutput
-    didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
-           fromConnection:(AVCaptureConnection *)connection {
-    // NSLog(@"video frame available");
+didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
+       fromConnection:(AVCaptureConnection *)connection {
+           // NSLog(@"video frame available");
 
-    pthread_mutex_lock(&_frameLock);
-    CVImageBufferRef img = CMSampleBufferGetImageBuffer(sampleBuffer);
-    if (!img) {
-        NSLog(@"uToxAV WARNING: got bad sampleBuffer from avfoundation!!");
-    } else {
-        CVPixelBufferUnlockBaseAddress(_currentFrame, kCVPixelBufferLock_ReadOnly);
-        RELEASE_CHK(CFRelease, _currentFrame);
+           pthread_mutex_lock(&_frameLock);
+           CVImageBufferRef img = CMSampleBufferGetImageBuffer(sampleBuffer);
+           if (!img) {
+               NSLog(@"uToxAV WARNING: got bad sampleBuffer from avfoundation!!");
+           } else {
+               CVPixelBufferUnlockBaseAddress(_currentFrame, kCVPixelBufferLock_ReadOnly);
+               RELEASE_CHK(CFRelease, _currentFrame);
 
-        _currentFrame = (CVImageBufferRef)CFRetain(img);
-        // we're not going to do anything to it, so it's safe to lock it always
-        CVPixelBufferLockBaseAddress(_currentFrame, kCVPixelBufferLock_ReadOnly);
-    }
-    pthread_mutex_unlock(&_frameLock);
-}
+               _currentFrame = (CVImageBufferRef)CFRetain(img);
+               // we're not going to do anything to it, so it's safe to lock it always
+               CVPixelBufferLockBaseAddress(_currentFrame, kCVPixelBufferLock_ReadOnly);
+           }
+           pthread_mutex_unlock(&_frameLock);
+       }
 
 - (BOOL)getCurrentFrameIntoChannelsY:(uint8_t *)y U:(uint8_t *)u V:(uint8_t *)v:(uint16_t)w:(uint16_t)h {
     if (!_currentFrame) {
@@ -162,32 +166,32 @@
 
 @implementation uToxAppDelegate (VideoDevices)
 
-- (uint16_t)storeVideoDevicesList {
-    if (devices) {
-        [devices release];
+    - (uint16_t)storeVideoDevicesList {
+        if (devices) {
+            [devices release];
+        }
+        device_count = 1; /* 1 for desktop */
+        devices      = [[NSMutableDictionary alloc] init];
+
+        utox_video_append_device(SCREEN_VIDEO_DEVICE_HANDLE, 1, STR_VIDEO_IN_DESKTOP, 0);
+
+        NSArray *vdevIDs = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
+        for (int i = 0; i < vdevIDs.count; i++) {
+            AVCaptureDevice *dev  = vdevIDs[i];
+            unsigned long    len  = strlen(dev.localizedName.UTF8String);
+            char *           data = malloc(sizeof(void *) + len + 1);
+            void *           ptr  = (void *)((uint64_t)i + 2);
+            memcpy(data, &ptr, sizeof(void *));
+            memcpy(data + sizeof(void *), dev.localizedName.UTF8String, len);
+            data[sizeof(void *) + len] = 0;
+
+            devices[@(i + 2)] = dev.uniqueID;
+
+            utox_video_append_device(data, 0, data + sizeof(void *), 1);
+            device_count++;
+        }
+        return (uint16_t)device_count;
     }
-    device_count = 1; /* 1 for desktop */
-    devices      = [[NSMutableDictionary alloc] init];
-
-    utox_video_append_device(SCREEN_VIDEO_DEVICE_HANDLE, 1, STR_VIDEO_IN_DESKTOP, 0);
-
-    NSArray *vdevIDs = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
-    for (int i = 0; i < vdevIDs.count; i++) {
-        AVCaptureDevice *dev  = vdevIDs[i];
-        unsigned long    len  = strlen(dev.localizedName.UTF8String);
-        char *           data = malloc(sizeof(void *) + len + 1);
-        void *           ptr  = (void *)((uint64_t)i + 2);
-        memcpy(data, &ptr, sizeof(void *));
-        memcpy(data + sizeof(void *), dev.localizedName.UTF8String, len);
-        data[sizeof(void *) + len] = 0;
-
-        devices[@(i + 2)] = dev.uniqueID;
-
-        utox_video_append_device(data, 0, data + sizeof(void *), 1);
-        device_count++;
-    }
-    return (uint16_t)device_count;
-}
 
 - (AVCaptureDevice *)getCaptureDeviceFromHandle:(void *)handle {
     NSString *s = devices[@((uintptr_t)handle)];
@@ -239,7 +243,7 @@ void native_video_close(void *handle) {
 bool native_video_startread(void) {
     AV_SESSION_CHK()
 
-    [active_video_session beginCappingFrames];
+        [active_video_session beginCappingFrames];
 
     return 1;
 }
@@ -247,7 +251,7 @@ bool native_video_startread(void) {
 bool native_video_endread(void) {
     AV_SESSION_CHK()
 
-    [active_video_session stopCappingFrames];
+        [active_video_session stopCappingFrames];
 
     return 1;
 }
@@ -255,7 +259,7 @@ bool native_video_endread(void) {
 int native_video_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, uint16_t height) {
     AV_SESSION_CHK()
 
-    return [active_video_session getCurrentFrameIntoChannelsY:y U:u V:v:width:height];
+        return [active_video_session getCurrentFrameIntoChannelsY:y U:u V:v:width:height];
 }
 
 uint16_t native_video_detect(void) {
@@ -280,60 +284,60 @@ uint16_t native_video_detect(void) {
             forLayerTime:(CFTimeInterval)t
              displayTime:(const CVTimeStamp *)ts {
 
-    if (!self.texture) {
-        glEnable(GL_TEXTURE_2D);
-        glGenTextures(1, &_texture);
-        glBindTexture(GL_TEXTURE_2D, self.texture);
+                 if (!self.texture) {
+                     glEnable(GL_TEXTURE_2D);
+                     glGenTextures(1, &_texture);
+                     glBindTexture(GL_TEXTURE_2D, self.texture);
 
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    }
+                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                 }
 
-    if (self.temporaryLoadTexture) {
-        glBindTexture(GL_TEXTURE_2D, self.texture);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, self.temporaryWidth, self.temporaryHeight, 0, GL_BGRA, GL_UNSIGNED_BYTE,
-                     self.temporaryLoadTexture);
-        self.temporaryLoadTexture = NULL;
-    }
+                 if (self.temporaryLoadTexture) {
+                     glBindTexture(GL_TEXTURE_2D, self.texture);
+                     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, self.temporaryWidth, self.temporaryHeight, 0, GL_BGRA, GL_UNSIGNED_BYTE,
+                             self.temporaryLoadTexture);
+                     self.temporaryLoadTexture = NULL;
+                 }
 
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho(0.0, 1.0, 1.0, 0.0, 0.0, 1.0);
-    glViewport(0, 0, self.bounds.size.width, self.bounds.size.height);
-    glMatrixMode(GL_MODELVIEW);
+                 glMatrixMode(GL_PROJECTION);
+                 glLoadIdentity();
+                 glOrtho(0.0, 1.0, 1.0, 0.0, 0.0, 1.0);
+                 glViewport(0, 0, self.bounds.size.width, self.bounds.size.height);
+                 glMatrixMode(GL_MODELVIEW);
 
-    glBindTexture(GL_TEXTURE_2D, self.texture);
-    glClearColor(0.0, 0.0, 0.0, 1.0);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glColor4f(1.0, 1.0, 1.0, 1.0);
+                 glBindTexture(GL_TEXTURE_2D, self.texture);
+                 glClearColor(0.0, 0.0, 0.0, 1.0);
+                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+                 glColor4f(1.0, 1.0, 1.0, 1.0);
 
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+                 glEnableClientState(GL_VERTEX_ARRAY);
+                 glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-    static GLfloat payload[] = {
-        0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0,
-    };
+                 static GLfloat payload[] = {
+                     0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0,
+                 };
 
-    glVertexPointer(2, GL_FLOAT, 0, payload);
-    glTexCoordPointer(2, GL_FLOAT, 0, payload);
-    glDrawArrays(GL_TRIANGLES, 0, 6);
-}
+                 glVertexPointer(2, GL_FLOAT, 0, payload);
+                 glTexCoordPointer(2, GL_FLOAT, 0, payload);
+                 glDrawArrays(GL_TRIANGLES, 0, 6);
+             }
 
 @end
 
 @implementation uToxIroncladVideoContent
 
 - (instancetype)initWithFrame:(NSRect)frameRect {
-    self = [super initWithFrame:frameRect];
-    if (self) {
-        self.layer       = [uToxIroncladVideoLayer layer];
-        self.layer.frame = self.bounds;
-        [(CAOpenGLLayer *)self.layer setAsynchronous:NO];
-        self.wantsLayer = YES;
-    }
-    return self;
+  self = [super initWithFrame:frameRect];
+  if (self) {
+      self.layer       = [uToxIroncladVideoLayer layer];
+      self.layer.frame = self.bounds;
+      [(CAOpenGLLayer *)self.layer setAsynchronous:NO];
+      self.wantsLayer = YES;
+  }
+  return self;
 }
 
 - (void)displayImage:(uint8_t *)rgba w:(uint16_t)width h:(uint16_t)height {
@@ -382,10 +386,10 @@ uint16_t native_video_detect(void) {
     (CGRect) { 0, 0, 100, 100 }
     NSWindow *ret =
         [[uToxIroncladWindow alloc] initWithContentRect:START_RECT
-                                              styleMask:NSHUDWindowMask | NSUtilityWindowMask | NSClosableWindowMask
-                                                        | NSTitledWindowMask | NSResizableWindowMask
-                                                backing:NSBackingStoreBuffered
-                                                  defer:YES];
+                                              styleMask:NSWindowStyleMaskHUDWindow | NSWindowStyleMaskUtilityWindow | NSWindowStyleMaskClosable
+                                                  | NSWindowStyleMaskTitled | NSWindowStyleMaskResizable
+                                                  backing:NSBackingStoreBuffered
+                                                    defer:YES];
     ret.hidesOnDeactivate = NO;
     uToxIroncladView *iv  = [[self alloc] initWithFrame:ret.frame];
     ret.contentView       = iv;
@@ -395,19 +399,19 @@ uint16_t native_video_detect(void) {
 }
 
 - (instancetype)initWithFrame:(NSRect)frameRect {
-    self = [super initWithFrame:frameRect];
-    if (self) {
-        _videoContent = [[uToxIroncladVideoContent alloc]
-            initWithFrame:(CGRect){ 0, 0, frameRect.size.width, frameRect.size.height }];
-        _videoContent.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
-        [self addSubview:_videoContent];
-    }
-    return self;
+  self = [super initWithFrame:frameRect];
+  if (self) {
+      _videoContent = [[uToxIroncladVideoContent alloc]
+          initWithFrame:(CGRect){ 0, 0, frameRect.size.width, frameRect.size.height }];
+      _videoContent.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
+      [self addSubview:_videoContent];
+  }
+  return self;
 }
 
 - (void)resizeSubviewsWithOldSize:(NSSize)oldSize {
-    [super resizeSubviewsWithOldSize:oldSize];
-    [_videoContent checkSize];
+ [super resizeSubviewsWithOldSize:oldSize];
+ [_videoContent checkSize];
 }
 
 - (void)displayImage:(uint8_t *)rgba w:(uint16_t)width h:(uint16_t)height {
@@ -423,13 +427,13 @@ uint16_t native_video_detect(void) {
 
 @implementation uToxAppDelegate (IroncladManager)
 
-- (void)setIroncladWindow:(NSWindow *)w forID:(uint32_t)id {
-    ironclad[@(id)] = w;
-    w.delegate      = self;
-}
+    - (void)setIroncladWindow:(NSWindow *)w forID:(uint32_t)id {
+        ironclad[@(id)] = w;
+        w.delegate      = self;
+    }
 
 - (void)releaseIroncladWindowForID:(uint32_t)id {
-    [ironclad removeObjectForKey:@(id)];
+      [ironclad removeObjectForKey:@(id)];
 }
 
 - (NSWindow *)ironcladWindowForID:(uint32_t)id {
@@ -445,10 +449,10 @@ uint16_t native_video_detect(void) {
                 postmessage_utoxav(UTOXAV_STOP_VIDEO, 1, 0, NULL);
                 break;
             default: {
-                FRIEND *f = &friend[((uToxIroncladWindow *)notification.object).video_id - 1];
-                postmessage_toxcore(TOX_CALL_DISCONNECT, f->number, 0, NULL);
-                break;
-            }
+                         FRIEND *f = &friend[((uToxIroncladWindow *)notification.object).video_id - 1];
+                         postmessage_toxcore(TOX_CALL_DISCONNECT, f->number, 0, NULL);
+                         break;
+                     }
         }
         redraw();
     }
@@ -476,8 +480,8 @@ void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height
         [win setFrame:(CGRect) { win.frame.origin.x, CGRectGetMaxY(win.frame) - rsheight, rswidth, rsheight }
               display:YES
               animate:NO];
-        win.contentAspectRatio = (CGSize){ width, height };
-        view.videoSize         = (CGSize){ width, height };
+                      win.contentAspectRatio = (CGSize){ width, height };
+                      view.videoSize         = (CGSize){ width, height };
     }
 
     [view displayImage:img_data w:width h:height];
@@ -501,9 +505,10 @@ void video_begin(uint32_t _id, char *name, uint16_t name_length, uint16_t width,
     int rswidth             = width + chrome_metric_w;
     int rsheight            = height + chrome_metric_h;
 
-    [video_win
-        setFrame:(CGRect) { CGRectGetMaxX(utoxwin.frame), CGRectGetMaxY(utoxwin.frame) - rsheight, rswidth, rsheight }
-         display:YES];
+    [video_win setFrame:(CGRect) { CGRectGetMaxX(utoxwin.frame), 
+        CGRectGetMaxY(utoxwin.frame) - rsheight, rswidth, rsheight }
+        display:YES];
+
     ((uToxIroncladView *)video_win.contentView).videoSize = (CGSize){ width, height };
     video_win.contentAspectRatio                          = (CGSize){ width, height };
     [utoxapp setIroncladWindow:video_win forID:_id];
