@@ -1,3 +1,6 @@
+#import <Cocoa/Cocoa.h>
+#import <AppKit/AppKit.h>
+
 #include "main.h"
 #include "../av/utox_av.h"
 #include "../friend.h"
@@ -26,7 +29,7 @@ static inline CGRect CGRectCentreInRect(CGRect r1, CGRect r2) {
 + (NSWindow *)createWindowOnScreen:(NSScreen *)target {
     NSWindow *ret =
         [[NSWindow alloc] initWithContentRect:CGRectMake(0, 0, target.frame.size.width, target.frame.size.height)
-                                    styleMask:NSWindowStyleMaskBorderless
+                                    styleMask:NSBorderlessWindowMask
                                       backing:NSBackingStoreBuffered
                                         defer:NO
                                        screen:target];
