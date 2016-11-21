@@ -411,7 +411,7 @@ void loadfonts(void) {
 }
 
 void freefonts(void) {
-    for (int i = 0; i != countof(font); i++) {
+    for (size_t i = 0; i < countof(font); i++) {
         FONT *f = &font[i];
         if (f->pattern) {
             FcPatternDestroy(f->pattern);
@@ -426,7 +426,7 @@ void freefonts(void) {
             free(f->info);
         }
 
-        for (int j = 0; j != countof(f->glyphs); j++) {
+        for (size_t j = 0; j < countof(f->glyphs); j++) {
             GLYPH *g = f->glyphs[j];
             if (g) {
                 while (g->ucs4 != ~0) {
