@@ -13,18 +13,17 @@ static FILE* get_file(wchar_t path[UTOX_FILE_NAME_LENGTH], UTOX_FILE_OPTS opts) 
         mode[0] = 'r';
     }
 
-    if (opts & UTOX_FILE_OPTS_WRITE) {
+    if (opts & UTOX_FILE_OPTS_APPEND) {
+        rw |= GENERIC_WRITE;
+        mode[0] = 'a';
+    } else if (opts & UTOX_FILE_OPTS_WRITE) {
         rw |= GENERIC_WRITE;
         mode[0] = 'w';
-        if (opts & UTOX_FILE_OPTS_APPEND) {
-            mode[0] = 'a';
-        } else {
-            create = CREATE_ALWAYS;
-        }
+        create = CREATE_ALWAYS;
     }
 
     mode[1] = 'b';
-    if ((opts & UTOX_FILE_OPTS_WRITE) && (opts & UTOX_FILE_OPTS_READ)) {
+    if ((opts & (UTOX_FILE_OPTS_WRITE | UTOX_FILE_OPTS_APPEND)) && (opts & UTOX_FILE_OPTS_READ)) {
         mode[2] = '+';
     }
 
@@ -70,7 +69,7 @@ FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS flag) {
     FILE *fp = get_file(wide, flag);
 
     if (fp == NULL) {
-        debug_error("Could not open %s\n", path);
+        debug_error("Windows:\tCould not open %s\n", path);
         return NULL;
     }
 
