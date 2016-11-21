@@ -1,3 +1,10 @@
+#include "main.h"
+
+#include "../main.h"
+
+#include "../tox.h"
+#include "../../langs/i18n_decls.h"
+
 /* uTox audio using OpenSL
  *  todo: error checking, only record when needed, audio sources only in "playing" state when they have something to
  * play(does it make a difference?)
@@ -27,7 +34,7 @@ typedef struct {
     short *                       buf;
 } AUDIO_PLAYER;
 
-AUDIO_PLAYER loopback, call_player[MAX_CALLS];
+AUDIO_PLAYER loopback, call_player[16];
 
 static SLDataFormat_PCM format_pcm = {.formatType    = SL_DATAFORMAT_PCM,
                                       .numChannels   = 1,
@@ -37,7 +44,7 @@ static SLDataFormat_PCM format_pcm = {.formatType    = SL_DATAFORMAT_PCM,
                                       .channelMask   = SL_SPEAKER_FRONT_CENTER,
                                       .endianness    = SL_BYTEORDER_LITTLEENDIAN };
 
-volatile bool call[MAX_CALLS];
+volatile bool call[16];
 
 pthread_mutex_t callback_lock;
 
@@ -135,7 +142,7 @@ void encoder_thread(void *arg) {
 
             // TODO fix this
             int i;
-            for (i = 0; i < MAX_CALLS; i++) {
+            for (i = 0; i < 16; i++) {
                 if (call[i]) {
                     int     r;
                     uint8_t dest[960 * 2];
