@@ -134,6 +134,16 @@ elseif(UNIX) # xlib by default
         )
     target_link_libraries(utoxNATIVE bin-icon v4lconvert X11 Xext Xrender fontconfig freetype resolv dl )
 
+	install(FILES
+	  utox
+	  DESTINATION "bin")
+	install(FILES
+	  src/utox.desktop
+	  DESTINATION "share/applications")
+	install(FILES
+	  src/utox.1
+	  DESTINATION "man/man1")
+
 endif()
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -fno-strict-aliasing")
