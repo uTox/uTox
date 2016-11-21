@@ -293,8 +293,8 @@ uint8_t cursor;
 bool    mdown;
 
 /** Takes a filepath and creates it with permissions 0700 (in posix environments) if it doesn't already exist.
- * 
- * Returns a bool indicating if the path exists or not. */ 
+ *
+ * Returns a bool indicating if the path exists or not. */
 bool native_create_dir(const char *filepath);
 
 /** Takes data from µTox and saves it, just how the OS likes it saved!
@@ -351,16 +351,6 @@ uint8_t **utox_load_chatlog(uint32_t friend_number, size_t *size, uint32_t count
  * the supplied data * length. It makes no attempt to verify the data or length, it'll just
  * write blindly. */
 bool utox_update_chatlog(uint32_t friend_number, size_t offset, uint8_t *data, size_t length);
-
-/** TODO DOCUMENATION
- */
-bool utox_data_save_avatar(uint32_t friend_number, const uint8_t *data, size_t length);
-/** TODO DOCUMENATION
- */
-uint8_t *utox_data_load_avatar(const char hexid[TOX_PUBLIC_KEY_SIZE * 2], size_t *size);
-/** TODO DOCUMENATION
- */
-bool utox_data_del_avatar(uint32_t friend_number);
 
 /** TODO DOCUMENATION
  */
