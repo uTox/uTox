@@ -307,35 +307,39 @@ bool    mdown;
  */
 bool native_create_dir(const char *filepath);
 
-/** Selects the correct file on the platform and passes it to the global log reading function */
-FILE *native_load_chatlog_file(char hex[TOX_PUBLIC_KEY_SIZE * 2]);
+
+FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS flag);
 
 /** given a filename, native_remove_file will delete that file from the local config dir */
 bool native_remove_file(const uint8_t *name, size_t length);
 
-/*** Global wrappers for the native_ data functions ***/
-
-/** TODO DOCUMENATION
+/**
+ * TODO DOCUMENTATION
  */
 bool utox_data_save_tox(uint8_t *data, size_t length);
 
-/** TODO DOCUMENATION
+/**
+ * TODO DOCUMENTATION
  */
 uint8_t *utox_data_load_tox(size_t *size);
 
-/** TODO DOCUMENATION
+/**
+ * TODO DOCUMENTATION
  */
 bool utox_data_save_utox(UTOX_SAVE *data, size_t length);
 
-/** TODO DOCUMENATION
+/**
+ * TODO DOCUMENTATION
  */
 UTOX_SAVE *utox_data_load_utox(void);
 
-/** TODO DOCUMENATION
+/**
+ * TODO DOCUMENTATION
  */
 uint8_t *utox_data_load_custom_theme(size_t *out);
 
-/** TODO DOCUMENATION
+/**
+ * TODO DOCUMENTATION
  */
 size_t utox_save_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], uint8_t *data, size_t length);
 
@@ -352,44 +356,53 @@ uint8_t **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, uin
  * write blindly. */
 bool utox_update_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t offset, uint8_t *data, size_t length);
 
-/** TODO DOCUMENATION
+/**
+ * TODO DOCUMENTATION
  */
 bool utox_data_save_avatar(char hex[TOX_PUBLIC_KEY_SIZE * 2], const uint8_t *data, size_t length);
-/** TODO DOCUMENATION
+/**
+ * TODO DOCUMENTATION
  */
 uint8_t *utox_data_load_avatar(const char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size);
-/** TODO DOCUMENATION
+/**
+ * TODO DOCUMENTATION
  */
 bool utox_data_del_avatar(uint32_t friend_number);
 
-/** TODO DOCUMENATION
+/**
+ * TODO DOCUMENTATION
  */
 bool utox_remove_file(const uint8_t *full_name, size_t length);
-/** TODO DOCUMENATION
+/**
+ * TODO DOCUMENTATION
  */
 bool utox_remove_friend_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2]);
-
 bool utox_remove_file(const uint8_t *full_name, size_t length);
 bool utox_remove_friend_history(char hex[TOX_PUBLIC_KEY_SIZE * 2]);
-/** TODO DOCUMENATION
+
+/**
+ * TODO DOCUMENTATION
  */
 void utox_export_chatlog_init(uint32_t friend_number);
 
-/** TODO DOCUMENATION
+/**
+ * TODO DOCUMENTATION
  */
 void utox_export_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], FILE *dest_file);
-
 /* TODO: sort everything below this line! */
 
-/** TODO DOCUMENATION
+
+/**
+ * TODO DOCUMENTATION
  */
 void parse_args(int argc, char *argv[], bool *theme_was_set_on_argv, int8_t *should_launch_at_startup,
-                int8_t *set_show_window, bool *no_updater);
+               int8_t *set_show_window, bool *no_updater);
 
-/** TODO DOCUMENATION
+
+/**
+ * TODO DOCUMENTATION
  */
 void utox_init(void);
-
 // inserts/deletes a value into the registry to launch uTox after boot
 void launch_at_startup(int is_launch_at_startup);
 
@@ -517,5 +530,13 @@ bool audio_frame(int16_t *buffer);
 void audio_play(int32_t call_index, const int16_t *data, int length, uint8_t channels);
 void audio_begin(int32_t call_index);
 void audio_end(int32_t call_index);
+
+uint16_t native_video_detect(void);
+bool native_video_init(void *handle);
+void native_video_close(void *handle);
+int native_video_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, uint16_t height);
+bool  native_video_startread(void);
+bool  native_video_endread(void);
+
 
 #endif

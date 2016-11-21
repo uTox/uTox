@@ -13,12 +13,4 @@
 #include "xlib/main.h"
 #endif
 
-uint16_t native_video_detect(void);
-bool native_video_init(void *handle);
-void native_video_close(void *handle);
-int native_video_getframe(uint8_t *y, uint8_t *u, uint8_t *v, uint16_t width, uint16_t height);
-bool  native_video_startread(void);
-bool  native_video_endread(void);
-FILE *native_get_file(char *name, size_t *size, uint8_t flag);
-
 #endif
