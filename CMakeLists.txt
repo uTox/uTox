@@ -103,6 +103,9 @@ elseif(UNIX) # xlib by default
 	install(FILES
 	  src/utox.desktop
 	  DESTINATION "share/applications")
+	install(FILES
+	  utox.1
+	  DESTINATIOM "man/man1")
 
 endif()
 
