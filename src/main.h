@@ -50,9 +50,7 @@
 #ifndef __OBJC__
 #define volatile(x)(x)
 #endif
-/* UTOX_SCALE is used as the default so that we have a lot of options for scale size.
- * When ever you see UTOX_SCALE(x) double the size, and use SCALE instead!           */
-#define UTOX_SCALE(x) (((int)((ui_scale * 2.0 / 10.0) * ((double)x))) ?: 1)
+
 #define SCALE(x) (((int)((ui_scale / 10.0) * ((double)x))) ?: 1)
 #define UI_FSCALE(x) (((ui_scale / 10.0) * ((double)x)) ?: 1)
 
