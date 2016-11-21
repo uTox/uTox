@@ -466,14 +466,14 @@ void launch_at_startup(int should) {
     [NSApplication sharedApplication].dockTile.contentView = dock_icon;
     [dock_icon release];
 
-    global_event_listener = [NSEvent addGlobalMonitorForEventsMatchingMask:NSEventMaskFlagsChanged
+    global_event_listener = [NSEvent addGlobalMonitorForEventsMatchingMask:NSFlagsChangedMask
                                                                    handler:^(NSEvent *e) {
-                                                                       is_ctrl_down = e.modifierFlags & NSEventModifierFlagFunction;
+                                                                       is_ctrl_down = e.modifierFlags & NSFunctionKeyMask;
                                                                    }];
 
-    local_event_listener = [NSEvent addLocalMonitorForEventsMatchingMask:NSEventMaskFlagsChanged
+    local_event_listener = [NSEvent addLocalMonitorForEventsMatchingMask:NSFlagsChangedMask
                                                                  handler:^NSEvent *(NSEvent *e) {
-                                                                     is_ctrl_down = e.modifierFlags & NSEventModifierFlagFunction;
+                                                                     is_ctrl_down = e.modifierFlags & NSFunctionKeyMask;
                                                                      return e;
                                                                  }];
 
@@ -481,7 +481,7 @@ void launch_at_startup(int should) {
 
     // hold COMMAND to start utox in portable mode
     // unfortunately, OS X doesn't have the luxury of passing argv in the GUI
-    if ([NSEvent modifierFlags] & NSEventModifierFlagCommand) {
+    if ([NSEvent modifierFlags] & NSCommandKeyMask) {
         settings.portable_mode = 1;
     }
 
@@ -499,7 +499,7 @@ void launch_at_startup(int should) {
     char title_name[128];
     snprintf(title_name, 128, "%s %s (version: %s)", TITLE, SUB_TITLE, VERSION);
 
-#define WINDOW_MASK (NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable)
+#define WINDOW_MASK (NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask | NSResizableWindowMask)
     self.utox_window = [[NSWindow alloc]
         initWithContentRect:(NSRect) { save->window_x, save->window_y, save->window_width, save->window_height }
                   styleMask:WINDOW_MASK

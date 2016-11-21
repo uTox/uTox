@@ -292,7 +292,7 @@ static inline void select_right_to_char(char c) {
     // option + [0-9] will jump to the n-th chat
     char n = 0;
     if (theEvent.charactersIgnoringModifiers.length == 1
-        && (theEvent.modifierFlags & NSEventModifierFlagDeviceIndependentFlagsMask) == NSEventModifierFlagControl) {
+        && (theEvent.modifierFlags & NSDeviceIndependentModifierFlagsMask) == NSControlKeyMask) {
         switch (n = [theEvent.charactersIgnoringModifiers characterAtIndex:0]) {
             case '1':
             case '2':
@@ -339,7 +339,7 @@ static inline void select_right_to_char(char c) {
 
 // TODO: NSTextInputClient
 #define FLAGS() \
-    (([NSEvent modifierFlags] & NSEventModifierFlagCommand) ? 4 : 0) | (([NSEvent modifierFlags] & NSEventModifierFlagShift) ? 1 : 0)
+    (([NSEvent modifierFlags] & NSCommandKeyMask) ? 4 : 0) | (([NSEvent modifierFlags] & NSShiftKeyMask) ? 1 : 0)
 - (void)insertTab:(id)sender {
     BEEP_IF_EDIT_NOT_ACTIVE()
 
@@ -983,7 +983,7 @@ void openfileavatar(void) {
             [bytess release];
 
             NSAlert *alert    = [[NSAlert alloc] init];
-            alert.alertStyle  = NSAlertStyleWarning;
+            alert.alertStyle  = NSWarningAlertStyle;
             alert.messageText = emsg;
             [emsg release];
             [alert runModal];

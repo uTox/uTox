@@ -110,7 +110,11 @@ elseif(APPLE) # Mac has a lot of dependencies
         -lresolv
         )
 
-    set(APPLE_ICON icons/utox.icns)
+    set(APPLE_ICON utox.icns)
+	add_custom_command(OUTPUT utox.icns
+      COMMAND iconutil --convert icns src/cocoa/utox.iconset -o utox.icns
+      DEPENDS src/cocoa/utox.iconset
+	  )
 elseif(UNIX) # xlib by default
 
     include_directories(/usr/include/freetype2)
@@ -246,15 +250,17 @@ add_executable(utox
     )
 
 
-add_custom_command(OUTPUT icon.o
+if(NOT APPLE)
+  add_custom_command(OUTPUT icon.o
     COMMAND cd ${CMAKE_CURRENT_SOURCE_DIR}/ && ld -r -b binary -o ${CMAKE_CURRENT_BINARY_DIR}/icon.o icons/utox-128x128.png
     COMMAND objcopy --rename-section .data=.rodata,alloc,load,readonly,data,contents ${CMAKE_CURRENT_BINARY_DIR}/icon.o ${CMAKE_CURRENT_BINARY_DIR}/icon.o
     DEPENDS icons/icon.rc icons/utox-128x128.png
     )
-set_source_files_properties( icon.o PROPERTIES EXTERNAL_OBJECT true GENERATED true )
+  set_source_files_properties( icon.o PROPERTIES EXTERNAL_OBJECT true GENERATED true )
 
-add_library(bin-icon STATIC icon.o)
-set_target_properties( bin-icon PROPERTIES LINKER_LANGUAGE C )
+  add_library(bin-icon STATIC icon.o)
+  set_target_properties( bin-icon PROPERTIES LINKER_LANGUAGE C )
+endif()
 
 
 target_link_libraries(utox

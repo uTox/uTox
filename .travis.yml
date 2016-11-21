@@ -30,10 +30,6 @@ cache:
 
 matrix:
   fast_finish: true
-  allow_failures:
-    - os: osx
-    # - env: BUILD=windows
-    # - env: BUILD=linux TOXCORE_REPO=irungentoo/toxcore
   include:
     - os: linux
       env: BUILD=linux TOXCORE_REPO=TokTok/c-toxcore
@@ -59,10 +55,9 @@ matrix:
       env: BUILD=windows
       compiler: x86_64-w64-mingw32-gcc
 
-    # OSX currently won't build... ask stal for help maybe?
-    # - os: osx
-    #   compiler: clang
-    #   env: BUILD=osx
+    - os: osx
+      compiler: clang
+      env: BUILD=osx TOXCORE_REPO=TokTok/c-toxcore
 
     # We don't support old toxcore yet/anymore
     # - os: linux
