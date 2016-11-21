@@ -185,7 +185,7 @@ bool native_create_dir(const char *filepath) {
     return false;
 }
 
-#if 0
+#if 0 // commented because this function is deprecated, but I'm not ready to delete all this code yet
 /** Takes data from µTox and saves it, just how the OS likes it saved! */
 size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *data, size_t length, bool append) {
     char path[UTOX_FILE_NAME_LENGTH]        = { 0 };

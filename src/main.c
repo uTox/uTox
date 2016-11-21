@@ -143,7 +143,7 @@ bool utox_data_save_ftinfo(char hex[TOX_PUBLIC_KEY_SIZE * 2], uint8_t *data, siz
     char name[TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".ftinfo")];
     snprintf(name, sizeof(name), "%.*s.ftinfo", TOX_PUBLIC_KEY_SIZE * 2, hex);
 
-    FILE *fp = native_get_file(name, NULL, UTOX_FILE_OPTS_READ);
+    FILE *fp = native_get_file(name, NULL, UTOX_FILE_OPTS_WRITE);
 
     if (fp == NULL) {
         return false;
@@ -190,7 +190,7 @@ static FILE* chatlog_get_file(char hex[TOX_PUBLIC_KEY_SIZE * 2], bool append) {
     snprintf(name, sizeof(name), "%.*s.new.txt", TOX_PUBLIC_KEY_SIZE * 2, hex);
 
     if (append) {
-        return native_get_file(name, NULL, UTOX_FILE_OPTS_APPEND | UTOX_FILE_OPTS_MKDIR);
+        return native_get_file(name, NULL, 0xFF);
     } else {
         return native_get_file(name, NULL, UTOX_FILE_OPTS_READ);
     }

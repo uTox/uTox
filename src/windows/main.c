@@ -15,11 +15,11 @@ static bool flashing, desktopgrab_video;
 static bool hidden;
 
 static TRACKMOUSEEVENT tme           = { sizeof(TRACKMOUSEEVENT), TME_LEAVE, 0, 0 };
-static bool            mouse_tracked = 0;
+static bool            mouse_tracked = false;
 
-bool  draw      = 0;
+bool  draw      = false;
 float scale     = 1.0;
-bool  connected = 0;
+bool  connected = false;
 bool  havefocus;
 
 /** Translate a char* from UTF-8 encoding to OS native;
@@ -44,7 +44,7 @@ bool native_remove_file(const uint8_t *name, size_t length) {
     if (settings.portable_mode) {
         strcpy((char *)path, portable_mode_save_path);
     } else {
-        bool have_path = 0;
+        bool have_path = false;
         have_path      = SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, (char *)path));
 
         if (!have_path) {
@@ -53,14 +53,14 @@ bool native_remove_file(const uint8_t *name, size_t length) {
 
         if (!have_path) {
             strcpy((char *)path, portable_mode_save_path);
-            have_path = 1;
+            have_path = true;
         }
     }
 
 
     if (strlen((const char *)path) + length >= UTOX_FILE_NAME_LENGTH) {
         debug("NATIVE:\tFile/directory name too long, unable to remove\n");
-        return 0;
+        return false;
     } else {
         snprintf((char *)path + strlen((const char *)path), UTOX_FILE_NAME_LENGTH - strlen((const char *)path),
                  "\\Tox\\%.*s", (int)length, (char *)name);
@@ -68,12 +68,12 @@ bool native_remove_file(const uint8_t *name, size_t length) {
 
     if (remove((const char *)path)) {
         debug_error("NATIVE:\tUnable to delete file!\n\t\t%s\n", path);
-        return 0;
+        return false;
     } else {
         debug_info("NATIVE:\tFile deleted!\n");
         debug("NATIVE:\t\t%s\n", path);
     }
-    return 1;
+    return true;
 }
 
 /** Open system file browser dialog */
@@ -218,26 +218,26 @@ void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data) {
 }
 
 void init_ptt(void) {
-    settings.push_to_talk = 1;
+    settings.push_to_talk = true;
 }
 
 bool check_ptt_key(void) {
     if (!settings.push_to_talk) {
         // debug("PTT is disabled\n");
-        return 1; /* If push to talk is disabled, return true. */
+        return true; /* If push to talk is disabled, return true. */
     }
 
     if (GetAsyncKeyState(VK_LCONTROL)) {
         // debug("PTT key is down\n");
-        return 1;
+        return true;
     } else {
         // debug("PTT key is up\n");
-        return 0;
+        return false;
     }
 }
 
 void exit_ptt(void) {
-    settings.push_to_talk = 0;
+    settings.push_to_talk = false;
 }
 
 void thread(void func(void *), void *args) {
@@ -265,10 +265,10 @@ void togglehide(int show) {
         ShowWindow(hwnd, SW_RESTORE);
         SetForegroundWindow(hwnd);
         redraw();
-        hidden = 0;
+        hidden = false;
     } else {
         ShowWindow(hwnd, SW_HIDE);
-        hidden = 1;
+        hidden = true;
     }
 }
 
@@ -500,7 +500,7 @@ void flush_file(FILE *file) {
 
 int ch_mod(uint8_t *file) {
     /* You're probably looking for ./xlib as windows is lamesauce and wants nothing to do with sane permissions */
-    return 1;
+    return true;
 }
 
 int file_lock(FILE *file, uint64_t start, size_t length) {
@@ -530,7 +530,7 @@ void notify(char *title, uint16_t title_length, const char *msg, uint16_t msg_le
     }
 
     FlashWindow(hwnd, 1);
-    flashing = 1;
+    flashing = true;
 
     NOTIFYICONDATAW nid = {
         .uFlags      = NIF_ICON | NIF_INFO,
@@ -623,7 +623,7 @@ void desktopgrab(bool video) {
     desktopgrab_video = video;
 
     // SetCapture(hwnd);
-    // grabbing = 1;
+    // grabbing = true;
 
     // postmessage_video(VIDEO_SET, 0, 0, (void*)1);
 }
@@ -646,20 +646,20 @@ LRESULT CALLBACK GrabProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam) {
             ReleaseDC(window, dc);
         }
 
-        return 0;
+        return false;
     }
 
     if (msg == WM_LBUTTONDOWN) {
         video_grab_x = video_grab_w = p.x;
         video_grab_y = video_grab_h = p.y;
-        grabbing                    = 1;
+        grabbing                    = true;
         SetCapture(window);
-        return 0;
+        return false;
     }
 
     if (msg == WM_LBUTTONUP) {
         ReleaseCapture();
-        grabbing = 0;
+        grabbing = false;
 
         if (video_grab_x < video_grab_w) {
             video_grab_w -= video_grab_x;
@@ -700,11 +700,11 @@ LRESULT CALLBACK GrabProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam) {
         }
 
 
-        return 0;
+        return false;
     }
 
     if (msg == WM_DESTROY) {
-        grabbing = 0;
+        grabbing = false;
     }
 
     return DefWindowProcW(window, msg, wParam, lParam);
@@ -873,7 +873,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     HANDLE utox_mutex = CreateMutex(NULL, 0, TITLE);
 
     if (!utox_mutex) {
-        return 0;
+        return false;
     }
     if (GetLastError() == ERROR_ALREADY_EXISTS) {
         HWND window = FindWindow(TITLE, NULL);
@@ -881,7 +881,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
             COPYDATASTRUCT data = {.cbData = strlen(cmd), .lpData = cmd };
             SendMessage(window, WM_COPYDATA, (WPARAM)hInstance, (LPARAM)&data);
         }
-        return 0;
+        return false;
     }
 
     /* Process argc/v the backwards (read: windows) way. */
@@ -891,7 +891,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
 
     if (NULL == argv) {
         debug("CommandLineToArgvA failed\n");
-        return 1;
+        return true;
     }
 
     bool   theme_was_set_on_argv;
@@ -944,7 +944,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
                     CloseHandle(utox_mutex);
                     /* This is an updater build not being run by the updater. Run the updater and exit. */
                     ShellExecute(NULL, "open", path, cmd, NULL, SW_SHOW);
-                    return 0;
+                    return false;
                 }
             }
         }
@@ -1067,22 +1067,22 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
         do_tox_url((uint8_t *)cmd, len);
     }
 
-    draw = 1;
+    draw = true;
     redraw();
     update_tray();
 
     /* From --set flag */
     if (set_show_window) {
         if (set_show_window == 1) {
-            settings.start_in_tray = 0;
+            settings.start_in_tray = false;
         } else if (set_show_window == -1) {
-            settings.start_in_tray = 1;
+            settings.start_in_tray = true;
         }
     }
 
     if (settings.start_in_tray) {
         ShowWindow(hwnd, SW_HIDE);
-        hidden = 1;
+        hidden = true;
     } else {
         ShowWindow(hwnd, nCmdShow);
     }
@@ -1118,7 +1118,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
 
     printf("uTox:\tClean exit.\n");
 
-    return 0;
+    return false;
 }
 
 /** Handles all callback requests from winmain();
@@ -1132,11 +1132,11 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam) {
         if (msg == WM_DESTROY) {
             if (hwn == video_hwnd[0]) {
                 if (settings.video_preview) {
-                    settings.video_preview = 0;
+                    settings.video_preview = false;
                     postmessage_utoxav(UTOXAV_STOP_VIDEO, 0, 0, NULL);
                 }
 
-                return 0;
+                return false;
             }
 
             int i;
@@ -1162,10 +1162,10 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam) {
             if (settings.close_to_tray) {
                 debug("Closing to tray.\n");
                 togglehide(0);
-                return 1;
+                return true;
             } else {
                 PostQuitMessage(0);
-                return 0;
+                return false;
             }
         }
 
@@ -1181,18 +1181,18 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam) {
             hdc      = CreateCompatibleDC(main_hdc);
             hdcMem   = CreateCompatibleDC(hdc);
 
-            return 0;
+            return false;
         }
 
         case WM_SIZE: {
             switch (wParam) {
                 case SIZE_MAXIMIZED: {
-                    settings.window_maximized = 1;
+                    settings.window_maximized = true;
                     break;
                 }
 
                 case SIZE_RESTORED: {
-                    settings.window_maximized = 0;
+                    settings.window_maximized = false;
                     break;
                 }
             }
@@ -1228,7 +1228,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam) {
         case WM_SETFOCUS: {
             if (flashing) {
                 FlashWindow(hwnd, 0);
-                flashing = 0;
+                flashing = false;
 
                 NOTIFYICONDATAW nid = {
                     .uFlags = NIF_ICON, .hWnd = hwnd, .hIcon = my_icon, .cbSize = sizeof(nid),
@@ -1237,17 +1237,17 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam) {
                 Shell_NotifyIconW(NIM_MODIFY, &nid);
             }
 
-            havefocus = 1;
+            havefocus = true;
             break;
         }
 
         case WM_KILLFOCUS: {
-            havefocus = 0;
+            havefocus = false;
             break;
         }
 
         case WM_ERASEBKGND: {
-            return 1;
+            return true;
         }
 
         case WM_PAINT: {
@@ -1259,7 +1259,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam) {
             BitBlt(main_hdc, r.left, r.top, r.right - r.left, r.bottom - r.top, hdc, r.left, r.top, SRCCOPY);
 
             EndPaint(hwn, &ps);
-            return 0;
+            return false;
         }
 
         case WM_SYSKEYDOWN: // called instead of WM_KEYDOWN when ALT is down or F10 is pressed
@@ -1275,18 +1275,18 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam) {
 
             if (control && wParam == 'C') {
                 copy(1);
-                return 0;
+                return false;
             }
 
             if (control) {
                 if ((wParam == VK_TAB && shift) || wParam == VK_PRIOR) {
                     flist_previous_tab();
                     redraw();
-                    return 0;
+                    return false;
                 } else if (wParam == VK_TAB || wParam == VK_NEXT) {
                     flist_next_tab();
                     redraw();
-                    return 0;
+                    return false;
                 }
             }
 
@@ -1294,22 +1294,22 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam) {
                 if (wParam >= '1' && wParam <= '9') {
                     flist_selectchat(wParam - '1');
                     redraw();
-                    return 0;
+                    return false;
                 } else if (wParam == '0') {
                     flist_selectchat(9);
                     redraw();
-                    return 0;
+                    return false;
                 }
             }
 
             if (edit_active()) {
                 if (control) {
                     switch (wParam) {
-                        case 'V': paste(); return 0;
+                        case 'V': paste(); return false;
                         case 'X':
                             copy(0);
                             edit_char(KEY_DEL, 1, 0);
-                            return 0;
+                            return false;
                     }
                 }
 
@@ -1332,10 +1332,10 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam) {
                 if (wParam != KEY_TAB) {
                     edit_char(wParam, 0, 0);
                 }
-                return 0;
+                return false;
             }
 
-            return 0;
+            return false;
         }
 
         case WM_MOUSEWHEEL: {
@@ -1345,7 +1345,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam) {
 
             panel_mwheel(&panel_root, mx, my, settings.window_width, settings.window_height,
                          delta / (double)(WHEEL_DELTA), 1);
-            return 0;
+            return false;
         }
 
         case WM_MOUSEMOVE: {
@@ -1366,10 +1366,10 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam) {
 
             if (!mouse_tracked) {
                 TrackMouseEvent(&tme);
-                mouse_tracked = 1;
+                mouse_tracked = true;
             }
 
-            return 0;
+            return false;
         }
 
         case WM_LBUTTONDOWN:
@@ -1392,7 +1392,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam) {
             }
 
             SetCapture(hwn);
-            mdown = 1;
+            mdown = true;
             break;
         }
 
@@ -1413,7 +1413,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam) {
         case WM_CAPTURECHANGED: {
             if (mdown) {
                 panel_mup(&panel_root);
-                mdown = 0;
+                mdown = false;
             }
 
             break;
@@ -1421,7 +1421,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam) {
 
         case WM_MOUSELEAVE: {
             ui_mouseleave();
-            mouse_tracked = 0;
+            mouse_tracked = false;
             break;
         }
 
@@ -1497,7 +1497,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam) {
                     break;
                 }
             }
-            return 0;
+            return false;
         }
 
         case WM_COPYDATA: {
@@ -1507,12 +1507,12 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam) {
             if (data->lpData) {
                 do_tox_url(data->lpData, data->cbData);
             }
-            return 0;
+            return false;
         }
 
         case WM_TOX ... WM_TOX + 128: {
             tox_message(msg - WM_TOX, wParam >> 16, wParam, (void *)lParam);
-            return 0;
+            return false;
         }
     }
 
