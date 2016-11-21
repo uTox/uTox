@@ -483,15 +483,17 @@ void messages_clear_receipt(MESSAGES *m, uint32_t receipt_number) {
                     data          = calloc(1, length);
                     memcpy(data, &header, sizeof(header));
 
+
+                    char *hex = &friend[m->id].id_str;
                     if (msg->disk_offset) {
                         debug("Messages:\tUpdating message -> disk_offset is %lu\n", msg->disk_offset);
-                        utox_update_chatlog(m->id, msg->disk_offset, data, length);
+                        utox_update_chatlog(hex, msg->disk_offset, data, length);
                     } else if (msg->disk_offset == 0 && start <= 1 && receipt_number == 1) {
                         /* This could get messy if receipt is 1 msg position is 0 and the offset is actually wrong,
                          * But I couldn't come up with any other way to verify the rare case of a bad offset
                          * start <= 1 to offset for the day change notification                                    */
                         debug("Messages:\tUpdating first message -> disk_offset is %lu\n", msg->disk_offset);
-                        utox_update_chatlog(m->id, msg->disk_offset, data, length);
+                        utox_update_chatlog(hex, msg->disk_offset, data, length);
                     } else {
                         debug_error("Messages:\tUnable to update this message...\n"
                                     "\t\tmsg->disk_offset %lu && m->number %u receipt_number %u \n",

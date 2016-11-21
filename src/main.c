@@ -441,7 +441,7 @@ uint8_t *utox_data_load_avatar(const char hexid[TOX_PUBLIC_KEY_SIZE * 2], size_t
 
     FILE *fp = native_get_file(name, &size, UTOX_FILE_OPTS_READ);
     if (fp == NULL) {
-        debug("Could not open avatar for friend : %.*s", (int)sizeof(*hexid), hexid);
+        debug_notice("Main:\tCould not open avatar for friend : %.*s", (int)sizeof(*hexid), hexid);
         return NULL;
     }
 

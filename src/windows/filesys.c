@@ -69,7 +69,7 @@ FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS flag) {
     FILE *fp = get_file(wide, flag);
 
     if (fp == NULL) {
-        debug_error("Could not open %s\n", path);
+        debug_error("Windows:\tCould not open %s\n", path);
         return NULL;
     }
 
