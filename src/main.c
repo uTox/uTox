@@ -52,10 +52,7 @@ SETTINGS settings = {
  * if you need to localize them to a specific platform, move them from here, to each
  * src/<platform>/main.x and change from utox_ to native_ */
 bool utox_data_save_tox(uint8_t *data, size_t length) {
-    uint8_t name[] = "tox_save.tox";
-    size_t *size   = 0;
-    FILE *  fp     = native_get_file((char *)name, size, UTOX_FILE_OPTS_WRITE);
-
+    FILE *  fp     = native_get_file("tox_save.tox", NULL, UTOX_FILE_OPTS_WRITE);
     if (fp == NULL) {
         debug("Can not open tox_save.tox to write to it.\n");
         return true;
@@ -116,7 +113,6 @@ bool utox_data_save_utox(UTOX_SAVE *data, size_t size) {
 
 UTOX_SAVE *utox_data_load_utox(void) {
     size_t size = 0;
-
     FILE *fp = native_get_file("utox_save", &size, UTOX_FILE_OPTS_READ);
 
     if (fp == NULL) {
@@ -261,7 +257,7 @@ uint8_t **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, uin
 
     FILE *file = chatlog_get_file(hex, false);
     if (!file) {
-        debug("History:\tUnable to access file provided by native_load_chatlog_file()\n");
+        debug("History:\tUnable to access file provided.\n");
         return NULL;
     }
 
@@ -339,12 +335,12 @@ bool utox_update_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t offset, uint8
     FILE *file = chatlog_get_file(hex, true);
 
     if (!file) {
-        debug_error("History:\tUnable to access file provided by native_load_chatlog_file()\n");
+        debug_error("History:\tUnable to access file provided.\n");
         return 0;
     }
 
     if (fseeko(file, offset, SEEK_SET)) {
-        debug_error("History:\tUnable to seek to position %lu in file provided by native_load_chatlog_file()\n", offset);
+        debug_error("History:\tUnable to seek to position %lu in file provided.", offset);
         return 0;
     }
 
@@ -360,7 +356,7 @@ bool utox_remove_friend_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2]) {
 
     snprintf(name, sizeof(name), "%.*s.new.txt", TOX_PUBLIC_KEY_SIZE * 2, hex);
 
-    return utox_remove_file(name, sizeof(name));
+    return utox_remove_file((uint8_t*)name, sizeof(name));
 }
 
 void utox_export_chatlog_init(uint32_t friend_number) {

@@ -262,39 +262,6 @@ FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS flags) {
     return fp;
 }
 
-FILE *native_load_chatlog_file(uint32_t friend_number) {
-    FRIEND *f = &friend[friend_number];
-    uint8_t hex[TOX_PUBLIC_KEY_SIZE * 2];
-    uint8_t path[UTOX_FILE_NAME_LENGTH];
-
-    cid_to_string(hex, f->cid);
-
-    if (settings.portable_mode) {
-        const char *curr = [NSBundle.mainBundle.bundlePath stringByDeletingLastPathComponent].UTF8String;
-        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "%s/tox/", curr);
-    } else {
-        const char *home = NSHomeDirectory().UTF8String;
-        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", home);
-    }
-
-    if (strlen((const char *)path) + sizeof(hex) >= UTOX_FILE_NAME_LENGTH) {
-        debug("NATIVE:\tLoad directory name too long\n");
-        return 0;
-    } else {
-        snprintf((char *)path + strlen((const char *)path), UTOX_FILE_NAME_LENGTH - strlen((const char *)path),
-                 "%.*s.new.txt", (int)sizeof(hex), (char *)hex);
-    }
-
-
-    FILE *file = fopen((const char *)path, "rb+");
-    if (!file) {
-        // debug("NATIVE:\tUnable to open/read %s\n", path);
-        return NULL;
-    }
-
-    return file;
-}
-
 bool native_remove_file(const uint8_t *name, size_t length) {
     uint8_t path[UTOX_FILE_NAME_LENGTH] = { 0 };
 

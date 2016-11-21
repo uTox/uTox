@@ -343,40 +343,6 @@ FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS flag) {
     return fp;
 }
 
-/** native_load_chatlog
- *
- *  reads records from the log file of a friend
- *
- * returns each MSG in the order they were stored, to a max of `count`
- * after skipping `skip` records
- */
-FILE *native_load_chatlog_file(uint32_t friend_number) {
-    FRIEND *f = &friend[friend_number];
-
-    char path[UTOX_FILE_NAME_LENGTH] = { 0 };
-
-    if (settings.portable_mode) {
-        snprintf(path, UTOX_FILE_NAME_LENGTH, "./tox/");
-    } else {
-        snprintf(path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));
-    }
-
-    if (strlen(path) + TOX_PUBLIC_KEY_SIZE * 2 >= UTOX_FILE_NAME_LENGTH) {
-        debug("NATIVE:\tLoad directory name too long\n");
-        return 0;
-    } else {
-        snprintf(path + strlen(path), UTOX_FILE_NAME_LENGTH - strlen(path), "%.*s.new.txt", TOX_PUBLIC_KEY_SIZE * 2,
-                 f->id_str);
-    }
-
-    FILE *file = fopen(path, "rb+");
-    if (!file) {
-        return NULL;
-    }
-
-    return file;
-}
-
 void native_export_chatlog_init(uint32_t friend_number) {
     if (libgtk) {
         ugtk_save_chatlog(friend_number);
