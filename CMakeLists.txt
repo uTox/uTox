@@ -143,6 +143,16 @@ elseif(UNIX) # xlib by default
 
     target_link_libraries(utoxNATIVE icon v4lconvert X11 Xext Xrender fontconfig freetype resolv dl )
 
+	install(FILES
+	  utox
+	  DESTINATION "bin")
+	install(FILES
+	  src/utox.desktop
+	  DESTINATION "share/applications")
+	install(FILES
+	  src/utox.1
+	  DESTINATION "man/man1")
+
 endif()
 
 #######################################################################
