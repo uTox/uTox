@@ -386,8 +386,8 @@ uint16_t native_video_detect(void) {
     (CGRect) { 0, 0, 100, 100 }
     NSWindow *ret =
         [[uToxIroncladWindow alloc] initWithContentRect:START_RECT
-                                              styleMask:NSWindowStyleMaskHUDWindow | NSWindowStyleMaskUtilityWindow | NSWindowStyleMaskClosable
-                                                  | NSWindowStyleMaskTitled | NSWindowStyleMaskResizable
+                                              styleMask:NSHUDWindowMask | NSUtilityWindowMask | NSClosableWindowMask
+                                                  | NSTitledWindowMask | NSResizableWindowMask
                                                   backing:NSBackingStoreBuffered
                                                     defer:YES];
     ret.hidesOnDeactivate = NO;
@@ -505,7 +505,7 @@ void video_begin(uint32_t _id, char *name, uint16_t name_length, uint16_t width,
     int rswidth             = width + chrome_metric_w;
     int rsheight            = height + chrome_metric_h;
 
-    [video_win setFrame:(CGRect) { CGRectGetMaxX(utoxwin.frame), 
+    [video_win setFrame:(CGRect) { CGRectGetMaxX(utoxwin.frame),
         CGRectGetMaxY(utoxwin.frame) - rsheight, rswidth, rsheight }
         display:YES];
 
