@@ -3,7 +3,6 @@ src/*/*.o
 src/*/*.a
 src/*/*.d
 src/*/*.dll
-
 icons/*.o
 
 # executables
@@ -12,15 +11,10 @@ utox.exe
 *.apk
 
 # store dirs
-lib/*
 libs/*
-build/*
 toolchain/*
-Tox/
-libtoxcore.log
-toolchain/
 build/*
-tox/*
+build_*/
 dist/*
 
 # editor files
@@ -33,4 +27,9 @@ GTAGS
 # CMake
 CMakeFiles
 cmake_install.cmake
-CMakeCache.txt
+CMakeCache.txtbuild_*/
+
+# Tox generated files
+libtoxcore.log
+Tox/*
+tox/*
