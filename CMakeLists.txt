@@ -70,7 +70,7 @@ if(WIN32)
         opus
         )
 
-    set(OPENAL openal32)
+    set(WINDOWS_ICON icons/icon.rc)
 
 elseif(APPLE)
     # We should do something here
@@ -95,9 +95,7 @@ elseif(UNIX) # xlib by default
         src/xlib/v4l.c
         src/xlib/video.c
         )
-    target_link_libraries(utoxNATIVE icon v4lconvert X11 Xext Xrender fontconfig freetype resolv dl )
-
-    set(OPENAL openal)
+    target_link_libraries(utoxNATIVE bin-icon v4lconvert X11 Xext Xrender fontconfig freetype resolv dl )
 
 endif()
 
@@ -156,7 +154,7 @@ add_library(utoxAV STATIC
     src/av/video.h
     src/av/video.c
     )
-    target_link_libraries(utoxAV ${OPENAL})
+    target_link_libraries(utoxAV openal)
 
 
 #######################################################################
@@ -204,6 +202,9 @@ add_executable(utox
     src/ui_i18n.h
     src/util.c
     src/util.h
+
+    ${WINDOWS_ICON}
+
     )
 
 
@@ -214,8 +215,8 @@ add_custom_command(OUTPUT icon.o
     )
 set_source_files_properties( icon.o PROPERTIES EXTERNAL_OBJECT true GENERATED true )
 
-add_library(icon STATIC icon.o)
-set_target_properties( icon PROPERTIES LINKER_LANGUAGE C )
+add_library(bin-icon STATIC icon.o)
+set_target_properties( bin-icon PROPERTIES LINKER_LANGUAGE C )
 
 
 target_link_libraries(utox

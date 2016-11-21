@@ -409,6 +409,7 @@ static void init_self(Tox *tox) {
 
     char hex_id[TOX_FRIEND_ADDRESS_SIZE * 2];
     id_to_string(hex_id, self.id_binary);
+    avatar_init_self();
 }
 
 /** void toxcore_thread(void)
@@ -1370,11 +1371,12 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             /* param1: friend id
              * param2: png size
              * data: png data    */
+            FRIEND *f = &friend[param1];
             uint8_t *avatar = data;
             size_t   size   = param2;
 
             avatar_set(&friend[param1].avatar, avatar, size);
-            utox_data_save_avatar(param1, avatar, size);
+            avatar_save(f->id_str, avatar, size);
 
             free(avatar);
             redraw();
@@ -1384,7 +1386,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             FRIEND *f = &friend[param1];
             avatar_unset(&f->avatar);
             // remove avatar from disk
-            avatar_delete_self(param1);
+            avatar_delete(f->id_str);
 
             redraw();
             break;

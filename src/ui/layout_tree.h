@@ -7,7 +7,6 @@
 
 #include "buttons.h"
 #include "draw_helpers.h"
-#include "draw_helpers.h"
 #include "dropdowns.h"
 #include "edits.h"
 #include "switches.h"
@@ -83,7 +82,7 @@ panel_side_bar = {
         .drawfunc = draw_user_badge,
         .child    = (PANEL*[]) {
             (PANEL*)&button_avatar, (PANEL*)&button_name,       (PANEL*)&button_usr_state,
-                                   (PANEL*)&button_status_msg,
+                                    (PANEL*)&button_status_msg,
             NULL
         }
     },

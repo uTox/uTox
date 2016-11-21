@@ -24,6 +24,10 @@ addons:
       - binutils-mingw-w64
       - gcc-mingw-w64
 
+cache:
+  directories:
+    - $HOME/cache
+
 matrix:
   fast_finish: true
   allow_failures:
