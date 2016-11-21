@@ -141,7 +141,7 @@ UTOX_SAVE *utox_data_load_utox(void) {
 
 bool utox_data_save_ftinfo(char hex[TOX_PUBLIC_KEY_SIZE * 2], uint8_t *data, size_t length) {
     char name[TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".ftinfo")];
-    snprintf(name, sizeof(name), "%.*s.ftinfo", sizeof(*hex), hex);
+    snprintf(name, sizeof(name), "%.*s.ftinfo", TOX_PUBLIC_KEY_SIZE * 2, hex);
 
     FILE *fp = native_get_file(name, NULL, UTOX_FILE_OPTS_READ);
 
@@ -181,11 +181,23 @@ uint8_t *utox_data_load_custom_theme(size_t *out) {
     return data;
 }
 
-size_t utox_save_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], uint8_t *data, size_t length) {
-    char name[TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".new.txt")];
-    snprintf(name, sizeof(name), "%.*s.new.txt", sizeof(*hex), hex);
+/*******************************************************************
+ **  Chatlog Section                                              **
+ *******************************************************************/
 
-    FILE *fp = native_get_file(name, NULL, UTOX_FILE_OPTS_APPEND);
+static FILE* chatlog_get_file(char hex[TOX_PUBLIC_KEY_SIZE * 2], bool append) {
+    char name[TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".new.txt")];
+    snprintf(name, sizeof(name), "%.*s.new.txt", TOX_PUBLIC_KEY_SIZE * 2, hex);
+
+    if (append) {
+        return native_get_file(name, NULL, UTOX_FILE_OPTS_APPEND | UTOX_FILE_OPTS_MKDIR);
+    } else {
+        return native_get_file(name, NULL, UTOX_FILE_OPTS_READ);
+    }
+}
+
+size_t utox_save_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], uint8_t *data, size_t length) {
+    FILE *fp = chatlog_get_file(hex, true);
 
     if (fp == NULL) {
         return 0;
@@ -200,7 +212,7 @@ size_t utox_save_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], uint8_t *data, size_
 }
 
 static size_t utox_count_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2]) {
-    FILE *file = native_get_file(hex, NULL, UTOX_FILE_OPTS_READ);
+    FILE *file = chatlog_get_file(hex, false);
 
     if (!file) {
         return 0;
@@ -220,7 +232,7 @@ static size_t utox_count_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2]) {
          * If !feof() this means that the file has an incomplete record,
          * which would prevent it from loading forever, even though
          * new records will keep being appended as usual. */
-        debug_error("Log read trying to count history for friend %.*s\n", sizeof(*hex), hex);
+        debug_error("Log read trying to count history for friend %.*s\n", TOX_PUBLIC_KEY_SIZE * 2, hex);
         fclose(file);
         return 0;
     }
@@ -247,7 +259,7 @@ uint8_t **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, uin
         return NULL;
     }
 
-    FILE *file = native_get_file(hex, NULL, UTOX_FILE_OPTS_READ);
+    FILE *file = chatlog_get_file(hex, false);
     if (!file) {
         debug("History:\tUnable to access file provided by native_load_chatlog_file()\n");
         return NULL;
@@ -280,7 +292,7 @@ uint8_t **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, uin
             if (header.msg_length > 1 << 16) {
                 debug_error("Can't malloc that much, you'll probably have to move or delete, your history for this"
                             " peer.\n\t\tFriend number %.*s, count %u, actual_count %lu, start at %lu, error size %lu",
-                            sizeof(*hex), hex, count, actual_count, start_at, header.msg_length);
+                            TOX_PUBLIC_KEY_SIZE * 2, hex, count, actual_count, start_at, header.msg_length);
                 if (size) {
                     *size = 0;
                 }
@@ -324,7 +336,7 @@ uint8_t **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, uin
 }
 
 bool utox_update_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t offset, uint8_t *data, size_t length) {
-    FILE *file = native_get_file(hex, NULL, UTOX_FILE_OPTS_WRITE);
+    FILE *file = chatlog_get_file(hex, true);
 
     if (!file) {
         debug_error("History:\tUnable to access file provided by native_load_chatlog_file()\n");
@@ -344,7 +356,7 @@ bool utox_update_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t offset, uint8
 }
 
 bool utox_remove_friend_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2]) {
-    char name[sizeof(*hex) + sizeof(".new.txt")];
+    char name[TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".new.txt")];
 
     snprintf(name, sizeof(name), "%.*s.new.txt", TOX_PUBLIC_KEY_SIZE * 2, hex);
 
@@ -360,7 +372,7 @@ void utox_export_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], FILE *dest_file) {
         return;
     }
 
-    FILE *file = native_get_file(hex, NULL, UTOX_FILE_OPTS_READ);
+    FILE *file = chatlog_get_file(hex, false);
 
     LOG_FILE_MSG_HEADER header;
     while (1 == fread(&header, sizeof(header), 1, file)) {
@@ -396,11 +408,11 @@ void utox_export_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], FILE *dest_file) {
 }
 
 bool utox_data_save_avatar(char hex[TOX_PUBLIC_KEY_SIZE * 2], const uint8_t *data, size_t size) {
-    char    name[sizeof("avatars/") + sizeof(*hex) + sizeof(".png")];
+    char    name[sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png")];
 
-    snprintf(name, sizeof(name), "avatars/%.*s.png", sizeof(*hex), hex);
+    snprintf(name, sizeof(name), "avatars/%.*s.png", TOX_PUBLIC_KEY_SIZE * 2, hex);
 #ifdef __WIN32__
-    snprintf(name, sizeof(name), "avatars\\%.*s.png", sizeof(*hex), hex);
+    snprintf(name, sizeof(name), "avatars\\%.*s.png", TOX_PUBLIC_KEY_SIZE * 2, hex);
 #endif
 
     FILE *fp = native_get_file(name, NULL, UTOX_FILE_OPTS_WRITE);
