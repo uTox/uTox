@@ -438,18 +438,17 @@ void draw_settings_text_av(int UNUSED(x), int y, int UNUSED(w), int UNUSED(heigh
     draw_pos_y += draw_pos_y_inc;
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(draw_pos_y), PUSH_TO_TALK);
     draw_pos_y += draw_pos_y_inc;
-    // Group notifications is a stupid exception for now.
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(draw_pos_y), GROUP_NOTIFICATIONS);
-    draw_pos_y += draw_pos_y_inc;
 #ifdef AUDIO_FILTERING
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(draw_pos_y), AUDIOFILTERING);
     draw_pos_y += draw_pos_y_inc;
 #endif
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(draw_pos_y), STATUS_NOTIFICATIONS);
+    draw_pos_y += draw_pos_y_inc;
     // These are 60 apart as there needs to be room for a dropdown between them.
 
     draw_pos_y_inc = 60;
 
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(draw_pos_y), STATUS_NOTIFICATIONS);
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(draw_pos_y), GROUP_NOTIFICATIONS);
     draw_pos_y += draw_pos_y_inc;
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(draw_pos_y), AUDIOINPUTDEVICE);
     draw_pos_y += draw_pos_y_inc;
