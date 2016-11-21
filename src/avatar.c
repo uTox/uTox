@@ -82,10 +82,10 @@ bool avatar_delete(char hexid[TOX_PUBLIC_KEY_SIZE * 2]) {
     char name[sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png")];
 
 #ifdef __WIN32__
-    int name_len = snprintf((char *)name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"),
+    int name_len = snprintf(name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"),
                             "avatars/%.*s.png", TOX_PUBLIC_KEY_SIZE * 2, (char *)hexid);
 #else
-    int name_len = snprintf((char *)name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"),
+    int name_len = snprintf(name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"),
                             "avatars\\%.*s.png", TOX_PUBLIC_KEY_SIZE * 2, (char *)hexid);
 #endif
 
