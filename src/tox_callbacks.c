@@ -199,9 +199,9 @@ static void callback_group_namelist_change(Tox *tox, uint32_t gid, uint32_t pid,
             }
 
             uint8_t name[TOX_MAX_NAME_LENGTH];
-            size_t  len = tox_conference_peer_get_name(tox, gid, pid, name, NULL);
+            size_t  len = tox_conference_peer_get_name_size(tox, gid, pid, NULL);
+            tox_conference_peer_get_name(tox, gid, pid, name, NULL);
             len         = utf8_validate(name, len);
-
             group_peer_name_change(g, pid, name, len);
 
             postmessage(GROUP_PEER_NAME, gid, pid, NULL);
@@ -229,7 +229,8 @@ static void callback_group_namelist_change(Tox *tox, uint32_t gid, uint32_t pid,
              * the API to change soon, and I just can't when it's this broken */
             for (uint32_t i = 0; i < number_peers; ++i) {
                 uint8_t     tmp[TOX_MAX_NAME_LENGTH];
-                size_t      len  = tox_conference_peer_get_name(tox, gid, i, tmp, NULL);
+                size_t      len  = tox_conference_peer_get_name_size(tox, gid, i, NULL);
+                tox_conference_peer_get_name(tox, gid, i, tmp, NULL);
                 GROUP_PEER *peer = calloc(1, len * sizeof(void *) + sizeof(*peer));
                 if (!peer) {
                     debug("Group:\tToxcore is very broken, but we couldn't calloc here.");
@@ -243,8 +244,7 @@ static void callback_group_namelist_change(Tox *tox, uint32_t gid, uint32_t pid,
                 uint8_t pkey[TOX_PUBLIC_KEY_SIZE];
                 tox_conference_peer_get_public_key(tox, gid, i, pkey, NULL);
                 uint64_t pkey_to_number = 0;
-                int      key_i          = 0;
-                for (; key_i < TOX_PUBLIC_KEY_SIZE; ++key_i) {
+                for (int key_i = 0; key_i < TOX_PUBLIC_KEY_SIZE; ++key_i) {
                     pkey_to_number += pkey[key_i];
                 }
                 /* uTox doesnt' really use this for too much so lets fuck with the random seed.

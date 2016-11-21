@@ -162,8 +162,7 @@ void group_peer_name_change(GROUPCHAT *g, uint32_t peer_id, const uint8_t *name,
 
 void group_reset_peerlist(GROUPCHAT *g) {
     /* ARE YOU KIDDING... WHO THOUGHT THIS API WAS OKAY?! */
-    uint32_t i = 0;
-    for (i = 0; i < g->peer_count; ++i) {
+    for (size_t i = 0; i < g->peer_count; ++i) {
         if (g->peer[i]) {
             free(g->peer[i]);
         }
@@ -172,9 +171,7 @@ void group_reset_peerlist(GROUPCHAT *g) {
 }
 
 void group_free(GROUPCHAT *g) {
-
-    uint32_t i = 0;
-    for (; i != g->edit_history_length; ++i) {
+    for (size_t i = 0; i < g->edit_history_length; ++i) {
         free(g->edit_history[i]);
     }
 
@@ -182,7 +179,7 @@ void group_free(GROUPCHAT *g) {
 
     group_reset_peerlist(g);
 
-    for (i = 0; i < g->msg.number; ++i) {
+    for (size_t i = 0; i < g->msg.number; ++i) {
         message_free((void *)g->msg.data[i]);
     }
     free(g->msg.data);
