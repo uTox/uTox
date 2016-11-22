@@ -105,36 +105,32 @@ static bool font_open(FONT *f, double size, uint8_t weight) {
 }
 
 static void loadfonts(void) {
-#define F(x) (UTOX_SCALE(x) / 2.0)
-    font_open(&font[FONT_TEXT], F(12.0), 0);
+    font_open(&font[FONT_TEXT], SCALE(12.0), 0);
 
-    font_open(&font[FONT_TITLE], F(12.0), 1);
+    font_open(&font[FONT_TITLE], SCALE(12.0), 1);
 
-    font_open(&font[FONT_SELF_NAME], F(14.0), 1);
-    font_open(&font[FONT_STATUS], F(11.0), 0);
+    font_open(&font[FONT_SELF_NAME], SCALE(14.0), 1);
+    font_open(&font[FONT_STATUS], SCALE(11.0), 0);
 
-    font_open(&font[FONT_LIST_NAME], F(12.0), 0);
+    font_open(&font[FONT_LIST_NAME], SCALE(12.0), 0);
 
     // font_open(&font[FONT_MSG], F(11.0), 2);
     // font_open(&font[FONT_MSG_NAME], F(10.0), 2);
-    font_open(&font[FONT_MISC], F(10.0), 0);
-// font_open(&font[FONT_MSG_LINK], F(11.0), 2);
-#undef F
+    font_open(&font[FONT_MISC], SCALE(10.0), 0);
+    // font_open(&font[FONT_MSG_LINK], F(11.0), 2);
 
     font_small_lineheight = (font[FONT_TEXT].face->size->metrics.height + (1 << 5)) >> 6;
     // font_msg_lineheight = (font[FONT_MSG].face->size->metrics.height + (1 << 5)) >> 6;
 }
 
 static void freefonts(void) {
-    int i;
-    for (i = 0; i != countof(font); i++) {
+    for (size_t i = 0; i != countof(font); i++) {
         FONT *f = &font[i];
         if (f->face) {
             FT_Done_Face(f->face);
         }
 
-        int j = 0;
-        for (j = 0; j != countof(f->glyphs); j++) {
+        for (size_t j = 0; j != countof(f->glyphs); j++) {
             GLYPH *g = f->glyphs[j];
             if (g) {
                 /*while(g->ucs4 != ~0) {

@@ -83,7 +83,7 @@ static int _drawtext(int x, int xmax, int y, const char *str, uint16_t length) {
 
         g = font_getglyph(sfont, ch);
         if (g) {
-            if (x + g->xadvance + UTOX_SCALE(5) > xmax && length) {
+            if (x + g->xadvance + SCALE(10) > xmax && length) {
                 return -x;
             }
 
@@ -98,7 +98,7 @@ static int _drawtext(int x, int xmax, int y, const char *str, uint16_t length) {
     return x;
 }
 
-// TODO Moing this to the top throws errors, find out why
+// TODO: Moing this to the top throws errors, find out why
 #include "../shared/freetype-text.c"
 
 void draw_rect_frame(int x, int y, int width, int height, uint32_t color) {

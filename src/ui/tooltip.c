@@ -17,8 +17,8 @@ static void calculate_pos_and_width(TOOLTIP *b, int *x, int *w) {
 
     // Increase width if needed, so that tooltip text fits.
     if (maybe_i18nal_string_is_valid(b->tt_text)) {
-        STRING *s        = maybe_i18nal_string_get(b->tt_text);
-        int     needed_w = textwidth(s->str, s->length) + UTOX_SCALE(4);
+        const STRING *s    = maybe_i18nal_string_get(b->tt_text);
+        const int needed_w = textwidth(s->str, s->length) + SCALE(8);
         if (*w < needed_w) {
             *w = needed_w;
         }
@@ -35,12 +35,12 @@ volatile bool kill_thread;
 void tooltip_reset(void) {
     TOOLTIP *b = &tooltip;
 
-    b->visible  = 0;
-    b->can_show = 0;
+    b->visible  = false;
+    b->can_show = false;
 
     if (b->thread) {
-        kill_thread = 1;
-        b->thread   = 0;
+        kill_thread = true;
+        b->thread   = false;
     }
 }
 
@@ -68,57 +68,58 @@ void tooltip_draw(void) {
 bool tooltip_mmove(void) {
     TOOLTIP *b = &tooltip;
 
-    b->can_show = 0;
+    b->can_show = false;
 
     if (!b->visible) {
-        return 0;
+        return false;
     }
 
-    b->visible = 0;
+    b->visible = false;
 
     if (b->thread) {
-        kill_thread = 1;
-        b->thread   = 0;
+        kill_thread = true;
+        b->thread   = false;
     }
 
-    return 1;
+    return true;
 }
 
 bool tooltip_mdown(void) {
     TOOLTIP *b = &tooltip;
 
-    b->can_show   = 0;
-    b->mouse_down = 1;
-    b->visible    = 0;
+    b->can_show   = false;
+    b->mouse_down = true;
+    b->visible    = false;
 
     if (b->thread) {
-        kill_thread = 1;
-        b->thread   = 0;
+        kill_thread = true;
+        b->thread   = false;
     }
 
-    return 0;
+    return false;
 }
 
 bool tooltip_mup(void) {
     TOOLTIP *b = &tooltip;
 
-    b->can_show   = 0;
-    b->mouse_down = 0;
+    b->can_show   = false;
+    b->mouse_down = false;
 
     if (b->thread) {
-        kill_thread = 1;
-        b->thread   = 0;
+        kill_thread = true;
+        b->thread   = false;
     }
 
-    return 0;
+    return false;
 }
 
 void tooltip_show(void) {
 
     TOOLTIP *b = &tooltip;
 
-    if (!b->can_show)
+    if (!b->can_show) {
         return;
+    }
 
     b->y      = mouse.y + TOOLTIP_YOFFSET;
     b->height = TOOLTIP_HEIGHT;
@@ -128,11 +129,11 @@ void tooltip_show(void) {
     b->x     = mouse.x;
     b->width = TOOLTIP_WIDTH;
 
-    b->visible = 1;
+    b->visible = true;
 
     if (b->thread) {
-        kill_thread = 1;
-        b->thread   = 0;
+        kill_thread = true;
+        b->thread   = false;
     }
 }
 
@@ -158,14 +159,14 @@ static void tooltip_thread(void *UNUSED(args)) {
         yieldcpu(100);
     }
 
-    kill_thread = 0;
+    kill_thread = false;
 }
 
 // This is being called every time the mouse is moving above a button
 void tooltip_new(MAYBE_I18NAL_STRING *text) {
     TOOLTIP *b = &tooltip;
 
-    b->can_show = 1;
+    b->can_show = true;
     b->tt_text  = text;
 
     if (b->visible || b->mouse_down) {
@@ -174,7 +175,7 @@ void tooltip_new(MAYBE_I18NAL_STRING *text) {
 
     if (!b->thread && !kill_thread) {
         thread(tooltip_thread, NULL);
-        b->thread = 1;
+        b->thread = true;
     }
 
     reset_time = 1;

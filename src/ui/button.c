@@ -11,7 +11,7 @@ static void calculate_pos_and_width(BUTTON *b, int *x, int *w) {
     // Increase width if needed, so that button text fits.
     if (maybe_i18nal_string_is_valid(&b->button_text)) {
         STRING *s        = maybe_i18nal_string_get(&b->button_text);
-        int     needed_w = textwidth(s->str, s->length) + UTOX_SCALE(6);
+        int     needed_w = textwidth(s->str, s->length) + SCALE(12);
 
         if (*w < needed_w) {
             *w = needed_w;
@@ -61,8 +61,8 @@ void button_draw(BUTTON *b, int x, int y, int width, int height) {
     }
 
     if (b->bm2) {
-        int bx = w / 2 - UTOX_SCALE(b->bw) / 2, by = height / 2 - UTOX_SCALE(b->bh) / 2;
-        drawalpha(b->bm2, x + bx, y + by, UTOX_SCALE(b->bw), UTOX_SCALE(b->bh), color_text);
+        const int bx = w / 2 - SCALE(b->bw), by = height / 2 - SCALE(b->bh);
+        drawalpha(b->bm2, x + bx, y + by, SCALE(b->bw * 2), SCALE(b->bh * 2), color_text);
     }
 
     if (maybe_i18nal_string_is_valid(&b->button_text)) {

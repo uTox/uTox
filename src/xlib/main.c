@@ -908,13 +908,13 @@ void setscale(void) {
     // TODO, fork this to a function
     xsh             = XAllocSizeHints();
     xsh->flags      = PMinSize;
-    xsh->min_width  = UTOX_SCALE(320);
-    xsh->min_height = UTOX_SCALE(160);
+    xsh->min_width  = SCALE(640);
+    xsh->min_height = SCALE(320);
 
     XSetWMNormalHints(display, window, xsh);
 
-    if (settings.window_width > (uint32_t)UTOX_SCALE(320) &&
-        settings.window_height > (uint32_t)UTOX_SCALE(160)) {
+    if (settings.window_width > (uint32_t)SCALE(640) &&
+        settings.window_height > (uint32_t)SCALE(320)) {
         /* wont get a resize event, call this manually */
         ui_size(settings.window_width, settings.window_height);
     }

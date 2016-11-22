@@ -693,7 +693,7 @@ LRESULT CALLBACK GrabProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam) {
         if (video_grab_x < video_grab_w) {
             video_grab_w -= video_grab_x;
         } else {
-            int w        = video_grab_x - video_grab_w;
+            const int w  = video_grab_x - video_grab_w;
             video_grab_x = video_grab_w;
             video_grab_w = w;
         }
@@ -701,7 +701,7 @@ LRESULT CALLBACK GrabProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam) {
         if (video_grab_y < video_grab_h) {
             video_grab_h -= video_grab_y;
         } else {
-            int w        = video_grab_y - video_grab_h;
+            const int w  = video_grab_y - video_grab_h;
             video_grab_y = video_grab_h;
             video_grab_h = w;
         }
@@ -740,7 +740,7 @@ LRESULT CALLBACK GrabProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam) {
 }
 
 void freefonts() {
-    for (int i = 0; i != countof(font); i++) {
+    for (size_t i = 0; i != countof(font); i++) {
         if (font[i]) {
             DeleteObject(font[i]);
         }
@@ -756,27 +756,24 @@ void loadfonts() {
         .lfFaceName     = "DejaVu Sans",
     };
 
-#define F(x) ((UTOX_SCALE(-x) - 1) / 2)
-    lf.lfHeight     = F(12);
-    font[FONT_TEXT] = CreateFontIndirect(&lf);
-
-    lf.lfHeight          = F(11);
+    lf.lfHeight          = (SCALE(-24) - 1) / 2;
+    font[FONT_TEXT]      = CreateFontIndirect(&lf);
+    lf.lfHeight          = (SCALE(-22) - 1) / 2;
     font[FONT_STATUS]    = CreateFontIndirect(&lf);
-    lf.lfHeight          = F(12);
+    lf.lfHeight          = (SCALE(-24) - 1) / 2;
     font[FONT_LIST_NAME] = CreateFontIndirect(&lf);
     lf.lfWeight          = FW_BOLD;
     font[FONT_TITLE]     = CreateFontIndirect(&lf);
-    lf.lfHeight          = F(14);
+    lf.lfHeight          = (SCALE(-28) - 1) / 2;
     font[FONT_SELF_NAME] = CreateFontIndirect(&lf);
-    lf.lfHeight          = F(10);
+    lf.lfHeight          = (SCALE(-20) - 1) / 2;
     font[FONT_MISC]      = CreateFontIndirect(&lf);
-/*lf.lfWeight = FW_NORMAL; //FW_LIGHT <- light fonts dont antialias
-font[FONT_MSG_NAME] = CreateFontIndirect(&lf);
-lf.lfHeight = F(11);
-font[FONT_MSG] = CreateFontIndirect(&lf);
-lf.lfUnderline = 1;
-font[FONT_MSG_LINK] = CreateFontIndirect(&lf);*/
-#undef F
+    /*lf.lfWeight = FW_NORMAL; //FW_LIGHT <- light fonts dont antialias
+    font[FONT_MSG_NAME] = CreateFontIndirect(&lf);
+    lf.lfHeight = F(11);
+    font[FONT_MSG] = CreateFontIndirect(&lf);
+    lf.lfUnderline = 1;
+    font[FONT_MSG_LINK] = CreateFontIndirect(&lf);*/
 
     TEXTMETRIC tm;
     SelectObject(hdc, font[FONT_TEXT]);
