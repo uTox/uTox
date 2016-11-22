@@ -61,6 +61,7 @@ PLATFORM_LIBS=${PLATFORM_LIBS--llog -landroid -lEGL -lGLESv2 -lOpenSLES -lm -lz 
 ## This is the actual build script. This does all the native compiling and linking.
 #
 ${TOOLCHAIN}/bin/arm-linux-androideabi-gcc \
+    -Wno-implicit-function-declaration \
     -Wl,--unresolved-symbols=report-all \
     -I ./toolchain/include \
     -I ./libs/android/include/freetype2/ \

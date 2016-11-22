@@ -107,7 +107,7 @@ void loadfonts(void) {
     // font_msg_lineheight = (font[FONT_MSG].face->size->metrics.height + (1 << 5)) >> 6;
 }
 
-static void freefonts(void) {
+void freefonts(void) {
     for (size_t i = 0; i != countof(font); i++) {
         FONT *f = &font[i];
         if (f->face) {
