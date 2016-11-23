@@ -178,7 +178,7 @@ bool utox_video_start(bool preview) {
     return 0;
 }
 
-bool utox_video_stop(bool preview) {
+bool utox_video_stop(bool UNUSED(preview)) {
     if (!video_active) {
         debug("uToxVideo:\tvideo already stopped!\n");
         return 0;

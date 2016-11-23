@@ -76,7 +76,7 @@ static void friend_meta_data_read(Tox *tox, int friend_id) {
     }
 
     if (metadata->alias_length) {
-        friend_set_alias(&friend[friend_id], &metadata -> data[0], metadata->alias_length);
+        friend_set_alias(&friend[friend_id], &metadata->data[0], metadata->alias_length);
     } else {
         friend_set_alias(&friend[friend_id], NULL, 0); /* uTox expects this to be 0/NULL if there's no alias. */
     }
@@ -119,7 +119,7 @@ void utox_friend_init(Tox *tox, uint32_t friend_number) {
     // Get and set the status message
     size              = tox_friend_get_status_message_size(tox, friend_number, 0);
     f->status_message = calloc(1, size);
-    tox_friend_get_status_message(tox, friend_number, f->status_message, 0);
+    tox_friend_get_status_message(tox, friend_number, (uint8_t *)f->status_message, 0);
     f->status_length = size;
 
     /* TODO; consider error handling these two */
@@ -151,8 +151,8 @@ void friend_setname(FRIEND *f, uint8_t *name, size_t length) {
     if (f->name && f->name_length) {
         size_t size = sizeof(" is now known as ") + f->name_length + length;
 
-        uint8_t *p = calloc(1, size);
-        size = snprintf((char *)p, size, "%.*s is now known as %.*s", (int)f->name_length, f->name, (int)length, name);
+        char *p = calloc(1, size);
+        size = snprintf(p, size, "%.*s is now known as %.*s", (int)f->name_length, f->name, (int)length, name);
 
         if (length != f->name_length || memcmp(f->name, name, (length < f->name_length ? length : f->name_length))) {
             message_add_type_notice(&f->msg, p, size, 1);
@@ -183,7 +183,7 @@ void friend_setname(FRIEND *f, uint8_t *name, size_t length) {
     flist_update_shown_list();
 }
 
-void friend_set_alias(FRIEND *f, char *alias, uint16_t length) {
+void friend_set_alias(FRIEND *f, uint8_t *alias, uint16_t length) {
     if (alias && length > 0) {
         debug("New Alias set for friend %s\n", f->name);
     } else {
@@ -221,8 +221,8 @@ void friend_recvimage(FRIEND *f, NATIVE_IMAGE *native_image, uint16_t width, uin
     message_add_type_image(&f->msg, 0, native_image, width, height, 0);
 }
 
-void friend_notify_msg(FRIEND *f, const uint8_t *msg, size_t msg_length) {
-    uint8_t title[UTOX_FRIEND_NAME_LENGTH(f) + 25];
+void friend_notify_msg(FRIEND *f, const char *msg, size_t msg_length) {
+    char title[UTOX_FRIEND_NAME_LENGTH(f) + 25];
 
     size_t title_length = snprintf((char *)title, UTOX_FRIEND_NAME_LENGTH(f) + 25, "uTox new message from %.*s",
                                    (int)UTOX_FRIEND_NAME_LENGTH(f), UTOX_FRIEND_NAME(f));
@@ -286,12 +286,12 @@ void friend_add(char *name, uint16_t length, char *msg, uint16_t msg_length) {
     }
 
     uint8_t id[TOX_FRIEND_ADDRESS_SIZE];
-    if (length_cleaned == TOX_FRIEND_ADDRESS_SIZE * 2 && string_to_id(id, name_cleaned)) {
+    if (length_cleaned == TOX_FRIEND_ADDRESS_SIZE * 2 && string_to_id(id, (char *)name_cleaned)) {
         friend_addid(id, msg, msg_length);
     } else {
         /* not a regular id, try DNS discovery */
         addfriend_status = ADDF_DISCOVER;
-        dns_request(name_cleaned, length_cleaned);
+        dns_request((char *)name_cleaned, length_cleaned);
     }
 }
 
@@ -346,16 +346,16 @@ FRIEND *find_friend_by_name(uint8_t *name) {
     return NULL;
 }
 
-void friend_notify_status(FRIEND *f, const char *msg, size_t msg_length, char *state) {
+void friend_notify_status(FRIEND *f, const uint8_t *msg, size_t msg_length, char *state) {
     if (!settings.status_notifications) {
         return;
     }
 
-    uint8_t title[UTOX_FRIEND_NAME_LENGTH(f) + 20];
+    char title[UTOX_FRIEND_NAME_LENGTH(f) + 20];
     size_t  title_length = snprintf((char *)title, UTOX_FRIEND_NAME_LENGTH(f) + 20, "uTox %.*s is now %s.",
                                    (int)UTOX_FRIEND_NAME_LENGTH(f), UTOX_FRIEND_NAME(f), state);
 
-    notify(title, title_length, msg, msg_length, f, 0);
+    notify(title, title_length, (char *)msg, msg_length, f, 0);
 
     if (f->online) {
         postmessage_audio(UTOXAUDIO_PLAY_NOTIFICATION, NOTIFY_TONE_FRIEND_ONLINE, 0, NULL);

@@ -139,7 +139,7 @@ static uint32_t peers_deduplicate(char **dedup, size_t *dedup_size, void **peers
             continue;
         }
 
-        char *nick      = p->name;
+        char *nick      = (char *)p->name;
         size_t nick_len = p->name_length;
 
         size_t i = 0;
