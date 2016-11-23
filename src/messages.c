@@ -9,6 +9,7 @@
 
 #include "ui/svg.h"
 #include "ui/text.h"
+#include "ui/contextmenu.h"
 
 /** Appends a messages from self or friend to the message list;
  * will realloc or trim messages as needed;
@@ -1120,7 +1121,7 @@ bool messages_mmove(PANEL *panel, int UNUSED(px), int UNUSED(py), int width, int
         }
     }
 
-    if (mx < 0 || my < 0 || (uint32_t)my > m->height) {
+    if (mx < 0 || my < 0 || my > m->height) {
         if (m->cursor_over_msg != UINT32_MAX) {
             m->cursor_over_msg = UINT32_MAX;
             return true;
@@ -1343,7 +1344,7 @@ bool messages_dclick(PANEL *panel, bool triclick) {
 
     if (m->cursor_over_msg != UINT32_MAX) {
         MSG_TEXT *msg      = m->data[m->cursor_over_msg];
-        uint8_t * real_msg = NULL;
+        char     *real_msg = NULL;
 
         if (m->is_groupchat) {
             // TODO: This is hacky, we should probably fix this

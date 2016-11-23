@@ -386,7 +386,7 @@ void utox_export_chatlog(uint32_t friend_number, FILE *dest_file) {
 
     FILE *              file = native_load_chatlog_file(friend_number);
     LOG_FILE_MSG_HEADER header;
-    int                 i;
+    size_t              i;
     char                c;
 
     while (1 == fread(&header, sizeof(header), 1, file)) {

@@ -245,7 +245,7 @@ static ITEM *newitem(void) {
 }
 
 // return item that the user is mousing over
-static ITEM *item_hit(int mx, int my, int height) {
+static ITEM *item_hit(int mx, int my, int UNUSED(height)) {
     int real_height = 0;
     if (settings.use_mini_flist) {
         real_height = ROSTER_BOX_HEIGHT / 2;

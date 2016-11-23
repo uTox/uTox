@@ -9,7 +9,7 @@
  *
  * TODO, make sure the file exists.
  */
-int slash_send_file(FRIEND *friend_handle, const uint8_t *filepath);
+int slash_send_file(FRIEND *friend_handle, const char *filepath);
 
 /** utox_run_command()
  *
