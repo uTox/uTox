@@ -243,7 +243,7 @@ void utox_av_ctrl_thread(void *args) {
     return;
 }
 
-static void utox_av_incoming_call(ToxAV *av, uint32_t friend_number, bool audio, bool video, void *UNUSED(userdata)) {
+static void utox_av_incoming_call(ToxAV *UNUSED(av), uint32_t friend_number, bool audio, bool video, void *UNUSED(userdata)) {
     debug("A/V Invite (%u)\n", friend_number);
     FRIEND *f = &friend[friend_number];
 
@@ -254,7 +254,7 @@ static void utox_av_incoming_call(ToxAV *av, uint32_t friend_number, bool audio,
     postmessage(AV_CALL_INCOMING, friend_number, video, NULL);
 }
 
-static void utox_av_remote_disconnect(ToxAV *av, int32_t friend_number) {
+static void utox_av_remote_disconnect(ToxAV *UNUSED(av), int32_t friend_number) {
     debug("uToxAV:\tRemote disconnect from friend %u\n", friend_number);
     postmessage_utoxav(UTOXAV_CALL_END, friend_number, 0, NULL);
     friend[friend_number].call_state_self   = 0;
@@ -338,8 +338,8 @@ void utox_av_local_call_control(ToxAV *av, uint32_t friend_number, TOXAV_CALL_CO
  *
  * Moving this here might break Android, if you know this commit compiles and runs on android, remove this line!
  */
-static void utox_av_incoming_frame_a(ToxAV *av, uint32_t friend_number, const int16_t *pcm, size_t sample_count,
-                                     uint8_t channels, uint32_t sample_rate, void *userdata) {
+static void utox_av_incoming_frame_a(ToxAV *UNUSED(av), uint32_t friend_number, const int16_t *pcm, size_t sample_count,
+                                     uint8_t channels, uint32_t sample_rate, void *UNUSED(userdata)) {
 // debug("Incoming audio frame for friend %u \n", friend_number);
 #ifdef NATIVE_ANDROID_AUDIO
     audio_play(friend_number, pcm, sample_count, channels);
@@ -348,9 +348,9 @@ static void utox_av_incoming_frame_a(ToxAV *av, uint32_t friend_number, const in
 #endif
 }
 
-static void utox_av_incoming_frame_v(ToxAV *toxAV, uint32_t friend_number, uint16_t width, uint16_t height,
+static void utox_av_incoming_frame_v(ToxAV *UNUSED(toxAV), uint32_t friend_number, uint16_t width, uint16_t height,
                                      const uint8_t *y, const uint8_t *u, const uint8_t *v, int32_t ystride,
-                                     int32_t ustride, int32_t vstride, void *user_data) {
+                                     int32_t ustride, int32_t vstride, void *UNUSED(user_data)) {
     /* copy the vpx_image */
     /* 4 bits for the H*W, then a pixel for each color * size */
     debug("uToxAV:\tnew video frame from friend %u\n", friend_number);
@@ -398,7 +398,7 @@ static void utox_audio_friend_accepted(ToxAV *av, uint32_t friend_number, uint32
 }
 
 /** respond to a Audio Video state change call back from toxav */
-static void utox_callback_av_change_state(ToxAV *av, uint32_t friend_number, uint32_t state, void *userdata) {
+static void utox_callback_av_change_state(ToxAV *av, uint32_t friend_number, uint32_t state, void *UNUSED(userdata)) {
     FRIEND *f = &friend[friend_number];
     if (state == 1) {
         // handle error
@@ -447,7 +447,7 @@ static void utox_callback_av_change_state(ToxAV *av, uint32_t friend_number, uin
     friend[friend_number].call_state_friend = state;
 }
 
-static void utox_incoming_rate_change(ToxAV *AV, uint32_t f_num, uint32_t a_bitrate, uint32_t v_bitrate, void *ud) {
+static void utox_incoming_rate_change(ToxAV *AV, uint32_t f_num, uint32_t UNUSED(a_bitrate), uint32_t v_bitrate, void *UNUSED(ud)) {
     /* Just accept what toxav wants the bitrate to be... */
     if (v_bitrate > (uint32_t)UTOX_MIN_BITRATE_VIDEO) {
         TOXAV_ERR_BIT_RATE_SET error = 0;

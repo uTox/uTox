@@ -37,7 +37,7 @@ static void callback_friend_message(Tox *UNUSED(tox), uint32_t friend_number, TO
 
         default: { debug("Message from Friend(%u) of unsupported type: %.*s\n", friend_number, (int)length, message); }
     }
-    friend_notify_msg(&friend[friend_number], message, length);
+    friend_notify_msg(&friend[friend_number], (char *)message, length);
     postmessage(FRIEND_MESSAGE, friend_number, 0, NULL);
 }
 
@@ -147,7 +147,7 @@ static void callback_group_message(Tox *UNUSED(tox), uint32_t gid, uint32_t pid,
             break;
         }
     }
-    group_notify_msg(g, message, length);
+    group_notify_msg(g, (const char *)message, length);
     postmessage(GROUP_MESSAGE, gid, pid, NULL);
 }
 

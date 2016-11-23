@@ -3,6 +3,7 @@
 
 #include "../langs/i18n_decls.h"
 #include "sized_string.h"
+#include "util.h"
 
 #ifdef msgid
 #error "msgid is already defined"
@@ -74,7 +75,7 @@ STRING *ui_gettext(UTOX_LANG lang, UTOX_I18N_STR string_id) {
 #define LANG_POSIX_LOCALE(x) posix_locales[_LANG_ID] = (x);
 #define LANG_PRIORITY(x) priorities[_LANG_ID]        = (x);
 
-static void init_posix_locales(const char *posix_locales[], int8_t priorities[]) {
+static void init_posix_locales(const char *UNUSED(posix_locales[]), int8_t UNUSED(priorities[])) {
 
 #include "ui_i18n.h"
 }
@@ -150,7 +151,7 @@ UTOX_LANG ui_guess_lang_by_posix_locale(const char *locale, UTOX_LANG deflt) {
 #define LANG_POSIX_LOCALE(x)
 #define LANG_PRIORITY(x) priorities[_LANG_ID] = (x);
 
-static void init_windows_lang_ids(uint16_t windows_lang_ids[], int8_t priorities[]) {
+static void init_windows_lang_ids(uint16_t UNUSED(windows_lang_ids[]), int8_t UNUSED(priorities[])) {
 
 #include "ui_i18n.h"
 }

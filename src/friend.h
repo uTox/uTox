@@ -105,7 +105,7 @@ void friend_sendimage(FRIEND *f, NATIVE_IMAGE *native_image, uint16_t width, uin
                       size_t png_size);
 void friend_recvimage(FRIEND *f, NATIVE_IMAGE *native_image, uint16_t width, uint16_t height);
 
-void friend_notify_msg(FRIEND *f, const uint8_t *msg, size_t msg_length);
+void friend_notify_msg(FRIEND *f, const char *msg, size_t msg_length);
 
 /* set friend online status. Returns: true if status changed, false otherwise */
 bool friend_set_online(FRIEND *f, bool online);
@@ -120,7 +120,7 @@ void friend_history_clear(FRIEND *f);
 void friend_free(FRIEND *f);
 
 /* Searches for a friend using the specified name */
-FRIEND *find_friend_by_name(uint8_t *name);
+FRIEND *find_friend_by_name(char *name);
 
 /* Notifies the user that a friend is online or offline */
 void friend_notify_status(FRIEND *f, const char *msg, size_t msg_length, char *state);

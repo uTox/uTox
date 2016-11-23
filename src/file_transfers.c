@@ -199,7 +199,7 @@ static void utox_file_ftoutfo_move(unsigned int friend_number, unsigned int sour
 }
 
 /* Cancel active file. */
-static void utox_kill_file(FILE_TRANSFER *file, uint8_t us) {
+static void utox_kill_file(FILE_TRANSFER *file, uint8_t UNUSED(us)) {
     if (file->status == FILE_TRANSFER_STATUS_KILLED) {
         debug("File already killed.\n");
         return;
@@ -384,13 +384,13 @@ static void utox_complete_file(FILE_TRANSFER *file) {
                     decode_inline_png(file->friend_number, file->memory, file->size);
                 }
             } else { // Is a file
-                ((MSG_FILE *)file->ui_data)->path = (uint8_t *)strdup((const char *)file->path);
+                ((MSG_FILE *)file->ui_data)->path = strdup((const char *)file->path);
             }
         } else {
             if (file->in_memory) {
                 // TODO, might want to do something here.
             } else { // Is a file
-                ((MSG_FILE *)file->ui_data)->path = (uint8_t *)strdup((const char *)file->path);
+                ((MSG_FILE *)file->ui_data)->path = strdup((const char *)file->path);
             }
             if (friend[file->friend_number].transfer_count) {
                 /* Decrement if > 0 */
@@ -413,7 +413,7 @@ static void utox_complete_file(FILE_TRANSFER *file) {
 
 /* Friend has come online, restart our outgoing transfers to this friend. */
 void ft_friend_online(Tox *tox, uint32_t friend_number) {
-    for (int i = 0; i < MAX_FILE_TRANSFERS; i++) {
+    for (unsigned int i = 0; i < MAX_FILE_TRANSFERS; i++) {
         FILE_TRANSFER *file = calloc(1, sizeof(*file));
         file->friend_number = friend_number;
         file->file_number   = i;
@@ -538,7 +538,7 @@ static void file_transfer_callback_control(Tox *UNUSED(tox), uint32_t friend_num
 /* Function called by core with a new file send request from a friend. */
 static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uint32_t file_number, uint32_t kind,
                                            uint64_t file_size, const uint8_t *filename, size_t filename_length,
-                                           void *user_data) {
+                                           void *UNUSED(user_data)) {
     /* First things first, get the file_id from core */
     uint8_t file_id[TOX_FILE_ID_LENGTH] = { 0 };
     tox_file_get_file_id(tox, friend_number, file_number, file_id, 0);

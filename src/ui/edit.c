@@ -740,7 +740,7 @@ void edit_char(uint32_t ch, bool control, uint8_t flags) {
     }
 }
 
-int edit_selection(EDIT *edit, char *data, int len) {
+int edit_selection(EDIT *edit, char *data, int UNUSED(len)) {
     if (data) {
         memcpy(data, edit->data + edit_sel.start, edit_sel.length);
     }
