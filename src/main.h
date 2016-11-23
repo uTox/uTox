@@ -291,6 +291,8 @@ struct utox_self {
     uint8_t id_binary[TOX_FRIEND_ADDRESS_SIZE];
 
     AVATAR *avatar;
+    void  *png_data;
+    size_t png_size;
 } self;
 
 struct utox_mouse {
