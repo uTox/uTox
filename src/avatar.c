@@ -115,9 +115,17 @@ static bool load_avatar(char hexid[TOX_PUBLIC_KEY_SIZE * 2], AVATAR *avatar, siz
         if (size_out) {
             *size_out = size;
         }
+        if (avatar == self.avatar) {
+            // We need to save our avatar in PNG format so we can send it to friends!
+            self.png_data = img;
+            self.png_size = size;
+        } else {
+            free(img);
+        }
         return true;
     }
 
+    free(img);
     return false;
 }
 
@@ -210,17 +218,7 @@ bool avatar_on_friend_online(Tox *tox, uint32_t friend_number) {
         return false;
     }
 
-    outgoing_file_send(tox, friend_number, NULL, avatar_data, avatar_size, TOX_FILE_KIND_AVATAR);
+    ft_send_avatar(tox, friend_number);
     free(avatar_data);
     return true;
-}
-
-void utox_incoming_avatar(uint32_t friend_number, uint8_t *avatar, size_t size) {
-    // save avatar and hash to disk
-
-    if (size == 0) {
-        postmessage(FRIEND_AVATAR_UNSET, friend_number, 0, NULL);
-    } else {
-        postmessage(FRIEND_AVATAR_SET, friend_number, size, avatar);
-    }
 }

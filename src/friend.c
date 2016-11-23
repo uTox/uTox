@@ -4,6 +4,18 @@
 #include "flist.h"
 #include "util.h"
 
+FRIEND* get_friend(uint32_t friend_number){
+    if (friend_number >= 512) {
+        return NULL; // artifical limit while we discuss the limmit of friends we want to support
+    }
+
+    if (friend) {
+        return &friend[friend_number];
+    }
+
+    return NULL;
+}
+
 /** Writes friend meta data filename for fid to dest. returns length written */
 static int friend_meta_data_path(char *dest, size_t size_dest, uint8_t *friend_key, uint32_t friend_num) {
     if (size_dest < TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".fmetadata")) {

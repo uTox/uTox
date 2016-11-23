@@ -4,41 +4,45 @@
 #include "main.h"
 #include "util.h"
 
-// static FILE_TRANSFER *file_t[256], **file_tend = file_t;
-#pragma message "FILE_TRANSFER structs need to become dynamic"
-static FILE_TRANSFER outgoing_transfer[128][MAX_FILE_TRANSFERS] = { { { 0 } } };
-static FILE_TRANSFER incoming_transfer[128][MAX_FILE_TRANSFERS] = { { { 0 } } };
-
-// Remove if supported by core
-#define TOX_FILE_KIND_EXISTING 3
-
-FILE_TRANSFER *get_file_transfer(uint32_t friend_number, uint32_t file_number) {
-    bool incoming = 0;
-    if (file_number >= (1 << 16)) {
-        file_number = (file_number >> 16) - 1;
-        incoming    = 1;
-    }
-
-    if (file_number >= MAX_FILE_TRANSFERS)
+static FILE_TRANSFER *get_file_transfer(uint32_t friend_number, uint32_t file_number) {
+    FRIEND *f = get_friend(friend_number);
+    if (!f) {
         return NULL;
-
-    FILE_TRANSFER *ft;
-    if (incoming) {
-        ft           = &incoming_transfer[friend_number][file_number];
-        ft->incoming = 1;
-    } else {
-        ft           = &outgoing_transfer[friend_number][file_number];
-        ft->incoming = 0;
     }
 
-    return ft;
+    if (file_number >= (1 << 16)) {
+        // it's an incoming file ( this is some toxcore magic we know about )
+        file_number = (file_number >> 16) - 1;
+        if (f->file_transfers_incoming_size <= file_number) {
+            f->file_transfers_incoming = realloc(f->file_transfers_incoming, sizeof(FILE_TRANSFER) * (file_number + 1));
+            if (f->file_transfers_incoming) {
+                f->file_transfers_incoming_size = file_number + 1;
+                return (FILE_TRANSFER*)&f->file_transfers_incoming[file_number];
+            }
+        } else {
+            return (FILE_TRANSFER*)&f->file_transfers_incoming[file_number];
+        }
+    } else {
+        if (f->file_transfers_outgoing_size <= file_number) {
+            f->file_transfers_outgoing = realloc(f->file_transfers_incoming, sizeof(FILE_TRANSFER) * (file_number + 1));
+
+            if (f->file_transfers_outgoing) {
+                f->file_transfers_outgoing_size = file_number + 1;
+                return (FILE_TRANSFER*)&f->file_transfers_outgoing[file_number];
+            }
+        } else {
+            return (FILE_TRANSFER*)&f->file_transfers_outgoing[file_number];
+        }
+    }
+    return NULL;
 }
 
 /* Create a FILE_TRANSFER struct with the supplied data. */
 static void build_file_transfer(FILE_TRANSFER *ft, uint32_t friend_number, uint32_t file_number, uint64_t file_size,
-                                bool incoming, bool in_memory, bool is_avatar, uint8_t kind, const uint8_t *name,
+                                bool incoming, bool in_memory, bool is_avatar, const uint8_t *name,
                                 size_t name_length, const uint8_t *path, size_t path_length, const uint8_t *file_id,
-                                Tox *tox) {
+                                Tox *tox)
+{
     FILE_TRANSFER *file = ft;
 
     memset(file, 0, sizeof(FILE_TRANSFER));
@@ -47,12 +51,11 @@ static void build_file_transfer(FILE_TRANSFER *ft, uint32_t friend_number, uint3
 
     file->friend_number = friend_number;
     file->file_number   = file_number;
-    file->size          = file_size;
+    file->target_size   = file_size;
 
     file->incoming  = incoming;
     file->in_memory = in_memory;
-    file->is_avatar = is_avatar;
-    file->kind      = kind;
+    file->avatar    = is_avatar;
 
     if (name) {
         file->name = malloc(name_length + 1);
@@ -75,17 +78,17 @@ static void build_file_transfer(FILE_TRANSFER *ft, uint32_t friend_number, uint3
     }
 
     if (file_id) {
-        memcpy(file->file_id, file_id, TOX_FILE_ID_LENGTH);
+        memcpy(file->data_hash, file_id, TOX_FILE_ID_LENGTH);
     } else {
-        tox_file_get_file_id(tox, friend_number, file_number, file->file_id, 0);
+        tox_file_get_file_id(tox, friend_number, file_number, file->data_hash, 0);
     }
 
     // TODO size correction error checking for this...
     if (in_memory) {
         if (is_avatar) {
-            file->avatar = calloc(file_size, sizeof(uint8_t));
+            file->via.avatar = calloc(file_size, sizeof(uint8_t));
         } else {
-            file->memory = calloc(file_size, sizeof(uint8_t));
+            file->via.memory = calloc(file_size, sizeof(uint8_t));
         }
     }
 
@@ -119,11 +122,11 @@ static void calculate_speed(FILE_TRANSFER *file) {
     }
 
     if (time - file->last_check_time >= 1000 * 1000 * 100) {
-        file->speed = (((double)(file->size_transferred - file->last_check_transferred) * 1000.0 * 1000.0 * 1000.0)
+        file->speed = (((double)(file->current_size - file->last_check_transferred) * 1000.0 * 1000.0 * 1000.0)
                        / (double)(time - file->last_check_time))
                       + 0.5;
         file->last_check_time        = time;
-        file->last_check_transferred = file->size_transferred;
+        file->last_check_transferred = file->current_size;
     }
 
     notify_update_file(file);
@@ -133,32 +136,28 @@ static void calculate_speed(FILE_TRANSFER *file) {
 /* Create the file transfer resume info file. */
 static int utox_file_alloc_ftinfo(FILE_TRANSFER *file) {
     uint8_t blank_id[TOX_FILE_ID_LENGTH] = { 0 };
-    if (memcmp(file->file_id, blank_id, TOX_FILE_ID_LENGTH) == 0) {
+    if (memcmp(file->data_hash, blank_id, TOX_FILE_ID_LENGTH) == 0) {
         debug_error("FileTransfer:\tUnable to get file id from tox... uTox can't resume file %.*s\n",
                     (uint32_t)file->name_length, file->name);
         return 0;
     }
 
-    // uint8_t path[UTOX_FILE_NAME_LENGTH];
-    // size_t  path_length;
-    // path_length = datapath(path);
+    char path[UTOX_FILE_NAME_LENGTH];
 
-    // if (file->incoming) {
-    //     char hex_id[TOX_FILE_ID_LENGTH * 2];
-    //     fid_to_string(hex_id, file->file_id);
-    //     memcpy(path + path_length, hex_id, TOX_FILE_ID_LENGTH * 2);
-    //     strcpy((char *)path + (path_length + TOX_FILE_ID_LENGTH * 2), ".ftinfo");
-    // } else {
-    //     char hex_id[TOX_PUBLIC_KEY_SIZE * 2];
-    //     cid_to_string(hex_id, friend[file->friend_number].cid);
-    //     memcpy(path + path_length, hex_id, TOX_PUBLIC_KEY_SIZE * 2);
-    //     sprintf((char *)path + (path_length + TOX_PUBLIC_KEY_SIZE * 2), "%02i.ftoutfo", file->file_number % 100);
-    // }
+    if (file->incoming) {
+        char hex[TOX_FILE_ID_LENGTH * 2];
+        fid_to_string(hex, file->data_hash);
+        snprintf(path, UTOX_FILE_NAME_LENGTH, "%.*s.ftinfo", TOX_FILE_ID_LENGTH * 2, hex);
+    } else {
+        snprintf(path, UTOX_FILE_NAME_LENGTH, "%.*s%02i.ftoutfo",
+                    TOX_PUBLIC_KEY_SIZE * 2, friend[file->friend_number].id_str,
+                    file->file_number % 100);
+    }
 
     debug_error("FileTransfer:\tUnable to save file info... uTox can't resume file %.*s\n", (uint32_t)file->name_length,
                 file->name);
-    // debug("FileTransfer:\t.ftinfo for file %.*s set; ready to resume!\n", (uint32_t)file->name_length, file->name);
-    // utox_file_save_ftinfo(file);
+    debug("FileTransfer:\t.ftinfo for file %.*s set; ready to resume!\n", (uint32_t)file->name_length, file->name);
+    utox_file_save_ftinfo(file);
     return 1;
 }
 
@@ -171,7 +170,7 @@ static void utox_file_free_ftinfo(FILE_TRANSFER *file) {
 
     // if (file->incoming) {
     //     char hex_id[TOX_FILE_ID_LENGTH * 2];
-    //     fid_to_string(hex_id, file->file_id);
+    //     fid_to_string(hex_id, file->data_hash);
     //     memcpy(path + path_length, hex_id, TOX_FILE_ID_LENGTH * 2);
     //     strcpy((char *)path + (path_length + TOX_FILE_ID_LENGTH * 2), ".ftinfo");
     // } else {
@@ -216,10 +215,13 @@ static void utox_kill_file(FILE_TRANSFER *file, uint8_t us) {
 
     notify_update_file(file);
 
-    if (!file->incoming && friend[file->friend_number].transfer_count) {
-        --friend[file->friend_number].transfer_count;
+    if (!file->incoming && friend[file->friend_number].file_transfers_incoming_size) {
+        get_friend(file->friend_number)->file_transfers_incoming_size--;
+    } else if (friend[file->friend_number].file_transfers_outgoing_size) {
+        get_friend(file->friend_number)->file_transfers_outgoing_size--;
     }
-    if (file->resume) {
+
+    if (file->resumeable) {
         utox_file_save_ftinfo(file);
         utox_file_free_ftinfo(file);
     }
@@ -234,10 +236,14 @@ static void utox_break_file(FILE_TRANSFER *file) {
         /* We don't touch these files! */
         return;
     }
-    if (friend[file->friend_number].transfer_count) {
-        /* Decrement if > 0 */
-        --friend[file->friend_number].transfer_count;
-    }
+
+    // I don't think we need/want to touch the size here
+    // if (!file->incoming && friend[file->friend_number].file_transfers_incoming_size) {
+    //     get_friend(file->friend_number)->file_transfers_incoming_size--;
+    // } else if (friend[file->friend_number].file_transfers_outgoing_size) {
+    //     get_friend(file->friend_number)->file_transfers_outgoing_size--;
+    // }
+
     file->status = FILE_TRANSFER_STATUS_BROKEN;
 
     if (((MSG_FILE *)file->ui_data)) {
@@ -327,8 +333,8 @@ static void utox_run_file(FILE_TRANSFER *file, uint8_t us) {
         if (file->status == FILE_TRANSFER_STATUS_NONE) {
             file->status = FILE_TRANSFER_STATUS_ACTIVE;
             /* Set resuming info TODO MOVE TO AFTER FILE IS ACCEPED BY USER */
-            if (file->resume == 0) {
-                file->resume = utox_file_alloc_ftinfo(file);
+            if (file->resumeable == 0) {
+                file->resumeable = utox_file_alloc_ftinfo(file);
             }
         } else if (file->status == FILE_TRANSFER_STATUS_PAUSED_US) {
             file->status = FILE_TRANSFER_STATUS_ACTIVE;
@@ -376,26 +382,25 @@ static void utox_complete_file(FILE_TRANSFER *file) {
     if (file->status == FILE_TRANSFER_STATUS_ACTIVE) {
         if (file->incoming) {
             if (file->in_memory) {
-                if (file->is_avatar) {
-                    utox_incoming_avatar(file->friend_number, file->avatar, file->size);
-                    file->avatar = NULL;
-                    file->size   = 0;
+                if (file->avatar) {
+                    postmessage(FRIEND_AVATAR_SET, file->friend_number, file->current_size, file->via.avatar);
+                    // file->avatar = NULL;
+                    // file->size   = 0;
                 } else {
-                    decode_inline_png(file->friend_number, file->memory, file->size);
+                    decode_inline_png(file->friend_number, file->via.memory, file->current_size);
                 }
             } else { // Is a file
-                ((MSG_FILE *)file->ui_data)->path = (uint8_t *)strdup((const char *)file->path);
+                ((MSG_FILE *)file->ui_data)->path = strdup((const char *)file->path);
             }
         } else {
             if (file->in_memory) {
                 // TODO, might want to do something here.
             } else { // Is a file
-                ((MSG_FILE *)file->ui_data)->path = (uint8_t *)strdup((const char *)file->path);
+                ((MSG_FILE *)file->ui_data)->path = strdup((const char *)file->path);
             }
-            if (friend[file->friend_number].transfer_count) {
-                /* Decrement if > 0 */
-                --friend[file->friend_number].transfer_count;
-            }
+            // if (friend[file->friend_number].transfer_count) {
+            //     --friend[file->friend_number].transfer_count;
+            // }
         }
         file->status = FILE_TRANSFER_STATUS_COMPLETED;
         if (((MSG_FILE *)file->ui_data)) {
@@ -421,12 +426,11 @@ void ft_friend_online(Tox *tox, uint32_t friend_number) {
         utox_file_load_ftinfo(file);
         if (file->path) {
             /* If we got a path from utox_file_load we should try to resume! */
-            uint32_t f_n =
-                outgoing_file_send(tox, friend_number, NULL, (uint8_t *)file, sizeof(*file), TOX_FILE_KIND_EXISTING);
+            // uint32_t f_n = ft_send_data(tox, friend_number, NULL, (uint8_t *)file, sizeof(*file));
 
-            if (f_n != UINT32_MAX && f_n != i) {
-                utox_file_ftoutfo_move(friend_number, i, f_n);
-            }
+            // if (f_n != UINT32_MAX && f_n != i) {
+                // utox_file_ftoutfo_move(friend_number, i, f_n);
+            // }
         }
 
         free(file);
@@ -439,8 +443,9 @@ void ft_friend_offline(Tox *tox, uint32_t friend_number) {
     debug("FileTransfer:\tFriend %u has gone offline, breaking transfers\n", friend_number);
     unsigned int i;
     for (i = 0; i < MAX_FILE_TRANSFERS; ++i) {
-        utox_break_file(&incoming_transfer[friend_number][i]);
-        utox_break_file(&outgoing_transfer[friend_number][i]);
+        // TODO
+        // utox_break_file(&incoming_transfer[friend_number][i]);
+        // utox_break_file(&outgoing_transfer[friend_number][i]);
     }
 }
 
@@ -451,7 +456,7 @@ void file_transfer_local_control(Tox *tox, uint32_t friend_number, uint32_t file
     switch (control) {
         case TOX_FILE_CONTROL_RESUME: {
             if (info->status != FILE_TRANSFER_STATUS_ACTIVE) {
-                if (friend[friend_number].transfer_count < MAX_FILE_TRANSFERS) {
+                if (get_friend(friend_number)->file_transfers_outgoing_size < MAX_FILE_TRANSFERS) {
                     if (tox_file_control(tox, friend_number, file_number, control, &error)) {
                         debug("FileTransfer:\tWe just resumed file (%u & %u)\n", friend_number, file_number);
                     } else {
@@ -508,44 +513,80 @@ void file_transfer_local_control(Tox *tox, uint32_t friend_number, uint32_t file
 
 /* Remote command callback for friends to change a file status */
 static void file_transfer_callback_control(Tox *UNUSED(tox), uint32_t friend_number, uint32_t file_number,
-                                           TOX_FILE_CONTROL control, void *UNUSED(userdata)) {
-
-    FILE_TRANSFER *info = get_file_transfer(friend_number, file_number);
+                                           TOX_FILE_CONTROL control, void *UNUSED(userdata))
+{
+    FILE_TRANSFER *ft = get_file_transfer(friend_number, file_number);
 
     switch (control) {
         case TOX_FILE_CONTROL_RESUME: {
             debug("FileTransfer:\tFriend (%i) has resumed file (%i)\n", friend_number, file_number);
-            utox_run_file(info, 0);
+            utox_run_file(ft, 0);
             break;
         }
         case TOX_FILE_CONTROL_PAUSE: {
             debug("FileTransfer:\tFriend (%i) has paused file (%i)\n", friend_number, file_number);
-            utox_pause_file(info, 0);
+            utox_pause_file(ft, 0);
             break;
         }
         case TOX_FILE_CONTROL_CANCEL: {
-            if (info->avatar) {
+            if (ft->avatar) {
                 debug("FileTransfer:\tFriend (%i) rejected avatar\n", friend_number);
             } else {
                 debug("FileTransfer:\tFriend (%i) has canceled file (%i)\n", friend_number, file_number);
             }
-            utox_kill_file(info, 0);
+            utox_kill_file(ft, 0);
             break;
         }
     }
 }
 
+static void incoming_avatar(Tox *tox, uint32_t friend_number, uint32_t file_number, uint64_t size)
+{
+    debug("FileTransfer:\tIncoming avatar from friend %u.\n", friend_number);
+
+    if (size == 0) {
+        debug("FileTransfer:\tAvatar from friend %u deleted.\n", friend_number);
+        postmessage(FRIEND_AVATAR_UNSET, friend_number, 0, NULL);
+        file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
+        return;
+    }
+
+    if (size > UTOX_AVATAR_MAX_DATA_LENGTH) {
+        debug("FileTransfer:\tAvatar from friend(%u) rejected. (Too Large %lu)\n", friend_number, size);
+        file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
+        return;
+    }
+
+    uint8_t file_id[TOX_FILE_ID_LENGTH] = { 0 };
+    tox_file_get_file_id(tox, friend_number, file_number, file_id, 0);
+
+    /* Verify this is a new avatar */
+    if ((friend[friend_number].avatar.format)
+        && memcmp(friend[friend_number].avatar.hash, file_id, TOX_HASH_LENGTH) == 0) {
+        debug("FileTransfer:\tAvatar from friend (%u) rejected: Same as Current\n", friend_number);
+        file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
+        return;
+    }
+
+    /* Avatar size is valid, and it's a new avatar, lets accept it */
+    build_file_transfer(get_file_transfer(friend_number, file_number), friend_number, file_number,
+                        size, 1, 1, 1, NULL, 0, NULL, 0, NULL, tox);
+    file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_RESUME);
+    return;
+}
+
 /* Function called by core with a new file send request from a friend. */
 static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uint32_t file_number, uint32_t kind,
                                            uint64_t file_size, const uint8_t *filename, size_t filename_length,
-                                           void *user_data) {
+                                           void *UNUSED(user_data))
+{
     /* First things first, get the file_id from core */
     uint8_t file_id[TOX_FILE_ID_LENGTH] = { 0 };
     tox_file_get_file_id(tox, friend_number, file_number, file_id, 0);
     /* access the correct memory location for this file */
     FILE_TRANSFER *file_handle = get_file_transfer(friend_number, file_number);
     if (!file_handle) {
-        debug("FileTransfer:\tUnable to get memory handle for transfer, canceling friend/file number (%u/%u)\n",
+        debug_error("FileTransfer:\tUnable to get memory handle for transfer, canceling friend/file number (%u/%u)\n",
               friend_number, file_number);
         tox_file_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL, 0);
         return;
@@ -553,44 +594,20 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
 
     switch (kind) {
         case TOX_FILE_KIND_AVATAR: {
-            debug("FileTransfer:\tNew Avatar from friend (%u)\n", friend_number);
+            incoming_avatar(tox, friend_number, file_number, file_size);
+            break;
             /* Verify Avatar Size */
-            if (file_size == 0) {
-                /* Size is 0, unset the avatar! */
-                utox_incoming_avatar(friend_number, NULL, 0);
-                debug("FileTransfer:\tAvatar Unset from friend(%u).\n", friend_number);
-                file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
-                return;
-            } else if (file_size > UTOX_AVATAR_MAX_DATA_LENGTH) {
-                /* If incoming avatar is too big, cancel */
-                file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
-                debug("FileTransfer:\tAvatar from friend(%u) rejected, TOO LARGE (%u)\n", friend_number,
-                      (uint32_t)file_size);
-                return;
-            }
-            /* Verify this is a new avatar */
-            if ((friend[friend_number].avatar.format > 0)
-                && memcmp(friend[friend_number].avatar.hash, file_id, TOX_HASH_LENGTH) == 0) {
-                debug("FileTransfer:\tAvatar from friend (%u) rejected: Same as Current\n", friend_number);
-                file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
-                return;
-            }
-            /* Avatar size is valid, and it's a new avatar, lets accept it */
-            build_file_transfer(file_handle, friend_number, file_number, file_size, 1, 1, 1, TOX_FILE_KIND_AVATAR, NULL,
-                                0, NULL, 0, NULL, tox);
-            file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_RESUME);
-            return;
         }
         case TOX_FILE_KIND_DATA: {
             /* Load saved information about this file */
             file_handle->friend_number = friend_number;
             file_handle->file_number   = file_number;
-            memcpy(file_handle->file_id, file_id, TOX_FILE_ID_LENGTH);
+            memcpy(file_handle->data_hash, file_id, TOX_FILE_ID_LENGTH);
             if (utox_file_load_ftinfo(file_handle)) {
                 debug_notice("FileTransfer:\tIncoming Existing file from friend (%u) \n", friend_number);
                 /* We were able to load incoming file info from disk; validate date! */
                 /* First, backup transfered size, because we're about to overwrite it*/
-                uint64_t seek_size = file_handle->size_transferred;
+                uint64_t seek_size = file_handle->current_size;
                 /* Try to reopen incoming file */
                 /* TODO, use native file fxns */
                 FILE *   file = fopen((const char *)file_handle->path, "rb");
@@ -615,14 +632,14 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
                     /* We can read, but can we write? */
                     if (file) {
                         /* We can read and write, build a new file handle to work with! */
-                        build_file_transfer(file_handle, friend_number, file_number, size, 1, 0, 0, TOX_FILE_KIND_DATA,
+                        build_file_transfer(file_handle, friend_number, file_number, size, 1, 0, 0,
                                             filename, filename_length, file_handle->path, file_handle->path_length,
                                             NULL, tox);
-                        file_handle->file             = file;
-                        file_handle->size_transferred = seek_size;
+                        file_handle->via.file    = file;
+                        file_handle->target_size = seek_size;
                         /* TODO try to re-access the original message box for this file transfer, without segfaulting!
                          */
-                        file_handle->resume = utox_file_alloc_ftinfo(file_handle);
+                        file_handle->resumeable = utox_file_alloc_ftinfo(file_handle);
                         postmessage(FILE_SEND_NEW, friend_number, 0, file_handle);
                         TOX_ERR_FILE_SEEK error = 0;
                         tox_file_seek(tox, friend_number, file_number, seek_size, &error);
@@ -643,24 +660,22 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
                 }
             }
             /* The file doesn't exist on disk where we expected, let's prompt the user to accept it as a new file */
-            debug("FileTransfer:\tNew incoming file from friend (%u) file number (%u)\nFileTransfer:\t\tfilename: %s\n",
+            debug_notice("FileTransfer:\tNew incoming file from friend (%u) file number (%u)\nFileTransfer:\t\tfilename: %s\n",
                   friend_number, file_number, filename);
             /* Auto accept if it's a utox-inline image, with the correct size */
             if (file_size < 1024 * 1024 * 4 && filename_length == (sizeof("utox-inline.png") - 1)
                 && memcmp(filename, "utox-inline.png", filename_length) == 0) {
 
-                build_file_transfer(file_handle, friend_number, file_number, file_size, 1, 1, 0, TOX_FILE_KIND_DATA,
-                                    filename, filename_length, NULL, 0, NULL, tox);
+                build_file_transfer(file_handle, friend_number, file_number, file_size, 1, 1, 0, filename, filename_length, NULL, 0, NULL, tox);
 
-                file_handle->resume = 0;
+                file_handle->resumeable = 0;
                 /* Notify the user! */
                 postmessage(FILE_INCOMING_NEW, friend_number, 0, file_handle);
                 file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_RESUME);
             } else {
-                build_file_transfer(file_handle, friend_number, file_number, file_size, 1, 0, 0, TOX_FILE_KIND_DATA,
-                                    filename, filename_length, NULL, 0, NULL, tox);
+                build_file_transfer(file_handle, friend_number, file_number, file_size, 1, 0, 0, filename, filename_length, NULL, 0, NULL, tox);
                 /* Set UI values */
-                file_handle->resume = 0;
+                file_handle->resumeable = 0;
                 /* Notify the user! */
                 postmessage(FILE_INCOMING_NEW, friend_number, 0, file_handle);
             }
@@ -671,28 +686,29 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
 
 /* Called by toxcore to deliver the next chunk of incoming data. */
 static void incoming_file_callback_chunk(Tox *UNUSED(tox), uint32_t friend_number, uint32_t file_number,
-                                         uint64_t position, const uint8_t *data, size_t length, void *UNUSED(user_data)) {
-    // debug("FileTransfer:\tIncoming chunk friend(%u), file(%u), start(%u), end(%u), \n", friend_number, file_number,
-    // position, length);
+                                         uint64_t position, const uint8_t *data, size_t length, void *UNUSED(user_data))
+{
+    debug("FileTransfer:\tIncoming chunk friend(%u), file(%u), start(%lu), end(%lu), \n",
+            friend_number, file_number, position, length);
 
-    FILE_TRANSFER *file_handle = get_file_transfer(friend_number, file_number);
+    FILE_TRANSFER *ft = get_file_transfer(friend_number, file_number);
 
     if (length == 0) {
-        utox_complete_file(file_handle);
+        utox_complete_file(ft);
         return;
     }
 
-    if (file_handle->in_memory) {
-        if (file_handle->is_avatar) {
-            memcpy(file_handle->avatar + position, data, length);
+    if (ft->in_memory) {
+        if (ft->avatar) {
+            memcpy(ft->via.avatar + position, data, length);
         } else {
-            memcpy(file_handle->memory + position, data, length);
+            memcpy(ft->via.memory + position, data, length);
         }
     } else {
         // Removed until we can better implement temp files
-        // if(file_handle->in_tmp_loc){
-        //     fseeko(file_handle->tmp_file, position, SEEK_SET);
-        //     size_t write_size = fwrite(data, 1, length, file_handle->tmp_file);
+        // if(ft->in_tmp_loc){
+        //     fseeko(ft->tmp_file, position, SEEK_SET);
+        //     size_t write_size = fwrite(data, 1, length, ft->tmp_file);
         //     if(write_size != length){
         //         debug("\n\nFileTransfer:\tERROR WRITING DATA TO TEMP FILE! (%u & %u)\n\n", friend_number,
         //         file_number);
@@ -700,9 +716,9 @@ static void incoming_file_callback_chunk(Tox *UNUSED(tox), uint32_t friend_numbe
         //         return;
         //     }
         // }
-        if (file_handle->file) {
+        if (ft->via.file) {
             uint8_t count = 10;
-            while (!file_lock(file_handle->file, position, length)) {
+            while (!file_lock(ft->via.file, position, length)) {
                 debug_error("FileTransfer:\tCan't get lock, sleeping...\n");
                 yieldcpu(10);
                 if (count == 0) {
@@ -711,12 +727,12 @@ static void incoming_file_callback_chunk(Tox *UNUSED(tox), uint32_t friend_numbe
                 count--;
                 // If you get a bug report about this hanging utox, just disable it, it's unlikely to be needed!
             }
-            fseeko(file_handle->file, position, SEEK_SET);
-            size_t write_size = fwrite(data, 1, length, file_handle->file);
-            fflush(file_handle->file);
-            file_unlock(file_handle->file, position, length);
+            fseeko(ft->via.file, position, SEEK_SET);
+            size_t write_size = fwrite(data, 1, length, ft->via.file);
+            fflush(ft->via.file);
+            file_unlock(ft->via.file, position, length);
             if (write_size != length) {
-                debug("\n\nFileTransfer:\tERROR WRITING DATA TO FILE! (%u & %u)\n\n", friend_number, file_number);
+                debug_error("\n\nFileTransfer:\tERROR WRITING DATA TO FILE! (%u & %u)\n\n", friend_number, file_number);
                 postmessage_toxcore(TOX_FILE_CANCEL, friend_number, file_number, NULL);
                 return;
             }
@@ -725,278 +741,257 @@ static void incoming_file_callback_chunk(Tox *UNUSED(tox), uint32_t friend_numbe
             postmessage_toxcore(TOX_FILE_CANCEL, friend_number, file_number, NULL);
             return;
         }
-        calculate_speed(file_handle);
+        calculate_speed(ft);
     }
-    file_handle->size_transferred += length;
+    ft->current_size += length;
     // TODO dirty hack, this needs to be replaced
-    // moved it cal_speed() // utox_file_save_ftinfo(file_handle);
+    // moved it cal_speed() // utox_file_save_ftinfo(ft);
 }
 
-/* Returns file number on success, UINT32_MAX on failure. */
-uint32_t outgoing_file_send(Tox *tox, uint32_t friend_number, uint8_t *path, uint8_t *file_data, size_t file_data_size,
-                            uint32_t kind) {
-    /* Enforce max transfer count! */
-    if (friend[friend_number].transfer_count >= MAX_FILE_TRANSFERS) {
-        debug("FileTransfer:\tMaximum outgoing file sending limit reached(%u/%u) for friend(%u). ABORTING!\n",
-              friend[friend_number].transfer_count, MAX_FILE_TRANSFERS, friend_number);
+uint32_t ft_send_avatar(Tox *tox, uint32_t friend_number) {
+    if (!tox || self.avatar) {
+        debug_error("FileTransfer:\tCan't send an avatar without data\n");
         return UINT32_MAX;
-    } else {
-        friend[friend_number].transfer_count++;
     }
-    /* Declare vars */
-    uint32_t          file_number              = 0;
-    TOX_ERR_FILE_SEND error                    = 0;
-    uint8_t           file_id[TOX_HASH_LENGTH] = { 0 };
-    uint64_t          file_size = 0, transfer_size = 0;
-    FILE *            file   = NULL;
-    uint8_t           memory = 0, avatar = 0;
-    uint8_t *         filename    = NULL;
-    size_t            path_length = 0, filename_length = 0;
+    debug("FileTransfer:\tStarting avatar to friend %u.\n", friend_number);
 
-    switch (kind) {
-        case TOX_FILE_KIND_DATA: {
-            if (path) {
-                /* It's a file from the disk. */
-                file = fopen((char *)path, "rb");
-                if (!file) {
-                    debug("FileTransfer:\tUnable to open file for reading!\n");
-                    return UINT32_MAX;
-                }
-                /* Get file size. */
-                fseeko(file, 0, SEEK_END);
-                file_size   = ftello(file);
-                path_length = strlen((char *)path);
+    // TODO send the uset avatar command.
 
-                debug("FileTransfer:\tStarting outgoing file to friend %u. (filename, %s)\n", friend_number, file_data);
-                file_number = tox_file_send(tox, friend_number, TOX_FILE_KIND_DATA, file_size, NULL, file_data,
-                                            file_data_size, &error);
-
-                filename        = file_data;
-                filename_length = file_data_size;
-
-            } else {
-                /* It's a file from memory, probably an image. */
-                if (!file_data) {
-                    debug("FileTransfer:\tUnable to use *image!\n");
-                    return UINT32_MAX;
-                }
-                /* Generate the file name. */
-                if (file_data_size < 1024 * 1024 * 4) {
-                    filename_length = sizeof("utox-inline.png") - 1;
-                    filename        = malloc(filename_length + 1);
-                    memcpy(filename, "utox-inline.png", filename_length + 1);
-                } else {
-                    filename_length = sizeof("utox-image.png") - 1;
-                    filename        = malloc(filename_length + 1);
-                    memcpy(filename, "utox-image.png", filename_length + 1);
-                }
-
-                debug("FileTransfer:\tStarting outgoing image to friend %u.\n", friend_number);
-                file_number = tox_file_send(tox, friend_number, TOX_FILE_KIND_DATA, file_data_size, NULL, filename,
-                                            filename_length, &error);
-
-                file_size = file_data_size;
-                memory    = 1;
-            }
-            break;
-        }
-        case TOX_FILE_KIND_EXISTING: {
-            debug("FileTransfer:\tAttempting to restart existing transfer to friend%u.\n", friend_number);
-            /* Load the saved info. */
-            FILE_TRANSFER *existing_file_info = (FILE_TRANSFER *)file_data;
-            if (!existing_file_info->path) {
-                debug("FileTransfer:\tUnable to get file location!\n");
-                return UINT32_MAX;
-            }
-
-            /* See if this file still exists and if we have access*/
-            file = fopen((const char *)existing_file_info->path, "rb");
-            if (file) {
-                fseeko(file, 0, SEEK_END);
-                file_size = ftello(file);
-            } else {
-                debug("FileTransfer:\tUnable to re-access file, must fail!\n");
-                return UINT32_MAX;
-            }
-
-            /* get the file_id to resume the file */
-            memcpy(file_id, existing_file_info->file_id, TOX_FILE_ID_LENGTH);
-
-            /* Get file name from the existing file path. */
-            uint8_t *p = existing_file_info->path, *name = existing_file_info->path;
-            while (*p != '\0') {
-                if (*p == '/' || *p == '\\') {
-                    name = p + 1;
-                }
-                p++;
-            }
-
-            file_number =
-                tox_file_send(tox, friend_number, TOX_FILE_KIND_DATA, file_size, file_id, name, p - name, &error);
-
-            filename        = name;
-            filename_length = p - name;
-            path            = existing_file_info->path;
-            path_length     = strlen((const char *)existing_file_info->path);
-            transfer_size   = existing_file_info->size_transferred;
-
-            break;
-        }
-        case TOX_FILE_KIND_AVATAR: {
-            /* Verify avatar info. */
-            if (!file_data && file_data_size) {
-                debug("FileTransfer:\tUnable to use *avatar!\n");
-                return UINT32_MAX;
-            }
-            /* Get file_id for this avatar. */
-            if (!tox_hash(file_id, file_data, file_data_size)) {
-                debug("FileTransfer:\tUnable to get hash for avatar!\n");
-                return UINT32_MAX;
-            }
-
-            debug("FileTransfer:\tStarting avatar to friend %u.\n", friend_number);
-            file_number = tox_file_send(tox, friend_number, TOX_FILE_KIND_AVATAR, file_data_size, file_id, NULL, 0, &error);
-            debug_error("FileTransfer:\t tox_file_send error: %u\n", error);
-
-            file_size = file_data_size;
-            memory    = 1;
-            avatar    = 1;
-            break;
-        } /* last case */
-    }     /* switch */
-
-    /* process file! */
-    if (file_number != UINT32_MAX) {
-        /* Toxcore accepted our file, build internal info. */
-        FILE_TRANSFER *file_handle = get_file_transfer(friend_number, file_number);
-        build_file_transfer(file_handle, friend_number, file_number, file_size, 0, memory, avatar, kind, filename,
-                            filename_length, path, path_length, NULL, tox);
-
-        /* Build UI info, and create resume file. */
-        if (!memory) {
-            file_handle->file   = file;
-            file_handle->resume = utox_file_alloc_ftinfo(file_handle);
-            if (kind == TOX_FILE_KIND_EXISTING) {
-                free(path);
-            }
-            if (transfer_size) {
-                file_handle->size_transferred = transfer_size;
-            }
-
-            postmessage(FILE_SEND_NEW, friend_number, 0, file_handle);
-        } else {
-            if (avatar) {
-                memcpy(file_handle->avatar, file_data, file_data_size);
-            } else {
-                /* Allow saving of in-lines */
-                memcpy(file_handle->memory, file_data, file_data_size);
-                free(filename);
-                postmessage(FILE_SEND_NEW, friend_number, 0, file_handle);
-            }
-            file_handle->status = FILE_TRANSFER_STATUS_PAUSED_THEM;
-            file_handle->resume = 0;
-        }
-
-    } else {
-        debug("tox_file_send() failed\n");
-        if (avatar) {
-            free(file_data);
-        } else if (memory) {
-            free(filename);
-            free(file_data);
-        }
-        friend[friend_number].transfer_count--;
+    FRIEND *f = get_friend(friend_number);
+    if (f->file_transfers_outgoing_active_count > MAX_FILE_TRANSFERS) {
+        debug_error("FileTransfer:\tCan't send this avatar too many in progress...\n");
+        return UINT32_MAX;
     }
+
+    /* While It's not ideal, we don't make sure we can alloc the FILE_TRANSFER until
+     * we get the file number from toxcore. This could happen, but I assume it'll be
+     * rare enough. Either way, it'll be noisy if it fails so here's to hoping! */
+    uint8_t hash[TOX_HASH_LENGTH];
+    tox_hash(hash, self.png_data, self.png_size);
+
+    TOX_ERR_FILE_SEND error = 0;
+    uint32_t file_number = tox_file_send(tox, friend_number, TOX_FILE_KIND_AVATAR, self.png_size, hash, NULL, 0, &error);
+    if (error || file_number == UINT32_MAX) {
+        debug("tox_file_send() failed error code %u\n", error);
+        return UINT32_MAX;
+    };
+
+    FILE_TRANSFER *ft = get_file_transfer(friend_number, file_number);
+    if (!ft) {
+        // This is the noisy case noted above.
+        debug_error("FileTransfer:\tUnable to malloc to actually send avatar!\n");
+        tox_file_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL, NULL);
+        return UINT32_MAX;
+    }
+
+    memset(ft, 0, sizeof(*ft));
+    ft->incoming = false;
+    ft->in_use = true;
+    ft->avatar = true;
+
+    ft->friend_number = friend_number;
+    ft->file_number = file_number;
+
+    memcpy(ft->data_hash, hash, TOX_HASH_LENGTH);
+
+    ft->target_size = self.png_size;
+    return file_number;
+}
+
+uint32_t ft_send_file(Tox *tox, uint32_t friend_number, FILE *file, uint8_t *name, size_t name_length) {
+    if (!tox || !file) {
+        debug_error("FileTransfer:\tCan't send a file without data\n");
+        return UINT32_MAX;
+    }
+    debug("FileTransfer:\tStarting FILE to friend %u.\n", friend_number);
+
+    FRIEND *f = get_friend(friend_number);
+    if (f->file_transfers_outgoing_active_count > MAX_FILE_TRANSFERS) {
+        debug_error("FileTransfer:\tCan't send this avatar too many in progress...\n");
+        return UINT32_MAX;
+    }
+
+    fseeko(file, 0, SEEK_END);
+    size_t size = ftello(file);
+
+    TOX_ERR_FILE_SEND error = 0;
+    uint32_t file_number = tox_file_send(tox, friend_number, TOX_FILE_KIND_DATA, size, NULL, name, name_length, &error);
+    if (error || file_number == UINT32_MAX) {
+        debug("tox_file_send() failed error code %u\n", error);
+        return UINT32_MAX;
+    }
+
+    FILE_TRANSFER *ft = get_file_transfer(friend_number, file_number);
+    if (!ft) {
+        // This is the noisy case noted above.
+        debug_error("FileTransfer:\tUnable to malloc to actually send file!\n");
+        tox_file_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL, NULL);
+        return UINT32_MAX;
+    }
+
+    memset(ft, 0, sizeof(*ft));
+    ft->incoming = false;
+
+    ft->friend_number = friend_number;
+    ft->file_number   = file_number;
+
+    ft->target_size = size;
+
+    ft->via.file = file;
 
     return file_number;
 }
 
+/* Returns file number on success, UINT32_MAX on failure. */
+uint32_t ft_send_data(Tox *tox, uint32_t friend_number, uint8_t *data, size_t size, uint8_t *name, size_t name_length) {
+    if (!tox || !data || !name) {
+        debug_error("FileTransfer:\tCan't send data to friend without data\n");
+        return UINT32_MAX;
+    }
+    debug("FileTransfer:\tStarting raw data transfer to friend %u.\n", friend_number);
+
+    // TODO send the uset avatar command.
+
+    FRIEND *f = get_friend(friend_number);
+    if (f->file_transfers_outgoing_active_count > MAX_FILE_TRANSFERS) {
+        debug_error("FileTransfer:\tCan't send raw data too many in progress...\n");
+        return UINT32_MAX;
+    }
+
+    /* While It's not ideal, we don't make sure we can alloc the FILE_TRANSFER until
+     * we get the file number from toxcore. This could happen, but I assume it'll be
+     * rare enough. Either way, it'll be noisy if it fails so here's to hoping! */
+    uint8_t hash[TOX_HASH_LENGTH];
+    tox_hash(hash, data, size); // TODO skip this if the file is HUGE!
+
+    TOX_ERR_FILE_SEND error = 0;
+    uint32_t file_number = tox_file_send(tox, friend_number, TOX_FILE_KIND_DATA, size, hash, name, name_length, &error);
+    if (error || file_number == UINT32_MAX) {
+        debug("tox_file_send() failed error code %u\n", error);
+        return UINT32_MAX;
+    };
+
+    FILE_TRANSFER *ft = get_file_transfer(friend_number, file_number);
+    if (!ft) {
+        // This is the noisy case noted above.
+        debug_error("FileTransfer:\tUnable to malloc to actually send data!\n");
+        tox_file_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL, NULL);
+        return UINT32_MAX;
+    }
+
+    memset(ft, 0, sizeof(*ft));
+    ft->incoming  = false;
+    ft->in_use    = true;
+    ft->in_memory = true;
+
+    ft->friend_number = friend_number;
+    ft->file_number = file_number;
+
+    memcpy(ft->data_hash, hash, TOX_HASH_LENGTH);
+
+    ft->via.memory = data;
+
+    ft->target_size = size;
+    return file_number;
+}
+            // /* Generate the file name. */
+            // if (file_data_size < 1024 * 1024 * 4) {
+            //     filename_length = sizeof("utox-inline.png") - 1;
+            //     filename        = malloc(filename_length + 1);
+            //     memcpy(filename, "utox-inline.png", filename_length + 1);
+            // } else {
+            //     filename_length = sizeof("utox-image.png") - 1;
+            //     filename        = malloc(filename_length + 1);
+            //     memcpy(filename, "utox-image.png", filename_length + 1);
+            // }
+
+            // debug("FileTransfer:\tStarting outgoing image to friend %u.\n", friend_number);
+            // file_number = tox_file_send(tox, friend_number, TOX_FILE_KIND_DATA, file_data_size, NULL, filename,
+            //                             filename_length, &error);
+
 static void outgoing_file_callback_chunk(Tox *tox, uint32_t friend_number, uint32_t file_number, uint64_t position,
-                                         size_t length, void *UNUSED(user_data)) {
+                                         size_t length, void *UNUSED(user_data))
+{
+    debug("FileTransfer:\tChunk requested for friend_id (%u), and file_id (%u). Start (%lu), End (%zu).\r",
+            friend_number, file_number, position, length);
 
-    // debug("FileTransfer:\tChunk requested for friend_id (%u), and file_id (%u). Start (%lu), End (%zu).\r",
-    // friend_number, file_number, position, length);
-
-    FILE_TRANSFER *file_handle = get_file_transfer(friend_number, file_number);
+    FILE_TRANSFER *ft = get_file_transfer(friend_number, file_number);
 
     if (length == 0) {
-        debug("FileTransfer:\tOutgoing transfer is done (%u & %u)\n", friend_number, file_number);
-        utox_complete_file(file_handle);
+        debug_notice("FileTransfer:\tOutgoing transfer is done (%u & %u)\n", friend_number, file_number);
+        utox_complete_file(ft);
         return;
     }
 
-    uint8_t buffer[length];
-    size_t  read_size = 0;
-
-    if (file_handle->in_memory) {
-        // Memory
-        if (file_handle->is_avatar) {
-            if (file_handle->size < length) {
-                debug("FileTransfer:\tAvatar size mismatch!\n");
-                return;
-            }
-            memcpy(buffer, file_handle->avatar + position, length);
-            read_size = length; /* We hope!! */
-        } else {
-            if (file_handle->size < length) {
-                debug("FileTransfer:\tMemory size mismatch!\n");
-                return;
-            }
-            memcpy(buffer, file_handle->memory + position, length);
-            read_size = length; /* We hope!! */
-        }
-    } else {
-        // File
-        FILE *file = file_handle->file;
-        if (file) {
-            fseeko(file, position, SEEK_SET);
-            read_size = fread(buffer, 1, length, file);
-            // debug("File okay\n");
-        }
-    }
-
-    if (read_size != length) {
-        debug("FileTransfer:\tERROR READING FILE! (%u & %u)\n", friend_number, file_number);
-        // debug("FileTransfer:\t\tSize (%lu), Position (%lu), Length(%lu), Read_size (%lu), size_transferred (%lu).\n",
-        //    file_handle->size, position, length, read_size, file_handle->size_transferred);
-        file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
+    if (position + length > ft->target_size) {
+        debug_error("FileTransfer:\tOuting transfer size mismatch!\n");
         return;
     }
 
     TOX_ERR_FILE_SEND_CHUNK error;
+    if (ft->in_memory) {
+        if (ft->via.memory) {
+            tox_file_send_chunk(tox, friend_number, file_number, position,
+                                ft->via.memory + position, length, &error);
+        } else {
+            debug_error("FileTransfer:\tERROR READING FROM MEMORY! (%u & %u)\n", friend_number, file_number);
+            return;
+        }
+    } else if (ft->avatar) {
+        if (self.png_data) {
+            tox_file_send_chunk(tox, friend_number, file_number, position,
+                                self.png_data + position, length, &error);
+        } else {
+            debug_error("FileTransfer:\tERROR READING FROM AVATAR! (%u & %u)\n", friend_number, file_number);
+            return;
+        }
+    } else { // File
+        if (ft->via.file) {
+            uint8_t buffer[length];
+            fseeko(ft->via.file, position, SEEK_SET);
+            size_t read_size = fread(buffer, 1, length, ft->via.file);
+            if (read_size != length) {
+                debug_error("FileTransfer:\tERROR READING FILE! (%u & %u)\n", friend_number, file_number);
+                debug_info("FileTransfer:\t\tSize (%lu), Position (%lu), Length(%lu), Read_size (%lu), size_transferred (%lu).\n",
+                   ft->target_size, position, length, read_size, ft->current_size);
+                file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
+                return;
+            }
+            tox_file_send_chunk(tox, friend_number, file_number, position, buffer, length, &error);
+        }
+    }
 
-    tox_file_send_chunk(tox, friend_number, file_number, position, buffer, length, &error);
-    file_handle->size_transferred += length;
-
-    calculate_speed(file_handle);
+    ft->current_size += length;
+    calculate_speed(ft);
 }
 
 int utox_file_start_write(uint32_t friend_number, uint32_t file_number, const char *filepath) {
-    FILE_TRANSFER *file_handle = get_file_transfer(friend_number, file_number);
+    FILE_TRANSFER *ft = get_file_transfer(friend_number, file_number);
 
-    file_handle->path        = (uint8_t *)strdup(filepath);
-    file_handle->path_length = strlen(filepath);
+    ft->path        = (uint8_t *)strdup(filepath);
+    ft->path_length = strlen(filepath);
 
-    if (!file_handle->file) { /* Windows opens the file for us */
-        debug_notice("FileTransfer:\tUnable to use already open file, going to re-open\n");
-        file_handle->file = fopen((const char *)file_handle->path, "wb, ccs=UTF-8");
+    if (!ft->via.file) {
+        debug_error("FileTransfer:\tUnable to use already open file.\n");
+        // file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
+        return -1;
     }
 
-    if (!file_handle->file) {
+    if (!ft->via.file) {
         debug_error("FileTransfer:\tThe file we're supposed to write to couldn't be opened\n\t\t\"%s\"\n",
-                    file_handle->path);
-        utox_break_file(file_handle);
+                    ft->path);
+        utox_break_file(ft);
         return -1;
     }
 
     // Removed until we can find a better way of working this in;
-    // if(file_handle->in_tmp_loc){
-    //     fseeko(file_handle->tmp_file, 0, SEEK_SET);
-    //     fseeko(file_handle->file, 0, SEEK_SET);
-    //     fwrite(file_handle->tmp_file, 1, file_handle->size_transferred, file_handle->file);
-    //     fclose(file_handle->tmp_file);
-    //     file_handle->in_tmp_loc = 0;
-    //     // free(file_handle->tmp_path); // Freed by xlib probably...
+    // if(ft->in_tmp_loc){
+    //     fseeko(ft->tmp_file, 0, SEEK_SET);
+    //     fseeko(ft->file, 0, SEEK_SET);
+    //     fwrite(ft->tmp_file, 1, ft->size_transferred, ft->file);
+    //     fclose(ft->tmp_file);
+    //     ft->in_tmp_loc = 0;
+    //     // free(ft->tmp_path); // Freed by xlib probably...
     //     // TODO unlink();
     //     debug("FileTransfer: Data copied from tmp_file to save_file\n");
     // }
@@ -1010,15 +1005,9 @@ void utox_cleanup_file_transfers(uint32_t friend_number, uint32_t file_number) {
         free(transfer->name);
     }
 
-    if (transfer->in_memory) {
-        if (transfer->avatar) {
-            free(transfer->avatar);
-        }
-    }
-
-    if (transfer->file) {
-        fclose(transfer->file);
-    }
+    // if (transfer->via.file) {
+    //     fclose(transfer->via.file);
+    // }
 
     // if (transfer->saveinfo) {
     //     fclose(transfer->saveinfo);
@@ -1031,42 +1020,42 @@ void utox_file_save_ftinfo(FILE_TRANSFER *file) {
     return;
 }
 
-bool utox_file_load_ftinfo(FILE_TRANSFER *file) {
+bool utox_file_load_ftinfo(FILE_TRANSFER *ft) {
     uint8_t  path[UTOX_FILE_NAME_LENGTH];
     size_t   path_length = 0;
     uint32_t size_read;
 
     // path_length = datapath(path);
 
-    if (file->incoming) {
+    if (ft->incoming) {
         char hex_id[TOX_FILE_ID_LENGTH * 2];
-        fid_to_string(hex_id, file->file_id);
+        fid_to_string(hex_id, ft->data_hash);
         memcpy(path + path_length, hex_id, TOX_FILE_ID_LENGTH * 2);
         strcpy((char *)path + (path_length + TOX_FILE_ID_LENGTH * 2), ".ftinfo");
     } else {
         char hex_id[TOX_PUBLIC_KEY_SIZE * 2];
-        cid_to_string(hex_id, friend[file->friend_number].cid);
+        cid_to_string(hex_id, friend[ft->friend_number].cid);
         memcpy(path + path_length, hex_id, TOX_PUBLIC_KEY_SIZE * 2);
-        sprintf((char *)path + (path_length + TOX_PUBLIC_KEY_SIZE * 2), "%02i.ftoutfo", file->file_number % 100);
+        sprintf((char *)path + (path_length + TOX_PUBLIC_KEY_SIZE * 2), "%02i.ftoutfo", ft->file_number % 100);
     }
 
     void *load = file_raw((char *)path, &size_read);
 
     if (!load) {
-        if (file->incoming) {
+        if (ft->incoming) {
             debug("FileTransfer:\tUnable to load saved info... uTox can't resume file %.*s\n",
-                  (uint32_t)file->name_length, file->name);
+                  (uint32_t)ft->name_length, ft->name);
         }
-        file->status = 0;
-        if (file->file) {
+        ft->status = 0;
+        if (ft->via.file) {
             /* Just in case we try to resume an active file. */
-            fclose(file->file);
+            fclose(ft->via.file);
         }
         return 0;
     } else {
-        if (file->file) {
+        if (ft->via.file) {
             /* Just in case we try to resume an active file. */
-            fclose(file->file);
+            fclose(ft->via.file);
         }
     }
 
@@ -1077,14 +1066,14 @@ bool utox_file_load_ftinfo(FILE_TRANSFER *file) {
     memcpy(info->path, load + (sizeof(*info)), info->path_length);
     info->path[info->path_length] = 0;
 
-    info->friend_number = file->friend_number;
-    info->file_number   = file->file_number;
+    info->friend_number = ft->friend_number;
+    info->file_number   = ft->file_number;
     info->name          = NULL;
     info->name_length   = 0;
     info->ui_data       = NULL;
-    info->file          = NULL;
+    info->via.file      = NULL;
 
-    memcpy(file, info, sizeof(*file));
+    memcpy(ft, info, sizeof(*ft));
     free(info);
     free(load);
     return 1;
