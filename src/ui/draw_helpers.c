@@ -271,7 +271,7 @@ void draw_profile_password(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUS
 }
 
 /* Top bar for user settings */
-void draw_settings_header(int UNUSED(x), int UNUSED(y), int w, int UNUSED(height)) {
+void draw_settings_header(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
     drawstr(MAIN_LEFT + SCALE(10), SCALE(10), UTOX_SETTINGS);
@@ -429,7 +429,7 @@ void draw_settings_text_ui(int UNUSED(x), int y, int UNUSED(w), int UNUSED(heigh
 void draw_settings_text_av(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
-    
+
     // The element is draw_pos_y_inc units apart and they start draw_pos_y down.
     uint16_t draw_pos_y = 10;
     uint16_t draw_pos_y_inc = 30;

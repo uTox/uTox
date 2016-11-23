@@ -729,7 +729,7 @@ void utox_audio_thread(void *args) {
                 }
 
                 if (voice) {
-                    int i, active_call_count = 0;
+                    size_t i, active_call_count = 0;
                     for (i = 0; i < self.friend_list_size; i++) {
                         if (UTOX_SEND_AUDIO(i)) {
                             active_call_count++;
@@ -738,7 +738,7 @@ void utox_audio_thread(void *args) {
                             toxav_audio_send_frame(av, friend[i].number, (const int16_t *)buf, perframe,
                                                    UTOX_DEFAULT_AUDIO_CHANNELS, UTOX_DEFAULT_SAMPLE_RATE_A, &error);
                             if (error) {
-                                debug("toxav_send_audio error friend == %i, error ==  %i\n", i, error);
+                                debug("toxav_send_audio error friend == %lu, error ==  %i\n", i, error);
                             } else {
                                 // debug("Send a frame to friend %i\n",i);
                                 if (active_call_count >= UTOX_MAX_CALLS) {

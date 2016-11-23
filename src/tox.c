@@ -146,9 +146,9 @@ void tox_after_load(Tox *tox) {
 #endif
 
     self.name_length = tox_self_get_name_size(tox);
-    tox_self_get_name(tox, self.name);
+    tox_self_get_name(tox, (uint8_t *)self.name);
     self.statusmsg_length = tox_self_get_status_message_size(tox);
-    tox_self_get_status_message(tox, self.statusmsg);
+    tox_self_get_status_message(tox, (uint8_t *)self.statusmsg);
     self.status = tox_self_get_status(tox);
 }
 
@@ -285,8 +285,8 @@ static int load_toxcore_save(struct Tox_Options *options) {
     return -2;
 }
 
-static void log_callback(Tox *tox, TOX_LOG_LEVEL level, const char *file, uint32_t line, const char *func,
-                         const char *message, void *user_data) {
+static void log_callback(Tox *UNUSED(tox), TOX_LOG_LEVEL UNUSED(level), const char *UNUSED(file), uint32_t UNUSED(line), const char *func,
+                         const char *message, void *UNUSED(user_data)) {
     if (message) {
         debug("TOXCORE LOGGING ERROR: %s\n", message);
     } else if (func) {
@@ -621,7 +621,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
 
             if (!param1) {
                 STRING *default_add_msg = SPTR(DEFAULT_FRIEND_REQUEST_MESSAGE);
-                fid = tox_friend_add(tox, data, default_add_msg->str, default_add_msg->length, &f_err);
+                fid = tox_friend_add(tox, data, (const uint8_t *)default_add_msg->str, default_add_msg->length, &f_err);
             } else {
                 fid = tox_friend_add(tox, data, data + TOX_FRIEND_ADDRESS_SIZE, param1, &f_err);
             }
@@ -668,7 +668,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
                 postmessage(FRIEND_ACCEPT_REQUEST, (f_err != TOX_ERR_FRIEND_ADD_OK),
                             (f_err != TOX_ERR_FRIEND_ADD_OK) ? 0 : fid, req);
             } else {
-                uint8_t hex_id[TOX_FRIEND_ADDRESS_SIZE * 2];
+                char hex_id[TOX_FRIEND_ADDRESS_SIZE * 2];
                 id_to_string(hex_id, self.id_binary);
                 debug("Toxcore:\tUnable to accept friend %s, error num = %i\n", hex_id, fid);
             }
@@ -1311,9 +1311,9 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             msg->speed    = file->speed;
 
             if (file->in_memory) {
-                msg->path = file->memory;
+                msg->path = (char *)file->memory;
             } else {
-                msg->path = file->path;
+                msg->path = (char *)file->path;
             }
             redraw();
             // free(file);

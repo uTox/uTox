@@ -100,12 +100,12 @@ void utox_friend_init(Tox *tox, uint32_t friend_number);
 void utox_friend_list_init(Tox *tox);
 
 void friend_setname(FRIEND *f, uint8_t *name, size_t length);
-void friend_set_alias(FRIEND *f, char *alias, uint16_t length);
+void friend_set_alias(FRIEND *f, uint8_t *alias, uint16_t length);
 void friend_sendimage(FRIEND *f, NATIVE_IMAGE *native_image, uint16_t width, uint16_t height, UTOX_IMAGE png_image,
                       size_t png_size);
 void friend_recvimage(FRIEND *f, NATIVE_IMAGE *native_image, uint16_t width, uint16_t height);
 
-void friend_notify_msg(FRIEND *f, const uint8_t *msg, size_t msg_length);
+void friend_notify_msg(FRIEND *f, const char *msg, size_t msg_length);
 
 /* set friend online status. Returns: true if status changed, false otherwise */
 bool friend_set_online(FRIEND *f, bool online);
@@ -123,6 +123,6 @@ void friend_free(FRIEND *f);
 FRIEND *find_friend_by_name(uint8_t *name);
 
 /* Notifies the user that a friend is online or offline */
-void friend_notify_status(FRIEND *f, const char *msg, size_t msg_length, char *state);
+void friend_notify_status(FRIEND *f, const uint8_t *msg, size_t msg_length, char *state);
 
 #endif

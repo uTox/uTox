@@ -1,10 +1,11 @@
 // commands.c
 #include "commands.h"
 
+#include "util.h"
 #include "flist.h"
 
 
-int slash_send_file(FRIEND *friend_handle, const uint8_t *filepath) {
+int slash_send_file(FRIEND *friend_handle, const char *filepath) {
     if (filepath == NULL)
         return 0;
 
@@ -123,7 +124,7 @@ void do_tox_url(uint8_t *url_string, int len) {
     }
 
     // wtf??
-    uint8_t * b = edit_add_id.data, *a = url_string, *end = url_string + len;
+    uint8_t * b = (uint8_t *)edit_add_id.data, *a = url_string, *end = url_string + len;
     uint16_t *l = &edit_add_id.length;
     *l          = 0;
     while (a != end) {
@@ -149,7 +150,7 @@ void do_tox_url(uint8_t *url_string, int len) {
             case '&': {
                 a++;
                 if (end - a >= 8 && memcmp(a, "message=", 8) == 0) {
-                    b  = edit_add_msg.data;
+                    b  = (uint8_t *)edit_add_msg.data;
                     l  = &edit_add_msg.length;
                     *l = 0;
                     a += 7;

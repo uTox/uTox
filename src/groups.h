@@ -68,6 +68,6 @@ void group_reset_peerlist(GROUPCHAT *g);
 
 void group_free(GROUPCHAT *g);
 
-void group_notify_msg(GROUPCHAT *g, const uint8_t *message, size_t length);
+void group_notify_msg(GROUPCHAT *g, const char *msg, size_t length);
 
 #endif

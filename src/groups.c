@@ -5,6 +5,7 @@
 #include "flist.h"
 #include "main.h"
 #include "main_native.h"
+#include "util.h"
 
 void group_init(GROUPCHAT *g, uint32_t group_number, bool av_group) {
     pthread_mutex_lock(&messages_lock); /* make sure that messages has posted before we continue */
@@ -63,7 +64,7 @@ uint32_t group_add_message(GROUPCHAT *g, int peer_id, const uint8_t *message, si
     return message_add_group(m, (void *)msg);
 }
 
-void group_peer_add(GROUPCHAT *g, uint32_t peer_id, bool our_peer_number, uint32_t name_color) {
+void group_peer_add(GROUPCHAT *g, uint32_t peer_id, bool UNUSED(our_peer_number), uint32_t name_color) {
     pthread_mutex_lock(&messages_lock); /* make sure that messages has posted before we continue */
     if (!g->peer) {
         g->peer = calloc(MAX_GROUP_PEERS, sizeof(void));
@@ -188,16 +189,16 @@ void group_free(GROUPCHAT *g) {
 }
 
 
-void group_notify_msg(GROUPCHAT *g, const uint8_t *msg, size_t msg_length) {
+void group_notify_msg(GROUPCHAT *g, const char *msg, size_t msg_length) {
     if (g->notify == GNOTIFY_NEVER) {
         return;
     }
 
-    if (g->notify == GNOTIFY_HIGHLIGHTS && strstr((const char *)msg, (const char *)self.name) == NULL) {
+    if (g->notify == GNOTIFY_HIGHLIGHTS && strstr(msg, self.name) == NULL) {
         return;
     }
 
-    uint8_t title[g->name_length + 25];
+    char title[g->name_length + 25];
 
     size_t title_length =
         snprintf((char *)title, g->name_length + 25, "uTox new message in %.*s", (int)g->name_length, g->name);
