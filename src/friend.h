@@ -76,8 +76,13 @@ typedef struct utox_friend {
     ALuint   audio_dest;
 
     /* File transfers */
-    uint16_t transfer_count;
     bool     ft_autoaccept;
+    void    *file_transfers_incoming;
+    uint16_t file_transfers_incoming_size;
+    uint16_t file_transfers_incoming_active_count;
+    void    *file_transfers_outgoing;
+    uint16_t file_transfers_outgoing_size;
+    uint16_t file_transfers_outgoing_active_count;
 } FRIEND;
 
 typedef struct {
@@ -94,6 +99,8 @@ typedef struct {
 #define UTOX_FRIEND_NAME_LENGTH(f) ((f->alias) ? f->alias_length : f->name_length)
 
 FRIEND friend[128];
+
+FRIEND* get_friend(uint32_t friend_number);
 
 void utox_friend_init(Tox *tox, uint32_t friend_number);
 

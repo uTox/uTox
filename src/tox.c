@@ -767,7 +767,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
 
             if (param2 == 0xFFFF) {
                 // paths with line breaks
-                uint8_t *name = data, *p = data, *s = name;
+                char *name = data, *p = data, *s = name;
                 while (*p) {
                     bool end = 1;
                     while (*p) {
@@ -786,7 +786,8 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
                     if (strcmp2(name, "file://") == 0) {
                         name += 7;
                     } /* tox, friend, path, filename, filename_length */
-                    outgoing_file_send(tox, param1, name, s, p - s, TOX_FILE_KIND_DATA);
+                        FILE *file = fopen(name, "r");
+                    ft_send_file(tox, param1, file, (uint8_t*)s, p - s);
                     p++;
                     s = name = p;
 
@@ -800,12 +801,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
                 bool     multifile = (name[param2 - 1] == 0);
                 if (!multifile) {
                     /* tox, Friend, path, filename,      filename_length */
-                    outgoing_file_send(tox,                                   /* tox              */
-                                       param1,                                /* friend number    */
-                                       name,                                  /* file path        */
-                                       name + param2,                         /* file name        */
-                                       strlen((const char *)(name + param2)), /* file name length */
-                                       TOX_FILE_KIND_DATA);                   /* data type (file) */
+                    ft_send_file(tox, param1, name, name + param2, strlen((const char *)(name + param2)));
                 } else {
                     uint8_t *p = name + param2;
                     name += param2 - 1;
@@ -816,7 +812,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
                         int len = strlen((char *)p) + 1;
                         memmove(name, p, len);
                         p += len;
-                        outgoing_file_send(tox, param1, data, name, len - 1, TOX_FILE_KIND_DATA);
+                        ft_send_file(tox, param1, data, name, len - 1);
                     }
                 }
             }
@@ -831,10 +827,12 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             /* param1: friend id
                data: pointer to a TOX_SEND_INLINE_MSG struct
              */
-            debug("Toxcore:\tSending picture inline.");
+            debug("Toxcore:\tSending picture inline.\n");
 
-            outgoing_file_send(tox, param1, NULL, ((struct TOX_SEND_INLINE_MSG *)data)->image,
-                               ((struct TOX_SEND_INLINE_MSG *)data)->image_size, TOX_FILE_KIND_DATA);
+            ft_send_data(tox, param1, ((struct TOX_SEND_INLINE_MSG *)data)->image,
+                                      ((struct TOX_SEND_INLINE_MSG *)data)->image_size,
+                                      (uint8_t*)"utox-inline.png",
+                                      sizeof("utox-inline.png") - 1);
             free(data);
             break;
         }
@@ -1307,11 +1305,11 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
                 file_notify(f, msg);
                 msg->file_status = file->status;
             }
-            msg->progress = file->size_transferred;
+            msg->progress = file->current_size;
             msg->speed    = file->speed;
 
             if (file->in_memory) {
-                msg->path = (char *)file->memory;
+                msg->path = file->via.memory;
             } else {
                 msg->path = (char *)file->path;
             }

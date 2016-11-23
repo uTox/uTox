@@ -304,8 +304,8 @@ MSG_FILE *message_add_type_file(MESSAGES *m, FILE_TRANSFER *file) {
     // msg->name_length is the max enforce that
     msg->name_length = (file->name_length > sizeof(msg->file_name)) ? sizeof(msg->file_name) : file->name_length;
     memcpy(msg->file_name, file->name, msg->name_length);
-    msg->size       = file->size;
-    msg->progress   = file->size_transferred;
+    msg->size       = file->target_size;
+    msg->progress   = file->current_size;
     msg->speed      = 0;
     msg->inline_png = file->in_memory;
     msg->path       = NULL;
