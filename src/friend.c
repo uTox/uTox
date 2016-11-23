@@ -269,7 +269,7 @@ void friend_add(char *name, uint16_t length, char *msg, uint16_t msg_length) {
         return;
     }
 
-    char     name_cleaned[length];
+    uint8_t  name_cleaned[length];
     uint16_t length_cleaned = 0;
 
     unsigned int i;
@@ -286,12 +286,12 @@ void friend_add(char *name, uint16_t length, char *msg, uint16_t msg_length) {
     }
 
     uint8_t id[TOX_FRIEND_ADDRESS_SIZE];
-    if (length_cleaned == TOX_FRIEND_ADDRESS_SIZE * 2 && string_to_id(id, name_cleaned)) {
+    if (length_cleaned == TOX_FRIEND_ADDRESS_SIZE * 2 && string_to_id(id, (char *)name_cleaned)) {
         friend_addid(id, msg, msg_length);
     } else {
         /* not a regular id, try DNS discovery */
         addfriend_status = ADDF_DISCOVER;
-        dns_request(name_cleaned, length_cleaned);
+        dns_request((char *)name_cleaned, length_cleaned);
     }
 }
 
@@ -335,7 +335,7 @@ void friend_free(FRIEND *f) {
     memset(f, 0, sizeof(FRIEND)); //
 }
 
-FRIEND *find_friend_by_name(char *name) {
+FRIEND *find_friend_by_name(uint8_t *name) {
     int i;
     for (i = 0; i < self.friend_list_count; i++) {
         if ((friend[i].alias && memcmp(friend[i].alias, name, friend[i].alias_length) == 0)
@@ -346,7 +346,7 @@ FRIEND *find_friend_by_name(char *name) {
     return NULL;
 }
 
-void friend_notify_status(FRIEND *f, const char *msg, size_t msg_length, char *state) {
+void friend_notify_status(FRIEND *f, const uint8_t *msg, size_t msg_length, char *state) {
     if (!settings.status_notifications) {
         return;
     }
@@ -355,7 +355,7 @@ void friend_notify_status(FRIEND *f, const char *msg, size_t msg_length, char *s
     size_t  title_length = snprintf((char *)title, UTOX_FRIEND_NAME_LENGTH(f) + 20, "uTox %.*s is now %s.",
                                    (int)UTOX_FRIEND_NAME_LENGTH(f), UTOX_FRIEND_NAME(f), state);
 
-    notify(title, title_length, msg, msg_length, f, 0);
+    notify(title, title_length, (char *)msg, msg_length, f, 0);
 
     if (f->online) {
         postmessage_audio(UTOXAUDIO_PLAY_NOTIFICATION, NOTIFY_TONE_FRIEND_ONLINE, 0, NULL);

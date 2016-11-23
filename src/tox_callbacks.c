@@ -85,7 +85,7 @@ static void callback_connection_status(Tox *tox, uint32_t fid, TOX_CONNECTION st
         /* resend avatar info (in case it changed) */
         /* Avatars must be sent LAST or they will clobber existing file transfers! */
         avatar_on_friend_online(tox, fid);
-        friend_notify_status(&friend[fid], friend[fid].status_message, friend[fid].status_length, "online");
+        friend_notify_status(&friend[fid], (uint8_t *)friend[fid].status_message, friend[fid].status_length, "online");
     }
     postmessage(FRIEND_ONLINE, fid, !!status, NULL);
 
