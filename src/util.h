@@ -2,8 +2,10 @@
 #define UTIL_H
 
 #include "friend.h"
-#include "main.h"
 
+#include <stddef.h>
+#include <inttypes.h>
+#include <stdbool.h>
 /*todo: sprint_bytes */
 
 /* read a whole file from a path,
@@ -100,19 +102,20 @@ void scale_rgbx_image(uint8_t *old_rgbx, uint16_t old_width, uint16_t old_height
                       uint16_t new_height);
 
 
-/** Loads data from file at filepath. 
+/** Loads data from file at filepath.
  *  Size of data loaded is written to out_size.
  *  Returns data loaded.
  *  Notes: It is the caller's responsibility to free the data when it is no longer needed.
  */
 uint8_t *load_data(uint8_t *filepath, size_t *out_size);
 
-/*
- */
+
+// TODO FIXME this needs to me moved out of here so we can drop the ".h" includes above
 UTOX_SAVE *config_load(void);
 void config_save(UTOX_SAVE *save);
 
 
+// TODO FIXME this needs to me moved out of here so we can drop the ".h" includes above
 /*
  Saves user meta data to disk
  */

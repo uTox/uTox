@@ -21,6 +21,11 @@ typedef enum {
     FILE_TRANSFER_STATUS_KILLED,
 } UTOX_FILE_TRANSFER_STATUS;
 
+typedef struct {
+    FILE *file;
+    uint8_t *name;
+} UTOX_MSG_FT;
+
 typedef struct FILE_TRANSFER {
     bool incoming;
     bool in_use;
