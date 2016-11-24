@@ -1,12 +1,11 @@
-// gtk.c
+#include "../flist.h"
+#include "../friend.h"
+#include "../file_transfers.h"
+#include "../util.h"
+
 #include <dlfcn.h>
 #include <stdbool.h>
 #include <stdlib.h>
-
-#include "../flist.h"
-#include "../friend.h"
-#include "../util.h"
-
 
 #define LIBGTK_FILENAME "libgtk-3.so.0"
 
@@ -102,7 +101,7 @@ static void update_image_preview(void *filechooser, void *image) {
 }
 
 static void ugtk_opensendthread(void *args) {
-    uint16_t fid = (size_t)args;
+    uint32_t fid = (uint32_t)args;
 
     void *dialog = utoxGTK_file_chooser_dialog_new((const char *)S(SEND_FILE), NULL, GTK_FILE_CHOOSER_ACTION_OPEN,
                                                    "_Cancel", GTK_RESPONSE_CANCEL, "_Open", GTK_RESPONSE_ACCEPT, NULL);
@@ -114,20 +113,27 @@ static void ugtk_opensendthread(void *args) {
 
     int result = utoxGTK_dialog_run(dialog);
     if (result == GTK_RESPONSE_ACCEPT) {
-        char *  out = malloc(65536), *outp = out;
         GSList *list = utoxGTK_file_chooser_get_filenames(dialog), *p = list;
         while (p) {
-            outp    = stpcpy(outp, p->data);
-            *outp++ = '\n';
+            UTOX_MSG_FT *send = calloc(1, sizeof(UTOX_MSG_FT));
+            if (!send) {
+                debug_error("GTK:\tUnabled to malloc for to send an FT msg");
+                while(p) {
+                    utoxGTK_free(p->data);
+                    p = p->next;
+                }
+                utoxGTK_slist_free(list);
+                utoxGTK_open = false;
+                return;
+            }
+            debug_info("GTK:\tSending file %s\n", p->data);
+            send->file = fopen(p->data, "rb");
+            send->name = (uint8_t*)strdup(p->data);
+            postmessage_toxcore(TOX_FILE_SEND_NEW, fid, 0, send);
             utoxGTK_free(p->data);
             p = p->next;
         }
-        *outp = 0;
         utoxGTK_slist_free(list);
-        debug("files: %s\n", out);
-
-        // dont call this from this thread
-        postmessage_toxcore(TOX_FILE_SEND_NEW, fid, 0xFFFF, out);
     }
 
     utoxGTK_widget_destroy(dialog);
@@ -324,8 +330,9 @@ void ugtk_openfilesend(void) {
         return;
     }
     utoxGTK_open = true;
-#warning __FILE__ ":" __LINE__ + 1 " This is the worst way to do this!"
-    thread(ugtk_opensendthread, (void *)(size_t)((FRIEND *)(flist_get_selected()->data) - friend));
+    FRIEND *f = flist_get_selected()->data;
+    uint32_t number = f->number;
+    thread(ugtk_opensendthread, (void*)(size_t)number);
 }
 
 void ugtk_openfileavatar(void) {

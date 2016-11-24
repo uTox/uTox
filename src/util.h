@@ -2,8 +2,10 @@
 #define UTIL_H
 
 #include "friend.h"
-#include "main.h"
 
+#include <stddef.h>
+#include <inttypes.h>
+#include <stdbool.h>
 /*todo: sprint_bytes */
 
 /* read a whole file from a path,
@@ -99,12 +101,15 @@ void bgrxtoyuv420(uint8_t *plane_y, uint8_t *plane_u, uint8_t *plane_v, uint8_t 
 void scale_rgbx_image(uint8_t *old_rgbx, uint16_t old_width, uint16_t old_height, uint8_t *new_rgbx, uint16_t new_width,
                       uint16_t new_height);
 
+
+// TODO FIXME this needs to me moved out of here so we can drop the ".h" includes above
 /*
  */
 UTOX_SAVE *config_load(void);
 void config_save(UTOX_SAVE *save);
 
 
+// TODO FIXME this needs to me moved out of here so we can drop the ".h" includes above
 /*
  Saves user meta data to disk
  */

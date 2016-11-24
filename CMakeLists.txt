@@ -139,6 +139,7 @@ elseif(UNIX) # xlib by default
         src/xlib/mmenu.h
         src/xlib/v4l.c
         src/xlib/video.c
+        src/xlib/filesys.c
         )
 
     target_link_libraries(utoxNATIVE icon v4lconvert X11 Xext Xrender fontconfig freetype resolv dl )
