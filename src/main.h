@@ -156,10 +156,12 @@ volatile bool tox_thread_init, utox_av_ctrl_init, utox_audio_thread_init, utox_v
 double ui_scale;
 
 typedef struct utox_settings {
+    // uTox versions settings
     uint32_t curr_version;
     uint32_t last_version;
     bool     show_splash;
 
+    // Low level settings (network, profile, portable-mode)
     bool use_proxy;
     bool force_proxy;
     bool enable_udp;
@@ -169,6 +171,7 @@ typedef struct utox_settings {
 
     uint16_t proxy_port;
 
+    // User interface settings
     bool close_to_tray;
     bool logging_enabled;
     bool ringtone_enabled;
@@ -182,18 +185,21 @@ typedef struct utox_settings {
     bool use_mini_flist;
     bool inline_video;
     bool use_long_time_msg;
+    bool accept_inline_images;
+    bool status_notifications;
+
+    uint8_t group_notifications;
 
     uint8_t verbose;
 
     uint32_t theme;
 
+    // OS interface settings
     uint32_t window_height;
     uint32_t window_width;
     uint32_t window_baseline;
 
     bool    window_maximized;
-    uint8_t group_notifications;
-    bool    status_notifications;
 } SETTINGS;
 
 /* This might need to be volatile type... */

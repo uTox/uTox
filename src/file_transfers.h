@@ -26,6 +26,7 @@ typedef struct FILE_TRANSFER {
     bool in_use;
     bool in_memory;
     bool avatar;
+    bool inline_img;
     bool resumeable;
 
     uint32_t friend_number;
