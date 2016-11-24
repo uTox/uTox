@@ -15,9 +15,10 @@ static FILE_TRANSFER *get_file_transfer(uint32_t friend_number, uint32_t file_nu
         file_number = (file_number >> 16) - 1;
         if (f->file_transfers_incoming_size <= file_number) {
             debug("FileTransfer:\tRealloc incoming %u|%u\n", friend_number, file_number + 1);
-            f->file_transfers_incoming = realloc(f->file_transfers_incoming, sizeof(FILE_TRANSFER) * (file_number + 1));
+            FILE_TRANSFER *new = realloc(f->file_transfers_incoming, sizeof(FILE_TRANSFER) * (file_number + 1));
 
-            if (f->file_transfers_incoming) {
+            if (new) {
+                f->file_transfers_incoming = new;
                 f->file_transfers_incoming_size = file_number + 1;
                 return (FILE_TRANSFER*)&f->file_transfers_incoming[file_number];
             }
@@ -27,9 +28,10 @@ static FILE_TRANSFER *get_file_transfer(uint32_t friend_number, uint32_t file_nu
     } else {
         if (f->file_transfers_outgoing_size <= file_number) {
             debug("FileTransfer:\tRealloc outgoing %u|%u\n", friend_number, file_number + 1);
-            f->file_transfers_outgoing = realloc(f->file_transfers_incoming, sizeof(FILE_TRANSFER) * (file_number + 1));
+            FILE_TRANSFER *new = realloc(f->file_transfers_outgoing, sizeof(FILE_TRANSFER) * (file_number + 1));
 
-            if (f->file_transfers_outgoing) {
+            if (new) {
+                f->file_transfers_outgoing = new;
                 f->file_transfers_outgoing_size = file_number + 1;
                 return (FILE_TRANSFER*)&f->file_transfers_outgoing[file_number];
             }

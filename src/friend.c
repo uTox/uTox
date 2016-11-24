@@ -106,6 +106,8 @@ void utox_friend_init(Tox *tox, uint32_t friend_number) {
     FRIEND *f = &friend[friend_number];
     uint8_t name[TOX_MAX_NAME_LENGTH];
 
+    memset(f, 0, sizeof(*f));
+
     // Set scroll position to bottom of window.
     f->msg.scroll               = 1.0;
     f->msg.panel.type           = PANEL_MESSAGES;
@@ -129,8 +131,9 @@ void utox_friend_init(Tox *tox, uint32_t friend_number) {
     friend_setname(f, name, size);
 
     // Get and set the status message
-    size              = tox_friend_get_status_message_size(tox, friend_number, 0);
+    size = tox_friend_get_status_message_size(tox, friend_number, 0);
     f->status_message = calloc(1, size);
+
     tox_friend_get_status_message(tox, friend_number, (uint8_t *)f->status_message, 0);
     f->status_length = size;
 
