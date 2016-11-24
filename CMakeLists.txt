@@ -35,11 +35,6 @@ else()
         )
 endif()
 
-option(DEBUG "Enable debugging symbols" OFF)
-if(DEBUG)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g3")
-  set(CMAKE_BUILD_TYPE Debug)
-endif()
 
 # Protip, you must use a different directory for each build target...
 # -DMAKE_TOOLCHAIN_FILE has no effect unless the target directory is empty
