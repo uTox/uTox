@@ -14,7 +14,9 @@ static FILE_TRANSFER *get_file_transfer(uint32_t friend_number, uint32_t file_nu
         // it's an incoming file ( this is some toxcore magic we know about )
         file_number = (file_number >> 16) - 1;
         if (f->file_transfers_incoming_size <= file_number) {
+            debug("FileTransfer:\tRealloc incoming %u|%u\n", friend_number, file_number + 1);
             f->file_transfers_incoming = realloc(f->file_transfers_incoming, sizeof(FILE_TRANSFER) * (file_number + 1));
+
             if (f->file_transfers_incoming) {
                 f->file_transfers_incoming_size = file_number + 1;
                 return (FILE_TRANSFER*)&f->file_transfers_incoming[file_number];
@@ -24,6 +26,7 @@ static FILE_TRANSFER *get_file_transfer(uint32_t friend_number, uint32_t file_nu
         }
     } else {
         if (f->file_transfers_outgoing_size <= file_number) {
+            debug("FileTransfer:\tRealloc outgoing %u|%u\n", friend_number, file_number + 1);
             f->file_transfers_outgoing = realloc(f->file_transfers_incoming, sizeof(FILE_TRANSFER) * (file_number + 1));
 
             if (f->file_transfers_outgoing) {
@@ -702,7 +705,7 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
 }
 
 /* Called by toxcore to deliver the next chunk of incoming data. */
-static void incoming_file_callback_chunk(Tox *UNUSED(tox), uint32_t friend_number, uint32_t file_number,
+static void incoming_file_callback_chunk(Tox *tox, uint32_t friend_number, uint32_t file_number,
                                          uint64_t position, const uint8_t *data, size_t length, void *UNUSED(user_data))
 {
     debug("FileTransfer:\tIncoming chunk friend(%u), file(%u), start(%lu), end(%lu), \n",
@@ -719,6 +722,14 @@ static void incoming_file_callback_chunk(Tox *UNUSED(tox), uint32_t friend_numbe
     }
 
     if (ft->inline_img && ft->via.memory) {
+        if (position == 0) {
+            uint8_t png_header[] = {0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a };
+            if (memcmp(data, png_header, 8 ) != 0) {
+                // this isn't a png header, just die
+                debug_error("FileTransfer:\tFriend %u sent an inline image thats' not a PNG\n", friend_number);
+                file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
+            }
+        }
         memcpy(ft->via.memory + position, data, length);
     } else if (ft->avatar && ft->via.avatar) {
         memcpy(ft->via.avatar + position, data, length);
@@ -803,7 +814,7 @@ uint32_t ft_send_avatar(Tox *tox, uint32_t friend_number) {
     return file_number;
 }
 
-uint32_t ft_send_file(Tox *tox, uint32_t friend_number, FILE *file, uint8_t *name, size_t name_length) {
+uint32_t ft_send_file(Tox *tox, uint32_t friend_number, FILE *file, uint8_t *path, size_t path_length) {
     if (!tox || !file) {
         debug_error("FileTransfer:\tCan't send a file without data\n");
         return UINT32_MAX;
@@ -818,6 +829,14 @@ uint32_t ft_send_file(Tox *tox, uint32_t friend_number, FILE *file, uint8_t *nam
 
     fseeko(file, 0, SEEK_END);
     size_t size = ftello(file);
+
+    const uint8_t *name;
+    size_t name_length = 0;
+    name = path + path_length;
+    while (*--name != '/') {
+        ++name_length;
+    }
+    ++name;
 
     TOX_ERR_FILE_SEND error = 0;
     uint32_t file_number = tox_file_send(tox, friend_number, TOX_FILE_KIND_DATA, size, NULL, name, name_length, &error);
@@ -841,6 +860,11 @@ uint32_t ft_send_file(Tox *tox, uint32_t friend_number, FILE *file, uint8_t *nam
     ft->file_number   = file_number;
 
     ft->target_size = size;
+
+    ft->name = (uint8_t*)strdup((char*)name);
+    ft->name_length = name_length;
+    ft->path = (uint8_t*)strdup((const char*)path);
+    ft->path_length = path_length;
 
     ft->via.file = file;
 

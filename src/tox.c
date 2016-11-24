@@ -588,7 +588,6 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             } else {
                 self.device_list_count++;
             }
-
 #endif
             break;
         }
@@ -760,8 +759,12 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
              * data: file names
              */
 
-            /* If friend doesn't exist, don't send file. */
-            if (param1 >= self.friend_list_size) {
+            if (param2 == 0) {
+                // This is the new default. Where the caller sends an opened file.
+                UTOX_MSG_FT *msg = data;
+                ft_send_file(tox, param1, msg->file, msg->name, strlen((char*)msg->name) -1);
+                free(msg->name);
+                free(msg);
                 break;
             }
 
