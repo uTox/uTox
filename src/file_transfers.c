@@ -381,14 +381,10 @@ static void decode_inline_png(uint32_t friend_id, uint8_t *data, uint64_t size) 
 static void utox_complete_file(FILE_TRANSFER *file) {
     if (file->status == FILE_TRANSFER_STATUS_ACTIVE) {
         if (file->incoming) {
-            if (file->in_memory) {
-                if (file->avatar) {
-                    postmessage(FRIEND_AVATAR_SET, file->friend_number, file->current_size, file->via.avatar);
-                    // file->avatar = NULL;
-                    // file->size   = 0;
-                } else {
-                    decode_inline_png(file->friend_number, file->via.memory, file->current_size);
-                }
+            if (file->inline_img) {
+                decode_inline_png(file->friend_number, file->via.memory, file->current_size);
+            } else if (file->avatar) {
+                postmessage(FRIEND_AVATAR_SET, file->friend_number, file->current_size, file->via.avatar);
             } else { // Is a file
                 ((MSG_FILE *)file->ui_data)->path = strdup((const char *)file->path);
             }
@@ -398,9 +394,6 @@ static void utox_complete_file(FILE_TRANSFER *file) {
             } else { // Is a file
                 ((MSG_FILE *)file->ui_data)->path = strdup((const char *)file->path);
             }
-            // if (friend[file->friend_number].transfer_count) {
-            //     --friend[file->friend_number].transfer_count;
-            // }
         }
         file->status = FILE_TRANSFER_STATUS_COMPLETED;
         if (((MSG_FILE *)file->ui_data)) {
@@ -408,9 +401,9 @@ static void utox_complete_file(FILE_TRANSFER *file) {
         }
         notify_update_file(file);
     } else {
-        debug("FileTransfer:\tUnable to complete file in non-active state (file:%u)\n", file->file_number);
+        debug_error("FileTransfer:\tUnable to complete file in non-active state (file:%u)\n", file->file_number);
     }
-    debug("FileTransfer:\tIncoming transfer is done (%u & %u)\n", file->friend_number, file->file_number);
+    debug_notice("FileTransfer:\tIncoming transfer is done (%u & %u)\n", file->friend_number, file->file_number);
     utox_file_save_ftinfo(file);
     utox_file_free_ftinfo(file);
     utox_cleanup_file_transfers(file->friend_number, file->file_number);
@@ -575,42 +568,83 @@ static void incoming_avatar(Tox *tox, uint32_t friend_number, uint32_t file_numb
     return;
 }
 
-/* Function called by core with a new file send request from a friend. */
-static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uint32_t file_number, uint32_t kind,
-                                           uint64_t file_size, const uint8_t *filename, size_t filename_length,
-                                           void *UNUSED(user_data))
-{
-    /* First things first, get the file_id from core */
-    uint8_t file_id[TOX_FILE_ID_LENGTH] = { 0 };
-    tox_file_get_file_id(tox, friend_number, file_number, file_id, 0);
-    /* access the correct memory location for this file */
-    FILE_TRANSFER *file_handle = get_file_transfer(friend_number, file_number);
-    if (!file_handle) {
-        debug_error("FileTransfer:\tUnable to get memory handle for transfer, canceling friend/file number (%u/%u)\n",
-              friend_number, file_number);
-        tox_file_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL, 0);
+static void incoming_inline_image(Tox *tox, uint32_t friend_number, uint32_t file_number, size_t size) {
+    debug_info("FileTransfer:\tGetting an incoming inline image\n");
+
+
+    FILE_TRANSFER *ft = get_file_transfer(friend_number, file_number);
+    if (!ft) {
+        debug_error("FileTransfer:\tUnable to malloc ft to accept incoming inline image!\n");
+        tox_file_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL, NULL);
         return;
     }
 
+    memset(ft, 0, sizeof(*ft));
+    ft->incoming    = true;
+    ft->in_use      = true;
+    ft->in_memory   = true;
+    ft->inline_img  = true;
+
+    ft->friend_number = friend_number;
+    ft->file_number = file_number;
+
+    ft->target_size = size;
+
+    ft->via.memory = calloc(1, size);
+    if (ft->via.memory) {
+        debug_notice("FileTransfer:\tStarting incoming inline image of size %lu\n", size);
+        file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_RESUME);
+    } else {
+        debug_error("FileTransfer:\tUnable to malloc enough memory for incoming inline image of size %lu\n", size);
+        file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
+    }
+
+    postmessage(FILE_INCOMING_NEW, friend_number, 0, ft);
+    return;
+}
+
+/* Function called by core with a new file send request from a friend. */
+static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uint32_t file_number, uint32_t kind,
+                                           uint64_t size, const uint8_t *filename, size_t filename_length,
+                                           void *UNUSED(user_data))
+{
+    debug_notice("FileTransfer:\tNew incoming file transfer request from friend %u\n", friend_number);
+
     switch (kind) {
         case TOX_FILE_KIND_AVATAR: {
-            incoming_avatar(tox, friend_number, file_number, file_size);
-            break;
-            /* Verify Avatar Size */
+            return incoming_avatar(tox, friend_number, file_number, size);
         }
         case TOX_FILE_KIND_DATA: {
+            if (settings.accept_inline_images
+                && size < 1024 * 1024 * 4
+                && filename_length == (sizeof("utox-inline.png") - 1)
+                && memcmp(filename, "utox-inline.png", filename_length) == 0) {
+                return incoming_inline_image(tox, friend_number, file_number, size);
+            }
+
+
+            uint8_t file_id[TOX_FILE_ID_LENGTH] = { 0 };
+            tox_file_get_file_id(tox, friend_number, file_number, file_id, 0);
+            /* access the correct memory location for this file */
+            FILE_TRANSFER *ft = get_file_transfer(friend_number, file_number);
+            if (!ft) {
+                debug_error("FileTransfer:\tUnable to get memory handle for transfer, canceling friend/file number (%u/%u)\n",
+                      friend_number, file_number);
+                tox_file_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL, 0);
+                return;
+            }
             /* Load saved information about this file */
-            file_handle->friend_number = friend_number;
-            file_handle->file_number   = file_number;
-            memcpy(file_handle->data_hash, file_id, TOX_FILE_ID_LENGTH);
-            if (utox_file_load_ftinfo(file_handle)) {
+            ft->friend_number = friend_number;
+            ft->file_number   = file_number;
+            memcpy(ft->data_hash, file_id, TOX_FILE_ID_LENGTH);
+            if (utox_file_load_ftinfo(ft)) {
                 debug_notice("FileTransfer:\tIncoming Existing file from friend (%u) \n", friend_number);
                 /* We were able to load incoming file info from disk; validate date! */
                 /* First, backup transfered size, because we're about to overwrite it*/
-                uint64_t seek_size = file_handle->current_size;
+                uint64_t seek_size = ft->current_size;
                 /* Try to reopen incoming file */
                 /* TODO, use native file fxns */
-                FILE *   file = fopen((const char *)file_handle->path, "rb");
+                FILE *   file = fopen((const char *)ft->path, "rb");
                 uint64_t size = 0;
                 if (file) {
                     /* File exist, and is readable, now get current size! */
@@ -618,29 +652,29 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
                     /* Eventually we want to cancel the file if it's larger than the incoming size, but without an error
                     dialog we'll just wait for now...
                     fseeko(file, 0, SEEK_END); size = ftello(file); fclose(file);
-                    if(file_size <= size){
+                    if(size <= size){
                         debug("FileTransfer:\tIncoming size (%lu), and size on disk (%lu) mismatch, aborting!\n", size,
-                    file_size);
+                    size);
                         file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
-                        free(file_handle->path);
+                        free(ft->path);
                         return;
                     }*/
                     fclose(file);
-                    file = fopen((const char *)file_handle->path, "rb+");
+                    file = fopen((const char *)ft->path, "rb+");
                     /* We have to open as rb+, so we also need to re-seek to the start! */
                     fseeko(file, 0, SEEK_SET);
                     /* We can read, but can we write? */
                     if (file) {
                         /* We can read and write, build a new file handle to work with! */
-                        build_file_transfer(file_handle, friend_number, file_number, size, 1, 0, 0,
-                                            filename, filename_length, file_handle->path, file_handle->path_length,
+                        build_file_transfer(ft, friend_number, file_number, size, 1, 0, 0,
+                                            filename, filename_length, ft->path, ft->path_length,
                                             NULL, tox);
-                        file_handle->via.file    = file;
-                        file_handle->target_size = seek_size;
+                        ft->via.file    = file;
+                        ft->target_size = seek_size;
                         /* TODO try to re-access the original message box for this file transfer, without segfaulting!
                          */
-                        file_handle->resumeable = utox_file_alloc_ftinfo(file_handle);
-                        postmessage(FILE_SEND_NEW, friend_number, 0, file_handle);
+                        ft->resumeable = utox_file_alloc_ftinfo(ft);
+                        postmessage(FILE_SEND_NEW, friend_number, 0, ft);
                         TOX_ERR_FILE_SEEK error = 0;
                         tox_file_seek(tox, friend_number, file_number, seek_size, &error);
                         if (error) {
@@ -654,7 +688,7 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
                         debug_error("FileTransfer:\tFile opened for reading, but unable to get write access, canceling "
                                     "file!\n");
                         file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
-                        free(file_handle->path);
+                        free(ft->path);
                         return;
                     }
                 }
@@ -663,23 +697,6 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
             debug_notice("FileTransfer:\tNew incoming file from friend (%u) file number (%u)\nFileTransfer:\t\tfilename: %s\n",
                   friend_number, file_number, filename);
             /* Auto accept if it's a utox-inline image, with the correct size */
-            if (file_size < 1024 * 1024 * 4 && filename_length == (sizeof("utox-inline.png") - 1)
-                && memcmp(filename, "utox-inline.png", filename_length) == 0) {
-
-                build_file_transfer(file_handle, friend_number, file_number, file_size, 1, 1, 0, filename, filename_length, NULL, 0, NULL, tox);
-
-                file_handle->resumeable = 0;
-                /* Notify the user! */
-                postmessage(FILE_INCOMING_NEW, friend_number, 0, file_handle);
-                file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_RESUME);
-            } else {
-                build_file_transfer(file_handle, friend_number, file_number, file_size, 1, 0, 0, filename, filename_length, NULL, 0, NULL, tox);
-                /* Set UI values */
-                file_handle->resumeable = 0;
-                /* Notify the user! */
-                postmessage(FILE_INCOMING_NEW, friend_number, 0, file_handle);
-            }
-            break; /*We shouldn't reach here, but just in case! */
         }          /* last case */
     }              /* switch */
 }
@@ -692,57 +709,45 @@ static void incoming_file_callback_chunk(Tox *UNUSED(tox), uint32_t friend_numbe
             friend_number, file_number, position, length);
 
     FILE_TRANSFER *ft = get_file_transfer(friend_number, file_number);
+    if (!ft->in_use) {
+        debug_error("FileTransfer:\tERROR incoming chuck for an out of use file transfer!\n");
+    }
 
     if (length == 0) {
         utox_complete_file(ft);
         return;
     }
 
-    if (ft->in_memory) {
-        if (ft->avatar) {
-            memcpy(ft->via.avatar + position, data, length);
-        } else {
-            memcpy(ft->via.memory + position, data, length);
+    if (ft->inline_img && ft->via.memory) {
+        memcpy(ft->via.memory + position, data, length);
+    } else if (ft->avatar && ft->via.avatar) {
+        memcpy(ft->via.avatar + position, data, length);
+    } else if (ft->via.file) {
+        uint8_t count = 10;
+        while (!file_lock(ft->via.file, position, length)) {
+            debug_error("FileTransfer:\tCan't get lock, sleeping...\n");
+            yieldcpu(10);
+            if (count == 0) {
+                break;
+            }
+            count--;
+            // If you get a bug report about this hanging utox, just disable it, it's unlikely to be needed!
         }
-    } else {
-        // Removed until we can better implement temp files
-        // if(ft->in_tmp_loc){
-        //     fseeko(ft->tmp_file, position, SEEK_SET);
-        //     size_t write_size = fwrite(data, 1, length, ft->tmp_file);
-        //     if(write_size != length){
-        //         debug("\n\nFileTransfer:\tERROR WRITING DATA TO TEMP FILE! (%u & %u)\n\n", friend_number,
-        //         file_number);
-        //         postmessage_toxcore(TOX_FILE_INCOMING_CANCEL, friend_number, file_number, NULL);
-        //         return;
-        //     }
-        // }
-        if (ft->via.file) {
-            uint8_t count = 10;
-            while (!file_lock(ft->via.file, position, length)) {
-                debug_error("FileTransfer:\tCan't get lock, sleeping...\n");
-                yieldcpu(10);
-                if (count == 0) {
-                    break;
-                }
-                count--;
-                // If you get a bug report about this hanging utox, just disable it, it's unlikely to be needed!
-            }
-            fseeko(ft->via.file, position, SEEK_SET);
-            size_t write_size = fwrite(data, 1, length, ft->via.file);
-            fflush(ft->via.file);
-            file_unlock(ft->via.file, position, length);
-            if (write_size != length) {
-                debug_error("\n\nFileTransfer:\tERROR WRITING DATA TO FILE! (%u & %u)\n\n", friend_number, file_number);
-                postmessage_toxcore(TOX_FILE_CANCEL, friend_number, file_number, NULL);
-                return;
-            }
-        } else {
-            debug("FileTransfer:\tFile Handle failed!\n");
+        fseeko(ft->via.file, position, SEEK_SET);
+        size_t write_size = fwrite(data, 1, length, ft->via.file);
+        fflush(ft->via.file);
+        file_unlock(ft->via.file, position, length);
+        if (write_size != length) {
+            debug_error("\n\nFileTransfer:\tERROR WRITING DATA TO FILE! (%u & %u)\n\n", friend_number, file_number);
             postmessage_toxcore(TOX_FILE_CANCEL, friend_number, file_number, NULL);
             return;
         }
-        calculate_speed(ft);
+    } else {
+        debug("FileTransfer:\tFile Handle failed!\n");
+        postmessage_toxcore(TOX_FILE_CANCEL, friend_number, file_number, NULL);
+        return;
     }
+    calculate_speed(ft);
     ft->current_size += length;
     // TODO dirty hack, this needs to be replaced
     // moved it cal_speed() // utox_file_save_ftinfo(ft);
@@ -999,21 +1004,25 @@ int utox_file_start_write(uint32_t friend_number, uint32_t file_number, const ch
 }
 
 void utox_cleanup_file_transfers(uint32_t friend_number, uint32_t file_number) {
-    FILE_TRANSFER *transfer = get_file_transfer(friend_number, file_number);
-    if (transfer->name) {
+    FILE_TRANSFER *ft = get_file_transfer(friend_number, file_number);
+    if (ft->name) {
         debug("FileTransfer:\tCleaning up file transfers! (%u & %u)\n", friend_number, file_number);
-        free(transfer->name);
+        free(ft->name);
     }
 
-    // if (transfer->via.file) {
-    //     fclose(transfer->via.file);
+    if (ft->in_memory) {
+        // do nothing
+    } else if (ft->avatar) {
+        // still do nothing
+    } else if (ft->via.file) {
+        fclose(ft->via.file);
+    }
+
+    // if (ft->saveinfo) {
+    //     fclose(ft->saveinfo);
     // }
 
-    // if (transfer->saveinfo) {
-    //     fclose(transfer->saveinfo);
-    // }
-
-    memset(transfer, 0, sizeof(FILE_TRANSFER));
+    memset(ft, 0, sizeof(FILE_TRANSFER));
 }
 
 void utox_file_save_ftinfo(FILE_TRANSFER *file) {
