@@ -146,13 +146,16 @@ elseif(UNIX) # xlib by default
 
 	install(FILES
 	  utox
-	  DESTINATION "bin")
+	  DESTINATION "bin"
+      )
 	install(FILES
 	  src/utox.desktop
-	  DESTINATION "share/applications")
+	  DESTINATION "share/applications"
+      )
 	install(FILES
 	  src/utox.1
-	  DESTINATION "man/man1")
+	  DESTINATION "man/man1"
+      )
 
 endif()
 
