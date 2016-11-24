@@ -1,17 +1,15 @@
-typedef struct {
-    int16_t  x, y;
-    uint16_t tx, ty;
-} VERTEX2D;
+#include "main.h"
+#include "gl.h"
 
-typedef struct { VERTEX2D vertex[4]; } QUAD2D;
+#include "../main.h"
 
-const char vertex_shader[] = "uniform vec4 matrix;"
-                             "attribute vec2 pos;"
-                             "attribute vec2 tex;"
-                             "varying vec2 x;"
-                             "void main(){"
-                             "x = tex / 32768.0;"
-                             "gl_Position = vec4((pos + matrix.xy) * matrix.zw, 0.0, 1.0);"
+const char vertex_shader[] =  "uniform vec4 matrix;"
+                        "attribute vec2 pos;"
+                        "attribute vec2 tex;"
+                        "varying vec2 x;"
+                        "void main(){"
+                        "x = tex / 32768.0;"
+                        "gl_Position = vec4((pos + matrix.xy) * matrix.zw, 0.0, 1.0);"
                              "}",
            fragment_shader[] =
 #ifndef NO_OPENGL_ES
@@ -25,25 +23,7 @@ const char vertex_shader[] = "uniform vec4 matrix;"
                "gl_FragColor = (texture2D(samp, x) + vec4(k2, 0.0)) * vec4(k, 1.0);"
                "}";
 
-static GLuint prog, white;
-static GLint  matrix, k, k2, samp;
-static GLuint bitmap[32];
-
-static QUAD2D quads[64];
-
-static EGLDisplay display;
-static EGLSurface surface;
-static EGLContext context;
-static EGLConfig  config;
-
-#ifndef NO_OPENGL_ES
-#define glDrawQuads(x, y) glDrawElements(GL_TRIANGLES, (y)*6, GL_UNSIGNED_BYTE, &quad_indices[(x)*6])
-static uint8_t quad_indices[384];
-#else
-#define glDrawQuads(x, y) glDrawArrays(GL_QUADS, (x), 4 * (y))
-#endif
-
-static void makequad(QUAD2D *quad, int16_t x, int16_t y, int16_t right, int16_t bottom) {
+void makequad(QUAD2D *quad, int16_t x, int16_t y, int16_t right, int16_t bottom) {
     quad->vertex[0].x  = x;
     quad->vertex[0].y  = y;
     quad->vertex[0].tx = 0;
@@ -65,7 +45,7 @@ static void makequad(QUAD2D *quad, int16_t x, int16_t y, int16_t right, int16_t 
     quad->vertex[3].ty = 32768;
 }
 
-static void makeline(QUAD2D *quad, int16_t x, int16_t y, int16_t x2, int16_t y2) {
+void makeline(QUAD2D *quad, int16_t x, int16_t y, int16_t x2, int16_t y2) {
     quad->vertex[0].x = x;
     quad->vertex[0].y = y;
 
@@ -74,7 +54,7 @@ static void makeline(QUAD2D *quad, int16_t x, int16_t y, int16_t x2, int16_t y2)
 }
 
 
-static void makeglyph(QUAD2D *quad, int16_t x, int16_t y, uint16_t mx, uint16_t my, uint16_t width, uint16_t height) {
+void makeglyph(QUAD2D *quad, int16_t x, int16_t y, uint16_t mx, uint16_t my, uint16_t width, uint16_t height) {
     quad->vertex[0].x  = x;
     quad->vertex[0].y  = y;
     quad->vertex[0].tx = mx * 64;
@@ -96,7 +76,7 @@ static void makeglyph(QUAD2D *quad, int16_t x, int16_t y, uint16_t mx, uint16_t 
     quad->vertex[3].ty = (my + height) * 64;
 }
 
-static void set_color(uint32_t a) {
+void set_color(uint32_t a) {
     union {
         uint32_t c;
         struct {
@@ -108,9 +88,6 @@ static void set_color(uint32_t a) {
 
     glUniform3fv(k, 1, c);
 }
-
-uint32_t colori;
-float    colorf[3];
 
 uint32_t setcolor(uint32_t a) {
     union {
@@ -176,13 +153,6 @@ void loadalpha(int bm, void *data, int width, int height) {
     glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, width, height, 0, GL_ALPHA, GL_UNSIGNED_BYTE, data);
 }
 
-typedef struct {
-    int16_t  x, y;
-    uint16_t width, height;
-} RECT;
-
-static RECT clip[16];
-static int  clipk;
 
 void pushclip(int left, int top, int w, int h) {
     if (!clipk) {
@@ -210,7 +180,7 @@ void popclip(void) {
     glScissor(r->x, r->y, r->width, r->height);
 }
 
-void enddraw(int x, int y, int width, int height) { eglSwapBuffers(display, surface); }
+void enddraw(int x, int y, int width, int height) { eglSwapBuffers(display, GL_surface); }
 
 bool gl_init(void) {
     GLuint        vertshader, fragshader;

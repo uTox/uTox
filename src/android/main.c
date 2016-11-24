@@ -1,3 +1,18 @@
+#include "main.h"
+#include "gl.h"
+
+#include "../main.h"
+
+#include "../theme.h"
+#include "../tox.h"
+#include "../file_transfers.h"
+#include "../messages.h"
+#include "../flist.h"
+#include "../friend.h"
+#include "../groups.h"
+
+#include "../ui/dropdowns.h"
+
 #include <pthread.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -5,21 +20,8 @@
 
 #include <android/native_activity.h>
 
-#include <GLES2/gl2.h>
-#define _GNU_SOURCE
-#include <EGL/egl.h>
-#include <SLES/OpenSLES.h>
-#include <SLES/OpenSLES_Android.h>
-#include <fcntl.h>
-#include <sys/mman.h>
-
-#include "audio.c"
-
 static void loadfonts(void);
 static void freefonts(void);
-#include "freetype.c"
-#include "gl.c"
-
 
 static volatile bool destroy, focused;
 
@@ -131,22 +133,14 @@ uint64_t get_time(void) {
 
 /* These functions aren't support on Andorid HELP?
  * TODO: fix these! */
-void copy(int value) { /* Unsupported on android */
-}
-void paste(void) { /* Unsupported on android */
-}
-void openurl(char *str) { /* Unsupported on android */
-}
-void openfilesend(void) { /* Unsupported on android */
-}
-void openfileavatar(void) { /* Unsupported on android */
-}
-void savefiledata(MSG_FILE *file) { /* Unsupported on android */
-}
-void setselection(char *data, uint16_t length) { /* Unsupported on android */
-}
-void edit_will_deactivate(void) { /* Unsupported on android */
-}
+void copy(int value) { /* Unsupported on android */ }
+void paste(void) { /* Unsupported on android */ }
+void openurl(char *str) { /* Unsupported on android */ }
+void openfilesend(void) { /* Unsupported on android */ }
+void openfileavatar(void) { /* Unsupported on android */ }
+void savefiledata(MSG_FILE *file) { /* Unsupported on android */ }
+void setselection(char *data, uint16_t length) { /* Unsupported on android */ }
+void edit_will_deactivate(void) { /* Unsupported on android */ }
 
 NATIVE_IMAGE *utox_image_to_native(const UTOX_IMAGE data, size_t size, uint16_t *w, uint16_t *h, bool keep_alpha) {
     unsigned width, height, bpp;
@@ -157,8 +151,9 @@ NATIVE_IMAGE *utox_image_to_native(const UTOX_IMAGE data, size_t size, uint16_t 
         return 0;
     }
 
-    *w             = width;
-    *h             = height;
+    *w = width;
+    *h = height;
+
     GLuint texture = 0;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
@@ -170,11 +165,11 @@ NATIVE_IMAGE *utox_image_to_native(const UTOX_IMAGE data, size_t size, uint16_t 
     return texture;
 }
 
-void image_free(NATIVE_IMAGE *image) {
+void image_free(NATIVE_IMAGE *img) {
     if (!img) {
         return;
     }
-    GLuint texture = image;
+    GLuint texture = img;
     glDeleteTextures(1, &texture);
 }
 
@@ -262,6 +257,8 @@ FILE *native_load_chatlog_file(uint32_t friend_number) {
 
     return file;
 }
+
+void native_export_chatlog_init(uint32_t friend_number){}
 
 void native_select_dir_ft(uint32_t fid, MSG_FILE *file) {
     return; /* TODO unsupported on android
@@ -413,16 +410,16 @@ static bool init_display(void) {
     eglGetConfigAttrib(display, config, EGL_NATIVE_VISUAL_ID, &format);
 
     ANativeWindow_setBuffersGeometry(window, 0, 0, format);
-    surface = eglCreateWindowSurface(display, config, window, NULL);
-    context = eglCreateContext(display, config, NULL, attrib_list);
+    GL_surface = eglCreateWindowSurface(display, config, window, NULL);
+    GL_context = eglCreateContext(display, config, NULL, attrib_list);
 
-    if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE) {
+    if (eglMakeCurrent(display, GL_surface, GL_surface, GL_context) == EGL_FALSE) {
         return 0;
     }
 
     int32_t w, h;
-    eglQuerySurface(display, surface, EGL_WIDTH, &w);
-    eglQuerySurface(display, surface, EGL_HEIGHT, &h);
+    eglQuerySurface(display, GL_surface, EGL_WIDTH, &w);
+    eglQuerySurface(display, GL_surface, EGL_HEIGHT, &h);
 
     settings.window_width  = w;
     settings.window_height = h;
@@ -431,12 +428,10 @@ static bool init_display(void) {
 }
 
 static uint32_t getkeychar(int32_t key) /* get a character from an android keycode */ {
-#define MAP(x, y)                                                                                 \
-    case AKEYCODE_##x:                                                                            \
-        return y #define MAPS(x, y, z) case AKEYCODE_##x                                          \
-            : return ((shift) ? z : y) #define MAPC(x) case AKEYCODE_##x                          \
-              : return (#x[0] + ((shift) ? 0 : ('a' - 'A'))) #define MAPN(x, y) case AKEYCODE_##x \
-                : return ((shift) ? y : #x[0])
+#define MAP(x, y) case AKEYCODE_##x : return y
+#define MAPS(x, y, z) case AKEYCODE_##x : return ((shift) ? z : y)
+#define MAPC(x) case AKEYCODE_##x : return (#x[0] + ((shift) ? 0 : ('a' - 'A')))
+#define MAPN(x, y) case AKEYCODE_##x : return ((shift) ? y : #x[0])
 
     switch (key) {
         MAP(ENTER, KEY_RETURN);
@@ -528,8 +523,8 @@ void config_osdefaults(UTOX_SAVE *r) { /* Unsupported on android */
 
 void utox_android_redraw_window() {
     int32_t new_width, new_height;
-    eglQuerySurface(display, surface, EGL_WIDTH, &new_width);
-    eglQuerySurface(display, surface, EGL_HEIGHT, &new_height);
+    eglQuerySurface(display, GL_surface, EGL_WIDTH, &new_width);
+    eglQuerySurface(display, GL_surface, EGL_HEIGHT, &new_height);
 
     if (new_width != settings.window_width || new_height != settings.window_height) {
         settings.window_width  = new_width;
@@ -759,8 +754,8 @@ static void android_main(struct android_app *state) {
             if (window != NULL) {
                 freefonts();
                 // eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
-                eglDestroyContext(display, context);
-                eglDestroySurface(display, surface);
+                eglDestroyContext(display, GL_context);
+                eglDestroySurface(display, GL_surface);
                 eglTerminate(display);
             }
 

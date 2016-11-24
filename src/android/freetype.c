@@ -1,25 +1,9 @@
-#include <freetype.h>
-#include <ft2build.h>
+#include "main.h"
+#include "gl.h"
 
-#define PIXELS(x) (((x) + 32) / 64)
+#include "../main.h"
 
-typedef struct {
-    uint32_t ucs4;
-    int16_t  x, y;
-    uint16_t width, height, xadvance, xxxx;
-    int16_t  mx, my;
-} GLYPH;
 
-typedef struct {
-    FT_Face  face;
-    uint8_t *fontmap;
-    uint16_t x, y, my, height;
-    GLuint   texture;
-    GLYPH *  glyphs[128];
-} FONT;
-
-FT_Library ftlib;
-FONT       font[16], *sfont;
 
 GLYPH *font_getglyph(FONT *f, uint32_t ch) {
     uint32_t hash = ch % 128;
@@ -81,11 +65,11 @@ GLYPH *font_getglyph(FONT *f, uint32_t ch) {
     return g;
 }
 
-static void initfonts(void) {
+void initfonts(void) {
     FT_Init_FreeType(&ftlib);
 }
 
-static bool font_open(FONT *f, double size, uint8_t weight) {
+bool font_open(FONT *f, double size, uint8_t weight) {
     FT_New_Face(ftlib, "/system/fonts/Roboto-Regular.ttf", 0, &f->face);
     FT_Set_Char_Size(f->face, (size * 64.0 + 0.5), (size * 64.0 + 0.5), 0, 0);
 
@@ -104,26 +88,26 @@ static bool font_open(FONT *f, double size, uint8_t weight) {
     return 1;
 }
 
-static void loadfonts(void) {
-    font_open(&font[FONT_TEXT], SCALE(12.0), 0);
+void loadfonts(void) {
+    font_open(&font[FONT_TEXT], UI_FSCALE(12.0), 0);
 
-    font_open(&font[FONT_TITLE], SCALE(12.0), 1);
+    font_open(&font[FONT_TITLE], UI_FSCALE(12.0), 1);
 
-    font_open(&font[FONT_SELF_NAME], SCALE(14.0), 1);
-    font_open(&font[FONT_STATUS], SCALE(11.0), 0);
+    font_open(&font[FONT_SELF_NAME], UI_FSCALE(14.0), 1);
+    font_open(&font[FONT_STATUS], UI_FSCALE(11.0), 0);
 
-    font_open(&font[FONT_LIST_NAME], SCALE(12.0), 0);
+    font_open(&font[FONT_LIST_NAME], UI_FSCALE(12.0), 0);
 
-    // font_open(&font[FONT_MSG], F(11.0), 2);
-    // font_open(&font[FONT_MSG_NAME], F(10.0), 2);
-    font_open(&font[FONT_MISC], SCALE(10.0), 0);
-    // font_open(&font[FONT_MSG_LINK], F(11.0), 2);
+    // font_open(&font[FONT_MSG], UI_FSCALE(11.0), 2);
+    // font_open(&font[FONT_MSG_NAME], UI_FSCALE(10.0), 2);
+    font_open(&font[FONT_MISC], UI_FSCALE(10.0), 0);
+    // font_open(&font[FONT_MSG_LINK], UI_FSCALE(11.0), 2);
 
     font_small_lineheight = (font[FONT_TEXT].face->size->metrics.height + (1 << 5)) >> 6;
     // font_msg_lineheight = (font[FONT_MSG].face->size->metrics.height + (1 << 5)) >> 6;
 }
 
-static void freefonts(void) {
+void freefonts(void) {
     for (size_t i = 0; i != countof(font); i++) {
         FONT *f = &font[i];
         if (f->face) {
@@ -147,7 +131,7 @@ static void freefonts(void) {
     }
 }
 
-static int _drawtext(int x, int xmax, int y, char *str, uint16_t length) {
+int _drawtext(int x, int xmax, int y, char *str, uint16_t length) {
     glUniform3fv(k, 1, colorf);
     glBindTexture(GL_TEXTURE_2D, sfont->texture);
     int c = 0;
@@ -183,4 +167,103 @@ static int _drawtext(int x, int xmax, int y, char *str, uint16_t length) {
     return x;
 }
 
-#include "../shared/freetype-text.c"
+
+void drawtext(int x, int y, const char *str, uint16_t length) {
+    _drawtext(x, INT_MAX, y, str, length);
+}
+
+int drawtext_getwidth(int x, int y, const char *str, uint16_t length) {
+    return _drawtext(x, INT_MAX, y, str, length) - x;
+}
+
+void drawtextrange(int x, int xmax, int y, const char *str, uint16_t length) {
+    x = _drawtext(x, xmax, y, str, length);
+    if (x < 0) {
+        _drawtext(-x, INT_MAX, y, (char *)"...", 3);
+    }
+}
+
+void drawtextwidth(int x, int width, int y, const char *str, uint16_t length) {
+    drawtextrange(x, x + width, y, str, length);
+}
+
+void drawtextwidth_right(int x, int width, int y, const char *str, uint16_t length) {
+    int w = textwidth(str, length);
+    if (w <= width) {
+        drawtext(x + width - w, y, str, length);
+    } else {
+        drawtextrange(x, x + width, y, str, length);
+    }
+}
+
+int textwidth(const char *str, uint16_t length) {
+    GLYPH *  g;
+    uint8_t  len;
+    uint32_t ch;
+    int      x = 0;
+    while (length) {
+        len = utf8_len_read(str, &ch);
+        str += len;
+        length -= len;
+
+        g = font_getglyph(sfont, ch);
+        if (g) {
+            x += g->xadvance;
+        }
+    }
+    return x;
+}
+
+int textfit(const char *str, uint16_t length, int width) {
+    GLYPH *  g;
+    uint8_t  len;
+    uint32_t ch;
+    int      x = 0;
+
+    uint16_t i = 0;
+    while (i != length) {
+        len = utf8_len_read(str, &ch);
+        str += len;
+
+        g = font_getglyph(sfont, ch);
+        if (g) {
+            x += g->xadvance;
+            if (x > width) {
+                return i;
+            }
+        }
+
+        i += len;
+    }
+
+    return length;
+}
+
+int textfit_near(const char *str, uint16_t length, int width) {
+    GLYPH *  g;
+    uint8_t  len;
+    uint32_t ch;
+    int      x = 0;
+
+    uint16_t i = 0;
+    while (i != length) {
+        len = utf8_len_read(str, &ch);
+        str += len;
+
+        g = font_getglyph(sfont, ch);
+        if (g) {
+            x += g->xadvance;
+            if (x > width) {
+                return i;
+            }
+        }
+
+        i += len;
+    }
+
+    return length;
+}
+
+void setfont(int id) {
+    sfont = &font[id];
+}

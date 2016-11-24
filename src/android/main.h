@@ -40,10 +40,22 @@
 
 // Early include to obtain GLuint.
 #include <GLES2/gl2.h>
-typedef struct android_native_image { GLuint img } NATIVE_IMAGE;
+typedef struct native_image { GLuint img; } NATIVE_IMAGE;
 
 #define NATIVE_IMAGE_IS_VALID(x) (0 != (x))
 
 #define ANDROID_INTERNAL_SAVE "/data/data/tox.client.utox/files/"
+
+#include <ft2build.h>
+#include <freetype.h>
+
+#include <GLES2/gl2.h>
+#define _GNU_SOURCE
+#include <EGL/egl.h>
+#include <SLES/OpenSLES.h>
+#include <SLES/OpenSLES_Android.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+
 
 #endif
