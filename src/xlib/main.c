@@ -447,24 +447,23 @@ void formaturilist(char *out, const char *in, size_t len) {
 
 // TODO(robinli): Go over this function and see if either len or size are removeable.
 void pastedata(void *data, Atom type, size_t len, bool select) {
+    FRIEND *f = (FRIEND *)flist_get_selected()->data;
     size_t size = (size_t)len;
     if (type == XA_PNG_IMG) {
         uint16_t width, height;
 
         NATIVE_IMAGE *native_image = utox_image_to_native(data, size, &width, &height, 0);
         if (NATIVE_IMAGE_IS_VALID(native_image)) {
-            debug("Pasted image: %dx%d\n", width, height);
+            debug_info("Pasted image: %dx%d\n", width, height);
 
             UTOX_IMAGE png_image = malloc(size);
             memcpy(png_image, data, size);
-#warning "this is not how to find friend number"
-            friend_sendimage(((FRIEND *)flist_get_selected()->data), native_image, width, height, png_image, size);
+            friend_sendimage(f, native_image, width, height, png_image, size);
         }
     } else if (type == XA_URI_LIST) {
         char *path = malloc(len + 1);
         formaturilist(path, (char *)data, len);
-#warning "this is not how to find friend number"
-        postmessage_toxcore(TOX_FILE_SEND_NEW, ((FRIEND *)flist_get_selected()->data) - friend, 0xFFFF, path);
+        postmessage_toxcore(TOX_FILE_SEND_NEW, f->number, 0xFFFF, path);
     } else if (type == XA_UTF8_STRING && edit_active()) {
         edit_paste(data, len, select);
     }

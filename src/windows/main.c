@@ -57,7 +57,8 @@ void openfilesend(void) {
     };
 
     if (GetOpenFileName(&ofn)) {
-        postmessage_toxcore(TOX_FILE_SEND_NEW, (FRIEND *)flist_get_selected()->data - friend, ofn.nFileOffset, filepath);
+        FRIEND *f = flist_get_selected()->data;
+        postmessage_toxcore(TOX_FILE_SEND_NEW, f->number, ofn.nFileOffset, filepath);
     } else {
         debug("GetOpenFileName() failed\n");
     }

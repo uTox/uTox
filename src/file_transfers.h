@@ -27,8 +27,8 @@ typedef struct {
 } UTOX_MSG_FT;
 
 typedef struct FILE_TRANSFER {
-    bool incoming;
     bool in_use;
+    bool incoming;
     bool in_memory;
     bool avatar;
     bool inline_img;
@@ -73,7 +73,6 @@ uint32_t ft_send_data(Tox *tox, uint32_t friend_number, uint8_t *data, size_t si
 int utox_file_start_write(uint32_t friend_number, uint32_t file_number, const char *filepath);
 
 void utox_set_callbacks_file_transfer(Tox *tox);
-void utox_cleanup_file_transfers(uint32_t friend_number, uint32_t file_number);
 
 void ft_friend_online(Tox *tox, uint32_t friend_number);
 void ft_friend_offline(Tox *tox, uint32_t friend_number);
