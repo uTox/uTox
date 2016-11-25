@@ -309,6 +309,10 @@ FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS flag) {
         snprintf(path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));
     }
 
+    if (flag & UTOX_FILE_OPTS_DELETE) {
+        remove(path);
+    }
+
     if (flag & UTOX_FILE_OPTS_READ || flag & UTOX_FILE_OPTS_MKDIR) {
         mkdir(path, 0700);
     }
