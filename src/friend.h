@@ -8,6 +8,7 @@
 #include "main_native.h"
 #include "messages.h"
 #include "tox.h"
+#include "file_transfers.h"
 
 #include "av/utox_av.h"
 #include "ui/edit.h"
@@ -77,12 +78,14 @@ typedef struct utox_friend {
 
     /* File transfers */
     bool     ft_autoaccept;
-    void    *file_transfers_incoming;
-    uint16_t file_transfers_incoming_size;
-    uint16_t file_transfers_incoming_active_count;
-    void    *file_transfers_outgoing;
-    uint16_t file_transfers_outgoing_size;
-    uint16_t file_transfers_outgoing_active_count;
+
+    FILE_TRANSFER  *file_transfers_incoming;
+    uint16_t        file_transfers_incoming_size;
+    uint16_t        file_transfers_incoming_active_count;
+
+    FILE_TRANSFER  *file_transfers_outgoing;
+    uint16_t        file_transfers_outgoing_size;
+    uint16_t        file_transfers_outgoing_active_count;
 } FRIEND;
 
 typedef struct {

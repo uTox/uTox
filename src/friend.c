@@ -106,7 +106,7 @@ void utox_friend_init(Tox *tox, uint32_t friend_number) {
     FRIEND *f = &friend[friend_number];
     uint8_t name[TOX_MAX_NAME_LENGTH];
 
-    memset(f, 0, sizeof(*f));
+    memset(f, 0, sizeof(FRIEND));
 
     // Set scroll position to bottom of window.
     f->msg.scroll               = 1.0;
@@ -223,8 +223,10 @@ void friend_sendimage(FRIEND *f, NATIVE_IMAGE *native_image, uint16_t width, uin
     redraw();
 
     struct TOX_SEND_INLINE_MSG *tsim = malloc(sizeof(struct TOX_SEND_INLINE_MSG));
-    tsim->image                      = png_image;
-    tsim->image_size                 = png_size;
+
+    tsim->image      = png_image;
+    tsim->image_size = png_size;
+
     postmessage_toxcore(TOX_FILE_SEND_NEW_INLINE, f - friend, 0, tsim);
 }
 
