@@ -42,67 +42,6 @@ static FILE_TRANSFER *get_file_transfer(uint32_t friend_number, uint32_t file_nu
     return NULL;
 }
 
-/* Create a FILE_TRANSFER struct with the supplied data. */
-static void build_file_transfer(FILE_TRANSFER *ft, uint32_t friend_number, uint32_t file_number, uint64_t file_size,
-                                bool incoming, bool in_memory, bool is_avatar, const uint8_t *name,
-                                size_t name_length, const uint8_t *path, size_t path_length, const uint8_t *file_id,
-                                Tox *tox)
-{
-    FILE_TRANSFER *file = ft;
-
-    memset(file, 0, sizeof(FILE_TRANSFER));
-
-    file->in_use = 1;
-
-    file->friend_number = friend_number;
-    file->file_number   = file_number;
-    file->target_size   = file_size;
-
-    file->incoming  = incoming;
-    file->in_memory = in_memory;
-    file->avatar    = is_avatar;
-
-    if (name) {
-        file->name = malloc(name_length + 1);
-        memcpy(file->name, name, name_length);
-        file->name_length             = utf8_validate(name, name_length);
-        file->name[file->name_length] = 0;
-    } else {
-        file->name        = NULL;
-        file->name_length = 0;
-    }
-
-    if (path) {
-        file->path = malloc(path_length + 1);
-        memcpy(file->path, path, path_length);
-        file->path_length             = path_length;
-        file->path[file->path_length] = 0;
-    } else {
-        file->path        = NULL;
-        file->path_length = 0;
-    }
-
-    if (file_id) {
-        memcpy(file->data_hash, file_id, TOX_FILE_ID_LENGTH);
-    } else {
-        tox_file_get_file_id(tox, friend_number, file_number, file->data_hash, 0);
-    }
-
-    // TODO size correction error checking for this...
-    if (in_memory) {
-        if (is_avatar) {
-            file->via.avatar = calloc(file_size, sizeof(uint8_t));
-        } else {
-            file->via.memory = calloc(file_size, sizeof(uint8_t));
-        }
-    }
-
-    if (!incoming) {
-        /* Outgoing file */
-        file->status = FILE_TRANSFER_STATUS_PAUSED_THEM;
-    }
-}
-
 /* Copy the data from active FILE_TRANSFER, and pass it along to the UI with it's update. */
 static void notify_update_file(FILE_TRANSFER *file) {
     // FILE_TRANSFER *file_copy = calloc(1, sizeof(FILE_TRANSFER));
@@ -566,10 +505,28 @@ static void incoming_avatar(Tox *tox, uint32_t friend_number, uint32_t file_numb
         return;
     }
 
-    /* Avatar size is valid, and it's a new avatar, lets accept it */
-    build_file_transfer(get_file_transfer(friend_number, file_number), friend_number, file_number,
-                        size, 1, 1, 1, NULL, 0, NULL, 0, NULL, tox);
-    file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_RESUME);
+    FILE_TRANSFER *ft = get_file_transfer(friend_number, file_number);
+    memset(ft, 0, sizeof(FILE_TRANSFER));
+    ft->in_use = 1;
+
+    ft->friend_number = friend_number;
+    ft->file_number   = file_number;
+    ft->target_size   = size;
+
+    tox_file_get_file_id(tox, friend_number, file_number, ft->data_hash, NULL);
+
+    ft->incoming  = true;
+    ft->avatar    = true;
+
+    ft->via.avatar = calloc(size, sizeof(uint8_t));
+    if (ft->via.avatar) {
+        ft->status = FILE_TRANSFER_STATUS_PAUSED_US;
+        file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_RESUME);
+    } else {
+        debug_error("FileTransfer:\tUnable to malloc for incoming avatar\n");
+        file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
+    }
+
     return;
 }
 
@@ -671,11 +628,17 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
                     /* We can read, but can we write? */
                     if (file) {
                         /* We can read and write, build a new file handle to work with! */
-                        build_file_transfer(ft, friend_number, file_number, size, 1, 0, 0,
-                                            filename, filename_length, ft->path, ft->path_length,
-                                            NULL, tox);
-                        ft->via.file    = file;
-                        ft->target_size = seek_size;
+                        ft->in_use = 1;
+                        ft->friend_number = friend_number;
+                        ft->file_number   = file_number;
+                        ft->target_size   = size;
+
+                        ft->incoming  = true;
+                        ft->in_memory = false;
+                        ft->avatar    = false;
+
+                        ft->via.file     = file;
+                        ft->current_size = seek_size;
                         /* TODO try to re-access the original message box for this file transfer, without segfaulting!
                          */
                         ft->resumeable = utox_file_alloc_ftinfo(ft);
