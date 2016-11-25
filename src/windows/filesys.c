@@ -34,15 +34,7 @@ static FILE* get_file(wchar_t path[UTOX_FILE_NAME_LENGTH], UTOX_FILE_OPTS opts) 
 }
 
 static bool make_dir(wchar_t path[UTOX_FILE_NAME_LENGTH]) {
-    return SHCreateDirectoryW(path, NULL); // Fall back to the default permissions on Windows
-}
-
-static void linux_to_windows_path(char *path) {
-    for (size_t i = 0; path[i] != '\0'; ++i) {
-        if (path[i] == '/') {
-            path[i] = '\\'
-        }
-    }
+    return SHCreateDirectoryExW(NULL, path, NULL); // Fall back to the default permissions on Windows
 }
 
 FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS flag) {
@@ -80,11 +72,8 @@ FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS flag) {
     MultiByteToWideChar(CP_UTF8, 0, path, strlen(path), wide, UTOX_FILE_NAME_LENGTH);
 
     if (flag == UTOX_FILE_OPTS_DELETE) {
-        printf("1! %s\n", path);
-        linux_to_windows_path(path);
-        printf("2! %s\n", path);
         if (!DeleteFile(path)) {
-            debug_error("NATIVE:\tCould not delete file: %s\n", path);
+            debug_error("NATIVE:\tCould not delete file: %s - Error: %d\n", path, GetLastError());
         }
         return NULL;
     }

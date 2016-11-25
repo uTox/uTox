@@ -312,9 +312,6 @@ FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS flag) {
     if (flag > UTOX_FILE_OPTS_DELETE) {
         debug_error("NATIVE:\tDon't call native_get_file with UTOX_FILE_OPTS_DELETE in combination with other options.\n");
         return NULL;
-    } else if (flag == UTOX_FILE_OPTS_DELETE) {
-        remove(path);
-        return NULL;
     }
 
     if (flag & UTOX_FILE_OPTS_READ || flag & UTOX_FILE_OPTS_MKDIR) {
@@ -326,6 +323,11 @@ FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS flag) {
         return NULL;
     } else {
         snprintf(path + strlen(path), UTOX_FILE_NAME_LENGTH - strlen(path), "%s", name);
+    }
+
+    if (flag == UTOX_FILE_OPTS_DELETE) {
+        remove(path);
+        return NULL;
     }
 
     FILE *fp = NULL;

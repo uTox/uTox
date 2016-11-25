@@ -44,19 +44,37 @@ static int utf8_to_nativestr(char *str, wchar_t *out, int length) {
  *
  */
 bool native_create_dir(const uint8_t *filepath) {
-    const int error = SHCreateDirectoryExW(NULL, linux_to_windows_path(filepath), NULL);
+    // Maybe switch this to SHCreateDirectoryExW at some point. 
+    uint8_t path[UTOX_FILE_NAME_LENGTH] = { 0 };
+    strcpy(path, filepath);
 
+    for (size_t i = 0; path[i] != '\0'; ++i) {
+        printf("%c", path[i]);
+        if (path[i] == '/') {
+            path[i] = '\\';
+        }
+    }
+
+    printf("creating path: %s\n", path);
+    const int error = SHCreateDirectoryEx(hwnd, path, NULL);
     switch(error) {
         case ERROR_SUCCESS:
         case ERROR_FILE_EXISTS:
         case ERROR_ALREADY_EXISTS:
-            return turue;
+            debug("NATIVE:\tCreated path: `%s` - %d\n", filepath, error);
+            return true;
             break;
-        case ERROR_BAD_PATHNAME: 
-        case ERROR_FILENAME_EXCED_RANGE: 
-        case ERROR_PATH_NOT_FOUND: 
+
+        case ERROR_BAD_PATHNAME:
+            debug("NATIVE:\t Unable to create path: `%s` - bad path name.\n", filepath);
+            return false;
+            break; 
+
+        case ERROR_FILENAME_EXCED_RANGE:
+        case ERROR_PATH_NOT_FOUND:
         case ERROR_CANCELLED:
         default:
+            debug("NATIVE:\t Unable to create path: `%s` - error %d\n", error);
             return false;
             break;
     }
@@ -134,10 +152,6 @@ void openfileavatar(void) {
 
     wchar_t dir[1024];
     GetCurrentDirectoryW(countof(dir), dir);
-
-    native_get_file("removeme", 0, UTOX_FILE_OPTS_DELETE);
-    native_create_dir("C:/tmp/a/b/c");
-    native_create_dir("C:\\tmp\\b\\a\\c");
 
     OPENFILENAME ofn = {
         .lStructSize = sizeof(OPENFILENAME),
