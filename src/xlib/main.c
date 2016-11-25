@@ -303,18 +303,18 @@ uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_s
 FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS flag) {
     char path[UTOX_FILE_NAME_LENGTH] = { 0 };
 
+    if (settings.portable_mode) {
+        snprintf(path, UTOX_FILE_NAME_LENGTH, "./tox/");
+    } else {
+        snprintf(path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));
+    }
+
     if (flag > UTOX_FILE_OPTS_DELETE) {
         debug_error("NATIVE:\tDon't call native_get_file with UTOX_FILE_OPTS_DELETE in combination with other options.\n");
         return NULL;
     } else if ((flag & UTOX_FILE_OPTS_DELETE) == UTOX_FILE_OPTS_DELETE) {
         remove(path);
         return NULL;
-    }
-
-    if (settings.portable_mode) {
-        snprintf(path, UTOX_FILE_NAME_LENGTH, "./tox/");
-    } else {
-        snprintf(path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));
     }
 
     if (flag & UTOX_FILE_OPTS_READ || flag & UTOX_FILE_OPTS_MKDIR) {
