@@ -3,6 +3,9 @@ src/*/*.o
 src/*/*.a
 src/*/*.d
 src/*/*.dll
+src/*.o
+*.o
+*.a
 
 icons/*.o
 
@@ -29,8 +32,11 @@ dist/*
 GPATH
 GRTAGS
 GTAGS
+.dir-locals.el
 
 # CMake
 CMakeFiles
 cmake_install.cmake
 CMakeCache.txt
+Makefile
+install_manifest.txt
