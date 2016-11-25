@@ -311,6 +311,7 @@ FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS flag) {
 
     if (flag & UTOX_FILE_OPTS_DELETE) {
         remove(path);
+        return NULL;
     }
 
     if (flag & UTOX_FILE_OPTS_READ || flag & UTOX_FILE_OPTS_MKDIR) {
