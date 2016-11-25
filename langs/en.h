@@ -686,3 +686,9 @@ msgstr("Send typing notifications")
 
 msgid(STATUS_NOTIFICATIONS)
 msgstr("Status Notifications")
+
+msgid(CHANGE_NOSPAM)
+msgstr("Change Nospam")
+
+msgid(NOSPAM)
+msgstr("Nospam")

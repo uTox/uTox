@@ -188,6 +188,8 @@ typedef enum {
     STR_CLOSE_TO_TRAY,
     STR_START_IN_TRAY,
     STR_AUTO_STARTUP,
+    STR_CHANGE_NOSPAM,
+    STR_NOSPAM,
 
 
     // Interact with texts / clipboard

@@ -290,6 +290,9 @@ struct utox_self {
 
     uint8_t id_binary[TOX_FRIEND_ADDRESS_SIZE];
 
+    uint32_t nospam;
+    char nospam_str[sizeof(uint32_t) * 2];
+
     AVATAR *avatar;
 } self;
 
