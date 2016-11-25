@@ -44,19 +44,28 @@ static int utf8_to_nativestr(char *str, wchar_t *out, int length) {
  *
  */
 bool native_create_dir(const uint8_t *filepath) {
-    const int error = SHCreateDirectoryExW(NULL, filepath, NULL);
-
+    // Maybe switch this to SHCreateDirectoryExW at some point. 
+    // Using it fails with invalid path name.
+    const int error = SHCreateDirectoryEx(hwnd, filepath, NULL);
+    printf("creating path: %s\n", filepath);
     switch(error) {
         case ERROR_SUCCESS:
         case ERROR_FILE_EXISTS:
         case ERROR_ALREADY_EXISTS:
+            debug("NATIVE:\tCreated path: `%s` %d\n", filepath, error);
             return true;
             break;
-        case ERROR_BAD_PATHNAME: 
-        case ERROR_FILENAME_EXCED_RANGE: 
-        case ERROR_PATH_NOT_FOUND: 
+
+        case ERROR_BAD_PATHNAME:
+            printf("NATIVE:\t Unable to create path: `%s`-- bad path name.\n", filepath);
+            return false;
+            break; 
+
+        case ERROR_FILENAME_EXCED_RANGE:
+        case ERROR_PATH_NOT_FOUND:
         case ERROR_CANCELLED:
         default:
+            debug("NATIVE:\t Unable to create path: `%s`-- error %d\n", error);
             return false;
             break;
     }
