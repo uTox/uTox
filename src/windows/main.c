@@ -37,6 +37,30 @@ static int utf8_to_nativestr(char *str, wchar_t *out, int length) {
     return MultiByteToWideChar(CP_UTF8, 0, (char *)str, -1, out, length);
 }
 
+/** Try to create a path;
+ *
+ * Accepts null-terminated utf8 path.
+ * Returns: true if folder exists, false otherwise
+ *
+ */
+bool native_create_dir(const uint8_t *filepath) {
+    const int error = SHCreateDirectoryExW(NULL, filepath, NULL);
+
+    switch(error) {
+        case ERROR_SUCCESS:
+        case ERROR_FILE_EXISTS:
+        case ERROR_ALREADY_EXISTS:
+            return true;
+            break;
+        case ERROR_BAD_PATHNAME: 
+        case ERROR_FILENAME_EXCED_RANGE: 
+        case ERROR_PATH_NOT_FOUND: 
+        case ERROR_CANCELLED:
+        default:
+            return false;
+            break;
+    }
+}
 
 bool native_remove_file(const uint8_t *name, size_t length) {
     uint8_t path[UTOX_FILE_NAME_LENGTH] = { 0 };
