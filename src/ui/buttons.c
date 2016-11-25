@@ -402,6 +402,26 @@ static void button_export_chatlog_onpress(void) {
     utox_export_chatlog_init(((FRIEND *)flist_get_selected()->data)->number);
 }
 
+static void button_change_nospam_onpress(void) {
+    button_revert_nospam.nodraw = false;
+    long int nospam = rand();
+    self.old_nospam = self.nospam;
+    self.nospam = (uint32_t)nospam;
+    sprintf(self.nospam_str, "%X", self.nospam);
+    postmessage_toxcore(TOX_SELF_CHANGE_NOSPAM, (uint32_t)nospam, 0, NULL);
+}
+
+static void button_revert_nospam_onpress(void) {
+    if (self.old_nospam == 0) { //nospam can not be 0
+        debug("Can not revert nospam to 0.\n");
+        return;
+    }
+    self.nospam = self.old_nospam;
+    sprintf(self.nospam_str, "%X", self.nospam);
+    postmessage_toxcore(TOX_SELF_CHANGE_NOSPAM, self.nospam, 0, NULL);
+    button_revert_nospam.nodraw = true;
+    self.old_nospam = 0;
+}
 
 BUTTON button_avatar = {
     .nodraw = true, .onpress = button_avatar_onpress, .onright = button_avatar_onright,
@@ -574,6 +594,23 @@ BUTTON button_export_chatlog = {
     .update   = button_setcolors_success,
     .onpress  = button_export_chatlog_onpress,
     .disabled = false,
+};
+
+BUTTON button_change_nospam = {
+    .bm           = BM_SBUTTON,
+    .update       = button_setcolors_success,
+    .tooltip_text = {.i18nal = STR_RANDOMIZE_NOSPAM},
+    .button_text  = {.i18nal = STR_RANDOMIZE_NOSPAM},
+    .onpress      = button_change_nospam_onpress,
+};
+
+BUTTON button_revert_nospam = {
+    .nodraw       = true,
+    .bm           = BM_SBUTTON,
+    .update       = button_setcolors_success,
+    .tooltip_text = {.i18nal = STR_REVERT_NOSPAM},
+    .button_text  = {.i18nal = STR_REVERT_NOSPAM},
+    .onpress      = button_revert_nospam_onpress,
 };
 
 extern SCROLLABLE scrollbar_settings;

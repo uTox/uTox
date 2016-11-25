@@ -92,4 +92,7 @@ bool avatar_delete(char hexid[TOX_PUBLIC_KEY_SIZE * 2]);
 /* Helper function to intialize the users avatar */
 bool avatar_init_self(void);
 
+/* Moves the avatar to the new.png */
+bool avatar_move(char *current, char *new);
+
 #endif

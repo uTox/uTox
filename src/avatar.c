@@ -224,3 +224,22 @@ void utox_incoming_avatar(uint32_t friend_number, uint8_t *avatar, size_t size) 
         postmessage(FRIEND_AVATAR_SET, friend_number, size, avatar);
     }
 }
+
+bool avatar_move(char *current, char *new) {
+    char current_name[sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png")] = { 0 };
+    char new_name[sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png")] = { 0 };
+
+#ifdef __WIN32__
+    snprintf(current_name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"), "avatars\\%.*s.png",
+             TOX_PUBLIC_KEY_SIZE * 2, current);
+    snprintf(new_name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"), "avatars\\%.*s.png",
+             TOX_PUBLIC_KEY_SIZE * 2, new);
+#else
+    snprintf(current_name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"), "avatars/%.*s.png",
+             TOX_PUBLIC_KEY_SIZE * 2, current);
+    snprintf(new_name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"), "avatars/%.*s.png",
+             TOX_PUBLIC_KEY_SIZE * 2, new);
+#endif
+
+    return native_move_file(current_name, new_name);
+}
