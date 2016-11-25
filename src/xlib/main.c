@@ -177,7 +177,7 @@ void openfileavatar(void) {
     }
 }
 
-bool native_create_dir(const char *filepath) {
+bool native_create_dir(const uint8_t *filepath) {
     const int status = mkdir(filepath, S_IRWXU);
     if (status == 0 || errno == EEXIST) {
         return true;
