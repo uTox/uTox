@@ -34,7 +34,15 @@ static FILE* get_file(wchar_t path[UTOX_FILE_NAME_LENGTH], UTOX_FILE_OPTS opts) 
 }
 
 static bool make_dir(wchar_t path[UTOX_FILE_NAME_LENGTH]) {
-    return CreateDirectoryW(path, NULL); // Fall back to the default permissions on Windows
+    return SHCreateDirectoryW(path, NULL); // Fall back to the default permissions on Windows
+}
+
+static void linux_to_windows_path(char *path) {
+    for (size_t i = 0; path[i] != '\0'; ++i) {
+        if (path[i] == '/') {
+            path[i] = '\\'
+        }
+    }
 }
 
 FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS flag) {
@@ -48,6 +56,11 @@ FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS flag) {
                 strcpy(path, portable_mode_save_path);
             }
         }
+    }
+
+    if (flag > UTOX_FILE_OPTS_DELETE) {
+        debug_error("NATIVE:\tDon't call native_get_file with UTOX_FILE_OPTS_DELETE in combination with other options.\n");
+        return NULL;
     }
 
     if (strlen(path) + strlen("\\Tox\\") + strlen(name) >= UTOX_FILE_NAME_LENGTH) {
@@ -65,6 +78,16 @@ FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS flag) {
 
     wchar_t wide[UTOX_FILE_NAME_LENGTH] = { 0 };
     MultiByteToWideChar(CP_UTF8, 0, path, strlen(path), wide, UTOX_FILE_NAME_LENGTH);
+
+    if (flag == UTOX_FILE_OPTS_DELETE) {
+        printf("1! %s\n", path);
+        linux_to_windows_path(path);
+        printf("2! %s\n", path);
+        if (!DeleteFile(path)) {
+            debug_error("NATIVE:\tCould not delete file: %s\n", path);
+        }
+        return NULL;
+    }
 
     FILE *fp = get_file(wide, flag);
 

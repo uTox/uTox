@@ -312,7 +312,7 @@ FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS flag) {
     if (flag > UTOX_FILE_OPTS_DELETE) {
         debug_error("NATIVE:\tDon't call native_get_file with UTOX_FILE_OPTS_DELETE in combination with other options.\n");
         return NULL;
-    } else if ((flag & UTOX_FILE_OPTS_DELETE) == UTOX_FILE_OPTS_DELETE) {
+    } else if (flag == UTOX_FILE_OPTS_DELETE) {
         remove(path);
         return NULL;
     }

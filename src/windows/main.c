@@ -37,6 +37,30 @@ static int utf8_to_nativestr(char *str, wchar_t *out, int length) {
     return MultiByteToWideChar(CP_UTF8, 0, (char *)str, -1, out, length);
 }
 
+/** Try to create a path;
+ *
+ * Accepts null-terminated utf8 path.
+ * Returns: true if folder exists, false otherwise
+ *
+ */
+bool native_create_dir(const uint8_t *filepath) {
+    const int error = SHCreateDirectoryExW(NULL, linux_to_windows_path(filepath), NULL);
+
+    switch(error) {
+        case ERROR_SUCCESS:
+        case ERROR_FILE_EXISTS:
+        case ERROR_ALREADY_EXISTS:
+            return turue;
+            break;
+        case ERROR_BAD_PATHNAME: 
+        case ERROR_FILENAME_EXCED_RANGE: 
+        case ERROR_PATH_NOT_FOUND: 
+        case ERROR_CANCELLED:
+        default:
+            return false;
+            break;
+    }
+}
 
 bool native_remove_file(const uint8_t *name, size_t length) {
     uint8_t path[UTOX_FILE_NAME_LENGTH] = { 0 };
@@ -110,6 +134,10 @@ void openfileavatar(void) {
 
     wchar_t dir[1024];
     GetCurrentDirectoryW(countof(dir), dir);
+
+    native_get_file("removeme", 0, UTOX_FILE_OPTS_DELETE);
+    native_create_dir("C:/tmp/a/b/c");
+    native_create_dir("C:\\tmp\\b\\a\\c");
 
     OPENFILENAME ofn = {
         .lStructSize = sizeof(OPENFILENAME),
