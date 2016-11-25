@@ -67,12 +67,12 @@
 #define KEY_PAGEUP XK_Page_Up
 #define KEY_PAGEDOWN XK_Page_Down
 
-typedef struct native_image {
+struct native_image {
     // This is really a Picture, but it is just a typedef for XID, and I didn't
     // want to clutter namespace with #include <X11/extensions/Xrender.h> for it.
     XID rgb;
     XID alpha;
-} NATIVE_IMAGE;
+};
 
 #define NATIVE_IMAGE_IS_VALID(x) (None != (x))
 #define NATIVE_IMAGE_HAS_ALPHA(x) (None != (x->alpha))

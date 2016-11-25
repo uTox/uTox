@@ -768,62 +768,6 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
                 break;
             }
 
-            if (param2 == 0xFFFF) {
-                // paths with line breaks
-                char *name = data, *p = data, *s = name;
-                while (*p) {
-                    bool end = 1;
-                    while (*p) {
-                        if (*p == '\n') {
-                            *p  = 0;
-                            end = 0;
-                            break;
-                        }
-
-                        if (*p == '/' || *p == '\\') {
-                            s = p + 1;
-                        }
-                        p++;
-                    }
-
-                    if (strcmp2(name, "file://") == 0) {
-                        name += 7;
-                    } /* tox, friend, path, filename, filename_length */
-                        FILE *file = fopen(name, "r");
-                    ft_send_file(tox, param1, file, (uint8_t*)s, p - s);
-                    p++;
-                    s = name = p;
-
-                    if (end) {
-                        break;
-                    }
-                }
-            } else {
-                // windows path list
-                uint8_t *name      = data;
-                bool     multifile = (name[param2 - 1] == 0);
-                if (!multifile) {
-                    /* tox, Friend, path, filename,      filename_length */
-                    ft_send_file(tox, param1, name, name + param2, strlen((const char *)(name + param2)));
-                } else {
-                    uint8_t *p = name + param2;
-                    name += param2 - 1;
-                    if (*(name - 1) != '\\') {
-                        *name++ = '\\';
-                    }
-                    while (*p) {
-                        int len = strlen((char *)p) + 1;
-                        memmove(name, p, len);
-                        p += len;
-                        ft_send_file(tox, param1, data, name, len - 1);
-                    }
-                }
-            }
-
-            if (msg != TOX_FILE_SEND_NEW_SLASH) {
-                free(data);
-            }
-
             break;
         }
         case TOX_FILE_SEND_NEW_INLINE: {
