@@ -85,6 +85,7 @@ typedef enum UTOX_FILE_OPTS {
     UTOX_FILE_OPTS_WRITE  = 1 << 1,
     UTOX_FILE_OPTS_APPEND = 1 << 2,
     UTOX_FILE_OPTS_MKDIR  = 1 << 3,
+    UTOX_FILE_OPTS_DELETE = 1 << 4,
 } UTOX_FILE_OPTS;
 
 /* House keeping for uTox save file. */
