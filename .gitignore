@@ -1,10 +1,6 @@
 # objects
-src/*/*.o
-src/*/*.a
-src/*/*.d
-src/*/*.dll
-
-icons/*.o
+**/*.o
+**/*.a
 
 # executables
 utox
@@ -14,7 +10,7 @@ utox.exe
 # store dirs
 lib/*
 libs/*
-build/*
+build*/*
 toolchain/*
 Tox/
 libtoxcore.log
@@ -29,8 +25,11 @@ dist/*
 GPATH
 GRTAGS
 GTAGS
+.dir-locals.el
 
 # CMake
 CMakeFiles
 cmake_install.cmake
 CMakeCache.txt
+Makefile
+install_manifest.txt
