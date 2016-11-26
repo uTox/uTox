@@ -890,6 +890,7 @@ uint32_t ft_send_file(Tox *tox, uint32_t friend_number, FILE *file, uint8_t *pat
 
     ft->resumeable = ft_init_resumable(ft);
 
+    postmessage(FILE_SEND_NEW, friend_number, file_number, ft);
     return file_number;
 }
 
@@ -943,6 +944,7 @@ uint32_t ft_send_data(Tox *tox, uint32_t friend_number, uint8_t *data, size_t si
     ft->via.memory = data;
 
     ft->target_size = size;
+    postmessage(FILE_SEND_NEW, friend_number, file_number, ft);
     return file_number;
 }
 
@@ -1007,11 +1009,8 @@ int utox_file_start_write(uint32_t friend_number, uint32_t file_number, const ch
 
     snprintf((char *)ft->path, UTOX_FILE_NAME_LENGTH, "%s", filepath);
 
-    if (!ft->via.file) {
-        debug_error("FileTransfer:\tUnable to use already open file.\n");
-        // file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
-        return -1;
-    }
+    // TODO use native functions to open this file
+    ft->via.file = fopen(filepath, "wb");
 
     if (!ft->via.file) {
         debug_error("FileTransfer:\tThe file we're supposed to write to couldn't be opened\n\t\t\"%s\"\n",
