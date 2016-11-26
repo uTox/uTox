@@ -55,18 +55,17 @@ bool native_create_dir(const uint8_t *filepath) {
         }
     }
 
-    printf("creating path: %s\n", path);
     const int error = SHCreateDirectoryEx(hwnd, path, NULL);
     switch(error) {
         case ERROR_SUCCESS:
         case ERROR_FILE_EXISTS:
         case ERROR_ALREADY_EXISTS:
-            debug("NATIVE:\tCreated path: `%s` - %d\n", filepath, error);
+            debug_info("NATIVE:\tCreated path: `%s` - %d\n", filepath, error);
             return true;
             break;
 
         case ERROR_BAD_PATHNAME:
-            debug("NATIVE:\t Unable to create path: `%s` - bad path name.\n", filepath);
+            debug_error("NATIVE:\tUnable to create path: `%s` - bad path name.\n", filepath);
             return false;
             break; 
 
@@ -74,7 +73,7 @@ bool native_create_dir(const uint8_t *filepath) {
         case ERROR_PATH_NOT_FOUND:
         case ERROR_CANCELLED:
         default:
-            debug("NATIVE:\t Unable to create path: `%s` - error %d\n", error);
+            debug_error("NATIVE:\tUnable to create path: `%s` - error %d\n", error);
             return false;
             break;
     }
