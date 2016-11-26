@@ -144,9 +144,6 @@ elseif(UNIX) # xlib by default
     target_link_libraries(utoxNATIVE icon v4lconvert X11 Xext Xrender fontconfig freetype resolv dl )
 
 	install(FILES
-	  utox
-	  DESTINATION "bin")
-	install(FILES
 	  src/utox.desktop
 	  DESTINATION "share/applications")
 	install(FILES
@@ -270,3 +267,6 @@ target_link_libraries(utox
                       sodium        pthread     m   vpx )
 
 set_property(TARGET utox PROPERTY C_STANDARD 99)
+if(UNIX)
+	install(TARGETS utox RUNTIME DESTINATION "bin")
+endif()
