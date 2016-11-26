@@ -2,6 +2,7 @@
 
 #include "messages.h"
 
+#include "file_transfers.h"
 #include "flist.h"
 #include "main.h"
 #include "theme.h"
@@ -295,26 +296,28 @@ uint32_t message_add_type_image(MESSAGES *m, bool auth, NATIVE_IMAGE *img, uint1
 
 /* TODO FIX THIS SECTION TO MATCH ABOVE! */
 /* Called by new file transfer to add a new message to the msg list */
-MSG_FILE *message_add_type_file(MESSAGES *m, FILE_TRANSFER *file) {
+MSG_FILE *message_add_type_file(MESSAGES *m, uint32_t file_number, bool incoming, bool image, uint8_t status,
+                                const uint8_t *name, size_t name_size, size_t target_size, size_t current_size)
+{
     MSG_FILE *msg = calloc(1, sizeof(MSG_FILE));
     time(&msg->time);
-    msg->our_msg     = file->incoming ? 0 : 1;
+    msg->our_msg     = !incoming;
     msg->msg_type    = MSG_TYPE_FILE;
-    msg->file_status = file->status;
+
+    msg->file_status = status;
+
+    msg->file_number = file_number;
+
     // msg->name_length is the max enforce that
-    msg->name_length = (file->name_length > sizeof(msg->file_name)) ? sizeof(msg->file_name) : file->name_length;
-    memcpy(msg->file_name, file->name, msg->name_length);
-    msg->size       = file->target_size;
-    msg->progress   = file->current_size;
+    msg->name_length = (name_size > sizeof(msg->file_name)) ? sizeof(msg->file_name) : name_size;
+    memcpy(msg->file_name, name, msg->name_length);
+    msg->size       = target_size;
+    msg->progress   = current_size;
     msg->speed      = 0;
-    msg->inline_png = file->in_memory;
+    msg->inline_png = image;
     msg->path       = NULL;
 
-    msg->file = file;
-
     message_add(m, (MSG_VOID *)msg);
-
-    file->ui_data = msg;
 
     return msg;
 }
@@ -541,7 +544,9 @@ static void messages_draw_author(int x, int y, int w, char *name, uint32_t lengt
 }
 
 static int messages_draw_text(const char *msg, size_t length, uint32_t msg_height, uint8_t msg_type, bool author,
-                              bool receipt, uint16_t highlight_start, uint16_t highlight_end, int x, int y, int w, int UNUSED(h)) {
+                              bool receipt, uint16_t highlight_start, uint16_t highlight_end,
+                              int x, int y, int w, int UNUSED(h))
+{
     switch (msg_type) {
         case MSG_TYPE_TEXT: {
             if (author) {
@@ -1014,8 +1019,8 @@ void messages_draw(PANEL *panel, int x, int y, int width, int height) {
 }
 
 static bool messages_mmove_text(MESSAGES *m, int width, int mx, int my, int dy, char *message, uint32_t msg_height,
-                                uint16_t msg_length) {
-
+                                uint16_t msg_length)
+{
     cursor                  = CURSOR_TEXT;
     m->cursor_over_position = hittextmultiline(mx - MESSAGES_X, width - MESSAGES_X - TIME_WIDTH, (my < 0 ? 0 : my),
                                                msg_height, font_small_lineheight, message, msg_length, 1);
@@ -1099,7 +1104,8 @@ static uint8_t messages_mmove_filetransfer(MSG_FILE *UNUSED(file), int mx, int m
 }
 
 bool messages_mmove(PANEL *panel, int UNUSED(px), int UNUSED(py), int width, int UNUSED(height), int mx, int my, int dx,
-                    int UNUSED(dy)) {
+                    int UNUSED(dy))
+{
     MESSAGES *m = panel->object;
 
     if (mx >= width - TIME_WIDTH) {
@@ -1263,14 +1269,17 @@ bool messages_mdown(PANEL *panel) {
                     case FILE_TRANSFER_STATUS_NONE: {
                         if (!msg->our_msg) {
                             if (m->cursor_over_position == 2) {
-                                native_select_dir_ft(m->id, file);
+                                // TODO GET RID OF THIS DIRTY HACK WITH THE NEXT REFACTOR
+                                FRIEND *f = get_friend(m->id);
+                                FILE_TRANSFER *ft = &(f->file_transfers_incoming[file->file_number]);
+                                native_select_dir_ft(m->id, file->file_number, ft);
                             } else if (m->cursor_over_position == 1) {
                                 // decline
-                                postmessage_toxcore(TOX_FILE_CANCEL, m->id, file->file->file_number, NULL);
+                                postmessage_toxcore(TOX_FILE_CANCEL, m->id, file->file_number, NULL);
                             }
                         } else if (m->cursor_over_position == 1) {
                             // cancel
-                            postmessage_toxcore(TOX_FILE_CANCEL, m->id, file->file->file_number, NULL);
+                            postmessage_toxcore(TOX_FILE_CANCEL, m->id, file->file_number, NULL);
                         }
 
                         break;
@@ -1279,10 +1288,10 @@ bool messages_mdown(PANEL *panel) {
                     case FILE_TRANSFER_STATUS_ACTIVE: {
                         if (m->cursor_over_position == 2) {
                             // pause
-                            postmessage_toxcore(TOX_FILE_PAUSE, m->id, file->file->file_number, NULL);
+                            postmessage_toxcore(TOX_FILE_PAUSE, m->id, file->file_number, NULL);
                         } else if (m->cursor_over_position == 1) {
                             // cancel
-                            postmessage_toxcore(TOX_FILE_CANCEL, m->id, file->file->file_number, NULL);
+                            postmessage_toxcore(TOX_FILE_CANCEL, m->id, file->file_number, NULL);
                         }
                         break;
                     }
@@ -1290,10 +1299,10 @@ bool messages_mdown(PANEL *panel) {
                     case FILE_TRANSFER_STATUS_PAUSED_US: {
                         if (m->cursor_over_position == 2) {
                             // resume
-                            postmessage_toxcore(TOX_FILE_RESUME, m->id, file->file->file_number, NULL);
+                            postmessage_toxcore(TOX_FILE_RESUME, m->id, file->file_number, NULL);
                         } else if (m->cursor_over_position == 1) {
                             // cancel
-                            postmessage_toxcore(TOX_FILE_CANCEL, m->id, file->file->file_number, NULL);
+                            postmessage_toxcore(TOX_FILE_CANCEL, m->id, file->file_number, NULL);
                         }
                         break;
                     }
@@ -1302,7 +1311,7 @@ bool messages_mdown(PANEL *panel) {
                     case FILE_TRANSFER_STATUS_BROKEN: {
                         // cancel
                         if (m->cursor_over_position == 1) {
-                            postmessage_toxcore(TOX_FILE_CANCEL, m->id, file->file->file_number, NULL);
+                            postmessage_toxcore(TOX_FILE_CANCEL, m->id, file->file_number, NULL);
                         }
                         break;
                     }

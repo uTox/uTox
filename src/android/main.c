@@ -141,7 +141,7 @@ void openfilesend(void) { /* Unsupported on android */
 }
 void openfileavatar(void) { /* Unsupported on android */
 }
-void savefiledata(MSG_FILE *file) { /* Unsupported on android */
+void savefiledata(FILE_TRANSFER *file) { /* Unsupported on android */
 }
 void setselection(char *data, uint16_t length) { /* Unsupported on android */
 }
