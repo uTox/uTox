@@ -300,6 +300,7 @@ uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_s
     return data;
 }
 
+// Exactly the same in src/cocoa/main.m and src/xlib/main.c
 FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS flag) {
     char path[UTOX_FILE_NAME_LENGTH] = { 0 };
 

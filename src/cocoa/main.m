@@ -226,6 +226,7 @@ void ensure_directory_r(char *path, int perm) {
     }
 }
 
+// Exactly the same in src/cocoa/main.m and src/xlib/main.c
 FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS flags) {
     char path[UTOX_FILE_NAME_LENGTH] = { 0 };
 
@@ -233,6 +234,11 @@ FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS flags) {
         snprintf(path, UTOX_FILE_NAME_LENGTH, "./tox/");
     } else {
         snprintf(path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));
+    }
+
+    if (flag > UTOX_FILE_OPTS_DELETE) {
+        debug_error("NATIVE:\tDon't call native_get_file with UTOX_FILE_OPTS_DELETE in combination with other options.\n");
+        return NULL;
     }
 
     if (flags & UTOX_FILE_OPTS_READ || flags & UTOX_FILE_OPTS_MKDIR) {
@@ -244,6 +250,11 @@ FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS flags) {
         return NULL;
     } else {
         snprintf(path + strlen(path), UTOX_FILE_NAME_LENGTH - strlen(path), "%s", name);
+    }
+
+    if (flag == UTOX_FILE_OPTS_DELETE) {
+        remove(path);
+        return NULL;
     }
 
     FILE *fp = NULL;
