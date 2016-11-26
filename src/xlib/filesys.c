@@ -218,16 +218,16 @@ bool native_remove_file(const uint8_t *name, size_t length) {
     return true;
 }
 
-void native_select_dir_ft(uint32_t fid, MSG_FILE *file) {
+void native_select_dir_ft(uint32_t fid, uint32_t file_number, FILE_TRANSFER *file) {
     if (libgtk) {
         ugtk_native_select_dir_ft(fid, file);
     } else {
         // fall back to working dir
         char *path = malloc(file->name_length + 1);
-        memcpy(path, file->file_name, file->name_length);
+        memcpy(path, file->name, file->name_length);
         path[file->name_length] = 0;
 
-        postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->file->file_number, path);
+        postmessage_toxcore(TOX_FILE_ACCEPT, fid, file_number, path);
     }
 }
 
@@ -250,19 +250,17 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
     postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->file_number, path);
 }
 
-void savefiledata(MSG_FILE *file) {
+void savefiledata(FILE_TRANSFER *file) {
     if (libgtk) {
         ugtk_savefiledata(file);
     } else {
         // fall back to working dir inline.png
         FILE *fp = fopen("inline.png", "wb");
         if (fp) {
-            fwrite(file->path, file->size, 1, fp);
+            fwrite(file->path, 1, file->target_size, fp);
             fclose(fp);
 
-            free(file->path);
-            file->path       = (char *)strdup("inline.png");
-            file->inline_png = 0;
+            snprintf((char *)file->path, UTOX_FILE_NAME_LENGTH, "inline.png");
         }
     }
 }
