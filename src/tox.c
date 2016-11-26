@@ -1212,22 +1212,38 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
             FRIEND *       f    = &friend[param1];
             FILE_TRANSFER *file = data;
 
-            message_add_type_file(&f->msg, file);
-            // file_notify(f, file->ui_data);
+            MSG_FILE *m = message_add_type_file(&f->msg, param2, file->incoming, file->inline_img, file->status,
+                                                file->name, file->name_length,
+                                                file->target_size, file->current_size);
+            file_notify(f, m);
+
+            // Give File Trasfers the ablity to update the message
+            // TODO, make message references a thing, and add callback instead
+            file->ui_data = m;
+
             redraw();
             break;
         }
         case FILE_INCOMING_NEW: {
             FILE_TRANSFER *file = data;
-            FRIEND *       f    = &friend[file->friend_number];
+
+            FRIEND *f    = get_friend(param1);
 
             if (f->ft_autoaccept) {
-                debug("sending accept to core\n");
-                native_autoselect_dir_ft(file->friend_number, file);
+                debug("Toxcore:\tAuto Accept enabled for this friend: sending accept to system\n");
+                native_autoselect_dir_ft(param1, param2, file);
             }
 
-            message_add_type_file(&f->msg, file);
-            file_notify(f, file->ui_data);
+            MSG_FILE *m = message_add_type_file(&f->msg, param2, file->incoming, file->inline_img, file->status,
+                                   file->name, file->name_length,
+                                   file->target_size, file->current_size);
+            file_notify(f, m);
+
+
+            // Give File Trasfers the ablity to update the message
+            // TODO, make message references a thing, and add callback instead
+            file->ui_data = m;
+
             redraw();
             break;
         }

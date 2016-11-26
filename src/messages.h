@@ -3,7 +3,6 @@
 
 #include <time.h>
 
-#include "file_transfers.h"
 #include "ui.h"
 
 // Type for indexing into MSG_DATA->data array of messages
@@ -151,8 +150,9 @@ typedef struct {
 
     uint64_t disk_offset;
 
-    struct FILE_TRANSFER *file;
-    uint8_t               file_status;
+    uint8_t file_status;
+
+    uint32_t file_number;
 
     char   file_name[128];
     size_t name_length;
@@ -173,7 +173,8 @@ uint32_t message_add_type_action(MESSAGES *m, bool auth, const char *msgtxt, uin
 uint32_t message_add_type_notice(MESSAGES *m, const char *msgtxt, uint16_t length, bool log);
 uint32_t message_add_type_image(MESSAGES *m, bool auth, NATIVE_IMAGE *img, uint16_t width, uint16_t height, bool log);
 
-MSG_FILE *message_add_type_file(MESSAGES *m, struct FILE_TRANSFER *file);
+MSG_FILE *message_add_type_file(MESSAGES *m, uint32_t file_number, bool incoming, bool image, uint8_t status,
+                                const uint8_t *name, size_t name_size, size_t target_size, size_t current_size);
 
 bool message_log_to_disk(MESSAGES *m, MSG_VOID *msg);
 bool messages_read_from_log(uint32_t friend_number);

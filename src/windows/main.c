@@ -122,7 +122,7 @@ void openfileavatar(void) {
     SetCurrentDirectoryW(dir);
 }
 
-void savefiledata(MSG_FILE *file) {
+void savefiledata(FILE_TRANSFER *file) {
     char *path = malloc(UTOX_FILE_NAME_LENGTH);
     if (path == NULL) {
         debug("savefiledata:\t Could not allocate memory for path.\n");
@@ -145,9 +145,7 @@ void savefiledata(MSG_FILE *file) {
             fwrite(file->path, file->size, 1, fp);
             fclose(fp);
 
-            free(file->path);
-            file->path       = (uint8_t *)strdup(path);
-            file->inline_png = 0;
+            snprintf((char *)file->path, UTOX_FILE_NAME_LENGTH, "inline.png");
         }
     } else {
         debug("GetSaveFileName() failed\n");

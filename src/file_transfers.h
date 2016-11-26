@@ -1,12 +1,12 @@
 #ifndef FILE_TRANSFERS_H
 #define FILE_TRANSFERS_H
 
+#include "main_native.h"
+
 #include <inttypes.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <tox/tox.h>
-
-#include "main_native.h"
 
 #define MAX_FILE_TRANSFERS 32
 
@@ -41,8 +41,10 @@ typedef struct FILE_TRANSFER {
 
     UTOX_FILE_TRANSFER_STATUS status;
 
-    uint8_t *path, *name;                    //, *tmp_path;
-    size_t   path_length, name_length;       //, tmp_path_length;
+    uint8_t path[UTOX_FILE_NAME_LENGTH];
+
+    uint8_t *name;
+    size_t  name_length;
 
     size_t target_size;
     size_t current_size;
@@ -52,11 +54,13 @@ typedef struct FILE_TRANSFER {
         uint8_t *avatar;
         FILE    *file;
     } via;
+
     /* speed + progress calculations. */
-
     uint32_t speed, num_packets;
-
     uint64_t last_check_time, last_check_transferred;
+
+    FILE    *resume_data;
+    uint8_t  resume_update;
 
     // Don't really want this to be void ... MSG_FILE is better, but dependency hell
     void *ui_data;
@@ -76,8 +80,5 @@ void utox_set_callbacks_file_transfer(Tox *tox);
 
 void ft_friend_online(Tox *tox, uint32_t friend_number);
 void ft_friend_offline(Tox *tox, uint32_t friend_number);
-
-void utox_file_save_ftinfo(FILE_TRANSFER *file);
-bool utox_file_load_ftinfo(FILE_TRANSFER *file);
 
 #endif

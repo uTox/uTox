@@ -198,30 +198,23 @@ static void ugtk_openavatarthread(void *UNUSED(args)) {
 }
 
 static void ugtk_savethread(void *args) {
-    MSG_FILE *file = args;
-
-    // WHY?!
-    uint16_t fid   = file->progress;
-    file->progress = 0;
-    // WHY?!
+    FILE_TRANSFER *file = args;
 
     while (1) { // TODO, save current dir, and filename and preload them to gtk dialog if save fails.
         /* Create a GTK save window */
         void *dialog =
             utoxGTK_file_chooser_dialog_new((const char *)S(WHERE_TO_SAVE_FILE), NULL, GTK_FILE_CHOOSER_ACTION_SAVE,
                                             "_Cancel", GTK_RESPONSE_CANCEL, "_Open", GTK_RESPONSE_ACCEPT, NULL);
-        /* Get incoming file name*/
-        char buf[sizeof(file->file_name) + 1];
-        memcpy(buf, file->file_name, file->name_length);
-        buf[file->name_length] = 0;
-        /* give gtk the file name our friend is sending. */
+        /* Get incoming file name for GTK */
+        char buf[file->name_length + 1];
+        snprintf(buf, file->name_length + 1, "%.*s", (int)file->name_length, file->name);
+
         utoxGTK_file_chooser_set_current_name(dialog, buf);
-        /* Prompt to overwrite */
         utoxGTK_file_chooser_set_do_overwrite_confirmation(dialog, true);
         /* Users can create folders when saving. */ // TODO ENABLE BELOW!
         // utoxGTK_file_chooser_set_create_folders(dialog, TRUE);
         int result = utoxGTK_dialog_run(dialog);
-        /* If user is ready to save check then pass to utox. */
+
         if (result == GTK_RESPONSE_ACCEPT) {
             char *name = utoxGTK_file_chooser_get_filename(dialog);
             char *path = strdup(name);
@@ -252,7 +245,7 @@ static void ugtk_savethread(void *args) {
                 utoxGTK_widget_destroy(dialog);
                 utoxGTK_main_iteration();
                 utoxGTK_widget_destroy(dialog);
-                postmessage(FILE_INCOMING_ACCEPT, fid, (file->file->file_number >> 16), path);
+                postmessage(FILE_INCOMING_ACCEPT, file->friend_number, (file->file_number >> 16), path);
                 break;
             }
         } else if (result == GTK_RESPONSE_CANCEL) {
@@ -284,9 +277,7 @@ static void ugtk_save_data_thread(void *args) {
             fwrite(file->path, file->size, 1, fp);
             fclose(fp);
 
-            free(file->path);
-            file->path       = (uint8_t *)strdup(name);
-            file->inline_png = 0;
+            snprintf((char *)file->path, UTOX_FILE_NAME_LENGTH, "inline.png");
         }
     }
 
@@ -343,16 +334,15 @@ void ugtk_openfileavatar(void) {
     thread(ugtk_openavatarthread, NULL);
 }
 
-void ugtk_native_select_dir_ft(uint32_t fid, MSG_FILE *file) {
+void ugtk_native_select_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
     if (utoxGTK_open) {
         return;
     }
     utoxGTK_open   = true;
-    file->progress = fid;
     thread(ugtk_savethread, file);
 }
 
-void ugtk_savefiledata(MSG_FILE *file) {
+void ugtk_savefiledata(FILE_TRANSFER *file) {
     if (utoxGTK_open) {
         return;
     }
