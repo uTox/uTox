@@ -269,6 +269,14 @@ FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS flags) {
     return fp;
 }
 
+bool native_move_file(char *current_name, char *new_name) {
+    if(!current_name || !new_name) {
+        return false;
+    }
+
+    return rename(current_name, new_name);
+}
+
 bool native_remove_file(const uint8_t *name, size_t length) {
     uint8_t path[UTOX_FILE_NAME_LENGTH] = { 0 };
 

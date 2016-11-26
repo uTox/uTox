@@ -351,6 +351,14 @@ FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS flag) {
     return fp;
 }
 
+bool native_move_file(char *current_name, char *new_name) {
+    if(!current_name || !new_name) {
+        return false;
+    }
+
+    return rename(current_name, new_name);
+}
+
 void native_export_chatlog_init(uint32_t friend_number) {
     if (libgtk) {
         ugtk_save_chatlog(friend_number);
