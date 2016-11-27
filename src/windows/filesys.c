@@ -37,7 +37,7 @@ static bool make_dir(wchar_t path[UTOX_FILE_NAME_LENGTH]) {
     return SHCreateDirectoryExW(NULL, path, NULL); // Fall back to the default permissions on Windows
 }
 
-FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS flag) {
+FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS opts) {
     char path[UTOX_FILE_NAME_LENGTH] = { 0 };
 
     if (settings.portable_mode) {
@@ -50,7 +50,7 @@ FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS flag) {
         }
     }
 
-    if (flag > UTOX_FILE_OPTS_DELETE) {
+    if (opts > UTOX_FILE_OPTS_DELETE) {
         debug_error("NATIVE:\tDon't call native_get_file with UTOX_FILE_OPTS_DELETE in combination with other options.\n");
         return NULL;
     }
@@ -60,7 +60,7 @@ FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS flag) {
         return NULL;
     }
 
-    if (flag & UTOX_FILE_OPTS_WRITE || flag & UTOX_FILE_OPTS_MKDIR) {
+    if (opts & UTOX_FILE_OPTS_WRITE || opts & UTOX_FILE_OPTS_MKDIR) {
         wchar_t make_path[UTOX_FILE_NAME_LENGTH] = { 0 }; // I still don't trust windows
         MultiByteToWideChar(CP_UTF8, 0, path, strlen(path), make_path, UTOX_FILE_NAME_LENGTH);
         make_dir(make_path);
@@ -71,21 +71,21 @@ FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS flag) {
     wchar_t wide[UTOX_FILE_NAME_LENGTH] = { 0 };
     MultiByteToWideChar(CP_UTF8, 0, path, strlen(path), wide, UTOX_FILE_NAME_LENGTH);
 
-    if (flag == UTOX_FILE_OPTS_DELETE) {
+    if (opts == UTOX_FILE_OPTS_DELETE) {
         if (!DeleteFile(path)) {
             debug_error("NATIVE:\tCould not delete file: %s - Error: %d\n", path, GetLastError());
         }
         return NULL;
     }
 
-    FILE *fp = get_file(wide, flag);
+    FILE *fp = get_file(wide, opts);
 
     if (fp == NULL) {
         debug_error("Windows:\tCould not open %s\n", path);
         return NULL;
     }
 
-    if (size != NULL && flag & UTOX_FILE_OPTS_READ) {
+    if (size != NULL && opts & UTOX_FILE_OPTS_READ) {
         fseek(fp, 0, SEEK_END);
         *size = ftell(fp);
         fseek(fp, 0, SEEK_SET);

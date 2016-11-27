@@ -301,7 +301,7 @@ uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_s
 }
 
 // Exactly the same in src/cocoa/main.m and src/xlib/main.c
-FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS flag) {
+FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS flags) {
     char path[UTOX_FILE_NAME_LENGTH] = { 0 };
 
     if (settings.portable_mode) {
@@ -310,12 +310,12 @@ FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS flag) {
         snprintf(path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));
     }
 
-    if (flag > UTOX_FILE_OPTS_DELETE) {
+    if (flags > UTOX_FILE_OPTS_DELETE) {
         debug_error("NATIVE:\tDon't call native_get_file with UTOX_FILE_OPTS_DELETE in combination with other options.\n");
         return NULL;
     }
 
-    if (flag & UTOX_FILE_OPTS_READ || flag & UTOX_FILE_OPTS_MKDIR) {
+    if (flags & UTOX_FILE_OPTS_READ || flags & UTOX_FILE_OPTS_MKDIR) {
         mkdir(path, 0700);
     }
 
@@ -326,17 +326,17 @@ FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS flag) {
         snprintf(path + strlen(path), UTOX_FILE_NAME_LENGTH - strlen(path), "%s", name);
     }
 
-    if (flag == UTOX_FILE_OPTS_DELETE) {
+    if (flags == UTOX_FILE_OPTS_DELETE) {
         remove(path);
         return NULL;
     }
 
     FILE *fp = NULL;
-    if (flag & UTOX_FILE_OPTS_READ) {
+    if (flags & UTOX_FILE_OPTS_READ) {
         fp = fopen(path, "rb");
-    } else if (flag & UTOX_FILE_OPTS_WRITE) {
+    } else if (flags & UTOX_FILE_OPTS_WRITE) {
         fp = fopen(path, "wb");
-    } else if (flag & UTOX_FILE_OPTS_APPEND) {
+    } else if (flags & UTOX_FILE_OPTS_APPEND) {
         fp = fopen(path, "ab");
     }
 
