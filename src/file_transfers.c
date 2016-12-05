@@ -358,7 +358,7 @@ static void run_file_remote(FILE_TRANSFER *file) {
     } else if (file->status == FILE_TRANSFER_STATUS_BROKEN) {
         file->status = FILE_TRANSFER_STATUS_ACTIVE;
     } else {
-        debug_error("FileTransfer:\tThey tried to run incoming file from an unknown state! (%u)\n", file->status);
+        debug_error("FileTransfer:\tThey tried to run file from an unknown state! (%u)\n", file->status);
     }
     postmessage(FILE_UPDATE_STATUS, 0, 0, file);
 }
@@ -830,6 +830,9 @@ uint32_t ft_send_avatar(Tox *tox, uint32_t friend_number) {
     memcpy(ft->data_hash, hash, TOX_HASH_LENGTH);
 
     ft->target_size = self.png_size;
+
+    ft->status = FILE_TRANSFER_STATUS_PAUSED_THEM;
+
     return file_number;
 }
 
@@ -890,6 +893,8 @@ uint32_t ft_send_file(Tox *tox, uint32_t friend_number, FILE *file, uint8_t *pat
 
     ft->resumeable = ft_init_resumable(ft);
 
+    ft->status = FILE_TRANSFER_STATUS_PAUSED_THEM;
+
     postmessage(FILE_SEND_NEW, friend_number, file_number, ft);
     return file_number;
 }
@@ -932,9 +937,10 @@ uint32_t ft_send_data(Tox *tox, uint32_t friend_number, uint8_t *data, size_t si
     }
 
     memset(ft, 0, sizeof(*ft));
-    ft->incoming  = false;
-    ft->in_use    = true;
-    ft->in_memory = true;
+    ft->incoming   = false;
+    ft->in_use     = true;
+    ft->in_memory  = true;
+    ft->inline_img = true;
 
     ft->friend_number = friend_number;
     ft->file_number = file_number;
@@ -944,6 +950,9 @@ uint32_t ft_send_data(Tox *tox, uint32_t friend_number, uint8_t *data, size_t si
     ft->via.memory = data;
 
     ft->target_size = size;
+
+    ft->status = FILE_TRANSFER_STATUS_PAUSED_THEM;
+
     postmessage(FILE_SEND_NEW, friend_number, file_number, ft);
     return file_number;
 }
