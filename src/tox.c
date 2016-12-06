@@ -762,7 +762,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             if (param2 == 0) {
                 // This is the new default. Where the caller sends an opened file.
                 UTOX_MSG_FT *msg = data;
-                ft_send_file(tox, param1, msg->file, msg->name, strlen((char*)msg->name) -1);
+                ft_send_file(tox, param1, msg->file, msg->name, strlen((char*)msg->name));
                 free(msg->name);
                 free(msg);
                 break;
@@ -810,20 +810,15 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             free(data);
         }
         case TOX_FILE_RESUME: {
-            /* param1: friend #
-             * param2: file #           tox, friend#, file#,       RESUME_FILE */
+            /*                              friend#, file# */
             file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_RESUME);
             break;
         }
         case TOX_FILE_PAUSE: {
-            /* param1: friend #
-             * param2: file #           tox, friend#, file#,        PAUSE_FILE */
             file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_PAUSE);
             break;
         }
         case TOX_FILE_CANCEL: {
-            /* param1: friend #
-             * param2: file #           tox, friend#, file#,        CANCEL_FILE */
             file_transfer_local_control(tox, param1, param2, TOX_FILE_CONTROL_CANCEL);
             break;
         }

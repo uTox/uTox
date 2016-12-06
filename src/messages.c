@@ -1265,84 +1265,50 @@ bool messages_mdown(PANEL *panel) {
                     break;
                 }
 
-                switch (file->file_status) {
-                    case FILE_TRANSFER_STATUS_NONE: {
-                        if (!msg->our_msg) {
-                            if (m->cursor_over_position == 2) {
-                                // TODO GET RID OF THIS DIRTY HACK WITH THE NEXT REFACTOR
-                                FRIEND *f = get_friend(m->id);
-                                FILE_TRANSFER *ft = &(f->file_transfers_incoming[file->file_number]);
-                                native_select_dir_ft(m->id, file->file_number, ft);
-                            } else if (m->cursor_over_position == 1) {
-                                // decline
-                                postmessage_toxcore(TOX_FILE_CANCEL, m->id, file->file_number, NULL);
-                            }
-                        } else if (m->cursor_over_position == 1) {
-                            // cancel
-                            postmessage_toxcore(TOX_FILE_CANCEL, m->id, file->file_number, NULL);
-                        }
+                FRIEND *f = get_friend(m->id);
+                FILE_TRANSFER *ft = &(f->file_transfers_incoming[file->file_number]);
 
-                        break;
-                    }
-
-                    case FILE_TRANSFER_STATUS_ACTIVE: {
-                        if (m->cursor_over_position == 2) {
-                            // pause
-                            postmessage_toxcore(TOX_FILE_PAUSE, m->id, file->file_number, NULL);
-                        } else if (m->cursor_over_position == 1) {
-                            // cancel
-                            postmessage_toxcore(TOX_FILE_CANCEL, m->id, file->file_number, NULL);
+                if (file->file_status == FILE_TRANSFER_STATUS_COMPLETED) {
+                    if (m->cursor_over_position) {
+                        if (file->inline_png) {
+                            savefiledata(file);
+                        } else {
+                            openurl(file->path);
                         }
-                        break;
                     }
-
-                    case FILE_TRANSFER_STATUS_PAUSED_US: {
-                        if (m->cursor_over_position == 2) {
-                            // resume
-                            postmessage_toxcore(TOX_FILE_RESUME, m->id, file->file_number, NULL);
-                        } else if (m->cursor_over_position == 1) {
-                            // cancel
-                            postmessage_toxcore(TOX_FILE_CANCEL, m->id, file->file_number, NULL);
-                        }
-                        break;
-                    }
-
-                    case FILE_TRANSFER_STATUS_PAUSED_THEM:
-                    case FILE_TRANSFER_STATUS_BROKEN: {
-                        // cancel
-                        if (m->cursor_over_position == 1) {
-                            postmessage_toxcore(TOX_FILE_CANCEL, m->id, file->file_number, NULL);
-                        }
-                        break;
-                    }
-
-                    case FILE_TRANSFER_STATUS_COMPLETED: {
-                        if (m->cursor_over_position) {
-                            if (file->inline_png) {
-                                savefiledata(file);
-                            } else {
-                                openurl(file->path);
-                            }
-                        }
-                        break;
-                    }
+                    return true;
                 }
-                break;
+
+                if (m->cursor_over_position == 2) { // Right button, should be accept/pause/resume
+                    if (!msg->our_msg && file->file_status == FILE_TRANSFER_STATUS_NONE) {
+                        native_select_dir_ft(m->id, file->file_number, ft);
+                        return true;
+                    }
+
+                    if (file->file_status == FILE_TRANSFER_STATUS_ACTIVE) {
+                        postmessage_toxcore(TOX_FILE_PAUSE, m->id, file->file_number, NULL);
+                    } else {
+                        postmessage_toxcore(TOX_FILE_RESUME, m->id, file->file_number, NULL);
+                    }
+                } else if (m->cursor_over_position == 1) { // Should be cancel
+                    postmessage_toxcore(TOX_FILE_CANCEL, m->id, file->file_number, NULL);
+                }
+                return true;
             }
         }
 
-        return 1;
+        return true;
     } else {
         if (m->sel_start_msg != m->sel_end_msg || m->sel_start_position != m->sel_end_position) {
             m->sel_start_msg      = 0;
             m->sel_end_msg        = 0;
             m->sel_start_position = 0;
             m->sel_end_position   = 0;
-            return 1;
+            return true;
         }
     }
 
-    return 0;
+    return false;
 }
 
 bool messages_dclick(PANEL *panel, bool triclick) {
