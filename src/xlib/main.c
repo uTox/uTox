@@ -8,9 +8,11 @@
 #include "../ui/dropdowns.h"
 #include "../util.h"
 
-bool     hidden     = 0;
+bool hidden = false;
+
 uint32_t tray_width = 32, tray_height = 32;
-XIC      xic = NULL;
+
+XIC xic = NULL;
 
 void *ugtk_load(void);
 void  ugtk_openfilesend(void);

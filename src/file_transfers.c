@@ -4,6 +4,8 @@
 #include "main.h"
 #include "util.h"
 
+#define MAX_INLINE_FILESIZE (1024 * 1024 * 4)
+
 static FILE_TRANSFER *get_file_transfer(uint32_t friend_number, uint32_t file_number) {
     FRIEND *f = get_friend(friend_number);
     if (!f) {
@@ -336,7 +338,7 @@ static void run_file_local(FILE_TRANSFER *file) {
     if (file->status == FILE_TRANSFER_STATUS_NONE) {
         file->status = FILE_TRANSFER_STATUS_ACTIVE;
 
-        if (file->resumeable == 0 && file->incoming) {
+        if (!file->resumeable && file->incoming) {
             /* Set resuming info TODO MOVE TO AFTER FILE IS ACCEPED BY USER */
             file->resumeable = ft_init_resumable(file);
         }
@@ -417,7 +419,7 @@ static void utox_complete_file(FILE_TRANSFER *file) {
 /* Friend has come online, restart our outgoing transfers to this friend. */
 void ft_friend_online(Tox *tox, uint32_t friend_number) {
     (void)tox;
-    for (int i = 0; i < MAX_FILE_TRANSFERS; i++) {
+    for (uint16_t i = 0; i < MAX_FILE_TRANSFERS; i++) {
         FILE_TRANSFER *file = calloc(1, sizeof(*file));
         file->friend_number = friend_number;
         file->file_number   = i;
@@ -430,7 +432,6 @@ void ft_friend_online(Tox *tox, uint32_t friend_number) {
 
         free(file);
     }
-    /* Else look in filetransfer info dir; */
 }
 
 /* Friend has gone offline, break our outgoing transfers to this friend. */
@@ -443,10 +444,10 @@ void ft_friend_offline(Tox *tox, uint32_t friend_number) {
         return;
     }
 
-    for (unsigned i = 0; i < f->file_transfers_outgoing_size ; ++i) {
+    for (uint16_t i = 0; i < f->file_transfers_outgoing_size ; ++i) {
         break_file(&f->file_transfers_outgoing[i]);
     }
-    for (unsigned i = 0; i < f->file_transfers_incoming_size ; ++i) {
+    for (uint16_t i = 0; i < f->file_transfers_incoming_size ; ++i) {
         break_file(&f->file_transfers_incoming[i]);
     }
 }
@@ -576,7 +577,7 @@ static void incoming_avatar(Tox *tox, uint32_t friend_number, uint32_t file_numb
 
     FILE_TRANSFER *ft = get_file_transfer(friend_number, file_number);
     memset(ft, 0, sizeof(FILE_TRANSFER));
-    ft->in_use = 1;
+    ft->in_use = true;
 
     ft->friend_number = friend_number;
     ft->file_number   = file_number;
@@ -646,7 +647,7 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
     }
 
     if (settings.accept_inline_images
-        && size < 1024 * 1024 * 4
+        && size < MAX_INLINE_FILESIZE
         && filename_length == (sizeof("utox-inline.png") - 1)
         && memcmp(filename, "utox-inline.png", filename_length) == 0) {
         return incoming_inline_image(tox, friend_number, file_number, size);

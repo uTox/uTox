@@ -69,7 +69,7 @@ size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *
 
 /** Takes data from µTox and loads it up! */
 uint8_t *native_load_data(const uint8_t *name, size_t name_length, size_t *out_size) {
-    char  path[UTOX_FILE_NAME_LENGTH] = { 0 };
+    char path[UTOX_FILE_NAME_LENGTH] = { 0 };
 
     if (settings.portable_mode) {
         snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "./tox/");

@@ -1,6 +1,6 @@
+#include "../file_transfers.h"
 #include "../flist.h"
 #include "../friend.h"
-#include "../file_transfers.h"
 #include "../util.h"
 
 #include <dlfcn.h>
