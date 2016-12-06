@@ -3,9 +3,9 @@
 
 #include "friend.h"
 
-#include <stddef.h>
 #include <inttypes.h>
 #include <stdbool.h>
+#include <stddef.h>
 /*todo: sprint_bytes */
 
 /* read a whole file from a path,

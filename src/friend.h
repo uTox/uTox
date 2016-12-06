@@ -1,14 +1,13 @@
-// friend.h
 #ifndef FRIEND_H
 #define FRIEND_H
 
 #include "avatar.h"
 #include "dns.h"
+#include "file_transfers.h"
 #include "main.h"
 #include "main_native.h"
 #include "messages.h"
 #include "tox.h"
-#include "file_transfers.h"
 
 #include "av/utox_av.h"
 #include "ui/edit.h"
