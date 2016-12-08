@@ -66,10 +66,10 @@ void openfilesend(void) {
 }
 
 void openfileavatar(void) {
-    char *filepath = malloc(1024);
+    char *filepath = malloc(UTOX_FILE_NAME_LENGTH);
     filepath[0]    = 0;
 
-    wchar_t dir[1024];
+    wchar_t dir[UTOX_FILE_NAME_LENGTH];
     GetCurrentDirectoryW(countof(dir), dir);
 
     OPENFILENAME ofn = {
@@ -82,7 +82,7 @@ void openfileavatar(void) {
                        "\0",
         .hwndOwner = hwnd,
         .lpstrFile = filepath,
-        .nMaxFile  = 1024,
+        .nMaxFile  = UTOX_FILE_NAME_LENGTH,
         .Flags     = OFN_EXPLORER | OFN_FILEMUSTEXIST,
     };
 
@@ -97,8 +97,8 @@ void openfileavatar(void) {
                 free(file_data);
                 char message[1024];
                 if (sizeof(message) < SLEN(AVATAR_TOO_LARGE_MAX_SIZE_IS) + 16) {
-                    debug("error: AVATAR_TOO_LARGE message is larger than allocated buffer(%u bytes)\n",
-                          (unsigned int)sizeof(message));
+                    debug("error: AVATAR_TOO_LARGE message is larger than allocated buffer(%zu bytes)\n",
+                          sizeof(message));
                     break;
                 }
                 // create message containing text that selected avatar is too large and what the max size is
