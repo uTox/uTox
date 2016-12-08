@@ -1,17 +1,17 @@
-# uTox New stable version checklist
+# uTox new stable version checklist
 
 ## Last mile
 - [ ] Version Tick
-- [ ] GUI Change log
+- [ ] GUI changelog
 - [ ] Host changelog
 - [ ] Travis passes all systems
 - [ ] Android compiles
 
-## Important windows binary delevery checks
+## Important Windows binary delivery checks
 - [ ] Fresh profile can update
 - [ ] Existing profile can update
 - [ ] Update can abort
-- [ ] Update aborts if verison is older
+- [ ] Update aborts if version is older
 
 ## File Transfers
 ### 1st level
@@ -23,20 +23,20 @@
 - [ ] Avatars out
 
 ### 2nd level
-- [ ] Reject trasnfer
+- [ ] Reject transfer
 - [ ] Accept transfer
 - [ ] Pause transfer
 - [ ] Resume transfer
 - [ ] Cancel transfer
 - [ ] Break on friend offline
 - [ ] Resume on friend online
-- [ ] Autostart inprogress on friend online
+- [ ] Autostart in-progress on friend online
 
 ## Avatars
 - [ ] Self load
 - [ ] Self save
-- [ ] Self Remove
-- [ ] Self Remove sent to friend
+- [ ] Self remove
+- [ ] Self remove sent to friend
 - [ ] Friend load
 - [ ] Friend new incoming
 - [ ] Friend new deleted
