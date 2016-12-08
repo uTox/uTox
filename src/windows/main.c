@@ -49,7 +49,6 @@ bool native_create_dir(const uint8_t *filepath) {
     strcpy(path, filepath);
 
     for (size_t i = 0; path[i] != '\0'; ++i) {
-        printf("%c", path[i]);
         if (path[i] == '/') {
             path[i] = '\\';
         }
