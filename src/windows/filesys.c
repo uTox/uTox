@@ -5,7 +5,7 @@
 static FILE* get_file(wchar_t path[UTOX_FILE_NAME_LENGTH], UTOX_FILE_OPTS opts) {
     // assert(UTOX_FILE_NAME_LENGTH <= (32,767 wide characters) );
     DWORD rw  = 0;
-    char mode[4] = {0};
+    char mode[4] = { 0 };
     DWORD create = OPEN_ALWAYS;
 
     if (opts & UTOX_FILE_OPTS_READ) {
