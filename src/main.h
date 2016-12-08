@@ -384,21 +384,6 @@ bool utox_update_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t offset, uint8
 /**
  * TODO DOCUMENTATION
  */
-bool utox_data_save_avatar(char hex[TOX_PUBLIC_KEY_SIZE * 2], const uint8_t *data, size_t length);
-/**
- * TODO DOCUMENTATION
- */
-uint8_t *utox_data_load_avatar(const char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size);
-/**
- * TODO DOCUMENTATION
- */
-bool utox_data_del_avatar(uint32_t friend_number);
-
-/**
- * Deletes a file in the active tox directory
- *
- * Returns a bool indicating if it succeeded
- */
 bool utox_remove_file(const uint8_t *full_name, size_t length);
 
 /**
