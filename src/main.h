@@ -315,34 +315,58 @@ FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS flag);
 bool native_remove_file(const uint8_t *name, size_t length);
 
 /**
- * TODO DOCUMENTATION
+ * Takes data and the size of data and writes it to the disk
+ *
+ * Returns a bool indicating whether a save is needed
  */
 bool utox_data_save_tox(uint8_t *data, size_t length);
 
 /**
- * TODO DOCUMENTATION
- */
-uint8_t *utox_data_load_tox(size_t *size);
-
-/**
- * TODO DOCUMENTATION
+ * Saves the settings for uTox
+ *
+ * Returns a bool indicating if it succeeded or not
  */
 bool utox_data_save_utox(UTOX_SAVE *data, size_t length);
 
 /**
- * TODO DOCUMENTATION
+ * Saves chat log for friend with id hex
+ *
+ * Returns the offset on success
+ * Returns 0 on failure
+ */
+size_t utox_save_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], uint8_t *data, size_t length);
+
+/**
+ * Saves chat log for friend with id hex
+ *
+ * Returns the offset on success
+ * Returns 0 on failure
+ */
+size_t utox_save_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], uint8_t *data, size_t length);
+
+/**
+ * Reads the tox data from the disk and sets size
+ *
+ * Returns a pointer to the tox data, the caller needs to free it
+ * Returns NULL on failure
+ */
+uint8_t *utox_data_load_tox(size_t *size);
+
+/**
+ * Loads uTox settings
+ *
+ * Returns a memory pointer of *size, the caller needs to free this
+ * Returns NULL on failure
  */
 UTOX_SAVE *utox_data_load_utox(void);
 
 /**
- * TODO DOCUMENTATION
+ * Loads a custom theme and sets out to the size of the data
+ *
+ * Returns a pointer to the theme data on success, the caller needs to free this
+ * Returns NULL on failure
  */
 uint8_t *utox_data_load_custom_theme(size_t *out);
-
-/**
- * TODO DOCUMENTATION
- */
-size_t utox_save_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], uint8_t *data, size_t length);
 
 /** This one actually does the work of reading the logfile information.
  *
@@ -371,39 +395,45 @@ uint8_t *utox_data_load_avatar(const char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *
 bool utox_data_del_avatar(uint32_t friend_number);
 
 /**
- * TODO DOCUMENTATION
+ * Deletes a file in the active tox directory
+ *
+ * Returns a bool indicating if it succeeded
  */
 bool utox_remove_file(const uint8_t *full_name, size_t length);
-/**
- * TODO DOCUMENTATION
- */
-bool utox_remove_friend_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2]);
-bool utox_remove_file(const uint8_t *full_name, size_t length);
-bool utox_remove_friend_history(char hex[TOX_PUBLIC_KEY_SIZE * 2]);
 
 /**
- * TODO DOCUMENTATION
+ * Deletes the chat log file for the friend with id hex
+ *
+ * Returns bool indicating if it succeeded
+ */
+bool utox_remove_friend_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2]);
+
+/**
+ * Setup for exporting the chat log to plain text
  */
 void utox_export_chatlog_init(uint32_t friend_number);
 
 /**
- * TODO DOCUMENTATION
+ * Export the chat log to plain text
  */
 void utox_export_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], FILE *dest_file);
 /* TODO: sort everything below this line! */
 
 
 /**
- * TODO DOCUMENTATION
+ * Parses the arguments passed to uTox
  */
 void parse_args(int argc, char *argv[], bool *theme_was_set_on_argv, int8_t *should_launch_at_startup,
                int8_t *set_show_window, bool *no_updater);
 
 
 /**
- * TODO DOCUMENTATION
+ * Initialize uTox
  */
 void utox_init(void);
+
+/* TODO: Consider sorting the functions below this line */
+
 // inserts/deletes a value into the registry to launch uTox after boot
 void launch_at_startup(int is_launch_at_startup);
 
