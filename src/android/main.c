@@ -194,7 +194,7 @@ void writesavedata(void *data, uint32_t len) {
     }
 }
 
-FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS flag) {
+FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS opts) {
     char path[UTOX_FILE_NAME_LENGTH] = { 0 };
 
     snprintf(path, UTOX_FILE_NAME_LENGTH, ANDROID_INTERNAL_SAVE);
@@ -208,11 +208,11 @@ FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS flag) {
     }
 
     FILE *fp = NULL;
-    if (flag & UTOX_FILE_OPTS_READ) {
+    if (opts & UTOX_FILE_OPTS_READ) {
         fp = fopen(path, "rb");
-    } else if (flag & UTOX_FILE_OPTS_WRITE) {
+    } else if (opts & UTOX_FILE_OPTS_WRITE) {
         fp = fopen(path, "wb");
-    } else if(flag & UTOX_FILE_OPTS_APPEND) {
+    } else if(opts & UTOX_FILE_OPTS_APPEND) {
         fp = fopen(path, "ab");
     }
 

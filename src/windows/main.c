@@ -37,45 +37,6 @@ static int utf8_to_nativestr(char *str, wchar_t *out, int length) {
     return MultiByteToWideChar(CP_UTF8, 0, (char *)str, -1, out, length);
 }
 
-
-bool native_remove_file(const uint8_t *name, size_t length) {
-    uint8_t path[UTOX_FILE_NAME_LENGTH] = { 0 };
-
-    if (settings.portable_mode) {
-        strcpy((char *)path, portable_mode_save_path);
-    } else {
-        bool have_path = false;
-        have_path      = SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, (char *)path));
-
-        if (!have_path) {
-            have_path = SUCCEEDED(SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, (char *)path));
-        }
-
-        if (!have_path) {
-            strcpy((char *)path, portable_mode_save_path);
-            have_path = true;
-        }
-    }
-
-
-    if (strlen((const char *)path) + length >= UTOX_FILE_NAME_LENGTH) {
-        debug("NATIVE:\tFile/directory name too long, unable to remove\n");
-        return false;
-    } else {
-        snprintf((char *)path + strlen((const char *)path), UTOX_FILE_NAME_LENGTH - strlen((const char *)path),
-                 "\\Tox\\%.*s", (int)length, (char *)name);
-    }
-
-    if (remove((const char *)path)) {
-        debug_error("NATIVE:\tUnable to delete file!\n\t\t%s\n", path);
-        return false;
-    } else {
-        debug_info("NATIVE:\tFile deleted!\n");
-        debug("NATIVE:\t\t%s\n", path);
-    }
-    return true;
-}
-
 /** Open system file browser dialog */
 void openfilesend(void) {
     char *filepath = calloc(10, UTOX_FILE_NAME_LENGTH); /* lets pick 10 as the number of files we want to work with. */
@@ -106,10 +67,10 @@ void openfilesend(void) {
 }
 
 void openfileavatar(void) {
-    char *filepath = malloc(1024);
+    char *filepath = malloc(UTOX_FILE_NAME_LENGTH);
     filepath[0]    = 0;
 
-    wchar_t dir[1024];
+    wchar_t dir[UTOX_FILE_NAME_LENGTH];
     GetCurrentDirectoryW(countof(dir), dir);
 
     OPENFILENAME ofn = {
@@ -122,7 +83,7 @@ void openfileavatar(void) {
                        "\0",
         .hwndOwner = hwnd,
         .lpstrFile = filepath,
-        .nMaxFile  = 1024,
+        .nMaxFile  = UTOX_FILE_NAME_LENGTH,
         .Flags     = OFN_EXPLORER | OFN_FILEMUSTEXIST,
     };
 
@@ -137,8 +98,8 @@ void openfileavatar(void) {
                 free(file_data);
                 char message[1024];
                 if (sizeof(message) < SLEN(AVATAR_TOO_LARGE_MAX_SIZE_IS) + 16) {
-                    debug("error: AVATAR_TOO_LARGE message is larger than allocated buffer(%u bytes)\n",
-                          (unsigned int)sizeof(message));
+                    debug("error: AVATAR_TOO_LARGE message is larger than allocated buffer(%zu bytes)\n",
+                          sizeof(message));
                     break;
                 }
                 // create message containing text that selected avatar is too large and what the max size is
