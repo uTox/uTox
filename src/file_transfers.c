@@ -391,34 +391,38 @@ static void decode_inline_png(uint32_t friend_id, uint8_t *data, uint64_t size) 
 }
 
 /* Complete active file, (when the whole file transfer is successful). */
-static void utox_complete_file(FILE_TRANSFER *file) {
-    if (file->status == FILE_TRANSFER_STATUS_ACTIVE) {
-        if (file->incoming) {
-            if (file->inline_img) {
-                decode_inline_png(file->friend_number, file->via.memory, file->current_size);
-            } else if (file->avatar) {
-                postmessage(FRIEND_AVATAR_SET, file->friend_number, file->current_size, file->via.avatar);
+static void utox_complete_file(FILE_TRANSFER *ft) {
+    if (ft->status == FILE_TRANSFER_STATUS_ACTIVE) {
+        if (ft->incoming) {
+            if (ft->inline_img) {
+                decode_inline_png(ft->friend_number, ft->via.memory, ft->current_size);
+            } else if (ft->avatar) {
+                postmessage(FRIEND_AVATAR_SET, ft->friend_number, ft->current_size, ft->via.avatar);
             } else { // Is a file
-                ((MSG_FILE *)file->ui_data)->path = strdup((const char *)file->path);
+                ((MSG_FILE *)ft->ui_data)->path = strdup((const char *)ft->path);
             }
         } else {
-            if (file->in_memory) {
+            if (ft->in_memory) {
                 // TODO, might want to do something here.
             } else { // Is a file
-                ((MSG_FILE *)file->ui_data)->path = strdup((const char *)file->path);
+                ((MSG_FILE *)ft->ui_data)->path = strdup((const char *)ft->path);
             }
         }
-        file->status = FILE_TRANSFER_STATUS_COMPLETED;
-        if (((MSG_FILE *)file->ui_data)) {
-            ((MSG_FILE *)file->ui_data)->file_status = FILE_TRANSFER_STATUS_COMPLETED;
+        ft->status = FILE_TRANSFER_STATUS_COMPLETED;
+        if (((MSG_FILE *)ft->ui_data)) {
+            ((MSG_FILE *)ft->ui_data)->file_status = FILE_TRANSFER_STATUS_COMPLETED;
         }
-        postmessage(FILE_UPDATE_STATUS, 0, 0, file);
+        postmessage(FILE_UPDATE_STATUS, 0, 0, ft);
     } else {
-        debug_error("FileTransfer:\tUnable to complete file in non-active state (file:%u)\n", file->file_number);
+        debug_error("FileTransfer:\tUnable to complete file in non-active state (file:%u)\n", ft->file_number);
     }
-    debug_notice("FileTransfer:\tIncoming transfer is done (%u & %u)\n", file->friend_number, file->file_number);
-    ft_decon_resumable(file);
-    ft_decon(file->friend_number, file->file_number);
+    debug_notice("FileTransfer:\tIncoming transfer is done (%u & %u)\n", ft->friend_number, ft->file_number);
+
+    if (ft->resumeable) {
+        ft_decon_resumable(ft);
+    }
+
+    ft_decon(ft->friend_number, ft->file_number);
 }
 
 /* Friend has come online, restart our outgoing transfers to this friend. */
