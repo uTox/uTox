@@ -125,7 +125,7 @@ typedef struct {
                                 // but I'm not ready to rewrite and update this struct yet.
 
     uint16_t unused[29];
-    uint8_t  proxy_ip[0];
+    uint8_t  proxy_ip[];
 } UTOX_SAVE;
 
 #define LOGFILE_SAVE_VERSION 3
