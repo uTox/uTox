@@ -39,33 +39,7 @@ static uint8_t *load_img_data(char hexid[TOX_PUBLIC_KEY_SIZE * 2], size_t *out_s
     snprintf(name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"), "avatars/%.*s.png",
              TOX_PUBLIC_KEY_SIZE * 2, hexid);
 
-    size_t size = 0;
-
-    FILE *fp = native_get_file(name, &size, UTOX_FILE_OPTS_READ);
-    if (fp == NULL) {
-        debug("Avatars:\tCould not open avatar for friend : %.*s\n", (int)sizeof(*hexid), hexid);
-        return NULL;
-    }
-
-    uint8_t *data = calloc(size, 1);
-    if (data == NULL) {
-        debug("Avatars:\tCould not allocate memory for avatar of size %lu.\n", size);
-        fclose(fp);
-        return NULL;
-    }
-
-    if (fread(data, 1, size, fp) != size) {
-        debug("Avatars:\tCould not read: avatar for friend : %.*s\n", (int)sizeof(*hexid), hexid);
-        fclose(fp);
-        free(data);
-        return NULL;
-    }
-
-    fclose(fp);
-    if (out_size) {
-        *out_size = size;
-    }
-    return data;
+    return load_data(name, out_size);
 }
 
 bool avatar_delete(char hexid[TOX_PUBLIC_KEY_SIZE * 2]) {
