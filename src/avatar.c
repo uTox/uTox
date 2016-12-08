@@ -14,16 +14,11 @@ static void avatar_free_image(AVATAR *avatar) {
 }
 
 bool avatar_save(char hexid[TOX_PUBLIC_KEY_SIZE * 2], const uint8_t *data, size_t length) {
-    char name[sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png")];
+    char name[sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png")] = { 0 };
     FILE *fp;
 
-#ifdef __WIN32__
-    snprintf(name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"), "avatars\\%.*s.png",
-             TOX_PUBLIC_KEY_SIZE * 2, hexid);
-#else
     snprintf(name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"), "avatars/%.*s.png",
              TOX_PUBLIC_KEY_SIZE * 2, hexid);
-#endif
 
     fp = native_get_file(name, NULL, UTOX_FILE_OPTS_WRITE);
 
@@ -41,13 +36,8 @@ bool avatar_save(char hexid[TOX_PUBLIC_KEY_SIZE * 2], const uint8_t *data, size_
 static uint8_t *load_img_data(char hexid[TOX_PUBLIC_KEY_SIZE * 2], size_t *out_size) {
     char name[sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png")] = { 0 };
 
-#ifdef __WIN32__
-    snprintf(name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"), "avatars\\%.*s.png",
-             TOX_PUBLIC_KEY_SIZE * 2, hexid);
-#else
     snprintf(name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"), "avatars/%.*s.png",
              TOX_PUBLIC_KEY_SIZE * 2, hexid);
-#endif
 
     size_t size = 0;
 
@@ -79,20 +69,15 @@ static uint8_t *load_img_data(char hexid[TOX_PUBLIC_KEY_SIZE * 2], size_t *out_s
 }
 
 bool avatar_delete(char hexid[TOX_PUBLIC_KEY_SIZE * 2]) {
-    char name[sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png")];
+    char name[sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png")] = { 0 };
 
-#ifdef __WIN32__
     int name_len = snprintf(name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"),
-                            "avatars/%.*s.png", TOX_PUBLIC_KEY_SIZE * 2, (char *)hexid);
-#else
-    int name_len = snprintf(name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"),
-                            "avatars\\%.*s.png", TOX_PUBLIC_KEY_SIZE * 2, (char *)hexid);
-#endif
+                            "avatars/%.*s.png", TOX_PUBLIC_KEY_SIZE * 2, hexid);
 
     return native_remove_file(name, name_len);
 }
 
-static bool load_avatar(char hexid[TOX_PUBLIC_KEY_SIZE * 2], AVATAR *avatar, size_t *size_out) {
+static bool avatar_load(char hexid[TOX_PUBLIC_KEY_SIZE * 2], AVATAR *avatar, size_t *size_out) {
     size_t size = 0;
 
     uint8_t *img = load_img_data(hexid, &size);
@@ -169,7 +154,7 @@ void avatar_unset_self(void) {
 /** tries to load avatar from disk for given client id string and set avatar based on saved png data
  *  avatar is avatar to initialize. Will be unset if no file is found on disk or if file is corrupt or too large,
  *      otherwise will be set to avatar found on disk
- *  id is cid string of whose avatar to find(see also load_avatar in avatar.h)
+ *  id is cid string of whose avatar to find(see also avatar_load in avatar.c)
  *  if png_data_out is not NULL, the png data loaded from disk will be copied to it.
  *      if it is not null, it should be at least UTOX_AVATAR_MAX_DATA_LENGTH bytes long
  *  if png_size_out is not null, the size of the png data will be stored in it
@@ -178,7 +163,7 @@ void avatar_unset_self(void) {
  */
 bool avatar_init(char hexid[TOX_PUBLIC_KEY_SIZE * 2], AVATAR *avatar) {
     avatar_unset(avatar);
-    return load_avatar(hexid, avatar, NULL);
+    return avatar_load(hexid, avatar, NULL);
 }
 
 bool avatar_init_self(void) {
@@ -187,7 +172,7 @@ bool avatar_init_self(void) {
         return false;
     }
 
-    return load_avatar(self.id_str, self.avatar, NULL);
+    return avatar_load(self.id_str, self.avatar, NULL);
 }
 
 bool self_set_and_save_avatar(const uint8_t *data, uint32_t size) {
