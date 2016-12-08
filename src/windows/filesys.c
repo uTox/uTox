@@ -68,6 +68,12 @@ FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS opts) {
 
     snprintf(path + strlen(path), UTOX_FILE_NAME_LENGTH - strlen(path), "\\Tox\\%s", name);
 
+    for (size_t i = 0; path[i] != '\0'; ++i) {
+        if (path[i] == '/') {
+            path[i] = '\\';
+        }
+    }
+
     wchar_t wide[UTOX_FILE_NAME_LENGTH] = { 0 };
     MultiByteToWideChar(CP_UTF8, 0, path, strlen(path), wide, UTOX_FILE_NAME_LENGTH);
 
