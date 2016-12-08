@@ -17,10 +17,10 @@ static FILE_TRANSFER *get_file_transfer(uint32_t friend_number, uint32_t file_nu
         file_number = (file_number >> 16) - 1;
         if (f->file_transfers_incoming_size <= file_number) {
             debug("FileTransfer:\tRealloc incoming %u|%u\n", friend_number, file_number + 1);
-            FILE_TRANSFER *new = realloc(f->file_transfers_incoming, sizeof(FILE_TRANSFER) * (file_number + 1));
+            FILE_TRANSFER *new_ftlist = realloc(f->file_transfers_incoming, sizeof(FILE_TRANSFER) * (file_number + 1));
 
-            if (new) {
-                f->file_transfers_incoming = new;
+            if (new_ftlist) {
+                f->file_transfers_incoming = new_ftlist;
                 f->file_transfers_incoming_size = file_number + 1;
                 return &(f->file_transfers_incoming[file_number]);
             }
@@ -30,10 +30,10 @@ static FILE_TRANSFER *get_file_transfer(uint32_t friend_number, uint32_t file_nu
     } else {
         if (f->file_transfers_outgoing_size <= file_number) {
             debug("FileTransfer:\tRealloc outgoing %u|%u\n", friend_number, file_number + 1);
-            FILE_TRANSFER *new = realloc(f->file_transfers_outgoing, sizeof(FILE_TRANSFER) * (file_number + 1));
+            FILE_TRANSFER *new_ftlist = realloc(f->file_transfers_outgoing, sizeof(FILE_TRANSFER) * (file_number + 1));
 
-            if (new) {
-                f->file_transfers_outgoing = new;
+            if (new_ftlist) {
+                f->file_transfers_outgoing = new_ftlist;
                 f->file_transfers_outgoing_size = file_number + 1;
                 return &(f->file_transfers_outgoing[file_number]);
             }
@@ -59,6 +59,7 @@ static void calculate_speed(FILE_TRANSFER *file) {
         return;
     }
 
+    // TODO repalce magic number with something real. (grayhatter> I things it's cpu clock ticks)
     if (time - file->last_check_time >= 1000 * 1000 * 100) {
         file->speed = (((double)(file->current_size - file->last_check_transferred) * 1000.0 * 1000.0 * 1000.0)
                        / (double)(time - file->last_check_time))
@@ -106,7 +107,7 @@ static bool resumeable_name(FILE_TRANSFER *ft, char *name) {
                     ft->file_number % 100);
     }
 
-    return false;
+    return true;
 }
 
 static bool ft_update_resumable(FILE_TRANSFER *ft) {
@@ -418,7 +419,7 @@ static void utox_complete_file(FILE_TRANSFER *file) {
 
 /* Friend has come online, restart our outgoing transfers to this friend. */
 void ft_friend_online(Tox *tox, uint32_t friend_number) {
-    (void)tox;
+    (void)tox; // FIXME temp warning hiding
     for (uint16_t i = 0; i < MAX_FILE_TRANSFERS; i++) {
         FILE_TRANSFER *file = calloc(1, sizeof(*file));
         file->friend_number = friend_number;
@@ -436,7 +437,7 @@ void ft_friend_online(Tox *tox, uint32_t friend_number) {
 
 /* Friend has gone offline, break our outgoing transfers to this friend. */
 void ft_friend_offline(Tox *tox, uint32_t friend_number) {
-    (void)tox;
+    (void)tox; // FIXME temp warning hiding
     debug_notice("FileTransfer:\tFriend %u has gone offline, breaking transfers\n", friend_number);
 
     FRIEND *f = get_friend(friend_number);
@@ -984,6 +985,9 @@ static void outgoing_file_callback_chunk(Tox *tox, uint32_t friend_number, uint3
         if (ft->via.memory) {
             tox_file_send_chunk(tox, friend_number, file_number, position,
                                 ft->via.memory + position, length, &error);
+            if (error) {
+                debug_error("FileTransfer:\tOutgoing chunk error on memory (%u)", error);
+            }
         } else {
             debug_error("FileTransfer:\tERROR READING FROM MEMORY! (%u & %u)\n", friend_number, file_number);
             return;
@@ -992,6 +996,9 @@ static void outgoing_file_callback_chunk(Tox *tox, uint32_t friend_number, uint3
         if (self.png_data) {
             tox_file_send_chunk(tox, friend_number, file_number, position,
                                 self.png_data + position, length, &error);
+            if (error) {
+                debug_error("FileTransfer:\tOutgoing chunk error on avatar (%u)", error);
+            }
         } else {
             debug_error("FileTransfer:\tERROR READING FROM AVATAR! (%u & %u)\n", friend_number, file_number);
             return;
@@ -1009,6 +1016,9 @@ static void outgoing_file_callback_chunk(Tox *tox, uint32_t friend_number, uint3
                 return;
             }
             tox_file_send_chunk(tox, friend_number, file_number, position, buffer, length, &error);
+            if (error) {
+                debug_error("FileTransfer:\tOutgoing chunk error on file (%u)", error);
+            }
         }
     }
 
