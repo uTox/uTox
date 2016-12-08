@@ -124,17 +124,6 @@ void avatar_unset_self(void) {
     avatar_unset(self.avatar);
 }
 
-
-/** tries to load avatar from disk for given client id string and set avatar based on saved png data
- *  avatar is avatar to initialize. Will be unset if no file is found on disk or if file is corrupt or too large,
- *      otherwise will be set to avatar found on disk
- *  id is cid string of whose avatar to find(see also avatar_load in avatar.c)
- *  if png_data_out is not NULL, the png data loaded from disk will be copied to it.
- *      if it is not null, it should be at least UTOX_AVATAR_MAX_DATA_LENGTH bytes long
- *  if png_size_out is not null, the size of the png data will be stored in it
- *
- *  returns: true on successful loading, false on failure
- */
 bool avatar_init(char hexid[TOX_PUBLIC_KEY_SIZE * 2], AVATAR *avatar) {
     avatar_unset(avatar);
     return avatar_load(hexid, avatar, NULL);
