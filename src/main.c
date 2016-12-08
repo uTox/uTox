@@ -186,19 +186,19 @@ static FILE* chatlog_get_file(char hex[TOX_PUBLIC_KEY_SIZE * 2], bool append) {
     snprintf(name, sizeof(name), "%.*s.new.txt", TOX_PUBLIC_KEY_SIZE * 2, hex);
 
     if (append) {
-        return native_get_file(name, NULL, 0xFF);
-    } else {
-        return native_get_file(name, NULL, UTOX_FILE_OPTS_READ);
+        return native_get_file(name, NULL, UTOX_FILE_OPTS_READ | UTOX_FILE_OPTS_APPEND | UTOX_FILE_OPTS_MKDIR);
     }
+    
+    return native_get_file(name, NULL, UTOX_FILE_OPTS_READ);
 }
 
 size_t utox_save_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], uint8_t *data, size_t length) {
     FILE *fp = chatlog_get_file(hex, true);
-
     if (fp == NULL) {
         return 0;
     }
 
+    fseeko(fp, 0, SEEK_END);
     off_t offset = ftello(fp);
     fwrite(data, length, 1, fp);
     flush_file(fp);
@@ -217,7 +217,7 @@ static size_t utox_count_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2]) {
     LOG_FILE_MSG_HEADER header;
     size_t              records_count = 0;
 
-    while (1 == fread(&header, sizeof(header), 1, file)) {
+    while (fread(&header, sizeof(header), 1, file) == 1) {
         fseeko(file, header.author_length + header.msg_length + 1, SEEK_CUR);
         records_count++;
     }
@@ -247,17 +247,20 @@ uint8_t **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, uin
     /* Becasue every platform is different, we have to ask them to open the file for us.
      * However once we have it, every platform does the same thing, this should prevent issues
      * from occuring on a single platform. */
-    LOG_FILE_MSG_HEADER header;
 
     size_t records_count = utox_count_chatlog(hex);
     if (skip >= records_count) {
-        debug_error("Native log read:\tError, skipped all records\n");
+        if (skip > 0) {
+            debug_error("Log read:\tError, skipped all records\n");
+        } else {
+            debug("Log read:\tNo log exists.");
+        }
         return NULL;
     }
 
     FILE *file = chatlog_get_file(hex, false);
     if (!file) {
-        debug("History:\tUnable to access file provided.\n");
+        debug("Log read:\tUnable to access file provided.\n");
         return NULL;
     }
 
@@ -267,12 +270,18 @@ uint8_t **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, uin
 
     uint8_t **data = calloc(1, sizeof(*data) * count + 1);
 
-    size_t start_at     = records_count - count - skip;
+    if (!data) {
+        debug_error("Log read:\tCouldn't allocate memory for log entries.");
+        return NULL;
+    }
+
+    size_t start_at = records_count - count - skip;
     size_t actual_count = 0;
 
     size_t file_offset = 0;
 
-    while (1 == fread(&header, sizeof(header), 1, file)) {
+    LOG_FILE_MSG_HEADER header;
+    while (fread(&header, sizeof(header), 1, file) == 1) {
         if (start_at) {
             fseeko(file, header.author_length, SEEK_CUR); /* Skip the recorded author */
             fseeko(file, header.msg_length, SEEK_CUR);    /* Skip the message */
@@ -286,12 +295,14 @@ uint8_t **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, uin
             /* we have to skip the author name for now, it's left here for group chats support in the future */
             fseeko(file, header.author_length, SEEK_CUR);
             if (header.msg_length > 1 << 16) {
-                debug_error("Can't malloc that much, you'll probably have to move or delete, your history for this"
-                            " peer.\n\t\tFriend number %.*s, count %u, actual_count %lu, start at %lu, error size %lu",
+                debug_error("Can't malloc that much, you'll probably have to move or delete your"
+                            " history for this peer.\n\t\tFriend number %.*s, count %u,"
+                            " actual_count %lu, start at %lu, error size %lu.\n",
                             TOX_PUBLIC_KEY_SIZE * 2, hex, count, actual_count, start_at, header.msg_length);
                 if (size) {
                     *size = 0;
                 }
+                
                 return NULL;
             }
             MSG_TEXT *msg = calloc(1, sizeof(MSG_TEXT) + header.msg_length);
@@ -310,8 +321,9 @@ uint8_t **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, uin
             msg->disk_offset   = file_offset;
             msg->author_length = header.author_length;
 
-            if (1 != fread(msg->msg, msg->length, 1, file)) {
-                debug("Native log read:\tError,reading this record... stopping\n");
+            if (fread(msg->msg, msg->length, 1, file) != 1) {
+                debug_error("Log read:\tError reading record %lu of length %lu at offset %lu: stopping.\n",
+                            count, msg->length, msg->disk_offset);
                 break;
             }
             msg->length = utf8_validate((uint8_t *)msg->msg, msg->length);
@@ -336,19 +348,19 @@ bool utox_update_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t offset, uint8
 
     if (!file) {
         debug_error("History:\tUnable to access file provided.\n");
-        return 0;
+        return false;
     }
 
     if (fseeko(file, offset, SEEK_SET)) {
         debug_error("History:\tUnable to seek to position %lu in file provided.", offset);
-        return 0;
+        return false;
     }
 
     fwrite(data, length, 1, file);
     fflush(file);
     fclose(file);
 
-    return 1;
+    return true;
 }
 
 bool utox_remove_friend_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2]) {

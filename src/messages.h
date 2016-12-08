@@ -93,7 +93,7 @@ typedef struct {
     time_t   receipt_time;
 
     uint16_t length;
-    char     msg[0];
+    char     msg[];
 } MSG_TEXT;
 
 
@@ -116,7 +116,7 @@ typedef struct {
     uint32_t author_color;
 
     uint16_t length;
-    char     msg[0];
+    char     msg[];
 } MSG_GROUP;
 
 typedef struct {

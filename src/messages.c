@@ -301,7 +301,7 @@ MSG_FILE *message_add_type_file(MESSAGES *m, FILE_TRANSFER *file) {
     msg->our_msg     = file->incoming ? 0 : 1;
     msg->msg_type    = MSG_TYPE_FILE;
     msg->file_status = file->status;
-    // msg->name_length is the max enforce that
+    // Enforce msg->name_length being the maximum length.
     msg->name_length = (file->name_length > sizeof(msg->file_name)) ? sizeof(msg->file_name) : file->name_length;
     memcpy(msg->file_name, file->name, msg->name_length);
     msg->size       = file->size;
@@ -320,24 +320,25 @@ MSG_FILE *message_add_type_file(MESSAGES *m, FILE_TRANSFER *file) {
 }
 
 bool message_log_to_disk(MESSAGES *m, MSG_VOID *msg) {
+    
     if (m->is_groupchat) {
         /* We don't support logging groupchats yet */
-        return 0;
+        return false;
     }
-
+    
     if (!settings.logging_enabled) {
-        return 0;
+        return false;
     }
-
+    
     FRIEND *f = &friend[m->id];
     if (f->skip_msg_logging) {
-        return 0;
+        return false;
     }
 
     LOG_FILE_MSG_HEADER header;
     memset(&header, 0, sizeof(header));
     uint8_t *data = NULL;
-
+    
     switch (msg->msg_type) {
         case MSG_TYPE_TEXT:
         case MSG_TYPE_ACTION_TEXT:
@@ -374,15 +375,18 @@ bool message_log_to_disk(MESSAGES *m, MSG_VOID *msg) {
             msg->disk_offset = utox_save_chatlog(f->id_str, data, length);
             break;
         }
-        default: { debug("uTox Logging:\tUnsupported file type %i\n", msg->msg_type); }
+        default: { 
+            debug("uTox Logging:\tUnsupported file type %i\n", msg->msg_type); 
+        }
     }
     free(data);
-    return 0;
+    return true;
 }
 
 bool messages_read_from_log(uint32_t friend_number) {
-    size_t    actual_count = 0;
-    uint8_t **data         = utox_load_chatlog(&friend[friend_number].id_str, &actual_count, UTOX_MAX_BACKLOG_MESSAGES, 0);
+    size_t actual_count = 0;
+    uint8_t **data = utox_load_chatlog(friend[friend_number].id_str, &actual_count, 
+                                       UTOX_MAX_BACKLOG_MESSAGES, 0);
     MSG_VOID *msg;
     time_t    last = 0;
 
@@ -400,7 +404,7 @@ bool messages_read_from_log(uint32_t friend_number) {
             }
         }
     } else {
-        debug("If there's a friend history,there should be an error here...\n");
+        debug("If there's a friend history, there should be an error here...\n");
     }
     free(data);
     return 0;
@@ -483,7 +487,8 @@ void messages_clear_receipt(MESSAGES *m, uint32_t receipt_number) {
                     size_t length = sizeof(header);
                     data          = calloc(1, length);
                     memcpy(data, &header, sizeof(header));
-
+                    printf("Writing \"%s\" with the length %u at offset %lu\n", 
+                           msg->msg, msg->length, msg->disk_offset);
 
                     char *hex = &friend[m->id].id_str;
                     if (msg->disk_offset) {
