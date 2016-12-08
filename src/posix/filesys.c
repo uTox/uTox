@@ -1,5 +1,11 @@
 #include "../main.h"
 
+#ifdef __APPLE__
+#include "../cocoa/main.h"
+#else
+#include "../xlib/main.h"
+#endif
+
 FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS opts) {
     char path[UTOX_FILE_NAME_LENGTH] = { 0 };
 
