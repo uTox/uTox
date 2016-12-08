@@ -99,6 +99,14 @@ void bgrxtoyuv420(uint8_t *plane_y, uint8_t *plane_u, uint8_t *plane_v, uint8_t 
 void scale_rgbx_image(uint8_t *old_rgbx, uint16_t old_width, uint16_t old_height, uint8_t *new_rgbx, uint16_t new_width,
                       uint16_t new_height);
 
+
+/** Loads data from file at filepath. 
+ *  Size of data loaded is written to out_size.
+ *  Returns data loaded.
+ *  Notes: It is the caller's responsibility to free the data when it is no longer needed.
+ */
+uint8_t *load_data(uint8_t *filepath, size_t *out_size);
+
 /*
  */
 UTOX_SAVE *config_load(void);
