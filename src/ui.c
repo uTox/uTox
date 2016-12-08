@@ -178,12 +178,15 @@ void ui_set_scale(uint8_t scale) {
 
     /* Profile              */
     CREATE_BUTTON(copyid, SCALE(66), SCALE(106), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
-    CREATE_BUTTON(show_password_settings, SCALE(145), SCALE(206), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
-    CREATE_BUTTON(lock_uTox, SCALE(10), SCALE(260), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+    CREATE_BUTTON(show_password_settings, SCALE(145), SCALE(260), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+    CREATE_BUTTON(lock_uTox, SCALE(10), SCALE(310), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+    CREATE_BUTTON(change_nospam, SCALE(90), SCALE(160), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+    CREATE_BUTTON(revert_nospam, SCALE(260), SCALE(160), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
 
     CREATE_EDIT(name, SCALE(10), SCALE(27), SCALE(-10), SCALE(24));
     CREATE_EDIT(status, SCALE(10), SCALE(76), SCALE(-10), SCALE(24));
     CREATE_EDIT(toxid, SCALE(10), SCALE(126), SCALE(-10), SCALE(24));
+    CREATE_EDIT(nospam, SCALE(10), SCALE(180), SCALE(-10), SCALE(24));
 
     /* Devices              */
     CREATE_BUTTON(add_new_device_to_self, SCALE(-10) - BM_SBUTTON_WIDTH, SCALE(28), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
@@ -239,7 +242,7 @@ void ui_set_scale(uint8_t scale) {
 
     // Profile tab
 
-    CREATE_DROPDOWN(language, SCALE(10), SCALE(177), SCALE(24), SCALE(-10));
+    CREATE_DROPDOWN(language, SCALE(10), SCALE(230), SCALE(24), SCALE(-10));
 
 
     // Network tab
