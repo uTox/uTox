@@ -57,13 +57,13 @@ if(WIN32)
         src/windows/dnd.c
         src/windows/drawing.c
         src/windows/example.reg
+        src/windows/filesys.c
         src/windows/main.7.c
         src/windows/main.c
         src/windows/main.h
         src/windows/main.XP.c
         src/windows/os_video.c
         src/windows/video.c
-        src/windows/filesys.c
         )
     target_link_libraries(utoxNATIVE
         iphlpapi    ws2_32      gdi32       msimg32
@@ -78,6 +78,7 @@ elseif(APPLE) # Mac has a lot of dependencies
         src/cocoa/MainMenu.xib
         src/cocoa/cursor.h
         src/cocoa/drawing.m
+        src/posix/filesys.c
         src/cocoa/grabdesktop.m
         src/cocoa/interaction.m
         src/cocoa/main.h
@@ -129,6 +130,7 @@ elseif(UNIX) # xlib by default
         src/xlib/dbus.h
         src/xlib/drawing.c
         src/xlib/event.c
+        src/posix/filesys.c
         src/xlib/freetype.c
         src/xlib/freetype.h
         src/xlib/gtk.c
