@@ -315,32 +315,48 @@ FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS flag);
 bool native_remove_file(const uint8_t *name, size_t length);
 
 /**
- * TODO DOCUMENTATION
+ * Takes data and the size of data and writes it to the disk
+ *
+ * Returns a bool indicating whether a save is needed
  */
 bool utox_data_save_tox(uint8_t *data, size_t length);
 
 /**
- * TODO DOCUMENTATION
+ * Reads the tox data from the disk and sets size
+ *
+ * Returns the tox data on success
+ * Returns NULL on failure
  */
 uint8_t *utox_data_load_tox(size_t *size);
 
 /**
- * TODO DOCUMENTATION
+ * Saves the settings for utox
+ *
+ * Returns a bool indicating if it succeeded or not
  */
 bool utox_data_save_utox(UTOX_SAVE *data, size_t length);
 
 /**
- * TODO DOCUMENTATION
+ * Loads utox settings
+ *
+ * Returns the utox settings on success
+ * Returns NULL on failure
  */
 UTOX_SAVE *utox_data_load_utox(void);
 
 /**
- * TODO DOCUMENTATION
+ * Loads a custom theme and sets out to the size of the data
+ *
+ * Returns the theme data on success
+ * Returns NULL on failure
  */
 uint8_t *utox_data_load_custom_theme(size_t *out);
 
 /**
- * TODO DOCUMENTATION
+ * Saves chat log for friend with id hex
+ *
+ * Returns the offset on success
+ * Returns 0 on failure
  */
 size_t utox_save_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], uint8_t *data, size_t length);
 
@@ -371,37 +387,40 @@ uint8_t *utox_data_load_avatar(const char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *
 bool utox_data_del_avatar(uint32_t friend_number);
 
 /**
- * TODO DOCUMENTATION
+ * Deletes a file
+ *
+ * Returns a bool indicating if it succeeded
  */
 bool utox_remove_file(const uint8_t *full_name, size_t length);
-/**
- * TODO DOCUMENTATION
- */
-bool utox_remove_friend_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2]);
-bool utox_remove_file(const uint8_t *full_name, size_t length);
-bool utox_remove_friend_history(char hex[TOX_PUBLIC_KEY_SIZE * 2]);
 
 /**
- * TODO DOCUMENTATION
+ * Deletes the chat log file for the friend with id hex
+ *
+ * Returns bool indicating if it succeeded
+ */
+bool utox_remove_friend_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2]);
+
+/**
+ * Setup for exporting the chat log to plain text
  */
 void utox_export_chatlog_init(uint32_t friend_number);
 
 /**
- * TODO DOCUMENTATION
+ * Export the chat log to plain text
  */
 void utox_export_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], FILE *dest_file);
 /* TODO: sort everything below this line! */
 
 
 /**
- * TODO DOCUMENTATION
+ * Parses the arguments passed to utox
  */
 void parse_args(int argc, char *argv[], bool *theme_was_set_on_argv, int8_t *should_launch_at_startup,
                int8_t *set_show_window, bool *no_updater);
 
 
 /**
- * TODO DOCUMENTATION
+ * Initialize utox
  */
 void utox_init(void);
 // inserts/deletes a value into the registry to launch uTox after boot
