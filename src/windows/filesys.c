@@ -122,7 +122,7 @@ bool native_create_dir(const uint8_t *filepath) {
         case ERROR_SUCCESS:
         case ERROR_FILE_EXISTS:
         case ERROR_ALREADY_EXISTS:
-            debug_info("NATIVE:\tCreated path: `%s` - %d\n", filepath, error);
+            debug_notice("NATIVE:\tCreated path: `%s` - %d\n", filepath, error);
             return true;
             break;
 
@@ -135,7 +135,7 @@ bool native_create_dir(const uint8_t *filepath) {
         case ERROR_PATH_NOT_FOUND:
         case ERROR_CANCELLED:
         default:
-            debug_error("NATIVE:\tUnable to create path: `%s` - error %d\n", error);
+            debug_error("NATIVE:\tUnable to create path: `%s` - error %d\n", filepath, error);
             return false;
             break;
     }
@@ -176,5 +176,6 @@ bool native_remove_file(const uint8_t *name, size_t length) {
         debug_info("NATIVE:\tFile deleted!\n");
         debug("NATIVE:\t\t%s\n", path);
     }
+    
     return true;
 }
