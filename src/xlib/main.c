@@ -449,6 +449,8 @@ void formaturilist(char *out, const char *in, size_t len) {
 
 // TODO(robinli): Go over this function and see if either len or size are removeable.
 void pastedata(void *data, Atom type, size_t len, bool select) {
+    // TODO we shouldn't blindly trust this function to return a friend.
+    // We need to write another funtion that promises a friend (idealy the last active or null.)
     FRIEND *f = (FRIEND *)flist_get_selected()->data;
     size_t size = (size_t)len;
     if (type == XA_PNG_IMG) {
