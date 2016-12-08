@@ -149,6 +149,10 @@ static void ft_decon_resumable(FILE_TRANSFER *ft) {
     debug_info("FileTransfer:\tGoing to decon file %s.\n", name);
     size_t size = 0;
     FILE *file = native_get_file(name, &size, UTOX_FILE_OPTS_READ | UTOX_FILE_OPTS_WRITE);
+    if (!file) {
+        return;
+    }
+
     // Write \0 and flush before delete
     fwrite(0, 1, size, file);
     fflush(file);
