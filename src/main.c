@@ -188,7 +188,8 @@ static FILE* chatlog_get_file(char hex[TOX_PUBLIC_KEY_SIZE * 2], bool append) {
     snprintf(name, sizeof(name), "%.*s.new.txt", TOX_PUBLIC_KEY_SIZE * 2, hex);
 
     if (append) {
-        return native_get_file(name, NULL, 0xFF);
+        return native_get_file(name, NULL, UTOX_FILE_OPTS_READ   | UTOX_FILE_OPTS_WRITE |
+                                           UTOX_FILE_OPTS_APPEND | UTOX_FILE_OPTS_MKDIR);
     } else {
         return native_get_file(name, NULL, UTOX_FILE_OPTS_READ);
     }
@@ -198,6 +199,7 @@ size_t utox_save_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], uint8_t *data, size_
     FILE *fp = chatlog_get_file(hex, true);
 
     if (fp == NULL) {
+        debug("uTox:\tError getting a file handle for this chatlog!\n");
         return 0;
     }
 

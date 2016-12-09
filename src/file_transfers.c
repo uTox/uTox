@@ -994,7 +994,7 @@ static void outgoing_file_callback_chunk(Tox *tox, uint32_t friend_number, uint3
             tox_file_send_chunk(tox, friend_number, file_number, position,
                                 ft->via.memory + position, length, &error);
             if (error) {
-                debug_error("FileTransfer:\tOutgoing chunk error on memory (%u)", error);
+                debug_error("FileTransfer:\tOutgoing chunk error on memory (%u)\n", error);
             }
         } else {
             debug_error("FileTransfer:\tERROR READING FROM MEMORY! (%u & %u)\n", friend_number, file_number);
@@ -1005,7 +1005,7 @@ static void outgoing_file_callback_chunk(Tox *tox, uint32_t friend_number, uint3
             tox_file_send_chunk(tox, friend_number, file_number, position,
                                 self.png_data + position, length, &error);
             if (error) {
-                debug_error("FileTransfer:\tOutgoing chunk error on avatar (%u)", error);
+                debug_error("FileTransfer:\tOutgoing chunk error on avatar (%u)\n", error);
             }
         } else {
             debug_error("FileTransfer:\tERROR READING FROM AVATAR! (%u & %u)\n", friend_number, file_number);
@@ -1025,7 +1025,7 @@ static void outgoing_file_callback_chunk(Tox *tox, uint32_t friend_number, uint3
             }
             tox_file_send_chunk(tox, friend_number, file_number, position, buffer, length, &error);
             if (error) {
-                debug_error("FileTransfer:\tOutgoing chunk error on file (%u)", error);
+                debug_error("FileTransfer:\tOutgoing chunk error on file (%u)\n", error);
             }
         }
     }
