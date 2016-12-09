@@ -81,7 +81,7 @@ void edit_msg_onenter(EDIT *edit) {
 
     // debug("cmd %u\n", command_length);
 
-    bool action = 0, topic = 0;
+    bool action = 0;
     if (command_length) {
         length = length - command_length - 2; /* first / and then the SPACE */
         text   = argument;
@@ -91,10 +91,6 @@ void edit_msg_onenter(EDIT *edit) {
             } else {
                 return;
             }
-        } else if (command_length == 5) {
-            if (memcmp(command, "topic", 5) == 0) {
-                topic = 1;
-            } /* Separated as a guide for commands that don't need a separate function */
         }
     }
 
@@ -114,16 +110,9 @@ void edit_msg_onenter(EDIT *edit) {
         }
     } else if (flist_get_selected()->item == ITEM_GROUP) {
         GROUPCHAT *g = flist_get_selected()->data;
-        if (topic) {
-            void *d = malloc(length);
-            memcpy(d, text, length);
-            postmessage_toxcore(TOX_GROUP_SET_TOPIC, (g - group), length, d);
-        } else {
-            void *d = malloc(length);
-            memcpy(d, text, length);
-
-            postmessage_toxcore((action ? TOX_GROUP_SEND_ACTION : TOX_GROUP_SEND_MESSAGE), (g - group), length, d);
-        }
+        void *d = malloc(length);
+        memcpy(d, text, length);
+        postmessage_toxcore((action ? TOX_GROUP_SEND_ACTION : TOX_GROUP_SEND_MESSAGE), (g - group), length, d);
     }
 
     completion.active = 0;
