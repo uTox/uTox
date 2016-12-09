@@ -1,12 +1,35 @@
 #include "../main.h"
 
-#ifdef __APPLE__
+#ifdef __OBJC__
 #include "../cocoa/main.h"
 #else
 #include "../xlib/main.h"
 #endif
 
-FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS opts) {
+// TODO: DRY. This function exists in both posix/filesys.c and in android/main.c
+static void mode_from_file_opts(UTOX_FILE_OPTS opts, char *mode) {
+    if (opts & UTOX_FILE_OPTS_READ) {
+        mode[0] = 'r';
+    }
+
+    if (opts & UTOX_FILE_OPTS_APPEND) {
+        mode[0] = 'a';
+    } else if (opts & UTOX_FILE_OPTS_WRITE) {
+        mode[0] = 'w';
+    }
+
+    mode[1] = 'b';
+
+    if ((opts & (UTOX_FILE_OPTS_WRITE | UTOX_FILE_OPTS_APPEND)) && (opts & UTOX_FILE_OPTS_READ)) {
+        mode[2] = '+';
+    }
+
+    mode[3] = '\0';
+
+    return mode;
+}
+
+FILE *native_get_file(const char *name, size_t *size, UTOX_FILE_OPTS opts) {
     char path[UTOX_FILE_NAME_LENGTH] = { 0 };
 
     if (settings.portable_mode) {
@@ -21,7 +44,9 @@ FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS opts) {
     }
 
     if (opts & UTOX_FILE_OPTS_READ || opts & UTOX_FILE_OPTS_MKDIR) {
-        mkdir(path, 0700);
+        if (!native_create_dir(path)) {
+            return NULL;
+        }
     }
 
     if (strlen(path) + strlen(name) >= UTOX_FILE_NAME_LENGTH) {
@@ -36,17 +61,13 @@ FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS opts) {
         return NULL;
     }
 
-    FILE *fp = NULL;
-    if (opts & UTOX_FILE_OPTS_READ) {
-        fp = fopen(path, "rb");
-    } else if (opts & UTOX_FILE_OPTS_WRITE) {
-        fp = fopen(path, "wb");
-    } else if (opts & UTOX_FILE_OPTS_APPEND) {
-        fp = fopen(path, "ab");
-    }
+    char mode[4] = { 0 };
+    mode_from_file_opts(opts, mode);
+
+    FILE *fp = fopen(path, mode);
 
     if (fp == NULL) {
-        debug("Could not open %s\n", path);
+        debug_error("NATIVE:\tCould not open %s\n", path);
         return NULL;
     }
 
