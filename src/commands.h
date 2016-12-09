@@ -1,7 +1,8 @@
 #ifndef COMMANDS_H
 #define COMMANDS_H
 
-#include "friend.h"
+#include <stdbool.h>
+#include <stdint.h>
 
 #define MAX_NUM_CMDS 256
 

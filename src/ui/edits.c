@@ -81,13 +81,13 @@ void edit_msg_onenter(EDIT *edit) {
 
     // debug("cmd %u\n", command_length);
 
-    bool action = 0;
+    bool action = false;
     if (command_length) {
         length = length - command_length - 2; /* first / and then the SPACE */
         text   = argument;
         if ((command_length == 2) && (!memcmp(command, "me", 2))) {
             if (argument) {
-                action = 1;
+                action = true;
             } else {
                 return;
             }
@@ -111,8 +111,10 @@ void edit_msg_onenter(EDIT *edit) {
     } else if (flist_get_selected()->item == ITEM_GROUP) {
         GROUPCHAT *g = flist_get_selected()->data;
         void *d = malloc(length);
-        memcpy(d, text, length);
-        postmessage_toxcore((action ? TOX_GROUP_SEND_ACTION : TOX_GROUP_SEND_MESSAGE), (g - group), length, d);
+        if (d) {
+            memcpy(d, text, length);
+            postmessage_toxcore((action ? TOX_GROUP_SEND_ACTION : TOX_GROUP_SEND_MESSAGE), (g - group), length, d);
+        }
     }
 
     completion.active = 0;

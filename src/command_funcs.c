@@ -57,6 +57,10 @@ bool slash_invite(void *object, char *arg, int UNUSED(arg_length)) {
 bool slash_topic(void *object, char *arg, int arg_length) {
     GROUPCHAT *g = object;
     void *d = malloc(arg_length);
+    if (d == NULL) {
+        debug_error("slash_topic:\t Out of memory.\n");
+        return false;
+    }
     memcpy(d, arg, arg_length);
     postmessage_toxcore(TOX_GROUP_SET_TOPIC, (g - group), arg_length, d);
     return true;
