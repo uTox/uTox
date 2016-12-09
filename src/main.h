@@ -312,7 +312,7 @@ bool    mdown;
  * Takes a null-terminated utf8 filepath and creates it with permissions 0700
  * (in posix environments) if it doesn't already exist. In Windows environments
  * there are no security settings applied to the created folder.
- * 
+ *
  * Returns a bool indicating if the path exists or not.
  */
 bool native_create_dir(const uint8_t *filepath);
@@ -336,14 +336,6 @@ bool utox_data_save_tox(uint8_t *data, size_t length);
  * Returns a bool indicating if it succeeded or not
  */
 bool utox_data_save_utox(UTOX_SAVE *data, size_t length);
-
-/**
- * Saves chat log for friend with id hex
- *
- * Returns the offset on success
- * Returns 0 on failure
- */
-size_t utox_save_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], uint8_t *data, size_t length);
 
 /**
  * Saves chat log for friend with id hex
