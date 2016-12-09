@@ -21,7 +21,7 @@ FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS opts) {
     }
 
     if (opts & UTOX_FILE_OPTS_READ || opts & UTOX_FILE_OPTS_MKDIR) {
-        mkdir(path, 0700);
+        native_create_dir((uint8_t *)path); // TODO @robinli char or uint8
     }
 
     if (strlen(path) + strlen(name) >= UTOX_FILE_NAME_LENGTH) {

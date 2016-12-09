@@ -897,7 +897,7 @@ void native_select_dir_ft(uint32_t fid, MSG_FILE *file) {
     if (ret == NSFileHandlingPanelOKButton) {
         NSURL *destination = picker.URL;
         // FIXME: might be leaking
-        postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->file->file_number, strdup(destination.path.UTF8String));
+        postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->file_number, strdup(destination.path.UTF8String));
     }
 }
 
@@ -928,7 +928,7 @@ void savefiledata(FILE_TRANSFER *file) {
 
     if (ret == NSFileHandlingPanelOKButton) {
         NSURL * destination = picker.URL;
-        NSData *d           = [NSData dataWithBytesNoCopy:file->path length:file->size freeWhenDone:NO];
+        NSData *d           = [NSData dataWithBytesNoCopy:file->path length:file->target_size freeWhenDone:NO];
         [d writeToURL:destination atomically:YES];
 
         snprintf((char *)file->path, UTOX_FILE_NAME_LENGTH, "inline.png");
