@@ -385,9 +385,11 @@ bool message_log_to_disk(MESSAGES *m, MSG_VOID *msg) {
 
 bool messages_read_from_log(uint32_t friend_number) {
     size_t    actual_count = 0;
-    uint8_t **data         = utox_load_chatlog(&friend[friend_number].id_str, &actual_count, UTOX_MAX_BACKLOG_MESSAGES, 0);
+
+    uint8_t **data = utox_load_chatlog(friend[friend_number].id_str, &actual_count, UTOX_MAX_BACKLOG_MESSAGES, 0);
     MSG_VOID *msg;
-    time_t    last = 0;
+
+    time_t last = 0;
 
     if (data) {
         void **p = (void **)data;
