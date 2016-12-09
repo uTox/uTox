@@ -74,27 +74,23 @@ void edit_msg_onenter(EDIT *edit) {
     command_length = utox_run_command(text, length, &command, &argument, 1);
 
     // TODO: Magic number
-    if (command_length == 65535) {
+    if (command_length == UINT16_MAX) {
         edit->length = 0;
         return;
     }
 
     // debug("cmd %u\n", command_length);
 
-    bool action = 0, topic = 0;
+    bool action = false;
     if (command_length) {
         length = length - command_length - 2; /* first / and then the SPACE */
         text   = argument;
         if ((command_length == 2) && (!memcmp(command, "me", 2))) {
             if (argument) {
-                action = 1;
+                action = true;
             } else {
                 return;
             }
-        } else if (command_length == 5) {
-            if (memcmp(command, "topic", 5) == 0) {
-                topic = 1;
-            } /* Separated as a guide for commands that don't need a separate function */
         }
     }
 
@@ -114,16 +110,13 @@ void edit_msg_onenter(EDIT *edit) {
         }
     } else if (flist_get_selected()->item == ITEM_GROUP) {
         GROUPCHAT *g = flist_get_selected()->data;
-        if (topic) {
-            void *d = malloc(length);
-            memcpy(d, text, length);
-            postmessage_toxcore(TOX_GROUP_SET_TOPIC, (g - group), length, d);
-        } else {
-            void *d = malloc(length);
-            memcpy(d, text, length);
-
-            postmessage_toxcore((action ? TOX_GROUP_SEND_ACTION : TOX_GROUP_SEND_MESSAGE), (g - group), length, d);
+        void *d = malloc(length);
+        if (!d) {
+            debug_error("edit_msg_onenter:\t Ran out of memory.\n");
+            return;
         }
+        memcpy(d, text, length);
+        postmessage_toxcore((action ? TOX_GROUP_SEND_ACTION : TOX_GROUP_SEND_MESSAGE), (g - group), length, d);
     }
 
     completion.active = 0;
