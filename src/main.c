@@ -199,7 +199,7 @@ size_t utox_save_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], uint8_t *data, size_
     FILE *fp = chatlog_get_file(hex, true);
 
     if (fp == NULL) {
-        debug("uTox:\tError getting a file handle for this chatlog!\n");
+        debug_error("uTox:\tError getting a file handle for this chatlog!\n");
         return 0;
     }
 

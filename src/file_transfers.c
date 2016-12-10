@@ -819,7 +819,7 @@ uint32_t ft_send_avatar(Tox *tox, uint32_t friend_number) {
     TOX_ERR_FILE_SEND error = 0;
     uint32_t file_number = tox_file_send(tox, friend_number, TOX_FILE_KIND_AVATAR, self.png_size, hash, NULL, 0, &error);
     if (error || file_number == UINT32_MAX) {
-        debug("tox_file_send() failed error code %u\n", error);
+        debug_error("tox_file_send() failed error code %u\n", error);
         return UINT32_MAX;
     };
 
@@ -876,7 +876,7 @@ uint32_t ft_send_file(Tox *tox, uint32_t friend_number, FILE *file, uint8_t *pat
     TOX_ERR_FILE_SEND error = 0;
     uint32_t file_number = tox_file_send(tox, friend_number, TOX_FILE_KIND_DATA, size, NULL, name, name_length, &error);
     if (error || file_number == UINT32_MAX) {
-        debug("tox_file_send() failed error code %u\n", error);
+        debug_error("tox_file_send() failed error code %u\n", error);
         return UINT32_MAX;
     }
 
@@ -919,7 +919,7 @@ uint32_t ft_send_data(Tox *tox, uint32_t friend_number, uint8_t *data, size_t si
     }
     debug("FileTransfer:\tStarting raw data transfer to friend %u.\n", friend_number);
 
-    // TODO send the uset avatar command.
+    // TODO send the unset avatar command.
 
     FRIEND *f = get_friend(friend_number);
     if (f->file_transfers_outgoing_active_count > MAX_FILE_TRANSFERS) {
