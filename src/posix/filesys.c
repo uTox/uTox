@@ -41,6 +41,9 @@ FILE *native_get_file(const char *name, size_t *size, UTOX_FILE_OPTS opts) {
     if (opts > UTOX_FILE_OPTS_DELETE) {
         debug_error("NATIVE:\tDon't call native_get_file with UTOX_FILE_OPTS_DELETE in combination with other options.\n");
         return NULL;
+    } else if (opts & UTOX_FILE_OPTS_WRITE && opts & UTOX_FILE_OPTS_APPEND) {
+        debug_error("NATIVE:\tDon't call native_get_file with UTOX_FILE_OPTS_WRITE in combination with UTOX_FILE_OPTS_APPEND.\n");
+        return NULL;
     }
 
     if (opts & UTOX_FILE_OPTS_READ || opts & UTOX_FILE_OPTS_MKDIR) {

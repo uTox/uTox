@@ -225,9 +225,17 @@ FILE *native_get_file(const char *name, size_t *size, UTOX_FILE_OPTS opts) {
 
     snprintf(path, UTOX_FILE_NAME_LENGTH, ANDROID_INTERNAL_SAVE);
 
+    if (opts > UTOX_FILE_OPTS_DELETE) {
+        debug_error("NATIVE:\tDon't call native_get_file with UTOX_FILE_OPTS_DELETE in combination with other options.\n");
+        return NULL;
+    } else if ((opts & UTOX_FILE_OPTS_WRITE) && (opts & UTOX_FILE_OPTS_APPEND)) {
+        debug_error("NATIVE:\tDon't call native_get_file with UTOX_FILE_OPTS_WRITE in combination with UTOX_FILE_OPTS_APPEND.\n");
+        return NULL;
+    }
+
     if (strlen(path) + strlen(name) >= UTOX_FILE_NAME_LENGTH) {
         debug("NATIVE:\tLoad directory name too long\n");
-        return 0;
+        return NULL;
     } else {
         snprintf(path + strlen(path), UTOX_FILE_NAME_LENGTH - strlen(path), "%s",
                  name);
