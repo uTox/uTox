@@ -37,7 +37,7 @@ static bool make_dir(wchar_t path[UTOX_FILE_NAME_LENGTH]) {
     return SHCreateDirectoryExW(NULL, path, NULL); // Fall back to the default permissions on Windows
 }
 
-FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS opts) {
+FILE *native_get_file(const char *name, size_t *size, UTOX_FILE_OPTS opts) {
     char path[UTOX_FILE_NAME_LENGTH] = { 0 };
 
     if (settings.portable_mode) {

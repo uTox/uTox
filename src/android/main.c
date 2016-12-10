@@ -220,7 +220,7 @@ static void mode_from_file_opts(UTOX_FILE_OPTS opts, char *mode) {
     return mode;
 }
 
-FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS opts) {
+FILE *native_get_file(const char *name, size_t *size, UTOX_FILE_OPTS opts) {
     char path[UTOX_FILE_NAME_LENGTH] = { 0 };
 
     snprintf(path, UTOX_FILE_NAME_LENGTH, ANDROID_INTERNAL_SAVE);
