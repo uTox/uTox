@@ -183,10 +183,10 @@ void native_select_dir_ft(uint32_t fid, uint32_t file_number, FILE_TRANSFER *fil
 void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
     /* TODO: maybe do something different here? */
     if (settings.portable_mode) {
-        char *path = malloc(file->name_length + 1);
-        snprintf(path, UTOX_FILE_NAME_LENGTH, "./tox/Tox_Auto_Accept/");
-        mkdir(path, 0700);
-        snprintf(path, UTOX_FILE_NAME_LENGTH, "./tox/Tox_Auto_Accept/%.*s", (int)file->name_length, file->name);
+        uint8_t *path = malloc(file->name_length + 1);
+        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "./tox/Tox_Auto_Accept/");
+        native_create_dir(path);
+        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "./tox/Tox_Auto_Accept/%.*s", (int)file->name_length, file->name);
 
         debug_notice("Native:\tAuto Accept Directory: \"%s\"\n", path);
         postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->file_number, path);
