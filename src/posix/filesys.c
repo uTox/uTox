@@ -6,7 +6,7 @@
 #include "../xlib/main.h"
 #endif
 
-FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS opts) {
+FILE *native_get_file(uint8_t *name, size_t *size, UTOX_FILE_OPTS opts) {
     char path[UTOX_FILE_NAME_LENGTH] = { 0 };
 
     if (settings.portable_mode) {
@@ -24,7 +24,7 @@ FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS opts) {
         mkdir(path, 0700);
     }
 
-    if (strlen(path) + strlen(name) >= UTOX_FILE_NAME_LENGTH) {
+    if (strlen(path) + strlen((char *)name) >= UTOX_FILE_NAME_LENGTH) {
         debug("NATIVE:\tLoad directory name too long\n");
         return NULL;
     } else {

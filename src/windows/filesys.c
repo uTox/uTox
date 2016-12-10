@@ -37,7 +37,7 @@ static bool make_dir(wchar_t path[UTOX_FILE_NAME_LENGTH]) {
     return SHCreateDirectoryExW(NULL, path, NULL); // Fall back to the default permissions on Windows
 }
 
-FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS opts) {
+FILE *native_get_file(uint8_t *name, size_t *size, UTOX_FILE_OPTS opts) {
     char path[UTOX_FILE_NAME_LENGTH] = { 0 };
 
     if (settings.portable_mode) {
@@ -55,7 +55,7 @@ FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS opts) {
         return NULL;
     }
 
-    if (strlen(path) + strlen("\\Tox\\") + strlen(name) >= UTOX_FILE_NAME_LENGTH) {
+    if (strlen(path) + strlen("\\Tox\\") + strlen((char *)name) >= UTOX_FILE_NAME_LENGTH) {
         debug_error("NATIVE:\tLoad directory name too long\n");
         return NULL;
     }
@@ -107,7 +107,7 @@ FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS opts) {
  *
  */
 bool native_create_dir(const uint8_t *filepath) {
-    // Maybe switch this to SHCreateDirectoryExW at some point. 
+    // Maybe switch this to SHCreateDirectoryExW at some point.
     uint8_t path[UTOX_FILE_NAME_LENGTH] = { 0 };
     strcpy(path, filepath);
 
@@ -129,7 +129,7 @@ bool native_create_dir(const uint8_t *filepath) {
         case ERROR_BAD_PATHNAME:
             debug_error("NATIVE:\tUnable to create path: `%s` - bad path name.\n", filepath);
             return false;
-            break; 
+            break;
 
         case ERROR_FILENAME_EXCED_RANGE:
         case ERROR_PATH_NOT_FOUND:
@@ -176,6 +176,6 @@ bool native_remove_file(const uint8_t *name, size_t length) {
         debug_info("NATIVE:\tFile deleted!\n");
         debug("NATIVE:\t\t%s\n", path);
     }
-    
+
     return true;
 }

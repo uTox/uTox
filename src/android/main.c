@@ -195,12 +195,12 @@ void writesavedata(void *data, uint32_t len) {
     }
 }
 
-FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS opts) {
+FILE *native_get_file(uint8_t *name, size_t *size, UTOX_FILE_OPTS opts) {
     char path[UTOX_FILE_NAME_LENGTH] = { 0 };
 
     snprintf(path, UTOX_FILE_NAME_LENGTH, ANDROID_INTERNAL_SAVE);
 
-    if (strlen(path) + strlen(name) >= UTOX_FILE_NAME_LENGTH) {
+    if (strlen(path) + strlen((char *)name) >= UTOX_FILE_NAME_LENGTH) {
         debug("NATIVE:\tLoad directory name too long\n");
         return 0;
     } else {
