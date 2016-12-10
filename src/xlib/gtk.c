@@ -279,7 +279,7 @@ static void ugtk_save_data_thread(void *args) {
             fclose(fp);
 
             free(file->path);
-            file->path       = (uint8_t *)strdup(name);
+            file->path       = strdup(name);
             file->inline_png = 0;
         }
     }
@@ -307,7 +307,7 @@ static void ugtk_save_chatlog_thread(void *args) {
 
         FILE *fp = fopen(file_name, "wb");
         if (fp) {
-            utox_export_chatlog(friend_number, fp);
+            utox_export_chatlog(friend[friend_number].id_str, fp);
         }
     }
 

@@ -47,7 +47,7 @@ static void edit_add_new_contact(EDIT *UNUSED(edit)) {
 static void edit_friend_alias_onenter(EDIT *UNUSED(edit)) {
     FRIEND *f = flist_get_selected()->data;
 
-    friend_set_alias(f, edit_friend_alias.data, edit_friend_alias.length);
+    friend_set_alias(f, (uint8_t *)edit_friend_alias.data, edit_friend_alias.length);
 
     utox_write_metadata(f);
 }

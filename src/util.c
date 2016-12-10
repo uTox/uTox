@@ -608,7 +608,7 @@ void scale_rgbx_image(uint8_t *old_rgbx, uint16_t old_width, uint16_t old_height
 uint8_t *load_data(uint8_t *filepath, size_t *out_size) {
     size_t size = 0;
 
-    FILE *fp = native_get_file(filepath, &size, UTOX_FILE_OPTS_READ);
+    FILE *fp = native_get_file((char *)filepath, &size, UTOX_FILE_OPTS_READ);
     if (fp == NULL) {
         debug("Util:\tCould not open file for reading: %s\n", filepath);
         return NULL;

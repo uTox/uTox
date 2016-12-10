@@ -178,7 +178,7 @@ void openfileavatar(void) {
 }
 
 bool native_create_dir(const uint8_t *filepath) {
-    const int status = mkdir(filepath, S_IRWXU);
+    const int status = mkdir((char *)filepath, S_IRWXU);
     if (status == 0 || errno == EEXIST) {
         return true;
     }
@@ -310,7 +310,7 @@ void native_export_chatlog_init(uint32_t friend_number) {
 
         FILE *file = fopen((char *)name, "wb");
         if (file) {
-            utox_export_chatlog(friend_number, file);
+            utox_export_chatlog(friend[friend_number].id_str, file);
         }
     }
 }
