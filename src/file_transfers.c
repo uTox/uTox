@@ -936,7 +936,7 @@ uint32_t ft_send_data(Tox *tox, uint32_t friend_number, uint8_t *data, size_t si
     TOX_ERR_FILE_SEND error = 0;
     uint32_t file_number = tox_file_send(tox, friend_number, TOX_FILE_KIND_DATA, size, hash, name, name_length, &error);
     if (error || file_number == UINT32_MAX) {
-        debug("tox_file_send() failed error code %u\n", error);
+        debug_error("tox_file_send() failed error code %u\n", error);
         return UINT32_MAX;
     };
 
