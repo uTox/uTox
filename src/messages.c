@@ -485,7 +485,7 @@ void messages_clear_receipt(MESSAGES *m, uint32_t receipt_number) {
                     memcpy(data, &header, sizeof(header));
 
 
-                    char *hex = &friend[m->id].id_str;
+                    char *hex = friend[m->id].id_str;
                     if (msg->disk_offset) {
                         debug("Messages:\tUpdating message -> disk_offset is %lu\n", msg->disk_offset);
                         utox_update_chatlog(hex, msg->disk_offset, data, length);
