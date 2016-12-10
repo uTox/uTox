@@ -6,6 +6,14 @@
 #include "../xlib/main.h"
 #endif
 
+bool native_create_dir(const uint8_t *filepath) {
+    const int status = mkdir(filepath, S_IRWXU);
+    if (status == 0 || errno == EEXIST) {
+        return true;
+    }
+    return false;
+}
+
 // TODO: DRY. This function exists in both posix/filesys.c and in android/main.c
 static void mode_from_file_opts(UTOX_FILE_OPTS opts, char *mode) {
     if (opts & UTOX_FILE_OPTS_READ) {
