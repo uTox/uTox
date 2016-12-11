@@ -1,3 +1,5 @@
+#include <assert.h>
+
 #include "../main.h"
 
 #ifdef __OBJC__
