@@ -304,13 +304,13 @@ bool    mdown;
  * Takes a null-terminated utf8 filepath and creates it with permissions 0700
  * (in posix environments) if it doesn't already exist. In Windows environments
  * there are no security settings applied to the created folder.
- * 
+ *
  * Returns a bool indicating if the path exists or not.
  */
 bool native_create_dir(const uint8_t *filepath);
 
 
-FILE *native_get_file(const char *name, size_t *size, UTOX_FILE_OPTS opts);
+FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts);
 
 /** given a filename, native_remove_file will delete that file from the local config dir */
 bool native_remove_file(const uint8_t *name, size_t length);

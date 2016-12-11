@@ -198,7 +198,7 @@ void writesavedata(void *data, uint32_t len) {
 // TODO: DRY. This function exists in both posix/filesys.c and in android/main.c
 // Make a posix native_get_file that you pass a complete path to instead of letting it construct
 // one would fix this.
-static void mode_from_file_opts(UTOX_FILE_OPTS opts, char *mode) {
+static void opts_to_sysmode(UTOX_FILE_OPTS opts, char *mode) {
     if (opts & UTOX_FILE_OPTS_READ) {
         mode[0] = 'r';
     }
@@ -217,11 +217,11 @@ static void mode_from_file_opts(UTOX_FILE_OPTS opts, char *mode) {
 
     mode[3] = '\0';
 
-    return mode;
+    return;
 }
 
-FILE *native_get_file(const char *name, size_t *size, UTOX_FILE_OPTS opts) {
-    char path[UTOX_FILE_NAME_LENGTH] = { 0 };
+FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts) {
+    uint8_t path[UTOX_FILE_NAME_LENGTH] = { 0 };
 
     snprintf(path, UTOX_FILE_NAME_LENGTH, ANDROID_INTERNAL_SAVE);
 
@@ -237,14 +237,13 @@ FILE *native_get_file(const char *name, size_t *size, UTOX_FILE_OPTS opts) {
         debug("NATIVE:\tLoad directory name too long\n");
         return NULL;
     } else {
-        snprintf(path + strlen(path), UTOX_FILE_NAME_LENGTH - strlen(path), "%s",
-                 name);
+        snprintf(path + strlen(path), UTOX_FILE_NAME_LENGTH - strlen(path), "%s", name);
     }
 
     FILE *fp = NULL;
-    
+
     char mode[4] = { 0 };
-    mode_from_file_opts(opts, mode);
+    opts_to_sysmode(opts, mode);
 
     fp = fopen(path, mode);
 

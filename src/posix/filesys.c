@@ -15,7 +15,7 @@ bool native_create_dir(const uint8_t *filepath) {
 }
 
 // TODO: DRY. This function exists in both posix/filesys.c and in android/main.c
-static void mode_from_file_opts(UTOX_FILE_OPTS opts, char *mode) {
+static void opts_to_sysmode(UTOX_FILE_OPTS opts, char *mode) {
     if (opts & UTOX_FILE_OPTS_READ) {
         mode[0] = 'r';
     }
@@ -37,8 +37,8 @@ static void mode_from_file_opts(UTOX_FILE_OPTS opts, char *mode) {
     return;
 }
 
-FILE *native_get_file(const char *name, size_t *size, UTOX_FILE_OPTS opts) {
-    char path[UTOX_FILE_NAME_LENGTH] = { 0 };
+FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts) {
+    uint8_t path[UTOX_FILE_NAME_LENGTH] = { 0 };
 
     if (settings.portable_mode) {
         snprintf(path, UTOX_FILE_NAME_LENGTH, "./tox/");
@@ -73,7 +73,7 @@ FILE *native_get_file(const char *name, size_t *size, UTOX_FILE_OPTS opts) {
     }
 
     char mode[4] = { 0 };
-    mode_from_file_opts(opts, mode);
+    opts_to_sysmode(opts, mode);
 
     FILE *fp = fopen(path, mode);
 

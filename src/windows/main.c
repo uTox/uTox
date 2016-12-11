@@ -869,7 +869,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
             ;
         path[i] = 0; //!
         SetCurrentDirectory(path);
-        strcpy(portable_mode_save_path, path);
+        strcpy(portable_mode_save_path, (char *)path);
     }
 
     if (should_launch_at_startup == 1) {
