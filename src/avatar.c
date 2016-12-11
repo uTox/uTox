@@ -170,3 +170,21 @@ bool avatar_on_friend_online(Tox *tox, uint32_t friend_number) {
     free(avatar_data);
     return true;
 }
+bool avatar_move(uint8_t *source, uint8_t *dest) {
+    char current_name[sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png")] = { 0 };
+    char new_name[sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png")] = { 0 };
+
+#ifdef __WIN32__
+    snprintf(current_name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"), "avatars\\%.*s.png",
+             TOX_PUBLIC_KEY_SIZE * 2, source);
+    snprintf(new_name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"), "avatars\\%.*s.png",
+             TOX_PUBLIC_KEY_SIZE * 2, dest);
+#else
+    snprintf(current_name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"), "avatars/%.*s.png",
+             TOX_PUBLIC_KEY_SIZE * 2, source);
+    snprintf(new_name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"), "avatars/%.*s.png",
+             TOX_PUBLIC_KEY_SIZE * 2, dest);
+#endif
+
+    return native_move_file(current_name, new_name);
+}

@@ -596,7 +596,13 @@ EDIT edit_name =
                          .onenter         = edit_group_topic_onenter,
                          .onlosefocus     = edit_group_topic_onenter,
                          .noborder        = 0,
-                         .empty_str.plain = STRING_INIT("") };
+                         .empty_str.plain = STRING_INIT("") },
+
+    edit_nospam = {.length            = sizeof(uint32_t) * 2,
+                   .data              = self.nospam_str,
+                   .readonly          = true,
+                   .noborder          = false,
+                   .select_completely = true, };
 
 static char edit_add_new_device_to_self_data[TOX_FRIEND_ADDRESS_SIZE * 4];
 
