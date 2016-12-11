@@ -444,8 +444,7 @@ void ft_friend_online(Tox *tox, uint32_t friend_number) {
 }
 
 /* Friend has gone offline, break our outgoing transfers to this friend. */
-void ft_friend_offline(Tox *tox, uint32_t friend_number) {
-    (void)tox; // FIXME temp warning hiding
+void ft_friend_offline(Tox *UNUSED(tox), uint32_t friend_number) {
     debug_notice("FileTransfer:\tFriend %u has gone offline, breaking transfers\n", friend_number);
 
     FRIEND *f = get_friend(friend_number);
