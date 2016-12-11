@@ -188,7 +188,7 @@ static FILE* chatlog_get_file(char hex[TOX_PUBLIC_KEY_SIZE * 2], bool append) {
     if (append) {
         return native_get_file(name, NULL, UTOX_FILE_OPTS_READ | UTOX_FILE_OPTS_APPEND | UTOX_FILE_OPTS_MKDIR);
     }
-    
+
     return native_get_file(name, NULL, UTOX_FILE_OPTS_READ);
 }
 
@@ -197,7 +197,9 @@ size_t utox_save_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], uint8_t *data, size_
     if (fp == NULL) {
         return 0;
     }
-
+    // Seek to the beginning of the file first because grayhatter has had issues with this on Windows.
+    // (and he really doesn't want uTox eating people's chat logs)
+    fseeko(fp, 0, SEEK_SET);
     fseeko(fp, 0, SEEK_END);
     off_t offset = ftello(fp);
     fwrite(data, length, 1, fp);
@@ -302,7 +304,7 @@ uint8_t **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, uin
                 if (size) {
                     *size = 0;
                 }
-                
+
                 return NULL;
             }
             MSG_TEXT *msg = calloc(1, sizeof(MSG_TEXT) + header.msg_length);
