@@ -686,3 +686,12 @@ msgstr("Send typing notifications")
 
 msgid(STATUS_NOTIFICATIONS)
 msgstr("Status Notifications")
+
+msgid(RANDOMIZE_NOSPAM)
+msgstr("Randomize Nospam")
+
+msgid(NOSPAM)
+msgstr("Nospam")
+
+msgid(REVERT_NOSPAM)
+msgstr("Revert Nospam")

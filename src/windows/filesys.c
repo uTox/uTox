@@ -107,7 +107,7 @@ FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS opts) {
  *
  */
 bool native_create_dir(const uint8_t *filepath) {
-    // Maybe switch this to SHCreateDirectoryExW at some point. 
+    // Maybe switch this to SHCreateDirectoryExW at some point.
     uint8_t path[UTOX_FILE_NAME_LENGTH] = { 0 };
     strcpy(path, filepath);
 
@@ -129,7 +129,7 @@ bool native_create_dir(const uint8_t *filepath) {
         case ERROR_BAD_PATHNAME:
             debug_error("NATIVE:\tUnable to create path: `%s` - bad path name.\n", filepath);
             return false;
-            break; 
+            break;
 
         case ERROR_FILENAME_EXCED_RANGE:
         case ERROR_PATH_NOT_FOUND:
@@ -176,6 +176,14 @@ bool native_remove_file(const uint8_t *name, size_t length) {
         debug_info("NATIVE:\tFile deleted!\n");
         debug("NATIVE:\t\t%s\n", path);
     }
-    
+
     return true;
+}
+
+bool native_move_file(const uint8_t *current_name, const uint8_t *new_name) {
+    if (!current_name || !new_name) {
+        return false;
+    }
+
+    return MoveFile(current_name, new_name);
 }
