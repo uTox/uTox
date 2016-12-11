@@ -420,8 +420,10 @@ static void init_self(Tox *tox) {
     self.id_str_length = TOX_FRIEND_ADDRESS_SIZE * 2;
     debug("Tox ID: %.*s\n", (int)self.id_str_length, self.id_str);
 
-    char hex_id[TOX_FRIEND_ADDRESS_SIZE * 2];
-    id_to_string(hex_id, self.id_binary);
+    /* Get nospam */
+    self.nospam = tox_self_get_nospam(tox);
+    sprintf(self.nospam_str, "%X", self.nospam);
+
     avatar_init_self();
 }
 
@@ -613,6 +615,24 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
              */
             tox_self_set_status(tox, param1);
             save_needed = 1;
+            break;
+        }
+
+        case TOX_SELF_CHANGE_NOSPAM: {
+            /* param1: new nospam
+             */
+            char *old_id = self.id_str;
+            tox_self_set_nospam(tox, param1);
+
+            /* update tox id */
+            tox_self_get_address(tox, self.id_binary);
+            id_to_string(self.id_str, self.id_binary);
+            debug("Tox ID: %.*s\n", (int)self.id_str_length, self.id_str);
+
+            /* Update avatar */
+            avatar_move((uint8_t *)old_id, (uint8_t *)self.id_str);
+
+            save_needed = true;
             break;
         }
 

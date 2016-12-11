@@ -277,6 +277,14 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts) {
     return fp;
 }
 
+bool native_move_file(const uint8_t *current_name, const uint8_t *new_name) {
+    if(!current_name || !new_name) {
+        return false;
+    }
+
+    return rename((char *)current_name, (char *)new_name);
+}
+
 void native_select_dir_ft(uint32_t fid, MSG_FILE *file) {
     return; /* TODO unsupported on android
     //fall back to working dir

@@ -72,6 +72,8 @@ static void switchfxn_audio_filtering(void) { settings.audiofilter_enabled = !se
 
 static void switchfxn_status_notifications(void) { settings.status_notifications = !settings.status_notifications; }
 
+static void switchfxn_block_friend_requests(void) { settings.block_friend_requests = !settings.block_friend_requests; }
+
 UISWITCH switch_logging = {
     .style_outer    = BM_SWITCH,
     .style_toggle   = BM_SWITCH_TOGGLE,
@@ -190,4 +192,14 @@ UISWITCH switch_status_notifications = {
     .update         = switch_update,
     .on_mup        = switchfxn_status_notifications,
     .tooltip_text = {.i18nal = STR_STATUS_NOTIFICATIONS },
+};
+
+UISWITCH switch_block_friend_requests = {
+    .style_outer    = BM_SWITCH,
+    .style_toggle   = BM_SWITCH_TOGGLE,
+    .style_icon_off = BM_NO,
+    .style_icon_on  = BM_YES,
+    .update         = switch_update,
+    .on_mup         = switchfxn_block_friend_requests,
+    .tooltip_text   = {.i18nal = STR_BLOCK_FRIEND_REQUESTS },
 };

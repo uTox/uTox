@@ -161,6 +161,7 @@ typedef struct utox_settings {
     bool enable_ipv6;
     bool use_encryption;
     bool portable_mode;
+    bool block_friend_requests;
 
     uint16_t proxy_port;
 
@@ -262,6 +263,10 @@ struct utox_self {
     size_t id_str_length;
 
     uint8_t id_binary[TOX_FRIEND_ADDRESS_SIZE];
+
+    uint32_t nospam;
+    uint32_t old_nospam;
+    char nospam_str[sizeof(uint32_t) * 2];
 
     AVATAR *avatar;
     void  *png_data;

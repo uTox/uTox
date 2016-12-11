@@ -390,7 +390,7 @@ panel_main = {
 
             panel_settings_notifications = {
                 .type = PANEL_NONE,
-                .disabled = 1,
+                .disabled = true,
                 .drawfunc = draw_settings_text_notifications,
                 .content_scroll = &scrollbar_settings,
                 .child = (PANEL*[]) {
@@ -405,13 +405,28 @@ panel_main = {
 
             panel_settings_adv = {
                 .type = PANEL_NONE,
-                .disabled = 1,
+                .disabled = true,
                 .drawfunc = draw_settings_text_adv,
                 .content_scroll = &scrollbar_settings,
                 .child = (PANEL*[]) {
+                    (PANEL*)&switch_block_friend_requests,
+                    (PANEL*)&button_show_nospam,
+                    &panel_nospam_settings,
                     NULL
                 }
+            },
 
+            panel_nospam_settings = {
+                .type = PANEL_NONE,
+                .disabled = true,
+                .drawfunc = draw_nospam_settings,
+                .content_scroll = &scrollbar_settings,
+                .child = (PANEL*[]) {
+                    (PANEL*)&edit_nospam,
+                    (PANEL*)&button_change_nospam,
+                    (PANEL*)&button_revert_nospam,
+                    NULL
+                }
             };
 // clang-format on
 
