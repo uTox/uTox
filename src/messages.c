@@ -184,9 +184,9 @@ static bool msg_add_day_notice(MESSAGES *m, time_t last, time_t next) {
         msg->length        = strftime((char *)msg->msg, 256, "Day has changed to %A %B %d %Y", msg_time);
 
         message_add(m, (MSG_VOID *)msg);
-        return 1;
+        return true;
     }
-    return 0;
+    return false;
 }
 
 /* TODO leaving this here is a little hacky, but it was the fastest way
@@ -320,16 +320,16 @@ MSG_FILE *message_add_type_file(MESSAGES *m, FILE_TRANSFER *file) {
 }
 
 bool message_log_to_disk(MESSAGES *m, MSG_VOID *msg) {
-    
+
     if (m->is_groupchat) {
         /* We don't support logging groupchats yet */
         return false;
     }
-    
+
     if (!settings.logging_enabled) {
         return false;
     }
-    
+
     FRIEND *f = &friend[m->id];
     if (f->skip_msg_logging) {
         return false;
@@ -338,7 +338,7 @@ bool message_log_to_disk(MESSAGES *m, MSG_VOID *msg) {
     LOG_FILE_MSG_HEADER header;
     memset(&header, 0, sizeof(header));
     uint8_t *data = NULL;
-    
+
     switch (msg->msg_type) {
         case MSG_TYPE_TEXT:
         case MSG_TYPE_ACTION_TEXT:
@@ -375,8 +375,8 @@ bool message_log_to_disk(MESSAGES *m, MSG_VOID *msg) {
             msg->disk_offset = utox_save_chatlog(f->id_str, data, length);
             break;
         }
-        default: { 
-            debug("uTox Logging:\tUnsupported file type %i\n", msg->msg_type); 
+        default: {
+            debug_notice("uTox Logging:\tUnsupported message type %i\n", msg->msg_type);
         }
     }
     free(data);
@@ -385,7 +385,7 @@ bool message_log_to_disk(MESSAGES *m, MSG_VOID *msg) {
 
 bool messages_read_from_log(uint32_t friend_number) {
     size_t actual_count = 0;
-    uint8_t **data = utox_load_chatlog(friend[friend_number].id_str, &actual_count, 
+    uint8_t **data = utox_load_chatlog(friend[friend_number].id_str, &actual_count,
                                        UTOX_MAX_BACKLOG_MESSAGES, 0);
     MSG_VOID *msg;
     time_t    last = 0;
@@ -403,11 +403,12 @@ bool messages_read_from_log(uint32_t friend_number) {
                 message_add(&friend[friend_number].msg, msg);
             }
         }
-    } else {
-        debug("If there's a friend history, there should be an error here...\n");
+    } else if (actual_count > 0) {
+        debug_error("uTox Logging:\tFound chat log entries, but couldn't get any data. This is a problem.");
     }
+
     free(data);
-    return 0;
+    return false;
 }
 
 void messages_send_from_queue(MESSAGES *m, uint32_t friend_number) {
@@ -487,8 +488,6 @@ void messages_clear_receipt(MESSAGES *m, uint32_t receipt_number) {
                     size_t length = sizeof(header);
                     data          = calloc(1, length);
                     memcpy(data, &header, sizeof(header));
-                    printf("Writing \"%s\" with the length %u at offset %lu\n", 
-                           msg->msg, msg->length, msg->disk_offset);
 
                     char *hex = &friend[m->id].id_str;
                     if (msg->disk_offset) {
