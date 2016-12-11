@@ -12,7 +12,7 @@ bool slash_send_file(void *object, char *filepath, int UNUSED(arg_length)) {
         return true;
     }
 
-    debug("slash_send_file:\t filepath was NULL.\n");
+    debug_error("slash_send_file:\t filepath was NULL.\n");
     return false;
 }
 
@@ -27,7 +27,7 @@ bool slash_device(void *object, char *arg, int UNUSED(arg_length)) {
         postmessage_toxcore(TOX_FRIEND_NEW_DEVICE, f->number, 0, data);
         return true;
     }
-    debug("slash_device:\t Could not allocate memory.\n");
+    debug_error("slash_device:\t Could not allocate memory.\n");
     return false;
 }
 
