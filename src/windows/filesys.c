@@ -191,3 +191,11 @@ bool native_remove_file(const uint8_t *name, size_t length) {
 
     return true;
 }
+
+bool native_move_file(const uint8_t *current_name, const uint8_t *new_name) {
+    if (!current_name || !new_name) {
+        return false;
+    }
+
+    return MoveFile(current_name, new_name);
+}

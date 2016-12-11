@@ -401,8 +401,9 @@ void draw_settings_text_profile(int UNUSED(x), int y, int UNUSED(w), int UNUSED(
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(10), NAME);
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(60), STATUSMESSAGE);
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(110), TOXID);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(160), LANGUAGE);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(210), PROFILE_PASSWORD);
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(160), NOSPAM);
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(210), LANGUAGE);
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(260), PROFILE_PASSWORD);
 }
 
 void draw_settings_text_devices(int UNUSED(x), int y, int UNUSED(w), int UNUSED(h)) {
@@ -421,8 +422,8 @@ void draw_settings_text_devices(int UNUSED(x), int y, int UNUSED(w), int UNUSED(
 void draw_settings_text_password(int UNUSED(x), int y, int UNUSED(w), int UNUSED(h)) {
     setfont(FONT_MISC);
     setcolor(C_RED);
-    drawstr(MAIN_LEFT + SCALE(80), y + SCALE(256), PROFILE_PW_WARNING);
-    drawstr(MAIN_LEFT + SCALE(80), y + SCALE(270), PROFILE_PW_NO_RECOVER);
+    drawstr(MAIN_LEFT + SCALE(80), y + SCALE(310), PROFILE_PW_WARNING);
+    drawstr(MAIN_LEFT + SCALE(80), y + SCALE(330), PROFILE_PW_NO_RECOVER);
 }
 
 void draw_settings_text_network(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)) {

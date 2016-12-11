@@ -314,6 +314,9 @@ panel_main = {
                     (PANEL*)&edit_toxid,
                     (PANEL*)&button_copyid,
                     (PANEL*)&dropdown_language,
+                    (PANEL*)&edit_nospam,
+                    (PANEL*)&button_change_nospam,
+                    (PANEL*)&button_revert_nospam,
                     (PANEL*)&button_show_password_settings,
                     &panel_profile_password_settings,
                     NULL
