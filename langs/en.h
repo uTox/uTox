@@ -714,3 +714,21 @@ msgstr("Send typing notifications")
 
 msgid(STATUS_NOTIFICATIONS)
 msgstr("Status Notifications")
+
+msgid(RANDOMIZE_NOSPAM)
+msgstr("Randomize Nospam")
+
+msgid(NOSPAM)
+msgstr("Nospam")
+
+msgid(REVERT_NOSPAM)
+msgstr("Revert Nospam")
+
+msgid(NOSPAM_WARNING)
+msgstr("Changing your nospam will cause your old tox ID to no longer work. uTox does not update your ID on name servers.")
+
+msgid(BLOCK_FRIEND_REQUESTS)
+msgstr("Block Friend Requests")
+
+msgid(SHOW_NOSPAM)
+msgstr("Show Nospam Settings")

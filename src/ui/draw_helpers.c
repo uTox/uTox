@@ -422,9 +422,10 @@ void draw_settings_text_profile(int UNUSED(x), int y, int UNUSED(w), int UNUSED(
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(60), STATUSMESSAGE);
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(110), TOXID);
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(160), LANGUAGE);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(210), PROFILE_PASSWORD);
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(220), PROFILE_PASSWORD);
 }
 
+// Devices settings page
 void draw_settings_text_devices(int UNUSED(x), int y, int UNUSED(w), int UNUSED(h)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
@@ -441,10 +442,11 @@ void draw_settings_text_devices(int UNUSED(x), int y, int UNUSED(w), int UNUSED(
 void draw_settings_text_password(int UNUSED(x), int y, int UNUSED(w), int UNUSED(h)) {
     setfont(FONT_MISC);
     setcolor(C_RED);
-    drawstr(MAIN_LEFT + SCALE(80), y + SCALE(256), PROFILE_PW_WARNING);
-    drawstr(MAIN_LEFT + SCALE(80), y + SCALE(270), PROFILE_PW_NO_RECOVER);
+    drawstr(MAIN_LEFT + SCALE(80), y + SCALE(310), PROFILE_PW_WARNING);
+    drawstr(MAIN_LEFT + SCALE(80), y + SCALE(330), PROFILE_PW_NO_RECOVER);
 }
 
+// Network settings page
 void draw_settings_text_network(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)) {
     setfont(FONT_MISC);
     setcolor(C_RED);
@@ -459,6 +461,7 @@ void draw_settings_text_network(int UNUSED(x), int y, int UNUSED(w), int UNUSED(
     drawtext(MAIN_LEFT + SCALE(264), y + SCALE(114), ":", 1);
 }
 
+// UI settings page
 void draw_settings_text_ui(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
@@ -471,6 +474,7 @@ void draw_settings_text_ui(int UNUSED(x), int y, int UNUSED(w), int UNUSED(heigh
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(185), SETTINGS_UI_MINI_ROSTER);
 }
 
+// Audio/Video settings page
 void draw_settings_text_av(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
@@ -498,6 +502,7 @@ void draw_settings_text_av(int UNUSED(x), int y, int UNUSED(w), int UNUSED(heigh
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(draw_pos_y), PREVIEW);
 }
 
+// Notification settings page
 void draw_settings_text_notifications(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
@@ -508,9 +513,23 @@ void draw_settings_text_notifications(int UNUSED(x), int y, int UNUSED(w), int U
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(100), GROUP_NOTIFICATIONS);
 }
 
+// Advanced settings page
 void draw_settings_text_adv(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
+
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(10), BLOCK_FRIEND_REQUESTS);
+}
+
+void draw_nospam_settings(int UNUSED(x), int y, int UNUSED(w), int UNUSED(h)){
+    setfont(FONT_MISC);
+    setcolor(C_RED);
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(60), NOSPAM_WARNING);
+
+    setcolor(COLOR_MAIN_TEXT);
+    setfont(FONT_SELF_NAME);
+
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(80), NOSPAM);
 }
 
 void draw_friend_settings(int UNUSED(x), int y, int UNUSED(width), int UNUSED(height)) {

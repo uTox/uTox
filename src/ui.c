@@ -150,10 +150,15 @@ void ui_set_scale(uint8_t scale) {
     // Notifications tab
     CREATE_SWITCH(audible_notifications,        SCALE(-10) - BM_SWITCH_WIDTH, SCALE(10),  BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
     CREATE_SWITCH(status_notifications,         SCALE(-10) - BM_SWITCH_WIDTH, SCALE(40),  BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
-    CREATE_SWITCH(typing_notes,                 SCALE(-10) - BM_SWITCH_WIDTH, SCALE(70), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(typing_notes,                 SCALE(-10) - BM_SWITCH_WIDTH, SCALE(70),  BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
     CREATE_DROPDOWN(global_group_notifications, SCALE(10),                    SCALE(120), SCALE(24),       SCALE(100));
 
     // Adanced tab
+    CREATE_BUTTON(show_nospam, SCALE(10), SCALE(30), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+    CREATE_BUTTON(change_nospam, SCALE(90), SCALE(80), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+    CREATE_BUTTON(revert_nospam, SCALE(260), SCALE(80), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+    CREATE_EDIT(nospam, SCALE(10), SCALE(100), SCALE(-10), SCALE(24));
+    CREATE_SWITCH(block_friend_requests, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(10), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
 
     /* User Badge & Roster  */
     CREATE_BUTTON(avatar, SIDEBAR_AVATAR_LEFT, SIDEBAR_AVATAR_TOP, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
@@ -192,8 +197,8 @@ void ui_set_scale(uint8_t scale) {
 
     /* Profile              */
     CREATE_BUTTON(copyid, SCALE(66), SCALE(106), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
-    CREATE_BUTTON(show_password_settings, SCALE(145), SCALE(206), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
-    CREATE_BUTTON(lock_uTox, SCALE(10), SCALE(260), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+    CREATE_BUTTON(show_password_settings, SCALE(145), SCALE(220), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+    CREATE_BUTTON(lock_uTox, SCALE(10), SCALE(310), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
 
     CREATE_EDIT(name, SCALE(10), SCALE(27), SCALE(-10), SCALE(24));
     CREATE_EDIT(status, SCALE(10), SCALE(76), SCALE(-10), SCALE(24));
@@ -251,7 +256,7 @@ void ui_set_scale(uint8_t scale) {
 
     // Profile tab
 
-    CREATE_DROPDOWN(language, SCALE(10), SCALE(177), SCALE(24), SCALE(-10));
+    CREATE_DROPDOWN(language, SCALE(10), SCALE(180), SCALE(24), SCALE(-10));
 
 
     // Network tab

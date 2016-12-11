@@ -432,6 +432,23 @@ static void button_export_chatlog_on_mup(void) {
     utox_export_chatlog_init(((FRIEND *)flist_get_selected()->data)->number);
 }
 
+static void button_change_nospam_on_mup(void) {
+    button_revert_nospam.disabled = false;
+    postmessage_toxcore(TOX_SELF_CHANGE_NOSPAM, 1, 0, NULL);
+}
+
+static void button_revert_nospam_on_mup(void) {
+    if (self.old_nospam == 0 || self.nospam == self.old_nospam) { //nospam can not be 0
+        debug("Invalid or current nospam: %u.\n", self.old_nospam);
+        return;
+    }
+    postmessage_toxcore(TOX_SELF_CHANGE_NOSPAM, 0, 0, NULL);
+    button_revert_nospam.disabled = true;
+}
+
+static void button_show_nospam_on_mup(void) {
+    panel_nospam_settings.disabled = !panel_nospam_settings.disabled;
+}
 
 BUTTON button_avatar = {
     .nodraw = true, .on_mup = button_avatar_on_mup, .onright = button_avatar_onright,
@@ -606,6 +623,31 @@ BUTTON button_export_chatlog = {
     .disabled = false,
 };
 
+BUTTON button_change_nospam = {
+    .bm           = BM_SBUTTON,
+    .update       = button_setcolors_success,
+    .tooltip_text = {.i18nal = STR_RANDOMIZE_NOSPAM},
+    .button_text  = {.i18nal = STR_RANDOMIZE_NOSPAM},
+    .on_mup       = button_change_nospam_on_mup,
+};
+
+BUTTON button_revert_nospam = {
+    .disabled     = true,
+    .bm           = BM_SBUTTON,
+    .update       = button_setcolors_success,
+    .tooltip_text = {.i18nal = STR_REVERT_NOSPAM},
+    .button_text  = {.i18nal = STR_REVERT_NOSPAM},
+    .on_mup       = button_revert_nospam_on_mup,
+};
+
+BUTTON button_show_nospam = {
+    .bm           = BM_SBUTTON,
+    .update       = button_setcolors_success,
+    .tooltip_text = {.i18nal = STR_SHOW_NOSPAM},
+    .button_text  = {.i18nal = STR_SHOW_NOSPAM},
+    .on_mup       = button_show_nospam_on_mup,
+};
+
 extern SCROLLABLE scrollbar_settings;
 
 static void button_settings_on_mup(void) {
@@ -657,13 +699,13 @@ static void button_settings_sub_av_on_mup(void) {
     panel_settings_av.disabled = false;
 }
 
-static void button_settings_sub_adv_onpress(void) {
+static void button_settings_sub_adv_on_mup(void) {
     scrollbar_settings.content_height = SCALE(300);
     disable_all_setting_sub();
     panel_settings_adv.disabled = false;
 }
 
-static void button_settings_sub_notifications_onpress(void){
+static void button_settings_sub_notifications_on_mup(void){
     scrollbar_settings.content_height = SCALE(300);
     disable_all_setting_sub();
     panel_settings_notifications.disabled = false;
@@ -733,13 +775,13 @@ BUTTON
 
     button_settings_sub_adv = {
         .nodraw = true,
-        .onpress = button_settings_sub_adv_onpress,
+        .on_mup = button_settings_sub_adv_on_mup,
         .tooltip_text = {.i18nal = STR_ADVANCED_BUTTON },
     },
 
     button_settings_sub_notifications = {
         .nodraw = true,
-        .onpress = button_settings_sub_notifications_onpress,
+        .on_mup = button_settings_sub_notifications_on_mup,
         .tooltip_text = {.i18nal = STR_NOTIFICATIONS_BUTTON },
     },
 
