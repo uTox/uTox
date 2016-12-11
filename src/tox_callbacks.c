@@ -15,6 +15,12 @@
 
 static void callback_friend_request(Tox *UNUSED(tox), const uint8_t *id, const uint8_t *msg, size_t length,
                                     void *UNUSED(userdata)) {
+
+    if (settings.block_friend_requests) {
+        debug_warning("Friend request ignored.\n");
+        return;
+    }
+
     length = utf8_validate(msg, length);
 
     FRIENDREQ *req = malloc(sizeof(FRIENDREQ) + length);

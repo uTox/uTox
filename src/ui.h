@@ -100,7 +100,8 @@ extern PANEL panel_root, panel_side_bar, panel_self, panel_quick_buttons, panel_
     panel_friend, panel_friend_chat, panel_friend_video, panel_friend_settings, panel_friend_request, panel_overhead,
     panel_splash_page, panel_profile_password, panel_add_friend, panel_settings_master, panel_settings_subheader,
     panel_settings_profile, panel_profile_password_settings, panel_settings_devices, panel_settings_net,
-    panel_settings_ui, panel_settings_av, panel_settings_notifications, panel_settings_adv, messages_friend, messages_group;
+    panel_settings_ui, panel_settings_av, panel_settings_notifications, panel_settings_adv, messages_friend, messages_group,
+    panel_nospam_settings;
 
 /* draws an image in the style of an avatar at within rect (x,y,targetwidth,targetheight)
  * this means: resize the image while keeping proportion so that the dimension(width or height) that has the smallest

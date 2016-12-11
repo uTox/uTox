@@ -22,6 +22,7 @@ SETTINGS settings = {
     .enable_udp     = true,
     .enable_ipv6    = true,
     .use_encryption = true,
+    .block_friend_requests = false,
     // .portable_mode               // included here to match the full struct
 
     .proxy_port = 0,
