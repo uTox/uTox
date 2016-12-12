@@ -37,15 +37,15 @@ static bool make_dir(wchar_t path[UTOX_FILE_NAME_LENGTH]) {
     return SHCreateDirectoryExW(NULL, path, NULL); // Fall back to the default permissions on Windows
 }
 
-FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS opts) {
-    char path[UTOX_FILE_NAME_LENGTH] = { 0 };
+FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts) {
+    uint8_t path[UTOX_FILE_NAME_LENGTH] = { 0 };
 
     if (settings.portable_mode) {
         strcpy((char *)path, portable_mode_save_path);
     } else {
         if (FAILED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, path))) {
             if (FAILED(SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, path))) {
-                strcpy(path, portable_mode_save_path);
+                strcpy((char *)path, portable_mode_save_path);
             }
         }
     }
@@ -53,20 +53,23 @@ FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS opts) {
     if (opts > UTOX_FILE_OPTS_DELETE) {
         debug_error("NATIVE:\tDon't call native_get_file with UTOX_FILE_OPTS_DELETE in combination with other options.\n");
         return NULL;
+    } else if (opts & UTOX_FILE_OPTS_WRITE && opts & UTOX_FILE_OPTS_APPEND) {
+        debug_error("NATIVE:\tDon't call native_get_file with UTOX_FILE_OPTS_WRITE in combination with UTOX_FILE_OPTS_APPEND.\n");
+        return NULL;
     }
 
-    if (strlen(path) + strlen("\\Tox\\") + strlen(name) >= UTOX_FILE_NAME_LENGTH) {
+    if (strlen((char *)path) + strlen("\\Tox\\") + strlen((char *)name) >= UTOX_FILE_NAME_LENGTH) {
         debug_error("NATIVE:\tLoad directory name too long\n");
         return NULL;
     }
 
     if (opts & UTOX_FILE_OPTS_WRITE || opts & UTOX_FILE_OPTS_MKDIR) {
         wchar_t make_path[UTOX_FILE_NAME_LENGTH] = { 0 }; // I still don't trust windows
-        MultiByteToWideChar(CP_UTF8, 0, path, strlen(path), make_path, UTOX_FILE_NAME_LENGTH);
+        MultiByteToWideChar(CP_UTF8, 0, path, strlen((char *)path), make_path, UTOX_FILE_NAME_LENGTH);
         make_dir(make_path);
     }
 
-    snprintf(path + strlen(path), UTOX_FILE_NAME_LENGTH - strlen(path), "\\Tox\\%s", name);
+    snprintf((char *)path + strlen((char *)path), UTOX_FILE_NAME_LENGTH - strlen((char *)path), "\\Tox\\%s", (char *)name);
 
     for (size_t i = 0; path[i] != '\0'; ++i) {
         if (path[i] == '/') {
@@ -75,7 +78,7 @@ FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS opts) {
     }
 
     wchar_t wide[UTOX_FILE_NAME_LENGTH] = { 0 };
-    MultiByteToWideChar(CP_UTF8, 0, path, strlen(path), wide, UTOX_FILE_NAME_LENGTH);
+    MultiByteToWideChar(CP_UTF8, 0, path, strlen((char *)path), wide, UTOX_FILE_NAME_LENGTH);
 
     if (opts == UTOX_FILE_OPTS_DELETE) {
         if (!DeleteFile(path)) {
@@ -107,9 +110,9 @@ FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS opts) {
  *
  */
 bool native_create_dir(const uint8_t *filepath) {
-    // Maybe switch this to SHCreateDirectoryExW at some point. 
+    // Maybe switch this to SHCreateDirectoryExW at some point.
     uint8_t path[UTOX_FILE_NAME_LENGTH] = { 0 };
-    strcpy(path, filepath);
+    strcpy((char *)path, (char *)filepath);
 
     for (size_t i = 0; path[i] != '\0'; ++i) {
         if (path[i] == '/') {
@@ -129,7 +132,7 @@ bool native_create_dir(const uint8_t *filepath) {
         case ERROR_BAD_PATHNAME:
             debug_error("NATIVE:\tUnable to create path: `%s` - bad path name.\n", filepath);
             return false;
-            break; 
+            break;
 
         case ERROR_FILENAME_EXCED_RANGE:
         case ERROR_PATH_NOT_FOUND:
@@ -176,6 +179,6 @@ bool native_remove_file(const uint8_t *name, size_t length) {
         debug_info("NATIVE:\tFile deleted!\n");
         debug("NATIVE:\t\t%s\n", path);
     }
-    
+
     return true;
 }

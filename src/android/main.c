@@ -194,30 +194,66 @@ void writesavedata(void *data, uint32_t len) {
     }
 }
 
-FILE *native_get_file(char *name, size_t *size, UTOX_FILE_OPTS opts) {
-    char path[UTOX_FILE_NAME_LENGTH] = { 0 };
+// TODO: DRY. This function exists in both posix/filesys.c and in android/main.c
+// Make a posix native_get_file that you pass a complete path to instead of letting it construct
+// one would fix this.
+static void opts_to_sysmode(UTOX_FILE_OPTS opts, char *mode) {
+    if (opts & UTOX_FILE_OPTS_READ) {
+        mode[0] = 'r';
+    }
+
+    if (opts & UTOX_FILE_OPTS_APPEND) {
+        mode[0] = 'a';
+    } else if (opts & UTOX_FILE_OPTS_WRITE) {
+        mode[0] = 'w';
+    }
+
+    mode[1] = 'b';
+
+    if ((opts & (UTOX_FILE_OPTS_WRITE | UTOX_FILE_OPTS_APPEND)) && (opts & UTOX_FILE_OPTS_READ)) {
+        mode[2] = '+';
+    }
+
+    mode[3] = 0;
+
+    return;
+}
+
+FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts) {
+    uint8_t path[UTOX_FILE_NAME_LENGTH] = { 0 };
 
     snprintf(path, UTOX_FILE_NAME_LENGTH, ANDROID_INTERNAL_SAVE);
 
-    if (strlen(path) + strlen(name) >= UTOX_FILE_NAME_LENGTH) {
-        debug("NATIVE:\tLoad directory name too long\n");
-        return 0;
-    } else {
-        snprintf(path + strlen(path), UTOX_FILE_NAME_LENGTH - strlen(path), "%s",
-                 name);
+    // native_get_file should never be called with DELETE in combination with other FILE_OPTS.
+    assert(opts <= UTOX_FILE_OPTS_DELETE);
+    // WRITE and APPEND are mutually exclusive. WRITE will serve you a blank file. APPEND will append (duh).
+    assert((opts & UTOX_FILE_OPTS_WRITE && opts & UTOX_FILE_OPTS_APPEND) == false);
+
+    if (opts & UTOX_FILE_OPTS_READ || opts & UTOX_FILE_OPTS_MKDIR) {
+        if (!native_create_dir(path)) {
+            return NULL;
+        }
     }
 
-    FILE *fp = NULL;
-    if (opts & UTOX_FILE_OPTS_READ) {
-        fp = fopen(path, "rb");
-    } else if (opts & UTOX_FILE_OPTS_WRITE) {
-        fp = fopen(path, "wb");
-    } else if(opts & UTOX_FILE_OPTS_APPEND) {
-        fp = fopen(path, "ab");
+    if (strlen((char *)path) + strlen((char *)name) >= UTOX_FILE_NAME_LENGTH) {
+        debug("NATIVE:\tLoad directory name too long\n");
+        return NULL;
+    } else {
+        snprintf((char *)path + strlen((char *)path), UTOX_FILE_NAME_LENGTH - strlen((char *)path), "%s", name);
     }
+
+    if (opts == UTOX_FILE_OPTS_DELETE) {
+        remove(path);
+        return NULL;
+    }
+
+    char mode[4] = { 0 };
+    opts_to_sysmode(opts, mode);
+
+    FILE *fp = fopen(path, mode);
 
     if (fp == NULL) {
-        debug("Could not open %s\n", path);
+        debug_error("NATIVE:\tCould not open %s\n", path);
         return NULL;
     }
 
