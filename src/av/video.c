@@ -257,7 +257,7 @@ void utox_video_thread(void *args) {
                 }
 
                 uint32_t i, active_video_count = 0;
-                for (i = 0; i < self.friend_list_size; i++) {
+                for (i = 0; i < self.friend_list_count; i++) {
                     if (SEND_VIDEO_FRAME(i)) {
                         debug("uToxVideo:\tsending video frame to friend %u\n", i);
                         active_video_count++;

@@ -154,7 +154,10 @@ void utox_friend_init(Tox *tox, uint32_t friend_number) {
 }
 
 void utox_friend_list_init(Tox *tox) {
-    self.friend_list_count = tox_self_get_friend_list_size(tox);
+    /* Eventually count should be the literal number of current friends
+     * and size will be the capacity. Without dynamic sized friend array
+     * we just set both to the number when we init, and hope for the best! */
+    self.friend_list_count = self.friend_list_size = tox_self_get_friend_list_size(tox);
 
     uint32_t i;
     for (i = 0; i < self.friend_list_count; ++i) {
