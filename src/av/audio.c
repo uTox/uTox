@@ -489,13 +489,13 @@ void utox_audio_thread(void *args) {
 
     ToxAV *av = args;
 
-#ifdef AUDIO_FILTERING
+    #ifdef AUDIO_FILTERING
     debug("uToxAudio:\tAudio Filtering");
-#ifdef ALC_LOOPBACK_CAPTURE_SAMPLES
+    #ifdef ALC_LOOPBACK_CAPTURE_SAMPLES
     debug(" and Echo cancellation");
-#endif
+    #endif
     debug(" enabled in this build\n");
-#endif
+    #endif
     // bool call[MAX_CALLS] = {0}, preview = 0;
     // bool groups_audio[MAX_NUM_GROUPS] = {0};
 
@@ -520,9 +520,9 @@ void utox_audio_thread(void *args) {
     int16_t *    preview_buffer       = NULL;
     unsigned int preview_buffer_index = 0;
     bool         preview_on           = 0;
-#define PREVIEW_BUFFER_SIZE (UTOX_DEFAULT_SAMPLE_RATE_A / 2)
+    #define PREVIEW_BUFFER_SIZE (UTOX_DEFAULT_SAMPLE_RATE_A / 2)
 
-    preview_buffer       = calloc(PREVIEW_BUFFER_SIZE, 2);
+    preview_buffer = calloc(PREVIEW_BUFFER_SIZE, 2);
     preview_buffer_index = 0;
 
     utox_audio_thread_init = 1;
@@ -631,8 +631,8 @@ void utox_audio_thread(void *args) {
             }
         }
 
-// TODO move this code to filter_audio.c
-#ifdef AUDIO_FILTERING
+        // TODO move this code to filter_audio.c
+        #ifdef AUDIO_FILTERING
         if (!f_a && settings.audiofilter_enabled) {
             f_a = new_filter_audio(UTOX_DEFAULT_SAMPLE_RATE_A);
             if (!f_a) {
@@ -646,11 +646,11 @@ void utox_audio_thread(void *args) {
             f_a = NULL;
             debug("filter audio off\n");
         }
-#else
+        #else
         if (settings.audiofilter_enabled) {
             settings.audiofilter_enabled = 0;
         }
-#endif
+        #endif
 
         bool sleep = 1;
 
@@ -676,8 +676,8 @@ void utox_audio_thread(void *args) {
                 }
             }
 
-#ifdef AUDIO_FILTERING
-#ifdef ALC_LOOPBACK_CAPTURE_SAMPLES
+            #ifdef AUDIO_FILTERING
+            #ifdef ALC_LOOPBACK_CAPTURE_SAMPLES
             if (f_a && settings.audiofilter_enabled) {
                 alcGetIntegerv(audio_out_device, ALC_LOOPBACK_CAPTURE_SAMPLES, sizeof(samples), &samples);
                 if (samples >= perframe) {
@@ -690,12 +690,12 @@ void utox_audio_thread(void *args) {
                     }
                 }
             }
-#endif
-#endif
+            #endif
+            #endif
 
             if (frame) {
                 bool voice = 1;
-#ifdef AUDIO_FILTERING
+                #ifdef AUDIO_FILTERING
                 if (f_a) {
                     int ret = filter_audio(f_a, (int16_t *)buf, perframe);
 
@@ -707,7 +707,7 @@ void utox_audio_thread(void *args) {
                         voice = 0;
                     }
                 }
-#endif
+                #endif
 
                 /* If push to talk, we don't have to do anything */
                 if (!check_ptt_key()) {
@@ -729,8 +729,8 @@ void utox_audio_thread(void *args) {
                 }
 
                 if (voice) {
-                    size_t i, active_call_count = 0;
-                    for (i = 0; i < self.friend_list_size; i++) {
+                    size_t active_call_count = 0;
+                    for (size_t i = 0; i < self.friend_list_count; i++) {
                         if (UTOX_SEND_AUDIO(i)) {
                             active_call_count++;
                             TOXAV_ERR_SEND_FRAME error = 0;
