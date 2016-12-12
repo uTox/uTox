@@ -394,7 +394,7 @@ void utox_export_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], FILE *dest_file) {
         char c;
         /* Write Author */
         fwrite("<", 1, 1, dest_file);
-        for (int i = 0; i < header.author_length; ++i) {
+        for (size_t i = 0; i < header.author_length; ++i) {
             c = fgetc(file);
             if (c != EOF) {
                 fputc(c, dest_file);
@@ -406,7 +406,7 @@ void utox_export_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], FILE *dest_file) {
 
         /* Write text */
         fwrite(" ", 1, 1, dest_file);
-        for (int i = 0; i < header.msg_length; ++i) {
+        for (size_t i = 0; i < header.msg_length; ++i) {
             c = fgetc(file);
             if (c != EOF) {
                 fputc(c, dest_file);
