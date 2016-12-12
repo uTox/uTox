@@ -16,32 +16,13 @@ FRIEND* get_friend(uint32_t friend_number){
     return NULL;
 }
 
-/** Writes friend meta data filename for fid to dest. returns length written */
-static int friend_meta_data_path(char *dest, size_t size_dest, uint8_t *friend_key, uint32_t friend_num) {
-    if (size_dest < TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".fmetadata")) {
-        return -1;
-    }
-
-    cid_to_string(dest, friend_key);
-    dest += TOX_PUBLIC_KEY_SIZE * 2;
-    memcpy((char *)dest, ".fmetadata", sizeof(".fmetadata"));
-
-    return TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".fmetadata");
-}
-
-static void friend_meta_data_read(Tox *tox, int friend_id) {
+static void friend_meta_data_read(FRIEND *f) {
     /* Will need to be rewritten if anything is added to friend's meta data */
 
-    uint8_t client_id[TOX_PUBLIC_KEY_SIZE];
-    tox_friend_get_public_key(tox, friend_id, client_id, 0);
 
     char path[UTOX_FILE_NAME_LENGTH];
 
-    int len = friend_meta_data_path(path, UTOX_FILE_NAME_LENGTH, client_id, friend_id);
-    if (len == -1) {
-        debug("Metadata:\tError getting meta data file name for friend %d\n", friend_id);
-        return;
-    }
+    snprintf(path, UTOX_FILE_NAME_LENGTH, "%.*s.fmetadata", TOX_PUBLIC_KEY_SIZE * 2,  f->id_str);
 
     uint32_t size;
     void *   file_data = file_raw((char *)path, &size);
@@ -65,14 +46,14 @@ static void friend_meta_data_read(Tox *tox, int friend_id) {
         }
 
         if (((FRIEND_META_DATA_OLD *)metadata)->alias_length) {
-            friend_set_alias(&friend[friend_id], file_data + sizeof(size_t),
+            friend_set_alias(f, file_data + sizeof(size_t),
                              ((FRIEND_META_DATA_OLD *)metadata)->alias_length);
         } else {
-            friend_set_alias(&friend[friend_id], NULL, 0);
+            friend_set_alias(f, NULL, 0);
         }
 
         debug("Metadata:\tConverting old metadata file to new!\n");
-        utox_write_metadata(&friend[friend_id]);
+        utox_write_metadata(f);
 
         free(metadata);
         free(file_data);
@@ -88,12 +69,12 @@ static void friend_meta_data_read(Tox *tox, int friend_id) {
     }
 
     if (metadata->alias_length) {
-        friend_set_alias(&friend[friend_id], &metadata->data[0], metadata->alias_length);
+        friend_set_alias(f, &metadata->data[0], metadata->alias_length);
     } else {
-        friend_set_alias(&friend[friend_id], NULL, 0); /* uTox expects this to be 0/NULL if there's no alias. */
+        friend_set_alias(f, NULL, 0); /* uTox expects this to be 0/NULL if there's no alias. */
     }
 
-    friend[friend_id].ft_autoaccept = metadata->ft_autoaccept;
+    f->ft_autoaccept = metadata->ft_autoaccept;
 
     free(metadata);
     free(file_data);
@@ -150,7 +131,7 @@ void utox_friend_init(Tox *tox, uint32_t friend_number) {
     messages_read_from_log(friend_number);
 
     // Load the meta data, if it exists.
-    friend_meta_data_read(tox, friend_number);
+    friend_meta_data_read(f);
 }
 
 void utox_friend_list_init(Tox *tox) {
