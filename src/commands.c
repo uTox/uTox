@@ -1,18 +1,18 @@
 // commands.c
 #include "commands.h"
 
+#include "command_funcs.h"
 #include "util.h"
 #include "flist.h"
 
-
-int slash_send_file(FRIEND *friend_handle, const char *filepath) {
-    if (filepath == NULL)
-        return 0;
-
-    debug("Slash:\tFile path is: %s\n", filepath);
-    postmessage_toxcore(TOX_FILE_SEND_NEW_SLASH, friend_handle - friend, 0xFFFF, (void *)filepath);
-    return 1;
-}
+struct Command commands[MAX_NUM_CMDS] = {
+    { "alias",    5, slash_alias     },
+    { "invite",   6, slash_invite    },
+    { "d",        1, slash_device    },
+    { "sendfile", 8, slash_send_file },
+    { "topic",    5, slash_topic     },
+    { NULL,       0, NULL            },
+};
 
 uint16_t utox_run_command(char *string, uint16_t string_length, char **cmd, char **argument, int trusted) {
     if (trusted == 0) {
@@ -52,58 +52,18 @@ uint16_t utox_run_command(char *string, uint16_t string_length, char **cmd, char
         return 0;
     }
 
-    /* Start accepting actions */
-    if ((cmd_length == 1) && (memcmp(*cmd, "d", 1) == 0)) {
-        if (flist_get_selected()->item == ITEM_FRIEND) {
-            FRIEND *f = flist_get_selected()->data;
-
-            uint8_t id[TOX_FRIEND_ADDRESS_SIZE * 2];
-            string_to_id(id, *argument);
-            void *data = malloc(TOX_FRIEND_ADDRESS_SIZE * sizeof(char));
-            if (data == NULL) {
-                debug("utox_run_command:\t Could not allocate memory.\n");
-                return 0;
-            }
-            memcpy(data, id, TOX_FRIEND_ADDRESS_SIZE);
-
-            postmessage_toxcore(TOX_FRIEND_NEW_DEVICE, f->number, 0, data);
-        }
-    } else if ((cmd_length == 5) && (memcmp(*cmd, "alias", 5) == 0)) {
-        if (flist_get_selected()->item == ITEM_FRIEND) {
-            FRIEND *f = flist_get_selected()->data;
-            if (*argument) {
-                friend_set_alias(f, *argument, argument_length);
-            } else {
-                friend_set_alias(f, NULL, 0);
-            }
-
-            utox_write_metadata(f);
-
-            cmd_length = -1; /* We'll take care of this, don't return to edit */
-        }
-    } else if ((cmd_length == 8) && (memcmp(*cmd, "sendfile", 8) == 0)) {
-        if (flist_get_selected()->item == ITEM_FRIEND) {
-            FRIEND *f = flist_get_selected()->data;
-            if (slash_send_file(f, *argument)) {
-                cmd_length = -1; /* We'll take care of this, don't return to edit */
-            } else {
-                return 0;
-            }
-        }
-    } else if (cmd_length == 6 && memcmp(*cmd, "invite", 6) == 0) {
-        if (flist_get_selected()->item == ITEM_GROUP) {
-            GROUPCHAT *g = flist_get_selected()->data;
-            FRIEND *   f = find_friend_by_name(*argument);
-            if (f != NULL && f->online) {
+    int i = 0;
+    while(commands[i].cmd){
+        if (commands[i].cmd_length == cmd_length && memcmp(commands[i].cmd, *cmd, cmd_length) == 0) {
+            bool ret = commands[i].func(flist_get_selected()->data, *argument, argument_length);
+            if (ret) {
                 cmd_length = -1;
-                postmessage_toxcore(TOX_GROUP_SEND_INVITE, g->number, f->number, NULL);
-            } else {
-                return 0;
             }
+            break;
         }
-    } else {
-        // debug("Command unsupported!\n");
+        i++;
     }
+
     return cmd_length;
 }
 

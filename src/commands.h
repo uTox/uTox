@@ -1,15 +1,16 @@
 #ifndef COMMANDS_H
 #define COMMANDS_H
 
-#include "friend.h"
+#include <stdbool.h>
+#include <stdint.h>
 
-/** slash_send_file()
- *
- * takes a file from the message box, and send it to the current friend.
- *
- * TODO, make sure the file exists.
- */
-int slash_send_file(FRIEND *friend_handle, const char *filepath);
+#define MAX_NUM_CMDS 256
+
+struct Command {
+    char *cmd;
+    int   cmd_length;
+    bool (*func)(void *object, char *arg, int arg_length);
+};
 
 /** utox_run_command()
  *
