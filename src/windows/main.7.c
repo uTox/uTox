@@ -62,7 +62,7 @@ void native_select_dir_ft(uint32_t fid, MSG_FILE *file) {
     };
 
     if (GetSaveFileName(&ofn)) {
-        postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->file->file_number, path);
+        postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->file_number, path);
     } else {
         debug("GetSaveFileName() failed\n");
     }
@@ -96,7 +96,7 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
     MultiByteToWideChar(CP_UTF8, 0, (char *)file->name, file->name_length, longname, UTOX_FILE_NAME_LENGTH);
     swprintf(fullpath, UTOX_FILE_NAME_LENGTH, L"%ls\\%ls", sub_path, longname);
     /* Windows doesn't like UTF-8 strings, so we have to hold it's hand. */
-    file->file = _fdopen(_open_osfhandle((intptr_t)CreateFileW(fullpath, GENERIC_WRITE, FILE_SHARE_READ, NULL,
+    file->via.file = _fdopen(_open_osfhandle((intptr_t)CreateFileW(fullpath, GENERIC_WRITE, FILE_SHARE_READ, NULL,
                                                                CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL),
                                          0),
                          "wb");
