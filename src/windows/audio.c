@@ -130,33 +130,33 @@ Exit:
     SAFE_RELEASE(pAudioClient)
     SAFE_RELEASE(pCaptureClient)
 
-    debug("Windows:\tAudio_init fail: %lu\n", hr);
+    debug_error("Windows:\tAudio_init fail: %lu\n", hr);
 }
 
-bool audio_init(void *handle) {
+bool audio_init(void *UNUSED(handle)) {
     return SUCCEEDED(pAudioClient->lpVtbl->Start(pAudioClient));
 }
 
-bool audio_close(void *handle) {
+bool audio_close(void *UNUSED(handle)) {
     return SUCCEEDED(pAudioClient->lpVtbl->Stop(pAudioClient));
 }
 
-static void *convertsamples(int16_t *dest, float *src, int samples) {
+static void *convertsamples(int16_t *dest, float *src, uint16_t samples) {
     if (!src) {
         memset(dest, 0, samples * 2);
         return NULL;
     }
 
-    int   i;
-    float x, y;
-    for (i = 0; i != samples; i++) {
-        x = *src++;
-        y = *src++;
-        x = (x + y) * 16368.0;
-        if (x > 32767.0) {
-            x = 32767.0;
-        } else if (x < -32768.0) {
-            x = -32768.0;
+    for (uint16_t i = 0; i != samples; i++) {
+        float x = *src++;
+        const float y = *src++;
+
+        x = (x + y) * INT16_MAX / 2.0;
+
+        if (x > INT16_MAX) {
+            x = INT16_MAX;
+        } else if (x < INT16_MIN) {
+            x = INT16_MIN;
         }
         int16_t v = lrintf(x);
         *dest++   = v; // x;
@@ -190,7 +190,7 @@ bool audio_frame(int16_t *buffer) {
             printf("ERROR\n");
         }
 
-        static bool frame = 1;
+        static bool frame = true;
 
         convertsamples(&buffer[frame ? 0 : 480], (void *)pData, 480);
 
@@ -207,7 +207,7 @@ bool audio_frame(int16_t *buffer) {
         // EXIT_ON_ERROR(hr)
 
         if (frame) {
-            return 1;
+            return true;
         }
 
         pCaptureClient->lpVtbl->GetNextPacketSize(pCaptureClient, &packetLength);
@@ -215,5 +215,5 @@ bool audio_frame(int16_t *buffer) {
         // EXIT_ON_ERROR(hr)
     }
 
-    return 0;
+    return false;
 }
