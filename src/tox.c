@@ -21,6 +21,7 @@
 #include "ui/edits.h"
 #include "ui/switch.h"
 #include "ui/switches.h"
+#include "ui/tooltip.h"
 
 static bool save_needed = 1;
 

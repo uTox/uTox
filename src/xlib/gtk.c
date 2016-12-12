@@ -304,7 +304,7 @@ static void ugtk_save_chatlog_thread(void *args) {
 
         FILE *fp = fopen(file_name, "wb");
         if (fp) {
-            utox_export_chatlog(friend_number, fp);
+            utox_export_chatlog(friend[friend_number].id_str, fp);
         }
     }
 
