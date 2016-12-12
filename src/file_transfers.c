@@ -427,7 +427,6 @@ static void utox_complete_file(FILE_TRANSFER *ft) {
 
 /* Friend has come online, restart our outgoing transfers to this friend. */
 void ft_friend_online(Tox *tox, uint32_t friend_number) {
-    (void)tox; // FIXME temp warning hiding
     for (uint16_t i = 0; i < MAX_FILE_TRANSFERS; i++) {
         FILE_TRANSFER *file = calloc(1, sizeof(*file));
         file->friend_number = friend_number;
@@ -436,10 +435,9 @@ void ft_friend_online(Tox *tox, uint32_t friend_number) {
         ft_find_resumeable(file);
         if (file->path[0]) {
             /* If we got a path from utox_file_load we should try to resume! */
-            // uint32_t f_n = ft_send_data(tox, friend_number, NULL, (uint8_t *)file, sizeof(*file));
+            file->via.file = fopen((char *)file->path, "rb");
+            ft_send_file(tox, friend_number, file->via.file, file->path, strlen((char *)file->path));
         }
-
-        free(file);
     }
 }
 
@@ -737,7 +735,7 @@ static void incoming_file_callback_chunk(Tox *tox, uint32_t friend_number, uint3
 
     FILE_TRANSFER *ft = get_file_transfer(friend_number, file_number);
     if (!ft->in_use) {
-        debug_error("FileTransfer:\tERROR incoming chuck for an out of use file transfer!\n");
+        debug_error("FileTransfer:\tERROR incoming chunk for an out of use file transfer!\n");
     }
 
     if (length == 0) {
@@ -801,7 +799,7 @@ uint32_t ft_send_avatar(Tox *tox, uint32_t friend_number) {
     }
     debug("FileTransfer:\tStarting avatar to friend %u.\n", friend_number);
 
-    // TODO send the uset avatar command.
+    // TODO send the unset avatar command.
 
     FRIEND *f = get_friend(friend_number);
     if (f->file_transfers_outgoing_active_count > MAX_FILE_TRANSFERS) {

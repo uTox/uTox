@@ -128,7 +128,7 @@ void savefiledata(FILE_TRANSFER *file) {
         debug("savefiledata:\t Could not allocate memory for path.\n");
         return;
     }
-    memcpy(path, file->file_name, file->name_length);
+    strcpy(path, file->path);
     path[file->name_length] = 0;
 
     OPENFILENAME ofn = {
@@ -142,7 +142,7 @@ void savefiledata(FILE_TRANSFER *file) {
     if (GetSaveFileName(&ofn)) {
         FILE *fp = fopen(path, "wb");
         if (fp) {
-            fwrite(file->path, file->size, 1, fp);
+            fwrite(file->via.memory, file->target_size, 1, fp);
             fclose(fp);
 
             snprintf((char *)file->path, UTOX_FILE_NAME_LENGTH, "inline.png");

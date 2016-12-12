@@ -1,7 +1,7 @@
 #ifndef FILE_TRANSFERS_H
 #define FILE_TRANSFERS_H
 
-#include "main_native.h"
+#include "main.h"
 
 #include <inttypes.h>
 #include <stdbool.h>
