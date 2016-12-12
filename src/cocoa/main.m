@@ -318,7 +318,7 @@ void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data) {
     /* If you notice any data races, or interesting bugs that appear in OSX but not xlib,
      * replace async( with sync( */
     dispatch_async(dispatch_get_main_queue(), ^{
-            tox_message(msg, param1, param2, data);
+            utox_message(msg, param1, param2, data);
             });
 }
 
