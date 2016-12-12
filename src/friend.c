@@ -18,25 +18,27 @@ FRIEND* get_friend(uint32_t friend_number){
 
 static void friend_meta_data_read(FRIEND *f) {
     /* Will need to be rewritten if anything is added to friend's meta data */
+    uint8_t path[UTOX_FILE_NAME_LENGTH];
 
+    snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "%.*s.fmetadata", TOX_PUBLIC_KEY_SIZE * 2,  f->id_str);
 
-    char path[UTOX_FILE_NAME_LENGTH];
+    size_t size = 0;
+    FILE *file = native_get_file(path, &size, UTOX_FILE_OPTS_READ);
 
-    snprintf(path, UTOX_FILE_NAME_LENGTH, "%.*s.fmetadata", TOX_PUBLIC_KEY_SIZE * 2,  f->id_str);
-
-    uint32_t size;
-    void *   file_data = file_raw((char *)path, &size);
-    if (!file_data) {
-        // debug("Meta Data not found (%s)\n", path);
+    if (!file) {
+        debug_notice("Meta Data not found (%s)\n", path);
         return;
     }
+
     FRIEND_META_DATA *metadata = calloc(1, sizeof(*metadata) + size);
     if (metadata == NULL) {
         debug("Metadata:\tCould not allocate memory for metadata.\n");
         return;
     }
 
-    memcpy(metadata, file_data, size);
+    fread(metadata, size, 1, file);
+    fclose(file);
+
     /* Compatibility code for original version of meta_data... TODO: Remove in version >= 0.10 */
     if (metadata->version >= 2) { /* Version 2 chosen because alias length (the original value at *
                                    * metadata[0] should be > 2 (hopefully)                        */
@@ -46,7 +48,7 @@ static void friend_meta_data_read(FRIEND *f) {
         }
 
         if (((FRIEND_META_DATA_OLD *)metadata)->alias_length) {
-            friend_set_alias(f, file_data + sizeof(size_t),
+            friend_set_alias(f, (void *)metadata + sizeof(size_t),
                              ((FRIEND_META_DATA_OLD *)metadata)->alias_length);
         } else {
             friend_set_alias(f, NULL, 0);
@@ -56,15 +58,14 @@ static void friend_meta_data_read(FRIEND *f) {
         utox_write_metadata(f);
 
         free(metadata);
-        free(file_data);
         return;
     } else if (metadata->version != 0) {
-        debug("Metadata:\tWARNING! This version of utox does not support this metadata file version.\n");
+        debug_notice("Metadata:\tWARNING! This version of utox does not support this metadata file version.\n");
         return;
     }
 
     if (size < sizeof(*metadata)) {
-        debug("Metadata:\tMeta Data was incomplete\n");
+        debug_error("Metadata:\tMeta Data was incomplete\n");
         return;
     }
 
@@ -77,7 +78,6 @@ static void friend_meta_data_read(FRIEND *f) {
     f->ft_autoaccept = metadata->ft_autoaccept;
 
     free(metadata);
-    free(file_data);
     return;
 }
 
@@ -293,12 +293,10 @@ void friend_add(char *name, uint16_t length, char *msg, uint16_t msg_length) {
     }
 }
 
-#define LOGFILE_EXT ".txt"
-
 void friend_history_clear(FRIEND *f) {
     messages_clear_all(&f->msg);
 
-    utox_remove_friend_chatlog(f->number);
+    utox_remove_friend_chatlog(f->id_str);
 }
 
 void friend_free(FRIEND *f) {
@@ -334,8 +332,7 @@ void friend_free(FRIEND *f) {
 }
 
 FRIEND *find_friend_by_name(uint8_t *name) {
-    int i;
-    for (i = 0; i < self.friend_list_count; i++) {
+    for (size_t i = 0; i < self.friend_list_count; i++) {
         if ((friend[i].alias && memcmp(friend[i].alias, name, friend[i].alias_length) == 0)
             || memcmp(friend[i].name, name, friend[i].name_length) == 0) {
             return &friend[i];
