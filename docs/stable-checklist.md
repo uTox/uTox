@@ -31,6 +31,7 @@
 - [ ] Break on friend offline
 - [ ] Resume on friend online
 - [ ] Autostart in-progress on friend online
+- [ ] Autostart for selected friends
 
 ## Avatars
 - [ ] Self load
