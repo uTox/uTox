@@ -51,7 +51,7 @@ typedef struct groupchat {
     void **  peer;
 } GROUPCHAT;
 
-#pragma message "GROUPCHAT needs to become dynamic"
+// #pragma message "GROUPCHAT needs to become dynamic"
 GROUPCHAT group[64];
 
 void group_init(GROUPCHAT *g, uint32_t group_number, bool av_group);

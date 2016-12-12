@@ -54,7 +54,7 @@ SETTINGS settings = {
  * if you need to localize them to a specific platform, move them from here, to each
  * src/<platform>/main.x and change from utox_ to native_ */
 bool utox_data_save_tox(uint8_t *data, size_t length) {
-    FILE *  fp     = native_get_file("tox_save.tox", NULL, UTOX_FILE_OPTS_WRITE);
+    FILE *  fp     = native_get_file((uint8_t *)"tox_save.tox", NULL, UTOX_FILE_OPTS_WRITE);
     if (fp == NULL) {
         debug("Can not open tox_save.tox to write to it.\n");
         return true;
@@ -75,7 +75,7 @@ uint8_t *utox_data_load_tox(size_t *size) {
     size_t   length = 0;
 
     for (int i = 0; i < 4; i++) {
-        fp = native_get_file((char *)name[i], &length, UTOX_FILE_OPTS_READ);
+        fp = native_get_file(name[i], &length, UTOX_FILE_OPTS_READ);
         if (fp == NULL) {
             continue;
         }
@@ -100,7 +100,7 @@ uint8_t *utox_data_load_tox(size_t *size) {
 }
 
 bool utox_data_save_utox(UTOX_SAVE *data, size_t size) {
-    FILE *fp = native_get_file("utox_save", NULL, UTOX_FILE_OPTS_WRITE);
+    FILE *fp = native_get_file((uint8_t *)"utox_save", NULL, UTOX_FILE_OPTS_WRITE);
 
     if (fp == NULL) {
         return false;
@@ -115,7 +115,7 @@ bool utox_data_save_utox(UTOX_SAVE *data, size_t size) {
 
 UTOX_SAVE *utox_data_load_utox(void) {
     size_t size = 0;
-    FILE *fp = native_get_file("utox_save", &size, UTOX_FILE_OPTS_READ);
+    FILE *fp = native_get_file((uint8_t *)"utox_save", &size, UTOX_FILE_OPTS_READ);
 
     if (fp == NULL) {
         return NULL;
@@ -138,8 +138,8 @@ UTOX_SAVE *utox_data_load_utox(void) {
 }
 
 bool utox_data_save_ftinfo(char hex[TOX_PUBLIC_KEY_SIZE * 2], uint8_t *data, size_t length) {
-    char name[TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".ftinfo")];
-    snprintf(name, sizeof(name), "%.*s.ftinfo", TOX_PUBLIC_KEY_SIZE * 2, hex);
+    uint8_t name[TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".ftinfo")];
+    snprintf((char *)name, sizeof(name), "%.*s.ftinfo", TOX_PUBLIC_KEY_SIZE * 2, hex);
 
     FILE *fp = native_get_file(name, NULL, UTOX_FILE_OPTS_WRITE);
 
@@ -155,7 +155,7 @@ bool utox_data_save_ftinfo(char hex[TOX_PUBLIC_KEY_SIZE * 2], uint8_t *data, siz
 }
 
 uint8_t *utox_data_load_custom_theme(size_t *out) {
-    FILE *fp = native_get_file("utox_theme.ini", out, UTOX_FILE_OPTS_READ);
+    FILE *fp = native_get_file((uint8_t *)"utox_theme.ini", out, UTOX_FILE_OPTS_READ);
     uint8_t *data;
 
     if (fp == NULL) {
@@ -184,8 +184,8 @@ uint8_t *utox_data_load_custom_theme(size_t *out) {
  *******************************************************************/
 
 static FILE* chatlog_get_file(char hex[TOX_PUBLIC_KEY_SIZE * 2], bool append) {
-    char name[TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".new.txt")];
-    snprintf(name, sizeof(name), "%.*s.new.txt", TOX_PUBLIC_KEY_SIZE * 2, hex);
+    uint8_t name[TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".new.txt")];
+    snprintf((char *)name, sizeof(name), "%.*s.new.txt", TOX_PUBLIC_KEY_SIZE * 2, hex);
 
     if (append) {
         return native_get_file(name, NULL, UTOX_FILE_OPTS_READ | UTOX_FILE_OPTS_APPEND | UTOX_FILE_OPTS_MKDIR);
@@ -329,7 +329,7 @@ uint8_t **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, uin
             msg->author_length = header.author_length;
 
             if (fread(msg->msg, msg->length, 1, file) != 1) {
-                debug_error("Log read:\tError reading record %lu of length %lu at offset %lu: stopping.\n",
+                debug_error("Log read:\tError reading record %u of length %u at offset %lu: stopping.\n",
                             count, msg->length, msg->disk_offset);
                 break;
             }
@@ -513,9 +513,9 @@ void parse_args(int argc, char *argv[], bool *theme_was_set_on_argv, int8_t *sho
 
             case 0: {
                 debug_error("uTox version: %s\n", VERSION);
-#ifdef GIT_VERSION
+                #ifdef GIT_VERSION
                 debug_error("git version %s\n", GIT_VERSION);
-#endif
+                #endif
                 exit(EXIT_SUCCESS);
                 break;
             }
