@@ -1,12 +1,14 @@
 // event.c
-#include <stddef.h>
 
 #include "main.h"
 
-#include "keysym2ucs.h"
-
 #include "../flist.h"
 #include "../friend.h"
+#include "../utox.h"
+
+#include "keysym2ucs.h"
+
+#include <stddef.h>
 
 extern XIC xic;
 
@@ -558,7 +560,7 @@ bool doevent(XEvent event) {
             if (ev->window == 0) {
                 void *data;
                 memcpy(&data, &ev->data.s[2], sizeof(void *));
-                tox_message(ev->message_type, ev->data.s[0], ev->data.s[1], data);
+                utox_message(ev->message_type, ev->data.s[0], ev->data.s[1], data);
                 break;
             }
 

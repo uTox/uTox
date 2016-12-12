@@ -754,7 +754,7 @@ static void android_main(struct android_app *state) {
                 }
             }
 
-            tox_message(piping.msg, piping.param1, piping.param2, piping.data);
+            utox_message(piping.msg, piping.param1, piping.param2, piping.data);
         }
 
         ANativeWindow *win = (ANativeWindow *)windowN;

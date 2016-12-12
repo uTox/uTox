@@ -177,10 +177,6 @@ void toxcore_thread(void *args);
  */
 void postmessage_toxcore(uint8_t msg, uint32_t param1, uint32_t param2, void *data);
 
-/* read a message sent from the toxcore thread (sent with postmessage())
- */
-void tox_message(uint8_t msg, uint16_t param1, uint16_t param2, void *data);
-
 void tox_settingschanged(void);
 
 #endif

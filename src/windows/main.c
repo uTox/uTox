@@ -1468,7 +1468,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam) {
         }
 
         case WM_TOX ... WM_TOX + 128: {
-            tox_message(msg - WM_TOX, wParam >> 16, wParam, (void *)lParam);
+            utox_message(msg - WM_TOX, wParam >> 16, wParam, (void *)lParam);
             return false;
         }
     }

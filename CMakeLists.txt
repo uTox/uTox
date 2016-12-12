@@ -197,7 +197,8 @@ add_library(utoxUI STATIC
     src/ui/text.c
     src/ui/text.h
     src/ui/tooltip.c
-    src/ui/tooltip.h )
+    src/ui/tooltip.h
+    )
 
 #######################################################################
 #
@@ -258,6 +259,8 @@ add_executable(utox
     src/theme_tables.h
     src/tox.c
     src/tox.h
+    src/utox.c
+    src/utox.h
     src/tox_callbacks.c
     src/tox_callbacks.h
     src/ui.c
