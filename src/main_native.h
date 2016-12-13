@@ -13,4 +13,7 @@
 #include "xlib/main.h"
 #endif
 
+void native_export_chatlog_init(uint32_t friend_number);
+
+
 #endif
