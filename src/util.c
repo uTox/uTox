@@ -807,5 +807,6 @@ void utox_write_metadata(FRIEND *f) {
             fwrite(data, total_size, 1, file);
             free(data);
         }
+        fclose(file);
     }
 }
