@@ -223,7 +223,7 @@ void utox_av_ctrl_thread(void *args) {
         }
 
         toxav_thread_msg = 0;
-        toxav_iterate(av);
+        toxav_iterate(av, NULL);
         yieldcpu(toxav_iteration_interval(av));
     }
 
@@ -465,14 +465,14 @@ static void utox_incoming_rate_change(ToxAV *AV, uint32_t f_num, uint32_t UNUSED
 
 void set_av_callbacks(ToxAV *av) {
     /* Friend update callbacks */
-    toxav_callback_call(av, &utox_av_incoming_call, NULL);
-    toxav_callback_call_state(av, &utox_callback_av_change_state, NULL);
+    toxav_callback_call(av, &utox_av_incoming_call);
+    toxav_callback_call_state(av, &utox_callback_av_change_state);
 
     /* Incoming data callbacks */
-    toxav_callback_audio_receive_frame(av, &utox_av_incoming_frame_a, NULL);
-    toxav_callback_video_receive_frame(av, &utox_av_incoming_frame_v, NULL);
+    toxav_callback_audio_receive_frame(av, &utox_av_incoming_frame_a);
+    toxav_callback_video_receive_frame(av, &utox_av_incoming_frame_v);
 
     /* Data type change callbacks. */
-    toxav_callback_bit_rate_status(av, &utox_incoming_rate_change, NULL);
+    toxav_callback_bit_rate_status(av, &utox_incoming_rate_change);
 }
 // TODO
