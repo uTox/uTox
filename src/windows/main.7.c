@@ -98,8 +98,8 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
     /* Windows doesn't like UTF-8 strings, so we have to hold it's hand. */
     file->via.file = _fdopen(_open_osfhandle((intptr_t)CreateFileW(fullpath, GENERIC_WRITE, FILE_SHARE_READ, NULL,
                                                                CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL),
-                                         0),
-                         "wb");
+                                              0),
+                             "wb");
 
     /* Back to UTF8 for uTox */
     native_to_utf8str(fullpath, send, UTOX_FILE_NAME_LENGTH);

@@ -77,7 +77,7 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts) {
     FILE *fp = fopen(path, mode);
 
     if (fp == NULL) {
-        debug_error("NATIVE:\tCould not open %s\n", path);
+        debug_notice("NATIVE:\tCould not open %s\n", path);
         return NULL;
     }
 

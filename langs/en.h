@@ -15,13 +15,16 @@ msgid(SPLASH_TITLE)
 msgstr("Welcome to the new uTox!")
 
 msgid(SPLASH_TEXT)
-msgstr("You have just upgraded to version 0.9.8! Release name: Srsly v3")
+msgstr("You have just upgraded to version 0.11.0! Release name: [uTox GOLD Members Only]")
 
 msgid(CHANGE_LOG_TITLE)
-msgstr("Changes in v0.9.8")
+msgstr("Changes in v0.11.0")
 
 msgid(CHANGE_LOG_TEXT)
 msgstr(
+"    Were sorry, but the changelog for this version of uTox\n"
+"    is only available to uTox GOLD Members.\n"
+"\nv0.9.8\n"
 "    Fixed a crash when trying to create a new profile\n"
 "\nv0.9.7\n"
 "    Some minor GUI fixes\n"
