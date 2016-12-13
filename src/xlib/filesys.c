@@ -173,21 +173,27 @@ void native_select_dir_ft(uint32_t fid, uint32_t file_number, FILE_TRANSFER *fil
 }
 
 void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
-    /* TODO: maybe do something different here? */
-    if (settings.portable_mode) {
-        uint8_t *path = malloc(file->name_length + 1);
-        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "./tox/Tox_Auto_Accept/");
-        native_create_dir(path);
-        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "./tox/Tox_Auto_Accept/%.*s", (int)file->name_length, file->name);
-
-        debug_notice("Native:\tAuto Accept Directory: \"%s\"\n", path);
-        postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->file_number, path);
+    if (file == NULL){
+        debug("Native:\t file is null.\n");
         return;
     }
 
-    char *path = malloc(file->name_length + 1);
-    memcpy(path, file->name, file->name_length);
-    path[file->name_length] = 0;
+    uint8_t *path = malloc(file->name_length + 1);
+    if (path == NULL) {
+        debug_error("Native:\tCould not allocate memory.\n");
+        return;
+    }
+
+    if (settings.portable_mode) {
+        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "./tox/Tox_Auto_Accept/");
+        native_create_dir(path);
+        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "./tox/Tox_Auto_Accept/%.*s", (int)file->name_length, file->name);
+    } else {
+        memcpy(path, file->name, file->name_length);
+        path[file->name_length] = 0;
+    }
+
+    debug_notice("Native:\tAuto Accept Directory: \"%s\"\n", path);
     postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->file_number, path);
 }
 

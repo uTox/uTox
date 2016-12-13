@@ -1226,7 +1226,7 @@ void tox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void 
 
             if (f->ft_autoaccept) {
                 debug("Toxcore:\tAuto Accept enabled for this friend: sending accept to system\n");
-                native_autoselect_dir_ft(param1, param2, file);
+                native_autoselect_dir_ft(param1, file);
             }
 
             MSG_FILE *m = message_add_type_file(&f->msg, param2, file->incoming, file->inline_img, file->status,
