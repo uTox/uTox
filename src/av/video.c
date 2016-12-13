@@ -256,10 +256,10 @@ void utox_video_thread(void *args) {
                     postmessage(AV_VIDEO_FRAME, 0, 1, (void *)frame);
                 }
 
-                uint32_t i, active_video_count = 0;
-                for (i = 0; i < self.friend_list_count; i++) {
+                size_t active_video_count = 0;
+                for (size_t i = 0; i < self.friend_list_count; i++) {
                     if (SEND_VIDEO_FRAME(i)) {
-                        debug("uToxVideo:\tsending video frame to friend %u\n", i);
+                        debug("uToxVideo:\tsending video frame to friend %lu\n", i);
                         active_video_count++;
                         TOXAV_ERR_SEND_FRAME error = 0;
                         toxav_video_send_frame(av, friend[i].number, utox_video_frame.w, utox_video_frame.h,
@@ -271,7 +271,7 @@ void utox_video_thread(void *args) {
                                              utox_video_frame.h);
                             } else if (error == TOXAV_ERR_SEND_FRAME_PAYLOAD_TYPE_DISABLED) {
                                 debug_error(
-                                    "uToxVideo:\tToxAV disagrees with our AV state for friend %u, self %u, friend %u\n",
+                                    "uToxVideo:\tToxAV disagrees with our AV state for friend %lu, self %u, friend %u\n",
                                     i, friend[i].call_state_self, friend[i].call_state_friend);
                             } else {
                                 debug_error("uToxVideo:\ttoxav_send_video error friend: %i error: %u\n",
