@@ -593,9 +593,9 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             debug("Tox ID: %.*s\n", (int)self.id_str_length, self.id_str);
 
             /* Update avatar */
-            avatar_move(old_id, self.id_str);
+            avatar_move((uint8_t *)old_id, (uint8_t *)self.id_str);
 
-            save_needed = 1;
+            save_needed = true;
             break;
         }
 
