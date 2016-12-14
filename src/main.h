@@ -1,7 +1,28 @@
 #ifndef UTOX_MAIN_H
 #define UTOX_MAIN_H
 
-// Versions
+/**********************************************************
+ * Includes
+ *********************************************************/
+#include <ctype.h>
+#include <inttypes.h>
+#include <limits.h>
+#include <math.h>
+#include <pthread.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <time.h>
+#include <tox/tox.h>
+
+/**********************************************************
+ *
+ * uTox Versions and header information
+ *
+ *********************************************************/
 #define TITLE "uTox"
 #define SUB_TITLE "(Alpha)"
 #define RELEASE_TITLE "GOLD MEMBERS"
@@ -14,6 +35,18 @@
 #define DEFAULT_NAME "uTox User"
 #define DEFAULT_STATUS "Toxing on uTox, from the future!"
 #define DEFAULT_SCALE 11
+
+/**********************************************************
+ *
+ * UI and Toxcore Limits
+ *
+ *********************************************************/
+
+#if TOX_VERSION_IS_API_COMPATIBLE(0, 1, 0)
+// YAY!!
+#else
+  #error "Unable to compile uTox with this Toxcore version. TOO OLD!"
+#endif
 
 // Limits and sizes
 #define UTOX_MAX_CALLS 16
@@ -61,20 +94,6 @@
 /* Support for large files. */
 #define _LARGEFILE_SOURCE
 #define _FILE_OFFSET_BITS 64
-
-#include <ctype.h>
-#include <inttypes.h>
-#include <limits.h>
-#include <math.h>
-#include <pthread.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <time.h>
-#include <tox/tox.h>
 
 #if TOX_VERSION_MAJOR > 0
 #define ENABLE_MULTIDEVICE 1
@@ -259,7 +278,6 @@ typedef enum {
 #else
 #define UNUSED(x) x
 #endif
-
 
 #include "stb_image.h"
 #include "stb_image_write.h"
