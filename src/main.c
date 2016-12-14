@@ -1,7 +1,6 @@
+// Needs to be defined before main.h
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-
-#include <getopt.h>
 
 #include "main.h"
 
@@ -9,6 +8,8 @@
 #include "groups.h"
 #include "theme.h"
 #include "util.h"
+
+#include <getopt.h>
 
 SETTINGS settings = {
     .curr_version = UTOX_VERSION_NUMBER,
