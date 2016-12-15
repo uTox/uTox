@@ -54,3 +54,8 @@
 ## Encrypted profile
 - [ ]
 
+## Toxcore interface
+- [ ] Enable/Disable IPv6
+- [ ] Enable/Disable UDP
+- [ ] Enable/Disable Proxy
+- [ ] Enable/Disable Force Proxy
