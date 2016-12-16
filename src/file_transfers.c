@@ -199,7 +199,7 @@ static bool ft_find_resumeable(FILE_TRANSFER *ft) {
 
     ft->name_length = 0;
     uint8_t *p = ft->path + strlen((char *)ft->path);
-    while (*--p != '/') {
+    while (*--p != '/' || *p == '\\') {
         ++ft->name_length;
     }
     ++p;

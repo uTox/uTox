@@ -6,7 +6,7 @@ static FILE* get_file(wchar_t path[UTOX_FILE_NAME_LENGTH], UTOX_FILE_OPTS opts) 
     // assert(UTOX_FILE_NAME_LENGTH <= (32,767 wide characters) );
     DWORD rw  = 0;
     char mode[4] = { 0 };
-    DWORD create = OPEN_ALWAYS;
+    DWORD create = OPEN_EXISTING;
 
     if (opts & UTOX_FILE_OPTS_READ) {
         rw |= GENERIC_READ;
@@ -16,6 +16,7 @@ static FILE* get_file(wchar_t path[UTOX_FILE_NAME_LENGTH], UTOX_FILE_OPTS opts) 
     if (opts & UTOX_FILE_OPTS_APPEND) {
         rw |= GENERIC_WRITE;
         mode[0] = 'a';
+        create = OPEN_ALWAYS;
     } else if (opts & UTOX_FILE_OPTS_WRITE) {
         rw |= GENERIC_WRITE;
         mode[0] = 'w';
@@ -90,7 +91,9 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts) {
     FILE *fp = get_file(wide, opts);
 
     if (fp == NULL) {
-        debug_error("Windows:\tCould not open %s\n", path);
+        if (opts > UTOX_FILE_OPTS_READ) {
+            debug_error("Windows:\tCould not open %s\n", path);
+        }
         return NULL;
     }
 
