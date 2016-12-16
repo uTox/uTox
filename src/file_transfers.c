@@ -189,11 +189,11 @@ static bool ft_find_resumeable(FILE_TRANSFER *ft) {
     FILE_TRANSFER resume_data;
     fread(&resume_data, 1, size, resume_file);
 
-    if (!resume_data.in_use
+    if (!resume_data.resumeable
+        || !resume_data.in_use
         || resume_data.in_memory
         || resume_data.avatar
-        || resume_data.inline_img
-        || !resume_data.resumeable ) {
+        || resume_data.inline_img) {
         return false;
     }
 

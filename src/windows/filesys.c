@@ -92,7 +92,7 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts) {
 
     if (fp == NULL) {
         if (opts > UTOX_FILE_OPTS_READ) {
-            debug_error("Windows:\tCould not open %s\n", path);
+            debug_notice("Windows:\tCould not open %s\n", path);
         }
         return NULL;
     }
