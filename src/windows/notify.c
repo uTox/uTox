@@ -56,7 +56,7 @@ static void redraw_notify(void) {
 
             SelectObject(active_DC, active_BM);
 
-            panel_draw(&panel_root, 0, 0, 400, 150);
+            panel_draw(&panel_notify, 0, 0, 400, 150);
         }
     }
 }
@@ -174,6 +174,7 @@ static LRESULT CALLBACK notify_msg_sys(HWND window, UINT msg, WPARAM wParam, LPA
         case WM_LBUTTONUP: {
             debug("NOTIFY::\tLeft up\n");
             ReleaseCapture();
+            redraw_notify();
             break;
         }
         case WM_LBUTTONDBLCLK: {
