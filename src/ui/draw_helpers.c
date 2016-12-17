@@ -10,9 +10,19 @@
 #include "../friend.h"
 #include "../theme.h"
 
+void draw_notification(int x, int y, int w, int h) {
+    if (!tox_thread_init) {
+        return;
+    }
+
+    draw_avatar_image(self.avatar->img, SIDEBAR_AVATAR_LEFT, SIDEBAR_AVATAR_TOP,
+                      self.avatar->width, self.avatar->height,
+                      BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
+}
 
 void draw_avatar_image(NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t targetwidth,
-                       uint32_t targetheight) {
+                       uint32_t targetheight)
+{
     /* get smallest of width or height */
     double scale = (width > height) ? (double)targetheight / height : (double)targetwidth / width;
 
