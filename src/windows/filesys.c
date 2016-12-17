@@ -129,7 +129,7 @@ bool native_create_dir(const uint8_t *filepath) {
         }
     }
 
-    const int error = SHCreateDirectoryEx(hwnd, path, NULL);
+    const int error = SHCreateDirectoryEx(NULL, path, NULL);
     switch(error) {
         case ERROR_SUCCESS:
         case ERROR_FILE_EXISTS:

@@ -24,7 +24,6 @@ void native_export_chatlog_init(uint32_t friend_number) {
 
     OPENFILENAME ofn = {
         .lStructSize = sizeof(OPENFILENAME),
-        .hwndOwner   = hwnd,
         .lpstrFilter = ".txt",
         .lpstrFile   = path,
         .nMaxFile    = UTOX_FILE_NAME_LENGTH,
@@ -55,7 +54,6 @@ void native_select_dir_ft(uint32_t fid, MSG_FILE *file) {
 
     OPENFILENAME ofn = {
         .lStructSize = sizeof(OPENFILENAME),
-        .hwndOwner   = hwnd,
         .lpstrFile   = path,
         .nMaxFile    = UTOX_FILE_NAME_LENGTH,
         .Flags       = OFN_EXPLORER | OFN_NOCHANGEDIR | OFN_NOREADONLYRETURN | OFN_OVERWRITEPROMPT,
