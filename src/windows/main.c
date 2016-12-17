@@ -849,6 +849,10 @@ void tray_icon_decon(HWND parent) {
     Shell_NotifyIcon(NIM_DELETE, &nid);
 }
 
+#define UTOX_EXE "\\uTox.exe"
+#define UTOX_UPDATER_EXE "\\utox_runner.exe"
+#define UTOX_VERSION_FILE "\\version"
+
 /** client main()
  *
  * Main thread
@@ -912,10 +916,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
         launch_at_startup(0);
     }
 
-#ifdef UPDATER_BUILD
-#define UTOX_EXE "\\uTox.exe"
-#define UTOX_UPDATER_EXE "\\utox_runner.exe"
-#define UTOX_VERSION_FILE "\\version"
+    #ifdef UPDATER_BUILD
 
     if (!no_updater) {
 
@@ -941,20 +942,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
             }
         }
     }
-#endif
+    #endif
 
-#ifdef __WIN_LEGACY
-    debug("Legacy windows build\n");
-#else
-    debug("Normal windows build\n");
-#endif
+    #ifdef __WIN_LEGACY
+        debug("Legacy windows build\n");
+    #else
+        debug("Normal windows build\n");
+    #endif
 
     // Free memory allocated by CommandLineToArgvA
     GlobalFree(argv);
 
-#ifdef GIT_VERSION
-    debug_notice("uTox version %s \n", GIT_VERSION);
-#endif
+
 
     /* */
     MSG msg;
@@ -1095,6 +1094,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
 
     return false;
 }
+
+#define setstatus(x)                                         \
+    if (self.status != x) {                                  \
+        postmessage_toxcore(TOX_SELF_SET_STATE, x, 0, NULL); \
+        self.status = x;                                     \
+        redraw();                                            \
+    }
 
 /** Handles all callback requests from winmain();
  *
@@ -1434,12 +1440,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam) {
                     break;
                 }
 
-#define setstatus(x)                                         \
-    if (self.status != x) {                                  \
-        postmessage_toxcore(TOX_SELF_SET_STATE, x, 0, NULL); \
-        self.status = x;                                     \
-        redraw();                                            \
-    }
+
 
                 case TRAY_STATUS_AVAILABLE: {
                     setstatus(TOX_USER_STATUS_NONE);
