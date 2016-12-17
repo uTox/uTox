@@ -693,3 +693,19 @@ BUTTON
         .update  = button_setcolors_success,
         .on_mup = button_add_device_to_self_mdown,
     };
+
+static void btn_move_window_mdn(void) {
+    debug("button move down\n");
+    btn_move_window_down = true;
+}
+
+static void btn_move_window_mup(void) {
+    debug("button move up\n");
+    btn_move_window_down = false;
+}
+
+BUTTON button_move_window = {
+    .nodraw = false,
+    .on_mdn = btn_move_window_mdn,
+    .on_mup = btn_move_window_mup,
+};

@@ -160,6 +160,9 @@ void ui_set_scale(uint8_t scale) {
     CREATE_BUTTON(settings, SIDEBAR_BUTTON_LEFT, ROSTER_BOTTOM, SIDEBAR_BUTTON_WIDTH, SIDEBAR_BUTTON_HEIGHT);
 
     /* Setting pages        */
+    CREATE_BUTTON(move_window, 1, SCALE(10), SCALE(40), SCALE(40));
+
+
     CREATE_BUTTON(settings_sub_profile, 1, 1, SCALE(18) + UTOX_STR_WIDTH(PROFILE_BUTTON), SCALE(28));
     uint32_t settings_tab_x = 1 + UTOX_STR_WIDTH(PROFILE_BUTTON);
 
@@ -503,21 +506,20 @@ void panel_mdown(PANEL *p) {
         return;
     }
 
-    bool    draw = edit_active();
-    PANEL **pp   = p->child, *subp;
+    bool draw = edit_active();
+
+    PANEL **pp = p->child, *subp;
+
     if (pp) {
         while ((subp = *pp++)) {
             if (!subp->disabled) {
-                if (panel_mdown_sub(subp)) {
+                if (panel_mdown_sub(subp) || draw) {
+                    redraw();
                     draw = true;
                     break;
                 }
             }
         }
-    }
-
-    if (draw) {
-        redraw();
     }
 }
 

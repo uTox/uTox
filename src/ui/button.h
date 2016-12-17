@@ -29,6 +29,7 @@ struct button {
     bool mouseover, mousedown, disabled, nodraw;
 
     void (*onright)(void); // called when right mouse button goes down
+    void (*on_mdn)(void);
     void (*on_mup)(void);
     void (*update)(BUTTON *b);
 };

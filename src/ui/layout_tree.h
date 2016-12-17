@@ -274,6 +274,7 @@ panel_main = {
             .drawfunc = draw_settings_header,
             .child = (PANEL*[]) {
                 &panel_settings_subheader,
+                (PANEL*)&button_move_window,
                 NULL
             }
         },
