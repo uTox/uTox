@@ -102,7 +102,7 @@ bool switch_mup(UISWITCH *s) {
     if (s->mousedown) {
         if (s->mouseover) {
             s->switch_on = !s->switch_on;
-            s->onpress();
+            s->on_mup();
         }
         s->mousedown = 0;
         return 1;

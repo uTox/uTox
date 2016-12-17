@@ -143,7 +143,7 @@ void devices_update_ui(void) {
 
         dele->panel  = b_delete;
         dele->bm     = BM_SBUTTON;
-        dele->update = button_setcolors_success, dele->onpress = delete_this_device,
+        dele->update = button_setcolors_success, dele->on_mup = delete_this_device,
         dele->button_text.i18nal = STR_DELETE;
 
         panel_settings_devices.child[(i * 2) + 2] = (void *)edit;
