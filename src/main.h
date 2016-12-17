@@ -45,7 +45,7 @@
 #if TOX_VERSION_IS_API_COMPATIBLE(0, 1, 0)
 // YAY!!
 #else
-  #error "Unable to compile uTox with this Toxcore version. TOO OLD!"
+  #error "Unable to compile uTox with this Toxcore version. uTox expects v0.1.*!"
 #endif
 
 // Limits and sizes
