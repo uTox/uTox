@@ -1,8 +1,9 @@
 #include "main.h"
 
-#include "window.h"
+#include "drawing.h"
 #include "notify.h"
 #include "screen_grab.h"
+#include "window.h"
 
 #include "../flist.h"
 #include "../friend.h"
@@ -530,6 +531,12 @@ void edit_will_deactivate(void) {}
 
 /* Redraws the main UI window */
 void redraw(void) {
+    target_DC = main_hdc;
+    active_DC = hdc;
+    active_BM = hdc_bm;
+
+    SelectObject(active_DC, active_BM);
+
     panel_draw(&panel_root, 0, 0, settings.window_width, settings.window_height);
 }
 
@@ -907,6 +914,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     mbstowcs(title, pretitle, title_size);
 
     hwnd = window_create_main(classname, title, save->window_x, save->window_y, save->window_width, save->window_height);
+
+    // native_notify_new(hwnd, hInstance);
 
     hdc_brush = GetStockObject(DC_BRUSH);
     tme.hwndTrack = hwnd;
