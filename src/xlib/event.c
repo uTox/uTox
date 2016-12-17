@@ -188,7 +188,6 @@ bool doevent(XEvent event) {
                     }
                     lastclick2 = lastclick;
                     lastclick  = ev->time;
-                    mdown      = 1;
                     break;
                 }
 
@@ -285,7 +284,6 @@ bool doevent(XEvent event) {
                         pointergrab = 0;
                     } else {
                         panel_mup(&panel_root);
-                        mdown = 0;
                     }
                     break;
                 }

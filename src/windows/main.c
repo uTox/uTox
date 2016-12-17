@@ -9,6 +9,7 @@
 
 #include "../av/utox_av.h"
 #include "../ui/dropdowns.h"
+#include "../ui/buttons.h"
 
 #include <windowsx.h>
 
@@ -815,6 +816,15 @@ PCHAR *CommandLineToArgvA(PCHAR CmdLine, int *_argc) {
     return argv;
 }
 
+static void os_window_interactions(int type, int x, int y){
+    debug("delta x == %i\n", x);
+    debug("delta y == %i\n", y);
+    SetWindowPos(hwnd, 0, settings.window_x + x, settings.window_y + y, 0, 0,
+                          SWP_NOSIZE | SWP_NOZORDER | SWP_NOREDRAW);
+    settings.window_x += x;
+    settings.window_y += y;
+}
+
 /** client main()
  *
  * Main thread
@@ -995,9 +1005,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     /* needed if/when the uTox becomes a muTox */
     // wmemmove(title, title+1, wcslen(title));
 
-    hwnd = CreateWindowExW(0, classname, title, WS_OVERLAPPEDWINDOW, save->window_x, save->window_y, save->window_width,
-                           save->window_height, NULL, NULL, hInstance, NULL);
 
+    hwnd = CreateWindowExW( WS_EX_APPWINDOW, classname, title,
+                            WS_POPUP | WS_VISIBLE,
+                            0, 0, MAIN_WIDTH, MAIN_HEIGHT,
+                            NULL, NULL, hinstance, NULL);
+
+    // hwnd = CreateWindowExW(  0, classname, title, WS_OVERLAPPEDWINDOW, save->window_x, save->window_y,
+    //                          MAIN_WIDTH, MAIN_HEIGHT, NULL, NULL, hInstance, NULL);
+    // free(save);
 
     hdc_brush = GetStockObject(DC_BRUSH);
 
@@ -1084,6 +1100,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
  */
 LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam) {
     static int mx, my;
+    static bool mdown = false;
+    static int mdown_x, mdown_y;
 
     if (hwnd && hwn != hwnd) {
         if (msg == WM_DESTROY) {
@@ -1127,7 +1145,11 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam) {
         }
 
         case WM_GETMINMAXINFO: {
+<<<<<<< HEAD
             POINT min = { SCALE(MAIN_WIDTH), SCALE(MAIN_HEIGHT) };
+=======
+            POINT min = { SCALE(640), SCALE(320) };
+>>>>>>> Added a button to move a borderless uTox window on Windows
             ((MINMAXINFO *)lParam)->ptMinTrackSize = min;
 
             break;
@@ -1316,6 +1338,11 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam) {
             mx = x;
             my = y;
 
+
+            if (btn_move_window_down) {
+                os_window_interactions(0, x - mdown_x, y - mdown_y);
+            }
+
             cursor = 0;
             panel_mmove(&panel_root, 0, 0, settings.window_width, settings.window_height, x, y, dx, dy);
 
@@ -1329,9 +1356,13 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam) {
             return false;
         }
 
-        case WM_LBUTTONDOWN:
+        case WM_LBUTTONDOWN: {
+            mdown_x = GET_X_LPARAM(lParam);
+            mdown_y = GET_Y_LPARAM(lParam);
+        }
         case WM_LBUTTONDBLCLK: {
             int x, y;
+            mdown = true;
 
             x = GET_X_LPARAM(lParam);
             y = GET_Y_LPARAM(lParam);
@@ -1349,7 +1380,6 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam) {
             }
 
             SetCapture(hwn);
-            mdown = true;
             break;
         }
 
@@ -1379,6 +1409,8 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam) {
         case WM_MOUSELEAVE: {
             ui_mouseleave();
             mouse_tracked = false;
+            btn_move_window_down = false;
+            debug("mouse leave\n");
             break;
         }
 

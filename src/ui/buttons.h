@@ -26,7 +26,11 @@ extern BUTTON   button_avatar,
                 button_call_video, button_group_audio, button_accept_friend, button_callpreview, button_videopreview,
                 button_send_file, button_send_screenshot, button_chat_send, button_lock_uTox, button_show_password_settings,
 
-                button_export_chatlog;
+                button_export_chatlog,
+
+                button_move_window;
+
+bool btn_move_window_down;
 
 void button_setcolors_success(BUTTON *b);
 void button_setcolors_danger(BUTTON *b);

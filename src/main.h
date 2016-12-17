@@ -174,6 +174,8 @@ volatile bool tox_thread_init, utox_av_ctrl_init, utox_audio_thread_init, utox_v
 
 double ui_scale;
 
+bool move_window_down;
+
 typedef struct utox_settings {
     // uTox versions settings
     uint32_t curr_version;
@@ -214,6 +216,9 @@ typedef struct utox_settings {
     uint32_t theme;
 
     // OS interface settings
+    int32_t  window_x;
+    int32_t  window_y;
+
     uint32_t window_height;
     uint32_t window_width;
     uint32_t window_baseline;
@@ -324,7 +329,6 @@ struct utox_mouse {
 } mouse;
 
 uint8_t cursor;
-bool    mdown;
 
 /**
  * Takes a null-terminated utf8 filepath and creates it with permissions 0700
