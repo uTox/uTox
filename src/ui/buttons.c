@@ -705,7 +705,8 @@ static void btn_move_window_mup(void) {
 }
 
 BUTTON button_move_window = {
-    .nodraw = false,
-    .on_mdn = btn_move_window_mdn,
-    .on_mup = btn_move_window_mup,
+    .nodraw   = true,
+    .disabled = true,
+    .on_mdn   = btn_move_window_mdn,
+    .on_mup   = btn_move_window_mup,
 };
