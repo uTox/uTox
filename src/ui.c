@@ -430,6 +430,7 @@ void panel_draw(PANEL *p, int x, int y, int width, int height) {
     tooltip_draw();
 
     enddraw(x, y, width, height);
+    enddraw_notify(x, y, width, height);
 }
 
 bool panel_mmove(PANEL *p, int x, int y, int width, int height, int mx, int my, int dx, int dy) {
@@ -515,7 +516,6 @@ void panel_mdown(PANEL *p) {
             if (!subp->disabled) {
                 if (panel_mdown_sub(subp) || draw) {
                     redraw();
-                    draw = true;
                     break;
                 }
             }

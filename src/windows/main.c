@@ -1,14 +1,20 @@
 #include "main.h"
 
+#include "window.h"
+#include "notify.h"
+
 #include "../flist.h"
 #include "../friend.h"
 #include "../main.h"
 #include "../theme.h"
 #include "../tox.h"
+#include "../util.h"
+#include "../utox.h"
 
 #include "../av/utox_av.h"
-#include "../ui/dropdowns.h"
 #include "../ui/buttons.h"
+#include "../ui/dropdowns.h"
+#include "../ui/svg.h"
 
 #include <windowsx.h>
 
@@ -101,7 +107,7 @@ void openfileavatar(void) {
                 free(file_data);
                 char message[1024];
                 if (sizeof(message) < SLEN(AVATAR_TOO_LARGE_MAX_SIZE_IS) + 16) {
-                    debug("error: AVATAR_TOO_LARGE message is larger than allocated buffer(%zu bytes)\n",
+                    debug("error: AVATAR_TOO_LARGE message is larger than allocated buffer(%"PRIu64" bytes)\n",
                           sizeof(message));
                     break;
                 }
@@ -131,7 +137,7 @@ void savefiledata(FILE_TRANSFER *file) {
         debug("savefiledata:\t Could not allocate memory for path.\n");
         return;
     }
-    strcpy(path, file->path);
+    strcpy(path, (char *)file->path);
     path[file->name_length] = 0;
 
     OPENFILENAME ofn = {
@@ -220,7 +226,7 @@ void openurl(char *str) {
     ShellExecute(NULL, "open", (char *)str, NULL, NULL, SW_SHOW);
 }
 
-void setselection(char *data, uint16_t length) {}
+void setselection(char *UNUSED(data), uint16_t UNUSED(length)) {}
 
 /** Toggles the main window to/from hidden to tray/shown. */
 void togglehide(int show) {
@@ -461,7 +467,7 @@ void flush_file(FILE *file) {
     _commit(fd);
 }
 
-int ch_mod(uint8_t *file) {
+int ch_mod(uint8_t *UNUSED(file)) {
     /* You're probably looking for ./xlib as windows is lamesauce and wants nothing to do with sane permissions */
     return true;
 }
@@ -487,7 +493,7 @@ int file_unlock(FILE *file, uint64_t start, size_t length) {
  * accepts: char *title, title length, char *msg, msg length;
  * returns void;
  */
-void notify(char *title, uint16_t title_length, const char *msg, uint16_t msg_length, void *object, bool is_group) {
+void notify(char *title, uint16_t title_length, const char *msg, uint16_t msg_length, void *UNUSED(object), bool UNUSED(is_group)) {
     if (havefocus || self.status == 2) {
         return;
     }
@@ -514,7 +520,7 @@ void notify(char *title, uint16_t title_length, const char *msg, uint16_t msg_le
     Shell_NotifyIconW(NIM_MODIFY, &nid);
 }
 
-void showkeyboard(bool show) {} /* Added for android support. */
+void showkeyboard(bool UNUSED(show)) {} /* Added for android support. */
 
 void edit_will_deactivate(void) {}
 
@@ -817,7 +823,8 @@ PCHAR *CommandLineToArgvA(PCHAR CmdLine, int *_argc) {
     return argv;
 }
 
-static void os_window_interactions(int type, int x, int y){
+/* TODO should this be moved to window.c? */
+static void native_move_window(int x, int y){
     debug("delta x == %i\n", x);
     debug("delta y == %i\n", y);
     SetWindowPos(hwnd, 0, settings.window_x + x, settings.window_y + y, 0, 0,
@@ -860,7 +867,7 @@ void tray_icon_decon(HWND parent) {
  *
  * also handles call from other apps.
  */
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int nCmdShow) {
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cmd, int nCmdShow) {
 
     pthread_mutex_init(&messages_lock, NULL);
 
@@ -952,15 +959,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     // Free memory allocated by CommandLineToArgvA
     GlobalFree(argv);
 
-
-
     /* */
     MSG msg;
     // int x, y;
-    wchar_t classname[] = L"uTox", popupclassname[] = L"uToxgrab";
+    wchar_t classname[]      = L"uTox",
+            classname_grab[] = L"uToxgrab";
 
-    HICON black_icon  = LoadIcon(hInstance, MAKEINTRESOURCE(101));
-    HICON unread_icon = LoadIcon(hInstance, MAKEINTRESOURCE(102));
+    HICON black_icon     = LoadIcon(hInstance, MAKEINTRESOURCE(101));
+    unread_messages_icon = LoadIcon(hInstance, MAKEINTRESOURCE(102));
 
     cursors[CURSOR_NONE]     = LoadCursor(NULL, IDC_ARROW);
     cursors[CURSOR_HAND]     = LoadCursor(NULL, IDC_HAND);
@@ -971,27 +977,30 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
 
     hinstance = hInstance;
 
-    WNDCLASSW wc = {
+    WNDCLASSW main_window_class = {
         .style         = CS_OWNDC | CS_DBLCLKS,
         .lpfnWndProc   = WindowProc,
         .hInstance     = hInstance,
         .hIcon         = black_icon,
         .lpszClassName = classname,
-    },
-    wc2 = {
+    };
+    RegisterClassW(&main_window_class);
+
+
+    WNDCLASSW grab_window_class = {
         .lpfnWndProc   = GrabProc,
         .hInstance     = hInstance,
         .hIcon         = black_icon,
-        .lpszClassName = popupclassname,
+        .lpszClassName = classname_grab,
         .hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH),
     };
+    RegisterClassW(&grab_window_class);
 
     OleInitialize(NULL);
-    RegisterClassW(&wc);
-    RegisterClassW(&wc2);
 
     uint16_t langid = GetUserDefaultUILanguage() & 0xFFFF;
-    LANG            = ui_guess_lang_by_windows_lang_id(langid, DEFAULT_LANG);
+
+    LANG = ui_guess_lang_by_windows_lang_id(langid, DEFAULT_LANG);
 
     dropdown_language.selected = dropdown_language.over = LANG;
 
@@ -1008,14 +1017,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     save->window_width  = save->window_width < SCALE(640) ? SCALE(640) : save->window_width;
     save->window_height = save->window_height < SCALE(320) ? SCALE(320) : save->window_height;
 
+
     char pretitle[128];
     snprintf(pretitle, 128, "%s %s (version : %s)", TITLE, SUB_TITLE, VERSION);
     size_t  title_size = strlen(pretitle) + 1;
     wchar_t title[title_size];
     mbstowcs(title, pretitle, title_size);
-    /* trim first letter that appears for god knows why */
-    /* needed if/when the uTox becomes a muTox */
-    // wmemmove(title, title+1, wcslen(title));
 
     hwnd = window_create_main(classname, title, save->window_x, save->window_y, save->window_width, save->window_height);
 
@@ -1105,14 +1112,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
  *
  * handles the window functions internally, and ships off the tox calls to tox
  */
-LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam) {
-    static int mx, my;
+LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam) {static int mx, my;
     static bool mdown = false;
     static int mdown_x, mdown_y;
 
-    if (hwnd && hwn != hwnd) {
-        if (msg == WM_DESTROY) {
-            if (hwn == video_hwnd[0]) {
+    if (hwnd && window != hwnd) {if (msg == WM_DESTROY) {
+            if (window == video_hwnd[0]) {
                 if (settings.video_preview) {
                     settings.video_preview = false;
                     postmessage_utoxav(UTOXAV_STOP_VIDEO, 0, 0, NULL);
@@ -1123,7 +1128,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam) {
 
             int i;
             for (i = 0; i != countof(friend); i++) {
-                if (video_hwnd[i + 1] == hwn) {
+                if (video_hwnd[i + 1] == window) {
                     FRIEND *f = &friend[i];
                     postmessage_utoxav(UTOXAV_STOP_VIDEO, f->number, 0, NULL);
                     break;
@@ -1134,7 +1139,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam) {
             }
         }
 
-        return DefWindowProcW(hwn, msg, wParam, lParam);
+        return DefWindowProcW(window, msg, wParam, lParam);
     }
 
     switch (msg) {
@@ -1159,7 +1164,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam) {
         }
 
         case WM_CREATE: {
-            main_hdc = GetDC(hwn);
+            main_hdc = GetDC(window);
             hdc      = CreateCompatibleDC(main_hdc);
             hdcMem   = CreateCompatibleDC(hdc);
 
@@ -1186,7 +1191,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam) {
 
             if (w != 0) {
                 RECT r;
-                GetClientRect(hwn, &r);
+                GetClientRect(window, &r);
                 w = r.right;
                 h = r.bottom;
 
@@ -1238,12 +1243,12 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam) {
         case WM_PAINT: {
             PAINTSTRUCT ps;
 
-            BeginPaint(hwn, &ps);
+            BeginPaint(window, &ps);
 
             RECT r = ps.rcPaint;
             BitBlt(main_hdc, r.left, r.top, r.right - r.left, r.bottom - r.top, hdc, r.left, r.top, SRCCOPY);
 
-            EndPaint(hwn, &ps);
+            EndPaint(window, &ps);
             return false;
         }
 
@@ -1346,7 +1351,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
             if (btn_move_window_down) {
-                os_window_interactions(0, x - mdown_x, y - mdown_y);
+                native_move_window(x - mdown_x, y - mdown_y);
             }
 
             cursor = 0;
@@ -1365,6 +1370,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam) {
         case WM_LBUTTONDOWN: {
             mdown_x = GET_X_LPARAM(lParam);
             mdown_y = GET_Y_LPARAM(lParam);
+            // Intentional fall through to save the original mdown location.
         }
         case WM_LBUTTONDBLCLK: {
             int x, y;
@@ -1385,7 +1391,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam) {
                 panel_dclick(&panel_root, 0);
             }
 
-            SetCapture(hwn);
+            SetCapture(window);
             break;
         }
 
@@ -1429,24 +1435,18 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam) {
                     togglehide(0);
                     break;
                 }
-
                 case TRAY_EXIT: {
                     PostQuitMessage(0);
                     break;
                 }
-
-
-
                 case TRAY_STATUS_AVAILABLE: {
                     setstatus(TOX_USER_STATUS_NONE);
                     break;
                 }
-
                 case TRAY_STATUS_AWAY: {
                     setstatus(TOX_USER_STATUS_AWAY);
                     break;
                 }
-
                 case TRAY_STATUS_BUSY: {
                     setstatus(TOX_USER_STATUS_BUSY);
                     break;
@@ -1492,7 +1492,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam) {
 
         case WM_COPYDATA: {
             togglehide(1);
-            SetForegroundWindow(hwn);
+            SetForegroundWindow(window);
             COPYDATASTRUCT *data = (void *)lParam;
             if (data->lpData) {
                 do_tox_url(data->lpData, data->cbData);
@@ -1506,5 +1506,5 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam) {
         }
     }
 
-    return DefWindowProcW(hwn, msg, wParam, lParam);
+    return DefWindowProcW(window, msg, wParam, lParam);
 }
