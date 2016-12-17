@@ -23,6 +23,8 @@ float scale     = 1.0;
 bool  connected = false;
 bool  havefocus;
 
+HWND hwnd = NULL;
+
 /** Translate a char* from UTF-8 encoding to OS native;
  *
  * Accepts char pointer, native array pointer, length of input;
@@ -824,6 +826,28 @@ static void os_window_interactions(int type, int x, int y){
     settings.window_y += y;
 }
 
+void tray_icon_init(HWND parent, HICON icon) {
+    NOTIFYICONDATA nid = {
+        .uFlags           = NIF_MESSAGE | NIF_ICON | NIF_TIP,
+        .uCallbackMessage = WM_NOTIFYICON,
+        .hIcon            = icon,
+        .szTip            = "uTox default tooltip",
+        .hWnd             = parent,
+        .cbSize           = sizeof(nid),
+    };
+
+    Shell_NotifyIcon(NIM_ADD, &nid);
+}
+
+void tray_icon_decon(HWND parent) {
+    NOTIFYICONDATA nid = {
+        .hWnd   = parent,
+        .cbSize = sizeof(nid),
+    };
+
+    Shell_NotifyIcon(NIM_DELETE, &nid);
+}
+
 /** client main()
  *
  * Main thread
@@ -936,8 +960,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     // int x, y;
     wchar_t classname[] = L"uTox", popupclassname[] = L"uToxgrab";
 
-    my_icon              = LoadIcon(hInstance, MAKEINTRESOURCE(101));
-    unread_messages_icon = LoadIcon(hInstance, MAKEINTRESOURCE(102));
+    HICON black_icon  = LoadIcon(hInstance, MAKEINTRESOURCE(101));
+    HICON unread_icon = LoadIcon(hInstance, MAKEINTRESOURCE(102));
 
     cursors[CURSOR_NONE]     = LoadCursor(NULL, IDC_ARROW);
     cursors[CURSOR_HAND]     = LoadCursor(NULL, IDC_HAND);
@@ -948,29 +972,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
 
     hinstance = hInstance;
 
-    WNDCLASSW wc =
-                  {
-                    .style         = CS_OWNDC | CS_DBLCLKS,
-                    .lpfnWndProc   = WindowProc,
-                    .hInstance     = hInstance,
-                    .hIcon         = my_icon,
-                    .lpszClassName = classname,
-                  },
-
-              wc2 = {
-                  .lpfnWndProc   = GrabProc,
-                  .hInstance     = hInstance,
-                  .hIcon         = my_icon,
-                  .lpszClassName = popupclassname,
-                  .hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH),
-              };
-
-    NOTIFYICONDATA nid = {
-        .uFlags           = NIF_MESSAGE | NIF_ICON | NIF_TIP,
-        .uCallbackMessage = WM_NOTIFYICON,
-        .hIcon            = my_icon,
-        .szTip            = "uTox default tooltip",
-        .cbSize           = sizeof(nid),
+    WNDCLASSW wc = {
+        .style         = CS_OWNDC | CS_DBLCLKS,
+        .lpfnWndProc   = WindowProc,
+        .hInstance     = hInstance,
+        .hIcon         = black_icon,
+        .lpszClassName = classname,
+    },
+    wc2 = {
+        .lpfnWndProc   = GrabProc,
+        .hInstance     = hInstance,
+        .hIcon         = black_icon,
+        .lpszClassName = popupclassname,
+        .hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH),
     };
 
     OleInitialize(NULL);
@@ -1004,23 +1018,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     /* needed if/when the uTox becomes a muTox */
     // wmemmove(title, title+1, wcslen(title));
 
-
-    hwnd = CreateWindowExW( WS_EX_APPWINDOW, classname, title,
-                            WS_POPUP | WS_VISIBLE,
-                            0, 0, MAIN_WIDTH, MAIN_HEIGHT,
-                            NULL, NULL, hinstance, NULL);
-
-    // hwnd = CreateWindowExW(  0, classname, title, WS_OVERLAPPEDWINDOW, save->window_x, save->window_y,
-    //                          MAIN_WIDTH, MAIN_HEIGHT, NULL, NULL, hInstance, NULL);
-    // free(save);
+    hwnd = window_create_main(classname, title, save->window_x, save->window_y, save->window_width, save->window_height);
 
     hdc_brush = GetStockObject(DC_BRUSH);
-
-
     tme.hwndTrack = hwnd;
 
-    nid.hWnd = hwnd;
-    Shell_NotifyIcon(NIM_ADD, &nid);
+    tray_icon_init(hwnd, black_icon);
 
     SetBkMode(hdc, TRANSPARENT);
 
@@ -1070,8 +1073,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
 
     /* cleanup */
 
-    /* delete tray icon */
-    Shell_NotifyIcon(NIM_DELETE, &nid);
+    tray_icon_decon(hwnd);
 
     /* wait for threads to exit */
     while (tox_thread_init) {
@@ -1205,7 +1207,10 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam) {
                 flashing = false;
 
                 NOTIFYICONDATAW nid = {
-                    .uFlags = NIF_ICON, .hWnd = hwnd, .hIcon = my_icon, .cbSize = sizeof(nid),
+                    .uFlags = NIF_ICON,
+                    .hWnd   = hwnd,
+                    .hIcon  = my_icon,
+                    .cbSize = sizeof(nid),
                 };
 
                 Shell_NotifyIconW(NIM_MODIFY, &nid);
