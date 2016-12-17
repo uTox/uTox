@@ -182,24 +182,26 @@ static bool ft_find_resumeable(FILE_TRANSFER *ft) {
         return false;
     }
 
-    FILE_TRANSFER resume_data;
-    if (size == sizeof(FILE_TRANSFER)) {
-        fread(&resume_data, 1, size, resume_file);
+    if (size != sizeof(FILE_TRANSFER)) {
+        return false;
+    }
 
-        if (!resume_data.in_use
-            || resume_data.in_memory
-            || resume_data.avatar
-            || resume_data.inline_img
-            || !resume_data.resumeable ) {
-            return false;
-        }
+    FILE_TRANSFER resume_data;
+    fread(&resume_data, 1, size, resume_file);
+
+    if (!resume_data.resumeable
+        || !resume_data.in_use
+        || resume_data.in_memory
+        || resume_data.avatar
+        || resume_data.inline_img) {
+        return false;
     }
 
     memcpy(ft, &resume_data, sizeof(FILE_TRANSFER));
 
     ft->name_length = 0;
     uint8_t *p = ft->path + strlen((char *)ft->path);
-    while (*--p != '/') {
+    while (*--p != '/' || *p == '\\') {
         ++ft->name_length;
     }
     ++p;
