@@ -29,16 +29,19 @@ struct button {
     bool mouseover, mousedown, disabled, nodraw;
 
     void (*onright)(void); // called when right mouse button goes down
-    void (*onpress)(void);
+    void (*on_mup)(void);
     void (*update)(BUTTON *b);
 };
 
 void button_draw(BUTTON *b, int x, int y, int width, int height);
 bool button_mmove(BUTTON *b, int x, int y, int width, int height, int mx, int my, int dx, int dy);
+
 bool button_mdown(BUTTON *b);
+bool button_mup(BUTTON *b);
+
 bool button_mright(BUTTON *b);
 bool button_mwheel(BUTTON *b, int height, double d, bool smooth);
-bool button_mup(BUTTON *b);
+
 bool button_mleave(BUTTON *b);
 
 #endif

@@ -77,7 +77,7 @@ UISWITCH switch_logging = {
     .style_icon_off = BM_NO,
     .style_icon_on  = BM_YES,
     .update         = switch_update,
-    .onpress        = switchfxn_logging,
+    .on_mup        = switchfxn_logging,
     .tooltip_text = {.i18nal = STR_LOGGING },
 };
 
@@ -87,7 +87,7 @@ UISWITCH switch_mini_contacts = {
     .style_icon_off = BM_NO,
     .style_icon_on  = BM_YES,
     .update         = switch_update,
-    .onpress        = switchfxn_mini_contacts,
+    .on_mup        = switchfxn_mini_contacts,
     .tooltip_text = {.i18nal = STR_SETTINGS_UI_MINI_ROSTER },
 };
 
@@ -97,7 +97,7 @@ UISWITCH switch_ipv6 = {
     .style_icon_off = BM_NO,
     .style_icon_on  = BM_YES,
     .update         = switch_update,
-    .onpress        = switchfxn_ipv6,
+    .on_mup        = switchfxn_ipv6,
     .tooltip_text = {.i18nal = STR_IPV6 },
 };
 
@@ -107,7 +107,7 @@ UISWITCH switch_udp = {
     .style_icon_off = BM_NO,
     .style_icon_on  = BM_YES,
     .update         = switch_update,
-    .onpress        = switchfxn_udp,
+    .on_mup        = switchfxn_udp,
     .tooltip_text = {.i18nal = STR_UDP },
 };
 
@@ -117,7 +117,7 @@ UISWITCH switch_close_to_tray = {
     .style_icon_off = BM_NO,
     .style_icon_on  = BM_YES,
     .update         = switch_update,
-    .onpress        = switchfxn_close_to_tray,
+    .on_mup        = switchfxn_close_to_tray,
     .tooltip_text = {.i18nal = STR_CLOSE_TO_TRAY },
 };
 
@@ -127,7 +127,7 @@ UISWITCH switch_start_in_tray = {
     .style_icon_off = BM_NO,
     .style_icon_on  = BM_YES,
     .update         = switch_update,
-    .onpress        = switchfxn_start_in_tray,
+    .on_mup        = switchfxn_start_in_tray,
     .tooltip_text = {.i18nal = STR_START_IN_TRAY },
 };
 
@@ -137,7 +137,7 @@ UISWITCH switch_auto_startup = {
     .style_icon_off = BM_NO,
     .style_icon_on  = BM_YES,
     .update         = switch_update,
-    .onpress        = switchfxn_auto_startup,
+    .on_mup        = switchfxn_auto_startup,
     .tooltip_text = {.i18nal = STR_AUTO_STARTUP },
 };
 
@@ -147,7 +147,7 @@ UISWITCH switch_typing_notes = {
     .style_icon_off = BM_NO,
     .style_icon_on  = BM_YES,
     .update         = switch_update,
-    .onpress        = switchfxn_typing_notes,
+    .on_mup        = switchfxn_typing_notes,
     .tooltip_text = {.i18nal = STR_SEND_TYPING_NOTIFICATIONS },
 };
 
@@ -157,7 +157,7 @@ UISWITCH switch_audible_notifications = {
     .style_icon_off = BM_NO,
     .style_icon_on  = BM_YES,
     .update         = switch_update,
-    .onpress        = switchfxn_audible_notifications,
+    .on_mup        = switchfxn_audible_notifications,
     .tooltip_text = {.i18nal = STR_AUDIONOTIFICATIONS },
 };
 
@@ -167,7 +167,7 @@ UISWITCH switch_push_to_talk = {
     .style_icon_off = BM_NO,
     .style_icon_on  = BM_YES,
     .update         = switch_update,
-    .onpress        = switchfxn_push_to_talk,
+    .on_mup        = switchfxn_push_to_talk,
     .tooltip_text = {.i18nal = STR_PUSH_TO_TALK },
 };
 
@@ -177,7 +177,7 @@ UISWITCH switch_audio_filtering = {
     .style_icon_off = BM_NO,
     .style_icon_on  = BM_YES,
     .update         = switch_update,
-    .onpress        = switchfxn_audio_filtering,
+    .on_mup        = switchfxn_audio_filtering,
     .tooltip_text = {.i18nal = STR_AUDIOFILTERING },
 };
 
@@ -187,6 +187,6 @@ UISWITCH switch_status_notifications = {
     .style_icon_off = BM_NO,
     .style_icon_on  = BM_YES,
     .update         = switch_update,
-    .onpress        = switchfxn_status_notifications,
+    .on_mup        = switchfxn_status_notifications,
     .tooltip_text = {.i18nal = STR_STATUS_NOTIFICATIONS },
 };

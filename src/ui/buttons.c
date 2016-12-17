@@ -50,13 +50,13 @@ void button_setcolors_disabled(BUTTON *b) {
 }
 
 /* On-press functions followed by the update functions when needed... */
-static void button_avatar_onpress(void) {
+static void button_avatar_on_mup(void) {
     if (tox_thread_init) {
         openfileavatar();
     }
 }
 
-static void button_name_onpress(void) {
+static void button_name_on_mup(void) {
     flist_selectsettings();
     panel_settings_profile.disabled = false;
     panel_settings_devices.disabled = true;
@@ -66,7 +66,7 @@ static void button_name_onpress(void) {
     edit_setfocus(&edit_name);
 }
 
-static void button_statusmsg_onpress(void) {
+static void button_statusmsg_on_mup(void) {
     flist_selectsettings();
     panel_settings_profile.disabled = false;
     panel_settings_devices.disabled = true;
@@ -76,7 +76,7 @@ static void button_statusmsg_onpress(void) {
     edit_setfocus(&edit_status);
 }
 
-static void button_status_onpress(void) {
+static void button_status_on_mup(void) {
     self.status++;
     if (self.status == 3) {
         self.status = 0;
@@ -104,7 +104,7 @@ static void button_menu_update(BUTTON *b) {
     b->cd = COLOR_BKGRND_MENU_ACTIVE;
 }
 
-static void button_add_new_contact_onpress(void) {
+static void button_add_new_contact_on_mup(void) {
     if (tox_thread_init) {
         /* Only change if we're logged in! */
         edit_setstr(&edit_add_id, (char *)edit_search.data, edit_search.length);
@@ -114,18 +114,18 @@ static void button_add_new_contact_onpress(void) {
     }
 }
 
-static void button_filter_friends_onpress(void) {
+static void button_filter_friends_on_mup(void) {
     // this only works because right now there are only 2 filters
     // (none or online), basically a bool
     flist_set_filter(!flist_get_filter());
 }
 
-static void button_copyid_onpress(void) {
+static void button_copyid_on_mup(void) {
     edit_setfocus(&edit_toxid);
     copy(0);
 }
 
-static void button_audiopreview_onpress(void) {
+static void button_audiopreview_on_mup(void) {
     if (!settings.audio_preview) {
         postmessage_utoxav(UTOXAV_START_AUDIO, 1, 0, NULL);
     } else {
@@ -142,7 +142,7 @@ static void button_audiopreview_update(BUTTON *b) {
     }
 }
 
-static void button_videopreview_onpress(void) {
+static void button_videopreview_on_mup(void) {
     if (settings.video_preview) {
         postmessage_utoxav(UTOXAV_STOP_VIDEO, 0, 1, NULL);
     } else if (video_width && video_height) {
@@ -161,12 +161,12 @@ static void button_videopreview_update(BUTTON *b) {
     }
 }
 
-static void button_send_friend_request_onpress(void) {
+static void button_send_friend_request_on_mup(void) {
     friend_add(edit_add_id.data, edit_add_id.length, edit_add_msg.data, edit_add_msg.length);
     edit_resetfocus();
 }
 
-static void button_group_audio_onpress(void) {
+static void button_group_audio_on_mup(void) {
     GROUPCHAT *g = flist_get_selected()->data;
     if (g->audio_calling) {
         postmessage_toxcore(TOX_GROUP_AUDIO_END, (g - group), 0, NULL);
@@ -190,7 +190,7 @@ static void button_group_audio_update(BUTTON *b) {
     }
 }
 
-static void button_call_decline_onpress(void) {
+static void button_call_decline_on_mup(void) {
     FRIEND *f = flist_get_selected()->data;
     if (f->call_state_friend) {
         debug("Declining call: %u\n", f->number);
@@ -211,7 +211,7 @@ static void button_call_decline_update(BUTTON *b) {
     }
 }
 
-static void button_call_audio_onpress(void) {
+static void button_call_audio_on_mup(void) {
     FRIEND *f = flist_get_selected()->data;
     if (f->call_state_self) {
         if (UTOX_SENDING_AUDIO(f->number)) {
@@ -252,7 +252,7 @@ static void button_call_audio_update(BUTTON *b) {
     }
 }
 
-static void button_call_video_onpress(void) {
+static void button_call_video_on_mup(void) {
     FRIEND *f = flist_get_selected()->data;
     if (f->call_state_self) {
         if (SELF_ACCEPT_VIDEO(f->number)) {
@@ -295,7 +295,7 @@ static void button_call_video_update(BUTTON *b) {
     }
 }
 
-static void button_accept_friend_onpress(void) {
+static void button_accept_friend_on_mup(void) {
     FRIENDREQ *req = flist_get_selected()->data;
     postmessage_toxcore(TOX_FRIEND_ACCEPT, 0, 0, req);
     panel_friend_request.disabled = true;
@@ -314,7 +314,7 @@ static void button_avatar_onright(void) {
     }
 }
 
-static void button_send_file_onpress(void) {
+static void button_send_file_on_mup(void) {
     FRIEND *f = flist_get_selected()->data;
     if (f->online) {
         openfilesend();
@@ -332,7 +332,7 @@ static void button_send_file_update(BUTTON *b) {
     }
 }
 
-static void button_send_screenshot_onpress(void) {
+static void button_send_screenshot_on_mup(void) {
     FRIEND *f = flist_get_selected()->data;
     if (f->online) {
         desktopgrab(0);
@@ -351,7 +351,7 @@ static void button_send_screenshot_update(BUTTON *b) {
 }
 
 /* Button to send chat message */
-static void button_chat_send_onpress(void) {
+static void button_chat_send_on_mup(void) {
     if (flist_get_selected()->item == ITEM_FRIEND) {
         FRIEND *f = flist_get_selected()->data;
         if (f->online) {
@@ -383,7 +383,7 @@ static void button_chat_send_update(BUTTON *b) {
     }
 }
 
-static void button_lock_uTox_onpress(void) {
+static void button_lock_uTox_on_mup(void) {
     if (tox_thread_init && edit_profile_password.length > 3) {
         flist_selectsettings();
         panel_profile_password.disabled = false;
@@ -392,36 +392,36 @@ static void button_lock_uTox_onpress(void) {
     }
 }
 
-static void button_show_password_settings_onpress(void) {
+static void button_show_password_settings_on_mup(void) {
     button_show_password_settings.disabled = true;
     button_show_password_settings.nodraw = true;
     panel_profile_password_settings.disabled = false;
 }
 
-static void button_export_chatlog_onpress(void) {
+static void button_export_chatlog_on_mup(void) {
     utox_export_chatlog_init(((FRIEND *)flist_get_selected()->data)->number);
 }
 
 
 BUTTON button_avatar = {
-    .nodraw = true, .onpress = button_avatar_onpress, .onright = button_avatar_onright,
+    .nodraw = true, .on_mup = button_avatar_on_mup, .onright = button_avatar_onright,
 };
 
 BUTTON button_name = {
-    .nodraw = true, .onpress = button_name_onpress,
+    .nodraw = true, .on_mup = button_name_on_mup,
 };
 
 BUTTON button_status_msg = {
-    .nodraw = true, .onpress = button_statusmsg_onpress,
+    .nodraw = true, .on_mup = button_statusmsg_on_mup,
 };
 
 BUTTON button_usr_state = {
-    .nodraw = true, .onpress = button_status_onpress, .tooltip_text = {.i18nal = STR_STATUS },
+    .nodraw = true, .on_mup = button_status_on_mup, .tooltip_text = {.i18nal = STR_STATUS },
 };
 
 BUTTON button_filter_friends = {
     .nodraw = true,
-    .onpress = button_filter_friends_onpress,
+    .on_mup = button_filter_friends_on_mup,
     .tooltip_text = {.i18nal = STR_FILTER_CONTACT_TOGGLE },
 };
 
@@ -430,7 +430,7 @@ BUTTON button_add_new_contact = {
     .bw           = _BM_ADD_WIDTH,
     .bh           = _BM_ADD_WIDTH,
     .update       = button_menu_update,
-    .onpress      = button_add_new_contact_onpress,
+    .on_mup      = button_add_new_contact_on_mup,
     .disabled     = true,
     .nodraw       = true,
     .tooltip_text = {.i18nal = STR_ADDFRIENDS },
@@ -440,7 +440,7 @@ BUTTON button_copyid = {
     .bm          = BM_SBUTTON,
     .button_text = {.i18nal = STR_COPY_TOX_ID },
     .update   = button_setcolors_success,
-    .onpress  = button_copyid_onpress,
+    .on_mup  = button_copyid_on_mup,
     .disabled = false,
 };
 
@@ -448,7 +448,7 @@ BUTTON button_send_friend_request = {
     .bm          = BM_SBUTTON,
     .button_text = {.i18nal = STR_ADD },
     .update   = button_setcolors_success,
-    .onpress  = button_send_friend_request_onpress,
+    .on_mup  = button_send_friend_request_on_mup,
     .disabled = false,
 };
 
@@ -457,7 +457,7 @@ BUTTON button_call_decline = {
     .bm2          = BM_DECLINE,
     .bw           = _BM_LBICON_WIDTH,
     .bh           = _BM_LBICON_HEIGHT,
-    .onpress      = button_call_decline_onpress,
+    .on_mup      = button_call_decline_on_mup,
     .update       = button_call_decline_update,
     .tooltip_text = {.i18nal = STR_CALL_DECLINE },
     .nodraw   = true,
@@ -469,7 +469,7 @@ BUTTON button_call_audio = {
     .bm2          = BM_CALL,
     .bw           = _BM_LBICON_WIDTH,
     .bh           = _BM_LBICON_HEIGHT,
-    .onpress      = button_call_audio_onpress,
+    .on_mup      = button_call_audio_on_mup,
     .update       = button_call_audio_update,
     .tooltip_text = {.i18nal = STR_CALL_START_AUDIO },
 };
@@ -479,7 +479,7 @@ BUTTON button_call_video = {
     .bm2          = BM_VIDEO,
     .bw           = _BM_LBICON_WIDTH,
     .bh           = _BM_LBICON_HEIGHT,
-    .onpress      = button_call_video_onpress,
+    .on_mup      = button_call_video_on_mup,
     .update       = button_call_video_update,
     .tooltip_text = {.i18nal = STR_CALL_START_VIDEO },
 };
@@ -489,7 +489,7 @@ BUTTON button_group_audio = {
     .bm2          = BM_CALL,
     .bw           = _BM_LBICON_WIDTH,
     .bh           = _BM_LBICON_HEIGHT,
-    .onpress      = button_group_audio_onpress,
+    .on_mup      = button_group_audio_on_mup,
     .update       = button_group_audio_update,
     .tooltip_text = {.i18nal = STR_GROUPCHAT_JOIN_AUDIO },
 };
@@ -498,7 +498,7 @@ BUTTON button_accept_friend = {
     .bm          = BM_SBUTTON,
     .button_text = {.i18nal = STR_ADD },
     .update  = button_setcolors_success,
-    .onpress = button_accept_friend_onpress,
+    .on_mup = button_accept_friend_on_mup,
 };
 
 BUTTON button_callpreview = {
@@ -506,7 +506,7 @@ BUTTON button_callpreview = {
     .bm2      = BM_CALL,
     .bw       = _BM_LBICON_WIDTH,
     .bh       = _BM_LBICON_HEIGHT,
-    .onpress  = button_audiopreview_onpress,
+    .on_mup  = button_audiopreview_on_mup,
     .update   = button_audiopreview_update,
     .disabled = false,
 };
@@ -516,7 +516,7 @@ BUTTON button_videopreview = {
     .bm2      = BM_VIDEO,
     .bw       = _BM_LBICON_WIDTH,
     .bh       = _BM_LBICON_HEIGHT,
-    .onpress  = button_videopreview_onpress,
+    .on_mup  = button_videopreview_on_mup,
     .update   = button_videopreview_update,
     .disabled = false,
 };
@@ -526,7 +526,7 @@ BUTTON button_send_file = {
     .bm2          = BM_FILE,
     .bw           = _BM_FILE_WIDTH,
     .bh           = _BM_FILE_HEIGHT,
-    .onpress      = button_send_file_onpress,
+    .on_mup      = button_send_file_on_mup,
     .update       = button_send_file_update,
     .disabled     = true,
     .tooltip_text = {.i18nal = STR_SEND_FILE },
@@ -538,7 +538,7 @@ BUTTON button_send_screenshot = {
     .bw           = _BM_CHAT_BUTTON_OVERLAY_WIDTH,
     .bh           = _BM_CHAT_BUTTON_OVERLAY_HEIGHT,
     .update       = button_send_screenshot_update,
-    .onpress      = button_send_screenshot_onpress,
+    .on_mup      = button_send_screenshot_on_mup,
     .tooltip_text = {.i18nal = STR_SENDSCREENSHOT },
 };
 
@@ -547,7 +547,7 @@ BUTTON button_chat_send = {
     .bm2          = BM_CHAT_SEND_OVERLAY,
     .bw           = _BM_CHAT_SEND_OVERLAY_WIDTH,
     .bh           = _BM_CHAT_SEND_OVERLAY_HEIGHT,
-    .onpress      = button_chat_send_onpress,
+    .on_mup      = button_chat_send_on_mup,
     .update       = button_chat_send_update,
     .tooltip_text = {.i18nal = STR_SENDMESSAGE },
 };
@@ -555,7 +555,7 @@ BUTTON button_chat_send = {
 BUTTON button_lock_uTox = {
     .bm          = BM_SBUTTON,
     .update      = button_setcolors_success,
-    .onpress     = button_lock_uTox_onpress,
+    .on_mup     = button_lock_uTox_on_mup,
     .button_text = {.i18nal = STR_LOCK },
     .tooltip_text = {.i18nal = STR_LOCK_UTOX },
 };
@@ -563,7 +563,7 @@ BUTTON button_lock_uTox = {
 BUTTON button_show_password_settings = {
     .bm          = BM_SBUTTON,
     .update      = button_setcolors_success,
-    .onpress     = button_show_password_settings_onpress,
+    .on_mup     = button_show_password_settings_on_mup,
     .button_text = {.i18nal = STR_SHOW },
     .tooltip_text = {.i18nal = STR_SHOW_UI_PASSWORD },
 };
@@ -572,13 +572,13 @@ BUTTON button_export_chatlog = {
     .bm          = BM_SBUTTON,
     .button_text = {.i18nal = STR_FRIEND_EXPORT_CHATLOG },
     .update   = button_setcolors_success,
-    .onpress  = button_export_chatlog_onpress,
+    .on_mup  = button_export_chatlog_on_mup,
     .disabled = false,
 };
 
 extern SCROLLABLE scrollbar_settings;
 
-static void button_settings_onpress(void) {
+static void button_settings_on_mup(void) {
     if (tox_thread_init) {
         flist_selectsettings();
     }
@@ -593,7 +593,7 @@ static void disable_all_setting_sub(void) {
     panel_settings_av.disabled      = true;
 }
 
-static void button_settings_sub_profile_onpress(void) {
+static void button_settings_sub_profile_on_mup(void) {
     scrollbar_settings.content_height = SCALE(260);
     disable_all_setting_sub();
     panel_settings_profile.disabled = false;
@@ -601,25 +601,25 @@ static void button_settings_sub_profile_onpress(void) {
     button_show_password_settings.nodraw = false;
 }
 
-static void button_settings_sub_devices_onpress(void) {
+static void button_settings_sub_devices_on_mup(void) {
     scrollbar_settings.content_height = SCALE(260);
     disable_all_setting_sub();
     panel_settings_devices.disabled = false;
 }
 
-static void button_settings_sub_net_onpress(void) {
+static void button_settings_sub_net_on_mup(void) {
     scrollbar_settings.content_height = SCALE(180);
     disable_all_setting_sub();
     panel_settings_net.disabled = false;
 }
 
-static void button_settings_sub_ui_onpress(void) {
+static void button_settings_sub_ui_on_mup(void) {
     scrollbar_settings.content_height = SCALE(280);
     disable_all_setting_sub();
     panel_settings_ui.disabled = false;
 }
 
-static void button_settings_sub_av_onpress(void) {
+static void button_settings_sub_av_on_mup(void) {
     scrollbar_settings.content_height = SCALE(300);
     disable_all_setting_sub();
     panel_settings_av.disabled = false;
@@ -651,7 +651,7 @@ BUTTON
         .bw           = _BM_ADD_WIDTH,
         .bh           = _BM_ADD_WIDTH,
         .update       = button_bottommenu_update,
-        .onpress      = button_settings_onpress,
+        .on_mup      = button_settings_on_mup,
         .disabled     = false,
         .nodraw       = false,
         .tooltip_text = {.i18nal = STR_USERSETTINGS },
@@ -659,31 +659,31 @@ BUTTON
 
     button_settings_sub_profile = {
         .nodraw = true,
-        .onpress = button_settings_sub_profile_onpress,
+        .on_mup = button_settings_sub_profile_on_mup,
         .tooltip_text = {.i18nal = STR_UTOX_SETTINGS },
     },
 
     button_settings_sub_devices = {
         .nodraw = true,
-        .onpress = button_settings_sub_devices_onpress,
+        .on_mup = button_settings_sub_devices_on_mup,
         .tooltip_text = {.i18nal = STR_UTOX_SETTINGS },
     },
 
     button_settings_sub_net = {
         .nodraw = true,
-        .onpress = button_settings_sub_net_onpress,
+        .on_mup = button_settings_sub_net_on_mup,
         .tooltip_text = {.i18nal = STR_NETWORK_SETTINGS },
     },
 
     button_settings_sub_ui = {
         .nodraw = true,
-        .onpress = button_settings_sub_ui_onpress,
+        .on_mup = button_settings_sub_ui_on_mup,
         .tooltip_text = {.i18nal = STR_USERSETTINGS },
     },
 
     button_settings_sub_av = {
         .nodraw = true,
-        .onpress = button_settings_sub_av_onpress,
+        .on_mup = button_settings_sub_av_on_mup,
         .tooltip_text = {.i18nal = STR_AUDIO_VIDEO },
     },
 
@@ -691,5 +691,5 @@ BUTTON
         .bm          = BM_SBUTTON,
         .button_text = {.i18nal = STR_ADD },
         .update  = button_setcolors_success,
-        .onpress = button_add_device_to_self_mdown,
+        .on_mup = button_add_device_to_self_mdown,
     };

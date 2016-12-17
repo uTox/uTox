@@ -115,6 +115,19 @@ bool button_mdown(BUTTON *b) {
     return 0;
 }
 
+bool button_mup(BUTTON *b) {
+    if (b->mousedown) {
+        if (b->mouseover && b->on_mup) {
+            b->on_mup();
+        }
+
+        b->mousedown = 0;
+        return 1;
+    }
+
+    return 0;
+}
+
 bool button_mright(BUTTON *b) {
     if (b->mouseover && b->onright) {
         b->onright();
@@ -125,19 +138,6 @@ bool button_mright(BUTTON *b) {
 }
 
 bool button_mwheel(BUTTON *UNUSED(b), int UNUSED(height), double UNUSED(d), bool UNUSED(smooth)) { return 0; }
-
-bool button_mup(BUTTON *b) {
-    if (b->mousedown) {
-        if (b->mouseover && b->onpress) {
-            b->onpress();
-        }
-
-        b->mousedown = 0;
-        return 1;
-    }
-
-    return 0;
-}
 
 bool button_mleave(BUTTON *b) {
     if (b->mouseover) {

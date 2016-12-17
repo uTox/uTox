@@ -29,7 +29,7 @@ struct uiswitch {
     bool mouseover, mousedown, disabled, nodraw;
 
     void (*onright)(void); // called when right mouse uiswitch goes down
-    void (*onpress)(void);
+    void (*on_mup)(void);
     void (*update)(UISWITCH *s);
 };
 
