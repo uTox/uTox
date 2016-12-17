@@ -1,7 +1,10 @@
 #!/bin/bash
 
-if [[ -z $1 ]]; then
-    echo "A token is required."
+TOKEN=$(git config --get user.token)
+
+if [[ -z "$TOKEN" ]]; then
+    echo "Please add your github token to user.token"
+    echo "Run git config --local user.token [token]"
     exit 1
 fi
 
@@ -10,4 +13,4 @@ if [[ $(which github_changelog_generator) < /dev/null ]]; then
     exit 1
 fi
 
-github_changelog_generator -u uTox -t "$1"
+github_changelog_generator -u uTox -t "$TOKEN"
