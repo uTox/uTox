@@ -14,7 +14,7 @@ void window_create_video() {
 }
 
 HWND window_create_notify(HWND parent, wchar_t *class, wchar_t *title, int x, int y, int w, int h) {
-    return CreateWindowExW(WS_EX_APPWINDOW, class, title, WS_POPUP | WS_VISIBLE,
+    return CreateWindowExW(WS_EX_TOOLWINDOW, class, title, WS_POPUP | WS_VISIBLE,
                            x, y, w, h, parent, NULL, NULL, NULL);
 
 }
