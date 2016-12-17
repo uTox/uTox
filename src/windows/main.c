@@ -833,7 +833,7 @@ static void native_move_window(int x, int y){
     settings.window_y += y;
 }
 
-void tray_icon_init(HWND parent, HICON icon) {
+static void tray_icon_init(HWND parent, HICON icon) {
     NOTIFYICONDATA nid = {
         .uFlags           = NIF_MESSAGE | NIF_ICON | NIF_TIP,
         .uCallbackMessage = WM_NOTIFYICON,
@@ -846,13 +846,22 @@ void tray_icon_init(HWND parent, HICON icon) {
     Shell_NotifyIcon(NIM_ADD, &nid);
 }
 
-void tray_icon_decon(HWND parent) {
+static void tray_icon_decon(HWND parent) {
     NOTIFYICONDATA nid = {
         .hWnd   = parent,
         .cbSize = sizeof(nid),
     };
 
     Shell_NotifyIcon(NIM_DELETE, &nid);
+}
+
+static void cursors_init(void) {
+    cursors[CURSOR_NONE]     = LoadCursor(NULL, IDC_ARROW);
+    cursors[CURSOR_HAND]     = LoadCursor(NULL, IDC_HAND);
+    cursors[CURSOR_TEXT]     = LoadCursor(NULL, IDC_IBEAM);
+    cursors[CURSOR_SELECT]   = LoadCursor(NULL, IDC_CROSS);
+    cursors[CURSOR_ZOOM_IN]  = LoadCursor(NULL, IDC_SIZEALL);
+    cursors[CURSOR_ZOOM_OUT] = LoadCursor(NULL, IDC_SIZEALL);
 }
 
 #define UTOX_EXE "\\uTox.exe"
@@ -959,21 +968,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     // Free memory allocated by CommandLineToArgvA
     GlobalFree(argv);
 
-    /* */
     MSG msg;
-    // int x, y;
     wchar_t classname[]      = L"uTox",
             classname_grab[] = L"uToxgrab";
 
     HICON black_icon     = LoadIcon(hInstance, MAKEINTRESOURCE(101));
     unread_messages_icon = LoadIcon(hInstance, MAKEINTRESOURCE(102));
 
-    cursors[CURSOR_NONE]     = LoadCursor(NULL, IDC_ARROW);
-    cursors[CURSOR_HAND]     = LoadCursor(NULL, IDC_HAND);
-    cursors[CURSOR_TEXT]     = LoadCursor(NULL, IDC_IBEAM);
-    cursors[CURSOR_SELECT]   = LoadCursor(NULL, IDC_CROSS);
-    cursors[CURSOR_ZOOM_IN]  = LoadCursor(NULL, IDC_SIZEALL);
-    cursors[CURSOR_ZOOM_OUT] = LoadCursor(NULL, IDC_SIZEALL);
+    cursors_init();
 
     hinstance = hInstance;
 
