@@ -2,6 +2,7 @@
 
 #include "window.h"
 #include "notify.h"
+#include "screen_grab.h"
 
 #include "../flist.h"
 #include "../friend.h"
@@ -18,7 +19,7 @@
 
 #include <windowsx.h>
 
-static bool flashing, desktopgrab_video;
+static bool flashing;
 static bool hidden;
 
 static TRACKMOUSEEVENT tme           = { sizeof(TRACKMOUSEEVENT), TME_LEAVE, 0, 0 };
@@ -271,64 +272,6 @@ void ShowContextMenu(void) {
     }
 }
 
-// creates an UTOX_NATIVE image based on given arguments
-// image should be freed with image_free
-static NATIVE_IMAGE *create_utox_image(HBITMAP bmp, bool has_alpha, uint32_t width, uint32_t height) {
-    NATIVE_IMAGE *image = malloc(sizeof(NATIVE_IMAGE));
-    if (image == NULL) {
-        debug("create_utox_image:\t Could not allocate memory for image.\n");
-        return NULL;
-    }
-    image->bitmap        = bmp;
-    image->has_alpha     = has_alpha;
-    image->width         = width;
-    image->height        = height;
-    image->scaled_width  = width;
-    image->scaled_height = height;
-    image->stretch_mode  = COLORONCOLOR;
-
-    return image;
-}
-
-static void sendbitmap(HDC mem, HBITMAP hbm, int width, int height) {
-    if (width == 0 || height == 0)
-        return;
-
-    BITMAPINFO info = {.bmiHeader = {
-                           .biSize        = sizeof(BITMAPINFOHEADER),
-                           .biWidth       = width,
-                           .biHeight      = -(int)height,
-                           .biPlanes      = 1,
-                           .biBitCount    = 24,
-                           .biCompression = BI_RGB,
-                       } };
-
-    void *bits = malloc((width + 3) * height * 3);
-
-    GetDIBits(mem, hbm, 0, height, bits, &info, DIB_RGB_COLORS);
-
-    uint8_t pbytes = width & 3, *p = bits, *pp = bits, *end = p + width * height * 3;
-    // uint32_t offset = 0;
-    while (p != end) {
-        int i;
-        for (i = 0; i != width; i++) {
-            uint8_t b    = pp[i * 3];
-            p[i * 3]     = pp[i * 3 + 2];
-            p[i * 3 + 1] = pp[i * 3 + 1];
-            p[i * 3 + 2] = b;
-        }
-        p += width * 3;
-        pp += width * 3 + pbytes;
-    }
-
-    int      size = 0;
-    uint8_t *out  = stbi_write_png_to_mem(bits, 0, width, height, 3, &size);
-    free(bits);
-
-    NATIVE_IMAGE *image = create_utox_image(hbm, 0, width, height);
-    friend_sendimage(flist_get_selected()->data, image, width, height, (UTOX_IMAGE)out, size);
-}
-
 void copy(int value) {
     char data[32768]; //! TODO: De-hardcode this value.
     int  len;
@@ -352,6 +295,67 @@ void copy(int value) {
     EmptyClipboard();
     SetClipboardData(CF_UNICODETEXT, hMem);
     CloseClipboard();
+}
+
+/* TODO DRY, this exists in screen_grab.c */
+static NATIVE_IMAGE *create_utox_image(HBITMAP bmp, bool has_alpha, uint32_t width, uint32_t height) {
+    NATIVE_IMAGE *image = malloc(sizeof(NATIVE_IMAGE));
+    if (image == NULL) {
+        debug("create_utox_image:\t Could not allocate memory for image.\n");
+        return NULL;
+    }
+    image->bitmap        = bmp;
+    image->has_alpha     = has_alpha;
+    image->width         = width;
+    image->height        = height;
+    image->scaled_width  = width;
+    image->scaled_height = height;
+    image->stretch_mode  = COLORONCOLOR;
+
+    return image;
+}
+
+/* TODO DRY, this exists in screen_grab.c */
+static void sendbitmap(HDC mem, HBITMAP hbm, int width, int height) {
+    if (width == 0 || height == 0)
+        return;
+
+    BITMAPINFO info = {
+        .bmiHeader = {
+            .biSize        = sizeof(BITMAPINFOHEADER),
+            .biWidth       = width,
+            .biHeight      = -(int)height,
+            .biPlanes      = 1,
+            .biBitCount    = 24,
+            .biCompression = BI_RGB,
+        }
+    };
+
+    void *bits = malloc((width + 3) * height * 3);
+
+    GetDIBits(mem, hbm, 0, height, bits, &info, DIB_RGB_COLORS);
+
+    uint8_t pbytes = width & 3, *p = bits, *pp = bits, *end = p + width * height * 3;
+    // uint32_t offset = 0;
+    while (p != end) {
+        int i;
+        for (i = 0; i != width; i++) {
+            uint8_t b    = pp[i * 3];
+            p[i * 3]     = pp[i * 3 + 2];
+            p[i * 3 + 1] = pp[i * 3 + 1];
+            p[i * 3 + 2] = b;
+        }
+        p += width * 3;
+        pp += width * 3 + pbytes;
+    }
+
+    int size = 0;
+    uint8_t *out = stbi_write_png_to_mem(bits, 0, width, height, 3, &size);
+
+    free(bits);
+
+    NATIVE_IMAGE *image = create_utox_image(hbm, 0, width, height);
+    friend_sendimage(flist_get_selected()->data, image, width, height, (UTOX_IMAGE)out, size);
 }
 
 void paste(void) {
@@ -562,121 +566,6 @@ void update_tray(void) {
 
 void force_redraw(void) {
     redraw();
-}
-
-void desktopgrab(bool video) {
-    int x, y, w, h;
-
-    x = GetSystemMetrics(SM_XVIRTUALSCREEN);
-    y = GetSystemMetrics(SM_YVIRTUALSCREEN);
-    w = GetSystemMetrics(SM_CXVIRTUALSCREEN);
-    h = GetSystemMetrics(SM_CYVIRTUALSCREEN);
-
-    debug("result: %i %i %i %i\n", x, y, w, h);
-
-    capturewnd = CreateWindowExW(WS_EX_TOOLWINDOW | WS_EX_LAYERED, L"uToxgrab", L"Tox", WS_POPUP, x, y, w, h, NULL,
-                                 NULL, hinstance, NULL);
-    if (!capturewnd) {
-        debug("CreateWindowExW() failed\n");
-        return;
-    }
-
-    SetLayeredWindowAttributes(capturewnd, 0xFFFFFF, 128, LWA_ALPHA | LWA_COLORKEY);
-
-
-    // UpdateLayeredWindow(hwnd, NULL, NULL, NULL, NULL, NULL, 0xFFFFFF, ULW_ALPHA | ULW_COLORKEY);
-
-    ShowWindow(capturewnd, SW_SHOW);
-    SetForegroundWindow(capturewnd);
-
-    desktopgrab_video = video;
-
-    // SetCapture(hwnd);
-    // grabbing = true;
-
-    // postmessage_video(VIDEO_SET, 0, 0, (void*)1);
-}
-
-LRESULT CALLBACK GrabProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam) {
-    POINT p = {.x = GET_X_LPARAM(lParam), .y = GET_Y_LPARAM(lParam) };
-
-    ClientToScreen(window, &p);
-
-    if (msg == WM_MOUSEMOVE) {
-
-        if (grabbing) {
-            HDC dc = GetDC(window);
-            BitBlt(dc, video_grab_x, video_grab_y, video_grab_w - video_grab_x, video_grab_h - video_grab_y, dc,
-                   video_grab_x, video_grab_y, BLACKNESS);
-            video_grab_w = p.x;
-            video_grab_h = p.y;
-            BitBlt(dc, video_grab_x, video_grab_y, video_grab_w - video_grab_x, video_grab_h - video_grab_y, dc,
-                   video_grab_x, video_grab_y, WHITENESS);
-            ReleaseDC(window, dc);
-        }
-
-        return false;
-    }
-
-    if (msg == WM_LBUTTONDOWN) {
-        video_grab_x = video_grab_w = p.x;
-        video_grab_y = video_grab_h = p.y;
-        grabbing                    = true;
-        SetCapture(window);
-        return false;
-    }
-
-    if (msg == WM_LBUTTONUP) {
-        ReleaseCapture();
-        grabbing = false;
-
-        if (video_grab_x < video_grab_w) {
-            video_grab_w -= video_grab_x;
-        } else {
-            const int w  = video_grab_x - video_grab_w;
-            video_grab_x = video_grab_w;
-            video_grab_w = w;
-        }
-
-        if (video_grab_y < video_grab_h) {
-            video_grab_h -= video_grab_y;
-        } else {
-            const int w  = video_grab_y - video_grab_h;
-            video_grab_y = video_grab_h;
-            video_grab_h = w;
-        }
-
-        if (desktopgrab_video) {
-            DestroyWindow(window);
-            postmessage_utoxav(UTOXAV_SET_VIDEO_IN, 1, 0, NULL);
-        } else {
-            FRIEND *f = flist_get_selected()->data;
-            if (flist_get_selected()->item == ITEM_FRIEND && f->online) {
-                DestroyWindow(window);
-                HWND dwnd = GetDesktopWindow();
-                HDC  ddc  = GetDC(dwnd);
-                HDC  mem  = CreateCompatibleDC(ddc);
-
-                HBITMAP capture = CreateCompatibleBitmap(ddc, video_grab_w, video_grab_h);
-                SelectObject(mem, capture);
-
-                BitBlt(mem, 0, 0, video_grab_w, video_grab_h, ddc, video_grab_x, video_grab_y, SRCCOPY | CAPTUREBLT);
-                sendbitmap(mem, capture, video_grab_w, video_grab_h);
-
-                ReleaseDC(dwnd, ddc);
-                DeleteDC(mem);
-            }
-        }
-
-
-        return false;
-    }
-
-    if (msg == WM_DESTROY) {
-        grabbing = false;
-    }
-
-    return DefWindowProcW(window, msg, wParam, lParam);
 }
 
 void freefonts() {
@@ -969,8 +858,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     GlobalFree(argv);
 
     MSG msg;
-    wchar_t classname[]      = L"uTox",
-            classname_grab[] = L"uToxgrab";
+    wchar_t classname[]      = L"uTox";
 
     HICON black_icon     = LoadIcon(hInstance, MAKEINTRESOURCE(101));
     unread_messages_icon = LoadIcon(hInstance, MAKEINTRESOURCE(102));
@@ -988,15 +876,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     };
     RegisterClassW(&main_window_class);
 
-
-    WNDCLASSW grab_window_class = {
-        .lpfnWndProc   = GrabProc,
-        .hInstance     = hInstance,
-        .hIcon         = black_icon,
-        .lpszClassName = classname_grab,
-        .hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH),
-    };
-    RegisterClassW(&grab_window_class);
+    screen_grab_init(hInstance);
 
     OleInitialize(NULL);
 
@@ -1114,7 +994,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
  *
  * handles the window functions internally, and ships off the tox calls to tox
  */
-LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam) {static int mx, my;
+LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam) {
+    static int mx, my;
     static bool mdown = false;
     static int mdown_x, mdown_y;
 

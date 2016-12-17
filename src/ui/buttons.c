@@ -335,7 +335,7 @@ static void button_send_file_update(BUTTON *b) {
 static void button_send_screenshot_on_mup(void) {
     FRIEND *f = flist_get_selected()->data;
     if (f->online) {
-        desktopgrab(0);
+        screen_grab_desktop(0);
     }
 }
 
