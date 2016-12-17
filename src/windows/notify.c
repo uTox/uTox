@@ -53,8 +53,10 @@ static void redraw_notify(void) {
             target_DC = list[i].main_DC;
             active_DC = list[i].draw_DC;
             active_BM = list[i].draw_BM;
+
             SelectObject(active_DC, active_BM);
-            panel_draw(&panel_settings_ui, 0, 0, 400, 150);
+
+            panel_draw(&panel_root, 0, 0, 400, 150);
         }
     }
 }
@@ -106,7 +108,6 @@ static LRESULT CALLBACK notify_msg_sys(HWND window, UINT msg, WPARAM wParam, LPA
         case WM_CREATE: {
             debug_error("NOTIFY::\tCreate\n");
             if (win) {
-                debug_error("NOTIFY::\tCreate 2\n");
                 win->main_DC = GetDC(window);
                 win->draw_DC = CreateCompatibleDC(win->main_DC);
                 win->mem_DC  = CreateCompatibleDC(win->draw_DC);
@@ -136,7 +137,6 @@ static LRESULT CALLBACK notify_msg_sys(HWND window, UINT msg, WPARAM wParam, LPA
                 }
 
                 win->draw_BM = CreateCompatibleBitmap(win->main_DC, w, h);
-                SelectObject(win->draw_DC, win->draw_BM);
                 redraw_notify();
             }
             break;

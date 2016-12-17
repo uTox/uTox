@@ -915,7 +915,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
 
     hwnd = window_create_main(classname, title, save->window_x, save->window_y, save->window_width, save->window_height);
 
-    // native_notify_new(hwnd, hInstance);
+    native_notify_new(hwnd, hInstance);
 
     hdc_brush = GetStockObject(DC_BRUSH);
     tme.hwndTrack = hwnd;
