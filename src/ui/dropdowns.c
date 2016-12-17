@@ -23,7 +23,7 @@ static void dropdown_audio_out_onselect(uint16_t i, const DROPDOWN *dm) {
 
 static void dropdown_video_onselect(uint16_t i, const DROPDOWN *UNUSED(dm)) {
     if (i == 1) {
-        desktopgrab(1);
+        screen_grab_desktop(1);
     } else {
         postmessage_utoxav(UTOXAV_SET_VIDEO_IN, i, 0, NULL);
     }

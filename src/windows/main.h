@@ -73,7 +73,6 @@ HFONT   font[32];
 HCURSOR cursors[8];
 HICON   my_icon, unread_messages_icon;
 
-HWND      capturewnd;
 HINSTANCE hinstance;
 HDC       main_hdc, hdc, hdcMem;
 HBRUSH    hdc_brush;

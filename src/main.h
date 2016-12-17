@@ -409,9 +409,12 @@ void utox_init(void);
 void launch_at_startup(int is_launch_at_startup);
 
 void drawalpha(int bm, int x, int y, int width, int height, uint32_t color);
+
 void loadalpha(int bm, void *data, int width, int height);
-void desktopgrab(bool video);
+
 void notify(char *title, uint16_t title_length, const char *msg, uint16_t msg_length, void *object, bool is_group);
+
+
 void setscale(void);
 void setscale_fonts(void);
 

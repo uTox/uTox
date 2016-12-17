@@ -66,6 +66,7 @@ if(WIN32)
         src/windows/video.c
         src/windows/window.c
         src/windows/notify.c
+        src/windows/screen_grab.c
         )
     target_link_libraries(utoxNATIVE
         iphlpapi    ws2_32      gdi32       msimg32
