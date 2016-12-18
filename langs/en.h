@@ -705,3 +705,9 @@ msgstr("Send typing notifications")
 
 msgid(STATUS_NOTIFICATIONS)
 msgstr("Status Notifications")
+
+msgid(ADV_BUTTON)
+msgstr("Advanced")
+
+msgid(NOTIFICATIONS_BUTTON)
+msgstr("Notifications")
