@@ -39,7 +39,6 @@ static void callback_friend_message(Tox *UNUSED(tox), uint32_t friend_number, TO
         default: { debug("Message from Friend(%u) of unsupported type: %.*s\n", friend_number, (int)length, message); }
     }
     friend_notify_msg(&friend[friend_number], (char *)message, length);
-    postmessage_utox(FRIEND_MESSAGE, friend_number, 0, NULL);
 }
 
 static void callback_name_change(Tox *UNUSED(tox), uint32_t fid, const uint8_t *newname, size_t length,
@@ -349,7 +348,7 @@ static void callback_device_sent_message(Tox *tox, uint32_t sending_device, uint
         }
     }
     friend_notify_msg(&friend[target_friend], msg, msg_length);
-    postmessage_utox(FRIEND_MESSAGE, target_friend, 0, NULL);
+    postmessage_utox(FRIEND_MESSAGE_UPDATE, target_friend, 0, NULL);
 }
 
 void utox_set_callbacks_mdevice(Tox *tox) {

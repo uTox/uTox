@@ -293,7 +293,7 @@ void popclip(void) {
 }
 
 void enddraw(int x, int y, int width, int height) {
-    SelectObject(active_DC, active_BM);
+    SelectObject(target_DC, active_BM);
     BitBlt(target_DC, x, y, width, height, active_DC, x, y, SRCCOPY);
 }
 

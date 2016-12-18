@@ -1099,7 +1099,7 @@ LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
                 }
 
                 hdc_bm = CreateCompatibleBitmap(main_hdc, settings.window_width, settings.window_height);
-                SelectObject(hdc, hdc_bm);
+                SelectObject(main_hdc, hdc_bm);
                 redraw();
             }
             break;
