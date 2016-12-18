@@ -34,10 +34,6 @@ static FILE* get_file(wchar_t path[UTOX_FILE_NAME_LENGTH], UTOX_FILE_OPTS opts) 
     return _fdopen(_open_osfhandle((intptr_t)winFile, 0), mode);
 }
 
-static bool make_dir(wchar_t path[UTOX_FILE_NAME_LENGTH]) {
-    return SHCreateDirectoryExW(NULL, path, NULL); // Fall back to the default permissions on Windows
-}
-
 FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts) {
     uint8_t path[UTOX_FILE_NAME_LENGTH] = { 0 };
 
@@ -59,18 +55,28 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts) {
         return NULL;
     }
 
-    if (strlen((char *)path) + strlen("\\Tox\\") + strlen((char *)name) >= UTOX_FILE_NAME_LENGTH) {
+    snprintf((char *)path + strlen((char *)path), UTOX_FILE_NAME_LENGTH - strlen((char *)path), "/Tox/");
+
+    if (strlen((char *)path) + strlen((char *)name) >= UTOX_FILE_NAME_LENGTH) {
         debug_error("NATIVE:\tLoad directory name too long\n");
         return NULL;
     }
 
-    if (opts & UTOX_FILE_OPTS_WRITE || opts & UTOX_FILE_OPTS_MKDIR) {
-        wchar_t make_path[UTOX_FILE_NAME_LENGTH] = { 0 }; // I still don't trust windows
-        MultiByteToWideChar(CP_UTF8, 0, path, strlen((char *)path), make_path, UTOX_FILE_NAME_LENGTH);
-        make_dir(make_path);
+    // Append the subfolder to the path and remove it from the name.
+    for (char *folder_divider = strstr(name, "/"); folder_divider != NULL; folder_divider = strstr(name, "/")) {
+        ++folder_divider; // Skip over the / we're pointing to.
+        snprintf((char *)path + strlen((char *)path), strlen(name) - strlen(folder_divider), name);
+        char *new_name = name + strlen(name) - strlen(folder_divider);
+        name = new_name;
     }
 
-    snprintf((char *)path + strlen((char *)path), UTOX_FILE_NAME_LENGTH - strlen((char *)path), "\\Tox\\%s", (char *)name);
+    if (opts & UTOX_FILE_OPTS_WRITE || opts & UTOX_FILE_OPTS_MKDIR) {
+        if (!native_create_dir(path)) {
+            debug_error("NATIVE:\t: Failed to create path %s.\n", path);
+        }
+    }
+
+    snprintf((char *)path + strlen((char *)path), UTOX_FILE_NAME_LENGTH - strlen((char *)path), "/%s", (char *)name);
 
     for (size_t i = 0; path[i] != '\0'; ++i) {
         if (path[i] == '/') {
@@ -92,7 +98,7 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts) {
 
     if (fp == NULL) {
         if (opts > UTOX_FILE_OPTS_READ) {
-            debug_notice("Windows:\tCould not open %s\n", path);
+            debug_error("NATIVE:\tCould not open %S for writing.\n", wide);
         }
         return NULL;
     }
