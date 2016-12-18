@@ -228,6 +228,8 @@ endif()
 add_executable(utox
     src/avatar.c
     src/avatar.h
+    src/chatlog.c
+    src/chatlog.h
     src/command_funcs.c
     src/command_funcs.h
     src/commands.c

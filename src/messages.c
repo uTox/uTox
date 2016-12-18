@@ -2,6 +2,7 @@
 
 #include "messages.h"
 
+#include "chatlog.h"
 #include "file_transfers.h"
 #include "flist.h"
 #include "main.h"
