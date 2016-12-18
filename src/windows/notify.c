@@ -58,6 +58,7 @@ static void redraw_notify(void) {
             SelectObject(active_DC, active_BM);
 
             panel_draw(&panel_notify, 0, 0, 400, 150);
+            // enddraw_notify(0, 0, 400, 150);
         }
     }
     debug_error("redraw end\n");
@@ -131,9 +132,6 @@ static LRESULT CALLBACK notify_msg_sys(HWND window, UINT msg, WPARAM wParam, LPA
                 w = r.right;
                 h = r.bottom;
 
-                settings.window_width  = w;
-                settings.window_height = h;
-
                 if (win->draw_BM) {
                     DeleteObject(win->draw_BM);
                 }
@@ -146,7 +144,7 @@ static LRESULT CALLBACK notify_msg_sys(HWND window, UINT msg, WPARAM wParam, LPA
 
         case WM_ERASEBKGND: {
             debug_error("NOTIFY::\tBGND\n");
-            redraw_notify();
+            // redraw_notify();
             return true;
         }
 

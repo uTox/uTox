@@ -14,9 +14,12 @@ void window_create_video() {
 }
 
 HWND window_create_notify(HWND parent, wchar_t *class, wchar_t *title, int x, int y, int w, int h) {
-    return CreateWindowExW(WS_EX_TOOLWINDOW, class, title, WS_POPUP | WS_VISIBLE,
+    HWND window = CreateWindowExW(WS_EX_TOPMOST | WS_EX_TOOLWINDOW, class, title, WS_POPUP,
                            x, y, w, h, parent, NULL, NULL, NULL);
-
+    // In case we even need to raise this window to the top most z position.
+    // SetWindowPos(window, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+    ShowWindow(window, SW_SHOWNOACTIVATE);
+    return window;
 }
 
 void winodw_create_screen_select() {

@@ -228,7 +228,7 @@ void friend_notify_msg(FRIEND *f, const char *msg, size_t msg_length) {
     size_t title_length = snprintf((char *)title, UTOX_FRIEND_NAME_LENGTH(f) + 25, "uTox new message from %.*s",
                                    (int)UTOX_FRIEND_NAME_LENGTH(f), UTOX_FRIEND_NAME(f));
 
-    postmessage_utox(FRIEND_MESSAGE, 0, 0, NULL);
+    postmessage_utox(FRIEND_MESSAGE, f->number, 0, NULL);
     notify(title, title_length, msg, msg_length, f, 0);
 
     if (flist_get_selected()->data != f) {
