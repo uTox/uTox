@@ -3,6 +3,7 @@
 
 #include "flist.h"
 #include "util.h"
+#include "utox.h"
 
 FRIEND* get_friend(uint32_t friend_number){
     if (friend_number >= 512) {
@@ -204,7 +205,6 @@ void friend_set_alias(FRIEND *f, uint8_t *alias, uint16_t length) {
 void friend_sendimage(FRIEND *f, NATIVE_IMAGE *native_image, uint16_t width, uint16_t height, UTOX_IMAGE png_image,
                       size_t png_size) {
     message_add_type_image(&f->msg, 1, native_image, width, height, 0);
-    redraw();
 
     struct TOX_SEND_INLINE_MSG *tsim = malloc(sizeof(struct TOX_SEND_INLINE_MSG));
 
@@ -228,6 +228,7 @@ void friend_notify_msg(FRIEND *f, const char *msg, size_t msg_length) {
     size_t title_length = snprintf((char *)title, UTOX_FRIEND_NAME_LENGTH(f) + 25, "uTox new message from %.*s",
                                    (int)UTOX_FRIEND_NAME_LENGTH(f), UTOX_FRIEND_NAME(f));
 
+    postmessage_utox(FRIEND_MESSAGE, 0, 0, NULL);
     notify(title, title_length, msg, msg_length, f, 0);
 
     if (flist_get_selected()->data != f) {

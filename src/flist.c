@@ -1,9 +1,9 @@
-// flist.c
-
 #include "flist.h"
+
 
 #include "theme.h"
 #include "util.h"
+#include "utox.h"
 
 #include "ui/buttons.h"
 #include "ui/contextmenu.h"
@@ -939,7 +939,7 @@ static void contextmenu_friend(uint8_t rcase) {
             panel_friend_settings.disabled = 1;
             settings.inline_video          = 1;
             f->video_inline                = 1;
-            postmessage(AV_CLOSE_WINDOW, f->number + 1, 0, NULL);
+            postmessage_utox(AV_CLOSE_WINDOW, f->number + 1, 0, NULL);
             break;
         }
         case 2: {

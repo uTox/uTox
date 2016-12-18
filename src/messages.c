@@ -8,6 +8,7 @@
 #include "main.h"
 #include "theme.h"
 #include "util.h"
+#include "utox.h"
 
 #include "ui/svg.h"
 #include "ui/text.h"
@@ -511,7 +512,7 @@ void messages_clear_receipt(MESSAGES *m, uint32_t receipt_number) {
                     }
                     free(data);
 
-                    postmessage(FRIEND_MESSAGE, 0, 0, NULL); /* Used to redraw the screen */
+                    postmessage_utox(FRIEND_MESSAGE_UPDATE, 0, 0, NULL); /* Used to redraw the screen */
                     pthread_mutex_unlock(&messages_lock);
                     return;
                 }
@@ -1590,7 +1591,7 @@ bool messages_char(uint32_t ch) {
             if (scroll->d < 0.0) {
                 scroll->d = 0.0;
             }
-            redraw();
+            // redraw();
             return 1;
         }
 
@@ -1600,7 +1601,7 @@ bool messages_char(uint32_t ch) {
             if (scroll->d > 1.0) {
                 scroll->d = 1.0;
             }
-            redraw();
+            // redraw();
             return 1;
         }
     }
