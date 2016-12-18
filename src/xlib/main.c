@@ -1,6 +1,7 @@
 #include "main.h"
 
 #include "gtk.h"
+#include "window.h"
 
 #include "../flist.h"
 #include "../friend.h"
@@ -700,7 +701,38 @@ static UTOX_LANG systemlang(void) {
     return ui_guess_lang_by_posix_locale(str, DEFAULT_LANG);
 }
 
-void cursors_init(void) {
+
+static void atom_init(void) {
+    wm_protocols     = XInternAtom(display, "WM_PROTOCOLS", 0);
+    wm_delete_window = XInternAtom(display, "WM_DELETE_WINDOW", 0);
+    XA_CLIPBOARD     = XInternAtom(display, "CLIPBOARD", 0);
+    XA_NET_NAME      = XInternAtom(display, "_NET_WM_NAME", 0);
+    XA_UTF8_STRING   = XInternAtom(display, "UTF8_STRING", 1);
+
+    if (XA_UTF8_STRING == None) {
+        XA_UTF8_STRING = XA_STRING;
+    }
+    targets = XInternAtom(display, "TARGETS", 0);
+
+    XA_INCR = XInternAtom(display, "INCR", False);
+
+    XdndAware      = XInternAtom(display, "XdndAware", False);
+    XdndEnter      = XInternAtom(display, "XdndEnter", False);
+    XdndLeave      = XInternAtom(display, "XdndLeave", False);
+    XdndPosition   = XInternAtom(display, "XdndPosition", False);
+    XdndStatus     = XInternAtom(display, "XdndStatus", False);
+    XdndDrop       = XInternAtom(display, "XdndDrop", False);
+    XdndSelection  = XInternAtom(display, "XdndSelection", False);
+    XdndDATA       = XInternAtom(display, "XdndDATA", False);
+    XdndActionCopy = XInternAtom(display, "XdndActionCopy", False);
+
+    XA_URI_LIST = XInternAtom(display, "text/uri-list", False);
+    XA_PNG_IMG  = XInternAtom(display, "image/png", False);
+
+    XRedraw = XInternAtom(display, "XRedraw", False);
+}
+
+static void cursors_init(void) {
     cursors[CURSOR_NONE]     = XCreateFontCursor(display, XC_left_ptr);
     cursors[CURSOR_HAND]     = XCreateFontCursor(display, XC_hand2);
     cursors[CURSOR_TEXT]     = XCreateFontCursor(display, XC_xterm);
@@ -730,8 +762,24 @@ int main(int argc, char *argv[]) {
                      "manager.\n");
     }
 
-    XInitThreads();
+    UTOX_SAVE *save = config_load();
+    if (!theme_was_set_on_argv) {
+        settings.theme = save->theme;
+    }
 
+    debug("Setting theme to:\t%d\n", settings.theme);
+    theme_load(settings.theme);
+
+    // Load settings before calling utox_init()
+    utox_init();
+
+    /* Start the tox thread
+     * We can do this really early and give code a chance to boot up!
+     */
+    thread(toxcore_thread, NULL);
+
+
+    XInitThreads();
     if ((display = XOpenDisplay(NULL)) == NULL) {
         debug_error("Cannot open display, must exit\n");
         return 1;
@@ -739,85 +787,30 @@ int main(int argc, char *argv[]) {
 
     XSetErrorHandler(hold_x11s_hand);
 
+    gc         = DefaultGC(display, screen);
+    xwin_depth = DefaultDepth(display, screen);
+    root       = RootWindow(display, screen);
+
     XIM xim;
     setlocale(LC_ALL, "");
     XSetLocaleModifiers("");
     if ((xim = XOpenIM(display, 0, 0, 0)) == NULL) {
         debug_error("Cannot open input method\n");
     }
+    screen = DefaultScreen(display);
+    window = window_create_main(display, screen, save->window_x, save->window_y, settings.window_width, settings.window_height);
 
-    LANG                       = systemlang();
+    atom_init();
+
+    LANG = systemlang();
     dropdown_language.selected = dropdown_language.over = LANG;
-
-    screen     = DefaultScreen(display);
-    cmap       = DefaultColormap(display, screen);
-    visual     = DefaultVisual(display, screen);
-    gc         = DefaultGC(display, screen);
-    xwin_depth = DefaultDepth(display, screen);
-    scr        = DefaultScreenOfDisplay(display);
-    root       = RootWindow(display, screen);
-
-    XSetWindowAttributes attrib = {
-        .background_pixel = WhitePixel(display, screen),
-        .border_pixel     = BlackPixel(display, screen),
-        .event_mask       = ExposureMask    | ButtonPressMask   | ButtonReleaseMask   | EnterWindowMask |
-                            LeaveWindowMask | PointerMotionMask | StructureNotifyMask | KeyPressMask    |
-                            KeyReleaseMask  | FocusChangeMask   | PropertyChangeMask,
-    };
-    /* Also has as override_redirect member. I think this may be what we need for crating a clean mouse menu for the
-     * tray icon */
-
-    /* load save data */
-    UTOX_SAVE *save = config_load();
-
-    if (!theme_was_set_on_argv) {
-        settings.theme = save->theme;
-    }
-
-    utox_init();
-
-    debug_info("Setting theme to:\t%d\n", settings.theme);
-    theme_load(settings.theme);
-
-    /* create window */
-    window = XCreateWindow(display, root, save->window_x, save->window_y, settings.window_width, settings.window_height,
-                           0, xwin_depth, InputOutput, visual, CWBackPixmap | CWBorderPixel | CWEventMask, &attrib);
 
     /* choose available libraries for optional UI stuff */
     if (!(libgtk = ugtk_load())) {
         // try Qt
     }
 
-    /* start the tox thread */
-    thread(toxcore_thread, NULL);
-
-    /* load atoms */
-    wm_protocols     = XInternAtom(display, "WM_PROTOCOLS", 0);
-    wm_delete_window = XInternAtom(display, "WM_DELETE_WINDOW", 0);
-    XA_CLIPBOARD     = XInternAtom(display, "CLIPBOARD", 0);
-    XA_NET_NAME = XInternAtom(display, "_NET_WM_NAME", 0), XA_UTF8_STRING = XInternAtom(display, "UTF8_STRING", 1);
-
-    if (XA_UTF8_STRING == None) {
-        XA_UTF8_STRING = XA_STRING;
-    }
-    targets = XInternAtom(display, "TARGETS", 0);
-
-    XA_INCR = XInternAtom(display, "INCR", False);
-
-    XdndAware      = XInternAtom(display, "XdndAware", False);
-    XdndEnter      = XInternAtom(display, "XdndEnter", False);
-    XdndLeave      = XInternAtom(display, "XdndLeave", False);
-    XdndPosition   = XInternAtom(display, "XdndPosition", False);
-    XdndStatus     = XInternAtom(display, "XdndStatus", False);
-    XdndDrop       = XInternAtom(display, "XdndDrop", False);
-    XdndSelection  = XInternAtom(display, "XdndSelection", False);
-    XdndDATA       = XInternAtom(display, "XdndDATA", False);
-    XdndActionCopy = XInternAtom(display, "XdndActionCopy", False);
-
-    XA_URI_LIST = XInternAtom(display, "text/uri-list", False);
-    XA_PNG_IMG  = XInternAtom(display, "image/png", False);
-
-    XRedraw = XInternAtom(display, "XRedraw", False);
+    scr = DefaultScreenOfDisplay(display);
 
     /* create the draw buffer */
     drawbuf = XCreatePixmap(display, window, settings.window_width, settings.window_height, xwin_depth);
@@ -825,22 +818,9 @@ int main(int argc, char *argv[]) {
     /* catch WM_DELETE_WINDOW */
     XSetWMProtocols(display, window, &wm_delete_window, 1);
 
-    /* set WM_CLASS */
-    XClassHint hint = {.res_name = "utox", .res_class = "utox" };
-
-    XSetClassHint(display, window, &hint);
-
     /* set drag and drog version */
     Atom dndversion = 3;
     XChangeProperty(display, window, XdndAware, XA_ATOM, 32, PropModeReplace, (uint8_t *)&dndversion, 1);
-
-    char title_name[128];
-    snprintf(title_name, 128, "%s %s (version: %s)", TITLE, SUB_TITLE, VERSION);
-    // Effett, I give up! No OS can agree how to handle non ascii bytes, so effemm!
-    // may be needed when uTox becomes muTox
-    // memmove(title_name, title_name+1, strlen(title_name))
-    /* set the window name */
-    XSetStandardProperties(display, window, title_name, "uTox", None, argv, argc, None);
 
     /* initialize fontconfig */
     initfonts();
@@ -880,14 +860,6 @@ int main(int argc, char *argv[]) {
 
     XRenderColor xrcolor = { 0 };
     colorpic             = XRenderCreateSolidFill(display, &xrcolor);
-
-    /*xftdraw = XftDrawCreate(display, drawbuf, visual, cmap);
-    XRenderColor xrcolor;
-    xrcolor.red = 0x0;
-    xrcolor.green = 0x0;
-    xrcolor.blue = 0x0;
-    xrcolor.alpha = 0xffff;
-    XftColorAllocValue(display, visual, cmap, &xrcolor, &xftcolor);*/
 
     if (set_show_window) {
         if (set_show_window == 1) {
@@ -989,10 +961,13 @@ BREAK:
     XRenderFreePicture(display, renderpic);
     XRenderFreePicture(display, colorpic);
 
-    if (xic)
+    if (xic) {
         XDestroyIC(xic);
-    if (xim)
+    }
+
+    if (xim) {
         XCloseIM(xim);
+    }
 
     XDestroyWindow(display, window);
     XCloseDisplay(display);
