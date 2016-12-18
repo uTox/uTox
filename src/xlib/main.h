@@ -77,17 +77,31 @@ struct native_image {
 #define NATIVE_IMAGE_HAS_ALPHA(x) (None != (x->alpha))
 
 /* Main window */
-Display *          display;
-int                screen;
-int                xwin_depth;
-Window             root, window;
-GC                 gc;
-Colormap           cmap;
-Visual *           visual;
-Pixmap             drawbuf;
-Picture            renderpic;
-Picture            colorpic;
+Display *display;
+
+int screen;
+int xwin_depth;
+
+Window  root, window;
+
+GC       gc;
+Visual  *visual;
+Pixmap   drawbuf;
+Picture  renderpic;
+Picture  colorpic;
+
+Screen *scr;
+
 bool               hidden;
+
+Atom wm_protocols, wm_delete_window;
+
+Atom XA_CLIPBOARD, XA_NET_NAME, XA_UTF8_STRING, targets, XA_INCR;
+Atom XdndAware, XdndEnter, XdndLeave, XdndPosition, XdndStatus, XdndDrop, XdndSelection, XdndDATA, XdndActionCopy;
+Atom XA_URI_LIST, XA_PNG_IMG;
+Atom XRedraw;
+
+
 XRenderPictFormat *pictformat;
 
 /* Tray icon window */
@@ -100,16 +114,7 @@ uint32_t tray_width, tray_height;
 Picture bitmap[BM_ENDMARKER];
 Cursor  cursors[8];
 
-Atom wm_protocols, wm_delete_window;
-
 uint32_t scolor;
-
-Atom XA_CLIPBOARD, XA_NET_NAME, XA_UTF8_STRING, targets, XA_INCR;
-Atom XdndAware, XdndEnter, XdndLeave, XdndPosition, XdndStatus, XdndDrop, XdndSelection, XdndDATA, XdndActionCopy;
-Atom XA_URI_LIST, XA_PNG_IMG;
-Atom XRedraw;
-
-Screen *scr;
 
 /* Screen grab vars */
 uint8_t pointergrab;
