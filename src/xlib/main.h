@@ -10,18 +10,9 @@
 #include "dbus.h"
 #endif
 
-#include "../main.h"
-
 #include "../ui/svg.h"
 #include "freetype.h"
 
-#include <X11/X.h>
-#include <X11/Xatom.h>
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <X11/cursorfont.h>
-#include <X11/extensions/XShm.h>
-#include <X11/extensions/Xrender.h>
 #include <arpa/nameser.h>
 #include <ctype.h>
 #include <dlfcn.h>
@@ -40,6 +31,14 @@
 #include <sys/shm.h>
 #include <sys/stat.h>
 #include <unistd.h>
+
+#include <X11/cursorfont.h>
+#include <X11/extensions/Xrender.h>
+#include <X11/extensions/XShm.h>
+#include <X11/X.h>
+#include <X11/Xatom.h>
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
 
 
 #define DEFAULT_WIDTH (382 * DEFAULT_SCALE)

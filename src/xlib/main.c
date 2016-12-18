@@ -7,6 +7,7 @@
 #include "../theme.h"
 #include "../ui/dropdowns.h"
 #include "../util.h"
+#include "../utox.h"
 
 bool hidden = false;
 
@@ -699,15 +700,24 @@ static UTOX_LANG systemlang(void) {
     return ui_guess_lang_by_posix_locale(str, DEFAULT_LANG);
 }
 
+void cursors_init(void) {
+    cursors[CURSOR_NONE]     = XCreateFontCursor(display, XC_left_ptr);
+    cursors[CURSOR_HAND]     = XCreateFontCursor(display, XC_hand2);
+    cursors[CURSOR_TEXT]     = XCreateFontCursor(display, XC_xterm);
+    cursors[CURSOR_SELECT]   = XCreateFontCursor(display, XC_crosshair);
+    cursors[CURSOR_ZOOM_IN]  = XCreateFontCursor(display, XC_target);
+    cursors[CURSOR_ZOOM_OUT] = XCreateFontCursor(display, XC_target);
+}
+
 int main(int argc, char *argv[]) {
     bool   theme_was_set_on_argv;
     int8_t should_launch_at_startup;
     int8_t set_show_window;
     bool   no_updater;
 
-#ifdef HAVE_DBUS
+    #ifdef HAVE_DBUS
     debug_info("Compiled with dbus support!\n");
-#endif
+    #endif
 
     parse_args(argc, argv, &theme_was_set_on_argv, &should_launch_at_startup, &set_show_window, &no_updater);
 
@@ -750,13 +760,9 @@ int main(int argc, char *argv[]) {
     XSetWindowAttributes attrib = {
         .background_pixel = WhitePixel(display, screen),
         .border_pixel     = BlackPixel(display, screen),
-        .event_mask       = ExposureMask | ButtonPressMask | ButtonReleaseMask | EnterWindowMask | LeaveWindowMask
-                      | PointerMotionMask
-                      | StructureNotifyMask
-                      | KeyPressMask
-                      | KeyReleaseMask
-                      | FocusChangeMask
-                      | PropertyChangeMask,
+        .event_mask       = ExposureMask    | ButtonPressMask   | ButtonReleaseMask   | EnterWindowMask |
+                            LeaveWindowMask | PointerMotionMask | StructureNotifyMask | KeyPressMask    |
+                            KeyReleaseMask  | FocusChangeMask   | PropertyChangeMask,
     };
     /* Also has as override_redirect member. I think this may be what we need for crating a clean mouse menu for the
      * tray icon */
@@ -849,13 +855,7 @@ int main(int argc, char *argv[]) {
     /* done with save */
     free(save);
 
-    /* load the used cursors */
-    cursors[CURSOR_NONE]     = XCreateFontCursor(display, XC_left_ptr);
-    cursors[CURSOR_HAND]     = XCreateFontCursor(display, XC_hand2);
-    cursors[CURSOR_TEXT]     = XCreateFontCursor(display, XC_xterm);
-    cursors[CURSOR_SELECT]   = XCreateFontCursor(display, XC_crosshair);
-    cursors[CURSOR_ZOOM_IN]  = XCreateFontCursor(display, XC_target);
-    cursors[CURSOR_ZOOM_OUT] = XCreateFontCursor(display, XC_target);
+    cursors_init();
 
     /* */
     XGCValues gcval;
