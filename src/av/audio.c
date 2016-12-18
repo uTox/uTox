@@ -3,6 +3,7 @@
 
 #include "../friend.h"
 #include "../tox.h"
+#include "../utox.h"
 
 static void utox_filter_audio_kill(Filter_Audio *filter_audio_handle) {
 #ifdef AUDIO_FILTERING
@@ -257,11 +258,11 @@ static void audio_in_init(void) {
         debug("uToxAudio:\tinput device list:\n");
         while (*audio_in_device_list) {
             debug("\t%s\n", audio_in_device_list);
-            postmessage(AUDIO_IN_DEVICE, UI_STRING_ID_INVALID, 0, (void *)audio_in_device_list);
+            postmessage_utox(AUDIO_IN_DEVICE, UI_STRING_ID_INVALID, 0, (void *)audio_in_device_list);
             audio_in_device_list += strlen(audio_in_device_list) + 1;
         }
     }
-    postmessage(AUDIO_IN_DEVICE, STR_AUDIO_IN_NONE, 0, NULL);
+    postmessage_utox(AUDIO_IN_DEVICE, STR_AUDIO_IN_NONE, 0, NULL);
     audio_detect(); /* Get audio devices for windows */
 }
 
@@ -278,7 +279,7 @@ static void audio_out_init(void) {
         debug("uToxAudio:\toutput device list:\n");
         while (*audio_out_device_list) {
             debug("\t%s\n", audio_out_device_list);
-            postmessage(AUDIO_OUT_DEVICE, 0, 0, (void *)audio_out_device_list);
+            postmessage_utox(AUDIO_OUT_DEVICE, 0, 0, (void *)audio_out_device_list);
             audio_out_device_list += strlen(audio_out_device_list) + 1;
         }
     }
@@ -796,7 +797,7 @@ void utox_audio_thread(void *args) {
     uint64_t time = get_time();
 
     if (time - g->last_recv_audio[peernumber] > (uint64_t)1 * 1000 * 1000 * 1000) {
-        postmessage(GROUP_UPDATE, groupnumber, peernumber, NULL);
+        postmessage_utox(GROUP_UPDATE, groupnumber, peernumber, NULL);
     }
 
     g->last_recv_audio[peernumber] = time;

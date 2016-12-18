@@ -1,15 +1,15 @@
-// video.c
-#include <pthread.h>
-#include <vpx/vpx_codec.h>
-#include <vpx/vpx_image.h>
-
 #include "utox_av.h"
 
 #include "../friend.h"
 #include "../tox.h"
+#include "../utox.h"
+
 #include "../ui/dropdowns.h"
 #include "../util.h"
 
+#include <pthread.h>
+#include <vpx/vpx_codec.h>
+#include <vpx/vpx_image.h>
 
 static void *   video_device[16]     = { NULL }; /* TODO; magic number */
 static int16_t  video_device_count   = 0;
@@ -111,7 +111,7 @@ bool utox_video_change_device(uint16_t device_number) {
             close_video_device(video_device[video_device_current]);
             if (settings.video_preview) {
                 settings.video_preview = 0;
-                postmessage(AV_CLOSE_WINDOW, 0, 0, NULL);
+                postmessage_utox(AV_CLOSE_WINDOW, 0, 0, NULL);
             }
         }
         debug("uToxVideo:\tDisabled Video device (none)\n");
@@ -137,7 +137,7 @@ bool utox_video_change_device(uint16_t device_number) {
             debug_error("uToxVideo:\tError, unable to start new device...\n");
             if (settings.video_preview) {
                 settings.video_preview = 0;
-                postmessage(AV_CLOSE_WINDOW, 0, 0, NULL);
+                postmessage_utox(AV_CLOSE_WINDOW, 0, 0, NULL);
             }
 
             pthread_mutex_unlock(&video_thread_lock);
@@ -186,7 +186,7 @@ bool utox_video_stop(bool UNUSED(preview)) {
 
     video_active           = 0;
     settings.video_preview = 0;
-    postmessage(AV_CLOSE_WINDOW, 0, 0, NULL);
+    postmessage_utox(AV_CLOSE_WINDOW, 0, 0, NULL);
 
     video_device_stop();
     close_video_device(video_device[video_device_current]);
@@ -253,7 +253,7 @@ void utox_video_thread(void *args) {
                                 utox_video_frame.v, utox_video_frame.w, (utox_video_frame.w / 2),
                                 (utox_video_frame.w / 2), frame->img);
 
-                    postmessage(AV_VIDEO_FRAME, 0, 1, (void *)frame);
+                    postmessage_utox(AV_VIDEO_FRAME, 0, 1, (void *)frame);
                 }
 
                 size_t active_video_count = 0;

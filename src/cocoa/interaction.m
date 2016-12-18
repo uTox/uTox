@@ -9,6 +9,7 @@
 #include "../ui.h"
 #include "../ui/edit.h"
 #include "../util.h"
+#include "../utox.h"
 
 NSCursor *cursors[8];
 
@@ -987,7 +988,7 @@ void openfileavatar(void) {
             [alert runModal];
             [alert release];
         } else {
-            postmessage(SELF_AVATAR_SET, fsize, 0, file_data);
+            postmessage_utox(SELF_AVATAR_SET, fsize, 0, file_data);
         }
     }
 }

@@ -4,6 +4,7 @@
 
 #include "../theme.h"
 #include "../tox.h"
+#include "../utox.h"
 
 static TOOLTIP tooltip;
 
@@ -25,7 +26,7 @@ static void calculate_pos_and_width(TOOLTIP *b, int *x, int *w) {
     }
 
     // Push away from the right border to fit.
-    if (*x + *w >= settings.window_width) {
+    if (*x + *w >= (int)settings.window_width) {
         *x -= *w;
     }
 }
@@ -123,7 +124,7 @@ void tooltip_show(void) {
 
     b->y      = mouse.y + TOOLTIP_YOFFSET;
     b->height = TOOLTIP_HEIGHT;
-    if (b->y + b->height >= settings.window_height) {
+    if (b->y + b->height >= (int)settings.window_height) {
         b->y -= (b->height + TOOLTIP_YOFFSET);
     }
     b->x     = mouse.x;
@@ -152,7 +153,7 @@ static void tooltip_thread(void *UNUSED(args)) {
         }
 
         if (get_time() > last_move_time) {
-            postmessage(TOOLTIP_SHOW, 0, 0, NULL);
+            postmessage_utox(TOOLTIP_SHOW, 0, 0, NULL);
             last_move_time = ~0;
         }
 

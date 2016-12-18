@@ -3,6 +3,7 @@
 #include "friend.h"
 #include "main.h"
 #include "util.h"
+#include "utox.h"
 
 #define MAX_INLINE_FILESIZE (1024 * 1024 * 4)
 
@@ -68,7 +69,7 @@ static void calculate_speed(FILE_TRANSFER *file) {
         file->last_check_transferred = file->current_size;
     }
 
-    postmessage(FILE_UPDATE_STATUS, 0, 0, file);
+    postmessage_utox(FILE_UPDATE_STATUS, 0, 0, file);
 }
 
 static void ft_decon(uint32_t friend_number, uint32_t file_number) {
@@ -231,7 +232,7 @@ static void kill_file(FILE_TRANSFER *file) {
         }
     }
 
-    postmessage(FILE_UPDATE_STATUS, 0, 0, file);
+    postmessage_utox(FILE_UPDATE_STATUS, 0, 0, file);
 
     if (!file->incoming && friend[file->friend_number].file_transfers_incoming_size) {
         // get_friend(file->friend_number)->file_transfers_incoming_active_count--;
@@ -261,7 +262,7 @@ static void break_file(FILE_TRANSFER *file) {
         ((MSG_FILE *)file->ui_data)->file_status = FILE_TRANSFER_STATUS_BROKEN;
     }
 
-    postmessage(FILE_UPDATE_STATUS, 0, 0, file);
+    postmessage_utox(FILE_UPDATE_STATUS, 0, 0, file);
     ft_update_resumable(file);
     if (file->in_use) {
         ft_decon(file->friend_number, file->file_number);
@@ -331,7 +332,7 @@ static void utox_pause_file(FILE_TRANSFER *file, uint8_t us) {
             break;
         }
     }
-    postmessage(FILE_UPDATE_STATUS, 0, 0, file);
+    postmessage_utox(FILE_UPDATE_STATUS, 0, 0, file);
     // TODO free not freed data.
 }
 
@@ -359,7 +360,7 @@ static void run_file_local(FILE_TRANSFER *file) {
         debug_error("FileTransfer:\tWe tried to run file from an unknown state! (%u)\n", file->status);
     }
 
-    postmessage(FILE_UPDATE_STATUS, 0, 0, file);
+    postmessage_utox(FILE_UPDATE_STATUS, 0, 0, file);
 }
 
 static void run_file_remote(FILE_TRANSFER *file) {
@@ -374,7 +375,7 @@ static void run_file_remote(FILE_TRANSFER *file) {
     } else {
         debug_error("FileTransfer:\tThey tried to run file from an unknown state! (%u)\n", file->status);
     }
-    postmessage(FILE_UPDATE_STATUS, 0, 0, file);
+    postmessage_utox(FILE_UPDATE_STATUS, 0, 0, file);
 }
 
 static void decode_inline_png(uint32_t friend_id, uint8_t *data, uint64_t size) {
@@ -386,7 +387,7 @@ static void decode_inline_png(uint32_t friend_id, uint8_t *data, uint64_t size) 
         memcpy(msg, &width, sizeof(uint16_t));
         memcpy(msg + sizeof(uint16_t), &height, sizeof(uint16_t));
         memcpy(msg + sizeof(uint16_t) * 2, &native_image, sizeof(uint8_t *));
-        postmessage(FILE_INLINE_IMAGE, friend_id, 0, msg);
+        postmessage_utox(FILE_INLINE_IMAGE, friend_id, 0, msg);
     }
 }
 
@@ -397,7 +398,7 @@ static void utox_complete_file(FILE_TRANSFER *ft) {
             if (ft->inline_img) {
                 decode_inline_png(ft->friend_number, ft->via.memory, ft->current_size);
             } else if (ft->avatar) {
-                postmessage(FRIEND_AVATAR_SET, ft->friend_number, ft->current_size, ft->via.avatar);
+                postmessage_utox(FRIEND_AVATAR_SET, ft->friend_number, ft->current_size, ft->via.avatar);
             } else { // Is a file
                 ((MSG_FILE *)ft->ui_data)->path = strdup((const char *)ft->path);
             }
@@ -412,7 +413,7 @@ static void utox_complete_file(FILE_TRANSFER *ft) {
         if (((MSG_FILE *)ft->ui_data)) {
             ((MSG_FILE *)ft->ui_data)->file_status = FILE_TRANSFER_STATUS_COMPLETED;
         }
-        postmessage(FILE_UPDATE_STATUS, 0, 0, ft);
+        postmessage_utox(FILE_UPDATE_STATUS, 0, 0, ft);
     } else {
         debug_error("FileTransfer:\tUnable to complete file in non-active state (file:%u)\n", ft->file_number);
     }
@@ -559,7 +560,7 @@ static void incoming_avatar(Tox *tox, uint32_t friend_number, uint32_t file_numb
 
     if (size == 0) {
         debug("FileTransfer:\tAvatar from friend %u deleted.\n", friend_number);
-        postmessage(FRIEND_AVATAR_UNSET, friend_number, 0, NULL);
+        postmessage_utox(FRIEND_AVATAR_UNSET, friend_number, 0, NULL);
         file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
         return;
     }
@@ -637,7 +638,7 @@ static void incoming_inline_image(Tox *tox, uint32_t friend_number, uint32_t fil
         file_transfer_local_control(tox, friend_number, file_number, TOX_FILE_CONTROL_CANCEL);
     }
 
-    postmessage(FILE_INCOMING_NEW, friend_number, 0, ft);
+    postmessage_utox(FILE_INCOMING_NEW, friend_number, 0, ft);
     return;
 }
 
@@ -691,7 +692,7 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
 
             ft->via.file     = file;
 
-            postmessage(FILE_SEND_NEW, friend_number, 0, ft);
+            postmessage_utox(FILE_SEND_NEW, friend_number, 0, ft);
             TOX_ERR_FILE_SEEK error = 0;
             tox_file_seek(tox, friend_number, file_number, ft->current_size, &error);
             if (error) {
@@ -719,7 +720,7 @@ static void incoming_file_callback_request(Tox *tox, uint32_t friend_number, uin
 
     ft->target_size = size;
 
-    postmessage(FILE_INCOMING_NEW, friend_number, file_number, ft);
+    postmessage_utox(FILE_INCOMING_NEW, friend_number, file_number, ft);
     /* The file doesn't exist on disk where we expected, let's prompt the user to accept it as a new file */
     debug_notice("FileTransfer:\tNew incoming file from friend (%u) file number (%u)\nFileTransfer:\t\tfilename: %s\n",
           friend_number, file_number, filename);
@@ -904,7 +905,7 @@ uint32_t ft_send_file(Tox *tox, uint32_t friend_number, FILE *file, uint8_t *pat
 
     ft->status = FILE_TRANSFER_STATUS_PAUSED_THEM;
 
-    postmessage(FILE_SEND_NEW, friend_number, file_number, ft);
+    postmessage_utox(FILE_SEND_NEW, friend_number, file_number, ft);
     return file_number;
 }
 
@@ -962,7 +963,7 @@ uint32_t ft_send_data(Tox *tox, uint32_t friend_number, uint8_t *data, size_t si
 
     ft->status = FILE_TRANSFER_STATUS_PAUSED_THEM;
 
-    postmessage(FILE_SEND_NEW, friend_number, file_number, ft);
+    postmessage_utox(FILE_SEND_NEW, friend_number, file_number, ft);
     return file_number;
 }
 
