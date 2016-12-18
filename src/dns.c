@@ -5,6 +5,7 @@
 #include "main.h"
 #include "main_native.h"
 #include "tox.h"
+#include "utox.h"
 
 static struct tox3 {
     uint8_t *name;
@@ -441,7 +442,7 @@ static void dns_thread(void *data) {
 #endif
 FAIL:
 
-    postmessage(DNS_RESULT, success, 0, data);
+    postmessage_utox(DNS_RESULT, success, 0, data);
 }
 
 void dns_request(char *name, size_t length) {

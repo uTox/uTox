@@ -119,7 +119,7 @@ void audio_detect(void) {
 
     debug("Windows:\tAudio frame count %u && Samples/s %lu\n", bufferFrameCount, pwfx->nSamplesPerSec);
 
-    // postmessage(AUDIO_IN_DEVICE, STR_AUDIO_IN_DEFAULT_LOOPBACK, 0, (void*)(size_t)1);
+    // postmessage_utox(AUDIO_IN_DEVICE, STR_AUDIO_IN_DEFAULT_LOOPBACK, 0, (void*)(size_t)1);
     // this has no effect on my system, so I'm commenting it out, if you can't get audio, try enabling this again!
     return;
 

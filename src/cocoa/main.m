@@ -3,6 +3,7 @@
 #include "../ui.h"
 #include "../ui/dropdowns.h"
 #include "../util.h"
+#include "../utox.h"
 
 #import <AppKit/AppKit.h>
 #import <Foundation/Foundation.h>
@@ -314,11 +315,11 @@ int resize_file(FILE *file, uint64_t size) {
     return err;
 }
 
-void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data) {
+void postmessage_utox(UTOX_MSG msg, uint16_t param1, uint16_t param2, void *data) {
     /* If you notice any data races, or interesting bugs that appear in OSX but not xlib,
      * replace async( with sync( */
     dispatch_async(dispatch_get_main_queue(), ^{
-            utox_message(msg, param1, param2, data);
+            utox_message_dispatch(msg, param1, param2, data);
             });
 }
 
