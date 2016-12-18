@@ -7,6 +7,8 @@
 #include "../friend.h"
 #include "../inline_video.h"
 #include "../tox.h"
+#include "../utox.h"
+
 #include "../util.h"
 
 bool toxav_thread_msg = 0;
@@ -175,7 +177,7 @@ void utox_av_ctrl_thread(void *args) {
                         TOXAV_ERR_BIT_RATE_SET bitrate_err = 0;
                         toxav_bit_rate_set(av, msg->param1, -1, 0, &bitrate_err);
                     }
-                    postmessage(AV_CLOSE_WINDOW, msg->param1, 0, NULL);
+                    postmessage_utox(AV_CLOSE_WINDOW, msg->param1, 0, NULL);
                     break;
                 }
 
@@ -251,7 +253,7 @@ static void utox_av_incoming_call(ToxAV *UNUSED(av), uint32_t friend_number, boo
     f->call_state_friend = (audio << 2 | video << 3 | audio << 4 | video << 5);
     debug("uTox AV:\tcall friend (%u) state for incoming call: %i\n", friend_number, f->call_state_friend);
     postmessage_utoxav(UTOXAV_INCOMING_CALL_PENDING, friend_number, 0, NULL);
-    postmessage(AV_CALL_INCOMING, friend_number, video, NULL);
+    postmessage_utox(AV_CALL_INCOMING, friend_number, video, NULL);
 }
 
 static void utox_av_remote_disconnect(ToxAV *UNUSED(av), int32_t friend_number) {
@@ -259,8 +261,8 @@ static void utox_av_remote_disconnect(ToxAV *UNUSED(av), int32_t friend_number) 
     postmessage_utoxav(UTOXAV_CALL_END, friend_number, 0, NULL);
     friend[friend_number].call_state_self   = 0;
     friend[friend_number].call_state_friend = 0;
-    postmessage(AV_CLOSE_WINDOW, friend_number + 1, 0, NULL);
-    postmessage(AV_CALL_DISCONNECTED, friend_number, 0, NULL);
+    postmessage_utox(AV_CLOSE_WINDOW, friend_number + 1, 0, NULL);
+    postmessage_utox(AV_CALL_DISCONNECTED, friend_number, 0, NULL);
 }
 
 void utox_av_local_disconnect(ToxAV *av, int32_t friend_number) {
@@ -292,9 +294,9 @@ void utox_av_local_disconnect(ToxAV *av, int32_t friend_number) {
     }
     friend[friend_number].call_state_self   = 0;
     friend[friend_number].call_state_friend = 0;
-    postmessage(AV_CLOSE_WINDOW, friend_number + 1, 0, NULL); /* TODO move all of this into a static function in that
+    postmessage_utox(AV_CLOSE_WINDOW, friend_number + 1, 0, NULL); /* TODO move all of this into a static function in that
                                                                  file !*/
-    postmessage(AV_CALL_DISCONNECTED, friend_number, 0, NULL);
+    postmessage_utox(AV_CALL_DISCONNECTED, friend_number, 0, NULL);
     postmessage_utoxav(UTOXAV_CALL_END, friend_number, 0, NULL);
 }
 
@@ -380,9 +382,9 @@ static void utox_av_incoming_frame_v(ToxAV *UNUSED(toxAV), uint32_t friend_numbe
         if (!inline_set_frame(width, height, size, frame->img)) {
             debug_error("uToxAV:\t error setting frame for inline video\n");
         }
-        postmessage(AV_INLINE_FRAME, friend_number, 0, NULL);
+        postmessage_utox(AV_INLINE_FRAME, friend_number, 0, NULL);
     } else {
-        postmessage(AV_VIDEO_FRAME, friend_number + 1, 0, (void *)frame);
+        postmessage_utox(AV_VIDEO_FRAME, friend_number + 1, 0, (void *)frame);
     }
 }
 
@@ -394,7 +396,7 @@ static void utox_audio_friend_accepted(ToxAV *av, uint32_t friend_number, uint32
         utox_av_local_call_control(av, friend_number, TOXAV_CALL_CONTROL_HIDE_VIDEO);
     }
     postmessage_utoxav(UTOXAV_OUTGOING_CALL_ACCEPTED, friend_number, 0, NULL);
-    postmessage(AV_CALL_ACCEPTED, friend_number, 0, NULL);
+    postmessage_utox(AV_CALL_ACCEPTED, friend_number, 0, NULL);
 }
 
 /** respond to a Audio Video state change call back from toxav */

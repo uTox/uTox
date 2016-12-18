@@ -5,6 +5,7 @@
 #include "../main.h"
 #include "../theme.h"
 #include "../tox.h"
+#include "../utox.h"
 
 #include "../av/utox_av.h"
 #include "../ui/dropdowns.h"
@@ -109,7 +110,7 @@ void openfileavatar(void) {
                 message[len++] = '\0';
                 MessageBox(NULL, (char *)message, NULL, MB_ICONWARNING);
             } else {
-                postmessage(SELF_AVATAR_SET, size, 0, file_data);
+                postmessage_utox(SELF_AVATAR_SET, size, 0, file_data);
                 break;
             }
         } else {
@@ -173,7 +174,7 @@ int native_to_utf8str(wchar_t *str_in, char *str_out, uint32_t max_size) {
     return WideCharToMultiByte(CP_UTF8, 0, str_in, -1, str_out, max_size, NULL, NULL);
 }
 
-void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data) {
+void postmessage_utox(UTOX_MSG msg, uint16_t param1, uint16_t param2, void *data) {
     PostMessage(hwnd, WM_TOX + (msg), ((param1) << 16) | (param2), (LPARAM)data);
 }
 
@@ -997,7 +998,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     hwnd = CreateWindowExW(0, classname, title, WS_OVERLAPPEDWINDOW, save->window_x, save->window_y, save->window_width,
                            save->window_height, NULL, NULL, hInstance, NULL);
 
-    // free(save);
 
     hdc_brush = GetStockObject(DC_BRUSH);
 
@@ -1468,7 +1468,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam) {
         }
 
         case WM_TOX ... WM_TOX + 128: {
-            utox_message(msg - WM_TOX, wParam >> 16, wParam, (void *)lParam);
+            utox_message_dispatch(msg - WM_TOX, wParam >> 16, wParam, (void *)lParam);
             return false;
         }
     }

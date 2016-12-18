@@ -454,8 +454,6 @@ void flush_file(FILE *file);
 int ch_mod(uint8_t *file);
 void config_osdefaults(UTOX_SAVE *r);
 
-void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data);
-
 /** returns 0 if push to talk is enabled, and the button is up, else returns 1. */
 void init_ptt(void);
 bool get_ptt_key(void);

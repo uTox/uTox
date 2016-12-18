@@ -43,7 +43,7 @@ typedef struct {
     void *   data;
 } PIPING;
 
-void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data) {
+void postmessage_utox(UTOX_MSG msg, uint16_t param1, uint16_t param2, void *data) {
     PIPING piping = {.msg = msg, .param1 = param1, .param2 = param2, .data = data };
 
     write(pipefd[1], &piping, sizeof(PIPING));
@@ -754,7 +754,7 @@ static void android_main(struct android_app *state) {
                 }
             }
 
-            utox_message(piping.msg, piping.param1, piping.param2, piping.data);
+            utox_message_dispatch(piping.msg, piping.param1, piping.param2, piping.data);
         }
 
         ANativeWindow *win = (ANativeWindow *)windowN;

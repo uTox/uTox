@@ -14,6 +14,7 @@
 #include "main.h"
 #include "tox_bootstrap.h"
 #include "util.h"
+#include "utox.h"
 
 #include "av/utox_av.h"
 #include "ui/dropdown.h"
@@ -337,7 +338,7 @@ static int init_toxcore(Tox **tox) {
         }
         edit_resetfocus();
     }
-    postmessage(REDRAW, 0, 0, NULL);
+    postmessage_utox(REDRAW, 0, 0, NULL);
 
     if (settings.use_proxy) {
         topt.proxy_type = TOX_PROXY_TYPE_SOCKS5;
@@ -453,8 +454,8 @@ void toxcore_thread(void *UNUSED(args)) {
 
             /* init the friends list. */
             flist_start();
-            postmessage(UPDATE_TRAY, 0, 0, NULL);
-            postmessage(PROFILE_DID_LOAD, 0, 0, NULL);
+            postmessage_utox(UPDATE_TRAY, 0, 0, NULL);
+            postmessage_utox(PROFILE_DID_LOAD, 0, 0, NULL);
 
             // Start the treads
             thread(utox_av_ctrl_thread, av);
@@ -474,7 +475,7 @@ void toxcore_thread(void *UNUSED(args)) {
             // Check currents connection
             if (!!tox_self_get_connection_status(tox) != connected) {
                 connected = !connected;
-                postmessage(DHT_CONNECTED, connected, 0, NULL);
+                postmessage_utox(DHT_CONNECTED, connected, 0, NULL);
             }
 
             /* Wait 10 Billion ticks then verify connection. */
@@ -638,10 +639,10 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
                     case TOX_ERR_FRIEND_ADD_MALLOC: addf_error         = ADDF_NOMEM; break;
                     default: addf_error                                = ADDF_UNKNOWN; break;
                 }
-                postmessage(FRIEND_SEND_REQUEST, 1, addf_error, data);
+                postmessage_utox(FRIEND_SEND_REQUEST, 1, addf_error, data);
             } else {
                 utox_friend_init(tox, fid);
-                postmessage(FRIEND_SEND_REQUEST, 0, fid, data);
+                postmessage_utox(FRIEND_SEND_REQUEST, 0, fid, data);
             }
             save_needed = 1;
             break;
@@ -665,7 +666,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             uint32_t           fid = tox_friend_add_norequest(tox, req->id, &f_err);
             if (!f_err) {
                 utox_friend_init(tox, fid);
-                postmessage(FRIEND_ACCEPT_REQUEST, (f_err != TOX_ERR_FRIEND_ADD_OK),
+                postmessage_utox(FRIEND_ACCEPT_REQUEST, (f_err != TOX_ERR_FRIEND_ADD_OK),
                             (f_err != TOX_ERR_FRIEND_ADD_OK) ? 0 : fid, req);
             } else {
                 char hex_id[TOX_FRIEND_ADDRESS_SIZE * 2];
@@ -679,7 +680,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             /* param1: friend #
              */
             tox_friend_delete(tox, param1, 0);
-            postmessage(FRIEND_REMOVE, 0, 0, data);
+            postmessage_utox(FRIEND_REMOVE, 0, 0, data);
             save_needed = 1;
             break;
         }
@@ -860,7 +861,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
                         } else {
                             postmessage_utoxav(UTOXAV_OUTGOING_CALL_ACCEPTED, param1, param2, NULL);
                         }
-                        postmessage(AV_CALL_ACCEPTED, param1, 0, NULL);
+                        postmessage_utox(AV_CALL_ACCEPTED, param1, 0, NULL);
 
                         break;
                     }
@@ -876,7 +877,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
                     }
                 }
             } else {
-                postmessage(AV_CALL_RINGING, param1, param2, NULL);
+                postmessage_utox(AV_CALL_RINGING, param1, param2, NULL);
             }
             break;
         }
@@ -904,7 +905,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             } else {
                 postmessage_utoxav(UTOXAV_INCOMING_CALL_ANSWER, param1, param2, NULL);
             }
-            postmessage(AV_CALL_ACCEPTED, param1, 0, NULL);
+            postmessage_utox(AV_CALL_ACCEPTED, param1, 0, NULL);
             break;
         }
         case TOX_CALL_PAUSE_AUDIO: {
@@ -963,7 +964,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             if (g_num != -1) {
                 GROUPCHAT *g = &group[g_num];
                 group_init(g, g_num, param2);
-                postmessage(GROUP_ADD, g_num, param2, NULL);
+                postmessage_utox(GROUP_ADD, g_num, param2, NULL);
             }
             save_needed = 1;
             break;
@@ -997,7 +998,7 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             TOX_ERR_CONFERENCE_TITLE error = 0;
 
             tox_conference_set_title(tox, param1, data, param2, &error);
-            postmessage(GROUP_TOPIC, param1, param2, data);
+            postmessage_utox(GROUP_TOPIC, param1, param2, data);
             save_needed = 1;
             break;
         }
@@ -1028,14 +1029,14 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             /* param1: group #
              */
             break;
-            postmessage(GROUP_AUDIO_START, param1, 0, NULL);
+            postmessage_utox(GROUP_AUDIO_START, param1, 0, NULL);
         }
         /* Disabled */
         case TOX_GROUP_AUDIO_END: {
             /* param1: group #
              */
             break;
-            postmessage(GROUP_AUDIO_END, param1, 0, NULL);
+            postmessage_utox(GROUP_AUDIO_END, param1, 0, NULL);
         }
     } // End of switch.
 }
