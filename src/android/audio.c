@@ -286,7 +286,7 @@ void audio_end(int32_t call_index) { call[call_index] = 0; }
 void audio_detect(void) {
     createEngine();
     createAudioRecorder();
-    postmessage(AUDIO_IN_DEVICE, STR_AUDIO_IN_ANDROID, 1, (void *)(size_t)1);
+    postmessage_utox(AUDIO_IN_DEVICE, STR_AUDIO_IN_ANDROID, 1, (void *)(size_t)1);
 }
 
 bool audio_init(void *handle) {

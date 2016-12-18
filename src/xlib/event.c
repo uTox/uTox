@@ -558,7 +558,7 @@ bool doevent(XEvent event) {
             if (ev->window == 0) {
                 void *data;
                 memcpy(&data, &ev->data.s[2], sizeof(void *));
-                utox_message(ev->message_type, ev->data.s[0], ev->data.s[1], data);
+                utox_message_dispatch(ev->message_type, ev->data.s[0], ev->data.s[1], data);
                 break;
             }
 

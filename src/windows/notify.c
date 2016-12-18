@@ -48,6 +48,7 @@ static struct n_block *window_set_find(HWND window) {
 }
 
 static void redraw_notify(void) {
+    debug_error("redraw start\n");
     for (uint8_t i = 0; i < 20; ++i) {
         if (list[i].window) {
             target_DC = list[i].main_DC;
@@ -59,6 +60,7 @@ static void redraw_notify(void) {
             panel_draw(&panel_notify, 0, 0, 400, 150);
         }
     }
+    debug_error("redraw end\n");
 }
 
 void enddraw_notify(int x, int y, int width, int height) {
@@ -144,6 +146,7 @@ static LRESULT CALLBACK notify_msg_sys(HWND window, UINT msg, WPARAM wParam, LPA
 
         case WM_ERASEBKGND: {
             debug_error("NOTIFY::\tBGND\n");
+            redraw_notify();
             return true;
         }
 
@@ -198,6 +201,11 @@ static LRESULT CALLBACK notify_msg_sys(HWND window, UINT msg, WPARAM wParam, LPA
     return DefWindowProcW(window, msg, wParam, lParam);
 }
 
+static HINSTANCE current_instance = NULL;
+void native_notify_init(HINSTANCE instance) {
+    current_instance = instance;
+}
+
 HWND native_notify_new(HWND parent, HINSTANCE app_instance) {
     debug("Notify:\tCreating Notification #%u\n", notification_number);
 
@@ -207,7 +215,7 @@ HWND native_notify_new(HWND parent, HINSTANCE app_instance) {
     WNDCLASSW notify_window_class = {
         .style         = CS_DBLCLKS,
         .lpfnWndProc   = notify_msg_sys,
-        .hInstance     = app_instance,
+        .hInstance     = current_instance,
         .hIcon         = black_icon,
         .lpszClassName = class_name,
         .hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH),

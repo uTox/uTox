@@ -24,7 +24,7 @@ void setclipboard(void) {
     XSetSelectionOwner(display, XA_CLIPBOARD, window, CurrentTime);
 }
 
-void postmessage(uint32_t msg, uint16_t param1, uint16_t param2, void *data) {
+void postmessage_utox(UTOX_MSG msg, uint16_t param1, uint16_t param2, void *data) {
     XEvent event = {
         .xclient = {.window = 0, .type = ClientMessage, .message_type = msg, .format = 8, .data = {.s = { param1, param2 } } }
     };
