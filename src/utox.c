@@ -72,8 +72,8 @@ static void call_notify(FRIEND *f, uint8_t status) {
     friend_notify_msg(f, str->str, str->length);
 }
 
-void utox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void *data) {
-    switch (tox_message_id) {
+void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param2, void *data) {
+    switch (utox_msg_id) {
         /* General core and networking messages */
         case TOX_DONE: {
             /* Does nothing. */
@@ -325,6 +325,9 @@ void utox_message(uint8_t tox_message_id, uint16_t param1, uint16_t param2, void
             break;
         }
         case FRIEND_MESSAGE: {
+            native_notify_new(NULL, NULL); // Intentional fallthrough
+        }
+        case FRIEND_MESSAGE_UPDATE: {
             redraw();
             break;
         }

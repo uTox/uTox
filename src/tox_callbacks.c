@@ -5,6 +5,7 @@
 #include "main.h"
 #include "tox.h"
 #include "util.h"
+#include "utox.h"
 
 static void callback_friend_request(Tox *UNUSED(tox), const uint8_t *id, const uint8_t *msg, size_t length,
                                     void *UNUSED(userdata)) {
@@ -16,7 +17,7 @@ static void callback_friend_request(Tox *UNUSED(tox), const uint8_t *id, const u
     memcpy(req->id, id, sizeof(req->id));
     memcpy(req->msg, msg, length);
 
-    postmessage(FRIEND_INCOMING_REQUEST, 0, 0, req);
+    postmessage_utox(FRIEND_INCOMING_REQUEST, 0, 0, req);
 }
 
 static void callback_friend_message(Tox *UNUSED(tox), uint32_t friend_number, TOX_MESSAGE_TYPE type,
@@ -38,7 +39,7 @@ static void callback_friend_message(Tox *UNUSED(tox), uint32_t friend_number, TO
         default: { debug("Message from Friend(%u) of unsupported type: %.*s\n", friend_number, (int)length, message); }
     }
     friend_notify_msg(&friend[friend_number], (char *)message, length);
-    postmessage(FRIEND_MESSAGE, friend_number, 0, NULL);
+    postmessage_utox(FRIEND_MESSAGE, friend_number, 0, NULL);
 }
 
 static void callback_name_change(Tox *UNUSED(tox), uint32_t fid, const uint8_t *newname, size_t length,
@@ -46,7 +47,7 @@ static void callback_name_change(Tox *UNUSED(tox), uint32_t fid, const uint8_t *
     length     = utf8_validate(newname, length);
     void *data = malloc(length);
     memcpy(data, newname, length);
-    postmessage(FRIEND_NAME, fid, length, data);
+    postmessage_utox(FRIEND_NAME, fid, length, data);
     debug_info("Friend-%u Name:\t%.*s\n", fid, (int)length, newname);
 }
 
@@ -55,17 +56,17 @@ static void callback_status_message(Tox *UNUSED(tox), uint32_t fid, const uint8_
     length     = utf8_validate(newstatus, length);
     void *data = malloc(length);
     memcpy(data, newstatus, length);
-    postmessage(FRIEND_STATUS_MESSAGE, fid, length, data);
+    postmessage_utox(FRIEND_STATUS_MESSAGE, fid, length, data);
     debug_info("Friend-%u Status Message:\t%.*s\n", fid, (int)length, newstatus);
 }
 
 static void callback_user_status(Tox *UNUSED(tox), uint32_t fid, TOX_USER_STATUS status, void *UNUSED(userdata)) {
-    postmessage(FRIEND_STATE, fid, status, NULL);
+    postmessage_utox(FRIEND_STATE, fid, status, NULL);
     debug_info("Friend-%u State:\t%u\n", fid, status);
 }
 
 static void callback_typing_change(Tox *UNUSED(tox), uint32_t fid, bool is_typing, void *UNUSED(userdata)) {
-    postmessage(FRIEND_TYPING, fid, is_typing, NULL);
+    postmessage_utox(FRIEND_TYPING, fid, is_typing, NULL);
     debug_info("Friend-%u Typing:\t%u\n", fid, is_typing);
 }
 
@@ -87,7 +88,7 @@ static void callback_connection_status(Tox *tox, uint32_t fid, TOX_CONNECTION st
         avatar_on_friend_online(tox, fid);
         friend_notify_status(&friend[fid], (uint8_t *)friend[fid].status_message, friend[fid].status_length, "online");
     }
-    postmessage(FRIEND_ONLINE, fid, !!status, NULL);
+    postmessage_utox(FRIEND_ONLINE, fid, !!status, NULL);
 
     if (status == TOX_CONNECTION_UDP) {
         debug_info("Friend-%u:\tOnline (UDP)\n", fid);
@@ -125,7 +126,7 @@ static void callback_group_invite(Tox *tox, uint32_t fid, TOX_CONFERENCE_TYPE ty
     }
 
     if (gid != -1) {
-        postmessage(GROUP_ADD, gid, 0, tox);
+        postmessage_utox(GROUP_ADD, gid, 0, tox);
     }
 
     debug("Group Invite (%i,f:%i) type %u\n", gid, fid, type);
@@ -148,7 +149,7 @@ static void callback_group_message(Tox *UNUSED(tox), uint32_t gid, uint32_t pid,
         }
     }
     group_notify_msg(g, (const char *)message, length);
-    postmessage(GROUP_MESSAGE, gid, pid, NULL);
+    postmessage_utox(GROUP_MESSAGE, gid, pid, NULL);
 }
 
 static void callback_group_namelist_change(Tox *tox, uint32_t gid, uint32_t pid, TOX_CONFERENCE_STATE_CHANGE change,
@@ -182,7 +183,7 @@ static void callback_group_namelist_change(Tox *tox, uint32_t gid, uint32_t pid,
 
             group_peer_add(g, pid, is_us, name_color);
 
-            postmessage(GROUP_PEER_ADD, gid, pid, NULL);
+            postmessage_utox(GROUP_PEER_ADD, gid, pid, NULL);
             break;
         }
 
@@ -204,7 +205,7 @@ static void callback_group_namelist_change(Tox *tox, uint32_t gid, uint32_t pid,
             len         = utf8_validate(name, len);
             group_peer_name_change(g, pid, name, len);
 
-            postmessage(GROUP_PEER_NAME, gid, pid, NULL);
+            postmessage_utox(GROUP_PEER_NAME, gid, pid, NULL);
             break;
         }
 
@@ -255,7 +256,7 @@ static void callback_group_namelist_change(Tox *tox, uint32_t gid, uint32_t pid,
             }
             g->peer_count = number_peers;
 
-            postmessage(GROUP_PEER_DEL, gid, pid, NULL);
+            postmessage_utox(GROUP_PEER_DEL, gid, pid, NULL);
             pthread_mutex_unlock(&messages_lock); /* make sure that messages has posted before we continue */
             break;
         }
@@ -273,7 +274,7 @@ static void callback_group_topic(Tox *UNUSED(tox), uint32_t gid, uint32_t pid, c
         return;
 
     memcpy(copy_title, title, length);
-    postmessage(GROUP_TOPIC, gid, length, copy_title);
+    postmessage_utox(GROUP_TOPIC, gid, length, copy_title);
 
     debug("Group Title (%u, %u): %.*s\n", gid, pid, (int)length, title);
 }
@@ -304,7 +305,7 @@ static void callback_mdev_self_name(Tox *tox, uint32_t dev_num, const uint8_t *n
 
     edit_setstr(&edit_name, self.name, self.name_length);
 
-    postmessage(REDRAW, 0, 0, NULL);
+    postmessage_utox(REDRAW, 0, 0, NULL);
 }
 
 typedef void tox_mdev_self_status_message_cb(Tox *tox, uint32_t device_number, const uint8_t *status_message,
@@ -320,7 +321,7 @@ static void callback_mdev_self_status_msg(Tox *tox, uint32_t dev_num, const uint
 
     edit_setstr(&edit_status, self.statusmsg, self.statusmsg_length);
 
-    postmessage(REDRAW, 0, 0, NULL);
+    postmessage_utox(REDRAW, 0, 0, NULL);
 }
 
 static void callback_mdev_self_state(Tox *tox, uint32_t device_number, TOX_USER_STATUS state, void *user_data) {
@@ -348,7 +349,7 @@ static void callback_device_sent_message(Tox *tox, uint32_t sending_device, uint
         }
     }
     friend_notify_msg(&friend[target_friend], msg, msg_length);
-    postmessage(FRIEND_MESSAGE, target_friend, 0, NULL);
+    postmessage_utox(FRIEND_MESSAGE, target_friend, 0, NULL);
 }
 
 void utox_set_callbacks_mdevice(Tox *tox) {

@@ -184,7 +184,7 @@ static void ugtk_openavatarthread(void *UNUSED(args)) {
             utoxGTK_dialog_run(message_dialog);
             utoxGTK_widget_destroy(message_dialog);
         } else {
-            postmessage(SELF_AVATAR_SET, size, 0, file_data);
+            postmessage_utox(SELF_AVATAR_SET, size, 0, file_data);
             break;
         }
     }
@@ -245,7 +245,7 @@ static void ugtk_savethread(void *args) {
                 utoxGTK_widget_destroy(dialog);
                 utoxGTK_main_iteration();
                 utoxGTK_widget_destroy(dialog);
-                postmessage(FILE_INCOMING_ACCEPT, file->friend_number, (file->file_number >> 16), path);
+                postmessage_utox(FILE_INCOMING_ACCEPT, file->friend_number, (file->file_number >> 16), path);
                 break;
             }
         } else if (result == GTK_RESPONSE_CANCEL) {
