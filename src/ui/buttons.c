@@ -6,9 +6,11 @@
 #include "../flist.h"
 #include "../friend.h"
 #include "../groups.h"
+#include "../screen_grab.h"
 #include "../theme.h"
 
 #include "../ui/svg.h"
+
 
 /* buttons */
 #ifdef UNITY
@@ -335,7 +337,7 @@ static void button_send_file_update(BUTTON *b) {
 static void button_send_screenshot_on_mup(void) {
     FRIEND *f = flist_get_selected()->data;
     if (f->online) {
-        screen_grab_desktop(0);
+        utox_screen_grab_desktop(0);
     }
 }
 

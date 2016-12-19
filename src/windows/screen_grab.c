@@ -165,7 +165,7 @@ void screen_grab_init(HINSTANCE app_instance) {
     grab_instance = app_instance;
 }
 
-void screen_grab_desktop(bool video) {
+void native_screen_grab_desktop(bool video) {
     int x, y, w, h;
 
     x = GetSystemMetrics(SM_XVIRTUALSCREEN);

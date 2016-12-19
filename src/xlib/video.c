@@ -35,7 +35,6 @@ void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height
         image.data = (char *)new_data;
     }
 
-
     GC     default_gc = DefaultGC(display, screen);
     Pixmap pixmap     = XCreatePixmap(display, window, attrs.width, attrs.height, xwin_depth);
     XPutImage(display, pixmap, default_gc, &image, 0, 0, 0, 0, attrs.width, attrs.height);
@@ -130,12 +129,6 @@ uint16_t native_video_detect(void) {
     initshm();
 
     return device_count;
-}
-
-void desktopgrab(bool video) {
-    pointergrab = 1 + video;
-    XGrabPointer(display, window, False, Button1MotionMask | ButtonPressMask | ButtonReleaseMask, GrabModeAsync,
-                 GrabModeAsync, None, cursors[CURSOR_SELECT], CurrentTime);
 }
 
 static uint16_t video_x, video_y;
