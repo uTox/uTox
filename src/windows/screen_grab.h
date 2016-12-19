@@ -3,6 +3,6 @@
 
 void screen_grab_init(HINSTANCE app_instance);
 
-void screen_grab_desktop(bool video);
+void native_screen_grab_desktop(bool video);
 
 #endif

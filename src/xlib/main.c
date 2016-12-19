@@ -28,7 +28,18 @@ void setclipboard(void) {
 
 void postmessage_utox(UTOX_MSG msg, uint16_t param1, uint16_t param2, void *data) {
     XEvent event = {
-        .xclient = {.window = 0, .type = ClientMessage, .message_type = msg, .format = 8, .data = {.s = { param1, param2 } } }
+        .xclient = {
+            .window = 0,
+            .type = ClientMessage,
+            .message_type = msg,
+            .format = 8,
+            .data = {
+                .s = {
+                    param1,
+                    param2
+                }
+            }
+        }
     };
 
     memcpy(&event.xclient.data.s[2], &data, sizeof(void *));
@@ -194,8 +205,12 @@ void setselection(char *data, uint16_t length) {
 #define SYSTEM_TRAY_BEGIN_MESSAGE 1
 #define SYSTEM_TRAY_CANCEL_MESSAGE 2
 
-void send_message(Display *dpy, /* display */ Window w, /* sender (tray window) */ long message, /* message opcode */
-                  long data1, /* message data 1 */ long data2, /* message data 2 */ long data3 /* message data 3 */) {
+void send_message(Display *dpy, /* display */
+                  Window w, /* sender (tray window) */
+                  long message, /* message opcode */
+                  long data1, /* message data 1 */
+                  long data2, /* message data 2 */
+                  long data3 /* message data 3 */) {
     XEvent ev;
 
     memset(&ev, 0, sizeof(ev));
@@ -260,7 +275,7 @@ void draw_tray_icon(void) {
 
 void create_tray_icon(void) {
     tray_window = XCreateSimpleWindow(display, RootWindow(display, screen), 0, 0, tray_width, tray_height, 0,
-                                      BlackPixel(display, screen), WhitePixel(display, screen));
+                                      BlackPixel(display, screen), BlackPixel(display, screen));
     XSelectInput(display, tray_window, ButtonPress);
 
     /* Get ready to draw a tray icon */
@@ -641,7 +656,7 @@ void setscale_fonts(void) {
     // font_msg_lineheight = (font[FONT_MSG].info[0].face->size->metrics.height + (1 << 5)) >> 6;
 }
 
-void notify(char *title, uint16_t UNUSED(title_length), const char *msg, uint16_t msg_length, void *object, bool is_group) {
+void notify(char *UNUSED(title), uint16_t UNUSED(title_length), const char *UNUSED(msg), uint16_t UNUSED(msg_length), void *object, bool is_group) {
     if (havefocus) {
         return;
     }
@@ -773,12 +788,6 @@ int main(int argc, char *argv[]) {
     // Load settings before calling utox_init()
     utox_init();
 
-    /* Start the tox thread
-     * We can do this really early and give code a chance to boot up!
-     */
-    thread(toxcore_thread, NULL);
-
-
     XInitThreads();
     if ((display = XOpenDisplay(NULL)) == NULL) {
         debug_error("Cannot open display, must exit\n");
@@ -797,10 +806,19 @@ int main(int argc, char *argv[]) {
     if ((xim = XOpenIM(display, 0, 0, 0)) == NULL) {
         debug_error("Cannot open input method\n");
     }
-    screen = DefaultScreen(display);
-    window = window_create_main(display, screen, save->window_x, save->window_y, settings.window_width, settings.window_height);
+
+    screen     = DefaultScreen(display);
+    visual     = DefaultVisual(display, screen);
+    gc         = DefaultGC(display, screen);
+    xwin_depth = DefaultDepth(display, screen);
+    scr        = DefaultScreenOfDisplay(display);
+    root = RootWindow(display, screen);
+
+    window = window_create_main(display, screen, save->window_x, save->window_y, settings.window_width, settings.window_height, argv, argc);
 
     atom_init();
+
+    thread(toxcore_thread, NULL);
 
     LANG = systemlang();
     dropdown_language.selected = dropdown_language.over = LANG;
@@ -810,7 +828,6 @@ int main(int argc, char *argv[]) {
         // try Qt
     }
 
-    scr = DefaultScreenOfDisplay(display);
 
     /* create the draw buffer */
     drawbuf = XCreatePixmap(display, window, settings.window_width, settings.window_height, xwin_depth);
@@ -891,32 +908,27 @@ int main(int argc, char *argv[]) {
     ui_size(settings.window_width, settings.window_height);
 
     create_tray_icon();
-/* Registers the app in the Unity MM */
-#ifdef UNITY
+    /* Registers the app in the Unity MM */
+    #ifdef UNITY
     unity_running = is_unity_running();
     if (unity_running) {
         mm_register();
     }
-#endif
+    #endif
 
     /* draw */
     panel_draw(&panel_root, 0, 0, settings.window_width, settings.window_height);
 
     /* event loop */
-    while (1) {
-        /* block on the first event, then process all events */
+    while (true) {
         XEvent event;
-
         XNextEvent(display, &event);
         if (!doevent(event)) {
             break;
         }
 
-        while (XPending(display)) {
-            XNextEvent(display, &event);
-            if (!doevent(event)) {
-                goto BREAK;
-            }
+        if (XPending(display)) {
+            continue;
         }
 
         if (_redraw) {
@@ -924,7 +936,6 @@ int main(int argc, char *argv[]) {
             _redraw = 0;
         }
     }
-BREAK:
 
     postmessage_utoxav(UTOXAV_KILL, 0, 0, NULL);
     postmessage_toxcore(TOX_KILL, 0, 0, NULL);

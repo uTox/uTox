@@ -139,12 +139,14 @@ elseif(UNIX) # xlib by default
         src/xlib/gtk.c
         src/xlib/keysym2ucs.h
         src/xlib/main.c
-        src/xlib/main.h
         src/xlib/mmenu.c
         src/xlib/mmenu.h
         src/xlib/v4l.c
         src/xlib/video.c
         src/xlib/filesys.c
+        src/xlib/notify.c
+        src/xlib/window.c
+        src/xlib/screen_grab.c
         )
 
     target_link_libraries(utoxNATIVE icon v4lconvert X11 Xext Xrender fontconfig freetype resolv dl )
@@ -257,6 +259,7 @@ add_executable(utox
     src/messages.c
     src/messages.h
     src/sized_string.h
+    src/screen_grab.c
     src/stb_image.h
     src/stb_image_write.h
     src/theme.c

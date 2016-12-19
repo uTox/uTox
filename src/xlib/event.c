@@ -12,15 +12,45 @@
 
 extern XIC xic;
 
+static bool popup_event(XEvent event) {
+
+    switch (event.type) {
+        case Expose: {
+            debug_error("expose\n");
+            XCopyArea(display, drawbuf, popup_win, gc, 0, 0, 400, 150, 0, 0);
+            break;
+        }
+        case ClientMessage: {
+            Atom ping = XInternAtom(display, "_NET_WM_PING", 0);
+            if (event.xclient.data.l[0] == ping) {
+                debug_error("ping\n");
+                event.xany.window = root;
+                XSendEvent(display, root, False, NoEventMask, &event);
+            } else {
+                debug_error("not ping\n");
+            }
+
+        }
+    }
+
+    return true;
+}
+
 bool doevent(XEvent event) {
     if (XFilterEvent(&event, None)) {
-        return 1;
+        return true;
     }
+
     if (event.xany.window && event.xany.window != window) {
+
+        if (event.xany.window == popup_win) {
+            return popup_event(event);
+            // return true;
+        }
 
         if (event.xany.window == tray_window) {
             tray_window_event(event);
-            return 1;
+            return true;
         }
 
         if (event.type == ClientMessage) {
@@ -28,7 +58,7 @@ bool doevent(XEvent event) {
             if ((Atom)event.xclient.data.l[0] == wm_delete_window) {
                 if (ev->window == video_win[0]) {
                     postmessage_utoxav(UTOXAV_STOP_VIDEO, 1, 0, NULL);
-                    return 1;
+                    return true;
                 }
 
                 int i;
@@ -45,7 +75,7 @@ bool doevent(XEvent event) {
             }
         }
 
-        return 1;
+        return true;
     }
 
     switch (event.type) {
@@ -356,30 +386,30 @@ bool doevent(XEvent event) {
                 if (ev->state & ControlMask) {
                     switch (sym) {
                         case 'v':
-                        case 'V': paste(); return 1;
+                        case 'V': paste(); return true;
                         case 'c':
                         case 'C':
-                        case XK_Insert: copy(0); return 1;
+                        case XK_Insert: copy(0); return true;
                         case 'x':
                         case 'X':
                             copy(0);
                             edit_char(KEY_DEL, 1, 0);
-                            return 1;
+                            return true;
                         case 'w':
                         case 'W':
                             /* Sent ctrl + backspace to active edit */
                             edit_char(KEY_BACK, 1, 4);
-                            return 1;
+                            return true;
                     }
                 }
 
                 if (ev->state & ShiftMask) {
                     switch (sym) {
-                        case XK_Insert: paste(); return 1;
+                        case XK_Insert: paste(); return true;
                         case XK_Delete:
                             copy(0);
                             edit_char(KEY_DEL, 1, 0);
-                            return 1;
+                            return true;
                     }
                 }
 
@@ -568,7 +598,7 @@ bool doevent(XEvent event) {
                         debug("Closing to tray.\n");
                         togglehide();
                     } else {
-                        return 0;
+                        return false;
                     }
                 }
                 break;
@@ -601,5 +631,5 @@ bool doevent(XEvent event) {
         }
     }
 
-    return 1;
+    return true;
 }

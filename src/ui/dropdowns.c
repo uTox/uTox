@@ -1,13 +1,14 @@
 // dropdows.h
 #include "dropdowns.h"
 
-#include "../av/utox_av.h"
 #include "../flist.h"
 #include "../friend.h"
 #include "../groups.h"
+#include "../screen_grab.h"
 #include "../theme.h"
 #include "../util.h"
 
+#include "../av/utox_av.h"
 
 static void dropdown_audio_in_onselect(uint16_t i, const DROPDOWN *dm) {
     DROP_ELEMENT *e      = &((DROP_ELEMENT *)dm->userdata)[i];
@@ -23,7 +24,7 @@ static void dropdown_audio_out_onselect(uint16_t i, const DROPDOWN *dm) {
 
 static void dropdown_video_onselect(uint16_t i, const DROPDOWN *UNUSED(dm)) {
     if (i == 1) {
-        screen_grab_desktop(1);
+        utox_screen_grab_desktop(1);
     } else {
         postmessage_utoxav(UTOXAV_SET_VIDEO_IN, i, 0, NULL);
     }

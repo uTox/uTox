@@ -10,8 +10,9 @@
 #include "dbus.h"
 #endif
 
-#include "../ui/svg.h"
 #include "freetype.h"
+
+#include "../ui/svg.h"
 
 #include <arpa/nameser.h>
 #include <ctype.h>
@@ -90,6 +91,20 @@ Pixmap   drawbuf;
 Picture  renderpic;
 Picture  colorpic;
 
+XRenderPictFormat *pictformat;
+
+
+
+// FIXME move locally or something
+Window   popup_win;
+Pixmap   popup_drawbuf;
+Picture  popup_renderpic;
+Picture  popup_colorpic;
+XRenderPictFormat *popup_pictformat;
+
+
+
+
 Screen *scr;
 
 bool               hidden;
@@ -102,7 +117,6 @@ Atom XA_URI_LIST, XA_PNG_IMG;
 Atom XRedraw;
 
 
-XRenderPictFormat *pictformat;
 
 /* Tray icon window */
 Window   tray_window;
