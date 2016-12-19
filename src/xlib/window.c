@@ -161,11 +161,11 @@ Window window_create_notify(Display *display, int screen, int x, int y, int w, i
 
     Atom list[] = {
         wm_delete_window,
-        XInternAtom(display, "WM_TAKE_FOCUS", 0),
+        // XInternAtom(display, "WM_TAKE_FOCUS", 0),
         // XInternAtom(display, "_NET_WM_PING", 0),
         // XInternAtom(display, "_NET_WM_SYNC_REQUEST", 0),
     };
-    XSetWMProtocols(display, win, list, 2);
+    XSetWMProtocols(display, win, list, 1);
 
     /* create the draw buffer */
     popup_drawbuf = XCreatePixmap(display, win, w, h, xwin_depth);
