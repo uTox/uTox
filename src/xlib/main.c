@@ -1,7 +1,9 @@
 #include "main.h"
 
+#include "drawing.h"
 #include "gtk.h"
 #include "window.h"
+#include "freetype.h"
 
 #include "../flist.h"
 #include "../friend.h"
@@ -12,8 +14,6 @@
 
 bool hidden = false;
 
-uint32_t tray_width = 32, tray_height = 32;
-
 XIC xic = NULL;
 
 void *ugtk_load(void);
@@ -23,7 +23,7 @@ void ugtk_native_select_dir_ft(uint32_t fid, FILE_TRANSFER *file);
 void ugtk_savefiledata(FILE_TRANSFER *file);
 
 void setclipboard(void) {
-    XSetSelectionOwner(display, XA_CLIPBOARD, window, CurrentTime);
+    XSetSelectionOwner(display, XA_CLIPBOARD, main_window.window, CurrentTime);
 }
 
 void postmessage_utox(UTOX_MSG msg, uint16_t param1, uint16_t param2, void *data) {
@@ -44,7 +44,7 @@ void postmessage_utox(UTOX_MSG msg, uint16_t param1, uint16_t param2, void *data
 
     memcpy(&event.xclient.data.s[2], &data, sizeof(void *));
 
-    XSendEvent(display, window, False, 0, &event);
+    XSendEvent(display, main_window.window, False, 0, &event);
     XFlush(display);
 }
 
@@ -196,7 +196,7 @@ void setselection(char *data, uint16_t length) {
 
     memcpy(primary.data, data, length);
     primary.len = length;
-    XSetSelectionOwner(display, XA_PRIMARY, window, CurrentTime);
+    XSetSelectionOwner(display, XA_PRIMARY, main_window.window, CurrentTime);
 }
 
 /* Tray icon stuff */
@@ -210,7 +210,8 @@ void send_message(Display *dpy, /* display */
                   long message, /* message opcode */
                   long data1, /* message data 1 */
                   long data2, /* message data 2 */
-                  long data3 /* message data 3 */) {
+                  long data3 /* message data 3 */)
+{
     XEvent ev;
 
     memset(&ev, 0, sizeof(ev));
@@ -243,8 +244,8 @@ void draw_tray_icon(void) {
         /* Get tray window size */
         int32_t  x_r = 0, y_r = 0;
         uint32_t border_r = 0, xwin_depth_r = 0;
-        XMoveResizeWindow(display, tray_window, x_r, y_r, 32, 32);
-        XGetGeometry(display, tray_window, &root, &x_r, &y_r, &tray_width, &tray_height, &border_r, &xwin_depth_r);
+        XMoveResizeWindow(display, tray_window.window, x_r, y_r, 32, 32);
+        XGetGeometry(display, tray_window.window, &root_window, &x_r, &y_r, &tray_window.w, &tray_window.h, &border_r, &xwin_depth_r);
         /* TODO use xcb instead of xlib here!
         xcb_get_geometry_cookie_t xcb_get_geometry (xcb_connection_t *connection,
                                                 xcb_drawable_t    drawable );
@@ -252,20 +253,20 @@ void draw_tray_icon(void) {
                                                       xcb_get_geometry_cookie_t  cookie,
                                                       xcb_generic_error_t      **error);
         free (geom);*/
-        // debug("Tray size == %i x %i\n", tray_width, tray_height);
+        // debug("Tray size == %i x %i\n", tray_window.w, tray_window.h);
 
         /* Resize the image from what the system tray dock tells us to be */
-        double scale = (tray_width > tray_height) ? (double)tray_height / width : (double)tray_width / height;
+        double scale = (tray_window.w > tray_window.h) ? (double)tray_window.h / width : (double)tray_window.w / height;
         image_set_scale(icon, scale);
         image_set_filter(icon, FILTER_BILINEAR);
 
         /* Draw the image and copy to the window */
-        XSetForeground(display, trayicon_gc, 0xFFFFFF);
-        XFillRectangle(display, trayicon_drawbuf, trayicon_gc, 0, 0, tray_width, tray_height);
+        XSetForeground(display, tray_window.gc, 0xFFFFFF);
+        XFillRectangle(display, tray_window.drawbuf, tray_window.gc, 0, 0, tray_window.w, tray_window.h);
         /* TODO: copy method of grabbing background for tray from tray.c:tray_update_root_bg_pmap() (stalonetray) */
-        XRenderComposite(display, PictOpOver, icon->rgb, icon->alpha, trayicon_renderpic, 0, 0, 0, 0, 0, 0, tray_width,
-                         tray_height);
-        XCopyArea(display, trayicon_drawbuf, tray_window, trayicon_gc, 0, 0, tray_width, tray_height, 0, 0);
+        XRenderComposite(display, PictOpOver, icon->rgb, icon->alpha, tray_window.renderpic, 0, 0, 0, 0, 0, 0, tray_window.w,
+                         tray_window.h);
+        XCopyArea(display, tray_window.drawbuf, tray_window.window, tray_window.gc, 0, 0, tray_window.w, tray_window.h, 0, 0);
 
         free(icon);
     } else {
@@ -274,30 +275,34 @@ void draw_tray_icon(void) {
 }
 
 void create_tray_icon(void) {
-    tray_window = XCreateSimpleWindow(display, RootWindow(display, screen), 0, 0, tray_width, tray_height, 0,
-                                      BlackPixel(display, screen), BlackPixel(display, screen));
-    XSelectInput(display, tray_window, ButtonPress);
+    tray_window.window = XCreateSimpleWindow(display, RootWindow(display, def_screen_num), 0, 0, tray_window.w, tray_window.h, 0,
+                                      BlackPixel(display, def_screen_num), BlackPixel(display, def_screen_num));
+    XSelectInput(display, tray_window.window, ButtonPress);
 
     /* Get ready to draw a tray icon */
-    trayicon_gc        = XCreateGC(display, root, 0, 0);
-    trayicon_drawbuf   = XCreatePixmap(display, tray_window, tray_width, tray_height, xwin_depth);
-    trayicon_renderpic = XRenderCreatePicture(display, trayicon_drawbuf, pictformat, 0, NULL);
+    tray_window.gc        = XCreateGC(display, root_window, 0, 0);
+    tray_window.drawbuf   = XCreatePixmap(display, tray_window.window, tray_window.w, tray_window.h, default_depth);
+    XWindowAttributes attr;
+    XGetWindowAttributes(display, root_window, &attr);
+    tray_window.pictformat = XRenderFindVisualFormat(display, attr.visual);
+    tray_window.renderpic = XRenderCreatePicture(display, tray_window.drawbuf, tray_window.pictformat, 0, NULL);
+
     /* Send icon to the tray */
-    send_message(display, XGetSelectionOwner(display, XInternAtom(display, "_NET_SYSTEM_TRAY_S0", False)),
-                 SYSTEM_TRAY_REQUEST_DOCK, tray_window, 0, 0);
+    send_message(display, XGetSelectionOwner(display, XInternAtom(display, "_NET_SYSTEM_TRAY_S0", false)),
+                 SYSTEM_TRAY_REQUEST_DOCK, tray_window.window, 0, 0);
     /* Draw the tray */
     draw_tray_icon();
     /* Reset the tray draw/picture buffers with the new tray size */
-    XFreePixmap(display, trayicon_drawbuf);
-    trayicon_drawbuf = XCreatePixmap(display, tray_window, tray_width, tray_height, xwin_depth);
-    XRenderFreePicture(display, trayicon_renderpic);
-    trayicon_renderpic = XRenderCreatePicture(display, trayicon_drawbuf, pictformat, 0, NULL);
+    XFreePixmap(display, tray_window.drawbuf);
+    tray_window.drawbuf = XCreatePixmap(display, tray_window.window, tray_window.w, tray_window.h, default_depth);
+    XRenderFreePicture(display, tray_window.renderpic);
+    tray_window.renderpic = XRenderCreatePicture(display, tray_window.drawbuf, tray_window.pictformat, 0, NULL);
     /* Redraw the tray one last time! */
     draw_tray_icon();
 }
 
 void destroy_tray_icon(void) {
-    XDestroyWindow(display, tray_window);
+    XDestroyWindow(display, tray_window.window);
 }
 
 /** Toggles the main window to/from hidden to tray/shown. */
@@ -305,13 +310,13 @@ void togglehide(void) {
     if (hidden) {
         int      x, y;
         uint32_t w, h, border;
-        XGetGeometry(display, window, &root, &x, &y, &w, &h, &border, (uint *)&xwin_depth);
-        XMapWindow(display, window);
-        XMoveWindow(display, window, x, y);
+        XGetGeometry(display, main_window.window, &root_window, &x, &y, &w, &h, &border, (uint *)&default_depth);
+        XMapWindow(display, main_window.window);
+        XMoveWindow(display, main_window.window, x, y);
         redraw();
         hidden = 0;
     } else {
-        XWithdrawWindow(display, window, screen);
+        XWithdrawWindow(display, main_window.window, def_screen_num);
         hidden = 1;
     }
 }
@@ -320,23 +325,23 @@ void tray_window_event(XEvent event) {
     switch (event.type) {
         case ConfigureNotify: {
             XConfigureEvent *ev = &event.xconfigure;
-            if (tray_width != (uint32_t)ev->width || tray_height != (uint32_t)ev->height) {
+            if (tray_window.w != (uint32_t)ev->width || tray_window.h != (uint32_t)ev->height) {
                 debug("Tray resized w:%i h:%i\n", ev->width, ev->height);
 
-                if ((uint32_t)ev->width > tray_width || (uint32_t)ev->height > tray_height) {
-                    tray_width  = ev->width;
-                    tray_height = ev->height;
+                if ((uint32_t)ev->width > tray_window.w || (uint32_t)ev->height > tray_window.h) {
+                    tray_window.w  = ev->width;
+                    tray_window.h = ev->height;
 
-                    XFreePixmap(display, trayicon_drawbuf);
-                    trayicon_drawbuf = XCreatePixmap(display, tray_window, tray_width, tray_height,
-                                                     24); // TODO get xwin_depth from X not code
-                    XRenderFreePicture(display, trayicon_renderpic);
-                    trayicon_renderpic = XRenderCreatePicture(
-                        display, trayicon_drawbuf, XRenderFindStandardFormat(display, PictStandardRGB24), 0, NULL);
+                    XFreePixmap(display, tray_window.drawbuf);
+                    tray_window.drawbuf = XCreatePixmap(display, tray_window.window, tray_window.w, tray_window.h,
+                                                     24); // TODO get default_depth from X not code
+                    XRenderFreePicture(display, tray_window.renderpic);
+                    tray_window.renderpic = XRenderCreatePicture(
+                        display, tray_window.drawbuf, XRenderFindStandardFormat(display, PictStandardRGB24), 0, NULL);
                 }
 
-                tray_width  = ev->width;
-                tray_height = ev->height;
+                tray_window.w  = ev->width;
+                tray_window.h = ev->height;
 
                 draw_tray_icon();
             }
@@ -356,7 +361,7 @@ void tray_window_event(XEvent event) {
 void pasteprimary(void) {
     Window owner = XGetSelectionOwner(display, XA_PRIMARY);
     if (owner) {
-        XConvertSelection(display, XA_PRIMARY, XA_UTF8_STRING, targets, window, CurrentTime);
+        XConvertSelection(display, XA_PRIMARY, XA_UTF8_STRING, targets, main_window.window, CurrentTime);
     }
 }
 
@@ -395,7 +400,7 @@ void paste(void) {
                                               .send_event = True,
                                               .display    = display,
                                               .owner      = owner,
-                                              .requestor  = window,
+                                              .requestor  = main_window.window,
                                               .target     = targets,
                                               .selection  = XA_CLIPBOARD,
                                               .property   = XA_ATOM,
@@ -422,7 +427,7 @@ void pastebestformat(const Atom atoms[], size_t len, Atom selection) {
     for (i = 0; i < len; i++) {
         for (j = 0; j < countof(supported); j++) {
             if (atoms[i] == supported[j]) {
-                XConvertSelection(display, selection, supported[j], targets, window, CurrentTime);
+                XConvertSelection(display, selection, supported[j], targets, main_window.window, CurrentTime);
                 return;
             }
         }
@@ -493,12 +498,12 @@ void pastedata(void *data, Atom type, size_t len, bool select) {
 // converts an XImage to a Picture usable by XRender, uses XRenderPictFormat given by
 // 'format', uses the default format if it is NULL
 Picture ximage_to_picture(XImage *img, const XRenderPictFormat *format) {
-    Pixmap pixmap = XCreatePixmap(display, window, img->width, img->height, img->depth);
+    Pixmap pixmap = XCreatePixmap(display, main_window.window, img->width, img->height, img->depth);
     GC     legc   = XCreateGC(display, pixmap, 0, NULL);
     XPutImage(display, pixmap, legc, img, 0, 0, 0, 0, img->width, img->height);
 
     if (format == NULL) {
-        format = XRenderFindVisualFormat(display, visual);
+        format = XRenderFindVisualFormat(display, default_visual);
     }
     Picture picture = XRenderCreatePicture(display, pixmap, format, 0, NULL);
 
@@ -566,12 +571,12 @@ NATIVE_IMAGE *utox_image_to_native(const UTOX_IMAGE data, size_t size, uint16_t 
         blue  = (rgba_data + i)[2] & 0xFF;
 
         target  = (uint32_t *)(out + i);
-        *target = (red | (red << 8) | (red << 16) | (red << 24)) & visual->red_mask;
-        *target |= (blue | (blue << 8) | (blue << 16) | (blue << 24)) & visual->blue_mask;
-        *target |= (green | (green << 8) | (green << 16) | (green << 24)) & visual->green_mask;
+        *target = (red | (red << 8) | (red << 16) | (red << 24)) & default_visual->red_mask;
+        *target |= (blue | (blue << 8) | (blue << 16) | (blue << 24)) & default_visual->blue_mask;
+        *target |= (green | (green << 8) | (green << 16) | (green << 24)) & default_visual->green_mask;
     }
 
-    XImage *img = XCreateImage(display, visual, xwin_depth, ZPixmap, 0, (char *)out, width, height, 32, width * 4);
+    XImage *img = XCreateImage(display, default_visual, default_depth, ZPixmap, 0, (char *)out, width, height, 32, width * 4);
 
     Picture rgb = ximage_to_picture(img, NULL);
     // 4 bpp -> RGBA
@@ -639,7 +644,7 @@ void setscale(void) {
     xsh->min_width  = SCALE(MAIN_WIDTH);
     xsh->min_height = SCALE(MAIN_HEIGHT);
 
-    XSetWMNormalHints(display, window, xsh);
+    XSetWMNormalHints(display, main_window.window, xsh);
 
     if (settings.window_width > (uint32_t)SCALE(MAIN_WIDTH) &&
         settings.window_height > (uint32_t)SCALE(MAIN_HEIGHT)) {
@@ -672,7 +677,7 @@ void notify(char *UNUSED(title), uint16_t UNUSED(title_length), const char *UNUS
     }
 
     XWMHints hints = {.flags = 256 };
-    XSetWMHints(display, window, &hints);
+    XSetWMHints(display, main_window.window, &hints);
 
 #ifdef HAVE_DBUS
     char *str = tohtml(msg, msg_length);
@@ -729,22 +734,22 @@ static void atom_init(void) {
     }
     targets = XInternAtom(display, "TARGETS", 0);
 
-    XA_INCR = XInternAtom(display, "INCR", False);
+    XA_INCR = XInternAtom(display, "INCR", false);
 
-    XdndAware      = XInternAtom(display, "XdndAware", False);
-    XdndEnter      = XInternAtom(display, "XdndEnter", False);
-    XdndLeave      = XInternAtom(display, "XdndLeave", False);
-    XdndPosition   = XInternAtom(display, "XdndPosition", False);
-    XdndStatus     = XInternAtom(display, "XdndStatus", False);
-    XdndDrop       = XInternAtom(display, "XdndDrop", False);
-    XdndSelection  = XInternAtom(display, "XdndSelection", False);
-    XdndDATA       = XInternAtom(display, "XdndDATA", False);
-    XdndActionCopy = XInternAtom(display, "XdndActionCopy", False);
+    XdndAware      = XInternAtom(display, "XdndAware", false);
+    XdndEnter      = XInternAtom(display, "XdndEnter", false);
+    XdndLeave      = XInternAtom(display, "XdndLeave", false);
+    XdndPosition   = XInternAtom(display, "XdndPosition", false);
+    XdndStatus     = XInternAtom(display, "XdndStatus", false);
+    XdndDrop       = XInternAtom(display, "XdndDrop", false);
+    XdndSelection  = XInternAtom(display, "XdndSelection", false);
+    XdndDATA       = XInternAtom(display, "XdndDATA", false);
+    XdndActionCopy = XInternAtom(display, "XdndActionCopy", false);
 
-    XA_URI_LIST = XInternAtom(display, "text/uri-list", False);
-    XA_PNG_IMG  = XInternAtom(display, "image/png", False);
+    XA_URI_LIST = XInternAtom(display, "text/uri-list", false);
+    XA_PNG_IMG  = XInternAtom(display, "image/png", false);
 
-    XRedraw = XInternAtom(display, "XRedraw", False);
+    XRedraw = XInternAtom(display, "XRedraw", false);
 }
 
 static void cursors_init(void) {
@@ -789,16 +794,11 @@ int main(int argc, char *argv[]) {
     utox_init();
 
     XInitThreads();
-    if ((display = XOpenDisplay(NULL)) == NULL) {
-        debug_error("Cannot open display, must exit\n");
-        return 1;
+    if (!window_init()) {
+        return 2;
     }
 
     XSetErrorHandler(hold_x11s_hand);
-
-    gc         = DefaultGC(display, screen);
-    xwin_depth = DefaultDepth(display, screen);
-    root       = RootWindow(display, screen);
 
     XIM xim;
     setlocale(LC_ALL, "");
@@ -807,14 +807,10 @@ int main(int argc, char *argv[]) {
         debug_error("Cannot open input method\n");
     }
 
-    screen     = DefaultScreen(display);
-    visual     = DefaultVisual(display, screen);
-    gc         = DefaultGC(display, screen);
-    xwin_depth = DefaultDepth(display, screen);
-    scr        = DefaultScreenOfDisplay(display);
-    root = RootWindow(display, screen);
 
-    window = window_create_main(display, screen, save->window_x, save->window_y, settings.window_width, settings.window_height, argv, argc);
+    main_window.window = window_create_main(save->window_x, save->window_y, settings.window_width, settings.window_height, argv, argc);
+
+    main_window.gc = DefaultGC(display, def_screen_num);
 
     atom_init();
 
@@ -830,14 +826,14 @@ int main(int argc, char *argv[]) {
 
 
     /* create the draw buffer */
-    drawbuf = XCreatePixmap(display, window, settings.window_width, settings.window_height, xwin_depth);
+    main_window.drawbuf = XCreatePixmap(display, main_window.window, settings.window_width, settings.window_height, default_depth);
 
     /* catch WM_DELETE_WINDOW */
-    XSetWMProtocols(display, window, &wm_delete_window, 1);
+    XSetWMProtocols(display, main_window.window, &wm_delete_window, 1);
 
     /* set drag and drog version */
     Atom dndversion = 3;
-    XChangeProperty(display, window, XdndAware, XA_ATOM, 32, PropModeReplace, (uint8_t *)&dndversion, 1);
+    XChangeProperty(display, main_window.window, XdndAware, XA_ATOM, 32, PropModeReplace, (uint8_t *)&dndversion, 1);
 
     /* initialize fontconfig */
     initfonts();
@@ -863,20 +859,20 @@ int main(int argc, char *argv[]) {
     gcval.subwindow_mode = IncludeInferiors;
 
     /* GC for the */
-    grabgc = XCreateGC(display, RootWindow(display, screen), GCFunction | GCForeground | GCBackground | GCSubwindowMode,
+    scr_grab_window.gc = XCreateGC(display, RootWindow(display, def_screen_num), GCFunction | GCForeground | GCBackground | GCSubwindowMode,
                        &gcval);
 
     XWindowAttributes attr;
-    XGetWindowAttributes(display, root, &attr);
+    XGetWindowAttributes(display, root_window, &attr);
 
-    pictformat = XRenderFindVisualFormat(display, attr.visual);
+    main_window.pictformat = XRenderFindVisualFormat(display, attr.visual);
     // XRenderPictFormat *pictformat = XRenderFindStandardFormat(display, PictStandardA8);
 
     /* Xft draw context/color */
-    renderpic = XRenderCreatePicture(display, drawbuf, pictformat, 0, NULL);
+    main_window.renderpic = XRenderCreatePicture(display, main_window.drawbuf, main_window.pictformat, 0, NULL);
 
     XRenderColor xrcolor = { 0 };
-    colorpic             = XRenderCreateSolidFill(display, &xrcolor);
+    main_window.colorpic             = XRenderCreateSolidFill(display, &xrcolor);
 
     if (set_show_window) {
         if (set_show_window == 1) {
@@ -890,12 +886,12 @@ int main(int argc, char *argv[]) {
     if (settings.start_in_tray) {
         togglehide();
     } else {
-        XMapWindow(display, window);
+        XMapWindow(display, main_window.window);
     }
 
     if (xim) {
-        if ((xic = XCreateIC(xim, XNInputStyle, XIMPreeditNothing | XIMStatusNothing, XNClientWindow, window,
-                             XNFocusWindow, window, NULL))) {
+        if ((xic = XCreateIC(xim, XNInputStyle, XIMPreeditNothing | XIMStatusNothing, XNClientWindow, main_window.window,
+                             XNFocusWindow, main_window.window, NULL))) {
             XSetICFocus(xic);
         } else {
             debug_error("Cannot open input method\n");
@@ -949,9 +945,9 @@ int main(int argc, char *argv[]) {
     Window       root_return, child_return;
     int          x_return, y_return;
     unsigned int width_return, height_return, i;
-    XGetGeometry(display, window, &root_return, &x_return, &y_return, &width_return, &height_return, &i, &i);
+    XGetGeometry(display, main_window.window, &root_return, &x_return, &y_return, &width_return, &height_return, &i, &i);
 
-    XTranslateCoordinates(display, window, root_return, 0, 0, &x_return, &y_return, &child_return);
+    XTranslateCoordinates(display, main_window.window, root_return, 0, 0, &x_return, &y_return, &child_return);
 
     UTOX_SAVE d = {
         .window_x      = x_return < 0 ? 0 : x_return,
@@ -965,12 +961,12 @@ int main(int argc, char *argv[]) {
     FcFontSetSortDestroy(fs);
     freefonts();
 
-    XFreePixmap(display, drawbuf);
+    XFreePixmap(display, main_window.drawbuf);
 
-    XFreeGC(display, grabgc);
+    XFreeGC(display, scr_grab_window.gc);
 
-    XRenderFreePicture(display, renderpic);
-    XRenderFreePicture(display, colorpic);
+    XRenderFreePicture(display, main_window.renderpic);
+    XRenderFreePicture(display, main_window.colorpic);
 
     if (xic) {
         XDestroyIC(xic);
@@ -980,7 +976,7 @@ int main(int argc, char *argv[]) {
         XCloseIM(xim);
     }
 
-    XDestroyWindow(display, window);
+    XDestroyWindow(display, main_window.window);
     XCloseDisplay(display);
 
 /* Unregisters the app from the Unity MM */

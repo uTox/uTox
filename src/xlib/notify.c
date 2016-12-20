@@ -1,42 +1,24 @@
 #include "main.h"
+
 #include "window.h"
+#include "drawing.h"
 
 // #include "../main.h"
 #include "../ui.h"
 
-struct n_block {
-    Window window;
+struct xlib_window list[32];
 
-    uint16_t number;
-
-    int main_DC;
-    int draw_DC;
-    int  mem_DC;
-
-    int draw_BM;
-};
-
-static struct n_block list[20] = { 0 };
-
-static void window_set_make(Window window, uint16_t number) {
-    for (uint8_t i = 0; i < 20; ++i) {
-        if (list[i].number == number) {
+static void window_set_make(Window window) {
+    for (uint8_t i = 0; i < 32; ++i) {
+        if (list[i].window == 0) {
             list[i].window = window;
-            return;
-        }
-    }
-
-    for (uint8_t i = 0; i < 20; ++i) {
-        if (list[i].number == 0) {
-            list[i].window = window;
-            list[i].number = number;
             return;
         }
     }
 }
 
-static struct n_block *window_set_find(Window window) {
-    for (uint8_t i = 0; i < 20; ++i) {
+static struct xlib_window *window_set_find(Window window) {
+    for (uint8_t i = 0; i < 32; ++i) {
         if (list[i].window == window) {
             return &list[i];
         }
@@ -45,14 +27,10 @@ static struct n_block *window_set_find(Window window) {
 }
 
 static void redraw_notify(void) {
-    debug_error("redraw start\n");
-    for (uint8_t i = 0; i < 20; ++i) {
+    debug_error("notify redraw start\n");
+    for (uint8_t i = 0; i < 32; ++i) {
         if (list[i].window) {
-            // target_DC = list[i].main_DC;
-            // active_DC = list[i].draw_DC;
-            // active_BM = list[i].draw_BM;
-
-            // SelectObject(active_DC, active_BM);
+            draw_window_set(&list[i]);
 
             panel_draw(&panel_notify, 0, 0, 400, 150);
             // enddraw_notify(0, 0, 400, 150);
@@ -62,9 +40,9 @@ static void redraw_notify(void) {
 }
 
 void enddraw_notify(int x, int y, int width, int height) {
-    for (uint8_t i = 0; i < 20; ++i) {
-        struct n_block *win = &list[i];
-        if (win->window && win->main_DC && win->draw_BM && win->draw_DC) {
+    for (uint8_t i = 0; i < 32; ++i) {
+        struct xlib_window *win = &list[i];
+        if (win->window && win->drawbuf && win->gc) {
             // SelectObject(win->draw_DC, win->draw_BM);
             // BitBlt(win->main_DC, x, y, width, height, win->draw_DC, x, y, SRCCOPY);
         }
@@ -74,7 +52,7 @@ void enddraw_notify(int x, int y, int width, int height) {
 static uint16_t notification_number = 0;
 
 
-Window native_notify_new(Window parent, int app_instance) {
+Window native_notify_new(void) {
     debug("Notify:\tCreating Notification #%u\n", notification_number);
 
     // int notify_x = 20;
@@ -100,6 +78,6 @@ Window native_notify_new(Window parent, int app_instance) {
     // wchar_t title[title_size];
     // mbstowcs(title, pre, title_size);
 
-    return window_create_notify(display, screen, x, y, notify_w, notify_h);
+    return window_create_notify(x, y, notify_w, notify_h);
     return 0;
 }

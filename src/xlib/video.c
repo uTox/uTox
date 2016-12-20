@@ -1,3 +1,5 @@
+#include "window.h"
+
 #include "../util.h"
 
 void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height, bool resize) {
@@ -35,8 +37,8 @@ void video_frame(uint32_t id, uint8_t *img_data, uint16_t width, uint16_t height
         image.data = (char *)new_data;
     }
 
-    GC     default_gc = DefaultGC(display, screen);
-    Pixmap pixmap     = XCreatePixmap(display, window, attrs.width, attrs.height, xwin_depth);
+    GC     default_gc = DefaultGC(display, def_screen_num);
+    Pixmap pixmap     = XCreatePixmap(display, main_window.window, attrs.width, attrs.height, default_depth);
     XPutImage(display, pixmap, default_gc, &image, 0, 0, 0, 0, attrs.width, attrs.height);
     XCopyArea(display, pixmap, video_win[id], default_gc, 0, 0, attrs.width, attrs.height, 0, 0);
     XFreePixmap(display, pixmap);
@@ -49,8 +51,8 @@ void video_begin(uint32_t id, char *name, uint16_t name_length, uint16_t width, 
         return;
     }
 
-    *win = XCreateSimpleWindow(display, RootWindow(display, screen), 0, 0, width, height, 0,
-                               BlackPixel(display, screen), WhitePixel(display, screen));
+    *win = XCreateSimpleWindow(display, RootWindow(display, def_screen_num), 0, 0, width, height, 0,
+                               BlackPixel(display, def_screen_num), WhitePixel(display, def_screen_num));
 
     // Fallback name in ISO8859-1.
     XStoreName(display, *win, "Video Preview");
@@ -85,9 +87,9 @@ XShmSegmentInfo shminfo;
 void initshm(void) {
     deskdisplay = XOpenDisplay(NULL);
     deskscreen  = DefaultScreen(deskdisplay);
-    debug("desktop: %u %u\n", scr->width, scr->height);
-    max_video_width  = scr->width;
-    max_video_height = scr->height;
+    debug("desktop: %u %u\n", default_screen->width, default_screen->height);
+    max_video_width  = default_screen->width;
+    max_video_height = default_screen->height;
 }
 
 uint16_t native_video_detect(void) {
