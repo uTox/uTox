@@ -4,8 +4,8 @@ project(uTox LANGUAGES C)
 # This version is for the entire project. All libraries (core, av, ...) move in
 # versions in a synchronised way.
 set(PROJECT_VERSION_MAJOR "0")
-set(PROJECT_VERSION_MINOR "10")
-set(PROJECT_VERSION_PATCH "9")
+set(PROJECT_VERSION_MINOR "11")
+set(PROJECT_VERSION_PATCH "1")
 set(PROJECT_VERSION
   "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
 
