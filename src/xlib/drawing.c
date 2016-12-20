@@ -1,5 +1,22 @@
-/* xlib drawing.c */
+#include "drawing.h"
+
+#include "window.h"
+#include "freetype.h"
+
 #include "../util.h"
+
+static uint32_t scolor;
+
+static struct xlib_window *curr;
+
+bool draw_window_set(struct xlib_window *new_win) {
+    if (new_win == curr) {
+        return false;
+    }
+
+    curr = new_win;
+    return true;
+}
 
 void redraw(void) {
     _redraw = 1;
@@ -8,17 +25,17 @@ void redraw(void) {
 void force_redraw(void) {
     XEvent ev = {.xclient = {.type         = ClientMessage,
                              .display      = display,
-                             .window       = window,
+                             .window       = curr->window,
                              .message_type = XRedraw,
                              .format       = 8,
                              .data = {.s = { 0, 0 } } } };
     _redraw = 1;
-    XSendEvent(display, window, 0, 0, &ev);
+    XSendEvent(display, curr->window, 0, 0, &ev);
     XFlush(display);
 }
 
 void draw_image(const NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t imgx, uint32_t imgy) {
-    XRenderComposite(display, PictOpOver, image->rgb, image->alpha, renderpic, imgx, imgy, imgx, imgy, x, y, width,
+    XRenderComposite(display, PictOpOver, image->rgb, image->alpha, curr->renderpic, imgx, imgy, imgx, imgy, x, y, width,
                      height);
 }
 
@@ -39,12 +56,12 @@ void draw_inline_image(uint8_t *img_data, size_t size, uint16_t w, uint16_t h, i
         blue  = (rgba_data + i)[2] & 0xFF;
 
         target  = (uint32_t *)(out + i);
-        *target = (red | (red << 8) | (red << 16) | (red << 24)) & visual->red_mask;
-        *target |= (blue | (blue << 8) | (blue << 16) | (blue << 24)) & visual->blue_mask;
-        *target |= (green | (green << 8) | (green << 16) | (green << 24)) & visual->green_mask;
+        *target = (red | (red << 8) | (red << 16) | (red << 24)) & curr->visual->red_mask;
+        *target |= (blue | (blue << 8) | (blue << 16) | (blue << 24)) & curr->visual->blue_mask;
+        *target |= (green | (green << 8) | (green << 16) | (green << 24)) & curr->visual->green_mask;
     }
 
-    XImage *img = XCreateImage(display, visual, xwin_depth, ZPixmap, 0, (char *)out, w, h, 32, w * 4);
+    XImage *img = XCreateImage(display, curr->visual, default_depth, ZPixmap, 0, (char *)out, w, h, 32, w * 4);
 
     Picture rgb = ximage_to_picture(img, NULL);
     // 4 bpp -> RGBA
@@ -67,7 +84,7 @@ void drawalpha(int bm, int x, int y, int width, int height, uint32_t color) {
 
     Picture src = XRenderCreateSolidFill(display, &xrcolor);
 
-    XRenderComposite(display, PictOpOver, src, bitmap[bm], renderpic, 0, 0, 0, 0, x, y, width, height);
+    XRenderComposite(display, PictOpOver, src, bitmap[bm], curr->renderpic, 0, 0, 0, 0, x, y, width, height);
 
     XRenderFreePicture(display, src);
 }
@@ -88,7 +105,7 @@ static int _drawtext(int x, int xmax, int y, const char *str, uint16_t length) {
             }
 
             if (g->pic) {
-                XRenderComposite(display, PictOpOver, colorpic, g->pic, renderpic, 0, 0, 0, 0, x + g->x, y + g->y,
+                XRenderComposite(display, PictOpOver, curr->colorpic, g->pic, curr->renderpic, 0, 0, 0, 0, x + g->x, y + g->y,
                                  g->width, g->height);
             }
             x += g->xadvance;
@@ -102,28 +119,28 @@ static int _drawtext(int x, int xmax, int y, const char *str, uint16_t length) {
 #include "../shared/freetype-text.c"
 
 void draw_rect_frame(int x, int y, int width, int height, uint32_t color) {
-    XSetForeground(display, gc, color);
-    XDrawRectangle(display, drawbuf, gc, x, y, width - 1, height - 1);
+    XSetForeground(display, curr->gc, color);
+    XDrawRectangle(display, curr->drawbuf, curr->gc, x, y, width - 1, height - 1);
 }
 
 void drawrect(int x, int y, int right, int bottom, uint32_t color) {
-    XSetForeground(display, gc, color);
-    XFillRectangle(display, drawbuf, gc, x, y, right - x, bottom - y);
+    XSetForeground(display, curr->gc, color);
+    XFillRectangle(display, curr->drawbuf, curr->gc, x, y, right - x, bottom - y);
 }
 
 void draw_rect_fill(int x, int y, int width, int height, uint32_t color) {
-    XSetForeground(display, gc, color);
-    XFillRectangle(display, drawbuf, gc, x, y, width, height);
+    XSetForeground(display, curr->gc, color);
+    XFillRectangle(display, curr->drawbuf, curr->gc, x, y, width, height);
 }
 
 void drawhline(int x, int y, int x2, uint32_t color) {
-    XSetForeground(display, gc, color);
-    XDrawLine(display, drawbuf, gc, x, y, x2, y);
+    XSetForeground(display, curr->gc, color);
+    XDrawLine(display, curr->drawbuf, curr->gc, x, y, x2, y);
 }
 
 void drawvline(int x, int y, int y2, uint32_t color) {
-    XSetForeground(display, gc, color);
-    XDrawLine(display, drawbuf, gc, x, y, x, y2);
+    XSetForeground(display, curr->gc, color);
+    XDrawLine(display, curr->drawbuf, curr->gc, x, y, x, y2);
 }
 
 uint32_t setcolor(uint32_t color) {
@@ -133,13 +150,13 @@ uint32_t setcolor(uint32_t color) {
     xrcolor.blue  = ((color << 8) & 0xFF00) | 0x80;
     xrcolor.alpha = 0xFFFF;
 
-    XRenderFreePicture(display, colorpic);
-    colorpic = XRenderCreateSolidFill(display, &xrcolor);
+    XRenderFreePicture(display, curr->colorpic);
+    curr->colorpic = XRenderCreateSolidFill(display, &xrcolor);
 
     uint32_t old = scolor;
     scolor       = color;
     // xftcolor.pixel = color;
-    XSetForeground(display, gc, color);
+    XSetForeground(display, curr->gc, color);
     return old;
 }
 
@@ -148,7 +165,7 @@ static int        clipk;
 
 void pushclip(int left, int top, int width, int height) {
     if (!clipk) {
-        // XSetClipMask(display, gc, drawbuf);
+        // XSetClipMask(display, curr->gc, curr->drawbuf);
     }
 
     XRectangle *r = &clip[clipk++];
@@ -157,27 +174,27 @@ void pushclip(int left, int top, int width, int height) {
     r->width      = width;
     r->height     = height;
 
-    XSetClipRectangles(display, gc, 0, 0, r, 1, Unsorted);
-    XRenderSetPictureClipRectangles(display, renderpic, 0, 0, r, 1);
+    XSetClipRectangles(display, curr->gc, 0, 0, r, 1, Unsorted);
+    XRenderSetPictureClipRectangles(display, curr->renderpic, 0, 0, r, 1);
 }
 
 void popclip(void) {
     clipk--;
     if (!clipk) {
-        XSetClipMask(display, gc, None);
+        XSetClipMask(display, curr->gc, None);
 
         XRenderPictureAttributes pa;
         pa.clip_mask = None;
-        XRenderChangePicture(display, renderpic, CPClipMask, &pa);
+        XRenderChangePicture(display, curr->renderpic, CPClipMask, &pa);
         return;
     }
 
     XRectangle *r = &clip[clipk - 1];
 
-    XSetClipRectangles(display, gc, 0, 0, r, 1, Unsorted);
-    XRenderSetPictureClipRectangles(display, renderpic, 0, 0, r, 1);
+    XSetClipRectangles(display, curr->gc, 0, 0, r, 1, Unsorted);
+    XRenderSetPictureClipRectangles(display, curr->renderpic, 0, 0, r, 1);
 }
 
 void enddraw(int x, int y, int width, int height) {
-    XCopyArea(display, drawbuf, window, gc, x, y, width, height, x, y);
+    XCopyArea(display, curr->drawbuf, curr->window, curr->gc, x, y, width, height, x, y);
 }

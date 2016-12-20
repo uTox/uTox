@@ -10,8 +10,6 @@
 #include "dbus.h"
 #endif
 
-#include "freetype.h"
-
 #include "../ui/svg.h"
 
 #include <arpa/nameser.h>
@@ -77,36 +75,6 @@ struct native_image {
 #define NATIVE_IMAGE_IS_VALID(x) (None != (x))
 #define NATIVE_IMAGE_HAS_ALPHA(x) (None != (x->alpha))
 
-/* Main window */
-Display *display;
-
-int screen;
-int xwin_depth;
-
-Window  root, window;
-
-GC       gc;
-Visual  *visual;
-Pixmap   drawbuf;
-Picture  renderpic;
-Picture  colorpic;
-
-XRenderPictFormat *pictformat;
-
-
-
-// FIXME move locally or something
-Window   popup_win;
-Pixmap   popup_drawbuf;
-Picture  popup_renderpic;
-Picture  popup_colorpic;
-XRenderPictFormat *popup_pictformat;
-
-
-
-
-Screen *scr;
-
 bool               hidden;
 
 Atom wm_protocols, wm_delete_window;
@@ -116,24 +84,12 @@ Atom XdndAware, XdndEnter, XdndLeave, XdndPosition, XdndStatus, XdndDrop, XdndSe
 Atom XA_URI_LIST, XA_PNG_IMG;
 Atom XRedraw;
 
-
-
-/* Tray icon window */
-Window   tray_window;
-Pixmap   trayicon_drawbuf;
-Picture  trayicon_renderpic;
-GC       trayicon_gc;
-uint32_t tray_width, tray_height;
-
 Picture bitmap[BM_ENDMARKER];
 Cursor  cursors[8];
-
-uint32_t scolor;
 
 /* Screen grab vars */
 uint8_t pointergrab;
 int     grabx, graby, grabpx, grabpy;
-GC      grabgc;
 
 XSizeHints *xsh;
 

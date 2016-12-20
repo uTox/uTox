@@ -1,6 +1,6 @@
-// event.c
-
 #include "main.h"
+
+#include "window.h"
 
 #include "../flist.h"
 #include "../friend.h"
@@ -17,15 +17,15 @@ static bool popup_event(XEvent event) {
     switch (event.type) {
         case Expose: {
             debug_error("expose\n");
-            XCopyArea(display, drawbuf, popup_win, gc, 0, 0, 400, 150, 0, 0);
+            XCopyArea(display, popup_window.drawbuf, popup_window.window, popup_window.gc, 0, 0, 400, 150, 0, 0);
             break;
         }
         case ClientMessage: {
             Atom ping = XInternAtom(display, "_NET_WM_PING", 0);
             if (event.xclient.data.l[0] == ping) {
                 debug_error("ping\n");
-                event.xany.window = root;
-                XSendEvent(display, root, False, NoEventMask, &event);
+                event.xany.window = root_window;
+                XSendEvent(display, root_window, False, NoEventMask, &event);
             } else {
                 debug_error("not ping\n");
             }
@@ -41,14 +41,14 @@ bool doevent(XEvent event) {
         return true;
     }
 
-    if (event.xany.window && event.xany.window != window) {
+    if (event.xany.window && event.xany.window != main_window.window) {
 
-        if (event.xany.window == popup_win) {
+        if (event.xany.window == popup_window.window) {
             return popup_event(event);
             // return true;
         }
 
-        if (event.xany.window == tray_window) {
+        if (event.xany.window == tray_window.window) {
             tray_window_event(event);
             return true;
         }
@@ -99,7 +99,7 @@ bool doevent(XEvent event) {
 
             havefocus      = 1;
             XWMHints hints = { 0 };
-            XSetWMHints(display, window, &hints);
+            XSetWMHints(display, main_window.window, &hints);
             break;
         }
 
@@ -120,17 +120,17 @@ bool doevent(XEvent event) {
 
         case ConfigureNotify: {
             XConfigureEvent *ev = &event.xconfigure;
-            if (settings.window_width != ev->width || settings.window_height != ev->height) {
+            if (settings.window_width != (uint32_t)ev->width || settings.window_height != (uint32_t)ev->height) {
                 // debug("resize\n");
 
                 if (ev->width > drawwidth || ev->height > drawheight) {
                     drawwidth  = ev->width + 10;
                     drawheight = ev->height + 10;
 
-                    XFreePixmap(display, drawbuf);
-                    drawbuf = XCreatePixmap(display, window, drawwidth, drawheight, xwin_depth);
-                    XRenderFreePicture(display, renderpic);
-                    renderpic = XRenderCreatePicture(display, drawbuf, pictformat, 0, NULL);
+                    XFreePixmap(display, main_window.drawbuf);
+                    main_window.drawbuf = XCreatePixmap(display, main_window.window, drawwidth, drawheight, default_depth);
+                    XRenderFreePicture(display, main_window.renderpic);
+                    main_window.renderpic = XRenderCreatePicture(display, main_window.drawbuf, main_window.pictformat, 0, NULL);
                 }
 
                 settings.window_width  = ev->width;
@@ -151,14 +151,14 @@ bool doevent(XEvent event) {
         case MotionNotify: {
             XMotionEvent *ev = &event.xmotion;
             if (pointergrab) {
-                XDrawRectangle(display, RootWindow(display, screen), grabgc, grabx < grabpx ? grabx : grabpx,
+                XDrawRectangle(display, RootWindow(display, def_screen_num), scr_grab_window.gc, grabx < grabpx ? grabx : grabpx,
                                graby < grabpy ? graby : grabpy, grabx < grabpx ? grabpx - grabx : grabx - grabpx,
                                graby < grabpy ? grabpy - graby : graby - grabpy);
 
                 grabpx = ev->x_root;
                 grabpy = ev->y_root;
 
-                XDrawRectangle(display, RootWindow(display, screen), grabgc, grabx < grabpx ? grabx : grabpx,
+                XDrawRectangle(display, RootWindow(display, def_screen_num), scr_grab_window.gc, grabx < grabpx ? grabx : grabpx,
                                graby < grabpy ? graby : grabpy, grabx < grabpx ? grabpx - grabx : grabx - grabpx,
                                graby < grabpy ? grabpy - graby : graby - grabpy);
 
@@ -177,7 +177,7 @@ bool doevent(XEvent event) {
             cursor = CURSOR_NONE;
             panel_mmove(&panel_root, 0, 0, settings.window_width, settings.window_height, ev->x, ev->y, dx, dy);
 
-            XDefineCursor(display, window, cursors[cursor]);
+            XDefineCursor(display, main_window.window, cursors[cursor]);
 
             // SetCursor(hand ? cursor_hand : cursor_arrow);
 
@@ -201,7 +201,7 @@ bool doevent(XEvent event) {
                         grabpx = grabx = ev->x_root;
                         grabpy = graby = ev->y_root;
 
-                        // XDrawRectangle(display, RootWindow(display, screen), grabgc, grabx, graby, 0, 0);
+                        // XDrawRectangle(display, RootWindow(display, def_screen_num), scr_grab_window.gc, grabx, graby, 0, 0);
                         break;
                     }
 
@@ -278,12 +278,12 @@ bool doevent(XEvent event) {
                             break;
                         }
 
-                        XDrawRectangle(display, RootWindow(display, screen), grabgc, grabx, graby, grabpx, grabpy);
+                        XDrawRectangle(display, RootWindow(display, def_screen_num), scr_grab_window.gc, grabx, graby, grabpx, grabpy);
                         XUngrabPointer(display, CurrentTime);
                         if (pointergrab == 1) {
                             FRIEND *f = flist_get_selected()->data;
                             if (flist_get_selected()->item == ITEM_FRIEND && f->online) {
-                                XImage *img = XGetImage(display, RootWindow(display, screen), grabx, graby, grabpx,
+                                XImage *img = XGetImage(display, RootWindow(display, def_screen_num), grabx, graby, grabpx,
                                                         grabpy, XAllPlanes(), ZPixmap);
                                 if (img) {
                                     uint8_t * temp, *p;
@@ -482,7 +482,7 @@ bool doevent(XEvent event) {
             long unsigned int len, bytes_left;
             void *            data;
 
-            XGetWindowProperty(display, window, ev->property, 0, ~0L, True, AnyPropertyType, &type, &format, &len,
+            XGetWindowProperty(display, main_window.window, ev->property, 0, ~0L, True, AnyPropertyType, &type, &format, &len,
                                &bytes_left, (unsigned char **)&data);
 
             if (!data) {
@@ -559,7 +559,7 @@ bool doevent(XEvent event) {
                 unsigned long int len, bytes_left;
                 void *            data;
 
-                XGetWindowProperty(display, window, ev->atom, 0, ~0L, True, AnyPropertyType, &type, &format, &len,
+                XGetWindowProperty(display, main_window.window, ev->atom, 0, ~0L, True, AnyPropertyType, &type, &format, &len,
                                    &bytes_left, (unsigned char **)&data);
 
                 if (len == 0) {
@@ -569,7 +569,7 @@ bool doevent(XEvent event) {
                     break;
                 }
 
-                if (pastebuf.left < len) {
+                if (pastebuf.left < (int)len) {
                     pastebuf.len += len - pastebuf.left;
                     pastebuf.data = realloc(pastebuf.data, pastebuf.len);
                     pastebuf.left = len;
@@ -613,14 +613,14 @@ bool doevent(XEvent event) {
                                                   .window       = src,
                                                   .message_type = XdndStatus,
                                                   .format       = 32,
-                                                  .data = {.l = { window, 1, 0, 0, XdndActionCopy } } } };
+                                                  .data = {.l = { main_window.window, 1, 0, 0, XdndActionCopy } } } };
 
                 XSendEvent(display, src, 0, 0, &reply_event);
                 // debug("position (version=%u)\n", ev->data.l[1] >> 24);
             } else if (ev->message_type == XdndStatus) {
                 debug("status\n");
             } else if (ev->message_type == XdndDrop) {
-                XConvertSelection(display, XdndSelection, XA_STRING, XdndDATA, window, CurrentTime);
+                XConvertSelection(display, XdndSelection, XA_STRING, XdndDATA, main_window.window, CurrentTime);
                 debug("drop\n");
             } else if (ev->message_type == XdndLeave) {
                 debug("leave\n");

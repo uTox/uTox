@@ -1,35 +1,46 @@
 #include "window.h"
 
+#include "drawing.h"
+
 #include "main.h"
+
+bool window_init(void) {
+    if ((display = XOpenDisplay(NULL)) == NULL) {
+        debug_error("Cannot open display, must exit\n");
+        return false;
+    }
+
+    default_screen = DefaultScreenOfDisplay(display);
+    def_screen_num = DefaultScreen(display);
+    default_visual = DefaultVisual(display, def_screen_num);
+    default_depth  = DefaultDepth(display, def_screen_num);
+
+    root_window    = RootWindow(display, def_screen_num);
+
+
+    return true;
+}
 
 static Window window_create() {
 
     return 0;
 }
 
-static Window master;
-
-Window window_create_main(Display *display, int screen, int x, int y, int w, int h, char **argv, int argc) {
+Window window_create_main(int x, int y, int w, int h, char **argv, int argc) {
 
     XSetWindowAttributes attrib = {
-        .background_pixel   = WhitePixel(display, screen),
-        .border_pixel       = BlackPixel(display, screen),
+        .background_pixel   = WhitePixel(display, def_screen_num),
+        .border_pixel       = BlackPixel(display, def_screen_num),
         .event_mask         = ExposureMask    | ButtonPressMask   | ButtonReleaseMask   | EnterWindowMask |
                               LeaveWindowMask | PointerMotionMask | StructureNotifyMask | KeyPressMask    |
                               KeyReleaseMask  | FocusChangeMask   | PropertyChangeMask,
     };
 
-    int depth    = DefaultDepth(display, screen);
-    visual       = DefaultVisual(display, screen);
-    root         = RootWindow(display, screen);
-
-    Window win = XCreateWindow(display, root, x, y, w, h, 0,
-                               depth, InputOutput, visual,
+    Window win = XCreateWindow(display, root_window, x, y, w, h, 0,
+                               default_depth, InputOutput, default_visual,
                                CWBackPixmap | CWBorderPixel | CWEventMask,
                                &attrib);
 
-    // TODO don't use a global here
-    master = win;
 
     char *title_name = calloc(256, 1);
     snprintf(title_name, 256, "%s %s (version: %s)", TITLE, SUB_TITLE, VERSION);
@@ -62,7 +73,7 @@ Window window_create_main(Display *display, int screen, int x, int y, int w, int
     wm_hints->flags         = StateHint | InputHint | WindowGroupHint;
     wm_hints->initial_state = NormalState;
     wm_hints->input         = True;
-    wm_hints->window_group  = master;
+    wm_hints->window_group  = win;
     // With WindowGroupHint wm_hints never get set properly TODO find out why
 
     class_hints->res_name   = *argv;
@@ -74,6 +85,8 @@ Window window_create_main(Display *display, int screen, int x, int y, int w, int
     uint pid = getpid();
     XChangeProperty(display, win, a_pid, XA_CARDINAL, 32, PropModeReplace, (uint8_t *)&pid, 1);
 
+    draw_window_set(&main_window);
+
     return win;
 }
 
@@ -81,25 +94,23 @@ void window_create_video() {
     return;
 }
 
-Window window_create_notify(Display *display, int screen, int x, int y, int w, int h) {
-    int depth    = DefaultDepth(display, screen);
-    visual       = DefaultVisual(display, screen);
-    root         = RootWindow(display, screen);
+Window window_create_notify(int x, int y, int w, int h) {
+
 
     XSetWindowAttributes attrib = {
-        .background_pixel = WhitePixel(display, screen),
-        .border_pixel     = BlackPixel(display, screen),
+        .background_pixel = WhitePixel(display, def_screen_num),
+        .border_pixel     = BlackPixel(display, def_screen_num),
         .override_redirect  = True,
         .event_mask       = ExposureMask    | ButtonPressMask   | ButtonReleaseMask   | EnterWindowMask |
                             LeaveWindowMask | PointerMotionMask | StructureNotifyMask | KeyPressMask    |
                             KeyReleaseMask  | FocusChangeMask   | PropertyChangeMask,
     };
 
-    Window win = XCreateWindow(display, root, x, y, w, h, 1,
-                               depth, InputOutput, visual,
+    Window win = XCreateWindow(display, root_window, x, y, w, h, 1,
+                               default_depth, InputOutput, default_visual,
                                CWBackPixmap | CWBorderPixel | CWEventMask | CWColormap | CWOverrideRedirect,
                                &attrib);
-    popup_win = win;
+    popup_window.window = win;
 
     // Why?
     // "Because FUCK your use of sane coding strategies" -Xlib... probably...
@@ -133,7 +144,7 @@ Window window_create_notify(Display *display, int screen, int x, int y, int w, i
     wm_hints->flags         = StateHint | InputHint | WindowGroupHint;
     wm_hints->initial_state = NormalState;
     wm_hints->input         = True;
-    wm_hints->window_group  = master;
+    wm_hints->window_group  = main_window.window;
 
     class_hints->res_name   = "Alert";
     class_hints->res_class  = "uTox";
@@ -168,27 +179,27 @@ Window window_create_notify(Display *display, int screen, int x, int y, int w, i
     XSetWMProtocols(display, win, list, 1);
 
     /* create the draw buffer */
-    popup_drawbuf = XCreatePixmap(display, win, w, h, xwin_depth);
+    popup_window.drawbuf = XCreatePixmap(display, win, w, h, default_depth);
     /* catch WM_DELETE_WINDOW */
-    XSetWMProtocols(display, window, &wm_delete_window, 1);
+    XSetWMProtocols(display, win, &wm_delete_window, 1);
 
     XWindowAttributes attr;
-    XGetWindowAttributes(display, root, &attr);
-    popup_pictformat = XRenderFindVisualFormat(display, attr.visual);
+    XGetWindowAttributes(display, root_window, &attr);
+    popup_window.pictformat = XRenderFindVisualFormat(display, attr.visual);
 
     /* Xft draw context/color */
-    popup_renderpic = XRenderCreatePicture(display, popup_drawbuf, popup_pictformat, 0, NULL);
+    popup_window.renderpic = XRenderCreatePicture(display, popup_window.drawbuf, popup_window.pictformat, 0, NULL);
 
     XRenderColor xrcolor = { 0 };
-    popup_colorpic = XRenderCreateSolidFill(display, &xrcolor);
+    popup_window.colorpic = XRenderCreateSolidFill(display, &xrcolor);
 
     panel_draw(&panel_root, 0, 0, 400, 150);
-    XCopyArea(display, popup_drawbuf, win, gc, x, y, w, h, x, y);
+    XCopyArea(display, popup_window.drawbuf, win, popup_window.gc, x, y, w, h, x, y);
 
     XMapWindow(display, win);
 
     panel_draw(&panel_root, 0, 0, 400, 150);
-    XCopyArea(display, popup_drawbuf, win, gc, x, y, w, h, x, y);
+    XCopyArea(display, popup_window.drawbuf, win, popup_window.gc, x, y, w, h, x, y);
 
     return win;
 }

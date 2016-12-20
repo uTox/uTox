@@ -1,4 +1,9 @@
+#include "freetype.h"
+
 #include "main.h"
+
+#include "window.h"
+
 #define UTOX_FONT_XLIB "Roboto"
 
 static void font_info_open(FONT_INFO *i, FcPattern *pattern);
@@ -15,7 +20,7 @@ Picture loadglyphpic(uint8_t *data, int width, int height, int pitch, bool no_su
     XImage *img;
 
     if (no_subpixel) {
-        pixmap = XCreatePixmap(display, window, width, height, 8);
+        pixmap = XCreatePixmap(display, main_window.window, width, height, 8);
         img    = XCreateImage(display, CopyFromParent, 8, ZPixmap, 0, (char *)data, width, height, 8, 0);
         legc   = XCreateGC(display, pixmap, 0, NULL);
         XPutImage(display, pixmap, legc, img, 0, 0, 0, 0, width, height);
@@ -52,8 +57,8 @@ Picture loadglyphpic(uint8_t *data, int width, int height, int pitch, bool no_su
             } while (--i);
         }
 
-        pixmap = XCreatePixmap(display, window, width, height, xwin_depth);
-        img    = XCreateImage(display, CopyFromParent, xwin_depth, ZPixmap, 0, (char *)rgbx, width, height, 32, 0);
+        pixmap = XCreatePixmap(display, main_window.window, width, height, default_depth);
+        img    = XCreateImage(display, CopyFromParent, default_depth, ZPixmap, 0, (char *)rgbx, width, height, 32, 0);
         legc   = XCreateGC(display, pixmap, 0, NULL);
         XPutImage(display, pixmap, legc, img, 0, 0, 0, 0, width, height);
 
@@ -375,7 +380,7 @@ static bool font_open(FONT *a_font, ...) {
 }
 
 void loadfonts(void) {
-    int render_order = XRenderQuerySubpixelOrder(display, screen);
+    int render_order = XRenderQuerySubpixelOrder(display, def_screen_num);
     if (render_order == SubPixelHorizontalBGR || render_order == SubPixelVerticalBGR) {
         ft_swap_blue_red = 1;
         debug("ft_swap_blue_red\n");
