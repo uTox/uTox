@@ -289,6 +289,9 @@ msgstr("Kompakte Kontaktliste verwenden")
 msgid(NOT_CONNECTED)
 msgstr("Nicht verbunden")
 
+msgid(NOT_CONNECTED_ERROR)
+msgstr("Netzwerk Einstellungen anpassen")
+
 msgid(OTHERSETTINGS)
 msgstr("Andere Einstellungen")
 
