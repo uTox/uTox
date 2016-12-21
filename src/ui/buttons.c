@@ -51,7 +51,7 @@ void button_setcolors_disabled(BUTTON *b) {
 
 /* On-press functions followed by the update functions when needed... */
 static void button_avatar_onpress(void) {
-    if (tox_thread_init) {
+    if (tox_thread_init && !tox_thread_error) {
         openfileavatar();
     }
 }
@@ -123,7 +123,7 @@ static void button_menu_update(BUTTON *b) {
 }
 
 static void button_add_new_contact_onpress(void) {
-    if (tox_thread_init) {
+    if (tox_thread_init && !tox_thread_error) {
         /* Only change if we're logged in! */
         edit_setstr(&edit_add_id, (char *)edit_search.data, edit_search.length);
         edit_setstr(&edit_search, (char *)"", 0);
