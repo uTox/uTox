@@ -275,7 +275,6 @@ static void ugtk_save_data_thread(void *args) {
         FILE *fp = fopen(name, "wb");
         if (fp) {
             fwrite(file->path, file->size, 1, fp);
-            flush_file(fp);
             fclose(fp);
 
             snprintf((char *)file->path, UTOX_FILE_NAME_LENGTH, "inline.png");

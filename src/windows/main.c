@@ -143,7 +143,6 @@ void savefiledata(FILE_TRANSFER *file) {
         FILE *fp = fopen(path, "wb");
         if (fp) {
             fwrite(file->via.memory, file->target_size, 1, fp);
-            flush_file(fp);
             fclose(fp);
 
             snprintf((char *)file->path, UTOX_FILE_NAME_LENGTH, "inline.png");

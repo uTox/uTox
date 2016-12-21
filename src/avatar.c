@@ -28,7 +28,6 @@ bool avatar_save(char hexid[TOX_PUBLIC_KEY_SIZE * 2], const uint8_t *data, size_
     }
 
     fwrite(data, length, 1, fp);
-    flush_file(fp);
     fclose(fp);
     return true;
 }

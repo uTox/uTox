@@ -187,7 +187,6 @@ void writesavedata(void *data, uint32_t len) {
     file = fopen("/data/data/tox.utox/files/tox_save", "wb");
     if (file) {
         fwrite(data, len, 1, file);
-        flush_file(file);
         fclose(file);
         debug("Saved data\n");
     } else {
