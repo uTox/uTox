@@ -5,16 +5,16 @@
 #define _LANG_ID LANG_CS
 LANG_POSIX_LOCALE("cs_CZ")
 LANG_WINDOWS_ID(0x0405)
-#include "../langs/cs.h"
 #include "../langs/en.h" //fallback to English for untranslated things
+#include "../langs/cs.h"
 #undef _LANG_ID
 
 //"BULGARIAN" "Български"
 #define _LANG_ID LANG_BG
 LANG_POSIX_LOCALE("bg_BG")
 LANG_WINDOWS_ID(0x0402)
-#include "../langs/bg.h"
 #include "../langs/en.h" //fallback to English for untranslated things
+#include "../langs/bg.h"
 #undef _LANG_ID
 
 //"GERMAN" "Deutsch"
@@ -22,8 +22,8 @@ LANG_WINDOWS_ID(0x0402)
 LANG_POSIX_LOCALE("de_DE")
 LANG_WINDOWS_ID(0x0407)
 LANG_PRIORITY(-1) // Ensure this lang gets chosen for unknown de locales.
-#include "../langs/de.h"
 #include "../langs/en.h" //fallback to English for untranslated things
+#include "../langs/de.h"
 #undef _LANG_ID
 
 //"ENGLISH" "English"
@@ -112,8 +112,8 @@ LANG_WINDOWS_ID(0x0415)
 #define _LANG_ID LANG_BR
 LANG_POSIX_LOCALE("pt_BR")
 LANG_WINDOWS_ID(0x0416)
-#include "../langs/br.h"
 #include "../langs/en.h" //fallback to English for untranslated things
+#include "../langs/br.h"
 #undef _LANG_ID
 
 //"ROMANIAN" "Română"
@@ -153,8 +153,8 @@ LANG_WINDOWS_ID(0x0422)
 LANG_POSIX_LOCALE("zh_CN")
 LANG_WINDOWS_ID(0x0804)
 LANG_PRIORITY(-1) // Ensure this lang gets chosen for unknown zh locales.
-#include "../langs/cn.h"
 #include "../langs/en.h" //fallback to English for untranslated things
+#include "../langs/cn.h"
 #undef _LANG_ID
 
 //"TRADITIONAL CHINESE" "繁體中文"
