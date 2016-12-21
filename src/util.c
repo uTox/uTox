@@ -64,7 +64,7 @@ void file_write_raw(uint8_t *path, uint8_t *data, size_t size) {
         debug("File write raw size in  %u\n", (unsigned int)size);
         debug("File write raw size out %u\n", (unsigned int)outsize);
     }
-    fflush(file);
+    flush_file(file);
     fclose(file);
     return;
 }
@@ -807,6 +807,7 @@ void utox_write_metadata(FRIEND *f) {
             fwrite(data, total_size, 1, file);
             free(data);
         }
+        flush_file(file);
         fclose(file);
     }
 }

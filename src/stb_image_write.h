@@ -103,7 +103,7 @@ CREDITS:
       Jonas Karlsson
       Filip Wasil
       Thatcher Ulrich
-      
+
 LICENSE
 
 This software is dual-licensed to the public domain and under the following
@@ -970,7 +970,7 @@ unsigned char *stbi_write_png_to_mem(unsigned char *pixels, int stride_bytes, in
    *o++ = 0;
    *o++ = 0;
    *o++ = 0;
-   stbiw__wpcrc(&o,13);
+   stbiw__wpcrc(&o, 13);
 
    stbiw__wp32(o, zlen);
    stbiw__wptag(o, "IDAT");
@@ -979,9 +979,9 @@ unsigned char *stbi_write_png_to_mem(unsigned char *pixels, int stride_bytes, in
    STBIW_FREE(zlib);
    stbiw__wpcrc(&o, zlen);
 
-   stbiw__wp32(o,0);
+   stbiw__wp32(o, 0);
    stbiw__wptag(o, "IEND");
-   stbiw__wpcrc(&o,0);
+   stbiw__wpcrc(&o, 0);
 
    STBIW_ASSERT(o == out + *out_len);
 
@@ -989,17 +989,25 @@ unsigned char *stbi_write_png_to_mem(unsigned char *pixels, int stride_bytes, in
 }
 
 #ifndef STBI_WRITE_NO_STDIO
-STBIWDEF int stbi_write_png(char const *filename, int x, int y, int comp, const void *data, int stride_bytes)
-{
-   FILE *f;
+STBIWDEF int stbi_write_png(char const *filename, int x, int y, int comp, const void *data, int stride_bytes) {
    int len;
-   unsigned char *png = stbi_write_png_to_mem((unsigned char *) data, stride_bytes, x, y, comp, &len);
-   if (png == NULL) return 0;
-   f = fopen(filename, "wb");
-   if (!f) { STBIW_FREE(png); return 0; }
+   uint8_t *png = stbi_write_png_to_mem((unsigned char *) data, stride_bytes, x, y, comp, &len);
+
+   if (png == NULL) {
+      return 0;
+   }
+
+   FILE *f = fopen(filename, "wb");
+   if (!f) {
+      STBIW_FREE(png);
+      return 0;
+   }
+
    fwrite(png, 1, len, f);
+   fflush(f);
    fclose(f);
    STBIW_FREE(png);
+
    return 1;
 }
 #endif
@@ -1008,7 +1016,9 @@ STBIWDEF int stbi_write_png_to_func(stbi_write_func *func, void *context, int x,
 {
    int len;
    unsigned char *png = stbi_write_png_to_mem((unsigned char *) data, stride_bytes, x, y, comp, &len);
-   if (png == NULL) return 0;
+   if (png == NULL) {
+      return 0;
+   }
    func(context, png, len);
    STBIW_FREE(png);
    return 1;

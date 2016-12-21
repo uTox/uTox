@@ -767,7 +767,7 @@ static void incoming_file_callback_chunk(Tox *tox, uint32_t friend_number, uint3
         }
         fseeko(ft->via.file, position, SEEK_SET);
         size_t write_size = fwrite(data, 1, length, ft->via.file);
-        fflush(ft->via.file);
+        flush_file(ft->via.file);
         file_unlock(ft->via.file, position, length);
         if (write_size != length) {
             debug_error("\n\nFileTransfer:\tERROR WRITING DATA TO FILE! (%u & %u)\n\n", friend_number, file_number);
@@ -1050,6 +1050,7 @@ int utox_file_start_write(uint32_t friend_number, uint32_t file_number, const ch
     //     fseeko(ft->tmp_file, 0, SEEK_SET);
     //     fseeko(ft->file, 0, SEEK_SET);
     //     fwrite(ft->tmp_file, 1, ft->size_transferred, ft->file);
+    //     flush_file(ft->file);
     //     fclose(ft->tmp_file);
     //     ft->in_tmp_loc = 0;
     //     // free(ft->tmp_path); // Freed by xlib probably...

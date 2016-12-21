@@ -186,7 +186,7 @@ bool utox_update_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t offset, uint8
     }
 
     fwrite(data, length, 1, file);
-    fflush(file);
+    flush_file(file);
     fclose(file);
 
     return true;
@@ -204,6 +204,7 @@ void utox_export_chatlog_init(uint32_t friend_number) {
     native_export_chatlog_init(friend_number);
 }
 
+// TODO: Make this not depend on specific stdio implementations.
 void utox_export_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], FILE *dest_file) {
     if (!dest_file) {
         return;
@@ -238,6 +239,7 @@ void utox_export_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], FILE *dest_file) {
         }
         c = fgetc(file); /* the newline char */
         fputc(c, dest_file);
+        flush_file(dest_file);
     }
 
     fclose(file);
