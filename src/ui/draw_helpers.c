@@ -75,10 +75,11 @@ void draw_user_badge(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED
         setfont(FONT_SELF_NAME);
         drawtextrange(SIDEBAR_NAME_LEFT, SIDEBAR_WIDTH - SIDEBAR_AVATAR_LEFT, SIDEBAR_NAME_TOP, S(NOT_CONNECTED), SLEN(NOT_CONNECTED));
 
-        setcolor(!button_status_msg.mouseover ? COLOR_MENU_TEXT_SUBTEXT : COLOR_MAIN_TEXT_HINT);
-        setfont(FONT_STATUS);
-        drawtextrange(SIDEBAR_STATUSMSG_LEFT, SIDEBAR_WIDTH, SIDEBAR_STATUSMSG_TOP, S(NOT_CONNECTED_ERROR), SLEN(NOT_CONNECTED_ERROR));
-
+        if (tox_thread_error) {
+            setcolor(!button_status_msg.mouseover ? COLOR_MENU_TEXT_SUBTEXT : COLOR_MAIN_TEXT_HINT);
+            setfont(FONT_STATUS);
+            drawtextrange(SIDEBAR_STATUSMSG_LEFT, SIDEBAR_WIDTH, SIDEBAR_STATUSMSG_TOP, S(NOT_CONNECTED_ERROR), SLEN(NOT_CONNECTED_ERROR));
+        }
     }
 }
 
