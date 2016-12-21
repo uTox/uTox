@@ -153,9 +153,6 @@ static void ft_decon_resumable(FILE_TRANSFER *ft) {
         return;
     }
 
-    // Write \0 and flush before delete
-    fwrite('\0', 1, size, file);
-    fflush(file);
     fclose(file);
     file = native_get_file(name, &size, UTOX_FILE_OPTS_DELETE);
 }
