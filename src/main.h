@@ -170,7 +170,7 @@ volatile uint16_t loaded_audio_in_device, loaded_audio_out_device;
 bool tox_connected;
 
 /* Super global vars */
-volatile bool tox_thread_init, utox_av_ctrl_init, utox_audio_thread_init, utox_video_thread_init;
+volatile bool tox_thread_init, tox_thread_error, utox_av_ctrl_init, utox_audio_thread_init, utox_video_thread_init;
 
 double ui_scale;
 

@@ -58,22 +58,40 @@ static void button_avatar_on_mup(void) {
 
 static void button_name_on_mup(void) {
     flist_selectsettings();
-    panel_settings_profile.disabled = false;
-    panel_settings_devices.disabled = true;
-    panel_settings_net.disabled     = true;
-    panel_settings_ui.disabled      = true;
-    panel_settings_av.disabled      = true;
-    edit_setfocus(&edit_name);
+    if (tox_thread_error) {
+        // jump to the network settings when unable to create tox instance
+        panel_settings_profile.disabled = true;
+        panel_settings_devices.disabled = true;
+        panel_settings_net.disabled = false;
+        panel_settings_ui.disabled = true;
+        panel_settings_av.disabled = true;
+    } else {
+        panel_settings_profile.disabled = false;
+        panel_settings_devices.disabled = true;
+        panel_settings_net.disabled = true;
+        panel_settings_ui.disabled = true;
+        panel_settings_av.disabled = true;
+        edit_setfocus(&edit_name);
+    }
 }
 
 static void button_statusmsg_on_mup(void) {
     flist_selectsettings();
-    panel_settings_profile.disabled = false;
-    panel_settings_devices.disabled = true;
-    panel_settings_net.disabled     = true;
-    panel_settings_ui.disabled      = true;
-    panel_settings_av.disabled      = true;
-    edit_setfocus(&edit_status);
+    if (tox_thread_error) {
+        // jump to the network settings when unable to create tox instance
+        panel_settings_profile.disabled = true;
+        panel_settings_devices.disabled = true;
+        panel_settings_net.disabled = false;
+        panel_settings_ui.disabled = true;
+        panel_settings_av.disabled = true;
+    } else {
+        panel_settings_profile.disabled = false;
+        panel_settings_devices.disabled = true;
+        panel_settings_net.disabled = true;
+        panel_settings_ui.disabled = true;
+        panel_settings_av.disabled = true;
+        edit_setfocus(&edit_status);
+    }
 }
 
 static void button_status_on_mup(void) {

@@ -31,7 +31,7 @@ void draw_avatar_image(NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32
 
 /* Top left self interface Avatar, name, statusmsg, status icon */
 void draw_user_badge(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height)) {
-    if (tox_thread_init) {
+    if (tox_thread_init && !tox_thread_error) {
         /* Only draw the user badge if toxcore is running */
         /*draw avatar or default image */
         if (self_has_avatar()) {
@@ -73,7 +73,12 @@ void draw_user_badge(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED
 
         setcolor(!button_name.mouseover ? COLOR_MENU_TEXT : COLOR_MENU_TEXT_SUBTEXT);
         setfont(FONT_SELF_NAME);
-        drawtextrange(SIDEBAR_NAME_LEFT, SIDEBAR_NAME_WIDTH, SIDEBAR_NAME_TOP, S(NOT_CONNECTED), SLEN(NOT_CONNECTED));
+        drawtextrange(SIDEBAR_NAME_LEFT, SIDEBAR_WIDTH - SIDEBAR_AVATAR_LEFT, SIDEBAR_NAME_TOP, S(NOT_CONNECTED), SLEN(NOT_CONNECTED));
+
+        setcolor(!button_status_msg.mouseover ? COLOR_MENU_TEXT_SUBTEXT : COLOR_MAIN_TEXT_HINT);
+        setfont(FONT_STATUS);
+        drawtextrange(SIDEBAR_STATUSMSG_LEFT, SIDEBAR_WIDTH, SIDEBAR_STATUSMSG_TOP, S(NOT_CONNECTED_ERROR), SLEN(NOT_CONNECTED_ERROR));
+
     }
 }
 
