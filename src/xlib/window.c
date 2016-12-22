@@ -4,6 +4,8 @@
 
 #include "main.h"
 
+#include "../ui/layout_notify.h"
+
 bool window_init(void) {
     if ((display = XOpenDisplay(NULL)) == NULL) {
         debug_error("Cannot open display, must exit\n");
@@ -182,6 +184,7 @@ Window window_create_notify(int x, int y, int w, int h) {
     popup_window.drawbuf = XCreatePixmap(display, win, w, h, default_depth);
     /* catch WM_DELETE_WINDOW */
     XSetWMProtocols(display, win, &wm_delete_window, 1);
+    popup_window.gc        = XCreateGC(display, root_window, 0, 0);
 
     XWindowAttributes attr;
     XGetWindowAttributes(display, root_window, &attr);
@@ -193,12 +196,14 @@ Window window_create_notify(int x, int y, int w, int h) {
     XRenderColor xrcolor = { 0 };
     popup_window.colorpic = XRenderCreateSolidFill(display, &xrcolor);
 
-    panel_draw(&panel_root, 0, 0, 400, 150);
+    draw_window_set(&popup_window);
+
+    panel_draw(&panel_notify, 0, 0, 400, 150);
     XCopyArea(display, popup_window.drawbuf, win, popup_window.gc, x, y, w, h, x, y);
 
     XMapWindow(display, win);
 
-    panel_draw(&panel_root, 0, 0, 400, 150);
+    panel_draw(&panel_notify, 0, 0, 400, 150);
     XCopyArea(display, popup_window.drawbuf, win, popup_window.gc, x, y, w, h, x, y);
 
     return win;

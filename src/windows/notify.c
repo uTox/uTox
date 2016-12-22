@@ -229,6 +229,7 @@ HWND native_notify_new(HWND parent, HINSTANCE app_instance) {
     RECT rect;
     SystemParametersInfo(SPI_GETWORKAREA, 0, &rect, 0);
 
+    // TODO wrap at max screen size
     int x = rect.right - notify_x - notify_w;
     int y = rect.top   + notify_y + (notify_y + notify_h) * notification_number;
 

@@ -58,8 +58,6 @@ Window native_notify_new(void) {
     // int notify_x = 20;
     // int notify_y = 20;
 
-    int x = 20;
-    int y = 20;
 
     int notify_w = 400;
     int notify_h = 150;
@@ -70,6 +68,8 @@ Window native_notify_new(void) {
     // int x = rect.right - notify_x - notify_w;
     // int y = rect.top   + notify_y + (notify_y + notify_h) * notification_number;
 
+    int x = 20;
+    int y = 20 + (20 + notify_h) * notification_number;
     ++notification_number;
 
     // char pre[128];
