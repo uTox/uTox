@@ -121,13 +121,11 @@ message("* C flags for Release:     ${CMAKE_C_FLAGS_RELEASE}")
 message("* C flags for all types:   ${CMAKE_C_FLAGS}")
 
 
-#######################################################################
-#
-# :: uTox native
-# include utoxNATIVE dependend on the OS
-#
-#######################################################################
+# Protip, you must use a different directory for each build target...
+# -DMAKE_TOOLCHAIN_FILE has no effect unless the target directory is empty
+# 1.5 hours to learn this...
 if(WIN32)
+    set(GUI_TYPE WIN32)
     ############################################################
     ## This is a hack, that we can remove once we have better
     ## separation of the sections of uTox, until then, this
@@ -146,6 +144,7 @@ if(WIN32)
 
     add_subdirectory(src/windows)
 elseif(APPLE)
+    set(GUI_TYPE MACOSX_BUNDLE)
     add_definitions("-x objective-c")
     add_subdirectory(src/cocoa)
 elseif(UNIX)
@@ -168,7 +167,7 @@ add_subdirectory(src/av)
 # :: uTox main
 #
 #######################################################################
-add_executable(utox
+add_executable(utox ${GUI_TYPE}
     src/avatar.c
     src/avatar.h
     src/chatlog.c
