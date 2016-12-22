@@ -269,6 +269,12 @@ msgstr("User Interface")
 msgid(AUDIO_VIDEO_BUTTON)
 msgstr("Audio & Video")
 
+msgid(ADVANCED_BUTTON)
+msgstr("Advanced")
+
+msgid(NOTIFICATIONS_BUTTON)
+msgstr("Notifications")
+
 
 
 

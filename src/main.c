@@ -46,8 +46,8 @@ SETTINGS settings = {
 
     .verbose = 1,
 
-    .window_height        = 600,
-    .window_width         = 800,
+    .window_height        = MAIN_HEIGHT,
+    .window_width         = MAIN_WIDTH,
     .window_baseline      = 0,
     .window_maximized     = 0,
 };

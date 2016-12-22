@@ -382,6 +382,32 @@ void draw_settings_sub_header(int x, int y, int UNUSED(w), int UNUSED(height)) {
     }
     drawvline(x_right_edge, y + SCALE(0), y + SCALE(30), COLOR_EDGE_NORMAL);
 
+    /* Draw the text and bars for notification settings */
+    setcolor(!button_settings_sub_notifications.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_TEXT_SUBTEXT);
+    x            = x_right_edge;
+    x_right_edge = x_right_edge + SCALE(10) + UTOX_STR_WIDTH(NOTIFICATIONS_BUTTON) + SCALE(10);
+    drawstr(x + SCALE(10), y + SCALE(10), NOTIFICATIONS_BUTTON);
+
+    if (panel_settings_notifications.disabled) {
+        DRAW_UNDERLINE();
+    } else {
+        DRAW_OVERLINE();
+    }
+    drawvline(x_right_edge, y + SCALE(0), y + SCALE(30), COLOR_EDGE_NORMAL);
+
+    /* Draw the text and bars for advanced settings */
+    setcolor(!button_settings_sub_adv.mouseover ? COLOR_MAIN_TEXT : COLOR_MAIN_TEXT_SUBTEXT);
+    x            = x_right_edge;
+    x_right_edge = x_right_edge + SCALE(10) + UTOX_STR_WIDTH(ADVANCED_BUTTON) + SCALE(10);
+    drawstr(x + SCALE(10), y + SCALE(10), ADVANCED_BUTTON);
+
+    if (panel_settings_adv.disabled) {
+        DRAW_UNDERLINE();
+    } else {
+        DRAW_OVERLINE();
+    }
+    drawvline(x_right_edge, y + SCALE(0), y + SCALE(30), COLOR_EDGE_NORMAL);
+
     x            = x_right_edge;
     x_right_edge = x_right_edge + SCALE(1000);
     DRAW_UNDERLINE();
@@ -442,8 +468,7 @@ void draw_settings_text_ui(int UNUSED(x), int y, int UNUSED(w), int UNUSED(heigh
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(95), CLOSE_TO_TRAY);
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(125), START_IN_TRAY);
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(155), AUTO_STARTUP);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(185), SEND_TYPING_NOTIFICATIONS);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(215), SETTINGS_UI_MINI_ROSTER);
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(185), SETTINGS_UI_MINI_ROSTER);
 }
 
 void draw_settings_text_av(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)) {
@@ -454,22 +479,16 @@ void draw_settings_text_av(int UNUSED(x), int y, int UNUSED(w), int UNUSED(heigh
     uint16_t draw_pos_y = 10;
     uint16_t draw_pos_y_inc = 30;
 
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(draw_pos_y), RINGTONE);
-    draw_pos_y += draw_pos_y_inc;
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(draw_pos_y), PUSH_TO_TALK);
     draw_pos_y += draw_pos_y_inc;
 #ifdef AUDIO_FILTERING
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(draw_pos_y), AUDIOFILTERING);
     draw_pos_y += draw_pos_y_inc;
 #endif
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(draw_pos_y), STATUS_NOTIFICATIONS);
-    draw_pos_y += draw_pos_y_inc;
     // These are 60 apart as there needs to be room for a dropdown between them.
 
     draw_pos_y_inc = 60;
 
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(draw_pos_y), GROUP_NOTIFICATIONS);
-    draw_pos_y += draw_pos_y_inc;
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(draw_pos_y), AUDIOINPUTDEVICE);
     draw_pos_y += draw_pos_y_inc;
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(draw_pos_y), AUDIOOUTPUTDEVICE);
@@ -477,6 +496,21 @@ void draw_settings_text_av(int UNUSED(x), int y, int UNUSED(w), int UNUSED(heigh
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(draw_pos_y), VIDEOINPUTDEVICE);
     draw_pos_y += draw_pos_y_inc;
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(draw_pos_y), PREVIEW);
+}
+
+void draw_settings_text_notifications(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)) {
+    setcolor(COLOR_MAIN_TEXT);
+    setfont(FONT_SELF_NAME);
+
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(40), RINGTONE);
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(70), STATUS_NOTIFICATIONS);
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(100), SEND_TYPING_NOTIFICATIONS);
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(130), GROUP_NOTIFICATIONS);
+}
+
+void draw_settings_text_adv(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)) {
+    setcolor(COLOR_MAIN_TEXT);
+    setfont(FONT_SELF_NAME);
 }
 
 void draw_friend_settings(int UNUSED(x), int y, int UNUSED(width), int UNUSED(height)) {
