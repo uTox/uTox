@@ -101,12 +101,14 @@ void ui_set_scale(uint8_t scale) {
     scrollbar_settings.panel.y        = SCALE(32);  /* TODO magic numbers are bad */
     scrollbar_settings.content_height = SCALE(300); /* TODO magic numbers are bad */
 
-    panel_settings_master.y  = MAIN_TOP_FRAME_THIN;
-    panel_settings_profile.y = SCALE(32);
-    panel_settings_devices.y = SCALE(32);
-    panel_settings_net.y     = SCALE(32);
-    panel_settings_ui.y      = SCALE(32);
-    panel_settings_av.y      = SCALE(32);
+    panel_settings_master.y        = MAIN_TOP_FRAME_THIN;
+    panel_settings_profile.y       = SCALE(32);
+    panel_settings_devices.y       = SCALE(32);
+    panel_settings_net.y           = SCALE(32);
+    panel_settings_ui.y            = SCALE(32);
+    panel_settings_av.y            = SCALE(32);
+    panel_settings_notifications.y = SCALE(32);
+    panel_settings_adv.y           = SCALE(32);
 
     scrollbar_friend.panel.y      = MAIN_TOP;
     scrollbar_friend.panel.height = CHAT_BOX_TOP;
@@ -130,8 +132,7 @@ void ui_set_scale(uint8_t scale) {
     CREATE_SWITCH(close_to_tray, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(90), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
     CREATE_SWITCH(start_in_tray, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(120), BM_SWITCH_WIDTH,BM_SWITCH_HEIGHT);
     CREATE_SWITCH(auto_startup, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(150), BM_SWITCH_WIDTH,BM_SWITCH_HEIGHT);
-    CREATE_SWITCH(typing_notes, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(180), BM_SWITCH_WIDTH,BM_SWITCH_HEIGHT);
-    CREATE_SWITCH(mini_contacts, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(210), BM_SWITCH_WIDTH,BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(mini_contacts, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(180), BM_SWITCH_WIDTH,BM_SWITCH_HEIGHT);
 
 
     // Network tab
@@ -140,12 +141,19 @@ void ui_set_scale(uint8_t scale) {
 
 
     // Audio & Video tab
-    CREATE_SWITCH(audible_notifications, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(0), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
     CREATE_SWITCH(push_to_talk, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(30), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
-    CREATE_SWITCH(status_notifications, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(60), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
     #ifdef AUDIO_FILTERING
     CREATE_SWITCH(audio_filtering, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(90), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
     #endif
+
+
+    // Notifications tab
+    CREATE_SWITCH(audible_notifications,        SCALE(-10) - BM_SWITCH_WIDTH, SCALE(10),  BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(status_notifications,         SCALE(-10) - BM_SWITCH_WIDTH, SCALE(40),  BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(typing_notes,                 SCALE(-10) - BM_SWITCH_WIDTH, SCALE(70), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
+    CREATE_DROPDOWN(global_group_notifications, SCALE(10),                    SCALE(120), SCALE(24),       SCALE(100));
+
+    // Adanced tab
 
     /* User Badge & Roster  */
     CREATE_BUTTON(avatar, SIDEBAR_AVATAR_LEFT, SIDEBAR_AVATAR_TOP, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
@@ -181,6 +189,12 @@ void ui_set_scale(uint8_t scale) {
     settings_tab_x += SCALE(20) + UTOX_STR_WIDTH(USER_INTERFACE_BUTTON);
 
     CREATE_BUTTON(settings_sub_av, settings_tab_x, 1, SCALE(18) + UTOX_STR_WIDTH(AUDIO_VIDEO_BUTTON), SCALE(28));
+    settings_tab_x += SCALE(20) + UTOX_STR_WIDTH(USER_INTERFACE_BUTTON);
+
+    CREATE_BUTTON(settings_sub_notifications, settings_tab_x, 1, SCALE(18) + UTOX_STR_WIDTH(NOTIFICATIONS_BUTTON), SCALE(28));
+    settings_tab_x += SCALE(20) + UTOX_STR_WIDTH(USER_INTERFACE_BUTTON);
+
+    CREATE_BUTTON(settings_sub_adv, settings_tab_x, 1, SCALE(18) + UTOX_STR_WIDTH(ADVANCED_BUTTON), SCALE(28));
 
     /* Profile              */
     CREATE_BUTTON(copyid, SCALE(66), SCALE(106), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
@@ -204,9 +218,9 @@ void ui_set_scale(uint8_t scale) {
     /* Audio/Video          */
     {
 #ifdef AUDIO_FILTERING
-        const uint16_t preview_button_pos_y = 390;
+        const uint16_t preview_button_pos_y = 280;
 #else
-        const uint16_t preview_button_pos_y = 360;
+        const uint16_t preview_button_pos_y = 250;
 #endif
         CREATE_BUTTON(callpreview, SCALE(10), SCALE(preview_button_pos_y), BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
         CREATE_BUTTON(videopreview, SCALE(70), SCALE(preview_button_pos_y), BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
@@ -226,8 +240,6 @@ void ui_set_scale(uint8_t scale) {
 
     /* Group Settings */
     CREATE_EDIT(group_topic, SCALE(10), SCALE(95), SCALE(-10), SCALE(24));
-
-    CREATE_DROPDOWN(global_group_notifications, SCALE(10), SCALE(155), SCALE(24), SCALE(85));
 
     /* Friend / Group Page  */
     CREATE_BUTTON(call_decline, SCALE(-186), SCALE(10), BM_LBUTTON_WIDTH, BM_LBUTTON_HEIGHT);
@@ -263,17 +275,15 @@ void ui_set_scale(uint8_t scale) {
     {
         // Each element is draw_pos_y_inc units apart and they start draw_pos_y down.
 #ifdef AUDIO_FILTERING
-        const uint16_t start_draw_y = 150;
+        const uint16_t start_draw_y = 60;
 #else
-        const uint16_t start_draw_y = 120;
+        const uint16_t start_draw_y = 30;
 #endif
 
-        const uint16_t draw_y_vect = 60;
-        CREATE_DROPDOWN(global_group_notifications, SCALE(10), SCALE(start_draw_y + draw_y_vect * 0),
-                        SCALE(24), SCALE(100));
-        CREATE_DROPDOWN(audio_in, SCALE(10), SCALE(start_draw_y + draw_y_vect * 1), SCALE(24), SCALE(360));
-        CREATE_DROPDOWN(audio_out, SCALE(10), SCALE(start_draw_y + draw_y_vect * 2), SCALE(24), SCALE(360));
-        CREATE_DROPDOWN(video, SCALE(10), SCALE(start_draw_y + draw_y_vect * 3), SCALE(24), SCALE(360));
+        const uint16_t draw_y_vect = 30;
+        CREATE_DROPDOWN(audio_in, SCALE(10), SCALE(start_draw_y + draw_y_vect), SCALE(24), SCALE(360));
+        CREATE_DROPDOWN(audio_out, SCALE(10), SCALE(start_draw_y + draw_y_vect + 60), SCALE(24), SCALE(360));
+        CREATE_DROPDOWN(video, SCALE(10), SCALE(start_draw_y + draw_y_vect + 120), SCALE(24), SCALE(360));
     }
 
     // Add friend panel

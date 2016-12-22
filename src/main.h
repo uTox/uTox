@@ -60,7 +60,7 @@
 
 #define BORDER 1
 #define CAPTION 26
-#define MAIN_WIDTH 800
+#define MAIN_WIDTH 1000
 #define MAIN_HEIGHT 600
 
 #define inrect(x, y, rx, ry, width, height) \
