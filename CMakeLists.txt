@@ -279,8 +279,8 @@ add_executable(utox
 
 target_link_libraries(utox
                       utoxAV        utoxNATIVE      utoxUI
-                      ${TOX_LIBS}   ${LIBRARIES}
-                      sodium        pthread     m   vpx )
+                      ${TOX_LIBS}   ${LIBRARIES}    sodium
+                      vpx           pthread         m )
 
 set_property(TARGET utox PROPERTY C_STANDARD 99)
 if(UNIX)
