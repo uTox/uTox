@@ -356,8 +356,8 @@ void friend_notify_status(FRIEND *f, const uint8_t *msg, size_t msg_length, char
     notify(title, title_length, (char *)msg, msg_length, f, 0);
 
     if (f->online) {
-        postmessage_audio(UTOXAUDIO_PLAY_NOTIFICATION, NOTIFY_TONE_FRIEND_ONLINE, 0, NULL);
-    } else {
         postmessage_audio(UTOXAUDIO_PLAY_NOTIFICATION, NOTIFY_TONE_FRIEND_OFFLINE, 0, NULL);
+    } else {
+        postmessage_audio(UTOXAUDIO_PLAY_NOTIFICATION, NOTIFY_TONE_FRIEND_ONLINE, 0, NULL);
     }
 }
