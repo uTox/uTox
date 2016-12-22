@@ -712,3 +712,16 @@ BUTTON button_move_window = {
     .on_mdn   = btn_move_window_mdn,
     .on_mup   = btn_move_window_mup,
 };
+
+static void btn_test_notify_mup(void) {
+    debug("button test\n");
+
+    native_notify_new();
+
+}
+
+BUTTON button_test_notify = {
+    .nodraw   = false,
+    .disabled = false,
+    .on_mup   = btn_test_notify_mup,
+};

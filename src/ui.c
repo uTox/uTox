@@ -11,7 +11,7 @@
 #include "ui/contextmenu.h"
 #include "ui/draw_helpers.h"
 #include "ui/dropdowns.h"
-#include "ui/layout_tree.h"
+#include "ui/layout_root.h"
 #include "ui/switches.h"
 #include "ui/text.h"
 #include "ui/tooltip.h"
@@ -161,6 +161,8 @@ void ui_set_scale(uint8_t scale) {
 
     /* Setting pages        */
     CREATE_BUTTON(move_window, 1, SCALE(10), SCALE(40), SCALE(40));
+
+    CREATE_BUTTON(test_notify, 1, SCALE(10), SCALE(40), SCALE(40));
 
 
     CREATE_BUTTON(settings_sub_profile, 1, 1, SCALE(18) + UTOX_STR_WIDTH(PROFILE_BUTTON), SCALE(28));

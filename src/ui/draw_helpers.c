@@ -15,9 +15,13 @@ void draw_notification(int x, int y, int w, int h) {
         return;
     }
 
-    draw_avatar_image(self.avatar->img, SIDEBAR_AVATAR_LEFT, SIDEBAR_AVATAR_TOP,
-                      self.avatar->width, self.avatar->height,
-                      BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
+    if (self_has_avatar()) {
+        draw_avatar_image(self.avatar->img, SIDEBAR_AVATAR_LEFT, SIDEBAR_AVATAR_TOP, self.avatar->width,
+                          self.avatar->height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
+    } else {
+        drawalpha(BM_CONTACT, SIDEBAR_AVATAR_LEFT, SIDEBAR_AVATAR_TOP, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH,
+                  COLOR_MENU_TEXT);
+    }
 }
 
 void draw_avatar_image(NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t targetwidth,

@@ -28,7 +28,8 @@ extern BUTTON   button_avatar,
 
                 button_export_chatlog,
 
-                button_move_window;
+                button_move_window,
+                button_test_notify;
 
 bool btn_move_window_down;
 

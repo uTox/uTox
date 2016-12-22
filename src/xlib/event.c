@@ -12,6 +12,8 @@
 
 extern XIC xic;
 
+
+// TODO DRY
 static bool popup_event(XEvent event) {
 
     switch (event.type) {
@@ -29,8 +31,163 @@ static bool popup_event(XEvent event) {
             } else {
                 debug_error("not ping\n");
             }
-
         }
+        case MotionNotify: {
+            XMotionEvent *ev = &event.xmotion;
+            if (pointergrab) {
+                XDrawRectangle(display, RootWindow(display, def_screen_num), scr_grab_window.gc, grabx < grabpx ? grabx : grabpx,
+                               graby < grabpy ? graby : grabpy, grabx < grabpx ? grabpx - grabx : grabx - grabpx,
+                               graby < grabpy ? grabpy - graby : graby - grabpy);
+
+                grabpx = ev->x_root;
+                grabpy = ev->y_root;
+
+                XDrawRectangle(display, RootWindow(display, def_screen_num), scr_grab_window.gc, grabx < grabpx ? grabx : grabpx,
+                               graby < grabpy ? graby : grabpy, grabx < grabpx ? grabpx - grabx : grabx - grabpx,
+                               graby < grabpy ? grabpy - graby : graby - grabpy);
+
+                break;
+            }
+
+
+            static int mx, my;
+            int        dx, dy;
+
+            dx = ev->x - mx;
+            dy = ev->y - my;
+            mx = ev->x;
+            my = ev->y;
+
+            cursor = CURSOR_NONE;
+            panel_mmove(&panel_notify, 0, 0, settings.window_width, settings.window_height, ev->x, ev->y, dx, dy);
+
+            XDefineCursor(display, main_window.window, cursors[cursor]);
+
+            debug("MotionEvent: (%u %u) %u\n", ev->x, ev->y, ev->state);
+            break;
+        }
+        case ButtonPress: {
+            XButtonEvent *ev = &event.xbutton;
+            switch (ev->button) {
+                case Button1: {
+                    // todo: better double/triple click detect
+                    static Time lastclick, lastclick2;
+                    panel_mmove(&panel_notify, 0, 0, settings.window_width, settings.window_height, ev->x, ev->y, 0, 0);
+                    panel_mdown(&panel_notify);
+                    if (ev->time - lastclick < 300) {
+                        bool triclick = (ev->time - lastclick2 < 600);
+                        panel_dclick(&panel_notify, triclick);
+                        if (triclick) {
+                            lastclick = 0;
+                        }
+                    }
+                    lastclick2 = lastclick;
+                    lastclick  = ev->time;
+                    break;
+                }
+
+                case Button3: {
+                    if (pointergrab) {
+                        XUngrabPointer(display, CurrentTime);
+                        pointergrab = 0;
+                        break;
+                    }
+
+                    panel_mright(&panel_notify);
+                    break;
+                }
+
+                case Button4: {
+                    // FIXME: determine precise deltas if possible
+                    panel_mwheel(&panel_notify, 0, 0, settings.window_width, settings.window_height, 1.0, 0);
+                    break;
+                }
+
+                case Button5: {
+                    // FIXME: determine precise deltas if possible
+                    panel_mwheel(&panel_notify, 0, 0, settings.window_width, settings.window_height, -1.0, 0);
+                    break;
+                }
+            }
+
+            debug("ButtonEvent: %u %u\n", ev->state, ev->button);
+            break;
+        }
+
+        case ButtonRelease: {
+            XButtonEvent *ev = &event.xbutton;
+            switch (ev->button) {
+                case Button1: {
+                    if (pointergrab) {
+                        if (grabx < grabpx) {
+                            grabpx -= grabx;
+                        } else {
+                            int w  = grabx - grabpx;
+                            grabx  = grabpx;
+                            grabpx = w;
+                        }
+
+                        if (graby < grabpy) {
+                            grabpy -= graby;
+                        } else {
+                            int w  = graby - grabpy;
+                            graby  = grabpy;
+                            grabpy = w;
+                        }
+
+                        /* enforce min size */
+
+                        if (grabpx * grabpy < 100) {
+                            pointergrab = 0;
+                            XUngrabPointer(display, CurrentTime);
+                            break;
+                        }
+
+                        XDrawRectangle(display, RootWindow(display, def_screen_num), scr_grab_window.gc, grabx, graby, grabpx, grabpy);
+                        XUngrabPointer(display, CurrentTime);
+                        if (pointergrab == 1) {
+                            FRIEND *f = flist_get_selected()->data;
+                            if (flist_get_selected()->item == ITEM_FRIEND && f->online) {
+                                XImage *img = XGetImage(display, RootWindow(display, def_screen_num), grabx, graby, grabpx,
+                                                        grabpy, XAllPlanes(), ZPixmap);
+                                if (img) {
+                                    uint8_t * temp, *p;
+                                    uint32_t *pp = (void *)img->data, *end = &pp[img->width * img->height];
+                                    p = temp = malloc(img->width * img->height * 3);
+                                    while (pp != end) {
+                                        uint32_t i = *pp++;
+                                        *p++       = i >> 16;
+                                        *p++       = i >> 8;
+                                        *p++       = i;
+                                    }
+                                    int      size = -1;
+                                    uint8_t *out  = stbi_write_png_to_mem(temp, 0, img->width, img->height, 3, &size);
+                                    free(temp);
+
+                                    uint16_t w = img->width;
+                                    uint16_t h = img->height;
+
+                                    NATIVE_IMAGE *image = malloc(sizeof(NATIVE_IMAGE));
+                                    image->rgb          = ximage_to_picture(img, NULL);
+                                    image->alpha        = None;
+                                    friend_sendimage(f, image, w, h, (UTOX_IMAGE)out, size);
+                                }
+                            }
+                        } else {
+                            postmessage_utoxav(UTOXAV_SET_VIDEO_IN, 1, 0, NULL);
+                        }
+                        pointergrab = 0;
+                    } else {
+                        panel_mup(&panel_notify);
+                    }
+                    break;
+                }
+            }
+            debug("ButtonEvent: %u %u\n", ev->state, ev->button);
+            break;
+        }
+
+
     }
 
     return true;

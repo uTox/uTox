@@ -190,7 +190,6 @@ add_library(utoxUI STATIC
     src/ui/edit.h
     src/ui/edits.c
     src/ui/edits.h
-    src/ui/layout_tree.h
     src/ui/scrollable.c
     src/ui/scrollable.h
     src/ui/svg.c
@@ -203,6 +202,8 @@ add_library(utoxUI STATIC
     src/ui/text.h
     src/ui/tooltip.c
     src/ui/tooltip.h
+
+    src/ui/layout_all.h
     )
 
 #######################################################################
