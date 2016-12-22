@@ -7,8 +7,8 @@
 #include "../main.h"
 #include "../theme.h"
 #include "../tox.h"
-#include "../utox.h"
 #include "../util.h"
+#include "../utox.h"
 
 #include "../av/utox_av.h"
 #include "../ui/dropdowns.h"
@@ -971,6 +971,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     OleInitialize(NULL);
     RegisterClassW(&wc);
     RegisterClassW(&wc2);
+
 
     uint16_t langid = GetUserDefaultUILanguage() & 0xFFFF;
     LANG            = ui_guess_lang_by_windows_lang_id(langid, DEFAULT_LANG);
