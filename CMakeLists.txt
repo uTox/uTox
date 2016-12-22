@@ -42,6 +42,7 @@ endif()
 # -DMAKE_TOOLCHAIN_FILE has no effect unless the target directory is empty
 # 1.5 hours to learn this...
 if(WIN32)
+    set(GUI_TYPE WIN32)
     include_directories( libs/toktok/include libs/windows-x64/include/ )
     link_directories( libs/toktok/lib /usr/x86_64-w64-mingw32/lib/ libs/windows-x64/lib )
     #########################################
@@ -112,6 +113,7 @@ elseif(APPLE) # Mac has a lot of dependencies
 	  )
 elseif(UNIX) # xlib by default
     include_directories(/usr/include/freetype2)
+    set(GUI_TYPE MACOSX_BUNDLE)
     #########################################
     ## Native Icon data
     #########################################
@@ -225,7 +227,7 @@ endif()
 # :: uTox main
 #
 #######################################################################
-add_executable(utox
+add_executable(utox ${GUI_TYPE}
     src/avatar.c
     src/avatar.h
     src/chatlog.c
