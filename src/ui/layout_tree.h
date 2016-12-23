@@ -314,9 +314,6 @@ panel_main = {
                     (PANEL*)&edit_toxid,
                     (PANEL*)&button_copyid,
                     (PANEL*)&dropdown_language,
-                    (PANEL*)&edit_nospam,
-                    (PANEL*)&button_change_nospam,
-                    (PANEL*)&button_revert_nospam,
                     (PANEL*)&button_show_password_settings,
                     &panel_profile_password_settings,
                     NULL
@@ -414,6 +411,9 @@ panel_main = {
                 .drawfunc = draw_settings_text_adv,
                 .content_scroll = &scrollbar_settings,
                 .child = (PANEL*[]) {
+                    (PANEL*)&edit_nospam,
+                    (PANEL*)&button_change_nospam,
+                    (PANEL*)&button_revert_nospam,
                     NULL
                 }
 

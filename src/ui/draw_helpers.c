@@ -401,9 +401,8 @@ void draw_settings_text_profile(int UNUSED(x), int y, int UNUSED(w), int UNUSED(
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(10), NAME);
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(60), STATUSMESSAGE);
     drawstr(MAIN_LEFT + SCALE(10), y + SCALE(110), TOXID);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(160), NOSPAM);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(210), LANGUAGE);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(260), PROFILE_PASSWORD);
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(160), LANGUAGE);
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(220), PROFILE_PASSWORD);
 }
 
 void draw_settings_text_devices(int UNUSED(x), int y, int UNUSED(w), int UNUSED(h)) {
@@ -492,6 +491,8 @@ void draw_settings_text_notifications(int UNUSED(x), int y, int UNUSED(w), int U
 void draw_settings_text_adv(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)) {
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
+
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(20), NOSPAM);
 }
 
 void draw_friend_settings(int UNUSED(x), int y, int UNUSED(width), int UNUSED(height)) {
