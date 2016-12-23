@@ -69,7 +69,7 @@ cd ..
 rm -rf toxcore
 
 if ! [ -d filter_audio ]; then
-    git clone --depth https://github.com/irungentoo/filter_audio
+    git clone --depth=1 https://github.com/irungentoo/filter_audio
 fi
 git rev-parse HEAD > filter_audio.sha
 if ! ([ -f "$CACHE_DIR/filter_audio.sha" ] && diff "$CACHE_DIR/filter_audio.sha" filter_audio.sha); then
