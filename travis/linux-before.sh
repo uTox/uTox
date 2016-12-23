@@ -68,4 +68,4 @@ fi
 cd ..
 rm -rf toxcore
 
-./filter_audio.sh
+./travis/filter_audio.sh
