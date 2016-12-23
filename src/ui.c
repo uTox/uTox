@@ -148,10 +148,10 @@ void ui_set_scale(uint8_t scale) {
 #endif
 
     // Notifications tab
-    CREATE_SWITCH(audible_notifications,        SCALE(-10) - BM_SWITCH_WIDTH, SCALE(40),  BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
-    CREATE_SWITCH(status_notifications,         SCALE(-10) - BM_SWITCH_WIDTH, SCALE(70),  BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
-    CREATE_SWITCH(typing_notes,                 SCALE(-10) - BM_SWITCH_WIDTH, SCALE(100), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
-    CREATE_DROPDOWN(global_group_notifications, SCALE(10),                    SCALE(150), SCALE(24),       SCALE(100));
+    CREATE_SWITCH(audible_notifications,        SCALE(-10) - BM_SWITCH_WIDTH, SCALE(10),  BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(status_notifications,         SCALE(-10) - BM_SWITCH_WIDTH, SCALE(40),  BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(typing_notes,                 SCALE(-10) - BM_SWITCH_WIDTH, SCALE(70), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
+    CREATE_DROPDOWN(global_group_notifications, SCALE(10),                    SCALE(120), SCALE(24),       SCALE(100));
 
     // Adanced tab
 

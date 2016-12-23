@@ -502,10 +502,10 @@ void draw_settings_text_notifications(int UNUSED(x), int y, int UNUSED(w), int U
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
 
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(40), RINGTONE);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(70), STATUS_NOTIFICATIONS);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(100), SEND_TYPING_NOTIFICATIONS);
-    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(130), GROUP_NOTIFICATIONS);
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(10), RINGTONE);
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(40), STATUS_NOTIFICATIONS);
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(70), SEND_TYPING_NOTIFICATIONS);
+    drawstr(MAIN_LEFT + SCALE(10), y + SCALE(100), GROUP_NOTIFICATIONS);
 }
 
 void draw_settings_text_adv(int UNUSED(x), int y, int UNUSED(w), int UNUSED(height)) {
