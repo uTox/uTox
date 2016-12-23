@@ -41,8 +41,4 @@ bool switch_mwheel(UISWITCH *s, int height, double d, bool smooth);
 bool switch_mup(UISWITCH *s);
 bool switch_mleave(UISWITCH *s);
 
-extern UISWITCH switch_logging, switch_mini_contacts, switch_ipv6, switch_udp, switch_auto_startup, switch_typing_notes,
-    switch_close_to_tray, switch_start_in_tray, switch_audible_notifications, switch_push_to_talk,
-    switch_audio_filtering, switch_status_notifications;
-
 #endif
