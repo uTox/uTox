@@ -67,3 +67,13 @@ if ! ([ -f "$CACHE_DIR/toxcore.sha" ] && diff "$CACHE_DIR/toxcore.sha" toxcore.s
 fi
 cd ..
 rm -rf toxcore
+
+if ! [ -d filter_audio ]; then
+    git clone --depth https://github.com/irungentoo/filter_audio
+fi
+git rev-parse HEAD > filter_audio.sha
+if ! ([ -f "$CACHE_DIR/filter_audio.sha" ] && diff "$CACHE_DIR/filter_audio.sha" filter_audio.sha); then
+    make
+    make install
+    mv filter_audio.sha "$CACHE_DIR/filter_audio.sha"
+fi
