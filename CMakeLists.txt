@@ -12,7 +12,7 @@ set(PROJECT_VERSION
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -fno-strict-aliasing")
 
-option(FILTER_AUDIO "Enable Filter Audio" OFF)
+option(FILTER_AUDIO "Enable Filter Audio" ON)
 if(FILTER_AUDIO)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DAUDIO_FILTERING")
 endif()
