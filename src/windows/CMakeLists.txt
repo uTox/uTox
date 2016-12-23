@@ -1,4 +1,3 @@
-cmake_minimum_required(VERSION 3.2)
 project(utoxNATIVE LANGUAGES C)
 
 include_directories( libs/toktok/include libs/windows-x64/include/ )

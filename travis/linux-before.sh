@@ -67,3 +67,5 @@ if ! ([ -f "$CACHE_DIR/toxcore.sha" ] && diff "$CACHE_DIR/toxcore.sha" toxcore.s
 fi
 cd ..
 rm -rf toxcore
+
+./travis/filter_audio.sh
