@@ -39,11 +39,6 @@ add_library(utoxNATIVE STATIC
 target_link_libraries(utoxNATIVE icon v4lconvert X11 Xext Xrender fontconfig freetype resolv dl )
 
 install(FILES
-	utox
-	DESTINATION "bin"
-    )
-
-install(FILES
 	../utox.desktop
 	DESTINATION "share/applications"
     )
