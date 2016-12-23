@@ -1127,7 +1127,7 @@ LRESULT CALLBACK WindowProc(HWND hwn, UINT msg, WPARAM wParam, LPARAM lParam) {
         }
 
         case WM_GETMINMAXINFO: {
-            POINT min                              = { SCALE(MAIN_WIDTH), SCALE(MAIN_HEIGHT) };
+            POINT min = { SCALE(MAIN_WIDTH), SCALE(MAIN_HEIGHT) };
             ((MINMAXINFO *)lParam)->ptMinTrackSize = min;
 
             break;
