@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.2)
-project(uTox LANGUAGES C)
+project(utoxNATIVE LANGUAGES C)
 
 include_directories(/usr/include/freetype2)
 
@@ -7,7 +7,7 @@ include_directories(/usr/include/freetype2)
 ## Native Icon data
 #########################################
 add_custom_command(OUTPUT icon.o
-    COMMAND cd ${PROJECT_SOURCE_DIR}/ && ld -r -b binary -o ${PROJECT_BINARY_DIR}/icon.o icons/utox-128x128.png
+    COMMAND cd ${uTox_SOURCE_DIR}/ && ld -r -b binary -o ${utoxNATIVE_BINARY_DIR}/icon.o icons/utox-128x128.png
     DEPENDS ../../icons/utox-128x128.png )
 set_source_files_properties( icon.o PROPERTIES EXTERNAL_OBJECT true GENERATED true )
 add_library(icon STATIC icon.o)

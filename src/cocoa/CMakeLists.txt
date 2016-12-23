@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.2)
-project(uTox LANGUAGES C)
+project(utoxNATIVE LANGUAGES C)
 
 add_definitions("-x objective-c")
 
