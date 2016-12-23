@@ -42,10 +42,12 @@ install(FILES
 	utox
 	DESTINATION "bin"
     )
+
 install(FILES
 	../utox.desktop
 	DESTINATION "share/applications"
     )
+
 install(FILES
 	../utox.1
 	DESTINATION "man/man1"
