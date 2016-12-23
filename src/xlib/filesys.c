@@ -37,7 +37,6 @@ size_t native_save_data(const uint8_t *name, size_t name_length, const uint8_t *
     if (file) {
         offset = ftello(file);
         fwrite(data, length, 1, file);
-        fflush(file);
         fclose(file);
 
         if (append) {
@@ -197,6 +196,7 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
     postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->file_number, path);
 }
 
+// TODO: This function has the worst name.
 void savefiledata(FILE_TRANSFER *file) {
     if (libgtk) {
         ugtk_savefiledata(file);

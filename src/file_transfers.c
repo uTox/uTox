@@ -116,6 +116,7 @@ static bool ft_update_resumable(FILE_TRANSFER *ft) {
 
     if (ft->resume_data) {
         if (fwrite(ft, 1, sizeof(FILE_TRANSFER), ft->resume_data)) {
+            fflush(ft->resume_data);
             return true;
         }
     }
@@ -1050,6 +1051,7 @@ int utox_file_start_write(uint32_t friend_number, uint32_t file_number, const ch
     //     fseeko(ft->tmp_file, 0, SEEK_SET);
     //     fseeko(ft->file, 0, SEEK_SET);
     //     fwrite(ft->tmp_file, 1, ft->size_transferred, ft->file);
+    //     fflush(ft->file);
     //     fclose(ft->tmp_file);
     //     ft->in_tmp_loc = 0;
     //     // free(ft->tmp_path); // Freed by xlib probably...

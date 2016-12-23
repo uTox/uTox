@@ -64,7 +64,6 @@ void file_write_raw(uint8_t *path, uint8_t *data, size_t size) {
         debug("File write raw size in  %u\n", (unsigned int)size);
         debug("File write raw size out %u\n", (unsigned int)outsize);
     }
-    fflush(file);
     fclose(file);
     return;
 }
