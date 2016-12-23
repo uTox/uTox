@@ -7,9 +7,9 @@
 
 static uint32_t scolor;
 
-static struct xlib_window *curr;
+static UTOX_WINDOW *curr;
 
-bool draw_window_set(struct xlib_window *new_win) {
+bool draw_window_set(UTOX_WINDOW *new_win) {
     if (new_win == curr) {
         return false;
     }
@@ -23,12 +23,18 @@ void redraw(void) {
 }
 
 void force_redraw(void) {
-    XEvent ev = {.xclient = {.type         = ClientMessage,
-                             .display      = display,
-                             .window       = curr->window,
-                             .message_type = XRedraw,
-                             .format       = 8,
-                             .data = {.s = { 0, 0 } } } };
+    XEvent ev = {
+        .xclient = {
+            .type         = ClientMessage,
+            .display      = display,
+            .window       = curr->window,
+            .message_type = XRedraw,
+            .format       = 8,
+            .data = {
+                .s = { 0, 0 }
+            }
+        }
+    };
     _redraw = 1;
     XSendEvent(display, curr->window, 0, 0, &ev);
     XFlush(display);

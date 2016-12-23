@@ -15,6 +15,8 @@ void draw_notification(int x, int y, int w, int h) {
         return;
     }
 
+    drawrect(x, y, w, h, COLOR_BKGRND_MAIN);
+
     if (self_has_avatar()) {
         draw_avatar_image(self.avatar->img, SIDEBAR_AVATAR_LEFT, SIDEBAR_AVATAR_TOP, self.avatar->width,
                           self.avatar->height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
@@ -22,6 +24,11 @@ void draw_notification(int x, int y, int w, int h) {
         drawalpha(BM_CONTACT, SIDEBAR_AVATAR_LEFT, SIDEBAR_AVATAR_TOP, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH,
                   COLOR_MENU_TEXT);
     }
+
+    setcolor(!button_name.mouseover ? COLOR_MENU_TEXT : COLOR_MENU_TEXT_SUBTEXT);
+    setfont(FONT_SELF_NAME);
+    drawtext(SIDEBAR_NAME_LEFT, SIDEBAR_NAME_TOP, "This is a test of the new uTox popup", 36);
+
 }
 
 void draw_avatar_image(NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_t height, uint32_t targetwidth,
