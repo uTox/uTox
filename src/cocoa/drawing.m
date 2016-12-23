@@ -397,7 +397,7 @@ void setscale(void) {
     // now we have 2x images, if applicable
     ui_scale = old_scale;
 
-    ad.utox_window.minSize = (CGSize){ SCALE(640), SCALE(320) };
+    ad.utox_window.minSize = (CGSize){ SCALE(MAIN_WIDTH), SCALE(MAIN_HEIGHT) };
 }
 
 void cgdataprovider_is_finished(void *info, const void *data, size_t size) {
