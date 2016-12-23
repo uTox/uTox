@@ -287,12 +287,16 @@ panel_main = {
                     (PANEL*)&button_settings_sub_net,
                     (PANEL*)&button_settings_sub_ui,
                     (PANEL*)&button_settings_sub_av,
+                    (PANEL*)&button_settings_sub_notifications,
+                    (PANEL*)&button_settings_sub_adv,
                     (PANEL*)&scrollbar_settings,
                     &panel_settings_profile,
                     &panel_settings_devices,
                     &panel_settings_net,
                     &panel_settings_ui,
                     &panel_settings_av,
+                    &panel_settings_notifications,
+                    &panel_settings_adv,
                     NULL
                 }
             },
@@ -364,7 +368,6 @@ panel_main = {
                     (PANEL*)&switch_close_to_tray,
                     (PANEL*)&switch_start_in_tray,
                     (PANEL*)&switch_auto_startup,
-                    (PANEL*)&switch_typing_notes,
                     (PANEL*)&switch_mini_contacts,
                     NULL
                 }
@@ -382,12 +385,35 @@ panel_main = {
                     (PANEL*)&dropdown_audio_in,
                     (PANEL*)&dropdown_audio_out,
                     (PANEL*)&dropdown_video,
-                    (PANEL*)&switch_audible_notifications,
                     (PANEL*)&switch_audio_filtering,
-                    (PANEL*)&dropdown_global_group_notifications,
-                    (PANEL*)&switch_status_notifications,
                     NULL
                 }
+            },
+
+            panel_settings_notifications = {
+                .type = PANEL_NONE,
+                .disabled = 1,
+                .drawfunc = draw_settings_text_notifications,
+                .content_scroll = &scrollbar_settings,
+                .child = (PANEL*[]) {
+                    (PANEL*)&dropdown_global_group_notifications,
+                    (PANEL*)&switch_status_notifications,
+                    (PANEL*)&switch_typing_notes,
+                    (PANEL*)&switch_audible_notifications,
+                    NULL
+                }
+
+            },
+
+            panel_settings_adv = {
+                .type = PANEL_NONE,
+                .disabled = 1,
+                .drawfunc = draw_settings_text_adv,
+                .content_scroll = &scrollbar_settings,
+                .child = (PANEL*[]) {
+                    NULL
+                }
+
             };
 // clang-format on
 
