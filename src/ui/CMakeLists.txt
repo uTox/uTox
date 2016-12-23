@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.2)
-project(uTox LANGUAGES C)
+project(utoxUI LANGUAGES C)
+
+if(UNIX)
+    include_directories(/usr/include/freetype2)
+endif()
 
 add_library(utoxUI STATIC
     button.c
