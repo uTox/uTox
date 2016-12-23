@@ -143,9 +143,9 @@ void ui_set_scale(uint8_t scale) {
     CREATE_SWITCH(audible_notifications, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(0), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
     CREATE_SWITCH(push_to_talk, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(30), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
     CREATE_SWITCH(status_notifications, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(60), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
-#ifdef AUDIO_FILTERING
+    #ifdef AUDIO_FILTERING
     CREATE_SWITCH(audio_filtering, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(90), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
-#endif
+    #endif
 
     /* User Badge & Roster  */
     CREATE_BUTTON(avatar, SIDEBAR_AVATAR_LEFT, SIDEBAR_AVATAR_TOP, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
@@ -162,7 +162,8 @@ void ui_set_scale(uint8_t scale) {
     /* Setting pages        */
     CREATE_BUTTON(move_window, 1, SCALE(10), SCALE(40), SCALE(40));
 
-    CREATE_BUTTON(test_notify, 1, SCALE(10), SCALE(40), SCALE(40));
+    CREATE_BUTTON(test_notify, SCALE(-80), SCALE(10), SCALE(40), SCALE(40));
+    CREATE_BUTTON(move_notify, SCALE(-40), SCALE(-40), SCALE(40), SCALE(40));
 
 
     CREATE_BUTTON(settings_sub_profile, 1, 1, SCALE(18) + UTOX_STR_WIDTH(PROFILE_BUTTON), SCALE(28));

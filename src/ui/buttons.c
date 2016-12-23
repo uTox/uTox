@@ -1,7 +1,7 @@
-// buttons.c
 #include "buttons.h"
 
 #include "contextmenu.h"
+#include "svg.h"
 
 #include "../flist.h"
 #include "../friend.h"
@@ -9,8 +9,9 @@
 #include "../screen_grab.h"
 #include "../theme.h"
 
-#include "../ui/svg.h"
 
+#include "../xlib/notify.h"
+#include "../xlib/window.h"
 
 /* buttons */
 #ifdef UNITY
@@ -724,4 +725,17 @@ BUTTON button_test_notify = {
     .nodraw   = false,
     .disabled = false,
     .on_mup   = btn_test_notify_mup,
+};
+
+static void btn_move_notify_mup(void) {
+    debug("button test\n");
+
+    native_notify_tween(&popup_window);
+
+}
+
+BUTTON button_move_notify = {
+    .nodraw   = false,
+    .disabled = false,
+    .on_mup   = btn_move_notify_mup,
 };

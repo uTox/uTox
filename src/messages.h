@@ -32,7 +32,7 @@ typedef struct messages {
     // Number of messages in data array.
     uint32_t number;
     // Number of extra to speedup realloc.
-    int8_t extra;
+    uint8_t extra;
 
     // Pointers at various message structs, at most MAX_BACKLOG_MESSAGES.
     void **data;

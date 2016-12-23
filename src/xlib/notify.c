@@ -6,7 +6,7 @@
 // #include "../main.h"
 #include "../ui.h"
 
-struct xlib_window list[32];
+UTOX_WINDOW list[32];
 
 static void window_set_make(Window window) {
     for (uint8_t i = 0; i < 32; ++i) {
@@ -17,7 +17,7 @@ static void window_set_make(Window window) {
     }
 }
 
-static struct xlib_window *window_set_find(Window window) {
+static UTOX_WINDOW *window_set_find(Window window) {
     for (uint8_t i = 0; i < 32; ++i) {
         if (list[i].window == window) {
             return &list[i];
@@ -41,7 +41,7 @@ static void redraw_notify(void) {
 
 void enddraw_notify(int x, int y, int width, int height) {
     for (uint8_t i = 0; i < 32; ++i) {
-        struct xlib_window *win = &list[i];
+        UTOX_WINDOW *win = &list[i];
         if (win->window && win->drawbuf && win->gc) {
             // SelectObject(win->draw_DC, win->draw_BM);
             // BitBlt(win->main_DC, x, y, width, height, win->draw_DC, x, y, SRCCOPY);
@@ -68,9 +68,10 @@ Window native_notify_new(void) {
     // int x = rect.right - notify_x - notify_w;
     // int y = rect.top   + notify_y + (notify_y + notify_h) * notification_number;
 
-    int x = 20;
-    int y = 20 + (20 + notify_h) * notification_number;
+    int x = 30;
+    int y = 30 + (20 + notify_h) * notification_number;
     ++notification_number;
+    // TODO wrap at max screen size
 
     // char pre[128];
     // snprintf(pre, 128, "uTox popup window %u", notification_number);
@@ -78,6 +79,40 @@ Window native_notify_new(void) {
     // wchar_t title[title_size];
     // mbstowcs(title, pre, title_size);
 
-    return window_create_notify(x, y, notify_w, notify_h);
-    return 0;
+    UTOX_WINDOW *w = window_create_notify(x, y, notify_w, notify_h);
+
+    draw_window_set(w);
+    panel_draw(&panel_notify, 0,0, w->w, w->h);
+    enddraw_notify(0, 0, w->w, w->h);
+
+    return w->window;
+}
+
+static void notify_tween_core(void *obj) {
+    UTOX_WINDOW *target = obj;
+
+    XEvent ev = {
+        .xclient = {
+            .type         = ClientMessage,
+            .display      = display,
+            .window       = target->window,
+            .message_type = XRedraw,
+            .format       = 8,
+            .data = {
+                .s = { 0, 0 }
+            }
+        }
+    };
+
+    while (--target->y) {
+        XMoveWindow(display, target->window, target->x, target->y);
+        enddraw_notify(0, 0, 400, 150);
+        XSendEvent(display, target->window, 0, 0, &ev);
+        XFlush(display);
+        yieldcpu(1);
+    }
+}
+
+void native_notify_tween(UTOX_WINDOW *target) {
+    thread(notify_tween_core, target);
 }

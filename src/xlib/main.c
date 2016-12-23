@@ -808,7 +808,7 @@ int main(int argc, char *argv[]) {
     }
 
 
-    main_window.window = window_create_main(save->window_x, save->window_y, settings.window_width, settings.window_height, argv, argc);
+    window_create_main(save->window_x, save->window_y, settings.window_width, settings.window_height, argv, argc);
 
     main_window.gc = DefaultGC(display, def_screen_num);
 
@@ -871,7 +871,7 @@ int main(int argc, char *argv[]) {
     /* Xft draw context/color */
     main_window.renderpic = XRenderCreatePicture(display, main_window.drawbuf, main_window.pictformat, 0, NULL);
 
-    XRenderColor xrcolor = { 0 };
+    XRenderColor xrcolor = { 0,0,0,0 };
     main_window.colorpic             = XRenderCreateSolidFill(display, &xrcolor);
 
     if (set_show_window) {

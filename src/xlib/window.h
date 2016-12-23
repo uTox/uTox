@@ -20,7 +20,7 @@ Visual  *default_visual;
 
 int default_depth;
 
-struct xlib_window {
+typedef struct native_window {
     Window window;
     GC gc;
 
@@ -33,22 +33,27 @@ struct xlib_window {
 
     XRenderPictFormat *pictformat;
 
-    uint32_t x, y, w, h;
-};
+    // TODO should we include ui.h here?
+    void *panel;
 
-struct xlib_window main_window;
-struct xlib_window tray_window;
+    int32_t x, y, w, h;
 
-struct xlib_window popup_window;
-struct xlib_window scr_grab_window;
+    struct native_window *next;
+} UTOX_WINDOW;
+
+struct native_window main_window;
+struct native_window tray_window;
+
+struct native_window popup_window;
+struct native_window scr_grab_window;
 
 bool window_init(void);
 
-Window window_create_main(int x, int y, int w, int h, char **argv, int argc);
+Window *window_create_main(int x, int y, int w, int h, char **argv, int argc);
 
 void window_create_video(void);
 
-Window window_create_notify(int x, int y, int w, int h);
+UTOX_WINDOW *window_create_notify(int x, int y, int w, int h);
 
 void winodw_create_screen_select();
 
