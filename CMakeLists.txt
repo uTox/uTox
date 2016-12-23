@@ -1,10 +1,6 @@
 cmake_minimum_required(VERSION 3.2)
 project(uTox LANGUAGES C)
 
-# enable/disable filter audio
-set(FILTER_AUDIO 0)
-
-
 # This version is for the entire project. All libraries (core, av, ...) move in
 # versions in a synchronised way.
 set(PROJECT_VERSION_MAJOR "0")
@@ -16,10 +12,12 @@ set(PROJECT_VERSION
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -fno-strict-aliasing")
 
+option(FILTER_AUDIO "Enable Filter Audio" ON)
 if(FILTER_AUDIO)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DAUDIO_FILTERING")
 endif()
 
+option(TOXCORE_STATIC "Build uTox with the static version of Toxcore" OFF)
 if(TOXCORE_STATIC)
     # The static windows libs need all of these... because REASONS!
     set(TOX_LIBS
@@ -48,6 +46,7 @@ endif()
 if(WIN32)
     add_subdirectory(src/windows)
 elseif(APPLE)
+    add_definitions("-x objective-c")
     add_subdirectory(src/cocoa)
 elseif(UNIX)
     include_directories(/usr/include/freetype2)

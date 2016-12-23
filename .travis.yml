@@ -73,6 +73,7 @@ git:
 before_script:
   - ./travis/env.sh
   - ./travis/${BUILD}-before.sh
+  - ./travis/filter_audio.sh
 
 script:
   - ./travis/${BUILD}-script.sh
