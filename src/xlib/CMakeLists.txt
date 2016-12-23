@@ -1,4 +1,3 @@
-cmake_minimum_required(VERSION 3.2)
 project(utoxNATIVE LANGUAGES C)
 
 include_directories(/usr/include/freetype2)
@@ -39,14 +38,11 @@ add_library(utoxNATIVE STATIC
 target_link_libraries(utoxNATIVE icon v4lconvert X11 Xext Xrender fontconfig freetype resolv dl )
 
 install(FILES
-	utox
-	DESTINATION "bin"
+    ../utox.desktop
+    DESTINATION "share/applications"
     )
+
 install(FILES
-	../utox.desktop
-	DESTINATION "share/applications"
-    )
-install(FILES
-	../utox.1
-	DESTINATION "man/man1"
+    ../utox.1
+    DESTINATION "man/man1"
     )
