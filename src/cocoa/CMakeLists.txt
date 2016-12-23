@@ -1,7 +1,4 @@
-cmake_minimum_required(VERSION 3.2)
 project(utoxNATIVE LANGUAGES C)
-
-add_definitions("-x objective-c")
 
 add_library(utoxNATIVE STATIC
     MainMenu.xib
@@ -38,4 +35,4 @@ set(APPLE_ICON utox.icns)
 add_custom_command(OUTPUT utox.icns
     COMMAND iconutil --convert icns utox.iconset -o utox.icns
     DEPENDS utox.iconset
-	)
+    )
