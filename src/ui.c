@@ -155,7 +155,7 @@ static void settings_UI(void) {
 static void settings_AV(void) {
     panel_settings_av.y            = SCALE(32);
 
-    CREATE_SWITCH(push_to_talk, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(30), BM_SWITCH_WIDTH,BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(push_to_talk, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(10), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
 
     #ifndef AUDIO_FILTERING
         const uint16_t start_draw_y = 30;
@@ -163,7 +163,7 @@ static void settings_AV(void) {
     #else
         const uint16_t start_draw_y = 60;
         const uint16_t preview_button_pos_y = 280;
-        CREATE_SWITCH(audio_filtering, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(90), BM_SWITCH_WIDTH,BM_SWITCH_HEIGHT);
+        CREATE_SWITCH(audio_filtering, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(40), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
     #endif
 
 
@@ -230,8 +230,7 @@ void ui_set_scale(uint8_t scale) {
     settings_AV();
     settings_NOTIFY();
 
-
-    /* Setting pages        */
+    /* Setting pages */
     CREATE_BUTTON(move_window, 1, SCALE(10), SCALE(40), SCALE(40));
 
     CREATE_BUTTON(test_notify, SCALE(-80), SCALE(10), SCALE(40), SCALE(40));
