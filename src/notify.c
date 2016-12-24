@@ -71,9 +71,3 @@ UTOX_WINDOW *notify_new(void) {
 
     return w;
 }
-
-static UTOX_WINDOW *focus;
-void notify_set_focus(UTOX_WINDOW *win) {
-    focus = win;
-}
-

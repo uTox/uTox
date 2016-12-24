@@ -243,15 +243,20 @@ static void notify_tween_thread(void *obj) {
     while (target->_.y > 2) {
         target->_.y -= 2;
         XMoveWindow(display, target->window, target->_.x, target->_.y);
-        enddraw_notify(0, 0, 400, 150);
+        enddraw(0, 0, 400, 150);
         XSendEvent(display, target->window, 0, 0, &ev);
         XFlush(display);
         yieldcpu(1);
     }
 }
 
+static UTOX_WINDOW *focus;
+void window_set_focus(UTOX_WINDOW *win) {
+    focus = win;
+}
+
 void native_window_tween(void) {
-    // thread(notify_tween_thread, focus);
+    thread(notify_tween_thread, focus);
 }
 
 

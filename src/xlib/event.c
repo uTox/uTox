@@ -208,7 +208,7 @@ static bool popup_event(XEvent event, UTOX_WINDOW *popup) {
 
         case EnterNotify: {
             debug_error("EVENT: set focus\n");
-            notify_set_focus(popup);
+            window_set_focus(popup);
             break;
         }
 
