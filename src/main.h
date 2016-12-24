@@ -330,8 +330,6 @@ struct utox_mouse {
 
 uint8_t cursor;
 
-typedef struct native_window UTOX_WINDOW;
-
 /**
  * Takes a null-terminated utf8 filepath and creates it with permissions 0700
  * (in posix environments) if it doesn't already exist. In Windows environments
