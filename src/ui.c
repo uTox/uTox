@@ -127,7 +127,6 @@ void ui_set_scale(uint8_t scale) {
     /* TODO MOVE THIS */
 
     // User Interface tab
-
     CREATE_SWITCH(logging, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(60), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
     CREATE_SWITCH(close_to_tray, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(90), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
     CREATE_SWITCH(start_in_tray, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(120), BM_SWITCH_WIDTH,BM_SWITCH_HEIGHT);
@@ -141,10 +140,11 @@ void ui_set_scale(uint8_t scale) {
 
 
     // Audio & Video tab
-    CREATE_SWITCH(push_to_talk, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(30), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(push_to_talk, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(10), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
     #ifdef AUDIO_FILTERING
-    CREATE_SWITCH(audio_filtering, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(90), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
+    CREATE_SWITCH(audio_filtering, SCALE(-10) - BM_SWITCH_WIDTH, SCALE(40), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
     #endif
+
 
 
     // Notifications tab
@@ -153,9 +153,9 @@ void ui_set_scale(uint8_t scale) {
     CREATE_SWITCH(typing_notes,                 SCALE(-10) - BM_SWITCH_WIDTH, SCALE(70), BM_SWITCH_WIDTH, BM_SWITCH_HEIGHT);
     CREATE_DROPDOWN(global_group_notifications, SCALE(10),                    SCALE(120), SCALE(24),       SCALE(100));
 
-    // Adanced tab
 
-    /* User Badge & Roster  */
+    // Advanced tab
+    /* User Badge & Roster */
     CREATE_BUTTON(avatar, SIDEBAR_AVATAR_LEFT, SIDEBAR_AVATAR_TOP, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
     CREATE_BUTTON(name, SIDEBAR_NAME_LEFT, SIDEBAR_NAME_TOP, SIDEBAR_NAME_WIDTH, SIDEBAR_NAME_HEIGHT - SCALE(2));
     CREATE_BUTTON(status_msg, SIDEBAR_STATUSMSG_LEFT, SIDEBAR_STATUSMSG_TOP,
@@ -167,7 +167,7 @@ void ui_set_scale(uint8_t scale) {
     b_add_new_contact.disabled = true;
     CREATE_BUTTON(settings, SIDEBAR_BUTTON_LEFT, ROSTER_BOTTOM, SIDEBAR_BUTTON_WIDTH, SIDEBAR_BUTTON_HEIGHT);
 
-    /* Setting pages        */
+    /* Setting pages */
     CREATE_BUTTON(move_window, 1, SCALE(10), SCALE(40), SCALE(40));
 
     CREATE_BUTTON(test_notify, SCALE(-80), SCALE(10), SCALE(40), SCALE(40));
