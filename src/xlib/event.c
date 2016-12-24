@@ -308,8 +308,8 @@ bool doevent(XEvent event) {
                     main_window.renderpic = XRenderCreatePicture(display, main_window.drawbuf, main_window.pictformat, 0, NULL);
                 }
 
-                settings.window_width  = ev->width;
-                settings.window_height = ev->height;
+                main_window.w = settings.window_width  = ev->width;
+                main_window.h = settings.window_height = ev->height;
 
                 ui_size(settings.window_width, settings.window_height);
 

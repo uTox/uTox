@@ -104,8 +104,8 @@ static void notify_tween_core(void *obj) {
         }
     };
 
-    while (--target->y) {
-        XMoveWindow(display, target->window, target->x, target->y);
+    while (target->y) {
+        XMoveWindow(display, target->window, target->x, target->y--);
         enddraw_notify(0, 0, 400, 150);
         XSendEvent(display, target->window, 0, 0, &ev);
         XFlush(display);
