@@ -53,6 +53,8 @@ Window *window_create_main(int x, int y, int w, int h, char **argv, int argc);
 
 void window_create_video(void);
 
+UTOX_WINDOW *window_find_notify(Window window);
+
 UTOX_WINDOW *window_create_notify(int x, int y, int w, int h);
 
 void winodw_create_screen_select();

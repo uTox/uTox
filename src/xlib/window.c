@@ -134,10 +134,33 @@ void window_create_video() {
     return;
 }
 
+UTOX_WINDOW *window_find_notify(Window window) {
+    UTOX_WINDOW *win = &popup_window;
+    do {
+        if (win->window == window) {
+            return win;
+        }
+        win = win->next;
+    } while (win->next);
+
+    return NULL;
+}
+
 UTOX_WINDOW *window_create_notify(int x, int y, int w, int h) {
-    UTOX_WINDOW *win = window_create(&popup_window, "uTox Alert",
-                                     CWBackPixmap | CWBorderPixel | CWEventMask | CWColormap | CWOverrideRedirect,
-                                     x, y, w, h, w, h, &panel_notify, true);
+    UTOX_WINDOW *win = &popup_window;
+    while (win->next) {
+        win = win->next;
+    }
+
+    if (win->window) {
+        win->next = window_create(NULL, "uTox Alert",
+                                  CWBackPixmap | CWBorderPixel | CWEventMask | CWColormap | CWOverrideRedirect,
+                                   x, y, w, h, w, h, &panel_notify, true);
+    } else {
+        win = window_create(win, "uTox Alert",
+                            CWBackPixmap | CWBorderPixel | CWEventMask | CWColormap | CWOverrideRedirect,
+                            x, y, w, h, w, h, &panel_notify, true);
+    }
 
     if (!win) {
         debug_error("XLIB_WIN:\tUnable to Alloc for a notification window\n");
@@ -172,20 +195,20 @@ UTOX_WINDOW *window_create_notify(int x, int y, int w, int h) {
     XSetWMProtocols(display, win->window, list, 1);
 
     /* create the draw buffer */
-    popup_window.drawbuf = XCreatePixmap(display, win->window, w, h, default_depth);
+    win->drawbuf = XCreatePixmap(display, win->window, w, h, default_depth);
     /* catch WM_DELETE_WINDOW */
     XSetWMProtocols(display, win->window, &wm_delete_window, 1);
-    popup_window.gc        = XCreateGC(display, root_window, 0, 0);
+    win->gc        = XCreateGC(display, root_window, 0, 0);
 
     XWindowAttributes attr;
     XGetWindowAttributes(display, root_window, &attr);
-    popup_window.pictformat = XRenderFindVisualFormat(display, attr.visual);
+    win->pictformat = XRenderFindVisualFormat(display, attr.visual);
 
     /* Xft draw context/color */
-    popup_window.renderpic = XRenderCreatePicture(display, popup_window.drawbuf, popup_window.pictformat, 0, NULL);
+    win->renderpic = XRenderCreatePicture(display, win->drawbuf, win->pictformat, 0, NULL);
 
     XRenderColor xrcolor = { 0,0,0,0 };
-    popup_window.colorpic = XRenderCreateSolidFill(display, &xrcolor);
+    win->colorpic = XRenderCreateSolidFill(display, &xrcolor);
 
     XMapWindow(display, win->window);
 

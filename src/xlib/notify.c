@@ -88,8 +88,12 @@ Window native_notify_new(void) {
     return w->window;
 }
 
-static void notify_tween_core(void *obj) {
+static void notify_tween_thread(void *obj) {
     UTOX_WINDOW *target = obj;
+
+    if (!target) {
+        return;
+    }
 
     XEvent ev = {
         .xclient = {
@@ -113,6 +117,11 @@ static void notify_tween_core(void *obj) {
     }
 }
 
-void native_notify_tween(UTOX_WINDOW *target) {
-    thread(notify_tween_core, target);
+static UTOX_WINDOW *focus;
+void notify_set_focus(UTOX_WINDOW *win) {
+    focus = win;
+}
+
+void native_notify_tween(void) {
+    thread(notify_tween_thread, focus);
 }
