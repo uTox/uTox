@@ -9,7 +9,7 @@
 #include "../screen_grab.h"
 #include "../theme.h"
 
-#include "../xlib/notify.h"
+#include "../notify.h"
 
 /* buttons */
 #ifdef UNITY
@@ -745,7 +745,7 @@ BUTTON button_move_window = {
 static void btn_test_notify_mup(void) {
     debug("button test\n");
 
-    native_notify_new();
+    notify_new();
 
 }
 
@@ -758,7 +758,7 @@ BUTTON button_test_notify = {
 static void btn_move_notify_mup(void) {
     debug("button test\n");
 
-    native_notify_tween();
+    window_tween();
 }
 
 BUTTON button_move_notify = {

@@ -2,8 +2,8 @@
 
 #include "drawing.h"
 #include "window.h"
-#include "notify.h"
 
+#include "../notify.h"
 #include "../flist.h"
 #include "../friend.h"
 #include "../utox.h"
@@ -47,7 +47,7 @@ static void mouse_move(XMotionEvent *event, UTOX_WINDOW *window) {
     my = event->y;
 
     cursor = CURSOR_NONE;
-    panel_mmove(window->panel, 0, 0, window->w, window->h, event->x, event->y, dx, dy);
+    panel_mmove(window->_.panel, 0, 0, window->_.w, window->_.h, event->x, event->y, dx, dy);
 
     XDefineCursor(display, window->window, cursors[cursor]);
 
@@ -59,11 +59,11 @@ static void mouse_down(XButtonEvent *event, UTOX_WINDOW *window) {
         case Button1: {
             // todo: better double/triple click detect
             static Time lastclick, lastclick2;
-            panel_mmove(window->panel, 0, 0, window->w, window->h, event->x, event->y, 0, 0);
-            panel_mdown(window->panel);
+            panel_mmove(window->_.panel, 0, 0, window->_.w, window->_.h, event->x, event->y, 0, 0);
+            panel_mdown(window->_.panel);
             if (event->time - lastclick < 300) {
                 bool triclick = (event->time - lastclick2 < 600);
-                panel_dclick(window->panel, triclick);
+                panel_dclick(window->_.panel, triclick);
                 if (triclick) {
                     lastclick = 0;
                 }
@@ -80,19 +80,19 @@ static void mouse_down(XButtonEvent *event, UTOX_WINDOW *window) {
                 break;
             }
 
-            panel_mright(window->panel);
+            panel_mright(window->_.panel);
             break;
         }
 
         case Button4: {
             // FIXME: determine precise deltas if possible
-            panel_mwheel(window->panel, 0, 0, window->w, window->h, 1.0, 0);
+            panel_mwheel(window->_.panel, 0, 0, window->_.w, window->_.h, 1.0, 0);
             break;
         }
 
         case Button5: {
             // FIXME: determine precise deltas if possible
-            panel_mwheel(window->panel, 0, 0, window->w, window->h, -1.0, 0);
+            panel_mwheel(window->_.panel, 0, 0, window->_.w, window->_.h, -1.0, 0);
             break;
         }
     }
@@ -163,7 +163,7 @@ static void mouse_up(XButtonEvent *event, UTOX_WINDOW *window) {
                 }
                 pointergrab = 0;
             } else {
-                panel_mup(window->panel);
+                panel_mup(window->_.panel);
             }
             break;
         }
@@ -321,8 +321,8 @@ bool doevent(XEvent event) {
                     main_window.renderpic = XRenderCreatePicture(display, main_window.drawbuf, main_window.pictformat, 0, NULL);
                 }
 
-                main_window.w = settings.window_width  = ev->width;
-                main_window.h = settings.window_height = ev->height;
+                main_window._.w = settings.window_width  = ev->width;
+                main_window._.h = settings.window_height = ev->height;
 
                 ui_size(settings.window_width, settings.window_height);
 

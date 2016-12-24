@@ -133,7 +133,7 @@ elseif(UNIX) # xlib by default
         src/xlib/dbus.h
         src/xlib/drawing.c
         src/xlib/event.c
-        src/posix/filesys.c
+        src/xlib/filesys.c
         src/xlib/freetype.c
         src/xlib/freetype.h
         src/xlib/gtk.c
@@ -141,12 +141,13 @@ elseif(UNIX) # xlib by default
         src/xlib/main.c
         src/xlib/mmenu.c
         src/xlib/mmenu.h
+        src/xlib/screen_grab.c
+        src/xlib/tray.c
         src/xlib/v4l.c
         src/xlib/video.c
-        src/xlib/filesys.c
-        src/xlib/notify.c
         src/xlib/window.c
-        src/xlib/screen_grab.c
+
+        src/posix/filesys.c
         )
 
     target_link_libraries(utoxNATIVE icon v4lconvert X11 Xext Xrender fontconfig freetype resolv dl )
@@ -259,8 +260,9 @@ add_executable(utox
     src/main_native.h
     src/messages.c
     src/messages.h
-    src/sized_string.h
+    src/notify.c
     src/screen_grab.c
+    src/sized_string.h
     src/stb_image.h
     src/stb_image_write.h
     src/theme.c
@@ -268,8 +270,6 @@ add_executable(utox
     src/theme_tables.h
     src/tox.c
     src/tox.h
-    src/utox.c
-    src/utox.h
     src/tox_callbacks.c
     src/tox_callbacks.h
     src/ui.c
@@ -278,6 +278,9 @@ add_executable(utox
     src/ui_i18n.h
     src/util.c
     src/util.h
+    src/utox.c
+    src/utox.h
+    src/window.c
 
     ${WINDOWS_ICON}
     ${APPLE_ICON}

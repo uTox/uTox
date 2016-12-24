@@ -6,7 +6,7 @@
 
 #include "../ui/layout_notify.h"
 
-bool window_init(void) {
+bool native_window_init(void) {
     if ((display = XOpenDisplay(NULL)) == NULL) {
         debug_error("Cannot open display, must exit\n");
         return false;
@@ -23,7 +23,7 @@ bool window_init(void) {
     return true;
 }
 
-static UTOX_WINDOW *window_create(UTOX_WINDOW *window, char *title, unsigned int class,
+static UTOX_WINDOW *native_window_create(UTOX_WINDOW *window, char *title, unsigned int class,
                                   int x, int y, int w, int h, int min_width, int min_height,
                                   void *gui_panel, bool override)
 {
@@ -48,9 +48,9 @@ static UTOX_WINDOW *window_create(UTOX_WINDOW *window, char *title, unsigned int
 
     /* Generate the title XLib needs */
     char *title_name = strdup(title);
-    XTextProperty window_name;
+    XTextProperty native_window_name;
     // Why?
-    if (XStringListToTextProperty(&title_name, 1, &window_name) == 0 ) {
+    if (XStringListToTextProperty(&title_name, 1, &native_window_name) == 0 ) {
         debug_error("FATAL ERROR: Unable to alloc for a sting during window creation\n");
         return NULL;
     }
@@ -91,19 +91,19 @@ static UTOX_WINDOW *window_create(UTOX_WINDOW *window, char *title, unsigned int
     class_hints->res_name   = "utox";
     class_hints->res_class  = "uTox";
 
-    XSetWMProperties(display, window->window, &window_name, NULL, NULL, 0, size_hints, wm_hints, class_hints);
+    XSetWMProperties(display, window->window, &native_window_name, NULL, NULL, 0, size_hints, wm_hints, class_hints);
 
 
-    window->x = x;
-    window->y = y;
-    window->w = w;
-    window->h = h;
-    window->panel = gui_panel;
+    window->_.x = x;
+    window->_.y = y;
+    window->_.w = w;
+    window->_.h = h;
+    window->_.panel = gui_panel;
 
     return window;
 }
 
-void window_raze(UTOX_WINDOW *window) {
+void native_window_raze(UTOX_WINDOW *window) {
     if (window) {
         // do stuff
     } else {
@@ -111,11 +111,11 @@ void window_raze(UTOX_WINDOW *window) {
     }
 }
 
-Window *window_create_main(int x, int y, int w, int h, char **argv, int argc) {
+UTOX_WINDOW *native_window_create_main(int x, int y, int w, int h, char **argv, int argc) {
     char *title = calloc(256, 1);
     snprintf(title, 256, "%s %s (version: %s)", TITLE, SUB_TITLE, VERSION);
 
-    if (window_create(&main_window, title, CWBackPixmap | CWBorderPixel | CWEventMask,
+    if (native_window_create(&main_window, title, CWBackPixmap | CWBorderPixel | CWEventMask,
                       x, y, w, h, MAIN_WIDTH, MAIN_HEIGHT, &panel_root, false)) {
         return NULL;
     }
@@ -127,26 +127,26 @@ Window *window_create_main(int x, int y, int w, int h, char **argv, int argc) {
     draw_window_set(&main_window);
 
 
-    return &main_window.window;
+    return &main_window;
 }
 
-void window_create_video() {
+void native_window_create_video() {
     return;
 }
 
-UTOX_WINDOW *window_find_notify(Window window) {
+UTOX_WINDOW *native_window_find_notify(Window window) {
     UTOX_WINDOW *win = &popup_window;
     while (win) {
         if (win->window == window) {
             return win;
         }
-        win = win->next;
+        win = win->_.next;
     }
 
     return NULL;
 }
 
-UTOX_WINDOW *window_create_notify(int x, int y, int w, int h) {
+UTOX_WINDOW *native_window_create_notify(int x, int y, int w, int h) {
     UTOX_WINDOW *next = NULL;
 
     if (!popup_window.window) {
@@ -154,7 +154,7 @@ UTOX_WINDOW *window_create_notify(int x, int y, int w, int h) {
     }
 
     UTOX_WINDOW *win;
-    win = window_create(next, "uTox Alert",
+    win = native_window_create(next, "uTox Alert",
                         CWBackPixmap | CWBorderPixel | CWEventMask | CWColormap | CWOverrideRedirect,
                         x, y, w, h, w, h, &panel_notify, true);
 
@@ -209,18 +209,53 @@ UTOX_WINDOW *window_create_notify(int x, int y, int w, int h) {
     XMapWindow(display, win->window);
 
     UTOX_WINDOW *head = &popup_window;
-    while (head->next) {
-        head = head->next;
+    while (head->_.next) {
+        head = head->_.next;
     }
 
     if (win != &popup_window){
-        head->next = win;
+        head->_.next = win;
     }
 
     return win;
 }
 
-void winodw_create_screen_select() {
+static void notify_tween_thread(void *obj) {
+    UTOX_WINDOW *target = obj;
+
+    if (!target) {
+        return;
+    }
+
+    XEvent ev = {
+        .xclient = {
+            .type         = ClientMessage,
+            .display      = display,
+            .window       = target->window,
+            .message_type = XRedraw,
+            .format       = 8,
+            .data = {
+                .s = { 0, 0 }
+            }
+        }
+    };
+
+    while (target->_.y > 2) {
+        target->_.y -= 2;
+        XMoveWindow(display, target->window, target->_.x, target->_.y);
+        enddraw_notify(0, 0, 400, 150);
+        XSendEvent(display, target->window, 0, 0, &ev);
+        XFlush(display);
+        yieldcpu(1);
+    }
+}
+
+void native_window_tween(void) {
+    // thread(notify_tween_thread, focus);
+}
+
+
+void native_window_create_screen_select() {
     return;
 }
 
