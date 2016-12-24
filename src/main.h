@@ -26,10 +26,10 @@
 #define TITLE "uTox"
 #define SUB_TITLE "(Alpha)"
 #define RELEASE_TITLE "GOLD MEMBERS"
-#define VERSION "0.11.0"
+#define VERSION "0.11.1"
 #define VER_MAJOR 0
 #define VER_MINOR 11
-#define VER_PATCH 0
+#define VER_PATCH 1
 #define UTOX_VERSION_NUMBER (VER_MAJOR * 1000 * 1000 + VER_MINOR * 1000 + VER_PATCH)
 // Defaults
 #define DEFAULT_NAME "uTox User"
@@ -60,7 +60,7 @@
 
 #define BORDER 1
 #define CAPTION 26
-#define MAIN_WIDTH 800
+#define MAIN_WIDTH 1000
 #define MAIN_HEIGHT 600
 
 #define inrect(x, y, rx, ry, width, height) \
@@ -362,14 +362,6 @@ bool utox_data_save_tox(uint8_t *data, size_t length);
 bool utox_data_save_utox(UTOX_SAVE *data, size_t length);
 
 /**
- * Saves chat log for friend with id hex
- *
- * Returns the offset on success
- * Returns 0 on failure
- */
-size_t utox_save_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], uint8_t *data, size_t length);
-
-/**
  * Reads the tox data from the disk and sets size
  *
  * Returns a pointer to the tox data, the caller needs to free it
@@ -393,40 +385,11 @@ UTOX_SAVE *utox_data_load_utox(void);
  */
 uint8_t *utox_data_load_custom_theme(size_t *out);
 
-/** This one actually does the work of reading the logfile information.
- *
- * inside main.c is probably the wrong place for it, but I'll leave chosing
- * the correct location to someone else. */
-uint8_t **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, uint32_t count, uint32_t skip);
-
-/** utox_update_chatlog Updates the data for this friend's history.
- *
- * When given a friend_number and offset, utox_update_chatlog will overwrite the file, with
- * the supplied data * length. It makes no attempt to verify the data or length, it'll just
- * write blindly. */
-bool utox_update_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t offset, uint8_t *data, size_t length);
-
 /**
  * TODO DOCUMENTATION
  */
 bool utox_remove_file(const uint8_t *full_name, size_t length);
 
-/**
- * Deletes the chat log file for the friend with id hex
- *
- * Returns bool indicating if it succeeded
- */
-bool utox_remove_friend_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2]);
-
-/**
- * Setup for exporting the chat log to plain text
- */
-void utox_export_chatlog_init(uint32_t friend_number);
-
-/**
- * Export the chat log to plain text
- */
-void utox_export_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], FILE *dest_file);
 /* TODO: sort everything below this line! */
 
 

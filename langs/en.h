@@ -15,13 +15,29 @@ msgid(SPLASH_TITLE)
 msgstr("Welcome to the new uTox!")
 
 msgid(SPLASH_TEXT)
-msgstr("You have just upgraded to version 0.11.0! Release name: [uTox GOLD Members Only]")
+msgstr("You have just upgraded to version 0.11.1! Release name: [uTox GOLD Members Only]")
 
 msgid(CHANGE_LOG_TITLE)
-msgstr("Changes in v0.11.0")
+msgstr("Changes in v0.11.1")
 
 msgid(CHANGE_LOG_TEXT)
 msgstr(
+"    Feature: Export chatlog\n"
+"    Feature: Added ability to decline an incoming call\n"
+"    Various security fixes\n"
+"    Fixed icon issues\n"
+"    Better build system\n"
+"    Switched to TokTok/c-toxcore\n"
+"    Improvements to development process to allow for easier contribution of code\n"
+"    New themes: Solarized light and Solarized dark\n"
+"    Updated translations\n"
+"    filter_audio optimisations\n"
+"    Started using clang-format\n"
+"    Stopped using clang-format\n"
+"    New, shinier toggle buttons (thanks, tsudoko!)\n"
+"    Better support for auto-accepting file transfers\n"
+"    Fixed UI issues with the lock screen\n"
+"\nv0.11.0\n"
 "    Were sorry, but the changelog for this version of uTox\n"
 "    is only available to uTox GOLD Members.\n"
 "\nv0.9.8\n"
@@ -252,6 +268,12 @@ msgstr("User Interface")
 
 msgid(AUDIO_VIDEO_BUTTON)
 msgstr("Audio & Video")
+
+msgid(ADVANCED_BUTTON)
+msgstr("Advanced")
+
+msgid(NOTIFICATIONS_BUTTON)
+msgstr("Notifications")
 
 
 

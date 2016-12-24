@@ -4,8 +4,8 @@ project(uTox LANGUAGES C)
 # This version is for the entire project. All libraries (core, av, ...) move in
 # versions in a synchronised way.
 set(PROJECT_VERSION_MAJOR "0")
-set(PROJECT_VERSION_MINOR "10")
-set(PROJECT_VERSION_PATCH "9")
+set(PROJECT_VERSION_MINOR "11")
+set(PROJECT_VERSION_PATCH "1")
 set(PROJECT_VERSION
   "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
 
@@ -234,6 +234,8 @@ endif()
 add_executable(utox
     src/avatar.c
     src/avatar.h
+    src/chatlog.c
+    src/chatlog.h
     src/command_funcs.c
     src/command_funcs.h
     src/commands.c
@@ -284,8 +286,8 @@ add_executable(utox
 
 target_link_libraries(utox
                       utoxAV        utoxNATIVE      utoxUI
-                      ${TOX_LIBS}   ${LIBRARIES}
-                      sodium        pthread     m   vpx )
+                      ${TOX_LIBS}   ${LIBRARIES}    sodium
+                      vpx           pthread         m )
 
 set_property(TARGET utox PROPERTY C_STANDARD 99)
 if(UNIX)

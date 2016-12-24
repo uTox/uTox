@@ -61,21 +61,25 @@ static void button_avatar_on_mup(void) {
 
 static void button_name_on_mup(void) {
     flist_selectsettings();
-    panel_settings_profile.disabled = false;
-    panel_settings_devices.disabled = true;
-    panel_settings_net.disabled     = true;
-    panel_settings_ui.disabled      = true;
-    panel_settings_av.disabled      = true;
+    panel_settings_profile.disabled       = false;
+    panel_settings_devices.disabled       = true;
+    panel_settings_net.disabled           = true;
+    panel_settings_ui.disabled            = true;
+    panel_settings_av.disabled            = true;
+    panel_settings_adv.disabled           = true;
+    panel_settings_notifications.disabled = true;
     edit_setfocus(&edit_name);
 }
 
 static void button_statusmsg_on_mup(void) {
     flist_selectsettings();
-    panel_settings_profile.disabled = false;
-    panel_settings_devices.disabled = true;
-    panel_settings_net.disabled     = true;
-    panel_settings_ui.disabled      = true;
-    panel_settings_av.disabled      = true;
+    panel_settings_profile.disabled       = false;
+    panel_settings_devices.disabled       = true;
+    panel_settings_net.disabled           = true;
+    panel_settings_ui.disabled            = true;
+    panel_settings_av.disabled            = true;
+    panel_settings_adv.disabled           = true;
+    panel_settings_notifications.disabled = true;
     edit_setfocus(&edit_status);
 }
 
@@ -589,11 +593,13 @@ static void button_settings_on_mup(void) {
 
 static void disable_all_setting_sub(void) {
     flist_selectsettings();
-    panel_settings_profile.disabled = true;
-    panel_settings_devices.disabled = true;
-    panel_settings_net.disabled     = true;
-    panel_settings_ui.disabled      = true;
-    panel_settings_av.disabled      = true;
+    panel_settings_profile.disabled       = true;
+    panel_settings_devices.disabled       = true;
+    panel_settings_net.disabled           = true;
+    panel_settings_ui.disabled            = true;
+    panel_settings_av.disabled            = true;
+    panel_settings_adv.disabled           = true;
+    panel_settings_notifications.disabled = true;
 }
 
 static void button_settings_sub_profile_on_mup(void) {
@@ -626,6 +632,18 @@ static void button_settings_sub_av_on_mup(void) {
     scrollbar_settings.content_height = SCALE(300);
     disable_all_setting_sub();
     panel_settings_av.disabled = false;
+}
+
+static void button_settings_sub_adv_onpress(void) {
+    scrollbar_settings.content_height = SCALE(300);
+    disable_all_setting_sub();
+    panel_settings_adv.disabled = false;
+}
+
+static void button_settings_sub_notifications_onpress(void){
+    scrollbar_settings.content_height = SCALE(300);
+    disable_all_setting_sub();
+    panel_settings_notifications.disabled = false;
 }
 
 static void button_bottommenu_update(BUTTON *b) {
@@ -688,6 +706,18 @@ BUTTON
         .nodraw = true,
         .on_mup = button_settings_sub_av_on_mup,
         .tooltip_text = {.i18nal = STR_AUDIO_VIDEO },
+    },
+
+    button_settings_sub_adv = {
+        .nodraw = true,
+        .on_mup = button_settings_sub_adv_onpress,
+        .tooltip_text = {.i18nal = STR_ADVANCED_BUTTON },
+    },
+
+    button_settings_sub_notifications = {
+        .nodraw = true,
+        .on_mup = button_settings_sub_notifications_onpress,
+        .tooltip_text = {.i18nal = STR_NOTIFICATIONS_BUTTON },
     },
 
     button_add_new_device_to_self = {
