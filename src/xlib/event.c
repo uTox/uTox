@@ -182,6 +182,8 @@ static bool popup_event(XEvent event, UTOX_WINDOW *popup) {
             break;
         }
         case ClientMessage: {
+            /* This could be noop code, I'm not convinced we need to support _NET_WM_PING but
+             * in case we do, we already have the response ready.  */
             Atom ping = XInternAtom(display, "_NET_WM_PING", 0);
             if ((Atom)event.xclient.data.l[0] == ping) {
                 debug_error("ping\n");
