@@ -231,8 +231,8 @@ bool doevent(XEvent event) {
 
     if (event.xany.window && event.xany.window != main_window.window) {
 
-        if (window_find_notify(event.xany.window)) {
-            return popup_event(event, window_find_notify(event.xany.window)); // TODO perhaps we should roll this into one?
+        if (native_window_find_notify(event.xany.window)) {
+            return popup_event(event, native_window_find_notify(event.xany.window)); // TODO perhaps we should roll this into one?
             // return true;
         }
 

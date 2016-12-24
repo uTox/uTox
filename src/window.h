@@ -7,7 +7,7 @@
  * Each platform's window struct starts with this, then follows with their own
  * specific includes. */
 struct utox_window {
-    struct utox_window *next;
+    struct native_window *next;
 
     int x, y, w, h;
 
@@ -22,8 +22,6 @@ bool window_init(void);
 void window_raze(UTOX_WINDOW *window);
 
 void window_create_video();
-
-UTOX_WINDOW *window_find_notify(void *window);
 
 UTOX_WINDOW *window_create_notify(int x, int y, int w, int h);
 

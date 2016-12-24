@@ -903,8 +903,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
 
     utox_init();
 
-    save->window_width  = save->window_width < SCALE(640) ? SCALE(640) : save->window_width;
-    save->window_height = save->window_height < SCALE(320) ? SCALE(320) : save->window_height;
+    save->window_width  = save->window_width < SCALE(MAIN_WIDTH) ? SCALE(MAIN_WIDTH) : save->window_width;
+    save->window_height = save->window_height < SCALE(MAIN_HEIGHT) ? SCALE(MAIN_HEIGHT) : save->window_height;
 
 
     char pretitle[128];
@@ -1050,7 +1050,7 @@ LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
         }
 
         case WM_GETMINMAXINFO: {
-            POINT min = { SCALE(640), SCALE(320) };
+            POINT min = { SCALE(MAIN_WIDTH), SCALE(MAIN_HEIGHT) };
             ((MINMAXINFO *)lParam)->ptMinTrackSize = min;
 
             break;

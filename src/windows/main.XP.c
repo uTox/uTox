@@ -2,7 +2,43 @@
 
 #include "main.h"
 
+#include "../friend.h"
 #include "../main.h"
+#include "../tox.h"
+
+void native_export_chatlog_init(uint32_t friend_number) {
+    char *path = calloc(1, UTOX_FILE_NAME_LENGTH);
+
+    if (path == NULL){
+        debug_error("NATIVE:\tCould not allocate memory.\n");
+        return;
+    }
+
+    snprintf(path, UTOX_FILE_NAME_LENGTH, "%.*s.txt", (int)friend[friend_number].name_length,
+             friend[friend_number].name);
+
+    OPENFILENAME ofn = {
+        .lStructSize = sizeof(OPENFILENAME),
+        .hwndOwner   = hwnd,
+        .lpstrFilter = ".txt",
+        .lpstrFile   = path,
+        .nMaxFile    = UTOX_FILE_NAME_LENGTH,
+        .Flags       = OFN_EXPLORER | OFN_NOCHANGEDIR | OFN_NOREADONLYRETURN | OFN_OVERWRITEPROMPT,
+        .lpstrDefExt = "txt",
+    };
+
+    if (GetSaveFileName(&ofn)) {
+        // TODO: native_get_file instead of fopen.
+        FILE *file = fopen(path, "wb");
+        if (file) {
+            utox_export_chatlog(friend_number, file);
+        } else {
+            debug_error("Opening file %s failed\n", path);
+        }
+    } else {
+        debug("GetSaveFileName() failed\n");
+    }
+}
 
 void native_select_dir_ft(uint32_t fid, MSG_FILE *file) {
     char *path = malloc(UTOX_FILE_NAME_LENGTH);
@@ -18,7 +54,7 @@ void native_select_dir_ft(uint32_t fid, MSG_FILE *file) {
     };
 
     if (GetSaveFileName(&ofn)) {
-        postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->file->file_number, path);
+        postmessage_toxcore(TOX_FILE_ACCEPT, fid, file->file_number, path);
     } else {
         debug("GetSaveFileName() failed\n");
     }
