@@ -1,6 +1,8 @@
 #ifndef XLIB_WINDOW_H
 #define XLIB_WINDOW_H
 
+#include "../window.h"
+
 #include <X11/cursorfont.h>
 #include <X11/extensions/Xrender.h>
 #include <X11/extensions/XShm.h>
@@ -20,7 +22,9 @@ Visual  *default_visual;
 
 int default_depth;
 
-typedef struct native_window {
+struct native_window {
+    struct utox_window _; // Global struct shared across all platforms
+
     Window window;
     GC gc;
 
@@ -33,13 +37,7 @@ typedef struct native_window {
 
     XRenderPictFormat *pictformat;
 
-    // TODO should we include ui.h here?
-    void *panel;
-
-    int32_t x, y, w, h;
-
-    struct native_window *next;
-} UTOX_WINDOW;
+};
 
 struct native_window main_window;
 struct native_window tray_window;
@@ -47,16 +45,16 @@ struct native_window tray_window;
 struct native_window popup_window;
 struct native_window scr_grab_window;
 
-bool window_init(void);
+bool native_window_init(void);
 
-Window *window_create_main(int x, int y, int w, int h, char **argv, int argc);
+UTOX_WINDOW *native_window_create_main(int x, int y, int w, int h, char **argv, int argc);
 
-void window_create_video(void);
+void native_window_create_video(void);
 
-UTOX_WINDOW *window_find_notify(Window window);
+UTOX_WINDOW *native_window_find_notify(Window window);
 
-UTOX_WINDOW *window_create_notify(int x, int y, int w, int h);
+UTOX_WINDOW *native_window_create_notify(int x, int y, int w, int h);
 
-void winodw_create_screen_select();
+void native_window_create_screen_select();
 
 #endif
