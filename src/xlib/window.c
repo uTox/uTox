@@ -136,31 +136,27 @@ void window_create_video() {
 
 UTOX_WINDOW *window_find_notify(Window window) {
     UTOX_WINDOW *win = &popup_window;
-    do {
+    while (win) {
         if (win->window == window) {
             return win;
         }
         win = win->next;
-    } while (win->next);
+    }
 
     return NULL;
 }
 
 UTOX_WINDOW *window_create_notify(int x, int y, int w, int h) {
-    UTOX_WINDOW *win = &popup_window;
-    while (win->next) {
-        win = win->next;
+    UTOX_WINDOW *next = NULL;
+
+    if (!popup_window.window) {
+        next = &popup_window;
     }
 
-    if (win->window) {
-        win->next = window_create(NULL, "uTox Alert",
-                                  CWBackPixmap | CWBorderPixel | CWEventMask | CWColormap | CWOverrideRedirect,
-                                   x, y, w, h, w, h, &panel_notify, true);
-    } else {
-        win = window_create(win, "uTox Alert",
-                            CWBackPixmap | CWBorderPixel | CWEventMask | CWColormap | CWOverrideRedirect,
-                            x, y, w, h, w, h, &panel_notify, true);
-    }
+    UTOX_WINDOW *win;
+    win = window_create(next, "uTox Alert",
+                        CWBackPixmap | CWBorderPixel | CWEventMask | CWColormap | CWOverrideRedirect,
+                        x, y, w, h, w, h, &panel_notify, true);
 
     if (!win) {
         debug_error("XLIB_WIN:\tUnable to Alloc for a notification window\n");
@@ -211,6 +207,15 @@ UTOX_WINDOW *window_create_notify(int x, int y, int w, int h) {
     win->colorpic = XRenderCreateSolidFill(display, &xrcolor);
 
     XMapWindow(display, win->window);
+
+    UTOX_WINDOW *head = &popup_window;
+    while (head->next) {
+        head = head->next;
+    }
+
+    if (win != &popup_window){
+        head->next = win;
+    }
 
     return win;
 }
