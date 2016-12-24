@@ -744,9 +744,7 @@ BUTTON button_move_window = {
 
 static void btn_test_notify_mup(void) {
     debug("button test\n");
-
     notify_new();
-
 }
 
 BUTTON button_test_notify = {
@@ -756,8 +754,7 @@ BUTTON button_test_notify = {
 };
 
 static void btn_move_notify_mup(void) {
-    debug("button test\n");
-
+    debug("button tween\n");
     window_tween();
 }
 

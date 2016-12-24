@@ -55,6 +55,10 @@ UTOX_WINDOW *native_window_find_notify(Window window);
 
 UTOX_WINDOW *native_window_create_notify(int x, int y, int w, int h);
 
+void window_set_focus(UTOX_WINDOW *win);
+
+void native_window_tween(void);
+
 void native_window_create_screen_select();
 
 #endif
