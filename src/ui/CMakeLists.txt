@@ -1,9 +1,5 @@
 project(utoxUI LANGUAGES C)
 
-if(UNIX)
-    include_directories(/usr/include/freetype2)
-endif()
-
 add_library(utoxUI STATIC
     button.c
     button.h

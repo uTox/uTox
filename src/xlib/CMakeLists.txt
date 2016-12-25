@@ -1,7 +1,5 @@
 project(utoxNATIVE LANGUAGES C)
 
-include_directories(/usr/include/freetype2)
-
 #########################################
 ## Native Icon data
 #########################################
@@ -35,7 +33,7 @@ add_library(utoxNATIVE STATIC
     filesys.c
     )
 
-target_link_libraries(utoxNATIVE icon v4lconvert X11 Xext Xrender fontconfig freetype resolv dl )
+target_link_libraries(utoxNATIVE icon v4lconvert X11 Xext Xrender fontconfig ${FREETYPE_LIBRARIES} resolv dl )
 
 install(FILES
     ../utox.desktop
