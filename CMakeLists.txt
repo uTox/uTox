@@ -42,6 +42,12 @@ else()
         )
 endif()
 
+# print a summary of build options
+message("Build options:")
+message("- Filter Audio: ${FILTER_AUDIO}")
+message("- Toxcore Static: ${TOXCORE_STATIC}")
+
+
 # include utoxNATIVE dependend on the OS
 if(WIN32)
     add_subdirectory(src/windows)
@@ -49,7 +55,12 @@ elseif(APPLE)
     add_definitions("-x objective-c")
     add_subdirectory(src/cocoa)
 elseif(UNIX)
-    include_directories(/usr/include/freetype2)
+    find_package(Freetype REQUIRED)
+    include_directories(${FREETYPE_INCLUDE_DIRS})
+    message("Found Freetype version ${FREETYPE_VERSION_STRING}")
+    message("Freetype include: ${FREETYPE_INCLUDE_DIRS}")
+    message("Freetype library: ${FREETYPE_LIBRARIES}")
+
     add_subdirectory(src/xlib)
 endif()
 
