@@ -1,8 +1,6 @@
 // utox_av.c
 #include "utox_av.h"
 
-#include "../main_native.h"
-
 #include "../flist.h"
 #include "../friend.h"
 #include "../inline_video.h"
