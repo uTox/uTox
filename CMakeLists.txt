@@ -12,7 +12,7 @@ set(PROJECT_VERSION
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -fno-strict-aliasing")
 
-
+option(TOXCORE_STATIC "Build uTox with the static version of Toxcore" OFF)
 if(TOXCORE_STATIC)
     # The static windows libs need all of these... because REASONS!
     set(TOX_LIBS
