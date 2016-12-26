@@ -4,38 +4,8 @@
 #include "window.h"
 #include "ui.h"
 
-static void window_set_make(UTOX_WINDOW *window) {
-    for (uint8_t i = 0; i < 32; ++i) {
-        // if (list[i].window == 0) {
-        //     list[i].window = window;
-        //     return;
-        // }
-    }
-}
-
-static UTOX_WINDOW *window_set_find(UTOX_WINDOW *window) {
-    for (uint8_t i = 0; i < 32; ++i) {
-        // if (list[i].window == window) {
-        //     return &list[i];
-        // }
-    }
-    return NULL;
-}
-
-static void redraw_notify(void) {
-    debug_error("notify redraw start\n");
-    for (uint8_t i = 0; i < 32; ++i) {
-        // if (list[i].window) {
-        //     draw_window_set(&list[i]);
-
-        //     panel_draw(&panel_notify, 0, 0, 400, 150);
-        //     // enddraw_notify(0, 0, 400, 150);
-        // }
-    }
-    debug_error("redraw end\n");
-}
-
 static uint16_t notification_number = 0;
+
 UTOX_WINDOW *notify_new(void) {
     debug("Notify:\tCreating Notification #%u\n", notification_number);
 
