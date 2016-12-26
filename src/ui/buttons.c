@@ -708,13 +708,13 @@ BUTTON
 
     button_settings_sub_adv = {
         .nodraw = true,
-        .onpress = button_settings_sub_adv_onpress,
+        .on_mup = button_settings_sub_adv_onpress,
         .tooltip_text = {.i18nal = STR_ADVANCED_BUTTON },
     },
 
     button_settings_sub_notifications = {
         .nodraw = true,
-        .onpress = button_settings_sub_notifications_onpress,
+        .on_mup = button_settings_sub_notifications_onpress,
         .tooltip_text = {.i18nal = STR_NOTIFICATIONS_BUTTON },
     },
 
