@@ -325,7 +325,8 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             break;
         }
         case FRIEND_MESSAGE: {
-            native_notify_new(NULL, NULL); // Intentional fallthrough
+            // TODO implement notification
+            //native_notify_new(NULL, NULL); // Intentional fallthrough
         }
         case FRIEND_MESSAGE_UPDATE: {
             redraw();
