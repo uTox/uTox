@@ -7,6 +7,7 @@
 #include "../theme.h"
 #include "../ui/dropdowns.h"
 #include "../util.h"
+#include "../utox.h"
 
 bool hidden = false;
 

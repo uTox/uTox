@@ -2,6 +2,7 @@
 #include "../flist.h"
 #include "../friend.h"
 #include "../util.h"
+#include "../utox.h"
 
 #include <dlfcn.h>
 #include <stdbool.h>
