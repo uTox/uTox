@@ -8,6 +8,14 @@ set(PROJECT_VERSION_MINOR "11")
 set(PROJECT_VERSION_PATCH "1")
 set(PROJECT_VERSION
   "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
+# make version available in C files
+configure_file(${uTox_SOURCE_DIR}/src/branding.h.in
+               ${uTox_SOURCE_DIR}/src/branding.h)
+configure_file(${uTox_SOURCE_DIR}/src/cocoa/Info.plist.in
+               ${uTox_SOURCE_DIR}/src/cocoa/Info.plist)
+configure_file(${uTox_SOURCE_DIR}/src/android/AndroidManifest.xml.in
+               ${uTox_SOURCE_DIR}/src/android/AndroidManifest.xml)
+
 
 
 set(CMAKE_C_STANDARD 99)

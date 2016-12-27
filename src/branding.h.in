@@ -1,0 +1,21 @@
+/**
+ * uTox Versions and header information
+ *
+ * This file contains defines regarding uTox branding and version information
+ * It is a template from which cmake will generate branding.h
+ */
+
+#define TITLE "uTox"
+#define SUB_TITLE "(Alpha)"
+
+#define RELEASE_TITLE "GOLD MEMBERS"
+#define VERSION "@PROJECT_VERSION@"
+#define VER_MAJOR @PROJECT_VERSION_MAJOR@
+#define VER_MINOR @PROJECT_VERSION_MINOR@
+#define VER_PATCH @PROJECT_VERSION_PATCH@
+#define UTOX_VERSION_NUMBER (VER_MAJOR * 1000 * 1000 + VER_MINOR * 1000 + VER_PATCH)
+
+// Defaults
+#define DEFAULT_NAME "uTox User"
+#define DEFAULT_STATUS "Toxing on uTox, from the future!"
+#define DEFAULT_SCALE 11
