@@ -9,6 +9,7 @@ set(PROJECT_VERSION_PATCH "1")
 set(PROJECT_VERSION
   "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
 
+
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -fno-strict-aliasing")
 
@@ -50,6 +51,14 @@ message("- Toxcore Static: ${TOXCORE_STATIC}")
 
 # include utoxNATIVE dependend on the OS
 if(WIN32)
+    ############################################################
+    ## This is a hack, that we can remove once we have better
+    ## separation of the sections of uTox, until then, this
+    ## makes everything work.
+    ############################################################
+    include_directories( libs/toktok/include libs/windows-x64/include/ )
+    link_directories( libs/toktok/lib /usr/x86_64-w64-mingw32/lib/ libs/windows-x64/lib )
+
     add_subdirectory(src/windows)
 elseif(APPLE)
     add_definitions("-x objective-c")

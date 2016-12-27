@@ -1,8 +1,5 @@
 project(utoxNATIVE LANGUAGES C)
 
-include_directories( libs/toktok/include libs/windows-x64/include/ )
-link_directories( libs/toktok/lib /usr/x86_64-w64-mingw32/lib/ libs/windows-x64/lib )
-
 #########################################
 ## Native Icon data
 #########################################
