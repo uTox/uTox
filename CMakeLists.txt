@@ -8,6 +8,11 @@ set(PROJECT_VERSION_MINOR "11")
 set(PROJECT_VERSION_PATCH "1")
 set(PROJECT_VERSION
   "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
+# make version available in C files
+configure_file(${uTox_SOURCE_DIR}/src/branding.h.in
+               ${uTox_BINARY_DIR}/src/branding.h)
+include_directories("${uTox_BINARY_DIR}/src")
+
 
 
 set(CMAKE_C_STANDARD 99)
