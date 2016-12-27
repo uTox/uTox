@@ -59,6 +59,10 @@ if(WIN32)
     include_directories( libs/toktok/include libs/windows-x64/include/ )
     link_directories( libs/toktok/lib /usr/x86_64-w64-mingw32/lib/ libs/windows-x64/lib )
 
+    ## Needed to build the widows icon
+    enable_language(RC)
+    set(WINDOWS_ICON icons/icon.rc)
+
     add_subdirectory(src/windows)
 elseif(APPLE)
     add_definitions("-x objective-c")
