@@ -15,7 +15,6 @@ add_library(utoxNATIVE STATIC
     audio.c
     dnd.c
     drawing.c
-    example.reg
     filesys.c
     main.7.c
     main.c
