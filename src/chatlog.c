@@ -12,7 +12,9 @@ static FILE* chatlog_get_file(char hex[TOX_PUBLIC_KEY_SIZE * 2], bool append) {
     FILE *file;
     if (append) {
         file = native_get_file(name, NULL, UTOX_FILE_OPTS_READ | UTOX_FILE_OPTS_WRITE | UTOX_FILE_OPTS_MKDIR);
-        fseek(file, 0, SEEK_END);
+        if (file) {
+            fseek(file, 0, SEEK_END);
+        }
     } else {
         file = native_get_file((uint8_t *)name, NULL, UTOX_FILE_OPTS_READ);
     }
