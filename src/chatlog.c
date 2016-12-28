@@ -9,13 +9,15 @@ static FILE* chatlog_get_file(char hex[TOX_PUBLIC_KEY_SIZE * 2], bool append) {
     uint8_t name[TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".new.txt")];
     snprintf((char *)name, sizeof(name), "%.*s.new.txt", TOX_PUBLIC_KEY_SIZE * 2, hex);
 
+    FILE *file;
     if (append) {
-        return native_get_file(name, NULL, UTOX_FILE_OPTS_READ | UTOX_FILE_OPTS_APPEND | UTOX_FILE_OPTS_MKDIR);
+        file = native_get_file(name, NULL, UTOX_FILE_OPTS_READ | UTOX_FILE_OPTS_APPEND | UTOX_FILE_OPTS_MKDIR);
+        fseek(file, 0, SEEK_END);
     } else {
-        return native_get_file((uint8_t *)name, NULL, UTOX_FILE_OPTS_READ);
+        file = native_get_file((uint8_t *)name, NULL, UTOX_FILE_OPTS_READ);
     }
 
-    return native_get_file(name, NULL, UTOX_FILE_OPTS_READ);
+    return file;
 }
 
 size_t utox_save_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], uint8_t *data, size_t length) {
