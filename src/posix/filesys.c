@@ -74,6 +74,13 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts) {
 
     FILE *fp = fopen(path, mode);
 
+    if (opts & UTOX_FILE_OPTS_WRITE && !fp) {
+        // read wont create a file if it doesn't' already exist. If we're allowed to write, lets try
+        // to create the file, then reopen it.
+        fp = fopen(path, "w+");
+        fp = freopen(path, mode, fp);
+    }
+
     if (fp == NULL) {
         debug_notice("NATIVE:\tCould not open %s\n", path);
         return NULL;
