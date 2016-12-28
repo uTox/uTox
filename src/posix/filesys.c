@@ -41,9 +41,9 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts) {
     uint8_t path[UTOX_FILE_NAME_LENGTH] = { 0 };
 
     if (settings.portable_mode) {
-        snprintf(path, UTOX_FILE_NAME_LENGTH, "./tox/");
+        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "./tox/");
     } else {
-        snprintf(path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));
+        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));
     }
 
     // native_get_file should never be called with DELETE in combination with other FILE_OPTS.
@@ -65,20 +65,21 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts) {
     }
 
     if (opts == UTOX_FILE_OPTS_DELETE) {
-        remove(path);
+        remove((char *)path);
         return NULL;
     }
 
     char mode[4] = { 0 };
     opts_to_sysmode(opts, mode);
 
-    FILE *fp = fopen(path, mode);
+    FILE *fp = fopen((char *)path, mode);
 
-    if (opts & UTOX_FILE_OPTS_WRITE && !fp) {
+    if (!fp && opts & UTOX_FILE_OPTS_READ && opts & UTOX_FILE_OPTS_WRITE) {
+        debug_notice("POSIX:\tUnable to simple open, falling back to fd\n");
         // read wont create a file if it doesn't' already exist. If we're allowed to write, lets try
         // to create the file, then reopen it.
-        fp = fopen(path, "w+");
-        fp = freopen(path, mode, fp);
+        int fd = open((char *)path, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+        fp = fdopen(fd, mode);
     }
 
     if (fp == NULL) {

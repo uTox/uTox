@@ -250,13 +250,13 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts) {
     char mode[4] = { 0 };
     opts_to_sysmode(opts, mode);
 
-    FILE *fp = fopen(path, mode);
+    FILE *fp = fopen((char *)path, mode);
 
-    if (opts & UTOX_FILE_OPTS_WRITE && !fp) {
+    if (!fp && opts & UTOX_FILE_OPTS_READ && opts & UTOX_FILE_OPTS_WRITE) {
         // read wont create a file if it doesn't' already exist. If we're allowed to write, lets try
         // to create the file, then reopen it.
-        fp = fopen(path, "w+");
-        fp = freopen(path, mode, fp);
+        int fd = open((char *)path, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+        fp = fdopen(fd, mode);
     }
 
     if (fp == NULL) {
