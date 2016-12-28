@@ -349,7 +349,7 @@ static int init_toxcore(Tox **tox) {
     }
 
     // Create main connection
-    debug("CORE:\tCreating New Toxcore instance.\n"
+    debug_notice("CORE:\tCreating New Toxcore instance.\n"
           "\t\tIPv6 : %u\n"
           "\t\tUDP  : %u\n"
           "\t\tProxy: %u %s %u\n",
@@ -362,10 +362,10 @@ static int init_toxcore(Tox **tox) {
 
     if (*tox == NULL) {
         if (settings.force_proxy) {
-            debug("\t\tError #%u, Not going to try without proxy because of user settings.\n", tox_new_err);
+            debug_error("\t\tError #%u, Not going to try without proxy because of user settings.\n", tox_new_err);
             return -2;
         }
-        debug("\t\tError #%u, Going to try without proxy.\n", tox_new_err);
+        debug_error("\t\tError #%u, Going to try without proxy.\n", tox_new_err);
 
         // reset proxy options as well as GUI and settings
         topt.proxy_type = TOX_PROXY_TYPE_NONE;
@@ -375,7 +375,7 @@ static int init_toxcore(Tox **tox) {
         *tox = tox_new(&topt, &tox_new_err);
 
         if (*tox == NULL) {
-            debug("\t\tError #%u, Going to try without IPv6.\n", tox_new_err);
+            debug_error("\t\tError #%u, Going to try without IPv6.\n", tox_new_err);
 
             // reset IPv6 options as well as GUI and settings
             topt.ipv6_enabled = 0;
@@ -384,7 +384,7 @@ static int init_toxcore(Tox **tox) {
             *tox = tox_new(&topt, &tox_new_err);
 
             if (*tox == NULL) {
-                debug("\t\tFatal Error creating a Tox instance... Error #%u\n", tox_new_err);
+                debug_error("\t\tFatal Error creating a Tox instance... Error #%u\n", tox_new_err);
                 return -2;
             }
         }

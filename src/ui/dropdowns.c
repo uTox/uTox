@@ -1,5 +1,6 @@
-// dropdows.h
 #include "dropdowns.h"
+
+#include "switches.h"
 
 #include "../av/utox_av.h"
 #include "../flist.h"
@@ -7,7 +8,6 @@
 #include "../groups.h"
 #include "../theme.h"
 #include "../util.h"
-#include "switches.h"
 
 
 static void dropdown_audio_in_onselect(uint16_t i, const DROPDOWN *dm) {
