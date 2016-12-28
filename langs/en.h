@@ -376,7 +376,7 @@ msgstr("Use mini contact list")
 msgid(NOT_CONNECTED)
 msgstr("Not Connected")
 
-msgid(NOT_CONNECTED_ERROR)
+msgid(NOT_CONNECTED_SETTINGS)
 msgstr("Adjust network settings")
 
 msgid(OTHERSETTINGS)

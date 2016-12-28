@@ -170,7 +170,18 @@ volatile uint16_t loaded_audio_in_device, loaded_audio_out_device;
 bool tox_connected;
 
 /* Super global vars */
-volatile bool tox_thread_init, tox_thread_error, utox_av_ctrl_init, utox_audio_thread_init, utox_video_thread_init;
+volatile bool utox_av_ctrl_init, utox_audio_thread_init, utox_video_thread_init;
+volatile enum {
+    // tox_thread is not initialized yet
+    UTOX_TOX_THREAD_INIT_NONE = 0,
+    // tox_thread is initialized successfully
+    // this means a tox instance has been created
+    UTOX_TOX_THREAD_INIT_SUCCESS = 1,
+    // tox_thread is initialized but not successfully
+    // this means a tox instance may have not been created
+    UTOX_TOX_THREAD_INIT_ERROR = 2,
+} tox_thread_init;
+
 
 double ui_scale;
 

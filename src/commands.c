@@ -134,7 +134,7 @@ void do_tox_url(uint8_t *url_string, int len) {
         a++;
     }
 
-    if (!tox_thread_init || tox_thread_error) {
+    if (tox_thread_init != UTOX_TOX_THREAD_INIT_SUCCESS) {
         // if we receive a URL event before the profile is loaded, save it for later.
         // this usually happens when we are launched as the result of a URL click.
         g_select_add_friend_later = 1;

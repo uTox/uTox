@@ -1058,7 +1058,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR cmd, int n
     /* delete tray icon */
     Shell_NotifyIcon(NIM_DELETE, &nid);
 
-    /* wait for threads to exit */
+    // wait for tox_thread to exit
     while (tox_thread_init) {
         yieldcpu(10);
     }

@@ -289,7 +289,7 @@ msgstr("Kompakte Kontaktliste verwenden")
 msgid(NOT_CONNECTED)
 msgstr("Nicht verbunden")
 
-msgid(NOT_CONNECTED_ERROR)
+msgid(NOT_CONNECTED_SETTINGS)
 msgstr("Netzwerk Einstellungen anpassen")
 
 msgid(OTHERSETTINGS)

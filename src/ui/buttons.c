@@ -58,7 +58,7 @@ static void button_avatar_on_mup(void) {
 
 static void button_name_on_mup(void) {
     flist_selectsettings();
-    if (tox_thread_error) {
+    if (tox_thread_init != UTOX_TOX_THREAD_INIT_SUCCESS) {
         // jump to the network settings when unable to create tox instance
         panel_settings_profile.disabled = true;
         panel_settings_devices.disabled = true;
@@ -77,7 +77,7 @@ static void button_name_on_mup(void) {
 
 static void button_statusmsg_on_mup(void) {
     flist_selectsettings();
-    if (tox_thread_error) {
+    if (tox_thread_init != UTOX_TOX_THREAD_INIT_SUCCESS) {
         // jump to the network settings when unable to create tox instance
         panel_settings_profile.disabled = true;
         panel_settings_devices.disabled = true;
@@ -597,7 +597,7 @@ BUTTON button_export_chatlog = {
 extern SCROLLABLE scrollbar_settings;
 
 static void button_settings_on_mup(void) {
-    if (tox_thread_init) {
+    if (tox_thread_init == UTOX_TOX_THREAD_INIT_SUCCESS) {
         flist_selectsettings();
     }
 }

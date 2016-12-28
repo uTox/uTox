@@ -417,7 +417,7 @@ static void edit_search_onenter(EDIT *edit) {
         friend_add(data, length, (char *)"", 0);
         edit_setstr(&edit_search, (char *)"", 0);
     } else {
-        if (tox_thread_init && !tox_thread_error) {
+        if (tox_thread_init == UTOX_TOX_THREAD_INIT_SUCCESS) {
             /* Only change if we're logged in! */
             edit_setstr(&edit_add_id, data, length);
             edit_setstr(&edit_search, (char *)"", 0);
