@@ -19,16 +19,14 @@ bool native_create_dir(const uint8_t *filepath) {
 // TODO: DRY. This function exists in both posix/filesys.c and in android/main.c
 static void opts_to_sysmode(UTOX_FILE_OPTS opts, char *mode) {
     if (opts & UTOX_FILE_OPTS_READ) {
-        mode[0] = 'r';
-    }
-
-    if (opts & UTOX_FILE_OPTS_APPEND) {
-        mode[0] = 'a';
+        mode[0] = 'r'; // Reading is first, don't clobber files.
+    } else if (opts & UTOX_FILE_OPTS_APPEND) {
+        mode[0] = 'a'; // Then appending, again, don't clobber files.
     } else if (opts & UTOX_FILE_OPTS_WRITE) {
-        mode[0] = 'w';
+        mode[0] = 'w'; // Writing is the final option we'll look at.
     }
 
-    mode[1] = 'b';
+    mode[1] = 'b'; // does nothing on posix >C89, but hey, why not?
 
     if ((opts & (UTOX_FILE_OPTS_WRITE | UTOX_FILE_OPTS_APPEND)) && (opts & UTOX_FILE_OPTS_READ)) {
         mode[2] = '+';
