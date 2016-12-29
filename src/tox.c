@@ -856,8 +856,8 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
 
                         TOXAV_ERR_ANSWER ans_error = 0;
                         toxav_answer(av, param1, UTOX_DEFAULT_BITRATE_A, v_bitrate, &ans_error);
-                        if (error) {
-                            debug("Toxcore:\tError trying to toxav_answer error (%i)\n", error);
+                        if (ans_error) {
+                            debug("Toxcore:\tError trying to toxav_answer error (%i)\n", ans_error);
                         } else {
                             postmessage_utoxav(UTOXAV_OUTGOING_CALL_ACCEPTED, param1, param2, NULL);
                         }

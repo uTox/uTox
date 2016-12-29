@@ -445,7 +445,6 @@ void theme_load(const char loadtheme) {
 
             COLOR_EDGE_NORMAL         = COLOR_PROC(SOLAR_VIOLET);
             COLOR_EDGE_HOVER          = COLOR_PROC(SOLAR_BLUE);
-            COLOR_EDGE_ACTIVE         = COLOR_PROC(SOLAR_ORANGE);
             COLOR_EDGE_ACTIVE         = COLOR_PROC(SOLAR_CYAN);
             COLOR_ACTIVEOPTION_BKGRND = COLOR_BKGRND_LIST_HOVER;
             COLOR_ACTIVEOPTION_TEXT   = COLOR_MAIN_TEXT;

@@ -59,9 +59,9 @@ void dropdown_drawactive(void) {
     draw_rect_fill(x, y, w, h * drop->dropcount, color_bg);
     draw_rect_frame(x, y, w, h * drop->dropcount, color_border);
 
-    if (sign == -1) {
-        y += h * (drop->dropcount - 1);
-    }
+    //if (sign == -1) {
+    //    y += h * (drop->dropcount - 1);
+    //}
 
     for (i = 0; i != drop->dropcount; i++) {
         // int j = index(drop, i);

@@ -6,15 +6,11 @@
 #include "utox.h"
 
 FRIEND* get_friend(uint32_t friend_number){
-    if (friend_number >= 512) {
+    if (friend_number >= 128) {
         return NULL; // artifical limit while we discuss the limmit of friends we want to support
     }
 
-    if (friend) {
-        return &friend[friend_number];
-    }
-
-    return NULL;
+    return &friend[friend_number];
 }
 
 static void friend_meta_data_read(FRIEND *f) {
@@ -34,6 +30,7 @@ static void friend_meta_data_read(FRIEND *f) {
     FRIEND_META_DATA *metadata = calloc(1, sizeof(*metadata) + size);
     if (metadata == NULL) {
         debug("Metadata:\tCould not allocate memory for metadata.\n");
+        fclose(file);
         return;
     }
 
@@ -45,6 +42,7 @@ static void friend_meta_data_read(FRIEND *f) {
                                    * metadata[0] should be > 2 (hopefully)                        */
         if (size < sizeof(FRIEND_META_DATA_OLD)) {
             debug("Metadata:\tMeta Data was incomplete\n");
+            free(metadata);
             return;
         }
 
@@ -62,11 +60,13 @@ static void friend_meta_data_read(FRIEND *f) {
         return;
     } else if (metadata->version != 0) {
         debug_notice("Metadata:\tWARNING! This version of utox does not support this metadata file version.\n");
+        free(metadata);
         return;
     }
 
     if (size < sizeof(*metadata)) {
         debug_error("Metadata:\tMeta Data was incomplete\n");
+        free(metadata);
         return;
     }
 
@@ -159,6 +159,7 @@ void friend_setname(FRIEND *f, uint8_t *name, size_t length) {
         }
 
         free(f->name);
+        free(p);
     }
 
     if (length == 0) {
