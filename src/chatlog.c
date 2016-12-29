@@ -14,8 +14,6 @@ static FILE* chatlog_get_file(char hex[TOX_PUBLIC_KEY_SIZE * 2], bool append) {
     } else {
         return native_get_file((uint8_t *)name, NULL, UTOX_FILE_OPTS_READ);
     }
-
-    return native_get_file(name, NULL, UTOX_FILE_OPTS_READ);
 }
 
 size_t utox_save_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], uint8_t *data, size_t length) {
@@ -131,6 +129,8 @@ uint8_t **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, uin
                     *size = 0;
                 }
 
+                free(data);
+                fclose(file);
                 return NULL;
             }
             MSG_TEXT *msg = calloc(1, sizeof(MSG_TEXT) + header.msg_length);

@@ -536,6 +536,7 @@ NATIVE_IMAGE *utox_image_to_native(const UTOX_IMAGE data, size_t size, uint16_t 
     uint8_t *out = malloc(rgba_size);
     if (out == NULL) {
         debug("utox_image_to_native:\t Could mot allocate memory.\n");
+        free(rgba_data);
         return NULL;
     }
 

@@ -693,7 +693,9 @@ UTOX_SAVE *config_load(void) {
     settings.use_proxy   = !!save->proxyenable;
     settings.proxy_port  = save->proxy_port;
 
-    strcpy((char *)proxy_address, (char *)save->proxy_ip);
+    if (strlen((char *)save->proxy_ip) <= 256){
+        strcpy((char *)proxy_address, (char *)save->proxy_ip);
+    }
 
     edit_proxy_ip.length = strlen((char *)save->proxy_ip);
 
@@ -775,6 +777,7 @@ void config_save(UTOX_SAVE *save_in) {
 
     debug_notice("uTox:\tWriting uTox Save\n");
     utox_data_save_utox(save, sizeof(*save) + 256); /* Magic number inside toxcore */
+    free(save);
 }
 
 void utox_write_metadata(FRIEND *f) {

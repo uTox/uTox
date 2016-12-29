@@ -785,6 +785,7 @@ void utox_audio_thread(void *args) {
 
     audio_thread_msg       = 0;
     utox_audio_thread_init = 0;
+    free(preview_buffer);
     debug("uToxAudio:\tClean thread exit!\n");
 }
 

@@ -374,6 +374,7 @@ static void utox_av_incoming_frame_v(ToxAV *UNUSED(toxAV), uint32_t friend_numbe
     frame->img  = malloc(size);
     if (frame->img == NULL) {
         debug("uToxAV:\t Could not allocate memory for image.\n");
+        free(frame);
         return;
     }
     yuv420tobgr(width, height, y, u, v, ystride, ustride, vstride, frame->img);
@@ -386,6 +387,8 @@ static void utox_av_incoming_frame_v(ToxAV *UNUSED(toxAV), uint32_t friend_numbe
     } else {
         postmessage_utox(AV_VIDEO_FRAME, friend_number + 1, 0, (void *)frame);
     }
+    free(frame->img);
+    free(frame);
 }
 
 static void utox_audio_friend_accepted(ToxAV *av, uint32_t friend_number, uint32_t state) {
