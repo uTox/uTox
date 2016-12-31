@@ -4,6 +4,11 @@ set -eux
 
 . ./travis/env.sh
 
+export DISPLAY=:99.0
+# Travis suggest we give it some time to start, compile time should be enough
+sh -e /etc/init.d/xvfb start
+
+
 # install libsodium, needed for crypto
 if ! [ -d libsodium ]; then
   git clone --depth=1 --branch=stable https://github.com/jedisct1/libsodium.git
