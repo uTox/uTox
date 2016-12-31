@@ -591,6 +591,9 @@ void flist_addfriendreq(FRIENDREQ *f) {
     ITEM *i = newitem();
     i->item = ITEM_FRIEND_ADD;
     i->data = f;
+    if (settings.testing_mode) {
+        show_page(i);
+    }
 }
 
 void group_av_peer_remove(GROUPCHAT *g, int peernumber);
