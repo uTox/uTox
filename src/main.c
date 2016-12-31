@@ -56,7 +56,7 @@ SETTINGS settings = {
  * if you need to localize them to a specific platform, move them from here, to each
  * src/<platform>/main.x and change from utox_ to native_ */
 bool utox_data_save_tox(uint8_t *data, size_t length) {
-    FILE *  fp     = native_get_file((uint8_t *)"tox_save.tox", NULL, UTOX_FILE_OPTS_WRITE);
+    FILE *  fp     = native_get_file((uint8_t *)"tox_save.tox", NULL, UTOX_FILE_OPTS_WRITE | UTOX_FILE_OPTS_MKDIR);
     if (fp == NULL) {
         debug("Can not open tox_save.tox to write to it.\n");
         return true;
