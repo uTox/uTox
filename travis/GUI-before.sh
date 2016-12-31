@@ -4,7 +4,6 @@ set -eux
 
 . ./travis/env.sh
 
-export DISPLAY=:99.0
 # Travis suggest we give it some time to start, compile time should be enough
 sh -e /etc/init.d/xvfb start
 

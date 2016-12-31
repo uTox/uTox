@@ -75,6 +75,7 @@ git:
   depth: 5
 
 before_script:
+  - "export DISPLAY=:99.0"
   - ./travis/env.sh
   - ./travis/${BUILD}-before.sh
   - ./travis/filter_audio.sh
