@@ -426,7 +426,7 @@ void toxcore_thread(void *UNUSED(args)) {
     bool   reconfig         = 1;
     int    toxcore_init_err = 0;
 
-    testing_iterations = 10000;
+    static size_t testing_iterations = 10000;
 
     while (reconfig) {
         reconfig = 0;

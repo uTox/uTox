@@ -222,10 +222,6 @@ typedef struct utox_settings {
     bool    window_maximized;
 } SETTINGS;
 
-// FIXME
-size_t testing_iterations;
-
-
 /* This might need to be volatile type... */
 SETTINGS settings;
 
