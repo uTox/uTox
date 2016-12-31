@@ -36,6 +36,10 @@ matrix:
       compiler: clang
 
     - os: linux
+      env: BUILD=GUI TOXCORE_REPO=TokTok/c-toxcore
+      compiler: clang
+
+    - os: linux
       sudo: required
       dist: trusty
       addons:
@@ -71,6 +75,8 @@ git:
   depth: 5
 
 before_script:
+  - "export DISPLAY=:99.0"
+  - "sh -e /etc/init.d/xvfb start" # Travis suggest we give it some time to start, compile time should be enough
   - ./travis/env.sh
   - ./travis/${BUILD}-before.sh
   - ./travis/filter_audio.sh
@@ -94,3 +100,4 @@ branches:
   only:
     - master
     - develop
+    - travis

@@ -943,7 +943,8 @@ int main(int argc, char *argv[]) {
 
         while (XPending(display)) {
             XNextEvent(display, &event);
-            if (!doevent(event)) {
+            if (!doevent(event) || !tox_thread_init) { // TODO this is a bit hacky, we should be able to
+                                                       // something better here.
                 goto BREAK;
             }
         }
@@ -954,9 +955,10 @@ int main(int argc, char *argv[]) {
         }
     }
 BREAK:
-
-    postmessage_utoxav(UTOXAV_KILL, 0, 0, NULL);
-    postmessage_toxcore(TOX_KILL, 0, 0, NULL);
+    if (tox_thread_init) {
+        postmessage_utoxav(UTOXAV_KILL, 0, 0, NULL);
+        postmessage_toxcore(TOX_KILL, 0, 0, NULL);
+    }
 
     /* free client thread stuff */
     if (libgtk) {
