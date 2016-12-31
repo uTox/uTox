@@ -561,6 +561,10 @@ bool doevent(XEvent event) {
                 void *data;
                 memcpy(&data, &ev->data.s[2], sizeof(void *));
                 utox_message_dispatch(ev->message_type, ev->data.s[0], ev->data.s[1], data);
+                if (ev->message_type == FORCE_EXIT) {
+                    debug_error("XLIB:\tCaught FORCE_EXIT, closing\n");
+                    return 0;
+                }
                 break;
             }
 

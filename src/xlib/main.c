@@ -27,7 +27,18 @@ void setclipboard(void) {
 
 void postmessage_utox(UTOX_MSG msg, uint16_t param1, uint16_t param2, void *data) {
     XEvent event = {
-        .xclient = {.window = 0, .type = ClientMessage, .message_type = msg, .format = 8, .data = {.s = { param1, param2 } } }
+        .xclient = {
+            .window = 0,
+            .type = ClientMessage,
+            .message_type = msg,
+            .format = 8,
+            .data = {
+                .s = {
+                    param1,
+                    param2
+                }
+            }
+        }
     };
 
     memcpy(&event.xclient.data.s[2], &data, sizeof(void *));
@@ -943,8 +954,7 @@ int main(int argc, char *argv[]) {
 
         while (XPending(display)) {
             XNextEvent(display, &event);
-            if (!doevent(event) || !tox_thread_init) { // TODO this is a bit hacky, we should be able to
-                                                       // something better here.
+            if (!doevent(event)) {
                 goto BREAK;
             }
         }
@@ -955,10 +965,9 @@ int main(int argc, char *argv[]) {
         }
     }
 BREAK:
-    if (tox_thread_init) {
-        postmessage_utoxav(UTOXAV_KILL, 0, 0, NULL);
-        postmessage_toxcore(TOX_KILL, 0, 0, NULL);
-    }
+    debug_notice("XLIB:\tMain is finished, exiting now.\n");
+    postmessage_utoxav(UTOXAV_KILL, 0, 0, NULL);
+    postmessage_toxcore(TOX_KILL, 0, 0, NULL);
 
     /* free client thread stuff */
     if (libgtk) {

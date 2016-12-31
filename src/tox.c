@@ -475,15 +475,13 @@ void toxcore_thread(void *UNUSED(args)) {
             tox_iterate(tox, NULL);
 
             if (settings.testing_mode && testing_iterations) {
+                if (testing_iterations % 100 == 0) {
+                    debug("Toxcore:\tIterations remaining %lu\n", testing_iterations);
+                }
                 if (!--testing_iterations) {
                     debug_error("Toxcore:\tTest count reached\n");
                     debug_error("Toxcore:\tExiting...\n");
-                    reconfig = 0;
-                    postmessage_utoxav(UTOXAV_KILL, 0, 0, NULL);
-                    break;
-                }
-                if (testing_iterations % 100 == 0) {
-                    debug("Toxcore:\tIterations remaining %lu\n", testing_iterations);
+                    postmessage_utox(FORCE_EXIT, 0, 0, NULL);
                 }
             }
 

@@ -10,6 +10,8 @@ typedef enum utox_msg_id {
     DHT_CONNECTED,
     DNS_RESULT,
 
+    FORCE_EXIT,
+
     /* OS interaction/integration messages*/
     AUDIO_IN_DEVICE,
     AUDIO_OUT_DEVICE,
