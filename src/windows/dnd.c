@@ -76,17 +76,31 @@ HRESULT __stdcall dnd_Drop(IDropTarget *UNUSED(lpMyObj), IDataObject *pDataObjec
         int count = DragQueryFile(h, ~0, NULL, 0);
         debug_info("%u files dropped\n", count);
 
-        char *paths = calloc(count, sizeof(uint8_t) * UTOX_FILE_NAME_LENGTH);
-        if (paths) {
-            char *p = paths;
-            for(int i = 0; i != count; i++) {
-                p += DragQueryFile(h, i, p, UTOX_FILE_NAME_LENGTH);
-                *p++ = '\n';
+        for(int i = 0; i < count; i++) {
+            debug_notice("WINDND:\tSending file number %i\n", i);
+            UTOX_MSG_FT *msg = calloc(count, sizeof(UTOX_MSG_FT));
+            if (!msg) {
+                debug_error("WINDND:\tUnable to alloc for UTOX_MSG_FT\n");
+                return 0;
             }
 
-            postmessage_toxcore(TOX_FILE_SEND_NEW, (FRIEND*)flist_get_selected()->data - friend, 0xFFFF, paths);
-        } else {
-            debug_error("DnD:\tUnable to get memory for drag and drop file names... this is bad!\n");
+            uint8_t *path = calloc(UTOX_FILE_NAME_LENGTH, sizeof(uint8_t));
+            if (!path) {
+                debug_error("WINDND:\tUnable to alloc for UTOX_MSG_FT\n");
+                return 0;
+            }
+
+            DragQueryFile(h, i, path, UTOX_FILE_NAME_LENGTH);
+
+            msg->file = fopen(path, "rb");
+            if (!msg->file) {
+                debug_error("WINDND:\tUnable to read file %s\n", path);
+                return 0;
+            }
+
+            msg->name = path;
+            postmessage_toxcore(TOX_FILE_SEND_NEW, ((FRIEND*)flist_get_selected()->data)->number, 0, msg);
+            debug_info("WINDND:\tFile number %i sent!\n", i);
         }
 
         ReleaseStgMedium(&medium);

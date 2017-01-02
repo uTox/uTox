@@ -868,7 +868,7 @@ uint32_t ft_send_file(Tox *tox, uint32_t friend_number, FILE *file, uint8_t *pat
     const uint8_t *name;
     size_t name_length = 0;
     name = path + path_length;
-    while (*--name != '/') {
+    while (*--name != '\\') {
         ++name_length;
     }
     ++name;
@@ -877,6 +877,23 @@ uint32_t ft_send_file(Tox *tox, uint32_t friend_number, FILE *file, uint8_t *pat
     TOX_ERR_FILE_SEND error = 0;
     uint32_t file_number = tox_file_send(tox, friend_number, TOX_FILE_KIND_DATA, size, NULL, name, name_length, &error);
     if (error || file_number == UINT32_MAX) {
+        switch (error) {
+            case TOX_ERR_FILE_SEND_NULL: {
+                debug_error("FileTransfer:\tError, Toxcore reports NULL\n"); break;
+            }
+            case TOX_ERR_FILE_SEND_FRIEND_NOT_FOUND: {
+                debug_error("FileTransfer:\tError, friend Not found.\n"); break;
+            }
+            case TOX_ERR_FILE_SEND_FRIEND_NOT_CONNECTED: {
+                debug_error("FileTransfer:\tError, friend not connected.\n"); break;
+            }
+            case TOX_ERR_FILE_SEND_NAME_TOO_LONG: {
+                debug_error("FileTransfer:\tError, name too long '%s'\n", name); break;
+            }
+            case TOX_ERR_FILE_SEND_TOO_MANY: {
+                debug_error("FileTransfer:\tError, too many files in progress\n"); break;
+            }
+        }
         debug_error("tox_file_send() failed error code %u\n", error);
         return UINT32_MAX;
     }
