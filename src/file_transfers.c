@@ -892,6 +892,24 @@ uint32_t ft_send_file(Tox *tox, uint32_t friend_number, FILE *file, uint8_t *pat
     TOX_ERR_FILE_SEND error = 0;
     uint32_t file_number = tox_file_send(tox, friend_number, TOX_FILE_KIND_DATA, size, NULL, name, name_length, &error);
     if (error || file_number == UINT32_MAX) {
+        switch (error) {
+            case TOX_ERR_FILE_SEND_NULL: {
+                debug_error("FileTransfer:\tError, Toxcore reports NULL\n"); break;
+            }
+            case TOX_ERR_FILE_SEND_FRIEND_NOT_FOUND: {
+                debug_error("FileTransfer:\tError, friend Not found.\n"); break;
+            }
+            case TOX_ERR_FILE_SEND_FRIEND_NOT_CONNECTED: {
+                debug_error("FileTransfer:\tError, friend not connected.\n"); break;
+            }
+            case TOX_ERR_FILE_SEND_NAME_TOO_LONG: {
+                debug_error("FileTransfer:\tError, name too long '%s'\n", name); break;
+            }
+            case TOX_ERR_FILE_SEND_TOO_MANY: {
+                debug_error("FileTransfer:\tError, too many files in progress\n"); break;
+            }
+            case TOX_ERR_FILE_SEND_OK: { break; }
+        }
         debug_error("tox_file_send() failed error code %u\n", error);
         return UINT32_MAX;
     }
@@ -1052,6 +1070,10 @@ static void outgoing_file_callback_chunk(Tox *tox, uint32_t friend_number, uint3
 
 int utox_file_start_write(uint32_t friend_number, uint32_t file_number, const char *filepath) {
     FILE_TRANSFER *ft = get_file_transfer(friend_number, file_number);
+    if (!ft) {
+        debug_error("FileTransfer:\tUnable to grab a file to start the write friend %u, file %u.",
+                    friend_number, file_number);
+    }
 
     snprintf((char *)ft->path, UTOX_FILE_NAME_LENGTH, "%s", filepath);
 
