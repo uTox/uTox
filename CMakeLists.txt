@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.0)
 project(uTox LANGUAGES C)
 
 # This version is for the entire project. All libraries (core, av, ...) move in
