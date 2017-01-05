@@ -104,6 +104,7 @@ uint8_t **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, uin
     }
 
     uint8_t **data = calloc(1, sizeof(*data) * count + 1);
+    uint8_t **block = data;
 
     if (!data) {
         debug_error("Log read:\tCouldn't allocate memory for log entries.");
@@ -138,9 +139,8 @@ uint8_t **utox_load_chatlog(char hex[TOX_PUBLIC_KEY_SIZE * 2], size_t *size, uin
                     *size = 0;
                 }
 
-                free(data);
                 fclose(file);
-                return NULL;
+                return data - actual_count;
             }
             MSG_TEXT *msg = calloc(1, sizeof(MSG_TEXT) + header.msg_length);
             msg->our_msg  = header.author;
