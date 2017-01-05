@@ -33,7 +33,13 @@ add_library(utoxNATIVE STATIC
     filesys.c
     )
 
-target_link_libraries(utoxNATIVE icon v4lconvert X11 Xext Xrender fontconfig ${FREETYPE_LIBRARIES} resolv dl )
+find_package(X11 REQUIRED)
+message("X include: ${X11_INCLUDE_DIR}")
+message("X library: ${X11_LIBRARIES}")
+message("Xrender include: ${X11_Xrender_INCLUDE_PATH}")
+message("Xrender library: ${X11_Xrender_LIB}")
+
+target_link_libraries(utoxNATIVE icon v4lconvert ${X11_LIBRARIES} ${X11_Xrender_LIB} fontconfig ${FREETYPE_LIBRARIES} resolv dl )
 
 install(FILES
     ../utox.desktop
