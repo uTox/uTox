@@ -2,7 +2,11 @@
 
 #include "main.h"
 
+#include "window.h"
+
 #include "../ui/svg.h"
+
+UTOX_WINDOW *curr = NULL;
 
 void *bitmap[BM_ENDMARKER + 1];
 
@@ -38,8 +42,8 @@ void drawalpha(int bm, int x, int y, int width, int height, uint32_t color) {
 
     // create temporary bitmap we'll combine the alpha and colors on
     uint32_t *out_pixel;
-    HBITMAP   temp = CreateDIBSection(hdcMem, &bmi, DIB_RGB_COLORS, (void **)&out_pixel, NULL, 0);
-    SelectObject(hdcMem, temp);
+    HBITMAP   temp = CreateDIBSection(curr->mem_DC, &bmi, DIB_RGB_COLORS, (void **)&out_pixel, NULL, 0);
+    SelectObject(curr->mem_DC, temp);
 
     // create pixels for the drawable bitmap based on the alpha value of
     // each pixel in the alpha bitmap and the color given by 'color',
@@ -55,7 +59,7 @@ void drawalpha(int bm, int x, int y, int width, int height, uint32_t color) {
     }
 
     // draw temporary bitmap on screen
-    AlphaBlend(active_DC, x, y, width, height, hdcMem, 0, 0, width, height, blend_function);
+    AlphaBlend(curr->draw_DC, x, y, width, height, curr->mem_DC, 0, 0, width, height, blend_function);
 
     // clean up
     DeleteObject(temp);
@@ -87,8 +91,8 @@ void draw_image(const NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_
 
     if (!image_is_stretched(image)) {
 
-        SelectObject(hdcMem, image->bitmap);
-        drawdc = hdcMem;
+        SelectObject(curr->mem_DC, image->bitmap);
+        drawdc = curr->mem_DC;
 
     } else {
         // temporary device context for the scaling operation
@@ -98,26 +102,26 @@ void draw_image(const NATIVE_IMAGE *image, int x, int y, uint32_t width, uint32_
         SetStretchBltMode(drawdc, image->stretch_mode);
 
         // scaled bitmap will be drawn onto this bitmap
-        tmp = CreateCompatibleBitmap(hdcMem, image->scaled_width, image->scaled_height);
+        tmp = CreateCompatibleBitmap(curr->mem_DC, image->scaled_width, image->scaled_height);
         SelectObject(drawdc, tmp);
 
-        SelectObject(hdcMem, image->bitmap);
+        SelectObject(curr->mem_DC, image->bitmap);
 
         // stretch image onto temporary bitmap
         if (image->has_alpha) {
-            AlphaBlend(drawdc, 0, 0, image->scaled_width, image->scaled_height, hdcMem, 0, 0, image->width,
+            AlphaBlend(drawdc, 0, 0, image->scaled_width, image->scaled_height, curr->mem_DC, 0, 0, image->width,
                        image->height, blend_function);
         } else {
-            StretchBlt(drawdc, 0, 0, image->scaled_width, image->scaled_height, hdcMem, 0, 0, image->width,
+            StretchBlt(drawdc, 0, 0, image->scaled_width, image->scaled_height, curr->mem_DC, 0, 0, image->width,
                        image->height, SRCCOPY);
         }
     }
 
     // clip and draw
     if (image->has_alpha) {
-        AlphaBlend(active_DC, x, y, width, height, drawdc, imgx, imgy, width, height, blend_function);
+        AlphaBlend(curr->draw_DC, x, y, width, height, drawdc, imgx, imgy, width, height, blend_function);
     } else {
-        BitBlt(active_DC, x, y, width, height, drawdc, imgx, imgy, SRCCOPY);
+        BitBlt(curr->draw_DC, x, y, width, height, drawdc, imgx, imgy, SRCCOPY);
     }
 
     // clean up
@@ -138,14 +142,14 @@ void draw_inline_image(uint8_t *img_data, size_t UNUSED(size), uint16_t w, uint1
                           .biCompression = BI_RGB,
                       } };
 
-    SetDIBitsToDevice(active_DC, x, y, w, h, 0, 0, 0, h, img_data, &bmi, DIB_RGB_COLORS);
+    SetDIBitsToDevice(curr->draw_DC, x, y, w, h, 0, 0, 0, h, img_data, &bmi, DIB_RGB_COLORS);
 }
 
 void drawtext(int x, int y, const char *str, uint16_t length) {
     wchar_t out[length];
     length = utf8tonative(str, out, length);
 
-    TextOutW(active_DC, x, y, out, length);
+    TextOutW(curr->draw_DC, x, y, out, length);
 }
 
 int drawtext_getwidth(int x, int y, const char *str, uint16_t length) {
@@ -153,8 +157,8 @@ int drawtext_getwidth(int x, int y, const char *str, uint16_t length) {
     length = utf8tonative(str, out, length);
 
     SIZE size;
-    TextOutW(active_DC, x, y, out, length);
-    GetTextExtentPoint32W(active_DC, out, length, &size);
+    TextOutW(curr->draw_DC, x, y, out, length);
+    GetTextExtentPoint32W(curr->draw_DC, out, length, &size);
     return size.cx;
 }
 
@@ -163,7 +167,7 @@ void drawtextwidth(int x, int width, int y, const char *str, uint16_t length) {
     length = utf8tonative(str, out, length);
 
     RECT r = { x, y, x + width, y + 256 };
-    DrawTextW(active_DC, out, length, &r, DT_SINGLELINE | DT_END_ELLIPSIS | DT_NOPREFIX);
+    DrawTextW(curr->draw_DC, out, length, &r, DT_SINGLELINE | DT_END_ELLIPSIS | DT_NOPREFIX);
 }
 
 void drawtextwidth_right(int x, int width, int y, const char *str, uint16_t length) {
@@ -171,7 +175,7 @@ void drawtextwidth_right(int x, int width, int y, const char *str, uint16_t leng
     length = utf8tonative(str, out, length);
 
     RECT r = { x, y, x + width, y + 256 };
-    DrawTextW(active_DC, out, length, &r, DT_SINGLELINE | DT_END_ELLIPSIS | DT_NOPREFIX | DT_RIGHT);
+    DrawTextW(curr->draw_DC, out, length, &r, DT_SINGLELINE | DT_END_ELLIPSIS | DT_NOPREFIX | DT_RIGHT);
 }
 
 void drawtextrange(int x, int x2, int y, const char *str, uint16_t length) {
@@ -179,7 +183,7 @@ void drawtextrange(int x, int x2, int y, const char *str, uint16_t length) {
     length = utf8tonative(str, out, length);
 
     RECT r = { x, y, x2, y + 256 };
-    DrawTextW(active_DC, out, length, &r, DT_SINGLELINE | DT_END_ELLIPSIS | DT_NOPREFIX);
+    DrawTextW(curr->draw_DC, out, length, &r, DT_SINGLELINE | DT_END_ELLIPSIS | DT_NOPREFIX);
 }
 
 void drawtextrangecut(int x, int x2, int y, const char *str, uint16_t length) {
@@ -187,7 +191,7 @@ void drawtextrangecut(int x, int x2, int y, const char *str, uint16_t length) {
     length = utf8tonative(str, out, length);
 
     RECT r = { x, y, x2, y + 256 };
-    DrawTextW(active_DC, out, length, &r, DT_SINGLELINE | DT_NOPREFIX);
+    DrawTextW(curr->draw_DC, out, length, &r, DT_SINGLELINE | DT_NOPREFIX);
 }
 
 int textwidth(const char *str, uint16_t length) {
@@ -195,7 +199,7 @@ int textwidth(const char *str, uint16_t length) {
     length = utf8tonative(str, out, length);
 
     SIZE size;
-    GetTextExtentPoint32W(active_DC, out, length, &size);
+    GetTextExtentPoint32W(curr->draw_DC, out, length, &size);
     return size.cx;
 }
 
@@ -205,7 +209,7 @@ int textfit(const char *str, uint16_t len, int width) {
 
     int  fit;
     SIZE size;
-    GetTextExtentExPointW(active_DC, out, length, width, &fit, NULL, &size);
+    GetTextExtentExPointW(curr->draw_DC, out, length, width, &fit, NULL, &size);
 
     return WideCharToMultiByte(CP_UTF8, 0, out, fit, (char *)str, len, NULL, 0);
 }
@@ -217,47 +221,47 @@ int textfit_near(const char *str, uint16_t len, int width) {
 
     int  fit;
     SIZE size;
-    GetTextExtentExPointW(active_DC, out, length, width, &fit, NULL, &size);
+    GetTextExtentExPointW(curr->draw_DC, out, length, width, &fit, NULL, &size);
 
     return WideCharToMultiByte(CP_UTF8, 0, out, fit, (char *)str, len, NULL, 0);
 }
 
 void draw_rect_frame(int x, int y, int width, int height, uint32_t color) {
     RECT r = { x, y, x + width, y + height };
-    SetDCBrushColor(active_DC, color);
-    FrameRect(active_DC, &r, hdc_brush);
+    SetDCBrushColor(curr->draw_DC, color);
+    FrameRect(curr->draw_DC, &r, hdc_brush);
 }
 
 void draw_rect_fill(int x, int y, int width, int height, uint32_t color) {
     RECT r = { x, y, x + width, y + height };
-    SetDCBrushColor(active_DC, color);
-    FillRect(active_DC, &r, hdc_brush);
+    SetDCBrushColor(curr->draw_DC, color);
+    FillRect(curr->draw_DC, &r, hdc_brush);
 }
 
 void drawrect(int x, int y, int right, int bottom, uint32_t color) {
     RECT r = { x, y, right, bottom };
-    SetDCBrushColor(active_DC, color);
-    FillRect(active_DC, &r, hdc_brush);
+    SetDCBrushColor(curr->draw_DC, color);
+    FillRect(curr->draw_DC, &r, hdc_brush);
 }
 
 void drawhline(int x, int y, int x2, uint32_t color) {
     RECT r = { x, y, x2, y + 1 };
-    SetDCBrushColor(active_DC, color);
-    FillRect(active_DC, &r, hdc_brush);
+    SetDCBrushColor(curr->draw_DC, color);
+    FillRect(curr->draw_DC, &r, hdc_brush);
 }
 
 void drawvline(int x, int y, int y2, uint32_t color) {
     RECT r = { x, y, x + 1, y2 };
-    SetDCBrushColor(active_DC, color);
-    FillRect(active_DC, &r, hdc_brush);
+    SetDCBrushColor(curr->draw_DC, color);
+    FillRect(curr->draw_DC, &r, hdc_brush);
 }
 
 void setfont(int id) {
-    SelectObject(active_DC, font[id]);
+    SelectObject(curr->draw_DC, font[id]);
 }
 
 uint32_t setcolor(uint32_t color) {
-    return SetTextColor(active_DC, color);
+    return SetTextColor(curr->draw_DC, color);
 }
 
 RECT clip[16];
@@ -274,29 +278,38 @@ void pushclip(int left, int top, int width, int height) {
     r->bottom = bottom;
 
     HRGN rgn = CreateRectRgn(left, top, right, bottom);
-    SelectClipRgn(active_DC, rgn);
+    SelectClipRgn(curr->draw_DC, rgn);
     DeleteObject(rgn);
 }
 
 void popclip(void) {
     clipk--;
     if (!clipk) {
-        SelectClipRgn(active_DC, NULL);
+        SelectClipRgn(curr->draw_DC, NULL);
         return;
     }
 
     RECT *r = &clip[clipk - 1];
 
     HRGN rgn = CreateRectRgn(r->left, r->top, r->right, r->bottom);
-    SelectClipRgn(active_DC, rgn);
+    SelectClipRgn(curr->draw_DC, rgn);
     DeleteObject(rgn);
 }
 
 void enddraw(int x, int y, int width, int height) {
-    SelectObject(target_DC, active_BM);
-    BitBlt(target_DC, x, y, width, height, active_DC, x, y, SRCCOPY);
+    SelectObject(curr->window_DC, curr->draw_BM);
+    BitBlt(curr->window_DC, x, y, width, height, curr->draw_DC, x, y, SRCCOPY);
 }
 
 void loadalpha(int bm, void *data, int UNUSED(width), int UNUSED(height)) {
     bitmap[bm] = data;
+}
+
+bool draw_set_curr_win(UTOX_WINDOW *window) {
+    if (curr != window) {
+        curr = window;
+        return true;
+    }
+
+    return false;
 }

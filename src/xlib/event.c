@@ -176,7 +176,7 @@ static bool popup_event(XEvent event, UTOX_WINDOW *popup) {
     switch (event.type) {
         case Expose: {
             debug_error("expose\n");
-            draw_window_set(popup);
+            draw_set_curr_win(popup);
             panel_draw(&panel_notify, 0, 0, 400, 150);
             XCopyArea(display, popup->drawbuf, popup->window, popup->gc, 0, 0, 400, 150, 0, 0);
             break;

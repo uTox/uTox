@@ -771,7 +771,7 @@ int main(int argc, char *argv[]) {
     #endif
 
     /* draw */
-    draw_window_set(&main_window);
+    draw_set_curr_win(&main_window);
     panel_draw(&panel_root, 0, 0, settings.window_width, settings.window_height);
 
     /* event loop */
@@ -787,7 +787,7 @@ int main(int argc, char *argv[]) {
         }
 
         if (_redraw) {
-            draw_window_set(&main_window);
+            draw_set_curr_win(&main_window);
             panel_draw(&panel_root, 0, 0, settings.window_width, settings.window_height);
             _redraw = 0;
         }

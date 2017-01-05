@@ -67,6 +67,7 @@ if(WIN32)
         src/windows/window.c
         src/windows/notify.c
         src/windows/screen_grab.c
+        src/windows/events.c
         )
     target_link_libraries(utoxNATIVE
         iphlpapi    ws2_32      gdi32       msimg32

@@ -4,21 +4,20 @@
 
 #include "../../langs/i18n_decls.h"
 
-#include <windows.h>
-
-#include <dshow.h>
-#include <qedit.h>
-// amvideo.h must be included after dshow
-#include <amvideo.h>
 
 #ifdef __CRT__NO_INLINE
 #undef __CRT__NO_INLINE
 #define DID_UNDEFINE__CRT__NO_INLINE
 #include <dshow.h>
+#include <qedit.h>
 #ifdef DID_UNDEFINE__CRT__NO_INLINE
 #define __CRT__NO_INLINE
 #endif
 #endif
+
+// amvideo.h must be included after dshow
+#include <amvideo.h>
+#include <windows.h>
 
 IGraphBuilder * pGraph;
 IBaseFilter *   pGrabberF;
@@ -48,12 +47,16 @@ void video_begin(uint32_t id, char *name, uint16_t name_length, uint16_t width, 
         return;
     }
 
-    HWND *  h = &video_hwnd[id];
-    wchar_t out[name_length + 1];
-    int     len = utf8tonative(name, out, name_length);
-    out[len]    = 0;
+    HWND *h = &video_hwnd[id];
 
-    RECT r = {.left = 0, .top = 0, .right = width, .bottom = height };
+
+    RECT r = {
+        .left = 0,
+        .right = width,
+        .top = 0,
+        .bottom = height
+    };
+
     AdjustWindowRect(&r, WS_OVERLAPPEDWINDOW, 0);
 
     width  = r.right - r.left;
@@ -67,7 +70,7 @@ void video_begin(uint32_t id, char *name, uint16_t name_length, uint16_t width, 
         height = GetSystemMetrics(SM_CYSCREEN);
     }
 
-    *h = CreateWindowExW(0, L"uTox", out, WS_OVERLAPPEDWINDOW, 0, 0, width, height, NULL, NULL, hinstance, NULL);
+    *h = native_window_create_video(0, 0, width, height);
 
     ShowWindow(*h, SW_SHOW);
 }

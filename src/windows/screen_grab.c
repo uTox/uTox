@@ -182,7 +182,7 @@ void native_screen_grab_desktop(bool video) {
     }
 
     SetLayeredWindowAttributes(grab_window, 0xFFFFFF, 128, LWA_ALPHA | LWA_COLORKEY);
-    // UpdateLayeredWindow(hwnd, NULL, NULL, NULL, NULL, NULL, 0xFFFFFF, ULW_ALPHA | ULW_COLORKEY);
+    // UpdateLayeredWindow(main_window.window, NULL, NULL, NULL, NULL, NULL, 0xFFFFFF, ULW_ALPHA | ULW_COLORKEY);
 
     ShowWindow(grab_window, SW_SHOW);
     SetForegroundWindow(grab_window);

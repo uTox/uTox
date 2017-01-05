@@ -31,8 +31,6 @@ float scale     = 1.0;
 bool  connected = false;
 bool  havefocus;
 
-HWND hwnd = NULL;
-
 /** Translate a char* from UTF-8 encoding to OS native;
  *
  * Accepts char pointer, native array pointer, length of input;
@@ -61,7 +59,7 @@ void openfilesend(void) {
 
     OPENFILENAME ofn = {
         .lStructSize = sizeof(OPENFILENAME),
-        .hwndOwner   = hwnd,
+        .hwndOwner   = main_window.window,
         .lpstrFile   = filepath,
         .nMaxFile    = UTOX_FILE_NAME_LENGTH * 10,
         .Flags       = OFN_EXPLORER | OFN_ALLOWMULTISELECT | OFN_FILEMUSTEXIST,
@@ -92,7 +90,7 @@ void openfileavatar(void) {
                        "PNG Files\0*.PNG\0"
                        "JPG Files\0*.JPG;*.JPEG\0"
                        "\0",
-        .hwndOwner = hwnd,
+        .hwndOwner = main_window.window,
         .lpstrFile = filepath,
         .nMaxFile  = UTOX_FILE_NAME_LENGTH,
         .Flags     = OFN_EXPLORER | OFN_FILEMUSTEXIST,
@@ -144,7 +142,7 @@ void savefiledata(FILE_TRANSFER *file) {
 
     OPENFILENAME ofn = {
         .lStructSize = sizeof(OPENFILENAME),
-        .hwndOwner   = hwnd,
+        .hwndOwner   = main_window.window,
         .lpstrFile   = path,
         .nMaxFile    = UTOX_FILE_NAME_LENGTH,
         .Flags       = OFN_EXPLORER | OFN_NOCHANGEDIR | OFN_NOREADONLYRETURN | OFN_OVERWRITEPROMPT,
@@ -185,7 +183,7 @@ int native_to_utf8str(wchar_t *str_in, char *str_out, uint32_t max_size) {
 }
 
 void postmessage_utox(UTOX_MSG msg, uint16_t param1, uint16_t param2, void *data) {
-    PostMessage(hwnd, WM_TOX + (msg), ((param1) << 16) | (param2), (LPARAM)data);
+    PostMessage(main_window.window, WM_TOX + (msg), ((param1) << 16) | (param2), (LPARAM)data);
 }
 
 void init_ptt(void) {
@@ -233,12 +231,12 @@ void setselection(char *UNUSED(data), uint16_t UNUSED(length)) {}
 /** Toggles the main window to/from hidden to tray/shown. */
 void togglehide(int show) {
     if (hidden || show) {
-        ShowWindow(hwnd, SW_RESTORE);
-        SetForegroundWindow(hwnd);
+        ShowWindow(main_window.window, SW_RESTORE);
+        SetForegroundWindow(main_window.window);
         redraw();
         hidden = false;
     } else {
-        ShowWindow(hwnd, SW_HIDE);
+        ShowWindow(main_window.window, SW_HIDE);
         hidden = true;
     }
 }
@@ -266,9 +264,9 @@ void ShowContextMenu(void) {
 
         // note:    must set window to the foreground or the
         //          menu won't disappear when it should
-        SetForegroundWindow(hwnd);
+        SetForegroundWindow(main_window.window);
 
-        TrackPopupMenu(hMenu, TPM_BOTTOMALIGN, pt.x, pt.y, 0, hwnd, NULL);
+        TrackPopupMenu(hMenu, TPM_BOTTOMALIGN, pt.x, pt.y, 0, main_window.window, NULL);
         DestroyMenu(hMenu);
     }
 }
@@ -292,7 +290,7 @@ void copy(int value) {
     wchar_t *d    = GlobalLock(hMem);
     utf8tonative(data, d, len + 1); // because data is nullterminated
     GlobalUnlock(hMem);
-    OpenClipboard(hwnd);
+    OpenClipboard(main_window.window);
     EmptyClipboard();
     SetClipboardData(CF_UNICODETEXT, hMem);
     CloseClipboard();
@@ -377,11 +375,11 @@ void paste(void) {
             tempdc = CreateCompatibleDC(NULL);
             SelectObject(tempdc, h);
 
-            copy = CreateCompatibleBitmap(hdcMem, bm.bmWidth, bm.bmHeight);
-            SelectObject(hdcMem, copy);
-            BitBlt(hdcMem, 0, 0, bm.bmWidth, bm.bmHeight, tempdc, 0, 0, SRCCOPY);
+            copy = CreateCompatibleBitmap(main_window.mem_DC, bm.bmWidth, bm.bmHeight);
+            SelectObject(main_window.mem_DC, copy);
+            BitBlt(main_window.mem_DC, 0, 0, bm.bmWidth, bm.bmHeight, tempdc, 0, 0, SRCCOPY);
 
-            sendbitmap(hdcMem, copy, bm.bmWidth, bm.bmHeight);
+            sendbitmap(main_window.mem_DC, copy, bm.bmWidth, bm.bmHeight);
 
             DeleteDC(tempdc);
         }
@@ -418,7 +416,7 @@ NATIVE_IMAGE *utox_image_to_native(const UTOX_IMAGE data, size_t size, uint16_t 
     // create device independent bitmap, we can write the bytes to out
     // to put them in the bitmap
     uint8_t *out;
-    HBITMAP  bmp = CreateDIBSection(hdcMem, &bmi, DIB_RGB_COLORS, (void **)&out, NULL, 0);
+    HBITMAP  bmp = CreateDIBSection(main_window.mem_DC, &bmi, DIB_RGB_COLORS, (void **)&out, NULL, 0);
 
     // convert RGBA data to internal format
     // pre-applying the alpha if we're keeping the alpha channel,
@@ -503,12 +501,12 @@ void notify(char *title, uint16_t title_length, const char *msg, uint16_t msg_le
         return;
     }
 
-    FlashWindow(hwnd, 1);
+    FlashWindow(main_window.window, 1);
     flashing = true;
 
     NOTIFYICONDATAW nid = {
         .uFlags      = NIF_ICON | NIF_INFO,
-        .hWnd        = hwnd,
+        .hWnd        = main_window.window,
         .hIcon       = unread_messages_icon,
         .uTimeout    = 5000,
         .dwInfoFlags = 0,
@@ -531,11 +529,9 @@ void edit_will_deactivate(void) {}
 
 /* Redraws the main UI window */
 void redraw(void) {
-    target_DC = main_hdc;
-    active_DC = hdc;
-    active_BM = hdc_bm;
+    draw_set_curr_win(&main_window);
 
-    SelectObject(active_DC, active_BM);
+    SelectObject(main_window.draw_DC, main_window.draw_BM);
 
     panel_draw(&panel_root, 0, 0, settings.window_width, settings.window_height);
 }
@@ -561,7 +557,9 @@ void update_tray(void) {
     tip_length = self.name_length + 3 + self.statusmsg_length;
 
     NOTIFYICONDATAW nid = {
-        .uFlags = NIF_TIP, .hWnd = hwnd, .cbSize = sizeof(nid),
+        .uFlags = NIF_TIP,
+        .hWnd = main_window.window,
+        .cbSize = sizeof(nid),
     };
 
     utf8_to_nativestr((char *)tip, nid.szTip, tip_length);
@@ -612,11 +610,11 @@ void loadfonts() {
     font[FONT_MSG_LINK] = CreateFontIndirect(&lf);*/
 
     TEXTMETRIC tm;
-    SelectObject(hdc, font[FONT_TEXT]);
-    GetTextMetrics(hdc, &tm);
+    SelectObject(main_window.draw_DC, font[FONT_TEXT]);
+    GetTextMetrics(main_window.draw_DC, &tm);
     font_small_lineheight = tm.tmHeight + tm.tmExternalLeading;
-    // SelectObject(hdc, font[FONT_MSG]);
-    // GetTextMetrics(hdc, &tm);
+    // SelectObject(main_window.draw_DC, font[FONT_MSG]);
+    // GetTextMetrics(main_window.draw_DC, &tm);
     // font_msg_lineheight = tm.tmHeight + tm.tmExternalLeading;
 }
 
@@ -717,16 +715,6 @@ PCHAR *CommandLineToArgvA(PCHAR CmdLine, int *_argc) {
 
     (*_argc) = argc;
     return argv;
-}
-
-/* TODO should this be moved to window.c? */
-static void native_move_window(int x, int y){
-    debug("delta x == %i\n", x);
-    debug("delta y == %i\n", y);
-    SetWindowPos(hwnd, 0, settings.window_x + x, settings.window_y + y, 0, 0,
-                          SWP_NOSIZE | SWP_NOZORDER | SWP_NOREDRAW);
-    settings.window_x += x;
-    settings.window_y += y;
 }
 
 static void tray_icon_init(HWND parent, HICON icon) {
@@ -865,23 +853,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     GlobalFree(argv);
 
     MSG msg;
-    wchar_t classname[]      = L"uTox";
-
-    HICON black_icon     = LoadIcon(hInstance, MAKEINTRESOURCE(101));
-    unread_messages_icon = LoadIcon(hInstance, MAKEINTRESOURCE(102));
 
     cursors_init();
 
-    hinstance = hInstance;
-
-    WNDCLASSW main_window_class = {
-        .style         = CS_OWNDC | CS_DBLCLKS,
-        .lpfnWndProc   = WindowProc,
-        .hInstance     = hInstance,
-        .hIcon         = black_icon,
-        .lpszClassName = classname,
-    };
-    RegisterClassW(&main_window_class);
+    native_window_init(hInstance); // Needed to generate the Windows window class we use.
 
     screen_grab_init(hInstance);
 
@@ -906,28 +881,27 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     save->window_width  = save->window_width < SCALE(MAIN_WIDTH) ? SCALE(MAIN_WIDTH) : save->window_width;
     save->window_height = save->window_height < SCALE(MAIN_HEIGHT) ? SCALE(MAIN_HEIGHT) : save->window_height;
 
-
     char pretitle[128];
     snprintf(pretitle, 128, "%s %s (version : %s)", TITLE, SUB_TITLE, VERSION);
     size_t  title_size = strlen(pretitle) + 1;
     wchar_t title[title_size];
     mbstowcs(title, pretitle, title_size);
 
-    hwnd = window_create_main(classname, title, save->window_x, save->window_y, save->window_width, save->window_height);
+    native_window_create_main(save->window_x, save->window_y, save->window_width, save->window_height);
 
     native_notify_init(hInstance);
-    // native_notify_new(hwnd, hInstance);
+    // native_notify_new(main_window.window, hInstance);
 
     hdc_brush = GetStockObject(DC_BRUSH);
-    tme.hwndTrack = hwnd;
+    tme.hwndTrack = main_window.window;
 
-    tray_icon_init(hwnd, black_icon);
+    tray_icon_init(main_window.window, LoadIcon(hInstance, MAKEINTRESOURCE(101)));
 
-    SetBkMode(hdc, TRANSPARENT);
+    SetBkMode(main_window.draw_DC, TRANSPARENT);
 
-    dnd_init(hwnd);
+    dnd_init(main_window.window);
 
-    // start tox thread (hwnd needs to be set first)
+    // start tox thread (main_window.window needs to be set first)
     thread(toxcore_thread, NULL);
 
     // wait for tox_thread init
@@ -954,10 +928,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     }
 
     if (settings.start_in_tray) {
-        ShowWindow(hwnd, SW_HIDE);
+        ShowWindow(main_window.window, SW_HIDE);
         hidden = true;
     } else {
-        ShowWindow(hwnd, nCmdShow);
+        ShowWindow(main_window.window, nCmdShow);
     }
 
     while (GetMessage(&msg, NULL, 0, 0)) {
@@ -971,7 +945,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
 
     /* cleanup */
 
-    tray_icon_decon(hwnd);
+    tray_icon_decon(main_window.window);
 
     /* wait for threads to exit */
     while (tox_thread_init) {
@@ -979,7 +953,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     }
 
     RECT wndrect = { 0 };
-    GetWindowRect(hwnd, &wndrect);
+    GetWindowRect(main_window.window, &wndrect);
     UTOX_SAVE d = {
         .window_x      = wndrect.left < 0 ? 0 : wndrect.left,
         .window_y      = wndrect.top < 0 ? 0 : wndrect.top,
@@ -991,413 +965,4 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     printf("uTox:\tClean exit.\n");
 
     return false;
-}
-
-#define setstatus(x)                                         \
-    if (self.status != x) {                                  \
-        postmessage_toxcore(TOX_SELF_SET_STATE, x, 0, NULL); \
-        self.status = x;                                     \
-        redraw();                                            \
-    }
-
-/** Handles all callback requests from winmain();
- *
- * handles the window functions internally, and ships off the tox calls to tox
- */
-LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam) {
-    static int mx, my;
-    static bool mdown = false;
-    static int mdown_x, mdown_y;
-
-    if (hwnd && window != hwnd) {if (msg == WM_DESTROY) {
-            if (window == video_hwnd[0]) {
-                if (settings.video_preview) {
-                    settings.video_preview = false;
-                    postmessage_utoxav(UTOXAV_STOP_VIDEO, 0, 0, NULL);
-                }
-
-                return false;
-            }
-
-            int i;
-            for (i = 0; i != countof(friend); i++) {
-                if (video_hwnd[i + 1] == window) {
-                    FRIEND *f = &friend[i];
-                    postmessage_utoxav(UTOXAV_STOP_VIDEO, f->number, 0, NULL);
-                    break;
-                }
-            }
-            if (i == countof(friend)) {
-                debug("this should not happen\n");
-            }
-        }
-
-        return DefWindowProcW(window, msg, wParam, lParam);
-    }
-
-    switch (msg) {
-        case WM_QUIT:
-        case WM_CLOSE:
-        case WM_DESTROY: {
-            if (settings.close_to_tray) {
-                debug("Closing to tray.\n");
-                togglehide(0);
-                return true;
-            } else {
-                PostQuitMessage(0);
-                return false;
-            }
-        }
-
-        case WM_GETMINMAXINFO: {
-            POINT min = { SCALE(MAIN_WIDTH), SCALE(MAIN_HEIGHT) };
-            ((MINMAXINFO *)lParam)->ptMinTrackSize = min;
-
-            break;
-        }
-
-        case WM_CREATE: {
-            main_hdc = GetDC(window);
-            hdc      = CreateCompatibleDC(main_hdc);
-            hdcMem   = CreateCompatibleDC(hdc);
-
-            return false;
-        }
-
-        case WM_SIZE: {
-            switch (wParam) {
-                case SIZE_MAXIMIZED: {
-                    settings.window_maximized = true;
-                    break;
-                }
-
-                case SIZE_RESTORED: {
-                    settings.window_maximized = false;
-                    break;
-                }
-            }
-
-            int w, h;
-
-            w = GET_X_LPARAM(lParam);
-            h = GET_Y_LPARAM(lParam);
-
-            if (w != 0) {
-                RECT r;
-                GetClientRect(window, &r);
-                w = r.right;
-                h = r.bottom;
-
-                settings.window_width  = w;
-                settings.window_height = h;
-
-                ui_set_scale(dropdown_dpi.selected + 6);
-                ui_size(w, h);
-
-                if (hdc_bm) {
-                    DeleteObject(hdc_bm);
-                }
-
-                hdc_bm = CreateCompatibleBitmap(main_hdc, settings.window_width, settings.window_height);
-                SelectObject(main_hdc, hdc_bm);
-                redraw();
-            }
-            break;
-        }
-
-        case WM_SETFOCUS: {
-            if (flashing) {
-                FlashWindow(hwnd, 0);
-                flashing = false;
-
-                NOTIFYICONDATAW nid = {
-                    .uFlags = NIF_ICON,
-                    .hWnd   = hwnd,
-                    .hIcon  = my_icon,
-                    .cbSize = sizeof(nid),
-                };
-
-                Shell_NotifyIconW(NIM_MODIFY, &nid);
-            }
-
-            havefocus = true;
-            break;
-        }
-
-        case WM_KILLFOCUS: {
-            havefocus = false;
-            break;
-        }
-
-        case WM_ERASEBKGND: {
-            return true;
-        }
-
-        case WM_PAINT: {
-            PAINTSTRUCT ps;
-
-            BeginPaint(window, &ps);
-
-            RECT r = ps.rcPaint;
-            BitBlt(main_hdc, r.left, r.top, r.right - r.left, r.bottom - r.top, hdc, r.left, r.top, SRCCOPY);
-
-            EndPaint(window, &ps);
-            return false;
-        }
-
-        case WM_SYSKEYDOWN: // called instead of WM_KEYDOWN when ALT is down or F10 is pressed
-        case WM_KEYDOWN: {
-            bool control = ((GetKeyState(VK_CONTROL) & 0x80) != 0);
-            bool shift   = ((GetKeyState(VK_SHIFT) & 0x80) != 0);
-            bool alt     = ((GetKeyState(VK_MENU) & 0x80) != 0); /* Be careful not to clobber alt+num symbols */
-
-            if (wParam >= VK_NUMPAD0 && wParam <= VK_NUMPAD9) {
-                // normalize keypad and non-keypad numbers
-                wParam = wParam - VK_NUMPAD0 + '0';
-            }
-
-            if (control && wParam == 'C') {
-                copy(1);
-                return false;
-            }
-
-            if (control) {
-                if ((wParam == VK_TAB && shift) || wParam == VK_PRIOR) {
-                    flist_previous_tab();
-                    redraw();
-                    return false;
-                } else if (wParam == VK_TAB || wParam == VK_NEXT) {
-                    flist_next_tab();
-                    redraw();
-                    return false;
-                }
-            }
-
-            if (control && !alt) {
-                if (wParam >= '1' && wParam <= '9') {
-                    flist_selectchat(wParam - '1');
-                    redraw();
-                    return false;
-                } else if (wParam == '0') {
-                    flist_selectchat(9);
-                    redraw();
-                    return false;
-                }
-            }
-
-            if (edit_active()) {
-                if (control) {
-                    switch (wParam) {
-                        case 'V': paste(); return false;
-                        case 'X':
-                            copy(0);
-                            edit_char(KEY_DEL, 1, 0);
-                            return false;
-                    }
-                }
-
-                if (control || ((wParam < 'A' || wParam > 'Z') && wParam != VK_RETURN && wParam != VK_BACK)) {
-                    edit_char(wParam, 1, (control << 2) | shift);
-                }
-            } else {
-                messages_char(wParam);
-                break;
-            }
-
-            break;
-        }
-
-        case WM_CHAR: {
-            if (edit_active()) {
-                if (wParam == KEY_RETURN && (GetKeyState(VK_SHIFT) & 0x80)) {
-                    wParam = '\n';
-                }
-                if (wParam != KEY_TAB) {
-                    edit_char(wParam, 0, 0);
-                }
-                return false;
-            }
-
-            return false;
-        }
-
-        case WM_MOUSEWHEEL: {
-            double delta = (double)GET_WHEEL_DELTA_WPARAM(wParam);
-            mx           = GET_X_LPARAM(lParam);
-            my           = GET_Y_LPARAM(lParam);
-
-            panel_mwheel(&panel_root, mx, my, settings.window_width, settings.window_height,
-                         delta / (double)(WHEEL_DELTA), 1);
-            return false;
-        }
-
-        case WM_MOUSEMOVE: {
-            int x, y, dx, dy;
-
-            x = GET_X_LPARAM(lParam);
-            y = GET_Y_LPARAM(lParam);
-
-            dx = x - mx;
-            dy = y - my;
-            mx = x;
-            my = y;
-
-
-            if (btn_move_window_down) {
-                native_move_window(x - mdown_x, y - mdown_y);
-            }
-
-            cursor = 0;
-            panel_mmove(&panel_root, 0, 0, settings.window_width, settings.window_height, x, y, dx, dy);
-
-            SetCursor(cursors[cursor]);
-
-            if (!mouse_tracked) {
-                TrackMouseEvent(&tme);
-                mouse_tracked = true;
-            }
-
-            return false;
-        }
-
-        case WM_LBUTTONDOWN: {
-            mdown_x = GET_X_LPARAM(lParam);
-            mdown_y = GET_Y_LPARAM(lParam);
-            // Intentional fall through to save the original mdown location.
-        }
-        case WM_LBUTTONDBLCLK: {
-            int x, y;
-            mdown = true;
-
-            x = GET_X_LPARAM(lParam);
-            y = GET_Y_LPARAM(lParam);
-
-            if (x != mx || y != my) {
-                panel_mmove(&panel_root, 0, 0, settings.window_width, settings.window_height, x, y, x - mx, y - my);
-                mx = x;
-                my = y;
-            }
-
-            // double redraw>
-            panel_mdown(&panel_root);
-            if (msg == WM_LBUTTONDBLCLK) {
-                panel_dclick(&panel_root, 0);
-            }
-
-            SetCapture(window);
-            break;
-        }
-
-        case WM_RBUTTONDOWN: {
-            panel_mright(&panel_root);
-            break;
-        }
-
-        case WM_RBUTTONUP: {
-            break;
-        }
-
-        case WM_LBUTTONUP: {
-            ReleaseCapture();
-            break;
-        }
-
-        case WM_CAPTURECHANGED: {
-            if (mdown) {
-                panel_mup(&panel_root);
-                mdown = false;
-            }
-
-            break;
-        }
-
-        case WM_MOUSELEAVE: {
-            ui_mouseleave();
-            mouse_tracked = false;
-            btn_move_window_down = false;
-            debug("mouse leave\n");
-            break;
-        }
-
-
-        case WM_COMMAND: {
-            int menu = LOWORD(wParam); //, msg = HIWORD(wParam);
-
-            switch (menu) {
-                case TRAY_SHOWHIDE: {
-                    togglehide(0);
-                    break;
-                }
-                case TRAY_EXIT: {
-                    PostQuitMessage(0);
-                    break;
-                }
-                case TRAY_STATUS_AVAILABLE: {
-                    setstatus(TOX_USER_STATUS_NONE);
-                    break;
-                }
-                case TRAY_STATUS_AWAY: {
-                    setstatus(TOX_USER_STATUS_AWAY);
-                    break;
-                }
-                case TRAY_STATUS_BUSY: {
-                    setstatus(TOX_USER_STATUS_BUSY);
-                    break;
-                }
-            }
-
-            break;
-        }
-
-        case WM_NOTIFYICON: {
-            int message = LOWORD(lParam);
-
-            switch (message) {
-                case WM_MOUSEMOVE: {
-                    break;
-                }
-
-                case WM_LBUTTONDOWN: {
-                    togglehide(0);
-                    break;
-                }
-                case WM_LBUTTONDBLCLK: {
-                    togglehide(1);
-                    break;
-                }
-
-                case WM_LBUTTONUP: {
-                    break;
-                }
-
-                case WM_RBUTTONDOWN: {
-                    break;
-                }
-
-                case WM_RBUTTONUP:
-                case WM_CONTEXTMENU: {
-                    ShowContextMenu();
-                    break;
-                }
-            }
-            return false;
-        }
-
-        case WM_COPYDATA: {
-            togglehide(1);
-            SetForegroundWindow(window);
-            COPYDATASTRUCT *data = (void *)lParam;
-            if (data->lpData) {
-                do_tox_url(data->lpData, data->cbData);
-            }
-            return false;
-        }
-
-        case WM_TOX ... WM_TOX + 128: {
-            utox_message_dispatch(msg - WM_TOX, wParam >> 16, wParam, (void *)lParam);
-            return false;
-        }
-    }
-
-    return DefWindowProcW(window, msg, wParam, lParam);
 }

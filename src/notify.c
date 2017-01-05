@@ -35,7 +35,7 @@ UTOX_WINDOW *notify_new(void) {
 
     UTOX_WINDOW *w = (UTOX_WINDOW *)window_create_notify(x, y, notify_w, notify_h);
 
-    draw_window_set(w);
+    draw_set_curr_win(w);
     // panel_draw(&panel_notify, 0,0, w->w, w->h);
     // enddraw_notify(0, 0, w->w, w->h);
 

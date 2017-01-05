@@ -124,7 +124,7 @@ UTOX_WINDOW *native_window_create_main(int x, int y, int w, int h, char **argv, 
     uint pid = getpid();
     XChangeProperty(display, main_window.window, a_pid, XA_CARDINAL, 32, PropModeReplace, (uint8_t *)&pid, 1);
 
-    draw_window_set(&main_window);
+    draw_set_curr_win(&main_window);
 
 
     return &main_window;
