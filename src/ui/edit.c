@@ -816,7 +816,7 @@ void edit_paste(char *data, int length, bool select) {
     }
 
     edit_redraw();
-    }
+}
 
 void edit_resetfocus(void) {
     edit_select = 0;

@@ -3,6 +3,8 @@
 
 #include "../window.h"
 
+#include "main.h"
+
 #include <windows.h>
 
 typedef struct native_window {

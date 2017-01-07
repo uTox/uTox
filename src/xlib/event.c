@@ -85,13 +85,13 @@ static void mouse_down(XButtonEvent *event, UTOX_WINDOW *window) {
         }
 
         case Button4: {
-            // FIXME: determine precise deltas if possible
+            // TODO: determine precise deltas if possible
             panel_mwheel(window->_.panel, 0, 0, window->_.w, window->_.h, 1.0, 0);
             break;
         }
 
         case Button5: {
-            // FIXME: determine precise deltas if possible
+            // TODO: determine precise deltas if possible
             panel_mwheel(window->_.panel, 0, 0, window->_.w, window->_.h, -1.0, 0);
             break;
         }
@@ -175,7 +175,7 @@ static bool popup_event(XEvent event, UTOX_WINDOW *popup) {
 
     switch (event.type) {
         case Expose: {
-            debug_error("expose\n");
+            debug("Main window expose\n");
             draw_set_curr_win(popup);
             panel_draw(&panel_notify, 0, 0, 400, 150);
             XCopyArea(display, popup->drawbuf, popup->window, popup->gc, 0, 0, 400, 150, 0, 0);
@@ -186,12 +186,13 @@ static bool popup_event(XEvent event, UTOX_WINDOW *popup) {
              * in case we do, we already have the response ready.  */
             Atom ping = XInternAtom(display, "_NET_WM_PING", 0);
             if ((Atom)event.xclient.data.l[0] == ping) {
-                debug_error("ping\n");
+                debug_notice("ping\n");
                 event.xany.window = root_window;
                 XSendEvent(display, root_window, False, NoEventMask, &event);
             } else {
-                debug_error("not ping\n");
+                debug_notice("not ping\n");
             }
+            break;
         }
         case MotionNotify: {
             mouse_move(&event.xmotion, popup);
@@ -207,7 +208,7 @@ static bool popup_event(XEvent event, UTOX_WINDOW *popup) {
         }
 
         case EnterNotify: {
-            debug_error("EVENT: set focus\n");
+            debug_notice("EVENT: set focus\n");
             window_set_focus(popup);
             break;
         }
@@ -215,8 +216,9 @@ static bool popup_event(XEvent event, UTOX_WINDOW *popup) {
         case LeaveNotify: {
             break;
         }
-        default :{
+        default: {
             debug("other event: %u\n", event.type);
+            break;
         }
 
     }
@@ -285,7 +287,7 @@ bool doevent(XEvent event) {
             }
             #endif
 
-            havefocus      = 1;
+            havefocus      = true;
             XWMHints hints = { 0 };
             XSetWMHints(display, main_window.window, &hints);
             break;
@@ -302,7 +304,7 @@ bool doevent(XEvent event) {
             }
             #endif
 
-            havefocus = 0;
+            havefocus = false;
             break;
         }
 

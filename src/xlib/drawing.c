@@ -1,7 +1,7 @@
 #include "drawing.h"
 
-#include "window.h"
 #include "freetype.h"
+#include "window.h"
 
 #include "../util.h"
 

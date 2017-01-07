@@ -14,7 +14,7 @@ static void redraw_notify(UTOX_WINDOW *win) {
     panel_draw(&panel_notify, 0, 0, 400, 150);
     SelectObject(win->draw_DC, win->draw_BM);
     BitBlt(win->window_DC, win->_.x, win->_.y, win->_.w, win->_.h, win->draw_DC, win->_.x, win->_.y, SRCCOPY);
-    debug_error("redraw end\n");
+    debug("redraw end\n");
 }
 
 static uint16_t notification_number = 0;
@@ -57,7 +57,7 @@ LRESULT CALLBACK notify_msg_sys(HWND window, UINT msg, WPARAM wParam, LPARAM lPa
                 win->window_DC = GetDC(window);
                 win->draw_DC   = CreateCompatibleDC(win->window_DC);
                 win->mem_DC    = CreateCompatibleDC(win->draw_DC);
-                return 0;
+                return false;
             }
             break;
         }
@@ -159,6 +159,22 @@ HWND native_notify_new(HWND parent, HINSTANCE app_instance) {
 
     RECT rect;
     SystemParametersInfo(SPI_GETWORKAREA, 0, &rect, 0);
+
+    // TODO wrap at max screen size
+
+    // RECT rect;
+    // SystemParametersInfo(SPI_GETWORKAREA, 0, &rect, 0);
+
+    // int x = rect.right - notify_x - notify_w;
+    // int y = rect.top   + notify_y + (notify_y + notify_h) * notification_number;
+
+
+    // char pre[128];
+    // snprintf(pre, 128, "uTox popup window %u", notification_number);
+    // size_t  title_size = strlen(pre) + 1;
+    // wchar_t title[title_size];
+    // mbstowcs(title, pre, title_size);
+
 
     // TODO wrap at max screen size
     int x = rect.right - notify_x - notify_w;

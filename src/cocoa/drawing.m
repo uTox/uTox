@@ -451,14 +451,16 @@ void draw_rect_frame(int x, int y, int width, int height, uint32_t color) {
     DRAW_TARGET_CHK()
 
     CGFloat sz   = currently_drawing_into_view.frame.size.height;
-    CGRect  rect = CGRectInset((CGRect){.origin =
-                                           {
-                                               .x = x, .y = sz - y - height,
-                                           },
-                                       .size =
-                                           {
-                                               .width = width, .height = height,
-                                           } },
+    CGRect  rect = CGRectInset((CGRect){
+                                            .origin = {
+                                                        .x = x,
+                                                        .y = sz - y - height,
+                                            },
+                                            .size = {
+                                                        .width = width,
+                                                        .height = height,
+                                            }
+                                        },
                               0.5, 0.5);
 
     [[currently_drawing_into_view color:color] set];
@@ -469,14 +471,16 @@ void draw_rect_fill(int x, int y, int width, int height, uint32_t color) {
     DRAW_TARGET_CHK()
 
     CGFloat sz   = currently_drawing_into_view.frame.size.height;
-    CGRect  rect = {.origin =
-                       {
-                           .x = x, .y = sz - y - height,
-                       },
-                   .size =
-                       {
-                           .width = width, .height = height,
-                       } };
+    CGRect  rect = {
+                        .origin = {
+                           .x = x,
+                           .y = sz - y - height,
+                        },
+                        .size = {
+                           .width = width,
+                           .height = height,
+                        }
+                    };
 
     [[currently_drawing_into_view color:color] set];
     NSRectFill(rect);
