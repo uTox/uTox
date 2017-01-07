@@ -1,5 +1,5 @@
-#ifndef LAYOUT_ROOT_H
-#define LAYOUT_ROOT_H
+#ifndef LAYOUT_NOTIFY_H
+#define LAYOUT_NOTIFY_H
 
 #include "buttons.h"
 #include "draw_helpers.h"

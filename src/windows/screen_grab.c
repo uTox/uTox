@@ -1,7 +1,7 @@
 #include "main.h"
 
-#include "../tox.h"
 #include "../flist.h"
+#include "../tox.h"
 
 #include <windowsx.h>
 
@@ -14,7 +14,7 @@ static bool desktopgrab_video = false;
 static NATIVE_IMAGE *create_utox_image(HBITMAP bmp, bool has_alpha, uint32_t width, uint32_t height) {
     NATIVE_IMAGE *image = malloc(sizeof(NATIVE_IMAGE));
     if (image == NULL) {
-        debug("create_utox_image:\t Could not allocate memory for image.\n");
+        debug_error("create_utox_image:\t Could not allocate memory for image.\n");
         return NULL;
     }
     image->bitmap        = bmp;
@@ -36,7 +36,7 @@ static void sendbitmap(HDC mem, HBITMAP hbm, int width, int height) {
         .bmiHeader = {
             .biSize        = sizeof(BITMAPINFOHEADER),
             .biWidth       = width,
-            .biHeight      = -(int)height,
+            .biHeight      = -height,
             .biPlanes      = 1,
             .biBitCount    = 24,
             .biCompression = BI_RGB,
@@ -62,7 +62,7 @@ static void sendbitmap(HDC mem, HBITMAP hbm, int width, int height) {
     }
 
     int size = 0;
-    uint8_t *out = stbi_write_png_to_mem(bits, 0, width, height, 3, &size);
+    UTOX_IMAGE *out = stbi_write_png_to_mem(bits, 0, width, height, 3, &size);
 
     free(bits);
 
@@ -116,9 +116,9 @@ static LRESULT CALLBACK screen_grab_sys(HWND window, UINT msg, WPARAM wParam, LP
             if (video_grab_y < video_grab_h) {
                 video_grab_h -= video_grab_y;
             } else {
-                const int w  = video_grab_y - video_grab_h;
+                const int h  = video_grab_y - video_grab_h;
                 video_grab_y = video_grab_h;
-                video_grab_h = w;
+                video_grab_h = h;
             }
 
             if (desktopgrab_video) {

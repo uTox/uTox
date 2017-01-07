@@ -77,7 +77,7 @@ void draw_tray_icon(void) {
 
         free(icon);
     } else {
-        debug("Tray no workie, that not gud!\n");
+        debug_error("Tray no workie, that not gud!\n");
     }
 }
 
@@ -125,7 +125,7 @@ void tray_window_event(XEvent event) {
         case ConfigureNotify: {
             XConfigureEvent *ev = &event.xconfigure;
             if (tray_window._.w != ev->width || tray_window._.h != ev->height) {
-                debug("Tray resized w:%i h:%i\n", ev->width, ev->height);
+                debug_notice("Tray resized w:%i h:%i\n", ev->width, ev->height);
 
                 if (ev->width > tray_window._.w || ev->height > tray_window._.h) {
                     tray_window._.w  = ev->width;

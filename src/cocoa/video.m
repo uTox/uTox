@@ -384,12 +384,14 @@ uint16_t native_video_detect(void) {
 + (NSWindow *)createWindow {
 #define START_RECT \
     (CGRect) { 0, 0, 100, 100 }
-    NSWindow *ret =
-        [[uToxIroncladWindow alloc] initWithContentRect:START_RECT
-                                              styleMask:NSHUDWindowMask | NSUtilityWindowMask | NSClosableWindowMask
-                                                  | NSTitledWindowMask | NSResizableWindowMask
-                                                  backing:NSBackingStoreBuffered
-                                                    defer:YES];
+    NSWindow *ret = [[uToxIroncladWindow alloc] initWithContentRect:START_RECT
+                                                          styleMask:NSHUDWindowMask |
+                                                                    NSUtilityWindowMask |
+                                                                    NSClosableWindowMask |
+                                                                    NSTitledWindowMask |
+                                                                    NSResizableWindowMask
+                                                            backing:NSBackingStoreBuffered
+                                                              defer:YES];
     ret.hidesOnDeactivate = NO;
     uToxIroncladView *iv  = [[self alloc] initWithFrame:ret.frame];
     ret.contentView       = iv;
@@ -410,8 +412,8 @@ uint16_t native_video_detect(void) {
 }
 
 - (void)resizeSubviewsWithOldSize:(NSSize)oldSize {
- [super resizeSubviewsWithOldSize:oldSize];
- [_videoContent checkSize];
+    [super resizeSubviewsWithOldSize:oldSize];
+    [_videoContent checkSize];
 }
 
 - (void)displayImage:(uint8_t *)rgba w:(uint16_t)width h:(uint16_t)height {
@@ -492,8 +494,10 @@ void video_begin(uint32_t _id, char *name, uint16_t name_length, uint16_t width,
         return;
 
     uToxIroncladWindow *video_win = (uToxIroncladWindow *)[uToxIroncladView createWindow];
-    video_win.title =
-        [[[NSString alloc] initWithBytes:name length:name_length encoding:NSUTF8StringEncoding] autorelease];
+    video_win.title = [[[NSString alloc] initWithBytes:name
+                                                length:name_length
+                                              encoding:NSUTF8StringEncoding]
+                                           autorelease];
     // video_win.title = @"Lel";
     video_win.video_id = _id;
 

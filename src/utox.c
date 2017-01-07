@@ -4,7 +4,6 @@
 #include "flist.h"
 #include "friend.h"
 #include "main_native.h"
-#include "notify.h"
 #include "tox.h"
 
 #include "ui/dropdowns.h"

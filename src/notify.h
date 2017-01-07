@@ -1,3 +1,6 @@
+#ifndef NOTIFY_H
+#define NOTIFY_H
+
 #include "window.h"
 
 typedef enum {
@@ -8,3 +11,5 @@ typedef enum {
 UTOX_WINDOW *notify_new(void);
 
 void notify_tween(void);
+
+#endif
