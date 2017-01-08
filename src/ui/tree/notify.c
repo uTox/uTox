@@ -1,5 +1,4 @@
-#ifndef UI_TREE_NOTIFY_H
-#define UI_TREE_NOTIFY_H
+#include "notify.h"
 
 #include "../buttons.h"
 
@@ -37,7 +36,3 @@ BUTTON button_notify_three = {
     .on_mup = btn_notify_three_mup,
     .nodraw = false,
 };
-
-
-
-#endif
