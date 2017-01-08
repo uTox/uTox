@@ -8,7 +8,6 @@
 
 #include <windows.h>
 
-
 static HWND l_main;
 
 HINSTANCE curr_instance;

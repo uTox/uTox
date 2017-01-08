@@ -5,6 +5,8 @@ add_library(utoxUI STATIC
     layout_notify.h
     layout_root.h
 
+    tree/notify.c
+
     button.c
     button.h
     buttons.c

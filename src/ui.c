@@ -11,7 +11,7 @@
 #include "ui/contextmenu.h"
 #include "ui/draw_helpers.h"
 #include "ui/dropdowns.h"
-#include "ui/layout_root.h"
+#include "ui/layout_all.h"
 #include "ui/switches.h"
 #include "ui/text.h"
 #include "ui/tooltip.h"
@@ -231,9 +231,11 @@ void ui_set_scale(uint8_t scale) {
     settings_NOTIFY();
 
 
-
     // FIXME for testing, remove
     CREATE_BUTTON(notify_create, SCALE(2), SCALE(2), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+    CREATE_BUTTON(notify_one, SCALE(0), SCALE(-50), SCALE(40), SCALE(50));
+    CREATE_BUTTON(notify_two, SCALE(200), SCALE(-50), SCALE(40), SCALE(50));
+    CREATE_BUTTON(notify_three, SCALE(-40), SCALE(-50), SCALE(40), SCALE(50));
 
     /* Setting pages */
     CREATE_BUTTON(move_notify, SCALE(-40), SCALE(-40), SCALE(40), SCALE(40));

@@ -3,7 +3,6 @@
 #include "main.h"
 
 #include "../draw.h"
-#include "../ui/layout_notify.h"
 
 bool native_window_init(void) {
     if ((display = XOpenDisplay(NULL)) == NULL) {
@@ -124,7 +123,6 @@ UTOX_WINDOW *native_window_create_main(int x, int y, int w, int h, char **argv, 
     XChangeProperty(display, main_window.window, a_pid, XA_CARDINAL, 32, PropModeReplace, (uint8_t *)&pid, 1);
 
     draw_set_target(&main_window);
-
 
     return &main_window;
 }
