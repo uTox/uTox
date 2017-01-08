@@ -232,11 +232,7 @@ void ui_set_scale(uint8_t scale) {
 
 
     /* Setting pages */
-    CREATE_BUTTON(move_window, 1, SCALE(10), SCALE(40), SCALE(40));
-
-    CREATE_BUTTON(test_notify, SCALE(-80), SCALE(10), SCALE(40), SCALE(40));
     CREATE_BUTTON(move_notify, SCALE(-40), SCALE(-40), SCALE(40), SCALE(40));
-
 
     CREATE_BUTTON(settings_sub_profile, 1, 1, SCALE(18) + UTOX_STR_WIDTH(PROFILE_BUTTON), SCALE(28));
     uint32_t settings_tab_x = 1 + UTOX_STR_WIDTH(PROFILE_BUTTON);

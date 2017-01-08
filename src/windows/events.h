@@ -1,7 +1,7 @@
 #ifndef WIN_EVENTS_H
 #define WIN_EVENTS_H
 
-#include "main.h" // this is just lazy, we can do better
+#include <windows.h>
 
 LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam);
 

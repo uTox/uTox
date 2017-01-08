@@ -9,7 +9,6 @@
 // I'm getting tired, and lazy, all of these are probably not needed
 #include "../flist.h"
 #include "../friend.h"
-#include "../main.h"
 #include "../theme.h"
 #include "../tox.h"
 #include "../util.h"
@@ -64,7 +63,8 @@ LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
     static bool mdown = false;
     static int mdown_x, mdown_y;
 
-    if (main_window.window && window != main_window.window) {if (msg == WM_DESTROY) {
+    if (main_window.window && window != main_window.window) {
+        if (msg == WM_DESTROY) {
             if (window == video_hwnd[0]) {
                 if (settings.video_preview) {
                     settings.video_preview = false;

@@ -269,7 +269,6 @@ panel_main = {
             .disabled = 1,
             .drawfunc = draw_settings_header,
             .child = (PANEL*[]) {
-                (PANEL*)&button_test_notify,
                 &panel_settings_subheader,
                 NULL
             }

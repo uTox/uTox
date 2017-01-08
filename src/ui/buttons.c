@@ -9,8 +9,6 @@
 #include "../screen_grab.h"
 #include "../theme.h"
 
-#include "../notify.h"
-
 /* buttons */
 #ifdef UNITY
 #include "xlib/mmenu.h"
@@ -734,24 +732,6 @@ static void btn_move_window_mup(void) {
     debug("button move up\n");
     btn_move_window_down = false;
 }
-
-BUTTON button_move_window = {
-    .nodraw   = true,
-    .disabled = true,
-    .on_mdn   = btn_move_window_mdn,
-    .on_mup   = btn_move_window_mup,
-};
-
-static void btn_test_notify_mup(void) {
-    debug("button test\n");
-    notify_new();
-}
-
-BUTTON button_test_notify = {
-    .nodraw   = false,
-    .disabled = false,
-    .on_mup   = btn_test_notify_mup,
-};
 
 static void btn_move_notify_mup(void) {
     debug("button tween\n");

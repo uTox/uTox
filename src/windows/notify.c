@@ -1,3 +1,5 @@
+#include "notify.h"
+
 #include "main.h"
 #include "window.h"
 #include "drawing.h"
@@ -9,9 +11,9 @@
 #include <windowsx.h>
 
 static void redraw_notify(UTOX_WINDOW *win) {
-    debug_error("redraw start\n");
+    debug("redraw start\n");
     draw_set_curr_win(win);
-    panel_draw(&panel_notify, 0, 0, 400, 150);
+    panel_draw(&panel_notify, 0, 0, 400, 150); // TODO don't assume 400x150, use *win
     SelectObject(win->draw_DC, win->draw_BM);
     BitBlt(win->window_DC, win->_.x, win->_.y, win->_.w, win->_.h, win->draw_DC, win->_.x, win->_.y, SRCCOPY);
     debug("redraw end\n");

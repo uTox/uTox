@@ -29,16 +29,13 @@ void native_window_init(HINSTANCE instance) {
         .lpszClassName = main_classname,
     };
     RegisterClassW(&main_window_class);
-
 }
 
 void native_window_raze(UTOX_WINDOW *window) {
-
     return;
 }
 
 static bool update_DC_BM(UTOX_WINDOW *win, int w, int h) {
-
     win->window_DC = GetDC(win->window);
 
     win->draw_DC   = CreateCompatibleDC(win->window_DC);
@@ -108,6 +105,10 @@ UTOX_WINDOW *native_window_create_notify(int x, int y, int w, int h) {
 
     if (!popup) {
         popup = calloc(1, sizeof(UTOX_WINDOW)); // FIXME leaks
+        if (!popup) {
+            debug_error("NativeWindow:\tUnable to alloc to create window container\n");
+            return NULL;
+        }
     }
     popup->window = window;
 
