@@ -1,6 +1,5 @@
 #include "main.h"
 
-#include "drawing.h"
 #include "notify.h"
 #include "screen_grab.h"
 #include "window.h"
@@ -529,7 +528,7 @@ void edit_will_deactivate(void) {}
 
 /* Redraws the main UI window */
 void redraw(void) {
-    draw_set_curr_win(&main_window);
+    draw_set_target(&main_window);
 
     SelectObject(main_window.draw_DC, main_window.draw_BM);
 
@@ -890,7 +889,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE UNUSED(hPrevInstance), PSTR cm
     native_window_create_main(save->window_x, save->window_y, save->window_width, save->window_height);
 
     native_notify_init(hInstance);
-    // native_notify_new(main_window.window, hInstance);
 
     hdc_brush = GetStockObject(DC_BRUSH);
     tme.hwndTrack = main_window.window;

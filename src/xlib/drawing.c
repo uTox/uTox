@@ -1,4 +1,4 @@
-#include "drawing.h"
+#include "../draw.h"
 
 #include "freetype.h"
 #include "window.h"
@@ -9,7 +9,7 @@ static uint32_t scolor;
 
 static UTOX_WINDOW *curr;
 
-bool draw_set_curr_win(UTOX_WINDOW *new_win) {
+bool draw_set_target(UTOX_WINDOW *new_win) {
     if (new_win == curr) {
         return false;
     }

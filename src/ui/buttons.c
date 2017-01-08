@@ -6,6 +6,7 @@
 #include "../flist.h"
 #include "../friend.h"
 #include "../groups.h"
+#include "../notify.h"
 #include "../screen_grab.h"
 #include "../theme.h"
 
@@ -735,11 +736,24 @@ static void btn_move_window_mup(void) {
 
 static void btn_move_notify_mup(void) {
     debug("button tween\n");
-    window_tween();
+    // window_tween();
 }
 
 BUTTON button_move_notify = {
     .nodraw   = false,
     .disabled = false,
     .on_mup   = btn_move_notify_mup,
+};
+
+
+static void btn_notify_create_mup(void) {
+    notify_new(NOTIFY_TYPE_MSG);
+}
+
+BUTTON button_notify_create = {
+    .bm           = BM_SBUTTON,
+    .update       = button_setcolors_success,
+    .on_mup       = btn_notify_create_mup,
+    .button_text  = {.i18nal = STR_SHOW },
+    .tooltip_text = {.i18nal = STR_SHOW_UI_PASSWORD },
 };

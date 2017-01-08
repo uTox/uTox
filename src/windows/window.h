@@ -7,7 +7,7 @@
 
 #include <windows.h>
 
-typedef struct native_window {
+struct native_window {
     struct utox_window _;
 
     HWND    window;
@@ -18,20 +18,25 @@ typedef struct native_window {
     HDC     mem_DC;
 
     HBITMAP draw_BM;
+};
 
-} NATIVE_WINDOW;
+UTOX_WINDOW main_window;
 
+HINSTANCE curr_instance;
 
-NATIVE_WINDOW main_window;
+void native_window_init(HINSTANCE instance);
 
-// #include "main.h"
+void native_window_raze(UTOX_WINDOW *window);
 
-// HWND window_create_main(wchar_t *class, wchar_t *title, int x, int y, int w, int h);
+UTOX_WINDOW *native_window_create_main(int x, int y, int w, int h);
 
-// void window_create_video(void);
+HWND native_window_create_video(int x, int y, int w, int h);
 
-// HWND window_create_notify(HWND parent, wchar_t *class, wchar_t *title, int x, int y, int w, int h);
+UTOX_WINDOW *native_window_create_notify(int x, int y, int w, int h, void *panel);
 
-// void winodw_create_screen_select();
+UTOX_WINDOW *native_window_find_notify(HWND window);
 
+void native_window_create_screen_select();
+
+void native_window_tween(UTOX_WINDOW *win);
 #endif

@@ -53,7 +53,7 @@ void native_window_create_video(void);
 
 UTOX_WINDOW *native_window_find_notify(Window window);
 
-UTOX_WINDOW *native_window_create_notify(int x, int y, int w, int h);
+UTOX_WINDOW *native_window_create_notify(int x, int y, int w, int h, void *panel);
 
 void window_set_focus(UTOX_WINDOW *win);
 

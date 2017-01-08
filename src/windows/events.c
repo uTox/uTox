@@ -1,12 +1,12 @@
 #include "events.h"
 
 #include "main.h"
-#include "drawing.h"
 #include "window.h"
 
 #include "../main.h"
 
 // I'm getting tired, and lazy, all of these are probably not needed
+#include "../draw.h"
 #include "../flist.h"
 #include "../friend.h"
 #include "../theme.h"

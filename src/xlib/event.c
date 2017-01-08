@@ -1,11 +1,11 @@
 #include "main.h"
 
-#include "drawing.h"
 #include "window.h"
 
-#include "../notify.h"
+#include "../draw.h"
 #include "../flist.h"
 #include "../friend.h"
+#include "../notify.h"
 #include "../utox.h"
 
 #include "keysym2ucs.h"
@@ -173,13 +173,13 @@ static void mouse_up(XButtonEvent *event, UTOX_WINDOW *window) {
 
 
 // Should return false if the result of the action should close/exit the window.
-static bool popup_event(XEvent event, UTOX_WINDOW *popup) {
+static bool popup_event(XEvent event, UTOX_WINDOW *win) {
     switch (event.type) {
         case Expose: {
             debug("Main window expose\n");
-            draw_set_curr_win(popup);
-            panel_draw(&panel_notify, 0, 0, 400, 150); // TODO don't assume 400x150 pull from *popup
-            XCopyArea(display, popup->drawbuf, popup->window, popup->gc, 0, 0, 400, 150, 0, 0);
+            draw_set_target(win);
+            panel_draw(win->_.panel , 0, 0, win->_.w, win->_.h);
+            XCopyArea(display, win->drawbuf, win->window, win->gc, 0, 0, win->_.w, win->_.h, 0, 0);
             break;
         }
         case ClientMessage: {
@@ -196,21 +196,21 @@ static bool popup_event(XEvent event, UTOX_WINDOW *popup) {
             break;
         }
         case MotionNotify: {
-            mouse_move(&event.xmotion, popup);
+            mouse_move(&event.xmotion, win);
             break;
         }
         case ButtonPress: {
-            mouse_down(&event.xbutton, popup);
+            mouse_down(&event.xbutton, win);
             break;
         }
         case ButtonRelease: {
-            mouse_up(&event.xbutton, popup);
+            mouse_up(&event.xbutton, win);
             break;
         }
 
         case EnterNotify: {
             debug_notice("EVENT: set focus\n");
-            window_set_focus(popup);
+            window_set_focus(win);
             break;
         }
 
@@ -234,8 +234,8 @@ bool doevent(XEvent event) {
 
     if (event.xany.window && event.xany.window != main_window.window) {
 
-        if (window_find_notify(event.xany.window)) {
-            return popup_event(event, window_find_notify(event.xany.window)); // TODO perhaps we should roll this into one?
+        if (native_window_find_notify(event.xany.window)) {
+            return popup_event(event, native_window_find_notify(event.xany.window)); // TODO perhaps we should roll this into one?
             // return true;
         }
 

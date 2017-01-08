@@ -1,9 +1,8 @@
 #include "window.h"
 
-#include "drawing.h"
-
 #include "main.h"
 
+#include "../draw.h"
 #include "../ui/layout_notify.h"
 
 bool native_window_init(void) {
@@ -124,7 +123,7 @@ UTOX_WINDOW *native_window_create_main(int x, int y, int w, int h, char **argv, 
     uint pid = getpid();
     XChangeProperty(display, main_window.window, a_pid, XA_CARDINAL, 32, PropModeReplace, (uint8_t *)&pid, 1);
 
-    draw_set_curr_win(&main_window);
+    draw_set_target(&main_window);
 
 
     return &main_window;
@@ -146,7 +145,7 @@ UTOX_WINDOW *native_window_find_notify(Window window) {
     return NULL;
 }
 
-UTOX_WINDOW *native_window_create_notify(int x, int y, int w, int h) {
+UTOX_WINDOW *native_window_create_notify(int x, int y, int w, int h, void* panel) {
     UTOX_WINDOW *next = NULL;
 
     if (!popup_window.window) {
@@ -156,7 +155,7 @@ UTOX_WINDOW *native_window_create_notify(int x, int y, int w, int h) {
     UTOX_WINDOW *win;
     win = native_window_create(next, "uTox Alert",
                         CWBackPixmap | CWBorderPixel | CWEventMask | CWColormap | CWOverrideRedirect,
-                        x, y, w, h, w, h, &panel_notify, true);
+                        x, y, w, h, w, h, &panel_notify_generic, true);
 
     if (!win) {
         debug_error("XLIB_WIN:\tUnable to Alloc for a notification window\n");
@@ -216,6 +215,8 @@ UTOX_WINDOW *native_window_create_notify(int x, int y, int w, int h) {
     if (win != &popup_window){
         head->_.next = win;
     }
+
+    win->_.panel = panel;
 
     return win;
 }

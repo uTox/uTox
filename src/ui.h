@@ -62,7 +62,7 @@ bool    maybe_i18nal_string_is_valid(MAYBE_I18NAL_STRING *);
 extern UTOX_LANG LANG;
 
 /* uTox panel draw hierarchy. */
-extern PANEL panel_notify;
+extern PANEL panel_notify_generic;
 
 /* TODO remove this and expose it differently */
 extern PANEL panel_root, panel_side_bar, panel_self, panel_quick_buttons, panel_flist, panel_flist_list,

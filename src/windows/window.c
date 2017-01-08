@@ -78,7 +78,7 @@ HWND native_window_create_video(int x, int y, int w, int h) {
 
 UTOX_WINDOW *popup = NULL;
 
-UTOX_WINDOW *native_window_create_notify(int x, int y, int w, int h) {
+UTOX_WINDOW *native_window_create_notify(int x, int y, int w, int h, void *panel) {
     static uint16_t notification_number = 0;
 
     static wchar_t class_name[] = L"uTox Notification";
@@ -117,6 +117,8 @@ UTOX_WINDOW *native_window_create_notify(int x, int y, int w, int h) {
     // In case we even need to raise this window to the top most z position.
     // SetWindowPos(window, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
     ShowWindow(window, SW_SHOWNOACTIVATE);
+
+    popup->_.panel = panel;
 
     return popup;
 }

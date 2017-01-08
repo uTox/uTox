@@ -3,11 +3,12 @@
 
 #include <stdbool.h>
 
+typedef struct native_window UTOX_WINDOW;
 /* The following is a hollow struct with window vars common across all platforms
  * Each platform's window struct starts with this, then follows with their own
  * specific includes. */
 struct utox_window {
-    struct utox_window *next;
+    UTOX_WINDOW *next;
 
     int x, y, w, h;
 
@@ -15,7 +16,6 @@ struct utox_window {
     void *panel;
 };
 
-typedef struct native_window UTOX_WINDOW;
 
 bool window_init(void);
 
@@ -25,7 +25,7 @@ void window_create_video();
 
 UTOX_WINDOW *window_find_notify(void *window);
 
-UTOX_WINDOW *window_create_notify(int x, int y, int w, int h);
+UTOX_WINDOW *window_create_notify(int x, int y, int w, int h, void *panel);
 
 void window_tween(void);
 

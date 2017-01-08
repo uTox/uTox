@@ -7,6 +7,4 @@ LRESULT CALLBACK notify_msg_sys(HWND window, UINT msg, WPARAM wParam, LPARAM lPa
 
 void native_notify_init(HINSTANCE app_instance);
 
-HWND native_notify_new(HWND parent, HINSTANCE app_instance);
-
 #endif

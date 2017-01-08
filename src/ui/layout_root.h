@@ -231,6 +231,7 @@ panel_main = {
             &panel_splash_page,
             &panel_profile_password,
             &panel_add_friend,
+            (PANEL*)&button_notify_create,
             &panel_settings_master,
             NULL
         }

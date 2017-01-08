@@ -2,9 +2,9 @@
 
 #include "main.h"
 #include "window.h"
-#include "drawing.h"
 
 #include "../main.h"
+#include "../draw.h"
 #include "../ui.h"
 #include "../ui/layout_notify.h"
 
@@ -12,14 +12,12 @@
 
 static void redraw_notify(UTOX_WINDOW *win) {
     debug("redraw start\n");
-    draw_set_curr_win(win);
-    panel_draw(&panel_notify, 0, 0, 400, 150); // TODO don't assume 400x150, use *win
+    draw_set_target(win);
+    panel_draw(win->_.panel, 0, 0, win->_.w, win->_.h);
     SelectObject(win->draw_DC, win->draw_BM);
     BitBlt(win->window_DC, win->_.x, win->_.y, win->_.w, win->_.h, win->draw_DC, win->_.x, win->_.y, SRCCOPY);
     debug("redraw end\n");
 }
-
-static uint16_t notification_number = 0;
 
 LRESULT CALLBACK notify_msg_sys(HWND window, UINT msg, WPARAM wParam, LPARAM lParam) {
     UTOX_WINDOW *win = native_window_find_notify(window);
@@ -45,11 +43,6 @@ LRESULT CALLBACK notify_msg_sys(HWND window, UINT msg, WPARAM wParam, LPARAM lPa
             debug("NOTIFY::\tMINMAX_INFO\n");
             POINT min = { SCALE(200), SCALE(200) };
             ((MINMAXINFO *)lParam)->ptMinTrackSize = min;
-            break;
-        }
-
-        case WM_NCCREATE: {
-            // window_set_make(window, notification_number);
             break;
         }
 
@@ -148,41 +141,4 @@ LRESULT CALLBACK notify_msg_sys(HWND window, UINT msg, WPARAM wParam, LPARAM lPa
 static HINSTANCE current_instance = NULL;
 void native_notify_init(HINSTANCE instance) {
     current_instance = instance;
-}
-
-HWND native_notify_new(HWND parent, HINSTANCE app_instance) {
-    debug("Notify:\tCreating Notification #%u\n", notification_number);
-
-    int notify_x = 20;
-    int notify_y = 20;
-
-    int notify_w = 400;
-    int notify_h = 150;
-
-    RECT rect;
-    SystemParametersInfo(SPI_GETWORKAREA, 0, &rect, 0);
-
-    // TODO wrap at max screen size
-
-    // RECT rect;
-    // SystemParametersInfo(SPI_GETWORKAREA, 0, &rect, 0);
-
-    // int x = rect.right - notify_x - notify_w;
-    // int y = rect.top   + notify_y + (notify_y + notify_h) * notification_number;
-
-
-    // char pre[128];
-    // snprintf(pre, 128, "uTox popup window %u", notification_number);
-    // size_t  title_size = strlen(pre) + 1;
-    // wchar_t title[title_size];
-    // mbstowcs(title, pre, title_size);
-
-
-    // TODO wrap at max screen size
-    int x = rect.right - notify_x - notify_w;
-    int y = rect.top   + notify_y + (notify_y + notify_h) * notification_number;
-
-    ++notification_number;
-
-    return native_window_create_notify(x, y, notify_w, notify_h);
 }

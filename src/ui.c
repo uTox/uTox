@@ -231,6 +231,10 @@ void ui_set_scale(uint8_t scale) {
     settings_NOTIFY();
 
 
+
+    // FIXME for testing, remove
+    CREATE_BUTTON(notify_create, SCALE(2), SCALE(2), BM_SBUTTON_WIDTH, BM_SBUTTON_HEIGHT);
+
     /* Setting pages */
     CREATE_BUTTON(move_notify, SCALE(-40), SCALE(-40), SCALE(40), SCALE(40));
 

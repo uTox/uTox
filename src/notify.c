@@ -1,12 +1,15 @@
+#include "notify.h"
+
 #include "main.h"
 #include "main_native.h"
 
-#include "window.h"
+#include "draw.h"
 #include "ui.h"
+#include "window.h"
 
 static uint16_t notification_number = 0;
 
-UTOX_WINDOW *notify_new(void) {
+UTOX_WINDOW *notify_new(NOTIFY_TYPE type) {
     debug_notice("Notify:\tCreating Notification #%u\n", notification_number);
 
     const int notify_w = 400;
@@ -17,9 +20,25 @@ UTOX_WINDOW *notify_new(void) {
     const int y = 30 + (20 + notify_h) * notification_number;
     ++notification_number;
 
-    UTOX_WINDOW *w = window_create_notify(x, y, notify_w, notify_h);
+    PANEL *panel;
+    switch (type) {
+        case NOTIFY_TYPE_NONE: {
+            return NULL;
+        }
+        case NOTIFY_TYPE_MSG: {
+            panel = &panel_notify_generic;
+            break;
+        }
+        case NOTIFY_TYPE_CALL:
+        case NOTIFY_TYPE_CALL_VIDEO: {
+            panel = &panel_notify_generic; // TODO create a video call panel type
+            break;
+        }
+    }
 
-    draw_set_curr_win(w);
+    UTOX_WINDOW *w = window_create_notify(x, y, notify_w, notify_h, panel);
+
+    draw_set_target(w);
 
     return w;
 }

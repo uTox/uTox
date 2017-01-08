@@ -1,6 +1,5 @@
 #include "main.h"
 
-#include "drawing.h"
 #include "freetype.h"
 #include "gtk.h"
 #include "tray.h"
@@ -772,7 +771,7 @@ int main(int argc, char *argv[]) {
     #endif
 
     /* draw */
-    draw_set_curr_win(&main_window);
+    draw_set_target(&main_window);
     panel_draw(&panel_root, 0, 0, settings.window_width, settings.window_height);
 
     /* event loop */
@@ -788,7 +787,7 @@ int main(int argc, char *argv[]) {
         }
 
         if (_redraw) {
-            draw_set_curr_win(&main_window);
+            draw_set_target(&main_window);
             panel_draw(&panel_root, 0, 0, settings.window_width, settings.window_height);
             _redraw = 0;
         }
