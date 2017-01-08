@@ -9,10 +9,16 @@ set(PROJECT_VERSION_PATCH "1")
 set(PROJECT_VERSION
   "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
 
+
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -fno-strict-aliasing")
 
+option(FILTER_AUDIO "Enable Filter Audio" ON)
+if(FILTER_AUDIO)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DAUDIO_FILTERING")
+endif()
 
+option(TOXCORE_STATIC "Build uTox with the static version of Toxcore" OFF)
 if(TOXCORE_STATIC)
     # The static windows libs need all of these... because REASONS!
     set(TOX_LIBS
@@ -37,196 +43,44 @@ else()
         )
 endif()
 
+# print a summary of build options
+message("Build options:")
+message("- Filter Audio: ${FILTER_AUDIO}")
+message("- Toxcore Static: ${TOXCORE_STATIC}")
 
-# Protip, you must use a different directory for each build target...
-# -DMAKE_TOOLCHAIN_FILE has no effect unless the target directory is empty
-# 1.5 hours to learn this...
+
+# include utoxNATIVE dependend on the OS
 if(WIN32)
+    ############################################################
+    ## This is a hack, that we can remove once we have better
+    ## separation of the sections of uTox, until then, this
+    ## makes everything work.
+    ############################################################
     include_directories( libs/toktok/include libs/windows-x64/include/ )
     link_directories( libs/toktok/lib /usr/x86_64-w64-mingw32/lib/ libs/windows-x64/lib )
-    #########################################
-    ## Native Icon data
-    #########################################
+
+    ## Needed to build the widows icon
     enable_language(RC)
-
-    #########################################
-    ## Native Interface
-    #########################################
-    add_library(utoxNATIVE STATIC
-        src/windows/audio.c
-        src/windows/dnd.c
-        src/windows/drawing.c
-        src/windows/example.reg
-        src/windows/filesys.c
-        src/windows/main.7.c
-        src/windows/main.c
-        src/windows/main.h
-        src/windows/main.XP.c
-        src/windows/os_video.c
-        src/windows/video.c
-        src/windows/window.c
-        src/windows/notify.c
-        src/windows/screen_grab.c
-        src/windows/events.c
-        )
-    target_link_libraries(utoxNATIVE
-        iphlpapi    ws2_32      gdi32       msimg32
-        dnsapi      comdlg32    winmm       ole32
-        oleaut32    strmiids    shell32     opus )
-
     set(WINDOWS_ICON icons/icon.rc)
-elseif(APPLE) # Mac has a lot of dependencies
-	add_definitions("-x objective-c")
 
-    add_library(utoxNATIVE STATIC
-        src/cocoa/MainMenu.xib
-        src/cocoa/cursor.h
-        src/cocoa/drawing.m
-        src/posix/filesys.c
-        src/cocoa/grabdesktop.m
-        src/cocoa/interaction.m
-        src/cocoa/main.h
-        src/cocoa/main.m
-        src/cocoa/objc_main.h
-        src/cocoa/video.m
-        )
+    add_subdirectory(src/windows)
+elseif(APPLE)
+    add_definitions("-x objective-c")
+    add_subdirectory(src/cocoa)
+elseif(UNIX)
+    find_package(Freetype REQUIRED)
+    include_directories(${FREETYPE_INCLUDE_DIRS})
+    message("Found Freetype version ${FREETYPE_VERSION_STRING}")
+    message("Freetype include: ${FREETYPE_INCLUDE_DIRS}")
+    message("Freetype library: ${FREETYPE_LIBRARIES}")
 
-    target_link_libraries(utoxNATIVE
-        "-framework AppKit"
-        "-framework ApplicationServices"
-        "-framework AVFoundation"
-        "-framework Cocoa"
-        "-framework CoreData"
-        "-framework CoreFoundation"
-        "-framework CoreGraphics"
-        "-framework CoreMedia"
-        "-framework CoreText"
-        "-framework CoreVideo"
-        "-framework Foundation"
-        "-framework OpenAL"
-        "-framework OpenGL"
-        "-framework QuartzCore"
-        -lresolv
-        )
-
-    set(APPLE_ICON utox.icns)
-	add_custom_command(OUTPUT utox.icns
-      COMMAND iconutil --convert icns src/cocoa/utox.iconset -o utox.icns
-      DEPENDS src/cocoa/utox.iconset
-	  )
-elseif(UNIX) # xlib by default
-    include_directories(/usr/include/freetype2)
-    #########################################
-    ## Native Icon data
-    #########################################
-    add_custom_command(OUTPUT icon.o
-        COMMAND cd ${CMAKE_CURRENT_SOURCE_DIR}/ && ld -r -b binary -o ${CMAKE_CURRENT_BINARY_DIR}/icon.o icons/utox-128x128.png
-        DEPENDS icons/utox-128x128.png )
-    set_source_files_properties( icon.o PROPERTIES EXTERNAL_OBJECT true GENERATED true )
-    add_library(icon STATIC icon.o)
-    set_target_properties( icon PROPERTIES LINKER_LANGUAGE C )
-    #########################################
-    ## Native Interface
-    #########################################
-    add_library(utoxNATIVE STATIC
-        src/xlib/audio.c
-        src/xlib/dbus.c
-        src/xlib/dbus.h
-        src/xlib/drawing.c
-        src/xlib/event.c
-        src/xlib/filesys.c
-        src/xlib/freetype.c
-        src/xlib/freetype.h
-        src/xlib/gtk.c
-        src/xlib/keysym2ucs.h
-        src/xlib/main.c
-        src/xlib/mmenu.c
-        src/xlib/mmenu.h
-        src/xlib/screen_grab.c
-        src/xlib/tray.c
-        src/xlib/v4l.c
-        src/xlib/video.c
-        src/xlib/window.c
-
-        src/posix/filesys.c
-        )
-
-    target_link_libraries(utoxNATIVE icon v4lconvert X11 Xext Xrender fontconfig freetype resolv dl )
-
-	install(FILES
-	  utox
-	  DESTINATION "bin"
-      )
-	install(FILES
-	  src/utox.desktop
-	  DESTINATION "share/applications"
-      )
-	install(FILES
-	  src/utox.1
-	  DESTINATION "man/man1"
-      )
-
+    add_subdirectory(src/xlib)
 endif()
 
-#######################################################################
-#
-# :: Dependencies and configuration
-#
-#######################################################################
-
-# TODO move this to the a new CMakeLists.txt in the ui subdir
-add_library(utoxUI STATIC
-    src/ui/button.c
-    src/ui/button.h
-    src/ui/buttons.c
-    src/ui/buttons.h
-    src/ui/contextmenu.c
-    src/ui/contextmenu.h
-    src/ui/draw_helpers.c
-    src/ui/draw_helpers.h
-    src/ui/dropdown.c
-    src/ui/dropdown.h
-    src/ui/dropdowns.c
-    src/ui/dropdowns.h
-    src/ui/edit.c
-    src/ui/edit.h
-    src/ui/edits.c
-    src/ui/edits.h
-    src/ui/scrollable.c
-    src/ui/scrollable.h
-    src/ui/svg.c
-    src/ui/svg.h
-    src/ui/switch.c
-    src/ui/switch.h
-    src/ui/switches.c
-    src/ui/switches.h
-    src/ui/text.c
-    src/ui/text.h
-    src/ui/tooltip.c
-    src/ui/tooltip.h
-
-    src/ui/layout_all.h
-    )
-
-#######################################################################
-#
-# :: uTox AV system (TODO move to subdir)
-#
-#######################################################################
-add_library(utoxAV STATIC
-    src/av
-    src/av/utox_av.h
-    src/av/utox_av.c
-    src/av/audio.c
-    src/av/audio.h
-    src/av/video.h
-    src/av/video.c
-    )
-
-if(NOT APPLE)
-  target_link_libraries(utoxAV openal)
-endif()
-
+# include utoxUI
+add_subdirectory(src/ui)
+# include utoxAV
+add_subdirectory(src/av)
 
 #######################################################################
 #
@@ -289,11 +143,11 @@ add_executable(utox
     )
 
 target_link_libraries(utox
-                      utoxAV        utoxNATIVE      utoxUI
-                      ${TOX_LIBS}   ${LIBRARIES}    sodium
-                      vpx           pthread         m )
+        utoxAV        utoxNATIVE      utoxUI
+        ${TOX_LIBS}   ${LIBRARIES}    sodium
+        vpx           pthread         m )
 
 set_property(TARGET utox PROPERTY C_STANDARD 99)
 if(UNIX)
-	install(TARGETS utox RUNTIME DESTINATION "bin")
+    install(TARGETS utox RUNTIME DESTINATION "bin")
 endif()

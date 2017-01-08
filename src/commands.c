@@ -20,7 +20,7 @@ uint16_t utox_run_command(char *string, uint16_t string_length, char **cmd, char
                    * or elsewhere, you MUST implement error checking better than what exists */
     }
 
-    uint16_t cmd_length, argument_length;
+    uint16_t cmd_length = 0, argument_length = 0;
 
     if (string[0] == '/') { /* Cool it's a command we support! */
         // debug("command found!\n");

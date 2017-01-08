@@ -182,11 +182,13 @@ static bool ft_find_resumeable(FILE_TRANSFER *ft) {
     }
 
     if (size != sizeof(FILE_TRANSFER)) {
+        fclose(resume_file);
         return false;
     }
 
     FILE_TRANSFER resume_data;
     fread(&resume_data, 1, size, resume_file);
+    fclose(resume_file);
 
     if (!resume_data.resumeable
         || !resume_data.in_use
@@ -439,6 +441,7 @@ void ft_friend_online(Tox *tox, uint32_t friend_number) {
             file->via.file = fopen((char *)file->path, "rb");
             ft_send_file(tox, friend_number, file->via.file, file->path, strlen((char *)file->path));
         }
+        free(file);
     }
 }
 

@@ -11,9 +11,10 @@ static FILE* get_file(wchar_t path[UTOX_FILE_NAME_LENGTH], UTOX_FILE_OPTS opts) 
     if (opts & UTOX_FILE_OPTS_READ) {
         rw |= GENERIC_READ;
         mode[0] = 'r';
-    }
-
-    if (opts & UTOX_FILE_OPTS_APPEND) {
+        if (opts & UTOX_FILE_OPTS_WRITE || opts & UTOX_FILE_OPTS_APPEND) {
+            create = OPEN_ALWAYS;
+        }
+    } else if (opts & UTOX_FILE_OPTS_APPEND) {
         rw |= GENERIC_WRITE;
         mode[0] = 'a';
         create = OPEN_ALWAYS;

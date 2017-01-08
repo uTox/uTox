@@ -80,6 +80,7 @@ void draw_inline_image(uint8_t *img_data, size_t size, uint16_t w, uint16_t h, i
     XDestroyImage(img);
 
     draw_image(image, x, y, w, h, 0, 0);
+    free(image);
 }
 
 void drawalpha(int bm, int x, int y, int width, int height, uint32_t color) {

@@ -1,8 +1,6 @@
 // utox_av.c
 #include "utox_av.h"
 
-#include "../main_native.h"
-
 #include "../flist.h"
 #include "../friend.h"
 #include "../inline_video.h"
@@ -374,6 +372,7 @@ static void utox_av_incoming_frame_v(ToxAV *UNUSED(toxAV), uint32_t friend_numbe
     frame->img  = malloc(size);
     if (frame->img == NULL) {
         debug("uToxAV:\t Could not allocate memory for image.\n");
+        free(frame);
         return;
     }
     yuv420tobgr(width, height, y, u, v, ystride, ustride, vstride, frame->img);

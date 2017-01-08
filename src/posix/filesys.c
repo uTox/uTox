@@ -19,16 +19,14 @@ bool native_create_dir(const uint8_t *filepath) {
 // TODO: DRY. This function exists in both posix/filesys.c and in android/main.c
 static void opts_to_sysmode(UTOX_FILE_OPTS opts, char *mode) {
     if (opts & UTOX_FILE_OPTS_READ) {
-        mode[0] = 'r';
-    }
-
-    if (opts & UTOX_FILE_OPTS_APPEND) {
-        mode[0] = 'a';
+        mode[0] = 'r'; // Reading is first, don't clobber files.
+    } else if (opts & UTOX_FILE_OPTS_APPEND) {
+        mode[0] = 'a'; // Then appending, again, don't clobber files.
     } else if (opts & UTOX_FILE_OPTS_WRITE) {
-        mode[0] = 'w';
+        mode[0] = 'w'; // Writing is the final option we'll look at.
     }
 
-    mode[1] = 'b';
+    mode[1] = 'b'; // does nothing on posix >C89, but hey, why not?
 
     if ((opts & (UTOX_FILE_OPTS_WRITE | UTOX_FILE_OPTS_APPEND)) && (opts & UTOX_FILE_OPTS_READ)) {
         mode[2] = '+';
@@ -43,9 +41,9 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts) {
     uint8_t path[UTOX_FILE_NAME_LENGTH] = { 0 };
 
     if (settings.portable_mode) {
-        snprintf(path, UTOX_FILE_NAME_LENGTH, "./tox/");
+        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "./tox/");
     } else {
-        snprintf(path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));
+        snprintf((char *)path, UTOX_FILE_NAME_LENGTH, "%s/.config/tox/", getenv("HOME"));
     }
 
     // native_get_file should never be called with DELETE in combination with other FILE_OPTS.
@@ -67,14 +65,22 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts) {
     }
 
     if (opts == UTOX_FILE_OPTS_DELETE) {
-        remove(path);
+        remove((char *)path);
         return NULL;
     }
 
     char mode[4] = { 0 };
     opts_to_sysmode(opts, mode);
 
-    FILE *fp = fopen(path, mode);
+    FILE *fp = fopen((char *)path, mode);
+
+    if (!fp && opts & UTOX_FILE_OPTS_READ && opts & UTOX_FILE_OPTS_WRITE) {
+        debug_notice("POSIX:\tUnable to simple open, falling back to fd\n");
+        // read wont create a file if it doesn't' already exist. If we're allowed to write, lets try
+        // to create the file, then reopen it.
+        int fd = open((char *)path, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+        fp = fdopen(fd, mode);
+    }
 
     if (fp == NULL) {
         debug_notice("NATIVE:\tCould not open %s\n", path);
