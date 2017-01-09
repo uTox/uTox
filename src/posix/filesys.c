@@ -9,7 +9,7 @@
 #endif
 
 bool native_create_dir(const uint8_t *filepath) {
-    const int status = mkdir(filepath, S_IRWXU);
+    const int status = mkdir((char *)filepath, S_IRWXU);
     if (status == 0 || errno == EEXIST) {
         return true;
     }
@@ -51,7 +51,7 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts) {
     // WRITE and APPEND are mutually exclusive. WRITE will serve you a blank file. APPEND will append (duh).
     assert((opts & UTOX_FILE_OPTS_WRITE && opts & UTOX_FILE_OPTS_APPEND) == false);
 
-    if (opts & UTOX_FILE_OPTS_READ || opts & UTOX_FILE_OPTS_MKDIR) {
+    if (opts & UTOX_FILE_OPTS_WRITE || opts & UTOX_FILE_OPTS_MKDIR) {
         if (!native_create_dir(path)) {
             return NULL;
         }
@@ -67,6 +67,16 @@ FILE *native_get_file(const uint8_t *name, size_t *size, UTOX_FILE_OPTS opts) {
     if (opts == UTOX_FILE_OPTS_DELETE) {
         remove((char *)path);
         return NULL;
+    }
+
+    if (opts & UTOX_FILE_OPTS_MKDIR) {
+        uint8_t push;
+        uint8_t *p = path + strlen((char *)path);
+        while (*--p != '/');
+        push = *++p;
+        *p = 0;
+        native_create_dir(path);
+        *p = push;
     }
 
     char mode[4] = { 0 };
