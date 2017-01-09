@@ -1,14 +1,17 @@
 #include "main.h"
 
+#include "../commands.h"
 #include "../flist.h"
 #include "../friend.h"
 #include "../main.h"
 #include "../theme.h"
 #include "../tox.h"
 #include "../utox.h"
+#include "../util.h"
 
 #include "../av/utox_av.h"
 #include "../ui/dropdowns.h"
+#include "../ui/svg.h"
 
 #include <windowsx.h>
 
