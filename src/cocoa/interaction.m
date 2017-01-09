@@ -917,7 +917,7 @@ void native_autoselect_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
 }
 
 //@"Where do you want to save \"%.*s\"?"
-void savefiledata(FILE_TRANSFER *file) {
+void file_save_inline(FILE_TRANSFER *file) {
     NSSavePanel *picker = [NSSavePanel savePanel];
     NSString *fname =
         [[NSString alloc] initWithBytes:file->name length:file->name_length encoding:NSUTF8StringEncoding];

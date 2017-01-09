@@ -19,7 +19,7 @@ configure_file(${uTox_SOURCE_DIR}/src/android/AndroidManifest.xml.in
 
 
 set(CMAKE_C_STANDARD 99)
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -fno-strict-aliasing")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -fno-strict-aliasing -Werror=implicit-function-declaration")
 
 option(FILTER_AUDIO "Enable Filter Audio" ON)
 if(FILTER_AUDIO)

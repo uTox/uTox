@@ -1,11 +1,13 @@
 // messages.c
-
 #include "messages.h"
+
+#include "main.h"
+#include "main_native.h"
 
 #include "chatlog.h"
 #include "file_transfers.h"
+#include "filesys.h"
 #include "flist.h"
-#include "main.h"
 #include "theme.h"
 #include "util.h"
 #include "utox.h"
@@ -1278,7 +1280,7 @@ bool messages_mdown(PANEL *panel) {
                 if (file->file_status == FILE_TRANSFER_STATUS_COMPLETED) {
                     if (m->cursor_over_position) {
                         if (file->inline_png) {
-                            savefiledata(file);
+                            file_save_inline(file);
                         } else {
                             openurl(file->path);
                         }

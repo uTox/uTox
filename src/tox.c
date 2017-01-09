@@ -1002,27 +1002,19 @@ static void tox_thread_message(Tox *tox, ToxAV *av, uint64_t time, uint8_t msg, 
             save_needed = 1;
             break;
         }
-        case TOX_GROUP_SEND_MESSAGE: {
-            case TOX_GROUP_SEND_ACTION: {
-                /* param1: group #
-                 * param2: message length
-                 * data: message
-                 */
-                TOX_MESSAGE_TYPE type =
-                    (msg == TOX_GROUP_SEND_ACTION ? TOX_MESSAGE_TYPE_ACTION : TOX_MESSAGE_TYPE_NORMAL);
+        case TOX_GROUP_SEND_MESSAGE:
+        case TOX_GROUP_SEND_ACTION: {
+            /* param1: group #
+             * param2: message length
+             * data: message
+             */
+            TOX_MESSAGE_TYPE type;
+            type = (msg == TOX_GROUP_SEND_ACTION ? TOX_MESSAGE_TYPE_ACTION : TOX_MESSAGE_TYPE_NORMAL);
 
-                TOX_ERR_CONFERENCE_SEND_MESSAGE error = 0;
-                tox_conference_send_message(tox, param1, type, data, param2, &error);
-                free(data);
-                break;
-            }
-                /* param1: group #
-                 * param2: message length
-                 * data: message
-                 */
-                tox_conference_action_send(tox, param1, data, param2);
-                free(data);
-                break;
+            TOX_ERR_CONFERENCE_SEND_MESSAGE error = 0;
+            tox_conference_send_message(tox, param1, type, data, param2, &error);
+            free(data);
+            break;
         }
         /* Disabled */
         case TOX_GROUP_AUDIO_START: {

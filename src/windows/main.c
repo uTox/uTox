@@ -1,14 +1,17 @@
 #include "main.h"
 
+#include "../commands.h"
 #include "../flist.h"
 #include "../friend.h"
 #include "../main.h"
 #include "../theme.h"
 #include "../tox.h"
 #include "../utox.h"
+#include "../util.h"
 
 #include "../av/utox_av.h"
 #include "../ui/dropdowns.h"
+#include "../ui/svg.h"
 
 #include <windowsx.h>
 
@@ -123,10 +126,10 @@ void openfileavatar(void) {
     SetCurrentDirectoryW(dir);
 }
 
-void savefiledata(FILE_TRANSFER *file) {
+void file_save_inline(FILE_TRANSFER *file) {
     char *path = malloc(UTOX_FILE_NAME_LENGTH);
     if (path == NULL) {
-        debug("savefiledata:\t Could not allocate memory for path.\n");
+        debug("file_save_inline:\t Could not allocate memory for path.\n");
         return;
     }
     strcpy(path, file->path);
