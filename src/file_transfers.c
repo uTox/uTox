@@ -344,26 +344,32 @@ static void utox_pause_file(FILE_TRANSFER *file, uint8_t us) {
 
 /* Start/Resume active file. */
 static void run_file_local(FILE_TRANSFER *file) {
-    if (file->status == FILE_TRANSFER_STATUS_ACTIVE) {
-        return;
-    }
-    if (file->status == FILE_TRANSFER_STATUS_NONE) {
-        file->status = FILE_TRANSFER_STATUS_ACTIVE;
-
-        if (!file->resumeable && file->incoming) {
-            /* Set resuming info TODO MOVE TO AFTER FILE IS ACCEPED BY USER */
-            file->resumeable = ft_init_resumable(file);
+    switch (file->status) {
+        case FILE_TRANSFER_STATUS_NONE: {
+            file->status = FILE_TRANSFER_STATUS_ACTIVE;
+            if (!file->resumeable && file->incoming) {
+                file->resumeable = ft_init_resumable(file);
+            }
+            break;
         }
-    } else if (file->status == FILE_TRANSFER_STATUS_PAUSED_US) {
-        file->status = FILE_TRANSFER_STATUS_ACTIVE;
-    } else if (file->status == FILE_TRANSFER_STATUS_PAUSED_BOTH) {
-        file->status = FILE_TRANSFER_STATUS_PAUSED_THEM;
-    } else if (file->status == FILE_TRANSFER_STATUS_PAUSED_THEM) {
-        // Do nothing;
-    } else if (file->status == FILE_TRANSFER_STATUS_BROKEN) {
-        file->status = FILE_TRANSFER_STATUS_ACTIVE;
-    } else {
-        debug_error("FileTransfer:\tWe tried to run file from an unknown state! (%u)\n", file->status);
+        case FILE_TRANSFER_STATUS_PAUSED_US: {
+            file->status = FILE_TRANSFER_STATUS_ACTIVE;
+            break;
+        }
+        case FILE_TRANSFER_STATUS_PAUSED_BOTH: {
+            file->status = FILE_TRANSFER_STATUS_PAUSED_THEM;
+            break;
+        }
+        case FILE_TRANSFER_STATUS_ACTIVE:
+        case FILE_TRANSFER_STATUS_PAUSED_THEM: {
+            return;
+        }
+        case FILE_TRANSFER_STATUS_BROKEN:
+        case FILE_TRANSFER_STATUS_COMPLETED:
+        case FILE_TRANSFER_STATUS_KILLED: {
+            debug_error("FileTransfer:\tWe tried to run file from an unknown state! (%u)\n", file->status);
+            return;
+        }
     }
 
     postmessage_utox(FILE_UPDATE_STATUS, 0, 0, file);

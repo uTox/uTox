@@ -20,10 +20,10 @@ bool avatar_save(char hexid[TOX_PUBLIC_KEY_SIZE * 2], const uint8_t *data, size_
     snprintf(name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"), "avatars/%.*s.png",
              TOX_PUBLIC_KEY_SIZE * 2, hexid);
 
-    fp = native_get_file(name, NULL, UTOX_FILE_OPTS_WRITE);
+    fp = native_get_file((uint8_t *)name, NULL, UTOX_FILE_OPTS_WRITE | UTOX_FILE_OPTS_MKDIR);
 
     if (fp == NULL) {
-        debug("Avatars:\tCould not open avatar for: %.*s\n", (int)sizeof(*hexid), hexid);
+        debug("Avatar:\tCould not open avatar for: %.*s\n", TOX_PUBLIC_KEY_SIZE * 2, hexid);
         return false;
     }
 
@@ -38,7 +38,32 @@ static uint8_t *load_img_data(char hexid[TOX_PUBLIC_KEY_SIZE * 2], size_t *out_s
     snprintf(name, sizeof("avatars/") + TOX_PUBLIC_KEY_SIZE * 2 + sizeof(".png"), "avatars/%.*s.png",
              TOX_PUBLIC_KEY_SIZE * 2, hexid);
 
-    return load_data((uint8_t *)name, out_size);
+    size_t size = 0;
+    FILE *fp = native_get_file((uint8_t *)name, &size, UTOX_FILE_OPTS_READ);
+    if (fp == NULL) {
+        debug("Avatar:\tCould not open file for reading: %s\n", name);
+        return NULL;
+    }
+
+    uint8_t *data = calloc(size, 1);
+    if (data == NULL) {
+        debug("Avatar:\tCould not allocate memory for file of size %zu.\n", size);
+        fclose(fp);
+        return NULL;
+    }
+
+    if (fread(data, 1, size, fp) == size) {
+        debug("Avatar:\tCould not read file: %s\n", name);
+        fclose(fp);
+        if (out_size) {
+            *out_size = size;
+        }
+        return data;
+    }
+
+    fclose(fp);
+    free(data);
+    return NULL;
 }
 
 bool avatar_delete(char hexid[TOX_PUBLIC_KEY_SIZE * 2]) {
@@ -55,13 +80,13 @@ static bool avatar_load(char hexid[TOX_PUBLIC_KEY_SIZE * 2], AVATAR *avatar, siz
 
     uint8_t *img = load_img_data(hexid, &size);
     if (!img) {
-        debug_notice("Avatars:\tUnable to get saved avatar from disk for friend %.*s\n", 32, hexid);
+        debug_notice("Avatar:\tUnable to get saved avatar from disk for friend %.*s\n", 32, hexid);
         return false;
     }
 
     if (size > UTOX_AVATAR_MAX_DATA_LENGTH) {
         free(img);
-        debug_error("Avatars:\tSaved avatar file for friend (%.*s) too large for tox\n", 32, hexid);
+        debug_error("Avatar:\tSaved avatar file for friend (%.*s) too large for tox\n", 32, hexid);
         return false;
     }
 
@@ -89,19 +114,19 @@ static bool avatar_load(char hexid[TOX_PUBLIC_KEY_SIZE * 2], AVATAR *avatar, siz
 
 bool avatar_set(AVATAR *avatar, const uint8_t *data, size_t size) {
     if (avatar == NULL) {
-        debug("Avatars:\t avatar is null.\n");
+        debug("Avatar:\t avatar is null.\n");
         return false;
     }
 
     if (size > UTOX_AVATAR_MAX_DATA_LENGTH) {
-        debug_error("Avatars:\t avatar too large\n");
+        debug_error("Avatar:\t avatar too large\n");
         return false;
     }
 
     avatar_free_image(avatar);
     NATIVE_IMAGE *image = utox_image_to_native((UTOX_IMAGE)data, size, &avatar->width, &avatar->height, true);
     if (!NATIVE_IMAGE_IS_VALID(image)) {
-        debug("Avatars:\t avatar is invalid\n");
+        debug("Avatar:\t avatar is invalid\n");
         return false;
     }
 
