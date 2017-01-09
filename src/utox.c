@@ -1,7 +1,7 @@
 #include "utox.h"
 
 #include "tox.h"
-#include "main_native.h"
+#include "filesys.h"
 #include "friend.h"
 #include "flist.h"
 #include "commands.h"
@@ -222,8 +222,8 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             }
 
             FILE_TRANSFER *file = data;
-            FRIEND *       f    = &friend[file->friend_number];
-            MSG_FILE *     msg  = file->ui_data;
+            FRIEND        *f    = &friend[file->friend_number];
+            MSG_FILE      *msg  = file->ui_data;
 
             if (!msg) {
                 break;
@@ -239,7 +239,7 @@ void utox_message_dispatch(UTOX_MSG utox_msg_id, uint16_t param1, uint16_t param
             if (file->in_memory) {
                 msg->path = file->via.memory;
             } else {
-                msg->path = (char *)file->path;
+                msg->path = file->path;
             }
             redraw();
             // free(file);

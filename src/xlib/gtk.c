@@ -1,3 +1,4 @@
+#include "../chatlog.h"
 #include "../file_transfers.h"
 #include "../flist.h"
 #include "../friend.h"
@@ -343,7 +344,7 @@ void ugtk_native_select_dir_ft(uint32_t fid, FILE_TRANSFER *file) {
     thread(ugtk_savethread, file);
 }
 
-void ugtk_savefiledata(FILE_TRANSFER *file) {
+void ugtk_file_save_inline(FILE_TRANSFER *file) {
     if (utoxGTK_open) {
         return;
     }
