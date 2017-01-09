@@ -60,7 +60,7 @@ static void calculate_speed(FILE_TRANSFER *file) {
         return;
     }
 
-    // TODO repalce magic number with something real. (grayhatter> I things it's cpu clock ticks)
+    // TODO replace magic number with something real. (grayhatter> I think it's cpu clock ticks)
     if (time - file->last_check_time >= 1000 * 1000 * 100) {
         file->speed = (((double)(file->current_size - file->last_check_transferred) * 1000.0 * 1000.0 * 1000.0)
                        / (double)(time - file->last_check_time))
@@ -250,6 +250,10 @@ static void kill_file(FILE_TRANSFER *file) {
 
 /* Break active file, (when a friend goes offline). */
 static void break_file(FILE_TRANSFER *file) {
+    if (!file) {
+        return;
+    }
+
     if (file->status == FILE_TRANSFER_STATUS_NONE) {
         return kill_file(file); /* We don't save unstarted files */
     } else if (file->status == FILE_TRANSFER_STATUS_COMPLETED
