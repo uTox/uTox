@@ -52,7 +52,10 @@ endfunction()
 # Add all warning flags we can.
 add_cflag("-Wall")
 add_cflag("-Wextra")
+# Warnings we don't tolerate
+add_cflag("-Werror=implicit-function-declaration")
 
+# Everything Else
 add_cflag("-fno-strict-aliasing")
 
 
@@ -64,7 +67,7 @@ add_cflag("-fno-strict-aliasing")
 
 option(FILTER_AUDIO "Enable Filter Audio" ON)
 if(FILTER_AUDIO)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DAUDIO_FILTERING")
+    add_cflag("-DAUDIO_FILTERING")
 endif()
 
 option(TOXCORE_STATIC "Build uTox with the static version of Toxcore" OFF)
