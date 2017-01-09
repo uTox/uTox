@@ -2,23 +2,24 @@
 
 #include "../main.h"
 
+#include "../util.h"
+
 #include "../../langs/i18n_decls.h"
 
 #include <windows.h>
 
-#include <dshow.h>
-#include <qedit.h>
-// amvideo.h must be included after dshow
-#include <amvideo.h>
 
 #ifdef __CRT__NO_INLINE
 #undef __CRT__NO_INLINE
-#define DID_UNDEFINE__CRT__NO_INLINE
 #include <dshow.h>
-#ifdef DID_UNDEFINE__CRT__NO_INLINE
 #define __CRT__NO_INLINE
+#else
+#include <dshow.h>
 #endif
-#endif
+
+#include <qedit.h>
+// amvideo.h must be included after dshow
+#include <amvideo.h>
 
 IGraphBuilder * pGraph;
 IBaseFilter *   pGrabberF;
