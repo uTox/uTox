@@ -162,6 +162,9 @@ int systemlang(void) {
     return ui_guess_lang_by_posix_locale(str, DEFAULT_LANG);
 }
 
+#include <mach/clock.h>
+#include <mach/mach.h>
+
 uint64_t get_time(void) {
     struct timespec ts;
     clock_serv_t    muhclock;
