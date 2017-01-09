@@ -26,7 +26,7 @@ typedef struct {
     uint8_t *name;
 } UTOX_MSG_FT;
 
-typedef struct FILE_TRANSFER {
+struct file_transfer {
     bool in_use;
     bool incoming;
     bool in_memory;
@@ -64,7 +64,13 @@ typedef struct FILE_TRANSFER {
 
     // Don't really want this to be void ... MSG_FILE is better, but dependency hell
     void *ui_data;
-} FILE_TRANSFER;
+};
+
+// TODO sort the headers and includes better so we can drop this #ifndef from here and main_native
+#ifndef FILE_TRANSFER_DEFINED
+#define FILE_TRANSFER_DEFINED
+typedef struct file_transfer FILE_TRANSFER;
+#endif
 
 void file_transfer_local_control(Tox *tox, uint32_t friend_number, uint32_t file_number, TOX_FILE_CONTROL control);
 

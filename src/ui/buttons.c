@@ -3,6 +3,7 @@
 
 #include "contextmenu.h"
 
+#include "../chatlog.h"
 #include "../flist.h"
 #include "../friend.h"
 #include "../groups.h"
