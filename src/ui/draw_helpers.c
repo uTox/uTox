@@ -186,16 +186,16 @@ void draw_group(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height))
 }
 
 /* Draw an invite to be a friend window */
-void draw_friend_request(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(height)) {
+void draw_friend_request(int x, int y, int w, int h) {
     FRIENDREQ *req = (flist_get_selected()->data);
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_SELF_NAME);
     drawstr(MAIN_LEFT + SCALE(10), SCALE(20), FRIENDREQUEST);
 
-    setcolor(COLOR_MAIN_TEXT_SUBTEXT);
-    setfont(FONT_STATUS);
-    drawtextrange(MAIN_LEFT + SCALE(10), settings.window_width, SCALE(40), req->msg, req->length);
+    setfont(FONT_TEXT);
+    utox_draw_text_multiline_within_box(x + SCALE(10), y + SCALE(70), w + x, y, y + h, font_small_lineheight,
+                                        req->msg, req->length, ~0, ~0, 0, 0, true);
 }
 
 /* Draw add a friend window */

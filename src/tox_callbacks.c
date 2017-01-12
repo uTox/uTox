@@ -18,6 +18,7 @@ static void callback_friend_request(Tox *UNUSED(tox), const uint8_t *id, const u
     memcpy(req->msg, msg, length);
 
     postmessage_utox(FRIEND_INCOMING_REQUEST, 0, 0, req);
+    postmessage_audio(UTOXAUDIO_PLAY_NOTIFICATION, NOTIFY_TONE_FRIEND_REQUEST, 0, NULL);
 }
 
 static void callback_friend_message(Tox *UNUSED(tox), uint32_t friend_number, TOX_MESSAGE_TYPE type,

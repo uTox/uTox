@@ -415,6 +415,15 @@ static struct melodys { /* C99 6.7.8/10 uninitialized arithmetic types are 0 thi
     {1, 12, 1, {NOTE_a4, }},
     {1, 10, 1, {NOTE_a4, }},
     {1, 0, 0,  {0, }},
+}, friend_request[8] = {
+    {1, 9,  0, {NOTE_g5, }},
+    {1, 9,  1, {NOTE_g5, }},
+    {1, 12, 1, {NOTE_b3, }},
+    {1, 10, 1, {NOTE_b3, }},
+    {1, 9,  0, {NOTE_g5, }},
+    {1, 9,  1, {NOTE_g5, }},
+    {1, 12, 1, {NOTE_b3, }},
+    {1, 10, 0, {NOTE_b3, }},
 };
 // clang-format on
 
@@ -470,6 +479,8 @@ static void generate_tone_friend_offline() { generate_melody(friend_offline, 1, 
 static void generate_tone_friend_online() { generate_melody(friend_online, 1, 4, &ToneBuffer); }
 
 static void generate_tone_friend_new_msg() { generate_melody(friend_new_msg, 1, 8, &ToneBuffer); }
+
+static void generate_tone_friend_request() { generate_melody(friend_request, 1, 4, &ToneBuffer); }
 
 void postmessage_audio(uint8_t msg, uint32_t param1, uint32_t param2, void *data) {
     while (audio_thread_msg) {
@@ -603,6 +614,10 @@ void utox_audio_thread(void *args) {
                             }
                             case NOTIFY_TONE_FRIEND_NEW_MSG: {
                                 generate_tone_friend_new_msg();
+                                break;
+                            }
+                            case NOTIFY_TONE_FRIEND_REQUEST: {
+                                generate_tone_friend_request();
                                 break;
                             }
                         }
