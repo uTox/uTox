@@ -33,6 +33,7 @@ set(CMAKE_C_STANDARD 99) # this requires at least cmake 3.1
 
 include(CheckCCompilerFlag)
 
+# add compiler flag for all build types
 function(add_cflag flag)
     string(REGEX REPLACE "[^a-zA-Z0-9_]" "_" var ${flag})
     if(NOT DEFINED HAVE_C${var})
@@ -58,6 +59,18 @@ add_cflag("-Werror=implicit-function-declaration")
 # Everything Else
 add_cflag("-fno-strict-aliasing")
 
+# sanitize memory issues in Debug builds
+# https://gcc.gnu.org/gcc-4.8/changes.html
+# https://github.com/google/sanitizers/wiki/AddressSanitizer
+option(ENABLE_ASAN "Enable Address Sanitizer on debug builds" ON)
+if (ENABLE_ASAN)
+    set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -fsanitize=address -fno-omit-frame-pointer")
+endif()
+
+message("C Compiler is '${CMAKE_C_COMPILER}' with the following flags:")
+message("C flags for all types: ${CMAKE_C_FLAGS}")
+message("C flags for Debug: ${CMAKE_C_FLAGS_DEBUG}")
+message("C flags for Release: ${CMAKE_C_FLAGS_RELEASE}")
 
 #######################################################################
 #
