@@ -1,9 +1,9 @@
-// commands.c
 #include "commands.h"
 
 #include "command_funcs.h"
-#include "util.h"
 #include "flist.h"
+#include "logging_native.h"
+#include "util.h"
 
 struct Command commands[MAX_NUM_CMDS] = {
     { "alias",    5, slash_alias     },

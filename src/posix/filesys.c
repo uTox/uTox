@@ -1,6 +1,6 @@
 #include <assert.h>
 
-#include "../main.h"
+#include "../logging_native.h"
 
 #ifdef __OBJC__
 #include "../cocoa/main.h"

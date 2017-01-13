@@ -1,4 +1,7 @@
 #include "main.h"
+
+#include "../logging_native.h"
+
 #define UTOX_FONT_XLIB "Roboto"
 
 static void font_info_open(FONT_INFO *i, FcPattern *pattern);

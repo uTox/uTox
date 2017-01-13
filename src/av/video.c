@@ -1,7 +1,7 @@
 #include "utox_av.h"
 
 #include "../friend.h"
-#include "../tox.h"
+#include "../logging_native.h"
 #include "../utox.h"
 
 #include "../ui/dropdowns.h"

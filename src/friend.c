@@ -1,8 +1,8 @@
-// friend.c
 #include "friend.h"
 
 #include "chatlog.h"
 #include "flist.h"
+#include "logging_native.h"
 #include "util.h"
 #include "utox.h"
 

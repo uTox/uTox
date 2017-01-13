@@ -1,12 +1,11 @@
-// utox_av.c
 #include "utox_av.h"
 
 #include "../flist.h"
 #include "../friend.h"
 #include "../inline_video.h"
+#include "../logging_native.h"
 #include "../tox.h"
 #include "../utox.h"
-
 #include "../util.h"
 
 bool toxav_thread_msg = 0;

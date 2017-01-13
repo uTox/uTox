@@ -1,7 +1,7 @@
-#include "main.h"
 
 #include "../flist.h"
 #include "../friend.h"
+#include "../logging_native.h"
 #include "../utox.h"
 
 // Needed for enddraw. This should probably be changed.

@@ -1,9 +1,4 @@
-// tox.c
-
-#include <tox/toxencryptsave.h>
-
 #include "tox.h"
-#include "tox_callbacks.h"
 
 #include "avatar.h"
 #include "commands.h"
@@ -12,7 +7,9 @@
 #include "friend.h"
 #include "groups.h"
 #include "main.h"
+#include "logging_native.h"
 #include "tox_bootstrap.h"
+#include "tox_callbacks.h"
 #include "util.h"
 #include "utox.h"
 
@@ -23,6 +20,9 @@
 #include "ui/switch.h"
 #include "ui/switches.h"
 #include "ui/tooltip.h"
+
+#include <tox/toxencryptsave.h>
+
 
 static bool save_needed = 1;
 

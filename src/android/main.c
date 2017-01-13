@@ -1,3 +1,6 @@
+
+#include "../logging_native.h"
+
 #include <pthread.h>
 #include <stdint.h>
 #include <stdio.h>

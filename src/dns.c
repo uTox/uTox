@@ -1,11 +1,12 @@
-#include <tox/toxdns.h>
-
 #include "dns.h"
 
+#include "logging_native.h"
 #include "main.h"
 #include "main_native.h"
 #include "tox.h"
 #include "utox.h"
+
+#include <tox/toxdns.h>
 
 static struct tox3 {
     uint8_t *name;

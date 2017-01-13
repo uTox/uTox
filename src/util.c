@@ -6,7 +6,7 @@
 #include "util.h"
 
 #include "flist.h"
-#include "main_native.h"
+#include "logging_native.h"
 #include "ui/dropdowns.h"
 #include "ui/switches.h"
 

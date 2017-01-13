@@ -53,11 +53,6 @@
 #define KEY_PAGEUP VK_PRIOR
 #define KEY_PAGEDOWN VK_NEXT
 
-#define debug(...) (settings.verbose >= VERBOSITY_DEBUG) ? (printf(__VA_ARGS__) & fflush(stdout)) : (0)
-#define debug_info(...) (settings.verbose >= VERBOSITY_INFO) ? (printf(__VA_ARGS__) & fflush(stdout)) : (0)
-#define debug_notice(...) (settings.verbose >= VERBOSITY_NOTICE) ? (printf(__VA_ARGS__) & fflush(stdout)) : (0)
-#define debug_error(...) (settings.verbose >= VERBOSITY_ERROR) ? (printf(__VA_ARGS__) & fflush(stdout)) : (0)
-
 #define WM_NOTIFYICON (WM_APP + 0)
 #define WM_TOX (WM_APP + 1)
 
