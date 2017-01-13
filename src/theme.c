@@ -1,6 +1,6 @@
 #include "theme.h"
 
-#include "main.h"
+#include "logging_native.h"
 #include "main_native.h"
 
 #include "theme_tables.h"

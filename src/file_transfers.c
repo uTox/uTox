@@ -1,7 +1,7 @@
 #include "file_transfers.h"
 
 #include "friend.h"
-#include "main.h"
+#include "logging_native.h"
 #include "util.h"
 #include "utox.h"
 

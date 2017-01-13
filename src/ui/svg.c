@@ -1,7 +1,6 @@
 #include "svg.h"
 
-#include "../main.h"
-#include "../main_native.h"
+#include "../logging_native.h"
 
 // clang-format off
 #define SQRT2 1.41421356237309504880168872420969807856967187537694807317667973799

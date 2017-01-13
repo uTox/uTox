@@ -18,11 +18,6 @@
 
 #include <errno.h>
 
-#define debug(...) ((void)__android_log_print(ANDROID_LOG_INFO, "utox", __VA_ARGS__))
-#define debug_info(...) ((void)__android_log_print(ANDROID_LOG_INFO, "utox", __VA_ARGS__))
-#define debug_notice(...) ((void)__android_log_print(ANDROID_LOG_INFO, "utox", __VA_ARGS__))
-#define debug_error(...) ((void)__android_log_print(ANDROID_LOG_INFO, "utox", __VA_ARGS__))
-
 #define RGB(r, g, b) ((r) | ((g) << 8) | ((b) << 16))
 
 #define KEY_BACK 1
@@ -40,7 +35,7 @@
 
 // Early include to obtain GLuint.
 #include <GLES2/gl2.h>
-typedef struct android_native_image { GLuint img } NATIVE_IMAGE;
+typedef struct android_native_image { GLuint img; } NATIVE_IMAGE;
 
 #define NATIVE_IMAGE_IS_VALID(x) (0 != (x))
 

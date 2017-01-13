@@ -1,9 +1,8 @@
-// event.c
-
-#include "main.h"
+//#include "main.h"
 
 #include "../flist.h"
 #include "../friend.h"
+#include "../logging_native.h"
 #include "../utox.h"
 
 #include "keysym2ucs.h"

@@ -5,6 +5,7 @@
 #include "../flist.h"
 #include "../friend.h"
 #include "../theme.h"
+#include "../logging_native.h"
 #include "../ui/dropdowns.h"
 #include "../util.h"
 #include "../utox.h"

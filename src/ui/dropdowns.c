@@ -1,10 +1,8 @@
-// dropdows.h
 #include "dropdowns.h"
 
 #include "../av/utox_av.h"
 #include "../flist.h"
-#include "../friend.h"
-#include "../groups.h"
+#include "../logging_native.h"
 #include "../theme.h"
 #include "../util.h"
 

@@ -2,7 +2,6 @@
 #include "ui.h"
 
 #include "flist.h"
-#include "friend.h"
 #include "inline_video.h"
 #include "main.h"
 #include "theme.h"

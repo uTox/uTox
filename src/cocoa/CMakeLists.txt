@@ -9,6 +9,7 @@ add_library(utoxNATIVE STATIC
     interaction.m
     main.h
     main.m
+    logging.m
     objc_main.h
     video.m
     )

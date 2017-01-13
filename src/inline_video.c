@@ -13,8 +13,7 @@
 
 #include "inline_video.h"
 
-#include "main.h"
-#include "main_native.h"
+#include "logging_native.h"
 
 #include "av/utox_av.h"
 

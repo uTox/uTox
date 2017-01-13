@@ -213,6 +213,9 @@ typedef struct utox_settings {
 /* This might need to be volatile type... */
 SETTINGS settings;
 
+// returns current logging verbosity
+int utox_verbosity();
+
 // add friend page
 uint8_t addfriend_status;
 
@@ -221,16 +224,6 @@ uint16_t video_width, video_height, max_video_width, max_video_height;
 char     proxy_address[256]; /* Magic Number inside toxcore */
 
 // Enums
-/* uTox debug levels */
-enum {
-    VERBOSITY_OFF,
-    VERBOSITY_ERROR,
-    VERBOSITY_WARNING,
-    VERBOSITY_NOTICE,
-    VERBOSITY_INFO,
-    VERBOSITY_DEBUG,
-};
-
 enum {
     CURSOR_NONE,
     CURSOR_TEXT,

@@ -2,7 +2,7 @@
 #include "utox_av.h"
 
 #include "../friend.h"
-#include "../tox.h"
+#include "../logging_native.h"
 #include "../utox.h"
 
 static void utox_filter_audio_kill(Filter_Audio *filter_audio_handle) {

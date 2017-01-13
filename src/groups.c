@@ -1,10 +1,7 @@
-// groups.c
-
 #include "groups.h"
 
 #include "flist.h"
-#include "main.h"
-#include "main_native.h"
+#include "logging_native.h"
 #include "util.h"
 
 void group_init(GROUPCHAT *g, uint32_t group_number, bool av_group) {

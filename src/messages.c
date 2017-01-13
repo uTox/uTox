@@ -1,4 +1,3 @@
-// messages.c
 #include "messages.h"
 
 #include "main.h"
@@ -8,6 +7,7 @@
 #include "file_transfers.h"
 #include "filesys.h"
 #include "flist.h"
+#include "logging_native.h"
 #include "theme.h"
 #include "util.h"
 #include "utox.h"

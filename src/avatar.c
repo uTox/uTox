@@ -1,6 +1,7 @@
 #include "avatar.h"
 
 #include "friend.h"
+#include "logging_native.h"
 #include "main.h"
 #include "util.h"
 

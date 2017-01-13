@@ -37,11 +37,6 @@
 
 #define RGB(r, g, b) (((r) << 16) | ((g) << 8) | (b))
 
-void debug(const char *fmt, ...);
-void debug_info(const char *fmt, ...);
-void debug_notice(const char *fmt, ...);
-void debug_error(const char *fmt, ...);
-
 typedef struct native_image NATIVE_IMAGE;
 int NATIVE_IMAGE_IS_VALID(NATIVE_IMAGE *img);
 

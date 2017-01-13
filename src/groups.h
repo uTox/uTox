@@ -1,8 +1,9 @@
 #ifndef GROUPS_H
 #define GROUPS_H
 
-#include "av/utox_av.h"
 #include "messages.h"
+
+#include "av/utox_av.h"
 #include "ui/edit.h"
 
 #define MAX_GROUP_PEERS 256
