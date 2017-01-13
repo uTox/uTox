@@ -12,6 +12,7 @@
 #include "util.h"
 #include "utox.h"
 
+#include "ui/draw.h"
 #include "ui/svg.h"
 #include "ui/text.h"
 #include "ui/contextmenu.h"

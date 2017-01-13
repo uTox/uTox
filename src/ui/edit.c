@@ -1,8 +1,7 @@
-// edit.c
-
 #include "edit.h"
 
 #include "contextmenu.h"
+#include "draw.h"
 #include "text.h"
 
 #include "../theme.h"
@@ -15,7 +14,6 @@ static struct {
     uint16_t p1, p2;
     // IME mark (underline)
     uint16_t mark_start, mark_length;
-    // TODO: pm field doesn't seem to be used. Remove? done
 } edit_sel;
 static bool edit_select;
 
@@ -102,17 +100,20 @@ void edit_draw(EDIT *edit, int x, int y, int width, int height) {
         /* Generate the stars for this password */
         char star[edit->length];
         memset(star, '*', edit->length);
-        utox_draw_text_multiline_compat(x + SCALE(4), x + width - SCALE(4) - (edit->multiline ? SCROLL_WIDTH : 0),
-                                        yy + SCALE(top_offset * 2), y, y + height, font_small_lineheight, star,
-                                        edit->length, is_active ? edit_sel.start : UINT16_MAX,
-                                        is_active ? edit_sel.length : UINT16_MAX, is_active ? edit_sel.mark_start : 0,
-                                        is_active ? edit_sel.mark_length : 0, edit->multiline);
+        utox_draw_text_multiline_within_box(x + SCALE(4), yy + SCALE(top_offset * 2),
+                                                x + width - SCALE(4) - (edit->multiline ? SCROLL_WIDTH : 0),
+                                                y, y + height, font_small_lineheight, star,
+                                                edit->length, is_active ? edit_sel.start : UINT16_MAX,
+                                                is_active ? edit_sel.length : UINT16_MAX,
+                                                is_active ? edit_sel.mark_start : 0,
+                                                is_active ? edit_sel.mark_length : 0, edit->multiline);
     } else {
-        utox_draw_text_multiline_compat(x + SCALE(4), x + width - SCALE(4) - (edit->multiline ? SCROLL_WIDTH : 0),
-                                        yy + SCALE(top_offset * 2), y, y + height, font_small_lineheight, edit->data,
-                                        edit->length, is_active ? edit_sel.start : UINT16_MAX,
-                                        is_active ? edit_sel.length : UINT16_MAX, is_active ? edit_sel.mark_start : 0,
-                                        is_active ? edit_sel.mark_length : 0, edit->multiline);
+        utox_draw_text_multiline_within_box(x + SCALE(4), yy + SCALE(top_offset * 2),
+                                    x + width - SCALE(4) - (edit->multiline ? SCROLL_WIDTH : 0),
+                                    y, y + height, font_small_lineheight, edit->data,
+                                    edit->length, is_active ? edit_sel.start : UINT16_MAX,
+                                    is_active ? edit_sel.length : UINT16_MAX, is_active ? edit_sel.mark_start : 0,
+                                    is_active ? edit_sel.mark_length : 0, edit->multiline);
     }
 
     if (edit->multiline) {

@@ -1,8 +1,6 @@
-// contextmenu.c
-
 #include "contextmenu.h"
 
-#include "../main.h"
+#include "draw.h"
 #include "../theme.h"
 
 static CONTEXTMENU context_menu;

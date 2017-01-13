@@ -1,7 +1,6 @@
-// dropdown.c
 #include "dropdown.h"
 
-#include "../main.h"
+#include "draw.h"
 #include "../theme.h"
 
 static DROPDOWN *active_dropdown;

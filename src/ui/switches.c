@@ -1,4 +1,3 @@
-// switches.c
 #include "switches.h"
 
 #include "../flist.h"

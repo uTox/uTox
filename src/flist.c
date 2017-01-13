@@ -1,5 +1,6 @@
 #include "flist.h"
 
+// FIXME: Separate from UI or include in UI.
 
 #include "theme.h"
 #include "util.h"
@@ -7,6 +8,7 @@
 
 #include "ui/buttons.h"
 #include "ui/contextmenu.h"
+#include "ui/draw.h"
 #include "ui/dropdowns.h"
 #include "ui/scrollable.h"
 #include "ui/svg.h"
