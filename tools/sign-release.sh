@@ -1,13 +1,16 @@
 #!/bin/sh
 # set -e
 TAG=$(git describe --abbrev=0 --tags)
-USER=$(git config --get user.name)
+USER=${USER:-$(git config --get user.name)}
 VERSION=${TAG/v/}
 
-echo "Going to verify and sign releases.\n"
+echo "Going to verify and sign releases."
+echo ""
+echo ""
 
 git diff --exit-code >> /dev/null || (echo "Working Dir not clean, this script won't work." && false)
 
+echo ""
 echo "Getting $TAG.zip"
 curl -LOs "https://github.com/uTox/uTox/archive/$TAG.zip"
 unzip -q "$TAG.zip"
@@ -26,6 +29,7 @@ else
 fi
 
 
+echo ""
 echo "Getting $TAG.tar.gz"
 curl -LOs "https://github.com/uTox/uTox/archive/$TAG.tar.gz"
 tar xf "$TAG.tar.gz"
