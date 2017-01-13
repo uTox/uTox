@@ -1,10 +1,11 @@
-// event.c
-
 #include "main.h"
 
 #include "../flist.h"
 #include "../friend.h"
 #include "../utox.h"
+
+// Needed for enddraw. This should probably be changed.
+#include "../ui/draw.h"
 
 #include "keysym2ucs.h"
 
@@ -16,8 +17,8 @@ bool doevent(XEvent event) {
     if (XFilterEvent(&event, None)) {
         return 1;
     }
-    if (event.xany.window && event.xany.window != window) {
 
+    if (event.xany.window && event.xany.window != window) {
         if (event.xany.window == tray_window) {
             tray_window_event(event);
             return 1;
@@ -52,7 +53,6 @@ bool doevent(XEvent event) {
         case Expose: {
             enddraw(0, 0, settings.window_width, settings.window_height);
             draw_tray_icon();
-            // debug("expose\n");
             break;
         }
 
@@ -91,7 +91,7 @@ bool doevent(XEvent event) {
         case ConfigureNotify: {
             XConfigureEvent *ev = &event.xconfigure;
             if (settings.window_width != ev->width || settings.window_height != ev->height) {
-                // debug("resize\n");
+                // Resize
 
                 if (ev->width > drawwidth || ev->height > drawheight) {
                     drawwidth  = ev->width + 10;
@@ -116,6 +116,7 @@ bool doevent(XEvent event) {
 
         case LeaveNotify: {
             ui_mouseleave();
+            // FIXME: Is it intentional that there is no break here? Who knows.
         }
 
         case MotionNotify: {
@@ -137,10 +138,9 @@ bool doevent(XEvent event) {
 
 
             static int mx, my;
-            int        dx, dy;
 
-            dx = ev->x - mx;
-            dy = ev->y - my;
+            int dx = ev->x - mx;
+            int dy = ev->y - my;
             mx = ev->x;
             my = ev->y;
 
@@ -204,13 +204,13 @@ bool doevent(XEvent event) {
                 }
 
                 case Button4: {
-                    // FIXME: determine precise deltas if possible
+                    // TODO: determine precise deltas if possible
                     panel_mwheel(&panel_root, 0, 0, settings.window_width, settings.window_height, 1.0, 0);
                     break;
                 }
 
                 case Button5: {
-                    // FIXME: determine precise deltas if possible
+                    // TODO: determine precise deltas if possible
                     panel_mwheel(&panel_root, 0, 0, settings.window_width, settings.window_height, -1.0, 0);
                     break;
                 }

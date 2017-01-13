@@ -1,4 +1,3 @@
-// ui.c
 #include "ui.h"
 
 #include "flist.h"
@@ -9,6 +8,7 @@
 
 #include "ui/buttons.h"
 #include "ui/contextmenu.h"
+#include "ui/draw.h"
 #include "ui/draw_helpers.h"
 #include "ui/dropdowns.h"
 #include "ui/layout_tree.h"

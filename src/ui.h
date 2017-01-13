@@ -48,7 +48,7 @@ struct panel {
     PANEL **child;
 };
 
-typedef struct {
+typedef struct maybe_i18nal_string {
     STRING        plain;
     UTOX_I18N_STR i18nal;
 } MAYBE_I18NAL_STRING;
@@ -96,6 +96,14 @@ bool panel_mup(PANEL *p);
 bool panel_mleave(PANEL *p);
 
 char search_data[128];
+
+
+#define SCALE(x) (((int)((ui_scale / 10.0) * ((double)x))) ?: 1)
+#define UI_FSCALE(x) (((ui_scale / 10.0) * ((double)x)) ?: 1)
+
+#define drawstr(x, y, i) drawtext(x, y, S(i), SLEN(i))
+#define drawstr_getwidth(x, y, str) drawtext_getwidth(x, y, (char *)str, sizeof(str) - 1)
+#define strwidth(x) textwidth((char *)x, sizeof(x) - 1)
 
 /* colors */
 #define GRAY(x) (((x) << 16) | ((x) << 8) | (x))

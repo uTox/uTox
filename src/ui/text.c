@@ -1,6 +1,7 @@
-// text.c
 #include "text.h"
 
+#include "draw.h"
+#include "scrollable.h"
 #include "../theme.h"
 #include "../util.h"
 
@@ -34,9 +35,7 @@ static void text_draw_word_hl(int x, int y, const char *str, uint16_t length, in
         hlen = length - h;
     }
 
-    int width;
-
-    width = drawtext_getwidth(x, y, str, h);
+    int width = drawtext_getwidth(x, y, str, h);
 
     uint32_t color = setcolor(COLOR_SELECTION_TEXT);
 
@@ -180,13 +179,6 @@ int utox_draw_text_multiline_within_box(int x, int y, /* x, y of the top left co
     }
 
     return y + lineheight;
-}
-
-int utox_draw_text_multiline_compat(int x, int right, int y, int top, int bottom, uint16_t lineheight, char *data,
-                                    uint16_t length, uint16_t h, uint16_t hlen, uint16_t mark, uint16_t marklen,
-                                    bool multiline) {
-    return utox_draw_text_multiline_within_box(x, y, right, top, bottom, lineheight, data, length, h, hlen, mark,
-                                               marklen, multiline);
 }
 
 uint16_t hittextmultiline(int mx, int right, int my, int height, uint16_t lineheight, char *str, uint16_t length,
