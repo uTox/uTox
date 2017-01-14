@@ -12,6 +12,7 @@
 #include "../filesys.h"
 #include "../file_transfers.h"
 #include "../friend.h"
+#include "../logging_native.h"
 #include "../tox.h"
 
 #include <shlobj.h>

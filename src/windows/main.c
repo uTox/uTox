@@ -3,6 +3,7 @@
 #include "../commands.h"
 #include "../flist.h"
 #include "../friend.h"
+#include "../logging_native.h"
 #include "../main.h"
 #include "../theme.h"
 #include "../tox.h"

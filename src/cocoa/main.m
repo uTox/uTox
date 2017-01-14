@@ -1,4 +1,5 @@
 #include "../commands.h"
+#include "../logging_native.h"
 #include "../theme.h"
 #include "../ui.h"
 #include "../ui/dropdowns.h"
